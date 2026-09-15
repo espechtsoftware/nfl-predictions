@@ -55,8 +55,9 @@ def main(run, entries, k, out_root, exclude_players=None, overlap_cap=5, exposur
     # production projection quantiles (the historical snapshot's proj_p10/p90/std analog); own_est has no live source
     from google.cloud import bigquery
     c = bigquery.Client(project="nfl-predictions-503414")
-    pr = c.query("""SELECT dk_player_id, proj_p10, proj_p90, proj_std, generated_at FROM `nfl-predictions-503414.nfl_predictions.player_projections`
-                    WHERE season=2026 AND week=1 AND generated_at=(SELECT MAX(generated_at) FROM `nfl-predictions-503414.nfl_predictions.player_projections` WHERE season=2026 AND week=1)""").result().to_dataframe()
+    import os; S, W = int(os.environ.get("SEASON", 2026)), int(os.environ.get("WEEK", 1))
+    pr = c.query(f"""SELECT dk_player_id, proj_p10, proj_p90, proj_std, generated_at FROM `nfl-predictions-503414.nfl_predictions.player_projections`
+                    WHERE season={S} AND week={W} AND generated_at=(SELECT MAX(generated_at) FROM `nfl-predictions-503414.nfl_predictions.player_projections` WHERE season={S} AND week={W})""").result().to_dataframe()
     pr["dk"] = pr.dk_player_id.astype(str); pr = pr.drop_duplicates("dk").set_index("dk"); gen_at = str(pr.generated_at.max())
     dk = fr.dk_player_id.astype(str); num = {}
     for col in COLS:

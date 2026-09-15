@@ -93,8 +93,7 @@ Cloud Build / Cloud Run operations · 8 the direct paid-source runner · 9 open 
 ## 3. The week, day by day
 
 ### Tuesday 09-15 (today)
-- [x] Production Tuesday jobs verified (above). `ingest-nflverse` FTN 404: add tolerance (skip the missing
-      `ftn_charting_2026.parquet`, keep the rest) — code change on a production branch; not urgent for Week 2.
+- [x] Production Tuesday jobs verified (above). `ingest-nflverse` FTN 404 tolerance implemented (§9 #14); deploy = build image from the branch, `gcloud run jobs update ingest-nflverse --image <tag@digest>` (operator if the classifier refuses), confirm the next scheduled run exits 0.
 - [ ] 098 r2 read + LEDGER row when terminal (§2).
 - [ ] Direct runner read + report (§8).
 - [ ] 097 repairs after 098 (§6.4), then `scripts/prereg097_report.py`, LEDGER row.
@@ -128,24 +127,41 @@ Cloud Build / Cloud Run operations · 8 the direct paid-source runner · 9 open 
 
 ## 4. The Sunday money path, in full
 
-### 4.1 Arming the build (do on Thursday, verify Saturday)
+### 4.1 Arming the build (do on Thursday, verify Saturday) — FIXED 2026-09-15
 
-The Week-1 driver is `/home/erich/week1-sunday-build.sh` (host-only, untracked — copy it into the audit
-branch as `scripts/week1_sunday_build_host.sh` when you make the Week-2 version; the runbook it calls is tracked at
-`scripts/week1_sunday_runbook.sh` on the audit branch). It is **hard-coded to Week 1**: `--week 1`, draft group
-`151307`, run-dir season path `2026-w01`, run-tag suffix `e7255e9`, and the runbook's preflight asserts
-`draft_group == "151307"` (`week1_sunday_runbook.sh:67`) and publishes under `gs://…/week1/prelock/2026-w01/…`.
-Make a Week-2 copy (`/home/erich/week2-sunday-build.sh`, runbook `scripts/week2_sunday_runbook.sh`) with those five
-things changed, keep the rest byte-identical, and rehearse it on Thursday.
+The Sunday path is now week-parametrised. One env file derives everything (`scripts/week_env.sh`): season, week,
+`WEEKDIR` (`2026-w02`), the Sunday date, lock (12:00 CT), late-window cutoff, the output dir `/home/erich/week<W>-sunday/`,
+and the **draft group**, auto-detected by `scripts/find_main_draft_group.py` (the largest group in the latest salary
+pull whose games run from Sunday 12:00 CT to no later than 16:30 CT; Week 1 resolves to 151307) unless given
+explicitly. The tracked scripts and their Week-1 originals:
 
-The Week-1 timer was a one-shot user timer at 09:10 CT and has expired. Arm a new one (the classifier refuses systemd
-writes; give the operator the line):
-```
-systemd-run --user --on-calendar="2026-09-20 09:10 America/Chicago" --unit nfl-week2-sunday-build \
-  /home/erich/week2-sunday-build.sh
-```
-and a second one at 10:50 CT for the T-70 rebuild (`/home/erich/week1-sunday/t70_rebuild.sh` pattern, on the salary
-pull made **after** the 10:30 CT inactives).
+| Week-2 script (tracked, `scripts/`) | replaces | what changed |
+|---|---|---|
+| `week_env.sh` | scattered constants | single source of week facts; overrides must be `export`ed before `week_env` |
+| `find_main_draft_group.py` | hard-coded 151307 | detects the Sunday-main group from `nfl_raw.dk_salaries` |
+| `sunday_runbook.sh` | `week1_sunday_runbook.sh` | env-driven build/verify; the Week-1 governed publisher is **off** unless `PUBLISHER=1` (its module family is Week-1-specific down to the allocation id) |
+| `sunday_build_host.sh` | host `week1-sunday-build.sh` | env-driven; per-contest emits from `contests.json`; `REUSE_PAID_DIR/REUSE_SHADOW_DIR/REUSE_K90_DIR` for rehearsals |
+| `sunday_after_build.sh` | host `learned_after_build.sh` | vetted paid book → ENTER layout from `contests.json` → `TODAY-30-LATEST.md`; learned scorer removed (PREREG-096 REVERT) |
+| `sunday_watch_dk_entries.sh`, `sunday_watch_late_inactives.py` | host watchers | env-driven |
+| `arm_week_timers.sh W [--run]` | one-shot timer | prints (or arms) the 09:10 / 09:12 / 10:50 CT transient user timers |
+| `contests.template.json` | contest ids in scripts | the week's contests: `name, contest_id, entries, keep` |
+
+Host wrappers (untracked, already written): `/home/erich/week2-sunday-build.sh`, `/home/erich/week2-sunday-watchers.sh`,
+and `/home/erich/week2-sunday/contests.json` (currently the template with `REPLACE` markers — the driver refuses to
+run until the operator's Week-2 contest ids and entry counts are filled in after he reserves entries).
+
+**Thursday checklist**
+1. `cd <audit worktree> && source scripts/week_env.sh && week_env 2` — must print the detected group (needs the
+   Week-2 salary pull; if it fails, the pull has not happened yet or the group needs `week_env 2 <id>`).
+2. Fill `/home/erich/week2-sunday/contests.json` from the operator's reservations.
+3. Rehearse the full path once: `export OUT=/home/erich/week2-rehearsal; week_env 2; RUN_TAG=rehearsal-$(date -u +%Y%m%dt%H%Mz)-e7255e9
+   scripts/sunday_build_host.sh` (≈ 25 min: D800, D400, K90 builds + vetting + emits) then
+   `scripts/sunday_after_build.sh once <K90 dir> rehearsal` and read `TODAY-30-LATEST.md` and `ENTER/`. The live
+   builder refuses a lock that has passed, so rehearsals need the coming Sunday's group (a Week-1 rehearsal on
+   2026-09-15 proved everything downstream of the builds on last Sunday's run dirs via the `REUSE_*` overrides).
+4. Have the operator arm the timers: `scripts/arm_week_timers.sh 2` prints the three `systemd-run` lines.
+5. Saturday: `systemctl --user list-timers | grep nfl-week2` shows all three; Downloads path in
+   `sunday_watch_dk_entries.sh` (`WIN_DOWNLOADS`) is right; the operator has reserved entries with a placeholder.
 
 ### 4.2 Timeline (CT)
 
@@ -287,8 +303,8 @@ folder (small) — the per-slate JSONs stay on the host.
 | 11 | immutable 2023-W1 catalog spells each game three ways; pinned `build_target_spine_v1` demands one | needs option B (re-establish the fixed-G0 authority) | **chain abandoned; direct runner instead** |
 | 12 | PREREG-098 field sampler fill starved at 199,748/200,000 | batches ≥ 20k rows, 400 tries | closed |
 | 13 | PREREG-098 outcome path read `field_pct` from the wrong rows (r1 banks lost) | fixed, r2 running | closed |
-| 14 | `ingest-nflverse` exits non-zero on the missing `ftn_charting_2026.parquet` after loading the rest | add tolerance | open |
-| 15 | `nfl-week1-sunday-build.sh` / runbook hard-coded to Week 1 (week, group 151307, `2026-w01`, tag suffix, publish root) | Week-2 copies + new one-shot timers (§4.1) | **open, needed by Sunday** |
+| 14 | `ingest-nflverse` exits non-zero on the missing `ftn_charting_2026.parquet` after loading the rest | fixed on `production/nflverse-ftn-tolerance-20260915` (per-season load, absent season skipped with a warning; 16 tests pass); image build + `ingest-nflverse` job update pending | fix ready, deploy pending |
+| 15 | `nfl-week1-sunday-build.sh` / runbook hard-coded to Week 1 (week, group 151307, `2026-w01`, tag suffix, publish root) | week-parametrised scripts + `arm_week_timers.sh` (§4.1); Thursday rehearsal + operator timer arming remain | fixed in code; Thursday steps open |
 | 16 | Cloud Run "Internal error running task" losses on the lab lanes (23–51 retries per bank) | repairs per §6.4 | recurring |
 
 ---
