@@ -324,3 +324,43 @@ folder (small) — the per-slate JSONs stay on the host.
   `scripts/arm_118_now.sh`; 097: `scripts/prereg097_report.py`, host `queue_117_finish.sh`, `repair_097.sh`.
 - Production chain scripts (reference only now): `scripts/cloud_corpus_r6_matchup_source_task0_v3.sh`,
   `scripts/run_corpus_r6_matchup_seven_pack_capture_v1.py freeze-capture-plan`, `cloudbuild.corpus-r6-matchup-source-v3.yaml`.
+
+---
+
+## 11. Moving to another machine (the laptop) — checklist
+
+Everything durable is on GitHub (both repos, every branch pushed) and in GCS/BigQuery. What is host-only, and what
+assumes this host's paths:
+
+**Do not power this workstation off while these are running** (they are not cloud jobs):
+- the direct paid-source runner (six workers; results land in `/home/erich/week1-sunday/direct_runner/results/`;
+  if killed, restart the same command — it skips finished slates);
+- the registered 097 repair launcher (`repair_097.sh` → `repair_bank.sh`); if killed, its registry receipt must be
+  adjudicated (§6.2) and the remaining season repairs relaunched; the cloud executions themselves keep running.
+Cloud Run jobs, Cloud Build and schedulers are unaffected by the move.
+
+**Copy to the new machine (same WSL username `erich`, same paths — the scripts default to `/home/erich/...`):**
+
+| what | path | notes |
+|---|---|---|
+| Sunday tooling, drivers, results, logs | `/home/erich/week1-sunday/` (7 GB; skip `direct_runner/work/`) | keep `ENTERED/` private (DK entry keys) |
+| Week-2 wrappers and contests | `/home/erich/week2-sunday-build.sh`, `/home/erich/week2-sunday-watchers.sh`, `/home/erich/week2-sunday/` | |
+| DK exports for settlement | `/home/erich/projects/nfl-predictions/results/2026-09-13/` (224 MB) | local only, never commit |
+| Launcher registry + monitor state | `/home/erich/.local/state/nfl-dfs/` (3.3 GB) | receipts reference this host's pids: adjudicate any live one after the move |
+| Assistant memory | `/home/erich/.claude/projects/-home-erich-projects-nfl-predictions/memory/` | same project path on the new machine |
+| Worktree archive | `/home/erich/worktree-archive/` (ignored `results/` of removed worktrees) | evidence only |
+
+**Recreate on the new machine:** `gcloud auth login` + `gcloud auth application-default login` (account
+`espechtsoftware@gmail.com`, project `nfl-predictions-503414`); `bq`; Python venvs (`pip install -e ".[dev,gcp,app]"`
+in each repo; the lab venv in `~/projects/nfl2`); the worktrees you need (`git worktree add <path> <branch>` — the
+active set is in §1; the Week-1 money-path clone must be exactly `e7255e9`); the user monitors under
+`~/.config/systemd/user/` (tracked copies in `deploy/systemd/`, minus the sunday build timers which are one-shots
+per week, §4.1). The Windows Downloads path in `sunday_watch_dk_entries.sh` (`WIN_DOWNLOADS`) may differ.
+
+**Path assumptions to know:** `scripts/week_env.sh` defaults (`PROD`, `CLONE`, `TOOLS`, `OUT`) are env-overridable;
+the abandoned source-v3 chain pins `/home/erich/projects/nfl-predictions` inside its image (irrelevant unless revived).
+
+**Cleanup done 2026-09-15:** dead worktree entries pruned, every local-only branch pushed, and clean + fully pushed +
+inactive worktrees removed in both repos (logs `/home/erich/week1-sunday/cleanup_production.log`, `cleanup_lab.log`;
+plans `worktree_plan_production.txt`, `worktree_plan_lab.txt`). Kept: the active set (§1), dirty worktrees
+(their uncommitted changes were not judged here), detached worktrees whose commits are not on origin.
