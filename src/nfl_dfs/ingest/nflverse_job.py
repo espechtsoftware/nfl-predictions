@@ -510,6 +510,34 @@ def append_injury_snapshot(
     return int(len(payload))
 
 
+def _load_ftn_charting(nfl, seasons: list[int], *, full_refresh: bool) -> list[int]:
+    """Land FTN charting for every season whose nflverse release file exists.
+
+    nflverse publishes ``ftn_charting_<season>.parquet`` weeks into a new season;
+    until then the loader raises on the 404 and, before 2026-09-15, took the
+    whole job down *after* rosters, injuries, schedules and weekly stats had
+    loaded (deficiency log 2026-09-14).  A season whose file is absent is
+    skipped with a warning and returned; the seasons that loaded are replaced
+    in place as usual.  Returns the list of skipped seasons.
+    """
+    frames, skipped = [], []
+    for value in seasons:
+        try:
+            frame = nfl.load_ftn_charting([value])
+        except Exception as exc:  # nflreadpy wraps the HTTP 404 in ConnectionError
+            log.warning("ftn_charting %s unavailable (%s); skipping this season", value, str(exc)[:160])
+            skipped.append(value)
+            continue
+        frames.append(frame.to_pandas() if hasattr(frame, "to_pandas") else frame)
+    loaded = [value for value in seasons if value not in skipped]
+    if frames:
+        _load(pd.concat(frames, ignore_index=True, sort=False), "ftn_charting",
+              replace_seasons=None if full_refresh else loaded)
+    else:
+        log.warning("ftn_charting: no season file available for %s; table left unchanged", seasons)
+    return skipped
+
+
 def run(full_refresh: bool = False) -> None:
     import nflreadpy as nfl
 
@@ -618,8 +646,7 @@ def run(full_refresh: bool = False) -> None:
             _load(nfl.load_nextgen_stats(ngs, stat_type=stat_type), f"ngs_{stat_type}",
                   replace_seasons=None if full_refresh else ngs)
     if ftn := [s for s in seasons if s >= FTN_FIRST_SEASON]:
-        _load(nfl.load_ftn_charting(ftn), "ftn_charting",
-              replace_seasons=None if full_refresh else ftn)
+        _load_ftn_charting(nfl, ftn, full_refresh=full_refresh)
     # Per-defender coverage stats (targets, completions/yards allowed as the
     # nearest defender). PFR-keyed like snap_counts; teams already in
     # nflverse abbreviations. Feeds 017a_defense_week_coverage.

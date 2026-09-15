@@ -326,3 +326,25 @@ def test_injury_snapshot_append_uses_irreplaceable_table_contract(monkeypatch):
         "partition_field": "pulled_at",
         "clustering_fields": ("season", "week", "gsis_id"),
     }
+
+
+def test_ftn_charting_skips_seasons_whose_release_file_is_absent(monkeypatch):
+    """A missing current-season FTN file must not take the job down after the
+    other relations loaded; the seasons that exist are still replaced in place."""
+    loads = []
+    monkeypatch.setattr(nflverse_job, "_load", lambda df, table, replace_seasons=None: loads.append((table, sorted(df.season.unique().tolist()), replace_seasons)))
+
+    class Nfl:
+        def load_ftn_charting(self, seasons):
+            (season,) = seasons
+            if season == 2026:
+                raise ConnectionError("Failed to download ftn_charting_2026.parquet: 404 Client Error")
+            return pd.DataFrame({"season": [season, season], "week": [1, 2], "nflverse_game_id": ["a", "b"]})
+
+    skipped = nflverse_job._load_ftn_charting(Nfl(), [2025, 2026], full_refresh=False)
+    assert skipped == [2026]
+    assert loads == [("ftn_charting", [2025], [2025])]
+
+    loads.clear()
+    assert nflverse_job._load_ftn_charting(Nfl(), [2026], full_refresh=False) == [2026]
+    assert loads == []
