@@ -51,6 +51,16 @@ yards on a completion). Fixing the invariant means re-freezing the capture-plan 
 defect 5. Decision options are in HANDOFF (A: repair defect 5 by content comparison + fix the invariant + re-freeze;
 B: re-establish the G0 authority; C: stop and record the blocker).
 
+**2026-09-15 morning.** Option A cleared defects 8 and 10 (same-path image; producer invariant; capture-plan
+re-frozen as Commit B a0eb8da1) and the worker then failed on **defect 11**: the immutable 2023-W1 catalog spells each
+game three ways (`2023_01_GB_CHI`, `CHI@GB`, `GB@CHI`) and the pinned `corpus_r6_matchup_source_v2` demands one. Data
+is hash-bound and the module is HEAD-stable, so only option B (re-establish the fixed-G0 authority) can clear it, and
+nothing guarantees it is the last never-run gate. Recommendation: execute this preregistration with a **direct runner**
+over the same frozen inputs — the seven-pack v4 row objects (FP/SIS/PFR/depth/schedule/weekly stats), the discovery
+matrix's candidate corpus and 40,000 worlds per slate — reusing the retrieval/admission/selection functions as plain
+library calls, with identities recorded by sha256 in the run manifest but without the create-once authority chain.
+The estimands, endpoints, gates and reading table above are unchanged.
+
 Sign-off needed on: the option above; the endpoint family in §4 (points and finish co-primary at K20); and the
 season set (§2: the ablation's 54 slates are 2023–2025, not the lab's 2022–2024 panel).
 
