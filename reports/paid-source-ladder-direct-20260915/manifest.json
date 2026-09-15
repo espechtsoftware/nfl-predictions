@@ -1,0 +1,153 @@
+{
+ "admission_cap": 200,
+ "candidate_root": {
+  "bytes": 216639,
+  "sha256": "ae6d0ba73ac627f652f2cfc542da3f43885f4b9090885457fa313ecb6a7faea8",
+  "uri": "gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-fixed-g0-candidate-authorities-v2/20260830-fixed-g0-candidate-authority-v2/candidate-authority-release-v2.json"
+ },
+ "catalog_release": {
+  "bytes": 65922,
+  "sha256": "c43b760bedda901d53c25e367bd2b075b7766ceb77ed9089a207dbd9f8608a45",
+  "uri": "gs://nfl-predictions-503414-corpus-source/research/source/20260826-r6-player-catalog-fixed-g0-v1/catalog-release.json"
+ },
+ "cells": [
+  {
+   "admission_cap": 200,
+   "candidate_generation": "not-run-byte-identical-input-authority",
+   "candidate_turnover_expected": 0,
+   "cell_id": "fp-on-sis-on-v1",
+   "cell_sha256": "226d1125c6f115807ed6f1038a1d5f66da372ab07cba89c696e98a8b544a167c",
+   "entry_budget": 80,
+   "fantasy_points_enabled": true,
+   "fantasy_points_slice_action": "retain-raw-slices",
+   "joint_fp_sis_components_available": true,
+   "ordinal": 0,
+   "retrieval_strategy_id": "coverage-194-v1",
+   "sis_enabled": true,
+   "sis_slice_action": "retain-raw-slices",
+   "world_matrix_turnover_expected": 0
+  },
+  {
+   "admission_cap": 200,
+   "candidate_generation": "not-run-byte-identical-input-authority",
+   "candidate_turnover_expected": 0,
+   "cell_id": "fp-off-sis-on-v1",
+   "cell_sha256": "bf604cdcdf83c88ece62b72f92141352cb7fbd3f6e4d5e8becdcd67c9a4ace4d",
+   "entry_budget": 80,
+   "fantasy_points_enabled": false,
+   "fantasy_points_slice_action": "physically-remove-raw-slices-before-components",
+   "joint_fp_sis_components_available": false,
+   "ordinal": 1,
+   "retrieval_strategy_id": "coverage-194-v1",
+   "sis_enabled": true,
+   "sis_slice_action": "retain-raw-slices",
+   "world_matrix_turnover_expected": 0
+  },
+  {
+   "admission_cap": 200,
+   "candidate_generation": "not-run-byte-identical-input-authority",
+   "candidate_turnover_expected": 0,
+   "cell_id": "fp-on-sis-off-v1",
+   "cell_sha256": "8ed49a15f7db037c96d8118a153dc33ffb9c6bf718119ebc9142384aa29b5f86",
+   "entry_budget": 80,
+   "fantasy_points_enabled": true,
+   "fantasy_points_slice_action": "retain-raw-slices",
+   "joint_fp_sis_components_available": false,
+   "ordinal": 2,
+   "retrieval_strategy_id": "coverage-194-v1",
+   "sis_enabled": false,
+   "sis_slice_action": "physically-remove-raw-slices-before-components",
+   "world_matrix_turnover_expected": 0
+  },
+  {
+   "admission_cap": 200,
+   "candidate_generation": "not-run-byte-identical-input-authority",
+   "candidate_turnover_expected": 0,
+   "cell_id": "fp-off-sis-off-v1",
+   "cell_sha256": "9f6d5b3751ea01f4b6993568377ed72380970f345df9cce16ffb32663170a945",
+   "entry_budget": 80,
+   "fantasy_points_enabled": false,
+   "fantasy_points_slice_action": "physically-remove-raw-slices-before-components",
+   "joint_fp_sis_components_available": false,
+   "ordinal": 3,
+   "retrieval_strategy_id": "coverage-194-v1",
+   "sis_enabled": false,
+   "sis_slice_action": "physically-remove-raw-slices-before-components",
+   "world_matrix_turnover_expected": 0
+  }
+ ],
+ "code": "a0eb8da1134ff6add9fcf90d80cd66fdaa7fcae0",
+ "entry_budget": 80,
+ "field": {
+  "fracs": {
+   "cash": 0.2081776481302157,
+   "top100": 0.00012014292202003503,
+   "top1000": 0.0012014292202003503
+  },
+  "min_ownership_mass": 800.0,
+  "n": 200000,
+  "ref_field": 832342
+ },
+ "matrix_terminal": {
+  "bytes": 200367,
+  "sha256": "23184230bef178aeab0dbb66a16aa6b68fe4adb1a6ce12575caed7e7a7ca278d",
+  "uri": "gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-paid-source-discovery-matrices/exp5-discovery-matrix-20260911e/terminal.json"
+ },
+ "mechanics_only": false,
+ "ownership_panel_sha256": "0d38c39c8b695001d40a2d61349fd1b5a66ac038071a0e6ac2359aea07de4955",
+ "runner_sha256": "37d3ae5b6691274f1dd1859f09db3d9b93a15a94da00359069c2e2039be8ae99",
+ "sampler_sha256": "843bb2090683fbc1922b545ad76fc26512fc7eef324fcc515f6cffcd95408e85",
+ "schema_version": "paid-source-ladder-direct/v1",
+ "seven_pack": {
+  "packs": [
+   {
+    "bytes": 208600,
+    "pack_id": "nfl-schedules-2022-2025",
+    "sha256": "f9d4b6bd8370eabb109e790fcacf939a609d553637dcb421b65bf58305309a8f",
+    "uri": "gs://nfl-predictions-503414-corpus-source/research/corpus-r6-matchup-seven-pack-captures-v1/20260911-fp-sis-seven-pack-successor-v4/packs/nfl-schedules-2022-2025/rows.json"
+   },
+   {
+    "bytes": 24623562,
+    "pack_id": "nfl-weekly-stats-2022-2025",
+    "sha256": "805252d47465eba3c2b7a987abab565346834524f9678e844d73e5330f89d888",
+    "uri": "gs://nfl-predictions-503414-corpus-source/research/corpus-r6-matchup-seven-pack-captures-v1/20260911-fp-sis-seven-pack-successor-v4/packs/nfl-weekly-stats-2022-2025/rows.json"
+   },
+   {
+    "bytes": 16413893,
+    "pack_id": "nfl-legacy-depth-2022-2024",
+    "sha256": "e7ad01426bb58882bf12a55d79116c34977d2a636ad7bf8a07f2b9c7768c069a",
+    "uri": "gs://nfl-predictions-503414-corpus-source/research/corpus-r6-matchup-seven-pack-captures-v1/20260911-fp-sis-seven-pack-successor-v4/packs/nfl-legacy-depth-2022-2024/rows.json"
+   },
+   {
+    "bytes": 33398055,
+    "pack_id": "nfl-snapshot-depth-2025",
+    "sha256": "3fb8d828d0ed6e1f432d069e5dc5da697aef3e0465e7bb5d98b598fc7523182a",
+    "uri": "gs://nfl-predictions-503414-corpus-source/research/corpus-r6-matchup-seven-pack-captures-v1/20260911-fp-sis-seven-pack-successor-v4/packs/nfl-snapshot-depth-2025/rows.json"
+   },
+   {
+    "bytes": 22824932,
+    "pack_id": "nfl-pfr-defense-and-snaps-2022-2025",
+    "sha256": "5a0ce508484ebf62c278c4267ea120fe3d57d0612694211ffd13565ad5691a84",
+    "uri": "gs://nfl-predictions-503414-corpus-source/research/corpus-r6-matchup-seven-pack-captures-v1/20260911-fp-sis-seven-pack-successor-v4/packs/nfl-pfr-defense-and-snaps-2022-2025/rows.json"
+   },
+   {
+    "bytes": 8115179,
+    "pack_id": "fantasy-points-normalized-2022-2025",
+    "sha256": "c36aa349d710e0d3b6e71e8b2c6edb9dad426e7ddc927856eb22474a8cdae729",
+    "uri": "gs://nfl-predictions-503414-corpus-source/research/corpus-r6-matchup-seven-pack-captures-v1/20260911-fp-sis-seven-pack-successor-v4/packs/fantasy-points-normalized-2022-2025/rows.json"
+   },
+   {
+    "bytes": 3394345,
+    "pack_id": "sis-normalized-2022-2025",
+    "sha256": "0be22b27c35862ab18c11fd0e41d7d4e68b4203a39689d781c722af1b8021c18",
+    "uri": "gs://nfl-predictions-503414-corpus-source/research/corpus-r6-matchup-seven-pack-captures-v1/20260911-fp-sis-seven-pack-successor-v4/packs/sis-normalized-2022-2025/rows.json"
+   }
+  ],
+  "release": {
+   "bytes": 22925,
+   "sha256": "1de61029e63907530d1d4182c1b37189828be4a9d9e635bd61fe2529b8af34e5",
+   "uri": "gs://nfl-predictions-503414-corpus-source/research/corpus-r6-matchup-seven-pack-captures-v1/20260911-fp-sis-seven-pack-successor-v4/upstream-release.json"
+  }
+ },
+ "started_utc": "2026-09-15T11:01:04Z"
+}

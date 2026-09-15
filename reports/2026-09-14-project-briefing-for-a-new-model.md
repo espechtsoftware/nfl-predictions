@@ -293,6 +293,17 @@ high-variance lineups whose tails do not materialise; expected-max is the better
 What survives: the field sampler (gated) and the finish *endpoint* as a way to score books; what is closed: P(top-N)
 selection on this simulator.
 
+**The paid-source question, answered on 2026-09-15 (`reports/2026-09-15-paid-source-influence-ladder-direct.md`).**
+The frozen FP×SIS 2×2 ablation was run as a direct script over the frozen inputs on all 54 slates (2023–2025), four
+cells each, with the stage-influence sidecar and a finish endpoint. Both paid sources are consumed and decide the book
+almost entirely (removing Fantasy Points replaces 87–89 % of the K80 book, removing SIS 74–77 %), yet realized points
+do not move at any K (all contrasts ≤ 1.2 points, none clearing zero or a sign test). On finish, SIS passes the
+frozen K20 rule (+1.9 percentile points, every season positive) but on three season clusters with a 24/14 sign split
+and no effect at K40/K80; Fantasy Points is null-to-slightly-negative. The structural finding: admission by mean
+matchup edge (cap 200) holds the admitted ceiling at ~181 in every cell against a pool ceiling of 202.7 — the
+retrieval strategy, not the vendor data, loses the tail. Consequences: FP's exact retrieval use closed at this form;
+SIS gets a prospective shadow only; the admission cap becomes a lab lever to test.
+
 What the cohort would not have settled anyway: the *live* field must be modeled from projected ownership before lock (the August
 contest-aware ownership model is the candidate; its lineup arm was never scored on finish). PREREG-098's
 consequences clause therefore nominates the finish objective for Week 2 only as a shadow book plus a projected-

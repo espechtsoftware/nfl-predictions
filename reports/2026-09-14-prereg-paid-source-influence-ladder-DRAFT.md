@@ -1,6 +1,6 @@
 # DRAFT preregistration — the paid-source influence ladder: Fantasy Points × SIS retrieval ablation with a stage-influence sidecar and a finish endpoint
 
-**Status: DRAFT for operator sign-off (2026-09-14). Nothing is frozen, built, or launched. No outcome has been read.**
+**Status: EXECUTED 2026-09-15 by the direct runner (operator: "do as you suggest"); the result and its reading are in `reports/2026-09-15-paid-source-influence-ladder-direct.md`. The design, estimands and decision rules below were applied as written; deviations are listed in that report.**
 Author: the agent operating production and lab since 2026-09-12. Companion documents: the read-only review
 `reports/2026-09-10-neo4j-fantasy-points-sis-influence-review.md` (whose P0/P1 this draft turns into a protocol),
 `PREREG-098.md` on the lab branch `lab/prereg098-finish-objective-20260914` (the field sampler this draft reuses), and

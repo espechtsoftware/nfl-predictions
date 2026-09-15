@@ -73,9 +73,7 @@ Cloud Build / Cloud Run operations · 8 the direct paid-source runner · 9 open 
   verbatim output into the lab `LEDGER.md` as the PREREG-098 row (commit on the 098 branch AFTER the launcher has
   exited), then update briefing §7. Consequences are frozen in `PREREG-098.md`: a PASS nominates the finish objective
   for Week 2 **as a shadow book only** (the live field needs projected ownership).
-- **Direct paid-source runner (host).** Six workers (`/home/erich/week1-sunday/direct_runner/worker-[0-5].log`),
-  results in `direct_runner/results/slate-NN-*.json` (26/54 at 14:20Z, ~41 min per slate per worker; ETA ~17:30Z).
-  A background monitor reports when 54 exist. Then §8.
+- **Direct paid-source runner — DONE 20:41Z, read and reported** (`reports/2026-09-15-paid-source-influence-ladder-direct.md`): sources drive the book but not realized points; SIS a weak K20-only finish signal (prospective shadow only); FP closed at this form; the admission cap is the real bottleneck (admitted ceiling ~181 vs pool 202.7 in every cell). Per-slate records stay on the host under `direct_runner/results/`.
 - **PREREG-097 (dose 6400) banks** finished: 970 = 65/72, 971 = 55/72, 972 = 72/72. Repairs pending (§6.4).
 - **Source-v3 / FP×SIS immutable chain**: abandoned at defect 11 (§9); nothing running; main carries Commit B.
 - Production cadence today (Tue): `build-features-sj96q` 11:30Z ✓, `train-weekly-bdrzh` 12:30Z ✓,
