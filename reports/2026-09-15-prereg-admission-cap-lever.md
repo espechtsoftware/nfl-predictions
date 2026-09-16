@@ -1,6 +1,6 @@
 # Preregistration — the admission cap as a retrieval lever, and the paid sources re-tested behind it
 
-**Frozen 2026-09-15 21:15Z, before any new outcome is read.** Operator instruction (same day): "fix the admission
+**Frozen 2026-09-15 21:15Z, before any new outcome is read. EXECUTED and read 2026-09-16 00:45Z: nothing passes; result and consequences in `reports/2026-09-15-admission-cap-lever-result.md`.** Operator instruction (same day): "fix the admission
 bottleneck first, then re-run the ladder." Author: the agent operating both teams. Instrument: the direct paid-source
 runner (`scripts/paid_source_ladder_direct_v1.py`, branch `production/paid-source-ladder-direct-20260915`) and its
 2026-09-15 per-slate records, which already hold every cell's player annotations, so the component producer is not

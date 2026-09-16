@@ -1,0 +1,38 @@
+{
+ "candidate_root": {
+  "bytes": 216639,
+  "sha256": "ae6d0ba73ac627f652f2cfc542da3f43885f4b9090885457fa313ecb6a7faea8",
+  "uri": "gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-fixed-g0-candidate-authorities-v2/20260830-fixed-g0-candidate-authority-v2/candidate-authority-release-v2.json"
+ },
+ "caps": {
+  "cap200": 200,
+  "cap400": 400,
+  "cap800": 800,
+  "capall": null
+ },
+ "catalog_release": {
+  "bytes": 65922,
+  "sha256": "c43b760bedda901d53c25e367bd2b075b7766ceb77ed9089a207dbd9f8608a45",
+  "uri": "gs://nfl-predictions-503414-corpus-source/research/source/20260826-r6-player-catalog-fixed-g0-v1/catalog-release.json"
+ },
+ "ladder_manifest_sha256": "1ad73b6fcd6731643d0d61636c3e2f5cfa805c81e7c8b0adac728e577f44665f",
+ "ladder_results_dir": "/home/erich/week1-sunday/direct_runner/results",
+ "matrix_terminal": {
+  "bytes": 200367,
+  "sha256": "23184230bef178aeab0dbb66a16aa6b68fe4adb1a6ce12575caed7e7a7ca278d",
+  "uri": "gs://nfl-predictions-503414-corpus-retrieval/research/corpus-r6-paid-source-discovery-matrices/exp5-discovery-matrix-20260911e/terminal.json"
+ },
+ "mechanics_only": false,
+ "ownership_panel_sha256": "0d38c39c8b695001d40a2d61349fd1b5a66ac038071a0e6ac2359aea07de4955",
+ "rules": [
+  "cap200",
+  "cap400",
+  "cap800",
+  "capall",
+  "tail200"
+ ],
+ "runner_sha256": "961e36192bc85fc3f5402c7383969dd5dabf9c79c8845046516a76c96fc1c8b7",
+ "schema_version": "paid-source-admission-cap/v1",
+ "started_utc": "2026-09-15T21:25:14Z",
+ "strategy": "coverage-194-v1"
+}

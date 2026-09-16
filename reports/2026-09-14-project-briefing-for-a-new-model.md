@@ -304,6 +304,14 @@ matchup edge (cap 200) holds the admitted ceiling at ~181 in every cell against 
 retrieval strategy, not the vendor data, loses the tail. Consequences: FP's exact retrieval use closed at this form;
 SIS gets a prospective shadow only; the admission cap becomes a lab lever to test.
 
+**The admission cap, tested the same night (`reports/2026-09-15-admission-cap-lever-result.md`, preregistered
+before the read).** Admitting every qualifying candidate lifts the admitted ceiling from 181 to 202 — the tail is in
+front of the selector in 36 slates instead of 13 — and the K20 book does not improve (164.4 vs 165.1); K80 +1.5, a
+near miss. A source-free tail-count gate matches or slightly beats the paid-source gate; the sources are null even
+without the cap. The retrieval regret therefore lives in the selector's world model (Addendum 95's "selection is
+closed for the current simulator", reproduced on a fresh instrument), not in admission or in vendor data. Standing
+recommendation: do not renew Fantasy Points or SIS; the next lever is tail calibration, preregistered in the lab.
+
 What the cohort would not have settled anyway: the *live* field must be modeled from projected ownership before lock (the August
 contest-aware ownership model is the candidate; its lineup arm was never scored on finish). PREREG-098's
 consequences clause therefore nominates the finish objective for Week 2 only as a shadow book plus a projected-

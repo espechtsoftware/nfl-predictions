@@ -74,7 +74,8 @@ Cloud Build / Cloud Run operations · 8 the direct paid-source runner · 9 open 
   exited), then update briefing §7. Consequences are frozen in `PREREG-098.md`: a PASS nominates the finish objective
   for Week 2 **as a shadow book only** (the live field needs projected ownership).
 - **Direct paid-source runner — DONE 20:41Z, read and reported** (`reports/2026-09-15-paid-source-influence-ladder-direct.md`): sources drive the book but not realized points; SIS a weak K20-only finish signal (prospective shadow only); FP closed at this form; the admission cap is the real bottleneck (admitted ceiling ~181 vs pool 202.7 in every cell). Per-slate records stay on the host under `direct_runner/results/`.
-- **PREREG-097 (dose 6400) banks** finished: 970 = 65/72, 971 = 55/72, 972 = 72/72. Repairs pending (§6.4).
+- **Admission-cap lever — DONE and read 2026-09-16 00:45Z** (`reports/2026-09-15-admission-cap-lever-result.md`): nothing passes; lifting the cap admits the tail (ceiling 181 → 202) but the selector does not pick it; sources null without the cap. Lever closed; paid sources: do not renew. Remaining regret = the selector's world model → lab tail-calibration prereg next.
+- **PREREG-097 (dose 6400) banks** finished: 970 = 65/72, 971 = 55/72, 972 = 72/72. Repairs: 970 complete (3/3, 4/4); 971 2021/2022 running (4/6, 3/6 done at 00:42Z), 2023/2024 queued → read Tuesday.
 - **Source-v3 / FP×SIS immutable chain**: abandoned at defect 11 (§9); nothing running; main carries Commit B.
 - Production cadence today (Tue): `build-features-sj96q` 11:30Z ✓, `train-weekly-bdrzh` 12:30Z ✓,
   `score-entries-wf897` 13:00Z ✓, `ingest-nflverse-28zq2` 10:00Z ✗ (FTN 2026 file 404, known; Week-1 weekly stats
