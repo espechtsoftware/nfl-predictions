@@ -10,13 +10,11 @@ Use the same WSL username (`erich`) and home directory on the laptop. Every scri
 
 ## Part A — on the workstation, before you shut it down
 
-**A1. Let the running work finish, or accept restarts.** Right now this machine runs:
-- the admission-cap cohort (host script; finishes around 01:00Z tonight; restartable, skips finished slates);
-- the PREREG-097 repairs (a registered launcher; bank 971's 2023/2024 seasons still to launch; if killed, the
-  registry receipt must be adjudicated and the remaining repairs relaunched — the assistant does this, but it is
-  20 minutes of work and a few hours of cloud time).
-Simplest: leave the workstation on overnight and do Part A tomorrow morning; ask the assistant "is anything still
-running on this machine?" before you start.
+**A1. What is still running here (updated 2026-09-16 morning).** The admission-cap cohort and the PREREG-097
+repairs are finished and read. The only live host process is the hourly DraftKings pull loop
+(`host_ingest_dk_loop.sh`, defect 18): stop it here just before you pack (`pkill -f host_ingest_dk_loop`) and start
+it on the laptop in B8. Ask the assistant "is anything still running on this machine?" before you start, in case
+that has changed.
 
 **A2. Pack the host state** (one command; ~500 MB; uploads to the project's private bucket):
 ```
