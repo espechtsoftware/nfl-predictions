@@ -147,8 +147,17 @@ Sunday 06:00 CT.
   it resumes later with the same command (attach-aware).
 
 ### Saturday 09-19
-- Print `scripts/arm_week_timers.sh 2` and have the operator run the five lines; then `systemctl --user list-timers
-  --all | grep nfl-week2` must show all five. `WIN_DOWNLOADS` in `/home/erich/week2-sunday-watchers.sh` is
+- **Long builds move to Saturday evening (operator decision 2026-09-16 23:45Z).** Sequence: (1) by ~17:00 CT stop
+  the PREREG-099 host bank if still running (`kill $(cat results/run_119_local.pid)` in the 099 worktree, then
+  `pkill -f "119_dose12800.py --bank=990$"` as a separate command; it resumes later, attach-aware); (2) ~17:30 CT the
+  operator triggers the production refresh so the projections carry the week's injury designations and line moves:
+  `gcloud run jobs execute build-features --project nfl-predictions-503414 --region us-central1 --wait && gcloud run
+  jobs execute project-slate --project nfl-predictions-503414 --region us-central1 --wait` (≈ 30 min; the harness
+  refuses production executions for the assistant); (3) timers fire 19:00 CT D12800 (8–10 h → ≈ 05:00 CT) and 19:05 CT
+  D6400 insurance (2 h 08). Books built Saturday lack only Sunday-morning news, which the scratch-swap protocol applies
+  to whichever book is entered.
+- Print `scripts/arm_week_timers.sh 2` and have the operator run the six lines (two Saturday, four Sunday) before
+  17:00 CT Saturday; then `systemctl --user list-timers --all | grep nfl-week2` must show all six. `WIN_DOWNLOADS` in `/home/erich/week2-sunday-watchers.sh` is
   `/mnt/c/Users/Erich/Downloads` (the entries export already sits there as `DKEntries-2026-09-16.csv`; the watcher
   takes the newest `DKEntries*.csv`).
 - Confirm the DK loop pulled within the hour and `week_env 2` still resolves to group 153428.
@@ -183,13 +192,16 @@ Host wrappers (untracked, already written): `/home/erich/week2-sunday-build.sh`,
 and `/home/erich/week2-sunday/contests.json` (currently the template with `REPLACE` markers — the driver refuses to
 run until the operator's Week-2 contest ids and entry counts are filled in after he reserves entries).
 
-**Week-2 dose plan (operator decision 2026-09-16 — a protocol override, recorded so it is not mistaken for an untested
+**Week-2 dose plan (operator decisions 2026-09-16 — a protocol override, recorded so it is not mistaken for an untested
 rule).** Evidence: PREREG-097 D6400 vs D3200 on the K80 book: proxy +0.005 near miss (32 W / 36 L) but raw best-of-book
 +1.2 [+0.3, +2.0] and weeks ≥ 200 / ≥ 210 11 → 16 / 4 → 7; D6400 vs D800 PASS. Nothing measured says 6,400 hurts; the
 strict gate was a near miss. 12,800 has no book evidence until PREREG-099's Friday read (its reader reports a
-one-bank K80 comparison as a secondary). Plan: four builds Sunday, each with its own run tag and run dir, the operator
-picks the book Sunday morning from whatever completed — **D6400 is the intended entry**, D12800 the early candidate (use
-only if Friday's read favours it and the build completed), D3200 the fallback, D800 the T-70 fresh-salary fallback.
+one-bank K80 comparison as a secondary). Plan (revised 23:45Z): five builds — Saturday 19:00 CT D12800 and 19:05 CT D6400 (insurance) after the operator's
+production refresh at 17:30 CT, then Sunday 05:30 CT D6400, 09:10 CT D3200, 10:50 CT D800 — each with its own run tag
+and run dir; the operator picks the book Sunday morning from whatever completed — **D6400 is the intended entry**,
+D12800 the candidate (use only if Friday's read favours it and the build completed), D3200 the fallback, D800 the T-70
+fresh-salary fallback. Why Saturday: the projection center refreshes only Tuesday and Sunday 05:30–11:00 CT, so a
+Saturday build needs the manual refresh; it then lacks only Sunday-morning news (§3 Saturday).
 Measured build times on this machine (single stream, receipt `seconds`): D800 244 s, D3200 3,040 s (Week-1 receipts);
 **D6400 7,674 s = 2 h 08 min** (rehearsal 2026-09-16 14:44–16:52Z on group 153428, run dir
 `20260916T144448044783Z-e7255e9`, 6,400 candidates, 90 written, exit 0) → the 05:30 CT timer yields the D6400 book by
