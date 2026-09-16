@@ -190,8 +190,11 @@ strict gate was a near miss. 12,800 has no book evidence until PREREG-099's Frid
 one-bank K80 comparison as a secondary). Plan: four builds Sunday, each with its own run tag and run dir, the operator
 picks the book Sunday morning from whatever completed — **D6400 is the intended entry**, D12800 the early candidate (use
 only if Friday's read favours it and the build completed), D3200 the fallback, D800 the T-70 fresh-salary fallback.
-Measured build times on this machine (single stream): D800 244 s, D3200 3,040 s (Week-1 receipts); D6400 and D12800
-rehearsals 2026-09-16/17 fill in the rest (expected ≈ 2.5–3 h and ≈ 6.5–8 h; the leverage cut loop is superlinear).
+Measured build times on this machine (single stream, receipt `seconds`): D800 244 s, D3200 3,040 s (Week-1 receipts);
+**D6400 7,674 s = 2 h 08 min** (rehearsal 2026-09-16 14:44–16:52Z on group 153428, run dir
+`20260916T144448044783Z-e7255e9`, 6,400 candidates, 90 written, exit 0) → the 05:30 CT timer yields the D6400 book by
+≈ 07:40 CT; D12800 rehearsal started 16:53Z (expected ≈ 6–7 h by the 2.5× step from 3200→6400; if it exceeds ~7 h,
+move the 01:30 CT timer earlier).
 `sunday_build_host.sh` now takes the dose from `PAID_LEV/PAID_BOOM` (env or `/home/erich/week2-dose.env`, which holds
 640/2560), skips the governed pair with `SKIP_PAIR=1`, and identifies its run dir by receipt (concurrent builds write
 `LATEST` at start, so `LATEST` is never trusted). The 10:30 CT inactives are applied to the chosen book by the
