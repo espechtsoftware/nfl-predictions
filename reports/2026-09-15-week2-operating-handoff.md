@@ -99,7 +99,7 @@ Cloud Build / Cloud Run operations · 8 the direct paid-source runner · 9 open 
 
 ### Wednesday 09-16
 - s-trends 11:00 CT, s-contests 10:00 CT (lobby/fills into `nfl_raw.dk_contest_fills`), s-dk hourly from now
-  (`nfl_raw.dk_salaries` week=2). Check by afternoon:
+  (`nfl_raw.dk_salaries` week=2). **2026-09-16: Cloud Run's DK pulls are 403-blocked (defect 18); the host loop pulls hourly instead — keep it running on the active machine.** The Week-2 Sunday-main draft group is **153428** (658 players, 26 teams; `week_env 2` resolves it). Check by afternoon:
   `bq query --use_legacy_sql=false "SELECT draft_group_id, MIN(game_start), MAX(game_start), COUNT(DISTINCT dk_player_id)
   FROM nfl_raw.dk_salaries WHERE season=2026 AND week=2 GROUP BY 1 ORDER BY 2"` → the **Sunday main draft group** is
   the one whose games span Sunday 12:00 CT through the late-afternoon window (Week 1: 151307). Record it.
@@ -306,6 +306,7 @@ folder (small) — the per-slate JSONs stay on the host.
 | 15 | `nfl-week1-sunday-build.sh` / runbook hard-coded to Week 1 (week, group 151307, `2026-w01`, tag suffix, publish root) | week-parametrised scripts + `arm_week_timers.sh` (§4.1); Thursday rehearsal + operator timer arming remain | fixed in code; Thursday steps open |
 | 16 | Cloud Run "Internal error running task" losses on the lab lanes (23–51 retries per bank) | repairs per §6.4 | recurring |
 | 17 | The standard production build (`cloudbuild.yaml`, full suite before the image) cannot complete from `main`: on 2026-09-15 the suite ran 3 h to 77 % with failure blocks at 72–75 % (the frozen-factorial drift, defect-log 2026-09-11) and hit the build ceiling; the 2026-09-13 week1 build took 4.5 min from the week1 branch | `cloudbuild.focused.yaml` (`_TESTS` lane, disclosed deviation) for narrow fixes; the real remedy is the operator's drift decision + the test-lanes branch `production/test-lanes-and-factorial-drift-20260911` (`scripts/test_lanes.sh`) | **open, operator decision** |
+| 18 | **DraftKings API returns 403 to Cloud Run egress** (every scheduled `ingest-dk` execution since 2026-09-16 05:00Z; the identical request from the workstation returns 200) — no salaries/statuses/draft groups land from the cloud; Sunday's hourly `ingest-dk` and `ingest-contests-sun` are affected | stopgap: host loop `/home/erich/week1-sunday/host_ingest_dk_loop.sh` (hourly `nfl-dfs ingest-dk` from the audit worktree; started 09:40Z; **must run on whichever machine is on** — restart it on the laptop after the move); real fix = static egress (VPC connector + Cloud NAT) or move the DK pulls to a host timer permanently | **open, operator decision on the egress fix** |
 
 ---
 

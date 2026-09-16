@@ -96,7 +96,9 @@ DraftKings entries exports).
 scripts in the main checkout; enable the ones you had: `systemctl --user enable --now nfl-production-monitor-heartbeat.timer
 nfl-cloud-run-lane-monitor.service nfl-cloud-build-monitor.service nfl-lab-action-note-monitor.service`.
 
-**B8. Windows-side path:** if the laptop's Windows user folder is not `C:\Users\Erich`, set `WIN_DOWNLOADS` in
+**B8. DraftKings pulls (defect 18):** Cloud Run is 403-blocked by DraftKings, so the hourly salary/status pull runs from the host: after B6, start `setsid nohup /home/erich/week1-sunday/host_ingest_dk_loop.sh > /home/erich/week1-sunday/host_ingest_dk_loop.log 2>&1 < /dev/null &` and stop the copy on the workstation before you shut it down (`pkill -f host_ingest_dk_loop`). Without it there are no Week-2 salaries, projections or builds.
+
+**B9. Windows-side path:** if the laptop's Windows user folder is not `C:\Users\Erich`, set `WIN_DOWNLOADS` in
 `/home/erich/week2-sunday-watchers.sh` (used to pick up DraftKings' entries export on Sunday).
 
 ---
