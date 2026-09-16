@@ -142,12 +142,26 @@ explicitly. The tracked scripts and their Week-1 originals:
 | `sunday_build_host.sh` | host `week1-sunday-build.sh` | env-driven; per-contest emits from `contests.json`; `REUSE_PAID_DIR/REUSE_SHADOW_DIR/REUSE_K90_DIR` for rehearsals |
 | `sunday_after_build.sh` | host `learned_after_build.sh` | vetted paid book → ENTER layout from `contests.json` → `TODAY-30-LATEST.md`; learned scorer removed (PREREG-096 REVERT) |
 | `sunday_watch_dk_entries.sh`, `sunday_watch_late_inactives.py` | host watchers | env-driven |
-| `arm_week_timers.sh W [--run]` | one-shot timer | prints (or arms) the 09:10 / 09:12 / 10:50 CT transient user timers |
+| `arm_week_timers.sh W [--run]` | one-shot timer | prints (or arms) the transient user timers: **01:30 CT D12800, 05:30 CT D6400, 09:10 CT D3200, 10:50 CT D800 (T-70), 09:12 CT watchers** (Week-2 dose plan, operator decision 2026-09-16) |
 | `contests.template.json` | contest ids in scripts | the week's contests: `name, contest_id, entries, keep` |
 
 Host wrappers (untracked, already written): `/home/erich/week2-sunday-build.sh`, `/home/erich/week2-sunday-watchers.sh`,
 and `/home/erich/week2-sunday/contests.json` (currently the template with `REPLACE` markers — the driver refuses to
 run until the operator's Week-2 contest ids and entry counts are filled in after he reserves entries).
+
+**Week-2 dose plan (operator decision 2026-09-16 — a protocol override, recorded so it is not mistaken for an untested
+rule).** Evidence: PREREG-097 D6400 vs D3200 on the K80 book: proxy +0.005 near miss (32 W / 36 L) but raw best-of-book
++1.2 [+0.3, +2.0] and weeks ≥ 200 / ≥ 210 11 → 16 / 4 → 7; D6400 vs D800 PASS. Nothing measured says 6,400 hurts; the
+strict gate was a near miss. 12,800 has no book evidence until PREREG-099's Friday read (its reader reports a
+one-bank K80 comparison as a secondary). Plan: four builds Sunday, each with its own run tag and run dir, the operator
+picks the book Sunday morning from whatever completed — **D6400 is the intended entry**, D12800 the early candidate (use
+only if Friday's read favours it and the build completed), D3200 the fallback, D800 the T-70 fresh-salary fallback.
+Measured build times on this machine (single stream): D800 244 s, D3200 3,040 s (Week-1 receipts); D6400 and D12800
+rehearsals 2026-09-16/17 fill in the rest (expected ≈ 2.5–3 h and ≈ 6.5–8 h; the leverage cut loop is superlinear).
+`sunday_build_host.sh` now takes the dose from `PAID_LEV/PAID_BOOM` (env or `/home/erich/week2-dose.env`, which holds
+640/2560), skips the governed pair with `SKIP_PAIR=1`, and identifies its run dir by receipt (concurrent builds write
+`LATEST` at start, so `LATEST` is never trusted). The 10:30 CT inactives are applied to the chosen book by the
+scratch-swap tools; a book is never rebuilt after 10:50 CT.
 
 **Thursday checklist**
 1. `cd <audit worktree> && source scripts/week_env.sh && week_env 2` — must print the detected group (needs the
@@ -158,8 +172,8 @@ run until the operator's Week-2 contest ids and entry counts are filled in after
    `scripts/sunday_after_build.sh once <K90 dir> rehearsal` and read `TODAY-30-LATEST.md` and `ENTER/`. The live
    builder refuses a lock that has passed, so rehearsals need the coming Sunday's group (a Week-1 rehearsal on
    2026-09-15 proved everything downstream of the builds on last Sunday's run dirs via the `REUSE_*` overrides).
-4. Have the operator arm the timers: `scripts/arm_week_timers.sh 2` prints the three `systemd-run` lines.
-5. Saturday: `systemctl --user list-timers | grep nfl-week2` shows all three; Downloads path in
+4. Have the operator arm the timers: `scripts/arm_week_timers.sh 2` prints the five `systemd-run` lines (or `--run` arms them).
+5. Saturday: `systemctl --user list-timers | grep nfl-week2` shows all five; Downloads path in
    `sunday_watch_dk_entries.sh` (`WIN_DOWNLOADS`) is right; the operator has reserved entries with a placeholder.
 
 ### 4.2 Timeline (CT)
