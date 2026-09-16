@@ -216,6 +216,8 @@ never in points.
 
 ## 7. The structural conclusion and the open question
 
+**2026-09-16 update:** every result since Week 1 (PREREG-096/097/098/100, the paid-source ladder, the admission-cap lever, the post-mortem) is synthesised with ranked next steps in `reports/2026-09-16-findings-since-week1-synthesis.md`; the one remaining modelling lever is drafted for sign-off in `reports/2026-09-16-prereg-tail-calibration-DRAFT.md`; PREREG-099 (12,800 supply rung) is running in the lab. Read those before the rest of this section, which is the state as of 2026-09-14.
+
 Points is the wrong axis for this contest. A points-optimal system with 30–80 entries sits 36–49 points below the
 Millionaire winner in a typical week and reaches the winner about once in 35 weeks; no lever in the ledger moves the
 book by more than ~2 points and dose moves the pool by ~8. That part is measured and closed.

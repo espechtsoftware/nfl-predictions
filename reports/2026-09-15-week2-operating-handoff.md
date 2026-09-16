@@ -312,6 +312,10 @@ folder (small) — the per-slate JSONs stay on the host.
 
 ## 10. File index (most used)
 
+- `reports/2026-09-16-findings-since-week1-synthesis.md` — every result since Week 1 with ranked next steps (read first).
+- `reports/2026-09-16-prereg-tail-calibration-DRAFT.md` — the tail-calibration preregistration awaiting operator sign-off.
+- lab `PREREG-099.md` (branch `lab/prereg099-supply12800-20260916`) — the 12,800 supply rung, launched 2026-09-16; lab `PREREG-100.md` (branch `lab/prereg100-practice-status-20260916`) — practice-status vetting, read 2026-09-16.
+
 - Reports: `reports/2026-09-14-project-briefing-for-a-new-model.md` (background, §10 build process),
   `reports/2026-09-13-week1-findings-and-recommendations.md`, `reports/2026-09-14-week1-field-winners-settlement.md`,
   `reports/2026-09-14-week1-swaps-and-cheap-players.md`, `reports/2026-09-14-payout-retro-test.md`,
