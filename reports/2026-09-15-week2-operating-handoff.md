@@ -163,6 +163,14 @@ rehearsals 2026-09-16/17 fill in the rest (expected ≈ 2.5–3 h and ≈ 6.5–
 `LATEST` at start, so `LATEST` is never trusted). The 10:30 CT inactives are applied to the chosen book by the
 scratch-swap tools; a book is never rebuilt after 10:50 CT.
 
+**ENTER layout (Week 2): `top` — every contest receives the vetted book's first N.** Contests pay independently and the
+selector's greedy order makes ranks 1..N its best book of size N. Descriptive check (2026-09-16, one bank of the
+PREREG-097 D3200 K80 books, 65 slates, Week-2 contest sizes, versus the Week-1 sequential layout's rank ranges in this
+contest order): Nickel (5) mean best 158.5 vs 148.4 (+10.1, 40 W / 25 L; weeks ≥ 194 6 vs 0), Flea Flicker (23) 171.9 vs
+169.8 (+2.1, 29/16/20 ties), SUPERSatellite (2) +2.6, Huddle (1) +6.4, Pylon (1) −3.6 (rank 1 vs rank 5, single lineups,
+noise), Millionaire identical. Mean lineup points by rank: 1–5 124–126, 6–10 119, 11–80 117–119. Not a frozen gate; the
+Week-1 unique-across-contests layout is `ENTER_LAYOUT=sequential`. Operator: "proceed as you suggest" (keep `top`).
+
 **Thursday checklist**
 1. `cd <audit worktree> && source scripts/week_env.sh && week_env 2` — must print the detected group (needs the
    Week-2 salary pull; if it fails, the pull has not happened yet or the group needs `week_env 2 <id>`).
