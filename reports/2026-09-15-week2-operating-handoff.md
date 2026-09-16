@@ -88,8 +88,13 @@ Sunday 06:00 CT.
 
 **Take-over checklist (first hour on this machine).**
 1. `git -C /home/erich/projects/.nfl-predictions-worktrees/week1-audit-adjust-20260912 log --oneline -3` — this branch
-   (`production/week1-audit-adjust-20260912`) carries every Week-2 script and this document; `origin/main` is at
-   cc392bf8 (the operator pushes main; the classifier refuses it for the assistant).
+   (`production/week1-audit-adjust-20260912`) carries every Week-2 script and this document, and since the 2026-09-16
+   merge commit a0699e40 it contains `origin/main` (cc392bf8) — the operator fast-forwards main with
+   `git -C /home/erich/projects/.nfl-predictions-worktrees/week1-audit-adjust-20260912 push origin HEAD:main` (the
+   classifier refuses that push for the assistant). The main checkout `/home/erich/projects/nfl-predictions` is DIRTY
+   and on an old branch (`production/test-lanes-and-factorial-drift-20260911`): never work there; its `.venv` is fine
+   to use with `PYTHONPATH=<worktree>/src`. If main has not been fast-forwarded yet, `git show origin/main:HANDOFF.md`
+   is stale — read this branch's copy.
 2. Read `HANDOFF.md`'s newest entry (2026-09-16), then §3 below for the day you are on, then §4 before Sunday.
 3. Check the five host processes above; restart per the table.
 4. Set up an hourly check (a cron prompt, a loop, or whatever the harness offers). Include: PREREG-099 driver/tasks,
