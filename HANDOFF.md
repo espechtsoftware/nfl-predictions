@@ -384,6 +384,15 @@ git -C /home/erich/projects/.nfl-predictions-worktrees/nflverse-ftn-20260915 pus
   had defaulted it to `nfl-dfs-prod` and every pull failed until fixed at 11:25Z) is still the only DK pull path
   (defect 18); ingest-dk on Cloud Run keeps failing by design until the operator decides on egress (Cloud Build probe
   also 403 → NAT not expected to help). Host clock is CDT; stamp with `date -u`.
+- **Exact next actions (2026-09-16 15:45Z; supersedes the 09-14 list below) — for the next model on this machine:** (1) read
+  `reports/2026-09-15-week2-operating-handoff.md` §2 (running host processes with pid files, logs and restart commands;
+  the take-over checklist) and §3 for today; (2) re-establish an hourly host check (the previous assistant's poll was
+  session-only); (3) Thursday: record the D6400 / D12800 rehearsal build times from the run-dir receipts and confirm the
+  01:30 / 05:30 CT timer slots; (4) Friday: PREREG-099 read (one run id) + ledger row; operator's 12,800 go/no-go;
+  stop the PREREG-099 bank Saturday night if still running; (5) Saturday: `scripts/arm_week_timers.sh 2` → operator
+  runs the five lines; (6) Sunday: §4 — four builds, operator picks the book (D6400 intended), vetted ENTER files,
+  watcher fills the entries export, scratch protocol for 10:30 CT inactives; (7) never commit `ENTERED/`, never push
+  main, never publish. Everything above is on branch `production/week1-audit-adjust-20260912` (pushed).
 - **Exact next actions (2026-09-14 14:00Z):** (1) PREREG-097 banks 970/971 running (lab-run-2xtbb / lab-run-slow-jfz27, launched 11:20Z/11:23Z by the registered finish launcher pid 29569), 972 follows on the first free lane; when all three are terminal run `scripts/prereg097_report.py` from the 097 worktree and add the LEDGER row with the transcript; (2) the 09s image is built (digest sha256:d8a02797…, tag `prereg09s-7e8126b9b4c1`) and the sequencer is RUNNING (pid 69162, log `results/arm_118_sequencer.log` in the 098 worktree; it waits for the 097 launcher's `action=completed` registry line and idle lanes, then updates both jobs and arms `queue_118.sh`, launcher log `results/queue_118_launcher.log`); when `queue_118.sh` logs "all three banks terminal", run `scripts/prereg098_report.py RUN980 RUN981 RUN982`, add the LEDGER row, and record the outcome in the briefing §7 and `reports/2026-09-14-payout-retro-test.md`; (3) Week-2 items: practice-status exposure cap tested on the 72 historical books; runbook fixes; nflverse FTN 404 tolerance; verify Week-1 weekly stats landed.
 - **Exact next actions:** (1) when `110b900r2`/`110b901r2`/`110b902r2` are terminal (run ids in
   `results/queue_110_launches.log`), run `PYTHONPATH=src python scripts/prereg090_report.py <three run ids>`

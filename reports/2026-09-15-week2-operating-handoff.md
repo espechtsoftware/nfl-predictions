@@ -62,30 +62,46 @@ Cloud Build / Cloud Run operations · 8 the direct paid-source runner · 9 open 
 
 ---
 
-## 2. What is running right now (2026-09-15 15:00Z)
+## 2. What is running right now (2026-09-16 15:45Z, Wednesday) — and the take-over checklist for the next model
 
-- **PREREG-098 r2 — DONE 15:26Z, read 15:35Z: decisively NEGATIVE (finish objective closed at its tested form; no shadow book for Week 2). LEDGER row and transcript on the 098 branch; briefing §7 updated.** (Original launch note kept for the record:) Launcher `queue_118.sh` armed 14:23Z through the registry from the 098
-  worktree on image `prereg09s-a8ec05612ffa` (`results/prereg09s_image.txt` there). Order: `118m980r2` mechanics
-  (1 task) → `scripts/prereg098_mechanics_gate.py <run id>` must PASS → banks `118b980r2` / `118b981r2` (53 tasks each,
-  both lanes) → `118b982r2` when a lane frees. Log: `results/queue_118_launcher.log`. When it prints
-  "all three banks terminal": `cd <098 worktree> && PYTHONPATH=src /home/erich/projects/nfl2/.venv/bin/python
-  scripts/prereg098_report.py <RUN980> <RUN981> <RUN982>` (run ids from `results/queue_118_launches.log`), paste the
-  verbatim output into the lab `LEDGER.md` as the PREREG-098 row (commit on the 098 branch AFTER the launcher has
-  exited), then update briefing §7. Consequences are frozen in `PREREG-098.md`: a PASS nominates the finish objective
-  for Week 2 **as a shadow book only** (the live field needs projected ownership).
-- **Direct paid-source runner — DONE 20:41Z, read and reported** (`reports/2026-09-15-paid-source-influence-ladder-direct.md`): sources drive the book but not realized points; SIS a weak K20-only finish signal (prospective shadow only); FP closed at this form; the admission cap is the real bottleneck (admitted ceiling ~181 vs pool 202.7 in every cell). Per-slate records stay on the host under `direct_runner/results/`.
-- **Admission-cap lever — DONE and read 2026-09-16 00:45Z** (`reports/2026-09-15-admission-cap-lever-result.md`): nothing passes; lifting the cap admits the tail (ceiling 181 → 202) but the selector does not pick it; sources null without the cap. Lever closed; paid sources: do not renew. Remaining regret = the selector's world model → lab tail-calibration prereg next.
-- **PREREG-097 (dose 6400) — repairs complete and READ 2026-09-16 09:40Z**: D3200−D800 PASS (replication), D6400−D800 PASS, D6400−D3200 near miss → saturation at 3200; **3200 is the Week-2 dose candidate** (the operator decides; the Sunday driver takes `PAID_LEV=640 PAID_BOOM=2560` in `/home/erich/week2-dose.env`, which needs a Thursday rehearsal at that dose for timing — a 3200 build took up to 79 min on the largest slate in the lab). LEDGER row on the 097 branch.
-- **Source-v3 / FP×SIS immutable chain**: abandoned at defect 11 (§9); nothing running; main carries Commit B.
-- Production cadence today (Tue): `build-features-sj96q` 11:30Z ✓, `train-weekly-bdrzh` 12:30Z ✓,
-  `score-entries-wf897` 13:00Z ✓, `ingest-nflverse-28zq2` 10:00Z ✗ (FTN 2026 file 404, known; Week-1 weekly stats
-  did land: 1,118 rows), `project-slate-x42x2` 14:30Z ✗ ("target-week roster eligibility receipt is stale or
-  incomplete") — expected mid-week: there is no Week-2 DK pool until `ingest-dk` pulls it (s-dk runs hourly Wed–Sun)
-  and `build-features` refreshes the eligibility receipt (Sunday 05:30 CT hourly). The alarm condition is a failed
-  `project-slate` **after** Sunday 06:00 CT.
-- Host systemd (user): monitors only (`nfl-cloud-run-lane-monitor`, `nfl-cloud-build-monitor`, `nfl-lab-*`,
-  `nfl-production-monitor-heartbeat.timer`). **The Week-1 Sunday build timer no longer exists** (it was a one-shot);
-  Week 2 needs a new one (§4.1).
+**Host processes (this workstation, WSL, 54 GB visible after the 2026-09-16 `.wslconfig` change to 56 GB).** All are
+detached (`setsid nohup`), survive the assistant session, and die only with WSL. Verify each with `ps -p <pid>`; pids
+are as of 15:45Z — trust the pid FILES over these numbers.
+
+| process | pid / pid file | what | logs | if dead |
+|---|---|---|---|---|
+| PREREG-099 host driver v2 | `results/run_119_local.pid` in `/home/erich/projects/.nfl2-worktrees/prereg099-supply12800-20260916` (50016) | waits for the running gate process, applies the frozen gate check, then bank 990 (72 slates, 10 workers) | `results/run_119_local.log`, `results/run_119_local_tasks.log`, `results/119_local/<run id>/tNN.log`; run ids in `results/run_119_local_runs.log` | rerun `setsid nohup scripts/run_119_local_v2.sh 10 > results/run_119_local.log 2>&1 < /dev/null &` from that worktree — attach-aware (skips slates already in the bucket) |
+| PREREG-099 mechanics gate | python pid 2337 (child of the superseded driver; `pgrep -f "119_dose12800.py --bank=990 --mechanics-only"`) | full-scale 12,800 stream + one 6,400 verify build on 2023-W1, started 11:16Z, expected 8–10 h | `results/119_gate.out`; uploads `gs://nfl-2-506823-lab/results/119_dose12800/119m990r1-20260916T111557Z/result-t00.json` on success | if it died before uploading, the v2 driver starts a fresh gate itself |
+| DraftKings host pull loop | `/home/erich/week1-sunday/host_ingest_dk_loop.pid` (4129) | hourly `ingest-dk` + `ingest-contests` from the host (Cloud Run is 403-blocked, defect 18); the script exports `GCP_PROJECT` itself (defect 19) | `/home/erich/week1-sunday/host_ingest_dk_loop.log` — a healthy hour shows "Loading N rows into nfl-predictions-503414.nfl_raw.dk_salaries" and "Polled N contests" | `setsid nohup /home/erich/week1-sunday/host_ingest_dk_loop.sh > /home/erich/week1-sunday/host_ingest_dk_loop.log 2>&1 < /dev/null &` |
+| D6400 timing rehearsal | `pgrep -f rehearse_6400` / live_week python 56011 | K90 live build at lev 1280 / boom 5120 on group 153428, started 14:45Z | `/home/erich/week2-rehearsal/rehearse_6400.log` (prints `exit <code> <time>` and the run dir name); receipt `seconds` in `<CLONE>/results/live/2026-w02/<dir>/receipt.json` | rerun `/home/erich/week2-rehearsal/rehearse_6400.sh` |
+| D12800 timing rehearsal (queued) | `pgrep -f rehearse_12800` (59447) | waits for the 6,400 rehearsal's `exit` line, then lev 2560 / boom 10240 (expected 6.5–8 h) | `/home/erich/week2-rehearsal/rehearse_12800.log` | rerun `/home/erich/week2-rehearsal/rehearse_12800_after_6400.sh` |
+
+The assistant session's hourly poll (a session-only cron) dies with the session: **the next model must re-establish a
+periodic check** of the five rows above (every hour is enough) and act on the "if dead" column.
+
+**Cloud.** Both lab jobs idle on the prereg09u image (`ee5fe3c…`); the prereg09v image (`prereg09v-b8424efb35b2`, build
+7c4673e8) exists as the PREREG-099 cloud fallback (`scripts/arm_119.sh` in the 099 worktree) — not used. Production
+cadence: Wednesday `ingest-nflverse-5jzrf` 10:00Z ✓ with the FTN tolerance (2,675 charting rows); s-dk executions on
+Cloud Run keep failing by design (defect 18) — ignore them while the host loop runs; s-contests / s-trends are Cloud
+Run too and also 403 (the host loop covers contests). The alarm that matters remains a failed `project-slate` after
+Sunday 06:00 CT.
+
+**Take-over checklist (first hour on this machine).**
+1. `git -C /home/erich/projects/.nfl-predictions-worktrees/week1-audit-adjust-20260912 log --oneline -3` — this branch
+   (`production/week1-audit-adjust-20260912`) carries every Week-2 script and this document; `origin/main` is at
+   cc392bf8 (the operator pushes main; the classifier refuses it for the assistant).
+2. Read `HANDOFF.md`'s newest entry (2026-09-16), then §3 below for the day you are on, then §4 before Sunday.
+3. Check the five host processes above; restart per the table.
+4. Set up an hourly check (a cron prompt, a loop, or whatever the harness offers). Include: PREREG-099 driver/tasks,
+   the DK loop's last pull, the rehearsal logs, and from Saturday `systemctl --user list-timers | grep nfl-week2`.
+5. When `results/run_119_local.log` says "done": read PREREG-099 exactly once (§6.3) and record it. When
+   `rehearse_6400.log` / `rehearse_12800.log` print `exit 0`: record the receipt `seconds` in §4.1 and in HANDOFF.md
+   as the measured build times; if 12,800 exceeds ~7 h, tell the operator the 01:30 CT start is too late and move the
+   timer earlier (the timer script's `01:30` and the `tag 06:30` UTC label must both change).
+6. Thursday/Friday: nothing else is required from the model except the Friday PREREG-099 read and the operator's
+   12,800 go/no-go (§3). Saturday: print `scripts/arm_week_timers.sh 2` for the operator to run; verify the timers.
+7. Never: commit `ENTERED/` exports or entry keys; push to main; publish; edit a running bash script in place (copy to
+   a new file, as `run_119_local_v2.sh` was); put a script's own name inside a `pkill -f` on the same command line.
 
 ---
 
@@ -97,27 +113,40 @@ Cloud Build / Cloud Run operations · 8 the direct paid-source runner · 9 open 
 - [ ] Direct runner read + report (§8).
 - [ ] 097 repairs after 098 (§6.4), then `scripts/prereg097_report.py`, LEDGER row.
 
-### Wednesday 09-16
-- s-trends 11:00 CT, s-contests 10:00 CT (lobby/fills into `nfl_raw.dk_contest_fills`), s-dk hourly from now
-  (`nfl_raw.dk_salaries` week=2). **2026-09-16: Cloud Run's DK pulls are 403-blocked (defect 18); the host loop pulls hourly instead — keep it running on the active machine.** The Week-2 Sunday-main draft group is **153428** (658 players, 26 teams; `week_env 2` resolves it). Check by afternoon:
-  `bq query --use_legacy_sql=false "SELECT draft_group_id, MIN(game_start), MAX(game_start), COUNT(DISTINCT dk_player_id)
-  FROM nfl_raw.dk_salaries WHERE season=2026 AND week=2 GROUP BY 1 ORDER BY 2"` → the **Sunday main draft group** is
-  the one whose games span Sunday 12:00 CT through the late-afternoon window (Week 1: 151307). Record it.
-- Operator decisions to collect this week: contest mix and entry counts (Week 1: Millionaire 57, Play-Action 20,
-  FFWC Q 3 = 80 unique, fees $399; CLAUDE.md's standing memory says never < 15 per contest), stake level (his own
-  read after Week 1: minimum stakes until a finish-objective result exists), whether a K90 nested build with 90
-  reserved entries is wanted again.
+### Wednesday 09-16 — DONE (this document's date of record)
+- Every cohort read (097 saturation at 3200; 098 negative; PREREG-100 vetting null / Q-flags under-deliver); synthesis
+  `reports/2026-09-16-findings-since-week1-synthesis.md`; tail-calibration draft awaiting sign-off.
+- PREREG-099 (12,800 supply rung) moved to the workstation, one bank (amendments 1–2); gate running (§2).
+- Week-2 Sunday-main draft group **153428** (658 players); DK pulls by the host loop only (defects 18/19).
+- **Operator decisions taken today (protocol overrides, recorded in §4.1):** the Week-2 dose plan (D6400 intended
+  entry, D12800 early candidate, D3200 and D800 fallbacks; four timers); the `top` ENTER layout; entries reserved
+  (33 / $206: Millionaire 1, SUPERSatellite 2, Huddle 1, Pylon 1, Nickel 5, Flea Flicker 23); `contests.json` filled;
+  the operator stays on this workstation through Week 2 (the machine move in §11 is deferred).
+- Build chain reworked and rehearsed end to end on the real entries export (§4.1); D6400 / D12800 timing rehearsals
+  running (§2).
 
-### Thursday 09-17 / Friday 09-18
-- Prepare the Week-2 Sunday script (§4.1) and rehearse it once end to end on Thursday's data with a rehearsal run id
-  (it writes only under `/home/erich/week1-sunday/` and immutable run dirs; nothing is published).
-- Practice-status exposure cap: test on the 72 historical books before it may touch a live book (rule 1).
-- (098 was negative: no finish-objective shadow book for Week 2.)
-- Weekly ETR CSV to `/market` if the operator supplies one (paid pass was Sep 8–9).
+### Thursday 09-17
+- Read the timing rehearsals' receipts (§2 step 5) and confirm or move the 01:30 / 05:30 CT timer slots.
+- s-trends / s-contests on Cloud Run are 403 (defect 18): the host loop's `ingest-contests` covers the lobby.
+- Optional: the operator's sign-off on `reports/2026-09-16-prereg-tail-calibration-DRAFT.md` (a lab cohort that
+  cannot start before PREREG-099 leaves the workstation's cores; it is not on the Week-2 path).
+
+### Friday 09-18
+- PREREG-099 read when `run_119_local.log` says "done" (expected Friday evening): `cd <099 worktree> && PYTHONPATH=src
+  /home/erich/projects/nfl2/.venv/bin/python scripts/prereg099_report.py <RUN990> > PREREG-099-read.txt`, record in
+  `PREREG-099.md` + `LEDGER.md`, commit on the 099 branch, push. Its secondary "proxy K80 D12800 − D6400" is the only
+  book-level evidence the operator has for the 12,800 go/no-go; report it plainly with its W/L and interval.
+- Ask the operator: is D12800 still an early candidate for Sunday (yes → keep the 01:30 CT timer; no → drop that line).
+- If the PREREG-099 bank is still running Saturday night, stop it (`kill $(cat results/run_119_local.pid)` plus the
+  worker pythons `pkill -f "119_dose12800.py --bank=990$"` from a separate command) so Sunday's builds have the cores;
+  it resumes later with the same command (attach-aware).
 
 ### Saturday 09-19
-- `s-cfb-sat` runs (college; unrelated). Verify Sunday timer is armed (§4.1), Downloads-folder watcher path is
-  correct, and that the operator has reserved his entries in DK with a placeholder lineup (§4.3).
+- Print `scripts/arm_week_timers.sh 2` and have the operator run the five lines; then `systemctl --user list-timers
+  --all | grep nfl-week2` must show all five. `WIN_DOWNLOADS` in `/home/erich/week2-sunday-watchers.sh` is
+  `/mnt/c/Users/Erich/Downloads` (the entries export already sits there as `DKEntries-2026-09-16.csv`; the watcher
+  takes the newest `DKEntries*.csv`).
+- Confirm the DK loop pulled within the hour and `week_env 2` still resolves to group 153428.
 
 ### Sunday 09-20 (§4)
 ### Monday 09-21 / Tuesday 09-22 (§5)
@@ -328,12 +357,19 @@ folder (small) — the per-slate JSONs stay on the host.
 | 15 | `nfl-week1-sunday-build.sh` / runbook hard-coded to Week 1 (week, group 151307, `2026-w01`, tag suffix, publish root) | week-parametrised scripts + `arm_week_timers.sh` (§4.1); Thursday rehearsal + operator timer arming remain | fixed in code; Thursday steps open |
 | 16 | Cloud Run "Internal error running task" losses on the lab lanes (23–51 retries per bank) | repairs per §6.4 | recurring |
 | 17 | The standard production build (`cloudbuild.yaml`, full suite before the image) cannot complete from `main`: on 2026-09-15 the suite ran 3 h to 77 % with failure blocks at 72–75 % (the frozen-factorial drift, defect-log 2026-09-11) and hit the build ceiling; the 2026-09-13 week1 build took 4.5 min from the week1 branch | `cloudbuild.focused.yaml` (`_TESTS` lane, disclosed deviation) for narrow fixes; the real remedy is the operator's drift decision + the test-lanes branch `production/test-lanes-and-factorial-drift-20260911` (`scripts/test_lanes.sh`) | **open, operator decision** |
+| 19 | Host DK loop inherited no `GCP_PROJECT` from a fresh shell after the WSL restart → the code's default project (`nfl-dfs-prod`) → every pull 503 | `host_ingest_dk_loop.sh` now exports `GCP_PROJECT=nfl-predictions-503414` itself | closed 2026-09-16 11:25Z |
+| 20 | `fill_dk_entries.py` carried a hard-coded Week-1 contest map (Sunday's fill would have matched nothing) | reads `--contests contests.json` (or `$CONTESTS_JSON`); the watcher passes it; tracked copy `scripts/fill_dk_entries.py` | closed 2026-09-16 |
+| 21 | `live_week.py` writes `LATEST` when a run STARTS, so concurrent Sunday builds would mis-identify their run dirs | `sunday_build_host.sh` finds its run dir by receipt (lev/boom + build window), never by `LATEST` (`find_run_dir`); tested against Week-1 run dirs, not yet against two truly concurrent builds | mitigated |
+| 22 | The leverage cut loop is superlinear (≈ 3.2× per doubling: 504 / 1,291 / 4,019 / 13,237 s at lev 160/320/640/1280 on the cloud) — every "2× per doubling" estimate in earlier notes is wrong | timings in §4.1; rehearsals measure D6400 / D12800 on this host | open (a parallel boom stream would not help; lev is sequential) |
 | 18 | **DraftKings API returns 403 to Cloud Run egress** (every scheduled `ingest-dk` execution since 2026-09-16 05:00Z; the identical request from the workstation returns 200) — no salaries/statuses/draft groups land from the cloud; Sunday's hourly `ingest-dk` and `ingest-contests-sun` are affected | stopgap: host loop `/home/erich/week1-sunday/host_ingest_dk_loop.sh` (hourly `nfl-dfs ingest-dk` + `ingest-contests` with `INGEST_CONTESTS_ENABLED=1`, from the audit worktree; pid in `host_ingest_dk_loop.pid`; started 09:45Z, 3,089 salary rows + 4,529 contests landed; **must run on whichever machine is on** — restart it on the laptop after the move); real fix = static egress (VPC connector + Cloud NAT) or move the DK pulls to a host timer permanently | **open, operator decision on the egress fix** |
 
 ---
 
 ## 10. File index (most used)
 
+- Week-2 Sunday scripts (this branch, `scripts/`): `week_env.sh`, `find_main_draft_group.py`, `sunday_build_host.sh` (dose env/file, `SKIP_PAIR`, receipt-based run dir), `sunday_runbook.sh`, `sunday_after_build.sh` (`ENTER_LAYOUT=top|sequential`), `sunday_watch_dk_entries.sh`, `sunday_watch_late_inactives.py`, `fill_dk_entries.py`, `arm_week_timers.sh` (five timers), `contests.template.json`.
+- Host Week-2 state (untracked): `/home/erich/week2-sunday-build.sh`, `/home/erich/week2-sunday-watchers.sh`, `/home/erich/week2-dose.env` (640/2560 = the 09:10 CT D3200 build), `/home/erich/week2-sunday/contests.json` (filled), `/home/erich/week2-sunday/ENTERED/DKEntries-2026-09-16.csv` (entry keys — private), `/home/erich/week2-rehearsal/` (timing rehearsals), `/home/erich/week2-rehearsal-chain/` (chain rehearsal; its `fill/REHEARSAL-…-DO-NOT-UPLOAD.csv` holds Week-1 lineups).
+- PREREG-099 worktree `/home/erich/projects/.nfl2-worktrees/prereg099-supply12800-20260916` (branch `lab/prereg099-supply12800-20260916`): `PREREG-099.md` (+ amendments 1–2), `experiments/119_dose12800.py`, `scripts/run_119_local_v2.sh` (host executor), `scripts/prereg099_report.py` (one run id), `scripts/prereg099_mechanics_gate.py`, cloud fallback `scripts/arm_119.sh` / `queue_119.sh`.
 - `reports/2026-09-16-findings-since-week1-synthesis.md` — every result since Week 1 with ranked next steps (read first).
 - `reports/2026-09-16-prereg-tail-calibration-DRAFT.md` — the tail-calibration preregistration awaiting operator sign-off.
 - lab `PREREG-099.md` (branch `lab/prereg099-supply12800-20260916`) — the 12,800 supply rung, launched 2026-09-16; lab `PREREG-100.md` (branch `lab/prereg100-practice-status-20260916`) — practice-status vetting, read 2026-09-16.
@@ -354,16 +390,13 @@ folder (small) — the per-slate JSONs stay on the host.
 
 ---
 
-## 11. Moving to another machine (the laptop) — checklist
+## 11. Moving to another machine (the laptop) — checklist (DEFERRED: the operator stays on this workstation through Week 2; the operator's guide is `reports/2026-09-15-workstation-to-laptop-transition-guide.md`)
 
 Everything durable is on GitHub (both repos, every branch pushed) and in GCS/BigQuery. What is host-only, and what
 assumes this host's paths:
 
-**Do not power this workstation off while these are running** (they are not cloud jobs):
-- the direct paid-source runner (six workers; results land in `/home/erich/week1-sunday/direct_runner/results/`;
-  if killed, restart the same command — it skips finished slates);
-- the registered 097 repair launcher (`repair_097.sh` → `repair_bank.sh`); if killed, its registry receipt must be
-  adjudicated (§6.2) and the remaining season repairs relaunched; the cloud executions themselves keep running.
+**Do not power this workstation off while these are running** (they are not cloud jobs): the PREREG-099 host run,
+the D6400 / D12800 rehearsals and the DK pull loop (§2). The direct paid-source runner and the 097 repairs are finished.
 Cloud Run jobs, Cloud Build and schedulers are unaffected by the move.
 
 **Copy to the new machine (same WSL username `erich`, same paths — the scripts default to `/home/erich/...`):**
