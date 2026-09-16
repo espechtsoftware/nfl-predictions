@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # Post-build chain for any week (generalised from the Week-1 learned_after_build.sh).  For every NEW live run dir
 # under $LIVE_DIR: vet the paid book (HARD/material lineups to the back), write the per-contest ENTER files for the
-# reserved entries from $CONTESTS_JSON (keepers first within each contest, then fill lineups the operator withdraws
-# or leaves), the single all-entries file, the keepers' sheet, and TODAY-30-LATEST.md.  The learned pool scorer
+# reserved entries from $CONTESTS_JSON (ENTER_LAYOUT=top, the Week-2 default: every contest gets the vetted book's
+# first N, since contests pay independently; ENTER_LAYOUT=sequential: the Week-1 unique-across-contests layout), the
+# single all-entries file, the keepers' sheet, and TODAY-30-LATEST.md.  The learned pool scorer
 # (PREREG-096: REVERT) is no longer on the path; it can be run by hand from tools/.
 #
 #   source scripts/week_env.sh && week_env 2; scripts/sunday_after_build.sh              # poll until 16:50Z
@@ -26,20 +27,36 @@ process_run() {
   local all="$OUT/upload-$tag-paid-vetted-all.csv"
   $PY - "$CONTESTS_JSON" "$all" "$E" "$entries" <<'PYEOF' > "$E/ENTER-layout.txt"
 import csv, json, sys, pathlib
+import os
 contests, src, E, entries = json.load(open(sys.argv[1])), sys.argv[2], pathlib.Path(sys.argv[3]), int(sys.argv[4])
 rows = list(csv.reader(open(src))); hdr, body = rows[0], rows[1:]
-keep_total = sum(int(c["keep"]) for c in contests); fill_next = keep_total + 1; keep_next = 1
-for c in contests:
-    n, k = int(c["entries"]), int(c["keep"]); lab = f"{c['name']}-{c['contest_id']}"
-    keepers = body[keep_next - 1: keep_next - 1 + k]; keep_next += k
-    fills = body[fill_next - 1: fill_next - 1 + (n - k)]; fill_next += n - k
-    if len(keepers) + len(fills) != n:
-        print(f"WARNING {lab}: only {len(keepers) + len(fills)} of {n} lineups available from a K{entries} book")
-    out = E / f"ENTER-{lab}-{n}-entries-KEEP-first-{k}.csv"
-    with open(out, "w", newline="") as f:
-        w = csv.writer(f); w.writerow(hdr); w.writerows(keepers + fills)
-    print(f"{lab}: {n} entries, keep rows 1-{k} (vetted ranks {keep_next - k}-{keep_next - 1}), fill rows {k + 1}-{n} -> {out.name}")
-print(f"keepers total {keep_total}; fills drawn from vetted ranks {keep_total + 1}-{fill_next - 1}")
+layout = os.environ.get("ENTER_LAYOUT", "top")   # top: every contest gets vetted ranks 1..n (contests pay independently,
+                                                 # so each deserves the best lineups; Week-2 default).  sequential: the
+                                                 # Week-1 layout (unique lineups across contests, keepers first).
+if layout == "top":
+    for c in contests:
+        n, k = int(c["entries"]), int(c["keep"]); lab = f"{c['name']}-{c['contest_id']}"
+        lines = body[:n]
+        if len(lines) != n:
+            print(f"WARNING {lab}: only {len(lines)} of {n} lineups available from a K{entries} book")
+        out = E / f"ENTER-{lab}-{n}-entries-KEEP-first-{k}.csv"
+        with open(out, "w", newline="") as f:
+            w = csv.writer(f); w.writerow(hdr); w.writerows(lines)
+        print(f"{lab}: {n} entries = vetted ranks 1-{n} (top layout; keep {k}) -> {out.name}")
+    print(f"top layout: every contest receives the vetted book's first N; {sum(int(c['entries']) for c in contests)} entries in total")
+else:
+    keep_total = sum(int(c["keep"]) for c in contests); fill_next = keep_total + 1; keep_next = 1
+    for c in contests:
+        n, k = int(c["entries"]), int(c["keep"]); lab = f"{c['name']}-{c['contest_id']}"
+        keepers = body[keep_next - 1: keep_next - 1 + k]; keep_next += k
+        fills = body[fill_next - 1: fill_next - 1 + (n - k)]; fill_next += n - k
+        if len(keepers) + len(fills) != n:
+            print(f"WARNING {lab}: only {len(keepers) + len(fills)} of {n} lineups available from a K{entries} book")
+        out = E / f"ENTER-{lab}-{n}-entries-KEEP-first-{k}.csv"
+        with open(out, "w", newline="") as f:
+            w = csv.writer(f); w.writerow(hdr); w.writerows(keepers + fills)
+        print(f"{lab}: {n} entries, keep rows 1-{k} (vetted ranks {keep_next - k}-{keep_next - 1}), fill rows {k + 1}-{n} -> {out.name}")
+    print(f"keepers total {keep_total}; fills drawn from vetted ranks {keep_total + 1}-{fill_next - 1}")
 PYEOF
   cp "$all" "$E/ENTER-all-rows-1-to-$(( $($PY -c "import json; print(sum(c['keep'] for c in json.load(open('$CONTESTS_JSON'))))") ))-are-the-KEEPERS.csv"
   cp "$OUT/lineup-sheet-$tag-paid-vetted-30.md" "$E/ENTER-sheet-keepers.md" 2>/dev/null

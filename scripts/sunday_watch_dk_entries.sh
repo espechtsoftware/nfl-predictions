@@ -14,7 +14,7 @@ while [ "$(date -u +%H%M)" -lt 1658 ]; do
     if [ "$sig" != "$last" ]; then
       frame=$(ls -td "$LIVE_DIR"/*/ | while read -r d; do [ -f "$d/frame.parquet" ] && { echo "$d/frame.parquet"; break; }; done)
       log "filling $tpl (lineups from $(basename "$lu"))"
-      "$PROD_PY" "$T" "$tpl" --enter-dir "$E" --frame "$frame" > "$E/fill.log" 2>&1 && { cat "$E/fill.log"; cp "$E/DKEntries-FILLED-keepers-first.csv" "$WIN/DKEntries-FILLED-keepers-first.csv" 2>/dev/null && log "-> $WIN/DKEntries-FILLED-keepers-first.csv"; } || { log "FILL FAILED"; cat "$E/fill.log"; }
+      "$PROD_PY" "$T" "$tpl" --contests "$CONTESTS_JSON" --enter-dir "$E" --frame "$frame" > "$E/fill.log" 2>&1 && { cat "$E/fill.log"; cp "$E/DKEntries-FILLED-keepers-first.csv" "$WIN/DKEntries-FILLED-keepers-first.csv" 2>/dev/null && log "-> $WIN/DKEntries-FILLED-keepers-first.csv"; } || { log "FILL FAILED"; cat "$E/fill.log"; }
       last="$sig"
     fi
   fi
