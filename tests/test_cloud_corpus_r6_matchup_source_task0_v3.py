@@ -82,7 +82,12 @@ def test_commit_b_build_preserves_exact_clean_git_runtime() -> None:
     docker = DOCKERFILE.read_text(encoding="utf-8")
     build = CLOUDBUILD.read_text(encoding="utf-8")
     assert "FROM python:3.11-slim" in docker
-    assert "COPY . /app" in docker
+    # The checkout lives at the workstation's absolute path so the HEAD-stable
+    # frozen-G0 evidence literals resolve; /app is a symlink for the argv contract.
+    assert "WORKDIR /home/erich/projects/nfl-predictions" in docker
+    assert "COPY . /home/erich/projects/nfl-predictions" in docker
+    assert "RUN ln -s /home/erich/projects/nfl-predictions /app" in docker
+    assert "COPY . /app" not in docker
     assert "git ca-certificates gzip jq libgomp1" in " ".join(docker.split())
     assert "git -C /app rev-parse HEAD" in docker
     assert "git -C /app rev-parse --is-shallow-repository" in docker

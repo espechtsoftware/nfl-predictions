@@ -1484,7 +1484,9 @@ def _sis_defender_views(
         )
         if None in {completions, yards, touchdowns, targets, snaps}:
             continue
-        if min(completions, yards, touchdowns, targets, snaps) < 0:
+        # Yards is a signed total (a completion can lose yards); the four
+        # counts are nonnegative by construction.
+        if min(completions, touchdowns, targets, snaps) < 0:
             _fail("SIS defender counts must be nonnegative")
         eligible_rows.append({
             "key": key,

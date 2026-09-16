@@ -8,12 +8,16 @@ ENV IMAGE_SOURCE_COMMIT_SHA="${SOURCE_COMMIT_SHA}" \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
-WORKDIR /app
+# The frozen G0 evidence (corpus_extreme_tail_panel_execution.FROZEN_G0_*_PATH) is pinned by absolute
+# path to the workstation checkout and that module is HEAD-stable (it cannot change).  The image therefore
+# keeps the checkout at the same absolute path; /app is a symlink kept for the controller's exact argv.
+WORKDIR /home/erich/projects/nfl-predictions
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
        git ca-certificates gzip jq libgomp1 \
     && rm -rf /var/lib/apt/lists/*
-COPY . /app
+COPY . /home/erich/projects/nfl-predictions
+RUN ln -s /home/erich/projects/nfl-predictions /app
 
 RUN test -d /app/.git \
     && test "$(git -C /app rev-parse HEAD)" = "${SOURCE_COMMIT_SHA}" \
