@@ -12,8 +12,8 @@ Use the same WSL username (`erich`) and home directory on the laptop. Every scri
 
 **A1. What is still running here (updated 2026-09-16 morning).** The admission-cap cohort and the PREREG-097
 repairs are finished and read. The only live host process is the hourly DraftKings pull loop
-(`host_ingest_dk_loop.sh`, defect 18): stop it here just before you pack (`pkill -f host_ingest_dk_loop`) and start
-it on the laptop in B8. Ask the assistant "is anything still running on this machine?" before you start, in case
+(`host_ingest_dk_loop.sh`, defect 18; salaries + contests): stop it here just before you pack
+(`kill $(cat /home/erich/week1-sunday/host_ingest_dk_loop.pid)`) and start it on the laptop in B8. Ask the assistant "is anything still running on this machine?" before you start, in case
 that has changed.
 
 **A2. Pack the host state** (one command; ~500 MB; uploads to the project's private bucket):
@@ -94,7 +94,7 @@ DraftKings entries exports).
 scripts in the main checkout; enable the ones you had: `systemctl --user enable --now nfl-production-monitor-heartbeat.timer
 nfl-cloud-run-lane-monitor.service nfl-cloud-build-monitor.service nfl-lab-action-note-monitor.service`.
 
-**B8. DraftKings pulls (defect 18):** Cloud Run is 403-blocked by DraftKings, so the hourly salary/status pull runs from the host: after B6, start `setsid nohup /home/erich/week1-sunday/host_ingest_dk_loop.sh > /home/erich/week1-sunday/host_ingest_dk_loop.log 2>&1 < /dev/null &` and stop the copy on the workstation before you shut it down (`pkill -f host_ingest_dk_loop`). Without it there are no Week-2 salaries, projections or builds.
+**B8. DraftKings pulls (defect 18):** Cloud Run is 403-blocked by DraftKings, so the hourly salary/status pull AND the contest-lobby pull run from the host loop: after B6, start `setsid nohup /home/erich/week1-sunday/host_ingest_dk_loop.sh > /home/erich/week1-sunday/host_ingest_dk_loop.log 2>&1 < /dev/null &`; stop the workstation's copy first with `kill $(cat /home/erich/week1-sunday/host_ingest_dk_loop.pid)`. Without it there are no Week-2 salaries, contest fills, projections or builds.
 
 **B9. Windows-side path:** if the laptop's Windows user folder is not `C:\Users\Erich`, set `WIN_DOWNLOADS` in
 `/home/erich/week2-sunday-watchers.sh` (used to pick up DraftKings' entries export on Sunday).
