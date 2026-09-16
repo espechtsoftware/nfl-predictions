@@ -365,7 +365,7 @@ git -C /home/erich/projects/.nfl-predictions-worktrees/nflverse-ftn-20260915 pus
 - **2026-09-15 21:25Z — admission-cap lever cohort running** (operator: "yes" to fix the bottleneck first, then re-test the sources). Preregistration frozen at f9ed9475 (`reports/2026-09-15-prereg-admission-cap-lever.md`): rules cap200 (control) / cap400 / cap800 / capall by mean matchup edge + tail200 (source-free, discovery tail count), sources on-on and off-off; four primary K20 contrasts, family 0.9875, sign test required. Runner `scripts/paid_source_admission_cap_v1.py` (5cfadd78) reuses the ladder records' annotations; mechanics smoke on 2023 W1 passed (on-on qualifies 3,804/3,815 → capall ≈ coverage-194 over the whole pool; off-off qualifies 905). Six workers, results `/home/erich/week1-sunday/direct_runner/results_cap/` (~4 min/slate/worker). Read with `--read`; report + consequences per the prereg.
 - **2026-09-16 00:50Z — admission-cap lever READ (54/54): nothing passes.** capall − cap200 K20 −0.68 (23/28); tail200 − cap200 K20 +1.16 near miss (24/28, p 0.68); sources on − off at capall −1.03 (null). Admitted ceiling 181 → 202 with no K20 gain and +1.5 at K80 (near miss): the regret is in the selector's world model, not the gate or the data (Addendum 95 reproduced). Report + evidence `reports/admission-cap-lever-20260915/`; briefing §7 and the operating handoff updated. Recommendation to the operator: do not renew FP/SIS. 971 repairs: 2021 4/6, 2022 3/6 at 00:42Z; 2023/2024 queued.
 - **2026-09-16 09:45Z — three things.** (1) **PREREG-097 read** (reader repaired first: its RUN_PREFIXES keys were the 093 banks 930–932, a typo in the frozen artefact; decision logic untouched; commit on the 097 branch): D3200−D800 +0.00960 PASS (replication of 093), D6400−D800 +0.01462 PASS (raw K80 +1.87; weeks ≥200 10→16, ≥210 1→7, ≥220 1→1), D6400−D3200 +0.00502 UNPASSED_NEAR_MISS (32/36/4, sign p 0.34). Transcript `/home/erich/week1-sunday/prereg097_read.txt`; LEDGER row next. (2) **DraftKings 403 to Cloud Run** (defect 18): every `ingest-dk` execution since 05:00Z failed; host run at 09:36Z landed 3,089 rows incl. the Week-2 groups; hourly host loop started (`host_ingest_dk_loop.sh`). (3) **Week-2 Sunday-main draft group = 153428** (658 players, 26 teams), detected by `find_main_draft_group.py`.
-- **2026-09-16 10:45Z (Wednesday) — every cohort read; synthesis written; PREREG-099/100 added.** (1) PREREG-097 read
+- **2026-09-16 10:45Z (Wednesday; amended 11:05Z) — every cohort read; synthesis written; PREREG-099/100 added.** (1) PREREG-097 read
   (saturation at 3200; 6400 closed as a paid dose; 220-supply doubled) and PREREG-098 read (finish objective decisively
   NEGATIVE) — LEDGER rows on their lab branches, both pushed. (2) Paid-source ladder + admission-cap lever read: sources
   null, regret lives in the selector's world model; do not renew FP/SIS. (3) **PREREG-100** (lab branch
@@ -373,9 +373,11 @@ git -C /home/erich/projects/.nfl-predictions-worktrees/nflverse-ftn-20260915 pus
   K30 weeks ≥194 5→13); player level: Q_dnp −5.9 / Q_limited −2.9 residual under-deliver, undesignated practice
   absences deliver in full → keep vet_book as shipped for Week 2; a Q_dnp/Q_limited cap is the follow-up
   preregistration. (4) **PREREG-099** (lab branch `lab/prereg099-supply12800-20260916`, experiment 119, image
-  `prereg09v`, banks 990/991, task timeout 72,000 s, ≈ $250): the 12,800-solve rung as a supply study; frozen and
-  launched through the registry (`scripts/arm_119.sh` → `scripts/queue_119.sh`; gate `119m990r1` then the two banks);
-  read Thursday with `scripts/prereg099_report.py RUN990 RUN991`. (5) **Synthesis with ranked next steps:**
+  `prereg09v`, banks 990/991, task timeout 72,000 s, ≈ $250): the 12,800-solve rung as a supply study; frozen; **amendment 1: it runs on the
+  workstation** (`scripts/run_119_local.sh 10`, detached; attach-aware; gate first at full scale, then banks 990 and 991,
+  72 tasks each, ≈ 2 days at 10 workers; needs the WSL memory limit raised from 24 GB to 56 GB first — operator step),
+  shards land in the same bucket; the Cloud Run path (image `prereg09v-b8424efb35b2`, build 7c4673e8, `arm_119.sh`)
+  is the fallback; read with `scripts/prereg099_report.py RUN990 RUN991` (ids in `results/run_119_local_runs.log`). (5) **Synthesis with ranked next steps:**
   `reports/2026-09-16-findings-since-week1-synthesis.md` (read first); **tail-calibration preregistration DRAFT** for
   operator sign-off: `reports/2026-09-16-prereg-tail-calibration-DRAFT.md`. (6) ingest-nflverse 10:00Z run verified
   with the FTN tolerance (2,675 charting rows loaded). (7) Host DK loop pid 595725 still the only DK pull path
