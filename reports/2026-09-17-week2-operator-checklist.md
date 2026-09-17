@@ -23,6 +23,17 @@ all three again — nothing is damaged. Tell the assistant when done: it re-runs
 get a representative book to look at before Saturday, and checks the receipt shows `production_rows` > 0 and no
 marginals warning.
 
+## Thursday or Friday — renew the SIS login (about a minute, needs your password)
+
+The weekly paid-data capture (`nfl-weekly-data`) found the Fantasy Points session alive but the SIS session expired.
+The Fantasy Points half of Week 2's capture has been run for you; the SIS half needs a fresh login, which only you can
+do (it prompts for your credentials in the terminal and never stores them):
+```
+cd /home/erich/projects/.nfl-predictions-worktrees/week1-audit-adjust-20260912 && PYTHONPATH=src /home/erich/projects/nfl-predictions/.venv/bin/python -m nfl_dfs.ops.sis_downloads login --terminal-credentials --fresh
+```
+Then tell the assistant; it runs the SIS part of the weekly capture. (This is the Wednesday step from the design guide's
+cadence table that was missing from this week's plan; it is now on the assistant's list for every Wednesday.)
+
 ## Before Saturday: nothing else required
 
 - Optional: sign off (or amend) `reports/2026-09-16-prereg-tail-calibration-DRAFT.md` (a lab study, not on the Sunday path).
