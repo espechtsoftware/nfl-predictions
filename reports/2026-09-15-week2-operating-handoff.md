@@ -476,6 +476,20 @@ folder (small) — the per-slate JSONs stay on the host.
 
 ---
 
+## 9a. The second machine and the review channel (2026-09-17)
+
+The operator's laptop is back and available for work; it polls for handoffs. An independent agent is reviewing the
+code there. Both directions use branches, never prose relayed by the operator:
+
+- **Review findings come to us** on `review/2026-09-code-review-<name>` (production: `reports/reviews/…md`; lab:
+  `handoffs/…md`). Poll with `git fetch origin && git branch -r | grep review/`. The brief the reviewer was given is
+  `reports/2026-09-17-external-code-review-request.md` — read it before replying so you know what they were asked.
+- **Work we want run there** goes on a branch of ours with a file under `handoffs/` (lab) or
+  `reports/handoffs/` (production) naming the exact commands, the expected output, and where to write results. Never
+  send work that touches the live week (Cloud Run jobs, `main`, entries files, host processes) — this machine owns those.
+- **Clone safety (done 2026-09-17):** every local-only branch is pushed in both repositories, so a fresh clone on the
+  laptop loses nothing; uncommitted stale diffs are archived at `/home/erich/week1-sunday/uncommitted-diffs-20260917/`.
+
 ## 10. File index (most used)
 
 - `reports/2026-09-17-week2-operator-checklist.md` — the operator's own steps for Saturday/Sunday/Monday (timers, refresh, chosen dose, upload).

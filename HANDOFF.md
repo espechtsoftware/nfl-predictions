@@ -385,6 +385,21 @@ git -C /home/erich/projects/.nfl-predictions-worktrees/nflverse-ftn-20260915 pus
   had defaulted it to `nfl-dfs-prod` and every pull failed until fixed at 11:25Z) is still the only DK pull path
   (defect 18); ingest-dk on Cloud Run keeps failing by design until the operator decides on egress (Cloud Build probe
   also 403 → NAT not expected to help). Host clock is CDT; stamp with `date -u`.
+- **2026-09-17 22:00Z — repositories made clone-safe; second machine and review channel opened.** (1) Every local-only
+  branch was pushed (production 6: `agent/runtime-import-repair-20260822085621`, `codex/above200-analysis`,
+  `codex/coverage-selector-lineage-v1`, `codex/deployment-attestation`, `codex/phenotype-graph-ui-adapter`,
+  `codex/prelock-publication-hardening`; lab 3: `codex/opportunity-lineage-v1`,
+  `lab/prereg074-r23-parallel-abandoned`, `production/prereg054-launch-contract`) — **both repositories now have zero
+  branches that exist only on this host**. (2) Uncommitted tracked changes in 12 checkouts/worktrees (the dirty main
+  production checkout, the dirty `nfl2` checkout and ten old experiment trees) were archived as patches to
+  `/home/erich/week1-sunday/uncommitted-diffs-20260917/` (384 KB, inside the migration pack) — they are NOT committed,
+  because they are stale experimental states, but nothing is lost by a fresh clone. (3) The operator's laptop is
+  available as a second machine and will poll for handoffs; an independent agent will review the code. The review
+  brief, ground rules and delivery channel are `reports/2026-09-17-external-code-review-request.md`: reviewer branches
+  from `origin/main` as `review/2026-09-code-review-<name>`, writes `reports/reviews/2026-09-17-code-review-<name>.md`
+  (in `nfl2`: `handoffs/`), pushes, and the operating agent finds it with `git fetch origin` + any `review/*` branch.
+  Work the operating agent needs run on the other machine goes the same way, in a "Requests for the operating agent"
+  section.
 - **2026-09-17 19:00Z — the representative Week-2 book, on the corrected (props-blended) projections.** Rehearsal
   `20260917T150719330879Z-e7255e9` (D6400, lev 1280 / boom 5120, 6,400 candidates, 90 written, nested prefix true,
   3 h 50 min under bank contention; receipt confirms `production_generated_at 15:02:17Z`, `production_rows 532`,
