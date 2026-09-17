@@ -23,7 +23,15 @@ all three again — nothing is damaged. Tell the assistant when done: it re-runs
 get a representative book to look at before Saturday, and checks the receipt shows `production_rows` > 0 and no
 marginals warning.
 
-## Thursday or Friday — renew the SIS login (about a minute, needs your password)
+## Every week from now on (so it is written down once)
+
+Three things recur every week and only you can do two of them: (1) **Wednesday**: if the assistant reports an expired
+vendor session, the SIS or Fantasy Points login command (below); (2) **Wednesday and Saturday morning**: the three
+projection-refresh commands (build-features, tabpfn-gen for the week, project-slate), after 09:30 CT so the betting lines
+are in; (3) **Saturday**: arm the week's timers. The assistant owns the weekly vendor capture, the rehearsals, and the
+hourly checks, and its standing list is section 3a of the operating handoff.
+
+## Thursday or Friday — renew the SIS login (about a minute, needs your password) — DONE 09-17
 
 The weekly paid-data capture (`nfl-weekly-data`) found the Fantasy Points session alive but the SIS session expired.
 The workflow refuses to start any capture while the SIS session is expired, so nothing has been captured for Week 2 yet;
