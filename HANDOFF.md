@@ -453,15 +453,29 @@ git -C /home/erich/projects/.nfl-predictions-worktrees/nflverse-ftn-20260915 pus
   book-level evidence for a 12,800 Sunday entry this week; the Saturday D12800 build stays a no-cost candidate (it is
   also 12,560 by the same bound, `--sims 10000`), D6400 remains the intended entry. The D12800 timing rehearsal (Week-2
   data) is still running (started 16:53Z).
-- **Exact next actions (2026-09-16 15:45Z; supersedes the 09-14 list below) — for the next model on this machine:** (1) read
+- **Exact next actions (2026-09-17 13:20Z; supersedes every list below) — for the next model on this machine:** (1) read
   `reports/2026-09-15-week2-operating-handoff.md` §2 (running host processes with pid files, logs and restart commands;
-  the take-over checklist) and §3 for today; (2) re-establish an hourly host check (the previous assistant's poll was
-  session-only); (3) Thursday: record the D6400 / D12800 rehearsal build times from the run-dir receipts and confirm the
-  01:30 / 05:30 CT timer slots; (4) Friday: no PREREG-099 read yet (bank runs to Monday; amendment 3); operator's 12,800 go/no-go has no book
-  evidence this week; stop the PREREG-099 bank Saturday 17:00 CT (it resumes after Sunday); (5) Saturday: `scripts/arm_week_timers.sh 2` → operator
-  runs the six timer lines (two Saturday, four Sunday); (6) Saturday 16:30–17:50 CT: stop the 099 bank, operator refresh (17:00), Saturday builds (17:45 D12800 = THE ENTRY, 17:50 D6400 fallback); Sunday: §4 — the chosen-dose file pins the after-build watcher to D12800; fallback = D6400, vetted ENTER files,
-  watcher fills the entries export, scratch protocol for 10:30 CT inactives; (7) never commit `ENTERED/`, never push
-  main, never publish. Everything above is on branch `production/week1-audit-adjust-20260912`, and `origin/main` was fast-forwarded to it by the operator at 2026-09-16 15:35Z (a6aca01f), so main is current.
+  the take-over checklist), §3 for today, §4.1 (the Week-2 dose plan and its measured build times) and §4.1a (how to
+  rehearse); (2) re-establish an hourly host check — the previous assistant's poll was session-only — covering the
+  PREREG-099 driver, the DK pull loop and any running rehearsal; (3) **Thursday (today):** the representative D6400
+  rehearsal on the production law (started 10:38Z, log `/home/erich/week2-rehearsal/rehearse_6400_v2.log`) must be read
+  when it exits and its book reported to the operator (exposures by name, simulated E[max] and tail probabilities at
+  K30/K90, overlap with the fallback-law book), then recorded in §4.1; (4) **Friday:** PREREG-099 bank 990 completes on
+  the amended 2021 panel (18 shards in `gs://nfl-2-506823-lab/results/119_dose12800/119b990r1-20260917T013238Z/`) — run
+  the frozen reader ONCE, add the LEDGER row with the verbatim transcript, commit and push on the lab branch, and report
+  the verdict; no bank stop is needed any more (it finishes before Saturday), and the machine is then free; (5)
+  **Saturday:** print `scripts/arm_week_timers.sh 2` for the operator (six timer lines, to be armed before 07:30 CT);
+  he runs the three refresh commands at 07:45 CT (build-features → tabpfn-gen 2026:2 → project-slate, defects 24/25/26);
+  timers fire 08:30 CT D12800 (**the operator's chosen entry**, 12,560 candidates, 10–16 h) and 08:35 CT D6400 fallback;
+  confirm both books exist Saturday evening; (6) **Sunday:** §4 — the chosen-dose file `/home/erich/week2-chosen-dose.env`
+  (2560/10240) pins the after-build watcher to the D12800 book, fallback is to write 1280/5120 before 09:12 CT; watchers
+  at 09:12 CT write `ENTER/` and fill the newest `DKEntries*.csv` in Windows Downloads (currently the 67-entry
+  `DKEntries-2026-09-17.csv`, nine contests); scratch protocol for the 10:30 CT inactives; the operator uploads by
+  11:15 CT; (7) **Monday:** he exports standings + entry history; settle every book and shadow; (8) never commit
+  `ENTERED/`, never push main (hand him the one-line command), never publish, never run production Cloud Run jobs (all
+  classifier-refused), never edit a running script in place, never put a script's own name in a `pkill -f` on the same
+  command line. Everything is on branch `production/week1-audit-adjust-20260912`; `origin/main` was last fast-forwarded
+  to it by the operator at 2026-09-17 (9f308a6f) and is a few documentation commits behind.
 - **Exact next actions (2026-09-14 14:00Z):** (1) PREREG-097 banks 970/971 running (lab-run-2xtbb / lab-run-slow-jfz27, launched 11:20Z/11:23Z by the registered finish launcher pid 29569), 972 follows on the first free lane; when all three are terminal run `scripts/prereg097_report.py` from the 097 worktree and add the LEDGER row with the transcript; (2) the 09s image is built (digest sha256:d8a02797…, tag `prereg09s-7e8126b9b4c1`) and the sequencer is RUNNING (pid 69162, log `results/arm_118_sequencer.log` in the 098 worktree; it waits for the 097 launcher's `action=completed` registry line and idle lanes, then updates both jobs and arms `queue_118.sh`, launcher log `results/queue_118_launcher.log`); when `queue_118.sh` logs "all three banks terminal", run `scripts/prereg098_report.py RUN980 RUN981 RUN982`, add the LEDGER row, and record the outcome in the briefing §7 and `reports/2026-09-14-payout-retro-test.md`; (3) Week-2 items: practice-status exposure cap tested on the 72 historical books; runbook fixes; nflverse FTN 404 tolerance; verify Week-1 weekly stats landed.
 - **Exact next actions:** (1) when `110b900r2`/`110b901r2`/`110b902r2` are terminal (run ids in
   `results/queue_110_launches.log`), run `PYTHONPATH=src python scripts/prereg090_report.py <three run ids>`

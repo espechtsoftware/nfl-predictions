@@ -141,9 +141,11 @@ Sunday 06:00 CT.
   `PREREG-099.md` + `LEDGER.md`, commit on the 099 branch, push. Its secondary "proxy K80 D12800 − D6400" is the only
   book-level evidence the operator has for the 12,800 go/no-go; report it plainly with its W/L and interval.
 - Ask the operator: is D12800 still an early candidate for Sunday (yes → keep the 01:30 CT timer; no → drop that line).
-- If the PREREG-099 bank is still running Saturday night, stop it (`kill $(cat results/run_119_local.pid)` plus the
-  worker pythons `pkill -f "119_dose12800.py --bank=990$"` from a separate command) so Sunday's builds have the cores;
-  it resumes later with the same command (attach-aware).
+- The PREREG-099 bank should be FINISHED by Friday (amendment 4: 18 slates). If it somehow is not, stop it before
+  Saturday 07:30 CT so the builds get the cores: `kill $(cat results/run_119_local.pid)`, then as a SEPARATE command
+  `ps -eo pid,comm,args | awk '$2=="python" && /119_dose12800.py --bank=990$/ {print $1}' | xargs -r kill` (never put
+  the script name in a `pkill -f` on the same command line — exit 144 self-kill trap). It resumes with the v3 driver,
+  attach-aware, after Sunday.
 
 ### Saturday 09-19
 - **Long builds move to Saturday evening (operator decision 2026-09-16 23:45Z); the D12800 book is THE INTENDED ENTRY
