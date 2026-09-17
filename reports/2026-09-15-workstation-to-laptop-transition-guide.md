@@ -75,7 +75,11 @@ git worktree add ../.nfl2-worktrees/live-center-production-20260912 lab/prereg09
 git worktree add --detach ../.nfl2-worktrees/week1-live-center-e7255e9 e7255e9
 git worktree add ../.nfl2-worktrees/prereg096-fast-20260913 lab/prereg096-learned-pool-20260913
 git worktree add ../.nfl2-worktrees/prereg090-amend4 lab/prereg090-amend4-20260912
+git worktree add ../.nfl2-worktrees/prereg099-supply12800-20260916 lab/prereg099-supply12800-20260916   # added 2026-09-17
+git worktree add ../.nfl2-worktrees/prereg100-practice-status-20260916 lab/prereg100-practice-status-20260916
 ```
+The production `main` now contains the Week-2 branch (fast-forwarded 2026-09-17), so the audit worktree and a plain
+`main` checkout hold the same files; keep the worktree anyway because every host script points at its path.
 The direct-runner worktree needs its own venv: `cd ~/projects/.nfl-predictions-worktrees/source-v3-same-path-20260914 && python3 -m venv .venv && .venv/bin/pip install -e ".[gcp]" google-cloud-storage==3.13.1`.
 
 **B6. Restore the host state** (replace `<date>` with the folder printed in A2):
