@@ -385,6 +385,21 @@ git -C /home/erich/projects/.nfl-predictions-worktrees/nflverse-ftn-20260915 pus
   had defaulted it to `nfl-dfs-prod` and every pull failed until fixed at 11:25Z) is still the only DK pull path
   (defect 18); ingest-dk on Cloud Run keeps failing by design until the operator decides on egress (Cloud Build probe
   also 403 → NAT not expected to help). Host clock is CDT; stamp with `date -u`.
+- **2026-09-17 15:00Z — DEFECT 27, the most important finding of the day: the Week-2 production projections are an echo
+  of Week 1.** The representative rehearsal on the "production law" produced a book with Jalen Coker in 25 of its first
+  30 lineups and a simulated P(book ≥ 220) of 0.73 (historical ≈ 0.09), which sent me to the inputs rather than to the
+  book. `project-slate` at 10:36Z logged "prop-market coverage below 30 percent (96/500); using full DK-PPG fallback" —
+  and at week 2 DK points-per-game IS last week's score. Result: `proj_points(w2) ≈ 0.77 × dk_points(w1)`, corr **0.969**
+  across 309 skill players, p95 21.6 vs 18.2 in week 1, max 32.7 vs 23.7, and the top skill projections sit 9–20 points
+  ABOVE market-implied (Henry 29.2 vs ~9 plus TD equity; Coker 24.9 vs ~10). Week 1's entered build was safe because
+  there was no prior 2026 week to echo. **Consequences:** (a) no money book may be built on a `project-slate` run whose
+  log says `dk_ppg` at week ≤ 3 — always check for `market blend source: props`; (b) Saturday's refresh moves to
+  09:45 CT, after the 09:30 CT props pull, and the builds to 10:30/10:35 CT (timer script, operator checklist and §4.1
+  updated); (c) prop coverage is rising (week-2 props: 281 players 09-16, 473 09-17; 172 now carry the ≥ 2 markets the
+  blend needs against the ~150 threshold), so a re-run today should flip the source to props — the operator has been
+  asked to re-run `project-slate` now, and the representative rehearsal must then be rebuilt on the corrected centre
+  before its book means anything. The 2026-09-17 10:38Z rehearsal book is VOID for judging lineups (its timing,
+  3 h 42 min under bank contention, is still valid).
 - **2026-09-17 13:00Z — PREREG-099 amendment 4: the panel is 2021 (18 slates) and the primary line moves to >= 200.**
   Prompted by the operator asking whether one year of data would do. A power check on PREREG-097's published bank-970
   counts (a prior cohort; this cohort has produced zero shards, so nothing was read) says: the >= 220 ratio cannot

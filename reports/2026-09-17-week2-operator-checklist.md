@@ -30,26 +30,30 @@ marginals warning.
 
 ## Saturday 2026-09-19
 
-**1. Before 07:30 — arm the six timers** (the assistant cannot write systemd units):
+**1. Before 09:00 — arm the six timers** (the assistant cannot write systemd units):
 ```
 /home/erich/projects/.nfl-predictions-worktrees/week1-audit-adjust-20260912/scripts/arm_week_timers.sh 2 --run
 systemctl --user list-timers --all | grep nfl-week2
 ```
-Expect six `nfl-week2-*` timers: d12800-sat-build (Sat 08:30), d6400-sat-build (Sat 08:35), d6400-build (Sun 05:30),
-sunday-build (Sun 09:10), t70-build (Sun 10:50), watchers (Sun 09:12). The assistant stops the PREREG-099 bank before 08:00.
+Expect six `nfl-week2-*` timers: d12800-sat-build (Sat 10:30), d6400-sat-build (Sat 10:35), d6400-build (Sun 05:30),
+sunday-build (Sun 09:10), t70-build (Sun 10:50), watchers (Sun 09:12). The PREREG-099 bank finishes Friday, so the machine is already free.
 
-**2. At 07:45 — refresh the projections** (≈ 35 min; run all three, in this order; after 05:10 CT so the day's roster ingest is in; the 08:30 timer does not wait for them, so start on time):
+**2. At 09:45 — refresh the projections** (≈ 35 min; run all three, in this order; this slot is AFTER the 09:30 CT props pull, which matters — see the note below; the 10:30 timer does not wait for them, so start on time):
 ```
 gcloud run jobs execute build-features --project nfl-predictions-503414 --region us-central1 --wait
 gcloud run jobs execute tabpfn-gen --project nfl-predictions-503414 --region us-central1 --update-env-vars TABPFN_UPCOMING=2026:2 --wait
 gcloud run jobs execute project-slate --project nfl-predictions-503414 --region us-central1 --wait
 ```
-(Why the morning: the 12,800 rehearsal on this week's slate took 16 h 17 min while sharing the machine with the lab bank;
-an 08:30 start finishes between 20:30 Saturday and 00:50 Sunday, leaving the night to recover if anything fails.)
+(Why mid-morning: the 12,800 build takes 10–16 h, so a 10:30 start finishes between 20:30 Saturday and 02:30 Sunday and
+leaves the night to recover. And it must come after the 09:30 CT props pull: when fewer than 30 % of slate players have
+betting lines, the projection blend silently falls back to "DraftKings points per game", which in week 2 of a season is
+just last week's score. That happened on 2026-09-17 and produced projections roughly double the betting market for
+last week's top scorers. **After the refresh, tell the assistant; it checks the projection job's log for
+`market blend source: props` and will ask you to re-run project-slate if it says `dk_ppg`.**)
 Both should end with the execution "completed successfully". If either fails, tell the assistant; the builds still run on
 Tuesday's projections, which is acceptable.
 
-**3. Around 09:00 — confirm the builds started:**
+**3. Around 11:00 — confirm the builds started:**
 ```
 ls -t /home/erich/week2-sunday/build-*.log | head -n 2; tail -n 2 /home/erich/week2-sunday/build-*.log
 ```
@@ -61,7 +65,7 @@ Two logs (D12800 and D6400) each showing a "== ... run tag ..." header line.
 ```
 grep -h "k90=\|k90 build took\|K90 build failed\|== done" /home/erich/week2-sunday/build-*.log
 ```
-You want a `k90=` line and a "== done" for the d12800sat tag (between 20:30 Saturday and 00:50 Sunday) and for d6400sat (≈ 10:45 Saturday). You can check Saturday evening instead of Sunday morning.
+You want a `k90=` line and a "== done" for the d12800sat tag (between 20:30 Saturday and 02:30 Sunday) and for d6400sat (≈ 12:45 Saturday). You can check Saturday evening instead of Sunday morning.
 
 **2. Only if the D12800 build failed or you prefer the D6400 book — before 09:12:**
 ```
