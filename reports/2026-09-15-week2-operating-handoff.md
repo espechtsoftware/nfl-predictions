@@ -230,7 +230,11 @@ automation in `/home/erich/week2-chosen-dose.env` (§3 Saturday). Why Saturday: 
 Saturday build needs the manual refresh; it then lacks only Sunday-morning news (§3 Saturday).
 Measured build times on this machine (single stream, receipt `seconds`): D800 244 s, D3200 3,040 s (Week-1 receipts);
 **D6400 7,674 s = 2 h 08 min** (rehearsal 2026-09-16 14:44–16:52Z on group 153428, run dir
-`20260916T144448044783Z-e7255e9`, 6,400 candidates, 90 written, exit 0) → the 05:30 CT timer yields the D6400 book by
+`20260916T144448044783Z-e7255e9`, 6,400 candidates, 90 written, exit 0; a repeat on 09-17 15:07–18:57Z under bank
+contention took 3 h 50 min — the clean figure is the 2 h 08. **Representative book** (that 09-17 run,
+`20260917T150719330879Z-e7255e9`, the first on the corrected props-blended projections): K30 E[max] 192.4,
+P(≥194) 0.439, P(≥220) 0.119; K90 200.2 / 0.580 / 0.188; max single-player exposure 57 % of the first 30 vs the Week-1
+entered book's 73 %) → the 05:30 CT timer yields the D6400 book by
 ≈ 07:40 CT; **D12800 58,602 s = 16 h 17 min** (rehearsal 2026-09-16 16:53Z – 09:09Z on group 153428, 12,559 candidates, 90 written; it
 shared the machine with the 10-worker bank and a one-hour thread collapse, so a clean Saturday build should be shorter;
 the 08:30 CT slot assumes the measured pace plus margin).

@@ -385,6 +385,18 @@ git -C /home/erich/projects/.nfl-predictions-worktrees/nflverse-ftn-20260915 pus
   had defaulted it to `nfl-dfs-prod` and every pull failed until fixed at 11:25Z) is still the only DK pull path
   (defect 18); ingest-dk on Cloud Run keeps failing by design until the operator decides on egress (Cloud Build probe
   also 403 → NAT not expected to help). Host clock is CDT; stamp with `date -u`.
+- **2026-09-17 19:00Z — the representative Week-2 book, on the corrected (props-blended) projections.** Rehearsal
+  `20260917T150719330879Z-e7255e9` (D6400, lev 1280 / boom 5120, 6,400 candidates, 90 written, nested prefix true,
+  3 h 50 min under bank contention; receipt confirms `production_generated_at 15:02:17Z`, `production_rows 532`,
+  `matched_skill 405`, naive top-lineup projection 158.8, no marginals-fallback warning). **Simulated:** K30 E[max]
+  192.4, P(≥194) 0.439, P(≥220) 0.119; K90 E[max] 200.2, P(≥194) 0.580, P(≥220) 0.188 — in line with the historical
+  book rate (~0.09 at D3200) and with yesterday's lab-blend book (0.110 / 0.188), versus the void echo-law book's
+  absurd 0.73 / 0.80. **Zero overlap** with the void book at K30 and K90: the projection defect changed every lineup.
+  **Concentration** (first 30): Flowers and Jefferson 57 %, Hubbard 53 %, then Bijan / McConkey / Engram 30 % — high in
+  absolute terms but LOWER than the Week-1 entered book's first 30 (Jaguars DST 73 %, Gibbs 33 %) and its full 90
+  (Jaguars 79 %), so this is the money path's normal shape, not a new pathology. Top lineup: Flowers, Jefferson,
+  Hubbard, Bijan, McConkey, Juwan Johnson, Jaguars DST, Shough, Fant. The book is a rehearsal only — Saturday rebuilds
+  on Saturday's inputs.
 - **2026-09-17 15:10Z — defect 27 FIXED for Week 2 by a second `project-slate` run** (`project-slate-m9jmk`, generated_at
   15:02:17Z): the log now says **"market blend source: props (406/500 rows)"** and "876 player-weeks priced, 405 meet
   >= 2-market completeness" — the 09:30 CT props pull lifted coverage over the 30 % bar. Levels are back in line with
