@@ -385,6 +385,17 @@ git -C /home/erich/projects/.nfl-predictions-worktrees/nflverse-ftn-20260915 pus
   had defaulted it to `nfl-dfs-prod` and every pull failed until fixed at 11:25Z) is still the only DK pull path
   (defect 18); ingest-dk on Cloud Run keeps failing by design until the operator decides on egress (Cloud Build probe
   also 403 → NAT not expected to help). Host clock is CDT; stamp with `date -u`.
+- **2026-09-17 13:00Z — PREREG-099 amendment 4: the panel is 2021 (18 slates) and the primary line moves to >= 200.**
+  Prompted by the operator asking whether one year of data would do. A power check on PREREG-097's published bank-970
+  counts (a prior cohort; this cohort has produced zero shards, so nothing was read) says: the >= 220 ratio cannot
+  resolve a doubling even on 65 slates ([1.63, 3.30], counts 50/24) — the frozen primary was underpowered by
+  construction — while >= 200 resolves on one season ([1.81, 2.59] for 2021, counts 183/81) and 097 showed the ratio is
+  line-invariant (1.92-1.98 at 200/210/220). Amendment recorded in PREREG-099.md with the table and with the admission
+  that the support census should have preceded the freeze (CLAUDE.md preflight rule). Task indices 0-17 are exactly
+  2021 w1-18 and 0-9 were already in flight, so the amended panel costs ONE further wave: driver v3 (pid 458202,
+  `scripts/run_119_local_v3.sh`, same run id `119b990r1-20260917T013238Z`) waits for the in-flight workers, then runs
+  indices 10-17. **Expected complete Friday 2026-09-18, read Friday; the machine is then free well before Saturday's
+  builds.** Lab branch c06b2cd.
 - **2026-09-17 11:20Z — Week-2 entries revised by the operator: 67 entries / $216 in nine contests** (export
   `DKEntries-2026-09-17.csv` under `/home/erich/week2-sunday/ENTERED/`, never committed): Millionaire 1, SUPERSatellite
   $19 ×2, Huddle 1, Pylon 1, FFWC qualifier super-satellite $1 ×2, Nickel 5, two $0.25 super-satellites to the $20
