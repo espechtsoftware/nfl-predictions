@@ -384,6 +384,13 @@ git -C /home/erich/projects/.nfl-predictions-worktrees/nflverse-ftn-20260915 pus
   had defaulted it to `nfl-dfs-prod` and every pull failed until fixed at 11:25Z) is still the only DK pull path
   (defect 18); ingest-dk on Cloud Run keeps failing by design until the operator decides on egress (Cloud Build probe
   also 403 → NAT not expected to help). Host clock is CDT; stamp with `date -u`.
+- **2026-09-17 01:35Z — bank 990 relaunched with an OpenMP cap (defect 23).** The 00:28Z wave never reached its solvers:
+  every worker trains the component LightGBM models with an explicit `num_threads`, which overrides `OMP_NUM_THREADS=1`,
+  so 10 workers × 8 threads collapsed the machine (load 73, 60 min without progress). Fix: `OMP_THREAD_LIMIT=1
+  OMP_WAIT_POLICY=PASSIVE` exported by `run_119_local_v2.sh` (lab branch 8c29c36); killed the wave by pid, relaunched:
+  **run `119b990r1-20260917T013238Z`, driver pid 245998, 10 workers all solving within 100 s, load ≈ 11.** The D12800
+  timing rehearsal shared the machine with the collapse for an hour, so its receipt will overstate a clean build by
+  roughly that much.
 - **2026-09-17 00:50Z — operator: "I want to use D12800."** Recorded as his protocol decision (no book-level evidence for
   12,800 exists or will before Monday; the evidence is the dose law to 6,400 and 6,400 > 3,200 raw +1.2). Changes:
   Saturday slots moved earlier (operator refresh 17:00 CT → D12800 timer 17:45 CT, ≈ 10.7 h → ≈ 04:30 CT Sunday; D6400
