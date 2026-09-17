@@ -55,6 +55,24 @@ path requires a passing preregistered read, never a hunch.
    command into your report under a heading **"Requests for the operating agent"**; do not ask the operator to relay
    prose.
 
+## Which branches to read (the lab repository's `main` is stale)
+
+| repository | read | why |
+|---|---|---|
+| `nfl-predictions` | **`main`** (ae410cbf or newer) | current as of 2026-09-17; the Week-2 scripts, handoffs and defect list are all on it. The working branch `production/week1-audit-adjust-20260912` is identical to main right now. |
+| `nfl2` | **`lab/prereg099-supply12800-20260916`** (newest; carries `PREREG-099.md` with amendments 1–4, `experiments/119_dose12800.py`, `scripts/prereg099_*`, `scripts/run_119_local_v*.sh`) and **`lab/prereg100-practice-status-20260916`** | `nfl2`'s `main` is from 2026-09-10 and has diverged (19 commits behind the 099 branch); the experiment branches are the live science. `LAB_RULES.md` and `COORDINATION.md` are on both. |
+
+Do not merge `nfl2` branches into `main` — the lab's convention is one branch per preregistration, merged only when its
+ledger row is closed.
+
+## Two active-work warnings
+
+- A lab experiment is running on the workstation right now (`119b990r1-20260917T013238Z`, 18 slates, ten worker
+  processes). Nothing you do should consume CPU there or touch `/home/erich/projects/.nfl2-worktrees/prereg099-*`.
+- The Week-2 money path runs Saturday and Sunday. Review freely, but assume any file under `scripts/sunday_*`,
+  `scripts/week_env.sh` or `scripts/arm_week_timers.sh` is in production use this weekend: propose patches, never push
+  to a branch we build from.
+
 ## What a useful review looks like here
 
 The project's own standing rules say verdicts come from evidence, not from plausibility: every claim in your report
