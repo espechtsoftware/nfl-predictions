@@ -385,6 +385,16 @@ git -C /home/erich/projects/.nfl-predictions-worktrees/nflverse-ftn-20260915 pus
   had defaulted it to `nfl-dfs-prod` and every pull failed until fixed at 11:25Z) is still the only DK pull path
   (defect 18); ingest-dk on Cloud Run keeps failing by design until the operator decides on egress (Cloud Build probe
   also 403 → NAT not expected to help). Host clock is CDT; stamp with `date -u`.
+- **2026-09-17 15:10Z — defect 27 FIXED for Week 2 by a second `project-slate` run** (`project-slate-m9jmk`, generated_at
+  15:02:17Z): the log now says **"market blend source: props (406/500 rows)"** and "876 player-weeks priced, 405 meet
+  >= 2-market completeness" — the 09:30 CT props pull lifted coverage over the 30 % bar. Levels are back in line with
+  Week 1: p95 18.46 (was 21.63; Week 1 18.22), max 25.44 (was 32.70; Week 1 23.65), and the echo correlation with
+  Week-1 actuals falls 0.969 → **0.787** (still high because one game of season history genuinely dominates the
+  features, but no longer a shrunken copy). Top skill projections are now talent-led (Jefferson 24.5, Flowers 22.1,
+  Bijan 21.2, Gibbs 21.1) rather than last week's box score (Gibbs 29.3, Henry 29.2, Walker 28.0). NOTE: the run
+  APPENDS, so `player_projections` holds both generations for Week 2; the lab takes `MAX(generated_at)`, so builds pick
+  the corrected rows — any new analysis must filter by generation. Corrected rehearsal `rehearse_6400_v3.sh` started
+  15:07Z; its book supersedes the void 10:38Z one.
 - **2026-09-17 15:00Z — DEFECT 27, the most important finding of the day: the Week-2 production projections are an echo
   of Week 1.** The representative rehearsal on the "production law" produced a book with Jalen Coker in 25 of its first
   30 lineups and a simulated P(book ≥ 220) of 0.73 (historical ≈ 0.09), which sent me to the inputs rather than to the
