@@ -39,7 +39,9 @@ the login is the one step only you can do (it prompts for your credentials in th
 ```
 cd /home/erich/projects/.nfl-predictions-worktrees/week1-audit-adjust-20260912 && PYTHONPATH=src /home/erich/projects/nfl-predictions/.venv/bin/python -m nfl_dfs.ops.sis_downloads login --terminal-credentials --fresh
 ```
-Then tell the assistant; it runs the whole weekly capture (`nfl-weekly-data run --week 2 --skip-odds`, about 15 minutes). (This is the Wednesday step from the design guide's
+DONE — the Week-2 capture ran at 17:31Z: last week's Route Share (265 player rows) imported and archived, and the three
+Fantasy Points matchup reports captured. The alignment and SIS exports do not start until Week 5 by design, but the SIS
+session must be alive every week because the workflow checks both sessions before it captures anything. (This is the Wednesday step from the design guide's
 cadence table that was missing from this week's plan; it is now on the assistant's list for every Wednesday.)
 
 ## Before Saturday: nothing else required
