@@ -60,7 +60,7 @@ path requires a passing preregistered read, never a hunch.
 | repository | read | why |
 |---|---|---|
 | `nfl-predictions` | **`main`** (ae410cbf or newer) | current as of 2026-09-17; the Week-2 scripts, handoffs and defect list are all on it. The working branch `production/week1-audit-adjust-20260912` is identical to main right now. |
-| `nfl2` | **`lab/prereg099-supply12800-20260916`** (newest; carries `PREREG-099.md` with amendments 1–4, `experiments/119_dose12800.py`, `scripts/prereg099_*`, `scripts/run_119_local_v*.sh`) and **`lab/prereg100-practice-status-20260916`** | `nfl2`'s `main` is from 2026-09-10 and has diverged (19 commits behind the 099 branch); the experiment branches are the live science. `LAB_RULES.md` and `COORDINATION.md` are on both. |
+| `nfl2` | **`main`** for the rules, the consolidated `LEDGER.md` and the PREREG-096/097/098/099/100 documents (brought onto main 2026-09-17), then **`lab/prereg099-supply12800-20260916`** for the live experiment's code (`experiments/119_dose12800.py`, `scripts/prereg099_*`, `scripts/run_119_local_v*.sh`, amendments 1–4) and **`lab/prereg100-practice-status-20260916`** for the practice-status runner | the lab keeps one branch per preregistration and merges only when the ledger row closes, so a branch is always ahead of main in code; the documents and ledger rows now live on main so the record is readable in one place. **Do not merge any `lab/*` branch into `main`** — and note that `lab/prereg099-*` has a bank running: no commits, pulls or branch switches there (defect 29). |
 
 Do not merge `nfl2` branches into `main` — the lab's convention is one branch per preregistration, merged only when its
 ledger row is closed.
