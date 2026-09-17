@@ -392,8 +392,10 @@ git -C /home/erich/projects/.nfl-predictions-worktrees/nflverse-ftn-20260915 pus
   Week-1 actuals falls 0.969 → **0.787** (still high because one game of season history genuinely dominates the
   features, but no longer a shrunken copy). Top skill projections are now talent-led (Jefferson 24.5, Flowers 22.1,
   Bijan 21.2, Gibbs 21.1) rather than last week's box score (Gibbs 29.3, Henry 29.2, Walker 28.0). NOTE: the run
-  APPENDS, so `player_projections` holds both generations for Week 2; the lab takes `MAX(generated_at)`, so builds pick
-  the corrected rows — any new analysis must filter by generation. Corrected rehearsal `rehearse_6400_v3.sh` started
+  APPENDS, so `player_projections` holds both generations for Week 2 (Week 1 has 18); the lab takes `MAX(generated_at)`,
+  so builds pick the corrected rows. **Made simple at 15:30Z:** the view `nfl_predictions.player_projections_current`
+  (`sql/predictions/003_player_projections_current.sql`, created in BigQuery) returns only the generation in force per
+  week plus `generations_for_week`; every ad-hoc query reads the view. Both facts are in README's Data deficiency log. Corrected rehearsal `rehearse_6400_v3.sh` started
   15:07Z; its book supersedes the void 10:38Z one.
 - **2026-09-17 15:00Z — DEFECT 27, the most important finding of the day: the Week-2 production projections are an echo
   of Week 1.** The representative rehearsal on the "production law" produced a book with Jalen Coker in 25 of its first
