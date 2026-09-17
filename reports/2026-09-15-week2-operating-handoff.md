@@ -73,8 +73,7 @@ are as of 15:45Z — trust the pid FILES over these numbers.
 | PREREG-099 host driver v2 | `results/run_119_local.pid` in `/home/erich/projects/.nfl2-worktrees/prereg099-supply12800-20260916` (245998 since 2026-09-17 01:32Z; the 00:28Z launch was killed after its first wave collapsed under OpenMP oversubscription, defect 23, and never uploaded a shard) | bank 990 running: run `119b990r1-20260917T013238Z`, 72 slates, 10 workers, ≈ 10.7 h per slate (amendment 3: the rung is 12,560 candidates — boom is bounded by the 10,000-world bank); ≈ 3.2 days; STOP it Saturday 17:00 CT, resume after Sunday; read expected Monday | `results/run_119_local.log`, `results/run_119_local_tasks.log`, `results/119_local/<run id>/tNN.log`; run ids in `results/run_119_local_runs.log` | rerun `setsid nohup scripts/run_119_local_v2.sh 10 > results/run_119_local.log 2>&1 < /dev/null &` from that worktree — attach-aware (skips slates already in the bucket) |
 | PREREG-099 mechanics gate | DONE 2026-09-17 00:17Z (13 h 0 min: stream 38,416 s, verify 8,247 s) | PASSED against amendment 3's expected 12,560 attempts (`results/prereg099_mechanics_gate.out`) | shard `gs://nfl-2-506823-lab/results/119_dose12800/119m990r1-20260916T111557Z/result-t00.json` | — |
 | DraftKings host pull loop | `/home/erich/week1-sunday/host_ingest_dk_loop.pid` (4129) | hourly `ingest-dk` + `ingest-contests` from the host (Cloud Run is 403-blocked, defect 18); the script exports `GCP_PROJECT` itself (defect 19) | `/home/erich/week1-sunday/host_ingest_dk_loop.log` — a healthy hour shows "Loading N rows into nfl-predictions-503414.nfl_raw.dk_salaries" and "Polled N contests" | `setsid nohup /home/erich/week1-sunday/host_ingest_dk_loop.sh > /home/erich/week1-sunday/host_ingest_dk_loop.log 2>&1 < /dev/null &` |
-| D6400 timing rehearsal | `pgrep -f rehearse_6400` / live_week python 56011 | K90 live build at lev 1280 / boom 5120 on group 153428, started 14:45Z | `/home/erich/week2-rehearsal/rehearse_6400.log` (prints `exit <code> <time>` and the run dir name); receipt `seconds` in `<CLONE>/results/live/2026-w02/<dir>/receipt.json` | rerun `/home/erich/week2-rehearsal/rehearse_6400.sh` |
-| D12800 timing rehearsal (queued) | `pgrep -f rehearse_12800` (59447) | waits for the 6,400 rehearsal's `exit` line, then lev 2560 / boom 10240 (expected 6.5–8 h) | `/home/erich/week2-rehearsal/rehearse_12800.log` | rerun `/home/erich/week2-rehearsal/rehearse_12800_after_6400.sh` |
+| D6400 / D12800 timing rehearsals | DONE (both exit 0; see §4.1a for how to run one) | **D6400 7,674 s = 2 h 08 min** (run dir `20260916T144448044783Z-e7255e9`); **D12800 58,602 s = 16 h 17 min** (`20260916T165251953256Z-e7255e9`, 12,559 candidates, 90 written, nested prefix true) — the D12800 figure was inflated by the 10-worker bank sharing the machine | logs `/home/erich/week2-rehearsal/rehearse_*.log`; both books carry the defect 24/25 fallbacks, so they are valid for TIMING only | — |
 
 The assistant session's hourly poll (a session-only cron) dies with the session: **the next model must re-establish a
 periodic check** of the five rows above (every hour is enough) and act on the "if dead" column.
@@ -98,11 +97,11 @@ Sunday 06:00 CT.
 2. Read `HANDOFF.md`'s newest entry (2026-09-16), then §3 below for the day you are on, then §4 before Sunday.
 3. Check the five host processes above; restart per the table.
 4. Set up an hourly check (a cron prompt, a loop, or whatever the harness offers). Include: PREREG-099 driver/tasks,
-   the DK loop's last pull, the rehearsal logs, and from Saturday `systemctl --user list-timers | grep nfl-week2`.
-5. When `results/run_119_local.log` says "done": read PREREG-099 exactly once (§6.3) and record it. When
-   `rehearse_6400.log` / `rehearse_12800.log` print `exit 0`: record the receipt `seconds` in §4.1 and in HANDOFF.md
-   as the measured build times; if 12,800 exceeds ~7 h, tell the operator the 01:30 CT start is too late and move the
-   timer earlier (the timer script's `01:30` and the `tag 06:30` UTC label must both change).
+   the DK loop's last pull, any running rehearsal, and from Saturday `systemctl --user list-timers | grep nfl-week2`.
+5. When `results/run_119_local.log` says "done": read PREREG-099 exactly once (§6.3) and record it. The timing
+   rehearsals are finished (§4.1a holds their numbers and how to run another); after the operator's next
+   build-features → tabpfn-gen → project-slate refresh, run ONE more D6400 timing rehearsal so there is a book on the
+   production law to show him (defects 24/25 made the first pair fallback-law books).
 6. Thursday/Friday: nothing else is required from the model except the Friday PREREG-099 read and the operator's
    12,800 go/no-go (§3). Saturday: print `scripts/arm_week_timers.sh 2` for the operator to run; verify the timers.
 7. Never: commit `ENTERED/` exports or entry keys; push to main; publish; edit a running bash script in place (copy to
