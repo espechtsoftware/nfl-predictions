@@ -16,7 +16,10 @@ gcloud run jobs execute build-features --project nfl-predictions-503414 --region
 gcloud run jobs execute tabpfn-gen --project nfl-predictions-503414 --region us-central1 --update-env-vars TABPFN_UPCOMING=2026:2 --wait
 gcloud run jobs execute project-slate --project nfl-predictions-503414 --region us-central1 --wait
 ```
-Each should end "completed successfully". Tell the assistant when done: it re-runs the 6,400 rehearsal (2 hours) so you
+Each should end "completed successfully". Two rules learned on 2026-09-17: run them **after 05:10 CT** (the daily nflverse
+roster ingest runs at 05:00 CT; a build-features that runs before it can be contradicted by DraftKings' roster and
+project-slate then refuses with "stale team/position in player_week_inference"), and if project-slate does refuse, simply run
+all three again — nothing is damaged. Tell the assistant when done: it re-runs the 6,400 rehearsal (2 hours) so you
 get a representative book to look at before Saturday, and checks the receipt shows `production_rows` > 0 and no
 marginals warning.
 
@@ -35,7 +38,7 @@ systemctl --user list-timers --all | grep nfl-week2
 Expect six `nfl-week2-*` timers: d12800-sat-build (Sat 08:30), d6400-sat-build (Sat 08:35), d6400-build (Sun 05:30),
 sunday-build (Sun 09:10), t70-build (Sun 10:50), watchers (Sun 09:12). The assistant stops the PREREG-099 bank before 08:00.
 
-**2. At 07:45 — refresh the projections** (≈ 35 min; run all three, in this order; the 08:30 timer does not wait for them, so start on time):
+**2. At 07:45 — refresh the projections** (≈ 35 min; run all three, in this order; after 05:10 CT so the day's roster ingest is in; the 08:30 timer does not wait for them, so start on time):
 ```
 gcloud run jobs execute build-features --project nfl-predictions-503414 --region us-central1 --wait
 gcloud run jobs execute tabpfn-gen --project nfl-predictions-503414 --region us-central1 --update-env-vars TABPFN_UPCOMING=2026:2 --wait
