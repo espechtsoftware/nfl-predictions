@@ -1,4 +1,9 @@
 > **Take-over document for this week: `reports/2026-09-15-week2-operating-handoff.md` (2026-09-15). Read it before anything below.**
+
+## 2026-09-17 — laptop transition code review (documentation only)
+
+Branch `review/2026-09-transition-code-research`, production base `879cbc63`. Review: [reports/reviews/2026-09-17-transition-code-review.md](reports/reviews/2026-09-17-transition-code-review.md). Eleven findings cover Sunday entry publication/retries, K90 verification, week configuration, props, and frozen PREREG-099 reader compatibility/inference. Synthetic counterexamples attached; two focused offline test modules pass. No application edits, deployment or scientific outcome reads. Workstation agent should triage before Sunday/first read; bank991 continues at frozen `c06b2cd`. Research report follows on this branch.
+
 > **Operator's own Week-2 steps (timers, Saturday refresh, Sunday upload): `reports/2026-09-17-week2-operator-checklist.md`.**
 > **Operator's machine-move guide: `reports/2026-09-15-workstation-to-laptop-transition-guide.md`.**
 
