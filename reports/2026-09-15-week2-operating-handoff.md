@@ -395,6 +395,8 @@ folder (small) — the per-slate JSONs stay on the host.
 
 ## 10. File index (most used)
 
+- `reports/2026-09-17-week2-operator-checklist.md` — the operator's own steps for Saturday/Sunday/Monday (timers, refresh, chosen dose, upload).
+
 - Week-2 Sunday scripts (this branch, `scripts/`): `week_env.sh`, `find_main_draft_group.py`, `sunday_build_host.sh` (dose env/file, `SKIP_PAIR`, receipt-based run dir), `sunday_runbook.sh`, `sunday_after_build.sh` (`ENTER_LAYOUT=top|sequential`), `sunday_watch_dk_entries.sh`, `sunday_watch_late_inactives.py`, `fill_dk_entries.py`, `arm_week_timers.sh` (five timers), `contests.template.json`.
 - Host Week-2 state (untracked): `/home/erich/week2-sunday-build.sh`, `/home/erich/week2-sunday-watchers.sh`, `/home/erich/week2-dose.env` (640/2560 = the 09:10 CT D3200 build), `/home/erich/week2-sunday/contests.json` (filled), `/home/erich/week2-sunday/ENTERED/DKEntries-2026-09-16.csv` (entry keys — private), `/home/erich/week2-rehearsal/` (timing rehearsals), `/home/erich/week2-rehearsal-chain/` (chain rehearsal; its `fill/REHEARSAL-…-DO-NOT-UPLOAD.csv` holds Week-1 lineups).
 - PREREG-099 worktree `/home/erich/projects/.nfl2-worktrees/prereg099-supply12800-20260916` (branch `lab/prereg099-supply12800-20260916`): `PREREG-099.md` (+ amendments 1–2), `experiments/119_dose12800.py`, `scripts/run_119_local_v2.sh` (host executor), `scripts/prereg099_report.py` (one run id), `scripts/prereg099_mechanics_gate.py`, cloud fallback `scripts/arm_119.sh` / `queue_119.sh`.

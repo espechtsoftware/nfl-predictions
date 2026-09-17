@@ -1,0 +1,74 @@
+# Week 2 — the operator's own steps (2026-09-17)
+
+Everything else is automated or done by the assistant. These are the steps only you can do, in order, with the exact
+commands. Times are Central. All commands run in the WSL terminal unless marked Windows.
+
+## Before Saturday: nothing required
+
+- Optional: sign off (or amend) `reports/2026-09-16-prereg-tail-calibration-DRAFT.md` (a lab study, not on the Sunday path).
+- Optional: if you change your mind about entering the D12800 book, say so; the fallback switch is one line (Sunday step 2).
+
+## Saturday 2026-09-19
+
+**1. Before 16:30 — arm the six timers** (the assistant cannot write systemd units):
+```
+/home/erich/projects/.nfl-predictions-worktrees/week1-audit-adjust-20260912/scripts/arm_week_timers.sh 2 --run
+systemctl --user list-timers --all | grep nfl-week2
+```
+Expect six `nfl-week2-*` timers: d12800-sat-build (Sat 17:45), d6400-sat-build (Sat 17:50), d6400-build (Sun 05:30),
+sunday-build (Sun 09:10), t70-build (Sun 10:50), watchers (Sun 09:12). The assistant stops the PREREG-099 bank before 16:30.
+
+**2. At 17:00 — refresh the projections** (≈ 30 min; run both, in this order):
+```
+gcloud run jobs execute build-features --project nfl-predictions-503414 --region us-central1 --wait
+gcloud run jobs execute project-slate --project nfl-predictions-503414 --region us-central1 --wait
+```
+Both should end with the execution "completed successfully". If either fails, tell the assistant; the builds still run on
+Tuesday's projections, which is acceptable.
+
+**3. Around 18:00 — confirm the builds started:**
+```
+ls -t /home/erich/week2-sunday/build-*.log | head -n 2; tail -n 2 /home/erich/week2-sunday/build-*.log
+```
+Two logs (D12800 and D6400) each showing a "== ... run tag ..." header line.
+
+## Sunday 2026-09-20
+
+**1. About 06:00 — check the overnight books:**
+```
+grep -h "k90=\|k90 build took\|K90 build failed\|== done" /home/erich/week2-sunday/build-*.log
+```
+You want a `k90=` line and a "== done" for the d12800sat tag (≈ 04:30) and for d6400sat (≈ 20:00 Saturday).
+
+**2. Only if the D12800 build failed or you prefer the D6400 book — before 09:12:**
+```
+printf 'CHOSEN_LEV=1280\nCHOSEN_BOOM=5120\n' > /home/erich/week2-chosen-dose.env
+```
+(The file currently holds 2560/10240 = the D12800 book. The 09:12 watchers enter only the chosen dose.)
+
+**3. 09:12 — the watchers start on their own.** By about 09:25 read your entry sheet:
+```
+cat /home/erich/week2-sunday/TODAY-30-LATEST.md
+```
+The filled entries file appears in Windows Downloads as `DKEntries-FILLED-keepers-first.csv` (built from your
+`DKEntries-2026-09-16.csv`; every contest gets the vetted book's first N lineups). If you re-export entries from DraftKings
+on Sunday, drop the new export in Downloads and the watcher refills it within a minute.
+
+**4. 10:30 — inactives.** The late-inactives watcher prints any entered player marked O / OUT / IR / D
+(`/home/erich/week2-sunday/watch_late_inactives.log`). Scratch protocol: remove a player only when DraftKings marks him
+OUT/IR or the official inactives name him; ask the assistant for the swap (it rewrites the ENTER files; the filled CSV
+regenerates automatically). Never apply a filter to the book on the day.
+
+**5. By 11:15 — upload in the DraftKings site** (Windows): Lineups → Edit entries → Upload CSV → the
+`DKEntries-FILLED-keepers-first.csv` file from Downloads. Lock is 12:00.
+
+## Monday 2026-09-21
+
+- Export the three contest standings and your contest-entry history from DraftKings into Downloads (as in Week 1) and tell
+  the assistant; it settles every book and shadow and records the PREREG-099 read when the bank finishes.
+
+## If something looks wrong at any point
+
+Say so in the session. Every step above is idempotent: timers can be re-armed (`systemctl --user stop <unit>` first),
+builds re-run by hand (`RUN_TAG=<tag> /home/erich/week2-sunday-build.sh` with the same `env` prefix the timer line
+shows), the chosen dose changed, the watchers restarted (`/home/erich/week2-sunday-watchers.sh`).
