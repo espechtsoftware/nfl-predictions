@@ -231,15 +231,68 @@ Week-1 unique-across-contests layout is `ENTER_LAYOUT=sequential`. Operator: "pr
 **Thursday checklist**
 1. `cd <audit worktree> && source scripts/week_env.sh && week_env 2` — must print the detected group (needs the
    Week-2 salary pull; if it fails, the pull has not happened yet or the group needs `week_env 2 <id>`).
-2. Fill `/home/erich/week2-sunday/contests.json` from the operator's reservations.
-3. Rehearse the full path once: `export OUT=/home/erich/week2-rehearsal; week_env 2; RUN_TAG=rehearsal-$(date -u +%Y%m%dt%H%Mz)-e7255e9
-   scripts/sunday_build_host.sh` (≈ 25 min: D800, D400, K90 builds + vetting + emits) then
-   `scripts/sunday_after_build.sh once <K90 dir> rehearsal` and read `TODAY-30-LATEST.md` and `ENTER/`. The live
-   builder refuses a lock that has passed, so rehearsals need the coming Sunday's group (a Week-1 rehearsal on
-   2026-09-15 proved everything downstream of the builds on last Sunday's run dirs via the `REUSE_*` overrides).
-4. Have the operator arm the timers: `scripts/arm_week_timers.sh 2` prints the five `systemd-run` lines (or `--run` arms them).
-5. Saturday: `systemctl --user list-timers | grep nfl-week2` shows all five; Downloads path in
+2. Fill `/home/erich/week2-sunday/contests.json` from the operator's reservations (done 2026-09-16 from his
+   `DKEntries-2026-09-16.csv`: 33 entries / $206).
+3. Run the rehearsals in §4.1a: the chain rehearsal always, a timing rehearsal for any dose whose build has never been
+   measured on this host, and the chosen-dose check before the timers are armed.
+4. Have the operator arm the timers: `scripts/arm_week_timers.sh 2` prints the six `systemd-run` lines (or `--run` arms
+   them). Production Cloud Run executions and systemd writes are classifier-refused for the assistant — hand him the lines.
+5. Saturday: `systemctl --user list-timers --all | grep nfl-week2` shows all six; the Downloads path in
    `sunday_watch_dk_entries.sh` (`WIN_DOWNLOADS`) is right; the operator has reserved entries with a placeholder.
+
+### 4.1a How to rehearse (do this before every Sunday; all three were run for Week 2 on 2026-09-16/17)
+
+Three separate rehearsals answer three separate questions. **None of them may write into `$OUT` of the live week**
+(`/home/erich/week2-sunday/`): always point `OUT` somewhere else, or the Sunday watcher will publish rehearsal lineups
+into `ENTER/`. Rehearsal builds are real builds on the coming Sunday's draft group — `live_week.py` refuses a lock that
+has passed, so a rehearsal can never run on last week's group.
+
+**(a) Timing rehearsal — "does this dose fit the window?"** One live build at the dose, nothing downstream. Pattern
+(`/home/erich/week2-rehearsal/rehearse_6400.sh` is the committed example; copy it and change `--lev/--boom`):
+```
+cd /home/erich/projects/.nfl2-worktrees/week1-live-center-e7255e9
+NFL2_LIVE_CENTER=production PYTHONPATH=$PWD/src OMP_NUM_THREADS=1 /home/erich/projects/nfl2/.venv/bin/python scripts/live_week.py \
+  --season 2026 --week 2 --group <GROUP> --selector dual_emax --lev <LEV> --boom <BOOM> --sims 10000 --k 1 \
+  --seed 2026 --entries 90 --emit-a5-sidecars > <log>.out 2> <log>.err
+```
+Run it detached (`setsid nohup … &`) and read the wall time from the run dir's `receipt.json` `seconds`, never from the
+log. Measured this way on group 153428: **D6400 7,674 s (2 h 08), D12800 58,602 s (16 h 17)** — the D12800 figure was
+inflated by a 10-worker lab bank sharing the machine, so subtract contention when the host is quiet. Always chain a
+second timing rehearsal behind the first (`until grep -q "^exit" <first>.log; do sleep 120; done`) rather than running
+two at once. Check the `.err` for `TABPFN_MARGINALS … falling back` (defect 24) and the receipt for `production_rows`
+(defect 25): a rehearsal with either is valid for TIMING but its book is not on the production law.
+
+**(b) Chain rehearsal — "does everything downstream of the build still work?"** Reuses an existing run dir, so it costs
+minutes and needs no solver:
+```
+cd <audit worktree>
+export OUT=/home/erich/week2-rehearsal-chain CONTESTS_JSON=/home/erich/week2-sunday/contests.json
+source scripts/week_env.sh && week_env 2 <GROUP>
+SKIP_PAIR=1 REUSE_K90_DIR=<an existing K90 run dir> RUN_TAG=rehearsal-chain-e7255e9 scripts/sunday_build_host.sh
+scripts/sunday_after_build.sh once <the same run dir> rehearsal
+cat $OUT/ENTER/ENTER-layout.txt; ls $OUT/ENTER
+/home/erich/projects/nfl-predictions/.venv/bin/python /home/erich/week1-sunday/tools/fill_dk_entries.py \
+  /home/erich/week2-sunday/ENTERED/DKEntries-<date>.csv --contests "$CONTESTS_JSON" --enter-dir $OUT/ENTER \
+  --out-dir $OUT/fill --frame <run dir>/frame.parquet
+mv $OUT/fill/DKEntries-FILLED-keepers-first.csv $OUT/fill/REHEARSAL-DO-NOT-UPLOAD.csv
+```
+Pass: the contests line lists every contest with the right entry counts; one `emitted` line per contest per layout; the
+vetted book appears; `ENTER-layout.txt` matches the operator's reservations; the fill reports "filled N (keepers N,
+withdraw 0)" for every contest. **Rename the filled CSV immediately** — it holds the rehearsal's lineups and would
+otherwise look like Sunday's upload.
+
+**(c) Chosen-dose check — "will the watcher enter the right book?"** With several doses building on Sunday, the
+after-build poll must process only the chosen one:
+```
+export OUT=/home/erich/week2-rehearsal-chain LIVE_DIR=<a live dir holding run dirs at several doses>
+printf 'CHOSEN_LEV=<lev>\nCHOSEN_BOOM=<boom>\n' > $OUT/chosen-rehearsal.env
+rm -f $OUT/after_build.seen
+CHOSEN_FILE=$OUT/chosen-rehearsal.env timeout 150 scripts/sunday_after_build.sh
+```
+Pass: it logs `chosen dose: lev … / boom …`, processes the matching run dirs and prints `skip <dir> (not the chosen
+dose)` for the rest. The live file is `/home/erich/week2-chosen-dose.env` (Week 2: `2560/10240` = the D12800 book).
+
+Retire rehearsal directories after the week settles; never leave one named like the live week's `$OUT`.
 
 ### 4.2 Timeline (CT)
 
