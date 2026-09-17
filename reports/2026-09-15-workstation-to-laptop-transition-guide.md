@@ -131,3 +131,85 @@ the three timer commands for you).
 The old laptop checkouts (moved aside in B2), any `.venv`, `~/week1-sunday/direct_runner/work` (download cache),
 `~/worktree-archive` (unless asked), `~/.local/state/nfl-dfs/*` other than `lab-launcher-registry`, and nothing from
 `/tmp`.
+
+---
+
+## Part D — what the laptop is good for, and what the video card can and cannot do (added 2026-09-17)
+
+**Status:** the move is deferred until after Week 2 (you decided to stay on the workstation through Sunday). Parts A–C
+still apply when you do move; this part is about how to use the laptop once it is restored.
+
+### D1. Where the time goes, so you know what hardware matters
+
+A Sunday build or a lab bank slate is one long chain of integer-program solves (the CBC solver): the leverage loop
+first, then one solve per simulated world. Each solve is single-threaded and the chain is sequential by construction, so
+the wall time is set by **how fast one core is and how many cores you can keep busy at once**, not by memory or by the
+GPU. Measured on the workstation (i9-9900K, 8 cores / 16 threads): D800 4 min, D3200 51 min, D6400 2 h 08 min, a 12,560
+stream ≈ 10.7 h; a 72-slate lab bank at 10 workers ≈ 3 days.
+
+### D2. Laptop vs workstation
+
+Your laptop (ROG Strix, mobile i9 of the HX class, 64 GB, NVIDIA GPU) should do well **if it is kept cool and awake**:
+
+| | workstation (9900K) | laptop (mobile i9 HX, typical) |
+|---|---|---|
+| cores / threads | 8 / 16 | 24 / 32 (8 performance + 16 efficiency cores on most HX parts) |
+| one solve | baseline | similar or a little faster on a performance core; slower on an efficiency core |
+| lab bank workers | 10 | ~16–20 (efficiency cores are fine for solves) → a bank in roughly half the time |
+| Sunday builds (2–3 at once) | fine | fine |
+| risk | none new | **thermal throttling** under a day of full load (many laptops fall to 60–70 % of peak after the first hour), sleep/hibernate killing detached runs, battery |
+
+Before the first heavy run on the laptop:
+1. Windows: power plan "Best performance", plugged in, sleep and hibernate off while plugged in, lid-close action "do
+   nothing" if you close it.
+2. `C:\Users\<you>\.wslconfig` — same as the workstation's change: `memory=56GB` (leave 8 GB for Windows), then
+   `wsl --shutdown` from PowerShell with VS Code closed.
+3. Let the first lab bank be the shakedown: watch `cat /proc/loadavg` and the per-slate times in the bank's task log
+   after two hours. If per-slate times are drifting up, the laptop is throttling; reduce the worker count (the number
+   after the driver script) rather than letting it run hot.
+
+**Recommended split once both machines are set up:** one machine runs the Sunday money path (the one you will be at on
+Sunday morning), the other runs lab banks. Lab runs are attach-aware (they skip slates already uploaded), so a bank can
+even be split across both machines by starting the same driver on each; they never collide because each finished slate
+is uploaded to the bucket before the next starts.
+
+### D3. The video card: what it would and would not speed up
+
+Nothing on the Sunday path uses a GPU. The solver is integer programming on the CPU; the simulations and the selection
+matrix are numpy and already take minutes. Putting the GPU under the money path would mean replacing CBC with a GPU
+integer-program solver (NVIDIA's cuOpt has one). That changes the frozen construction — solutions can differ on ties —
+so it would be a preregistered equivalence study first, never a Sunday change. Not before Week 2 settles, and probably
+not worth it: the chain is sequential, so a faster solver helps linearly at best.
+
+Where the GPU **is** useful is the same place the project already rents cloud GPUs (L4 on Cloud Run, ≈ $0.70/hour, a few
+minutes per week): the TabPFN projection job and the LEM training/rollout jobs. Running those locally saves a few dollars
+a week and removes a cloud dependency; the benefit is mostly being able to iterate on them without a build-and-deploy
+cycle.
+
+### D4. Running the GPU training jobs on the laptop — what is involved
+
+The jobs are ordinary Python scripts that today run inside a CUDA container on Cloud Run:
+
+| job | source | what it does | cloud cadence |
+|---|---|---|---|
+| `tabpfn-gen` | `scripts/tabpfn_gen/gen.py` (+ `features.txt`) | fits TabPFN marginals per season and writes `features.tabpfn_projections`; `TABPFN_UPCOMING=season:week` adds the live week | weekly Wednesday + after every `build-features` |
+| `tabpfn-comp` | `scripts/tabpfn_experiment.py` and the `tabpfn_*` folders | comparison / experiment runs | on demand |
+| `lem-train`, `lem-rollout` | `scripts/lem_train/train_lem.py`, `rollout_eval.py` | trains and evaluates the lineup model | on demand |
+
+To run them locally (one-time setup, about an hour, all inside WSL):
+1. **GPU visible in WSL.** Install the current NVIDIA Windows driver (the WSL CUDA support comes with it; do NOT install a
+   Linux driver inside WSL). Check with `nvidia-smi` in the WSL terminal — it must list the card.
+2. **A GPU Python environment**, matching the container: `python3 -m venv ~/gpu-venv && ~/gpu-venv/bin/pip install
+   torch --index-url https://download.pytorch.org/whl/cu124 "tabpfn==2.2.1" pandas pyarrow db-dtypes
+   google-cloud-bigquery`, then `~/gpu-venv/bin/python -c "import torch; print(torch.cuda.is_available())"` → `True`.
+3. **Credentials** are the ones you already have (`gcloud auth application-default login`); the scripts read and write
+   BigQuery directly, so `GCP_PROJECT=nfl-predictions-503414` must be exported in the shell (the DK-loop lesson).
+4. **Run** the same script the container runs, with the same environment variables the Cloud Run job carries (the
+   assistant can print them with `gcloud run jobs describe tabpfn-gen --format=json`), e.g.
+   `TABPFN_UPCOMING=2026:3 GCP_PROJECT=nfl-predictions-503414 ~/gpu-venv/bin/python scripts/tabpfn_gen/gen.py`.
+5. **Keep the cloud job as the scheduled path** until a local run has produced byte-identical (or documented-equivalent)
+   rows for one week; then the Wednesday scheduler can be paused and a local timer used instead. The TabPFN output feeds
+   projections, so the equivalence check matters.
+
+What it would NOT change: the Sunday build time, the lab bank time, or any result in the ledger. Treat it as convenience
+and a small saving, to set up on a quiet week.
