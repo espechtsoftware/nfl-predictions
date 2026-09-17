@@ -384,12 +384,23 @@ git -C /home/erich/projects/.nfl-predictions-worktrees/nflverse-ftn-20260915 pus
   had defaulted it to `nfl-dfs-prod` and every pull failed until fixed at 11:25Z) is still the only DK pull path
   (defect 18); ingest-dk on Cloud Run keeps failing by design until the operator decides on egress (Cloud Build probe
   also 403 → NAT not expected to help). Host clock is CDT; stamp with `date -u`.
+- **2026-09-17 00:40Z — PREREG-099 gate done (13 h), amendment 3, bank 990 running.** The gate failed only its
+  ledger-completeness clause (12,560 of 12,800 attempts): the boom stream visits one world per solve and the generation
+  bank has 10,000 worlds, so the rung is **lev 2560 / boom 10,000 = 12,560 candidates** (1.96× the control); every other
+  clause passed. Amendment 3 (lab branch de9160e) sets the runner and gate to 12,560, keeps the `D12800` label and the
+  1.7 DOUBLING bound; the gate shard was accepted against the amended constant (identical stream) and **bank 990
+  launched 00:28Z on the host: run `119b990r1-20260917T002831Z`, 10 workers, driver pid 228767** (`results/run_119_local.log`,
+  `results/run_119_local_tasks.log`). Timing: one 12,560 stream = 38,416 s (10.7 h) on 2023-W1 → the bank needs ≈ 3.2 days
+  and must yield the cores Saturday 17:00 CT, so **the read is expected Monday 2026-09-21, after Week 2** — there is no
+  book-level evidence for a 12,800 Sunday entry this week; the Saturday D12800 build stays a no-cost candidate (it is
+  also 12,560 by the same bound, `--sims 10000`), D6400 remains the intended entry. The D12800 timing rehearsal (Week-2
+  data) is still running (started 16:53Z).
 - **Exact next actions (2026-09-16 15:45Z; supersedes the 09-14 list below) — for the next model on this machine:** (1) read
   `reports/2026-09-15-week2-operating-handoff.md` §2 (running host processes with pid files, logs and restart commands;
   the take-over checklist) and §3 for today; (2) re-establish an hourly host check (the previous assistant's poll was
   session-only); (3) Thursday: record the D6400 / D12800 rehearsal build times from the run-dir receipts and confirm the
-  01:30 / 05:30 CT timer slots; (4) Friday: PREREG-099 read (one run id) + ledger row; operator's 12,800 go/no-go;
-  stop the PREREG-099 bank Saturday night if still running; (5) Saturday: `scripts/arm_week_timers.sh 2` → operator
+  01:30 / 05:30 CT timer slots; (4) Friday: no PREREG-099 read yet (bank runs to Monday; amendment 3); operator's 12,800 go/no-go has no book
+  evidence this week; stop the PREREG-099 bank Saturday 17:00 CT (it resumes after Sunday); (5) Saturday: `scripts/arm_week_timers.sh 2` → operator
   runs the six timer lines (two Saturday, four Sunday); (6) Saturday 17:00–19:05 CT: stop the 099 bank, operator refresh, Saturday builds; Sunday: §4 — operator picks the book (D6400 intended), vetted ENTER files,
   watcher fills the entries export, scratch protocol for 10:30 CT inactives; (7) never commit `ENTERED/`, never push
   main, never publish. Everything above is on branch `production/week1-audit-adjust-20260912`, and `origin/main` was fast-forwarded to it by the operator at 2026-09-16 15:35Z (a6aca01f), so main is current.

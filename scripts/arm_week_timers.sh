@@ -9,7 +9,7 @@
 # each its own run tag and run dir; the operator picks the book on Sunday morning from whatever completed.
 # The long builds run SATURDAY EVENING after the operator triggers the production refresh at ~17:30 CT
 # (`gcloud run jobs execute build-features ... --wait` then `project-slate`), so a failure leaves the whole night:
-#   Sat 19:00 CT  D12800 (lev 2560 / boom 10240), 8–10 h  -> candidate if Friday's PREREG-099 read favours it (done ≈ 05:00 CT)
+#   Sat 19:00 CT  D12800 (lev 2560 / boom 10240; delivers 12,560 — one boom solve per simulated world, 10,000 worlds), ≈ 10.7 h -> candidate (done ≈ 05:45 CT Sun)
 #   Sat 19:05 CT  D6400  (lev 1280 / boom 5120),  2 h 08  -> insurance copy of the intended entry on Saturday's refresh
 #   Sun 05:30 CT  D6400  (same),                  2 h 08  -> the intended entry, on the Sunday-morning refresh
 #   Sun 09:10 CT  D3200  (lev 640 / boom 2560),   51 min  -> fallback (the two-cohort-proven dose; week<W>-dose.env)
