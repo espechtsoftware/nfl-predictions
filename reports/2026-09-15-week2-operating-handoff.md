@@ -148,14 +148,14 @@ Sunday 06:00 CT.
 
 ### Saturday 09-19
 - **Long builds move to Saturday evening (operator decision 2026-09-16 23:45Z); the D12800 book is THE INTENDED ENTRY
-  (operator decision 2026-09-17 00:50Z, no book-level evidence — recorded as his call).** Sequence: (1) by ~16:30 CT stop
+  (operator decision 2026-09-17 00:50Z, no book-level evidence — recorded as his call).** Sequence (times revised 2026-09-17 09:50Z after the D12800 rehearsal measured 58,602 s = 16 h 17 min on group 153428 with the bank sharing the machine — receipt `20260916T165251953256Z-e7255e9`, 12,559 candidates, 90 written, nested prefix true, empirical-marginals fallback per defect 24): (1) by ~08:00 CT stop
   the PREREG-099 host bank if still running (`kill $(cat results/run_119_local.pid)` in the 099 worktree, then
-  `pkill -f "119_dose12800.py --bank=990$"` as a separate command; it resumes later, attach-aware); (2) ~17:00 CT the
+  `pkill -f "119_dose12800.py --bank=990$"` as a separate command; it resumes later, attach-aware); (2) ~07:45 CT the
   operator triggers the production refresh so the projections carry the week's injury designations and line moves:
   `gcloud run jobs execute build-features ... --wait`, then `gcloud run jobs execute tabpfn-gen ... --update-env-vars
   TABPFN_UPCOMING=2026:2 --wait` (defect 24), then `gcloud run jobs execute project-slate ... --wait` (≈ 35 min; the harness
-  refuses production executions for the assistant); (3) timers fire 17:45 CT D12800 (≈ 10.7 h → ≈ 04:30 CT; the book is 12,560
-  candidates by the 10,000-world bound) and 17:50 CT D6400 fallback (2 h 08). (4) `/home/erich/week2-chosen-dose.env`
+  refuses production executions for the assistant); (3) timers fire 08:30 CT D12800 (12–16 h → 20:30 CT Saturday to 00:50 CT Sunday; the book is 12,560
+  candidates by the 10,000-world bound) and 08:35 CT D6400 fallback (2 h 08). (4) `/home/erich/week2-chosen-dose.env`
   holds `CHOSEN_LEV=2560 CHOSEN_BOOM=10240`: the Sunday after-build watcher processes ONLY run dirs at that dose, so the
   09:10 D3200 and 10:50 D800 builds can never overwrite `ENTER/`. **Fallback if the D12800 build failed or is not wanted:**
   before 09:12 CT Sunday change the file to `CHOSEN_LEV=1280 CHOSEN_BOOM=5120` (the D6400 books), or after the watchers
@@ -163,7 +163,7 @@ Sunday 06:00 CT.
   refills the export automatically when the ENTER files change). Books built Saturday lack only Sunday-morning news, which the scratch-swap protocol applies
   to whichever book is entered.
 - Print `scripts/arm_week_timers.sh 2` and have the operator run the six lines (two Saturday, four Sunday) before
-  16:30 CT Saturday; then `systemctl --user list-timers --all | grep nfl-week2` must show all six. `WIN_DOWNLOADS` in `/home/erich/week2-sunday-watchers.sh` is
+  07:30 CT Saturday; then `systemctl --user list-timers --all | grep nfl-week2` must show all six. `WIN_DOWNLOADS` in `/home/erich/week2-sunday-watchers.sh` is
   `/mnt/c/Users/Erich/Downloads` (the entries export already sits there as `DKEntries-2026-09-16.csv`; the watcher
   takes the newest `DKEntries*.csv`).
 - Confirm the DK loop pulled within the hour and `week_env 2` still resolves to group 153428.
@@ -202,8 +202,8 @@ run until the operator's Week-2 contest ids and entry counts are filled in after
 rule).** Evidence: PREREG-097 D6400 vs D3200 on the K80 book: proxy +0.005 near miss (32 W / 36 L) but raw best-of-book
 +1.2 [+0.3, +2.0] and weeks ≥ 200 / ≥ 210 11 → 16 / 4 → 7; D6400 vs D800 PASS. Nothing measured says 6,400 hurts; the
 strict gate was a near miss. 12,800 has no book evidence until PREREG-099's Friday read (its reader reports a
-one-bank K80 comparison as a secondary). Plan (revised 2026-09-17 00:50Z): five builds — Saturday 17:45 CT D12800 and 17:50 CT D6400 after the operator's
-production refresh at 17:00 CT, then Sunday 05:30 CT D6400, 09:10 CT D3200, 10:50 CT D800 — each with its own run tag
+one-bank K80 comparison as a secondary). Plan (revised 2026-09-17 09:50Z): five builds — Saturday 08:30 CT D12800 and 08:35 CT D6400 after the operator's
+production refresh at 07:45 CT (build-features → tabpfn-gen → project-slate), then Sunday 05:30 CT D6400, 09:10 CT D3200, 10:50 CT D800 — each with its own run tag
 and run dir. **The operator has chosen the D12800 book as the entry** (his protocol decision; PREREG-099's book-level
 read will not exist before Monday, so this rests on the dose law measured to 6,400 and on 6,400 > 3,200 raw +1.2, not on
 a 12,800 measurement); D6400 is the fallback, then D3200, then the T-70 D800. The chosen dose is pinned for the Sunday
@@ -212,8 +212,9 @@ Saturday build needs the manual refresh; it then lacks only Sunday-morning news 
 Measured build times on this machine (single stream, receipt `seconds`): D800 244 s, D3200 3,040 s (Week-1 receipts);
 **D6400 7,674 s = 2 h 08 min** (rehearsal 2026-09-16 14:44–16:52Z on group 153428, run dir
 `20260916T144448044783Z-e7255e9`, 6,400 candidates, 90 written, exit 0) → the 05:30 CT timer yields the D6400 book by
-≈ 07:40 CT; D12800 rehearsal started 16:53Z (expected ≈ 6–7 h by the 2.5× step from 3200→6400; if it exceeds ~7 h,
-move the 01:30 CT timer earlier).
+≈ 07:40 CT; **D12800 58,602 s = 16 h 17 min** (rehearsal 2026-09-16 16:53Z – 09:09Z on group 153428, 12,559 candidates, 90 written; it
+shared the machine with the 10-worker bank and a one-hour thread collapse, so a clean Saturday build should be shorter;
+the 08:30 CT slot assumes the measured pace plus margin).
 `sunday_build_host.sh` now takes the dose from `PAID_LEV/PAID_BOOM` (env or `/home/erich/week2-dose.env`, which holds
 640/2560), skips the governed pair with `SKIP_PAIR=1`, and identifies its run dir by receipt (concurrent builds write
 `LATEST` at start, so `LATEST` is never trusted). The 10:30 CT inactives are applied to the chosen book by the

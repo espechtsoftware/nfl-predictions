@@ -385,6 +385,11 @@ git -C /home/erich/projects/.nfl-predictions-worktrees/nflverse-ftn-20260915 pus
   had defaulted it to `nfl-dfs-prod` and every pull failed until fixed at 11:25Z) is still the only DK pull path
   (defect 18); ingest-dk on Cloud Run keeps failing by design until the operator decides on egress (Cloud Build probe
   also 403 → NAT not expected to help). Host clock is CDT; stamp with `date -u`.
+- **2026-09-17 09:50Z — D12800 rehearsal done: 58,602 s = 16 h 17 min** on group 153428 (12,559 candidates, 90 written,
+  nested prefix true; exit 0) while sharing the machine with the bank and the collapse hour. **Saturday plan moved to the
+  morning:** operator refresh 07:45 CT (build-features → tabpfn-gen 2026:2 → project-slate), timers 08:30 CT D12800 (THE
+  ENTRY, done 20:30 CT Sat – 00:50 CT Sun) and 08:35 CT D6400 fallback; bank stop by 08:00 CT Saturday. Timer script,
+  operator checklist and operating handoff §3/§4.1 updated.
 - **2026-09-17 08:50Z — defect 24: the weekly `tabpfn-gen` was never run for Week 2.** `tabpfn_projections` holds 2026 W1
   only; both Week-2 rehearsal builds logged "TABPFN_MARGINALS on but no cached rows for season 2026 — falling back to
   empirical marginals" (Week 1's entered build did not). The operator runs `gcloud run jobs execute tabpfn-gen
