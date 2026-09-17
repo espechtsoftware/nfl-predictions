@@ -21,26 +21,26 @@ must now show a week-2 row (≈ 900 players). The same command is repeated insid
 
 ## Saturday 2026-09-19
 
-**1. Before 16:30 — arm the six timers** (the assistant cannot write systemd units):
+**1. Before 07:30 — arm the six timers** (the assistant cannot write systemd units):
 ```
 /home/erich/projects/.nfl-predictions-worktrees/week1-audit-adjust-20260912/scripts/arm_week_timers.sh 2 --run
 systemctl --user list-timers --all | grep nfl-week2
 ```
-Expect six `nfl-week2-*` timers: d12800-sat-build (Sat 17:45), d6400-sat-build (Sat 17:50), d6400-build (Sun 05:30),
-sunday-build (Sun 09:10), t70-build (Sun 10:50), watchers (Sun 09:12). The assistant stops the PREREG-099 bank before 16:30.
+Expect six `nfl-week2-*` timers: d12800-sat-build (Sat 08:30), d6400-sat-build (Sat 08:35), d6400-build (Sun 05:30),
+sunday-build (Sun 09:10), t70-build (Sun 10:50), watchers (Sun 09:12). The assistant stops the PREREG-099 bank before 08:00.
 
-**2. At 17:00 — refresh the projections** (≈ 35 min; run all three, in this order):
+**2. At 07:45 — refresh the projections** (≈ 35 min; run all three, in this order; the 08:30 timer does not wait for them, so start on time):
 ```
 gcloud run jobs execute build-features --project nfl-predictions-503414 --region us-central1 --wait
 gcloud run jobs execute tabpfn-gen --project nfl-predictions-503414 --region us-central1 --update-env-vars TABPFN_UPCOMING=2026:2 --wait
 gcloud run jobs execute project-slate --project nfl-predictions-503414 --region us-central1 --wait
 ```
-(The times in this step may move to Saturday morning once the 12,800 rehearsal's length is known; the assistant will
-update this file and tell you.)
+(Why the morning: the 12,800 rehearsal on this week's slate took 16 h 17 min while sharing the machine with the lab bank;
+an 08:30 start finishes between 20:30 Saturday and 00:50 Sunday, leaving the night to recover if anything fails.)
 Both should end with the execution "completed successfully". If either fails, tell the assistant; the builds still run on
 Tuesday's projections, which is acceptable.
 
-**3. Around 18:00 — confirm the builds started:**
+**3. Around 09:00 — confirm the builds started:**
 ```
 ls -t /home/erich/week2-sunday/build-*.log | head -n 2; tail -n 2 /home/erich/week2-sunday/build-*.log
 ```
@@ -52,7 +52,7 @@ Two logs (D12800 and D6400) each showing a "== ... run tag ..." header line.
 ```
 grep -h "k90=\|k90 build took\|K90 build failed\|== done" /home/erich/week2-sunday/build-*.log
 ```
-You want a `k90=` line and a "== done" for the d12800sat tag (≈ 04:30) and for d6400sat (≈ 20:00 Saturday).
+You want a `k90=` line and a "== done" for the d12800sat tag (between 20:30 Saturday and 00:50 Sunday) and for d6400sat (≈ 10:45 Saturday). You can check Saturday evening instead of Sunday morning.
 
 **2. Only if the D12800 build failed or you prefer the D6400 book — before 09:12:**
 ```
