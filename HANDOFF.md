@@ -385,6 +385,12 @@ git -C /home/erich/projects/.nfl-predictions-worktrees/nflverse-ftn-20260915 pus
   had defaulted it to `nfl-dfs-prod` and every pull failed until fixed at 11:25Z) is still the only DK pull path
   (defect 18); ingest-dk on Cloud Run keeps failing by design until the operator decides on egress (Cloud Build probe
   also 403 → NAT not expected to help). Host clock is CDT; stamp with `date -u`.
+- **2026-09-17 23:30Z — bank 991 started on the laptop by the other agent** (per
+  `reports/handoffs/2026-09-17-laptop-bank991-run.md`); no 991 shard yet (the first lands 13–16 h after start). Bank 990
+  here: 7/18 shards, 3 first-wave workers left, the v3 driver then runs indices 10–17. The hourly check now also watches
+  the 991 prefix, verifies the first 991 shard's `code_sha == c06b2cd` (defect 29), and applies the frozen deadline rule
+  (both banks read together only if 991 is complete by Friday 18:00Z; otherwise 990 alone, 991 as a later replication
+  row). The reader amendment for two banks is applied to the lab branch only after 990's last shard has landed.
 - **2026-09-17 22:45Z — defect 29 found while preparing the second machine, and the bank-991 handoff written.** Checking
   the shards already in the bucket showed they carry `code_sha c06b2cd` while the still-running workers carry
   `CODE_SHA=8c29c36` in their environment: `nfl2.run._code_sha()` prefers `git rev-parse --short HEAD` **at write time**
