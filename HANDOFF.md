@@ -385,6 +385,12 @@ git -C /home/erich/projects/.nfl-predictions-worktrees/nflverse-ftn-20260915 pus
   had defaulted it to `nfl-dfs-prod` and every pull failed until fixed at 11:25Z) is still the only DK pull path
   (defect 18); ingest-dk on Cloud Run keeps failing by design until the operator decides on egress (Cloud Build probe
   also 403 → NAT not expected to help). Host clock is CDT; stamp with `date -u`.
+- **2026-09-17 10:30Z — defect 25: both Week-2 rehearsal books centred on the lab-blend FALLBACK** (receipt
+  `production_rows 0`; no Week-2 production projections exist because project-slate runs Tue/Sun and Tuesday's failed
+  on the DK-blocked pool). With defect 24 (empirical marginals) the rehearsal books are not on the production law; their
+  timing is valid, their content is not representative. Operator asked to run build-features → tabpfn-gen 2026:2 →
+  project-slate today (checklist "Today"); a representative D6400 rehearsal follows. D12800 vs D6400 rehearsal books
+  (same fallback law): K30 overlap 16/30, K90 overlap 50/90.
 - **2026-09-17 09:50Z — D12800 rehearsal done: 58,602 s = 16 h 17 min** on group 153428 (12,559 candidates, 90 written,
   nested prefix true; exit 0) while sharing the machine with the bank and the collapse hour. **Saturday plan moved to the
   morning:** operator refresh 07:45 CT (build-features → tabpfn-gen 2026:2 → project-slate), timers 08:30 CT D12800 (THE
