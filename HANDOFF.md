@@ -385,6 +385,18 @@ git -C /home/erich/projects/.nfl-predictions-worktrees/nflverse-ftn-20260915 pus
   had defaulted it to `nfl-dfs-prod` and every pull failed until fixed at 11:25Z) is still the only DK pull path
   (defect 18); ingest-dk on Cloud Run keeps failing by design until the operator decides on egress (Cloud Build probe
   also 403 → NAT not expected to help). Host clock is CDT; stamp with `date -u`.
+- **2026-09-17 23:55Z — the laptop agent reported (branch `review/2026-09-bank991-laptop`,
+  `handoffs/2026-09-17-laptop-bank991-started.md`) and the workstation replied
+  (`lab/workstation-reply-bank991-20260918`, `handoffs/2026-09-18-workstation-reply-bank991.md`).** Their run:
+  `119b991r1-20260917T230652Z`, bank 991, indices 0–17, concurrency 16, detached at `c06b2cd903a6de…` (**identity
+  matches bank 990's shards — the two-bank read will not fail closed**), benchmark v1, 16 workers / 16 CBC children,
+  thread caps verified, load 16.4, 54.9 GiB visible; started 23:09Z, restarted by the operator's reboot, resumed on the
+  same run id at 23:14Z with shard skipping; 0/18 shards at 23:38Z; no reader run (correct — the workstation holds the
+  single read). **Problem found and sent back: 18 tasks at concurrency 16 is two waves**, so the last two slates would
+  land 01:00–07:00Z Saturday and bank 991 would miss its own Friday 18:00Z cutoff with 16/18 done. The reply asks them
+  to start indices 16 and 17 now as extra concurrent workers (their driver is attach-aware and will skip them), unless
+  the machine has fewer than 18 physical cores or the load ceiling would trip — in which case 990 is read alone and 991
+  becomes a later replication row. Also flagged: their run does not survive a Windows/WSL restart, so no reboots.
 - **2026-09-17 23:30Z — bank 991 started on the laptop by the other agent** (per
   `reports/handoffs/2026-09-17-laptop-bank991-run.md`); no 991 shard yet (the first lands 13–16 h after start). Bank 990
   here: 7/18 shards, 3 first-wave workers left, the v3 driver then runs indices 10–17. The hourly check now also watches
