@@ -75,12 +75,30 @@ print('  (none)' if n==0 else '')" 2>/dev/null
   log "done $(basename "$run") -> $OUT/TODAY-30-LATEST.md"
 }
 if [ "${1:-}" = "once" ]; then process_run "$2" "$3"; exit $?; fi
-mkdir -p "$LIVE_DIR"; SEEN="$OUT/after_build.seen"; touch "$SEEN"; ls -1 "$LIVE_DIR" | grep -v LATEST >> "$SEEN"
+# CHOSEN DOSE (2026-09-17, operator: enter the D12800 book): the poll processes only run dirs whose receipt lev/boom
+# equal CHOSEN_LEV/CHOSEN_BOOM (from the environment or $CHOSEN_FILE), so later builds at other doses never overwrite
+# ENTER/.  Run dirs that already exist at start (the Saturday-night builds) are processed too, oldest first, so the
+# newest matching book ends up in ENTER/.  Fallback: edit the chosen-dose file (e.g. to 1280/5120) and restart this
+# script, or run `sunday_after_build.sh once <run dir> <tag>` by hand.  Unset CHOSEN_LEV = process every K90 build.
+CHOSEN_FILE=${CHOSEN_FILE:-/home/erich/week${WEEK}-chosen-dose.env}
+# shellcheck disable=SC1090
+[ -f "$CHOSEN_FILE" ] && source "$CHOSEN_FILE"
+matches_chosen() {  # $1 run dir -> 0 if the receipt's lev/boom equal the chosen dose (or no dose is chosen)
+  [ -z "${CHOSEN_LEV:-}" ] && return 0
+  $PY - "$1" "$CHOSEN_LEV" "$CHOSEN_BOOM" <<'PYEOF'
+import json, sys
+c = json.load(open(sys.argv[1] + "/receipt.json"))["config"]
+sys.exit(0 if (int(c["lev"]), int(c["boom"])) == (int(sys.argv[2]), int(sys.argv[3])) else 1)
+PYEOF
+}
+log "chosen dose: lev ${CHOSEN_LEV:-any} / boom ${CHOSEN_BOOM:-any} (file $CHOSEN_FILE)"
+mkdir -p "$LIVE_DIR"; SEEN="$OUT/after_build.seen"; touch "$SEEN"
 while [ "$(date -u +%H%M)" -lt 1650 ]; do
   for d in $(ls -1 "$LIVE_DIR" | grep -v LATEST); do
     grep -qx "$d" "$SEEN" && continue
     run="$LIVE_DIR/$d"; [ -f "$run/receipt.json" ] && [ -f "$run/candidates.parquet" ] && [ -f "$run/incumbent_player_scores.npy" ] || continue
     sleep 20; echo "$d" >> "$SEEN"
+    matches_chosen "$run" || { log "skip $d (not the chosen dose)"; continue; }
     entries=$($PY -c "import json; print(json.load(open('$run/receipt.json'))['written'])" 2>/dev/null) || { log "unreadable receipt for $d"; continue; }
     [ "$entries" -ge 90 ] || { log "skip $d (K$entries; the ENTER layout needs the K90 nested build)"; continue; }
     process_run "$run" "K${entries}-${d%%-*}"

@@ -384,6 +384,14 @@ git -C /home/erich/projects/.nfl-predictions-worktrees/nflverse-ftn-20260915 pus
   had defaulted it to `nfl-dfs-prod` and every pull failed until fixed at 11:25Z) is still the only DK pull path
   (defect 18); ingest-dk on Cloud Run keeps failing by design until the operator decides on egress (Cloud Build probe
   also 403 → NAT not expected to help). Host clock is CDT; stamp with `date -u`.
+- **2026-09-17 00:50Z — operator: "I want to use D12800."** Recorded as his protocol decision (no book-level evidence for
+  12,800 exists or will before Monday; the evidence is the dose law to 6,400 and 6,400 > 3,200 raw +1.2). Changes:
+  Saturday slots moved earlier (operator refresh 17:00 CT → D12800 timer 17:45 CT, ≈ 10.7 h → ≈ 04:30 CT Sunday; D6400
+  fallback 17:50 CT); the Sunday after-build watcher now processes only run dirs at the CHOSEN dose
+  (`/home/erich/week2-chosen-dose.env` = 2560/10240; `sunday_after_build.sh` `matches_chosen`), so later D3200/D800 builds
+  cannot overwrite `ENTER/`; fallback = edit that file to 1280/5120 before 09:12 CT or run the `once` form by hand. The
+  chosen-dose poll was rehearsed on the Week-1 run dirs (processed only the two 3,200 builds). PREREG-099 bank stop moves
+  to Saturday 16:30 CT. Operating handoff §3 Saturday / §4.1 updated.
 - **2026-09-17 00:40Z — PREREG-099 gate done (13 h), amendment 3, bank 990 running.** The gate failed only its
   ledger-completeness clause (12,560 of 12,800 attempts): the boom stream visits one world per solve and the generation
   bank has 10,000 worlds, so the rung is **lev 2560 / boom 10,000 = 12,560 candidates** (1.96× the control); every other
@@ -401,7 +409,7 @@ git -C /home/erich/projects/.nfl-predictions-worktrees/nflverse-ftn-20260915 pus
   session-only); (3) Thursday: record the D6400 / D12800 rehearsal build times from the run-dir receipts and confirm the
   01:30 / 05:30 CT timer slots; (4) Friday: no PREREG-099 read yet (bank runs to Monday; amendment 3); operator's 12,800 go/no-go has no book
   evidence this week; stop the PREREG-099 bank Saturday 17:00 CT (it resumes after Sunday); (5) Saturday: `scripts/arm_week_timers.sh 2` → operator
-  runs the six timer lines (two Saturday, four Sunday); (6) Saturday 17:00–19:05 CT: stop the 099 bank, operator refresh, Saturday builds; Sunday: §4 — operator picks the book (D6400 intended), vetted ENTER files,
+  runs the six timer lines (two Saturday, four Sunday); (6) Saturday 16:30–17:50 CT: stop the 099 bank, operator refresh (17:00), Saturday builds (17:45 D12800 = THE ENTRY, 17:50 D6400 fallback); Sunday: §4 — the chosen-dose file pins the after-build watcher to D12800; fallback = D6400, vetted ENTER files,
   watcher fills the entries export, scratch protocol for 10:30 CT inactives; (7) never commit `ENTERED/`, never push
   main, never publish. Everything above is on branch `production/week1-audit-adjust-20260912`, and `origin/main` was fast-forwarded to it by the operator at 2026-09-16 15:35Z (a6aca01f), so main is current.
 - **Exact next actions (2026-09-14 14:00Z):** (1) PREREG-097 banks 970/971 running (lab-run-2xtbb / lab-run-slow-jfz27, launched 11:20Z/11:23Z by the registered finish launcher pid 29569), 972 follows on the first free lane; when all three are terminal run `scripts/prereg097_report.py` from the 097 worktree and add the LEDGER row with the transcript; (2) the 09s image is built (digest sha256:d8a02797…, tag `prereg09s-7e8126b9b4c1`) and the sequencer is RUNNING (pid 69162, log `results/arm_118_sequencer.log` in the 098 worktree; it waits for the 097 launcher's `action=completed` registry line and idle lanes, then updates both jobs and arms `queue_118.sh`, launcher log `results/queue_118_launcher.log`); when `queue_118.sh` logs "all three banks terminal", run `scripts/prereg098_report.py RUN980 RUN981 RUN982`, add the LEDGER row, and record the outcome in the briefing §7 and `reports/2026-09-14-payout-retro-test.md`; (3) Week-2 items: practice-status exposure cap tested on the 72 historical books; runbook fixes; nflverse FTN 404 tolerance; verify Week-1 weekly stats landed.
