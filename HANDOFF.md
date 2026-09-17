@@ -385,6 +385,16 @@ git -C /home/erich/projects/.nfl-predictions-worktrees/nflverse-ftn-20260915 pus
   had defaulted it to `nfl-dfs-prod` and every pull failed until fixed at 11:25Z) is still the only DK pull path
   (defect 18); ingest-dk on Cloud Run keeps failing by design until the operator decides on egress (Cloud Build probe
   also 403 → NAT not expected to help). Host clock is CDT; stamp with `date -u`.
+- **2026-09-17 22:45Z — defect 29 found while preparing the second machine, and the bank-991 handoff written.** Checking
+  the shards already in the bucket showed they carry `code_sha c06b2cd` while the still-running workers carry
+  `CODE_SHA=8c29c36` in their environment: `nfl2.run._code_sha()` prefers `git rev-parse --short HEAD` **at write time**
+  and uses the env var only as a fallback, so a mid-run commit to the cohort's branch retro-stamps every later shard.
+  All four finished shards post-date the amendment-4 commit, so this cohort is still consistent — but **no further
+  commit may be made in that worktree until the last shard lands**, or the frozen reader will fail closed on mixed
+  identity. Rule recorded as defect 29. Consequence for the work in hand: the bank-991 instructions live in the
+  PRODUCTION repo (`reports/handoffs/2026-09-17-laptop-bank991-run.md`), not on the lab branch, and the laptop must run
+  from a detached checkout of `c06b2cd` with its driver untracked. The reader amendment that accepts two banks will be
+  applied to the lab branch only after bank 990 finishes.
 - **2026-09-17 22:00Z — repositories made clone-safe; second machine and review channel opened.** (1) Every local-only
   branch was pushed (production 6: `agent/runtime-import-repair-20260822085621`, `codex/above200-analysis`,
   `codex/coverage-selector-lineage-v1`, `codex/deployment-attestation`, `codex/phenotype-graph-ui-adapter`,
