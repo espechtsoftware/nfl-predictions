@@ -124,7 +124,7 @@ Sunday 06:00 CT.
 - Week-2 Sunday-main draft group **153428** (658 players); DK pulls by the host loop only (defects 18/19).
 - **Operator decisions taken today (protocol overrides, recorded in §4.1):** the Week-2 dose plan (D6400 intended
   entry, D12800 early candidate, D3200 and D800 fallbacks; four timers); the `top` ENTER layout; entries reserved
-  (33 / $206: Millionaire 1, SUPERSatellite 2, Huddle 1, Pylon 1, Nickel 5, Flea Flicker 23); `contests.json` filled;
+  (revised 09-17: 67 / $216 in nine contests — see HANDOFF 11:20Z); `contests.json` filled;
   the operator stays on this workstation through Week 2 (the machine move in §11 is deferred).
 - Build chain reworked and rehearsed end to end on the real entries export (§4.1); D6400 / D12800 timing rehearsals
   running (§2).
@@ -230,8 +230,9 @@ Week-1 unique-across-contests layout is `ENTER_LAYOUT=sequential`. Operator: "pr
 **Thursday checklist**
 1. `cd <audit worktree> && source scripts/week_env.sh && week_env 2` — must print the detected group (needs the
    Week-2 salary pull; if it fails, the pull has not happened yet or the group needs `week_env 2 <id>`).
-2. Fill `/home/erich/week2-sunday/contests.json` from the operator's reservations (done 2026-09-16 from his
-   `DKEntries-2026-09-16.csv`: 33 entries / $206).
+2. Fill `/home/erich/week2-sunday/contests.json` from the operator's reservations (revised 2026-09-17 from his
+   `DKEntries-2026-09-17.csv`: 67 entries / $216, nine contests incl. two 16-entry $0.25 super-satellites; the K90 build
+   covers ≤ 90 reserved entries).
 3. Run the rehearsals in §4.1a: the chain rehearsal always, a timing rehearsal for any dose whose build has never been
    measured on this host, and the chosen-dose check before the timers are armed.
 4. Have the operator arm the timers: `scripts/arm_week_timers.sh 2` prints the six `systemd-run` lines (or `--run` arms

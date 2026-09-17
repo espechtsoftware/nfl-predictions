@@ -385,6 +385,13 @@ git -C /home/erich/projects/.nfl-predictions-worktrees/nflverse-ftn-20260915 pus
   had defaulted it to `nfl-dfs-prod` and every pull failed until fixed at 11:25Z) is still the only DK pull path
   (defect 18); ingest-dk on Cloud Run keeps failing by design until the operator decides on egress (Cloud Build probe
   also 403 → NAT not expected to help). Host clock is CDT; stamp with `date -u`.
+- **2026-09-17 11:20Z — Week-2 entries revised by the operator: 67 entries / $216 in nine contests** (export
+  `DKEntries-2026-09-17.csv` under `/home/erich/week2-sunday/ENTERED/`, never committed): Millionaire 1, SUPERSatellite
+  $19 ×2, Huddle 1, Pylon 1, FFWC qualifier super-satellite $1 ×2, Nickel 5, two $0.25 super-satellites to the $20
+  Millionaire ×16 each, Flea Flicker 23. `contests.json` rewritten (nine contests, `top` layout: every contest gets
+  vetted ranks 1..N; the two 16-entry satellites receive the same 16 lineups, allowed across contests); chain, ENTER
+  layout and entries fill re-rehearsed on the new export — all 67 filled, 0 withdraw (output renamed DO-NOT-UPLOAD).
+  The Sunday watcher takes the NEWEST `DKEntries*.csv` in Downloads, which is now this file.
 - **2026-09-17 10:40Z — production refresh DONE by the operator (defects 24/25 closed for this week):** build-features
   `fnrxk` 10:18Z ✓ (a first pass at 09:54Z preceded the 10:00Z roster ingest and project-slate refused on one stale
   team — defect 26), tabpfn-gen `5nv4d` ✓ (928 Week-2 rows), project-slate `d5vcx` ✓ (532 Week-2 production projections,
