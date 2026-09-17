@@ -385,6 +385,13 @@ git -C /home/erich/projects/.nfl-predictions-worktrees/nflverse-ftn-20260915 pus
   had defaulted it to `nfl-dfs-prod` and every pull failed until fixed at 11:25Z) is still the only DK pull path
   (defect 18); ingest-dk on Cloud Run keeps failing by design until the operator decides on egress (Cloud Build probe
   also 403 → NAT not expected to help). Host clock is CDT; stamp with `date -u`.
+- **2026-09-17 08:50Z — defect 24: the weekly `tabpfn-gen` was never run for Week 2.** `tabpfn_projections` holds 2026 W1
+  only; both Week-2 rehearsal builds logged "TABPFN_MARGINALS on but no cached rows for season 2026 — falling back to
+  empirical marginals" (Week 1's entered build did not). The operator runs `gcloud run jobs execute tabpfn-gen
+  --update-env-vars TABPFN_UPCOMING=2026:2 --wait` (production execution; classifier-refused for the assistant) — added
+  to the operator checklist for Thursday/Friday and inside the Saturday refresh between build-features and
+  project-slate. Also: the D12800 rehearsal left its leverage loop at ≈ 15.7 h (with bank contention) and is in the boom
+  phase; exit expected ≈ 10:30–12:00Z; the Saturday D12800 build will move to a morning start.
 - **2026-09-17 01:35Z — bank 990 relaunched with an OpenMP cap (defect 23).** The 00:28Z wave never reached its solvers:
   every worker trains the component LightGBM models with an explicit `num_threads`, which overrides `OMP_NUM_THREADS=1`,
   so 10 workers × 8 threads collapsed the machine (load 73, 60 min without progress). Fix: `OMP_THREAD_LIMIT=1

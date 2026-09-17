@@ -34,7 +34,7 @@ L800=(env PAID_LEV=160 PAID_BOOM=640 SKIP_PAIR=1 DOSE_FILE=/dev/null "RUN_TAG=$(
 cat <<EOT
 # Week $WEEK (America/Chicago): Sat $SATURDAY 17:00 operator refresh (two gcloud lines), 17:45 D12800 (THE ENTRY), 17:50 D6400 fallback;
 # Sun $SUNDAY 05:30 D6400, 09:10 D3200 (dose file), 10:50 D800 T-70, 09:12 watchers.
-# gcloud run jobs execute build-features --project nfl-predictions-503414 --region us-central1 --wait && gcloud run jobs execute project-slate --project nfl-predictions-503414 --region us-central1 --wait
+# refresh (operator, in this order): gcloud run jobs execute build-features --project nfl-predictions-503414 --region us-central1 --wait ; gcloud run jobs execute tabpfn-gen --project nfl-predictions-503414 --region us-central1 --update-env-vars TABPFN_UPCOMING=2026:2 --wait ; gcloud run jobs execute project-slate --project nfl-predictions-503414 --region us-central1 --wait
 systemd-run --user --on-calendar="$SATURDAY 17:45 America/Chicago" --unit $U12800 ${L12800[*]}
 systemd-run --user --on-calendar="$SATURDAY 17:50 America/Chicago" --unit $U6400SAT ${L6400SAT[*]}
 systemd-run --user --on-calendar="$SUNDAY 05:30 America/Chicago" --unit $U6400 ${L6400[*]}
