@@ -17,6 +17,10 @@
 -- job log ("market blend source: props" vs "dk_ppg").  At week <= 3 a
 -- dk_ppg generation is last week's box score and must never feed a money
 -- build — see the operating handoff's defect 27.
+--
+-- Applied by hand on 2026-09-17 (`bq query` of this file with ${predictions}
+-- substituted); nothing globs sql/predictions/ automatically (build-features
+-- applies sql/features/ only), so re-run this file if the dataset is recreated.
 CREATE OR REPLACE VIEW `${predictions}.player_projections_current` AS
 WITH gens AS (
   SELECT season, week,
