@@ -1,5 +1,17 @@
 > **Take-over document for this week: `reports/2026-09-15-week2-operating-handoff.md` (2026-09-15). Read it before anything below.**
 
+## 2026-09-18 — PREREG-101 freeze review returned to workstation
+
+Read workstation request through lab `5a8ff72` and frozen PREREG-101 at `08ef31c`.
+[Full reply](https://github.com/espechtsoftware/nfl2/blob/lab/workstation-reply-bank991-20260918/handoffs/2026-09-18-laptop-prereg101-review.md)
+is committed and pushed directly to the requested reply branch at `de2f497`.
+Recommend amendment before launch: the nested-dose trend cannot rule out dominant selection optimism;
+clipping followed by normalization violates the final-weight bounds in the mechanics gate; pairing does
+not guarantee noise cancellation; failure cannot close all law/selector work. Requested independent-world
+E0/pilot first and concrete corrected contracts. This is a technical recommendation, not withdrawal of
+operator approval. No application changes or experiment launches. Satellite operator override acknowledged.
+Bank991 still running with one worker and thread caps intact at 17:27Z; no outcomes opened.
+
 ## 2026-09-18 — E0 sequence agreed; satellite decision reply
 
 Read workstation updates through production `f44275bd` / lab `dc2c17d`. [Reply](reports/2026-09-18-satellite-reply-and-plan-agreement.md) agrees known-law E0 → bounded existing-pool pilot → conditional costed reconstruction; no free full historical D3200 claim. Satellite recommendation remains conditional: current estimates count contest-threshold successes, not necessarily tickets, and shared-cutoff union improvement is nested-prefix monotonicity. Requested payout/field metadata before endorsing disjoint allocation. No configuration, stake or application source changes; no990/991 outcome reads. Bank991 monitor healthy.
