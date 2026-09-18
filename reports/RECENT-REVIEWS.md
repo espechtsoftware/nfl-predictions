@@ -27,3 +27,6 @@ Consolidated September 18, 2026 at Erich's request. Source commits: production `
 (PREREG-101 review). Original commits remain in Git history; use these main-project paths for reading.
 
 - [E0 known-law experiment results — September 18](2026-09-18-e0-known-law-results.md): completed synthetic selection-precision study; peer review pending.
+
+- [E0b candidate-count results](2026-09-18-e0-candidate-count-results.md): 2000 synthetic K1 selections; distinguishes estimate optimism from true selection loss.
+- [D800 archive readiness](2026-09-18-e0-archive-readiness.md): identity census and saved-bank provenance.

@@ -1,0 +1,82 @@
+{
+  "method": "Explicit column projection; no actual, ranks, metric columns or score matrix values decoded.",
+  "allowed_columns": {
+    "candidates.parquet": [
+      "cand",
+      "players",
+      "salary"
+    ],
+    "frame.parquet": [
+      "id",
+      "position",
+      "salary",
+      "team",
+      "opp"
+    ]
+  },
+  "candidates": 800,
+  "unique_rosters": 800,
+  "unique_candidate_ids": 800,
+  "frame_rows": 397,
+  "frame_order_sha256": "db841bbe2eee427d4527b1edf59bd4cf93fedec19e7aa430bf6c0db57e05a294",
+  "roster_order_sha256": "1aefad8cba6106746dc0f5ada77e3783d258da9c1e93a1e1a052f106dfa7b873",
+  "basic_contract_violations": {},
+  "receipt_generation": 1789080587697402,
+  "receipt_identity_keys": [
+    "sha",
+    "dirty",
+    "diff_sha256"
+  ],
+  "identity": {
+    "sha": "fa5d035ba99928f71736cbb77222515e9cdd94a8",
+    "dirty": false
+  },
+  "season": 2026,
+  "week": 1,
+  "lock_utc": "2026-09-13 17:00:00+00:00",
+  "built_utc": "2026-09-10 12:31:27.461403+00:00",
+  "salary_pull": "2026-09-10 12:01:43.749785+00:00",
+  "config": {
+    "lev": 160,
+    "boom": 640,
+    "k": 1,
+    "operational_k": 80,
+    "sims": 10000,
+    "seed": 2026,
+    "selector": "dual_emax",
+    "hsim_seed": 2326,
+    "hsim_worlds": 10000,
+    "centering": "mean_projection (45/55 blend)"
+  },
+  "banks": {
+    "generation_seed": 2026,
+    "selection_seed": 2076,
+    "audit_seed": 2126,
+    "independent_event_randomness": true,
+    "shifted_to_identical_means": true
+  },
+  "sidecar_identity": {
+    "same_pool_wemax": true,
+    "winner_proxy": "GLOBAL_WEMAX_PROXY",
+    "book_wemax_csv_sha256": "b6478fe9d524611da6077d84871496c13cefa9042612a3daccf2671359b092fc",
+    "book_wemax_json_sha256": "5ded40bdaced4c311587916d62cef965b915b0ba51f0c10da704d617c3c69778",
+    "incumbent_player_scores": {
+      "shape": [
+        397,
+        10000
+      ],
+      "dtype": "float32",
+      "sha256": "e39ebbc960d0f364b4f9bb9e22d6a7af94b36bc2e51244762e14bca2ee1c031a",
+      "bytes": 15880128
+    },
+    "corrected_hsim_player_scores": {
+      "shape": [
+        397,
+        10000
+      ],
+      "dtype": "float32",
+      "sha256": "9490b5e70cec6e44afec9adddf70fcfefeae20991389866d11f74a5d279cc7d8",
+      "bytes": 15880128
+    }
+  }
+}

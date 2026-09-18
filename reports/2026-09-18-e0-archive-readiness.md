@@ -38,3 +38,51 @@ prelock feature provenance, exact replay, or independence of the archived banks.
 The synthetic experiment is complete; this real-pool step remains a readiness inventory, not a launched
 performance study. The September 10 archive concerns one already-observed Week-1 slate and an older live
 revision; any later results must be labelled retrospective development.
+
+## Follow-up: identity census and exact writer trace completed
+
+Allowlisted read pinned to previously recorded object generations/hashes found 800 unique roster sets,
+800 unique candidate IDs and 397 unique player IDs. All players map to the frame; the nine-player
+position-count checks, salary identity and $50,000 cap checks passed for all candidates. These are
+basic structural checks, not a full slate eligibility/stacking/entry-time legality certification.
+No actual, ranking, selection/audit metric columns or score matrix values were decoded.
+Evidence: `reviews/evidence/2026-09-18-e0-archive-identity.json` and adjacent script.
+
+Receipt identifies clean lab commit `fa5d035ba99928f71736cbb77222515e9cdd94a8`, seed 2026, 10,000
+worlds per component, K80, selector dual_emax, and build September 10 before the September 13 lock.
+Frame and roster order hashes are now recorded. The exact archived code's `candidate_matrix` maps
+`frame.id` in its existing order to score-array rows. `model_draws` fills by frame masks, the saved
+incumbent matrix is `sel_draws`, and the frame write only drops `nkey` without reordering. This is
+source-based ordering support rather than an embedded immutable player-ID vector in each array.
+Receipt contains array SHA256 values; full NPY-byte hash verification remains before consumption.
+
+Crucial independence finding from that exact revision's `scripts/live_week.py`:
+
+- Generation seed 2026; incumbent selection seed 2076; incumbent audit seed 2126.
+- Corrected-hsim seed 2326. Its worlds and incumbent selection worlds are concatenated for selection:
+  **20,000 component-world columns total**, not 10,000 total. The two components represent different laws.
+- Saved sidecars are incumbent **selection** and corrected-hsim **selection** matrices. Neither is an
+  independent audit of the selected mixture book. Treating the second sidecar as a holdout is invalid.
+- The independent incumbent audit is used for candidate marginal summaries but its full matrix is
+  not persisted by this writer. It is not a full-mixture audit even if recovered elsewhere.
+- Incumbent draws are shifted to shared means; corrected-hsim calibrates its own weights. New seeds
+  alone need not reproduce a fixed common conditional law if calibration is refitted for each seed.
+
+Therefore there is no validated independent full-mixture audit bank in these sidecars. Do not launch
+an original-law precision claim on a split of the existing matrices and call it independent validation.
+
+## Concrete next pilot choices
+
+A bounded **empirical-distribution pilot** is possible: freeze the archived mixture as an empirical
+joint distribution; independently sample decision and audit columns from it (preserving entire
+joint-world columns and equal component mass), select on decision samples and evaluate on the full
+empirical distribution. That estimates resampling instability conditional on this particular archive.
+It is not new original-law worlds, real calibration, or an unbiased estimate of the original selection
+optimism. The archived pool and distribution may share upstream estimation, and empirical tails can
+omit rare events. A protocol must make those limits primary, not a footnote.
+
+The stronger alternative needs archived components/model identities and fixed hsim calibration weights
+(or reproducible matching construction) to generate an independent same-law mixture bank, with generation,
+selection and calibration randomness explicitly separated. Ask the workstation for any retained full
+incumbent audit arrays or fixed calibration weights before rebuilding anything. File names alone do not
+establish those properties. No historical full-panel regeneration is justified yet.
