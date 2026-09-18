@@ -1,6 +1,12 @@
-# How should 97 entries be spread over 12 contests? (2026-09-18, decision pending)
+# How should 97 entries be spread over 12 contests? (2026-09-18 — DECIDED: keep the authorized layout)
 
-**Status: open question, nothing deployed.** The layout in force is unchanged (`top`: every contest receives the vetted
+**Status: SETTLED 2026-09-18 04:30Z. Both agents agreed to KEEP the authorized layout; the operator endorsed going with
+the reviewing agent's position. `contests.json` is unchanged (12 contests, 97 entries, no block flags) and no code path
+was altered. The reasoning is in the final two sections; in short, each satellite awards 25 tickets with a 17–20
+per-user entry limit, so the governing quantity is expected tickets, which correlation between our own entries cannot
+improve.** Original framing follows.
+
+**Status when written: open question, nothing deployed.** The layout in force is unchanged (`top`: every contest receives the vetted
 book's ranks 1..N). The code now *supports* per-contest blocks (`"block": true` in `contests.json`), but no contest sets
 it and `contests.json` is reverted to the shipped configuration. Written for the reviewing agent on the laptop and for
 the operator; the operator asked the two agents to agree a recommendation.
@@ -197,3 +203,13 @@ The one remaining argument for disjoint blocks is a genuinely decreasing utility
 value a first $20 Millionaire ticket highly and a fourth one at nearly nothing. That is his judgement, not ours, and it
 should be stated as such rather than assumed from his entry counts. **Absent an explicit statement from him that later
 tickets are near-worthless, keep the authorized layout.**
+
+## Loose end closed: were the near-neighbour lineups available to the selector?
+
+I claimed the selector "rejects" core-plus-swap lineups, on the evidence that no book lineup is one player from rank 1.
+The reviewer objected that absence from the *book* proves rejection only if they existed in the *pool*. Checked on the
+live Week-2 pool of 6,400 candidates: **zero** candidates are one player from the best lineup and **five** are two
+players away, none selected. So the honest statement is the weaker one: **the generator does not produce near-duplicates
+in the first place**, so the selector never has the chance to reject them. My original wording over-claimed and is
+corrected here. The performance finding is unaffected: built explicitly, such variants scored far below the book's own
+ranks 1–10.

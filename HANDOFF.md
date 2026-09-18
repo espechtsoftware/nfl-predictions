@@ -385,6 +385,19 @@ git -C /home/erich/projects/.nfl-predictions-worktrees/nflverse-ftn-20260915 pus
   had defaulted it to `nfl-dfs-prod` and every pull failed until fixed at 11:25Z) is still the only DK pull path
   (defect 18); ingest-dk on Cloud Run keeps failing by design until the operator decides on egress (Cloud Build probe
   also 403 → NAT not expected to help). Host clock is CDT; stamp with `date -u`.
+- **2026-09-18 04:30Z — SATELLITE ALLOCATION SETTLED: keep the authorized layout; my recommendation was withdrawn.**
+  The laptop agent declined to endorse disjoint blocks and demanded the real payout rules first. It was right. From
+  `nfl_raw.dk_contest_fills`: every satellite awards **25 tickets** (FFWC 4, $19 satellite 2) with a **17–20 per-user
+  entry limit**, so several of our own entries can win tickets in the SAME contest. The governing quantity is therefore
+  expected tickets — a sum of per-entry probabilities, **invariant to correlation among our entries** — not P(at least
+  one seat). Recomputed: CURRENT 3.79 expected tickets vs DISJOINT 2.63 on present fields (1.66 vs 1.12 if they fill);
+  P(≥1) favours disjoint (0.515 vs 0.638) but that is the wrong statistic here, and my headline comparison also nested
+  top-16 inside top-62 so its direction was structurally guaranteed. **Operator: "go with what the agent suggested."**
+  `contests.json` unchanged (12 contests, 97 entries, no block flags); `sunday_after_build.sh` retains inert support for
+  `"block": true`. Reopen only if he states that later tickets are near-worthless. Also conceded to the reviewer: my
+  historical analyses used 65 of 72 slates (local copy lacked the repair shards), and the core-plus-swap "selector
+  rejects them" claim is corrected — the live pool contains ZERO one-player neighbours of rank 1, so the generator never
+  produces them and the selector never gets the chance. Agreement recorded on `lab/workstation-reply-bank991-20260918`.
 - **2026-09-18 03:05Z — satellite entry allocation: documented, sent to the laptop, NOT deployed.** The operator asked
   the two agents to agree first. Situation: 97 entries over 12 contests use only 23 distinct lineups (ranks 24–90 never
   entered), and 62 of the 97 are five satellites all holding the same best block, so those five outcomes are perfectly
