@@ -385,6 +385,19 @@ git -C /home/erich/projects/.nfl-predictions-worktrees/nflverse-ftn-20260915 pus
   had defaulted it to `nfl-dfs-prod` and every pull failed until fixed at 11:25Z) is still the only DK pull path
   (defect 18); ingest-dk on Cloud Run keeps failing by design until the operator decides on egress (Cloud Build probe
   also 403 → NAT not expected to help). Host clock is CDT; stamp with `date -u`.
+- **2026-09-18 02:30Z — reader findings 9–11 repaired outcome-blind (PREREG-099 amendment 5).** Branch
+  `lab/prereg099-reader-amend5-20260918` at `d94296d`, cut from the frozen `c06b2cd`; the running worktree's HEAD is
+  unchanged (verified `c06b2cd`), so no shard identity moves. Repairs: (9) `--rule {990-alone,both}` selects the
+  cohort the frozen time rule dictates and records it in the transcript, 991-alone still invalid; (10) with one season
+  the season-clustered interval and LOSO print NOT ESTIMABLE, the secondary verdict label is suppressed, and a
+  slate-clustered interval is printed as explicitly descriptive — this was a live risk of printing a PASS with
+  zero-width uncertainty; (11) stable `_ratio` schema with disclosed discarded zero-denominator draws, exact ranks
+  1..80 / unique rosters / finite scores / book-max agreement, and the EXPECTED code_sha + benchmark + weeks 1–18
+  asserted rather than "one common identity". Evidence:
+  `scripts/tests/test_prereg099_reader_amend5.py`, nine synthetic checks, all passing, run before any shard was read.
+  **Application order: cherry-pick onto `lab/prereg099-supply12800-20260916` only after bank 990's last shard lands**
+  (defect 29), then read with `--rule`. The laptop was notified
+  (`handoffs/2026-09-18-reader-amendment-5.md` on `lab/workstation-reply-bank991-20260918`).
 - **2026-09-18 01:45Z — bank 990: last eight slates started early.** The v3 driver waited for ALL first-wave workers
   before launching indices 10–17, so with one straggler left the machine sat at load 1.2. Replaced by
   `scripts/run_119_local_v4.sh` (untracked on purpose — defect 29 forbids commits in that worktree until the last
