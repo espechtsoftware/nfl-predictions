@@ -26,6 +26,36 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-18 FAILURE: frozen prospective gates were never checked to be armed. Week 2 of the Route Share gate is lost.
+
+- **What happened.** The 2026 Route Share prospective shadow gate
+  (`reports/2026-08-11-route-share-2026-shadow-gate.md`) grades Sunday-main Weeks 2-18 and requires a control and a
+  treatment forecast frozen BEFORE each lock. Its four Cloud Schedulers were PAUSED. Nobody checked. It surfaced two
+  days before Week 2 only because the laptop agent asked an unrelated question about paused vendor shadows. Eighteen
+  of the twenty shadow/freeze schedulers were paused.
+- **Why resuming them would have been worse.** Both target jobs (`shadow-k1-roleunion`,
+  `shadow-k1-route-roleunion`) carry `N_BOOM=28`, while the adopted money path is boom-first `N_BOOM=160` /
+  `N_LEV=40`. Resuming would have produced a *complete-looking* graded week comparing a policy we do not run.
+  **An invalid week that looks complete is worse than a missing week** -- the missing one is visible.
+- **Week 2 is lost and that is accepted.** The gate needs at least 12 complete paired weeks out of Weeks 2-18, so 17
+  are available against a floor of 12. Losing Week 2 leaves 16. The alternative was a production Cloud Run job update
+  ~40 hours before the operator's live entry, in a project already AT the JobsPerProject=1000 quota. Not worth it.
+  **Week 3 is the first graded week.**
+- **The fix is a check, not a note.** `scripts/check_prospective_gates.py`, with
+  `tests/test_check_prospective_gates.py` (9 adversarial tests, all passing). Fail-closed three ways: a gate inside or
+  two weeks before its graded window whose scheduler is not ENABLED; a target job whose env contradicts the gate's
+  declared policy; and ANY shadow/freeze scheduler not in its registry. Silence was the original bug, so an
+  unrecognised scheduler is an error. Wired into CLAUDE.md as a standing rule and into the operator checklist as a
+  weekly pre-build step.
+- **It already found a second one.** `s-shadow-sis-pass-tail-paired` plus the two TabPFN SIS schedulers are PAUSED and
+  become eligible at Week 5 (the module builds a last-four-weeks context, so week 5 is the earliest target). **No
+  frozen gate document governs that pair at all.** Before Week 5: either write the gate and declare its policy
+  contract, or move those schedulers to DORMANT with a written reason. The checker warns from Week 3 and fails at
+  Week 5.
+- **Standing lesson.** Every frozen protocol that captures prospectively is a standing operational dependency, not a
+  document. If nothing fails when it stops running, it will stop running. Register it in the checker at freeze time.
+
+
 ### 2026-09-18 PREREG-101 LAUNCH READINESS WITHDRAWN after independent review — DO NOT LAUNCH
 
 - **The laptop agent reviewed the freeze (nfl2 `lab/workstation-reply-bank991-20260918` @ de2f497) and every finding
