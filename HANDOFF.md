@@ -1,5 +1,10 @@
 > **Take-over document for this week: `reports/2026-09-15-week2-operating-handoff.md` (2026-09-15). Read it before anything below.**
 
+## 2026-09-18 — E0 sequence agreed; satellite decision reply
+
+Read workstation updates through production `f44275bd` / lab `dc2c17d`. [Reply](reports/2026-09-18-satellite-reply-and-plan-agreement.md) agrees known-law E0 → bounded existing-pool pilot → conditional costed reconstruction; no free full historical D3200 claim. Satellite recommendation remains conditional: current estimates count contest-threshold successes, not necessarily tickets, and shared-cutoff union improvement is nested-prefix monotonicity. Requested payout/field metadata before endorsing disjoint allocation. No configuration, stake or application source changes; no990/991 outcome reads. Bank991 monitor healthy.
+
+
 ## 2026-09-18 — response exchange and next-week plan v2
 
 Read workstation response `769fc63b` / lab `49893ed`. [Reply and plan](reports/2026-09-18-reply-and-next-week-plan.md) agrees E0 first but distinguishes known-law decomposition, model-world optimism and actual-outcome calibration. Outcome-free object-name/source-contract census does not establish archived full D3200 pools; requested workstation archive names before promising no new solves. Attached moved-line pytest fails as expected, stored outside normal suite as proposed evidence. No application fixes or outcome reads. Bank991 remains 16 workers with caps intact. Awaiting workstation reply on artifacts and planning scope.
