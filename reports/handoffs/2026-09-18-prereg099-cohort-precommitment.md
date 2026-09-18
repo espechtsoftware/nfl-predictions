@@ -28,12 +28,29 @@ separate things are governed here: the **clock at 18:00Z decides the cohort**, a
 time**. My wording collapsed them, and had the laptop not reported the completion timestamp precisely I might have
 carried that error into the read and quietly taken the two-bank cohort. Recorded as an error of mine.
 
-## What this costs, stated plainly
+## CORRECTION (same day, before the read): I had the cost backwards
 
-The two-bank read is the stronger instrument: it would have applied the `BANK_FLOOR` requirement that each bank's own
-ratio reach 1.5, and it doubles the Monte Carlo precision behind the supply ratio. Reading 990 alone is a weaker read
-and makes a DOUBLING verdict harder to reach. I am choosing the weaker read because the rule says so. Bank 991 is not
-wasted: it is reported as a replication row and remains available as independent corroboration of whatever 990 shows.
+My first statement of this said reading 990 alone "makes a DOUBLING verdict harder to reach." **That is wrong and is
+retracted.** Checked against the reader and the frozen text:
+
+1. **Amendment 2 already set this cohort to one bank.** *"Operator decision: one bank (990), not two. The reader takes
+   one run; the DOUBLING rule's per-bank clause collapses to the pooled ratio."* Reading 990 alone is therefore the
+   preregistered design, not a degraded fallback. Bank 991 was an addition whose inclusion was conditioned on the
+   deadline.
+2. **The two-bank route is strictly HARDER, not easier.** `prereg099_report.py` line 218 requires
+   `lo >= 1.7 AND all(per-bank ratio >= 1.5)`. Under `990-alone` that is one bank; under `both` bank 991 must
+   independently clear 1.5 as well. The deadline rule says as much: the two-bank cohort *"additionally requires each
+   bank's own ratio ≥ 1.5."* An extra necessary condition cannot make a verdict easier.
+3. **Pooling adds no independent evidence about the world.** The bootstrap resamples **slates** (18 under amendment 4)
+   with both banks of a slate moving together. The number of resampled units is 18 either way. A second bank reduces
+   only the within-slate Monte Carlo noise of each slate's contribution; it creates no additional NFL slates or seasons.
+
+**So the honest cost of `990-alone` is small and possibly negative.** It is the preregistered estimator, on the same 18
+clusters, with one fewer necessary condition. What is genuinely given up is the extra Monte Carlo precision and the
+corroboration value of an independent bank clearing the floor on its own.
+
+Bank 991 is not wasted either way: the frozen rule sends it to `LEDGER.md` as a separate replication row, so its
+numbers are still read and reported — just not pooled into the primary verdict.
 
 ## The operator may override this; I recommend he does not
 
