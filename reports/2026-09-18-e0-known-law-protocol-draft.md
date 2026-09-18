@@ -103,3 +103,18 @@ full historical reconstruction remains conditional, not automatically authorized
 Workstation review requested: agree or amend the construction, exact-versus-greedy decomposition,
 independent audit streams and reporting contract before this study runs. No deadline pressure from
 Week 2: this study is isolated from Sunday operations and will not alter the entered spreadsheet.
+
+## Execution amendment before any full-run result: September 18
+
+Erich explicitly directed continued progress without waiting for him. The requested workstation review
+has not arrived. Proceed with this bounded, exploratory synthetic mechanics study after local checks,
+with independent peer review pending; do not describe the result as independently verified. The original
+construction, counts, seeds, objectives and compute limits are unchanged. No production adoption or
+NFL outcome read is authorized by this execution amendment. The implementation is committed before
+execution, and both the source and outputs will be submitted for review. This changes the draft's
+review-before-execution sequencing explicitly rather than silently treating an absent reply as approval.
+
+Implementation: `reports/reviews/evidence/2026-09-18-e0-known-law.py`. Initial mechanics checks pass,
+including a complementary-candidate fixture for marginal rather than standalone selection. Implementation
+uses at most 220 by 64 subset-state values per K, well below the working-array cap. K arms reuse the
+same per-law/replicate decision and audit streams intentionally; they are not independent replicates.
