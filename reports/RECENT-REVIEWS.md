@@ -34,3 +34,5 @@ Consolidated September 18, 2026 at Erich's request. Source commits: production `
 - [E0c archived D800 resampling results](2026-09-18-e0c-archive-resampling-results.md): 15 K80 selections, exact finite-law evaluation; no actual outcomes.
 
 - [E0d retrieval swap results](2026-09-18-e0d-retrieval-swap-results.md): three swaps; small K80 gain, prefix screen failed.
+
+- [Week2 current-selector diagnostic](2026-09-18-week2-current-selector-diagnostic.md): exact90-row reproduction,97-entry extension and component tail disagreement.

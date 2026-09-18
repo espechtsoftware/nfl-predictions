@@ -50672,3 +50672,7 @@ Frozen implementation db6a5653 on research/2026-09-paid-source-preflight; 1600 s
 ### 2026-09-18 laptop E0c archive-resampling pilot completed
 
 Frozen source cd714b7e; all 15 K80 resampling runs finished under the declared protocol. Report reports/2026-09-18-e0c-archive-resampling-results.md. Exact archived matrix hashes verified, actual-score columns excluded; fixed historical utility registry read as declared. Results are conditional finite-archive stability, not original-law/NFL confirmation. Independent peer review pending. Next: reviewer reproduction and audited future capture of independent matrices plus frozen law state; no live adoption or full reconstruction.
+
+### 2026-09-18 Week2 raw-DEMAX diagnostic completed
+
+Frozen8086f604; exact90-row archive reproduction and97-row diagnostic extension passed. Report reports/2026-09-18-week2-current-selector-diagnostic.md. FirstrowalreadymaxmodeledP220; K97componentP220 7.51%vs31.11%, mixture19.31%. Allselection-world estimates, no2026actuals. Nochange to finalD12800/K97build. Capturepatch4689e97reviewfound unpersistedreceipt, missingrowidentity and unhandlednewI/O beforecorepublication; reply367ae4c.
