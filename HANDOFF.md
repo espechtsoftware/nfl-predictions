@@ -26,17 +26,26 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
-### 2026-09-18 Tail calibration (future PREREG-101): process agreed, NOT signed, NOT running
+### 2026-09-18 PREREG-101 FROZEN (tail calibration): signed off, NOT running, waits for PREREG-099
 
-- The operator asked what the tail-calibration draft was. Explained, and he agreed to the process proposed: walk him
-  through the gates after Week 2 settles, then sign off. **Nothing is signed, frozen or run.** Do not launch it.
-- Plain-language walkthrough prepared and committed: `reports/2026-09-18-tail-calibration-what-you-are-approving.md`.
-  The frozen-protocol draft it explains is `reports/2026-09-16-prereg-tail-calibration-DRAFT.md`.
-- **Three decisions still open** (draft §5): the bins/clip/primary endpoint as written; whether 2019 may be added as
-  training-only data so 2021 has something to fit on; and whether it waits for PREREG-099 or pre-empts it. My
-  recommendation on all three is approve as written and wait.
-- **Trigger: after Monday 2026-09-21 settlement, not before.** It cannot start until PREREG-099 releases the
-  workstation cores, and it touches no entered book in any week.
+- **Frozen and pushed:** nfl2 `lab/prereg101-tail-calibration-20260918` @ c65c29a, `PREREG-101.md` plus a LEDGER row and
+  `scripts/prereg101_calibration_recompute.py`. **Nothing has been run.** It does not start until PREREG-099 releases
+  the workstation cores; the operator approved waiting rather than pre-empting.
+- **Operator signed off** on the agent's recommendation after the plain-language walkthrough
+  (`reports/2026-09-18-tail-calibration-what-you-are-approving.md`), without reading the gates himself, which is
+  acceptable because a preregistration binds the agent and not the operator. 2019 approved as training-only data.
+- **CORRECTION MADE BEFORE FREEZING, and disclosed to him.** The draft's motivating table came from bank 970 alone on
+  the 65 shards its base run had before the repair shards landed. Recomputed across all three PREREG-097 banks at 72
+  slates each (216 slate-banks): real/sim at 220 is 0.84 pool and 0.44 book, against the draft's 0.63 and 0.36, with
+  per-bank book values 0.33 / 0.49 / 0.49. **The 220 claim is WITHDRAWN as a magnitude** -- it rests on 8 realized book
+  events spanning only 6 distinct slates, because the three banks are correlated replications of the same 72 slates.
+  Do not cite "2.8x too optimistic at 220" anywhere; it is not supportable.
+- **What it stands on instead:** the 194 line, where the events exist. Book 0.390 simulated vs 0.259 realized on 56
+  events (1.5x over-optimistic) while the pool it selected from is nearly calibrated at 0.93. Selection manufactures
+  the error, which is what world reweighting targets. The gates never depended on the 220 share and are unchanged.
+- **Lesson for the ledger:** the draft generalized from one bank of three and from a base run missing its repairs. Any
+  motivating statistic must be recomputed across every bank at full shard count before it is frozen or cited.
+
 
 
 ### 2026-09-18 Week-2 entry layout: operator override to unique lineups per contest (ENTER_LAYOUT=sequential)

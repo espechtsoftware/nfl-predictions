@@ -1,6 +1,7 @@
 # DRAFT preregistration — tail calibration of the world model by walk-forward world reweighting (for operator sign-off)
 
 **Status: DRAFT, not frozen. Nothing in it has been run. It becomes PREREG-101 in the lab when the operator signs off;
+> **Superseded by `PREREG-101.md` on nfl2 `lab/prereg101-tail-calibration-20260918` (frozen 2026-09-18). Its §2 table is WRONG: computed on bank 970 alone at 65 shards. Use PREREG-101 §2a.**
 the numbers in §2 are then recomputed from all three 097 banks and frozen with the file.** Author: the agent operating
 both teams. Date 2026-09-16.
 
