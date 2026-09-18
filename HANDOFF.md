@@ -50668,3 +50668,7 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
 ### 2026-09-18 laptop E0 synthetic study completed
 
 Frozen implementation db6a5653 on research/2026-09-paid-source-preflight; 1600 synthetic cases, no NFL outcome reads or cloud changes. Results: reports/2026-09-18-e0-known-law-results.md and linked evidence. Internal checks passed; peer review pending. Population greedy gap was zero in this construction, so no claim about real greedy losses. Next: outcome-excluding archive metadata/schema inventory for the existing D800 pilot.
+
+### 2026-09-18 laptop E0c archive-resampling pilot completed
+
+Frozen source cd714b7e; all 15 K80 resampling runs finished under the declared protocol. Report reports/2026-09-18-e0c-archive-resampling-results.md. Exact archived matrix hashes verified, actual-score columns excluded; fixed historical utility registry read as declared. Results are conditional finite-archive stability, not original-law/NFL confirmation. Independent peer review pending. Next: reviewer reproduction and audited future capture of independent matrices plus frozen law state; no live adoption or full reconstruction.
