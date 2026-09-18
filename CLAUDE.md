@@ -147,6 +147,14 @@ worktree per task (`git worktree add`), never in a dirty main checkout; the
   first; never select lineups on raw expected payout (a 1-in-10,000 event
   decides it); the T-70 rebuild must use the salary pull made after the
   10:30 CT inactives.
+- **`reports/OPEN-DEFECTS.md` is the register of known, unfixed problems.**
+  Read it before proposing work and before any weekly cadence. Every entry
+  carries an impact, a deadline and a definition of "resolved"; an item
+  leaves only by being fixed and tested or by an explicit recorded
+  decision. Add to it whenever you knowingly leave something broken --
+  including when the reason is good, such as refusing a production change
+  close to a live entry. A defect you chose not to fix and did not write
+  down is indistinguishable from one you missed.
 - **Frozen prospective gates must be ARMED, and armed on the CURRENT policy.**
   Run `python scripts/check_prospective_gates.py` every week before the
   Sunday build, and whenever a construction lever changes. It is

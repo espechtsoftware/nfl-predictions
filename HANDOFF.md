@@ -26,6 +26,18 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-18 Known-unfixed register created: `reports/OPEN-DEFECTS.md`
+
+- Ten open entries, each with impact, deadline and a definition of resolved. **None is on the Sunday money path.**
+  Nearest deadlines: **Week 3** for the stale `N_BOOM=28` shadow jobs (O-2) and for independent review of the
+  prospective-gate checker's dormant list (O-9); **Week 5** for the SIS pass-tail gate-or-retire decision (O-3).
+- Also closed today, with tests: review finding 6 in both halves. The Sunday late-status watcher could not see a
+  doubtful player being ruled out, and read the entered books only once so a scratch swap left it watching a stale
+  roster. Both fixed; six tests, two of which pin the old blindness.
+- CLAUDE.md now requires adding to the register whenever something is knowingly left broken, **including when the
+  reason is good**. A defect chosen and not written down is indistinguishable from one that was missed.
+
+
 ### 2026-09-18 FAILURE: frozen prospective gates were never checked to be armed. Week 2 of the Route Share gate is lost.
 
 - **What happened.** The 2026 Route Share prospective shadow gate

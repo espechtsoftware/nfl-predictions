@@ -129,6 +129,12 @@ satellite to the $555 Millionaire is by a wide margin the most valuable entry yo
 draws lineups 32 and 33 instead of 1 and 2. The two FFWC qualifier entries end up on the last two lineups for the same
 reason. If you want those moved back toward the front, say so and it is a one-line change.
 
+## What is known-broken right now
+
+`reports/OPEN-DEFECTS.md` lists everything known to be broken and not currently being fixed, with why and by when.
+**None of it is on your Sunday path** — it is research and vendor plumbing. If you want to know what is wrong without
+asking, that file is the honest answer, and it is kept honest by an automated check rather than by anyone remembering.
+
 ## Weekly, before the Saturday build: are the research captures armed?
 
 Some experiments have to freeze a forecast **before** each Sunday's lock, and once a lock passes, that week is gone
