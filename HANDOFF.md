@@ -26,6 +26,19 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-18 Tail calibration (future PREREG-101): process agreed, NOT signed, NOT running
+
+- The operator asked what the tail-calibration draft was. Explained, and he agreed to the process proposed: walk him
+  through the gates after Week 2 settles, then sign off. **Nothing is signed, frozen or run.** Do not launch it.
+- Plain-language walkthrough prepared and committed: `reports/2026-09-18-tail-calibration-what-you-are-approving.md`.
+  The frozen-protocol draft it explains is `reports/2026-09-16-prereg-tail-calibration-DRAFT.md`.
+- **Three decisions still open** (draft §5): the bins/clip/primary endpoint as written; whether 2019 may be added as
+  training-only data so 2021 has something to fit on; and whether it waits for PREREG-099 or pre-empts it. My
+  recommendation on all three is approve as written and wait.
+- **Trigger: after Monday 2026-09-21 settlement, not before.** It cannot start until PREREG-099 releases the
+  workstation cores, and it touches no entered book in any week.
+
+
 ### 2026-09-18 Week-2 entry layout: operator override to unique lineups per contest (ENTER_LAYOUT=sequential)
 
 - **Decision and authority.** The operator overrode the settled `top` layout: "I dont want to use the same lineups for
