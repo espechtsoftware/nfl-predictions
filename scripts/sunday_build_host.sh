@@ -69,15 +69,22 @@ PYEOF
 }
 [[ -f "$CONTESTS_JSON" ]] || { echo "contests file missing: $CONTESTS_JSON (copy scripts/contests.template.json and fill the week's contest ids)"; exit 2; }
 "$PROD_PY" - "$CONTESTS_JSON" <<'PYEOF' || exit 2
-import json, sys
+import json, os, sys
 c = json.load(open(sys.argv[1]))
 assert isinstance(c, list) and c, "contests.json must be a non-empty list"
 for x in c:
     assert set(x) >= {"name", "contest_id", "entries", "keep"} and str(x["contest_id"]).isdigit() and x["entries"] >= x["keep"] >= 0, x
     assert "REPLACE" not in json.dumps(x), f"contests.json still holds a template entry: {x}"
-tot = sum(x["entries"] for x in c); keep = sum(x["keep"] for x in c)
-print(f"contests: {[(x['name'], x['contest_id'], x['entries'], x['keep']) for x in c]} total entries {tot} keepers {keep}")
-assert tot <= 90, "the nested K90 build covers at most 90 reserved entries"
+tot = sum(x["entries"] for x in c); keep = sum(x["keep"] for x in c); widest = max(x["entries"] for x in c)
+layout = os.environ.get("ENTER_LAYOUT", "top")
+print(f"contests: {[(x['name'], x['contest_id'], x['entries'], x['keep']) for x in c]} total entries {tot} keepers {keep} widest contest {widest} layout {layout}")
+# 2026-09-18: under the default `top` layout every contest independently receives the vetted book's first N, so the
+# book only has to be as large as the WIDEST contest; the sum may exceed the book size (Week 2: 97 entries across 12
+# contests, widest 23).  Under `sequential` (the Week-1 unique-across-contests layout) the SUM is the binding limit.
+if layout == "sequential":
+    assert tot <= 90, f"sequential layout needs one unique lineup per entry: {tot} entries > 90-lineup book"
+else:
+    assert widest <= 90, f"the widest contest reserves {widest} entries but the book holds 90 lineups"
 PYEOF
 
 # 1. the governed pair (paid K80 / shadow) with receipt checks -- skipped with SKIP_PAIR=1 (the K90 below carries the
@@ -147,13 +154,26 @@ emit() {  # $1 run dir, $2 label, $3 ranks
 }
 # layouts: k80 = the paid book's first N per contest (same lineups in every contest); k90 = one unique lineup per
 # reserved entry (sequential ranks); k30 = the keepers only (sequential ranks over the keep counts)
+# k80 = the per-contest layout the money path uses (every contest gets ranks 1..N; ENTER_LAYOUT=top).
+# k90/k30 = the Week-1 sequential layout, kept only as reference emits; 2026-09-18: they are SKIPPED for contests whose
+# cumulative range would run past the 90-lineup book (Week 2 reserves 97 entries across 12 contests), so that an
+# "EMIT FAILED" line on Sunday always means a real failure.
 layouts=$("$PROD_PY" - "$CONTESTS_JSON" <<'PYEOF'
 import json, sys
-c = json.load(open(sys.argv[1])); p = 1; q = 1
+c = json.load(open(sys.argv[1])); p = 1; q = 1; BOOK = 90
 for x in c:
     n, k = int(x["entries"]), int(x["keep"]); lab = f"{x['name']}-{x['contest_id']}"
-    print(f"k80 {lab} 1-{n}"); print(f"k90 {lab} {p}-{p+n-1}"); p += n
-    if k: print(f"k30 {lab} {q}-{q+k-1}"); q += k
+    print(f"k80 {lab} 1-{n}")
+    if p + n - 1 <= BOOK:
+        print(f"k90 {lab} {p}-{p+n-1}")
+    else:
+        print(f"skip k90 {lab} (sequential ranks {p}-{p+n-1} exceed the {BOOK}-lineup book)", file=sys.stderr)
+    p += n
+    if k and q + k - 1 <= BOOK:
+        print(f"k30 {lab} {q}-{q+k-1}")
+    elif k:
+        print(f"skip k30 {lab} (sequential ranks {q}-{q+k-1} exceed the {BOOK}-lineup book)", file=sys.stderr)
+    q += k
 PYEOF
 )
 while read -r layout lab ranks; do

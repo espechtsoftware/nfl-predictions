@@ -385,6 +385,17 @@ git -C /home/erich/projects/.nfl-predictions-worktrees/nflverse-ftn-20260915 pus
   had defaulted it to `nfl-dfs-prod` and every pull failed until fixed at 11:25Z) is still the only DK pull path
   (defect 18); ingest-dk on Cloud Run keeps failing by design until the operator decides on egress (Cloud Build probe
   also 403 → NAT not expected to help). Host clock is CDT; stamp with `date -u`.
+- **2026-09-18 02:10Z — Week-2 entries revised again by the operator: 97 entries / $246 across TWELVE contests**
+  (export `DKEntries-2026-09-17b.csv`, copied to `/home/erich/week2-sunday/ENTERED/`, never committed). Added: three
+  more `$1` SUPERSat-to-$20-Millionaire contests at 10 entries each (195660200 / 195660201 / 195660202). Unchanged:
+  Millionaire 1, $19 satellite 2, Huddle 1, Pylon 1, FFWC satellite 2, Nickel 5, two $0.25 satellites 16 each, Flea
+  Flicker 23. Two code consequences, both fixed and re-rehearsed: (a) the build asserted `sum(entries) <= 90`, which is
+  the **sequential** layout's limit — under the adopted `top` layout each contest independently receives ranks 1..N, so
+  the binding limit is the WIDEST contest (23); the assertion now branches on `ENTER_LAYOUT`; (b) the legacy sequential
+  k90/k30 reference emits overflowed the 90-lineup book for the last contest and printed `EMIT FAILED`, which would
+  have masked a real failure on Sunday — they are now skipped with an explicit reason. Full chain re-rehearsed on the
+  new export: **staged bundle verified, 12 contests, 97 entry rows, every row 9/9 cells; fill validated 97 entries,
+  0 withdraw** (output renamed DO-NOT-UPLOAD).
 - **2026-09-18 02:30Z — reader findings 9–11 repaired outcome-blind (PREREG-099 amendment 5).** Branch
   `lab/prereg099-reader-amend5-20260918` at `d94296d`, cut from the frozen `c06b2cd`; the running worktree's HEAD is
   unchanged (verified `c06b2cd`), so no shard identity moves. Repairs: (9) `--rule {990-alone,both}` selects the
