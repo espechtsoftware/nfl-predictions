@@ -41,6 +41,12 @@ SHADOW_PATTERN = ("shadow", "freeze", "tail")
 
 # --- The registry.  One entry per frozen prospective gate. ------------------------
 # first_week/last_week are the Sunday-main weeks the gate GRADES (inclusive).
+# adjudicates says WHEN a verdict can be read, and therefore when the gate could change
+# anything.  A gate that adjudicates only after the final graded week cannot improve the
+# CURRENT season no matter how well it runs -- losing one of its weeks costs the
+# multi-season instrument, not this year's results.  Say so in the output, because
+# conflating the two overstates urgency and misleads the operator about what his research
+# is buying him this season.
 # floor_weeks is the minimum complete paired weeks the gate needs, if it states one.
 # require_env asserts what the target Cloud Run job must declare for the comparison to
 # be the current policy.  None means "not yet ruled on" and is reported, never assumed.
@@ -55,8 +61,14 @@ GATES = {
             "s-shadow-k1-route-roleunion-early", "s-shadow-k1-route-roleunion-late",
         ],
         "require_env": {"N_BOOM": "160", "N_LEV": "40"},
+        "adjudicates": "after ALL of weeks 2-18 are frozen and scored (the gate forbids "
+                       "early adjudication); 12 complete paired weeks is a SUPPORT FLOOR, "
+                       "not a read trigger. NO 2026 in-season use is possible by design.",
+        "in_season_value": False,
         "note": "Control shadow-k1-roleunion vs treatment shadow-k1-route-roleunion; the "
-                "treatment must differ ONLY by the four Fantasy Points route features.",
+                "treatment must differ ONLY by the four Fantasy Points route features. "
+                "Its value is the 2027 adoption decision and the Fantasy Points renewal "
+                "decision, NOT 2026 results.",
     },
     "sis-pass-tail-2026": {
         # NOTE (2026-09-18): no frozen prospective-gate DOCUMENT governs this pair.  The
@@ -73,6 +85,8 @@ GATES = {
             "s-tabpfn-sis-pass-tail-control", "s-tabpfn-sis-pass-tail-treatment",
         ],
         "require_env": None,
+        "adjudicates": "unknown -- no frozen gate document exists to say.",
+        "in_season_value": None,
         "note": "NO FROZEN GATE DOCUMENT FOUND. Week 5 comes from the last-four-weeks "
                 "context in the module. Before week 5: either write the gate and declare "
                 "its policy contract, or move these schedulers to DORMANT with a reason.",
@@ -146,6 +160,9 @@ def audit(week: int) -> tuple[list[str], list[str], list[str]]:
             notes.append(f"{gate}: dormant this week (grades weeks {first}-{last}).")
             continue
         when = "GRADED THIS WEEK" if active else f"first graded week is {first}"
+        if spec.get("in_season_value") is False:
+            notes.append(f"{gate}: NOT a current-season lever -- {spec.get('adjudicates', '')} "
+                         f"A lost week here costs the multi-season instrument, not this season.")
         paused = [s for s in spec["schedulers"]
                   if live.get(s, {}).get("state", "MISSING") != "ENABLED"]
         if paused:

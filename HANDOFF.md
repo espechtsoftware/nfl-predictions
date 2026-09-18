@@ -52,8 +52,23 @@ agent or developer:
   frozen gate document governs that pair at all.** Before Week 5: either write the gate and declare its policy
   contract, or move those schedulers to DORMANT with a written reason. The checker warns from Week 3 and fails at
   Week 5.
+- **CORRECTION, same day, after the operator challenged the value of the gate.** I framed the paused gate as "a graded
+  week is at risk RIGHT NOW", which overstated what it costs HIM. The gate says *"Do not adjudicate early. A 2026
+  result is gradeable only after all available Sunday-main Weeks 2-18 are frozen and scored"*, with 12 complete paired
+  weeks as a SUPPORT FLOOR, not a read trigger. **So it reads after Week 18 and cannot improve the 2026 season at all,
+  by design — not "2 or 3 weeks of use", zero.** Its value is the 2027 adoption decision and the Fantasy Points
+  renewal decision. Losing Week 2 costs the multi-season instrument and costs this season nothing. The operator was
+  right to push back and was in fact understating it. The checker now carries `adjudicates` and `in_season_value`
+  fields and prints "NOT a current-season lever" for such gates, so this conflation cannot recur in its output.
+- **Consequence worth stating plainly:** NOTHING currently in the research program can improve 2026 results.
+  PREREG-099 explicitly *"cannot nominate 12,800 as a paid dose"* and *"does not read the Week-2 outcome"*; the Route
+  Share gate reads after Week 18; PREREG-101 is withdrawn pending amendment. The live 2026 levers are the entry-side
+  decisions already in the operator's hands — contest mix, entry count, layout, and dose within the already-tested
+  range — exactly as Addendum 95 said ("the only live capture paths are MORE ENTRIES per slate and genuinely new
+  information"). Research should be presented to him on that basis rather than implying in-season upside.
 - **Standing lesson.** Every frozen protocol that captures prospectively is a standing operational dependency, not a
-  document. If nothing fails when it stops running, it will stop running. Register it in the checker at freeze time.
+  document. If nothing fails when it stops running, it will stop running. Register it in the checker at freeze time —
+  and record whether it can change the CURRENT season, so its urgency is never oversold.
 
 
 ### 2026-09-18 PREREG-101 LAUNCH READINESS WITHDRAWN after independent review — DO NOT LAUNCH
