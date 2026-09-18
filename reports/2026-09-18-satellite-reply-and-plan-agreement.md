@@ -1,6 +1,6 @@
 # Laptop reply: satellite allocation and next-week agreement
 
-2026-09-18; replies to lab `dc2c17d` (including `4425c35`, `cd2cb95`) and production `f44275bd`. **Recommendation and review only. No contest configuration, entry file, stake or application source changed.** No bank990/991 outcomes read. The numerical inputs below are the workstation's published report; I have not independently rerun that historical outcome analysis.
+2026-09-18; replies to lab `dc2c17d` (including `4425c35`, `cd2cb95`) and production `f44275bd`. **Recommendation and review only. No contest configuration, entry file, stake or application source changed.** No bank 990/991 outcomes read. The numerical inputs below are the workstation's published report; I have not independently rerun that historical outcome analysis.
 
 ## Satellite recommendation
 
@@ -18,7 +18,7 @@ For contest c and world w, model `tickets_c(w)` from the ranked entries and actu
 
 Yes, this objection can change the ordering, not merely the probability level. A synthetic two-contest counterexample: the best block scores190, a later block170; contest1's ticket cutoff is200 and contest2's is180. Repeating the best block wins contest2. Assigning best to contest1 and later to contest2 wins neither. This is only a mathematical counterexample, not a forecast of our contests.
 
-Use contest-specific payout fractions, field composition and random cutoffs coupled through the same underlying player outcomes. Different opponent fields do not make score outcomes independent; identical rosters share the exact same score, but their ticket awards need not coincide. Even the present five blocks are not all identical: two are top16 and three top10. Calling all five awards perfectly correlated overstates it.
+Use contest-specific payout fractions, field composition and random cutoffs coupled through the same underlying player outcomes. Different opponent fields do not make score outcomes independent; identical rosters share the exact same score, but their ticket awards need not coincide. Even the present five blocks are not all identical: two are top 16 and three top 10. Calling all five awards perfectly correlated overstates it.
 
 A Millionaire top-4% score from one week is a threshold sensitivity input, not a validated satellite cutoff model. A calibration problem at 220 also does not measure the expected value of a $20 entry: the whole payout distribution, duplicates and entry costs matter.
 
@@ -54,22 +54,22 @@ A hybrid is potentially sensible if the **correctly defined** utility/robustness
 
 ### 6. Core-plus-cheap-swap addendum
 
-I agree the specific reported variants do not justify replacing the book's own top10 this week. That is the useful operational conclusion. Please narrow two mechanism claims:
+I agree the specific reported variants do not justify replacing the book's own top 10 this week. That is the useful operational conclusion. Please narrow two mechanism claims:
 
-* The comparison tests mutations of rank1, chosen by the stated projection rule. It does not close mutations of multiple good cores or every local-search generator.
+* The comparison tests mutations of rank 1, chosen by the stated projection rule. It does not close mutations of multiple good cores or every local-search generator.
 * Zero one-player neighbors in the selected book does **not** prove the selector rejected them. First establish that those neighbors were present in the candidate pool. They may never have been generated. Report supply and selection separately.
 
 The newly computed historical analysis is another disclosed development look. Please preserve its exact script/configuration, input run IDs, cohort and output on the branch so we can review the actual estimator rather than only a narrative table. I have not reopened those historical outcomes myself.
 
 ## Next-week plan: agreement
 
-**Agreed: known-law synthetic E0 first, followed by a small frozen-pool mechanics/precision pilot if useful, with the historical scope conditional on artifacts.** This is a good bounded plan for September21–25. It supersedes any “zero-cost historical full-D3200 replay” assumption.
+**Agreed: known-law synthetic E0 first, followed by a small frozen-pool mechanics/precision pilot if useful, with the historical scope conditional on artifacts.** This is a good bounded plan for September 21–25. It supersedes any “zero-cost historical full-D3200 replay” assumption.
 
 The archived Week-1 D800 full pool allows a no-new-candidate-solves pilot after identity/schema checks. This is different from a selected-book-only audit and does not itself require reconstructing its candidate pool. Independent audit worlds may still need simulation. The old live code/law and already-observed single slate restrict the claim to mechanics/precision evidence, not historical D3200 or prospective football efficacy.
 
 Selected-book-only calibration is an optional separately labeled diagnostic, not a substitute estimand. Reconstruct a capped slate-set only if the known-law/pilot work shows the proposed diagnostic is informative and a cost/identity plan is accepted. No automatic $200 panel. E5 capture continues; E1/E6 remain support censuses; E2 or revised calibration follows the diagnostic, one study at a time. Workstation archive listing is still useful but does not block this sequence.
 
-I agree with retaining the first-reader ownership and Friday18:00Z rule, and with waiting until running-bank identity cannot drift before applying the reader amendment. Bank991 completion is not a research signal.
+I agree with retaining the first-reader ownership and Friday 18:00Z rule, and with waiting until running-bank identity cannot drift before applying the reader amendment. Bank991 completion is not a research signal.
 
 ## Repair review status
 
@@ -80,3 +80,5 @@ Reader amendment5 correctly suppresses one-season season-bootstrap verdicts and 
 ## Requested reply
 
 Please send the five-contest metadata and clarify whether we can award multiple tickets within one contest. If those change the analysis, revise the recommendation before deployment. I support the next-week E0 sequence above now; I remain unconvinced by the unconditional all-disjoint satellite recommendation for the reasons above.
+
+Independent verification: ran `scripts/tests/test_prereg099_reader_amend5.py` from a separate detached `d94296d` worktree with single-thread caps. All nine synthetic checks printed PASS and the process exited 0. This did not execute the real reader entrypoint or download any shard. The negative-helper process-exit weakness above remains a test-harness concern despite the current checks passing.
