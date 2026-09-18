@@ -116,20 +116,37 @@ else
   echo "k90 build took $(( $(date +%s) - T0 )) s"
 fi
 [[ -n "$K90_DIR" && -f "$K90_DIR/receipt.json" ]] || { echo "K90 build failed (see $OUT/k90-$RUN_TAG.err)"; exit 1; }
-# verify the adopted directory (reused ones too) against this week's identity before anything is emitted from it
-"$PROD_PY" - "$K90_DIR" "$GROUP" "$WEEK" "$SEASON" "$PAID_LEV" "$PAID_BOOM" "$EXPECT_SHA" <<'PYEOF' || { echo "K90 receipt verification FAILED for $K90_DIR"; exit 1; }
-import json, sys
-d, group, week, season, lev, boom, sha = sys.argv[1], int(sys.argv[2]), int(sys.argv[3]), int(sys.argv[4]), int(sys.argv[5]), int(sys.argv[6]), sys.argv[7]
-j = json.load(open(d + "/receipt.json")); c = j.get("config", {}); bad = []
-if int(j.get("draft_group", -1)) != group: bad.append(f"draft_group {j.get('draft_group')} != {group}")
-if int(j.get("week", -1)) != week or int(j.get("season", -1)) != season: bad.append(f"season/week {j.get('season')}/{j.get('week')} != {season}/{week}")
-if (c.get("lev"), c.get("boom")) != (lev, boom): bad.append(f"dose {c.get('lev')}/{c.get('boom')} != {lev}/{boom}")
-if int(j.get("written", 0)) < 90: bad.append(f"written {j.get('written')} < 90")
-if j.get("book_k80_is_nested_prefix") is not True: bad.append("K80 is not a nested prefix")
-if str(j.get("identity", {}).get("sha", ""))[:7] not in ("", sha[:7]): bad.append(f"clone sha {j.get('identity', {}).get('sha')} != {sha[:7]}")
-if bad: sys.exit("receipt problems: " + "; ".join(bad))
-print(f"k90 receipt verified: group {group}, week {week}, dose {lev}/{boom}, written {j.get('written')}, nested prefix true")
+# 2026-09-18 (review follow-up): use the SAME governed verifier as scripts/sunday_runbook.sh rather than a weaker
+# local copy — it requires identity present, sha equal and NOT dirty, exact written/operational_k, the week's lock,
+# the draft group, a legal unique 90-row book.csv and every sidecar file. Applied to reused directories too.
+verify_k90() {  # $1 run dir
+  "$LAB_PY" - "$1" "$PAID_LEV" "$PAID_BOOM" 90 1 "$EXPECT_SHA" "$LOCK_UTC" "$GROUP" <<'PYEOF'
+import csv, json, sys
+from pathlib import Path
+d, lev, boom, entries, sidecars, sha, lock, group = Path(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3]), int(sys.argv[4]), sys.argv[5] == "1", sys.argv[6], sys.argv[7], sys.argv[8]
+r = json.loads((d / "receipt.json").read_text())
+problems = []
+ident = r.get("identity") or {}
+if not ident.get("sha"): problems.append("receipt carries no identity sha")
+elif ident["sha"] != sha or ident.get("dirty"): problems.append(f"identity {ident}")
+if (r["config"]["lev"], r["config"]["boom"]) != (lev, boom): problems.append(f"config {r['config']['lev']}/{r['config']['boom']} != {lev}/{boom}")
+if r["written"] != entries or r["config"].get("operational_k") != entries: problems.append(f"written {r['written']} / operational_k {r['config'].get('operational_k')} != {entries}")
+if str(r["lock_utc"]) != lock: problems.append(f"lock_utc {r['lock_utc']} != {lock}")
+if str(r["draft_group"]) != str(group): problems.append(f"draft_group {r['draft_group']} != {group}")
+if r.get("book_k80_is_nested_prefix") is not True: problems.append("K80 is not a nested prefix of the K90 book")
+rows = list(csv.reader((d / "book.csv").open()))
+if rows[0] != ["QB", "RB", "RB", "WR", "WR", "WR", "TE", "FLEX", "DST"]: problems.append("book.csv header")
+if len(rows) - 1 != entries or len({tuple(sorted(x)) for x in rows[1:]}) != entries: problems.append("book.csv rows/uniqueness")
+need = ["book.csv", "book.json", "candidates.parquet", "frame.parquet", "exposure_ledger.json", "receipt.json"]
+if sidecars: need += ["book_wemax.csv", "book_wemax.json", "incumbent_player_scores.npy", "corrected_hsim_player_scores.npy"]
+missing = [n for n in need if not (d / n).is_file()]
+if missing: problems.append(f"missing {missing}")
+if problems:
+    print("K90 RECEIPT CHECK FAILED: " + "; ".join(problems)); sys.exit(1)
+print(f"k90 receipt verified (governed): {d.name} lev/boom {lev}/{boom} entries {entries} group {group} lock {lock}")
 PYEOF
+}
+verify_k90 "$K90_DIR" || { echo "K90 receipt verification FAILED for $K90_DIR"; exit 1; }
 [[ -n "$PAID_DIR" ]] || PAID_DIR=$K90_DIR
 echo "k90=$K90_DIR"
 # 2b. within-book ordering shadows (outcome-blind; graded after settlement)

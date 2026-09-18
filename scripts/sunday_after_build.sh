@@ -71,7 +71,17 @@ PYEOF
   if ! $PY "$PROD/scripts/verify_enter_bundle.py" "$CONTESTS_JSON" "$STAGE"; then
     log "staged bundle failed verification -- NOT published, previous ENTER/ kept"; return 1
   fi
-  rm -f "$E"/*.csv "$E"/*.md; mv "$STAGE"/* "$E"/; rmdir "$STAGE"
+  # 2026-09-18 (review follow-up): the previous `rm` + per-file `mv` still exposed a partially populated directory to
+  # the polling filler. Publish as an immutable versioned bundle and swap ONE symlink with rename(2), which is atomic:
+  # the consumer either sees the whole previous bundle or the whole new one, and a failure leaves the old one in place.
+  local BUNDLES VER
+  BUNDLES="$OUT/enter-bundles"; VER="$BUNDLES/$tag"   # `local A=.. B=$A/..` does not see A yet under set -u
+  mkdir -p "$BUNDLES"; rm -rf "$VER"; mv "$STAGE" "$VER"
+  if [ -e "$E" ] && [ ! -L "$E" ]; then                 # first run after the upgrade: retire the real directory once
+    rm -rf "$BUNDLES/legacy-$tag"; mv "$E" "$BUNDLES/legacy-$tag"
+  fi
+  ln -sfn "$VER" "$E.new" && mv -T "$E.new" "$E"
+  log "published bundle $tag atomically: $E -> $(readlink -f "$E")"
   { echo "TODAY'S ENTRY = the vetted paid book (HARD/material lineups to the back), keepers first. Source run $(basename "$run"), K$entries, built $(date -u +%H:%M:%SZ), week $WEEK group $GROUP"; echo
     echo "PER-CONTEST FILES FOR THE RESERVED ENTRIES (fill the DK entries export with scripts/week1_fill_dk_entries.py or let the watcher do it):"
     sed 's#^#  #' "$E/ENTER-layout.txt"
