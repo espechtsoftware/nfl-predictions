@@ -61,8 +61,51 @@ reliably matches that better than a 41 % chance of five and a 59 % chance of non
 of block ceiling, which is small next to the 20-point swing in P(≥1). It also puts 62 rather than 23 of the book's
 lineups to work, which is the only way the deeper book earns anything.
 
-**Confidence: moderate.** This is one week's simulated worlds, the simulator's tail is known to be optimistic, and no
-preregistered test backs it. It is an allocation choice, not a scoring claim.
+**Confidence: moderate, raised by the historical test below.** The simulated and realized estimates agree in direction
+and magnitude across 65 slates. It remains an allocation choice, not a scoring claim, and no preregistered test backs
+it.
+
+
+## Historical test on REALIZED outcomes (added 2026-09-18, at the operator's request)
+
+The measurement above came from simulated worlds. This section uses realized DK points only.
+
+### 65 historical slates (PREREG-097 bank 970, D3200 K80 books, 2021–2024)
+
+Same five contest sizes (16/16/10/10/10), same two layouts, scored on what actually happened:
+
+| cutoff | CURRENT: slates with ≥1 seat | mean seats | DISJOINT: slates with ≥1 seat | mean seats |
+|---|---:|---:|---:|---:|
+| 180 | 29.2 % | 1.32 | **52.3 %** | 1.08 |
+| **190** | 16.9 % | 0.75 | **35.4 %** | 0.54 |
+| 200 | 7.7 % | 0.34 | **16.9 %** | 0.23 |
+| 210 | 3.1 % | 0.15 | **7.7 %** | 0.12 |
+| 220 | 1.5 % | 0.08 | **3.1 %** | 0.05 |
+
+Disjoint blocks **roughly double the share of weeks with at least one seat at every line**, and give up about a quarter
+to a third of the mean seat count. The realized numbers agree with the simulated ones in direction and in rough
+magnitude, which is reassuring: the simulator was not driving this conclusion.
+
+### Week 1 2026 alone — and why it is a perfect illustration, not evidence
+
+The two real Week-1 books give **opposite answers**:
+
+| book (80 lineups, entered order) | best | CURRENT seats @190 | DISJOINT seats @190 | block bests |
+|---|---:|---:|---:|---|
+| v4b (scratch-swaps only, the better book) | 210.1 | **5** | 2 | 205.8, 187.1, 182.5, 180.7, 210.1 |
+| v6b (what was actually entered) | 189.7 | 0 (@180: 0) | 0 (@180: **4**) | 179.3, 182.3, 189.7, 180.7, 188.3 |
+
+With v4b the top block held a 205.8, so repeating it would have won **all five seats** while disjoint blocks won two.
+With v6b the top block topped out at 179.3 and would have won **nothing** at the 180 line, while disjoint blocks would
+have won four. That is the variance story in one week: repeating the best block is all-or-nothing, and which way it
+falls is not predictable in advance.
+
+### What this changes
+
+It strengthens the recommendation without changing its basis. The historical record says disjoint blocks roughly double
+the frequency of winning at least one seat and cost about 30 % of expected seats — the same trade the simulation
+showed. The decision still hinges on whether the fifth seat is worth as much as the first. It is not a scoring
+improvement and must not be described as one.
 
 ## Question for the reviewing agent
 
