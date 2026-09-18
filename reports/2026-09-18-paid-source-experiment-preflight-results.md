@@ -116,3 +116,22 @@ thread caps of one. The initial support query was refused because `rows` was use
 alias (job `3fdbc801-707f-4353-8e9a-16400d37325c`); changing it to `n_rows` was a syntax-only repair before
 any result. Final query IDs/processed bytes and artifact hashes are retained. No benchmarks or hypothesis
 tests on outcomes were run, and no 990/991 results were opened.
+
+## Follow-up: did the pause cost Week 1?
+
+Erich asked this explicitly after the first-stage read. An additional metadata-only GCS listing found
+zero objects under `gs://nfl-predictions-503414-raw/route_share_player_distributions/` and
+`gs://nfl-predictions-503414-raw/sis_pass_tail_shadow/2026/week-01/`. No result payloads were opened.
+Other manually chosen locations remain unverified; the workstation was asked for any prelock pair there.
+
+SIS pass-tail is not eligible until Week 5, so Week 1 was not a missed eligible test. The frozen
+[FP Route prospective gate](2026-08-11-route-share-2026-shadow-gate.md) starts its comparison at Week 2
+and grades Weeks 2–18; Week 1 is permitted only with labeled prior-season values, not required in its
+primary prospective sample. Thus we have not established a lost required Week-1 observation for either
+protocol. Week-2 prelock readiness for FP is the immediate issue.
+
+Without an existing verified prelock pair, a new Week-1 replay can only be retrospective development
+and requires recoverable as-of inputs. It cannot be relabeled as a forecast frozen before the game or
+counted toward the original prospective gate. The explicit notification and artifact request are on
+lab branch `lab/workstation-reply-bank991-20260918`,
+`handoffs/2026-09-18-paused-vendor-shadows-week1-question.md`.
