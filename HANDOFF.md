@@ -26,6 +26,25 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+
+### 2026-09-18 — paid-source usage and renewal review
+
+Erich requested a thorough trace of Odds API, SIS and Fantasy Points, including historical experiments,
+current consumers, additional-value tests and renewal advice. [Report](reports/2026-09-18-paid-data-usage-and-renewal-review.md)
+reviews production 2b6ed3bd, live lab e7255e98, vendor/transition handoffs, and six read-only deployed job configs.
+Recommendation: keep Odds API in season; no automatic SIS renewal; use remaining FP access but no new term solely
+for current automated performance. Actual account renewal terms remain unverified.
+
+Key distinctions: FP route columns reach warehouse features but are not default model inputs; SIS pass-tail/ASOE
+are finite-K research/shadow mechanisms, not current money adoption. Both sources substantially changed historical
+retrieval choices without robust points gains. Route's direct TabPFN and rank-channel failures were also reviewed,
+so those are not proposed as new experiments. SIS copula's insufficient-support result is not a scientific negative.
+The capall vendor contrast retained source-dependent qualification and therefore different eligible populations.
+Proposed next steps: outcome-free live-source influence receipt; coherent Odds snapshots/fallback audit; conditional
+FP role-change novelty census; one support/transfer-qualified SIS path only if funded. No application fixes,
+experiments, subscription changes, or 990/991 outcome reads. Report and redacted configuration evidence committed
+on `review/2026-09-paid-source-value`; lab handoff receives the link.
+
 ### 2026-09-18 PREREG-101 LAUNCH READINESS WITHDRAWN after independent review — DO NOT LAUNCH
 
 - **The laptop agent reviewed the freeze (nfl2 `lab/workstation-reply-bank991-20260918` @ de2f497) and every finding

@@ -1,0 +1,56 @@
+[
+  {
+    "report": "reports/fantasy-points-advanced-runs/20260810-fp-advanced-prior-v1/report.json",
+    "recorded_dispositions": [
+      "advanced-prior-player-tail-fails"
+    ]
+  },
+  {
+    "report": "reports/fantasy-points-coverage-runs/20260810-fp-coverage-fit-v1/report.json",
+    "recorded_dispositions": [
+      "coverage-fit-player-tail-passes"
+    ]
+  },
+  {
+    "report": "reports/fantasy-points-defense-proe-runs/20260811-fp-defense-proe-l4-v1/report.json",
+    "recorded_dispositions": [
+      "defense-proe-pass-game-tail-fails"
+    ]
+  },
+  {
+    "report": "reports/fantasy-points-qb-shell-runs/20260813-fp-qb-shell-l4-v1/report.json",
+    "recorded_dispositions": [
+      "fp-qb-shell-player-tail-fails"
+    ]
+  },
+  {
+    "report": "reports/fantasy-points-route-component-runs/20260811-fp-route-components-v1/report.json",
+    "recorded_dispositions": [
+      "route-share-component-tail-fails"
+    ]
+  },
+  {
+    "report": "reports/fantasy-points-route-runs/20260810-fp-route-share-v1/report.json",
+    "recorded_dispositions": [
+      "route-share-player-tail-passes"
+    ]
+  },
+  {
+    "report": "reports/fantasy-points-same-season-coverage-runs/20260811-fp-same-season-coverage-l4-v1/report.json",
+    "recorded_dispositions": [
+      "same-season-coverage-player-tail-fails"
+    ]
+  },
+  {
+    "report": "reports/fantasy-points-same-season-passing-runs/20260811-fp-same-season-passing-l4-v1/report.json",
+    "recorded_dispositions": [
+      "same-season-passing-player-tail-fails"
+    ]
+  },
+  {
+    "report": "reports/fantasy-points-same-season-route-shape-runs/20260811-fp-same-season-route-shape-l4-v1/report.json",
+    "recorded_dispositions": [
+      "same-season-route-shape-player-tail-fails"
+    ]
+  }
+]
