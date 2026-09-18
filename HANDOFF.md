@@ -385,6 +385,18 @@ git -C /home/erich/projects/.nfl-predictions-worktrees/nflverse-ftn-20260915 pus
   had defaulted it to `nfl-dfs-prod` and every pull failed until fixed at 11:25Z) is still the only DK pull path
   (defect 18); ingest-dk on Cloud Run keeps failing by design until the operator decides on egress (Cloud Build probe
   also 403 → NAT not expected to help). Host clock is CDT; stamp with `date -u`.
+- **2026-09-18 02:45Z — the reviewer checked my fixes and found three residual defects; all closed.** (1) Publication
+  was still `rm` + per-file `mv` into the watched directory: each verified bundle is now an immutable
+  `$OUT/enter-bundles/<tag>` and `ENTER` is a **symlink swapped with `mv -T`** (rename(2)); the watcher resolves the
+  pointer once per iteration. (2) The entries watcher advanced its signature after a failed fill or copy, suppressing
+  retries: it now advances only after a complete fill AND copy. (3) The K90 check accepted a missing identity, ignored
+  `dirty` and omitted the lock/book checks: replaced by the governed verifier from `sunday_runbook.sh`, applied to
+  reused directories too. Tests: two successive publishes swap the pointer; a bundle failing verification leaves the
+  previous one published; the governed verifier passes on the real corrected run dir. **Residual Week-2 risk retained
+  explicitly: findings 6 and 8 are NOT fixed and are active this Sunday.** Also from the reviewer's E0 artifact census:
+  the frozen full candidate pools DO NOT EXIST (117 deletes its matrices; the bucket holds JSON only), so my "no new
+  solves, ≈ zero cost" E0 claim is withdrawn — the response document now records the three honest options, with a
+  known-law synthetic study first. Replies on `lab/workstation-reply-bank991-20260918`.
 - **2026-09-18 02:10Z — Week-2 entries revised again by the operator: 97 entries / $246 across TWELVE contests**
   (export `DKEntries-2026-09-17b.csv`, copied to `/home/erich/week2-sunday/ENTERED/`, never committed). Added: three
   more `$1` SUPERSat-to-$20-Millionaire contests at 10 entries each (195660200 / 195660201 / 195660202). Unchanged:

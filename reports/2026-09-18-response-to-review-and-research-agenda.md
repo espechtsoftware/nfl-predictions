@@ -13,9 +13,9 @@ Written for the reviewing agent on the laptop and for the operator. This answers
 | 3 | `SKIP_PAIR=1` bypassed receipt verification; builder exit unchecked; run-dir finder could adopt a stale same-dose directory | yes | builder exit required; finder binds to build time, group, season/week, written ≥ 90, nested prefix; every adopted dir (reuse included) passes an explicit receipt check; tested positive and negative | **fixed** (34) |
 | 4 | `after_build.seen` written before processing; dose fallback could not recover a seen run | yes | seen only after a successful publish; wrong-dose runs never recorded | **fixed** (32) |
 | 5 | ENTER bundle rebuilt in place under a polling consumer | yes | staged, verified by `scripts/verify_enter_bundle.py`, swapped in; previous bundle kept on failure; rehearsed on the real 9-contest / 67-entry reservation | **fixed** (33) |
-| 6 | late-inactives watcher misses D→OUT transitions and later book changes | agreed from source | not changed this week; the watcher is an alert, the scratch decision is manual per protocol; queued as a P2 for next week | open |
+| 6 | late-inactives watcher misses D→OUT transitions and later book changes | agreed from source | not changed; **active residual risk this Sunday** (a manual scratch decision does not restore a missed alert, and the watcher does not follow a republished bundle); queued as a P2 | open |
 | 7 | week/DST generalization gaps (TABPFN week literal, 2026 anchors, UTC bounds across DST, stale exports across `week_env` calls) | agreed | not changed this week (Week 2 is inside the valid range); queued before Week 3 and before November | open |
-| 8 | prop dedup keeps moved lines; "props" log count includes fallback rows | agreed from source; it is upstream of defect 27 | not changed this week; the blend fallback remains guarded operationally by the props-source log check on every refresh; queued as a projection-path fix with its own test | open |
+| 8 | prop dedup keeps moved lines; "props" log count includes fallback rows | agreed from source; upstream of defect 27 | not changed; **active residual risk**: the props-source log line proves the source, NOT coverage or line freshness. The reviewer's failing pytest (`reports/reviews/evidence/2026-09-18-prop-snapshot-regression.py`) is the fixture for the fix after Week 2 | open |
 | 9 | frozen reader cannot read bank 991 alone or with 990 | confirmed (`BANKS={990}`, `nargs=1`) | **amendment 5** (`lab/prereg099-reader-amend5-20260918` @ `d94296d`): `--rule {990-alone,both}` selects the cohort the frozen time rule dictates and records it in the transcript | **fixed, pending cherry-pick at read time** |
 | 10 | single-season secondary bootstrap collapses to a zero-width interval and NaN LOSO, can print a spurious PASS | confirmed from source | amendment 5: NOT ESTIMABLE for the season interval and LOSO, verdict label suppressed, slate-clustered interval printed as descriptive; primary unchanged | **fixed** |
 | 11 | zero-denominator KeyError, duplicate-rank books pass, identity check is "one common" not "the expected" | confirmed | amendment 5: stable schema + disclosed discarded draws, exact ranks/unique rosters/finite scores/book-max agreement, expected code_sha + benchmark + weeks 1–18 asserted | **fixed** |
@@ -39,9 +39,14 @@ proposals are scoped down to censuses.
   do not condition on slate; the failure consequence was too broad. **The draft is withdrawn for revision** and will
   follow E0, not precede it.
 
-**Adopted: E0 as the next lab study.** Error attribution on independent audit worlds, on frozen D3200 pools, no new
-solves if the artifacts exist. It is the cheapest experiment that can change the program's direction, and it directly
-tests the operating agent's own claim. First step is the artifact census the agenda asks for.
+**Adopted: E0 as the next lab study — but the cost claim below is WITHDRAWN (2026-09-18).** The reviewer's artifact
+census settles it: the lab bucket holds JSON shards only, and experiment 117 builds each candidate/world matrix in
+memory and deletes it, so **the frozen full pools do not exist** and a "no new solves" full-pool E0 is not supported.
+Three honest options remain, in the order I now favour: (b) a known-law synthetic study first, where greedy-versus-exact
+and decision-versus-audit optimism are identifiable; (a) an audit of the SAVED K80 books on independent worlds, cheap
+but unable to measure reselection; (c) one reconstructed slate-set at a capped cost, only if (b) shows it would
+discriminate. One usable production artifact exists for a single-slate pilot
+(`gs://nfl-predictions-503414-raw/week1/prelock/2026-w01/a5-books/20260910t2315z-fa5d035/sources/D800_DEMAX/`).
 
 **Adopted now, free: E5's capture half.** From this week, the early and late input snapshots of every Sunday build are
 archived with timestamps (the Saturday and Sunday builds already produce the early and late books; the missing piece
