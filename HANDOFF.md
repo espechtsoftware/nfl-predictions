@@ -385,6 +385,15 @@ git -C /home/erich/projects/.nfl-predictions-worktrees/nflverse-ftn-20260915 pus
   had defaulted it to `nfl-dfs-prod` and every pull failed until fixed at 11:25Z) is still the only DK pull path
   (defect 18); ingest-dk on Cloud Run keeps failing by design until the operator decides on egress (Cloud Build probe
   also 403 → NAT not expected to help). Host clock is CDT; stamp with `date -u`.
+- **2026-09-18 03:05Z — satellite entry allocation: documented, sent to the laptop, NOT deployed.** The operator asked
+  the two agents to agree first. Situation: 97 entries over 12 contests use only 23 distinct lineups (ranks 24–90 never
+  entered), and 62 of the 97 are five satellites all holding the same best block, so those five outcomes are perfectly
+  correlated in score. Measured on the corrected Week-2 book's own worlds at a 190-point cutoff: current layout
+  P(≥1 seat) 0.415 / E[seats] 1.88; disjoint blocks 0.610 / 1.57. Recommendation (moderate confidence): disjoint blocks
+  for the five satellites only, because the marginal value of a fifth Millionaire seat is low for this operator.
+  Write-up `reports/2026-09-18-satellite-entry-allocation-question.md`; request to the laptop on
+  `lab/workstation-reply-bank991-20260918`. `sunday_after_build.sh` now supports `"block": true` per contest but **no
+  contest sets it and `contests.json` is reverted** — the decision must land before Saturday 10:30 CT.
 - **2026-09-18 02:45Z — the reviewer checked my fixes and found three residual defects; all closed.** (1) Publication
   was still `rm` + per-file `mv` into the watched directory: each verified bundle is now an immutable
   `$OUT/enter-bundles/<tag>` and `ENTER` is a **symlink swapped with `mv -T`** (rename(2)); the watcher resolves the
