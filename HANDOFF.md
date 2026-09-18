@@ -34,7 +34,7 @@ agent or developer:
   correlation across entries. That report reserved the decision to the operator on the grounds of decreasing ticket
   utility; he has now made it explicitly. Measured cost, paid deliberately: **expected tickets about 3.79 -> 2.6**. What
   he buys is that no single player sits in all 97 entries, so one injury cannot zero the slate.
-- **Configuration.** `scripts/week_env.sh` exports `ENTER_LAYOUT=sequential` as the week default, so build, after-build
+- **Configuration.** `scripts/week_env.sh` exports BOTH `ENTER_LAYOUT=sequential` and the derived `BOOK_ENTRIES`, so build, after-build
   and watchers cannot disagree; `ENTER_LAYOUT=top` falls back. Contest ORDER in `contests.json` is the priority order,
   and the file is sorted by value per entry: satellite 1-2, ffwcsat 3-4, huddle 5, nickel 6-10, supersat1c 11-20,
   supersat1a 21-30, pylon 31, supersat1b 32-41, flea 42-64, supersat25a 65-80, supersat25b 81-96, milly 97.

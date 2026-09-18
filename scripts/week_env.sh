@@ -8,7 +8,7 @@
 #                                                             # given as a prefix (bash undoes prefix assignments after a function returns)
 #
 # Exports: SEASON WEEK WEEKDIR SUNDAY LOCK_UTC LATE_CUTOFF_UTC WATCH_END_UTC GROUP OUT CLONE PROD PROD_PY LAB_PY
-#          TOOLS CONTESTS_JSON RUN_SUFFIX EXPECT_SHA LIVE_DIR ENTER_LAYOUT
+#          TOOLS CONTESTS_JSON RUN_SUFFIX EXPECT_SHA LIVE_DIR ENTER_LAYOUT BOOK_ENTRIES
 week_env() {
   local week=${1:?week}; local group=${2:-${GROUP:-}}
   export SEASON=${SEASON:-2026}
@@ -36,6 +36,11 @@ week_env() {
   # derives BOOK_ENTRIES from contests.json and every downstream check (verify_k90, the bundle verifier, the filler)
   # is governed by it.  Set ENTER_LAYOUT=top in the environment to fall back.
   export ENTER_LAYOUT=${ENTER_LAYOUT:-sequential}
+  # Book size.  Derived HERE, not in the build script, so the build, the after-build chain, the watchers and the bundle
+  # verifier all agree: under "sequential" every entry needs its own lineup, so the book must hold the entry total;
+  # under "top" every contest reuses ranks 1..N and 90 is enough.  Never let a consumer fall back to a bare 90 under
+  # "sequential" -- that would let a short book past the gate and fail later, confusingly, at the bundle verifier.
+  export BOOK_ENTRIES=${BOOK_ENTRIES:-$("$PROD_PY" -c "import json,os,sys; c=json.load(open(sys.argv[1])); tot=sum(int(x['entries']) for x in c); print(max(90, tot) if os.environ.get('ENTER_LAYOUT','top')=='sequential' else 90)" "$CONTESTS_JSON")}
   if [[ -z "$group" ]]; then
     group=$(PYTHONPATH="$PROD/src" "$PROD_PY" "$PROD/scripts/find_main_draft_group.py" --season "$SEASON" --sunday "$SUNDAY") || { echo "week_env: could not detect the Sunday-main draft group for $SUNDAY (set GROUP explicitly)" >&2; return 1; }
   fi
