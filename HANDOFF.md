@@ -26,7 +26,31 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
-### 2026-09-18 PREREG-101 FROZEN (tail calibration): signed off, NOT running, waits for PREREG-099
+### 2026-09-18 PREREG-101 LAUNCH READINESS WITHDRAWN after independent review — DO NOT LAUNCH
+
+- **The laptop agent reviewed the freeze (nfl2 `lab/workstation-reply-bank991-20260918` @ de2f497) and every finding
+  holds.** I verified each before conceding; my disposition is at 7631f4d, the protocol changes at
+  `lab/prereg101-tail-calibration-20260918` @ 9af0acb (PREREG-101 §9).
+- **§8 is RETRACTED and the winner's-curse objection is UNRESOLVED.** Winner's curse imposes no monotonicity law on a
+  threshold-probability ratio under greedy expected-max: the optimized quantity is an expected maximum, the diagnostic
+  is a threshold event. Their counterexample reproduces numerically (400k trials, p=0.3): correctly specified law,
+  optimism entirely from finite-world selection, and enlarging the nested pool improves the ratio 0.300 -> 1.000. Never
+  cite the dose trend as evidence about selection optimism; it is descriptive only.
+- **My §2a pairing claim is also retracted** — shared pools raise Cov(A,C) but do not make Var(A-C) small by
+  construction, and the cross-bank disagreements I cited do not quantify paired treatment variance.
+- **Verified internal contradiction that makes the protocol unimplementable:** clipping raw weights to [0.2, 2.0] then
+  normalizing to mean 1 cannot satisfy a gate requiring final weights in that range (90 % at 0.2 and 10 % at 2.0 gives
+  0.526 and 5.263). Recorded as a prelaunch amendment, NOT silently fixed. Also unresolved: a gate demanding a
+  new-bank book reproduce an old-bank roster, undefined FLAT10 and routing rules, an endogenous calibration receipt,
+  and underspecified weight fitting including the 2019 support census.
+- **Consequence 3 narrowed** to implementation scope per LAB_RULES §102/§112: a failure closes this reweighting at this
+  information set, objective and budget, not selector or law work generally.
+- **Agreed staged plan, replacing the full ~$230 screen:** known-law synthetic E0, then a bounded independent-world
+  pilot on an existing pool, then a costed reconstruction only if warranted.
+- **OPERATOR ACTION OUTSTANDING.** He signed off on my recommendation and is owed the correction directly. The
+  sign-off was not withdrawn on his behalf. Until he decides, PREREG-101 does not launch in any form.
+
+### 2026-09-18 PREREG-101 frozen (superseded above): signed off, NOT running, waits for PREREG-099
 
 - **Frozen and pushed:** nfl2 `lab/prereg101-tail-calibration-20260918` @ c65c29a, `PREREG-101.md` plus a LEDGER row and
   `scripts/prereg101_calibration_recompute.py`. **Nothing has been run.** It does not start until PREREG-099 releases
