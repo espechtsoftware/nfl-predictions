@@ -59,7 +59,13 @@ suite exceeds Cloud Build's 3-hour ceiling, so production builds use the focused
 best lineup and doubles the count of 220+ candidates; the K80 book keeps a fixed fraction of that. The gap between the
 pool oracle and the book widens with dose: retrieval regret is now the larger half of the distance to 220.
 
-### 2.2 The regret is in the selector's world model, and nowhere else
+### 2.2 The regret is in the selector's world model, and nowhere else — CORRECTED 2026-09-18: "nowhere else" overstates it
+
+*Correction (independent review, 2026-09-17): the pool-oracle-minus-book gap is the sum of hindsight regret (the game has
+not been played; no selector recovers it) and decision regret (recoverable). This section measured the sum and attributed
+it to the selector. The three instruments below still show that admission, vendor data and learned scores reshuffle the
+same ordering; they do not show how much of the gap a better selector could recover. That is the question E0 in
+`reports/2026-09-17-research-agenda-220-plus.md` is designed to answer, and it is the next lab study.*
 
 Three independent instruments, two code bases, the same answer:
 
