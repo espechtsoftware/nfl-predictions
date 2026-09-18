@@ -43,8 +43,15 @@ agent or developer:
 - **What it stands on instead:** the 194 line, where the events exist. Book 0.390 simulated vs 0.259 realized on 56
   events (1.5x over-optimistic) while the pool it selected from is nearly calibrated at 0.93. Selection manufactures
   the error, which is what world reweighting targets. The gates never depended on the 220 share and are unchanged.
-- **OPEN OBJECTION, raised by me against my own frozen protocol, sent to the laptop agent for review on
-  `lab/workstation-reply-bank991-20260918` @ e736c88.** Claim 3 (selection amplifies miscalibration) may not be a
+- **OBJECTION TESTED AND NOT SUPPORTED (PREREG-101 §8, nfl2 @ 08ef31c), raised by me against my own frozen protocol.**
+  Tested on the nested PREREG-097 dose arms D800-D6400, identical slates/worlds/seeds, book fixed at K80: winner's
+  curse scales with the number of candidates selected from, so it required the book's over-optimism to WORSEN as the
+  pool grew eightfold. It improves instead -- book real/sim at 194 goes 0.65 / 0.69 / 0.66 / 0.76 while the pool ratio
+  stays flat at 0.93-0.95. Wrong sign, so winner's curse is not the dominant explanation. Caveats recorded: the pools
+  are nested and correlated, the complementary probe (vary book size at fixed pool) is unavailable in these shards, and
+  a weak effect could be swamped. **The freeze stands.** Laptop review still outstanding on questions 1, 3 and 4
+  (whether freezing was right at all, whether the primary's pairing removes the documented draw noise, and whether the
+  clip range and bins do hidden work); sign-off remains withdrawable. The objection as originally stated: Claim 3 (selection amplifies miscalibration) may not be a
   mechanism claim at all. The book is the argmax of a noisy objective over 3,200 candidates, and an argmax over noise
   is optimistically biased *with no miscalibration in the underlying law whatsoever*. A calibrated pool plus an
   optimistic book is exactly what winner's curse on the selection step predicts. If that is the explanation, then
