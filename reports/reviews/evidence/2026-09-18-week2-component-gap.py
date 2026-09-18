@@ -25,7 +25,8 @@ I=np.load(io.BytesIO(get('incumbent_player_scores.npy')),allow_pickle=False).ast
 H=np.load(io.BytesIO(get('corrected_hsim_player_scores.npy')),allow_pickle=False).astype(np.float64)
 assert I.shape==H.shape==(435,10000) and np.isfinite(I).all() and np.isfinite(H).all()
 START=time.monotonic();mi=I.mean(axis=1);mh=H.mean(axis=1);delta=mh-mi
-TI=np.array([I[rows].sum(axis=0) for rows in rosters]);TH=np.array([H[rows].sum(axis=0) for rows in rosters])
+TI=np.array([I[rows].astype(np.float32).sum(axis=0,dtype=np.float32) for rows in rosters]).astype(np.float64)
+TH=np.array([H[rows].astype(np.float32).sum(axis=0,dtype=np.float32) for rows in rosters]).astype(np.float64)
 line_delta=np.array([delta[rows].sum() for rows in rosters])
 def measures(T):
  maxima=T.max(axis=0)

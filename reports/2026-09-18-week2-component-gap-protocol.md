@@ -35,3 +35,17 @@ Full-byte SHA/generation verification required. Singleprocess/1BLASthread,comput
 networkdownload,512MiBworkingarrays,wall5min. Freeze executable before read. All fixed outputs
 reported regardless of direction. Next test must address the observed mechanism, not assume means
 or tails caused the difference before this census.
+
+## Mechanics amendment, before attribution results
+
+First run7a409181 stopped at the declaredHsim threshold-count agreement check. A narrow precision
+check found float64 summation gives3027hits while the previousfloat32 lineup summation gives3029.
+The two differing maxima are219.999999523 and219.999996185 in float64 but220.0 in float32. Incumbent
+count729 agrees. Component meanbookmax differs by<0.000003points. Thus this is numerical boundary
+classification, not a roster/model mismatch. No attribution or position/variance results were read.
+
+Preserve the original raw-selector diagnostic's float32 player-to-lineup summation, then cast the
+lineup matrix tofloat64 for mean-shift evaluation. Per-player empirical means and additive shifts
+remain float64; crossings are explicitly diagnostic. No threshold tolerance is enlarged and no
+classification is tuned to an expected effect. The two unchanged baseline components must now match
+the original counts. Precision evidence retained separately; original failed invocation disclosed.

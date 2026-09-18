@@ -1,0 +1,29 @@
+{
+  "incumbent": {
+    "hits_float64": 729,
+    "hits_float32": 729,
+    "mean_max64": 190.36335211369894,
+    "mean_max32": 190.36334913482665,
+    "max_abs_lineup_difference": 3.981590270996094e-05,
+    "threshold_disagreements": []
+  },
+  "hsim": {
+    "hits_float64": 3027,
+    "hits_float32": 3029,
+    "mean_max64": 210.07616798769385,
+    "mean_max32": 210.07616808013915,
+    "max_abs_lineup_difference": 4.482269287109375e-05,
+    "threshold_disagreements": [
+      {
+        "world": 1285,
+        "max_float64": 219.99999952316284,
+        "max_float32": 220.0
+      },
+      {
+        "world": 8121,
+        "max_float64": 219.99999618530273,
+        "max_float32": 220.0
+      }
+    ]
+  }
+}
