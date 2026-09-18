@@ -290,3 +290,62 @@ Saturday's build is the first real 97-lineup selection. The added cost is roughl
 only, not of the whole build, which is dominated by candidate generation and the 10,000-world simulation; the Saturday
 D12800 slot already carries a twenty per cent margin. This is an estimate, not a measurement. If the selector cannot
 produce 97 lineups the build fails closed at `verify_k90` rather than entering a short book.
+
+---
+
+## OPERATOR AMENDMENT, 2026-09-18 (same day): order the blocks by PAYOUT, not by value per entry
+
+The operator changed the ordering rule immediately after the override above was implemented:
+
+> "I want the ranking to go in order of payout so 1 goes to milly etc"
+
+`contests.json` is now sorted by top prize. Where DraftKings states a prize to first, that figure is used; where it
+states only a pool, ten per cent of the pool is used as the proxy for first; the satellites are ranked at the face value
+of the ticket they award. The proxy is only a tie-ordering device among the mid-size contests and changes nothing about
+the top or bottom of the list.
+
+| contest | entries | book ranks | top prize | EV/entry |
+|---|---|---|---|---|
+| milly | 1 | 1 | $1,000,000 | $0.17 |
+| flea | 23 | 2-24 | $50,000 | $2.01 |
+| huddle | 1 | 25 | $10,000 (proxy) | $4.93 |
+| nickel | 5 | 26-30 | $4,000 (proxy) | $4.51 |
+| pylon | 1 | 31 | $4,000 (proxy) | $2.96 |
+| satellite | 2 | 32-33 | $555 ticket | $71.48 |
+| supersat1a | 10 | 34-43 | $20 ticket | $3.10 |
+| supersat1b | 10 | 44-53 | $20 ticket | $2.75 |
+| supersat1c | 10 | 54-63 | $20 ticket | $3.18 |
+| supersat25a | 16 | 64-79 | $20 ticket | $1.03 |
+| supersat25b | 16 | 80-95 | $20 ticket | $0.97 |
+| ffwcsat | 2 | 96-97 | $18 ticket | $9.59 |
+
+### What this costs on top of the sequential override, stated plainly
+
+The EV/entry column is now close to reversed against the rank order, and that is the whole point of the change: the
+operator is ranking by the size of the prize he is playing for, not by the expected value of the entry. Two consequences
+are large enough that he should see them named rather than buried.
+
+**The two satellite entries fall from ranks 1-2 to ranks 32-33.** That satellite is worth $71.48 per entry, more than
+seven times the next contest, because it converts a $19 fee into a $555 Millionaire ticket at a reachable cutoff. It now
+draws the 32nd and 33rd best lineups. This is the single biggest EV cost in the change and it is larger than the cost of
+the sequential override itself.
+
+**The two FFWC qualifier entries fall to ranks 96-97, the worst two lineups in the book,** despite being the second most
+valuable entries on the slate at $9.59 each. They rank last only because the ticket they award has an $18 face value,
+which is the smallest number in the payout column while being nearly the largest in the value column.
+
+**The Millionaire entry gets rank 1 and is worth $0.17.** Its cutoff is far enough out that its clearing probability is
+near zero at every rank, so moving it from 97 to 1 changes its own expected value by almost nothing. What it costs is
+whatever the lineup it displaces would have earned elsewhere. Placing the single best lineup here is close to a pure
+transfer away from the contests that could actually use it.
+
+None of this is an argument that the operator is wrong. Ranking by payout is a coherent preference: it puts the best
+lineup on the outcome he most wants to happen, and the tail he is buying is the $1M, not a stack of $20 tickets. It is
+recorded here so the cost is on the record and can be revisited after the slate.
+
+### Verification under the new ordering
+
+Rehearsed end to end again after the reorder. The build emitted the twelve blocks at exactly the ranks in the table;
+the published bundle verified as 12 contests, 97 entry rows, every row 9/9 cells; the real 97-entry DraftKings export
+filled at keep 97 / withdraw 0; and the disjointness check on the filled upload found 97 entries, 97 distinct lineups,
+0 lineups used in more than one contest, 0 contest pairs sharing a lineup.

@@ -122,10 +122,12 @@ The book is now 97 lineups instead of 90, because your 97 entries each need a di
 fails loudly instead of uploading a short book, so if a build fails on a message about `written N / operational_k`, that
 is the guard doing its job and the fallback builds still apply.
 
-Contests are served in the order they appear in `/home/erich/week2-sunday/contests.json`, best lineups first. The file
-is sorted by value per entry, which puts the two satellite entries on the best two lineups and the single $20
-Millionaire entry on the last one. If you would rather the Millionaire entry carry a better lineup, say so and it moves;
-it makes very little difference either way.
+Contests are served in the order they appear in `/home/erich/week2-sunday/contests.json`, best lineups first. You asked
+for that order to follow the payout, so the Millionaire takes lineup 1, the Flea Flicker takes 2 through 24, and the
+small satellites take the back of the book. One consequence is worth knowing before Sunday rather than after: the $19
+satellite to the $555 Millionaire is by a wide margin the most valuable entry you have, and under payout order it now
+draws lineups 32 and 33 instead of 1 and 2. The two FFWC qualifier entries end up on the last two lineups for the same
+reason. If you want those moved back toward the front, say so and it is a one-line change.
 
 ## Monday 2026-09-21
 

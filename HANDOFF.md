@@ -36,8 +36,15 @@ agent or developer:
   he buys is that no single player sits in all 97 entries, so one injury cannot zero the slate.
 - **Configuration.** `scripts/week_env.sh` exports BOTH `ENTER_LAYOUT=sequential` and the derived `BOOK_ENTRIES`, so build, after-build
   and watchers cannot disagree; `ENTER_LAYOUT=top` falls back. Contest ORDER in `contests.json` is the priority order,
-  and the file is sorted by value per entry: satellite 1-2, ffwcsat 3-4, huddle 5, nickel 6-10, supersat1c 11-20,
-  supersat1a 21-30, pylon 31, supersat1b 32-41, flea 42-64, supersat25a 65-80, supersat25b 81-96, milly 97.
+  and the file is sorted by TOP PAYOUT (operator amendment the same day: "I want the ranking to go in order of payout
+  so 1 goes to milly etc"): milly 1, flea 2-24, huddle 25, nickel 26-30, pylon 31, satellite 32-33, supersat1a 34-43,
+  supersat1b 44-53, supersat1c 54-63, supersat25a 64-79, supersat25b 80-95, ffwcsat 96-97.  Prize to first where
+  DraftKings states it, ten per cent of the pool as the proxy where it states only a pool, ticket face value for the
+  satellites.  This is NOT the value-per-entry ordering and costs materially more than the sequential override itself:
+  the $71.48/entry satellite falls from ranks 1-2 to 32-33 and the $9.59/entry FFWC qualifier falls to the worst two
+  lineups in the book, while the rank-1 lineup goes to an entry worth $0.17.  Coherent as a preference -- the operator
+  is ranking by the prize he is playing for, not by expected value -- and recorded so it can be revisited after the
+  slate.
 - **The book is now 97 lineups, not 90.** `scripts/sunday_build_host.sh` derives `BOOK_ENTRIES` from `contests.json`
   (entry total under `sequential`, 90 under `top`) and governs `find_run_dir`, `verify_k90`, the layout assertions and
   the legacy emits with it; `sunday_after_build.sh` checks `-ge "${BOOK_ENTRIES:-90}"`.
@@ -55,9 +62,9 @@ agent or developer:
 - **Open risk, deliberately accepted.** Saturday's build is the first real 97-lineup selection. Added cost is roughly
   eight per cent of the SELECTION stage only, not the whole build (dominated by candidate generation and the
   10,000-world simulation); the D12800 slot carries a twenty per cent margin. This is an estimate, not a measurement.
-- **Open question for the operator.** Ranking by value per entry puts the $20 Millionaire entry on the worst lineup in
-  the book, because its cutoff is far enough out that its clearing probability is near zero at every rank. Moving
-  `milly` earlier in `contests.json` costs very little if he prefers it.
+- **Open question CLOSED by the operator.** Ranking by value per entry had put the $20 Millionaire entry on the worst
+  lineup in the book. Asked about it, he ordered the whole list by payout instead, so `milly` now draws rank 1. Both
+  rehearsals (value-per-entry ordering, then payout ordering) passed identically; only the block assignment differs.
 
 
 ### 2026-09-12 (afternoon) operator handed the whole project to one agent; Week-1 projection defect fixed; PREREG-090 launched
