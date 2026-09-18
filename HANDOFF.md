@@ -4,6 +4,17 @@
 
 # Project handoff
 
+## 2026-09-18 — review documents consolidated into the main project
+
+At Erich's request, the laptop's six recent reviews/research reports and six supporting evidence files
+are now available under this checkout's `reports/` directory. Start at
+[Recent reviews](reports/RECENT-REVIEWS.md). This consolidates report copies from production commits
+43568eea / 930ee8b2 and lab de2f497, without merging their application-code branches or replacing
+existing handoff history. Reports retain their dated findings; later operator decisions remain governing.
+Documentation integration branch: `docs/2026-09-report-consolidation`. Future reading links should use
+`/home/erich/projects/nfl-predictions/reports/`, not a review worktree. Original commits remain available.
+
+
 This tracked file is the authoritative record for resuming development. It
 must travel with the repository. Do not rely on assistant memory, an
 individual workstation, unpushed commits, or cloud artifacts as the only copy

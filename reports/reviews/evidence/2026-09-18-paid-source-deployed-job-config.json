@@ -1,0 +1,97 @@
+{
+  "recorded_at_utc": "2026-09-18T18:11:40.839326+00:00",
+  "scope": "Read-only job configuration, selected nonsecret fields; not execution or model-artifact verification",
+  "jobs": [
+    {
+      "job": "project-slate",
+      "read_status": "ok",
+      "containers": [
+        {
+          "image": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:week1-live-193e1b44d2b4",
+          "args": [
+            "project"
+          ],
+          "model_env": {
+            "MODEL_ENSEMBLE": "1",
+            "MODEL_REGISTRY_VARIANT": "tail_k1",
+            "BLEND_MODEL_WEIGHT": "0.45"
+          }
+        }
+      ]
+    },
+    {
+      "job": "train-weekly-k1",
+      "read_status": "ok",
+      "containers": [
+        {
+          "image": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:41de2eaee84bb9eb72b07b6a96b35b7223951e4fa0c979780dd703b1c11d7349",
+          "args": [
+            "train"
+          ],
+          "model_env": {
+            "MODEL_ENSEMBLE": "1",
+            "MODEL_REGISTRY_VARIANT": "tail_k1"
+          }
+        }
+      ]
+    },
+    {
+      "job": "train-weekly-k1-role",
+      "read_status": "ok",
+      "containers": [
+        {
+          "image": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:41de2eaee84bb9eb72b07b6a96b35b7223951e4fa0c979780dd703b1c11d7349",
+          "args": [
+            "train"
+          ],
+          "model_env": {
+            "MODEL_ENSEMBLE": "1",
+            "MODEL_REGISTRY_VARIANT": "tail_k1_role",
+            "EXTRA_FEATURES": "target_share_last,carry_share_last,snap_share_last,target_share_jump,carry_share_jump,snap_share_jump"
+          }
+        }
+      ]
+    },
+    {
+      "job": "train-weekly-k1-route",
+      "read_status": "ok",
+      "containers": [
+        {
+          "image": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:cfa61d612568bd3e1e01a40e49f2d74f26f422ccc163fb4a30769706c04fa501",
+          "args": [
+            "train"
+          ],
+          "model_env": {
+            "MODEL_ENSEMBLE": "1",
+            "MODEL_REGISTRY_VARIANT": "tail_k1_route",
+            "EXTRA_FEATURES": "fp_route_share_last,fp_route_share_l4,fp_route_share_jump,fp_route_cross_season"
+          }
+        }
+      ]
+    },
+    {
+      "job": "tabpfn-gen",
+      "read_status": "ok",
+      "containers": [
+        {
+          "image": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/tabpfn-gen@sha256:7eeff44e7c225fed62682b3649dfa86d77f86227e3e9858c967d132deff2a10a",
+          "args": null,
+          "model_env": {}
+        }
+      ]
+    },
+    {
+      "job": "shadow-sis-pass-tail-paired",
+      "read_status": "ok",
+      "containers": [
+        {
+          "image": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:9cec80d9fc603b75456663049757e027e76d8ceb7c1d95c18bf22ab96cd21411",
+          "args": [
+            "shadow-sis-pass-tail-paired"
+          ],
+          "model_env": {}
+        }
+      ]
+    }
+  ]
+}
