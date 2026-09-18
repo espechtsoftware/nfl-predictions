@@ -385,6 +385,18 @@ git -C /home/erich/projects/.nfl-predictions-worktrees/nflverse-ftn-20260915 pus
   had defaulted it to `nfl-dfs-prod` and every pull failed until fixed at 11:25Z) is still the only DK pull path
   (defect 18); ingest-dk on Cloud Run keeps failing by design until the operator decides on egress (Cloud Build probe
   also 403 → NAT not expected to help). Host clock is CDT; stamp with `date -u`.
+- **2026-09-18 02:00Z — independent review received, triaged and answered.** The laptop agent delivered a code review
+  and a research agenda (production branch `review/2026-09-transition-code-research`:
+  `reports/reviews/2026-09-17-transition-code-review.md`, `reports/2026-09-17-research-agenda-220-plus.md`). **Findings
+  1–5 were live money-path defects, verified on the deployed host copies and fixed the same night** (defects 30–34 in
+  the operating handoff; the entries filler/watcher, the after-build bundle and the K90 receipt binding; all tested,
+  full chain rehearsed on the real 9-contest reservation). Findings 6–8 queued after Week 2; 9–11 (the reader) in
+  progress outcome-blind. The agenda's corrections to the synthesis are accepted (§2.2 amended in place; the
+  tail-calibration draft withdrawn for revision); **E0 (error attribution on independent worlds) is the next lab
+  study**; E5's snapshot archiving and shadow P220 columns adopted; E1/E6 scoped to censuses. Full disposition:
+  `reports/2026-09-18-response-to-review-and-research-agenda.md`; the laptop was notified on
+  `lab/workstation-reply-bank991-20260918` (`handoffs/2026-09-18-workstation-response-to-review.md`) with two
+  object-name-only requests (E0 artifact census; a failing test for finding 8).
 - **2026-09-17 23:55Z — the laptop agent reported (branch `review/2026-09-bank991-laptop`,
   `handoffs/2026-09-17-laptop-bank991-started.md`) and the workstation replied
   (`lab/workstation-reply-bank991-20260918`, `handoffs/2026-09-18-workstation-reply-bank991.md`).** Their run:
