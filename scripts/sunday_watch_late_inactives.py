@@ -21,18 +21,50 @@ for p in glob.glob(a.entered):
     for r in list(csv.reader(open(p)))[1:]:
         entered.update(x for x in r if x in late)
 print(f"watching {len(entered)} late-game players across {len(glob.glob(a.entered))} entered files (frame {run.name}, group {group})", flush=True)
+OUT_STATUSES = ("O", "OUT", "IR")       # will not play: a swap CANDIDATE
+WATCH_STATUSES = OUT_STATUSES + ("D",)  # D is a warning, not yet a swap
+
+
 def poll():
-    d = pd.DataFrame([{"dd": str(x.get("draftableId")), "status": x.get("status")} for x in fetch_draftables(group).get("draftables", [])])
-    return d, set(d[d.status.isin(["O", "OUT", "IR", "D"])].dd) & entered
-d, seen = poll(); print("already flagged at start:", [f"{name[x]} ({d[d.dd == x].status.iloc[0]})" for x in seen], flush=True)
+    """Return the raw frame and {draftable id -> status} for every WATCHED entered player.
+
+    Defect found 2026-09-18, two days before Week 2.  This used to return only the SET of
+    flagged ids, and the loop alerted on `out - seen` with `seen |= new`.  A player already
+    listed D at startup entered `seen` and stayed there, so when he later turned OUT the set
+    difference was empty: no alert, no break.  Doubtful-to-out is the single most important
+    transition on a Sunday and it was the one case guaranteed to be silent.  Track the
+    STATUS per player rather than membership, and alert on any change.
+    """
+    d = pd.DataFrame([{"dd": str(x.get("draftableId")), "status": x.get("status")}
+                      for x in fetch_draftables(group).get("draftables", [])])
+    flagged = d[d.status.isin(WATCH_STATUSES) & d.dd.isin(entered)]
+    return d, dict(zip(flagged.dd, flagged.status))
+
+
+d, state = poll()
+print("already flagged at start: "
+      + (", ".join(f"{name[x]} ({st})" for x, st in sorted(state.items())) or "(none)"), flush=True)
+if any(st in OUT_STATUSES for st in state.values()):
+    print("NOTE: a player is ALREADY ruled out at startup -- treat as a swap candidate now. "
+          "The watcher keeps running so later transitions are still caught.", flush=True)
 while dt.datetime.now(dt.UTC) < end:
     try:
-        d, out = poll(); new = out - seen
-        if new:
-            print(f"{dt.datetime.now(dt.UTC):%H:%M}Z LATE-GAME STATUS CHANGE: " + ", ".join(f"{name[x]} ({d[d.dd == x].status.iloc[0]})" for x in new), flush=True); seen |= new
-            if any(d[d.dd == x].status.iloc[0] in ("O", "OUT", "IR") for x in new):
-                break
+        d, now = poll()
+        changed = {x: st for x, st in now.items() if state.get(x) != st}
+        if changed:
+            print(f"{dt.datetime.now(dt.UTC):%H:%M}Z LATE-GAME STATUS CHANGE: "
+                  + ", ".join(f"{name[x]} ({state.get(x, '-')} -> {st})"
+                              for x, st in sorted(changed.items())), flush=True)
+        escalated = {x: st for x, st in changed.items()
+                     if st in OUT_STATUSES and state.get(x) not in OUT_STATUSES}
+        state.update(now)
+        if escalated:
+            print(f"{dt.datetime.now(dt.UTC):%H:%M}Z RULED OUT: "
+                  + ", ".join(f"{name[x]} ({st})" for x, st in sorted(escalated.items()))
+                  + "  -- swap candidate(s); decide on live DK status, not on this script.", flush=True)
+            break
     except Exception as e:
         print("poll error", e, flush=True)
     time.sleep(240)
-print(f"{dt.datetime.now(dt.UTC):%H:%M}Z watcher exit; flagged so far: {[name[x] for x in seen]}")
+print(f"{dt.datetime.now(dt.UTC):%H:%M}Z watcher exit; final flagged state: "
+      + (", ".join(f"{name[x]} ({st})" for x, st in sorted(state.items())) or "(none)"))
