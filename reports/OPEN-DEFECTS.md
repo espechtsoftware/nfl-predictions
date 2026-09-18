@@ -29,6 +29,31 @@ can cost an entry.
 | O-9 | **`scripts/check_prospective_gates.py` has not been independently reviewed.** Its `DORMANT` list classifies thirteen schedulers as deliberately dormant on my judgement alone. | If one of those thirteen is actually a live gate, it is now invisible — the exact failure the checker exists to prevent, moved one level up. | **Week 3** | The reviewing agent validates the registry, or each dormant entry is traced to a written decision. |
 | O-10 | **Cloud Run us-central1 is AT the JobsPerProject=1000 quota** (counted exactly 1000 on 2026-09-18). | No new Cloud Run job can be created. Every fix must `deploy` an existing job. Freeing quota deletes execution history and is operator-only. | Standing constraint | Not a defect to fix; a constraint to respect. |
 
+## Loaded 2026-09-18: SIS Week-1 is in BigQuery, where the rest of the seasons live
+
+The operator's point, and he was right: the data ends up in the warehouse anyway, so storing a week as loose files
+plus a bucket copy is storing it where it can be lost. `nfl_raw.sis_team_context_game` already held every prior
+season — 2019 and 2021-2025, 17-18 weeks each — and **2026 was empty**.
+
+**Week 1 2026 is now loaded: 32 team-game rows, 73 columns, six `source_sha256_*` lineage columns.** All six report
+families captured (`pass-defense-totals`, `pass-defense-value`, `pass-rush-totals`, `pass-rush-value`,
+`blocking-totals`, `blocking-value`), 32 rows each, six requests against a 1,000/week allowance.
+
+- **Why a new loader.** `sis_team_context.read_tranche` is frozen to the historical acquisition: exactly 108 specs, a
+  specific plan hash, a run-state file, and per-season row counts for 2019/2021-2025. Relaxing any of those to admit a
+  weekly load would weaken a validator guarding the historical table. `scripts/sis_load_inseason_week.py` instead
+  reuses the per-artifact PARSER (same position-based schemas, same lineage stamping) and does its own weekly
+  assembly. **The frozen path is untouched.**
+- **Safety checked before writing:** nothing in `sql/features/` reads this table, so the load is inert for the Sunday
+  build. The loader refuses a (season, week) that already has rows, so it cannot double-load. It dry-runs by default.
+- **The frozen Week-5 protocol is unaffected** — it reads its own downloaded files, not this table.
+- The byte-exact CSVs and manifests remain at
+  `gs://nfl-predictions-503414-raw/licensed/sis-revision-baseline/2026-w01-20260918T201025Z/` with SHA256SUMS. Keeping
+  both is deliberate: BigQuery holds parsed rows, the bucket holds the original bytes, and the hashes tie them.
+  That is what makes the Week-5 revision diff possible.
+- **Now part of the weekly cadence:** capture and load each week once its games are complete, rather than waiting for
+  a single retrospective pull. Week 2 after Sunday.
+
 ## Captured 2026-09-18: the SIS Week-1 revision baseline
 
 At the operator's instruction, Week-1 team-grain SIS was captured **now** rather than left to the Week-5 retrospective
