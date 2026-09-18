@@ -18,7 +18,8 @@ SLOTS = ["QB", "RB", "RB", "WR", "WR", "WR", "TE", "FLEX", "DST"]
 
 
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument("template"); ap.add_argument("--enter-dir", default="/home/erich/week1-sunday/ENTER"); ap.add_argument("--out-dir", default="/home/erich/week1-sunday/ENTER")
+    ap = argparse.ArgumentParser(); ap.add_argument("template"); ap.add_argument("--enter-dir", required=True, help="the week's ENTER/ directory (per-contest KEEP-first files)")
+    ap.add_argument("--out-dir", default=None, help="defaults to --enter-dir; never a hard-coded week (2026-09-17 review finding 1: the old week-1 default made the watcher publish into last week's directory)")
     ap.add_argument("--frame", default=None, help="frame.parquet for 'Name (ID)' cells; bare IDs if absent")
     ap.add_argument("--contests", default=os.environ.get("CONTESTS_JSON"), help="the week's contests.json (name, contest_id, entries, keep)"); a = ap.parse_args()
     global CONTESTS
@@ -51,13 +52,36 @@ def main():
             (keep_ids if j < k else withdraw_ids).append((cid, r[i_entry].strip()))
         summary.append(f"contest {cid}: {len(idxs)} entries in the export, {len(lus)} lineups available -> filled {n} (keepers {min(k, n)}, withdraw {max(0, n - min(k, n))}); source {pathlib.Path(src).name}"
                        + ("" if len(idxs) == len(lus) else f"  ** MISMATCH: export has {len(idxs)} entries, file has {len(lus)} lineups **"))
-    out = pathlib.Path(a.out_dir); out.mkdir(parents=True, exist_ok=True)
-    with (out / "DKEntries-FILLED-keepers-first.csv").open("w", newline="") as h:
+    # ---- fail-closed validation BEFORE anything is published (2026-09-17 review finding 2) ----
+    problems = []
+    for cid in CONTESTS:
+        if cid not in by_contest:
+            problems.append(f"contest {cid} is configured but has no entries in the export")
+        elif cid not in lineups:
+            problems.append(f"contest {cid}: {len(by_contest[cid])} entries in the export but NO lineup file matching {CONTESTS[cid][0]} in {a.enter_dir}")
+        elif len(lineups[cid][0]) < len(by_contest[cid]):
+            problems.append(f"contest {cid}: only {len(lineups[cid][0])} lineups for {len(by_contest[cid])} entries — a partial fill would leave the rest on their template lineups")
+    for cid, idxs in by_contest.items():
+        for r_i in idxs:
+            cells = [c.strip() for c in rows[r_i][i_qb:i_qb + 9]]
+            if len(cells) != 9 or any(not c for c in cells):
+                problems.append(f"contest {cid} entry row {r_i}: {sum(1 for c in cells if c)}/9 lineup cells filled")
+                break
+    if problems:
+        print("\n".join(summary))
+        sys.exit("REFUSING TO PUBLISH — " + str(len(problems)) + " problem(s):\n  " + "\n  ".join(problems))
+    out = pathlib.Path(a.out_dir or a.enter_dir); out.mkdir(parents=True, exist_ok=True)
+    # atomic publication: write beside the target, fsync, then rename (2026-09-17 review finding 5)
+    tmp = out / ".DKEntries-FILLED-keepers-first.csv.partial"
+    with tmp.open("w", newline="") as h:
         w = csv.writer(h); [w.writerow(r) for r in rows]
+        h.flush(); os.fsync(h.fileno())
+    tmp.replace(out / "DKEntries-FILLED-keepers-first.csv")
     (out / "WITHDRAW-these-entry-ids.txt").write_text("".join(f"{cid}\t{eid}\n" for cid, eid in withdraw_ids))
     (out / "KEEP-these-entry-ids.txt").write_text("".join(f"{cid}\t{eid}\n" for cid, eid in keep_ids))
     (out / "FILL-SUMMARY.txt").write_text("\n".join(summary) + f"\nkeep {len(keep_ids)} entries, withdraw {len(withdraw_ids)} entries\n")
     print("\n".join(summary)); print(f"keep {len(keep_ids)} / withdraw {len(withdraw_ids)} -> {out / 'DKEntries-FILLED-keepers-first.csv'}")
+    print(f"validated: {len(CONTESTS)} contests, {sum(len(v) for v in by_contest.values())} entries, every roster 9/9 cells")
 
 
 if __name__ == "__main__":

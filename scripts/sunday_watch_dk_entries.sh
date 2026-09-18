@@ -5,6 +5,7 @@
 set -u
 : "${OUT:?source scripts/week_env.sh and call week_env WEEK first}" "${LIVE_DIR:?}" "${PROD_PY:?}" "${TOOLS:?}"
 E=$OUT/ENTER; T=$TOOLS/fill_dk_entries.py; WIN=${WIN_DOWNLOADS:-/mnt/c/Users/Erich/Downloads}
+: "${WEEK:?}"
 log() { echo "$(date -u +%H:%M:%SZ) $*"; }
 last=""
 while [ "$(date -u +%H%M)" -lt 1658 ]; do
@@ -14,7 +15,21 @@ while [ "$(date -u +%H%M)" -lt 1658 ]; do
     if [ "$sig" != "$last" ]; then
       frame=$(ls -td "$LIVE_DIR"/*/ | while read -r d; do [ -f "$d/frame.parquet" ] && { echo "$d/frame.parquet"; break; }; done)
       log "filling $tpl (lineups from $(basename "$lu"))"
-      "$PROD_PY" "$T" "$tpl" --contests "$CONTESTS_JSON" --enter-dir "$E" --frame "$frame" > "$E/fill.log" 2>&1 && { cat "$E/fill.log"; cp "$E/DKEntries-FILLED-keepers-first.csv" "$WIN/DKEntries-FILLED-keepers-first.csv" 2>/dev/null && log "-> $WIN/DKEntries-FILLED-keepers-first.csv"; } || { log "FILL FAILED"; cat "$E/fill.log"; }
+      # 2026-09-17 review findings 1/2/5: bind the output to THIS week's ENTER dir, require the filler to succeed,
+      # require the published file to be newer than the template, and publish to Downloads under a week-stamped name
+      # as well as the stable one (a stale same-named file from a previous week must never be uploadable by mistake).
+      out="$E/DKEntries-FILLED-keepers-first.csv"; rm -f "$out"
+      if "$PROD_PY" "$T" "$tpl" --contests "$CONTESTS_JSON" --enter-dir "$E" --out-dir "$E" --frame "$frame" > "$E/fill.log" 2>&1 && [ -s "$out" ] && [ "$out" -nt "$tpl" ]; then
+        cat "$E/fill.log"
+        stamped="$WIN/DKEntries-FILLED-week${WEEK}-$(date -u +%Y%m%dt%H%Mz).csv"
+        if cp "$out" "$stamped" && cp "$out" "$WIN/DKEntries-FILLED-keepers-first.csv"; then
+          log "-> $stamped (and the stable name); $(( $(wc -l < "$out") - 1 )) entry rows"
+        else
+          log "FILL PUBLISHED LOCALLY BUT THE COPY TO WINDOWS FAILED: $out"
+        fi
+      else
+        log "FILL FAILED — nothing published; Downloads left untouched"; cat "$E/fill.log"
+      fi
       last="$sig"
     fi
   fi

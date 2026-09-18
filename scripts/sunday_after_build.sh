@@ -23,9 +23,12 @@ process_run() {
   mkdir -p "$lo/paid-vetted-30"; head -n 31 "$lo/paid-vetted/book.csv" > "$lo/paid-vetted-30/book.csv"; cp "$run/frame.parquet" "$run/receipt.json" "$lo/paid-vetted-30/"
   $PY "$TOOLS/book_sheet.py" "$lo/paid-vetted-30" --banks-from "$run" --output "$OUT/lineup-sheet-$tag-paid-vetted-30" > "$lo/paid-vetted-30/sheet.out" 2>&1 || log "  sheet FAILED for the keepers"
   # ENTER/ is overwritten by every newer run: stable paths for the operator
-  local E="$OUT/ENTER"; mkdir -p "$E"; rm -f "$E"/*.csv "$E"/*.md
+  # 2026-09-17 review finding 5: stage the whole bundle, verify it, then swap it in -- the entries watcher polls this
+  # directory continuously and must never see a half-written set, nor lose the previous good one on a failure.
+  local E="$OUT/ENTER" STAGE="$OUT/.ENTER-staging-$tag"
+  rm -rf "$STAGE"; mkdir -p "$STAGE" "$E"
   local all="$OUT/upload-$tag-paid-vetted-all.csv"
-  $PY - "$CONTESTS_JSON" "$all" "$E" "$entries" <<'PYEOF' > "$E/ENTER-layout.txt"
+  $PY - "$CONTESTS_JSON" "$all" "$STAGE" "$entries" <<'PYEOF' > "$STAGE/ENTER-layout.txt"
 import csv, json, sys, pathlib
 import os
 contests, src, E, entries = json.load(open(sys.argv[1])), sys.argv[2], pathlib.Path(sys.argv[3]), int(sys.argv[4])
@@ -58,8 +61,17 @@ else:
         print(f"{lab}: {n} entries, keep rows 1-{k} (vetted ranks {keep_next - k}-{keep_next - 1}), fill rows {k + 1}-{n} -> {out.name}")
     print(f"keepers total {keep_total}; fills drawn from vetted ranks {keep_total + 1}-{fill_next - 1}")
 PYEOF
-  cp "$all" "$E/ENTER-all-rows-1-to-$(( $($PY -c "import json; print(sum(c['keep'] for c in json.load(open('$CONTESTS_JSON'))))") ))-are-the-KEEPERS.csv"
-  cp "$OUT/lineup-sheet-$tag-paid-vetted-30.md" "$E/ENTER-sheet-keepers.md" 2>/dev/null
+  cp "$all" "$STAGE/ENTER-all-rows-1-to-$(( $($PY -c "import json; print(sum(c['keep'] for c in json.load(open('$CONTESTS_JSON'))))") ))-are-the-KEEPERS.csv"
+  cp "$OUT/lineup-sheet-$tag-paid-vetted-30.md" "$STAGE/ENTER-sheet-keepers.md" 2>/dev/null
+  # verify the staged bundle before it becomes visible: one file per contest, each with its configured entry count
+  local want got
+  want=$($PY -c "import json; print(len(json.load(open('$CONTESTS_JSON'))))")
+  got=$(ls "$STAGE"/ENTER-*-entries-KEEP-first-*.csv 2>/dev/null | wc -l)
+  if [ "$want" != "$got" ]; then log "staged bundle has $got per-contest files, expected $want -- NOT published, previous ENTER/ kept"; return 1; fi
+  if ! $PY "$PROD/scripts/verify_enter_bundle.py" "$CONTESTS_JSON" "$STAGE"; then
+    log "staged bundle failed verification -- NOT published, previous ENTER/ kept"; return 1
+  fi
+  rm -f "$E"/*.csv "$E"/*.md; mv "$STAGE"/* "$E"/; rmdir "$STAGE"
   { echo "TODAY'S ENTRY = the vetted paid book (HARD/material lineups to the back), keepers first. Source run $(basename "$run"), K$entries, built $(date -u +%H:%M:%SZ), week $WEEK group $GROUP"; echo
     echo "PER-CONTEST FILES FOR THE RESERVED ENTRIES (fill the DK entries export with scripts/week1_fill_dk_entries.py or let the watcher do it):"
     sed 's#^#  #' "$E/ENTER-layout.txt"
@@ -97,11 +109,13 @@ while [ "$(date -u +%H%M)" -lt 1650 ]; do
   for d in $(ls -1 "$LIVE_DIR" | grep -v LATEST); do
     grep -qx "$d" "$SEEN" && continue
     run="$LIVE_DIR/$d"; [ -f "$run/receipt.json" ] && [ -f "$run/candidates.parquet" ] && [ -f "$run/incumbent_player_scores.npy" ] || continue
-    sleep 20; echo "$d" >> "$SEEN"
-    matches_chosen "$run" || { log "skip $d (not the chosen dose)"; continue; }
+    sleep 20
+    # 2026-09-17 review finding 4: a run is recorded as seen ONLY after it is published, and a run skipped for the
+    # wrong dose is never recorded at all, so changing the chosen dose and restarting really does re-evaluate it.
+    matches_chosen "$run" || { log "skip $d (not the chosen dose; still eligible if the chosen dose changes)"; continue; }
     entries=$($PY -c "import json; print(json.load(open('$run/receipt.json'))['written'])" 2>/dev/null) || { log "unreadable receipt for $d"; continue; }
-    [ "$entries" -ge 90 ] || { log "skip $d (K$entries; the ENTER layout needs the K90 nested build)"; continue; }
-    process_run "$run" "K${entries}-${d%%-*}"
+    [ "$entries" -ge 90 ] || { log "skip $d (K$entries; the ENTER layout needs the K90 nested build)"; echo "$d" >> "$SEEN"; continue; }
+    if process_run "$run" "K${entries}-${d%%-*}"; then echo "$d" >> "$SEEN"; else log "process_run FAILED for $d -- left eligible for retry"; fi
   done
   sleep 30
 done
