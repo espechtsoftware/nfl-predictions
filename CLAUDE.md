@@ -147,6 +147,23 @@ worktree per task (`git worktree add`), never in a dirty main checkout; the
   first; never select lineups on raw expected payout (a 1-in-10,000 event
   decides it); the T-70 rebuild must use the salary pull made after the
   10:30 CT inactives.
+- **Frozen prospective gates must be ARMED, and armed on the CURRENT policy.**
+  Run `python scripts/check_prospective_gates.py` every week before the
+  Sunday build, and whenever a construction lever changes. It is
+  fail-closed three ways: a gate inside (or two weeks before) its graded
+  window whose scheduler is not ENABLED; a target Cloud Run job whose env
+  contradicts the policy the gate declares; and ANY shadow/freeze scheduler
+  not classified in its registry. **Why it exists (2026-09-18):** the 2026
+  Route Share gate grades Weeks 2-18 and needs a pair frozen before each
+  lock; its four schedulers sat PAUSED and were noticed two days before
+  Week 2. Eighteen of twenty shadow schedulers were paused. Worse, the two
+  jobs it names still carried `N_BOOM=28` while the money path is boom-first
+  `N_BOOM=160`/`N_LEV=40`, so resuming them would have burned a graded week
+  comparing a policy we no longer run. **An invalid week that looks complete
+  is worse than a missing week.** Never resume a paused shadow job without
+  checking its env against the current policy first, and never silence the
+  checker by moving a live gate into `DORMANT` -- that list requires a
+  written reason and is the one place this check can be defeated.
 - **Keep the handoff in the repository.** Update tracked `HANDOFF.md` at
   every material milestone and before any pause, machine move, or agent
   handoff. Commit and push the handoff with the associated code whenever

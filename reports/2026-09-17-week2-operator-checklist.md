@@ -129,6 +129,20 @@ satellite to the $555 Millionaire is by a wide margin the most valuable entry yo
 draws lineups 32 and 33 instead of 1 and 2. The two FFWC qualifier entries end up on the last two lineups for the same
 reason. If you want those moved back toward the front, say so and it is a one-line change.
 
+## Weekly, before the Saturday build: are the research captures armed?
+
+Some experiments have to freeze a forecast **before** each Sunday's lock, and once a lock passes, that week is gone
+forever. In Week 2 we discovered four of those jobs had been switched off, and nobody noticed until two days before.
+There is now a check that catches it. Ask the assistant to run it, or run it yourself:
+
+```
+python scripts/check_prospective_gates.py
+```
+
+It exits quietly when everything that must be armed is armed. If it prints FAIL, a week of a long-running experiment is
+about to be lost, and the fix needs to happen before Sunday. It also refuses to stay quiet about a job it does not
+recognise, so new experiments have to be registered rather than drifting along unwatched.
+
 ## Monday 2026-09-21
 
 - Export the three contest standings and your contest-entry history from DraftKings into Downloads (as in Week 1) and tell
