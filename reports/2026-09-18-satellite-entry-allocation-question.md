@@ -154,3 +154,46 @@ selector discards, and the historical record says it is right to.
 between repeating the book's top block and giving each satellite its own block. If the operator's underlying wish is
 "entries that are related but not identical", the book's ranks 1–10 already are that — they share players heavily while
 succeeding in different worlds, which is the property that matters.
+
+## DECISION INPUT THE REVIEWER ASKED FOR: the actual DraftKings rules (2026-09-18 04:15Z)
+
+The laptop agent declined to endorse disjoint blocks and asked, correctly, for the real payout and field rules before
+any allocation decision. Pulled from `nfl_raw.dk_contest_fills` (the host loop's lobby poll), newest row per contest:
+
+| contest | fee | tickets awarded | entries now | max field | per-user entry limit |
+|---|---:|---:|---:|---:|---:|
+| SUPERSat to $20 Milly (a) | $0.25 | **25** | 753 | 2,378 | 20 |
+| SUPERSat to $20 Milly (b) | $0.25 | **25** | 828 | 2,378 | 20 |
+| SUPERSat to $20 Milly $1 (a/b/c) | $1 | **25** each | 206 / 233 / 202 | 594 | 17 |
+| FFWC Qualifier SUPERSat | $1 | **4** | 10 | 85 | 2 |
+| SUPERSatellite to $555 Milly | $19 | **2** | 20 | 68 | 2 |
+
+**This invalidates my metric, exactly as the reviewer argued.** Every satellite awards *multiple* tickets and allows up
+to 17–20 entries per user, so several of my own entries can win tickets in the *same* contest. "Seats" is therefore not
+capped at one per contest, and the quantity that matters is **the expected number of my entries that finish in the
+ticket places** — which is a sum of per-entry probabilities and is therefore **unaffected by correlation between my
+entries**. Diversifying cannot improve it; it can only lower it by using weaker lineups.
+
+Recomputed with the real ticket counts and fields (cutoffs interpolated from the Week-1 Millionaire field's
+percentile-to-score curve, the only measured field we hold):
+
+| | expected tickets — CURRENT (each takes ranks 1..N) | expected tickets — DISJOINT | P(≥1 ticket) CURRENT | P(≥1) DISJOINT |
+|---|---:|---:|---:|---:|
+| fields as they stand now | **3.79** | 2.63 | 0.515 | 0.638 |
+| if the contests fill | **1.66** | 1.12 | 0.252 | 0.377 |
+
+Disjoint blocks cost **~30 % of expected tickets** and buy **~12 points of probability of at least one**. With 25
+tickets on offer per contest and a per-user limit of 17–20, tickets are close to linearly valuable up to a number far
+beyond what we can win, so the case for reliability over quantity is much weaker than I assumed when I thought each
+contest could yield at most one seat.
+
+## Revised recommendation (operating agent): KEEP the current layout
+
+I withdraw the disjoint-blocks recommendation for the satellites. On the real rules the current layout is better on the
+objective that fits them, and the reviewer's objection (2) — that my P(any) comparison was structurally guaranteed by
+nesting top-16 inside top-62 — is also correct and explains why that metric looked so favourable.
+
+The one remaining argument for disjoint blocks is a genuinely decreasing utility of tickets, i.e. if the operator would
+value a first $20 Millionaire ticket highly and a fourth one at nearly nothing. That is his judgement, not ours, and it
+should be stated as such rather than assumed from his entry counts. **Absent an explicit statement from him that later
+tickets are near-worthless, keep the authorized layout.**
