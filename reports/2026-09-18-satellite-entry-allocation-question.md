@@ -349,3 +349,12 @@ Rehearsed end to end again after the reorder. The build emitted the twelve block
 the published bundle verified as 12 contests, 97 entry rows, every row 9/9 cells; the real 97-entry DraftKings export
 filled at keep 97 / withdraw 0; and the disjointness check on the filled upload found 97 entries, 97 distinct lineups,
 0 lineups used in more than one contest, 0 contest pairs sharing a lineup.
+
+### Exception declined, 2026-09-18
+
+Offered the operator a carve-out that would pull the satellite (ranks 32-33) and the two FFWC qualifier entries (ranks
+96-97) toward the front of the book while leaving the payout rule otherwise intact, since those four entries carry the
+highest value per entry on the slate and pay for most of the ordering's cost. He declined: **"keep the order as it is."**
+
+Payout order therefore stands unmodified for Week 2, with no exceptions. The question is closed and should not be
+reopened before lock. The cost is quantified above and can be checked against realized Week-2 outcomes on Monday.
