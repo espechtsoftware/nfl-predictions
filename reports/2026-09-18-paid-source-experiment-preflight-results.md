@@ -23,7 +23,7 @@ no predictions or validation metrics were exposed.
 | tail_k1_route | 2026-W33 | 40 | all four registered fp_route fields |
 
 The base-model metadata and serialized models list the same feature sets in different order. This is
-not evidence of a prediction bug: `components._model_matrix` uses the fitted model's feature names/order.
+not evidence of a prediction bug: `components._matrix_for_model` uses the fitted model's feature names/order.
 The role and Route metadata agree in order as well. The operating briefing says the adopted models are
 frozen and retraining paused; the old ISO-week labels alone do not establish a missed retrain.
 
