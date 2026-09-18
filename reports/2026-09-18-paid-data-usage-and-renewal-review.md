@@ -2,6 +2,8 @@
 
 **Prepared September 18, 2026 for Erich.** Review of `nfl-predictions` at `2b6ed3bd` and the Sunday live-builder branch in `nfl2` at `e7255e98`. Documentation and read-only inspection only; no models, lineups, experiments, subscriptions, or schedules changed.
 
+> **Follow-up, September 18:** Erich authorized the staged experiments. The [first-stage results](2026-09-18-paid-source-experiment-preflight-results.md) verify actual registered feature contracts and show that the SIS/Route shadow schedulers are paused. SIS becomes eligible from Week 5; it is not an already-running study ending in Week 5. Renewal recommendations here do not cancel the newly authorized research.
+
 ## Recommendation
 
 **Keep The Odds API for the NFL season. Do not renew SIS automatically for the current application. Use the remaining Fantasy Points subscription, but do not commit to its next renewal solely on the current app's performance.** A short research extension is a separate decision, justified only by a specific experiment with an owner, budget, and stop date.

@@ -4,6 +4,23 @@
 
 # Project handoff
 
+## 2026-09-18 — authorized paid-source experiments started; outcome-free preflight complete
+
+Erich authorized proceeding after the renewal review. [Plan](reports/2026-09-18-paid-source-experiment-plan.md)
+and [first-stage results](reports/2026-09-18-paid-source-experiment-preflight-results.md) are now in the
+main-project reports folder. Verified 33 serialized component feature headers: no fp_/sis_ in base/role,
+four Route features in the separate Route variant. Reproduced stale/mixed Odds snapshots and documented
+coverage/completeness behavior. Warehouse confirms 265 current Route rows but no current advanced-window,
+alignment or SIS rows in the inspected tables. SIS acquisition eligibility begins Week 5.
+
+All eight inspected SIS/Route schedules are PAUSED and paired-job execution listings returned empty.
+These implemented shadows are not established ongoing prospective evidence. The workstation has been
+asked for any replacement policy/artifacts before preparing a coherent restart. No source fix, model
+training, cloud launch, vendor call, schedule change, subscription action or 990/991 outcome read.
+Next: coherent Odds snapshot correction in a separate review; exact-live-input source ablation;
+FP novelty/support; one supported SIS policy/transfer path. Existing E0 sequencing remains agreed.
+
+
 ## 2026-09-18 — review documents consolidated into the main project
 
 At Erich's request, the laptop's six recent reviews/research reports and six supporting evidence files

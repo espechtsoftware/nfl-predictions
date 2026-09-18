@@ -1,0 +1,4129 @@
+{
+  "started_at_utc": "2026-09-18T18:40:44.186895+00:00",
+  "code_sha": "8ce2ffd957c7b1a764e4c2748243a6c34a99a5b4",
+  "checks": {
+    "synthetic_odds": {
+      "source_sha256": "144338d6922e9dcbcaabbebde08bf9921aee2775b0915e4a54cd1836fab7546a",
+      "moved_main_line": {
+        "observed_points": [
+          49.5,
+          59.5
+        ],
+        "desired_latest_only": [
+          59.5
+        ],
+        "old_point_survives": true,
+        "cutoff_audit": {
+          "input_rows": 6,
+          "main_slate_weeks": 1,
+          "prelock_rows": 4,
+          "postlock_rows_excluded": 2
+        }
+      },
+      "mixed_sides": {
+        "distinct_timestamps": [
+          "2026-09-20T09:00:00Z",
+          "2026-09-20T16:00:00Z"
+        ],
+        "both_sides_retained": true
+      },
+      "coverage_gate": {
+        "true_prop_rows_before": 0,
+        "true_prop_rows_after": 3,
+        "previously_covered_player_market_before": 20.0,
+        "after": 10.0
+      },
+      "two_markets_without_td": {
+        "accepted_player_rows": 1,
+        "markets": [
+          "player_reception_yds",
+          "player_receptions"
+        ],
+        "note": "Accepted proxy lacks TD component; this is a completeness limitation, not an asserted requirement to invent a TD quote."
+      }
+    },
+    "registered_features": {
+      "models": [
+        {
+          "label": "comp_carries__tail_k1",
+          "week": "2026-W32",
+          "metadata_uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_carries__tail_k1/2026-W32/meta.json",
+          "metadata_generation": 1786275611459601,
+          "metadata_sha256": "0b48295cf16453d604655474471198c4117960b3c0e402254899715688512d67",
+          "model_generation": 1786275611328738,
+          "model_sha256": "90c0e3050559d8787c4232586d0171e136feddf364ed976521b8bf557f3d5d88",
+          "features": [
+            "body_clock_hour",
+            "carry_share_l4",
+            "cb_comp_rate_allowed_l6",
+            "cb_ypt_allowed_l6",
+            "db_ypt_allowed_l6",
+            "deep_targets_l4",
+            "depth_rank",
+            "dk_points_l4",
+            "dk_points_std",
+            "dk_points_vol",
+            "expected_game_script",
+            "ez_targets_l4",
+            "game_total",
+            "games_played_prior",
+            "gl3_carries_smoothed",
+            "implied_team_total",
+            "is_cold_start",
+            "is_dome",
+            "is_home",
+            "net_rest_diff",
+            "neutral_pass_rate_l6",
+            "qb_cpoe_l6",
+            "ref_flags_prior",
+            "rz20_targets_smoothed",
+            "salary",
+            "salary_delta_wow",
+            "separation_l4",
+            "snap_share_l4",
+            "spread",
+            "stacked_box_l4",
+            "target_share_l4",
+            "team_vacated_carry_share",
+            "team_vacated_target_share",
+            "top_cb_out",
+            "wopr_l4",
+            "position"
+          ],
+          "metadata_matches_serialized_features": false,
+          "vendor_features": []
+        },
+        {
+          "label": "comp_carries__tail_k1_role",
+          "week": "2026-W33",
+          "metadata_uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_carries__tail_k1_role/2026-W33/meta.json",
+          "metadata_generation": 1786371717930490,
+          "metadata_sha256": "1e9545bb5f4b2a112de2fd3fa2ccba8ff8873fa6aa1f6bb864036b8d4eda6acd",
+          "model_generation": 1786371717798903,
+          "model_sha256": "ea8aa558dde5eeb8d0d382b35a4a1d7674abed68774baa4b983f3d2edae65dfd",
+          "features": [
+            "body_clock_hour",
+            "carry_share_jump",
+            "carry_share_l4",
+            "carry_share_last",
+            "cb_comp_rate_allowed_l6",
+            "cb_ypt_allowed_l6",
+            "db_ypt_allowed_l6",
+            "deep_targets_l4",
+            "depth_rank",
+            "dk_points_l4",
+            "dk_points_std",
+            "dk_points_vol",
+            "expected_game_script",
+            "ez_targets_l4",
+            "game_total",
+            "games_played_prior",
+            "gl3_carries_smoothed",
+            "implied_team_total",
+            "is_cold_start",
+            "is_dome",
+            "is_home",
+            "net_rest_diff",
+            "neutral_pass_rate_l6",
+            "qb_cpoe_l6",
+            "ref_flags_prior",
+            "rz20_targets_smoothed",
+            "salary",
+            "salary_delta_wow",
+            "separation_l4",
+            "snap_share_jump",
+            "snap_share_l4",
+            "snap_share_last",
+            "spread",
+            "stacked_box_l4",
+            "target_share_jump",
+            "target_share_l4",
+            "target_share_last",
+            "team_vacated_carry_share",
+            "team_vacated_target_share",
+            "top_cb_out",
+            "wopr_l4",
+            "position"
+          ],
+          "metadata_matches_serialized_features": true,
+          "vendor_features": []
+        },
+        {
+          "label": "comp_carries__tail_k1_route",
+          "week": "2026-W33",
+          "metadata_uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_carries__tail_k1_route/2026-W33/meta.json",
+          "metadata_generation": 1786473068619519,
+          "metadata_sha256": "d99c96a0961e17f42ec0d5ef535b980bd9e146968c8d71c022d0e2177990fc59",
+          "model_generation": 1786473068467387,
+          "model_sha256": "6b862ac46898aadcbe83ec95b19f16974251163c370f453489caa41e8381d03f",
+          "features": [
+            "body_clock_hour",
+            "carry_share_l4",
+            "cb_comp_rate_allowed_l6",
+            "cb_ypt_allowed_l6",
+            "db_ypt_allowed_l6",
+            "deep_targets_l4",
+            "depth_rank",
+            "dk_points_l4",
+            "dk_points_std",
+            "dk_points_vol",
+            "expected_game_script",
+            "ez_targets_l4",
+            "fp_route_cross_season",
+            "fp_route_share_jump",
+            "fp_route_share_l4",
+            "fp_route_share_last",
+            "game_total",
+            "games_played_prior",
+            "gl3_carries_smoothed",
+            "implied_team_total",
+            "is_cold_start",
+            "is_dome",
+            "is_home",
+            "net_rest_diff",
+            "neutral_pass_rate_l6",
+            "qb_cpoe_l6",
+            "ref_flags_prior",
+            "rz20_targets_smoothed",
+            "salary",
+            "salary_delta_wow",
+            "separation_l4",
+            "snap_share_l4",
+            "spread",
+            "stacked_box_l4",
+            "target_share_l4",
+            "team_vacated_carry_share",
+            "team_vacated_target_share",
+            "top_cb_out",
+            "wopr_l4",
+            "position"
+          ],
+          "metadata_matches_serialized_features": true,
+          "vendor_features": [
+            "fp_route_cross_season",
+            "fp_route_share_jump",
+            "fp_route_share_l4",
+            "fp_route_share_last"
+          ]
+        },
+        {
+          "label": "comp_catch_rate__tail_k1",
+          "week": "2026-W32",
+          "metadata_uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_catch_rate__tail_k1/2026-W32/meta.json",
+          "metadata_generation": 1786275610463226,
+          "metadata_sha256": "4fa8ba7325ed3eb8644d100c5db577515b42090884b8b91084edcf69b105b5ae",
+          "model_generation": 1786275610331681,
+          "model_sha256": "e367daf7292cca583cd22f42bbd6530931ac6dc662292b48dfb0f25d936bd7ec",
+          "features": [
+            "body_clock_hour",
+            "carry_share_l4",
+            "cb_comp_rate_allowed_l6",
+            "cb_ypt_allowed_l6",
+            "db_ypt_allowed_l6",
+            "deep_targets_l4",
+            "depth_rank",
+            "dk_points_l4",
+            "dk_points_std",
+            "dk_points_vol",
+            "expected_game_script",
+            "ez_targets_l4",
+            "game_total",
+            "games_played_prior",
+            "gl3_carries_smoothed",
+            "implied_team_total",
+            "is_cold_start",
+            "is_dome",
+            "is_home",
+            "net_rest_diff",
+            "neutral_pass_rate_l6",
+            "qb_cpoe_l6",
+            "ref_flags_prior",
+            "rz20_targets_smoothed",
+            "salary",
+            "salary_delta_wow",
+            "separation_l4",
+            "snap_share_l4",
+            "spread",
+            "stacked_box_l4",
+            "target_share_l4",
+            "team_vacated_carry_share",
+            "team_vacated_target_share",
+            "top_cb_out",
+            "wopr_l4",
+            "position"
+          ],
+          "metadata_matches_serialized_features": false,
+          "vendor_features": []
+        },
+        {
+          "label": "comp_catch_rate__tail_k1_role",
+          "week": "2026-W33",
+          "metadata_uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_catch_rate__tail_k1_role/2026-W33/meta.json",
+          "metadata_generation": 1786371716733626,
+          "metadata_sha256": "0d94f56233877b860e2dda0fccb3226caea5f72ed651294598c0a9e376ae060a",
+          "model_generation": 1786371716607953,
+          "model_sha256": "b0612826c1331d120cabb846fc6b206f2c7a7657efcc32fab6bc5fbbbd1b85a4",
+          "features": [
+            "body_clock_hour",
+            "carry_share_jump",
+            "carry_share_l4",
+            "carry_share_last",
+            "cb_comp_rate_allowed_l6",
+            "cb_ypt_allowed_l6",
+            "db_ypt_allowed_l6",
+            "deep_targets_l4",
+            "depth_rank",
+            "dk_points_l4",
+            "dk_points_std",
+            "dk_points_vol",
+            "expected_game_script",
+            "ez_targets_l4",
+            "game_total",
+            "games_played_prior",
+            "gl3_carries_smoothed",
+            "implied_team_total",
+            "is_cold_start",
+            "is_dome",
+            "is_home",
+            "net_rest_diff",
+            "neutral_pass_rate_l6",
+            "qb_cpoe_l6",
+            "ref_flags_prior",
+            "rz20_targets_smoothed",
+            "salary",
+            "salary_delta_wow",
+            "separation_l4",
+            "snap_share_jump",
+            "snap_share_l4",
+            "snap_share_last",
+            "spread",
+            "stacked_box_l4",
+            "target_share_jump",
+            "target_share_l4",
+            "target_share_last",
+            "team_vacated_carry_share",
+            "team_vacated_target_share",
+            "top_cb_out",
+            "wopr_l4",
+            "position"
+          ],
+          "metadata_matches_serialized_features": true,
+          "vendor_features": []
+        },
+        {
+          "label": "comp_catch_rate__tail_k1_route",
+          "week": "2026-W33",
+          "metadata_uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_catch_rate__tail_k1_route/2026-W33/meta.json",
+          "metadata_generation": 1786473067438476,
+          "metadata_sha256": "cda9e3cda1b3dc32da47a0088ea2608cb98d40480ba6248843b7034bbad536a9",
+          "model_generation": 1786473067301654,
+          "model_sha256": "36e012f624e850901e32dd29c0b4fd7e1fe1bd1e5b8686f57367680af3df6938",
+          "features": [
+            "body_clock_hour",
+            "carry_share_l4",
+            "cb_comp_rate_allowed_l6",
+            "cb_ypt_allowed_l6",
+            "db_ypt_allowed_l6",
+            "deep_targets_l4",
+            "depth_rank",
+            "dk_points_l4",
+            "dk_points_std",
+            "dk_points_vol",
+            "expected_game_script",
+            "ez_targets_l4",
+            "fp_route_cross_season",
+            "fp_route_share_jump",
+            "fp_route_share_l4",
+            "fp_route_share_last",
+            "game_total",
+            "games_played_prior",
+            "gl3_carries_smoothed",
+            "implied_team_total",
+            "is_cold_start",
+            "is_dome",
+            "is_home",
+            "net_rest_diff",
+            "neutral_pass_rate_l6",
+            "qb_cpoe_l6",
+            "ref_flags_prior",
+            "rz20_targets_smoothed",
+            "salary",
+            "salary_delta_wow",
+            "separation_l4",
+            "snap_share_l4",
+            "spread",
+            "stacked_box_l4",
+            "target_share_l4",
+            "team_vacated_carry_share",
+            "team_vacated_target_share",
+            "top_cb_out",
+            "wopr_l4",
+            "position"
+          ],
+          "metadata_matches_serialized_features": true,
+          "vendor_features": [
+            "fp_route_cross_season",
+            "fp_route_share_jump",
+            "fp_route_share_l4",
+            "fp_route_share_last"
+          ]
+        },
+        {
+          "label": "comp_interceptions__tail_k1",
+          "week": "2026-W32",
+          "metadata_uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_interceptions__tail_k1/2026-W32/meta.json",
+          "metadata_generation": 1786275613544766,
+          "metadata_sha256": "771fa912d228ecf3749c8369d2c358f7c5a1e4fd0649a7a2d01f9b97dcb9c54f",
+          "model_generation": 1786275613433440,
+          "model_sha256": "6e38e54a183eb0437c9adcebeaf628914b66e90c060b8618e8d8850d71f33953",
+          "features": [
+            "body_clock_hour",
+            "carry_share_l4",
+            "cb_comp_rate_allowed_l6",
+            "cb_ypt_allowed_l6",
+            "db_ypt_allowed_l6",
+            "deep_targets_l4",
+            "depth_rank",
+            "dk_points_l4",
+            "dk_points_std",
+            "dk_points_vol",
+            "expected_game_script",
+            "ez_targets_l4",
+            "game_total",
+            "games_played_prior",
+            "gl3_carries_smoothed",
+            "implied_team_total",
+            "is_cold_start",
+            "is_dome",
+            "is_home",
+            "net_rest_diff",
+            "neutral_pass_rate_l6",
+            "qb_cpoe_l6",
+            "ref_flags_prior",
+            "rz20_targets_smoothed",
+            "salary",
+            "salary_delta_wow",
+            "separation_l4",
+            "snap_share_l4",
+            "spread",
+            "stacked_box_l4",
+            "target_share_l4",
+            "team_vacated_carry_share",
+            "team_vacated_target_share",
+            "top_cb_out",
+            "wopr_l4",
+            "position"
+          ],
+          "metadata_matches_serialized_features": false,
+          "vendor_features": []
+        },
+        {
+          "label": "comp_interceptions__tail_k1_role",
+          "week": "2026-W33",
+          "metadata_uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_interceptions__tail_k1_role/2026-W33/meta.json",
+          "metadata_generation": 1786371720303036,
+          "metadata_sha256": "57ce551fc1298577da303a15740797d660e938a7af47650e14937b87b8ea7a4f",
+          "model_generation": 1786371720114376,
+          "model_sha256": "10f185b19fe3fd0e5d35026057e34882a4644ea5ec2c3b961677a38e5db2f02f",
+          "features": [
+            "body_clock_hour",
+            "carry_share_jump",
+            "carry_share_l4",
+            "carry_share_last",
+            "cb_comp_rate_allowed_l6",
+            "cb_ypt_allowed_l6",
+            "db_ypt_allowed_l6",
+            "deep_targets_l4",
+            "depth_rank",
+            "dk_points_l4",
+            "dk_points_std",
+            "dk_points_vol",
+            "expected_game_script",
+            "ez_targets_l4",
+            "game_total",
+            "games_played_prior",
+            "gl3_carries_smoothed",
+            "implied_team_total",
+            "is_cold_start",
+            "is_dome",
+            "is_home",
+            "net_rest_diff",
+            "neutral_pass_rate_l6",
+            "qb_cpoe_l6",
+            "ref_flags_prior",
+            "rz20_targets_smoothed",
+            "salary",
+            "salary_delta_wow",
+            "separation_l4",
+            "snap_share_jump",
+            "snap_share_l4",
+            "snap_share_last",
+            "spread",
+            "stacked_box_l4",
+            "target_share_jump",
+            "target_share_l4",
+            "target_share_last",
+            "team_vacated_carry_share",
+            "team_vacated_target_share",
+            "top_cb_out",
+            "wopr_l4",
+            "position"
+          ],
+          "metadata_matches_serialized_features": true,
+          "vendor_features": []
+        },
+        {
+          "label": "comp_interceptions__tail_k1_route",
+          "week": "2026-W33",
+          "metadata_uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_interceptions__tail_k1_route/2026-W33/meta.json",
+          "metadata_generation": 1786473070912463,
+          "metadata_sha256": "30f026672f8ce24e4d024f520f96cf92d0d523aace2967b8dadfe0345911f769",
+          "model_generation": 1786473070782587,
+          "model_sha256": "78217182e6a91377fc3fb3ff93c38c64b7cf6d2b8be5aa1ac6a6ca2c2aa98d57",
+          "features": [
+            "body_clock_hour",
+            "carry_share_l4",
+            "cb_comp_rate_allowed_l6",
+            "cb_ypt_allowed_l6",
+            "db_ypt_allowed_l6",
+            "deep_targets_l4",
+            "depth_rank",
+            "dk_points_l4",
+            "dk_points_std",
+            "dk_points_vol",
+            "expected_game_script",
+            "ez_targets_l4",
+            "fp_route_cross_season",
+            "fp_route_share_jump",
+            "fp_route_share_l4",
+            "fp_route_share_last",
+            "game_total",
+            "games_played_prior",
+            "gl3_carries_smoothed",
+            "implied_team_total",
+            "is_cold_start",
+            "is_dome",
+            "is_home",
+            "net_rest_diff",
+            "neutral_pass_rate_l6",
+            "qb_cpoe_l6",
+            "ref_flags_prior",
+            "rz20_targets_smoothed",
+            "salary",
+            "salary_delta_wow",
+            "separation_l4",
+            "snap_share_l4",
+            "spread",
+            "stacked_box_l4",
+            "target_share_l4",
+            "team_vacated_carry_share",
+            "team_vacated_target_share",
+            "top_cb_out",
+            "wopr_l4",
+            "position"
+          ],
+          "metadata_matches_serialized_features": true,
+          "vendor_features": [
+            "fp_route_cross_season",
+            "fp_route_share_jump",
+            "fp_route_share_l4",
+            "fp_route_share_last"
+          ]
+        },
+        {
+          "label": "comp_pass_attempts__tail_k1",
+          "week": "2026-W32",
+          "metadata_uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_pass_attempts__tail_k1/2026-W32/meta.json",
+          "metadata_generation": 1786275612427697,
+          "metadata_sha256": "b17db318590960dfc90b4c68abd55f7bc900be4adda579bdff0c0c55567fae0d",
+          "model_generation": 1786275612296103,
+          "model_sha256": "cbf27bd985a6b009fb27df59edf6deab4e0759401e526a6e076866bdf59ee80c",
+          "features": [
+            "body_clock_hour",
+            "carry_share_l4",
+            "cb_comp_rate_allowed_l6",
+            "cb_ypt_allowed_l6",
+            "db_ypt_allowed_l6",
+            "deep_targets_l4",
+            "depth_rank",
+            "dk_points_l4",
+            "dk_points_std",
+            "dk_points_vol",
+            "expected_game_script",
+            "ez_targets_l4",
+            "game_total",
+            "games_played_prior",
+            "gl3_carries_smoothed",
+            "implied_team_total",
+            "is_cold_start",
+            "is_dome",
+            "is_home",
+            "net_rest_diff",
+            "neutral_pass_rate_l6",
+            "qb_cpoe_l6",
+            "ref_flags_prior",
+            "rz20_targets_smoothed",
+            "salary",
+            "salary_delta_wow",
+            "separation_l4",
+            "snap_share_l4",
+            "spread",
+            "stacked_box_l4",
+            "target_share_l4",
+            "team_vacated_carry_share",
+            "team_vacated_target_share",
+            "top_cb_out",
+            "wopr_l4",
+            "position"
+          ],
+          "metadata_matches_serialized_features": false,
+          "vendor_features": []
+        },
+        {
+          "label": "comp_pass_attempts__tail_k1_role",
+          "week": "2026-W33",
+          "metadata_uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_pass_attempts__tail_k1_role/2026-W33/meta.json",
+          "metadata_generation": 1786371718959558,
+          "metadata_sha256": "14064fe7fca7b5ece32e2c0ac56a1b994a80577b50f6182fcc76804106dc0e9a",
+          "model_generation": 1786371718828292,
+          "model_sha256": "17645f738ad187e18bab8f86d24f04a229eb58283f16cfb25ed9d51b8eb1af63",
+          "features": [
+            "body_clock_hour",
+            "carry_share_jump",
+            "carry_share_l4",
+            "carry_share_last",
+            "cb_comp_rate_allowed_l6",
+            "cb_ypt_allowed_l6",
+            "db_ypt_allowed_l6",
+            "deep_targets_l4",
+            "depth_rank",
+            "dk_points_l4",
+            "dk_points_std",
+            "dk_points_vol",
+            "expected_game_script",
+            "ez_targets_l4",
+            "game_total",
+            "games_played_prior",
+            "gl3_carries_smoothed",
+            "implied_team_total",
+            "is_cold_start",
+            "is_dome",
+            "is_home",
+            "net_rest_diff",
+            "neutral_pass_rate_l6",
+            "qb_cpoe_l6",
+            "ref_flags_prior",
+            "rz20_targets_smoothed",
+            "salary",
+            "salary_delta_wow",
+            "separation_l4",
+            "snap_share_jump",
+            "snap_share_l4",
+            "snap_share_last",
+            "spread",
+            "stacked_box_l4",
+            "target_share_jump",
+            "target_share_l4",
+            "target_share_last",
+            "team_vacated_carry_share",
+            "team_vacated_target_share",
+            "top_cb_out",
+            "wopr_l4",
+            "position"
+          ],
+          "metadata_matches_serialized_features": true,
+          "vendor_features": []
+        },
+        {
+          "label": "comp_pass_attempts__tail_k1_route",
+          "week": "2026-W33",
+          "metadata_uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_pass_attempts__tail_k1_route/2026-W33/meta.json",
+          "metadata_generation": 1786473069798079,
+          "metadata_sha256": "cbd4776048144984c5e4a65cb2e829cf209d70003b0f78b37144af45e70f0d09",
+          "model_generation": 1786473069640427,
+          "model_sha256": "2bee0d5c8d9dd2ac7433b5ed8d7e15e60ec10fb856e01ee96b07e0e10149403f",
+          "features": [
+            "body_clock_hour",
+            "carry_share_l4",
+            "cb_comp_rate_allowed_l6",
+            "cb_ypt_allowed_l6",
+            "db_ypt_allowed_l6",
+            "deep_targets_l4",
+            "depth_rank",
+            "dk_points_l4",
+            "dk_points_std",
+            "dk_points_vol",
+            "expected_game_script",
+            "ez_targets_l4",
+            "fp_route_cross_season",
+            "fp_route_share_jump",
+            "fp_route_share_l4",
+            "fp_route_share_last",
+            "game_total",
+            "games_played_prior",
+            "gl3_carries_smoothed",
+            "implied_team_total",
+            "is_cold_start",
+            "is_dome",
+            "is_home",
+            "net_rest_diff",
+            "neutral_pass_rate_l6",
+            "qb_cpoe_l6",
+            "ref_flags_prior",
+            "rz20_targets_smoothed",
+            "salary",
+            "salary_delta_wow",
+            "separation_l4",
+            "snap_share_l4",
+            "spread",
+            "stacked_box_l4",
+            "target_share_l4",
+            "team_vacated_carry_share",
+            "team_vacated_target_share",
+            "top_cb_out",
+            "wopr_l4",
+            "position"
+          ],
+          "metadata_matches_serialized_features": true,
+          "vendor_features": [
+            "fp_route_cross_season",
+            "fp_route_share_jump",
+            "fp_route_share_l4",
+            "fp_route_share_last"
+          ]
+        },
+        {
+          "label": "comp_pass_tds__tail_k1",
+          "week": "2026-W32",
+          "metadata_uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_pass_tds__tail_k1/2026-W32/meta.json",
+          "metadata_generation": 1786275613230645,
+          "metadata_sha256": "191b08897591bd20b3a2b19123b0b67bc4a779e9df87a5194fe0150a9c861fb3",
+          "model_generation": 1786275613100029,
+          "model_sha256": "112d818f78f1e1f842c5581e0440085653769f8ead2993fe740183fa4f58411f",
+          "features": [
+            "body_clock_hour",
+            "carry_share_l4",
+            "cb_comp_rate_allowed_l6",
+            "cb_ypt_allowed_l6",
+            "db_ypt_allowed_l6",
+            "deep_targets_l4",
+            "depth_rank",
+            "dk_points_l4",
+            "dk_points_std",
+            "dk_points_vol",
+            "expected_game_script",
+            "ez_targets_l4",
+            "game_total",
+            "games_played_prior",
+            "gl3_carries_smoothed",
+            "implied_team_total",
+            "is_cold_start",
+            "is_dome",
+            "is_home",
+            "net_rest_diff",
+            "neutral_pass_rate_l6",
+            "qb_cpoe_l6",
+            "ref_flags_prior",
+            "rz20_targets_smoothed",
+            "salary",
+            "salary_delta_wow",
+            "separation_l4",
+            "snap_share_l4",
+            "spread",
+            "stacked_box_l4",
+            "target_share_l4",
+            "team_vacated_carry_share",
+            "team_vacated_target_share",
+            "top_cb_out",
+            "wopr_l4",
+            "position"
+          ],
+          "metadata_matches_serialized_features": false,
+          "vendor_features": []
+        },
+        {
+          "label": "comp_pass_tds__tail_k1_role",
+          "week": "2026-W33",
+          "metadata_uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_pass_tds__tail_k1_role/2026-W33/meta.json",
+          "metadata_generation": 1786371719846617,
+          "metadata_sha256": "46f19a5559fcf7098f9c5ea8c2f12d2fdae51aff88bb06dc37bfd2c73be31dd6",
+          "model_generation": 1786371719710049,
+          "model_sha256": "e5c2c819231108c381d0a509567281f2f92abc406a28dcd731cba3dc90a8c1e0",
+          "features": [
+            "body_clock_hour",
+            "carry_share_jump",
+            "carry_share_l4",
+            "carry_share_last",
+            "cb_comp_rate_allowed_l6",
+            "cb_ypt_allowed_l6",
+            "db_ypt_allowed_l6",
+            "deep_targets_l4",
+            "depth_rank",
+            "dk_points_l4",
+            "dk_points_std",
+            "dk_points_vol",
+            "expected_game_script",
+            "ez_targets_l4",
+            "game_total",
+            "games_played_prior",
+            "gl3_carries_smoothed",
+            "implied_team_total",
+            "is_cold_start",
+            "is_dome",
+            "is_home",
+            "net_rest_diff",
+            "neutral_pass_rate_l6",
+            "qb_cpoe_l6",
+            "ref_flags_prior",
+            "rz20_targets_smoothed",
+            "salary",
+            "salary_delta_wow",
+            "separation_l4",
+            "snap_share_jump",
+            "snap_share_l4",
+            "snap_share_last",
+            "spread",
+            "stacked_box_l4",
+            "target_share_jump",
+            "target_share_l4",
+            "target_share_last",
+            "team_vacated_carry_share",
+            "team_vacated_target_share",
+            "top_cb_out",
+            "wopr_l4",
+            "position"
+          ],
+          "metadata_matches_serialized_features": true,
+          "vendor_features": []
+        },
+        {
+          "label": "comp_pass_tds__tail_k1_route",
+          "week": "2026-W33",
+          "metadata_uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_pass_tds__tail_k1_route/2026-W33/meta.json",
+          "metadata_generation": 1786473070565634,
+          "metadata_sha256": "9c2eb1450d3a183d6d77bb7f89faf04c1887d7889fa9c13ab494ddce3a3376d9",
+          "model_generation": 1786473070404309,
+          "model_sha256": "aa420ffdd69fe943f04f22bb5c2c8d0618b79cfcc9d53de494a9bb14c91593d7",
+          "features": [
+            "body_clock_hour",
+            "carry_share_l4",
+            "cb_comp_rate_allowed_l6",
+            "cb_ypt_allowed_l6",
+            "db_ypt_allowed_l6",
+            "deep_targets_l4",
+            "depth_rank",
+            "dk_points_l4",
+            "dk_points_std",
+            "dk_points_vol",
+            "expected_game_script",
+            "ez_targets_l4",
+            "fp_route_cross_season",
+            "fp_route_share_jump",
+            "fp_route_share_l4",
+            "fp_route_share_last",
+            "game_total",
+            "games_played_prior",
+            "gl3_carries_smoothed",
+            "implied_team_total",
+            "is_cold_start",
+            "is_dome",
+            "is_home",
+            "net_rest_diff",
+            "neutral_pass_rate_l6",
+            "qb_cpoe_l6",
+            "ref_flags_prior",
+            "rz20_targets_smoothed",
+            "salary",
+            "salary_delta_wow",
+            "separation_l4",
+            "snap_share_l4",
+            "spread",
+            "stacked_box_l4",
+            "target_share_l4",
+            "team_vacated_carry_share",
+            "team_vacated_target_share",
+            "top_cb_out",
+            "wopr_l4",
+            "position"
+          ],
+          "metadata_matches_serialized_features": true,
+          "vendor_features": [
+            "fp_route_cross_season",
+            "fp_route_share_jump",
+            "fp_route_share_l4",
+            "fp_route_share_last"
+          ]
+        },
+        {
+          "label": "comp_rec_tds__tail_k1",
+          "week": "2026-W32",
+          "metadata_uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_rec_tds__tail_k1/2026-W32/meta.json",
+          "metadata_generation": 1786275611138510,
+          "metadata_sha256": "753783a808b4ee647ea15830443a4fca329d381c7936977989613df622ce4bd6",
+          "model_generation": 1786275611003249,
+          "model_sha256": "ecbd9540247a9497dc04c8376a64a36aec1f77fc35e0b95f730425e15a7af3c4",
+          "features": [
+            "body_clock_hour",
+            "carry_share_l4",
+            "cb_comp_rate_allowed_l6",
+            "cb_ypt_allowed_l6",
+            "db_ypt_allowed_l6",
+            "deep_targets_l4",
+            "depth_rank",
+            "dk_points_l4",
+            "dk_points_std",
+            "dk_points_vol",
+            "expected_game_script",
+            "ez_targets_l4",
+            "game_total",
+            "games_played_prior",
+            "gl3_carries_smoothed",
+            "implied_team_total",
+            "is_cold_start",
+            "is_dome",
+            "is_home",
+            "net_rest_diff",
+            "neutral_pass_rate_l6",
+            "qb_cpoe_l6",
+            "ref_flags_prior",
+            "rz20_targets_smoothed",
+            "salary",
+            "salary_delta_wow",
+            "separation_l4",
+            "snap_share_l4",
+            "spread",
+            "stacked_box_l4",
+            "target_share_l4",
+            "team_vacated_carry_share",
+            "team_vacated_target_share",
+            "top_cb_out",
+            "wopr_l4",
+            "position"
+          ],
+          "metadata_matches_serialized_features": false,
+          "vendor_features": []
+        },
+        {
+          "label": "comp_rec_tds__tail_k1_role",
+          "week": "2026-W33",
+          "metadata_uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_rec_tds__tail_k1_role/2026-W33/meta.json",
+          "metadata_generation": 1786371717602447,
+          "metadata_sha256": "1b4351f00b884e84b662ccb143a65b5f8afc4e4209454f8d34046ff56019025b",
+          "model_generation": 1786371717394540,
+          "model_sha256": "821cbebaf136ed7a985f32b226def145eabef9f5abc5fb6b4e0ce8cfb2a47867",
+          "features": [
+            "body_clock_hour",
+            "carry_share_jump",
+            "carry_share_l4",
+            "carry_share_last",
+            "cb_comp_rate_allowed_l6",
+            "cb_ypt_allowed_l6",
+            "db_ypt_allowed_l6",
+            "deep_targets_l4",
+            "depth_rank",
+            "dk_points_l4",
+            "dk_points_std",
+            "dk_points_vol",
+            "expected_game_script",
+            "ez_targets_l4",
+            "game_total",
+            "games_played_prior",
+            "gl3_carries_smoothed",
+            "implied_team_total",
+            "is_cold_start",
+            "is_dome",
+            "is_home",
+            "net_rest_diff",
+            "neutral_pass_rate_l6",
+            "qb_cpoe_l6",
+            "ref_flags_prior",
+            "rz20_targets_smoothed",
+            "salary",
+            "salary_delta_wow",
+            "separation_l4",
+            "snap_share_jump",
+            "snap_share_l4",
+            "snap_share_last",
+            "spread",
+            "stacked_box_l4",
+            "target_share_jump",
+            "target_share_l4",
+            "target_share_last",
+            "team_vacated_carry_share",
+            "team_vacated_target_share",
+            "top_cb_out",
+            "wopr_l4",
+            "position"
+          ],
+          "metadata_matches_serialized_features": true,
+          "vendor_features": []
+        },
+        {
+          "label": "comp_rec_tds__tail_k1_route",
+          "week": "2026-W33",
+          "metadata_uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_rec_tds__tail_k1_route/2026-W33/meta.json",
+          "metadata_generation": 1786473068231752,
+          "metadata_sha256": "d7164bdd9ef9dd163cb093995dbb82d75c75e8f1af879d58e406e0546137af9c",
+          "model_generation": 1786473068089139,
+          "model_sha256": "64c17519d8c906d92fd995f51c51f0a2b88a10f77a3f6f6ce501a48c413bdcae",
+          "features": [
+            "body_clock_hour",
+            "carry_share_l4",
+            "cb_comp_rate_allowed_l6",
+            "cb_ypt_allowed_l6",
+            "db_ypt_allowed_l6",
+            "deep_targets_l4",
+            "depth_rank",
+            "dk_points_l4",
+            "dk_points_std",
+            "dk_points_vol",
+            "expected_game_script",
+            "ez_targets_l4",
+            "fp_route_cross_season",
+            "fp_route_share_jump",
+            "fp_route_share_l4",
+            "fp_route_share_last",
+            "game_total",
+            "games_played_prior",
+            "gl3_carries_smoothed",
+            "implied_team_total",
+            "is_cold_start",
+            "is_dome",
+            "is_home",
+            "net_rest_diff",
+            "neutral_pass_rate_l6",
+            "qb_cpoe_l6",
+            "ref_flags_prior",
+            "rz20_targets_smoothed",
+            "salary",
+            "salary_delta_wow",
+            "separation_l4",
+            "snap_share_l4",
+            "spread",
+            "stacked_box_l4",
+            "target_share_l4",
+            "team_vacated_carry_share",
+            "team_vacated_target_share",
+            "top_cb_out",
+            "wopr_l4",
+            "position"
+          ],
+          "metadata_matches_serialized_features": true,
+          "vendor_features": [
+            "fp_route_cross_season",
+            "fp_route_share_jump",
+            "fp_route_share_l4",
+            "fp_route_share_last"
+          ]
+        },
+        {
+          "label": "comp_rush_tds__tail_k1",
+          "week": "2026-W32",
+          "metadata_uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_rush_tds__tail_k1/2026-W32/meta.json",
+          "metadata_generation": 1786275612108612,
+          "metadata_sha256": "2d8f1c39497289a348ac94538ce8b05d817ca2adf503c6535abd7031ce3ec9e2",
+          "model_generation": 1786275611972652,
+          "model_sha256": "25020110c8c841cc01dd0c64997b4b2a7c6d3a2883b28432e61981bc6856aec3",
+          "features": [
+            "body_clock_hour",
+            "carry_share_l4",
+            "cb_comp_rate_allowed_l6",
+            "cb_ypt_allowed_l6",
+            "db_ypt_allowed_l6",
+            "deep_targets_l4",
+            "depth_rank",
+            "dk_points_l4",
+            "dk_points_std",
+            "dk_points_vol",
+            "expected_game_script",
+            "ez_targets_l4",
+            "game_total",
+            "games_played_prior",
+            "gl3_carries_smoothed",
+            "implied_team_total",
+            "is_cold_start",
+            "is_dome",
+            "is_home",
+            "net_rest_diff",
+            "neutral_pass_rate_l6",
+            "qb_cpoe_l6",
+            "ref_flags_prior",
+            "rz20_targets_smoothed",
+            "salary",
+            "salary_delta_wow",
+            "separation_l4",
+            "snap_share_l4",
+            "spread",
+            "stacked_box_l4",
+            "target_share_l4",
+            "team_vacated_carry_share",
+            "team_vacated_target_share",
+            "top_cb_out",
+            "wopr_l4",
+            "position"
+          ],
+          "metadata_matches_serialized_features": false,
+          "vendor_features": []
+        },
+        {
+          "label": "comp_rush_tds__tail_k1_role",
+          "week": "2026-W33",
+          "metadata_uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_rush_tds__tail_k1_role/2026-W33/meta.json",
+          "metadata_generation": 1786371718620915,
+          "metadata_sha256": "394afcc1d04689ac9bfc9ab8ca92dae65ca25b4c58c525723f29aeb927c5d5d1",
+          "model_generation": 1786371718480537,
+          "model_sha256": "0f74454764a5d7c189d618311821554a102bfeeb123381c76ff86bf0f12f0b78",
+          "features": [
+            "body_clock_hour",
+            "carry_share_jump",
+            "carry_share_l4",
+            "carry_share_last",
+            "cb_comp_rate_allowed_l6",
+            "cb_ypt_allowed_l6",
+            "db_ypt_allowed_l6",
+            "deep_targets_l4",
+            "depth_rank",
+            "dk_points_l4",
+            "dk_points_std",
+            "dk_points_vol",
+            "expected_game_script",
+            "ez_targets_l4",
+            "game_total",
+            "games_played_prior",
+            "gl3_carries_smoothed",
+            "implied_team_total",
+            "is_cold_start",
+            "is_dome",
+            "is_home",
+            "net_rest_diff",
+            "neutral_pass_rate_l6",
+            "qb_cpoe_l6",
+            "ref_flags_prior",
+            "rz20_targets_smoothed",
+            "salary",
+            "salary_delta_wow",
+            "separation_l4",
+            "snap_share_jump",
+            "snap_share_l4",
+            "snap_share_last",
+            "spread",
+            "stacked_box_l4",
+            "target_share_jump",
+            "target_share_l4",
+            "target_share_last",
+            "team_vacated_carry_share",
+            "team_vacated_target_share",
+            "top_cb_out",
+            "wopr_l4",
+            "position"
+          ],
+          "metadata_matches_serialized_features": true,
+          "vendor_features": []
+        },
+        {
+          "label": "comp_rush_tds__tail_k1_route",
+          "week": "2026-W33",
+          "metadata_uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_rush_tds__tail_k1_route/2026-W33/meta.json",
+          "metadata_generation": 1786473069384159,
+          "metadata_sha256": "f95ff43b3021b39f42cfd09e89693981b48cf5e40b9a3074f5643e191dbe84de",
+          "model_generation": 1786473069214129,
+          "model_sha256": "c50e78181640f7f0a44d251e281a1d3b4d2c8c006163c7548d88e93ad2944272",
+          "features": [
+            "body_clock_hour",
+            "carry_share_l4",
+            "cb_comp_rate_allowed_l6",
+            "cb_ypt_allowed_l6",
+            "db_ypt_allowed_l6",
+            "deep_targets_l4",
+            "depth_rank",
+            "dk_points_l4",
+            "dk_points_std",
+            "dk_points_vol",
+            "expected_game_script",
+            "ez_targets_l4",
+            "fp_route_cross_season",
+            "fp_route_share_jump",
+            "fp_route_share_l4",
+            "fp_route_share_last",
+            "game_total",
+            "games_played_prior",
+            "gl3_carries_smoothed",
+            "implied_team_total",
+            "is_cold_start",
+            "is_dome",
+            "is_home",
+            "net_rest_diff",
+            "neutral_pass_rate_l6",
+            "qb_cpoe_l6",
+            "ref_flags_prior",
+            "rz20_targets_smoothed",
+            "salary",
+            "salary_delta_wow",
+            "separation_l4",
+            "snap_share_l4",
+            "spread",
+            "stacked_box_l4",
+            "target_share_l4",
+            "team_vacated_carry_share",
+            "team_vacated_target_share",
+            "top_cb_out",
+            "wopr_l4",
+            "position"
+          ],
+          "metadata_matches_serialized_features": true,
+          "vendor_features": [
+            "fp_route_cross_season",
+            "fp_route_share_jump",
+            "fp_route_share_l4",
+            "fp_route_share_last"
+          ]
+        },
+        {
+          "label": "comp_targets__tail_k1",
+          "week": "2026-W32",
+          "metadata_uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_targets__tail_k1/2026-W32/meta.json",
+          "metadata_generation": 1786275610127592,
+          "metadata_sha256": "aa879e4deee8a9fadf933ff46ea24e602b89269d57739166a906cffe4d1adcde",
+          "model_generation": 1786275609985614,
+          "model_sha256": "1270eb37c2d525041e66cdeb7f52d23160cded84e3cd9d04e503b661231ece0b",
+          "features": [
+            "body_clock_hour",
+            "carry_share_l4",
+            "cb_comp_rate_allowed_l6",
+            "cb_ypt_allowed_l6",
+            "db_ypt_allowed_l6",
+            "deep_targets_l4",
+            "depth_rank",
+            "dk_points_l4",
+            "dk_points_std",
+            "dk_points_vol",
+            "expected_game_script",
+            "ez_targets_l4",
+            "game_total",
+            "games_played_prior",
+            "gl3_carries_smoothed",
+            "implied_team_total",
+            "is_cold_start",
+            "is_dome",
+            "is_home",
+            "net_rest_diff",
+            "neutral_pass_rate_l6",
+            "qb_cpoe_l6",
+            "ref_flags_prior",
+            "rz20_targets_smoothed",
+            "salary",
+            "salary_delta_wow",
+            "separation_l4",
+            "snap_share_l4",
+            "spread",
+            "stacked_box_l4",
+            "target_share_l4",
+            "team_vacated_carry_share",
+            "team_vacated_target_share",
+            "top_cb_out",
+            "wopr_l4",
+            "position"
+          ],
+          "metadata_matches_serialized_features": false,
+          "vendor_features": []
+        },
+        {
+          "label": "comp_targets__tail_k1_role",
+          "week": "2026-W33",
+          "metadata_uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_targets__tail_k1_role/2026-W33/meta.json",
+          "metadata_generation": 1786371716393371,
+          "metadata_sha256": "71b7b14350f8bcb809a4996a14d63e24f593560bdc2736d5e89aa7b61b82a989",
+          "model_generation": 1786371716240777,
+          "model_sha256": "bfbef5a0fcb3ad6ef84c5ed21784ee8672051b707ea36712a3ccc15259259b90",
+          "features": [
+            "body_clock_hour",
+            "carry_share_jump",
+            "carry_share_l4",
+            "carry_share_last",
+            "cb_comp_rate_allowed_l6",
+            "cb_ypt_allowed_l6",
+            "db_ypt_allowed_l6",
+            "deep_targets_l4",
+            "depth_rank",
+            "dk_points_l4",
+            "dk_points_std",
+            "dk_points_vol",
+            "expected_game_script",
+            "ez_targets_l4",
+            "game_total",
+            "games_played_prior",
+            "gl3_carries_smoothed",
+            "implied_team_total",
+            "is_cold_start",
+            "is_dome",
+            "is_home",
+            "net_rest_diff",
+            "neutral_pass_rate_l6",
+            "qb_cpoe_l6",
+            "ref_flags_prior",
+            "rz20_targets_smoothed",
+            "salary",
+            "salary_delta_wow",
+            "separation_l4",
+            "snap_share_jump",
+            "snap_share_l4",
+            "snap_share_last",
+            "spread",
+            "stacked_box_l4",
+            "target_share_jump",
+            "target_share_l4",
+            "target_share_last",
+            "team_vacated_carry_share",
+            "team_vacated_target_share",
+            "top_cb_out",
+            "wopr_l4",
+            "position"
+          ],
+          "metadata_matches_serialized_features": true,
+          "vendor_features": []
+        },
+        {
+          "label": "comp_targets__tail_k1_route",
+          "week": "2026-W33",
+          "metadata_uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_targets__tail_k1_route/2026-W33/meta.json",
+          "metadata_generation": 1786473067085502,
+          "metadata_sha256": "6a0d71755b5abea4a15ba7411dc7da4f1d6d0af2c1a29cc9aadea746cb82308d",
+          "model_generation": 1786473066926748,
+          "model_sha256": "f5601d8b2dfb1860c66681e9eb28a28697e63b65887e04fc5a87a90c038c661a",
+          "features": [
+            "body_clock_hour",
+            "carry_share_l4",
+            "cb_comp_rate_allowed_l6",
+            "cb_ypt_allowed_l6",
+            "db_ypt_allowed_l6",
+            "deep_targets_l4",
+            "depth_rank",
+            "dk_points_l4",
+            "dk_points_std",
+            "dk_points_vol",
+            "expected_game_script",
+            "ez_targets_l4",
+            "fp_route_cross_season",
+            "fp_route_share_jump",
+            "fp_route_share_l4",
+            "fp_route_share_last",
+            "game_total",
+            "games_played_prior",
+            "gl3_carries_smoothed",
+            "implied_team_total",
+            "is_cold_start",
+            "is_dome",
+            "is_home",
+            "net_rest_diff",
+            "neutral_pass_rate_l6",
+            "qb_cpoe_l6",
+            "ref_flags_prior",
+            "rz20_targets_smoothed",
+            "salary",
+            "salary_delta_wow",
+            "separation_l4",
+            "snap_share_l4",
+            "spread",
+            "stacked_box_l4",
+            "target_share_l4",
+            "team_vacated_carry_share",
+            "team_vacated_target_share",
+            "top_cb_out",
+            "wopr_l4",
+            "position"
+          ],
+          "metadata_matches_serialized_features": true,
+          "vendor_features": [
+            "fp_route_cross_season",
+            "fp_route_share_jump",
+            "fp_route_share_l4",
+            "fp_route_share_last"
+          ]
+        },
+        {
+          "label": "comp_ypa__tail_k1",
+          "week": "2026-W32",
+          "metadata_uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_ypa__tail_k1/2026-W32/meta.json",
+          "metadata_generation": 1786275612907921,
+          "metadata_sha256": "45e0434747d05dce704f86fc4c22de2777dda436b570db02b6b535c444ab6ead",
+          "model_generation": 1786275612611116,
+          "model_sha256": "9832482dda4b8622971ab79223b5751ac118dcb89f477f3ffed642d39a3a0211",
+          "features": [
+            "body_clock_hour",
+            "carry_share_l4",
+            "cb_comp_rate_allowed_l6",
+            "cb_ypt_allowed_l6",
+            "db_ypt_allowed_l6",
+            "deep_targets_l4",
+            "depth_rank",
+            "dk_points_l4",
+            "dk_points_std",
+            "dk_points_vol",
+            "expected_game_script",
+            "ez_targets_l4",
+            "game_total",
+            "games_played_prior",
+            "gl3_carries_smoothed",
+            "implied_team_total",
+            "is_cold_start",
+            "is_dome",
+            "is_home",
+            "net_rest_diff",
+            "neutral_pass_rate_l6",
+            "qb_cpoe_l6",
+            "ref_flags_prior",
+            "rz20_targets_smoothed",
+            "salary",
+            "salary_delta_wow",
+            "separation_l4",
+            "snap_share_l4",
+            "spread",
+            "stacked_box_l4",
+            "target_share_l4",
+            "team_vacated_carry_share",
+            "team_vacated_target_share",
+            "top_cb_out",
+            "wopr_l4",
+            "position"
+          ],
+          "metadata_matches_serialized_features": false,
+          "vendor_features": []
+        },
+        {
+          "label": "comp_ypa__tail_k1_role",
+          "week": "2026-W33",
+          "metadata_uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_ypa__tail_k1_role/2026-W33/meta.json",
+          "metadata_generation": 1786371719500768,
+          "metadata_sha256": "eb96602d29cd4b80f270206286598185a7c3688885b16e922911bc1abfed3362",
+          "model_generation": 1786371719356885,
+          "model_sha256": "de017709f37c896e66e584557d507a67c51ac57b3c619625cbd7bfd8efbb0b44",
+          "features": [
+            "body_clock_hour",
+            "carry_share_jump",
+            "carry_share_l4",
+            "carry_share_last",
+            "cb_comp_rate_allowed_l6",
+            "cb_ypt_allowed_l6",
+            "db_ypt_allowed_l6",
+            "deep_targets_l4",
+            "depth_rank",
+            "dk_points_l4",
+            "dk_points_std",
+            "dk_points_vol",
+            "expected_game_script",
+            "ez_targets_l4",
+            "game_total",
+            "games_played_prior",
+            "gl3_carries_smoothed",
+            "implied_team_total",
+            "is_cold_start",
+            "is_dome",
+            "is_home",
+            "net_rest_diff",
+            "neutral_pass_rate_l6",
+            "qb_cpoe_l6",
+            "ref_flags_prior",
+            "rz20_targets_smoothed",
+            "salary",
+            "salary_delta_wow",
+            "separation_l4",
+            "snap_share_jump",
+            "snap_share_l4",
+            "snap_share_last",
+            "spread",
+            "stacked_box_l4",
+            "target_share_jump",
+            "target_share_l4",
+            "target_share_last",
+            "team_vacated_carry_share",
+            "team_vacated_target_share",
+            "top_cb_out",
+            "wopr_l4",
+            "position"
+          ],
+          "metadata_matches_serialized_features": true,
+          "vendor_features": []
+        },
+        {
+          "label": "comp_ypa__tail_k1_route",
+          "week": "2026-W33",
+          "metadata_uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_ypa__tail_k1_route/2026-W33/meta.json",
+          "metadata_generation": 1786473070175590,
+          "metadata_sha256": "14cad4981c0c289d5f9621676412589bcea8e8fc5a069109155dfba935dfbb53",
+          "model_generation": 1786473070034247,
+          "model_sha256": "ec43ce7272c988fff4fc0c0d6a2abf2665e5071e45be37e6079a18ef16d921b2",
+          "features": [
+            "body_clock_hour",
+            "carry_share_l4",
+            "cb_comp_rate_allowed_l6",
+            "cb_ypt_allowed_l6",
+            "db_ypt_allowed_l6",
+            "deep_targets_l4",
+            "depth_rank",
+            "dk_points_l4",
+            "dk_points_std",
+            "dk_points_vol",
+            "expected_game_script",
+            "ez_targets_l4",
+            "fp_route_cross_season",
+            "fp_route_share_jump",
+            "fp_route_share_l4",
+            "fp_route_share_last",
+            "game_total",
+            "games_played_prior",
+            "gl3_carries_smoothed",
+            "implied_team_total",
+            "is_cold_start",
+            "is_dome",
+            "is_home",
+            "net_rest_diff",
+            "neutral_pass_rate_l6",
+            "qb_cpoe_l6",
+            "ref_flags_prior",
+            "rz20_targets_smoothed",
+            "salary",
+            "salary_delta_wow",
+            "separation_l4",
+            "snap_share_l4",
+            "spread",
+            "stacked_box_l4",
+            "target_share_l4",
+            "team_vacated_carry_share",
+            "team_vacated_target_share",
+            "top_cb_out",
+            "wopr_l4",
+            "position"
+          ],
+          "metadata_matches_serialized_features": true,
+          "vendor_features": [
+            "fp_route_cross_season",
+            "fp_route_share_jump",
+            "fp_route_share_l4",
+            "fp_route_share_last"
+          ]
+        },
+        {
+          "label": "comp_ypc__tail_k1",
+          "week": "2026-W32",
+          "metadata_uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_ypc__tail_k1/2026-W32/meta.json",
+          "metadata_generation": 1786275611780979,
+          "metadata_sha256": "b53279510296e72f25dca6447ee07dad34a15e201cf561b92c4a06a3a6dd951f",
+          "model_generation": 1786275611651179,
+          "model_sha256": "0dc5c76215831cc9871cc0e76c3438f2bc632898710a0bba61b7e90a9db03d46",
+          "features": [
+            "body_clock_hour",
+            "carry_share_l4",
+            "cb_comp_rate_allowed_l6",
+            "cb_ypt_allowed_l6",
+            "db_ypt_allowed_l6",
+            "deep_targets_l4",
+            "depth_rank",
+            "dk_points_l4",
+            "dk_points_std",
+            "dk_points_vol",
+            "expected_game_script",
+            "ez_targets_l4",
+            "game_total",
+            "games_played_prior",
+            "gl3_carries_smoothed",
+            "implied_team_total",
+            "is_cold_start",
+            "is_dome",
+            "is_home",
+            "net_rest_diff",
+            "neutral_pass_rate_l6",
+            "qb_cpoe_l6",
+            "ref_flags_prior",
+            "rz20_targets_smoothed",
+            "salary",
+            "salary_delta_wow",
+            "separation_l4",
+            "snap_share_l4",
+            "spread",
+            "stacked_box_l4",
+            "target_share_l4",
+            "team_vacated_carry_share",
+            "team_vacated_target_share",
+            "top_cb_out",
+            "wopr_l4",
+            "position"
+          ],
+          "metadata_matches_serialized_features": false,
+          "vendor_features": []
+        },
+        {
+          "label": "comp_ypc__tail_k1_role",
+          "week": "2026-W33",
+          "metadata_uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_ypc__tail_k1_role/2026-W33/meta.json",
+          "metadata_generation": 1786371718289288,
+          "metadata_sha256": "868aa6702d891f34e2e72feb447688ae06260943a211ad4a4e5eef986a42e575",
+          "model_generation": 1786371718147664,
+          "model_sha256": "8cc9aa792a42fe85af1eb86b1a831119107d44886b6e0755fcfcd0f8bede6e91",
+          "features": [
+            "body_clock_hour",
+            "carry_share_jump",
+            "carry_share_l4",
+            "carry_share_last",
+            "cb_comp_rate_allowed_l6",
+            "cb_ypt_allowed_l6",
+            "db_ypt_allowed_l6",
+            "deep_targets_l4",
+            "depth_rank",
+            "dk_points_l4",
+            "dk_points_std",
+            "dk_points_vol",
+            "expected_game_script",
+            "ez_targets_l4",
+            "game_total",
+            "games_played_prior",
+            "gl3_carries_smoothed",
+            "implied_team_total",
+            "is_cold_start",
+            "is_dome",
+            "is_home",
+            "net_rest_diff",
+            "neutral_pass_rate_l6",
+            "qb_cpoe_l6",
+            "ref_flags_prior",
+            "rz20_targets_smoothed",
+            "salary",
+            "salary_delta_wow",
+            "separation_l4",
+            "snap_share_jump",
+            "snap_share_l4",
+            "snap_share_last",
+            "spread",
+            "stacked_box_l4",
+            "target_share_jump",
+            "target_share_l4",
+            "target_share_last",
+            "team_vacated_carry_share",
+            "team_vacated_target_share",
+            "top_cb_out",
+            "wopr_l4",
+            "position"
+          ],
+          "metadata_matches_serialized_features": true,
+          "vendor_features": []
+        },
+        {
+          "label": "comp_ypc__tail_k1_route",
+          "week": "2026-W33",
+          "metadata_uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_ypc__tail_k1_route/2026-W33/meta.json",
+          "metadata_generation": 1786473068987381,
+          "metadata_sha256": "ff4e595433e9d8078ba5160287bbc78d5875ac3ae41b402d509dd94d2cf438c2",
+          "model_generation": 1786473068832986,
+          "model_sha256": "22d85c2d50fdb1f72a846e70d9d75ff2cec5717da646da8d302239e3a735698c",
+          "features": [
+            "body_clock_hour",
+            "carry_share_l4",
+            "cb_comp_rate_allowed_l6",
+            "cb_ypt_allowed_l6",
+            "db_ypt_allowed_l6",
+            "deep_targets_l4",
+            "depth_rank",
+            "dk_points_l4",
+            "dk_points_std",
+            "dk_points_vol",
+            "expected_game_script",
+            "ez_targets_l4",
+            "fp_route_cross_season",
+            "fp_route_share_jump",
+            "fp_route_share_l4",
+            "fp_route_share_last",
+            "game_total",
+            "games_played_prior",
+            "gl3_carries_smoothed",
+            "implied_team_total",
+            "is_cold_start",
+            "is_dome",
+            "is_home",
+            "net_rest_diff",
+            "neutral_pass_rate_l6",
+            "qb_cpoe_l6",
+            "ref_flags_prior",
+            "rz20_targets_smoothed",
+            "salary",
+            "salary_delta_wow",
+            "separation_l4",
+            "snap_share_l4",
+            "spread",
+            "stacked_box_l4",
+            "target_share_l4",
+            "team_vacated_carry_share",
+            "team_vacated_target_share",
+            "top_cb_out",
+            "wopr_l4",
+            "position"
+          ],
+          "metadata_matches_serialized_features": true,
+          "vendor_features": [
+            "fp_route_cross_season",
+            "fp_route_share_jump",
+            "fp_route_share_l4",
+            "fp_route_share_last"
+          ]
+        },
+        {
+          "label": "comp_ypr__tail_k1",
+          "week": "2026-W32",
+          "metadata_uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_ypr__tail_k1/2026-W32/meta.json",
+          "metadata_generation": 1786275610799753,
+          "metadata_sha256": "3830326d20b01835fd65236fc22fc88a32cd91aeac19dcb13c8a1a05476837f6",
+          "model_generation": 1786275610661872,
+          "model_sha256": "b5cf5c7dda5bfe2737d477b12a8974916e9b80ef15652a3d1f7618bbc1399226",
+          "features": [
+            "body_clock_hour",
+            "carry_share_l4",
+            "cb_comp_rate_allowed_l6",
+            "cb_ypt_allowed_l6",
+            "db_ypt_allowed_l6",
+            "deep_targets_l4",
+            "depth_rank",
+            "dk_points_l4",
+            "dk_points_std",
+            "dk_points_vol",
+            "expected_game_script",
+            "ez_targets_l4",
+            "game_total",
+            "games_played_prior",
+            "gl3_carries_smoothed",
+            "implied_team_total",
+            "is_cold_start",
+            "is_dome",
+            "is_home",
+            "net_rest_diff",
+            "neutral_pass_rate_l6",
+            "qb_cpoe_l6",
+            "ref_flags_prior",
+            "rz20_targets_smoothed",
+            "salary",
+            "salary_delta_wow",
+            "separation_l4",
+            "snap_share_l4",
+            "spread",
+            "stacked_box_l4",
+            "target_share_l4",
+            "team_vacated_carry_share",
+            "team_vacated_target_share",
+            "top_cb_out",
+            "wopr_l4",
+            "position"
+          ],
+          "metadata_matches_serialized_features": false,
+          "vendor_features": []
+        },
+        {
+          "label": "comp_ypr__tail_k1_role",
+          "week": "2026-W33",
+          "metadata_uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_ypr__tail_k1_role/2026-W33/meta.json",
+          "metadata_generation": 1786371717091928,
+          "metadata_sha256": "90761716dc6bfaf2940f2a7698c2e2bdccf4ed49bbb00fd46bc30de3a53c9af8",
+          "model_generation": 1786371716937027,
+          "model_sha256": "80352862d7ce9c4cf2907a34ad3d7e9b46cf7fe6bae07c802f531af7a1566e46",
+          "features": [
+            "body_clock_hour",
+            "carry_share_jump",
+            "carry_share_l4",
+            "carry_share_last",
+            "cb_comp_rate_allowed_l6",
+            "cb_ypt_allowed_l6",
+            "db_ypt_allowed_l6",
+            "deep_targets_l4",
+            "depth_rank",
+            "dk_points_l4",
+            "dk_points_std",
+            "dk_points_vol",
+            "expected_game_script",
+            "ez_targets_l4",
+            "game_total",
+            "games_played_prior",
+            "gl3_carries_smoothed",
+            "implied_team_total",
+            "is_cold_start",
+            "is_dome",
+            "is_home",
+            "net_rest_diff",
+            "neutral_pass_rate_l6",
+            "qb_cpoe_l6",
+            "ref_flags_prior",
+            "rz20_targets_smoothed",
+            "salary",
+            "salary_delta_wow",
+            "separation_l4",
+            "snap_share_jump",
+            "snap_share_l4",
+            "snap_share_last",
+            "spread",
+            "stacked_box_l4",
+            "target_share_jump",
+            "target_share_l4",
+            "target_share_last",
+            "team_vacated_carry_share",
+            "team_vacated_target_share",
+            "top_cb_out",
+            "wopr_l4",
+            "position"
+          ],
+          "metadata_matches_serialized_features": true,
+          "vendor_features": []
+        },
+        {
+          "label": "comp_ypr__tail_k1_route",
+          "week": "2026-W33",
+          "metadata_uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_ypr__tail_k1_route/2026-W33/meta.json",
+          "metadata_generation": 1786473067854416,
+          "metadata_sha256": "4a84ee4a59e67391f706116f4d1a577f26d5210fea31ea0f8e865a7f8d212647",
+          "model_generation": 1786473067695192,
+          "model_sha256": "6580009b75feb0ddb5ba9b5044dcb78be463463ff05490b8d2dae3a5b7920119",
+          "features": [
+            "body_clock_hour",
+            "carry_share_l4",
+            "cb_comp_rate_allowed_l6",
+            "cb_ypt_allowed_l6",
+            "db_ypt_allowed_l6",
+            "deep_targets_l4",
+            "depth_rank",
+            "dk_points_l4",
+            "dk_points_std",
+            "dk_points_vol",
+            "expected_game_script",
+            "ez_targets_l4",
+            "fp_route_cross_season",
+            "fp_route_share_jump",
+            "fp_route_share_l4",
+            "fp_route_share_last",
+            "game_total",
+            "games_played_prior",
+            "gl3_carries_smoothed",
+            "implied_team_total",
+            "is_cold_start",
+            "is_dome",
+            "is_home",
+            "net_rest_diff",
+            "neutral_pass_rate_l6",
+            "qb_cpoe_l6",
+            "ref_flags_prior",
+            "rz20_targets_smoothed",
+            "salary",
+            "salary_delta_wow",
+            "separation_l4",
+            "snap_share_l4",
+            "spread",
+            "stacked_box_l4",
+            "target_share_l4",
+            "team_vacated_carry_share",
+            "team_vacated_target_share",
+            "top_cb_out",
+            "wopr_l4",
+            "position"
+          ],
+          "metadata_matches_serialized_features": true,
+          "vendor_features": [
+            "fp_route_cross_season",
+            "fp_route_share_jump",
+            "fp_route_share_l4",
+            "fp_route_share_last"
+          ]
+        }
+      ],
+      "note": "Features only; validation metrics and model predictions not exposed. Latest registry objects are not proof a specific past book loaded them."
+    },
+    "warehouse_schema": {
+      "query": "SELECT table_name,column_name,data_type FROM `nfl-predictions-503414.nfl_raw.INFORMATION_SCHEMA.COLUMNS` WHERE STARTS_WITH(table_name,'fantasy_points_') OR STARTS_WITH(table_name,'sis_') ORDER BY table_name,ordinal_position",
+      "job_id": "a1d9b7fd-bc88-4636-8710-900a936c818f",
+      "bytes_processed": 10485760,
+      "tables": {
+        "fantasy_points_advanced_passing_l4": [
+          {
+            "name": "season",
+            "type": "INT64"
+          },
+          {
+            "name": "target_week",
+            "type": "INT64"
+          },
+          {
+            "name": "source_week_start",
+            "type": "INT64"
+          },
+          {
+            "name": "source_week_end",
+            "type": "INT64"
+          },
+          {
+            "name": "gsis_id",
+            "type": "STRING"
+          },
+          {
+            "name": "resolution_status",
+            "type": "STRING"
+          },
+          {
+            "name": "vendor_name",
+            "type": "STRING"
+          },
+          {
+            "name": "normalized_name",
+            "type": "STRING"
+          },
+          {
+            "name": "vendor_team",
+            "type": "STRING"
+          },
+          {
+            "name": "canonical_teams",
+            "type": "STRING"
+          },
+          {
+            "name": "pos",
+            "type": "STRING"
+          },
+          {
+            "name": "games",
+            "type": "INT64"
+          },
+          {
+            "name": "dropbacks",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "fp_pass_l4_supported",
+            "type": "BOOL"
+          },
+          {
+            "name": "source_run_id",
+            "type": "STRING"
+          },
+          {
+            "name": "source_file",
+            "type": "STRING"
+          },
+          {
+            "name": "source_sha256",
+            "type": "STRING"
+          },
+          {
+            "name": "source_row",
+            "type": "INT64"
+          },
+          {
+            "name": "fp_pass_l4_cpoe",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "fp_pass_l4_adot",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "fp_pass_l4_deep_throw_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "fp_pass_l4_yac_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "fp_pass_l4_adjusted_completion_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "fp_pass_l4_first_read_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "fp_pass_l4_accuracy_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "fp_pass_l4_catchable_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "fp_pass_l4_off_target_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "fp_pass_l4_hero_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "fp_pass_l4_twt_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "fp_pass_l4_drop_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "fp_pass_l4_time_to_throw",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "fp_pass_l4_time_to_pressure",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "fp_pass_l4_time_to_sack",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "fp_pass_l4_time_to_scramble",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "fp_pass_l4_pressure_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "fp_pass_l4_pressure_sack_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "fp_pass_l4_pressure_rate_over_expected",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "fp_pass_l4_checkdown_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "fp_pass_l4_rpo_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "fp_pass_l4_scramble_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "ingested_at",
+            "type": "TIMESTAMP"
+          }
+        ],
+        "fantasy_points_advanced_prior": [
+          {
+            "name": "season",
+            "type": "INT64"
+          },
+          {
+            "name": "family",
+            "type": "STRING"
+          },
+          {
+            "name": "gsis_id",
+            "type": "STRING"
+          },
+          {
+            "name": "resolution_status",
+            "type": "STRING"
+          },
+          {
+            "name": "vendor_name",
+            "type": "STRING"
+          },
+          {
+            "name": "normalized_name",
+            "type": "STRING"
+          },
+          {
+            "name": "vendor_team",
+            "type": "STRING"
+          },
+          {
+            "name": "canonical_teams",
+            "type": "STRING"
+          },
+          {
+            "name": "vendor_pos",
+            "type": "STRING"
+          },
+          {
+            "name": "pos",
+            "type": "STRING"
+          },
+          {
+            "name": "source_file",
+            "type": "STRING"
+          },
+          {
+            "name": "source_sha256",
+            "type": "STRING"
+          },
+          {
+            "name": "source_row",
+            "type": "INT64"
+          },
+          {
+            "name": "source_rows",
+            "type": "STRING"
+          },
+          {
+            "name": "split_duplicate",
+            "type": "BOOL"
+          },
+          {
+            "name": "fp_adv_qb_cpoe",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "fp_adv_qb_adot",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "fp_adv_qb_deep_throw_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "fp_adv_qb_twt_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "fp_adv_qb_pressure_sack_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "fp_adv_rec_tprr",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "fp_adv_rec_adot",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "fp_adv_rec_air_yard_share",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "fp_adv_rec_yprr",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "fp_adv_rec_first_read_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "fp_adv_rec_xfp_per_route",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "fp_adv_rush_i5_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "fp_adv_rush_mtf_per_att",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "fp_adv_rush_yaco_per_att",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "fp_adv_rush_stuff_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "fp_adv_qb_scramble_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "ingested_at",
+            "type": "TIMESTAMP"
+          }
+        ],
+        "fantasy_points_advanced_receiving_windows": [
+          {
+            "name": "season",
+            "type": "INT64"
+          },
+          {
+            "name": "target_week",
+            "type": "INT64"
+          },
+          {
+            "name": "window_type",
+            "type": "STRING"
+          },
+          {
+            "name": "source_week_start",
+            "type": "INT64"
+          },
+          {
+            "name": "source_week_end",
+            "type": "INT64"
+          },
+          {
+            "name": "gsis_id",
+            "type": "STRING"
+          },
+          {
+            "name": "resolution_status",
+            "type": "STRING"
+          },
+          {
+            "name": "vendor_name",
+            "type": "STRING"
+          },
+          {
+            "name": "normalized_name",
+            "type": "STRING"
+          },
+          {
+            "name": "vendor_team",
+            "type": "STRING"
+          },
+          {
+            "name": "canonical_teams",
+            "type": "STRING"
+          },
+          {
+            "name": "pos",
+            "type": "STRING"
+          },
+          {
+            "name": "games",
+            "type": "INT64"
+          },
+          {
+            "name": "routes",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "split_duplicate",
+            "type": "BOOL"
+          },
+          {
+            "name": "source_run_id",
+            "type": "STRING"
+          },
+          {
+            "name": "source_file",
+            "type": "STRING"
+          },
+          {
+            "name": "source_sha256",
+            "type": "STRING"
+          },
+          {
+            "name": "source_rows",
+            "type": "STRING"
+          },
+          {
+            "name": "fp_adv_rec_tprr",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "fp_adv_rec_adot",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "fp_adv_rec_air_yard_share",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "fp_adv_rec_yprr",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "fp_adv_rec_first_read_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "fp_adv_rec_xfp_per_route",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "ingested_at",
+            "type": "TIMESTAMP"
+          }
+        ],
+        "fantasy_points_alignment_player_l4": [
+          {
+            "name": "season",
+            "type": "INT64"
+          },
+          {
+            "name": "target_week",
+            "type": "INT64"
+          },
+          {
+            "name": "source_week_start",
+            "type": "INT64"
+          },
+          {
+            "name": "source_week_end",
+            "type": "INT64"
+          },
+          {
+            "name": "gsis_id",
+            "type": "STRING"
+          },
+          {
+            "name": "resolution_status",
+            "type": "STRING"
+          },
+          {
+            "name": "normalized_name",
+            "type": "STRING"
+          },
+          {
+            "name": "vendor_name",
+            "type": "STRING"
+          },
+          {
+            "name": "team",
+            "type": "STRING"
+          },
+          {
+            "name": "canonical_teams",
+            "type": "STRING"
+          },
+          {
+            "name": "position",
+            "type": "STRING"
+          },
+          {
+            "name": "games",
+            "type": "INT64"
+          },
+          {
+            "name": "split_duplicate",
+            "type": "BOOL"
+          },
+          {
+            "name": "overall_routes",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "wide_routes",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "slot_routes",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "inline_routes",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "wide_slot_routes",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "player_wide_share",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "alignment_supported",
+            "type": "BOOL"
+          },
+          {
+            "name": "source_run_id",
+            "type": "STRING"
+          },
+          {
+            "name": "source_file",
+            "type": "STRING"
+          },
+          {
+            "name": "source_sha256",
+            "type": "STRING"
+          },
+          {
+            "name": "source_rows",
+            "type": "STRING"
+          },
+          {
+            "name": "ingested_at",
+            "type": "TIMESTAMP"
+          }
+        ],
+        "fantasy_points_alignment_team_l4": [
+          {
+            "name": "season",
+            "type": "INT64"
+          },
+          {
+            "name": "target_week",
+            "type": "INT64"
+          },
+          {
+            "name": "team",
+            "type": "STRING"
+          },
+          {
+            "name": "wide_routes",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "slot_routes",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "inline_routes",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "player_rows",
+            "type": "INT64"
+          },
+          {
+            "name": "wide_slot_routes",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "offense_wide_share",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "offense_alignment_supported",
+            "type": "BOOL"
+          },
+          {
+            "name": "source_run_id",
+            "type": "STRING"
+          },
+          {
+            "name": "source_sha256",
+            "type": "STRING"
+          },
+          {
+            "name": "ingested_at",
+            "type": "TIMESTAMP"
+          }
+        ],
+        "fantasy_points_defense_coverage_l4": [
+          {
+            "name": "season",
+            "type": "INT64"
+          },
+          {
+            "name": "target_week",
+            "type": "INT64"
+          },
+          {
+            "name": "source_week_start",
+            "type": "INT64"
+          },
+          {
+            "name": "source_week_end",
+            "type": "INT64"
+          },
+          {
+            "name": "team",
+            "type": "STRING"
+          },
+          {
+            "name": "games",
+            "type": "INT64"
+          },
+          {
+            "name": "dropbacks",
+            "type": "INT64"
+          },
+          {
+            "name": "def_man_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "def_zone_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "source_run_id",
+            "type": "STRING"
+          },
+          {
+            "name": "source_file",
+            "type": "STRING"
+          },
+          {
+            "name": "source_sha256",
+            "type": "STRING"
+          },
+          {
+            "name": "source_row",
+            "type": "INT64"
+          },
+          {
+            "name": "ingested_at",
+            "type": "TIMESTAMP"
+          }
+        ],
+        "fantasy_points_defense_coverage_prior": [
+          {
+            "name": "season",
+            "type": "INT64"
+          },
+          {
+            "name": "team",
+            "type": "STRING"
+          },
+          {
+            "name": "vendor_name",
+            "type": "STRING"
+          },
+          {
+            "name": "def_man_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "def_zone_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "def_cover2_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "def_cover3_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "def_cover4_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "def_cover6_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "source_file",
+            "type": "STRING"
+          },
+          {
+            "name": "source_sha256",
+            "type": "STRING"
+          },
+          {
+            "name": "source_row",
+            "type": "INT64"
+          },
+          {
+            "name": "ingested_at",
+            "type": "TIMESTAMP"
+          }
+        ],
+        "fantasy_points_defense_proe": [
+          {
+            "name": "season",
+            "type": "INT64"
+          },
+          {
+            "name": "week",
+            "type": "INT64"
+          },
+          {
+            "name": "team",
+            "type": "STRING"
+          },
+          {
+            "name": "defense_proe_pct",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "defense_proe",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "source_file",
+            "type": "STRING"
+          },
+          {
+            "name": "source_sha256",
+            "type": "STRING"
+          },
+          {
+            "name": "source_row",
+            "type": "INT64"
+          },
+          {
+            "name": "source_run_id",
+            "type": "STRING"
+          },
+          {
+            "name": "ingested_at",
+            "type": "TIMESTAMP"
+          }
+        ],
+        "fantasy_points_qb_shell_l4": [
+          {
+            "name": "season",
+            "type": "INT64"
+          },
+          {
+            "name": "target_week",
+            "type": "INT64"
+          },
+          {
+            "name": "source_week_start",
+            "type": "INT64"
+          },
+          {
+            "name": "source_week_end",
+            "type": "INT64"
+          },
+          {
+            "name": "team",
+            "type": "STRING"
+          },
+          {
+            "name": "off_games",
+            "type": "INT64"
+          },
+          {
+            "name": "off_source_file",
+            "type": "STRING"
+          },
+          {
+            "name": "off_source_sha256",
+            "type": "STRING"
+          },
+          {
+            "name": "off_source_row",
+            "type": "INT64"
+          },
+          {
+            "name": "off_dropbacks",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "off_man_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "off_man_fpdb",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "off_zone_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "off_zone_fpdb",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "off_one_high_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "off_one_high_fpdb",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "off_two_high_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "off_two_high_fpdb",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "def_games",
+            "type": "INT64"
+          },
+          {
+            "name": "def_source_file",
+            "type": "STRING"
+          },
+          {
+            "name": "def_source_sha256",
+            "type": "STRING"
+          },
+          {
+            "name": "def_source_row",
+            "type": "INT64"
+          },
+          {
+            "name": "def_dropbacks",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "def_man_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "def_man_fpdb",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "def_zone_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "def_zone_fpdb",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "def_one_high_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "def_one_high_fpdb",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "def_two_high_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "def_two_high_fpdb",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "offense_source_run_id",
+            "type": "STRING"
+          },
+          {
+            "name": "defense_source_run_id",
+            "type": "STRING"
+          },
+          {
+            "name": "source_run_id",
+            "type": "STRING"
+          },
+          {
+            "name": "ingested_at",
+            "type": "TIMESTAMP"
+          }
+        ],
+        "fantasy_points_receiver_coverage_l4": [
+          {
+            "name": "season",
+            "type": "INT64"
+          },
+          {
+            "name": "target_week",
+            "type": "INT64"
+          },
+          {
+            "name": "source_week_start",
+            "type": "INT64"
+          },
+          {
+            "name": "source_week_end",
+            "type": "INT64"
+          },
+          {
+            "name": "gsis_id",
+            "type": "STRING"
+          },
+          {
+            "name": "resolution_status",
+            "type": "STRING"
+          },
+          {
+            "name": "vendor_name",
+            "type": "STRING"
+          },
+          {
+            "name": "normalized_name",
+            "type": "STRING"
+          },
+          {
+            "name": "vendor_team",
+            "type": "STRING"
+          },
+          {
+            "name": "canonical_teams",
+            "type": "STRING"
+          },
+          {
+            "name": "pos",
+            "type": "STRING"
+          },
+          {
+            "name": "split_duplicate",
+            "type": "BOOL"
+          },
+          {
+            "name": "fp_cov_l4_supported",
+            "type": "BOOL"
+          },
+          {
+            "name": "source_run_id",
+            "type": "STRING"
+          },
+          {
+            "name": "man_zone_source_file",
+            "type": "STRING"
+          },
+          {
+            "name": "man_zone_source_sha256",
+            "type": "STRING"
+          },
+          {
+            "name": "separation_source_file",
+            "type": "STRING"
+          },
+          {
+            "name": "separation_source_sha256",
+            "type": "STRING"
+          },
+          {
+            "name": "man_zone_source_rows",
+            "type": "STRING"
+          },
+          {
+            "name": "separation_source_rows",
+            "type": "STRING"
+          },
+          {
+            "name": "overall_routes",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "overall_tprr",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "overall_yprr",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "overall_fprr",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "man_routes",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "man_tprr",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "man_yprr",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "man_fprr",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "zone_routes",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "zone_tprr",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "zone_yprr",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "zone_fprr",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "overall_sep",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "man_sep",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "zone_sep",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "sep_overall_routes",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "sep_man_routes",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "sep_zone_routes",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "ingested_at",
+            "type": "TIMESTAMP"
+          }
+        ],
+        "fantasy_points_receiver_coverage_prior": [
+          {
+            "name": "season",
+            "type": "INT64"
+          },
+          {
+            "name": "gsis_id",
+            "type": "STRING"
+          },
+          {
+            "name": "resolution_status",
+            "type": "STRING"
+          },
+          {
+            "name": "vendor_name",
+            "type": "STRING"
+          },
+          {
+            "name": "normalized_name",
+            "type": "STRING"
+          },
+          {
+            "name": "vendor_team",
+            "type": "STRING"
+          },
+          {
+            "name": "canonical_teams",
+            "type": "STRING"
+          },
+          {
+            "name": "vendor_pos",
+            "type": "STRING"
+          },
+          {
+            "name": "pos",
+            "type": "STRING"
+          },
+          {
+            "name": "split_duplicate",
+            "type": "BOOL"
+          },
+          {
+            "name": "man_zone_source_file",
+            "type": "STRING"
+          },
+          {
+            "name": "man_zone_source_sha256",
+            "type": "STRING"
+          },
+          {
+            "name": "separation_source_file",
+            "type": "STRING"
+          },
+          {
+            "name": "separation_source_sha256",
+            "type": "STRING"
+          },
+          {
+            "name": "man_zone_source_rows",
+            "type": "STRING"
+          },
+          {
+            "name": "separation_source_rows",
+            "type": "STRING"
+          },
+          {
+            "name": "overall_routes",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "overall_tprr",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "overall_yprr",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "overall_fprr",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "man_routes",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "man_tprr",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "man_yprr",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "man_fprr",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "zone_routes",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "zone_tprr",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "zone_yprr",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "zone_fprr",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "zone_sep",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "cover2_routes",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "cover2_sep",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "cover3_routes",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "cover3_sep",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "cover4_routes",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "cover4_sep",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "cover6_routes",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "cover6_sep",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "ingested_at",
+            "type": "TIMESTAMP"
+          }
+        ],
+        "fantasy_points_route_shape_l4": [
+          {
+            "name": "season",
+            "type": "INT64"
+          },
+          {
+            "name": "target_week",
+            "type": "INT64"
+          },
+          {
+            "name": "source_week_start",
+            "type": "INT64"
+          },
+          {
+            "name": "source_week_end",
+            "type": "INT64"
+          },
+          {
+            "name": "gsis_id",
+            "type": "STRING"
+          },
+          {
+            "name": "resolution_status",
+            "type": "STRING"
+          },
+          {
+            "name": "vendor_name",
+            "type": "STRING"
+          },
+          {
+            "name": "normalized_name",
+            "type": "STRING"
+          },
+          {
+            "name": "vendor_team",
+            "type": "STRING"
+          },
+          {
+            "name": "canonical_teams",
+            "type": "STRING"
+          },
+          {
+            "name": "pos",
+            "type": "STRING"
+          },
+          {
+            "name": "games",
+            "type": "INT64"
+          },
+          {
+            "name": "split_duplicate",
+            "type": "BOOL"
+          },
+          {
+            "name": "overall_routes",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "horizontal_routes",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "vertical_routes",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "static_routes",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "shallow_routes",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "backfield_routes",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "fp_route_shape_l4_horizontal_share",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "fp_route_shape_l4_vertical_share",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "fp_route_shape_l4_static_share",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "fp_route_shape_l4_shallow_share",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "fp_route_shape_l4_backfield_share",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "fp_route_shape_l4_partition_valid",
+            "type": "BOOL"
+          },
+          {
+            "name": "fp_route_shape_l4_supported",
+            "type": "BOOL"
+          },
+          {
+            "name": "source_run_id",
+            "type": "STRING"
+          },
+          {
+            "name": "source_file",
+            "type": "STRING"
+          },
+          {
+            "name": "source_sha256",
+            "type": "STRING"
+          },
+          {
+            "name": "source_rows",
+            "type": "STRING"
+          },
+          {
+            "name": "ingested_at",
+            "type": "TIMESTAMP"
+          }
+        ],
+        "fantasy_points_route_share": [
+          {
+            "name": "season",
+            "type": "INT64"
+          },
+          {
+            "name": "week",
+            "type": "INT64"
+          },
+          {
+            "name": "gsis_id",
+            "type": "STRING"
+          },
+          {
+            "name": "resolution_status",
+            "type": "STRING"
+          },
+          {
+            "name": "vendor_name",
+            "type": "STRING"
+          },
+          {
+            "name": "normalized_name",
+            "type": "STRING"
+          },
+          {
+            "name": "vendor_team",
+            "type": "STRING"
+          },
+          {
+            "name": "canonical_teams",
+            "type": "STRING"
+          },
+          {
+            "name": "vendor_pos",
+            "type": "STRING"
+          },
+          {
+            "name": "pos",
+            "type": "STRING"
+          },
+          {
+            "name": "route_share_pct",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "route_share",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "source_file",
+            "type": "STRING"
+          },
+          {
+            "name": "source_sha256",
+            "type": "STRING"
+          },
+          {
+            "name": "source_row",
+            "type": "INT64"
+          },
+          {
+            "name": "source_target_week",
+            "type": "INT64"
+          },
+          {
+            "name": "source_retrieved_at",
+            "type": "TIMESTAMP"
+          },
+          {
+            "name": "source_run_id",
+            "type": "STRING"
+          },
+          {
+            "name": "archive_uri",
+            "type": "STRING"
+          },
+          {
+            "name": "ingested_at",
+            "type": "TIMESTAMP"
+          }
+        ],
+        "sis_alignment_attempt_game": [
+          {
+            "name": "season",
+            "type": "INT64"
+          },
+          {
+            "name": "week",
+            "type": "INT64"
+          },
+          {
+            "name": "defense",
+            "type": "STRING"
+          },
+          {
+            "name": "offense",
+            "type": "STRING"
+          },
+          {
+            "name": "team_id",
+            "type": "INT64"
+          },
+          {
+            "name": "alignment",
+            "type": "STRING"
+          },
+          {
+            "name": "attempts",
+            "type": "INT64"
+          },
+          {
+            "name": "source_sha256",
+            "type": "STRING"
+          },
+          {
+            "name": "source_run_id",
+            "type": "STRING"
+          },
+          {
+            "name": "ingested_at",
+            "type": "TIMESTAMP"
+          }
+        ],
+        "sis_receiver_copula_defense_prior": [
+          {
+            "name": "season",
+            "type": "INT64"
+          },
+          {
+            "name": "target_week",
+            "type": "INT64"
+          },
+          {
+            "name": "defense",
+            "type": "STRING"
+          },
+          {
+            "name": "offense",
+            "type": "STRING"
+          },
+          {
+            "name": "alignment",
+            "type": "STRING"
+          },
+          {
+            "name": "prior_games",
+            "type": "INT64"
+          },
+          {
+            "name": "coverage_snaps",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "targets",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "completions",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "yards",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "touchdowns",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "source_first_season",
+            "type": "INT64"
+          },
+          {
+            "name": "source_first_week",
+            "type": "INT64"
+          },
+          {
+            "name": "source_last_season",
+            "type": "INT64"
+          },
+          {
+            "name": "source_last_week",
+            "type": "INT64"
+          },
+          {
+            "name": "base_supported",
+            "type": "BOOL"
+          },
+          {
+            "name": "vulnerability",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "league_target_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "league_points_per_target",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "coverage_prior_size",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "target_prior_size",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "context_supported",
+            "type": "BOOL"
+          },
+          {
+            "name": "source_run_id",
+            "type": "STRING"
+          },
+          {
+            "name": "source_sha256",
+            "type": "STRING"
+          },
+          {
+            "name": "ingested_at",
+            "type": "TIMESTAMP"
+          }
+        ],
+        "sis_receiver_copula_player_game": [
+          {
+            "name": "season",
+            "type": "INT64"
+          },
+          {
+            "name": "week",
+            "type": "INT64"
+          },
+          {
+            "name": "alignment",
+            "type": "STRING"
+          },
+          {
+            "name": "defender_player_id",
+            "type": "INT64"
+          },
+          {
+            "name": "defender_team_id",
+            "type": "INT64"
+          },
+          {
+            "name": "defender_name",
+            "type": "STRING"
+          },
+          {
+            "name": "defense",
+            "type": "STRING"
+          },
+          {
+            "name": "offense",
+            "type": "STRING"
+          },
+          {
+            "name": "coverage_snaps",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "targets",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "completions",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "yards",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "touchdowns",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "source_sha256",
+            "type": "STRING"
+          },
+          {
+            "name": "source_run_id",
+            "type": "STRING"
+          },
+          {
+            "name": "ingested_at",
+            "type": "TIMESTAMP"
+          }
+        ],
+        "sis_team_context_game": [
+          {
+            "name": "season",
+            "type": "INT64"
+          },
+          {
+            "name": "team_name",
+            "type": "STRING"
+          },
+          {
+            "name": "week",
+            "type": "INT64"
+          },
+          {
+            "name": "opp_name",
+            "type": "STRING"
+          },
+          {
+            "name": "pdef_attempts",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "pdef_catchable",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "pdef_completions",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "pdef_yards",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "pdef_tds",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "pdef_ints",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "pdef_dropped_ints",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "pdef_interception_yards",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "pdef_pass_defenses",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "pdef_intended_air_yards",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "pdef_dpi",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "pdef_dpi_yards",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "team_id",
+            "type": "INT64"
+          },
+          {
+            "name": "source_sha256_pass_defense_totals",
+            "type": "STRING"
+          },
+          {
+            "name": "pdef_value_attempts",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "pdef_points_saved",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "pdef_points_saved_per_play",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "pdef_points_above_average",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "pdef_paa_per_play",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "pdef_epa",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "pdef_epa_per_play",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "pdef_positive_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "pdef_par",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "pdef_war",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "pdef_boom_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "pdef_bust_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "source_sha256_pass_defense_value",
+            "type": "STRING"
+          },
+          {
+            "name": "prush_solo_sacks",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "prush_assist_sacks",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "prush_combined_sacks",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "prush_hurries",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "prush_hits",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "prush_knockdowns",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "prush_pressures",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "prush_pass_deflections",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "prush_passes_batted",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "prush_forced_fumbles",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "prush_fumble_recoveries",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "source_sha256_pass_rush_totals",
+            "type": "STRING"
+          },
+          {
+            "name": "prush_points_saved",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "prush_points_saved_per_play",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "prush_points_above_average",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "prush_paa_per_play",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "prush_positive_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "prush_par",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "prush_war",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "source_sha256_pass_rush_value",
+            "type": "STRING"
+          },
+          {
+            "name": "block_snaps",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "block_blown_blocks",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "block_holds",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "pass_block_snaps",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "pass_block_blown_blocks",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "pass_block_holds",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "run_block_snaps",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "run_block_blown_blocks",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "run_block_holds",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "source_sha256_blocking_totals",
+            "type": "STRING"
+          },
+          {
+            "name": "block_value_snaps",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "block_points_earned",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "block_points_earned_per_play",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "block_points_above_average",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "block_paa_per_play",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "block_par",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "block_war",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "pass_block_value_snaps",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "pass_block_points_earned",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "run_block_value_snaps",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "run_block_points_earned",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "source_sha256_blocking_value",
+            "type": "STRING"
+          },
+          {
+            "name": "team",
+            "type": "STRING"
+          },
+          {
+            "name": "opp",
+            "type": "STRING"
+          },
+          {
+            "name": "opp_team_id",
+            "type": "INT64"
+          },
+          {
+            "name": "game_key",
+            "type": "STRING"
+          },
+          {
+            "name": "source_run_id",
+            "type": "STRING"
+          },
+          {
+            "name": "ingested_at",
+            "type": "TIMESTAMP"
+          }
+        ],
+        "sis_team_run_context_game": [
+          {
+            "name": "season",
+            "type": "INT64"
+          },
+          {
+            "name": "team_name",
+            "type": "STRING"
+          },
+          {
+            "name": "week",
+            "type": "INT64"
+          },
+          {
+            "name": "opp_name",
+            "type": "STRING"
+          },
+          {
+            "name": "pass_dropbacks",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "pass_attempts",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "pass_completions",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "pass_catchable",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "pass_on_target",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "pass_gross_yards",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "pass_net_yards",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "pass_air_yards",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "pass_intended_air_yards",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "pass_tds",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "pass_interceptions",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "pass_sacks",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "pass_pressures",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "team_id",
+            "type": "INT64"
+          },
+          {
+            "name": "source_sha256_passing_totals",
+            "type": "STRING"
+          },
+          {
+            "name": "rush_attempts",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "rush_yards",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "rush_yards_after_contact",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "rush_tds",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "rush_broken_tackles",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "rush_missed_tackles",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "rush_first_downs",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "rush_fumbles",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "rush_fumbles_lost",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "rush_hit_at_line",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "rush_stuffs",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "rush_used_designed_gap",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "source_sha256_rushing_totals",
+            "type": "STRING"
+          },
+          {
+            "name": "rush_value_attempts",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "rush_points_earned",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "rush_points_earned_per_play",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "rush_points_above_average",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "rush_paa_per_play",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "rush_epa",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "rush_epa_per_attempt",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "rush_positive_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "rush_par",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "rush_war",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "rush_boom_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "rush_bust_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "source_sha256_rushing_value",
+            "type": "STRING"
+          },
+          {
+            "name": "rdef_attempts",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "rdef_yards",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "rdef_tds",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "rdef_yards_after_contact",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "rdef_first_downs",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "rdef_tackles_broken",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "rdef_missed_tackles",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "rdef_forced_fumbles",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "rdef_fumble_recoveries",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "rdef_fumble_recovery_tds",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "rdef_stuffs",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "rdef_tackles_for_loss",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "source_sha256_run_defense_totals",
+            "type": "STRING"
+          },
+          {
+            "name": "rdef_points_saved",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "rdef_points_saved_per_play",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "rdef_points_above_average",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "rdef_paa_per_play",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "rdef_epa_per_attempt",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "rdef_positive_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "rdef_par",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "rdef_war",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "rdef_boom_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "rdef_bust_rate",
+            "type": "FLOAT64"
+          },
+          {
+            "name": "source_sha256_run_defense_value",
+            "type": "STRING"
+          },
+          {
+            "name": "team",
+            "type": "STRING"
+          },
+          {
+            "name": "opp",
+            "type": "STRING"
+          },
+          {
+            "name": "opp_team_id",
+            "type": "INT64"
+          },
+          {
+            "name": "game_key",
+            "type": "STRING"
+          },
+          {
+            "name": "source_run_id",
+            "type": "STRING"
+          },
+          {
+            "name": "source_original_plan_sha256",
+            "type": "STRING"
+          },
+          {
+            "name": "source_recovery_plan_sha256",
+            "type": "STRING"
+          },
+          {
+            "name": "source_original_state_sha256",
+            "type": "STRING"
+          },
+          {
+            "name": "source_recovery_state_sha256",
+            "type": "STRING"
+          },
+          {
+            "name": "ingested_at",
+            "type": "TIMESTAMP"
+          }
+        ]
+      }
+    },
+    "shadow_operations": {
+      "execution_metadata": [
+        {
+          "job": "shadow-sis-pass-tail-paired",
+          "executions": [],
+          "error": null
+        },
+        {
+          "job": "shadow-k1-route-roleunion",
+          "executions": [],
+          "error": null
+        }
+      ],
+      "schedulers": [
+        {
+          "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-shadow-k1-route-roleunion-early",
+          "schedule": "20 10 * * 7",
+          "state": "PAUSED",
+          "timeZone": "America/Chicago"
+        },
+        {
+          "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-features-route",
+          "schedule": "30 6 * * 4",
+          "state": "PAUSED",
+          "timeZone": "America/Chicago"
+        },
+        {
+          "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-train-k1-route",
+          "schedule": "30 7 * * 4",
+          "state": "PAUSED",
+          "timeZone": "America/Chicago"
+        },
+        {
+          "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-tabpfn-sis-pass-tail-control",
+          "schedule": "15 9 * * 4",
+          "state": "PAUSED",
+          "timeZone": "America/Chicago"
+        },
+        {
+          "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-tabpfn-sis-pass-tail-treatment",
+          "schedule": "20 9 * * 4",
+          "state": "PAUSED",
+          "timeZone": "America/Chicago"
+        },
+        {
+          "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-shadow-sis-pass-tail-paired",
+          "schedule": "0 6 * * 7",
+          "state": "PAUSED",
+          "timeZone": "America/Chicago"
+        },
+        {
+          "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-shadow-k1-route-roleunion-late",
+          "schedule": "10 11 * * 7",
+          "state": "PAUSED",
+          "timeZone": "America/Chicago"
+        },
+        {
+          "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-train-k1-route-role",
+          "schedule": "0 8 * * 4",
+          "state": "PAUSED",
+          "timeZone": "America/Chicago"
+        }
+      ],
+      "scheduler_error": null,
+      "note": "Execution success can represent a pre-Week-5 eligibility skip, not a delivered treatment book."
+    }
+  },
+  "finished_at_utc": "2026-09-18T18:41:12.290877+00:00",
+  "probe_script_sha256": "f904921cdc4c516c7ae8acd9267035cb2a8807a88baf2ac77e1b948e518e0ea4",
+  "provenance_note": "Probe script was newly authored in the working tree under the precommitted outcome-free scope; this is not a clean-tree confirmatory treatment run."
+}

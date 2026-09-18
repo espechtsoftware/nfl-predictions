@@ -5,6 +5,8 @@ Canonical reading copies are in this project's `reports/` folder. Open this inde
 
 | Document | Purpose |
 |---|---|
+| [Paid-source experiment plan](2026-09-18-paid-source-experiment-plan.md) | Authorized first-stage scope and routing |
+| [Paid-source preflight results](2026-09-18-paid-source-experiment-preflight-results.md) | Registered models, Odds fixtures, vendor support and paused shadow schedules |
 | [Paid data usage and renewal review](2026-09-18-paid-data-usage-and-renewal-review.md) | Odds API, SIS and Fantasy Points: current use, historical evidence, proposed tests and renewal advice |
 | [220+ research agenda](2026-09-17-research-agenda-220-plus.md) | Improving candidate supply, selection and spreadsheet prefixes |
 | [Transition code review](reviews/2026-09-17-transition-code-review.md) | Code findings and synthetic evidence; subsequent fixes are tracked in the handoff and follow-up reports |
