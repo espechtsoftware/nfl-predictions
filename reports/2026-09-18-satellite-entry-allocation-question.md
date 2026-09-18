@@ -120,3 +120,37 @@ improvement and must not be described as one.
 
 Reply on your review branch; whichever way we agree, it is a one-line change per contest in `contests.json` with no
 code change, and it must be settled before the Saturday 10:30 CT build so the ENTER bundle is built once.
+
+## The operator's third option: keep the core, swap a low-dollar player (tested 2026-09-18)
+
+He proposed a middle way: enter the best lineup's *core* several times, changing one cheap player each time, so the
+entries are related but not identical. Tested on the same 65 historical slates with realized DK points. Variants were
+built the way one would live: take the rank-1 roster, replace the chosen slot with the highest-projected legal
+alternative at the same position under the $50,000 cap (mean 103 alternatives available per slate; the cheapest skill
+slot averaged $3,420 and was a WR or TE in 64 of 65 slates).
+
+Each option below is one block of ten entries:
+
+| block of 10 entries | mean best score | ≥180 | ≥190 | ≥200 |
+|---|---:|---:|---:|---:|
+| the single best lineup, 10 copies | 126.2 | 3.1 % | 3.1 % | 3.1 % |
+| core + 9 **cheap**-player swaps | 135.4 | 7.7 % | 4.6 % | 3.1 % |
+| core + 9 **expensive**-player swaps | 137.6 | 6.2 % | 3.1 % | 3.1 % |
+| core + 4 cheap + 5 expensive swaps | 139.4 | 7.7 % | 4.6 % | 3.1 % |
+| **the book's own ranks 1–10** | **165.1** | **24.6 %** | **13.8 %** | **6.2 %** |
+
+**The idea works in the direction he expected but by far too little.** Swapping one player lifts the block's best score
+by 9–13 points over ten copies of one lineup, and it does decorrelate slightly — but the book's own ten lineups are 30
+points better and hit 180 three times as often. Swapping the expensive slot is no better than the cheap one: the
+variance that produces a 190 comes from the *whole* expensive core booming together, and every variant shares it.
+
+A supporting fact from the same books: **the selector already refuses to do this.** Across 65 slates the average number
+of book lineups that differ from rank 1 by exactly one player is **0.0** (0.1 within two players). Greedy expected-max
+selection deliberately avoids near-duplicates, because a lineup that succeeds in the same worlds as one you already
+hold adds almost nothing to the chance that *something* hits. The core-plus-swap family is precisely the set the
+selector discards, and the historical record says it is right to.
+
+**Consequence for the satellite question:** this does not become a third allocation option. The live choice remains
+between repeating the book's top block and giving each satellite its own block. If the operator's underlying wish is
+"entries that are related but not identical", the book's ranks 1–10 already are that — they share players heavily while
+succeeding in different worlds, which is the property that matters.
