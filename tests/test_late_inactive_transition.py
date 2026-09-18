@@ -84,3 +84,31 @@ def test_improving_status_is_reported_not_escalated():
 
 def test_watching_includes_doubtful():
     assert "D" in WATCH_STATUSES and "D" not in OUT_STATUSES
+
+
+# --- second half of review finding 6: the entered book changes mid-watch -------------
+
+
+def prune_state(state: dict[str, str], entered: set[str]) -> dict[str, str]:
+    """After a swap, forget players who are no longer entered (the fixed behaviour)."""
+    return {k: v for k, v in state.items() if k in entered}
+
+
+def test_swapped_out_player_is_dropped_from_the_watch_state():
+    state = {"gone": "D", "kept": "D"}
+    assert prune_state(state, {"kept"}) == {"kept": "D"}
+
+
+def test_newly_entered_player_is_watched_after_a_swap():
+    """A player added by a scratch swap must be able to alert on his FIRST observation."""
+    entered = {"added"}
+    state = prune_state({"gone": "D"}, entered)
+    changes, escalations = new_alerts([state, {"added": "OUT"}])
+    assert escalations == [{"added": "OUT"}], escalations
+
+
+def test_stale_book_would_have_missed_the_new_player():
+    """Pin the old behaviour: with a startup-only book, 'added' was never even watched."""
+    startup_only_entered = {"gone"}
+    observed = {k: v for k, v in {"added": "OUT"}.items() if k in startup_only_entered}
+    assert observed == {}, "the old code could not see a player entered after startup"

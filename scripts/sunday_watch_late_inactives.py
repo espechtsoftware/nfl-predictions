@@ -16,11 +16,25 @@ late_cutoff = pd.Timestamp(os.environ["LATE_CUTOFF_UTC"]); end = pd.Timestamp(os
 run = sorted(d for d in live.iterdir() if d.is_dir() and (d / "frame.parquet").exists())[-1]
 f = pd.read_parquet(run / "frame.parquet"); f["dd"] = f.dk_draftable_id.astype(str); f["start"] = pd.to_datetime(f.game_start, utc=True, errors="coerce")
 late = set(f[f.start > late_cutoff].dd); name = dict(zip(f.dd, f.display_name))
-entered = set()
-for p in glob.glob(a.entered):
-    for r in list(csv.reader(open(p)))[1:]:
-        entered.update(x for x in r if x in late)
-print(f"watching {len(entered)} late-game players across {len(glob.glob(a.entered))} entered files (frame {run.name}, group {group})", flush=True)
+def read_entered():
+    """Re-read the entered books EVERY poll.
+
+    Second half of review finding 6: this used to be read once at startup, so after a
+    scratch swap rewrote the ENTER files the watcher kept watching the OLD roster --
+    blind to a newly entered player and still warning about one no longer in a lineup.
+    The books change on exactly the Sundays this matters most.
+    """
+    found = set()
+    for path in glob.glob(a.entered):
+        with open(path) as fh:
+            for row in list(csv.reader(fh))[1:]:
+                found.update(x for x in row if x in late)
+    return found
+
+
+entered = read_entered()
+print(f"watching {len(entered)} late-game players across {len(glob.glob(a.entered))} entered files "
+      f"(frame {run.name}, group {group}); the entered books are re-read every poll", flush=True)
 OUT_STATUSES = ("O", "OUT", "IR")       # will not play: a swap CANDIDATE
 WATCH_STATUSES = OUT_STATUSES + ("D",)  # D is a warning, not yet a swap
 
@@ -49,6 +63,14 @@ if any(st in OUT_STATUSES for st in state.values()):
           "The watcher keeps running so later transitions are still caught.", flush=True)
 while dt.datetime.now(dt.UTC) < end:
     try:
+        before = entered
+        entered = read_entered()
+        if entered != before:
+            added, removed = entered - before, before - entered
+            print(f"{dt.datetime.now(dt.UTC):%H:%M}Z ENTERED BOOK CHANGED: "
+                  + f"+{[name.get(x, x) for x in sorted(added)]} -{[name.get(x, x) for x in sorted(removed)]}",
+                  flush=True)
+            state = {k: v for k, v in state.items() if k in entered}
         d, now = poll()
         changed = {x: st for x, st in now.items() if state.get(x) != st}
         if changed:
