@@ -32,3 +32,5 @@ Consolidated September 18, 2026 at Erich's request. Source commits: production `
 - [D800 archive readiness](2026-09-18-e0-archive-readiness.md): identity census and saved-bank provenance.
 
 - [E0c archived D800 resampling results](2026-09-18-e0c-archive-resampling-results.md): 15 K80 selections, exact finite-law evaluation; no actual outcomes.
+
+- [E0d retrieval swap results](2026-09-18-e0d-retrieval-swap-results.md): three swaps; small K80 gain, prefix screen failed.
