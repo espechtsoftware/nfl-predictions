@@ -15,7 +15,7 @@ print('PROP_LATEST retained lines:',sorted(out.point.unique().tolist()),'(latest
 # Extract pure validation/estimator helpers only. No reader entrypoint, provider access or real result data.
 reader_source=subprocess.check_output(['git','-C',str(lab),'show','c06b2cd903a6de211c4d221b3ac56f710f715500:scripts/prereg099_report.py'],text=True)
 tree=ast.parse(reader_source)
-names={'_ratio','_preflight_runs','_validate_books','GateFailure'}
+names={'_ratio','_preflight_runs','_validate_books','_verdict','GateFailure'}
 body=[x for x in tree.body if isinstance(x,(ast.FunctionDef,ast.ClassDef)) and x.name in names]
 ns=dict(np=np,pd=pd,re=__import__('re'),BANKS={990},RUN_PREFIXES={990:'119b990r1-'},FULL='F',CONTROL='C',ARMS=('A',))
 exec(compile(ast.Module(body=body,type_ignores=[]),'<pure-reader-helpers>','exec'),ns)
@@ -44,3 +44,5 @@ with tempfile.TemporaryDirectory() as tmp:
   if isinstance(n,ast.Call) and n.args and isinstance(n.args[0],ast.Constant) and n.args[0].value=='--out-dir':
    print('FILL_DEFAULT out-dir:',next(ast.literal_eval(k.value) for k in n.keywords if k.arg=='default'))
 print('LATE_STATUS D->OUT new set:',{'player'}-{'player'})
+
+print('SINGLE_SEASON positive secondary verdict:', ns['_verdict'](dict(delta=1.0,per_bank={990:1.0},loso={2021:float('nan')}),1.0))

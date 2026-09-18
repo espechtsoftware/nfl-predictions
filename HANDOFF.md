@@ -1,5 +1,10 @@
 > **Take-over document for this week: `reports/2026-09-15-week2-operating-handoff.md` (2026-09-15). Read it before anything below.**
 
+## 2026-09-17 — research agenda delivered, no application changes
+
+[220+ research agenda](reports/2026-09-17-research-agenda-220-plus.md) synthesizes prior results and primary-source research, narrows overbroad closure claims, reviews the tail-calibration draft, and proposes seven staged experiments covering independent-world diagnostics, conditional opportunity, simulation precision, prefix ordering, candidate generation, snapshot freshness and matchup information. Proposals only: no experiments launched or adoption changed. Code review and synthetic evidence are on this same review branch. Lab handoff: `review/2026-09-lab-code-research`, `handoffs/2026-09-17-laptop-code-review.md`. Bank991 operational monitoring continues; workstation first-read ownership preserved.
+
+
 ## 2026-09-17 — laptop transition code review (documentation only)
 
 Branch `review/2026-09-transition-code-research`, production base `879cbc63`. Review: [reports/reviews/2026-09-17-transition-code-review.md](reports/reviews/2026-09-17-transition-code-review.md). Eleven findings cover Sunday entry publication/retries, K90 verification, week configuration, props, and frozen PREREG-099 reader compatibility/inference. Synthetic counterexamples attached; two focused offline test modules pass. No application edits, deployment or scientific outcome reads. Workstation agent should triage before Sunday/first read; bank991 continues at frozen `c06b2cd`. Research report follows on this branch.

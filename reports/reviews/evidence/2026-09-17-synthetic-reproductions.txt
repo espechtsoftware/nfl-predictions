@@ -6,3 +6,4 @@ BOOK_VALIDATION accepted 80 duplicate rank-1 rows
 PARTIAL_FILL exit: 0 second lineup untouched: True
 FILL_DEFAULT out-dir: /home/erich/week1-sunday/ENTER
 LATE_STATUS D->OUT new set: set()
+SINGLE_SEASON positive secondary verdict: PASS
