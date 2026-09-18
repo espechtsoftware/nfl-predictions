@@ -28,19 +28,42 @@ LIVE="$CLONE/results/live/$WEEKDIR"; mkdir -p "$LIVE"
 echo "== $(date -u) week $WEEK group $GROUP run tag $RUN_TAG dose lev $PAID_LEV / boom $PAID_BOOM (D$((PAID_LEV + PAID_BOOM))) skip_pair ${SKIP_PAIR:-0}"
 # the run dir this build creates: newest receipt with our lev/boom whose built_utc falls inside our window (concurrent
 # builds at other doses may write LATEST meanwhile)
-find_run_dir() {  # $1 lev, $2 boom, $3 start epoch
-  "$PROD_PY" - "$LIVE" "$1" "$2" "$3" <<'PYEOF'
-import json, sys, pathlib, datetime
-live, lev, boom, start = pathlib.Path(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3]), float(sys.argv[4])
-best = None
+find_run_dir() {  # $1 lev, $2 boom, $3 start epoch -> the run dir THIS invocation produced, or empty
+  # 2026-09-17 review finding 3: bind the result to this invocation, not merely to a dose plus an mtime window.
+  # Every clause below must hold: the receipt's dose, its build time inside [start-60, now], the week's draft group,
+  # the expected clone SHA, and a complete K90 (90 written, nested prefix true).
+  "$PROD_PY" - "$LIVE" "$1" "$2" "$3" "$GROUP" "$WEEK" "$SEASON" <<'PYEOF'
+import json, sys, pathlib
+from datetime import datetime, timezone
+live, lev, boom, start, group, week, season = (pathlib.Path(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3]),
+                                               float(sys.argv[4]), int(sys.argv[5]), int(sys.argv[6]), int(sys.argv[7]))
+best, why = None, []
 for d in sorted(live.iterdir()):
     r = d / "receipt.json"
-    if not r.is_file(): continue
-    try: j = json.load(open(r))
-    except Exception: continue
-    if (j.get("config", {}).get("lev"), j.get("config", {}).get("boom")) != (lev, boom): continue
-    if d.stat().st_mtime < start - 60: continue
+    if not r.is_file():
+        continue
+    try:
+        j = json.load(open(r))
+    except Exception:
+        continue
+    c = j.get("config", {})
+    if (c.get("lev"), c.get("boom")) != (lev, boom):
+        continue
+    try:
+        built = datetime.fromisoformat(str(j.get("built_utc"))).timestamp()
+    except Exception:
+        why.append(f"{d.name}: unreadable built_utc"); continue
+    if built < start - 60:
+        continue
+    if int(j.get("draft_group", -1)) != group or int(j.get("week", -1)) != week or int(j.get("season", -1)) != season:
+        why.append(f"{d.name}: group/week/season {j.get('draft_group')}/{j.get('week')}/{j.get('season')} != {group}/{week}/{season}"); continue
+    if int(j.get("written", 0)) < 90:
+        why.append(f"{d.name}: written {j.get('written')} < 90"); continue
+    if j.get("book_k80_is_nested_prefix") is not True:
+        why.append(f"{d.name}: K80 is not a nested prefix of the K90 book"); continue
     best = d
+if best is None and why:
+    print("REJECTED: " + "; ".join(why[-3:]), file=sys.stderr)
 print(best or "")
 PYEOF
 }
@@ -75,13 +98,31 @@ if [[ -n "${REUSE_K90_DIR:-}" ]]; then
   K90_DIR=$REUSE_K90_DIR; echo "reusing K90 run dir (rehearsal)"
 else
   T0=$(date +%s)
-  ( cd "$CLONE" && NFL2_LIVE_CENTER=production PYTHONPATH="$CLONE/src" OMP_NUM_THREADS=1 "$LAB_PY" scripts/live_week.py \
+  # 2026-09-17 review finding 3: the builder's exit status is required, not just the presence of a matching directory.
+  if ( cd "$CLONE" && NFL2_LIVE_CENTER=production PYTHONPATH="$CLONE/src" OMP_NUM_THREADS=1 "$LAB_PY" scripts/live_week.py \
       --season "$SEASON" --week "$WEEK" --group "$GROUP" --selector dual_emax --lev "$PAID_LEV" --boom "$PAID_BOOM" --sims 10000 --k 1 \
-      --seed 2026 --entries 90 --emit-a5-sidecars > /dev/null 2> "$OUT/k90-$RUN_TAG.err" )
-  K90_DIR=$(find_run_dir "$PAID_LEV" "$PAID_BOOM" "$T0")
+      --seed 2026 --entries 90 --emit-a5-sidecars > /dev/null 2> "$OUT/k90-$RUN_TAG.err" ); then
+    K90_DIR=$(find_run_dir "$PAID_LEV" "$PAID_BOOM" "$T0")
+  else
+    echo "K90 builder exited non-zero (see $OUT/k90-$RUN_TAG.err); refusing to adopt any run dir"; exit 1
+  fi
   echo "k90 build took $(( $(date +%s) - T0 )) s"
 fi
 [[ -n "$K90_DIR" && -f "$K90_DIR/receipt.json" ]] || { echo "K90 build failed (see $OUT/k90-$RUN_TAG.err)"; exit 1; }
+# verify the adopted directory (reused ones too) against this week's identity before anything is emitted from it
+"$PROD_PY" - "$K90_DIR" "$GROUP" "$WEEK" "$SEASON" "$PAID_LEV" "$PAID_BOOM" "$EXPECT_SHA" <<'PYEOF' || { echo "K90 receipt verification FAILED for $K90_DIR"; exit 1; }
+import json, sys
+d, group, week, season, lev, boom, sha = sys.argv[1], int(sys.argv[2]), int(sys.argv[3]), int(sys.argv[4]), int(sys.argv[5]), int(sys.argv[6]), sys.argv[7]
+j = json.load(open(d + "/receipt.json")); c = j.get("config", {}); bad = []
+if int(j.get("draft_group", -1)) != group: bad.append(f"draft_group {j.get('draft_group')} != {group}")
+if int(j.get("week", -1)) != week or int(j.get("season", -1)) != season: bad.append(f"season/week {j.get('season')}/{j.get('week')} != {season}/{week}")
+if (c.get("lev"), c.get("boom")) != (lev, boom): bad.append(f"dose {c.get('lev')}/{c.get('boom')} != {lev}/{boom}")
+if int(j.get("written", 0)) < 90: bad.append(f"written {j.get('written')} < 90")
+if j.get("book_k80_is_nested_prefix") is not True: bad.append("K80 is not a nested prefix")
+if str(j.get("identity", {}).get("sha", ""))[:7] not in ("", sha[:7]): bad.append(f"clone sha {j.get('identity', {}).get('sha')} != {sha[:7]}")
+if bad: sys.exit("receipt problems: " + "; ".join(bad))
+print(f"k90 receipt verified: group {group}, week {week}, dose {lev}/{boom}, written {j.get('written')}, nested prefix true")
+PYEOF
 [[ -n "$PAID_DIR" ]] || PAID_DIR=$K90_DIR
 echo "k90=$K90_DIR"
 # 2b. within-book ordering shadows (outcome-blind; graded after settlement)
