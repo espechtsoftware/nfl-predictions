@@ -385,6 +385,13 @@ git -C /home/erich/projects/.nfl-predictions-worktrees/nflverse-ftn-20260915 pus
   had defaulted it to `nfl-dfs-prod` and every pull failed until fixed at 11:25Z) is still the only DK pull path
   (defect 18); ingest-dk on Cloud Run keeps failing by design until the operator decides on egress (Cloud Build probe
   also 403 → NAT not expected to help). Host clock is CDT; stamp with `date -u`.
+- **2026-09-18 01:45Z — bank 990: last eight slates started early.** The v3 driver waited for ALL first-wave workers
+  before launching indices 10–17, so with one straggler left the machine sat at load 1.2. Replaced by
+  `scripts/run_119_local_v4.sh` (untracked on purpose — defect 29 forbids commits in that worktree until the last
+  shard lands; it is committed at read time): same runner, same run id `119b990r1-20260917T013238Z`, indices 10–17 at
+  8 workers, attach-aware. Verified: 9 workers / 9 CBC children within 100 s, load climbing to ≈ 9. Shards 9/18;
+  the last eight should land ≈ 15:00–18:00Z Friday. Untracked files do not alter the shard identity (`code_identity`
+  reads `git diff HEAD`, which ignores untracked files; `code_sha` is HEAD).
 - **2026-09-18 02:00Z — independent review received, triaged and answered.** The laptop agent delivered a code review
   and a research agenda (production branch `review/2026-09-transition-code-research`:
   `reports/reviews/2026-09-17-transition-code-review.md`, `reports/2026-09-17-research-agenda-220-plus.md`). **Findings
