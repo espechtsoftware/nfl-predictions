@@ -25,3 +25,5 @@ reproductions, not additional application tests or instructions to run experimen
 Consolidated September 18, 2026 at Erich's request. Source commits: production `43568eea`
 (transition/research reports), `930ee8b2` (paid-source report), and lab `de2f497`
 (PREREG-101 review). Original commits remain in Git history; use these main-project paths for reading.
+
+- [E0 known-law experiment results — September 18](2026-09-18-e0-known-law-results.md): completed synthetic selection-precision study; peer review pending.

@@ -50664,3 +50664,7 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   separate score-free/seal/read stages, and no compute or outcome access. It
   explicitly retains the interval-crossing uncertainty and grants no Week-1
   or live-policy authority.
+
+### 2026-09-18 laptop E0 synthetic study completed
+
+Frozen implementation db6a5653 on research/2026-09-paid-source-preflight; 1600 synthetic cases, no NFL outcome reads or cloud changes. Results: reports/2026-09-18-e0-known-law-results.md and linked evidence. Internal checks passed; peer review pending. Population greedy gap was zero in this construction, so no claim about real greedy losses. Next: outcome-excluding archive metadata/schema inventory for the existing D800 pilot.
