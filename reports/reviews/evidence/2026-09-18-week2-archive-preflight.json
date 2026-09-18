@@ -1,0 +1,696 @@
+{
+  "prefix": "gs://nfl-2-506823-lab/research/week2-diagnostic-population/20260917T150719330879Z-e7255e9/",
+  "objects": [
+    {
+      "name": "candidates.parquet",
+      "sha256": "dd547b99189d3adb8fb2b5f7aa680dd0419944be3c5957688c66ad894df7fb3e",
+      "generation": 1789768712700980,
+      "bytes": 555965,
+      "updated": "2026-09-18T21:58:32.763000+00:00",
+      "rows": 6400,
+      "schema": [
+        {
+          "name": "cand",
+          "type": "int64"
+        },
+        {
+          "name": "players",
+          "type": "large_string"
+        },
+        {
+          "name": "names",
+          "type": "large_string"
+        },
+        {
+          "name": "tag",
+          "type": "large_string"
+        },
+        {
+          "name": "salary",
+          "type": "int64"
+        },
+        {
+          "name": "book_rank",
+          "type": "double"
+        },
+        {
+          "name": "book_rank_cov",
+          "type": "double"
+        },
+        {
+          "name": "sel_mean",
+          "type": "float"
+        },
+        {
+          "name": "sel_p194",
+          "type": "double"
+        },
+        {
+          "name": "aud_mean",
+          "type": "float"
+        },
+        {
+          "name": "aud_p194",
+          "type": "double"
+        },
+        {
+          "name": "gen_mean",
+          "type": "float"
+        },
+        {
+          "name": "book_rank_wemax",
+          "type": "double"
+        },
+        {
+          "name": "all_tags",
+          "type": "large_string"
+        }
+      ]
+    },
+    {
+      "name": "frame.parquet",
+      "sha256": "90a762654111126aefad1950217044443291251918ab70edb925ff341d226635",
+      "generation": 1789768711580236,
+      "bytes": 173596,
+      "updated": "2026-09-18T21:58:31.646000+00:00",
+      "rows": 435,
+      "schema": [
+        {
+          "name": "pulled_at",
+          "type": "timestamp[us, tz=UTC]"
+        },
+        {
+          "name": "draft_group_id",
+          "type": "int64"
+        },
+        {
+          "name": "slate_type",
+          "type": "large_string"
+        },
+        {
+          "name": "dk_player_id",
+          "type": "int64"
+        },
+        {
+          "name": "dk_draftable_id",
+          "type": "int64"
+        },
+        {
+          "name": "dk_cpt_draftable_id",
+          "type": "int64"
+        },
+        {
+          "name": "display_name",
+          "type": "large_string"
+        },
+        {
+          "name": "team_abbr",
+          "type": "large_string"
+        },
+        {
+          "name": "position",
+          "type": "large_string"
+        },
+        {
+          "name": "salary",
+          "type": "int64"
+        },
+        {
+          "name": "roster_slot",
+          "type": "large_string"
+        },
+        {
+          "name": "game_start",
+          "type": "timestamp[us, tz=UTC]"
+        },
+        {
+          "name": "status",
+          "type": "large_string"
+        },
+        {
+          "name": "dk_ppg",
+          "type": "double"
+        },
+        {
+          "name": "season",
+          "type": "int64"
+        },
+        {
+          "name": "week",
+          "type": "int64"
+        },
+        {
+          "name": "key",
+          "type": "large_string"
+        },
+        {
+          "name": "hkey",
+          "type": "large_string"
+        },
+        {
+          "name": "gsis_id",
+          "type": "large_string"
+        },
+        {
+          "name": "key2",
+          "type": "large_string"
+        },
+        {
+          "name": "key3",
+          "type": "large_string"
+        },
+        {
+          "name": "pos",
+          "type": "large_string"
+        },
+        {
+          "name": "team",
+          "type": "large_string"
+        },
+        {
+          "name": "game_id",
+          "type": "large_string"
+        },
+        {
+          "name": "opp",
+          "type": "large_string"
+        },
+        {
+          "name": "total_line",
+          "type": "double"
+        },
+        {
+          "name": "spread_line",
+          "type": "double"
+        },
+        {
+          "name": "id",
+          "type": "large_string"
+        },
+        {
+          "name": "name",
+          "type": "large_string"
+        },
+        {
+          "name": "game_total",
+          "type": "double"
+        },
+        {
+          "name": "spread",
+          "type": "double"
+        },
+        {
+          "name": "opponent",
+          "type": "large_string"
+        },
+        {
+          "name": "targets_l4",
+          "type": "double"
+        },
+        {
+          "name": "target_share_l4",
+          "type": "double"
+        },
+        {
+          "name": "air_yards_share_l4",
+          "type": "double"
+        },
+        {
+          "name": "wopr_l4",
+          "type": "double"
+        },
+        {
+          "name": "rz20_targets_l4",
+          "type": "double"
+        },
+        {
+          "name": "rz10_targets_l4",
+          "type": "double"
+        },
+        {
+          "name": "rz20_target_share_l4",
+          "type": "double"
+        },
+        {
+          "name": "rz10_target_share_l4",
+          "type": "double"
+        },
+        {
+          "name": "rz20_targets_smoothed",
+          "type": "double"
+        },
+        {
+          "name": "carries_l4",
+          "type": "double"
+        },
+        {
+          "name": "carry_share_l4",
+          "type": "double"
+        },
+        {
+          "name": "gl3_carries_l4",
+          "type": "double"
+        },
+        {
+          "name": "gl3_carry_share_l4",
+          "type": "double"
+        },
+        {
+          "name": "gl3_carries_smoothed",
+          "type": "double"
+        },
+        {
+          "name": "snap_share_l4",
+          "type": "double"
+        },
+        {
+          "name": "target_share_last",
+          "type": "double"
+        },
+        {
+          "name": "carry_share_last",
+          "type": "double"
+        },
+        {
+          "name": "snap_share_last",
+          "type": "double"
+        },
+        {
+          "name": "target_share_jump",
+          "type": "double"
+        },
+        {
+          "name": "carry_share_jump",
+          "type": "double"
+        },
+        {
+          "name": "snap_share_jump",
+          "type": "double"
+        },
+        {
+          "name": "target_share_std",
+          "type": "double"
+        },
+        {
+          "name": "target_share_trend",
+          "type": "double"
+        },
+        {
+          "name": "carry_share_trend",
+          "type": "double"
+        },
+        {
+          "name": "games_played_prior",
+          "type": "int64"
+        },
+        {
+          "name": "yards_per_target_l8",
+          "type": "double"
+        },
+        {
+          "name": "yards_per_reception_l8",
+          "type": "double"
+        },
+        {
+          "name": "catch_rate_l8",
+          "type": "double"
+        },
+        {
+          "name": "yards_per_carry_l8",
+          "type": "double"
+        },
+        {
+          "name": "yards_per_attempt_l8",
+          "type": "double"
+        },
+        {
+          "name": "adot_l8",
+          "type": "double"
+        },
+        {
+          "name": "dk_points_l4",
+          "type": "double"
+        },
+        {
+          "name": "dk_points_std",
+          "type": "double"
+        },
+        {
+          "name": "dk_points_vol",
+          "type": "double"
+        },
+        {
+          "name": "implied_team_total",
+          "type": "double"
+        },
+        {
+          "name": "expected_game_script",
+          "type": "double"
+        },
+        {
+          "name": "is_home",
+          "type": "bool"
+        },
+        {
+          "name": "days_rest",
+          "type": "int64"
+        },
+        {
+          "name": "plays_l4",
+          "type": "double"
+        },
+        {
+          "name": "pass_rate_l4",
+          "type": "double"
+        },
+        {
+          "name": "pace_l4",
+          "type": "double"
+        },
+        {
+          "name": "proe_l4",
+          "type": "double"
+        },
+        {
+          "name": "expected_plays",
+          "type": "double"
+        },
+        {
+          "name": "xtd_receiving_proxy",
+          "type": "double"
+        },
+        {
+          "name": "epa_per_dropback_allowed_l6",
+          "type": "double"
+        },
+        {
+          "name": "epa_per_rush_allowed_l6",
+          "type": "double"
+        },
+        {
+          "name": "rz_td_rate_allowed_l6",
+          "type": "double"
+        },
+        {
+          "name": "qb_fp_allowed_adj_l6",
+          "type": "double"
+        },
+        {
+          "name": "rb_fp_allowed_adj_l6",
+          "type": "double"
+        },
+        {
+          "name": "wr_fp_allowed_adj_l6",
+          "type": "double"
+        },
+        {
+          "name": "te_fp_allowed_adj_l6",
+          "type": "double"
+        },
+        {
+          "name": "cb_ypt_allowed_l6",
+          "type": "double"
+        },
+        {
+          "name": "cb_comp_rate_allowed_l6",
+          "type": "double"
+        },
+        {
+          "name": "db_ypt_allowed_l6",
+          "type": "double"
+        },
+        {
+          "name": "top_cb_out",
+          "type": "bool"
+        },
+        {
+          "name": "injury_status",
+          "type": "large_string"
+        },
+        {
+          "name": "practice_level",
+          "type": "double"
+        },
+        {
+          "name": "practice_participation_trend",
+          "type": "double"
+        },
+        {
+          "name": "games_missed_l4",
+          "type": "int64"
+        },
+        {
+          "name": "depth_rank",
+          "type": "int64"
+        },
+        {
+          "name": "depth_rank_delta",
+          "type": "int64"
+        },
+        {
+          "name": "is_rookie",
+          "type": "bool"
+        },
+        {
+          "name": "draft_round",
+          "type": "int64"
+        },
+        {
+          "name": "ref_flags_prior",
+          "type": "double"
+        },
+        {
+          "name": "neutral_pass_rate_l6",
+          "type": "double"
+        },
+        {
+          "name": "team_ol_out",
+          "type": "int64"
+        },
+        {
+          "name": "pace_env_l6",
+          "type": "double"
+        },
+        {
+          "name": "opp_blitz_rate_l6",
+          "type": "double"
+        },
+        {
+          "name": "pa_rate_l6",
+          "type": "double"
+        },
+        {
+          "name": "opp_pressure_rate_l6",
+          "type": "double"
+        },
+        {
+          "name": "xfp_l4",
+          "type": "double"
+        },
+        {
+          "name": "net_rest_diff",
+          "type": "int64"
+        },
+        {
+          "name": "body_clock_hour",
+          "type": "int64"
+        },
+        {
+          "name": "team_top2_target_share_l6",
+          "type": "double"
+        },
+        {
+          "name": "qb_cpoe_l6",
+          "type": "double"
+        },
+        {
+          "name": "qb_time_to_throw_l6",
+          "type": "double"
+        },
+        {
+          "name": "fp_route_source_season",
+          "type": "int64"
+        },
+        {
+          "name": "fp_route_source_week",
+          "type": "int64"
+        },
+        {
+          "name": "fp_route_source_sha256",
+          "type": "large_string"
+        },
+        {
+          "name": "fp_route_prior_observations",
+          "type": "int64"
+        },
+        {
+          "name": "fp_route_share_last",
+          "type": "double"
+        },
+        {
+          "name": "fp_route_share_l4",
+          "type": "double"
+        },
+        {
+          "name": "fp_route_share_jump",
+          "type": "double"
+        },
+        {
+          "name": "fp_route_cross_season",
+          "type": "int64"
+        },
+        {
+          "name": "fp_route_fallback",
+          "type": "large_string"
+        },
+        {
+          "name": "team_vacated_target_share",
+          "type": "double"
+        },
+        {
+          "name": "team_vacated_carry_share",
+          "type": "double"
+        },
+        {
+          "name": "vacated_capture_tgt",
+          "type": "double"
+        },
+        {
+          "name": "vacated_capture_car",
+          "type": "double"
+        },
+        {
+          "name": "ez_targets_l4",
+          "type": "double"
+        },
+        {
+          "name": "deep_targets_l4",
+          "type": "double"
+        },
+        {
+          "name": "separation_l4",
+          "type": "double"
+        },
+        {
+          "name": "stacked_box_l4",
+          "type": "double"
+        },
+        {
+          "name": "wind_mph",
+          "type": "double"
+        },
+        {
+          "name": "temp_f",
+          "type": "double"
+        },
+        {
+          "name": "is_dome",
+          "type": "bool"
+        },
+        {
+          "name": "salary_delta_wow",
+          "type": "int64"
+        },
+        {
+          "name": "is_cold_start",
+          "type": "bool"
+        },
+        {
+          "name": "has_features",
+          "type": "bool"
+        },
+        {
+          "name": "actual",
+          "type": "double"
+        },
+        {
+          "name": "report_status",
+          "type": "large_string"
+        },
+        {
+          "name": "practice_status",
+          "type": "large_string"
+        },
+        {
+          "name": "roster_status",
+          "type": "large_string"
+        },
+        {
+          "name": "model_points_pre",
+          "type": "double"
+        },
+        {
+          "name": "market_points",
+          "type": "double"
+        },
+        {
+          "name": "mean_projection",
+          "type": "double"
+        },
+        {
+          "name": "proj",
+          "type": "double"
+        },
+        {
+          "name": "proj_tourney",
+          "type": "double"
+        }
+      ]
+    },
+    {
+      "name": "incumbent_player_scores.npy",
+      "sha256": "4774e37cf0416b28c93c0467e33382589562832aceb23594809f76bd5f0e2568",
+      "generation": 1789768758454110,
+      "bytes": 17400128,
+      "updated": "2026-09-18T21:59:18.516000+00:00",
+      "header": {
+        "descr": "<f4",
+        "fortran_order": false,
+        "shape": [
+          435,
+          10000
+        ]
+      }
+    },
+    {
+      "name": "corrected_hsim_player_scores.npy",
+      "sha256": "1d5b6372c9ba4a1d86ddac7c29652f432377486966a5be4bc08f338eb01e7a06",
+      "generation": 1789768762860081,
+      "bytes": 17400128,
+      "updated": "2026-09-18T21:59:22.922000+00:00",
+      "header": {
+        "descr": "<f4",
+        "fortran_order": false,
+        "shape": [
+          435,
+          10000
+        ]
+      }
+    },
+    {
+      "name": "receipt.json",
+      "sha256": "4f00d70b4ae5a907431485f4327ebc30afecefb4ff7f33b4053e93c6491df3d5",
+      "generation": 1789768711445485,
+      "bytes": 9994,
+      "updated": "2026-09-18T21:58:31.526000+00:00",
+      "identity": {
+        "sha": "e7255e98bf87297452befb61fb508ad4b368b59f",
+        "dirty": false,
+        "diff_sha256": null
+      },
+      "config": {
+        "lev": 1280,
+        "boom": 5120,
+        "sims": 10000,
+        "operational_k": 90,
+        "selector": "dual_emax",
+        "seed": 2026,
+        "hsim_seed": 2326,
+        "centering": "production_player_projections.proj_points (already market-blended; no re-blend)"
+      },
+      "built_utc": "2026-09-17 15:07:42.336939+00:00",
+      "lock_utc": "2026-09-20 17:00:00+00:00"
+    }
+  ],
+  "scope": "Full-byte hashes verified; parquet schemas and npy headers only, plus allowlisted receipt metadata. No outcomes, prediction values or ranks decoded."
+}
