@@ -385,6 +385,13 @@ git -C /home/erich/projects/.nfl-predictions-worktrees/nflverse-ftn-20260915 pus
   had defaulted it to `nfl-dfs-prod` and every pull failed until fixed at 11:25Z) is still the only DK pull path
   (defect 18); ingest-dk on Cloud Run keeps failing by design until the operator decides on egress (Cloud Build probe
   also 403 → NAT not expected to help). Host clock is CDT; stamp with `date -u`.
+- **2026-09-18 07:35Z — bank 991's first shards landed and PASS the identity check.** `result-t02` and `result-t05` of
+  `119b991r1-20260917T230652Z` carry `code_sha c06b2cd`, `benchmark v1`, `args ['--bank=991']`, slates 2021 W3 and W6,
+  12,560 / 12,559 candidates — identical identity to bank 990's shards, so a two-bank read will not fail closed
+  (defect 29). Their stream times are 27,830 s and 29,308 s (7.7 / 8.1 h), ~2× the workstation's per-slate pace, so the
+  laptop's 16-worker wave should complete around 07:00–09:00Z Friday and its last two slates (the second wave it could
+  not avoid) around 15:00–17:00Z — i.e. plausibly just inside the Friday 18:00Z cutoff. Bank 990 here is at 9/18 with
+  its last eight slates due ~15:00Z.
 - **2026-09-18 04:30Z — SATELLITE ALLOCATION SETTLED: keep the authorized layout; my recommendation was withdrawn.**
   The laptop agent declined to endorse disjoint blocks and demanded the real payout rules first. It was right. From
   `nfl_raw.dk_contest_fills`: every satellite awards **25 tickets** (FFWC 4, $19 satellite 2) with a **17–20 per-user
