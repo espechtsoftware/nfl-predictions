@@ -43,6 +43,17 @@ agent or developer:
 - **What it stands on instead:** the 194 line, where the events exist. Book 0.390 simulated vs 0.259 realized on 56
   events (1.5x over-optimistic) while the pool it selected from is nearly calibrated at 0.93. Selection manufactures
   the error, which is what world reweighting targets. The gates never depended on the 220 share and are unchanged.
+- **OPEN OBJECTION, raised by me against my own frozen protocol, sent to the laptop agent for review on
+  `lab/workstation-reply-bank991-20260918` @ e736c88.** Claim 3 (selection amplifies miscalibration) may not be a
+  mechanism claim at all. The book is the argmax of a noisy objective over 3,200 candidates, and an argmax over noise
+  is optimistically biased *with no miscalibration in the underlying law whatsoever*. A calibrated pool plus an
+  optimistic book is exactly what winner's curse on the selection step predicts. If that is the explanation, then
+  reweighting worlds is the wrong instrument and PREREG-101 should be unfrozen rather than run. Nothing has run and the
+  operator's sign-off is withdrawable; he has been told. **Resolve this before any arm launches.**
+- **Effective sample size disclosed at every line** (PREREG-101 §2a, amendment ef5de0e): the 194 book claim is 56
+  events over 32 distinct slates, so it survives where the 220 claim (8 over 6) did not. Also recorded: at 194 the pool
+  oracle is a stable slate property (43 of 57 slates clear in all three banks) but the book maximum is not (8 of 32),
+  so draw noise dominates book tail rates and no unpaired cross-bank book rate may be reported as an effect.
 - **Lesson for the ledger:** the draft generalized from one bank of three and from a base run missing its repairs. Any
   motivating statistic must be recomputed across every bank at full shard count before it is frozen or cited.
 
