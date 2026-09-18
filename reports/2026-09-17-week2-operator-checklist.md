@@ -112,6 +112,21 @@ regenerates automatically). Never apply a filter to the book on the day.
 **5. By 11:15 — upload in the DraftKings site** (Windows): Lineups → Edit entries → Upload CSV → the
 `DKEntries-FILLED-keepers-first.csv` file from Downloads. Lock is 12:00.
 
+## What changed for Week 2: every contest gets its own lineups
+
+You asked not to use the same lineups in different contests, and that is now how Week 2 is configured. Each contest
+draws its own block of the book, so no lineup appears in two contests. Nothing in your steps changes because of this.
+Two things are worth knowing while you watch it run.
+
+The book is now 97 lineups instead of 90, because your 97 entries each need a distinct one. A build that produces fewer
+fails loudly instead of uploading a short book, so if a build fails on a message about `written N / operational_k`, that
+is the guard doing its job and the fallback builds still apply.
+
+Contests are served in the order they appear in `/home/erich/week2-sunday/contests.json`, best lineups first. The file
+is sorted by value per entry, which puts the two satellite entries on the best two lineups and the single $20
+Millionaire entry on the last one. If you would rather the Millionaire entry carry a better lineup, say so and it moves;
+it makes very little difference either way.
+
 ## Monday 2026-09-21
 
 - Export the three contest standings and your contest-entry history from DraftKings into Downloads (as in Week 1) and tell

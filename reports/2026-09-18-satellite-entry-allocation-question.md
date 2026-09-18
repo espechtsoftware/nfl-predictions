@@ -213,3 +213,80 @@ players away, none selected. So the honest statement is the weaker one: **the ge
 in the first place**, so the selector never has the chance to reject them. My original wording over-claimed and is
 corrected here. The performance finding is unaffected: built explicitly, such variants scored far below the book's own
 ranks 1–10.
+
+---
+
+## OPERATOR OVERRIDE, 2026-09-18: unique lineups per contest (ENTER_LAYOUT=sequential)
+
+The analysis above, and the reviewing agent's correction of it, both concluded that the authorized `top` layout should
+stand. The operator has decided otherwise. His instruction, verbatim:
+
+> "I thought we were doing a different selection for each contest where the parameters were adjusted for the contest
+> size and number of entries. That's what i want to do."
+
+and, when asked to confirm after the settled recommendation was explained to him:
+
+> "What was decided regarding the lineups per contest? I dont want to use the same lineups for different contests."
+
+This is exactly the "genuinely decreasing utility of tickets" judgement the section above reserved to him, stated
+explicitly. It is his call and it is now the Week-2 configuration. Nothing in the measurement changes: the cost below is
+real and is being paid deliberately.
+
+### What it costs, stated honestly
+
+The expected-tickets objective is correlation-invariant, so spreading entries across distinct lineups cannot raise
+expected tickets and does lower them, because ranks 11-96 are worse lineups than ranks 1-10. The earlier disjoint
+estimate was **expected tickets 3.79 -> about 2.6**. What the operator buys for that is the thing expected tickets does
+not price: a single injury or a single bust player can no longer zero out every entry at once, because no player sits in
+all 97 lineups. That is the risk he said he wanted to control ("I dont want an injury to wreck my day").
+
+### The allocation actually configured
+
+Contest order in `contests.json` IS the priority order under this layout, so the file is now sorted by expected value
+per entry at the top of the book. The resulting blocks:
+
+| contest | entries | book ranks | EV/entry |
+|---|---|---|---|
+| satellite | 2 | 1-2 | $71.48 |
+| ffwcsat | 2 | 3-4 | $9.59 |
+| huddle | 1 | 5 | $4.93 |
+| nickel | 5 | 6-10 | $4.51 |
+| supersat1c | 10 | 11-20 | $3.18 |
+| supersat1a | 10 | 21-30 | $3.10 |
+| pylon | 1 | 31 | $2.96 |
+| supersat1b | 10 | 32-41 | $2.75 |
+| flea | 23 | 42-64 | $2.01 |
+| supersat25a | 16 | 65-80 | $1.03 |
+| supersat25b | 16 | 81-96 | $0.97 |
+| milly | 1 | 97 | $0.17 |
+
+Total 97 entries, so **the book must now hold 97 lineups, not 90**.
+
+One consequence to flag rather than bury: the $20 Millionaire entry draws the single worst lineup in the book. That is
+what ranking by value per entry produces, because its cutoff is so far out that its clearing probability is near zero at
+every rank, so it is the cheapest place to spend the worst lineup. If the operator would rather his most expensive entry
+carry a better lineup, move `milly` earlier in `contests.json`; it costs very little either way.
+
+### Implementation and proof
+
+- `scripts/week_env.sh` now exports `ENTER_LAYOUT=sequential` as the week default, so the build, the after-build chain
+  and the watchers cannot disagree about the layout. `ENTER_LAYOUT=top` in the environment falls back.
+- `scripts/sunday_build_host.sh` derives `BOOK_ENTRIES` from `contests.json` (the entry total under `sequential`,
+  90 under `top`) and governs `find_run_dir`, `verify_k90`, the layout assertions and the legacy emits with it.
+- Fail-closed guard proven: reusing the existing 90-lineup run dir under `sequential` is REFUSED with
+  `written 90 / operational_k 90 != 97; book.csv rows/uniqueness`. An undersized book cannot reach the upload.
+- Full-chain rehearsal on a synthetic 97-lineup book: build emitted the twelve blocks at exactly the ranks in the table
+  above; `sunday_after_build.sh` published a bundle verified as **12 contests, 97 entry rows, every row 9/9 cells**;
+  `fill_dk_entries.py` filled the real 97-entry DraftKings export, **keep 97 / withdraw 0**.
+- Disjointness verified on both the bundle and the filled upload file: **97 entries, 97 distinct lineups, 0 lineups used
+  in more than one contest, 0 contest pairs sharing a lineup.**
+- The rehearsal output was renamed `DO-NOT-UPLOAD-rehearsal-FILLED.csv` and left in the session scratchpad.
+
+### Residual risk
+
+The 97-lineup book has never actually been selected; the rehearsal used a synthetic extension of the 90-lineup book,
+because only 90 candidates carry a `book_rank` and the selection is not a nested prefix that can be extended for free.
+Saturday's build is the first real 97-lineup selection. The added cost is roughly eight per cent of the selection stage
+only, not of the whole build, which is dominated by candidate generation and the 10,000-world simulation; the Saturday
+D12800 slot already carries a twenty per cent margin. This is an estimate, not a measurement. If the selector cannot
+produce 97 lineups the build fails closed at `verify_k90` rather than entering a short book.

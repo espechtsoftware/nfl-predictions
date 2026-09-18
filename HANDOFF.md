@@ -26,6 +26,40 @@ agent or developer:
 
 ## Current science index -- 2026-09-03
 
+### 2026-09-18 Week-2 entry layout: operator override to unique lineups per contest (ENTER_LAYOUT=sequential)
+
+- **Decision and authority.** The operator overrode the settled `top` layout: "I dont want to use the same lineups for
+  different contests." The analysis (`reports/2026-09-18-satellite-entry-allocation-question.md`) and the reviewing
+  agent had both concluded `top` should stand, because satellites award 25 tickets and expected tickets is invariant to
+  correlation across entries. That report reserved the decision to the operator on the grounds of decreasing ticket
+  utility; he has now made it explicitly. Measured cost, paid deliberately: **expected tickets about 3.79 -> 2.6**. What
+  he buys is that no single player sits in all 97 entries, so one injury cannot zero the slate.
+- **Configuration.** `scripts/week_env.sh` exports `ENTER_LAYOUT=sequential` as the week default, so build, after-build
+  and watchers cannot disagree; `ENTER_LAYOUT=top` falls back. Contest ORDER in `contests.json` is the priority order,
+  and the file is sorted by value per entry: satellite 1-2, ffwcsat 3-4, huddle 5, nickel 6-10, supersat1c 11-20,
+  supersat1a 21-30, pylon 31, supersat1b 32-41, flea 42-64, supersat25a 65-80, supersat25b 81-96, milly 97.
+- **The book is now 97 lineups, not 90.** `scripts/sunday_build_host.sh` derives `BOOK_ENTRIES` from `contests.json`
+  (entry total under `sequential`, 90 under `top`) and governs `find_run_dir`, `verify_k90`, the layout assertions and
+  the legacy emits with it; `sunday_after_build.sh` checks `-ge "${BOOK_ENTRIES:-90}"`.
+- **Guard proven fail-closed.** Reusing the existing 90-lineup run dir under `sequential` is refused:
+  `written 90 / operational_k 90 != 97; book.csv rows/uniqueness`. A short book cannot reach an upload.
+- **Full-chain rehearsal passed** on a synthetic 97-lineup book (the real 97-lineup selection does not exist yet; only
+  90 candidates carry `book_rank` and the selection is NOT a nested prefix, so it cannot be extended for free). Build
+  emitted the twelve blocks at exactly the ranks above; the published bundle verified as 12 contests / 97 entry rows /
+  every row 9/9 cells; `fill_dk_entries.py` filled the real 97-entry export at keep 97 / withdraw 0. Disjointness
+  verified on the bundle AND the filled upload: **97 entries, 97 distinct lineups, 0 lineups in more than one contest,
+  0 contest pairs sharing a lineup.** Rehearsal output renamed `DO-NOT-UPLOAD-rehearsal-FILLED.csv`.
+- **Defect 31 (fixed).** `sunday_after_build.sh once` crashed with `$2: unbound variable` under `set -u` when called
+  without a run dir and tag. That manual form is the documented fallback in the script's own comment, so it now prints a
+  usage line and exits 2.
+- **Open risk, deliberately accepted.** Saturday's build is the first real 97-lineup selection. Added cost is roughly
+  eight per cent of the SELECTION stage only, not the whole build (dominated by candidate generation and the
+  10,000-world simulation); the D12800 slot carries a twenty per cent margin. This is an estimate, not a measurement.
+- **Open question for the operator.** Ranking by value per entry puts the $20 Millionaire entry on the worst lineup in
+  the book, because its cutoff is far enough out that its clearing probability is near zero at every rank. Moving
+  `milly` earlier in `contests.json` costs very little if he prefers it.
+
+
 ### 2026-09-12 (afternoon) operator handed the whole project to one agent; Week-1 projection defect fixed; PREREG-090 launched
 
 - **Authority change.** The operator instructed this agent (Claude, Fable 5.1) to take over both

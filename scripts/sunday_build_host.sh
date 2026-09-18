@@ -24,6 +24,9 @@ DOSE_FILE=${DOSE_FILE:-/home/erich/week${WEEK}-dose.env}   # optional: PAID_LEV=
 # shellcheck disable=SC1090
 [[ -f "$DOSE_FILE" ]] && source "$DOSE_FILE"
 export PAID_LEV=${PAID_LEV:-160} PAID_BOOM=${PAID_BOOM:-640}
+# 2026-09-18: the book must hold one lineup per reserved entry when ENTER_LAYOUT=sequential (unique across contests).
+# BOOK_ENTRIES defaults to 90 and is raised from contests.json when the week reserves more.
+export BOOK_ENTRIES=${BOOK_ENTRIES:-$("$PROD_PY" -c "import json,os,sys; c=json.load(open(sys.argv[1])); tot=sum(int(x['entries']) for x in c); print(max(90, tot) if os.environ.get('ENTER_LAYOUT','top')=='sequential' else 90)" "$CONTESTS_JSON")}
 LIVE="$CLONE/results/live/$WEEKDIR"; mkdir -p "$LIVE"
 echo "== $(date -u) week $WEEK group $GROUP run tag $RUN_TAG dose lev $PAID_LEV / boom $PAID_BOOM (D$((PAID_LEV + PAID_BOOM))) skip_pair ${SKIP_PAIR:-0}"
 # the run dir this build creates: newest receipt with our lev/boom whose built_utc falls inside our window (concurrent
@@ -32,7 +35,7 @@ find_run_dir() {  # $1 lev, $2 boom, $3 start epoch -> the run dir THIS invocati
   # 2026-09-17 review finding 3: bind the result to this invocation, not merely to a dose plus an mtime window.
   # Every clause below must hold: the receipt's dose, its build time inside [start-60, now], the week's draft group,
   # the expected clone SHA, and a complete K90 (90 written, nested prefix true).
-  "$PROD_PY" - "$LIVE" "$1" "$2" "$3" "$GROUP" "$WEEK" "$SEASON" <<'PYEOF'
+  "$PROD_PY" - "$LIVE" "$1" "$2" "$3" "$GROUP" "$WEEK" "$SEASON" "$BOOK_ENTRIES" <<'PYEOF'
 import json, sys, pathlib
 from datetime import datetime, timezone
 live, lev, boom, start, group, week, season = (pathlib.Path(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3]),
@@ -57,8 +60,8 @@ for d in sorted(live.iterdir()):
         continue
     if int(j.get("draft_group", -1)) != group or int(j.get("week", -1)) != week or int(j.get("season", -1)) != season:
         why.append(f"{d.name}: group/week/season {j.get('draft_group')}/{j.get('week')}/{j.get('season')} != {group}/{week}/{season}"); continue
-    if int(j.get("written", 0)) < 90:
-        why.append(f"{d.name}: written {j.get('written')} < 90"); continue
+    if int(j.get("written", 0)) < int(sys.argv[8]):
+        why.append(f"{d.name}: written {j.get('written')} < {sys.argv[8]}"); continue
     if j.get("book_k80_is_nested_prefix") is not True:
         why.append(f"{d.name}: K80 is not a nested prefix of the K90 book"); continue
     best = d
@@ -81,10 +84,11 @@ print(f"contests: {[(x['name'], x['contest_id'], x['entries'], x['keep']) for x 
 # 2026-09-18: under the default `top` layout every contest independently receives the vetted book's first N, so the
 # book only has to be as large as the WIDEST contest; the sum may exceed the book size (Week 2: 97 entries across 12
 # contests, widest 23).  Under `sequential` (the Week-1 unique-across-contests layout) the SUM is the binding limit.
+book = int(os.environ.get("BOOK_ENTRIES", "90"))
 if layout == "sequential":
-    assert tot <= 90, f"sequential layout needs one unique lineup per entry: {tot} entries > 90-lineup book"
+    assert tot <= book, f"sequential layout needs one unique lineup per entry: {tot} entries > {book}-lineup book"
 else:
-    assert widest <= 90, f"the widest contest reserves {widest} entries but the book holds 90 lineups"
+    assert widest <= book, f"the widest contest reserves {widest} entries but the book holds {book} lineups"
 PYEOF
 
 # 1. the governed pair (paid K80 / shadow) with receipt checks -- skipped with SKIP_PAIR=1 (the K90 below carries the
@@ -108,7 +112,7 @@ else
   # 2026-09-17 review finding 3: the builder's exit status is required, not just the presence of a matching directory.
   if ( cd "$CLONE" && NFL2_LIVE_CENTER=production PYTHONPATH="$CLONE/src" OMP_NUM_THREADS=1 "$LAB_PY" scripts/live_week.py \
       --season "$SEASON" --week "$WEEK" --group "$GROUP" --selector dual_emax --lev "$PAID_LEV" --boom "$PAID_BOOM" --sims 10000 --k 1 \
-      --seed 2026 --entries 90 --emit-a5-sidecars > /dev/null 2> "$OUT/k90-$RUN_TAG.err" ); then
+      --seed 2026 --entries "$BOOK_ENTRIES" --emit-a5-sidecars > /dev/null 2> "$OUT/k90-$RUN_TAG.err" ); then
     K90_DIR=$(find_run_dir "$PAID_LEV" "$PAID_BOOM" "$T0")
   else
     echo "K90 builder exited non-zero (see $OUT/k90-$RUN_TAG.err); refusing to adopt any run dir"; exit 1
@@ -120,7 +124,7 @@ fi
 # local copy — it requires identity present, sha equal and NOT dirty, exact written/operational_k, the week's lock,
 # the draft group, a legal unique 90-row book.csv and every sidecar file. Applied to reused directories too.
 verify_k90() {  # $1 run dir
-  "$LAB_PY" - "$1" "$PAID_LEV" "$PAID_BOOM" 90 1 "$EXPECT_SHA" "$LOCK_UTC" "$GROUP" <<'PYEOF'
+  "$LAB_PY" - "$1" "$PAID_LEV" "$PAID_BOOM" "$BOOK_ENTRIES" 1 "$EXPECT_SHA" "$LOCK_UTC" "$GROUP" <<'PYEOF'
 import csv, json, sys
 from pathlib import Path
 d, lev, boom, entries, sidecars, sha, lock, group = Path(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3]), int(sys.argv[4]), sys.argv[5] == "1", sys.argv[6], sys.argv[7], sys.argv[8]
@@ -177,7 +181,8 @@ emit() {  # $1 run dir, $2 label, $3 ranks
 # "EMIT FAILED" line on Sunday always means a real failure.
 layouts=$("$PROD_PY" - "$CONTESTS_JSON" <<'PYEOF'
 import json, sys
-c = json.load(open(sys.argv[1])); p = 1; q = 1; BOOK = 90
+import os
+c = json.load(open(sys.argv[1])); p = 1; q = 1; BOOK = int(os.environ.get("BOOK_ENTRIES", "90"))
 for x in c:
     n, k = int(x["entries"]), int(x["keep"]); lab = f"{x['name']}-{x['contest_id']}"
     print(f"k80 {lab} 1-{n}")

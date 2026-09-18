@@ -107,7 +107,13 @@ print('  (none)' if n==0 else '')" 2>/dev/null
   } > "$OUT/TODAY-30-LATEST.md"
   log "done $(basename "$run") -> $OUT/TODAY-30-LATEST.md"
 }
-if [ "${1:-}" = "once" ]; then process_run "$2" "$3"; exit $?; fi
+if [ "${1:-}" = "once" ]; then
+  if [ -z "${2:-}" ] || [ -z "${3:-}" ]; then
+    echo "usage: $0 once <run dir> <tag>   (e.g. $0 once /path/to/20260920T...Z-<sha> sun-d12800)" >&2; exit 2
+  fi
+  [ -d "$2" ] || { echo "not a run dir: $2" >&2; exit 2; }
+  process_run "$2" "$3"; exit $?
+fi
 # CHOSEN DOSE (2026-09-17, operator: enter the D12800 book): the poll processes only run dirs whose receipt lev/boom
 # equal CHOSEN_LEV/CHOSEN_BOOM (from the environment or $CHOSEN_FILE), so later builds at other doses never overwrite
 # ENTER/.  Run dirs that already exist at start (the Saturday-night builds) are processed too, oldest first, so the
@@ -135,7 +141,7 @@ while [ "$(date -u +%H%M)" -lt 1650 ]; do
     # wrong dose is never recorded at all, so changing the chosen dose and restarting really does re-evaluate it.
     matches_chosen "$run" || { log "skip $d (not the chosen dose; still eligible if the chosen dose changes)"; continue; }
     entries=$($PY -c "import json; print(json.load(open('$run/receipt.json'))['written'])" 2>/dev/null) || { log "unreadable receipt for $d"; continue; }
-    [ "$entries" -ge 90 ] || { log "skip $d (K$entries; the ENTER layout needs the K90 nested build)"; echo "$d" >> "$SEEN"; continue; }
+    [ "$entries" -ge "${BOOK_ENTRIES:-90}" ] || { log "skip $d (K$entries; the ENTER layout needs at least ${BOOK_ENTRIES:-90})"; echo "$d" >> "$SEEN"; continue; }
     if process_run "$run" "K${entries}-${d%%-*}"; then echo "$d" >> "$SEEN"; else log "process_run FAILED for $d -- left eligible for retry"; fi
   done
   sleep 30

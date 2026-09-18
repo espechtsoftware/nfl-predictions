@@ -8,7 +8,7 @@
 #                                                             # given as a prefix (bash undoes prefix assignments after a function returns)
 #
 # Exports: SEASON WEEK WEEKDIR SUNDAY LOCK_UTC LATE_CUTOFF_UTC WATCH_END_UTC GROUP OUT CLONE PROD PROD_PY LAB_PY
-#          TOOLS CONTESTS_JSON RUN_SUFFIX EXPECT_SHA LIVE_DIR
+#          TOOLS CONTESTS_JSON RUN_SUFFIX EXPECT_SHA LIVE_DIR ENTER_LAYOUT
 week_env() {
   local week=${1:?week}; local group=${2:-${GROUP:-}}
   export SEASON=${SEASON:-2026}
@@ -29,6 +29,13 @@ week_env() {
   export TOOLS=${TOOLS:-/home/erich/week1-sunday/tools}
   export CONTESTS_JSON=${CONTESTS_JSON:-$OUT/contests.json}
   export LIVE_DIR="$CLONE/results/live/$WEEKDIR"
+  # Entry layout (operator decision 2026-09-18, week 2 on): "sequential" gives every contest its OWN block of book
+  # ranks, so no lineup is ever entered in two contests; "top" gave every contest ranks 1..N (the Week-1 behaviour).
+  # Contest order in contests.json IS the priority order -- the first contest gets the best ranks -- so keep that file
+  # sorted by value per entry.  Under "sequential" the book must hold the ENTRY TOTAL, not 90; sunday_build_host.sh
+  # derives BOOK_ENTRIES from contests.json and every downstream check (verify_k90, the bundle verifier, the filler)
+  # is governed by it.  Set ENTER_LAYOUT=top in the environment to fall back.
+  export ENTER_LAYOUT=${ENTER_LAYOUT:-sequential}
   if [[ -z "$group" ]]; then
     group=$(PYTHONPATH="$PROD/src" "$PROD_PY" "$PROD/scripts/find_main_draft_group.py" --season "$SEASON" --sunday "$SUNDAY") || { echo "week_env: could not detect the Sunday-main draft group for $SUNDAY (set GROUP explicitly)" >&2; return 1; }
   fi
