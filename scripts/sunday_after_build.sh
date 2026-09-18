@@ -37,16 +37,27 @@ layout = os.environ.get("ENTER_LAYOUT", "top")   # top: every contest gets vette
                                                  # so each deserves the best lineups; Week-2 default).  sequential: the
                                                  # Week-1 layout (unique lineups across contests, keepers first).
 if layout == "top":
+    # A contest may set "block": true to take its own consecutive block of the book instead of ranks 1..n
+    # (2026-09-18 operator decision, measured on the corrected Week-2 book's own worlds: for five satellite contests,
+    # repeating the top block gives more EXPECTED seats but all-or-nothing; distinct blocks raise P(at least one seat)
+    # from 35% to 58% at a 190-point cutoff, costing ~15% of expected seats. Fixed-value seats favour reliability.)
+    cursor = 0
     for c in contests:
         n, k = int(c["entries"]), int(c["keep"]); lab = f"{c['name']}-{c['contest_id']}"
-        lines = body[:n]
+        if c.get("block"):
+            lines = body[cursor:cursor + n]; lo, hi = cursor + 1, cursor + n; cursor += n; kind = "own block"
+        else:
+            lines = body[:n]; lo, hi = 1, n; kind = "top"
         if len(lines) != n:
-            print(f"WARNING {lab}: only {len(lines)} of {n} lineups available from a K{entries} book")
+            print(f"WARNING {lab}: only {len(lines)} of {n} lineups available from a K{entries} book (ranks {lo}-{hi})")
         out = E / f"ENTER-{lab}-{n}-entries-KEEP-first-{k}.csv"
         with open(out, "w", newline="") as f:
             w = csv.writer(f); w.writerow(hdr); w.writerows(lines)
-        print(f"{lab}: {n} entries = vetted ranks 1-{n} (top layout; keep {k}) -> {out.name}")
-    print(f"top layout: every contest receives the vetted book's first N; {sum(int(c['entries']) for c in contests)} entries in total")
+        print(f"{lab}: {n} entries = vetted ranks {lo}-{hi} ({kind}; keep {k}) -> {out.name}")
+    if cursor > entries:
+        print(f"WARNING: blocked contests need ranks up to {cursor} but the book holds {entries}")
+    print(f"top layout: {sum(int(c['entries']) for c in contests)} entries; blocked contests consumed ranks 1-{cursor}" if cursor else
+          f"top layout: every contest receives the vetted book's first N; {sum(int(c['entries']) for c in contests)} entries in total")
 else:
     keep_total = sum(int(c["keep"]) for c in contests); fill_next = keep_total + 1; keep_next = 1
     for c in contests:
