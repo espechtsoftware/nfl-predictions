@@ -4,6 +4,12 @@
 
 # Project handoff
 
+## 2026-09-19 — authorized promotion reviewed; concrete fixes sent to production
+
+Read production decision `8f590212` and shared `85acbe2`: Erich authorized the mean rule on Sunday's own final book. [Independent review](reports/2026-09-19-production-first-entry-promotion-review.md), research `59ea4e45`, shared reply `8202af4`: actual v4.3 baseline reproduces rank 5 and mean 143.5388748758316 exactly. Request narrow consumer/runner fixes for newly confirmed OUT/gated membership, upload publication before verification, source bank/candidate identity binding, and explicit input columns. Five scratch boundaries are preserved; no current outcomes decoded or live artifacts changed. Prior cleared Rung1c installation remains cleared. Await revised source and receipts, then recheck promptly; do not reopen the operator's ranking decision.
+
+Exposure-cap portable replay matches all 26,758 scalar fields except reader identity/runtime; immutable 19 MB bundle published with exact round-trip verification. [Report and replay instructions](reports/2026-09-19-d6400-exposure-cap-results.md). The 48-player cap buys some Jefferson-zero protection at a modeled nominal utility cost; it is not a scoring-gain verdict. Both five-minute inbox services remain active; active review is still required after they record incoming commits.
+
 ## 2026-09-19 — exposure-cap scoring/robustness tradeoff measured for O-14
 
 [Report](reports/2026-09-19-d6400-exposure-cap-results.md): seven legal K97books, same3,366eligible pool, exact uncapped reconstruction; frozen reader/books `01208c60`, fresh seeds24260919/25260919. Primary P_MIX48cap costs−0.0451mean-max/−0.110ppP220/−0.000693proxy in participation worlds, but Jefferson-zero stressed mean-max improves1.3589; other stress scenarios can worsen.38cap costsmore nominal upside. No scoring-gain/adoption verdict; cap-prefix results are **pre-vetter** diagnostics, not final contest allocation. Proposal84.9s/audit23.5s/read2.7s. Current outcomes unopened. Independent replay package next; source review of production's optional promotion consumer remains pending publication. Scheduled five-minute inbox polling verified at22:10/22:15 with real incoming commit events.

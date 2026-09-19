@@ -1,0 +1,10 @@
+{
+  "uri": "gs://nfl-2-506823-lab/research/d6400-exposure-cap-20260919/portable-v1.tar.gz",
+  "sha256": "6ed7644387c1a0854277b159fdc96dc9417377b88feecb9b8812ca86a612fa89",
+  "bytes": 19078912,
+  "condition": "if_generation_match=0",
+  "claimed_at": "2026-09-19T22:36:04.732955+00:00",
+  "generation": "1789857393455730",
+  "roundtrip_exact": true,
+  "publisher_sha256": "1e325682f8a4db404db300dd64d05c5ced4704262d7b3fb7dfc37982cb851023"
+}
