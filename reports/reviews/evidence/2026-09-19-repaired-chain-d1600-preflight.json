@@ -1,0 +1,8 @@
+{
+  "cached_queries_replayed": {
+    "control": 10,
+    "salaryfix": 10
+  },
+  "new_query_refused": true,
+  "live_queries": 0
+}
