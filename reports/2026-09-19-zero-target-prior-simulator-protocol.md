@@ -1,0 +1,21 @@
+# Calibrated simulator trace of the two frozen zero-target priors
+
+Both rules passed the predeclared historical nomination screen at `1938d377` / result `3ac7c928`. Freeze this follow-up before simulating either rule. This is an outcome-free fixed-pool selection experiment on the **completed repaired full-chain frame and its 160 candidates**, not a new historical lineup-panel read or an entered selector change.
+
+## Fixed inputs and arms
+
+Use the repaired full CLI run from lab `2dc116c`, preserved by adapter `90a26b4f`: frame, ordered candidate player IDs, I selection and independent audit banks, H selection and fixed-calibration audit, original book/receipt and frozen current schedule query. Hash all inputs. Reconstruct the validated game inputs from that exact schedule and frame. Before treatment simulation, reproduce every baseline H selection and audit value and both baseline EMAX/WEMAX books exactly. Refuse any mismatch. Authenticate the same six historical benchmark objects used by the baseline; no extra tables or current outcome reads.
+
+Three hsim arms: original observed-zero baseline; **one_prior_game** and **past_empirical** exactly as in the historical protocol. Eligibility remains zero observed target share, at least20% prior snaps, at least one prior game, original activity mask, and RB/WR/TE position. The learned parameters are the already-published 2026 model trained only through2025; no re-fit or parameter search. Change only eligible initial target weights. Carry inputs, noneligible initial weights, frame means, efficiency inputs, candidate generation, player eligibility, game inputs, concentration/severity models and all I banks stay fixed. Downstream calibrated carry weights/team efficiencies may change through the existing shared calibration algorithm; report that rather than claiming final carries are fixed.
+
+Each arm uses the unchanged five400-world calibration pilots at seed2326, selection10000worlds at2326 and independent final audit10000worlds at2426 with the same calibrated weights. Preserve exact float32 banks, initial/final weights, team efficiency and player mean/tail summaries. The prior-weight adapter calls the unchanged original implementation first and applies only the specified mask; live source files are not modified by the research runner.
+
+Select97entries with the actual existing equal-I/H EMAX and same-pool WEMAX implementations. Use original candidate summation order. No swaps, different seeds, alternative mixture weights, exposure edits or threshold search. Six fixed books result; preserve all of them.
+
+## Reports
+
+Report positive/zero scoring support changes, mean absolute error to the served means (a calibration diagnostic, not truth), prior-recipient and nonrecipient changes, candidate/book overlap, first roster and all exact identities. Evaluate all six books under the unchanged independent I audit and each of the three independent H audits, plus the three equal-I/H mixtures. Expected maximum, P220 and GLOBAL proxy at prefixes1/10/20/30/40/80/90/97 and the twelve actual contest blocks are mandatory. Use the same GLOBAL constants and uncertainty convention as the complete-chain reader. Report paired Monte Carlo errors for each rule-minus-baseline contrast within each selector under every law; simulator and calibration uncertainty are not covered by those errors.
+
+The primary descriptive comparisons are each rule's ordinary EMAX book minus the baseline EMAX book at97, under every audit law. WEMAX is a named secondary selector comparison; report its tradeoffs without changing which estimand was primary. Do not claim a rule is superior merely because its own model favors its own book. Historical target-share evidence remains separate from this simulated lineup evidence. With97selected out of160candidates, this small-dose trace can miss benefits or harms that emerge at the production pool size; a larger bounded pool may follow under a separately declared budget.
+
+One local process, one CPU, ten-minute cap, no current outcome access, vendor call, cloud write, live configuration change or money-path upload. Publish adverse or flat results as fully as positive ones. A subsequent source patch/rehearsal/review and explicit operator adoption decision remain separate.
