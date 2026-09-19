@@ -1,0 +1,15 @@
+# Fixed participation transfer to actual deployed inputs and the host cache
+
+Frozen before evaluating this contrast, September 19, 2026. This diagnostic closes one identified input-lineage gap; it does not generate another corpus or establish full-dose performance.
+
+Use the exact 428-player frame, incumbent/hsim selection banks and 06:29:00.515884 UTC projection batch from the successful actual-warehouse D160 CLI proof, with the unchanged workstation historical cache SHA256 `8aaa5daf5a3ebd12bdb471466dabefdc55f774988ff9437710a4e54467b072b7`. Borrow the existing fixed D1600 research candidate pool. Every candidate must remain fully scoreable and satisfy the same house roster rules on that actual frame. No candidates are added or chosen by this diagnostic. One removed universe player, Michael Carter, is absent from all 1,600 candidates.
+
+Compare only ordinary and the unchanged full participation rule. Keep K97, the existing map and its provider-bound 12:42:10 UTC frozen status capture. Replay this capture as of its recorded cutoff; do not describe it as newly collected. Use selection-mask seed 20260919054. Require exact reconstruction of the original actual D160 ordinary control and selection means before selecting either book from the borrowed D1600 pool.
+
+Use the exact original fitted incumbent components saved in the authenticated host-cache diagnostic. Reproduce its entire original selection bank before drawing fresh audit seed 14260919. Reconstruct the actual hsim game inputs from the saved frame/receipt, reproduce the complete original hsim bank using calibration seed 2326, then hold those calibrated weights fixed for fresh audit seed 15260919. All historical hsim inputs are authenticated local benchmark files behind the 2026 outcome firewall. No provider queries or current scoring labels are permitted. Audit participation-mask seed is 20260919056.
+
+Apply the unchanged production vetter with the same captured queries as the preceding participation comparison. Report both raw and vetted orders, all 20 previously specified prefix/block regions, both component laws and their equal mixture, under full participation and all-active assumptions. Report expected max, P220, fixed historical winner proxy and mean lineup, with paired Monte Carlo intervals. No narrowed rule, probability/threshold tuning, candidate generation, row swap or favorable-block selection.
+
+Preserve both benefits and losses. A repeated gain supports transfer to the actual overnight deployed laws on this borrowed pool; a failure weakens that transfer. Neither outcome constitutes evidence on the yet-unfinished operating full corpus, the forthcoming morning refresh, observed NFL performance or a better first Millionaire entry. No entry/pointer/timer/model changes result from the diagnostic.
+
+The implementation must pass a synthetic complete selection/delivery smoke and freeze the input manifest before the real contrast. Failed exact-law replay remains a failed artifact rather than being silently treated as a comparable audit. Any necessary source repair must be documented and frozen before a separately named rerun.
