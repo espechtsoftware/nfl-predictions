@@ -4,6 +4,10 @@
 
 # Project handoff
 
+## 2026-09-19 — follow-up review of vetting evidence and local cache
+
+[Source review](reports/2026-09-19-transition-followup-review.md) finds PREREG100max-risk/0.5/ascending-risk proxy differs from installedsum-risk/1.0/stable-tier helper; claims of an exact shipped-rule test need correction. Frozen runner remains in lab395ab44, omitted from documentation-only main consolidation. Its mechanics flag still reads actual columns; it is not outcome-disabled. No claim that this proves outcome tuning. Host historical cache is fromAug29and blindly reused; exact artifact requested for a representative proof and full comparison. Keep existing host cache intact; no extra model/cache adoption is required by the three current repairs.
+
 ## 2026-09-19 — feature gate accepted; strict-prior cache refresh next
 
 [Feature validation](reports/reviews/evidence/2026-09-19-release-feature-validation.json) explains every historical difference. Original usage SQL + original salary snapshot + current other inputs reproduces102,927historical rows exactly in every field. Time-travel proves one gsis/PFR mapping absent beforeSeptember17build and present afterSeptember18rawrefresh, linking three2025snap records. Remaining feature differences are tiny floating reduction roundoff. All normal leakage, support and duplicate checks pass. Registered cache checkpoint released; no host activation until complete refresh/CLI proof.
