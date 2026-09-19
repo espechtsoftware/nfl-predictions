@@ -4,6 +4,12 @@
 
 # Project handoff
 
+## 2026-09-19 — injury-type screen fails; feature refresh under historical-drift review
+
+[Injury-type result](reports/2026-09-19-injury-type-opportunity-results.md): primary deviance delta+0.000560,95% interval[-0.000897,+0.002061], primary gate fails; two folds exactly prediction-identical. All-active delta−0.000092. No live nomination. Same forecast/reader authenticated; cloud evaluation JSON-key failure repaired solely in separate serializer. Cross-read requested.
+
+`build-features-x4b8z` completed05:54:30Z, all leakage checks passed. Week2 usage recovered397prior-game/396snap rows, no duplicate keys. Historical salary rows exact, but five historical feature tables differ; release remains at the pre-cache checkpoint. Column diagnosis finds float-roundoff in xfp/team aggregates plus three2025activity corrections for one gsis_id, propagating to14prior-count rows and position-prior smoothing. Raw snap/player-ID data are newer than the prior feature build. An unchanged-usage-SQL replay with the old salary spine and current raw data is being run to separate source refresh from the salary patch; no automatic acceptance of differences.
+
 ## 2026-09-19 — backups verified; feature image update reconciled
 
 All36 snapshots verified at05:43:40.913Z, one view retained. First feature image update completed; pre-execution template guard caught only additional gcloud clientVersion metadata. No feature execution or live table change. Independent read confirms actual task template unchanged; all first-attempt registry lanes terminalized. [Release checkpoint](reports/2026-09-19-weekend-input-repair-release-plan.md) records the exact query and resume rules. Resume verifies the existing snapshot/source set, skips the already-applied update and permits only the documented clientVersion metadata difference. Peer notified at lab `8fa06a5`.

@@ -97,3 +97,5 @@ Consolidated September 18, 2026 at Erich's request. Source commits: production `
 - [Runtime release review](2026-09-19-runtime-release-review.md): 42 behavioral tests, exact full arm-script hash and default/candidate path resolution pass; prepared option remains unactivated.
 
 - [Delivered order after vetting](2026-09-19-delivered-order-trace.md): exact installed helper replay changes first rank to5/10; prior first/prefix claims are pre-vetting.
+
+- [Injury-type opportunity result](2026-09-19-injury-type-opportunity-results.md): fixed screen fails advancement; two prediction-identical folds disclosed; cross-read requested.

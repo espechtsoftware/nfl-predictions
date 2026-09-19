@@ -1,0 +1,47 @@
+[
+  {
+    "season": 2019,
+    "active_rows": 2944,
+    "questionable_rows": 126,
+    "questionable_slates": 16,
+    "prediction_changed_rows": 2944,
+    "questionable_prediction_changed_rows": 126,
+    "max_abs_prediction_change": 0.2088925301704343
+  },
+  {
+    "season": 2021,
+    "active_rows": 3150,
+    "questionable_rows": 199,
+    "questionable_slates": 17,
+    "prediction_changed_rows": 0,
+    "questionable_prediction_changed_rows": 0,
+    "max_abs_prediction_change": 0.0
+  },
+  {
+    "season": 2022,
+    "active_rows": 2915,
+    "questionable_rows": 180,
+    "questionable_slates": 17,
+    "prediction_changed_rows": 0,
+    "questionable_prediction_changed_rows": 0,
+    "max_abs_prediction_change": 0.0
+  },
+  {
+    "season": 2023,
+    "active_rows": 2990,
+    "questionable_rows": 161,
+    "questionable_slates": 17,
+    "prediction_changed_rows": 2990,
+    "questionable_prediction_changed_rows": 161,
+    "max_abs_prediction_change": 0.1215938077229115
+  },
+  {
+    "season": 2024,
+    "active_rows": 3024,
+    "questionable_rows": 130,
+    "questionable_slates": 17,
+    "prediction_changed_rows": 3024,
+    "questionable_prediction_changed_rows": 130,
+    "max_abs_prediction_change": 0.09446226738921837
+  }
+]

@@ -1,0 +1,23 @@
+{
+  "mode": "read",
+  "study_sha256": "6914d7f3a4b6f0d06defa128cc20380d165b88004fde1f5ea8aa641e96d32274",
+  "context_sha256": "b6964dac9050de36c54ba0793ee2db300e1eda94518aadfb0cd7dc795d5c9230",
+  "adapter_sha256": "683852182215e3cd4a912b01d0b82b2d2a5d26f91efdeabeb8e2bc515d414d48",
+  "forecast_build_id": "32334063-4581-4aa1-b428-b771f3332072",
+  "objects": [
+    {
+      "uri": "gs://nfl-2-506823-lab/research/injury-type-opportunity-20260919/v2/read/score-result.json",
+      "generation": "1789797384473030",
+      "bytes": 5172,
+      "crc32c": "IxnlkQ==",
+      "sha256": "718b1467b186869980032f3d2b8e43dc87f253bc7d2bd5492541dcd90ca70003"
+    },
+    {
+      "uri": "gs://nfl-2-506823-lab/research/injury-type-opportunity-20260919/v2/read/score-rows.parquet",
+      "generation": "1789797385679349",
+      "bytes": 1322858,
+      "crc32c": "ARJ8lQ==",
+      "sha256": "075cbf8f58042e37b470a49bb10b624a2a9bcae3a5a6731263efd09747790bf7"
+    }
+  ]
+}

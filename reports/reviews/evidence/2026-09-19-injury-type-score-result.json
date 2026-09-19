@@ -1,0 +1,179 @@
+{
+  "primary_delta": 0.0005600051488467103,
+  "primary_95_interval": [
+    -0.0008971952042143494,
+    0.0020609238062252165
+  ],
+  "primary_scores": {
+    "control_deviance": 1.9687507121122068,
+    "treatment_deviance": 1.9693107172610531,
+    "control_bias": 0.2515891682574096,
+    "treatment_bias": 0.25144572086746164,
+    "control_mae": 2.1216154609086177,
+    "treatment_mae": 2.1222791043193507
+  },
+  "by_season": {
+    "2019": 0.0014179476064400784,
+    "2021": 0.0,
+    "2022": 0.0,
+    "2023": 0.0009244405933278362,
+    "2024": 0.0004576375444656366
+  },
+  "all_active_delta": -9.176083158740934e-05,
+  "all_active_scores": {
+    "control_deviance": 1.6560400885033109,
+    "treatment_deviance": 1.6559483276717235,
+    "control_bias": 0.11771371259494948,
+    "treatment_bias": 0.11766853412570437,
+    "control_mae": 1.8224984072075578,
+    "treatment_mae": 1.8226049587672617
+  },
+  "nominate_for_separate_followup": false,
+  "support": [
+    {
+      "season": 2019,
+      "predicted": 2944,
+      "active": 2944,
+      "missing_activity": 0,
+      "active_missing_targets": 0,
+      "scored": 2944,
+      "questionable_scored": 126
+    },
+    {
+      "season": 2021,
+      "predicted": 3155,
+      "active": 3150,
+      "missing_activity": 0,
+      "active_missing_targets": 0,
+      "scored": 3150,
+      "questionable_scored": 199
+    },
+    {
+      "season": 2022,
+      "predicted": 3387,
+      "active": 2915,
+      "missing_activity": 0,
+      "active_missing_targets": 0,
+      "scored": 2915,
+      "questionable_scored": 180
+    },
+    {
+      "season": 2023,
+      "predicted": 3405,
+      "active": 2990,
+      "missing_activity": 0,
+      "active_missing_targets": 0,
+      "scored": 2990,
+      "questionable_scored": 161
+    },
+    {
+      "season": 2024,
+      "predicted": 3466,
+      "active": 3024,
+      "missing_activity": 0,
+      "active_missing_targets": 0,
+      "scored": 3024,
+      "questionable_scored": 130
+    }
+  ],
+  "descriptive": [
+    {
+      "group": "position",
+      "value": "RB",
+      "rows": 219,
+      "scores": {
+        "control_deviance": 2.0035952874886447,
+        "treatment_deviance": 2.005259532296048,
+        "control_bias": 0.18894580812866427,
+        "treatment_bias": 0.1887244729956185,
+        "control_mae": 1.7576976019300183,
+        "treatment_mae": 1.758168389889797
+      }
+    },
+    {
+      "group": "position",
+      "value": "TE",
+      "rows": 156,
+      "scores": {
+        "control_deviance": 1.970551970844538,
+        "treatment_deviance": 1.9708284199617947,
+        "control_bias": 0.4874565885279223,
+        "treatment_bias": 0.4857295527320581,
+        "control_mae": 1.9842806703522549,
+        "treatment_mae": 1.984590902845477
+      }
+    },
+    {
+      "group": "position",
+      "value": "WR",
+      "rows": 421,
+      "scores": {
+        "control_deviance": 2.0103258657325123,
+        "treatment_deviance": 2.011183964230131,
+        "control_bias": 0.12468608367163156,
+        "treatment_bias": 0.12517961784954684,
+        "control_mae": 2.374904015031335,
+        "treatment_mae": 2.376328523498256
+      }
+    },
+    {
+      "group": "practice",
+      "value": "0.0",
+      "rows": 87,
+      "scores": {
+        "control_deviance": 2.095315391442263,
+        "treatment_deviance": 2.097474510715826,
+        "control_bias": 0.5165167195024969,
+        "treatment_bias": 0.5121510072598712,
+        "control_mae": 2.218957944967861,
+        "treatment_mae": 2.22049464326338
+      }
+    },
+    {
+      "group": "practice",
+      "value": "1.0",
+      "rows": 561,
+      "scores": {
+        "control_deviance": 2.2122340717086666,
+        "treatment_deviance": 2.2133264169985587,
+        "control_bias": 0.07064366779219285,
+        "treatment_bias": 0.07151189707900323,
+        "control_mae": 2.321062840369841,
+        "treatment_mae": 2.322425649711461
+      }
+    },
+    {
+      "group": "practice",
+      "value": "2.0",
+      "rows": 133,
+      "scores": {
+        "control_deviance": 1.6496630151730591,
+        "treatment_deviance": 1.6465754979326719,
+        "control_bias": 0.26375872955452956,
+        "treatment_bias": 0.2650924422230325,
+        "control_mae": 1.7130779774153333,
+        "treatment_mae": 1.7105157922623118
+      }
+    },
+    {
+      "group": "practice",
+      "value": "nan",
+      "rows": 15,
+      "scores": {
+        "control_deviance": 0.8440367213713801,
+        "treatment_deviance": 0.8413915725784182,
+        "control_bias": 0.28545057949498204,
+        "treatment_bias": 0.27848428518915896,
+        "control_mae": 0.9604081119129834,
+        "treatment_mae": 0.958915947669602
+      }
+    }
+  ],
+  "scope": "One exploratory incremental-information screen; not a served-model or lineup effect",
+  "reader_sha256": "6914d7f3a4b6f0d06defa128cc20380d165b88004fde1f5ea8aa641e96d32274",
+  "context_sha256": "b6964dac9050de36c54ba0793ee2db300e1eda94518aadfb0cd7dc795d5c9230",
+  "forecast_publication_generation": "1789797085467118",
+  "forecast_build_id": "32334063-4581-4aa1-b428-b771f3332072",
+  "execution": "local exact frozen reader after cloud JSON-key serialization failure",
+  "elapsed_seconds": 0.13258120200771373
+}
