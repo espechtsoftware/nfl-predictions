@@ -1,0 +1,44 @@
+{
+  "scope": "Quote identity support only; no football labels or treatment scores",
+  "sql": "SELECT season, COUNT(*) AS n_rows,\n COUNTIF(event_id IS NULL OR TRIM(event_id)='') AS missing_event_id,\n COUNTIF(SAFE_CAST(snapshot_ts AS TIMESTAMP) IS NULL) AS invalid_snapshot,\n COUNTIF(bookmaker IS NULL OR player IS NULL OR market IS NULL OR outcome_name IS NULL) AS missing_quote_identity,\n COUNTIF(price IS NULL) AS missing_price,\n COUNT(DISTINCT event_id) AS events\n FROM `nfl-predictions-503414.nfl_raw.prop_lines`\n WHERE market IN ('player_pass_yds','player_pass_tds','player_rush_yds','player_reception_yds','player_receptions','player_anytime_td')\n GROUP BY season ORDER BY season",
+  "job_id": "c8fc2906-da6e-4601-9a27-1e9559f19229",
+  "by_season": [
+    {
+      "season": 2023,
+      "n_rows": 42781,
+      "missing_event_id": 0,
+      "invalid_snapshot": 0,
+      "missing_quote_identity": 0,
+      "missing_price": 0,
+      "events": 253
+    },
+    {
+      "season": 2024,
+      "n_rows": 48068,
+      "missing_event_id": 0,
+      "invalid_snapshot": 0,
+      "missing_quote_identity": 0,
+      "missing_price": 0,
+      "events": 252
+    },
+    {
+      "season": 2025,
+      "n_rows": 52148,
+      "missing_event_id": 0,
+      "invalid_snapshot": 0,
+      "missing_quote_identity": 0,
+      "missing_price": 0,
+      "events": 252
+    },
+    {
+      "season": 2026,
+      "n_rows": 33049,
+      "missing_event_id": 0,
+      "invalid_snapshot": 0,
+      "missing_quote_identity": 0,
+      "missing_price": 0,
+      "events": 32
+    }
+  ],
+  "source_modified": "2026-09-18 14:34:32.382000+00:00"
+}

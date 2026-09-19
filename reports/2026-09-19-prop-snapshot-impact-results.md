@@ -38,3 +38,6 @@ Odds data demonstrably enter the live projection consumer; this result concerns 
 
 
 The complete small input/output bundle is published at `gs://nfl-2-506823-lab/research/week2-input-release-20260919/prop-snapshot-impact-v1/manifest.json`, generation `1789801556753832`, SHA256 `28df3d976aeae371dc8c2ce43ba4b77cd3bde027a051a6975e7d5a64024457b6`. Includes quotes, schedules, names, both market estimates, paired rows, exact production-pool identities, proof frame and analysis/consumer source. All objects were downloaded and hash-verified. [Publication identities](reviews/evidence/2026-09-19-prop-snapshot-publication.json).
+
+
+Historical identity preflight is now complete: all176,046standard-market rows across2023–2026 have nonempty event IDs, parseable snapshot timestamps, quote identities and prices. This removes the specific missing-event-ID concern for the current warehouse; it does not settle incomplete-snapshot policy or establish historical performance. [Exact support query/result](reviews/evidence/2026-09-19-prop-snapshot-historical-identity-support.json), job `c8fc2906-da6e-4601-9a27-1e9559f19229`.

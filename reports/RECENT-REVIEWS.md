@@ -3,6 +3,13 @@
 Canonical reading copies are in this project's `reports/` folder. Open this index from
 `/home/erich/projects/nfl-predictions/reports/RECENT-REVIEWS.md`; a review worktree is not needed.
 
+Latest completed work, September 19:
+
+- [Cloud release results](2026-09-19-weekend-input-repair-release-results.md): refreshed features/cache/projections and actual CLI proof passed; job lanes released. Workstation activation remains operator-pending.
+- [Current Odds snapshot impact](2026-09-19-prop-snapshot-impact-results.md): confirmed stale-threshold defect; current numerical effect measured without changing production.
+- [Cache values/order decomposition](2026-09-19-cache-order-decomposition-results.md): both factors change simulated world alignment; independent calculations and original-bank identities verified, no cache adoption.
+- [Transition follow-up review](2026-09-19-transition-followup-review.md): live-vetting study mismatch confirmed and corrected in the lab's documentation.
+
 | Document | Purpose |
 |---|---|
 | [Injury-type opportunity protocol](2026-09-19-injury-type-opportunity-protocol.md) | One new incremental target-mean test; matched existing inputs, earlier-season fits, no live adoption |
