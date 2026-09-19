@@ -11,7 +11,57 @@
 -- current-team field is never historical evidence. Team codes are normalized
 -- on every source before identity and schedule joins.
 CREATE OR REPLACE TABLE `${features}.dk_salary_week` AS
-WITH own_log AS (
+WITH own_schedule_games AS (
+  -- dk_job deliberately leaves week NULL. Resolve the player's scheduled
+  -- game, not the draft group's first game or the current calendar week.
+  -- NFL schedule dates are Eastern dates; a Sunday-night UTC timestamp can
+  -- already be Monday. Duplicate copies of one schedule game are harmless.
+  SELECT DISTINCT
+    CAST(season AS INT64) AS season, CAST(week AS INT64) AS week,
+    game_id, SAFE_CAST(gameday AS DATE) AS game_date,
+    CASE UPPER(team)
+      WHEN 'ARZ' THEN 'ARI' WHEN 'BLT' THEN 'BAL' WHEN 'CLV' THEN 'CLE'
+      WHEN 'HST' THEN 'HOU' WHEN 'SL' THEN 'LA'
+      WHEN 'GNB' THEN 'GB' WHEN 'KAN' THEN 'KC' WHEN 'JAC' THEN 'JAX'
+      WHEN 'LAR' THEN 'LA' WHEN 'LVR' THEN 'LV' WHEN 'OAK' THEN 'LV'
+      WHEN 'NOR' THEN 'NO' WHEN 'NWE' THEN 'NE' WHEN 'SFO' THEN 'SF'
+      WHEN 'TAM' THEN 'TB' WHEN 'SD' THEN 'LAC' WHEN 'SDG' THEN 'LAC'
+      WHEN 'STL' THEN 'LA' ELSE UPPER(team)
+    END AS team
+  FROM `${raw}.schedules`, UNNEST([home_team, away_team]) AS team
+  WHERE game_type = 'REG'
+),
+own_schedule_weeks AS (
+  SELECT season, team, game_date, MIN(week) AS week
+  FROM own_schedule_games
+  WHERE game_date IS NOT NULL AND game_id IS NOT NULL AND week IS NOT NULL
+  GROUP BY season, team, game_date
+  HAVING COUNT(DISTINCT game_id) = 1 AND COUNT(DISTINCT week) = 1
+),
+own_source AS (
+  SELECT s.*,
+    CASE UPPER(s.team_abbr)
+      WHEN 'ARZ' THEN 'ARI' WHEN 'BLT' THEN 'BAL' WHEN 'CLV' THEN 'CLE'
+      WHEN 'HST' THEN 'HOU' WHEN 'SL' THEN 'LA'
+      WHEN 'GNB' THEN 'GB' WHEN 'KAN' THEN 'KC' WHEN 'JAC' THEN 'JAX'
+      WHEN 'LAR' THEN 'LA' WHEN 'LVR' THEN 'LV' WHEN 'OAK' THEN 'LV'
+      WHEN 'NOR' THEN 'NO' WHEN 'NWE' THEN 'NE' WHEN 'SFO' THEN 'SF'
+      WHEN 'TAM' THEN 'TB' WHEN 'SD' THEN 'LAC' WHEN 'SDG' THEN 'LAC'
+      WHEN 'STL' THEN 'LA' ELSE UPPER(s.team_abbr)
+    END AS canonical_team
+  FROM `${raw}.dk_salaries` s
+  WHERE s.slate_type = 'classic' AND s.salary > 0
+),
+own_resolved AS (
+  SELECT s.* EXCEPT (week),
+    COALESCE(CAST(s.week AS INT64), g.week) AS week
+  FROM own_source s
+  LEFT JOIN own_schedule_weeks g
+    ON s.week IS NULL AND g.season = CAST(s.season AS INT64)
+   AND g.team = s.canonical_team
+   AND g.game_date = DATE(s.game_start, 'America/New_York')
+),
+own_log AS (
   SELECT
     m.gsis_id,
     CAST(s.season AS INT64) AS season,
@@ -22,17 +72,10 @@ WITH own_log AS (
     s.dk_ppg,
     s.display_name,
     UPPER(s.position) AS position,
-    CASE UPPER(s.team_abbr)
-      WHEN 'GNB' THEN 'GB' WHEN 'KAN' THEN 'KC' WHEN 'JAC' THEN 'JAX'
-      WHEN 'LAR' THEN 'LA' WHEN 'LVR' THEN 'LV' WHEN 'OAK' THEN 'LV'
-      WHEN 'NOR' THEN 'NO' WHEN 'NWE' THEN 'NE' WHEN 'SFO' THEN 'SF'
-      WHEN 'TAM' THEN 'TB' WHEN 'SD' THEN 'LAC' WHEN 'SDG' THEN 'LAC'
-      WHEN 'STL' THEN 'LA'
-      ELSE UPPER(s.team_abbr)
-    END AS team,
+    s.canonical_team AS team,
     s.pulled_at,
     1 AS source_priority
-  FROM `${raw}.dk_salaries` s
+  FROM own_resolved s
   JOIN `${features}.player_id_map` m USING (dk_player_id)
   WHERE s.slate_type = 'classic' AND s.week IS NOT NULL AND s.salary > 0
   QUALIFY ROW_NUMBER() OVER (
