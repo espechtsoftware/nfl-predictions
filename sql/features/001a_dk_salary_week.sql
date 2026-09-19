@@ -32,11 +32,11 @@ WITH own_schedule_games AS (
   WHERE game_type = 'REG'
 ),
 own_schedule_weeks AS (
-  SELECT season, team, game_date, MIN(week) AS week
-  FROM own_schedule_games
-  WHERE game_date IS NOT NULL AND game_id IS NOT NULL AND week IS NOT NULL
-  GROUP BY season, team, game_date
-  HAVING COUNT(DISTINCT game_id) = 1 AND COUNT(DISTINCT week) = 1
+  SELECT g.season, g.team, g.game_date, MIN(g.week) AS week
+  FROM own_schedule_games g
+  WHERE g.game_date IS NOT NULL AND g.game_id IS NOT NULL AND g.week IS NOT NULL
+  GROUP BY g.season, g.team, g.game_date
+  HAVING COUNT(DISTINCT g.game_id) = 1 AND COUNT(DISTINCT g.week) = 1
 ),
 own_source AS (
   SELECT s.*,
