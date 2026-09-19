@@ -66,10 +66,15 @@ and in the reader, a fair-CRPS estimator misapplied to an issued distribution, a
 flag that bypassed the outcome gate, and three identity-join gaps. Roughly a dozen in
 total, essentially all surfaced by cross-agent review rather than self-review.
 
-**Six research nulls this session** (supply dose, swap search, target prior, direct-220
-objective, fivefold selection precision, learned law weighting). The ledger's standing
-position -- selection is closed for the current simulator and static feature set --
-survives unchanged.
+**Six research screens this session, none nominated** (supply dose, swap search, target
+prior, direct-220 objective, fivefold selection precision, learned law weighting).
+Calling them all nulls is too broad, per the laptop's correction: fivefold selection
+precision gained 0.099 expected maximum with a conditional interval excluding zero,
+while P220 did not improve conclusively. The supported conclusion is that **no tested
+new selector is nominated** -- these were constrained local searches and do not
+demonstrate that selection methods on a static feature set are exhausted. The ledger's
+Addendum-95 position is unchanged because nothing here tested it, not because this
+session re-confirmed it.
 
 
 ## Current science index -- 2026-09-03
