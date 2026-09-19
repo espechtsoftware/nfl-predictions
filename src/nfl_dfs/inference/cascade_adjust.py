@@ -192,6 +192,7 @@ def zero_out_projections(out: pd.DataFrame, out_ids: list[str]) -> pd.DataFrame:
 # and a team with no depth-chart QB on file is untouched. QB_BACKUP_GATE=0
 # disables it without a redeploy.
 DOUBTFUL_STATUSES = {"D", "DOUBTFUL"}
+QUESTIONABLE_STATUSES = {"Q", "QUESTIONABLE"}
 
 
 def _col(feats: pd.DataFrame, *names: str) -> pd.Series:
@@ -212,14 +213,23 @@ def find_backup_qbs(feats: pd.DataFrame) -> list[str]:
     report = _col(feats, "injury_status").fillna("").astype(str).str.upper().str.strip()
     is_out = status.isin(OUT_STATUSES) | report.eq("OUT")
     is_doubtful = status.isin(DOUBTFUL_STATUSES) | report.eq("DOUBTFUL")
-    qbs = feats.loc[pos.eq("QB") & depth.notna() & feats.gsis_id.notna(),
+    is_questionable = status.isin(QUESTIONABLE_STATUSES) | report.eq("QUESTIONABLE")
+    qbs = feats.loc[pos.eq("QB") & depth.notna() & feats.gsis_id.notna() & team.ne(""),
                     ["gsis_id"]].assign(team=team, depth=depth, out=is_out,
-                                        doubtful=is_doubtful)
+                                        doubtful=is_doubtful, questionable=is_questionable)
+    # Shared rule (tools/qb_classify.py, lab review 2026-09-19): a team needs a
+    # depth-1 row on file; the primary is that QB unless he is out, in which
+    # case the shallowest non-out QB is promoted. A Doubtful or Questionable
+    # primary makes the team ambiguous -- nothing is gated. Blank teams are
+    # never grouped. Deterministic zeroing is a declared practical
+    # approximation of the unconditional expectation, not a proved correction.
     ids: list[str] = []
     for _, g in qbs.groupby("team"):
         g = g.sort_values(["depth", "gsis_id"])
+        if not (g.depth == 1).any():
+            continue
         primary = g[~g.out]
-        if primary.empty or primary.iloc[0]["doubtful"]:
+        if primary.empty or primary.iloc[0]["doubtful"] or primary.iloc[0]["questionable"]:
             continue
         cut = primary.iloc[0]["depth"]
         ids.extend(g.loc[(g.depth > cut) & ~g.out, "gsis_id"].astype(str))

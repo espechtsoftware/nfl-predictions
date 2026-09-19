@@ -229,6 +229,26 @@ def test_backup_qb_gate_report_out_promotes_the_next_qb(monkeypatch):
     assert "CHI2" not in got, "already out; zeroed by find_out_players, not by the gate"
 
 
+def test_backup_qb_gate_lab_review_cases(monkeypatch):
+    """Lab review 2026-09-19: (a) a depth-2 + depth-3 team with NO depth-1 row is unknown, nothing gated;
+    (b) blank-team rows are never grouped together; (c) a Questionable primary makes the team ambiguous."""
+    monkeypatch.delenv("QB_BACKUP_GATE", raising=False)
+    from nfl_dfs.inference.cascade_adjust import find_backup_qbs
+    feats = _qb_slate()
+    feats.loc[feats.gsis_id == "NYJ2", "team_abbr"] = "NYJ"
+    feats = pd.concat([feats, pd.DataFrame([
+        {"gsis_id": "NYJ3", "display_name": "Jet Third", "dk_position": "QB", "team_abbr": "NYJ", "status": None, "injury_status": None, "depth_rank": 3},
+        {"gsis_id": "BLANK1", "display_name": "No Team A", "dk_position": "QB", "team_abbr": "", "status": None, "injury_status": None, "depth_rank": 1},
+        {"gsis_id": "BLANK2", "display_name": "No Team B", "dk_position": "QB", "team_abbr": "", "status": None, "injury_status": None, "depth_rank": 2},
+    ])], ignore_index=True)
+    feats.loc[feats.gsis_id == "CHI1", "injury_status"] = "Questionable"
+    got = find_backup_qbs(feats)
+    assert "NYJ3" not in got and "NYJ2" not in got, "no depth-1 row: unknown, nothing gated"
+    assert "BLANK2" not in got, "blank teams are not grouped"
+    assert "CHI2" not in got and "CHI3" not in got, "Questionable primary: ambiguous, nothing gated"
+    assert got == ["ATL3"], got
+
+
 def test_backup_qb_gate_is_a_noop_without_depth_or_when_disabled(monkeypatch):
     from nfl_dfs.inference.cascade_adjust import find_backup_qbs
     monkeypatch.delenv("QB_BACKUP_GATE", raising=False)
