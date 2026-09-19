@@ -249,6 +249,25 @@ def test_backup_qb_gate_lab_review_cases(monkeypatch):
     assert got == ["ATL3"], got
 
 
+def test_backup_qb_gate_tied_primaries_are_order_independent(monkeypatch):
+    """Lab v4 boundary: two depth-1 rows, one Doubtful — permuting their ids must not change the gating.
+    Any tied shallowest row being D/Q makes the team ambiguous; an all-healthy tie gates the deeper QBs."""
+    monkeypatch.delenv("QB_BACKUP_GATE", raising=False)
+    from nfl_dfs.inference.cascade_adjust import find_backup_qbs
+    base = _qb_slate()
+    for a, b in (("CHI1", "CHI9"), ("CHI9", "CHI1")):          # the two lexical orders of the tied pair
+        feats = pd.concat([base, pd.DataFrame([{"gsis_id": "CHI9", "display_name": "Chi Co-Starter", "dk_position": "QB",
+                                               "team_abbr": "CHI", "status": None, "injury_status": "Doubtful", "depth_rank": 1}])], ignore_index=True)
+        feats.loc[feats.gsis_id == "CHI1", "gsis_id"] = "TMP"; feats.loc[feats.gsis_id == "CHI9", "gsis_id"] = a
+        feats.loc[feats.gsis_id == "TMP", "gsis_id"] = b
+        got = find_backup_qbs(feats)
+        assert "CHI2" not in got and "CHI3" not in got, f"order {a},{b}: a Doubtful tied primary must make CHI ambiguous"
+    feats = pd.concat([base, pd.DataFrame([{"gsis_id": "CHI0", "display_name": "Chi Co-Starter", "dk_position": "QB",
+                                           "team_abbr": "CHI", "status": None, "injury_status": None, "depth_rank": 1}])], ignore_index=True)
+    got = find_backup_qbs(feats)
+    assert "CHI2" in got and "CHI3" in got and "CHI0" not in got, "an all-healthy tie still gates the deeper QBs"
+
+
 def test_backup_qb_gate_is_a_noop_without_depth_or_when_disabled(monkeypatch):
     from nfl_dfs.inference.cascade_adjust import find_backup_qbs
     monkeypatch.delenv("QB_BACKUP_GATE", raising=False)

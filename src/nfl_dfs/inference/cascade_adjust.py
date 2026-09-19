@@ -229,8 +229,13 @@ def find_backup_qbs(feats: pd.DataFrame) -> list[str]:
         if not (g.depth == 1).any():
             continue
         primary = g[~g.out]
-        if primary.empty or primary.iloc[0]["doubtful"] or primary.iloc[0]["questionable"]:
+        if primary.empty:
             continue
-        cut = primary.iloc[0]["depth"]
+        # Ties at the shallowest non-out depth (two depth-1 rows) resolve order-independently: any tied row
+        # Doubtful/Questionable -> ambiguous team, nothing gated (lab v4 boundary).
+        top = primary[primary.depth == primary.iloc[0]["depth"]]
+        if top.doubtful.any() or top.questionable.any():
+            continue
+        cut = top.iloc[0]["depth"]
         ids.extend(g.loc[(g.depth > cut) & ~g.out, "gsis_id"].astype(str))
     return sorted(set(ids))
