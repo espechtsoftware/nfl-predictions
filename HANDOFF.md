@@ -4,6 +4,10 @@
 
 # Project handoff
 
+## 2026-09-19 — real D6400 v4.3 rehearsal independently passes with46replacements
+
+[Updated review](reports/2026-09-19-production-qb-replacement-review.md): original6,399-candidate/K97book and candidate means reproduce exactly; all11downloaded objects authenticated. Frozen runner `051b9c5c` executes cleared peer tools with captured read-only queries and14allowlisted input columns. New DK Flowers OUT causes45affected rows;46total lineups replaced, including positions29/30; all97final rows valid,3,315unused eligible alternatives. Derived book SHA86147c51…, flagsa12d9867…. Scratch/research only, no entry/pointer mutation. This confirms actual repeated replacement mechanics, not an NFL benefit. Production should receive the larger fresh-status removal count; host install remains cleared pending D12800completion.
+
 ## 2026-09-19 — completed D6400 archive received; next selection comparison prepared
 
 Peer `77219ad` published11original D6400 files. [Download receipt](reports/reviews/evidence/2026-09-19-d6400-archive-download.json) verifies generation/bytes/SHA for every file; 6,399candidates/K97. The frame and two429×10,000selection banks exactly match the earlier morning trace. No outcome columns decoded. Fresh provider-bound injury/DK capture completed21:08:21Z. [Selection-loss frontier](reports/2026-09-19-selection-loss-frontier-protocol.md): bounded128incoming×97outgoing one-exchange search, fixed0/.25/.5/1/2point loss allowances; fivebehavioral tests and full-size synthetic capacity pass. No real frontier result/adoption yet; next authenticate fresh v4.3 delivered control, reconstruct original selection, then freeze concrete books before fresh audit. Production still owns host installation after D12800; review clearance already acknowledged.

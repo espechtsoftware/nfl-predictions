@@ -1,0 +1,1567 @@
+{
+ "version": "vet-replace-v4.3",
+ "status": "OK",
+ "problems": [],
+ "source_run": "/home/erich/projects/review-evidence/overnight-20260918/d6400-actual-dose-20260919/source",
+ "vetted_dir": "/home/erich/projects/review-evidence/overnight-20260918/d6400-actual-dose-20260919/host-v43-rehearsal/vetted",
+ "publishable": true,
+ "rehearsal_flags": {
+  "test_exclude_dk": "",
+  "no_fresh_dk": false
+ },
+ "input_sha256": {
+  "/home/erich/projects/review-evidence/overnight-20260918/d6400-actual-dose-20260919/host-v43-rehearsal/vetted/book.csv": "0dd9dd111c04fc8ac7c1a62b253330bbd182e48c4470dbefe54ec939eee64d0a",
+  "/home/erich/projects/review-evidence/overnight-20260918/d6400-actual-dose-20260919/host-v43-rehearsal/vetted/vetting.json": "75ed2a358169686905f7634cac09fc4d7e230c128dba67e44d3b2eac73eee298",
+  "/home/erich/projects/review-evidence/overnight-20260918/d6400-actual-dose-20260919/host-v43-rehearsal/vetted/source_receipt.json": "c97d6e49b157db3b16021dfefab160a8d32006e907ba045e123f6ab77fdd0934",
+  "/home/erich/projects/review-evidence/overnight-20260918/d6400-actual-dose-20260919/source/frame.parquet": "6e56f59d687b8f533ee02c05b90ec2c643c08b0e46aa78155a2c0d7b9894dab6",
+  "/home/erich/projects/review-evidence/overnight-20260918/d6400-actual-dose-20260919/source/candidates.parquet": "5d3c073546ae2d987498e5348fa850901e1fadc0c381f016651d1fee50b6cf9a",
+  "/home/erich/projects/review-evidence/overnight-20260918/d6400-actual-dose-20260919/source/incumbent_player_scores.npy": "1d711ff9af22bea4b17505470ba516c544261f04da428f557893a9e290ec15d5",
+  "/home/erich/projects/review-evidence/overnight-20260918/d6400-actual-dose-20260919/source/corrected_hsim_player_scores.npy": "c9f977295bde6a1987488de25ade643813cbf54d5e7c3903b753f714efe1023a",
+  "/home/erich/projects/review-evidence/overnight-20260918/d6400-actual-dose-20260919/host-v43-rehearsal/qb-flags.csv": "98c8278d8cd8b29e7c10c8c459366a361140e74d5d62665b2be13c1e87c96a95"
+ },
+ "qb_flags": "/home/erich/projects/review-evidence/overnight-20260918/d6400-actual-dose-20260919/host-v43-rehearsal/qb-flags.csv",
+ "required_k": 97,
+ "admit_risky": true,
+ "freshness": {
+  "frame_status": "build-time DK feed",
+  "fresh_dk_pulled_at": "2026-09-19 20:44:10.336279+00:00",
+  "fresh_dk_players": 670,
+  "injury_report_rows": 44
+ },
+ "exclusion_set": {
+  "Aidan O'Connell": "backup_qb:behind-healthy-primary",
+  "Andy Dalton": "backup_qb:behind-healthy-primary",
+  "Athan Kaliakmanis": "backup_qb:behind-healthy-primary",
+  "Behren Morton": "backup_qb:behind-healthy-primary",
+  "Brady Cook": "backup_qb:behind-healthy-primary",
+  "Cade Klubnik": "backup_qb:behind-healthy-primary",
+  "Carson Beck": "backup_qb:behind-healthy-primary",
+  "Case Keenum": "backup_qb:behind-healthy-primary",
+  "Cole Payton": "backup_qb:behind-healthy-primary",
+  "Davis Mills": "backup_qb:behind-healthy-primary",
+  "Drew Allar": "backup_qb:behind-healthy-primary",
+  "Fernando Mendoza": "backup_qb:behind-healthy-primary",
+  "Gardner Minshew II": "backup_qb:behind-healthy-primary",
+  "Haynes King": "backup_qb:behind-healthy-primary",
+  "J.J. McCarthy": "backup_qb:behind-healthy-primary",
+  "Jalen Milroe": "backup_qb:behind-healthy-primary",
+  "Jalon Daniels": "backup_qb:behind-healthy-primary",
+  "Jarrett Stidham": "backup_qb:behind-healthy-primary",
+  "Joe Fagnano": "backup_qb:behind-healthy-primary",
+  "Kenny Pickett": "backup_qb:behind-healthy-primary",
+  "Kurtis Rourke": "backup_qb:behind-healthy-primary",
+  "Kyle McCord": "backup_qb:behind-healthy-primary",
+  "Mac Jones": "backup_qb:behind-healthy-primary",
+  "Marcus Mariota": "backup_qb:behind-healthy-primary",
+  "Mason Rudolph": "backup_qb:behind-healthy-primary",
+  "Michael Pittman Jr.": "dk:OUT",
+  "Mitchell Trubisky": "backup_qb:behind-healthy-primary",
+  "Quinn Ewers": "backup_qb:behind-healthy-primary",
+  "Sam Ehlinger": "backup_qb:behind-healthy-primary",
+  "Sam Howell": "backup_qb:behind-healthy-primary",
+  "Shedeur Sanders": "backup_qb:behind-healthy-primary",
+  "Spencer Rattler": "backup_qb:behind-healthy-primary",
+  "Tanner McKee": "backup_qb:behind-healthy-primary",
+  "Taylen Green": "backup_qb:behind-healthy-primary",
+  "Tommy DeVito": "backup_qb:behind-healthy-primary",
+  "Trey Lance": "backup_qb:behind-healthy-primary",
+  "Tyler Huntley": "backup_qb:behind-healthy-primary",
+  "Tyrod Taylor": "backup_qb:behind-healthy-primary",
+  "Tyson Bagent": "backup_qb:behind-healthy-primary",
+  "Will Howard": "backup_qb:behind-healthy-primary",
+  "Zach Wilson": "backup_qb:behind-healthy-primary",
+  "Zay Flowers": "dk:OUT"
+ },
+ "removed_positions": [
+  29,
+  30,
+  31,
+  32,
+  34,
+  35,
+  36,
+  37,
+  38,
+  40,
+  41,
+  43,
+  44,
+  45,
+  46,
+  47,
+  49,
+  51,
+  53,
+  55,
+  56,
+  57,
+  59,
+  61,
+  62,
+  64,
+  66,
+  67,
+  68,
+  70,
+  71,
+  74,
+  75,
+  76,
+  77,
+  80,
+  82,
+  83,
+  85,
+  87,
+  91,
+  93,
+  94,
+  95,
+  96,
+  97
+ ],
+ "replacements": [
+  {
+   "vetted_position": 29,
+   "source_rank": 1,
+   "removed": [
+    "Justin Herbert",
+    "Javonte Williams",
+    "Bijan Robinson",
+    "Justin Jefferson",
+    "Zay Flowers",
+    "Tre' Harris",
+    "David Njoku",
+    "Jack Bech",
+    "49ers"
+   ],
+   "removed_because": {
+    "Zay Flowers": "dk:OUT"
+   },
+   "replacement": [
+    "Tyler Shough",
+    "Derrick Henry",
+    "Travis Etienne Jr.",
+    "Mike Evans",
+    "Chris Olave",
+    "Garrett Wilson",
+    "Mark Andrews",
+    "Devaughn Vele",
+    "Patriots"
+   ],
+   "candidate_index": 1333,
+   "gain_corrected_mix": 0.2499542236328125
+  },
+  {
+   "vetted_position": 30,
+   "source_rank": 2,
+   "removed": [
+    "C.J. Stroud",
+    "David Montgomery",
+    "Chase Brown",
+    "Zay Flowers",
+    "Drake London",
+    "Xavier Hutchinson",
+    "Dalton Schultz",
+    "Bijan Robinson",
+    "Seahawks"
+   ],
+   "removed_because": {
+    "Zay Flowers": "dk:OUT"
+   },
+   "replacement": [
+    "Caleb Williams",
+    "Derrick Henry",
+    "D'Andre Swift",
+    "Justin Jefferson",
+    "Devaughn Vele",
+    "Luther Burden III",
+    "Colston Loveland",
+    "Bryce Lance",
+    "49ers"
+   ],
+   "candidate_index": 2863,
+   "gain_corrected_mix": 0.2238616943359375
+  },
+  {
+   "vetted_position": 31,
+   "source_rank": 3,
+   "removed": [
+    "Caleb Williams",
+    "D'Andre Swift",
+    "Bucky Irving",
+    "Justin Jefferson",
+    "Zay Flowers",
+    "Luther Burden III",
+    "Cade Otton",
+    "Colston Loveland",
+    "Titans"
+   ],
+   "removed_because": {
+    "Zay Flowers": "dk:OUT"
+   },
+   "replacement": [
+    "Baker Mayfield",
+    "Bijan Robinson",
+    "Bucky Irving",
+    "Drake London",
+    "Emeka Egbuka",
+    "Carnell Tate",
+    "Cade Otton",
+    "Quinshon Judkins",
+    "49ers"
+   ],
+   "candidate_index": 4175,
+   "gain_corrected_mix": 0.1917572021484375
+  },
+  {
+   "vetted_position": 32,
+   "source_rank": 4,
+   "removed": [
+    "Dak Prescott",
+    "Javonte Williams",
+    "Breece Hall",
+    "Stefon Diggs",
+    "CeeDee Lamb",
+    "George Pickens",
+    "Dalton Schultz",
+    "Zay Flowers",
+    "Titans"
+   ],
+   "removed_because": {
+    "Zay Flowers": "dk:OUT"
+   },
+   "replacement": [
+    "Dak Prescott",
+    "Javonte Williams",
+    "Ashton Jeanty",
+    "Stefon Diggs",
+    "CeeDee Lamb",
+    "Devaughn Vele",
+    "Jake Ferguson",
+    "Ladd McConkey",
+    "Buccaneers"
+   ],
+   "candidate_index": 1696,
+   "gain_corrected_mix": 0.1823272705078125
+  },
+  {
+   "vetted_position": 34,
+   "source_rank": 6,
+   "removed": [
+    "Bryce Young",
+    "Chuba Hubbard",
+    "Bijan Robinson",
+    "Justin Jefferson",
+    "Zay Flowers",
+    "Drake London",
+    "Mitchell Evans",
+    "Jalen Coker",
+    "Jaguars"
+   ],
+   "removed_because": {
+    "Zay Flowers": "dk:OUT"
+   },
+   "replacement": [
+    "Lamar Jackson",
+    "Derrick Henry",
+    "Rhamondre Stevenson",
+    "Justin Jefferson",
+    "Rashod Bateman",
+    "Parker Washington",
+    "Mark Andrews",
+    "Devaughn Vele",
+    "Patriots"
+   ],
+   "candidate_index": 2224,
+   "gain_corrected_mix": 0.1779022216796875
+  },
+  {
+   "vetted_position": 35,
+   "source_rank": 8,
+   "removed": [
+    "Tyler Shough",
+    "Travis Etienne Jr.",
+    "Bucky Irving",
+    "Justin Jefferson",
+    "Chris Olave",
+    "Devaughn Vele",
+    "Cade Otton",
+    "Zay Flowers",
+    "Patriots"
+   ],
+   "removed_because": {
+    "Zay Flowers": "dk:OUT"
+   },
+   "replacement": [
+    "Brock Purdy",
+    "Christian McCaffrey",
+    "De'Von Achane",
+    "Mike Evans",
+    "Mack Hollins",
+    "Justin Jefferson",
+    "George Kittle",
+    "Josh Cameron",
+    "Broncos"
+   ],
+   "candidate_index": 5961,
+   "gain_corrected_mix": 0.169036865234375
+  },
+  {
+   "vetted_position": 36,
+   "source_rank": 9,
+   "removed": [
+    "Justin Herbert",
+    "Breece Hall",
+    "Bijan Robinson",
+    "Zay Flowers",
+    "Quentin Johnston",
+    "Ladd McConkey",
+    "Michael Mayer",
+    "Parker Washington",
+    "Titans"
+   ],
+   "removed_because": {
+    "Zay Flowers": "dk:OUT"
+   },
+   "replacement": [
+    "Tua Tagovailoa",
+    "Chuba Hubbard",
+    "Rhamondre Stevenson",
+    "Justin Jefferson",
+    "Drake London",
+    "Xavier Hutchinson",
+    "Kyle Pitts Sr.",
+    "Bijan Robinson",
+    "49ers"
+   ],
+   "candidate_index": 4015,
+   "gain_corrected_mix": 0.1675262451171875
+  },
+  {
+   "vetted_position": 37,
+   "source_rank": 11,
+   "removed": [
+    "Malik Willis",
+    "Christian McCaffrey",
+    "Bijan Robinson",
+    "Justin Jefferson",
+    "Malik Washington",
+    "Zay Flowers",
+    "Dalton Schultz",
+    "Caleb Douglas",
+    "Patriots"
+   ],
+   "removed_because": {
+    "Zay Flowers": "dk:OUT"
+   },
+   "replacement": [
+    "Malik Willis",
+    "Christian McCaffrey",
+    "Bijan Robinson",
+    "George Pickens",
+    "Malik Washington",
+    "Caleb Douglas",
+    "Dalton Schultz",
+    "De'Von Achane",
+    "Eagles"
+   ],
+   "candidate_index": 5875,
+   "gain_corrected_mix": 0.15679931640625
+  },
+  {
+   "vetted_position": 38,
+   "source_rank": 13,
+   "removed": [
+    "Baker Mayfield",
+    "Bucky Irving",
+    "Quinshon Judkins",
+    "Justin Jefferson",
+    "Zay Flowers",
+    "Emeka Egbuka",
+    "Cade Otton",
+    "Matthew Golden",
+    "49ers"
+   ],
+   "removed_because": {
+    "Zay Flowers": "dk:OUT"
+   },
+   "replacement": [
+    "Carson Wentz",
+    "Aaron Jones Sr.",
+    "D'Andre Swift",
+    "Justin Jefferson",
+    "Chris Olave",
+    "Parker Washington",
+    "T.J. Hockenson",
+    "Ladd McConkey",
+    "Patriots"
+   ],
+   "candidate_index": 1868,
+   "gain_corrected_mix": 0.14837646484375
+  },
+  {
+   "vetted_position": 40,
+   "source_rank": 15,
+   "removed": [
+    "Drake Maye",
+    "Rhamondre Stevenson",
+    "Jaylen Warren",
+    "Mack Hollins",
+    "Justin Jefferson",
+    "Ja'Marr Chase",
+    "Hunter Henry",
+    "Zay Flowers",
+    "Jaguars"
+   ],
+   "removed_because": {
+    "Zay Flowers": "dk:OUT"
+   },
+   "replacement": [
+    "Kirk Cousins",
+    "Christian McCaffrey",
+    "Ashton Jeanty",
+    "Justin Jefferson",
+    "Ja'Marr Chase",
+    "Quentin Johnston",
+    "Michael Mayer",
+    "Jack Bech",
+    "Jaguars"
+   ],
+   "candidate_index": 3435,
+   "gain_corrected_mix": 0.14605712890625
+  },
+  {
+   "vetted_position": 41,
+   "source_rank": 16,
+   "removed": [
+    "Jalen Hurts",
+    "Saquon Barkley",
+    "De'Von Achane",
+    "Wan'Dale Robinson",
+    "Dontayvion Wicks",
+    "Zay Flowers",
+    "Dallas Goedert",
+    "Drake London",
+    "Patriots"
+   ],
+   "removed_because": {
+    "Zay Flowers": "dk:OUT"
+   },
+   "replacement": [
+    "Dak Prescott",
+    "Aaron Jones Sr.",
+    "Javonte Williams",
+    "Terry McLaurin",
+    "Justin Jefferson",
+    "CeeDee Lamb",
+    "Jake Ferguson",
+    "Pat Bryant",
+    "49ers"
+   ],
+   "candidate_index": 1325,
+   "gain_corrected_mix": 0.141204833984375
+  },
+  {
+   "vetted_position": 43,
+   "source_rank": 19,
+   "removed": [
+    "Lamar Jackson",
+    "Derrick Henry",
+    "De'Von Achane",
+    "Justin Jefferson",
+    "Devaughn Vele",
+    "Zay Flowers",
+    "Mark Andrews",
+    "Michael Mayer",
+    "Titans"
+   ],
+   "removed_because": {
+    "Zay Flowers": "dk:OUT"
+   },
+   "replacement": [
+    "C.J. Stroud",
+    "David Montgomery",
+    "Jaylen Warren",
+    "Ja'Marr Chase",
+    "Drake London",
+    "Xavier Hutchinson",
+    "Dalton Schultz",
+    "Bijan Robinson",
+    "49ers"
+   ],
+   "candidate_index": 5171,
+   "gain_corrected_mix": 0.1394500732421875
+  },
+  {
+   "vetted_position": 44,
+   "source_rank": 20,
+   "removed": [
+    "Carson Wentz",
+    "David Montgomery",
+    "Bijan Robinson",
+    "Justin Jefferson",
+    "Zay Flowers",
+    "Luther Burden III",
+    "Dalton Schultz",
+    "T.J. Hockenson",
+    "49ers"
+   ],
+   "removed_because": {
+    "Zay Flowers": "dk:OUT"
+   },
+   "replacement": [
+    "Carson Wentz",
+    "Javonte Williams",
+    "Bijan Robinson",
+    "Justin Jefferson",
+    "Drake London",
+    "Luther Burden III",
+    "Dalton Schultz",
+    "T.J. Hockenson",
+    "49ers"
+   ],
+   "candidate_index": 4871,
+   "gain_corrected_mix": 0.134552001953125
+  },
+  {
+   "vetted_position": 45,
+   "source_rank": 21,
+   "removed": [
+    "Dak Prescott",
+    "Chuba Hubbard",
+    "Javonte Williams",
+    "Terry McLaurin",
+    "CeeDee Lamb",
+    "Zay Flowers",
+    "Jake Ferguson",
+    "Jalen Coker",
+    "Patriots"
+   ],
+   "removed_because": {
+    "Zay Flowers": "dk:OUT"
+   },
+   "replacement": [
+    "Bo Nix",
+    "J.K. Dobbins",
+    "Javonte Williams",
+    "Terry McLaurin",
+    "Justin Jefferson",
+    "Jaylen Waddle",
+    "Evan Engram",
+    "Parker Washington",
+    "49ers"
+   ],
+   "candidate_index": 3893,
+   "gain_corrected_mix": 0.1319732666015625
+  },
+  {
+   "vetted_position": 46,
+   "source_rank": 24,
+   "removed": [
+    "Justin Herbert",
+    "Ashton Jeanty",
+    "Omarion Hampton",
+    "Justin Jefferson",
+    "Zay Flowers",
+    "Ladd McConkey",
+    "Dalton Schultz",
+    "David Njoku",
+    "Eagles"
+   ],
+   "removed_because": {
+    "Zay Flowers": "dk:OUT"
+   },
+   "replacement": [
+    "Bryce Young",
+    "Aaron Jones Sr.",
+    "Chuba Hubbard",
+    "Justin Jefferson",
+    "Garrett Wilson",
+    "Jalen Coker",
+    "Tommy Tremble",
+    "Bijan Robinson",
+    "49ers"
+   ],
+   "candidate_index": 2822,
+   "gain_corrected_mix": 0.128692626953125
+  },
+  {
+   "vetted_position": 47,
+   "source_rank": 25,
+   "removed": [
+    "Brock Purdy",
+    "Christian McCaffrey",
+    "De'Von Achane",
+    "Mike Evans",
+    "Deebo Samuel Sr.",
+    "DeMario Douglas",
+    "T.J. Hockenson",
+    "Zay Flowers",
+    "Patriots"
+   ],
+   "removed_because": {
+    "Zay Flowers": "dk:OUT"
+   },
+   "replacement": [
+    "Justin Herbert",
+    "Christian McCaffrey",
+    "Bucky Irving",
+    "Justin Jefferson",
+    "Chris Olave",
+    "Ladd McConkey",
+    "David Njoku",
+    "Jack Bech",
+    "Titans"
+   ],
+   "candidate_index": 1304,
+   "gain_corrected_mix": 0.1255950927734375
+  },
+  {
+   "vetted_position": 49,
+   "source_rank": 28,
+   "removed": [
+    "Joe Burrow",
+    "Chuba Hubbard",
+    "Rhamondre Stevenson",
+    "Ja'Marr Chase",
+    "Zay Flowers",
+    "Jaxon Smith-Njigba",
+    "Dalton Schultz",
+    "Mike Gesicki",
+    "Panthers"
+   ],
+   "removed_because": {
+    "Zay Flowers": "dk:OUT"
+   },
+   "replacement": [
+    "Caleb Williams",
+    "D'Andre Swift",
+    "Rhamondre Stevenson",
+    "Mack Hollins",
+    "Justin Jefferson",
+    "Tee Higgins",
+    "Colston Loveland",
+    "Luther Burden III",
+    "Titans"
+   ],
+   "candidate_index": 4411,
+   "gain_corrected_mix": 0.121002197265625
+  },
+  {
+   "vetted_position": 51,
+   "source_rank": 30,
+   "removed": [
+    "Tua Tagovailoa",
+    "Javonte Williams",
+    "Bijan Robinson",
+    "Wan'Dale Robinson",
+    "Zay Flowers",
+    "Drake London",
+    "Kyle Pitts Sr.",
+    "Jalen Coker",
+    "49ers"
+   ],
+   "removed_because": {
+    "Zay Flowers": "dk:OUT"
+   },
+   "replacement": [
+    "C.J. Stroud",
+    "Javonte Williams",
+    "Chase Brown",
+    "Stefon Diggs",
+    "Justin Jefferson",
+    "CeeDee Lamb",
+    "Dalton Schultz",
+    "Kayshon Boutte",
+    "Buccaneers"
+   ],
+   "candidate_index": 5406,
+   "gain_corrected_mix": 0.1188812255859375
+  },
+  {
+   "vetted_position": 53,
+   "source_rank": 32,
+   "removed": [
+    "Geno Smith",
+    "Derrick Henry",
+    "Breece Hall",
+    "Garrett Wilson",
+    "George Pickens",
+    "Zay Flowers",
+    "Tucker Kraft",
+    "Adonai Mitchell",
+    "49ers"
+   ],
+   "removed_because": {
+    "Zay Flowers": "dk:OUT"
+   },
+   "replacement": [
+    "Jordan Love",
+    "Rico Dowdle",
+    "Breece Hall",
+    "Christian Watson",
+    "Ladd McConkey",
+    "Matthew Golden",
+    "Tucker Kraft",
+    "Bijan Robinson",
+    "Broncos"
+   ],
+   "candidate_index": 6120,
+   "gain_corrected_mix": 0.1166534423828125
+  },
+  {
+   "vetted_position": 55,
+   "source_rank": 35,
+   "removed": [
+    "Jacoby Brissett",
+    "Aaron Jones Sr.",
+    "Jeremiyah Love",
+    "Justin Jefferson",
+    "Michael Wilson",
+    "Zay Flowers",
+    "Trey McBride",
+    "AJ Barner",
+    "49ers"
+   ],
+   "removed_because": {
+    "Zay Flowers": "dk:OUT"
+   },
+   "replacement": [
+    "Geno Smith",
+    "Javonte Williams",
+    "Breece Hall",
+    "Justin Jefferson",
+    "Garrett Wilson",
+    "Quentin Johnston",
+    "Kenyon Sadiq",
+    "MarShawn Lloyd",
+    "49ers"
+   ],
+   "candidate_index": 3817,
+   "gain_corrected_mix": 0.1152496337890625
+  },
+  {
+   "vetted_position": 56,
+   "source_rank": 36,
+   "removed": [
+    "Tua Tagovailoa",
+    "Chuba Hubbard",
+    "Bijan Robinson",
+    "Jahan Dotson",
+    "Zay Flowers",
+    "Drake London",
+    "Mark Andrews",
+    "Bucky Irving",
+    "49ers"
+   ],
+   "removed_because": {
+    "Zay Flowers": "dk:OUT"
+   },
+   "replacement": [
+    "Tyler Shough",
+    "Rhamondre Stevenson",
+    "Travis Etienne Jr.",
+    "Terry McLaurin",
+    "Chris Olave",
+    "Devaughn Vele",
+    "Mark Andrews",
+    "Bijan Robinson",
+    "49ers"
+   ],
+   "candidate_index": 2530,
+   "gain_corrected_mix": 0.1131744384765625
+  },
+  {
+   "vetted_position": 57,
+   "source_rank": 37,
+   "removed": [
+    "Jordan Love",
+    "Derrick Henry",
+    "Breece Hall",
+    "Christian Watson",
+    "Zay Flowers",
+    "Quentin Johnston",
+    "Tucker Kraft",
+    "Matthew Golden",
+    "Patriots"
+   ],
+   "removed_because": {
+    "Zay Flowers": "dk:OUT"
+   },
+   "replacement": [
+    "Jayden Daniels",
+    "D'Andre Swift",
+    "Javonte Williams",
+    "Stefon Diggs",
+    "Kalif Raymond",
+    "Terry McLaurin",
+    "Colston Loveland",
+    "Jaxon Smith-Njigba",
+    "49ers"
+   ],
+   "candidate_index": 4279,
+   "gain_corrected_mix": 0.1084442138671875
+  },
+  {
+   "vetted_position": 59,
+   "source_rank": 39,
+   "removed": [
+    "Carson Wentz",
+    "Aaron Jones Sr.",
+    "D'Andre Swift",
+    "Justin Jefferson",
+    "Zay Flowers",
+    "Jordan Addison",
+    "Mark Andrews",
+    "Rhamondre Stevenson",
+    "49ers"
+   ],
+   "removed_because": {
+    "Zay Flowers": "dk:OUT"
+   },
+   "replacement": [
+    "Justin Herbert",
+    "De'Von Achane",
+    "Ashton Jeanty",
+    "Justin Jefferson",
+    "Quentin Johnston",
+    "Ladd McConkey",
+    "Mark Andrews",
+    "Caleb Douglas",
+    "Patriots"
+   ],
+   "candidate_index": 6368,
+   "gain_corrected_mix": 0.10784912109375
+  },
+  {
+   "vetted_position": 61,
+   "source_rank": 44,
+   "removed": [
+    "Bo Nix",
+    "RJ Harvey",
+    "Rhamondre Stevenson",
+    "Jakobi Meyers",
+    "Justin Jefferson",
+    "Jaylen Waddle",
+    "Evan Engram",
+    "Zay Flowers",
+    "49ers"
+   ],
+   "removed_because": {
+    "Zay Flowers": "dk:OUT"
+   },
+   "replacement": [
+    "Drew Lock",
+    "Rhamondre Stevenson",
+    "Jeremiyah Love",
+    "Cooper Kupp",
+    "Jaxon Smith-Njigba",
+    "Michael Wilson",
+    "Trey McBride",
+    "Jadarian Price",
+    "Patriots"
+   ],
+   "candidate_index": 5329,
+   "gain_corrected_mix": 0.1062469482421875
+  },
+  {
+   "vetted_position": 62,
+   "source_rank": 45,
+   "removed": [
+    "Jayden Daniels",
+    "Javonte Williams",
+    "Bucky Irving",
+    "Stefon Diggs",
+    "Terry McLaurin",
+    "Garrett Wilson",
+    "Hunter Henry",
+    "Zay Flowers",
+    "49ers"
+   ],
+   "removed_because": {
+    "Zay Flowers": "dk:OUT"
+   },
+   "replacement": [
+    "Bryce Young",
+    "Chuba Hubbard",
+    "Bijan Robinson",
+    "Drake London",
+    "Jalen Coker",
+    "Tetairoa McMillan",
+    "Colston Loveland",
+    "KC Concepcion Jr.",
+    "49ers"
+   ],
+   "candidate_index": 5828,
+   "gain_corrected_mix": 0.10406494140625
+  },
+  {
+   "vetted_position": 64,
+   "source_rank": 47,
+   "removed": [
+    "Lamar Jackson",
+    "Derrick Henry",
+    "D'Andre Swift",
+    "Chris Olave",
+    "Zay Flowers",
+    "Bryce Lance",
+    "Mark Andrews",
+    "Colston Loveland",
+    "Panthers"
+   ],
+   "removed_because": {
+    "Zay Flowers": "dk:OUT"
+   },
+   "replacement": [
+    "Caleb Williams",
+    "D'Andre Swift",
+    "Bijan Robinson",
+    "Kalif Raymond",
+    "Justin Jefferson",
+    "Tre' Harris",
+    "Cade Otton",
+    "Luther Burden III",
+    "49ers"
+   ],
+   "candidate_index": 4286,
+   "gain_corrected_mix": 0.1035308837890625
+  },
+  {
+   "vetted_position": 66,
+   "source_rank": 49,
+   "removed": [
+    "Bryce Young",
+    "Chuba Hubbard",
+    "Bijan Robinson",
+    "Garrett Wilson",
+    "Zay Flowers",
+    "Drake London",
+    "Darren Waller",
+    "Tetairoa McMillan",
+    "Bengals"
+   ],
+   "removed_because": {
+    "Zay Flowers": "dk:OUT"
+   },
+   "replacement": [
+    "Bo Nix",
+    "J.K. Dobbins",
+    "Breece Hall",
+    "Courtland Sutton",
+    "Jaylen Waddle",
+    "Drake London",
+    "Brenton Strange",
+    "Ladd McConkey",
+    "49ers"
+   ],
+   "candidate_index": 3813,
+   "gain_corrected_mix": 0.0997314453125
+  },
+  {
+   "vetted_position": 67,
+   "source_rank": 51,
+   "removed": [
+    "C.J. Stroud",
+    "Chase Brown",
+    "Bijan Robinson",
+    "Justin Jefferson",
+    "Zay Flowers",
+    "Kayshon Boutte",
+    "Dalton Schultz",
+    "Caleb Douglas",
+    "49ers"
+   ],
+   "removed_because": {
+    "Zay Flowers": "dk:OUT"
+   },
+   "replacement": [
+    "Baker Mayfield",
+    "Bijan Robinson",
+    "Bucky Irving",
+    "Chris Godwin Jr.",
+    "Deebo Samuel Sr.",
+    "Justin Jefferson",
+    "Cade Otton",
+    "Harold Fannin Jr.",
+    "49ers"
+   ],
+   "candidate_index": 5737,
+   "gain_corrected_mix": 0.09930419921875
+  },
+  {
+   "vetted_position": 68,
+   "source_rank": 55,
+   "removed": [
+    "Justin Herbert",
+    "Bijan Robinson",
+    "Ashton Jeanty",
+    "Stefon Diggs",
+    "Zay Flowers",
+    "Ladd McConkey",
+    "David Njoku",
+    "Antonio Williams",
+    "Patriots"
+   ],
+   "removed_because": {
+    "Zay Flowers": "dk:OUT"
+   },
+   "replacement": [
+    "C.J. Stroud",
+    "Christian McCaffrey",
+    "Bucky Irving",
+    "Justin Jefferson",
+    "Ja'Marr Chase",
+    "Kayshon Boutte",
+    "Dalton Schultz",
+    "Matthew Golden",
+    "Patriots"
+   ],
+   "candidate_index": 2095,
+   "gain_corrected_mix": 0.0977020263671875
+  },
+  {
+   "vetted_position": 70,
+   "source_rank": 58,
+   "removed": [
+    "Dak Prescott",
+    "Derrick Henry",
+    "Javonte Williams",
+    "Terry McLaurin",
+    "CeeDee Lamb",
+    "Zay Flowers",
+    "Jake Ferguson",
+    "Matthew Golden",
+    "Titans"
+   ],
+   "removed_because": {
+    "Zay Flowers": "dk:OUT"
+   },
+   "replacement": [
+    "Justin Herbert",
+    "Derrick Henry",
+    "Bijan Robinson",
+    "Justin Jefferson",
+    "Ladd McConkey",
+    "Tre' Harris",
+    "Dalton Schultz",
+    "Michael Mayer",
+    "49ers"
+   ],
+   "candidate_index": 995,
+   "gain_corrected_mix": 0.0961761474609375
+  },
+  {
+   "vetted_position": 71,
+   "source_rank": 59,
+   "removed": [
+    "Drew Lock",
+    "Javonte Williams",
+    "Breece Hall",
+    "Zay Flowers",
+    "Jaxon Smith-Njigba",
+    "Jalen Coker",
+    "Trey McBride",
+    "AJ Barner",
+    "Jaguars"
+   ],
+   "removed_because": {
+    "Zay Flowers": "dk:OUT"
+   },
+   "replacement": [
+    "Tyler Shough",
+    "Derrick Henry",
+    "Javonte Williams",
+    "CeeDee Lamb",
+    "Chris Olave",
+    "Bryce Lance",
+    "Cade Otton",
+    "Bucky Irving",
+    "49ers"
+   ],
+   "candidate_index": 4759,
+   "gain_corrected_mix": 0.094451904296875
+  },
+  {
+   "vetted_position": 74,
+   "source_rank": 62,
+   "removed": [
+    "Brock Purdy",
+    "Christian McCaffrey",
+    "De'Von Achane",
+    "Demarcus Robinson",
+    "Justin Jefferson",
+    "Zay Flowers",
+    "George Kittle",
+    "Kayshon Boutte",
+    "Titans"
+   ],
+   "removed_because": {
+    "Zay Flowers": "dk:OUT"
+   },
+   "replacement": [
+    "C.J. Stroud",
+    "Bijan Robinson",
+    "Chase Brown",
+    "DeVonta Smith",
+    "Drake London",
+    "Xavier Hutchinson",
+    "Dalton Schultz",
+    "Trey McBride",
+    "Broncos"
+   ],
+   "candidate_index": 6261,
+   "gain_corrected_mix": 0.0933990478515625
+  },
+  {
+   "vetted_position": 75,
+   "source_rank": 63,
+   "removed": [
+    "Tyler Shough",
+    "Saquon Barkley",
+    "Ashton Jeanty",
+    "Stefon Diggs",
+    "Chris Olave",
+    "Zay Flowers",
+    "Juwan Johnson",
+    "Quentin Johnston",
+    "Broncos"
+   ],
+   "removed_because": {
+    "Zay Flowers": "dk:OUT"
+   },
+   "replacement": [
+    "Justin Herbert",
+    "Javonte Williams",
+    "Bijan Robinson",
+    "DK Metcalf",
+    "Quentin Johnston",
+    "Ladd McConkey",
+    "Dallas Goedert",
+    "Jack Bech",
+    "49ers"
+   ],
+   "candidate_index": 3555,
+   "gain_corrected_mix": 0.0924835205078125
+  },
+  {
+   "vetted_position": 76,
+   "source_rank": 68,
+   "removed": [
+    "Jayden Daniels",
+    "Chuba Hubbard",
+    "Bijan Robinson",
+    "Terry McLaurin",
+    "CeeDee Lamb",
+    "Zay Flowers",
+    "AJ Barner",
+    "Antonio Williams",
+    "Broncos"
+   ],
+   "removed_because": {
+    "Zay Flowers": "dk:OUT"
+   },
+   "replacement": [
+    "Brock Purdy",
+    "Christian McCaffrey",
+    "Rhamondre Stevenson",
+    "Mike Evans",
+    "Terry McLaurin",
+    "Deebo Samuel Sr.",
+    "Evan Engram",
+    "De'Von Achane",
+    "Broncos"
+   ],
+   "candidate_index": 5195,
+   "gain_corrected_mix": 0.0890655517578125
+  },
+  {
+   "vetted_position": 77,
+   "source_rank": 72,
+   "removed": [
+    "Lamar Jackson",
+    "Bijan Robinson",
+    "Bucky Irving",
+    "Devaughn Vele",
+    "Zay Flowers",
+    "Drake London",
+    "Mark Andrews",
+    "Ted Hurst III",
+    "49ers"
+   ],
+   "removed_because": {
+    "Zay Flowers": "dk:OUT"
+   },
+   "replacement": [
+    "Dak Prescott",
+    "Rhamondre Stevenson",
+    "Jacory Croskey-Merritt",
+    "Stefon Diggs",
+    "CeeDee Lamb",
+    "George Pickens",
+    "Dalton Schultz",
+    "Garrett Wilson",
+    "49ers"
+   ],
+   "candidate_index": 5795,
+   "gain_corrected_mix": 0.0879974365234375
+  },
+  {
+   "vetted_position": 80,
+   "source_rank": 75,
+   "removed": [
+    "Bo Nix",
+    "Derrick Henry",
+    "Ashton Jeanty",
+    "Courtland Sutton",
+    "Zay Flowers",
+    "Parker Washington",
+    "Michael Mayer",
+    "Pat Bryant",
+    "49ers"
+   ],
+   "removed_because": {
+    "Zay Flowers": "dk:OUT"
+   },
+   "replacement": [
+    "Drake Maye",
+    "Saquon Barkley",
+    "Rhamondre Stevenson",
+    "Mack Hollins",
+    "Courtland Sutton",
+    "DK Metcalf",
+    "Hunter Henry",
+    "Justin Jefferson",
+    "49ers"
+   ],
+   "candidate_index": 3958,
+   "gain_corrected_mix": 0.0876617431640625
+  },
+  {
+   "vetted_position": 82,
+   "source_rank": 77,
+   "removed": [
+    "Tyler Shough",
+    "Travis Etienne Jr.",
+    "Rhamondre Stevenson",
+    "Chris Olave",
+    "Devaughn Vele",
+    "Zay Flowers",
+    "Dalton Schultz",
+    "Jaxon Smith-Njigba",
+    "Buccaneers"
+   ],
+   "removed_because": {
+    "Zay Flowers": "dk:OUT"
+   },
+   "replacement": [
+    "Jayden Daniels",
+    "Javonte Williams",
+    "Bijan Robinson",
+    "Stefon Diggs",
+    "Terry McLaurin",
+    "Drake London",
+    "Luke Farrell",
+    "Ashton Jeanty",
+    "Patriots"
+   ],
+   "candidate_index": 2745,
+   "gain_corrected_mix": 0.0858154296875
+  },
+  {
+   "vetted_position": 83,
+   "source_rank": 81,
+   "removed": [
+    "Caleb Williams",
+    "Derrick Henry",
+    "Bijan Robinson",
+    "Kalif Raymond",
+    "Justin Jefferson",
+    "Zay Flowers",
+    "Dalton Schultz",
+    "Jahdae Walker",
+    "Patriots"
+   ],
+   "removed_because": {
+    "Zay Flowers": "dk:OUT"
+   },
+   "replacement": [
+    "Cam Ward",
+    "Tony Pollard",
+    "Javonte Williams",
+    "Justin Jefferson",
+    "DeVonta Smith",
+    "Carnell Tate",
+    "Gunnar Helm",
+    "Ashton Jeanty",
+    "49ers"
+   ],
+   "candidate_index": 4789,
+   "gain_corrected_mix": 0.08538818359375
+  },
+  {
+   "vetted_position": 85,
+   "source_rank": 83,
+   "removed": [
+    "Jordan Love",
+    "David Montgomery",
+    "Bijan Robinson",
+    "Garrett Wilson",
+    "Zay Flowers",
+    "Matthew Golden",
+    "Tucker Kraft",
+    "AJ Barner",
+    "49ers"
+   ],
+   "removed_because": {
+    "Zay Flowers": "dk:OUT"
+   },
+   "replacement": [
+    "C.J. Stroud",
+    "Javonte Williams",
+    "Bijan Robinson",
+    "Ja'Marr Chase",
+    "Jaxon Smith-Njigba",
+    "Jaylin Noel",
+    "Dalton Schultz",
+    "Brenton Strange",
+    "Patriots"
+   ],
+   "candidate_index": 6035,
+   "gain_corrected_mix": 0.083526611328125
+  },
+  {
+   "vetted_position": 87,
+   "source_rank": 86,
+   "removed": [
+    "Cam Ward",
+    "Christian McCaffrey",
+    "David Montgomery",
+    "Justin Jefferson",
+    "Zay Flowers",
+    "Carnell Tate",
+    "Dallas Goedert",
+    "Gunnar Helm",
+    "Patriots"
+   ],
+   "removed_because": {
+    "Zay Flowers": "dk:OUT"
+   },
+   "replacement": [
+    "Justin Herbert",
+    "Rhamondre Stevenson",
+    "Ashton Jeanty",
+    "Justin Jefferson",
+    "Garrett Wilson",
+    "Dontayvion Wicks",
+    "David Njoku",
+    "Ladd McConkey",
+    "49ers"
+   ],
+   "candidate_index": 1906,
+   "gain_corrected_mix": 0.0829620361328125
+  },
+  {
+   "vetted_position": 91,
+   "source_rank": 93,
+   "removed": [
+    "Bryce Young",
+    "Chuba Hubbard",
+    "Bijan Robinson",
+    "Zay Flowers",
+    "Jalen Coker",
+    "Matthew Golden",
+    "Evan Engram",
+    "Tetairoa McMillan",
+    "49ers"
+   ],
+   "removed_because": {
+    "Zay Flowers": "dk:OUT"
+   },
+   "replacement": [
+    "Joe Burrow",
+    "David Montgomery",
+    "Chase Brown",
+    "Tee Higgins",
+    "Ja'Marr Chase",
+    "Malik Washington",
+    "Dalton Schultz",
+    "De'Von Achane",
+    "Jaguars"
+   ],
+   "candidate_index": 5531,
+   "gain_corrected_mix": 0.0824127197265625
+  },
+  {
+   "vetted_position": 93,
+   "source_rank": 95,
+   "removed": [
+    "Baker Mayfield",
+    "Breece Hall",
+    "Bucky Irving",
+    "Garrett Wilson",
+    "Zay Flowers",
+    "Emeka Egbuka",
+    "Cade Otton",
+    "Quinshon Judkins",
+    "49ers"
+   ],
+   "removed_because": {
+    "Zay Flowers": "dk:OUT"
+   },
+   "replacement": [
+    "Jordan Love",
+    "Aaron Jones Sr.",
+    "Breece Hall",
+    "Justin Jefferson",
+    "Jaylen Waddle",
+    "Christian Watson",
+    "Mark Andrews",
+    "Matthew Golden",
+    "Patriots"
+   ],
+   "candidate_index": 4348,
+   "gain_corrected_mix": 0.0813751220703125
+  },
+  {
+   "vetted_position": 94,
+   "source_rank": 96,
+   "removed": [
+    "Caleb Williams",
+    "D'Andre Swift",
+    "Rhamondre Stevenson",
+    "Ja'Marr Chase",
+    "Zay Flowers",
+    "Luther Burden III",
+    "T.J. Hockenson",
+    "Colston Loveland",
+    "Panthers"
+   ],
+   "removed_because": {
+    "Zay Flowers": "dk:OUT"
+   },
+   "replacement": [
+    "Aaron Rodgers",
+    "Jaylen Warren",
+    "Bucky Irving",
+    "DK Metcalf",
+    "Justin Jefferson",
+    "Jaxon Smith-Njigba",
+    "Hunter Henry",
+    "Pat Freiermuth",
+    "49ers"
+   ],
+   "candidate_index": 5436,
+   "gain_corrected_mix": 0.0812225341796875
+  },
+  {
+   "vetted_position": 95,
+   "source_rank": 41,
+   "removed": [
+    "Aidan O'Connell",
+    "Bijan Robinson",
+    "Ashton Jeanty",
+    "Justin Jefferson",
+    "Zay Flowers",
+    "Ladd McConkey",
+    "Michael Mayer",
+    "Jack Bech",
+    "Patriots"
+   ],
+   "removed_because": {
+    "Aidan O'Connell": "backup_qb:behind-healthy-primary",
+    "Zay Flowers": "dk:OUT"
+   },
+   "replacement": [
+    "Tua Tagovailoa",
+    "David Montgomery",
+    "Chuba Hubbard",
+    "Drake London",
+    "Romeo Doubs",
+    "Ladd McConkey",
+    "Kyle Pitts Sr.",
+    "Bijan Robinson",
+    "Patriots"
+   ],
+   "candidate_index": 5692,
+   "gain_corrected_mix": 0.0787353515625
+  },
+  {
+   "vetted_position": 96,
+   "source_rank": 52,
+   "removed": [
+    "Aaron Rodgers",
+    "Rhamondre Stevenson",
+    "Jaylen Warren",
+    "Michael Pittman Jr.",
+    "DK Metcalf",
+    "Zay Flowers",
+    "Trey McBride",
+    "Ladd McConkey",
+    "49ers"
+   ],
+   "removed_because": {
+    "Michael Pittman Jr.": "dk:OUT",
+    "Zay Flowers": "dk:OUT"
+   },
+   "replacement": [
+    "Jayden Daniels",
+    "Javonte Williams",
+    "Bijan Robinson",
+    "Stefon Diggs",
+    "Justin Jefferson",
+    "Antonio Williams",
+    "Evan Engram",
+    "Jacory Croskey-Merritt",
+    "Broncos"
+   ],
+   "candidate_index": 6291,
+   "gain_corrected_mix": 0.07843017578125
+  },
+  {
+   "vetted_position": 97,
+   "source_rank": 69,
+   "removed": [
+    "Tyson Bagent",
+    "David Montgomery",
+    "D'Andre Swift",
+    "Kalif Raymond",
+    "CeeDee Lamb",
+    "Justin Jefferson",
+    "Colston Loveland",
+    "Luther Burden III",
+    "49ers"
+   ],
+   "removed_because": {
+    "Tyson Bagent": "backup_qb:behind-healthy-primary"
+   },
+   "replacement": [
+    "Kirk Cousins",
+    "Bijan Robinson",
+    "Ashton Jeanty",
+    "Jaxon Smith-Njigba",
+    "Devaughn Vele",
+    "Ladd McConkey",
+    "Michael Mayer",
+    "Jack Bech",
+    "49ers"
+   ],
+   "candidate_index": 2902,
+   "gain_corrected_mix": 0.0777130126953125
+  }
+ ],
+ "pool": {
+  "eligible": 3315,
+  "rejected": {
+   "unmapped": 0,
+   "in_book": 97,
+   "excluded": 2987,
+   "risky": 0,
+   "illegal": 0
+  }
+ },
+ "output_sha256": {
+  "book.csv": "86147c51b94b7abb960b88fb38396c457efc96adea66253db392506f78cfdb8b",
+  "vetting_final.json": "a12d9867f0babc7bfd9cfd41f3653df007a8b10ff3277ee10e270b1eb543d9a1"
+ }
+}
