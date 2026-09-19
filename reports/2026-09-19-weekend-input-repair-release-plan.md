@@ -1,6 +1,6 @@
 # Weekend input repairs: release candidate and complete rollback
 
-**Prepared, not activated.** This is a concrete option for the Saturday September 19 build at **10:30 CDT / 15:30 UTC**. The usual refresh starts 09:45 CDT / 14:45 UTC. Sunday-main lock is a different deadline: September 20 at 17:00 UTC. The [workstation runtime implementation now passes independent review](2026-09-19-runtime-release-review.md): all42behavioral tests, reconstructed full arm-script hash, and default/candidate `week_env` resolution. Actual release-state checks remain required immediately before activation.
+**Authorized; release gates in progress.** This is a concrete option for the Saturday September 19 build at **10:30 CDT / 15:30 UTC**. The usual refresh starts 09:45 CDT / 14:45 UTC. Sunday-main lock is a different deadline: September 20 at 17:00 UTC. The [workstation runtime implementation now passes independent review](2026-09-19-runtime-release-review.md): all42behavioral tests, reconstructed full arm-script hash, and default/candidate `week_env` resolution. Actual release-state checks remain required immediately before activation.
 
 My recommendation is to prepare the three demonstrated input-contract corrections for release, keeping ordinary DUAL_EMAX, existing candidate doses and contest assignments. I do **not** recommend enabling the new target prior or WEMAX based on the completed tests. Final live adoption belongs to Erich under [CLAUDE.md](../CLAUDE.md); no live image, table, source pin or timer has been changed by this work.
 
@@ -29,8 +29,7 @@ Images are under `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/`. B
 
 The [04:33:38 UTC refresh](reviews/evidence/2026-09-19-release-inventory-refresh.json)
 finds all36tables/oneview present, with **no changed table metadata or job template**
-against the03:11inventory. An explicit adoption decision has been requested from
-Erich; it is pending. No dependent live action is authorized by elapsed time.
+against the03:11inventory. Workstation handoff `cef83e8` relays Erich's explicit instruction, "Implement the changes that the other agent wants." Received 05:38 UTC: this authorizes this exact three-fix release. The cloud sequence is now being executed under all three registry lanes; actual completion will be recorded separately. No host activation before the cloud refresh and live CLI proof.
 
 ## Release sequence
 

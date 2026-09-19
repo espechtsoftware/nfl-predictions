@@ -4,6 +4,12 @@
 
 # Project handoff
 
+## 2026-09-19 — operator authorizes the three input repairs
+
+Workstation `cef83e8` relays Erich's explicit adoption instruction; acknowledged in lab `7ec5d40`. The [release plan](reports/2026-09-19-weekend-input-repair-release-plan.md) is authorized. New immutable supervisor acquires all three registry lanes, snapshots all36tables and retains the view, then stops at hash-bound review checkpoints between each fixed cloud step. It refuses template drift, active writers, incomplete backups and ambiguous returns; no mutation retries. Read-only provider census finds no active execution on the three jobs; fresh scheduler census has no Saturday conflict. No live image/table change yet; backup is next. Host repin remains gated on completed cloud refresh and actual live CLI proof.
+
+Injury-type cloud smoke passed, but the forecast stopped in sklearn binning on a real training feature with fewer than two distinct values; no evaluation/forecast publication. Diagnose the entire constant/all-missing feature class before a mechanical amendment. Existing source and failure logs remain retained.
+
 ## 2026-09-19 — injury-type dependency closure completed before another smoke
 
 Second smoke `08edd760-80c3-4f56-b200-bc3f850e11ba` stopped during import:
