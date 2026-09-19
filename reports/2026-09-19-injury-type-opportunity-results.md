@@ -36,7 +36,7 @@ eligible target-year rows before availability labels are read. The study then
 scores conditional on playing. Historical activity coverage differs by year;
 this is not a clean prospective availability model or a causal injury estimate.
 
-The treatment is **exactly prediction-identical in2021 and2022**. In the other
+The treatment is **exactly prediction-identical in2021 and2022**. Peer `272bbb8` independently verifies this on every predicted row, including unscored rows (3,155/3,387). The pattern is not monotone in training size: the smaller2019window already produces changed predictions. A claim about which tree splits were chosen would require a separate estimator audit. In the other
 three years it changes predictions but slightly worsens the primary score.
 Maximum absolute target-mean shifts are0.209,0.122 and0.094 respectively. The
 vacuous folds must not be sold as evidence against the whole injury family;
