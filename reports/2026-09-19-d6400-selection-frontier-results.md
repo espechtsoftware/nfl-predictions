@@ -48,3 +48,5 @@ OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1
 ```
 
 Compare the new result to `expected-result.json`, excluding only `reader_sha256` and `seconds`. This is a numerical cross-read; reconstructing the audit laws from training remains the separately frozen stronger check.
+
+**Production cross-read received at22:06Z:** shared `639ce86` verifies the archive and reports4,496fields with zero differences after excluding reader SHA/seconds. Replay result SHA `31045be9aa00af30e9d3b29fe5faa68aeed16543fbd290b71e404e96179402dd`. The original small/model-conditional interpretation is unchanged.

@@ -1,0 +1,67 @@
+{
+  "source_commit": "c6599bf81b778cc9bbb696628b41dd0e302f38ec",
+  "installer_sha256": "7b10d568b5b3205b18861a466b68f763051f3b7e3fce35987c05eed2e3dc1091",
+  "immutable_runtime": "/home/erich/.local/state/nfl-dfs/review-inboxes-20260919/runtime",
+  "runtime_manifest_sha256": "ee82b12645d40310e9771c4967abe2366979c9925a1502288679b76467454247",
+  "monitors": [
+    {
+      "name": "shared-handoff",
+      "service": "nfl-shared-handoff-inbox.service",
+      "unit_file": "/home/erich/.config/systemd/user/nfl-shared-handoff-inbox.service",
+      "unit_sha256": "c1ac6ce03e21435546523e1808ae19ee52685a431bb98f814407684d9aeb8bf4",
+      "repo": "/home/erich/.local/state/nfl-dfs/review-inboxes-20260919/shared-handoff/inbox.git",
+      "state_file": "/home/erich/.local/state/nfl-dfs/review-inboxes-20260919/shared-handoff/status.json",
+      "events_file": "/home/erich/.local/state/nfl-dfs/review-inboxes-20260919/shared-handoff/events.jsonl",
+      "first_verified_poll": {
+        "commits_truncated": false,
+        "head": "fd11e54a186dbb73509b6eee593b1cd713ea5347",
+        "last_transition": null,
+        "observed_at": "2026-09-19T22:05:46Z",
+        "observed_at_epoch": 1789855546.0460083,
+        "poll": {
+          "error": null,
+          "ok": true
+        },
+        "ref": "origin/lab/workstation-reply-bank991-20260918",
+        "repo": "/home/erich/.local/state/nfl-dfs/review-inboxes-20260919/shared-handoff/inbox.git",
+        "schema_version": "lab-repo-transition-monitor-status/v1",
+        "sequence": 1
+      },
+      "poll_seconds": 300,
+      "automatic_review": false,
+      "active": true,
+      "enabled": "enabled"
+    },
+    {
+      "name": "production-review",
+      "service": "nfl-production-review-inbox.service",
+      "unit_file": "/home/erich/.config/systemd/user/nfl-production-review-inbox.service",
+      "unit_sha256": "4a52c3a305853c13c71aa16d71c71204262d278d380687c58d33a28e17e40311",
+      "repo": "/home/erich/.local/state/nfl-dfs/review-inboxes-20260919/production-review/inbox.git",
+      "state_file": "/home/erich/.local/state/nfl-dfs/review-inboxes-20260919/production-review/status.json",
+      "events_file": "/home/erich/.local/state/nfl-dfs/review-inboxes-20260919/production-review/events.jsonl",
+      "first_verified_poll": {
+        "branch_count": 120,
+        "commits_truncated": false,
+        "head": "9afb17849a4c055388f9ae219bc6fcd168a9e94c",
+        "last_transition": null,
+        "observed_at": "2026-09-19T22:05:46Z",
+        "observed_at_epoch": 1789855546.7843885,
+        "poll": {
+          "error": null,
+          "ok": true
+        },
+        "ref": "origin/*",
+        "repo": "/home/erich/.local/state/nfl-dfs/review-inboxes-20260919/production-review/inbox.git",
+        "schema_version": "lab-repo-transition-monitor-status/v1",
+        "sequence": 1
+      },
+      "poll_seconds": 300,
+      "automatic_review": false,
+      "active": true,
+      "enabled": "enabled"
+    }
+  ],
+  "scope": "Read-only fetch/change log; no automatic code review, reply, merge, cloud or live-book action.",
+  "full_installation_sha256": "91bf12133108dcf267a1c7937d80e79b812fbbfc31fc9935bcf60ddd7c862519"
+}

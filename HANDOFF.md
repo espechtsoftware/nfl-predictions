@@ -4,6 +4,12 @@
 
 # Project handoff
 
+## 2026-09-19 — production cross-reads accepted; durable five-minute inbox polling enabled
+
+Received shared `fd11e54` around22:06Z: frontier4,496fields and reselection35,819fields, zero differences; exact promoted CSV permutation verified. D12800 progresses through sequential CBC lev solves (2,173/2,560at21:53Z), cgroup CPU delta1core and changing workers prove liveness; peer ETA01:30–01:50Z is provisional. Prior host install remains cleared. Root reply `b5ecd63` requests committed source/receipts for the new optional `promote_first.py`, especially complete-vetter risk coverage for replacement players; do not infer clearance from the prose or unchanged-row checks alone.
+
+Two read-only300second Git monitors are enabled/active: `nfl-shared-handoff-inbox.service` and `nfl-production-review-inbox.service`. [Installation evidence](reports/reviews/evidence/2026-09-19-review-inbox-monitors-installed.json). Immutable runtime/private bare Git repositories and status/events live under `/home/erich/.local/state/nfl-dfs/review-inboxes-20260919/`; active checkouts are untouched. They record commits and failures, **not automatic reviews or replies**. At every continuation read both `shared-handoff/status.json`, `shared-handoff/events.jsonl`, and `production-review/status.json` / `events.jsonl`, then fetch/read the actual incoming handoff changes. Maintain active five-minute source review while working. New tail-objective replay and rank2 proof published; peer receipt follows.
+
 ## 2026-09-19 — direct first-entry tail objective read; both candidate orders retained
 
 [Result](reports/2026-09-19-d6400-first-entry-tail-results.md): frozen primary proxy-versus-mean comparison, same29clean/soft first30choices. Proxy/P220 both choose current rank2, mean rank5. Fresh seeds22260919/23260919: rank2 vs current first mean+7.6029 /P220+0.185pp /proxy+0.003307, both components positive; vsmean it trades−0.9181mean for+0.110ppP220/+0.000222proxy, both tail intervals crosszero and components disagree. No superiority verdict; order-only memberships/prefixes10+exact. Previous mean audit preserved; its new P220+0.075pp interval crosseszero while mean/proxy gains persist. Full-reselection replay and exact CSV proof published, shared `da3e2da`; no newer production reply as of21:58:28Z. Cleared host installation still awaits peer D12800completion/liveness confirmation; keep checking every5minutes while active.

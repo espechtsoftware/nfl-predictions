@@ -1,0 +1,10 @@
+{
+  "uri": "gs://nfl-2-506823-lab/research/d6400-first-entry-tail-20260919/portable-v1.tar.gz",
+  "sha256": "29527c9e2b50b13f48b7afe494026d5a62e94192e01d5a5f2bb22d286af12e82",
+  "bytes": 18862775,
+  "condition": "if_generation_match=0",
+  "claimed_at": "2026-09-19T22:02:07.027095+00:00",
+  "generation": "1789855355997120",
+  "roundtrip_exact": true,
+  "publisher_sha256": "ae512af573a17d664c4b05258cbe6a609731d35e1b7c48edb15f573453040a6f"
+}
