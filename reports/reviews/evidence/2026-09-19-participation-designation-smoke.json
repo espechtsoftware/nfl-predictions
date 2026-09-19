@@ -1,0 +1,11 @@
+{
+  "passed": true,
+  "source_sha256": "57fa81ff67c6faa898a5a5003fd45da1ed4bd633b04f6b07ad1a11c8d8ec6c50",
+  "protocol_sha256": "8da8b7f697fbcc250e0bbea8efa8ee738037c830bd895ef673dab3d4313ee68a",
+  "synthetic_smoke": true,
+  "candidate_count": 1600,
+  "entries": 97,
+  "all_books_legal": true,
+  "elapsed_seconds": 1.6357475809927564,
+  "full_result_sha256": "ec0cd2d5709c8c469eb02730b0ec57c293dee97824ea44399f4407cc9a102fd1"
+}

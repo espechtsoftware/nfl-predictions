@@ -4,6 +4,10 @@
 
 # Project handoff
 
+## 2026-09-19 — designation-class decomposition frozen before fresh audit
+
+[Protocol](reports/2026-09-19-participation-designation-protocol.md) compares full participation, doubtful-only, questionable-only and ordinary selection on the same D1600/K97 pool. Original full/control orders must reproduce exactly. Fresh underlying audit seeds12260919/13260919 and availability seed20260919055; all four availability assumptions and all contest blocks/prefixes reported. Synthetic complete selection/vetting/audit smoke and real artifact support pass. This is exploratory mechanism/sensitivity work, not historical validation of a narrowed rule. No live change. The full operating generation can take hours, so the actual-dose follow-up waits for the scheduled saved corpus; its D12800 label has the known12,560attempt world cap.
+
 ## 2026-09-19 — new provider-bound participation rehearsal passes exactly
 
 [Updated result](reports/2026-09-19-participation-transfer-results.md): new12:42:10UTCcapture binds actual injury-source bytes/publication metadata and fresh12:42:05DKdata. V2 reselector exactly reproduces prior control/treatment97, probabilities and exclusions;34offline tests pass. It refuses stale-at-use inputs, injury-only Out disagreements and unauthenticated official-active files. No live adoption, official-active ingestion or actual D12800 result. Original captures/readers retained. Next: full saved-corpus review when available, useful prelock eligibility reselection and morning14:35readiness. Peer hold-observer transport is agreed; empty systemd reads must not be treated as proof of absence.
