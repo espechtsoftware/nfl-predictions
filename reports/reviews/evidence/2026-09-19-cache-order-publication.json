@@ -1,0 +1,101 @@
+{
+  "objects": {
+    "host_values_host_order-components.parquet": {
+      "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/cache-order-decomposition-v1/host_values_host_order-components.parquet",
+      "generation": "1789800664648730",
+      "sha256": "e87316f4d05968aeba989637ad29014256b05b953c801a72cb55e5a5b106febc",
+      "bytes": 36628
+    },
+    "host_values_host_order-bank.npy": {
+      "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/cache-order-decomposition-v1/host_values_host_order-bank.npy",
+      "generation": "1789800688714323",
+      "sha256": "b638f163d4ba85673cc620982c7a5344e2ab3d681755c206b77236b898534f51",
+      "bytes": 17120128
+    },
+    "fresh_values_fresh_order-components.parquet": {
+      "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/cache-order-decomposition-v1/fresh_values_fresh_order-components.parquet",
+      "generation": "1789800696565244",
+      "sha256": "c2fabaab39b81737b6d33fa91f1db842b706660859d287b15b1709a0db8c9df1",
+      "bytes": 36876
+    },
+    "fresh_values_fresh_order-bank.npy": {
+      "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/cache-order-decomposition-v1/fresh_values_fresh_order-bank.npy",
+      "generation": "1789800720996054",
+      "sha256": "5396726019415de9f6f5861059a43ad56d3f79a5513d21ad2681606bb5228729",
+      "bytes": 17120128
+    },
+    "fresh_values_host_order-components.parquet": {
+      "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/cache-order-decomposition-v1/fresh_values_host_order-components.parquet",
+      "generation": "1789800729049566",
+      "sha256": "4d9f0fd68f7b9ab3cbd4802466cd997eadc60316d1669fd80fed9afe4670525f",
+      "bytes": 36794
+    },
+    "fresh_values_host_order-bank.npy": {
+      "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/cache-order-decomposition-v1/fresh_values_host_order-bank.npy",
+      "generation": "1789800753243690",
+      "sha256": "865a50d7c50d50269411c2fb5c6d0ff19636a1edd46f51410f2647924a3889fe",
+      "bytes": 17120128
+    },
+    "host_values_fresh_order-components.parquet": {
+      "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/cache-order-decomposition-v1/host_values_fresh_order-components.parquet",
+      "generation": "1789800761173789",
+      "sha256": "6ae185066c9f95d927636df4f32aa3b3f3866868a85dbd412d44dd9af6c0e2bf",
+      "bytes": 36828
+    },
+    "host_values_fresh_order-bank.npy": {
+      "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/cache-order-decomposition-v1/host_values_fresh_order-bank.npy",
+      "generation": "1789800785348093",
+      "sha256": "9bdd189a4ff4e44c5cdafc3aca9fdf518cf6f05265fad595321bba20f2172ba2",
+      "bytes": 17120128
+    },
+    "result.json": {
+      "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/cache-order-decomposition-v1/result.json",
+      "generation": "1789800793382193",
+      "sha256": "dd65a8f67783c7560b2c12600cb95598c61d4a8521544a2b1b2d6c35852a11a7",
+      "bytes": 3369
+    },
+    "producer.py": {
+      "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/cache-order-decomposition-v1/producer.py",
+      "generation": "1789800793828153",
+      "sha256": "d160152464daf806c26a0a111c1a0cadf9984803311481d23b29f448c301e324",
+      "bytes": 5449
+    },
+    "reader.py": {
+      "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/cache-order-decomposition-v1/reader.py",
+      "generation": "1789800794264993",
+      "sha256": "c26f34e9797aa00ede6a031e1d84fcb99628ba90605079b37c6fdaaaaeabe49d",
+      "bytes": 3315
+    },
+    "fresh-training.parquet": {
+      "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/cache-order-decomposition-v1/fresh-training.parquet",
+      "generation": "1789800813806035",
+      "sha256": "1911368cddb341a268d8bdd570bd889bcdfa008205168e792b09f7775223a096",
+      "bytes": 13886930
+    },
+    "tabpfn-cache.parquet": {
+      "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/cache-order-decomposition-v1/tabpfn-cache.parquet",
+      "generation": "1789800829360338",
+      "sha256": "e093471a7cd26ff184b9c3a1205a2ae74998f2a38c7c8ee8011c780f662f72fa",
+      "bytes": 5592659
+    },
+    "frame.parquet": {
+      "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/cache-order-decomposition-v1/frame.parquet",
+      "generation": "1789800832493035",
+      "sha256": "fb87c340dac44ca64e1cbeb857553d45f05d1952f2ee5f35330e8b55774cc8a2",
+      "bytes": 191380
+    }
+  },
+  "scope": "Engineering only; no outcome or efficacy claim",
+  "host_training": {
+    "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/host-training-cache/training_through_2025.parquet",
+    "generation": "1789798352721560",
+    "sha256": "8aaa5daf5a3ebd12bdb471466dabefdc55f774988ff9437710a4e54467b072b7",
+    "bytes": 13918400
+  },
+  "manifest": {
+    "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/cache-order-decomposition-v1/manifest.json",
+    "generation": "1789800833023095",
+    "sha256": "15abe052a0f8a83e8f6b558dbc958d8304095cc8443f3e3e738022f6c2c8ca07",
+    "bytes": 4905
+  }
+}
