@@ -1,0 +1,90 @@
+{
+  "exit_code": 0,
+  "output_exists": true,
+  "promotion": {
+    "promoted_from_rank": 13,
+    "selection_mean": 141.80959877166748,
+    "eligible_delivered_ranks": [
+      3,
+      4,
+      7,
+      8,
+      9,
+      12,
+      13,
+      14,
+      17,
+      18,
+      19,
+      20,
+      23,
+      24,
+      25,
+      26,
+      28,
+      30
+    ],
+    "tie_policy": "earliest delivered rank"
+  },
+  "tier_counts": {
+    "hard": 28,
+    "material": 32,
+    "clean_or_soft": 37,
+    "forced_ineligible_not_hard": 0,
+    "rows_raised_by_fresh_status": 0
+  },
+  "unrestricted_reads": [
+    {
+      "path": "/home/erich/projects/review-evidence/overnight-20260918/promotion-consumer-review-v11-r2/new_out_via_actual_vetter-r2/run/frame.parquet",
+      "requested": null,
+      "decoded": [
+        "id",
+        "name",
+        "gsis_id",
+        "pos",
+        "position",
+        "team",
+        "opp",
+        "salary",
+        "status",
+        "display_name",
+        "dk_player_id",
+        "dk_draftable_id",
+        "draft_group_id"
+      ]
+    },
+    {
+      "path": "/home/erich/projects/review-evidence/overnight-20260918/promotion-consumer-review-v11-r2/new_out_via_actual_vetter-r2/run/candidates.parquet",
+      "requested": null,
+      "decoded": [
+        "players"
+      ]
+    }
+  ],
+  "input_bank_sha256": {
+    "incumbent_player_scores.npy": "1d711ff9af22bea4b17505470ba516c544261f04da428f557893a9e290ec15d5",
+    "corrected_hsim_player_scores.npy": "c9f977295bde6a1987488de25ade643813cbf54d5e7c3903b753f714efe1023a"
+  },
+  "receipt_sha256": "5ac5da1774caeb7c5f014cbdc0267d454f726f8476767c802fa521d8aa386b5f",
+  "tool_sha256": "3590193e2483d4eef1229c33d87fa820c1706b502af356b8bcc8ccf1913a1464",
+  "reader_sha256": "8045540f12bb066910ae083754fbe7cb800f91502d2fb914f85319a6b2798eb9",
+  "original_vetter_sha256": "a3c8aede89e13087f7ba861a04bdb629fe62f9effea0c2dcadb429c5e9f984ff",
+  "synthetic_injury_query_response": true,
+  "player": {
+    "name": "Javonte Williams",
+    "dk": "1107881"
+  },
+  "final_vetter_flags": {
+    "dk": "1107881",
+    "pos": "RB",
+    "team": "DAL",
+    "weight": 100.0,
+    "flags": [
+      "report:OUT"
+    ]
+  },
+  "input_rows_with_player": 28,
+  "output_rows_with_player": 28,
+  "provider_calls": 0,
+  "outcome_columns_decoded": false
+}

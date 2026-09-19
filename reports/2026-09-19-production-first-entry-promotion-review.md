@@ -25,3 +25,9 @@ Additional low-cost consistency fixes: reject `publishable != true` or active re
 - Private fixtures/logs: `/home/erich/projects/review-evidence/overnight-20260918/promotion-consumer-review-v11-r2/`. Initial harness attempt requested nonexistent `mu/std` fields, failed before parquet decoding, and is retained separately; rerun uses the existing 13-column input allowlist.
 
 The source review does not alter any paid lineup, running build, deployed projection, or cleared replacement runner. Apply the mean rule to Sunday's own valid final book after these narrow fixes; its chosen source rank need not be 5. Send revised source and refusal/positive receipts for prompt independent recheck.
+
+## Follow-up: newly OUT response through the actual cleared vetter
+
+The [provider-response boundary](reviews/evidence/2026-09-19-promotion-late-out-query-boundary.py), SHA256 `8045540f12bb066910ae083754fbe7cb800f91502d2fb914f85319a6b2798eb9`, changes only one captured injury-query response to a clearly labelled synthetic OUT designation and runs the unchanged cleared vetter. The vetter itself generates all fields and its new book order; no final-vetter output is hand-edited. [Result](reviews/evidence/2026-09-19-promotion-late-out-query-boundary-result.json): `report:OUT`, weight 100, 28 hard lineups; promotion succeeds, picks rank 13, and retains all 28 affected rows. No real provider or outcome calls occur. The initial follow-up harness expected mixed-case `report:Out`; its assertion failed after the successful consumer call because the actual vetter emits uppercase `report:OUT`. The preserved second run corrects that assertion, with identical substantive behavior.
+
+For the fix, also recognize the actual final-vetter QB spelling `backup_qb:behind-healthy-primary` (and its older `behind-healthy-starter` variant), in addition to replacement flags `qb:gated…`. Unknown/ambiguous QB roles and ordinary market silence should keep their existing distinct treatment.
