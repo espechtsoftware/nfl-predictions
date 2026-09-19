@@ -1,6 +1,6 @@
 # Weekend input repairs: release candidate and complete rollback
 
-**Prepared, not activated.** This is a concrete option for the Saturday September 19 build at **10:30 CDT / 15:30 UTC**. The usual refresh starts 09:45 CDT / 14:45 UTC. Sunday-main lock is a different deadline: September 20 at 17:00 UTC. The workstation runtime patch is being prepared separately; its exact effective-path validation remains a release requirement.
+**Prepared, not activated.** This is a concrete option for the Saturday September 19 build at **10:30 CDT / 15:30 UTC**. The usual refresh starts 09:45 CDT / 14:45 UTC. Sunday-main lock is a different deadline: September 20 at 17:00 UTC. The [workstation runtime implementation now passes independent review](2026-09-19-runtime-release-review.md): all42behavioral tests, reconstructed full arm-script hash, and default/candidate `week_env` resolution. Actual release-state checks remain required immediately before activation.
 
 My recommendation is to prepare the three demonstrated input-contract corrections for release, keeping ordinary DUAL_EMAX, existing candidate doses and contest assignments. I do **not** recommend enabling the new target prior or WEMAX based on the completed tests. Final live adoption belongs to Erich under [CLAUDE.md](../CLAUDE.md); no live image, table, source pin or timer has been changed by this work.
 
@@ -60,4 +60,20 @@ A source/image rollback alone is insufficient: the feature build replaces tables
 
 The actual snapshot, clone and replacement primitives passed a scratch-only rehearsal on salary and projection tables: **18 BigQuery jobs, exact bidirectional row matches, row-count/checksum matches, schema/partition/clustering matches, and unchanged source metadata**. Probe tables expire in three days. This proves the primitive on those two scratch table shapes, not the unexecuted 36-table live restore. [Probe source and result](reviews/evidence/2026-09-19-release-rollback-probe.json).
 
-Google documents [snapshot creation](https://docs.cloud.google.com/bigquery/docs/table-snapshots-create), [restoration](https://docs.cloud.google.com/bigquery/docs/table-snapshots-restore?hl=en), [job image updates](https://docs.cloud.google.com/sdk/gcloud/reference/run/jobs/update) and [per-execution overrides](https://docs.cloud.google.com/run/docs/execute/jobs). The release still requires fresh state checks and the prepared workstation runtime patch; these documents are not an assertion that activation has happened.
+Google documents [snapshot creation](https://docs.cloud.google.com/bigquery/docs/table-snapshots-create), [restoration](https://docs.cloud.google.com/bigquery/docs/table-snapshots-restore?hl=en), [job image updates](https://docs.cloud.google.com/sdk/gcloud/reference/run/jobs/update) and [per-execution overrides](https://docs.cloud.google.com/run/docs/execute/jobs). The release still requires fresh state checks and applying the reviewed workstation patch; these documents are not an assertion that activation has happened.
+
+## Reviewed workstation commands (after the successful cloud refresh and CLI proof)
+
+Materialize the pinned runner from lab `d7abe2c` to `/home/erich/week2-runtime-pin.sh`,
+verify its SHA256 above, and apply the existing arm patch only after checking the
+operational source is the reviewed version. Its full resulting SHA256 must match
+the value below. Preserve both clean lab checkouts. Then the exact guarded calls are:
+
+```bash
+bash /home/erich/week2-runtime-pin.sh release /home/erich/projects/.nfl2-worktrees/week2-release-2dc116c 2dc116ce95647a776ba9c36cf194f44d022d03a4 c1cf827099bfe4b8d73b5a7d55a8533ce45f7c16a52f9c456b6d4bc10bd94424
+bash /home/erich/week2-runtime-pin.sh rollback c1cf827099bfe4b8d73b5a7d55a8533ce45f7c16a52f9c456b6d4bc10bd94424
+```
+
+Use the second command only as the host portion of the complete rollback above.
+The source test seams must be unset in operational use. A nonzero result can mean
+partial arming; reconcile the runner's actual per-unit report before retrying.

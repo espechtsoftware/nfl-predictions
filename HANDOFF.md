@@ -4,6 +4,18 @@
 
 # Project handoff
 
+## 2026-09-19 — runtime source review accepted; law-weight forecasts continue
+
+Lab `d7abe2c` passes all42behavioral tests here. Full reconstructed arm script
+SHA256 `c1cf8270...94424` matches, and actual tracked `week_env` correctly resolves
+both old defaults and explicit candidate build/watcher directories.
+[Review](reports/2026-09-19-runtime-release-review.md) and updated release plan
+record exact commands and partial-arm/quiet-window limits. No activation.
+Peer `35eadbc` finds no concrete law-weight protocol defect; its synthetic bootstrap
+null does not generalize into a calibration guarantee. Full Cloud Build forecast
+cohort is progressing; separate exact-reader cloud recipe is prepared. No study
+calibration outcomes opened.
+
 ## 2026-09-19 — cloud law-weight mechanics pass; full forecast cohort submitted
 
 Cloud Build smoke `f6df667d-4651-4a9a-833d-3a892b5dbee6` succeeds (25.090s
