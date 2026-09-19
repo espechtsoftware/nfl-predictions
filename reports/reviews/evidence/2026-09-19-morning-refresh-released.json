@@ -1,0 +1,69 @@
+{
+  "status": "VALIDATED_AND_ALL_LANES_RELEASED",
+  "at": "2026-09-19T15:12:14.780867+00:00",
+  "refresh_id": "morning-refresh-20260919",
+  "validated_sha256": "c52b128f1c083816b12cf3a6e40c79e26a5f40d6493cde3b4f192da3952a87c4",
+  "proof_sha256": "5b68a622a56619130204784b12b8f665149bb6ab934072bebe2376d2dbfefe1a",
+  "terminal_receipts": [
+    {
+      "path": "/home/erich/.local/state/nfl-dfs/lab-launcher-registry/launcher-completions/3314e538292dabdf36ed888ffbf718ec8da9b2228f57d6037046484a093d49f6.json",
+      "sha256": "a40308b3cb2ddab9233fe5621e93ffb3c8119c35216acf92e5be53f71c90f1cd",
+      "record": {
+        "acquired_at_utc": "2026-09-19T14:35:50Z",
+        "completed_at_utc": "2026-09-19T15:11:34Z",
+        "exit_status": 0,
+        "lane": "build-features",
+        "owner": "production",
+        "pid": 1401308,
+        "process_start_ticks": 14181158,
+        "receipt_sha256": "3314e538292dabdf36ed888ffbf718ec8da9b2228f57d6037046484a093d49f6",
+        "schema_version": "shared-launcher-completion/v1",
+        "script_path": "/home/erich/projects/.nfl-predictions-worktrees/paid-source-experiments/reports/reviews/evidence/2026-09-19-morning-refresh-launch.sh",
+        "target_run_id_prefixes": [
+          "morning-refresh-20260919"
+        ]
+      }
+    },
+    {
+      "path": "/home/erich/.local/state/nfl-dfs/lab-launcher-registry/launcher-completions/d0777018881537df103542e4ccfa4d6f756d0699992ec43fe55450307a841da5.json",
+      "sha256": "4d185e5db93f82d55a6c5f972019fdc01f49e187c68b259b0428166acfa2ee50",
+      "record": {
+        "acquired_at_utc": "2026-09-19T14:35:50Z",
+        "completed_at_utc": "2026-09-19T15:11:34Z",
+        "exit_status": 0,
+        "lane": "project-slate",
+        "owner": "production",
+        "pid": 1401378,
+        "process_start_ticks": 14181166,
+        "receipt_sha256": "d0777018881537df103542e4ccfa4d6f756d0699992ec43fe55450307a841da5",
+        "schema_version": "shared-launcher-completion/v1",
+        "script_path": "/home/erich/projects/.nfl-predictions-worktrees/paid-source-experiments/reports/reviews/evidence/2026-09-19-morning-refresh-launch.sh",
+        "target_run_id_prefixes": [
+          "morning-refresh-20260919"
+        ]
+      }
+    },
+    {
+      "path": "/home/erich/.local/state/nfl-dfs/lab-launcher-registry/launcher-completions/8e102e5ce723e77aca59908d9027a65f0b48d4aceece113bd77e286df7116873.json",
+      "sha256": "49ddbc15ccae6f3ffb92c75a8dbc0e95e5011f721f08f4020dccab9226e37caf",
+      "record": {
+        "acquired_at_utc": "2026-09-19T14:35:50Z",
+        "completed_at_utc": "2026-09-19T15:11:34Z",
+        "exit_status": 0,
+        "lane": "tabpfn-gen",
+        "owner": "production",
+        "pid": 1401342,
+        "process_start_ticks": 14181162,
+        "receipt_sha256": "8e102e5ce723e77aca59908d9027a65f0b48d4aceece113bd77e286df7116873",
+        "schema_version": "shared-launcher-completion/v1",
+        "script_path": "/home/erich/projects/.nfl-predictions-worktrees/paid-source-experiments/reports/reviews/evidence/2026-09-19-morning-refresh-launch.sh",
+        "target_run_id_prefixes": [
+          "morning-refresh-20260919"
+        ]
+      }
+    }
+  ],
+  "active_writer_lanes": [],
+  "operator_restore_at": "2026-09-19T15:20:00+00:00",
+  "timer_recreation_not_yet_observed": true
+}

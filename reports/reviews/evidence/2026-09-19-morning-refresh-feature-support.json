@@ -1,0 +1,19 @@
+{
+  "sql": "SELECT\n      (SELECT COUNT(*) FROM `nfl-predictions-503414.nfl_features.dk_salary_week` WHERE season=2026 AND week=1) AS salary_w1,\n      (SELECT COUNT(*) FROM `nfl-predictions-503414.nfl_features.dk_salary_week` WHERE season=2026 AND week=2) AS salary_w2,\n      (SELECT COUNT(*) FROM (SELECT gsis_id,season,week FROM `nfl-predictions-503414.nfl_features.dk_salary_week` GROUP BY 1,2,3 HAVING COUNT(*)>1)) AS salary_duplicates,\n      (SELECT COUNT(*) FROM (SELECT gsis_id,season,week FROM `nfl-predictions-503414.nfl_features.player_week_inference` GROUP BY 1,2,3 HAVING COUNT(*)>1)) AS inference_duplicates,\n      (SELECT COUNT(*) FROM (SELECT gsis_id,season,week FROM `nfl-predictions-503414.nfl_features.player_week_training` GROUP BY 1,2,3 HAVING COUNT(*)>1)) AS training_duplicates,\n      (SELECT COUNT(*) FROM `nfl-predictions-503414.nfl_features.player_week_inference` WHERE season=2026 AND week=2) AS upcoming,\n      (SELECT COUNTIF(games_played_prior>0) FROM `nfl-predictions-503414.nfl_features.player_week_inference` WHERE season=2026 AND week=2) AS prior_game,\n      (SELECT COUNTIF(snap_share_l4 IS NOT NULL) FROM `nfl-predictions-503414.nfl_features.player_week_inference` WHERE season=2026 AND week=2) AS prior_snap,\n      (SELECT MAX(games_played_prior) FROM `nfl-predictions-503414.nfl_features.player_week_inference` WHERE season=2026 AND week=2) AS max_prior,\n      (SELECT COUNTIF(games_played_prior>0) FROM `nfl-predictions-503414.nfl_features.player_week_usage` WHERE season=2026 AND week=1) AS future_support",
+  "job_id": "4ae51c91-fd62-478d-9a5d-fd8cdd350cc2",
+  "bytes_processed": 8439864,
+  "rows": [
+    {
+      "salary_w1": 862,
+      "salary_w2": 773,
+      "salary_duplicates": 0,
+      "inference_duplicates": 0,
+      "training_duplicates": 0,
+      "upcoming": 877,
+      "prior_game": 397,
+      "prior_snap": 396,
+      "max_prior": 1,
+      "future_support": 0
+    }
+  ]
+}

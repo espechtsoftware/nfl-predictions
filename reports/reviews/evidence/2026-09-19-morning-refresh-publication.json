@@ -1,0 +1,72 @@
+{
+  "at": "2026-09-19T15:12:51.469482+00:00",
+  "records": [
+    {
+      "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/morning-refresh-v1/validated.json",
+      "generation": 1789830694528471,
+      "bytes": 3025,
+      "sha256": "c52b128f1c083816b12cf3a6e40c79e26a5f40d6493cde3b4f192da3952a87c4",
+      "download_verified": true
+    },
+    {
+      "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/morning-refresh-v1/live-cli-host-proof.json",
+      "generation": 1789830771163967,
+      "bytes": 17884,
+      "sha256": "5b68a622a56619130204784b12b8f665149bb6ab934072bebe2376d2dbfefe1a",
+      "download_verified": true
+    },
+    {
+      "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/morning-refresh-v1/released.json",
+      "generation": 1789830771635664,
+      "bytes": 3289,
+      "sha256": "c2f5bb6d8ee8519edad5baf85fe280561ae7fc97215a8260ac356b8f5f20e30f",
+      "download_verified": true
+    }
+  ],
+  "status": "COMPLETE_RECEIPTS_PUBLISHED_AND_DOWNLOAD_VERIFIED",
+  "supporting_records": [
+    {
+      "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/morning-refresh-v1/morning-backup-validation.json",
+      "generation": 1789830824747870,
+      "bytes": 101911,
+      "sha256": "827492bfef7877a73af1116d3e4d90e8bfc36f4f46ada80dcccaa9488f814f2b",
+      "download_verified": true
+    },
+    {
+      "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/morning-refresh-v1/feature-support.json",
+      "generation": 1789830825361501,
+      "bytes": 1931,
+      "sha256": "fdff16e6997c13c386e646f4aa29e5763d9d5b20b8c2df4f75c3bd6c780d994d",
+      "download_verified": true
+    },
+    {
+      "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/morning-refresh-v1/cache-validation.json",
+      "generation": 1789830825816553,
+      "bytes": 2883,
+      "sha256": "e27817c72d6d35035487f230d7c6fb2fe36aa9aa61c9d57e88431e4ab4d5411e",
+      "download_verified": true
+    },
+    {
+      "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/morning-refresh-v1/projection-validation.json",
+      "generation": 1789830826344222,
+      "bytes": 2040,
+      "sha256": "a0c2c345462bad66846ce1855f244c7eaf0aedd70fac93ac85e027e0056aa28d",
+      "download_verified": true
+    },
+    {
+      "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/morning-refresh-v1/raw-freshness.json",
+      "generation": 1789830826827006,
+      "bytes": 1081,
+      "sha256": "28e7a3e3f022113be2a1e060419e720203a8fe473b1eee87b3456058eb5a5d74",
+      "download_verified": true
+    },
+    {
+      "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/morning-refresh-v1/raw-game-support.json",
+      "generation": 1789830827314610,
+      "bytes": 1373,
+      "sha256": "8dcfb23ef2b29e059cc4e7f2c877ab77be3376e94d676be9d1210cc6d38c5cc5",
+      "download_verified": true
+    }
+  ],
+  "supporting_published_at": "2026-09-19T15:13:47.102960+00:00"
+}

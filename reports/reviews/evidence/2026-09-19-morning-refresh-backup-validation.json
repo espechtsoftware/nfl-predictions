@@ -1,0 +1,3898 @@
+{
+  "job_id": "morning_refresh_backup_dc7cb090-8853-46be-9238-9eaf86fb2d38",
+  "source_to_snapshot": {
+    "nfl-predictions-503414.nfl_features.player_id_overrides": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__player_id_overrides",
+    "nfl-predictions-503414.nfl_features.player_id_map": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__player_id_map",
+    "nfl-predictions-503414.nfl_features.dk_salary_week": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__dk_salary_week",
+    "nfl-predictions-503414.nfl_features.player_week_role": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__player_week_role",
+    "nfl-predictions-503414.nfl_features.rz_receiving": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__rz_receiving",
+    "nfl-predictions-503414.nfl_features.rz_rushing": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__rz_rushing",
+    "nfl-predictions-503414.nfl_features.schedule_long": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__schedule_long",
+    "nfl-predictions-503414.nfl_features.player_week_actuals": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__player_week_actuals",
+    "nfl-predictions-503414.nfl_features.player_week_usage": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__player_week_usage",
+    "nfl-predictions-503414.nfl_features.player_week_efficiency": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__player_week_efficiency",
+    "nfl-predictions-503414.nfl_features.player_week_advanced": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__player_week_advanced",
+    "nfl-predictions-503414.nfl_features.team_week_context": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__team_week_context",
+    "nfl-predictions-503414.nfl_features.defense_week_allowed": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__defense_week_allowed",
+    "nfl-predictions-503414.nfl_features.defense_week_coverage": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__defense_week_coverage",
+    "nfl-predictions-503414.nfl_features.referee_game_tendency": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__referee_game_tendency",
+    "nfl-predictions-503414.nfl_features.team_week_neutral_pass": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__team_week_neutral_pass",
+    "nfl-predictions-503414.nfl_features.team_week_ol_out": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__team_week_ol_out",
+    "nfl-predictions-503414.nfl_features.team_week_pace": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__team_week_pace",
+    "nfl-predictions-503414.nfl_features.defense_week_blitz": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__defense_week_blitz",
+    "nfl-predictions-503414.nfl_features.team_week_target_concentration": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__team_week_target_concentration",
+    "nfl-predictions-503414.nfl_features.qb_week_ngs": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__qb_week_ngs",
+    "nfl-predictions-503414.nfl_features.team_week_ftn_offense": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__team_week_ftn_offense",
+    "nfl-predictions-503414.nfl_features.player_week_xfp": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__player_week_xfp",
+    "nfl-predictions-503414.nfl_features.team_week_schedule_ctx": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__team_week_schedule_ctx",
+    "nfl-predictions-503414.nfl_features.player_week_fp_route": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__player_week_fp_route",
+    "nfl-predictions-503414.nfl_features.team_week_qb_quality": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__team_week_qb_quality",
+    "nfl-predictions-503414.nfl_features.player_week_injury": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__player_week_injury",
+    "nfl-predictions-503414.nfl_features.team_week_vacated": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__team_week_vacated",
+    "nfl-predictions-503414.nfl_features.game_weather": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__game_weather",
+    "nfl-predictions-503414.nfl_features.player_week_training": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__player_week_training",
+    "nfl-predictions-503414.nfl_features.defense_points_against": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__defense_points_against",
+    "nfl-predictions-503414.nfl_features.player_week_inference": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__player_week_inference",
+    "nfl-predictions-503414.nfl_features.team_defense_week": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__team_defense_week",
+    "nfl-predictions-503414.nfl_features.tabpfn_projections": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__tabpfn_projections",
+    "nfl-predictions-503414.nfl_predictions.player_projections": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_predictions__player_projections",
+    "nfl-predictions-503414.nfl_predictions.div_shadow": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_predictions__div_shadow"
+  },
+  "tables": {
+    "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__player_id_overrides": {
+      "name": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__player_id_overrides",
+      "kind": "SNAPSHOT",
+      "rows": 0,
+      "modified": "2026-09-19T14:45:11.451000+00:00",
+      "etag": "ZzsUl7HPDif11Qay9Z8mjw==",
+      "schema": [
+        {
+          "name": "dk_player_id",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "gsis_id",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "note",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        }
+      ],
+      "partitioning": null,
+      "range_partitioning": null,
+      "clustering": null,
+      "snapshot": {
+        "baseTableReference": {
+          "projectId": "nfl-predictions-503414",
+          "datasetId": "nfl_features",
+          "tableId": "player_id_overrides"
+        },
+        "snapshotTime": "2026-09-19T14:45:09.438Z"
+      },
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__player_id_map": {
+      "name": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__player_id_map",
+      "kind": "SNAPSHOT",
+      "rows": 913,
+      "modified": "2026-09-19T14:45:12.888000+00:00",
+      "etag": "aLwMLga+eGXVxNMrFYWAPg==",
+      "schema": [
+        {
+          "name": "dk_player_id",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "gsis_id",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "display_name",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "team_abbr",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "position",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "match_source",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        }
+      ],
+      "partitioning": null,
+      "range_partitioning": null,
+      "clustering": null,
+      "snapshot": {
+        "baseTableReference": {
+          "projectId": "nfl-predictions-503414",
+          "datasetId": "nfl_features",
+          "tableId": "player_id_map"
+        },
+        "snapshotTime": "2026-09-19T14:45:09.438Z"
+      },
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__dk_salary_week": {
+      "name": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__dk_salary_week",
+      "kind": "SNAPSHOT",
+      "rows": 106483,
+      "modified": "2026-09-19T14:45:13.865000+00:00",
+      "etag": "lbf7uVRZ05trC/c8QsVBog==",
+      "schema": [
+        {
+          "name": "gsis_id",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "season",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "week",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "dk_player_id",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "salary",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "status",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "dk_ppg",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "display_name",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "position",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "team",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "salary_delta_wow",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        }
+      ],
+      "partitioning": null,
+      "range_partitioning": null,
+      "clustering": null,
+      "snapshot": {
+        "baseTableReference": {
+          "projectId": "nfl-predictions-503414",
+          "datasetId": "nfl_features",
+          "tableId": "dk_salary_week"
+        },
+        "snapshotTime": "2026-09-19T14:45:09.438Z"
+      },
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__player_week_role": {
+      "name": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__player_week_role",
+      "kind": "SNAPSHOT",
+      "rows": 164838,
+      "modified": "2026-09-19T14:45:15.240000+00:00",
+      "etag": "0knZBhHxZdrtUl9IUIds0A==",
+      "schema": [
+        {
+          "name": "gsis_id",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "season",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "week",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "team",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "position",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "depth_rank",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "is_rookie",
+          "type": "BOOLEAN",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "draft_round",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "is_upcoming",
+          "type": "BOOLEAN",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "depth_rank_delta",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        }
+      ],
+      "partitioning": null,
+      "range_partitioning": null,
+      "clustering": null,
+      "snapshot": {
+        "baseTableReference": {
+          "projectId": "nfl-predictions-503414",
+          "datasetId": "nfl_features",
+          "tableId": "player_week_role"
+        },
+        "snapshotTime": "2026-09-19T14:45:09.438Z"
+      },
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__rz_receiving": {
+      "name": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__rz_receiving",
+      "kind": "SNAPSHOT",
+      "rows": 53287,
+      "modified": "2026-09-19T14:45:16.689000+00:00",
+      "etag": "XzOEa+SikIK9PAlSSAt3cQ==",
+      "schema": [
+        {
+          "name": "game_id",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "season",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "week",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "team",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "gsis_id",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "rz20_targets",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "rz10_targets",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "rz5_targets",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "rz20_tds",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "rz10_receptions",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "total_targets",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "total_air_yards",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "rz20_target_share",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "rz10_target_share",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "target_share",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "air_yards_share",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        }
+      ],
+      "partitioning": null,
+      "range_partitioning": null,
+      "clustering": null,
+      "snapshot": {
+        "baseTableReference": {
+          "projectId": "nfl-predictions-503414",
+          "datasetId": "nfl_features",
+          "tableId": "rz_receiving"
+        },
+        "snapshotTime": "2026-09-19T14:45:09.438Z"
+      },
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__rz_rushing": {
+      "name": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__rz_rushing",
+      "kind": "SNAPSHOT",
+      "rows": 27156,
+      "modified": "2026-09-19T14:45:17.918000+00:00",
+      "etag": "VGJh/kcGekrpzc52hGu3Mg==",
+      "schema": [
+        {
+          "name": "game_id",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "season",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "week",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "team",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "gsis_id",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "rz20_carries",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "rz10_carries",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "rz5_carries",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "gl3_carries",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "rz20_rush_tds",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "total_carries",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "total_rush_yards",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "rz20_carry_share",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "gl3_carry_share",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "carry_share",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        }
+      ],
+      "partitioning": null,
+      "range_partitioning": null,
+      "clustering": null,
+      "snapshot": {
+        "baseTableReference": {
+          "projectId": "nfl-predictions-503414",
+          "datasetId": "nfl_features",
+          "tableId": "rz_rushing"
+        },
+        "snapshotTime": "2026-09-19T14:45:09.438Z"
+      },
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__schedule_long": {
+      "name": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__schedule_long",
+      "kind": "SNAPSHOT",
+      "rows": 14648,
+      "modified": "2026-09-19T14:45:19.028000+00:00",
+      "etag": "L1eORiQWaZ7qBkCN9mzvDQ==",
+      "schema": [
+        {
+          "name": "game_id",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "season",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "week",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "game_type",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "gameday",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "team",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "opponent",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "is_home",
+          "type": "BOOLEAN",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "team_spread",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "game_total",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "implied_team_total",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "implied_opponent_total",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "expected_margin",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "roof",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "surface",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "days_rest",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        }
+      ],
+      "partitioning": null,
+      "range_partitioning": null,
+      "clustering": null,
+      "snapshot": {
+        "baseTableReference": {
+          "projectId": "nfl-predictions-503414",
+          "datasetId": "nfl_features",
+          "tableId": "schedule_long"
+        },
+        "snapshotTime": "2026-09-19T14:45:09.438Z"
+      },
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__player_week_actuals": {
+      "name": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__player_week_actuals",
+      "kind": "SNAPSHOT",
+      "rows": 244960,
+      "modified": "2026-09-19T14:45:20.253000+00:00",
+      "etag": "VndMVqSDxL7gw5DofKMwaQ==",
+      "schema": [
+        {
+          "name": "gsis_id",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "season",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "week",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "team",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "targets",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "receptions",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "rec_yards",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "rec_tds",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "carries",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "rush_yards",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "rush_tds",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "pass_attempts",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "completions",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "pass_yards",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "pass_tds",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "interceptions",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "fumbles_lost",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "two_pt",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "special_teams_tds",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "dk_points",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "has_stat_line",
+          "type": "BOOLEAN",
+          "mode": "NULLABLE"
+        }
+      ],
+      "partitioning": null,
+      "range_partitioning": null,
+      "clustering": null,
+      "snapshot": {
+        "baseTableReference": {
+          "projectId": "nfl-predictions-503414",
+          "datasetId": "nfl_features",
+          "tableId": "player_week_actuals"
+        },
+        "snapshotTime": "2026-09-19T14:45:09.438Z"
+      },
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__player_week_usage": {
+      "name": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__player_week_usage",
+      "kind": "SNAPSHOT",
+      "rows": 104763,
+      "modified": "2026-09-19T14:45:21.607000+00:00",
+      "etag": "KPsGZr14LIeLLSP6teAFAw==",
+      "schema": [
+        {
+          "name": "gsis_id",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "season",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "week",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "team",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "is_upcoming",
+          "type": "BOOLEAN",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "was_active",
+          "type": "BOOLEAN",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "rz20_targets_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "rz10_targets_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "targets_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "target_share_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "air_yards_share_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "rz20_target_share_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "rz10_target_share_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "rz20_carries_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "gl3_carries_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "carries_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "carry_share_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "gl3_carry_share_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "snap_share_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "target_share_last",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "carry_share_last",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "snap_share_last",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "rz20_targets_std",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "target_share_std",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "targets_std",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "carries_std",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "rz20_targets_sum_prior",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "gl3_carries_sum_prior",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "target_share_trend",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "carry_share_trend",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "games_played_prior",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "position",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "target_share_jump",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "carry_share_jump",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "snap_share_jump",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "wopr_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "rz20_targets_smoothed",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "gl3_carries_smoothed",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        }
+      ],
+      "partitioning": null,
+      "range_partitioning": null,
+      "clustering": null,
+      "snapshot": {
+        "baseTableReference": {
+          "projectId": "nfl-predictions-503414",
+          "datasetId": "nfl_features",
+          "tableId": "player_week_usage"
+        },
+        "snapshotTime": "2026-09-19T14:45:09.438Z"
+      },
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__player_week_efficiency": {
+      "name": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__player_week_efficiency",
+      "kind": "SNAPSHOT",
+      "rows": 245888,
+      "modified": "2026-09-19T14:45:22.827000+00:00",
+      "etag": "5K6YlocbWSYZpYSwVqClaw==",
+      "schema": [
+        {
+          "name": "gsis_id",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "season",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "week",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "yards_per_target_l8",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "yards_per_reception_l8",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "catch_rate_l8",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "yards_per_carry_l8",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "yards_per_attempt_l8",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "dk_points_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "dk_points_std",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "dk_points_vol",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "adot_l8",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        }
+      ],
+      "partitioning": null,
+      "range_partitioning": null,
+      "clustering": null,
+      "snapshot": {
+        "baseTableReference": {
+          "projectId": "nfl-predictions-503414",
+          "datasetId": "nfl_features",
+          "tableId": "player_week_efficiency"
+        },
+        "snapshotTime": "2026-09-19T14:45:09.438Z"
+      },
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__player_week_advanced": {
+      "name": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__player_week_advanced",
+      "kind": "SNAPSHOT",
+      "rows": 104763,
+      "modified": "2026-09-19T14:45:24.131000+00:00",
+      "etag": "pcHFslj3R6+VBiZzb0za1Q==",
+      "schema": [
+        {
+          "name": "gsis_id",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "season",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "week",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "ez_targets_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "deep_targets_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "separation_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "stacked_box_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        }
+      ],
+      "partitioning": null,
+      "range_partitioning": null,
+      "clustering": null,
+      "snapshot": {
+        "baseTableReference": {
+          "projectId": "nfl-predictions-503414",
+          "datasetId": "nfl_features",
+          "tableId": "player_week_advanced"
+        },
+        "snapshotTime": "2026-09-19T14:45:09.438Z"
+      },
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__team_week_context": {
+      "name": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__team_week_context",
+      "kind": "SNAPSHOT",
+      "rows": 14648,
+      "modified": "2026-09-19T14:45:25.261000+00:00",
+      "etag": "GvV0sJphiycX4PFqQjt2VA==",
+      "schema": [
+        {
+          "name": "team",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "season",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "week",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "game_id",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "opponent",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "implied_team_total",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "spread",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "game_total",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "expected_game_script",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "is_home",
+          "type": "BOOLEAN",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "roof",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "surface",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "days_rest",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "plays_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "pass_rate_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "pace_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "proe_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "rz10_pass_rate_std",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "expected_plays",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        }
+      ],
+      "partitioning": null,
+      "range_partitioning": null,
+      "clustering": null,
+      "snapshot": {
+        "baseTableReference": {
+          "projectId": "nfl-predictions-503414",
+          "datasetId": "nfl_features",
+          "tableId": "team_week_context"
+        },
+        "snapshotTime": "2026-09-19T14:45:09.438Z"
+      },
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__defense_week_allowed": {
+      "name": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__defense_week_allowed",
+      "kind": "SNAPSHOT",
+      "rows": 6336,
+      "modified": "2026-09-19T14:45:26.709000+00:00",
+      "etag": "4WV4h4X2uOKi05Wd9MYU4A==",
+      "schema": [
+        {
+          "name": "team",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "season",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "week",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "epa_per_dropback_allowed_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "epa_per_rush_allowed_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "rz_td_rate_allowed_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "qb_fp_allowed_adj_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "rb_fp_allowed_adj_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "wr_fp_allowed_adj_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "te_fp_allowed_adj_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        }
+      ],
+      "partitioning": null,
+      "range_partitioning": null,
+      "clustering": null,
+      "snapshot": {
+        "baseTableReference": {
+          "projectId": "nfl-predictions-503414",
+          "datasetId": "nfl_features",
+          "tableId": "defense_week_allowed"
+        },
+        "snapshotTime": "2026-09-19T14:45:09.438Z"
+      },
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__defense_week_coverage": {
+      "name": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__defense_week_coverage",
+      "kind": "SNAPSHOT",
+      "rows": 14648,
+      "modified": "2026-09-19T14:45:27.838000+00:00",
+      "etag": "767MWY07WZ2r4qpMBtZDyQ==",
+      "schema": [
+        {
+          "name": "team",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "season",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "week",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "cb_ypt_allowed_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "cb_comp_rate_allowed_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "db_ypt_allowed_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "top_cb_out",
+          "type": "BOOLEAN",
+          "mode": "NULLABLE"
+        }
+      ],
+      "partitioning": null,
+      "range_partitioning": null,
+      "clustering": null,
+      "snapshot": {
+        "baseTableReference": {
+          "projectId": "nfl-predictions-503414",
+          "datasetId": "nfl_features",
+          "tableId": "defense_week_coverage"
+        },
+        "snapshotTime": "2026-09-19T14:45:09.438Z"
+      },
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__referee_game_tendency": {
+      "name": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__referee_game_tendency",
+      "kind": "SNAPSHOT",
+      "rows": 3041,
+      "modified": "2026-09-19T14:45:29.162000+00:00",
+      "etag": "Dz6fQEKOLtnAqeDW/z64LA==",
+      "schema": [
+        {
+          "name": "game_id",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "season",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "week",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "referee",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "ref_flags_prior",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "ref_pen_yards_prior",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "ref_prior_games",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        }
+      ],
+      "partitioning": null,
+      "range_partitioning": null,
+      "clustering": null,
+      "snapshot": {
+        "baseTableReference": {
+          "projectId": "nfl-predictions-503414",
+          "datasetId": "nfl_features",
+          "tableId": "referee_game_tendency"
+        },
+        "snapshotTime": "2026-09-19T14:45:09.438Z"
+      },
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__team_week_neutral_pass": {
+      "name": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__team_week_neutral_pass",
+      "kind": "SNAPSHOT",
+      "rows": 6318,
+      "modified": "2026-09-19T14:45:30.421000+00:00",
+      "etag": "TysYvjpmbakwFb9RCtpLzg==",
+      "schema": [
+        {
+          "name": "team",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "season",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "week",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "neutral_pass_rate_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        }
+      ],
+      "partitioning": null,
+      "range_partitioning": null,
+      "clustering": null,
+      "snapshot": {
+        "baseTableReference": {
+          "projectId": "nfl-predictions-503414",
+          "datasetId": "nfl_features",
+          "tableId": "team_week_neutral_pass"
+        },
+        "snapshotTime": "2026-09-19T14:45:09.438Z"
+      },
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__team_week_ol_out": {
+      "name": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__team_week_ol_out",
+      "kind": "SNAPSHOT",
+      "rows": 5213,
+      "modified": "2026-09-19T14:45:31.752000+00:00",
+      "etag": "yHlyjivsNNWiyckIaZCCMg==",
+      "schema": [
+        {
+          "name": "team",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "season",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "week",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "team_ol_out",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        }
+      ],
+      "partitioning": null,
+      "range_partitioning": null,
+      "clustering": null,
+      "snapshot": {
+        "baseTableReference": {
+          "projectId": "nfl-predictions-503414",
+          "datasetId": "nfl_features",
+          "tableId": "team_week_ol_out"
+        },
+        "snapshotTime": "2026-09-19T14:45:09.438Z"
+      },
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__team_week_pace": {
+      "name": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__team_week_pace",
+      "kind": "SNAPSHOT",
+      "rows": 6656,
+      "modified": "2026-09-19T14:45:32.897000+00:00",
+      "etag": "2HT9MCLcdi1/X6wcVpz+TQ==",
+      "schema": [
+        {
+          "name": "team",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "season",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "week",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "off_plays_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "def_plays_faced_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        }
+      ],
+      "partitioning": null,
+      "range_partitioning": null,
+      "clustering": null,
+      "snapshot": {
+        "baseTableReference": {
+          "projectId": "nfl-predictions-503414",
+          "datasetId": "nfl_features",
+          "tableId": "team_week_pace"
+        },
+        "snapshotTime": "2026-09-19T14:45:09.438Z"
+      },
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__defense_week_blitz": {
+      "name": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__defense_week_blitz",
+      "kind": "SNAPSHOT",
+      "rows": 2342,
+      "modified": "2026-09-19T14:45:34.239000+00:00",
+      "etag": "spdfs8fTCydGAbvnNeKv/A==",
+      "schema": [
+        {
+          "name": "team",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "season",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "week",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "blitz_rate_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        }
+      ],
+      "partitioning": null,
+      "range_partitioning": null,
+      "clustering": null,
+      "snapshot": {
+        "baseTableReference": {
+          "projectId": "nfl-predictions-503414",
+          "datasetId": "nfl_features",
+          "tableId": "defense_week_blitz"
+        },
+        "snapshotTime": "2026-09-19T14:45:09.438Z"
+      },
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__team_week_target_concentration": {
+      "name": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__team_week_target_concentration",
+      "kind": "SNAPSHOT",
+      "rows": 6656,
+      "modified": "2026-09-19T14:45:35.222000+00:00",
+      "etag": "6EcpCW2fTIv9IfkcqokqJw==",
+      "schema": [
+        {
+          "name": "team",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "season",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "week",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "top2_target_share_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        }
+      ],
+      "partitioning": null,
+      "range_partitioning": null,
+      "clustering": null,
+      "snapshot": {
+        "baseTableReference": {
+          "projectId": "nfl-predictions-503414",
+          "datasetId": "nfl_features",
+          "tableId": "team_week_target_concentration"
+        },
+        "snapshotTime": "2026-09-19T14:45:09.438Z"
+      },
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__qb_week_ngs": {
+      "name": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__qb_week_ngs",
+      "kind": "SNAPSHOT",
+      "rows": 5679,
+      "modified": "2026-09-19T14:45:36.613000+00:00",
+      "etag": "lXlEn1iPdT7S/Timh86V5w==",
+      "schema": [
+        {
+          "name": "gsis_id",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "season",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "week",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "qb_cpoe_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "qb_time_to_throw_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        }
+      ],
+      "partitioning": null,
+      "range_partitioning": null,
+      "clustering": null,
+      "snapshot": {
+        "baseTableReference": {
+          "projectId": "nfl-predictions-503414",
+          "datasetId": "nfl_features",
+          "tableId": "qb_week_ngs"
+        },
+        "snapshotTime": "2026-09-19T14:45:09.438Z"
+      },
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__team_week_ftn_offense": {
+      "name": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__team_week_ftn_offense",
+      "kind": "SNAPSHOT",
+      "rows": 2342,
+      "modified": "2026-09-19T14:45:37.670000+00:00",
+      "etag": "3oWVDwJaG7WWIJYdvXpy/w==",
+      "schema": [
+        {
+          "name": "team",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "season",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "week",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "pa_rate_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "def_pressure_rate_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        }
+      ],
+      "partitioning": null,
+      "range_partitioning": null,
+      "clustering": null,
+      "snapshot": {
+        "baseTableReference": {
+          "projectId": "nfl-predictions-503414",
+          "datasetId": "nfl_features",
+          "tableId": "team_week_ftn_offense"
+        },
+        "snapshotTime": "2026-09-19T14:45:09.438Z"
+      },
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__player_week_xfp": {
+      "name": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__player_week_xfp",
+      "kind": "SNAPSHOT",
+      "rows": 61712,
+      "modified": "2026-09-19T14:45:38.864000+00:00",
+      "etag": "zW44Lj3F+GqpC3w+42WvpQ==",
+      "schema": [
+        {
+          "name": "gsis_id",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "season",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "week",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "xfp_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        }
+      ],
+      "partitioning": null,
+      "range_partitioning": null,
+      "clustering": null,
+      "snapshot": {
+        "baseTableReference": {
+          "projectId": "nfl-predictions-503414",
+          "datasetId": "nfl_features",
+          "tableId": "player_week_xfp"
+        },
+        "snapshotTime": "2026-09-19T14:45:09.438Z"
+      },
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__team_week_schedule_ctx": {
+      "name": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__team_week_schedule_ctx",
+      "kind": "SNAPSHOT",
+      "rows": 14648,
+      "modified": "2026-09-19T14:45:39.906000+00:00",
+      "etag": "3rTyz9HC6UScpNfqP9bRZw==",
+      "schema": [
+        {
+          "name": "team",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "season",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "week",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "net_rest_diff",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "body_clock_hour",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        }
+      ],
+      "partitioning": null,
+      "range_partitioning": null,
+      "clustering": null,
+      "snapshot": {
+        "baseTableReference": {
+          "projectId": "nfl-predictions-503414",
+          "datasetId": "nfl_features",
+          "tableId": "team_week_schedule_ctx"
+        },
+        "snapshotTime": "2026-09-19T14:45:09.438Z"
+      },
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__player_week_fp_route": {
+      "name": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__player_week_fp_route",
+      "kind": "SNAPSHOT",
+      "rows": 104763,
+      "modified": "2026-09-19T14:45:41.215000+00:00",
+      "etag": "xyXLisnM3edoNNPaZIny1w==",
+      "schema": [
+        {
+          "name": "gsis_id",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "season",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "week",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "fp_route_source_season",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "fp_route_source_week",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "fp_route_source_sha256",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "fp_route_prior_observations",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "fp_route_share_last",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "fp_route_share_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "fp_route_share_jump",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "fp_route_cross_season",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "fp_route_fallback",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        }
+      ],
+      "partitioning": null,
+      "range_partitioning": null,
+      "clustering": null,
+      "snapshot": {
+        "baseTableReference": {
+          "projectId": "nfl-predictions-503414",
+          "datasetId": "nfl_features",
+          "tableId": "player_week_fp_route"
+        },
+        "snapshotTime": "2026-09-19T14:45:09.438Z"
+      },
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__team_week_qb_quality": {
+      "name": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__team_week_qb_quality",
+      "kind": "SNAPSHOT",
+      "rows": 14000,
+      "modified": "2026-09-19T14:45:42.745000+00:00",
+      "etag": "hAZTz3ht7VdlAV6p1/4jDw==",
+      "schema": [
+        {
+          "name": "team",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "season",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "week",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "team_qb_cpoe_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "team_qb_cpoe_dropbacks_l6",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "team_qb_cpoe_games_l6",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "team_qb_cpoe_cross_season",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        }
+      ],
+      "partitioning": null,
+      "range_partitioning": null,
+      "clustering": null,
+      "snapshot": {
+        "baseTableReference": {
+          "projectId": "nfl-predictions-503414",
+          "datasetId": "nfl_features",
+          "tableId": "team_week_qb_quality"
+        },
+        "snapshotTime": "2026-09-19T14:45:09.438Z"
+      },
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__player_week_injury": {
+      "name": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__player_week_injury",
+      "kind": "SNAPSHOT",
+      "rows": 57962,
+      "modified": "2026-09-19T14:45:43.622000+00:00",
+      "etag": "sa0dSBYR2kUTuhCxEQa62g==",
+      "schema": [
+        {
+          "name": "gsis_id",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "season",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "week",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "injury_status",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "practice_level",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "practice_participation_trend",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "games_missed_l4",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "injury_source_modified_at",
+          "type": "TIMESTAMP",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "injury_snapshot_pulled_at",
+          "type": "TIMESTAMP",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "injury_information_at",
+          "type": "TIMESTAMP",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "injury_source_kind",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "slate_lock_at",
+          "type": "TIMESTAMP",
+          "mode": "NULLABLE"
+        }
+      ],
+      "partitioning": null,
+      "range_partitioning": null,
+      "clustering": null,
+      "snapshot": {
+        "baseTableReference": {
+          "projectId": "nfl-predictions-503414",
+          "datasetId": "nfl_features",
+          "tableId": "player_week_injury"
+        },
+        "snapshotTime": "2026-09-19T14:45:09.438Z"
+      },
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__team_week_vacated": {
+      "name": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__team_week_vacated",
+      "kind": "SNAPSHOT",
+      "rows": 2267,
+      "modified": "2026-09-19T14:45:44.904000+00:00",
+      "etag": "iRGDcOuA473U9TRwiO5Xcw==",
+      "schema": [
+        {
+          "name": "team",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "season",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "week",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "vacated_target_share",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "vacated_carry_share",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        }
+      ],
+      "partitioning": null,
+      "range_partitioning": null,
+      "clustering": null,
+      "snapshot": {
+        "baseTableReference": {
+          "projectId": "nfl-predictions-503414",
+          "datasetId": "nfl_features",
+          "tableId": "team_week_vacated"
+        },
+        "snapshotTime": "2026-09-19T14:45:09.438Z"
+      },
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__game_weather": {
+      "name": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__game_weather",
+      "kind": "SNAPSHOT",
+      "rows": 7548,
+      "modified": "2026-09-19T14:45:46.173000+00:00",
+      "etag": "gOe5j25vvqyufBe1oK4GnQ==",
+      "schema": [
+        {
+          "name": "game_id",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "temp_f",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "wind_mph",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "is_dome",
+          "type": "BOOLEAN",
+          "mode": "NULLABLE"
+        }
+      ],
+      "partitioning": null,
+      "range_partitioning": null,
+      "clustering": null,
+      "snapshot": {
+        "baseTableReference": {
+          "projectId": "nfl-predictions-503414",
+          "datasetId": "nfl_features",
+          "tableId": "game_weather"
+        },
+        "snapshotTime": "2026-09-19T14:45:09.438Z"
+      },
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__player_week_training": {
+      "name": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__player_week_training",
+      "kind": "SNAPSHOT",
+      "rows": 103833,
+      "modified": "2026-09-19T14:45:47.672000+00:00",
+      "etag": "OMPI4/U6q+tDyxMtscijTw==",
+      "schema": [
+        {
+          "name": "gsis_id",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "season",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "week",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "team",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "opponent",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "position",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "game_id",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "was_active",
+          "type": "BOOLEAN",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "targets_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "target_share_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "air_yards_share_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "wopr_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "rz20_targets_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "rz10_targets_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "rz20_target_share_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "rz10_target_share_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "rz20_targets_smoothed",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "carries_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "carry_share_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "gl3_carries_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "gl3_carry_share_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "gl3_carries_smoothed",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "snap_share_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "target_share_last",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "carry_share_last",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "snap_share_last",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "target_share_jump",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "carry_share_jump",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "snap_share_jump",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "target_share_std",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "target_share_trend",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "carry_share_trend",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "games_played_prior",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "yards_per_target_l8",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "yards_per_reception_l8",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "catch_rate_l8",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "yards_per_carry_l8",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "yards_per_attempt_l8",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "adot_l8",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "dk_points_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "dk_points_std",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "dk_points_vol",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "implied_team_total",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "spread",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "game_total",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "expected_game_script",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "is_home",
+          "type": "BOOLEAN",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "days_rest",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "plays_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "pass_rate_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "pace_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "proe_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "expected_plays",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "xtd_receiving_proxy",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "epa_per_dropback_allowed_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "epa_per_rush_allowed_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "rz_td_rate_allowed_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "qb_fp_allowed_adj_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "rb_fp_allowed_adj_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "wr_fp_allowed_adj_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "te_fp_allowed_adj_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "cb_ypt_allowed_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "cb_comp_rate_allowed_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "db_ypt_allowed_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "top_cb_out",
+          "type": "BOOLEAN",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "injury_status",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "practice_level",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "practice_participation_trend",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "games_missed_l4",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "depth_rank",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "depth_rank_delta",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "is_rookie",
+          "type": "BOOLEAN",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "draft_round",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "ref_flags_prior",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "neutral_pass_rate_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "team_ol_out",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "pace_env_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "opp_blitz_rate_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "pa_rate_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "opp_pressure_rate_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "xfp_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "net_rest_diff",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "body_clock_hour",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "team_top2_target_share_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "qb_cpoe_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "qb_time_to_throw_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "fp_route_source_season",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "fp_route_source_week",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "fp_route_source_sha256",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "fp_route_prior_observations",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "fp_route_share_last",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "fp_route_share_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "fp_route_share_jump",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "fp_route_cross_season",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "fp_route_fallback",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "team_vacated_target_share",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "team_vacated_carry_share",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "vacated_capture_tgt",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "vacated_capture_car",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "ez_targets_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "deep_targets_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "separation_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "stacked_box_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "wind_mph",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "temp_f",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "is_dome",
+          "type": "BOOLEAN",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "salary",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "salary_delta_wow",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "dk_ppg",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "is_cold_start",
+          "type": "BOOLEAN",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "y_targets",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "y_receptions",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "y_rec_yards",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "y_rec_tds",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "y_carries",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "y_rush_yards",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "y_rush_tds",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "y_pass_attempts",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "y_pass_yards",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "y_pass_tds",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "y_interceptions",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "y_dk_points",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        }
+      ],
+      "partitioning": null,
+      "range_partitioning": null,
+      "clustering": null,
+      "snapshot": {
+        "baseTableReference": {
+          "projectId": "nfl-predictions-503414",
+          "datasetId": "nfl_features",
+          "tableId": "player_week_training"
+        },
+        "snapshotTime": "2026-09-19T14:45:09.438Z"
+      },
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__defense_points_against": {
+      "name": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__defense_points_against",
+      "kind": "SNAPSHOT",
+      "rows": 25341,
+      "modified": "2026-09-19T14:45:48.825000+00:00",
+      "etag": "f6PnIVMuIGk7kNFdKfxnjw==",
+      "schema": [
+        {
+          "name": "team",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "season",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "week",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "position",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "fp_allowed",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "fp_allowed_l3",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "fp_allowed_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "fp_allowed_season",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "trend",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        }
+      ],
+      "partitioning": null,
+      "range_partitioning": null,
+      "clustering": null,
+      "snapshot": {
+        "baseTableReference": {
+          "projectId": "nfl-predictions-503414",
+          "datasetId": "nfl_features",
+          "tableId": "defense_points_against"
+        },
+        "snapshotTime": "2026-09-19T14:45:09.438Z"
+      },
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__player_week_inference": {
+      "name": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__player_week_inference",
+      "kind": "SNAPSHOT",
+      "rows": 928,
+      "modified": "2026-09-19T14:45:50.043000+00:00",
+      "etag": "EH30veGmUWRgmlkHDUolwA==",
+      "schema": [
+        {
+          "name": "gsis_id",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "season",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "week",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "team",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "opponent",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "position",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "game_id",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "targets_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "target_share_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "air_yards_share_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "wopr_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "rz20_targets_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "rz10_targets_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "rz20_target_share_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "rz10_target_share_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "rz20_targets_smoothed",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "carries_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "carry_share_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "gl3_carries_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "gl3_carry_share_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "gl3_carries_smoothed",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "snap_share_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "target_share_last",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "carry_share_last",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "snap_share_last",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "target_share_jump",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "carry_share_jump",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "snap_share_jump",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "target_share_std",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "target_share_trend",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "carry_share_trend",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "games_played_prior",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "yards_per_target_l8",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "yards_per_reception_l8",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "catch_rate_l8",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "yards_per_carry_l8",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "yards_per_attempt_l8",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "adot_l8",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "dk_points_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "dk_points_std",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "dk_points_vol",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "implied_team_total",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "spread",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "game_total",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "expected_game_script",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "is_home",
+          "type": "BOOLEAN",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "days_rest",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "plays_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "pass_rate_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "pace_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "proe_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "expected_plays",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "xtd_receiving_proxy",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "epa_per_dropback_allowed_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "epa_per_rush_allowed_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "rz_td_rate_allowed_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "qb_fp_allowed_adj_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "rb_fp_allowed_adj_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "wr_fp_allowed_adj_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "te_fp_allowed_adj_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "cb_ypt_allowed_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "cb_comp_rate_allowed_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "db_ypt_allowed_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "top_cb_out",
+          "type": "BOOLEAN",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "injury_status",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "practice_level",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "practice_participation_trend",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "games_missed_l4",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "depth_rank",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "depth_rank_delta",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "is_rookie",
+          "type": "BOOLEAN",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "draft_round",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "ref_flags_prior",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "neutral_pass_rate_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "team_ol_out",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "pace_env_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "opp_blitz_rate_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "pa_rate_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "opp_pressure_rate_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "xfp_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "net_rest_diff",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "body_clock_hour",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "team_top2_target_share_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "qb_cpoe_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "qb_time_to_throw_l6",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "fp_route_source_season",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "fp_route_source_week",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "fp_route_source_sha256",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "fp_route_prior_observations",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "fp_route_share_last",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "fp_route_share_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "fp_route_share_jump",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "fp_route_cross_season",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "fp_route_fallback",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "team_vacated_target_share",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "team_vacated_carry_share",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "vacated_capture_tgt",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "vacated_capture_car",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "ez_targets_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "deep_targets_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "separation_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "stacked_box_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "wind_mph",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "temp_f",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "is_dome",
+          "type": "BOOLEAN",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "salary_delta_wow",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "is_cold_start",
+          "type": "BOOLEAN",
+          "mode": "NULLABLE"
+        }
+      ],
+      "partitioning": null,
+      "range_partitioning": null,
+      "clustering": null,
+      "snapshot": {
+        "baseTableReference": {
+          "projectId": "nfl-predictions-503414",
+          "datasetId": "nfl_features",
+          "tableId": "player_week_inference"
+        },
+        "snapshotTime": "2026-09-19T14:45:09.438Z"
+      },
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__team_defense_week": {
+      "name": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__team_defense_week",
+      "kind": "SNAPSHOT",
+      "rows": 6336,
+      "modified": "2026-09-19T14:45:51.242000+00:00",
+      "etag": "sjlLiwQ3dLpvKAAnEDwyFw==",
+      "schema": [
+        {
+          "name": "season",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "week",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "pa",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "sacks",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "interceptions",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "fumble_recoveries",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "safeties",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "blocked_kicks",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "return_tds",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "team",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "dst_dk_points",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "dst_points_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "dst_points_l16",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "game_id",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "opponent",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "opponent_final_score",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "excluded_defensive_td_points",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "excluded_safety_points",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "excluded_non_dst_points",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "defensive_safeties",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "defensive_return_tds",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "defensive_conversions",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "points_allowed_tier_points",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "reconstructed_dst_dk_points",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "authoritative_source_raw_rows",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "authoritative_source_matched_rows",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "authoritative_source_rejected_rows",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "authoritative_distinct_score_count",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "authoritative_source_status",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "authoritative_dst_dk_points",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "score_reconciliation_delta",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "score_reconciliation_status",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "event_frame_version",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "scoring_law_id",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "scoring_law_source_sha256",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "event_vector_payload",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "event_vector_sha256",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "dst_event_games_prior_l4",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "dst_event_games_prior_l16",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "dst_event_sacks_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "dst_event_interceptions_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "dst_event_fumble_recoveries_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "dst_event_safeties_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "dst_event_blocked_kicks_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "dst_event_return_tds_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "dst_event_defensive_conversions_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "dst_event_points_allowed_l4",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "dst_event_sacks_l16",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "dst_event_interceptions_l16",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "dst_event_fumble_recoveries_l16",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "dst_event_safeties_l16",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "dst_event_blocked_kicks_l16",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "dst_event_return_tds_l16",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "dst_event_defensive_conversions_l16",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "dst_event_points_allowed_l16",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        }
+      ],
+      "partitioning": null,
+      "range_partitioning": null,
+      "clustering": null,
+      "snapshot": {
+        "baseTableReference": {
+          "projectId": "nfl-predictions-503414",
+          "datasetId": "nfl_features",
+          "tableId": "team_defense_week"
+        },
+        "snapshotTime": "2026-09-19T14:45:09.438Z"
+      },
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__tabpfn_projections": {
+      "name": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__tabpfn_projections",
+      "kind": "SNAPSHOT",
+      "rows": 66332,
+      "modified": "2026-09-19T14:45:52.539000+00:00",
+      "etag": "TP0jNzcIweVSDXLjf+XJAg==",
+      "schema": [
+        {
+          "name": "season",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "week",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "gsis_id",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "mean",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "q01",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "q05",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "q10",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "q20",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "q30",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "q40",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "q50",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "q60",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "q70",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "q80",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "q90",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "q95",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "q99",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        }
+      ],
+      "partitioning": null,
+      "range_partitioning": null,
+      "clustering": null,
+      "snapshot": {
+        "baseTableReference": {
+          "projectId": "nfl-predictions-503414",
+          "datasetId": "nfl_features",
+          "tableId": "tabpfn_projections"
+        },
+        "snapshotTime": "2026-09-19T14:45:09.438Z"
+      },
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_release_20260919_morning.nfl_predictions__player_projections": {
+      "name": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_predictions__player_projections",
+      "kind": "SNAPSHOT",
+      "rows": 9719,
+      "modified": "2026-09-19T14:45:53.488000+00:00",
+      "etag": "BqH3GKNTWctR7jEB3Auv6g==",
+      "schema": [
+        {
+          "name": "generated_at",
+          "type": "TIMESTAMP",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "model_version",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "season",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "week",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "slate_id",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "gsis_id",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "dk_player_id",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "display_name",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "position",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "team",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "opponent",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "salary",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "proj_points",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "proj_p10",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "proj_p50",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "proj_p90",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "proj_std",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "p_20_plus",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "value",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "proj_ownership",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        }
+      ],
+      "partitioning": {
+        "type": "DAY",
+        "field": "generated_at"
+      },
+      "range_partitioning": null,
+      "clustering": null,
+      "snapshot": {
+        "baseTableReference": {
+          "projectId": "nfl-predictions-503414",
+          "datasetId": "nfl_predictions",
+          "tableId": "player_projections"
+        },
+        "snapshotTime": "2026-09-19T14:45:09.438Z"
+      },
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_release_20260919_morning.nfl_predictions__div_shadow": {
+      "name": "nfl-predictions-503414.nfl_release_20260919_morning.nfl_predictions__div_shadow",
+      "kind": "SNAPSHOT",
+      "rows": 2497,
+      "modified": "2026-09-19T14:45:54.949000+00:00",
+      "etag": "+4q3KwlOIF1pomtPuDZGAg==",
+      "schema": [
+        {
+          "name": "generated_at",
+          "type": "TIMESTAMP",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "season",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "week",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "gsis_id",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "display_name",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "position",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "salary",
+          "type": "INTEGER",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "our_points",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "market_points",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "blend_points",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "consensus_div",
+          "type": "FLOAT",
+          "mode": "NULLABLE"
+        }
+      ],
+      "partitioning": null,
+      "range_partitioning": null,
+      "clustering": null,
+      "snapshot": {
+        "baseTableReference": {
+          "projectId": "nfl-predictions-503414",
+          "datasetId": "nfl_predictions",
+          "tableId": "div_shadow"
+        },
+        "snapshotTime": "2026-09-19T14:45:09.438Z"
+      },
+      "view_query": null
+    }
+  },
+  "verified_count": 36
+}

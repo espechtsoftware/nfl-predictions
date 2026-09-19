@@ -1,0 +1,16 @@
+{
+  "at": "2026-09-19 15:03:54.322863+00:00",
+  "read_only": true,
+  "keys_only_no_outcomes": true,
+  "earlier_query_syntax_error_job": "dd80e0c5-2229-453f-8755-c91843db7d26",
+  "job_id": "89de60c4-efab-4883-9184-c18819731ba7",
+  "sql": "WITH prior_keys AS (SELECT gsis_id,season,week FROM `nfl-predictions-503414.nfl_release_20260919_morning.nfl_features__player_week_training` WHERE position IN ('QB','RB','WR','TE') AND (season<2026 OR (season=2026 AND week<2))),\nrefreshed_keys AS (SELECT gsis_id,season,week FROM `nfl-predictions-503414.nfl_features.player_week_training` WHERE position IN ('QB','RB','WR','TE') AND (season<2026 OR (season=2026 AND week<2))),\nremoved_keys AS (SELECT * FROM prior_keys EXCEPT DISTINCT SELECT * FROM refreshed_keys),\nadded_keys AS (SELECT * FROM refreshed_keys EXCEPT DISTINCT SELECT * FROM prior_keys)\nSELECT 'removed' direction,season,week,COUNT(*) n_keys FROM removed_keys GROUP BY 1,2,3\nUNION ALL SELECT 'added',season,week,COUNT(*) FROM added_keys GROUP BY 1,2,3",
+  "rows": [
+    {
+      "direction": "removed",
+      "season": 2026,
+      "week": 1,
+      "n_keys": 1
+    }
+  ]
+}

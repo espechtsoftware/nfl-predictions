@@ -1,0 +1,53 @@
+{
+  "execution": "project-slate-6lzdv",
+  "start": "2026-09-19T15:07:05.473231Z",
+  "end": "2026-09-19T15:10:00.062252Z",
+  "projection_rows": 505,
+  "generated_at": "2026-09-19 15:09:52.915006+00:00",
+  "model_versions": [
+    "pooled/components__tail_k1/2026-W32"
+  ],
+  "position_counts": {
+    "WR": 171,
+    "TE": 112,
+    "RB": 107,
+    "QB": 83,
+    "DST": 32
+  },
+  "finite_ordered_projections": true,
+  "unique_nonnull_dk_ids": true,
+  "unique_nonnull_skill_gsis": true,
+  "dst_gsis_null_by_contract": true,
+  "direct_props_log": [
+    "2026-09-19 15:09:41,185 nfl_dfs.inference.run_projections INFO market blend source: props (385/473 rows)"
+  ],
+  "fresh_div_shadow_rows": 202,
+  "exact_skill_frame_rows": 473,
+  "exact_finite_prop_rows": 202,
+  "exact_prop_coverage": 0.427061310782241,
+  "source_hashes": {
+    "src/nfl_dfs/inference/run_projections.py": "4604aaec7a8af66ee072ca22ca73ef681871ce3b93b02c662028d0dd24fffa1c",
+    "src/nfl_dfs/models/prop_market.py": "144338d6922e9dcbcaabbebde08bf9921aee2775b0915e4a54cd1836fab7546a"
+  },
+  "queries": [
+    {
+      "sql": "SELECT * FROM `nfl-predictions-503414.nfl_predictions.player_projections` WHERE generated_at BETWEEN @start AND @end AND season=2026 AND week=2",
+      "job_id": "84e797af-e256-4894-8df5-bdb404fe75c2",
+      "rows": 505,
+      "bytes_processed": 182080
+    },
+    {
+      "sql": "SELECT DISTINCT model_version FROM `nfl-predictions-503414.nfl_release_20260919_input_repair.nfl_predictions__player_projections` WHERE season=2026 AND week=2",
+      "job_id": "96b38876-0035-4f28-b8d9-c69f662fbbc2",
+      "rows": 1,
+      "bytes_processed": 488395
+    },
+    {
+      "sql": "SELECT generated_at,gsis_id,season,week FROM `nfl-predictions-503414.nfl_predictions.div_shadow` WHERE generated_at BETWEEN @start AND @end AND season=2026 AND week=2",
+      "job_id": "65c3bc56-277b-43e4-89a0-16d150f894d0",
+      "rows": 202,
+      "bytes_processed": 97164
+    }
+  ],
+  "scope": "actual new projection batch and direct branch witnesses; read-only consumer replay"
+}

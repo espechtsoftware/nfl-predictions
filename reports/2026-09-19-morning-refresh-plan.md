@@ -1,5 +1,7 @@
 # Saturday morning refresh: prepared runner and fixed operator window
 
+**Completed:** the [refresh results](2026-09-19-morning-refresh-results.md) record validated completion15:11:33UTC and release of all three lanes15:11:34UTC. The preparation and observed readiness history below are retained. Fixed15:20timer recreation and later build starts were still pending when this completion note was added.
+
 The overnight three-fix release and workstation activation are complete. This is the normal fresh-input feature → TabPFN → projection refresh for the **15:30UTC / 10:30CDT** build. It uses the same deployed images, ordinary selector, chosen doses, contests and historical cache.
 
 Erich assigns the refresh to the laptop (lab `04c7f58`). All six host units are verified on clean `2dc116c` (`730ed69`). The operator will hold **both** Saturday build timers after laptop readiness, then recreate the reviewed transient units at fixed **15:20UTC**, whether or not the refresh has completed (`dddce34`, `b1386c6`). Stopped transient units can disappear; restoration means running the reviewed recreation command, not `systemctl start`.

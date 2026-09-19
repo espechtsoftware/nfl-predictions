@@ -33,4 +33,4 @@ The first-entry issue is now independently traced to the delivery code: after ri
 - [Designation decomposition](2026-09-19-participation-designation-results.md): full rule retained; narrowed variants do not remove the tradeoffs.
 - [Morning refresh ownership and timing](2026-09-19-morning-refresh-plan.md): readiness14:35UTC, operator hold around14:40, laptop execution14:45, fixed operator timer recreation15:20, builds15:30/15:35.
 
-The scoring recommendation is ready for the14:10UTC window. The separately authorized morning refresh remains active work; its readiness, hold and completion must be supported by actual receipts as they happen.
+The scoring recommendation was ready for the14:10UTC window. The separately authorized [morning refresh completed and validated](2026-09-19-morning-refresh-results.md) at15:11:33UTC, with all three writer lanes released at15:11:34. Actual timer recreation and scheduled build starts remain to be observed; full-corpus selection comparisons remain subsequent work.
