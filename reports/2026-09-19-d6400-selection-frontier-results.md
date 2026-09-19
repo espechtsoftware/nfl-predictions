@@ -36,3 +36,15 @@ The rank-94 exchange affects the **80–95 contest block**. Under the participat
 Keep the rank-94 proposal as a small research/shadow candidate, with its Questionable-player risk visible. It is not a material system-wide gain or a reason to interrupt the cleared host release. This result also does **not** justify saying every scoring tradeoff fails: a small fresh-world tail benefit exists, and its size and sensitivity are now measured.
 
 The next higher-value comparisons are the already prepared **full eligible-pool reselection under participation** and **first-delivered promotion** on this actual corpus. They address availability and delivery directly. This one-exchange result does not test coordinated multi-row changes, a larger incoming search, a different forecast law or a newly generated pool; it closes none of those questions. Production's independent numerical replay is requested before any ledger conclusion or adoption claim.
+
+## Portable independent replay
+
+Reader `905503e9` adds configurable data/output paths and bundled winner references, with the numerical calculations unchanged. Every result field except reader SHA and elapsed seconds reproduces exactly. The create-once [publication receipt](reviews/evidence/2026-09-19-d6400-frontier-publication.json) identifies the 19,139,205-byte archive at `gs://nfl-2-506823-lab/research/d6400-frontier-20260919/portable-v1.tar.gz`, generation `1789853952290833`, SHA `cf00b1fa101bac0771fde8594fe7532fa1efe5bb426680aefddb68545ea2d7e9`; download round-trip is exact. It contains authenticated frozen books, audit banks, status evidence, unchanged source frame and expected output; no entry exports. The reader explicitly decodes allowlisted input columns only.
+
+From this research checkout, after verifying and unpacking the archive into a new directory:
+
+```bash
+OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 PYTHONDONTWRITEBYTECODE=1 /home/erich/projects/nfl-predictions/.venv/bin/python -X cpu_count=1 reports/reviews/evidence/2026-09-19-d6400-frontier-replay-v2.py --root /path/to/d6400-frontier-portable-v1 --output /path/to/new-replay-result.json
+```
+
+Compare the new result to `expected-result.json`, excluding only `reader_sha256` and `seconds`. This is a numerical cross-read; reconstructing the audit laws from training remains the separately frozen stronger check.

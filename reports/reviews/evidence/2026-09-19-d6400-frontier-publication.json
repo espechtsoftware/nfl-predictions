@@ -1,0 +1,10 @@
+{
+  "uri": "gs://nfl-2-506823-lab/research/d6400-frontier-20260919/portable-v1.tar.gz",
+  "sha256": "cf00b1fa101bac0771fde8594fe7532fa1efe5bb426680aefddb68545ea2d7e9",
+  "bytes": 19139205,
+  "condition": "if_generation_match=0",
+  "claimed_at": "2026-09-19T21:38:44.321774+00:00",
+  "generation": "1789853952290833",
+  "roundtrip_exact": true,
+  "publisher_sha256": "9974728dfc8966d6f5574d600d5afced87f9dc32748de21f7f41b7f0b578d530"
+}

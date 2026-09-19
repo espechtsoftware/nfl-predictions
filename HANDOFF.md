@@ -4,6 +4,10 @@
 
 # Project handoff
 
+## 2026-09-19 — portable frontier replay published; full eligible reselection protocol frozen
+
+[Frontier replay](reports/2026-09-19-d6400-selection-frontier-results.md): portable reader `905503e9` reproduces every numerical/status result field exactly; 19 MB immutable archive published and round-trip verified. Peer acknowledged the original result at shared `2a97bec`; root reply `fe325a3` also requests CPU-time evidence of D12800 progress. [Next protocol](reports/2026-09-19-d6400-reselection-protocol.md) freezes eight full-selection/order books, unchanged current eligibility, exact captured vetter inputs, fresh audit seeds and ten deterministic single-player stresses. Research only; no further hold on cleared host installation.
+
 ## 2026-09-19 — actual D6400 frontier evaluated on fresh independent worlds
 
 [Result](reports/2026-09-19-d6400-selection-frontier-results.md): authenticated fresh v4.3 K97 control; 3,366 admitted candidates; fixed 128×97 one-exchange search. All proposals frozen before fresh audit; both archived player banks reconstructed exactly. Rank-94/candidate3623 gains +0.085 pp P220 under all-active audit, +0.035 pp under participation (interval crosses zero), Emax −0.02113 under participation. It adds Q Olave; first 40 positions unchanged. Zero-loss candidate's tiny selection gain does not survive. No live change, current outcomes or large scoring gain. Audit reader `8bcf8b10`, raw result SHA6b53b12b…. Next: peer numerical replay, full eligible participation reselection and first-entry comparison; production still owns cleared installation after D12800.
