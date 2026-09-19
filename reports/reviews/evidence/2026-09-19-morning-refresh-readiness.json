@@ -1,0 +1,48 @@
+{
+  "status": "READY_AWAITING_ACTUAL_OPERATOR_HOLD",
+  "handoff_commit": "cbba2f9",
+  "records": {
+    "ready.json": {
+      "sha256": "c2198e5c886ac9eb7ed439a428d628d6c2451de339ca33c3fc7d0e0586a34acf",
+      "record": {
+        "at": "2026-09-19 14:36:19.608528+00:00",
+        "refresh_id": "morning-refresh-20260919",
+        "lanes_acquired": true,
+        "read_only_preflight_passed": true,
+        "next": "Operator hold evidence then fixed 14:45 start; no shared table mutation yet"
+      }
+    },
+    "raw-freshness.json": {
+      "sha256": "28e7a3e3f022113be2a1e060419e720203a8fe473b1eee87b3456058eb5a5d74",
+      "record": {
+        "sql": "SELECT\n      (SELECT MAX(pulled_at) FROM `nfl-predictions-503414.nfl_raw.injury_snapshots` WHERE season=2026 AND week=2) AS injury,\n      (SELECT MAX(pulled_at) FROM `nfl-predictions-503414.nfl_raw.weather` WHERE game_id IN\n         (SELECT game_id FROM `nfl-predictions-503414.nfl_raw.schedules` WHERE season=2026 AND week=2)) AS weather,\n      (SELECT MAX(pulled_at) FROM `nfl-predictions-503414.nfl_raw.odds_snapshots` WHERE\n         SAFE_CAST(start_time AS TIMESTAMP) >= TIMESTAMP('2026-09-20 17:00:00+00') AND\n         SAFE_CAST(start_time AS TIMESTAMP) < TIMESTAMP('2026-09-21 00:00:00+00')) AS odds,\n      (SELECT MAX(SAFE_CAST(snapshot_ts AS TIMESTAMP)) FROM `nfl-predictions-503414.nfl_raw.prop_lines` WHERE season=2026 AND week=2) AS props",
+        "job_id": "f6f509c7-fe51-4535-aad6-8ca834c78311",
+        "bytes_processed": 18922959,
+        "rows": [
+          {
+            "injury": "2026-09-19 10:03:45.895940+00:00",
+            "weather": "2026-09-19 13:04:34.052408+00:00",
+            "odds": "2026-09-19 14:03:35.091215+00:00",
+            "props": "2026-09-19 14:34:42+00:00"
+          }
+        ]
+      }
+    },
+    "raw-game-support.json": {
+      "sha256": "8dcfb23ef2b29e059cc4e7f2c877ab77be3376e94d676be9d1210cc6d38c5cc5",
+      "record": {
+        "sql": "WITH games AS (SELECT game_id FROM `nfl-predictions-503414.nfl_raw.schedules` WHERE season=2026 AND week=2\n        AND gameday='2026-09-20' AND gametime BETWEEN '13:00' AND '16:30'),\n      w AS (SELECT game_id,MAX(pulled_at) latest FROM `nfl-predictions-503414.nfl_raw.weather` WHERE game_id IN (SELECT game_id FROM games) GROUP BY game_id)\n      SELECT (SELECT COUNT(*) FROM games) games,\n        (SELECT COUNT(*) FROM w WHERE latest>=TIMESTAMP('2026-09-19 13:00:00+00')) weather,\n        (SELECT COUNT(DISTINCT event_id) FROM `nfl-predictions-503414.nfl_raw.odds_snapshots`\n          WHERE pulled_at>=TIMESTAMP('2026-09-19 14:00:00+00')\n          AND SAFE_CAST(start_time AS TIMESTAMP)>=TIMESTAMP('2026-09-20 17:00:00+00')\n          AND SAFE_CAST(start_time AS TIMESTAMP)<TIMESTAMP('2026-09-21 00:00:00+00')) odds,\n        (SELECT COUNT(DISTINCT event_id) FROM `nfl-predictions-503414.nfl_raw.prop_lines` WHERE season=2026 AND week=2\n          AND SAFE_CAST(snapshot_ts AS TIMESTAMP)>=TIMESTAMP('2026-09-19 14:30:00+00')\n          AND commence_time>=TIMESTAMP('2026-09-20 17:00:00+00')\n          AND commence_time<TIMESTAMP('2026-09-21 00:00:00+00')) props",
+        "job_id": "3717fc9c-55ee-449b-b108-fd6cf4acbfe7",
+        "bytes_processed": 32804222,
+        "rows": [
+          {
+            "games": 13,
+            "weather": 13,
+            "odds": 13,
+            "props": 13
+          }
+        ]
+      }
+    }
+  }
+}
