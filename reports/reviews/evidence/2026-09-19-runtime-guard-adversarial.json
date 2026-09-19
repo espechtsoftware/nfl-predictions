@@ -1,0 +1,30 @@
+{
+  "reviewed_source": "lab e430dc9",
+  "synthetic_only": true,
+  "cases": {
+    "list_failure": {
+      "exit_code": 0,
+      "arm_called": true,
+      "stop_calls": 12,
+      "stderr": ""
+    },
+    "stop_failure": {
+      "exit_code": 0,
+      "arm_called": true,
+      "stop_calls": 12,
+      "stderr": ""
+    },
+    "unknown_state": {
+      "exit_code": 0,
+      "arm_called": true,
+      "stop_calls": 12,
+      "stderr": ""
+    },
+    "missing_checkout": {
+      "exit_code": 1,
+      "arm_called": false,
+      "stop_calls": 12,
+      "stderr": "REFUSE: release checkout not found: /nonexistent-checkout-path\n"
+    }
+  }
+}
