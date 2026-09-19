@@ -1,0 +1,10 @@
+{
+  "uri": "gs://nfl-2-506823-lab/benchmark/v1/panel107/snap_pitclean_k1/000000000000.parquet",
+  "bytes": "5154187",
+  "crc32c": "y/mDpg==",
+  "generation": "1787937157175867",
+  "key": "panel107/snap_pitclean_k1/000000000000.parquet",
+  "path": "/home/erich/.cache/nfl2/v1/panel107/snap_pitclean_k1/000000000000.parquet",
+  "sha256": "531e0cde6706788cfed70ca938980dbcbb24e88f14772d1af7bab82c895599f4",
+  "manifest_sha256": "04710846d67fb6c6d1eb06335d857846bc206dda696917a379149739851f87cf"
+}
