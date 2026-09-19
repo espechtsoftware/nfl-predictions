@@ -4,6 +4,17 @@
 
 # Project handoff
 
+## 2026-09-19 — exact hsim replay passed; live game-input mismatch measured
+
+Frozen `b9392eb0` reproduces every archived hsim score exactly; result `bd98a27e`. Follow-up input census
+finds hsim reads frozen benchmark game totals/spreads while the live frame contains newer values:10/13games
+differ for each field. Schedule-only study `7bd27f8e` reproduces the original97, then changes25memberships
+with first lineup unchanged. [Results](reports/2026-09-19-schedule-only-hsim-results.md) disclose reused-world
+optimism and that independent simulator seeds also repeat pilot calibration. Fixed-calibration audit is
+next; no live adoption. Usage-only runner `5b36613f` awaits the workstation's full scratch leakage result.
+Scratch feature/projection datasets exist; no duplicate full build was launched on the laptop.
+
+
 ## 2026-09-19 — salary-week parity and prior-usage preview passed; full isolated build assigned
 
 [Validation report](reports/2026-09-19-salary-week-repair-validation.md) records actual-SQL fixture pass,
