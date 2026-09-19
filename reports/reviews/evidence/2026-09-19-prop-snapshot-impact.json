@@ -1,0 +1,662 @@
+{
+  "scope": "Prelock quote-integrity numerical effect only; no efficacy or live adoption",
+  "control_rows": 200,
+  "coherent_rows": 200,
+  "control_only": [],
+  "coherent_only": [],
+  "exact_projection_skill_rows": 472,
+  "control_real_prop_matches": 185,
+  "coherent_real_prop_matches": 185,
+  "crosses_thirty_percent_gate": false,
+  "summaries": {
+    "all_priced": {
+      "paired": 200,
+      "changed_above_1e_8": 130,
+      "mean_signed": 0.00861203218681308,
+      "mean_absolute": 0.056588188485808405,
+      "max_absolute": 0.8801298846789081,
+      "largest": [
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0034383",
+          "market_points_control": 10.256341070364424,
+          "market_points_coherent": 11.136470955043333,
+          "delta": 0.8801298846789081,
+          "name": "Dalton Schultz",
+          "pos": "TE"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0039739",
+          "market_points_control": 4.911907983969945,
+          "market_points_coherent": 5.48557466295755,
+          "delta": 0.573666678987605,
+          "name": "Roman Wilson",
+          "pos": "WR"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0039163",
+          "market_points_control": 17.142000650991765,
+          "market_points_coherent": 16.698274537989715,
+          "delta": -0.4437261130020502,
+          "name": "C.J. Stroud",
+          "pos": "QB"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0034796",
+          "market_points_control": 21.45404131986558,
+          "market_points_coherent": 21.089569030289013,
+          "delta": -0.3644722895765682,
+          "name": "Lamar Jackson",
+          "pos": "QB"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0038997",
+          "market_points_control": 9.271837380773448,
+          "market_points_coherent": 9.596924286922409,
+          "delta": 0.32508690614896096,
+          "name": null,
+          "pos": null
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0036139",
+          "market_points_control": 9.465445743825578,
+          "market_points_coherent": 9.169539916825638,
+          "delta": -0.29590582699993995,
+          "name": "Rico Dowdle",
+          "pos": "RB"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0032764",
+          "market_points_control": 16.74136423041309,
+          "market_points_coherent": 17.004611081790344,
+          "delta": 0.2632468513772537,
+          "name": "Derrick Henry",
+          "pos": "RB"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0039067",
+          "market_points_control": 13.185577599617567,
+          "market_points_coherent": 12.937047259366377,
+          "delta": -0.24853034025118959,
+          "name": null,
+          "pos": null
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0038606",
+          "market_points_control": 12.175150082777792,
+          "market_points_coherent": 12.419289911999329,
+          "delta": 0.24413982922153643,
+          "name": "Parker Washington",
+          "pos": "WR"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0039910",
+          "market_points_control": 19.57458921886158,
+          "market_points_coherent": 19.817999840340775,
+          "delta": 0.243410621479196,
+          "name": "Jayden Daniels",
+          "pos": "QB"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0033106",
+          "market_points_control": 18.254630451667676,
+          "market_points_coherent": 18.030330956634803,
+          "delta": -0.2242994950328736,
+          "name": null,
+          "pos": null
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0038134",
+          "market_points_control": 18.519479374809674,
+          "market_points_coherent": 18.733773786960704,
+          "delta": 0.2142944121510304,
+          "name": null,
+          "pos": null
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0036158",
+          "market_points_control": 8.98496687317515,
+          "market_points_coherent": 9.166439019316217,
+          "delta": 0.18147214614106666,
+          "name": "J.K. Dobbins",
+          "pos": "RB"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0039811",
+          "market_points_control": 10.131054741055811,
+          "market_points_coherent": 9.956333652602384,
+          "delta": -0.1747210884534276,
+          "name": "MarShawn Lloyd",
+          "pos": "RB"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0040128",
+          "market_points_control": 10.83165489232335,
+          "market_points_coherent": 10.65869430389672,
+          "delta": -0.17296058842662987,
+          "name": null,
+          "pos": null
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0036997",
+          "market_points_control": 16.33636933777227,
+          "market_points_coherent": 16.506748189080465,
+          "delta": 0.17037885130819674,
+          "name": "Javonte Williams",
+          "pos": "RB"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0039361",
+          "market_points_control": 14.03971681195915,
+          "market_points_coherent": 14.207609722279727,
+          "delta": 0.16789291032057818,
+          "name": "Bucky Irving",
+          "pos": "RB"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0040734",
+          "market_points_control": 5.095437269006693,
+          "market_points_coherent": 4.931570443314584,
+          "delta": -0.16386682569210897,
+          "name": "TreVeyon Henderson",
+          "pos": "RB"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0040242",
+          "market_points_control": 8.884537184054363,
+          "market_points_coherent": 8.721741614224403,
+          "delta": -0.16279556982996013,
+          "name": "Jacory Croskey-Merritt",
+          "pos": "RB"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0040122",
+          "market_points_control": 17.150625872124266,
+          "market_points_coherent": 16.994932119897435,
+          "delta": -0.15569375222683135,
+          "name": "Ashton Jeanty",
+          "pos": "RB"
+        }
+      ]
+    },
+    "actual_proof_frame": {
+      "paired": 160,
+      "changed_above_1e_8": 100,
+      "mean_signed": 0.010943034350523342,
+      "mean_absolute": 0.05528508069440987,
+      "max_absolute": 0.8801298846789081,
+      "largest": [
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0034383",
+          "market_points_control": 10.256341070364424,
+          "market_points_coherent": 11.136470955043333,
+          "delta": 0.8801298846789081,
+          "name": "Dalton Schultz",
+          "pos": "TE"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0039739",
+          "market_points_control": 4.911907983969945,
+          "market_points_coherent": 5.48557466295755,
+          "delta": 0.573666678987605,
+          "name": "Roman Wilson",
+          "pos": "WR"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0039163",
+          "market_points_control": 17.142000650991765,
+          "market_points_coherent": 16.698274537989715,
+          "delta": -0.4437261130020502,
+          "name": "C.J. Stroud",
+          "pos": "QB"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0034796",
+          "market_points_control": 21.45404131986558,
+          "market_points_coherent": 21.089569030289013,
+          "delta": -0.3644722895765682,
+          "name": "Lamar Jackson",
+          "pos": "QB"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0036139",
+          "market_points_control": 9.465445743825578,
+          "market_points_coherent": 9.169539916825638,
+          "delta": -0.29590582699993995,
+          "name": "Rico Dowdle",
+          "pos": "RB"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0032764",
+          "market_points_control": 16.74136423041309,
+          "market_points_coherent": 17.004611081790344,
+          "delta": 0.2632468513772537,
+          "name": "Derrick Henry",
+          "pos": "RB"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0038606",
+          "market_points_control": 12.175150082777792,
+          "market_points_coherent": 12.419289911999329,
+          "delta": 0.24413982922153643,
+          "name": "Parker Washington",
+          "pos": "WR"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0039910",
+          "market_points_control": 19.57458921886158,
+          "market_points_coherent": 19.817999840340775,
+          "delta": 0.243410621479196,
+          "name": "Jayden Daniels",
+          "pos": "QB"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0036158",
+          "market_points_control": 8.98496687317515,
+          "market_points_coherent": 9.166439019316217,
+          "delta": 0.18147214614106666,
+          "name": "J.K. Dobbins",
+          "pos": "RB"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0039811",
+          "market_points_control": 10.131054741055811,
+          "market_points_coherent": 9.956333652602384,
+          "delta": -0.1747210884534276,
+          "name": "MarShawn Lloyd",
+          "pos": "RB"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0036997",
+          "market_points_control": 16.33636933777227,
+          "market_points_coherent": 16.506748189080465,
+          "delta": 0.17037885130819674,
+          "name": "Javonte Williams",
+          "pos": "RB"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0039361",
+          "market_points_control": 14.03971681195915,
+          "market_points_coherent": 14.207609722279727,
+          "delta": 0.16789291032057818,
+          "name": "Bucky Irving",
+          "pos": "RB"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0040734",
+          "market_points_control": 5.095437269006693,
+          "market_points_coherent": 4.931570443314584,
+          "delta": -0.16386682569210897,
+          "name": "TreVeyon Henderson",
+          "pos": "RB"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0040242",
+          "market_points_control": 8.884537184054363,
+          "market_points_coherent": 8.721741614224403,
+          "delta": -0.16279556982996013,
+          "name": "Jacory Croskey-Merritt",
+          "pos": "RB"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0040122",
+          "market_points_control": 17.150625872124266,
+          "market_points_coherent": 16.994932119897435,
+          "delta": -0.15569375222683135,
+          "name": "Ashton Jeanty",
+          "pos": "RB"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0040719",
+          "market_points_control": 9.554012736068982,
+          "market_points_coherent": 9.408716710991156,
+          "delta": -0.14529602507782613,
+          "name": "Bhayshul Tuten",
+          "pos": "RB"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0037740",
+          "market_points_control": 14.250309957940303,
+          "market_points_coherent": 14.377666257707961,
+          "delta": 0.1273562997676585,
+          "name": "Garrett Wilson",
+          "pos": "WR"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0035659",
+          "market_points_control": 11.606742570536166,
+          "market_points_coherent": 11.72997915655553,
+          "delta": 0.12323658601936316,
+          "name": "Terry McLaurin",
+          "pos": "WR"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0041512",
+          "market_points_control": 8.582807609657024,
+          "market_points_coherent": 8.705332550418007,
+          "delta": 0.1225249407609823,
+          "name": "Jadarian Price",
+          "pos": "RB"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0035719",
+          "market_points_control": 9.235195207690744,
+          "market_points_coherent": 9.356176419749659,
+          "delta": 0.12098121205891488,
+          "name": "Deebo Samuel Sr.",
+          "pos": "WR"
+        }
+      ]
+    },
+    "projection_consumer": {
+      "paired": 185,
+      "changed_above_1e_8": 119,
+      "mean_signed": 0.010309590775573382,
+      "mean_absolute": 0.056635813674785526,
+      "max_absolute": 0.8801298846789081,
+      "largest": [
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0034383",
+          "market_points_control": 10.256341070364424,
+          "market_points_coherent": 11.136470955043333,
+          "delta": 0.8801298846789081,
+          "name": "Dalton Schultz",
+          "pos": "TE"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0039739",
+          "market_points_control": 4.911907983969945,
+          "market_points_coherent": 5.48557466295755,
+          "delta": 0.573666678987605,
+          "name": "Roman Wilson",
+          "pos": "WR"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0039163",
+          "market_points_control": 17.142000650991765,
+          "market_points_coherent": 16.698274537989715,
+          "delta": -0.4437261130020502,
+          "name": "C.J. Stroud",
+          "pos": "QB"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0034796",
+          "market_points_control": 21.45404131986558,
+          "market_points_coherent": 21.089569030289013,
+          "delta": -0.3644722895765682,
+          "name": "Lamar Jackson",
+          "pos": "QB"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0038997",
+          "market_points_control": 9.271837380773448,
+          "market_points_coherent": 9.596924286922409,
+          "delta": 0.32508690614896096,
+          "name": null,
+          "pos": null
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0036139",
+          "market_points_control": 9.465445743825578,
+          "market_points_coherent": 9.169539916825638,
+          "delta": -0.29590582699993995,
+          "name": "Rico Dowdle",
+          "pos": "RB"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0032764",
+          "market_points_control": 16.74136423041309,
+          "market_points_coherent": 17.004611081790344,
+          "delta": 0.2632468513772537,
+          "name": "Derrick Henry",
+          "pos": "RB"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0039067",
+          "market_points_control": 13.185577599617567,
+          "market_points_coherent": 12.937047259366377,
+          "delta": -0.24853034025118959,
+          "name": null,
+          "pos": null
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0038606",
+          "market_points_control": 12.175150082777792,
+          "market_points_coherent": 12.419289911999329,
+          "delta": 0.24413982922153643,
+          "name": "Parker Washington",
+          "pos": "WR"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0039910",
+          "market_points_control": 19.57458921886158,
+          "market_points_coherent": 19.817999840340775,
+          "delta": 0.243410621479196,
+          "name": "Jayden Daniels",
+          "pos": "QB"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0038134",
+          "market_points_control": 18.519479374809674,
+          "market_points_coherent": 18.733773786960704,
+          "delta": 0.2142944121510304,
+          "name": null,
+          "pos": null
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0036158",
+          "market_points_control": 8.98496687317515,
+          "market_points_coherent": 9.166439019316217,
+          "delta": 0.18147214614106666,
+          "name": "J.K. Dobbins",
+          "pos": "RB"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0039811",
+          "market_points_control": 10.131054741055811,
+          "market_points_coherent": 9.956333652602384,
+          "delta": -0.1747210884534276,
+          "name": "MarShawn Lloyd",
+          "pos": "RB"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0040128",
+          "market_points_control": 10.83165489232335,
+          "market_points_coherent": 10.65869430389672,
+          "delta": -0.17296058842662987,
+          "name": null,
+          "pos": null
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0036997",
+          "market_points_control": 16.33636933777227,
+          "market_points_coherent": 16.506748189080465,
+          "delta": 0.17037885130819674,
+          "name": "Javonte Williams",
+          "pos": "RB"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0039361",
+          "market_points_control": 14.03971681195915,
+          "market_points_coherent": 14.207609722279727,
+          "delta": 0.16789291032057818,
+          "name": "Bucky Irving",
+          "pos": "RB"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0040734",
+          "market_points_control": 5.095437269006693,
+          "market_points_coherent": 4.931570443314584,
+          "delta": -0.16386682569210897,
+          "name": "TreVeyon Henderson",
+          "pos": "RB"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0040242",
+          "market_points_control": 8.884537184054363,
+          "market_points_coherent": 8.721741614224403,
+          "delta": -0.16279556982996013,
+          "name": "Jacory Croskey-Merritt",
+          "pos": "RB"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0040122",
+          "market_points_control": 17.150625872124266,
+          "market_points_coherent": 16.994932119897435,
+          "delta": -0.15569375222683135,
+          "name": "Ashton Jeanty",
+          "pos": "RB"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "gsis_id": "00-0040719",
+          "market_points_control": 9.554012736068982,
+          "market_points_coherent": 9.408716710991156,
+          "delta": -0.14529602507782613,
+          "name": "Bhayshul Tuten",
+          "pos": "RB"
+        }
+      ]
+    }
+  },
+  "queries": [
+    {
+      "sql": "SELECT DISTINCT gsis_id, display_name\n            FROM (\n              SELECT player_id AS gsis_id,\n                     player_display_name AS display_name\n              FROM `nfl-predictions-503414.nfl_raw.weekly_stats`\n              WHERE season IN (2026)\n              UNION DISTINCT\n              SELECT gsis_id, full_name AS display_name\n              FROM `nfl-predictions-503414.nfl_raw.rosters_weekly`\n              WHERE season IN (2026)\n              UNION DISTINCT\n              SELECT gsis_id, football_name AS display_name\n              FROM `nfl-predictions-503414.nfl_raw.rosters_weekly`\n              WHERE season IN (2026)\n              UNION DISTINCT\n              SELECT gsis_id, display_name\n              FROM `nfl-predictions-503414.nfl_features.player_id_map`\n            )\n            WHERE gsis_id IS NOT NULL\n              AND display_name IS NOT NULL\n              AND TRIM(display_name) != ''",
+      "job_id": "bc631efc-64e6-4624-bcbd-3519fddc959b",
+      "bytes_processed": 0,
+      "rows": 5990
+    },
+    {
+      "sql": "SELECT gsis_id,position FROM `nfl-predictions-503414.nfl_predictions.player_projections` WHERE season=2026 AND week=2 AND generated_at=@stamp",
+      "job_id": "98298e51-8d21-49ab-999a-426458e2a82c",
+      "rows": 504,
+      "projection_stamp": "2026-09-19 06:29:00.515884+00:00"
+    }
+  ],
+  "artifacts": {
+    "names.parquet": "3e6b8d076c9c6c53d06cd36113682d82daa190c0d869a4b7d76b35dd63abfef1",
+    "paired-market.parquet": "c418291f5001fbfc118e833d78fe1900ca3f25cecde19d99b0721ade7be06bb6",
+    "coherent-market.parquet": "46eaa81e192f022ba6b6f27bba35bfb97ebe064a61f5e95ba691a4c8fc867f78",
+    "control-market.parquet": "38f2f6beddc4bb481eb0256d3a4e7f47664cf8a087387f0c78820d91fb694890"
+  },
+  "script_sha256": "3a411c4dadd7140f72bae600b1e920d7174698610cde5d5fdbea45090e8e805c",
+  "production_source_sha256": "144338d6922e9dcbcaabbebde08bf9921aee2775b0915e4a54cd1836fab7546a"
+}

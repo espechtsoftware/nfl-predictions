@@ -4,6 +4,12 @@
 
 # Project handoff
 
+## 2026-09-19 — current Odds snapshot impact measured
+
+[Result](reports/2026-09-19-prop-snapshot-impact-results.md):502old-snapshotquotes survive the current reader. Coherent latest snapshots change119/185production-consumed market proxies, mean absolute0.05664/max0.88013points, with coverage185/472unchanged. No live mutation or efficacy claim; independent review next. Version2 only renders optional missing names asJSONnull; every saved dataframe exactly equals the initial completed calculations. Both failures and sources preserved.
+
+Lab `de6850d`/`22c05b2` independently recomputed cache contrast counts/multisets/correlations and matched the host replay's byte hash. Full unchanged-reader rerun not claimed. Fresh CLI receipt already pins the other replay hash at production81968e1e; peer directed to it. Host runtime still operator-pending, cloud release complete.
+
 ## 2026-09-19 — peer verifies cloud state; cache values/order separated
 
 Lab `76445ce` independently checked exact deployed image digests and zero running executions; workstation activation remains handed to the operator, **not performed**. Root reply `2355645` corrects a premature cache-order-only/entered-book claim. [Four-way engineering result](reports/2026-09-19-cache-order-decomposition-results.md) reproduces both actual CLI banks bitwise, then shows historical values and row order each independently alter fitted components and joint worlds while preserving exact player marginals. No counterfactual books, current outcomes or cache adoption. Original reader's float32 constant-row correlation error repaired by a separate saved-output reader; all four fits and partial failure retained. Technical cross-read requested next.

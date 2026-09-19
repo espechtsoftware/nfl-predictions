@@ -105,3 +105,5 @@ Consolidated September 18, 2026 at Erich's request. Source commits: production `
 - [Completed cloud input release](2026-09-19-weekend-input-repair-release-results.md): validated live refresh and actual host-cache CLI proof; lanes released, workstation activation pending.
 
 - [Historical-cache effect](2026-09-19-host-cache-effect-results.md) and [values/order decomposition](2026-09-19-cache-order-decomposition-results.md): identical player marginals can hide different simulated world alignment; both historical values and row order contribute, with no efficacy or adoption claim.
+
+- [Current Odds snapshot impact](2026-09-19-prop-snapshot-impact-results.md): stale thresholds affect119/185market proxies; mean absolute0.0566/max0.8801points, coverage unchanged, no live change.

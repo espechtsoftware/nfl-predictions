@@ -23,3 +23,6 @@ All four fits completed in approximately 15.6–15.9 seconds each. The original 
 
 
 Exact saved outputs and refit inputs are now published for independent review at `gs://nfl-2-506823-lab/research/week2-input-release-20260919/cache-order-decomposition-v1/manifest.json`, generation `1789800833023095`, SHA256 `15abe052a0f8a83e8f6b558dbc958d8304095cc8443f3e3e738022f6c2c8ca07`. All 14 new artifacts were downloaded and hash-verified; the manifest also binds the already published host training cache. [Publication identities](reviews/evidence/2026-09-19-cache-order-publication.json).
+
+
+Peer `de6850d`/`22c05b2` independently authenticates the published banks, reproduces all four changed-cell counts and exact per-player multiset equalities, and recomputes the correlation summaries to six decimals with402players/80,601pairs. The host-bank content hash independently matches the original CLI publication. This is an independent recomputation, not an unchanged-reader execution or a new independent model fit. The original fresh CLI receipt at production `81968e1e` also pins the fresh bank SHA256 `5396726019415de9f6f5861059a43ad56d3f79a5513d21ad2681606bb5228729`; the peer has been pointed to it to complete the other receipt-to-byte check.
