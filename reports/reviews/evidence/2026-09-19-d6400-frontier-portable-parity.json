@@ -1,0 +1,10 @@
+{
+  "numerical_and_status_receipt_fields_exact": true,
+  "ignored_fields": [
+    "reader_sha256",
+    "seconds"
+  ],
+  "replay_reader_sha256": "a563d6efbf733b1d879473fb2e5a170adb82fbd62eba170d378898d3b247e3d3",
+  "expected_result_sha256": "6b53b12b69f815b53adc41f90493ea1d66dbdd3b2758781b0f024192d5a87184",
+  "archive_sha256": "cf00b1fa101bac0771fde8594fe7532fa1efe5bb426680aefddb68545ea2d7e9"
+}
