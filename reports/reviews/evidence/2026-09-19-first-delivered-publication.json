@@ -1,0 +1,8 @@
+{
+  "uri": "gs://nfl-2-506823-lab/research/week2-participation-transfer-20260919/first-delivered-addon-v1.tar.gz",
+  "generation": "1789826845264819",
+  "bytes": 78017,
+  "sha256": "54d77abee090772ea21c786b7e6f3500f643401d637d4e4b82a3df9ce29beac0",
+  "exact_local_replay": true,
+  "requires_host_bundle_sha256": "7c950b8f5588e46346f0833766df514633bf326178f935d8fc122a7898ec7cef"
+}
