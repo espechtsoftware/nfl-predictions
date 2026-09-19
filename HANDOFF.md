@@ -4,6 +4,19 @@
 
 # Project handoff
 
+## 2026-09-19 — law-weighting screen prepared; runtime v4 still needs three fixes
+
+[Whole-law weighting protocol](reports/2026-09-19-law-weight-protocol.md) fixes one
+skill-player CRPS-fitted I/H weight trained only on earlier seasons, two seed pairs,
+89 development slates and a separate outcome reader. Census reads no labels; the
+earliest-slate forecast smoke passes in 9.515s under the outcome firewall. Synthetic
+reader checks pass including brute-force CRPS, full walk-forward, label separation
+and missingness. Cloud Build forecast-only mechanics/full construction are next;
+no shared Cloud Run lane or job edits. No new historical calibration outcomes opened.
+Runtime v4 `c2212dc` passes its 29 tests here, but additional fake cases reproduce
+failed Git-status acceptance, inactive timers called armed, and a phase-4 service
+race. Sent exact repairs at lab `ffb2081`; evidence is `2026-09-19-runtime-v4-adversarial.json`.
+
 ## 2026-09-19 — prospective reader v4 accepted; actual forecast bundle passes
 
 Production reader `1c95dd68` passes 52 synthetic tests here and the forecast-only

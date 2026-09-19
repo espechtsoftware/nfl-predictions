@@ -88,3 +88,5 @@ Consolidated September 18, 2026 at Erich's request. Source commits: production `
 - [Fivefold selection precision](2026-09-19-selection-precision-results.md): ordinary expected maximum gains only 0.099 points and P220 remains uncertain; tail-excess selection improves but still trades mean against tail and model disagreement.
 
 - [Prospective reader acceptance](2026-09-19-prospective-reader-acceptance.md): 52 synthetic tests and actual forecast-bundle loading pass; outcomes remain gated and both books are shadows.
+
+- [Historical whole-law weighting protocol](2026-09-19-law-weight-protocol.md): 89-slate support census and outcome-blind first-slate mechanics pass; one earlier-season-fitted mixture weight is the next predictive-quality screen.

@@ -1,0 +1,1365 @@
+{
+  "manifest_sha256": "04710846d67fb6c6d1eb06335d857846bc206dda696917a379149739851f87cf",
+  "files": [
+    {
+      "uri": "gs://nfl-2-506823-lab/benchmark/v0/warehouse/player_week_training/000000000000.parquet",
+      "bytes": "13626528",
+      "crc32c": "DaTOHA==",
+      "generation": "1787873686793198",
+      "path": "/home/erich/.cache/nfl2/v0/warehouse/player_week_training/000000000000.parquet",
+      "sha256": "cbf4df697d51f992229a4f4b17da73588f345d781725b24e524fbbb70237ee28"
+    },
+    {
+      "uri": "gs://nfl-2-506823-lab/benchmark/v0/warehouse/raw_schedules/000000000000.parquet",
+      "bytes": "911384",
+      "crc32c": "lOM6Ww==",
+      "generation": "1787873748625341",
+      "path": "/home/erich/.cache/nfl2/v0/warehouse/raw_schedules/000000000000.parquet",
+      "sha256": "d80725d03695a33c5f67bf655fc059b09109b201fb79c76bb0d8562b1e9da1ad"
+    },
+    {
+      "uri": "gs://nfl-2-506823-lab/benchmark/v0/warehouse/raw_weekly_stats/000000000000.parquet",
+      "bytes": "20998",
+      "crc32c": "cxR+4w==",
+      "generation": "1787873752162473",
+      "path": "/home/erich/.cache/nfl2/v0/warehouse/raw_weekly_stats/000000000000.parquet",
+      "sha256": "8e14b0eb7c3163eb75d6d203c4b64ed8adad0efe38967d7ce837503110dd2be0"
+    },
+    {
+      "uri": "gs://nfl-2-506823-lab/benchmark/v0/warehouse/raw_weekly_stats/000000000001.parquet",
+      "bytes": "1201706",
+      "crc32c": "WQaDAQ==",
+      "generation": "1787873752880825",
+      "path": "/home/erich/.cache/nfl2/v0/warehouse/raw_weekly_stats/000000000001.parquet",
+      "sha256": "f770d30ee52c762e65a50a217d410b6117f009204d83484124ec3b8eaed58a79"
+    },
+    {
+      "uri": "gs://nfl-2-506823-lab/benchmark/v0/warehouse/raw_weekly_stats/000000000002.parquet",
+      "bytes": "11164859",
+      "crc32c": "yHrm3Q==",
+      "generation": "1787873753683876",
+      "path": "/home/erich/.cache/nfl2/v0/warehouse/raw_weekly_stats/000000000002.parquet",
+      "sha256": "5d9387cdf3975198736160374a6b4fac02e2ff33583698ac5d4063f80a70614b"
+    },
+    {
+      "uri": "gs://nfl-2-506823-lab/benchmark/v0/warehouse/raw_weekly_stats/000000000003.parquet",
+      "bytes": "20998",
+      "crc32c": "cxR+4w==",
+      "generation": "1787873753206687",
+      "path": "/home/erich/.cache/nfl2/v0/warehouse/raw_weekly_stats/000000000003.parquet",
+      "sha256": "8e14b0eb7c3163eb75d6d203c4b64ed8adad0efe38967d7ce837503110dd2be0"
+    },
+    {
+      "uri": "gs://nfl-2-506823-lab/benchmark/v0/warehouse/tabpfn_projections/000000000000.parquet",
+      "bytes": "6711710",
+      "crc32c": "j72COg==",
+      "generation": "1787873697555183",
+      "path": "/home/erich/.cache/nfl2/v0/warehouse/tabpfn_projections/000000000000.parquet",
+      "sha256": "a13dc159b207410331fbacab5ece9de1a38199b24f25f724f6b167a5184489c4"
+    },
+    {
+      "uri": "gs://nfl-2-506823-lab/benchmark/v1/panel107/snap_pitclean_k1/000000000000.parquet",
+      "bytes": "5154187",
+      "crc32c": "y/mDpg==",
+      "generation": "1787937157175867",
+      "path": "/home/erich/.cache/nfl2/v1/panel107/snap_pitclean_k1/000000000000.parquet",
+      "sha256": "531e0cde6706788cfed70ca938980dbcbb24e88f14772d1af7bab82c895599f4"
+    }
+  ],
+  "safe_columns_read": [
+    "season",
+    "week",
+    "id",
+    "gsis_id",
+    "pos",
+    "team",
+    "opp",
+    "game_id",
+    "salary",
+    "mean_projection"
+  ],
+  "outcomes_read": false,
+  "slates": [
+    {
+      "season": 2019,
+      "week": 1,
+      "players": 335,
+      "eligible": 159,
+      "eligible_by_position": {
+        "DST": 21,
+        "QB": 25,
+        "RB": 42,
+        "TE": 14,
+        "WR": 57
+      },
+      "games": 36
+    },
+    {
+      "season": 2019,
+      "week": 2,
+      "players": 344,
+      "eligible": 201,
+      "eligible_by_position": {
+        "DST": 21,
+        "QB": 28,
+        "RB": 50,
+        "TE": 25,
+        "WR": 77
+      },
+      "games": 39
+    },
+    {
+      "season": 2019,
+      "week": 3,
+      "players": 343,
+      "eligible": 180,
+      "eligible_by_position": {
+        "DST": 20,
+        "QB": 26,
+        "RB": 46,
+        "TE": 22,
+        "WR": 66
+      },
+      "games": 39
+    },
+    {
+      "season": 2019,
+      "week": 4,
+      "players": 313,
+      "eligible": 174,
+      "eligible_by_position": {
+        "DST": 18,
+        "QB": 26,
+        "RB": 42,
+        "TE": 24,
+        "WR": 64
+      },
+      "games": 36
+    },
+    {
+      "season": 2019,
+      "week": 5,
+      "players": 314,
+      "eligible": 179,
+      "eligible_by_position": {
+        "DST": 21,
+        "QB": 24,
+        "RB": 49,
+        "TE": 21,
+        "WR": 64
+      },
+      "games": 36
+    },
+    {
+      "season": 2019,
+      "week": 6,
+      "players": 267,
+      "eligible": 152,
+      "eligible_by_position": {
+        "DST": 17,
+        "QB": 22,
+        "RB": 40,
+        "TE": 18,
+        "WR": 55
+      },
+      "games": 30
+    },
+    {
+      "season": 2019,
+      "week": 7,
+      "players": 294,
+      "eligible": 165,
+      "eligible_by_position": {
+        "DST": 18,
+        "QB": 22,
+        "RB": 46,
+        "TE": 20,
+        "WR": 59
+      },
+      "games": 33
+    },
+    {
+      "season": 2019,
+      "week": 8,
+      "players": 317,
+      "eligible": 178,
+      "eligible_by_position": {
+        "DST": 19,
+        "QB": 24,
+        "RB": 48,
+        "TE": 23,
+        "WR": 64
+      },
+      "games": 36
+    },
+    {
+      "season": 2019,
+      "week": 9,
+      "players": 264,
+      "eligible": 157,
+      "eligible_by_position": {
+        "DST": 17,
+        "QB": 20,
+        "RB": 40,
+        "TE": 21,
+        "WR": 59
+      },
+      "games": 30
+    },
+    {
+      "season": 2019,
+      "week": 10,
+      "players": 266,
+      "eligible": 147,
+      "eligible_by_position": {
+        "DST": 15,
+        "QB": 21,
+        "RB": 38,
+        "TE": 20,
+        "WR": 53
+      },
+      "games": 30
+    },
+    {
+      "season": 2019,
+      "week": 11,
+      "players": 285,
+      "eligible": 161,
+      "eligible_by_position": {
+        "DST": 17,
+        "QB": 24,
+        "RB": 40,
+        "TE": 22,
+        "WR": 58
+      },
+      "games": 33
+    },
+    {
+      "season": 2019,
+      "week": 12,
+      "players": 281,
+      "eligible": 164,
+      "eligible_by_position": {
+        "DST": 18,
+        "QB": 24,
+        "RB": 43,
+        "TE": 19,
+        "WR": 60
+      },
+      "games": 33
+    },
+    {
+      "season": 2019,
+      "week": 13,
+      "players": 291,
+      "eligible": 171,
+      "eligible_by_position": {
+        "DST": 21,
+        "QB": 23,
+        "RB": 46,
+        "TE": 20,
+        "WR": 61
+      },
+      "games": 33
+    },
+    {
+      "season": 2019,
+      "week": 14,
+      "players": 351,
+      "eligible": 201,
+      "eligible_by_position": {
+        "DST": 21,
+        "QB": 26,
+        "RB": 55,
+        "TE": 26,
+        "WR": 73
+      },
+      "games": 39
+    },
+    {
+      "season": 2019,
+      "week": 15,
+      "players": 342,
+      "eligible": 186,
+      "eligible_by_position": {
+        "DST": 18,
+        "QB": 26,
+        "RB": 50,
+        "TE": 23,
+        "WR": 69
+      },
+      "games": 39
+    },
+    {
+      "season": 2019,
+      "week": 16,
+      "players": 298,
+      "eligible": 168,
+      "eligible_by_position": {
+        "DST": 17,
+        "QB": 23,
+        "RB": 45,
+        "TE": 23,
+        "WR": 60
+      },
+      "games": 33
+    },
+    {
+      "season": 2019,
+      "week": 17,
+      "players": 385,
+      "eligible": 214,
+      "eligible_by_position": {
+        "DST": 22,
+        "QB": 32,
+        "RB": 55,
+        "TE": 29,
+        "WR": 76
+      },
+      "games": 45
+    },
+    {
+      "season": 2021,
+      "week": 1,
+      "players": 354,
+      "eligible": 173,
+      "eligible_by_position": {
+        "DST": 20,
+        "QB": 28,
+        "RB": 41,
+        "TE": 19,
+        "WR": 65
+      },
+      "games": 39
+    },
+    {
+      "season": 2021,
+      "week": 2,
+      "players": 361,
+      "eligible": 196,
+      "eligible_by_position": {
+        "DST": 18,
+        "QB": 27,
+        "RB": 50,
+        "TE": 29,
+        "WR": 72
+      },
+      "games": 39
+    },
+    {
+      "season": 2021,
+      "week": 3,
+      "players": 353,
+      "eligible": 190,
+      "eligible_by_position": {
+        "DST": 18,
+        "QB": 26,
+        "RB": 46,
+        "TE": 28,
+        "WR": 72
+      },
+      "games": 39
+    },
+    {
+      "season": 2021,
+      "week": 4,
+      "players": 361,
+      "eligible": 193,
+      "eligible_by_position": {
+        "DST": 20,
+        "QB": 27,
+        "RB": 54,
+        "TE": 24,
+        "WR": 68
+      },
+      "games": 39
+    },
+    {
+      "season": 2021,
+      "week": 5,
+      "players": 328,
+      "eligible": 176,
+      "eligible_by_position": {
+        "DST": 19,
+        "QB": 27,
+        "RB": 44,
+        "TE": 22,
+        "WR": 64
+      },
+      "games": 36
+    },
+    {
+      "season": 2021,
+      "week": 6,
+      "players": 273,
+      "eligible": 150,
+      "eligible_by_position": {
+        "DST": 15,
+        "QB": 21,
+        "RB": 36,
+        "TE": 20,
+        "WR": 58
+      },
+      "games": 30
+    },
+    {
+      "season": 2021,
+      "week": 7,
+      "players": 276,
+      "eligible": 150,
+      "eligible_by_position": {
+        "DST": 14,
+        "QB": 21,
+        "RB": 40,
+        "TE": 18,
+        "WR": 57
+      },
+      "games": 30
+    },
+    {
+      "season": 2021,
+      "week": 8,
+      "players": 330,
+      "eligible": 173,
+      "eligible_by_position": {
+        "DST": 18,
+        "QB": 25,
+        "RB": 47,
+        "TE": 20,
+        "WR": 63
+      },
+      "games": 36
+    },
+    {
+      "season": 2021,
+      "week": 9,
+      "players": 302,
+      "eligible": 170,
+      "eligible_by_position": {
+        "DST": 17,
+        "QB": 22,
+        "RB": 45,
+        "TE": 22,
+        "WR": 64
+      },
+      "games": 33
+    },
+    {
+      "season": 2021,
+      "week": 10,
+      "players": 300,
+      "eligible": 163,
+      "eligible_by_position": {
+        "DST": 14,
+        "QB": 24,
+        "RB": 40,
+        "TE": 22,
+        "WR": 63
+      },
+      "games": 33
+    },
+    {
+      "season": 2021,
+      "week": 11,
+      "players": 326,
+      "eligible": 174,
+      "eligible_by_position": {
+        "DST": 19,
+        "QB": 25,
+        "RB": 49,
+        "TE": 18,
+        "WR": 63
+      },
+      "games": 36
+    },
+    {
+      "season": 2021,
+      "week": 12,
+      "players": 277,
+      "eligible": 159,
+      "eligible_by_position": {
+        "DST": 19,
+        "QB": 22,
+        "RB": 42,
+        "TE": 20,
+        "WR": 56
+      },
+      "games": 30
+    },
+    {
+      "season": 2021,
+      "week": 13,
+      "players": 302,
+      "eligible": 164,
+      "eligible_by_position": {
+        "DST": 16,
+        "QB": 23,
+        "RB": 42,
+        "TE": 21,
+        "WR": 62
+      },
+      "games": 33
+    },
+    {
+      "season": 2021,
+      "week": 14,
+      "players": 305,
+      "eligible": 164,
+      "eligible_by_position": {
+        "DST": 17,
+        "QB": 23,
+        "RB": 40,
+        "TE": 20,
+        "WR": 64
+      },
+      "games": 33
+    },
+    {
+      "season": 2021,
+      "week": 15,
+      "players": 256,
+      "eligible": 136,
+      "eligible_by_position": {
+        "DST": 12,
+        "QB": 20,
+        "RB": 36,
+        "TE": 16,
+        "WR": 52
+      },
+      "games": 27
+    },
+    {
+      "season": 2021,
+      "week": 16,
+      "players": 296,
+      "eligible": 165,
+      "eligible_by_position": {
+        "DST": 17,
+        "QB": 26,
+        "RB": 43,
+        "TE": 18,
+        "WR": 61
+      },
+      "games": 33
+    },
+    {
+      "season": 2021,
+      "week": 17,
+      "players": 379,
+      "eligible": 220,
+      "eligible_by_position": {
+        "DST": 20,
+        "QB": 31,
+        "RB": 61,
+        "TE": 25,
+        "WR": 83
+      },
+      "games": 42
+    },
+    {
+      "season": 2021,
+      "week": 18,
+      "players": 352,
+      "eligible": 204,
+      "eligible_by_position": {
+        "DST": 21,
+        "QB": 30,
+        "RB": 55,
+        "TE": 21,
+        "WR": 77
+      },
+      "games": 39
+    },
+    {
+      "season": 2022,
+      "week": 1,
+      "players": 718,
+      "eligible": 230,
+      "eligible_by_position": {
+        "DST": 22,
+        "QB": 28,
+        "RB": 75,
+        "TE": 27,
+        "WR": 78
+      },
+      "games": 39
+    },
+    {
+      "season": 2022,
+      "week": 2,
+      "players": 579,
+      "eligible": 197,
+      "eligible_by_position": {
+        "DST": 20,
+        "QB": 28,
+        "RB": 53,
+        "TE": 24,
+        "WR": 72
+      },
+      "games": 36
+    },
+    {
+      "season": 2022,
+      "week": 3,
+      "players": 632,
+      "eligible": 214,
+      "eligible_by_position": {
+        "DST": 20,
+        "QB": 27,
+        "RB": 60,
+        "TE": 24,
+        "WR": 83
+      },
+      "games": 39
+    },
+    {
+      "season": 2022,
+      "week": 4,
+      "players": 578,
+      "eligible": 194,
+      "eligible_by_position": {
+        "DST": 24,
+        "QB": 26,
+        "RB": 51,
+        "TE": 22,
+        "WR": 71
+      },
+      "games": 36
+    },
+    {
+      "season": 2022,
+      "week": 5,
+      "players": 578,
+      "eligible": 191,
+      "eligible_by_position": {
+        "DST": 20,
+        "QB": 32,
+        "RB": 50,
+        "TE": 19,
+        "WR": 70
+      },
+      "games": 36
+    },
+    {
+      "season": 2022,
+      "week": 6,
+      "players": 538,
+      "eligible": 187,
+      "eligible_by_position": {
+        "DST": 19,
+        "QB": 31,
+        "RB": 47,
+        "TE": 21,
+        "WR": 69
+      },
+      "games": 33
+    },
+    {
+      "season": 2022,
+      "week": 7,
+      "players": 535,
+      "eligible": 173,
+      "eligible_by_position": {
+        "DST": 17,
+        "QB": 31,
+        "RB": 50,
+        "TE": 16,
+        "WR": 59
+      },
+      "games": 33
+    },
+    {
+      "season": 2022,
+      "week": 8,
+      "players": 547,
+      "eligible": 187,
+      "eligible_by_position": {
+        "DST": 19,
+        "QB": 30,
+        "RB": 52,
+        "TE": 19,
+        "WR": 67
+      },
+      "games": 33
+    },
+    {
+      "season": 2022,
+      "week": 9,
+      "players": 492,
+      "eligible": 169,
+      "eligible_by_position": {
+        "DST": 17,
+        "QB": 26,
+        "RB": 49,
+        "TE": 19,
+        "WR": 58
+      },
+      "games": 30
+    },
+    {
+      "season": 2022,
+      "week": 10,
+      "players": 495,
+      "eligible": 170,
+      "eligible_by_position": {
+        "DST": 18,
+        "QB": 32,
+        "RB": 42,
+        "TE": 16,
+        "WR": 62
+      },
+      "games": 30
+    },
+    {
+      "season": 2022,
+      "week": 11,
+      "players": 548,
+      "eligible": 190,
+      "eligible_by_position": {
+        "DST": 18,
+        "QB": 35,
+        "RB": 50,
+        "TE": 21,
+        "WR": 66
+      },
+      "games": 33
+    },
+    {
+      "season": 2022,
+      "week": 12,
+      "players": 553,
+      "eligible": 178,
+      "eligible_by_position": {
+        "DST": 18,
+        "QB": 35,
+        "RB": 41,
+        "TE": 22,
+        "WR": 62
+      },
+      "games": 33
+    },
+    {
+      "season": 2022,
+      "week": 13,
+      "players": 600,
+      "eligible": 195,
+      "eligible_by_position": {
+        "DST": 19,
+        "QB": 30,
+        "RB": 51,
+        "TE": 24,
+        "WR": 71
+      },
+      "games": 36
+    },
+    {
+      "season": 2022,
+      "week": 14,
+      "players": 501,
+      "eligible": 162,
+      "eligible_by_position": {
+        "DST": 15,
+        "QB": 30,
+        "RB": 43,
+        "TE": 18,
+        "WR": 56
+      },
+      "games": 30
+    },
+    {
+      "season": 2022,
+      "week": 15,
+      "players": 491,
+      "eligible": 161,
+      "eligible_by_position": {
+        "DST": 16,
+        "QB": 29,
+        "RB": 43,
+        "TE": 17,
+        "WR": 56
+      },
+      "games": 30
+    },
+    {
+      "season": 2022,
+      "week": 16,
+      "players": 100,
+      "eligible": 30,
+      "eligible_by_position": {
+        "DST": 3,
+        "QB": 6,
+        "RB": 8,
+        "TE": 2,
+        "WR": 11
+      },
+      "games": 6
+    },
+    {
+      "season": 2022,
+      "week": 17,
+      "players": 652,
+      "eligible": 215,
+      "eligible_by_position": {
+        "DST": 24,
+        "QB": 40,
+        "RB": 54,
+        "TE": 20,
+        "WR": 77
+      },
+      "games": 39
+    },
+    {
+      "season": 2022,
+      "week": 18,
+      "players": 655,
+      "eligible": 216,
+      "eligible_by_position": {
+        "DST": 25,
+        "QB": 41,
+        "RB": 57,
+        "TE": 21,
+        "WR": 72
+      },
+      "games": 39
+    },
+    {
+      "season": 2023,
+      "week": 1,
+      "players": 773,
+      "eligible": 184,
+      "eligible_by_position": {
+        "DST": 24,
+        "QB": 26,
+        "RB": 49,
+        "TE": 22,
+        "WR": 63
+      },
+      "games": 39
+    },
+    {
+      "season": 2023,
+      "week": 2,
+      "players": 582,
+      "eligible": 172,
+      "eligible_by_position": {
+        "DST": 22,
+        "QB": 26,
+        "RB": 41,
+        "TE": 21,
+        "WR": 62
+      },
+      "games": 36
+    },
+    {
+      "season": 2023,
+      "week": 3,
+      "players": 571,
+      "eligible": 182,
+      "eligible_by_position": {
+        "DST": 19,
+        "QB": 25,
+        "RB": 42,
+        "TE": 26,
+        "WR": 70
+      },
+      "games": 36
+    },
+    {
+      "season": 2023,
+      "week": 4,
+      "players": 577,
+      "eligible": 169,
+      "eligible_by_position": {
+        "DST": 19,
+        "QB": 26,
+        "RB": 37,
+        "TE": 22,
+        "WR": 65
+      },
+      "games": 36
+    },
+    {
+      "season": 2023,
+      "week": 5,
+      "players": 492,
+      "eligible": 151,
+      "eligible_by_position": {
+        "DST": 16,
+        "QB": 20,
+        "RB": 38,
+        "TE": 18,
+        "WR": 59
+      },
+      "games": 30
+    },
+    {
+      "season": 2023,
+      "week": 6,
+      "players": 521,
+      "eligible": 156,
+      "eligible_by_position": {
+        "DST": 20,
+        "QB": 23,
+        "RB": 35,
+        "TE": 21,
+        "WR": 57
+      },
+      "games": 33
+    },
+    {
+      "season": 2023,
+      "week": 7,
+      "players": 486,
+      "eligible": 145,
+      "eligible_by_position": {
+        "DST": 18,
+        "QB": 21,
+        "RB": 37,
+        "TE": 19,
+        "WR": 50
+      },
+      "games": 30
+    },
+    {
+      "season": 2023,
+      "week": 8,
+      "players": 621,
+      "eligible": 185,
+      "eligible_by_position": {
+        "DST": 23,
+        "QB": 27,
+        "RB": 47,
+        "TE": 20,
+        "WR": 68
+      },
+      "games": 39
+    },
+    {
+      "season": 2023,
+      "week": 9,
+      "players": 474,
+      "eligible": 148,
+      "eligible_by_position": {
+        "DST": 20,
+        "QB": 26,
+        "RB": 35,
+        "TE": 16,
+        "WR": 51
+      },
+      "games": 30
+    },
+    {
+      "season": 2023,
+      "week": 10,
+      "players": 483,
+      "eligible": 147,
+      "eligible_by_position": {
+        "DST": 19,
+        "QB": 23,
+        "RB": 33,
+        "TE": 21,
+        "WR": 51
+      },
+      "games": 30
+    },
+    {
+      "season": 2023,
+      "week": 11,
+      "players": 531,
+      "eligible": 149,
+      "eligible_by_position": {
+        "DST": 18,
+        "QB": 25,
+        "RB": 34,
+        "TE": 17,
+        "WR": 55
+      },
+      "games": 33
+    },
+    {
+      "season": 2023,
+      "week": 12,
+      "players": 484,
+      "eligible": 137,
+      "eligible_by_position": {
+        "DST": 20,
+        "QB": 20,
+        "RB": 35,
+        "TE": 15,
+        "WR": 47
+      },
+      "games": 30
+    },
+    {
+      "season": 2023,
+      "week": 13,
+      "players": 483,
+      "eligible": 144,
+      "eligible_by_position": {
+        "DST": 19,
+        "QB": 22,
+        "RB": 35,
+        "TE": 17,
+        "WR": 51
+      },
+      "games": 30
+    },
+    {
+      "season": 2023,
+      "week": 14,
+      "players": 538,
+      "eligible": 159,
+      "eligible_by_position": {
+        "DST": 21,
+        "QB": 23,
+        "RB": 37,
+        "TE": 20,
+        "WR": 58
+      },
+      "games": 33
+    },
+    {
+      "season": 2023,
+      "week": 15,
+      "players": 482,
+      "eligible": 138,
+      "eligible_by_position": {
+        "DST": 18,
+        "QB": 22,
+        "RB": 32,
+        "TE": 17,
+        "WR": 49
+      },
+      "games": 30
+    },
+    {
+      "season": 2023,
+      "week": 16,
+      "players": 433,
+      "eligible": 138,
+      "eligible_by_position": {
+        "DST": 18,
+        "QB": 22,
+        "RB": 34,
+        "TE": 16,
+        "WR": 48
+      },
+      "games": 27
+    },
+    {
+      "season": 2023,
+      "week": 17,
+      "players": 632,
+      "eligible": 182,
+      "eligible_by_position": {
+        "DST": 22,
+        "QB": 29,
+        "RB": 48,
+        "TE": 22,
+        "WR": 61
+      },
+      "games": 39
+    },
+    {
+      "season": 2023,
+      "week": 18,
+      "players": 628,
+      "eligible": 179,
+      "eligible_by_position": {
+        "DST": 24,
+        "QB": 34,
+        "RB": 43,
+        "TE": 20,
+        "WR": 58
+      },
+      "games": 39
+    },
+    {
+      "season": 2024,
+      "week": 1,
+      "players": 700,
+      "eligible": 160,
+      "eligible_by_position": {
+        "DST": 22,
+        "QB": 25,
+        "RB": 37,
+        "TE": 18,
+        "WR": 58
+      },
+      "games": 36
+    },
+    {
+      "season": 2024,
+      "week": 2,
+      "players": 620,
+      "eligible": 190,
+      "eligible_by_position": {
+        "DST": 23,
+        "QB": 27,
+        "RB": 43,
+        "TE": 27,
+        "WR": 70
+      },
+      "games": 39
+    },
+    {
+      "season": 2024,
+      "week": 3,
+      "players": 573,
+      "eligible": 177,
+      "eligible_by_position": {
+        "DST": 23,
+        "QB": 26,
+        "RB": 42,
+        "TE": 23,
+        "WR": 63
+      },
+      "games": 36
+    },
+    {
+      "season": 2024,
+      "week": 4,
+      "players": 585,
+      "eligible": 180,
+      "eligible_by_position": {
+        "DST": 22,
+        "QB": 27,
+        "RB": 39,
+        "TE": 22,
+        "WR": 70
+      },
+      "games": 36
+    },
+    {
+      "season": 2024,
+      "week": 5,
+      "players": 486,
+      "eligible": 150,
+      "eligible_by_position": {
+        "DST": 18,
+        "QB": 23,
+        "RB": 33,
+        "TE": 19,
+        "WR": 57
+      },
+      "games": 30
+    },
+    {
+      "season": 2024,
+      "week": 6,
+      "players": 475,
+      "eligible": 143,
+      "eligible_by_position": {
+        "DST": 16,
+        "QB": 22,
+        "RB": 34,
+        "TE": 17,
+        "WR": 54
+      },
+      "games": 30
+    },
+    {
+      "season": 2024,
+      "week": 7,
+      "players": 485,
+      "eligible": 159,
+      "eligible_by_position": {
+        "DST": 17,
+        "QB": 23,
+        "RB": 40,
+        "TE": 18,
+        "WR": 61
+      },
+      "games": 30
+    },
+    {
+      "season": 2024,
+      "week": 8,
+      "players": 638,
+      "eligible": 200,
+      "eligible_by_position": {
+        "DST": 22,
+        "QB": 32,
+        "RB": 49,
+        "TE": 24,
+        "WR": 73
+      },
+      "games": 39
+    },
+    {
+      "season": 2024,
+      "week": 9,
+      "players": 569,
+      "eligible": 181,
+      "eligible_by_position": {
+        "DST": 18,
+        "QB": 27,
+        "RB": 41,
+        "TE": 22,
+        "WR": 73
+      },
+      "games": 36
+    },
+    {
+      "season": 2024,
+      "week": 10,
+      "players": 496,
+      "eligible": 149,
+      "eligible_by_position": {
+        "DST": 18,
+        "QB": 24,
+        "RB": 33,
+        "TE": 20,
+        "WR": 54
+      },
+      "games": 30
+    },
+    {
+      "season": 2024,
+      "week": 11,
+      "players": 537,
+      "eligible": 154,
+      "eligible_by_position": {
+        "DST": 19,
+        "QB": 25,
+        "RB": 33,
+        "TE": 20,
+        "WR": 57
+      },
+      "games": 33
+    },
+    {
+      "season": 2024,
+      "week": 12,
+      "players": 489,
+      "eligible": 140,
+      "eligible_by_position": {
+        "DST": 16,
+        "QB": 22,
+        "RB": 30,
+        "TE": 18,
+        "WR": 54
+      },
+      "games": 30
+    },
+    {
+      "season": 2024,
+      "week": 13,
+      "players": 482,
+      "eligible": 145,
+      "eligible_by_position": {
+        "DST": 19,
+        "QB": 23,
+        "RB": 31,
+        "TE": 22,
+        "WR": 50
+      },
+      "games": 30
+    },
+    {
+      "season": 2024,
+      "week": 14,
+      "players": 481,
+      "eligible": 148,
+      "eligible_by_position": {
+        "DST": 17,
+        "QB": 22,
+        "RB": 34,
+        "TE": 22,
+        "WR": 53
+      },
+      "games": 30
+    },
+    {
+      "season": 2024,
+      "week": 15,
+      "players": 583,
+      "eligible": 175,
+      "eligible_by_position": {
+        "DST": 21,
+        "QB": 27,
+        "RB": 40,
+        "TE": 23,
+        "WR": 64
+      },
+      "games": 36
+    },
+    {
+      "season": 2024,
+      "week": 16,
+      "players": 532,
+      "eligible": 163,
+      "eligible_by_position": {
+        "DST": 18,
+        "QB": 27,
+        "RB": 35,
+        "TE": 22,
+        "WR": 61
+      },
+      "games": 33
+    },
+    {
+      "season": 2024,
+      "week": 17,
+      "players": 402,
+      "eligible": 106,
+      "eligible_by_position": {
+        "DST": 14,
+        "QB": 18,
+        "RB": 22,
+        "TE": 13,
+        "WR": 39
+      },
+      "games": 24
+    },
+    {
+      "season": 2024,
+      "week": 18,
+      "players": 650,
+      "eligible": 172,
+      "eligible_by_position": {
+        "DST": 24,
+        "QB": 30,
+        "RB": 41,
+        "TE": 19,
+        "WR": 58
+      },
+      "games": 39
+    }
+  ],
+  "slate_count": 89,
+  "player_rows": 40387,
+  "eligible_rows": 15093,
+  "seasons": [
+    {
+      "season": 2019,
+      "players": 5290,
+      "slates": 17,
+      "eligible": 2957
+    },
+    {
+      "season": 2021,
+      "players": 5731,
+      "slates": 18,
+      "eligible": 3120
+    },
+    {
+      "season": 2022,
+      "players": 9792,
+      "slates": 18,
+      "eligible": 3259
+    },
+    {
+      "season": 2023,
+      "players": 9791,
+      "slates": 18,
+      "eligible": 2865
+    },
+    {
+      "season": 2024,
+      "players": 9783,
+      "slates": 18,
+      "eligible": 2892
+    }
+  ]
+}
