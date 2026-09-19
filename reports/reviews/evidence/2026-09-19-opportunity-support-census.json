@@ -1,0 +1,806 @@
+{
+  "scope": "Input support only; no actuals, availability outcomes, or model fitting",
+  "cutoff": "2026-09-19T04:57:25.824188+00:00",
+  "metadata": [
+    {
+      "table": "nfl-predictions-503414.nfl_raw.injuries",
+      "rows": 66278,
+      "bytes": 8880574,
+      "modified": "2026-09-18T10:03:51.201000+00:00",
+      "etag": "YVIANr/pOhHX7Q0qVLW4ww==",
+      "schema": [
+        [
+          "season",
+          "FLOAT"
+        ],
+        [
+          "game_type",
+          "STRING"
+        ],
+        [
+          "team",
+          "STRING"
+        ],
+        [
+          "week",
+          "FLOAT"
+        ],
+        [
+          "gsis_id",
+          "STRING"
+        ],
+        [
+          "position",
+          "STRING"
+        ],
+        [
+          "full_name",
+          "STRING"
+        ],
+        [
+          "first_name",
+          "STRING"
+        ],
+        [
+          "last_name",
+          "STRING"
+        ],
+        [
+          "report_primary_injury",
+          "STRING"
+        ],
+        [
+          "report_secondary_injury",
+          "STRING"
+        ],
+        [
+          "report_status",
+          "STRING"
+        ],
+        [
+          "practice_primary_injury",
+          "STRING"
+        ],
+        [
+          "practice_secondary_injury",
+          "STRING"
+        ],
+        [
+          "practice_status",
+          "STRING"
+        ],
+        [
+          "date_modified",
+          "TIMESTAMP"
+        ],
+        [
+          "season_type",
+          "STRING"
+        ]
+      ]
+    },
+    {
+      "table": "nfl-predictions-503414.nfl_raw.injury_snapshots",
+      "rows": 1873,
+      "bytes": 498969,
+      "modified": "2026-09-18T10:03:53.894000+00:00",
+      "etag": "YKBLqjbx4lvGd80oHnT2WA==",
+      "schema": [
+        [
+          "pulled_at",
+          "TIMESTAMP"
+        ],
+        [
+          "capture_id",
+          "STRING"
+        ],
+        [
+          "season",
+          "INTEGER"
+        ],
+        [
+          "game_type",
+          "STRING"
+        ],
+        [
+          "team",
+          "STRING"
+        ],
+        [
+          "week",
+          "INTEGER"
+        ],
+        [
+          "gsis_id",
+          "STRING"
+        ],
+        [
+          "position",
+          "STRING"
+        ],
+        [
+          "full_name",
+          "STRING"
+        ],
+        [
+          "first_name",
+          "STRING"
+        ],
+        [
+          "last_name",
+          "STRING"
+        ],
+        [
+          "report_primary_injury",
+          "STRING"
+        ],
+        [
+          "report_secondary_injury",
+          "STRING"
+        ],
+        [
+          "report_status",
+          "STRING"
+        ],
+        [
+          "practice_primary_injury",
+          "STRING"
+        ],
+        [
+          "practice_secondary_injury",
+          "STRING"
+        ],
+        [
+          "practice_status",
+          "STRING"
+        ],
+        [
+          "date_modified",
+          "TIMESTAMP"
+        ],
+        [
+          "season_type",
+          "STRING"
+        ],
+        [
+          "source_row_sha256",
+          "STRING"
+        ]
+      ]
+    },
+    {
+      "table": "nfl-predictions-503414.nfl_raw.schedules",
+      "rows": 7548,
+      "bytes": 2953680,
+      "modified": "2026-09-18T10:03:30.546000+00:00",
+      "etag": "W2Ruzn1uHZ7LH7B4GpgdRA==",
+      "schema": [
+        [
+          "game_id",
+          "STRING"
+        ],
+        [
+          "season",
+          "INTEGER"
+        ],
+        [
+          "game_type",
+          "STRING"
+        ],
+        [
+          "week",
+          "INTEGER"
+        ],
+        [
+          "gameday",
+          "STRING"
+        ],
+        [
+          "weekday",
+          "STRING"
+        ],
+        [
+          "gametime",
+          "STRING"
+        ],
+        [
+          "away_team",
+          "STRING"
+        ],
+        [
+          "away_score",
+          "FLOAT"
+        ],
+        [
+          "home_team",
+          "STRING"
+        ],
+        [
+          "home_score",
+          "FLOAT"
+        ],
+        [
+          "location",
+          "STRING"
+        ],
+        [
+          "result",
+          "FLOAT"
+        ],
+        [
+          "total",
+          "FLOAT"
+        ],
+        [
+          "overtime",
+          "FLOAT"
+        ],
+        [
+          "old_game_id",
+          "STRING"
+        ],
+        [
+          "gsis",
+          "FLOAT"
+        ],
+        [
+          "nfl_detail_id",
+          "STRING"
+        ],
+        [
+          "pfr",
+          "STRING"
+        ],
+        [
+          "pff",
+          "FLOAT"
+        ],
+        [
+          "espn",
+          "STRING"
+        ],
+        [
+          "ftn",
+          "FLOAT"
+        ],
+        [
+          "away_rest",
+          "INTEGER"
+        ],
+        [
+          "home_rest",
+          "INTEGER"
+        ],
+        [
+          "away_moneyline",
+          "FLOAT"
+        ],
+        [
+          "home_moneyline",
+          "FLOAT"
+        ],
+        [
+          "spread_line",
+          "FLOAT"
+        ],
+        [
+          "away_spread_odds",
+          "FLOAT"
+        ],
+        [
+          "home_spread_odds",
+          "FLOAT"
+        ],
+        [
+          "total_line",
+          "FLOAT"
+        ],
+        [
+          "under_odds",
+          "FLOAT"
+        ],
+        [
+          "over_odds",
+          "FLOAT"
+        ],
+        [
+          "div_game",
+          "INTEGER"
+        ],
+        [
+          "roof",
+          "STRING"
+        ],
+        [
+          "surface",
+          "STRING"
+        ],
+        [
+          "temp",
+          "FLOAT"
+        ],
+        [
+          "wind",
+          "FLOAT"
+        ],
+        [
+          "away_qb_id",
+          "STRING"
+        ],
+        [
+          "home_qb_id",
+          "STRING"
+        ],
+        [
+          "away_qb_name",
+          "STRING"
+        ],
+        [
+          "home_qb_name",
+          "STRING"
+        ],
+        [
+          "away_coach",
+          "STRING"
+        ],
+        [
+          "home_coach",
+          "STRING"
+        ],
+        [
+          "referee",
+          "STRING"
+        ],
+        [
+          "stadium_id",
+          "STRING"
+        ],
+        [
+          "stadium",
+          "STRING"
+        ]
+      ]
+    },
+    {
+      "table": "nfl-predictions-503414.nfl_raw.depth_charts",
+      "rows": 401774,
+      "bytes": 45124173,
+      "modified": "2026-07-31T19:32:53.389000+00:00",
+      "etag": "6DpdXlmW5IGtHf6JGI+dgQ==",
+      "schema": [
+        [
+          "season",
+          "INTEGER"
+        ],
+        [
+          "club_code",
+          "STRING"
+        ],
+        [
+          "week",
+          "FLOAT"
+        ],
+        [
+          "game_type",
+          "STRING"
+        ],
+        [
+          "depth_team",
+          "STRING"
+        ],
+        [
+          "last_name",
+          "STRING"
+        ],
+        [
+          "first_name",
+          "STRING"
+        ],
+        [
+          "football_name",
+          "STRING"
+        ],
+        [
+          "formation",
+          "STRING"
+        ],
+        [
+          "gsis_id",
+          "STRING"
+        ],
+        [
+          "jersey_number",
+          "STRING"
+        ],
+        [
+          "position",
+          "STRING"
+        ],
+        [
+          "elias_id",
+          "STRING"
+        ],
+        [
+          "depth_position",
+          "STRING"
+        ],
+        [
+          "full_name",
+          "STRING"
+        ]
+      ]
+    },
+    {
+      "table": "nfl-predictions-503414.nfl_raw.depth_charts_snapshots",
+      "rows": 1083804,
+      "bytes": 184233147,
+      "modified": "2026-09-18T10:03:21.664000+00:00",
+      "etag": "4WIkv/ffZ+i4wLFzRFhv5A==",
+      "schema": [
+        [
+          "dt",
+          "STRING"
+        ],
+        [
+          "team",
+          "STRING"
+        ],
+        [
+          "player_name",
+          "STRING"
+        ],
+        [
+          "espn_id",
+          "STRING"
+        ],
+        [
+          "gsis_id",
+          "STRING"
+        ],
+        [
+          "pos_grp_id",
+          "STRING"
+        ],
+        [
+          "pos_grp",
+          "STRING"
+        ],
+        [
+          "pos_id",
+          "STRING"
+        ],
+        [
+          "pos_name",
+          "STRING"
+        ],
+        [
+          "pos_abb",
+          "STRING"
+        ],
+        [
+          "pos_slot",
+          "INTEGER"
+        ],
+        [
+          "pos_rank",
+          "INTEGER"
+        ],
+        [
+          "nflverse_source_seasons",
+          "STRING"
+        ],
+        [
+          "nflverse_source_mode",
+          "STRING"
+        ],
+        [
+          "nflverse_pulled_at",
+          "TIMESTAMP"
+        ]
+      ]
+    }
+  ],
+  "queries": {
+    "historical_source": {
+      "sql": "\nWITH keys AS (\n SELECT CAST(season AS INT64) season, CAST(week AS INT64) week, gsis_id,\n   COUNT(*) n, COUNTIF(date_modified IS NOT NULL) timestamped,\n   COUNT(DISTINCT DATE(date_modified, 'America/New_York')) source_days,\n   COUNT(DISTINCT practice_status) practice_states\n FROM `nfl-predictions-503414.nfl_raw.injuries` FOR SYSTEM_TIME AS OF @cutoff\n WHERE game_type='REG' AND gsis_id IS NOT NULL\n GROUP BY 1,2,3\n)\nSELECT season, SUM(n) row_count, COUNT(*) player_weeks,\n SUM(timestamped) timestamped_rows, COUNTIF(n>1) multirow_player_weeks,\n COUNTIF(source_days>1) multiday_player_weeks,\n COUNTIF(practice_states>1) changing_practice_player_weeks\nFROM keys GROUP BY season ORDER BY season",
+      "job_id": "5e8a8a98-6acf-4ef8-bf16-081cf87a06e5",
+      "bytes_processed": 4846689,
+      "rows": [
+        {
+          "season": 2014,
+          "row_count": 4912,
+          "player_weeks": 4912,
+          "timestamped_rows": 4912,
+          "multirow_player_weeks": 0,
+          "multiday_player_weeks": 0,
+          "changing_practice_player_weeks": 0
+        },
+        {
+          "season": 2015,
+          "row_count": 5009,
+          "player_weeks": 5009,
+          "timestamped_rows": 5009,
+          "multirow_player_weeks": 0,
+          "multiday_player_weeks": 0,
+          "changing_practice_player_weeks": 0
+        },
+        {
+          "season": 2016,
+          "row_count": 4928,
+          "player_weeks": 4928,
+          "timestamped_rows": 4928,
+          "multirow_player_weeks": 0,
+          "multiday_player_weeks": 0,
+          "changing_practice_player_weeks": 0
+        },
+        {
+          "season": 2017,
+          "row_count": 4949,
+          "player_weeks": 4948,
+          "timestamped_rows": 4949,
+          "multirow_player_weeks": 1,
+          "multiday_player_weeks": 0,
+          "changing_practice_player_weeks": 1
+        },
+        {
+          "season": 2018,
+          "row_count": 4961,
+          "player_weeks": 4961,
+          "timestamped_rows": 4961,
+          "multirow_player_weeks": 0,
+          "multiday_player_weeks": 0,
+          "changing_practice_player_weeks": 0
+        },
+        {
+          "season": 2019,
+          "row_count": 5202,
+          "player_weeks": 5202,
+          "timestamped_rows": 5202,
+          "multirow_player_weeks": 0,
+          "multiday_player_weeks": 0,
+          "changing_practice_player_weeks": 0
+        },
+        {
+          "season": 2020,
+          "row_count": 5414,
+          "player_weeks": 5414,
+          "timestamped_rows": 5414,
+          "multirow_player_weeks": 0,
+          "multiday_player_weeks": 0,
+          "changing_practice_player_weeks": 0
+        },
+        {
+          "season": 2021,
+          "row_count": 5348,
+          "player_weeks": 5348,
+          "timestamped_rows": 5348,
+          "multirow_player_weeks": 0,
+          "multiday_player_weeks": 0,
+          "changing_practice_player_weeks": 0
+        },
+        {
+          "season": 2022,
+          "row_count": 5450,
+          "player_weeks": 5449,
+          "timestamped_rows": 5450,
+          "multirow_player_weeks": 1,
+          "multiday_player_weeks": 1,
+          "changing_practice_player_weeks": 1
+        },
+        {
+          "season": 2023,
+          "row_count": 5451,
+          "player_weeks": 5451,
+          "timestamped_rows": 5451,
+          "multirow_player_weeks": 0,
+          "multiday_player_weeks": 0,
+          "changing_practice_player_weeks": 0
+        },
+        {
+          "season": 2024,
+          "row_count": 5954,
+          "player_weeks": 5952,
+          "timestamped_rows": 5954,
+          "multirow_player_weeks": 2,
+          "multiday_player_weeks": 2,
+          "changing_practice_player_weeks": 0
+        },
+        {
+          "season": 2025,
+          "row_count": 5783,
+          "player_weeks": 5783,
+          "timestamped_rows": 0,
+          "multirow_player_weeks": 0,
+          "multiday_player_weeks": 0,
+          "changing_practice_player_weeks": 0
+        },
+        {
+          "season": 2026,
+          "row_count": 412,
+          "player_weeks": 412,
+          "timestamped_rows": 0,
+          "multirow_player_weeks": 0,
+          "multiday_player_weeks": 0,
+          "changing_practice_player_weeks": 0
+        }
+      ]
+    },
+    "captured_trajectory": {
+      "sql": "\nWITH locks AS (\n SELECT season,week,MIN(TIMESTAMP(DATETIME(PARSE_DATE('%Y-%m-%d',gameday),\n   SAFE.PARSE_TIME('%H:%M',gametime)),'America/New_York')) lock_at\n FROM `nfl-predictions-503414.nfl_raw.schedules` FOR SYSTEM_TIME AS OF @cutoff\n WHERE game_type='REG' AND weekday='Sunday'\n AND SAFE.PARSE_TIME('%H:%M',gametime)>=TIME '13:00:00'\n AND SAFE.PARSE_TIME('%H:%M',gametime)<TIME '19:00:00'\n GROUP BY season,week\n), keys AS (\n SELECT i.season,i.week,i.gsis_id,COUNT(*) n,\n COUNT(DISTINCT capture_id) captures,\n COUNT(DISTINCT DATE(pulled_at,'America/New_York')) capture_days,\n COUNT(DISTINCT practice_status) practice_states,\n MIN(pulled_at) first_capture, MAX(pulled_at) last_capture\n FROM `nfl-predictions-503414.nfl_raw.injury_snapshots` AS i FOR SYSTEM_TIME AS OF @cutoff\n JOIN locks l USING(season,week)\n WHERE i.game_type='REG' AND i.gsis_id IS NOT NULL AND i.pulled_at<=l.lock_at\n AND i.pulled_at<=@cutoff AND (i.date_modified IS NULL OR i.date_modified<=i.pulled_at)\n GROUP BY i.season,i.week,i.gsis_id\n)\nSELECT season,week,SUM(n) row_count,COUNT(*) player_weeks,\n COUNTIF(capture_days>1) multiday_player_weeks,\n COUNTIF(practice_states>1) changing_practice_player_weeks,\n MAX(captures) maximum_captures,MIN(first_capture) first_capture,MAX(last_capture) last_capture\nFROM keys GROUP BY season,week ORDER BY season,week",
+      "job_id": "29d2d2ae-2680-4a8b-a8d3-a58f67190afa",
+      "bytes_processed": 624216,
+      "rows": [
+        {
+          "season": 2026,
+          "week": 1,
+          "row_count": 539,
+          "player_weeks": 182,
+          "multiday_player_weeks": 167,
+          "changing_practice_player_weeks": 64,
+          "maximum_captures": 6,
+          "first_capture": "2026-09-08 13:47:42.775111+00:00",
+          "last_capture": "2026-09-13 10:03:36.558778+00:00"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "row_count": 424,
+          "player_weeks": 230,
+          "multiday_player_weeks": 194,
+          "changing_practice_player_weeks": 48,
+          "maximum_captures": 2,
+          "first_capture": "2026-09-17 10:03:00.713674+00:00",
+          "last_capture": "2026-09-18 10:03:47.019616+00:00"
+        }
+      ]
+    },
+    "capture_timeline": {
+      "sql": "\nSELECT season,week,pulled_at,COUNT(*) row_count,COUNT(DISTINCT gsis_id) players,\n COUNTIF(date_modified IS NOT NULL) source_timestamped,\n COUNTIF(date_modified>pulled_at) malformed_source_time\nFROM `nfl-predictions-503414.nfl_raw.injury_snapshots` FOR SYSTEM_TIME AS OF @cutoff\nWHERE game_type='REG' AND pulled_at<=@cutoff\nGROUP BY season,week,pulled_at ORDER BY season,week,pulled_at",
+      "job_id": "8e87b0ea-1a3e-4506-9e62-9b080c2c8443",
+      "bytes_processed": 76793,
+      "rows": [
+        {
+          "season": 2026,
+          "week": 1,
+          "pulled_at": "2026-09-08 13:47:42.775111+00:00",
+          "row_count": 11,
+          "players": 11,
+          "source_timestamped": 0,
+          "malformed_source_time": 0
+        },
+        {
+          "season": 2026,
+          "week": 1,
+          "pulled_at": "2026-09-09 10:05:09.393957+00:00",
+          "row_count": 11,
+          "players": 11,
+          "source_timestamped": 0,
+          "malformed_source_time": 0
+        },
+        {
+          "season": 2026,
+          "week": 1,
+          "pulled_at": "2026-09-09 18:21:55.135492+00:00",
+          "row_count": 29,
+          "players": 29,
+          "source_timestamped": 0,
+          "malformed_source_time": 0
+        },
+        {
+          "season": 2026,
+          "week": 1,
+          "pulled_at": "2026-09-11 10:02:52.805227+00:00",
+          "row_count": 139,
+          "players": 139,
+          "source_timestamped": 0,
+          "malformed_source_time": 0
+        },
+        {
+          "season": 2026,
+          "week": 1,
+          "pulled_at": "2026-09-12 10:03:22.602022+00:00",
+          "row_count": 167,
+          "players": 167,
+          "source_timestamped": 0,
+          "malformed_source_time": 0
+        },
+        {
+          "season": 2026,
+          "week": 1,
+          "pulled_at": "2026-09-13 10:03:36.558778+00:00",
+          "row_count": 182,
+          "players": 182,
+          "source_timestamped": 0,
+          "malformed_source_time": 0
+        },
+        {
+          "season": 2026,
+          "week": 1,
+          "pulled_at": "2026-09-14 10:02:37.150160+00:00",
+          "row_count": 182,
+          "players": 182,
+          "source_timestamped": 0,
+          "malformed_source_time": 0
+        },
+        {
+          "season": 2026,
+          "week": 1,
+          "pulled_at": "2026-09-15 10:04:12.593357+00:00",
+          "row_count": 182,
+          "players": 182,
+          "source_timestamped": 0,
+          "malformed_source_time": 0
+        },
+        {
+          "season": 2026,
+          "week": 1,
+          "pulled_at": "2026-09-16 10:07:53.339898+00:00",
+          "row_count": 182,
+          "players": 182,
+          "source_timestamped": 0,
+          "malformed_source_time": 0
+        },
+        {
+          "season": 2026,
+          "week": 1,
+          "pulled_at": "2026-09-17 10:03:00.713674+00:00",
+          "row_count": 182,
+          "players": 182,
+          "source_timestamped": 0,
+          "malformed_source_time": 0
+        },
+        {
+          "season": 2026,
+          "week": 1,
+          "pulled_at": "2026-09-18 10:03:47.019616+00:00",
+          "row_count": 182,
+          "players": 182,
+          "source_timestamped": 0,
+          "malformed_source_time": 0
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "pulled_at": "2026-09-17 10:03:00.713674+00:00",
+          "row_count": 194,
+          "players": 194,
+          "source_timestamped": 0,
+          "malformed_source_time": 0
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "pulled_at": "2026-09-18 10:03:47.019616+00:00",
+          "row_count": 230,
+          "players": 230,
+          "source_timestamped": 0,
+          "malformed_source_time": 0
+        }
+      ]
+    },
+    "current_feature_freshness": {
+      "sql": "\nSELECT season,week,injury_source_kind,COUNT(*) row_count,\n MIN(injury_information_at) earliest_information,MAX(injury_information_at) latest_information\nFROM `nfl-predictions-503414.nfl_features.player_week_injury` FOR SYSTEM_TIME AS OF @cutoff\nWHERE season=2026 GROUP BY season,week,injury_source_kind ORDER BY season,week,injury_source_kind",
+      "job_id": "5e2ccdaa-9814-4ffd-a29b-9a6c45f59a6f",
+      "bytes_processed": 2376094,
+      "rows": [
+        {
+          "season": 2026,
+          "week": 1,
+          "injury_source_kind": "collector_snapshot",
+          "row_count": 182,
+          "earliest_information": "2026-09-13 10:03:36.558778+00:00",
+          "latest_information": "2026-09-13 10:03:36.558778+00:00"
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "injury_source_kind": "collector_snapshot",
+          "row_count": 194,
+          "earliest_information": "2026-09-17 10:03:00.713674+00:00",
+          "latest_information": "2026-09-17 10:03:00.713674+00:00"
+        }
+      ]
+    }
+  },
+  "source_sha256": "76774d12f75d522462f96de9f12839127e342496c7c0a45c948ed71e97225950"
+}

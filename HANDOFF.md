@@ -4,6 +4,21 @@
 
 # Project handoff
 
+## 2026-09-19 — practice-trajectory census complete; partial law-weight cross-check agrees
+
+[Support census](reports/2026-09-19-opportunity-input-support.md): Week1 has
+64 players with changing prelock practice reports; Week2 currently has48. Historical
+raw injuries do not provide a trajectory panel, so that E1 variant cannot yet be
+trained honestly. Existing practice trend is between retained weekly reports, not
+within week. Next is an outcome-blind injury-type support census, not model fitting.
+No live changes. Production peer `cfaa0687` only corrects checklist wording to the
+existing disjoint contest allocation (Millionaire first); operational source unchanged.
+
+Lab `26f3ef5` independently authenticates and recomputes score-row aggregates;
+the law-weight gate still fails. That is arithmetic verification, not the requested
+full forecast-to-score rerun. Peer reports a create-once publication refusal;
+do not route around it or label the full cross-read complete. No ledger row.
+
 ## 2026-09-19 — historical law-weight screen fails; keep equal blend
 
 [Result](reports/2026-09-19-law-weight-results.md): learned minus equal CRPS
