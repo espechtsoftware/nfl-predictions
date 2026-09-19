@@ -1,0 +1,85 @@
+{
+  "bundle_uri": "gs://nfl-2-506823-lab/research/week2-prospective-d1600/20260919-prelock-v1/",
+  "local": "/home/erich/projects/review-evidence/overnight-20260918/prospective-d1600-bundle",
+  "objects": [
+    {
+      "uri": "gs://nfl-2-506823-lab/research/week2-prospective-d1600/20260919-prelock-v1/control-H_audit.npy",
+      "generation": "1789790162628539",
+      "bytes": 17120128,
+      "sha256": "323fe90d98e4bca55c05443b7499aa45f7277839ab9b91cb2132aa282f536b72",
+      "crc32c": "aOKwbQ=="
+    },
+    {
+      "uri": "gs://nfl-2-506823-lab/research/week2-prospective-d1600/20260919-prelock-v1/control-I_audit.npy",
+      "generation": "1789790187290967",
+      "bytes": 17120128,
+      "sha256": "cfbb72608a63000e22d58e8e4cb77d46784a6a58f2f7c64304c0e69dd9c1991a",
+      "crc32c": "9jiGkg=="
+    },
+    {
+      "uri": "gs://nfl-2-506823-lab/research/week2-prospective-d1600/20260919-prelock-v1/control-book.json",
+      "generation": "1789790187670685",
+      "bytes": 16133,
+      "sha256": "6edfdf0bbd7a614b4d0bdb1a378797a632e424cfc5a4955a24adc1b7668dea20",
+      "crc32c": "isbEmA=="
+    },
+    {
+      "uri": "gs://nfl-2-506823-lab/research/week2-prospective-d1600/20260919-prelock-v1/control-frame.parquet",
+      "generation": "1789790188060507",
+      "bytes": 14632,
+      "sha256": "98a77c2e68dedd53927c78a18feb7afa6207f25e44a9e5faf90634e9da9c8218",
+      "crc32c": "PlqDrA=="
+    },
+    {
+      "uri": "gs://nfl-2-506823-lab/research/week2-prospective-d1600/20260919-prelock-v1/games.json",
+      "generation": "1789790188406506",
+      "bytes": 1031,
+      "sha256": "07e043a0b24a64a7bca9b53441a16076dd3fa42e2fbfce08fd401a24b13fbf31",
+      "crc32c": "9XwT2g=="
+    },
+    {
+      "uri": "gs://nfl-2-506823-lab/research/week2-prospective-d1600/20260919-prelock-v1/prior-eligible.json",
+      "generation": "1789790188749714",
+      "bytes": 435,
+      "sha256": "4d8e41a7109f02b03083f4717f7ccb044312ce901ef4fc3b3a109eae355c44c5",
+      "crc32c": "7fMdqA=="
+    },
+    {
+      "uri": "gs://nfl-2-506823-lab/research/week2-prospective-d1600/20260919-prelock-v1/salaryfix-H_audit.npy",
+      "generation": "1789790212856229",
+      "bytes": 17160128,
+      "sha256": "361c7f42584ab478f7f3ccd6f023ba7378cf62895aad3a106a5fc62c914ddea9",
+      "crc32c": "mwC3IA=="
+    },
+    {
+      "uri": "gs://nfl-2-506823-lab/research/week2-prospective-d1600/20260919-prelock-v1/salaryfix-I_audit.npy",
+      "generation": "1789790237638216",
+      "bytes": 17160128,
+      "sha256": "7a38516ae833cc847a567e76295fdcdaeca7ccb067ca22f6540d1513eec224ca",
+      "crc32c": "HD/Q/w=="
+    },
+    {
+      "uri": "gs://nfl-2-506823-lab/research/week2-prospective-d1600/20260919-prelock-v1/salaryfix-book.json",
+      "generation": "1789790238018493",
+      "bytes": 16132,
+      "sha256": "10c795b0d95ced60142fad7cbe0adaf53fa9f6181ac29a7b783a84ece8e7ec69",
+      "crc32c": "t74IKw=="
+    },
+    {
+      "uri": "gs://nfl-2-506823-lab/research/week2-prospective-d1600/20260919-prelock-v1/salaryfix-frame.parquet",
+      "generation": "1789790238387713",
+      "bytes": 14659,
+      "sha256": "03d01aa01abcea5a01970b45f65e58bbcb9665841efe97d66980394960fd6c1d",
+      "crc32c": "gyswng=="
+    },
+    {
+      "uri": "gs://nfl-2-506823-lab/research/week2-prospective-d1600/20260919-prelock-v1/manifest.json",
+      "generation": "1789790238705897",
+      "bytes": 2747,
+      "sha256": "839f4b887a45a8c89a60c3c021063c4d9f7a16d70a3dad205e6eb2a51fc46bd8",
+      "crc32c": "KLqMhQ=="
+    }
+  ],
+  "source_sha256": "1107fc47dd66a1b2d4a65a9be22c58d555976954fcf0bfb7e6ff7b8b6cb0c978",
+  "scope": "Forecast-only create-once transfer; no outcomes or live configuration"
+}

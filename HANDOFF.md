@@ -4,6 +4,19 @@
 
 # Project handoff
 
+## 2026-09-19 — fivefold selection precision completed; shared prospective bundle prepared
+
+[Precision result](reports/2026-09-19-selection-precision-results.md), frozen `63d9a032`, construction v2
+`5e28e22e`, passes exact original-law replay and saves ten independent new banks (`7844b994`). Fresh-primary
+ordinary EMAX gains 0.099 expected maximum, P220 -0.090pp with interval spanning zero, first unchanged.
+Tail-excess improves against its own small-draw version but versus ordinary still loses 0.445 expected max
+for +0.260pp P220, with strong component disagreement. No promotion. Construction/reader took 63.37/79.01s.
+Forecast-only paired D1600 bundle (minimal identity frames, four audits, two 97-entry books, 13 games and
+27 prior-eligible IDs) prepared by `71b54f49`; GCS identity receipt accompanies publication. Prospective
+reader v3 `2103dc4c` passes all 48 tests here, but an additional synthetic case shows a player's actual can
+name the wrong game within the slate; correction requested at lab `8487698`. Runtime guard `e430dc9`
+also has reproduced list/stop/unknown-state failures, sent at `d42a539`; release remains unactivated.
+
 ## 2026-09-19 — direct 220 objective screen completed; precision follow-up planned
 
 [Direct 220 results](reports/2026-09-19-direct-220-selection-results.md), frozen `f16ad722`, finish in 13.32s.

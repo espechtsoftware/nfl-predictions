@@ -84,3 +84,5 @@ Consolidated September 18, 2026 at Erich's request. Source commits: production `
 - [Optional target-prior implementation](2026-09-19-live-target-prior-validation.md): 30 tests and exact full CLI parity pass for default and both explicit priors; default remains off.
 
 - [Direct 220 selection objectives](2026-09-19-direct-220-selection-results.md): apparent selection-world gains fail to improve independent mixture P220; expected maximum and proxy worsen.
+
+- [Fivefold selection precision](2026-09-19-selection-precision-results.md): ordinary expected maximum gains only 0.099 points and P220 remains uncertain; tail-excess selection improves but still trades mean against tail and model disagreement.
