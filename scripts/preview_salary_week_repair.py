@@ -1,4 +1,4 @@
-"""Read-only real-table parity and strict-prior usage preview for salary-week repair."""
+"""Source-read-only parity/usage preview using job-local temporary tables."""
 from __future__ import annotations
 
 import argparse
@@ -7,6 +7,7 @@ import json
 import subprocess
 from pathlib import Path
 from google.cloud import bigquery
+from nfl_dfs.features.leakage import SMOOTHING_PRIOR_K
 
 ROOT = Path(__file__).resolve().parents[1]
 PROD = 'nfl-predictions-503414'
@@ -34,8 +35,10 @@ def main():
     token = '`${features}.dk_salary_week`'
     assert usageq.count(token) == 1
     usageq = usageq.replace(token, 'repaired_salary', 1)
-    query = f'''WITH original_salary AS ({oldq}), repaired_salary AS ({newq}),
-    repaired_usage AS ({usageq}),
+    query = f'''CREATE TEMP TABLE original_salary AS {oldq};
+    CREATE TEMP TABLE repaired_salary AS {newq};
+    CREATE TEMP TABLE repaired_usage AS {usageq};
+    WITH
     old_rows AS (SELECT season, TO_JSON_STRING(t) AS row FROM original_salary t WHERE season <= 2025),
     new_rows AS (SELECT season, TO_JSON_STRING(t) AS row FROM repaired_salary t WHERE season <= 2025),
     only_old AS (SELECT * FROM old_rows EXCEPT DISTINCT SELECT * FROM new_rows),
@@ -64,24 +67,36 @@ def main():
         ('00-0032398','00-0032464','00-0033307','00-0039792','00-0040729','00-0041037','00-0038416')
         ORDER BY gsis_id) AS diagnosed_players
     '''
-    for token, value in [('${raw}', PROD + '.nfl_raw'), ('${features}', PROD + '.nfl_features'), ('${prior_k}', '3.0')]:
+    substitutions = [('${raw}', PROD + '.nfl_raw'), ('${features}', PROD + '.nfl_features'),
+                     ('${prior_k}', str(SMOOTHING_PRIOR_K))]
+    for token, value in substitutions:
         query = query.replace(token, value)
     assert '${' not in query
+    assert query.count('CREATE TEMP TABLE ') == query.count('CREATE ') == 3
     client = bigquery.Client(project='nfl-2-506823')
-    dry = client.query(query, job_config=bigquery.QueryJobConfig(dry_run=True, use_query_cache=False))
-    print(json.dumps(dict(dry_run_bytes=dry.total_bytes_processed)), flush=True)
-    assert dry.total_bytes_processed <= 1_000_000_000, 'read-only preview exceeds 1 GB cap'
+    dry_bytes = []
+    # Dry-run each source SELECT. The usage estimate substitutes the existing
+    # salary table because job-local tables do not exist until script execution.
+    for estimate in (oldq, newq, usageq.replace('FROM repaired_salary sal',
+                                              'FROM `${features}.dk_salary_week` sal')):
+        for token, value in substitutions:
+            estimate = estimate.replace(token, value)
+        dry = client.query(estimate, job_config=bigquery.QueryJobConfig(dry_run=True, use_query_cache=False))
+        dry_bytes.append(dry.total_bytes_processed)
+    print(json.dumps(dict(dry_run_bytes=dry_bytes)), flush=True)
+    assert sum(dry_bytes) <= 1_000_000_000, 'preview estimates exceed 1 GB cap'
     job = client.query(query, job_config=bigquery.QueryJobConfig(maximum_bytes_billed=1_000_000_000))
     rows = [dict(r) for r in job.result(timeout=180)]
     assert len(rows) == 1
     values = rows[0]
     # Capture before assertions so any failed parity/support gate stays reviewable.
     evidence = dict(values=values, query=query, query_sha256=hashlib.sha256(query.encode()).hexdigest(),
-        job_id=job.job_id, dry_run_bytes=dry.total_bytes_processed, bytes_processed=job.total_bytes_processed,
+        job_id=job.job_id, dry_run_bytes=dry_bytes, bytes_processed=job.total_bytes_processed,
         source_sha=subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
         status=subprocess.check_output(['git', 'status', '--porcelain'], text=True),
         sql_sha256=hashlib.sha256(new.encode()).hexdigest(),
-        scope='SELECT only, live raw/feature sources read, no live or scratch table writes; Week1 prior-feature support, no lineup outcome reads.')
+        scope='Live raw/feature sources read only; three job-local temporary tables, no durable/live dataset writes. Week1 prior-feature support; no lineup outcome reads.',
+        smoothing_prior_k=SMOOTHING_PRIOR_K)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with args.output.open('x') as handle:
         json.dump(evidence, handle, indent=2, default=str)
