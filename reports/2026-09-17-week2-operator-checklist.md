@@ -99,8 +99,8 @@ printf 'CHOSEN_LEV=1280\nCHOSEN_BOOM=5120\n' > /home/erich/week2-chosen-dose.env
 cat /home/erich/week2-sunday/TODAY-30-LATEST.md
 ```
 The filled entries file appears in Windows Downloads as `DKEntries-FILLED-keepers-first.csv` (built from the newest `DKEntries*.csv`
-in Downloads — currently `DKEntries-2026-09-17b.csv`, your 97-entry / twelve-contest reservation; every contest gets the vetted
-book's first N lineups). If you reserve more entries, export again and drop the file in Downloads; the contests file must then be
+in Downloads — currently `DKEntries-2026-09-17b.csv`, your 97-entry / twelve-contest reservation; each contest gets its own
+disjoint block of lineups, contests ordered by top prize, so the Millionaire takes book lineup 1). If you reserve more entries, export again and drop the file in Downloads; the contests file must then be
 updated by the assistant before Sunday. If you re-export entries from DraftKings
 on Sunday, drop the new export in Downloads and the watcher refills it within a minute.
 
