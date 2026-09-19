@@ -1,0 +1,108 @@
+{
+  "exact_equal": true,
+  "differing_elements": 0,
+  "max_absolute_difference": 0.0,
+  "mean_absolute_difference": 0.0,
+  "max_player_mean_difference": 0.0,
+  "replay_sha256": "1d5b6372c9ba4a1d86ddac7c29652f432377486966a5be4bc08f338eb01e7a06",
+  "elapsed_seconds": 3.5263508950010873,
+  "shape": [
+    435,
+    10000
+  ],
+  "source_hashes": {
+    "src/nfl2/hsim/__init__.py": "9b05666df693a9dcf61160b15896776d561ecb4571f992a8bc50aa088da81bf2",
+    "src/nfl2/hsim/game.py": "b29397ddcf36bed0eadda4c98b1c0dc257a42f6b89b7e29031c66c45b149981d",
+    "src/nfl2/hsim/participation.py": "a6be5f1868dbe9025caa12816ea46743242e4754a215b5f4bc07a260cfad055d",
+    "src/nfl2/hsim/rare.py": "7ff2eed102bb31865c910d489b0e853ca5bd4997aa3d23986affb020ed390dfe",
+    "src/nfl2/hsim/scoring.py": "42b84adc95845d0f8cd113806344d3d1e40796280b63975aaf8ed892fc44894e",
+    "src/nfl2/hsim/severity.py": "e691dd45c8beaa2e5d8458ea0faeb6c720e561a91cd93961f010277b473d8ae7",
+    "src/nfl2/hsim/shares.py": "b7060f3c79d0fdc600a27f8b4d895ff2043e320377c8871a24d125694291071c",
+    "src/nfl2/hsim/tables.py": "579137e1d28140872996d6c43d6aa9865893a09a846a85e5efc6c610e9dfff14",
+    "src/nfl2/hsim/world.py": "c92fb34ffcb3f9cd20efd50e2076c68d3001e547c37f5172f9e94fd48f745583",
+    "src/nfl2/data.py": "1736486c532ab1ee1e1a18e8ccc7a2bb572fa50ad912dec1536873c45fe2dd00"
+  },
+  "benchmark_manifest_sha256": "04710846d67fb6c6d1eb06335d857846bc206dda696917a379149739851f87cf",
+  "benchmark": [
+    {
+      "uri": "gs://nfl-2-506823-lab/benchmark/v0/warehouse/player_week_training/000000000000.parquet",
+      "bytes": "13626528",
+      "crc32c": "DaTOHA==",
+      "generation": "1787873686793198",
+      "sha256": "cbf4df697d51f992229a4f4b17da73588f345d781725b24e524fbbb70237ee28"
+    },
+    {
+      "uri": "gs://nfl-2-506823-lab/benchmark/v0/warehouse/raw_schedules/000000000000.parquet",
+      "bytes": "911384",
+      "crc32c": "lOM6Ww==",
+      "generation": "1787873748625341",
+      "sha256": "d80725d03695a33c5f67bf655fc059b09109b201fb79c76bb0d8562b1e9da1ad"
+    },
+    {
+      "uri": "gs://nfl-2-506823-lab/benchmark/v0/warehouse/raw_weekly_stats/000000000000.parquet",
+      "bytes": "20998",
+      "crc32c": "cxR+4w==",
+      "generation": "1787873752162473",
+      "sha256": "8e14b0eb7c3163eb75d6d203c4b64ed8adad0efe38967d7ce837503110dd2be0"
+    },
+    {
+      "uri": "gs://nfl-2-506823-lab/benchmark/v0/warehouse/raw_weekly_stats/000000000001.parquet",
+      "bytes": "1201706",
+      "crc32c": "WQaDAQ==",
+      "generation": "1787873752880825",
+      "sha256": "f770d30ee52c762e65a50a217d410b6117f009204d83484124ec3b8eaed58a79"
+    },
+    {
+      "uri": "gs://nfl-2-506823-lab/benchmark/v0/warehouse/raw_weekly_stats/000000000002.parquet",
+      "bytes": "11164859",
+      "crc32c": "yHrm3Q==",
+      "generation": "1787873753683876",
+      "sha256": "5d9387cdf3975198736160374a6b4fac02e2ff33583698ac5d4063f80a70614b"
+    },
+    {
+      "uri": "gs://nfl-2-506823-lab/benchmark/v0/warehouse/raw_weekly_stats/000000000003.parquet",
+      "bytes": "20998",
+      "crc32c": "cxR+4w==",
+      "generation": "1787873753206687",
+      "sha256": "8e14b0eb7c3163eb75d6d203c4b64ed8adad0efe38967d7ce837503110dd2be0"
+    }
+  ],
+  "verified_inputs": {
+    "frame.parquet": {
+      "sha256": "90a762654111126aefad1950217044443291251918ab70edb925ff341d226635",
+      "generation": 1789768711580236
+    },
+    "corrected_hsim_player_scores.npy": {
+      "sha256": "1d5b6372c9ba4a1d86ddac7c29652f432377486966a5be4bc08f338eb01e7a06",
+      "generation": 1789768762860081
+    }
+  },
+  "frame_columns": [
+    "id",
+    "display_name",
+    "pos",
+    "team",
+    "proj",
+    "mean_projection",
+    "depth_rank",
+    "snap_share_l4",
+    "is_cold_start",
+    "games_played_prior",
+    "target_share_l4",
+    "carry_share_l4",
+    "rz20_target_share_l4",
+    "gl3_carry_share_l4",
+    "neutral_pass_rate_l6",
+    "yards_per_target_l8",
+    "yards_per_carry_l8"
+  ],
+  "provenance": {
+    "python": "3.14.4",
+    "numpy": "2.5.3",
+    "pandas": "3.0.5",
+    "source_sha": "b9392eb0c14665295fa693b3fd4e91fd3bf290d6",
+    "source_status": "",
+    "script_sha256": "06a7ab0b352975b2f9225a129e4b1f6d283fec029ac15154fdcef8b35258c3ec"
+  },
+  "scope": "Mechanical archived-bank replay; no repaired inputs, efficacy verdict or live changes."
+}

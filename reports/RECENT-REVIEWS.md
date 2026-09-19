@@ -50,3 +50,5 @@ Consolidated September 18, 2026 at Erich's request. Source commits: production `
 - [Route Share participation support](2026-09-19-route-role-support-results.md): five of six selected zero-support WRs have positive prior-week routes; repair the free-data baseline before measuring incremental vendor value.
 
 - [Salary-week repair validation](2026-09-19-salary-week-repair-validation.md): real root cause, actual-SQL fixtures, historical parity and recovered prior usage; full isolated build pending.
+
+- [Exact hsim replay](2026-09-19-hsim-replay-preflight-results.md): unchanged source and authenticated inputs reproduce all 4.35 million archived scores exactly.
