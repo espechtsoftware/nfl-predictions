@@ -4,6 +4,10 @@
 
 # Project handoff
 
+## 2026-09-19 — new provider-bound participation rehearsal passes exactly
+
+[Updated result](reports/2026-09-19-participation-transfer-results.md): new12:42:10UTCcapture binds actual injury-source bytes/publication metadata and fresh12:42:05DKdata. V2 reselector exactly reproduces prior control/treatment97, probabilities and exclusions;34offline tests pass. It refuses stale-at-use inputs, injury-only Out disagreements and unauthenticated official-active files. No live adoption, official-active ingestion or actual D12800 result. Original captures/readers retained. Next: full saved-corpus review when available, useful prelock eligibility reselection and morning14:35readiness. Peer hold-observer transport is agreed; empty systemd reads must not be treated as proof of absence.
+
 ## 2026-09-19 — saved-corpus participation adapter and prepared morning runner
 
 The [participation result](reports/2026-09-19-participation-transfer-results.md) has an exact external replay (lab `4845ddb`, interpretation corrected at `3e51cb8`). The delivered ranks32–33 lose5.687expected-max points even under the participation model; the report now states that explicitly. A separate research-only saved-artifact reselector exactly reproduces the D1600 control/treatment, with19behavioral tests and a62.34second synthetic D12800 selection pass. It refuses stale statuses and unresolved Q/D states within90minutes of kickoff. Official-source acquisition is not implemented; no live adoption or actual D12800 result is claimed. A new direct injury-object receipt supplies provider Last-Modified/ETag/hash for forward snapshot binding, not retroactive certification.

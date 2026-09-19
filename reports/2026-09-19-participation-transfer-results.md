@@ -42,3 +42,14 @@ Engineering follow-up: a separate candidate-only adapter now reconstructs the or
 The provider timestamp issue also has a concrete forward path: a new direct download at12:14:32UTC of the nflverse2026 injury object includes provider HTTP `Last-Modified: 11:54:40UTC`, response `Date`, ETag and content hash. All246 Week2 identity/status/practice rows match the earlier captured inputs exactly. That new object can support a **new** timestamp-bound snapshot; it does not retroactively certify the11:50 experiment. Game-day official-active ingestion and full-dose delivery review remain separate work.
 
 [Frozen protocol](2026-09-19-participation-transfer-protocol.md). [Full result](reviews/evidence/2026-09-19-participation-transfer-result.json). [Portable artifact identity](reviews/evidence/2026-09-19-participation-publication.json). No live policy or entry file has been changed.
+
+
+## Provider-bound saved-artifact rehearsal, 12:42UTC
+
+A separate V2 rehearsal now binds a new snapshot to the actual published injury object's bytes, HTTP Last-Modified/Date/ETag, and collector times. Snapshot cutoff **12:42:10.868476UTC**, injury ingestion12:42:10.867752, provider Last-Modified11:54:40. The latest DK collector batch is **12:42:05.288272UTC**, with670unique player rows; all246injury rows normalize exactly from the retained provider bytes. This is a new as-of capture, not a revision of the11:50experiment.
+
+The V2 adapter reconstructs the exact original control and again returns **identical97treatment rows, player probabilities and exclusions**. Its result is still marked research-only, and it is not an actual D12800 comparison. Thirty-four offline tests cover source-byte authentication, normalization, temporal bounds, source aging after capture, unsafe designation conflicts and the existing selector/identity behavior. The original adapter/capture remain preserved.
+
+V2 refuses injury-only Out removal when DraftKings disagrees, requires unchanged salaries/draftable identities and checks source ages at the actual use time. Its executable path rejects all unverified official-active override files. Official game-day acquisition remains unimplemented; refusing such a file is not certification of an active player. These checks close concrete engineering gaps without changing the participation map, probabilities, candidate pool or objective.
+
+[New status receipt](reviews/evidence/2026-09-19-participation-provider-bound-capture.json), [new rehearsal receipt](reviews/evidence/2026-09-19-participation-provider-reselection-v2.json), [provider capture/validator](reviews/evidence/2026-09-19-participation-provider-capture.py), [V2 reselector](reviews/evidence/2026-09-19-participation-reselect-v2.py).
