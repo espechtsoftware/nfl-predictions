@@ -219,6 +219,27 @@ def main(argv=None, clock=None):
                                      full["control"].opp.astype(str))
               if frozenset((tm, op)) not in sides]
     assert not orphan, f"players whose team/opponent match no forecast game: {orphan[:10]}"
+
+    # Each actual row must belong to the SAME game the forecast puts that player in. Checking that
+    # the row's game is on the slate, and separately that the player's sides are on the slate, does
+    # not stop an on-slate row from being joined to the wrong fixture. Covers book-only players in
+    # a single arm too, since those are scored descriptively.
+    sides_to_game = {}
+    for gid, s in frozen.items():
+        assert s not in sides_to_game, f"forecast games {sides_to_game[s]} and {gid} share sides {sorted(s)}"
+        sides_to_game[s] = gid
+    row_game = dict(zip(act.id, act.game_id))
+    misjoined = []
+    for arm, (fr, _) in arms.items():
+        f2 = fr.set_index(fr.id.astype(str))
+        for pid in sorted(set(f2.index) & set(row_game)):
+            want = sides_to_game.get(frozenset((str(f2.at[pid, "team"]), str(f2.at[pid, "opp"]))))
+            if want is None or str(row_game[pid]) != str(want):
+                misjoined.append(f"{pid}[{arm}] actual={row_game[pid]} forecast={want}")
+            elif "game_id" in f2.columns and str(f2.at[pid, "game_id"]) != str(want):
+                misjoined.append(f"{pid}[{arm}] frame={f2.at[pid, 'game_id']} forecast={want}")
+    assert not misjoined, ("actual rows joined to the wrong forecast game: "
+                           f"{sorted(set(misjoined))[:10]} ({len(set(misjoined))} total)")
     common = sorted(set(cross_arm) & set(realized))
     support = {
         "control_players": len(ids["control"]), "salaryfix_players": len(ids["salaryfix"]),
@@ -234,6 +255,7 @@ def main(argv=None, clock=None):
     support["metadata_checked"] = {"columns": ["pos", "team", "opp"], "players": len(cross_arm),
                                    "scope": "complete cross-arm universe, before outcomes narrow it"}
     support["forecast_games"] = len(frozen)
+    support["player_game_binding"] = "each actual row bound to the player's own forecast fixture"
 
     y = np.array([realized[i] for i in common], dtype=np.float64)
     pos = meta["control"].pos.astype(str).to_numpy()

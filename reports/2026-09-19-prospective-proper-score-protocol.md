@@ -102,6 +102,12 @@ Every bundle input is sha-verified against a manifest before use. Banks must be 
 matching across components; saved lineups must hold nine unique ids with no duplicate memberships, and a supplied
 book **must** declare `expected_book_size`. Null ids and non-finite points are refused.
 
+**Each actual row is bound to the player's own forecast fixture**: the row's `game_id` must equal the unique frozen
+game whose two sides are that player's team and opponent, and a frame `game_id` column must agree with it. Checking
+that the row's game is on the slate, and separately that the player's sides are on the slate, does not stop an
+on-slate row being joined to the wrong fixture. The binding covers players present in only one arm, since those can
+still be scored descriptively in that arm's book.
+
 **Cross-arm metadata is validated on the complete shared player universe, before outcomes narrow it** — checking only
 the scored players would let a frame disagreement hide behind a missing outcome. Every shared player's position, team
 and opponent must agree across arms, and every player's `{team, opp}` pair must correspond to a game in the frozen
@@ -117,7 +123,7 @@ is being built, per the laptop's instruction.
 |---|---|
 | protocol | this file, frozen before lock |
 | reader | `reports/reviews/evidence/2026-09-19-prospective-proper-score-reader.py` |
-| tests | `tests/test_prospective_proper_score.py`, 48 tests, synthetic fixtures only |
+| tests | `tests/test_prospective_proper_score.py`, 52 tests, synthetic fixtures only |
 | bundle | supplied by the laptop; saved paired frames, audit banks, book orders, prior-eligible ids, manifest |
 | output | `2026-09-19-prospective-proper-score.json`, write-once |
 

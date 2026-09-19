@@ -61,9 +61,9 @@ def build_bundle(tmp, n_players=40, n_games=10, draws=2000, shift=0.0, seed=0, e
         pos.append(("QB", "RB", "WR", "TE", "DST")[k % 5])
         team.append(home if k % 2 else away)
         opp.append(away if k % 2 else home)
-    frame = pd.DataFrame({"id": ids, "pos": pos, "team": team, "opp": opp})
-    slate = [{"game_id": f"g{g}", "home": teams[2 * g], "away": teams[2 * g + 1]} for g in range(n_games)]
     row_game = [f"g{k % n_games}" for k in range(n_players)]
+    frame = pd.DataFrame({"id": ids, "pos": pos, "team": team, "opp": opp, "game_id": row_game})
+    slate = [{"game_id": f"g{g}", "home": teams[2 * g], "away": teams[2 * g + 1]} for g in range(n_games)]
     truth = rng.uniform(8, 20, size=n_players)
     outcomes = truth + rng.normal(0, 5, size=n_players)
 
@@ -523,3 +523,64 @@ def test_supplied_book_must_declare_its_expected_size(tmp_path):
     (root / "manifest.json").write_text(json.dumps(m))
     with pytest.raises(AssertionError, match="must declare expected_book_size"):
         run(root, actuals, tmp_path / "o.json")
+
+
+# ---- each actual must belong to the player's OWN forecast game ---------------------------
+
+def test_on_slate_but_wrong_game_is_refused(tmp_path):
+    """The laptop's reproduction: p0 moves from g0 to g1. Both are valid slate games, and v3
+    accepted it because it checked each half separately but never that they matched."""
+    root, actuals, _, _ = build_bundle(tmp_path, n_players=40, n_games=10)
+    df = pd.read_parquet(actuals)
+    assert df.loc[0, "game_id"] == "g0"
+    df.loc[0, "game_id"] = "g1"
+    df.to_parquet(actuals)
+    write_actuals_manifest(tmp_path, actuals)
+    with pytest.raises(AssertionError, match="wrong forecast game"):
+        run(root, actuals, tmp_path / "o.json")
+
+
+def test_frame_game_id_contradicting_its_own_sides_is_refused(tmp_path):
+    root, actuals, _, _ = build_bundle(tmp_path, n_players=40, n_games=10)
+    fp = root / "control_frame.parquet"
+    fr = pd.read_parquet(fp)
+    fr.loc[0, "game_id"] = "g2"          # sides still say g0
+    fr.to_parquet(fp)
+    m = json.loads((root / "manifest.json").read_text())
+    m["arms"]["control"]["frame"]["sha256"] = sha_bytes(fp)
+    (root / "manifest.json").write_text(json.dumps(m))
+    with pytest.raises(AssertionError, match="wrong forecast game"):
+        run(root, actuals, tmp_path / "o.json")
+
+
+def test_arm_only_player_is_game_bound_too(tmp_path):
+    """A player present in one arm only is never in the cross-arm universe, so the metadata and
+    orphan checks skip him -- but he can still be scored descriptively in that arm's book."""
+    root, actuals, _, _ = build_bundle(tmp_path, n_players=40, n_games=10)
+    fp = root / "salaryfix_frame.parquet"
+    fr = pd.read_parquet(fp)
+    extra = pd.DataFrame([{"id": "extra1", "pos": "WR", "team": "T0", "opp": "T1", "game_id": "g0"}])
+    pd.concat([fr, extra], ignore_index=True).to_parquet(fp)
+    for comp in ("I_audit", "H_audit"):
+        bp = root / f"salaryfix_{comp}.npy"
+        b = np.load(bp)
+        np.save(bp, np.vstack([b, b[:1]]))
+    m = json.loads((root / "manifest.json").read_text())
+    m["arms"]["salaryfix"]["frame"]["sha256"] = sha_bytes(fp)
+    for comp in ("I_audit", "H_audit"):
+        m["arms"]["salaryfix"]["banks"][comp]["sha256"] = sha_bytes(root / f"salaryfix_{comp}.npy")
+    (root / "manifest.json").write_text(json.dumps(m))
+    df = pd.read_parquet(actuals)
+    df = pd.concat([df, pd.DataFrame([{"id": "extra1", "points": 11.0, "season": 2026,
+                                       "week": 2, "game_id": "g4"}])], ignore_index=True)  # wrong game
+    df.to_parquet(actuals)
+    write_actuals_manifest(tmp_path, actuals)
+    with pytest.raises(AssertionError, match="wrong forecast game"):
+        run(root, actuals, tmp_path / "o.json")
+
+
+def test_correct_game_binding_passes_and_is_recorded(tmp_path):
+    root, actuals, _, _ = build_bundle(tmp_path, n_players=40, n_games=10)
+    r = run(root, actuals, tmp_path / "o.json")
+    assert "own forecast fixture" in r["support"]["player_game_binding"]
+    assert r["support"]["forecast_games"] == 10
