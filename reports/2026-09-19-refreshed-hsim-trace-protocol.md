@@ -1,0 +1,13 @@
+# Refreshed hsim calibration trace
+
+September 19, before the new diagnostic is run. Owner: laptop, isolated single-thread local process. Risk class: diagnostic now; a subsequently proven contract defect is R, a model/calibration hypothesis is C. Earliest resulting repair/trial: Week 3 after review; the diagnostic itself changes no entered lineup.
+
+Use the morning D160 proof at `20260919T151024628419Z-2dc116c`, exact projection batch `2026-09-19 15:09:52.915006+00:00`, its 429-player frame, 160 candidates and K97 book. This has the actual refreshed salary/usage, strict-prior TabPFN and live game-input repairs. It is not either unfinished full-dose host build. Read only allowlisted prediction/input columns; do not decode `actual`.
+
+Freeze a manifest of source `2dc116ce95647a776ba9c36cf194f44d022d03a4`, all local input bytes, game receipt and the previously authenticated six benchmark objects. Replay hsim with the **same** five 400-world calibration steps, seed2326 and 10,000 final worlds. Observe every pilot's means/weights/team efficiencies without adding random calls; use the existing capture seam for final intermediates. Require exact float32 equality with all 4,290,000 saved hsim scores. If equality fails, publish the mismatch and stop substantive attribution; do not search seeds or refit until something matches.
+
+Report every player's final served/incumbent/hsim mean, opportunity support and book exposure; five pilot residual paths; team receiving/rushing and target/carry budgets; zero-support players with positive served means; primary/nonprimary-QB treatment; calibration clipping and remaining residuals; and same-fixed-book component expected maxima/P220. Team-game conservation assertions distinguish failure to allocate a budget from a calibration target that is not jointly attainable under the current model. They do not prove the football model is true.
+
+This is a descriptive same-input mechanism trace. No new parameter, extra calibration iteration, recentering, selector or objective is tested or selected. The next intervention must name what this trace actually establishes. Small Monte Carlo error within a reproduced model is not evidence of better NFL forecasts. The weekly proper-score instrument will address that separate question.
+
+Preflight: saved inputs exist; schema-only census is 429 players/160 candidates; both score-bank hashes are in the original receipt. Candidate and frame bytes are pinned in the preparation manifest. One process, one numerical thread, 600-second wall cap; local arrays only, no cloud job or warehouse mutations. Source/manifest are committed before execution. Final trace bytes are stored separately from the original immutable run.

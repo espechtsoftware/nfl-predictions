@@ -1,0 +1,119 @@
+{
+  "lab": "/home/erich/projects/.nfl2-worktrees/live-hsim-game-inputs",
+  "run": "/home/erich/projects/.nfl2-worktrees/live-hsim-game-inputs/results/live/2026-w02/20260919T151024628419Z-2dc116c",
+  "source_sha": "2dc116ce95647a776ba9c36cf194f44d022d03a4",
+  "source_files": {
+    "src/nfl2/data.py": "1736486c532ab1ee1e1a18e8ccc7a2bb572fa50ad912dec1536873c45fe2dd00",
+    "src/nfl2/hsim/world.py": "8fcad0f18bffecb997b374fba008bd39bd3eb91d48e3b88673b7029f1898fb0c",
+    "src/nfl2/hsim/shares.py": "b7060f3c79d0fdc600a27f8b4d895ff2043e320377c8871a24d125694291071c",
+    "src/nfl2/hsim/tables.py": "579137e1d28140872996d6c43d6aa9865893a09a846a85e5efc6c610e9dfff14",
+    "src/nfl2/hsim/game.py": "b29397ddcf36bed0eadda4c98b1c0dc257a42f6b89b7e29031c66c45b149981d",
+    "src/nfl2/hsim/severity.py": "e691dd45c8beaa2e5d8458ea0faeb6c720e561a91cd93961f010277b473d8ae7",
+    "src/nfl2/hsim/scoring.py": "42b84adc95845d0f8cd113806344d3d1e40796280b63975aaf8ed892fc44894e",
+    "src/nfl2/hsim/live_games.py": "f4b09157e2620d7ae91177d1dada927d4a1a24c4ee10b7ee6623d9688f6eb322"
+  },
+  "files": {
+    "receipt.json": {
+      "sha256": "f248810e663fd81d3c3af6c6899162d041a288f469ff6c0cbdbfef3e1f92c8aa",
+      "bytes": 13784
+    },
+    "frame.parquet": {
+      "sha256": "6e56f59d687b8f533ee02c05b90ec2c643c08b0e46aa78155a2c0d7b9894dab6",
+      "bytes": 192611
+    },
+    "candidates.parquet": {
+      "sha256": "895147382602424eb74e33ea65b1419255bc1c05904dd0df59ae6b2cf7c95608",
+      "bytes": 27171
+    },
+    "book.csv": {
+      "sha256": "e841f81c4d44d08aaab6ea82ebb6805080c5cfc6250d173613a877bb84740a7e",
+      "bytes": 6395
+    },
+    "incumbent_player_scores.npy": {
+      "sha256": "1d711ff9af22bea4b17505470ba516c544261f04da428f557893a9e290ec15d5",
+      "bytes": 17160128
+    },
+    "corrected_hsim_player_scores.npy": {
+      "sha256": "c9f977295bde6a1987488de25ade643813cbf54d5e7c3903b753f714efe1023a",
+      "bytes": 17160128
+    }
+  },
+  "frame_columns": [
+    "id",
+    "display_name",
+    "pos",
+    "team",
+    "proj",
+    "mean_projection",
+    "depth_rank",
+    "snap_share_l4",
+    "is_cold_start",
+    "games_played_prior",
+    "target_share_l4",
+    "carry_share_l4",
+    "rz20_target_share_l4",
+    "gl3_carry_share_l4",
+    "neutral_pass_rate_l6",
+    "yards_per_target_l8",
+    "yards_per_carry_l8",
+    "dk_player_id",
+    "game_id",
+    "game_total",
+    "spread",
+    "opp"
+  ],
+  "benchmark": [
+    {
+      "uri": "gs://nfl-2-506823-lab/benchmark/v0/warehouse/player_week_training/000000000000.parquet",
+      "bytes": "13626528",
+      "crc32c": "DaTOHA==",
+      "generation": "1787873686793198",
+      "sha256": "cbf4df697d51f992229a4f4b17da73588f345d781725b24e524fbbb70237ee28"
+    },
+    {
+      "uri": "gs://nfl-2-506823-lab/benchmark/v0/warehouse/raw_schedules/000000000000.parquet",
+      "bytes": "911384",
+      "crc32c": "lOM6Ww==",
+      "generation": "1787873748625341",
+      "sha256": "d80725d03695a33c5f67bf655fc059b09109b201fb79c76bb0d8562b1e9da1ad"
+    },
+    {
+      "uri": "gs://nfl-2-506823-lab/benchmark/v0/warehouse/raw_weekly_stats/000000000000.parquet",
+      "bytes": "20998",
+      "crc32c": "cxR+4w==",
+      "generation": "1787873752162473",
+      "sha256": "8e14b0eb7c3163eb75d6d203c4b64ed8adad0efe38967d7ce837503110dd2be0"
+    },
+    {
+      "uri": "gs://nfl-2-506823-lab/benchmark/v0/warehouse/raw_weekly_stats/000000000001.parquet",
+      "bytes": "1201706",
+      "crc32c": "WQaDAQ==",
+      "generation": "1787873752880825",
+      "sha256": "f770d30ee52c762e65a50a217d410b6117f009204d83484124ec3b8eaed58a79"
+    },
+    {
+      "uri": "gs://nfl-2-506823-lab/benchmark/v0/warehouse/raw_weekly_stats/000000000002.parquet",
+      "bytes": "11164859",
+      "crc32c": "yHrm3Q==",
+      "generation": "1787873753683876",
+      "sha256": "5d9387cdf3975198736160374a6b4fac02e2ff33583698ac5d4063f80a70614b"
+    },
+    {
+      "uri": "gs://nfl-2-506823-lab/benchmark/v0/warehouse/raw_weekly_stats/000000000003.parquet",
+      "bytes": "20998",
+      "crc32c": "cxR+4w==",
+      "generation": "1787873753206687",
+      "sha256": "8e14b0eb7c3163eb75d6d203c4b64ed8adad0efe38967d7ce837503110dd2be0"
+    }
+  ],
+  "benchmark_cache": "/home/erich/.cache/nfl2/v0",
+  "output": "/home/erich/projects/review-evidence/overnight-20260918/refreshed-hsim-calibration-trace-v1.json",
+  "season": 2026,
+  "week": 2,
+  "n_players": 429,
+  "n_candidates": 160,
+  "book_size": 97,
+  "worlds": 10000,
+  "seed": 2326,
+  "calibrate": 5
+}
