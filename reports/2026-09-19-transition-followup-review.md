@@ -52,6 +52,11 @@ The workstation independently verified the three ordering differences and the
 mechanics-only control flow in lab `417cd96`. Both reviews agree on the
 correction; no live vetting change is included in this release.
 
+The correction is now appended to both `PREREG-100.md` and `LEDGER.md` on
+lab documentation branch `docs/prereg100-consumer-mismatch-correction-20260919`,
+commit `ec1756d`. Independent diff review confirms only those two documents
+changed; original source, numbers and ledger row remain intact.
+
 ## P2 — the local live-training cache has no source identity or invalidation
 
 `nfl2.live.training_panel_through()` reads

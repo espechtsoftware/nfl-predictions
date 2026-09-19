@@ -3780,3 +3780,22 @@ Milly ownership and use the immutable accepted K=1 Sunday-main snapshots.
 Only a preregistered held-out ownership-calibration pass can earn one fixed
 K=1 lineup arm; otherwise the path closes without querying lineup outcomes.
 Exact protocol: `reports/2026-08-09-milly-ownership-alternative.md`.
+
+
+## Addendum 121 (2026-09-19): fixed earlier-season law weighting fails the predictive screen
+
+The [frozen whole-law weighting study](2026-09-19-law-weight-protocol.md) learned one incumbent/hsim mixture weight from earlier seasons and evaluated 72 slates in 2021–2024 using two simulator banks; 2019 initializes training. Balanced skill-player CRPS worsens from 4.093643 for equal weighting to 4.109877 for learned weighting: delta +0.016234, conditional paired-slate 95% interval [+0.004852,+0.027395]. Both banks worsen and only one of four evaluation years improves. All three advancement requirements fail. No downstream lineup-transfer study or live weight change is nominated.
+
+This is one additional exploratory development comparison on reused years, not fresh holdout evidence; banks are algorithm variation, not independent football histories. The interval conditions on fitted weights. No 2025, current-week or bank991 outcome was opened, and no candidate/lineup outcome read occurred. Closure is limited to this fitting rule, information set, marginal-CRPS objective and frozen budget. It does not establish optimality of 50/50 or close weighting as a family.
+
+[Result and verbatim reader links](2026-09-19-law-weight-results.md). Result SHA256 `7234cb9737ce3cb89a9873c07283dcc600a5c95c5e85b0904a74601e0acc58d4`; frozen reader SHA256 `2f9f41b1c5bc30e4930f1cdd5981a3df5d30384928e44fb81fd9f6a5d6eb0cd5`. Full independent cross-read at lab `2abe922` reproduces all common values, bootstrap bounds and 24,272 × 55 scored-row values exactly. The model weights remain unchanged.
+
+## Addendum 122 (2026-09-19): fixed injury-type opportunity screen fails
+
+The [frozen injury-type study](2026-09-19-injury-type-opportunity-protocol.md) tested whether 21 injury-type flags improve active-player target means beyond existing role, designation and practice inputs. Fits use only earlier seasons; evaluation is 2019/2021/2022/2023/2024. The Questionable-player, slate/year-balanced Poisson deviance delta is +0.0005600051, conditional paired-slate 95% interval [-0.0008971952,+0.0020609238]. The primary gate fails. All-active delta −0.0000917608 does not rescue it. No model or lineup change is nominated.
+
+There are 15,023 active scored rows and 796 Questionable observations, with every frozen support cell passing. Forecasts are exactly identical across arms for every 2021/2022 row, including unscored rows; this vacuity prevents treating those folds as substantive evidence against injury information. The other three seasons change forecasts but worsen the primary score. The screen conditions on playing; it is neither an availability model nor a causal injury analysis or a 220+ lineup test.
+
+This is one additional development comparison on previously studied labels. Mechanical dependency/all-missing-column repairs and the cloud reader's post-evaluation serialization failure are disclosed in the protocol. The local serialization repair reran the identical frozen reader on identical forecasts, with no refit, revised gate or tuning. Neither 2025/2026 evaluation labels nor bank991 were opened. Closure is limited to this 21-flag representation, fixed-capacity Poisson learner, information set, target-mean objective and budget.
+
+[Result and verbatim reader links](2026-09-19-injury-type-opportunity-results.md). Result SHA256 `718b1467b186869980032f3d2b8e43dc87f253bc7d2bd5492541dcd90ca70003`; study/reader SHA256 `6914d7f3a4b6f0d06defa128cc20380d165b88004fde1f5ea8aa641e96d32274`. Lab `047f00e` authenticates the exact labels and all six forecast artifacts, then reproduces the full reader including every primary/secondary digit, interval and 15,023 scored rows. The live model remains unchanged.

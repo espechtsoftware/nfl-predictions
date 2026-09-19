@@ -4,6 +4,12 @@
 
 # Project handoff
 
+## 2026-09-19 — projections validated; representative CLI proof running
+
+`project-slate-x268x` completed with 504 rows in the exact 06:29:00.515884Z batch, unchanged `pooled/components__tail_k1/2026-W32`. [Validation](reports/reviews/evidence/2026-09-19-release-projection-validation.json): 472 unique skill GSIS IDs plus 32 defenses with intentionally null GSIS and unique DK team IDs; all 504 DK identities unique, finite ordered predictions. Exact prop consumer has 185/472 real-prop rows (39.19%); the log's 384/472 includes DK fallback and is not real-prop coverage. Fresh div_shadow has 185 rows and exact execution logs confirm the props branch.
+
+Initial validator incorrectly required unique GSIS for DST; source and actual rows proved the documented null-DST contract, and the validator was corrected. Another read-only attempt stopped at the explicit project guard because GCP_PROJECT was omitted; no wrong-project consumer query was issued. Correct explicit environment now passes. Both failed logs are retained. Actual D160/K97 CLI proof is running on the exact existing host cache and this projection batch; source pin remains unchanged and three lanes remain held. Lab correction `ec1756d` reviewed and accepted; live vetting unchanged.
+
 ## 2026-09-19 — live TabPFN cache validated; projection refresh started
 
 `tabpfn-gen-zdcj2` completed and its exact execution receipt confirms strictly prior season/week context, exclusive target 2026:2 and full historical refresh. The live cache has 66,332 unique rows with finite ordered quantiles, all 877 expected Week 2 keys and no missing prior historical keys. [Validation](reports/reviews/evidence/2026-09-19-release-cache-validation.json). Hash-bound checkpoint released for unchanged `project-slate`; all three lanes remain held through projection validation and the actual host-cache CLI proof. Host activation is still pending. Lab `417cd96` independently confirms the vetting consumer mismatch; correction accepted, frozen study and live rule unchanged.
