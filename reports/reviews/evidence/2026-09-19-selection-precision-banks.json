@@ -1,0 +1,275 @@
+{
+  "source_commit": "2dc116ce95647a776ba9c36cf194f44d022d03a4",
+  "source_sha256": "4a59b2eb52af92bfa975398fa42b4986a9f7a6fd40df2c4ecd370b7c1ce19880",
+  "original_laws_exact": true,
+  "frame_path": "/home/erich/projects/.nfl2-worktrees/live-hsim-game-inputs/results/live/2026-w02/20260919T024517639539Z-2dc116c/frame.parquet",
+  "frame_sha256": "4742ea0f51e4f025203f79829dee2a195b3f025abdba173d3af09856b9b61799",
+  "original_receipt_sha256": "e98b643728f755e1643f4ef878a904685047a0f568ca3d532cac5135818fae72",
+  "calibration_sha256": "b0827a99d967882862731a0f89d3830c5bf3b06aa1070c19c111771ba5688fed",
+  "arrays": {
+    "I_selection_1": {
+      "path": "/home/erich/projects/review-evidence/overnight-20260918/selection-precision-v2/I_selection_1.npy",
+      "sha256": "57a1dcb0774cbb21adbd3c3f62b8f30b529a75ff9c3116f51c04ff2f039c0b92",
+      "seed": 6202601,
+      "shape": [
+        429,
+        10000
+      ]
+    },
+    "I_selection_2": {
+      "path": "/home/erich/projects/review-evidence/overnight-20260918/selection-precision-v2/I_selection_2.npy",
+      "sha256": "042483388247beb8ef13879098a4655b7595d93b3e059cf21f787c5a5dfe1d42",
+      "seed": 6202602,
+      "shape": [
+        429,
+        10000
+      ]
+    },
+    "I_selection_3": {
+      "path": "/home/erich/projects/review-evidence/overnight-20260918/selection-precision-v2/I_selection_3.npy",
+      "sha256": "4a420f5e712cbb0f548118a6cc79b79e44e497f5d6a014d3fabb247ab6f174ab",
+      "seed": 6202603,
+      "shape": [
+        429,
+        10000
+      ]
+    },
+    "I_selection_4": {
+      "path": "/home/erich/projects/review-evidence/overnight-20260918/selection-precision-v2/I_selection_4.npy",
+      "sha256": "255f75c665757b0dbe781bd2c82e5544782adb3148ca6bb0c078a9352ca3ca72",
+      "seed": 6202604,
+      "shape": [
+        429,
+        10000
+      ]
+    },
+    "I_audit": {
+      "path": "/home/erich/projects/review-evidence/overnight-20260918/selection-precision-v2/I_audit.npy",
+      "sha256": "877e527e1967b9e820087610d42a116978707aeb62613f39be7797f78a654635",
+      "seed": 8202601,
+      "shape": [
+        429,
+        10000
+      ]
+    },
+    "H_selection_1": {
+      "path": "/home/erich/projects/review-evidence/overnight-20260918/selection-precision-v2/H_selection_1.npy",
+      "sha256": "d78bc89f519ed25deb1d226ab32568acf8c9fc9b456159d4e77848471a2b2bda",
+      "seed": 7202601,
+      "shape": [
+        429,
+        10000
+      ]
+    },
+    "H_selection_2": {
+      "path": "/home/erich/projects/review-evidence/overnight-20260918/selection-precision-v2/H_selection_2.npy",
+      "sha256": "60391824473603dae856f64b83132badfd7967de6ba9b0b3f12f2ed5b7ec6759",
+      "seed": 7202602,
+      "shape": [
+        429,
+        10000
+      ]
+    },
+    "H_selection_3": {
+      "path": "/home/erich/projects/review-evidence/overnight-20260918/selection-precision-v2/H_selection_3.npy",
+      "sha256": "f7124cdc67c54eed74dd855f17627e49b355a17e1e68e0def829f4bd9a82fd2d",
+      "seed": 7202603,
+      "shape": [
+        429,
+        10000
+      ]
+    },
+    "H_selection_4": {
+      "path": "/home/erich/projects/review-evidence/overnight-20260918/selection-precision-v2/H_selection_4.npy",
+      "sha256": "7b4c04181c458873337ae80925085ee887f464f5eeef83f452716d137c408eb6",
+      "seed": 7202604,
+      "shape": [
+        429,
+        10000
+      ]
+    },
+    "H_audit": {
+      "path": "/home/erich/projects/review-evidence/overnight-20260918/selection-precision-v2/H_audit.npy",
+      "sha256": "a21c9d142b07f7d6cc86f88e212b7bf2095dff8571f6a5ca41ead70c9b0cbcbe",
+      "seed": 9202601,
+      "shape": [
+        429,
+        10000
+      ]
+    }
+  },
+  "query_snapshots": [
+    {
+      "key": "c23e613bae9eff69527b4bfa091fb6915d0f2e0208304744668f646ec721342d",
+      "query": "SELECT * FROM `nfl-predictions-503414.nfl_raw.dk_salaries` WHERE season=2026 AND draft_group_id=153428 QUALIFY ROW_NUMBER() OVER (PARTITION BY dk_player_id ORDER BY pulled_at DESC) = 1",
+      "original_query": "SELECT * FROM `nfl-predictions-503414.nfl_raw.dk_salaries` WHERE season=2026 AND draft_group_id=153428 QUALIFY ROW_NUMBER() OVER (PARTITION BY dk_player_id ORDER BY pulled_at DESC) = 1",
+      "arm": "common",
+      "sha256": "7e506a6805193d34de30b07aee7b541dbee22e160cdbe49a1ec4543722fef324",
+      "rows": 670,
+      "query_job": "39925ba1-3e28-477c-a2bd-9d09dfea6dd9",
+      "bytes_processed": 25181827,
+      "tables": {
+        "nfl-predictions-503414.nfl_raw.dk_salaries": {
+          "etag": "1Gjtxod9wg0VuVFuHmRPKQ==",
+          "modified": "2026-09-19 02:39:30.261000+00:00",
+          "rows": 732041
+        }
+      }
+    },
+    {
+      "key": "203c7b1190fa37636b8ab4cf88a2c1e563f0b8c492505fdb5315f6115b28d762",
+      "query": "SELECT gsis_id, full_name, team, position, status, status_description_abbr FROM `nfl-predictions-503414.nfl_raw.rosters_weekly` WHERE season=2026 AND week=2",
+      "original_query": "SELECT gsis_id, full_name, team, position, status, status_description_abbr FROM `nfl-predictions-503414.nfl_raw.rosters_weekly` WHERE season=2026 AND week=2",
+      "arm": "common",
+      "sha256": "fe2022a071850e78d3d556a63603ac8d88ba50a7c772f508260cbe80c7a7fe06",
+      "rows": 2521,
+      "query_job": "bb53f03d-c08b-4783-88c9-8fad0289cf1d",
+      "bytes_processed": 32578068,
+      "tables": {
+        "nfl-predictions-503414.nfl_raw.rosters_weekly": {
+          "etag": "zGz0kZuV4VSxc0lmDSCaAQ==",
+          "modified": "2026-09-18 10:03:28.191000+00:00",
+          "rows": 535829
+        }
+      }
+    },
+    {
+      "key": "92d50f1a2755dcc21bd9787a0eccb47f770eb58cda889c474fb22a3b394d22de",
+      "query": "SELECT gsis_id, report_status, practice_status, CAST(pulled_at AS STRING) AS observed_at FROM `nfl-predictions-503414.nfl_raw.injury_snapshots` WHERE season=2026 AND week=2 AND pulled_at <= CURRENT_TIMESTAMP() QUALIFY ROW_NUMBER() OVER (PARTITION BY gsis_id ORDER BY pulled_at DESC) = 1",
+      "original_query": "SELECT gsis_id, report_status, practice_status, CAST(pulled_at AS STRING) AS observed_at FROM `nfl-predictions-503414.nfl_raw.injury_snapshots` WHERE season=2026 AND week=2 AND pulled_at <= CURRENT_TIMESTAMP() QUALIFY ROW_NUMBER() OVER (PARTITION BY gsis_id ORDER BY pulled_at DESC) = 1",
+      "arm": "common",
+      "sha256": "146e8e3080aabe11fffafe4aa72ca96d20292424e2bd283062ed95d0542296d5",
+      "rows": 230,
+      "query_job": "59dc37e8-11db-4629-91fc-eb6211598b60",
+      "bytes_processed": 55844,
+      "tables": {
+        "nfl-predictions-503414.nfl_raw.injury_snapshots": {
+          "etag": "YKBLqjbx4lvGd80oHnT2WA==",
+          "modified": "2026-09-18 10:03:53.894000+00:00",
+          "rows": 1873
+        }
+      }
+    },
+    {
+      "key": "00a5b537ae933969bacf5a0aa03448e1365b13a4c0b861f8ab3fafcdf683428b",
+      "query": "SELECT * FROM `nfl-predictions-503414.nfl_features_salaryfix.player_week_inference` WHERE season=2026 AND week=2",
+      "original_query": "SELECT * FROM `nfl-predictions-503414.nfl_features.player_week_inference` WHERE season=2026 AND week=2",
+      "arm": "salaryfix",
+      "sha256": "f81fd8b1dbfa2dcaf0d8c2daebed0d75f700877f1bdb155c480810221a045608",
+      "rows": 877,
+      "query_job": "de79483e-33b7-4a9f-9f07-129ed7b12c4e",
+      "bytes_processed": 492801,
+      "tables": {
+        "nfl-predictions-503414.nfl_features_salaryfix.player_week_inference": {
+          "etag": "t4UtM2PtPQS6wnrUcXqMuw==",
+          "modified": "2026-09-19 00:51:20.243000+00:00",
+          "rows": 928
+        }
+      }
+    },
+    {
+      "key": "e8c72ce3e3939850b0826831456e14e81ccb4bf520dd04ca86589ed567f60594",
+      "query": "SELECT game_id, home_team, away_team, gameday, gametime, total_line, spread_line FROM `nfl-predictions-503414.nfl_raw.schedules` WHERE season=2026 AND week=2 AND game_type='REG'",
+      "original_query": "SELECT game_id, home_team, away_team, gameday, gametime, total_line, spread_line FROM `nfl-predictions-503414.nfl_raw.schedules` WHERE season=2026 AND week=2 AND game_type='REG'",
+      "arm": "common",
+      "sha256": "fe6bb9212d751388a77c8a6ea49bee73b5478fd9e0a9eb59e229c49c61c3d109",
+      "rows": 16,
+      "query_job": "00741331-af72-4484-81bb-61b2c21d2568",
+      "bytes_processed": 613920,
+      "tables": {
+        "nfl-predictions-503414.nfl_raw.schedules": {
+          "etag": "W2Ruzn1uHZ7LH7B4GpgdRA==",
+          "modified": "2026-09-18 10:03:30.546000+00:00",
+          "rows": 7548
+        }
+      }
+    },
+    {
+      "key": "185409f96a82e36f9abb4ae494bfe5764e53867512b12a97561e9400c322867c",
+      "query": "SELECT * FROM `nfl-predictions-503414.nfl_raw.prop_lines` WHERE season=2026 AND week=2",
+      "original_query": "SELECT * FROM `nfl-predictions-503414.nfl_raw.prop_lines` WHERE season=2026 AND week=2",
+      "arm": "common",
+      "sha256": "666dec2193daf0988b0920a7a5a01b239aa86ed3f698af57e13951d1fedb4cef",
+      "rows": 5908,
+      "query_job": "23441763-18b7-48e7-b96b-5634125303fe",
+      "bytes_processed": 79223717,
+      "tables": {
+        "nfl-predictions-503414.nfl_raw.prop_lines": {
+          "etag": "LtDlTo3GIJ63lBQeOrXyhw==",
+          "modified": "2026-09-18 14:34:32.382000+00:00",
+          "rows": 402365
+        }
+      }
+    },
+    {
+      "key": "169e5cf76efe9ad4e20ad9e06f0aa993826b1129d5b925ba5314fdec9a350eda",
+      "query": "SELECT * FROM `nfl-predictions-503414.nfl_features_salaryfix.tabpfn_projections` WHERE season=2026 AND week=2",
+      "original_query": "SELECT * FROM `nfl-predictions-503414.nfl_features.tabpfn_projections` WHERE season=2026 AND week=2",
+      "arm": "salaryfix",
+      "sha256": "6e1b649e5b76bcb66abf83d156545b58f6b58a663df90212519c7f310c309354",
+      "rows": 877,
+      "query_job": "a2dd821c-8361-4880-aef6-bbffcf85d6d3",
+      "bytes_processed": 9286480,
+      "tables": {
+        "nfl-predictions-503414.nfl_features_salaryfix.tabpfn_projections": {
+          "etag": "KkXqLXtSCw6xgUc4nAdOIQ==",
+          "modified": "2026-09-19 02:41:27.678000+00:00",
+          "rows": 66332
+        }
+      }
+    },
+    {
+      "key": "e4ee859c5b1a04ef1132b56f870b0d49baa4916f9f12b92532fc7f9f64ff686e",
+      "query": "SELECT DISTINCT display_name, position, gsis_id FROM `nfl-predictions-503414.nfl_features_salaryfix.dk_salary_week` WHERE season >= 2021 AND gsis_id IS NOT NULL",
+      "original_query": "SELECT DISTINCT display_name, position, gsis_id FROM `nfl-predictions-503414.nfl_features.dk_salary_week` WHERE season >= 2021 AND gsis_id IS NOT NULL",
+      "arm": "salaryfix",
+      "sha256": "0d7df9c1cec74690ddcfb7a382c87c86ff948b08e7f6411d0167f47d2978beca",
+      "rows": 2006,
+      "query_job": "34896cf2-2179-4696-8726-4bcb5430e3e1",
+      "bytes_processed": 4151862,
+      "tables": {
+        "nfl-predictions-503414.nfl_features_salaryfix.dk_salary_week": {
+          "etag": "+3gJ4WnJ1tVFyRxFcipJDQ==",
+          "modified": "2026-09-19 00:49:22.359000+00:00",
+          "rows": 106483
+        }
+      }
+    },
+    {
+      "key": "c9c550a68444a129ca2acabbe2f901ff7769b4ca53964fc5d0e5fef9057fb0e2",
+      "query": "SELECT * FROM `nfl-predictions-503414.nfl_features_salaryfix.player_week_training` WHERE season <= 2025",
+      "original_query": "SELECT * FROM `nfl-predictions-503414.nfl_features.player_week_training` WHERE season <= 2025",
+      "arm": "salaryfix",
+      "sha256": "3b25973bf4b69aea14673749f7884d8e31d1f56ae218b1002b0406ba4ffa0977",
+      "rows": 102927,
+      "query_job": "bf7b801d-e4b8-4bd1-a2b5-246ad397568e",
+      "bytes_processed": 77165096,
+      "tables": {
+        "nfl-predictions-503414.nfl_features_salaryfix.player_week_training": {
+          "etag": "biIB7PKXGMq2eprf6rd+pQ==",
+          "modified": "2026-09-19 00:51:11.798000+00:00",
+          "rows": 103833
+        }
+      }
+    },
+    {
+      "key": "a8a5158ddda37970a7e68cc796fec34b0c487818eb99c7127b5b5bd5eb4c79c6",
+      "query": "WITH latest AS (SELECT MAX(generated_at) g FROM `nfl-predictions-503414.nfl_predictions_salaryfix.player_projections` WHERE season=2026 AND week=2) SELECT gsis_id, dk_player_id, position, proj_points, generated_at FROM `nfl-predictions-503414.nfl_predictions_salaryfix.player_projections` p, latest WHERE season=2026 AND week=2 AND generated_at=latest.g",
+      "original_query": "WITH latest AS (SELECT MAX(generated_at) g FROM `nfl-predictions-503414.nfl_predictions.player_projections` WHERE season=2026 AND week=2) SELECT gsis_id, dk_player_id, position, proj_points, generated_at FROM `nfl-predictions-503414.nfl_predictions.player_projections` p, latest WHERE season=2026 AND week=2 AND generated_at=latest.g",
+      "arm": "salaryfix",
+      "sha256": "f70b28b408c0ebd9d3524e58231e861dac65422082236ea5b60e6dc863d6f178",
+      "rows": 504,
+      "query_job": "772ced9e-1616-4c01-b00c-49b028c5acfb",
+      "bytes_processed": 27872,
+      "tables": {
+        "nfl-predictions-503414.nfl_predictions_salaryfix.player_projections": {
+          "etag": "ryrXVdJ0QqgnedHt0/0PkA==",
+          "modified": "2026-09-19 00:55:00.096000+00:00",
+          "rows": 504
+        }
+      }
+    }
+  ],
+  "elapsed_seconds": 63.3689508009993,
+  "scope": "Additional independent event draws only; original fits/calibration/frame/centering exact; no provider query or current outcomes."
+}
