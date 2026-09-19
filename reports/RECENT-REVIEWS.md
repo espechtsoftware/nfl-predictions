@@ -82,3 +82,5 @@ Consolidated September 18, 2026 at Erich's request. Source commits: production `
 
 - [Weekend repair release and rollback](2026-09-19-weekend-input-repair-release-plan.md): exact candidate identities, 36-table backup/restore plan and successful scratch restore rehearsal; runtime patch review ongoing, no activation.
 - [Optional target-prior implementation](2026-09-19-live-target-prior-validation.md): 30 tests and exact full CLI parity pass for default and both explicit priors; default remains off.
+
+- [Direct 220 selection objectives](2026-09-19-direct-220-selection-results.md): apparent selection-world gains fail to improve independent mixture P220; expected maximum and proxy worsen.

@@ -4,6 +4,16 @@
 
 # Project handoff
 
+## 2026-09-19 — direct 220 objective screen completed; precision follow-up planned
+
+[Direct 220 results](reports/2026-09-19-direct-220-selection-results.md), frozen `f16ad722`, finish in 13.32s.
+Coverage220 and excess220 change 28/25 memberships but do not improve independent repaired-mixture P220;
+expected maximum drops 0.451/1.027 and GLOBAL proxy drops. Both choose the WEMAX first-row alternative,
+whose +0.010pp P220 is uncertain and costs 2.516 expected points. All baseline/WEMAX audit metrics exactly
+reproduce. No objective promotion. A bounded additional-selection-draw study with a fresh audit is next.
+Peer runtime watcher fix `51b7f85` accepted in source, but its proposed re-arm commands use `break` where
+an actual abort is needed; lab `7b573b8` requests executable guards and behavioural failure tests before release.
+
 ## 2026-09-19 — concrete release/rollback prepared; all prior CLI parity passes
 
 [Release plan](reports/2026-09-19-weekend-input-repair-release-plan.md) pins the two verified cloud images and
