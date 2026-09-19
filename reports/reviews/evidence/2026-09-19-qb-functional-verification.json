@@ -1,0 +1,407 @@
+{
+  "rows": 505,
+  "gate_count": 47,
+  "gated_ids": [
+    "00-0027973",
+    "00-0028118",
+    "00-0028986",
+    "00-0031503",
+    "00-0032268",
+    "00-0033869",
+    "00-0034771",
+    "00-0035264",
+    "00-0035289",
+    "00-0035993",
+    "00-0036879",
+    "00-0036898",
+    "00-0036945",
+    "00-0036972",
+    "00-0037012",
+    "00-0037013",
+    "00-0037077",
+    "00-0038102",
+    "00-0038400",
+    "00-0038416",
+    "00-0038476",
+    "00-0038579",
+    "00-0039107",
+    "00-0039164",
+    "00-0039376",
+    "00-0039923",
+    "00-0040014",
+    "00-0040203",
+    "00-0040206",
+    "00-0040234",
+    "00-0040398",
+    "00-0040589",
+    "00-0040668",
+    "00-0040673",
+    "00-0040891",
+    "00-0040906",
+    "00-0040981",
+    "00-0041056",
+    "00-0041092",
+    "00-0041117",
+    "00-0041123",
+    "00-0041149",
+    "00-0041251",
+    "00-0041561",
+    "00-0041562",
+    "00-0041565",
+    "00-0041568"
+  ],
+  "non_gated_max_abs_delta": {
+    "proj_points": 0.06941859877007772,
+    "proj_p10": 0.4844422143486762,
+    "proj_p50": 0.21124559813172983,
+    "proj_p90": 0.5705639679457164,
+    "proj_std": 0.22346275897141155,
+    "p_20_plus": 0.00823333333333337,
+    "value": 0.020190823157244964
+  },
+  "non_gated_median_abs_delta": {
+    "proj_points": 0.008009291905688914,
+    "proj_p10": 0.005536701836016622,
+    "proj_p50": 0.016739693900805652,
+    "proj_p90": 0.05331021659415924,
+    "proj_std": 0.026389111786203845,
+    "p_20_plus": 0.00019999999999998838,
+    "value": 0.002233639762922124
+  },
+  "non_gated_mean_operational_alert": 0.75,
+  "conservative_mc_se": {
+    "worlds_per_run": 30000,
+    "max_abs_mean_delta_over_se": 1.5712880166701355,
+    "scope": "diagnostic, not an equivalence test; reported widened SD conservatively ignores blend shrinkage"
+  },
+  "control_batch": "2026-09-19 20:53:54.750101+00:00",
+  "treatment_batch": "2026-09-19 20:56:54.107443+00:00",
+  "control_gated_mean_total": 358.4010917162566,
+  "gate_rows": [
+    {
+      "dk_player_id": 322858,
+      "gsis_id": "00-0027973",
+      "display_name": "Andy Dalton",
+      "team": "PHI"
+    },
+    {
+      "dk_player_id": 338280,
+      "gsis_id": "00-0028986",
+      "display_name": "Case Keenum",
+      "team": "CHI"
+    },
+    {
+      "dk_player_id": 399579,
+      "gsis_id": "00-0028118",
+      "display_name": "Tyrod Taylor",
+      "team": "GB"
+    },
+    {
+      "dk_player_id": 607843,
+      "gsis_id": "00-0032268",
+      "display_name": "Marcus Mariota",
+      "team": "WAS"
+    },
+    {
+      "dk_player_id": 691536,
+      "gsis_id": "00-0031503",
+      "display_name": "Jameis Winston",
+      "team": "NYG"
+    },
+    {
+      "dk_player_id": 728169,
+      "gsis_id": "00-0033869",
+      "display_name": "Mitchell Trubisky",
+      "team": "TEN"
+    },
+    {
+      "dk_player_id": 823220,
+      "gsis_id": "00-0034771",
+      "display_name": "Mason Rudolph",
+      "team": "PIT"
+    },
+    {
+      "dk_player_id": 865868,
+      "gsis_id": "00-0035264",
+      "display_name": "Jarrett Stidham",
+      "team": "DEN"
+    },
+    {
+      "dk_player_id": 867303,
+      "gsis_id": "00-0035289",
+      "display_name": "Gardner Minshew II",
+      "team": "ARI"
+    },
+    {
+      "dk_player_id": 913163,
+      "gsis_id": "00-0035993",
+      "display_name": "Tyler Huntley",
+      "team": "BAL"
+    },
+    {
+      "dk_player_id": 973945,
+      "gsis_id": "00-0036972",
+      "display_name": "Mac Jones",
+      "team": "SF"
+    },
+    {
+      "dk_player_id": 975829,
+      "gsis_id": "00-0036879",
+      "display_name": "Sam Ehlinger",
+      "team": "DEN"
+    },
+    {
+      "dk_player_id": 976924,
+      "gsis_id": "00-0038102",
+      "display_name": "Kenny Pickett",
+      "team": "CAR"
+    },
+    {
+      "dk_player_id": 1060311,
+      "gsis_id": "00-0036898",
+      "display_name": "Davis Mills",
+      "team": "HOU"
+    },
+    {
+      "dk_player_id": 1060671,
+      "gsis_id": "00-0038476",
+      "display_name": "Tommy DeVito",
+      "team": "NE"
+    },
+    {
+      "dk_player_id": 1066811,
+      "gsis_id": "00-0038579",
+      "display_name": "Aidan O'Connell",
+      "team": "LV"
+    },
+    {
+      "dk_player_id": 1069763,
+      "gsis_id": "00-0039107",
+      "display_name": "Stetson Bennett IV",
+      "team": "LA"
+    },
+    {
+      "dk_player_id": 1108052,
+      "gsis_id": "00-0037013",
+      "display_name": "Zach Wilson",
+      "team": "NO"
+    },
+    {
+      "dk_player_id": 1110681,
+      "gsis_id": "00-0036945",
+      "display_name": "Justin Fields",
+      "team": "KC"
+    },
+    {
+      "dk_player_id": 1123521,
+      "gsis_id": "00-0038400",
+      "display_name": "Tanner McKee",
+      "team": "PHI"
+    },
+    {
+      "dk_player_id": 1130975,
+      "gsis_id": "00-0037012",
+      "display_name": "Trey Lance",
+      "team": "LAC"
+    },
+    {
+      "dk_player_id": 1166989,
+      "gsis_id": "00-0040589",
+      "display_name": "Kurtis Rourke",
+      "team": "SF"
+    },
+    {
+      "dk_player_id": 1168245,
+      "gsis_id": "00-0037077",
+      "display_name": "Sam Howell",
+      "team": "DAL"
+    },
+    {
+      "dk_player_id": 1169299,
+      "gsis_id": "00-0040981",
+      "display_name": "Joe Fagnano",
+      "team": "BAL"
+    },
+    {
+      "dk_player_id": 1174752,
+      "gsis_id": "00-0039376",
+      "display_name": "Spencer Rattler",
+      "team": "NO"
+    },
+    {
+      "dk_player_id": 1213340,
+      "gsis_id": "00-0041561",
+      "display_name": "Carson Beck",
+      "team": "ARI"
+    },
+    {
+      "dk_player_id": 1213386,
+      "gsis_id": "00-0040398",
+      "display_name": "Brady Cook",
+      "team": "MIA"
+    },
+    {
+      "dk_player_id": 1213782,
+      "gsis_id": "00-0040203",
+      "display_name": "Will Howard",
+      "team": "PIT"
+    },
+    {
+      "dk_player_id": 1214336,
+      "gsis_id": "00-0041149",
+      "display_name": "Haynes King",
+      "team": "CAR"
+    },
+    {
+      "dk_player_id": 1215022,
+      "gsis_id": "00-0039164",
+      "display_name": "Anthony Richardson Sr.",
+      "team": "IND"
+    },
+    {
+      "dk_player_id": 1225681,
+      "gsis_id": "00-0041251",
+      "display_name": "Jalon Daniels",
+      "team": "TB"
+    },
+    {
+      "dk_player_id": 1272321,
+      "gsis_id": "00-0040668",
+      "display_name": "Shedeur Sanders",
+      "team": "CLE"
+    },
+    {
+      "dk_player_id": 1286037,
+      "gsis_id": "00-0040906",
+      "display_name": "Garrett Nussmeier",
+      "team": "KC"
+    },
+    {
+      "dk_player_id": 1286388,
+      "gsis_id": "00-0041123",
+      "display_name": "Behren Morton",
+      "team": "NE"
+    },
+    {
+      "dk_player_id": 1287599,
+      "gsis_id": "00-0039923",
+      "display_name": "J.J. McCarthy",
+      "team": "MIN"
+    },
+    {
+      "dk_player_id": 1287826,
+      "gsis_id": "00-0040014",
+      "display_name": "Kyle McCord",
+      "team": "MIA"
+    },
+    {
+      "dk_player_id": 1287925,
+      "gsis_id": "00-0041117",
+      "display_name": "Athan Kaliakmanis",
+      "team": "WAS"
+    },
+    {
+      "dk_player_id": 1288113,
+      "gsis_id": "00-0041092",
+      "display_name": "Taylen Green",
+      "team": "CLE"
+    },
+    {
+      "dk_player_id": 1290102,
+      "gsis_id": "00-0040673",
+      "display_name": "Jalen Milroe",
+      "team": "SEA"
+    },
+    {
+      "dk_player_id": 1290165,
+      "gsis_id": "00-0040206",
+      "display_name": "Riley Leonard",
+      "team": "IND"
+    },
+    {
+      "dk_player_id": 1324976,
+      "gsis_id": "00-0040891",
+      "display_name": "Cole Payton",
+      "team": "PHI"
+    },
+    {
+      "dk_player_id": 1333868,
+      "gsis_id": "00-0040234",
+      "display_name": "Quinn Ewers",
+      "team": "JAX"
+    },
+    {
+      "dk_player_id": 1378287,
+      "gsis_id": "00-0041056",
+      "display_name": "Cade Klubnik",
+      "team": "NYJ"
+    },
+    {
+      "dk_player_id": 1378917,
+      "gsis_id": "00-0041568",
+      "display_name": "Ty Simpson",
+      "team": "LA"
+    },
+    {
+      "dk_player_id": 1379258,
+      "gsis_id": "00-0041565",
+      "display_name": "Drew Allar",
+      "team": "PIT"
+    },
+    {
+      "dk_player_id": 1400786,
+      "gsis_id": "00-0041562",
+      "display_name": "Fernando Mendoza",
+      "team": "LV"
+    },
+    {
+      "dk_player_id": 1444140,
+      "gsis_id": "00-0038416",
+      "display_name": "Tyson Bagent",
+      "team": "CHI"
+    }
+  ],
+  "dst_exact": true,
+  "identity_exact": true,
+  "gated_seven_columns_exact_zero": true,
+  "at": "2026-09-19T20:59:06.496644+00:00",
+  "status": "FUNCTIONAL_CHECKS_PASSED",
+  "source": "f06a192cd9b0aacf798d8f36432a26cac03df206",
+  "image": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:0993ee01d6d617ed2fa88c51335616c6d473508952fb226201f3cc383db75758",
+  "executions": {
+    "control": {
+      "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/project-slate/executions/project-slate-m9psm",
+      "createTime": "2026-09-19T20:52:14.933060Z",
+      "startTime": "2026-09-19T20:52:35.953963Z",
+      "completionTime": "2026-09-19T20:54:02.365193Z",
+      "succeededCount": 1
+    },
+    "gated": {
+      "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/project-slate/executions/project-slate-tspcf",
+      "createTime": "2026-09-19T20:54:15.753638Z",
+      "startTime": "2026-09-19T20:54:35.949185Z",
+      "completionTime": "2026-09-19T20:57:00.820745Z",
+      "succeededCount": 1
+    }
+  },
+  "captured_gate_inputs_equal": true,
+  "tracked_table_etags_equal": true,
+  "task_template_unchanged": true,
+  "common_upstream_transform_exact": true,
+  "source_reader_sha256": "a3b172c1614e0c4f8eb31c05dd130b8dfbae6db480241e86bc3b50fda475365c",
+  "paired_random_draws": false,
+  "original_strict_comparison_passed": false,
+  "interpretation": "Deployment/gate mechanics and bounded mean drift verified; no exact cross-run identity or NFL efficacy claim.",
+  "file_sha256": {
+    "gated-input-metadata.json": "fa4cf8101002903bd11718d43bbdfc43683f4126e06e302a928150b94254a58c",
+    "after-input-metadata.json": "fa4cf8101002903bd11718d43bbdfc43683f4126e06e302a928150b94254a58c",
+    "control-execution-result.json": "ec2df010843e3ebf073951dfce835da6f19107e3533c390b78852345170f2251",
+    "gated-execution-result.json": "715100103fb6a3dcd06ed7cd34dee5dc8e9683618631f606c4743f2c9f576840",
+    "gated-batch.parquet": "b77773b362a3909e56eb3f071fe4de25e2577b2b5661203c8b3fe54b0330460c",
+    "control-input-metadata.json": "fa4cf8101002903bd11718d43bbdfc43683f4126e06e302a928150b94254a58c",
+    "control-batch.parquet": "986e68f3dcf27feae4e7ecbdb304daf8d13461c739f097222298b4648da1cc31",
+    "control-gate-inputs.parquet": "630f79da87ec9db1b297d0951bf4d4776af7827938421a3f6cc0f679c751c56b",
+    "after-gate-inputs.parquet": "a58897aed06ac5372441c573762248d014310245dad47946101e8805e609498e",
+    "gated-gate-inputs.parquet": "7deaa4f0a90ae4977ca8d005f094244b60eb2ae34872cdfbac14baade0125a5d"
+  }
+}

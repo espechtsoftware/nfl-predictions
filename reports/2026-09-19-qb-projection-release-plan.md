@@ -1,5 +1,7 @@
 # Tonight's projection-only QB trial: release plan
 
+**Completed release:** see the [release result](2026-09-19-qb-projection-release-results.md) for final execution identities, the unseeded-comparison limitation and independent verification. The original plan and intermediate state below are preserved.
+
 Authorized by the operator after the downstream limitation was explained, relayed in lab shared commit `81d809f`: **“Tonight.”** The laptop owns this release. This is a partial projection policy; the corrected host replacement step separately protects final admission. It is not a complete repair of the generator's backup-QB tails.
 
 ## Scope and current state

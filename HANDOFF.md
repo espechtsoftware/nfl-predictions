@@ -4,6 +4,12 @@
 
 # Project handoff
 
+## 2026-09-19 — projection-only QB release verified; host v4.3 cleared and awaiting build completion
+
+[Release result](reports/2026-09-19-qb-projection-release-results.md): image `0993ee01…`, source `f06a192c`, paired current-input control `project-slate-m9psm` and gated `project-slate-tspcf` both succeeded. New505-row batch **20:56:54.107443Z** has all7forecast fields exactly zero for the47expected backup QBs; identities/DST preserved. Non-gated mean max difference0.069419; live sampler is unseeded. Original1e-6all-field comparison failed and is retained; separate functional verification, frozen reader `72a87c7e`, fourtests and exact common-upstream transformation pass. No NFL efficacy/equivalence claim. Peer independently agrees on membership/values at lab `3cd6f64`. Registry lane terminalized20:57:15Z, no writer remains.
+
+The [host review](reports/2026-09-19-production-qb-replacement-review.md) clears exactv4.3files; peer acknowledged hashes at `7cb2bf5`. D12800 still active20:58Z; production owns installation/rehearsal after completion. Next: receive exact host commit/installed hashes/rehearsal, preserve both full-dose archives for selection and law comparisons. Projection-only downstream-tail limitation remains; no pinned running source modified and no current outcomes read.
+
 ## 2026-09-19 — v4.3 host review cleared; projection image installed, matched pair restarting
 
 [Final host review](reports/2026-09-19-production-qb-replacement-review.md): all 16 independent boundary cases plus tied-primary permutations now pass their intended behavior on peer `9f892ef`; exact four-file/chain clearance pushed at lab `91754a8`. Production owns installation after D12800 completes and a final host rehearsal. Broader Q/D candidate admission is explicit with visible flags. No current-week outcomes read.
