@@ -5,6 +5,11 @@ Canonical reading copies are in this project's `reports/` folder. Open this inde
 
 Latest completed work, September 19:
 
+- [Immediate experiment plan and owners](2026-09-19-immediate-experiment-plan.md): both teams have begun preparation for in-season scoring improvements.
+- [Independent review of the new in-season rules](2026-09-19-in-season-rules-independent-review.md): remove calendar/sign-count vetoes, quantify tradeoffs, preserve integrity.
+- [Refreshed hsim calibration trace](2026-09-19-refreshed-hsim-trace-results.md): exact 4.29-million-score replay; remaining QB-role and team-budget differences.
+- [Active-label × participation experiment](2026-09-19-active-label-participation-experiment.md): four-arm preparation based on the existing accepted August research.
+- [Completed morning refresh](2026-09-19-morning-refresh-results.md): all three jobs and actual CLI proof passed; both Saturday builds subsequently started on the released source.
 - [Updated next-week priorities](2026-09-19-next-week-plan-after-overnight-results.md): completed E0 work, failed screens, prospective reads and remaining supported experiments.
 - [Cloud release results](2026-09-19-weekend-input-repair-release-results.md): refreshed features/cache/projections and actual CLI proof passed; job lanes released. Workstation activation remains operator-pending.
 - [Current Odds snapshot impact](2026-09-19-prop-snapshot-impact-results.md): confirmed stale-threshold defect; current numerical effect measured without changing production.

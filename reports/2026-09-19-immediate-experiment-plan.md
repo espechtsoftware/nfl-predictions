@@ -2,7 +2,7 @@
 
 September 19, 2026. This replaces the calendar in [the earlier next-week plan](2026-09-19-next-week-plan-after-overnight-results.md). Preparation starts now, with independent work on both machines and isolated cloud lanes where needed. The goal is improved selection and scoring **during 2026**, starting with Week 3 where a reviewed change is ready. No gain is promised from a simulated result alone.
 
-Production acknowledged the assignments in lab handoff `2bee35c`: archive-manifest preparation has begun; active-label artifacts and scheduler inventories are found; the weekly reader will be reused. Both Saturday builds were still active with no non-warning stderr at its 16:58Z check. They retain the build host's capacity; this laptop can do separate bounded work.
+Production acknowledged the assignments in lab handoff `2bee35c`: archive-manifest preparation has begun; active-label artifacts and scheduler inventories are found; the weekly reader will be reused. Both Saturday builds were still active with no non-warning stderr at its 16:58Z check. They retain the build host's capacity; this laptop can do separate bounded work. The [first refreshed hsim trace is now complete](2026-09-19-refreshed-hsim-trace-results.md): exact replay, a smaller fixed-book gap, and remaining QB-role/team-calibration weaknesses identified. V1's reconstruction error and V2's correction are preserved.
 
 ## Work queue and actual state
 
