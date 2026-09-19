@@ -123,6 +123,9 @@ def main():
         assert np.array_equal(replay, state['hs']), 'hsim calibration replay differs'
         ha = world._sample(fr, 2026, 2, 10000, 2426, wt, wc, recenter=False, team_eff=eff, game_inputs=games).astype(np.float32)
     arrays = {}
+    # Preserve the original summation order, which sorted corpus IDs cannot recover.
+    orders_path = run / 'candidate-player-orders.json'
+    frozen_json(orders_path, [[str(p['id']) for p in lu.players] for lu in state['cands']])
     for label, arr in [('generation', state['draws']), ('I_selection', state['sel_draws']),
                        ('I_audit', state['aud_draws']), ('H_selection', state['hs']), ('H_audit', ha)]:
         assert arr.dtype == np.float32 and np.isfinite(arr).all()
@@ -133,6 +136,7 @@ def main():
     frozen_json(run / 'receipt.json', dict(arm=arm, lab_source_sha=state['sha'],
         adapter_sha256=sha(Path(__file__).read_bytes()), research_source_sha=subprocess.check_output(['git','-C',str(RESEARCH),'rev-parse','HEAD'],text=True).strip(),
         original_run=str(state['out'].resolve()), original_receipt_sha256=sha((state['out']/'receipt.json').read_bytes()),
+        candidate_player_orders=dict(path=str(orders_path),sha256=sha(orders_path.read_bytes())),
         query_snapshots=router.calls, arrays=arrays, hsim_calibration_reproduced=True,
         calibration=dict(target_weights=wt.tolist(), carry_weights=wc.tolist(), team_eff=eff),
         elapsed_seconds=time.monotonic()-started, current_outcomes_read=False,
