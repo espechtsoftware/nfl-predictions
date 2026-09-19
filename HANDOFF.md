@@ -24,6 +24,54 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Workstation overnight -- 2026-09-19 (Week-2 build eve)
+
+**Entry build unchanged and unarmed-for-release.** Six timers armed, first fires
+Sat 2026-09-19 10:30 CT (D12800). Live clone `week1-live-center-e7255e9` CLEAN at
+`e7255e98bf87297452befb61fb508ad4b368b59f`; dose file 2560/10240; ENTER_LAYOUT
+sequential, 97-lineup book, contests payout-ordered. The prepared release patch is
+NOT applied to the tracked `arm_week_timers.sh` (verified: zero markers).
+
+**One operator decision is pending and the two agents disagree.** The laptop
+recommends activating the three input repairs (salary-week, TabPFN pre-week context,
+live game inputs) under its full backup/restore plan; the workstation recommends
+entering on the control chain on operational-risk grounds. Both are on record. The
+decision is due before the 09:45 CT refresh because the data half must land first.
+
+**Structural consequence recorded (workstation, accepted into the release plan):**
+two of the three repairs live in shared feature/cache tables, so a split arming is
+impossible and, after adoption, the four fallback builds cover build failure only --
+they no longer preserve the old data state. Saved research books are comparison
+artifacts, not valid Sunday upload files. Returning to old inputs needs a full table
+restore plus rebuild inside the Sunday window.
+
+**Delivered and independently accepted this session:**
+- Runtime pin option to lab `2dc116c`: prepared worktree `week2-release-2dc116c`
+  (clean), a patch making `CLONE`/`EXPECT_SHA`/run-tag suffix follow the pins for all
+  five builds *and the watchers*, and a guarded runner with 42 behavioural tests.
+  Accepted at production `9cb5f513`. Nothing armed.
+- Prospective proper-score protocol + outcome-gated reader (`review/2026-09-prospective-proper-score`
+  @ `1c95dd68`, 52 tests), accepted at production `044a7abe` against the real D1600 bundle.
+  This is the Monday settlement instrument; the workstation owns the first settled read.
+- Full forecast-to-score cross-read of the law-weight screen: reproduces every published
+  value to the last digit, rows numerically identical (max abs diff 0.0). The screen
+  FAILS its frozen gate; the equal 50/50 blend beats both components on marginal CRPS,
+  which argues against disturbing `dual_emax` equal mass but establishes no tail gain.
+
+**Defect classes found and fixed (all in plumbing, none in the mathematics):** false
+run-tag provenance; watcher pins omitted from the units; a stop guard that announced a
+refusal then performed the destructive action; failed status/stop/list reads treated as
+success; a failed `git status` read as a clean tree; "loaded" mistaken for "scheduled";
+and in the reader, a fair-CRPS estimator misapplied to an issued distribution, a CLI
+flag that bypassed the outcome gate, and three identity-join gaps. Roughly a dozen in
+total, essentially all surfaced by cross-agent review rather than self-review.
+
+**Six research nulls this session** (supply dose, swap search, target prior, direct-220
+objective, fivefold selection precision, learned law weighting). The ledger's standing
+position -- selection is closed for the current simulator and static feature set --
+survives unchanged.
+
+
 ## Current science index -- 2026-09-03
 
 ### 2026-09-18 Known-unfixed register created: `reports/OPEN-DEFECTS.md`
