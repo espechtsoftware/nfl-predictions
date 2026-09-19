@@ -1,0 +1,10 @@
+{
+  "arm_sha256": "c1cf827099bfe4b8d73b5a7d55a8533ce45f7c16a52f9c456b6d4bc10bd94424",
+  "commands_exact": true,
+  "print_mode_only": true,
+  "executed_timer_commands": false,
+  "checked_commands": [
+    "systemd-run --user --on-calendar=\"2026-09-19 10:30 America/Chicago\" --unit nfl-week2-d12800-sat-build env CLONE=/home/erich/projects/.nfl2-worktrees/week2-release-2dc116c EXPECT_SHA=2dc116ce95647a776ba9c36cf194f44d022d03a4 PAID_LEV=2560 PAID_BOOM=10240 SKIP_PAIR=1 DOSE_FILE=/dev/null RUN_TAG=20260919t1530z-d12800sat-2dc116c /home/erich/week2-sunday-build.sh",
+    "systemd-run --user --on-calendar=\"2026-09-19 10:35 America/Chicago\" --unit nfl-week2-d6400-sat-build env CLONE=/home/erich/projects/.nfl2-worktrees/week2-release-2dc116c EXPECT_SHA=2dc116ce95647a776ba9c36cf194f44d022d03a4 PAID_LEV=1280 PAID_BOOM=5120 SKIP_PAIR=1 DOSE_FILE=/dev/null RUN_TAG=20260919t1535z-d6400sat-2dc116c /home/erich/week2-sunday-build.sh"
+  ]
+}

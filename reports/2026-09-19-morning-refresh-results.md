@@ -2,7 +2,7 @@
 
 The authorized Saturday refresh passed all three cloud stages and the actual D160/K97 lineup-builder proof. Validation completed at**15:11:33UTC /10:11:33CDT**; all three canonical writer lanes exited successfully and released at15:11:34UTC. The workstation independently confirmed the three provider executions and exact projection batch in handoff `9e1b0a5`.
 
-At this15:14UTC report update, the operator's fixed15:20timer recreation and15:30/15:35build starts remain future observations. Refresh completion does not claim those later actions have already happened.
+The operator's timer recreation was verified at**15:24:16UTC**, following the restore-script refusal described below. Both Saturday slots remain15:30/15:35UTC, with all six timers armed and correctly pinned. Actual build starts remain pending in this15:26update.
 
 ## Executions and exact output
 
@@ -41,3 +41,13 @@ Before rebuilding, the runner created and verified36same-time snapshots in `nfl-
 All nine published JSON receipts are create-once objects under `gs://nfl-2-506823-lab/research/week2-input-release-20260919/morning-refresh-v1/`, with generations, byte counts and SHA256identities recorded and downloads verified. Private deployed job configurations and credentials are excluded.
 
 The [Saturday scoring recommendation](2026-09-19-saturday-scoring-recommendation.md) still requires current-status/full-corpus review before choosing Sunday's final selection and ordering. This refresh establishes a validated fresh-input build path; it is not a new actual-NFL scoring result.
+
+## Restoration incident and required repair
+
+The planned15:20restoration did not complete at that time. Around15:21the operator ran the reviewed pin runner; phase2unconditionally tried to stop an already-collected Saturday timer and refused on the resulting nonzero return. Nothing was armed by that attempt. The four Sunday units remained intact.
+
+The operator then recreated only the two missing Saturday units using the original `systemd-run` lines printed by the reviewed arm script. The workstation observed both active at15:24:16with the correct source, cache, doses, run tags and original start times (`bf40751`). The laptop independently regenerated the two commands in print mode and matched them byte-for-byte; [command-parity receipt](reviews/evidence/2026-09-19-timer-recovery-command-review.json). Recovery finished5m44s before the first build slot.
+
+**Fix required:** `handoffs/runners/week2_runtime_pin.sh` in the lab handoff branch needs an explicit missing-timer case in phase2. A verified `LoadState=not-found` may count as already stopped; failed/ambiguous state queries and a genuine failure to stop a loaded timer must still refuse. Add tests for missing timers, loaded timers and failed reads/stops. The shared review covered absent services but missed the absent-timer restoration case. The workstation owns the repair after the scheduled starts; do not use another hold-and-restore cycle with the current runner before that fix is validated. No live script was hot-patched during recovery.
+
+The workstation subsequently authenticated the completion/proof/release objects and compared them with its independent provider observations (`f510722`), finding no discrepancy. It distinguished reading validator receipts from independently reimplementing those validators.
