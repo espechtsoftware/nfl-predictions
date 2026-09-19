@@ -25,7 +25,7 @@ The first-entry issue is now independently traced to the delivery code: after ri
 ## Evidence in the main project
 
 - [Actual deployed-input participation result](2026-09-19-participation-host-transfer-results.md): independently reproduced; full numerics, blocks and all-active costs.
-- [First-entry ordering result](2026-09-19-first-delivered-promotion-results.md): frozen general rule, fresh audit and explicit allocation cost; local portable replay exact, external numerical replay requested.
+- [First-entry ordering result](2026-09-19-first-delivered-promotion-results.md): frozen general rule, fresh audit and explicit allocation cost; independent numerical replay exact (`118afa4`, received14:15UTC).
 - [Confirmed-out reselection](2026-09-19-prelock-dk-reselection-review.md):20targeted tests, real CSV parity, final-source exclusion smoke and full-sized timing.
 - [Participation version3 use-time repair](2026-09-19-participation-reselection-use-time-review.md):38selector/provider tests and a fresh exact rehearsal.
 - [Designation decomposition](2026-09-19-participation-designation-results.md): full rule retained; narrowed variants do not remove the tradeoffs.
