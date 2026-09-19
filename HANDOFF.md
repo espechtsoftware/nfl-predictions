@@ -4,6 +4,18 @@
 
 # Project handoff
 
+## 2026-09-19 — both scratch caches passed; full CLI running; prior screen advances
+
+Both full scratch refreshes completed, control `tabpfn-gen-djgpj`, repair `tabpfn-gen-22x8d`; registry lane
+released 02:41:47 UTC and shared job template unchanged. [Cache results](reports/2026-09-19-tabpfn-scratch-refresh-results.md)
+show all support/quantile checks pass and exact equality of 65,455 historical rows. All 877 Week2 predictions
+change; no efficacy inference from marginal-cache shifts. Full CLI adapter `90a26b4f` control is running,
+one CPU/600-second cap; repaired arm and frozen independent audit follow serially.
+[Prior screen](reports/2026-09-19-zero-target-prior-results.md), protocol `b8d79058`, reader `1938d377`, improves
+target-share calibration in all six seasons for both rules. Learned prior lowers eligible-player MSE27.94%,
+all-active team-normalized MSE1.09%; both qualify for a simulator influence trace. This is historical player-level
+development evidence, not lineup/220+ efficacy or live adoption. Canonical reading copies remain in this project.
+
 ## 2026-09-19 — candidate images verified; control cache complete; support transitions measured
 
 Salary feature image `8d9b3cb55865edc66c99e01b28a7a6ba0d588458ac921c1485069fac32814e03` and TabPFN preweek image

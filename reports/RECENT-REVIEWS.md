@@ -70,3 +70,5 @@ Consolidated September 18, 2026 at Erich's request. Source commits: production `
 - [Remaining opportunity support](2026-09-19-remaining-opportunity-support-census.md) and [exact before/after transitions](2026-09-19-opportunity-support-transitions.md): usage recovery restores 41 players' scoring support and newly removes it from 22 tight ends on the archived slate; a weak prior needs testing.
 
 - [Zero-target prior historical results](2026-09-19-zero-target-prior-results.md): two frozen priors improve player target-share error in all six seasons; both advance to simulator testing, without a lineup-performance or adoption claim.
+
+- [Scratch prediction refresh results](2026-09-19-tabpfn-scratch-refresh-results.md): both full runs pass, 65,455 historical rows are exactly identical, all 877 Week2 keys are valid; shared job unchanged and lane released.
