@@ -1,0 +1,32 @@
+{
+  "pins": {
+    "scikit-learn": "1.9.1",
+    "scipy": "1.18.1",
+    "joblib": "1.6.0",
+    "narwhals": "2.26.0",
+    "threadpoolctl": "3.7.0"
+  },
+  "files": {
+    "threadpoolctl-3.7.0-py3-none-any.whl": {
+      "bytes": 26362,
+      "sha256": "cd8b60b5641b45c67bbf73c64c843235fc2d8a480c87389f52f5dbee893b86be"
+    },
+    "narwhals-2.26.0-py3-none-any.whl": {
+      "bytes": 474034,
+      "sha256": "29326d74f107c347fd1009bd58e38d9f7c7c5b51e6de97bc93dbc325d9038b54"
+    },
+    "joblib-1.6.0-py3-none-any.whl": {
+      "bytes": 306115,
+      "sha256": "3dbbf9f6e4b592a2357b854608e980fe6390d131d7a82f011a377ef2ebef7aba"
+    },
+    "scikit_learn-1.9.1-cp314-cp314-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl": {
+      "bytes": 9152030,
+      "sha256": "993d332ff80e62efae9e39603b7e872297c418d780f01a01855269a3489c950f"
+    },
+    "scipy-1.18.1-cp314-cp314-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl": {
+      "bytes": 35329183,
+      "sha256": "ac0333bdf38309aa3dcbe7e3fa7ea29e7a2c37c6ea306a757b700ded8e4596ad"
+    }
+  },
+  "scope": "isolated cloud runtime dependencies; no study changes"
+}

@@ -18,20 +18,28 @@ def main():
     m=json.loads((E/'2026-09-19-zero-target-prior-current-support.json').read_text())
     paths={'study.py':E/'2026-09-19-injury-type-opportunity.py',
            'runner.py':E/'2026-09-19-injury-type-cloud.py','support.json':support,
+           'bootstrap.py':E/'2026-09-19-injury-type-bootstrap.py',
+           'wheels.json':E/'2026-09-19-injury-type-wheels.json',
            'safe.parquet':Path(s['safe_extract_path']),'labels.parquet':Path(m['path'])}
+    wheels=json.loads(paths['wheels.json'].read_text())
+    for name,rec in wheels['files'].items():
+        p=Path('/home/erich/projects/review-evidence/overnight-20260918/injury-type-wheels')/name
+        assert p.stat().st_size==rec['bytes'] and sha(p)==rec['sha256']
+        paths['wheels/'+name]=p
     assert sha(paths['safe.parquet'])==s['safe_extract_sha256']
     assert sha(paths['labels.parquet'])==m['input']['sha256']
     out.mkdir(parents=True,exist_ok=False)
-    for name,p in paths.items():shutil.copyfile(p,out/name)
+    for name,p in paths.items():
+        (out/name).parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(p,out/name)
     context={'research_commit':commit,'files':{n:sha(out/n) for n in paths}}
     (out/'context.json').write_text(json.dumps(context,indent=2))
     for mode in ['smoke','forecast']:
         config={'steps':[{'name':IMAGE,'entrypoint':'python',
-             'args':['-X','cpu_count=1','/workspace/runner.py',mode],
+             'args':['-X','cpu_count=1','/workspace/bootstrap.py',mode],
              'env':['OPENBLAS_NUM_THREADS=1','OMP_NUM_THREADS=1','MKL_NUM_THREADS=1',
                     'NUMEXPR_NUM_THREADS=1','BUILD_ID=$BUILD_ID']}],
              'timeout':'1800s','options':{'machineType':'E2_HIGHCPU_8'}}
-        p=out.parent/f'injury-type-{mode}-config.json';assert not p.exists()
+        p=out.parent/f'{out.name}-{mode}-config.json';assert not p.exists()
         p.write_text(json.dumps(config,indent=2))
     print(json.dumps({'context':str(out),'context_sha256':sha(out/'context.json'),
         'research_commit':commit,'files':context['files'],'bytes':sum((out/n).stat().st_size for n in paths),

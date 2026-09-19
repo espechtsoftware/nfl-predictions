@@ -4,6 +4,16 @@
 
 # Project handoff
 
+## 2026-09-19 — injury-type cloud smoke caught a missing dependency
+
+Build `70928161-b7d8-4783-b7b8-19c7cb430c87` stopped at import because the
+pinned lab image lacks scikit-learn. No historical label was decoded and no study
+output was published. Five exact-version, hash-pinned binary wheels now install
+into `/workspace/vendor` with no dependency resolution or package-index access
+inside the cloud run. The study source remains SHA256 `dd37c2ff...681024`;
+only bootstrap/staging change. Repeat the outcome-disabled cloud smoke before
+forecasting. The original failed context and logs remain preserved.
+
 ## 2026-09-19 — full law-weight cross-read agrees; injury-type study prepared
 
 Lab `2abe922` reproduces the complete frozen law-weight forecast-to-score reader,

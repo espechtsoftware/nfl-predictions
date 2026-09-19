@@ -1,6 +1,7 @@
 """Authenticated Cloud Build adapter; distinct smoke, forecast and outcome-read phases."""
 import hashlib
 import importlib.util
+import importlib.metadata
 import json
 import os
 from pathlib import Path
@@ -16,6 +17,8 @@ def main():
     mode=sys.argv[1];assert mode in ['smoke','forecast','read']
     root=Path('/workspace');context=json.loads((root/'context.json').read_text())
     for name,digest in context['files'].items():assert sha(root/name)==digest,name
+    wheels=json.loads((root/'wheels.json').read_text())
+    for name,version in wheels['pins'].items():assert importlib.metadata.version(name)==version
     spec=importlib.util.spec_from_file_location('frozen_injury_type',root/'study.py')
     module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
     bucket=storage.Client(project='nfl-2-506823').bucket('nfl-2-506823-lab')
