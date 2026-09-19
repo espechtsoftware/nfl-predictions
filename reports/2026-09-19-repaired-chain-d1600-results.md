@@ -28,3 +28,5 @@ All input queries replay immutable saved results and refuse a cache miss. Each a
 The D160 result remains a separate study. Its small-pool gain must not be conflated with the D1600 gain or the archived D6400 usage-only factorial. Both equal-budget books are frozen before Sunday-main outcomes and can be settled regardless of entry. The historical target-prior changes are separately tested on this same expanded repaired pool.
 
 [Protocol](2026-09-19-repaired-chain-d1600-protocol.md). [Full source, bank, book, cross-law, prefix and contest results](reviews/evidence/2026-09-19-repaired-chain-d1600-read.json). No live deployment, entry-policy change or Sunday-main outcomes are involved.
+
+Control definition clarification: both arms use reviewed live-game-input source `2dc116c`. The control retains old usage/features/cache/projections while sharing that game-input correction; it is not a byte-identical replay of the operational `e7255e9` chain. The archived usage/game-line factorial separately varies game inputs.

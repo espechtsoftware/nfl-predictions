@@ -4,6 +4,21 @@
 
 # Project handoff
 
+## 2026-09-19 — concrete release/rollback prepared; all prior CLI parity passes
+
+[Release plan](reports/2026-09-19-weekend-input-repair-release-plan.md) pins the two verified cloud images and
+base lab `2dc116ce95647a776ba9c36cf194f44d022d03a4`, keeping ordinary DUAL_EMAX and no target prior.
+Live inventory covers 36 tables plus one view; common-timestamp snapshot and full restore SQL are prepared.
+Scratch salary/projection snapshot/clone/replacement passes 18 BigQuery jobs with source unchanged and
+matching rows, schemas, partitioning and clustering. No live snapshot, deployment or entry change.
+Workstation `8f7f085` prepared a separate clean release checkout and timer patch. Review found the watcher
+unit still lacked explicit source pins; correction requested at lab `a67afac` before activation readiness.
+[Optional prior](reports/2026-09-19-live-target-prior-validation.md) source `5adc176` passes default, fixed and
+learned complete CLI parity (42.61/42.80/42.66s), all banks/calibration/books exact. V1 adapter's DST allowlist
+refusal was classified and amended before v2; all failed evidence retained. These prior results do not change
+the recommendation to leave that option off. Prospective reader v2 corrections received; exact frozen-game
+binding remains requested. Five-minute handoff polling and further selector work continue.
+
 ## 2026-09-19 — expanded chain and target-prior selection completed
 
 D1600 control and repair both pass at lab `2dc116c`, frozen production adapter/reader `170c3b46`,

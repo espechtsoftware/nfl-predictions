@@ -1,0 +1,141 @@
+{
+  "point_in_time": "2026-09-19T03:33:51.169484+00:00",
+  "results": [
+    {
+      "source": "nfl-predictions-503414.nfl_features_control.dk_salary_week",
+      "snapshot": "nfl-predictions-503414.nfl_features_salaryfix.release_probe_20260919_v1_salary_snapshot",
+      "restored": "nfl-predictions-503414.nfl_features_salaryfix.release_probe_20260919_v1_salary_restored",
+      "checks": {
+        "nfl-predictions-503414.nfl_features_control.dk_salary_week": {
+          "rows": 104847,
+          "checksum": 8491369536519343501
+        },
+        "nfl-predictions-503414.nfl_features_salaryfix.release_probe_20260919_v1_salary_snapshot": {
+          "rows": 104847,
+          "checksum": 8491369536519343501
+        },
+        "nfl-predictions-503414.nfl_features_salaryfix.release_probe_20260919_v1_salary_restored": {
+          "rows": 104847,
+          "checksum": 8491369536519343501
+        }
+      },
+      "exact_bidirectional_row_match": true,
+      "schema_partition_clustering_match": true
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_predictions_control.player_projections",
+      "snapshot": "nfl-predictions-503414.nfl_features_salaryfix.release_probe_20260919_v1_projections_snapshot",
+      "restored": "nfl-predictions-503414.nfl_features_salaryfix.release_probe_20260919_v1_projections_restored",
+      "checks": {
+        "nfl-predictions-503414.nfl_predictions_control.player_projections": {
+          "rows": 504,
+          "checksum": 1484296623593939276
+        },
+        "nfl-predictions-503414.nfl_features_salaryfix.release_probe_20260919_v1_projections_snapshot": {
+          "rows": 504,
+          "checksum": 1484296623593939276
+        },
+        "nfl-predictions-503414.nfl_features_salaryfix.release_probe_20260919_v1_projections_restored": {
+          "rows": 504,
+          "checksum": 1484296623593939276
+        }
+      },
+      "exact_bidirectional_row_match": true,
+      "schema_partition_clustering_match": true
+    }
+  ],
+  "jobs": [
+    {
+      "id": "655391d7-53bd-4309-8cc4-ae11c457b7f5",
+      "sql": "CREATE SNAPSHOT TABLE `nfl-predictions-503414.nfl_features_salaryfix.release_probe_20260919_v1_salary_snapshot` CLONE `nfl-predictions-503414.nfl_features_control.dk_salary_week` FOR SYSTEM_TIME AS OF TIMESTAMP('2026-09-19T03:33:51.169484+00:00') OPTIONS(expiration_timestamp=TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL 3 DAY))",
+      "bytes_processed": 0
+    },
+    {
+      "id": "7f70fa6c-c6d9-4683-91b9-a9096a1791b2",
+      "sql": "CREATE TABLE `nfl-predictions-503414.nfl_features_salaryfix.release_probe_20260919_v1_salary_restored` CLONE `nfl-predictions-503414.nfl_features_salaryfix.release_probe_20260919_v1_salary_snapshot`",
+      "bytes_processed": 0
+    },
+    {
+      "id": "07e307c8-31f0-4d44-9c3e-13d3b94e931f",
+      "sql": "CREATE OR REPLACE TABLE `nfl-predictions-503414.nfl_features_salaryfix.release_probe_20260919_v1_salary_restored` CLONE `nfl-predictions-503414.nfl_features_salaryfix.release_probe_20260919_v1_salary_snapshot`",
+      "bytes_processed": 0
+    },
+    {
+      "id": "a1a006c6-41ef-4f82-ab38-01b09e95dd6c",
+      "sql": "ALTER TABLE `nfl-predictions-503414.nfl_features_salaryfix.release_probe_20260919_v1_salary_restored` SET OPTIONS (expiration_timestamp=TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL 3 DAY))",
+      "bytes_processed": 0
+    },
+    {
+      "id": "2b4006a4-ca90-4cf3-a51d-e4fef29eae15",
+      "sql": "SELECT COUNT(*) AS n, BIT_XOR(FARM_FINGERPRINT(TO_JSON_STRING(t))) AS h FROM `nfl-predictions-503414.nfl_features_control.dk_salary_week` t",
+      "bytes_processed": 7034048
+    },
+    {
+      "id": "7715ebed-982b-4bf2-81b7-cdb7cd374413",
+      "sql": "SELECT COUNT(*) AS n, BIT_XOR(FARM_FINGERPRINT(TO_JSON_STRING(t))) AS h FROM `nfl-predictions-503414.nfl_features_salaryfix.release_probe_20260919_v1_salary_snapshot` t",
+      "bytes_processed": 7034048
+    },
+    {
+      "id": "3caddfac-bcb1-47ea-aff5-6a3fbccd456a",
+      "sql": "SELECT COUNT(*) AS n, BIT_XOR(FARM_FINGERPRINT(TO_JSON_STRING(t))) AS h FROM `nfl-predictions-503414.nfl_features_salaryfix.release_probe_20260919_v1_salary_restored` t",
+      "bytes_processed": 7034048
+    },
+    {
+      "id": "b40b0782-0e22-4819-a7b4-65086665fc40",
+      "sql": "SELECT COUNT(*) AS n FROM (SELECT * FROM `nfl-predictions-503414.nfl_features_control.dk_salary_week` EXCEPT DISTINCT SELECT * FROM `nfl-predictions-503414.nfl_features_salaryfix.release_probe_20260919_v1_salary_restored`)",
+      "bytes_processed": 14068096
+    },
+    {
+      "id": "7ef25a19-d4d0-4767-a55b-54ed3671494b",
+      "sql": "SELECT COUNT(*) AS n FROM (SELECT * FROM `nfl-predictions-503414.nfl_features_salaryfix.release_probe_20260919_v1_salary_restored` EXCEPT DISTINCT SELECT * FROM `nfl-predictions-503414.nfl_features_control.dk_salary_week`)",
+      "bytes_processed": 14068096
+    },
+    {
+      "id": "58082077-3b0a-4228-a3b0-3593140093bc",
+      "sql": "CREATE SNAPSHOT TABLE `nfl-predictions-503414.nfl_features_salaryfix.release_probe_20260919_v1_projections_snapshot` CLONE `nfl-predictions-503414.nfl_predictions_control.player_projections` FOR SYSTEM_TIME AS OF TIMESTAMP('2026-09-19T03:33:51.169484+00:00') OPTIONS(expiration_timestamp=TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL 3 DAY))",
+      "bytes_processed": 0
+    },
+    {
+      "id": "cdd291b4-e1f7-4d24-befd-49631f9bc2c0",
+      "sql": "CREATE TABLE `nfl-predictions-503414.nfl_features_salaryfix.release_probe_20260919_v1_projections_restored` CLONE `nfl-predictions-503414.nfl_features_salaryfix.release_probe_20260919_v1_projections_snapshot`",
+      "bytes_processed": 0
+    },
+    {
+      "id": "8c94457d-4dec-4882-a3da-dea3abf6b0c0",
+      "sql": "CREATE OR REPLACE TABLE `nfl-predictions-503414.nfl_features_salaryfix.release_probe_20260919_v1_projections_restored` CLONE `nfl-predictions-503414.nfl_features_salaryfix.release_probe_20260919_v1_projections_snapshot`",
+      "bytes_processed": 0
+    },
+    {
+      "id": "411c4e17-3261-4361-b7ae-d0ec286c752f",
+      "sql": "ALTER TABLE `nfl-predictions-503414.nfl_features_salaryfix.release_probe_20260919_v1_projections_restored` SET OPTIONS (expiration_timestamp=TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL 3 DAY))",
+      "bytes_processed": 0
+    },
+    {
+      "id": "bac11118-f875-4bb1-ab93-6e9c5bcbb863",
+      "sql": "SELECT COUNT(*) AS n, BIT_XOR(FARM_FINGERPRINT(TO_JSON_STRING(t))) AS h FROM `nfl-predictions-503414.nfl_predictions_control.player_projections` t",
+      "bytes_processed": 90950
+    },
+    {
+      "id": "70ad2334-494a-49fa-99a1-81641fd6a1cb",
+      "sql": "SELECT COUNT(*) AS n, BIT_XOR(FARM_FINGERPRINT(TO_JSON_STRING(t))) AS h FROM `nfl-predictions-503414.nfl_features_salaryfix.release_probe_20260919_v1_projections_snapshot` t",
+      "bytes_processed": 90950
+    },
+    {
+      "id": "fa9ea027-8b31-465f-8acb-b56cc0417c84",
+      "sql": "SELECT COUNT(*) AS n, BIT_XOR(FARM_FINGERPRINT(TO_JSON_STRING(t))) AS h FROM `nfl-predictions-503414.nfl_features_salaryfix.release_probe_20260919_v1_projections_restored` t",
+      "bytes_processed": 90950
+    },
+    {
+      "id": "e3eb5214-aee1-4171-aec4-59d55280a866",
+      "sql": "SELECT COUNT(*) AS n FROM (SELECT * FROM `nfl-predictions-503414.nfl_predictions_control.player_projections` EXCEPT DISTINCT SELECT * FROM `nfl-predictions-503414.nfl_features_salaryfix.release_probe_20260919_v1_projections_restored`)",
+      "bytes_processed": 181900
+    },
+    {
+      "id": "b518164b-8e4a-48ca-92fe-ca7f9341f49a",
+      "sql": "SELECT COUNT(*) AS n FROM (SELECT * FROM `nfl-predictions-503414.nfl_features_salaryfix.release_probe_20260919_v1_projections_restored` EXCEPT DISTINCT SELECT * FROM `nfl-predictions-503414.nfl_predictions_control.player_projections`)",
+      "bytes_processed": 181900
+    }
+  ],
+  "source_sha256": "1179693753cba1ae75272c8ce53366ad649726c7da401b21b2d113ec82419402",
+  "scope": "scratch snapshot/restore rehearsal only; no live writes; probe tables expire in 3 days"
+}

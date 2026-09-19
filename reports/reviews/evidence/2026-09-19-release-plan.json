@@ -1,0 +1,240 @@
+{
+  "status": "PREPARED_NOT_EXECUTED",
+  "project": "nfl-predictions-503414",
+  "region": "us-central1",
+  "location": "US",
+  "backup_dataset": "nfl-predictions-503414.nfl_release_20260919_input_repair",
+  "tables": [
+    {
+      "source": "nfl-predictions-503414.nfl_features.player_id_overrides",
+      "snapshot": "nfl-predictions-503414.nfl_release_20260919_input_repair.nfl_features__player_id_overrides",
+      "expected_schema_sha256": "1395a50369328dc58e5b4967ce6d882069adeca4cb1262c111424b38d911df82"
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.player_id_map",
+      "snapshot": "nfl-predictions-503414.nfl_release_20260919_input_repair.nfl_features__player_id_map",
+      "expected_schema_sha256": "c14dce5b448599f997b2c155fa47f60c7c0991558eb34eca4ce2821a00f8d1ce"
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.dk_salary_week",
+      "snapshot": "nfl-predictions-503414.nfl_release_20260919_input_repair.nfl_features__dk_salary_week",
+      "expected_schema_sha256": "4385f2d4f8e90e133381e75321b93e40d15fc0e31b52cab93be551323a91e434"
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.player_week_role",
+      "snapshot": "nfl-predictions-503414.nfl_release_20260919_input_repair.nfl_features__player_week_role",
+      "expected_schema_sha256": "897cced53be0c4af31fec493442e480a56753291d701dd2345c0dc0d122ae8e4"
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.rz_receiving",
+      "snapshot": "nfl-predictions-503414.nfl_release_20260919_input_repair.nfl_features__rz_receiving",
+      "expected_schema_sha256": "740f6a30004596d0d0116ee61a72f263e3e9ba9629d2df6cde693e50cefa52bd"
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.rz_rushing",
+      "snapshot": "nfl-predictions-503414.nfl_release_20260919_input_repair.nfl_features__rz_rushing",
+      "expected_schema_sha256": "6796211aecbc919c5bd30efe5bce84406a0b162361887d4fd19a62da1f56eaf1"
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.schedule_long",
+      "snapshot": "nfl-predictions-503414.nfl_release_20260919_input_repair.nfl_features__schedule_long",
+      "expected_schema_sha256": "5ce9238f3c51f55e8ea433617d108873cba261f17d975d3d4b2988d17c91dbd3"
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.player_week_actuals",
+      "snapshot": "nfl-predictions-503414.nfl_release_20260919_input_repair.nfl_features__player_week_actuals",
+      "expected_schema_sha256": "8be3883e0a00af307a39bb4edf101c7b35d208c0612a2be0c8c954c62f3f48aa"
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.player_week_usage",
+      "snapshot": "nfl-predictions-503414.nfl_release_20260919_input_repair.nfl_features__player_week_usage",
+      "expected_schema_sha256": "5f5919afc29ddd08193cd523265b92252b5cc1a356246c2a8797eae7fef7b6c7"
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.player_week_efficiency",
+      "snapshot": "nfl-predictions-503414.nfl_release_20260919_input_repair.nfl_features__player_week_efficiency",
+      "expected_schema_sha256": "80f50b48dc0bb3ec05719aafa58031e4d5d6e1736d58ef2557720c1d812c5802"
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.player_week_advanced",
+      "snapshot": "nfl-predictions-503414.nfl_release_20260919_input_repair.nfl_features__player_week_advanced",
+      "expected_schema_sha256": "2b0520b69da3ba9f80993f62708d163017b9e02be957170b67f5991eab767dce"
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.team_week_context",
+      "snapshot": "nfl-predictions-503414.nfl_release_20260919_input_repair.nfl_features__team_week_context",
+      "expected_schema_sha256": "b6f7d59ff20d2c98b5a30285138920512e99aea23c7d06b39d2e9922d71c995b"
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.defense_week_allowed",
+      "snapshot": "nfl-predictions-503414.nfl_release_20260919_input_repair.nfl_features__defense_week_allowed",
+      "expected_schema_sha256": "8536cea8886edab1491bac6eae0c49c35fa4ab7f95700ed23c803521a9ad3abf"
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.defense_week_coverage",
+      "snapshot": "nfl-predictions-503414.nfl_release_20260919_input_repair.nfl_features__defense_week_coverage",
+      "expected_schema_sha256": "06b006ea2bfbb8e7bac0dc5805096b537728eef73da23b915b0dae128e642acf"
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.referee_game_tendency",
+      "snapshot": "nfl-predictions-503414.nfl_release_20260919_input_repair.nfl_features__referee_game_tendency",
+      "expected_schema_sha256": "20aece42bd1429f6134a2314dd943689f8eb8c9c92c78592d789e72d29778353"
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.team_week_neutral_pass",
+      "snapshot": "nfl-predictions-503414.nfl_release_20260919_input_repair.nfl_features__team_week_neutral_pass",
+      "expected_schema_sha256": "bd39070299cd44f19f116b591419954dff66d9944b7c3945493be1e2e7108a7d"
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.team_week_ol_out",
+      "snapshot": "nfl-predictions-503414.nfl_release_20260919_input_repair.nfl_features__team_week_ol_out",
+      "expected_schema_sha256": "b426c2e1c406a9e70c7b78a9b7ec3a0e4e35bb67c40a12808b89a5bdd5c9f16f"
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.team_week_pace",
+      "snapshot": "nfl-predictions-503414.nfl_release_20260919_input_repair.nfl_features__team_week_pace",
+      "expected_schema_sha256": "56515c2753c105ad6dd9f441b550755ef1f28e09b31876f51340d10ffcfb727f"
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.defense_week_blitz",
+      "snapshot": "nfl-predictions-503414.nfl_release_20260919_input_repair.nfl_features__defense_week_blitz",
+      "expected_schema_sha256": "09bff88676ed7abc0b8316ff425c5e585d060977d36dffb1d7c5c8357f49a70c"
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.team_week_target_concentration",
+      "snapshot": "nfl-predictions-503414.nfl_release_20260919_input_repair.nfl_features__team_week_target_concentration",
+      "expected_schema_sha256": "145c12c266e3a999fd5d4330b2d3ef449d466dddc2e2f308e0a5463863ded7c0"
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.qb_week_ngs",
+      "snapshot": "nfl-predictions-503414.nfl_release_20260919_input_repair.nfl_features__qb_week_ngs",
+      "expected_schema_sha256": "9b7c6d20473a62aa4f6e067fb58471adfdcb2377cabb0fc1f872204c58e03782"
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.team_week_ftn_offense",
+      "snapshot": "nfl-predictions-503414.nfl_release_20260919_input_repair.nfl_features__team_week_ftn_offense",
+      "expected_schema_sha256": "5d88b36150fb7ef46dbab87dc8bdd7fdf8062eba0c99fd61ac96932b640d6fac"
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.player_week_xfp",
+      "snapshot": "nfl-predictions-503414.nfl_release_20260919_input_repair.nfl_features__player_week_xfp",
+      "expected_schema_sha256": "7f1dac2d2a2565bb76fd6d7768b34b0c8fa499e8de40d05f295a046c64b1668f"
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.team_week_schedule_ctx",
+      "snapshot": "nfl-predictions-503414.nfl_release_20260919_input_repair.nfl_features__team_week_schedule_ctx",
+      "expected_schema_sha256": "2ca3951e5b0d1f9737b50c7415e1587145df47ecb7fe9d6edb46e9e8a01ee504"
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.player_week_fp_route",
+      "snapshot": "nfl-predictions-503414.nfl_release_20260919_input_repair.nfl_features__player_week_fp_route",
+      "expected_schema_sha256": "ad4d6fd8e26adc55c60b3c1841b54921fdfdea14dde165ffcb50dd962e74b4b3"
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.team_week_qb_quality",
+      "snapshot": "nfl-predictions-503414.nfl_release_20260919_input_repair.nfl_features__team_week_qb_quality",
+      "expected_schema_sha256": "50dd1b4712b6a177745db06b97d75c09f7a8c2e07294f1182a7ba424f618dfb6"
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.player_week_injury",
+      "snapshot": "nfl-predictions-503414.nfl_release_20260919_input_repair.nfl_features__player_week_injury",
+      "expected_schema_sha256": "6d0de5a739740a9213789a534636a7c63ba766d5546f8d9ccb371c9d56b450a5"
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.team_week_vacated",
+      "snapshot": "nfl-predictions-503414.nfl_release_20260919_input_repair.nfl_features__team_week_vacated",
+      "expected_schema_sha256": "82731dc509b6b138625cf32cd4b2ffa5799a6a2101296c7f85f5d7498f016248"
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.game_weather",
+      "snapshot": "nfl-predictions-503414.nfl_release_20260919_input_repair.nfl_features__game_weather",
+      "expected_schema_sha256": "86644f0fe5637ed46d3349bbc89a579ae5e18f894897793b32f34f8418805cd0"
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.player_week_training",
+      "snapshot": "nfl-predictions-503414.nfl_release_20260919_input_repair.nfl_features__player_week_training",
+      "expected_schema_sha256": "15a73f123f616806a06780aaeb7ca01d9ff3c771801c5abeec68227792d64bae"
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.defense_points_against",
+      "snapshot": "nfl-predictions-503414.nfl_release_20260919_input_repair.nfl_features__defense_points_against",
+      "expected_schema_sha256": "e8cd60b29d8304b7082c33f2b2f7dbe1ae73b08f731d4192b728307a3f9f1551"
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.player_week_inference",
+      "snapshot": "nfl-predictions-503414.nfl_release_20260919_input_repair.nfl_features__player_week_inference",
+      "expected_schema_sha256": "4a2d2ca03ce311cbeef11c9f32f179ce58ab4e361f32f1e6e057eb512daff154"
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.team_defense_week",
+      "snapshot": "nfl-predictions-503414.nfl_release_20260919_input_repair.nfl_features__team_defense_week",
+      "expected_schema_sha256": "6258e14c2414fd776a4ddaba3038ee414cf906c1ece2557976ad00660ddfb066"
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.tabpfn_projections",
+      "snapshot": "nfl-predictions-503414.nfl_release_20260919_input_repair.nfl_features__tabpfn_projections",
+      "expected_schema_sha256": "b482347a5df5581467d047532de4fef7682dd09720a40b172dc512f26e113d8c"
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_predictions.player_projections",
+      "snapshot": "nfl-predictions-503414.nfl_release_20260919_input_repair.nfl_predictions__player_projections",
+      "expected_schema_sha256": "f55c54abd18bf05d9dd45c48c5a9adfa81b80103759e356c231d2a6523a73ccb"
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_predictions.div_shadow",
+      "snapshot": "nfl-predictions-503414.nfl_release_20260919_input_repair.nfl_predictions__div_shadow",
+      "expected_schema_sha256": "3650c67998801933aafda860594ab1734b94867c3b18be064b7462f0f10a1cfa"
+    }
+  ],
+  "views": {
+    "nfl-predictions-503414.nfl_features.unmatched_dk_players": {
+      "exists": true,
+      "source": [
+        "002_unmatched_report.sql"
+      ],
+      "kind": "VIEW",
+      "location": "US",
+      "rows": 0,
+      "bytes": 0,
+      "etag": "lSnc4Q3/BtzgIAwxQuqxIg==",
+      "modified": "2026-09-17T10:15:36+00:00",
+      "schema_sha256": "98e0171c8e7e94ddef2955a148af408a0a97a7be503f885a21933e7d2c0cd0ab",
+      "partitioning": null,
+      "clustering": null,
+      "view_query": "WITH latest_pull AS (\n  SELECT MAX(pulled_at) AS ts FROM `nfl-predictions-503414.nfl_raw.dk_salaries`\n)\nSELECT DISTINCT s.dk_player_id, s.display_name, s.team_abbr, s.position, s.salary\nFROM `nfl-predictions-503414.nfl_raw.dk_salaries` s, latest_pull\nWHERE s.pulled_at = latest_pull.ts\n  AND s.dk_player_id NOT IN (SELECT dk_player_id FROM `nfl-predictions-503414.nfl_features.player_id_map`)\nORDER BY s.salary DESC"
+    }
+  },
+  "jobs": {
+    "build-features": {
+      "before": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:cdbf96ad190925b2c96a94568f173c4bded328442441838427fa473d2fd450b2",
+      "candidate": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:8d9b3cb55865edc66c99e01b28a7a6ba0d588458ac921c1485069fac32814e03",
+      "expected_template_sha256": "725e4a67b7262a257fa0ef7e0be3ffa8ba3f03013b9d9348c24085431ef1b4cf"
+    },
+    "tabpfn-gen": {
+      "before": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/tabpfn-gen@sha256:7eeff44e7c225fed62682b3649dfa86d77f86227e3e9858c967d132deff2a10a",
+      "candidate": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/tabpfn-gen@sha256:fdb120dc2291b7d09538987d97e8b30d0e8fe5f7e9d9d40995b6adcc4d4692d6",
+      "expected_template_sha256": "42707b3c4829c6ea16787730b13bb3b1103d5792ebed8d892b807827701a6e44"
+    }
+  },
+  "project_slate": {
+    "template_unchanged": true,
+    "image_tag": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:week1-live-193e1b44d2b4",
+    "resolved_digest": "sha256:f630fc8c88ed1625fa7873d959e0dcc217a55bd4d95b4e0edb9c1386fb3d5f5d"
+  },
+  "lab": {
+    "candidate_sha": "2dc116ce95647a776ba9c36cf194f44d022d03a4",
+    "rollback_sha": "e7255e98bf87297452befb61fb508ad4b368b59f",
+    "target_prior": "none",
+    "selector": "dual_emax",
+    "host_runtime_patch": "pending workstation preparation"
+  },
+  "build_utc": "2026-09-19T15:30:00Z",
+  "refresh_utc": "2026-09-19T14:45:00Z",
+  "must_recheck": [
+    "no active competing executions or writers",
+    "job templates and resolved images",
+    "feature SQL output table/view inventory",
+    "snapshot success and identities before any live write",
+    "all post-refresh guards before runtime activation"
+  ]
+}

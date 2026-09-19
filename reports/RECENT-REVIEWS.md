@@ -79,3 +79,6 @@ Consolidated September 18, 2026 at Erich's request. Source commits: production `
 
 - [Expanded complete-chain results](2026-09-19-repaired-chain-d1600-results.md): both 1,600-candidate runs pass; repaired-model P220 rises 13.500% to 17.195%, with strong opposing old-model evidence preserved.
 - [Expanded target-prior selection](2026-09-19-zero-target-prior-d1600-results.md): more memberships change, but whole-book gains remain small and the ordinary first lineup is unchanged.
+
+- [Weekend repair release and rollback](2026-09-19-weekend-input-repair-release-plan.md): exact candidate identities, 36-table backup/restore plan and successful scratch restore rehearsal; runtime patch review ongoing, no activation.
+- [Optional target-prior implementation](2026-09-19-live-target-prior-validation.md): 30 tests and exact full CLI parity pass for default and both explicit priors; default remains off.

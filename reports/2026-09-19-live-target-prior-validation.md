@@ -1,0 +1,23 @@
+# Optional live target prior: implementation and validation
+
+This branch adds the two exact rules studied in production `b8d79058` / `1938d377` and simulated at `afb42627`. It is based on reviewed live game-input repair `2dc116c`. No live configuration has changed.
+
+`hsim/target_prior.py` fits the empirical model using seasons strictly before the target season and applies either that model or the fixed one-prior-game rule only to eligible observed-zero target weights. Original activity masks, carry inputs and all noneligible initial weights remain intact. Shared downstream calibration is unchanged. The empirical fit filters the season before label comparisons and refuses duplicate prior player/week identities or no eligible prior labels. Invalid/foreign-season model contracts refuse before simulation.
+
+`world.simulate_hsim` and `calibrate_weights` accept an explicit optional prior; omission preserves the original path. The live CLI exposes `--hsim-target-prior` with `none`, `one_prior_game` or `past_empirical`; default is `NFL2_HSIM_TARGET_PRIOR` when set, otherwise`none`. Non-none requires`dual_emax`. The model is fit from the same cached historical training panel already used by the live model. Rule, eligible count, complete model and its content digest are recorded with the selection receipt. The option affects hsim selection and its WEMAX sidecar, not candidate generation.
+
+Validation completed before the first source commit:
+
+-30targeted tests pass: new prior tests plus the existing live-game-input suite. They exercise exact eligibility boundaries, unchanged noneligible/carry weights, input immutability, missing labels, future-label refusal, duplicate keys, earliest-season failure, invalid model contracts and all five pilots plus final draw.
+-On the actual frozen102,927-row historical panel, the new learned model's complete coefficient dictionary exactly equals the published2026research model.
+-On the actual429-player repaired frame, both rules' entire initial target-weight vectors exactly equal the research trace. All27eligible players match.
+
+Remaining before release consideration: unchanged-default full-bank/CLI parity, opted-in bank/CLI parity with the frozen research trace, independent source review, and the larger-pool selection result. The historical error gains and restored support are not a proven NFL lineup gain; the160-candidate selection effect was minimal. The old live default remains unchanged unless the operator explicitly selects a rule and releases this source. A prior-enabled operational release requires that explicit option in addition to the clone/expected-SHA repin.
+
+Peer source review at lab `955b209` found no numerical/default-path defect. The default selection receipt intentionally gains `hsim_target_prior: {rule: none}`; this metadata delta is declared before full CLI parity testing. The learned prior receipt now explicitly reports shrinkage pseudo-count 20; the fitted coefficient dictionary stays identical to the research specification. The same 30 targeted tests pass after this metadata amendment. Expanded D1600 evidence (production `bd9a7ca9`) still shows small, law-dependent book-level gains and an unchanged ordinary first lineup; it does not establish a reason to enable the prior this weekend.
+
+## Complete CLI parity — passed
+
+All three full CLI passes at source `5adc176` succeeded on immutable repaired D160 inputs: default 42.61 seconds, fixed one-prior-game 42.80 seconds, learned past-empirical 42.66 seconds. Each emitted 97 legal entries from 160 candidates with 10,000 worlds and all normal guards. Complete frames (including salary-pull timestamps), original ordered rosters, all candidate non-rank columns, generation/incumbent selection/incumbent audit banks match exactly. Both hsim banks, calibration weights/team efficiencies and ordinary/WEMAX index orders match their frozen research counterparts exactly. The default also matches both CSVs and the entire original candidate table/config, allowing only the previously declared receipt field. Learned coefficient parity and pseudo-count metadata pass.
+
+The first adapter safely refused before generation because its research benchmark allowlist omitted the CLI's existing DST development table. The four-consumer sweep and manifest-authenticated DST file were frozen in v2 (`b347b0be`); failed evidence is retained and no model or parity criterion changed. Source review and larger-pool testing are complete. Implementation parity is established; NFL efficacy is not. This remains an optional, default-off research improvement, not the recommended base release for this weekend.
