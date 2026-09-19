@@ -1,0 +1,15 @@
+{
+  "image": "sha256:7eeff44e7c225fed62682b3649dfa86d77f86227e3e9858c967d132deff2a10a",
+  "sources": {
+    "gen.py": {
+      "layer": "sha256:68689427968b4b3f2b32214cab3473a19a0235940c8e7a1fd460195152df0ead",
+      "sha256": "0d8a355b270e2ef5f6097bef51ca5d3ff1715e20951b4c2762b5594a5b9c9a81",
+      "bytes": 13937
+    },
+    "features.txt": {
+      "layer": "sha256:f5185061c1d3b153e845553c6a087ca5067804cd8299a71583d2a2e5ca2df1da",
+      "sha256": "52cc95c500bc3bd4223baacb29be73e3df4d637ce289b6431735cddd46195b83",
+      "bytes": 507
+    }
+  }
+}

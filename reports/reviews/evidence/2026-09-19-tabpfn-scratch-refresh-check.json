@@ -1,0 +1,28 @@
+{
+  "checks": [
+    "live namespace",
+    "modified deployed source",
+    "live read",
+    "unfiltered scratch labels",
+    "scratch DML",
+    "live write",
+    "scratch overwrite",
+    "all rejected calls stopped before provider access",
+    "control source identity and actual filtered query dry-run",
+    "salaryfix source identity and actual filtered query dry-run"
+  ],
+  "count": 10,
+  "dry_runs": [
+    {
+      "arm": "control",
+      "bytes": 76723779,
+      "adapted_bytes": 14065
+    },
+    {
+      "arm": "salaryfix",
+      "bytes": 77165096,
+      "adapted_bytes": 14077
+    }
+  ],
+  "cloud_writes": 0
+}
