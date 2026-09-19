@@ -1,0 +1,20 @@
+{
+  "equal": true,
+  "compared_scalar_fields": 26758,
+  "differences": [],
+  "excluded": {
+    "reader_sha256": [
+      "3a64115458ea877b600c4d9911da5a48dae4349fad9999d15744f85b61b5cca7",
+      "d168bee21036b88afeb26393b87784d2dd3ee514702f2367915baf20c451b93a"
+    ],
+    "seconds": [
+      2.6926037009980064,
+      2.6449440750002395
+    ]
+  },
+  "expected_sha256": "c809be0043aec4c0b10eda6719c759ba13bfea6a49162b0ef02f1c30f9fe5fb7",
+  "replay_sha256": "171dbfd579b8bf75340c049ccd0697135d07f39091bc6ccd461f60373bbd0c1d",
+  "replay_reader_sha256": "d168bee21036b88afeb26393b87784d2dd3ee514702f2367915baf20c451b93a",
+  "archive_sha256": "6ed7644387c1a0854277b159fdc96dc9417377b88feecb9b8812ca86a612fa89",
+  "manifest_sha256": "00b77f510755ac39fb1b97e4f0e8f8d2668e6e75240b2a478dfc67c279292600"
+}
