@@ -4,6 +4,21 @@
 
 # Project handoff
 
+## 2026-09-19 — salary-week root cause established; isolated repair in progress
+
+Workstation handoff `d0b3e4c` independently confirms live Week2 inference has 928 rows with no usage history.
+All 722,516 current-season raw salary rows have null week (ingest deliberately defers resolution); feature
+SQL 001a requires non-null week, so dk_salary_week has no 2026 rows. Week1 stats and snaps are present.
+This is a contract defect, not evidence of absent source data. Repair branch `fix/2026-09-salary-week-resolution`
+based on production `63a93f24`, SQL at `99440a23`, resolves missing weeks by unambiguous season/team/Eastern
+game date. Existing feature SQL tests and actual BigQuery literal fixtures pass. Real-table parity/usage
+preview and independent review are in progress. No live datasets, policy, timers or entries changed.
+
+[Route support report](reports/2026-09-19-route-role-support-results.md), frozen `7ef91992`, confirms positive
+2026-W1 routes for five of six selected hsim-zero-support WRs. This is support evidence, not predictive lift.
+The broken free-data baseline must be repaired before attributing incremental value to the paid feature.
+All 265 queried Route rows passed identity/week/value checks; 5.4 MB processed, no vendor calls or writes.
+
 ## 2026-09-19 — whole-book-only retrieval complement completed
 
 Frozen `2c5710c1`, [result](reports/2026-09-19-fixed-k-tradeoff-results.md). Removing prefix/block guards did
