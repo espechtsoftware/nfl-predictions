@@ -4,6 +4,16 @@
 
 # Project handoff
 
+## 2026-09-19 — adoption question pending; fresh metadata inventory unchanged
+
+At04:33:38UTC the repeated read-only inventory finds no table metadata or job
+template change since03:11; all36tables and oneview remain present. One async
+question asks Erich whether to activate the three tested input repairs under the
+published complete release/rollback plan. **No approval yet; do not activate based
+on silence.** Research, read-only checks and five-minute handoff processing continue.
+The inventory script now accepts explicit new output/private directories to retain
+every census without overwriting evidence. Runtime42tests are independently passed.
+
 ## 2026-09-19 — runtime source review accepted; law-weight forecasts continue
 
 Lab `d7abe2c` passes all42behavioral tests here. Full reconstructed arm script

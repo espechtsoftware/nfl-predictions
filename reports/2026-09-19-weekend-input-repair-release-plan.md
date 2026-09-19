@@ -27,6 +27,11 @@ Images are under `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/`. B
 
 [Machine-readable release plan](reviews/evidence/2026-09-19-release-plan.json), [live metadata inventory](reviews/evidence/2026-09-19-release-inventory.json). Inventory captured at 03:11 UTC and must be refreshed immediately before release. Private job configurations are stored locally with mode 0600; tracked evidence exposes only identities and nonsensitive fields.
 
+The [04:33:38 UTC refresh](reviews/evidence/2026-09-19-release-inventory-refresh.json)
+finds all36tables/oneview present, with **no changed table metadata or job template**
+against the03:11inventory. An explicit adoption decision has been requested from
+Erich; it is pending. No dependent live action is authorized by elapsed time.
+
 ## Release sequence
 
 1. Confirm authorization for this exact option. Recheck the live job image/template identities, the prepared workstation checkout and all runtime overrides. Preserve the original clean lab checkout; activate a separate clean candidate checkout, never repoint the old one. Ensure no prior option is accidentally inherited.

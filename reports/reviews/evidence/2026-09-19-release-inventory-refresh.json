@@ -1,0 +1,650 @@
+{
+  "checked_at": "2026-09-19T04:33:38.255393+00:00",
+  "tables": {
+    "nfl-predictions-503414.nfl_features.player_id_overrides": {
+      "exists": true,
+      "source": [
+        "001_player_id_map.sql"
+      ],
+      "kind": "TABLE",
+      "location": "US",
+      "rows": 0,
+      "bytes": 0,
+      "etag": "HIHJxuxJXoLd/SkP563H/Q==",
+      "modified": "2026-07-24T18:01:39.322000+00:00",
+      "schema_sha256": "1395a50369328dc58e5b4967ce6d882069adeca4cb1262c111424b38d911df82",
+      "partitioning": null,
+      "clustering": null,
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_features.player_id_map": {
+      "exists": true,
+      "source": [
+        "001_player_id_map.sql"
+      ],
+      "kind": "TABLE",
+      "location": "US",
+      "rows": 909,
+      "bytes": 47744,
+      "etag": "hXa2mOTiRgcZktSD9EVnMQ==",
+      "modified": "2026-09-17T10:15:14.608000+00:00",
+      "schema_sha256": "c14dce5b448599f997b2c155fa47f60c7c0991558eb34eca4ce2821a00f8d1ce",
+      "partitioning": null,
+      "clustering": null,
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_features.dk_salary_week": {
+      "exists": true,
+      "source": [
+        "001a_dk_salary_week.sql"
+      ],
+      "kind": "TABLE",
+      "location": "US",
+      "rows": 104847,
+      "bytes": 7034048,
+      "etag": "yOqFrFxPXExk4UI7WQWKxg==",
+      "modified": "2026-09-17T10:15:35.101000+00:00",
+      "schema_sha256": "4385f2d4f8e90e133381e75321b93e40d15fc0e31b52cab93be551323a91e434",
+      "partitioning": null,
+      "clustering": null,
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_features.player_week_role": {
+      "exists": true,
+      "source": [
+        "003_player_week_role.sql"
+      ],
+      "kind": "TABLE",
+      "location": "US",
+      "rows": 164794,
+      "bytes": 8694990,
+      "etag": "jhluy4jBZmDsU7LcaRybqQ==",
+      "modified": "2026-09-17T10:15:43.403000+00:00",
+      "schema_sha256": "897cced53be0c4af31fec493442e480a56753291d701dd2345c0dc0d122ae8e4",
+      "partitioning": null,
+      "clustering": null,
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_features.rz_receiving": {
+      "exists": true,
+      "source": [
+        "010_rz_receiving.sql"
+      ],
+      "kind": "TABLE",
+      "location": "US",
+      "rows": 53275,
+      "bytes": 7201874,
+      "etag": "6eaiPts4evg+B0EfMucjHA==",
+      "modified": "2026-09-17T10:15:45.983000+00:00",
+      "schema_sha256": "740f6a30004596d0d0116ee61a72f263e3e9ba9629d2df6cde693e50cefa52bd",
+      "partitioning": null,
+      "clustering": null,
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_features.rz_rushing": {
+      "exists": true,
+      "source": [
+        "011_rz_rushing.sql"
+      ],
+      "kind": "TABLE",
+      "location": "US",
+      "rows": 27150,
+      "bytes": 3395254,
+      "etag": "BqzKP5TmUkB/SjS62l8fgw==",
+      "modified": "2026-09-17T10:15:48.436000+00:00",
+      "schema_sha256": "6796211aecbc919c5bd30efe5bce84406a0b162361887d4fd19a62da1f56eaf1",
+      "partitioning": null,
+      "clustering": null,
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_features.schedule_long": {
+      "exists": true,
+      "source": [
+        "012_schedule_long.sql"
+      ],
+      "kind": "TABLE",
+      "location": "US",
+      "rows": 14648,
+      "bytes": 1842426,
+      "etag": "AHEKru3fQkeMQsvO+5gdPw==",
+      "modified": "2026-09-17T10:15:50.530000+00:00",
+      "schema_sha256": "5ce9238f3c51f55e8ea433617d108873cba261f17d975d3d4b2988d17c91dbd3",
+      "partitioning": null,
+      "clustering": null,
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_features.player_week_actuals": {
+      "exists": true,
+      "source": [
+        "013_player_week_actuals.sql"
+      ],
+      "kind": "TABLE",
+      "location": "US",
+      "rows": 244366,
+      "bytes": 39526103,
+      "etag": "2FpubyCVHfRuqre7pDKRHw==",
+      "modified": "2026-09-17T10:15:53.534000+00:00",
+      "schema_sha256": "8be3883e0a00af307a39bb4edf101c7b35d208c0612a2be0c8c954c62f3f48aa",
+      "partitioning": null,
+      "clustering": null,
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_features.player_week_usage": {
+      "exists": true,
+      "source": [
+        "014_player_week_usage.sql"
+      ],
+      "kind": "TABLE",
+      "location": "US",
+      "rows": 103855,
+      "bytes": 22928543,
+      "etag": "ka9NaSuena4MpCjMPJ/uwA==",
+      "modified": "2026-09-17T10:15:58.093000+00:00",
+      "schema_sha256": "5f5919afc29ddd08193cd523265b92252b5cc1a356246c2a8797eae7fef7b6c7",
+      "partitioning": null,
+      "clustering": null,
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_features.player_week_efficiency": {
+      "exists": true,
+      "source": [
+        "015_player_week_efficiency.sql"
+      ],
+      "kind": "TABLE",
+      "location": "US",
+      "rows": 245294,
+      "bytes": 13865424,
+      "etag": "ZP40qzXShBoXadR1vAkj5Q==",
+      "modified": "2026-09-17T10:16:01.697000+00:00",
+      "schema_sha256": "80f50b48dc0bb3ec05719aafa58031e4d5d6e1736d58ef2557720c1d812c5802",
+      "partitioning": null,
+      "clustering": null,
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_features.player_week_advanced": {
+      "exists": true,
+      "source": [
+        "015a_player_week_advanced.sql"
+      ],
+      "kind": "TABLE",
+      "location": "US",
+      "rows": 103855,
+      "bytes": 4052492,
+      "etag": "ZpTHqDO1Md2L1HnZs8GY0A==",
+      "modified": "2026-09-17T10:16:06.978000+00:00",
+      "schema_sha256": "2b0520b69da3ba9f80993f62708d163017b9e02be957170b67f5991eab767dce",
+      "partitioning": null,
+      "clustering": null,
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_features.team_week_context": {
+      "exists": true,
+      "source": [
+        "016_team_week_context.sql"
+      ],
+      "kind": "TABLE",
+      "location": "US",
+      "rows": 14648,
+      "bytes": 1761904,
+      "etag": "Cg42iiSr8xzoLxcHqew3Gg==",
+      "modified": "2026-09-17T10:16:09.656000+00:00",
+      "schema_sha256": "b6f7d59ff20d2c98b5a30285138920512e99aea23c7d06b39d2e9922d71c995b",
+      "partitioning": null,
+      "clustering": null,
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_features.defense_week_allowed": {
+      "exists": true,
+      "source": [
+        "017_defense_week_allowed.sql"
+      ],
+      "kind": "TABLE",
+      "location": "US",
+      "rows": 6334,
+      "bytes": 450510,
+      "etag": "WQyBxdbBstH4wzPLGrnd4Q==",
+      "modified": "2026-09-17T10:16:12.984000+00:00",
+      "schema_sha256": "8536cea8886edab1491bac6eae0c49c35fa4ab7f95700ed23c803521a9ad3abf",
+      "partitioning": null,
+      "clustering": null,
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_features.defense_week_coverage": {
+      "exists": true,
+      "source": [
+        "017a_defense_week_coverage.sql"
+      ],
+      "kind": "TABLE",
+      "location": "US",
+      "rows": 14648,
+      "bytes": 410441,
+      "etag": "sCoyilF6qGp9oKtuumSo8g==",
+      "modified": "2026-09-17T10:16:16.282000+00:00",
+      "schema_sha256": "06b006ea2bfbb8e7bac0dc5805096b537728eef73da23b915b0dae128e642acf",
+      "partitioning": null,
+      "clustering": null,
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_features.referee_game_tendency": {
+      "exists": true,
+      "source": [
+        "017b_referee_tendency.sql"
+      ],
+      "kind": "TABLE",
+      "location": "US",
+      "rows": 3041,
+      "bytes": 213753,
+      "etag": "A8nhDd759x99W0rXHeiSoA==",
+      "modified": "2026-09-17T10:16:18.683000+00:00",
+      "schema_sha256": "20aece42bd1429f6134a2314dd943689f8eb8c9c92c78592d789e72d29778353",
+      "partitioning": null,
+      "clustering": null,
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_features.team_week_neutral_pass": {
+      "exists": true,
+      "source": [
+        "017c_team_neutral_pass.sql"
+      ],
+      "kind": "TABLE",
+      "location": "US",
+      "rows": 6317,
+      "bytes": 181324,
+      "etag": "7pd6FvTb96Y57rQW9x8q6g==",
+      "modified": "2026-09-17T10:16:20.926000+00:00",
+      "schema_sha256": "bd39070299cd44f19f116b591419954dff66d9944b7c3945493be1e2e7108a7d",
+      "partitioning": null,
+      "clustering": null,
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_features.team_week_ol_out": {
+      "exists": true,
+      "source": [
+        "017d_team_ol_out.sql"
+      ],
+      "kind": "TABLE",
+      "location": "US",
+      "rows": 5213,
+      "bytes": 149954,
+      "etag": "TeifT0CgIiPXvCHeLlfiGA==",
+      "modified": "2026-09-17T10:16:23.141000+00:00",
+      "schema_sha256": "b426c2e1c406a9e70c7b78a9b7ec3a0e4e35bb67c40a12808b89a5bdd5c9f16f",
+      "partitioning": null,
+      "clustering": null,
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_features.team_week_pace": {
+      "exists": true,
+      "source": [
+        "017e_team_pace.sql"
+      ],
+      "kind": "TABLE",
+      "location": "US",
+      "rows": 6654,
+      "bytes": 243984,
+      "etag": "/Q+FIKFNwqJcqB9oyTeAhQ==",
+      "modified": "2026-09-17T10:16:25.495000+00:00",
+      "schema_sha256": "56515c2753c105ad6dd9f441b550755ef1f28e09b31876f51340d10ffcfb727f",
+      "partitioning": null,
+      "clustering": null,
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_features.defense_week_blitz": {
+      "exists": true,
+      "source": [
+        "017f_opp_blitz.sql"
+      ],
+      "kind": "TABLE",
+      "location": "US",
+      "rows": 2342,
+      "bytes": 67066,
+      "etag": "+53jtCLnvttt7AHws9Gcrg==",
+      "modified": "2026-09-17T10:16:28.484000+00:00",
+      "schema_sha256": "09bff88676ed7abc0b8316ff425c5e585d060977d36dffb1d7c5c8357f49a70c",
+      "partitioning": null,
+      "clustering": null,
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_features.team_week_target_concentration": {
+      "exists": true,
+      "source": [
+        "017g_target_concentration.sql"
+      ],
+      "kind": "TABLE",
+      "location": "US",
+      "rows": 6654,
+      "bytes": 191008,
+      "etag": "o8iB++nKm9+mK4SYJIvPKQ==",
+      "modified": "2026-09-17T10:16:31.260000+00:00",
+      "schema_sha256": "145c12c266e3a999fd5d4330b2d3ef449d466dddc2e2f308e0a5463863ded7c0",
+      "partitioning": null,
+      "clustering": null,
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_features.qb_week_ngs": {
+      "exists": true,
+      "source": [
+        "017h_qb_ngs.sql"
+      ],
+      "kind": "TABLE",
+      "location": "US",
+      "rows": 5677,
+      "bytes": 246508,
+      "etag": "SBLNPfNkioV7W2v0Ex2aRw==",
+      "modified": "2026-09-17T10:16:33.915000+00:00",
+      "schema_sha256": "9b7c6d20473a62aa4f6e067fb58471adfdcb2377cabb0fc1f872204c58e03782",
+      "partitioning": null,
+      "clustering": null,
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_features.team_week_ftn_offense": {
+      "exists": true,
+      "source": [
+        "017i_ftn_offense.sql"
+      ],
+      "kind": "TABLE",
+      "location": "US",
+      "rows": 2342,
+      "bytes": 85546,
+      "etag": "o6Y8AoPOPJp+yIE226ctHg==",
+      "modified": "2026-09-17T10:16:36.978000+00:00",
+      "schema_sha256": "5d88b36150fb7ef46dbab87dc8bdd7fdf8062eba0c99fd61ac96932b640d6fac",
+      "partitioning": null,
+      "clustering": null,
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_features.player_week_xfp": {
+      "exists": true,
+      "source": [
+        "017j_xfp_schedule.sql"
+      ],
+      "kind": "TABLE",
+      "location": "US",
+      "rows": 61697,
+      "bytes": 2162916,
+      "etag": "uoIAzbLi+NKxgnPSoWi9jg==",
+      "modified": "2026-09-17T10:16:40.450000+00:00",
+      "schema_sha256": "7f1dac2d2a2565bb76fd6d7768b34b0c8fa499e8de40d05f295a046c64b1668f",
+      "partitioning": null,
+      "clustering": null,
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_features.team_week_schedule_ctx": {
+      "exists": true,
+      "source": [
+        "017j_xfp_schedule.sql"
+      ],
+      "kind": "TABLE",
+      "location": "US",
+      "rows": 14648,
+      "bytes": 534106,
+      "etag": "9L2T6+vItC5+RIEMV0UcXQ==",
+      "modified": "2026-09-17T10:16:42.789000+00:00",
+      "schema_sha256": "2ca3951e5b0d1f9737b50c7415e1587145df47ecb7fe9d6edb46e9e8a01ee504",
+      "partitioning": null,
+      "clustering": null,
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_features.player_week_fp_route": {
+      "exists": true,
+      "source": [
+        "017k_fantasy_points_route.sql"
+      ],
+      "kind": "TABLE",
+      "location": "US",
+      "rows": 103855,
+      "bytes": 11307750,
+      "etag": "gddiMQDXFXb7jIPtxE6/7Q==",
+      "modified": "2026-09-17T10:16:46.612000+00:00",
+      "schema_sha256": "ad4d6fd8e26adc55c60b3c1841b54921fdfdea14dde165ffcb50dd962e74b4b3",
+      "partitioning": null,
+      "clustering": null,
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_features.team_week_qb_quality": {
+      "exists": true,
+      "source": [
+        "017l_team_qb_quality.sql"
+      ],
+      "kind": "TABLE",
+      "location": "US",
+      "rows": 13998,
+      "bytes": 554446,
+      "etag": "bp602ggGe8vql2Xpc73rBw==",
+      "modified": "2026-09-17T10:16:48.937000+00:00",
+      "schema_sha256": "50dd1b4712b6a177745db06b97d75c09f7a8c2e07294f1182a7ba424f618dfb6",
+      "partitioning": null,
+      "clustering": null,
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_features.player_week_injury": {
+      "exists": true,
+      "source": [
+        "018_player_week_injury.sql"
+      ],
+      "kind": "TABLE",
+      "location": "US",
+      "rows": 57926,
+      "bytes": 5599586,
+      "etag": "AOyUSRmxIMtiEe4006dvXQ==",
+      "modified": "2026-09-17T10:16:53.387000+00:00",
+      "schema_sha256": "6d0de5a739740a9213789a534636a7c63ba766d5546f8d9ccb371c9d56b450a5",
+      "partitioning": null,
+      "clustering": null,
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_features.team_week_vacated": {
+      "exists": true,
+      "source": [
+        "018_player_week_injury.sql"
+      ],
+      "kind": "TABLE",
+      "location": "US",
+      "rows": 2261,
+      "bytes": 83095,
+      "etag": "UmSs4ii+FLUO+bK3mt6QLQ==",
+      "modified": "2026-09-17T10:16:55.693000+00:00",
+      "schema_sha256": "82731dc509b6b138625cf32cd4b2ffa5799a6a2101296c7f85f5d7498f016248",
+      "partitioning": null,
+      "clustering": null,
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_features.game_weather": {
+      "exists": true,
+      "source": [
+        "020_game_weather.sql"
+      ],
+      "kind": "TABLE",
+      "location": "US",
+      "rows": 7548,
+      "bytes": 215881,
+      "etag": "Xun9MGnzsSrjyE0Zg2XgXg==",
+      "modified": "2026-09-17T10:17:02+00:00",
+      "schema_sha256": "86644f0fe5637ed46d3349bbc89a579ae5e18f894897793b32f34f8418805cd0",
+      "partitioning": null,
+      "clustering": null,
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_features.player_week_training": {
+      "exists": true,
+      "source": [
+        "021_player_week_training.sql"
+      ],
+      "kind": "TABLE",
+      "location": "US",
+      "rows": 102927,
+      "bytes": 76722691,
+      "etag": "FlhO8qsTOCnIwpI07lPnKw==",
+      "modified": "2026-09-17T10:17:14.062000+00:00",
+      "schema_sha256": "15a73f123f616806a06780aaeb7ca01d9ff3c771801c5abeec68227792d64bae",
+      "partitioning": null,
+      "clustering": null,
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_features.defense_points_against": {
+      "exists": true,
+      "source": [
+        "022_defense_points_against.sql"
+      ],
+      "kind": "TABLE",
+      "location": "US",
+      "rows": 25333,
+      "bytes": 1640311,
+      "etag": "nvfPdEdU0f2005pu1gUPZg==",
+      "modified": "2026-09-17T10:17:16.951000+00:00",
+      "schema_sha256": "e8cd60b29d8304b7082c33f2b2f7dbe1ae73b08f731d4192b728307a3f9f1551",
+      "partitioning": null,
+      "clustering": null,
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_features.player_week_inference": {
+      "exists": true,
+      "source": [
+        "023_player_week_inference.sql"
+      ],
+      "kind": "TABLE",
+      "location": "US",
+      "rows": 928,
+      "bytes": 394317,
+      "etag": "Is+iubKSjvgWk/hzWZtUmw==",
+      "modified": "2026-09-17T10:17:22.292000+00:00",
+      "schema_sha256": "4a2d2ca03ce311cbeef11c9f32f179ce58ab4e361f32f1e6e057eb512daff154",
+      "partitioning": null,
+      "clustering": null,
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_features.team_defense_week": {
+      "exists": true,
+      "source": [
+        "024_team_defense_week.sql"
+      ],
+      "kind": "TABLE",
+      "location": "US",
+      "rows": 6334,
+      "bytes": 7280477,
+      "etag": "hzI74/UC4Q1z6Ktng/GBXw==",
+      "modified": "2026-09-17T10:17:26.105000+00:00",
+      "schema_sha256": "6258e14c2414fd776a4ddaba3038ee414cf906c1ece2557976ad00660ddfb066",
+      "partitioning": null,
+      "clustering": null,
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_features.tabpfn_projections": {
+      "exists": true,
+      "source": [
+        "tabpfn-gen"
+      ],
+      "kind": "TABLE",
+      "location": "US",
+      "rows": 66383,
+      "bytes": 9293620,
+      "etag": "GkbCRbFTAeIP403uQv3puA==",
+      "modified": "2026-09-17T10:32:29.938000+00:00",
+      "schema_sha256": "b482347a5df5581467d047532de4fef7682dd09720a40b172dc512f26e113d8c",
+      "partitioning": null,
+      "clustering": null,
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_predictions.player_projections": {
+      "exists": true,
+      "source": [
+        "project-slate"
+      ],
+      "kind": "TABLE",
+      "location": "US",
+      "rows": 9215,
+      "bytes": 1663011,
+      "etag": "TxY6nVgrwxJx11xAG0amVw==",
+      "modified": "2026-09-17T15:02:20.095000+00:00",
+      "schema_sha256": "f55c54abd18bf05d9dd45c48c5a9adfa81b80103759e356c231d2a6523a73ccb",
+      "partitioning": {
+        "type": "DAY",
+        "field": "generated_at"
+      },
+      "clustering": null,
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_predictions.div_shadow": {
+      "exists": true,
+      "source": [
+        "optional projection shadow consumer"
+      ],
+      "kind": "TABLE",
+      "location": "US",
+      "rows": 2312,
+      "bytes": 220013,
+      "etag": "l5sJQuIjvj/yg2L5ELJvEQ==",
+      "modified": "2026-09-17T15:02:10.023000+00:00",
+      "schema_sha256": "3650c67998801933aafda860594ab1734b94867c3b18be064b7462f0f10a1cfa",
+      "partitioning": null,
+      "clustering": null,
+      "view_query": null
+    },
+    "nfl-predictions-503414.nfl_features.unmatched_dk_players": {
+      "exists": true,
+      "source": [
+        "002_unmatched_report.sql"
+      ],
+      "kind": "VIEW",
+      "location": "US",
+      "rows": 0,
+      "bytes": 0,
+      "etag": "lSnc4Q3/BtzgIAwxQuqxIg==",
+      "modified": "2026-09-17T10:15:36+00:00",
+      "schema_sha256": "98e0171c8e7e94ddef2955a148af408a0a97a7be503f885a21933e7d2c0cd0ab",
+      "partitioning": null,
+      "clustering": null,
+      "view_query": "WITH latest_pull AS (\n  SELECT MAX(pulled_at) AS ts FROM `nfl-predictions-503414.nfl_raw.dk_salaries`\n)\nSELECT DISTINCT s.dk_player_id, s.display_name, s.team_abbr, s.position, s.salary\nFROM `nfl-predictions-503414.nfl_raw.dk_salaries` s, latest_pull\nWHERE s.pulled_at = latest_pull.ts\n  AND s.dk_player_id NOT IN (SELECT dk_player_id FROM `nfl-predictions-503414.nfl_features.player_id_map`)\nORDER BY s.salary DESC"
+    }
+  },
+  "jobs": {
+    "build-features": {
+      "image": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:cdbf96ad190925b2c96a94568f173c4bded328442441838427fa473d2fd450b2",
+      "command": [
+        "nfl-dfs"
+      ],
+      "args": [
+        "build-features"
+      ],
+      "environment_names": [
+        "GCP_PROJECT"
+      ],
+      "etag": "\"CNSQ6tQGELjb74ID/cHJvamVjdHMvbmZsLXByZWRpY3Rpb25zLTUwMzQxNC9sb2NhdGlvbnMvdXMtY2VudHJhbDEvam9icy9idWlsZC1mZWF0dXJlcw\"",
+      "template_sha256": "725e4a67b7262a257fa0ef7e0be3ffa8ba3f03013b9d9348c24085431ef1b4cf",
+      "private_config_sha256": "bc92b9bbfc1e3fb9cc0ae7e42b07a600e9be777d8b17538005486836bf16d55a"
+    },
+    "tabpfn-gen": {
+      "image": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/tabpfn-gen@sha256:7eeff44e7c225fed62682b3649dfa86d77f86227e3e9858c967d132deff2a10a",
+      "command": null,
+      "args": null,
+      "environment_names": [
+        "GCP_PROJECT"
+      ],
+      "etag": "\"CMGt7NQGELiRyLkB/cHJvamVjdHMvbmZsLXByZWRpY3Rpb25zLTUwMzQxNC9sb2NhdGlvbnMvdXMtY2VudHJhbDEvam9icy90YWJwZm4tZ2Vu\"",
+      "template_sha256": "42707b3c4829c6ea16787730b13bb3b1103d5792ebed8d892b807827701a6e44",
+      "private_config_sha256": "da6ca9d870eeb98c91b3787925077456b24a3bde83867f8cdbecc740867a1c69"
+    },
+    "project-slate": {
+      "image": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:week1-live-193e1b44d2b4",
+      "command": [
+        "nfl-dfs"
+      ],
+      "args": [
+        "project"
+      ],
+      "environment_names": [
+        "BLEND_MODEL_WEIGHT",
+        "GAME_SIM_MODE",
+        "GCP_PROJECT",
+        "MODEL_ENSEMBLE",
+        "MODEL_REGISTRY_VARIANT",
+        "ODDS_API_KEY"
+      ],
+      "etag": "\"CPaZmtUGELCQ4eEC/cHJvamVjdHMvbmZsLXByZWRpY3Rpb25zLTUwMzQxNC9sb2NhdGlvbnMvdXMtY2VudHJhbDEvam9icy9wcm9qZWN0LXNsYXRl\"",
+      "template_sha256": "61b5472d9ac415ad0ecb40f792e570dda73fd78f910c4835823f5154ca96a743",
+      "private_config_sha256": "e0f2f6522708924817a5787c0e0fbaac88362c53e6e22272f346d222aa742bd9"
+    }
+  },
+  "sql_source": "0db37c09",
+  "scope": "read-only metadata; no table contents, job updates or snapshots created"
+}

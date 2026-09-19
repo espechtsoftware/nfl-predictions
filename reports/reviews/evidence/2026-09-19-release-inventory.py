@@ -1,5 +1,6 @@
 """Read-only release/rollback inventory; never reads table contents or updates jobs."""
 import concurrent.futures
+import argparse
 import hashlib
 import json
 import os
@@ -13,8 +14,12 @@ from google.cloud import bigquery
 
 PROJECT='nfl-predictions-503414'
 SOURCE=Path('/home/erich/projects/.nfl-predictions-worktrees/salary-week-resolution')
-OUT=Path(__file__).with_suffix('.json')
-PRIVATE=Path('/home/erich/projects/review-evidence/overnight-20260918/release-inventory')
+parser=argparse.ArgumentParser()
+parser.add_argument('--out',default=str(Path(__file__).with_suffix('.json')))
+parser.add_argument('--private-root',default='/home/erich/projects/review-evidence/overnight-20260918/release-inventory')
+args=parser.parse_args()
+OUT=Path(args.out)
+PRIVATE=Path(args.private_root)
 assert not OUT.exists() and not PRIVATE.exists();PRIVATE.mkdir(mode=0o700)
 client=bigquery.Client(project=PROJECT)
 names={};views={}
