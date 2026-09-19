@@ -40,3 +40,5 @@ Consolidated September 18, 2026 at Erich's request. Source commits: production `
 - [Week2 component-gap decomposition](2026-09-18-week2-component-gap-results.md):12.73points associated withmeans,6.98with residualdistribution; diagnostic only.
 
 - [Same-book contest allocation](2026-09-19-contest-allocation-results.md): one qualifying exchange improves both affected blocks under both models; full-book 220+ coverage is unchanged.
+
+- [Fixed-K retrieval result](2026-09-19-fixed-k-retrieval-results.md): 965 coverage-improving replacement pairs screened; none preserve every declared component, prefix and contest guard.

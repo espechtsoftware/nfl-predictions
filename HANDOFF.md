@@ -4,6 +4,16 @@
 
 # Project handoff
 
+## 2026-09-19 — fixed-K retrieval diagnostic completed; no guarded replacement
+
+Frozen source `d0a41807`, [result](reports/2026-09-19-fixed-k-retrieval-results.md): all 965 replacement pairs
+with positive combined P220 coverage and no component coverage loss were checked; zero passed all component,
+prefix and actual-block guards. First failures: P220 557, Emax 402, GLOBAL proxy 6. 1.429 seconds, no budget cap.
+Book unchanged. This is a narrow no-harm single-replacement result, not a closure of selection improvement.
+Workstation independently reproduced the earlier allocation pair at `8cdbf8b`; their note misstates two initial
+eligible pairs as one, which will be corrected through handoff. Next: source/role trace and bounded feasibility
+of reconstructing an already-opened historical missed-candidate case. Live policy and entries unchanged.
+
 ## 2026-09-19 — overnight allocation diagnostic completed; one exchange nominated
 
 Erich requested continuous work and five-minute handoff polling until the September 19 10:30 CT build.
