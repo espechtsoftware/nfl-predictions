@@ -4,6 +4,13 @@
 
 # Project handoff
 
+## 2026-09-19 — whole-book-only retrieval complement completed
+
+Frozen `2c5710c1`, [result](reports/2026-09-19-fixed-k-tradeoff-results.md). Removing prefix/block guards did
+not admit a replacement: 964 of 965 coverage-improving pairs first failed component Emax; one failed proxy.
+1.058 seconds, no cap, book unchanged. Does not quantify unrestricted headroom or mixture-only tradeoffs.
+Current-input verification remains the priority after the archived missing-opportunity-history finding.
+
 ## 2026-09-19 — archived Week2 role trace found missing opportunity history
 
 [Report](reports/2026-09-19-hsim-role-trace-results.md), frozen source `36252c68`: all 435 archived rows have

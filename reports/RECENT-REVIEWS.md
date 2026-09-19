@@ -44,3 +44,5 @@ Consolidated September 18, 2026 at Erich's request. Source commits: production `
 - [Fixed-K retrieval result](2026-09-19-fixed-k-retrieval-results.md): 965 coverage-improving replacement pairs screened; none preserve every declared component, prefix and contest guard.
 
 - [Hsim role and missing-history trace](2026-09-19-hsim-role-trace-results.md): archived opportunity priors are missing; six selected WRs have zero hsim support and one selected QB receives no simulated passing production.
+
+- [Whole-book retrieval guard](2026-09-19-fixed-k-tradeoff-results.md): removing prefix/block constraints still leaves no passing pair under all six whole-book component checks.

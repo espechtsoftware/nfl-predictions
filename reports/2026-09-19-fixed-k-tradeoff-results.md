@@ -1,0 +1,9 @@
+# Whole-book-only guard also rejects the 965 replacements
+
+The complementary search removed every prefix and contest-block guard, retaining only the whole book's six component checks. **No single replacement passed.** Of the same 965 pairs with improved mixed P220 and no component P220 decline, 964 first failed component Emax and the remaining pair failed component GLOBAL proxy. No budget cap was reached; compute took 1.058 seconds.
+
+Source frozen `2c5710c1`; [protocol](2026-09-19-fixed-k-tradeoff-protocol.md), [wrapper](reviews/evidence/2026-09-19-fixed-k-tradeoff.py), [result](reviews/evidence/2026-09-19-fixed-k-tradeoff.json). The wrapper verifies the prior executable's full hash and applies count-asserted changes; both source identities are recorded. Synthetic coverage mechanics passed again, exact input identities matched, and all 97 entries including Milly row 1 remain unchanged.
+
+This shows that prefix and block protection are **not the only obstacle** in this single-replacement search. Even at whole-book level, the requirement that each component's three measures avoid any decline eliminates all the tested coverage improvements. The ordered first-failure counts do not show whether the equal-mixture Emax would fall; an individual component can decline while the mixture rises. They also do not measure the size of each sacrifice.
+
+This is still not an unrestricted headroom measurement, a global optimum bound, or evidence that better selection is impossible. Multi-row exchanges, model corrections and explicit tradeoffs remain untested here. Given the separately identified [missing opportunity-history and role-support issue](2026-09-19-hsim-role-trace-results.md), verifying the current data and simulation inputs takes priority over repeatedly optimizing these same archived selection banks. No live changes or outcome reads.
