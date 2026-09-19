@@ -1,0 +1,47 @@
+{
+  "mode": "smoke",
+  "research_commit": "645ff1ef124890db439af5c655905d02a130f6b7",
+  "context_sha256": "8f920a5310e9afaa4453dd9e752408b44f714012b1c9838f50c1b7b5c2937a89",
+  "build_id": "f6df667d-4651-4a9a-833d-3a892b5dbee6",
+  "objects": [
+    {
+      "uri": "gs://nfl-2-506823-lab/research/law-weight-20260919/forecast-v1/smoke/2019-w01-b19260901-H.npy",
+      "generation": "1789791665373260",
+      "bytes": 1340128,
+      "crc32c": "BQZBSA==",
+      "sha256": "5204f2abeef7add63c50b194fd6a9c8da381f44a7f7363079050f8f9a515c3be"
+    },
+    {
+      "uri": "gs://nfl-2-506823-lab/research/law-weight-20260919/forecast-v1/smoke/2019-w01-b19260901-I.npy",
+      "generation": "1789791665633644",
+      "bytes": 1340128,
+      "crc32c": "i2CHmA==",
+      "sha256": "0acaf66c93266646377f059fdd82e2a55118cf3d0dc60727fc445e0c29477f10"
+    },
+    {
+      "uri": "gs://nfl-2-506823-lab/research/law-weight-20260919/forecast-v1/smoke/2019-w01-frame.parquet",
+      "generation": "1789791665875368",
+      "bytes": 148746,
+      "crc32c": "4UsS5A==",
+      "sha256": "2ea5fbe71cd8512688e019e45fc191436bfc5c0a763f508b592d956642e02999"
+    },
+    {
+      "uri": "gs://nfl-2-506823-lab/research/law-weight-20260919/forecast-v1/smoke/receipt.json",
+      "generation": "1789791666115014",
+      "bytes": 1172,
+      "crc32c": "zHEatw==",
+      "sha256": "4fb38f7f047b10e07d06afd54c07c737b94844b0b19e11cf0573037b1526bc50"
+    }
+  ],
+  "elapsed_forecast_seconds": 25.089754362,
+  "runtime": {
+    "python": "3.14.7 (main, Sep  1 2026, 00:05:20) [GCC 14.2.0]",
+    "numpy": "2.5.2",
+    "pandas": "3.0.5"
+  },
+  "local_array_equality": {
+    "I": true,
+    "H": true
+  },
+  "verified_download_all_objects": true
+}

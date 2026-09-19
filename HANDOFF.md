@@ -4,6 +4,18 @@
 
 # Project handoff
 
+## 2026-09-19 — cloud law-weight mechanics pass; full forecast cohort submitted
+
+Cloud Build smoke `f6df667d-4651-4a9a-833d-3a892b5dbee6` succeeds (25.090s
+forecasting), all four object generations/hashes verified and both arrays exactly
+equal to the local smoke despite recorded runtime-version differences. Full
+forecast build `2eb37a28-4779-4ec2-97a7-4d3c918f5390` submitted from frozen
+`645ff1ef`, same authenticated context. Separate cloud scoring adapter is prepared
+to run the unchanged reader after full cohort validation; no actuals opened yet.
+Runtime v5 release-path checks and full patched arm-script hash pass; three rollback
+tests rely on the workstation's absolute directory. Fixture repair and concrete
+activation/rollback checklist requested at lab `8b5d052`. No live changes.
+
 ## 2026-09-19 — law-weighting screen prepared; runtime v4 still needs three fixes
 
 [Whole-law weighting protocol](reports/2026-09-19-law-weight-protocol.md) fixes one

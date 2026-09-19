@@ -99,3 +99,23 @@ construction; budget <$5. Forecast artifacts use a new create-once GCS prefix.
 Runtime/version and source hashes are recorded; local smoke is mechanics evidence,
 not an exact cloud numerical replay claim. Stop on any source/input, shape, finite
 value or current-label firewall failure. Publish negative and failed runs as well.
+
+## Mechanics receipt and execution placement (before any study outcome read)
+
+Cloud Build smoke `f6df667d-4651-4a9a-833d-3a892b5dbee6` succeeded in the pinned
+base image `sha256:39186bace6b243aa66a1ab9bcb83efd877f55caaa55a95992a8cf405ccea0076`.
+Forecast computation took 25.090s. All four exported artifacts were downloaded at
+their exact generations and SHA256-verified; both I and H arrays are also exactly
+equal to the local smoke. Cloud runtime is Python3.14.7/NumPy2.5.2/Pandas3.0.5;
+local was Python3.14.4/NumPy2.5.3/Pandas3.0.5. This one-slate equality is observed,
+not generalized into a cross-runtime guarantee. [Receipt](reviews/evidence/2026-09-19-law-weight-cloud-smoke.json).
+
+Full forecast build `2eb37a28-4779-4ec2-97a7-4d3c918f5390` is submitted from
+research `645ff1ef`, context SHA256 `8f920a5310e9afaa4453dd9e752408b44f714012b1c9838f50c1b7b5c2937a89`.
+Scoring will run in a **separate Cloud Build**, to avoid transferring approximately
+2.6GB of forecast arrays to the laptop. Its adapter downloads and verifies the
+complete 446-object forecast cohort before reading the authenticated benchmark's
+actual column, then invokes the unchanged frozen reader SHA256
+`2f9f41b1c5bc30e4930f1cdd5981a3df5d30384928e44fb81fd9f6a5d6eb0cd5`.
+Only execution placement changes; population, seeds, fitting, primary, bootstrap
+and gate remain exactly as frozen. Outcome data remains unavailable to construction.
