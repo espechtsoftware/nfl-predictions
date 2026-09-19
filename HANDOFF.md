@@ -4,6 +4,12 @@
 
 # Project handoff
 
+## 2026-09-19 — projection consumer gap confirmed; bank991 independently reproduced
+
+Follow-up to the [QB review](reports/2026-09-19-production-qb-replacement-review.md): the live lab shifts its own draws to served means; it does not consume the zeroed projection quantiles. On archived input-only rows, zero-centering Bagent still yields p90 10.4611 / p99 22.8068 and a positive punt objective. This is an algebraic counterexample, not a full gated build or efficacy estimate. Shared note `ffe9e12` asks that the supported eligibility decision reach generation/banks or the narrower trial retain v4 final admission. Corrected projection `d879beba` addresses missing depth-1 and Q/D but the tied-primary case remains under peer repair. No image/job mutation.
+
+[Bank991 cross-read](reports/2026-09-19-bank991-independent-cross-read.md): frozen `51d9144` reader produces a byte-identical transcript (sha256 `cca5d7664358f65e7a87b3391167163cca8f572f08f6059d1cd4ab2f3b48a7d9`). Primary supply 716/365=1.962, verdict DOUBLING; 220+ ratio1.676 descriptive. Retrieval proxy D12800−D6400 −0.01384, both banks negative; earlier D6400−D3200 first-bank improvement does not replicate. Historical2021 only, read authorized; current-week actuals untouched.
+
 ## 2026-09-19 — production replacement / QB review delivered; concrete fixes accepted
 
 [Independent review](reports/2026-09-19-production-qb-replacement-review.md) covers shared head `b370cff`, replacement v3 and projection branch `2855cba1`. Eleven existing tests pass; independent synthetic executions expose retained newly excluded players, skipped minimum guard, illegal duplicate-player / $58k outputs, missing-primary and tied-primary classifier defects. Real rehearsal removes Questionable Pittman for vanished props and zeros Doubtful Tua. First findings pushed at lab `2b56569`; production accepts all five groups at `4f53a4b` and owns v4 fixes. Root owns independent replay and Rung 2 release preparation; Rung 1c GO recorded, distinct Rung 2 decision being requested by production. Nothing installed here; D12800 source untouched. Policy v2 accepts the principal rule-review recommendations. K80 route-share companion evidence must not be mislabeled as current K97 consumer evidence. Next: review corrected version, rehearse final output and continue five-minute shared-handoff polling while active.

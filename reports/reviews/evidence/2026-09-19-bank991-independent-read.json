@@ -1,0 +1,17 @@
+{
+  "started_at": "2026-09-19T20:09:44.999484+00:00",
+  "finished_at": "2026-09-19T20:09:56.004520+00:00",
+  "source_commit": "51d91444b38444c6a9e94366405f2ae6a43a3663",
+  "reader_sha256": "37a08337ffb6bae8883219fa23cff8d31633b9c218d9feb1083d1bdfaf5afd56",
+  "independent_transcript_sha256": "cca5d7664358f65e7a87b3391167163cca8f572f08f6059d1cd4ab2f3b48a7d9",
+  "expected_transcript_sha256": "cca5d7664358f65e7a87b3391167163cca8f572f08f6059d1cd4ab2f3b48a7d9",
+  "exact_match": true,
+  "rule": "both",
+  "runs": [
+    "119b990r1-20260917T013238Z",
+    "119b991r1-20260917T230652Z"
+  ],
+  "authorization": "handoffs/2026-09-19-workstation-991-authorized-and-assignment-status.md",
+  "scope": "Historical 2021 cohort only; no current-week outcomes",
+  "note": "The same frozen reader was also executed once immediately before this capture; the second invocation records a durable exact comparison, without changes to reader or inputs."
+}

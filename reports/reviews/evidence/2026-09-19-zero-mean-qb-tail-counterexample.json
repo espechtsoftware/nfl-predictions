@@ -1,0 +1,96 @@
+{
+  "kind": "algebraic_saved_bank_counterexample_not_full_gate_build",
+  "source_sha": "2dc116ce95647a776ba9c36cf194f44d022d03a4",
+  "source_run": "/home/erich/projects/.nfl2-worktrees/live-hsim-game-inputs/results/live/2026-w02/20260919T151024628419Z-2dc116c",
+  "bank_sha256": "1d711ff9af22bea4b17505470ba516c544261f04da428f557893a9e290ec15d5",
+  "frame_sha256": "6e56f59d687b8f533ee02c05b90ec2c643c08b0e46aa78155a2c0d7b9894dab6",
+  "frame_columns_read": [
+    "id",
+    "display_name",
+    "pos",
+    "salary",
+    "mean_projection"
+  ],
+  "helper": "nfl2.core.blend.shift_draws_to_means",
+  "punt_helper": "nfl2.pipeline.proj_tourney_production",
+  "punt_receipt": {
+    "formula_id": "degraded_no_ownership_punt_p90_v1",
+    "penalty": 0.0,
+    "fallback_reason": "no ownership source available on this build",
+    "own_source": null,
+    "own_sha": null,
+    "p90_quantile": 0.9,
+    "p90_method": "np.quantile linear on generation bank",
+    "mean_sha": "17b0761f87b081d5",
+    "p90_sha": "5536111abea92711",
+    "out_sha": "4f4028b8fce0359e"
+  },
+  "rows": [
+    {
+      "name": "Case Keenum",
+      "id": "00-0028986",
+      "salary": 4000,
+      "old_mean": 15.554944038391113,
+      "zero_centered_mean": -1.7621459846850484e-16,
+      "zero_centered_p90": 10.296634084224703,
+      "zero_centered_p99": 22.317062627315526,
+      "positive_world_fraction": 0.4305,
+      "zero_centered_punt_objective": 10.296634084224703
+    },
+    {
+      "name": "Cooper Rush",
+      "id": "00-0033662",
+      "salary": 4200,
+      "old_mean": 14.442583084106445,
+      "zero_centered_mean": -3.467448550509289e-16,
+      "zero_centered_p90": 10.354301950073244,
+      "zero_centered_p99": 23.773878976440436,
+      "positive_world_fraction": 0.4258,
+      "zero_centered_punt_objective": 0.0
+    },
+    {
+      "name": "Davis Mills",
+      "id": "00-0036898",
+      "salary": 4000,
+      "old_mean": 13.121440887451172,
+      "zero_centered_mean": -6.252776074688882e-17,
+      "zero_centered_p90": 10.226601121175293,
+      "zero_centered_p99": 22.88436830257178,
+      "positive_world_fraction": 0.4238,
+      "zero_centered_punt_objective": 10.226601121175293
+    },
+    {
+      "name": "Aidan O'Connell",
+      "id": "00-0038579",
+      "salary": 4000,
+      "old_mean": 11.504034042358398,
+      "zero_centered_mean": -1.7053025658242405e-16,
+      "zero_centered_p90": 9.869454786223175,
+      "zero_centered_p99": 22.038018590849642,
+      "positive_world_fraction": 0.4242,
+      "zero_centered_punt_objective": 9.869454786223175
+    },
+    {
+      "name": "Trey Lance",
+      "id": "00-0037012",
+      "salary": 4000,
+      "old_mean": 13.7476167678833,
+      "zero_centered_mean": 9.890754881780594e-16,
+      "zero_centered_p90": 9.94654128212929,
+      "zero_centered_p99": 22.834550277185446,
+      "positive_world_fraction": 0.4174,
+      "zero_centered_punt_objective": 9.94654128212929
+    },
+    {
+      "name": "Tyson Bagent",
+      "id": "00-0038416",
+      "salary": 4000,
+      "old_mean": 16.545461654663086,
+      "zero_centered_mean": -3.069544618483633e-16,
+      "zero_centered_p90": 10.461129189491274,
+      "zero_centered_p99": 22.80676662540436,
+      "positive_world_fraction": 0.4275,
+      "zero_centered_punt_objective": 10.461129189491274
+    }
+  ]
+}

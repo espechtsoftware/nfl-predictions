@@ -1,0 +1,32 @@
+PREREG-099 / 119 -- fail-closed SUPPLY reader (amendments 2/4/5: rule both -> banks [990, 991], panel 2021 x 18 slates, primary line >= 200, identity c06b2cd/v1) | runs ['119b990r1-20260917T013238Z', '119b991r1-20260917T230652Z'] | repairs [] | doubling bound 1.7
+REPAIRED SLATES: none
+
+PRIMARY supply ratio >= 200: D12800_DEMAX/D6400_DEMAX = 716/365 = 1.962 95% [1.846, 2.135] per-bank {990: 2.01143, 991: 1.91579} slates with any (full/control) 14/14 discarded zero-denominator draws 0 VERDICT=DOUBLING
+SECONDARY supply ratios (same estimator):
+  >= 194: 1403/709 = 1.979 95% [1.855, 2.112] per-bank {990: 1.9942, 991: 1.96429} discarded draws 0
+  >= 210: 225/113 = 1.991 95% [1.752, 2.293] per-bank {990: 2.07843, 991: 1.91935} discarded draws 0
+  >= 220: 57/34 = 1.676 95% [1.167, 2.286] per-bank {990: 1.92857, 991: 1.5} discarded draws 50
+  >= 230: 21/13 = 1.615 95% [1.125, 3.000] per-bank {990: 2.0, 991: 1.28571} discarded draws 202
+  >= 240: 8/5 = 1.600 95% [1.000, 3.000] per-bank {990: 1.5, 991: 1.66667} discarded draws 202
+
+SUPPLY (mean candidates per slate-bank >= line) and POOL ORACLE / RETRIEVAL:
+  D3200_DEMAX                 n   3200.0 | >=194:9.67 >=200:4.75 >=210:1.33 >=220:0.36 >=230:0.14 >=240:0.06 | pool oracle 208.48 | best-in-book 0.083 | turnover 0.533
+  D6400_DEMAX                 n   6399.8 | >=194:19.69 >=200:10.14 >=210:3.14 >=220:0.94 >=230:0.36 >=240:0.14 | pool oracle 212.21 | best-in-book 0.056 | turnover 0.000
+  D12800_DEMAX                n  12559.0 | >=194:38.97 >=200:19.89 >=210:6.25 >=220:1.58 >=230:0.58 >=240:0.22 | pool oracle 215.17 | best-in-book 0.028 | turnover 0.541
+  D12800_COUNTMATCH_DEMAX_REF n   6399.8 | >=194:20.03 >=200:10.06 >=210:3.28 >=220:0.83 >=230:0.31 >=240:0.08 | pool oracle 212.10 | best-in-book 0.028 | turnover 0.673
+  weeks (bank-averaged pool oracle >= 220): D6400_DEMAX 4 | D12800_DEMAX 5 | pool oracle delta +2.96
+
+SECONDARY K80 DEMAX (PREREG-047 semantics; comparability only, never adoption from this cohort):
+  proxy K80 D12800_DEMAX - D6400_DEMAX : -0.01384 season-clustered interval and LOSO: NOT ESTIMABLE (one season) | slate-clustered DESCRIPTIVE [-0.03772, +0.00628] banks {990: -0.00201, 991: -0.02568} W/L/T 10/6/2 sign-flip-p 0.2955 label=n/a (one season: season-clustered inference not estimable) | raw -0.202
+  proxy K80 D6400_DEMAX  - D3200_DEMAX : +0.00101 season-clustered interval and LOSO: NOT ESTIMABLE (one season) | slate-clustered DESCRIPTIVE [-0.00744, +0.01043] banks {990: 0.01418, 991: -0.01217} W/L/T 8/9/1 sign-flip-p 0.8366 label=n/a (one season: season-clustered inference not estimable) | raw -0.626
+  fixed-count reference D12800_COUNTMATCH_DEMAX_REF - D6400_DEMAX proxy -0.02202 banks {990: -0.01156, 991: -0.03248}
+
+THRESHOLD EVENTS (bank-averaged weekly K80 max >= line, of 18 slates | raw roster hits):
+  D3200_DEMAX                 weeks >=187: 7 >=194: 6 >=200: 4 >=210: 0 >=220: 0 >=230: 0 >=240: 0 | hits >=187:23 >=194:12 >=200:6 >=210:5 >=220:3 >=230:0 >=240:0
+  D6400_DEMAX                 weeks >=187: 8 >=194: 5 >=200: 5 >=210: 2 >=220: 0 >=230: 0 >=240: 0 | hits >=187:27 >=194:15 >=200:12 >=210:7 >=220:3 >=230:0 >=240:0
+  D12800_DEMAX                weeks >=187: 8 >=194: 5 >=200: 3 >=210: 0 >=220: 0 >=230: 0 >=240: 0 | hits >=187:21 >=194:9 >=200:5 >=210:4 >=220:1 >=230:0 >=240:0
+  D12800_COUNTMATCH_DEMAX_REF weeks >=187: 6 >=194: 5 >=200: 3 >=210: 0 >=220: 0 >=230: 0 >=240: 0 | hits >=187:23 >=194:10 >=200:7 >=210:1 >=220:0 >=230:0 >=240:0
+
+DOSE RECEIPTS:
+  D3200 retained in D6400 3200.0 | D6400 retained in D12800 6399.8 | restored cross-family rosters D3200/D6400 0.00/0.00
+  duplicate rate 12800 0.0001 | secs 12800 54384 (max 111915) | structure mean games D3200/D6400/D12800 5.07/5.08/5.08
