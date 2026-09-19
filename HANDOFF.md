@@ -4,6 +4,21 @@
 
 # Project handoff
 
+## 2026-09-19 — historical forecasts complete; cloud reader transport corrected
+
+Full forecast build `2eb37a28-4779-4ec2-97a7-4d3c918f5390` succeeded at
+04:43:16 UTC. Its publication pins all 446 artifacts (2,605,918,590 bytes),
+frozen source and context. The first reader submission was rejected before build
+creation because one argument exceeded Cloud Build's 10,000-character limit.
+The recipe now splits the identical authenticated payload across small arguments;
+reader and adapter hashes are unchanged. No outcome evaluation occurred in that
+rejected submission. The corrected recipe is frozen before resubmission.
+
+Peer `befe48d` correctly notes that two fixes write shared tables: per-build code
+pins cannot retain a complete old-input fallback. The release plan and user
+update now state that returning to old inputs requires restore and rebuild.
+Adoption remains pending; no live changes.
+
 ## 2026-09-19 — adoption question pending; fresh metadata inventory unchanged
 
 At04:33:38UTC the repeated read-only inventory finds no table metadata or job

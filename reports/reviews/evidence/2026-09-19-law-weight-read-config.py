@@ -16,14 +16,19 @@ def main():
         expected=subprocess.check_output(['git','show','d66a0273:reports/reviews/evidence/'+name],cwd=E.parents[2])
         assert raw==expected
         payload[dest]={'base64':base64.b64encode(raw).decode(),'sha256':hashlib.sha256(raw).hexdigest()}
-    program=('import base64,hashlib,json,runpy\nfrom pathlib import Path\n'
-             'payload=json.loads('+repr(json.dumps(payload))+')\n'
+    encoded=json.dumps(payload)
+    chunks=[encoded[i:i+8000] for i in range(0,len(encoded),8000)]
+    assert json.loads(''.join(chunks))==payload
+    program=('import base64,hashlib,json,runpy,sys\nfrom pathlib import Path\n'
+             'payload=json.loads("".join(sys.argv[1:]))\n'
              'for name,rec in payload.items():\n'
              '    raw=base64.b64decode(rec["base64"]); assert hashlib.sha256(raw).hexdigest()==rec["sha256"]\n'
              '    p=Path("/workspace")/name; assert not p.exists(); p.write_bytes(raw)\n'
              'runpy.run_path("/workspace/cloud-read.py",run_name="__main__")\n')
     compile(program,'cloud-read-bootstrap','exec')
-    config={'steps':[{'name':IMAGE,'entrypoint':'python','args':['-X','cpu_count=1','-c',program],
+    args=['-X','cpu_count=1','-c',program,*chunks]
+    assert all(len(arg.encode())<=10000 for arg in args)
+    config={'steps':[{'name':IMAGE,'entrypoint':'python','args':args,
         'env':['OPENBLAS_NUM_THREADS=1','OMP_NUM_THREADS=1','MKL_NUM_THREADS=1','NUMEXPR_NUM_THREADS=1','BUILD_ID=$BUILD_ID']}],
         'timeout':'1800s','options':{'machineType':'E2_HIGHCPU_8'}}
     target.write_text(json.dumps(config,indent=2))

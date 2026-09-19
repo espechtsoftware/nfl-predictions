@@ -57,6 +57,17 @@ The expected refresh is about 35 minutes in the existing operator checklist, not
 
 ## Complete rollback
 
+**All scheduled builds share the feature and projection tables.** The salary and
+TabPFN repairs therefore affect every scheduled build, regardless of its source
+checkout. Only the game-input repair is selected by the lab checkout pin. Splitting
+those pins cannot provide a complete old-input control. The smaller Saturday and
+Sunday builds remain fallbacks for build failure, but after adoption they do not
+retain the old feature/cache state. Returning to that state requires the complete
+restore below and rebuilding. Previously saved books remain usable as comparison
+artifacts; they are not automatically valid, fresh entry files for Sunday. This
+release consequence was raised by the workstation agent at lab `befe48d` and is
+part of the pending adoption decision.
+
 A source/image rollback alone is insufficient: the feature build replaces tables, TabPFN replaces its mutable cache, and projection execution writes new predictions. First stop or reconcile all affected writers and hold builders. Retain the failed candidate receipts and table metadata. Then:
 
 1. Return `build-features` and `tabpfn-gen` to the **recorded pre-release image digests**, verifying all other template fields against the private captured configuration. No source tag guessing.
