@@ -1,0 +1,46 @@
+{
+  "reader_sha256": "99d43b7e90b1e9f1bee4d9642e03467dfdb7f745a2940e5c935f3d5281130b13",
+  "bundle_manifest_sha256": "839f4b887a45a8c89a60c3c021063c4d9f7a16d70a3dad205e6eb2a51fc46bd8",
+  "peer_manifest_required_fields_exact": true,
+  "arms": {
+    "control": {
+      "players": 428,
+      "banks": {
+        "I_audit": [
+          428,
+          10000
+        ],
+        "H_audit": [
+          428,
+          10000
+        ]
+      },
+      "book_size": 97,
+      "all_rosters_supported": true,
+      "every_frame_row_bound_to_own_game": true
+    },
+    "salaryfix": {
+      "players": 429,
+      "banks": {
+        "I_audit": [
+          429,
+          10000
+        ],
+        "H_audit": [
+          429,
+          10000
+        ]
+      },
+      "book_size": 97,
+      "all_rosters_supported": true,
+      "every_frame_row_bound_to_own_game": true
+    }
+  },
+  "games": 13,
+  "shared_players": 428,
+  "prior_eligible_players": 27,
+  "cross_arm_metadata_exact": true,
+  "real_clock_refuses_before_file_reads": true,
+  "outcomes_read": false,
+  "entered_book_claim": false
+}

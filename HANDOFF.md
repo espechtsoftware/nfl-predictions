@@ -4,6 +4,15 @@
 
 # Project handoff
 
+## 2026-09-19 — prospective reader v4 accepted; actual forecast bundle passes
+
+Production reader `1c95dd68` passes 52 synthetic tests here and the forecast-only
+load of the published D1600 bundle. [Acceptance](reports/2026-09-19-prospective-reader-acceptance.md)
+records exact source/manifest hashes and checks all four banks, both 97-entry books,
+13 games and every player's own fixture. No actual outcomes were opened; real-clock
+CLI gate refuses before file reads. Workstation owns first settled read. Runtime
+guard `e430dc9` still awaits fixes for lab `d42a539`; nothing activated.
+
 ## 2026-09-19 — fivefold selection precision completed; shared prospective bundle prepared
 
 [Precision result](reports/2026-09-19-selection-precision-results.md), frozen `63d9a032`, construction v2
