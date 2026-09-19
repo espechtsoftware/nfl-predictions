@@ -48,6 +48,10 @@ this observation alone does not prove that the author saw outcome values or tune
 the experiment to them. The earlier practice-level "Wed/Thu/Fri average" prose
 was already corrected by the [source support audit](2026-09-19-opportunity-input-support.md).
 
+The workstation independently verified the three ordering differences and the
+mechanics-only control flow in lab `417cd96`. Both reviews agree on the
+correction; no live vetting change is included in this release.
+
 ## P2 — the local live-training cache has no source identity or invalidation
 
 `nfl2.live.training_panel_through()` reads

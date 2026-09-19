@@ -4,6 +4,10 @@
 
 # Project handoff
 
+## 2026-09-19 — live TabPFN cache validated; projection refresh started
+
+`tabpfn-gen-zdcj2` completed and its exact execution receipt confirms strictly prior season/week context, exclusive target 2026:2 and full historical refresh. The live cache has 66,332 unique rows with finite ordered quantiles, all 877 expected Week 2 keys and no missing prior historical keys. [Validation](reports/reviews/evidence/2026-09-19-release-cache-validation.json). Hash-bound checkpoint released for unchanged `project-slate`; all three lanes remain held through projection validation and the actual host-cache CLI proof. Host activation is still pending. Lab `417cd96` independently confirms the vetting consumer mismatch; correction accepted, frozen study and live rule unchanged.
+
 ## 2026-09-19 — injury result independently reproduced; actual host cache obtained
 
 Lab047f00e completes the full frozen injury-reader cross-read with exact primary/CI/secondary values and15,023rows. Gate fails independently. Exact host cache downloaded by generation/SHA; full keyed comparison agrees37,763changed rows, with3,472baseline-input/eligibility rows above1e-6or null/nonnumeric differences. Mostrawdifferences are roundoff; salary fields exactlysame. Host cache remains unchanged. The CLI proof adapter now has explicit host/fresh modes and receipts the cache hash; host mode is the representative release gate. TabPFN refresh has completed the historical seasons and is producing upcoming predictions.
