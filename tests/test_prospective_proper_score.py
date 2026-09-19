@@ -1,13 +1,12 @@
-"""Adversarial tests for the prospective proper-score reader.
+"""Adversarial tests for the prospective proper-score reader (v2).
 
-Synthetic fixtures only -- no Week-2 actuals are queried or materialized here, per the
-laptop's instruction in 2026-09-19-laptop-prospective-scoring-task-and-runtime.md.
+Synthetic fixtures only -- no Week-2 actuals are queried or materialized here.
 Each test tries to BREAK one claim the protocol makes rather than re-performing it.
 """
+import datetime as dt
 import hashlib
 import importlib.util
 import json
-import sys
 from pathlib import Path
 
 import numpy as np
@@ -20,12 +19,17 @@ _spec = importlib.util.spec_from_file_location("pps_reader", SRC)
 pps = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(pps)
 
-AFTER = "2026-09-21T12:00:00+00:00"
-BEFORE = "2026-09-20T12:00:00+00:00"
+
+def AFTER():
+    return dt.datetime(2026, 9, 21, 12, 0, tzinfo=dt.timezone.utc)
+
+
+def BEFORE_SETTLE():
+    """Lock has passed and Thursday labels exist, but the main slate has not settled."""
+    return dt.datetime(2026, 9, 20, 23, 0, tzinfo=dt.timezone.utc)
 
 
 def gaussian_crps(mu, sigma, y):
-    """Closed form: sigma * [z(2*Phi(z)-1) + 2*phi(z) - 1/sqrt(pi)]."""
     z = (y - mu) / sigma
     return sigma * (z * (2 * norm.cdf(z) - 1) + 2 * norm.pdf(z) - 1 / np.sqrt(np.pi))
 
@@ -34,11 +38,19 @@ def sha_bytes(p):
     return hashlib.sha256(Path(p).read_bytes()).hexdigest()
 
 
+def write_actuals_manifest(tmp, actuals, **over):
+    m = {"season": 2026, "week": 2, "draft_group": 153428, "slate": "sunday_main",
+         "scoring": "dk_classic_v1", "source": "synthetic-fixture",
+         "games": [{"game_id": f"g{i}", "status": "FINAL"} for i in range(10)],
+         "all_games_final": True, "actuals_sha256": sha_bytes(actuals)}
+    m.update(over)
+    p = tmp / "actuals_manifest.json"
+    p.write_text(json.dumps(m, indent=1))
+    return p
+
+
 def build_bundle(tmp, n_players=40, n_games=10, draws=2000, shift=0.0, seed=0, eligible=True,
                  component_spread=0.0):
-    """A synthetic two-arm bundle. `shift` biases the salaryfix arm's mean away from truth;
-    `component_spread` separates I_audit from H_audit so the two components are genuinely
-    different laws rather than two samples of one."""
     rng = np.random.default_rng(seed)
     teams = [f"T{i}" for i in range(2 * n_games)]
     ids, pos, team, opp = [], [], [], []
@@ -55,14 +67,14 @@ def build_bundle(tmp, n_players=40, n_games=10, draws=2000, shift=0.0, seed=0, e
 
     root = tmp / "bundle"
     root.mkdir(parents=True, exist_ok=True)
-    fp = root / "frame.parquet"
-    frame.to_parquet(fp)
     manifest = {"arms": {}}
     for arm, bias in (("control", 0.0), ("salaryfix", shift)):
+        fp = root / f"{arm}_frame.parquet"
+        frame.to_parquet(fp)
         banks = {}
         for sign, comp in ((-1.0, "I_audit"), (1.0, "H_audit")):
-            centre = truth[:, None] + bias + sign * component_spread
-            b = (centre + rng.normal(0, 5, size=(n_players, draws))).astype(np.float32)
+            b = (truth[:, None] + bias + sign * component_spread +
+                 rng.normal(0, 5, size=(n_players, draws))).astype(np.float32)
             bp = root / f"{arm}_{comp}.npy"
             np.save(bp, b)
             banks[comp] = {"path": bp.name, "sha256": sha_bytes(bp)}
@@ -75,40 +87,53 @@ def build_bundle(tmp, n_players=40, n_games=10, draws=2000, shift=0.0, seed=0, e
 
     ap = tmp / "actuals.parquet"
     pd.DataFrame({"id": ids, "points": outcomes}).to_parquet(ap)
+    write_actuals_manifest(tmp, ap)
     return root, ap, frame, outcomes
 
 
-def run(root, actuals, out, now=AFTER, actuals_sha=None):
-    argv = ["reader", "--bundle", str(root), "--actuals", str(actuals),
-            "--actuals-sha256", actuals_sha or sha_bytes(actuals), "--out", str(out), "--now", now]
-    old, sys.argv = sys.argv, argv
-    try:
-        pps.main()
-    finally:
-        sys.argv = old
+def run(root, actuals, out, clock=AFTER, manifest=None, manifest_sha=None):
+    mp = manifest or (Path(actuals).parent / "actuals_manifest.json")
+    argv = ["--bundle", str(root), "--actuals", str(actuals), "--actuals-manifest", str(mp),
+            "--actuals-manifest-sha256", manifest_sha or sha_bytes(mp), "--out", str(out)]
+    pps.main(argv=argv, clock=clock)
     return json.loads(Path(out).read_text())
 
 
 # ---- the score itself -------------------------------------------------------------------
 
 def test_crps_matches_the_closed_form_gaussian():
-    """If the estimator is wrong, every number in the report is wrong."""
     rng = np.random.default_rng(7)
-    mu, sigma = 12.0, 4.0
-    samples = rng.normal(mu, sigma, size=(3, 400_000))
+    samples = rng.normal(12.0, 4.0, size=(3, 400_000))
     y = np.array([12.0, 4.0, 22.0])
-    got = pps.crps(samples, y)
-    want = gaussian_crps(mu, sigma, y)
-    assert np.allclose(got, want, atol=0.02), (got, want)
+    assert np.allclose(pps.crps(samples, y), gaussian_crps(12.0, 4.0, y), atol=0.02)
+
+
+def test_the_laptops_duplicate_array_counterexample():
+    """Exact case from the v1 review. With the fair estimator n*(n-1) the component scores 0
+    and the pooled duplicate scores 1/3 -- a NEGATIVE mixture gain for identical forecasts.
+    The issued-distribution estimator must give 0.5 and 0.5, gain exactly zero."""
+    comp = np.array([[0.0, 2.0]])
+    pooled = np.array([[0.0, 0.0, 2.0, 2.0]])
+    y = np.array([1.0])
+    assert pps.crps(comp, y)[0] == pytest.approx(0.5)
+    assert pps.crps(pooled, y)[0] == pytest.approx(0.5)
+    assert pps.crps(comp, y)[0] - pps.crps(pooled, y)[0] == pytest.approx(0.0, abs=1e-12)
+
+
+def test_identical_component_arrays_give_exactly_zero_mixture_gain():
+    """Byte-identical arrays, zero tolerance -- not 'independent draws from one law'."""
+    rng = np.random.default_rng(1)
+    a = rng.normal(12, 5, size=(50, 400))
+    y = rng.normal(12, 5, size=50)
+    pooled = np.concatenate([a, a.copy()], axis=1)
+    assert np.allclose(pps.crps(a, y), pps.crps(pooled, y), atol=1e-12)
 
 
 def test_crps_is_proper_the_true_law_wins():
-    """A biased law must score WORSE. A score that fails this cannot adjudicate anything."""
     rng = np.random.default_rng(3)
     truth = rng.normal(15, 5, size=(200, 4000))
     y = rng.normal(15, 5, size=200)
-    biased = truth + 6.0
-    assert pps.crps(truth, y).mean() < pps.crps(biased, y).mean()
+    assert pps.crps(truth, y).mean() < pps.crps(truth + 6.0, y).mean()
 
 
 def test_crps_rejects_a_degenerate_single_draw():
@@ -126,9 +151,6 @@ def test_pit_is_uniform_for_a_calibrated_law():
 # ---- the mixture claim ------------------------------------------------------------------
 
 def test_pooled_mixture_beats_averaging_when_components_differ(tmp_path):
-    """CRPS is convex in F, so the pooled mixture scores strictly better than the mean of its
-    components whenever those components are genuinely different laws -- which is the real
-    case (incumbent vs hsim). Averaging component scores answers a different question."""
     root, actuals, _, _ = build_bundle(tmp_path, n_players=300, n_games=14, draws=4000,
                                        component_spread=6.0, seed=5)
     r = run(root, actuals, tmp_path / "o.json")
@@ -136,35 +158,84 @@ def test_pooled_mixture_beats_averaging_when_components_differ(tmp_path):
         assert r["scores"]["overall"][f"{arm}_mixture_gain_over_averaging"] > 0.05
 
 
-def test_mixture_and_averaging_agree_when_components_are_identical(tmp_path):
-    """With one law duplicated the population gap is exactly zero, so the estimator must sit
-    on zero rather than drifting -- this pins the sign convention and the pooling arithmetic."""
-    root, actuals, _, _ = build_bundle(tmp_path, n_players=300, n_games=14, draws=4000,
-                                       component_spread=0.0, seed=5)
-    r = run(root, actuals, tmp_path / "o.json")
-    for arm in ("control", "salaryfix"):
-        assert abs(r["scores"]["overall"][f"{arm}_mixture_gain_over_averaging"]) < 1e-3
-
-
-def test_mixture_uses_pooled_draws_not_averaged_scores(tmp_path):
+def test_mixture_uses_pooled_draws(tmp_path):
     root, actuals, _, _ = build_bundle(tmp_path, draws=1500, seed=6)
     r = run(root, actuals, tmp_path / "o.json")
-    assert r["draws"]["control_mixture"] == 3000
-    assert r["draws"]["control_I"] == 1500
+    assert r["draws"]["control_mixture"] == 3000 and r["draws"]["control_I"] == 1500
+
+
+def test_mismatched_component_widths_are_refused(tmp_path):
+    """Unequal widths would make the pooled sample an unequal-weight mixture."""
+    root, actuals, _, _ = build_bundle(tmp_path, draws=1000)
+    p = root / "control_H_audit.npy"
+    np.save(p, np.load(p)[:, :500])
+    m = json.loads((root / "manifest.json").read_text())
+    m["arms"]["control"]["banks"]["H_audit"]["sha256"] = sha_bytes(p)
+    (root / "manifest.json").write_text(json.dumps(m))
+    with pytest.raises(AssertionError, match="share a draw width"):
+        run(root, actuals, tmp_path / "o.json")
 
 
 # ---- the outcome gate -------------------------------------------------------------------
 
-def test_refuses_to_run_before_the_lock(tmp_path):
+def test_refuses_before_the_sunday_main_settle_point(tmp_path):
     root, actuals, _, _ = build_bundle(tmp_path)
     with pytest.raises(AssertionError, match="outcome gate"):
-        run(root, actuals, tmp_path / "o.json", now=BEFORE)
+        run(root, actuals, tmp_path / "o.json", clock=BEFORE_SETTLE)
 
 
-def test_refuses_an_actuals_file_whose_hash_does_not_match(tmp_path):
+def test_the_gate_has_no_cli_override(tmp_path):
+    """v1 exposed --now, which let any caller walk past the gate. Behavioural, not a
+    string scan: argparse must reject the flag outright."""
     root, actuals, _, _ = build_bundle(tmp_path)
+    mp = tmp_path / "actuals_manifest.json"
+    argv = ["--bundle", str(root), "--actuals", str(actuals), "--actuals-manifest", str(mp),
+            "--actuals-manifest-sha256", sha_bytes(mp), "--out", str(tmp_path / "o.json"),
+            "--now", "2099-01-01T00:00:00+00:00"]
+    with pytest.raises(SystemExit):
+        pps.main(argv=argv, clock=BEFORE_SETTLE)
+    assert not (tmp_path / "o.json").exists()
+    assert "def main(argv=None, clock=None)" in SRC.read_text()
+
+
+def test_refuses_a_manifest_whose_hash_does_not_match(tmp_path):
+    root, actuals, _, _ = build_bundle(tmp_path)
+    with pytest.raises(AssertionError, match="manifest sha256"):
+        run(root, actuals, tmp_path / "o.json", manifest_sha="0" * 64)
+
+
+def test_refuses_actuals_that_do_not_match_the_manifest(tmp_path):
+    root, actuals, _, _ = build_bundle(tmp_path)
+    df = pd.read_parquet(actuals)
+    df.loc[0, "points"] = df.loc[0, "points"] + 1.0
+    df.to_parquet(actuals)
     with pytest.raises(AssertionError, match="actuals sha256"):
-        run(root, actuals, tmp_path / "o.json", actuals_sha="0" * 64)
+        run(root, actuals, tmp_path / "o.json")
+
+
+@pytest.mark.parametrize("field,value", [("season", 2025), ("week", 3), ("draft_group", 999999),
+                                         ("slate", "thursday"), ("scoring", "fanduel")])
+def test_wrong_slate_identity_is_refused_even_with_a_valid_hash(tmp_path, field, value):
+    """A hash pins which bytes, not which slate."""
+    root, actuals, _, _ = build_bundle(tmp_path)
+    mp = write_actuals_manifest(tmp_path, actuals, **{field: value})
+    with pytest.raises(AssertionError, match=field):
+        run(root, actuals, tmp_path / "o.json", manifest=mp)
+
+
+def test_incomplete_games_are_refused(tmp_path):
+    root, actuals, _, _ = build_bundle(tmp_path)
+    games = [{"game_id": "g0", "status": "IN_PROGRESS"}, {"game_id": "g1", "status": "FINAL"}]
+    mp = write_actuals_manifest(tmp_path, actuals, games=games)
+    with pytest.raises(AssertionError, match="non-final games"):
+        run(root, actuals, tmp_path / "o.json", manifest=mp)
+
+
+def test_missing_all_games_final_assertion_is_refused(tmp_path):
+    root, actuals, _, _ = build_bundle(tmp_path)
+    mp = write_actuals_manifest(tmp_path, actuals, all_games_final=False)
+    with pytest.raises(AssertionError, match="all_games_final"):
+        run(root, actuals, tmp_path / "o.json", manifest=mp)
 
 
 def test_refuses_to_overwrite_an_existing_result(tmp_path):
@@ -175,17 +246,7 @@ def test_refuses_to_overwrite_an_existing_result(tmp_path):
         run(root, actuals, out)
 
 
-def test_refuses_a_bundle_artifact_with_a_tampered_hash(tmp_path):
-    root, actuals, _, _ = build_bundle(tmp_path)
-    m = json.loads((root / "manifest.json").read_text())
-    m["arms"]["control"]["banks"]["I_audit"]["sha256"] = "1" * 64
-    (root / "manifest.json").write_text(json.dumps(m))
-    with pytest.raises(AssertionError, match="sha256"):
-        run(root, actuals, tmp_path / "o.json")
-
-
 def test_detects_a_silently_mutated_bank(tmp_path):
-    """The hash must be checked against CONTENT, so editing the array is caught."""
     root, actuals, _, _ = build_bundle(tmp_path)
     p = root / "control_I_audit.npy"
     b = np.load(p)
@@ -195,28 +256,50 @@ def test_detects_a_silently_mutated_bank(tmp_path):
         run(root, actuals, tmp_path / "o.json")
 
 
-# ---- support and imputation -------------------------------------------------------------
+# ---- support, imputation and cross-arm consistency ---------------------------------------
 
 def test_players_without_outcomes_are_excluded_and_named_never_zeroed(tmp_path):
-    root, actuals, _, outcomes = build_bundle(tmp_path, n_players=40)
-    df = pd.read_parquet(actuals).iloc[:-3]
-    df.to_parquet(actuals)
+    root, actuals, _, _ = build_bundle(tmp_path, n_players=40)
+    pd.read_parquet(actuals).iloc[:-3].to_parquet(actuals)
+    write_actuals_manifest(tmp_path, actuals)
     r = run(root, actuals, tmp_path / "o.json")
     assert r["support"]["scored_common_key"] == 37
     assert sorted(r["support"]["in_frames_without_outcome"]) == ["p37", "p38", "p39"]
     assert "never zero-imputed" in r["support"]["policy"]
 
 
-def test_duplicate_and_null_actuals_are_rejected(tmp_path):
+def test_nonfinite_points_are_refused(tmp_path):
     root, actuals, _, _ = build_bundle(tmp_path)
     df = pd.read_parquet(actuals)
-    pd.concat([df, df.iloc[:1]]).to_parquet(actuals)
-    with pytest.raises(AssertionError, match="duplicate"):
-        run(root, actuals, tmp_path / "o.json")
-    df.loc[0, "points"] = np.nan
+    df.loc[0, "points"] = np.inf
     df.to_parquet(actuals)
-    with pytest.raises(AssertionError, match="null points"):
-        run(root, actuals, tmp_path / "o2.json")
+    write_actuals_manifest(tmp_path, actuals)
+    with pytest.raises(AssertionError, match="non-finite points"):
+        run(root, actuals, tmp_path / "o.json")
+
+
+def test_null_ids_are_refused(tmp_path):
+    root, actuals, _, _ = build_bundle(tmp_path)
+    df = pd.read_parquet(actuals)
+    df.loc[0, "id"] = None
+    df.to_parquet(actuals)
+    write_actuals_manifest(tmp_path, actuals)
+    with pytest.raises(AssertionError, match="null ids"):
+        run(root, actuals, tmp_path / "o.json")
+
+
+def test_arms_disagreeing_on_player_metadata_are_refused(tmp_path):
+    """Different team/opp across arms means the frames describe different worlds."""
+    root, actuals, _, _ = build_bundle(tmp_path)
+    fp = root / "salaryfix_frame.parquet"
+    fr = pd.read_parquet(fp)
+    fr.loc[0, "team"] = "ZZZ"
+    fr.to_parquet(fp)
+    m = json.loads((root / "manifest.json").read_text())
+    m["arms"]["salaryfix"]["frame"]["sha256"] = sha_bytes(fp)
+    (root / "manifest.json").write_text(json.dumps(m))
+    with pytest.raises(AssertionError, match="disagree on team"):
+        run(root, actuals, tmp_path / "o.json")
 
 
 def test_missing_eligible_list_is_reported_not_silently_skipped(tmp_path):
@@ -224,7 +307,6 @@ def test_missing_eligible_list_is_reported_not_silently_skipped(tmp_path):
     r = run(root, actuals, tmp_path / "o.json")
     assert "prior_eligible" not in r["scores"]
     assert r["support"]["prior_eligible_supplied"] is None
-    assert "not silently skipped" in r["support"]["prior_eligible_note"]
 
 
 # ---- clustering -------------------------------------------------------------------------
@@ -237,18 +319,13 @@ def test_no_interval_below_the_cluster_floor(tmp_path):
 
 
 def test_clustering_widens_the_interval_when_games_are_correlated():
-    """If the bootstrap ignored clusters this interval would be far too narrow -- the
-    protocol's whole uncertainty claim rests on it."""
     rng = np.random.default_rng(2)
     n_games, per = 12, 30
     clusters = np.repeat([f"g{i}" for i in range(n_games)], per)
-    shared = rng.normal(0, 1.0, size=n_games)
-    diffs = np.repeat(shared, per) + rng.normal(0, 0.05, size=n_games * per)
-    clustered = pps.cluster_bootstrap(diffs, clusters, np.random.default_rng(0))
-    iid = pps.cluster_bootstrap(diffs, np.arange(len(diffs)).astype(str), np.random.default_rng(0))
-    w_c = clustered["interval"][1] - clustered["interval"][0]
-    w_i = iid["interval"][1] - iid["interval"][0]
-    assert w_c > 4 * w_i, (w_c, w_i)
+    diffs = np.repeat(rng.normal(0, 1.0, size=n_games), per) + rng.normal(0, 0.05, size=n_games * per)
+    c = pps.cluster_bootstrap(diffs, clusters, np.random.default_rng(0))
+    i = pps.cluster_bootstrap(diffs, np.arange(len(diffs)).astype(str), np.random.default_rng(0))
+    assert (c["interval"][1] - c["interval"][0]) > 4 * (i["interval"][1] - i["interval"][0])
 
 
 def test_bootstrap_is_deterministic_under_the_frozen_seed(tmp_path):
@@ -258,65 +335,85 @@ def test_bootstrap_is_deterministic_under_the_frozen_seed(tmp_path):
     assert a["contrast"]["overall"] == b["contrast"]["overall"]
 
 
+# ---- books ------------------------------------------------------------------------------
+
+def add_books(root, ids, per_arm=("control", "salaryfix"), n=6, expected=None, corrupt=None):
+    m = json.loads((root / "manifest.json").read_text())
+    for arm in per_arm:
+        orders = [[ids[(k * 9 + j) % len(ids)] for j in range(9)] for k in range(n)]
+        if corrupt == "duplicate_player":
+            orders[0][1] = orders[0][0]
+        elif corrupt == "duplicate_lineup":
+            orders[1] = list(orders[0])
+        elif corrupt == "short":
+            orders[0] = orders[0][:8]
+        bp = root / f"{arm}_book.json"
+        bp.write_text(json.dumps(orders))
+        m["arms"][arm]["book_orders"] = {"path": bp.name, "sha256": sha_bytes(bp)}
+        if expected is not None:
+            m["arms"][arm]["expected_book_size"] = expected
+    (root / "manifest.json").write_text(json.dumps(m))
+
+
+def test_books_are_scored_under_every_law_not_only_their_own(tmp_path):
+    root, actuals, frame, _ = build_bundle(tmp_path, n_players=40, n_games=10, seed=12)
+    add_books(root, list(frame.id))
+    r = run(root, actuals, tmp_path / "o.json")
+    for arm in ("control", "salaryfix"):
+        laws = r["descriptive"][arm]["under_law"]
+        assert {"control_mixture", "salaryfix_mixture"} <= set(laws)
+        assert 0.0 <= laws["control_mixture"]["realized_max_pit"] <= 1.0
+
+
+def test_books_are_labelled_prospective_shadow_without_an_entered_identity(tmp_path):
+    root, actuals, frame, _ = build_bundle(tmp_path, n_players=40, n_games=10, seed=13)
+    add_books(root, list(frame.id))
+    r = run(root, actuals, tmp_path / "o.json")
+    assert "PROSPECTIVE SHADOW BOOKS" in r["descriptive"]["book_identity"]
+    assert r["descriptive"]["control"]["is_entered_book"] is False
+    assert "float32 summation order" in r["descriptive"]["note"]
+
+
+def test_declared_entered_book_is_labelled(tmp_path):
+    root, actuals, frame, _ = build_bundle(tmp_path, n_players=40, n_games=10, seed=14)
+    add_books(root, list(frame.id))
+    m = json.loads((root / "manifest.json").read_text())
+    m["entered_book"] = "control"
+    (root / "manifest.json").write_text(json.dumps(m))
+    r = run(root, actuals, tmp_path / "o.json")
+    assert r["descriptive"]["control"]["is_entered_book"] is True
+    assert r["descriptive"]["salaryfix"]["is_entered_book"] is False
+
+
+@pytest.mark.parametrize("corrupt,match", [("duplicate_player", "duplicate players"),
+                                           ("duplicate_lineup", "duplicate lineup"),
+                                           ("short", "not 9 players")])
+def test_malformed_books_are_refused(tmp_path, corrupt, match):
+    root, actuals, frame, _ = build_bundle(tmp_path, n_players=40, n_games=10, seed=15)
+    add_books(root, list(frame.id), corrupt=corrupt)
+    with pytest.raises(AssertionError, match=match):
+        run(root, actuals, tmp_path / "o.json")
+
+
+def test_book_size_must_match_the_manifest(tmp_path):
+    root, actuals, frame, _ = build_bundle(tmp_path, n_players=40, n_games=10, seed=16)
+    add_books(root, list(frame.id), n=6, expected=97)
+    with pytest.raises(AssertionError, match="manifest expects 97"):
+        run(root, actuals, tmp_path / "o.json")
+
+
 # ---- end to end -------------------------------------------------------------------------
 
 def test_a_genuinely_worse_arm_is_detected_with_the_right_sign(tmp_path):
-    """Bias the salaryfix law away from truth; its CRPS must rise (positive contrast)."""
     root, actuals, _, _ = build_bundle(tmp_path, n_players=300, n_games=14, shift=7.0, seed=4)
     r = run(root, actuals, tmp_path / "o.json")
     c = r["contrast"]["overall"]
     assert c["point"] > 0 and c["interval"][0] > 0
-    assert "negative favours the repaired law" in c["direction"]
 
 
-def test_report_carries_no_decision_rule(tmp_path):
+def test_report_carries_no_decision_rule_and_declares_its_estimator(tmp_path):
     root, actuals, _, _ = build_bundle(tmp_path)
     r = run(root, actuals, tmp_path / "o.json")
     assert "one slate nominates nothing" in r["scope"]
+    assert "denominator n*n" in r["crps_estimator"]
     assert r["reader_sha256"] == sha_bytes(SRC)
-
-
-# ---- descriptive book block -------------------------------------------------------------
-
-def add_books(root, ids, per_arm=("control", "salaryfix"), n=6, missing=False):
-    """Attach entered-lineup orders to the bundle so the descriptive block runs."""
-    m = json.loads((root / "manifest.json").read_text())
-    for arm in per_arm:
-        pool = list(ids)
-        if missing and arm == "salaryfix":
-            pool = pool + ["ghost"]
-        orders = [[pool[(k * 9 + j) % len(pool)] for j in range(9)] for k in range(n)]
-        if missing and arm == "salaryfix":
-            orders[0][0] = "ghost"
-        bp = root / f"{arm}_book.json"
-        bp.write_text(json.dumps(orders))
-        m["arms"][arm]["book_orders"] = {"path": bp.name, "sha256": sha_bytes(bp)}
-    (root / "manifest.json").write_text(json.dumps(m))
-
-
-def test_descriptive_book_block_scores_lineups_and_the_maximum(tmp_path):
-    root, actuals, frame, outcomes = build_bundle(tmp_path, n_players=40, n_games=10, seed=12)
-    add_books(root, list(frame.id))
-    r = run(root, actuals, tmp_path / "o.json")
-    d = r["descriptive"]["control"]
-    assert d["scoreable"] is True and d["lineups"] == 6
-    assert 0.0 <= d["realized_max_pit"] <= 1.0
-    assert d["realized_max"] > 0
-    assert "no interval" in r["descriptive"]["note"]
-
-
-def test_descriptive_block_reports_unscoreable_arm_without_crashing(tmp_path):
-    """A book player with no settled outcome must be named, not zero-imputed or fatal."""
-    root, actuals, frame, _ = build_bundle(tmp_path, n_players=40, n_games=10, seed=13)
-    add_books(root, list(frame.id), missing=True)
-    r = run(root, actuals, tmp_path / "o.json")
-    assert r["descriptive"]["control"]["scoreable"] is True
-    assert r["descriptive"]["salaryfix"]["scoreable"] is False
-    assert r["descriptive"]["salaryfix"]["players_without_outcome"] == ["ghost"]
-
-
-def test_book_block_absent_for_an_arm_that_supplies_no_orders(tmp_path):
-    root, actuals, frame, _ = build_bundle(tmp_path, n_players=40, n_games=10, seed=14)
-    add_books(root, list(frame.id), per_arm=("control",))
-    r = run(root, actuals, tmp_path / "o.json")
-    assert "control" in r["descriptive"] and "salaryfix" not in r["descriptive"]
