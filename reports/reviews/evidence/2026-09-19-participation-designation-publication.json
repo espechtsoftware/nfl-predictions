@@ -1,0 +1,12 @@
+{
+  "uri": "gs://nfl-2-506823-lab/research/week2-participation-transfer-20260919/designation-v1.tar.gz",
+  "generation": 1789823377642153,
+  "bytes": 56150994,
+  "sha256": "c8d014f5858b5c06f8bc4828a5c20c2a98535d3b1600d476bb81e8f587685b8b",
+  "independent_download_matches": true,
+  "local_exact_numeric_and_delivery_replay": true,
+  "source_freeze": "97bcac0c",
+  "manifest_files": 148,
+  "current_football_outcomes_in_inputs": false,
+  "first_upload_timeout_reconciled": true
+}

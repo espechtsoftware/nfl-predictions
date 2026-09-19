@@ -4,6 +4,10 @@
 
 # Project handoff
 
+## 2026-09-19 — fresh audit confirms participation gain; doubtful exposure is the main mechanism
+
+[Designation result](reports/2026-09-19-participation-designation-results.md): fresh component/mask audit reproduces full-rule benefit, Emax+3.511andP22010.180%→12.570%, both components positive. Doubtful-only gets+3.123/+2.035pp but loses0.388points/0.355pp against full under full participation; it reduces one block loss but worsens another. Questionable-only gives no clear whole-book P220 benefit and harms the first delivered slot. Full/control first delivered remains identical. All97-member books legal; full/control original orders exactly repeat. Source frozen97bcac0c; portable cross-read preparation underway. No live adoption or actual operating-dose result. Next: external repeat, saved-corpus/official-status preparation and14:35morning readiness.
+
 ## 2026-09-19 — designation-class decomposition frozen before fresh audit
 
 [Protocol](reports/2026-09-19-participation-designation-protocol.md) compares full participation, doubtful-only, questionable-only and ordinary selection on the same D1600/K97 pool. Original full/control orders must reproduce exactly. Fresh underlying audit seeds12260919/13260919 and availability seed20260919055; all four availability assumptions and all contest blocks/prefixes reported. Synthetic complete selection/vetting/audit smoke and real artifact support pass. This is exploratory mechanism/sensitivity work, not historical validation of a narrowed rule. No live change. The full operating generation can take hours, so the actual-dose follow-up waits for the scheduled saved corpus; its D12800 label has the known12,560attempt world cap.
