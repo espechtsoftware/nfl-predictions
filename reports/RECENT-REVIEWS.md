@@ -36,3 +36,5 @@ Consolidated September 18, 2026 at Erich's request. Source commits: production `
 - [E0d retrieval swap results](2026-09-18-e0d-retrieval-swap-results.md): three swaps; small K80 gain, prefix screen failed.
 
 - [Week2 current-selector diagnostic](2026-09-18-week2-current-selector-diagnostic.md): exact90-row reproduction,97-entry extension and component tail disagreement.
+
+- [Week2 component-gap decomposition](2026-09-18-week2-component-gap-results.md):12.73points associated withmeans,6.98with residualdistribution; diagnostic only.

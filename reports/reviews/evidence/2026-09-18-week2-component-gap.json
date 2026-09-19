@@ -1,0 +1,472 @@
+{
+  "values": {
+    "Imean_Iresidual": {
+      "mean_book_max": 190.36334913482665,
+      "p220": 0.0729,
+      "hits220": 729,
+      "highest_lineup_mean": 149.237676247406,
+      "mean_lineup_mean": 132.2068705256865,
+      "bookmax_lift_above_highest_lineup_mean": 41.12567288742065
+    },
+    "Hmean_Hresidual": {
+      "mean_book_max": 210.07616808013915,
+      "p220": 0.3029,
+      "hits220": 3029,
+      "highest_lineup_mean": 160.15577200393676,
+      "mean_lineup_mean": 144.66736917163,
+      "bookmax_lift_above_highest_lineup_mean": 49.920396076202394
+    },
+    "Hmean_Iresidual": {
+      "mean_book_max": 202.6555321787613,
+      "p220": 0.176,
+      "hits220": 1760,
+      "highest_lineup_mean": 160.1557677401975,
+      "mean_lineup_mean": 144.66736845314998,
+      "bookmax_lift_above_highest_lineup_mean": 42.4997644385638
+    },
+    "Imean_Hresidual": {
+      "mean_book_max": 196.90104840188366,
+      "p220": 0.1499,
+      "hits220": 1499,
+      "highest_lineup_mean": 149.23767983955736,
+      "mean_lineup_mean": 132.2068712441665,
+      "bookmax_lift_above_highest_lineup_mean": 47.6633685623263
+    }
+  },
+  "attribution": {
+    "mean_book_max": {
+      "total": 19.712818945312506,
+      "mean_contribution": 12.73365136109507,
+      "residual_contribution": 6.979167584217436
+    },
+    "p220": {
+      "total": 0.22999999999999998,
+      "mean_contribution": 0.12805,
+      "residual_contribution": 0.10195000000000001
+    }
+  },
+  "position_mean_differences": [
+    {
+      "population": "all",
+      "position": "DST",
+      "hsim_minus_incumbent": {
+        "n": 26,
+        "mean": -0.3474307844895582,
+        "median": -0.15794992561340315,
+        "maxabs": 2.426900228881836
+      },
+      "incumbent_minus_mean_projection": {
+        "n": 26,
+        "mean": 1.525878917236084e-08,
+        "median": 3.2424927187690855e-08,
+        "maxabs": 3.2806396532691906e-07
+      },
+      "hsim_minus_mean_projection": {
+        "n": 26,
+        "mean": -0.34743076923076904,
+        "median": -0.1579499999999996,
+        "maxabs": 2.4269000000000016
+      },
+      "incumbent_minus_proj": {
+        "n": 26,
+        "mean": 1.525878917236084e-08,
+        "median": 3.2424927187690855e-08,
+        "maxabs": 3.2806396532691906e-07
+      },
+      "hsim_minus_proj": {
+        "n": 26,
+        "mean": -0.34743076923076904,
+        "median": -0.1579499999999996,
+        "maxabs": 2.4269000000000016
+      }
+    },
+    {
+      "population": "all",
+      "position": "QB",
+      "hsim_minus_incumbent": {
+        "n": 71,
+        "mean": -2.9811132069241415,
+        "median": 0.06867931863069643,
+        "maxabs": 13.48185336925164
+      },
+      "incumbent_minus_mean_projection": {
+        "n": 71,
+        "mean": 1.3060918543877686e-10,
+        "median": 1.2847145569594431e-10,
+        "maxabs": 2.407012367200423e-08
+      },
+      "hsim_minus_mean_projection": {
+        "n": 71,
+        "mean": -2.9811132067935326,
+        "median": 0.0686793179834293,
+        "maxabs": 13.481853366005142
+      },
+      "incumbent_minus_proj": {
+        "n": 71,
+        "mean": 1.3060918543877686e-10,
+        "median": 1.2847145569594431e-10,
+        "maxabs": 2.407012367200423e-08
+      },
+      "hsim_minus_proj": {
+        "n": 71,
+        "mean": -2.9811132067935326,
+        "median": 0.0686793179834293,
+        "maxabs": 13.481853366005142
+      }
+    },
+    {
+      "population": "all",
+      "position": "RB",
+      "hsim_minus_incumbent": {
+        "n": 91,
+        "mean": 0.14654241675808455,
+        "median": 0.4610950272038581,
+        "maxabs": 6.768340201437473
+      },
+      "incumbent_minus_mean_projection": {
+        "n": 91,
+        "mean": -1.7143336445174212e-10,
+        "median": 2.2604673688420007e-10,
+        "maxabs": 2.6494246796460175e-08
+      },
+      "hsim_minus_mean_projection": {
+        "n": 91,
+        "mean": 0.14654241658665126,
+        "median": 0.46109502930962876,
+        "maxabs": 6.7683402000224
+      },
+      "incumbent_minus_proj": {
+        "n": 91,
+        "mean": -1.7143336445174212e-10,
+        "median": 2.2604673688420007e-10,
+        "maxabs": 2.6494246796460175e-08
+      },
+      "hsim_minus_proj": {
+        "n": 91,
+        "mean": 0.14654241658665126,
+        "median": 0.46109502930962876,
+        "maxabs": 6.7683402000224
+      }
+    },
+    {
+      "population": "all",
+      "position": "TE",
+      "hsim_minus_incumbent": {
+        "n": 100,
+        "mean": 0.32607591346297954,
+        "median": 0.239415929791576,
+        "maxabs": 2.76469202838242
+      },
+      "incumbent_minus_mean_projection": {
+        "n": 100,
+        "mean": -6.520693685008184e-10,
+        "median": -1.4035028694792118e-10,
+        "maxabs": 2.3538820670410132e-08
+      },
+      "hsim_minus_mean_projection": {
+        "n": 100,
+        "mean": 0.32607591281091003,
+        "median": 0.2394159310646885,
+        "maxabs": 2.7646920251962115
+      },
+      "incumbent_minus_proj": {
+        "n": 100,
+        "mean": -6.520693685008184e-10,
+        "median": -1.4035028694792118e-10,
+        "maxabs": 2.3538820670410132e-08
+      },
+      "hsim_minus_proj": {
+        "n": 100,
+        "mean": 0.32607591281091003,
+        "median": 0.2394159310646885,
+        "maxabs": 2.7646920251962115
+      }
+    },
+    {
+      "population": "all",
+      "position": "WR",
+      "hsim_minus_incumbent": {
+        "n": 147,
+        "mean": -1.6082351159129091,
+        "median": -1.6977121999554976,
+        "maxabs": 11.590918375968933
+      },
+      "incumbent_minus_mean_projection": {
+        "n": 147,
+        "mean": 6.84804626459416e-10,
+        "median": -3.034861251194343e-11,
+        "maxabs": 8.226773218211747e-08
+      },
+      "hsim_minus_mean_projection": {
+        "n": 147,
+        "mean": -1.6082351152281045,
+        "median": -1.6977122091585453,
+        "maxabs": 11.590918383971486
+      },
+      "incumbent_minus_proj": {
+        "n": 147,
+        "mean": 6.84804626459416e-10,
+        "median": -3.034861251194343e-11,
+        "maxabs": 8.226773218211747e-08
+      },
+      "hsim_minus_proj": {
+        "n": 147,
+        "mean": -1.6082351152281045,
+        "median": -1.6977122091585453,
+        "maxabs": 11.590918383971486
+      }
+    },
+    {
+      "population": "selected_players",
+      "position": "DST",
+      "hsim_minus_incumbent": {
+        "n": 9,
+        "mean": -0.8067777896457248,
+        "median": -0.963000144958496,
+        "maxabs": 2.426900228881836
+      },
+      "incumbent_minus_mean_projection": {
+        "n": 9,
+        "mean": 1.1867946921502911e-08,
+        "median": 2.2888183792701966e-08,
+        "maxabs": 2.8228759774151513e-07
+      },
+      "hsim_minus_mean_projection": {
+        "n": 9,
+        "mean": -0.8067777777777779,
+        "median": -0.9630000000000001,
+        "maxabs": 2.4269000000000016
+      },
+      "incumbent_minus_proj": {
+        "n": 9,
+        "mean": 1.1867946921502911e-08,
+        "median": 2.2888183792701966e-08,
+        "maxabs": 2.8228759774151513e-07
+      },
+      "hsim_minus_proj": {
+        "n": 9,
+        "mean": -0.8067777777777779,
+        "median": -0.9630000000000001,
+        "maxabs": 2.4269000000000016
+      }
+    },
+    {
+      "population": "selected_players",
+      "position": "QB",
+      "hsim_minus_incumbent": {
+        "n": 22,
+        "mean": -0.11967958012328256,
+        "median": 0.5292907634139059,
+        "maxabs": 13.48185336925164
+      },
+      "incumbent_minus_mean_projection": {
+        "n": 22,
+        "mean": -4.049932106847171e-10,
+        "median": -6.279252673380142e-10,
+        "maxabs": 4.022549404680831e-09
+      },
+      "hsim_minus_mean_projection": {
+        "n": 22,
+        "mean": -0.11967958052827576,
+        "median": 0.5292907604268589,
+        "maxabs": 13.481853366005142
+      },
+      "incumbent_minus_proj": {
+        "n": 22,
+        "mean": -4.049932106847171e-10,
+        "median": -6.279252673380142e-10,
+        "maxabs": 4.022549404680831e-09
+      },
+      "hsim_minus_proj": {
+        "n": 22,
+        "mean": -0.11967958052827576,
+        "median": 0.5292907604268589,
+        "maxabs": 13.481853366005142
+      }
+    },
+    {
+      "population": "selected_players",
+      "position": "RB",
+      "hsim_minus_incumbent": {
+        "n": 28,
+        "mean": 2.161173050140722,
+        "median": 2.0081423835277548,
+        "maxabs": 5.45003675020933
+      },
+      "incumbent_minus_mean_projection": {
+        "n": 28,
+        "mean": -1.796377459482658e-09,
+        "median": -2.4435600209926633e-09,
+        "maxabs": 2.6494246796460175e-08
+      },
+      "hsim_minus_mean_projection": {
+        "n": 28,
+        "mean": 2.1611730483443448,
+        "median": 2.00814238620835,
+        "maxabs": 5.4500367276248145
+      },
+      "incumbent_minus_proj": {
+        "n": 28,
+        "mean": -1.796377459482658e-09,
+        "median": -2.4435600209926633e-09,
+        "maxabs": 2.6494246796460175e-08
+      },
+      "hsim_minus_proj": {
+        "n": 28,
+        "mean": 2.1611730483443448,
+        "median": 2.00814238620835,
+        "maxabs": 5.4500367276248145
+      }
+    },
+    {
+      "population": "selected_players",
+      "position": "TE",
+      "hsim_minus_incumbent": {
+        "n": 31,
+        "mean": 1.1182925660769294,
+        "median": 1.1373043985297278,
+        "maxabs": 2.76469202838242
+      },
+      "incumbent_minus_mean_projection": {
+        "n": 31,
+        "mean": -1.4716762718863618e-09,
+        "median": -6.896172521919652e-10,
+        "maxabs": 1.0820233597996776e-08
+      },
+      "hsim_minus_mean_projection": {
+        "n": 31,
+        "mean": 1.118292564605253,
+        "median": 1.1373043995526793,
+        "maxabs": 2.7646920251962115
+      },
+      "incumbent_minus_proj": {
+        "n": 31,
+        "mean": -1.4716762718863618e-09,
+        "median": -6.896172521919652e-10,
+        "maxabs": 1.0820233597996776e-08
+      },
+      "hsim_minus_proj": {
+        "n": 31,
+        "mean": 1.118292564605253,
+        "median": 1.1373043995526793,
+        "maxabs": 2.7646920251962115
+      }
+    },
+    {
+      "population": "selected_players",
+      "position": "WR",
+      "hsim_minus_incumbent": {
+        "n": 52,
+        "mean": 0.925251374510981,
+        "median": 1.792755256950855,
+        "maxabs": 11.590918375968933
+      },
+      "incumbent_minus_mean_projection": {
+        "n": 52,
+        "mean": 3.1118757143771676e-09,
+        "median": 4.266085262827346e-10,
+        "maxabs": 8.226773218211747e-08
+      },
+      "hsim_minus_mean_projection": {
+        "n": 52,
+        "mean": 0.9252513776228566,
+        "median": 1.7927552575972223,
+        "maxabs": 11.590918383971486
+      },
+      "incumbent_minus_proj": {
+        "n": 52,
+        "mean": 3.1118757143771676e-09,
+        "median": 4.266085262827346e-10,
+        "maxabs": 8.226773218211747e-08
+      },
+      "hsim_minus_proj": {
+        "n": 52,
+        "mean": 0.9252513776228566,
+        "median": 1.7927552575972223,
+        "maxabs": 11.590918383971486
+      }
+    }
+  ],
+  "variance": {
+    "incumbent": {
+      "total_lineup_variance": {
+        "n": 90,
+        "mean": 579.994242850979,
+        "median": 576.1754509573184,
+        "maxabs": 783.2195837157145
+      },
+      "sum_player_variances": {
+        "n": 90,
+        "mean": 408.34631450137863,
+        "median": 408.46069080933427,
+        "maxabs": 430.11462089886277
+      },
+      "twice_within_lineup_covariance": {
+        "n": 90,
+        "mean": 171.64792834960033,
+        "median": 172.94760199175374,
+        "maxabs": 372.5221087538561
+      }
+    },
+    "hsim": {
+      "total_lineup_variance": {
+        "n": 90,
+        "mean": 781.3197235156416,
+        "median": 772.0998608294815,
+        "maxabs": 927.8409552111887
+      },
+      "sum_player_variances": {
+        "n": 90,
+        "mean": 677.4133655558569,
+        "median": 676.8049180188092,
+        "maxabs": 776.9830978369141
+      },
+      "twice_within_lineup_covariance": {
+        "n": 90,
+        "mean": 103.90635795978481,
+        "median": 102.31446251888894,
+        "maxabs": 183.10515730720715
+      }
+    }
+  },
+  "negative_scores_after_cross_centering": {
+    "hsim_to_incumbent": 365529,
+    "incumbent_to_hsim": 1358616
+  },
+  "verified_inputs": {
+    "frame.parquet": {
+      "sha256": "90a762654111126aefad1950217044443291251918ab70edb925ff341d226635",
+      "generation": 1789768711580236
+    },
+    "candidates.parquet": {
+      "sha256": "dd547b99189d3adb8fb2b5f7aa680dd0419944be3c5957688c66ad894df7fb3e",
+      "generation": 1789768712700980
+    },
+    "receipt.json": {
+      "sha256": "4f00d70b4ae5a907431485f4327ebc30afecefb4ff7f33b4053e93c6491df3d5",
+      "generation": 1789768711445485
+    },
+    "incumbent_player_scores.npy": {
+      "sha256": "4774e37cf0416b28c93c0467e33382589562832aceb23594809f76bd5f0e2568",
+      "generation": 1789768758454110
+    },
+    "corrected_hsim_player_scores.npy": {
+      "sha256": "1d5b6372c9ba4a1d86ddac7c29652f432377486966a5be4bc08f338eb01e7a06",
+      "generation": 1789768762860081
+    }
+  },
+  "elapsed_seconds": 0.05870202100777533,
+  "caveat": "Additive crossings are diagnostics, not valid new distributions. Attribution is descriptive and noncausal; reused selection banks, same fixed K90 book.",
+  "provenance": {
+    "git_sha": "c5d73628d362c4170a42495962b82b8f4e67644b",
+    "git_status": "",
+    "script_sha256": "b79a2be22c2759a75449787c00922d82bb2d4114da51a24bdbe9e00bd631d2c3",
+    "python": "3.14.4",
+    "numpy": "2.5.3",
+    "threads": {
+      "OPENBLAS_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1"
+    }
+  }
+}
