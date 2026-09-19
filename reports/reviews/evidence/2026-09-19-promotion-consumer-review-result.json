@@ -1,0 +1,404 @@
+{
+  "tool_sha256": "3590193e2483d4eef1229c33d87fa820c1706b502af356b8bcc8ccf1913a1464",
+  "reader_sha256": "ff784944b0e388499537c033a9c0069f8108c4a8cfa5e411c53bb1f16c7f7cab",
+  "outcome_columns_decoded": false,
+  "original_vetter_replayed": true,
+  "cases": {
+    "baseline": {
+      "exit_code": 0,
+      "output_exists": true,
+      "promotion": {
+        "promoted_from_rank": 5,
+        "selection_mean": 143.5388748758316,
+        "eligible_delivered_ranks": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          30
+        ],
+        "tie_policy": "earliest delivered rank"
+      },
+      "tier_counts": {
+        "hard": 0,
+        "material": 39,
+        "clean_or_soft": 58,
+        "forced_ineligible_not_hard": 0,
+        "rows_raised_by_fresh_status": 0
+      },
+      "unrestricted_reads": [
+        {
+          "path": "/home/erich/projects/review-evidence/overnight-20260918/promotion-consumer-review-v11-r2/baseline/run/frame.parquet",
+          "requested": null,
+          "decoded": [
+            "id",
+            "name",
+            "gsis_id",
+            "pos",
+            "position",
+            "team",
+            "opp",
+            "salary",
+            "status",
+            "display_name",
+            "dk_player_id",
+            "dk_draftable_id",
+            "draft_group_id"
+          ]
+        },
+        {
+          "path": "/home/erich/projects/review-evidence/overnight-20260918/promotion-consumer-review-v11-r2/baseline/run/candidates.parquet",
+          "requested": null,
+          "decoded": [
+            "players"
+          ]
+        }
+      ],
+      "input_bank_sha256": {
+        "incumbent_player_scores.npy": "1d711ff9af22bea4b17505470ba516c544261f04da428f557893a9e290ec15d5",
+        "corrected_hsim_player_scores.npy": "c9f977295bde6a1987488de25ade643813cbf54d5e7c3903b753f714efe1023a"
+      },
+      "receipt_sha256": "438cebdde988cac0e7484fa77586e3c3225aa3d1bea1b3103fcc2185db12aac8"
+    },
+    "foreign_same_shape_bank": {
+      "exit_code": 0,
+      "output_exists": true,
+      "promotion": {
+        "promoted_from_rank": 5,
+        "selection_mean": 148.0388748779297,
+        "eligible_delivered_ranks": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          30
+        ],
+        "tie_policy": "earliest delivered rank"
+      },
+      "tier_counts": {
+        "hard": 0,
+        "material": 39,
+        "clean_or_soft": 58,
+        "forced_ineligible_not_hard": 0,
+        "rows_raised_by_fresh_status": 0
+      },
+      "unrestricted_reads": [
+        {
+          "path": "/home/erich/projects/review-evidence/overnight-20260918/promotion-consumer-review-v11-r2/foreign_same_shape_bank/run/frame.parquet",
+          "requested": null,
+          "decoded": [
+            "id",
+            "name",
+            "gsis_id",
+            "pos",
+            "position",
+            "team",
+            "opp",
+            "salary",
+            "status",
+            "display_name",
+            "dk_player_id",
+            "dk_draftable_id",
+            "draft_group_id"
+          ]
+        },
+        {
+          "path": "/home/erich/projects/review-evidence/overnight-20260918/promotion-consumer-review-v11-r2/foreign_same_shape_bank/run/candidates.parquet",
+          "requested": null,
+          "decoded": [
+            "players"
+          ]
+        }
+      ],
+      "input_bank_sha256": {
+        "incumbent_player_scores.npy": "3101b88df30b4f4e3cd65fb9d4bfccf267b777df3e3968f750182ccb9e382530",
+        "corrected_hsim_player_scores.npy": "c9f977295bde6a1987488de25ade643813cbf54d5e7c3903b753f714efe1023a"
+      },
+      "receipt_sha256": "21a371de712ef8a90d4250d35dad1a247a124ebc38ea048c96c8d0e763795736"
+    },
+    "missing_source_receipt": {
+      "exit_code": 0,
+      "output_exists": true,
+      "promotion": {
+        "promoted_from_rank": 5,
+        "selection_mean": 143.5388748758316,
+        "eligible_delivered_ranks": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          30
+        ],
+        "tie_policy": "earliest delivered rank"
+      },
+      "tier_counts": {
+        "hard": 0,
+        "material": 39,
+        "clean_or_soft": 58,
+        "forced_ineligible_not_hard": 0,
+        "rows_raised_by_fresh_status": 0
+      },
+      "unrestricted_reads": [
+        {
+          "path": "/home/erich/projects/review-evidence/overnight-20260918/promotion-consumer-review-v11-r2/missing_source_receipt/run/frame.parquet",
+          "requested": null,
+          "decoded": [
+            "id",
+            "name",
+            "gsis_id",
+            "pos",
+            "position",
+            "team",
+            "opp",
+            "salary",
+            "status",
+            "display_name",
+            "dk_player_id",
+            "dk_draftable_id",
+            "draft_group_id"
+          ]
+        },
+        {
+          "path": "/home/erich/projects/review-evidence/overnight-20260918/promotion-consumer-review-v11-r2/missing_source_receipt/run/candidates.parquet",
+          "requested": null,
+          "decoded": [
+            "players"
+          ]
+        }
+      ],
+      "input_bank_sha256": {
+        "incumbent_player_scores.npy": "1d711ff9af22bea4b17505470ba516c544261f04da428f557893a9e290ec15d5",
+        "corrected_hsim_player_scores.npy": "c9f977295bde6a1987488de25ade643813cbf54d5e7c3903b753f714efe1023a"
+      },
+      "receipt_sha256": "154459114930df61ec2147b69812f1dfbab36581a8531a7451bcb423771864d9"
+    },
+    "new_confirmed_out_in_final_vetting": {
+      "exit_code": 0,
+      "output_exists": true,
+      "promotion": {
+        "promoted_from_rank": 13,
+        "selection_mean": 141.80959877166748,
+        "eligible_delivered_ranks": [
+          3,
+          4,
+          7,
+          8,
+          9,
+          12,
+          13,
+          14,
+          17,
+          18,
+          19,
+          20,
+          23,
+          24,
+          25,
+          26,
+          28,
+          30
+        ],
+        "tie_policy": "earliest delivered rank"
+      },
+      "tier_counts": {
+        "hard": 28,
+        "material": 32,
+        "clean_or_soft": 37,
+        "forced_ineligible_not_hard": 0,
+        "rows_raised_by_fresh_status": 0
+      },
+      "unrestricted_reads": [
+        {
+          "path": "/home/erich/projects/review-evidence/overnight-20260918/promotion-consumer-review-v11-r2/new_confirmed_out_in_final_vetting/run/frame.parquet",
+          "requested": null,
+          "decoded": [
+            "id",
+            "name",
+            "gsis_id",
+            "pos",
+            "position",
+            "team",
+            "opp",
+            "salary",
+            "status",
+            "display_name",
+            "dk_player_id",
+            "dk_draftable_id",
+            "draft_group_id"
+          ]
+        },
+        {
+          "path": "/home/erich/projects/review-evidence/overnight-20260918/promotion-consumer-review-v11-r2/new_confirmed_out_in_final_vetting/run/candidates.parquet",
+          "requested": null,
+          "decoded": [
+            "players"
+          ]
+        }
+      ],
+      "input_bank_sha256": {
+        "incumbent_player_scores.npy": "1d711ff9af22bea4b17505470ba516c544261f04da428f557893a9e290ec15d5",
+        "corrected_hsim_player_scores.npy": "c9f977295bde6a1987488de25ade643813cbf54d5e7c3903b753f714efe1023a"
+      },
+      "receipt_sha256": "d256db80b214b85f4142011ae3b4f523f87e8bd5897d89e82939ff39df01ac55",
+      "injected_player": {
+        "dk": "1107881",
+        "name": "Javonte Williams"
+      },
+      "confirmed_out_input_rows": 28,
+      "confirmed_out_output_rows": 28
+    },
+    "not_publishable_consumer": {
+      "exit_code": 0,
+      "output_exists": true,
+      "promotion": {
+        "promoted_from_rank": 5,
+        "selection_mean": 143.5388748758316,
+        "eligible_delivered_ranks": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          30
+        ],
+        "tie_policy": "earliest delivered rank"
+      },
+      "tier_counts": {
+        "hard": 0,
+        "material": 39,
+        "clean_or_soft": 58,
+        "forced_ineligible_not_hard": 0,
+        "rows_raised_by_fresh_status": 0
+      },
+      "unrestricted_reads": [
+        {
+          "path": "/home/erich/projects/review-evidence/overnight-20260918/promotion-consumer-review-v11-r2/not_publishable_consumer/run/frame.parquet",
+          "requested": null,
+          "decoded": [
+            "id",
+            "name",
+            "gsis_id",
+            "pos",
+            "position",
+            "team",
+            "opp",
+            "salary",
+            "status",
+            "display_name",
+            "dk_player_id",
+            "dk_draftable_id",
+            "draft_group_id"
+          ]
+        },
+        {
+          "path": "/home/erich/projects/review-evidence/overnight-20260918/promotion-consumer-review-v11-r2/not_publishable_consumer/run/candidates.parquet",
+          "requested": null,
+          "decoded": [
+            "players"
+          ]
+        }
+      ],
+      "input_bank_sha256": {
+        "incumbent_player_scores.npy": "1d711ff9af22bea4b17505470ba516c544261f04da428f557893a9e290ec15d5",
+        "corrected_hsim_player_scores.npy": "c9f977295bde6a1987488de25ade643813cbf54d5e7c3903b753f714efe1023a"
+      },
+      "receipt_sha256": "22b79bc5355d1be72f8f7da7374ed2d6f262abf8a59604629f665806d748eb5b"
+    }
+  },
+  "current_book_sha256": "86147c51b94b7abb960b88fb38396c457efc96adea66253db392506f78cfdb8b"
+}
