@@ -19,6 +19,7 @@ def main():
     for name,digest in context['files'].items():assert sha(root/name)==digest,name
     wheels=json.loads((root/'wheels.json').read_text())
     for name,version in wheels['pins'].items():assert importlib.metadata.version(name)==version
+    for name,version in wheels['provided_by_image'].items():assert importlib.metadata.version(name)==version
     spec=importlib.util.spec_from_file_location('frozen_injury_type',root/'study.py')
     module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
     bucket=storage.Client(project='nfl-2-506823').bucket('nfl-2-506823-lab')

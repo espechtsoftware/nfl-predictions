@@ -31,7 +31,7 @@ The support census did not open `was_active` or `y_targets` for this test.
 
 Both arms predict the same target mean with a Poisson-loss histogram gradient
 boosting regressor: 100 iterations, learning rate .05, 7 leaves, minimum leaf size 30, L2=10,
-no early stopping, max features 1, seed 20260919. No hyperparameter search.
+no early stopping, max features 1.0 (all features), seed 20260919. No hyperparameter search.
 
 The control uses the 41 numeric fields recorded in the support receipt: every
 current standard numeric model input plus prior targets, practice/trend, missed

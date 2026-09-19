@@ -4,7 +4,8 @@
     "scipy": "1.18.1",
     "joblib": "1.6.0",
     "narwhals": "2.26.0",
-    "threadpoolctl": "3.7.0"
+    "threadpoolctl": "3.7.0",
+    "cloudpickle": "3.1.2"
   },
   "files": {
     "threadpoolctl-3.7.0-py3-none-any.whl": {
@@ -26,7 +27,33 @@
     "scipy-1.18.1-cp314-cp314-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl": {
       "bytes": 35329183,
       "sha256": "ac0333bdf38309aa3dcbe7e3fa7ea29e7a2c37c6ea306a757b700ded8e4596ad"
+    },
+    "cloudpickle-3.1.2-py3-none-any.whl": {
+      "bytes": 22228,
+      "sha256": "9acb47f6afd73f60dc1df93bb801b472f05ff42fa6c84167d25cb206be1fbf4a"
     }
   },
-  "scope": "isolated cloud runtime dependencies; no study changes"
+  "scope": "isolated cloud runtime dependencies; no study changes",
+  "provided_by_image": {
+    "numpy": "2.5.2"
+  },
+  "required_dependency_closure": {
+    "scikit-learn": [
+      "numpy>=1.24.1",
+      "scipy>=1.10.0",
+      "joblib>=1.4.0",
+      "narwhals>=2.0.1",
+      "threadpoolctl>=3.5.0"
+    ],
+    "scipy": [
+      "numpy<2.8,>=2.0.0"
+    ],
+    "joblib": [
+      "cloudpickle>=3.0"
+    ],
+    "narwhals": [],
+    "threadpoolctl": [],
+    "cloudpickle": [],
+    "numpy": []
+  }
 }

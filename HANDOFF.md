@@ -4,6 +4,16 @@
 
 # Project handoff
 
+## 2026-09-19 — injury-type dependency closure completed before another smoke
+
+Second smoke `08edd760-80c3-4f56-b200-bc3f850e11ba` stopped during import:
+joblib1.6 also requires cloudpickle. No historical labels decoded or results
+published. Rather than continue individual import fixes, the entire required
+dependency graph is now traversed and every version constraint checked. Six
+hash-pinned wheels plus the immutable image's NumPy2.5.2 cover that graph. Frozen
+study source is still unchanged. Peer `4a4d735` found no concrete source defect;
+the protocol prose now says max_features1.0 explicitly. Repeat cloud smoke next.
+
 ## 2026-09-19 — injury-type cloud smoke caught a missing dependency
 
 Build `70928161-b7d8-4783-b7b8-19c7cb430c87` stopped at import because the
