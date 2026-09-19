@@ -110,3 +110,34 @@ original before-config/backup, verifies every live table/view and snapshot again
 skips the already-applied feature image update, and explicitly records client
 version metadata. Tests against the actual before/after configs pass while env
 and task-count changes still fail. No live table has been rebuilt at this checkpoint.
+
+## Feature refresh accepted after historical-drift diagnosis, 06:03 UTC
+
+`build-features-x4b8z` completed05:54:30UTC. Every normal leakage check passed.
+Week2 has877inference rows,397with prior-game history and396with snap history;
+max prior games1. Week1 has no future prior-history support. Salary, training
+and inference duplicate-key checks all returnzero. Historical salary rows match
+exactly.
+
+The strict historical row comparison initially stopped on five tables. We did
+not waive it: three tables differ solely by floating aggregation roundoff
+(max7.11e-15). Usage/training also reflect three2025activity records for
+gsis`00-0039518`, propagating to14prior-count/null rows and smallposition-prior
+changes. **The unchanged usage SQL, with the backed-up old salary table and
+current other inputs, reproduces all102,927historical usage rows exactly on every
+column.** Job`956e6f83-a349-496e-9357-eb4826cd455c`, job-local TEMP table only.
+Thus these changes also occur without the salary repair.
+
+Time-travel source inspection establishes the cause: that gsis/PFR mapping was
+absent before the previous September17feature build and present after the
+September18raw refresh. It now joins2025weeks3/17/18offensive snaps. Queries
+`f270c3ff-2338-4b18-b09f-f5188a48a487` and
+`f8e8661c-2d96-4912-bee3-6ab775b50a18`. One initial combined query was rejected
+because BigQuery forbids two historical versions of a table in one query;
+split read-only queries succeeded. No leakage check was changed and no old
+feature row was overwritten selectively to force parity.
+
+[Full validation evidence](reviews/evidence/2026-09-19-release-feature-validation.json).
+The feature gate is now accepted on this explicit explanation. The registered
+supervisor may proceed to the strict-prior-week full TabPFN refresh; host activation
+remains gated on cache/projection validation and actual live CLI proof.

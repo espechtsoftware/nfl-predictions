@@ -1,0 +1,817 @@
+{
+  "feature_execution": "build-features-x4b8z",
+  "all_leakage_checks_passed": true,
+  "byte_exact_history_gate": "FAILED_AND_INVESTIGATED",
+  "historical_checks": [
+    {
+      "source": "nfl-predictions-503414.nfl_features.player_week_efficiency",
+      "current_rows": 243249,
+      "previous_rows": 243249,
+      "current_only": 0,
+      "previous_only": 0
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.player_week_xfp",
+      "current_rows": 61400,
+      "previous_rows": 61400,
+      "current_only": 10857,
+      "previous_only": 10857
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.player_week_fp_route",
+      "current_rows": 102927,
+      "previous_rows": 102927,
+      "current_only": 0,
+      "previous_only": 0
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.player_week_injury",
+      "current_rows": 57550,
+      "previous_rows": 57550,
+      "current_only": 0,
+      "previous_only": 0
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.team_defense_week",
+      "current_rows": 6302,
+      "previous_rows": 6302,
+      "current_only": 0,
+      "previous_only": 0
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.player_week_training",
+      "current_rows": 102927,
+      "previous_rows": 102927,
+      "current_only": 13229,
+      "previous_only": 13229
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.player_week_inference",
+      "current_rows": 0,
+      "previous_rows": 0,
+      "current_only": 0,
+      "previous_only": 0
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.defense_week_allowed",
+      "current_rows": 6302,
+      "previous_rows": 6302,
+      "current_only": 0,
+      "previous_only": 0
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.team_week_ol_out",
+      "current_rows": 5193,
+      "previous_rows": 5193,
+      "current_only": 0,
+      "previous_only": 0
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.referee_game_tendency",
+      "current_rows": 3025,
+      "previous_rows": 3025,
+      "current_only": 0,
+      "previous_only": 0
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.defense_week_coverage",
+      "current_rows": 14552,
+      "previous_rows": 14552,
+      "current_only": 0,
+      "previous_only": 0
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.player_week_usage",
+      "current_rows": 102927,
+      "previous_rows": 102927,
+      "current_only": 1826,
+      "previous_only": 1826
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.team_week_target_concentration",
+      "current_rows": 6590,
+      "previous_rows": 6590,
+      "current_only": 0,
+      "previous_only": 0
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.team_week_pace",
+      "current_rows": 6590,
+      "previous_rows": 6590,
+      "current_only": 0,
+      "previous_only": 0
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.defense_points_against",
+      "current_rows": 25205,
+      "previous_rows": 25205,
+      "current_only": 0,
+      "previous_only": 0
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.defense_week_blitz",
+      "current_rows": 2278,
+      "previous_rows": 2278,
+      "current_only": 0,
+      "previous_only": 0
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.qb_week_ngs",
+      "current_rows": 5526,
+      "previous_rows": 5526,
+      "current_only": 0,
+      "previous_only": 0
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.team_week_qb_quality",
+      "current_rows": 13934,
+      "previous_rows": 13934,
+      "current_only": 0,
+      "previous_only": 0
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.team_week_context",
+      "current_rows": 14552,
+      "previous_rows": 14552,
+      "current_only": 112,
+      "previous_only": 112
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.team_week_ftn_offense",
+      "current_rows": 2278,
+      "previous_rows": 2278,
+      "current_only": 0,
+      "previous_only": 0
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.team_week_schedule_ctx",
+      "current_rows": 14552,
+      "previous_rows": 14552,
+      "current_only": 0,
+      "previous_only": 0
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.team_week_neutral_pass",
+      "current_rows": 6254,
+      "previous_rows": 6254,
+      "current_only": 0,
+      "previous_only": 0
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.team_week_vacated",
+      "current_rows": 2261,
+      "previous_rows": 2261,
+      "current_only": 18,
+      "previous_only": 18
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.player_week_role",
+      "current_rows": 162945,
+      "previous_rows": 162945,
+      "current_only": 0,
+      "previous_only": 0
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.rz_rushing",
+      "current_rows": 27026,
+      "previous_rows": 27026,
+      "current_only": 0,
+      "previous_only": 0
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.dk_salary_week",
+      "current_rows": 104847,
+      "previous_rows": 104847,
+      "current_only": 0,
+      "previous_only": 0
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.schedule_long",
+      "current_rows": 14552,
+      "previous_rows": 14552,
+      "current_only": 0,
+      "previous_only": 0
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.rz_receiving",
+      "current_rows": 53022,
+      "previous_rows": 53022,
+      "current_only": 0,
+      "previous_only": 0
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.player_week_actuals",
+      "current_rows": 243249,
+      "previous_rows": 243249,
+      "current_only": 0,
+      "previous_only": 0
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.player_week_advanced",
+      "current_rows": 102927,
+      "previous_rows": 102927,
+      "current_only": 0,
+      "previous_only": 0
+    }
+  ],
+  "support": [
+    {
+      "salary_w1": 863,
+      "salary_w2": 773,
+      "salary_duplicate_keys": 0,
+      "inference_duplicate_keys": 0,
+      "training_duplicate_keys": 0,
+      "inference_w2": 877,
+      "inference_w2_prior_games": 397,
+      "inference_w2_snap": 396,
+      "inference_w2_max_prior_games": 1,
+      "usage_w1_future_support": 0
+    }
+  ],
+  "column_differences": [
+    {
+      "source": "nfl-predictions-503414.nfl_features.player_week_xfp",
+      "job_id": "1d779674-ae45-480f-8807-11b78e58edbe",
+      "bytes_processed": 4326372,
+      "joined_rows": 61400,
+      "missing_current": 0,
+      "missing_previous": 0,
+      "changed_columns": [
+        {
+          "column_name": "xfp_l4",
+          "type": "FLOAT",
+          "different": 10857,
+          "null_mismatch": 0,
+          "max_abs_delta": 7.105427357601002e-15,
+          "max_scaled_delta": 4.3652640492713166e-16
+        }
+      ]
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.player_week_training",
+      "job_id": "fb413bb4-5f38-48c7-93ac-a7da70d513ab",
+      "bytes_processed": 153887787,
+      "joined_rows": 102927,
+      "missing_current": 0,
+      "missing_previous": 0,
+      "changed_columns": [
+        {
+          "column_name": "was_active",
+          "type": "BOOLEAN",
+          "different": 3,
+          "null_mismatch": 0,
+          "max_abs_delta": null,
+          "max_scaled_delta": null
+        },
+        {
+          "column_name": "targets_l4",
+          "type": "FLOAT",
+          "different": 5,
+          "null_mismatch": 5,
+          "max_abs_delta": 0.0,
+          "max_scaled_delta": 0.0
+        },
+        {
+          "column_name": "target_share_l4",
+          "type": "FLOAT",
+          "different": 5,
+          "null_mismatch": 5,
+          "max_abs_delta": 0.0,
+          "max_scaled_delta": 0.0
+        },
+        {
+          "column_name": "air_yards_share_l4",
+          "type": "FLOAT",
+          "different": 5,
+          "null_mismatch": 5,
+          "max_abs_delta": 0.0,
+          "max_scaled_delta": 0.0
+        },
+        {
+          "column_name": "wopr_l4",
+          "type": "FLOAT",
+          "different": 5,
+          "null_mismatch": 5,
+          "max_abs_delta": 0.0,
+          "max_scaled_delta": 0.0
+        },
+        {
+          "column_name": "rz20_targets_l4",
+          "type": "FLOAT",
+          "different": 5,
+          "null_mismatch": 5,
+          "max_abs_delta": 0.0,
+          "max_scaled_delta": 0.0
+        },
+        {
+          "column_name": "rz10_targets_l4",
+          "type": "FLOAT",
+          "different": 5,
+          "null_mismatch": 5,
+          "max_abs_delta": 0.0,
+          "max_scaled_delta": 0.0
+        },
+        {
+          "column_name": "rz20_target_share_l4",
+          "type": "FLOAT",
+          "different": 5,
+          "null_mismatch": 5,
+          "max_abs_delta": 0.0,
+          "max_scaled_delta": 0.0
+        },
+        {
+          "column_name": "rz10_target_share_l4",
+          "type": "FLOAT",
+          "different": 5,
+          "null_mismatch": 5,
+          "max_abs_delta": 0.0,
+          "max_scaled_delta": 0.0
+        },
+        {
+          "column_name": "rz20_targets_smoothed",
+          "type": "FLOAT",
+          "different": 1825,
+          "null_mismatch": 14,
+          "max_abs_delta": 3.373003405238162e-05,
+          "max_scaled_delta": 3.373003405238162e-05
+        },
+        {
+          "column_name": "carries_l4",
+          "type": "FLOAT",
+          "different": 5,
+          "null_mismatch": 5,
+          "max_abs_delta": 0.0,
+          "max_scaled_delta": 0.0
+        },
+        {
+          "column_name": "carry_share_l4",
+          "type": "FLOAT",
+          "different": 5,
+          "null_mismatch": 5,
+          "max_abs_delta": 0.0,
+          "max_scaled_delta": 0.0
+        },
+        {
+          "column_name": "gl3_carries_l4",
+          "type": "FLOAT",
+          "different": 5,
+          "null_mismatch": 5,
+          "max_abs_delta": 0.0,
+          "max_scaled_delta": 0.0
+        },
+        {
+          "column_name": "gl3_carry_share_l4",
+          "type": "FLOAT",
+          "different": 5,
+          "null_mismatch": 5,
+          "max_abs_delta": 0.0,
+          "max_scaled_delta": 0.0
+        },
+        {
+          "column_name": "gl3_carries_smoothed",
+          "type": "FLOAT",
+          "different": 1825,
+          "null_mismatch": 14,
+          "max_abs_delta": 2.3590803148280937e-07,
+          "max_scaled_delta": 2.3590803148280937e-07
+        },
+        {
+          "column_name": "snap_share_l4",
+          "type": "FLOAT",
+          "different": 5,
+          "null_mismatch": 5,
+          "max_abs_delta": 0.0,
+          "max_scaled_delta": 0.0
+        },
+        {
+          "column_name": "target_share_last",
+          "type": "FLOAT",
+          "different": 5,
+          "null_mismatch": 5,
+          "max_abs_delta": 0.0,
+          "max_scaled_delta": 0.0
+        },
+        {
+          "column_name": "carry_share_last",
+          "type": "FLOAT",
+          "different": 5,
+          "null_mismatch": 5,
+          "max_abs_delta": 0.0,
+          "max_scaled_delta": 0.0
+        },
+        {
+          "column_name": "snap_share_last",
+          "type": "FLOAT",
+          "different": 5,
+          "null_mismatch": 5,
+          "max_abs_delta": 0.0,
+          "max_scaled_delta": 0.0
+        },
+        {
+          "column_name": "target_share_std",
+          "type": "FLOAT",
+          "different": 14,
+          "null_mismatch": 14,
+          "max_abs_delta": 0.0,
+          "max_scaled_delta": 0.0
+        },
+        {
+          "column_name": "games_played_prior",
+          "type": "INTEGER",
+          "different": 14,
+          "null_mismatch": 0,
+          "max_abs_delta": 2.0,
+          "max_scaled_delta": 1.0
+        },
+        {
+          "column_name": "proe_l4",
+          "type": "FLOAT",
+          "different": 1381,
+          "null_mismatch": 0,
+          "max_abs_delta": 2.7755575615628914e-17,
+          "max_scaled_delta": 2.7755575615628914e-17
+        },
+        {
+          "column_name": "xtd_receiving_proxy",
+          "type": "FLOAT",
+          "different": 1825,
+          "null_mismatch": 14,
+          "max_abs_delta": 2.630269932768492e-05,
+          "max_scaled_delta": 2.630269932768492e-05
+        },
+        {
+          "column_name": "xfp_l4",
+          "type": "FLOAT",
+          "different": 10171,
+          "null_mismatch": 0,
+          "max_abs_delta": 7.105427357601002e-15,
+          "max_scaled_delta": 4.3652640492713166e-16
+        },
+        {
+          "column_name": "team_vacated_target_share",
+          "type": "FLOAT",
+          "different": 282,
+          "null_mismatch": 0,
+          "max_abs_delta": 1.1102230246251565e-16,
+          "max_scaled_delta": 1.1102230246251565e-16
+        },
+        {
+          "column_name": "team_vacated_carry_share",
+          "type": "FLOAT",
+          "different": 10,
+          "null_mismatch": 0,
+          "max_abs_delta": 3.469446951953614e-18,
+          "max_scaled_delta": 3.469446951953614e-18
+        },
+        {
+          "column_name": "vacated_capture_tgt",
+          "type": "FLOAT",
+          "different": 231,
+          "null_mismatch": 0,
+          "max_abs_delta": 1.3877787807814457e-17,
+          "max_scaled_delta": 1.3877787807814457e-17
+        },
+        {
+          "column_name": "vacated_capture_car",
+          "type": "FLOAT",
+          "different": 9,
+          "null_mismatch": 0,
+          "max_abs_delta": 1.734723475976807e-18,
+          "max_scaled_delta": 1.734723475976807e-18
+        },
+        {
+          "column_name": "is_cold_start",
+          "type": "BOOLEAN",
+          "different": 5,
+          "null_mismatch": 0,
+          "max_abs_delta": null,
+          "max_scaled_delta": null
+        }
+      ]
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.player_week_usage",
+      "job_id": "ad2d42ac-f16a-42a3-b22f-f25f155ebf0f",
+      "bytes_processed": 45994216,
+      "joined_rows": 102927,
+      "missing_current": 0,
+      "missing_previous": 0,
+      "changed_columns": [
+        {
+          "column_name": "was_active",
+          "type": "BOOLEAN",
+          "different": 3,
+          "null_mismatch": 0,
+          "max_abs_delta": null,
+          "max_scaled_delta": null
+        },
+        {
+          "column_name": "rz20_targets_l4",
+          "type": "FLOAT",
+          "different": 5,
+          "null_mismatch": 5,
+          "max_abs_delta": 0.0,
+          "max_scaled_delta": 0.0
+        },
+        {
+          "column_name": "rz10_targets_l4",
+          "type": "FLOAT",
+          "different": 5,
+          "null_mismatch": 5,
+          "max_abs_delta": 0.0,
+          "max_scaled_delta": 0.0
+        },
+        {
+          "column_name": "targets_l4",
+          "type": "FLOAT",
+          "different": 5,
+          "null_mismatch": 5,
+          "max_abs_delta": 0.0,
+          "max_scaled_delta": 0.0
+        },
+        {
+          "column_name": "target_share_l4",
+          "type": "FLOAT",
+          "different": 5,
+          "null_mismatch": 5,
+          "max_abs_delta": 0.0,
+          "max_scaled_delta": 0.0
+        },
+        {
+          "column_name": "air_yards_share_l4",
+          "type": "FLOAT",
+          "different": 5,
+          "null_mismatch": 5,
+          "max_abs_delta": 0.0,
+          "max_scaled_delta": 0.0
+        },
+        {
+          "column_name": "rz20_target_share_l4",
+          "type": "FLOAT",
+          "different": 5,
+          "null_mismatch": 5,
+          "max_abs_delta": 0.0,
+          "max_scaled_delta": 0.0
+        },
+        {
+          "column_name": "rz10_target_share_l4",
+          "type": "FLOAT",
+          "different": 5,
+          "null_mismatch": 5,
+          "max_abs_delta": 0.0,
+          "max_scaled_delta": 0.0
+        },
+        {
+          "column_name": "rz20_carries_l4",
+          "type": "FLOAT",
+          "different": 5,
+          "null_mismatch": 5,
+          "max_abs_delta": 0.0,
+          "max_scaled_delta": 0.0
+        },
+        {
+          "column_name": "gl3_carries_l4",
+          "type": "FLOAT",
+          "different": 5,
+          "null_mismatch": 5,
+          "max_abs_delta": 0.0,
+          "max_scaled_delta": 0.0
+        },
+        {
+          "column_name": "carries_l4",
+          "type": "FLOAT",
+          "different": 5,
+          "null_mismatch": 5,
+          "max_abs_delta": 0.0,
+          "max_scaled_delta": 0.0
+        },
+        {
+          "column_name": "carry_share_l4",
+          "type": "FLOAT",
+          "different": 5,
+          "null_mismatch": 5,
+          "max_abs_delta": 0.0,
+          "max_scaled_delta": 0.0
+        },
+        {
+          "column_name": "gl3_carry_share_l4",
+          "type": "FLOAT",
+          "different": 5,
+          "null_mismatch": 5,
+          "max_abs_delta": 0.0,
+          "max_scaled_delta": 0.0
+        },
+        {
+          "column_name": "snap_share_l4",
+          "type": "FLOAT",
+          "different": 5,
+          "null_mismatch": 5,
+          "max_abs_delta": 0.0,
+          "max_scaled_delta": 0.0
+        },
+        {
+          "column_name": "target_share_last",
+          "type": "FLOAT",
+          "different": 5,
+          "null_mismatch": 5,
+          "max_abs_delta": 0.0,
+          "max_scaled_delta": 0.0
+        },
+        {
+          "column_name": "carry_share_last",
+          "type": "FLOAT",
+          "different": 5,
+          "null_mismatch": 5,
+          "max_abs_delta": 0.0,
+          "max_scaled_delta": 0.0
+        },
+        {
+          "column_name": "snap_share_last",
+          "type": "FLOAT",
+          "different": 5,
+          "null_mismatch": 5,
+          "max_abs_delta": 0.0,
+          "max_scaled_delta": 0.0
+        },
+        {
+          "column_name": "rz20_targets_std",
+          "type": "FLOAT",
+          "different": 14,
+          "null_mismatch": 14,
+          "max_abs_delta": 0.0,
+          "max_scaled_delta": 0.0
+        },
+        {
+          "column_name": "target_share_std",
+          "type": "FLOAT",
+          "different": 14,
+          "null_mismatch": 14,
+          "max_abs_delta": 0.0,
+          "max_scaled_delta": 0.0
+        },
+        {
+          "column_name": "targets_std",
+          "type": "FLOAT",
+          "different": 14,
+          "null_mismatch": 14,
+          "max_abs_delta": 0.0,
+          "max_scaled_delta": 0.0
+        },
+        {
+          "column_name": "carries_std",
+          "type": "FLOAT",
+          "different": 14,
+          "null_mismatch": 14,
+          "max_abs_delta": 0.0,
+          "max_scaled_delta": 0.0
+        },
+        {
+          "column_name": "rz20_targets_sum_prior",
+          "type": "INTEGER",
+          "different": 14,
+          "null_mismatch": 14,
+          "max_abs_delta": 0.0,
+          "max_scaled_delta": 0.0
+        },
+        {
+          "column_name": "gl3_carries_sum_prior",
+          "type": "INTEGER",
+          "different": 14,
+          "null_mismatch": 14,
+          "max_abs_delta": 0.0,
+          "max_scaled_delta": 0.0
+        },
+        {
+          "column_name": "games_played_prior",
+          "type": "INTEGER",
+          "different": 14,
+          "null_mismatch": 0,
+          "max_abs_delta": 2.0,
+          "max_scaled_delta": 1.0
+        },
+        {
+          "column_name": "wopr_l4",
+          "type": "FLOAT",
+          "different": 5,
+          "null_mismatch": 5,
+          "max_abs_delta": 0.0,
+          "max_scaled_delta": 0.0
+        },
+        {
+          "column_name": "rz20_targets_smoothed",
+          "type": "FLOAT",
+          "different": 1825,
+          "null_mismatch": 14,
+          "max_abs_delta": 3.373003405238162e-05,
+          "max_scaled_delta": 3.373003405238162e-05
+        },
+        {
+          "column_name": "gl3_carries_smoothed",
+          "type": "FLOAT",
+          "different": 1825,
+          "null_mismatch": 14,
+          "max_abs_delta": 2.3590803148280937e-07,
+          "max_scaled_delta": 2.3590803148280937e-07
+        }
+      ]
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.team_week_context",
+      "job_id": "de7bd8d2-2991-445e-b150-9bf320df8837",
+      "bytes_processed": 3523892,
+      "joined_rows": 14552,
+      "missing_current": 0,
+      "missing_previous": 0,
+      "changed_columns": [
+        {
+          "column_name": "proe_l4",
+          "type": "FLOAT",
+          "different": 112,
+          "null_mismatch": 0,
+          "max_abs_delta": 2.7755575615628914e-17,
+          "max_scaled_delta": 2.7755575615628914e-17
+        }
+      ]
+    },
+    {
+      "source": "nfl-predictions-503414.nfl_features.team_week_vacated",
+      "job_id": "1c9191a5-ae2b-4d78-a6e7-2669258f69ac",
+      "bytes_processed": 166409,
+      "joined_rows": 2261,
+      "missing_current": 0,
+      "missing_previous": 0,
+      "changed_columns": [
+        {
+          "column_name": "vacated_target_share",
+          "type": "FLOAT",
+          "different": 18,
+          "null_mismatch": 0,
+          "max_abs_delta": 1.1102230246251565e-16,
+          "max_scaled_delta": 1.1102230246251565e-16
+        },
+        {
+          "column_name": "vacated_carry_share",
+          "type": "FLOAT",
+          "different": 1,
+          "null_mismatch": 0,
+          "max_abs_delta": 3.469446951953614e-18,
+          "max_scaled_delta": 3.469446951953614e-18
+        }
+      ]
+    }
+  ],
+  "old_salary_unchanged_usage_replay": {
+    "joined_rows": 102927,
+    "missing_current": 0,
+    "missing_replay": 0,
+    "job_id": "956e6f83-a349-496e-9357-eb4826cd455c",
+    "bytes_processed": 80140358,
+    "unchanged_usage_sql_sha256": "353540dfcfe30f314af229b80afd2a49d708cfe6113c0462f4b9d078fa97995f",
+    "scope": "old salary table; current other inputs; original usage SQL; job-local TEMP only",
+    "all_columns_exact_equal": true
+  },
+  "raw_source_evidence": {
+    "failed_combined_query": "4ba662db-85a1-47bc-b3cf-e01c99af24e4",
+    "reason": "BQ requires one time-travel timestamp per table per query; split read-only queries",
+    "results": [
+      {
+        "version": "before_old_feature_build",
+        "query": "SELECT i.gsis_id,i.pfr_id,s.season,s.week,s.offense_pct FROM `nfl-predictions-503414.nfl_raw.player_ids` i FOR SYSTEM_TIME AS OF TIMESTAMP('2026-09-17T10:11:00Z') LEFT JOIN `nfl-predictions-503414.nfl_raw.snap_counts` s FOR SYSTEM_TIME AS OF TIMESTAMP('2026-09-17T10:11:00Z') ON i.pfr_id=s.pfr_player_id AND s.season=2025 AND s.week IN (3,17,18) WHERE i.gsis_id='00-0039518' ",
+        "job_id": "f270c3ff-2338-4b18-b09f-f5188a48a487",
+        "bytes_processed": 10472283,
+        "rows": []
+      },
+      {
+        "version": "current",
+        "query": "SELECT i.gsis_id,i.pfr_id,s.season,s.week,s.offense_pct FROM `nfl-predictions-503414.nfl_raw.player_ids`  i LEFT JOIN `nfl-predictions-503414.nfl_raw.snap_counts`  s ON i.pfr_id=s.pfr_player_id AND s.season=2025 AND s.week IN (3,17,18) WHERE i.gsis_id='00-0039518' ",
+        "job_id": "f8e8661c-2d96-4912-bee3-6ab775b50a18",
+        "bytes_processed": 10472451,
+        "rows": [
+          {
+            "gsis_id": "00-0039518",
+            "pfr_id": "WelcTr00",
+            "season": 2025,
+            "week": 3,
+            "offense_pct": 0.05
+          },
+          {
+            "gsis_id": "00-0039518",
+            "pfr_id": "WelcTr00",
+            "season": 2025,
+            "week": 17,
+            "offense_pct": 0.09
+          },
+          {
+            "gsis_id": "00-0039518",
+            "pfr_id": "WelcTr00",
+            "season": 2025,
+            "week": 18,
+            "offense_pct": 0.1
+          }
+        ]
+      }
+    ]
+  },
+  "disposition": "ACCEPT_FEATURE_REFRESH: salary history preserved; original usage with old salary/current raw reproduces all historical fields exactly; gsis/PFR mapping added after previous feature build; remaining float aggregation roundoff <=7.11e-15",
+  "scope": "input correctness, not predictive efficacy"
+}

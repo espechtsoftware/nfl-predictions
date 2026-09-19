@@ -4,6 +4,10 @@
 
 # Project handoff
 
+## 2026-09-19 — feature gate accepted; strict-prior cache refresh next
+
+[Feature validation](reports/reviews/evidence/2026-09-19-release-feature-validation.json) explains every historical difference. Original usage SQL + original salary snapshot + current other inputs reproduces102,927historical rows exactly in every field. Time-travel proves one gsis/PFR mapping absent beforeSeptember17build and present afterSeptember18rawrefresh, linking three2025snap records. Remaining feature differences are tiny floating reduction roundoff. All normal leakage, support and duplicate checks pass. Registered cache checkpoint released; no host activation until complete refresh/CLI proof.
+
 ## 2026-09-19 — injury-type screen fails; feature refresh under historical-drift review
 
 [Injury-type result](reports/2026-09-19-injury-type-opportunity-results.md): primary deviance delta+0.000560,95% interval[-0.000897,+0.002061], primary gate fails; two folds exactly prediction-identical. All-active delta−0.000092. No live nomination. Same forecast/reader authenticated; cloud evaluation JSON-key failure repaired solely in separate serializer. Cross-read requested.
