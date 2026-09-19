@@ -4,6 +4,20 @@
 
 # Project handoff
 
+## 2026-09-19 — candidate images verified; control cache complete; support transitions measured
+
+Salary feature image `8d9b3cb55865edc66c99e01b28a7a6ba0d588458ac921c1485069fac32814e03` and TabPFN preweek image
+`fdb120dc2291b7d09538987d97e8b30d0e8fe5f7e9d9d40995b6adcc4d4692d6` are built and content-verified, not deployed.
+Independent peer reviews found no source defects in those repairs or lab game-input fix `40a9be9`.
+Scratch refresh v2 source `32646535` completed control execution `tabpfn-gen-djgpj` at 02:26:50 UTC; repair
+operation `4d1ea309-d816-4eff-86c2-6cae49981268` is running under the exclusive registered lane. The first
+attempt failed safely before writing because the full inference table mixed 877 Week2 and 51 Week3 rows;
+exact Week2 support was pinned before retry, with all failed evidence retained. No live job configuration changes.
+Full-chain reader and original candidate summation-order capture frozen at `90a26b4f`, before comparative runs.
+[Support transitions](reports/2026-09-19-opportunity-support-transitions.md) show 41 recovered and 22 newly
+zero-score players (all TE) on the archived slate. Next: refreshed-cache parity, complete CLI comparison, weak-prior
+follow-up and concrete release/rollback package before the 15:30 UTC build. Five-minute peer polling continues.
+
 ## 2026-09-19 — isolated TabPFN cloud mechanics passed; same-week context repair prepared
 
 Research source `36bbddf7` passed actual Cloud Run mechanics in `tabpfn-gen-n6dtv`, 01:46:16–01:47:49 UTC;

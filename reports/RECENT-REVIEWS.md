@@ -66,3 +66,5 @@ Consolidated September 18, 2026 at Erich's request. Source commits: production `
 
 - [TabPFN pre-week context repair](2026-09-19-tabpfn-preweek-context-repair.md): 14 tests, independent source review and verified candidate image; not deployed.
 - [Isolated cache protocol](2026-09-19-tabpfn-scratch-refresh-protocol.md) and [complete-chain CLI protocol](2026-09-19-repaired-chain-cli-protocol.md): ongoing full consumer validation with scratch-only writes and independent audit worlds.
+
+- [Remaining opportunity support](2026-09-19-remaining-opportunity-support-census.md) and [exact before/after transitions](2026-09-19-opportunity-support-transitions.md): usage recovery restores 41 players' scoring support and newly removes it from 22 tight ends on the archived slate; a weak prior needs testing.
