@@ -1,0 +1,54 @@
+{
+  "scheduled_poll_verified": true,
+  "monitors": [
+    {
+      "name": "shared-handoff",
+      "observed_at": "2026-09-19T22:15:48Z",
+      "sequence": 4,
+      "poll": {
+        "error": null,
+        "ok": true
+      },
+      "last_transition": {
+        "commit": "21ee449a1d05abd898c07ecbc5d1916bb4bf7240",
+        "paths": [
+          "handoffs/2026-09-19-laptop-replay-ack-promotion-consumer-review.md"
+        ],
+        "paths_truncated": false,
+        "subject": "Confirm no missed positive-risk player in the actual D6400 control",
+        "wake_paths": [
+          "handoffs/2026-09-19-laptop-replay-ack-promotion-consumer-review.md"
+        ],
+        "wake_paths_truncated": false,
+        "wake_worthy": true
+      },
+      "commits_truncated": false
+    },
+    {
+      "name": "production-review",
+      "observed_at": "2026-09-19T22:15:48Z",
+      "sequence": 4,
+      "poll": {
+        "error": null,
+        "ok": true
+      },
+      "last_transition": {
+        "branch": "research/2026-09-paid-source-preflight",
+        "commit": "aa6e9eebabb88f4ee2fd908ab618a0509f9ca226",
+        "paths": [
+          "reports/2026-09-19-d6400-exposure-cap-protocol.md",
+          "reports/reviews/evidence/2026-09-19-d6400-exposure-cap-proposals.py"
+        ],
+        "paths_truncated": false,
+        "subject": "Freeze Week-3 exposure-cap utility and concentration comparison",
+        "wake_paths": [
+          "reports/2026-09-19-d6400-exposure-cap-protocol.md",
+          "reports/reviews/evidence/2026-09-19-d6400-exposure-cap-proposals.py"
+        ],
+        "wake_paths_truncated": false,
+        "wake_worthy": true
+      },
+      "commits_truncated": false
+    }
+  ]
+}
