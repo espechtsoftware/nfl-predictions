@@ -1,0 +1,7 @@
+# All other deployed SQL files match this source tree exactly. Preserve the
+# deployed Python packages and replace only the repaired salary transform.
+FROM us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:cdbf96ad190925b2c96a94568f173c4bded328442441838427fa473d2fd450b2
+COPY 001a_dk_salary_week.sql /app/sql/features/001a_dk_salary_week.sql
+# Check the ACTUAL installed package resolves the repaired file before an image
+# can be published. This imports no client and makes no warehouse call.
+RUN PYTHONDONTWRITEBYTECODE=1 python -c "from pathlib import Path; from nfl_dfs.bq import SQL_DIR; import hashlib; p=SQL_DIR/'features/001a_dk_salary_week.sql'; assert p.resolve()==Path('/app/sql/features/001a_dk_salary_week.sql'); assert hashlib.sha256(p.read_bytes()).hexdigest()=='d9ce21722065b65dc7ac03f6bf7d3dcb517b60902a215e1fb29d73d5e7d8f5a8'; print('DEPLOYED_SQL_RESOLUTION_PASS')"
