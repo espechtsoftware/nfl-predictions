@@ -68,3 +68,5 @@ Consolidated September 18, 2026 at Erich's request. Source commits: production `
 - [Isolated cache protocol](2026-09-19-tabpfn-scratch-refresh-protocol.md) and [complete-chain CLI protocol](2026-09-19-repaired-chain-cli-protocol.md): ongoing full consumer validation with scratch-only writes and independent audit worlds.
 
 - [Remaining opportunity support](2026-09-19-remaining-opportunity-support-census.md) and [exact before/after transitions](2026-09-19-opportunity-support-transitions.md): usage recovery restores 41 players' scoring support and newly removes it from 22 tight ends on the archived slate; a weak prior needs testing.
+
+- [Zero-target prior historical results](2026-09-19-zero-target-prior-results.md): two frozen priors improve player target-share error in all six seasons; both advance to simulator testing, without a lineup-performance or adoption claim.
