@@ -32,3 +32,13 @@ Private raw configurations and parquet captures are under `/home/erich/projects/
 Restore the recorded prior image digest under the same lane and verify other settings are preserved. An image rollback alone does not replace a newly published projection batch: execute the restored job and verify that its complete fresh batch becomes the latest one. Preserve the failed trial evidence. An explicitly recorded `QB_BACKUP_GATE=0` setting plus a new execution is an alternative emergency disable, but restoring the previous digest is the complete implementation rollback.
 
 No Cloud Run mutation has happened as of this plan's creation. Review fixes are being completed; the existing authorization covers the necessary preparation, release and verification.
+
+## 20:50 UTC execution update
+
+Cloud Build `d7089008-a38d-4df5-87b2-4121b7119260` succeeded at 20:35:33.970Z on source `f06a192cd9b0aacf798d8f36432a26cac03df206`. Boundary tests (including all 13 cascade tests), image build and live smoke passed. Installed immutable image:
+
+`us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:0993ee01d6d617ed2fa88c51335616c6d473508952fb226201f3cc383db75758`
+
+The image-only update preserved all other task settings. Control execution `project-slate-rwkvt`, with per-execution `QB_BACKUP_GATE=0`, succeeded at 20:46:14.056775Z and published 505 rows at 20:46:06.834378Z. The driver then correctly refused the input comparison before any gated execution: the 20:44:10Z DK refresh changed Flowers D→OUT and Cooper OUT→IR. Whole-table ETags remained unchanged, illustrating why input row-content checks are also needed. The first attempt and its terminal registry receipt are retained; this is not a failed/ambiguous cloud execution.
+
+The [resume driver](reviews/evidence/2026-09-19-qb-projection-resume.py) performs a new matched control/gated pair with current inputs, under the same canonical lane, without updating the image again. It verifies the previous exact execution, original reader/helper hashes and unchanged installed template, then reuses all original input/output checks. Seven offline comparison tests pass. New evidence goes to the separate `qb-projection-release-20260919-pair2` directory; original evidence is preserved. If an input changes again or non-gated outputs exceed the declared 1e-6 absolute/relative tolerance, it stops for diagnosis. Final gated verification remains pending.

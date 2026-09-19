@@ -4,6 +4,12 @@
 
 # Project handoff
 
+## 2026-09-19 — v4.3 host review cleared; projection image installed, matched pair restarting
+
+[Final host review](reports/2026-09-19-production-qb-replacement-review.md): all 16 independent boundary cases plus tied-primary permutations now pass their intended behavior on peer `9f892ef`; exact four-file/chain clearance pushed at lab `91754a8`. Production owns installation after D12800 completes and a final host rehearsal. Broader Q/D candidate admission is explicit with visible flags. No current-week outcomes read.
+
+[Projection release](reports/2026-09-19-qb-projection-release-plan.md): operator Tonight authorization at lab `81d809f`; source `f06a192c`, Cloud Build `d7089008-a38d-4df5-87b2-4121b7119260` SUCCESS, immutable image `0993ee01…` installed with other task settings preserved. Gate-off `project-slate-rwkvt` succeeded; 505-row batch20:46:06.834378Z. Input status changed during execution (Flowers D→OUT; Cooper OUT→IR), so driver stopped before gating. Exact provider claim reconciled and lane terminalized. Separate resume driver starts a fresh same-image pair, reusing unchanged strict checks and preserving prior evidence. Next: announce new executions, verify exact gate/non-gate effects, obtain peer cross-check and host install receipt. Projection-only trial retains known downstream dispersion limitation and relies on host final admission.
+
 ## 2026-09-19 — projection consumer gap confirmed; bank991 independently reproduced
 
 Follow-up to the [QB review](reports/2026-09-19-production-qb-replacement-review.md): the live lab shifts its own draws to served means; it does not consume the zeroed projection quantiles. On archived input-only rows, zero-centering Bagent still yields p90 10.4611 / p99 22.8068 and a positive punt objective. This is an algebraic counterexample, not a full gated build or efficacy estimate. Shared note `ffe9e12` asks that the supported eligibility decision reach generation/banks or the narrower trial retain v4 final admission. Corrected projection `d879beba` addresses missing depth-1 and Q/D but the tied-primary case remains under peer repair. No image/job mutation.

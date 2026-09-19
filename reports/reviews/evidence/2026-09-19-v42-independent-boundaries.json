@@ -1,0 +1,886 @@
+{
+  "kind": "offline_synthetic_v42_boundary_review",
+  "source_hashes": {
+    "vet_replace_v4.py": "e233f4c3286f4ad83e7cee1d919a8cfbee4aad9b4d712978fc1306b897325da1",
+    "qb_classify.py": "4c4ae4151ff077f7252110776764771b36c3b4c1366dc5372fab60763ea8ac77"
+  },
+  "reader_sha256": "eb8a051b544695e82fc063bca616a49d27b70eb8890c64bed5f074b3929ea2cb",
+  "fixture_sha256": "ad1b3214d37d785856994338f15c884b0526ee62646b13b69786b85fb6bf0837",
+  "cases": [
+    {
+      "case": "legal_replacement_control",
+      "exit_code": 0,
+      "exception": null,
+      "book": "QB,RB,RB,WR,WR,WR,TE,FLEX,DST\n10,2,3,4,5,6,7,8,9\n",
+      "receipt": {
+        "version": "vet-replace-v4.2",
+        "status": "OK",
+        "problems": [],
+        "source_run": "/tmp/v41-review-g1uo1xz4/legal_replacement_control/run",
+        "vetted_dir": "/tmp/v41-review-g1uo1xz4/legal_replacement_control/vetted",
+        "publishable": true,
+        "rehearsal_flags": {
+          "test_exclude_dk": "",
+          "no_fresh_dk": false
+        },
+        "input_sha256": {
+          "/tmp/v41-review-g1uo1xz4/legal_replacement_control/vetted/book.csv": "55da3a7903a5c8d412ee8806eadd752a8d49d9e672664ed488c69cba212dcb20",
+          "/tmp/v41-review-g1uo1xz4/legal_replacement_control/vetted/vetting.json": "0db9036a8f80184c585ef5963ed39d2672062bc21a68ef15e381466e56a6aef6",
+          "/tmp/v41-review-g1uo1xz4/legal_replacement_control/vetted/source_receipt.json": "0603a2c69a8809c55d3bebee958a8149f4d2511468f7ca7342b40735549b6bbd",
+          "/tmp/v41-review-g1uo1xz4/legal_replacement_control/run/frame.parquet": "6a6a4c518b12c19aae19350bd62c89defb13152e71f1f40ec5e4cf4f8a7ad25c",
+          "/tmp/v41-review-g1uo1xz4/legal_replacement_control/run/candidates.parquet": "cd9347356704d10d5f74de5114ecd2d78a69c72d02cebfcff03456316ce64241",
+          "/tmp/v41-review-g1uo1xz4/legal_replacement_control/run/incumbent_player_scores.npy": "bca214803d7ccfc0b22829d99a9281fc7ce31621252121f2987cebd12e268209",
+          "/tmp/v41-review-g1uo1xz4/legal_replacement_control/run/corrected_hsim_player_scores.npy": "bca214803d7ccfc0b22829d99a9281fc7ce31621252121f2987cebd12e268209",
+          "/tmp/v41-review-g1uo1xz4/legal_replacement_control/flags.csv": "1783e97c06abb0ba65e2d76b957720ae3ac9a1eadd7b79e0144c0e13e95bd43c"
+        },
+        "qb_flags": "/tmp/v41-review-g1uo1xz4/legal_replacement_control/flags.csv",
+        "required_k": 1,
+        "admit_risky": false,
+        "freshness": {
+          "frame_status": "build-time DK feed",
+          "fresh_dk_pulled_at": "2026-09-19 20:42:56.844704+00:00",
+          "fresh_dk_players": 10,
+          "injury_report_rows": 0
+        },
+        "exclusion_set": {
+          "Player 1": "backup_qb:behind-healthy-primary"
+        },
+        "removed_positions": [
+          1
+        ],
+        "replacements": [
+          {
+            "vetted_position": 1,
+            "source_rank": 1,
+            "removed": [
+              "Player 1",
+              "Player 2",
+              "Player 3",
+              "Player 4",
+              "Player 5",
+              "Player 6",
+              "Player 7",
+              "Player 8",
+              "Player 9"
+            ],
+            "removed_because": {
+              "Player 1": "backup_qb:behind-healthy-primary"
+            },
+            "replacement": [
+              "Player 10",
+              "Player 2",
+              "Player 3",
+              "Player 4",
+              "Player 5",
+              "Player 6",
+              "Player 7",
+              "Player 8",
+              "Player 9"
+            ],
+            "candidate_index": 0,
+            "gain_corrected_mix": 100.0
+          }
+        ],
+        "pool": {
+          "eligible": 1,
+          "rejected": {
+            "unmapped": 0,
+            "in_book": 0,
+            "excluded": 0,
+            "risky": 0,
+            "illegal": 0
+          }
+        },
+        "output_sha256": {
+          "book.csv": "e6ba794ee048113a499f01e8177e2eb87989087ca827e7f59f29858275bbf626",
+          "vetting_final.json": "0e2ceb105a80c26cbac3106e86f545246408ebcaf81702ac928a4204fa2d0127"
+        }
+      },
+      "stdout": "replaced 1 unavailable lineup(s) (exclusion set 1 players); final book validated: 1 rows OK\n  pos   1 (source rank 1): removed because {'Player 1': 'backup_qb:behind-healthy-primary'}\n      -> Player 10, Player 2, Player 3, Player 4, Player 5, Player 6, Player 7, Player 8, Player 9  (gain +100.000)\n",
+      "stderr": ""
+    },
+    {
+      "case": "fresh_csv_out_old_clean_vet",
+      "exit_code": 0,
+      "exception": null,
+      "book": "QB,RB,RB,WR,WR,WR,TE,FLEX,DST\n10,2,3,4,5,6,7,8,9\n",
+      "receipt": {
+        "version": "vet-replace-v4.2",
+        "status": "OK",
+        "problems": [],
+        "source_run": "/tmp/v41-review-g1uo1xz4/fresh_csv_out_old_clean_vet/run",
+        "vetted_dir": "/tmp/v41-review-g1uo1xz4/fresh_csv_out_old_clean_vet/vetted",
+        "publishable": true,
+        "rehearsal_flags": {
+          "test_exclude_dk": "",
+          "no_fresh_dk": false
+        },
+        "input_sha256": {
+          "/tmp/v41-review-g1uo1xz4/fresh_csv_out_old_clean_vet/vetted/book.csv": "55da3a7903a5c8d412ee8806eadd752a8d49d9e672664ed488c69cba212dcb20",
+          "/tmp/v41-review-g1uo1xz4/fresh_csv_out_old_clean_vet/vetted/vetting.json": "0db9036a8f80184c585ef5963ed39d2672062bc21a68ef15e381466e56a6aef6",
+          "/tmp/v41-review-g1uo1xz4/fresh_csv_out_old_clean_vet/vetted/source_receipt.json": "0603a2c69a8809c55d3bebee958a8149f4d2511468f7ca7342b40735549b6bbd",
+          "/tmp/v41-review-g1uo1xz4/fresh_csv_out_old_clean_vet/run/frame.parquet": "6a6a4c518b12c19aae19350bd62c89defb13152e71f1f40ec5e4cf4f8a7ad25c",
+          "/tmp/v41-review-g1uo1xz4/fresh_csv_out_old_clean_vet/run/candidates.parquet": "cd9347356704d10d5f74de5114ecd2d78a69c72d02cebfcff03456316ce64241",
+          "/tmp/v41-review-g1uo1xz4/fresh_csv_out_old_clean_vet/run/incumbent_player_scores.npy": "bca214803d7ccfc0b22829d99a9281fc7ce31621252121f2987cebd12e268209",
+          "/tmp/v41-review-g1uo1xz4/fresh_csv_out_old_clean_vet/run/corrected_hsim_player_scores.npy": "bca214803d7ccfc0b22829d99a9281fc7ce31621252121f2987cebd12e268209",
+          "/tmp/v41-review-g1uo1xz4/fresh_csv_out_old_clean_vet/flags.csv": "0f4524e937bab029a56c516eca5361a872741a95231431dffecde9751d9f43b8"
+        },
+        "qb_flags": "/tmp/v41-review-g1uo1xz4/fresh_csv_out_old_clean_vet/flags.csv",
+        "required_k": 1,
+        "admit_risky": false,
+        "freshness": {
+          "frame_status": "build-time DK feed",
+          "fresh_dk_pulled_at": "2026-09-19 20:42:56.863014+00:00",
+          "fresh_dk_players": 10,
+          "injury_report_rows": 0
+        },
+        "exclusion_set": {
+          "Player 1": "flags:out"
+        },
+        "removed_positions": [
+          1
+        ],
+        "replacements": [
+          {
+            "vetted_position": 1,
+            "source_rank": 1,
+            "removed": [
+              "Player 1",
+              "Player 2",
+              "Player 3",
+              "Player 4",
+              "Player 5",
+              "Player 6",
+              "Player 7",
+              "Player 8",
+              "Player 9"
+            ],
+            "removed_because": {
+              "Player 1": "flags:out"
+            },
+            "replacement": [
+              "Player 10",
+              "Player 2",
+              "Player 3",
+              "Player 4",
+              "Player 5",
+              "Player 6",
+              "Player 7",
+              "Player 8",
+              "Player 9"
+            ],
+            "candidate_index": 0,
+            "gain_corrected_mix": 100.0
+          }
+        ],
+        "pool": {
+          "eligible": 1,
+          "rejected": {
+            "unmapped": 0,
+            "in_book": 0,
+            "excluded": 0,
+            "risky": 0,
+            "illegal": 0
+          }
+        },
+        "output_sha256": {
+          "book.csv": "e6ba794ee048113a499f01e8177e2eb87989087ca827e7f59f29858275bbf626",
+          "vetting_final.json": "0e2ceb105a80c26cbac3106e86f545246408ebcaf81702ac928a4204fa2d0127"
+        }
+      },
+      "stdout": "replaced 1 unavailable lineup(s) (exclusion set 1 players); final book validated: 1 rows OK\n  pos   1 (source rank 1): removed because {'Player 1': 'flags:out'}\n      -> Player 10, Player 2, Player 3, Player 4, Player 5, Player 6, Player 7, Player 8, Player 9  (gain +100.000)\n",
+      "stderr": ""
+    },
+    {
+      "case": "frame_out_old_clean_vet",
+      "exit_code": 0,
+      "exception": null,
+      "book": "QB,RB,RB,WR,WR,WR,TE,FLEX,DST\n10,2,3,4,5,6,7,8,9\n",
+      "receipt": {
+        "version": "vet-replace-v4.2",
+        "status": "OK",
+        "problems": [],
+        "source_run": "/tmp/v41-review-g1uo1xz4/frame_out_old_clean_vet/run",
+        "vetted_dir": "/tmp/v41-review-g1uo1xz4/frame_out_old_clean_vet/vetted",
+        "publishable": true,
+        "rehearsal_flags": {
+          "test_exclude_dk": "",
+          "no_fresh_dk": false
+        },
+        "input_sha256": {
+          "/tmp/v41-review-g1uo1xz4/frame_out_old_clean_vet/vetted/book.csv": "55da3a7903a5c8d412ee8806eadd752a8d49d9e672664ed488c69cba212dcb20",
+          "/tmp/v41-review-g1uo1xz4/frame_out_old_clean_vet/vetted/vetting.json": "0db9036a8f80184c585ef5963ed39d2672062bc21a68ef15e381466e56a6aef6",
+          "/tmp/v41-review-g1uo1xz4/frame_out_old_clean_vet/vetted/source_receipt.json": "0603a2c69a8809c55d3bebee958a8149f4d2511468f7ca7342b40735549b6bbd",
+          "/tmp/v41-review-g1uo1xz4/frame_out_old_clean_vet/run/frame.parquet": "5e0832c456ca798c922c07b01a742f17e45040c57128a62c2c83574df036b926",
+          "/tmp/v41-review-g1uo1xz4/frame_out_old_clean_vet/run/candidates.parquet": "cd9347356704d10d5f74de5114ecd2d78a69c72d02cebfcff03456316ce64241",
+          "/tmp/v41-review-g1uo1xz4/frame_out_old_clean_vet/run/incumbent_player_scores.npy": "bca214803d7ccfc0b22829d99a9281fc7ce31621252121f2987cebd12e268209",
+          "/tmp/v41-review-g1uo1xz4/frame_out_old_clean_vet/run/corrected_hsim_player_scores.npy": "bca214803d7ccfc0b22829d99a9281fc7ce31621252121f2987cebd12e268209",
+          "/tmp/v41-review-g1uo1xz4/frame_out_old_clean_vet/flags.csv": "1783e97c06abb0ba65e2d76b957720ae3ac9a1eadd7b79e0144c0e13e95bd43c"
+        },
+        "qb_flags": "/tmp/v41-review-g1uo1xz4/frame_out_old_clean_vet/flags.csv",
+        "required_k": 1,
+        "admit_risky": false,
+        "freshness": {
+          "frame_status": "build-time DK feed",
+          "fresh_dk_pulled_at": "2026-09-19 20:42:56.876984+00:00",
+          "fresh_dk_players": 10,
+          "injury_report_rows": 0
+        },
+        "exclusion_set": {
+          "Player 1": "dk:OUT"
+        },
+        "removed_positions": [
+          1
+        ],
+        "replacements": [
+          {
+            "vetted_position": 1,
+            "source_rank": 1,
+            "removed": [
+              "Player 1",
+              "Player 2",
+              "Player 3",
+              "Player 4",
+              "Player 5",
+              "Player 6",
+              "Player 7",
+              "Player 8",
+              "Player 9"
+            ],
+            "removed_because": {
+              "Player 1": "dk:OUT"
+            },
+            "replacement": [
+              "Player 10",
+              "Player 2",
+              "Player 3",
+              "Player 4",
+              "Player 5",
+              "Player 6",
+              "Player 7",
+              "Player 8",
+              "Player 9"
+            ],
+            "candidate_index": 0,
+            "gain_corrected_mix": 100.0
+          }
+        ],
+        "pool": {
+          "eligible": 1,
+          "rejected": {
+            "unmapped": 0,
+            "in_book": 0,
+            "excluded": 0,
+            "risky": 0,
+            "illegal": 0
+          }
+        },
+        "output_sha256": {
+          "book.csv": "e6ba794ee048113a499f01e8177e2eb87989087ca827e7f59f29858275bbf626",
+          "vetting_final.json": "0e2ceb105a80c26cbac3106e86f545246408ebcaf81702ac928a4204fa2d0127"
+        }
+      },
+      "stdout": "replaced 1 unavailable lineup(s) (exclusion set 1 players); final book validated: 1 rows OK\n  pos   1 (source rank 1): removed because {'Player 1': 'dk:OUT'}\n      -> Player 10, Player 2, Player 3, Player 4, Player 5, Player 6, Player 7, Player 8, Player 9  (gain +100.000)\n",
+      "stderr": ""
+    },
+    {
+      "case": "minimum_replacement_guard",
+      "exit_code": 2,
+      "exception": "2",
+      "book": null,
+      "receipt": {
+        "version": "vet-replace-v4.2",
+        "status": "FAILED",
+        "problems": [
+          "replaced 0 < required 1"
+        ],
+        "source_run": "/tmp/v41-review-g1uo1xz4/minimum_replacement_guard/run",
+        "vetted_dir": "/tmp/v41-review-g1uo1xz4/minimum_replacement_guard/vetted",
+        "publishable": false,
+        "rehearsal_flags": {
+          "test_exclude_dk": "",
+          "no_fresh_dk": false
+        },
+        "input_sha256": {
+          "/tmp/v41-review-g1uo1xz4/minimum_replacement_guard/vetted/book.csv": "55da3a7903a5c8d412ee8806eadd752a8d49d9e672664ed488c69cba212dcb20",
+          "/tmp/v41-review-g1uo1xz4/minimum_replacement_guard/vetted/vetting.json": "0db9036a8f80184c585ef5963ed39d2672062bc21a68ef15e381466e56a6aef6",
+          "/tmp/v41-review-g1uo1xz4/minimum_replacement_guard/vetted/source_receipt.json": "0603a2c69a8809c55d3bebee958a8149f4d2511468f7ca7342b40735549b6bbd",
+          "/tmp/v41-review-g1uo1xz4/minimum_replacement_guard/run/frame.parquet": "6a6a4c518b12c19aae19350bd62c89defb13152e71f1f40ec5e4cf4f8a7ad25c",
+          "/tmp/v41-review-g1uo1xz4/minimum_replacement_guard/run/candidates.parquet": "cd9347356704d10d5f74de5114ecd2d78a69c72d02cebfcff03456316ce64241",
+          "/tmp/v41-review-g1uo1xz4/minimum_replacement_guard/run/incumbent_player_scores.npy": "bca214803d7ccfc0b22829d99a9281fc7ce31621252121f2987cebd12e268209",
+          "/tmp/v41-review-g1uo1xz4/minimum_replacement_guard/run/corrected_hsim_player_scores.npy": "bca214803d7ccfc0b22829d99a9281fc7ce31621252121f2987cebd12e268209",
+          "/tmp/v41-review-g1uo1xz4/minimum_replacement_guard/flags.csv": "bfcdcc09ebdca93381db8576dca8b16182e903ead9d2b5f07cf5196a2c793fd3"
+        },
+        "qb_flags": "/tmp/v41-review-g1uo1xz4/minimum_replacement_guard/flags.csv",
+        "required_k": 1,
+        "admit_risky": false,
+        "freshness": {
+          "frame_status": "build-time DK feed",
+          "fresh_dk_pulled_at": "2026-09-19 20:42:56.889775+00:00",
+          "fresh_dk_players": 10,
+          "injury_report_rows": 0
+        },
+        "exclusion_set": {},
+        "removed_positions": [],
+        "replacements": [],
+        "pool": {
+          "eligible": null,
+          "rejected": null
+        }
+      },
+      "stdout": "",
+      "stderr": "REPLACEMENT FAILED: replaced 0 < required 1\n"
+    },
+    {
+      "case": "source_count_mismatch",
+      "exit_code": 2,
+      "exception": "2",
+      "book": null,
+      "receipt": {
+        "version": "vet-replace-v4.1",
+        "status": "FAILED",
+        "problems": [
+          "input book has 1 rows but the source receipt requires 2"
+        ]
+      },
+      "stdout": "",
+      "stderr": "REPLACEMENT FAILED: input book rows 1 != receipt written 2\n"
+    },
+    {
+      "case": "duplicate_player_candidate",
+      "exit_code": 1,
+      "exception": "no eligible replacement candidates",
+      "book": null,
+      "receipt": null,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "over_salary_candidate",
+      "exit_code": 1,
+      "exception": "no eligible replacement candidates",
+      "book": null,
+      "receipt": null,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "unequal_bank_widths",
+      "exit_code": 2,
+      "exception": "2",
+      "book": null,
+      "receipt": {
+        "version": "vet-replace-v4.1",
+        "status": "FAILED",
+        "problems": [
+          "bank widths (10, 4) vs (10, 3): equal-mass concatenation needs equal, non-trivial world counts"
+        ]
+      },
+      "stdout": "",
+      "stderr": "REPLACEMENT FAILED: bank widths (10, 4) vs (10, 3): equal-mass concatenation needs equal, non-trivial world counts\n"
+    },
+    {
+      "case": "nonfinite_bank",
+      "exit_code": 2,
+      "exception": "2",
+      "book": null,
+      "receipt": {
+        "version": "vet-replace-v4.1",
+        "status": "FAILED",
+        "problems": [
+          "non-finite values in a saved bank"
+        ]
+      },
+      "stdout": "",
+      "stderr": "REPLACEMENT FAILED: non-finite values in a saved bank\n"
+    },
+    {
+      "case": "questionable_replacement_policy",
+      "exit_code": 1,
+      "exception": "no eligible replacement candidates",
+      "book": null,
+      "receipt": null,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "questionable_with_admit_risky",
+      "exit_code": 0,
+      "exception": null,
+      "book": "QB,RB,RB,WR,WR,WR,TE,FLEX,DST\n10,2,3,4,5,6,7,8,9\n",
+      "receipt": {
+        "version": "vet-replace-v4.2",
+        "status": "OK",
+        "problems": [],
+        "source_run": "/tmp/v41-review-g1uo1xz4/questionable_with_admit_risky/run",
+        "vetted_dir": "/tmp/v41-review-g1uo1xz4/questionable_with_admit_risky/vetted",
+        "publishable": true,
+        "rehearsal_flags": {
+          "test_exclude_dk": "",
+          "no_fresh_dk": false
+        },
+        "input_sha256": {
+          "/tmp/v41-review-g1uo1xz4/questionable_with_admit_risky/vetted/book.csv": "55da3a7903a5c8d412ee8806eadd752a8d49d9e672664ed488c69cba212dcb20",
+          "/tmp/v41-review-g1uo1xz4/questionable_with_admit_risky/vetted/vetting.json": "0db9036a8f80184c585ef5963ed39d2672062bc21a68ef15e381466e56a6aef6",
+          "/tmp/v41-review-g1uo1xz4/questionable_with_admit_risky/vetted/source_receipt.json": "0603a2c69a8809c55d3bebee958a8149f4d2511468f7ca7342b40735549b6bbd",
+          "/tmp/v41-review-g1uo1xz4/questionable_with_admit_risky/run/frame.parquet": "d2853c4e4535ffba7a45f1dba6f40a46efd736786c5c18eaf334eec3e1fc2809",
+          "/tmp/v41-review-g1uo1xz4/questionable_with_admit_risky/run/candidates.parquet": "cd9347356704d10d5f74de5114ecd2d78a69c72d02cebfcff03456316ce64241",
+          "/tmp/v41-review-g1uo1xz4/questionable_with_admit_risky/run/incumbent_player_scores.npy": "bca214803d7ccfc0b22829d99a9281fc7ce31621252121f2987cebd12e268209",
+          "/tmp/v41-review-g1uo1xz4/questionable_with_admit_risky/run/corrected_hsim_player_scores.npy": "bca214803d7ccfc0b22829d99a9281fc7ce31621252121f2987cebd12e268209",
+          "/tmp/v41-review-g1uo1xz4/questionable_with_admit_risky/flags.csv": "1783e97c06abb0ba65e2d76b957720ae3ac9a1eadd7b79e0144c0e13e95bd43c"
+        },
+        "qb_flags": "/tmp/v41-review-g1uo1xz4/questionable_with_admit_risky/flags.csv",
+        "required_k": 1,
+        "admit_risky": true,
+        "freshness": {
+          "frame_status": "build-time DK feed",
+          "fresh_dk_pulled_at": "2026-09-19 20:42:56.965405+00:00",
+          "fresh_dk_players": 10,
+          "injury_report_rows": 0
+        },
+        "exclusion_set": {
+          "Player 1": "backup_qb:behind-healthy-primary"
+        },
+        "removed_positions": [
+          1
+        ],
+        "replacements": [
+          {
+            "vetted_position": 1,
+            "source_rank": 1,
+            "removed": [
+              "Player 1",
+              "Player 2",
+              "Player 3",
+              "Player 4",
+              "Player 5",
+              "Player 6",
+              "Player 7",
+              "Player 8",
+              "Player 9"
+            ],
+            "removed_because": {
+              "Player 1": "backup_qb:behind-healthy-primary"
+            },
+            "replacement": [
+              "Player 10",
+              "Player 2",
+              "Player 3",
+              "Player 4",
+              "Player 5",
+              "Player 6",
+              "Player 7",
+              "Player 8",
+              "Player 9"
+            ],
+            "candidate_index": 0,
+            "gain_corrected_mix": 100.0
+          }
+        ],
+        "pool": {
+          "eligible": 1,
+          "rejected": {
+            "unmapped": 0,
+            "in_book": 0,
+            "excluded": 0,
+            "risky": 0,
+            "illegal": 0
+          }
+        },
+        "output_sha256": {
+          "book.csv": "e6ba794ee048113a499f01e8177e2eb87989087ca827e7f59f29858275bbf626",
+          "vetting_final.json": "9d435f6f51a127d5db1ad8235ae2c3fbe94c232d4a9589fe31c3b92f5d55a168"
+        }
+      },
+      "stdout": "replaced 1 unavailable lineup(s) (exclusion set 1 players); final book validated: 1 rows OK\n  pos   1 (source rank 1): removed because {'Player 1': 'backup_qb:behind-healthy-primary'}\n      -> Player 10, Player 2, Player 3, Player 4, Player 5, Player 6, Player 7, Player 8, Player 9  (gain +100.000)\n",
+      "stderr": ""
+    },
+    {
+      "case": "fresh_blank_clears_old_questionable",
+      "exit_code": 0,
+      "exception": null,
+      "book": "QB,RB,RB,WR,WR,WR,TE,FLEX,DST\n10,2,3,4,5,6,7,8,9\n",
+      "receipt": {
+        "version": "vet-replace-v4.2",
+        "status": "OK",
+        "problems": [],
+        "source_run": "/tmp/v41-review-g1uo1xz4/fresh_blank_clears_old_questionable/run",
+        "vetted_dir": "/tmp/v41-review-g1uo1xz4/fresh_blank_clears_old_questionable/vetted",
+        "publishable": true,
+        "rehearsal_flags": {
+          "test_exclude_dk": "",
+          "no_fresh_dk": false
+        },
+        "input_sha256": {
+          "/tmp/v41-review-g1uo1xz4/fresh_blank_clears_old_questionable/vetted/book.csv": "55da3a7903a5c8d412ee8806eadd752a8d49d9e672664ed488c69cba212dcb20",
+          "/tmp/v41-review-g1uo1xz4/fresh_blank_clears_old_questionable/vetted/vetting.json": "0db9036a8f80184c585ef5963ed39d2672062bc21a68ef15e381466e56a6aef6",
+          "/tmp/v41-review-g1uo1xz4/fresh_blank_clears_old_questionable/vetted/source_receipt.json": "0603a2c69a8809c55d3bebee958a8149f4d2511468f7ca7342b40735549b6bbd",
+          "/tmp/v41-review-g1uo1xz4/fresh_blank_clears_old_questionable/run/frame.parquet": "d2853c4e4535ffba7a45f1dba6f40a46efd736786c5c18eaf334eec3e1fc2809",
+          "/tmp/v41-review-g1uo1xz4/fresh_blank_clears_old_questionable/run/candidates.parquet": "cd9347356704d10d5f74de5114ecd2d78a69c72d02cebfcff03456316ce64241",
+          "/tmp/v41-review-g1uo1xz4/fresh_blank_clears_old_questionable/run/incumbent_player_scores.npy": "bca214803d7ccfc0b22829d99a9281fc7ce31621252121f2987cebd12e268209",
+          "/tmp/v41-review-g1uo1xz4/fresh_blank_clears_old_questionable/run/corrected_hsim_player_scores.npy": "bca214803d7ccfc0b22829d99a9281fc7ce31621252121f2987cebd12e268209",
+          "/tmp/v41-review-g1uo1xz4/fresh_blank_clears_old_questionable/flags.csv": "1783e97c06abb0ba65e2d76b957720ae3ac9a1eadd7b79e0144c0e13e95bd43c"
+        },
+        "qb_flags": "/tmp/v41-review-g1uo1xz4/fresh_blank_clears_old_questionable/flags.csv",
+        "required_k": 1,
+        "admit_risky": false,
+        "freshness": {
+          "frame_status": "build-time DK feed",
+          "fresh_dk_pulled_at": "2026-09-19 20:42:56.981299+00:00",
+          "fresh_dk_players": 10,
+          "injury_report_rows": 0
+        },
+        "exclusion_set": {
+          "Player 1": "backup_qb:behind-healthy-primary"
+        },
+        "removed_positions": [
+          1
+        ],
+        "replacements": [
+          {
+            "vetted_position": 1,
+            "source_rank": 1,
+            "removed": [
+              "Player 1",
+              "Player 2",
+              "Player 3",
+              "Player 4",
+              "Player 5",
+              "Player 6",
+              "Player 7",
+              "Player 8",
+              "Player 9"
+            ],
+            "removed_because": {
+              "Player 1": "backup_qb:behind-healthy-primary"
+            },
+            "replacement": [
+              "Player 10",
+              "Player 2",
+              "Player 3",
+              "Player 4",
+              "Player 5",
+              "Player 6",
+              "Player 7",
+              "Player 8",
+              "Player 9"
+            ],
+            "candidate_index": 0,
+            "gain_corrected_mix": 100.0
+          }
+        ],
+        "pool": {
+          "eligible": 1,
+          "rejected": {
+            "unmapped": 0,
+            "in_book": 0,
+            "excluded": 0,
+            "risky": 0,
+            "illegal": 0
+          }
+        },
+        "output_sha256": {
+          "book.csv": "e6ba794ee048113a499f01e8177e2eb87989087ca827e7f59f29858275bbf626",
+          "vetting_final.json": "0e2ceb105a80c26cbac3106e86f545246408ebcaf81702ac928a4204fa2d0127"
+        }
+      },
+      "stdout": "replaced 1 unavailable lineup(s) (exclusion set 1 players); final book validated: 1 rows OK\n  pos   1 (source rank 1): removed because {'Player 1': 'backup_qb:behind-healthy-primary'}\n      -> Player 10, Player 2, Player 3, Player 4, Player 5, Player 6, Player 7, Player 8, Player 9  (gain +100.000)\n",
+      "stderr": ""
+    },
+    {
+      "case": "wrong_week_flags",
+      "exit_code": 2,
+      "exception": "2",
+      "book": null,
+      "receipt": {
+        "version": "vet-replace-v4.2",
+        "status": "FAILED",
+        "problems": [
+          "flag table provenance (2026, 1, 153428) != receipt/args (2026, 2, 153428)"
+        ]
+      },
+      "stdout": "",
+      "stderr": "REPLACEMENT FAILED: flag table provenance (2026, 1, 153428) != (2026, 2, 153428)\n"
+    },
+    {
+      "case": "mixed_week_flags",
+      "exit_code": 0,
+      "exception": null,
+      "book": "QB,RB,RB,WR,WR,WR,TE,FLEX,DST\n10,2,3,4,5,6,7,8,9\n",
+      "receipt": {
+        "version": "vet-replace-v4.2",
+        "status": "OK",
+        "problems": [],
+        "source_run": "/tmp/v41-review-g1uo1xz4/mixed_week_flags/run",
+        "vetted_dir": "/tmp/v41-review-g1uo1xz4/mixed_week_flags/vetted",
+        "publishable": true,
+        "rehearsal_flags": {
+          "test_exclude_dk": "",
+          "no_fresh_dk": false
+        },
+        "input_sha256": {
+          "/tmp/v41-review-g1uo1xz4/mixed_week_flags/vetted/book.csv": "55da3a7903a5c8d412ee8806eadd752a8d49d9e672664ed488c69cba212dcb20",
+          "/tmp/v41-review-g1uo1xz4/mixed_week_flags/vetted/vetting.json": "0db9036a8f80184c585ef5963ed39d2672062bc21a68ef15e381466e56a6aef6",
+          "/tmp/v41-review-g1uo1xz4/mixed_week_flags/vetted/source_receipt.json": "0603a2c69a8809c55d3bebee958a8149f4d2511468f7ca7342b40735549b6bbd",
+          "/tmp/v41-review-g1uo1xz4/mixed_week_flags/run/frame.parquet": "6a6a4c518b12c19aae19350bd62c89defb13152e71f1f40ec5e4cf4f8a7ad25c",
+          "/tmp/v41-review-g1uo1xz4/mixed_week_flags/run/candidates.parquet": "cd9347356704d10d5f74de5114ecd2d78a69c72d02cebfcff03456316ce64241",
+          "/tmp/v41-review-g1uo1xz4/mixed_week_flags/run/incumbent_player_scores.npy": "bca214803d7ccfc0b22829d99a9281fc7ce31621252121f2987cebd12e268209",
+          "/tmp/v41-review-g1uo1xz4/mixed_week_flags/run/corrected_hsim_player_scores.npy": "bca214803d7ccfc0b22829d99a9281fc7ce31621252121f2987cebd12e268209",
+          "/tmp/v41-review-g1uo1xz4/mixed_week_flags/flags.csv": "3db02f89e2df1aaa386953a904c502a332aa0b07074cfa4217b48d9a2b6487a6"
+        },
+        "qb_flags": "/tmp/v41-review-g1uo1xz4/mixed_week_flags/flags.csv",
+        "required_k": 1,
+        "admit_risky": false,
+        "freshness": {
+          "frame_status": "build-time DK feed",
+          "fresh_dk_pulled_at": "2026-09-19 20:42:57.007651+00:00",
+          "fresh_dk_players": 10,
+          "injury_report_rows": 0
+        },
+        "exclusion_set": {
+          "Player 1": "backup_qb:behind-healthy-primary"
+        },
+        "removed_positions": [
+          1
+        ],
+        "replacements": [
+          {
+            "vetted_position": 1,
+            "source_rank": 1,
+            "removed": [
+              "Player 1",
+              "Player 2",
+              "Player 3",
+              "Player 4",
+              "Player 5",
+              "Player 6",
+              "Player 7",
+              "Player 8",
+              "Player 9"
+            ],
+            "removed_because": {
+              "Player 1": "backup_qb:behind-healthy-primary"
+            },
+            "replacement": [
+              "Player 10",
+              "Player 2",
+              "Player 3",
+              "Player 4",
+              "Player 5",
+              "Player 6",
+              "Player 7",
+              "Player 8",
+              "Player 9"
+            ],
+            "candidate_index": 0,
+            "gain_corrected_mix": 100.0
+          }
+        ],
+        "pool": {
+          "eligible": 1,
+          "rejected": {
+            "unmapped": 0,
+            "in_book": 0,
+            "excluded": 0,
+            "risky": 0,
+            "illegal": 0
+          }
+        },
+        "output_sha256": {
+          "book.csv": "e6ba794ee048113a499f01e8177e2eb87989087ca827e7f59f29858275bbf626",
+          "vetting_final.json": "0e2ceb105a80c26cbac3106e86f545246408ebcaf81702ac928a4204fa2d0127"
+        }
+      },
+      "stdout": "replaced 1 unavailable lineup(s) (exclusion set 1 players); final book validated: 1 rows OK\n  pos   1 (source rank 1): removed because {'Player 1': 'backup_qb:behind-healthy-primary'}\n      -> Player 10, Player 2, Player 3, Player 4, Player 5, Player 6, Player 7, Player 8, Player 9  (gain +100.000)\n",
+      "stderr": ""
+    },
+    {
+      "case": "missing_provenance",
+      "exit_code": 0,
+      "exception": null,
+      "book": "QB,RB,RB,WR,WR,WR,TE,FLEX,DST\n10,2,3,4,5,6,7,8,9\n",
+      "receipt": {
+        "version": "vet-replace-v4.2",
+        "status": "OK",
+        "problems": [],
+        "source_run": "/tmp/v41-review-g1uo1xz4/missing_provenance/run",
+        "vetted_dir": "/tmp/v41-review-g1uo1xz4/missing_provenance/vetted",
+        "publishable": true,
+        "rehearsal_flags": {
+          "test_exclude_dk": "",
+          "no_fresh_dk": false
+        },
+        "input_sha256": {
+          "/tmp/v41-review-g1uo1xz4/missing_provenance/vetted/book.csv": "55da3a7903a5c8d412ee8806eadd752a8d49d9e672664ed488c69cba212dcb20",
+          "/tmp/v41-review-g1uo1xz4/missing_provenance/vetted/vetting.json": "0db9036a8f80184c585ef5963ed39d2672062bc21a68ef15e381466e56a6aef6",
+          "/tmp/v41-review-g1uo1xz4/missing_provenance/vetted/source_receipt.json": "0603a2c69a8809c55d3bebee958a8149f4d2511468f7ca7342b40735549b6bbd",
+          "/tmp/v41-review-g1uo1xz4/missing_provenance/run/frame.parquet": "6a6a4c518b12c19aae19350bd62c89defb13152e71f1f40ec5e4cf4f8a7ad25c",
+          "/tmp/v41-review-g1uo1xz4/missing_provenance/run/candidates.parquet": "cd9347356704d10d5f74de5114ecd2d78a69c72d02cebfcff03456316ce64241",
+          "/tmp/v41-review-g1uo1xz4/missing_provenance/run/incumbent_player_scores.npy": "bca214803d7ccfc0b22829d99a9281fc7ce31621252121f2987cebd12e268209",
+          "/tmp/v41-review-g1uo1xz4/missing_provenance/run/corrected_hsim_player_scores.npy": "bca214803d7ccfc0b22829d99a9281fc7ce31621252121f2987cebd12e268209",
+          "/tmp/v41-review-g1uo1xz4/missing_provenance/flags.csv": "60f9914091c57d6aeaabe09d6164363fba49675f0c0ff3c8d947c021023654f3"
+        },
+        "qb_flags": "/tmp/v41-review-g1uo1xz4/missing_provenance/flags.csv",
+        "required_k": 1,
+        "admit_risky": false,
+        "freshness": {
+          "frame_status": "build-time DK feed",
+          "fresh_dk_pulled_at": "2026-09-19 20:42:57.019598+00:00",
+          "fresh_dk_players": 10,
+          "injury_report_rows": 0
+        },
+        "exclusion_set": {
+          "Player 1": "backup_qb:behind-healthy-primary"
+        },
+        "removed_positions": [
+          1
+        ],
+        "replacements": [
+          {
+            "vetted_position": 1,
+            "source_rank": 1,
+            "removed": [
+              "Player 1",
+              "Player 2",
+              "Player 3",
+              "Player 4",
+              "Player 5",
+              "Player 6",
+              "Player 7",
+              "Player 8",
+              "Player 9"
+            ],
+            "removed_because": {
+              "Player 1": "backup_qb:behind-healthy-primary"
+            },
+            "replacement": [
+              "Player 10",
+              "Player 2",
+              "Player 3",
+              "Player 4",
+              "Player 5",
+              "Player 6",
+              "Player 7",
+              "Player 8",
+              "Player 9"
+            ],
+            "candidate_index": 0,
+            "gain_corrected_mix": 100.0
+          }
+        ],
+        "pool": {
+          "eligible": 1,
+          "rejected": {
+            "unmapped": 0,
+            "in_book": 0,
+            "excluded": 0,
+            "risky": 0,
+            "illegal": 0
+          }
+        },
+        "output_sha256": {
+          "book.csv": "e6ba794ee048113a499f01e8177e2eb87989087ca827e7f59f29858275bbf626",
+          "vetting_final.json": "0e2ceb105a80c26cbac3106e86f545246408ebcaf81702ac928a4204fa2d0127"
+        }
+      },
+      "stdout": "replaced 1 unavailable lineup(s) (exclusion set 1 players); final book validated: 1 rows OK\n  pos   1 (source rank 1): removed because {'Player 1': 'backup_qb:behind-healthy-primary'}\n      -> Player 10, Player 2, Player 3, Player 4, Player 5, Player 6, Player 7, Player 8, Player 9  (gain +100.000)\n",
+      "stderr": "WARNING: flag table carries no season/week/draft_group provenance columns\n"
+    },
+    {
+      "case": "rehearsal_nonpublishable",
+      "exit_code": 0,
+      "exception": null,
+      "book": "QB,RB,RB,WR,WR,WR,TE,FLEX,DST\n10,2,3,4,5,6,7,8,9\n",
+      "receipt": {
+        "version": "vet-replace-v4.2",
+        "status": "OK",
+        "problems": [],
+        "source_run": "/tmp/v41-review-g1uo1xz4/rehearsal_nonpublishable/run",
+        "vetted_dir": "/tmp/v41-review-g1uo1xz4/rehearsal_nonpublishable/vetted",
+        "publishable": false,
+        "rehearsal_flags": {
+          "test_exclude_dk": "1",
+          "no_fresh_dk": false
+        },
+        "input_sha256": {
+          "/tmp/v41-review-g1uo1xz4/rehearsal_nonpublishable/vetted/book.csv": "55da3a7903a5c8d412ee8806eadd752a8d49d9e672664ed488c69cba212dcb20",
+          "/tmp/v41-review-g1uo1xz4/rehearsal_nonpublishable/vetted/vetting.json": "0db9036a8f80184c585ef5963ed39d2672062bc21a68ef15e381466e56a6aef6",
+          "/tmp/v41-review-g1uo1xz4/rehearsal_nonpublishable/vetted/source_receipt.json": "0603a2c69a8809c55d3bebee958a8149f4d2511468f7ca7342b40735549b6bbd",
+          "/tmp/v41-review-g1uo1xz4/rehearsal_nonpublishable/run/frame.parquet": "6a6a4c518b12c19aae19350bd62c89defb13152e71f1f40ec5e4cf4f8a7ad25c",
+          "/tmp/v41-review-g1uo1xz4/rehearsal_nonpublishable/run/candidates.parquet": "cd9347356704d10d5f74de5114ecd2d78a69c72d02cebfcff03456316ce64241",
+          "/tmp/v41-review-g1uo1xz4/rehearsal_nonpublishable/run/incumbent_player_scores.npy": "bca214803d7ccfc0b22829d99a9281fc7ce31621252121f2987cebd12e268209",
+          "/tmp/v41-review-g1uo1xz4/rehearsal_nonpublishable/run/corrected_hsim_player_scores.npy": "bca214803d7ccfc0b22829d99a9281fc7ce31621252121f2987cebd12e268209",
+          "/tmp/v41-review-g1uo1xz4/rehearsal_nonpublishable/flags.csv": "1783e97c06abb0ba65e2d76b957720ae3ac9a1eadd7b79e0144c0e13e95bd43c"
+        },
+        "qb_flags": "/tmp/v41-review-g1uo1xz4/rehearsal_nonpublishable/flags.csv",
+        "required_k": 1,
+        "admit_risky": false,
+        "freshness": {
+          "frame_status": "build-time DK feed",
+          "fresh_dk_pulled_at": "2026-09-19 20:42:57.033079+00:00",
+          "fresh_dk_players": 10,
+          "injury_report_rows": 0
+        },
+        "exclusion_set": {
+          "Player 1": "TEST-EXCLUDE"
+        },
+        "removed_positions": [
+          1
+        ],
+        "replacements": [
+          {
+            "vetted_position": 1,
+            "source_rank": 1,
+            "removed": [
+              "Player 1",
+              "Player 2",
+              "Player 3",
+              "Player 4",
+              "Player 5",
+              "Player 6",
+              "Player 7",
+              "Player 8",
+              "Player 9"
+            ],
+            "removed_because": {
+              "Player 1": "TEST-EXCLUDE"
+            },
+            "replacement": [
+              "Player 10",
+              "Player 2",
+              "Player 3",
+              "Player 4",
+              "Player 5",
+              "Player 6",
+              "Player 7",
+              "Player 8",
+              "Player 9"
+            ],
+            "candidate_index": 0,
+            "gain_corrected_mix": 100.0
+          }
+        ],
+        "pool": {
+          "eligible": 1,
+          "rejected": {
+            "unmapped": 0,
+            "in_book": 0,
+            "excluded": 0,
+            "risky": 0,
+            "illegal": 0
+          }
+        },
+        "output_sha256": {
+          "book.csv": "e6ba794ee048113a499f01e8177e2eb87989087ca827e7f59f29858275bbf626",
+          "vetting_final.json": "7cb46ab1803e423b2cd8f95b4e8fae64c96b6f0da3137394ab75c3e14ce88cbe"
+        }
+      },
+      "stdout": "replaced 1 unavailable lineup(s) (exclusion set 1 players); final book validated: 1 rows OK\n  pos   1 (source rank 1): removed because {'Player 1': 'TEST-EXCLUDE'}\n      -> Player 10, Player 2, Player 3, Player 4, Player 5, Player 6, Player 7, Player 8, Player 9  (gain +100.000)\n",
+      "stderr": ""
+    }
+  ],
+  "tied_primary_results": [
+    [],
+    []
+  ]
+}
