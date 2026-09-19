@@ -4,6 +4,10 @@
 
 # Project handoff
 
+## 2026-09-19 — full D6400 reselection and first-entry audit completed
+
+[Results and class E candidate](reports/2026-09-19-d6400-reselection-and-ordering-results.md): frozen eight-book packet `87262e06…`, reader/audit `7f3c339c`, both selection banks exact, new audit seeds. Existing promotion moves current rank5 to first: simulated mean +8.5076, P220 +0.165 pp in both laws/components; membership and prefixes10+ unchanged, block2–24 loses0.1954 mean-max /0.095 pp P220. This merits production review as a reversible order-only candidate, not automatic adoption. Full P_MIX reselection changes33members and gains whole-book +0.9518 mean-max /+0.730 pp P220 under participation, but costs0.5794 /0.970 pp under all-active. Expected inactive slots fall17.67→4.74; maximum player exposure increases53→58. Eight arms/20regions/10slot stresses all reported. No current outcomes or operational mutations. Next: portable independent replay, concrete same-book permutation proof, and production's actual-final-book review; no fixed calendar hold added.
+
 ## 2026-09-19 — portable frontier replay published; full eligible reselection protocol frozen
 
 [Frontier replay](reports/2026-09-19-d6400-selection-frontier-results.md): portable reader `905503e9` reproduces every numerical/status result field exactly; 19 MB immutable archive published and round-trip verified. Peer acknowledged the original result at shared `2a97bec`; root reply `fe325a3` also requests CPU-time evidence of D12800 progress. [Next protocol](reports/2026-09-19-d6400-reselection-protocol.md) freezes eight full-selection/order books, unchanged current eligibility, exact captured vetter inputs, fresh audit seeds and ten deterministic single-player stresses. Research only; no further hold on cleared host installation.
