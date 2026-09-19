@@ -74,3 +74,5 @@ Consolidated September 18, 2026 at Erich's request. Source commits: production `
 - [Scratch prediction refresh results](2026-09-19-tabpfn-scratch-refresh-results.md): both full runs pass, 65,455 historical rows are exactly identical, all 877 Week2 keys are valid; shared job unchanged and lane released.
 
 - [Complete-chain lineup comparison](2026-09-19-repaired-chain-cli-results.md): both CLI runs pass; repaired-model mixture gains1.52expectedmaximum and0.815percentagepointsP220 at97, with control-law and individual-contest disagreements retained.
+
+- [Target-prior simulator results](2026-09-19-zero-target-prior-simulator-results.md): both priors restore19players' scoring support, but change only2of97memberships and show minimal whole-book gains at160candidates.
