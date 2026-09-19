@@ -72,3 +72,5 @@ Consolidated September 18, 2026 at Erich's request. Source commits: production `
 - [Zero-target prior historical results](2026-09-19-zero-target-prior-results.md): two frozen priors improve player target-share error in all six seasons; both advance to simulator testing, without a lineup-performance or adoption claim.
 
 - [Scratch prediction refresh results](2026-09-19-tabpfn-scratch-refresh-results.md): both full runs pass, 65,455 historical rows are exactly identical, all 877 Week2 keys are valid; shared job unchanged and lane released.
+
+- [Complete-chain lineup comparison](2026-09-19-repaired-chain-cli-results.md): both CLI runs pass; repaired-model mixture gains1.52expectedmaximum and0.815percentagepointsP220 at97, with control-law and individual-contest disagreements retained.
