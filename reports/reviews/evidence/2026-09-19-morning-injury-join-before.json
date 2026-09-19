@@ -1,0 +1,22 @@
+{
+  "at": "2026-09-19 14:31:34.552234+00:00",
+  "read_only": true,
+  "query": "\nWITH capture AS (\n  SELECT * FROM `nfl-predictions-503414.nfl_raw.injury_snapshots`\n  WHERE season=2026 AND week=2\n    AND pulled_at=(SELECT MAX(pulled_at)\n      FROM `nfl-predictions-503414.nfl_raw.injury_snapshots`\n      WHERE season=2026 AND week=2)\n), matched AS (\n  SELECT s.gsis_id, s.report_status, s.pulled_at,\n    i.gsis_id AS injury_id, i.injury_status AS injury_status,\n    i.injury_snapshot_pulled_at,\n    p.gsis_id AS inference_id, p.injury_status AS inference_status\n  FROM capture s\n  LEFT JOIN `nfl-predictions-503414.nfl_features.player_week_injury` i\n    ON s.gsis_id=i.gsis_id AND i.season=2026 AND i.week=2\n  LEFT JOIN `nfl-predictions-503414.nfl_features.player_week_inference` p\n    ON s.gsis_id=p.gsis_id AND p.season=2026 AND p.week=2\n)\nSELECT COUNT(*) source_rows, COUNT(DISTINCT gsis_id) source_players,\n  COUNTIF(report_status IS NOT NULL) source_designated,\n  MAX(pulled_at) source_captured_at,\n  COUNTIF(injury_id IS NULL) missing_injury_feature_rows,\n  COUNTIF(report_status IS DISTINCT FROM injury_status) injury_status_mismatches,\n  COUNTIF(injury_snapshot_pulled_at IS DISTINCT FROM pulled_at) injury_capture_mismatches,\n  COUNTIF(inference_id IS NOT NULL) matching_inference_rows,\n  COUNTIF(inference_id IS NOT NULL AND report_status IS NOT NULL) expected_inference_designated,\n  COUNTIF(inference_id IS NOT NULL AND report_status IS DISTINCT FROM inference_status) inference_status_mismatches,\n  (SELECT COUNTIF(injury_status IS NOT NULL)\n   FROM `nfl-predictions-503414.nfl_features.player_week_inference`\n   WHERE season=2026 AND week=2) actual_inference_designated\nFROM matched\n",
+  "job_id": "65f180b6-fbc3-4d12-9252-4cac11b5a55d",
+  "bytes_processed": 2066202,
+  "rows": [
+    {
+      "source_rows": 246,
+      "source_players": 246,
+      "source_designated": 99,
+      "source_captured_at": "2026-09-19 10:03:45.895940+00:00",
+      "missing_injury_feature_rows": 16,
+      "injury_status_mismatches": 93,
+      "injury_capture_mismatches": 246,
+      "matching_inference_rows": 64,
+      "expected_inference_designated": 23,
+      "inference_status_mismatches": 23,
+      "actual_inference_designated": 0
+    }
+  ]
+}

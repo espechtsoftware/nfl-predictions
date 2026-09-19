@@ -12,6 +12,8 @@ We found two useful scoring/selection improvements and prepared a third operatio
 
 These are conditional simulation and engineering results. They do not establish actual NFL220 success, profits or a guaranteed stronger Millionaire outcome. The head rule improves which existing lineup receives that opportunity; it cannot improve the score of the overall set because the set is unchanged. Its tradeoff is consistent with Erich's stated preference to put the stronger standalone entry in the Millionaire, and the cost to the donating contest block is explicit.
 
+The [availability source review](2026-09-19-availability-law-source-review.md) makes one existing limitation concrete: the component fits exclude inactive rows, while the current TabPFN cache admits non-null inactive zero labels; the actual simulator then reshapes and recenters draws. Therefore no claim that participation cannot count availability twice is justified. Today's23newly joined injury designations also reinforce the requirement to compare the alternatives using the refreshed final inputs.
+
 The first-entry issue is now independently traced to the delivery code: after risk demotion, the vetter preserves portfolio-greedy order inside the surviving tier. The first surviving row is not necessarily the highest standalone expected scorer. On the research comparison the better row was already second. Do not hardcode that row number into a different build; apply the frozen general rule to its actual selection banks.
 
 ## Concrete Sunday sequence
