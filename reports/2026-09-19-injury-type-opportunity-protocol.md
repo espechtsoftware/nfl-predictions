@@ -114,3 +114,21 @@ in addition to the full original synthetic forecast/read test. The amended
 artifacts use a fresh create-once `v2` cloud prefix; original source/context and
 failed build remain preserved. This is a disclosed implementation correction,
 not an outcome-driven study redesign.
+
+## Serialization correction after forecasts completed
+
+Allfive amended forecasts published successfully in build
+`32334063-4581-4aa1-b428-b771f3332072`. Cloud reader
+`7eb8bb11-5e2a-469b-b80c-268651f070c5` authenticated allsix artifacts and
+completed the frozen evaluation, then failed JSON encoding: pandas returned
+NumPy integer keys in `by_season`. No score output was printed or published,
+but this execution **did read target-year outcomes**. This is a serialization
+failure after evaluation, not a no-outcome run or a negative scientific result.
+
+The separate authenticated local read adapter downloads those exact frozen
+forecasts by generation/hash, calls the identical study reader
+SHA256`6914d7f3a4b6f0d06defa128cc20380d165b88004fde1f5ea8aa641e96d32274`, and
+recursively converts NumPy scalar keys/values to their Python equivalents only
+for JSON publication. It does not retrain, filter rows, alter scores/bootstrap,
+change support or relax the gate. The scalar-key boundary is tested before
+any target-label read. The failed build/log and unchanged forecasts are retained.
