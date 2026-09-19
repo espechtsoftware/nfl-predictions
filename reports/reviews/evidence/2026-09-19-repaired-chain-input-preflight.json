@@ -1,0 +1,41 @@
+{
+  "historical_training_exact_equal": true,
+  "rows": 102927,
+  "queries": [
+    {
+      "key": "d60f9597695e6877c4aec85b7b3bc52e05ad979762d088978201c7e425e51df7",
+      "query": "SELECT * FROM `nfl-predictions-503414.nfl_features_control.player_week_training` WHERE season <= 2025",
+      "original_query": "SELECT * FROM `nfl-predictions-503414.nfl_features.player_week_training` WHERE season <= 2025",
+      "arm": "control",
+      "sha256": "445de23a683c17437723c98f4619296f742d13f5843bcb90a77b97af88308419",
+      "rows": 102927,
+      "query_job": "e0bc8f35-76d5-446b-aef3-09ac11ba08d9",
+      "bytes_processed": 76723779,
+      "tables": {
+        "nfl-predictions-503414.nfl_features_control.player_week_training": {
+          "etag": "nwKP4TD+rJOayTnS15cL/Q==",
+          "modified": "2026-09-19 00:58:17.124000+00:00",
+          "rows": 102927
+        }
+      }
+    },
+    {
+      "key": "c9c550a68444a129ca2acabbe2f901ff7769b4ca53964fc5d0e5fef9057fb0e2",
+      "query": "SELECT * FROM `nfl-predictions-503414.nfl_features_salaryfix.player_week_training` WHERE season <= 2025",
+      "original_query": "SELECT * FROM `nfl-predictions-503414.nfl_features.player_week_training` WHERE season <= 2025",
+      "arm": "salaryfix",
+      "sha256": "3b25973bf4b69aea14673749f7884d8e31d1f56ae218b1002b0406ba4ffa0977",
+      "rows": 102927,
+      "query_job": "bf7b801d-e4b8-4bd1-a2b5-246ad397568e",
+      "bytes_processed": 77165096,
+      "tables": {
+        "nfl-predictions-503414.nfl_features_salaryfix.player_week_training": {
+          "etag": "biIB7PKXGMq2eprf6rd+pQ==",
+          "modified": "2026-09-19 00:51:11.798000+00:00",
+          "rows": 103833
+        }
+      }
+    }
+  ],
+  "source_sha256": "bc2ac52a0a266f9ead230fec98e158960c57d96d2ba391038cbacf1c52995337"
+}

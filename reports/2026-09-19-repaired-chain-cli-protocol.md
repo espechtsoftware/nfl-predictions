@@ -18,4 +18,6 @@ Report frame identity/feature/projection differences, common-key marginal means/
 
 Primary descriptive contrast is repair minus control under each evaluation law at K97. Publish disagreement as well as gains, with conditional paired Monte Carlo errors. No real football success probability or return is inferred. Fixed-pool input factorial results remain separate from this complete-chain generation comparison.
 
+Before any comparative generation, include the existing **same-pool WEMAX shadow** emitted by `--emit-a5-sidecars` as a named secondary comparison within each arm. It changes neither candidate budget nor live selector. Evaluate that fixed shadow beside the ordinary expected-max book under the same independent audits and prefix/block metrics. Report its turnover, first-lineup change and tradeoffs; no choosing a primary estimand after seeing the numbers. This uses an existing operational sidecar rather than inventing a new selector.
+
 No timer, production job configuration, entry allocation, stakes or upload changes. No bank991 or current lineup outcome read. All new reports receive main-project reading copies and committed/pushed peer handoffs.
