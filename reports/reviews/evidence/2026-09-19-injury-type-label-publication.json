@@ -1,0 +1,8 @@
+{
+  "uri": "gs://nfl-2-506823-lab/research/injury-type-opportunity-20260919/v2/inputs/labels.parquet",
+  "generation": "1789797893678790",
+  "bytes": 15198631,
+  "sha256": "445de23a683c17437723c98f4619296f742d13f5843bcb90a77b97af88308419",
+  "crc32c": "agYmKQ==",
+  "scope": "exact frozen source panel; reader column/season filters unchanged"
+}
