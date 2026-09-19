@@ -104,17 +104,20 @@ worktree per task (`git worktree add`), never in a dirty main checkout; the
 
 ## Objective and adoption tracks (operator directive, 2026-09-19)
 
-The objective is realized gains in the **2026 season, as early as possible**.
-`reports/2026-09-19-in-season-adoption-track.md` is the governing protocol:
-four risk classes (R repair, C calibration, S selection, E entry-side) with
-in-season evidence bars, a mandatory weekly scorecard from Week 2, immediate
-reads, shadows that start the next week, and pre-specified interim reads for
-multi-season gates. Every proposal, read and handoff states the earliest week
-it can change the entered book and its class. The six-season historical panel
-is required for **permanent** adoption only; it is not a prerequisite for
-in-season use. The validity laws below are unchanged — they are what makes a
-measured gain real. "Evidence rules inform risk; they do not veto upside"
-(2026-08-30); adoption is the operator's decision.
+The objective is useful improvements in the **2026 season, as early as
+possible**. `reports/2026-09-19-in-season-adoption-track.md` (v2) is the
+governing protocol and takes precedence over any earlier sentence that made
+the six-season panel, a "72 historical books" test, an old experiment's
+endpoint or a method-family closure a prerequisite for a reversible in-season
+trial. Every candidate states its mechanism, exact change, primary utility,
+evidence and tradeoffs, earliest usable week, operational proof, unchanged
+comparison, monitoring plan and rollback (classes R repair / C calibration /
+S selection / E entry-side describe what that package must contain); a trial
+is recommendable as soon as its package is ready; the operator decides
+adoption; scientific verdicts keep their frozen rules and are reported
+separately; integrity failures always stop release. A weekly evidence record
+runs from Week 2 with the accepted proper-score reader. The validity laws
+below are unchanged — they are what makes a measured gain real.
 
 ## Rules
 
@@ -155,7 +158,9 @@ measured gain real. "Evidence rules inform risk; they do not veto upside"
      records and generalise beside them.
 - **Money-path rules** (each one cost real money in Week 1 of 2026; the
   current take-over document carries the full list): never enter an untested
-  rule on an entered book — test it on the historical books first; remove a
+  rule on an entered book — test it before entering, on the historical books
+  where they exist and otherwise on a fixed-book replay or a paired shadow
+  (the test is required; the 72-book form is not — adoption track v2); remove a
   player from entered lineups only when DraftKings marks him OUT/IR or the
   official inactives name him, and answer "replace X" with his live status
   first; never select lineups on raw expected payout (a 1-in-10,000 event

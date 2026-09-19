@@ -46,8 +46,16 @@ agent or developer:
   after the builds finish and never while a Sunday unit runs. The lab was notified on
   `lab/workstation-reply-bank991-20260918` (`handoffs/2026-09-19-RULES-CHANGED-operator-directive.md`).
 - **Follow-ups opened:** O-13 (checker registry fields for the Route Share gate must reflect Amendment 1, with a
-  test, Monday with O-2); Week-2 scorecard Monday; bank 991 read pending the operator's yes on the amendment-5
-  reader.
+  test, Monday 2026-09-21 with O-2); Week-2 evidence record Monday; bank 991 authorized by the operator at ~16:57Z
+  ("Yes on bank 991") — amendment-5 reader frozen, then read.
+- **v2, ~17:2xZ, on the lab's independent review** (`reports/2026-09-19-in-season-rules-independent-review.md`,
+  research `45e5a25c`): the fixed 2-consecutive / 3-of-4 bars and the automatic two-loss rollback are withdrawn in
+  favour of candidate-specific reversible-trial decision records (faster, and not a weak sign-count gate); class C
+  is measured at the final consumer, not player CRPS alone; no universal dominance veto for class S; R requires the
+  proven contract plus declared numerical tolerances and quantified propagation; E keeps the operator's authority
+  plus rehearsal and a restore path; Route Share Amendment 1 corrected (lexicographic primary, floors never waived,
+  weekly decision record instead of 6/10-week interim reads); permanent adoption proportional to mechanism and data;
+  closures scoped by four dimensions. O-6 / O-12 / O-13 wording corrected.
 
 ## Workstation overnight -- 2026-09-19 (Week-2 build eve)
 

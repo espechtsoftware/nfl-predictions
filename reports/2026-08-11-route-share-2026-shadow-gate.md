@@ -119,18 +119,32 @@ Only a player-distribution pass followed by this future-only exact-80 pass can
 license production/UI adoption. Until then Route Share is visible as a shadow
 and the incumbent remains the submitted book.
 
-## Amendment 1 (2026-09-19, operator directive -- interim reads)
+## Amendment 1 (2026-09-19, operator directive) — v2, corrected on the lab's review
 
 Recorded before any 2026 week is graded (Week 2 was forfeited; Week 3 is the
-first). The final read after Week 18 is unchanged and still governs permanent
-adoption. **Added:** interim reads after **6** and after **10** complete paired
-graded weeks, using the same primary (the exact-80 scoring gate at the 200+
-threshold) and the same player-distribution and mechanical guards as the final
-read, restricted to the weeks then available. An interim read in which the
-treatment leads the control on the primary with every guard passing permits
-the treatment to enter the live path under
-`reports/2026-09-19-in-season-adoption-track.md` class S (the paired shadow
-continues; revert after two consecutive losing weeks). An interim read that
-does not pass changes nothing and is reported. The checker's `adjudicates` /
-`in_season_value` fields for this gate must be updated to reflect this
-amendment, with a test (O-13).
+first). v1 of this amendment (same day) proposed interim reads after 6 and 10
+graded weeks at a "200+ threshold"; it is withdrawn: the primary above is
+lexicographic 240/230/220/210/200, not 200 alone; six complete weeks from
+Week 3 would first allow a read at Week 9 and ten at Week 13; and the 12-week,
+2,500-row and 40-event floors above would make such interim reads unpassable.
+
+**Unchanged:** the final scientific read after all available Sunday-main Weeks
+2-18, with this document's primary, guards and floors, governs permanent
+adoption.
+
+**Added:** a separately named **weekly in-season decision record**, one row
+per complete paired week from the first (Week 3), reporting the paired
+treatment-minus-control result on this document's primary and its guards for
+the weeks then available, with the available support (weeks, rows, events)
+stated explicitly against the floors — which are never silently waived. The
+record is descriptive monitoring, not the scientific adjudication; bounded
+in-season use of the treatment may be considered from it under
+`reports/2026-09-19-in-season-adoption-track.md` §1 (a candidate-specific
+decision record with its uncertainty, control, material-harm criteria and
+rollback), and only after the original exact-80 consumer and historical
+generation contract are shown to transfer to the current lab K97 / dose. The
+frozen contract of this gate (12 CE / 12 role / 28 boom / exact-80) is never
+changed in place: a versioned current-policy companion (O-2) states every
+generation / env / registry / K / selector setting under which the paired
+weeks are actually produced. The checker's `adjudicates` / `in_season_value`
+fields for this gate are updated to cite this amendment, with a test (O-13).
