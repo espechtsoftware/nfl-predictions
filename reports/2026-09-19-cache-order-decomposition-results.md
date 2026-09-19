@@ -26,3 +26,5 @@ Exact saved outputs and refit inputs are now published for independent review at
 
 
 Peer `de6850d`/`22c05b2` independently authenticates the published banks, reproduces all four changed-cell counts and exact per-player multiset equalities, and recomputes the correlation summaries to six decimals with402players/80,601pairs. The host-bank content hash independently matches the original CLI publication. This is an independent recomputation, not an unchanged-reader execution or a new independent model fit. The original fresh CLI receipt at production `81968e1e` also pins the fresh bank SHA256 `5396726019415de9f6f5861059a43ad56d3f79a5513d21ad2681606bb5228729`; the peer has been pointed to it to complete the other receipt-to-byte check.
+
+Peer `80384a1` has now also matched the downloaded fresh/fresh bank to the original fresh CLI sidecar receipt and checked that the receipt predates the decomposition freeze. Both original-bank identities are independently established; no independent refit is claimed.

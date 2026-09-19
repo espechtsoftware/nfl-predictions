@@ -35,3 +35,6 @@ Keep this defect open for a separately reviewed coherent-snapshot application fi
 Odds data demonstrably enter the live projection consumer; this result concerns how to use that feed correctly, not whether the feed is unused. It does not change the separate SIS/FP evidence or renewal conclusions.
 
 [Protocol](2026-09-19-prop-snapshot-impact-protocol.md), [support census](reviews/evidence/2026-09-19-prop-snapshot-live-census.json), [complete numerical result](reviews/evidence/2026-09-19-prop-snapshot-impact.json), [original source](reviews/evidence/2026-09-19-prop-snapshot-impact.py), [serialization-only version2](reviews/evidence/2026-09-19-prop-snapshot-impact-v2.py). Independent review requested.
+
+
+The complete small input/output bundle is published at `gs://nfl-2-506823-lab/research/week2-input-release-20260919/prop-snapshot-impact-v1/manifest.json`, generation `1789801556753832`, SHA256 `28df3d976aeae371dc8c2ce43ba4b77cd3bde027a051a6975e7d5a64024457b6`. Includes quotes, schedules, names, both market estimates, paired rows, exact production-pool identities, proof frame and analysis/consumer source. All objects were downloaded and hash-verified. [Publication identities](reviews/evidence/2026-09-19-prop-snapshot-publication.json).

@@ -1,0 +1,88 @@
+{
+  "objects": {
+    "names.parquet": {
+      "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/prop-snapshot-impact-v1/names.parquet",
+      "generation": "1789801550911322",
+      "sha256": "3e6b8d076c9c6c53d06cd36113682d82daa190c0d869a4b7d76b35dd63abfef1",
+      "bytes": 77789
+    },
+    "paired-market.parquet": {
+      "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/prop-snapshot-impact-v1/paired-market.parquet",
+      "generation": "1789801551453035",
+      "sha256": "c418291f5001fbfc118e833d78fe1900ca3f25cecde19d99b0721ade7be06bb6",
+      "bytes": 14534
+    },
+    "coherent-market.parquet": {
+      "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/prop-snapshot-impact-v1/coherent-market.parquet",
+      "generation": "1789801551910002",
+      "sha256": "46eaa81e192f022ba6b6f27bba35bfb97ebe064a61f5e95ba691a4c8fc867f78",
+      "bytes": 6062
+    },
+    "control-market.parquet": {
+      "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/prop-snapshot-impact-v1/control-market.parquet",
+      "generation": "1789801552368542",
+      "sha256": "38f2f6beddc4bb481eb0256d3a4e7f47664cf8a087387f0c78820d91fb694890",
+      "bytes": 6062
+    },
+    "props.parquet": {
+      "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/prop-snapshot-impact-v1/props.parquet",
+      "generation": "1789801552892670",
+      "sha256": "ae32299cdfd68d32a3add3910dd56969ab31e66e45e4935bca928b4efe9eefe7",
+      "bytes": 68607
+    },
+    "schedules.parquet": {
+      "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/prop-snapshot-impact-v1/schedules.parquet",
+      "generation": "1789801553349023",
+      "sha256": "59e3165a086b5b52b9d76168c0c3a42678f7469f8faa0674d02d0e8a6f2dfaa1",
+      "bytes": 3869
+    },
+    "census.json": {
+      "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/prop-snapshot-impact-v1/census.json",
+      "generation": "1789801553832586",
+      "sha256": "d9a61df93593eb787696dde7ab854eef147e833b4ff146c80a4fd1cce5963f17",
+      "bytes": 1954
+    },
+    "result.json": {
+      "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/prop-snapshot-impact-v1/result.json",
+      "generation": "1789801554284595",
+      "sha256": "936caf204f7324a9902746599f6e19fae7fff9cebcc1bc1ac0c2764cb67a92af",
+      "bytes": 21616
+    },
+    "analysis.py": {
+      "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/prop-snapshot-impact-v1/analysis.py",
+      "generation": "1789801554747190",
+      "sha256": "3a411c4dadd7140f72bae600b1e920d7174698610cde5d5fdbea45090e8e805c",
+      "bytes": 8028
+    },
+    "consumer.py": {
+      "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/prop-snapshot-impact-v1/consumer.py",
+      "generation": "1789801555199827",
+      "sha256": "144338d6922e9dcbcaabbebde08bf9921aee2775b0915e4a54cd1836fab7546a",
+      "bytes": 14109
+    },
+    "proof-frame.parquet": {
+      "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/prop-snapshot-impact-v1/proof-frame.parquet",
+      "generation": "1789801555784709",
+      "sha256": "fb87c340dac44ca64e1cbeb857553d45f05d1952f2ee5f35330e8b55774cc8a2",
+      "bytes": 191380
+    },
+    "projection-identities.parquet": {
+      "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/prop-snapshot-impact-v1/projection-identities.parquet",
+      "generation": "1789801556333912",
+      "sha256": "474721f7001f22683617537f1a760c6a8a0b9df2658b39365f944cfe7e561bec",
+      "bytes": 4891
+    }
+  },
+  "projection_identity_query": {
+    "sql": "SELECT gsis_id,position FROM `nfl-predictions-503414.nfl_predictions.player_projections` WHERE season=2026 AND week=2 AND generated_at=@stamp",
+    "job_id": "2b5f0079-f489-4d56-8ede-8b8b035f613e",
+    "stamp": "2026-09-19 06:29:00.515884+00:00"
+  },
+  "scope": "Read-only quote-integrity engineering comparison; no live change or efficacy claim",
+  "manifest": {
+    "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/prop-snapshot-impact-v1/manifest.json",
+    "generation": "1789801556753832",
+    "sha256": "28df3d976aeae371dc8c2ce43ba4b77cd3bde027a051a6975e7d5a64024457b6",
+    "bytes": 3967
+  }
+}
