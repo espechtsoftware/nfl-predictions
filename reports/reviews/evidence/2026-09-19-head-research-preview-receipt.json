@@ -1,0 +1,14 @@
+{
+  "disposition": "RESEARCH_PREVIEW_NOT_OPERATING_CORPUS_NOT_ENTERED",
+  "source_book_sha256": "17393d11e2733cca845eae0216e2725557fbc621660e6e51c4ce9d69deeee29b",
+  "source_result_sha256": "e31f14bff3d65a711dc53e0d4f81199619531a4762b0980fa9b5ebec9d132473",
+  "preview_sha256": "d00e85c9ad0b7c51daa089b08215cf4413579f7649307a3553679531eeaddc58",
+  "permutation_only": true,
+  "swapped_current_research_positions": [
+    1,
+    2
+  ],
+  "rule": "frozen selection-bank mean policy; never reuse these row numbers on another book",
+  "entries": 97,
+  "source_first_lineup_fixed_by_selection_not_audit": true
+}

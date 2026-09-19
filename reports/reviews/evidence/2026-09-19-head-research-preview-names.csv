@@ -1,0 +1,98 @@
+Research rank,QB,RB1,RB2,WR1,WR2,WR3,TE,FLEX,DST,Salary,Prior delivered rank
+1,C.J. Stroud,Bijan Robinson,Javonte Williams,Ja'Marr Chase,Justin Jefferson,Kendrick Bourne,Dalton Schultz,Xavier Hutchinson,49ers,49900,2
+2,Baker Mayfield,Bucky Irving,Javonte Williams,Christian Watson,Emeka Egbuka,Justin Jefferson,Cade Otton,Harold Fannin Jr.,49ers,49800,1
+3,Jordan Love,D'Andre Swift,MarShawn Lloyd,Drake London,Garrett Wilson,Justin Jefferson,Tucker Kraft,Matthew Golden,Patriots,50000,3
+4,Caleb Williams,Aaron Jones Sr.,D'Andre Swift,Justin Jefferson,Kalif Raymond,Luther Burden III,T.J. Hockenson,Saquon Barkley,49ers,49600,4
+5,Bryce Young,Bijan Robinson,Saquon Barkley,Garrett Wilson,Jalen Coker,Terry McLaurin,David Njoku,Tetairoa McMillan,49ers,49800,5
+6,Geno Smith,Breece Hall,Javonte Williams,Christian Watson,Courtland Sutton,Garrett Wilson,Kenyon Sadiq,Justin Jefferson,Broncos,49800,6
+7,Brock Purdy,Christian McCaffrey,Javonte Williams,Caleb Douglas,CeeDee Lamb,Deebo Samuel Sr.,Cade Otton,Mike Evans,Patriots,50000,7
+8,Bo Nix,Bijan Robinson,Rhamondre Stevenson,Courtland Sutton,Drake London,Michael Wilson,Evan Engram,Parker Washington,49ers,49800,8
+9,Jordan Love,Bijan Robinson,Chuba Hubbard,Christian Watson,Drake London,Garrett Wilson,Harold Fannin Jr.,Matthew Golden,Patriots,50000,9
+10,Carson Wentz,Aaron Jones Sr.,Derrick Henry,Christian Watson,Drake London,Jordan Addison,Colston Loveland,Justin Jefferson,Broncos,49800,10
+11,Bryce Young,Bijan Robinson,De'Von Achane,Caleb Douglas,Jalen Coker,Justin Jefferson,Dalton Schultz,Tetairoa McMillan,Eagles,49900,11
+12,Jayden Daniels,Bucky Irving,Javonte Williams,Christian Watson,Justin Jefferson,Stefon Diggs,Tommy Tremble,Terry McLaurin,49ers,49700,12
+13,C.J. Stroud,David Montgomery,Javonte Williams,CeeDee Lamb,Ja'Marr Chase,Kayshon Boutte,Dalton Schultz,Rhamondre Stevenson,49ers,50000,13
+14,Bo Nix,Derrick Henry,Jacory Croskey-Merritt,Courtland Sutton,Jaylen Waddle,Justin Jefferson,David Njoku,Parker Washington,Jaguars,49800,14
+15,Jacoby Brissett,Chase Brown,Javonte Williams,Jaxon Smith-Njigba,Justin Jefferson,Kendrick Bourne,Dalton Schultz,Michael Wilson,Patriots,49800,15
+16,Jordan Love,Bijan Robinson,Derrick Henry,Adonai Mitchell,Christian Watson,Drake London,Tucker Kraft,Kalif Raymond,49ers,49800,16
+17,Carson Wentz,Aaron Jones Sr.,Ashton Jeanty,Jordan Addison,Justin Jefferson,Luther Burden III,T.J. Hockenson,Bijan Robinson,Patriots,49900,17
+18,Bryce Young,Breece Hall,Derrick Henry,CeeDee Lamb,Drake London,Jalen Coker,Tommy Tremble,Javonte Williams,49ers,50000,18
+19,Bo Nix,Breece Hall,Bucky Irving,Garrett Wilson,Justin Jefferson,Parker Washington,Evan Engram,Pat Bryant,49ers,49000,19
+20,Dak Prescott,Aaron Jones Sr.,Javonte Williams,CeeDee Lamb,George Pickens,Jaxon Smith-Njigba,Foster Moreau,Terry McLaurin,Jaguars,49900,20
+21,Jordan Love,Aaron Jones Sr.,Breece Hall,Christian Watson,Jaxon Smith-Njigba,Matthew Golden,Dalton Schultz,Tetairoa McMillan,49ers,49300,21
+22,Caleb Williams,Derrick Henry,Rhamondre Stevenson,Garrett Wilson,Justin Jefferson,Luther Burden III,Cade Otton,Colston Loveland,Jaguars,50000,22
+23,Jalen Hurts,Breece Hall,Rhamondre Stevenson,Carnell Tate,Dontayvion Wicks,Garrett Wilson,Dallas Goedert,Saquon Barkley,49ers,49600,23
+24,Jayden Daniels,Bucky Irving,Javonte Williams,Antonio Williams,Jaylen Waddle,Justin Jefferson,Evan Engram,Terry McLaurin,49ers,49800,24
+25,Drake Maye,Bucky Irving,Jaylen Warren,DeMario Douglas,Emeka Egbuka,Justin Jefferson,Hunter Henry,Rhamondre Stevenson,49ers,49100,25
+26,Dak Prescott,Bijan Robinson,Javonte Williams,Carnell Tate,CeeDee Lamb,Kalif Raymond,Jake Ferguson,Terry McLaurin,49ers,49800,26
+27,Brock Purdy,De'Von Achane,Derrick Henry,Demarcus Robinson,George Pickens,Justin Jefferson,Dalton Schultz,Mike Evans,Titans,50000,27
+28,Carson Wentz,Breece Hall,David Montgomery,Garrett Wilson,Justin Jefferson,Parker Washington,Colston Loveland,T.J. Hockenson,49ers,49300,28
+29,Bryce Young,Christian McCaffrey,Chuba Hubbard,Jahan Dotson,Jalen Coker,Justin Jefferson,Mark Andrews,Tetairoa McMillan,49ers,49800,29
+30,Dak Prescott,D'Andre Swift,Javonte Williams,Antonio Williams,CeeDee Lamb,Justin Jefferson,David Njoku,Ryan Flournoy,49ers,49200,30
+31,Drew Lock,Aaron Jones Sr.,Jadarian Price,George Pickens,Jaxon Smith-Njigba,Justin Jefferson,AJ Barner,Trey McBride,Titans,50000,31
+32,Bo Nix,Ashton Jeanty,De'Von Achane,Courtland Sutton,Jaylen Waddle,Justin Jefferson,Brenton Strange,Malik Washington,Broncos,50000,32
+33,Cam Ward,Bijan Robinson,Christian McCaffrey,Drake London,Kendrick Bourne,Wan'Dale Robinson,Gunnar Helm,Saquon Barkley,49ers,49500,33
+34,Malik Willis,Bijan Robinson,Javonte Williams,Caleb Douglas,Justin Jefferson,Mike Evans,Greg Dulcich,Stefon Diggs,Buccaneers,50000,34
+35,Jordan Love,Javonte Williams,MarShawn Lloyd,Adonai Mitchell,Christian Watson,Justin Jefferson,Tucker Kraft,Luther Burden III,49ers,50000,35
+36,Carson Wentz,D'Andre Swift,Rhamondre Stevenson,Drake London,Ja'Marr Chase,Justin Jefferson,T.J. Hockenson,Matthew Golden,49ers,50000,36
+37,C.J. Stroud,Bijan Robinson,David Montgomery,CeeDee Lamb,Drake London,Ja'Marr Chase,Dalton Schultz,Marlin Klein,Patriots,49900,37
+38,Jordan Love,Bijan Robinson,Chase Brown,Christian Watson,Garrett Wilson,Jack Bech,Tucker Kraft,Jalen Coker,Patriots,49900,38
+39,C.J. Stroud,Bijan Robinson,Chase Brown,Justin Jefferson,Kendrick Bourne,Xavier Hutchinson,Dalton Schultz,Zay Flowers,49ers,49500,39
+40,Justin Herbert,Ashton Jeanty,Javonte Williams,Drake London,Justin Jefferson,Ladd McConkey,David Njoku,Rashod Bateman,Patriots,49700,40
+41,Jayden Daniels,Javonte Williams,Omarion Hampton,Ladd McConkey,Stefon Diggs,Terry McLaurin,Mark Andrews,Zay Flowers,Broncos,49900,41
+42,Tua Tagovailoa,Bijan Robinson,Rhamondre Stevenson,Drake London,Jalen Coker,Justin Jefferson,Kyle Pitts Sr.,Kendrick Bourne,49ers,49700,42
+43,Jordan Love,Breece Hall,Derrick Henry,Jayden Reed,Matthew Golden,Zay Flowers,Colston Loveland,Javonte Williams,Patriots,49700,43
+44,Carson Wentz,Bijan Robinson,Christian McCaffrey,Justin Jefferson,Kalif Raymond,Kendrick Bourne,T.J. Hockenson,Zay Flowers,Eagles,50000,44
+45,Bryce Young,Bijan Robinson,MarShawn Lloyd,Jalen Coker,Ladd McConkey,Tetairoa McMillan,Michael Mayer,Zay Flowers,Patriots,49700,45
+46,Tyler Shough,Derrick Henry,Travis Etienne Jr.,Chris Olave,Devaughn Vele,Garrett Wilson,Juwan Johnson,Zay Flowers,Seahawks,50000,46
+47,Justin Herbert,Bijan Robinson,D'Andre Swift,Jack Bech,Justin Jefferson,Ladd McConkey,David Njoku,Terry McLaurin,Eagles,50000,47
+48,Lamar Jackson,Bucky Irving,Derrick Henry,Devaughn Vele,Ladd McConkey,Zay Flowers,Mark Andrews,Rhamondre Stevenson,Titans,49900,48
+49,Justin Herbert,Ashton Jeanty,David Montgomery,CeeDee Lamb,Dontayvion Wicks,Ladd McConkey,David Njoku,Zay Flowers,Patriots,49900,49
+50,Dak Prescott,De'Von Achane,Javonte Williams,George Pickens,Justin Jefferson,Ladd McConkey,John Bates,Ryan Flournoy,Eagles,50000,50
+51,Jalen Hurts,Bijan Robinson,Saquon Barkley,Dontayvion Wicks,Jack Bech,Ladd McConkey,Dallas Goedert,Tony Pollard,49ers,49900,51
+52,Jacoby Brissett,Ashton Jeanty,Jadarian Price,Justin Jefferson,Kendrick Bourne,Zay Flowers,Michael Mayer,Trey McBride,49ers,50000,52
+53,Dak Prescott,Bijan Robinson,D'Andre Swift,CeeDee Lamb,Stefon Diggs,Zay Flowers,David Njoku,Jake Ferguson,Broncos,49800,53
+54,Drake Maye,Christian McCaffrey,Javonte Williams,Mack Hollins,Michael Pittman Jr.,Zay Flowers,Hunter Henry,Rhamondre Stevenson,49ers,49700,54
+55,Caleb Williams,Bijan Robinson,Javonte Williams,Justin Jefferson,Kalif Raymond,Kendrick Bourne,Cole Kmet,Zay Flowers,Buccaneers,50000,55
+56,Joe Burrow,Bijan Robinson,Chase Brown,DK Metcalf,Ja'Marr Chase,Stefon Diggs,Dalton Schultz,Mike Gesicki,Patriots,49700,56
+57,Tyler Shough,Breece Hall,MarShawn Lloyd,Chris Olave,Devaughn Vele,Justin Jefferson,David Njoku,Zay Flowers,49ers,49500,57
+58,Drew Lock,Bijan Robinson,Derrick Henry,Jack Bech,Jaxon Smith-Njigba,Kendrick Bourne,AJ Barner,Ladd McConkey,49ers,49200,58
+59,Justin Herbert,Ashton Jeanty,Bijan Robinson,Justin Jefferson,Kendrick Bourne,Tre' Harris,David Njoku,Zay Flowers,Buccaneers,50000,59
+60,Caleb Williams,D'Andre Swift,MarShawn Lloyd,Drake London,Jordan Addison,Luther Burden III,Colston Loveland,Zay Flowers,Patriots,50000,60
+61,Lamar Jackson,Bijan Robinson,Derrick Henry,Bryce Lance,Matthew Golden,Parker Washington,Mark Andrews,Zay Flowers,Jaguars,50000,61
+62,Justin Herbert,Ashton Jeanty,De'Von Achane,Drake London,Jaxon Smith-Njigba,Ladd McConkey,David Njoku,Malik Washington,Patriots,49900,62
+63,Caleb Williams,Bucky Irving,Kyle Monangai,Justin Jefferson,Kalif Raymond,Matthew Golden,Colston Loveland,Zay Flowers,49ers,49800,63
+64,Jayden Daniels,Ashton Jeanty,Bijan Robinson,Jalen Nailor,Stefon Diggs,Terry McLaurin,Jake Ferguson,Zay Flowers,49ers,50000,64
+65,Trey Lance,Ashton Jeanty,Derrick Henry,Justin Jefferson,Kendrick Bourne,Ladd McConkey,David Njoku,Zay Flowers,49ers,49400,65
+66,Malik Willis,Christian McCaffrey,Saquon Barkley,Caleb Douglas,Ladd McConkey,Malik Washington,Dallas Goedert,Zay Flowers,49ers,49400,66
+67,Tyler Shough,David Montgomery,Derrick Henry,Chris Olave,Drake London,Ladd McConkey,Noah Fant,Rhamondre Stevenson,Jaguars,49900,67
+68,Tyson Bagent,Bijan Robinson,D'Andre Swift,Justin Jefferson,Kalif Raymond,Luther Burden III,Juwan Johnson,Zay Flowers,49ers,50000,68
+69,Aaron Rodgers,Javonte Williams,Rhamondre Stevenson,DK Metcalf,Justin Jefferson,Parker Washington,Pat Freiermuth,Zay Flowers,Seahawks,50000,69
+70,Baker Mayfield,Bucky Irving,Tony Pollard,Denzel Boston,Emeka Egbuka,Ja'Marr Chase,Cade Otton,Zay Flowers,49ers,49100,70
+71,Justin Herbert,Aaron Jones Sr.,Bijan Robinson,Justin Jefferson,Ladd McConkey,Tee Higgins,David Njoku,Michael Mayer,49ers,49800,71
+72,Tua Tagovailoa,Bijan Robinson,Chuba Hubbard,CeeDee Lamb,Drake London,Garrett Wilson,Charlie Woerner,Zay Flowers,Broncos,50000,72
+73,Lamar Jackson,Javonte Williams,Kaelon Black,Bryce Lance,George Pickens,Justin Jefferson,Mark Andrews,Zay Flowers,Patriots,49700,73
+74,Bryce Young,Christian McCaffrey,Derrick Henry,Drake London,Tetairoa McMillan,Xavier Hutchinson,Tommy Tremble,Zay Flowers,49ers,49300,74
+75,Jordan Love,Chris Brooks,Derrick Henry,Garrett Wilson,Ladd McConkey,Matthew Golden,Tucker Kraft,Zay Flowers,Buccaneers,50000,75
+76,Joe Burrow,Bijan Robinson,Rhamondre Stevenson,Drake London,Ja'Marr Chase,Michael Pittman Jr.,Dalton Schultz,Mike Gesicki,49ers,49400,76
+77,Trevor Lawrence,Bijan Robinson,D'Andre Swift,Jakobi Meyers,Jaylen Waddle,Kendrick Bourne,Brenton Strange,Zay Flowers,49ers,50000,77
+78,Jordan Love,Breece Hall,Kyle Monangai,Christian Watson,Parker Washington,Terry McLaurin,Tucker Kraft,Zay Flowers,Eagles,50000,78
+79,Tyler Shough,Ashton Jeanty,Javonte Williams,Chris Olave,Devaughn Vele,Jalen Coker,Mark Andrews,Zay Flowers,49ers,49900,79
+80,Tua Tagovailoa,Bijan Robinson,David Montgomery,Drake London,Jalen Coker,Kendrick Bourne,Kyle Pitts Sr.,Mike Evans,49ers,49300,80
+81,Justin Herbert,Ashton Jeanty,Bijan Robinson,Jaxon Smith-Njigba,Jordan Addison,Ladd McConkey,Dalton Schultz,David Njoku,Patriots,49700,81
+82,C.J. Stroud,Chase Brown,Christian McCaffrey,DK Metcalf,Drake London,Jaylin Noel,Dalton Schultz,Zay Flowers,49ers,49000,82
+83,Andy Dalton,Saquon Barkley,Tony Pollard,Dontayvion Wicks,Justin Jefferson,Ladd McConkey,Dallas Goedert,Zay Flowers,49ers,49900,83
+84,Jordan Love,Bijan Robinson,Breece Hall,KC Concepcion Jr.,Ladd McConkey,Matthew Golden,Tucker Kraft,Omarion Hampton,Patriots,49900,84
+85,Jalen Hurts,Rhamondre Stevenson,Saquon Barkley,DeVonta Smith,Elic Ayomanor,Ladd McConkey,Dallas Goedert,Mike Evans,Panthers,50000,85
+86,C.J. Stroud,Breece Hall,Chase Brown,Chris Olave,Justin Jefferson,Xavier Hutchinson,Dalton Schultz,Derrick Henry,Jaguars,49900,86
+87,Justin Herbert,Ashton Jeanty,Breece Hall,Adonai Mitchell,CeeDee Lamb,Garrett Wilson,David Njoku,Ladd McConkey,49ers,49300,87
+88,Caleb Williams,D'Andre Swift,Rico Dowdle,DeMario Douglas,Justin Jefferson,Ladd McConkey,Colston Loveland,Luther Burden III,Seahawks,50000,88
+89,Kirk Cousins,Ashton Jeanty,Bijan Robinson,Chris Olave,Jack Bech,Justin Jefferson,Michael Mayer,Tre' Harris,49ers,50000,89
+90,Lamar Jackson,Derrick Henry,Javonte Williams,Courtland Sutton,Devaughn Vele,Zay Flowers,Juwan Johnson,Mark Andrews,49ers,49700,90
+91,Bryce Young,Aaron Jones Sr.,Bijan Robinson,Jordan Addison,Justin Jefferson,Tetairoa McMillan,Tommy Tremble,Zay Flowers,Broncos,49800,91
+92,Jayden Daniels,Javonte Williams,Rhamondre Stevenson,Antonio Williams,George Pickens,Terry McLaurin,Tucker Kraft,Zay Flowers,49ers,49700,92
+93,Tyler Shough,Breece Hall,Travis Etienne Jr.,Chris Olave,Garrett Wilson,Kendrick Bourne,Juwan Johnson,Zay Flowers,49ers,49000,93
+94,Joe Burrow,Chase Brown,David Montgomery,Emeka Egbuka,Kendrick Bourne,Tee Higgins,Mike Gesicki,Rhamondre Stevenson,49ers,49500,94
+95,Justin Herbert,Breece Hall,Travis Etienne Jr.,Jack Bech,Justin Jefferson,Ladd McConkey,David Njoku,Zay Flowers,49ers,49300,95
+96,Drew Lock,Javonte Williams,Omarion Hampton,Emeka Egbuka,Jaxon Smith-Njigba,Kendrick Bourne,AJ Barner,Zay Flowers,Eagles,50000,96
+97,Tua Tagovailoa,Bijan Robinson,Chuba Hubbard,Christian Watson,Courtland Sutton,Drake London,Kyle Pitts Sr.,Jalen Coker,Eagles,50000,97
