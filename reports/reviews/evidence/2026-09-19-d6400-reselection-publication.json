@@ -1,0 +1,10 @@
+{
+  "uri": "gs://nfl-2-506823-lab/research/d6400-reselection-20260919/portable-v1.tar.gz",
+  "sha256": "b3bcbfc140d5ab889ff77f469f968e2fb88a5816e2884abbfb57862499c48b52",
+  "bytes": 19135033,
+  "condition": "if_generation_match=0",
+  "claimed_at": "2026-09-19T21:52:26.264268+00:00",
+  "generation": "1789854774485122",
+  "roundtrip_exact": true,
+  "publisher_sha256": "16578318a6c150a56b3d0c93f9ca457362dcef3a0dacc806e946d94dd07dd9f9"
+}
