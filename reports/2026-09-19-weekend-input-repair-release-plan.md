@@ -79,14 +79,14 @@ Google documents [snapshot creation](https://docs.cloud.google.com/bigquery/docs
 
 ## Reviewed workstation commands (after the successful cloud refresh and CLI proof)
 
-Materialize the pinned runner from lab `d7abe2c` to `/home/erich/week2-runtime-pin.sh`,
+Materialize the pinned runner from lab `d7abe2c` to `/home/erich/week2_runtime_pin.sh`,
 verify its SHA256 above, and apply the existing arm patch only after checking the
 operational source is the reviewed version. Its full resulting SHA256 must match
 the value below. Preserve both clean lab checkouts. Then the exact guarded calls are:
 
 ```bash
-bash /home/erich/week2-runtime-pin.sh release /home/erich/projects/.nfl2-worktrees/week2-release-2dc116c 2dc116ce95647a776ba9c36cf194f44d022d03a4 c1cf827099bfe4b8d73b5a7d55a8533ce45f7c16a52f9c456b6d4bc10bd94424
-bash /home/erich/week2-runtime-pin.sh rollback c1cf827099bfe4b8d73b5a7d55a8533ce45f7c16a52f9c456b6d4bc10bd94424
+bash /home/erich/week2_runtime_pin.sh release /home/erich/projects/.nfl2-worktrees/week2-release-2dc116c 2dc116ce95647a776ba9c36cf194f44d022d03a4 c1cf827099bfe4b8d73b5a7d55a8533ce45f7c16a52f9c456b6d4bc10bd94424
+bash /home/erich/week2_runtime_pin.sh rollback c1cf827099bfe4b8d73b5a7d55a8533ce45f7c16a52f9c456b6d4bc10bd94424
 ```
 
 Use the second command only as the host portion of the complete rollback above.
