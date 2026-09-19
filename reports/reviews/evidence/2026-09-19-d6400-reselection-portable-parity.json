@@ -1,0 +1,9 @@
+{
+  "all_numerical_and_metadata_fields_exact": true,
+  "ignored_fields": [
+    "reader_sha256",
+    "seconds"
+  ],
+  "reader_sha256": "4b13c3f0018b0dbc3fbb907ddec8fee4e8c52eecd80c72c6c228af3a2e1a1129",
+  "archive_sha256": "b3bcbfc140d5ab889ff77f469f968e2fb88a5816e2884abbfb57862499c48b52"
+}
