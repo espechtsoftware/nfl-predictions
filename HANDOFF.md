@@ -4,6 +4,18 @@
 
 # Project handoff
 
+## 2026-09-19 — isolated TabPFN cloud mechanics passed; same-week context repair prepared
+
+Research source `36bbddf7` passed actual Cloud Run mechanics in `tabpfn-gen-n6dtv`, 01:46:16–01:47:49 UTC;
+one successful task, no inference/table writes, shared job template verified unchanged. The exact deployed
+generator is executed through a source-verified adapter with scratch-only query/write guards and an original-
+generator refusal sentinel. [Protocol](reports/2026-09-19-tabpfn-scratch-refresh-protocol.md) and
+[receipt](reports/reviews/evidence/2026-09-19-tabpfn-cloud-mechanics.json). Full refresh awaits peer isolation
+review; workstation owns no competing invocation and granted the shared-job lane. It must be released before
+14:45 UTC. Preflight found 43 labeled current-week rows activated by salary repair; both scratch arms filter
+strictly before 2026/2 before reading labels. Minimal live source fix `fb875dd3` is on
+`fix/2026-09-tabpfn-preweek-context`, 14 targeted tests pass, no live deployment.
+
 ## 2026-09-19 — four-case input sensitivity completed; live CLI rehearsal passed
 
 Frozen `79c8c0e8` / runner `780814b1`, [factorial result](reports/2026-09-19-usage-schedule-factorial-results.md):

@@ -1,0 +1,36 @@
+{
+  "execution": "projects/nfl-predictions-503414/locations/us-central1/jobs/tabpfn-gen/executions/tabpfn-gen-n6dtv",
+  "started_at": "2026-09-19T01:46:16.560763Z",
+  "completed_at": "2026-09-19T01:47:49.686421Z",
+  "succeeded_count": 1,
+  "base_template_unchanged": true,
+  "base_template_sha256": "42707b3c4829c6ea16787730b13bb3b1103d5792ebed8d892b807827701a6e44",
+  "source_sha": "36bbddf7",
+  "preflight": {
+    "adapted_sha256": "fd76867d430375f822ca3dd135c4b3283a78ba0f94957abe3c4a22cd153c12e8",
+    "arm": "control",
+    "feature_sha256": "52cc95c500bc3bd4223baacb29be73e3df4d637ce289b6431735cddd46195b83",
+    "mode": "mechanics",
+    "ordering": "training: season/week/gsis_id; inference: gsis_id",
+    "output": "nfl-predictions-503414.nfl_features_control.tabpfn_projections",
+    "source_sha256": "0d8a355b270e2ef5f6097bef51ca5d3ff1715e20951b4c2762b5594a5b9c9a81",
+    "sources": {
+      "player_week_inference": [
+        "+sLht3w5x+V15eX3aMCTWw==",
+        928,
+        "2026-09-19T00:58:25.014000+00:00"
+      ],
+      "player_week_training": [
+        "nwKP4TD+rJOayTnS15cL/Q==",
+        102927,
+        "2026-09-19T00:58:17.124000+00:00"
+      ]
+    },
+    "temporal_rule": "training season/week strictly before 2026/2",
+    "write_disposition": "WRITE_EMPTY"
+  },
+  "cloud_log_sha256": "4f723d9bbb533a6d56fd7f18ccbb4871e1cd7cfe7e73a1ae85241c171ed52dc8",
+  "mode": "mechanics-only",
+  "inference": false,
+  "table_writes": 0
+}
