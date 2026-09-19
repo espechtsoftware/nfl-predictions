@@ -1,0 +1,202 @@
+{
+  "receipts": {
+    "control": {
+      "table": "nfl-predictions-503414.nfl_features_control.tabpfn_projections",
+      "rows": 66332,
+      "target_rows": 877,
+      "etag": "HajtDZNa6c3QWqrbTzB81g==",
+      "modified": "2026-09-19T02:26:40.346000+00:00",
+      "job_id": "2bf41283-cecc-4b98-a8df-2b6e0ea37cb0",
+      "bytes_processed": 9286480,
+      "file_sha256": "5ae56d551f3d4e4ec3f374a2fd32c7e1007248b85fbf0a377705d3acf9c790f2",
+      "path": "/home/erich/projects/review-evidence/overnight-20260918/tabpfn-cache-results/control.parquet"
+    },
+    "salaryfix": {
+      "table": "nfl-predictions-503414.nfl_features_salaryfix.tabpfn_projections",
+      "rows": 66332,
+      "target_rows": 877,
+      "etag": "KkXqLXtSCw6xgUc4nAdOIQ==",
+      "modified": "2026-09-19T02:41:27.678000+00:00",
+      "job_id": "fcaa48a5-0ac1-4beb-84f9-b33f701b3570",
+      "bytes_processed": 9286480,
+      "file_sha256": "9fe693a6898b6a6aaba745484722088fb4126f9a8243882a2b432e4021947f8c",
+      "path": "/home/erich/projects/review-evidence/overnight-20260918/tabpfn-cache-results/salaryfix.parquet"
+    }
+  },
+  "all_support_checks_pass": true,
+  "historical_rows": 65455,
+  "historical_exact_equal": true,
+  "historical_differences": {
+    "mean": {
+      "mean_signed": 0.0,
+      "mean_absolute": 0.0,
+      "max_absolute": 0.0,
+      "changed_rows": 0
+    },
+    "q01": {
+      "mean_signed": 0.0,
+      "mean_absolute": 0.0,
+      "max_absolute": 0.0,
+      "changed_rows": 0
+    },
+    "q05": {
+      "mean_signed": 0.0,
+      "mean_absolute": 0.0,
+      "max_absolute": 0.0,
+      "changed_rows": 0
+    },
+    "q10": {
+      "mean_signed": 0.0,
+      "mean_absolute": 0.0,
+      "max_absolute": 0.0,
+      "changed_rows": 0
+    },
+    "q20": {
+      "mean_signed": 0.0,
+      "mean_absolute": 0.0,
+      "max_absolute": 0.0,
+      "changed_rows": 0
+    },
+    "q30": {
+      "mean_signed": 0.0,
+      "mean_absolute": 0.0,
+      "max_absolute": 0.0,
+      "changed_rows": 0
+    },
+    "q40": {
+      "mean_signed": 0.0,
+      "mean_absolute": 0.0,
+      "max_absolute": 0.0,
+      "changed_rows": 0
+    },
+    "q50": {
+      "mean_signed": 0.0,
+      "mean_absolute": 0.0,
+      "max_absolute": 0.0,
+      "changed_rows": 0
+    },
+    "q60": {
+      "mean_signed": 0.0,
+      "mean_absolute": 0.0,
+      "max_absolute": 0.0,
+      "changed_rows": 0
+    },
+    "q70": {
+      "mean_signed": 0.0,
+      "mean_absolute": 0.0,
+      "max_absolute": 0.0,
+      "changed_rows": 0
+    },
+    "q80": {
+      "mean_signed": 0.0,
+      "mean_absolute": 0.0,
+      "max_absolute": 0.0,
+      "changed_rows": 0
+    },
+    "q90": {
+      "mean_signed": 0.0,
+      "mean_absolute": 0.0,
+      "max_absolute": 0.0,
+      "changed_rows": 0
+    },
+    "q95": {
+      "mean_signed": 0.0,
+      "mean_absolute": 0.0,
+      "max_absolute": 0.0,
+      "changed_rows": 0
+    },
+    "q99": {
+      "mean_signed": 0.0,
+      "mean_absolute": 0.0,
+      "max_absolute": 0.0,
+      "changed_rows": 0
+    }
+  },
+  "upcoming_differences": {
+    "mean": {
+      "mean_signed": -0.17158441016176543,
+      "mean_absolute": 0.9500597888006995,
+      "max_absolute": 4.691356182098389,
+      "changed_rows": 877
+    },
+    "q01": {
+      "mean_signed": 0.0,
+      "mean_absolute": 0.0,
+      "max_absolute": 0.0,
+      "changed_rows": 0
+    },
+    "q05": {
+      "mean_signed": 0.024430127952464496,
+      "mean_absolute": 0.07770243799366999,
+      "max_absolute": 2.049696683883667,
+      "changed_rows": 215
+    },
+    "q10": {
+      "mean_signed": 0.18070048837154729,
+      "mean_absolute": 0.2563653455998328,
+      "max_absolute": 3.042438805103302,
+      "changed_rows": 284
+    },
+    "q20": {
+      "mean_signed": 0.25727597078225634,
+      "mean_absolute": 0.3898227103989032,
+      "max_absolute": 3.811426281929016,
+      "changed_rows": 488
+    },
+    "q30": {
+      "mean_signed": 0.20956130204361226,
+      "mean_absolute": 0.5315473003503033,
+      "max_absolute": 4.373687028884888,
+      "changed_rows": 854
+    },
+    "q40": {
+      "mean_signed": 0.048191377483180885,
+      "mean_absolute": 0.6915208547287955,
+      "max_absolute": 4.6108717918396,
+      "changed_rows": 877
+    },
+    "q50": {
+      "mean_signed": -0.03578773143455947,
+      "mean_absolute": 0.9225832274355665,
+      "max_absolute": 5.067845344543457,
+      "changed_rows": 877
+    },
+    "q60": {
+      "mean_signed": -0.10998812513670193,
+      "mean_absolute": 1.1774821567774973,
+      "max_absolute": 5.305037498474121,
+      "changed_rows": 877
+    },
+    "q70": {
+      "mean_signed": -0.20993363611748445,
+      "mean_absolute": 1.3184800325991626,
+      "max_absolute": 5.748030424118042,
+      "changed_rows": 877
+    },
+    "q80": {
+      "mean_signed": -0.41882380493146665,
+      "mean_absolute": 1.4415083643783866,
+      "max_absolute": 5.9804301261901855,
+      "changed_rows": 877
+    },
+    "q90": {
+      "mean_signed": -0.8107487845448023,
+      "mean_absolute": 1.804676584670046,
+      "max_absolute": 6.992423057556152,
+      "changed_rows": 877
+    },
+    "q95": {
+      "mean_signed": -1.2411738823050105,
+      "mean_absolute": 2.0811018101029957,
+      "max_absolute": 8.048608779907227,
+      "changed_rows": 877
+    },
+    "q99": {
+      "mean_signed": -1.748564398275134,
+      "mean_absolute": 2.5233724054751945,
+      "max_absolute": 9.839190483093262,
+      "changed_rows": 877
+    }
+  },
+  "scope": "cache influence; no outcome read or efficacy claim"
+}

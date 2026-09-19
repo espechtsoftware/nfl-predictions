@@ -1,0 +1,48 @@
+{
+  "shared_job_template_unchanged": true,
+  "template_sha256": "42707b3c4829c6ea16787730b13bb3b1103d5792ebed8d892b807827701a6e44",
+  "arms": {
+    "control": {
+      "job": "projects/nfl-predictions-503414/locations/us-central1/jobs/tabpfn-gen",
+      "mode": "refresh",
+      "source_sha": "326465353a00ac1e4b26effac31c38ddcb8fec94",
+      "adapter_sha256": "84f5b4909f3228b3ee0d4fc5a75ee4f0599a80f867b1c20c95f163e188e1ad40",
+      "run_id": "20260919T021140Z-refresh-control",
+      "request_sha256": "72970939180446acc28b5638209981845005c465801b2dfc08a078d0c0c55e29",
+      "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/tabpfn-gen/executions/tabpfn-gen-djgpj",
+      "startTime": "2026-09-19T02:11:52.589304Z",
+      "completionTime": "2026-09-19T02:26:50.917007Z",
+      "succeededCount": 1,
+      "execution_artifact_sha256": "2ef94752ee5ee3258bd02827cf91af4a5564cd974823fe60e9a7e6ff44946e54"
+    },
+    "salaryfix": {
+      "job": "projects/nfl-predictions-503414/locations/us-central1/jobs/tabpfn-gen",
+      "mode": "refresh",
+      "source_sha": "326465353a00ac1e4b26effac31c38ddcb8fec94",
+      "adapter_sha256": "84f5b4909f3228b3ee0d4fc5a75ee4f0599a80f867b1c20c95f163e188e1ad40",
+      "run_id": "20260919T021140Z-refresh-salaryfix",
+      "request_sha256": "65c9ade9ff45c6a94f3afb8d381650682a1914a9232d6560e4fadc37fbf542cb",
+      "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/tabpfn-gen/executions/tabpfn-gen-22x8d",
+      "startTime": "2026-09-19T02:27:24.630639Z",
+      "completionTime": "2026-09-19T02:41:35.627478Z",
+      "succeededCount": 1,
+      "execution_artifact_sha256": "bdf1fe49873285578a849b0dff1c84087eec2d9e52ddc8dbabcd01734933bce4"
+    }
+  },
+  "live_table_writes": false,
+  "registry_completion": {
+    "acquired_at_utc": "2026-09-19T02:11:40Z",
+    "completed_at_utc": "2026-09-19T02:41:47Z",
+    "exit_status": 0,
+    "lane": "tabpfn-gen",
+    "owner": "production",
+    "pid": 945492,
+    "process_start_ticks": 9716189,
+    "receipt_sha256": "2b9febb523dfd44d2d939809eeeed543122722bc84a5ef8b5e0d77bc6543e7a9",
+    "schema_version": "shared-launcher-completion/v1",
+    "script_path": "/home/erich/projects/.nfl-predictions-worktrees/paid-source-experiments/reports/reviews/evidence/2026-09-19-tabpfn-scratch-launch.py",
+    "target_run_id_prefixes": [
+      "tabpfn-scratch-refresh-v2-20260919"
+    ]
+  }
+}
