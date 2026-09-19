@@ -45,3 +45,9 @@ Measure the refreshed pipeline with exact model and TabPFN cache identities. A s
 Current evidence establishes a real pipeline defect and a narrowly correct salary repair. It does **not** establish improved realized 220+ performance, full-pipeline leakage correctness, or live readiness. The preliminary five-WR support recovery is a reason to finish validation promptly, not proof of model superiority. The operator explicitly requested the best validated system possible for this weekend; automatic deferral on the assumption that validation is too slow is unwarranted. Measured workstation feature/projection durations total roughly twelve minutes.
 
 Repair the free-data baseline before crediting Fantasy Points Route Share for information that free snaps/targets already contain. Paid-source incremental-value experiments remain useful after this correction.
+
+## Candidate feature-build image, September 19
+
+The actual deployed `build-features` image is `sha256:cdbf96ad190925b2c96a94568f173c4bded328442441838427fa473d2fd450b2`. Its extracted SQL inventory matches the repair branch exactly except `001a_dk_salary_week.sql`; the original salary SQL matches control `63a93f24`. A candidate overlay preserves every base layer and adds only the repaired salary SQL. During the image build, the actual installed `nfl_dfs.bq.SQL_DIR` resolved `/app/sql/features/001a_dk_salary_week.sql` and its repaired SHA was asserted before publication.
+
+Cloud Build `c77d522d-50fc-416c-96eb-cbc4db59b98e` succeeded. Candidate image: `sha256:8d9b3cb55865edc66c99e01b28a7a6ba0d588458ac921c1485069fac32814e03`. [Content verification](2026-09-19-salary-week-image.json). The shared job has not been updated. This makes the scheduled-build repair concrete; deploying only local SQL would leave the scheduler on the old transform. Full cache/lineup rehearsal remains in progress.
