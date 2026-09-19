@@ -1,0 +1,9 @@
+# Fantasy Points Week1 routes versus archived Week2 zero-support roles
+
+Outcome-free support study, September 19. The role trace found missing opportunity histories and hsim zero support on selected WR3 rows. Before proposing any vendor-derived treatment, establish whether the existing paid Route Share feed supplies distinct prior-week observations for those rows.
+
+Read only 2026 Week1 raw Route Share rows ingested at or before 2026-09-19 00:26:00 UTC, with source_target_week=2 where populated. Allowlist identities, route_share, source file/hash/run/row, retrieval/import timestamps, archive URI and source/target weeks. Do not read fantasy points, treatment scores, current outcomes or any other vendor dataset. Enforce 100 MB maximum billed bytes, preserve the exact query and job ID, and reject duplicated resolved player identities rather than silently choosing a row. Record unresolved/invalid rows explicitly.
+
+Join by exact gsis_id to the already published 435-row role-trace result (pin its hash). Report matched/positive route support by position and hsim activity status, selected versus all players, plus exact prior-week route values for the six selected zero-opportunity receivers. Positive observed routes are evidence of prior receiving participation, not an estimate of future target share, activity probability or points. No threshold optimization, outcome association, recentering, simulation or live eligibility change.
+
+The source was imported after the Thursday frame was built. A successful join can show information was available for a subsequent Week2 refresh, but not that the archived build used it or that any current model consumes it. Keep source acquisition, feature attachment, activity support and final model influence separate. This support census may nominate a narrowly defined subsequent experiment; it cannot establish renewal value or Sunday improvement.
