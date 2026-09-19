@@ -1,0 +1,45 @@
+{
+  "run_dir": "/home/erich/projects/.nfl2-worktrees/live-hsim-game-inputs/results/live/2026-w02/20260919T011806886785Z-9363bfe",
+  "receipt_sha256": "9e7c1b62948f4d206a7c43e5c5ba09ef4eab37325fa397f33791bcad6473b8f8",
+  "code_sha": "9363bfec05249e8fa83c85d45d67b0d152a34165",
+  "written": 5,
+  "seconds": 72.2,
+  "artifacts": [
+    {
+      "name": "book.csv",
+      "bytes": 360,
+      "sha256": "fb2f29483b65a51e936a4237399611e659762673a4d320244cfe14f04a674174"
+    },
+    {
+      "name": "book.json",
+      "bytes": 1902,
+      "sha256": "50f3b90c260f2d207cb8dc5f9e1b5415b7191d32b1d21a06ba31e9fe24af478e"
+    },
+    {
+      "name": "candidates.parquet",
+      "bytes": 11823,
+      "sha256": "fc2a56be0528c7719824e1565899574356e4af183458183c677e552f0ac2a712"
+    },
+    {
+      "name": "exposure_ledger.json",
+      "bytes": 2765,
+      "sha256": "53602a5734c5601ae883da1bae18849d8217b4cb9ee84fd21b3e3d9d518845c0"
+    },
+    {
+      "name": "frame.parquet",
+      "bytes": 172550,
+      "sha256": "65bb38119fcd53a29bfddb5d911dee09709c8503dcc24c8c4588d2bd97287a03"
+    },
+    {
+      "name": "receipt.json",
+      "bytes": 12994,
+      "sha256": "9e7c1b62948f4d206a7c43e5c5ba09ef4eab37325fa397f33791bcad6473b8f8"
+    },
+    {
+      "name": "universe_ledger.parquet",
+      "bytes": 17049,
+      "sha256": "d93d74a86cb7c38c4904f97eb76b7bc8f52219dceaebd23a4e95bb0a67efee57"
+    }
+  ],
+  "scope": "Isolated K5/D20 integration rehearsal; no live adoption, upload or cloud writes."
+}

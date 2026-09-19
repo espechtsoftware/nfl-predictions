@@ -1,0 +1,166 @@
+{
+  "legacy_exact": true,
+  "explicit_reference_exact": true,
+  "shape": [
+    435,
+    10000
+  ],
+  "legacy_raw_array_sha256": "ee8ff103ffc7ef47f68a5b5e135bf3606b329d95125b45f760d7c8075feddf93",
+  "explicit_raw_array_sha256": "87f8fb6e1f0cfc1515afea8eecb18006b376ff4f7c1da52fa3fe3f2f8b2dcb21",
+  "elapsed_seconds": 8.443132629996398,
+  "game_inputs": {
+    "source": "live_schedule_validated_against_frame",
+    "order": "game_id_ascending",
+    "spread_convention": "positive_home_favored",
+    "sha256": "30bfef31ce7b9e7a9cf61086d82abca70b224bd19b0e940329c7059852af6dc9",
+    "games": [
+      {
+        "season": 2026,
+        "week": 2,
+        "game_id": "2026_02_CAR_ATL",
+        "home": "ATL",
+        "away": "CAR",
+        "total_line": 43.5,
+        "spread_home": -2.5,
+        "prior_home": 0.528662420382166,
+        "prior_away": 0.59375
+      },
+      {
+        "season": 2026,
+        "week": 2,
+        "game_id": "2026_02_CIN_HOU",
+        "home": "HOU",
+        "away": "CIN",
+        "total_line": 46.5,
+        "spread_home": 2.5,
+        "prior_home": 0.542372881355932,
+        "prior_away": 0.622047244094488
+      },
+      {
+        "season": 2026,
+        "week": 2,
+        "game_id": "2026_02_CLE_TB",
+        "home": "TB",
+        "away": "CLE",
+        "total_line": 41.5,
+        "spread_home": 8.5,
+        "prior_home": 0.554945054945055,
+        "prior_away": 0.556962025316456
+      },
+      {
+        "season": 2026,
+        "week": 2,
+        "game_id": "2026_02_GB_NYJ",
+        "home": "NYJ",
+        "away": "GB",
+        "total_line": 44.5,
+        "spread_home": -3.5,
+        "prior_home": 0.496688741721854,
+        "prior_away": 0.526011560693642
+      },
+      {
+        "season": 2026,
+        "week": 2,
+        "game_id": "2026_02_JAX_DEN",
+        "home": "DEN",
+        "away": "JAX",
+        "total_line": 45.5,
+        "spread_home": 2.5,
+        "prior_home": 0.595238095238095,
+        "prior_away": 0.653846153846154
+      },
+      {
+        "season": 2026,
+        "week": 2,
+        "game_id": "2026_02_LV_LAC",
+        "home": "LAC",
+        "away": "LV",
+        "total_line": 43.5,
+        "spread_home": 6.5,
+        "prior_home": 0.586466165413534,
+        "prior_away": 0.53781512605042
+      },
+      {
+        "season": 2026,
+        "week": 2,
+        "game_id": "2026_02_MIA_SF",
+        "home": "SF",
+        "away": "MIA",
+        "total_line": 44.5,
+        "spread_home": 13.5,
+        "prior_home": 0.606666666666667,
+        "prior_away": 0.506172839506173
+      },
+      {
+        "season": 2026,
+        "week": 2,
+        "game_id": "2026_02_MIN_CHI",
+        "home": "CHI",
+        "away": "MIN",
+        "total_line": 48.5,
+        "spread_home": 4.5,
+        "prior_home": 0.529411764705882,
+        "prior_away": 0.549019607843137
+      },
+      {
+        "season": 2026,
+        "week": 2,
+        "game_id": "2026_02_NO_BAL",
+        "home": "BAL",
+        "away": "NO",
+        "total_line": 46.5,
+        "spread_home": 8.5,
+        "prior_home": 0.425196850393701,
+        "prior_away": 0.584615384615385
+      },
+      {
+        "season": 2026,
+        "week": 2,
+        "game_id": "2026_02_PHI_TEN",
+        "home": "TEN",
+        "away": "PHI",
+        "total_line": 39.5,
+        "spread_home": -7.0,
+        "prior_home": 0.540983606557377,
+        "prior_away": 0.548022598870056
+      },
+      {
+        "season": 2026,
+        "week": 2,
+        "game_id": "2026_02_PIT_NE",
+        "home": "NE",
+        "away": "PIT",
+        "total_line": 41.5,
+        "spread_home": 5.5,
+        "prior_home": 0.542483660130719,
+        "prior_away": 0.63768115942029
+      },
+      {
+        "season": 2026,
+        "week": 2,
+        "game_id": "2026_02_SEA_ARI",
+        "home": "ARI",
+        "away": "SEA",
+        "total_line": 41.5,
+        "spread_home": -3.5,
+        "prior_home": 0.672131147540984,
+        "prior_away": 0.536585365853659
+      },
+      {
+        "season": 2026,
+        "week": 2,
+        "game_id": "2026_02_WAS_DAL",
+        "home": "DAL",
+        "away": "WAS",
+        "total_line": 50.5,
+        "spread_home": 4.5,
+        "prior_home": 0.523809523809524,
+        "prior_away": 0.526627218934911
+      }
+    ]
+  },
+  "source_sha": "ae7dae3fca2c4dd77c11721afa250cec08505aa6",
+  "source_status": "",
+  "frame_sha256": "90a762654111126aefad1950217044443291251918ab70edb925ff341d226635",
+  "scope": "Exact legacy and canonical explicit-input parity, no candidate selection, current outcomes or writes."
+}

@@ -58,3 +58,6 @@ Consolidated September 18, 2026 at Erich's request. Source commits: production `
 - [Fixed-calibration schedule audit](2026-09-19-schedule-fixedcal-hsim-results.md): fresh final-world evaluation with saved calibration; small corrected-law difference, intervals spanning zero.
 
 - [Usage-only hsim result](2026-09-19-usage-only-hsim-results.md): restored prior usage changes48/97memberships and recovers five WRs' opportunity support; independent repaired-hsim audit gains are conditional model evidence.
+
+- [Live game-input repair validation](2026-09-19-live-hsim-game-input-repair-validation.md): 16 tests, exact numerical parity and full CLI rehearsal pass; release pending.
+- [TabPFN cache follow-up](2026-09-19-tabpfn-live-cache-followup.md): complete Week 2 support, distinct consumers and isolated-refresh constraints.

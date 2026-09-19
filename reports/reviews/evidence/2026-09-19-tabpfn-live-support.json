@@ -1,0 +1,4661 @@
+{
+  "query": "WITH q AS (SELECT * FROM `nfl-predictions-503414.nfl_features.tabpfn_projections` WHERE season=2026 AND week=2)\nSELECT COUNT(*) n_rows, COUNT(DISTINCT gsis_id) n_gsis, COUNTIF(mean IS NULL OR q01 IS NULL OR q50 IS NULL OR q99 IS NULL) missing_core_values,\nCOUNTIF(q01>q05 OR q05>q10 OR q10>q20 OR q20>q30 OR q30>q40 OR q40>q50 OR q50>q60 OR q60>q70 OR q70>q80 OR q80>q90 OR q90>q95 OR q95>q99) nonmonotone_rows\nFROM q",
+  "job_id": "f79d8916-27b8-4516-87f7-aab57052c429",
+  "values": [
+    {
+      "n_rows": 928,
+      "n_gsis": 928,
+      "missing_core_values": 0,
+      "nonmonotone_rows": 0
+    }
+  ],
+  "key_query": "SELECT season,week,gsis_id FROM `nfl-predictions-503414.nfl_features.tabpfn_projections` WHERE season=2026 AND week=2 ORDER BY gsis_id",
+  "key_job_id": "f4c2f113-7246-4abd-8c10-d006747bb5a5",
+  "keys": [
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0023459"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0026158"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0026300"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0026498"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0027973"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0028118"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0028986"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0029604"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0029892"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0030035"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0030279"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0030506"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0030565"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0031235"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0031237"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0031381"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0031408"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0031484"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0031503"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0031588"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0031595"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0031610"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0032104"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0032268"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0032385"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0032392"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0032394"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0032398"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0032464"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0032764"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0032775"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0032918"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0032950"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0032951"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0033077"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0033090"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0033106"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0033110"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0033119"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0033217"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0033246"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0033280"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0033288"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0033293"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0033307"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0033319"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0033375"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0033376"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0033439"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0033526"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0033537"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0033553"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0033555"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0033576"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0033589"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0033662"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0033757"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0033854"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0033858"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0033869"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0033873"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0033881"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0033885"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0033906"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0033908"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0033921"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0033949"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0033955"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0034270"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0034272"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0034348"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0034351"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0034365"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0034383"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0034407"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0034419"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0034487"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0034577"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0034613"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0034753"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0034771"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0034775"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0034796"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0034798"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0034827"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0034829"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0034837"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0034844"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0034854"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0034855"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0034857"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0034869"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0034959"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0034960"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0034975"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0034981"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0035021"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0035039"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0035045"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0035125"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0035208"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0035228"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0035229"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0035249"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0035250"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0035251"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0035261"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0035264"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0035282"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0035289"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0035298"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0035345"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0035359"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0035406"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0035500"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0035535"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0035537"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0035544"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0035567"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0035589"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0035594"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0035602"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0035631"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0035639"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0035640"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0035644"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0035645"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0035659"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0035662"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0035676"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0035685"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0035689"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0035700"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0035704"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0035710"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0035719"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0035891"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0035924"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0035993"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036020"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036040"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036139"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036158"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036182"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036187"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036212"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036223"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036244"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036252"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036259"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036264"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036265"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036275"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036290"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036309"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036322"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036331"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036332"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036345"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036355"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036358"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036387"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036389"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036407"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036410"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036415"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036422"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036423"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036425"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036427"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036429"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036442"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036463"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036491"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036497"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036534"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036550"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036554"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036555"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036556"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036590"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036613"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036626"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036628"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036630"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036635"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036637"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036646"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036647"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036670"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036679"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036727"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036741"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036754"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036775"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036825"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036841"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036842"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036849"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036862"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036875"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036876"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036879"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036887"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036893"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036894"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036898"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036900"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036906"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036912"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036919"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036924"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036945"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036959"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036963"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036970"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036971"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036972"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036973"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036980"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036984"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036988"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0036997"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037004"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037005"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037011"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037012"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037013"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037031"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037055"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037077"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037078"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037085"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037086"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037091"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037093"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037098"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037112"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037120"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037132"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037156"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037157"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037197"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037228"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037231"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037238"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037239"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037240"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037247"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037248"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037252"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037256"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037258"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037261"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037263"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037267"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037276"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037277"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037282"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037291"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037292"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037304"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037311"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037317"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037324"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037327"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037329"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037340"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037380"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037382"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037410"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037422"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037475"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037487"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037509"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037524"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037525"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037539"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037545"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037557"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037563"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037570"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037594"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037614"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037617"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037664"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037666"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037708"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037740"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037741"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037742"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037744"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037745"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037746"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037755"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037801"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037805"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037809"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037816"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037828"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037834"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037837"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037838"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0037840"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038040"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038041"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038046"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038090"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038092"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038098"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038102"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038104"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038108"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038115"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038117"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038120"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038124"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038128"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038129"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038134"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038145"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038181"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038359"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038389"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038391"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038393"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038394"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038396"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038397"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038400"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038406"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038409"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038416"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038440"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038454"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038458"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038476"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038488"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038489"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038492"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038496"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038498"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038519"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038542"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038543"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038544"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038547"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038550"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038551"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038555"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038558"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038559"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038563"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038564"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038573"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038576"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038579"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038589"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038590"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038597"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038606"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038608"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038611"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038614"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038618"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038619"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038621"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038622"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038640"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038643"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038647"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038658"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038667"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038678"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038679"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038685"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038705"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038710"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038720"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038728"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038735"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038738"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038740"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038752"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038783"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038794"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038797"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038809"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038824"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038839"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038840"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038883"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038891"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038896"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038911"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038930"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038933"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038935"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038938"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038941"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038951"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038953"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038976"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038977"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038979"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038994"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038996"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038997"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0038998"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039021"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039023"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039032"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039040"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039041"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039050"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039052"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039062"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039064"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039065"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039066"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039067"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039074"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039075"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039107"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039139"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039144"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039146"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039150"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039152"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039163"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039164"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039165"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039236"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039244"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039259"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039263"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039266"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039275"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039299"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039305"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039325"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039329"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039337"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039338"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039342"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039344"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039355"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039356"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039359"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039361"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039363"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039364"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039365"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039373"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039376"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039379"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039384"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039386"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039391"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039392"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039394"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039397"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039398"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039405"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039407"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039410"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039420"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039424"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039437"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039451"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039464"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039466"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039471"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039473"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039489"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039491"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039518"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039521"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039530"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039534"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039550"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039577"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039589"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039603"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039623"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039626"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039631"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039648"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039650"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039652"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039677"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039679"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039686"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039702"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039703"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039710"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039722"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039732"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039737"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039738"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039739"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039746"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039751"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039754"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039792"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039793"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039794"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039796"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039798"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039811"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039814"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039816"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039824"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039843"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039847"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039849"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039851"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039855"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039868"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039874"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039875"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039880"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039884"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039890"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039893"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039894"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039901"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039907"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039910"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039912"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039915"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039916"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039917"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039918"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039919"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039920"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039921"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039923"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0039936"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040009"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040014"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040021"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040024"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040039"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040046"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040049"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040058"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040060"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040067"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040075"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040078"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040081"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040094"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040099"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040120"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040122"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040124"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040126"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040128"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040129"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040130"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040131"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040134"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040138"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040142"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040154"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040162"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040164"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040170"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040172"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040177"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040179"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040184"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040187"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040189"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040194"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040198"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040202"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040203"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040205"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040206"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040208"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040211"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040215"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040218"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040222"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040225"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040234"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040236"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040237"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040238"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040239"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040240"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040241"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040242"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040244"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040247"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040259"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040260"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040265"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040275"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040277"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040298"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040302"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040311"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040317"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040323"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040324"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040331"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040332"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040337"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040352"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040361"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040363"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040375"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040387"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040388"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040390"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040392"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040394"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040398"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040400"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040405"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040406"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040415"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040419"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040429"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040431"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040432"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040438"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040445"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040457"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040464"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040466"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040476"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040488"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040494"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040498"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040504"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040506"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040509"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040522"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040526"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040528"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040531"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040534"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040547"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040551"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040552"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040553"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040556"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040558"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040563"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040566"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040567"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040568"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040570"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040581"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040582"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040583"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040584"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040586"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040589"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040590"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040597"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040598"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040601"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040609"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040616"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040617"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040618"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040621"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040628"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040629"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040633"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040637"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040644"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040646"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040648"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040649"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040651"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040653"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040656"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040663"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040666"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040667"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040668"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040669"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040673"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040676"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040691"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040692"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040697"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040702"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040704"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040705"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040715"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040718"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040719"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040727"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040729"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040730"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040734"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040735"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040736"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040737"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040739"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040743"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040753"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040769"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040782"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040784"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040785"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040792"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040853"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040867"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040870"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040876"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040878"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040879"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040886"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040887"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040888"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040890"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040891"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040894"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040895"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040900"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040901"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040906"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040912"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040919"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040930"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040934"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040937"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040938"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040939"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040946"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040948"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040953"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040954"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040955"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040959"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040964"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040967"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040970"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040974"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040976"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040977"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040981"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040984"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040986"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040989"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040991"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040996"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0040998"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041001"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041004"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041005"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041011"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041013"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041016"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041020"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041027"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041029"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041032"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041035"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041037"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041040"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041041"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041042"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041044"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041047"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041048"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041051"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041052"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041056"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041067"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041069"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041070"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041077"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041081"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041084"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041087"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041092"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041094"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041096"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041099"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041100"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041104"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041106"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041116"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041117"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041123"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041125"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041129"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041131"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041132"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041133"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041139"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041149"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041152"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041156"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041158"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041161"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041165"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041168"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041170"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041172"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041176"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041178"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041179"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041180"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041185"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041191"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041194"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041195"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041199"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041203"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041205"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041206"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041207"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041215"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041216"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041217"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041220"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041228"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041233"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041237"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041239"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041241"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041244"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041246"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041248"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041251"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041252"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041257"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041263"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041265"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041266"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041267"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041272"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041274"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041277"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041287"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041292"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041293"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041294"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041299"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041308"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041309"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041312"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041314"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041317"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041318"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041319"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041322"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041323"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041326"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041327"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041342"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041352"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041357"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041359"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041361"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041366"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041368"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041373"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041374"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041376"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041380"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041384"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041395"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041397"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041398"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041399"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041403"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041414"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041415"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041422"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041435"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041436"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041438"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041443"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041446"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041451"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041452"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041453"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041467"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041472"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041475"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041476"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041481"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041483"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041485"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041486"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041489"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041490"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041496"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041503"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041510"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041511"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041512"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041523"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041524"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041525"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041529"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041535"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041547"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041550"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041558"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041561"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041562"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041565"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041566"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041568"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041570"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041571"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041572"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041575"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041576"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041577"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041579"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041585"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041588"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041595"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041598"
+    },
+    {
+      "season": 2026,
+      "week": 2,
+      "gsis_id": "00-0041599"
+    }
+  ],
+  "support": {
+    "modeled_archived_skill": 405,
+    "matched_cache": 405,
+    "unmatched": []
+  }
+}

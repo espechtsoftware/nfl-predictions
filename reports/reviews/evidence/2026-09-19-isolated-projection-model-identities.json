@@ -1,0 +1,21 @@
+{
+  "query": "SELECT 'control' AS arm,generated_at,model_version,COUNT(*) AS n_rows,COUNT(DISTINCT gsis_id) AS n_gsis FROM `nfl-predictions-503414.nfl_predictions_control.player_projections` GROUP BY 2,3 UNION ALL SELECT 'repair',generated_at,model_version,COUNT(*),COUNT(DISTINCT gsis_id) FROM `nfl-predictions-503414.nfl_predictions_salaryfix.player_projections` GROUP BY 2,3",
+  "job_id": "e6dc040a-9637-46f4-b979-0b05706f020c",
+  "bytes_processed": 56688,
+  "results": [
+    {
+      "arm": "control",
+      "generated_at": "2026-09-19 01:01:29.392707+00:00",
+      "model_version": "pooled/components__tail_k1/2026-W32",
+      "n_rows": 504,
+      "n_gsis": 472
+    },
+    {
+      "arm": "repair",
+      "generated_at": "2026-09-19 00:54:57.036884+00:00",
+      "model_version": "pooled/components__tail_k1/2026-W32",
+      "n_rows": 504,
+      "n_gsis": 472
+    }
+  ]
+}
