@@ -4,6 +4,16 @@
 
 # Project handoff
 
+## 2026-09-19 — salary-week parity and prior-usage preview passed; full isolated build assigned
+
+[Validation report](reports/2026-09-19-salary-week-repair-validation.md) records actual-SQL fixture pass,
+104,847 identical historical rows, zero duplicate keys, 861/769 recovered 2026 Week1/2 salary rows and
+424 Week2 players with one prior game. Exact query and job evidence are committed beside the report.
+Workstation review `93fef92` independently finds all regular-season raw observations resolve and only
+preseason rows remain unmatched. Handoff `410fe35` requests their isolated full-feature/leakage build
+and projection comparison; laptop continues source and simulator analysis. No live writes/adoption.
+
+
 ## 2026-09-19 — salary-week root cause established; isolated repair in progress
 
 Workstation handoff `d0b3e4c` independently confirms live Week2 inference has 928 rows with no usage history.

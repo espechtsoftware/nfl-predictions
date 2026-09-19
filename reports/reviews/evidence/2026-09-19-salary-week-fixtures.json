@@ -1,0 +1,198 @@
+{
+  "passed": true,
+  "expected": {
+    "1": [
+      2026,
+      1,
+      "NE",
+      5000
+    ],
+    "2": [
+      2026,
+      2,
+      "LA",
+      5000
+    ],
+    "4": [
+      2026,
+      18,
+      "NE",
+      5000
+    ],
+    "8": [
+      2026,
+      3,
+      "NYJ",
+      5000
+    ],
+    "9": [
+      2026,
+      1,
+      "NE",
+      5200
+    ],
+    "15": [
+      2026,
+      2,
+      "TB",
+      5000
+    ],
+    "16": [
+      2026,
+      2,
+      "LA",
+      5000
+    ]
+  },
+  "actual": {
+    "1": [
+      2026,
+      1,
+      "NE",
+      5000
+    ],
+    "15": [
+      2026,
+      2,
+      "TB",
+      5000
+    ],
+    "16": [
+      2026,
+      2,
+      "LA",
+      5000
+    ],
+    "2": [
+      2026,
+      2,
+      "LA",
+      5000
+    ],
+    "4": [
+      2026,
+      18,
+      "NE",
+      5000
+    ],
+    "8": [
+      2026,
+      3,
+      "NYJ",
+      5000
+    ],
+    "9": [
+      2026,
+      1,
+      "NE",
+      5200
+    ]
+  },
+  "rows": [
+    {
+      "gsis_id": "fixture-1",
+      "season": 2026,
+      "week": 1,
+      "dk_player_id": 1,
+      "salary": 5000,
+      "status": "None",
+      "dk_ppg": 10.0,
+      "display_name": "Fixture 1",
+      "position": "WR",
+      "team": "NE",
+      "pulled_at": "2026-09-12 16:00:00+00:00",
+      "source_priority": 1
+    },
+    {
+      "gsis_id": "fixture-15",
+      "season": 2026,
+      "week": 2,
+      "dk_player_id": 15,
+      "salary": 5000,
+      "status": "None",
+      "dk_ppg": 10.0,
+      "display_name": "Fixture 15",
+      "position": "WR",
+      "team": "TB",
+      "pulled_at": "2026-09-12 16:00:00+00:00",
+      "source_priority": 1
+    },
+    {
+      "gsis_id": "fixture-16",
+      "season": 2026,
+      "week": 2,
+      "dk_player_id": 16,
+      "salary": 5000,
+      "status": "None",
+      "dk_ppg": 10.0,
+      "display_name": "Fixture 16",
+      "position": "WR",
+      "team": "LA",
+      "pulled_at": "2026-09-12 16:00:00+00:00",
+      "source_priority": 1
+    },
+    {
+      "gsis_id": "fixture-2",
+      "season": 2026,
+      "week": 2,
+      "dk_player_id": 2,
+      "salary": 5000,
+      "status": "None",
+      "dk_ppg": 10.0,
+      "display_name": "Fixture 2",
+      "position": "WR",
+      "team": "LA",
+      "pulled_at": "2026-09-12 16:00:00+00:00",
+      "source_priority": 1
+    },
+    {
+      "gsis_id": "fixture-4",
+      "season": 2026,
+      "week": 18,
+      "dk_player_id": 4,
+      "salary": 5000,
+      "status": "None",
+      "dk_ppg": 10.0,
+      "display_name": "Fixture 4",
+      "position": "WR",
+      "team": "NE",
+      "pulled_at": "2026-09-12 16:00:00+00:00",
+      "source_priority": 1
+    },
+    {
+      "gsis_id": "fixture-8",
+      "season": 2026,
+      "week": 3,
+      "dk_player_id": 8,
+      "salary": 5000,
+      "status": "None",
+      "dk_ppg": 10.0,
+      "display_name": "Fixture 8",
+      "position": "WR",
+      "team": "NYJ",
+      "pulled_at": "2026-09-12 16:00:00+00:00",
+      "source_priority": 1
+    },
+    {
+      "gsis_id": "fixture-9",
+      "season": 2026,
+      "week": 1,
+      "dk_player_id": 9,
+      "salary": 5200,
+      "status": "None",
+      "dk_ppg": 10.0,
+      "display_name": "Fixture 9",
+      "position": "WR",
+      "team": "NE",
+      "pulled_at": "2026-09-13 12:00:00+00:00",
+      "source_priority": 1
+    }
+  ],
+  "query": "WITH schedule_fixture AS (\nSELECT CAST(2026 AS INT64) AS season, CAST(1 AS INT64) AS week, 'sun-night' AS game_id, '2026-09-13' AS gameday, 'NE' AS home_team, 'CHI' AS away_team, 'REG' AS game_type\nUNION ALL\nSELECT CAST(2026 AS INT64) AS season, CAST(2 AS INT64) AS week, 'week-two' AS game_id, '2026-09-20' AS gameday, 'LA' AS home_team, 'TB' AS away_team, 'REG' AS game_type\nUNION ALL\nSELECT CAST(2026 AS INT64) AS season, CAST(1 AS INT64) AS week, 'preseason' AS game_id, '2026-08-20' AS gameday, 'NE' AS home_team, 'CHI' AS away_team, 'PRE' AS game_type\nUNION ALL\nSELECT CAST(2026 AS INT64) AS season, CAST(18 AS INT64) AS week, 'january' AS game_id, '2027-01-03' AS gameday, 'NE' AS home_team, 'CHI' AS away_team, 'REG' AS game_type\nUNION ALL\nSELECT CAST(2026 AS INT64) AS season, CAST(1 AS INT64) AS week, 'ambiguous-a' AS game_id, '2026-09-13' AS gameday, 'ARI' AS home_team, 'BAL' AS away_team, 'REG' AS game_type\nUNION ALL\nSELECT CAST(2026 AS INT64) AS season, CAST(2 AS INT64) AS week, 'ambiguous-b' AS game_id, '2026-09-13' AS gameday, 'ARI' AS home_team, 'DAL' AS away_team, 'REG' AS game_type\nUNION ALL\nSELECT CAST(2026 AS INT64) AS season, CAST(1 AS INT64) AS week, 'same-id' AS game_id, '2026-09-13' AS gameday, 'GB' AS home_team, 'SEA' AS away_team, 'REG' AS game_type\nUNION ALL\nSELECT CAST(2026 AS INT64) AS season, CAST(2 AS INT64) AS week, 'same-id' AS game_id, '2026-09-13' AS gameday, 'GB' AS home_team, 'SEA' AS away_team, 'REG' AS game_type\nUNION ALL\nSELECT CAST(2026 AS INT64) AS season, CAST(1 AS INT64) AS week, 'extra-game' AS game_id, '2026-09-13' AS gameday, 'BAL' AS home_team, 'CLE' AS away_team, 'REG' AS game_type\nUNION ALL\nSELECT CAST(2026 AS INT64) AS season, CAST(1 AS INT64) AS week, 'sun-night' AS game_id, '2026-09-13' AS gameday, 'NE' AS home_team, 'CHI' AS away_team, 'REG' AS game_type\n),\nsalary_fixture AS (\nSELECT CAST(1 AS INT64) AS dk_player_id, CAST(2026 AS INT64) AS season, CAST(NULL AS INT64) AS week, TIMESTAMP('2026-09-14 00:20:00+00') AS game_start, 'NWE' AS team_abbr, TIMESTAMP('2026-09-12 16:00:00+00') AS pulled_at, 'classic' AS slate_type, CAST(5000 AS INT64) AS salary, 'None' AS status, CAST(10.0 AS FLOAT64) AS dk_ppg, 'Fixture 1' AS display_name, 'WR' AS position\nUNION ALL\nSELECT CAST(2 AS INT64) AS dk_player_id, CAST(2026 AS INT64) AS season, CAST(NULL AS INT64) AS week, TIMESTAMP('2026-09-20 17:00:00+00') AS game_start, 'LAR' AS team_abbr, TIMESTAMP('2026-09-12 16:00:00+00') AS pulled_at, 'classic' AS slate_type, CAST(5000 AS INT64) AS salary, 'None' AS status, CAST(10.0 AS FLOAT64) AS dk_ppg, 'Fixture 2' AS display_name, 'WR' AS position\nUNION ALL\nSELECT CAST(3 AS INT64) AS dk_player_id, CAST(2026 AS INT64) AS season, CAST(NULL AS INT64) AS week, TIMESTAMP('2026-08-20 23:00:00+00') AS game_start, 'NWE' AS team_abbr, TIMESTAMP('2026-09-12 16:00:00+00') AS pulled_at, 'classic' AS slate_type, CAST(5000 AS INT64) AS salary, 'None' AS status, CAST(10.0 AS FLOAT64) AS dk_ppg, 'Fixture 3' AS display_name, 'WR' AS position\nUNION ALL\nSELECT CAST(4 AS INT64) AS dk_player_id, CAST(2026 AS INT64) AS season, CAST(NULL AS INT64) AS week, TIMESTAMP('2027-01-03 18:00:00+00') AS game_start, 'NWE' AS team_abbr, TIMESTAMP('2026-09-12 16:00:00+00') AS pulled_at, 'classic' AS slate_type, CAST(5000 AS INT64) AS salary, 'None' AS status, CAST(10.0 AS FLOAT64) AS dk_ppg, 'Fixture 4' AS display_name, 'WR' AS position\nUNION ALL\nSELECT CAST(5 AS INT64) AS dk_player_id, CAST(2026 AS INT64) AS season, CAST(NULL AS INT64) AS week, TIMESTAMP('2026-09-14 00:20:00+00') AS game_start, 'UNKNOWN' AS team_abbr, TIMESTAMP('2026-09-12 16:00:00+00') AS pulled_at, 'classic' AS slate_type, CAST(5000 AS INT64) AS salary, 'None' AS status, CAST(10.0 AS FLOAT64) AS dk_ppg, 'Fixture 5' AS display_name, 'WR' AS position\nUNION ALL\nSELECT CAST(6 AS INT64) AS dk_player_id, CAST(2025 AS INT64) AS season, CAST(NULL AS INT64) AS week, TIMESTAMP('2026-09-14 00:20:00+00') AS game_start, 'NWE' AS team_abbr, TIMESTAMP('2026-09-12 16:00:00+00') AS pulled_at, 'classic' AS slate_type, CAST(5000 AS INT64) AS salary, 'None' AS status, CAST(10.0 AS FLOAT64) AS dk_ppg, 'Fixture 6' AS display_name, 'WR' AS position\nUNION ALL\nSELECT CAST(7 AS INT64) AS dk_player_id, CAST(2026 AS INT64) AS season, CAST(NULL AS INT64) AS week, TIMESTAMP('2026-09-13 17:00:00+00') AS game_start, 'ARZ' AS team_abbr, TIMESTAMP('2026-09-12 16:00:00+00') AS pulled_at, 'classic' AS slate_type, CAST(5000 AS INT64) AS salary, 'None' AS status, CAST(10.0 AS FLOAT64) AS dk_ppg, 'Fixture 7' AS display_name, 'WR' AS position\nUNION ALL\nSELECT CAST(8 AS INT64) AS dk_player_id, CAST(2026 AS INT64) AS season, CAST(3 AS INT64) AS week, TIMESTAMP('2026-09-14 00:20:00+00') AS game_start, 'NYJ' AS team_abbr, TIMESTAMP('2026-09-12 16:00:00+00') AS pulled_at, 'classic' AS slate_type, CAST(5000 AS INT64) AS salary, 'None' AS status, CAST(10.0 AS FLOAT64) AS dk_ppg, 'Fixture 8' AS display_name, 'WR' AS position\nUNION ALL\nSELECT CAST(9 AS INT64) AS dk_player_id, CAST(2026 AS INT64) AS season, CAST(NULL AS INT64) AS week, TIMESTAMP('2026-09-14 00:20:00+00') AS game_start, 'NWE' AS team_abbr, TIMESTAMP('2026-09-12 16:00:00+00') AS pulled_at, 'classic' AS slate_type, CAST(5100 AS INT64) AS salary, 'None' AS status, CAST(10.0 AS FLOAT64) AS dk_ppg, 'Fixture 9' AS display_name, 'WR' AS position\nUNION ALL\nSELECT CAST(9 AS INT64) AS dk_player_id, CAST(2026 AS INT64) AS season, CAST(NULL AS INT64) AS week, TIMESTAMP('2026-09-14 00:20:00+00') AS game_start, 'NWE' AS team_abbr, TIMESTAMP('2026-09-13 12:00:00+00') AS pulled_at, 'classic' AS slate_type, CAST(5200 AS INT64) AS salary, 'None' AS status, CAST(10.0 AS FLOAT64) AS dk_ppg, 'Fixture 9' AS display_name, 'WR' AS position\nUNION ALL\nSELECT CAST(10 AS INT64) AS dk_player_id, CAST(2026 AS INT64) AS season, CAST(NULL AS INT64) AS week, CAST(NULL AS TIMESTAMP) AS game_start, 'NWE' AS team_abbr, TIMESTAMP('2026-09-12 16:00:00+00') AS pulled_at, 'classic' AS slate_type, CAST(5000 AS INT64) AS salary, 'None' AS status, CAST(10.0 AS FLOAT64) AS dk_ppg, 'Fixture 10' AS display_name, 'WR' AS position\nUNION ALL\nSELECT CAST(11 AS INT64) AS dk_player_id, CAST(2026 AS INT64) AS season, CAST(NULL AS INT64) AS week, TIMESTAMP('2026-09-14 00:20:00+00') AS game_start, 'NWE' AS team_abbr, TIMESTAMP('2026-09-12 16:00:00+00') AS pulled_at, 'showdown' AS slate_type, CAST(5000 AS INT64) AS salary, 'None' AS status, CAST(10.0 AS FLOAT64) AS dk_ppg, 'Fixture 11' AS display_name, 'WR' AS position\nUNION ALL\nSELECT CAST(12 AS INT64) AS dk_player_id, CAST(2026 AS INT64) AS season, CAST(NULL AS INT64) AS week, TIMESTAMP('2026-09-14 00:20:00+00') AS game_start, 'NWE' AS team_abbr, TIMESTAMP('2026-09-12 16:00:00+00') AS pulled_at, 'classic' AS slate_type, CAST(0 AS INT64) AS salary, 'None' AS status, CAST(10.0 AS FLOAT64) AS dk_ppg, 'Fixture 12' AS display_name, 'WR' AS position\nUNION ALL\nSELECT CAST(13 AS INT64) AS dk_player_id, CAST(2026 AS INT64) AS season, CAST(NULL AS INT64) AS week, TIMESTAMP('2026-09-13 17:00:00+00') AS game_start, 'GNB' AS team_abbr, TIMESTAMP('2026-09-12 16:00:00+00') AS pulled_at, 'classic' AS slate_type, CAST(5000 AS INT64) AS salary, 'None' AS status, CAST(10.0 AS FLOAT64) AS dk_ppg, 'Fixture 13' AS display_name, 'WR' AS position\nUNION ALL\nSELECT CAST(14 AS INT64) AS dk_player_id, CAST(2026 AS INT64) AS season, CAST(NULL AS INT64) AS week, TIMESTAMP('2026-09-13 17:00:00+00') AS game_start, 'BLT' AS team_abbr, TIMESTAMP('2026-09-12 16:00:00+00') AS pulled_at, 'classic' AS slate_type, CAST(5000 AS INT64) AS salary, 'None' AS status, CAST(10.0 AS FLOAT64) AS dk_ppg, 'Fixture 14' AS display_name, 'WR' AS position\nUNION ALL\nSELECT CAST(15 AS INT64) AS dk_player_id, CAST(2026 AS INT64) AS season, CAST(NULL AS INT64) AS week, TIMESTAMP('2026-09-20 20:25:00+00') AS game_start, 'TAM' AS team_abbr, TIMESTAMP('2026-09-12 16:00:00+00') AS pulled_at, 'classic' AS slate_type, CAST(5000 AS INT64) AS salary, 'None' AS status, CAST(10.0 AS FLOAT64) AS dk_ppg, 'Fixture 15' AS display_name, 'WR' AS position\nUNION ALL\nSELECT CAST(16 AS INT64) AS dk_player_id, CAST(2026 AS INT64) AS season, CAST(NULL AS INT64) AS week, TIMESTAMP('2026-09-21 00:20:00+00') AS game_start, 'LAR' AS team_abbr, TIMESTAMP('2026-09-12 16:00:00+00') AS pulled_at, 'classic' AS slate_type, CAST(5000 AS INT64) AS salary, 'None' AS status, CAST(10.0 AS FLOAT64) AS dk_ppg, 'Fixture 16' AS display_name, 'WR' AS position\n),\nmap_fixture AS (\nSELECT CAST(1 AS INT64) AS dk_player_id, 'fixture-1' AS gsis_id\nUNION ALL\nSELECT CAST(2 AS INT64) AS dk_player_id, 'fixture-2' AS gsis_id\nUNION ALL\nSELECT CAST(3 AS INT64) AS dk_player_id, 'fixture-3' AS gsis_id\nUNION ALL\nSELECT CAST(4 AS INT64) AS dk_player_id, 'fixture-4' AS gsis_id\nUNION ALL\nSELECT CAST(5 AS INT64) AS dk_player_id, 'fixture-5' AS gsis_id\nUNION ALL\nSELECT CAST(6 AS INT64) AS dk_player_id, 'fixture-6' AS gsis_id\nUNION ALL\nSELECT CAST(7 AS INT64) AS dk_player_id, 'fixture-7' AS gsis_id\nUNION ALL\nSELECT CAST(8 AS INT64) AS dk_player_id, 'fixture-8' AS gsis_id\nUNION ALL\nSELECT CAST(9 AS INT64) AS dk_player_id, 'fixture-9' AS gsis_id\nUNION ALL\nSELECT CAST(10 AS INT64) AS dk_player_id, 'fixture-10' AS gsis_id\nUNION ALL\nSELECT CAST(11 AS INT64) AS dk_player_id, 'fixture-11' AS gsis_id\nUNION ALL\nSELECT CAST(12 AS INT64) AS dk_player_id, 'fixture-12' AS gsis_id\nUNION ALL\nSELECT CAST(13 AS INT64) AS dk_player_id, 'fixture-13' AS gsis_id\nUNION ALL\nSELECT CAST(14 AS INT64) AS dk_player_id, 'fixture-14' AS gsis_id\nUNION ALL\nSELECT CAST(15 AS INT64) AS dk_player_id, 'fixture-15' AS gsis_id\nUNION ALL\nSELECT CAST(16 AS INT64) AS dk_player_id, 'fixture-16' AS gsis_id\n),\nown_schedule_games AS (\n  -- dk_job deliberately leaves week NULL. Resolve the player's scheduled\n  -- game, not the draft group's first game or the current calendar week.\n  -- NFL schedule dates are Eastern dates; a Sunday-night UTC timestamp can\n  -- already be Monday. Duplicate copies of one schedule game are harmless.\n  SELECT DISTINCT\n    CAST(season AS INT64) AS season, CAST(week AS INT64) AS week,\n    game_id, SAFE_CAST(gameday AS DATE) AS game_date,\n    CASE UPPER(team)\n      WHEN 'ARZ' THEN 'ARI' WHEN 'BLT' THEN 'BAL' WHEN 'CLV' THEN 'CLE'\n      WHEN 'HST' THEN 'HOU' WHEN 'SL' THEN 'LA'\n      WHEN 'GNB' THEN 'GB' WHEN 'KAN' THEN 'KC' WHEN 'JAC' THEN 'JAX'\n      WHEN 'LAR' THEN 'LA' WHEN 'LVR' THEN 'LV' WHEN 'OAK' THEN 'LV'\n      WHEN 'NOR' THEN 'NO' WHEN 'NWE' THEN 'NE' WHEN 'SFO' THEN 'SF'\n      WHEN 'TAM' THEN 'TB' WHEN 'SD' THEN 'LAC' WHEN 'SDG' THEN 'LAC'\n      WHEN 'STL' THEN 'LA' ELSE UPPER(team)\n    END AS team\n  FROM schedule_fixture, UNNEST([home_team, away_team]) AS team\n  WHERE game_type = 'REG'\n),\nown_schedule_weeks AS (\n  SELECT g.season, g.team, g.game_date, MIN(g.week) AS week\n  FROM own_schedule_games g\n  WHERE g.game_date IS NOT NULL AND g.game_id IS NOT NULL AND g.week IS NOT NULL\n  GROUP BY g.season, g.team, g.game_date\n  HAVING COUNT(DISTINCT g.game_id) = 1 AND COUNT(DISTINCT g.week) = 1\n),\nown_source AS (\n  SELECT s.*,\n    CASE UPPER(s.team_abbr)\n      WHEN 'ARZ' THEN 'ARI' WHEN 'BLT' THEN 'BAL' WHEN 'CLV' THEN 'CLE'\n      WHEN 'HST' THEN 'HOU' WHEN 'SL' THEN 'LA'\n      WHEN 'GNB' THEN 'GB' WHEN 'KAN' THEN 'KC' WHEN 'JAC' THEN 'JAX'\n      WHEN 'LAR' THEN 'LA' WHEN 'LVR' THEN 'LV' WHEN 'OAK' THEN 'LV'\n      WHEN 'NOR' THEN 'NO' WHEN 'NWE' THEN 'NE' WHEN 'SFO' THEN 'SF'\n      WHEN 'TAM' THEN 'TB' WHEN 'SD' THEN 'LAC' WHEN 'SDG' THEN 'LAC'\n      WHEN 'STL' THEN 'LA' ELSE UPPER(s.team_abbr)\n    END AS canonical_team\n  FROM salary_fixture s\n  WHERE s.slate_type = 'classic' AND s.salary > 0\n),\nown_resolved AS (\n  SELECT s.* EXCEPT (week),\n    COALESCE(CAST(s.week AS INT64), g.week) AS week\n  FROM own_source s\n  LEFT JOIN own_schedule_weeks g\n    ON s.week IS NULL AND g.season = CAST(s.season AS INT64)\n   AND g.team = s.canonical_team\n   AND g.game_date = DATE(s.game_start, 'America/New_York')\n),\nown_log AS (\n  SELECT\n    m.gsis_id,\n    CAST(s.season AS INT64) AS season,\n    CAST(s.week AS INT64) AS week,\n    s.dk_player_id,\n    s.salary,\n    s.status,\n    s.dk_ppg,\n    s.display_name,\n    UPPER(s.position) AS position,\n    s.canonical_team AS team,\n    s.pulled_at,\n    1 AS source_priority\n  FROM own_resolved s\n  JOIN map_fixture m USING (dk_player_id)\n  WHERE s.slate_type = 'classic' AND s.week IS NOT NULL AND s.salary > 0\n  QUALIFY ROW_NUMBER() OVER (\n    PARTITION BY m.gsis_id, CAST(s.season AS INT64), CAST(s.week AS INT64)\n    ORDER BY s.pulled_at DESC, s.dk_player_id\n  ) = 1\n)\nSELECT * FROM own_log",
+  "query_sha256": "009035e0c1eaa5601ec694f1f13b9bf3128b68a491e7bd408b7a076d29502ecf",
+  "job_id": "b3396acb-1ba4-4e01-a721-9a47e1ec3fbd",
+  "bytes_processed": 0,
+  "sql_sha256": "d9ce21722065b65dc7ac03f6bf7d3dcb517b60902a215e1fb29d73d5e7d8f5a8",
+  "source_sha": "99440a23b020486ceea8a99f0a2bbcef9396d35c",
+  "status": ""
+}
