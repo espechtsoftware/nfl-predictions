@@ -1,0 +1,9 @@
+# Optional prior: complete CLI parity contract
+
+Validate lab source `5adc176` in its clean separate `live-target-prior` worktree. Run three serial D160 CLI passes: default `none`, fixed `one_prior_game`, and learned `past_empirical`. Each uses the already-frozen repaired query snapshots, 97 entries, 32 leverage plus 128 boom candidates, 10,000 worlds, K1 and seed 2026. One CPU, 600-second cap each. No outcome/effect search or changed model parameters.
+
+Before invoking the CLI, pin the router source to `170c3b46`, refuse all provider queries, verify every benchmark file against the existing replay manifest, and redirect benchmark reads to those exact local files. The live source must be clean at the pinned commit. Compare the complete frame including `pulled_at`, every candidate's ordered roster, all non-rank candidate columns, and generation/incumbent-selection/incumbent-audit banks exactly with the original repaired D160 run.
+
+Default hsim selection/audit banks, both books, both CSVs and the complete candidate table must match the old run. The default config has one intentionally added field, `hsim_target_prior: {rule: none}`; remove exactly that field before asserting full config equality. Timing, build timestamp and source/output identities naturally differ and are not claimed identical.
+
+For each opted-in rule, compare learned coefficients where applicable, calibration weights/team efficiency, hsim selection/audit banks, and both selected index orders against the already-frozen research trace `afb42627` / result `511de2d7`. Hsim audit uses fixed calibration and seed 2426. The learned receipt must disclose pseudo-count 20. No live deployment or chosen prior follows automatically from passing implementation parity; D1600 selection evidence remains small and law-dependent.
