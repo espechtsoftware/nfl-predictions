@@ -102,6 +102,20 @@ worktree per task (`git worktree add`), never in a dirty main checkout; the
   take-over document names the scripts in use), frozen-chain controllers,
   readers; `deploy/systemd/` — host monitors; `reports/` — dated evidence.
 
+## Objective and adoption tracks (operator directive, 2026-09-19)
+
+The objective is realized gains in the **2026 season, as early as possible**.
+`reports/2026-09-19-in-season-adoption-track.md` is the governing protocol:
+four risk classes (R repair, C calibration, S selection, E entry-side) with
+in-season evidence bars, a mandatory weekly scorecard from Week 2, immediate
+reads, shadows that start the next week, and pre-specified interim reads for
+multi-season gates. Every proposal, read and handoff states the earliest week
+it can change the entered book and its class. The six-season historical panel
+is required for **permanent** adoption only; it is not a prerequisite for
+in-season use. The validity laws below are unchanged — they are what makes a
+measured gain real. "Evidence rules inform risk; they do not veto upside"
+(2026-08-30); adoption is the operator's decision.
+
 ## Rules
 
 - **Frozen-chain lessons (2026-08-18: seven serialized fix cycles, each
@@ -216,7 +230,9 @@ worktree per task (`git worktree add`), never in a dirty main checkout; the
   validation trail in HANDOFF. Frozen chains pinned to an older environment
   fail closed against the live policy — that is the guard working
   (`reports/2026-09-11-frozen-factorial-policy-drift.md`).
-- **Validation laws that do not change**: six-season panels with a co-run
+- **Validation laws that do not change** (they govern historical verdicts
+  and permanent adoption; in-season use follows
+  `reports/2026-09-19-in-season-adoption-track.md`): six-season panels with a co-run
   control on the SAME image build; leave-one-season-out with at most one
   negative; vacuity checks (byte-identical arms are a dead lever); the
   post-ensemble and post-selection law (a verdict does not transfer across a

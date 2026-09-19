@@ -24,6 +24,31 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Operator directive 2026-09-19 ~16:50Z -- rules changed: in-season gains are the objective
+
+- **What he said:** "We need to change the rules immediately so we can realize gains as early as possible this
+  year. Audit the rules and change any that are contrary to my objectives of winning quickly. Then let the labs know
+  the rules have changed." Protocol decisions are his; this records the decision.
+- **Changed** (`reports/2026-09-19-in-season-adoption-track.md`, new CLAUDE.md section): the six-season panel is
+  no longer a prerequisite for in-season use of a change (permanent adoption only); four risk classes with
+  in-season evidence bars (R repair: verified correctness, no outcome wait; C calibration: player-level weekly
+  scorecard, 2 consecutive or 3-of-4 weeks; S selection: paired prelock-frozen shadow, 3-of-4 weeks; E entry-side:
+  operator's call); a mandatory weekly scorecard from Week 2; completed banks are read at once (deliberate unread
+  holds need his explicit instruction); shadows start the next week; the Route Share gate gains pre-specified
+  interim reads after 6 and 10 graded weeks (Amendment 1 in its document). The 2026-09-18 sentence below,
+  "Research should be presented to him on that basis rather than implying in-season upside", is SUPERSEDED.
+- **Unchanged, and why:** point-in-time / leakage checks, walk-forward, rules frozen before outcomes, no
+  retrospective tuning, audit before verdict, the entered-book identity gate, never an untested change on an
+  entered book, the scratch protocol, lanes / quota / running-worktree rules. Each is what makes a gain real, not a
+  delay. The operator can override any of them; none was changed unasked.
+- **Where:** branch `production/in-season-rules-20260919` (from `78d9616b`), pushed. **Not merged into the
+  operational worktree while a bank is running** (the Saturday builds were live when this was written); merge
+  after the builds finish and never while a Sunday unit runs. The lab was notified on
+  `lab/workstation-reply-bank991-20260918` (`handoffs/2026-09-19-RULES-CHANGED-operator-directive.md`).
+- **Follow-ups opened:** O-13 (checker registry fields for the Route Share gate must reflect Amendment 1, with a
+  test, Monday with O-2); Week-2 scorecard Monday; bank 991 read pending the operator's yes on the amendment-5
+  reader.
+
 ## Workstation overnight -- 2026-09-19 (Week-2 build eve)
 
 **Entry build unchanged and unarmed-for-release.** Six timers armed, first fires
@@ -131,6 +156,8 @@ session re-confirmed it.
   decisions already in the operator's hands — contest mix, entry count, layout, and dose within the already-tested
   range — exactly as Addendum 95 said ("the only live capture paths are MORE ENTRIES per slate and genuinely new
   information"). Research should be presented to him on that basis rather than implying in-season upside.
+  **[SUPERSEDED 2026-09-19 by the operator's directive -- see `reports/2026-09-19-in-season-adoption-track.md`;
+  every proposal now states the earliest week it can change the entered book.]**
 - **Standing lesson.** Every frozen protocol that captures prospectively is a standing operational dependency, not a
   document. If nothing fails when it stops running, it will stop running. Register it in the checker at freeze time —
   and record whether it can change the CURRENT season, so its urgency is never oversold.

@@ -118,3 +118,19 @@ weekly wins/ties/losses, coverage and lower score thresholds are diagnostics.
 Only a player-distribution pass followed by this future-only exact-80 pass can
 license production/UI adoption. Until then Route Share is visible as a shadow
 and the incumbent remains the submitted book.
+
+## Amendment 1 (2026-09-19, operator directive -- interim reads)
+
+Recorded before any 2026 week is graded (Week 2 was forfeited; Week 3 is the
+first). The final read after Week 18 is unchanged and still governs permanent
+adoption. **Added:** interim reads after **6** and after **10** complete paired
+graded weeks, using the same primary (the exact-80 scoring gate at the 200+
+threshold) and the same player-distribution and mechanical guards as the final
+read, restricted to the weeks then available. An interim read in which the
+treatment leads the control on the primary with every guard passing permits
+the treatment to enter the live path under
+`reports/2026-09-19-in-season-adoption-track.md` class S (the paired shadow
+continues; revert after two consecutive losing weeks). An interim read that
+does not pass changes nothing and is reported. The checker's `adjudicates` /
+`in_season_value` fields for this gate must be updated to reflect this
+amendment, with a test (O-13).
