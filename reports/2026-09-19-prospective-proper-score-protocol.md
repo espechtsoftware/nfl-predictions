@@ -91,13 +91,21 @@ The reader is fail-closed three ways and cannot run early:
    `season 2026`, `week 2`, `draft_group 153428`, `slate sunday_main`, `scoring dk_classic_v1`, a named source, and
    every listed game `FINAL` with `all_games_final: true`. The manifest in turn pins the data file's sha256.
    **A hash establishes which bytes, never which slate** — identity is the manifest's job.
-3. it writes its output **write-once** (`open(...,'x')`) and records its own source sha256, so a result cannot be
+3. the manifest's game set must be **unique and exactly equal to the bundle's frozen Sunday-main slate**, taken from
+   the already-pinned `hsim_game_inputs` receipt. A manifest naming one unrelated finished game would otherwise
+   satisfy every field above. Each actuals row must additionally carry its own `season`, `week` and `game_id`, and
+   every row's game must lie inside that frozen set.
+4. it writes its output **write-once** (`open(...,'x')`) and records its own source sha256, so a result cannot be
    silently regenerated under changed code.
 
 Every bundle input is sha-verified against a manifest before use. Banks must be 2-D with a non-trivial draw width
-matching across components; saved lineups must hold nine unique ids with no duplicate memberships and must match the
-manifest's declared book size; the arms must agree on every scored player's position, team and opponent, or they
-describe different worlds. Null ids and non-finite points are refused. Players missing from either arm, or without a
+matching across components; saved lineups must hold nine unique ids with no duplicate memberships, and a supplied
+book **must** declare `expected_book_size`. Null ids and non-finite points are refused.
+
+**Cross-arm metadata is validated on the complete shared player universe, before outcomes narrow it** — checking only
+the scored players would let a frame disagreement hide behind a missing outcome. Every shared player's position, team
+and opponent must agree across arms, and every player's `{team, opp}` pair must correspond to a game in the frozen
+slate, so a player from outside the forecast cannot be scored. Players missing from either arm, or without a
 finalized outcome, are reported by identity and **excluded from the common-key comparison — never zero-imputed**.
 
 Implementation and its tests use **synthetic fixtures only**. No Week-2 actuals are queried or materialized while this
@@ -109,7 +117,7 @@ is being built, per the laptop's instruction.
 |---|---|
 | protocol | this file, frozen before lock |
 | reader | `reports/reviews/evidence/2026-09-19-prospective-proper-score-reader.py` |
-| tests | `tests/test_prospective_proper_score.py`, 39 tests, synthetic fixtures only |
+| tests | `tests/test_prospective_proper_score.py`, 48 tests, synthetic fixtures only |
 | bundle | supplied by the laptop; saved paired frames, audit banks, book orders, prior-eligible ids, manifest |
 | output | `2026-09-19-prospective-proper-score.json`, write-once |
 

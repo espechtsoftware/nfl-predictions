@@ -85,8 +85,25 @@ def cluster_bootstrap(diffs, clusters, rng, b=BOOTSTRAP):
                 interval=[float(lo), float(hi)], bootstrap_replicates=int(b))
 
 
-def check_actuals_identity(manifest):
-    """A hash pins which bytes; only the manifest establishes which slate they describe."""
+def bundle_games(manifest, root):
+    """The frozen Sunday-main slate, from the bundle's pinned hsim_game_inputs receipt."""
+    rec = manifest.get("games")
+    assert rec, "bundle manifest must carry the frozen slate's games"
+    games = json.loads(opened(rec, root).read_text()) if isinstance(rec, dict) else rec
+    assert isinstance(games, list) and games, "bundle games must be a non-empty list"
+    ids = [str(g["game_id"]) for g in games]
+    assert len(ids) == len(set(ids)), "bundle games contain duplicate game_ids"
+    sides = {}
+    for g in games:
+        home, away = str(g["home"]), str(g["away"])
+        assert home != away, f"{g['game_id']}: home == away"
+        sides[str(g["game_id"])] = frozenset((home, away))
+    return sides
+
+
+def check_actuals_identity(manifest, frozen):
+    """A hash pins which bytes; only the manifest establishes which slate they describe, and only
+    an exact match against the frozen game set establishes that it is THE slate we forecast."""
     for field, want in (("season", SEASON), ("week", WEEK), ("draft_group", DRAFT_GROUP),
                         ("slate", SLATE), ("scoring", SCORING)):
         got = manifest.get(field)
@@ -94,6 +111,12 @@ def check_actuals_identity(manifest):
     assert manifest.get("source"), "actuals manifest must name its source"
     games = manifest.get("games")
     assert isinstance(games, list) and games, "actuals manifest must list the slate's games"
+    ids = [str(g.get("game_id")) for g in games]
+    assert len(ids) == len(set(ids)), f"actuals manifest has duplicate game_ids: {sorted(ids)}"
+    missing = sorted(set(frozen) - set(ids))
+    extra = sorted(set(ids) - set(frozen))
+    assert not missing, f"actuals manifest is missing forecast games: {missing}"
+    assert not extra, f"actuals manifest carries games outside the forecast slate: {extra}"
     unfinished = [g.get("game_id") for g in games if str(g.get("status", "")).upper() != "FINAL"]
     assert not unfinished, f"actuals manifest has non-final games: {unfinished}"
     assert manifest.get("all_games_final") is True, "actuals manifest must assert all_games_final"
@@ -149,7 +172,6 @@ def main(argv=None, clock=None):
     assert got_manifest == a.actuals_manifest_sha256, (
         f"actuals manifest sha256 {got_manifest} != pinned {a.actuals_manifest_sha256}")
     am = json.loads(Path(a.actuals_manifest).read_text())
-    check_actuals_identity(am)
     got_actuals = sha(a.actuals)
     assert got_actuals == am["actuals_sha256"], (
         f"actuals sha256 {got_actuals} != manifest {am['actuals_sha256']}")
@@ -161,6 +183,8 @@ def main(argv=None, clock=None):
     manifest = json.loads((root / "manifest.json").read_text())
     arms = {name: load_arm(spec, root) for name, spec in manifest["arms"].items()}
     assert set(arms) == {"control", "salaryfix"}, sorted(arms)
+    frozen = bundle_games(manifest, root)
+    check_actuals_identity(am, frozen)
 
     act = (pd.read_parquet(a.actuals) if a.actuals.endswith(".parquet")
            else pd.DataFrame(json.loads(Path(a.actuals).read_text())))
@@ -169,10 +193,33 @@ def main(argv=None, clock=None):
     assert len(act) == act.id.nunique(), "actuals contain duplicate ids"
     assert act.points.notna().all(), "actuals contain null points; supply only settled rows"
     assert np.isfinite(pd.to_numeric(act.points, errors="coerce")).all(), "actuals contain non-finite points"
+    for col in ("season", "week", "game_id"):
+        assert col in act.columns, f"actuals must bind every row to its {col}"
+    bad_season = sorted(set(act.loc[act.season.astype(int) != SEASON, "id"]))
+    bad_week = sorted(set(act.loc[act.week.astype(int) != WEEK, "id"]))
+    assert not bad_season, f"actual rows from another season: {bad_season[:10]}"
+    assert not bad_week, f"actual rows from another week: {bad_week[:10]}"
+    act["game_id"] = act.game_id.astype(str)
+    off_slate = sorted(set(act.loc[~act.game_id.isin(frozen), "game_id"]))
+    assert not off_slate, f"actual rows from games outside the forecast slate: {off_slate}"
     realized = dict(zip(act.id, act.points.astype(float)))
 
     ids = {n: [str(i) for i in fr.id] for n, (fr, _) in arms.items()}
-    common = sorted(set(ids["control"]) & set(ids["salaryfix"]) & set(realized))
+    # Validate cross-arm metadata on EVERY shared player, before outcomes narrow the set --
+    # otherwise a player with no settled outcome could hide a frame disagreement.
+    cross_arm = sorted(set(ids["control"]) & set(ids["salaryfix"]))
+    assert cross_arm, "the two arms share no players"
+    full = {n: fr.set_index(fr.id.astype(str)).loc[cross_arm] for n, (fr, _) in arms.items()}
+    for col in ("pos", "team", "opp"):
+        bad = [i for i, a, b in zip(cross_arm, full["control"][col].astype(str),
+                                    full["salaryfix"][col].astype(str)) if a != b]
+        assert not bad, f"arms disagree on {col} for {bad[:10]} ({len(bad)} players)"
+    sides = set(frozen.values())
+    orphan = [i for i, tm, op in zip(cross_arm, full["control"].team.astype(str),
+                                     full["control"].opp.astype(str))
+              if frozenset((tm, op)) not in sides]
+    assert not orphan, f"players whose team/opponent match no forecast game: {orphan[:10]}"
+    common = sorted(set(cross_arm) & set(realized))
     support = {
         "control_players": len(ids["control"]), "salaryfix_players": len(ids["salaryfix"]),
         "settled_actuals": len(realized), "scored_common_key": len(common),
@@ -183,13 +230,10 @@ def main(argv=None, clock=None):
     }
     assert common, "no common-key players with settled outcomes"
 
-    # Metadata must agree across arms for every scored player, or the frames describe different worlds.
-    meta = {n: fr.set_index(fr.id.astype(str)).loc[common] for n, (fr, _) in arms.items()}
-    for col in ("pos", "team", "opp"):
-        mismatched = sorted(np.asarray(common)[
-            (meta["control"][col].astype(str).to_numpy() != meta["salaryfix"][col].astype(str).to_numpy())])
-        assert not mismatched, f"arms disagree on {col} for {mismatched[:10]}"
-    support["metadata_checked"] = ["pos", "team", "opp"]
+    meta = {n: full[n].loc[common] for n in arms}
+    support["metadata_checked"] = {"columns": ["pos", "team", "opp"], "players": len(cross_arm),
+                                   "scope": "complete cross-arm universe, before outcomes narrow it"}
+    support["forecast_games"] = len(frozen)
 
     y = np.array([realized[i] for i in common], dtype=np.float64)
     pos = meta["control"].pos.astype(str).to_numpy()
@@ -248,7 +292,8 @@ def main(argv=None, clock=None):
             continue
         orders = load_book(manifest["arms"][arm]["book_orders"], root, ids[arm])
         expected = manifest["arms"][arm].get("expected_book_size")
-        assert expected is None or len(orders) == expected, (
+        assert expected is not None, f"{arm}: a supplied book must declare expected_book_size"
+        assert len(orders) == expected, (
             f"{arm}: book has {len(orders)} lineups, manifest expects {expected}")
         books[arm] = orders
     for arm, orders in books.items():

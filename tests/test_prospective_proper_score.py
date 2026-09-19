@@ -38,10 +38,10 @@ def sha_bytes(p):
     return hashlib.sha256(Path(p).read_bytes()).hexdigest()
 
 
-def write_actuals_manifest(tmp, actuals, **over):
+def write_actuals_manifest(tmp, actuals, n_games=10, **over):
     m = {"season": 2026, "week": 2, "draft_group": 153428, "slate": "sunday_main",
          "scoring": "dk_classic_v1", "source": "synthetic-fixture",
-         "games": [{"game_id": f"g{i}", "status": "FINAL"} for i in range(10)],
+         "games": [{"game_id": f"g{i}", "status": "FINAL"} for i in range(n_games)],
          "all_games_final": True, "actuals_sha256": sha_bytes(actuals)}
     m.update(over)
     p = tmp / "actuals_manifest.json"
@@ -62,6 +62,8 @@ def build_bundle(tmp, n_players=40, n_games=10, draws=2000, shift=0.0, seed=0, e
         team.append(home if k % 2 else away)
         opp.append(away if k % 2 else home)
     frame = pd.DataFrame({"id": ids, "pos": pos, "team": team, "opp": opp})
+    slate = [{"game_id": f"g{g}", "home": teams[2 * g], "away": teams[2 * g + 1]} for g in range(n_games)]
+    row_game = [f"g{k % n_games}" for k in range(n_players)]
     truth = rng.uniform(8, 20, size=n_players)
     outcomes = truth + rng.normal(0, 5, size=n_players)
 
@@ -83,11 +85,13 @@ def build_bundle(tmp, n_players=40, n_games=10, draws=2000, shift=0.0, seed=0, e
         ep = root / "eligible.json"
         ep.write_text(json.dumps(ids[:7]))
         manifest["prior_eligible_ids"] = {"path": ep.name, "sha256": sha_bytes(ep)}
+    manifest["games"] = slate
     (root / "manifest.json").write_text(json.dumps(manifest, indent=1))
 
     ap = tmp / "actuals.parquet"
-    pd.DataFrame({"id": ids, "points": outcomes}).to_parquet(ap)
-    write_actuals_manifest(tmp, ap)
+    pd.DataFrame({"id": ids, "points": outcomes, "season": 2026, "week": 2,
+                  "game_id": row_game}).to_parquet(ap)
+    write_actuals_manifest(tmp, ap, n_games=n_games)
     return root, ap, frame, outcomes
 
 
@@ -224,8 +228,10 @@ def test_wrong_slate_identity_is_refused_even_with_a_valid_hash(tmp_path, field,
 
 
 def test_incomplete_games_are_refused(tmp_path):
+    """The full forecast slate is present, so identity passes; one game is still in progress."""
     root, actuals, _, _ = build_bundle(tmp_path)
-    games = [{"game_id": "g0", "status": "IN_PROGRESS"}, {"game_id": "g1", "status": "FINAL"}]
+    games = [{"game_id": f"g{i}", "status": "FINAL"} for i in range(10)]
+    games[3]["status"] = "IN_PROGRESS"
     mp = write_actuals_manifest(tmp_path, actuals, games=games)
     with pytest.raises(AssertionError, match="non-final games"):
         run(root, actuals, tmp_path / "o.json", manifest=mp)
@@ -312,7 +318,7 @@ def test_missing_eligible_list_is_reported_not_silently_skipped(tmp_path):
 # ---- clustering -------------------------------------------------------------------------
 
 def test_no_interval_below_the_cluster_floor(tmp_path):
-    root, actuals, _, _ = build_bundle(tmp_path, n_players=20, n_games=3)
+    root, actuals, _, _ = build_bundle(tmp_path, n_players=20, n_games=3)  # manifest games follow n_games
     r = run(root, actuals, tmp_path / "o.json")
     assert r["contrast"]["overall"]["interval"] is None
     assert "fewer than 8" in r["contrast"]["overall"]["note"]
@@ -350,8 +356,7 @@ def add_books(root, ids, per_arm=("control", "salaryfix"), n=6, expected=None, c
         bp = root / f"{arm}_book.json"
         bp.write_text(json.dumps(orders))
         m["arms"][arm]["book_orders"] = {"path": bp.name, "sha256": sha_bytes(bp)}
-        if expected is not None:
-            m["arms"][arm]["expected_book_size"] = expected
+        m["arms"][arm]["expected_book_size"] = len(orders) if expected is None else expected
     (root / "manifest.json").write_text(json.dumps(m))
 
 
@@ -417,3 +422,104 @@ def test_report_carries_no_decision_rule_and_declares_its_estimator(tmp_path):
     assert "one slate nominates nothing" in r["scope"]
     assert "denominator n*n" in r["crps_estimator"]
     assert r["reader_sha256"] == sha_bytes(SRC)
+
+
+# ---- the actuals must be THE forecast slate ---------------------------------------------
+
+def test_extra_game_in_the_actuals_manifest_is_refused(tmp_path):
+    root, actuals, _, _ = build_bundle(tmp_path)
+    m = json.loads((tmp_path / "actuals_manifest.json").read_text())
+    m["games"].append({"game_id": "gZZ", "status": "FINAL"})
+    mp = tmp_path / "actuals_manifest.json"
+    mp.write_text(json.dumps(m))
+    with pytest.raises(AssertionError, match="outside the forecast slate"):
+        run(root, actuals, tmp_path / "o.json", manifest=mp)
+
+
+def test_missing_game_in_the_actuals_manifest_is_refused(tmp_path):
+    root, actuals, _, _ = build_bundle(tmp_path)
+    m = json.loads((tmp_path / "actuals_manifest.json").read_text())
+    m["games"] = m["games"][:-1]
+    mp = tmp_path / "actuals_manifest.json"
+    mp.write_text(json.dumps(m))
+    with pytest.raises(AssertionError, match="missing forecast games"):
+        run(root, actuals, tmp_path / "o.json", manifest=mp)
+
+
+def test_duplicate_game_in_the_actuals_manifest_is_refused(tmp_path):
+    root, actuals, _, _ = build_bundle(tmp_path)
+    m = json.loads((tmp_path / "actuals_manifest.json").read_text())
+    m["games"].append(dict(m["games"][0]))
+    mp = tmp_path / "actuals_manifest.json"
+    mp.write_text(json.dumps(m))
+    with pytest.raises(AssertionError, match="duplicate game_ids"):
+        run(root, actuals, tmp_path / "o.json", manifest=mp)
+
+
+def test_actual_rows_from_another_week_are_refused(tmp_path):
+    """Week-2 Thursday labels exist; a row from the wrong week must not slip in."""
+    root, actuals, _, _ = build_bundle(tmp_path)
+    df = pd.read_parquet(actuals)
+    df.loc[0, "week"] = 1
+    df.to_parquet(actuals)
+    write_actuals_manifest(tmp_path, actuals)
+    with pytest.raises(AssertionError, match="another week"):
+        run(root, actuals, tmp_path / "o.json")
+
+
+def test_actual_rows_from_an_off_slate_game_are_refused(tmp_path):
+    root, actuals, _, _ = build_bundle(tmp_path)
+    df = pd.read_parquet(actuals)
+    df.loc[0, "game_id"] = "gZZ"
+    df.to_parquet(actuals)
+    write_actuals_manifest(tmp_path, actuals)
+    with pytest.raises(AssertionError, match="outside the forecast slate"):
+        run(root, actuals, tmp_path / "o.json")
+
+
+def test_actuals_must_bind_rows_to_a_game(tmp_path):
+    root, actuals, _, _ = build_bundle(tmp_path)
+    pd.read_parquet(actuals).drop(columns=["game_id"]).to_parquet(actuals)
+    write_actuals_manifest(tmp_path, actuals)
+    with pytest.raises(AssertionError, match="bind every row to its game_id"):
+        run(root, actuals, tmp_path / "o.json")
+
+
+def test_player_belonging_to_no_forecast_game_is_refused(tmp_path):
+    root, actuals, _, _ = build_bundle(tmp_path)
+    for arm in ("control", "salaryfix"):
+        fp = root / f"{arm}_frame.parquet"
+        fr = pd.read_parquet(fp)
+        fr.loc[0, "opp"] = "ZZZ"
+        fr.to_parquet(fp)
+        m = json.loads((root / "manifest.json").read_text())
+        m["arms"][arm]["frame"]["sha256"] = sha_bytes(fp)
+        (root / "manifest.json").write_text(json.dumps(m))
+    with pytest.raises(AssertionError, match="match no forecast game"):
+        run(root, actuals, tmp_path / "o.json")
+
+
+def test_metadata_mismatch_is_caught_even_without_an_outcome(tmp_path):
+    """The check runs on the full cross-arm universe, so a missing outcome cannot hide it."""
+    root, actuals, _, _ = build_bundle(tmp_path, n_players=40)
+    fp = root / "salaryfix_frame.parquet"
+    fr = pd.read_parquet(fp)
+    fr.loc[39, "pos"] = "QB" if fr.loc[39, "pos"] != "QB" else "WR"
+    fr.to_parquet(fp)
+    m = json.loads((root / "manifest.json").read_text())
+    m["arms"]["salaryfix"]["frame"]["sha256"] = sha_bytes(fp)
+    (root / "manifest.json").write_text(json.dumps(m))
+    pd.read_parquet(actuals).iloc[:-1].to_parquet(actuals)   # p39 has NO outcome
+    write_actuals_manifest(tmp_path, actuals)
+    with pytest.raises(AssertionError, match="disagree on pos"):
+        run(root, actuals, tmp_path / "o.json")
+
+
+def test_supplied_book_must_declare_its_expected_size(tmp_path):
+    root, actuals, frame, _ = build_bundle(tmp_path, n_players=40, n_games=10, seed=17)
+    add_books(root, list(frame.id))
+    m = json.loads((root / "manifest.json").read_text())
+    del m["arms"]["control"]["expected_book_size"]
+    (root / "manifest.json").write_text(json.dumps(m))
+    with pytest.raises(AssertionError, match="must declare expected_book_size"):
+        run(root, actuals, tmp_path / "o.json")
