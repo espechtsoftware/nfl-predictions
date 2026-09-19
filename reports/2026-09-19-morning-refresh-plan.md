@@ -24,4 +24,8 @@ The existing overnight snapshots and image/source rollback plan remain retained.
 
 ## State
 
-**Prepared plan; not yet scheduled or launched.** The consumer-hold mechanism and exact morning supervisor still need review. The successful overnight release remains complete. This document must be updated with actual scheduling, launch, completion or stop evidence; a future start time is not a completion receipt.
+**Prepared plan; not scheduled or launched.** The consumer-hold mechanism and exact morning supervisor still need review. An unfinished supervisor draft is preserved only in local working evidence as `morning-refresh-draft-unreviewed.py`; it is not a launcher and must not be executed. The successful overnight release remains complete.
+
+Workstation `d8ee83f` now records an actual activation mutation rejected by its automatic approval review (`Modify Shared Resources`), followed by rejection of the read-only verification (`Auto-Mode Bypass`). Further host attempts are not requested. It also surfaces the operator's standing expectation that he runs the three 09:45 commands. That expectation and the agent ownership agreement must be reconciled so only one producer runs. No automatic refresh or timer hold is scheduled while this coordination is unresolved. The operator's already reviewed package and ordinary commands remain available; this plan does not itself change them.
+
+This document must be updated with actual scheduling, launch, completion or stop evidence; a future start time is not a completion receipt.
