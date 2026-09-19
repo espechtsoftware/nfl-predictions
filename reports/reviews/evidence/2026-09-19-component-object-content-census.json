@@ -1,0 +1,205 @@
+{
+  "objects": [
+    {
+      "uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_carries__tail_k1/2026-W32/meta.json",
+      "generation": 1786275611459601,
+      "size": 2153,
+      "sha256": "0b48295cf16453d604655474471198c4117960b3c0e402254899715688512d67",
+      "md5": "xxAw/MX2wUwtTqb30EGp7Q==",
+      "crc32c": "bYDYag==",
+      "updated": "2026-08-09T11:40:11.509000+00:00"
+    },
+    {
+      "uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_carries__tail_k1/2026-W32/model.txt",
+      "generation": 1786275611328738,
+      "size": 1408058,
+      "sha256": "90c0e3050559d8787c4232586d0171e136feddf364ed976521b8bf557f3d5d88",
+      "md5": "rlAvbC2KtpE6U4zL+yaHMw==",
+      "crc32c": "PiDMxg==",
+      "updated": "2026-08-09T11:40:11.378000+00:00"
+    },
+    {
+      "uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_catch_rate__tail_k1/2026-W32/meta.json",
+      "generation": 1786275610463226,
+      "size": 2155,
+      "sha256": "4fa8ba7325ed3eb8644d100c5db577515b42090884b8b91084edcf69b105b5ae",
+      "md5": "mXe1RLx2yDref1Z8LA9hnA==",
+      "crc32c": "/igsIw==",
+      "updated": "2026-08-09T11:40:10.512000+00:00"
+    },
+    {
+      "uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_catch_rate__tail_k1/2026-W32/model.txt",
+      "generation": 1786275610331681,
+      "size": 1425460,
+      "sha256": "e367daf7292cca583cd22f42bbd6530931ac6dc662292b48dfb0f25d936bd7ec",
+      "md5": "f5uth153qdKtGI//ILxoPg==",
+      "crc32c": "dv132g==",
+      "updated": "2026-08-09T11:40:10.381000+00:00"
+    },
+    {
+      "uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_interceptions__tail_k1/2026-W32/meta.json",
+      "generation": 1786275613544766,
+      "size": 2159,
+      "sha256": "771fa912d228ecf3749c8369d2c358f7c5a1e4fd0649a7a2d01f9b97dcb9c54f",
+      "md5": "ixyHEvw6VuKisteU6C3JXg==",
+      "crc32c": "thfVKA==",
+      "updated": "2026-08-09T11:40:13.587000+00:00"
+    },
+    {
+      "uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_interceptions__tail_k1/2026-W32/model.txt",
+      "generation": 1786275613433440,
+      "size": 1406320,
+      "sha256": "6e38e54a183eb0437c9adcebeaf628914b66e90c060b8618e8d8850d71f33953",
+      "md5": "V6oTiNvp2BtI+MPg9Hp1Fg==",
+      "crc32c": "JN1QFg==",
+      "updated": "2026-08-09T11:40:13.475000+00:00"
+    },
+    {
+      "uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_pass_attempts__tail_k1/2026-W32/meta.json",
+      "generation": 1786275612427697,
+      "size": 2159,
+      "sha256": "b17db318590960dfc90b4c68abd55f7bc900be4adda579bdff0c0c55567fae0d",
+      "md5": "OwtoDcYHhO4hn18m+/pV8w==",
+      "crc32c": "rws6Zw==",
+      "updated": "2026-08-09T11:40:12.477000+00:00"
+    },
+    {
+      "uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_pass_attempts__tail_k1/2026-W32/model.txt",
+      "generation": 1786275612296103,
+      "size": 1399451,
+      "sha256": "cbf27bd985a6b009fb27df59edf6deab4e0759401e526a6e076866bdf59ee80c",
+      "md5": "DgoDS6P0i/zFnNWpTsaG8w==",
+      "crc32c": "9NngjA==",
+      "updated": "2026-08-09T11:40:12.346000+00:00"
+    },
+    {
+      "uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_pass_tds__tail_k1/2026-W32/meta.json",
+      "generation": 1786275613230645,
+      "size": 2154,
+      "sha256": "191b08897591bd20b3a2b19123b0b67bc4a779e9df87a5194fe0150a9c861fb3",
+      "md5": "7AH+BPbx1ssWw0oZPs5WUg==",
+      "crc32c": "NwSBdA==",
+      "updated": "2026-08-09T11:40:13.280000+00:00"
+    },
+    {
+      "uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_pass_tds__tail_k1/2026-W32/model.txt",
+      "generation": 1786275613100029,
+      "size": 1408491,
+      "sha256": "112d818f78f1e1f842c5581e0440085653769f8ead2993fe740183fa4f58411f",
+      "md5": "Srn5H8zxKwdmDrTsKLptUg==",
+      "crc32c": "SblaYQ==",
+      "updated": "2026-08-09T11:40:13.149000+00:00"
+    },
+    {
+      "uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_rec_tds__tail_k1/2026-W32/meta.json",
+      "generation": 1786275611138510,
+      "size": 2153,
+      "sha256": "753783a808b4ee647ea15830443a4fca329d381c7936977989613df622ce4bd6",
+      "md5": "GkDEnkPqd4xWlKGB3uyQAA==",
+      "crc32c": "JTFQEg==",
+      "updated": "2026-08-09T11:40:11.190000+00:00"
+    },
+    {
+      "uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_rec_tds__tail_k1/2026-W32/model.txt",
+      "generation": 1786275611003249,
+      "size": 1412886,
+      "sha256": "ecbd9540247a9497dc04c8376a64a36aec1f77fc35e0b95f730425e15a7af3c4",
+      "md5": "UGd6MSPugfDqrDEkZrJnTA==",
+      "crc32c": "oMUajw==",
+      "updated": "2026-08-09T11:40:11.053000+00:00"
+    },
+    {
+      "uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_rush_tds__tail_k1/2026-W32/meta.json",
+      "generation": 1786275612108612,
+      "size": 2154,
+      "sha256": "2d8f1c39497289a348ac94538ce8b05d817ca2adf503c6535abd7031ce3ec9e2",
+      "md5": "C/sK+IQOt0cJ2jDHYJ4xJg==",
+      "crc32c": "4EP/DQ==",
+      "updated": "2026-08-09T11:40:12.159000+00:00"
+    },
+    {
+      "uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_rush_tds__tail_k1/2026-W32/model.txt",
+      "generation": 1786275611972652,
+      "size": 1415340,
+      "sha256": "25020110c8c841cc01dd0c64997b4b2a7c6d3a2883b28432e61981bc6856aec3",
+      "md5": "XWzFxtukd2qRo0GYrRBCgA==",
+      "crc32c": "OlODEg==",
+      "updated": "2026-08-09T11:40:12.023000+00:00"
+    },
+    {
+      "uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_targets__tail_k1/2026-W32/meta.json",
+      "generation": 1786275610127592,
+      "size": 2153,
+      "sha256": "aa879e4deee8a9fadf933ff46ea24e602b89269d57739166a906cffe4d1adcde",
+      "md5": "7NAAFjfncHE1P9bdwEPDuw==",
+      "crc32c": "RTO1fA==",
+      "updated": "2026-08-09T11:40:10.176000+00:00"
+    },
+    {
+      "uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_targets__tail_k1/2026-W32/model.txt",
+      "generation": 1786275609985614,
+      "size": 1415305,
+      "sha256": "1270eb37c2d525041e66cdeb7f52d23160cded84e3cd9d04e503b661231ece0b",
+      "md5": "yauPccxu9FEeGkgOlMNQNQ==",
+      "crc32c": "uWKuOQ==",
+      "updated": "2026-08-09T11:40:10.051000+00:00"
+    },
+    {
+      "uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_ypa__tail_k1/2026-W32/meta.json",
+      "generation": 1786275612907921,
+      "size": 2148,
+      "sha256": "45e0434747d05dce704f86fc4c22de2777dda436b570db02b6b535c444ab6ead",
+      "md5": "6TdwxUMFXqitjVeedR8SSQ==",
+      "crc32c": "gb8h5A==",
+      "updated": "2026-08-09T11:40:12.958000+00:00"
+    },
+    {
+      "uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_ypa__tail_k1/2026-W32/model.txt",
+      "generation": 1786275612611116,
+      "size": 1383461,
+      "sha256": "9832482dda4b8622971ab79223b5751ac118dcb89f477f3ffed642d39a3a0211",
+      "md5": "v3s+ZLzd3rnEfq2uKyMQGA==",
+      "crc32c": "Hr4P7g==",
+      "updated": "2026-08-09T11:40:12.660000+00:00"
+    },
+    {
+      "uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_ypc__tail_k1/2026-W32/meta.json",
+      "generation": 1786275611780979,
+      "size": 2148,
+      "sha256": "b53279510296e72f25dca6447ee07dad34a15e201cf561b92c4a06a3a6dd951f",
+      "md5": "wl3qjR+svEWekviKm0d2+w==",
+      "crc32c": "VQrqZA==",
+      "updated": "2026-08-09T11:40:11.831000+00:00"
+    },
+    {
+      "uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_ypc__tail_k1/2026-W32/model.txt",
+      "generation": 1786275611651179,
+      "size": 1382658,
+      "sha256": "0dc5c76215831cc9871cc0e76c3438f2bc632898710a0bba61b7e90a9db03d46",
+      "md5": "tJQylWzE61UDRjQ+xtVzSw==",
+      "crc32c": "g5qBAQ==",
+      "updated": "2026-08-09T11:40:11.700000+00:00"
+    },
+    {
+      "uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_ypr__tail_k1/2026-W32/meta.json",
+      "generation": 1786275610799753,
+      "size": 2148,
+      "sha256": "3830326d20b01835fd65236fc22fc88a32cd91aeac19dcb13c8a1a05476837f6",
+      "md5": "J4HaafiuBs+58I0mexIQ+w==",
+      "crc32c": "hpdlgg==",
+      "updated": "2026-08-09T11:40:10.849000+00:00"
+    },
+    {
+      "uri": "gs://nfl-predictions-503414-raw/models/pooled/comp_ypr__tail_k1/2026-W32/model.txt",
+      "generation": 1786275610661872,
+      "size": 1377742,
+      "sha256": "b5cf5c7dda5bfe2737d477b12a8974916e9b80ef15652a3d1f7618bbc1399226",
+      "md5": "5kgum2SM/AVHVDbUOrx2Dg==",
+      "crc32c": "UeS/qw==",
+      "updated": "2026-08-09T11:40:10.711000+00:00"
+    }
+  ],
+  "object_count": 22,
+  "composite_version": "pooled/components__tail_k1/2026-W32",
+  "scope": "Current immutable object versions, downloaded with generation preconditions; not a reconstructed execution-time access log."
+}
