@@ -1,0 +1,236 @@
+{
+  "kind": "synthetic_outcome_free_counterexamples",
+  "production_commit": "2855cba1e94ebb3c24670bbdf6d9bcf308810b9d",
+  "gate_source_sha256": "dddbb0a7097b3cacbd8b5118412cb3f2b2c3350b2654bfaefcadbea1f43d9e76",
+  "replacement_source_sha256": "31919ee57118e4e2e4e14fe635a022e463da9ed4396d248fb637b39292139bb6",
+  "reader_sha256": "78c3f5284821db641ac6293ac4534dc38fde65506baf835bcaa93fad29b1d4d4",
+  "gate_cases": [
+    {
+      "case": "healthy_primary_control",
+      "expected": [
+        "CHI2"
+      ],
+      "observed": [
+        "CHI2"
+      ],
+      "satisfied": true,
+      "requirement": "Healthy unique primary gates the deeper QB."
+    },
+    {
+      "case": "out_primary_control",
+      "expected": [
+        "CHI3"
+      ],
+      "observed": [
+        "CHI3"
+      ],
+      "satisfied": true,
+      "requirement": "Known OUT primary promotes depth 2; depth 3 is gated."
+    },
+    {
+      "case": "doubtful_primary_control",
+      "expected": [],
+      "observed": [],
+      "satisfied": true,
+      "requirement": "Doubtful primary leaves team unchanged under the stated rule."
+    },
+    {
+      "case": "missing_depth1_two_remaining",
+      "expected": [],
+      "observed": [
+        "CHI3"
+      ],
+      "satisfied": false,
+      "requirement": "Handoff promises no change when no depth-1 QB is on file."
+    },
+    {
+      "case": "blank_team_cross_group",
+      "expected": [],
+      "observed": [
+        "B2"
+      ],
+      "satisfied": false,
+      "requirement": "Unknown teams must not be grouped as a real team; upstream live structural checks normally reject this."
+    },
+    {
+      "case": "tied_primary_doubtful_sorts_first",
+      "expected": [],
+      "observed": [],
+      "satisfied": true,
+      "requirement": "Conflicting primary evidence should not depend on lexical player ID."
+    },
+    {
+      "case": "tied_primary_healthy_sorts_first",
+      "expected": [],
+      "observed": [
+        "C2"
+      ],
+      "satisfied": false,
+      "requirement": "Same evidence with reordered IDs must have the same ambiguous-team treatment."
+    }
+  ],
+  "replacement_cases": [
+    {
+      "case": "legal_replacement_control",
+      "requirement": "Valid replacement should succeed.",
+      "returncode": 0,
+      "book_emitted": true,
+      "book": [
+        [
+          10,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ]
+      ],
+      "distinct_players": [
+        9
+      ],
+      "salary_totals": [
+        44500
+      ],
+      "stdout": "replaced 1 HARD lineup(s) from a pool of 1; corrected-mix book max 90.00 -> 100.00, P220 0.00% -> 0.00% | raw incumbent 90.00 -> 100.00, raw hsim 90.00 -> 100.00\n  pos   1 (source rank 1): Player 1, Player 2, Player 3, Player 4, Player 5, Player 6, Player 7, Player 8, Player 9\n      -> Player 10, Player 2, Player 3, Player 4, Player 5, Player 6, Player 7, Player 8, Player 9  (gain +100.000)",
+      "stderr": ""
+    },
+    {
+      "case": "new_gate_with_old_clean_vetting",
+      "requirement": "Whole-slate exclusion must remove a newly gated QB from the retained book.",
+      "returncode": 0,
+      "book_emitted": true,
+      "book": [
+        [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ]
+      ],
+      "distinct_players": [
+        9
+      ],
+      "salary_totals": [
+        43000
+      ],
+      "stdout": "no HARD lineups; vetted book passed through unchanged",
+      "stderr": ""
+    },
+    {
+      "case": "new_dk_out_with_old_clean_vetting",
+      "requirement": "A frame OUT player must not survive an old clean vetting result.",
+      "returncode": 0,
+      "book_emitted": true,
+      "book": [
+        [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ]
+      ],
+      "distinct_players": [
+        9
+      ],
+      "salary_totals": [
+        43000
+      ],
+      "stdout": "no HARD lineups; vetted book passed through unchanged",
+      "stderr": ""
+    },
+    {
+      "case": "minimum_replacement_guard",
+      "requirement": "A requested minimum of one must not pass through zero replacements.",
+      "returncode": 0,
+      "book_emitted": true,
+      "book": [
+        [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ]
+      ],
+      "distinct_players": [
+        9
+      ],
+      "salary_totals": [
+        43000
+      ],
+      "stdout": "no HARD lineups; vetted book passed through unchanged",
+      "stderr": ""
+    },
+    {
+      "case": "duplicate_player_candidate",
+      "requirement": "Nine distinct players are required before publication.",
+      "returncode": 0,
+      "book_emitted": true,
+      "book": [
+        [
+          10,
+          2,
+          2,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ]
+      ],
+      "distinct_players": [
+        8
+      ],
+      "salary_totals": [
+        44500
+      ],
+      "stdout": "replaced 1 HARD lineup(s) from a pool of 1; corrected-mix book max 90.00 -> 100.00, P220 0.00% -> 0.00% | raw incumbent 90.00 -> 100.00, raw hsim 90.00 -> 100.00\n  pos   1 (source rank 1): Player 1, Player 2, Player 3, Player 4, Player 5, Player 6, Player 7, Player 8, Player 9\n      -> Player 10, Player 2, Player 2, Player 4, Player 5, Player 6, Player 7, Player 8, Player 9  (gain +100.000)",
+      "stderr": ""
+    },
+    {
+      "case": "over_salary_candidate",
+      "requirement": "A lineup over $50,000 must not be published.",
+      "returncode": 0,
+      "book_emitted": true,
+      "book": [
+        [
+          10,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ]
+      ],
+      "distinct_players": [
+        9
+      ],
+      "salary_totals": [
+        58000
+      ],
+      "stdout": "replaced 1 HARD lineup(s) from a pool of 1; corrected-mix book max 90.00 -> 100.00, P220 0.00% -> 0.00% | raw incumbent 90.00 -> 100.00, raw hsim 90.00 -> 100.00\n  pos   1 (source rank 1): Player 1, Player 2, Player 3, Player 4, Player 5, Player 6, Player 7, Player 8, Player 9\n      -> Player 10, Player 2, Player 3, Player 4, Player 5, Player 6, Player 7, Player 8, Player 9  (gain +100.000)",
+      "stderr": ""
+    }
+  ]
+}

@@ -4,6 +4,10 @@
 
 # Project handoff
 
+## 2026-09-19 — production replacement / QB review delivered; concrete fixes accepted
+
+[Independent review](reports/2026-09-19-production-qb-replacement-review.md) covers shared head `b370cff`, replacement v3 and projection branch `2855cba1`. Eleven existing tests pass; independent synthetic executions expose retained newly excluded players, skipped minimum guard, illegal duplicate-player / $58k outputs, missing-primary and tied-primary classifier defects. Real rehearsal removes Questionable Pittman for vanished props and zeros Doubtful Tua. First findings pushed at lab `2b56569`; production accepts all five groups at `4f53a4b` and owns v4 fixes. Root owns independent replay and Rung 2 release preparation; Rung 1c GO recorded, distinct Rung 2 decision being requested by production. Nothing installed here; D12800 source untouched. Policy v2 accepts the principal rule-review recommendations. K80 route-share companion evidence must not be mislabeled as current K97 consumer evidence. Next: review corrected version, rehearse final output and continue five-minute shared-handoff polling while active.
+
 ## 2026-09-19 — in-season rules reviewed; both teams begin experiments; refreshed-law trace complete
 
 User asks both teams to start improving scoring now and audit restrictions on in-season gains. [Rule review](reports/2026-09-19-in-season-rules-independent-review.md) evaluates production policy `00e3d779` and proposes reversible evidence-based trials instead of universal win-count/waiting rules, while retaining integrity and frozen scientific verdicts. [Immediate plan](reports/2026-09-19-immediate-experiment-plan.md) assigns owners, actual readiness and earliest useful week. Production acknowledges archive preparation, existing reader reuse, active-label artifacts and scheduler inventory in lab `2bee35c`; further review sent at `3f3cfd3`. Lab rules carry the operator directive at `80b98fe`; proposed additional C/S changes are not falsely marked adopted.
