@@ -1,0 +1,16 @@
+{
+  "schema": "prelock-dk-capture/v1",
+  "season": 2026,
+  "week": 2,
+  "draft_group": 153428,
+  "uri": "https://api.draftkings.com/draftgroups/v1/draftgroups/153428/draftables",
+  "started_at": "2026-09-19 13:22:53.860574+00:00",
+  "received_at": "2026-09-19 13:22:54.314272+00:00",
+  "response_date": "Sat, 19 Sep 2026 13:22:54 GMT",
+  "source_sha256": "da90b15600a7ddb9fdecc8b2bb54eaa518922e1c9ea8937cfd8db3cb12113e7d",
+  "source_bytes": 1540213,
+  "frame_sha256": "28c82690c5e769a62cc1be669e0e2d5ea0a0df41d8d37936ad3f29a4b793a763",
+  "producer_sha256": "a2a240aa4a44d15bc8f973246722dc986978ceda9a8af69dccd3420d7f6c82cf",
+  "rows": 670,
+  "official_active_inference": false
+}
