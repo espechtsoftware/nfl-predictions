@@ -12,6 +12,7 @@ from pathlib import Path
 PROJECT = 'nfl-predictions-503414'
 GEN_SHA = '0d8a355b270e2ef5f6097bef51ca5d3ff1715e20951b4c2762b5594a5b9c9a81'
 FEATURE_SHA = '52cc95c500bc3bd4223baacb29be73e3df4d637ce289b6431735cddd46195b83'
+TARGET_KEY_SHA = '625317ad1854b0221ef2a86ae87e561bea4cdec6b2965d605ea90ca26e317eff'
 PINS = {
     'control': {
         'player_week_training': ('nwKP4TD+rJOayTnS15cL/Q==', 102927, '2026-09-19T00:58:17.124000+00:00'),
@@ -28,6 +29,16 @@ def namespace(arm):
     if arm not in PINS:
         raise ValueError('arm must be control or salaryfix; live namespace forbidden')
     return f'{PROJECT}.nfl_features_{arm}'
+
+
+def validate_target_keys(frame):
+    target = frame[frame.season.eq(2026) & frame.week.eq(2)]
+    if target.gsis_id.isna().any() or target.gsis_id.duplicated().any():
+        raise ValueError('target keys are null or duplicated')
+    keys = sorted(target.gsis_id.astype(str).tolist())
+    if hashlib.sha256(json.dumps(keys, separators=(',', ':')).encode()).hexdigest() != TARGET_KEY_SHA:
+        raise ValueError('target keys differ from the frozen 877-player Week 2 census')
+    return len(keys)
 
 
 def replace_exact(source, before, after, count=1):
@@ -102,8 +113,7 @@ class GuardedClient:
             raise ValueError('invalid cache keys')
         if ((frame.season > 2026) | ((frame.season == 2026) & (frame.week != 2))).any():
             raise ValueError('unexpected cache target')
-        if int(((frame.season == 2026) & (frame.week == 2)).sum()) != 928:
-            raise ValueError('upcoming target does not contain 928 rows')
+        validate_target_keys(frame)
         self.writes += 1
         j = self.client.load_table_from_dataframe(frame, destination, job_config=job_config)
         self.jobs.append(j.job_id)
@@ -138,6 +148,10 @@ def main():
         pass
     else:
         raise ValueError('scratch output already exists; do not overwrite or retry blindly')
+    target = guard.query(f"SELECT season,week,gsis_id,position FROM `{guard.ns}.player_week_inference` WHERE season=2026 AND week=2").result().to_dataframe()
+    if not target.position.isin(['QB', 'RB', 'WR', 'TE']).all():
+        raise ValueError('target position eligibility differs')
+    target_count = validate_target_keys(target)
     os.environ.update(TABPFN_UPCOMING='2026:2', TABPFN_UPCOMING_ONLY='0',
                       TABPFN_COMPONENTS='0', TABPFN_OUTPUT_TABLE='tabpfn_projections')
     before = dict(arm=arm, mode=mode, source_sha256=GEN_SHA,
@@ -145,7 +159,8 @@ def main():
                   feature_sha256=FEATURE_SHA, sources=PINS[arm], output=guard.output,
                   temporal_rule='training season/week strictly before 2026/2',
                   ordering='training: season/week/gsis_id; inference: gsis_id',
-                  write_disposition='WRITE_EMPTY')
+                  write_disposition='WRITE_EMPTY', target_rows=target_count,
+                  target_key_sha256=TARGET_KEY_SHA)
     print('TABPFN_REHEARSAL_PREFLIGHT=' + json.dumps(before, sort_keys=True), flush=True)
     if mode == 'mechanics':
         print('TABPFN_REHEARSAL_MECHANICS_PASS', flush=True)

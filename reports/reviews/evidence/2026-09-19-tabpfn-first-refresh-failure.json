@@ -1,0 +1,13 @@
+{
+  "execution": "tabpfn-gen-lcf9w",
+  "source": "871bf058",
+  "completed_at": "2026-09-19T02:05:30.892419Z",
+  "failed_count": 1,
+  "reason": "incorrect support gate expected whole-table 928 instead of target-week 877",
+  "table_writes": 0,
+  "control_output_absent": true,
+  "repair_output_absent": true,
+  "base_job_template_unchanged": true,
+  "model_or_feature_parameters_changed": false,
+  "corrected_target_key_sha256": "625317ad1854b0221ef2a86ae87e561bea4cdec6b2965d605ea90ca26e317eff"
+}

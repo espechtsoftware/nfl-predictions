@@ -33,7 +33,8 @@ def main():
         assert np.isfinite(df[VALUES].to_numpy(float)).all()
         assert not (np.diff(df[QCOLS].to_numpy(float),axis=1)<-1e-8).any()
         target = df[df.season.eq(2026)&df.week.eq(2)]
-        assert len(target)==target.gsis_id.nunique()==928
+        assert len(target)==target.gsis_id.nunique()==877
+        assert hashlib.sha256(json.dumps(sorted(target.gsis_id.astype(str)),separators=(',',':')).encode()).hexdigest()=='625317ad1854b0221ef2a86ae87e561bea4cdec6b2965d605ea90ca26e317eff'
         path=LOCAL/(arm+'.parquet');df.to_parquet(path,index=False)
         frames[arm]=df.set_index(KEYS)
         receipts[arm]=dict(table=table,rows=len(df),target_rows=len(target),etag=before.etag,
