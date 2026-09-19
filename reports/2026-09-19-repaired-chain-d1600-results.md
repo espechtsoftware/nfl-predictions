@@ -30,3 +30,7 @@ The D160 result remains a separate study. Its small-pool gain must not be confla
 [Protocol](2026-09-19-repaired-chain-d1600-protocol.md). [Full source, bank, book, cross-law, prefix and contest results](reviews/evidence/2026-09-19-repaired-chain-d1600-read.json). No live deployment, entry-policy change or Sunday-main outcomes are involved.
 
 Control definition clarification: both arms use reviewed live-game-input source `2dc116c`. The control retains old usage/features/cache/projections while sharing that game-input correction; it is not a byte-identical replay of the operational `e7255e9` chain. The archived usage/game-line factorial separately varies game inputs.
+
+## Delivery-order qualification
+
+The first-lineup, prefix and contest-block comparisons above use raw CLI book order, before the installed vetting step. A [fresh-input identity trace](2026-09-19-delivered-order-trace.md) confirms vetting materially changes that order. These raw comparisons must not be presented as the scores of the final Millionaire entry or uploaded contest blocks. Whole97-lineup set comparisons survive a pure permutation; first/prefix/block comparisons do not.

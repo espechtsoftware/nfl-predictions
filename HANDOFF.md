@@ -4,6 +4,12 @@
 
 # Project handoff
 
+## 2026-09-19 — delivered-order trace and injury-type mechanical repair
+
+[Exact vetting replay](reports/2026-09-19-delivered-order-trace.md) promotes original ranks5/10 to the first delivered slot on the two saved D1600 research books. Original firsts move to35/37. No outcomes or entry files opened; fresh identical vetting inputs, not a Sunday archived replay. Earlier first/prefix/block comparisons are qualified as pre-vetting; whole-book set comparisons unaffected.
+
+The injury-type forecast failure is isolated to all-missing `qb_cpoe_l6`, index24 in every earlier-year eligible covariate panel. The disclosed amendment removes only training-all-missing columns and receipts their indices; constant observed columns stay. Earliest real-covariate/synthetic-label smoke is now required. No historical study scores or completed forecasts have been read. The original frozen design/gates remain; new source identity and fresh v2 prefix are explicit.
+
 ## 2026-09-19 — operator authorizes the three input repairs
 
 Workstation `cef83e8` relays Erich's explicit adoption instruction; acknowledged in lab `7ec5d40`. The [release plan](reports/2026-09-19-weekend-input-repair-release-plan.md) is authorized. New immutable supervisor acquires all three registry lanes, snapshots all36tables and retains the view, then stops at hash-bound review checkpoints between each fixed cloud step. It refuses template drift, active writers, incomplete backups and ambiguous returns; no mutation retries. Read-only provider census finds no active execution on the three jobs; fresh scheduler census has no Saturday conflict. No live image/table change yet; backup is next. Host repin remains gated on completed cloud refresh and actual live CLI proof.

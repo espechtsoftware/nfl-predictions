@@ -91,3 +91,26 @@ before the evaluation read. Use one CPU in Cloud Build, smoke before full run,
 timeout 30 minutes; no shared Cloud Run job or warehouse writes. The historical
 panel has already been studied, including target labels in the prior-support test:
 this is development evidence with one new primary, not independent confirmation.
+
+## Mechanical amendment before any forecast or evaluation result
+
+Forecast build `2727fc01-928e-457e-9858-b767c0e02f27` failed at the first2019
+fit. sklearn1.9.1's binning code handles a constant observed feature, but crashes
+when a feature has zero observed values. The all-years covariate-only sweep finds
+exactly one wholly missing baseline column in every earlier-year eligible panel:
+`qb_cpoe_l6` (index24), unsurprising in a receiver-only cohort. A minimal synthetic
+reproducer confirms constant columns pass and all-missing columns raise the exact
+same exception. No target-year evaluation labels, completed predictions, scores
+or effects were read in the failed run; only the intended pre2019 training labels
+had loaded.
+
+Remove wholly missing columns based solely on each arm's earlier-year training
+covariates, apply that same mask to prediction, and receipt the removed indices.
+A wholly missing training feature has no learned split information; do not impute
+it from the target season or alter any model capacity, label, eligibility,
+bootstrap, score or gate. Constant observed features remain included. The cloud
+smoke now fits the real earliest-year covariate matrix against fabricated labels,
+in addition to the full original synthetic forecast/read test. The amended
+artifacts use a fresh create-once `v2` cloud prefix; original source/context and
+failed build remain preserved. This is a disclosed implementation correction,
+not an outcome-driven study redesign.

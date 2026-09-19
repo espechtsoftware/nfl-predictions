@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 from google.cloud import storage
 
-PREFIX='research/injury-type-opportunity-20260919/v1/'
+PREFIX='research/injury-type-opportunity-20260919/v2/'
 def sha(p):return hashlib.sha256(Path(p).read_bytes()).hexdigest()
 def main():
     mode=sys.argv[1];assert mode in ['smoke','forecast','read']
@@ -34,9 +34,19 @@ def main():
             x=module.design(safe,support['baseline_numeric_features'],extra)
             assert len(x)==len(safe) and not np.isinf(x).any()
         assert int(module.eligible(safe).sum())==33802
+        # Exercise the first real covariate boundary with fabricated labels;
+        # the original synthetic panel had no all-missing numeric feature.
+        prior=safe.loc[safe.season<2019,module.KEY].copy()
+        prior['was_active']=True
+        prior['y_targets']=np.arange(len(prior))%8+1.
+        predictions,meta=module.fit_predict(safe,prior,2019,support['baseline_numeric_features'])
+        assert meta['control_all_missing_columns_removed']==[24]
+        assert meta['treatment_all_missing_columns_removed']==[24]
+        assert np.isfinite(predictions[['control_mu','treatment_mu']].to_numpy()).all()
         out.mkdir(exist_ok=False)
         (out/'smoke.json').write_text(json.dumps({'synthetic':'PASS','safe_rows':len(safe),
              'eligible_rows':int(module.eligible(safe).sum()),'historical_labels_opened':False,
+             'real_covariates_synthetic_labels_fit':meta,
              'elapsed_seconds':time.monotonic()-start},indent=2))
     elif mode=='forecast':
         module.construct(root/'safe.parquet',root/'labels.parquet',root/'support.json',out)

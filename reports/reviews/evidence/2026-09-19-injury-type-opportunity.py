@@ -57,8 +57,14 @@ def fit_predict(safe,prior,year,numeric):
               'eligible_past':len(fit),'missing_activity':int(fit.was_active.isna().sum()),
               'active_missing_targets':int((fit.was_active.eq(True).fillna(False)&y.isna()).sum())}
     for name,extra in [('control',False),('treatment',True)]:
-        model=new_model();model.fit(design(train,numeric,extra),y[use].to_numpy(float))
-        mu=model.predict(design(target,numeric,extra))
+        x=design(train,numeric,extra);xt=design(target,numeric,extra)
+        # sklearn 1.9.1's binning crashes on an entirely missing feature.
+        # Such a column contains no train-time split information. Drop it in
+        # both fit and prediction, using the training covariates only.
+        keep=~np.isnan(x).all(axis=0);assert keep.any()
+        training[name+'_all_missing_columns_removed']=np.flatnonzero(~keep).tolist()
+        model=new_model();model.fit(x[:,keep],y[use].to_numpy(float))
+        mu=model.predict(xt[:,keep])
         assert np.isfinite(mu).all() and (mu>0).all()
         out[name+'_mu']=mu
     return out,training
