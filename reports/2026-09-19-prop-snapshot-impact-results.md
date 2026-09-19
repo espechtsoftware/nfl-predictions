@@ -40,4 +40,21 @@ Odds data demonstrably enter the live projection consumer; this result concerns 
 The complete small input/output bundle is published at `gs://nfl-2-506823-lab/research/week2-input-release-20260919/prop-snapshot-impact-v1/manifest.json`, generation `1789801556753832`, SHA256 `28df3d976aeae371dc8c2ce43ba4b77cd3bde027a051a6975e7d5a64024457b6`. Includes quotes, schedules, names, both market estimates, paired rows, exact production-pool identities, proof frame and analysis/consumer source. All objects were downloaded and hash-verified. [Publication identities](reviews/evidence/2026-09-19-prop-snapshot-publication.json).
 
 
-Historical identity preflight is now complete: all176,046standard-market rows across2023–2026 have nonempty event IDs, parseable snapshot timestamps, quote identities and prices. This removes the specific missing-event-ID concern for the current warehouse; it does not settle incomplete-snapshot policy or establish historical performance. [Exact support query/result](reviews/evidence/2026-09-19-prop-snapshot-historical-identity-support.json), job `c8fc2906-da6e-4601-9a27-1e9559f19229`.
+Historical identity **presence** checking is complete: all176,046standard-market rows across2023–2026 have nonempty event IDs, parseable snapshot timestamps, quote identities and prices. This removes the specific missing-event-ID concern for the current warehouse; it does not establish unique or correct event identity, settle incomplete-snapshot policy or establish historical performance. [Exact support query/result](reviews/evidence/2026-09-19-prop-snapshot-historical-identity-support.json), job `c8fc2906-da6e-4601-9a27-1e9559f19229`.
+
+## Follow-up: the experimental rule is not a general repair
+
+Workstation review `88bb876` identified two 2026 Week 1 bookmaker/market/player groups carrying multiple event IDs. A separate read-only laptop census independently reproduces the season counts, all 45 affected raw rows, and the retained-price counterexample. There are no such groups in 2023–2025 or the captured Week 2 data. Production retains the newest DraftKings anytime-TD quote for each affected player; the experimental event-specific rule retains an obsolete quote too:
+
+| Player | Newest price retained by both | Additional old price retained by experiment |
+|---|---:|---:|
+| Emari Demercado | +475, September 13 | +425, August 30 |
+| Kayshon Boutte | +340, September 13 | +550, August 23 |
+
+This would give an obsolete observation an additional vote in the market average. A synthetic sequential-event-ID fixture also reproduces the failure. The original experimental source and results are preserved; no revised treatment was tested or deployed. The Week 2 effect remains valid for its frozen inputs, where adding event ID to the grouping is inert. **Do not copy this experimental snapshot function into production.** A general repair must resolve quote identity as well as snapshot coherence and incomplete-side policy.
+
+The peer characterized the multiple IDs as re-keying of the same event. Our additional inspection does **not** establish that explanation: the affected raw rows have different team pairs and kickoff times. Demercado's old/new records name Chiefs–Broncos and Giants–Cowboys; Boutte's name Seahawks–Patriots and Texans–Bills. Provider re-keying, player movement and bad upstream association require separate source tracing. The retained-obsolete-quote counterexample does not depend on choosing among those explanations.
+
+Review `305e325` reconciled the published numerical summaries and checked the source mechanism and serialization-only change. That is not yet an independent consumer replay from the raw bundle. Its reference to 100/160 reaching an entered book is incorrect: those are **available players in the post-filter proof frame**, with no selected-book effect measured. A future production-only consumer change also would not itself change the lab SHA; both applications still need their own caller review before deployment.
+
+[Independent census and counterexample](reviews/evidence/2026-09-19-prop-event-identity-check.json), [separate research check](reviews/evidence/2026-09-19-prop-event-identity-check.py), [raw event metadata](reviews/evidence/2026-09-19-prop-event-identity-metadata.json).

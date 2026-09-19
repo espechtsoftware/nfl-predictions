@@ -1,0 +1,35 @@
+{
+  "scope": "Follow-up metadata inspection of the already captured affected quotes; no new query or outcome",
+  "source_sha256": "1c732ed07f2f687c3d0d9ecd49950e8a59e72f981903d540e862a54421d9f441",
+  "rows": [
+    {
+      "player": "Emari Demercado",
+      "event_id": "5ad8135dc2b5f27de0b777acd317855a",
+      "commence_time": "2026-09-15 00:15:00+00:00",
+      "home_team": "Kansas City Chiefs",
+      "away_team": "Denver Broncos"
+    },
+    {
+      "player": "Emari Demercado",
+      "event_id": "3e646c7479c57f5d9752d8c7dfe7059b",
+      "commence_time": "2026-09-14 00:20:00+00:00",
+      "home_team": "New York Giants",
+      "away_team": "Dallas Cowboys"
+    },
+    {
+      "player": "Kayshon Boutte",
+      "event_id": "8c94552d022acec4a0458d70c19d3da9",
+      "commence_time": "2026-09-10 00:15:00+00:00",
+      "home_team": "Seattle Seahawks",
+      "away_team": "New England Patriots"
+    },
+    {
+      "player": "Kayshon Boutte",
+      "event_id": "7e09efed7e12c659b82740b67ce2f9a1",
+      "commence_time": "2026-09-13 17:00:00+00:00",
+      "home_team": "Houston Texans",
+      "away_team": "Buffalo Bills"
+    }
+  ],
+  "finding": "Distinct IDs have different team pairs and kickoff times in the raw rows; sequential windows do not establish a re-key of one scheduled event."
+}

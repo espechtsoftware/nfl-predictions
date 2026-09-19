@@ -1,0 +1,120 @@
+{
+  "scope": "Identity support and counterexample only; not a revised treatment or efficacy experiment",
+  "source_modified": "2026-09-18 14:34:32.382000+00:00",
+  "source_etag": "LtDlTo3GIJ63lBQeOrXyhw==",
+  "by_season": [
+    {
+      "season": 2023,
+      "n_groups": 27309,
+      "multi_event_groups": 0,
+      "affected_rows": 0,
+      "max_events": 1
+    },
+    {
+      "season": 2024,
+      "n_groups": 28228,
+      "multi_event_groups": 0,
+      "affected_rows": 0,
+      "max_events": 1
+    },
+    {
+      "season": 2025,
+      "n_groups": 29303,
+      "multi_event_groups": 0,
+      "affected_rows": 0,
+      "max_events": 1
+    },
+    {
+      "season": 2026,
+      "n_groups": 3823,
+      "multi_event_groups": 2,
+      "affected_rows": 45,
+      "max_events": 2
+    }
+  ],
+  "retained": [
+    {
+      "arm": "production",
+      "rows": [
+        {
+          "player": "Emari Demercado",
+          "event_id": "3e646c7479c57f5d9752d8c7dfe7059b",
+          "snapshot_ts": "2026-09-13T14:33:41Z",
+          "price": 475,
+          "td_component": 0.9837932646962705
+        },
+        {
+          "player": "Kayshon Boutte",
+          "event_id": "7e09efed7e12c659b82740b67ce2f9a1",
+          "snapshot_ts": "2026-09-13T14:33:41Z",
+          "price": 340,
+          "td_component": 1.3211010581143972
+        }
+      ]
+    },
+    {
+      "arm": "experimental",
+      "rows": [
+        {
+          "player": "Emari Demercado",
+          "event_id": "5ad8135dc2b5f27de0b777acd317855a",
+          "snapshot_ts": "2026-08-30T14:31:46Z",
+          "price": 425,
+          "td_component": 1.0864805502353376
+        },
+        {
+          "player": "Emari Demercado",
+          "event_id": "3e646c7479c57f5d9752d8c7dfe7059b",
+          "snapshot_ts": "2026-09-13T14:33:41Z",
+          "price": 475,
+          "td_component": 0.9837932646962705
+        },
+        {
+          "player": "Kayshon Boutte",
+          "event_id": "8c94552d022acec4a0458d70c19d3da9",
+          "snapshot_ts": "2026-08-23T14:31:47Z",
+          "price": 550,
+          "td_component": 0.8616930701468921
+        },
+        {
+          "player": "Kayshon Boutte",
+          "event_id": "7e09efed7e12c659b82740b67ce2f9a1",
+          "snapshot_ts": "2026-09-13T14:33:41Z",
+          "price": 340,
+          "td_component": 1.3211010581143972
+        }
+      ]
+    }
+  ],
+  "synthetic_production_rows": 1,
+  "synthetic_experimental_rows": 2,
+  "interpretation": "Event-specific latest timestamps preserve superseded identities. Disjoint timestamps alone do not prove provider re-keying of the same scheduled game.",
+  "queries": [
+    {
+      "sql": "WITH g AS (\n      SELECT season,week,bookmaker,market,player,COUNT(*) AS n_rows,\n        COUNT(DISTINCT event_id) AS n_events\n      FROM `nfl-predictions-503414.nfl_raw.prop_lines` WHERE market IN ('player_pass_yds','player_pass_tds','player_rush_yds','player_reception_yds','player_receptions','player_anytime_td')\n      GROUP BY season,week,bookmaker,market,player)\n    SELECT season,COUNT(*) AS n_groups,\n      COUNTIF(n_events>1) AS multi_event_groups,\n      SUM(IF(n_events>1,n_rows,0)) AS affected_rows,MAX(n_events) AS max_events\n      FROM g GROUP BY season ORDER BY season",
+      "job_id": "a91c0c3a-e201-44f1-89e1-cb3f61777307",
+      "bytes_processed": 40553630,
+      "rows": 4
+    },
+    {
+      "sql": "WITH g AS (\n      SELECT season,week,bookmaker,market,player,COUNT(*) AS n_rows,\n        COUNT(DISTINCT event_id) AS n_events\n      FROM `nfl-predictions-503414.nfl_raw.prop_lines` WHERE market IN ('player_pass_yds','player_pass_tds','player_rush_yds','player_reception_yds','player_receptions','player_anytime_td')\n      GROUP BY season,week,bookmaker,market,player)\n    SELECT p.* FROM `nfl-predictions-503414.nfl_raw.prop_lines` p JOIN g\n      USING(season,week,bookmaker,market,player)\n      WHERE g.n_events>1 ORDER BY season,week,player,snapshot_ts,event_id",
+      "job_id": "2110d3f7-610b-4a07-a3b1-089cc797d8ce",
+      "bytes_processed": 79223717,
+      "rows": 45
+    },
+    {
+      "sql": "SELECT season,week,gameday,gametime,game_type,weekday\n      FROM `nfl-predictions-503414.nfl_raw.schedules`\n      WHERE season=2026 AND week=1",
+      "job_id": "c24843ec-616b-4177-948b-6d6104f2aaef",
+      "bytes_processed": 361581,
+      "rows": 16
+    }
+  ],
+  "frozen_experiment_sha256": "3a411c4dadd7140f72bae600b1e920d7174698610cde5d5fdbea45090e8e805c",
+  "script_sha256": "ab68df777e4ed3b8fc9cd44029af17e6d1f91ca3e8eb74ca7ff579ca450c3fad",
+  "artifacts": {
+    "affected-raw.parquet": "1c732ed07f2f687c3d0d9ecd49950e8a59e72f981903d540e862a54421d9f441",
+    "experimental.parquet": "0964bc4b4c0a6a86e39bb27002d0bdedfa85647b1cdf4b1c9a1088026d20d3b0",
+    "schedules.parquet": "c8ceb1d4c6b4d672b863dcce4959591a381eaad51b37e6d6e66eaec2780d4647",
+    "production.parquet": "b0654bf47f2af8f448bfe8310a44fbec62310bd8c6462614b6c239a01bac4b00"
+  }
+}
