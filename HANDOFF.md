@@ -4,6 +4,21 @@
 
 # Project handoff
 
+## 2026-09-19 — expanded chain and target-prior selection completed
+
+D1600 control and repair both pass at lab `2dc116c`, frozen production adapter/reader `170c3b46`,
+462.72 and 420.13 seconds within the 600-second caps. Full frames and all five banks exactly match D160.
+[Expanded chain](reports/2026-09-19-repaired-chain-d1600-results.md): repaired-mixture expected maximum
++2.800, P220 +3.695 percentage points; old mixture -2.534 and -2.360 percentage points. Only 1/97
+ordinary memberships overlaps. No claim of proven NFL improvement or live adoption.
+[Expanded priors](reports/2026-09-19-zero-target-prior-d1600-results.md), reader `60bcbb51`, finish in 59.73s;
+16/23 memberships change but ordinary first lineup stays identical and whole-book gains remain small.
+Optional prior implementation lab `4df5527` passes 30 targeted tests and real coefficient/initial-weight parity;
+full numerical CLI parity is next. Peer source review received. Prospective outcome reader `78187fb3`
+needs an empirical-versus-fair CRPS correction and stronger after-slate/provenance gates; review sent in
+lab `c37dd44`. Five-minute polling continues. Release/complete data rollback package is being prepared;
+no timer, live warehouse, job-template, contest or entry changes made.
+
 ## 2026-09-19 — both scratch caches passed; full CLI running; prior screen advances
 
 Both full scratch refreshes completed, control `tabpfn-gen-djgpj`, repair `tabpfn-gen-22x8d`; registry lane

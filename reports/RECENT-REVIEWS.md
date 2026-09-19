@@ -76,3 +76,6 @@ Consolidated September 18, 2026 at Erich's request. Source commits: production `
 - [Complete-chain lineup comparison](2026-09-19-repaired-chain-cli-results.md): both CLI runs pass; repaired-model mixture gains1.52expectedmaximum and0.815percentagepointsP220 at97, with control-law and individual-contest disagreements retained.
 
 - [Target-prior simulator results](2026-09-19-zero-target-prior-simulator-results.md): both priors restore19players' scoring support, but change only2of97memberships and show minimal whole-book gains at160candidates.
+
+- [Expanded complete-chain results](2026-09-19-repaired-chain-d1600-results.md): both 1,600-candidate runs pass; repaired-model P220 rises 13.500% to 17.195%, with strong opposing old-model evidence preserved.
+- [Expanded target-prior selection](2026-09-19-zero-target-prior-d1600-results.md): more memberships change, but whole-book gains remain small and the ordinary first lineup is unchanged.
