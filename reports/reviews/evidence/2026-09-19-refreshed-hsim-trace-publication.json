@@ -1,0 +1,8 @@
+{
+  "uri": "gs://nfl-2-506823-lab/research/refreshed-hsim-trace-20260919/refreshed-hsim-trace-v1.tar.gz",
+  "generation": "1789837961563027",
+  "bytes": 35346304,
+  "sha256": "a1915a4f4b6e10d370f876ec0c2dcb51fec64dd7882ae4941db0929b88fb29c6",
+  "result_sha256": "0773a7481025f7f77d503ac376ae2df232710f0939d06a5eabb89a571f38bdfc",
+  "scope": "Frozen reader and complete replay inputs, including historical training data. No entry keys or credentials; the reader does not decode current-season outcomes. Remap only lab/run/benchmark_cache/output paths for transport; retain all input and source hashes."
+}

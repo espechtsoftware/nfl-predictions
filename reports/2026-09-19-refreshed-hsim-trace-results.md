@@ -9,7 +9,7 @@ The frozen V2 trace at `2fda9467` reproduced **all 4,290,000 hsim scores exactly
 | Expected best score | 190.6612 | 195.0521 |
 | Simulated probability of at least one 220+ | 8.87% | 10.20% |
 
-The gap is **4.3909 points / 1.33 percentage points**. Thursday's separate K90 book had a 19.71-point / 23.00-point-percentage gap. These are different populations, inputs and books; the smaller gap cannot be attributed solely to a particular repair. The archived four-way experiment remains the controlled input comparison. These are selection-bank descriptions, not independent efficacy estimates or calibrated real-world probabilities. The full D6400/D12800 host books are still pending and must be measured separately.
+The gap is **4.3909 points / 1.33 percentage points**. Thursday's separate K90 book had a 19.71-point / 23.00-percentage-point gap. These are different populations, inputs and books; the smaller gap cannot be attributed solely to a particular repair. The archived four-way experiment remains the controlled input comparison. These are selection-bank descriptions, not independent efficacy estimates or calibrated real-world probabilities. The full D6400/D12800 host books are still pending and must be measured separately.
 
 ## What remains wrong or uncertain
 
@@ -36,3 +36,5 @@ This is random-stream/replay sensitivity, not a measured football scoring defect
 Risk class: diagnostic; earliest resulting reviewed repair or calibration trial Week3. First priorities are the QB role/conditional-mean contract and a team-coherent calibration design, alongside the prepared [active-label × participation comparison](2026-09-19-active-label-participation-experiment.md). Production should repeat the fixed-book gap on the actual finished builds and prepare the already accepted weekly proper-score instrument. The latter, after settlement, can begin answering which law forecasts reality better.
 
 [Complete trace](reviews/evidence/2026-09-19-refreshed-hsim-trace-results.json), [frozen V2 executable](reviews/evidence/2026-09-19-refreshed-hsim-trace-v2.py), [pinned inputs](reviews/evidence/2026-09-19-refreshed-hsim-trace-inputs-v2.json), [protocol and mechanical amendment](2026-09-19-refreshed-hsim-trace-protocol.md). Trace SHA256`0773a7481025f7f77d503ac376ae2df232710f0939d06a5eabb89a571f38bdfc`. Independent reproduction is requested, not yet claimed.
+
+The [portable publication receipt](reviews/evidence/2026-09-19-refreshed-hsim-trace-publication.json) pins the35,346,304-byte input/reader bundle in the lab bucket, create-once and download-verified. It includes the original frame, candidates/book, both banks, historical fit objects, frozen reader and result. Transport may remap only local paths; retain every source/payload hash. Independent numeric comparison excludes transport provenance fields.
