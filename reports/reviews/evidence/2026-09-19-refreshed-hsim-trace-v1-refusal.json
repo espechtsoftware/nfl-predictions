@@ -1,0 +1,12 @@
+{
+  "exact_parity": false,
+  "max_absolute_difference": 36.00000190734863,
+  "provenance": {
+    "source_commit": "45e5a25c117a7a797ccf887a0ee1f313cd6c1714",
+    "script_sha256": "757951f9c9c75021a3d040eed6d5c1144f9e45a38aa03b93ca72b13b71a5ddc4",
+    "manifest_sha256": "757fffd930fc0171537604ff22d9032c9dd47c333ced141aadd9c2d4ff3f80b1",
+    "lab_sha": "2dc116ce95647a776ba9c36cf194f44d022d03a4",
+    "current_outcomes_read": false,
+    "elapsed_seconds": 3.8018965410010424
+  }
+}
