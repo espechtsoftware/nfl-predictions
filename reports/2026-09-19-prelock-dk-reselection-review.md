@@ -36,6 +36,8 @@ python -X cpu_count=1 reports/reviews/evidence/2026-09-19-prelock-dk-reselect.py
   --output /new/reselection-preview
 ```
 
-The run must include both A5 player-score sidecars. The scheduled full builds already request them. Selection time grows with corpus size; if the capture expires, discard the incomplete attempt and obtain a new capture before an explicitly reconciled new run. Do not relax the freshness guard.
+The run must include both A5 player-score sidecars. The scheduled full builds already request them. A synthetic capacity check of **two complete 12,800×20,000 selector passes** took **109.44 seconds total** (54.04 and 54.52 seconds), with peak RSS about 1.31 GiB. The repeated selections matched exactly. This exceeds the current 12,560 attempt count, but excludes complete artifact ingestion, network delays and delivery, and is not an actual full-corpus run. [Capacity receipt](reviews/evidence/2026-09-19-prelock-dk-capacity-smoke.json).
+
+Selection time grows with corpus size; if the capture expires, preserve the incomplete attempt and obtain a new capture before an explicitly reconciled new run. Do not relax the freshness guard.
 
 This is a pre-first-lock preview, not a post-lock swap tool. It does not certify official active players, redistribute an absent player's workload, update forecasts, introduce missing candidates, vet/reorder for contests or upload entries. The actual full corpus still needs its own run and delivered-book review; this rehearsal is D1600. Use this capability to prepare an auditable alternative if fresh DK exclusions occur. It does not establish better 220+ scoring by itself.

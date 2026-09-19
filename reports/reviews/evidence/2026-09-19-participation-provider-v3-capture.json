@@ -1,0 +1,46 @@
+{
+  "schema": "participation-provider-capture/v2",
+  "season": 2026,
+  "week": 2,
+  "draft_group": 153428,
+  "cutoff": "2026-09-19 13:50:37.090967+00:00",
+  "producer_sha256": "5fb5e92311fdad7f846858b0ae80655c093d1e2cd2db7a407159b5a760815fc1",
+  "provider": {
+    "uri": "https://github.com/nflverse/nflverse-data/releases/download/injuries/injuries_2026.parquet",
+    "file": "provider-injuries.parquet",
+    "started_at": "2026-09-19 13:50:36.556803+00:00",
+    "received_at": "2026-09-19 13:50:37.090282+00:00",
+    "headers": {
+      "Last-Modified": "Sat, 19 Sep 2026 11:54:40 GMT",
+      "Date": "Sat, 19 Sep 2026 13:50:37 GMT",
+      "ETag": "\"0x8DF1644C95B6EC4\"",
+      "Content-Type": "application/octet-stream"
+    },
+    "bytes": 21906,
+    "sha256": "5824e3dd16513938cd7900e8b7432aa94df4040d63a4f5b7f6849c05c103d5c7"
+  },
+  "captures": [
+    {
+      "name": "injury_snapshots",
+      "file": "injury_snapshots.parquet",
+      "bytes": 6810,
+      "sha256": "991c3001eb4e14eab9bb4e40d4df622ff8d6e29a2a827a3eac39e2cbcfc9a2be",
+      "rows": 246
+    },
+    {
+      "name": "dk_salaries",
+      "file": "dk_salaries.parquet",
+      "bytes": 26048,
+      "sha256": "250ff9ee38958f539aee14a90178abebdac5eeb8134ae3a365cc1db755d057aa",
+      "rows": 670
+    }
+  ],
+  "dk_query": {
+    "sql": "SELECT pulled_at,season,week,draft_group_id,dk_player_id,dk_draftable_id,\n        display_name,team_abbr,position,salary,status,game_start\n        FROM `nfl-predictions-503414.nfl_raw.dk_salaries` FOR SYSTEM_TIME AS OF @cutoff\n        WHERE season=2026 AND draft_group_id=153428 AND pulled_at<=@cutoff\n        AND pulled_at=(SELECT MAX(pulled_at) FROM `nfl-predictions-503414.nfl_raw.dk_salaries`\n          FOR SYSTEM_TIME AS OF @cutoff WHERE season=2026 AND draft_group_id=153428 AND pulled_at<=@cutoff)",
+    "job_id": "25f60b9f-b73c-4047-bdb2-50e8770da0ba",
+    "bytes_processed": 30027875
+  },
+  "injury_provenance": "actual provider object and HTTP snapshot publication time; no per-row publication date claimed",
+  "dk_provenance": "exact-group as-of warehouse collector snapshot; no DK provider publication date claimed",
+  "football_outcomes_read": false
+}

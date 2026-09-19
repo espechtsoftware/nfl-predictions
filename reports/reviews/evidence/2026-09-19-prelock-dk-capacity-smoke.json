@@ -1,0 +1,18 @@
+{
+  "synthetic_only": true,
+  "shape": [
+    12800,
+    20000
+  ],
+  "entries": 97,
+  "setup_seconds": 0.8812688830075786,
+  "first_pass_seconds": 54.041334203997394,
+  "second_pass_seconds": 54.51640464400407,
+  "total_seconds": 109.43900773100904,
+  "peak_rss_kib": 1369404,
+  "exact_repeat": true,
+  "selector_sha256": "a2a240aa4a44d15bc8f973246722dc986978ceda9a8af69dccd3420d7f6c82cf",
+  "helper_sha256": "4a861fe92f72e433eab1b1324d325a4be21a5d2b927acbd3407e797c0d6aaad9",
+  "producer_sha256": "53b2b8fd2c55f2dfe66166aa238fe7a1531123e7e494061baae4764ef1b561d3",
+  "scope": "Two 12,800-candidate by 20,000-world selector passes; excludes provider/network delays, complete file ingestion and delivery. Not an actual full-corpus run or scoring test."
+}
