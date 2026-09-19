@@ -77,3 +77,22 @@ from decisions to adopt a changed model or selector.
 These are source-level findings. No new football outcome efficacy read or live
 vetting/cache policy change was made for this review. Independent review has
 been requested through the normal committed handoff channel.
+
+## Measured host-cache difference, 06:17UTC
+
+Both agents now compared the complete keyed panels. Exactly37,763of102,927rows
+differ across37columns/1,864players; most differences are floating roundoff.
+Using the explicit descriptive threshold absolute numeric difference>1e-6,
+any null change or any nonnumeric change,3,531rows differ and3,472rows differ
+in baseline model inputs or activity eligibility. That is about3.37%of rows,
+not a claim that36.7%of model inputs are meaningfully wrong. Baseline inputs
+include nontrivial revisions to separation_l4, stacked_box_l4 and qb_cpoe_l6.
+Salary and salary_delta_wow are rowwise identical. [Exact comparison](reviews/evidence/2026-09-19-host-cache-comparison.json).
+
+This broader drift is additional to the3activity corrections between the
+September17feature build and today's feature refresh; the host cache is from
+August29. The two time intervals must not be conflated. A representative release
+proof now uses an authenticated copy of the existing host cache; a separate fresh
+cache rehearsal can characterize that additional input change. The host file
+and configuration remain intact. No claim of better NFL outcomes follows from
+input freshness or these counts alone.

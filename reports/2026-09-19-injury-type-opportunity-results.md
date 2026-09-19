@@ -70,4 +70,4 @@ retrained nor changed a gate after outcomes.
 [publication identities](reviews/evidence/2026-09-19-injury-type-publication.json),
 [support/vacuity detail](reviews/evidence/2026-09-19-injury-type-support-and-vacuity.json),
 [authenticated reader adapter](reviews/evidence/2026-09-19-injury-type-authenticated-read.py).
-Independent full frozen-reader cross-read is requested before a ledger entry.
+Independent full frozen-reader cross-read completed at lab `047f00e`: exact primary delta, bootstrap bounds, all-active delta and15,023scored rows reproduce. The peer authenticated the exact label panel and allsix forecast artifacts, then ran the unchanged reader locally. No model or lineup is nominated.

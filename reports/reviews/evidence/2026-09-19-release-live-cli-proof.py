@@ -4,6 +4,7 @@ import json
 import os
 from pathlib import Path
 import runpy
+import shutil
 import subprocess
 import sys
 
@@ -13,6 +14,7 @@ EXPECTED='2dc116ce95647a776ba9c36cf194f44d022d03a4'
 def sha(p):return hashlib.sha256(Path(p).read_bytes()).hexdigest()
 
 def main():
+    mode=sys.argv[1];assert mode in ['host','fresh']
     assert (ROOT/'project-slate-result.json').exists()
     assert Path.cwd()==LAB
     assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()==EXPECTED
@@ -20,8 +22,13 @@ def main():
     sys.path.insert(0,str(LAB/'src'))
     os.environ['NFL2_LIVE_CENTER']='production'
     from nfl2 import live,data
-    # A fresh local model-training cache, populated by the real warehouse query.
-    live.CACHE=ROOT/'live-cli-cache';assert not live.CACHE.exists()
+    # Host mode mirrors the exact existing workstation artifact; fresh mode is
+    # an additional warehouse-current engineering rehearsal, not an adoption.
+    live.CACHE=ROOT/('live-cli-'+mode+'-cache');assert not live.CACHE.exists()
+    if mode=='host':
+        original=ROOT/'host-training.parquet'
+        assert sha(original)=='8aaa5daf5a3ebd12bdb471466dabefdc55f774988ff9437710a4e54467b072b7'
+        live.CACHE.mkdir();shutil.copyfile(original,live.CACHE/'training_through_2025.parquet')
     live.training_panel_through.cache_clear()
     sys.argv=['scripts/live_week.py','--season','2026','--week','2','--group','153428',
        '--entries','97','--lev','32','--boom','128','--sims','10000','--k','1',
@@ -39,10 +46,11 @@ def main():
     assert len(r['config']['hsim_game_inputs']['games'])==r['inputs']['games']==13
     assert len(state['book'])==97 if 'book' in state else r['written']==97
     result=dict(run=str(out),source_sha=EXPECTED,receipt_sha256=sha(out/'receipt.json'),
+      historical_cache_mode=mode,historical_cache_sha256=sha(live.CACHE/'training_through_2025.parquet'),
       adapter_sha256=sha(__file__),receipt=r,all_normal_cli_guards_enabled=True,
       warehouse='live production, no router or scratch substitutions',current_outcomes_read=False,
       scope='small D160 engineering proof; not entered or uploaded; production doses unchanged')
-    with (ROOT/'live-cli-proof.json').open('x') as f:json.dump(result,f,indent=2)
-    print('LIVE_RELEASE_CLI_PROOF_PASS',out,flush=True)
+    with (ROOT/('live-cli-'+mode+'-proof.json')).open('x') as f:json.dump(result,f,indent=2)
+    print('LIVE_RELEASE_CLI_PROOF_PASS',mode,out,flush=True)
 
 if __name__=='__main__':main()

@@ -4,6 +4,10 @@
 
 # Project handoff
 
+## 2026-09-19 — injury result independently reproduced; actual host cache obtained
+
+Lab047f00e completes the full frozen injury-reader cross-read with exact primary/CI/secondary values and15,023rows. Gate fails independently. Exact host cache downloaded by generation/SHA; full keyed comparison agrees37,763changed rows, with3,472baseline-input/eligibility rows above1e-6or null/nonnumeric differences. Mostrawdifferences are roundoff; salary fields exactlysame. Host cache remains unchanged. The CLI proof adapter now has explicit host/fresh modes and receipts the cache hash; host mode is the representative release gate. TabPFN refresh has completed the historical seasons and is producing upcoming predictions.
+
 ## 2026-09-19 — follow-up review of vetting evidence and local cache
 
 [Source review](reports/2026-09-19-transition-followup-review.md) finds PREREG100max-risk/0.5/ascending-risk proxy differs from installedsum-risk/1.0/stable-tier helper; claims of an exact shipped-rule test need correction. Frozen runner remains in lab395ab44, omitted from documentation-only main consolidation. Its mechanics flag still reads actual columns; it is not outcome-disabled. No claim that this proves outcome tuning. Host historical cache is fromAug29and blindly reused; exact artifact requested for a representative proof and full comparison. Keep existing host cache intact; no extra model/cache adoption is required by the three current repairs.
