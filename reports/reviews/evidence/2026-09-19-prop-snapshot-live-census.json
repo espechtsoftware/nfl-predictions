@@ -1,0 +1,64 @@
+{
+  "scope": "Week2 retained quote support only; no model scores or NFL outcomes",
+  "current_consumer_audit": {
+    "input_rows": 5908,
+    "main_slate_weeks": 1,
+    "prelock_rows": 3145,
+    "postlock_rows_excluded": 0
+  },
+  "standard_rows": 5908,
+  "current_kept_rows": 3145,
+  "old_snapshot_rows_retained": 502,
+  "player_book_market_groups_with_stale_rows": 223,
+  "distinct_players_with_stale_rows": 131,
+  "complete_ou_pairs": 1124,
+  "complete_pairs_mixing_timestamps": 0,
+  "newest_snapshot_market_groups_with_multiple_points": 0,
+  "newest_identical_key_price_conflicts": 0,
+  "outcome_names_by_market": {
+    "player_anytime_td": [
+      "Yes"
+    ],
+    "player_pass_tds": [
+      "Over",
+      "Under"
+    ],
+    "player_pass_yds": [
+      "Over",
+      "Under"
+    ],
+    "player_reception_yds": [
+      "Over",
+      "Under"
+    ],
+    "player_receptions": [
+      "Over",
+      "Under"
+    ],
+    "player_rush_yds": [
+      "Over",
+      "Under"
+    ]
+  },
+  "queries": [
+    {
+      "sql": "SELECT * FROM `nfl-predictions-503414.nfl_raw.prop_lines` WHERE season=2026 AND week=2",
+      "job_id": "0b77a0f1-c2ef-478b-834b-f72746f43f9a",
+      "bytes_processed": 0,
+      "source_modified": "2026-09-18 14:34:32.382000+00:00",
+      "source_etag": "LtDlTo3GIJ63lBQeOrXyhw==",
+      "sha256": "ae32299cdfd68d32a3add3910dd56969ab31e66e45e4935bca928b4efe9eefe7",
+      "rows": 5908
+    },
+    {
+      "sql": "SELECT season,week,gameday,gametime,game_type,weekday FROM `nfl-predictions-503414.nfl_raw.schedules` WHERE season=2026 AND week=2",
+      "job_id": "988f1e97-257d-4ff4-a723-b0320ac118f2",
+      "bytes_processed": 361581,
+      "source_modified": "2026-09-18 10:03:30.546000+00:00",
+      "source_etag": "W2Ruzn1uHZ7LH7B4GpgdRA==",
+      "sha256": "59e3165a086b5b52b9d76168c0c3a42678f7469f8faa0674d02d0e8a6f2dfaa1",
+      "rows": 16
+    }
+  ],
+  "source_sha256": "e2a9ed476a0287e2f9e168c2757231f755a79546fe6605e60101c147f9796b62"
+}
