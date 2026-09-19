@@ -4,6 +4,20 @@
 
 # Project handoff
 
+## 2026-09-19 — isolated leakage pass and usage-only hsim sensitivity completed
+
+Workstation`b72e465`reports full isolated feature/leakage pass, exact104,847historical-row parity and
+contemporaneous472player projection comparison:mean absolute0.60,max3.26,89over1point. Model/TabPFNcache
+provenance requested at lab`9529d6d`; do not call it a complete refreshed-pipeline effect yet. Scratch
+datasets are retained. [Usage-only result](reports/2026-09-19-usage-only-hsim-results.md), frozen input
+`76ba8318`, changes48/97memberships with means/pool fixed; five previously zero-support WRs recover.
+Fixed-calibration repaired-hsim audit gains2.430594Emax and4.14ppP220; old-law audit loses, so this is
+conditional model evidence, not established real-world lift. [Schedule audit](reports/2026-09-19-schedule-fixedcal-hsim-results.md)
+gives only small corrected-law differences spanning zero. Peer independently confirms the stale-game-line
+source defect (`6db3fb6`). Lab`4de6004`requests measured identity/timer release feasibility instead of
+unsupported automatic Week3deferral. No live writes/adoption/timer changes by the laptop.
+
+
 ## 2026-09-19 — exact hsim replay passed; live game-input mismatch measured
 
 Frozen `b9392eb0` reproduces every archived hsim score exactly; result `bd98a27e`. Follow-up input census

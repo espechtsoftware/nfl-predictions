@@ -56,3 +56,5 @@ Consolidated September 18, 2026 at Erich's request. Source commits: production `
 - [Hsim game-input defect](2026-09-19-hsim-game-input-defect.md) and [schedule-only sensitivity](2026-09-19-schedule-only-hsim-results.md): frozen game lines differ from the live frame and affect25/97 selected memberships; efficacy not established.
 
 - [Fixed-calibration schedule audit](2026-09-19-schedule-fixedcal-hsim-results.md): fresh final-world evaluation with saved calibration; small corrected-law difference, intervals spanning zero.
+
+- [Usage-only hsim result](2026-09-19-usage-only-hsim-results.md): restored prior usage changes48/97memberships and recovers five WRs' opportunity support; independent repaired-hsim audit gains are conditional model evidence.
