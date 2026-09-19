@@ -122,8 +122,10 @@ def main():
     for key in ['TABPFN_COMPONENTS', 'TABPFN_SEASONS', 'TABPFN_WRITE']:
         if os.environ.get(key, '').strip() not in ('', '0'):
             raise ValueError('foreign mode override: ' + key)
-    if os.environ.get('TABPFN_OUTPUT_TABLE', 'tabpfn_projections') != 'tabpfn_projections':
-        raise ValueError('foreign output override')
+    # If execution args were ignored, the ORIGINAL generator must refuse this
+    # unlicensed output name before querying or writing anything.
+    if os.environ.get('TABPFN_OUTPUT_TABLE') != 'scratch_adapter_required':
+        raise ValueError('execution lacks the original-generator refusal sentinel')
     raw = Path('/app/gen.py').read_bytes()
     if hashlib.sha256(Path('/app/features.txt').read_bytes()).hexdigest() != FEATURE_SHA:
         raise ValueError('feature contract differs')
