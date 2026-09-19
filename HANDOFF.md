@@ -4,6 +4,18 @@
 
 # Project handoff
 
+## 2026-09-19 — archived Week2 role trace found missing opportunity history
+
+[Report](reports/2026-09-19-hsim-role-trace-results.md), frozen source `36252c68`: all 435 archived rows have
+null snap/target/carry share history, and all 405 feature-matched skill rows have prior-games zero. Hsim's depth
+fallback therefore denies opportunity support to WR3+, including six selected WRs with exact zero simulated
+scores. Selected Tyson Bagent is not hsim's primary QB and has mean 3.4001 versus incumbent 16.881953, explaining
+the largest QB offset. These are archived model roles, not verified current status or player-removal authority.
+Next priority: workstation reproduction and current Week2 feature-support check, then trace ingestion, joins and
+cross-season semantics. No current actuals, resimulation, live edits or cloud writes. Four input hashes and exact
+source-byte checks passed. This may identify a data/role path worth repairing; it does not establish which law
+is more accurate or justify replacing zeros without a point-in-time rule.
+
 ## 2026-09-19 — fixed-K retrieval diagnostic completed; no guarded replacement
 
 Frozen source `d0a41807`, [result](reports/2026-09-19-fixed-k-retrieval-results.md): all 965 replacement pairs
