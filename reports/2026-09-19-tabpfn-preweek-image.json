@@ -1,0 +1,15 @@
+{
+  "build_id": "83058efd-43e2-4ec7-bd15-b6029df1cb68",
+  "build_status": "SUCCESS",
+  "image_digest": "sha256:fdb120dc2291b7d09538987d97e8b30d0e8fe5f7e9d9d40995b6adcc4d4692d6",
+  "source_commit": "fb875dd3",
+  "source_sha256": "96eadcd3ee2d4b7aa846c0f15c519eed2ac1d852fdd80e53e0cd40757b8eca04",
+  "base_layers_exactly_preserved": true,
+  "config_equal_except_docker_Image_field": true,
+  "old_config_Image": "sha256:79486c8cedddc86db3bef96209bda87a087b7dc76248fddbd34e1c21d67b17b2",
+  "new_config_Image": "sha256:a8672cd9158c74b8fd684e93fb650f28e533b22c1115e391c9902ffd8d1976c0",
+  "only_new_file": "app/gen.py",
+  "new_layer": "sha256:3052484a28048444ad11f6d03241b32ad83703f6bc85e68c32bdb3b55c34c3da",
+  "deployed": false,
+  "verification_note": "Initial whole-config equality check failed on Docker Image field. All other config fields match; new layer was extracted and gen.py matched source bytes before that check."
+}
