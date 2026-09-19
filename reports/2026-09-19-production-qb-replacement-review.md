@@ -85,3 +85,19 @@ Using those exact helpers on the archived morning selection bank, zero-centering
 [Reader](reviews/evidence/2026-09-19-zero-mean-qb-tail-counterexample.py) and [numeric evidence](reviews/evidence/2026-09-19-zero-mean-qb-tail-counterexample.json) preserve exact input identities and allowlisted frame columns. No outcome column is decoded.
 
 **Implication:** a projection-only patch does not fully remove the backup's simulated upside or guarantee that solve budget stops being spent on him. Carry the supported, ID-keyed eligibility decision through generation and both banks for a complete deterministic gate, or explicitly classify the narrower projection-only trial and retain v4's final-admission protection. The latter can still be useful, but must not be described as the complete downstream repair. This finding was pushed to production in shared handoff `ffe9e12`.
+
+## 20:17 UTC follow-up: independent execution of v4
+
+V4 arrived at shared commit `ce81b0f`. Its real replay now replaces two backup-QB rows and retains Pittman/Tua. Independent offline fixtures import the actual replacement and legality code, mocking only the BigQuery injury response. [Reader](reviews/evidence/2026-09-19-v4-independent-boundaries.py), [results](reviews/evidence/2026-09-19-v4-independent-boundaries.json).
+
+The valid replacement control succeeds. V4 now replaces a frame-OUT player despite old clean vetting, rejects the duplicate-player and over-salary alternatives, and enforces the minimum replacement count. These are confirmed improvements.
+
+Remaining reproduced failures:
+
+- **Fresh CSV OUT ignored:** old frame/report clean + new CSV `dk_status=OUT, role=out` still emits that QB with status OK. Only `role=gated` contributes to exclusions; fresh status must feed the shared exclusion set too.
+- **Exact K not enforced:** source receipt requests/writes two rows but a one-row book is accepted. Comparing final length with the input book's own length does not verify source completeness.
+- **Unequal/nonfinite banks accepted:** 4-world plus 3-world banks emit status OK under an equal-mass claim; a NaN bank also emits status OK and a NaN gain. Check dimensions and finiteness before selection. The test collector initially refused to serialize that nonfinite producer result; it now preserves it explicitly as a `non_finite_value` marker.
+- **Primary tie depends on input order:** changing only the order of two depth-1 QBs, one Doubtful, changes whether depth 2 is gated. Both classifier copies need the same explicit ambiguity rule.
+- **Unrequested Q/D admission veto:** if the only legal live replacement contains a Questionable receiver, v4 refuses it. That is a new policy choice, not a correctness requirement. The real rehearsal discards 2,124 otherwise eligible candidates on this rule. Default it off or present the measured tradeoff for an explicit decision.
+
+The fresh-status query still joins DK data by name/team internally, and the replacement receipt lacks binding source/final hashes. The forced-exclusion rehearsal flag can currently produce ordinary status OK on any path. These remaining checks and the reproduced cases were sent in shared `98d367e`; production owns the fixes. The original broad instruction to improve this weekend remains the objective.

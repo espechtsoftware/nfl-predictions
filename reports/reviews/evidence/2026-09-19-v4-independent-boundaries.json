@@ -1,0 +1,472 @@
+{
+  "kind": "offline_synthetic_v4_boundary_review",
+  "actual_outcomes_read": false,
+  "source_hashes": {
+    "vet_replace_v4.py": "265a4e1a4673465ff6bdec0f42971c18c573c661b786bd3f13ba35c6d633457e",
+    "qb_classify.py": "20cc297be2e7276aa085b5f7a6e03cf04fe76bd75e6c4c09f2c20bc2af7cfb1b"
+  },
+  "cases": [
+    {
+      "case": "legal_replacement_control",
+      "exit_code": 0,
+      "exception": null,
+      "book": [
+        [
+          10,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ]
+      ],
+      "status": "OK",
+      "receipt": {
+        "version": "vet-replace-v4",
+        "status": "OK",
+        "problems": [],
+        "source_run": "/tmp/v4-review-b586ajr6/legal_replacement_control/run",
+        "vetted_dir": "/tmp/v4-review-b586ajr6/legal_replacement_control/vetted",
+        "qb_flags": "/tmp/v4-review-b586ajr6/legal_replacement_control/flags.csv",
+        "exclusion_set": {
+          "Player 1": "backup_qb:behind-healthy-primary"
+        },
+        "removed_positions": [
+          1
+        ],
+        "replacements": [
+          {
+            "vetted_position": 1,
+            "source_rank": 1,
+            "removed": [
+              "Player 1",
+              "Player 2",
+              "Player 3",
+              "Player 4",
+              "Player 5",
+              "Player 6",
+              "Player 7",
+              "Player 8",
+              "Player 9"
+            ],
+            "removed_because": {
+              "Player 1": "backup_qb:behind-healthy-primary"
+            },
+            "replacement": [
+              "Player 10",
+              "Player 2",
+              "Player 3",
+              "Player 4",
+              "Player 5",
+              "Player 6",
+              "Player 7",
+              "Player 8",
+              "Player 9"
+            ],
+            "candidate_index": 0,
+            "gain_corrected_mix": 100.0
+          }
+        ],
+        "pool": {
+          "eligible": 1,
+          "rejected": {
+            "unmapped": 0,
+            "in_book": 0,
+            "excluded": 0,
+            "risky": 0,
+            "illegal": 0
+          }
+        }
+      },
+      "stdout": "replaced 1 unavailable lineup(s) (exclusion set 1 players); final book validated: 1 rows OK\n  pos   1 (source rank 1): removed because {'Player 1': 'backup_qb:behind-healthy-primary'}\n      -> Player 10, Player 2, Player 3, Player 4, Player 5, Player 6, Player 7, Player 8, Player 9  (gain +100.000)\n",
+      "stderr": ""
+    },
+    {
+      "case": "fresh_csv_out_old_clean_vet",
+      "exit_code": 0,
+      "exception": null,
+      "book": [
+        [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ]
+      ],
+      "status": "OK",
+      "receipt": {
+        "version": "vet-replace-v4",
+        "status": "OK",
+        "problems": [],
+        "source_run": "/tmp/v4-review-b586ajr6/fresh_csv_out_old_clean_vet/run",
+        "vetted_dir": "/tmp/v4-review-b586ajr6/fresh_csv_out_old_clean_vet/vetted",
+        "qb_flags": "/tmp/v4-review-b586ajr6/fresh_csv_out_old_clean_vet/flags.csv",
+        "exclusion_set": {},
+        "removed_positions": [],
+        "replacements": [],
+        "pool": {
+          "eligible": null,
+          "rejected": null
+        }
+      },
+      "stdout": "replaced 0 unavailable lineup(s) (exclusion set 0 players); final book validated: 1 rows OK\n",
+      "stderr": ""
+    },
+    {
+      "case": "frame_out_old_clean_vet",
+      "exit_code": 0,
+      "exception": null,
+      "book": [
+        [
+          10,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ]
+      ],
+      "status": "OK",
+      "receipt": {
+        "version": "vet-replace-v4",
+        "status": "OK",
+        "problems": [],
+        "source_run": "/tmp/v4-review-b586ajr6/frame_out_old_clean_vet/run",
+        "vetted_dir": "/tmp/v4-review-b586ajr6/frame_out_old_clean_vet/vetted",
+        "qb_flags": "/tmp/v4-review-b586ajr6/frame_out_old_clean_vet/flags.csv",
+        "exclusion_set": {
+          "Player 1": "dk:OUT"
+        },
+        "removed_positions": [
+          1
+        ],
+        "replacements": [
+          {
+            "vetted_position": 1,
+            "source_rank": 1,
+            "removed": [
+              "Player 1",
+              "Player 2",
+              "Player 3",
+              "Player 4",
+              "Player 5",
+              "Player 6",
+              "Player 7",
+              "Player 8",
+              "Player 9"
+            ],
+            "removed_because": {
+              "Player 1": "dk:OUT"
+            },
+            "replacement": [
+              "Player 10",
+              "Player 2",
+              "Player 3",
+              "Player 4",
+              "Player 5",
+              "Player 6",
+              "Player 7",
+              "Player 8",
+              "Player 9"
+            ],
+            "candidate_index": 0,
+            "gain_corrected_mix": 100.0
+          }
+        ],
+        "pool": {
+          "eligible": 1,
+          "rejected": {
+            "unmapped": 0,
+            "in_book": 0,
+            "excluded": 0,
+            "risky": 0,
+            "illegal": 0
+          }
+        }
+      },
+      "stdout": "replaced 1 unavailable lineup(s) (exclusion set 1 players); final book validated: 1 rows OK\n  pos   1 (source rank 1): removed because {'Player 1': 'dk:OUT'}\n      -> Player 10, Player 2, Player 3, Player 4, Player 5, Player 6, Player 7, Player 8, Player 9  (gain +100.000)\n",
+      "stderr": ""
+    },
+    {
+      "case": "minimum_replacement_guard",
+      "exit_code": 2,
+      "exception": "2",
+      "book": [],
+      "status": "FAILED",
+      "receipt": {
+        "version": "vet-replace-v4",
+        "status": "FAILED",
+        "problems": [
+          "replaced 0 < required 1"
+        ],
+        "source_run": "/tmp/v4-review-b586ajr6/minimum_replacement_guard/run",
+        "vetted_dir": "/tmp/v4-review-b586ajr6/minimum_replacement_guard/vetted",
+        "qb_flags": "/tmp/v4-review-b586ajr6/minimum_replacement_guard/flags.csv",
+        "exclusion_set": {},
+        "removed_positions": [],
+        "replacements": [],
+        "pool": {
+          "eligible": null,
+          "rejected": null
+        }
+      },
+      "stdout": "",
+      "stderr": "REPLACEMENT FAILED: replaced 0 < required 1\n"
+    },
+    {
+      "case": "source_count_mismatch",
+      "exit_code": 0,
+      "exception": null,
+      "book": [
+        [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ]
+      ],
+      "status": "OK",
+      "receipt": {
+        "version": "vet-replace-v4",
+        "status": "OK",
+        "problems": [],
+        "source_run": "/tmp/v4-review-b586ajr6/source_count_mismatch/run",
+        "vetted_dir": "/tmp/v4-review-b586ajr6/source_count_mismatch/vetted",
+        "qb_flags": "/tmp/v4-review-b586ajr6/source_count_mismatch/flags.csv",
+        "exclusion_set": {},
+        "removed_positions": [],
+        "replacements": [],
+        "pool": {
+          "eligible": null,
+          "rejected": null
+        }
+      },
+      "stdout": "replaced 0 unavailable lineup(s) (exclusion set 0 players); final book validated: 1 rows OK\n",
+      "stderr": ""
+    },
+    {
+      "case": "duplicate_player_candidate",
+      "exit_code": 1,
+      "exception": "no eligible replacement candidates",
+      "book": [],
+      "status": null,
+      "receipt": null,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "over_salary_candidate",
+      "exit_code": 1,
+      "exception": "no eligible replacement candidates",
+      "book": [],
+      "status": null,
+      "receipt": null,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "unequal_bank_widths",
+      "exit_code": 0,
+      "exception": null,
+      "book": [
+        [
+          10,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ]
+      ],
+      "status": "OK",
+      "receipt": {
+        "version": "vet-replace-v4",
+        "status": "OK",
+        "problems": [],
+        "source_run": "/tmp/v4-review-b586ajr6/unequal_bank_widths/run",
+        "vetted_dir": "/tmp/v4-review-b586ajr6/unequal_bank_widths/vetted",
+        "qb_flags": "/tmp/v4-review-b586ajr6/unequal_bank_widths/flags.csv",
+        "exclusion_set": {
+          "Player 1": "backup_qb:behind-healthy-primary"
+        },
+        "removed_positions": [
+          1
+        ],
+        "replacements": [
+          {
+            "vetted_position": 1,
+            "source_rank": 1,
+            "removed": [
+              "Player 1",
+              "Player 2",
+              "Player 3",
+              "Player 4",
+              "Player 5",
+              "Player 6",
+              "Player 7",
+              "Player 8",
+              "Player 9"
+            ],
+            "removed_because": {
+              "Player 1": "backup_qb:behind-healthy-primary"
+            },
+            "replacement": [
+              "Player 10",
+              "Player 2",
+              "Player 3",
+              "Player 4",
+              "Player 5",
+              "Player 6",
+              "Player 7",
+              "Player 8",
+              "Player 9"
+            ],
+            "candidate_index": 0,
+            "gain_corrected_mix": 100.0
+          }
+        ],
+        "pool": {
+          "eligible": 1,
+          "rejected": {
+            "unmapped": 0,
+            "in_book": 0,
+            "excluded": 0,
+            "risky": 0,
+            "illegal": 0
+          }
+        }
+      },
+      "stdout": "replaced 1 unavailable lineup(s) (exclusion set 1 players); final book validated: 1 rows OK\n  pos   1 (source rank 1): removed because {'Player 1': 'backup_qb:behind-healthy-primary'}\n      -> Player 10, Player 2, Player 3, Player 4, Player 5, Player 6, Player 7, Player 8, Player 9  (gain +100.000)\n",
+      "stderr": ""
+    },
+    {
+      "case": "nonfinite_bank",
+      "exit_code": 0,
+      "exception": null,
+      "book": [
+        [
+          10,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ]
+      ],
+      "status": "OK",
+      "receipt": {
+        "version": "vet-replace-v4",
+        "status": "OK",
+        "problems": [],
+        "source_run": "/tmp/v4-review-b586ajr6/nonfinite_bank/run",
+        "vetted_dir": "/tmp/v4-review-b586ajr6/nonfinite_bank/vetted",
+        "qb_flags": "/tmp/v4-review-b586ajr6/nonfinite_bank/flags.csv",
+        "exclusion_set": {
+          "Player 1": "backup_qb:behind-healthy-primary"
+        },
+        "removed_positions": [
+          1
+        ],
+        "replacements": [
+          {
+            "vetted_position": 1,
+            "source_rank": 1,
+            "removed": [
+              "Player 1",
+              "Player 2",
+              "Player 3",
+              "Player 4",
+              "Player 5",
+              "Player 6",
+              "Player 7",
+              "Player 8",
+              "Player 9"
+            ],
+            "removed_because": {
+              "Player 1": "backup_qb:behind-healthy-primary"
+            },
+            "replacement": [
+              "Player 10",
+              "Player 2",
+              "Player 3",
+              "Player 4",
+              "Player 5",
+              "Player 6",
+              "Player 7",
+              "Player 8",
+              "Player 9"
+            ],
+            "candidate_index": 0,
+            "gain_corrected_mix": {
+              "non_finite_value": "nan"
+            }
+          }
+        ],
+        "pool": {
+          "eligible": 1,
+          "rejected": {
+            "unmapped": 0,
+            "in_book": 0,
+            "excluded": 0,
+            "risky": 0,
+            "illegal": 0
+          }
+        }
+      },
+      "stdout": "replaced 1 unavailable lineup(s) (exclusion set 1 players); final book validated: 1 rows OK\n  pos   1 (source rank 1): removed because {'Player 1': 'backup_qb:behind-healthy-primary'}\n      -> Player 10, Player 2, Player 3, Player 4, Player 5, Player 6, Player 7, Player 8, Player 9  (gain +nan)\n",
+      "stderr": ""
+    },
+    {
+      "case": "questionable_replacement_policy",
+      "exit_code": 1,
+      "exception": "no eligible replacement candidates",
+      "book": [],
+      "status": null,
+      "receipt": null,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "tied_primary_order_cases": [
+    {
+      "order": [
+        0,
+        1,
+        2
+      ],
+      "gated": []
+    },
+    {
+      "order": [
+        1,
+        0,
+        2
+      ],
+      "gated": [
+        "C"
+      ]
+    }
+  ]
+}
