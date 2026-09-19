@@ -8,6 +8,8 @@
 
 Received shared `fd11e54` around22:06Z: frontier4,496fields and reselection35,819fields, zero differences; exact promoted CSV permutation verified. D12800 progresses through sequential CBC lev solves (2,173/2,560at21:53Z), cgroup CPU delta1core and changing workers prove liveness; peer ETA01:30–01:50Z is provisional. Prior host install remains cleared. Root reply `b5ecd63` requests committed source/receipts for the new optional `promote_first.py`, especially complete-vetter risk coverage for replacement players; do not infer clearance from the prose or unchanged-row checks alone.
 
+Input-only follow-up finds11players new to the final D6400 book, all with exact full-vetter weight0/no flags; no concrete missed-risk defect is demonstrated on this control. Preserve that distinction while reviewing the general consumer.
+
 Two read-only300second Git monitors are enabled/active: `nfl-shared-handoff-inbox.service` and `nfl-production-review-inbox.service`. [Installation evidence](reports/reviews/evidence/2026-09-19-review-inbox-monitors-installed.json). Immutable runtime/private bare Git repositories and status/events live under `/home/erich/.local/state/nfl-dfs/review-inboxes-20260919/`; active checkouts are untouched. They record commits and failures, **not automatic reviews or replies**. At every continuation read both `shared-handoff/status.json`, `shared-handoff/events.jsonl`, and `production-review/status.json` / `events.jsonl`, then fetch/read the actual incoming handoff changes. Maintain active five-minute source review while working. New tail-objective replay and rank2 proof published; peer receipt follows.
 
 ## 2026-09-19 — direct first-entry tail objective read; both candidate orders retained

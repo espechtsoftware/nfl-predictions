@@ -1,0 +1,86 @@
+{
+  "original_vetter_sha256": "75ed2a358169686905f7634cac09fc4d7e230c128dba67e44d3b2eac73eee298",
+  "final_book_vetter_sha256": "ccaae52ac9403febe26134a9d407513c452eb5d61df3ae2da9c6d326ae625535",
+  "new_players": {
+    "Rashod Bateman": {
+      "dk": "1108208",
+      "pos": "WR",
+      "team": "BAL",
+      "weight": 0.0,
+      "flags": []
+    },
+    "Kirk Cousins": {
+      "dk": "403308",
+      "pos": "QB",
+      "team": "LV",
+      "weight": 0.0,
+      "flags": []
+    },
+    "J.K. Dobbins": {
+      "dk": "976513",
+      "pos": "RB",
+      "team": "DEN",
+      "weight": 0.0,
+      "flags": []
+    },
+    "Tommy Tremble": {
+      "dk": "1130555",
+      "pos": "TE",
+      "team": "CAR",
+      "weight": 0.0,
+      "flags": []
+    },
+    "Rico Dowdle": {
+      "dk": "933480",
+      "pos": "RB",
+      "team": "PIT",
+      "weight": 0.0,
+      "flags": []
+    },
+    "Kenyon Sadiq": {
+      "dk": "1444547",
+      "pos": "TE",
+      "team": "NYJ",
+      "weight": 0.0,
+      "flags": []
+    },
+    "Harold Fannin Jr.": {
+      "dk": "1394752",
+      "pos": "TE",
+      "team": "CLE",
+      "weight": 0.0,
+      "flags": []
+    },
+    "Luke Farrell": {
+      "dk": "946541",
+      "pos": "TE",
+      "team": "SF",
+      "weight": 0.0,
+      "flags": []
+    },
+    "Tony Pollard": {
+      "dk": "880398",
+      "pos": "RB",
+      "team": "TEN",
+      "weight": 0.0,
+      "flags": []
+    },
+    "Pat Freiermuth": {
+      "dk": "1116662",
+      "pos": "TE",
+      "team": "PIT",
+      "weight": 0.0,
+      "flags": []
+    },
+    "Romeo Doubs": {
+      "dk": "1122653",
+      "pos": "WR",
+      "team": "NE",
+      "weight": 0.0,
+      "flags": []
+    }
+  },
+  "shared_player_weight_changes": [],
+  "finding": "No concrete missed positive-weight player in this D6400 control; general-consumer replacement-risk boundary still requires source/test review.",
+  "current_outcomes_read": false
+}
