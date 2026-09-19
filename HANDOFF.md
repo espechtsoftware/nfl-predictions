@@ -4,6 +4,12 @@
 
 # Project handoff
 
+## 2026-09-19 — cloud release complete; host activation pending
+
+[Release result](reports/2026-09-19-weekend-input-repair-release-results.md): all three actual refresh jobs and representative host-cache CLI proof pass. At 06:39:59Z all three registry lanes exited 0 and released, final provider census clear. Host proof: D160/K97, zero legality/strategy violations, current13games, exact new504-row projection batch, existing cache hash unchanged,66seconds. Immutable14-artifact proof manifest generation1789799946211740, SHA256e506da01d2c142914ed6cd75da2cc864ba9368d1da7c74f5a35650a1f06ead39. Workstation source activation remains pending; morning09:45CDTrefresh needs a new writer window for newer raw data. No selector/prior/cache adoption. Peer must receive final completion before host step.
+
+Additional fresh-cache rehearsal also passes. Both input frames, projections, source/config and seeds match, but historical cache row order and values differ. Served means and per-player score multisets are identical; incumbent joint worlds differ while hsim is exact. Only32/160candidates and8/97selected rosters overlap; first remains same. This demonstrates why cache age cannot be judged by mean projections alone, but does not separate changed values from training-row order or show better outcomes. Keep host cache intact; fuller engineering report follows.
+
 ## 2026-09-19 — projections validated; representative CLI proof running
 
 `project-slate-x268x` completed with 504 rows in the exact 06:29:00.515884Z batch, unchanged `pooled/components__tail_k1/2026-W32`. [Validation](reports/reviews/evidence/2026-09-19-release-projection-validation.json): 472 unique skill GSIS IDs plus 32 defenses with intentionally null GSIS and unique DK team IDs; all 504 DK identities unique, finite ordered predictions. Exact prop consumer has 185/472 real-prop rows (39.19%); the log's 384/472 includes DK fallback and is not real-prop coverage. Fresh div_shadow has 185 rows and exact execution logs confirm the props branch.

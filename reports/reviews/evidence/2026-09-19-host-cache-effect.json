@@ -1,0 +1,141 @@
+{
+  "checks": {
+    "season": true,
+    "week": true,
+    "draft_group": true,
+    "lock_utc": true,
+    "salary_pull": true,
+    "identity": true,
+    "config": true,
+    "banks": true,
+    "live_input_hashes": true,
+    "player_order": true,
+    "columns": true
+  },
+  "matched_live_pair": true,
+  "config_differences": {
+    "turnover_vs_cov194": {
+      "host": 0.1443,
+      "fresh": 0.1546
+    }
+  },
+  "proof_sha256": {
+    "host": "2fe74d1476da76631a926e50ec34e4bc7c3ca1b70ae284a2e031e607588d6ba4",
+    "fresh": "20841b3fce276d978cffd8e8712ac6d5783c99d186591e7b1cf6183ccb6458b3"
+  },
+  "cache_sha256": {
+    "host": "8aaa5daf5a3ebd12bdb471466dabefdc55f774988ff9437710a4e54467b072b7",
+    "fresh": "1911368cddb341a268d8bdd570bd889bcdfa008205168e792b09f7775223a096"
+  },
+  "reader_sha256": "c0d093dfb791f0e6e85da67ce473a0c6c65242be1622068f64faf125fb980ee1",
+  "scope": "D160 engineering sensitivity; selection-bank distribution changes, no efficacy scores or NFL outcomes; pre-vetting books",
+  "changed_frame_columns": {
+    "model_points_pre": 146
+  },
+  "mean_differences": {
+    "model_points_pre": {
+      "changed": 146,
+      "above_1e_6": 0,
+      "mean_signed": 2.749617771267911e-17,
+      "mean_absolute": 5.784573235780605e-16,
+      "max_absolute": 7.105427357601002e-15
+    },
+    "mean_projection": {
+      "changed": 0,
+      "above_1e_6": 0,
+      "mean_signed": 0.0,
+      "mean_absolute": 0.0,
+      "max_absolute": 0.0
+    },
+    "proj": {
+      "changed": 0,
+      "above_1e_6": 0,
+      "mean_signed": 0.0,
+      "mean_absolute": 0.0,
+      "max_absolute": 0.0
+    }
+  },
+  "selection_bank_marginals": {
+    "incumbent": {
+      "mean": {
+        "changed": 0,
+        "above_1e_6": 0,
+        "mean_signed": 0.0,
+        "mean_absolute": 0.0,
+        "max_absolute": 0.0
+      },
+      "p95": {
+        "changed": 0,
+        "above_1e_6": 0,
+        "mean_signed": 0.0,
+        "mean_absolute": 0.0,
+        "max_absolute": 0.0
+      },
+      "p99": {
+        "changed": 0,
+        "above_1e_6": 0,
+        "mean_signed": 0.0,
+        "mean_absolute": 0.0,
+        "max_absolute": 0.0
+      }
+    },
+    "corrected_hsim": {
+      "mean": {
+        "changed": 0,
+        "above_1e_6": 0,
+        "mean_signed": 0.0,
+        "mean_absolute": 0.0,
+        "max_absolute": 0.0
+      },
+      "p95": {
+        "changed": 0,
+        "above_1e_6": 0,
+        "mean_signed": 0.0,
+        "mean_absolute": 0.0,
+        "max_absolute": 0.0
+      },
+      "p99": {
+        "changed": 0,
+        "above_1e_6": 0,
+        "mean_signed": 0.0,
+        "mean_absolute": 0.0,
+        "max_absolute": 0.0
+      }
+    }
+  },
+  "candidates": {
+    "host": 160,
+    "fresh": 160,
+    "shared": 32
+  },
+  "prefix_overlap": {
+    "1": {
+      "shared": 1,
+      "same_rank": 1
+    },
+    "10": {
+      "shared": 1,
+      "same_rank": 1
+    },
+    "20": {
+      "shared": 1,
+      "same_rank": 1
+    },
+    "30": {
+      "shared": 2,
+      "same_rank": 1
+    },
+    "40": {
+      "shared": 2,
+      "same_rank": 1
+    },
+    "80": {
+      "shared": 6,
+      "same_rank": 1
+    },
+    "97": {
+      "shared": 8,
+      "same_rank": 1
+    }
+  }
+}

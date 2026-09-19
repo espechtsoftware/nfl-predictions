@@ -1,0 +1,66 @@
+{
+  "complete": {
+    "at": "2026-09-19T06:39:59.130743+00:00",
+    "scope": "cloud refresh; host activation separate"
+  },
+  "all_three_exit_zero": true,
+  "no_active_release_receipts": true,
+  "recorded_pids_absent": true,
+  "lanes": {
+    "build-features": {
+      "completion": {
+        "acquired_at_utc": "2026-09-19T05:48:32Z",
+        "completed_at_utc": "2026-09-19T06:39:59Z",
+        "exit_status": 0,
+        "lane": "build-features",
+        "owner": "production",
+        "pid": 1099950,
+        "process_start_ticks": 11017369,
+        "receipt_sha256": "f4da2b36d08e08b2feb5ec2d0493a5a029253b19b6c2ce2226a56a531461c88a",
+        "schema_version": "shared-launcher-completion/v1",
+        "script_path": "/home/erich/projects/.nfl-predictions-worktrees/paid-source-experiments/reports/reviews/evidence/2026-09-19-release-launch.sh",
+        "target_run_id_prefixes": [
+          "input-repair-20260919"
+        ]
+      },
+      "file_sha256": "b896ee8e3ec437fad3c4ce9bf9d9534c84ddcae440e7d91b427a6cf3342f54c3"
+    },
+    "tabpfn-gen": {
+      "completion": {
+        "acquired_at_utc": "2026-09-19T05:48:32Z",
+        "completed_at_utc": "2026-09-19T06:39:59Z",
+        "exit_status": 0,
+        "lane": "tabpfn-gen",
+        "owner": "production",
+        "pid": 1099980,
+        "process_start_ticks": 11017372,
+        "receipt_sha256": "ffb3d165989001068f4cc739b43cbaae66772d62751b6d1d9f930e424b6620df",
+        "schema_version": "shared-launcher-completion/v1",
+        "script_path": "/home/erich/projects/.nfl-predictions-worktrees/paid-source-experiments/reports/reviews/evidence/2026-09-19-release-launch.sh",
+        "target_run_id_prefixes": [
+          "input-repair-20260919"
+        ]
+      },
+      "file_sha256": "0b8c4ca6362b0c521388a0b96e79188f4a81968f7736cb4626f1c75bcf0ea1b8"
+    },
+    "project-slate": {
+      "completion": {
+        "acquired_at_utc": "2026-09-19T05:48:32Z",
+        "completed_at_utc": "2026-09-19T06:39:59Z",
+        "exit_status": 0,
+        "lane": "project-slate",
+        "owner": "production",
+        "pid": 1100016,
+        "process_start_ticks": 11017376,
+        "receipt_sha256": "e044a534c8905e211b31292e315e7e8d43290b34b038112f0827121e230f2b5a",
+        "schema_version": "shared-launcher-completion/v1",
+        "script_path": "/home/erich/projects/.nfl-predictions-worktrees/paid-source-experiments/reports/reviews/evidence/2026-09-19-release-launch.sh",
+        "target_run_id_prefixes": [
+          "input-repair-20260919"
+        ]
+      },
+      "file_sha256": "9ad91114fd82bebaffd8af9bf6da8b215c35f2ae0a9a0584187000c618be7cae"
+    }
+  },
+  "scope": "This host registry is released; any later writer must still census provider executions and other hosts."
+}

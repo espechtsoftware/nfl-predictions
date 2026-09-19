@@ -101,3 +101,5 @@ Consolidated September 18, 2026 at Erich's request. Source commits: production `
 - [Injury-type opportunity result](2026-09-19-injury-type-opportunity-results.md): fixed screen fails advancement; two prediction-identical folds disclosed; cross-read requested.
 
 - [Transition follow-up review](2026-09-19-transition-followup-review.md): PREREG-100/live-vetting consumer mismatch; local historical cache lacks source identity/invalidation.
+
+- [Completed cloud input release](2026-09-19-weekend-input-repair-release-results.md): validated live refresh and actual host-cache CLI proof; lanes released, workstation activation pending.

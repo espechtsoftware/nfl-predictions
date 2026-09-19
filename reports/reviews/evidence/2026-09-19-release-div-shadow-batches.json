@@ -1,0 +1,16 @@
+{
+  "job": "8633b273-3ed2-4082-a8a3-799a30e9a4a7",
+  "sql": "SELECT generated_at,COUNT(*) AS row_count,COUNT(DISTINCT gsis_id) AS unique_players FROM `nfl-predictions-503414.nfl_predictions.div_shadow` WHERE season=2026 AND week=2 GROUP BY generated_at ORDER BY generated_at",
+  "batches": [
+    {
+      "generated_at": "2026-09-17 15:02:07.841616+00:00",
+      "row_count": 170,
+      "unique_players": 170
+    },
+    {
+      "generated_at": "2026-09-19 06:28:50.672000+00:00",
+      "row_count": 185,
+      "unique_players": 185
+    }
+  ]
+}

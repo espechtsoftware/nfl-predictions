@@ -1,5 +1,5 @@
 {
-  "status": "AUTHORIZED_GATES_IN_PROGRESS",
+  "status": "CLOUD_COMPLETE_HOST_ACTIVATION_PENDING",
   "project": "nfl-predictions-503414",
   "region": "us-central1",
   "location": "US",
@@ -243,5 +243,11 @@
     "handoff": "nfl2 cef83e8677946278402c021c5ae3d6d001b40565",
     "received_at_utc": "2026-09-19T05:38:00Z",
     "operator_instruction": "Implement the changes that the other agent wants."
+  },
+  "cloud_completion": {
+    "at": "2026-09-19T06:39:59.130743+00:00",
+    "report": "reports/2026-09-19-weekend-input-repair-release-results.md",
+    "host_cache_unchanged": true,
+    "host_pin_activated": false
   }
 }

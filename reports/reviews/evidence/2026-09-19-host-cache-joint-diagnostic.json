@@ -1,0 +1,28 @@
+{
+  "scope": "Post-inspection engineering diagnostic, no NFL outcomes or performance scores",
+  "historical_key_order_equal": false,
+  "historical_key_sets_equal": true,
+  "rows": 102927,
+  "banks": {
+    "incumbent": {
+      "shape": [
+        428,
+        10000
+      ],
+      "exact_equal": false,
+      "different_cells": 3818855,
+      "row_multisets_equal": true,
+      "max_absolute_cell_difference": 41.19820022583008
+    },
+    "corrected_hsim": {
+      "shape": [
+        428,
+        10000
+      ],
+      "exact_equal": true,
+      "different_cells": 0,
+      "row_multisets_equal": true,
+      "max_absolute_cell_difference": 0.0
+    }
+  }
+}
