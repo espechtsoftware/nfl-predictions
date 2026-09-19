@@ -4,6 +4,10 @@
 
 # Project handoff
 
+## 2026-09-19 — backups verified; feature image update reconciled
+
+All36 snapshots verified at05:43:40.913Z, one view retained. First feature image update completed; pre-execution template guard caught only additional gcloud clientVersion metadata. No feature execution or live table change. Independent read confirms actual task template unchanged; all first-attempt registry lanes terminalized. [Release checkpoint](reports/2026-09-19-weekend-input-repair-release-plan.md) records the exact query and resume rules. Resume verifies the existing snapshot/source set, skips the already-applied update and permits only the documented clientVersion metadata difference. Peer notified at lab `8fa06a5`.
+
 ## 2026-09-19 — delivered-order trace and injury-type mechanical repair
 
 [Exact vetting replay](reports/2026-09-19-delivered-order-trace.md) promotes original ranks5/10 to the first delivered slot on the two saved D1600 research books. Original firsts move to35/37. No outcomes or entry files opened; fresh identical vetting inputs, not a Sunday archived replay. Earlier first/prefix/block comparisons are qualified as pre-vetting; whole-book set comparisons unaffected.

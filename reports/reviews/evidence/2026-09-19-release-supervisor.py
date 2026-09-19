@@ -19,7 +19,8 @@ from google.cloud import bigquery
 
 ROOT = Path(__file__).resolve().parents[3]
 EVIDENCE = Path(__file__).parent
-OUT = Path('/home/erich/projects/review-evidence/overnight-20260918/authorized-release-v1')
+OUT = Path('/home/erich/projects/review-evidence/overnight-20260918/authorized-release-v2')
+RESUME = OUT.parent/'authorized-release-v1'
 STATE = Path('/home/erich/.local/state/nfl-dfs/lab-launcher-registry')
 PROJECT = 'nfl-predictions-503414'
 BASE = f'https://run.googleapis.com/v2/projects/{PROJECT}/locations/us-central1/jobs/'
@@ -42,6 +43,9 @@ def save(path, value):
 
 def template_without_image(value):
     value=copy.deepcopy(value['template'])
+    # gcloud writes its own version as execution-template client metadata.
+    # This is outside the actual task template; preserve/receipt both versions.
+    value.pop('clientVersion',None)
     assert len(value['template']['containers']) == 1
     del value['template']['containers'][0]['image']
     return value
@@ -112,6 +116,30 @@ class Release:
 
     def backups(self):
         self.census('before-backup')
+        if RESUME.exists():
+            old=json.loads((RESUME/'backup-result.json').read_text())
+            assert old['verified_count']==36 and old['source_metadata_unchanged']
+            assert sha(RESUME/'backup-result.json')=='9fca91e9ca04e7046513da98574053f058ba2471d3973a22b5e1c46048856ef3'
+            original=json.loads((RESUME/'before-tables-private.json').read_text())
+            for rec in self.plan['tables']:
+                snap=self.table_meta(rec['snapshot']);assert snap==old['tables'][rec['snapshot']]
+                live=self.table_meta(rec['source']);assert live==original[rec['source']]
+            for name,view in old['views'].items():assert self.table_meta(name)==view
+            for name in JOBS:
+                baseline=json.loads((RESUME/(name+'-before-private.json')).read_text())
+                current=self.get(BASE+name)
+                if name=='build-features':
+                    stopped=json.loads((RESUME/'build-features-after-stop-private.json').read_text())
+                    assert current['template']==stopped['template']
+                    assert current['template']['template']['containers'][0]['image']==AFTER[name]
+                    assert template_without_image(current)==template_without_image(baseline)
+                else: assert current['template']==baseline['template']
+                self.before[name]=baseline
+                save(OUT/(name+'-before-private.json'),baseline)
+            save(OUT/'backup-result.json',dict(**old,reused_from=str(RESUME/'backup-result.json'),reverified_at=now(),
+                original_sha256=sha(RESUME/'backup-result.json')))
+            print('EXISTING_BACKUPS_REVERIFIED',36,flush=True)
+            return
         for name in JOBS:
             value=self.get(BASE+name);save(OUT/(name+'-before-private.json'),value);self.before[name]=value
             if name in BEFORE: assert value['template']['template']['containers'][0]['image']==BEFORE[name]
@@ -157,8 +185,11 @@ class Release:
     def refresh(self,name):
         before_names=self.census('before-'+name)
         current=self.get(BASE+name)
-        assert current['template']==self.before[name]['template'],'template changed before own update'
-        if name in AFTER:
+        already_applied=name=='build-features' and RESUME.exists()
+        if already_applied:
+            assert current['template']==json.loads((RESUME/'build-features-after-stop-private.json').read_text())['template']
+        else:assert current['template']==self.before[name]['template'],'template changed before own update'
+        if name in AFTER and not already_applied:
             self.command(name+'-update',['gcloud','run','jobs','update',name,'--project='+PROJECT,'--region=us-central1','--image='+AFTER[name],'--format=json'])
         installed=self.get(BASE+name)
         assert template_without_image(installed)==template_without_image(self.before[name])
@@ -179,6 +210,8 @@ class Release:
         assert self.get(BASE+name)['template']==installed['template'],'template drift during execution'
         save(OUT/(name+'-result.json'),dict(at=now(),execution=actual['name'],completionTime=actual.get('completionTime'),
           succeededCount=actual.get('succeededCount'),taskCount=actual['taskCount'],image=image,only_image_changed=True,
+          client_version_before=self.before[name]['template'].get('clientVersion'),client_version_after=installed['template'].get('clientVersion'),
+          image_update_already_applied=already_applied,
           execution_receipt=actual))
         print('REFRESH_COMPLETE',name,actual['name'],flush=True)
 

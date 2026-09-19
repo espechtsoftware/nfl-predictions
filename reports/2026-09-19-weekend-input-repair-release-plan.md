@@ -92,3 +92,21 @@ bash /home/erich/week2-runtime-pin.sh rollback c1cf827099bfe4b8d73b5a7d55a8533ce
 Use the second command only as the host portion of the complete rollback above.
 The source test seams must be unset in operational use. A nonzero result can mean
 partial arming; reconcile the runner's actual per-unit report before retrying.
+
+## Authorized release checkpoint, 05:48 UTC
+
+All36 snapshots now exist and match their original table schemas, row counts,
+partitioning/clustering and source identities at common timestamp
+`2026-09-19T05:43:40.913Z`; source metadata remained unchanged. Backup query
+`input_repair_20260919_backup_ae23abd4-0f3d-4b99-8a66-a64f7221d956`.
+The view is saved and matches the prepared restore statement.
+
+The first `build-features` image update succeeded. The supervisor stopped **before
+execution** because gcloud additionally changed `template.clientVersion`.
+Independent deployed-config comparison identifies exactly those two differences;
+no actual task/config field changed, and latest execution remains the old one.
+All registry lanes terminalized normally with nonzero status. Resume retains the
+original before-config/backup, verifies every live table/view and snapshot again,
+skips the already-applied feature image update, and explicitly records client
+version metadata. Tests against the actual before/after configs pass while env
+and task-count changes still fail. No live table has been rebuilt at this checkpoint.
