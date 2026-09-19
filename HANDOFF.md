@@ -48,6 +48,11 @@ agent or developer:
 - **Follow-ups opened:** O-13 (checker registry fields for the Route Share gate must reflect Amendment 1, with a
   test, Monday 2026-09-21 with O-2); Week-2 evidence record Monday; bank 991 authorized by the operator at ~16:57Z
   ("Yes on bank 991") — amendment-5 reader frozen, then read.
+- **21:27Z — O-14 opened at the operator's request** (`reports/OPEN-DEFECTS.md`): the selector concentrated 45 of 97
+  Week-2 D6400 lineups on Zay Flowers (Doubtful at build; Out by afternoon), with no availability weighting or exposure
+  cap; "too late to change it for this week … be sure it's documented to fix next week." Week-3 class-S item under
+  the labs' selection-loss frontier protocol plus `tools/exposure_cap_book.py` on the historical books; the Week-2
+  entered book is protected only by the Rung 1c replacement step.
 - **v2, ~17:2xZ, on the lab's independent review** (`reports/2026-09-19-in-season-rules-independent-review.md`,
   research `45e5a25c`): the fixed 2-consecutive / 3-of-4 bars and the automatic two-loss rollback are withdrawn in
   favour of candidate-specific reversible-trial decision records (faster, and not a weak sign-count gate); class C
