@@ -1,5 +1,5 @@
 {
-  "status": "CLOUD_COMPLETE_HOST_ACTIVATION_PENDING",
+  "status": "CLOUD_AND_HOST_COMPLETE_MORNING_REFRESH_PREPARING",
   "project": "nfl-predictions-503414",
   "region": "us-central1",
   "location": "US",
@@ -249,5 +249,6 @@
     "report": "reports/2026-09-19-weekend-input-repair-release-results.md",
     "host_cache_unchanged": true,
     "host_pin_activated": false
-  }
+  },
+  "host_activation_evidence": "nfl2 handoff 730ed69; operator applied, peer verified all six units"
 }

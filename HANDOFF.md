@@ -4,6 +4,10 @@
 
 # Project handoff
 
+## 2026-09-19 — participation transfer yields a conditional selection gain
+
+[Result](reports/2026-09-19-participation-transfer-results.md): same D1600/K97, fresh captured designations and the existing 2026 map give expected-max +3.409 and P220 10.360%→12.710% under the independent participation audit. Both component signs agree. All-active sensitivity loses 3.099 points and 3.710 percentage points; first delivered lineup is unchanged. Ordinary control exactly reproduces; all 97 rows in each book are legal; portable frozen replay matches all numbers and delivered orders. Prior provider publication times remain unavailable; collector-time provenance is explicit. No NFL outcome read, live policy change or actual-dose claim. Full portable inputs are published for external cross-read. Next: ordinary saved-artifact reselection rehearsal, fresh-status and confirmed-active contracts, then a concrete recommendation.
+
 ## 2026-09-19 — focused participation-selection transfer; host activated
 
 Erich requests a two-and-a-half-hour scoring window. [Frozen protocol](reports/2026-09-19-participation-transfer-protocol.md) tests existing prior-season P_MIX probabilities on the same repaired D1600 pool atK97, both component audits, all-active sensitivity and unchanged delivered-order helper. Real support and full synthetic selection/delivery smoke pass; numerical comparison is next. No current outcomes, bank991 read, fit or live policy change. The authenticated September10 map/rehearsal passes production validators. Peer `b1386c6` independently reproduces object identities and withdraws its no-source/no-rehearsal claims; actual Week1 entered use remains unproven.

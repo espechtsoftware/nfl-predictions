@@ -1,0 +1,23 @@
+{
+  "control": {
+    "entries": 97,
+    "dk_violations": 0,
+    "house_violations": 0
+  },
+  "pmix": {
+    "entries": 97,
+    "dk_violations": 0,
+    "house_violations": 0
+  },
+  "control_vetted": {
+    "entries": 97,
+    "dk_violations": 0,
+    "house_violations": 0
+  },
+  "pmix_vetted": {
+    "entries": 97,
+    "dk_violations": 0,
+    "house_violations": 0
+  },
+  "result_sha256": "cdb34c157e4dcad9a67fe2d399ff52a88a1ae37c63f114ed788a4eba8238f930"
+}
