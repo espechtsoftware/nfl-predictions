@@ -1,4 +1,4 @@
-"""Fixed six-feature hsim sensitivity; requires a separately frozen scratch-input receipt."""
+"""Fixed archived-frame game-line sensitivity; all usage features and means held fixed."""
 import argparse
 import base64
 import hashlib
@@ -25,27 +25,16 @@ FEATURES=['snap_share_l4','target_share_l4','carry_share_l4','games_played_prior
 COLUMNS=['id','display_name','pos','team','proj','mean_projection','depth_rank','snap_share_l4',
          'is_cold_start','games_played_prior','target_share_l4','carry_share_l4',
          'rz20_target_share_l4','gl3_carry_share_l4','neutral_pass_rate_l6',
-         'yards_per_target_l8','yards_per_carry_l8']
+         'yards_per_target_l8','yards_per_carry_l8','game_id','game_total','spread']
 SPANS=[(0,1),(1,24),(24,25),(25,30),(30,31),(31,33),(33,43),(43,53),(53,63),(63,79),(79,95),(95,97)]
 
 def main():
     ap=argparse.ArgumentParser(description=__doc__)
-    ap.add_argument('--input',type=Path,required=True)
-    ap.add_argument('--input-sha256',required=True)
     ap.add_argument('--output',type=Path,required=True)
     args=ap.parse_args()
     assert not args.output.exists()
-    raw=args.input.read_bytes();assert hashlib.sha256(raw).hexdigest()==args.input_sha256
-    receipt=json.loads(raw)
-    assert receipt['season']==2026 and receipt['week']==2 and receipt['features']==FEATURES
-    usage=pd.DataFrame(receipt['rows'])
-    assert not usage.gsis_id.duplicated().any() and len(usage)>0
-    assert set(usage.columns)=={'gsis_id',*FEATURES}
-    for col in FEATURES:
-        x=pd.to_numeric(usage[col],errors='raise')
-        assert (x.isna() | np.isfinite(x)).all()
-        assert (x.isna() | x.between(0,1)).all(),col
-    assert usage.games_played_prior.notna().all() and usage.games_played_prior.isin([0,1]).all()
+    args.input_sha256='90a762654111126aefad1950217044443291251918ab70edb925ff341d226635'
+    receipt={'table':'archived frame.parquet; authenticated generation1789768711580236'}
     replay_receipt=json.loads((R/'2026-09-19-hsim-replay-preflight.json').read_text())
     assert replay_receipt['exact_equal']
     source_hashes={}
@@ -87,12 +76,31 @@ def main():
         return raw
     fr=pq.read_table(io.BytesIO(get('frame.parquet')),columns=COLUMNS).to_pandas()
     assert len(fr)==fr.id.nunique()==435
-    changed=fr.copy(deep=True);indexed=usage.set_index('gsis_id');match=fr.id.isin(indexed.index)
-    for col in FEATURES:
-        mapped=pd.to_numeric(fr.id.map(indexed[col]),errors='raise')
-        changed[col]=fr[col].where(~match,mapped)
-    assert changed[[c for c in COLUMNS if c not in FEATURES]].equals(fr[[c for c in COLUMNS if c not in FEATURES]])
-    input_deltas={col:int((~((fr[col]==changed[col]) | (fr[col].isna()&changed[col].isna()))).sum()) for col in FEATURES}
+    changed=fr.copy(deep=True);match=np.ones(len(fr),dtype=bool)
+    input_deltas={col:0 for col in FEATURES}
+    import nfl2.hsim.world as world
+    original_games=world._games
+    game_comparison=[]
+    assert fr.groupby('team')[['game_id','game_total','spread']].nunique().max().max()==1
+    team_inputs=fr.drop_duplicates('team').set_index('team')
+    def frame_games(frame,season,week):
+        assert season==2026 and week==2
+        games=original_games(frame,season,week)
+        assert len(games)==13 and len(set(games.home)|set(games.away))==26
+        out=games.copy(deep=True)
+        for i,row in games.iterrows():
+            h=team_inputs.loc[row.home];a=team_inputs.loc[row.away]
+            assert h.game_id==a.game_id==f'2026_02_{row.away}_{row.home}'
+            assert np.isfinite([h.game_total,a.game_total,h.spread,a.spread]).all()
+            assert h.game_total==a.game_total and abs(h.spread+a.spread)<1e-8
+            out.loc[i,'total_line']=float(h.game_total)
+            out.loc[i,'spread_home']=float(h.spread)
+        keep=[c for c in games.columns if c not in ['total_line','spread_home']]
+        assert games[keep].equals(out[keep])
+        if not game_comparison:
+            for old,new in zip(games.to_dict('records'),out.to_dict('records')):
+                game_comparison.append({'old':old,'new':new})
+        return out
     c=pq.read_table(io.BytesIO(get('candidates.parquet')),columns=['players']).to_pydict()
     idx={str(x):i for i,x in enumerate(fr.id)}
     rosters=np.asarray([[idx[v] for v in x.split(',')] for x in c['players']],dtype=int)
@@ -102,26 +110,32 @@ def main():
     old_h=np.load(io.BytesIO(get('corrected_hsim_player_scores.npy')),allow_pickle=False)
     for p in (incumbent,old_h):assert p.shape==(435,10000) and p.dtype==np.float32 and np.isfinite(p).all()
     started=time.monotonic()
-    import nfl2.hsim.world as world
     calibration={}
     with data.outcome_firewall(2026):
         old_weights=world.calibrate_weights(fr,2026,2,seed=2326)
-        new_weights=world.calibrate_weights(changed,2026,2,seed=2326)
         def frozen_sample(frame,weights,seed):
             wt,wc,eff=weights
             return world._sample(frame,2026,2,10000,seed,wt,wc,recenter=False,team_eff=eff).astype(np.float32)
         check=frozen_sample(fr,old_weights,2326)
         assert np.array_equal(check,old_h),'fixed control calibration does not reproduce archive'
         del check
-        new_h=frozen_sample(changed,new_weights,2326)
         old_a=frozen_sample(fr,old_weights,2426)
-        new_a=frozen_sample(changed,new_weights,2426)
+        world._games=frame_games
+        try:
+            new_weights=world.calibrate_weights(changed,2026,2,seed=2326)
+            new_h=frozen_sample(changed,new_weights,2326)
+            prior=np.load(LOCAL/'schedule_only_hsim_selection.npy',allow_pickle=False)
+            assert np.array_equal(new_h,prior),'fixed treatment calibration does not reproduce prior run'
+            del prior
+            new_a=frozen_sample(changed,new_weights,2426)
+        finally:
+            world._games=original_games
         for name,weights in [('control',old_weights),('treatment',new_weights)]:
             calibration[name]=dict(target_weights=weights[0].tolist(),carry_weights=weights[1].tolist(),team_eff=weights[2])
     outputs={}
-    for name,p in [('usage_only_hsim_selection',new_h),('control_hsim_audit',old_a),('usage_only_hsim_audit',new_a)]:
+    for name,p in [('schedule_only_hsim_selection',new_h),('schedule_control_hsim_audit',old_a),('schedule_only_hsim_audit',new_a)]:
         assert p.shape==(435,10000) and np.isfinite(p).all()
-        path=LOCAL/(name+'.npy')
+        path=LOCAL/('fixedcal_'+name+'.npy')
         with path.open('xb') as f:np.save(f,p,allow_pickle=False)
         outputs[name]=dict(sha256=hashlib.sha256(path.read_bytes()).hexdigest(),path=str(path))
     T=np.empty((6400,20000),dtype=np.float32)
@@ -154,9 +168,9 @@ def main():
             result[key]=dict(emax=float(maximum.mean()),p220=float((maximum>=220).mean()),
                 global_proxy=float((1/(1+np.exp(-(maximum[:,None]-winners)/8))).mean()))
         return result
-    measures={name:{'original_book':evaluate(p,original),'usage_only_book':evaluate(p,new_book)}
+    measures={name:{'original_book':evaluate(p,original),'schedule_only_book':evaluate(p,new_book)}
         for name,p in [('incumbent_selection',incumbent),('original_hsim_selection',old_h),
-            ('usage_only_hsim_selection',new_h),('original_hsim_audit',old_a),('usage_only_hsim_audit',new_a)]}
+            ('schedule_only_hsim_selection',new_h),('original_hsim_audit',old_a),('schedule_only_hsim_audit',new_a)]}
     paired_audit={}
     for label,p in [('original_hsim_audit',old_a),('treatment_hsim_audit',new_a)]:
         before=np.stack([p[rosters[c]].sum(axis=0,dtype=np.float32) for c in original]).max(axis=0).astype(np.float64)
@@ -185,12 +199,12 @@ def main():
             became_inactive=int((x.old_active&~x.new_active).sum())))
     result=dict(input_receipt_sha256=args.input_sha256,input_table=receipt['table'],input_deltas=input_deltas,
         matched_frame_rows=int(match.sum()),unmatched_ids=fr.loc[~match,'id'].tolist(),groups=group,all_players=records,
-        original_book=original,usage_only_book=new_book,membership_overlap=len(set(original)&set(new_book)),
+        original_book=original,schedule_only_book=new_book,membership_overlap=len(set(original)&set(new_book)),
         same_rank_count=sum(a==b for a,b in zip(original,new_book)),first_roster_changed=original[0]!=new_book[0],
         original_first_roster=[str(fr.id.iloc[i]) for i in rosters[original[0]]],
-        usage_only_first_roster=[str(fr.id.iloc[i]) for i in rosters[new_book[0]]],
+        schedule_only_first_roster=[str(fr.id.iloc[i]) for i in rosters[new_book[0]]],
         paired_audit=paired_audit,calibration_seed=2326,audit_final_seed=2426,calibration=calibration,metrics=measures,verified_archive=verified,output_arrays=outputs,source_hashes=source_hashes,
-        elapsed_seconds=time.monotonic()-started,scope='Fixed archived pool/means; six usage fields only; audit is hsim half only. No real-world efficacy or adoption claim.',
+        elapsed_seconds=time.monotonic()-started,game_inputs=json.loads(pd.DataFrame(game_comparison).to_json(orient='records')),scope='Fixed archived frame/pool/means; game totals/spreads only; audit is hsim half only. No real-world efficacy or adoption claim.',
         provenance=dict(source_sha=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
             source_status=subprocess.check_output(['git','status','--porcelain'],text=True),
             script_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
