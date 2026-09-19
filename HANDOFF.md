@@ -4,6 +4,10 @@
 
 # Project handoff
 
+## 2026-09-19 — exposure-cap scoring/robustness tradeoff measured for O-14
+
+[Report](reports/2026-09-19-d6400-exposure-cap-results.md): seven legal K97books, same3,366eligible pool, exact uncapped reconstruction; frozen reader/books `01208c60`, fresh seeds24260919/25260919. Primary P_MIX48cap costs−0.0451mean-max/−0.110ppP220/−0.000693proxy in participation worlds, but Jefferson-zero stressed mean-max improves1.3589; other stress scenarios can worsen.38cap costsmore nominal upside. No scoring-gain/adoption verdict; cap-prefix results are **pre-vetter** diagnostics, not final contest allocation. Proposal84.9s/audit23.5s/read2.7s. Current outcomes unopened. Independent replay package next; source review of production's optional promotion consumer remains pending publication. Scheduled five-minute inbox polling verified at22:10/22:15 with real incoming commit events.
+
 ## 2026-09-19 — production cross-reads accepted; durable five-minute inbox polling enabled
 
 Received shared `fd11e54` around22:06Z: frontier4,496fields and reselection35,819fields, zero differences; exact promoted CSV permutation verified. D12800 progresses through sequential CBC lev solves (2,173/2,560at21:53Z), cgroup CPU delta1core and changing workers prove liveness; peer ETA01:30–01:50Z is provisional. Prior host install remains cleared. Root reply `b5ecd63` requests committed source/receipts for the new optional `promote_first.py`, especially complete-vetter risk coverage for replacement players; do not infer clearance from the prose or unchanged-row checks alone.
