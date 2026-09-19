@@ -5,7 +5,7 @@ Modes:
 - default: for each season in SEASONS, context = strictly-earlier panel
   rows, predict all rows -> features.tabpfn_projections (WRITE_TRUNCATE).
 - TABPFN_UPCOMING="2026:1": ALSO predict the upcoming week's rows from
-  player_week_inference (context = all prior TRAINING rows) and append
+  player_week_inference (context = strictly earlier season/week rows) and append
   them — this is what makes the lever live on Sundays. Run weekly.
 """
 import gc
@@ -35,6 +35,14 @@ QCOLS = [f"q{int(q*100):02d}" for q in QS]
 OUTPUT_COLUMNS = ["season", "week", "gsis_id", "mean", *QCOLS]
 CTX_MAX = 28_000
 SEASONS = [2019, 2021, 2022, 2023, 2024, 2025]
+
+upcoming_target = None
+if UPCOMING:
+    if not re.fullmatch(r"\d{4}:\d{1,2}", UPCOMING):
+        raise ValueError("TABPFN_UPCOMING must have season:week form")
+    upcoming_target = tuple(int(x) for x in UPCOMING.split(":"))
+    if not 1 <= upcoming_target[1] <= 18:
+        raise ValueError("TABPFN_UPCOMING week must be regular-season week 1..18")
 
 bq = bigquery.Client(project=PROJECT)
 feature_bytes = Path("/app/features.txt").read_bytes()
@@ -78,7 +86,14 @@ def prep(df):
 X_cols = sorted(feats) + ["pos_code"]
 source_table = f"{PROJECT}.nfl_features.player_week_training"
 source_meta = bq.get_table(source_table)
-panel = bq.query(f"SELECT * FROM `{source_table}`").to_dataframe()
+# Training can already contain Thursday's labeled rows for the upcoming Sunday
+# week. Enforce the project's pre-week context rule BEFORE downloading labels.
+# With no upcoming target, preserve the canonical historical refresh query.
+source_where = ""
+if upcoming_target is not None:
+    us, uw = upcoming_target
+    source_where = f" WHERE season < {us} OR (season = {us} AND week < {uw})"
+panel = bq.query(f"SELECT * FROM `{source_table}`{source_where}").to_dataframe()
 source_checksum = int(bq.query(f"""
     SELECT BIT_XOR(FARM_FINGERPRINT(TO_JSON_STRING(t))) AS checksum
     FROM `{source_table}` t
@@ -141,12 +156,6 @@ def validate_output_frame(frame, label):
     if np.any(np.diff(frame[QCOLS].to_numpy(float), axis=1) < -1e-8):
         raise ValueError(f"{label} contains unordered quantiles")
 
-
-upcoming_target = None
-if UPCOMING:
-    if not re.fullmatch(r"\d{4}:\d{1,2}", UPCOMING):
-        raise ValueError("TABPFN_UPCOMING must have season:week form")
-    upcoming_target = tuple(int(x) for x in UPCOMING.split(":"))
 
 out = []
 base_cache = None
@@ -317,7 +326,9 @@ report = {
     "upcoming_target": list(upcoming_target) if upcoming_target else None,
     "upcoming_only": UPCOMING_ONLY == "1",
     "base_cache": base_cache,
-    "context_law": "all-prior-nonnull-labels",
+    "context_law": ("strictly-prior-season-week-nonnull-labels"
+                    if upcoming_target is not None else "all-prior-nonnull-labels"),
+    "training_target_exclusive": list(upcoming_target) if upcoming_target else None,
     "context_max": CTX_MAX,
     "random_seed": 7,
     "n_estimators": 4,

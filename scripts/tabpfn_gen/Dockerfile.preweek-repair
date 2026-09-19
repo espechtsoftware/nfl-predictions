@@ -1,0 +1,3 @@
+# Preserve the exact deployed packages/model weights; change only generator code.
+FROM us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/tabpfn-gen@sha256:7eeff44e7c225fed62682b3649dfa86d77f86227e3e9858c967d132deff2a10a
+COPY gen.py /app/gen.py

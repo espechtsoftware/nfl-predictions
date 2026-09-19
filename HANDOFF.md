@@ -4,6 +4,15 @@
 
 # Project handoff
 
+## 2026-09-19 — TabPFN target-week context repair prepared; 14 checks pass
+
+Branch `fix/2026-09-tabpfn-preweek-context`, based on salary fix `9f218bab`, filters the upcoming
+training SELECT to strictly earlier season/week before downloading labels. The salary repair activates
+the existing all-nonnull-label assumption: support census finds 43 labeled current-week rows alongside
+863 prior-week rows. [Repair report](reports/2026-09-19-tabpfn-preweek-context-repair.md) documents
+14 passing targeted tests and unchanged historical-only query. No live image/job/cache change. Source
+review and complete scratch feature/cache/projection/CLI rehearsal precede a concrete adoption decision.
+
 ## 2026-09-19 — isolated salary-week contract repair passes fixtures and real-source preview
 
 Branch `fix/2026-09-salary-week-resolution`, SQL `99440a23`, preview helper `bae741de`, based on
