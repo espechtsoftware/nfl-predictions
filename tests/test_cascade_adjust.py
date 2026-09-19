@@ -183,3 +183,66 @@ def test_zero_out_projections():
     assert zeroed.loc[1, "proj_points"] == 11.0
     # untouched without out_ids
     pd.testing.assert_frame_equal(zero_out_projections(out, []), out)
+
+
+def _qb_slate(**over):
+    """Four teams: CHI healthy starter + two backups; ATL starter OUT (DK
+    'O') so the depth-2 QB is primary; MIA starter Doubtful; NYJ has no
+    depth-1 QB on file. A WR with depth_rank 2 must never be touched."""
+    rows = [
+        {"gsis_id": "CHI1", "display_name": "Chi Starter", "dk_position": "QB", "team_abbr": "CHI", "status": None, "injury_status": None, "depth_rank": 1},
+        {"gsis_id": "CHI2", "display_name": "Chi Backup", "dk_position": "QB", "team_abbr": "CHI", "status": None, "injury_status": None, "depth_rank": 2},
+        {"gsis_id": "CHI3", "display_name": "Chi Third", "dk_position": "QB", "team_abbr": "CHI", "status": None, "injury_status": None, "depth_rank": 3},
+        {"gsis_id": "ATL1", "display_name": "Atl Starter", "dk_position": "QB", "team_abbr": "ATL", "status": "O", "injury_status": None, "depth_rank": 1},
+        {"gsis_id": "ATL2", "display_name": "Atl Backup", "dk_position": "QB", "team_abbr": "ATL", "status": None, "injury_status": None, "depth_rank": 2},
+        {"gsis_id": "ATL3", "display_name": "Atl Third", "dk_position": "QB", "team_abbr": "ATL", "status": None, "injury_status": None, "depth_rank": 3},
+        {"gsis_id": "MIA1", "display_name": "Mia Starter", "dk_position": "QB", "team_abbr": "MIA", "status": None, "injury_status": "Doubtful", "depth_rank": 1},
+        {"gsis_id": "MIA2", "display_name": "Mia Backup", "dk_position": "QB", "team_abbr": "MIA", "status": None, "injury_status": None, "depth_rank": 2},
+        {"gsis_id": "NYJ2", "display_name": "Jet Backup", "dk_position": "QB", "team_abbr": "NYJ", "status": None, "injury_status": None, "depth_rank": 2},
+        {"gsis_id": "CHIWR", "display_name": "Chi Receiver", "dk_position": "WR", "team_abbr": "CHI", "status": None, "injury_status": None, "depth_rank": 2},
+    ]
+    df = pd.DataFrame(rows)
+    for k, v in over.items():
+        df.loc[df.gsis_id == k[0], k[1]] = v
+    return df
+
+
+def test_backup_qb_gate_zeroes_backups_behind_a_healthy_primary(monkeypatch):
+    monkeypatch.delenv("QB_BACKUP_GATE", raising=False)
+    from nfl_dfs.inference.cascade_adjust import find_backup_qbs
+    got = find_backup_qbs(_qb_slate())
+    # CHI: both backups behind a healthy starter. ATL: starter OUT, so the
+    # depth-2 QB is primary and only the third-stringer is gated. MIA:
+    # Doubtful primary leaves the team alone. NYJ: no depth-1 on file, alone.
+    assert got == ["ATL3", "CHI2", "CHI3"]
+    assert "CHIWR" not in got and "ATL2" not in got and "MIA2" not in got and "NYJ2" not in got
+
+
+def test_backup_qb_gate_report_out_promotes_the_next_qb(monkeypatch):
+    monkeypatch.delenv("QB_BACKUP_GATE", raising=False)
+    from nfl_dfs.inference.cascade_adjust import find_backup_qbs
+    feats = _qb_slate()
+    feats.loc[feats.gsis_id == "CHI1", "injury_status"] = "Out"   # report, not DK feed
+    feats.loc[feats.gsis_id == "CHI2", "status"] = "O"            # depth 2 also out
+    got = find_backup_qbs(feats)
+    assert "CHI3" not in got, "the third-stringer is the primary once 1 and 2 are out"
+    assert "CHI2" not in got, "already out; zeroed by find_out_players, not by the gate"
+
+
+def test_backup_qb_gate_is_a_noop_without_depth_or_when_disabled(monkeypatch):
+    from nfl_dfs.inference.cascade_adjust import find_backup_qbs
+    monkeypatch.delenv("QB_BACKUP_GATE", raising=False)
+    assert find_backup_qbs(_qb_slate().drop(columns=["depth_rank"])) == []
+    monkeypatch.setenv("QB_BACKUP_GATE", "0")
+    assert find_backup_qbs(_qb_slate()) == []
+
+
+def test_backup_qb_gate_zeroes_only_the_gated_rows_in_the_output(monkeypatch):
+    monkeypatch.delenv("QB_BACKUP_GATE", raising=False)
+    from nfl_dfs.inference.cascade_adjust import find_backup_qbs
+    feats = _qb_slate()
+    out = pd.DataFrame({"gsis_id": feats.gsis_id, "proj_points": 12.0, "proj_p90": 30.0, "value": 3.0})
+    zeroed = zero_out_projections(out, find_backup_qbs(feats))
+    gated = zeroed.gsis_id.isin(["ATL3", "CHI2", "CHI3"])
+    assert zeroed.loc[gated, ["proj_points", "proj_p90", "value"]].eq(0).all().all()
+    pd.testing.assert_frame_equal(zeroed.loc[~gated].reset_index(drop=True), out.loc[~gated].reset_index(drop=True))
