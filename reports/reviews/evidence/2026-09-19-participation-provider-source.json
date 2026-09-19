@@ -1,0 +1,22 @@
+{
+  "uri": "https://github.com/nflverse/nflverse-data/releases/download/injuries/injuries_2026.parquet",
+  "started_at": "2026-09-19T12:14:31.817185+00:00",
+  "received_at": "2026-09-19T12:14:32.258591+00:00",
+  "headers": {
+    "Content-Length": "21906",
+    "Last-Modified": "Sat, 19 Sep 2026 11:54:40 GMT",
+    "ETag": "\"0x8DF1644C95B6EC4\"",
+    "Date": "Sat, 19 Sep 2026 12:14:32 GMT",
+    "Content-Type": "application/octet-stream"
+  },
+  "bytes": 21906,
+  "sha256": "5824e3dd16513938cd7900e8b7432aa94df4040d63a4f5b7f6849c05c103d5c7",
+  "week2_rows": 246,
+  "old_week2_rows": 246,
+  "key_overlap": 246,
+  "changed_fields": {
+    "report_status": 0,
+    "practice_status": 0
+  },
+  "scope": "New provider-object metadata and current status only; not retroactive certification of the earlier captured experiment"
+}

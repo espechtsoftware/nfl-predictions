@@ -1,8 +1,8 @@
 # Weekend input repairs: release candidate and complete rollback
 
-**Cloud release complete; workstation activation pending.** [Actual release results](2026-09-19-weekend-input-repair-release-results.md) record the successful refresh, actual host-cache CLI proof and all three lane releases at 06:39:59 UTC. The dated preparation details below are retained for rollback and review. This is a concrete option for the Saturday September 19 build at **10:30 CDT / 15:30 UTC**. The usual refresh starts 09:45 CDT / 14:45 UTC. Sunday-main lock is a different deadline: September 20 at 17:00 UTC. The [workstation runtime implementation now passes independent review](2026-09-19-runtime-release-review.md): all42behavioral tests, reconstructed full arm-script hash, and default/candidate `week_env` resolution. Actual release-state checks remain required immediately before activation.
+**Cloud release and workstation activation complete.** [Actual release results](2026-09-19-weekend-input-repair-release-results.md) record the successful three-job refresh, exact host-cache CLI proof and registry release at06:39:59UTC. Lab `730ed69` verifies all six workstation units now use the reviewed clean `2dc116c` source. The dated preparation and rollback details below remain an engineering record, not instructions to repeat the completed release.
 
-My recommendation is to prepare the three demonstrated input-contract corrections for release, keeping ordinary DUAL_EMAX, existing candidate doses and contest assignments. I do **not** recommend enabling the new target prior or WEMAX based on the completed tests. Erich authorized this release via workstation handoff `cef83e8`. As of 06:26 UTC, all 36 backups are verified, the repaired feature refresh has passed its checks, and the strict-prior-week TabPFN cache has passed live validation (66,332 unique rows; all 877 Week 2 players). The unchanged projection refresh is running. Projection validation and the actual host-cache CLI proof remain before the workstation source pin can change.
+Erich authorized the three input-contract corrections via `cef83e8`. Ordinary DUAL_EMAX, existing doses, contest assignments and the historical cache remain unchanged. The separate [morning refresh](2026-09-19-morning-refresh-plan.md) targets14:45UTC after fresh raw inputs, with laptop ownership and the operator's fixed15:20UTC transient-unit recreation. Sunday-main lock is September20at17:00UTC. No target-prior or WEMAX adoption is recommended from the completed tests.
 
 ## What this fixes and what the evidence establishes
 
@@ -29,7 +29,7 @@ Images are under `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/`. B
 
 The [04:33:38 UTC refresh](reviews/evidence/2026-09-19-release-inventory-refresh.json)
 finds all36tables/oneview present, with **no changed table metadata or job template**
-against the03:11inventory. Workstation handoff `cef83e8` relays Erich's explicit instruction, "Implement the changes that the other agent wants." Received 05:38 UTC: this authorizes this exact three-fix release. The cloud sequence is now being executed under all three registry lanes; actual completion will be recorded separately. No host activation before the cloud refresh and live CLI proof.
+against the03:11inventory. Workstation handoff `cef83e8` relays Erich's explicit instruction, "Implement the changes that the other agent wants." Received 05:38 UTC: this authorizes this exact three-fix release. That cloud sequence completed and the subsequent host activation was verified; this paragraph records the earlier authorization and inventory.
 
 ## Release sequence
 
@@ -65,7 +65,7 @@ retain the old feature/cache state. Returning to that state requires the complet
 restore below and rebuilding. Previously saved books remain usable as comparison
 artifacts; they are not automatically valid, fresh entry files for Sunday. This
 release consequence was raised by the workstation agent at lab `befe48d` and is
-part of the pending adoption decision.
+part of the authorized release.
 
 A source/image rollback alone is insufficient: the feature build replaces tables, TabPFN replaces its mutable cache, and projection execution writes new predictions. First stop or reconcile all affected writers and hold builders. Retain the failed candidate receipts and table metadata. Then:
 
@@ -75,7 +75,7 @@ A source/image rollback alone is insufficient: the feature build replaces tables
 
 The actual snapshot, clone and replacement primitives passed a scratch-only rehearsal on salary and projection tables: **18 BigQuery jobs, exact bidirectional row matches, row-count/checksum matches, schema/partition/clustering matches, and unchanged source metadata**. Probe tables expire in three days. This proves the primitive on those two scratch table shapes, not the unexecuted 36-table live restore. [Probe source and result](reviews/evidence/2026-09-19-release-rollback-probe.json).
 
-Google documents [snapshot creation](https://docs.cloud.google.com/bigquery/docs/table-snapshots-create), [restoration](https://docs.cloud.google.com/bigquery/docs/table-snapshots-restore?hl=en), [job image updates](https://docs.cloud.google.com/sdk/gcloud/reference/run/jobs/update) and [per-execution overrides](https://docs.cloud.google.com/run/docs/execute/jobs). The release still requires fresh state checks and applying the reviewed workstation patch; these documents are not an assertion that activation has happened.
+Google documents [snapshot creation](https://docs.cloud.google.com/bigquery/docs/table-snapshots-create), [restoration](https://docs.cloud.google.com/bigquery/docs/table-snapshots-restore?hl=en), [job image updates](https://docs.cloud.google.com/sdk/gcloud/reference/run/jobs/update) and [per-execution overrides](https://docs.cloud.google.com/run/docs/execute/jobs). The original release is complete; any later refresh or rollback still requires fresh state checks.
 
 ## Reviewed workstation commands (after the successful cloud refresh and CLI proof)
 

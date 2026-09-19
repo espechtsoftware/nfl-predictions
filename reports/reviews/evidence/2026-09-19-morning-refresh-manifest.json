@@ -1,0 +1,88 @@
+{
+  "refresh_id": "morning-refresh-20260919",
+  "prepared_at": "2026-09-19 12:20:42.911694+00:00",
+  "files": {
+    "/home/erich/projects/.nfl-predictions-worktrees/paid-source-experiments/reports/reviews/evidence/2026-09-19-release-supervisor.py": "68d206ce3fa670a6fe1a033ff13fd0847945f02edb8410e9d69e86545ce952ac",
+    "/home/erich/projects/.nfl-predictions-worktrees/paid-source-experiments/reports/reviews/evidence/2026-09-19-release-cache-check.py": "3a8487030ce7cfc5fd74c61608ead8a14bb4ab890da238f1918265fceaa4019c",
+    "/home/erich/projects/.nfl-predictions-worktrees/paid-source-experiments/reports/reviews/evidence/2026-09-19-release-projection-check.py": "63a76e74fedf1ba84a82dd478614dcd8a238883d66070c5e830afb3dcf913f57",
+    "/home/erich/projects/.nfl-predictions-worktrees/paid-source-experiments/reports/reviews/evidence/2026-09-19-release-live-cli-proof.py": "327639be6663787d0abd3be2488faf14d6360b1fd56d7938aea2af0881433cb1",
+    "/home/erich/projects/.nfl-predictions-worktrees/paid-source-experiments/reports/reviews/evidence/2026-09-19-release-plan.json": "b021960f10a6bbabc0c97bd38065469a9d898d7646efbb1355575c64bd13e212",
+    "/home/erich/projects/.nfl-predictions-worktrees/paid-source-experiments/scripts/launcher_registry.sh": "02dd428e9ace88414e666ece48e70724d7c76be357c7b28c22807e2f76058f94",
+    "/home/erich/projects/review-evidence/overnight-20260918/authorized-release-v2/host-training.parquet": "8aaa5daf5a3ebd12bdb471466dabefdc55f774988ff9437710a4e54467b072b7",
+    "/home/erich/projects/review-evidence/overnight-20260918/authorized-release-v2/backup-result.json": "70cae5cafa30e52bd488e7c9aab829762d1ccdbbc088e666538b5894c6b07023",
+    "/home/erich/projects/review-evidence/overnight-20260918/authorized-release-v2/build-features-installed-private.json": "458aa96137e084d8c33eecff8f4582f051746276abe0541fe89b179bdd11fc5b",
+    "/home/erich/projects/review-evidence/overnight-20260918/authorized-release-v2/tabpfn-gen-installed-private.json": "ea1f91134e7da61c05c5e0d6e7949d1757100418fb40d58c9af5427f375030bc",
+    "/home/erich/projects/review-evidence/overnight-20260918/authorized-release-v2/project-slate-installed-private.json": "e0f2f6522708924817a5787c0e0fbaac88362c53e6e22272f346d222aa742bd9",
+    "/home/erich/projects/.nfl-predictions-worktrees/paid-source-experiments/src/nfl_dfs/inference/run_projections.py": "4604aaec7a8af66ee072ca22ca73ef681871ce3b93b02c662028d0dd24fffa1c",
+    "/home/erich/projects/.nfl-predictions-worktrees/paid-source-experiments/src/nfl_dfs/models/prop_market.py": "144338d6922e9dcbcaabbebde08bf9921aee2775b0915e4a54cd1836fab7546a"
+  },
+  "producer_sha256": "c93c6bbccbd859ad2e402553e827038d34e9766217462604aebd63175478cafd",
+  "target_start": "2026-09-19 14:45:00+00:00",
+  "latest_start": "2026-09-19 14:46:00+00:00",
+  "consumer_hold_path": "/home/erich/projects/review-evidence/overnight-20260918/morning-refresh-20260919/operator-hold.json",
+  "scheduler_configuration": [
+    {
+      "httpTarget": {
+        "uri": "https://run.googleapis.com/v2/projects/nfl-predictions-503414/locations/us-central1/jobs/build-features:run"
+      },
+      "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-features",
+      "schedule": "30 6 * * 2",
+      "state": "ENABLED",
+      "timeZone": "America/Chicago"
+    },
+    {
+      "httpTarget": {
+        "uri": "https://run.googleapis.com/v2/projects/nfl-predictions-503414/locations/us-central1/jobs/build-features:run"
+      },
+      "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-features-sun",
+      "schedule": "30 5-10 * * 7",
+      "state": "ENABLED",
+      "timeZone": "America/Chicago"
+    },
+    {
+      "httpTarget": {
+        "uri": "https://run.googleapis.com/v2/projects/nfl-predictions-503414/locations/us-central1/jobs/build-features:run"
+      },
+      "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-features-route",
+      "schedule": "30 6 * * 4",
+      "state": "PAUSED",
+      "timeZone": "America/Chicago"
+    },
+    {
+      "httpTarget": {
+        "uri": "https://run.googleapis.com/v2/projects/nfl-predictions-503414/locations/us-central1/jobs/project-slate:run"
+      },
+      "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-project-tu",
+      "schedule": "30 9 * * 2",
+      "state": "ENABLED",
+      "timeZone": "America/Chicago"
+    },
+    {
+      "httpTarget": {
+        "uri": "https://run.googleapis.com/v2/projects/nfl-predictions-503414/locations/us-central1/jobs/project-slate:run"
+      },
+      "name": "projects/nfl-predictions-503414/locations/us-central1/jobs/s-project-su",
+      "schedule": "0 6-11 * * 7",
+      "state": "ENABLED",
+      "timeZone": "America/Chicago"
+    }
+  ],
+  "jobs": {
+    "build-features": {
+      "image": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:8d9b3cb55865edc66c99e01b28a7a6ba0d588458ac921c1485069fac32814e03",
+      "template_sha256": "07557745a41e61b33155267cf65d73dd5c08cec13069ec83cc1e999b9e1fd7b8"
+    },
+    "tabpfn-gen": {
+      "image": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/tabpfn-gen@sha256:fdb120dc2291b7d09538987d97e8b30d0e8fe5f7e9d9d40995b6adcc4d4692d6",
+      "template_sha256": "68e1b79efc03eacf7941ba4e45f1c6443cd88507133c7d293771114135285429"
+    },
+    "project-slate": {
+      "image": "us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:week1-live-193e1b44d2b4",
+      "template_sha256": "61b5472d9ac415ad0ecb40f792e570dda73fd78f910c4835823f5154ca96a743",
+      "resolved_digest": "sha256:f630fc8c88ed1625fa7873d959e0dcc217a55bd4d95b4e0edb9c1386fb3d5f5d"
+    }
+  },
+  "status": "PREPARED_NOT_SCHEDULED",
+  "source_sha": "2dc116ce95647a776ba9c36cf194f44d022d03a4",
+  "historical_cache_sha256": "8aaa5daf5a3ebd12bdb471466dabefdc55f774988ff9437710a4e54467b072b7"
+}

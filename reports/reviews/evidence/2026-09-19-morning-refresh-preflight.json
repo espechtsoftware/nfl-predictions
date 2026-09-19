@@ -1,0 +1,14 @@
+{
+  "status": "READ_ONLY_PREFLIGHT_PASSED",
+  "scope": "templates/digest, schedulers, source schemas, original snapshots/view, clear provider census; future raw freshness NOT checked",
+  "artifacts": {
+    "preflight-provider.json": "f5c3055fead8213100360242e100f563211f13116df246aaaaddc8e3bfaa3457",
+    "preflight-schedulers.json": "8d16919d2dd9a57236c3c461b526a17a827d29b9ddb18184632863ee85137d3e",
+    "preflight-tables.json": "efc5b667e5a2337c3bb52bcadd68150f076ca6ac22c8f9c05044ac8c7b71dbc1",
+    "preflight-templates-verified.json": "301412831984f37a10c3e87a7eb14c30ae5d1ff4331103c4b3d1cd38c5523500"
+  },
+  "manifest_sha256": "abf11aaeb5cbbcf7391f0bef3b403403965b2b477a25d6ce035d051f899172a0",
+  "jobs_launched": 0,
+  "lanes_acquired": 0,
+  "consumer_hold": false
+}

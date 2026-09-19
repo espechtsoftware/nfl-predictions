@@ -4,6 +4,12 @@
 
 # Project handoff
 
+## 2026-09-19 — saved-corpus participation adapter and prepared morning runner
+
+The [participation result](reports/2026-09-19-participation-transfer-results.md) has an exact external replay (lab `4845ddb`, interpretation corrected at `3e51cb8`). The delivered ranks32–33 lose5.687expected-max points even under the participation model; the report now states that explicitly. A separate research-only saved-artifact reselector exactly reproduces the D1600 control/treatment, with19behavioral tests and a62.34second synthetic D12800 selection pass. It refuses stale statuses and unresolved Q/D states within90minutes of kickoff. Official-source acquisition is not implemented; no live adoption or actual D12800 result is claimed. A new direct injury-object receipt supplies provider Last-Modified/ETag/hash for forward snapshot binding, not retroactive certification.
+
+The [morning runner](reports/2026-09-19-morning-refresh-plan.md) is prepared with nested canonical lanes, fresh-input and two-timer hold checks, new last-good snapshots, unchanged three-job sequence and complete CLI proof. Early read-only preflight passes;14offline hold/registry tests pass. Host activation/ownership blockers in the current release documents are corrected as resolved. No morning job or timer hold has occurred. Next: peer review, provider-bound participation capture, then14:35UTC readiness and the operator's committed real hold evidence before14:45 execution. Operator recreation remains fixed15:20UTC.
+
 ## 2026-09-19 — participation transfer yields a conditional selection gain
 
 [Result](reports/2026-09-19-participation-transfer-results.md): same D1600/K97, fresh captured designations and the existing 2026 map give expected-max +3.409 and P220 10.360%→12.710% under the independent participation audit. Both component signs agree. All-active sensitivity loses 3.099 points and 3.710 percentage points; first delivered lineup is unchanged. Ordinary control exactly reproduces; all 97 rows in each book are legal; portable frozen replay matches all numbers and delivered orders. Prior provider publication times remain unavailable; collector-time provenance is explicit. No NFL outcome read, live policy change or actual-dose claim. Full portable inputs are published for external cross-read. Next: ordinary saved-artifact reselection rehearsal, fresh-status and confirmed-active contracts, then a concrete recommendation.

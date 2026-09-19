@@ -1,0 +1,12 @@
+{
+  "source_sha256": "4a861fe92f72e433eab1b1324d325a4be21a5d2b927acbd3407e797c0d6aaad9",
+  "shape": [
+    12800,
+    20000
+  ],
+  "matrix_bytes": 1024000000,
+  "entries": 97,
+  "elapsed_seconds": 62.338142075022915,
+  "max_rss_kib": 1360356,
+  "scope": "Synthetic production dimensions; no actual D12800 corpus or scoring claim"
+}

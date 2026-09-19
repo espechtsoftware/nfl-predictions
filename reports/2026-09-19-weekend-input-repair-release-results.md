@@ -1,6 +1,6 @@
-# Weekend input repair: cloud release complete, workstation activation pending
+# Weekend input repair: cloud release and workstation activation complete
 
-Completed September 19, 2026 at **06:39:59 UTC / 01:39:59 CDT**, ahead of the 10:30 CDT build. The three authorized input repairs have passed the live cloud refresh and complete CLI proof. The workstation code pin remains a separate step; this report does not claim it has changed.
+Completed September 19, 2026 at **06:39:59 UTC / 01:39:59 CDT**, ahead of the 10:30 CDT build. The three authorized input repairs have passed the live cloud refresh and complete CLI proof. Workstation activation was subsequently verified at lab `730ed69`; the new morning refresh remains separate.
 
 | Stage | Actual execution / evidence | Result |
 |---|---|---|
@@ -25,19 +25,15 @@ Historical feature differences were investigated before proceeding: original usa
 
 The initial image guard stopped on gcloud's clientVersion metadata change before any execution; the actual task template was unchanged. The resumed supervisor reverified all snapshots and source identities and skipped the already-applied image change. Later, the read-only projection validator initially mistook intentionally null DST GSIS IDs for duplicates, and another invocation stopped because the explicit local project environment was missing. The corrected identity contract and explicit project passed; failed logs remain preserved. No ambiguous cloud execution was retried.
 
-## What remains before the build
+## Current build readiness
 
-The workstation runtime-pinning step has the operator's existing three-fix authorization, but the latest verified state remains unapplied. **Correction to this report's previous revision:** workstation `b303440` incorrectly described a read/verify rejection as a patch-apply rejection. Its follow-up `8df3fe8` supplies the full command: it read the operational tree and materialized a patch only in scratch space, with no `git apply`. The earlier read commands now pass. No host mutation, timer re-arm or activation-runner invocation was actually attempted or rejected. The reported capability blocker is therefore withdrawn, not routed around.
+**Cloud release and workstation activation are complete.** Lab handoff `730ed69` verifies Erich activated all six units with explicit clean `2dc116c` source, unchanged 2,560/10,240 candidate allocation and the existing historical cache. The earlier read-only/activation-denial discussion is retained in git history; it is no longer a current blocker.
 
-The laptop then asked the workstation agent to proceed under the existing explicit authorization and reviewed gates. **A subsequent real activation attempt was rejected**, documented in `d8ee83f` (commit timestamp 07:36:28Z): the command included applying the reviewed arm patch and materializing the runner, and Claude Code's automatic approval review returned `[Modify Shared Resources]`. A follow-up read-only check was rejected with `[Auto-Mode Bypass]`. The agent stopped without retrying or using another route. This is the first recorded host-mutation denial and is distinct from the withdrawn earlier account. Post-attempt state has not been independently verified; do not claim it was.
+The next task is the normal **14:45 UTC / 09:45 CDT** refresh after newer raw inputs arrive. Erich assigns this to the laptop (`04c7f58`); the workstation launches none of the three jobs. He will hold both Saturday build timers after laptop readiness and recreate the reviewed transient units at fixed **15:20 UTC**, whether or not the refresh is complete (`dddce34`, `b1386c6`). A failed or delayed refresh must be reported immediately; the fixed restore is not evidence of data consistency.
 
-The package remains ready, but someone with permitted workstation access must verify the state and complete the reviewed steps. Operator instructions exist at `/home/erich/week2-RELEASE-STEPS.md`; their existence alone does not establish activation. The correct materialized runner path is `/home/erich/week2_runtime_pin.sh` (underscores), now corrected in the release plan. The remaining issue is the workstation's execution restriction, not a new adoption decision or missing user authorization.
+The [morning refresh plan](2026-09-19-morning-refresh-plan.md) now includes a prepared runner, exact hold contract, provider/scheduler/template checks, new last-good snapshots and final validation. Its early read-only preflight passed. **No morning cloud job has launched and no timer has been held.** The live freshness check still awaits the scheduled morning captures. Source, images, selector, dose, contests and historical cache remain as already approved.
 
-The latest **verified pre-attempt** host state is clean production `78d9616b`, zero `REL_ENV` patch markers, clean lab `e7255e9`, and six active timers without explicit `CLONE`/`EXPECT_SHA` overrides, using the old runbook default. The Saturday timer specifies the chosen 2,560/10,240 allocation and fires at 10:30 CDT. Before the rejected attempt, all six services were inactive and the clean release checkout and resulting patched-script hash were verified. Exact current state must be rechecked during actual activation; no host activation is claimed here.
-
-The **09:45 CDT refresh remains necessary** after the scheduled newer raw-data arrivals, with its own provider census and single-writer ownership. The laptop offered and accepted agent ownership after workstation `8df3fe8` confirmed no automatic producer and committed to launching none of the sequence. Follow-up `d8ee83f` surfaced standing operator text assigning him the manual commands; that expectation must be reconciled before an unattended launch. The [morning plan](2026-09-19-morning-refresh-plan.md) is prepared, but **no morning cloud job is scheduled or launched**. The laptop will not race a manual refresh or start an automatic chain without consumer coordination. Keep existing candidate doses, entries/contests, selector and historical cache.
-
-The [release/rollback plan](2026-09-19-weekend-input-repair-release-plan.md) contains exact images, source hashes and the full restore procedure. All scheduled builds read the shared refreshed warehouse: an old source pin alone is not an old-input control. Complete rollback requires table/view restoration and image/source rollback in a quiet window.
+The [release/rollback plan](2026-09-19-weekend-input-repair-release-plan.md) retains exact image/source and full restore identities. All builds share the warehouse: an old source pin alone cannot restore old inputs. Morning snapshots will separately preserve the currently repaired state; the original overnight snapshots preserve the pre-repair state.
 
 ## Evidence
 
