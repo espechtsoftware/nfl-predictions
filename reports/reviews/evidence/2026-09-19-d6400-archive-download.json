@@ -1,0 +1,86 @@
+{
+  "source_sha": "2dc116ce95647a776ba9c36cf194f44d022d03a4",
+  "manifest_sha256": "4062879f39cf7c4a93fc5ca199825b2a309225149029a5184274d82ceedb2f74",
+  "local_dir": "/home/erich/projects/review-evidence/overnight-20260918/d6400-actual-dose-20260919/source",
+  "objects": [
+    {
+      "name": "receipt.json",
+      "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/archives/20260919T153508751879Z-2dc116c-d6400/receipt.json",
+      "generation": "1789851817182725",
+      "bytes": 13791,
+      "sha256": "c97d6e49b157db3b16021dfefab160a8d32006e907ba045e123f6ab77fdd0934"
+    },
+    {
+      "name": "frame.parquet",
+      "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/archives/20260919T153508751879Z-2dc116c-d6400/frame.parquet",
+      "generation": "1789851818342295",
+      "bytes": 192611,
+      "sha256": "6e56f59d687b8f533ee02c05b90ec2c643c08b0e46aa78155a2c0d7b9894dab6"
+    },
+    {
+      "name": "candidates.parquet",
+      "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/archives/20260919T153508751879Z-2dc116c-d6400/candidates.parquet",
+      "generation": "1789851822912966",
+      "bytes": 553392,
+      "sha256": "5d3c073546ae2d987498e5348fa850901e1fadc0c381f016651d1fee50b6cf9a"
+    },
+    {
+      "name": "book.csv",
+      "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/archives/20260919T153508751879Z-2dc116c-d6400/book.csv",
+      "generation": "1789851816788538",
+      "bytes": 6418,
+      "sha256": "068407690e61e13c236d1b7a2a078f26e0962df30cca26dde51872b81542d95c"
+    },
+    {
+      "name": "book.json",
+      "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/archives/20260919T153508751879Z-2dc116c-d6400/book.json",
+      "generation": "1789851816961657",
+      "bytes": 37134,
+      "sha256": "d7d0c756606ebf2a35d62c0ff1e84e31a956734c91e33e03487c15304cb325fe"
+    },
+    {
+      "name": "book_wemax.csv",
+      "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/archives/20260919T153508751879Z-2dc116c-d6400/book_wemax.csv",
+      "generation": "1789851817877193",
+      "bytes": 6421,
+      "sha256": "052e9d802033ac49a864640dbe5158d4b5b016cb55baf9efe1ea2666c4ab12a3"
+    },
+    {
+      "name": "book_wemax.json",
+      "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/archives/20260919T153508751879Z-2dc116c-d6400/book_wemax.json",
+      "generation": "1789851816685774",
+      "bytes": 37108,
+      "sha256": "2ac6082434de8def38af2d2bdff4a3609bcc1735b496366bfd9d7fe2ea334ef0"
+    },
+    {
+      "name": "exposure_ledger.json",
+      "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/archives/20260919T153508751879Z-2dc116c-d6400/exposure_ledger.json",
+      "generation": "1789851823262865",
+      "bytes": 902761,
+      "sha256": "0f54301445b9fcdfb9f04ee8ae4d187b6a1c6f19d2b8e80ee16b9421f80db09d"
+    },
+    {
+      "name": "universe_ledger.parquet",
+      "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/archives/20260919T153508751879Z-2dc116c-d6400/universe_ledger.parquet",
+      "generation": "1789851816672742",
+      "bytes": 17045,
+      "sha256": "d4e0dace206db1255c5e0d2a7445e00bb9974cb02b9543ce768517e8f5b95dff"
+    },
+    {
+      "name": "incumbent_player_scores.npy",
+      "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/archives/20260919T153508751879Z-2dc116c-d6400/incumbent_player_scores.npy",
+      "generation": "1789851864043711",
+      "bytes": 17160128,
+      "sha256": "1d711ff9af22bea4b17505470ba516c544261f04da428f557893a9e290ec15d5"
+    },
+    {
+      "name": "corrected_hsim_player_scores.npy",
+      "uri": "gs://nfl-2-506823-lab/research/week2-input-release-20260919/archives/20260919T153508751879Z-2dc116c-d6400/corrected_hsim_player_scores.npy",
+      "generation": "1789851869894101",
+      "bytes": 17160128,
+      "sha256": "c9f977295bde6a1987488de25ade643813cbf54d5e7c3903b753f714efe1023a"
+    }
+  ],
+  "download_exact": true,
+  "football_outcome_columns_decoded": false
+}

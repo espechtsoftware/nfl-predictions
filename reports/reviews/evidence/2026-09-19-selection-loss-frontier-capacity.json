@@ -1,0 +1,14 @@
+{
+  "kind": "synthetic_capacity_only_no_football_data",
+  "source_sha256": "c179892000f2ece60b4ac7258f6489848a245ee4e7ce034f92fa6cfe731595f3",
+  "shape": [
+    6400,
+    20000
+  ],
+  "k": 97,
+  "shortlist": 128,
+  "exchanges": 12416,
+  "elapsed_seconds": 0.8858078970224597,
+  "peak_rss_mib": 1012.703125,
+  "real_scoring_effect_read": false
+}

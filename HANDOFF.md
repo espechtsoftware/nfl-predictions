@@ -4,6 +4,10 @@
 
 # Project handoff
 
+## 2026-09-19 — completed D6400 archive received; next selection comparison prepared
+
+Peer `77219ad` published11original D6400 files. [Download receipt](reports/reviews/evidence/2026-09-19-d6400-archive-download.json) verifies generation/bytes/SHA for every file; 6,399candidates/K97. The frame and two429×10,000selection banks exactly match the earlier morning trace. No outcome columns decoded. Fresh provider-bound injury/DK capture completed21:08:21Z. [Selection-loss frontier](reports/2026-09-19-selection-loss-frontier-protocol.md): bounded128incoming×97outgoing one-exchange search, fixed0/.25/.5/1/2point loss allowances; fivebehavioral tests and full-size synthetic capacity pass. No real frontier result/adoption yet; next authenticate fresh v4.3 delivered control, reconstruct original selection, then freeze concrete books before fresh audit. Production still owns host installation after D12800; review clearance already acknowledged.
+
 ## 2026-09-19 — projection-only QB release verified; host v4.3 cleared and awaiting build completion
 
 [Release result](reports/2026-09-19-qb-projection-release-results.md): image `0993ee01…`, source `f06a192c`, paired current-input control `project-slate-m9psm` and gated `project-slate-tspcf` both succeeded. New505-row batch **20:56:54.107443Z** has all7forecast fields exactly zero for the47expected backup QBs; identities/DST preserved. Non-gated mean max difference0.069419; live sampler is unseeded. Original1e-6all-field comparison failed and is retained; separate functional verification, frozen reader `72a87c7e`, fourtests and exact common-upstream transformation pass. No NFL efficacy/equivalence claim. Peer independently agrees on membership/values at lab `3cd6f64`. Registry lane terminalized20:57:15Z, no writer remains.
