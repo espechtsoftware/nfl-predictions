@@ -5,6 +5,7 @@ Canonical reading copies are in this project's `reports/` folder. Open this inde
 
 Latest completed work, September 19:
 
+- [Updated next-week priorities](2026-09-19-next-week-plan-after-overnight-results.md): completed E0 work, failed screens, prospective reads and remaining supported experiments.
 - [Cloud release results](2026-09-19-weekend-input-repair-release-results.md): refreshed features/cache/projections and actual CLI proof passed; job lanes released. Workstation activation remains operator-pending.
 - [Current Odds snapshot impact](2026-09-19-prop-snapshot-impact-results.md): confirmed stale-threshold defect; current numerical effect measured without changing production.
 - [Cache values/order decomposition](2026-09-19-cache-order-decomposition-results.md): both factors change simulated world alignment; independent calculations and original-bank identities verified, no cache adoption.
