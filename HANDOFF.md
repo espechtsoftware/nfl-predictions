@@ -4,6 +4,18 @@
 
 # Project handoff
 
+## 2026-09-19 — isolated salary-week contract repair passes fixtures and real-source preview
+
+Branch `fix/2026-09-salary-week-resolution`, SQL `99440a23`, preview helper `bae741de`, based on
+operational production `63a93f24`. Missing raw salary weeks now resolve by unambiguous source season,
+canonical team and Eastern game date. Explicit weeks and historical vendor behavior are preserved.
+[Validation report](reports/2026-09-19-salary-week-repair-validation.md) includes exact job evidence:
+77 existing tests pass / 1 skip; real BQ fixtures pass; 104,847 identical historical rows; no duplicate
+keys; recovered Week1/2 salary 861/769 and 424 Week2 players with prior history. Workstation independently
+reviewed the SQL at lab `93fef92`. Handoff `410fe35` assigns it the full isolated feature/leakage and
+projection comparison. No live datasets or policy changed. Full build/cache/projection validation pending.
+
+
 This tracked file is the authoritative record for resuming development. It
 must travel with the repository. Do not rely on assistant memory, an
 individual workstation, unpushed commits, or cloud artifacts as the only copy
