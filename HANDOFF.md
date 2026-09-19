@@ -4,6 +4,10 @@
 
 # Project handoff
 
+## 2026-09-19 — actual D6400 frontier evaluated on fresh independent worlds
+
+[Result](reports/2026-09-19-d6400-selection-frontier-results.md): authenticated fresh v4.3 K97 control; 3,366 admitted candidates; fixed 128×97 one-exchange search. All proposals frozen before fresh audit; both archived player banks reconstructed exactly. Rank-94/candidate3623 gains +0.085 pp P220 under all-active audit, +0.035 pp under participation (interval crosses zero), Emax −0.02113 under participation. It adds Q Olave; first 40 positions unchanged. Zero-loss candidate's tiny selection gain does not survive. No live change, current outcomes or large scoring gain. Audit reader `8bcf8b10`, raw result SHA6b53b12b…. Next: peer numerical replay, full eligible participation reselection and first-entry comparison; production still owns cleared installation after D12800.
+
 ## 2026-09-19 — real D6400 v4.3 rehearsal independently passes with46replacements
 
 [Updated review](reports/2026-09-19-production-qb-replacement-review.md): original6,399-candidate/K97book and candidate means reproduce exactly; all11downloaded objects authenticated. Frozen runner `051b9c5c` executes cleared peer tools with captured read-only queries and14allowlisted input columns. New DK Flowers OUT causes45affected rows;46total lineups replaced, including positions29/30; all97final rows valid,3,315unused eligible alternatives. Derived book SHA86147c51…, flagsa12d9867…. Scratch/research only, no entry/pointer mutation. This confirms actual repeated replacement mechanics, not an NFL benefit. Production should receive the larger fresh-status removal count; host install remains cleared pending D12800completion.
