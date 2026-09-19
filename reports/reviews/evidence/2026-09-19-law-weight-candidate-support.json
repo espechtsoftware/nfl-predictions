@@ -1,0 +1,746 @@
+{
+  "scope": "Support census only; old K1 panel, not adopted D800; no efficacy read",
+  "candidate_uri": "gs://nfl-2-506823-lab/benchmark/v1/panel107/cands_pitclean_k1/000000000000.parquet",
+  "candidate_generation": "1787937215335871",
+  "candidate_bytes": 31627972,
+  "candidate_crc32c": "z1nFlA==",
+  "safe_extract_sha256": "d29f26c056735ac5562be7e85830af977780878e8eb92fb580feabb44f299fe8",
+  "candidate_columns_read": [
+    "season",
+    "week",
+    "players",
+    "cand_ix",
+    "salary"
+  ],
+  "frame_columns_read": [
+    "season",
+    "week",
+    "id",
+    "pos",
+    "game_id",
+    "salary"
+  ],
+  "frame_sha256": "531e0cde6706788cfed70ca938980dbcbb24e88f14772d1af7bab82c895599f4",
+  "outcomes_read": false,
+  "slates": [
+    {
+      "season": 2019,
+      "week": 1,
+      "candidates": 242,
+      "distinct_rosters": 242,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2019,
+      "week": 2,
+      "candidates": 248,
+      "distinct_rosters": 248,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2019,
+      "week": 3,
+      "candidates": 247,
+      "distinct_rosters": 247,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2019,
+      "week": 4,
+      "candidates": 241,
+      "distinct_rosters": 241,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2019,
+      "week": 5,
+      "candidates": 239,
+      "distinct_rosters": 239,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2019,
+      "week": 6,
+      "candidates": 239,
+      "distinct_rosters": 239,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2019,
+      "week": 7,
+      "candidates": 242,
+      "distinct_rosters": 242,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2019,
+      "week": 8,
+      "candidates": 241,
+      "distinct_rosters": 241,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2019,
+      "week": 9,
+      "candidates": 229,
+      "distinct_rosters": 229,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2019,
+      "week": 10,
+      "candidates": 228,
+      "distinct_rosters": 228,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2019,
+      "week": 11,
+      "candidates": 231,
+      "distinct_rosters": 231,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2019,
+      "week": 12,
+      "candidates": 235,
+      "distinct_rosters": 235,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2019,
+      "week": 13,
+      "candidates": 247,
+      "distinct_rosters": 247,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2019,
+      "week": 14,
+      "candidates": 247,
+      "distinct_rosters": 247,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2019,
+      "week": 15,
+      "candidates": 245,
+      "distinct_rosters": 245,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2019,
+      "week": 16,
+      "candidates": 245,
+      "distinct_rosters": 245,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2019,
+      "week": 17,
+      "candidates": 243,
+      "distinct_rosters": 243,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2021,
+      "week": 1,
+      "candidates": 244,
+      "distinct_rosters": 244,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2021,
+      "week": 2,
+      "candidates": 249,
+      "distinct_rosters": 249,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2021,
+      "week": 3,
+      "candidates": 248,
+      "distinct_rosters": 248,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2021,
+      "week": 4,
+      "candidates": 240,
+      "distinct_rosters": 240,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2021,
+      "week": 5,
+      "candidates": 233,
+      "distinct_rosters": 233,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2021,
+      "week": 6,
+      "candidates": 230,
+      "distinct_rosters": 230,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2021,
+      "week": 7,
+      "candidates": 234,
+      "distinct_rosters": 234,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2021,
+      "week": 8,
+      "candidates": 240,
+      "distinct_rosters": 240,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2021,
+      "week": 9,
+      "candidates": 245,
+      "distinct_rosters": 245,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2021,
+      "week": 10,
+      "candidates": 238,
+      "distinct_rosters": 238,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2021,
+      "week": 11,
+      "candidates": 246,
+      "distinct_rosters": 246,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2021,
+      "week": 12,
+      "candidates": 241,
+      "distinct_rosters": 241,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2021,
+      "week": 13,
+      "candidates": 242,
+      "distinct_rosters": 242,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2021,
+      "week": 14,
+      "candidates": 242,
+      "distinct_rosters": 242,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2021,
+      "week": 15,
+      "candidates": 239,
+      "distinct_rosters": 239,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2021,
+      "week": 16,
+      "candidates": 242,
+      "distinct_rosters": 242,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2021,
+      "week": 17,
+      "candidates": 245,
+      "distinct_rosters": 245,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2021,
+      "week": 18,
+      "candidates": 246,
+      "distinct_rosters": 246,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2022,
+      "week": 1,
+      "candidates": 249,
+      "distinct_rosters": 249,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2022,
+      "week": 2,
+      "candidates": 240,
+      "distinct_rosters": 240,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2022,
+      "week": 3,
+      "candidates": 243,
+      "distinct_rosters": 243,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2022,
+      "week": 4,
+      "candidates": 248,
+      "distinct_rosters": 248,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2022,
+      "week": 5,
+      "candidates": 243,
+      "distinct_rosters": 243,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2022,
+      "week": 6,
+      "candidates": 234,
+      "distinct_rosters": 234,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2022,
+      "week": 7,
+      "candidates": 245,
+      "distinct_rosters": 245,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2022,
+      "week": 8,
+      "candidates": 238,
+      "distinct_rosters": 238,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2022,
+      "week": 9,
+      "candidates": 232,
+      "distinct_rosters": 232,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2022,
+      "week": 10,
+      "candidates": 240,
+      "distinct_rosters": 240,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2022,
+      "week": 11,
+      "candidates": 240,
+      "distinct_rosters": 240,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2022,
+      "week": 12,
+      "candidates": 235,
+      "distinct_rosters": 235,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2022,
+      "week": 13,
+      "candidates": 249,
+      "distinct_rosters": 249,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2022,
+      "week": 14,
+      "candidates": 241,
+      "distinct_rosters": 241,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2022,
+      "week": 15,
+      "candidates": 236,
+      "distinct_rosters": 236,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2022,
+      "week": 16,
+      "candidates": 223,
+      "distinct_rosters": 223,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2022,
+      "week": 17,
+      "candidates": 242,
+      "distinct_rosters": 242,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2022,
+      "week": 18,
+      "candidates": 238,
+      "distinct_rosters": 238,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2023,
+      "week": 1,
+      "candidates": 245,
+      "distinct_rosters": 245,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2023,
+      "week": 2,
+      "candidates": 240,
+      "distinct_rosters": 240,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2023,
+      "week": 3,
+      "candidates": 238,
+      "distinct_rosters": 238,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2023,
+      "week": 4,
+      "candidates": 242,
+      "distinct_rosters": 242,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2023,
+      "week": 5,
+      "candidates": 238,
+      "distinct_rosters": 238,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2023,
+      "week": 6,
+      "candidates": 246,
+      "distinct_rosters": 246,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2023,
+      "week": 7,
+      "candidates": 238,
+      "distinct_rosters": 238,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2023,
+      "week": 8,
+      "candidates": 248,
+      "distinct_rosters": 248,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2023,
+      "week": 9,
+      "candidates": 243,
+      "distinct_rosters": 243,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2023,
+      "week": 10,
+      "candidates": 239,
+      "distinct_rosters": 239,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2023,
+      "week": 11,
+      "candidates": 236,
+      "distinct_rosters": 236,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2023,
+      "week": 12,
+      "candidates": 239,
+      "distinct_rosters": 239,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2023,
+      "week": 13,
+      "candidates": 234,
+      "distinct_rosters": 234,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2023,
+      "week": 14,
+      "candidates": 235,
+      "distinct_rosters": 235,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2023,
+      "week": 15,
+      "candidates": 234,
+      "distinct_rosters": 234,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2023,
+      "week": 16,
+      "candidates": 239,
+      "distinct_rosters": 239,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2023,
+      "week": 17,
+      "candidates": 245,
+      "distinct_rosters": 245,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2023,
+      "week": 18,
+      "candidates": 251,
+      "distinct_rosters": 251,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2024,
+      "week": 1,
+      "candidates": 243,
+      "distinct_rosters": 243,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2024,
+      "week": 2,
+      "candidates": 243,
+      "distinct_rosters": 243,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2024,
+      "week": 3,
+      "candidates": 239,
+      "distinct_rosters": 239,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2024,
+      "week": 4,
+      "candidates": 236,
+      "distinct_rosters": 236,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2024,
+      "week": 5,
+      "candidates": 239,
+      "distinct_rosters": 239,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2024,
+      "week": 6,
+      "candidates": 240,
+      "distinct_rosters": 240,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2024,
+      "week": 7,
+      "candidates": 235,
+      "distinct_rosters": 235,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2024,
+      "week": 8,
+      "candidates": 244,
+      "distinct_rosters": 244,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2024,
+      "week": 9,
+      "candidates": 247,
+      "distinct_rosters": 247,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2024,
+      "week": 10,
+      "candidates": 234,
+      "distinct_rosters": 234,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2024,
+      "week": 11,
+      "candidates": 245,
+      "distinct_rosters": 245,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2024,
+      "week": 12,
+      "candidates": 250,
+      "distinct_rosters": 250,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2024,
+      "week": 13,
+      "candidates": 240,
+      "distinct_rosters": 240,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2024,
+      "week": 14,
+      "candidates": 234,
+      "distinct_rosters": 234,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2024,
+      "week": 15,
+      "candidates": 244,
+      "distinct_rosters": 244,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2024,
+      "week": 16,
+      "candidates": 247,
+      "distinct_rosters": 247,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2024,
+      "week": 17,
+      "candidates": 236,
+      "distinct_rosters": 236,
+      "invalid": [],
+      "salary_mismatches": 0
+    },
+    {
+      "season": 2024,
+      "week": 18,
+      "candidates": 245,
+      "distinct_rosters": 245,
+      "invalid": [],
+      "salary_mismatches": 0
+    }
+  ],
+  "totals": {
+    "slates": 89,
+    "candidates": 21420,
+    "distinct_rosters": 21420,
+    "invalid": 0,
+    "salary_mismatches": 0
+  }
+}

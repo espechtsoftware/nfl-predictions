@@ -226,7 +226,9 @@
     "rollback_sha": "e7255e98bf87297452befb61fb508ad4b368b59f",
     "target_prior": "none",
     "selector": "dual_emax",
-    "host_runtime_patch": "pending workstation preparation"
+    "host_runtime_patch": "independently reviewed at lab d7abe2c; 42 behavioral tests pass; not activated",
+    "host_runtime_runner_sha256": "655561f86e9579eb87e2e1deee743071dfc07e685ea83c244211e4741e3a04c9",
+    "host_runtime_patched_arm_sha256": "c1cf827099bfe4b8d73b5a7d55a8533ce45f7c16a52f9c456b6d4bc10bd94424"
   },
   "build_utc": "2026-09-19T15:30:00Z",
   "refresh_utc": "2026-09-19T14:45:00Z",

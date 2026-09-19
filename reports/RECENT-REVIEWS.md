@@ -5,6 +5,7 @@ Canonical reading copies are in this project's `reports/` folder. Open this inde
 
 | Document | Purpose |
 |---|---|
+| [Historical model-blend results](2026-09-19-law-weight-results.md) | Learned earlier-season weights worsen forecast scores; frozen gate fails, no lineup-transfer run |
 | [Paid-source experiment plan](2026-09-18-paid-source-experiment-plan.md) | Authorized first-stage scope and routing |
 | [Paid-source preflight results](2026-09-18-paid-source-experiment-preflight-results.md) | Registered models, Odds fixtures, vendor support and paused shadow schedules |
 | [Paid data usage and renewal review](2026-09-18-paid-data-usage-and-renewal-review.md) | Odds API, SIS and Fantasy Points: current use, historical evidence, proposed tests and renewal advice |

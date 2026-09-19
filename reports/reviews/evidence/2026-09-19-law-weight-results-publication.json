@@ -1,0 +1,20 @@
+{
+  "objects": [
+    {
+      "uri": "gs://nfl-2-506823-lab/research/law-weight-20260919/read-v1/score-result.json",
+      "generation": "1789793418488890",
+      "bytes": 46661,
+      "crc32c": "RBaTcQ==",
+      "sha256": "7234cb9737ce3cb89a9873c07283dcc600a5c95c5e85b0904a74601e0acc58d4"
+    },
+    {
+      "uri": "gs://nfl-2-506823-lab/research/law-weight-20260919/read-v1/score-rows.parquet",
+      "generation": "1789793418768380",
+      "bytes": 5155168,
+      "crc32c": "fN18+A==",
+      "sha256": "b7404ff1f911edf9db831bce956d7d4677ce623d8c7a3d6c7442acb199056221"
+    }
+  ],
+  "reader_sha256": "2f9f41b1c5bc30e4930f1cdd5981a3df5d30384928e44fb81fd9f6a5d6eb0cd5",
+  "build_id": "9889814c-81d1-4030-a75b-90fe88d4ac6a"
+}

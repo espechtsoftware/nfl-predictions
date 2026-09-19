@@ -4,6 +4,18 @@
 
 # Project handoff
 
+## 2026-09-19 — historical law-weight screen fails; keep equal blend
+
+[Result](reports/2026-09-19-law-weight-results.md): learned minus equal CRPS
++0.016234, conditional 95% interval [+0.004852,+0.027395], both banks worse,
+three of four years worse. Frozen advancement gate fails; no lineup-transfer run,
+no weighting-rule search, no live change. Exact reader is unchanged. Forecast
+build and separate score build succeeded; artifact generations/hashes verified.
+Peer cross-read is requested before any ledger row. Outcome-blind roster support
+is complete (21,420 legal distinct candidates), but is not an efficacy result.
+The machine-readable release plan now records the accepted runtime source/hashes;
+adoption remains pending.
+
 ## 2026-09-19 — historical forecasts complete; cloud reader transport corrected
 
 Full forecast build `2eb37a28-4779-4ec2-97a7-4d3c918f5390` succeeded at
