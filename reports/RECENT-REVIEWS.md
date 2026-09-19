@@ -5,6 +5,7 @@ Canonical reading copies are in this project's `reports/` folder. Open this inde
 
 | Document | Purpose |
 |---|---|
+| [Injury-type opportunity protocol](2026-09-19-injury-type-opportunity-protocol.md) | One new incremental target-mean test; matched existing inputs, earlier-season fits, no live adoption |
 | [Opportunity-input support](2026-09-19-opportunity-input-support.md) | Actual 2026 practice trajectories exist; historical trajectory coverage is insufficient; no outcome fit |
 | [Historical model-blend results](2026-09-19-law-weight-results.md) | Learned earlier-season weights worsen forecast scores; frozen gate fails, no lineup-transfer run |
 | [Paid-source experiment plan](2026-09-18-paid-source-experiment-plan.md) | Authorized first-stage scope and routing |

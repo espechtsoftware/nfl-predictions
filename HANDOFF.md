@@ -4,6 +4,21 @@
 
 # Project handoff
 
+## 2026-09-19 — full law-weight cross-read agrees; injury-type study prepared
+
+Lab `2abe922` reproduces the complete frozen law-weight forecast-to-score reader,
+including exact bootstrap bounds and all 24,272 × 55 row values. The peer retracts
+the previously asserted publication refusal: no command had actually been denied,
+and the full read required no publication. The failed gate is now cross-verified.
+
+[Injury-type protocol](reports/2026-09-19-injury-type-opportunity-protocol.md)
+prepares one distinct incremental target-mean screen. Sunday-main support has
+33,802 prior-role rows, 7,102 known injury types and 1,887 typed Questionable rows;
+there are no designation mismatches. Full synthetic forecast/read checks pass,
+including informative signal, missing labels and target/future-label refusal.
+No historical outcome evaluation for this study yet. Separate cloud smoke,
+forecast and reader adapters preserve the frozen temporal boundary. No live change.
+
 ## 2026-09-19 — practice-trajectory census complete; partial law-weight cross-check agrees
 
 [Support census](reports/2026-09-19-opportunity-input-support.md): Week1 has

@@ -325,6 +325,10 @@ non-negotiables:
 
 Repo-specific items, distinct from the design guide's roadmap (§12).
 
+| Date | Data deficiency | Impact | Status |
+|---|---|---|---|
+| 2026-09-19 | Historical injury files do not preserve daily practice trajectories; 2025 also lacks source modification timestamps. | Cannot train a historical within-week practice progression model from final weekly rows. | Open; 2026 collector captures preserve real changes. [Support census](reports/2026-09-19-opportunity-input-support.md). |
+
 **User-supplied lineup analyzer — future task (requested 2026-08-08).** Add a
 UI workflow that accepts a lineup either by selecting players from the active
 slate or by uploading a DraftKings-exported CSV/spreadsheet. Resolve players

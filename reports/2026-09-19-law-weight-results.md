@@ -2,10 +2,10 @@
 
 The frozen earlier-season learning rule makes predictive accuracy worse than the
 existing equal blend. **Do not advance it to lineup selection or change the live
-blend.** This is a completed development screen. Peer `26f3ef5` independently
-recomputed the published score-row aggregates and confirmed the failed gate;
-the full frozen forecast-to-score rerun remains pending. No new ledger row or
-live change is made.
+blend.** This is a completed development screen. Peer `2abe922` completes the
+full frozen forecast-to-score rerun: every common report value and bootstrap
+bound agrees exactly, and all 24,272 × 55 score-row values match. This supersedes
+the earlier score-row arithmetic check. No live change is made.
 
 ## Primary result
 
