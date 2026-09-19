@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "synthetic_status_scenario": true,
+  "real_statuses_remain": "D",
+  "no_real_capture_modified": true,
+  "no_book_emitted": true,
+  "no_scoring_metrics_evaluated": true,
+  "candidates_before": 1600,
+  "eligible_candidates": 1053,
+  "selected": 97,
+  "unique": 97,
+  "excluded_ids": [
+    "00-0036212",
+    "00-0039064"
+  ],
+  "zero_excluded_exposure": true,
+  "all_rosters_legal": true,
+  "script_sha256": "cf8f3021bb9503df17b9b82a1d5b00ab371102be0f195a69db2be7be52523ab9",
+  "selector_source_sha256": "a2a240aa4a44d15bc8f973246722dc986978ceda9a8af69dccd3420d7f6c82cf"
+}
