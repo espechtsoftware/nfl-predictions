@@ -61,3 +61,5 @@ Consolidated September 18, 2026 at Erich's request. Source commits: production `
 
 - [Live game-input repair validation](2026-09-19-live-hsim-game-input-repair-validation.md): 16 tests, exact numerical parity and full CLI rehearsal pass; release pending.
 - [TabPFN cache follow-up](2026-09-19-tabpfn-live-cache-followup.md): complete Week 2 support, distinct consumers and isolated-refresh constraints.
+
+- [Combined usage/game-line sensitivity](2026-09-19-usage-schedule-factorial-results.md): all four cases completed; usage drives the selection change, with no clear extra gain from game lines after usage under the corrected simulator.

@@ -1,0 +1,48 @@
+{
+  "execution": "tabpfn-gen-5nv4d",
+  "region": "us-central1",
+  "project": "nfl-predictions-503414",
+  "started_at": "2026-09-17T10:19:21.854633Z",
+  "completed_at": "2026-09-17T10:32:43.193826Z",
+  "succeeded_count": 1,
+  "image_digest": "sha256:7eeff44e7c225fed62682b3649dfa86d77f86227e3e9858c967d132deff2a10a",
+  "log_sha256": "37869441dfa28ff85cdeaa0cf9783e6e3d7b8ff1acf6121dd5499fbc207cf8fd",
+  "upcoming_prediction_seconds": 71,
+  "generator_receipt": {
+    "base_cache": null,
+    "code_sha": "",
+    "context_law": "all-prior-nonnull-labels",
+    "context_max": 28000,
+    "disposition": "tabpfn-canonical-cache-generated",
+    "feature_contract_sha256": "52cc95c500bc3bd4223baacb29be73e3df4d637ce289b6431735cddd46195b83",
+    "n_estimators": 4,
+    "output_rows": 66383,
+    "output_table": "nfl-predictions-503414.nfl_features.tabpfn_projections",
+    "random_seed": 7,
+    "target_seasons": [
+      2019,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "training_source": {
+      "active_rows": 78404,
+      "content_checksum": 5982999734499770285,
+      "inactive_rows": 24523,
+      "last_modified": "2026-09-17T10:17:14.062000+00:00",
+      "rows": 102927,
+      "schema_sha256": "df9c90731aa11acf4dc39c9c4ead132243b0b15ccace45583ec00704fcb59473",
+      "table": "nfl-predictions-503414.nfl_features.player_week_training"
+    },
+    "unique_keys": 66383,
+    "upcoming_only": false,
+    "upcoming_target": [
+      2026,
+      2
+    ],
+    "write_disposition": "WRITE_TRUNCATE"
+  },
+  "limitation": "Log code_sha is empty. Immutable image identity is known; local-source equivalence still requires extraction/review."
+}

@@ -4,6 +4,18 @@
 
 # Project handoff
 
+## 2026-09-19 — four-case input sensitivity completed; live CLI rehearsal passed
+
+Frozen `79c8c0e8` / runner `780814b1`, [factorial result](reports/2026-09-19-usage-schedule-factorial-results.md):
+under the corrected independent hsim audit, combined re-selection gains 3.0325 expected maximum and 5.14pp
+220+ coverage versus the canonical co-run old-input book. Usage drives the change; adding lines after usage
+has a small difference spanning zero. Old-usage laws disagree, so this is conditional model evidence.
+All four books, cross-law/prefix/contest metrics and input/calibration/array identities are preserved.
+The source fix separately passed the full small live CLI in 72.2 seconds (`9363bfe`, evidence `2dc116c`),
+five legal lineups from 20 candidates and 13 current games receipted. This rehearsal used existing live
+features, not the repaired scratch feature chain. Independent patch review and exact release/timer inventory
+remain requested from the workstation. No live writes or adoption by the laptop.
+
 ## 2026-09-19 — isolated leakage pass and usage-only hsim sensitivity completed
 
 Workstation`b72e465`reports full isolated feature/leakage pass, exact104,847historical-row parity and
