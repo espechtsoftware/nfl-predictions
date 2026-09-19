@@ -4,6 +4,22 @@
 
 # Project handoff
 
+## 2026-09-19 — overnight allocation diagnostic completed; one exchange nominated
+
+Erich requested continuous work and five-minute handoff polling until the September 19 10:30 CT build.
+The read-only remote monitor is active through that deadline; the assistant is also fetching and reviewing changes.
+[Allocation result](reports/2026-09-19-contest-allocation-results.md), frozen source `f7cb5f9c`, finds one exchange
+of rows 70 and 86 in Thursday's diagnostic K97 book. Both affected disjoint blocks improve Emax, GLOBAL proxy
+and P220 under each component. Sum of mixed block Emax gains is 0.753088 points. All 97 rosters and Milly row 1
+stay fixed; whole-book P220 is unchanged. K80 incumbent prefix Emax declines 0.027207: block and prefix objectives
+must not be conflated. Exact hashes, direct recomputation and final invariants passed in 0.904 seconds.
+
+Workstation independently reproduced the component decomposition (`45cd40f`), agreeing on about 12.73 of the
+19.71-point gap associated with means and 6.98 with centered distributions. No conclusion about which law is
+correct. The corrected audit-capture v5 patch passed all 14 external tests in an isolated exact-source worktree;
+it has not been deployed. Next: independent allocation review, trace hsim calibration/role offsets, and a
+bounded fixed-K retrieval study. No live entries, dose, schedules or model policy were changed.
+
 ## 2026-09-18 — authorized paid-source experiments started; outcome-free preflight complete
 
 Erich authorized proceeding after the renewal review. [Plan](reports/2026-09-18-paid-source-experiment-plan.md)

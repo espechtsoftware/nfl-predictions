@@ -38,3 +38,5 @@ Consolidated September 18, 2026 at Erich's request. Source commits: production `
 - [Week2 current-selector diagnostic](2026-09-18-week2-current-selector-diagnostic.md): exact90-row reproduction,97-entry extension and component tail disagreement.
 
 - [Week2 component-gap decomposition](2026-09-18-week2-component-gap-results.md):12.73points associated withmeans,6.98with residualdistribution; diagnostic only.
+
+- [Same-book contest allocation](2026-09-19-contest-allocation-results.md): one qualifying exchange improves both affected blocks under both models; full-book 220+ coverage is unchanged.
