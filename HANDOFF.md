@@ -4,6 +4,10 @@
 
 # Project handoff
 
+## 2026-09-19 — direct first-entry tail objective read; both candidate orders retained
+
+[Result](reports/2026-09-19-d6400-first-entry-tail-results.md): frozen primary proxy-versus-mean comparison, same29clean/soft first30choices. Proxy/P220 both choose current rank2, mean rank5. Fresh seeds22260919/23260919: rank2 vs current first mean+7.6029 /P220+0.185pp /proxy+0.003307, both components positive; vsmean it trades−0.9181mean for+0.110ppP220/+0.000222proxy, both tail intervals crosszero and components disagree. No superiority verdict; order-only memberships/prefixes10+exact. Previous mean audit preserved; its new P220+0.075pp interval crosseszero while mean/proxy gains persist. Full-reselection replay and exact CSV proof published, shared `da3e2da`; no newer production reply as of21:58:28Z. Cleared host installation still awaits peer D12800completion/liveness confirmation; keep checking every5minutes while active.
+
 ## 2026-09-19 — full D6400 reselection and first-entry audit completed
 
 [Results and class E candidate](reports/2026-09-19-d6400-reselection-and-ordering-results.md): frozen eight-book packet `87262e06…`, reader/audit `7f3c339c`, both selection banks exact, new audit seeds. Existing promotion moves current rank5 to first: simulated mean +8.5076, P220 +0.165 pp in both laws/components; membership and prefixes10+ unchanged, block2–24 loses0.1954 mean-max /0.095 pp P220. This merits production review as a reversible order-only candidate, not automatic adoption. Full P_MIX reselection changes33members and gains whole-book +0.9518 mean-max /+0.730 pp P220 under participation, but costs0.5794 /0.970 pp under all-active. Expected inactive slots fall17.67→4.74; maximum player exposure increases53→58. Eight arms/20regions/10slot stresses all reported. No current outcomes or operational mutations. Next: portable independent replay, concrete same-book permutation proof, and production's actual-final-book review; no fixed calendar hold added.

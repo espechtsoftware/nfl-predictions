@@ -1,0 +1,25 @@
+# First-entry tail utility: another useful order, without a proven winner over the mean rule
+
+The direct tail rules choose **current rank 2 / candidate3589**, while the existing mean rule chooses **rank 5 / candidate782**. Both are better first-entry candidates than the current first row under this model. On fresh worlds the rank-2 choice improves first-entry mean by **7.60 points**, P220 by **0.185 percentage points**, and the labelled winner-score proxy by **0.003307**. It preserves every selected lineup and every reported prefix from10onward.
+
+Against the mean-based rank-5 choice, rank2 gives up **0.918 expected points** for a point-estimated **+0.110 pp P220 / +0.000222 proxy**. Those two tail differences are uncertain and disagree across simulators. The experiment therefore does not establish that the tail rule is superior to the mean rule. It provides a concrete objective-aligned alternative with an explicit cost, rather than a universal ordering winner.
+
+The [protocol](2026-09-19-d6400-first-entry-tail-protocol.md) and [proposal source](reviews/evidence/2026-09-19-d6400-first-entry-tail-proposals.py) froze at `b3c96dd8`. They use only original selection banks and the same29clean/soft entries within the real delivered first30. Primary new contrast was **proxy-minus-mean**; P220-minus-mean was secondary. The P220 and proxy rules selected exactly the same row. The unchanged mean choice reproduces the previous proposal. Four behavioral assertions cover ties, ineligible/out-of-prefix choices, empty eligibility, and differing mean/tail objectives.
+
+The [frozen books](reviews/evidence/2026-09-19-d6400-first-entry-tail-frozen-books.json), SHA `b65abc84096a60efd4e0652bc3b76dfe97978151cb9847a777160bcc8d74dcc6`, and [reader](reviews/evidence/2026-09-19-d6400-first-entry-tail-read.py) froze at **ddddd718** before effects. Both original player banks reconstruct exactly before fresh event seeds22260919/23260919, availability20260919063. All outcomes remain unopened. [Audit identities](reviews/evidence/2026-09-19-d6400-first-entry-tail-audit-receipt.json), [complete results](reviews/evidence/2026-09-19-d6400-first-entry-tail-result.json), result SHA `5fcf1771aca287c17f50573d0fdcdef0cd76268c25db562b63a7eb31b8180da4`. This is an explicitly post-inspection conditional-simulation comparison, not independent NFL confirmation.
+
+| First-entry metric on this audit | Current first | Mean rule: rank5 | Proxy/P220 rule: rank2 |
+|---|---:|---:|---:|
+| Expected points | 134.9733 | 143.4943 | 142.5762 |
+| P220 | 0.465% | 0.540% | 0.650% |
+| Winner-score proxy | 0.007855 | 0.010940 | 0.011162 |
+
+For rank2 versus current order, the mean-change MC95 interval is **[7.1171,8.0887]**, P220 **[+0.0427,+0.3273] pp**, proxy **[+0.002519,+0.004095]**. Both components have positive mean, P220 and proxy point differences: incumbent P220 **+0.050 pp**, hsim **+0.320 pp**. All-active and participation effects match exactly for the affected entries, whose map probabilities are1.
+
+The primary **proxy-minus-mean** difference has MC95 **[−0.000544,+0.000988]**. Component proxy differences are incumbent **−0.000522**, hsim **+0.000966**; P220 **−0.040 / +0.260 pp**. Its mixture P220 interval is **[−0.036,+0.256] pp**. Mean decreases in both components. Those intervals measure simulation error with fixed laws, not model or NFL uncertainty; no family-wise efficacy claim is made.
+
+The earlier mean result remains a real report of its original audit, not a number to overwrite: P220 was +0.165pp there and is **+0.075pp** here, with the latter interval crossing zero. Its **mean and proxy gains remain positive in both components**, and its block2–24 mean cost reproduces (−0.1935 here). This illustrates why a small extreme-tail improvement should not be sold as a precise future probability gain.
+
+The rank2 permutation exchanges the first two rows. Its block2–24 change is **+0.0460 expected-max points**, **−0.045 pp P220**, and **−0.000181 proxy** versus current order; all three intervals include zero. Compared with the mean-rule permutation, that block gains **+0.2396 mean-max / +0.000518 proxy**. All other reported prefixes and contest blocks are exactly unchanged, as is the whole97entry maximum in every world. The order-only effect reallocates existing scoring chances across contests; it cannot raise the whole-book maximum.
+
+For the user's high-score/Millionaire preference, the proxy rule is a reasonable candidate to present alongside the mean rule, with the component disagreement visible. Its standalone objective is closer to the tail goal, but superiority over the mean choice is **unresolved** in this read. Neither requires a calendar delay to prepare a reversible class E trial. Production should independently replay the numerical result and execute the chosen declared rule on the actual final book with fresh risk flags and exact contest mapping before presenting adoption. Do not copy either archival row number to a different book. Keep the current order as rollback; unchanged memberships and prelock forecast/order capture are required. No live file or adoption was changed here.
