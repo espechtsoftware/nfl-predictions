@@ -1,4 +1,5 @@
 """Actual refreshed warehouse through unchanged candidate CLI; no scratch router."""
+import datetime as dt
 import hashlib
 import json
 import os
@@ -16,12 +17,14 @@ def sha(p):return hashlib.sha256(Path(p).read_bytes()).hexdigest()
 def main():
     mode=sys.argv[1];assert mode in ['host','fresh']
     assert (ROOT/'project-slate-result.json').exists()
+    projection_validation=json.loads((ROOT/'projection-validation.json').read_text())
     assert Path.cwd()==LAB
     assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()==EXPECTED
     assert not subprocess.check_output(['git','status','--porcelain'],text=True).strip()
     sys.path.insert(0,str(LAB/'src'))
     os.environ['NFL2_LIVE_CENTER']='production'
     from nfl2 import live,data
+    assert live.WAREHOUSE=='nfl-predictions-503414'
     # Host mode mirrors the exact existing workstation artifact; fresh mode is
     # an additional warehouse-current engineering rehearsal, not an adoption.
     live.CACHE=ROOT/('live-cli-'+mode+'-cache');assert not live.CACHE.exists()
@@ -42,6 +45,8 @@ def main():
     assert r['inputs']['book_contract']['dk_violations']==r['inputs']['book_contract']['strategy_violations']==0
     assert r['config']['selector']=='dual_emax' and r['config']['production_rows']>0
     assert r['config']['production_generated_at'][:10]=='2026-09-19'
+    assert dt.datetime.fromisoformat(r['config']['production_generated_at'])==dt.datetime.fromisoformat(projection_validation['generated_at'])
+    assert r['config']['production_rows']==projection_validation['projection_rows']
     assert r['config']['hsim_game_inputs']['source']=='live_schedule_validated_against_frame'
     assert len(r['config']['hsim_game_inputs']['games'])==r['inputs']['games']==13
     assert len(state['book'])==97 if 'book' in state else r['written']==97
