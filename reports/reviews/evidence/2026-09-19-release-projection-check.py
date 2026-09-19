@@ -26,7 +26,14 @@ def main():
         j=client.query(sql,job_config=cfg);df=j.result(timeout=300).to_dataframe()
         queries.append(dict(sql=sql,job_id=j.job_id,rows=len(df),bytes_processed=j.total_bytes_processed));return df
     proj=query(f"SELECT * FROM `{PROJECT}.nfl_predictions.player_projections` WHERE generated_at BETWEEN @start AND @end AND season=2026 AND week=2")
-    assert len(proj)>0 and proj.generated_at.nunique()==1 and not proj.gsis_id.duplicated().any()
+    assert len(proj)>0 and proj.generated_at.nunique()==1
+    # DST is intentionally written with null gsis_id (dst_projections.py), and
+    # is keyed by DraftKings team ID. Skill rows retain unique non-null GSIS.
+    assert proj.dk_player_id.notna().all() and not proj.dk_player_id.duplicated().any()
+    ps=proj[proj.position.isin(['QB','RB','WR','TE'])]
+    assert ps.gsis_id.notna().all() and not ps.gsis_id.duplicated().any()
+    assert proj[proj.position.eq('DST')].gsis_id.isna().all()
+    assert len(ps)+int(proj.position.eq('DST').sum())==len(proj)
     vals=['proj_points','proj_p10','proj_p50','proj_p90','proj_std']
     assert np.isfinite(proj[vals].to_numpy(float)).all() and (proj.proj_std>=0).all()
     assert ((proj.proj_p10<=proj.proj_p50)&(proj.proj_p50<=proj.proj_p90)).all()
@@ -51,7 +58,8 @@ def main():
     assert set(proj[proj.position.isin(['QB','RB','WR','TE'])].gsis_id)==set(skill.gsis_id)
     result=dict(execution=name,start=start,end=end,projection_rows=len(proj),generated_at=str(proj.generated_at.iloc[0]),
       model_versions=sorted(proj.model_version.unique()),position_counts=proj.position.value_counts().to_dict(),
-      finite_ordered_projections=True,direct_props_log=log_prop,fresh_div_shadow_rows=len(div),
+      finite_ordered_projections=True,unique_nonnull_dk_ids=True,unique_nonnull_skill_gsis=True,dst_gsis_null_by_contract=True,
+      direct_props_log=log_prop,fresh_div_shadow_rows=len(div),
       exact_skill_frame_rows=len(skill),exact_finite_prop_rows=int(mask.sum()),exact_prop_coverage=float(mask.mean()),
       source_hashes={n:hashlib.sha256((REPO/n).read_bytes()).hexdigest() for n in ['src/nfl_dfs/inference/run_projections.py','src/nfl_dfs/models/prop_market.py']},
       queries=queries,scope='actual new projection batch and direct branch witnesses; read-only consumer replay')
