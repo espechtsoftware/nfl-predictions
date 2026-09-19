@@ -103,3 +103,5 @@ Consolidated September 18, 2026 at Erich's request. Source commits: production `
 - [Transition follow-up review](2026-09-19-transition-followup-review.md): PREREG-100/live-vetting consumer mismatch; local historical cache lacks source identity/invalidation.
 
 - [Completed cloud input release](2026-09-19-weekend-input-repair-release-results.md): validated live refresh and actual host-cache CLI proof; lanes released, workstation activation pending.
+
+- [Historical-cache effect](2026-09-19-host-cache-effect-results.md) and [values/order decomposition](2026-09-19-cache-order-decomposition-results.md): identical player marginals can hide different simulated world alignment; both historical values and row order contribute, with no efficacy or adoption claim.

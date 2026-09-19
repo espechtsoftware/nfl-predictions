@@ -1,0 +1,67 @@
+{
+  "actual_cli_replays_exact": true,
+  "contrasts": {
+    "fresh_values_host_order-minus-host_values_host_order": {
+      "changed_components": 3213,
+      "component_max_absolute_difference": 2.6934794387503773,
+      "different_bank_cells": 3817536,
+      "max_absolute_cell_difference": 41.92951965332031,
+      "per_player_multisets_equal": true,
+      "common_nonconstant_players": 402,
+      "correlation_pairs": 80601,
+      "mean_absolute_correlation_difference": 0.011195679537538012
+    },
+    "fresh_values_fresh_order-minus-host_values_fresh_order": {
+      "changed_components": 3226,
+      "component_max_absolute_difference": 3.244426021360601,
+      "different_bank_cells": 3817854,
+      "max_absolute_cell_difference": 42.340606689453125,
+      "per_player_multisets_equal": true,
+      "common_nonconstant_players": 402,
+      "correlation_pairs": 80601,
+      "mean_absolute_correlation_difference": 0.011240881606324393
+    },
+    "host_values_fresh_order-minus-host_values_host_order": {
+      "changed_components": 3220,
+      "component_max_absolute_difference": 3.60661475413427,
+      "different_bank_cells": 3817601,
+      "max_absolute_cell_difference": 40.16960525512695,
+      "per_player_multisets_equal": true,
+      "common_nonconstant_players": 402,
+      "correlation_pairs": 80601,
+      "mean_absolute_correlation_difference": 0.011236367852683043
+    },
+    "fresh_values_fresh_order-minus-fresh_values_host_order": {
+      "changed_components": 3228,
+      "component_max_absolute_difference": 4.056467182838944,
+      "different_bank_cells": 3818553,
+      "max_absolute_cell_difference": 40.36701965332031,
+      "per_player_multisets_equal": true,
+      "common_nonconstant_players": 402,
+      "correlation_pairs": 80601,
+      "mean_absolute_correlation_difference": 0.01119474263807795
+    }
+  },
+  "artifacts": {
+    "host_values_host_order": {
+      "components.parquet": "e87316f4d05968aeba989637ad29014256b05b953c801a72cb55e5a5b106febc",
+      "bank.npy": "b638f163d4ba85673cc620982c7a5344e2ab3d681755c206b77236b898534f51"
+    },
+    "fresh_values_fresh_order": {
+      "components.parquet": "c2fabaab39b81737b6d33fa91f1db842b706660859d287b15b1709a0db8c9df1",
+      "bank.npy": "5396726019415de9f6f5861059a43ad56d3f79a5513d21ad2681606bb5228729"
+    },
+    "fresh_values_host_order": {
+      "components.parquet": "4d9f0fd68f7b9ab3cbd4802466cd997eadc60316d1669fd80fed9afe4670525f",
+      "bank.npy": "865a50d7c50d50269411c2fb5c6d0ff19636a1edd46f51410f2647924a3889fe"
+    },
+    "host_values_fresh_order": {
+      "components.parquet": "6ae185066c9f95d927636df4f32aa3b3f3866868a85dbd412d44dd9af6c0e2bf",
+      "bank.npy": "9bdd189a4ff4e44c5cdafc3aca9fdf518cf6f05265fad595321bba20f2172ba2"
+    }
+  },
+  "reader_sha256": "c26f34e9797aa00ede6a031e1d84fcb99628ba90605079b37c6fdaaaaeabe49d",
+  "producer_sha256": "d160152464daf806c26a0a111c1a0cadf9984803311481d23b29f448c301e324",
+  "diagnostic_repair": "All four frozen fits completed. Original reader selected some constant rows because float32 std reduction was nonzero, causing NaN correlation and failed JSON. Read-only repair uses exact range for constant detection and float64 covariance; no refit or changed contrast.",
+  "scope": "Post-proof engineering factorial of cache values/order; no current NFL labels, candidate solves, performance scores or cache adoption"
+}

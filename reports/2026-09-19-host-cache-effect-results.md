@@ -23,3 +23,5 @@ This pair changes **both cache values and training-row order**. It does not isol
 The actual workstation cache remains unchanged. The representative host-cache proof passes and is the release gate. A future cache policy should bind source identity, schema/content and row ordering, and test downstream effects; freshness alone is not an adoption argument.
 
 Evidence: [frozen-reader output](reviews/evidence/2026-09-19-host-cache-effect.json), [additional joint-world diagnostic](reviews/evidence/2026-09-19-host-cache-joint-diagnostic.json), [actual host-cache proof](reviews/evidence/2026-09-19-release-live-cli-host-proof.json), [fresh-cache proof](reviews/evidence/2026-09-19-release-live-cli-fresh-proof.json).
+
+The subsequent [controlled values/order decomposition](2026-09-19-cache-order-decomposition-results.md) now reproduces both original banks exactly and shows that both factors independently change component predictions and simulated world alignment. It does not generate counterfactual books or establish a better cache.

@@ -4,6 +4,10 @@
 
 # Project handoff
 
+## 2026-09-19 — peer verifies cloud state; cache values/order separated
+
+Lab `76445ce` independently checked exact deployed image digests and zero running executions; workstation activation remains handed to the operator, **not performed**. Root reply `2355645` corrects a premature cache-order-only/entered-book claim. [Four-way engineering result](reports/2026-09-19-cache-order-decomposition-results.md) reproduces both actual CLI banks bitwise, then shows historical values and row order each independently alter fitted components and joint worlds while preserving exact player marginals. No counterfactual books, current outcomes or cache adoption. Original reader's float32 constant-row correlation error repaired by a separate saved-output reader; all four fits and partial failure retained. Technical cross-read requested next.
+
 ## 2026-09-19 — cloud release complete; host activation pending
 
 [Release result](reports/2026-09-19-weekend-input-repair-release-results.md): all three actual refresh jobs and representative host-cache CLI proof pass. At 06:39:59Z all three registry lanes exited 0 and released, final provider census clear. Host proof: D160/K97, zero legality/strategy violations, current13games, exact new504-row projection batch, existing cache hash unchanged,66seconds. Immutable14-artifact proof manifest generation1789799946211740, SHA256e506da01d2c142914ed6cd75da2cc864ba9368d1da7c74f5a35650a1f06ead39. Workstation source activation remains pending; morning09:45CDTrefresh needs a new writer window for newer raw data. No selector/prior/cache adoption. Peer must receive final completion before host step.
