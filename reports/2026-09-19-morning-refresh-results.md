@@ -2,7 +2,7 @@
 
 The authorized Saturday refresh passed all three cloud stages and the actual D160/K97 lineup-builder proof. Validation completed at**15:11:33UTC /10:11:33CDT**; all three canonical writer lanes exited successfully and released at15:11:34UTC. The workstation independently confirmed the three provider executions and exact projection batch in handoff `9e1b0a5`.
 
-The operator's timer recreation was verified at**15:24:16UTC**, following the restore-script refusal described below. Both Saturday slots remain15:30/15:35UTC, with all six timers armed and correctly pinned. Actual build starts remain pending in this15:26update.
+The operator's timer recreation was verified at**15:24:16UTC**, following the restore-script refusal described below. The workstation then observed the primary start at**15:30:07UTC** and the fallback active at**15:35:05UTC** (`1ecedcf`). Both large builds are running; their completion and full-corpus selection comparisons remain pending.
 
 ## Executions and exact output
 
@@ -51,3 +51,9 @@ The operator then recreated only the two missing Saturday units using the origin
 **Fix required:** `handoffs/runners/week2_runtime_pin.sh` in the lab handoff branch needs an explicit missing-timer case in phase2. A verified `LoadState=not-found` may count as already stopped; failed/ambiguous state queries and a genuine failure to stop a loaded timer must still refuse. Add tests for missing timers, loaded timers and failed reads/stops. The shared review covered absent services but missed the absent-timer restoration case. The workstation owns the repair after the scheduled starts; do not use another hold-and-restore cycle with the current runner before that fix is validated. No live script was hot-patched during recovery.
 
 The workstation subsequently authenticated the completion/proof/release objects and compared them with its independent provider observations (`f510722`), finding no discrepancy. It distinguished reading validator receipts from independently reimplementing those validators.
+
+## Actual build starts
+
+The primary log `build-20260919T153007Z.log` records draft group153428, run tag `20260919t1530z-d12800sat-2dc116c`, dose2560/10240and `skip_pair1`. The workstation observed the live Python process and run directory `20260919T153008787414Z-2dc116c` under the release checkout, with the source identity gate passed. The fallback service was active at15:35:05with its restored1280/5120configuration. The four Sunday units remained armed.
+
+These are observed starts, not completed corpora. Preserve the original control books and A5banks; bind each completed run's own input batch and artifact hashes before applying the prepared full-corpus previews. The small CLI proof's exact input binding does not substitute for the eventual long-run receipts.

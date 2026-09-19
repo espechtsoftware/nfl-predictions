@@ -1,6 +1,6 @@
 # Saturday morning refresh: prepared runner and fixed operator window
 
-**Completed:** the [refresh results](2026-09-19-morning-refresh-results.md) record validated completion15:11:33UTC, release of all three lanes15:11:34UTC and actual timer restoration15:24:16UTC. Restoration was delayed by a missing-timer bug in the reviewed pin runner; the exact recovery and required repair are documented there. The preparation and observed readiness history below are retained. Actual build starts remain pending.
+**Completed:** the [refresh results](2026-09-19-morning-refresh-results.md) record validated completion15:11:33UTC, release of all three lanes15:11:34UTC and actual timer restoration15:24:16UTC. Restoration was delayed by a missing-timer bug in the reviewed pin runner; the exact recovery and required repair are documented there. The workstation observed the primary start15:30:07and the fallback active15:35:05. The preparation and readiness history below are retained; large-build completion remains pending.
 
 The overnight three-fix release and workstation activation are complete. This is the normal fresh-input feature → TabPFN → projection refresh for the **15:30UTC / 10:30CDT** build. It uses the same deployed images, ordinary selector, chosen doses, contests and historical cache.
 
