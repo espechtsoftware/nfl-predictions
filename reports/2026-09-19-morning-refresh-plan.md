@@ -24,7 +24,15 @@ The laptop must not start the refresh without that consumer coordination. If rea
 
 The existing overnight snapshots and image/source rollback plan remain retained. A new refresh does not make an old source pin alone a complete rollback. No current football outcome read is needed for these checks.
 
-## State
+## Current coordination, updated 11:56 UTC
+
+The earlier host and ownership blockers below are resolved. Lab `730ed69` verifies Erich applied the reviewed host patch: all six units explicitly use clean source `2dc116c`, with unchanged dose and historical cache. Lab `04c7f58` relays Erich assigning the refresh to the laptop; he will not independently run the three cloud commands.
+
+Lab `dddce34` relays Erich approving the hold and taking responsibility for hold and restoration himself. The units are transient, and stopping them can garbage-collect their definitions. Restoration is **recreation with the already reviewed pin runner**, not starting a vanished timer. Laptop must post readiness around14:35UTC; no confirmation by14:45 means no hold and no refresh. Erich plans the hold around14:40 and recreation at fixed15:20UTC. This timing does not guarantee provider completion. Report a failed or ambiguous run immediately; do not call restoration during an incomplete refresh validated consistency.
+
+Lab `b1386c6` accepts laptop's correction: the hold covers **both Saturday consumers**, D12800 at15:30UTC and D6400 at15:35UTC. Restoration recreates all six units. No hold has occurred yet. Overnight provider durations were feature5m07s, cache13m55s and projection4m16s, plus validation and CLI proof. This supports targeting35minutes but cannot guarantee cloud timing.
+
+## Preparation state and prior coordination history
 
 **Prepared plan; not scheduled or launched.** The consumer-hold mechanism and exact morning supervisor still need review. An unfinished supervisor draft is preserved only in local working evidence as `morning-refresh-draft-unreviewed.py`; it is not a launcher and must not be executed. The successful overnight release remains complete.
 

@@ -4,6 +4,12 @@
 
 # Project handoff
 
+## 2026-09-19 — focused participation-selection transfer; host activated
+
+Erich requests a two-and-a-half-hour scoring window. [Frozen protocol](reports/2026-09-19-participation-transfer-protocol.md) tests existing prior-season P_MIX probabilities on the same repaired D1600 pool atK97, both component audits, all-active sensitivity and unchanged delivered-order helper. Real support and full synthetic selection/delivery smoke pass; numerical comparison is next. No current outcomes, bank991 read, fit or live policy change. The authenticated September10 map/rehearsal passes production validators. Peer `b1386c6` independently reproduces object identities and withdraws its no-source/no-rehearsal claims; actual Week1 entered use remains unproven.
+
+Host activation is now verified at lab `730ed69`: all six units pinned to clean `2dc116c`, dose/cache unchanged. Erich assigns the14:45UTC refresh to laptop (`04c7f58`), authorizes holding both Saturday build timers, and will recreate the transient units himself at15:20UTC (`dddce34`, `b1386c6`). [Morning plan](reports/2026-09-19-morning-refresh-plan.md) records the readiness and timing conditions. Runner remains in preparation, no morning job launched.
+
 ## 2026-09-19 — current Odds snapshot impact measured
 
 [Result](reports/2026-09-19-prop-snapshot-impact-results.md):502old-snapshotquotes survive the current reader. Coherent latest snapshots change119/185production-consumed market proxies, mean absolute0.05664/max0.88013points, with coverage185/472unchanged. No live mutation or efficacy claim; independent review next. Version2 only renders optional missing names asJSONnull; every saved dataframe exactly equals the initial completed calculations. Both failures and sources preserved.
