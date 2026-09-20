@@ -43,8 +43,10 @@ def make_run(tmp, n_cands=30, sims=40, seed=7):
     return run, contests, fr, rosters, banks, idx, book
 
 
-def run_runner(run, contests, out, label="rehearsal"):
-    return subprocess.run([PY, str(ROOT / "scripts" / "week3_shadow_runner.py"), "--run", str(run), "--contests", str(contests), "--clone", CLONE, "--out", str(out), "--label", label, "--chunk", "7"], capture_output=True, text=True)
+def run_runner(run, contests, out, label="rehearsal", clone=CLONE, expect_sha=None):
+    cmd = [PY, str(ROOT / "scripts" / "week3_shadow_runner.py"), "--run", str(run), "--contests", str(contests), "--clone", clone, "--out", str(out), "--label", label, "--chunk", "7"]
+    if expect_sha is not None: cmd += ["--expect-sha", expect_sha]
+    return subprocess.run(cmd, capture_output=True, text=True)
 
 
 def test_runner_parity_and_arms(tmp_path):
@@ -52,6 +54,8 @@ def test_runner_parity_and_arms(tmp_path):
     r = run_runner(run, contests, tmp_path / "shadow"); assert r.returncode == 0, r.stdout + r.stderr
     m = json.loads((tmp_path / "shadow" / "manifest.json").read_text()); b = json.loads((tmp_path / "shadow" / "books.json").read_text())
     assert m["parity"] == {"membership": True, "order": True, "book_json_names": True} and m["K"] == 5 and m["current_outcomes_read"] is False
+    clone_sha = subprocess.check_output(["git", "-C", CLONE, "rev-parse", "HEAD"], text=True).strip()
+    assert m["lab_clone_commit"] == clone_sha and m["lab_clone_clean"] is True and m["lab_clone_expected_sha"] is None
     assert b["arms"]["control"]["order"] == [int(i) for i in book]
     pos = dict(zip(fr.id, fr.pos)); team = dict(zip(fr.id, fr.team)); proj = dict(zip(fr.id, fr.proj))
     n_floor = sum(1 for r_ in rosters if min(proj[fr.id[i]] for i in r_ if pos[fr.id[i]] != "DST") >= 8)
@@ -64,6 +68,24 @@ def test_runner_parity_and_arms(tmp_path):
         if arm["feasible"]: assert len(arm["order"]) == 5 and len(set(arm["order"])) == 5 and all(len(x) == 9 for x in arm["candidate_ids"])
         else: assert arm["pool"] < 5
     assert (tmp_path / "shadow" / "REHEARSAL").exists()
+
+
+def test_runner_enforces_clone_identity(tmp_path):
+    run, contests, *_ = make_run(tmp_path)
+    clone_sha = subprocess.check_output(["git", "-C", CLONE, "rev-parse", "HEAD"], text=True).strip()
+    ok = run_runner(run, contests, tmp_path / "shadow-ok", expect_sha=clone_sha)
+    assert ok.returncode == 0, ok.stdout + ok.stderr
+    wrong = run_runner(run, contests, tmp_path / "shadow-wrong", expect_sha="0" * 40)
+    assert wrong.returncode == 2 and "LAB CLONE IDENTITY FAILED" in wrong.stderr
+
+    dirty = tmp_path / "dirty-clone"
+    subprocess.run(["git", "init", "-q", str(dirty)], check=True)
+    (dirty / "tracked").write_text("clean commit\n")
+    subprocess.run(["git", "-C", str(dirty), "add", "tracked"], check=True)
+    subprocess.run(["git", "-C", str(dirty), "-c", "user.name=shadow-test", "-c", "user.email=shadow-test@example.invalid", "commit", "-qm", "init"], check=True)
+    (dirty / "untracked").write_text("must fail closed\n")
+    dirty_run = run_runner(run, contests, tmp_path / "shadow-dirty", clone=str(dirty))
+    assert dirty_run.returncode == 2 and "clone is dirty" in dirty_run.stderr
 
 
 def test_runner_fails_closed_on_parity(tmp_path):
@@ -91,3 +113,15 @@ def test_reader_arithmetic_and_fail_closed(tmp_path):
     assert r2.returncode == 3 and (tmp_path / "read2" / "READER-FAILED").exists()
     r3 = subprocess.run([PY, str(ROOT / "scripts" / "week3_shadow_reader.py"), "--shadow", str(tmp_path / "shadow"), "--run", str(run), "--clone", CLONE, "--out", str(tmp_path / "read3"), "--synthetic-world", "3"], capture_output=True, text=True)
     assert r3.returncode == 0 and (tmp_path / "read3" / "REHEARSAL").exists()
+
+    duplicate = tmp_path / "duplicate.csv"
+    with open(duplicate, "w", newline="") as h:
+        w = csv.writer(h); w.writerow(["id", "actual_points"]); [w.writerow([pid, float(i)]) for i, pid in enumerate(fr.id)]; w.writerow([str(fr.id.iloc[0]), 0.0])
+    r4 = subprocess.run([PY, str(ROOT / "scripts" / "week3_shadow_reader.py"), "--shadow", str(tmp_path / "shadow"), "--run", str(run), "--clone", CLONE, "--out", str(tmp_path / "read4"), "--outcomes", str(duplicate)], capture_output=True, text=True)
+    assert r4.returncode == 3 and (tmp_path / "read4" / "READER-FAILED").exists()
+
+    # The runner manifest binds the complete run.  A changed artifact must
+    # invalidate the reader even when the changed file remains parseable.
+    (run / "receipt.json").write_text((run / "receipt.json").read_text() + "\n")
+    r5 = subprocess.run([PY, str(ROOT / "scripts" / "week3_shadow_reader.py"), "--shadow", str(tmp_path / "shadow"), "--run", str(run), "--clone", CLONE, "--out", str(tmp_path / "read5"), "--synthetic-world", "3"], capture_output=True, text=True)
+    assert r5.returncode == 3 and "hash mismatch" in r5.stderr and (tmp_path / "read5" / "READER-FAILED").exists()

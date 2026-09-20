@@ -2,7 +2,9 @@
 """Frozen realized-outcome reader for the Week-3 selection-only shadow (production-owned).
 
 Reads books.json + manifest.json from week3_shadow_runner.py and ONE outcomes file (CSV with columns `id`,
-`actual_points` keyed by the run frame's player id; DST rows use the frame's DST id). For every arm: realized score
+`actual_points` keyed by the run frame's player id; DST rows use the frame's DST id). The reader first verifies every
+run-artifact hash recorded by the shadow manifest. A realized outcomes file must contain exactly one finite row for
+each frame player id (including DST), with no duplicates or extras. For every arm: realized score
 per ordered row, realized max and its row position, counts of rows clearing 200/210/220/230/240 (194 secondary),
 prefix blocks (max per contest block), the global winner-score proxy (nfl2.selectors.winner_utility on the realized
 max, the smoothed CDF of the 2023-2025 Millionaire winning scores), pool oracle (best realized candidate in the whole
@@ -24,18 +26,78 @@ ap.add_argument("--shadow", required=True); ap.add_argument("--run", required=Tr
 g = ap.add_mutually_exclusive_group(required=True); g.add_argument("--outcomes"); g.add_argument("--synthetic-world", type=int)
 a = ap.parse_args()
 sd, run, out = pathlib.Path(a.shadow), pathlib.Path(a.run), pathlib.Path(a.out); out.mkdir(parents=True, exist_ok=True)
-books = json.loads((sd / "books.json").read_text()); manifest = json.loads((sd / "manifest.json").read_text())
-fr = pd.read_parquet(run / "frame.parquet", columns=["id", "name", "pos"]); ids = fr.id.astype(str).tolist()
+
+
+def fail_reader(message):
+    (out / "READER-FAILED").write_text(f"{message}\n")
+    print(f"READER FAILED: {message}", file=sys.stderr)
+    sys.exit(3)
+
+
+try:
+    books = json.loads((sd / "books.json").read_text())
+    manifest = json.loads((sd / "manifest.json").read_text())
+except (OSError, json.JSONDecodeError) as e:
+    fail_reader(f"invalid shadow metadata: {e}")
+
+# The shadow manifest binds every run artifact used by the runner.  Refuse to
+# score a book against a changed, incomplete, or substituted run directory.
+input_hashes = manifest.get("inputs_sha256")
+if not isinstance(input_hashes, dict) or not input_hashes:
+    fail_reader("shadow manifest has no input hashes")
+for name, expected in input_hashes.items():
+    p = run / str(name)
+    if not p.is_file():
+        fail_reader(f"manifest input is missing: {p}")
+    actual = sha(p)
+    if str(expected).lower() != actual.lower():
+        fail_reader(f"manifest input hash mismatch for {name}: expected {expected}, found {actual}")
+
+try:
+    fr = pd.read_parquet(run / "frame.parquet", columns=["id", "name", "pos"])
+except Exception as e:
+    fail_reader(f"cannot read frame.parquet: {e}")
+if fr["id"].isna().any():
+    fail_reader("frame.parquet contains null player ids")
+ids = fr.id.astype(str).tolist()
+if len(set(ids)) != len(ids):
+    fail_reader("frame.parquet contains duplicate player ids")
 if a.outcomes:
-    oc = pd.read_csv(a.outcomes, dtype={"id": str}); actual = dict(zip(oc.id.astype(str), pd.to_numeric(oc.actual_points, errors="coerce")))
+    try:
+        oc = pd.read_csv(a.outcomes, dtype={"id": str})
+    except Exception as e:
+        fail_reader(f"cannot read outcomes file: {e}")
+    if not {"id", "actual_points"}.issubset(oc.columns):
+        fail_reader("outcomes file must contain id and actual_points columns")
+    raw_ids = oc["id"]
+    normalized_ids = raw_ids.astype(str).str.strip()
+    if raw_ids.isna().any() or (normalized_ids == "").any() or normalized_ids.str.lower().eq("nan").any():
+        fail_reader("outcomes file contains null or empty player ids")
+    if normalized_ids.duplicated().any():
+        dupes = normalized_ids[normalized_ids.duplicated(keep=False)].unique().tolist()
+        fail_reader(f"outcomes file contains duplicate player ids: {dupes[:20]}")
+    points = pd.to_numeric(oc["actual_points"], errors="coerce")
+    if points.isna().any() or not np.isfinite(points.to_numpy(dtype=float)).all():
+        fail_reader("outcomes file contains missing or non-finite actual_points")
+    actual = dict(zip(normalized_ids, points.astype(float)))
+    expected_ids, actual_ids = set(ids), set(actual)
+    missing_ids = sorted(expected_ids - actual_ids)
+    extra_ids = sorted(actual_ids - expected_ids)
+    if missing_ids or extra_ids:
+        fail_reader(f"outcomes ids must exactly match frame ids; missing={missing_ids[:20]} extra={extra_ids[:20]}")
     source = {"kind": "outcomes_file", "path": a.outcomes, "sha256": sha(a.outcomes), "rows": int(len(oc))}
 else:
     bank = np.load(run / "incumbent_player_scores.npy", mmap_mode="r"); w = int(a.synthetic_world)
+    if w < 0 or w >= bank.shape[1]:
+        fail_reader(f"synthetic world {w} is outside incumbent bank columns [0, {bank.shape[1]})")
     actual = {pid: float(bank[i, w]) for i, pid in enumerate(ids)}; source = {"kind": "SYNTHETIC incumbent-bank world", "world": w}
-cands = pd.read_parquet(run / "candidates.parquet", columns=["players"])
+try:
+    cands = pd.read_parquet(run / "candidates.parquet", columns=["players"])
+except Exception as e:
+    fail_reader(f"cannot read candidates.parquet: {e}")
 missing = sorted({p for ps in cands.players.astype(str) for p in ps.split(",") if p not in actual or pd.isna(actual[p])})
 if missing:
-    (out / "READER-FAILED").write_text(f"{len(missing)} roster ids absent from outcomes: {missing[:20]}\n"); sys.exit(3)
+    fail_reader(f"{len(missing)} roster ids absent from outcomes: {missing[:20]}")
 pool_scores = np.array([sum(actual[p] for p in ps.split(",")) for ps in cands.players.astype(str)])
 oracle = float(pool_scores.max()); oracle_ix = int(pool_scores.argmax())
 sys.path.insert(0, str(pathlib.Path(a.clone) / "src"))

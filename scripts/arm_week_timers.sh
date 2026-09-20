@@ -23,6 +23,7 @@ OUT=${OUT:-/home/erich/week${WEEK}-sunday}
 CONTESTS_JSON=${CONTESTS_JSON:-$OUT/contests.json}
 DRIVER=${DRIVER:-$SCRIPT_DIR/run_week_build.sh}
 WATCHER=${WATCHER:-$SCRIPT_DIR/run_week_watchers.sh}
+INGEST_LOOP=${INGEST_LOOP:-$SCRIPT_DIR/host_ingest_dk_loop.sh}
 CODE_TAG=${RUN_SUFFIX:-${EXPECT_SHA:0:7}}
 
 SUNDAY=$(date -u -d "2026-09-13 + $(( (WEEK - 1) * 7 )) days" +%Y-%m-%d)
@@ -42,6 +43,7 @@ U6400="nfl-week${WEEK}-d6400-build"
 U3200="nfl-week${WEEK}-d3200-build"
 U800="nfl-week${WEEK}-t70-build"
 UW="nfl-week${WEEK}-watchers"
+UI="nfl-week${WEEK}-host-dk-ingest"
 
 BASE_ENV=(env
   "SEASON=$SEASON" "WEEK=$WEEK" "PROD=$PROD" "CLONE=$CLONE" "EXPECT_SHA=$EXPECT_SHA"
@@ -63,6 +65,11 @@ L6400=("${BASE_ENV[@]}" "PAID_LEV=$D6400_LEV" "PAID_BOOM=$D6400_BOOM" SKIP_PAIR=
 L3200=("${BASE_ENV[@]}" "PAID_LEV=$D3200_LEV" "PAID_BOOM=$D3200_BOOM" SKIP_PAIR=1 DOSE_FILE=/dev/null "RUN_TAG=$(tag 09:10 d3200)" "$DRIVER")
 L800=("${BASE_ENV[@]}" "PAID_LEV=$D800_LEV" "PAID_BOOM=$D800_BOOM" SKIP_PAIR=1 DOSE_FILE=/dev/null "RUN_TAG=$(tag 10:50 d800)" "$DRIVER")
 LW=("${BASE_ENV[@]}" "$WATCHER")
+HI=("${BASE_ENV[@]}" "GCP_PROJECT=${GCP_PROJECT:-nfl-predictions-503414}" "$INGEST_LOOP")
+HOST_LINE="# HOST_INGEST=1 enables the tracked hourly DraftKings fallback after its --check"
+if [[ "${HOST_INGEST:-0}" == "1" ]]; then
+  HOST_LINE="systemd-run --user --unit=\"$UI\" ${HI[*]}"
+fi
 
 cat <<EOT
 # Week $WEEK (America/Chicago), Sunday $SUNDAY; code tag $CODE_TAG
@@ -82,6 +89,8 @@ systemd-run --user --on-calendar="$SUNDAY 05:30 America/Chicago" --unit="$U6400"
 systemd-run --user --on-calendar="$SUNDAY 09:10 America/Chicago" --unit="$U3200" ${L3200[*]}
 systemd-run --user --on-calendar="$SUNDAY 10:50 America/Chicago" --unit="$U800" ${L800[*]}
 systemd-run --user --on-calendar="$SUNDAY 09:12 America/Chicago" --unit="$UW" ${LW[*]}
+# DraftKings host fallback (provider calls; opt in explicitly with HOST_INGEST=1 after the --check):
+$HOST_LINE
 EOT
 
 if [[ "$RUN" == "--run" ]]; then
@@ -91,5 +100,9 @@ if [[ "$RUN" == "--run" ]]; then
   systemd-run --user --on-calendar="$SUNDAY 09:10 America/Chicago" --unit="$U3200" "${L3200[@]}"
   systemd-run --user --on-calendar="$SUNDAY 10:50 America/Chicago" --unit="$U800" "${L800[@]}"
   systemd-run --user --on-calendar="$SUNDAY 09:12 America/Chicago" --unit="$UW" "${LW[@]}"
+  if [[ "${HOST_INGEST:-0}" == "1" ]]; then
+    [[ -x "$INGEST_LOOP" ]] || { echo "host ingest loop is not executable: $INGEST_LOOP" >&2; exit 2; }
+    systemd-run --user --unit="$UI" "${HI[@]}"
+  fi
   systemctl --user list-timers --all | grep -i "nfl-week${WEEK}" || true
 fi

@@ -6,6 +6,9 @@ receipt.json, book.json) and the week's contests.json, rebuilds the delivered se
 bank rows in frame-row order per bank, equal-mass concatenation of the two banks), verifies control parity (membership
 AND order) against the delivered book, then runs each intervention SEPARATELY on the same pool:
 
+The lab clone must be a clean git worktree. When `--expect-sha` is supplied, its full HEAD must match exactly; the
+resolved clone commit and clean-state assertion are recorded in manifest.json before any selector is imported.
+
   control      the delivered `nfl2.selectors.select_expected_max` (dual_emax) from the pinned lab release
   ladder016    PREREG-016 `cap_prefix_then_fill`: inclusive rungs 194/200/210/220, weights 1/2/6/12, gamma 4, mean tie-break
   floor8       row filter: lowest served non-DST projection >= 8, then the control selector

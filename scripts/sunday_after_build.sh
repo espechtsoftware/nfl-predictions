@@ -151,7 +151,11 @@ print("  (none)" if n == 0 else "")
 PYF
     echo; echo "Details: vetting $lo/paid-vetted/vetting.json; replacement $lo/paid-vetted-replaced/replace.json and vetting_final.json (if present); status $lo/replacement-status.txt; all-lineups CSV $all"
   } > "$OUT/TODAY-30-LATEST.md"
+  if [[ "$PROMOTION_STATUS" != "NOT REQUESTED" ]]; then
+    echo "PROMOTION STEP: $PROMOTION_STATUS" >> "$OUT/TODAY-30-LATEST.md"
+  fi
   log "done $(basename "$run") -> $OUT/TODAY-30-LATEST.md"
+
 }
 if [ "${1:-}" = "once" ]; then
   if [ -z "${2:-}" ] || [ -z "${3:-}" ]; then
