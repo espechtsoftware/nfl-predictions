@@ -20,6 +20,7 @@ import argparse, hashlib, json, pathlib, sys, time
 import numpy as np, pandas as pd
 
 LINES = [194, 200, 210, 220, 230, 240]
+PREFIX_KS = [20, 40, 80]   # lab request 2026-09-20: K20/K40/K80 realized maxima and direct 220+ capture; full book reported beside them
 sha = lambda p: hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()
 ap = argparse.ArgumentParser()
 ap.add_argument("--shadow", required=True); ap.add_argument("--run", required=True); ap.add_argument("--clone", required=True); ap.add_argument("--out", required=True)
@@ -127,24 +128,35 @@ def read(arm):
     for b in books["blocks"]:
         seg = r[b["rows"][0] - 1: b["rows"][1]]
         if len(seg): pref[b["name"]] = {"rows": b["rows"], "max": float(seg.max()), "clears_200": int((seg >= 200).sum())}
+    prefixes = {}
+    for K in PREFIX_KS:
+        seg = r[:K]
+        if len(seg) == 0: continue
+        prefixes[str(K)] = {"rows": int(len(seg)), "realized_max": float(seg.max()), "clears": {str(L): int((seg >= L).sum()) for L in (200, 210, 220, 230, 240)},
+                            "any_220": bool((seg >= 220).any()), "any_210": bool((seg >= 210).any()), "any_200": bool((seg >= 200).any())}
+    best_pos = int(r.argmax()) + 1; ge220 = [i + 1 for i, v in enumerate(rows) if v >= 220]
     return {"feasible": True, "rows": len(rows), "realized_max": mx, "max_row_position": pos, "mean_row": float(r.mean()),
             "clears": {str(L): int((r >= L).sum()) for L in LINES}, "winner_score_proxy_of_max": proxy(mx),
-            "pool_oracle": oracle, "regret": oracle - mx, "oracle_in_book": oracle_ix in set(order), "prefix_blocks": pref, "realized_rows": rows}
+            "pool_oracle": oracle, "regret": oracle - mx, "oracle_in_book": oracle_ix in set(order), "prefix_blocks": pref,
+            "prefixes": prefixes, "rank_of_realized_best": best_pos, "rank_of_first_220": (ge220[0] if ge220 else None), "realized_rows": rows}
 
 res = {k: read(v) for k, v in books["arms"].items()}
 ctrl = res.get("control", {})
 for k, v in res.items():
     if v.get("feasible") and ctrl.get("feasible") and k != "control":
         v["vs_control"] = {"max_delta": v["realized_max"] - ctrl["realized_max"], "regret_delta": v["regret"] - ctrl["regret"],
-                           "clears_delta": {L: v["clears"][L] - ctrl["clears"][L] for L in v["clears"]}}
+                           "clears_delta": {L: v["clears"][L] - ctrl["clears"][L] for L in v["clears"]},
+                           "prefix_max_delta": {K: v["prefixes"][K]["realized_max"] - ctrl["prefixes"][K]["realized_max"] for K in v["prefixes"] if K in ctrl["prefixes"]},
+                           "prefix_any220_delta": {K: int(v["prefixes"][K]["any_220"]) - int(ctrl["prefixes"][K]["any_220"]) for K in v["prefixes"] if K in ctrl["prefixes"]}}
 report = {"schema": "week3-shadow-reader/v1", "read_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "label": "REHEARSAL" if a.synthetic_world is not None else manifest.get("label"),
           "shadow_manifest_sha256": sha(sd / "manifest.json"), "books_sha256": sha(sd / "books.json"), "outcomes": source, "pool_size": int(len(cands)),
           "pool_oracle": oracle, "winner_proxy_error": proxy_err, "arms": res, "reader_sha256": sha(__file__)}
 (out / "realized.json").write_text(json.dumps(report, indent=2) + "\n")
 if a.synthetic_world is not None: (out / "REHEARSAL").write_text("synthetic outcomes drawn from a simulated world; not a realized result\n")
-lines = ["| arm | feasible | realized max (row) | 194 | 200 | 210 | 220 | 230 | 240 | oracle | regret | vs control max |", "|---|---|---|---|---|---|---|---|---|---|---|---|"]
+lines = ["| arm | feasible | realized max (row) | 194 | 200 | 210 | 220 | 230 | 240 | oracle | regret | vs control max | K20 max / 220+ | K40 max / 220+ | K80 max / 220+ |", "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
 for k, v in res.items():
-    if not v.get("feasible"): lines.append(f"| {k} | no | | | | | | | | | | |"); continue
-    c = v["clears"]; d = v.get("vs_control", {}).get("max_delta")
-    lines.append(f"| {k} | yes | {v['realized_max']:.2f} ({v['max_row_position']}) | {c['194']} | {c['200']} | {c['210']} | {c['220']} | {c['230']} | {c['240']} | {v['pool_oracle']:.2f} | {v['regret']:.2f} | {'' if d is None else f'{d:+.2f}'} |")
+    if not v.get("feasible"): lines.append(f"| {k} | no | | | | | | | | | | | | | |"); continue
+    c = v["clears"]; d = v.get("vs_control", {}).get("max_delta"); pf = v["prefixes"]
+    cell = lambda K: f"{pf[K]['realized_max']:.2f} / {'yes' if pf[K]['any_220'] else 'no'}" if K in pf else ""
+    lines.append(f"| {k} | yes | {v['realized_max']:.2f} ({v['max_row_position']}) | {c['194']} | {c['200']} | {c['210']} | {c['220']} | {c['230']} | {c['240']} | {v['pool_oracle']:.2f} | {v['regret']:.2f} | {'' if d is None else f'{d:+.2f}'} | {cell('20')} | {cell('40')} | {cell('80')} |")
 (out / "realized.md").write_text("\n".join(lines) + "\n"); print("\n".join(lines))

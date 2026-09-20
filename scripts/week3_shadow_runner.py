@@ -171,8 +171,12 @@ def diag(order):
     for b in blocks:
         rows = order[b["rows"][0] - 1: b["rows"][1]]
         if rows: pm = Td[rows].max(axis=0); pref[b["name"]] = {"rows": b["rows"], "max_mean": float(pm.mean()), "p220": float((pm >= 220).mean())}
+    kpref = {}
+    for K in (20, 40, 80):
+        if len(order) >= K:
+            pm = Td[order[:K]].max(axis=0); kpref[str(K)] = {"max_mean": float(pm.mean()), "p200": float((pm >= 200).mean()), "p210": float((pm >= 210).mean()), "p220": float((pm >= 220).mean())}
     return {"pooled": {"max_mean": float(mx.mean()), "p194": float((mx >= 194).mean()), "p200": float((mx >= 200).mean()), "p210": float((mx >= 210).mean()),
-                       "p220": float((mx >= 220).mean()), "p230": float((mx >= 230).mean()), "p240": float((mx >= 240).mean())},
+                       "p220": float((mx >= 220).mean()), "p230": float((mx >= 230).mean()), "p240": float((mx >= 240).mean())}, "k_prefixes": kpref,
             "per_bank": per_bank, "row_mean_of_means": float(mean_total[order].mean()), "prefix_blocks": pref,
             "overlap_with_control": len(set(order) & set(control)), "order_positions_equal_control": sum(1 for i, j in zip(order, control) if i == j)}
 

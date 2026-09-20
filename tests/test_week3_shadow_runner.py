@@ -110,6 +110,8 @@ def test_reader_arithmetic_and_fail_closed(tmp_path):
     exp = [float(sum(i for i in rosters[b])) for b in book]                       # actual = frame row index
     assert ctrl["realized_rows"] == exp and ctrl["realized_max"] == max(exp) and rep["pool_oracle"] == max(float(sum(r_)) for r_ in rosters)
     assert ctrl["regret"] == rep["pool_oracle"] - max(exp) and ctrl["prefix_blocks"]["milly"]["rows"] == [1, 1]
+    assert ctrl["prefixes"]["20"]["rows"] == 5 and ctrl["prefixes"]["20"]["realized_max"] == max(exp) and ctrl["rank_of_realized_best"] == exp.index(max(exp)) + 1
+    assert ctrl["prefixes"]["20"]["any_220"] == (max(exp) >= 220) and "40" in ctrl["prefixes"] and "80" in ctrl["prefixes"]
     bad = tmp_path / "bad.csv"; bad.write_text("id,actual_points\np00,1.0\n")
     r2 = subprocess.run([PY, str(ROOT / "scripts" / "week3_shadow_reader.py"), "--shadow", str(tmp_path / "shadow"), "--run", str(run), "--clone", CLONE, "--out", str(tmp_path / "read2"), "--outcomes", str(bad)], capture_output=True, text=True)
     assert r2.returncode == 3 and (tmp_path / "read2" / "READER-FAILED").exists()
