@@ -58,19 +58,25 @@ BASE_ENV=(env
 [[ -n "${CHOSEN_FILE:-}" ]] && BASE_ENV+=("CHOSEN_FILE=$CHOSEN_FILE")
 [[ -n "${WIN_DOWNLOADS:-}" ]] && BASE_ENV+=("WIN_DOWNLOADS=$WIN_DOWNLOADS")
 [[ -n "${ENTER_LAYOUT:-}" ]] && BASE_ENV+=("ENTER_LAYOUT=$ENTER_LAYOUT")
-[[ -n "${RUN_WEEK3_SHADOW:-}" ]] && BASE_ENV+=("RUN_WEEK3_SHADOW=$RUN_WEEK3_SHADOW")
-[[ -n "${SHADOW_OUT:-}" ]] && BASE_ENV+=("SHADOW_OUT=$SHADOW_OUT")
-[[ -n "${SHADOW_LABEL:-}" ]] && BASE_ENV+=("SHADOW_LABEL=$SHADOW_LABEL")
-[[ -n "${PROMOTE_FIRST_ENTRY:-}" ]] && BASE_ENV+=("PROMOTE_FIRST_ENTRY=$PROMOTE_FIRST_ENTRY")
-[[ -n "${RUN_FIRST_PROMOTION:-}" ]] && BASE_ENV+=("RUN_FIRST_PROMOTION=$RUN_FIRST_PROMOTION")
 [[ -n "${ALLOW_FIXTURE_PIN:-}" ]] && BASE_ENV+=("ALLOW_FIXTURE_PIN=$ALLOW_FIXTURE_PIN")
 
-L12800=("${BASE_ENV[@]}" "PAID_LEV=$D12800_LEV" "PAID_BOOM=$D12800_BOOM" SKIP_PAIR=1 DOSE_FILE=/dev/null "RUN_TAG=$(sat 10:30 d12800sat)" "$DRIVER")
+# The selection-only shadow is approved for the Saturday D12800 build only. Keep it out of the fallback and Sunday
+# rebuilds so a later, cheaper book cannot overwrite the prelock shadow record. Promotion belongs to the persistent
+# watcher, which runs the after-build chain once the chosen dose is known.
+SHADOW_FLAGS=()
+[[ -n "${RUN_WEEK3_SHADOW:-}" ]] && SHADOW_FLAGS+=("RUN_WEEK3_SHADOW=$RUN_WEEK3_SHADOW")
+[[ -n "${SHADOW_OUT:-}" ]] && SHADOW_FLAGS+=("SHADOW_OUT=$SHADOW_OUT")
+[[ -n "${SHADOW_LABEL:-}" ]] && SHADOW_FLAGS+=("SHADOW_LABEL=$SHADOW_LABEL")
+WATCH_FLAGS=()
+[[ -n "${PROMOTE_FIRST_ENTRY:-}" ]] && WATCH_FLAGS+=("PROMOTE_FIRST_ENTRY=$PROMOTE_FIRST_ENTRY")
+[[ -n "${RUN_FIRST_PROMOTION:-}" ]] && WATCH_FLAGS+=("RUN_FIRST_PROMOTION=$RUN_FIRST_PROMOTION")
+
+L12800=("${BASE_ENV[@]}" "${SHADOW_FLAGS[@]}" "PAID_LEV=$D12800_LEV" "PAID_BOOM=$D12800_BOOM" SKIP_PAIR=1 DOSE_FILE=/dev/null "RUN_TAG=$(sat 10:30 d12800sat)" "$DRIVER")
 L6400SAT=("${BASE_ENV[@]}" "PAID_LEV=$D6400_LEV" "PAID_BOOM=$D6400_BOOM" SKIP_PAIR=1 DOSE_FILE=/dev/null "RUN_TAG=$(sat 10:35 d6400sat)" "$DRIVER")
 L6400=("${BASE_ENV[@]}" "PAID_LEV=$D6400_LEV" "PAID_BOOM=$D6400_BOOM" SKIP_PAIR=1 DOSE_FILE=/dev/null "RUN_TAG=$(tag 05:30 d6400)" "$DRIVER")
 L3200=("${BASE_ENV[@]}" "PAID_LEV=$D3200_LEV" "PAID_BOOM=$D3200_BOOM" SKIP_PAIR=1 DOSE_FILE=/dev/null "RUN_TAG=$(tag 09:10 d3200)" "$DRIVER")
 L800=("${BASE_ENV[@]}" "PAID_LEV=$D800_LEV" "PAID_BOOM=$D800_BOOM" SKIP_PAIR=1 DOSE_FILE=/dev/null "RUN_TAG=$(tag 10:50 d800)" "$DRIVER")
-LW=("${BASE_ENV[@]}" "$WATCHER")
+LW=("${BASE_ENV[@]}" "${WATCH_FLAGS[@]}" "$WATCHER")
 HI=("${BASE_ENV[@]}" "GCP_PROJECT=${GCP_PROJECT:-nfl-predictions-503414}" "$INGEST_LOOP")
 HOST_LINE="# HOST_INGEST=1 enables the tracked hourly DraftKings fallback after its --check"
 if [[ "${HOST_INGEST:-0}" == "1" ]]; then
