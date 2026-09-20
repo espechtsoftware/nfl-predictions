@@ -78,6 +78,11 @@ write the gate before its Week-5 look-ahead. The Route Share research instrument
 value and should remain explicitly separate from money-path authority. These are documentation/registry repairs and do
 not hold today's build.
 
+At 2026-09-20 13:16Z (08:16 CT), this laptop had no `nfl-week2-*` user timers and no live Sunday build/watch process
+visible in its user session. No live build was armed or launched from this research worktree. The operator-owned timer
+step in the Week-2 checklist remains the source of truth; production should verify the active host independently before
+the 09:12 CT watcher window.
+
 ## 2026-09-20 — promotion ENTER re-layout has a blocking row-check defect
 
 Independent synthetic review found v2.1 `relayout_enter.sh` rejects **all three** cases on a two-contest fixture: unset/default sequential, explicit sequential, and explicit top. Its final check compares each contest file to contiguous upload slices, but sequential keeper/fill rows are noncontiguous and top layout repeats the prefix. `ENTER/` is not published, so the runner safely leaves the prior bundle but cannot deliver the promoted order. [Review](reports/2026-09-20-promotion-enter-relayout-review.md), [reader](reports/reviews/evidence/2026-09-20-relayout-enter-row-check.py). Production needs a layout-aware mapping check and two-contest tests before Sunday promotion.
