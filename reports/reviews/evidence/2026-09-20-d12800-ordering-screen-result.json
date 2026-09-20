@@ -1,6 +1,6 @@
 {
   "schema": "d12800-ordering-screen/v1",
-  "reader_sha256": "95a8177ad6609907f9e3f065ddd9f11e160eb558373d8afc97562d90fb316ead",
+  "reader_sha256": "05e16d901f1fc10cbd4b4d8f8cd5bb6510572109a264aaf7a2db7889435665ce",
   "archive_manifest_sha256": "2b634256bf9f227db7c8ea4e82f35b6ce1cf2acccfab99d1610b9c7f43921063",
   "archive_receipt_sha256": "ddea8e7ec2be7185dc0d52099a947a84f24096c037858dc912c0f68267fed8e7",
   "frame_columns": [
@@ -3725,7 +3725,7 @@
     },
     "raw-wemax-book": {
       "label": "raw-wemax-book",
-      "book_sha256": "d134876b684224a3dc9aee68cde56fb942066d13e6f3e02f37947f2d10d20cad",
+      "book_sha256": "6eec0594fed7ba23a4c4cf6d4e24a7fe9834e47c2548714c0b97fcd2c2674abd",
       "rows": [
         {
           "rank": 1,

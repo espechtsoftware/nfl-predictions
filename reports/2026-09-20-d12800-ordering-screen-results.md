@@ -14,4 +14,9 @@ For the preview book, replacing the first row with the pooled-mean rank 7 reduce
 
 The next experiment is ready: repeat this objective comparison on the **fresh Sunday final book** after status/replacement, preserving mean, P220, P230, both bank components, and block 2–24 costs. Do not carry the preview rank 7 into the live book automatically. If the fresh book again has a mean/P220 disagreement, use the operator’s selected objective and record the displaced-block cost explicitly.
 
+The reader is now parameterized for that run while retaining this preview as its default. After the fresh replacement
+receipt is frozen, set `D12800_ARCHIVE` to the verified archive, `D12800_FINAL_BOOK` to the delivered K97 CSV, and
+optionally `D12800_ORDERING_OUT` to a fresh evidence path; no reader edit is required. The default run was repeated
+after this change and reproduced the preview numbers above.
+
 Evidence: [reader](reviews/evidence/2026-09-20-d12800-ordering-screen.py), [result](reviews/evidence/2026-09-20-d12800-ordering-screen-result.json). Private downloaded archive and preview inputs are under `/home/erich/projects/review-evidence/overnight-20260918/d12800-archive-20260920/`.
