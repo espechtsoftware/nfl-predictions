@@ -1,8 +1,8 @@
 # Week 3 operational wiring review
 
 This review answers the practical question of what still has to be wired before the next Sunday build. It is on the
-operational branch `fix/week3-operational-wiring-20260920`; it does not alter the current entered book, arm timers, or
-execute cloud jobs.
+operational branch `fix/week3-operational-wiring-20260920` (tip `2259c22b`); it does not alter the current entered book,
+arm timers, or execute cloud jobs.
 
 ## Findings
 
@@ -66,4 +66,3 @@ These are operator/data decisions and cannot be guessed by the scripts:
 The branch passes Bash syntax checks, Python compilation, Week 3 date/DST derivation, a synthetic build preflight, and a
 synthetic watcher preflight. The watcher preflight correctly rejects a missing chosen-dose file. No provider call,
 current-week outcome, cloud execution, timer arm, upload, or production `main` mutation occurred.
-
