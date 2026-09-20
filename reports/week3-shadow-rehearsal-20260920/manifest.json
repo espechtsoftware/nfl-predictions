@@ -1,0 +1,54 @@
+{
+  "schema": "week3-shadow-runner/v1",
+  "label": "rehearsal",
+  "built_utc": "2026-09-20T20:41:25Z",
+  "run_dir": "/home/erich/projects/.nfl2-worktrees/week2-release-2dc116c/results/live/2026-w02/20260919T153008787414Z-2dc116c",
+  "inputs_sha256": {
+    "frame.parquet": "6e56f59d687b8f533ee02c05b90ec2c643c08b0e46aa78155a2c0d7b9894dab6",
+    "candidates.parquet": "9269cd4d6c30d6d43316eddb15a6e2625ad2f5b0b70b82fe2786f205a7d1a4dd",
+    "receipt.json": "ddea8e7ec2be7185dc0d52099a947a84f24096c037858dc912c0f68267fed8e7",
+    "book.json": "b269c4d45e3de38381b7748a02ca46792f0595caf8a9613bc0fabc5768bef33e",
+    "incumbent_player_scores.npy": "1d711ff9af22bea4b17505470ba516c544261f04da428f557893a9e290ec15d5",
+    "corrected_hsim_player_scores.npy": "c9f977295bde6a1987488de25ade643813cbf54d5e7c3903b753f714efe1023a"
+  },
+  "contests_sha256": "99285b1a3bbcf0f01d2a2d4c66d2915e8d122d8de8cd5077ecfe95eb9daf0112",
+  "K": 97,
+  "sims_per_bank": 10000,
+  "banks": [
+    "incumbent_player_scores.npy",
+    "corrected_hsim_player_scores.npy"
+  ],
+  "pool_size": 12555,
+  "selector_module": {
+    "path": "/home/erich/projects/.nfl2-worktrees/week2-release-2dc116c/src/nfl2/selectors.py",
+    "sha256": "18ba2d39eb93284372c164bafde43fe66335e97cbec454fe6eb28a43f0e32f7c"
+  },
+  "lab_clone": "/home/erich/projects/.nfl2-worktrees/week2-release-2dc116c",
+  "receipt_identity": {
+    "sha": "2dc116ce95647a776ba9c36cf194f44d022d03a4",
+    "dirty": false,
+    "diff_sha256": null
+  },
+  "receipt_selector": {
+    "selector": "dual_emax",
+    "seed": 2026,
+    "hsim_seed": 2326,
+    "hsim_worlds": 10000,
+    "operational_k": 97
+  },
+  "totals_law": "per bank: float32 sequential sum of bank rows in ascending frame-row order; equal-mass concatenation [incumbent | corrected_hsim]",
+  "parity": {
+    "membership": true,
+    "order": true,
+    "book_json_names": true
+  },
+  "arms": {
+    "control": "nfl2.selectors.select_expected_max",
+    "ladder016": "nfl2.selectors.cap_prefix_then_fill inclusive 194/200/210/220 w 1/2/6/12 gamma 4",
+    "floor8": "row filter min non-DST served proj >= 8.0 then control",
+    "nodepth4": "row filter same-team WR/TE with QB <= 3 then control"
+  },
+  "current_outcomes_read": false,
+  "runner_sha256": "ce04b4f08a3a453b7f7c147adf5776c9f25308d8e7f4689f0547b3afadd35009",
+  "seconds": 564.6
+}
