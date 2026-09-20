@@ -68,6 +68,9 @@ The tracked Week 2 generalisation still depended on machine-local state:
   finite, duplicate-free outcomes table keyed to the frame (including DST).
 - The wrapper now passes the exact `EXPECT_SHA` through to the runner as well as checking it before launch, so the
   shadow manifest records the pin instead of leaving an unbound `expect_sha` field.
+- Promotion failure now falls through to the ordinary vetted-book staging path. The entry watcher gets a fresh atomic
+  bundle while `TODAY-30-LATEST.md` and the promotion log retain the failure for a manual retry; the promotion never
+  silently leaves a partially promoted upload.
 - Added a launch guard that rejects the reviewed e7255e98… compatibility clone as an actual Week 3 timer pin unless
   `ALLOW_FIXTURE_PIN=1` is set explicitly for a deliberate rehearsal. The timer printer still shows the fixture so the
   operator can see exactly what must be replaced before arming.
@@ -103,5 +106,7 @@ These are operator/data decisions and cannot be guessed by the scripts:
 ## Validation
 
 The branch passes Bash syntax checks, Python compilation, Week 3 date/DST derivation, a synthetic build preflight, and a
-synthetic watcher preflight. The watcher preflight correctly rejects a missing chosen-dose file. No provider call,
-current-week outcome, cloud execution, timer arm, upload, or production `main` mutation occurred.
+synthetic watcher preflight. The watcher preflight correctly rejects a missing chosen-dose file. The final-path
+rehearsal also exercised a promotion rejection and confirmed that the ordinary 97-row bundle still published and filled
+97/97 synthetic entries with the failure recorded. No current-week outcome, cloud execution, timer arm, current-week
+upload, or production `main` mutation occurred.
