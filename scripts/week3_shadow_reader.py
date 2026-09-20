@@ -45,8 +45,16 @@ except (OSError, json.JSONDecodeError) as e:
 input_hashes = manifest.get("inputs_sha256")
 if not isinstance(input_hashes, dict) or not input_hashes:
     fail_reader("shadow manifest has no input hashes")
+required_inputs = {"frame.parquet", "candidates.parquet", "receipt.json", "book.json",
+                   "incumbent_player_scores.npy", "corrected_hsim_player_scores.npy"}
+if set(input_hashes) != required_inputs:
+    fail_reader(f"shadow manifest input set mismatch; missing={sorted(required_inputs - set(input_hashes))} extra={sorted(set(input_hashes) - required_inputs)}")
 for name, expected in input_hashes.items():
-    p = run / str(name)
+    name = str(name)
+    rel = pathlib.PurePath(name)
+    if rel.is_absolute() or ".." in rel.parts:
+        fail_reader(f"manifest input path is outside the run directory: {name}")
+    p = run / name
     if not p.is_file():
         fail_reader(f"manifest input is missing: {p}")
     actual = sha(p)
