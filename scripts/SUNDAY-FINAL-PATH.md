@@ -9,7 +9,10 @@ Order of operations (Week-2 Sunday, reviewed by the lab on `lab/workstation-repl
    rehearsal flags `--test-exclude-dk` / `--no-fresh-dk` mark the output NOT-PUBLISHABLE and never reach the chain)
 4. emit + atomic ENTER layout + `verify_enter_bundle.py` (`sunday_after_build.sh`, `ENTER_LAYOUT=sequential`)
 5. `promote_first.py` v1.2 + `first_delivered_promotion.py` (frozen MEAN first-entry rule, sha256 36ffcbce...) via
-   `run_promotion.sh` v2.1, then `relayout_enter.sh` v2 (chain layout vendored verbatim; atomic bundle swap)
+   `run_promotion.sh` v2.2 (all paths environment-driven), then `relayout_enter.sh` v2 (chain layout vendored verbatim;
+   atomic bundle swap). The chain runs this step itself when `PROMOTE_FIRST_ENTRY=1` is exported (the operator's weekly
+   class-E decision; default off): after replacement and the atomic ENTER publication, BEFORE the entries watcher fills;
+   a failure leaves the chain's bundle published and writes PROMOTION FAILED into TODAY-30-LATEST.md.
 6. fill: `fill_dk_entries.py` on the newest DK entries export (`sunday_watch_dk_entries.sh` until its loop ends; then by hand)
 7. late swaps: `apply_swaps.py` v1.1 (fresh-feed presence check, locked-game refusal, receipt) + `relayout_enter.sh` + fill
 8. page/sheet/archive: `make_page.sh`, `gen_sheet.py`, `book_sheet.py`, `swap_suggest.py`, `manifest_and_gap.py`, `qb_flags.sh`
@@ -35,9 +38,12 @@ In-tool defaults still pointing at this workstation (env-overridable; pass expli
 ## Bounded rehearsal (outcome-blind, real artifacts, scratch OUT dir, synthetic entries template, no DK keys)
 
     export PROD=<this checkout> CLONE=<pinned lab clone> EXPECT_SHA=<its sha>
-    scripts/rehearse_final_path.sh <archived RUN_DIR> <LAB_CLONE> <scratch OUT_DIR> <WEEK> <contests.json>
+    scripts/rehearse_final_path.sh   # sets PROMOTE_FIRST_ENTRY=1 for the chain call, so the hook is exercised <archived RUN_DIR> <LAB_CLONE> <scratch OUT_DIR> <WEEK> <contests.json>
 
 Runs the chain in once-mode into the scratch OUT (fresh DK status consulted, read-only), the promotion, and the fill of a
-synthetic template (`make_synthetic_entries_template.py`, fake 9xxxxxxxxx entry ids). Verified 2026-09-20 20:50Z on
-this branch with the archived D12800 run `20260919T153008787414Z-2dc116c` and the Week-2 contests.json: 97 rows, 12
+synthetic template (`make_synthetic_entries_template.py`, fake 9xxxxxxxxx entry ids). Verified 2026-09-20 21:01Z on
+this branch (promotion through the chain hook) with the archived D12800 run `20260919T153008787414Z-2dc116c` and the Week-2 contests.json: 97 rows, 12
 contests, promotion rank 7 -> 1, bundle verified, synthetic template filled 97/97; the live ENTER and Downloads untouched.
+
+Week-3 shadow (laptop hook `RUN_WEEK3_SHADOW=1` in `sunday_build_host.sh` -> `run_week3_shadow.sh` -> `scripts/week3_shadow_runner.py`,
+which also accepts `--expect-sha` to pin the clone identity into its manifest): see `reports/2026-09-20-week3-selection-shadow-prospectus.md`.

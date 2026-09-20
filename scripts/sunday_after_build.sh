@@ -131,6 +131,16 @@ PYF
     echo; echo "Details: vetting $lo/paid-vetted/vetting.json; replacement $lo/paid-vetted-replaced/replace.json and vetting_final.json (if present); status $lo/replacement-status.txt; all-lineups CSV $all"
   } > "$OUT/TODAY-30-LATEST.md"
   log "done $(basename "$run") -> $OUT/TODAY-30-LATEST.md"
+  # PROMOTE_FIRST_ENTRY=1 is the operator's weekly class-E decision (frozen first-entry rule, promote_first v1.2): re-order
+  # the delivered book and republish ENTER after replacement and BEFORE the entries watcher fills. Disabled by default; a
+  # failure leaves the chain's bundle published and is visible in the log and in TODAY.
+  if [[ "${PROMOTE_FIRST_ENTRY:-0}" == "1" ]]; then
+    if PROD=$PROD PROD_PY=$PY LAB_PY=${LAB_PY:-} TOOLS=$TOOLS PROMO_TOOLS=${PROMO_TOOLS:-$PROD/scripts} "$PROD/scripts/run_promotion.sh" "$lo" "$run" "$OUT" "$tag" "$SEASON" "$WEEK" > "$lo/promotion-run.log" 2>&1; then
+      log "promotion applied: ENTER -> $(readlink -f "$E")"
+    else
+      log "PROMOTION FAILED (see $lo/promotion-run.log); the chain's bundle stays published"; echo "PROMOTION FAILED: see $lo/promotion-run.log" >> "$OUT/TODAY-30-LATEST.md"
+    fi
+  fi
 }
 if [ "${1:-}" = "once" ]; then
   if [ -z "${2:-}" ] || [ -z "${3:-}" ]; then

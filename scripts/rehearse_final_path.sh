@@ -17,9 +17,9 @@ source "$PROD/scripts/week_env.sh"; week_env "$WEEK" >/dev/null
 export OUT=$OUTDIR TOOLS=${TOOLS} CONTESTS_JSON=$OUT/contests.json     # week_env keeps exported OUT/TOOLS; restate for clarity
 TAG="REHEARSAL-$(basename "$RUN")-$(date -u +%H%M%SZ)"
 echo "== rehearsal $TAG | PROD=$PROD | TOOLS=$TOOLS | CLONE=$CLONE | OUT=$OUT | K=$BOOK_ENTRIES layout=$ENTER_LAYOUT =="
-"$PROD/scripts/sunday_after_build.sh" once "$RUN" "$TAG" | tee "$OUT/rehearsal-chain.log" | tail -n 6
+PROMOTE_FIRST_ENTRY=1 "$PROD/scripts/sunday_after_build.sh" once "$RUN" "$TAG" | tee "$OUT/rehearsal-chain.log" | tail -n 8
 AFTER="$OUT/after-$TAG"; test -f "$AFTER/paid-vetted-replaced/replace.json"
-PY=$PROD_PY TOOLS=$TOOLS PROD=$PROD "$HERE/run_promotion.sh" "$AFTER" "$RUN" "$OUT" "$TAG" "$SEASON" "$WEEK" | tee "$OUT/rehearsal-promotion.log" | tail -n 4
+grep -q "^PROMOTION STEP" "$OUT/TODAY-30-LATEST.md" || { echo "promotion hook did not run"; exit 3; }; tail -n 3 "$AFTER/promotion-run.log"
 B=$(readlink -f "$OUT/ENTER"); echo "ENTER -> $B"
 "$PROD_PY" "$HERE/make_synthetic_entries_template.py" "$CONTESTS_JSON" "$OUT/SYNTHETIC-entries-template.csv"
 frame=$(ls -td "$LIVE_DIR"/*/ | while read -r d; do [ -f "$d/frame.parquet" ] && { echo "$d/frame.parquet"; break; }; done)

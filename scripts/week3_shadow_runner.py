@@ -33,8 +33,14 @@ ap = argparse.ArgumentParser()
 ap.add_argument("--run", required=True); ap.add_argument("--contests", required=True); ap.add_argument("--clone", required=True)
 ap.add_argument("--out", required=True); ap.add_argument("--label", default="live", choices=["live", "rehearsal"])
 ap.add_argument("--chunk", type=int, default=1000)
+ap.add_argument("--expect-sha", default=None, help="fail closed unless the clone's git HEAD equals this full sha and the tree is clean")
 a = ap.parse_args()
 run, out = pathlib.Path(a.run), pathlib.Path(a.out); out.mkdir(parents=True, exist_ok=True)
+import subprocess
+clone_head = subprocess.run(["git", "-C", a.clone, "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip() or None
+clone_dirty = bool(subprocess.run(["git", "-C", a.clone, "status", "--porcelain"], capture_output=True, text=True).stdout.strip()) if clone_head else None
+if a.expect_sha and (clone_head != a.expect_sha or clone_dirty):
+    (out / "CLONE-IDENTITY-FAILED").write_text(f"clone HEAD {clone_head} dirty={clone_dirty} != expected {a.expect_sha}\n"); sys.exit(4)
 sys.path.insert(0, str(pathlib.Path(a.clone) / "src"))
 from nfl2.selectors import select_expected_max, cap_prefix_then_fill  # noqa: E402  (the delivered implementations)
 import nfl2.selectors as _sel  # noqa: E402
@@ -132,7 +138,7 @@ books = {k: {**v, "rosters": [names_by_cand[i].split("|") for i in v["order"]], 
 manifest = {"schema": "week3-shadow-runner/v1", "label": a.label, "built_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "run_dir": str(run),
             "inputs_sha256": {f: sha(run / f) for f in ["frame.parquet", "candidates.parquet", "receipt.json", "book.json", *BANKS]},
             "contests_sha256": sha(a.contests), "K": K, "sims_per_bank": sims, "banks": BANKS, "pool_size": n,
-            "selector_module": {"path": str(pathlib.Path(_sel.__file__)), "sha256": sha(_sel.__file__)}, "lab_clone": a.clone,
+            "selector_module": {"path": str(pathlib.Path(_sel.__file__)), "sha256": sha(_sel.__file__)}, "lab_clone": a.clone, "lab_clone_head": clone_head, "lab_clone_dirty": clone_dirty, "expect_sha": a.expect_sha,
             "receipt_identity": receipt.get("identity"), "receipt_selector": {k: receipt["config"].get(k) for k in ("selector", "seed", "hsim_seed", "hsim_worlds", "operational_k")},
             "totals_law": "per bank: float32 sequential sum of bank rows in ascending frame-row order; equal-mass concatenation [incumbent | corrected_hsim]",
             "parity": {"membership": parity_membership, "order": parity_order, "book_json_names": parity_book_json},

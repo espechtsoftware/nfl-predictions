@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# run_promotion.sh v2.1 -- Week-2 class E (operator-authorized 2026-09-19): apply the labs' frozen first-delivered promotion
+# run_promotion.sh v2.2 -- Week-2 class E (operator-authorized 2026-09-19): apply the labs' frozen first-delivered promotion
 # (MEAN rule) to the FINAL delivered book.  Runs AFTER the cleared after-build chain; touches none of its files.
 #   run_promotion.sh AFTER_DIR RUN_DIR OUT_DIR TAG [SEASON WEEK]
 #   AFTER_DIR  the chain's after-<tag>/ (paid-vetted-replaced/, replacement-status.txt, qb-flags.csv)
@@ -15,9 +15,10 @@
 # step is re-run with fresh status; the exact commands are printed.
 set -uo pipefail
 AFTER=${1:?AFTER_DIR}; RUN=${2:?RUN_DIR}; OUT=${3:?OUT_DIR}; TAG=${4:?TAG}; SEASON=${5:-2026}; WEEK=${6:-2}
-TOOLS=${TOOLS:-/home/erich/week1-sunday/tools}; PT=${PROMO_TOOLS:-/home/erich/week2-sunday}
-PROD=/home/erich/projects/.nfl-predictions-worktrees/week1-audit-adjust-20260912
-PY=/home/erich/projects/nfl-predictions/.venv/bin/python; LPY=/home/erich/projects/nfl2/.venv/bin/python
+# v2.2 (2026-09-20, lab review): every path is environment-driven; defaults resolve to the checkout this script lives in.
+PROD=${PROD:-$(cd "$(dirname "$0")/.." && pwd)}
+TOOLS=${TOOLS:-$PROD/scripts}; PT=${PROMO_TOOLS:-$PROD/scripts}
+PY=${PROD_PY:-${PY:-/home/erich/projects/nfl-predictions/.venv/bin/python}}; LPY=${LAB_PY:-${LPY:-/home/erich/projects/nfl2/.venv/bin/python}}
 VET=$AFTER/paid-vetted-replaced; PR=$AFTER/promotion; PROMOTED=$AFTER/paid-vetted-promoted; STAGE=$PR/stage
 ORIG=$OUT/upload-$TAG-paid-vetted-all.csv; UP=$OUT/upload-$TAG-promoted-paid-vetted-all.csv; SHEET=$OUT/lineup-sheet-$TAG-promoted-paid-vetted-30
 log(){ printf '%s %s\n' "$(date -u +%H:%M:%SZ)" "$*"; }
