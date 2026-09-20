@@ -29,7 +29,8 @@ ROLE_NUM = [
 ]
 FP_COV_NUM = ["fp_cov_tprr_edge","fp_cov_yprr_edge","fp_cov_fprr_edge","fp_cov_sep_edge","fp_cov_supported"]
 SIS_PURE_NUM = ["sis_wide_target_rate","sis_slot_target_rate","sis_wide_ypt","sis_slot_ypt","sis_wide_vulnerability","sis_slot_vulnerability","sis_supported"]
-SIS_NUM = SIS_PURE_NUM + ["sis_wide_share","sis_alignment_edge"]
+SIS_CONC_NUM = SIS_PURE_NUM + ["sis_target_hhi","sis_top_target_share"]
+SIS_NUM = SIS_CONC_NUM + ["sis_wide_share","sis_alignment_edge"]
 
 
 def load():
@@ -81,6 +82,37 @@ def load():
         vulnerability AS slot_vulnerability
       FROM `{settings.raw}.sis_receiver_copula_defense_prior` WHERE alignment='slot'
     )
+    ,sis_games AS (
+      SELECT season,week,defense,alignment,defender_player_id,SUM(targets) AS targets
+      FROM `{settings.raw}.sis_receiver_copula_player_game`
+      GROUP BY season,week,defense,alignment,defender_player_id
+    ), sis_target_cells AS (
+      SELECT DISTINCT season,week AS target_week,opponent AS defense,alignment
+      FROM base CROSS JOIN UNNEST(["wide","slot"]) AS alignment
+    ), sis_game_keys AS (
+      SELECT t.season,t.target_week,t.defense,t.alignment,g.season AS source_season,g.week AS source_week,
+        ROW_NUMBER() OVER(PARTITION BY t.season,t.target_week,t.defense,t.alignment ORDER BY g.season DESC,g.week DESC) AS rn
+      FROM sis_target_cells t JOIN (SELECT DISTINCT season,week,defense,alignment FROM sis_games) g
+        ON g.defense=t.defense AND g.alignment=t.alignment
+       AND (g.season*100+g.week) < (t.season*100+t.target_week)
+    ), sis_selected AS (
+      SELECT k.season,k.target_week,k.defense,k.alignment,g.defender_player_id,g.targets
+      FROM sis_game_keys k JOIN sis_games g
+        ON g.season=k.source_season AND g.week=k.source_week AND g.defense=k.defense AND g.alignment=k.alignment
+      WHERE k.rn <= 8
+    ), sis_concentration AS (
+      SELECT season,target_week,defense,alignment,
+        SAFE_DIVIDE(SUM(targets*targets),SUM(targets)*SUM(targets)) AS target_hhi,
+        SAFE_DIVIDE(MAX(targets),SUM(targets)) AS top_target_share
+      FROM (SELECT season,target_week,defense,alignment,defender_player_id,SUM(targets) AS targets FROM sis_selected GROUP BY season,target_week,defense,alignment,defender_player_id)
+      GROUP BY season,target_week,defense,alignment
+    ), sis_concentration_wide AS (
+      SELECT season,target_week,defense,MAX(target_hhi) AS wide_hhi,MAX(top_target_share) AS wide_top
+      FROM sis_concentration WHERE alignment="wide" GROUP BY season,target_week,defense
+    ), sis_concentration_slot AS (
+      SELECT season,target_week,defense,MAX(target_hhi) AS slot_hhi,MAX(top_target_share) AS slot_top
+      FROM sis_concentration WHERE alignment="slot" GROUP BY season,target_week,defense
+    )
     SELECT b.*, a.player_wide_share AS fp_player_wide_share, a.player_slot_share AS fp_player_slot_share,
       a.player_inline_share AS fp_player_inline_share, a.player_backfield_share AS fp_player_backfield_share,
       sh.route_shape_horizontal AS fp_route_shape_horizontal, sh.route_shape_vertical AS fp_route_shape_vertical,
@@ -94,6 +126,9 @@ def load():
       w.wide_vulnerability AS sis_wide_vulnerability,s.slot_vulnerability AS sis_slot_vulnerability,
       a.player_wide_share AS sis_wide_share,
       a.player_wide_share*(COALESCE(w.wide_target_rate,0)-COALESCE(s.slot_target_rate,0)) AS sis_alignment_edge,
+      cw.wide_hhi AS sis_wide_hhi, cs.slot_hhi AS sis_slot_hhi, cw.wide_top AS sis_wide_top, cs.slot_top AS sis_slot_top,
+      COALESCE(cw.wide_hhi,0)*COALESCE(a.player_wide_share,0)+COALESCE(cs.slot_hhi,0)*(1-COALESCE(a.player_wide_share,0)) AS sis_target_hhi,
+      GREATEST(COALESCE(cw.wide_top,0),COALESCE(cs.slot_top,0)) AS sis_top_target_share,
       CAST(w.wide_target_rate IS NOT NULL AND s.slot_target_rate IS NOT NULL AS INT64) AS sis_supported
     FROM base b
     LEFT JOIN align a ON a.season=b.season AND a.target_week=b.week AND a.gsis_id=b.gsis_id
@@ -101,6 +136,8 @@ def load():
     LEFT JOIN cov c ON c.season=b.season AND c.target_week=b.week AND c.gsis_id=b.gsis_id AND c.opponent=b.opponent
     LEFT JOIN sis_w w ON w.season=b.season AND w.target_week=b.week AND w.defense=b.opponent
     LEFT JOIN sis_s s ON s.season=b.season AND s.target_week=b.week AND s.defense=b.opponent
+    LEFT JOIN sis_concentration_wide cw ON cw.season=b.season AND cw.target_week=b.week AND cw.defense=b.opponent
+    LEFT JOIN sis_concentration_slot cs ON cs.season=b.season AND cs.target_week=b.week AND cs.defense=b.opponent
     """
     return query_df(q)
 
@@ -111,6 +148,7 @@ def score(df, arm, test_season):
     if arm in ('role','combined'): num += ROLE_NUM
     if arm in ('fp_coverage','combined'): num += FP_COV_NUM
     if arm == 'sis_pure': num += SIS_PURE_NUM
+    if arm == 'sis_concentration': num += SIS_CONC_NUM
     if arm in ('sis_coverage','combined'): num += SIS_NUM
     num=[x for x in num if x in df.columns]
     cat=['position']
@@ -130,7 +168,7 @@ if __name__=='__main__':
   df=load(); print('rows',len(df),'cols',len(df.columns),flush=True)
   results=[]
   for season in (2024,2025):
-    for arm in ('control','role','fp_coverage','sis_pure','sis_coverage','combined'):
+    for arm in ('control','role','fp_coverage','sis_pure','sis_concentration','sis_coverage','combined'):
       print('scoring',season,arm,flush=True); results.append(score(df,arm,season))
   report={'protocol':'2026-09-20-paid-source-role-coverage-protocol','rows':len(df),'results':results}
   OUT.parent.mkdir(parents=True,exist_ok=True); OUT.write_text(json.dumps(report,indent=2,sort_keys=True)); print(json.dumps(report,indent=2))
