@@ -4,6 +4,10 @@
 
 # Project handoff
 
+## 2026-09-20 — Week-3 experiment plan prepared while Sunday chain waits for fresh status
+
+[Start plan](reports/2026-09-20-week3-experiment-start-plan.md) is committed: (1) fresh final-book mean vs P220/P230 vs proxy first-entry order, (2) risk-weighted exposure shadow with cap48/cap38 references, (3) incremental SIS/Fantasy Points/Odds source shadow with influence traces. Item1 starts immediately after fresh Sunday replacement receipts; preview evidence is not adopted.
+
 ## 2026-09-20 — promotion ENTER re-layout has a blocking row-check defect
 
 Independent synthetic review found v2.1 `relayout_enter.sh` rejects **all three** cases on a two-contest fixture: unset/default sequential, explicit sequential, and explicit top. Its final check compares each contest file to contiguous upload slices, but sequential keeper/fill rows are noncontiguous and top layout repeats the prefix. `ENTER/` is not published, so the runner safely leaves the prior bundle but cannot deliver the promoted order. [Review](reports/2026-09-20-promotion-enter-relayout-review.md), [reader](reports/reviews/evidence/2026-09-20-relayout-enter-row-check.py). Production needs a layout-aware mapping check and two-contest tests before Sunday promotion.
