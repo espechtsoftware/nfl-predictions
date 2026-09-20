@@ -13,9 +13,32 @@ from nfl_dfs.ingest.dk_client import fetch_draftables  # noqa: E402
 ap = argparse.ArgumentParser(); ap.add_argument("--entered", default=os.environ["OUT"] + "/ENTER/ENTER-*-entries-KEEP-first-*.csv"); a = ap.parse_args()
 group = int(os.environ["GROUP"]); live = pathlib.Path(os.environ["LIVE_DIR"])
 late_cutoff = pd.Timestamp(os.environ["LATE_CUTOFF_UTC"]); end = pd.Timestamp(os.environ["WATCH_END_UTC"]).to_pydatetime()
-run = sorted(d for d in live.iterdir() if d.is_dir() and (d / "frame.parquet").exists())[-1]
-f = pd.read_parquet(run / "frame.parquet"); f["dd"] = f.dk_draftable_id.astype(str); f["start"] = pd.to_datetime(f.game_start, utc=True, errors="coerce")
-late = set(f[f.start > late_cutoff].dd); name = dict(zip(f.dd, f.display_name))
+
+
+def latest_run():
+    """Return the newest completed run frame, or None while the build is still running."""
+    if not live.is_dir():
+        return None
+    candidates = [d for d in live.iterdir() if d.is_dir() and (d / "frame.parquet").exists()]
+    return max(candidates, key=lambda d: d.stat().st_mtime) if candidates else None
+
+
+def frame_metadata(run):
+    frame = pd.read_parquet(run / "frame.parquet")
+    frame["dd"] = frame.dk_draftable_id.astype(str)
+    frame["start"] = pd.to_datetime(frame.game_start, utc=True, errors="coerce")
+    return frame, set(frame[frame.start > late_cutoff].dd), dict(zip(frame.dd, frame.display_name))
+
+
+run = latest_run()
+while run is None and dt.datetime.now(dt.UTC) < end:
+    print(f"{dt.datetime.now(dt.UTC):%H:%M}Z no completed live frame yet; waiting for the build", flush=True)
+    time.sleep(30)
+    run = latest_run()
+if run is None:
+    print(f"{dt.datetime.now(dt.UTC):%H:%M}Z watcher exit; no completed live frame appeared", flush=True)
+    raise SystemExit(0)
+f, late, name = frame_metadata(run)
 def read_entered():
     """Re-read the entered books EVERY poll.
 
@@ -63,6 +86,11 @@ if any(st in OUT_STATUSES for st in state.values()):
           "The watcher keeps running so later transitions are still caught.", flush=True)
 while dt.datetime.now(dt.UTC) < end:
     try:
+        newer = latest_run()
+        if newer is not None and newer != run:
+            run = newer
+            f, late, name = frame_metadata(run)
+            print(f"{dt.datetime.now(dt.UTC):%H:%M}Z switched to newer live frame {run.name}", flush=True)
         before = entered
         entered = read_entered()
         if entered != before:

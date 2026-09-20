@@ -23,6 +23,9 @@ The tracked Week 2 generalisation still depended on machine-local state:
   `ingest-contests` remain subject to the documented DraftKings-egress 403, so a healthy timer can still build from
   stale salaries, statuses, draft groups, and contest fills unless a tracked host loop or a proven egress repair is
   in place.
+- The late-inactives watcher was another start-order race: it indexed the newest `frame.parquet` at process startup,
+  so a still-running D3200 build could make the 09:12 watcher exit before it ever polled DK. It now waits for the first
+  completed frame and switches to a newer completed frame when the T-70 rebuild publishes one.
 
 ## Changes in this branch
 
@@ -43,6 +46,8 @@ The tracked Week 2 generalisation still depended on machine-local state:
   `hybrid30.py` helpers are tracked as well; ordering shadows now resolve the novelty planner from `CLONE/NFL2_ROOT`.
 - The polling after-build path now fails closed unless `$OUT/chosen-dose.env` contains `CHOSEN_LEV` and
   `CHOSEN_BOOM`. An explicit `REQUIRE_CHOSEN_DOSE=0` is available only for a deliberate rehearsal.
+- The late-inactives watcher now tolerates a build still in progress at watcher start and refreshes its frame metadata
+  when a newer run is published.
 
 ## Still required before arming Week 3
 
