@@ -50,6 +50,9 @@ def main():
         if not p.is_file() or not os.access(p, os.X_OK): fail(f"{name} is not executable: {p}")
     sha = os.environ["EXPECT_SHA"]
     if not re.fullmatch(r"[0-9a-f]{40}", sha): fail(f"EXPECT_SHA must be a full 40-character commit: {sha!r}")
+    fixture_sha = "e7255e98bf87297452befb61fb508ad4b368b59f"
+    if sha == fixture_sha and os.environ.get("ALLOW_FIXTURE_PIN") != "1":
+        fail("EXPECT_SHA is the compatibility fixture e7255e98...; export the approved Week-3 pin (or set ALLOW_FIXTURE_PIN=1 only for a deliberate rehearsal)")
     actual = git(clone, "rev-parse", "HEAD")
     if actual != sha: fail(f"live clone identity {actual} != EXPECT_SHA {sha}")
     if git(clone, "status", "--porcelain"): fail(f"live clone is dirty: {clone}")

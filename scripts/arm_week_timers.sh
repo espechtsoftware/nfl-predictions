@@ -25,6 +25,11 @@ DRIVER=${DRIVER:-$SCRIPT_DIR/run_week_build.sh}
 WATCHER=${WATCHER:-$SCRIPT_DIR/run_week_watchers.sh}
 INGEST_LOOP=${INGEST_LOOP:-$SCRIPT_DIR/host_ingest_dk_loop.sh}
 CODE_TAG=${RUN_SUFFIX:-${EXPECT_SHA:0:7}}
+FIXTURE_SHA=e7255e98bf87297452befb61fb508ad4b368b59f
+if [[ "$RUN" == "--run" && "$EXPECT_SHA" == "$FIXTURE_SHA" && "${ALLOW_FIXTURE_PIN:-0}" != "1" ]]; then
+  echo "refusing to arm Week $WEEK with the compatibility fixture EXPECT_SHA=$FIXTURE_SHA; export the approved Week-3 pin (or set ALLOW_FIXTURE_PIN=1 only for a deliberate rehearsal)" >&2
+  exit 2
+fi
 
 SUNDAY=$(date -u -d "2026-09-13 + $(( (WEEK - 1) * 7 )) days" +%Y-%m-%d)
 SATURDAY=$(date -u -d "$SUNDAY - 1 day" +%Y-%m-%d)
@@ -58,6 +63,7 @@ BASE_ENV=(env
 [[ -n "${SHADOW_LABEL:-}" ]] && BASE_ENV+=("SHADOW_LABEL=$SHADOW_LABEL")
 [[ -n "${PROMOTE_FIRST_ENTRY:-}" ]] && BASE_ENV+=("PROMOTE_FIRST_ENTRY=$PROMOTE_FIRST_ENTRY")
 [[ -n "${RUN_FIRST_PROMOTION:-}" ]] && BASE_ENV+=("RUN_FIRST_PROMOTION=$RUN_FIRST_PROMOTION")
+[[ -n "${ALLOW_FIXTURE_PIN:-}" ]] && BASE_ENV+=("ALLOW_FIXTURE_PIN=$ALLOW_FIXTURE_PIN")
 
 L12800=("${BASE_ENV[@]}" "PAID_LEV=$D12800_LEV" "PAID_BOOM=$D12800_BOOM" SKIP_PAIR=1 DOSE_FILE=/dev/null "RUN_TAG=$(sat 10:30 d12800sat)" "$DRIVER")
 L6400SAT=("${BASE_ENV[@]}" "PAID_LEV=$D6400_LEV" "PAID_BOOM=$D6400_BOOM" SKIP_PAIR=1 DOSE_FILE=/dev/null "RUN_TAG=$(sat 10:35 d6400sat)" "$DRIVER")
