@@ -4,6 +4,18 @@
 
 # Project handoff
 
+## 2026-09-20 — McConkey concentration review
+
+`reports/2026-09-20-mcconkey-risk-review.md` reviews the 26/97 McConkey
+exposure in the K97 book. He is Q after DNP/DNP/LP with a cracked-rib report
+and `market:no_props`; this is a meaningful role/exposure risk but not a
+backup-QB or CSV-integrity error. The risk vetter kept the first 26 delivered
+entries clean, including the promoted Millionaire row. Do not mass-swap before
+official inactives; if he is ruled out, rerun the full fresh replacement and
+promotion chain. The report also blocks live use of `apply_swaps.py v1` until
+its fresh-status lookup fails closed on an incoming draftable ID missing from
+the response.
+
 ## 2026-09-20 — K97 pick-integrity review completed
 
 `reports/2026-09-20-k97-pick-integrity-review.md` audits the preview, fresh
