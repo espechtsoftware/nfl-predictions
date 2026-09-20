@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Autonomous pre-lock Sunday build for any regular-season week (generalised from the Week-1 host driver, which is
-# kept as scripts/week1_sunday_build_host.sh).  Armed by a one-shot user timer at 09:10 CT and again at 10:50 CT
-# (T-70, after the 10:30 CT inactives; see scripts/arm_week_timers.sh).  Builds the D800/D400 pair through
+# kept as scripts/week1_sunday_build_host.sh).  Armed by one-shot user timers at 05:30 CT, 09:10 CT, and 10:50 CT
+# (T-70, after the 10:30 CT inactives; see scripts/arm_week_timers.sh).  Builds the configured dose through
 # scripts/sunday_runbook.sh, then the K90 nested book, ordering shadows, vetting, composite, hybrid15, and emits
 # draftable-ID upload CSVs per contest from $CONTESTS_JSON.  It never publishes and never uploads.
 #
@@ -12,7 +12,8 @@
 # environment or from $DOSE_FILE (default $OUT/dose.env, sourced FIRST).  SKIP_PAIR=1 skips the
 # governed D-pair of scripts/sunday_runbook.sh (a publisher artifact; the K90's ranks 1-80 are the paid K80) so a
 # big-dose build costs one stream, not two.  EXTRA_LEV/EXTRA_BOOM add an optional extra shadow book.  Several
-# builds may run concurrently on Sunday morning (01:30 CT 12,800 / 05:30 CT 6,400 / 09:10 CT 3,200 / 10:50 CT 800):
+# builds may run concurrently on Saturday/Sunday morning (Saturday 10:30 CT 12,800 / 10:35 CT 6,400 / Sunday 05:30 CT
+# 6,400 / 09:10 CT 3,200 / 10:50 CT 800):
 # each build's run dir is identified by its own receipt (lev/boom and build window), never by LATEST.
 set -uo pipefail
 : "${WEEK:?source scripts/week_env.sh and call week_env WEEK first}"
