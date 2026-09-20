@@ -12,7 +12,8 @@ Order of operations (Week-2 Sunday, reviewed by the lab on `lab/workstation-repl
    `run_promotion.sh` v2.2 (all paths environment-driven), then `relayout_enter.sh` v2 (chain layout vendored verbatim;
    atomic bundle swap). The chain runs this step itself when `PROMOTE_FIRST_ENTRY=1` is exported (the operator's weekly
    class-E decision; default off): after replacement and before the chain publishes a new ENTER bundle, so the entries
-   watcher only sees the promoted bundle. A failure leaves the previous bundle in place and records the failure.
+   watcher sees the promoted bundle on success. If the promotion fails, the chain publishes its ordinary vetted bundle
+   and records the failure for a manual retry; no partially promoted file is entered.
 6. fill: `fill_dk_entries.py` on the newest DK entries export (`sunday_watch_dk_entries.sh` until its loop ends; then by hand)
 7. late swaps: `apply_swaps.py` v1.1 (fresh-feed presence check, locked-game refusal, receipt) + `relayout_enter.sh` + fill
 8. page/sheet/archive: `make_page.sh`, `gen_sheet.py`, `book_sheet.py`, `swap_suggest.py`, `manifest_and_gap.py`, `qb_flags.sh`

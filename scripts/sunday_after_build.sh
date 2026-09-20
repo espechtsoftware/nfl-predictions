@@ -40,7 +40,7 @@ process_run() {
   local all="$OUT/upload-$tag-paid-vetted-all.csv"
   mkdir -p "$lo/paid-vetted-30"; head -n 31 "$VET/book.csv" > "$lo/paid-vetted-30/book.csv"; cp "$run/frame.parquet" "$run/receipt.json" "$lo/paid-vetted-30/"
   $PY "$TOOLS/book_sheet.py" "$lo/paid-vetted-30" --banks-from "$run" --output "$OUT/lineup-sheet-$tag-paid-vetted-30" > "$lo/paid-vetted-30/sheet.out" 2>&1 || log "  sheet FAILED for the keepers"
-  local PROMOTION_STATUS="NOT REQUESTED" E="$OUT/ENTER"
+  local PROMOTION_STATUS="NOT REQUESTED" PROMOTION_PUBLISHED=0 E="$OUT/ENTER"
   # The reviewed MEAN first-entry promotion must run before a new ENTER bundle becomes visible to the entries watcher.
   # It is opt-in until the production branch has been reconciled and the operator has selected the approved path.
   # PROMOTE_FIRST_ENTRY is the documented name; RUN_FIRST_PROMOTION remains a compatibility alias for the rehearsal.
@@ -49,18 +49,18 @@ process_run() {
        PROMO_TOOLS="$PROD/scripts" CONTESTS_JSON="$CONTESTS_JSON" ENTER_LAYOUT="${ENTER_LAYOUT:-sequential}" \
        "$PROD/scripts/run_promotion.sh" "$lo" "$run" "$OUT" "$tag" "$SEASON" "$WEEK" > "$lo/promotion.log" 2>&1; then
       PROMOTION_STATUS="OK: first-entry MEAN promotion and atomic relayout published"
+      PROMOTION_PUBLISHED=1
       log "  $PROMOTION_STATUS"
     else
-      PROMOTION_STATUS="FAILED: see $lo/promotion.log; previous ENTER bundle kept"
+      PROMOTION_STATUS="FAILED: see $lo/promotion.log; publishing the ordinary vetted bundle"
       log "  $PROMOTION_STATUS"
-      return 1
     fi
   fi
   # ENTER/ is overwritten by every newer run: stable paths for the operator
   # 2026-09-17 review finding 5: stage the whole bundle, verify it, then swap it in -- the entries watcher polls this
   # directory continuously and must never see a half-written set, nor lose the previous good one on a failure.
   local STAGE="$OUT/.ENTER-staging-$tag"
-  if [[ "$PROMOTION_STATUS" == "NOT REQUESTED" ]]; then
+  if (( PROMOTION_PUBLISHED == 0 )); then
     rm -rf "$STAGE"; mkdir -p "$STAGE" "$E"
   $PY - "$CONTESTS_JSON" "$all" "$STAGE" "$entries" <<'PYEOF' > "$STAGE/ENTER-layout.txt"
 import csv, json, sys, pathlib
