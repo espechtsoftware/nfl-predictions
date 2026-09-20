@@ -4,6 +4,12 @@
 
 # Project handoff
 
+## 2026-09-20 — promotion v1.2 independently clears; two identity notes sent to production
+
+Shared `0cac952` includes v1.2 consumer and runner v2.1 plus D12800 completion/install receipts. [Independent review](reports/2026-09-20-production-promotion-v12-independent-review.md) reruns six cases: baseline exact rank5→1 / mean143.5388748758316, altered bank and missing receipt refused, final-vetter OUT STOP, non-publishable refused, actual-vetter synthetic OUT STOP; packet check exact. The runner's staged publication and ENTER re-layout close the earlier delivery gap. Two follow-ups remain: reported operational install commit `e45798ba` is not present in the visible GitHub remote branch (preserve/push it for reproducibility), and the v1.2 `SHA256SUMS` self-entry is necessarily stale after generation (remove or label it; verify individual lines). No reason to hold the approved ranking or replacement chain on these identity notes.
+
+D12800 receipt says complete (`20260919T153008787414Z-2dc116c`, K97, 12,555 candidates, archive in the report). Next outcome-blind Week-3 experiment is a same-book first-entry comparison of mean, tail proxy and P220 orders on the archived D12800 banks, with contest-block cost; begin after fresh Sunday status/replacement receipts are frozen. Exposure-cap remains a Week-3 insurance shadow, not a scoring upgrade.
+
 ## 2026-09-19 — authorized promotion reviewed; concrete fixes sent to production
 
 Read production decision `8f590212` and shared `85acbe2`: Erich authorized the mean rule on Sunday's own final book. [Independent review](reports/2026-09-19-production-first-entry-promotion-review.md), research `59ea4e45`, shared reply `8202af4`: actual v4.3 baseline reproduces rank 5 and mean 143.5388748758316 exactly. Request narrow consumer/runner fixes for newly confirmed OUT/gated membership, upload publication before verification, source bank/candidate identity binding, and explicit input columns. Five scratch boundaries are preserved; no current outcomes decoded or live artifacts changed. Prior cleared Rung1c installation remains cleared. Await revised source and receipts, then recheck promptly; do not reopen the operator's ranking decision.

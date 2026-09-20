@@ -1,0 +1,176 @@
+{
+  "reader_sha256": "57b0a2dcdf664deb5877ee9736cd047a5164791d2c19de3ea6cd7db96fb60769",
+  "consumer_sha256": "48d95c1b7f5f9a363e37f00810291ff201eced73a4af6921696e49772ff0d3ab",
+  "cases": {
+    "baseline": {
+      "exit_code": 0,
+      "output_exists": true,
+      "promotion": {
+        "promoted_from_rank": 5,
+        "selection_mean": 143.5388748758316,
+        "eligible_delivered_ranks": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          30
+        ],
+        "tie_policy": "earliest delivered rank"
+      },
+      "tier_counts": {
+        "hard": 0,
+        "material": 39,
+        "clean_or_soft": 58,
+        "rows_raised_by_fresh_status": 0
+      },
+      "unrestricted_reads": [],
+      "input_bank_sha256": {
+        "incumbent_player_scores.npy": "1d711ff9af22bea4b17505470ba516c544261f04da428f557893a9e290ec15d5",
+        "corrected_hsim_player_scores.npy": "c9f977295bde6a1987488de25ade643813cbf54d5e7c3903b753f714efe1023a"
+      },
+      "receipt_sha256": "727511b7f693803486040d70e68c8da697cb8b81f34b2c68a186c11c092fbcc8",
+      "expected_exit_code": 0,
+      "message": "{"
+    },
+    "foreign_same_shape_bank": {
+      "exit_code": 2,
+      "output_exists": false,
+      "promotion": null,
+      "tier_counts": null,
+      "unrestricted_reads": [],
+      "input_bank_sha256": {
+        "incumbent_player_scores.npy": "3101b88df30b4f4e3cd65fb9d4bfccf267b777df3e3968f750182ccb9e382530",
+        "corrected_hsim_player_scores.npy": "c9f977295bde6a1987488de25ade643813cbf54d5e7c3903b753f714efe1023a"
+      },
+      "receipt_sha256": null,
+      "expected_exit_code": 2,
+      "message": "PROMOTION REFUSED: RUN_DIR/incumbent_player_scores.npy sha256 != the replacement's recorded input hash (altered or foreign source file)"
+    },
+    "missing_source_receipt": {
+      "exit_code": 2,
+      "output_exists": false,
+      "promotion": null,
+      "tier_counts": null,
+      "unrestricted_reads": [],
+      "input_bank_sha256": {
+        "incumbent_player_scores.npy": "1d711ff9af22bea4b17505470ba516c544261f04da428f557893a9e290ec15d5",
+        "corrected_hsim_player_scores.npy": "c9f977295bde6a1987488de25ade643813cbf54d5e7c3903b753f714efe1023a"
+      },
+      "receipt_sha256": null,
+      "expected_exit_code": 2,
+      "message": "PROMOTION REFUSED: RUN_DIR/receipt.json missing"
+    },
+    "new_confirmed_out_in_final_vetting": {
+      "exit_code": 3,
+      "output_exists": false,
+      "promotion": null,
+      "tier_counts": null,
+      "unrestricted_reads": [],
+      "input_bank_sha256": {
+        "incumbent_player_scores.npy": "1d711ff9af22bea4b17505470ba516c544261f04da428f557893a9e290ec15d5",
+        "corrected_hsim_player_scores.npy": "c9f977295bde6a1987488de25ade643813cbf54d5e7c3903b753f714efe1023a"
+      },
+      "receipt_sha256": null,
+      "expected_exit_code": 3,
+      "message": "PROMOTION STOP: unavailable player(s) in the final book -- re-run the replacement with fresh status before any publication (the chain's un-promoted upload is unsafe too): Javonte Williams (final-vetter report:Out) in 28 lineup(s) [1, 2, 5, 6, 10, 11, 15, 16]..."
+    },
+    "not_publishable_consumer": {
+      "exit_code": 2,
+      "output_exists": false,
+      "promotion": null,
+      "tier_counts": null,
+      "unrestricted_reads": [],
+      "input_bank_sha256": {
+        "incumbent_player_scores.npy": "1d711ff9af22bea4b17505470ba516c544261f04da428f557893a9e290ec15d5",
+        "corrected_hsim_player_scores.npy": "c9f977295bde6a1987488de25ade643813cbf54d5e7c3903b753f714efe1023a"
+      },
+      "receipt_sha256": null,
+      "expected_exit_code": 2,
+      "message": "PROMOTION REFUSED: replace.json publishable is not true"
+    },
+    "new_out_via_actual_vetter-r2": {
+      "exit_code": 3,
+      "output_exists": false,
+      "promotion": null,
+      "tier_counts": null,
+      "unrestricted_reads": [],
+      "input_bank_sha256": {
+        "incumbent_player_scores.npy": "1d711ff9af22bea4b17505470ba516c544261f04da428f557893a9e290ec15d5",
+        "corrected_hsim_player_scores.npy": "c9f977295bde6a1987488de25ade643813cbf54d5e7c3903b753f714efe1023a"
+      },
+      "receipt_sha256": null,
+      "expected_exit_code": 3,
+      "message": "PROMOTION STOP: unavailable player(s) in the final book -- re-run the replacement with fresh status before any publication (the chain's un-promoted upload is unsafe too): Javonte Williams (final-vetter report:OUT) in 28 lineup(s) [1, 2, 5, 6, 10, 11, 15, 16]..."
+    }
+  },
+  "baseline_csv_exact_permutation": true,
+  "baseline_book_sha256": "4f22dfbfd85b2f352fab29961dd2d77a7a2339653f613998711670f7dfdd1c4a",
+  "flag_classification": {
+    "stops": [
+      "DK:OUT",
+      "DK:O",
+      "report:OUT",
+      "features:OUT",
+      "backup_qb:behind-healthy-primary",
+      "backup_qb:depth2:behind-healthy-starter",
+      "qb:gated/healthy",
+      "placeholder_salary"
+    ],
+    "does_not_stop": [
+      "backup_qb:ambiguous(doubtful)",
+      "backup_qb:unknown(healthy)",
+      "backup_qb:depth2:no-depth-1-on-file",
+      "backup_qb:depth2:starter-doubtful",
+      "market:VANISHED",
+      "market:no_props",
+      "DK:Doubtful",
+      "DK:Q",
+      "report:Questionable",
+      "qb:ambiguous/doubtful",
+      "qb:unknown/unknown",
+      "practice:DNP(knee, market silent)"
+    ],
+    "passed": true
+  },
+  "packet": {
+    "check": "labs-control-promotion",
+    "promoted_from_rank": 5,
+    "expected_rank": 5,
+    "selection_mean": 143.5388748758316,
+    "expected_mean": 143.5388748758316,
+    "abs_diff": 0.0,
+    "promoted_candidate": 782,
+    "expected_candidate": 782,
+    "book_equal": true,
+    "eligible_equal": true,
+    "rule_sha256": "36ffcbcedc9b1b46d5aea5c9d04b425f0b842e3569a53c20802ef39f36af959f",
+    "PASS": true
+  },
+  "current_outcome_values_read": false,
+  "provider_calls": 0,
+  "all_expected_behaviors_pass": true
+}
