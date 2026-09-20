@@ -62,8 +62,10 @@ def test_runner_parity_and_arms(tmp_path):
     def depth(r_):
         qb = next(fr.id[i] for i in r_ if pos[fr.id[i]] == "QB"); return sum(1 for i in r_ if pos[fr.id[i]] in ("WR", "TE") and team[fr.id[i]] == team[qb])
     n_depth = sum(1 for r_ in rosters if depth(r_) <= 3)
+    n_floor10 = sum(1 for r_ in rosters if min(proj[fr.id[i]] for i in r_ if pos[fr.id[i]] != "DST") >= 10); n_depth2 = sum(1 for r_ in rosters if depth(r_) <= 2)
     assert b["arms"]["floor8"]["pool"] == n_floor and b["arms"]["nodepth4"]["pool"] == n_depth
-    for k in ("ladder016", "floor8", "nodepth4"):
+    assert b["arms"]["floor10"]["pool"] == n_floor10 and b["arms"]["depth2"]["pool"] == n_depth2
+    for k in ("ladder016", "floor8", "floor10", "nodepth4", "depth2"):
         arm = b["arms"][k]
         if arm["feasible"]: assert len(arm["order"]) == 5 and len(set(arm["order"])) == 5 and all(len(x) == 9 for x in arm["candidate_ids"])
         else: assert arm["pool"] < 5

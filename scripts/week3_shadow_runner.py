@@ -12,7 +12,10 @@ resolved clone commit and clean-state assertion are recorded in manifest.json be
   control      the delivered `nfl2.selectors.select_expected_max` (dual_emax) from the pinned lab release
   ladder016    PREREG-016 `cap_prefix_then_fill`: inclusive rungs 194/200/210/220, weights 1/2/6/12, gamma 4, mean tie-break
   floor8       row filter: lowest served non-DST projection >= 8, then the control selector
+  floor10      row filter: lowest served non-DST projection >= 10, then the control selector
   nodepth4     row filter: at most 3 same-team WR/TE with the QB, then the control selector
+  depth2       row filter: at most 2 same-team WR/TE with the QB, then the control selector
+(floor 12 stays a diagnostic outside the registered arms; the lab's plan of 2026-09-20 names exactly these arms)
 
 Operational K is read from contests.json (sum of entries). Infeasible arms (fewer than K rows after a filter) are
 recorded, never relaxed. Outputs (all outcome-blind; nothing here reads a score): manifest.json (input hashes, selector
@@ -29,7 +32,9 @@ import numpy as np, pandas as pd
 RUNGS = {194.0: 1.0, 200.0: 2.0, 210.0: 6.0, 220.0: 12.0}
 GAMMA = 4
 FLOOR = 8.0
+FLOOR10 = 10.0
 MAX_SAME_TEAM_WRTE = 3
+MAX_SAME_TEAM_WRTE_2 = 2
 BANKS = ["incumbent_player_scores.npy", "corrected_hsim_player_scores.npy"]
 sha = lambda p: hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()
 
@@ -145,7 +150,9 @@ arms["ladder016"] = {"arm": "ladder016", "feasible": len(order016) == K, "pool":
                      "rungs_inclusive": {str(int(r)): w for r, w in RUNGS.items()}, "gamma": GAMMA, "tie_break": "pooled mean total"}
 print(f"ladder016 in {time.time()-t1:.0f}s (prefix {prefix016})", flush=True)
 arms["floor8"] = run_filtered(min_proj >= FLOOR, "floor8"); arms["floor8"].update({"floor": FLOOR, "applies_to": "lowest served proj among non-DST players"})
+arms["floor10"] = run_filtered(min_proj >= FLOOR10, "floor10"); arms["floor10"].update({"floor": FLOOR10, "applies_to": "lowest served proj among non-DST players"})
 arms["nodepth4"] = run_filtered(depth <= MAX_SAME_TEAM_WRTE, "nodepth4"); arms["nodepth4"].update({"max_same_team_wrte": MAX_SAME_TEAM_WRTE})
+arms["depth2"] = run_filtered(depth <= MAX_SAME_TEAM_WRTE_2, "depth2"); arms["depth2"].update({"max_same_team_wrte": MAX_SAME_TEAM_WRTE_2})
 print("arms done", {k: (v["feasible"], v["pool"]) for k, v in arms.items()}, flush=True)
 
 # contest blocks (sequential layout: contests.json order)
@@ -181,7 +188,8 @@ manifest = {"schema": "week3-shadow-runner/v1", "label": a.label, "built_utc": t
             "totals_law": "per bank: float32 sequential sum of bank rows in ascending frame-row order; equal-mass concatenation [incumbent | corrected_hsim]",
             "parity": {"membership": parity_membership, "order": parity_order, "book_json_names": parity_book_json},
             "arms": {"control": "nfl2.selectors.select_expected_max", "ladder016": "nfl2.selectors.cap_prefix_then_fill inclusive 194/200/210/220 w 1/2/6/12 gamma 4",
-                     "floor8": f"row filter min non-DST served proj >= {FLOOR} then control", "nodepth4": f"row filter same-team WR/TE with QB <= {MAX_SAME_TEAM_WRTE} then control"},
+                     "floor8": f"row filter min non-DST served proj >= {FLOOR} then control", "floor10": f"row filter min non-DST served proj >= {FLOOR10} then control",
+                     "nodepth4": f"row filter same-team WR/TE with QB <= {MAX_SAME_TEAM_WRTE} then control", "depth2": f"row filter same-team WR/TE with QB <= {MAX_SAME_TEAM_WRTE_2} then control"},
             "current_outcomes_read": False, "runner_sha256": sha(__file__), "seconds": round(time.time() - t0, 1)}
 (out / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n"); (out / "books.json").write_text(json.dumps({"blocks": blocks, "arms": books}, indent=2) + "\n")
 (out / "diagnostics.json").write_text(json.dumps(diagnostics, indent=2) + "\n")
