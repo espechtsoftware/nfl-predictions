@@ -18,9 +18,26 @@ process_run() {
   entries=$($PY -c "import json; print(json.load(open('$run/receipt.json'))['written'])") || { log "no receipt in $run"; return 1; }
   lo="$OUT/after-$tag"; rm -rf "$lo"; mkdir -p "$lo"
   log "vetting $(basename "$run") (entries=$entries) -> $lo"
-  PYTHONPATH=$PROD/src $PY "$TOOLS/vet_book.py" "$run" --k 30 --season "$SEASON" --week "$WEEK" --output-dir "$lo/paid-vetted" > "$lo/paid-vet.log" 2>&1 || { log "paid vet FAILED (see $lo/paid-vet.log)"; return 1; }
-  PYTHONPATH=$PROD/src $PY "$PROD/scripts/emit_dk_upload_csv_v1.py" --source run-dir --run-dir "$lo/paid-vetted" --output "$OUT/upload-$tag-paid-vetted-all.csv" > "$lo/paid-vetted/emit.json" 2>&1 || { log "emit FAILED (see $lo/paid-vetted/emit.json)"; return 1; }
-  mkdir -p "$lo/paid-vetted-30"; head -n 31 "$lo/paid-vetted/book.csv" > "$lo/paid-vetted-30/book.csv"; cp "$run/frame.parquet" "$run/receipt.json" "$lo/paid-vetted-30/"
+  # 2026-09-19 (operator directive, Rung 1c v4 after lab review): one ID-keyed QB classifier feeds the vetter
+  # (demotion) and the replacement step (confirmed-unavailable rows -> best live pool candidates under the build's own
+  # saved worlds). If the flag table fails, the vetter runs without it (its own starter query) and no replacement is
+  # attempted; if the replacement fails, the vetted book is published with REPLACEMENT FAILED written into the
+  # TODAY file and the page -- never as an ordinary success. The previous validated bundle stays under enter-bundles/.
+  local QBF=""
+  if PYTHONPATH="$TOOLS" $PY "$TOOLS/qb_flags.py" "$lo/qb-flags.csv" --season "$SEASON" --week "$WEEK" --group "$GROUP" > "$lo/qb-flags.log" 2>&1; then QBF="$lo/qb-flags.csv"; else log "  qb_flags FAILED (see $lo/qb-flags.log) -- vetting without the shared classifier, no replacement"; fi
+  PYTHONPATH=$PROD/src:$TOOLS $PY "$TOOLS/vet_book.py" "$run" --k 30 --season "$SEASON" --week "$WEEK" --output-dir "$lo/paid-vetted" ${QBF:+--qb-flags "$QBF"} > "$lo/paid-vet.log" 2>&1 || { log "paid vet FAILED (see $lo/paid-vet.log)"; return 1; }
+  local VET="$lo/paid-vetted" REPL_STATUS="NOT ATTEMPTED (no flag table)"
+  if [ -n "$QBF" ]; then
+    if PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=$PROD/src:$TOOLS $PY "$TOOLS/vet_replace_v4.py" "$lo/paid-vetted" "$run" "$lo/paid-vetted-replaced" --qb-flags "$QBF" --season "$SEASON" --week "$WEEK" --admit-risky > "$lo/paid-replace.log" 2>&1 \
+       && [ ! -e "$lo/paid-vetted-replaced/NOT-PUBLISHABLE-REHEARSAL" ]; then
+      VET="$lo/paid-vetted-replaced"; REPL_STATUS="OK: $(grep -m1 -E '^replaced' "$lo/paid-replace.log" || echo 'ran')"
+    else
+      REPL_STATUS="REPLACEMENT FAILED: $(grep -m1 'REPLACEMENT FAILED' "$lo/paid-replace.log" | cut -c1-300 || echo "see $lo/paid-replace.log") -- the vetted book was published with its unavailable rows still in place"
+    fi
+  fi
+  log "  replacement: $REPL_STATUS"; printf '%s\n' "$REPL_STATUS" > "$lo/replacement-status.txt"
+  PYTHONPATH=$PROD/src $PY "$PROD/scripts/emit_dk_upload_csv_v1.py" --source run-dir --run-dir "$VET" --output "$OUT/upload-$tag-paid-vetted-all.csv" > "$VET/emit.json" 2>&1 || { log "emit FAILED (see $VET/emit.json)"; return 1; }
+  mkdir -p "$lo/paid-vetted-30"; head -n 31 "$VET/book.csv" > "$lo/paid-vetted-30/book.csv"; cp "$run/frame.parquet" "$run/receipt.json" "$lo/paid-vetted-30/"
   $PY "$TOOLS/book_sheet.py" "$lo/paid-vetted-30" --banks-from "$run" --output "$OUT/lineup-sheet-$tag-paid-vetted-30" > "$lo/paid-vetted-30/sheet.out" 2>&1 || log "  sheet FAILED for the keepers"
   # ENTER/ is overwritten by every newer run: stable paths for the operator
   # 2026-09-17 review finding 5: stage the whole bundle, verify it, then swap it in -- the entries watcher polls this
@@ -94,16 +111,24 @@ PYEOF
   ln -sfn "$VER" "$E.new" && mv -T "$E.new" "$E"
   log "published bundle $tag atomically: $E -> $(readlink -f "$E")"
   { echo "TODAY'S ENTRY = the vetted paid book (HARD/material lineups to the back), keepers first. Source run $(basename "$run"), K$entries, built $(date -u +%H:%M:%SZ), week $WEEK group $GROUP"; echo
+    echo "REPLACEMENT STEP: $REPL_STATUS"; echo
     echo "PER-CONTEST FILES FOR THE RESERVED ENTRIES (fill the DK entries export with scripts/week1_fill_dk_entries.py or let the watcher do it):"
     sed 's#^#  #' "$E/ENTER-layout.txt"
     echo; echo "Files (Windows path): \\\\wsl.localhost\\Ubuntu$(echo "$E" | sed 's#/#\\#g')\\"; ls "$E"/ENTER-*.csv | xargs -n1 basename | sed 's#^#    #'
-    echo; echo "Vetting flags on the keepers (soft = informational):"; $PY -c "
-import json; r=json.load(open('$lo/paid-vetted/vetting.json')); order=r['order_source_ranks'][:30]; n=0
-for pos, src in enumerate(order, 1):
-    lu = r['lineups'][src-1]
-    if lu['flags']: n+=1; print(f\"  keeper row {pos}: {'HARD' if lu['hard'] else ('material' if lu['material'] else 'soft')} {lu['flags']}\")
-print('  (none)' if n==0 else '')" 2>/dev/null
-    echo; echo "Details: vetting $lo/paid-vetted/vetting.json; all-lineups CSV $all"
+    echo; echo "Vetting flags on the keepers (from the FINAL book; replacement rows re-vetted):"; $PY - "$VET" <<'PYF' 2>/dev/null
+import json, pathlib, sys
+d = pathlib.Path(sys.argv[1]); n = 0
+if (d / "vetting_final.json").exists():
+    for lu in json.load(open(d / "vetting_final.json"))["lineups"][:30]:
+        if lu["flags"]: n += 1; print(f"  keeper row {lu['position']} ({lu['source']}): {lu['flags']}")
+else:
+    r = json.load(open(d / "vetting.json")); order = r["order_source_ranks"][:30]
+    for pos, src in enumerate(order, 1):
+        lu = r["lineups"][src - 1]
+        if lu["flags"]: n += 1; print(f"  keeper row {pos}: {'HARD' if lu['hard'] else ('material' if lu['material'] else 'soft')} {lu['flags']}")
+print("  (none)" if n == 0 else "")
+PYF
+    echo; echo "Details: vetting $lo/paid-vetted/vetting.json; replacement $lo/paid-vetted-replaced/replace.json and vetting_final.json (if present); status $lo/replacement-status.txt; all-lineups CSV $all"
   } > "$OUT/TODAY-30-LATEST.md"
   log "done $(basename "$run") -> $OUT/TODAY-30-LATEST.md"
 }
