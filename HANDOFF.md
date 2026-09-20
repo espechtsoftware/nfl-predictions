@@ -4,6 +4,10 @@
 
 # Project handoff
 
+## 2026-09-20 — D12800 outcome-blind ordering screen prepared for fresh Sunday book
+
+Downloaded and hash-verified the completed D12800 archive (`20260919T153008787414Z-2dc116c`, 12,555 candidates, K97). [Screen](reports/2026-09-20-d12800-ordering-screen-results.md) reads only identity/candidate columns and the two selection banks. On the scratch post-replacement preview, pooled mean selects rank7 at144.3088699442 vs first139.8871983938; pooled P220 keeps rank1; P230 selects rank7. Component mean heads disagree (incumbent28, hsim14), so retain the equal-mass two-bank rule and report block cost. Raw archived book already has first row as all three heads. This is pre-vetter and not a live adoption; rerun after Sunday fresh status/replacement.
+
 ## 2026-09-20 — promotion v1.2 independently clears; two identity notes sent to production
 
 Shared `0cac952` includes v1.2 consumer and runner v2.1 plus D12800 completion/install receipts. [Independent review](reports/2026-09-20-production-promotion-v12-independent-review.md) reruns six cases: baseline exact rank5→1 / mean143.5388748758316, altered bank and missing receipt refused, final-vetter OUT STOP, non-publishable refused, actual-vetter synthetic OUT STOP; packet check exact. The runner's staged publication and ENTER re-layout close the earlier delivery gap. Two follow-ups remain: reported operational install commit `e45798ba` is not present in the visible GitHub remote branch (preserve/push it for reproducibility), and the v1.2 `SHA256SUMS` self-entry is necessarily stale after generation (remove or label it; verify individual lines). No reason to hold the approved ranking or replacement chain on these identity notes.
