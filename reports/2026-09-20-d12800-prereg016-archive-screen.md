@@ -4,7 +4,8 @@ This is an outcome-blind **in-sample mechanism screen** on the archived
 D12800 candidate pool. It reuses the two 10,000-world banks that produced the
 archived `dual_emax` book, so it is useful for diagnosing the selector's
 behavior but is not a prospective estimate and does not authorize a live
-change.
+change. The archive predates the Sunday final-status replacement pass; its
+candidate pool and raw control therefore are not the current uploaded book.
 
 ## Frozen comparison
 

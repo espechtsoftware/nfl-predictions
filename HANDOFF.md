@@ -19,8 +19,9 @@ The archived PREREG-016 screen is in
 `reports/2026-09-20-d12800-prereg016-archive-screen.md`. On the same in-sample
 D12800 banks, the uncapped ladder trades lower max mean for a small P220 gain,
 while the gamma-4 cap loses to both the ladder and `dual_emax` and changes 86
-positions. This is mechanism evidence only; the fresh realized paired shadow
-still needs frozen 220/230/240 parameters.
+positions. The archive predates the Sunday status/replacement pass and is not
+the current uploaded membership. This is mechanism evidence only; the fresh
+realized paired shadow still needs frozen 220/230/240 parameters.
 
 # Project handoff
 
