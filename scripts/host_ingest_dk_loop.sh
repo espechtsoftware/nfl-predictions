@@ -70,7 +70,7 @@ run_pull() {
   started=$(date -u +%FT%TZ)
   echo "$started starting $label (project=$GCP_PROJECT)"
   set +e
-  env GCP_PROJECT="$GCP_PROJECT" PYTHONPATH="$PYTHONPATH" "${extra[@]}" "${CLI_CMD[@]}" "$@"
+  (cd "$PROD" && env GCP_PROJECT="$GCP_PROJECT" PYTHONPATH="$PYTHONPATH" "${extra[@]}" "${CLI_CMD[@]}" "$@")
   status=$?
   set -e
   echo "$(date -u +%FT%TZ) $label exit=$status"
