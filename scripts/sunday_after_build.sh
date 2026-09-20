@@ -28,7 +28,7 @@ process_run() {
   PYTHONPATH=$PROD/src:$TOOLS $PY "$TOOLS/vet_book.py" "$run" --k 30 --season "$SEASON" --week "$WEEK" --output-dir "$lo/paid-vetted" ${QBF:+--qb-flags "$QBF"} > "$lo/paid-vet.log" 2>&1 || { log "paid vet FAILED (see $lo/paid-vet.log)"; return 1; }
   local VET="$lo/paid-vetted" REPL_STATUS="NOT ATTEMPTED (no flag table)"
   if [ -n "$QBF" ]; then
-    if PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=$PROD/src:$TOOLS $PY "$TOOLS/vet_replace_v4.py" "$lo/paid-vetted" "$run" "$lo/paid-vetted-replaced" --qb-flags "$QBF" --season "$SEASON" --week "$WEEK" --admit-risky > "$lo/paid-replace.log" 2>&1 \
+    if PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=$PROD/src:$TOOLS $PY "$TOOLS/vet_replace_v4.py" "$lo/paid-vetted" "$run" "$lo/paid-vetted-replaced" --lab-src "$CLONE/src" --qb-flags "$QBF" --season "$SEASON" --week "$WEEK" --admit-risky > "$lo/paid-replace.log" 2>&1 \
        && [ ! -e "$lo/paid-vetted-replaced/NOT-PUBLISHABLE-REHEARSAL" ]; then
       VET="$lo/paid-vetted-replaced"; REPL_STATUS="OK: $(grep -m1 -E '^replaced' "$lo/paid-replace.log" || echo 'ran')"
     else
