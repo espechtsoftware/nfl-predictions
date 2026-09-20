@@ -47,6 +47,15 @@ is flat or changes by at most 0.005 percentage points. The next selector experim
 tail coverage at 220/230/240 with a mean term and existing exposure constraints, not raw individual P220 sort.
 No production code or live book was changed.
 
+The marginal screen is now complete in `reports/2026-09-20-d12800-marginal-tail-screen-results.md` with reader/result
+under `reports/reviews/evidence/`. It scores each candidate by new worlds added to the existing book maximum. Candidate
+1334 is the strongest 220/230/240 ladder candidate (24/16/13 new worlds); candidate 7399 is the strongest 220-only
+candidate (29 new 220 worlds). The best pooled one-row shadows improve max P220 by 0.080 percentage points for 1334,
+0.075 pp for 2765, and 0.105 pp for 7399, but the equal-mass incumbent/corrected-hsim component gains differ sharply.
+This is a shortlist for fresh independent-bank testing, not a live replacement recommendation. Next: rerun these
+candidate-specific swaps on fresh pre-outcome selection/audit worlds, then test a full marginal-tail selector only if
+the gain survives both components and the independent audit.
+
 ## 2026-09-20 — promotion ENTER re-layout has a blocking row-check defect
 
 Independent synthetic review found v2.1 `relayout_enter.sh` rejects **all three** cases on a two-contest fixture: unset/default sequential, explicit sequential, and explicit top. Its final check compares each contest file to contiguous upload slices, but sequential keeper/fill rows are noncontiguous and top layout repeats the prefix. `ENTER/` is not published, so the runner safely leaves the prior bundle but cannot deliver the promoted order. [Review](reports/2026-09-20-promotion-enter-relayout-review.md), [reader](reports/reviews/evidence/2026-09-20-relayout-enter-row-check.py). Production needs a layout-aware mapping check and two-contest tests before Sunday promotion.

@@ -1,0 +1,4523 @@
+{
+  "schema": "d12800-marginal-tail-screen/v1",
+  "archive_manifest_sha256": "2b634256bf9f227db7c8ea4e82f35b6ce1cf2acccfab99d1610b9c7f43921063",
+  "source_files": {
+    "frame.parquet": "6e56f59d687b8f533ee02c05b90ec2c643c08b0e46aa78155a2c0d7b9894dab6",
+    "candidates.parquet": "9269cd4d6c30d6d43316eddb15a6e2625ad2f5b0b70b82fe2786f205a7d1a4dd",
+    "book.csv": "d134876b684224a3dc9aee68cde56fb942066d13e6f3e02f37947f2d10d20cad",
+    "receipt.json": "ddea8e7ec2be7185dc0d52099a947a84f24096c037858dc912c0f68267fed8e7",
+    "incumbent_player_scores.npy": "1d711ff9af22bea4b17505470ba516c544261f04da428f557893a9e290ec15d5",
+    "corrected_hsim_player_scores.npy": "c9f977295bde6a1987488de25ade643813cbf54d5e7c3903b753f714efe1023a"
+  },
+  "candidate_count": 12555,
+  "selected_count": 97,
+  "control": {
+    "metrics": {
+      "max_mean": 203.45079616470338,
+      "max_p220": 0.22255,
+      "max_p230": 0.1212,
+      "max_p240": 0.0628
+    },
+    "selected_candidates": [
+      2207,
+      3031,
+      3876,
+      3005,
+      2812,
+      6234,
+      10131,
+      1569,
+      12413,
+      10663,
+      12464,
+      4170,
+      5864,
+      3213,
+      10289,
+      4798,
+      3690,
+      11565,
+      11201,
+      6105,
+      4395,
+      7673,
+      10658,
+      4201,
+      4263,
+      8198,
+      5137,
+      2872,
+      11760,
+      12301,
+      11181,
+      4377,
+      2123,
+      8921,
+      8436,
+      12440,
+      781,
+      6447,
+      9431,
+      4886,
+      7256,
+      7081,
+      8772,
+      701,
+      11233,
+      1819,
+      10046,
+      5341,
+      2567,
+      12205,
+      7471,
+      6853,
+      8955,
+      8581,
+      8946,
+      2960,
+      3016,
+      6637,
+      8153,
+      8140,
+      5816,
+      8539,
+      3066,
+      2638,
+      5389,
+      5406,
+      4272,
+      8760,
+      2725,
+      3314,
+      10489,
+      9628,
+      12143,
+      9447,
+      10102,
+      5330,
+      8900,
+      4868,
+      11137,
+      7141,
+      896,
+      11698,
+      9317,
+      9791,
+      6497,
+      2976,
+      3799,
+      3622,
+      3532,
+      5737,
+      10203,
+      10593,
+      3669,
+      10091,
+      8742,
+      9531,
+      322
+    ]
+  },
+  "rankings_top20_unselected": {
+    "marginal_220": [
+      7399,
+      9130,
+      1334,
+      3186,
+      4912,
+      12543,
+      2765,
+      1282,
+      2008,
+      5222,
+      5698,
+      7190,
+      9463,
+      11555,
+      1016,
+      3741,
+      3958,
+      4955,
+      7083,
+      7916
+    ],
+    "marginal_230": [
+      2396,
+      5211,
+      6150,
+      680,
+      1334,
+      1699,
+      4394,
+      4955,
+      5012,
+      11150,
+      1500,
+      2765,
+      3551,
+      5347,
+      9130,
+      9477,
+      9880,
+      11069,
+      12234,
+      1042
+    ],
+    "marginal_240": [
+      1334,
+      2148,
+      2824,
+      5857,
+      949,
+      2402,
+      2765,
+      5211,
+      7107,
+      7363,
+      7467,
+      1885,
+      2396,
+      3085,
+      3305,
+      5294,
+      6971,
+      7399,
+      509,
+      966
+    ],
+    "tail_ladder_220_230_240": [
+      1334,
+      2765,
+      5211,
+      2396,
+      2148,
+      2824,
+      2402,
+      7399,
+      9880,
+      680,
+      5857,
+      1699,
+      3186,
+      6150,
+      9434,
+      3551,
+      7363,
+      7467,
+      9130,
+      12543
+    ],
+    "mean_lift": [
+      4912,
+      7839,
+      6153,
+      5234,
+      9880,
+      1334,
+      2765,
+      7781,
+      7619,
+      5222,
+      11293,
+      8009,
+      11033,
+      8221,
+      6584,
+      3528,
+      7768,
+      8651,
+      2148,
+      11442
+    ]
+  },
+  "top10_records": {
+    "marginal_220": [
+      {
+        "candidate": 7399,
+        "names": [
+          "Broncos",
+          "Jordan Love",
+          "Rico Dowdle",
+          "Christian Watson",
+          "Breece Hall",
+          "Tucker Kraft",
+          "Ladd McConkey",
+          "Bijan Robinson",
+          "Matthew Golden"
+        ],
+        "individual_mean": 134.14938433761597,
+        "individual_p220": 0.0061,
+        "individual_p230": 0.0029,
+        "individual_p240": 0.0011,
+        "marginal_worlds_220": 29,
+        "marginal_worlds_230": 9,
+        "marginal_worlds_240": 10,
+        "marginal_ladder_score": 87,
+        "marginal_mean_lift": 0.06718834762571646,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 5,
+            "selected_rank": 12,
+            "selected_candidate": 4170
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 38,
+            "selected_candidate": 6447
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 61,
+            "selected_candidate": 5816
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 53,
+            "selected_candidate": 8955
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 89,
+            "selected_candidate": 3532
+          }
+        ]
+      },
+      {
+        "candidate": 9130,
+        "names": [
+          "Patriots",
+          "Carson Wentz",
+          "Kalif Raymond",
+          "Saquon Barkley",
+          "T.J. Hockenson",
+          "David Montgomery",
+          "Justin Jefferson",
+          "Ja'Marr Chase",
+          "Ladd McConkey"
+        ],
+        "individual_mean": 136.43633399505615,
+        "individual_p220": 0.0047,
+        "individual_p230": 0.00205,
+        "individual_p240": 0.00065,
+        "marginal_worlds_220": 28,
+        "marginal_worlds_230": 15,
+        "marginal_worlds_240": 5,
+        "marginal_ladder_score": 78,
+        "marginal_mean_lift": 0.06524316024780319,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 4,
+            "selected_rank": 25,
+            "selected_candidate": 4263
+          },
+          {
+            "shared_players": 3,
+            "selected_rank": 2,
+            "selected_candidate": 3031
+          },
+          {
+            "shared_players": 3,
+            "selected_rank": 11,
+            "selected_candidate": 12464
+          },
+          {
+            "shared_players": 3,
+            "selected_rank": 18,
+            "selected_candidate": 11565
+          },
+          {
+            "shared_players": 3,
+            "selected_rank": 23,
+            "selected_candidate": 10658
+          }
+        ]
+      },
+      {
+        "candidate": 1334,
+        "names": [
+          "Chargers",
+          "Chris Moore",
+          "Dalton Schultz",
+          "Lamar Jackson",
+          "Juwan Johnson",
+          "Justin Jefferson",
+          "Javonte Williams",
+          "Zay Flowers",
+          "Bijan Robinson"
+        ],
+        "individual_mean": 144.87660447235106,
+        "individual_p220": 0.0084,
+        "individual_p230": 0.00365,
+        "individual_p240": 0.0018,
+        "marginal_worlds_220": 24,
+        "marginal_worlds_230": 16,
+        "marginal_worlds_240": 13,
+        "marginal_ladder_score": 108,
+        "marginal_mean_lift": 0.07287158889769785,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 5,
+            "selected_rank": 1,
+            "selected_candidate": 2207
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 25,
+            "selected_candidate": 4263
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 29,
+            "selected_candidate": 11760
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 33,
+            "selected_candidate": 2123
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 37,
+            "selected_candidate": 781
+          }
+        ]
+      },
+      {
+        "candidate": 3186,
+        "names": [
+          "49ers",
+          "David Njoku",
+          "Justin Herbert",
+          "Justin Jefferson",
+          "Garrett Wilson",
+          "Dontayvion Wicks",
+          "Rhamondre Stevenson",
+          "Ladd McConkey",
+          "Ashton Jeanty"
+        ],
+        "individual_mean": 138.22017165699006,
+        "individual_p220": 0.00505,
+        "individual_p230": 0.00215,
+        "individual_p240": 0.001,
+        "marginal_worlds_220": 24,
+        "marginal_worlds_230": 14,
+        "marginal_worlds_240": 7,
+        "marginal_ladder_score": 80,
+        "marginal_mean_lift": 0.06804137878415872,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 5,
+            "selected_rank": 8,
+            "selected_candidate": 1569
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 67,
+            "selected_candidate": 4272
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 11,
+            "selected_candidate": 12464
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 24,
+            "selected_candidate": 4201
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 32,
+            "selected_candidate": 4377
+          }
+        ]
+      },
+      {
+        "candidate": 4912,
+        "names": [
+          "Patriots",
+          "Chuba Hubbard",
+          "Justin Jefferson",
+          "Drake London",
+          "Caleb Williams",
+          "Bucky Irving",
+          "Luther Burden III",
+          "Colston Loveland",
+          "Caleb Douglas"
+        ],
+        "individual_mean": 137.80455388412474,
+        "individual_p220": 0.00495,
+        "individual_p230": 0.0018,
+        "individual_p240": 0.0009,
+        "marginal_worlds_220": 24,
+        "marginal_worlds_230": 10,
+        "marginal_worlds_240": 7,
+        "marginal_ladder_score": 72,
+        "marginal_mean_lift": 0.07484286651609295,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 5,
+            "selected_rank": 14,
+            "selected_candidate": 3213
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 18,
+            "selected_candidate": 11565
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 60,
+            "selected_candidate": 8140
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 83,
+            "selected_candidate": 9317
+          },
+          {
+            "shared_players": 3,
+            "selected_rank": 1,
+            "selected_candidate": 2207
+          }
+        ]
+      },
+      {
+        "candidate": 12543,
+        "names": [
+          "Patriots",
+          "Stefon Diggs",
+          "Mark Andrews",
+          "Lamar Jackson",
+          "Zay Flowers",
+          "Quentin Johnston",
+          "Bijan Robinson",
+          "Bryce Lance",
+          "Ashton Jeanty"
+        ],
+        "individual_mean": 138.59147739257813,
+        "individual_p220": 0.00595,
+        "individual_p230": 0.0028,
+        "individual_p240": 0.00155,
+        "marginal_worlds_220": 24,
+        "marginal_worlds_230": 13,
+        "marginal_worlds_240": 7,
+        "marginal_ladder_score": 78,
+        "marginal_mean_lift": 0.06736885833740303,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 5,
+            "selected_rank": 32,
+            "selected_candidate": 4377
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 10,
+            "selected_candidate": 10663
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 44,
+            "selected_candidate": 701
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 59,
+            "selected_candidate": 8153
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 68,
+            "selected_candidate": 8760
+          }
+        ]
+      },
+      {
+        "candidate": 2765,
+        "names": [
+          "Broncos",
+          "Terry McLaurin",
+          "Saquon Barkley",
+          "John Bates",
+          "CeeDee Lamb",
+          "D'Andre Swift",
+          "Jayden Daniels",
+          "Drake London",
+          "Ladd McConkey"
+        ],
+        "individual_mean": 132.54954319705962,
+        "individual_p220": 0.00285,
+        "individual_p230": 0.00135,
+        "individual_p240": 0.00065,
+        "marginal_worlds_220": 23,
+        "marginal_worlds_230": 15,
+        "marginal_worlds_240": 11,
+        "marginal_ladder_score": 97,
+        "marginal_mean_lift": 0.07238250350951603,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 4,
+            "selected_rank": 66,
+            "selected_candidate": 5406
+          },
+          {
+            "shared_players": 3,
+            "selected_rank": 9,
+            "selected_candidate": 12413
+          },
+          {
+            "shared_players": 3,
+            "selected_rank": 51,
+            "selected_candidate": 7471
+          },
+          {
+            "shared_players": 3,
+            "selected_rank": 78,
+            "selected_candidate": 4868
+          },
+          {
+            "shared_players": 2,
+            "selected_rank": 2,
+            "selected_candidate": 3031
+          }
+        ]
+      },
+      {
+        "candidate": 1282,
+        "names": [
+          "49ers",
+          "Kalif Raymond",
+          "Dalton Schultz",
+          "Justin Herbert",
+          "Justin Jefferson",
+          "Tre' Harris",
+          "Ladd McConkey",
+          "Bijan Robinson",
+          "Ashton Jeanty"
+        ],
+        "individual_mean": 143.50938731498718,
+        "individual_p220": 0.00925,
+        "individual_p230": 0.0035,
+        "individual_p240": 0.00165,
+        "marginal_worlds_220": 22,
+        "marginal_worlds_230": 11,
+        "marginal_worlds_240": 6,
+        "marginal_ladder_score": 68,
+        "marginal_mean_lift": 0.04721055831907961,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 6,
+            "selected_rank": 8,
+            "selected_candidate": 1569
+          },
+          {
+            "shared_players": 6,
+            "selected_rank": 46,
+            "selected_candidate": 1819
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 30,
+            "selected_candidate": 12301
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 67,
+            "selected_candidate": 4272
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 97,
+            "selected_candidate": 322
+          }
+        ]
+      },
+      {
+        "candidate": 2008,
+        "names": [
+          "49ers",
+          "Cade Otton",
+          "Justin Jefferson",
+          "Chase Brown",
+          "Zay Flowers",
+          "Kayshon Boutte",
+          "Xavier Hutchinson",
+          "C.J. Stroud",
+          "Bijan Robinson"
+        ],
+        "individual_mean": 142.5538778541565,
+        "individual_p220": 0.0061,
+        "individual_p230": 0.0027,
+        "individual_p240": 0.00095,
+        "marginal_worlds_220": 22,
+        "marginal_worlds_230": 7,
+        "marginal_worlds_240": 3,
+        "marginal_ladder_score": 48,
+        "marginal_mean_lift": 0.042796832275371344,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 7,
+            "selected_rank": 81,
+            "selected_candidate": 896
+          },
+          {
+            "shared_players": 6,
+            "selected_rank": 33,
+            "selected_candidate": 2123
+          },
+          {
+            "shared_players": 6,
+            "selected_rank": 94,
+            "selected_candidate": 10091
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 4,
+            "selected_candidate": 3005
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 6,
+            "selected_candidate": 6234
+          }
+        ]
+      },
+      {
+        "candidate": 5222,
+        "names": [
+          "Titans",
+          "Demarcus Robinson",
+          "George Kittle",
+          "Christian McCaffrey",
+          "Justin Jefferson",
+          "Brock Purdy",
+          "Zay Flowers",
+          "Kayshon Boutte",
+          "De'Von Achane"
+        ],
+        "individual_mean": 133.92963404960634,
+        "individual_p220": 0.0028,
+        "individual_p230": 0.00125,
+        "individual_p240": 0.0003,
+        "marginal_worlds_220": 22,
+        "marginal_worlds_230": 10,
+        "marginal_worlds_240": 3,
+        "marginal_ladder_score": 54,
+        "marginal_mean_lift": 0.07195038604734805,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 5,
+            "selected_rank": 55,
+            "selected_candidate": 8946
+          },
+          {
+            "shared_players": 3,
+            "selected_rank": 1,
+            "selected_candidate": 2207
+          },
+          {
+            "shared_players": 3,
+            "selected_rank": 14,
+            "selected_candidate": 3213
+          },
+          {
+            "shared_players": 3,
+            "selected_rank": 18,
+            "selected_candidate": 11565
+          },
+          {
+            "shared_players": 3,
+            "selected_rank": 37,
+            "selected_candidate": 781
+          }
+        ]
+      }
+    ],
+    "marginal_230": [
+      {
+        "candidate": 2396,
+        "names": [
+          "Ravens",
+          "David Njoku",
+          "Justin Herbert",
+          "Justin Jefferson",
+          "Zay Flowers",
+          "Tre' Harris",
+          "Bijan Robinson",
+          "Adonai Mitchell",
+          "Ashton Jeanty"
+        ],
+        "individual_mean": 143.4821975418091,
+        "individual_p220": 0.0067,
+        "individual_p230": 0.00315,
+        "individual_p240": 0.0013,
+        "marginal_worlds_220": 18,
+        "marginal_worlds_230": 17,
+        "marginal_worlds_240": 10,
+        "marginal_ladder_score": 92,
+        "marginal_mean_lift": 0.05706670608520881,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 6,
+            "selected_rank": 97,
+            "selected_candidate": 322
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 32,
+            "selected_candidate": 4377
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 67,
+            "selected_candidate": 4272
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 8,
+            "selected_candidate": 1569
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 44,
+            "selected_candidate": 701
+          }
+        ]
+      },
+      {
+        "candidate": 5211,
+        "names": [
+          "49ers",
+          "Mark Andrews",
+          "Lamar Jackson",
+          "Devaughn Vele",
+          "Zay Flowers",
+          "Drake London",
+          "Bijan Robinson",
+          "Bucky Irving",
+          "Ted Hurst III"
+        ],
+        "individual_mean": 139.3902889968872,
+        "individual_p220": 0.0079,
+        "individual_p230": 0.00385,
+        "individual_p240": 0.00155,
+        "marginal_worlds_220": 16,
+        "marginal_worlds_230": 17,
+        "marginal_worlds_240": 11,
+        "marginal_ladder_score": 94,
+        "marginal_mean_lift": 0.05426868515013439,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 6,
+            "selected_rank": 42,
+            "selected_candidate": 7081
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 96,
+            "selected_candidate": 9531
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 10,
+            "selected_candidate": 10663
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 28,
+            "selected_candidate": 2872
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 29,
+            "selected_candidate": 11760
+          }
+        ]
+      },
+      {
+        "candidate": 6150,
+        "names": [
+          "49ers",
+          "Carson Wentz",
+          "Dalton Schultz",
+          "T.J. Hockenson",
+          "Justin Jefferson",
+          "Javonte Williams",
+          "Drake London",
+          "Bijan Robinson",
+          "Luther Burden III"
+        ],
+        "individual_mean": 144.67255412712097,
+        "individual_p220": 0.00905,
+        "individual_p230": 0.00395,
+        "individual_p240": 0.00165,
+        "marginal_worlds_220": 18,
+        "marginal_worlds_230": 17,
+        "marginal_worlds_240": 7,
+        "marginal_ladder_score": 80,
+        "marginal_mean_lift": 0.05108442916869649,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 7,
+            "selected_rank": 25,
+            "selected_candidate": 4263
+          },
+          {
+            "shared_players": 7,
+            "selected_rank": 75,
+            "selected_candidate": 10102
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 33,
+            "selected_candidate": 2123
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 69,
+            "selected_candidate": 2725
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 78,
+            "selected_candidate": 4868
+          }
+        ]
+      },
+      {
+        "candidate": 680,
+        "names": [
+          "49ers",
+          "Carson Wentz",
+          "Kalif Raymond",
+          "Derrick Henry",
+          "T.J. Hockenson",
+          "Justin Jefferson",
+          "Zay Flowers",
+          "Bijan Robinson",
+          "Caleb Douglas"
+        ],
+        "individual_mean": 141.05432795295715,
+        "individual_p220": 0.0066,
+        "individual_p230": 0.0032,
+        "individual_p240": 0.0012,
+        "marginal_worlds_220": 20,
+        "marginal_worlds_230": 16,
+        "marginal_worlds_240": 8,
+        "marginal_ladder_score": 84,
+        "marginal_mean_lift": 0.055439604949953036,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 6,
+            "selected_rank": 25,
+            "selected_candidate": 4263
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 81,
+            "selected_candidate": 896
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 1,
+            "selected_candidate": 2207
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 31,
+            "selected_candidate": 11181
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 37,
+            "selected_candidate": 781
+          }
+        ]
+      },
+      {
+        "candidate": 1334,
+        "names": [
+          "Chargers",
+          "Chris Moore",
+          "Dalton Schultz",
+          "Lamar Jackson",
+          "Juwan Johnson",
+          "Justin Jefferson",
+          "Javonte Williams",
+          "Zay Flowers",
+          "Bijan Robinson"
+        ],
+        "individual_mean": 144.87660447235106,
+        "individual_p220": 0.0084,
+        "individual_p230": 0.00365,
+        "individual_p240": 0.0018,
+        "marginal_worlds_220": 24,
+        "marginal_worlds_230": 16,
+        "marginal_worlds_240": 13,
+        "marginal_ladder_score": 108,
+        "marginal_mean_lift": 0.07287158889769785,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 5,
+            "selected_rank": 1,
+            "selected_candidate": 2207
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 25,
+            "selected_candidate": 4263
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 29,
+            "selected_candidate": 11760
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 33,
+            "selected_candidate": 2123
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 37,
+            "selected_candidate": 781
+          }
+        ]
+      },
+      {
+        "candidate": 1699,
+        "names": [
+          "Buccaneers",
+          "Carson Wentz",
+          "Kalif Raymond",
+          "Derrick Henry",
+          "T.J. Hockenson",
+          "Justin Jefferson",
+          "Zay Flowers",
+          "Tre' Harris",
+          "Bijan Robinson"
+        ],
+        "individual_mean": 140.42606872501372,
+        "individual_p220": 0.006,
+        "individual_p230": 0.00285,
+        "individual_p240": 0.00125,
+        "marginal_worlds_220": 14,
+        "marginal_worlds_230": 16,
+        "marginal_worlds_240": 9,
+        "marginal_ladder_score": 82,
+        "marginal_mean_lift": 0.04897851104735196,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 5,
+            "selected_rank": 25,
+            "selected_candidate": 4263
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 69,
+            "selected_candidate": 2725
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 1,
+            "selected_candidate": 2207
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 46,
+            "selected_candidate": 1819
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 97,
+            "selected_candidate": 322
+          }
+        ]
+      },
+      {
+        "candidate": 4394,
+        "names": [
+          "49ers",
+          "David Njoku",
+          "Justin Herbert",
+          "Justin Jefferson",
+          "Quentin Johnston",
+          "Ladd McConkey",
+          "Bucky Irving",
+          "Antonio Williams",
+          "Ashton Jeanty"
+        ],
+        "individual_mean": 135.97356015262605,
+        "individual_p220": 0.00475,
+        "individual_p230": 0.00245,
+        "individual_p240": 0.001,
+        "marginal_worlds_220": 15,
+        "marginal_worlds_230": 16,
+        "marginal_worlds_240": 7,
+        "marginal_ladder_score": 75,
+        "marginal_mean_lift": 0.05391381607054768,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 5,
+            "selected_rank": 8,
+            "selected_candidate": 1569
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 32,
+            "selected_candidate": 4377
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 67,
+            "selected_candidate": 4272
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 2,
+            "selected_candidate": 3031
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 24,
+            "selected_candidate": 4201
+          }
+        ]
+      },
+      {
+        "candidate": 4955,
+        "names": [
+          "49ers",
+          "Tua Tagovailoa",
+          "DeVonta Smith",
+          "Chuba Hubbard",
+          "Christian Watson",
+          "Kyle Pitts Sr.",
+          "Drake London",
+          "Bijan Robinson",
+          "Adonai Mitchell"
+        ],
+        "individual_mean": 130.15894482688904,
+        "individual_p220": 0.0039,
+        "individual_p230": 0.0019,
+        "individual_p240": 0.00055,
+        "marginal_worlds_220": 21,
+        "marginal_worlds_230": 16,
+        "marginal_worlds_240": 6,
+        "marginal_ladder_score": 77,
+        "marginal_mean_lift": 0.05788842086792556,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 5,
+            "selected_rank": 28,
+            "selected_candidate": 2872
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 42,
+            "selected_candidate": 7081
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 70,
+            "selected_candidate": 3314
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 88,
+            "selected_candidate": 3622
+          },
+          {
+            "shared_players": 3,
+            "selected_rank": 5,
+            "selected_candidate": 2812
+          }
+        ]
+      },
+      {
+        "candidate": 5012,
+        "names": [
+          "49ers",
+          "Carson Wentz",
+          "Kalif Raymond",
+          "Derrick Henry",
+          "Dalton Schultz",
+          "Justin Jefferson",
+          "Breece Hall",
+          "Jordan Addison",
+          "Bijan Robinson"
+        ],
+        "individual_mean": 138.7750713985443,
+        "individual_p220": 0.00385,
+        "individual_p230": 0.002,
+        "individual_p240": 0.0006,
+        "marginal_worlds_220": 10,
+        "marginal_worlds_230": 16,
+        "marginal_worlds_240": 4,
+        "marginal_ladder_score": 58,
+        "marginal_mean_lift": 0.05291610946653691,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 6,
+            "selected_rank": 75,
+            "selected_candidate": 10102
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 25,
+            "selected_candidate": 4263
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 1,
+            "selected_candidate": 2207
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 8,
+            "selected_candidate": 1569
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 33,
+            "selected_candidate": 2123
+          }
+        ]
+      },
+      {
+        "candidate": 11150,
+        "names": [
+          "Broncos",
+          "Darren Waller",
+          "Christian McCaffrey",
+          "Tua Tagovailoa",
+          "Justin Jefferson",
+          "Jahan Dotson",
+          "Drake London",
+          "Bijan Robinson",
+          "Parker Washington"
+        ],
+        "individual_mean": 137.68288486156465,
+        "individual_p220": 0.0055,
+        "individual_p230": 0.0025,
+        "individual_p240": 0.0011,
+        "marginal_worlds_220": 13,
+        "marginal_worlds_230": 16,
+        "marginal_worlds_240": 6,
+        "marginal_ladder_score": 69,
+        "marginal_mean_lift": 0.048039400482167594,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 5,
+            "selected_rank": 16,
+            "selected_candidate": 4798
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 88,
+            "selected_candidate": 3622
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 42,
+            "selected_candidate": 7081
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 70,
+            "selected_candidate": 3314
+          },
+          {
+            "shared_players": 3,
+            "selected_rank": 5,
+            "selected_candidate": 2812
+          }
+        ]
+      }
+    ],
+    "marginal_240": [
+      {
+        "candidate": 1334,
+        "names": [
+          "Chargers",
+          "Chris Moore",
+          "Dalton Schultz",
+          "Lamar Jackson",
+          "Juwan Johnson",
+          "Justin Jefferson",
+          "Javonte Williams",
+          "Zay Flowers",
+          "Bijan Robinson"
+        ],
+        "individual_mean": 144.87660447235106,
+        "individual_p220": 0.0084,
+        "individual_p230": 0.00365,
+        "individual_p240": 0.0018,
+        "marginal_worlds_220": 24,
+        "marginal_worlds_230": 16,
+        "marginal_worlds_240": 13,
+        "marginal_ladder_score": 108,
+        "marginal_mean_lift": 0.07287158889769785,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 5,
+            "selected_rank": 1,
+            "selected_candidate": 2207
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 25,
+            "selected_candidate": 4263
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 29,
+            "selected_candidate": 11760
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 33,
+            "selected_candidate": 2123
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 37,
+            "selected_candidate": 781
+          }
+        ]
+      },
+      {
+        "candidate": 2148,
+        "names": [
+          "Patriots",
+          "Kalif Raymond",
+          "Derrick Henry",
+          "Dalton Schultz",
+          "Justin Jefferson",
+          "Ja'Marr Chase",
+          "Xavier Hutchinson",
+          "C.J. Stroud",
+          "Bijan Robinson"
+        ],
+        "individual_mean": 141.48258167037963,
+        "individual_p220": 0.0058,
+        "individual_p230": 0.0024,
+        "individual_p240": 0.00115,
+        "marginal_worlds_220": 19,
+        "marginal_worlds_230": 10,
+        "marginal_worlds_240": 13,
+        "marginal_ladder_score": 91,
+        "marginal_mean_lift": 0.06956910934448501,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 5,
+            "selected_rank": 33,
+            "selected_candidate": 2123
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 63,
+            "selected_candidate": 3066
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 1,
+            "selected_candidate": 2207
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 4,
+            "selected_candidate": 3005
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 11,
+            "selected_candidate": 12464
+          }
+        ]
+      },
+      {
+        "candidate": 2824,
+        "names": [
+          "Bengals",
+          "Darren Waller",
+          "Chuba Hubbard",
+          "Garrett Wilson",
+          "Zay Flowers",
+          "Drake London",
+          "Bryce Young",
+          "Bijan Robinson",
+          "Tetairoa McMillan"
+        ],
+        "individual_mean": 138.86142908287047,
+        "individual_p220": 0.00725,
+        "individual_p230": 0.0034,
+        "individual_p240": 0.00155,
+        "marginal_worlds_220": 11,
+        "marginal_worlds_230": 13,
+        "marginal_worlds_240": 13,
+        "marginal_ladder_score": 89,
+        "marginal_mean_lift": 0.060268928527818844,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 5,
+            "selected_rank": 5,
+            "selected_candidate": 2812
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 7,
+            "selected_candidate": 10131
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 35,
+            "selected_candidate": 8436
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 42,
+            "selected_candidate": 7081
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 54,
+            "selected_candidate": 8581
+          }
+        ]
+      },
+      {
+        "candidate": 5857,
+        "names": [
+          "49ers",
+          "Derrick Henry",
+          "Tua Tagovailoa",
+          "Jahan Dotson",
+          "Zay Flowers",
+          "Drake London",
+          "Bijan Robinson",
+          "Michael Mayer",
+          "Tetairoa McMillan"
+        ],
+        "individual_mean": 140.3426046058655,
+        "individual_p220": 0.00695,
+        "individual_p230": 0.0036,
+        "individual_p240": 0.0019,
+        "marginal_worlds_220": 14,
+        "marginal_worlds_230": 11,
+        "marginal_worlds_240": 12,
+        "marginal_ladder_score": 84,
+        "marginal_mean_lift": 0.055971357727031545,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 6,
+            "selected_rank": 42,
+            "selected_candidate": 7081
+          },
+          {
+            "shared_players": 6,
+            "selected_rank": 70,
+            "selected_candidate": 3314
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 16,
+            "selected_candidate": 4798
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 28,
+            "selected_candidate": 2872
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 73,
+            "selected_candidate": 12143
+          }
+        ]
+      },
+      {
+        "candidate": 949,
+        "names": [
+          "Patriots",
+          "Carson Wentz",
+          "Kalif Raymond",
+          "Christian McCaffrey",
+          "T.J. Hockenson",
+          "Justin Jefferson",
+          "Zay Flowers",
+          "Tre' Harris",
+          "Bijan Robinson"
+        ],
+        "individual_mean": 141.47602791862488,
+        "individual_p220": 0.00585,
+        "individual_p230": 0.00205,
+        "individual_p240": 0.00115,
+        "marginal_worlds_220": 15,
+        "marginal_worlds_230": 6,
+        "marginal_worlds_240": 11,
+        "marginal_ladder_score": 71,
+        "marginal_mean_lift": 0.04997120666502042,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 5,
+            "selected_rank": 25,
+            "selected_candidate": 4263
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 37,
+            "selected_candidate": 781
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 1,
+            "selected_candidate": 2207
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 18,
+            "selected_candidate": 11565
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 44,
+            "selected_candidate": 701
+          }
+        ]
+      },
+      {
+        "candidate": 2402,
+        "names": [
+          "Texans",
+          "Christian McCaffrey",
+          "Dalton Schultz",
+          "Justin Herbert",
+          "Justin Jefferson",
+          "Tre' Harris",
+          "Ladd McConkey",
+          "Bijan Robinson",
+          "Michael Mayer"
+        ],
+        "individual_mean": 144.9072738845825,
+        "individual_p220": 0.0081,
+        "individual_p230": 0.0039,
+        "individual_p240": 0.002,
+        "marginal_worlds_220": 17,
+        "marginal_worlds_230": 13,
+        "marginal_worlds_240": 11,
+        "marginal_ladder_score": 87,
+        "marginal_mean_lift": 0.04728794174192785,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 6,
+            "selected_rank": 8,
+            "selected_candidate": 1569
+          },
+          {
+            "shared_players": 6,
+            "selected_rank": 46,
+            "selected_candidate": 1819
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 30,
+            "selected_candidate": 12301
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 2,
+            "selected_candidate": 3031
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 13,
+            "selected_candidate": 5864
+          }
+        ]
+      },
+      {
+        "candidate": 2765,
+        "names": [
+          "Broncos",
+          "Terry McLaurin",
+          "Saquon Barkley",
+          "John Bates",
+          "CeeDee Lamb",
+          "D'Andre Swift",
+          "Jayden Daniels",
+          "Drake London",
+          "Ladd McConkey"
+        ],
+        "individual_mean": 132.54954319705962,
+        "individual_p220": 0.00285,
+        "individual_p230": 0.00135,
+        "individual_p240": 0.00065,
+        "marginal_worlds_220": 23,
+        "marginal_worlds_230": 15,
+        "marginal_worlds_240": 11,
+        "marginal_ladder_score": 97,
+        "marginal_mean_lift": 0.07238250350951603,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 4,
+            "selected_rank": 66,
+            "selected_candidate": 5406
+          },
+          {
+            "shared_players": 3,
+            "selected_rank": 9,
+            "selected_candidate": 12413
+          },
+          {
+            "shared_players": 3,
+            "selected_rank": 51,
+            "selected_candidate": 7471
+          },
+          {
+            "shared_players": 3,
+            "selected_rank": 78,
+            "selected_candidate": 4868
+          },
+          {
+            "shared_players": 2,
+            "selected_rank": 2,
+            "selected_candidate": 3031
+          }
+        ]
+      },
+      {
+        "candidate": 5211,
+        "names": [
+          "49ers",
+          "Mark Andrews",
+          "Lamar Jackson",
+          "Devaughn Vele",
+          "Zay Flowers",
+          "Drake London",
+          "Bijan Robinson",
+          "Bucky Irving",
+          "Ted Hurst III"
+        ],
+        "individual_mean": 139.3902889968872,
+        "individual_p220": 0.0079,
+        "individual_p230": 0.00385,
+        "individual_p240": 0.00155,
+        "marginal_worlds_220": 16,
+        "marginal_worlds_230": 17,
+        "marginal_worlds_240": 11,
+        "marginal_ladder_score": 94,
+        "marginal_mean_lift": 0.05426868515013439,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 6,
+            "selected_rank": 42,
+            "selected_candidate": 7081
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 96,
+            "selected_candidate": 9531
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 10,
+            "selected_candidate": 10663
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 28,
+            "selected_candidate": 2872
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 29,
+            "selected_candidate": 11760
+          }
+        ]
+      },
+      {
+        "candidate": 7107,
+        "names": [
+          "49ers",
+          "Chuba Hubbard",
+          "Drake London",
+          "Bryce Young",
+          "Jalen Coker",
+          "Bijan Robinson",
+          "Colston Loveland",
+          "Tetairoa McMillan",
+          "KC Concepcion Jr."
+        ],
+        "individual_mean": 133.711453922081,
+        "individual_p220": 0.00505,
+        "individual_p230": 0.0027,
+        "individual_p240": 0.0012,
+        "marginal_worlds_220": 13,
+        "marginal_worlds_230": 9,
+        "marginal_worlds_240": 11,
+        "marginal_ladder_score": 75,
+        "marginal_mean_lift": 0.052818998718265675,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 5,
+            "selected_rank": 5,
+            "selected_candidate": 2812
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 24,
+            "selected_candidate": 4201
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 54,
+            "selected_candidate": 8581
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 73,
+            "selected_candidate": 12143
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 90,
+            "selected_candidate": 5737
+          }
+        ]
+      },
+      {
+        "candidate": 7363,
+        "names": [
+          "49ers",
+          "Kalif Raymond",
+          "Courtland Sutton",
+          "Chuba Hubbard",
+          "Justin Jefferson",
+          "D'Andre Swift",
+          "Jalen Coker",
+          "Caleb Williams",
+          "Colston Loveland"
+        ],
+        "individual_mean": 131.52302051734924,
+        "individual_p220": 0.0034,
+        "individual_p230": 0.0017,
+        "individual_p240": 0.00095,
+        "marginal_worlds_220": 14,
+        "marginal_worlds_230": 10,
+        "marginal_worlds_240": 11,
+        "marginal_ladder_score": 78,
+        "marginal_mean_lift": 0.0592023574828886,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 6,
+            "selected_rank": 60,
+            "selected_candidate": 8140
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 49,
+            "selected_candidate": 2567
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 95,
+            "selected_candidate": 8742
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 1,
+            "selected_candidate": 2207
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 14,
+            "selected_candidate": 3213
+          }
+        ]
+      }
+    ],
+    "tail_ladder_220_230_240": [
+      {
+        "candidate": 1334,
+        "names": [
+          "Chargers",
+          "Chris Moore",
+          "Dalton Schultz",
+          "Lamar Jackson",
+          "Juwan Johnson",
+          "Justin Jefferson",
+          "Javonte Williams",
+          "Zay Flowers",
+          "Bijan Robinson"
+        ],
+        "individual_mean": 144.87660447235106,
+        "individual_p220": 0.0084,
+        "individual_p230": 0.00365,
+        "individual_p240": 0.0018,
+        "marginal_worlds_220": 24,
+        "marginal_worlds_230": 16,
+        "marginal_worlds_240": 13,
+        "marginal_ladder_score": 108,
+        "marginal_mean_lift": 0.07287158889769785,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 5,
+            "selected_rank": 1,
+            "selected_candidate": 2207
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 25,
+            "selected_candidate": 4263
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 29,
+            "selected_candidate": 11760
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 33,
+            "selected_candidate": 2123
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 37,
+            "selected_candidate": 781
+          }
+        ]
+      },
+      {
+        "candidate": 2765,
+        "names": [
+          "Broncos",
+          "Terry McLaurin",
+          "Saquon Barkley",
+          "John Bates",
+          "CeeDee Lamb",
+          "D'Andre Swift",
+          "Jayden Daniels",
+          "Drake London",
+          "Ladd McConkey"
+        ],
+        "individual_mean": 132.54954319705962,
+        "individual_p220": 0.00285,
+        "individual_p230": 0.00135,
+        "individual_p240": 0.00065,
+        "marginal_worlds_220": 23,
+        "marginal_worlds_230": 15,
+        "marginal_worlds_240": 11,
+        "marginal_ladder_score": 97,
+        "marginal_mean_lift": 0.07238250350951603,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 4,
+            "selected_rank": 66,
+            "selected_candidate": 5406
+          },
+          {
+            "shared_players": 3,
+            "selected_rank": 9,
+            "selected_candidate": 12413
+          },
+          {
+            "shared_players": 3,
+            "selected_rank": 51,
+            "selected_candidate": 7471
+          },
+          {
+            "shared_players": 3,
+            "selected_rank": 78,
+            "selected_candidate": 4868
+          },
+          {
+            "shared_players": 2,
+            "selected_rank": 2,
+            "selected_candidate": 3031
+          }
+        ]
+      },
+      {
+        "candidate": 5211,
+        "names": [
+          "49ers",
+          "Mark Andrews",
+          "Lamar Jackson",
+          "Devaughn Vele",
+          "Zay Flowers",
+          "Drake London",
+          "Bijan Robinson",
+          "Bucky Irving",
+          "Ted Hurst III"
+        ],
+        "individual_mean": 139.3902889968872,
+        "individual_p220": 0.0079,
+        "individual_p230": 0.00385,
+        "individual_p240": 0.00155,
+        "marginal_worlds_220": 16,
+        "marginal_worlds_230": 17,
+        "marginal_worlds_240": 11,
+        "marginal_ladder_score": 94,
+        "marginal_mean_lift": 0.05426868515013439,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 6,
+            "selected_rank": 42,
+            "selected_candidate": 7081
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 96,
+            "selected_candidate": 9531
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 10,
+            "selected_candidate": 10663
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 28,
+            "selected_candidate": 2872
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 29,
+            "selected_candidate": 11760
+          }
+        ]
+      },
+      {
+        "candidate": 2396,
+        "names": [
+          "Ravens",
+          "David Njoku",
+          "Justin Herbert",
+          "Justin Jefferson",
+          "Zay Flowers",
+          "Tre' Harris",
+          "Bijan Robinson",
+          "Adonai Mitchell",
+          "Ashton Jeanty"
+        ],
+        "individual_mean": 143.4821975418091,
+        "individual_p220": 0.0067,
+        "individual_p230": 0.00315,
+        "individual_p240": 0.0013,
+        "marginal_worlds_220": 18,
+        "marginal_worlds_230": 17,
+        "marginal_worlds_240": 10,
+        "marginal_ladder_score": 92,
+        "marginal_mean_lift": 0.05706670608520881,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 6,
+            "selected_rank": 97,
+            "selected_candidate": 322
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 32,
+            "selected_candidate": 4377
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 67,
+            "selected_candidate": 4272
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 8,
+            "selected_candidate": 1569
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 44,
+            "selected_candidate": 701
+          }
+        ]
+      },
+      {
+        "candidate": 2148,
+        "names": [
+          "Patriots",
+          "Kalif Raymond",
+          "Derrick Henry",
+          "Dalton Schultz",
+          "Justin Jefferson",
+          "Ja'Marr Chase",
+          "Xavier Hutchinson",
+          "C.J. Stroud",
+          "Bijan Robinson"
+        ],
+        "individual_mean": 141.48258167037963,
+        "individual_p220": 0.0058,
+        "individual_p230": 0.0024,
+        "individual_p240": 0.00115,
+        "marginal_worlds_220": 19,
+        "marginal_worlds_230": 10,
+        "marginal_worlds_240": 13,
+        "marginal_ladder_score": 91,
+        "marginal_mean_lift": 0.06956910934448501,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 5,
+            "selected_rank": 33,
+            "selected_candidate": 2123
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 63,
+            "selected_candidate": 3066
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 1,
+            "selected_candidate": 2207
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 4,
+            "selected_candidate": 3005
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 11,
+            "selected_candidate": 12464
+          }
+        ]
+      },
+      {
+        "candidate": 2824,
+        "names": [
+          "Bengals",
+          "Darren Waller",
+          "Chuba Hubbard",
+          "Garrett Wilson",
+          "Zay Flowers",
+          "Drake London",
+          "Bryce Young",
+          "Bijan Robinson",
+          "Tetairoa McMillan"
+        ],
+        "individual_mean": 138.86142908287047,
+        "individual_p220": 0.00725,
+        "individual_p230": 0.0034,
+        "individual_p240": 0.00155,
+        "marginal_worlds_220": 11,
+        "marginal_worlds_230": 13,
+        "marginal_worlds_240": 13,
+        "marginal_ladder_score": 89,
+        "marginal_mean_lift": 0.060268928527818844,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 5,
+            "selected_rank": 5,
+            "selected_candidate": 2812
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 7,
+            "selected_candidate": 10131
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 35,
+            "selected_candidate": 8436
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 42,
+            "selected_candidate": 7081
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 54,
+            "selected_candidate": 8581
+          }
+        ]
+      },
+      {
+        "candidate": 2402,
+        "names": [
+          "Texans",
+          "Christian McCaffrey",
+          "Dalton Schultz",
+          "Justin Herbert",
+          "Justin Jefferson",
+          "Tre' Harris",
+          "Ladd McConkey",
+          "Bijan Robinson",
+          "Michael Mayer"
+        ],
+        "individual_mean": 144.9072738845825,
+        "individual_p220": 0.0081,
+        "individual_p230": 0.0039,
+        "individual_p240": 0.002,
+        "marginal_worlds_220": 17,
+        "marginal_worlds_230": 13,
+        "marginal_worlds_240": 11,
+        "marginal_ladder_score": 87,
+        "marginal_mean_lift": 0.04728794174192785,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 6,
+            "selected_rank": 8,
+            "selected_candidate": 1569
+          },
+          {
+            "shared_players": 6,
+            "selected_rank": 46,
+            "selected_candidate": 1819
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 30,
+            "selected_candidate": 12301
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 2,
+            "selected_candidate": 3031
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 13,
+            "selected_candidate": 5864
+          }
+        ]
+      },
+      {
+        "candidate": 7399,
+        "names": [
+          "Broncos",
+          "Jordan Love",
+          "Rico Dowdle",
+          "Christian Watson",
+          "Breece Hall",
+          "Tucker Kraft",
+          "Ladd McConkey",
+          "Bijan Robinson",
+          "Matthew Golden"
+        ],
+        "individual_mean": 134.14938433761597,
+        "individual_p220": 0.0061,
+        "individual_p230": 0.0029,
+        "individual_p240": 0.0011,
+        "marginal_worlds_220": 29,
+        "marginal_worlds_230": 9,
+        "marginal_worlds_240": 10,
+        "marginal_ladder_score": 87,
+        "marginal_mean_lift": 0.06718834762571646,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 5,
+            "selected_rank": 12,
+            "selected_candidate": 4170
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 38,
+            "selected_candidate": 6447
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 61,
+            "selected_candidate": 5816
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 53,
+            "selected_candidate": 8955
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 89,
+            "selected_candidate": 3532
+          }
+        ]
+      },
+      {
+        "candidate": 9880,
+        "names": [
+          "Buccaneers",
+          "Geno Smith",
+          "Justin Jefferson",
+          "Garrett Wilson",
+          "Drake London",
+          "Bijan Robinson",
+          "Bucky Irving",
+          "Matthew Golden",
+          "Mason Taylor"
+        ],
+        "individual_mean": 141.68924088516235,
+        "individual_p220": 0.00615,
+        "individual_p230": 0.00235,
+        "individual_p240": 0.00065,
+        "marginal_worlds_220": 19,
+        "marginal_worlds_230": 15,
+        "marginal_worlds_240": 9,
+        "marginal_ladder_score": 85,
+        "marginal_mean_lift": 0.07317032089233066,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 5,
+            "selected_rank": 27,
+            "selected_candidate": 5137
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 7,
+            "selected_candidate": 10131
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 53,
+            "selected_candidate": 8955
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 69,
+            "selected_candidate": 2725
+          },
+          {
+            "shared_players": 3,
+            "selected_rank": 5,
+            "selected_candidate": 2812
+          }
+        ]
+      },
+      {
+        "candidate": 680,
+        "names": [
+          "49ers",
+          "Carson Wentz",
+          "Kalif Raymond",
+          "Derrick Henry",
+          "T.J. Hockenson",
+          "Justin Jefferson",
+          "Zay Flowers",
+          "Bijan Robinson",
+          "Caleb Douglas"
+        ],
+        "individual_mean": 141.05432795295715,
+        "individual_p220": 0.0066,
+        "individual_p230": 0.0032,
+        "individual_p240": 0.0012,
+        "marginal_worlds_220": 20,
+        "marginal_worlds_230": 16,
+        "marginal_worlds_240": 8,
+        "marginal_ladder_score": 84,
+        "marginal_mean_lift": 0.055439604949953036,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 6,
+            "selected_rank": 25,
+            "selected_candidate": 4263
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 81,
+            "selected_candidate": 896
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 1,
+            "selected_candidate": 2207
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 31,
+            "selected_candidate": 11181
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 37,
+            "selected_candidate": 781
+          }
+        ]
+      }
+    ],
+    "mean_lift": [
+      {
+        "candidate": 4912,
+        "names": [
+          "Patriots",
+          "Chuba Hubbard",
+          "Justin Jefferson",
+          "Drake London",
+          "Caleb Williams",
+          "Bucky Irving",
+          "Luther Burden III",
+          "Colston Loveland",
+          "Caleb Douglas"
+        ],
+        "individual_mean": 137.80455388412474,
+        "individual_p220": 0.00495,
+        "individual_p230": 0.0018,
+        "individual_p240": 0.0009,
+        "marginal_worlds_220": 24,
+        "marginal_worlds_230": 10,
+        "marginal_worlds_240": 7,
+        "marginal_ladder_score": 72,
+        "marginal_mean_lift": 0.07484286651609295,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 5,
+            "selected_rank": 14,
+            "selected_candidate": 3213
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 18,
+            "selected_candidate": 11565
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 60,
+            "selected_candidate": 8140
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 83,
+            "selected_candidate": 9317
+          },
+          {
+            "shared_players": 3,
+            "selected_rank": 1,
+            "selected_candidate": 2207
+          }
+        ]
+      },
+      {
+        "candidate": 7839,
+        "names": [
+          "Patriots",
+          "Justin Jefferson",
+          "Breece Hall",
+          "Quentin Johnston",
+          "Michael Mayer",
+          "Caleb Williams",
+          "Luther Burden III",
+          "Colston Loveland",
+          "Ashton Jeanty"
+        ],
+        "individual_mean": 136.1279605911255,
+        "individual_p220": 0.0033,
+        "individual_p230": 0.00155,
+        "individual_p240": 0.0009,
+        "marginal_worlds_220": 11,
+        "marginal_worlds_230": 10,
+        "marginal_worlds_240": 7,
+        "marginal_ladder_score": 59,
+        "marginal_mean_lift": 0.07477899703980029,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 4,
+            "selected_rank": 2,
+            "selected_candidate": 3031
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 14,
+            "selected_candidate": 3213
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 44,
+            "selected_candidate": 701
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 53,
+            "selected_candidate": 8955
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 83,
+            "selected_candidate": 9317
+          }
+        ]
+      },
+      {
+        "candidate": 6153,
+        "names": [
+          "49ers",
+          "Derrick Henry",
+          "Evan Engram",
+          "Jordan Love",
+          "Christian Watson",
+          "Jayden Reed",
+          "Garrett Wilson",
+          "Dontayvion Wicks",
+          "Bijan Robinson"
+        ],
+        "individual_mean": 129.66035963191987,
+        "individual_p220": 0.00305,
+        "individual_p230": 0.00125,
+        "individual_p240": 0.0006,
+        "marginal_worlds_220": 13,
+        "marginal_worlds_230": 6,
+        "marginal_worlds_240": 3,
+        "marginal_ladder_score": 37,
+        "marginal_mean_lift": 0.07412074737547414,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 4,
+            "selected_rank": 12,
+            "selected_candidate": 4170
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 89,
+            "selected_candidate": 3532
+          },
+          {
+            "shared_players": 3,
+            "selected_rank": 7,
+            "selected_candidate": 10131
+          },
+          {
+            "shared_players": 3,
+            "selected_rank": 21,
+            "selected_candidate": 4395
+          },
+          {
+            "shared_players": 3,
+            "selected_rank": 34,
+            "selected_candidate": 8921
+          }
+        ]
+      },
+      {
+        "candidate": 5234,
+        "names": [
+          "Eagles",
+          "Aaron Jones Sr.",
+          "Justin Jefferson",
+          "Pat Freiermuth",
+          "Breece Hall",
+          "Garrett Wilson",
+          "Caleb Williams",
+          "Luther Burden III",
+          "Colston Loveland"
+        ],
+        "individual_mean": 133.83172530059815,
+        "individual_p220": 0.0025,
+        "individual_p230": 0.00115,
+        "individual_p240": 0.0004,
+        "marginal_worlds_220": 11,
+        "marginal_worlds_230": 6,
+        "marginal_worlds_240": 2,
+        "marginal_ladder_score": 31,
+        "marginal_mean_lift": 0.0738891304015965,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 4,
+            "selected_rank": 14,
+            "selected_candidate": 3213
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 83,
+            "selected_candidate": 9317
+          },
+          {
+            "shared_players": 3,
+            "selected_rank": 1,
+            "selected_candidate": 2207
+          },
+          {
+            "shared_players": 3,
+            "selected_rank": 27,
+            "selected_candidate": 5137
+          },
+          {
+            "shared_players": 3,
+            "selected_rank": 49,
+            "selected_candidate": 2567
+          }
+        ]
+      },
+      {
+        "candidate": 9880,
+        "names": [
+          "Buccaneers",
+          "Geno Smith",
+          "Justin Jefferson",
+          "Garrett Wilson",
+          "Drake London",
+          "Bijan Robinson",
+          "Bucky Irving",
+          "Matthew Golden",
+          "Mason Taylor"
+        ],
+        "individual_mean": 141.68924088516235,
+        "individual_p220": 0.00615,
+        "individual_p230": 0.00235,
+        "individual_p240": 0.00065,
+        "marginal_worlds_220": 19,
+        "marginal_worlds_230": 15,
+        "marginal_worlds_240": 9,
+        "marginal_ladder_score": 85,
+        "marginal_mean_lift": 0.07317032089233066,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 5,
+            "selected_rank": 27,
+            "selected_candidate": 5137
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 7,
+            "selected_candidate": 10131
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 53,
+            "selected_candidate": 8955
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 69,
+            "selected_candidate": 2725
+          },
+          {
+            "shared_players": 3,
+            "selected_rank": 5,
+            "selected_candidate": 2812
+          }
+        ]
+      },
+      {
+        "candidate": 1334,
+        "names": [
+          "Chargers",
+          "Chris Moore",
+          "Dalton Schultz",
+          "Lamar Jackson",
+          "Juwan Johnson",
+          "Justin Jefferson",
+          "Javonte Williams",
+          "Zay Flowers",
+          "Bijan Robinson"
+        ],
+        "individual_mean": 144.87660447235106,
+        "individual_p220": 0.0084,
+        "individual_p230": 0.00365,
+        "individual_p240": 0.0018,
+        "marginal_worlds_220": 24,
+        "marginal_worlds_230": 16,
+        "marginal_worlds_240": 13,
+        "marginal_ladder_score": 108,
+        "marginal_mean_lift": 0.07287158889769785,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 5,
+            "selected_rank": 1,
+            "selected_candidate": 2207
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 25,
+            "selected_candidate": 4263
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 29,
+            "selected_candidate": 11760
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 33,
+            "selected_candidate": 2123
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 37,
+            "selected_candidate": 781
+          }
+        ]
+      },
+      {
+        "candidate": 2765,
+        "names": [
+          "Broncos",
+          "Terry McLaurin",
+          "Saquon Barkley",
+          "John Bates",
+          "CeeDee Lamb",
+          "D'Andre Swift",
+          "Jayden Daniels",
+          "Drake London",
+          "Ladd McConkey"
+        ],
+        "individual_mean": 132.54954319705962,
+        "individual_p220": 0.00285,
+        "individual_p230": 0.00135,
+        "individual_p240": 0.00065,
+        "marginal_worlds_220": 23,
+        "marginal_worlds_230": 15,
+        "marginal_worlds_240": 11,
+        "marginal_ladder_score": 97,
+        "marginal_mean_lift": 0.07238250350951603,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 4,
+            "selected_rank": 66,
+            "selected_candidate": 5406
+          },
+          {
+            "shared_players": 3,
+            "selected_rank": 9,
+            "selected_candidate": 12413
+          },
+          {
+            "shared_players": 3,
+            "selected_rank": 51,
+            "selected_candidate": 7471
+          },
+          {
+            "shared_players": 3,
+            "selected_rank": 78,
+            "selected_candidate": 4868
+          },
+          {
+            "shared_players": 2,
+            "selected_rank": 2,
+            "selected_candidate": 3031
+          }
+        ]
+      },
+      {
+        "candidate": 7781,
+        "names": [
+          "Broncos",
+          "David Njoku",
+          "Jordan Love",
+          "Christian Watson",
+          "Justin Jefferson",
+          "Javonte Williams",
+          "Chase Brown",
+          "Breece Hall",
+          "Matthew Golden"
+        ],
+        "individual_mean": 136.26897630786897,
+        "individual_p220": 0.00475,
+        "individual_p230": 0.0019,
+        "individual_p240": 0.0009,
+        "marginal_worlds_220": 19,
+        "marginal_worlds_230": 11,
+        "marginal_worlds_240": 8,
+        "marginal_ladder_score": 73,
+        "marginal_mean_lift": 0.07222337646484789,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 5,
+            "selected_rank": 12,
+            "selected_candidate": 4170
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 21,
+            "selected_candidate": 4395
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 38,
+            "selected_candidate": 6447
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 53,
+            "selected_candidate": 8955
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 69,
+            "selected_candidate": 2725
+          }
+        ]
+      },
+      {
+        "candidate": 7619,
+        "names": [
+          "Eagles",
+          "Jordan Love",
+          "Christian Watson",
+          "Jayden Reed",
+          "Garrett Wilson",
+          "Rhamondre Stevenson",
+          "Ladd McConkey",
+          "De'Von Achane",
+          "Colston Loveland"
+        ],
+        "individual_mean": 131.53912688999176,
+        "individual_p220": 0.00265,
+        "individual_p230": 0.0013,
+        "individual_p240": 0.0005,
+        "marginal_worlds_220": 14,
+        "marginal_worlds_230": 6,
+        "marginal_worlds_240": 3,
+        "marginal_ladder_score": 38,
+        "marginal_mean_lift": 0.0721546562194817,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 3,
+            "selected_rank": 12,
+            "selected_candidate": 4170
+          },
+          {
+            "shared_players": 3,
+            "selected_rank": 21,
+            "selected_candidate": 4395
+          },
+          {
+            "shared_players": 3,
+            "selected_rank": 50,
+            "selected_candidate": 12205
+          },
+          {
+            "shared_players": 3,
+            "selected_rank": 60,
+            "selected_candidate": 8140
+          },
+          {
+            "shared_players": 3,
+            "selected_rank": 61,
+            "selected_candidate": 5816
+          }
+        ]
+      },
+      {
+        "candidate": 5222,
+        "names": [
+          "Titans",
+          "Demarcus Robinson",
+          "George Kittle",
+          "Christian McCaffrey",
+          "Justin Jefferson",
+          "Brock Purdy",
+          "Zay Flowers",
+          "Kayshon Boutte",
+          "De'Von Achane"
+        ],
+        "individual_mean": 133.92963404960634,
+        "individual_p220": 0.0028,
+        "individual_p230": 0.00125,
+        "individual_p240": 0.0003,
+        "marginal_worlds_220": 22,
+        "marginal_worlds_230": 10,
+        "marginal_worlds_240": 3,
+        "marginal_ladder_score": 54,
+        "marginal_mean_lift": 0.07195038604734805,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 5,
+            "selected_rank": 55,
+            "selected_candidate": 8946
+          },
+          {
+            "shared_players": 3,
+            "selected_rank": 1,
+            "selected_candidate": 2207
+          },
+          {
+            "shared_players": 3,
+            "selected_rank": 14,
+            "selected_candidate": 3213
+          },
+          {
+            "shared_players": 3,
+            "selected_rank": 18,
+            "selected_candidate": 11565
+          },
+          {
+            "shared_players": 3,
+            "selected_rank": 37,
+            "selected_candidate": 781
+          }
+        ]
+      }
+    ]
+  },
+  "top10_tail_ladder_swap_diagnostics": {
+    "1334": {
+      "candidate": {
+        "candidate": 1334,
+        "names": [
+          "Chargers",
+          "Chris Moore",
+          "Dalton Schultz",
+          "Lamar Jackson",
+          "Juwan Johnson",
+          "Justin Jefferson",
+          "Javonte Williams",
+          "Zay Flowers",
+          "Bijan Robinson"
+        ],
+        "individual_mean": 144.87660447235106,
+        "individual_p220": 0.0084,
+        "individual_p230": 0.00365,
+        "individual_p240": 0.0018,
+        "marginal_worlds_220": 24,
+        "marginal_worlds_230": 16,
+        "marginal_worlds_240": 13,
+        "marginal_ladder_score": 108,
+        "marginal_mean_lift": 0.07287158889769785,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 5,
+            "selected_rank": 1,
+            "selected_candidate": 2207
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 25,
+            "selected_candidate": 4263
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 29,
+            "selected_candidate": 11760
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 33,
+            "selected_candidate": 2123
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 37,
+            "selected_candidate": 781
+          }
+        ]
+      },
+      "best_single_row_replacement": {
+        "max_mean": {
+          "value": 203.45323790359498,
+          "delta_vs_control": 0.0024417388916049276,
+          "displaced_rank": 8,
+          "displaced_candidate": 1569,
+          "displaced_names": [
+            "49ers",
+            "Christian McCaffrey",
+            "Dalton Schultz",
+            "David Njoku",
+            "Justin Herbert",
+            "Justin Jefferson",
+            "Ladd McConkey",
+            "Bijan Robinson",
+            "Jack Bech"
+          ]
+        },
+        "max_p220": {
+          "value": 0.22335,
+          "delta_vs_control": 0.0007999999999999952,
+          "displaced_rank": 80,
+          "displaced_candidate": 7141,
+          "displaced_names": [
+            "49ers",
+            "Aaron Rodgers",
+            "Michael Pittman Jr.",
+            "DK Metcalf",
+            "Trey McBride",
+            "Rhamondre Stevenson",
+            "Jaylen Warren",
+            "Zay Flowers",
+            "Ladd McConkey"
+          ]
+        },
+        "max_p230": {
+          "value": 0.1218,
+          "delta_vs_control": 0.0006000000000000033,
+          "displaced_rank": 72,
+          "displaced_candidate": 9628,
+          "displaced_names": [
+            "49ers",
+            "Hunter Henry",
+            "DK Metcalf",
+            "Justin Jefferson",
+            "Javonte Williams",
+            "Rhamondre Stevenson",
+            "DeMario Douglas",
+            "Drake Maye",
+            "Ashton Jeanty"
+          ]
+        },
+        "max_p240": {
+          "value": 0.0634,
+          "delta_vs_control": 0.0006000000000000033,
+          "displaced_rank": 41,
+          "displaced_candidate": 7256,
+          "displaced_names": [
+            "49ers",
+            "Jacoby Brissett",
+            "Cooper Kupp",
+            "Kendrick Bourne",
+            "Justin Jefferson",
+            "Trey McBride",
+            "Michael Wilson",
+            "Ashton Jeanty",
+            "Jeremiyah Love"
+          ]
+        }
+      }
+    },
+    "2765": {
+      "candidate": {
+        "candidate": 2765,
+        "names": [
+          "Broncos",
+          "Terry McLaurin",
+          "Saquon Barkley",
+          "John Bates",
+          "CeeDee Lamb",
+          "D'Andre Swift",
+          "Jayden Daniels",
+          "Drake London",
+          "Ladd McConkey"
+        ],
+        "individual_mean": 132.54954319705962,
+        "individual_p220": 0.00285,
+        "individual_p230": 0.00135,
+        "individual_p240": 0.00065,
+        "marginal_worlds_220": 23,
+        "marginal_worlds_230": 15,
+        "marginal_worlds_240": 11,
+        "marginal_ladder_score": 97,
+        "marginal_mean_lift": 0.07238250350951603,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 4,
+            "selected_rank": 66,
+            "selected_candidate": 5406
+          },
+          {
+            "shared_players": 3,
+            "selected_rank": 9,
+            "selected_candidate": 12413
+          },
+          {
+            "shared_players": 3,
+            "selected_rank": 51,
+            "selected_candidate": 7471
+          },
+          {
+            "shared_players": 3,
+            "selected_rank": 78,
+            "selected_candidate": 4868
+          },
+          {
+            "shared_players": 2,
+            "selected_rank": 2,
+            "selected_candidate": 3031
+          }
+        ]
+      },
+      "best_single_row_replacement": {
+        "max_mean": {
+          "value": 203.45387581710816,
+          "delta_vs_control": 0.003079652404778699,
+          "displaced_rank": 8,
+          "displaced_candidate": 1569,
+          "displaced_names": [
+            "49ers",
+            "Christian McCaffrey",
+            "Dalton Schultz",
+            "David Njoku",
+            "Justin Herbert",
+            "Justin Jefferson",
+            "Ladd McConkey",
+            "Bijan Robinson",
+            "Jack Bech"
+          ]
+        },
+        "max_p220": {
+          "value": 0.2233,
+          "delta_vs_control": 0.0007500000000000007,
+          "displaced_rank": 80,
+          "displaced_candidate": 7141,
+          "displaced_names": [
+            "49ers",
+            "Aaron Rodgers",
+            "Michael Pittman Jr.",
+            "DK Metcalf",
+            "Trey McBride",
+            "Rhamondre Stevenson",
+            "Jaylen Warren",
+            "Zay Flowers",
+            "Ladd McConkey"
+          ]
+        },
+        "max_p230": {
+          "value": 0.12175,
+          "delta_vs_control": 0.0005499999999999949,
+          "displaced_rank": 72,
+          "displaced_candidate": 9628,
+          "displaced_names": [
+            "49ers",
+            "Hunter Henry",
+            "DK Metcalf",
+            "Justin Jefferson",
+            "Javonte Williams",
+            "Rhamondre Stevenson",
+            "DeMario Douglas",
+            "Drake Maye",
+            "Ashton Jeanty"
+          ]
+        },
+        "max_p240": {
+          "value": 0.0633,
+          "delta_vs_control": 0.0005000000000000004,
+          "displaced_rank": 41,
+          "displaced_candidate": 7256,
+          "displaced_names": [
+            "49ers",
+            "Jacoby Brissett",
+            "Cooper Kupp",
+            "Kendrick Bourne",
+            "Justin Jefferson",
+            "Trey McBride",
+            "Michael Wilson",
+            "Ashton Jeanty",
+            "Jeremiyah Love"
+          ]
+        }
+      }
+    },
+    "5211": {
+      "candidate": {
+        "candidate": 5211,
+        "names": [
+          "49ers",
+          "Mark Andrews",
+          "Lamar Jackson",
+          "Devaughn Vele",
+          "Zay Flowers",
+          "Drake London",
+          "Bijan Robinson",
+          "Bucky Irving",
+          "Ted Hurst III"
+        ],
+        "individual_mean": 139.3902889968872,
+        "individual_p220": 0.0079,
+        "individual_p230": 0.00385,
+        "individual_p240": 0.00155,
+        "marginal_worlds_220": 16,
+        "marginal_worlds_230": 17,
+        "marginal_worlds_240": 11,
+        "marginal_ladder_score": 94,
+        "marginal_mean_lift": 0.05426868515013439,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 6,
+            "selected_rank": 42,
+            "selected_candidate": 7081
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 96,
+            "selected_candidate": 9531
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 10,
+            "selected_candidate": 10663
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 28,
+            "selected_candidate": 2872
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 29,
+            "selected_candidate": 11760
+          }
+        ]
+      },
+      "best_single_row_replacement": {
+        "max_mean": {
+          "value": 203.43784375686644,
+          "delta_vs_control": -0.012952407836934299,
+          "displaced_rank": 96,
+          "displaced_candidate": 9531,
+          "displaced_names": [
+            "Titans",
+            "Mark Andrews",
+            "Lamar Jackson",
+            "D'Andre Swift",
+            "Rashod Bateman",
+            "Devaughn Vele",
+            "Zay Flowers",
+            "Ladd McConkey",
+            "Bijan Robinson"
+          ]
+        },
+        "max_p220": {
+          "value": 0.22295,
+          "delta_vs_control": 0.00040000000000001146,
+          "displaced_rank": 80,
+          "displaced_candidate": 7141,
+          "displaced_names": [
+            "49ers",
+            "Aaron Rodgers",
+            "Michael Pittman Jr.",
+            "DK Metcalf",
+            "Trey McBride",
+            "Rhamondre Stevenson",
+            "Jaylen Warren",
+            "Zay Flowers",
+            "Ladd McConkey"
+          ]
+        },
+        "max_p230": {
+          "value": 0.12185,
+          "delta_vs_control": 0.0006499999999999978,
+          "displaced_rank": 72,
+          "displaced_candidate": 9628,
+          "displaced_names": [
+            "49ers",
+            "Hunter Henry",
+            "DK Metcalf",
+            "Justin Jefferson",
+            "Javonte Williams",
+            "Rhamondre Stevenson",
+            "DeMario Douglas",
+            "Drake Maye",
+            "Ashton Jeanty"
+          ]
+        },
+        "max_p240": {
+          "value": 0.0633,
+          "delta_vs_control": 0.0005000000000000004,
+          "displaced_rank": 41,
+          "displaced_candidate": 7256,
+          "displaced_names": [
+            "49ers",
+            "Jacoby Brissett",
+            "Cooper Kupp",
+            "Kendrick Bourne",
+            "Justin Jefferson",
+            "Trey McBride",
+            "Michael Wilson",
+            "Ashton Jeanty",
+            "Jeremiyah Love"
+          ]
+        }
+      }
+    },
+    "2396": {
+      "candidate": {
+        "candidate": 2396,
+        "names": [
+          "Ravens",
+          "David Njoku",
+          "Justin Herbert",
+          "Justin Jefferson",
+          "Zay Flowers",
+          "Tre' Harris",
+          "Bijan Robinson",
+          "Adonai Mitchell",
+          "Ashton Jeanty"
+        ],
+        "individual_mean": 143.4821975418091,
+        "individual_p220": 0.0067,
+        "individual_p230": 0.00315,
+        "individual_p240": 0.0013,
+        "marginal_worlds_220": 18,
+        "marginal_worlds_230": 17,
+        "marginal_worlds_240": 10,
+        "marginal_ladder_score": 92,
+        "marginal_mean_lift": 0.05706670608520881,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 6,
+            "selected_rank": 97,
+            "selected_candidate": 322
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 32,
+            "selected_candidate": 4377
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 67,
+            "selected_candidate": 4272
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 8,
+            "selected_candidate": 1569
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 44,
+            "selected_candidate": 701
+          }
+        ]
+      },
+      "best_single_row_replacement": {
+        "max_mean": {
+          "value": 203.44738438796998,
+          "delta_vs_control": -0.003411776733400984,
+          "displaced_rank": 97,
+          "displaced_candidate": 322,
+          "displaced_names": [
+            "49ers",
+            "David Njoku",
+            "Justin Herbert",
+            "Justin Jefferson",
+            "Javonte Williams",
+            "Zay Flowers",
+            "Tre' Harris",
+            "Bijan Robinson",
+            "Jack Bech"
+          ]
+        },
+        "max_p220": {
+          "value": 0.22305,
+          "delta_vs_control": 0.0005000000000000004,
+          "displaced_rank": 80,
+          "displaced_candidate": 7141,
+          "displaced_names": [
+            "49ers",
+            "Aaron Rodgers",
+            "Michael Pittman Jr.",
+            "DK Metcalf",
+            "Trey McBride",
+            "Rhamondre Stevenson",
+            "Jaylen Warren",
+            "Zay Flowers",
+            "Ladd McConkey"
+          ]
+        },
+        "max_p230": {
+          "value": 0.12185,
+          "delta_vs_control": 0.0006499999999999978,
+          "displaced_rank": 72,
+          "displaced_candidate": 9628,
+          "displaced_names": [
+            "49ers",
+            "Hunter Henry",
+            "DK Metcalf",
+            "Justin Jefferson",
+            "Javonte Williams",
+            "Rhamondre Stevenson",
+            "DeMario Douglas",
+            "Drake Maye",
+            "Ashton Jeanty"
+          ]
+        },
+        "max_p240": {
+          "value": 0.06325,
+          "delta_vs_control": 0.00045000000000000595,
+          "displaced_rank": 41,
+          "displaced_candidate": 7256,
+          "displaced_names": [
+            "49ers",
+            "Jacoby Brissett",
+            "Cooper Kupp",
+            "Kendrick Bourne",
+            "Justin Jefferson",
+            "Trey McBride",
+            "Michael Wilson",
+            "Ashton Jeanty",
+            "Jeremiyah Love"
+          ]
+        }
+      }
+    },
+    "2148": {
+      "candidate": {
+        "candidate": 2148,
+        "names": [
+          "Patriots",
+          "Kalif Raymond",
+          "Derrick Henry",
+          "Dalton Schultz",
+          "Justin Jefferson",
+          "Ja'Marr Chase",
+          "Xavier Hutchinson",
+          "C.J. Stroud",
+          "Bijan Robinson"
+        ],
+        "individual_mean": 141.48258167037963,
+        "individual_p220": 0.0058,
+        "individual_p230": 0.0024,
+        "individual_p240": 0.00115,
+        "marginal_worlds_220": 19,
+        "marginal_worlds_230": 10,
+        "marginal_worlds_240": 13,
+        "marginal_ladder_score": 91,
+        "marginal_mean_lift": 0.06956910934448501,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 5,
+            "selected_rank": 33,
+            "selected_candidate": 2123
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 63,
+            "selected_candidate": 3066
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 1,
+            "selected_candidate": 2207
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 4,
+            "selected_candidate": 3005
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 11,
+            "selected_candidate": 12464
+          }
+        ]
+      },
+      "best_single_row_replacement": {
+        "max_mean": {
+          "value": 203.45111454696655,
+          "delta_vs_control": 0.00031838226317404406,
+          "displaced_rank": 8,
+          "displaced_candidate": 1569,
+          "displaced_names": [
+            "49ers",
+            "Christian McCaffrey",
+            "Dalton Schultz",
+            "David Njoku",
+            "Justin Herbert",
+            "Justin Jefferson",
+            "Ladd McConkey",
+            "Bijan Robinson",
+            "Jack Bech"
+          ]
+        },
+        "max_p220": {
+          "value": 0.2231,
+          "delta_vs_control": 0.0005499999999999949,
+          "displaced_rank": 80,
+          "displaced_candidate": 7141,
+          "displaced_names": [
+            "49ers",
+            "Aaron Rodgers",
+            "Michael Pittman Jr.",
+            "DK Metcalf",
+            "Trey McBride",
+            "Rhamondre Stevenson",
+            "Jaylen Warren",
+            "Zay Flowers",
+            "Ladd McConkey"
+          ]
+        },
+        "max_p230": {
+          "value": 0.1215,
+          "delta_vs_control": 0.0002999999999999947,
+          "displaced_rank": 72,
+          "displaced_candidate": 9628,
+          "displaced_names": [
+            "49ers",
+            "Hunter Henry",
+            "DK Metcalf",
+            "Justin Jefferson",
+            "Javonte Williams",
+            "Rhamondre Stevenson",
+            "DeMario Douglas",
+            "Drake Maye",
+            "Ashton Jeanty"
+          ]
+        },
+        "max_p240": {
+          "value": 0.0634,
+          "delta_vs_control": 0.0006000000000000033,
+          "displaced_rank": 41,
+          "displaced_candidate": 7256,
+          "displaced_names": [
+            "49ers",
+            "Jacoby Brissett",
+            "Cooper Kupp",
+            "Kendrick Bourne",
+            "Justin Jefferson",
+            "Trey McBride",
+            "Michael Wilson",
+            "Ashton Jeanty",
+            "Jeremiyah Love"
+          ]
+        }
+      }
+    },
+    "2824": {
+      "candidate": {
+        "candidate": 2824,
+        "names": [
+          "Bengals",
+          "Darren Waller",
+          "Chuba Hubbard",
+          "Garrett Wilson",
+          "Zay Flowers",
+          "Drake London",
+          "Bryce Young",
+          "Bijan Robinson",
+          "Tetairoa McMillan"
+        ],
+        "individual_mean": 138.86142908287047,
+        "individual_p220": 0.00725,
+        "individual_p230": 0.0034,
+        "individual_p240": 0.00155,
+        "marginal_worlds_220": 11,
+        "marginal_worlds_230": 13,
+        "marginal_worlds_240": 13,
+        "marginal_ladder_score": 89,
+        "marginal_mean_lift": 0.060268928527818844,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 5,
+            "selected_rank": 5,
+            "selected_candidate": 2812
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 7,
+            "selected_candidate": 10131
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 35,
+            "selected_candidate": 8436
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 42,
+            "selected_candidate": 7081
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 54,
+            "selected_candidate": 8581
+          }
+        ]
+      },
+      "best_single_row_replacement": {
+        "max_mean": {
+          "value": 203.4406352432251,
+          "delta_vs_control": -0.010160921478274076,
+          "displaced_rank": 8,
+          "displaced_candidate": 1569,
+          "displaced_names": [
+            "49ers",
+            "Christian McCaffrey",
+            "Dalton Schultz",
+            "David Njoku",
+            "Justin Herbert",
+            "Justin Jefferson",
+            "Ladd McConkey",
+            "Bijan Robinson",
+            "Jack Bech"
+          ]
+        },
+        "max_p220": {
+          "value": 0.2227,
+          "delta_vs_control": 0.00015000000000001124,
+          "displaced_rank": 80,
+          "displaced_candidate": 7141,
+          "displaced_names": [
+            "49ers",
+            "Aaron Rodgers",
+            "Michael Pittman Jr.",
+            "DK Metcalf",
+            "Trey McBride",
+            "Rhamondre Stevenson",
+            "Jaylen Warren",
+            "Zay Flowers",
+            "Ladd McConkey"
+          ]
+        },
+        "max_p230": {
+          "value": 0.12165,
+          "delta_vs_control": 0.0004499999999999921,
+          "displaced_rank": 72,
+          "displaced_candidate": 9628,
+          "displaced_names": [
+            "49ers",
+            "Hunter Henry",
+            "DK Metcalf",
+            "Justin Jefferson",
+            "Javonte Williams",
+            "Rhamondre Stevenson",
+            "DeMario Douglas",
+            "Drake Maye",
+            "Ashton Jeanty"
+          ]
+        },
+        "max_p240": {
+          "value": 0.0634,
+          "delta_vs_control": 0.0006000000000000033,
+          "displaced_rank": 41,
+          "displaced_candidate": 7256,
+          "displaced_names": [
+            "49ers",
+            "Jacoby Brissett",
+            "Cooper Kupp",
+            "Kendrick Bourne",
+            "Justin Jefferson",
+            "Trey McBride",
+            "Michael Wilson",
+            "Ashton Jeanty",
+            "Jeremiyah Love"
+          ]
+        }
+      }
+    },
+    "2402": {
+      "candidate": {
+        "candidate": 2402,
+        "names": [
+          "Texans",
+          "Christian McCaffrey",
+          "Dalton Schultz",
+          "Justin Herbert",
+          "Justin Jefferson",
+          "Tre' Harris",
+          "Ladd McConkey",
+          "Bijan Robinson",
+          "Michael Mayer"
+        ],
+        "individual_mean": 144.9072738845825,
+        "individual_p220": 0.0081,
+        "individual_p230": 0.0039,
+        "individual_p240": 0.002,
+        "marginal_worlds_220": 17,
+        "marginal_worlds_230": 13,
+        "marginal_worlds_240": 11,
+        "marginal_ladder_score": 87,
+        "marginal_mean_lift": 0.04728794174192785,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 6,
+            "selected_rank": 8,
+            "selected_candidate": 1569
+          },
+          {
+            "shared_players": 6,
+            "selected_rank": 46,
+            "selected_candidate": 1819
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 30,
+            "selected_candidate": 12301
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 2,
+            "selected_candidate": 3031
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 13,
+            "selected_candidate": 5864
+          }
+        ]
+      },
+      "best_single_row_replacement": {
+        "max_mean": {
+          "value": 203.44045588302612,
+          "delta_vs_control": -0.010340281677258645,
+          "displaced_rank": 8,
+          "displaced_candidate": 1569,
+          "displaced_names": [
+            "49ers",
+            "Christian McCaffrey",
+            "Dalton Schultz",
+            "David Njoku",
+            "Justin Herbert",
+            "Justin Jefferson",
+            "Ladd McConkey",
+            "Bijan Robinson",
+            "Jack Bech"
+          ]
+        },
+        "max_p220": {
+          "value": 0.223,
+          "delta_vs_control": 0.00045000000000000595,
+          "displaced_rank": 80,
+          "displaced_candidate": 7141,
+          "displaced_names": [
+            "49ers",
+            "Aaron Rodgers",
+            "Michael Pittman Jr.",
+            "DK Metcalf",
+            "Trey McBride",
+            "Rhamondre Stevenson",
+            "Jaylen Warren",
+            "Zay Flowers",
+            "Ladd McConkey"
+          ]
+        },
+        "max_p230": {
+          "value": 0.12165,
+          "delta_vs_control": 0.0004499999999999921,
+          "displaced_rank": 72,
+          "displaced_candidate": 9628,
+          "displaced_names": [
+            "49ers",
+            "Hunter Henry",
+            "DK Metcalf",
+            "Justin Jefferson",
+            "Javonte Williams",
+            "Rhamondre Stevenson",
+            "DeMario Douglas",
+            "Drake Maye",
+            "Ashton Jeanty"
+          ]
+        },
+        "max_p240": {
+          "value": 0.0633,
+          "delta_vs_control": 0.0005000000000000004,
+          "displaced_rank": 41,
+          "displaced_candidate": 7256,
+          "displaced_names": [
+            "49ers",
+            "Jacoby Brissett",
+            "Cooper Kupp",
+            "Kendrick Bourne",
+            "Justin Jefferson",
+            "Trey McBride",
+            "Michael Wilson",
+            "Ashton Jeanty",
+            "Jeremiyah Love"
+          ]
+        }
+      }
+    },
+    "7399": {
+      "candidate": {
+        "candidate": 7399,
+        "names": [
+          "Broncos",
+          "Jordan Love",
+          "Rico Dowdle",
+          "Christian Watson",
+          "Breece Hall",
+          "Tucker Kraft",
+          "Ladd McConkey",
+          "Bijan Robinson",
+          "Matthew Golden"
+        ],
+        "individual_mean": 134.14938433761597,
+        "individual_p220": 0.0061,
+        "individual_p230": 0.0029,
+        "individual_p240": 0.0011,
+        "marginal_worlds_220": 29,
+        "marginal_worlds_230": 9,
+        "marginal_worlds_240": 10,
+        "marginal_ladder_score": 87,
+        "marginal_mean_lift": 0.06718834762571646,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 5,
+            "selected_rank": 12,
+            "selected_candidate": 4170
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 38,
+            "selected_candidate": 6447
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 61,
+            "selected_candidate": 5816
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 53,
+            "selected_candidate": 8955
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 89,
+            "selected_candidate": 3532
+          }
+        ]
+      },
+      "best_single_row_replacement": {
+        "max_mean": {
+          "value": 203.44802878494264,
+          "delta_vs_control": -0.002767379760740596,
+          "displaced_rank": 8,
+          "displaced_candidate": 1569,
+          "displaced_names": [
+            "49ers",
+            "Christian McCaffrey",
+            "Dalton Schultz",
+            "David Njoku",
+            "Justin Herbert",
+            "Justin Jefferson",
+            "Ladd McConkey",
+            "Bijan Robinson",
+            "Jack Bech"
+          ]
+        },
+        "max_p220": {
+          "value": 0.2236,
+          "delta_vs_control": 0.0010499999999999954,
+          "displaced_rank": 80,
+          "displaced_candidate": 7141,
+          "displaced_names": [
+            "49ers",
+            "Aaron Rodgers",
+            "Michael Pittman Jr.",
+            "DK Metcalf",
+            "Trey McBride",
+            "Rhamondre Stevenson",
+            "Jaylen Warren",
+            "Zay Flowers",
+            "Ladd McConkey"
+          ]
+        },
+        "max_p230": {
+          "value": 0.12145,
+          "delta_vs_control": 0.0002500000000000002,
+          "displaced_rank": 72,
+          "displaced_candidate": 9628,
+          "displaced_names": [
+            "49ers",
+            "Hunter Henry",
+            "DK Metcalf",
+            "Justin Jefferson",
+            "Javonte Williams",
+            "Rhamondre Stevenson",
+            "DeMario Douglas",
+            "Drake Maye",
+            "Ashton Jeanty"
+          ]
+        },
+        "max_p240": {
+          "value": 0.06325,
+          "delta_vs_control": 0.00045000000000000595,
+          "displaced_rank": 41,
+          "displaced_candidate": 7256,
+          "displaced_names": [
+            "49ers",
+            "Jacoby Brissett",
+            "Cooper Kupp",
+            "Kendrick Bourne",
+            "Justin Jefferson",
+            "Trey McBride",
+            "Michael Wilson",
+            "Ashton Jeanty",
+            "Jeremiyah Love"
+          ]
+        }
+      }
+    },
+    "9880": {
+      "candidate": {
+        "candidate": 9880,
+        "names": [
+          "Buccaneers",
+          "Geno Smith",
+          "Justin Jefferson",
+          "Garrett Wilson",
+          "Drake London",
+          "Bijan Robinson",
+          "Bucky Irving",
+          "Matthew Golden",
+          "Mason Taylor"
+        ],
+        "individual_mean": 141.68924088516235,
+        "individual_p220": 0.00615,
+        "individual_p230": 0.00235,
+        "individual_p240": 0.00065,
+        "marginal_worlds_220": 19,
+        "marginal_worlds_230": 15,
+        "marginal_worlds_240": 9,
+        "marginal_ladder_score": 85,
+        "marginal_mean_lift": 0.07317032089233066,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 5,
+            "selected_rank": 27,
+            "selected_candidate": 5137
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 7,
+            "selected_candidate": 10131
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 53,
+            "selected_candidate": 8955
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 69,
+            "selected_candidate": 2725
+          },
+          {
+            "shared_players": 3,
+            "selected_rank": 5,
+            "selected_candidate": 2812
+          }
+        ]
+      },
+      "best_single_row_replacement": {
+        "max_mean": {
+          "value": 203.45468563613892,
+          "delta_vs_control": 0.003889471435542191,
+          "displaced_rank": 8,
+          "displaced_candidate": 1569,
+          "displaced_names": [
+            "49ers",
+            "Christian McCaffrey",
+            "Dalton Schultz",
+            "David Njoku",
+            "Justin Herbert",
+            "Justin Jefferson",
+            "Ladd McConkey",
+            "Bijan Robinson",
+            "Jack Bech"
+          ]
+        },
+        "max_p220": {
+          "value": 0.2231,
+          "delta_vs_control": 0.0005499999999999949,
+          "displaced_rank": 80,
+          "displaced_candidate": 7141,
+          "displaced_names": [
+            "49ers",
+            "Aaron Rodgers",
+            "Michael Pittman Jr.",
+            "DK Metcalf",
+            "Trey McBride",
+            "Rhamondre Stevenson",
+            "Jaylen Warren",
+            "Zay Flowers",
+            "Ladd McConkey"
+          ]
+        },
+        "max_p230": {
+          "value": 0.12175,
+          "delta_vs_control": 0.0005499999999999949,
+          "displaced_rank": 72,
+          "displaced_candidate": 9628,
+          "displaced_names": [
+            "49ers",
+            "Hunter Henry",
+            "DK Metcalf",
+            "Justin Jefferson",
+            "Javonte Williams",
+            "Rhamondre Stevenson",
+            "DeMario Douglas",
+            "Drake Maye",
+            "Ashton Jeanty"
+          ]
+        },
+        "max_p240": {
+          "value": 0.0632,
+          "delta_vs_control": 0.00040000000000001146,
+          "displaced_rank": 41,
+          "displaced_candidate": 7256,
+          "displaced_names": [
+            "49ers",
+            "Jacoby Brissett",
+            "Cooper Kupp",
+            "Kendrick Bourne",
+            "Justin Jefferson",
+            "Trey McBride",
+            "Michael Wilson",
+            "Ashton Jeanty",
+            "Jeremiyah Love"
+          ]
+        }
+      }
+    },
+    "680": {
+      "candidate": {
+        "candidate": 680,
+        "names": [
+          "49ers",
+          "Carson Wentz",
+          "Kalif Raymond",
+          "Derrick Henry",
+          "T.J. Hockenson",
+          "Justin Jefferson",
+          "Zay Flowers",
+          "Bijan Robinson",
+          "Caleb Douglas"
+        ],
+        "individual_mean": 141.05432795295715,
+        "individual_p220": 0.0066,
+        "individual_p230": 0.0032,
+        "individual_p240": 0.0012,
+        "marginal_worlds_220": 20,
+        "marginal_worlds_230": 16,
+        "marginal_worlds_240": 8,
+        "marginal_ladder_score": 84,
+        "marginal_mean_lift": 0.055439604949953036,
+        "nearest_selected_by_roster_overlap": [
+          {
+            "shared_players": 6,
+            "selected_rank": 25,
+            "selected_candidate": 4263
+          },
+          {
+            "shared_players": 5,
+            "selected_rank": 81,
+            "selected_candidate": 896
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 1,
+            "selected_candidate": 2207
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 31,
+            "selected_candidate": 11181
+          },
+          {
+            "shared_players": 4,
+            "selected_rank": 37,
+            "selected_candidate": 781
+          }
+        ]
+      },
+      "best_single_row_replacement": {
+        "max_mean": {
+          "value": 203.4362709197998,
+          "delta_vs_control": -0.01452524490358087,
+          "displaced_rank": 8,
+          "displaced_candidate": 1569,
+          "displaced_names": [
+            "49ers",
+            "Christian McCaffrey",
+            "Dalton Schultz",
+            "David Njoku",
+            "Justin Herbert",
+            "Justin Jefferson",
+            "Ladd McConkey",
+            "Bijan Robinson",
+            "Jack Bech"
+          ]
+        },
+        "max_p220": {
+          "value": 0.22315,
+          "delta_vs_control": 0.0005999999999999894,
+          "displaced_rank": 80,
+          "displaced_candidate": 7141,
+          "displaced_names": [
+            "49ers",
+            "Aaron Rodgers",
+            "Michael Pittman Jr.",
+            "DK Metcalf",
+            "Trey McBride",
+            "Rhamondre Stevenson",
+            "Jaylen Warren",
+            "Zay Flowers",
+            "Ladd McConkey"
+          ]
+        },
+        "max_p230": {
+          "value": 0.1218,
+          "delta_vs_control": 0.0006000000000000033,
+          "displaced_rank": 72,
+          "displaced_candidate": 9628,
+          "displaced_names": [
+            "49ers",
+            "Hunter Henry",
+            "DK Metcalf",
+            "Justin Jefferson",
+            "Javonte Williams",
+            "Rhamondre Stevenson",
+            "DeMario Douglas",
+            "Drake Maye",
+            "Ashton Jeanty"
+          ]
+        },
+        "max_p240": {
+          "value": 0.06315,
+          "delta_vs_control": 0.0003500000000000031,
+          "displaced_rank": 41,
+          "displaced_candidate": 7256,
+          "displaced_names": [
+            "49ers",
+            "Jacoby Brissett",
+            "Cooper Kupp",
+            "Kendrick Bourne",
+            "Justin Jefferson",
+            "Trey McBride",
+            "Michael Wilson",
+            "Ashton Jeanty",
+            "Jeremiyah Love"
+          ]
+        }
+      }
+    }
+  },
+  "component_tail_ladder_swap_diagnostics": {
+    "incumbent": {
+      "control_metrics": {
+        "max_mean": 199.73209238891602,
+        "max_p220": 0.18,
+        "max_p230": 0.0935,
+        "max_p240": 0.0456
+      },
+      "best_swaps": {
+        "1334": {
+          "max_mean": {
+            "value": 199.7409997833252,
+            "delta_vs_control": 0.008907394409192193,
+            "displaced_rank": 46,
+            "displaced_candidate": 1819
+          },
+          "max_p220": {
+            "value": 0.18,
+            "delta_vs_control": 0.0,
+            "displaced_rank": 8,
+            "displaced_candidate": 1569
+          },
+          "max_p230": {
+            "value": 0.0939,
+            "delta_vs_control": 0.0003999999999999976,
+            "displaced_rank": 13,
+            "displaced_candidate": 5864
+          },
+          "max_p240": {
+            "value": 0.0458,
+            "delta_vs_control": 0.0001999999999999988,
+            "displaced_rank": 13,
+            "displaced_candidate": 5864
+          }
+        },
+        "2765": {
+          "max_mean": {
+            "value": 199.72509611663818,
+            "delta_vs_control": -0.006996272277831395,
+            "displaced_rank": 46,
+            "displaced_candidate": 1819
+          },
+          "max_p220": {
+            "value": 0.1801,
+            "delta_vs_control": 0.00010000000000001674,
+            "displaced_rank": 8,
+            "displaced_candidate": 1569
+          },
+          "max_p230": {
+            "value": 0.0935,
+            "delta_vs_control": 0.0,
+            "displaced_rank": 13,
+            "displaced_candidate": 5864
+          },
+          "max_p240": {
+            "value": 0.0457,
+            "delta_vs_control": 9.999999999999593e-05,
+            "displaced_rank": 13,
+            "displaced_candidate": 5864
+          }
+        },
+        "5211": {
+          "max_mean": {
+            "value": 199.76727850036622,
+            "delta_vs_control": 0.03518611145020145,
+            "displaced_rank": 46,
+            "displaced_candidate": 1819
+          },
+          "max_p220": {
+            "value": 0.1807,
+            "delta_vs_control": 0.0007000000000000062,
+            "displaced_rank": 8,
+            "displaced_candidate": 1569
+          },
+          "max_p230": {
+            "value": 0.0944,
+            "delta_vs_control": 0.000899999999999998,
+            "displaced_rank": 13,
+            "displaced_candidate": 5864
+          },
+          "max_p240": {
+            "value": 0.0463,
+            "delta_vs_control": 0.0006999999999999992,
+            "displaced_rank": 13,
+            "displaced_candidate": 5864
+          }
+        },
+        "2396": {
+          "max_mean": {
+            "value": 199.73594363250731,
+            "delta_vs_control": 0.0038512435912991805,
+            "displaced_rank": 46,
+            "displaced_candidate": 1819
+          },
+          "max_p220": {
+            "value": 0.18,
+            "delta_vs_control": 0.0,
+            "displaced_rank": 8,
+            "displaced_candidate": 1569
+          },
+          "max_p230": {
+            "value": 0.0939,
+            "delta_vs_control": 0.0003999999999999976,
+            "displaced_rank": 13,
+            "displaced_candidate": 5864
+          },
+          "max_p240": {
+            "value": 0.0459,
+            "delta_vs_control": 0.00030000000000000165,
+            "displaced_rank": 13,
+            "displaced_candidate": 5864
+          }
+        },
+        "2148": {
+          "max_mean": {
+            "value": 199.7328927078247,
+            "delta_vs_control": 0.0008003189086878137,
+            "displaced_rank": 46,
+            "displaced_candidate": 1819
+          },
+          "max_p220": {
+            "value": 0.1806,
+            "delta_vs_control": 0.0006000000000000172,
+            "displaced_rank": 8,
+            "displaced_candidate": 1569
+          },
+          "max_p230": {
+            "value": 0.0936,
+            "delta_vs_control": 0.00010000000000000286,
+            "displaced_rank": 13,
+            "displaced_candidate": 5864
+          },
+          "max_p240": {
+            "value": 0.0458,
+            "delta_vs_control": 0.0001999999999999988,
+            "displaced_rank": 13,
+            "displaced_candidate": 5864
+          }
+        },
+        "2824": {
+          "max_mean": {
+            "value": 199.74736894989013,
+            "delta_vs_control": 0.015276560974115228,
+            "displaced_rank": 46,
+            "displaced_candidate": 1819
+          },
+          "max_p220": {
+            "value": 0.1803,
+            "delta_vs_control": 0.0002999999999999947,
+            "displaced_rank": 8,
+            "displaced_candidate": 1569
+          },
+          "max_p230": {
+            "value": 0.0935,
+            "delta_vs_control": 0.0,
+            "displaced_rank": 13,
+            "displaced_candidate": 5864
+          },
+          "max_p240": {
+            "value": 0.0459,
+            "delta_vs_control": 0.00030000000000000165,
+            "displaced_rank": 13,
+            "displaced_candidate": 5864
+          }
+        },
+        "2402": {
+          "max_mean": {
+            "value": 199.72260117340088,
+            "delta_vs_control": -0.009491215515140539,
+            "displaced_rank": 46,
+            "displaced_candidate": 1819
+          },
+          "max_p220": {
+            "value": 0.1803,
+            "delta_vs_control": 0.0002999999999999947,
+            "displaced_rank": 8,
+            "displaced_candidate": 1569
+          },
+          "max_p230": {
+            "value": 0.0936,
+            "delta_vs_control": 0.00010000000000000286,
+            "displaced_rank": 13,
+            "displaced_candidate": 5864
+          },
+          "max_p240": {
+            "value": 0.0457,
+            "delta_vs_control": 9.999999999999593e-05,
+            "displaced_rank": 13,
+            "displaced_candidate": 5864
+          }
+        },
+        "7399": {
+          "max_mean": {
+            "value": 199.72022819213868,
+            "delta_vs_control": -0.01186419677733852,
+            "displaced_rank": 61,
+            "displaced_candidate": 5816
+          },
+          "max_p220": {
+            "value": 0.18,
+            "delta_vs_control": 0.0,
+            "displaced_rank": 8,
+            "displaced_candidate": 1569
+          },
+          "max_p230": {
+            "value": 0.0936,
+            "delta_vs_control": 0.00010000000000000286,
+            "displaced_rank": 13,
+            "displaced_candidate": 5864
+          },
+          "max_p240": {
+            "value": 0.0457,
+            "delta_vs_control": 9.999999999999593e-05,
+            "displaced_rank": 13,
+            "displaced_candidate": 5864
+          }
+        },
+        "9880": {
+          "max_mean": {
+            "value": 199.73698575592041,
+            "delta_vs_control": 0.004893367004399352,
+            "displaced_rank": 46,
+            "displaced_candidate": 1819
+          },
+          "max_p220": {
+            "value": 0.1805,
+            "delta_vs_control": 0.0005000000000000004,
+            "displaced_rank": 89,
+            "displaced_candidate": 3532
+          },
+          "max_p230": {
+            "value": 0.0938,
+            "delta_vs_control": 0.0002999999999999947,
+            "displaced_rank": 13,
+            "displaced_candidate": 5864
+          },
+          "max_p240": {
+            "value": 0.0458,
+            "delta_vs_control": 0.0001999999999999988,
+            "displaced_rank": 13,
+            "displaced_candidate": 5864
+          }
+        },
+        "680": {
+          "max_mean": {
+            "value": 199.77511007537842,
+            "delta_vs_control": 0.04301768646240589,
+            "displaced_rank": 46,
+            "displaced_candidate": 1819
+          },
+          "max_p220": {
+            "value": 0.181,
+            "delta_vs_control": 0.0010000000000000009,
+            "displaced_rank": 8,
+            "displaced_candidate": 1569
+          },
+          "max_p230": {
+            "value": 0.0945,
+            "delta_vs_control": 0.0010000000000000009,
+            "displaced_rank": 13,
+            "displaced_candidate": 5864
+          },
+          "max_p240": {
+            "value": 0.0462,
+            "delta_vs_control": 0.0005999999999999964,
+            "displaced_rank": 13,
+            "displaced_candidate": 5864
+          }
+        }
+      }
+    },
+    "corrected_hsim": {
+      "control_metrics": {
+        "max_mean": 207.1694999404907,
+        "max_p220": 0.2651,
+        "max_p230": 0.1489,
+        "max_p240": 0.08
+      },
+      "best_swaps": {
+        "1334": {
+          "max_mean": {
+            "value": 207.2781059539795,
+            "delta_vs_control": 0.10860601348878163,
+            "displaced_rank": 31,
+            "displaced_candidate": 11181
+          },
+          "max_p220": {
+            "value": 0.2674,
+            "delta_vs_control": 0.0023000000000000242,
+            "displaced_rank": 31,
+            "displaced_candidate": 11181
+          },
+          "max_p230": {
+            "value": 0.1501,
+            "delta_vs_control": 0.0012000000000000066,
+            "displaced_rank": 31,
+            "displaced_candidate": 11181
+          },
+          "max_p240": {
+            "value": 0.0811,
+            "delta_vs_control": 0.0011000000000000038,
+            "displaced_rank": 31,
+            "displaced_candidate": 11181
+          }
+        },
+        "2765": {
+          "max_mean": {
+            "value": 207.2923599456787,
+            "delta_vs_control": 0.12286000518798801,
+            "displaced_rank": 31,
+            "displaced_candidate": 11181
+          },
+          "max_p220": {
+            "value": 0.2672,
+            "delta_vs_control": 0.0020999999999999908,
+            "displaced_rank": 31,
+            "displaced_candidate": 11181
+          },
+          "max_p230": {
+            "value": 0.1504,
+            "delta_vs_control": 0.0015000000000000013,
+            "displaced_rank": 31,
+            "displaced_candidate": 11181
+          },
+          "max_p240": {
+            "value": 0.081,
+            "delta_vs_control": 0.0010000000000000009,
+            "displaced_rank": 31,
+            "displaced_candidate": 11181
+          }
+        },
+        "5211": {
+          "max_mean": {
+            "value": 207.21394992523193,
+            "delta_vs_control": 0.044449984741220305,
+            "displaced_rank": 31,
+            "displaced_candidate": 11181
+          },
+          "max_p220": {
+            "value": 0.2659,
+            "delta_vs_control": 0.0008000000000000229,
+            "displaced_rank": 31,
+            "displaced_candidate": 11181
+          },
+          "max_p230": {
+            "value": 0.1497,
+            "delta_vs_control": 0.0007999999999999952,
+            "displaced_rank": 31,
+            "displaced_candidate": 11181
+          },
+          "max_p240": {
+            "value": 0.0804,
+            "delta_vs_control": 0.0003999999999999976,
+            "displaced_rank": 31,
+            "displaced_candidate": 11181
+          }
+        },
+        "2396": {
+          "max_mean": {
+            "value": 207.25192394866943,
+            "delta_vs_control": 0.08242400817871953,
+            "displaced_rank": 31,
+            "displaced_candidate": 11181
+          },
+          "max_p220": {
+            "value": 0.2668,
+            "delta_vs_control": 0.0016999999999999793,
+            "displaced_rank": 31,
+            "displaced_candidate": 11181
+          },
+          "max_p230": {
+            "value": 0.1502,
+            "delta_vs_control": 0.0012999999999999956,
+            "displaced_rank": 31,
+            "displaced_candidate": 11181
+          },
+          "max_p240": {
+            "value": 0.0807,
+            "delta_vs_control": 0.0006999999999999923,
+            "displaced_rank": 31,
+            "displaced_candidate": 11181
+          }
+        },
+        "2148": {
+          "max_mean": {
+            "value": 207.28042192230225,
+            "delta_vs_control": 0.11092198181154345,
+            "displaced_rank": 31,
+            "displaced_candidate": 11181
+          },
+          "max_p220": {
+            "value": 0.2663,
+            "delta_vs_control": 0.0011999999999999789,
+            "displaced_rank": 31,
+            "displaced_candidate": 11181
+          },
+          "max_p230": {
+            "value": 0.1498,
+            "delta_vs_control": 0.0008999999999999841,
+            "displaced_rank": 31,
+            "displaced_candidate": 11181
+          },
+          "max_p240": {
+            "value": 0.0811,
+            "delta_vs_control": 0.0011000000000000038,
+            "displaced_rank": 31,
+            "displaced_candidate": 11181
+          }
+        },
+        "2824": {
+          "max_mean": {
+            "value": 207.24585996246338,
+            "delta_vs_control": 0.07636002197267544,
+            "displaced_rank": 31,
+            "displaced_candidate": 11181
+          },
+          "max_p220": {
+            "value": 0.2658,
+            "delta_vs_control": 0.0006999999999999784,
+            "displaced_rank": 31,
+            "displaced_candidate": 11181
+          },
+          "max_p230": {
+            "value": 0.1502,
+            "delta_vs_control": 0.0012999999999999956,
+            "displaced_rank": 31,
+            "displaced_candidate": 11181
+          },
+          "max_p240": {
+            "value": 0.081,
+            "delta_vs_control": 0.0010000000000000009,
+            "displaced_rank": 31,
+            "displaced_candidate": 11181
+          }
+        },
+        "2402": {
+          "max_mean": {
+            "value": 207.24784195709228,
+            "delta_vs_control": 0.07834201660156737,
+            "displaced_rank": 31,
+            "displaced_candidate": 11181
+          },
+          "max_p220": {
+            "value": 0.2664,
+            "delta_vs_control": 0.0013000000000000234,
+            "displaced_rank": 31,
+            "displaced_candidate": 11181
+          },
+          "max_p230": {
+            "value": 0.1501,
+            "delta_vs_control": 0.0012000000000000066,
+            "displaced_rank": 31,
+            "displaced_candidate": 11181
+          },
+          "max_p240": {
+            "value": 0.081,
+            "delta_vs_control": 0.0010000000000000009,
+            "displaced_rank": 31,
+            "displaced_candidate": 11181
+          }
+        },
+        "7399": {
+          "max_mean": {
+            "value": 207.28862595672607,
+            "delta_vs_control": 0.11912601623535579,
+            "displaced_rank": 31,
+            "displaced_candidate": 11181
+          },
+          "max_p220": {
+            "value": 0.2679,
+            "delta_vs_control": 0.0028000000000000247,
+            "displaced_rank": 31,
+            "displaced_candidate": 11181
+          },
+          "max_p230": {
+            "value": 0.1497,
+            "delta_vs_control": 0.0007999999999999952,
+            "displaced_rank": 31,
+            "displaced_candidate": 11181
+          },
+          "max_p240": {
+            "value": 0.0809,
+            "delta_vs_control": 0.000899999999999998,
+            "displaced_rank": 31,
+            "displaced_candidate": 11181
+          }
+        },
+        "9880": {
+          "max_mean": {
+            "value": 207.2820459411621,
+            "delta_vs_control": 0.11254600067138654,
+            "displaced_rank": 31,
+            "displaced_candidate": 11181
+          },
+          "max_p220": {
+            "value": 0.2665,
+            "delta_vs_control": 0.0014000000000000123,
+            "displaced_rank": 31,
+            "displaced_candidate": 11181
+          },
+          "max_p230": {
+            "value": 0.1501,
+            "delta_vs_control": 0.0012000000000000066,
+            "displaced_rank": 31,
+            "displaced_candidate": 11181
+          },
+          "max_p240": {
+            "value": 0.0807,
+            "delta_vs_control": 0.0006999999999999923,
+            "displaced_rank": 31,
+            "displaced_candidate": 11181
+          }
+        },
+        "680": {
+          "max_mean": {
+            "value": 207.209781930542,
+            "delta_vs_control": 0.040281990051283856,
+            "displaced_rank": 31,
+            "displaced_candidate": 11181
+          },
+          "max_p220": {
+            "value": 0.266,
+            "delta_vs_control": 0.0009000000000000119,
+            "displaced_rank": 31,
+            "displaced_candidate": 11181
+          },
+          "max_p230": {
+            "value": 0.1495,
+            "delta_vs_control": 0.0005999999999999894,
+            "displaced_rank": 31,
+            "displaced_candidate": 11181
+          },
+          "max_p240": {
+            "value": 0.0802,
+            "delta_vs_control": 0.00019999999999999185,
+            "displaced_rank": 31,
+            "displaced_candidate": 11181
+          }
+        }
+      }
+    }
+  },
+  "current_outcomes_read": false,
+  "provider_calls": 0,
+  "source_columns": {
+    "frame": [
+      "id",
+      "dk_player_id",
+      "name"
+    ],
+    "candidates": [
+      "cand",
+      "players",
+      "names"
+    ]
+  }
+}
