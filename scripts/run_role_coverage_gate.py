@@ -30,7 +30,7 @@ ROLE_NUM = [
 FP_COV_NUM = ["fp_cov_tprr_edge","fp_cov_yprr_edge","fp_cov_fprr_edge","fp_cov_sep_edge","fp_cov_supported"]
 SIS_PURE_NUM = ["sis_wide_target_rate","sis_slot_target_rate","sis_wide_ypt","sis_slot_ypt","sis_wide_vulnerability","sis_slot_vulnerability","sis_supported"]
 SIS_CONC_NUM = SIS_PURE_NUM + ["sis_target_hhi","sis_top_target_share"]
-SIS_NUM = SIS_CONC_NUM + ["sis_wide_share","sis_alignment_edge"]
+SIS_NUM = SIS_PURE_NUM + ["sis_wide_share","sis_alignment_edge"]
 
 
 def load():
