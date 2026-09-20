@@ -100,3 +100,18 @@ Inventory: `src/nfl_dfs/ingest/*` (32 modules), `src/nfl_dfs/models/featureset.p
 `reports/2026-09-12-retrieval-lever-measured-on-realized-scores.md`; `reports/2026-09-20-week3-experiment-start-plan.md`
 (research branch). BigQuery row counts read on 2026-09-20: `nfl_raw.contest_entries` 994,328 (2026 W1, 3 contests);
 `nfl_predictions.div_shadow` 4,535 rows over 2 weeks.
+
+## Addendum (21:50Z): the labs' full SIS / Fantasy Points value-surface review
+
+The labs' `reports/2026-09-20-sis-fantasy-points-full-value-review.md` (research `220faa59`) adds two readings this map
+should carry. First, Fantasy Points Route Share is the one paid field with demonstrated signal: at matched projections,
+high prior route share ran about +0.6 to +1.0 DK points above projection, clearest in the 10-14 projection band, and
+it is far less collinear with snap share for tight ends (r about 0.90) than for wide receivers (r about 0.97); the
+coverage families failed narrow gates (prior-season edges weak and unstable; same-season windows short of support;
+shell-fit worse on Brier), which does not test defender-level coverage, red-zone route participation, or coverage x
+role interactions. Second, the paid-source ladder's null is a retrieval finding: every cell admitted a ceiling near 181
+while the pool held 202.7, because mean-edge admission discards the tail regardless of vendor. Their proposed tests
+(a coverage/role incremental forecast test led by route share and red-zone routes, an SIS player-coverage matchup test
+with shrinkage and support floors, and a tail-aware re-run of the 2x2 ablation) are the right next reads; the
+recommendation is to keep the subscriptions long enough to run them, not to renew on faith or cancel on the marginal
+tests so far. Section 3 of this map stands; "in nothing live" remains true today.
