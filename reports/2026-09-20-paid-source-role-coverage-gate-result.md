@@ -55,3 +55,15 @@ After the initial result, the predeclared amendment separated SIS fields from th
 | SIS coverage × alignment | 3.8409 | 0.051694 | **0.012763** | 3.5896 | 0.043360 | **0.010535** |
 
 The pure SIS arm does not improve Brier-30 in both held-out seasons. The more consistent direction comes from the interaction between SIS coverage context and receiver alignment, especially in 2025. That makes the mechanism more interesting, but also means the vendor cannot receive sole credit yet: the next test must preserve separate pure-SIS and SIS×alignment cells and report their interaction.
+
+## Shrunk concentration amendment
+
+The eight-game SIS concentration arm added prior-window defender target HHI and top-defender target share. It did not improve the held-out tail:
+
+| arm | 2024 MAE | 2024 Brier-20 | 2024 Brier-30 | 2025 MAE | 2025 Brier-20 | 2025 Brier-30 |
+|---|---:|---:|---:|---:|---:|---:|
+| Control | 3.8295 | 0.051519 | 0.012813 | 3.6126 | 0.043166 | 0.010555 |
+| Pure SIS coverage | 3.8468 | 0.051548 | 0.012773 | 3.5992 | 0.043242 | 0.010559 |
+| SIS + concentration | 3.8565 | 0.051599 | 0.012818 | 3.6013 | 0.043227 | 0.010563 |
+
+The concentration feature did not add value beyond the existing shrunk SIS vulnerability representation in this fixed player forecast. This closes the tested concentration representation for this population; it does not close SIS player coverage generally or prove that an explicit receiver-to-defender assignment feed would be unhelpful.
