@@ -1,0 +1,143 @@
+{
+  "actuals_scope": "historical panel actuals only; no current-week tables queried",
+  "bucket_table": [
+    {
+      "bucket": "min < 6",
+      "mean_actual": 105.72357142857143,
+      "n": 420,
+      "p_ge_187": 0.004761904761904762,
+      "p_ge_194": 0.0,
+      "p_ge_200": 0.0,
+      "pool_share": 0.015526228235555063,
+      "selected_share": 0.580952380952381,
+      "slate_winners": 3,
+      "sub12_players_per_lineup": 2.9238095238095236,
+      "top10_of_slate_rate": 0.047619047619047616,
+      "within_slate_pctile": 0.4050815501942098
+    },
+    {
+      "bucket": "min 6-8",
+      "mean_actual": 109.41651695692026,
+      "n": 1091,
+      "p_ge_187": 0.0036663611365719525,
+      "p_ge_194": 0.0018331805682859762,
+      "p_ge_200": 0.0009165902841429881,
+      "pool_share": 0.04033122620235851,
+      "selected_share": 0.7131072410632447,
+      "slate_winners": 8,
+      "sub12_players_per_lineup": 2.7341888175985334,
+      "top10_of_slate_rate": 0.05316223648029331,
+      "within_slate_pctile": 0.4298348955002749
+    },
+    {
+      "bucket": "min 8-10",
+      "mean_actual": 114.08410969793323,
+      "n": 2516,
+      "p_ge_187": 0.0047694753577106515,
+      "p_ge_194": 0.0027821939586645467,
+      "p_ge_200": 0.001589825119236884,
+      "pool_share": 0.09300950057299176,
+      "selected_share": 0.775039745627981,
+      "slate_winners": 18,
+      "sub12_players_per_lineup": 2.31120826709062,
+      "top10_of_slate_rate": 0.06399046104928457,
+      "within_slate_pctile": 0.47531113491549354
+    },
+    {
+      "bucket": "min 10-12",
+      "mean_actual": 115.06097303014279,
+      "n": 3782,
+      "p_ge_187": 0.010312004230565839,
+      "p_ge_194": 0.005288207297726071,
+      "p_ge_200": 0.002908514013749339,
+      "pool_share": 0.13980998854016488,
+      "selected_share": 0.5502379693283976,
+      "slate_winners": 29,
+      "sub12_players_per_lineup": 1.4167107350608144,
+      "top10_of_slate_rate": 0.05658381808566896,
+      "within_slate_pctile": 0.48987695894857974
+    },
+    {
+      "bucket": "all >= 12",
+      "mean_actual": 117.81884835256211,
+      "n": 19242,
+      "p_ge_187": 0.008159235006756055,
+      "p_ge_194": 0.003326057582371895,
+      "p_ge_200": 0.0012992412431140213,
+      "pool_share": 0.7113230564489298,
+      "selected_share": 0.18225756158403492,
+      "slate_winners": 49,
+      "sub12_players_per_lineup": 0.0,
+      "top10_of_slate_rate": 0.03206527388005405,
+      "within_slate_pctile": 0.5112679764960358
+    }
+  ],
+  "candidate_query_sha256": "716b19d59e85fe0bcabf292c1700b805fef30209201e31090a5f02c6df27fd7b",
+  "candidate_rows": 27051,
+  "dataset": "nfl_predictions",
+  "feature_query_sha256": "907203b7f11a9dfa9c3c410bae08e73b4b3688835a45a02ee1a01424cc11cced",
+  "feature_rows": 50418,
+  "missing_roster_feature_rows": 0,
+  "panel": "20260811-pitclean-e80-k1-role12union-a12ab31",
+  "project": "nfl-predictions-503414",
+  "roster_rows": 243459,
+  "selected_rows": 8560,
+  "slates": 107,
+  "weakest_player_table": [
+    {
+      "avg_weakest_actual": 3.0276190476190474,
+      "avg_weakest_proj": 4.6102733090367485,
+      "avg_weakest_salary": 3867.3809523809523,
+      "bucket": "min < 6",
+      "lineups": 420,
+      "p_weakest_actual_ge_10": 0.10238095238095238,
+      "p_weakest_actual_ge_15": 0.04285714285714286,
+      "p_weakest_actual_ge_20": 0.02142857142857143,
+      "p_weakest_actual_le_2": 0.6595238095238095
+    },
+    {
+      "avg_weakest_actual": 5.345371219065078,
+      "avg_weakest_proj": 7.113752492726306,
+      "avg_weakest_salary": 4085.792850595784,
+      "bucket": "min 6-8",
+      "lineups": 1091,
+      "p_weakest_actual_ge_10": 0.20256645279560037,
+      "p_weakest_actual_ge_15": 0.08615948670944087,
+      "p_weakest_actual_ge_20": 0.03758020164986251,
+      "p_weakest_actual_le_2": 0.44821264894592117
+    },
+    {
+      "avg_weakest_actual": 7.582352941176471,
+      "avg_weakest_proj": 9.13505270285952,
+      "avg_weakest_salary": 4279.928457869634,
+      "bucket": "min 8-10",
+      "lineups": 2516,
+      "p_weakest_actual_ge_10": 0.2933227344992051,
+      "p_weakest_actual_ge_15": 0.13990461049284578,
+      "p_weakest_actual_ge_20": 0.08108108108108109,
+      "p_weakest_actual_le_2": 0.28060413354531
+    },
+    {
+      "avg_weakest_actual": 7.529079851930197,
+      "avg_weakest_proj": 11.068112510234,
+      "avg_weakest_salary": 4127.498677948176,
+      "bucket": "min 10-12",
+      "lineups": 3782,
+      "p_weakest_actual_ge_10": 0.28106821787414066,
+      "p_weakest_actual_ge_15": 0.15415124272871497,
+      "p_weakest_actual_ge_20": 0.07588577472236911,
+      "p_weakest_actual_le_2": 0.2763088313061872
+    },
+    {
+      "avg_weakest_actual": 8.880679763018398,
+      "avg_weakest_proj": 14.50884891485316,
+      "avg_weakest_salary": 4411.776322627586,
+      "bucket": "all >= 12",
+      "lineups": 19242,
+      "p_weakest_actual_ge_10": 0.37792329279700654,
+      "p_weakest_actual_ge_15": 0.2068392059037522,
+      "p_weakest_actual_ge_20": 0.11048747531441638,
+      "p_weakest_actual_le_2": 0.24633613969441845
+    }
+  ]
+}
