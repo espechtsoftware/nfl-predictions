@@ -11,6 +11,13 @@ The paired shadow will freeze both books before any outcome read and report:
 * the simulated-to-realized 220 ratio for every arm; and
 * both selection-bank components plus the independent audit where available.
 
+The launch receipt must also freeze the exact ladder parameters. PREREG-016's
+lab contract is gamma 4 with inclusive rungs 194/200/210/220 and weights
+1/2/6/12; the historical production cap-prefix read used a different strict
+200/210/220 contract. The requested 220/230/240 focus is a separately named
+variant until its weights and overlap cap are explicitly frozen. It must not be
+called an exact law-parity comparison while those parameters differ.
+
 The 220 realized event is too sparse for a one-week adoption decision, and prior historical reads show that simulated extreme-tail objectives can lose on realized panels. A simulated D12800 improvement is therefore mechanism evidence only. Any selector adoption remains under the existing in-season paired shadow rule and requires the frozen realized scorecard. The revised execution plan is [here](2026-09-20-week3-experiment-start-plan.md).
 
 Context reads: [paid-source ladder](paid-source-ladder-direct-20260915/read.txt), [historical cap-prefix result](2026-08-29-score-sprint-first-realized-results.md), and [prefix-order audit](2026-09-10-r6-prefix-ranking-and-breakout-capture-audit.md). These use different populations and are not exact D12800 law-parity evidence.

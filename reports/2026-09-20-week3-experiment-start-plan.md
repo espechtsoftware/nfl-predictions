@@ -13,6 +13,14 @@ candidate pool and simulation worlds. Use the existing overlap-cap value and
 the already reviewed ladder semantics; do not tune a new rung weight after
 seeing results.
 
+The launch receipt must bind the exact rung set, weights, and overlap cap before
+the run. PREREG-016's lab law is gamma 4 with inclusive rungs
+194/200/210/220 and weights 1/2/6/12, while the historical production
+cap-prefix read used a different strict 200/210/220 contract. The requested
+220/230/240 tail focus is therefore a separately named variant unless the
+operator explicitly freezes it as the current law; it must not be described as
+an exact parity run while those parameters differ.
+
 The primary prospective read must be realized and paired: realized max of K,
 realized 200+/210+ clear counts, and the frozen operator scorecard. Report
 simulated max mean/P220/P230/P240, individual-row rates, prefix capture, and

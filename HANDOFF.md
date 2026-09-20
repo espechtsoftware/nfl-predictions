@@ -64,6 +64,11 @@ adoption. The paired shadow must freeze before outcomes and use realized max-of-
 short-term primary read, with the simulated-to-realized 220 ratio reported alongside the simulated metrics. The revised
 protocol is in `reports/2026-09-20-week3-experiment-start-plan.md`.
 
+Before launching, bind the ladder parameters in the receipt. PREREG-016 is gamma 4 with inclusive 194/200/210/220
+weights 1/2/6/12; the historical production cap-prefix read used strict 200/210/220. The requested 220/230/240
+focus is a separately named variant unless its weights and overlap cap are explicitly frozen, so it must not be called
+exact law parity while those parameters differ.
+
 The v2 in-season rules at production `8f590212` were also reviewed in
 `reports/2026-09-20-in-season-rules-follow-up-review.md`. The speed-up and risk classes are sound. Two registry
 repairs should precede the next prospective-gate audit: `s-shadow-cbwu-oi-paired-{early,late}` are listed as dormant
