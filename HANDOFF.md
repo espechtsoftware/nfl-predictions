@@ -31,6 +31,22 @@ operations follow-ups; no Sunday production change is recommended. Shared lab ha
 
 [Start plan](reports/2026-09-20-week3-experiment-start-plan.md) is committed: (1) fresh final-book mean vs P220/P230 vs proxy first-entry order, (2) risk-weighted exposure shadow with cap48/cap38 references, (3) incremental SIS/Fantasy Points/Odds source shadow with influence traces. Item1 starts immediately after fresh Sunday replacement receipts; preview evidence is not adopted.
 
+## 2026-09-20 — candidate-tail diagnostic and controlled swap shadow completed
+
+The outcome-blind D12800 candidate-tail diagnostic is in
+`reports/2026-09-20-d12800-candidate-tail-diagnostic.md`, with reader/result under
+`reports/reviews/evidence/`. The selected K97 averages simulated P(220+) 0.550% versus 0.134% for the 12,555-candidate
+pool and P(230+) 0.247% versus 0.052%. The top-97 overlap is 35 candidates for P(220+) and 33 for P(230+), compared
+with 18 for mean. The strongest omitted candidate (848) ranks 3rd/4th/3rd by mean/P220/P230 but shares seven of nine
+players with selected rows 8, 46, and 97. This indicates high-tail supply is being selected and diversified rather than
+ignored.
+
+The controlled shadow in `reports/2026-09-20-d12800-tail-swap-shadow-results.md` substitutes candidate 848 for each
+of ranks 8, 46, and 97 in the same 20,000 simulation worlds. None improves max-of-K97 mean or P(230+); max P(220+)
+is flat or changes by at most 0.005 percentage points. The next selector experiment should test marginal portfolio
+tail coverage at 220/230/240 with a mean term and existing exposure constraints, not raw individual P220 sort.
+No production code or live book was changed.
+
 ## 2026-09-20 — promotion ENTER re-layout has a blocking row-check defect
 
 Independent synthetic review found v2.1 `relayout_enter.sh` rejects **all three** cases on a two-contest fixture: unset/default sequential, explicit sequential, and explicit top. Its final check compares each contest file to contiguous upload slices, but sequential keeper/fill rows are noncontiguous and top layout repeats the prefix. `ENTER/` is not published, so the runner safely leaves the prior bundle but cannot deliver the promoted order. [Review](reports/2026-09-20-promotion-enter-relayout-review.md), [reader](reports/reviews/evidence/2026-09-20-relayout-enter-row-check.py). Production needs a layout-aware mapping check and two-contest tests before Sunday promotion.

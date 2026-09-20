@@ -1,0 +1,564 @@
+{
+  "schema": "d12800-candidate-tail-diagnostic/v1",
+  "archive_manifest_sha256": "2b634256bf9f227db7c8ea4e82f35b6ce1cf2acccfab99d1610b9c7f43921063",
+  "source_files": {
+    "frame.parquet": "6e56f59d687b8f533ee02c05b90ec2c643c08b0e46aa78155a2c0d7b9894dab6",
+    "candidates.parquet": "9269cd4d6c30d6d43316eddb15a6e2625ad2f5b0b70b82fe2786f205a7d1a4dd",
+    "book.csv": "d134876b684224a3dc9aee68cde56fb942066d13e6f3e02f37947f2d10d20cad",
+    "receipt.json": "ddea8e7ec2be7185dc0d52099a947a84f24096c037858dc912c0f68267fed8e7",
+    "incumbent_player_scores.npy": "1d711ff9af22bea4b17505470ba516c544261f04da428f557893a9e290ec15d5",
+    "corrected_hsim_player_scores.npy": "c9f977295bde6a1987488de25ade643813cbf54d5e7c3903b753f714efe1023a"
+  },
+  "candidate_count": 12555,
+  "selected_count": 97,
+  "selected_candidates": [
+    2207,
+    3031,
+    3876,
+    3005,
+    2812,
+    6234,
+    10131,
+    1569,
+    12413,
+    10663,
+    12464,
+    4170,
+    5864,
+    3213,
+    10289,
+    4798,
+    3690,
+    11565,
+    11201,
+    6105,
+    4395,
+    7673,
+    10658,
+    4201,
+    4263,
+    8198,
+    5137,
+    2872,
+    11760,
+    12301,
+    11181,
+    4377,
+    2123,
+    8921,
+    8436,
+    12440,
+    781,
+    6447,
+    9431,
+    4886,
+    7256,
+    7081,
+    8772,
+    701,
+    11233,
+    1819,
+    10046,
+    5341,
+    2567,
+    12205,
+    7471,
+    6853,
+    8955,
+    8581,
+    8946,
+    2960,
+    3016,
+    6637,
+    8153,
+    8140,
+    5816,
+    8539,
+    3066,
+    2638,
+    5389,
+    5406,
+    4272,
+    8760,
+    2725,
+    3314,
+    10489,
+    9628,
+    12143,
+    9447,
+    10102,
+    5330,
+    8900,
+    4868,
+    11137,
+    7141,
+    896,
+    11698,
+    9317,
+    9791,
+    6497,
+    2976,
+    3799,
+    3622,
+    3532,
+    5737,
+    10203,
+    10593,
+    3669,
+    10091,
+    8742,
+    9531,
+    322
+  ],
+  "ranking_top20": {
+    "mean": [
+      2207,
+      322,
+      848,
+      320,
+      4263,
+      495,
+      123,
+      1569,
+      275,
+      754,
+      221,
+      1787,
+      995,
+      1819,
+      2150,
+      9549,
+      991,
+      781,
+      1885,
+      5864
+    ],
+    "p220": [
+      2207,
+      2812,
+      5864,
+      848,
+      4263,
+      2150,
+      9477,
+      1569,
+      3622,
+      1885,
+      1282,
+      1787,
+      2872,
+      4377,
+      320,
+      995,
+      6150,
+      1819,
+      12301,
+      4798
+    ],
+    "p230": [
+      2207,
+      5864,
+      848,
+      2812,
+      2150,
+      3622,
+      1819,
+      2872,
+      3876,
+      4263,
+      9477,
+      12301,
+      1787,
+      3213,
+      6150,
+      2402,
+      9549,
+      320,
+      995,
+      1885
+    ]
+  },
+  "overlap": {
+    "mean": {
+      "top_97_selected": 18,
+      "top_500_selected": 46,
+      "top_1000_selected": 59,
+      "selected_best_rank": 1
+    },
+    "p220": {
+      "top_97_selected": 35,
+      "top_500_selected": 68,
+      "top_1000_selected": 77,
+      "selected_best_rank": 1
+    },
+    "p230": {
+      "top_97_selected": 33,
+      "top_500_selected": 69,
+      "top_1000_selected": 78,
+      "selected_best_rank": 1
+    }
+  },
+  "best_unselected": {
+    "mean": {
+      "candidate": 848,
+      "tail_rank": 3,
+      "value": 147.3586736448288,
+      "sel_mean": 140.68255615234375,
+      "sel_p194": 0.0309,
+      "names": [
+        "49ers",
+        "Dalton Schultz",
+        "Justin Herbert",
+        "Justin Jefferson",
+        "Javonte Williams",
+        "Tre' Harris",
+        "Ladd McConkey",
+        "Bijan Robinson",
+        "Jack Bech"
+      ],
+      "nearest_selected_by_roster_overlap": [
+        {
+          "shared_players": 7,
+          "selected_rank": 8,
+          "selected_candidate": 1569,
+          "selected_names": [
+            "49ers",
+            "Christian McCaffrey",
+            "Dalton Schultz",
+            "David Njoku",
+            "Justin Herbert",
+            "Justin Jefferson",
+            "Ladd McConkey",
+            "Bijan Robinson",
+            "Jack Bech"
+          ]
+        },
+        {
+          "shared_players": 7,
+          "selected_rank": 46,
+          "selected_candidate": 1819,
+          "selected_names": [
+            "Eagles",
+            "Derrick Henry",
+            "Dalton Schultz",
+            "Justin Herbert",
+            "Justin Jefferson",
+            "Tre' Harris",
+            "Ladd McConkey",
+            "Bijan Robinson",
+            "Jack Bech"
+          ]
+        },
+        {
+          "shared_players": 7,
+          "selected_rank": 97,
+          "selected_candidate": 322,
+          "selected_names": [
+            "49ers",
+            "David Njoku",
+            "Justin Herbert",
+            "Justin Jefferson",
+            "Javonte Williams",
+            "Zay Flowers",
+            "Tre' Harris",
+            "Bijan Robinson",
+            "Jack Bech"
+          ]
+        },
+        {
+          "shared_players": 5,
+          "selected_rank": 11,
+          "selected_candidate": 12464,
+          "selected_names": [
+            "49ers",
+            "Dalton Schultz",
+            "Justin Jefferson",
+            "Javonte Williams",
+            "Ja'Marr Chase",
+            "Rhamondre Stevenson",
+            "C.J. Stroud",
+            "Ladd McConkey",
+            "Jaylin Noel"
+          ]
+        },
+        {
+          "shared_players": 5,
+          "selected_rank": 30,
+          "selected_candidate": 12301,
+          "selected_names": [
+            "49ers",
+            "Justin Herbert",
+            "David Montgomery",
+            "Drake London",
+            "Quentin Johnston",
+            "Tre' Harris",
+            "Ladd McConkey",
+            "Bijan Robinson",
+            "Michael Mayer"
+          ]
+        }
+      ]
+    },
+    "p220": {
+      "candidate": 848,
+      "tail_rank": 4,
+      "value": 0.0106,
+      "sel_mean": 140.68255615234375,
+      "sel_p194": 0.0309,
+      "names": [
+        "49ers",
+        "Dalton Schultz",
+        "Justin Herbert",
+        "Justin Jefferson",
+        "Javonte Williams",
+        "Tre' Harris",
+        "Ladd McConkey",
+        "Bijan Robinson",
+        "Jack Bech"
+      ],
+      "nearest_selected_by_roster_overlap": [
+        {
+          "shared_players": 7,
+          "selected_rank": 8,
+          "selected_candidate": 1569,
+          "selected_names": [
+            "49ers",
+            "Christian McCaffrey",
+            "Dalton Schultz",
+            "David Njoku",
+            "Justin Herbert",
+            "Justin Jefferson",
+            "Ladd McConkey",
+            "Bijan Robinson",
+            "Jack Bech"
+          ]
+        },
+        {
+          "shared_players": 7,
+          "selected_rank": 46,
+          "selected_candidate": 1819,
+          "selected_names": [
+            "Eagles",
+            "Derrick Henry",
+            "Dalton Schultz",
+            "Justin Herbert",
+            "Justin Jefferson",
+            "Tre' Harris",
+            "Ladd McConkey",
+            "Bijan Robinson",
+            "Jack Bech"
+          ]
+        },
+        {
+          "shared_players": 7,
+          "selected_rank": 97,
+          "selected_candidate": 322,
+          "selected_names": [
+            "49ers",
+            "David Njoku",
+            "Justin Herbert",
+            "Justin Jefferson",
+            "Javonte Williams",
+            "Zay Flowers",
+            "Tre' Harris",
+            "Bijan Robinson",
+            "Jack Bech"
+          ]
+        },
+        {
+          "shared_players": 5,
+          "selected_rank": 11,
+          "selected_candidate": 12464,
+          "selected_names": [
+            "49ers",
+            "Dalton Schultz",
+            "Justin Jefferson",
+            "Javonte Williams",
+            "Ja'Marr Chase",
+            "Rhamondre Stevenson",
+            "C.J. Stroud",
+            "Ladd McConkey",
+            "Jaylin Noel"
+          ]
+        },
+        {
+          "shared_players": 5,
+          "selected_rank": 30,
+          "selected_candidate": 12301,
+          "selected_names": [
+            "49ers",
+            "Justin Herbert",
+            "David Montgomery",
+            "Drake London",
+            "Quentin Johnston",
+            "Tre' Harris",
+            "Ladd McConkey",
+            "Bijan Robinson",
+            "Michael Mayer"
+          ]
+        }
+      ]
+    },
+    "p230": {
+      "candidate": 848,
+      "tail_rank": 3,
+      "value": 0.005,
+      "sel_mean": 140.68255615234375,
+      "sel_p194": 0.0309,
+      "names": [
+        "49ers",
+        "Dalton Schultz",
+        "Justin Herbert",
+        "Justin Jefferson",
+        "Javonte Williams",
+        "Tre' Harris",
+        "Ladd McConkey",
+        "Bijan Robinson",
+        "Jack Bech"
+      ],
+      "nearest_selected_by_roster_overlap": [
+        {
+          "shared_players": 7,
+          "selected_rank": 8,
+          "selected_candidate": 1569,
+          "selected_names": [
+            "49ers",
+            "Christian McCaffrey",
+            "Dalton Schultz",
+            "David Njoku",
+            "Justin Herbert",
+            "Justin Jefferson",
+            "Ladd McConkey",
+            "Bijan Robinson",
+            "Jack Bech"
+          ]
+        },
+        {
+          "shared_players": 7,
+          "selected_rank": 46,
+          "selected_candidate": 1819,
+          "selected_names": [
+            "Eagles",
+            "Derrick Henry",
+            "Dalton Schultz",
+            "Justin Herbert",
+            "Justin Jefferson",
+            "Tre' Harris",
+            "Ladd McConkey",
+            "Bijan Robinson",
+            "Jack Bech"
+          ]
+        },
+        {
+          "shared_players": 7,
+          "selected_rank": 97,
+          "selected_candidate": 322,
+          "selected_names": [
+            "49ers",
+            "David Njoku",
+            "Justin Herbert",
+            "Justin Jefferson",
+            "Javonte Williams",
+            "Zay Flowers",
+            "Tre' Harris",
+            "Bijan Robinson",
+            "Jack Bech"
+          ]
+        },
+        {
+          "shared_players": 5,
+          "selected_rank": 11,
+          "selected_candidate": 12464,
+          "selected_names": [
+            "49ers",
+            "Dalton Schultz",
+            "Justin Jefferson",
+            "Javonte Williams",
+            "Ja'Marr Chase",
+            "Rhamondre Stevenson",
+            "C.J. Stroud",
+            "Ladd McConkey",
+            "Jaylin Noel"
+          ]
+        },
+        {
+          "shared_players": 5,
+          "selected_rank": 30,
+          "selected_candidate": 12301,
+          "selected_names": [
+            "49ers",
+            "Justin Herbert",
+            "David Montgomery",
+            "Drake London",
+            "Quentin Johnston",
+            "Tre' Harris",
+            "Ladd McConkey",
+            "Bijan Robinson",
+            "Michael Mayer"
+          ]
+        }
+      ]
+    }
+  },
+  "summaries": {
+    "selected": {
+      "mean": {
+        "mean": 137.1833664743345,
+        "median": 137.36024484882356,
+        "max": 150.3343576816559
+      },
+      "p220": {
+        "mean": 0.005495360824742268,
+        "median": 0.00535,
+        "max": 0.0128
+      },
+      "p230": {
+        "mean": 0.002465463917525773,
+        "median": 0.0025,
+        "max": 0.0061
+      }
+    },
+    "pool": {
+      "mean": {
+        "mean": 125.69675620867244,
+        "median": 125.89400072555541,
+        "max": 150.3343576816559
+      },
+      "p220": {
+        "mean": 0.0013430306650736759,
+        "median": 0.001,
+        "max": 0.0128
+      },
+      "p230": {
+        "mean": 0.0005242532855436082,
+        "median": 0.00035,
+        "max": 0.0061
+      }
+    },
+    "selection_metadata": {
+      "selected_sel_mean_mean": 132.82989501953125,
+      "pool_sel_mean_mean": 125.03904724121094,
+      "selected_sel_p194_mean": 0.02637113402061856,
+      "pool_sel_p194_mean": 0.012273476702508961
+    }
+  },
+  "current_outcomes_read": false,
+  "provider_calls": 0,
+  "source_columns": {
+    "frame": [
+      "id",
+      "dk_player_id",
+      "name"
+    ],
+    "candidates": [
+      "cand",
+      "players",
+      "names",
+      "sel_mean",
+      "sel_p194",
+      "aud_mean",
+      "aud_p194",
+      "gen_mean"
+    ]
+  }
+}
