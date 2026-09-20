@@ -4,6 +4,20 @@
 
 # Project handoff
 
+## 2026-09-20 — K97 pick-integrity review completed
+
+`reports/2026-09-20-k97-pick-integrity-review.md` audits the preview, fresh
+final, and promoted 97-row books with an explicit frame-column allowlist. All
+rows pass slot legality, distinct-player, salary, game-count, team-count, and
+status checks; the three books have the same lineup set, with promotion only
+permuting the order. No O/OUT/IR player or hard flag is present. The previous
+backup-QB failure mode is not present in the final-vetter flags. Carson Wentz
+(rows 18/20/94) and Drew Lock (row 52) have depth rank 2 but the Week-2 QB
+classifier labels them `role=primary` because no healthy depth-1 QB is on
+file; Tua is `qb:primary/doubtful`. The report records this as a classifier
+decision, not an accidental backup, and requests that future receipts archive
+the exact `qb-flags.csv` body rather than only its hash/path.
+
 ## 2026-09-20 — independent review of live K97 receipt
 
 The workstation's receipt package at shared handoff `e35df552` is reviewed in
