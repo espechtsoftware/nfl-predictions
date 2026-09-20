@@ -28,7 +28,8 @@ ROLE_NUM = [
     "fp_route_te_interaction","fp_route_target_interaction",
 ]
 FP_COV_NUM = ["fp_cov_tprr_edge","fp_cov_yprr_edge","fp_cov_fprr_edge","fp_cov_sep_edge","fp_cov_supported"]
-SIS_NUM = ["sis_wide_target_rate","sis_slot_target_rate","sis_wide_ypt","sis_slot_ypt","sis_wide_vulnerability","sis_slot_vulnerability","sis_wide_share","sis_alignment_edge","sis_supported"]
+SIS_PURE_NUM = ["sis_wide_target_rate","sis_slot_target_rate","sis_wide_ypt","sis_slot_ypt","sis_wide_vulnerability","sis_slot_vulnerability","sis_supported"]
+SIS_NUM = SIS_PURE_NUM + ["sis_wide_share","sis_alignment_edge"]
 
 
 def load():
@@ -109,6 +110,7 @@ def score(df, arm, test_season):
     num=BASE_NUM.copy()
     if arm in ('role','combined'): num += ROLE_NUM
     if arm in ('fp_coverage','combined'): num += FP_COV_NUM
+    if arm == 'sis_pure': num += SIS_PURE_NUM
     if arm in ('sis_coverage','combined'): num += SIS_NUM
     num=[x for x in num if x in df.columns]
     cat=['position']
@@ -128,7 +130,7 @@ if __name__=='__main__':
   df=load(); print('rows',len(df),'cols',len(df.columns),flush=True)
   results=[]
   for season in (2024,2025):
-    for arm in ('control','role','fp_coverage','sis_coverage','combined'):
+    for arm in ('control','role','fp_coverage','sis_pure','sis_coverage','combined'):
       print('scoring',season,arm,flush=True); results.append(score(df,arm,season))
   report={'protocol':'2026-09-20-paid-source-role-coverage-protocol','rows':len(df),'results':results}
   OUT.parent.mkdir(parents=True,exist_ok=True); OUT.write_text(json.dumps(report,indent=2,sort_keys=True)); print(json.dumps(report,indent=2))
