@@ -64,6 +64,15 @@ adoption. The paired shadow must freeze before outcomes and use realized max-of-
 short-term primary read, with the simulated-to-realized 220 ratio reported alongside the simulated metrics. The revised
 protocol is in `reports/2026-09-20-week3-experiment-start-plan.md`.
 
+The v2 in-season rules at production `8f590212` were also reviewed in
+`reports/2026-09-20-in-season-rules-follow-up-review.md`. The speed-up and risk classes are sound. Two registry
+repairs should precede the next prospective-gate audit: `s-shadow-cbwu-oi-paired-{early,late}` are listed as dormant
+while their reasons say “ENABLED and running,” and the paused SIS pass-tail pair remains a future gate with no frozen
+gate document or declared policy contract. Either classify the SIS schedulers dormant with a reactivation condition or
+write the gate before its Week-5 look-ahead. The Route Share research instrument is correctly marked no-current-season
+value and should remain explicitly separate from money-path authority. These are documentation/registry repairs and do
+not hold today's build.
+
 ## 2026-09-20 — promotion ENTER re-layout has a blocking row-check defect
 
 Independent synthetic review found v2.1 `relayout_enter.sh` rejects **all three** cases on a two-contest fixture: unset/default sequential, explicit sequential, and explicit top. Its final check compares each contest file to contiguous upload slices, but sequential keeper/fill rows are noncontiguous and top layout repeats the prefix. `ENTER/` is not published, so the runner safely leaves the prior bundle but cannot deliver the promoted order. [Review](reports/2026-09-20-promotion-enter-relayout-review.md), [reader](reports/reviews/evidence/2026-09-20-relayout-enter-row-check.py). Production needs a layout-aware mapping check and two-contest tests before Sunday promotion.
