@@ -4,6 +4,19 @@
 
 # Project handoff
 
+## 2026-09-20 — corrected ENTER re-layout independently verified
+
+The workstation's fixed `relayout_enter.sh` v2 (`8ba10d2`, tool SHA
+`d07addc7f5de3f17dcde427266fbd19c3bc50ee257cffb09161b50171aed8a3d`) passes an independent synthetic review across
+the default sequential, explicit sequential, ordinary top, and top-with-a-real-block layouts. Every case exited 0,
+published the atomic `ENTER` symlink, and matched the chain's expected rows; the nine-cell bundle verifier also passed.
+[Review and evidence](reports/2026-09-20-promotion-enter-relayout-v2-independent-review.md). This closes the earlier
+contiguous-slice row-check blocker. It remains a tool-path review only: the Sunday run still needs its fresh status,
+replacement, promotion, and upload receipts.
+
+The two earlier v1.2 identity follow-ups are also closed by shared `695d6ac`: the operational `e45798ba` commit is
+visible on the production remote and the v1.1/v1.2/install SHA manifests no longer contain self-entries.
+
 ## 2026-09-20 — Week-3 experiment plan prepared while Sunday chain waits for fresh status
 
 [Start plan](reports/2026-09-20-week3-experiment-start-plan.md) is committed: (1) fresh final-book mean vs P220/P230 vs proxy first-entry order, (2) risk-weighted exposure shadow with cap48/cap38 references, (3) incremental SIS/Fantasy Points/Odds source shadow with influence traces. Item1 starts immediately after fresh Sunday replacement receipts; preview evidence is not adopted.

@@ -25,6 +25,11 @@ The operational branch used for the host installation is reported as commit `e45
 
 The v1.2 `SHA256SUMS` file includes a self-entry whose listed digest does not equal the final checksum file (self-hashing is inherently unstable). Treat the individual file lines as authoritative and either remove the self-entry or label it explicitly as a generation-time digest. Do not use the current self-entry as a package-integrity check.
 
+**Follow-up status (shared `695d6ac`, received after this review):** the operational `e45798ba` commit is now visible
+on the production remote, and the self-entries were removed from the v1.1, v1.2, and install manifests. Individual
+listed-file hashes remain verified. The two identity findings above are therefore closed; the paragraphs are retained as
+the historical review record.
+
 ## D12800 status and next work
 
 The shared receipt reports D12800 complete at `20260919T153008787414Z-2dc116c`, with 12,555 candidates, K97, clean stderr, and archive `gs://nfl-2-506823-lab/research/week2-input-release-20260919/archives/20260919T153008787414Z-2dc116c-d12800/`. Its pre-replacement raw-book pooled mean is 203.45 and P220 22.3%; these are conditional simulator metrics, not NFL efficacy or post-vetter contest results. The preview final book's v1.2 promotion moves rank 7 to first at mean 144.3088699419, but that preview used scratch outputs; Sunday’s fresh status/replacement and receipts remain authoritative.
