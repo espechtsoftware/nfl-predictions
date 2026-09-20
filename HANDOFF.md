@@ -4,6 +4,10 @@
 
 # Project handoff
 
+## 2026-09-20 — promotion ENTER re-layout has a blocking row-check defect
+
+Independent synthetic review found v2.1 `relayout_enter.sh` rejects **all three** cases on a two-contest fixture: unset/default sequential, explicit sequential, and explicit top. Its final check compares each contest file to contiguous upload slices, but sequential keeper/fill rows are noncontiguous and top layout repeats the prefix. `ENTER/` is not published, so the runner safely leaves the prior bundle but cannot deliver the promoted order. [Review](reports/2026-09-20-promotion-enter-relayout-review.md), [reader](reports/reviews/evidence/2026-09-20-relayout-enter-row-check.py). Production needs a layout-aware mapping check and two-contest tests before Sunday promotion.
+
 ## 2026-09-20 — D12800 outcome-blind ordering screen prepared for fresh Sunday book
 
 Downloaded and hash-verified the completed D12800 archive (`20260919T153008787414Z-2dc116c`, 12,555 candidates, K97). [Screen](reports/2026-09-20-d12800-ordering-screen-results.md) reads only identity/candidate columns and the two selection banks. On the scratch post-replacement preview, pooled mean selects rank7 at144.3088699442 vs first139.8871983938; pooled P220 keeps rank1; P230 selects rank7. Component mean heads disagree (incumbent28, hsim14), so retain the equal-mass two-bank rule and report block cost. Raw archived book already has first row as all three heads. This is pre-vetter and not a live adoption; rerun after Sunday fresh status/replacement.

@@ -1,0 +1,52 @@
+{
+  "schema": "promotion-v2.1-relayout-row-check/v1",
+  "tool_sha256": "8e08786f1a812dca6ef6f585e9378ad51d5352d040199037d10c6240ba1afee1",
+  "verifier_sha256": "c617b2fd462df1f9eae015144f861194d190c0cd53291627290fd05b49739d1b",
+  "synthetic_contests": [
+    {
+      "name": "milly",
+      "contest_id": "1",
+      "entries": 2,
+      "keep": 1
+    },
+    {
+      "name": "flea",
+      "contest_id": "2",
+      "entries": 3,
+      "keep": 1
+    }
+  ],
+  "input_sha256": "102aaa4828bec77d37de9d5a73bbf76e84f3cb21671592429876c44d42bcd369",
+  "cases": [
+    {
+      "layout": "unset (script default)",
+      "exit_code": 1,
+      "stdout": "staged bundle verified: 2 contests, 5 entry rows, every row 9/9 cells\nMISMATCH milly: staged rows != upload rows 1-2\nMISMATCH flea: staged rows != upload rows 3-5\nstaged bundle == upload rows in contest order: False\n12:02:59Z staged bundle does not reproduce the upload order -- NOT published\n",
+      "stderr": "",
+      "enter_exists": false,
+      "published_bundle": [],
+      "output_files": []
+    },
+    {
+      "layout": "top",
+      "exit_code": 1,
+      "stdout": "staged bundle verified: 2 contests, 5 entry rows, every row 9/9 cells\nMISMATCH flea: staged rows != upload rows 3-5\nstaged bundle == upload rows in contest order: False\n12:02:59Z staged bundle does not reproduce the upload order -- NOT published\n",
+      "stderr": "",
+      "enter_exists": false,
+      "published_bundle": [],
+      "output_files": []
+    },
+    {
+      "layout": "sequential",
+      "exit_code": 1,
+      "stdout": "staged bundle verified: 2 contests, 5 entry rows, every row 9/9 cells\nMISMATCH milly: staged rows != upload rows 1-2\nMISMATCH flea: staged rows != upload rows 3-5\nstaged bundle == upload rows in contest order: False\n12:02:59Z staged bundle does not reproduce the upload order -- NOT published\n",
+      "stderr": "",
+      "enter_exists": false,
+      "published_bundle": [],
+      "output_files": []
+    }
+  ],
+  "no_production_inputs": true,
+  "current_outcomes_read": false,
+  "root": "/home/erich/projects/review-evidence/overnight-20260918/relayout-enter-row-check-vt3j9al_"
+}
