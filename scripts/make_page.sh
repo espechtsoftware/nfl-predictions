@@ -29,7 +29,8 @@ echo "sheet:  $SHEET"; echo "upload: $UPLOAD"; head -n 1 TODAY-30-LATEST.md
 TAG=$(head -n 1 TODAY-30-LATEST.md | sed -nE 's/.*Source run (\S+),.*/\1/p' | tr -d ',')
 AFTER=$(ls -td after-K*-* 2>/dev/null | head -n 1 || true)
 BOOKDIR=""
-if [[ -n "$AFTER" && -f "$AFTER/paid-vetted-replaced/book.csv" ]]; then BOOKDIR="$AFTER/paid-vetted-replaced";
+if [[ -n "$AFTER" && -f "$AFTER/paid-vetted-promoted/book.csv" ]]; then BOOKDIR="$AFTER/paid-vetted-promoted";
+elif [[ -n "$AFTER" && -f "$AFTER/paid-vetted-replaced/book.csv" ]]; then BOOKDIR="$AFTER/paid-vetted-replaced";
 elif [[ -n "$AFTER" && -f "$AFTER/paid-vetted/book.csv" ]]; then BOOKDIR="$AFTER/paid-vetted"; fi
 RUNDIR=$(ls -d "$LIVE_DIR"/*"${TAG}"* 2>/dev/null | head -n 1 || true)
 SWAPS=""
