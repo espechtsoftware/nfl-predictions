@@ -66,6 +66,8 @@ The tracked Week 2 generalisation still depended on machine-local state:
 - Hardened the shadow identity boundary and reader: the runner requires a clean clone and records its full commit, the
   optional `EXPECT_SHA` is exact, and the realized reader verifies every manifest input hash and requires an exact,
   finite, duplicate-free outcomes table keyed to the frame (including DST).
+- The wrapper now passes the exact `EXPECT_SHA` through to the runner as well as checking it before launch, so the
+  shadow manifest records the pin instead of leaving an unbound `expect_sha` field.
 - Added a launch guard that rejects the reviewed e7255e98… compatibility clone as an actual Week 3 timer pin unless
   `ALLOW_FIXTURE_PIN=1` is set explicitly for a deliberate rehearsal. The timer printer still shows the fixture so the
   operator can see exactly what must be replaced before arming.

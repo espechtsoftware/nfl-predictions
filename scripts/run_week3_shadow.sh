@@ -42,7 +42,7 @@ fi
 [[ ! -e "$OUT_DIR" ]] || fail "shadow output already exists (refusing to overwrite): $OUT_DIR"
 mkdir -p "$OUT_DIR"
 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$CLONE/src" "$LAB_PY" "$SHADOW_RUNNER" \
-  --run "$RUN_DIR" --contests "$CONTESTS_JSON" --clone "$CLONE" --out "$OUT_DIR" --label "$LABEL"
+  --run "$RUN_DIR" --contests "$CONTESTS_JSON" --clone "$CLONE" --expect-sha "$EXPECT_SHA" --out "$OUT_DIR" --label "$LABEL"
 
 hashes=$(
   "$LAB_PY" - "$OUT_DIR" <<'PY'
