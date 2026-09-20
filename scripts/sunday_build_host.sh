@@ -154,6 +154,13 @@ PYEOF
 verify_k90 "$K90_DIR" || { echo "K90 receipt verification FAILED for $K90_DIR"; exit 1; }
 [[ -n "$PAID_DIR" ]] || PAID_DIR=$K90_DIR
 echo "k90=$K90_DIR"
+# The approved Saturday D12800 build may opt into the selection-only Week-3 shadow.  Keep this explicit so fallback and
+# T-70 builds cannot silently replace the live shadow; the wrapper pins CLONE/EXPECT_SHA and refuses an existing output.
+if [[ "${RUN_WEEK3_SHADOW:-0}" == "1" ]]; then
+  SHADOW_OUT=${SHADOW_OUT:-$OUT/shadow-$RUN_TAG}
+  "$PROD/scripts/run_week3_shadow.sh" "$K90_DIR" "$SHADOW_OUT" "${SHADOW_LABEL:-live}" \
+    || { echo "WEEK3 SHADOW FAILED (see $SHADOW_OUT)"; exit 1; }
+fi
 # 2b. within-book ordering shadows (outcome-blind; graded after settlement)
 ( cd "$CLONE" && NFL2_ROOT="$CLONE" PYTHONPATH="$CLONE/src" "$LAB_PY" \
     "$TOOLS/ordering_shadows.py" "$K90_DIR" --k 30 --output "$OUT/ordering_shadows-$RUN_TAG-k30.json" \

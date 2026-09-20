@@ -51,6 +51,10 @@ The tracked Week 2 generalisation still depended on machine-local state:
 - Added a tracked candidate `scripts/host_ingest_dk_loop.sh` with single-instance pid/lock handling, explicit project
   binding, hourly salary plus contest pulls, and `--check`/`--once` modes. Its local check passes; it has not made a
   provider call. Production still needs to review it against the old host loop and prove a bounded pull before using it.
+- Added `scripts/run_week3_shadow.sh` and an explicit `RUN_WEEK3_SHADOW=1` hook after K90 receipt verification. The
+  wrapper pins the clean lab clone, refuses an existing output directory, runs the selection-only runner once, and
+  writes hashes for the manifest/books/diagnostics. It is disabled unless the runner is present and the approved build
+  explicitly enables it; no automatic git commit is performed from a timer.
 
 ## Still required before arming Week 3
 
@@ -76,6 +80,9 @@ These are operator/data decisions and cannot be guessed by the scripts:
    `GCP_PROJECT=nfl-predictions-503414` and runs both hourly ingest commands, or prove a bounded Cloud Run pull after
    the egress issue is fixed. The preflight should require a fresh `dk_salaries` snapshot and the current Sunday-main
    draft group, not merely a process exit code.
+8. After the runner branch is reconciled, enable `RUN_WEEK3_SHADOW=1` only on the approved Saturday D12800 timer and
+   verify the wrapper receipt before lock. Keep fallback/T-70 builds disabled for this hook; archive the output and its
+   hashes as the Week-3 prelock shadow record.
 
 ## Validation
 
