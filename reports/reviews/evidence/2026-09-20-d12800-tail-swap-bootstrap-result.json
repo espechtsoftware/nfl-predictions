@@ -1,0 +1,867 @@
+{
+  "schema": "d12800-tail-swap-world-bootstrap/v1",
+  "archive_manifest_sha256": "2b634256bf9f227db7c8ea4e82f35b6ce1cf2acccfab99d1610b9c7f43921063",
+  "screen_result_sha256": "f995aa77495cb2858ce855df5512d30161a61e2eeb155d9c479fc8b556b92712",
+  "source_files": {
+    "frame.parquet": "6e56f59d687b8f533ee02c05b90ec2c643c08b0e46aa78155a2c0d7b9894dab6",
+    "candidates.parquet": "9269cd4d6c30d6d43316eddb15a6e2625ad2f5b0b70b82fe2786f205a7d1a4dd",
+    "book.csv": "d134876b684224a3dc9aee68cde56fb942066d13e6f3e02f37947f2d10d20cad",
+    "receipt.json": "ddea8e7ec2be7185dc0d52099a947a84f24096c037858dc912c0f68267fed8e7",
+    "incumbent_player_scores.npy": "1d711ff9af22bea4b17505470ba516c544261f04da428f557893a9e290ec15d5",
+    "corrected_hsim_player_scores.npy": "c9f977295bde6a1987488de25ade643813cbf54d5e7c3903b753f714efe1023a"
+  },
+  "seed": 20260920,
+  "bootstraps": 1000,
+  "control_metrics": {
+    "max_mean": 203.45079616470338,
+    "max_p220": 0.22255,
+    "max_p230": 0.1212,
+    "max_p240": 0.0628
+  },
+  "arms": {
+    "1334": {
+      "candidate": 1334,
+      "names": [
+        "Chargers",
+        "Chris Moore",
+        "Dalton Schultz",
+        "Lamar Jackson",
+        "Juwan Johnson",
+        "Justin Jefferson",
+        "Javonte Williams",
+        "Zay Flowers",
+        "Bijan Robinson"
+      ],
+      "ranks": {
+        "max_mean": 8,
+        "max_p220": 80,
+        "max_p230": 72,
+        "max_p240": 41
+      },
+      "metrics": {
+        "max_mean": {
+          "rank": 8,
+          "displaced_candidate": 1569,
+          "point_metrics": {
+            "max_mean": 203.45323790359498,
+            "max_p220": 0.2228,
+            "max_p230": 0.1214,
+            "max_p240": 0.06315
+          },
+          "delta": {
+            "max_mean": {
+              "point": 0.0024417388916015627,
+              "ci95_low": -0.015275347270965575,
+              "ci95_high": 0.021614392566680907,
+              "bootstrap_replicates": 1000
+            },
+            "max_p220": {
+              "point": 0.00025,
+              "ci95_low": -0.00035,
+              "ci95_high": 0.00095,
+              "bootstrap_replicates": 1000
+            },
+            "max_p230": {
+              "point": 0.0002,
+              "ci95_low": -0.00035,
+              "ci95_high": 0.00075,
+              "bootstrap_replicates": 1000
+            },
+            "max_p240": {
+              "point": 0.00035,
+              "ci95_low": -5e-05,
+              "ci95_high": 0.0008,
+              "bootstrap_replicates": 1000
+            }
+          }
+        },
+        "max_p220": {
+          "rank": 80,
+          "displaced_candidate": 7141,
+          "point_metrics": {
+            "max_mean": 203.43642816238403,
+            "max_p220": 0.22335,
+            "max_p230": 0.12175,
+            "max_p240": 0.0634
+          },
+          "delta": {
+            "max_mean": {
+              "point": -0.014368002319335937,
+              "ci95_low": -0.036877918128967284,
+              "ci95_high": 0.0091972727394104,
+              "bootstrap_replicates": 1000
+            },
+            "max_p220": {
+              "point": 0.0008,
+              "ci95_low": 0.00025,
+              "ci95_high": 0.0014,
+              "bootstrap_replicates": 1000
+            },
+            "max_p230": {
+              "point": 0.00055,
+              "ci95_low": 0.0001,
+              "ci95_high": 0.001,
+              "bootstrap_replicates": 1000
+            },
+            "max_p240": {
+              "point": 0.0006,
+              "ci95_low": 0.00029875,
+              "ci95_high": 0.001,
+              "bootstrap_replicates": 1000
+            }
+          }
+        },
+        "max_p230": {
+          "rank": 72,
+          "displaced_candidate": 9628,
+          "point_metrics": {
+            "max_mean": 203.43630552520753,
+            "max_p220": 0.22305,
+            "max_p230": 0.1218,
+            "max_p240": 0.06335
+          },
+          "delta": {
+            "max_mean": {
+              "point": -0.01449063949584961,
+              "ci95_low": -0.037707703323364254,
+              "ci95_high": 0.008690010967254632,
+              "bootstrap_replicates": 1000
+            },
+            "max_p220": {
+              "point": 0.0005,
+              "ci95_low": -0.0001,
+              "ci95_high": 0.0011,
+              "bootstrap_replicates": 1000
+            },
+            "max_p230": {
+              "point": 0.0006,
+              "ci95_low": 0.0002,
+              "ci95_high": 0.00105,
+              "bootstrap_replicates": 1000
+            },
+            "max_p240": {
+              "point": 0.00055,
+              "ci95_low": 0.0002,
+              "ci95_high": 0.00095,
+              "bootstrap_replicates": 1000
+            }
+          }
+        },
+        "max_p240": {
+          "rank": 41,
+          "displaced_candidate": 7256,
+          "point_metrics": {
+            "max_mean": 203.40730899276733,
+            "max_p220": 0.2232,
+            "max_p230": 0.1216,
+            "max_p240": 0.0634
+          },
+          "delta": {
+            "max_mean": {
+              "point": -0.04348717193603516,
+              "ci95_low": -0.07164714365005492,
+              "ci95_high": -0.016893699417114265,
+              "bootstrap_replicates": 1000
+            },
+            "max_p220": {
+              "point": 0.00065,
+              "ci95_low": 5e-05,
+              "ci95_high": 0.00125,
+              "bootstrap_replicates": 1000
+            },
+            "max_p230": {
+              "point": 0.0004,
+              "ci95_low": -5e-05,
+              "ci95_high": 0.00085,
+              "bootstrap_replicates": 1000
+            },
+            "max_p240": {
+              "point": 0.0006,
+              "ci95_low": 0.00025,
+              "ci95_high": 0.001,
+              "bootstrap_replicates": 1000
+            }
+          }
+        }
+      }
+    },
+    "2765": {
+      "candidate": 2765,
+      "names": [
+        "Broncos",
+        "Terry McLaurin",
+        "Saquon Barkley",
+        "John Bates",
+        "CeeDee Lamb",
+        "D'Andre Swift",
+        "Jayden Daniels",
+        "Drake London",
+        "Ladd McConkey"
+      ],
+      "ranks": {
+        "max_mean": 8,
+        "max_p220": 80,
+        "max_p230": 72,
+        "max_p240": 41
+      },
+      "metrics": {
+        "max_mean": {
+          "rank": 8,
+          "displaced_candidate": 1569,
+          "point_metrics": {
+            "max_mean": 203.45387581710816,
+            "max_p220": 0.22275,
+            "max_p230": 0.12135,
+            "max_p240": 0.06305
+          },
+          "delta": {
+            "max_mean": {
+              "point": 0.0030796524047851563,
+              "ci95_low": -0.019586568336486816,
+              "ci95_high": 0.02285389490127563,
+              "bootstrap_replicates": 1000
+            },
+            "max_p220": {
+              "point": 0.0002,
+              "ci95_low": -0.00045,
+              "ci95_high": 0.00085,
+              "bootstrap_replicates": 1000
+            },
+            "max_p230": {
+              "point": 0.00015,
+              "ci95_low": -0.00035,
+              "ci95_high": 0.00065,
+              "bootstrap_replicates": 1000
+            },
+            "max_p240": {
+              "point": 0.00025,
+              "ci95_low": -0.00010124999999999993,
+              "ci95_high": 0.00065,
+              "bootstrap_replicates": 1000
+            }
+          }
+        },
+        "max_p220": {
+          "rank": 80,
+          "displaced_candidate": 7141,
+          "point_metrics": {
+            "max_mean": 203.43589056854248,
+            "max_p220": 0.2233,
+            "max_p230": 0.1217,
+            "max_p240": 0.0633
+          },
+          "delta": {
+            "max_mean": {
+              "point": -0.014905596160888672,
+              "ci95_low": -0.0387802645111084,
+              "ci95_high": 0.010154936943054197,
+              "bootstrap_replicates": 1000
+            },
+            "max_p220": {
+              "point": 0.00075,
+              "ci95_low": 0.00025,
+              "ci95_high": 0.0013,
+              "bootstrap_replicates": 1000
+            },
+            "max_p230": {
+              "point": 0.0005,
+              "ci95_low": 0.0001,
+              "ci95_high": 0.0009,
+              "bootstrap_replicates": 1000
+            },
+            "max_p240": {
+              "point": 0.0005,
+              "ci95_low": 0.0002,
+              "ci95_high": 0.00085,
+              "bootstrap_replicates": 1000
+            }
+          }
+        },
+        "max_p230": {
+          "rank": 72,
+          "displaced_candidate": 9628,
+          "point_metrics": {
+            "max_mean": 203.43547488250732,
+            "max_p220": 0.22295,
+            "max_p230": 0.12175,
+            "max_p240": 0.06325
+          },
+          "delta": {
+            "max_mean": {
+              "point": -0.015321282196044922,
+              "ci95_low": -0.038140180358886715,
+              "ci95_high": 0.01051077219009398,
+              "bootstrap_replicates": 1000
+            },
+            "max_p220": {
+              "point": 0.0004,
+              "ci95_low": -0.00020124999999999993,
+              "ci95_high": 0.001,
+              "bootstrap_replicates": 1000
+            },
+            "max_p230": {
+              "point": 0.00055,
+              "ci95_low": 0.00015,
+              "ci95_high": 0.00105,
+              "bootstrap_replicates": 1000
+            },
+            "max_p240": {
+              "point": 0.00045,
+              "ci95_low": 0.00015,
+              "ci95_high": 0.0008,
+              "bootstrap_replicates": 1000
+            }
+          }
+        },
+        "max_p240": {
+          "rank": 41,
+          "displaced_candidate": 7256,
+          "point_metrics": {
+            "max_mean": 203.40681990737914,
+            "max_p220": 0.22315,
+            "max_p230": 0.12155,
+            "max_p240": 0.0633
+          },
+          "delta": {
+            "max_mean": {
+              "point": -0.04397625732421875,
+              "ci95_low": -0.07298658922195433,
+              "ci95_high": -0.01536095991134644,
+              "bootstrap_replicates": 1000
+            },
+            "max_p220": {
+              "point": 0.0006,
+              "ci95_low": 0.0,
+              "ci95_high": 0.0011,
+              "bootstrap_replicates": 1000
+            },
+            "max_p230": {
+              "point": 0.00035,
+              "ci95_low": -0.00010124999999999993,
+              "ci95_high": 0.0008,
+              "bootstrap_replicates": 1000
+            },
+            "max_p240": {
+              "point": 0.0005,
+              "ci95_low": 0.0002,
+              "ci95_high": 0.00085,
+              "bootstrap_replicates": 1000
+            }
+          }
+        }
+      }
+    },
+    "7399": {
+      "candidate": 7399,
+      "names": [
+        "Broncos",
+        "Jordan Love",
+        "Rico Dowdle",
+        "Christian Watson",
+        "Breece Hall",
+        "Tucker Kraft",
+        "Ladd McConkey",
+        "Bijan Robinson",
+        "Matthew Golden"
+      ],
+      "ranks": {
+        "max_mean": 8,
+        "max_p220": 80,
+        "max_p230": 72,
+        "max_p240": 41
+      },
+      "metrics": {
+        "max_mean": {
+          "rank": 8,
+          "displaced_candidate": 1569,
+          "point_metrics": {
+            "max_mean": 203.44802878494264,
+            "max_p220": 0.22305,
+            "max_p230": 0.12105,
+            "max_p240": 0.063
+          },
+          "delta": {
+            "max_mean": {
+              "point": -0.0027673797607421875,
+              "ci95_low": -0.02152995376586914,
+              "ci95_high": 0.014748505134582517,
+              "bootstrap_replicates": 1000
+            },
+            "max_p220": {
+              "point": 0.0005,
+              "ci95_low": -0.00015,
+              "ci95_high": 0.00115,
+              "bootstrap_replicates": 1000
+            },
+            "max_p230": {
+              "point": -0.00015,
+              "ci95_low": -0.00065,
+              "ci95_high": 0.0003,
+              "bootstrap_replicates": 1000
+            },
+            "max_p240": {
+              "point": 0.0002,
+              "ci95_low": -0.0002,
+              "ci95_high": 0.0006012499999999988,
+              "bootstrap_replicates": 1000
+            }
+          }
+        },
+        "max_p220": {
+          "rank": 80,
+          "displaced_candidate": 7141,
+          "point_metrics": {
+            "max_mean": 203.43141525497435,
+            "max_p220": 0.2236,
+            "max_p230": 0.1214,
+            "max_p240": 0.06325
+          },
+          "delta": {
+            "max_mean": {
+              "point": -0.019380909729003908,
+              "ci95_low": -0.04192915267944336,
+              "ci95_high": 0.0020697790527343714,
+              "bootstrap_replicates": 1000
+            },
+            "max_p220": {
+              "point": 0.00105,
+              "ci95_low": 0.0005,
+              "ci95_high": 0.0017,
+              "bootstrap_replicates": 1000
+            },
+            "max_p230": {
+              "point": 0.0002,
+              "ci95_low": -0.00015,
+              "ci95_high": 0.0005512499999999989,
+              "bootstrap_replicates": 1000
+            },
+            "max_p240": {
+              "point": 0.00045,
+              "ci95_low": 0.00015,
+              "ci95_high": 0.0007512499999999989,
+              "bootstrap_replicates": 1000
+            }
+          }
+        },
+        "max_p230": {
+          "rank": 72,
+          "displaced_candidate": 9628,
+          "point_metrics": {
+            "max_mean": 203.43031072692872,
+            "max_p220": 0.22325,
+            "max_p230": 0.12145,
+            "max_p240": 0.0632
+          },
+          "delta": {
+            "max_mean": {
+              "point": -0.020485437774658204,
+              "ci95_low": -0.04232097002029419,
+              "ci95_high": 0.0008497529029846161,
+              "bootstrap_replicates": 1000
+            },
+            "max_p220": {
+              "point": 0.0007,
+              "ci95_low": 0.0001,
+              "ci95_high": 0.0014,
+              "bootstrap_replicates": 1000
+            },
+            "max_p230": {
+              "point": 0.00025,
+              "ci95_low": -0.0001,
+              "ci95_high": 0.0006012499999999988,
+              "bootstrap_replicates": 1000
+            },
+            "max_p240": {
+              "point": 0.0004,
+              "ci95_low": 0.0001,
+              "ci95_high": 0.00075,
+              "bootstrap_replicates": 1000
+            }
+          }
+        },
+        "max_p240": {
+          "rank": 41,
+          "displaced_candidate": 7256,
+          "point_metrics": {
+            "max_mean": 203.40197414474488,
+            "max_p220": 0.22345,
+            "max_p230": 0.12125,
+            "max_p240": 0.06325
+          },
+          "delta": {
+            "max_mean": {
+              "point": -0.048822019958496096,
+              "ci95_low": -0.07488985111236572,
+              "ci95_high": -0.02218373292922974,
+              "bootstrap_replicates": 1000
+            },
+            "max_p220": {
+              "point": 0.0009,
+              "ci95_low": 0.0003,
+              "ci95_high": 0.0015,
+              "bootstrap_replicates": 1000
+            },
+            "max_p230": {
+              "point": 5e-05,
+              "ci95_low": -0.00035,
+              "ci95_high": 0.00045,
+              "bootstrap_replicates": 1000
+            },
+            "max_p240": {
+              "point": 0.00045,
+              "ci95_low": 0.00015,
+              "ci95_high": 0.0008,
+              "bootstrap_replicates": 1000
+            }
+          }
+        }
+      }
+    },
+    "5211": {
+      "candidate": 5211,
+      "names": [
+        "49ers",
+        "Mark Andrews",
+        "Lamar Jackson",
+        "Devaughn Vele",
+        "Zay Flowers",
+        "Drake London",
+        "Bijan Robinson",
+        "Bucky Irving",
+        "Ted Hurst III"
+      ],
+      "ranks": {
+        "max_mean": 96,
+        "max_p220": 80,
+        "max_p230": 72,
+        "max_p240": 41
+      },
+      "metrics": {
+        "max_mean": {
+          "rank": 96,
+          "displaced_candidate": 9531,
+          "point_metrics": {
+            "max_mean": 203.43784375686644,
+            "max_p220": 0.2222,
+            "max_p230": 0.1212,
+            "max_p240": 0.06285
+          },
+          "delta": {
+            "max_mean": {
+              "point": -0.012952407836914063,
+              "ci95_low": -0.03156573112487793,
+              "ci95_high": 0.004671249275207518,
+              "bootstrap_replicates": 1000
+            },
+            "max_p220": {
+              "point": -0.00035,
+              "ci95_low": -0.001,
+              "ci95_high": 0.0002,
+              "bootstrap_replicates": 1000
+            },
+            "max_p230": {
+              "point": 0.0,
+              "ci95_low": -0.0006,
+              "ci95_high": 0.0006012499999999988,
+              "bootstrap_replicates": 1000
+            },
+            "max_p240": {
+              "point": 5e-05,
+              "ci95_low": -0.0004,
+              "ci95_high": 0.0005,
+              "bootstrap_replicates": 1000
+            }
+          }
+        },
+        "max_p220": {
+          "rank": 80,
+          "displaced_candidate": 7141,
+          "point_metrics": {
+            "max_mean": 203.4192566268921,
+            "max_p220": 0.22295,
+            "max_p230": 0.1218,
+            "max_p240": 0.0633
+          },
+          "delta": {
+            "max_mean": {
+              "point": -0.0315395378112793,
+              "ci95_low": -0.05256478660583496,
+              "ci95_high": -0.011536090011596679,
+              "bootstrap_replicates": 1000
+            },
+            "max_p220": {
+              "point": 0.0004,
+              "ci95_low": -0.0001,
+              "ci95_high": 0.0009,
+              "bootstrap_replicates": 1000
+            },
+            "max_p230": {
+              "point": 0.0006,
+              "ci95_low": 0.00015,
+              "ci95_high": 0.00105,
+              "bootstrap_replicates": 1000
+            },
+            "max_p240": {
+              "point": 0.0005,
+              "ci95_low": 0.0002,
+              "ci95_high": 0.00085,
+              "bootstrap_replicates": 1000
+            }
+          }
+        },
+        "max_p230": {
+          "rank": 72,
+          "displaced_candidate": 9628,
+          "point_metrics": {
+            "max_mean": 203.4176435836792,
+            "max_p220": 0.22265,
+            "max_p230": 0.12185,
+            "max_p240": 0.06325
+          },
+          "delta": {
+            "max_mean": {
+              "point": -0.03315258102416992,
+              "ci95_low": -0.05383520528793335,
+              "ci95_high": -0.010573590068817145,
+              "bootstrap_replicates": 1000
+            },
+            "max_p220": {
+              "point": 0.0001,
+              "ci95_low": -0.0004,
+              "ci95_high": 0.00065,
+              "bootstrap_replicates": 1000
+            },
+            "max_p230": {
+              "point": 0.00065,
+              "ci95_low": 0.00025,
+              "ci95_high": 0.0011,
+              "bootstrap_replicates": 1000
+            },
+            "max_p240": {
+              "point": 0.00045,
+              "ci95_low": 0.0001,
+              "ci95_high": 0.0008,
+              "bootstrap_replicates": 1000
+            }
+          }
+        },
+        "max_p240": {
+          "rank": 41,
+          "displaced_candidate": 7256,
+          "point_metrics": {
+            "max_mean": 203.388961088562,
+            "max_p220": 0.2228,
+            "max_p230": 0.12165,
+            "max_p240": 0.0633
+          },
+          "delta": {
+            "max_mean": {
+              "point": -0.06183507614135742,
+              "ci95_low": -0.08768566007614136,
+              "ci95_high": -0.03663173978805542,
+              "bootstrap_replicates": 1000
+            },
+            "max_p220": {
+              "point": 0.00025,
+              "ci95_low": -0.00025,
+              "ci95_high": 0.00075,
+              "bootstrap_replicates": 1000
+            },
+            "max_p230": {
+              "point": 0.00045,
+              "ci95_low": -5e-05,
+              "ci95_high": 0.0009512499999999989,
+              "bootstrap_replicates": 1000
+            },
+            "max_p240": {
+              "point": 0.0005,
+              "ci95_low": 0.0002,
+              "ci95_high": 0.00085,
+              "bootstrap_replicates": 1000
+            }
+          }
+        }
+      }
+    },
+    "2396": {
+      "candidate": 2396,
+      "names": [
+        "Ravens",
+        "David Njoku",
+        "Justin Herbert",
+        "Justin Jefferson",
+        "Zay Flowers",
+        "Tre' Harris",
+        "Bijan Robinson",
+        "Adonai Mitchell",
+        "Ashton Jeanty"
+      ],
+      "ranks": {
+        "max_mean": 97,
+        "max_p220": 80,
+        "max_p230": 72,
+        "max_p240": 41
+      },
+      "metrics": {
+        "max_mean": {
+          "rank": 97,
+          "displaced_candidate": 322,
+          "point_metrics": {
+            "max_mean": 203.44738438796998,
+            "max_p220": 0.22235,
+            "max_p230": 0.12155,
+            "max_p240": 0.0629
+          },
+          "delta": {
+            "max_mean": {
+              "point": -0.0034117767333984375,
+              "ci95_low": -0.02093624273300171,
+              "ci95_high": 0.014534584064483642,
+              "bootstrap_replicates": 1000
+            },
+            "max_p220": {
+              "point": -0.0002,
+              "ci95_low": -0.0008,
+              "ci95_high": 0.0004,
+              "bootstrap_replicates": 1000
+            },
+            "max_p230": {
+              "point": 0.00035,
+              "ci95_low": -0.00015,
+              "ci95_high": 0.00085,
+              "bootstrap_replicates": 1000
+            },
+            "max_p240": {
+              "point": 0.0001,
+              "ci95_low": -0.0003,
+              "ci95_high": 0.00055,
+              "bootstrap_replicates": 1000
+            }
+          }
+        },
+        "max_p220": {
+          "rank": 80,
+          "displaced_candidate": 7141,
+          "point_metrics": {
+            "max_mean": 203.42079378814697,
+            "max_p220": 0.22305,
+            "max_p230": 0.1218,
+            "max_p240": 0.06325
+          },
+          "delta": {
+            "max_mean": {
+              "point": -0.030002376556396485,
+              "ci95_low": -0.051671843471527104,
+              "ci95_high": -0.00929542217254639,
+              "bootstrap_replicates": 1000
+            },
+            "max_p220": {
+              "point": 0.0005,
+              "ci95_low": 0.0,
+              "ci95_high": 0.00105,
+              "bootstrap_replicates": 1000
+            },
+            "max_p230": {
+              "point": 0.0006,
+              "ci95_low": 0.0001,
+              "ci95_high": 0.0011,
+              "bootstrap_replicates": 1000
+            },
+            "max_p240": {
+              "point": 0.00045,
+              "ci95_low": 0.00015,
+              "ci95_high": 0.0008,
+              "bootstrap_replicates": 1000
+            }
+          }
+        },
+        "max_p230": {
+          "rank": 72,
+          "displaced_candidate": 9628,
+          "point_metrics": {
+            "max_mean": 203.42039664154052,
+            "max_p220": 0.2227,
+            "max_p230": 0.12185,
+            "max_p240": 0.0632
+          },
+          "delta": {
+            "max_mean": {
+              "point": -0.030399523162841797,
+              "ci95_low": -0.051734304904937745,
+              "ci95_high": -0.009524664421081543,
+              "bootstrap_replicates": 1000
+            },
+            "max_p220": {
+              "point": 0.00015,
+              "ci95_low": -0.0004,
+              "ci95_high": 0.0007,
+              "bootstrap_replicates": 1000
+            },
+            "max_p230": {
+              "point": 0.00065,
+              "ci95_low": 0.0002,
+              "ci95_high": 0.0011,
+              "bootstrap_replicates": 1000
+            },
+            "max_p240": {
+              "point": 0.0004,
+              "ci95_low": 0.0001,
+              "ci95_high": 0.00075,
+              "bootstrap_replicates": 1000
+            }
+          }
+        },
+        "max_p240": {
+          "rank": 41,
+          "displaced_candidate": 7256,
+          "point_metrics": {
+            "max_mean": 203.39150410995484,
+            "max_p220": 0.2229,
+            "max_p230": 0.12165,
+            "max_p240": 0.06325
+          },
+          "delta": {
+            "max_mean": {
+              "point": -0.059292054748535154,
+              "ci95_low": -0.08643561428070069,
+              "ci95_high": -0.032717518081665044,
+              "bootstrap_replicates": 1000
+            },
+            "max_p220": {
+              "point": 0.00035,
+              "ci95_low": -0.00015,
+              "ci95_high": 0.0009,
+              "bootstrap_replicates": 1000
+            },
+            "max_p230": {
+              "point": 0.00045,
+              "ci95_low": -5e-05,
+              "ci95_high": 0.00095,
+              "bootstrap_replicates": 1000
+            },
+            "max_p240": {
+              "point": 0.00045,
+              "ci95_low": 0.00015,
+              "ci95_high": 0.0008,
+              "bootstrap_replicates": 1000
+            }
+          }
+        }
+      }
+    }
+  },
+  "current_outcomes_read": false,
+  "provider_calls": 0,
+  "source_columns": {
+    "frame": [
+      "id",
+      "dk_player_id",
+      "name"
+    ],
+    "candidates": [
+      "cand",
+      "players",
+      "names"
+    ]
+  }
+}

@@ -4,6 +4,24 @@
 
 # Project handoff
 
+## 2026-09-20 — marginal-tail swap uncertainty check completed
+
+The outcome-blind D12800 marginal-tail screen was followed by a paired
+world-bootstrap replay for candidates 1334, 2765, 7399, 5211, and 2396 at
+their predeclared mean/220+/230+/240+ replacement ranks. The report is
+`reports/2026-09-20-d12800-tail-swap-bootstrap-results.md`; the exact result
+and replay are under `reports/reviews/evidence/`. The control maximum is
+203.4508 mean, with simulated 220+/230+/240+ probabilities of 22.255%,
+12.120%, and 6.280%. Candidate 7399 has the clearest conditional 220+
+marginal (+0.105 percentage points, paired 95% interval +0.050 to +0.170
+points at its 220+ arm), but its mean and 230+ effects remain uncertain.
+The other arms are small or mixed and none earns live adoption. This is
+conditional simulation evidence only: 1000 paired world resamples, no
+current outcomes, no provider calls, and no production mutation. Keep the
+next test as the fresh-book realized shadow of `dual_emax` versus
+`cap_prefix_then_fill`; if a tail arm is retained, predeclare 7399/220+ and
+report mean/230+/240+ tradeoffs plus realized 200/210 counts.
+
 ## 2026-09-20 — corrected ENTER re-layout independently verified
 
 The workstation's fixed `relayout_enter.sh` v2 (`8ba10d2`, tool SHA
