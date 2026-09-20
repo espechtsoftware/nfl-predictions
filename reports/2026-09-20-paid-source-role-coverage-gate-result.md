@@ -43,3 +43,15 @@ Each test season was evaluated once after training on earlier seasons. Lower is 
 This test used fixed ridge/logistic models and walk-forward folds, but it was still a historical player forecast gate rather than a full lineup experiment. It did not test red-zone route participation because that field is not present in the archived normalized tables. It also did not isolate a defender-to-receiver assignment; the SIS component is opponent/alignment aggregate context.
 
 The next valid step is a separately frozen **SIS player-coverage support and assignment study** using defender identity, coverage snaps, targets, yards, and Wide/Slot shares, with a pure SIS arm and a combined alignment arm. If that survives a support and proper-score gate, run a source-aware candidate/admission shadow. Do not promote the current feature bundle from this result.
+
+## Pure SIS decomposition
+
+After the initial result, the predeclared amendment separated SIS fields from the receiver-alignment interaction. The pure SIS arm produced:
+
+| arm | 2024 MAE | 2024 Brier-20 | 2024 Brier-30 | 2025 MAE | 2025 Brier-20 | 2025 Brier-30 |
+|---|---:|---:|---:|---:|---:|---:|
+| Control | 3.8295 | 0.051519 | 0.012813 | 3.6126 | 0.043166 | 0.010555 |
+| Pure SIS coverage | 3.8468 | 0.051548 | **0.012773** | 3.5992 | 0.043242 | 0.010559 |
+| SIS coverage × alignment | 3.8409 | 0.051694 | **0.012763** | 3.5896 | 0.043360 | **0.010535** |
+
+The pure SIS arm does not improve Brier-30 in both held-out seasons. The more consistent direction comes from the interaction between SIS coverage context and receiver alignment, especially in 2025. That makes the mechanism more interesting, but also means the vendor cannot receive sole credit yet: the next test must preserve separate pure-SIS and SIS×alignment cells and report their interaction.
