@@ -48,6 +48,9 @@ The tracked Week 2 generalisation still depended on machine-local state:
   `CHOSEN_BOOM`. An explicit `REQUIRE_CHOSEN_DOSE=0` is available only for a deliberate rehearsal.
 - The late-inactives watcher now tolerates a build still in progress at watcher start and refreshes its frame metadata
   when a newer run is published.
+- Added a tracked candidate `scripts/host_ingest_dk_loop.sh` with single-instance pid/lock handling, explicit project
+  binding, hourly salary plus contest pulls, and `--check`/`--once` modes. Its local check passes; it has not made a
+  provider call. Production still needs to review it against the old host loop and prove a bounded pull before using it.
 
 ## Still required before arming Week 3
 
