@@ -8,8 +8,9 @@
 set -uo pipefail
 CHAIN_SHA_AT_VENDORING=4d3babfdac600b8af980a2f7a454698864700de331ca2b2ed32841016e42d243
 all=${1:?UPLOAD_CSV}; OUT=${2:?OUT_DIR}; tag=${3:?TAG}; SHEET_MD=${4:-}
-PROD=${PROD:-/home/erich/projects/.nfl-predictions-worktrees/week1-audit-adjust-20260912}
-PY=${PY:-/home/erich/projects/nfl-predictions/.venv/bin/python}
+HERE=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+PROD=${PROD:-$(cd -- "$HERE"/.. && pwd)}
+PY=${PY:-${PROD_PY:-$PROD/.venv/bin/python}}
 CONTESTS_JSON=${CONTESTS_JSON:-$OUT/contests.json}; export ENTER_LAYOUT=${ENTER_LAYOUT:-sequential}
 log(){ printf '%s %s\n' "$(date -u +%H:%M:%SZ)" "$*"; }
 [ -s "$all" ] || { log "no upload csv $all"; exit 2; }; [ -s "$CONTESTS_JSON" ] || { log "no contests $CONTESTS_JSON"; exit 2; }

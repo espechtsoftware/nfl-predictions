@@ -37,14 +37,31 @@ process_run() {
   fi
   log "  replacement: $REPL_STATUS"; printf '%s\n' "$REPL_STATUS" > "$lo/replacement-status.txt"
   PYTHONPATH=$PROD/src $PY "$PROD/scripts/emit_dk_upload_csv_v1.py" --source run-dir --run-dir "$VET" --output "$OUT/upload-$tag-paid-vetted-all.csv" > "$VET/emit.json" 2>&1 || { log "emit FAILED (see $VET/emit.json)"; return 1; }
+  local all="$OUT/upload-$tag-paid-vetted-all.csv"
   mkdir -p "$lo/paid-vetted-30"; head -n 31 "$VET/book.csv" > "$lo/paid-vetted-30/book.csv"; cp "$run/frame.parquet" "$run/receipt.json" "$lo/paid-vetted-30/"
   $PY "$TOOLS/book_sheet.py" "$lo/paid-vetted-30" --banks-from "$run" --output "$OUT/lineup-sheet-$tag-paid-vetted-30" > "$lo/paid-vetted-30/sheet.out" 2>&1 || log "  sheet FAILED for the keepers"
+  local PROMOTION_STATUS="NOT REQUESTED" E="$OUT/ENTER"
+  # The reviewed MEAN first-entry promotion must run before a new ENTER bundle becomes visible to the entries watcher.
+  # It is opt-in until the production branch has been reconciled and the operator has selected the approved path.
+  # PROMOTE_FIRST_ENTRY is the documented name; RUN_FIRST_PROMOTION remains a compatibility alias for the rehearsal.
+  if [[ "${PROMOTE_FIRST_ENTRY:-${RUN_FIRST_PROMOTION:-0}}" == "1" ]]; then
+    if PROD="$PROD" PROD_PY="$PROD_PY" LAB_PY="$LAB_PY" PY="$PROD_PY" LPY="$LAB_PY" TOOLS="$TOOLS" \
+       PROMO_TOOLS="$PROD/scripts" CONTESTS_JSON="$CONTESTS_JSON" ENTER_LAYOUT="${ENTER_LAYOUT:-sequential}" \
+       "$PROD/scripts/run_promotion.sh" "$lo" "$run" "$OUT" "$tag" "$SEASON" "$WEEK" > "$lo/promotion.log" 2>&1; then
+      PROMOTION_STATUS="OK: first-entry MEAN promotion and atomic relayout published"
+      log "  $PROMOTION_STATUS"
+    else
+      PROMOTION_STATUS="FAILED: see $lo/promotion.log; previous ENTER bundle kept"
+      log "  $PROMOTION_STATUS"
+      return 1
+    fi
+  fi
   # ENTER/ is overwritten by every newer run: stable paths for the operator
   # 2026-09-17 review finding 5: stage the whole bundle, verify it, then swap it in -- the entries watcher polls this
   # directory continuously and must never see a half-written set, nor lose the previous good one on a failure.
-  local E="$OUT/ENTER" STAGE="$OUT/.ENTER-staging-$tag"
-  rm -rf "$STAGE"; mkdir -p "$STAGE" "$E"
-  local all="$OUT/upload-$tag-paid-vetted-all.csv"
+  local STAGE="$OUT/.ENTER-staging-$tag"
+  if [[ "$PROMOTION_STATUS" == "NOT REQUESTED" ]]; then
+    rm -rf "$STAGE"; mkdir -p "$STAGE" "$E"
   $PY - "$CONTESTS_JSON" "$all" "$STAGE" "$entries" <<'PYEOF' > "$STAGE/ENTER-layout.txt"
 import csv, json, sys, pathlib
 import os
@@ -110,8 +127,12 @@ PYEOF
   fi
   ln -sfn "$VER" "$E.new" && mv -T "$E.new" "$E"
   log "published bundle $tag atomically: $E -> $(readlink -f "$E")"
+  else
+    log "promotion already published the new ENTER bundle: $E -> $(readlink -f "$E")"
+  fi
   { echo "TODAY'S ENTRY = the vetted paid book (HARD/material lineups to the back), keepers first. Source run $(basename "$run"), K$entries, built $(date -u +%H:%M:%SZ), week $WEEK group $GROUP"; echo
     echo "REPLACEMENT STEP: $REPL_STATUS"; echo
+    echo "FIRST-ENTRY PROMOTION: $PROMOTION_STATUS"; echo
     echo "PER-CONTEST FILES FOR THE RESERVED ENTRIES (fill the DK entries export with scripts/fill_dk_entries.py or let the watcher do it):"
     sed 's#^#  #' "$E/ENTER-layout.txt"
     echo; echo "Files (Windows path): \\\\wsl.localhost\\Ubuntu$(echo "$E" | sed 's#/#\\#g')\\"; ls "$E"/ENTER-*.csv | xargs -n1 basename | sed 's#^#    #'

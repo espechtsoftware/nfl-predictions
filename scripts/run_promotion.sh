@@ -5,8 +5,10 @@
 #   AFTER_DIR  the chain's after-<tag>/ (paid-vetted-replaced/, replacement-status.txt, qb-flags.csv)
 #   RUN_DIR    the lab run dir (frame.parquet, candidates.parquet, receipt.json, the two selection banks)
 #   OUT_DIR    the chain's output dir (contests.json, upload-<tag>-paid-vetted-all.csv, TODAY-30-LATEST.md)
-#   env TOOLS        dir with the cleared vet_book.py + qb_classify.py + book_sheet.py (default /home/erich/week1-sunday/tools)
-#   env PROMO_TOOLS  dir with promote_first.py + first_delivered_promotion.py (default /home/erich/week2-sunday)
+#   env PROD         production checkout (default: the checkout containing this script)
+#   env PROD_PY/PY   production venv Python; env LAB_PY/LPY selects the lab venv
+#   env TOOLS        dir with the cleared vet_book.py + qb_classify.py + book_sheet.py (default $PROD/scripts)
+#   env PROMO_TOOLS  dir with promote_first.py + first_delivered_promotion.py (default $PROD/scripts)
 # Publication is staged: the upload CSV and the keepers sheet are produced under AFTER_DIR/promotion/stage/ (outside every
 # make_page.sh glob), verified against the chain's upload as the recorded permutation, and only then moved atomically into
 # OUT_DIR as upload-<tag>-promoted-paid-vetted-all.csv / lineup-sheet-<tag>-promoted-paid-vetted-30.{csv,md}.  Any failure
@@ -15,9 +17,11 @@
 # step is re-run with fresh status; the exact commands are printed.
 set -uo pipefail
 AFTER=${1:?AFTER_DIR}; RUN=${2:?RUN_DIR}; OUT=${3:?OUT_DIR}; TAG=${4:?TAG}; SEASON=${5:-2026}; WEEK=${6:-2}
-TOOLS=${TOOLS:-/home/erich/week1-sunday/tools}; PT=${PROMO_TOOLS:-/home/erich/week2-sunday}
-PROD=/home/erich/projects/.nfl-predictions-worktrees/week1-audit-adjust-20260912
-PY=/home/erich/projects/nfl-predictions/.venv/bin/python; LPY=/home/erich/projects/nfl2/.venv/bin/python
+HERE=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+PROD=${PROD:-$(cd -- "$HERE/.." && pwd)}
+PROD_PY=${PROD_PY:-$PROD/.venv/bin/python}; LAB_PY=${LAB_PY:-/home/erich/projects/nfl2/.venv/bin/python}
+PY=${PY:-$PROD_PY}; LPY=${LPY:-$LAB_PY}
+TOOLS=${TOOLS:-$PROD/scripts}; PT=${PROMO_TOOLS:-$PROD/scripts}
 VET=$AFTER/paid-vetted-replaced; PR=$AFTER/promotion; PROMOTED=$AFTER/paid-vetted-promoted; STAGE=$PR/stage
 ORIG=$OUT/upload-$TAG-paid-vetted-all.csv; UP=$OUT/upload-$TAG-promoted-paid-vetted-all.csv; SHEET=$OUT/lineup-sheet-$TAG-promoted-paid-vetted-30
 log(){ printf '%s %s\n' "$(date -u +%H:%M:%SZ)" "$*"; }
@@ -29,7 +33,7 @@ grep -qE '^OK' "$AFTER/replacement-status.txt" || fail "replacement status not O
 [ ! -e "$UP" ] || fail "$UP exists"
 for t in vet_book.py qb_classify.py; do [ -e "$TOOLS/$t" ] || fail "missing $TOOLS/$t"; done
 for t in promote_first.py first_delivered_promotion.py; do [ -e "$PT/$t" ] || fail "missing $PT/$t"; done
-BS=$TOOLS/book_sheet.py; [ -e "$BS" ] || BS=/home/erich/week1-sunday/tools/book_sheet.py
+BS=$TOOLS/book_sheet.py; [ -e "$BS" ] || fail "missing $BS"
 mkdir -p "$PR"; rm -rf "$PR/staging" "$PR/vet-final" "$STAGE"; mkdir -p "$PR/staging" "$STAGE"
 cp "$VET/book.csv" "$VET/frame.parquet" "$PR/staging/" && cp "$VET/source_receipt.json" "$PR/staging/receipt.json" || fail "staging copy"
 QBF=""; [ -e "$AFTER/qb-flags.csv" ] && QBF=$AFTER/qb-flags.csv

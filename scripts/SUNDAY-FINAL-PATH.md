@@ -29,8 +29,10 @@ path fails closed without it), `LOCK_UTC`, `LATE_CUTOFF_UTC`, `WATCH_END_UTC`. R
 09:30 CT props pull, and Sunday morning): `build-features`, `tabpfn-gen` (`TABPFN_UPCOMING=<season>:<week>`),
 `project-slate`; the newest project-slate must log "market blend source: props".
 
-In-tool defaults still pointing at this workstation (env-overridable; pass explicitly from any other host):
-`run_promotion.sh` (`PROD`, `TOOLS`, `PY`), `make_page.sh`, `gen_sheet.py`.
+The tracked tools derive their production paths from this checkout and accept explicit `PROD`, `PROD_PY`/`PY`,
+`LAB_PY`/`LPY`, `TOOLS`, `PROMO_TOOLS`, `CLONE`, `LIVE_DIR`, `OUT`, `WEEK`, and `GROUP` overrides. A live run must
+still export the real clean lab clone and full `EXPECT_SHA`; the placeholder defaults are intentionally not launch
+authority.
 
 ## Bounded rehearsal (outcome-blind, real artifacts, scratch OUT dir, synthetic entries template, no DK keys)
 

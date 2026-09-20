@@ -8,10 +8,10 @@
 set -euo pipefail
 RUN=${1:?RUN_DIR}; CLONE=${2:?LAB_CLONE}; OUTDIR=${3:?scratch OUT_DIR}; WEEK=${4:-2}
 HERE=$(cd "$(dirname "$0")" && pwd); export PROD=${PROD:-$(cd "$HERE/.." && pwd)}
-export TOOLS=${TOOLS:-$PROD/scripts}; export PROD_PY=${PROD_PY:-/home/erich/projects/nfl-predictions/.venv/bin/python}
+export TOOLS=${TOOLS:-$PROD/scripts}; export PROD_PY=${PROD_PY:-$PROD/.venv/bin/python}
 export CLONE EXPECT_SHA=${EXPECT_SHA:-$(git -C "$CLONE" rev-parse HEAD 2>/dev/null || echo unknown)}
 mkdir -p "$OUTDIR"; export OUT=$OUTDIR
-export CONTESTS_JSON=${5:-${CONTESTS_JSON:-/home/erich/week${WEEK}-sunday/contests.json}}
+export CONTESTS_JSON=${5:-${CONTESTS_JSON:-$OUTDIR/contests.json}}
 cp -n "$CONTESTS_JSON" "$OUT/contests.json" 2>/dev/null || true; export CONTESTS_JSON=$OUT/contests.json
 source "$PROD/scripts/week_env.sh"; week_env "$WEEK" >/dev/null
 export OUT=$OUTDIR TOOLS=${TOOLS} CONTESTS_JSON=$OUT/contests.json     # week_env keeps exported OUT/TOOLS; restate for clarity

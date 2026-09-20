@@ -17,9 +17,10 @@ module hash, config), books.json (ordered candidate indices and rosters per arm,
 (pooled and per-bank simulated max statistics, membership overlap with control, prefix summaries). --label rehearsal
 writes a REHEARSAL marker. No file under the run directory is modified.
 
-  LAB_PY scripts/week3_shadow_runner.py --run RUN_DIR --contests contests.json --clone LAB_CLONE --out OUT_DIR [--label rehearsal]
+  LAB_PY scripts/week3_shadow_runner.py --run RUN_DIR --contests contests.json --clone LAB_CLONE --out OUT_DIR
+                                      [--label rehearsal] [--expect-sha FULL_LAB_COMMIT_SHA]
 """
-import argparse, hashlib, json, os, pathlib, sys, time
+import argparse, hashlib, json, os, pathlib, subprocess, sys, time
 import numpy as np, pandas as pd
 
 RUNGS = {194.0: 1.0, 200.0: 2.0, 210.0: 6.0, 220.0: 12.0}
@@ -31,11 +32,49 @@ sha = lambda p: hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--run", required=True); ap.add_argument("--contests", required=True); ap.add_argument("--clone", required=True)
+ap.add_argument("--expect-sha", help="require the lab clone HEAD to equal this full 40-character commit SHA")
 ap.add_argument("--out", required=True); ap.add_argument("--label", default="live", choices=["live", "rehearsal"])
 ap.add_argument("--chunk", type=int, default=1000)
 a = ap.parse_args()
+
+
+def fail_identity(message):
+    print(f"LAB CLONE IDENTITY FAILED: {message}", file=sys.stderr)
+    sys.exit(2)
+
+
+def git_output(clone, *args):
+    try:
+        p = subprocess.run(["git", "-C", str(clone), *args], check=True, capture_output=True, text=True)
+    except (OSError, subprocess.CalledProcessError) as e:
+        detail = getattr(e, "stderr", "") or str(e)
+        fail_identity(detail.strip() or "git command failed")
+    return p.stdout.strip()
+
+
+clone = pathlib.Path(a.clone).expanduser()
+if not clone.is_dir():
+    fail_identity(f"clone directory does not exist: {clone}")
+clone_root = pathlib.Path(git_output(clone, "rev-parse", "--show-toplevel")).resolve()
+head = git_output(clone, "rev-parse", "HEAD").lower()
+if len(head) != 40 or any(ch not in "0123456789abcdef" for ch in head):
+    fail_identity(f"clone HEAD is not a full commit SHA: {head!r}")
+status = git_output(clone, "status", "--porcelain=v1", "--untracked-files=all")
+if status:
+    fail_identity(f"clone is dirty; refusing to shadow from {clone}: {status.splitlines()[:5]}")
+if a.expect_sha:
+    expected = a.expect_sha.strip().lower()
+    if len(expected) != 40 or any(ch not in "0123456789abcdef" for ch in expected):
+        fail_identity("--expect-sha must be a full 40-character hexadecimal commit SHA")
+    if head != expected:
+        fail_identity(f"expected clone SHA {expected}, found {head}")
+else:
+    expected = None
+if not (clone / "src" / "nfl2" / "selectors.py").is_file():
+    fail_identity(f"clone has no expected lab selector module: {clone / 'src' / 'nfl2' / 'selectors.py'}")
+
 run, out = pathlib.Path(a.run), pathlib.Path(a.out); out.mkdir(parents=True, exist_ok=True)
-sys.path.insert(0, str(pathlib.Path(a.clone) / "src"))
+sys.path.insert(0, str(clone / "src"))
 from nfl2.selectors import select_expected_max, cap_prefix_then_fill  # noqa: E402  (the delivered implementations)
 import nfl2.selectors as _sel  # noqa: E402
 
@@ -132,7 +171,9 @@ books = {k: {**v, "rosters": [names_by_cand[i].split("|") for i in v["order"]], 
 manifest = {"schema": "week3-shadow-runner/v1", "label": a.label, "built_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "run_dir": str(run),
             "inputs_sha256": {f: sha(run / f) for f in ["frame.parquet", "candidates.parquet", "receipt.json", "book.json", *BANKS]},
             "contests_sha256": sha(a.contests), "K": K, "sims_per_bank": sims, "banks": BANKS, "pool_size": n,
-            "selector_module": {"path": str(pathlib.Path(_sel.__file__)), "sha256": sha(_sel.__file__)}, "lab_clone": a.clone,
+            "selector_module": {"path": str(pathlib.Path(_sel.__file__)), "sha256": sha(_sel.__file__)},
+            "lab_clone": str(clone_root), "lab_clone_commit": head, "lab_clone_expected_sha": expected,
+            "lab_clone_clean": True,
             "receipt_identity": receipt.get("identity"), "receipt_selector": {k: receipt["config"].get(k) for k in ("selector", "seed", "hsim_seed", "hsim_worlds", "operational_k")},
             "totals_law": "per bank: float32 sequential sum of bank rows in ascending frame-row order; equal-mass concatenation [incumbent | corrected_hsim]",
             "parity": {"membership": parity_membership, "order": parity_order, "book_json_names": parity_book_json},

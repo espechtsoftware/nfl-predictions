@@ -27,7 +27,8 @@ BAD = {"O", "OUT", "IR", "D"}
 ap = argparse.ArgumentParser()
 ap.add_argument("upload"); ap.add_argument("run_dir"); ap.add_argument("out")
 ap.add_argument("--swap", action="append", required=True, help="ROW:OUT_DD:IN_DD (repeatable)")
-ap.add_argument("--group", type=int, default=int(os.environ.get("GROUP", "153428")))
+group_default = os.environ.get("GROUP")
+ap.add_argument("--group", type=int, default=(int(group_default) if group_default else None))
 ap.add_argument("--no-fresh-dk", action="store_true")
 ap.add_argument("--now", default=None, help="override the clock (tests only)")
 ap.add_argument("--save-fresh", default=None, help="write the fetched DraftKings draftables JSON here (receipt records its sha256)")
@@ -36,7 +37,11 @@ a = ap.parse_args()
 now = pd.Timestamp(a.now) if a.now else pd.Timestamp.now(tz="UTC")
 if now.tzinfo is None: now = now.tz_localize("UTC")
 
-sys.path.insert(0, os.environ.get("CLONE", "/home/erich/projects/.nfl2-worktrees/week2-release-2dc116c") + "/src")
+clone = os.environ.get("CLONE")
+if not clone:
+    sys.exit("CLONE must be set to the pinned lab release before applying swaps")
+prod_root = os.environ.get("PROD", str(pathlib.Path(__file__).resolve().parents[1]))
+sys.path.insert(0, clone + "/src")
 from nfl2.validator import validate_roster  # noqa: E402
 
 raw = pathlib.Path(a.upload).read_bytes()
@@ -59,7 +64,9 @@ game, start, fstatus = by.game_id.astype(str).to_dict(), by.start.to_dict(), by.
 
 fresh, fresh_source = {}, "frame status (captured at build; --no-fresh-dk)"
 if not a.no_fresh_dk:
-    sys.path.insert(0, os.environ.get("PROD", "/home/erich/projects/nfl-predictions") + "/src")
+    if a.group is None:
+        sys.exit("GROUP or --group is required for a fresh DraftKings swap check")
+    sys.path.insert(0, prod_root + "/src")
     from nfl_dfs.ingest.dk_client import fetch_draftables  # noqa: E402
     if a.fresh_file:
         feed = json.loads(pathlib.Path(a.fresh_file).read_text()); feed_note = f"saved feed {a.fresh_file}"
