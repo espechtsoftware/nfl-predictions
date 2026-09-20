@@ -2,9 +2,23 @@
 positions under the coverage-220 / novelty / world-leader orderings (from an ordering_shadows JSON), Sunday
 line-movement score and vanished-player veto flag (from a market_move JSON).  Outcome-blind.
 Usage: python book_sheet.py RUN_DIR --shadows JSON [--market JSON] [--banks-from DIR] --output PREFIX"""
-import argparse, json, pathlib
+import argparse, json, os, pathlib
 from collections import Counter
 import numpy as np, pandas as pd
+
+def artifact_roots(run):
+    """Find optional sibling receipts without requiring the retired Week-1 host directory."""
+    run = pathlib.Path(run)
+    roots = [pathlib.Path(v) for v in (os.environ.get("SUNDAY_ARTIFACTS"), os.environ.get("OUT")) if v]
+    roots.extend((run.parent, run.parent.parent))
+    legacy = pathlib.Path("/home/erich/week1-sunday")
+    if legacy.is_dir():
+        roots.append(legacy)
+    result = []
+    for root in roots:
+        if root.is_dir() and root not in result:
+            result.append(root)
+    return result
 
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("run"); ap.add_argument("--shadows"); ap.add_argument("--market"); ap.add_argument("--banks-from"); ap.add_argument("--output", required=True); a = ap.parse_args()
@@ -22,7 +36,9 @@ def main():
             if k in sh["orderings"]: full_pos[k] = pos_of[k]
     # learned-score outputs: paid-book positions (for the paid run) or per-lineup scores (for a learned shadow book dir)
     learned, lscores = {}, None
-    for lj in pathlib.Path("/home/erich/week1-sunday").glob("learned-*/paid_book_positions.json"):
+    roots = artifact_roots(run)
+    for root in roots:
+      for lj in root.glob("learned-*/paid_book_positions.json"):
         try:
             rec = json.load(open(lj))
             if pathlib.Path(rec.get("source_run", "")).resolve() == run.resolve(): learned = rec["positions"]
@@ -35,13 +51,15 @@ def main():
     mk = json.load(open(a.market)) if a.market else None
     # auto-detect sibling vetting / composite outputs for this run (by source_run in their receipts)
     comp_pos, vet_tier = {}, {}
-    for cj in pathlib.Path("/home/erich/week1-sunday").glob("composite-*/composite_receipt.json"):
+    for root in roots:
+      for cj in root.glob("composite-*/composite_receipt.json"):
         try:
             rec = json.load(open(cj))
             if pathlib.Path(rec.get("source_run", "")).resolve() == run.resolve():
                 comp_pos = {int(i): pidx + 1 for pidx, i in enumerate(rec["order_source_ranks"])}
         except Exception: pass
-    for vj in pathlib.Path("/home/erich/week1-sunday").glob("vetted-*/vetting.json"):
+    for root in roots:
+      for vj in root.glob("vetted-*/vetting.json"):
         try:
             rec = json.load(open(vj))
             if pathlib.Path(rec.get("source_run", "")).resolve() == run.resolve():

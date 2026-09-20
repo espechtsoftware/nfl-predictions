@@ -4,7 +4,14 @@
 #   source scripts/week_env.sh && week_env 2; scripts/sunday_watch_dk_entries.sh
 set -u
 : "${OUT:?source scripts/week_env.sh and call week_env WEEK first}" "${LIVE_DIR:?}" "${PROD_PY:?}" "${TOOLS:?}"
-E=$OUT/ENTER; T=$TOOLS/fill_dk_entries.py; WIN=${WIN_DOWNLOADS:-/mnt/c/Users/Erich/Downloads}
+E=$OUT/ENTER; T=$TOOLS/fill_dk_entries.py
+if [ -n "${WIN_DOWNLOADS:-}" ]; then
+  WIN=$WIN_DOWNLOADS
+elif [ -d /mnt/c/Users/erich/Downloads ]; then
+  WIN=/mnt/c/Users/erich/Downloads
+else
+  WIN=/mnt/c/Users/Erich/Downloads
+fi
 : "${WEEK:?}"
 log() { echo "$(date -u +%H:%M:%SZ) $*"; }
 last=""

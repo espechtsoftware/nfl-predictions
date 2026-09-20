@@ -6,10 +6,10 @@
 # draftable-ID upload CSVs per contest from $CONTESTS_JSON.  It never publishes and never uploads.
 #
 #   source scripts/week_env.sh && week_env 2 [GROUP]; scripts/sunday_build_host.sh          # RUN_TAG defaults to now
-#   RUN_TAG=20260920t1550z-e7255e9 scripts/sunday_build_host.sh                             # T-70 rebuild
+#   RUN_TAG=20260920t1550z-$RUN_SUFFIX scripts/sunday_build_host.sh                         # T-70 rebuild
 #
 # Dose (2026-09-16, operator decision for Week 2): the K90 book's dose is PAID_LEV/PAID_BOOM, taken from the
-# environment or from $DOSE_FILE (default /home/erich/week<W>-dose.env, sourced FIRST).  SKIP_PAIR=1 skips the
+# environment or from $DOSE_FILE (default $OUT/dose.env, sourced FIRST).  SKIP_PAIR=1 skips the
 # governed D-pair of scripts/sunday_runbook.sh (a publisher artifact; the K90's ranks 1-80 are the paid K80) so a
 # big-dose build costs one stream, not two.  EXTRA_LEV/EXTRA_BOOM add an optional extra shadow book.  Several
 # builds may run concurrently on Sunday morning (01:30 CT 12,800 / 05:30 CT 6,400 / 09:10 CT 3,200 / 10:50 CT 800):
@@ -20,7 +20,7 @@ set -uo pipefail
 mkdir -p "$OUT"
 LOG="$OUT/build-$(date -u +%Y%m%dT%H%M%SZ).log"; exec > >(tee -a "$LOG") 2>&1
 RUN_TAG=${RUN_TAG:-$(date -u +%Y%m%dt%H%Mz)-$RUN_SUFFIX}
-DOSE_FILE=${DOSE_FILE:-/home/erich/week${WEEK}-dose.env}   # optional: PAID_LEV=640 PAID_BOOM=2560 [EXTRA_LEV= EXTRA_BOOM=]
+DOSE_FILE=${DOSE_FILE:-$OUT/dose.env}   # optional: PAID_LEV=640 PAID_BOOM=2560 [EXTRA_LEV= EXTRA_BOOM=]
 # shellcheck disable=SC1090
 [[ -f "$DOSE_FILE" ]] && source "$DOSE_FILE"
 export PAID_LEV=${PAID_LEV:-160} PAID_BOOM=${PAID_BOOM:-640}
@@ -154,7 +154,7 @@ verify_k90 "$K90_DIR" || { echo "K90 receipt verification FAILED for $K90_DIR"; 
 [[ -n "$PAID_DIR" ]] || PAID_DIR=$K90_DIR
 echo "k90=$K90_DIR"
 # 2b. within-book ordering shadows (outcome-blind; graded after settlement)
-( cd "$CLONE" && PYTHONPATH="/home/erich/projects/.nfl2-worktrees/live-center-production-20260912/src" "$LAB_PY" \
+( cd "$CLONE" && NFL2_ROOT="$CLONE" PYTHONPATH="$CLONE/src" "$LAB_PY" \
     "$TOOLS/ordering_shadows.py" "$K90_DIR" --k 30 --output "$OUT/ordering_shadows-$RUN_TAG-k30.json" \
     > "$OUT/ordering_shadows-$RUN_TAG-k30.txt" 2>&1 ) && echo "ordering shadows -> $OUT/ordering_shadows-$RUN_TAG-k30.json" || echo "ORDERING SHADOWS FAILED (see $OUT/ordering_shadows-$RUN_TAG-k30.txt)"
 

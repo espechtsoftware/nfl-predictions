@@ -112,7 +112,7 @@ PYEOF
   log "published bundle $tag atomically: $E -> $(readlink -f "$E")"
   { echo "TODAY'S ENTRY = the vetted paid book (HARD/material lineups to the back), keepers first. Source run $(basename "$run"), K$entries, built $(date -u +%H:%M:%SZ), week $WEEK group $GROUP"; echo
     echo "REPLACEMENT STEP: $REPL_STATUS"; echo
-    echo "PER-CONTEST FILES FOR THE RESERVED ENTRIES (fill the DK entries export with scripts/week1_fill_dk_entries.py or let the watcher do it):"
+    echo "PER-CONTEST FILES FOR THE RESERVED ENTRIES (fill the DK entries export with scripts/fill_dk_entries.py or let the watcher do it):"
     sed 's#^#  #' "$E/ENTER-layout.txt"
     echo; echo "Files (Windows path): \\\\wsl.localhost\\Ubuntu$(echo "$E" | sed 's#/#\\#g')\\"; ls "$E"/ENTER-*.csv | xargs -n1 basename | sed 's#^#    #'
     echo; echo "Vetting flags on the keepers (from the FINAL book; replacement rows re-vetted):"; $PY - "$VET" <<'PYF' 2>/dev/null
@@ -139,14 +139,19 @@ if [ "${1:-}" = "once" ]; then
   [ -d "$2" ] || { echo "not a run dir: $2" >&2; exit 2; }
   process_run "$2" "$3"; exit $?
 fi
-# CHOSEN DOSE (2026-09-17, operator: enter the D12800 book): the poll processes only run dirs whose receipt lev/boom
+# CHOSEN DOSE: the poll processes only run dirs whose receipt lev/boom
 # equal CHOSEN_LEV/CHOSEN_BOOM (from the environment or $CHOSEN_FILE), so later builds at other doses never overwrite
 # ENTER/.  Run dirs that already exist at start (the Saturday-night builds) are processed too, oldest first, so the
 # newest matching book ends up in ENTER/.  Fallback: edit the chosen-dose file (e.g. to 1280/5120) and restart this
-# script, or run `sunday_after_build.sh once <run dir> <tag>` by hand.  Unset CHOSEN_LEV = process every K90 build.
-CHOSEN_FILE=${CHOSEN_FILE:-/home/erich/week${WEEK}-chosen-dose.env}
+# script, or run `sunday_after_build.sh once <run dir> <tag>` by hand.  The polling path fails closed when no chosen
+# dose is configured; set REQUIRE_CHOSEN_DOSE=0 only for an explicit all-dose rehearsal.
+CHOSEN_FILE=${CHOSEN_FILE:-$OUT/chosen-dose.env}
 # shellcheck disable=SC1090
 [ -f "$CHOSEN_FILE" ] && source "$CHOSEN_FILE"
+if [[ "${REQUIRE_CHOSEN_DOSE:-1}" == "1" && ( -z "${CHOSEN_LEV:-}" || -z "${CHOSEN_BOOM:-}" ) ]]; then
+  log "no chosen dose configured; create $CHOSEN_FILE with CHOSEN_LEV=... and CHOSEN_BOOM=... (or set REQUIRE_CHOSEN_DOSE=0 for a rehearsal)"
+  exit 2
+fi
 matches_chosen() {  # $1 run dir -> 0 if the receipt's lev/boom equal the chosen dose (or no dose is chosen)
   [ -z "${CHOSEN_LEV:-}" ] && return 0
   $PY - "$1" "$CHOSEN_LEV" "$CHOSEN_BOOM" <<'PYEOF'

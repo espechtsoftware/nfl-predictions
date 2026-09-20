@@ -21,12 +21,21 @@ For the run's selected book (ranks 1..K80/K90), computes several orderings and w
   random            a seeded random k-subset (grading reference)
 No realized score is read.  Grade after the slate: max realized score of each set vs the entered set.
 """
-import argparse, hashlib, importlib.util, json, pathlib, sys
+import argparse, hashlib, importlib.util, json, os, pathlib, sys
 from collections import Counter
 from datetime import UTC, datetime
 import numpy as np, pandas as pd
 
-NOV_SRC = pathlib.Path("/home/erich/projects/.nfl2-worktrees/live-center-production-20260912/scripts/prereg060_qd_frontier.py")
+def novelty_source():
+    roots = []
+    for value in (os.environ.get("NFL2_ROOT"), os.environ.get("CLONE")):
+        if value and value not in roots:
+            roots.append(value)
+    for root in roots:
+        candidate = pathlib.Path(root) / "scripts/prereg060_qd_frontier.py"
+        if candidate.is_file():
+            return candidate
+    raise SystemExit("ordering_shadows: prereg060_qd_frontier.py not found; set CLONE/NFL2_ROOT to the clean live checkout")
 
 def load(run, banks_from):
     run = pathlib.Path(run); bsrc = pathlib.Path(banks_from or run)
@@ -41,8 +50,9 @@ def load(run, banks_from):
     return run, book, rosters, totals(inc), totals(hs), game
 
 def nov_plan(M, k):
-    spec = importlib.util.spec_from_file_location("p060", NOV_SRC); m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
-    return [int(i) for i in m._novelty_plan(M, k)], hashlib.sha256(NOV_SRC.read_bytes()).hexdigest()
+    src = novelty_source()
+    spec = importlib.util.spec_from_file_location("p060", src); m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+    return [int(i) for i in m._novelty_plan(M, k)], hashlib.sha256(src.read_bytes()).hexdigest()
 
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("run"); ap.add_argument("--k", type=int, default=30); ap.add_argument("--banks-from"); ap.add_argument("--output"); a = ap.parse_args()

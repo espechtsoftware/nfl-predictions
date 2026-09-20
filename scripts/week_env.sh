@@ -9,26 +9,45 @@
 #
 # Exports: SEASON WEEK WEEKDIR SUNDAY LOCK_UTC LATE_CUTOFF_UTC WATCH_END_UTC GROUP OUT CLONE PROD PROD_PY LAB_PY
 #          TOOLS CONTESTS_JSON RUN_SUFFIX EXPECT_SHA LIVE_DIR ENTER_LAYOUT BOOK_ENTRIES
-week_env() {
-  local week=${1:?week}; local group=${2:-${GROUP:-}}
+WEEK_ENV_REPO=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
+
+# Resolve paths and dates without querying providers or reading contest reservations. Used when printing timers.
+week_settings() {
+  local week=${1:?week}
+  [[ "$week" =~ ^([1-9]|1[0-8])$ ]] || { echo 'week_env: week must be 1..18' >&2; return 2; }
   export SEASON=${SEASON:-2026}
   export WEEK=$week
-  export WEEKDIR=$(printf '%s-w%02d' "$SEASON" "$WEEK")
-  # Week-1 Sunday of the 2026 season is 2026-09-13; regular-season weeks are seven days apart.
-  export SUNDAY=$(date -u -d "2026-09-13 + $(( (WEEK - 1) * 7 )) days" +%Y-%m-%d)
-  export LOCK_UTC="$SUNDAY 17:00:00+00:00"            # 12:00 CT main-slate lock (DST in force through early November)
-  export LATE_CUTOFF_UTC="$SUNDAY 18:30:00+00:00"     # games starting after this are the late-afternoon window
-  export WATCH_END_UTC="$SUNDAY 20:25:00+00:00"       # late-inactives watcher exits at 15:25 CT
-  export OUT=${OUT:-/home/erich/week${WEEK}-sunday}
-  export CLONE=${CLONE:-/home/erich/projects/.nfl2-worktrees/week1-live-center-e7255e9}   # live_week.py, NFL2_LIVE_CENTER=production
-  export EXPECT_SHA=${EXPECT_SHA:-e7255e98bf87297452befb61fb508ad4b368b59f}
-  export RUN_SUFFIX=${EXPECT_SHA:0:7}
-  export PROD=${PROD:-/home/erich/projects/.nfl-predictions-worktrees/week1-audit-adjust-20260912}
+  [[ "$SEASON" =~ ^[0-9]{4}$ ]] || { echo 'week_env: season must be a four-digit year' >&2; return 2; }
+  if [[ -z "${FIRST_SUNDAY:-}" ]]; then
+    [[ "$SEASON" == 2026 ]] || { echo 'week_env: set FIRST_SUNDAY for seasons other than 2026' >&2; return 2; }
+    FIRST_SUNDAY=2026-09-13
+  fi
+  WEEKDIR=$(printf '%s-w%02d' "$SEASON" "$WEEK")
+  SUNDAY=$(date -u -d "$FIRST_SUNDAY + $(( (WEEK - 1) * 7 )) days" +%Y-%m-%d) || return
+  export FIRST_SUNDAY WEEKDIR SUNDAY
+  local name spec epoch
+  for spec in 'LOCK_UTC 12:00' 'LATE_CUTOFF_UTC 13:30' 'WATCH_END_UTC 15:25' 'AFTER_BUILD_END_UTC 11:50' 'ENTRIES_END_UTC 11:58'; do
+    read -r name spec <<< "$spec"
+    epoch=$(TZ=America/Chicago date -d "$SUNDAY $spec" +%s) || return
+    printf -v "$name" '%s' "$(date -u -d "@$epoch" '+%Y-%m-%d %H:%M:%S+00:00')"
+    export "$name"
+  done
+  export OUT=${OUT:-$HOME/week${WEEK}-sunday}
+  # The live revision is a reviewed weekly choice, never inferred from an arbitrary checkout HEAD.
+  export CLONE=${CLONE:-${NFL2_LIVE_CLONE:-/home/erich/projects/.nfl2-worktrees/week3-live-center}}
+  export EXPECT_SHA=${EXPECT_SHA:-${NFL2_EXPECT_SHA:-e7255e98bf87297452befb61fb508ad4b368b59f}}
+  export CLONE EXPECT_SHA
+  export RUN_SUFFIX=${RUN_SUFFIX:-${EXPECT_SHA:0:7}}
+  export PROD=${PROD:-$WEEK_ENV_REPO}
   export PROD_PY=${PROD_PY:-/home/erich/projects/nfl-predictions/.venv/bin/python}
   export LAB_PY=${LAB_PY:-/home/erich/projects/nfl2/.venv/bin/python}
-  export TOOLS=${TOOLS:-/home/erich/week1-sunday/tools}
+  # TOOLS may point to the independently reviewed host bundle until all its helpers are in scripts/. Preflight
+  # refuses missing helpers; it never substitutes the old week1_vet_book.py for the current QB-aware vetter.
+  export TOOLS=${TOOLS:-$PROD/scripts}
   export CONTESTS_JSON=${CONTESTS_JSON:-$OUT/contests.json}
   export LIVE_DIR="$CLONE/results/live/$WEEKDIR"
+  export CHOSEN_FILE=${CHOSEN_FILE:-$OUT/chosen-dose.env}
+  export DOSE_FILE=${DOSE_FILE:-$OUT/dose.env}
   # Entry layout (operator decision 2026-09-18, week 2 on): "sequential" gives every contest its OWN block of book
   # ranks, so no lineup is ever entered in two contests; "top" gave every contest ranks 1..N (the Week-1 behaviour).
   # Contest order in contests.json IS the priority order -- the first contest gets the best ranks -- so keep that file
@@ -36,11 +55,19 @@ week_env() {
   # derives BOOK_ENTRIES from contests.json and every downstream check (verify_k90, the bundle verifier, the filler)
   # is governed by it.  Set ENTER_LAYOUT=top in the environment to fall back.
   export ENTER_LAYOUT=${ENTER_LAYOUT:-sequential}
+}
+
+week_env() {
+  local week=${1:?week}; local group=${2:-${GROUP:-}}
+  week_settings "$week" || return
   # Book size.  Derived HERE, not in the build script, so the build, the after-build chain, the watchers and the bundle
   # verifier all agree: under "sequential" every entry needs its own lineup, so the book must hold the entry total;
   # under "top" every contest reuses ranks 1..N and 90 is enough.  Never let a consumer fall back to a bare 90 under
   # "sequential" -- that would let a short book past the gate and fail later, confusingly, at the bundle verifier.
-  export BOOK_ENTRIES=${BOOK_ENTRIES:-$("$PROD_PY" -c "import json,os,sys; c=json.load(open(sys.argv[1])); tot=sum(int(x['entries']) for x in c); print(max(90, tot) if os.environ.get('ENTER_LAYOUT','top')=='sequential' else 90)" "$CONTESTS_JSON")}
+  if [[ -z "${BOOK_ENTRIES:-}" ]]; then
+    BOOK_ENTRIES=$("$PROD_PY" -c "import json,os,sys; c=json.load(open(sys.argv[1])); tot=sum(int(x['entries']) for x in c); print(max(90, tot) if os.environ.get('ENTER_LAYOUT','top')=='sequential' else 90)" "$CONTESTS_JSON") || return
+  fi
+  export BOOK_ENTRIES
   if [[ -z "$group" ]]; then
     group=$(PYTHONPATH="$PROD/src" "$PROD_PY" "$PROD/scripts/find_main_draft_group.py" --season "$SEASON" --sunday "$SUNDAY") || { echo "week_env: could not detect the Sunday-main draft group for $SUNDAY (set GROUP explicitly)" >&2; return 1; }
   fi
