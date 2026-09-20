@@ -1,10 +1,16 @@
 # K97 Ladd McConkey risk review
 
+> **Current-artifact correction:** this review was written against the earlier
+> pre-Tua refresh and reported 26 rows. The exact regenerated/uploaded book
+> now contains 28 McConkey rows, including positions 27 and 28. See
+> [`2026-09-20-mcconkey-first30-reconciliation.md`](2026-09-20-mcconkey-first30-reconciliation.md)
+> for the byte-bound reconciliation.
+
 ## Finding
 
 This is a real concentration risk, but it is not evidence that the K97 CSV is
-corrupt or that McConkey was mistaken for a backup. The final book contains
-McConkey in 26 of 97 lineups (26.8%). Every one of those rows carries the same
+corrupt or that McConkey was mistaken for a backup. The current regenerated
+book contains McConkey in 28 of 97 lineups (28.9%). Every one of those rows carries the same
 signals: DraftKings `Questionable`, report `Questionable`, Friday `Limited`,
 and `market:no_props`.
 
@@ -41,8 +47,9 @@ not cap.
 The risk vetter kept the first 26 delivered entries free of McConkey. The
 promoted Millionaire row (row 1, candidate 2123, source book-rank 33) has no
 McConkey flag. McConkey first appears at delivered row 27, so the highest-prize
-entry is not exposed to this particular uncertainty. His 26-row concentration
-is in the lower contest blocks and is still material there.
+entry is not exposed to this particular uncertainty. The current 28-row
+concentration is in the lower contest blocks and is still material there; rows
+27 and 28 are in the $40K Nickel block.
 
 ## Recommendation for today
 
@@ -54,7 +61,7 @@ he plays his normal role, and there is no validated live rule that converts
 At the official inactive window:
 
 1. Fetch fresh DraftKings status and the official inactives list.
-2. If McConkey is OUT/IR, replace all 26 affected rows with the normal fresh
+2. If McConkey is OUT/IR, replace all 28 affected rows with the normal fresh
    vetting/replacement chain and rerun promotion. Do not hand-edit only the
    Millionaire file; the Millionaire row is not affected, while lower contest
    blocks are.

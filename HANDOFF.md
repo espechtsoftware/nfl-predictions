@@ -2,6 +2,19 @@
 > **Operator's own Week-2 steps (timers, Saturday refresh, Sunday upload): `reports/2026-09-17-week2-operator-checklist.md`.**
 > **Operator's machine-move guide: `reports/2026-09-15-workstation-to-laptop-transition-guide.md`.**
 
+## 2026-09-20 — McConkey artifact correction and exposure diagnostic
+
+The current regenerated/uploaded K97 book contains 28/97 McConkey rows, with
+two at delivered positions 27 and 28. The first 26 rows and the Millionaire
+row are clean; the earlier receipt sentence claiming that the first 30 were
+clean was stale. The exact book and Windows DKEntries export still match as a
+97-lineup multiset. See `reports/2026-09-20-mcconkey-first30-reconciliation.md`.
+
+The outcome-blind exposure diagnostic is in
+`reports/2026-09-20-k97-exposure-diagnostic.md` and its evidence files. It
+finds that McConkey contributes unique simulated tail worlds, so a blanket
+exposure cap is not justified without a risk-weighted shadow.
+
 # Project handoff
 
 ## 2026-09-20 — Bateman versus Bech entry review
