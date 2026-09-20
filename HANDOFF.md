@@ -17,6 +17,16 @@ replacement, promotion, and upload receipts.
 The two earlier v1.2 identity follow-ups are also closed by shared `695d6ac`: the operational `e45798ba` commit is
 visible on the production remote and the v1.1/v1.2/install SHA manifests no longer contain self-entries.
 
+## 2026-09-20 — production paid-source update reviewed
+
+[Review](reports/2026-09-20-production-paid-source-update-review.md) confirms the Fantasy Points Week-1 correction:
+the capture was partial rather than wholly failed, but the live matchup collector archives CSVs only and has no
+BigQuery/production feature consumer. The new SIS Week-1 loader is isolated from the Sunday SQL path and has good
+artifact/hash checks, but its new weekly frame does not add the normal `source_run_id`/`ingested_at`, does not prove a
+complete schedule-derived team-game universe, has no deterministic append job identity/post-write hash audit, and is
+not wired to a weekly caller despite the handoff saying it is part of the cadence. These are concrete provenance and
+operations follow-ups; no Sunday production change is recommended. Shared lab handoff records the same findings.
+
 ## 2026-09-20 — Week-3 experiment plan prepared while Sunday chain waits for fresh status
 
 [Start plan](reports/2026-09-20-week3-experiment-start-plan.md) is committed: (1) fresh final-book mean vs P220/P230 vs proxy first-entry order, (2) risk-weighted exposure shadow with cap48/cap38 references, (3) incremental SIS/Fantasy Points/Odds source shadow with influence traces. Item1 starts immediately after fresh Sunday replacement receipts; preview evidence is not adopted.
