@@ -4,6 +4,17 @@
 
 # Project handoff
 
+## 2026-09-20 — Bateman versus Bech entry review
+
+`reports/2026-09-20-bateman-bech-entry-review.md` reviews the exact Windows
+Downloads `DKEntries.csv` Bateman entry (line 97, $40K Nickel). The final
+Ravens inactive report rules out Zay Flowers and Ja'Kobi Lane and explicitly
+makes Bateman the lead WR. Bech remains a depth-three Raiders receiver at 40%
+recent snaps and a lower 18.5 implied team total. A same-world tail check gives
+the Bech swap a small mean edge but the Bateman entry a better 220+/230+/240+
+tail and higher simulated maximum. Recommendation: keep Bateman; do not make
+the straight swap, which also leaves $800 unused and breaks the Lamar stack.
+
 ## 2026-09-20 — McConkey concentration review
 
 `reports/2026-09-20-mcconkey-risk-review.md` reviews the 26/97 McConkey
