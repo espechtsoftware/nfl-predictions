@@ -35,13 +35,15 @@ flea-block cost for Monday's evidence record.
 
 The 09:12 CT watcher timer started a transient service that launched detached
 children. Systemd's default control-group cleanup killed all three watchers,
-leaving empty logs and no ENTER bundle. The operator relaunched the exact
-command manually at 14:35:00Z; the chain watcher completed at 14:35:46Z and
-the entries and late-inactives watchers were then alive. The book was not
-changed, but late-status coverage began late. The receipt's next step is the
-15:30Z inactives sweep, followed by the 16:15Z upload deadline and 17:00Z
-lock. Week 3 should use a persistent watcher unit (or an explicitly verified
-interactive launch), with a one-minute liveness and non-empty-log check.
+leaving empty logs and no ENTER bundle. The workstation assistant relaunched
+the exact command from its shell at 14:35:00Z; the chain watcher completed at
+14:35:46Z and the entries and late-inactives watchers were then alive. The
+operator's remaining actions are the upload and any afternoon swap upload.
+The book was not changed, but late-status coverage began late. The receipt's
+next step is the 15:30Z inactives sweep, followed by the 16:15Z upload deadline
+and 17:00Z lock. Week 3 should use a persistent watcher unit (or an explicitly
+verified interactive launch), with a one-minute liveness and non-empty-log
+check.
 
 Evidence is in `handoffs/receipts/2026-09-20-sunday-live-k97/` on the shared
 handoff branch, including `sunday-watchers-timer-defect.md` and the complete
