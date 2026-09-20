@@ -3,7 +3,7 @@
 # entrypoints and pass every path explicitly; they do not depend on deleted /home/erich/week<W>-sunday-* wrappers.
 #
 #   scripts/arm_week_timers.sh 3             # print the Week-3 commands
-#   scripts/arm_week_timers.sh 3 --run       # arm them (operator action)
+#   scripts/arm_week_timers.sh 3 --run       # preflight, then arm them (operator action)
 #
 # The build doses are explicit environment values so a missing or stale dose file cannot silently turn the D3200 slot
 # into a D800 build.  Adjust the D*_LEV/D*_BOOM variables for a tested plan before arming.
@@ -78,6 +78,8 @@ L3200=("${BASE_ENV[@]}" "PAID_LEV=$D3200_LEV" "PAID_BOOM=$D3200_BOOM" SKIP_PAIR=
 L800=("${BASE_ENV[@]}" "PAID_LEV=$D800_LEV" "PAID_BOOM=$D800_BOOM" SKIP_PAIR=1 DOSE_FILE=/dev/null "RUN_TAG=$(tag 10:50 d800)" "$DRIVER")
 LW=("${BASE_ENV[@]}" "${WATCH_FLAGS[@]}" "$WATCHER")
 HI=("${BASE_ENV[@]}" "GCP_PROJECT=${GCP_PROJECT:-nfl-predictions-503414}" "$INGEST_LOOP")
+CHECK_BUILD=("${BASE_ENV[@]}" "$DRIVER" --check)
+CHECK_WATCH=("${BASE_ENV[@]}" "${WATCH_FLAGS[@]}" "$WATCHER" --check)
 HOST_LINE="# HOST_INGEST=1 enables the tracked hourly DraftKings fallback after its --check"
 if [[ "${HOST_INGEST:-0}" == "1" ]]; then
   HOST_LINE="systemd-run --user --unit=\"$UI\" ${HI[*]}"
@@ -106,6 +108,12 @@ $HOST_LINE
 EOT
 
 if [[ "$RUN" == "--run" ]]; then
+  echo "running build and watcher preflights before arming timers"
+  "${CHECK_BUILD[@]}"
+  "${CHECK_WATCH[@]}"
+  if [[ "${HOST_INGEST:-0}" == "1" ]]; then
+    "$INGEST_LOOP" --check
+  fi
   systemd-run --user --on-calendar="$SATURDAY 10:30 America/Chicago" --unit="$U12800" "${L12800[@]}"
   systemd-run --user --on-calendar="$SATURDAY 10:35 America/Chicago" --unit="$U6400SAT" "${L6400SAT[@]}"
   systemd-run --user --on-calendar="$SUNDAY 05:30 America/Chicago" --unit="$U6400" "${L6400[@]}"

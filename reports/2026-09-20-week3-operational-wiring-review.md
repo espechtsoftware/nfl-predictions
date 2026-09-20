@@ -63,6 +63,9 @@ The tracked Week 2 generalisation still depended on machine-local state:
   to the Saturday D12800 timer; fallback and T-70 builds cannot overwrite its prelock record. `arm_week_timers.sh` can
   also print or arm the tracked hourly DraftKings fallback as `nfl-week<WEEK>-host-dk-ingest` when `HOST_INGEST=1`; it
   remains opt-in because arming it makes provider calls.
+- `arm_week_timers.sh 3 --run` now runs the build and watcher preflights before invoking systemd. Missing contests,
+  chosen dose, dirty/mismatched clones, dirty production code, missing tools, and insufficient book size stop arming
+  before any timer is created.
 - Hardened the shadow identity boundary and reader: the runner requires a clean clone and records its full commit, the
   optional `EXPECT_SHA` is exact, and the realized reader verifies every manifest input hash and requires an exact,
   finite, duplicate-free outcomes table keyed to the frame (including DST).
