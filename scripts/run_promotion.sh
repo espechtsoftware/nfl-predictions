@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# run_promotion.sh v2.1 -- Week-2 class E (operator-authorized 2026-09-19): apply the labs' frozen first-delivered promotion
+# run_promotion.sh v2.2 -- Week-2 class E (operator-authorized 2026-09-19): apply the labs' frozen first-delivered promotion
 # (MEAN rule) to the FINAL delivered book.  Runs AFTER the cleared after-build chain; touches none of its files.
 #   run_promotion.sh AFTER_DIR RUN_DIR OUT_DIR TAG [SEASON WEEK]
 #   AFTER_DIR  the chain's after-<tag>/ (paid-vetted-replaced/, replacement-status.txt, qb-flags.csv)

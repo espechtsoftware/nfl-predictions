@@ -55,6 +55,16 @@ The tracked Week 2 generalisation still depended on machine-local state:
   wrapper pins the clean lab clone, refuses an existing output directory, runs the selection-only runner once, and
   writes hashes for the manifest/books/diagnostics. It is disabled unless the runner is present and the approved build
   explicitly enables it; no automatic git commit is performed from a timer.
+- Reconciled the final-path v2 package onto this branch. `PROMOTE_FIRST_ENTRY=1` now runs the frozen MEAN first-entry
+  promotion after replacement and before a new ENTER bundle is published, so the entries watcher sees one atomic
+  promoted bundle. The promotion and relayout helpers derive their production paths from this checkout; no deleted
+  Week-1/Week-2 worktree is used as an implicit default.
+- Added explicit timer propagation for the Week-3 shadow and promotion flags. `arm_week_timers.sh` can also print or
+  arm the tracked hourly DraftKings fallback as `nfl-week<WEEK>-host-dk-ingest` when `HOST_INGEST=1`; it remains opt-in
+  because arming it makes provider calls.
+- Hardened the shadow identity boundary and reader: the runner requires a clean clone and records its full commit, the
+  optional `EXPECT_SHA` is exact, and the realized reader verifies every manifest input hash and requires an exact,
+  finite, duplicate-free outcomes table keyed to the frame (including DST).
 
 ## Still required before arming Week 3
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """apply_swaps.py v1.1 -- apply one-for-one player swaps to an all-lineups upload CSV (draftable-id cells) and write a new upload.
 
-  apply_swaps.py UPLOAD_CSV RUN_DIR OUT_CSV --swap ROW:OUT_DD:IN_DD [--swap ...] [--group 153428] [--no-fresh-dk] [--now ISO8601]
+  apply_swaps.py UPLOAD_CSV RUN_DIR OUT_CSV --swap ROW:OUT_DD:IN_DD [--swap ...] [--group GROUP] [--no-fresh-dk] [--now ISO8601]
                  [--save-fresh PATH] [--fresh-file PATH]
 
 ROW is the 1-based lineup row in UPLOAD_CSV order (row 1 = the Millionaire entry); OUT_DD / IN_DD are dk_draftable_ids,

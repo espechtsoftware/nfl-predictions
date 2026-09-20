@@ -7,7 +7,7 @@ set -Eeuo pipefail
 
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 PROD=${PROD:-$(cd -- "$SCRIPT_DIR/.." && pwd)}
-PROD_PY=${PROD_PY:-$PROD/.venv/bin/python}
+PROD_PY=${PROD_PY:-${NFL_PREDICTIONS_PY:-/home/erich/projects/nfl-predictions/.venv/bin/python}}
 CLI=${CLI:-$PROD/.venv/bin/nfl-dfs}
 GCP_PROJECT=${GCP_PROJECT:-nfl-predictions-503414}
 INTERVAL_SECONDS=${INTERVAL_SECONDS:-3600}
