@@ -19,6 +19,10 @@ The tracked Week 2 generalisation still depended on machine-local state:
   build itself was unaffected only because the operator relaunched the chain manually.
 - The post-build watcher could process every dose when `chosen-dose.env` was absent, which could overwrite `ENTER/` with
   an unintended fallback book.
+- The hourly DraftKings fallback is also machine-local and is absent from this laptop. Cloud Run `ingest-dk` and
+  `ingest-contests` remain subject to the documented DraftKings-egress 403, so a healthy timer can still build from
+  stale salaries, statuses, draft groups, and contest fills unless a tracked host loop or a proven egress repair is
+  in place.
 
 ## Changes in this branch
 
@@ -60,6 +64,10 @@ These are operator/data decisions and cannot be guessed by the scripts:
 6. Before arming, run `scripts/arm_week_timers.sh 3` and inspect every printed command. Only then use `--run`. During
    Sunday, run `OUT=/home/erich/week3-sunday scripts/check_week_watchers.sh` periodically; an old heartbeat is a stop
    condition, not a reason to continue entering.
+7. Resolve the DK ingest path before arming: production must either land a tracked, restartable host loop that exports
+   `GCP_PROJECT=nfl-predictions-503414` and runs both hourly ingest commands, or prove a bounded Cloud Run pull after
+   the egress issue is fixed. The preflight should require a fresh `dk_salaries` snapshot and the current Sunday-main
+   draft group, not merely a process exit code.
 
 ## Validation
 
