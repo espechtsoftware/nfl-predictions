@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Check the persistent supervisor's heartbeat and child logs. This is read-only and safe to run from a second shell.
 set -Eeuo pipefail
-OUT=${OUT:?set OUT to the week's output directory}
+OUT=${OUT:?set OUT to the week output directory}
 MAX_AGE=${MAX_AGE:-90}
 W="$OUT/watchers"
 H="$W/heartbeat"
