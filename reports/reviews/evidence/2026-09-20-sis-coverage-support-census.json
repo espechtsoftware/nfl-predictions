@@ -1,0 +1,38 @@
+{
+  "outcome_free": true,
+  "rows": [
+    {
+      "alignment": "slot",
+      "avg_defenders": 3.6002759889604414,
+      "avg_defenders_20_snaps": 0.03541858325666973,
+      "avg_defenders_3_targets": 0.5864765409383625,
+      "avg_snaps": 27.523459061637535,
+      "avg_target_hhi": 0.5430769684849333,
+      "avg_targets": 4.6283348666053366,
+      "avg_top_target_share": 0.6167515474081369,
+      "cells": 2174,
+      "cells_lt10": 2062,
+      "cells_lt3": 138,
+      "p10_defenders": 3,
+      "p50_defenders": 4,
+      "p90_defenders": 5
+    },
+    {
+      "alignment": "wide",
+      "avg_defenders": 3.531855955678671,
+      "avg_defenders_20_snaps": 0.008771929824561403,
+      "avg_defenders_3_targets": 0.8204062788550323,
+      "avg_snaps": 21.335180055401665,
+      "avg_target_hhi": 0.5543893922815697,
+      "avg_targets": 5.478301015697138,
+      "avg_top_target_share": 0.6328124677761998,
+      "cells": 2166,
+      "cells_lt10": 1943,
+      "cells_lt3": 171,
+      "p10_defenders": 3,
+      "p50_defenders": 3,
+      "p90_defenders": 5
+    }
+  ],
+  "source_table": "sis_receiver_copula_player_game"
+}
