@@ -56,6 +56,14 @@ This is a shortlist for fresh independent-bank testing, not a live replacement r
 candidate-specific swaps on fresh pre-outcome selection/audit worlds, then test a full marginal-tail selector only if
 the gain survives both components and the independent audit.
 
+Lab peer review `f462aff` agrees with the reading and clarifies the next arm. The marginal-tail experiment is the
+existing `cap_prefix_then_fill` frontier law (PREREG-016), so the Week-3 comparison must be named `dual_emax` versus
+`cap_prefix_then_fill` with rungs 220/230/240, mean tie-break, and the current overlap cap. Historical reads also show
+that simulated extreme-tail gains can fail on realized outcomes; therefore the D12800 mechanism screen cannot authorize
+adoption. The paired shadow must freeze before outcomes and use realized max-of-K plus 200+/210+ clear counts as the
+short-term primary read, with the simulated-to-realized 220 ratio reported alongside the simulated metrics. The revised
+protocol is in `reports/2026-09-20-week3-experiment-start-plan.md`.
+
 ## 2026-09-20 — promotion ENTER re-layout has a blocking row-check defect
 
 Independent synthetic review found v2.1 `relayout_enter.sh` rejects **all three** cases on a two-contest fixture: unset/default sequential, explicit sequential, and explicit top. Its final check compares each contest file to contiguous upload slices, but sequential keeper/fill rows are noncontiguous and top layout repeats the prefix. `ENTER/` is not published, so the runner safely leaves the prior bundle but cannot deliver the promoted order. [Review](reports/2026-09-20-promotion-enter-relayout-review.md), [reader](reports/reviews/evidence/2026-09-20-relayout-enter-row-check.py). Production needs a layout-aware mapping check and two-contest tests before Sunday promotion.
