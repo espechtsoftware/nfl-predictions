@@ -64,3 +64,22 @@ tail advantage while costing mean and being over-selected. Week-3 candidate expe
 the labs' exposure-policy shadow): a construction cap of at most three same-team pass-catchers (forbid depth 4) and a
 shadow at most two, scored on mean, P220/P230, max-of-K and contest-prefix costs on the frozen pool; realized
 max-of-K and 200+/210+ clears as the primary read. Not an adoption.
+
+## Addendum (16:50Z): denominators, selection odds ratio, slate-cluster intervals
+
+Requested by the labs' review (production research `252e20d4`). Same panel and depth definition; depth 4 pooled into
+"3+" (607 candidates; 101 of 107 slates have at least one). 2,000 slate-cluster bootstrap resamples over the 107 slates.
+
+| quantity | depth 2 | depth 3+ | difference / ratio | slate-cluster 95% |
+|---|---:|---:|---:|---:|
+| candidates (denominator) | 26,444 | 607 | | |
+| selected share | 0.311 | 0.535 | odds ratio 2.55 | 1.72 to 4.11 |
+| mean actual | 116.6 | 113.7 | -2.96 | -7.00 to +1.15 |
+| P(actual >= 187) | 0.0080 | 0.0049 | -0.0030 | -0.0092 to +0.0042 |
+| P(actual >= 194) | 0.0031 | 0.0049 | +0.0015 | -0.0036 to +0.0084 |
+
+Slate-weighted: within each of the 101 slates, the selected share of depth-3+ candidates exceeds that of depth-2
+candidates by +0.41 on average (median +0.40), positive in 90% of slates. Reading: the selector's preference for deep
+stacks is robust across slates; the realized mean and tail differences are not distinguishable from zero at this cell
+size. This supports the Week-3 paired construction shadow (control / max depth 3 / max depth 2, frozen before outcomes,
+realized max-of-K and 200+/210+ clears primary, slate-cluster intervals, minimum depth-cell counts), not a live cap.
