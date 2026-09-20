@@ -1,7 +1,7 @@
 # Week 3 operational wiring review
 
 This review answers the practical question of what still has to be wired before the next Sunday build. It is on the
-operational branch `fix/week3-operational-wiring-20260920` (tip `2259c22b`); it does not alter the current entered book,
+operational branch `fix/week3-operational-wiring-20260920` (tip `9dc63cbd`); it does not alter the current entered book,
 arm timers, or execute cloud jobs.
 
 ## Findings
