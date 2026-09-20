@@ -23,8 +23,8 @@ Intervals are 10,000 slate-cluster bootstrap resamples. Infeasible slates are ex
 
 ## Reading
 
-- A p90 floor of 12 is materially less destructive than a mean floor of 12: it retains 2 historical 220+ and 230+ pool-oracle slates among the feasible slates. It still has one infeasible slate, loses the control at every selected high-tail count, and has a negative selected-max mean.
-- Floors of 8 and 10 are nearly the control in this historical screen. Floor 8 is feasible everywhere and preserves 220/230, but loses one 240 clear. Floor 10 is infeasible on one slate and loses one 220 and one 240 clear.
+- A p90 floor of 12 is materially less destructive than a mean floor of 12: it retains 2 historical 220+ and 230+ pool-oracle slates among the feasible slates. It still has one infeasible slate, loses the control at the selected 210/220/240 counts, and has a negative selected-max mean.
+- Floors of 8 and 10 are nearly the control in this historical screen. Floor 8 is feasible everywhere and preserves 220/230, but loses one 240 clear. Floor 10 is infeasible on one slate, ties the control at 220/230, and loses one 240 clear.
 - This does not justify adding a p90 floor to the Week-3 first shadow: the p90 signal is a different policy lever and remains outcome-informed here. If the mean-floor shadow is informative, the p90 threshold can be registered as a later separate arm without changing the generator or p90 punt valuation.
 
 Evidence: [result JSON](reviews/evidence/2026-09-20-projection-p90-selection-screen-result.json), [reader](../../scripts/reproduce_projection_p90_selection_screen.py).
