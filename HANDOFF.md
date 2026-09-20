@@ -4,6 +4,26 @@
 
 # Project handoff
 
+## 2026-09-20 — independent review of live K97 receipt
+
+The workstation's receipt package at shared handoff `e35df552` is reviewed in
+`reports/2026-09-20-sunday-live-receipt-review.md`. All 12 package SHA-256
+values match; replacement is publishable (49 replacements/42 exclusions),
+final vetting has hard 0, material 39, clean/soft 58, zero unavailable rows,
+and all source/bank/book bindings pass. The outcome-blind fresh-final ordering
+screen confirms the authorized MEAN promotion of source rank 7 into the
+Millionaire slot (pooled mean 144.309 versus delivered first 139.887); P230
+also selects rank 7 while P220 keeps rank 1. The displaced ranks 2–24 block
+cost is recorded (−0.477 mean-max, −0.290 pp P220, −0.150 pp P230).
+
+The receipt also documents a watcher-timer defect: the 09:12 transient
+service killed detached children under systemd's control group, so the exact
+watcher command was relaunched manually at 14:35Z and completed the chain at
+14:35:46Z. The book was unaffected; the entries and late-inactives watchers
+were then alive. Week 3 needs a persistent watcher unit or verified hand
+launch with a one-minute liveness/log check. No production code or current
+outcomes were changed or opened by this review.
+
 ## 2026-09-20 — marginal-tail swap uncertainty check completed
 
 The outcome-blind D12800 marginal-tail screen was followed by a paired
