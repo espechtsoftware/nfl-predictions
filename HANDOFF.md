@@ -80,8 +80,11 @@ that would assert today's code produced August's evidence.
 - **DK host loop swapped.** Prototype pid 4129 (running since Sep 16, no
   cleanup trap) stopped while mid-`sleep`, no pull in flight. Tracked
   `scripts/host_ingest_dk_loop.sh` now runs as pid 2947633 in its own session
-  with `PROD` on this branch. First pair: `ingest-dk exit=0`,
-  `ingest-contests exit=0`, 1,679 fresh `dk_salaries` rows. `OUT` was left
+  with `PROD` on this branch. **Validated across two consecutive hourly cycles**,
+  not just at start: pair 1 at 18:30:01Z and pair 2 at 19:29:47Z (3,586s later,
+  as scheduled), both `ingest-dk exit=0` / `ingest-contests exit=0`, 1,679 fresh
+  `dk_salaries` rows each. Ongoing cover does not depend on this session — with
+  the CFB noise fixed, `check-freshness` alerts on a stale `dk_salaries` again. `OUT` was left
   unset so `PID_FILE` resolved to the prototype's own path — the script's guard
   was proven to refuse (`pid 4129 ... is still running`, exit 2) before
   anything was stopped, so the double-pull risk was eliminated mechanically.
