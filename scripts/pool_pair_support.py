@@ -132,7 +132,13 @@ def main(argv=None) -> int:
     a = ap.parse_args(argv)
 
     import pandas as pd
-    pool = pd.read_csv(a.pool)
+    # The Sunday build writes candidates.parquet directly, so this reads the run
+    # output with no post-hoc CSV step — which is what makes it wireable into the
+    # chain rather than a thing someone remembers to do afterwards.
+    src = pathlib.Path(a.pool)
+    if not src.is_file():
+        raise SystemExit(f"pool not found: {src}")
+    pool = pd.read_parquet(src) if src.suffix == ".parquet" else pd.read_csv(src)
     if "names" not in pool.columns:
         raise SystemExit(f"{a.pool} has no `names` column")
     rosters = [str(n).split("|") for n in pool.names]
