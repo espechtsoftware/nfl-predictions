@@ -2,6 +2,27 @@
 > **Operator's own Week-2 steps (timers, Saturday refresh, Sunday upload): `reports/2026-09-17-week2-operator-checklist.md`.**
 > **Operator's machine-move guide: `reports/2026-09-15-workstation-to-laptop-transition-guide.md`.**
 
+## 2026-09-21 — Fantasy Points live matchup capture repair, staging loader, shadow join
+
+Branch `research/2026-09-paid-source-preflight` (workstation agent implements, lab agent
+reviews; ownership note on nfl2 `review/prereg101-reply-20260918` @ 2434ff7). Root causes
+and repair are in `reports/2026-09-21-fantasy-points-matchup-capture-incident.md`: the
+vendor served two Week-1 schedules across requests (gate was right, single-shot capture
+could not line up three reports) and Week 3 was not open on Sunday night (control
+reverted after Apply; old manifest could not say so). Changes: capture manifest schema 2
+with bounded re-apply, all attempts kept, three control states and typed
+`failure_class`; per-run `status-ledger.json` (downloaded -> validated -> staged ->
+consumed, no skipping); new `ingest/fantasy_points_matchups_weekly.py` staging loader
+(re-derives every gate; run dir or the Week-1 seal; append key includes the source hash;
+deterministic load job id); new `research/fp_matchup_shadow.py` (latest capture strictly
+before kickoff, `MatchupLeakageError` otherwise; `nfl_features.fp_matchup_shadow_*`;
+not wired into `featureset.py`/`sql/features`, test-asserted). Tests: 31 new/updated
+offline tests plus 37 neighbours green. Reality contact: real Week-1 seal re-validates in
+dry-run (QB 61/58 resolved, WR 284/250, OL/DL 32; nothing written). No BigQuery write
+has been run; operator commands are in the incident note section 4. `ops/
+weekly_vendor_data.py` unchanged. Next: lab review of the schema contract, then
+`--write` for Week 1 and the Week-3 capture once the vendor opens the week.
+
 ## 2026-09-20 — McConkey artifact correction and exposure diagnostic
 
 The current regenerated/uploaded K97 book contains 28/97 McConkey rows, with
