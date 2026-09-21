@@ -36,9 +36,9 @@ and its gaps · 6 tools · 7 paid data · 8 the two-agent channel · 9 ranked ri
    workstation inbox is polled every 300 s. Nothing watches the channel automatically — poll it yourself.
 4. **Re-establish a periodic check.** The previous session polled both remotes every 5 minutes and the host hourly.
    Session crons die with the session. Poll: both remotes, the DK loop, and from Saturday the week timers.
-5. **Know the three things that block Week 3** before you plan anything (details in section 5):
-   the `project-slate` image still runs the Week-2 defect; the Week-3 host files do not exist; the watchers are still
-   armed as a transient unit, which is exactly how Week 2 lost them.
+5. **Know what actually blocks Week 3** before you plan anything (section 5): the `project-slate` image still runs
+   the Week-2 defect, arming must be done from the integration branch rather than the old operational worktree, and
+   two operator inputs are missing.
 
 ---
 
@@ -249,20 +249,33 @@ Deadline: the Thursday game locks 2026-09-24 20:15 ET; the Sunday main slate loc
 Authoritative input list: `reports/2026-09-15-week2-operating-handoff.md` §3a and
 `reports/2026-09-21-monday-command-sheet.md`.
 
-**Blocking gaps, in the order they bite:**
+**Blocking gaps, in the order they bite** (re-verified 2026-09-21 against the integration tree, which corrected two
+earlier claims in this file — see the note at the end of this list):
 
-- **The Week-3 host files do not exist** (section 2.4). Create `week3-sunday-build.sh`, `week3-sunday-watchers.sh`
-  and `/home/erich/week3-sunday/` from the Week-2 versions, and get the operator's `week3-chosen-dose.env`, before
-  Saturday. `arm_week_timers.sh 3 --run` fails without them.
-- **The watchers are still a transient `systemd-run` unit.** This is the exact Week-2 failure: the 09:12 transient
-  service exited in two seconds and systemd killed its detached children, so no entries were ever filled. No
-  persistent unit has been written. Either write one or verify the three watcher processes by hand immediately after
-  arming — do not assume.
-- **The operational worktree cannot run the documented chain.** It is missing eleven scripts the cadence calls:
-  `run_week_build.sh`, `run_week_watchers.sh`, `run_promotion.sh`, `relayout_enter.sh`, `run_week3_shadow.sh`,
-  `rehearse_final_path.sh`, `exposure_sheet.py`, `regeneration_lineage.py`, `check_build_inputs.py`,
-  `check_market_monitor.py`, `week3_shadow_runner.py`. **Week 3 must run from a checkout of
-  `production/week3-integration-20260921`**, not from `e45798ba`.
+- **Arm from the integration branch, not from the old operational worktree.** `e45798ba` is missing eleven scripts
+  the cadence calls (`run_week_build.sh`, `run_week_watchers.sh`, `run_promotion.sh`, `relayout_enter.sh`,
+  `run_week3_shadow.sh`, `rehearse_final_path.sh`, `exposure_sheet.py`, `regeneration_lineage.py`,
+  `check_build_inputs.py`, `check_market_monitor.py`, `week3_shadow_runner.py`), and its own
+  `arm_week_timers.sh` still points `DRIVER`/`WATCHER` at the untracked `/home/erich/week3-sunday-*.sh` wrappers,
+  which do not exist. On the integration branch those default to the tracked
+  `scripts/run_week_build.sh` and `scripts/run_week_watchers.sh` instead. **This one gap causes the other two
+  symptoms**, so fix it first and they disappear.
+- **Two operator inputs are missing**, and the preflight refuses without them (verified by running
+  `scripts/run_week_build.sh 3 --check` and `run_week_watchers.sh 3 --check` on 2026-09-21):
+  `/home/erich/week3-sunday/contests.json` and `/home/erich/week3-sunday/chosen-dose.env` (`CHOSEN_LEV` /
+  `CHOSEN_BOOM`; Week 2 used 2560 / 10240). Note the dose file lives **inside `$OUT`**, not at
+  `/home/erich/week3-chosen-dose.env`. The directory itself does not need creating — `week_env.sh` runs
+  `mkdir -p "$OUT"`. When `contests.json` is absent the preflight currently reports a raw Python traceback rather
+  than a clean message; that is cosmetic, and it does stop.
+
+**Two claims in the 2026-09-21 06:00 version of this file were wrong and are withdrawn.** (a) "The Week-3 host
+files do not exist, so arming fails" — the tracked entrypoints exist precisely so that systemd no longer depends on
+those untracked wrappers; nothing needs to be created. (b) "The watchers are still a transient unit, the exact
+Week-2 loss mode" — `run_week_watchers.sh` is a supervisor that starts the three watchers, **waits** on them, writes
+a heartbeat to `$OUT/watchers/heartbeat`, logs each to `$OUT/watchers/<name>.log` and kills them all on exit. The
+Week-2 failure (a wrapper that forked and exited, so systemd tore down the cgroup) is fixed. The systemd unit is
+still created by `systemd-run`, but the service now stays alive because the supervisor blocks. Still verify the
+three processes after arming, and use the heartbeat to check remotely.
 
 **Monday/Tuesday.** DraftKings standings and contest-history exports (operator, browser) → `nfl-dfs
 capture-dk-standings` validation, then `--confirm-settled --confirm-full-field --apply` for the twelve Week-2
@@ -442,8 +455,10 @@ bind.
 
 1. `project-slate` serves the Week-2 defect until the image is rebuilt. Proof: Jefferson 25.349166975629 is still the
    maximum projection in the newest batch.
-2. The Week-3 host files and dose file do not exist; arming will fail.
-3. The watchers are transient — the Week-2 loss mode is unrepaired.
+2. `contests.json` and `chosen-dose.env` for Week 3 are missing from `/home/erich/week3-sunday/`; the preflight
+   refuses until the operator supplies both.
+3. Arming from the old operational worktree `e45798ba` gets the pre-fix behaviour (untracked wrappers, no watcher
+   supervisor). Arm from the integration branch.
 4. The Sunday chain cannot run from the operational worktree; it needs the integration branch.
 5. The uncommitted `arm_week_timers.sh` patch is one `git checkout` from gone.
 6. Week-2 standings expire around 2026-09-24 and have not been applied; the field-calibration harness has no Week-2
