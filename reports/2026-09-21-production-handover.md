@@ -145,6 +145,10 @@ Times are Central. Authoritative list of inputs: `reports/2026-09-15-week2-opera
 - `nfl-dfs capture-dk-standings` (capture branch): validation, then apply with the two confirmations.
 - `scripts/check_prospective_gates.py --week N` (operational worktree): the frozen pre-lock gates; the three Route Share
   FAILs are known and accepted until the operator's Monday decision.
+- `scripts/check_build_inputs.py --season 2026 --week N --chosen-dose $OUT/chosen-dose.env --contests $OUT/contests.json
+  [--receipt PATH]` (market repair branch): the money-build input gate (projection batch freshness and coverage, the
+  market-source monitor, the TabPFN cache for the target week, the dose file and contests.json); exit 1 stops the
+  laptop's preflight; it FAILs today because the monitor is not deployed and the Week-2 batch is stale.
 - `scripts/check_market_monitor.py --season 2026 --week N` (market repair branch): the latest projection batch's market
   sources (age, props share, model-only players); FAIL until the repaired image has run. Run it Tuesday after the
   first repaired batch, before the Saturday build and before the Sunday chain.
@@ -205,8 +209,9 @@ Times are Central. Authoritative list of inputs: `reports/2026-09-15-week2-opera
 ## 8. Where things are
 
 - Reports (rules branch): post-mortem, evidence record (Realized table filled from the standings; nflverse items
-  TODO), Monday command sheet (section 2a: capture), SIS pass-tail gate draft, data-source value map, stack-depth
-  read, Week-1 field ownership read, QB availability repair design, this handover.
+  TODO), Monday command sheet (section 2a: capture), Week-2 supplier scorecard (corrected-HSIM marginal best; props
+  best external, receivers only; no paid source scorable), season-window audit, SIS pass-tail gate draft, data-source
+  value map, stack-depth read, Week-1 field ownership read, QB availability repair design, this handover.
 - Reply branch (nfl2): all handoff notes (`handoffs/2026-09-2*`), receipts (`handoffs/receipts/2026-09-21-week2-post-mortem/`:
   contest field summary, our 97 results, player signals, pool realized, standings ownership + FPTS, top-100 lineups
   without user identifiers, top-10 features, games, regeneration rows, capture validation log, the Week-2 exposure
