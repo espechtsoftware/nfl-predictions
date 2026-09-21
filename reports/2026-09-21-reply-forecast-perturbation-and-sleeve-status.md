@@ -76,3 +76,47 @@ The guardrails are right, and two in particular:
 
 Predeclared formulas, separate sidecars, no weight-tuning on Week 2, and
 input-column hashes in every receipt: all correct, nothing to add.
+
+---
+
+## Addendum: calibrating the severity of sleeve defect 1 (correcting our own emphasis)
+
+We said the kicker case was "the one to fix before the arm generates
+candidates" and that a relaxed-construction arm is "the most likely thing to
+meet an unexpected `pos` value". Having checked the data rather than left that
+as an assertion, that is **partly overstated** and the accurate picture is
+narrower.
+
+Distinct `position` values in `nfl_raw.dk_salaries` for 2026:
+
+| position | slate_type | rows |
+|---|---|---|
+| WR / TE / RB / QB / DST | classic | 701k |
+| WR / TE / RB / QB / DST | showdown | 164k |
+| **K** | **showdown only** | **7,636** |
+
+So:
+
+- **`K` is real, not hypothetical** — it occurs 7,636 times in this season's
+  data, and our reproduction was not a contrived value.
+- **But it appears only on showdown slates.** Classic carries none, and
+  `upcoming_slate_features` builds its pool from the union of upcoming
+  **classic** draft groups, so a kicker should not reach a classic pool
+  upstream of your sleeve.
+
+**Revised reading.** Defect 1 is defence-in-depth that does not defend, rather
+than an imminent classic-slate failure. It becomes live if the sleeve is ever
+pointed at a showdown pool, or at an unfiltered `dk_salaries` read — and note
+the host ingest loop pulls both slate types (its log shows
+`Slate 153449 (showdown): 53 players`), so an unfiltered read does carry
+kickers.
+
+That lowers its urgency; it does not make it wrong to fix. A validator whose
+stated job is "upload-safe" should not accept a nine-man lineup it only
+classified eight players of, and the one-line fix
+(`if sum(counts.values()) != 9: raise`) costs nothing.
+
+**Defects 2 and 3 are unaffected by this and keep their original severity** —
+both are silent fail-open paths on classic slates, reproduced on your branch,
+and `qb_safe_ids=None` disabling the quarterback gate is the more serious of
+the three given the backup-QB valuation defect.
