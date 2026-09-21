@@ -55,6 +55,24 @@ def name_map(frame_path: Path) -> tuple[dict[str, str], dict[str, str]]:
     return names, draft
 
 
+def roster_sha(row: tuple[str, ...]) -> str:
+    """Canonical nine-id roster hash (sorted ids, comma-joined)."""
+    return hashlib.sha256(",".join(sorted(row)).encode("utf-8")).hexdigest()
+
+
+def contest_of_position(contests: list[dict] | None, position: int) -> str | None:
+    """Sequential layout: contests.json order gives each contest a row block; None when no contests are given."""
+    if not contests:
+        return None
+    p0 = 0
+    for c in contests:
+        e = int(c["entries"])
+        if p0 < position <= p0 + e:
+            return str(c.get("name"))
+        p0 += e
+    return None
+
+
 def _names(row: tuple[str, ...], names: dict[str, str]) -> set[str]:
     missing = [p for p in row if p not in names]
     if missing:
@@ -99,6 +117,7 @@ def verify_replacement(vetted: list, replaced: list, receipt: dict, names: dict[
         if any(p in exclusion for p in after):
             raise LineageError(f"row {pos}: replacement still holds an excluded player")
         lineage.append({"upload_row": pos, "removed": sorted(before), "replacement": sorted(after), "reasons": reasons,
+                        "removed_roster_sha256": roster_sha(vetted[pos - 1]), "replacement_roster_sha256": roster_sha(replaced[pos - 1]),
                         "source_rank": r.get("source_rank"), "candidate_index": r.get("candidate_index")})
     return lineage
 
@@ -170,35 +189,44 @@ def _recorded_sha(receipt_shas: dict | None, endswith: str) -> str | None:
     return None
 
 
-def build_manifest(vetted_dir: Path, replaced_dir: Path, promoted_dir: Path, *, upload_csv: Path | None = None,
-                   entries_csv: Path | None = None) -> dict:
-    vetted_dir, replaced_dir, promoted_dir = Path(vetted_dir), Path(replaced_dir), Path(promoted_dir)
-    vetted, replaced, promoted = (read_book(d / "book.csv") for d in (vetted_dir, replaced_dir, promoted_dir))
+def build_manifest(vetted_dir: Path, replaced_dir: Path | None, promoted_dir: Path, *, upload_csv: Path | None = None,
+                   entries_csv: Path | None = None, contests: list[dict] | None = None) -> dict:
+    """``replaced_dir`` may be None when no replacement step ran: the promotion is then checked against the vetted
+    book and the manifest records ``replacement: none`` (recorded, not assumed)."""
+    vetted_dir, promoted_dir = Path(vetted_dir), Path(promoted_dir)
+    replaced_dir = Path(replaced_dir) if replaced_dir is not None else None
+    vetted, promoted = read_book(vetted_dir / "book.csv"), read_book(promoted_dir / "book.csv")
+    replaced = read_book(replaced_dir / "book.csv") if replaced_dir is not None else vetted
     names, draft = name_map(promoted_dir / "frame.parquet")
-    replace_receipt = json.loads((replaced_dir / "replace.json").read_text())
+    replace_receipt = json.loads((replaced_dir / "replace.json").read_text()) if replaced_dir is not None else None
     promotion_receipt = json.loads((promoted_dir / "promotion.json").read_text())
-    shas = {"vetted_book": sha256_of(vetted_dir / "book.csv"), "replaced_book": sha256_of(replaced_dir / "book.csv"),
-            "promoted_book": sha256_of(promoted_dir / "book.csv"), "replace_receipt": sha256_of(replaced_dir / "replace.json"),
+    shas = {"vetted_book": sha256_of(vetted_dir / "book.csv"),
+            "replaced_book": (sha256_of(replaced_dir / "book.csv") if replaced_dir is not None else None),
+            "promoted_book": sha256_of(promoted_dir / "book.csv"),
+            "replace_receipt": (sha256_of(replaced_dir / "replace.json") if replaced_dir is not None else None),
             "promotion_receipt": sha256_of(promoted_dir / "promotion.json")}
     problems: list[str] = []
-    rec_in = _recorded_sha(replace_receipt.get("input_sha256"), "/paid-vetted/book.csv") or _recorded_sha(replace_receipt.get("input_sha256"), "book.csv")
-    if rec_in != shas["vetted_book"]:
-        problems.append("replace.json input sha does not bind the vetted book")
-    rec_out = (replace_receipt.get("output_sha256") or {}).get("book.csv")
-    if rec_out != shas["replaced_book"]:
-        problems.append("replace.json output sha does not bind the replaced book")
+    if replace_receipt is not None:
+        rec_in = _recorded_sha(replace_receipt.get("input_sha256"), "/paid-vetted/book.csv") or _recorded_sha(replace_receipt.get("input_sha256"), "book.csv")
+        if rec_in != shas["vetted_book"]:
+            problems.append("replace.json input sha does not bind the vetted book")
+        rec_out = (replace_receipt.get("output_sha256") or {}).get("book.csv")
+        if rec_out != shas["replaced_book"]:
+            problems.append("replace.json output sha does not bind the replaced book")
+    base_sha = shas["replaced_book"] if replaced_dir is not None else shas["vetted_book"]
     prom_out = (promotion_receipt.get("output_sha256") or {}).get("book.csv")
     if prom_out != shas["promoted_book"]:
         problems.append("promotion.json output sha does not bind the promoted book")
     prom_in = json.dumps(promotion_receipt.get("input_sha256") or promotion_receipt.get("inputs") or {})
-    if shas["replaced_book"] not in prom_in:
-        problems.append("promotion.json inputs do not bind the replaced book")
+    if base_sha not in prom_in:
+        problems.append("promotion.json inputs do not bind the book it promoted")
     lineage: list[dict] = []
     promotion: dict = {}
-    try:
-        lineage = verify_replacement(vetted, replaced, replace_receipt, names)
-    except LineageError as exc:
-        problems.append(f"replacement: {exc}")
+    if replace_receipt is not None:
+        try:
+            lineage = verify_replacement(vetted, replaced, replace_receipt, names)
+        except LineageError as exc:
+            problems.append(f"replacement: {exc}")
     try:
         promotion = verify_promotion(replaced, promoted, promotion_receipt)
     except LineageError as exc:
@@ -206,6 +234,8 @@ def build_manifest(vetted_dir: Path, replaced_dir: Path, promoted_dir: Path, *, 
     if promotion:
         for row in lineage:
             row["final_position"] = promotion["final_position_of_replaced_row"].get(row["upload_row"])
+            row["contest_before"] = contest_of_position(contests, row["upload_row"])
+            row["contest_after"] = contest_of_position(contests, row["final_position"]) if row["final_position"] else None
     checks = {}
     for label, path, ordered in (("upload_csv", upload_csv, True), ("entries_export", entries_csv, False)):
         if path is None:
@@ -216,8 +246,11 @@ def build_manifest(vetted_dir: Path, replaced_dir: Path, promoted_dir: Path, *, 
             problems.append(f"{label}: {exc}")
     return {"schema": SCHEMA, "built_utc": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
             "status": "OK" if not problems else "FAILED", "problems": problems,
-            "inputs": {"vetted_dir": str(vetted_dir), "replaced_dir": str(replaced_dir), "promoted_dir": str(promoted_dir), "sha256": shas},
+            "inputs": {"vetted_dir": str(vetted_dir), "replaced_dir": (str(replaced_dir) if replaced_dir is not None else None), "promoted_dir": str(promoted_dir), "sha256": shas},
+            "replacement": ("receipted" if replace_receipt is not None else "none"),
             "rows": len(promoted), "changed_rows": len(lineage), "lineage": lineage,
+            "promoted_rows_sha256": [roster_sha(r) for r in promoted],
+            "contest_blocks": ([{"name": str(c.get("name")), "contest_id": str(c.get("contest_id", "")), "entries": int(c["entries"])} for c in contests] if contests else None),
             "promotion": {"moved": promotion.get("moved", [])}, "upload_checks": checks}
 
 

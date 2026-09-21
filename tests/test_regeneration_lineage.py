@@ -59,9 +59,12 @@ def make_chain(tmp, *, break_reason=False, extra_change=False, bad_perm=False, b
 
 def test_real_shape_passes_and_manifest_is_create_once(tmp_path):
     d, up, ent = make_chain(tmp_path)
-    m = rl.build_manifest(d["vetted"], d["replaced"], d["promoted"], upload_csv=up, entries_csv=ent)
+    contests = [{"name": "milly", "contest_id": "1", "entries": 1}, {"name": "flea", "contest_id": "2", "entries": 3}]
+    m = rl.build_manifest(d["vetted"], d["replaced"], d["promoted"], upload_csv=up, entries_csv=ent, contests=contests)
     assert m["status"] == "OK" and m["problems"] == [] and m["changed_rows"] == 1
     row = m["lineage"][0]; assert row["upload_row"] == 3 and row["final_position"] == 1 and row["reasons"] == {"Player1012": "dk:OUT"}
+    assert row["contest_before"] == "flea" and row["contest_after"] == "milly" and len(row["removed_roster_sha256"]) == 64 and row["removed_roster_sha256"] != row["replacement_roster_sha256"]
+    assert len(m["promoted_rows_sha256"]) == 4 and m["contest_blocks"][0]["name"] == "milly"
     assert m["promotion"]["moved"] == [[1, 2], [2, 3], [3, 1]] or m["promotion"]["moved"] == [(1, 2), (2, 3), (3, 1)]
     assert m["upload_checks"]["upload_csv"]["check"] == "ordered" and m["upload_checks"]["entries_export"]["check"] == "multiset"
     out = tmp_path / "lineage.json"; rl.write_manifest_create_once(m, out); assert json.loads(out.read_text())["status"] == "OK"
@@ -88,3 +91,14 @@ def test_hash_binding_failure(tmp_path):
     (d["replaced"] / "replace.json").write_text(json.dumps(r))
     m = rl.build_manifest(d["vetted"], d["replaced"], d["promoted"])
     assert m["status"] == "FAILED" and any("does not bind the replaced book" in p for p in m["problems"])
+
+
+def test_promotion_only_lineage_when_no_replacement_ran(tmp_path):
+    d, up, ent = make_chain(tmp_path)
+    # promote the VETTED book directly (no replacement): rebuild promoted from vetted with the same permutation
+    vetted = rl.read_book(d["vetted"] / "book.csv"); promoted = [vetted[p - 1] for p in [3, 1, 2, 4]]
+    _write_book(d["promoted"] / "book.csv", promoted)
+    promo = json.loads((d["promoted"] / "promotion.json").read_text()); promo["input_sha256"] = {"book.csv": _sha(d["vetted"] / "book.csv")}; promo["output_sha256"] = {"book.csv": _sha(d["promoted"] / "book.csv")}
+    (d["promoted"] / "promotion.json").write_text(json.dumps(promo))
+    m = rl.build_manifest(d["vetted"], None, d["promoted"])
+    assert m["status"] == "OK" and m["replacement"] == "none" and m["changed_rows"] == 0 and m["inputs"]["sha256"]["replaced_book"] is None

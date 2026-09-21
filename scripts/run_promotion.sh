@@ -76,6 +76,16 @@ lines = [f"# Promotion record {sys.argv[5]}", "", f"rule: first_delivered_promot
 open(sys.argv[4], "w").write("\n".join(lines) + "\n"); print("\n".join(lines[2:14]))
 PYV
 then fail "verification failed (nothing published)"; fi
+# 2026-09-21 (Week-2 post-mortem, audit VET-001; operator directive: no silent fallbacks): before anything becomes
+# visible, prove the row-level lineage of the staged promoted upload -- every replaced row has a receipted reason, the
+# receipts' hashes bind the books, the promotion is exactly its recorded permutation, the staged upload carries the
+# promoted book in order. A failure publishes nothing.
+LIN_ARGS=(--vetted-dir "$AFTER/paid-vetted" --promoted-dir "$PROMOTED" --upload-csv "$SUP" --out "$PR/lineage.json")
+[ -d "$VET" ] && LIN_ARGS+=(--replaced-dir "$VET")
+[ -f "$OUT/contests.json" ] && LIN_ARGS+=(--contests "$OUT/contests.json")
+rm -f "$PR/lineage.json"
+PYTHONPATH=$PROD/src $PY "$PROD/scripts/regeneration_lineage.py" "${LIN_ARGS[@]}" > "$PR/lineage.log" 2>&1 || fail "regeneration lineage failed (see $PR/lineage.log and $PR/lineage.json); nothing published"
+log "lineage: $(grep -m1 '^lineage' "$PR/lineage.log" | cut -c1-160)"
 # ENTER/ re-layout from the STAGED promoted upload (the chain's own layout code, vendored in relayout_enter.sh; verified, then an
 # atomic bundle swap) -- the DK-entries watcher refills DKEntries-FILLED-keepers-first.csv from it within a minute.  Runs BEFORE
 # the promoted upload/sheet become discoverable, so a failure here leaves ENTER/ and OUT_DIR exactly as the chain left them.
