@@ -68,7 +68,17 @@ def _wait_for_one_receipt(
     directory = (state_root or root / ".tmp") / "launchers"
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
-        receipts = list(directory.glob("*")) if directory.is_dir() else []
+        # pathlib's glob("*") matches dotfiles, unlike glob.glob. The registry
+        # stages a receipt at .registration.XXXXXX and only then hardlinks it
+        # into place, so globbing everything can return the staging file during
+        # that window and the name vanishes when the temp is unlinked. CI hit
+        # exactly that on 2026-09-21 (run 35611477377): the contender refused
+        # correctly with exit 2, but the path this helper had handed back was
+        # .registration.tVAQq7 and no longer existed.
+        receipts = [
+            path for path in (directory.glob("*") if directory.is_dir() else [])
+            if not path.name.startswith(".")
+        ]
         if len(receipts) == 1:
             return receipts[0]
         time.sleep(0.02)
