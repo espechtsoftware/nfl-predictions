@@ -35,7 +35,11 @@ week_settings() {
   export OUT=${OUT:-$HOME/week${WEEK}-sunday}
   # The live revision is a reviewed weekly choice, never inferred from an arbitrary checkout HEAD.
   export CLONE=${CLONE:-${NFL2_LIVE_CLONE:-/home/erich/projects/.nfl2-worktrees/week3-live-center}}
-  export EXPECT_SHA=${EXPECT_SHA:-${NFL2_EXPECT_SHA:-e7255e98bf87297452befb61fb508ad4b368b59f}}
+  # Week 3 must retain the reviewed live-game-input repair that Week 2 used.
+  # Keep this explicit so an unattended arm cannot silently fall back to the
+  # older pre-repair revision; advance it deliberately at the next weekly
+  # review.
+  export EXPECT_SHA=${EXPECT_SHA:-${NFL2_EXPECT_SHA:-2dc116ce95647a776ba9c36cf194f44d022d03a4}}
   export CLONE EXPECT_SHA
   export RUN_SUFFIX=${RUN_SUFFIX:-${EXPECT_SHA:0:7}}
   export PROD=${PROD:-$WEEK_ENV_REPO}
@@ -65,6 +69,7 @@ week_env() {
   # under "top" every contest reuses ranks 1..N and 90 is enough.  Never let a consumer fall back to a bare 90 under
   # "sequential" -- that would let a short book past the gate and fail later, confusingly, at the bundle verifier.
   if [[ -z "${BOOK_ENTRIES:-}" ]]; then
+    [[ -f "$CONTESTS_JSON" ]] || { echo "week_env: contests file missing: $CONTESTS_JSON (create the reviewed Week-${WEEK} contests.json before arming)" >&2; return 1; }
     BOOK_ENTRIES=$("$PROD_PY" -c "import json,os,sys; c=json.load(open(sys.argv[1])); tot=sum(int(x['entries']) for x in c); print(max(90, tot) if os.environ.get('ENTER_LAYOUT','top')=='sequential' else 90)" "$CONTESTS_JSON") || return
   fi
   export BOOK_ENTRIES
