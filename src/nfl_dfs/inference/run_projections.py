@@ -19,7 +19,7 @@ from ..bq import load_dataframe, query_df
 from ..config import current_season, settings
 from ..models import calibration, coldstart, components, simulate
 from ..models.blend import (BLEND_W as BLEND_WEIGHT, blend,
-                            effective_model_weight, market_projection_frame)
+                            effective_model_weight)
 from . import cascade_adjust
 
 log = logging.getLogger(__name__)
@@ -39,38 +39,6 @@ def _canonical_live_team(values: pd.Series) -> pd.Series:
     normalized = values.astype("string").str.strip().str.upper()
     return normalized.replace(_LIVE_TEAM_ALIASES)
 
-
-def _props_first_market_with_dk_fallback(
-    dk_ppg_market: pd.Series | np.ndarray,
-    prop_market: pd.Series | np.ndarray,
-    *,
-    minimum_prop_coverage: float = 0.30,
-) -> tuple[np.ndarray, np.ndarray]:
-    """Prefer available props without discarding per-player DK fallbacks.
-
-    The prop snapshot is used only when it covers the configured share of the
-    slate.  Once that slate-level gate passes, rows without a prop retain the
-    aligned DK-PPG value.  Below the gate the complete DK-PPG vector is kept.
-    The returned mask identifies only rows truly sourced from props so audit
-    logging cannot mislabel fallback rows as prop observations.
-    """
-    fallback = np.asarray(dk_ppg_market, dtype=float)
-    props = np.asarray(prop_market, dtype=float)
-    if fallback.ndim != 1 or props.shape != fallback.shape:
-        raise ValueError("prop and DK-PPG market vectors must be aligned")
-    if not 0.0 <= minimum_prop_coverage <= 1.0:
-        raise ValueError("minimum prop coverage must be between 0 and 1")
-
-    prop_mask = np.isfinite(props)
-    if (
-        len(fallback) == 0
-        or int(prop_mask.sum()) < minimum_prop_coverage * len(fallback)
-    ):
-        return fallback.copy(), np.zeros(len(fallback), dtype=bool)
-
-    market = fallback.copy()
-    market[prop_mask] = props[prop_mask]
-    return market, prop_mask
 
 def upcoming_slate_features(season: int, week: int) -> pd.DataFrame:
     """Feature rows for the players in the current classic slate, with the
@@ -399,45 +367,54 @@ def project(
         preds, feats.get("is_cold_start", pd.Series(False, index=feats.index))
     )
 
-    # Live blend parity fix (review #5 round 3): the REPLAY blend —
-    # where BLEND_W=0.45 was validated — uses de-vigged PROP-market
-    # points; the live path was blending DK's historical PPG
-    # (market_projection_frame's documented stand-in). Prefer the real
-    # prop feed, fall back to DK PPG when props are absent.
-    market = np.asarray(market_projection_frame(feats), dtype=float)
-    _mkt_src = "dk_ppg"
-    _prop_market_mask = np.zeros(len(feats), dtype=bool)
-    try:
-        from ..models.prop_market import market_points as _prop_points
-        # A one-market row is often only an anytime-TD component, not a
-        # complete fantasy-point proxy.  Preserve it for historical source
-        # analysis but never blend it as a live whole-player expectation.
-        _pm = _prop_points((season,), minimum_markets=2)
-        _pm = _pm[_pm.week == week]
-        if len(_pm):
-            _m = feats[["gsis_id"]].merge(
-                _pm[["gsis_id", "market_points"]], on="gsis_id",
-                how="left").market_points
-            market, _prop_market_mask = (
-                _props_first_market_with_dk_fallback(market, _m)
-            )
-            if _prop_market_mask.any():
-                _mkt_src = "props"
-            else:
-                log.info(
-                    "prop-market coverage below 30 percent (%d/%d); "
-                    "using full DK-PPG fallback",
-                    int(_m.notna().sum()), len(feats),
-                )
-    except Exception:
-        log.exception("prop market unavailable; blending DK PPG stand-in")
+    # Live market (2026-09-21, Week-2 post-mortem; operator directive): props
+    # or nothing.  A slate player whose spelling is in the prop feed but does
+    # not match a projection row stops the run; a feed that matches too little
+    # of the slate stops the run; players the books did not price (and DSTs)
+    # are served by the model alone and every row's source is recorded in
+    # market_source_log.  There is no DK-PPG stand-in any more: Week 2 served
+    # Jefferson at 25.3 from 0.45 x 18.1 + 0.55 x 31.2 (his Week-1 score).
+    from ..models.prop_market import (market_points as _prop_points,
+                                      prop_feed_player_names)
+    from .market_source import (SOURCE_LOG_TABLE, resolve_live_market,
+                                source_log_frame)
+    _slate_ids = {
+        str(g) for g in feats.get("gsis_id", pd.Series(dtype=object))
+        .dropna().tolist() if str(g).strip()
+    }
+    # A one-market row is often only an anytime-TD component, not a
+    # complete fantasy-point proxy; never blend it as a whole-player value.
+    _pm = _prop_points((season,), minimum_markets=2, prefer_ids=_slate_ids)
+    _pm = _pm[_pm.week == week]
+    _feed_names = prop_feed_player_names(season, week)
+    market, _market_sources = resolve_live_market(
+        feats, _pm[["gsis_id", "market_points"]], _feed_names)
+    _prop_market_mask = _market_sources.source.eq("props").to_numpy()
+    _mkt_src = "props" if _prop_market_mask.any() else "model_only"
     log.info("market blend source: %s (%d/%d rows)",
-             _mkt_src, int(pd.notna(market).sum()), len(feats))
+             _mkt_src, int(_prop_market_mask.sum()), len(feats))
     _pre_blend = preds["proj_points"].to_numpy().copy()
     preds["proj_points"] = blend(
         _pre_blend, np.asarray(market, dtype=float),
         effective_model_weight(policy_env)
     )
+    # Monitor for the operator: one row per slate player per run with the
+    # market source.  A failed write is logged loudly and does not stop the
+    # projections; the exposure sheet reports a missing batch.
+    try:
+        load_dataframe(
+            source_log_frame(
+                _market_sources, season=season, week=week,
+                proj_points=preds["proj_points"].to_numpy(),
+                path="project-slate"),
+            f"{settings.predictions}.{SOURCE_LOG_TABLE}",
+            write_disposition="WRITE_APPEND")
+        log.info("market-source log: %d rows (%s)", len(_market_sources),
+                 ", ".join(f"{k}={v}" for k, v in
+                           _market_sources.source.value_counts().items()))
+    except Exception:
+        log.exception("market-source log write failed; projections "
+                      "unaffected but the monitor is blind for this batch")
     # DIV_TILT shadow log (2026-08-05, Addendum 82; source fixed round
     # 3): logs the PROP-market divergence only — rows are written only
     # when the market source is the real prop feed, so the grader

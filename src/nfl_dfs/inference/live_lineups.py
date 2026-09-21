@@ -248,12 +248,8 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
     from ..optimizer.lineup import LEVERAGE_PENALTY, PUNT_MAX_SALARY
     from .. import notes as manual_notes
     from ..models.blend import (blend, effective_model_weight,
-                                market_projection_frame,
                                 shift_draws_to_means)
-    from .run_projections import (
-        _props_first_market_with_dk_fallback,
-        upcoming_slate_features,
-    )
+    from .run_projections import upcoming_slate_features
 
     import os as _os
 
@@ -354,34 +350,46 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
     # Market blend as an additive mean shift — draw shape untouched.
     # Props-first (review #5 round 3 parity fix): the replay blend that
     # validated BLEND_W uses prop-market points; DK PPG is the fallback.
-    market = np.asarray(market_projection_frame(skill), dtype=float)
-    try:
-        from ..models.prop_market import market_points as _prop_points
-        # Do not substitute a lone anytime-TD component for a complete
-        # fantasy-point market expectation.
-        _pm = _prop_points((int(season),), minimum_markets=2)
-        _pm = _pm[_pm.week == int(week)]
-        if len(_pm):
-            _m = skill[["gsis_id"]].merge(
-                _pm[["gsis_id", "market_points"]], on="gsis_id",
-                how="left").market_points
-            market, prop_market_mask = (
-                _props_first_market_with_dk_fallback(market, _m)
-            )
-            if prop_market_mask.any():
-                log.info("live blend source: props (%d/%d rows)",
-                         int(prop_market_mask.sum()), len(skill))
-            else:
-                log.info(
-                    "live prop-market coverage below 30 percent (%d/%d); "
-                    "using full DK-PPG fallback",
-                    int(_m.notna().sum()), len(skill),
-                )
-    except Exception:
-        log.exception("live prop market unavailable; DK PPG stand-in")
+    # Live market (2026-09-21, Week-2 post-mortem; operator directive): props
+    # or nothing -- see inference.market_source.  A slate player whose spelling
+    # is in the prop feed but does not match stops the build; players the
+    # books did not price are served by the model alone and recorded per row.
+    from ..models.prop_market import (market_points as _prop_points,
+                                      prop_feed_player_names)
+    from .market_source import (SOURCE_LOG_TABLE, resolve_live_market,
+                                source_log_frame)
+    _slate_ids = {
+        str(g) for g in skill.get("gsis_id", pd.Series(dtype=object))
+        .dropna().tolist() if str(g).strip()
+    }
+    _pm = _prop_points((int(season),), minimum_markets=2,
+                       prefer_ids=_slate_ids)
+    _pm = _pm[_pm.week == int(week)]
+    _feed_names = prop_feed_player_names(int(season), int(week))
+    market, _market_sources = resolve_live_market(
+        skill, _pm[["gsis_id", "market_points"]], _feed_names)
+    prop_market_mask = _market_sources.source.eq("props").to_numpy()
+    log.info("live blend source: %s (%d/%d rows)",
+             "props" if prop_market_mask.any() else "model_only",
+             int(prop_market_mask.sum()), len(skill))
     market_values = np.asarray(market, dtype=float)
     blended = blend(model_points_pre, market_values,
                     effective_model_weight(runtime_env))
+    try:
+        from ..bq import load_dataframe as _load_source_log
+        from ..config import settings as _settings
+        _load_source_log(
+            source_log_frame(_market_sources, season=int(season),
+                             week=int(week), proj_points=blended,
+                             path="live-lineups"),
+            f"{_settings.predictions}.{SOURCE_LOG_TABLE}",
+            write_disposition="WRITE_APPEND")
+        log.info("market-source log: %d rows (%s)", len(_market_sources),
+                 ", ".join(f"{k}={v}" for k, v in
+                           _market_sources.source.value_counts().items()))
+    except Exception:
+        log.exception("market-source log write failed; build unaffected "
+                      "but the monitor is blind for this build")
     draws = shift_draws_to_means(draws, blended)
     draws = apply_served_tail_scale(draws, skill.position, env=runtime_env)
     draws = apply_served_position_scales(

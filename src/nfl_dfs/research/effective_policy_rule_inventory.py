@@ -140,6 +140,29 @@ V7_FROZEN_SOURCE_SHA256: Mapping[str, str] = {
     ),
 }
 
+# Source-set v8 binds the tree after the Week-2 2026 post-mortem repair
+# (2026-09-21): the live market blend is props-or-nothing.  A slate player whose
+# spelling is in the prop feed but does not match stops the run, players the
+# books did not price are served by the model alone and recorded per row in
+# market_source_log, and the DK-PPG stand-in that served Jefferson at 25.3
+# (0.45 x 18.1 + 0.55 x 31.2) is gone.  V5, v6 and v7 remain immutable
+# historical identities; never rewrite their hashes.
+V8_SOURCE_SET_ID = (
+    "adopted-classic-policy-20260921-week3-market-source-v8"
+)
+V8_CLASSIFIED_INPUT_PROJECTION_SHA256 = (
+    "3135cf8718fc58e800774fb1714690ec18b88069ef7ecde673e2be72250c816a"
+)
+V8_FROZEN_SOURCE_SHA256: Mapping[str, str] = {
+    **V7_FROZEN_SOURCE_SHA256,
+    "src/nfl_dfs/inference/live_lineups.py": (
+        "7290c0797ed83c73b514db6b9d2de0f8aed3ca47925768cdbd276a9377a61e48"
+    ),
+    "src/nfl_dfs/inference/run_projections.py": (
+        "7bf2785e2ca8d951aaf25d17378f7ae89c407dbdfb7a288df0777bac1381cf7e"
+    ),
+}
+
 SOURCE_ROLES: Mapping[str, str] = {
     "scripts/publish_week1_operating_book.py": (
         "week1_exact_publication_operator_command"
@@ -512,6 +535,17 @@ _V7_SOURCE_SET = _SourceSetContract(
     classified_input_key_count=CLASSIFIED_INPUT_KEY_COUNT,
     direct_input_read_site_count=DIRECT_INPUT_READ_SITE_COUNT,
     frozen_source_sha256=tuple(sorted(V7_FROZEN_SOURCE_SHA256.items())),
+)
+_V8_SOURCE_SET = _SourceSetContract(
+    schema=SCHEMA,
+    source_set_id=V8_SOURCE_SET_ID,
+    policy_env_sha256=POLICY_ENV_SHA256,
+    classified_input_projection_sha256=(
+        V8_CLASSIFIED_INPUT_PROJECTION_SHA256
+    ),
+    classified_input_key_count=CLASSIFIED_INPUT_KEY_COUNT,
+    direct_input_read_site_count=DIRECT_INPUT_READ_SITE_COUNT,
+    frozen_source_sha256=tuple(sorted(V8_FROZEN_SOURCE_SHA256.items())),
 )
 
 
@@ -2116,6 +2150,15 @@ def generate_effective_policy_rule_inventory_v7(
     )
 
 
+def generate_effective_policy_rule_inventory_v8(
+    root: Path,
+) -> dict[str, Any]:
+    """Generate the explicit current Week-3 source-set v8 inventory."""
+    return _generate_effective_policy_rule_inventory(
+        root, source_set=_V8_SOURCE_SET
+    )
+
+
 def _source_set_for_inventory(
     inventory: Mapping[str, Any],
 ) -> _SourceSetContract:
@@ -2126,6 +2169,8 @@ def _source_set_for_inventory(
         return _V6_SOURCE_SET
     if source_set_id == V7_SOURCE_SET_ID:
         return _V7_SOURCE_SET
+    if source_set_id == V8_SOURCE_SET_ID:
+        return _V8_SOURCE_SET
     raise EffectivePolicyInventoryError(
         "effective-policy inventory source-set id is not registered"
     )

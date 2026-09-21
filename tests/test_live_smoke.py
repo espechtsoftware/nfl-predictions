@@ -10,38 +10,6 @@ import pandas as pd
 import pytest
 
 
-def test_props_first_market_keeps_per_player_dk_ppg_fallback():
-    from nfl_dfs.inference.run_projections import (
-        _props_first_market_with_dk_fallback,
-    )
-
-    fallback = np.array([10.0, 20.0, 30.0, 40.0, 50.0])
-    props = np.array([101.0, np.nan, 303.0, np.nan, np.nan])
-
-    market, prop_mask = _props_first_market_with_dk_fallback(
-        fallback, props,
-    )
-
-    assert market == pytest.approx([101.0, 20.0, 303.0, 40.0, 50.0])
-    assert prop_mask.tolist() == [True, False, True, False, False]
-
-
-def test_props_first_market_uses_full_dk_ppg_below_coverage_gate():
-    from nfl_dfs.inference.run_projections import (
-        _props_first_market_with_dk_fallback,
-    )
-
-    fallback = np.array([10.0, 20.0, 30.0, 40.0, 50.0])
-    props = np.array([101.0, np.nan, np.nan, np.nan, np.nan])
-
-    market, prop_mask = _props_first_market_with_dk_fallback(
-        fallback, props,
-    )
-
-    assert market == pytest.approx(fallback)
-    assert not prop_mask.any()
-
-
 def test_dst_projection_joins_dk_and_schedule_team_aliases():
     from nfl_dfs.inference.dst_projections import build_rows
 
@@ -84,7 +52,13 @@ def test_combined_projection_write_has_one_batch_timestamp():
     assert frame.generated_at.nunique() == 2
 
 
-def test_projection_accepts_none_policy_env_and_uses_dk_ppg(monkeypatch):
+def test_projection_accepts_none_policy_env_and_is_model_only_without_a_feed(monkeypatch):
+    """No prop feed for the week: every row is served by the model alone (no
+    DK-PPG stand-in since 2026-09-21) and the market-source log records it.
+    The previous version of this test stubbed ``market_points`` with the
+    wrong signature; the old ``except Exception`` fallback swallowed the
+    TypeError and the test passed on the stand-in -- the pattern the operator
+    ruled out."""
     from types import SimpleNamespace
 
     from nfl_dfs import notes
@@ -110,6 +84,7 @@ def test_projection_accepts_none_policy_env_and_uses_dk_ppg(monkeypatch):
         "p_20_plus": [0.2, 0.3],
     })
     seen: dict[str, object] = {}
+    logged: list[tuple[pd.DataFrame, str]] = []
 
     class FakeModel:
         def predict_components(self, frame):
@@ -141,9 +116,15 @@ def test_projection_accepts_none_policy_env_and_uses_dk_ppg(monkeypatch):
     monkeypatch.setattr(
         prop_market,
         "market_points",
-        lambda _seasons: pd.DataFrame(
+        lambda seasons, *, minimum_markets=1, prefer_ids=None: pd.DataFrame(
             columns=["season", "week", "gsis_id", "market_points"]
         ),
+    )
+    monkeypatch.setattr(prop_market, "prop_feed_player_names",
+                        lambda season, week: set())
+    monkeypatch.setattr(
+        run_projections, "load_dataframe",
+        lambda df, table, **kwargs: logged.append((df, table)),
     )
     monkeypatch.setattr(
         run_projections.cascade_adjust,
@@ -163,10 +144,50 @@ def test_projection_accepts_none_policy_env_and_uses_dk_ppg(monkeypatch):
     )
 
     assert seen["env"] is None
-    assert out.proj_points.to_numpy() == pytest.approx([
-        0.45 * 10.0 + 0.55 * 20.0,
-        0.45 * 12.0 + 0.55 * 8.0,
-    ])
+    assert out.proj_points.to_numpy() == pytest.approx([10.0, 12.0])
+    assert len(logged) == 1 and logged[0][1].endswith(".market_source_log")
+    source_log = logged[0][0]
+    assert source_log.source.tolist() == ["model_only_no_feed"] * 2
+    assert source_log.week.tolist() == [1, 1] and source_log.path.eq("project-slate").all()
+
+
+def test_projection_fails_closed_when_a_slate_name_in_the_feed_does_not_match(monkeypatch):
+    """The Week-2 defect: prop lines exist for a slate player, the matcher
+    drops him, and the run must stop instead of serving a stand-in."""
+    from types import SimpleNamespace
+
+    from nfl_dfs import notes
+    from nfl_dfs.inference import run_projections
+    from nfl_dfs.inference.market_source import MarketMatchError
+    from nfl_dfs.models import prop_market
+
+    feats = pd.DataFrame({
+        "gsis_id": ["p1", "p2"], "display_name": ["Justin Jefferson", "Two"],
+        "position": ["WR", "RB"], "team": ["A", "B"], "opponent": ["B", "A"],
+        "salary": [6_000, 5_000], "dk_player_id": [1, 2], "dk_ppg": [31.2, 8.0],
+    })
+    summary = pd.DataFrame({
+        "proj_points": [18.1, 12.0], "proj_p10": [5.0, 6.0], "proj_p50": [18.1, 12.0],
+        "proj_p90": [30.0, 22.0], "proj_std": [4.0, 5.0], "p_20_plus": [0.2, 0.3],
+    })
+
+    class FakeModel:
+        def predict_components(self, frame):
+            return object()
+
+    monkeypatch.setattr(run_projections.coldstart, "fill_cold_start_features", lambda frame: frame.copy())
+    monkeypatch.setattr(run_projections.coldstart, "widen_cold_start_quantiles", lambda frame, _flags: frame)
+    monkeypatch.setattr(notes, "apply_notes", lambda comps, *args: comps)
+    monkeypatch.setattr(run_projections.simulate, "simulate", lambda comps, **kwargs: SimpleNamespace(summary=summary.copy()))
+    monkeypatch.setattr(run_projections.calibration, "apply_widen", lambda frame, _positions: frame.copy())
+    monkeypatch.setattr(prop_market, "market_points", lambda seasons, *, minimum_markets=1, prefer_ids=None: pd.DataFrame(
+        {"season": [2026], "week": [2], "gsis_id": ["p2"], "market_points": [11.0]}))
+    monkeypatch.setattr(prop_market, "prop_feed_player_names", lambda season, week: {"Justin Jefferson", "Two"})
+    monkeypatch.setattr(run_projections, "load_dataframe", lambda df, table, **kwargs: None)
+    monkeypatch.setattr(run_projections.cascade_adjust, "zero_out_projections", lambda frame, _out_ids: frame)
+
+    with pytest.raises(MarketMatchError, match="Justin Jefferson"):
+        run_projections.project(feats, FakeModel(), "test-model", 2026, 2, n_sims=10, policy_env=None)
 
 
 @pytest.fixture()

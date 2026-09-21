@@ -128,8 +128,18 @@ def market_points(
     seasons: tuple[int, ...] = (2023, 2024, 2025),
     *,
     minimum_markets: int = 1,
+    prefer_ids: set[str] | frozenset[str] | None = None,
 ) -> pd.DataFrame:
     """Return market-point sums from ``nfl_raw.prop_lines``.
+
+    ``prefer_ids`` (2026-09-21, Week-2 post-mortem): the GSIS ids of the
+    slate being projected.  A normalized spelling shared by several GSIS ids
+    is still never chosen arbitrarily, but when exactly ONE of the colliding
+    ids is on the slate that id is the spelling's identity.  Week 2 2026:
+    "justin jefferson" collided with a roster-only rookie of the same name,
+    the WR lost his prop lines, and the blend substituted his one-game DK PPG
+    (31.2) as the market at 55% weight.  Replay callers pass nothing and keep
+    the exact prior behaviour.
 
     ``minimum_markets`` is a completeness boundary, not a name-matching
     threshold.  Historical analyses retain the one-market default because
@@ -202,10 +212,31 @@ def market_points(
     # Retain multiple aliases for one player, but never choose arbitrarily
     # between genuinely ambiguous identities.
     norm_cardinality = names.groupby("norm", observed=True).gsis_id.nunique()
+    ambiguous = names[names.norm.map(norm_cardinality).gt(1)]
     names = names[
         names.norm.map(norm_cardinality).eq(1)
     ].drop_duplicates(["norm", "gsis_id"])
     props["norm"] = _norm(props.player)
+    resolved_by_slate = 0
+    if prefer_ids and len(ambiguous):
+        prefer = {str(i) for i in prefer_ids}
+        on_slate = ambiguous[ambiguous.gsis_id.astype(str).isin(prefer)]
+        slate_cardinality = on_slate.groupby("norm", observed=True).gsis_id.nunique()
+        keep = on_slate[on_slate.norm.map(slate_cardinality).eq(1)]
+        keep = keep.drop_duplicates(["norm", "gsis_id"])
+        resolved_by_slate = int(keep.norm.nunique())
+        names = pd.concat([names, keep], ignore_index=True)
+    still_ambiguous = sorted(
+        set(ambiguous.norm) - set(names.norm)
+    )
+    in_feed = [n for n in still_ambiguous if n in set(props.norm)]
+    log.info(
+        "prop market names: %d ambiguous spellings, %d resolved by the slate, "
+        "%d still ambiguous of which %d appear in the prop feed%s",
+        int(ambiguous.norm.nunique()), resolved_by_slate,
+        len(still_ambiguous), len(in_feed),
+        (": " + ", ".join(in_feed[:12])) if in_feed else "",
+    )
 
     rows = []
     ou = props[props.outcome_name.isin(["Over", "Under"])]
@@ -276,6 +307,28 @@ def market_points(
              len(complete), minimum_markets,
              100 * matched.norm.nunique() / max(per_mkt.norm.nunique(), 1))
     return complete[["season", "week", "gsis_id", "market_points"]]
+
+
+def prop_feed_player_names(season: int, week: int) -> set[str]:
+    """Raw prop-feed player names for the week, matched or not.
+
+    The live paths compare these against the slate: a slate player whose
+    spelling is in the feed but received no market stops the run
+    (``inference.market_source``).  Read through the ``bq`` module attribute
+    so offline smokes that stub ``bq.query_df`` see an empty feed.
+    """
+    from .. import bq as _bq
+
+    market_list = ", ".join(f"'{market}'" for market in STANDARD_MARKETS)
+    df = _bq.query_df(
+        f"""SELECT DISTINCT player
+            FROM `{settings.raw}.prop_lines`
+            WHERE season = {int(season)} AND week = {int(week)}
+              AND market IN ({market_list})"""
+    )
+    if df is None or df.empty or "player" not in df.columns:
+        return set()
+    return {str(p) for p in df.player.dropna() if str(p).strip()}
 
 
 def market_ceilings(seasons: tuple[int, ...] = (2025,)) -> pd.DataFrame:
