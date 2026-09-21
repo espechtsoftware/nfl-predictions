@@ -35,7 +35,7 @@ def status_weight(s):
     return 0.0, None
 
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument("run"); ap.add_argument("--k", type=int, default=30); ap.add_argument("--output-dir"); ap.add_argument("--season", type=int, default=2026); ap.add_argument("--week", type=int, default=1); ap.add_argument("--material-threshold", type=float, default=1.0); ap.add_argument("--qb-flags", default=""); a = ap.parse_args()
+    ap = argparse.ArgumentParser(); ap.add_argument("run"); ap.add_argument("--k", type=int, default=30); ap.add_argument("--output-dir"); ap.add_argument("--season", type=int, required=True); ap.add_argument("--week", type=int, required=True); ap.add_argument("--material-threshold", type=float, default=1.0); ap.add_argument("--qb-flags", default=""); a = ap.parse_args()
     run = pathlib.Path(a.run); out = pathlib.Path(a.output_dir or (str(run) + "-vetted")); out.mkdir(parents=True, exist_ok=True)
     f = pd.read_parquet(run / "frame.parquet"); f["dk"] = f.dk_player_id.astype(str)
     name = dict(zip(f.dk, f.display_name.astype(str))); pos = dict(zip(f.dk, f.position.astype(str))); team = dict(zip(f.dk, f.team.astype(str)))

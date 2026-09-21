@@ -14,8 +14,8 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from qb_classify import classify_qbs  # noqa: E402
 
 P = "nfl-predictions-503414"
-ap = argparse.ArgumentParser(); ap.add_argument("out"); ap.add_argument("--season", type=int, default=2026)
-ap.add_argument("--week", type=int, default=2); ap.add_argument("--group", type=int, default=153428); a = ap.parse_args()
+ap = argparse.ArgumentParser(); ap.add_argument("out"); ap.add_argument("--season", type=int, required=True)
+ap.add_argument("--week", type=int, required=True); ap.add_argument("--group", type=int, required=True); a = ap.parse_args()
 c = bigquery.Client(project=P)
 q = f"""
 WITH proj AS (

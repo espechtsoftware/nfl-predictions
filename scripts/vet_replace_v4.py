@@ -59,7 +59,7 @@ def slot_legal(row, pos_of):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("vetted"); ap.add_argument("run"); ap.add_argument("out")
-    ap.add_argument("--qb-flags", required=True); ap.add_argument("--season", type=int, default=2026); ap.add_argument("--week", type=int, default=2)
+    ap.add_argument("--qb-flags", required=True); ap.add_argument("--season", type=int, required=True); ap.add_argument("--week", type=int, required=True)
     ap.add_argument("--lab-src", default="/home/erich/projects/.nfl2-worktrees/week2-release-2dc116c/src")
     ap.add_argument("--min-replacements", type=int, default=0); ap.add_argument("--test-exclude-dk", default="")
     ap.add_argument("--no-fresh-dk", action="store_true", help="archive replays only: do not consult the live DK feed for statuses (the frame's build-time status is used)")
