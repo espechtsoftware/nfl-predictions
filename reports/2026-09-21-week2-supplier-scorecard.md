@@ -40,10 +40,15 @@ By position (correlation with realized):
   one-game DK PPG by 9.
 - The one-game DK PPG is the worst source in the table and was the stand-in that served Jefferson at 25.3; it is gone
   from the live path on the market repair branch.
-- No paid source can be scored: the SIS pass-tail, route-channel and schedule TabPFN variants have no Week-2 rows (their
-  schedulers are paused), the Fantasy Points and SIS captures feed nothing live, and ETR never landed. "Which supplier
-  is better" therefore has one answer this week: among what actually ran, the corrected-HSIM marginal; among external
-  suppliers, the props feed, and only for receivers.
+- No paid PROJECTION source can be scored: the SIS pass-tail, route-channel and schedule TabPFN variants have no
+  Week-2 rows (their schedulers are paused) and ETR never landed. The paid Fantasy Points route share is not a
+  projection but it IS a live model input: `fp_route_share_last / _l4 / _jump / _cross_season` are in
+  `models/featureset.py` and were populated in the Week-2 frame for 267 skill players (its own read is in the section
+  below). SIS data reaches nothing live: the team-context table holds only Week-1 rows for 2026 (loaded without a
+  source run id) until tonight's Weeks 1-2 capture is imported. "Which supplier is better" therefore has one answer
+  this week: among what actually ran, the corrected-HSIM marginal; among external suppliers, the props feed, and only
+  for receivers. (Corrected 2026-09-21 after the laptop's table-by-table check: an earlier line said the paid
+  captures feed nothing live, which is wrong for the Fantasy Points route share.)
 
 ## The paid Fantasy Points route data that was in the Week-2 frame
 
