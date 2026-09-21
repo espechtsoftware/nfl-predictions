@@ -52,7 +52,7 @@ contain none of the repair work.
 | purpose | branch (origin/…) | sha |
 |---|---|---|
 | production main | `main` | `9afb1784` |
-| **complete tested integration — deploy from here** | `production/week3-integration-20260921` | **`a37e3339`** |
+| **complete tested integration — deploy from here** | `production/week3-integration-20260921` | **`5aa2c73b`** |
 | Week-3 operational wiring (laptop-owned scripts) | `production/week3-operational-wiring-20260920` | `5f8f61a5` |
 | market repair (props-or-nothing, market-source log, exposure sheet, input gate, monitor check) | `production/prop-name-ambiguity-and-fallback-guard-20260921` | `8a9fdbf8` |
 | standings capture tolerances + typed result classes | `production/standings-capture-tolerances-20260921` | `bf51d94b` |
@@ -72,11 +72,12 @@ contain none of the repair work.
 | workstation → lab channel (nfl2) | `review/prereg101-reply-20260918` | moving; `ce41e304` at 2026-09-21 06:11, carries the outgoing lab model's own `handoffs/2026-09-21-takeover-state.md` |
 | lab release pinned for the Week-2 book (nfl2) | worktree `/home/erich/projects/.nfl2-worktrees/week2-release-2dc116c` | `2dc116c`, clean |
 
-`production/week3-integration-20260921` @ `a37e3339` is new (pushed 2026-09-21): all ten production branches merged
+`production/week3-integration-20260921` @ `5aa2c73b` is new (pushed 2026-09-21): all ten production branches merged
 with **zero conflicts**, 86 files and 7,021 insertions against `main`, and **191 passed / 1 skipped** across the
 fifteen affected test modules (named in section 10). It is the only tree that contains every script the Week-3
 cadence calls. Three earlier integration commits (`387b1e47`, `a29f727f`, `e679e785`) are cited in older notes; all
-three are ancestors of `a37e3339` and are now on the remote, so nothing is lost — cite the branch tip, not them.
+three are ancestors of `5aa2c73b` and are now on the remote, so nothing is lost — cite the branch tip, not them.
+The tip moved from `a37e3339` to `5aa2c73b` on 2026-09-21 when the build lane's test list was extended (section 4).
 
 `fix/fantasy-points-matchup-staging-20260921` must not be merged. Its shadow SQL sits under `sql/features/`, which
 `build-features` globs, so the feature build would execute it against a table that does not exist; and its loader
@@ -203,14 +204,32 @@ window question (Week-3 `_l4` features are two-game windows); the chain-level pr
 Until this is done, **every Week-3 projection batch carries the Week-2 defect.** The first Week-3 batch will be
 written by `s-project-tu` on Tuesday 09:30.
 
-1. Deploy `production/week3-integration-20260921` @ `a37e3339`. **Do not re-derive the merge by hand.** It merges
+1. Deploy `production/week3-integration-20260921` @ `5aa2c73b`. **Do not re-derive the merge by hand.** It merges
    exactly ten branches: wiring, prop-name, standings-capture, regeneration-lineage, vendor-sessions, weather-precip,
    shadow-arms, shadow-outcomes, shadow-runner, sunday-final-path-v2. `production/qb-availability-gate-20260919` is
    deliberately **not** in it — it edits `src/nfl_dfs/inference/run_projections.py`, the same file the market repair
    rewrites, so merging it is a separate and untested decision. `production/in-season-rules-20260919` is documents
    only. The inventory source-set v8 travels with the market repair; its tests pin the hashes.
-2. Build the image (cloudbuild runs the suite first):
-   `gcloud builds submit --config cloudbuild.yaml --project nfl-predictions-503414 --substitutions _IMAGE=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:week3-market-source,_CODE_SHA=$(git rev-parse HEAD)`
+2. Build the image with **`cloudbuild.week1-live.yaml`, not `cloudbuild.yaml`.** This was verified on 2026-09-21:
+   the currently deployed image was produced by that narrow lane in **under six minutes** (build `d7089008`,
+   steps `live-boundary-tests` → `build-live-image` → `smoke-live-image`, using `Dockerfile.week1-live` — which is
+   the image `project-slate` actually runs). The full-suite `cloudbuild.yaml` has been attempted **once**, on
+   2026-09-15, and **TIMED OUT at its 3-hour ceiling** (build `2a28b013`); it has not completed since, and defect 17
+   in the Week-2 handoff records why (the frozen-factorial drift failures plus a ~7,700-test suite). Submitting
+   `cloudbuild.yaml` on Saturday would burn three hours and produce no image.
+
+   From a checkout of the integration branch:
+   ```
+   SHA=$(git rev-parse HEAD)
+   gcloud builds submit --config cloudbuild.week1-live.yaml --project nfl-predictions-503414 \
+     --substitutions _IMAGE=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:week3-market-source-${SHA:0:8},_CODE_SHA=$SHA
+   ```
+   Using this lane is a **disclosed deviation** from "image only after the complete suite": record the build id in
+   `HANDOFF.md`. The lane's test list was extended on 2026-09-21 to run the six market-repair modules
+   (`test_market_source`, `test_prop_market_ambiguity`, `test_market_monitor`, `test_build_inputs`,
+   `test_exposure_sheet`, `test_effective_policy_rule_inventory`) beside its eleven live-boundary modules, so the
+   props-or-nothing contract and the frozen inventory hashes are verified inside the build that ships them.
+   The assistant's harness refuses `gcloud builds submit`, so this step is the operator's or the laptop's.
 3. Point the job at it (**operator or laptop — the workstation assistant's harness refuses job updates**):
    `gcloud run jobs update project-slate --project nfl-predictions-503414 --region us-central1 --image us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:week3-market-source`
 4. Verify on the next run: the log must say `market blend source: props (N/M rows)` and `market-source log: M rows`.
@@ -400,7 +419,7 @@ end-to-end audit, the repair plan, the independent post-mortem review, and the p
 | item | state |
 |---|---|
 | Wire the provenance gate into `run_week_build.sh` (call `check_build_inputs.py`, stop on exit 1) | not built; the wiring branch has had no commit since 2026-09-20 16:20 |
-| Merge the repair branches, rebuild and redeploy the `project-slate` image, report the merged SHA | not done — **section 4; `a37e3339` is now ready for it** |
+| Merge the repair branches, rebuild and redeploy the `project-slate` image, report the merged SHA | not done — **section 4; `5aa2c73b` is now ready for it** |
 | `GEN-001` candidate-pool sidecars; `GEN-002` cold-start / minimum-price / DST supply arms | open, lab generator |
 | `FEAT-002` strict-prior support receipts for the TabPFN repair table | open |
 | Week-3 selector and ordering shadows | queued, not run |
@@ -446,7 +465,7 @@ bind.
 
 - [ ] BigQuery read/write, GCS read, `gcloud run jobs describe`, `gcloud scheduler jobs list` all work; whoever
       deploys has `gcloud builds submit` and `gcloud run jobs update`.
-- [ ] A checkout of `production/week3-integration-20260921` @ `a37e3339`, with exactly this command re-run
+- [ ] A checkout of `production/week3-integration-20260921` @ `5aa2c73b`, with exactly this command re-run
       (a different selection is not comparable): `python -m pytest tests/test_market_source.py
       tests/test_prop_market_ambiguity.py tests/test_exposure_sheet.py tests/test_market_monitor.py
       tests/test_build_inputs.py tests/test_live_smoke.py tests/test_dk_standings_capture.py
@@ -490,7 +509,7 @@ bind.
 - **Paid-data documents** are on `research/2026-09-paid-source-preflight` @ `6ccf5894`, not on the rules branch:
   `reports/2026-09-21-fantasy-points-matchup-staging-contract.md` (the contract in one page) and
   `reports/2026-09-21-fantasy-points-matchup-capture-incident.md`.
-- **Deployable code**: `production/week3-integration-20260921` @ `a37e3339`.
+- **Deployable code**: `production/week3-integration-20260921` @ `5aa2c73b`.
 - **Channel**: nfl2 `lab/workstation-reply-bank991-20260918` (notes, receipts under `handoffs/receipts/`, tools
   under `handoffs/tools/`) and `review/prereg101-reply-20260918`. Both move; `git ls-remote` before citing a sha.
 - **Sunday outputs**: `/home/erich/week2-sunday/`, with raw exports under `ENTERED/` and the standings downloads
