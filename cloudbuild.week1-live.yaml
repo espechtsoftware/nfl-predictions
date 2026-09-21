@@ -32,6 +32,7 @@ steps:
           tests/test_prop_market_ambiguity.py \
           tests/test_market_monitor.py \
           tests/test_build_inputs.py \
+          tests/test_week_build_gate.py \
           tests/test_exposure_sheet.py \
           tests/test_effective_policy_rule_inventory.py
         python -Werror::SyntaxWarning -m compileall -q src
