@@ -146,3 +146,73 @@ class TestCalibrationBuckets:
         buckets = wps.panel(rows, "t")["p20_calibration"]
         assert len(buckets) == 5
         assert sum(b["n"] for b in buckets) == 50
+
+
+class TestDispersion:
+    """Model's stated spread against what actually happened."""
+
+    def test_a_too_narrow_forecast_reads_above_one(self):
+        """Ratio > 1 means the stated sd exceeds the realized sd."""
+        rows = [_row("WR", 10.0, 8.0, v) for v in (9.0, 10.0, 11.0)] * 4
+        b = wps.panel(rows, "t")["all"]
+        assert b["dispersion_ratio"] > 1.0
+
+    def test_a_too_confident_forecast_reads_below_one(self):
+        rows = [_row("WR", 10.0, 1.0, v) for v in (0.0, 10.0, 25.0)] * 4
+        b = wps.panel(rows, "t")["all"]
+        assert b["dispersion_ratio"] < 1.0
+
+    def test_it_reports_both_sides_not_just_the_ratio(self):
+        b = wps.panel([_row("WR", 10.0, 4.0, v) for v in (5.0, 15.0)], "t")["all"]
+        assert b["predicted_sd"] == pytest.approx(4.0)
+        assert b["realized_sd"] == pytest.approx(wps.stdev([5.0, 15.0]))
+
+    def test_a_single_row_has_no_realized_spread(self):
+        """One observation cannot estimate dispersion; say None, not a fake number."""
+        assert wps.panel([_row("WR", 10.0, 4.0, 12.0)], "t")["all"]["dispersion_ratio"] is None
+
+
+class TestMedianBias:
+    def test_it_is_signed_not_absolute(self):
+        """Median ABSOLUTE error hides direction; the protocol needs the sign."""
+        rows = [_row("WR", 10.0, 4.0, y) for y in (4.0, 5.0, 6.0)]
+        b = wps.panel(rows, "t")["all"]
+        assert b["median_bias"] == pytest.approx(-5.0)
+        assert b["median_abs_err"] == pytest.approx(5.0)
+
+    def test_it_resists_a_single_outlier_that_moves_the_mean(self):
+        rows = [_row("WR", 10.0, 4.0, y) for y in (9.0, 10.0, 11.0, 200.0)]
+        b = wps.panel(rows, "t")["all"]
+        assert abs(b["median_bias"]) < 1.0 < b["mean_bias"]
+
+
+class TestProjectionBuckets:
+    def test_buckets_use_frozen_edges_not_quantiles(self):
+        """Quantile edges would move week to week and break comparability."""
+        assert wps.PROJECTION_BUCKETS[0] == (0.0, 5.0)
+        assert wps.PROJECTION_BUCKETS[-1][1] == float("inf")
+
+    def test_a_row_lands_in_the_bucket_holding_its_projection(self):
+        out = wps.panel([_row("WR", 12.0, 4.0, 12.0)], "t")["projection_buckets"]["WR"]
+        assert len(out) == 1 and out[0]["lo"] == 10.0 and out[0]["hi"] == 15.0
+
+    def test_the_top_bucket_is_open_ended(self):
+        out = wps.panel([_row("QB", 31.0, 8.0, 30.0)], "t")["projection_buckets"]["QB"]
+        assert out[0]["lo"] == 20.0 and out[0]["hi"] is None
+
+    def test_it_detects_bias_that_grows_with_the_projection(self):
+        """The Week-2 shape: small projections fair, large ones over-projected."""
+        rows = [_row("WR", 2.0, 2.0, 2.0) for _ in range(10)]
+        rows += [_row("WR", 22.0, 8.0, 12.0) for _ in range(10)]
+        buckets = {(b["lo"]): b for b in wps.panel(rows, "t")["projection_buckets"]["WR"]}
+        assert buckets[0.0]["mean_bias"] == pytest.approx(0.0)
+        assert buckets[20.0]["mean_bias"] == pytest.approx(-10.0)
+
+    def test_reached_projection_is_the_share_at_or_above(self):
+        rows = [_row("WR", 10.0, 4.0, 12.0), _row("WR", 10.0, 4.0, 8.0)]
+        b = wps.panel(rows, "t")["projection_buckets"]["WR"][0]
+        assert b["reached_projection"] == pytest.approx(0.5)
+
+    def test_empty_buckets_are_omitted_not_reported_as_zero(self):
+        out = wps.panel([_row("TE", 2.0, 2.0, 2.0)], "t")["projection_buckets"]["TE"]
+        assert [b["lo"] for b in out] == [0.0]

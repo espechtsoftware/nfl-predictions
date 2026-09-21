@@ -35,6 +35,11 @@ from google.cloud import bigquery
 
 PROJECT = os.environ.get("GCP_PROJECT", "nfl-predictions-503414")
 MIN_CALIBRATION_ROWS = 25
+# Frozen 2026-09-21, before any Week-3 outcome was read, per the lab's ruling
+# that the Week-2 QB result is one slate and must accumulate three to four
+# prospective weeks before any model change. Fixed edges keep the weekly rows
+# comparable; do not retune them after seeing a week.
+PROJECTION_BUCKETS = ((0.0, 5.0), (5.0, 10.0), (10.0, 15.0), (15.0, 20.0), (20.0, float("inf")))
 
 DK = """
       0.04*passing_yards + 4*passing_tds + IF(passing_yards>=300,3,0)
@@ -94,6 +99,13 @@ def pinball(q: float, pred: float, y: float) -> float:
     return (y - pred) * q if y >= pred else (pred - y) * (1.0 - q)
 
 
+def stdev(xs: list[float]) -> float:
+    if len(xs) < 2:
+        return 0.0
+    m = sum(xs) / len(xs)
+    return math.sqrt(sum((x - m) ** 2 for x in xs) / (len(xs) - 1))
+
+
 def median(xs: list[float]) -> float:
     s = sorted(xs)
     n = len(s)
@@ -122,6 +134,7 @@ def panel(rows: list[dict], label: str) -> dict:
             "mean_proj": sum(r["proj_points"] for r in sub) / len(sub),
             "mean_realized": sum(r["y"] for r in sub) / len(sub),
             "mean_bias": sum(err) / len(err),
+            "median_bias": median(err),
             "bias_se": (math.sqrt(sum((e - sum(err) / len(err)) ** 2 for e in err)
                                   / max(1, len(err) - 1)) / math.sqrt(len(err))),
             "cov_p90_se": math.sqrt(0.9 * 0.1 / len(sub)),
@@ -134,6 +147,13 @@ def panel(rows: list[dict], label: str) -> dict:
             "cov_p90": sum(1 for r in sub if r["y"] < r["proj_p90"]) / len(sub),
             "pinball_p90": sum(pinball(0.90, r["proj_p90"], r["y"]) for r in sub) / len(sub),
             "pinball_p10": sum(pinball(0.10, r["proj_p10"], r["y"]) for r in sub) / len(sub),
+            # Dispersion: the model's own stated spread against what actually
+            # happened. A ratio well below 1 means the predictive distribution is
+            # too narrow, which inflates every tail probability drawn from it.
+            "predicted_sd": sum(r["proj_std"] for r in sub) / len(sub),
+            "realized_sd": stdev([r["y"] for r in sub]),
+            "dispersion_ratio": (sum(r["proj_std"] for r in sub) / len(sub))
+                                / stdev([r["y"] for r in sub]) if stdev([r["y"] for r in sub]) else None,
         }
 
     out = {"label": label, "slate": rows[0].get("slate_id", "?"), "n_rows": len(rows), "n_skill": len(skill), "n_dst": len(dst),
@@ -170,6 +190,24 @@ def panel(rows: list[dict], label: str) -> dict:
                             "realized_rate": rate,
                             "realized_se": math.sqrt(max(rate * (1 - rate), 1e-9) / len(g))})
     out["p20_calibration"] = buckets
+
+    # Calibration by projection bucket. Fixed edges, not quantiles, so the rows
+    # are comparable week to week -- quantile buckets would move under us.
+    out["projection_buckets"] = {}
+    for pos in ("ALL", "QB", "RB", "WR", "TE"):
+        group = skill if pos == "ALL" else [r for r in skill if r["position"] == pos]
+        rows = []
+        for lo, hi in PROJECTION_BUCKETS:
+            g = [r for r in group if lo <= r["proj_points"] < hi]
+            if not g:
+                continue
+            e = [r["y"] - r["proj_points"] for r in g]
+            rows.append({"lo": lo, "hi": None if hi == float("inf") else hi, "n": len(g),
+                         "mean_proj": sum(r["proj_points"] for r in g) / len(g),
+                         "mean_realized": sum(r["y"] for r in g) / len(g),
+                         "mean_bias": sum(e) / len(e), "median_bias": median(e),
+                         "reached_projection": sum(1 for r in g if r["y"] >= r["proj_points"]) / len(g)})
+        out["projection_buckets"][pos] = rows
     return out
 
 
@@ -193,6 +231,20 @@ def show(p: dict) -> None:
               f"{b['mean_bias']:>8.2f}{b['bias_se']:>6.2f}{b['rmse']:>8.2f}{b['median_abs_err']:>8.2f}"
               f"{b['crps']:>8.2f}{b['cov_p10']:>7.1%}{b['cov_p50']:>7.1%}"
               f"{b['cov_p90']:>7.1%}{b['pinball_p90']:>8.2f}")
+    print("    dispersion (model's stated sd vs realized sd):")
+    for name, b in (("all skill", p["all"]), *((k, v) for k, v in p["by_position"].items())):
+        if b and b.get("dispersion_ratio"):
+            print(f"      {name:<12} predicted {b['predicted_sd']:>6.2f}   realized {b['realized_sd']:>6.2f}"
+                  f"   ratio {b['dispersion_ratio']:>5.2f}   median bias {b['median_bias']:>6.2f}")
+    print("    calibration by projection bucket (fixed edges, frozen 2026-09-21):")
+    for pos, rows in p.get("projection_buckets", {}).items():
+        if pos != "ALL" and not rows:
+            continue
+        for r in rows:
+            hi = "+" if r["hi"] is None else f"-{r['hi']:g}"
+            print(f"      {pos:<4} {r['lo']:g}{hi:<4} n={r['n']:>4}  proj {r['mean_proj']:>6.2f} -> "
+                  f"real {r['mean_realized']:>6.2f}  bias {r['mean_bias']:>6.2f}  "
+                  f"median {r['median_bias']:>6.2f}  reached {r['reached_projection']:>5.1%}")
     if p.get("p20_calibration_note"):
         print(f"    P(>=20) calibration not computed: {p['p20_calibration_note']}")
     if p["p20_calibration"]:
