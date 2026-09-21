@@ -24,6 +24,26 @@ AVAIL_WEIGHT = 1.0   # composite z-units per vetting risk point
 
 def implied_prob(a): a = float(a); return 100 / (a + 100) if a > 0 else -a / (-a + 100)
 
+def verify_slice(frame, season, week, what):
+    """Every row returned must carry the target slate. Defence in depth.
+
+    The query already filters on season and week, so this can only fire if the
+    query is edited wrongly or the table's own columns disagree. That is exactly
+    the case worth catching: on 2026-09-20 the query was correct and the CALLER
+    supplied the wrong week, and because the downstream join is by player the
+    substitution was invisible. Checking the returned data, not just the query
+    text, means a wrong slice cannot reach the book however it arrives.
+    """
+    for column, target in (("season", season), ("week", week)):
+        if column not in getattr(frame, "columns", ()):
+            raise SystemExit(f"player_score: {what} does not carry a {column} column; cannot verify its identity")
+        values = {int(v) for v in frame[column].dropna().unique()}
+        if values != {int(target)}:
+            raise SystemExit(
+                f"player_score: {what} is for {column} {sorted(values)} but this run is "
+                f"{column} {target}; refusing to score the book against another slate")
+
+
 def resolve_season_week(run, season_flag=None, week_flag=None):
     """Resolve the slate from the run's own receipt; never guess.
 
@@ -67,14 +87,17 @@ def main():
     inc = np.load(run / "incumbent_player_scores.npy"); hs = np.load(run / "corrected_hsim_player_scores.npy")
     c = bigquery.Client(project="nfl-predictions-503414")
     ids = sorted({gsis[d] for d in players if gsis.get(d) not in (None, "None", "nan", "")})
-    prod = c.query("""SELECT gsis_id, dk_player_id, proj_points, proj_p90, p_20_plus, position, generated_at FROM `nfl-predictions-503414.nfl_predictions.player_projections`
+    prod = c.query("""SELECT gsis_id, dk_player_id, proj_points, proj_p90, p_20_plus, position, generated_at, season, week FROM `nfl-predictions-503414.nfl_predictions.player_projections`
                       WHERE season=@s AND week=@w AND generated_at=(SELECT MAX(generated_at) FROM `nfl-predictions-503414.nfl_predictions.player_projections` WHERE season=@s AND week=@w)""",
                    job_config=bigquery.QueryJobConfig(query_parameters=[bigquery.ScalarQueryParameter("s", "INT64", season), bigquery.ScalarQueryParameter("w", "INT64", week)])).result().to_dataframe()
     if prod.empty: raise SystemExit(f"player_score: no production projection batch for season {season} week {week}; refusing to score a book against nothing")
+    verify_slice(prod, season, week, "projection batch")
     by_gsis = prod.drop_duplicates("gsis_id").set_index(prod.drop_duplicates("gsis_id").gsis_id.astype(str)); by_dk = prod.drop_duplicates("dk_player_id").set_index(prod.drop_duplicates("dk_player_id").dk_player_id.astype(str))
-    L = c.query("""SELECT DATE(pulled_at) AS d, player, market, outcome_name, AVG(point) AS point, AVG(price) AS price FROM `nfl-predictions-503414.nfl_raw.prop_lines`
+    L = c.query("""SELECT DATE(pulled_at) AS d, ANY_VALUE(season) AS season, ANY_VALUE(week) AS week, player, market, outcome_name, AVG(point) AS point, AVG(price) AS price FROM `nfl-predictions-503414.nfl_raw.prop_lines`
                    WHERE season=@s AND week=@w GROUP BY d, player, market, outcome_name""",
                 job_config=bigquery.QueryJobConfig(query_parameters=[bigquery.ScalarQueryParameter("s", "INT64", season), bigquery.ScalarQueryParameter("w", "INT64", week)])).result().to_dataframe()
+    if L.empty: raise SystemExit(f"player_score: no prop lines for season {season} week {week}; refusing to score a book against nothing")
+    verify_slice(L, season, week, "prop lines")
     days = sorted(L.d.unique())
     def implied(df):
         pts = Counter()
@@ -117,7 +140,9 @@ def main():
     LS.to_csv(out / "lineup_scores.csv", index=False)
     top_before, top_after = set(range(a.k)), set(order[:a.k])
     rec = {"version": "player-score-v1", "source_run": str(run), "k": a.k, "weights": WEIGHTS, "avail_weight": AVAIL_WEIGHT, "prop_fetch_days": [str(x) for x in days[-2:]],
-           "season": season, "week": week, "week_source": "run receipt", "projection_generated_at": str(prod.generated_at.max()) if "generated_at" in prod.columns else None, "players": len(P), "coverage": {c_: int(P[c_].notna().sum()) for c_ in WEIGHTS},
+           "season": season, "week": week, "week_source": "run receipt", "target_identity": {"season": season, "week": week, "run": str(run)},
+           "projection_batch": {"generated_at": str(prod.generated_at.max()), "rows": int(len(prod))},
+           "prop_batch": {"days": [str(d) for d in days], "rows": int(len(L))}, "projection_generated_at": str(prod.generated_at.max()) if "generated_at" in prod.columns else None, "players": len(P), "coverage": {c_: int(P[c_].notna().sum()) for c_ in WEIGHTS},
            "order_source_ranks": [i + 1 for i in order], "demoted_out_of_top_k": sorted(i + 1 for i in top_before - top_after), "promoted_into_top_k": sorted(i + 1 for i in top_after - top_before),
            "overlap_top_k_with_greedy": len(top_before & top_after), "built_utc": datetime.now(UTC).isoformat()}
     (out / "composite_receipt.json").write_text(json.dumps(rec, indent=1) + "\n")

@@ -127,3 +127,79 @@ class TestTheCallerPassesTheSlate:
         line = next(l for l in (ROOT / "scripts" / "sunday_build_host.sh").read_text().splitlines()
                     if "player_score.py" in l)
         assert '--season "$SEASON"' in line and '--week "$WEEK"' in line, line
+
+
+class TestAWeek1BatchCannotReachAWeek2Book:
+    """The regression the lab asked for on 2026-09-21:
+
+    "Add a regression test that supplies a Week 1 projection batch to a Week 2
+    run and asserts a nonzero failure before book.csv is emitted."
+
+    `verify_slice` checks the RETURNED ROWS, not the query text, so a wrong slice
+    cannot reach the book however it arrives -- a bad flag, an edited query, or a
+    table whose own columns disagree.
+    """
+
+    @staticmethod
+    def _frame(season, week, n=3):
+        pd = pytest.importorskip("pandas")
+        return pd.DataFrame({"gsis_id": [f"00-{i:07d}" for i in range(n)],
+                             "proj_points": [10.0] * n, "season": [season] * n,
+                             "week": [week] * n})
+
+    def test_a_week1_projection_batch_is_refused_by_a_week2_run(self):
+        with pytest.raises(SystemExit) as e:
+            ps.verify_slice(self._frame(2026, 1), 2026, 2, "projection batch")
+        msg = str(e.value)
+        assert "week [1]" in msg and "week 2" in msg
+        assert "refusing to score the book against another slate" in msg
+
+    def test_the_matching_batch_passes(self):
+        ps.verify_slice(self._frame(2026, 2), 2026, 2, "projection batch")
+
+    def test_a_wrong_season_is_refused(self):
+        with pytest.raises(SystemExit) as e:
+            ps.verify_slice(self._frame(2025, 2), 2026, 2, "projection batch")
+        assert "season [2025]" in str(e.value)
+
+    def test_a_batch_mixing_two_weeks_is_refused(self):
+        """A partial substitution must fail as loudly as a total one."""
+        pd = pytest.importorskip("pandas")
+        mixed = pd.concat([self._frame(2026, 1, 2), self._frame(2026, 2, 2)])
+        with pytest.raises(SystemExit) as e:
+            ps.verify_slice(mixed, 2026, 2, "projection batch")
+        assert "week [1, 2]" in str(e.value)
+
+    def test_a_frame_without_the_slice_columns_is_refused(self):
+        """Unverifiable is not the same as fine."""
+        pd = pytest.importorskip("pandas")
+        with pytest.raises(SystemExit) as e:
+            ps.verify_slice(pd.DataFrame({"gsis_id": ["x"]}), 2026, 2, "projection batch")
+        assert "cannot verify its identity" in str(e.value)
+
+    def test_prop_lines_are_verified_too_not_just_projections(self):
+        """25% of the composite weight came from props, which were also stale."""
+        src = _SRC.read_text()
+        assert 'verify_slice(L, season, week, "prop lines")' in src
+
+    def test_the_check_runs_before_any_book_is_written(self):
+        """A check after the emit would document the defect, not prevent it.
+
+        Uses line numbers, and counts only writes to the OUTPUT dir. The input
+        book is read from the run dir early, which is fine and is not a write.
+        """
+        lines = _SRC.read_text().splitlines()
+        checks = [i for i, l in enumerate(lines) if "verify_slice(" in l and "def " not in l]
+        writes = [i for i, l in enumerate(lines)
+                  if any(m in l for m in ('out / "book.csv"', "to_csv(out /", "(out /"))
+                  and "print(" not in l]
+        assert checks and writes
+        assert max(checks) < min(writes), (
+            f"identity checks at lines {[c + 1 for c in checks]} but an output artifact "
+            f"is written at line {min(writes) + 1}")
+
+    def test_the_receipt_carries_both_batch_identities(self):
+        """The lab asked for projection and prop batch identity in the receipt."""
+        src = _SRC.read_text()
+        for field in ('"target_identity"', '"projection_batch"', '"prop_batch"'):
+            assert field in src, f"receipt does not record {field}"
