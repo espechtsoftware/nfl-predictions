@@ -331,6 +331,8 @@ def test_large_field_half_share_on_a_near_zero_player_is_tolerated_but_not_more(
     """Millionaire Week 2: 69 lineups held a player DraftKings summarised at 0.02% (0.04% derived)."""
     entries, ownership = _entries_and_summary(69, 172_761, {"Wide Three": 0.02})
     assert oi._validate_ownership_against_entries(entries, ownership, field_size=172_761) == ["Wide Three"]
+    entries, ownership = _entries_and_summary(6, 594, {"Runner Two": 0.51})         # supersat 195660201: Engram 1.01 derived, 0.51 shown
+    assert oi._validate_ownership_against_entries(entries, ownership, field_size=594) == ["Runner Two"]
     entries, ownership = _entries_and_summary(69, 172_761, {"Wide Three": 0.11})   # shown far above derived: not a rounding shortfall
     with pytest.raises(ValueError, match="pct_mismatch"):
         oi._validate_ownership_against_entries(entries, ownership, field_size=172_761)

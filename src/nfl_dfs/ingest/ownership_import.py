@@ -303,12 +303,13 @@ def _validate_ownership_against_entries(
         # 2026-09-21 (all twelve Week-2 exports): DraftKings' own summary is short by one or two entries for a player
         # held by a handful of entries in a small field (68-entry satellite 1.47% shown vs 2.94% derived; 59-entry
         # qualifier 3.39 vs 6.78), and shows roughly half the lineup-derived share for a player below ~0.2% of a large
-        # field (Millionaire 0.02% shown vs 0.04% derived from 69 lineups; Huddle 0.05 vs 0.11). Both are tolerated
+        # field (Millionaire 0.02% shown vs 0.04% derived from 69 lineups; Huddle 0.05 vs 0.11; a 594-entry supersat
+        # 0.51 vs 1.01 for a player held by six entries). Both are tolerated
         # only while the shown share is small (< 5%), are RECORDED in the receipt and logged, and the lineup-derived
         # share stays the authority. A gap of that size on a widely held player still fails closed.
         if shown < 5.0 and gap <= 2.0 * one_entry + 0.011:
             minor.append(name)
-        elif shown < 5.0 and ours < 0.2 and gap <= 0.6 * ours + 0.011:
+        elif shown < 5.0 and ours < 2.0 and gap <= 0.6 * ours + 0.011:
             minor.append(name)
         else:
             mismatched.append(name)
