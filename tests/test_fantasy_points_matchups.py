@@ -361,3 +361,32 @@ def test_capture_refuses_to_start_after_first_kickoff(monkeypatch, tmp_path):
         )
     assert info.value.failure_class == "after-kickoff"
     assert not (tmp_path / "automated").exists()
+
+
+def test_capture_keeps_bytes_saved_before_a_mid_attempt_failure(monkeypatch, tmp_path):
+    schedule = schedule_frame()
+    driver = FakeDriver(_good_script(schedule))
+    calls = {"n": 0}
+    original = matchups._csv_shape
+
+    def broken_shape(path):
+        calls["n"] += 1
+        if calls["n"] == 2:
+            raise OSError("disk hiccup while reading the export")
+        return original(path)
+
+    monkeypatch.setattr(matchups, "_csv_shape", broken_shape)
+    with pytest.raises(OSError, match="disk hiccup"):
+        capture(tmp_path, monkeypatch, driver, schedule=schedule)
+    run_dir = next((tmp_path / "automated").iterdir())
+    manifest = json.loads((run_dir / "manifest.json").read_text())
+    assert manifest["status"] == "failed" and manifest["failure_class"] == "browser"
+    statuses = [(r["key"], r["status"]) for r in manifest["reports"]]
+    assert statuses == [("qb-coverage-matchup", "validated"), ("wr-coverage-matchup", "downloaded")]
+    partial = manifest["reports"][1]
+    assert (run_dir / partial["path"]).is_file()
+    assert partial["sha256"] and partial["bytes"] > 0
+    assert manifest["status_counts"]["downloaded"] == 1
+    ledger = matchups.read_ledger(run_dir)
+    assert ledger["reports"]["wr-coverage-matchup"]["downloaded"]["attempts"][0]["sha256"] == partial["sha256"]
+    assert ledger["reports"]["wr-coverage-matchup"]["validated"] is None

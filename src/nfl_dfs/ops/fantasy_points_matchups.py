@@ -667,25 +667,21 @@ def _status_counts(reports: Sequence[dict[str, Any]]) -> dict[str, int]:
 def _capture_attempt(
     driver: Any,
     definition: MatchupDefinition,
+    report: dict[str, Any],
     *,
-    attempt: int,
     season: int,
     week: int,
     run_dir: Path,
     expected: set[tuple[str, str]],
 ) -> dict[str, Any]:
-    """One navigate/select/apply/export cycle; returns the attempt record.
+    """One navigate/select/apply/export cycle, filling ``report`` in place.
 
-    The record's ``status`` is ``validated`` or ``rejected``; a failure that
-    yields no export raises :class:`MatchupCaptureError` and leaves no record
-    beyond the manifest's ``failure_class``.
+    On return the record's ``status`` is ``validated`` or ``rejected``.  When
+    the cycle raises after the export was saved, ``report`` still carries the
+    file's ``path``/``sha256`` with status ``downloaded`` so the caller can
+    keep the bytes on record; a failure before any export leaves no ``path``.
     """
-    report: dict[str, Any] = {
-        **asdict(definition),
-        "attempt": attempt,
-        "status": "downloaded",
-        "schedule_week": week,
-    }
+    attempt = int(report["attempt"])
     driver.navigate(definition)
     on_load = driver.week_control()
     driver.select_week(week)
@@ -701,18 +697,21 @@ def _capture_attempt(
     if driver.rendered_rows() < 2:
         raise MatchupCaptureError("no-rows", f"{definition.title} rendered no rows")
     destination = run_dir / f"{definition.key}.attempt-{attempt:02d}.csv"
-    suggested = driver.export(destination)
-    report.update({
-        "retrieved_at_utc": datetime.now(UTC).isoformat(),
-        "source_url": driver.url,
-        "vendor_suggested_filename": suggested,
-        "path": destination.name,
-        "bytes": destination.stat().st_size,
-    })
+    try:
+        suggested = driver.export(destination)
+    finally:
+        if destination.is_file():
+            report.update({
+                "retrieved_at_utc": datetime.now(UTC).isoformat(),
+                "source_url": driver.url,
+                "path": destination.name,
+                "bytes": destination.stat().st_size,
+                "sha256": _sha256(destination),
+            })
+    report["vendor_suggested_filename"] = suggested
     rows, columns = _csv_shape(destination)
     report["csv_rows_including_headers"] = rows
     report["max_csv_columns"] = columns
-    report["sha256"] = _sha256(destination)
     try:
         pairs, source_seasons, source_rows = read_matchup_pairs(
             destination, definition.key
@@ -809,17 +808,31 @@ def run(
             for definition in MATCHUPS:
                 accepted: dict[str, Any] | None = None
                 for attempt in range(1, max_attempts + 1):
-                    report = _capture_attempt(
-                        driver, definition, attempt=attempt, season=season,
-                        week=week, run_dir=run_dir, expected=expected,
-                    )
-                    manifest["reports"].append(report)
-                    persist()
-                    advance_ledger(
-                        run_dir, definition.key, "downloaded",
-                        path=report["path"], sha256=report["sha256"],
-                        attempt=attempt,
-                    )
+                    report: dict[str, Any] = {
+                        **asdict(definition),
+                        "attempt": attempt,
+                        "status": "downloaded",
+                        "schedule_week": week,
+                    }
+                    # ``path`` names the export file once one exists; the
+                    # vendor route moves aside so the two are never confused.
+                    report["vendor_path"] = report.pop("path")
+                    try:
+                        _capture_attempt(
+                            driver, definition, report, season=season,
+                            week=week, run_dir=run_dir, expected=expected,
+                        )
+                    finally:
+                        # Keep whatever bytes reached disk on record, even
+                        # when the attempt raised after the export.
+                        if report.get("sha256"):
+                            manifest["reports"].append(report)
+                            persist()
+                            advance_ledger(
+                                run_dir, definition.key, "downloaded",
+                                path=report["path"], sha256=report["sha256"],
+                                attempt=attempt,
+                            )
                     if report["status"] == "validated":
                         accepted = report
                         break
