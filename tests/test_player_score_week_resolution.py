@@ -69,20 +69,20 @@ class TestFlagsMayOnlyConfirm:
     def test_a_contradicting_week_is_refused(self, tmp_path):
         """The caller and the run disagreeing is exactly the incident's shape."""
         r = _run(tmp_path, season=2026, week=2)
-        with pytest.raises(SystemExit) as e:
+        with pytest.raises(ps.ScopeError) as e:
             ps.resolve_season_week(r, 2026, 1)
-        assert "contradicts" in str(e.value) and "week" in str(e.value)
+        assert "disagrees" in str(e.value) and "week" in str(e.value)
 
     def test_a_contradicting_season_is_refused(self, tmp_path):
         r = _run(tmp_path, season=2026, week=2)
-        with pytest.raises(SystemExit) as e:
+        with pytest.raises(ps.ScopeError) as e:
             ps.resolve_season_week(r, 2025, 2)
-        assert "contradicts" in str(e.value)
+        assert "disagrees" in str(e.value)
 
     def test_a_flag_cannot_override_the_run(self, tmp_path):
         """If a flag could win, a wrong caller would still score the wrong week."""
         r = _run(tmp_path, season=2026, week=3)
-        with pytest.raises(SystemExit):
+        with pytest.raises(ps.ScopeError):
             ps.resolve_season_week(r, 2026, 1)
 
 
@@ -90,12 +90,12 @@ class TestFailsClosed:
     def test_a_missing_receipt_stops_the_run(self, tmp_path):
         d = tmp_path / "bare"
         d.mkdir()
-        with pytest.raises(SystemExit) as e:
+        with pytest.raises(ps.ScopeError) as e:
             ps.resolve_season_week(d)
         assert "missing" in str(e.value)
 
     def test_a_receipt_without_a_week_stops_the_run(self, tmp_path):
-        with pytest.raises(SystemExit) as e:
+        with pytest.raises(ps.ScopeError) as e:
             ps.resolve_season_week(_run(tmp_path, season=2026))
         assert "season and week" in str(e.value)
 
@@ -103,7 +103,7 @@ class TestFailsClosed:
         d = tmp_path / "bad"
         d.mkdir()
         (d / "receipt.json").write_text("{not json")
-        with pytest.raises(SystemExit) as e:
+        with pytest.raises(ps.ScopeError) as e:
             ps.resolve_season_week(d)
         assert "cannot read" in str(e.value)
 
@@ -148,7 +148,7 @@ class TestAWeek1BatchCannotReachAWeek2Book:
                              "week": [week] * n})
 
     def test_a_week1_projection_batch_is_refused_by_a_week2_run(self):
-        with pytest.raises(SystemExit) as e:
+        with pytest.raises(ps.ScopeError) as e:
             ps.verify_slice(self._frame(2026, 1), 2026, 2, "projection batch")
         msg = str(e.value)
         assert "week [1]" in msg and "week 2" in msg
@@ -158,7 +158,7 @@ class TestAWeek1BatchCannotReachAWeek2Book:
         ps.verify_slice(self._frame(2026, 2), 2026, 2, "projection batch")
 
     def test_a_wrong_season_is_refused(self):
-        with pytest.raises(SystemExit) as e:
+        with pytest.raises(ps.ScopeError) as e:
             ps.verify_slice(self._frame(2025, 2), 2026, 2, "projection batch")
         assert "season [2025]" in str(e.value)
 
@@ -166,14 +166,14 @@ class TestAWeek1BatchCannotReachAWeek2Book:
         """A partial substitution must fail as loudly as a total one."""
         pd = pytest.importorskip("pandas")
         mixed = pd.concat([self._frame(2026, 1, 2), self._frame(2026, 2, 2)])
-        with pytest.raises(SystemExit) as e:
+        with pytest.raises(ps.ScopeError) as e:
             ps.verify_slice(mixed, 2026, 2, "projection batch")
         assert "week [1, 2]" in str(e.value)
 
     def test_a_frame_without_the_slice_columns_is_refused(self):
         """Unverifiable is not the same as fine."""
         pd = pytest.importorskip("pandas")
-        with pytest.raises(SystemExit) as e:
+        with pytest.raises(ps.ScopeError) as e:
             ps.verify_slice(pd.DataFrame({"gsis_id": ["x"]}), 2026, 2, "projection batch")
         assert "cannot verify its identity" in str(e.value)
 

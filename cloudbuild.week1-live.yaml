@@ -34,6 +34,7 @@ steps:
           tests/test_build_inputs.py \
           tests/test_week_build_gate.py \
           tests/test_player_score_week_resolution.py \
+          tests/test_player_score_scope.py \
           tests/test_money_path_slice_arguments.py \
           tests/test_receipt_freshness_sweep.py \
           tests/test_sis_inseason_loader.py \

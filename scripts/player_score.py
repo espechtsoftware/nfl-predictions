@@ -24,6 +24,16 @@ AVAIL_WEIGHT = 1.0   # composite z-units per vetting risk point
 
 def implied_prob(a): a = float(a); return 100 / (a + 100) if a > 0 else -a / (-a + 100)
 
+class ScopeError(ValueError):
+    """The run and the live source scope do not identify the same slate.
+
+    Typed rather than a bare SystemExit so callers and tests can catch it; `main`
+    turns it into a one-line message and a nonzero exit. Name and base class are
+    the laptop's, from fix/composite-scope-guard-20260921, kept so both suites
+    and any caller written against either fix keep working.
+    """
+
+
 def verify_slice(frame, season, week, what):
     """Every row returned must carry the target slate. Defence in depth.
 
@@ -36,48 +46,68 @@ def verify_slice(frame, season, week, what):
     """
     for column, target in (("season", season), ("week", week)):
         if column not in getattr(frame, "columns", ()):
-            raise SystemExit(f"player_score: {what} does not carry a {column} column; cannot verify its identity")
+            raise ScopeError(f"player_score: {what} does not carry a {column} column; cannot verify its identity")
         values = {int(v) for v in frame[column].dropna().unique()}
         if values != {int(target)}:
-            raise SystemExit(
+            raise ScopeError(
                 f"player_score: {what} is for {column} {sorted(values)} but this run is "
                 f"{column} {target}; refusing to score the book against another slate")
 
 
-def resolve_season_week(run, season_flag=None, week_flag=None):
-    """Resolve the slate from the run's own receipt; never guess.
+def resolve_scope(run, cli_season=None, cli_week=None):
+    """Resolve season, week and a stable run identity from the run's receipt.
 
-    A defaulted week is the defect this guards. On 2026-09-21 every Week-2 composite
-    ordering was found to have scored Week-2 lineups against the LAST WEEK-1
-    projection batch and Week-1 props, because --week defaulted to 1 and the Sunday
-    caller omitted the flag. The projection join is by player, not by week, so it
-    succeeded silently and the receipt's coverage block read a healthy 134 of 149.
-    80% of the ordering weight was stale and nothing in the output said so.
-
-    The run receipt is the authority. A flag may only confirm it, never supply it.
+    Merges two independent repairs of the same defect. The receipt-is-authority
+    rule and the contradiction refusal are the workstation's; the `run_id`, the
+    `target_season`/`target_week` fallbacks and the receipt-must-be-an-object
+    check are the laptop's, from fix/composite-scope-guard-20260921. The run id
+    matters because season and week alone do not distinguish two runs of the same
+    slate, and the composite receipt should say which one it scored.
     """
     receipt = pathlib.Path(run) / "receipt.json"
     if not receipt.is_file():
-        raise SystemExit(f"player_score: {receipt} is missing; cannot establish which slate this run is for")
+        raise ScopeError(f"player_score: missing run receipt: {receipt}")
     try:
         data = json.loads(receipt.read_text())
     except (ValueError, OSError) as exc:
-        raise SystemExit(f"player_score: cannot read {receipt}: {exc}") from exc
-    season, week = data.get("season"), data.get("week")
+        raise ScopeError(f"player_score: cannot read run receipt: {receipt}") from exc
+    if not isinstance(data, dict):
+        raise ScopeError(f"player_score: run receipt must be an object: {receipt}")
+
+    def declared(*keys):
+        for key in keys:
+            if data.get(key) is not None:
+                return int(data[key])
+        return None
+
+    found_season, found_week = declared("season", "target_season"), declared("week", "target_week")
+    season = found_season if cli_season is None else int(cli_season)
+    week = found_week if cli_week is None else int(cli_week)
     if season is None or week is None:
-        raise SystemExit(f"player_score: {receipt} does not carry both season and week")
-    season, week = int(season), int(week)
-    for name, flag, found in (("season", season_flag, season), ("week", week_flag, week)):
-        if flag is not None and int(flag) != found:
-            raise SystemExit(
-                f"player_score: --{name} {flag} contradicts the run receipt's {name} {found}; "
+        raise ScopeError(
+            "player_score: run receipt does not carry both season and week; target season/week "
+            "must be present in receipt.json or supplied explicitly")
+    for name, found, chosen in (("season", found_season, season), ("week", found_week, week)):
+        if found is not None and chosen != found:
+            raise ScopeError(
+                f"player_score: --{name} {chosen} disagrees with the run receipt's {name} {found}; "
                 f"refusing to score {run} against the wrong slate")
-    return season, week
+    run_id = str(data.get("run_id") or data.get("source_run") or pathlib.Path(run).name)
+    if not run_id or run_id == "None":
+        raise ScopeError("player_score: run receipt has no stable run identity")
+    return {"season": season, "week": week, "run_id": run_id}
+
+
+def resolve_season_week(run, season_flag=None, week_flag=None):
+    """Tuple form of :func:`resolve_scope`, kept for existing callers."""
+    scope = resolve_scope(run, season_flag, week_flag)
+    return scope["season"], scope["week"]
 
 
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("run"); ap.add_argument("--k", type=int, default=30); ap.add_argument("--output-dir"); ap.add_argument("--vetting"); ap.add_argument("--season", type=int, default=None); ap.add_argument("--week", type=int, default=None); a = ap.parse_args()
-    run = pathlib.Path(a.run); season, week = resolve_season_week(run, a.season, a.week)
+    run = pathlib.Path(a.run); scope = resolve_scope(run, a.season, a.week)
+    season, week, run_id = scope["season"], scope["week"], scope["run_id"]
     out = pathlib.Path(a.output_dir or (str(run) + "-composite")); out.mkdir(parents=True, exist_ok=True)
     f = pd.read_parquet(run / "frame.parquet"); f["dk"] = f.dk_player_id.astype(str); f["fid"] = f.id.astype(str)
     idx = {fid: k for k, fid in enumerate(f.fid)}; dk2fid = dict(zip(f.dk, f.fid)); name = dict(zip(f.dk, f.display_name.astype(str))); pos = dict(zip(f.dk, f.position.astype(str)))
@@ -90,13 +120,13 @@ def main():
     prod = c.query("""SELECT gsis_id, dk_player_id, proj_points, proj_p90, p_20_plus, position, generated_at, season, week FROM `nfl-predictions-503414.nfl_predictions.player_projections`
                       WHERE season=@s AND week=@w AND generated_at=(SELECT MAX(generated_at) FROM `nfl-predictions-503414.nfl_predictions.player_projections` WHERE season=@s AND week=@w)""",
                    job_config=bigquery.QueryJobConfig(query_parameters=[bigquery.ScalarQueryParameter("s", "INT64", season), bigquery.ScalarQueryParameter("w", "INT64", week)])).result().to_dataframe()
-    if prod.empty: raise SystemExit(f"player_score: no production projection batch for season {season} week {week}; refusing to score a book against nothing")
+    if prod.empty: raise ScopeError(f"player_score: no production projection batch for season {season} week {week}; refusing to score a book against nothing")
     verify_slice(prod, season, week, "projection batch")
     by_gsis = prod.drop_duplicates("gsis_id").set_index(prod.drop_duplicates("gsis_id").gsis_id.astype(str)); by_dk = prod.drop_duplicates("dk_player_id").set_index(prod.drop_duplicates("dk_player_id").dk_player_id.astype(str))
     L = c.query("""SELECT DATE(pulled_at) AS d, ANY_VALUE(season) AS season, ANY_VALUE(week) AS week, player, market, outcome_name, AVG(point) AS point, AVG(price) AS price FROM `nfl-predictions-503414.nfl_raw.prop_lines`
                    WHERE season=@s AND week=@w GROUP BY d, player, market, outcome_name""",
                 job_config=bigquery.QueryJobConfig(query_parameters=[bigquery.ScalarQueryParameter("s", "INT64", season), bigquery.ScalarQueryParameter("w", "INT64", week)])).result().to_dataframe()
-    if L.empty: raise SystemExit(f"player_score: no prop lines for season {season} week {week}; refusing to score a book against nothing")
+    if L.empty: raise ScopeError(f"player_score: no prop lines for season {season} week {week}; refusing to score a book against nothing")
     verify_slice(L, season, week, "prop lines")
     days = sorted(L.d.unique())
     def implied(df):
@@ -139,8 +169,9 @@ def main():
     LS = pd.DataFrame({"source_rank": range(1, n + 1), "lineup_score": np.round(lineup_scores, 3), "hard": lineup_hard}); LS["composite_pos"] = [order.index(i) + 1 for i in range(n)]
     LS.to_csv(out / "lineup_scores.csv", index=False)
     top_before, top_after = set(range(a.k)), set(order[:a.k])
-    rec = {"version": "player-score-v1", "source_run": str(run), "k": a.k, "weights": WEIGHTS, "avail_weight": AVAIL_WEIGHT, "prop_fetch_days": [str(x) for x in days[-2:]],
-           "season": season, "week": week, "week_source": "run receipt", "target_identity": {"season": season, "week": week, "run": str(run)},
+    rec = {"version": "player-score-v2", "source_run": str(run), "k": a.k, "weights": WEIGHTS, "avail_weight": AVAIL_WEIGHT, "prop_fetch_days": [str(x) for x in days[-2:]],
+           "season": season, "week": week, "week_source": "run receipt", "run_id": run_id,
+           "target_identity": {"season": season, "week": week, "run": str(run), "run_id": run_id},
            "projection_batch": {"generated_at": str(prod.generated_at.max()), "rows": int(len(prod))},
            "prop_batch": {"days": [str(d) for d in days], "rows": int(len(L))}, "projection_generated_at": str(prod.generated_at.max()) if "generated_at" in prod.columns else None, "players": len(P), "coverage": {c_: int(P[c_].notna().sum()) for c_ in WEIGHTS},
            "order_source_ranks": [i + 1 for i in order], "demoted_out_of_top_k": sorted(i + 1 for i in top_before - top_after), "promoted_into_top_k": sorted(i + 1 for i in top_after - top_before),
@@ -150,4 +181,8 @@ def main():
     print("top 10 players by composite:", P.sort_values("composite", ascending=False).head(10)[["name", "pos", "composite", "prod_proj", "market_pts", "prod_p20"]].round(2).to_string(index=False))
 
 if __name__ == "__main__":
-    main()
+    try:
+        raise SystemExit(main())
+    except ScopeError as exc:
+        print(exc)
+        raise SystemExit(1) from None
