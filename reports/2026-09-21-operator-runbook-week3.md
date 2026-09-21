@@ -1,9 +1,26 @@
 # Operator runbook — the four Week-3 items
 
-Written 2026-09-21. Every command below was checked against the live system on
-this host; the digests, paths, pids and log strings are real, not examples.
-Do them in this order. Items 1 and 2 both feed the build gate; item 4 is the one
-to do at a quiet moment.
+Written 2026-09-21. Every command below was **run** against the live system on
+this host, not written from memory. Two errors were caught that way and are
+noted where they occurred, so if something here looks over-explained, that is
+why. Do the items in this order. Items 1 and 2 both feed the build gate; item 4
+is the one to do at a quiet moment.
+
+**One path caveat.** Steps 2 and 4 refer to
+
+    /home/erich/projects/.nfl-predictions-worktrees/week3-readiness-20260921
+
+which is a working checkout of `production/week3-integration-20260921` created
+during the 2026-09-21 session. If it is gone, recreate it anywhere convenient
+and substitute that path throughout:
+
+    git -C /home/erich/projects/nfl-predictions worktree add \
+      /home/erich/projects/nfl-predictions-week3 \
+      production/week3-integration-20260921
+
+The Week-3 build needs a checkout of that branch regardless — the preflight
+resolves its tools directory from `$PROD`, so the repaired host scripts reach the
+money path through the checkout, not through the container image.
 
 ---
 
@@ -123,12 +140,21 @@ fixed. Nothing on the money path reads this table.
 
 **Verify:**
 
-    SELECT week, COUNT(*) n, COUNTIF(team IS NULL) nulls
+    SELECT week, COUNT(*) AS n, COUNTIF(team IS NULL) AS null_team
     FROM `nfl-predictions-503414.nfl_raw.sis_team_context_game`
-    WHERE season = 2026 GROUP BY 1 ORDER BY 1
+    WHERE season = 2026 GROUP BY week ORDER BY week
 
-Expect week 1 → 32 rows, 0 nulls. Week 2 → 2 rows, 0 nulls (that is the
-Thursday game, loaded mid-week; not a fault).
+(`nulls` is a BigQuery reserved word — an earlier draft used it as an alias and
+the query failed outright with `Syntax error: … got keyword NULLS`. Tested as
+written above.)
+
+Before the delete it returns:
+
+    week 1: 64 rows, 32 with a null team
+    week 2:  2 rows,  0 with a null team
+
+After, expect week 1 → 32 rows, 0 with a null team. Week 2 staying at 2 rows is
+correct: that is the Thursday game, loaded mid-week, not a fault.
 
 ---
 
