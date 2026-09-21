@@ -94,3 +94,34 @@ cp /var/cache/apt/archives/python3.14{,-minimal}_3.14.4-1ubuntu0.1_amd64.deb \
 ```
 
 I would recommend doing that before the decision, not after.
+
+## 4. Done, and verified: the pinned interpreter is preserved and reproducible
+
+Because losing the cached debs is irreversible while copying them is not, I
+took the protective step rather than waiting on the decision:
+
+```
+/home/erich/pinned-runtime/python3.14_3.14.4-1ubuntu0.1_amd64.deb
+/home/erich/pinned-runtime/python3.14-minimal_3.14.4-1ubuntu0.1_amd64.deb
+```
+
+The apt cache copies are untouched; these are additional copies, and deleting
+the directory undoes it completely.
+
+I then verified the documented recovery end-to-end rather than assuming it.
+Extracting the preserved `-minimal` deb yields an interpreter that matches the
+contract literals exactly:
+
+| | extracted | contract pin |
+|---|---|---|
+| bytes | 7,481,192 | `_PYTHON_EXECUTABLE_BYTES = 7_481_192` |
+| sha256 | `b8d8288faefdd300201f43fcf00f6f539a27218eeed3a3dff5ab10b9c4c99700` | `_PYTHON_EXECUTABLE_SHA256` |
+
+So the "hold the package" option remains genuinely available, and the frozen
+chains can still be run at their contracted runtime on this workstation. That
+was true by luck an hour ago; it is now true by arrangement.
+
+This does not settle the operator decision — re-freezing the contract against
+1ubuntu0.2 is still the other option, and may be the better one, since holding
+a superseded system interpreter indefinitely has its own cost. It only means
+the decision can no longer be lost to a disk sweep.
