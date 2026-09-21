@@ -321,11 +321,14 @@ activation until a separate outcome-blind efficacy review.
 
 **Outstanding — one command**, blocked for the assistant by the harness classifier and awaiting the operator:
 
+A durable worktree of `research/2026-09-paid-source-preflight` @ `6ccf5894` is checked out at
+`/home/erich/projects/.nfl-predictions-worktrees/paid-source-preflight` (clean), so the command needs no scratch path:
+
 ```
 cd /home/erich/projects/nfl-predictions && source .venv/bin/activate && \
-PYTHONPATH=<checkout of research/2026-09-paid-source-preflight>/src \
+PYTHONPATH=/home/erich/projects/.nfl-predictions-worktrees/paid-source-preflight/src \
 python -m nfl_dfs.ingest.fantasy_points_matchups_weekly \
-  --input <checkout>/reports/2026-09-09-week1-fantasy-points-live-matchup-capture-seal.json \
+  --input /home/erich/projects/.nfl-predictions-worktrees/paid-source-preflight/reports/2026-09-09-week1-fantasy-points-live-matchup-capture-seal.json \
   --target-week 1 --output-root /home/erich/projects/nfl-predictions/fantasy-points/automated --write
 ```
 
