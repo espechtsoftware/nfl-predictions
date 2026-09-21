@@ -197,3 +197,168 @@ class TestFeeIsMoneyNotAnInteger:
         rows = json.loads(contests())
         rows[0]["fee"] = "free"
         assert any("not a number" in p for p in wi.validate_contests(json.dumps(rows)))
+
+
+# --- The torn-pair boundary the laptop identified (2026-09-21) ----------------
+# push writes two separate objects, so a pull overlapping an operator update
+# could install one push's contests beside another push's dose. push now writes
+# a manifest LAST as the single commit point, and pull resolves the pair through
+# it BY GENERATION. These tests drive that with a fake GCS client.
+
+import types
+from datetime import UTC, datetime
+
+
+class _FakeBlob:
+    def __init__(self, store, name, generation=None):
+        self._store, self.name = store, name
+        self._want = generation
+        self.updated = datetime(2026, 9, 21, tzinfo=UTC)
+
+    @property
+    def _versions(self):
+        return self._store.get(self.name, [])
+
+    @property
+    def _chosen(self):
+        if not self._versions:
+            return None
+        if self._want is None:
+            return self._versions[-1]
+        for gen, raw in self._versions:
+            if gen == self._want:
+                return (gen, raw)
+        return None
+
+    @property
+    def generation(self):
+        return self._chosen[0] if self._chosen else None
+
+    def exists(self):
+        return self._chosen is not None
+
+    def download_as_bytes(self):
+        if not self._chosen:
+            raise FileNotFoundError(f"no such generation for {self.name}")
+        return self._chosen[1]
+
+    def upload_from_string(self, raw):
+        raw = raw if isinstance(raw, bytes) else raw.encode()
+        nxt = (self._versions[-1][0] + 1) if self._versions else 1000
+        self._store.setdefault(self.name, []).append((nxt, raw))
+
+    def reload(self):
+        return None
+
+
+class _FakeBucket:
+    def __init__(self, store): self._store = store
+    def blob(self, name, generation=None): return _FakeBlob(self._store, name, generation)
+
+
+class _FakeClient:
+    def __init__(self): self.store = {}
+    def bucket(self, _name): return _FakeBucket(self.store)
+
+
+def _args(**kw):
+    base = {"bucket": wi.DEFAULT_BUCKET, "min_entries": wi.MIN_BOOK_ENTRIES,
+            "season": 2026, "week": 3}
+    base.update(kw)
+    return types.SimpleNamespace(**base)
+
+
+@pytest.fixture
+def fake(monkeypatch):
+    client = _FakeClient()
+    monkeypatch.setattr(wi, "_client", lambda: client)
+    return client
+
+
+def _push(fake, tmp_path, contests_text, dose_text):
+    c = tmp_path / "c.json"; c.write_text(contests_text)
+    d = tmp_path / "d.env"; d.write_text(dose_text)
+    return wi.cmd_push(_args(contests=str(c), dose=str(d)))
+
+
+class TestTheManifestPinsThePair:
+    def test_push_then_pull_round_trips(self, fake, tmp_path):
+        assert _push(fake, tmp_path, contests(), GOOD_DOSE) == 0
+        out = tmp_path / "out"
+        assert wi.cmd_pull(_args(out=str(out))) == 0
+        assert json.loads((out / "contests.json").read_text())
+        assert "CHOSEN_LEV" in (out / "chosen-dose.env").read_text()
+
+    def test_push_writes_the_manifest(self, fake, tmp_path):
+        _push(fake, tmp_path, contests(), GOOD_DOSE)
+        keys = [k for k in fake.store if k.endswith(wi.MANIFEST)]
+        assert keys, "no manifest object was written"
+
+    def test_a_pull_gets_the_pinned_pair_not_the_newest_objects(self, fake, tmp_path):
+        """The torn-read case: a file is replaced WITHOUT a new manifest."""
+        _push(fake, tmp_path, contests(n=12, entries=8), GOOD_DOSE)
+        contests_key = next(k for k in fake.store if k.endswith("contests.json"))
+        newer = contests(n=12, entries=9, start=7000).encode()
+        fake.store[contests_key].append((9999, newer))
+
+        out = tmp_path / "out"
+        assert wi.cmd_pull(_args(out=str(out))) == 0
+        installed = json.loads((out / "contests.json").read_text())
+        assert sum(c["entries"] for c in installed) == 96, \
+            "pull took the newest object instead of the generation the manifest pins"
+
+    def test_a_second_push_moves_the_pair_together(self, fake, tmp_path):
+        _push(fake, tmp_path, contests(n=12, entries=8), GOOD_DOSE)
+        _push(fake, tmp_path, contests(n=12, entries=9, start=7000),
+              "CHOSEN_LEV=1280\nCHOSEN_BOOM=5120\n")
+        out = tmp_path / "out"
+        assert wi.cmd_pull(_args(out=str(out))) == 0
+        installed = json.loads((out / "contests.json").read_text())
+        assert sum(c["entries"] for c in installed) == 108
+        assert "CHOSEN_LEV=1280" in (out / "chosen-dose.env").read_text()
+
+
+class TestPullFailsClosed:
+    def test_no_manifest_means_no_install(self, fake, tmp_path):
+        out = tmp_path / "out"
+        assert wi.cmd_pull(_args(out=str(out))) == 1
+        assert not (out / "contests.json").exists()
+
+    def test_a_missing_pinned_generation_is_refused(self, fake, tmp_path):
+        _push(fake, tmp_path, contests(), GOOD_DOSE)
+        key = next(k for k in fake.store if k.endswith("chosen-dose.env"))
+        fake.store[key] = []                      # the pinned version is gone
+        out = tmp_path / "out"
+        assert wi.cmd_pull(_args(out=str(out))) == 1
+        assert not (out / "contests.json").exists(), "a partial pair was installed"
+
+    def test_a_hash_mismatch_is_refused(self, fake, tmp_path):
+        _push(fake, tmp_path, contests(), GOOD_DOSE)
+        key = next(k for k in fake.store if k.endswith("contests.json"))
+        gen, _ = fake.store[key][-1]
+        fake.store[key][-1] = (gen, b'[{"name":"x","contest_id":"1","entries":999,'
+                                    b'"keep":1,"fee":1}]')
+        out = tmp_path / "out"
+        assert wi.cmd_pull(_args(out=str(out))) == 1
+
+    def test_invalid_inputs_are_never_installed(self, fake, tmp_path):
+        """Validation runs after fetch and before any file is written."""
+        _push(fake, tmp_path, contests(), GOOD_DOSE)
+        key = next(k for k in fake.store if k.endswith("chosen-dose.env"))
+        gen, raw = fake.store[key][-1]
+        bad = b"CHOSEN_LEV=0\nCHOSEN_BOOM=10240\n"
+        fake.store[key][-1] = (gen, bad)
+        m_key = next(k for k in fake.store if k.endswith(wi.MANIFEST))
+        m_gen, m_raw = fake.store[m_key][-1]
+        m = json.loads(m_raw)
+        import hashlib
+        m["objects"]["chosen-dose.env"]["sha256"] = hashlib.sha256(bad).hexdigest()
+        m["objects"]["chosen-dose.env"]["bytes"] = len(bad)
+        fake.store[m_key][-1] = (m_gen, json.dumps(m).encode())
+        out = tmp_path / "out"
+        assert wi.cmd_pull(_args(out=str(out))) == 1
+        assert not (out / "chosen-dose.env").exists()
+
+    def test_push_refuses_to_publish_an_invalid_pair(self, fake, tmp_path):
+        assert _push(fake, tmp_path, contests(n=2), GOOD_DOSE) == 1
+        assert not fake.store, "an invalid pair reached the bucket"

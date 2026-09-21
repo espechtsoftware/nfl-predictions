@@ -34,6 +34,8 @@ import sys
 from datetime import UTC, datetime
 
 DEFAULT_BUCKET = "nfl-predictions-503414-raw"
+MANIFEST = "manifest.json"
+INPUT_FILES = ("contests.json", "chosen-dose.env")
 PREFIX = "week-inputs"
 PROJECT = "nfl-predictions-503414"
 MIN_BOOK_ENTRIES = 90
@@ -189,7 +191,7 @@ def cmd_push(a) -> int:
         return 1
     client = _client()
     out = {}
-    for name, raw in (("contests.json", contests), ("chosen-dose.env", dose)):
+    for name, raw in zip(INPUT_FILES, (contests, dose)):
         uri = object_uri(a.bucket, a.season, a.week, name)
         bucket_name, _, blob_name = uri[5:].partition("/")
         blob = client.bucket(bucket_name).blob(blob_name)
@@ -198,6 +200,20 @@ def cmd_push(a) -> int:
         print(f"  uploaded {uri}")
         print(f"    generation {out[name]['generation']}  sha256 {out[name]['sha256'][:16]}…  "
               f"{out[name]['bytes']} bytes")
+    # The manifest is written LAST and is the single commit point. Both files are
+    # separate objects, so without it a `pull` overlapping a `push` could install
+    # one push's contests beside another push's dose. A pull resolves the pair
+    # THROUGH this manifest, by generation, so it sees either the whole old pair
+    # or the whole new one.
+    manifest = {"schema": "week-inputs-manifest/v1", "season": a.season, "week": a.week,
+                "published_utc": datetime.now(UTC).isoformat(),
+                "objects": {n: {k: out[n][k] for k in ("uri", "generation", "sha256", "bytes")}
+                            for n in INPUT_FILES}}
+    m_uri = object_uri(a.bucket, a.season, a.week, MANIFEST)
+    m_bucket, _, m_blob = m_uri[5:].partition("/")
+    m_raw = (json.dumps(manifest, indent=2, sort_keys=True) + "\n").encode()
+    client.bucket(m_bucket).blob(m_blob).upload_from_string(m_raw)
+    print(f"  uploaded {m_uri}  (pins the pair)")
     s = summarise(contests.decode(), dose.decode())
     print(f"\nreviewed inputs for {a.season} week {a.week}: {s['contests']} contests, "
           f"{s['total_entries']} entries, dose lev {s['chosen_lev']} boom {s['chosen_boom']}")
@@ -208,17 +224,41 @@ def cmd_pull(a) -> int:
     client = _client()
     out_dir = pathlib.Path(a.out)
     out_dir.mkdir(parents=True, exist_ok=True)
+    m_uri = object_uri(a.bucket, a.season, a.week, MANIFEST)
+    m_bucket, _, m_blob = m_uri[5:].partition("/")
+    m_handle = client.bucket(m_bucket).blob(m_blob)
+    if not m_handle.exists():
+        print(f"MISSING: {m_uri}\n  push the reviewed inputs first "
+              f"(python scripts/week_inputs.py push --season {a.season} --week {a.week} …)")
+        return 1
+    manifest = json.loads(m_handle.download_as_bytes())
+    pinned = manifest.get("objects", {})
+    missing = [n for n in INPUT_FILES if n not in pinned]
+    if missing:
+        print(f"REFUSING: {m_uri} does not pin {missing}")
+        return 1
+
+    # Fetch each file AT THE GENERATION THE MANIFEST NAMES, so an operator push
+    # landing mid-pull cannot produce a mixed pair.
     receipts, texts = {}, {}
-    for name in ("contests.json", "chosen-dose.env"):
-        uri = object_uri(a.bucket, a.season, a.week, name)
+    for name in INPUT_FILES:
+        want = pinned[name]
+        uri = want["uri"]
         bucket_name, _, blob_name = uri[5:].partition("/")
-        blob = client.bucket(bucket_name).blob(blob_name)
-        if not blob.exists():
-            print(f"MISSING: {uri}\n  push the reviewed inputs first "
-                  f"(python scripts/week_inputs.py push --season {a.season} --week {a.week} …)")
+        blob = client.bucket(bucket_name).blob(blob_name, generation=int(want["generation"]))
+        try:
+            raw = blob.download_as_bytes()
+        except Exception as exc:
+            print(f"REFUSING: cannot read {uri} at the pinned generation "
+                  f"{want['generation']}: {exc}")
             return 1
-        raw = blob.download_as_bytes()
-        receipts[name] = _receipt(client, uri, raw)
+        receipt = _receipt(client, uri, raw)
+        if receipt["sha256"] != want["sha256"]:
+            print(f"REFUSING: {uri} generation {want['generation']} hashes "
+                  f"{receipt['sha256'][:16]}…, manifest says {want['sha256'][:16]}…")
+            return 1
+        receipt["generation"] = str(want["generation"])
+        receipts[name] = receipt
         texts[name] = raw.decode()
 
     problems = (validate_contests(texts["contests.json"], a.min_entries)
@@ -232,8 +272,9 @@ def cmd_pull(a) -> int:
     for name, text in texts.items():
         (out_dir / name).write_text(text)
     s = summarise(texts["contests.json"], texts["chosen-dose.env"])
-    receipt = {"schema": "week-inputs/v1", "season": a.season, "week": a.week,
+    receipt = {"schema": "week-inputs/v2", "season": a.season, "week": a.week,
                "fetched_utc": datetime.now(UTC).isoformat(), "out": str(out_dir),
+               "manifest_published_utc": manifest.get("published_utc"),
                "objects": receipts, "summary": s}
     receipt_path = out_dir / "week-inputs-receipt.json"
     receipt_path.write_text(json.dumps(receipt, indent=2, sort_keys=True) + "\n")

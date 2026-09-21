@@ -29,8 +29,15 @@ Managed with `scripts/week_inputs.py`:
     python scripts/week_inputs.py push --season 2026 --week 3 --contests c.json --dose dose.env
     python scripts/week_inputs.py pull  --season 2026 --week 3 --out /home/erich/week3-sunday
 
-`pull` writes `week-inputs-receipt.json` beside the files, pinning each object by
-uri, generation, sha256 and byte count. **That receipt is safe to commit**: it
+`push` writes a third object, `manifest.json`, **last**. It is the single commit
+point: it names the exact generation and sha256 of the pair just published. `pull`
+resolves through it and fetches each file **at the generation the manifest names**,
+so a push landing mid-pull cannot produce a mixed pair — one push's contests
+beside another push's dose. A pull sees either the whole old pair or the whole
+new one, and refuses if a pinned generation is gone or its hash does not match.
+
+`pull` then writes `week-inputs-receipt.json` beside the files, pinning each
+object by uri, generation, sha256 and byte count. **That receipt is safe to commit**: it
 carries no contest ids and no per-contest figures, only aggregates that already
 appear in the evidence record.
 
