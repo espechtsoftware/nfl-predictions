@@ -70,7 +70,7 @@ process_run() {
     if [ -d "$lo/paid-vetted-replaced" ]; then
       rm -f "$lo/lineage.json"
       if PYTHONPATH=$PROD/src $PY "$PROD/scripts/regeneration_lineage.py" --vetted-dir "$lo/paid-vetted" --replaced-dir "$lo/paid-vetted-replaced" \
-           --promoted-dir "$lo/paid-vetted-promoted" --upload-csv "$OUT/upload-$tag-promoted-paid-vetted-all.csv" --out "$lo/lineage.json" > "$lo/lineage.log" 2>&1; then
+           --promoted-dir "$lo/paid-vetted-promoted" --upload-csv "$OUT/upload-$tag-promoted-paid-vetted-all.csv" --contests "$CONTESTS_JSON" --out "$lo/lineage.json" > "$lo/lineage.log" 2>&1; then
         LINEAGE_STATUS="OK: $(grep -m1 '^lineage OK' "$lo/lineage.log" | cut -c1-200)"
       else
         LINEAGE_STATUS="LINEAGE FAILED -- DO NOT UPLOAD: $(grep -m1 -E 'LINEAGE FAILED|problem:' "$lo/lineage.log" | cut -c1-300 || echo "see $lo/lineage.log")"
@@ -167,7 +167,7 @@ PYEOF
     echo "FIRST-ENTRY PROMOTION: $PROMOTION_STATUS"; echo
     echo "REGENERATION LINEAGE: $LINEAGE_STATUS"; echo
     echo "EXPOSURE SHEET: $SHEET_STATUS"; echo
-    if [ -f "$lo/exposure/exposure-sheet.md" ]; then echo "FLAGGED PLAYERS (each flag needs a stated reason before upload):"; grep -E '^\| ' "$lo/exposure/exposure-sheet.md" | awk -F'|' 'NR<=2 || $NF ~ /[a-z]/' | head -n 25 | sed 's#^#  #'; echo; fi
+    if [ -f "$lo/exposure/exposure-sheet.md" ]; then echo "FLAGGED PLAYERS (each flag needs a stated reason before upload):"; grep -E '^\| ' "$lo/exposure/exposure-sheet.md" | awk -F'|' 'NR<=2 || $(NF-1) ~ /[a-z]/' | head -n 25 | sed 's#^#  #'; echo; fi
     echo "PER-CONTEST FILES FOR THE RESERVED ENTRIES (fill the DK entries export with scripts/fill_dk_entries.py or let the watcher do it):"
     sed 's#^#  #' "$E/ENTER-layout.txt"
     echo; echo "Files (Windows path): \\\\wsl.localhost\\Ubuntu$(echo "$E" | sed 's#/#\\#g')\\"; ls "$E"/ENTER-*.csv | xargs -n1 basename | sed 's#^#    #'

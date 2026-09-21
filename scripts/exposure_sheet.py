@@ -68,7 +68,8 @@ if a.status_csv:
 elif a.draft_group:
     from nfl_dfs.ingest.dk_client import fetch_draftables
     for d in fetch_draftables(a.draft_group)["draftables"]:
-        status[str(d.get("playerId"))] = str(d.get("status") or "")
+        raw_status = d.get("status")
+        status[str(d.get("playerId"))] = "" if raw_status in (None, "None", "") else str(raw_status)
 field_own = {}
 if a.field_own_csv:
     field_own = {str(r["id"]): float(r["own"]) for r in csv.DictReader(open(a.field_own_csv))}
