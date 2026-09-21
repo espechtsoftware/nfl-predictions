@@ -17,6 +17,7 @@ any stand-in that survives is recorded per row and shown before upload.**
 | capture tolerances + typed result classes | `production/standings-capture-tolerances-20260921` (off 5f8f61a5; tip in the reply-branch note 3) | tests green (22 + 15); twelve Week-2 exports validate; `CaptureValidationError.result_class` and `--failure-manifest`; NOT merged; nothing applied |
 | Week-3 shadow arms | `production/week3-shadow-arms-20260920` @ 22b68295 | 6 tests green; pending merge by the labs |
 | Week-3 outcomes builder | `production/week3-shadow-outcomes-20260920` @ 767df073 | 3 tests green; pending merge |
+| regeneration lineage + chain wiring | `production/regeneration-lineage-20260921` (off 5f8f61a5; tip in the reply-branch note 6) | `scripts/regeneration_lineage.py` (7 tests; green on the real Week-2 books: 52 replaced rows with reasons, promotion permutation, upload CSV and entries export match) and `sunday_after_build.sh` wired to run it and the exposure sheet after promotion (LINEAGE FAILED = DO NOT UPLOAD in the TODAY file, non-zero return; a failed sheet is written as EXPOSURE SHEET FAILED) |
 | weather precipitation plumbing | `production/weather-precip-plumbing-20260921` (off 5f8f61a5) | 3 offline tests + BigQuery dry-run compile green; takes effect at the next `build-features` (s-features Tue 06:30) once merged; not a model feature |
 | rules/reports branch | `production/in-season-rules-20260919` @ db05b27d | post-mortem, evidence record, command sheet, this document |
 | labs reply channel | nfl2 `lab/workstation-reply-bank991-20260918` @ ab6f15a (and later) | all handoff notes and receipts; the laptop's reviews land here |
@@ -101,7 +102,8 @@ Times are Central. Authoritative list of inputs: `reports/2026-09-15-week2-opera
 - **Sunday:** 05:30-10:30 s-features-sun / s-contests-sun / s-project-su hourly; the chain `sunday_after_build.sh`
   (qb_classify -> vet_book -> vet_replace_v4 with the fresh DK status feed -> emit -> sequential ENTER layout ->
   verify_enter_bundle -> atomic bundle swap), then `run_promotion.sh` (frozen mean first-entry rule; class E, the
-  operator's call each week) and `relayout_enter.sh`; the entries watcher fills the newest `DKEntries*.csv` export
+  operator's call each week) and `relayout_enter.sh`; with the lineage branch merged the chain then runs
+  `regeneration_lineage.py` and `exposure_sheet.py` on the final book and writes both results into the TODAY file; the entries watcher fills the newest `DKEntries*.csv` export
   (loop ends 16:58Z); the operator uploads the filled CSV before 12:00 CT lock (11:15 target); the late-inactives
   watcher runs to 20:25Z; `apply_swaps.py` v1.1 for late swaps (fresh-feed presence check, refuses locked games).
   **New this week: run the exposure sheet on the promoted book before upload and read every flag to the operator.**
@@ -163,7 +165,12 @@ Times are Central. Authoritative list of inputs: `reports/2026-09-15-week2-opera
    children) must not recur; verify the three processes after arming.
 10. The QB availability contract (backup QBs at starter means) is handled Sunday by the classifier tools, not repaired
     in the projections.
-11. `own_shadow` and the divergence shadow are not monitors in-season; `market_source_log` is the only per-row market
+11. Offline tests had been writing synthetic rows into `own_shadow` (18,185 rows, season 2024 week 3, since 2026-08-14) and,
+    tonight, into a new `market_source_log`, through the best-effort monitor writers on machines with credentials. Both
+    cleaned on 2026-09-21; `tests/conftest.py` on the market repair branch records every `nfl_dfs.bq.load_dataframe` call
+    instead of executing it. Any grade of a shadow table must filter to real seasons/weeks and real names until every
+    checkout carries that guard.
+12. `own_shadow` and the divergence shadow are not monitors in-season; `market_source_log` is the only per-row market
     monitor. The ownership input the lab generator consumes is the lab's naive fade; the booster does not run live.
 
 ## 7. Readiness checklist for Tuesday (confirm each, in writing, on the reply branch)
