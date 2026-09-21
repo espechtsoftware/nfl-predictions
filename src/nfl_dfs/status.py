@@ -87,8 +87,23 @@ FEEDS: tuple[Feed, ...] = (
          note="prospective shadow; source Week W-1 begins before target Week 2"),
     Feed("player_projections", "Projections", "predictions",
          "player_projections", 8 * 24, "nfl"),
+    # NON-ALERTING since 2026-09-21, deliberately and reversibly. `ingest-cfb` has
+    # failed every run since 2026-09-19 with a DraftKings 403 on
+    # api.draftkings.com/draftgroups/v1/ (the same egress block the NFL pull works
+    # around with a host loop; CFB has no such fallback). This feed therefore went
+    # stale and failed `check-freshness` EVERY DAY, while every NFL feed stayed
+    # fresh — so the daily alarm reported red for a reason nobody needed to act on,
+    # and a genuine NFL staleness would have arrived as one more line in an
+    # already-failing check. Nothing consumes this table: it is absent from
+    # sql/features/ and from models/featureset.py, and its only readers are its own
+    # ingest and this check.
+    # RESTORE alert=True as soon as the CFB pull succeeds again. Silencing an alarm
+    # is how alarms die; this one is silenced because it was already useless, not
+    # because the staleness is acceptable.
     Feed("cfb_dk_salaries", "CFB slates/salaries", "raw", "cfb_dk_salaries",
-         36, "cfb", note="collection-only scaffold; empty until DK posts CFB slates"),
+         36, "cfb", alert=False,
+         note="collection-only scaffold; DK 403 since 2026-09-19, non-alerting "
+              "until the pull succeeds (see 2026-09-21 deficiency-log row)"),
     Feed("dk_contest_fills", "Contest fills (overlay scaffold)", "raw",
          "dk_contest_fills", 48, "nfl", alert=False,
          note="opt-in scaffold, not scheduled — informational only"),
