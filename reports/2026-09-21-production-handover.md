@@ -30,7 +30,7 @@ any stand-in that survives is recorded per row and shown before upload.**
 | BigQuery | project `nfl-predictions-503414`, datasets `nfl_raw`, `nfl_features`, `nfl_predictions` | `market_source_log` will be created by the first repaired run (WRITE_APPEND) |
 | host timers | none active (the Week-2 transient units ended) | Week 3 is armed by the laptop's `arm_week_timers.sh 3 --run` after its preflight |
 | DK exports | `/home/erich/week2-sunday/ENTERED/` (entries, standings zips + CSVs) | never committed, never copied into handoff packages |
-| paid vendor data (2026) | `nfl_raw.fantasy_points_route_share`: week 1 265 rows (target week 2, loaded 2026-09-17, raw file not retained), week 2 200 rows (target week 3, loaded 2026-09-21 02:54Z, archived to GCS); `nfl_raw.sis_team_context_game`: week 1 32 rows with a NULL source_run_id (lineage unknown); Fantasy Points matchup reports: every capture attempt fails the vendor schedule gate and nothing is loaded (no load path exists) | Fantasy Points route share is a live model feature (`featureset.py`); SIS feeds nothing live; the Weeks 1-2 SIS team-context capture ran 2026-09-21 after the operator's login (see the reply-branch vendor receipt) |
+| paid vendor data (2026) | `nfl_raw.fantasy_points_route_share`: week 1 265 rows (target week 2, loaded 2026-09-17, raw file not retained), week 2 200 rows (target week 3, loaded 2026-09-21 02:54Z, archived to GCS); `nfl_raw.sis_team_context_game`: week 1 32 rows with full lineage (`sis-team-context-weekly:team-context-2026-w01-w02-v2`, 2026-09-21) beside 32 older Week-1 rows with NULL team/lineage (unreceipted; filter `team IS NOT NULL`), week 2 2 rows so far; `nfl_raw.sis_team_run_context_game`: week 1 32, week 2 2 (same lineage); Fantasy Points matchup reports: nothing loaded (vendor schedule gate; no load path) | Fantasy Points route share is a live model feature (`featureset.py`); SIS feeds nothing live yet (the SIS shadows are paused) |
 
 Cloud Scheduler (us-central1) at the time of writing, ENABLED: s-backup 07:00 daily; s-cfb 10/14/18 daily; s-cfb-sat;
 s-contests 10:00 Wed-Sat; s-contests-sun 06-11 Sun; s-dk hourly Wed-Sun; s-features Tue 06:30; s-features-sun 05:30-10:30
@@ -93,10 +93,15 @@ Times are Central. Authoritative list of inputs: `reports/2026-09-15-week2-opera
 - **Tuesday:** s-features 06:30, s-train 07:30, s-score 08:00, s-project-tu 09:30 (cloud, automatic). Check the
   project-slate log for `market blend source: props` and, after the image rebuild, for `market-source log: N rows`
   and no `MarketMatchError`.
-- **Wednesday:** paid-vendor capture `python -m nfl_dfs.ops.weekly_vendor_data verify-login` then `run --week W --skip-odds`
-  (from a checkout with the vendor branch; the Route Share for the completed week W-1 imports append-once; the three
-  Fantasy Points matchup reports need the vendor's week control to show W; the SIS pass-tail acquisition starts at
-  week 5; an SIS plan runs only with `--sis-plan`); `tabpfn-gen` with `TABPFN_UPCOMING=2026:3` (GPU job; run by the
+- **Wednesday:** paid-vendor capture, three commands from a checkout with the vendor branch: (1) `python -m
+  nfl_dfs.ops.weekly_vendor_data verify-login` then `run --week W --skip-odds` (Route Share for the completed week W-1
+  imports append-once; the three Fantasy Points matchup reports need the vendor's week control to show W; the SIS
+  pass-tail acquisition starts at week 5); (2) `sis-download run-plan --file automation/sis/plans/team-context-2026-w<W-1>.json
+  --output-dir sis/weekly/<run>` (one plan per completed week, the eleven valid reports; `passing-value` never renders);
+  (3) `scripts/import_sis_team_context_weekly.py --input-dir <run> --plan <plan> --write --audit <receipt>` (append-once
+  per team-week into `sis_team_context_game` and `sis_team_run_context_game`; SIS posts Sunday's games over the
+  following days, so a rerun later in the week appends the rest). SIS sessions expire in days: `python -m
+  nfl_dfs.ops.sis_downloads login --terminal-credentials --fresh` is the operator's interactive step; `tabpfn-gen` with `TABPFN_UPCOMING=2026:3` (GPU job; run by the
   operator/laptop after build-features; the Week-2 miss was defect 24). s-trends 11:00. The SIS login
   (`sis_downloads login --terminal-credentials --fresh`) is the operator's interactive step; SIS sessions last days,
   Fantasy Points longer.
