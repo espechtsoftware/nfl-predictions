@@ -102,8 +102,20 @@ FEEDS: tuple[Feed, ...] = (
     # because the staleness is acceptable.
     Feed("cfb_dk_salaries", "CFB slates/salaries", "raw", "cfb_dk_salaries",
          36, "cfb", alert=False,
-         note="collection-only scaffold; DK 403 since 2026-09-19, non-alerting "
-              "until the pull succeeds (see 2026-09-21 deficiency-log row)"),
+         # RE-ARM CONDITION, corrected 2026-09-21 PM. The earlier note said
+         # "non-alerting until the pull succeeds", which stopped being reachable
+         # the moment the schedulers were paused: a paused job never runs, so
+         # the pull can never succeed, so this feed could never re-alert. CFB
+         # would have gone permanently uncollected AND permanently silent.
+         # To restore alerting:
+         #   gcloud scheduler jobs resume s-cfb     --project nfl-predictions-503414 --location us-central1
+         #   gcloud scheduler jobs resume s-cfb-sat --project nfl-predictions-503414 --location us-central1
+         # then set alert=True once one pull returns 200.
+         note="collection-only scaffold; DK 403 since 2026-09-19. Schedulers "
+              "s-cfb and s-cfb-sat PAUSED 2026-09-21 (deterministic 403, three "
+              "failed executions a day, zero NFL readers). Non-alerting because "
+              "nothing is collecting: resume both schedulers, confirm one 200, "
+              "then set alert=True (see 2026-09-21 deficiency-log row)"),
     Feed("dk_contest_fills", "Contest fills (overlay scaffold)", "raw",
          "dk_contest_fills", 48, "nfl", alert=False,
          note="opt-in scaffold, not scheduled — informational only"),
