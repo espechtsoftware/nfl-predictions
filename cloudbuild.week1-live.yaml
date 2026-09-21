@@ -36,6 +36,7 @@ steps:
           tests/test_player_score_week_resolution.py \
           tests/test_money_path_slice_arguments.py \
           tests/test_receipt_freshness_sweep.py \
+          tests/test_sis_inseason_loader.py \
           tests/test_exposure_sheet.py \
           tests/test_effective_policy_rule_inventory.py
         python -Werror::SyntaxWarning -m compileall -q src

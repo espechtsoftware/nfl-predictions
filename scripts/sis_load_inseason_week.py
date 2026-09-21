@@ -16,6 +16,17 @@ per-artifact PARSER (`_read_artifact`, with the same position-based SCHEMAS and 
 SAFETY.  Nothing in `sql/features/` reads this table, so a load is inert for the Sunday build.
 The script refuses to write a (season, week) that already has rows, so it cannot double-load.
 
+DEFECT REPAIRED 2026-09-21.  The first version wrote only the parsed vendor columns and omitted
+the six the loader is supposed to derive -- `team`, `opp`, `opp_team_id`, `game_key`,
+`source_run_id`, `ingested_at`.  Every row of every other season carries them.  The load looked
+successful, and the rows are fully populated on 73 of 79 columns, so nothing looked wrong; but
+`team` is the natural join key, so a consumer joining on it silently drops the week, and one
+aggregating without a team filter double-counts it.  The 2026 Week-1 load of 2026-09-19 landed
+that way and a later corrected load appended 32 more, leaving 64 rows for 32 teams.  This version
+derives the six columns with the SAME rules as the frozen historical importer (importing its
+abbreviation map rather than copying it), validates both sides of every game, and refuses to write
+a frame whose columns do not cover the destination table.
+
     python scripts/sis_load_inseason_week.py --input-dir <capture dir> --season 2026 --week 1 [--write]
 
 Without --write it parses, validates and prints what it would load, and writes nothing.
@@ -27,6 +38,12 @@ import sys
 from pathlib import Path
 
 import pandas as pd
+
+SOURCE_RUN = "sis-team-context-inseason-weekly-v1"
+# The six columns the loader owns. Every row of every other season carries them;
+# omitting them is what made the 2026 Week-1 load look successful while being
+# unjoinable. Checked before any write.
+CANONICAL_COLUMNS = ("team", "opp", "opp_team_id", "game_key", "source_run_id", "ingested_at")
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
@@ -81,6 +98,46 @@ def build(root: Path, season: int, week: int) -> pd.DataFrame:
         base = base.merge(incoming, on=list(KEY_COLUMNS), how="inner", validate="one_to_one")
     if len(base) != len(universe):
         raise ValueError("join changed the row count")
+    return derive_canonical_columns(base)
+
+
+def derive_canonical_columns(base: pd.DataFrame) -> pd.DataFrame:
+    """Add the six columns the loader owns, exactly as the frozen importer does.
+
+    Imports the abbreviation map from the frozen module rather than copying it, so
+    the two cannot drift. Nothing here touches the frozen validator.
+    """
+    from datetime import UTC, datetime
+
+    from nfl_dfs.ingest.sis_team_context import TEAM_ABBREVIATIONS
+
+    base = base.copy()
+    name_to_id = {}
+    for row in base.itertuples():
+        seen = name_to_id.setdefault(str(row.team_name), int(row.team_id))
+        if seen != int(row.team_id):
+            raise ValueError(f"SIS team name maps to multiple IDs: {row.team_name}")
+    if missing := (set(base.team_name) | set(base.opp_name)) - set(TEAM_ABBREVIATIONS):
+        raise ValueError(f"SIS team abbreviations missing: {sorted(missing)}")
+    if missing := set(base.opp_name) - set(name_to_id):
+        raise ValueError(f"SIS opponent IDs missing: {sorted(missing)}")
+    base["team"] = base.team_name.map(TEAM_ABBREVIATIONS)
+    base["opp"] = base.opp_name.map(TEAM_ABBREVIATIONS)
+    base["opp_team_id"] = base.opp_name.map(name_to_id).astype(int)
+    base["game_key"] = base.apply(
+        lambda row: f"{row.season}-{row.week:02d}-" + "-".join(sorted((row.team, row.opp))), axis=1)
+    base["source_run_id"] = SOURCE_RUN
+    base["ingested_at"] = datetime.now(UTC)
+    if base.duplicated(["season", "week", "team"]).any():
+        raise ValueError("SIS weekly frame repeats a canonical team-week")
+    sides = base.groupby("game_key").size()
+    if not sides.eq(2).all():
+        raise ValueError(
+            f"SIS weekly frame does not carry both sides of every game: "
+            f"{sides[sides != 2].to_dict()}")
+    for column in CANONICAL_COLUMNS:
+        if base[column].isna().any():
+            raise ValueError(f"derived column {column} is null for some rows")
     return base
 
 
@@ -107,6 +164,20 @@ def main() -> int:
     if int(existing):
         print(f"REFUSING: {TABLE} already holds {existing} rows for "
               f"season {a.season} week {a.week}. Delete them first if a reload is intended.")
+        return 1
+
+    missing = [c for c in CANONICAL_COLUMNS if c not in frame.columns]
+    if missing:
+        print(f"REFUSING: frame is missing loader-derived columns {missing}; "
+              f"rows without them are unjoinable and were the 2026-09-19 defect.")
+        return 1
+    destination = set(bq.query_df(
+        f"SELECT column_name FROM `{raw}.INFORMATION_SCHEMA.COLUMNS` "
+        f"WHERE table_name = '{TABLE}'").column_name)
+    uncovered = destination - set(frame.columns)
+    if uncovered:
+        print(f"REFUSING: {TABLE} has {len(uncovered)} column(s) this frame does not "
+              f"supply: {sorted(uncovered)}. A partial write looks successful and is not.")
         return 1
 
     if not a.write:
