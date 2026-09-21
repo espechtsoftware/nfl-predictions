@@ -1,0 +1,29 @@
+diff --git a/src/nfl2/exploration_sleeve.py b/src/nfl2/exploration_sleeve.py
+index 42cad96..9b549df 100644
+--- a/src/nfl2/exploration_sleeve.py
++++ b/src/nfl2/exploration_sleeve.py
+@@ -80,7 +80,9 @@ def validate_lineup(
+     if len(players) != 9 or len(set(ids)) != 9:
+         raise ValueError("lineup must contain nine unique players")
+     counts = {pos: sum(p.get("pos") == pos for p in players) for pos in ("QB", "RB", "WR", "TE", "DST")}
+-    if counts != {"QB": 1, "RB": counts["RB"], "WR": counts["WR"], "TE": counts["TE"], "DST": 1}:
++    if sum(counts.values()) != 9:
++        raise ValueError(f"unclassified roster position present: {counts}")
++    if counts["QB"] != 1 or counts["DST"] != 1:
+         raise ValueError("lineup must contain exactly one QB and DST")
+     if not 2 <= counts["RB"] <= 3 or not 3 <= counts["WR"] <= 4 or not 1 <= counts["TE"] <= 2:
+         raise ValueError("lineup position bounds violated")
+@@ -95,10 +97,12 @@ def validate_lineup(
+     if any(str(pid) in inactive or _inactive(p) for pid, p in zip(ids, players)):
+         raise ValueError("lineup contains an inactive player")
+     qbs = [p for p in players if p.get("pos") == "QB"]
+-    if qb_safe_ids is not None and str(qbs[0].get("id")) not in {str(x) for x in qb_safe_ids}:
++    if str(qbs[0].get("id")) not in {str(x) for x in qb_safe_ids}:
+         raise ValueError("quarterback is outside the approved safety set")
+     dst = next(p for p in players if p.get("pos") == "DST")
+     dst_opp = dst.get("opp")
++    if not dst_opp:
++        raise ValueError("DST row carries no opponent; RB-versus-DST cannot be checked")
+     if any(p.get("pos") == "RB" and p.get("team") == dst_opp for p in players):
+         raise ValueError("running back opposes selected defense")
+ 
