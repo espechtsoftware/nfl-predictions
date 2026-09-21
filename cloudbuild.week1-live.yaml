@@ -1,3 +1,11 @@
+# Narrow live lane for the image `project-slate` actually runs (Dockerfile.week1-live).
+# Use THIS lane, not cloudbuild.yaml: the full-suite config timed out at its 3-hour
+# ceiling on 2026-09-15 (build 2a28b013, defect 17) and has not completed since, while
+# this lane built the deployed image in under six minutes (build d7089008, 2026-09-19).
+# Running it is a disclosed deviation from "image only after the complete suite":
+# record the build id in HANDOFF. 2026-09-21: the six market-repair modules were added
+# so the props-or-nothing contract and the frozen inventory hashes are verified inside
+# the build that produces the image carrying them.
 steps:
   - name: python:3.11-slim
     id: live-boundary-tests
@@ -19,7 +27,13 @@ steps:
           tests/test_production_policy.py \
           tests/test_week1_participation_mixture.py \
           tests/test_week1_adopted_pair.py \
-          tests/test_week1_operating_book.py
+          tests/test_week1_operating_book.py \
+          tests/test_market_source.py \
+          tests/test_prop_market_ambiguity.py \
+          tests/test_market_monitor.py \
+          tests/test_build_inputs.py \
+          tests/test_exposure_sheet.py \
+          tests/test_effective_policy_rule_inventory.py
         python -Werror::SyntaxWarning -m compileall -q src
 
   - name: gcr.io/cloud-builders/docker
