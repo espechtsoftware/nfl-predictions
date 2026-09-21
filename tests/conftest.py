@@ -93,3 +93,21 @@ def panel() -> pd.DataFrame:
 @pytest.fixture(scope="session")
 def small_panel() -> pd.DataFrame:
     return synthetic_panel(n_players=60, seasons=range(2019, 2023), seed=5)
+
+
+@pytest.fixture(autouse=True)
+def _no_warehouse_writes_from_offline_tests(monkeypatch):
+    """The suite is offline. On 2026-09-21 the live-lineups smoke wrote 1,558 synthetic rows into
+    nfl_predictions.market_source_log (creating it) and 502 into own_shadow through the best-effort monitor writers,
+    because the workstation has warehouse credentials and only ``query_df`` was stubbed. Every ``nfl_dfs.bq.load_dataframe``
+    call made through the module attribute is recorded instead of executed; tests that need the real function (there
+    are none offline) must opt out explicitly."""
+    import nfl_dfs.bq as _bq
+
+    recorded: list[tuple] = []
+
+    def _record(df, table, *args, **kwargs):
+        recorded.append((table, len(df) if hasattr(df, "__len__") else None))
+
+    monkeypatch.setattr(_bq, "load_dataframe", _record)
+    return recorded
