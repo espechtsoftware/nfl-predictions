@@ -5,6 +5,112 @@
 
 # Project handoff
 
+## 2026-09-21 (late) — CI triage, three operator items actioned, and five silent-failure traps
+
+Branch `production/week3-integration-20260921`, tip `3e73cf8a`.
+Money lane at this tip: **246 passed, 1 skipped**.
+
+**CI (run `35611477377`: 263 failed / 7,938 passed / 116 errors in 3:19:42).**
+Zero overlap between the 42 failing files and the 26 money-path lane files.
+Exactly four failing files were ever outside the frozen-chain pattern; three are
+repaired:
+- `test_bq_load.py` (`204da306`) — the autouse guard from `10430879` stubbed
+  `load_dataframe` for the very tests of `load_dataframe`. Registered
+  `real_load_dataframe` marker added as the opt-out its docstring already
+  promised. The guard still applies everywhere else.
+- `test_persistence_contract.py` (`204da306`) — `f29c6da4` removed six
+  `os.environ` fallbacks; the tests still used `setenv`. They now pass levers
+  via `policy_env`, as `inference/live_lineups.py:1070` already does.
+  Production provenance was never affected.
+- `test_launcher_registry.py` (`42b12458`) — `pathlib.glob("*")` matches
+  dotfiles, so the helper caught the registry's `.registration.XXXXXX` staging
+  file mid-hardlink. Registry behaviour was correct throughout; lane guard not
+  implicated.
+- `test_evidence_knowledge_graph.py` — NOT a code defect; see below.
+
+**The remaining ~250 cannot pass in GitHub CI by construction.** The frozen
+chains pin a numerical runtime identity — interpreter binary sha256 and byte
+count, numpy core binary sha256, and host CPU feature flags — while `ci.yml`
+runs Python 3.11 with `numpy>=1.26` on variable runner hardware. Quarantining
+them would record a permanent known-failure for tests that were never capable of
+passing there. `scripts/test_lanes.sh full` already classifies KNOWN vs NEW and
+is never invoked by CI (`ci.yml` line 24 runs bare `pytest`). Two decisions are
+open and deliberately not taken: point CI at the lanes, and add a
+`requires_pinned_runtime` marker that skips with a stated reason.
+Detail: `reports/2026-09-21-ci-failure-triage.md`,
+`reports/2026-09-21-ci-quarantine-addendum.md`.
+
+**Pinned interpreter preserved.** apt moved `python3.14` from
+`3.14.4-1ubuntu0.1` to `0.2` on 2026-09-09 and the 0.1 debs existed only in
+`/var/cache/apt/archives`, one `apt clean` from gone. Copied to
+`/home/erich/pinned-runtime/` and verified by extraction: 7,481,192 bytes,
+sha256 `b8d8288f…`, matching the contract literals exactly. The
+hold-the-package-or-re-freeze decision is still the operator's, but can no
+longer be lost.
+
+**Evidence graph.** 5 of its 25 pinned artifacts have drifted, all live
+production modules; `build_graph` hashes the working tree. Every pinned version
+is still recoverable from git (commits listed in
+`reports/2026-09-21-reply-to-generator-arm-plan.md` §4). Nothing re-pinned —
+that would assert today's code produced August's evidence.
+
+**Operator items actioned.**
+- 32 orphan SIS rows deleted (`season=2026 AND week=1 AND team IS NULL`),
+  BigQuery job `6b5c046b-34d0-4475-af73-207d4d68d62d`, 32 affected, the 32 good
+  rows verified surviving.
+- **DK host loop swapped.** Prototype pid 4129 (running since Sep 16, no
+  cleanup trap) stopped while mid-`sleep`, no pull in flight. Tracked
+  `scripts/host_ingest_dk_loop.sh` now runs as pid 2947633 in its own session
+  with `PROD` on this branch. First pair: `ingest-dk exit=0`,
+  `ingest-contests exit=0`, 1,679 fresh `dk_salaries` rows. `OUT` was left
+  unset so `PID_FILE` resolved to the prototype's own path — the script's guard
+  was proven to refuse (`pid 4129 ... is still running`, exit 2) before
+  anything was stopped, so the double-pull risk was eliminated mechanically.
+- `check-freshness` now reports **All feeds fresh** on this branch. Two feeds
+  are non-alerting, both with dated notes: `cfb_dk_salaries` (DK 403) and
+  `tabpfn_components` (research-only, default-off, suppressed 2026-08-04).
+
+**Two job executions did NOT do what was intended, and both are documented as
+traps rather than one-offs:**
+- `project-slate-pgvjz` FAILED, and targeted **week 2**, not week 3 — the week
+  is resolved by `MIN(week) WHERE gameday >= CURRENT_DATE()` and the
+  `NYG @ LA` Monday game had not kicked off. It died on `MarketMatchError` for
+  19 players, all on LAR/NYG. **That is the repair working**: the old image
+  would have silently substituted DK-PPG, which is the Week-2 Jefferson
+  failure. Do not run `project-slate` until the previous week has finished.
+- `tabpfn-gen-dgqb8` SUCCEEDED but wrote only **51** week-3 rows (against 813
+  classic players posted) because Week-3 `build-features` had not run, and it
+  truncated the 877 week-2 rows. **The gate then went green**, because
+  `assess_tabpfn` tests `rows_for_week <= 0` — presence, not sufficiency.
+  Re-run after `build-features`; it truncates and rewrites. The gate's missing
+  minimum is flagged, not changed (`assess_files` beside it already carries
+  `min_book_entries: int = 90`).
+
+**Traps index: `reports/2026-09-21-silent-failure-traps.md`** — five failure
+modes that report success while being wrong, including the above plus
+`pytest -q`, BigQuery reserved words, and the big one: **running anything from
+a worktree imports the MAIN checkout's `src`**, because the venv is an editable
+install. Scripts invoked by path do come from the worktree, which is what makes
+it deceptive. Use `PYTHONPATH=<worktree>/src`.
+
+**Lab.** Replied to their Week-3 generator coverage arm plan
+(`reports/2026-09-21-reply-to-generator-arm-plan.md`): both instruments it
+specifies already exist and match its stated contract. Reviewed their
+exploration sleeve and reported three fail-open paths in `validate_lineup`,
+each reproduced — a nine-player lineup containing a kicker is accepted because
+the five position counts are never asserted to sum to nine; `qb_safe_ids=None`
+silently disables the QB gate; a DST row without `opp` silently skips the
+RB-versus-DST rule (`reports/2026-09-21-review-exploration-sleeve-validate-lineup.md`).
+Nothing in nfl2 was modified.
+
+**Next concrete action.** Build inputs for 2026 week 3 still FAIL on
+projections, market_monitor and files (and tabpfn is green-but-incomplete).
+In order: `build-features` for week 3, then `tabpfn-gen`
+(`TABPFN_UPCOMING=2026:3`), then `project-slate` — **Tuesday at the earliest**.
+Then `$OUT/contests.json` and `$OUT/chosen-dose.env`, which need the operator's
+stake plan and dose.
+
+
 ## 2026-09-21 — CI superseded-run cancellation
 
 Branch `fix/ci-concurrency-20260921` adds workflow-and-ref concurrency with
