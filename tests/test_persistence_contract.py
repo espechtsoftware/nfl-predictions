@@ -56,13 +56,17 @@ def _capture(monkeypatch, pool_override=None, **env):
         captured["table"] = table
 
     monkeypatch.setattr("nfl_dfs.bq.load_dataframe", fake_load)
-    monkeypatch.setenv("MIN_LINEUP_SALARY", "0")
-    for k, v in env.items():
+    # Levers reach the engine ONLY through policy_env: f29c6da4 (2026-08-29)
+    # removed the os.environ fallback so an unpassed lever can never be picked
+    # up ambiently. The setenv calls are kept deliberately -- a lever that is
+    # only in the process environment must NOT appear in the recorded set.
+    policy_env = {"MIN_LINEUP_SALARY": "0", **env}
+    for k, v in policy_env.items():
         monkeypatch.setenv(k, v)
     lus = engine.tail_select_lineups(
         slate, pool, draws, tail_line=95.0, n_entries=8, stack=None,
         objective_col="proj",
-        cand_log_table="proj.ds.candidates")
+        cand_log_table="proj.ds.candidates", policy_env=policy_env)
     return captured.get("df"), lus, draws, slate
 
 
@@ -110,13 +114,17 @@ def test_explicit_shadow_identity_overrides_process_env(monkeypatch):
         "nfl_dfs.bq.load_dataframe",
         lambda df, table, **kw: writes.append((table, df)),
     )
-    monkeypatch.setenv("MIN_LINEUP_SALARY", "0")
-    monkeypatch.setenv("PANEL_RUN_ID", "wrong-process-id")
-    monkeypatch.setenv("MODEL_REGISTRY_VARIANT", "tail_k1")
+    # Two things must lose to the explicit argument: a PANEL_RUN_ID carried in
+    # the policy lever set, and one sitting only in the process environment.
+    monkeypatch.setenv("PANEL_RUN_ID", "process-env-must-be-ignored")
+    policy_env = {"MIN_LINEUP_SALARY": "0",
+                  "PANEL_RUN_ID": "wrong-process-id",
+                  "MODEL_REGISTRY_VARIANT": "tail_k1"}
     engine.tail_select_lineups(
         slate, pool, draws, tail_line=95.0, n_entries=8, stack=None,
         objective_col="proj", cand_log_table="proj.ds.candidates",
         panel_run_id="prospective-k1", candidate_run_type="live_shadow",
+        policy_env=policy_env,
     )
     df = next(d for t, d in writes if t.endswith("candidates"))
     assert df.panel_run_id.eq("prospective-k1").all()

@@ -1,10 +1,12 @@
 from types import SimpleNamespace
 
 import pandas as pd
+import pytest
 
 from nfl_dfs import bq
 
 
+@pytest.mark.real_load_dataframe
 def test_load_dataframe_repeats_partition_and_clustering_contract(monkeypatch):
     captured = {}
 
@@ -34,6 +36,7 @@ def test_load_dataframe_repeats_partition_and_clustering_contract(monkeypatch):
     assert captured["kwargs"] == {}
 
 
+@pytest.mark.real_load_dataframe
 def test_load_dataframe_forwards_create_once_job_id(monkeypatch):
     captured = {}
 
@@ -59,6 +62,7 @@ def test_load_dataframe_forwards_create_once_job_id(monkeypatch):
     }
 
 
+@pytest.mark.real_load_dataframe
 def test_load_dataframe_accepts_only_same_destination_job_retry(monkeypatch):
     from google.api_core.exceptions import Conflict
 

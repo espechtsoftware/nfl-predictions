@@ -96,7 +96,7 @@ def small_panel() -> pd.DataFrame:
 
 
 @pytest.fixture(autouse=True)
-def _no_warehouse_writes_from_offline_tests(monkeypatch):
+def _no_warehouse_writes_from_offline_tests(monkeypatch, request):
     """The suite is offline. On 2026-09-21 the live-lineups smoke wrote 1,558 synthetic rows into
     nfl_predictions.market_source_log (creating it) and 502 into own_shadow through the best-effort monitor writers,
     because the workstation has warehouse credentials and only ``query_df`` was stubbed. Every ``nfl_dfs.bq.load_dataframe``
@@ -109,5 +109,20 @@ def _no_warehouse_writes_from_offline_tests(monkeypatch):
     def _record(df, table, *args, **kwargs):
         recorded.append((table, len(df) if hasattr(df, "__len__") else None))
 
+    if request.node.get_closest_marker("real_load_dataframe"):
+        # The guard's original claim that no offline test needs the real
+        # function was wrong: tests/test_bq_load.py exercises load_dataframe
+        # itself against a fake BigQuery client, so stubbing it there tested
+        # the stub and the three assertions could never fail for a real reason.
+        # The marker is the explicit opt-out this docstring already promised.
+        return recorded
     monkeypatch.setattr(_bq, "load_dataframe", _record)
     return recorded
+
+
+def pytest_configure(config):
+    config.addinivalue_line(
+        "markers",
+        "real_load_dataframe: run against the real nfl_dfs.bq.load_dataframe "
+        "instead of the offline no-warehouse-writes recorder.",
+    )
