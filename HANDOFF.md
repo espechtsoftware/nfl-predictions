@@ -5,6 +5,55 @@
 
 # Project handoff
 
+## 2026-09-21 — Week-3 arming rehearsed end to end; exactly three things are missing
+
+Rehearsed six days early rather than discovering any of this on Saturday night:
+
+    env -u WEEK -u GROUP OUT=<scratch> PROD=<integration checkout> \
+        bash scripts/run_week_build.sh 3 --check
+
+with a scratch `OUT` seeded from the Week-2 file shapes. **Nothing was written to
+`/home/erich/week3-sunday`.**
+
+**With the three gaps below stubbed, both roles pass:**
+
+    week runtime preflight ok: role=build    season=2026 week=3 group=153769
+      book_entries=97 layout=sequential clone=2dc116ce… tools=<PROD>/scripts
+    week runtime preflight ok: role=watchers season=2026 week=3 group=153769 …
+
+The week arithmetic and group lookup are already correct: Sunday **2026-09-27**,
+lock **17:00:00 UTC**, draft group **153769**. Note `tools=<PROD>/scripts` —
+that is the confirmation that arming from the integration checkout is what puts
+the repaired `player_score.py`, `vet_book.py`, `qb_flags.py` and
+`receipt_freshness_sweep.py` on the money path. They are host scripts; the image
+does not carry them.
+
+### The three gaps
+
+1. **Operator — repoint `project-slate`.** The build-input gate fails closed
+   while `nfl_predictions.market_source_log` is absent, and only the repaired
+   image writes it. Command and rollback condition are in the entry below.
+
+2. **Operator — `$OUT/contests.json` and `$OUT/chosen-dose.env`.** Without the
+   first, `week_env.sh` dies computing `BOOK_ENTRIES` with a raw
+   `FileNotFoundError` traceback before the preflight is even reached. Reported
+   to the laptop as a message-quality item; it is their file.
+
+3. **Laptop — the Week-3 live clone and its pinned sha.** `week_env.sh` line 37
+   defaults `CLONE` to `/home/erich/projects/.nfl2-worktrees/week3-live-center`,
+   which does not exist. Line 38 defaults `EXPECT_SHA` to `e7255e98`
+   (2026-09-12), which is an **ancestor** of the `2dc116c` (2026-09-18) that Week
+   2 actually shipped. Arming on that default would drop four commits including
+   `40a9be9`, which passes validated live game inputs through hsim calibration
+   and the final draws — so **Week 3 would regress the simulator relative to
+   Week 2**. Both values are overridable via `NFL2_LIVE_CLONE` and
+   `NFL2_EXPECT_SHA`, but the default is what an unattended arming uses. Raised
+   with the laptop; it is their file and their commit to confirm.
+
+Nothing else in the arming path is missing. That is the point of recording the
+passing preflight above: the remaining work is three named items, not an unknown.
+
+
 ## 2026-09-21 — what the image carries, and the two things waiting on the operator
 
 **No image rebuild is needed for anything done on 2026-09-21.** Verified rather
