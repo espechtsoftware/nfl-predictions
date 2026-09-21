@@ -9,7 +9,15 @@ StartLimitIntervalSec=0
 Type=simple
 WorkingDirectory=%h/projects/nfl-predictions
 Environment=PROD=%h/projects/nfl-predictions
-Environment=OUT=%h/week3-sunday
+# PID_FILE, not OUT. In the tracked loop OUT's ONLY effect is to name the pid
+# file (PID_FILE=${PID_FILE:-${OUT:-$HOME/week1-sunday}/...}), and LOCK_FILE is
+# derived from PID_FILE. Pointing it at week3-sunday would therefore give this
+# unit a different pid and lock file from the running prototype in week1-sunday,
+# so flock and the stale-pid check could not see it and BOTH loops would run,
+# double-pulling salaries and contests every hour. Pinned to the prototype's own
+# path so this unit REFUSES to start while that process is alive, instead of
+# depending on the operator having stopped it first.
+Environment=PID_FILE=%h/week1-sunday/host_ingest_dk_loop.pid
 Environment=GCP_PROJECT=nfl-predictions-503414
 Environment=INTERVAL_SECONDS=3600
 ExecStart=%h/projects/nfl-predictions/scripts/host_ingest_dk_loop.sh

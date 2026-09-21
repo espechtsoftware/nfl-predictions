@@ -36,6 +36,7 @@ steps:
           tests/test_player_score_week_resolution.py \
           tests/test_player_score_scope.py \
           tests/test_week_env_defaults.py \
+          tests/test_host_dk_ingest_service.py \
           tests/test_money_path_slice_arguments.py \
           tests/test_receipt_freshness_sweep.py \
           tests/test_sis_inseason_loader.py \
