@@ -120,11 +120,16 @@ def run(input_dir: str | Path, plan_path: str | Path, *, write: bool = False, no
         if extra:
             raise ValueError(f"{family}: columns not in the live table {spec['table']}: {extra}")
         seasons = sorted(int(s) for s in frame.season.unique()); weeks = sorted(int(w) for w in frame.week.unique())
-        existing = query_df(f"SELECT season, week, team FROM `{table_ref}` WHERE season IN ({', '.join(map(str, seasons))}) AND week IN ({', '.join(map(str, weeks))})")
-        existing_keys = {(int(r.season), int(r.week), str(r.team)) for r in existing.itertuples()}
+        existing = query_df(f"SELECT season, week, team, team_name, source_run_id FROM `{table_ref}` WHERE season IN ({', '.join(map(str, seasons))}) AND week IN ({', '.join(map(str, weeks))})")
+        existing_keys = {(int(r.season), int(r.week), str(r.team)) for r in existing.itertuples() if pd.notna(r.team)}
+        # rows already in the table for these weeks that carry no canonical team key (an unreceipted load) cannot be
+        # matched by key; they are named here so the collision is visible, never silently doubled or deleted
+        degenerate = existing[existing.team.isna()]
         to_append, skipped = plan_append(frame, existing_keys)
         rec = {"status": "audited", "table": table_ref, "rows_merged": int(len(frame)), "rows_to_append": int(len(to_append)),
                "keys_already_present": [list(k) for k in skipped], "columns_absent_in_frame_filled_null": absent,
+               "existing_rows_without_team_key": {"rows": int(len(degenerate)), "weeks": sorted(int(w) for w in degenerate.week.unique()) if len(degenerate) else [],
+                                                  "source_run_ids": sorted({str(v) for v in degenerate.source_run_id.unique()}) if len(degenerate) else []},
                "coverage_merged": coverage(frame), "coverage_appended": coverage(to_append) if len(to_append) else {},
                "artifact_sha256": sorted({str(v) for c in frame.columns if c.startswith("source_sha256_") for v in frame[c].unique()})}
         if write and len(to_append):
