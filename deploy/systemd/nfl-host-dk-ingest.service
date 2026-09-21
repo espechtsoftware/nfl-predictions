@@ -1,0 +1,25 @@
+[Unit]
+Description=Hourly host DraftKings salary and contest ingest fallback
+Documentation=file://%h/projects/nfl-predictions/scripts/host_ingest_dk_loop.sh
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+WorkingDirectory=%h/projects/nfl-predictions
+Environment=PROD=%h/projects/nfl-predictions
+Environment=OUT=%h/week3-sunday
+Environment=GCP_PROJECT=nfl-predictions-503414
+Environment=INTERVAL_SECONDS=3600
+ExecStart=%h/projects/nfl-predictions/scripts/host_ingest_dk_loop.sh
+Restart=on-failure
+RestartSec=60s
+TimeoutStopSec=30s
+KillSignal=SIGTERM
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=nfl-host-dk-ingest
+
+[Install]
+WantedBy=default.target
