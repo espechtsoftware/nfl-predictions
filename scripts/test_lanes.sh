@@ -12,7 +12,17 @@
 # reported too, because that means it can be released.
 set -uo pipefail
 cd "$(dirname "$0")/.."
-PY=.venv/bin/python
+PY=${PY:-.venv/bin/python}
+# A git worktree has no .venv of its own, so this resolved to nothing and the
+# lane died with a bare "No such file or directory".  Fail closed and say how to
+# fix it -- never silently fall back to a system interpreter, which would run the
+# suite against different numpy/CPython than the one the tree was installed into.
+if [ ! -x "$PY" ]; then
+  echo "test_lanes: no interpreter at '$PY'" >&2
+  echo "  a git worktree has no .venv; point PY at the checkout that does, e.g." >&2
+  echo "  PY=/home/erich/projects/nfl-predictions/.venv/bin/python $0 $*" >&2
+  exit 2
+fi
 
 # --- quarantine ------------------------------------------------------------
 # module<TAB>reason.  Keep the reason specific and dated; a bare module name
