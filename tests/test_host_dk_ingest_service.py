@@ -20,6 +20,9 @@ def test_host_dk_service_is_restartable_but_not_a_cloud_run_mutation():
     text = UNIT.read_text()
     assert "Restart=on-failure" in text
     assert "RestartSec=60s" in text
+    assert "StartLimitIntervalSec=1h" in text
+    assert "StartLimitBurst=3" in text
+    assert "ExecStartPre=/usr/bin/test -x %h/projects/nfl-predictions/scripts/host_ingest_dk_loop.sh" in text
     assert "gcloud run" not in text
 
 

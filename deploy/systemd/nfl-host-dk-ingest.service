@@ -3,7 +3,8 @@ Description=Hourly host DraftKings salary and contest ingest fallback
 Documentation=file://%h/projects/nfl-predictions/scripts/host_ingest_dk_loop.sh
 After=network-online.target
 Wants=network-online.target
-StartLimitIntervalSec=0
+StartLimitIntervalSec=1h
+StartLimitBurst=3
 
 [Service]
 Type=simple
@@ -20,6 +21,7 @@ Environment=PROD=%h/projects/nfl-predictions
 Environment=PID_FILE=%h/week1-sunday/host_ingest_dk_loop.pid
 Environment=GCP_PROJECT=nfl-predictions-503414
 Environment=INTERVAL_SECONDS=3600
+ExecStartPre=/usr/bin/test -x %h/projects/nfl-predictions/scripts/host_ingest_dk_loop.sh
 ExecStart=%h/projects/nfl-predictions/scripts/host_ingest_dk_loop.sh
 Restart=on-failure
 RestartSec=60s
