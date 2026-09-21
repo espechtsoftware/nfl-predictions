@@ -5,6 +5,19 @@
 
 # Project handoff
 
+## 2026-09-21 — CI superseded-run cancellation
+
+Branch `fix/ci-concurrency-20260921` adds workflow-and-ref concurrency with
+`cancel-in-progress: true`, responding to shared handoffs `0533fed` and
+`dbc7f23`. Only superseded runs on the same ref share a group. Full pytest
+coverage and the existing timeout remain unchanged. A previous Cloud Build
+timeout does not prove the full suite is making progress or has a healthy
+runtime. A completed green full run remains outstanding.
+
+Validation: parsed the workflow and checked concurrency, install extras,
+and the unchanged pytest command; `git diff --check` passed. This does not
+retroactively change workflows already running on older commits.
+
 ## 2026-09-21 — Week-3 arming is GREEN with no overrides; four operator items left
 
 The live clone now exists. Created on this host with the laptop's reviewed
