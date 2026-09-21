@@ -86,3 +86,13 @@ def test_staging_is_idempotent_for_same_source_run(tmp_path):
     first = loader.stage_run(raw, tmp_path / "staged")
     second = loader.stage_run(raw, tmp_path / "staged")
     assert first == second
+
+
+def test_read_only_loader_reports_validated_without_bigquery(monkeypatch, tmp_path):
+    raw = _raw_run(tmp_path)
+    staged_manifest = loader.stage_run(raw, tmp_path / "staged")
+    monkeypatch.setattr(loader, "settings", type("Settings", (), {"raw": "project.raw"})())
+    audit = loader.run(staged_manifest.parent, write=False)
+    assert audit["status"] == "validated"
+    assert audit["append_rows"] is None
+    assert audit["rows"] == 3
