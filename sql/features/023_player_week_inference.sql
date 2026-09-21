@@ -147,7 +147,7 @@ SELECT
   adv.ez_targets_l4, adv.deep_targets_l4, adv.separation_l4, adv.stacked_box_l4,
 
   -- Weather
-  w.wind_mph, w.temp_f, w.is_dome,
+  w.wind_mph, w.temp_f, w.is_dome, w.precip_prob, w.weather_pulled_at,
 
   -- DFS-specific (salary and dk_ppg come from the live slate pull at
   -- inference time; only the derived delta belongs here)

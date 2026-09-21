@@ -217,7 +217,7 @@ def live_slate(panel):
     return rows
 
 
-def test_live_build_chain_offline(monkeypatch, panel, live_slate):
+def test_live_build_chain_offline(monkeypatch, panel, live_slate, _no_warehouse_writes_from_offline_tests):
     from nfl_dfs.inference import live_lineups
     from nfl_dfs.models import components
     from nfl_dfs.optimizer.lineup import StackRules
@@ -258,6 +258,9 @@ def test_live_build_chain_offline(monkeypatch, panel, live_slate):
         season, 3, n_entries=4, stack=None, tail_line=150.0,
         n_sims=300, seed=7)
     assert len(lineups) == 4
+    # the market-source monitor is written through the recorder, never to the warehouse, from an offline test
+    written = [t for t, _ in _no_warehouse_writes_from_offline_tests]
+    assert any(t.endswith(".market_source_log") for t in written), written
     for lu in lineups:
         assert len(lu.players) == 9
         assert lu.salary <= 50_000
