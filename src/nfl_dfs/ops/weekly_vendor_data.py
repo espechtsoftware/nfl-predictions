@@ -215,7 +215,14 @@ def run_week(
                 "fantasy-points-session",
                 lambda: fp.verify_login(fp_profile_dir, timeout_seconds),
             )
+    # 2026-09-21 (Week-2 post-mortem; defect 28): the SIS session is required only when an SIS step will run in this
+    # invocation (an approved plan, or the pass-tail acquisition from week 5). Requiring it unconditionally lost the
+    # whole Week-2 Fantasy Points capture to an expired SIS session on 2026-09-17. When no SIS step runs, the manifest
+    # records that the session was not required (never a silent skip); when one runs, an expired session still stops
+    # the run before any step.
+    needs_sis = sis_plan is not None or (week >= 5 and capture_sis_pass_tail)
     if login_if_needed:
+        # attended run: the operator is at the terminal, so the SIS session is renewed every week as before
         step(
             "sis-session",
             lambda: (
@@ -228,10 +235,16 @@ def run_week(
                 sis.verify_login(sis_profile_dir, timeout_seconds),
             ),
         )
-    else:
+    elif needs_sis:
         step(
             "sis-session",
             lambda: sis.verify_login(sis_profile_dir, timeout_seconds),
+        )
+    else:
+        # unattended run without an SIS step: recorded, never silently skipped
+        step(
+            "sis-session",
+            lambda: {"status": "not-required", "reason": "no SIS step in this invocation (no approved plan; pass-tail acquisition starts at week 5)"},
         )
 
     if ingest_odds:
