@@ -30,7 +30,7 @@ any stand-in that survives is recorded per row and shown before upload.**
 | BigQuery | project `nfl-predictions-503414`, datasets `nfl_raw`, `nfl_features`, `nfl_predictions` | `market_source_log` will be created by the first repaired run (WRITE_APPEND) |
 | host timers | none active (the Week-2 transient units ended) | Week 3 is armed by the laptop's `arm_week_timers.sh 3 --run` after its preflight |
 | DK exports | `/home/erich/week2-sunday/ENTERED/` (entries, standings zips + CSVs) | never committed, never copied into handoff packages |
-| paid vendor data (2026) | `nfl_raw.fantasy_points_route_share`: week 1 265 rows (target week 2, loaded 2026-09-17, raw file not retained), week 2 200 rows (target week 3, loaded 2026-09-21 02:54Z, archived to GCS); `nfl_raw.sis_team_context_game`: week 1 32 rows with full lineage (`sis-team-context-weekly:team-context-2026-w01-w02-v2`, 2026-09-21) beside 32 older Week-1 rows with NULL team/lineage (unreceipted; filter `team IS NOT NULL`), week 2 2 rows so far; `nfl_raw.sis_team_run_context_game`: week 1 32, week 2 2 (same lineage); Fantasy Points matchup reports: nothing loaded (vendor schedule gate; no load path) | Fantasy Points route share is a live model feature (`featureset.py`); SIS feeds nothing live yet (the SIS shadows are paused) |
+| paid vendor data (2026) | `nfl_raw.fantasy_points_route_share`: week 1 265 rows (target week 2, loaded 2026-09-17, raw file not retained), week 2 200 rows (target week 3, loaded 2026-09-21 02:54Z, archived to GCS); `nfl_raw.sis_team_context_game`: week 1 32 rows with full lineage (`sis-team-context-weekly:team-context-2026-w01-w02-v2`, 2026-09-21) beside 32 older Week-1 rows with NULL team/lineage (unreceipted; filter `team IS NOT NULL`), week 2 2 rows so far; `nfl_raw.sis_team_run_context_game`: week 1 32, week 2 2 (same lineage); Fantasy Points matchup reports: nothing loaded yet; the staging path now exists on `research/2026-09-paid-source-preflight` @ f530fcca (capture schema 2 with re-apply and a retention ledger, `nfl_raw.fantasy_points_{qb_coverage,wr_coverage,line}_matchup_weekly` loader for a run dir or the Week-1 seal, shadow-only `nfl_features.fp_matchup_shadow_*` join; lab review pending before the first `--write`; see `reports/2026-09-21-fantasy-points-matchup-capture-incident.md` on that branch) | Fantasy Points route share is a live model feature (`featureset.py`); SIS feeds nothing live yet (the SIS shadows are paused) |
 
 Cloud Scheduler (us-central1) at the time of writing, ENABLED: s-backup 07:00 daily; s-cfb 10/14/18 daily; s-cfb-sat;
 s-contests 10:00 Wed-Sat; s-contests-sun 06-11 Sun; s-dk hourly Wed-Sun; s-features Tue 06:30; s-features-sun 05:30-10:30
@@ -100,7 +100,14 @@ Times are Central. Authoritative list of inputs: `reports/2026-09-15-week2-opera
   --output-dir sis/weekly/<run>` (one plan per completed week, the eleven valid reports; `passing-value` never renders);
   (3) `scripts/import_sis_team_context_weekly.py --input-dir <run> --plan <plan> --write --audit <receipt>` (append-once
   per team-week into `sis_team_context_game` and `sis_team_run_context_game`; SIS posts Sunday's games over the
-  following days, so a rerun later in the week appends the rest). SIS sessions expire in days: `python -m
+  following days, so a rerun later in the week appends the rest); (4) once the lab has approved the matchup staging
+  contract, from a checkout of `research/2026-09-paid-source-preflight`: `python -m nfl_dfs.ops.fantasy_points_matchup_status
+  --output-root fantasy-points/automated` (read-only: which reports reached downloaded / validated / staged / consumed;
+  a failed run is never a capture), `python -m nfl_dfs.ingest.fantasy_points_matchups_weekly --input
+  fantasy-points/automated/<run id> --target-week W --write` (re-derives every gate against `nfl_raw.schedules` and the
+  bytes; append-once per hash and source row), `python -m nfl_dfs.research.fp_matchup_shadow --week W --write --output-root
+  fantasy-points/automated` (latest capture strictly before kickoff; shadow tables only). If the capture manifest's
+  `failure_class` is `vendor-week-not-retained`, the vendor has not opened week W yet: rerun later, do not retry in a loop. SIS sessions expire in days: `python -m
   nfl_dfs.ops.sis_downloads login --terminal-credentials --fresh` is the operator's interactive step; `tabpfn-gen` with `TABPFN_UPCOMING=2026:3` (GPU job; run by the
   operator/laptop after build-features; the Week-2 miss was defect 24). s-trends 11:00. The SIS login
   (`sis_downloads login --terminal-credentials --fresh`) is the operator's interactive step; SIS sessions last days,
