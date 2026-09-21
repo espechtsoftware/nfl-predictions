@@ -91,6 +91,17 @@ could not be told apart from a missing option or a changed label.
 * `featureset.py`, `sql/features/*.sql` and `inference/` do not reference any of
   these tables (a test asserts it). Activation is a separate reviewed change.
 
+### Status view `src/nfl_dfs/ops/fantasy_points_matchup_status.py` (new, read-only)
+
+Walks every `*__2026-live-matchups-v1__week-NN` run directory and reports, per report,
+the furthest stage reached: `downloaded` (bytes on disk), `gate_passed` (the run's own
+schedule-gate record), `validated` (schema-2 `validated_reports` or a ledger entry),
+`staged`, `consumed` (ledger entries). A failed run is never counted as a capture and a
+schema-1 `captured` record counts as `gate_passed` only. On this host tonight:
+Week 1, 9 runs all failed, downloads 8/7/5 (QB/WR/OL), gate passes 3/2/2, validated/
+staged/consumed 0; Week 3, 1 run failed, nothing downloaded. This is the PAID-001
+separation the lab audit asked for.
+
 ## 3. Evidence
 
 * Tests (offline, mocked driver and warehouse): `tests/test_fantasy_points_matchups.py`
@@ -107,6 +118,8 @@ could not be told apart from a missing option or a changed label.
 ## 4. Operator steps (none run by me)
 
 ```
+# Retention status of every capture on disk (read-only):
+python -m nfl_dfs.ops.fantasy_points_matchup_status --output-root fantasy-points/automated
 # Stage the sealed Week-1 set (from a checkout of this branch):
 python -m nfl_dfs.ingest.fantasy_points_matchups_weekly \
   --input reports/2026-09-09-week1-fantasy-points-live-matchup-capture-seal.json \
