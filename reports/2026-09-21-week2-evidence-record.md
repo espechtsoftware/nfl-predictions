@@ -36,17 +36,25 @@ record is descriptive; no sequential rule is declared for any candidate this wee
   stack-depth / floor / ladder registered-arm books produced by the Week-3 runner rehearsal on this pool (REHEARSAL
   label; descriptive only).
 
-## Realized (TODO after Monday settlement)
+## Realized (filled 2026-09-20 evening from the DraftKings standings exports; nflverse-based items still TODO)
+
+Release: the operator's message of 2026-09-20 evening ("We performed about as badly as we could have ... do an
+extremely detailed analysis of how we did this week") is the Week-2 outcome release. Realized points below are the
+DraftKings FPTS carried in the 12 standings exports (identical across all 12; saved under
+`/home/erich/week2-sunday/ENTERED/standings/`, never committed). The nflverse actuals for Week 2 were not yet loaded
+when this was written (`player_week_actuals` held 92 Week-2 rows), so every proper-score item stays TODO for the
+Monday chain. Full analysis: `2026-09-21-week2-post-mortem.md`.
 
 | item | value | source |
 |---|---|---|
-| served projections vs realized: CRPS by position, mean bias, squared error, median MAE, p10/p50/p90 coverage, upper-tail pinball | TODO | proper-score reader |
-| simulator components vs realized (incumbent, hsim, pooled): player marginals, fixed lineup totals, fixed-book maxima; realized vs simulated P(>=200 / >=220) over the delivered pool | TODO | proper-score reader extensions |
-| entered book: realized best, count >= 187 / 194 / 200 / 220 | TODO | outcomes builder + reader |
-| contest results: rank, payout per contest, fees vs winnings (the operator's ROI baseline) | TODO | standings exports |
-| class E: realized points of promoted row 1 (2123) vs delivered rank-1 (12413); flea-block realized max with vs without the displacement | TODO | outcomes + rollback upload |
-| McConkey (28 rows): realized points; rows' realized max with him | TODO | outcomes |
-| Tua replacement: realized points of the five replaced rows vs the five removed rows (removed rows scored as entered) | TODO | outcomes |
-| ordering-shadow descriptive read: mean / P220 / P230 / winner-proxy orderings' realized row-1 and prefix maxima | TODO | outcomes + ordering screen |
+| served projections vs realized: CRPS by position, mean bias, squared error, median MAE, p10/p50/p90 coverage, upper-tail pinball | TODO (Monday, after the nflverse Week-2 load). Descriptive now: corr(proj, FPTS) 0.60 over 297 salaried players; players projected >= 15 (n = 41) averaged 18.3 projected vs 14.9 realized, 32% reached projection; top-10 QBs by projection 21.1 -> 16.9, top-10 RBs 16.8 -> 11.8, top-10 WRs 17.8 -> 18.4 | standings FPTS; proper-score reader pending |
+| simulator components vs realized (incumbent, hsim, pooled): player marginals, fixed lineup totals, fixed-book maxima; realized vs simulated P(>=200 / >=220) over the delivered pool | TODO (Monday). Descriptive now: over the 12,555 delivered candidates corr(sel_mean, realized) = -0.49; realized mean by sel_mean decile falls from 109.3 (lowest decile, mean 111.5) to 69.8 (highest decile, mean 139.7); pool realized >= 150: 222 rows, >= 187: 1, >= 194: 1 (197.26), >= 200: 0 | pool-realized-12555.csv |
+| entered book: realized best, count >= 187 / 194 / 200 / 220 | best 156.16 (Flea, rank 7,277 of 83,234); mean 105.0, median 103.2; counts 0 / 0 / 0 / 0. Delivered ranks 1-97 before promotion and regeneration: mean 98.4, max 157.96 | standings; our-97-results.csv |
+| contest results: rank, payout per contest, fees vs winnings (the operator's ROI baseline) | fees $246.00 over 97 entries (entries export). Best finishes: Flea 7,277/83,234 (8.7%); supersat25b 255/2,378 (10.7%); supersat25a 337/2,378; supersat1c 84/594 (14.1%); supersat1a 151/594; supersat1b 171/594; Millionaire 56,403/172,761 (32.6%); Pylon 5,516/15,854; Nickel 3,521/9,512; Huddle 11,996/23,781; satellite 44/68; FFWC 48/59. 7 of 97 rows inside the top 20% of their field, 1 inside the top 10%, 18 inside the bottom 10%; 65% of rows below their field's mean. No row inside a ticket line (supersats pay 25 tickets). Winnings: DK payout export not yet captured (Contest History export, Monday); at most one minimum cash (the Flea row) | standings exports; DKEntries_week2.csv |
+| class E: realized points of promoted row 1 (2123) vs delivered rank-1 (12413); flea-block realized max with vs without the displacement | promoted row 1 (candidate 2123, sel_mean 139.5, the book's highest) realized 126.62 -> Millionaire rank 56,403 (top 33%); delivered rank-1 (candidate 12413, sel_mean 131.2) realized 83.84. Flea block: delivered ranks 2-24 max 157.96 vs entered Flea block max 156.16 (the entered block also carries the 10:48 regeneration). The promotion gained +42.8 points on the one Millionaire row and cost nothing visible in the Flea block | pool-realized-12555.csv; our-97-results.csv |
+| McConkey (28 rows): realized points; rows' realized max with him | 6.5 points (played with the rib injury). His 28 rows: realized max 148.26 (supersat25b rank 255), mean 98.8; distribution supersat25b 9, supersat1b 5, supersat1c 5, supersat25a 4, supersat1a 3, Nickel 2; none in the Millionaire/Flea/Huddle/Pylon | standings |
+| Tua replacement: realized points of the five replaced rows vs the five removed rows (removed rows scored as entered) | the 10:48 regeneration changed 44 rows, not five (the whole-slate exclusion set was 50 players). Removed versions scored as written (Tua and other excluded players at 0): total 4,620.0 vs the entered versions 4,503.2 (-116.8, -2.7 per row); max 155.76 removed-version vs 149.52 entered-version. Per-row table: `regeneration-1048-changed-rows.csv` (reply branch receipts) | book.csv 09:36 vs 10:48; standings FPTS |
+| ordering-shadow descriptive read: mean / P220 / P230 / winner-proxy orderings' realized row-1 and prefix maxima | mean ordering's row 1 = 126.62 (above). P220 / P230 / winner-proxy orderings: TODO (ordering screen outputs on the labs' side) | ordering screen |
 
-Record author: workstation assistant; realized fields to be filled once, from the settled tables, and never edited after.
+Realized fields above were filled once from the standings exports on 2026-09-20; the TODO items are to be filled once
+from the settled nflverse tables and never edited after.
