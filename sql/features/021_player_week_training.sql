@@ -124,7 +124,7 @@ SELECT
   adv.ez_targets_l4, adv.deep_targets_l4, adv.separation_l4, adv.stacked_box_l4,
 
   -- Weather
-  w.wind_mph, w.temp_f, w.is_dome,
+  w.wind_mph, w.temp_f, w.is_dome, w.precip_prob, w.weather_pulled_at,
 
   -- DFS-specific
   dk.salary, dk.salary_delta_wow, dk.dk_ppg,
