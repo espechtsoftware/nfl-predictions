@@ -294,3 +294,70 @@ def test_ownership_cross_check_rejects_gaps_on_players_above_one_percent(tmp_pat
     ownership.loc[ownership.display_name.eq("Flex Player"), "pct_drafted"] = 75.0
     with pytest.raises(ValueError, match="pct_mismatch"):
         oi._validate_ownership_against_entries(entries, ownership, field_size=4)
+
+
+def _entries_and_summary(n_rows: int, field_size: int, shown_overrides: dict[str, float]):
+    """`n_rows` complete identical lineups in a field of `field_size`; the summary shows every player at the
+    lineup-derived share except the overrides."""
+    rows = 9
+    data = {
+        "Rank": [str(i + 1) for i in range(n_rows)] + [None] * max(0, rows - n_rows),
+        "EntryId": [f"{i:04d}" for i in range(n_rows)] + [None] * max(0, rows - n_rows),
+        "EntryName": ["u"] * n_rows + [None] * max(0, rows - n_rows),
+        "TimeRemaining": ["0"] * n_rows + [None] * max(0, rows - n_rows),
+        "Points": ["100.0"] * n_rows + [None] * max(0, rows - n_rows),
+        "Lineup": [LINEUP] * n_rows + [None] * max(0, rows - n_rows),
+    }
+    length = max(rows, n_rows)
+    players = ["Quarter Back", "Runner One", "Runner Two", "Wide One", "Wide Two", "Wide Three", "Tight End", "Flex Player", "Defense"]
+    data["Player"] = players + [None] * (length - 9)
+    data["Roster Position"] = ["QB", "RB", "RB", "WR", "WR", "WR", "TE", "FLEX", "DST"] + [None] * (length - 9)
+    derived = round(100.0 * n_rows / field_size, 2)
+    data["%Drafted"] = [f"{shown_overrides.get(p, derived):.2f}%" for p in players] + [None] * (length - 9)
+    data["FPTS"] = ["10.0"] * 9 + [None] * (length - 9)
+    raw = pd.DataFrame(data)
+    return oi._parse_entries_frame(raw, "synthetic"), oi._parse_standings_frame(raw, "synthetic")
+
+
+def test_small_field_one_entry_shortfall_on_a_lightly_held_player_is_tolerated_and_recorded():
+    """68-entry Week-2 satellite: players held by two entries were shown at 1.47% (one entry) by DraftKings."""
+    entries, ownership = _entries_and_summary(2, 68, {"Flex Player": 1.47})
+    assert oi._validate_ownership_against_entries(entries, ownership, field_size=68) == ["Flex Player"]
+    entries, ownership = _entries_and_summary(4, 59, {"Tight End": 3.39})     # Goedert: 6.78 derived, 3.39 shown
+    assert oi._validate_ownership_against_entries(entries, ownership, field_size=59) == ["Tight End"]
+
+
+def test_large_field_half_share_on_a_near_zero_player_is_tolerated_but_not_more():
+    """Millionaire Week 2: 69 lineups held a player DraftKings summarised at 0.02% (0.04% derived)."""
+    entries, ownership = _entries_and_summary(69, 172_761, {"Wide Three": 0.02})
+    assert oi._validate_ownership_against_entries(entries, ownership, field_size=172_761) == ["Wide Three"]
+    entries, ownership = _entries_and_summary(69, 172_761, {"Wide Three": 0.11})   # shown far above derived: not a rounding shortfall
+    with pytest.raises(ValueError, match="pct_mismatch"):
+        oi._validate_ownership_against_entries(entries, ownership, field_size=172_761)
+
+
+def test_shortfall_on_a_widely_held_player_still_fails_closed():
+    """A two-entry gap is tolerated only while the shown share is below 5%; the 75% case above stays a failure."""
+    entries, ownership = _entries_and_summary(10, 68, {"Runner One": 11.76})     # 14.71 derived, shown two entries short
+    with pytest.raises(ValueError, match="pct_mismatch"):
+        oi._validate_ownership_against_entries(entries, ownership, field_size=68)
+
+
+def test_mass_tolerance_scales_with_the_field(tmp_path):
+    """68 complete lineups summing to 895.43 (Week-2 satellite) validate; the same shortfall in a 4-entry field does not."""
+    rows = 68
+    data = {
+        "Rank": [str(i + 1) for i in range(rows)], "EntryId": [f"{i:04d}" for i in range(rows)], "EntryName": ["u"] * rows,
+        "TimeRemaining": ["0"] * rows, "Points": [f"{200 - i:.1f}" for i in range(rows)], "Lineup": [LINEUP] * rows,
+        "Player": ["Quarter Back", "Runner One", "Runner Two", "Wide One", "Wide Two", "Wide Three", "Tight End", "Flex Player", "Defense"] + [None] * (rows - 9),
+        "Roster Position": ["QB", "RB", "RB", "WR", "WR", "WR", "TE", "FLEX", "DST"] + [None] * (rows - 9),
+        "%Drafted": ["100.00%"] * 8 + ["95.43%"] + [None] * (rows - 9),
+        "FPTS": ["10.0"] * 9 + [None] * (rows - 9),
+    }
+    source = tmp_path / "standings.csv"; pd.DataFrame(data).to_csv(source, index=False)
+    with pytest.raises(ValueError, match="pct_mismatch"):      # a 4.57-point gap on a 95%-owned player is not a rounding shortfall
+        oi.validate_full_field_capture(source, expected_entries=68)
+    data["%Drafted"] = ["100.00%"] * 8 + ["100.00%"] + [None] * (rows - 9)
+    pd.DataFrame(data).to_csv(source, index=False)
+    result = oi.validate_full_field_capture(source, expected_entries=68)
+    assert result["ownership_mass_tolerance"] == pytest.approx(min(10.0, max(2.0, 600.0 / 68)))
