@@ -220,7 +220,7 @@ def test_run_week_verifies_sis_but_does_not_query_without_approved_plan(
         weekly.fp_matchups, "run", lambda **_: Path("matchups/manifest.json")
     )
 
-    weekly.run_week(
+    manifest_path = weekly.run_week(
         week=1,
         fp_profile_dir=tmp_path / "fp-profile",
         sis_profile_dir=tmp_path / "sis-profile",
@@ -236,6 +236,7 @@ def test_run_week_verifies_sis_but_does_not_query_without_approved_plan(
     # 2026-09-21 (defect 28): the SIS session is verified only when an SIS step runs; this week-2 run has none, so the
     # step is recorded as not required and the Fantasy Points capture proceeds
     assert events == ["verify-fp"]
+    manifest = json.loads(manifest_path.read_text())
     sis_step = next(s for s in manifest["steps"] if s["name"] == "sis-session")
     assert sis_step["result"]["status"] == "not-required"
 
