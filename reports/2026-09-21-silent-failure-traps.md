@@ -113,7 +113,27 @@ result surprises you, print `module.__file__` before believing it.**
 `scripts/host_ingest_dk_loop.sh` gets this right (`export
 PYTHONPATH="$PROD/src"`), which is why the DK loop swap ran the intended code.
 
-## 5. Smaller ones, same family
+## 5. `check_build_inputs.py` reports both operator files MISSING unless you pass their paths
+
+The readiness gate does **not** read `$OUT`. It takes explicit flags:
+
+```bash
+python scripts/check_build_inputs.py --season 2026 --week 3 \
+  --chosen-dose $OUT/chosen-dose.env \
+  --contests    $OUT/contests.json
+```
+
+Run without them, `dose` and `contests` are `None` and the gate reports
+`chosen-dose file missing or without CHOSEN_LEV/CHOSEN_BOOM; contests.json
+missing or empty` — **whether or not the files exist**.
+
+Hit on 2026-09-21: `chosen-dose.env` had just been written and validated, and
+the bare invocation still called it missing. The failure direction is safe (it
+cries missing when present, never present when missing), but it wastes time and
+it will make a correctly-prepared week look unready. If you are checking
+readiness, pass the paths.
+
+## 6. Smaller ones, same family
 
 - **`pytest -q`**: `addopts` is already quiet, so `-q` makes it `-qq` and drops
   the "N passed" summary line. An empty collection then exits 0 and looks like
@@ -132,11 +152,20 @@ PYTHONPATH="$PROD/src"`), which is why the DK loop swap ran the intended code.
 
 ## The pattern
 
-Four of these five are the same defect class in different clothing: **a
-selector — which week, which tree, which interpreter — was resolved implicitly
-instead of being stated.** The week came from today's date, the module came
-from an editable install, the interpreter came from `$PATH`.
+Most of these are one defect class in different clothing: **a selector — which
+week, which tree, which interpreter — was resolved implicitly instead of being
+stated.** The week came from today's date (§1), the module came from an
+editable install (§4), the interpreter came from `$PATH` (§6). In each case
+something guessed, guessed plausibly, and was believed.
 
 The standing rule that prevents all of them: *an argument that selects which
 data a run operates on must be required or derived from the artifact, never
 both optional and defaulted.*
+
+**§5 is the instructive exception: it is that rule working correctly.**
+`check_build_inputs.py` refuses to guess which files you mean, so it reports
+nothing rather than inventing a path — and it errs toward "missing" rather than
+toward "fine". That is the right direction to fail, and the only fault is
+wording: it says *missing* when it means *not specified*. Worth remembering
+when the rule feels inconvenient, because a tool that guessed `$OUT` for you
+would eventually check last week's files and call the week ready.
