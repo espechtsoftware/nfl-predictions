@@ -60,8 +60,20 @@ Current DK classic rows with future kickoff, by position:
 | QB | 2,605 | 4,012 | 64.9% |
 | RB | 4,203 | 7,013 | 59.9% |
 
-(Row counts span several draft groups so they are not distinct players; the
-proportion is the point.)
+That table counts salary rows across several draft groups, so those are not
+distinct players. Recomputed on **distinct players in the single largest
+upcoming classic draft group** (781 skill players), the figures are the same:
+
+| pos | players ≤ $4,000 | players | share |
+|---|---|---|---|
+| TE | 171 | 186 | **91.9%** |
+| WR | 231 | 300 | **77.0%** |
+| QB | 65 | 107 | 60.7% |
+| RB | 114 | 188 | 60.6% |
+
+So the caveat does not rescue it: on one real slate, between three-fifths and
+nine-tenths of the selectable pool sits in the band where view 3 is the only
+thing that moves.
 
 So view 3 is not "served with a small tail adjustment". It is unchanged on the
 expensive minority and systematically **de-emphasises punts** across the
