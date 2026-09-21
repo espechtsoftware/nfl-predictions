@@ -24,6 +24,40 @@ agent or developer:
 4. Treat local notes, assistant memory, and cloud logs as supporting evidence
    only. If they contain material state, summarize it here before stopping.
 
+## Workstation -- 2026-09-20/21 (after the Week-2 loss; handover to the Tuesday team)
+
+**Read first: `reports/2026-09-21-production-handover.md` (rules branch `production/in-season-rules-20260919`) and
+`reports/2026-09-21-week2-post-mortem.md`.** Week 2: 97 entries, best finish top 8.7%, no cash beyond a possible
+Flea minimum; six players at 25-57% of the book, all busted.
+
+**Root cause, confirmed at the serving commit:** main's prop-name matcher (5878c841, 2026-09-04) drops a normalized
+spelling shared by two GSIS ids; "justin jefferson" and "devonta smith" collide with roster-only 2026 rows, both WRs
+lost their prop lines, and the blend substituted their one-game DK PPG as the market at 55% weight (Jefferson served
+25.3 = 0.45 x 18.1 + 0.55 x 31.2). Reproducer: main-tip `market_points((2026,))` on the Week-2 rows (both absent);
+project-slate log 16:02Z "market blend source: props (388/481 rows)".
+
+**Operator directive (2026-09-20, standing):** no fallbacks that hide failures; a step works as designed or the run
+stops; any surviving stand-in is recorded per row and shown before upload.
+
+**This branch (`production/prop-name-ambiguity-and-fallback-guard-20260921`):** `prop_market.market_points(...,
+prefer_ids)` resolves ambiguous spellings to the one id on the slate; `inference/market_source.py` makes the live
+market props-or-nothing (feed-present name miss or <30% coverage -> `MarketMatchError`, run stops; unpriced players,
+DSTs and no-feed weeks -> model-only, every row written to `nfl_predictions.market_source_log` from both
+`run_projections` and `live_lineups`); the DK-PPG stand-in and `_props_first_market_with_dk_fallback` are removed;
+effective-policy inventory source-set v8; `inference/exposure_sheet.py` + `scripts/exposure_sheet.py` (pre-upload
+flags over_30 / majors_over_20 / dst_over_20 / injured_over_10 / no_line_over_5 / market_gap). Tests: 58 + 3 + 3
+green. **Behaviour change:** DST rows are model-only. **Not deployed:** the project-slate image
+(sha256:0993ee01...) must be rebuilt from the merged commit and the job updated (handover section 4).
+
+**Sibling branches:** `production/standings-capture-tolerances-20260921` @ e30662dd (twelve of twelve Week-2
+standings exports validate; typed result class next); `production/week3-shadow-arms-20260920` @ 22b68295 (cap30 /
+cap20 / marketpull / cap20pull / games5 / late3 selection-only arms); `production/week3-shadow-outcomes-20260920` @
+767df073. All off the laptop's wiring tip 5f8f61a5; they merge cleanly (scratch 858092ef).
+
+**Unresolved:** image rebuild/deploy; DST market decision; capture apply for Week 2 (after DK scoring review);
+cross-season window audit (laptop Priority 1); exposure sheet not yet a chain step; no live exposure cap (operator
+decision after the paired Week-3 shadow); Cloud Run us-central1 at 1000 jobs.
+
 ## Workstation overnight -- 2026-09-19 (Week-2 build eve)
 
 **Entry build unchanged and unarmed-for-release.** Six timers armed, first fires
