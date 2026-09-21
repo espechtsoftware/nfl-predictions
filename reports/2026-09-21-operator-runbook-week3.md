@@ -111,6 +111,27 @@ file or the gate refuses:
 Week 2 had 12 contests totalling 97 entries. `/home/erich/week2-sunday/contests.json`
 is the working example to copy the shape from.
 
+**Then put them where a lost machine cannot take them with it.** The repository
+is PUBLIC, so these must not be committed — `contests.json` is the week's stake
+plan. They go in the project's private bucket instead (no `allUsers` binding,
+object generations give versioning):
+
+    cd <integration checkout>
+    /home/erich/projects/nfl-predictions/.venv/bin/python scripts/week_inputs.py \
+      push --season 2026 --week 3 \
+      --contests /home/erich/week3-sunday/contests.json \
+      --dose /home/erich/week3-sunday/chosen-dose.env
+
+It validates before uploading and refuses to publish an invalid pair. To install
+them on any machine afterwards:
+
+    … scripts/week_inputs.py pull --season 2026 --week 3 --out /home/erich/week3-sunday
+
+`pull` validates before writing and leaves `week-inputs-receipt.json` pinning
+each object by uri, generation and sha256. That receipt carries no contest ids
+and no per-contest figures, so it is safe to commit as the record of which
+inputs a build used. Shape is documented in `config/week-inputs-schema.md`.
+
 **Verify both:**
 
     cd /home/erich/projects/.nfl-predictions-worktrees/week3-readiness-20260921
