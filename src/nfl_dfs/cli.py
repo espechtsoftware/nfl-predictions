@@ -271,6 +271,14 @@ def main(argv: list[str] | None = None) -> None:
         action="store_true",
         help="Perform create-only GCS archive and retry-safe BigQuery loads",
     )
+    p.add_argument(
+        "--failure-manifest",
+        default=None,
+        help=(
+            "Write a JSON manifest with the typed result class and the settled "
+            "entry evidence when validation fails (nothing partial is loaded)"
+        ),
+    )
 
     p = sub.add_parser(
         "leaderboard-analysis",
@@ -1070,20 +1078,30 @@ def main(argv: list[str] | None = None) -> None:
         kwargs = {}
         if args.archive_prefix is not None:
             kwargs["archive_prefix"] = args.archive_prefix
-        result = ownership_import.capture_full_field(
-            args.path,
-            season=args.season,
-            week=args.week,
-            contest_id=args.contest_id,
-            contest_name=args.contest_name,
-            expected_entries=args.expected_entries,
-            captured_at=args.captured_at,
-            bucket_name=args.bucket,
-            confirm_settled=args.confirm_settled,
-            confirm_full_field=args.confirm_full_field,
-            apply=args.apply,
-            **kwargs,
-        )
+        try:
+            result = ownership_import.capture_full_field(
+                args.path,
+                season=args.season,
+                week=args.week,
+                contest_id=args.contest_id,
+                contest_name=args.contest_name,
+                expected_entries=args.expected_entries,
+                captured_at=args.captured_at,
+                bucket_name=args.bucket,
+                confirm_settled=args.confirm_settled,
+                confirm_full_field=args.confirm_full_field,
+                apply=args.apply,
+                failure_manifest=args.failure_manifest,
+                **kwargs,
+            )
+        except ownership_import.CaptureValidationError as exc:
+            print(
+                f"capture-dk-standings: result_class={exc.result_class} "
+                f"contest_id={args.contest_id} entries_parsed={exc.entries_parsed} "
+                f"blank_lineup_entries={exc.blank_lineup_entries}: {exc.detail}",
+                file=sys.stderr,
+            )
+            return 2
         print(json.dumps(result, sort_keys=True, indent=2))
     elif args.command == "archetypes":
         from .analysis import archetypes

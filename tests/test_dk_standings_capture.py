@@ -363,3 +363,39 @@ def test_mass_tolerance_scales_with_the_field(tmp_path):
     pd.DataFrame(data).to_csv(source, index=False)
     result = oi.validate_full_field_capture(source, expected_entries=68)
     assert result["ownership_mass_tolerance"] == pytest.approx(min(10.0, max(2.0, 600.0 / 68)))
+
+
+def test_validation_failures_carry_a_typed_result_class(tmp_path):
+    source = _write_full_field(tmp_path / "standings.csv")
+    with pytest.raises(oi.CaptureValidationError) as err:
+        oi.validate_full_field_capture(source, expected_entries=5)
+    assert err.value.result_class == "contest_metadata_unconfirmed" and err.value.entries_parsed == 4
+    raw = pd.read_csv(source, dtype=str)
+    raw.loc[raw.Player.eq("Flex Player"), "%Drafted"] = "92.00%"; bad = tmp_path / "mismatch.csv"; raw.to_csv(bad, index=False)   # mass within tolerance, share contradicted
+    with pytest.raises(oi.CaptureValidationError) as err:
+        oi.validate_full_field_capture(bad, expected_entries=4)
+    assert err.value.result_class == "ownership_mismatch" and err.value.entries_parsed == 4
+    raw = pd.read_csv(source, dtype=str)
+    raw.loc[raw.Player.eq("Flex Player"), "%Drafted"] = "20.00%"; short = tmp_path / "short.csv"; raw.to_csv(short, index=False)
+    with pytest.raises(oi.CaptureValidationError) as err:
+        oi.validate_full_field_capture(short, expected_entries=4)
+    assert err.value.result_class == "entries_complete_ownership_incomplete"
+    raw = pd.read_csv(source, dtype=str)
+    raw.loc[raw.Rank.eq("1"), "Rank"] = "2"; invalid = tmp_path / "invalid.csv"; raw.to_csv(invalid, index=False)
+    with pytest.raises(oi.CaptureValidationError) as err:
+        oi.validate_full_field_capture(invalid, expected_entries=4)
+    assert err.value.result_class == "entries_invalid"
+    assert oi.validate_full_field_capture(source, expected_entries=4)["result_class"] == "complete_and_reproduced"
+
+
+def test_failure_manifest_is_written_before_the_error_propagates(tmp_path, monkeypatch):
+    source = _write_full_field(tmp_path / "contest-standings-777.csv")
+    manifest = tmp_path / "failure.json"
+    with pytest.raises(oi.CaptureValidationError):
+        oi.capture_full_field(str(source), season=2026, week=2, contest_id="777", contest_name="Test", expected_entries=5,
+                              bucket_name="bucket", failure_manifest=manifest)
+    record = json.loads(manifest.read_text())
+    assert record["status"] == "validation-failed" and record["result_class"] == "contest_metadata_unconfirmed"
+    assert record["entries_parsed"] == 4 and record["contest"]["contest_id"] == "777" and len(record["source"]["sha256"]) == 64
+    ok = oi.capture_full_field(str(source), season=2026, week=2, contest_id="777", contest_name="Test", expected_entries=4, bucket_name="bucket")
+    assert ok["status"] == "validated-only" and "result_class" not in ok["validation"]   # the frozen receipt contract is unchanged; the class lives in the validation result and the failure manifest
