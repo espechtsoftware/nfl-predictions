@@ -5,6 +5,64 @@
 
 # Project handoff
 
+## 2026-09-21 workstation — the composite ordering scored Week 2 against Week 1
+
+**Read this before touching any script that takes a `--week`.** Integration
+branch is **`3a942f49`**.
+
+Every Week-2 composite ordering run — Saturday 15:30 and 15:35, Sunday 10:30,
+14:10 and 15:50 — scored Week-2 lineups against the **last Week-1 projection
+batch** (`2026-09-13T16:03:49.796412Z`) and **Week-1 props** (fetched 09-12 and
+09-13). Given the `player-score-v1` weights, that is **80% of the entry-ordering
+weight on week-old data**. The ordering decides entry order, and therefore which
+lineup the class-E rule promotes to the Millionaire.
+
+**Two halves, each harmless alone.** `scripts/player_score.py` had
+`--week` defaulting to `1`. `scripts/sunday_build_host.sh` line 225 called it
+without `--season` or `--week`. The projection query filters correctly on season
+and week and takes the newest batch *within them*, so the omitted flag did not
+error — it just selected Week 1. The `vet_book.py` call on line 219, one line
+above, passes both flags correctly.
+
+**Why nobody saw it for a week.** The projection join is by player, not by week.
+The same players exist in both weeks, so the lookup succeeded and returned last
+week's numbers. The receipt's own coverage block read a healthy `prod_proj: 134`
+of 149. Nothing in the artifact named the week it had scored. This is precisely
+the class the no-silent-fallbacks rule exists for: the step did not fail, it
+quietly used the wrong week.
+
+**The general lesson, which is the point of writing this down.** A default value
+for a slate identifier is not a convenience, it is a silent wrong answer waiting
+for a caller to forget a flag. Any argument that selects *which data* a run
+operates on — season, week, slate, draft group, panel id — must either be
+required or be derived from the artifact being operated on. Never both optional
+and defaulted. And a receipt that does not name the slice it read cannot be
+audited; the coverage count will look fine either way.
+
+**The fix, which does not merely supply the missing flag.** A caller that can
+forget a flag once can forget it again, so the authority moved:
+
+- `player_score.py` resolves season and week from the run's own `receipt.json`.
+- `--season` and `--week` have no defaults and may only *confirm* the receipt.
+  A contradiction is refused, not obeyed.
+- A missing, unreadable or incomplete receipt stops the run.
+- An empty projection batch stops the run instead of producing an all-NaN
+  ordering.
+- The composite receipt records `season`, `week` and `week_source`.
+- `sunday_build_host.sh` passes the slate, so the host and the run must agree.
+
+`tests/test_player_score_week_resolution.py`, 14 tests, in the live lane.
+Mutation-checked: re-introducing either half of the defect fails the suite.
+
+**What it cost, honestly: not established.** The composite ordering still beat
+the book's own order by **+44.0** on the promoted row this week (126.62 against
+82.62). The cost of the staleness is **unmeasured, not zero**. Fix it, but do
+not assume the Week-2 ordering was bad.
+
+Full evidence: `reports/2026-09-21-week2-evidence-record.md` on
+`production/in-season-rules-20260919` @ `e5c1e92e`.
+
+
 ## 2026-09-21 workstation — Week 2 scored, build gate integrated, repoint now blocking
 
 Integration branch `production/week3-integration-20260921` is **`21fa30c0`**: a
