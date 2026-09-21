@@ -1,14 +1,20 @@
-"""The view-3 case their fixture cannot reach.
+"""SUPERSEDED 2026-09-21 by nfl2 `1c25e2a2` — do not adopt as originally written.
 
-Written by the production side 2026-09-21 against nfl2 b6acbb2c. Their
-tests/test_forecast_views.py passes (verified here, 2 passed) but its fixture
-sets `proj` and `mean_projection` 1.0 apart on every row. Per their own
-pipeline.py:162, production has `proj` EQUAL to `mean_projection` except in the
-punt band -- so that fixture describes a frame production never produces, and
-the assertion `served70_mean25_30 == [9.7, 19.7]` can only hold there.
+The original first test here asserted that `served70_mean25_30` must differ from
+`served` on a production-shaped frame, where `proj == mean_projection`. That was
+the right defect and the wrong remedy: the lab's fix refuses outright when
+`mean25` is absent, rather than making the view differ, which is stronger. With
+that fix in place the original test FAILS — correctly — because the function
+now raises instead of returning a degraded view.
 
-The first test below fails on b6acbb2c and should pass once view 3 fails closed
-on a missing `mean25` the way view 2 already does on `model_points_pre`.
+Adopting it unchanged would put a red test in front of whoever next touches this
+file, for a defect that is already closed. It is retired here.
+
+What survives is the fail-closed test below, which agrees with the lab's own
+`test_missing_historical_mean_fails_closed`. Both are kept because they assert
+the same rule from opposite directions: theirs supplies no `mean25` at all,
+this one supplies the `mean_projection` column specifically, pinning that the
+alias substitution never comes back.
 """
 
 import pandas as pd
@@ -17,34 +23,18 @@ import pytest
 from nfl2.forecast_views import build_forecast_views
 
 
-def _production_shaped():
-    """Above the punt band, production `proj` IS `mean_projection`."""
-    return pd.DataFrame({
+def test_mean_projection_is_not_accepted_as_a_mean25_alias():
+    """`mean_projection` is the current 0.45 model + 0.55 market blend, and per
+    pipeline.py:162 `proj` equals it except in the punt band. Accepting it as a
+    stand-in made view 3 a byte-copy of the control above $4,000. A frame that
+    carries `mean_projection` but not `mean25` must still fail closed.
+    """
+    frame = pd.DataFrame({
         "id": ["a", "b"],
         "proj": [10.0, 20.0],
         "model_points_pre": [8.0, 18.0],
-        "mean_projection": [10.0, 20.0],   # equal, as production has them
+        "mean_projection": [10.0, 20.0],   # present, and equal to proj as production has it
         "proj_p90": [15.0, 25.0],
     })
-
-
-def test_history_blend_is_not_a_byte_copy_of_served():
-    """`mean25` exists nowhere in this codebase, so the fallback always fires.
-
-    With production-shaped inputs that makes 0.70*served + 0.30*mean_projection
-    exactly served, and the arm spends a generation budget on a duplicate of its
-    own control while reporting it as a treatment. Fail closed instead, as view
-    2 now does.
-    """
-    views, _ = build_forecast_views(_production_shaped())
-    assert not views["served70_mean25_30"]["proj"].equals(views["served"]["proj"]), (
-        "served70_mean25_30 is identical to served: mean25 is absent and "
-        "mean_projection is not a historical mean"
-    )
-
-
-def test_absent_history_column_fails_closed():
-    """Same rule view 2 already follows: a missing required column stops the run."""
-    frame = _production_shaped().drop(columns=["mean_projection"])
-    with pytest.raises(ValueError, match="mean"):
+    with pytest.raises(ValueError, match="mean25"):
         build_forecast_views(frame)
