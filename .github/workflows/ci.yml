@@ -14,6 +14,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Several frozen chains read TRACKED GIT OBJECTS at pinned commits
+          # (`git show <sha>:src/...`) to prove a source identity. checkout@v4
+          # defaults to a depth-1 shallow clone, where those commits do not
+          # exist, so the reads failed with exit 128 and surfaced as ~22
+          # "tracked read failed" errors that looked like chain drift but were
+          # a CI configuration artifact. Full history is required for them to
+          # mean anything.
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
