@@ -222,7 +222,7 @@ VET_DIR="$OUT/vetted-$RUN_TAG"
        emit "$VET_DIR" vetted-all30 1-30; emit "$VET_DIR" vetted-all90 1-90; } \
   || echo "VETTING FAILED (see $OUT/vetting-$RUN_TAG.txt)"
 COMP_DIR="$OUT/composite-$RUN_TAG"
-( cd "$PROD" && PYTHONPATH="$PROD/src" "$PROD_PY" "$TOOLS/player_score.py" "$K90_DIR" --k 30 --vetting "$VET_DIR/vetting.json" --output-dir "$COMP_DIR" > "$OUT/composite-$RUN_TAG.txt" 2>&1 ) \
+( cd "$PROD" && PYTHONPATH="$PROD/src" "$PROD_PY" "$TOOLS/player_score.py" "$K90_DIR" --k 30 --season "$SEASON" --week "$WEEK" --vetting "$VET_DIR/vetting.json" --output-dir "$COMP_DIR" > "$OUT/composite-$RUN_TAG.txt" 2>&1 ) \
   && { echo "composite book -> $COMP_DIR"; emit "$COMP_DIR" composite-all30 1-30; } || echo "COMPOSITE FAILED (see $OUT/composite-$RUN_TAG.txt)"
 HYB_DIR="$OUT/hybrid15-$RUN_TAG"
 ( cd "$CLONE" && "$LAB_PY" "$TOOLS/hybrid30.py" "$K90_DIR" --core 15 --k 30 --output-dir "$HYB_DIR" > "$OUT/hybrid15-$RUN_TAG.txt" 2>&1 ) \

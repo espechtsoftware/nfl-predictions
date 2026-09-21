@@ -24,9 +24,41 @@ AVAIL_WEIGHT = 1.0   # composite z-units per vetting risk point
 
 def implied_prob(a): a = float(a); return 100 / (a + 100) if a > 0 else -a / (-a + 100)
 
+def resolve_season_week(run, season_flag=None, week_flag=None):
+    """Resolve the slate from the run's own receipt; never guess.
+
+    A defaulted week is the defect this guards. On 2026-09-21 every Week-2 composite
+    ordering was found to have scored Week-2 lineups against the LAST WEEK-1
+    projection batch and Week-1 props, because --week defaulted to 1 and the Sunday
+    caller omitted the flag. The projection join is by player, not by week, so it
+    succeeded silently and the receipt's coverage block read a healthy 134 of 149.
+    80% of the ordering weight was stale and nothing in the output said so.
+
+    The run receipt is the authority. A flag may only confirm it, never supply it.
+    """
+    receipt = pathlib.Path(run) / "receipt.json"
+    if not receipt.is_file():
+        raise SystemExit(f"player_score: {receipt} is missing; cannot establish which slate this run is for")
+    try:
+        data = json.loads(receipt.read_text())
+    except (ValueError, OSError) as exc:
+        raise SystemExit(f"player_score: cannot read {receipt}: {exc}") from exc
+    season, week = data.get("season"), data.get("week")
+    if season is None or week is None:
+        raise SystemExit(f"player_score: {receipt} does not carry both season and week")
+    season, week = int(season), int(week)
+    for name, flag, found in (("season", season_flag, season), ("week", week_flag, week)):
+        if flag is not None and int(flag) != found:
+            raise SystemExit(
+                f"player_score: --{name} {flag} contradicts the run receipt's {name} {found}; "
+                f"refusing to score {run} against the wrong slate")
+    return season, week
+
+
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument("run"); ap.add_argument("--k", type=int, default=30); ap.add_argument("--output-dir"); ap.add_argument("--vetting"); ap.add_argument("--season", type=int, default=2026); ap.add_argument("--week", type=int, default=1); a = ap.parse_args()
-    run = pathlib.Path(a.run); out = pathlib.Path(a.output_dir or (str(run) + "-composite")); out.mkdir(parents=True, exist_ok=True)
+    ap = argparse.ArgumentParser(); ap.add_argument("run"); ap.add_argument("--k", type=int, default=30); ap.add_argument("--output-dir"); ap.add_argument("--vetting"); ap.add_argument("--season", type=int, default=None); ap.add_argument("--week", type=int, default=None); a = ap.parse_args()
+    run = pathlib.Path(a.run); season, week = resolve_season_week(run, a.season, a.week)
+    out = pathlib.Path(a.output_dir or (str(run) + "-composite")); out.mkdir(parents=True, exist_ok=True)
     f = pd.read_parquet(run / "frame.parquet"); f["dk"] = f.dk_player_id.astype(str); f["fid"] = f.id.astype(str)
     idx = {fid: k for k, fid in enumerate(f.fid)}; dk2fid = dict(zip(f.dk, f.fid)); name = dict(zip(f.dk, f.display_name.astype(str))); pos = dict(zip(f.dk, f.position.astype(str)))
     gsis = dict(zip(f.dk, f.gsis_id.astype(str))); ppg = dict(zip(f.dk, pd.to_numeric(f.get("dk_ppg"), errors="coerce"))) if "dk_ppg" in f.columns else {}
@@ -37,11 +69,12 @@ def main():
     ids = sorted({gsis[d] for d in players if gsis.get(d) not in (None, "None", "nan", "")})
     prod = c.query("""SELECT gsis_id, dk_player_id, proj_points, proj_p90, p_20_plus, position, generated_at FROM `nfl-predictions-503414.nfl_predictions.player_projections`
                       WHERE season=@s AND week=@w AND generated_at=(SELECT MAX(generated_at) FROM `nfl-predictions-503414.nfl_predictions.player_projections` WHERE season=@s AND week=@w)""",
-                   job_config=bigquery.QueryJobConfig(query_parameters=[bigquery.ScalarQueryParameter("s", "INT64", a.season), bigquery.ScalarQueryParameter("w", "INT64", a.week)])).result().to_dataframe()
+                   job_config=bigquery.QueryJobConfig(query_parameters=[bigquery.ScalarQueryParameter("s", "INT64", season), bigquery.ScalarQueryParameter("w", "INT64", week)])).result().to_dataframe()
+    if prod.empty: raise SystemExit(f"player_score: no production projection batch for season {season} week {week}; refusing to score a book against nothing")
     by_gsis = prod.drop_duplicates("gsis_id").set_index(prod.drop_duplicates("gsis_id").gsis_id.astype(str)); by_dk = prod.drop_duplicates("dk_player_id").set_index(prod.drop_duplicates("dk_player_id").dk_player_id.astype(str))
     L = c.query("""SELECT DATE(pulled_at) AS d, player, market, outcome_name, AVG(point) AS point, AVG(price) AS price FROM `nfl-predictions-503414.nfl_raw.prop_lines`
                    WHERE season=@s AND week=@w GROUP BY d, player, market, outcome_name""",
-                job_config=bigquery.QueryJobConfig(query_parameters=[bigquery.ScalarQueryParameter("s", "INT64", a.season), bigquery.ScalarQueryParameter("w", "INT64", a.week)])).result().to_dataframe()
+                job_config=bigquery.QueryJobConfig(query_parameters=[bigquery.ScalarQueryParameter("s", "INT64", season), bigquery.ScalarQueryParameter("w", "INT64", week)])).result().to_dataframe()
     days = sorted(L.d.unique())
     def implied(df):
         pts = Counter()
@@ -84,7 +117,7 @@ def main():
     LS.to_csv(out / "lineup_scores.csv", index=False)
     top_before, top_after = set(range(a.k)), set(order[:a.k])
     rec = {"version": "player-score-v1", "source_run": str(run), "k": a.k, "weights": WEIGHTS, "avail_weight": AVAIL_WEIGHT, "prop_fetch_days": [str(x) for x in days[-2:]],
-           "projection_generated_at": str(prod.generated_at.max()) if "generated_at" in prod.columns else None, "players": len(P), "coverage": {c_: int(P[c_].notna().sum()) for c_ in WEIGHTS},
+           "season": season, "week": week, "week_source": "run receipt", "projection_generated_at": str(prod.generated_at.max()) if "generated_at" in prod.columns else None, "players": len(P), "coverage": {c_: int(P[c_].notna().sum()) for c_ in WEIGHTS},
            "order_source_ranks": [i + 1 for i in order], "demoted_out_of_top_k": sorted(i + 1 for i in top_before - top_after), "promoted_into_top_k": sorted(i + 1 for i in top_after - top_before),
            "overlap_top_k_with_greedy": len(top_before & top_after), "built_utc": datetime.now(UTC).isoformat()}
     (out / "composite_receipt.json").write_text(json.dumps(rec, indent=1) + "\n")
