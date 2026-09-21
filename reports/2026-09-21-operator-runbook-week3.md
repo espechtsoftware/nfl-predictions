@@ -28,15 +28,23 @@ money path through the checkout, not through the container image.
 
 **Why:** the build-input gate fails closed while
 `nfl_predictions.market_source_log` is absent, and only the repaired image
-writes it. Until this is done the Week-3 build will not start.
+writes it. Until that table exists the Week-3 build will not start.
 
-**Current state, verified:**
+> **STATUS 2026-09-21: the repoint is DONE.** The operator ran it and it was
+> confirmed — `project-slate` now serves
+> `…/nfl-dfs/nfl-dfs:week3-market-source-cf630a68`
+> (`sha256:efffac0a623e891813b2387f84ea725622cd32264b0c467d884e669ed47c5188`),
+> replacing `sha256:0993ee01d6d617ed2fa88c51335616c6d473508952fb226201f3cc383db75758`.
+>
+> **What is still outstanding is the second half: a batch has not run yet, so
+> `market_source_log` is still absent and the gate is still red on the market
+> check.** Skip to "Then produce a batch" below.
+>
+> Minor, for later: the job is now pinned by TAG rather than by digest. The
+> previous setting was digest-pinned, which is more reproducible because a tag
+> can be moved. Worth switching back once Week 3 is settled.
 
-    current: …/nfl-dfs/nfl-dfs@sha256:0993ee01d6d617ed2fa88c51335616c6d473508952fb226201f3cc383db75758
-    target:  …/nfl-dfs/nfl-dfs:week3-market-source-cf630a68
-             = sha256:efffac0a623e891813b2387f84ea725622cd32264b0c467d884e669ed47c5188
-
-**Run:**
+**The update command, for reference or a repeat:**
 
     gcloud run jobs update project-slate \
       --project nfl-predictions-503414 --region us-central1 \
@@ -104,12 +112,19 @@ contest, with these six keys. `entries` must total **at least 90** across the
 file or the gate refuses:
 
     [
-      {"name": "…", "contest_id": "…", "entries": 1, "keep": 1, "fee": 20, "note": "…"}
+      {"name": "milly",      "contest_id": "…", "entries":  1, "keep":  1, "fee": 20,   "note": "…"},
+      {"name": "supersat25", "contest_id": "…", "entries": 16, "keep": 16, "fee": 0.25, "note": "…"}
     ]
 
-`contest_id` and `name` are strings; `entries`, `keep`, `fee` are integers.
+`contest_id` and `name` are strings; `entries` and `keep` are integers; **`fee`
+is money and may be fractional** — the quarter satellites carry `0.25`. An
+earlier draft of this runbook called fee an integer, which was wrong: validating
+it that way truncated those contests to zero and made Week 2 total $238 against
+the $246 actually settled.
+
 Week 2 had 12 contests totalling 97 entries. `/home/erich/week2-sunday/contests.json`
-is the working example to copy the shape from.
+is the working example to copy the shape from; `config/week-inputs-schema.md`
+is the field-by-field reference.
 
 **Then put them where a lost machine cannot take them with it.** The repository
 is PUBLIC, so these must not be committed — `contests.json` is the week's stake
@@ -132,7 +147,16 @@ each object by uri, generation and sha256. That receipt carries no contest ids
 and no per-contest figures, so it is safe to commit as the record of which
 inputs a build used. Shape is documented in `config/week-inputs-schema.md`.
 
-**Verify both:**
+**Verify both.** Quickest check first — it needs no network and reports every
+problem at once:
+
+    … scripts/week_inputs.py validate \
+      --contests /home/erich/week3-sunday/contests.json \
+      --dose /home/erich/week3-sunday/chosen-dose.env
+
+On the real Week-2 pair that prints
+`OK: 12 contests, 97 entries, $246.00 total fee; dose lev 2560 boom 10240`.
+Then the gate's own view:
 
     cd /home/erich/projects/.nfl-predictions-worktrees/week3-readiness-20260921
     /home/erich/projects/nfl-predictions/.venv/bin/python scripts/check_build_inputs.py \
