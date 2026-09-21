@@ -5,6 +5,9 @@ The generator produces a plausible player-week panel with real signal
 market projection so market-comparison code paths run.
 """
 
+import functools
+import os
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -126,3 +129,78 @@ def pytest_configure(config):
         "real_load_dataframe: run against the real nfl_dfs.bq.load_dataframe "
         "instead of the offline no-warehouse-writes recorder.",
     )
+    config.addinivalue_line(
+        "markers",
+        "requires_pinned_runtime: frozen numerical chain that validates an exact "
+        "interpreter/NumPy/CPU identity; skipped, with the mismatch named, on any "
+        "machine that is not the pinned runtime.",
+    )
+
+
+@functools.lru_cache(maxsize=1)
+def _pinned_runtime_mismatches() -> tuple[str, ...]:
+    """Which parts of the frozen numerical runtime this machine does not match.
+
+    The frozen corpus chains assert bit-identical numerical behaviour, which
+    genuinely requires an identical runtime: the interpreter binary, the NumPy
+    core binary, and the host CPU feature flags all change floating-point
+    results. GitHub Actions runs Python 3.11 with ``numpy>=1.26`` on variable
+    runner hardware, so those chains were never capable of passing in CI -- on
+    2026-09-21 they were 184 of 365 failures, drowning the ~12 real ones.
+
+    They are SKIPPED rather than xfailed or quarantined, and the reason names
+    the exact mismatch, so this can never read as "these passed". Constants and
+    live evidence both come from the contract module itself, so this check
+    cannot drift away from what the chains actually assert.
+    """
+    try:
+        from nfl_dfs.research import (
+            corpus_retrieval_v2_implementation_contract as _contract,
+        )
+        runtime, _ = _contract._runtime_evidence()
+    except Exception as exc:                      # unimportable, or no CPU evidence
+        return (f"runtime evidence unavailable: {type(exc).__name__}",)
+
+    expected = {
+        "python_implementation": _contract._PYTHON_IMPLEMENTATION,
+        "python_version": _contract._PYTHON_VERSION,
+        "python_executable_bytes": _contract._PYTHON_EXECUTABLE_BYTES,
+        "python_executable_sha256": _contract._PYTHON_EXECUTABLE_SHA256,
+        "numpy_version": _contract._NUMPY_VERSION,
+        "numpy_core_binary_bytes": _contract._NUMPY_CORE_BYTES,
+        "numpy_core_binary_sha256": _contract._NUMPY_CORE_SHA256,
+        "numpy_cpu_features_true": list(_contract._CPU_FEATURES_TRUE),
+    }
+
+    def _short(value):
+        text = str(value)
+        return text[:12] + "\u2026" if len(text) > 16 else text
+
+    return tuple(
+        f"{key} (pinned {_short(want)} != live {_short(runtime.get(key))})"
+        for key, want in expected.items()
+        if runtime.get(key) != want
+    )
+
+
+def pytest_collection_modifyitems(config, items):
+    """Skip frozen-runtime chains when this machine is not the pinned runtime.
+
+    Only a runtime MISMATCH skips. If the runtime matches, the chains run and a
+    genuine failure still fails -- the guard narrows what CI reports, it does
+    not excuse these modules from being correct.
+    """
+    if os.environ.get("NFL_DFS_RUN_PINNED_RUNTIME_TESTS"):
+        # Deliberate override: run them anyway, e.g. under the preserved
+        # interpreter (see reports/2026-09-21-portability-of-local-artifacts.md)
+        # or to inspect what else in these modules is broken. It can only make
+        # MORE tests run, never turn a failure into a pass.
+        return
+    mismatches = _pinned_runtime_mismatches()
+    if not mismatches:
+        return
+    reason = "pinned numerical runtime not present: " + "; ".join(mismatches)
+    skip = pytest.mark.skip(reason=reason)
+    for item in items:
+        if item.get_closest_marker("requires_pinned_runtime"):
+            item.add_marker(skip)

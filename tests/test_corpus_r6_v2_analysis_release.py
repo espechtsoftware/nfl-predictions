@@ -21,6 +21,11 @@ from nfl_dfs.research import residual_world_columns as rw
 from nfl_dfs.research.corpus_neo4j_transport import ObjectIdentity
 from nfl_dfs.research.corpus_v12_import import canonical_lineup_id
 
+# This chain validates an exact interpreter/NumPy/CPU identity, so it can only
+# pass on the pinned runtime. Off it, conftest skips with the mismatch named
+# rather than failing -- see `requires_pinned_runtime`.
+pytestmark = pytest.mark.requires_pinned_runtime
+
 
 def _with_hash(body: dict[str, Any], field: str) -> dict[str, Any]:
     retained = deepcopy(body)

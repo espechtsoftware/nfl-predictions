@@ -16,6 +16,11 @@ from nfl_dfs.research import (
 )
 from nfl_dfs.research import corpus_r6_hard230_selector_bridge_v1 as bridge
 
+# This chain validates an exact interpreter/NumPy/CPU identity, so it can only
+# pass on the pinned runtime. Off it, conftest skips with the mismatch named
+# rather than failing -- see `requires_pinned_runtime`.
+pytestmark = pytest.mark.requires_pinned_runtime
+
 
 _OPERATOR_PATH = (
     Path(__file__).resolve().parents[1]

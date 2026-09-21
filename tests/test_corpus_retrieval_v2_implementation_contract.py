@@ -10,6 +10,11 @@ from nfl_dfs.research import (
 )
 from nfl_dfs.research.corpus_legal_feasibility import canonical_sha256
 
+# This chain validates an exact interpreter/NumPy/CPU identity, so it can only
+# pass on the pinned runtime. Off it, conftest skips with the mismatch named
+# rather than failing -- see `requires_pinned_runtime`.
+pytestmark = pytest.mark.requires_pinned_runtime
+
 
 EXPECTED_IMPLEMENTATION_SHA256 = (
     "01f62c080451f6d090da782c47474e86ae8302a1a57df698d2df16fb5dcffac7"

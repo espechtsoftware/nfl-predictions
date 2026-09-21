@@ -10,6 +10,11 @@ from scipy.special import betaincinv
 
 from nfl_dfs.research import corpus_extreme_tail_roadmap_retrieval as target
 
+# This chain validates an exact interpreter/NumPy/CPU identity, so it can only
+# pass on the pinned runtime. Off it, conftest skips with the mismatch named
+# rather than failing -- see `requires_pinned_runtime`.
+pytestmark = pytest.mark.requires_pinned_runtime
+
 
 def _hash(character: str) -> str:
     return character * 64

@@ -32,6 +32,11 @@ from nfl_dfs.research import corpus_r6_population_profiles_v1 as profiles
 from nfl_dfs.research import lr8_later_period_source as later
 from nfl_dfs.research import residual_world_columns as rw
 
+# This chain validates an exact interpreter/NumPy/CPU identity, so it can only
+# pass on the pinned runtime. Off it, conftest skips with the mismatch named
+# rather than failing -- see `requires_pinned_runtime`.
+pytestmark = pytest.mark.requires_pinned_runtime
+
 
 def _players(variant_count: int = 151) -> tuple[rw.PlayerSpec, ...]:
     rows = [

@@ -28,6 +28,11 @@ from tests import (
     as frozen_successor_fixture,
 )
 
+# This chain validates an exact interpreter/NumPy/CPU identity, so it can only
+# pass on the pinned runtime. Off it, conftest skips with the mismatch named
+# rather than failing -- see `requires_pinned_runtime`.
+pytestmark = pytest.mark.requires_pinned_runtime
+
 
 def _raw(value: object) -> bytes:
     return batch.canonical_json_bytes(value)

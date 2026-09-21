@@ -18,6 +18,11 @@ from nfl_dfs.research import (
     corpus_r6_current_bank_selector_successor_v1 as successor,
 )
 
+# This chain validates an exact interpreter/NumPy/CPU identity, so it can only
+# pass on the pinned runtime. Off it, conftest skips with the mismatch named
+# rather than failing -- see `requires_pinned_runtime`.
+pytestmark = pytest.mark.requires_pinned_runtime
+
 
 EXPECTED_IMPLEMENTATION_SHA256 = (
     "f32c07afd2a75d56a119b23135e5e8f3300575158bf3be0d731bd4ea7ed0fef4"

@@ -14,6 +14,11 @@ from nfl_dfs.research import (
 )
 from nfl_dfs.research import corpus_parametric_batch as batch
 
+# This chain validates an exact interpreter/NumPy/CPU identity, so it can only
+# pass on the pinned runtime. Off it, conftest skips with the mismatch named
+# rather than failing -- see `requires_pinned_runtime`.
+pytestmark = pytest.mark.requires_pinned_runtime
+
 
 COMMIT = "a" * 40
 DIGEST = "sha256:" + "b" * 64

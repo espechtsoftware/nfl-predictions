@@ -13,6 +13,11 @@ from nfl_dfs.research import (
 from nfl_dfs.research import corpus_r6_l2b_selector_adapter_v1 as adapter
 from scripts import run_corpus_r6_l2b_selector_adapter_v1 as cli
 
+# This chain validates an exact interpreter/NumPy/CPU identity, so it can only
+# pass on the pinned runtime. Off it, conftest skips with the mismatch named
+# rather than failing -- see `requires_pinned_runtime`.
+pytestmark = pytest.mark.requires_pinned_runtime
+
 
 def _identity(uri: str, label: str) -> dict[str, object]:
     raw = label.encode("utf-8")
