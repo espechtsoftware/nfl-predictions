@@ -65,13 +65,16 @@ well clear of zero and its coverage is real.
 
 Slate 153430, last pre-lock batch `2026-09-20T16:02:22Z`, 412 scored rows.
 
+**Corrected 2026-09-21.** The first version of this baseline scored 33 rows from
+that night's unplayed Monday game as zeros. Figures below are the corrected ones.
+
 | position | n | mean bias | median bias | stated sd | realized sd | ratio |
 |---|---|---|---|---|---|---|
-| all skill | 412 | −1.00 ± 0.28 | −1.11 | 6.00 | 7.33 | 0.82 |
-| QB | 31 | −3.50 ± 1.43 | −5.12 | 12.73 | 8.57 | **1.49** |
-| RB | 107 | −1.12 ± 0.45 | −0.88 | 6.38 | 6.14 | 1.04 |
-| WR | 166 | −0.75 ± 0.48 | −1.41 | 5.94 | 7.53 | 0.79 |
-| TE | 108 | −0.56 ± 0.45 | −0.65 | 3.78 | 5.68 | 0.66 |
+| all skill | 382 | −0.60 ± 0.28 | −0.80 | 6.00 | 7.45 | 0.81 |
+| QB | 29 | −2.48 ± 1.32 | −4.90 | 12.77 | 7.94 | **1.61** |
+| RB | 99 | −0.70 ± 0.43 | −0.72 | 6.41 | 6.21 | 1.03 |
+| WR | 155 | −0.34 ± 0.48 | −1.12 | 5.90 | 7.65 | 0.77 |
+| TE | 99 | −0.35 ± 0.48 | −0.49 | 3.79 | 5.86 | 0.65 |
 
 Two things the dispersion column adds that the Week-2 write-up did not have.
 
@@ -84,22 +87,24 @@ is also too high. Centre and spread are both wrong, in opposite directions.
 narrow. So there is no single dispersion story across positions, and a global
 variance change would make two positions worse while fixing one.
 
-Bias by projection bucket, all positions pooled, is monotone in the projection:
+Bias by projection bucket, all positions pooled (corrected):
 
 | bucket | n | mean proj | mean realized | bias | reached projection |
 |---|---|---|---|---|---|
-| 0–5 | 215 | 1.70 | 1.64 | −0.07 | 27.9% |
-| 5–10 | 91 | 7.53 | 5.77 | −1.77 | 28.6% |
-| 10–15 | 60 | 12.22 | 10.33 | −1.89 | 33.3% |
-| 15–20 | 34 | 17.11 | 14.95 | −2.16 | 38.2% |
+| 0–5 | 196 | 1.65 | 1.80 | +0.14 | 30.6% |
+| 5–10 | 88 | 7.53 | 5.97 | −1.56 | 29.5% |
+| 10–15 | 55 | 12.16 | 11.27 | −0.89 | 36.4% |
+| 15–20 | 31 | 16.98 | 16.39 | −0.59 | 41.9% |
 | 20+ | 12 | 21.55 | 17.26 | −4.29 | 25.0% |
 
-This is the mechanism behind the book-level result. Lineups are built from the
-top buckets, so the per-lineup bias of −31.4 is roughly nine slots times the
-high-projection bias, not nine times the −1.00 average. **It also says where a
-repair would have to act: the top of the projection distribution, not the mean
-player.** The share reaching projection is 25–38% everywhere against a nominal
-50%, consistent with the negative median bias.
+**This is NOT monotone**, and an earlier version of this document said it was —
+that pattern was an artefact of the unplayed rows. Only the 20+ bucket stands
+out, at n = 12. The mechanism previously claimed here, that the −31.4 per-lineup
+bias is roughly nine slots times a high-projection bias, **is withdrawn**: the
+corrected ≥15 bias is about −1.6, which over nine slots gives −15, not −31. The
+lineup-level bias is unaffected and remains real; it is now **unexplained**, and
+must not be cited as understood. The share reaching projection is 25–42% against
+a nominal 50%, consistent with the negative median bias.
 
 ## What would license a change, decided now
 

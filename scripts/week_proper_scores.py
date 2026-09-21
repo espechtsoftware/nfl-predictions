@@ -54,6 +54,24 @@ DK = """
 """
 
 
+def played_teams(client: bigquery.Client, season: int, week: int) -> set[str]:
+    """Teams whose week-W game has actually been played.
+
+    A player with no stat line is scored 0, which is right for someone who was
+    active and did nothing and wrong for someone whose game has not kicked off.
+    On 2026-09-21 the published Week-2 panel scored 36 rows from that night's
+    unplayed Monday game as zeros, manufacturing negative bias in every position.
+    Derived from the data rather than from a date so a postponed or in-progress
+    game is handled the same way.
+    """
+    q = f"""
+    SELECT DISTINCT team FROM `{PROJECT}.nfl_raw.weekly_stats`
+    WHERE CAST(season AS INT64)={season} AND CAST(week AS INT64)={week}
+      AND season_type='REG' AND team IS NOT NULL
+    """
+    return {r.team for r in client.query(q).result()}
+
+
 def list_batches(client: bigquery.Client, season: int, week: int) -> None:
     q = f"""
     SELECT generated_at, slate_id, COUNT(*) n
@@ -112,8 +130,16 @@ def median(xs: list[float]) -> float:
     return s[n // 2] if n % 2 else 0.5 * (s[n // 2 - 1] + s[n // 2])
 
 
-def panel(rows: list[dict], label: str) -> dict:
-    """Score one batch. DST is excluded: weekly_stats carries no team-defence rows."""
+def panel(rows: list[dict], label: str, scoreable: set[str] | None = None) -> dict:
+    """Score one batch. DST is excluded: weekly_stats carries no team-defence rows.
+
+    `scoreable` is the set of teams whose game has been played. Rows for any other
+    team are removed before scoring, never scored as zero.
+    """
+    unplayed = []
+    if scoreable is not None:
+        unplayed = [r for r in rows if r["team"] not in scoreable]
+        rows = [r for r in rows if r["team"] in scoreable]
     allskill = [r for r in rows if r["position"] in {"QB", "RB", "WR", "TE"}]
     dst = [r for r in rows if r["position"] == "DST"]
     for r in allskill:
@@ -156,7 +182,10 @@ def panel(rows: list[dict], label: str) -> dict:
                                 / stdev([r["y"] for r in sub]) if stdev([r["y"] for r in sub]) else None,
         }
 
-    out = {"label": label, "slate": rows[0].get("slate_id", "?"), "n_rows": len(rows), "n_skill": len(skill), "n_dst": len(dst),
+    out = {"label": label, "slate": (rows[0].get("slate_id", "?") if rows else "?"),
+           "n_rows": len(rows),
+           "n_unplayed_excluded": len(unplayed),
+           "unplayed_teams": sorted({r["team"] for r in unplayed}), "n_skill": len(skill), "n_dst": len(dst),
            "n_degenerate": len(degenerate),
            "degenerate_by_pos": {p: sum(1 for r in degenerate if r["position"] == p)
                                  for p in ("QB", "RB", "WR", "TE")},
@@ -219,6 +248,10 @@ def show(p: dict) -> None:
           f"{p['n_no_stat_line']} recorded no stat line and score 0")
     print(f"    zero-variance stand-ins that did score: {p['degenerate_nonzero_realized']}, "
           f"largest {p['degenerate_max_realized']:.1f} DK points")
+    if p.get("n_unplayed_excluded"):
+        print(f"    EXCLUDED {p['n_unplayed_excluded']} rows whose game has not been "
+              f"played: {', '.join(p['unplayed_teams'])} — scoring them 0 would "
+              f"manufacture negative bias")
     hdr = (f"    {'group':<14}{'n':>5}{'proj':>8}{'real':>8}{'bias':>8}{'+-':>6}{'RMSE':>8}"
            f"{'medAE':>8}{'CRPS':>8}{'<p10':>7}{'<p50':>7}{'<p90':>7}{'pin90':>8}")
     print(hdr)
@@ -276,10 +309,11 @@ def main(argv: list[str] | None = None) -> int:
     panels = []
     for ts in args.batch:
         rows = fetch(client, args.season, args.week, args.slate, ts)
+        scoreable = played_teams(client, args.season, args.week)
         if not rows:
             print(f"\n=== {ts}: no rows on slate {args.slate}; nothing scored")
             continue
-        p = panel(rows, ts)
+        p = panel(rows, ts, scoreable=scoreable)
         p["generated_at"] = ts
         p["season"], p["week"], p["slate"] = args.season, args.week, args.slate
         panels.append(p)

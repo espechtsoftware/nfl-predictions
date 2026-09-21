@@ -19,8 +19,8 @@ wps = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(wps)
 
 
-def _row(pos, proj, std, realized, played=True, p20=None):
-    return {"position": pos, "proj_points": proj, "proj_std": std,
+def _row(pos, proj, std, realized, played=True, p20=None, team="KC"):
+    return {"position": pos, "team": team, "proj_points": proj, "proj_std": std,
             "proj_p10": proj - 1.2816 * std, "proj_p50": proj,
             "proj_p90": proj + 1.2816 * std, "p_20_plus": p20,
             "realized": realized, "played": played}
@@ -216,3 +216,56 @@ class TestProjectionBuckets:
     def test_empty_buckets_are_omitted_not_reported_as_zero(self):
         out = wps.panel([_row("TE", 2.0, 2.0, 2.0)], "t")["projection_buckets"]["TE"]
         assert [b["lo"] for b in out] == [0.0]
+
+
+class TestUnplayedGamesAreNeverScored:
+    """A player with no stat line is scored 0. That is right for someone who was
+    active and did nothing, and WRONG for someone whose game has not kicked off.
+
+    On 2026-09-21 the published Week-2 panel included 36 rows from that night's
+    unplayed Monday game, all scored as zeros. It moved every position's bias
+    away from zero: all-skill -0.77 read as -1.00, QB -2.89 read as -3.50, and
+    WR -0.44 read as -0.75, which changed a null result into an apparent one.
+    """
+
+    def test_rows_from_an_unplayed_team_are_removed_not_zeroed(self):
+        rows = [_row("QB", 18.0, 6.0, None, played=False), _row("QB", 20.0, 6.0, 22.0)]
+        rows[0]["team"], rows[1]["team"] = "NYG", "KC"
+        out = wps.panel(rows, "t", scoreable={"KC"})
+        assert out["n_unplayed_excluded"] == 1
+        assert out["unplayed_teams"] == ["NYG"]
+        assert out["all"]["n"] == 1
+        assert out["all"]["mean_bias"] == pytest.approx(2.0)
+
+    def test_without_the_guard_the_same_rows_drag_the_bias_down(self):
+        """The bug, reproduced: scoring the unplayed row makes a positive bias negative."""
+        rows = [_row("QB", 18.0, 6.0, None, played=False), _row("QB", 20.0, 6.0, 22.0)]
+        rows[0]["team"], rows[1]["team"] = "NYG", "KC"
+        unguarded = wps.panel(rows, "t")
+        assert unguarded["all"]["n"] == 2
+        assert unguarded["all"]["mean_bias"] < 0 < wps.panel(
+            rows, "t", scoreable={"KC"})["all"]["mean_bias"]
+
+    def test_a_player_who_was_active_and_scored_nothing_is_still_zeroed(self):
+        """The guard must not excuse genuine zeros on teams that did play."""
+        r = _row("WR", 9.0, 4.0, None, played=False)
+        r["team"] = "KC"
+        out = wps.panel([r], "t", scoreable={"KC"})
+        assert out["n_unplayed_excluded"] == 0
+        assert out["all"]["n"] == 1 and out["all"]["mean_realized"] == 0.0
+
+    def test_no_scoreable_set_means_no_filtering(self):
+        """Back-compatible: callers that pass nothing behave as before."""
+        r = _row("QB", 18.0, 6.0, None, played=False)
+        r["team"] = "NYG"
+        out = wps.panel([r], "t")
+        assert out["n_unplayed_excluded"] == 0 and out["all"]["n"] == 1
+
+    def test_the_excluded_teams_are_reported_not_silently_dropped(self):
+        rows = [_row("QB", 18.0, 6.0, None, played=False) for _ in range(3)]
+        for r, t in zip(rows, ("NYG", "LA", "NYG")):
+            r["team"] = t
+        rows.append(_row("QB", 20.0, 6.0, 22.0)); rows[-1]["team"] = "KC"
+        out = wps.panel(rows, "t", scoreable={"KC"})
+        assert out["n_unplayed_excluded"] == 3
+        assert out["unplayed_teams"] == ["LA", "NYG"]
