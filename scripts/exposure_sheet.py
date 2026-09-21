@@ -39,13 +39,26 @@ contests = json.load(open(a.contests)); contests = contests if isinstance(contes
 market_source = None
 if a.market_source_csv:
     market_source = pd.read_csv(a.market_source_csv)
-elif a.season and a.week:
+monitor_note = ""
+if not a.market_source_csv and a.season and a.week:
+    from google.api_core.exceptions import NotFound
     from nfl_dfs.bq import query_df
     from nfl_dfs.config import settings
-    market_source = query_df(f"""SELECT gsis_id, display_name, source, market_points, generated_at FROM `{settings.predictions}.market_source_log`
-                                 WHERE season = {a.season} AND week = {a.week} AND path = 'project-slate'
-                                 QUALIFY generated_at = MAX(generated_at) OVER ()""")
-    print(f"market_source_log: {len(market_source)} rows from batch {market_source.generated_at.max() if len(market_source) else None}")
+    try:
+        market_source = query_df(f"""SELECT gsis_id, display_name, source, market_points, generated_at FROM `{settings.predictions}.market_source_log`
+                                     WHERE season = {a.season} AND week = {a.week} AND path = 'project-slate'
+                                     QUALIFY generated_at = MAX(generated_at) OVER ()""")
+    except NotFound:
+        # No stand-in: the sheet says the monitor is not deployed and every market source stays 'unknown'.
+        market_source = None
+        monitor_note = "MARKET-SOURCE MONITOR NOT DEPLOYED: nfl_predictions.market_source_log does not exist; every market source below is unknown"
+        print(monitor_note, file=sys.stderr)
+    else:
+        if len(market_source):
+            print(f"market_source_log: {len(market_source)} rows from batch {market_source.generated_at.max()}")
+        else:
+            monitor_note = f"MARKET-SOURCE MONITOR EMPTY for season {a.season} week {a.week}: no project-slate batch has written market_source_log; every market source below is unknown"
+            print(monitor_note, file=sys.stderr)
 if market_source is not None and len(market_source) and "id" not in market_source.columns:
     market_source = market_source.assign(id=market_source.gsis_id.astype(str).map(id_by_gsis)).dropna(subset=["id"])
 
@@ -62,5 +75,6 @@ if a.field_own_csv:
 
 sheet = build_sheet(book, players, contests, market_source=market_source, status=status, field_own=field_own)
 out = pathlib.Path(a.out); out.mkdir(parents=True, exist_ok=True)
-sheet.to_csv(out / "exposure-sheet.csv", index=False); (out / "exposure-sheet.md").write_text(sheet_markdown(sheet))
-print(sheet_markdown(sheet)); print(f"written: {out / 'exposure-sheet.md'} and .csv")
+md = (f"**{monitor_note}**\n\n" if monitor_note else "") + sheet_markdown(sheet)
+sheet.to_csv(out / "exposure-sheet.csv", index=False); (out / "exposure-sheet.md").write_text(md)
+print(md); print(f"written: {out / 'exposure-sheet.md'} and .csv")
