@@ -1,8 +1,61 @@
-> **Take-over document for this week: `reports/2026-09-15-week2-operating-handoff.md` (2026-09-15). Read it before anything below.**
+> **Take-over document: `reports/2026-09-21-production-handover.md`, on branch `production/in-season-rules-20260919`. Read it before anything below.**
+> **`reports/2026-09-15-week2-operating-handoff.md` is SUPERSEDED except for its §4 (Sunday money path) and §3a (standing weekly cadence).**
 > **Operator's own Week-2 steps (timers, Saturday refresh, Sunday upload): `reports/2026-09-17-week2-operator-checklist.md`.**
 > **Operator's machine-move guide: `reports/2026-09-15-workstation-to-laptop-transition-guide.md`.**
 
 # Project handoff
+
+## 2026-09-21 workstation — Week 2 scored, build gate integrated, repoint now blocking
+
+Integration branch `production/week3-integration-20260921` is **`21fa30c0`**: a
+fast-forward onto the laptop's `67aa3067` build-input gate, plus one commit
+adding `tests/test_week_build_gate.py` to the `cloudbuild.week1-live.yaml` test
+list. That lane is what gates the deployed image, and the gate now guards the
+Sunday money path. Lane list on this tree: 273 passed.
+
+**What this changed for Week 3.** `run_week_build.sh` now runs
+`check_build_inputs.py` before the driver, and that checker FAILs when
+`nfl_predictions.market_source_log` is absent. It is absent, because only the
+repaired image writes it and `project-slate` still serves `sha256:0993ee01...`.
+So the Week-3 build will refuse to start until the job is repointed at
+`week3-market-source-cf630a68` and one batch has run against it. Ran the checker
+for real on 2026-09-21: FAIL, exit 1, on all four inputs — projections (arrive
+with the Tuesday chain), TabPFN cache for week 3 (Wednesday `tabpfn-gen`), the
+market monitor (needs the repoint), and the two operator files
+(`$OUT/chosen-dose.env`, `$OUT/contests.json`). The repoint is the operator's
+call and has not been made.
+
+Review notes on the laptop's commit, since it was taken on evidence rather than
+trust: the entrypoint carries `set -Eeuo pipefail` so a failed gate propagates;
+`check_build_inputs.py` writes its receipt before exiting 1, so failed
+preflights leave evidence; its `mktemp` template puts a suffix after the X's,
+which this host's `mktemp` (uutils coreutils 0.8.0, the only one on PATH)
+accepts, though GNU `mktemp` would not — it works where it runs, so nothing was
+changed.
+
+**Week 2 is scored.** Money settled at fees $246.00 / winnings $26.00, ROI
+−89.4%; season to date −74.3%. The served Week-2 projections were scored against
+realized DK points and the results are in
+`reports/2026-09-21-week2-evidence-record.md` on
+`production/in-season-rules-20260919` @ `ee9d05b9`. Three reads worth carrying
+forward: the aggregate −1.00 bias is an availability artefact (−0.29 among
+players who recorded a stat line, so it is the 23.5% of rows served for players
+who never took a snap); QB is over-projected at −3.50 ± 1.43 with 0 of 31
+reaching their own p90; and **`proj_p10` runs negative for RB/WR/TE**, so it is
+not a floor and must not be used as one. `p_20_plus` is well calibrated except
+in the top quintile, which states 33.2% against 23.2% ± 4.7% realized.
+
+The instrument is `scripts/week_proper_scores.py` (rules branch), parameterised
+by season/week/slate/batch, 20 tests. Reuse it for Week 3.
+`analysis/served_position_calibration.py` is not a substitute — it is a frozen
+2019-2025 panel protocol pinned to its own `PANEL_ID`.
+
+Note `nfl_features.player_week_actuals` lags by design:
+`sql/features/013_player_week_actuals.sql` gates played weeks on
+`DATE(gameday) < CURRENT_DATE()`, so a week is only complete after
+`build-features` runs following its last game. Read `nfl_raw.weekly_stats`
+directly when a week is needed before that.
+
 
 ## 2026-09-21 laptop checkpoint — build preflight wiring
 
