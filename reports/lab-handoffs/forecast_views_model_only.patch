@@ -1,0 +1,56 @@
+diff --git a/src/nfl2/forecast_views.py b/src/nfl2/forecast_views.py
+index c69170e..80490c7 100644
+--- a/src/nfl2/forecast_views.py
++++ b/src/nfl2/forecast_views.py
+@@ -25,15 +25,32 @@ def build_forecast_views(frame: pd.DataFrame) -> tuple[dict[str, pd.DataFrame],
+     if "proj" not in frame:
+         raise ValueError("frame requires served `proj` column")
+     served = pd.to_numeric(frame["proj"], errors="coerce")
+-    raw_market = pd.to_numeric(frame["market_projection"], errors="coerce") if "market_projection" in frame else pd.Series(np.nan, index=frame.index)
++    # View 2 is MODEL-ONLY, not market. Served ("proj") is already a
++    # model/market blend, so a market view would duplicate part of it; the
++    # informative comparison is that blend removed. "model_points_pre" is the
++    # column pipeline.py already uses for exactly this (PREREG-007).
++    #
++    # Fail closed on an ABSENT column. The previous code read
++    # "market_projection", which is not a column anywhere in this codebase --
++    # only core.blend.market_projection_frame, which is a FUNCTION. Absent, it
++    # made raw_market all-NaN and .fillna(served) turned view 2 into a byte-copy
++    # of view 1, so the arm would have reported a null result as a real one.
++    # A missing column is a configuration error and stops the run; missing
++    # VALUES are a coverage fact, filled from served and counted.
++    if "model_points_pre" not in frame:
++        raise ValueError(
++            'frame requires "model_points_pre" for the model-only view; without '
++            "it that view is identical to served and the arm is vacuous"
++        )
++    raw_model = pd.to_numeric(frame["model_points_pre"], errors="coerce")
+     raw_mean25 = pd.to_numeric(frame["mean25"], errors="coerce") if "mean25" in frame else pd.Series(np.nan, index=frame.index)
+     raw_p90 = pd.to_numeric(frame["proj_p90"], errors="coerce") if "proj_p90" in frame else pd.Series(np.nan, index=frame.index)
+-    market = raw_market.fillna(served)
++    model_only = raw_model.fillna(served)
+     mean25 = raw_mean25.fillna(served)
+     p90 = raw_p90.fillna(served)
+     specs = {
+         "served": served,
+-        "market_fallback": market,
++        "model_only": model_only,
+         "served70_mean25_30": 0.70 * served + 0.30 * mean25,
+         "served50_p90_50": 0.50 * served + 0.50 * p90,
+     }
+@@ -42,12 +59,12 @@ def build_forecast_views(frame: pd.DataFrame) -> tuple[dict[str, pd.DataFrame],
+         out = frame.copy()
+         out["proj"] = values.astype(float)
+         views[name] = out
+-    payload = frame[[c for c in ("id", "proj", "market_projection", "mean25", "proj_p90") if c in frame]].to_json(orient="records", date_format="iso")
++    payload = frame[[c for c in ("id", "proj", "model_points_pre", "mean25", "proj_p90") if c in frame]].to_json(orient="records", date_format="iso")
+     manifest = {
+         "input_sha256": hashlib.sha256(payload.encode()).hexdigest(),
+         "rows": int(len(frame)),
+         "views": {},
+     }
+-    for name, values in (("served", served), ("market_fallback", market), ("served70_mean25_30", specs["served70_mean25_30"]), ("served50_p90_50", specs["served50_p90_50"])):
+-        manifest["views"][name] = {"missing_market": int(raw_market.isna().sum()), "missing_mean25": int(raw_mean25.isna().sum()), "missing_p90": int(raw_p90.isna().sum()), "finite_projection": int(np.isfinite(values).sum())}
++    for name, values in (("served", served), ("model_only", model_only), ("served70_mean25_30", specs["served70_mean25_30"]), ("served50_p90_50", specs["served50_p90_50"])):
++        manifest["views"][name] = {"missing_model_points_pre": int(raw_model.isna().sum()), "missing_mean25": int(raw_mean25.isna().sum()), "missing_p90": int(raw_p90.isna().sum()), "finite_projection": int(np.isfinite(values).sum())}
+     return views, manifest
