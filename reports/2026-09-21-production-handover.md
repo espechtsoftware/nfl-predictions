@@ -14,7 +14,7 @@ any stand-in that survives is recorded per row and shown before upload.**
 | production repo main | `origin/main` (see `git rev-parse origin/main`; 9afb1784 at the last poll) | the deployed images were built from main-lineage commits |
 | Week-3 operational wiring (laptop) | `production/week3-operational-wiring-20260920` @ 5f8f61a5 | validated here (4 runner tests, rehearsal green 2026-09-20); NOT yet merged to main |
 | market repair (this weekend) | `production/prop-name-ambiguity-and-fallback-guard-20260921` @ 93bb8120 (off 5f8f61a5) | tests green (58 + 3 + 3); NOT merged, NOT deployed |
-| capture tolerances | `production/standings-capture-tolerances-20260921` @ e30662dd (off 5f8f61a5) | tests green (20 + 15); twelve Week-2 exports validate; NOT merged; nothing applied |
+| capture tolerances + typed result classes | `production/standings-capture-tolerances-20260921` (off 5f8f61a5; tip in the reply-branch note 3) | tests green (22 + 15); twelve Week-2 exports validate; `CaptureValidationError.result_class` and `--failure-manifest`; NOT merged; nothing applied |
 | Week-3 shadow arms | `production/week3-shadow-arms-20260920` @ 22b68295 | 6 tests green; pending merge by the labs |
 | Week-3 outcomes builder | `production/week3-shadow-outcomes-20260920` @ 767df073 | 3 tests green; pending merge |
 | rules/reports branch | `production/in-season-rules-20260919` @ db05b27d | post-mortem, evidence record, command sheet, this document |
@@ -56,7 +56,9 @@ Full analysis: `reports/2026-09-21-week2-post-mortem.md`. The causes, in order, 
    -0.09; pooled -0.33 (laptop's attribution). No weight change from one slate; the paired dual_emax vs ladder016
    shadow stays the primary Week-3 test; component attribution is a labs item.
 5. **Standings capture rejected the exports.** FIXED on the capture branch (twelve of twelve validate); the typed
-   result class + failure manifest is the next increment (section 6). Nothing has been applied: run the apply
+   result class (`contest_metadata_unconfirmed` / `entries_invalid` / `entries_complete_ownership_incomplete` /
+   `ownership_mismatch`) and the `--failure-manifest` JSON (settled entry evidence recorded even when the ownership
+   summary fails; nothing partial loaded; frozen receipt contract unchanged) are built. Nothing has been applied: run the apply
    commands (command sheet 2a) after DK's Monday scoring review, from a checkout that includes the capture branch.
 6. **Instruments that were blind:** the divergence shadow logs only prop-sourced rows (still true; the market-source
    log now covers every row); `own_shadow` is written only by production's `live_lineups` build, which does not run
