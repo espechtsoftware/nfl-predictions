@@ -137,8 +137,9 @@ Times are Central. Authoritative list of inputs: `reports/2026-09-15-week2-opera
 - `scripts/rehearse_final_path.sh RUN_DIR CLONE OUT_DIR WEEK CONTESTS` (wiring branch): the Sunday chain on an archived
   artifact with a synthetic entries template; green on 5f8f61a5 on 2026-09-20 and on the merged integration tree
   387b1e47 on 2026-09-21 02:03Z (52 rows replaced with the live DK feed, promotion and relayout published, 97 rows
-  filled, 12 contests validated; reply-branch note 4). Rehearsal flags `--test-exclude-dk` / `--no-fresh-dk` must
-  never reach the operational chain.
+  filled, 12 contests validated; reply-branch note 4) and again on a29f727f at 02:22Z with the lineage check and the
+  exposure sheet wired in (lineage OK; sheet produced with its 'monitor not deployed' header; note 6). Rehearsal flags
+  `--test-exclude-dk` / `--no-fresh-dk` must never reach the operational chain.
 - `/home/erich/week2-sunday/apply_swaps.py` v1.1 (sha 2a1750c8...): late swaps; refuses locked games and illegal
   rosters; requires the fresh feed.
 - `nfl-dfs capture-dk-standings` (capture branch): validation, then apply with the two confirmations.
@@ -167,7 +168,8 @@ Times are Central. Authoritative list of inputs: `reports/2026-09-15-week2-opera
     in the projections.
 11. Offline tests had been writing synthetic rows into `own_shadow` (18,185 rows, season 2024 week 3, since 2026-08-14) and,
     tonight, into a new `market_source_log`, through the best-effort monitor writers on machines with credentials. Both
-    cleaned on 2026-09-21; `tests/conftest.py` on the market repair branch records every `nfl_dfs.bq.load_dataframe` call
+    cleaned on 2026-09-21 (`market_source_log` dropped, 18,185 synthetic `own_shadow` rows deleted; only the 2,370 real
+    2026 W1 rows remain); `tests/conftest.py` on the market repair branch records every `nfl_dfs.bq.load_dataframe` call
     instead of executing it. Any grade of a shadow table must filter to real seasons/weeks and real names until every
     checkout carries that guard.
 12. `own_shadow` and the divergence shadow are not monitors in-season; `market_source_log` is the only per-row market
