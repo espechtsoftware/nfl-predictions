@@ -4,6 +4,21 @@
 
 # Project handoff
 
+## 2026-09-21 laptop checkpoint — build preflight wiring
+
+Branch `review/week3-readiness-20260921`, based on integration `cf630a68`.
+`run_week_build.sh` now invokes `check_build_inputs.py` after runtime validation
+and before the real build. Passes the resolved season/week/dose/contest paths;
+creates a separate receipt path per invocation. Any nonzero gate exit stops
+the shell before the driver. `--check` remains runtime-only for arm-time checks.
+Validation: three isolated shell tests cover success and exits 1/7, argument
+forwarding and paths with spaces; `bash -n` passed. No provider writes or live
+builds were run. Next: production review/cherry-pick this checkpoint.
+
+This connects the existing checker; it does not complete its provenance contract.
+The checker still needs projection/market batch alignment and full cache/content
+identity validation. Do not describe this checkpoint as closing FEAT-001 in full.
+
 This tracked file is the authoritative record for resuming development. It
 must travel with the repository. Do not rely on assistant memory, an
 individual workstation, unpushed commits, or cloud artifacts as the only copy
