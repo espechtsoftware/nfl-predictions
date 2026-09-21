@@ -219,6 +219,29 @@ PYF
       } >> "$OUT/TODAY-30-LATEST.md"
     fi
   fi
+  # Pair support. The Week-2 Millionaire winner's roster shared 35 of its 36
+  # pairs with our 12,555 candidates; the one it never contained was two tight
+  # ends ranked 8th and 6th of 95 by our own projection. Not a missing player and
+  # not a forbidden shape -- the generator simply never joined them. This reports
+  # that from the pool alone, BEFORE the upload, which is the only time it helps.
+  # Reported, never blocking: it is a diagnostic, not a gate.
+  if [ -f "$PROD/scripts/pool_pair_support.py" ] && [ -f "$run/candidates.parquet" ]; then
+    if $PY "$PROD/scripts/pool_pair_support.py" --pool "$run/candidates.parquet" \
+         --season "$SEASON" --week "$WEEK" --out "$lo/pair-support.json" \
+         > "$lo/pair-support.txt" 2>&1; then
+      { echo
+        echo "PAIR SUPPORT (which combinations the generator never explored):"
+        sed -n '/^  pos /,/^$/p' "$lo/pair-support.txt"
+        if grep -q "meets .*% of peers" "$lo/pair-support.txt"; then
+          echo "  well-projected players meeting under half their peers:"
+          grep "meets .*% of peers" "$lo/pair-support.txt" | head -8
+        fi
+        echo "  full: $lo/pair-support.txt"
+      } >> "$OUT/TODAY-30-LATEST.md"
+    else
+      log "pair support FAILED (see $lo/pair-support.txt) -- diagnostic only, not blocking"
+    fi
+  fi
   log "done $(basename "$run") -> $OUT/TODAY-30-LATEST.md"
 
 }

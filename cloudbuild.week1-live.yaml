@@ -39,6 +39,8 @@ steps:
           tests/test_host_dk_ingest_service.py \
           tests/test_week_inputs.py \
           tests/test_freshness_alerting_scope.py \
+          tests/test_pool_pair_support.py \
+          tests/test_week_ceiling_and_coverage.py \
           tests/test_money_path_slice_arguments.py \
           tests/test_receipt_freshness_sweep.py \
           tests/test_sis_inseason_loader.py \
