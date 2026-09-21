@@ -60,6 +60,12 @@ MONEY_TESTS=(
   tests/test_feature_sql.py
   tests/test_app.py
   tests/test_dk_upload_csv_v1.py
+  # load_dataframe writes player_projections and market_source_log, so the lane
+  # that must be green was not covering the warehouse writer the rest of it
+  # depends on. Added 2026-09-21 after its three tests sat silently disabled
+  # from 2026-09-20 -- an autouse guard stubbed the very function they test, the
+  # full suite has not completed since 2026-09-15, and this lane did not run them.
+  tests/test_bq_load.py
 )
 
 changed_tests() {
