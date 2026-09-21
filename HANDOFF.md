@@ -7,8 +7,16 @@
 
 ## 2026-09-21 (late) — CI triage, three operator items actioned, and five silent-failure traps
 
-Branch `production/week3-integration-20260921`, tip `3e73cf8a`.
+Branch `production/week3-integration-20260921`, tip `9cfd1461`.
 Money lane at this tip: **246 passed, 1 skipped**.
+
+> **OPEN — six decisions requested from the lab:
+> `reports/2026-09-21-decisions-requested-from-lab.md`.** Python 3.14
+> hold-or-re-freeze; the TabPFN gate's missing sufficiency check; CI quarantine
+> framing; evidence-graph pin resolution; the QB availability gate; and three
+> reproduced fail-open paths in their exploration sleeve. Each carries a
+> recommendation, so a one-line answer suffices. Anything they decline returns
+> to the operator.
 
 **CI (run `35611477377`: 263 failed / 7,938 passed / 116 errors in 3:19:42).**
 Zero overlap between the 42 failing files and the 26 money-path lane files.
