@@ -84,6 +84,8 @@ TABLES = {
     "line-matchups": "fantasy_points_line_matchup_weekly",
 }
 SEAL_STATUS = "COMPLETE_FROM_INDEPENDENTLY_VALIDATED_REPORTS"
+DDL_PATH = "raw/010_fantasy_points_matchups_weekly.sql"
+INTEGER_COLUMNS = ("season", "target_week", "source_row", "games", "source_season", "source_attempt")
 KEY_COLUMNS = ("season", "target_week", "report", "source_sha256", "source_row")
 VENDOR_KEY = ("report", "team", "opponent", "normalized_name", "vendor_pos")
 MTIME_TOLERANCE_SECONDS = 120.0
@@ -717,6 +719,27 @@ def _prepare_ledger(artifact: dict[str, Any], *, now: datetime) -> None:
     )
 
 
+def ensure_tables() -> None:
+    """Create the three typed staging tables when absent (idempotent DDL).
+
+    The loader never lets BigQuery autodetect a schema: the DDL under
+    ``sql/raw`` is the contract, applied here before the first load and by
+    ``deploy/setup_gcp.sh``.
+    """
+    from ..bq import SQL_DIR, run_sql_file
+
+    run_sql_file(SQL_DIR / DDL_PATH)
+
+
+def _typed_payload(frame: pd.DataFrame) -> pd.DataFrame:
+    """Nullable integer dtypes so a blank cell never turns a column FLOAT."""
+    payload = frame.copy()
+    for column in INTEGER_COLUMNS:
+        if column in payload.columns:
+            payload[column] = payload[column].astype("Int64")
+    return payload
+
+
 def _existing_rows(table_ref: str, target_week: int):
     from google.api_core.exceptions import NotFound
 
@@ -816,6 +839,7 @@ def run(
             archive_receipts[key] = _require_archive(artifact, check)
         for artifact in artifacts.values():
             _prepare_ledger(artifact, now=stamp)
+        ensure_tables()
     snapshots = None
     if any(key != "line-matchups" for key in artifacts):
         snapshots = query_df(f"""
@@ -862,7 +886,7 @@ def run(
             if novel.empty:
                 report_audit["write_disposition"] = "already-identical"
             else:
-                payload = novel.copy()
+                payload = _typed_payload(novel)
                 payload["ingested_at"] = stamp
                 load_dataframe(
                     payload, table_ref, write_disposition="WRITE_APPEND",

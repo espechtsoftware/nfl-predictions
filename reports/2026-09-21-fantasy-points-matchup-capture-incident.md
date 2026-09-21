@@ -97,6 +97,12 @@ could not be told apart from a missing option or a changed label.
   stay `UNRESOLVED:name:pos:teams`, never guessed. Ledger -> `staged` (bound to the
   validated hash); a `staging-receipt-{report}.json` is written beside the manifest.
 
+* **Typed DDL is the contract:** `sql/raw/010_fantasy_points_matchups_weekly.sql` (applied by
+  `deploy/setup_gcp.sh` and by the loader before its first load; the loader never autodetects a
+  schema; integer columns load as nullable Int64). `tests/test_fp_matchup_ddl.py` asserts the DDL
+  columns equal the loader's output columns, in order. Both DDL scripts dry-run compile in BigQuery.
+  The reviewable contract in one page: `reports/2026-09-21-fantasy-points-matchup-staging-contract.md`.
+
 ### Shadow join `src/nfl_dfs/research/fp_matchup_shadow.py` (new, not activated)
 
 * Reads the three staging tables for one target week, keeps the latest capture per
@@ -110,7 +116,9 @@ could not be told apart from a missing option or a changed label.
   capture the join actually selected records `consumed` (bound to that run's own
   validated hash); without it the audit says the ledgers were not touched.
 * `featureset.py`, `sql/features/*.sql` and `inference/` do not reference any of
-  these tables (a test asserts it). Activation is a separate reviewed change.
+  these tables (a test asserts it). Activation is a separate reviewed change. Typed DDL:
+  `sql/research/fp_matchup_shadow_tables.sql` (under `sql/research/`, which the feature build does
+  not glob; applied by the join before its first load; columns asserted equal to the builder's).
 
 ### Status view `src/nfl_dfs/ops/fantasy_points_matchup_status.py` (new, read-only)
 

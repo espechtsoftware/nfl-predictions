@@ -51,6 +51,8 @@ SHADOW_TABLES = {
     "line-matchups": "fp_matchup_shadow_line_week",
 }
 SHADOW_KEY = ("season", "week", "report", "source_sha256", "source_row")
+DDL_PATH = "research/fp_matchup_shadow_tables.sql"
+INTEGER_COLUMNS = ("season", "week", "source_row", "games", "source_season", "captures_available")
 
 
 class MatchupLeakageError(RuntimeError):
@@ -142,6 +144,21 @@ def resolve_identities(frame: pd.DataFrame, *, report: str, snapshots: pd.DataFr
     out["resolution_status"] = statuses
     out["identity"] = identities
     return out
+
+
+def ensure_tables() -> None:
+    """Create the three typed shadow tables when absent (idempotent DDL)."""
+    from ..bq import SQL_DIR, run_sql_file
+
+    run_sql_file(SQL_DIR / DDL_PATH)
+
+
+def _typed_payload(frame: pd.DataFrame) -> pd.DataFrame:
+    payload = frame.copy()
+    for column in INTEGER_COLUMNS:
+        if column in payload.columns:
+            payload[column] = payload[column].astype("Int64")
+    return payload
 
 
 def _kickoff(season: int, week: int) -> pd.Timestamp:
@@ -284,13 +301,14 @@ def run(
     if not write:
         print("FP_MATCHUP_SHADOW_JSON=" + json.dumps(audit, sort_keys=True, default=str))
         return audit
+    ensure_tables()
     for key in REPORTS:
         table_ref = f"{settings.features}.{SHADOW_TABLES[key]}"
         frame = pending[key]
         if frame.empty:
             audit["reports"][key]["write_disposition"] = "already-identical"
         else:
-            load_dataframe(frame, table_ref, write_disposition="WRITE_APPEND")
+            load_dataframe(_typed_payload(frame), table_ref, write_disposition="WRITE_APPEND")
             audit["reports"][key]["write_disposition"] = "appended"
     if output_root is None:
         audit["consumed_ledgers"] = "not-recorded (no output_root)"

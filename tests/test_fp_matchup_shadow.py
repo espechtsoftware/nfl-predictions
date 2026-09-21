@@ -145,6 +145,7 @@ class FakeWarehouse:
         self.staged: dict[str, pd.DataFrame] = {}
         self.shadow: dict[str, pd.DataFrame] = {}
         self.loads: list[tuple[str, int]] = []
+        self.ddl: list[str] = []
 
     def _staged_key(self, table: str):
         name = table.rsplit(".", 1)[1]
@@ -183,6 +184,7 @@ def test_run_end_to_end_capture_stage_shadow_and_ledgers(tmp_path, monkeypatch):
     house = FakeWarehouse(snapshots_for(schedule))
     monkeypatch.setattr(bq, "query_df", house.query_df)
     monkeypatch.setattr(bq, "load_dataframe", house.load_dataframe)
+    monkeypatch.setattr(bq, "run_sql_file", lambda path, **_: house.ddl.append(str(path)))
     monkeypatch.setattr(matchups, "_schedule", lambda season, week: schedule)
     monkeypatch.setattr(weekly, "_schedule", lambda season, week: schedule)
     root = tmp_path / "automated"
@@ -193,6 +195,7 @@ def test_run_end_to_end_capture_stage_shadow_and_ledgers(tmp_path, monkeypatch):
     audit = shadow.run(week=3, write=True, output_root=root, now=GENERATED)
     assert audit["featureset_activated"] is False
     assert [rows for _, rows in house.loads] == [4, 4, 4]
+    assert house.ddl == [str(bq.SQL_DIR / weekly.DDL_PATH), str(bq.SQL_DIR / shadow.DDL_PATH)]
     for key in weekly.REPORTS:
         table = f"{bq.settings.features}.{shadow.SHADOW_TABLES[key]}"
         assert audit["shadow_tables"][key] == table
@@ -241,9 +244,10 @@ def test_shadow_dry_run_writes_nothing(tmp_path, monkeypatch):
     house.staged = {key: _staged_frame(key, retrieved="2026-09-22T15:00Z", sha="a") for key in weekly.REPORTS}
     monkeypatch.setattr(bq, "query_df", house.query_df)
     monkeypatch.setattr(bq, "load_dataframe", house.load_dataframe)
+    monkeypatch.setattr(bq, "run_sql_file", lambda path, **_: house.ddl.append(str(path)))
     monkeypatch.setattr(matchups, "_schedule", lambda season, week: schedule)
     audit = shadow.run(week=3, write=False, now=GENERATED)
-    assert house.loads == []
+    assert house.loads == [] and house.ddl == []
     assert all(r["append_rows"] == 4 for r in audit["reports"].values())
     assert "write_disposition" not in audit["reports"]["line-matchups"]
 

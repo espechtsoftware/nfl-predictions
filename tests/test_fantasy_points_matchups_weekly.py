@@ -39,6 +39,7 @@ class FakeWarehouse:
         self.snapshots = snapshots
         self.tables: dict[str, pd.DataFrame] = {}
         self.loads: list[tuple[str, int, str | None]] = []
+        self.ddl: list[str] = []
 
     def query_df(self, sql: str, params=None):
         from google.api_core.exceptions import NotFound
@@ -63,6 +64,7 @@ def warehouse(monkeypatch):
     house = FakeWarehouse(snapshots_for(schedule))
     monkeypatch.setattr(bq, "query_df", house.query_df)
     monkeypatch.setattr(bq, "load_dataframe", house.load_dataframe)
+    monkeypatch.setattr(bq, "run_sql_file", lambda path, **_: house.ddl.append(str(path)))
     monkeypatch.setattr(weekly, "_schedule", lambda season, week: schedule)
     return house
 
@@ -104,6 +106,7 @@ def test_loader_stages_a_validated_run_once_with_full_lineage(tmp_path, monkeypa
     for table, rows, job_id in warehouse.loads:
         assert rows == 4
         assert job_id.startswith("fp-matchup-weekly--")
+    assert warehouse.ddl == [str(bq.SQL_DIR / weekly.DDL_PATH)], "typed DDL applied once before the first load"
     qb = warehouse.tables[f"{bq.settings.raw}.fantasy_points_qb_coverage_matchup_weekly"]
     assert set(qb.columns) >= set(weekly.KEY_COLUMNS) | set(weekly.VENDOR_KEY) | {
         "identity", "gsis_id", "resolution_status", "source_run_id", "source_retrieved_at",
@@ -188,6 +191,7 @@ def test_loader_dry_run_writes_nothing_and_reports_counts(tmp_path, monkeypatch,
     run_dir = _captured_run(tmp_path, monkeypatch, archive=False)
     audit = _run(run_dir, target_week=3, write=False)
     assert warehouse.loads == []
+    assert warehouse.ddl == [], "a dry run applies no DDL"
     assert audit["status_counts"] == {"validated": 3, "staged": 0}
     assert audit["reports"]["wr-coverage-matchup"]["table_existed"] is False
     assert audit["reports"]["wr-coverage-matchup"]["max_games"] == 17
