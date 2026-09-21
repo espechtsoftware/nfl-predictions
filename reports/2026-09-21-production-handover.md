@@ -128,8 +128,10 @@ Times are Central. Authoritative list of inputs: `reports/2026-09-15-week2-opera
 - `scripts/week3_shadow_runner.py` / `scripts/week3_shadow_reader.py` / `scripts/week3_shadow_outcomes.py` (arms and
   outcomes branches; the runner needs the clean lab clone and `--expect-sha`).
 - `scripts/rehearse_final_path.sh RUN_DIR CLONE OUT_DIR WEEK CONTESTS` (wiring branch): the Sunday chain on an archived
-  artifact with a synthetic entries template; green on 5f8f61a5 on 2026-09-20 (rehearsal flags `--test-exclude-dk` /
-  `--no-fresh-dk` must never reach the operational chain).
+  artifact with a synthetic entries template; green on 5f8f61a5 on 2026-09-20 and on the merged integration tree
+  387b1e47 on 2026-09-21 02:03Z (52 rows replaced with the live DK feed, promotion and relayout published, 97 rows
+  filled, 12 contests validated; reply-branch note 4). Rehearsal flags `--test-exclude-dk` / `--no-fresh-dk` must
+  never reach the operational chain.
 - `/home/erich/week2-sunday/apply_swaps.py` v1.1 (sha 2a1750c8...): late swaps; refuses locked games and illegal
   rosters; requires the fresh feed.
 - `nfl-dfs capture-dk-standings` (capture branch): validation, then apply with the two confirmations.
@@ -164,13 +166,14 @@ Times are Central. Authoritative list of inputs: `reports/2026-09-15-week2-opera
 - [ ] BigQuery read/write to `nfl-predictions-503414`; GCS read; `gcloud run jobs describe` and `gcloud scheduler jobs
       list` work; `gcloud builds submit` and `gcloud run jobs update` are available to the person who deploys.
 - [ ] Checkouts at the commits in section 1; `git status` clean except the operator's runtime pin.
-- [ ] `pytest` green on the merged tree for the affected modules (the integration run of 2026-09-20/21 is recorded in
-      the reply-branch note 3); the full suite runs in cloudbuild before any image.
+- [ ] `pytest` green on the merged tree for the affected modules (200 passed on 387b1e47, reply-branch note 3); the
+      full suite runs in cloudbuild before any image.
 - [ ] Image digests of `project-slate` and `build-features` read from the console and compared with section 1 and
       with the rebuilt image after section 4.
 - [ ] `scripts/exposure_sheet.py` run on the entered Week-2 book (`/home/erich/week2-sunday/after-K97-...-1048/paid-vetted-promoted/book.csv`
       + the run frame + `contests.json`) reproduces the six flagged players.
-- [ ] `scripts/rehearse_final_path.sh` green on the merged tree; the three watcher processes verified after arming.
+- [ ] `scripts/rehearse_final_path.sh` green on the merged tree (done 2026-09-21 02:03Z on 387b1e47; repeat on the
+      tree you actually deploy); the three watcher processes verified after arming.
 - [ ] Monday: standings apply for the twelve contests; contest-history export for winnings; outcomes builder and
       reader; evidence record filled once.
 - [ ] The operator's Saturday inputs (contests.json, chosen-dose.env, lab release SHA, refresh receipts) requested by
