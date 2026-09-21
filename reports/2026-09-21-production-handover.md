@@ -18,6 +18,7 @@ any stand-in that survives is recorded per row and shown before upload.**
 | Week-3 shadow arms | `production/week3-shadow-arms-20260920` @ 22b68295 | 6 tests green; pending merge by the labs |
 | Week-3 outcomes builder | `production/week3-shadow-outcomes-20260920` @ 767df073 | 3 tests green; pending merge |
 | regeneration lineage + chain wiring | `production/regeneration-lineage-20260921` (off 5f8f61a5; tip in the reply-branch note 6) | `scripts/regeneration_lineage.py` (7 tests; green on the real Week-2 books: 52 replaced rows with reasons, promotion permutation, upload CSV and entries export match) and `sunday_after_build.sh` wired to run it and the exposure sheet after promotion (LINEAGE FAILED = DO NOT UPLOAD in the TODAY file, non-zero return; a failed sheet is written as EXPOSURE SHEET FAILED) |
+| vendor capture per-step sessions | `production/vendor-sessions-per-step-20260921` (off 5f8f61a5; tip in the reply-branch note 10+) | defect 28 fixed: an expired SIS session no longer blocks the Fantasy Points capture when no SIS step runs (recorded `not-required`); 8 tests; the Week-2 Route Share (200 rows) was captured with it on 2026-09-21 02:54Z; `automation/sis/plans/team-context-2026-w01-w02.json` ready for the SIS run after the operator's login |
 | weather precipitation plumbing | `production/weather-precip-plumbing-20260921` (off 5f8f61a5) | 3 offline tests + BigQuery dry-run compile green; takes effect at the next `build-features` (s-features Tue 06:30) once merged; not a model feature |
 | rules/reports branch | `production/in-season-rules-20260919` @ db05b27d | post-mortem, evidence record, command sheet, this document |
 | labs reply channel | nfl2 `lab/workstation-reply-bank991-20260918` @ ab6f15a (and later) | all handoff notes and receipts; the laptop's reviews land here |
@@ -91,8 +92,13 @@ Times are Central. Authoritative list of inputs: `reports/2026-09-15-week2-opera
 - **Tuesday:** s-features 06:30, s-train 07:30, s-score 08:00, s-project-tu 09:30 (cloud, automatic). Check the
   project-slate log for `market blend source: props` and, after the image rebuild, for `market-source log: N rows`
   and no `MarketMatchError`.
-- **Wednesday:** `tabpfn-gen` with `TABPFN_UPCOMING=2026:3` (GPU job; run by the operator/laptop after
-  build-features; the Week-2 miss was defect 24). s-trends 11:00.
+- **Wednesday:** paid-vendor capture `python -m nfl_dfs.ops.weekly_vendor_data verify-login` then `run --week W --skip-odds`
+  (from a checkout with the vendor branch; the Route Share for the completed week W-1 imports append-once; the three
+  Fantasy Points matchup reports need the vendor's week control to show W; the SIS pass-tail acquisition starts at
+  week 5; an SIS plan runs only with `--sis-plan`); `tabpfn-gen` with `TABPFN_UPCOMING=2026:3` (GPU job; run by the
+  operator/laptop after build-features; the Week-2 miss was defect 24). s-trends 11:00. The SIS login
+  (`sis_downloads login --terminal-credentials --fresh`) is the operator's interactive step; SIS sessions last days,
+  Fantasy Points longer.
 - **Wednesday-Saturday:** s-props 09:30, s-odds 09:00/15:00, s-dk hourly, s-contests 10:00, s-us-dfs 10:30, s-weather
   Fri-Sun 08:00. Vendor captures (SIS, Fantasy Points) per the operating handoff; ETR never landed.
 - **Saturday:** operator inputs due before 10:30: `contests.json` (Week-3 contests, entries, order), `$OUT/chosen-dose.env`
