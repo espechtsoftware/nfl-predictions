@@ -328,7 +328,49 @@ def _validate_ownership_against_entries(
     return minor
 
 
+RESULT_CLASSES = (
+    "complete_and_reproduced",           # every check passed; both tables may be loaded
+    "contest_metadata_unconfirmed",      # the export's field size does not match the operator's expected entries
+    "entries_invalid",                   # the entry block itself fails (ids, ranks, points, shapes, settlement)
+    "entries_complete_ownership_incomplete",  # entries reproduce; DK's ownership summary is short or malformed
+    "ownership_mismatch",                # entries reproduce; DK's summary contradicts the lineups beyond tolerance
+)
+
+
+class CaptureValidationError(ValueError):
+    """A full-field validation failure with a typed result class (laptop review 2026-09-21, Priority 0 item 2).
+
+    ``result_class`` is one of ``RESULT_CLASSES`` other than ``complete_and_reproduced``; ``entries_parsed`` and
+    ``blank_lineup_entries`` carry what the entry block established before the failure so a failed contest still
+    publishes a manifest of the settled entry evidence.  Nothing partial is ever loaded.
+    """
+
+    def __init__(self, result_class: str, detail: str, *, entries_parsed: int | None = None,
+                 blank_lineup_entries: int | None = None) -> None:
+        if result_class not in RESULT_CLASSES or result_class == "complete_and_reproduced":
+            raise ValueError(f"unknown capture result class {result_class!r}")
+        super().__init__(detail)
+        self.result_class = result_class
+        self.detail = detail
+        self.entries_parsed = entries_parsed
+        self.blank_lineup_entries = blank_lineup_entries
+
+
 def _validate_full_field_payload(
+    path: str | Path,
+    payload: bytes,
+    *,
+    expected_entries: int,
+) -> dict[str, Any]:
+    try:
+        return _validate_full_field_payload_classified(path, payload, expected_entries=expected_entries)
+    except CaptureValidationError:
+        raise
+    except ValueError as exc:
+        raise CaptureValidationError("entries_invalid", str(exc)) from exc
+
+
+def _validate_full_field_payload_classified(
     path: str | Path,
     payload: bytes,
     *,
@@ -342,7 +384,11 @@ def _validate_full_field_payload(
             f"{sorted(missing)}"
         )
     entries = _parse_entries_frame(raw, path)
-    ownership = _parse_standings_frame(raw, path)
+    try:
+        ownership = _parse_standings_frame(raw, path)
+    except ValueError as exc:
+        raise CaptureValidationError("entries_complete_ownership_incomplete", str(exc),
+                                     entries_parsed=len(entries)) from exc
     # 2026-09-14: DraftKings' full-field export lists entries whose lineup was never filled (or was emptied) as rows
     # with an EntryId and Rank but a blank Lineup; they are real entries of the field at zero points, so the exact
     # field count is parsed entries + blank-lineup entries.  They carry no roster and are excluded from the entry
@@ -350,9 +396,11 @@ def _validate_full_field_payload(
     blank_mask = raw["EntryId"].notna() & raw["Rank"].notna() & raw["Lineup"].isna()
     blank_lineup_entries = int(blank_mask.sum())
     if len(entries) + blank_lineup_entries != expected_entries:
-        raise ValueError(
+        raise CaptureValidationError(
+            "contest_metadata_unconfirmed",
             f"full-field count mismatch: expected {expected_entries}, "
-            f"parsed {len(entries)} with lineups + {blank_lineup_entries} blank-lineup entries"
+            f"parsed {len(entries)} with lineups + {blank_lineup_entries} blank-lineup entries",
+            entries_parsed=len(entries), blank_lineup_entries=blank_lineup_entries,
         )
     if entries.entry_id.eq("").any():
         raise ValueError("full-field capture requires a non-empty EntryId on every row")
@@ -387,10 +435,13 @@ def _validate_full_field_payload(
     if not entries["rank"].eq(expected_ranks).all():
         raise ValueError("entry ranks do not reproduce competition rank from Points")
 
+    _entries_ok = dict(entries_parsed=len(entries), blank_lineup_entries=blank_lineup_entries)
     if ownership.pct_drafted.isna().any():
-        raise ValueError("ownership block contains non-numeric %Drafted values")
+        raise CaptureValidationError("entries_complete_ownership_incomplete",
+                                     "ownership block contains non-numeric %Drafted values", **_entries_ok)
     if (~ownership.pct_drafted.between(0, 100)).any():
-        raise ValueError("ownership %Drafted values must be between 0 and 100")
+        raise CaptureValidationError("entries_complete_ownership_incomplete",
+                                     "ownership %Drafted values must be between 0 and 100", **_entries_ok)
     roster_format = str(entries.roster_format.iloc[0])
     expected_mass = 900.0 if roster_format == "classic" else 600.0
     # blank-lineup entries carry no players, so DK's summed %Drafted is the full mass scaled by the filled share
@@ -402,12 +453,19 @@ def _validate_full_field_payload(
     field_total = float(len(entries) + blank_lineup_entries)
     mass_tolerance = min(10.0, max(2.0, 6.0 * 100.0 / field_total))
     if abs(ownership_mass - expected_mass) > mass_tolerance:
-        raise ValueError(
+        raise CaptureValidationError(
+            "entries_complete_ownership_incomplete",
             f"ownership mass {ownership_mass:.3f} is inconsistent with "
             f"{roster_format} expected mass {expected_mass:.1f} "
-            f"(tolerance {mass_tolerance:.2f})"
+            f"(tolerance {mass_tolerance:.2f})", **_entries_ok,
         )
-    ownership_minor_mismatches = _validate_ownership_against_entries(entries, ownership, field_size=len(entries) + blank_lineup_entries)
+    try:
+        ownership_minor_mismatches = _validate_ownership_against_entries(entries, ownership, field_size=len(entries) + blank_lineup_entries)
+    except ValueError as exc:
+        message = str(exc)
+        # a contradicted share on a held player is a mismatch; missing or extra players are an incomplete summary
+        klass = "ownership_mismatch" if "pct_mismatch=[" in message and "pct_mismatch=[]" not in message else "entries_complete_ownership_incomplete"
+        raise CaptureValidationError(klass, message, **_entries_ok) from exc
 
     source = Path(path)
     dupes = entries.groupby("duplicate_key").size()
@@ -425,6 +483,7 @@ def _validate_full_field_payload(
         "blank_lineup_entries": blank_lineup_entries,
         "ownership_minor_mismatches": ownership_minor_mismatches,
         "ownership_mass_tolerance": mass_tolerance,
+        "result_class": "complete_and_reproduced",
     }
 
 
@@ -627,8 +686,14 @@ def capture_full_field(
     confirm_settled: bool = False,
     confirm_full_field: bool = False,
     apply: bool = False,
+    failure_manifest: str | Path | None = None,
 ) -> dict[str, Any]:
     """Validate, then optionally archive and import one complete DK field.
+
+    ``failure_manifest``: when validation fails, a JSON manifest with the typed
+    result class and everything the entry block established is written there
+    before the error propagates, so one bad ownership summary never hides the
+    settled entry evidence of that contest (nothing partial is loaded).
 
     Validation is the default and has no GCP side effects. ``apply=True`` is
     create-only: the exact CSV is archived first, deterministic BigQuery load
@@ -660,9 +725,29 @@ def capture_full_field(
     if expected_entries <= 0:
         raise ValueError("expected_entries must be positive")
     source_payload = _read_source_bytes(source_path)
-    validated = _validate_full_field_payload(
-        source_path, source_payload, expected_entries=expected_entries
-    )
+    try:
+        validated = _validate_full_field_payload(
+            source_path, source_payload, expected_entries=expected_entries
+        )
+    except CaptureValidationError as exc:
+        if failure_manifest:
+            record = {
+                "schema_version": 1,
+                "capture_version": CAPTURE_VERSION,
+                "status": "validation-failed",
+                "result_class": exc.result_class,
+                "detail": exc.detail,
+                "contest": {"season": season, "week": week, "contest_id": safe_contest_id,
+                            "contest_name": contest_name, "expected_entries": expected_entries},
+                "entries_parsed": exc.entries_parsed,
+                "blank_lineup_entries": exc.blank_lineup_entries,
+                "source": {"original_filename": source_path.name,
+                           "sha256": hashlib.sha256(source_payload).hexdigest(),
+                           "bytes": len(source_payload), "captured_at": captured.isoformat().replace("+00:00", "Z")},
+                "validated_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+            }
+            Path(failure_manifest).write_text(json.dumps(record, sort_keys=True, indent=2) + "\n")
+        raise
     captured_iso = captured.isoformat().replace("+00:00", "Z")
     evidence_timing = (
         EVIDENCE_TIMING if confirm_settled
