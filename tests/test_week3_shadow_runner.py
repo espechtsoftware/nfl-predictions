@@ -129,3 +129,82 @@ def test_reader_arithmetic_and_fail_closed(tmp_path):
     (run / "receipt.json").write_text((run / "receipt.json").read_text() + "\n")
     r5 = subprocess.run([PY, str(ROOT / "scripts" / "week3_shadow_reader.py"), "--shadow", str(tmp_path / "shadow"), "--run", str(run), "--clone", CLONE, "--out", str(tmp_path / "read5"), "--synthetic-world", "3"], capture_output=True, text=True)
     assert r5.returncode == 3 and "hash mismatch" in r5.stderr and (tmp_path / "read5" / "READER-FAILED").exists()
+
+
+def make_run_rich(tmp, n_cands=80, sims=40, seed=11, K=10):
+    """A 12-team / 6-game slate with market_points, game_id and game_start columns, K=10, for the exposure / market / row-shape arms."""
+    rng = np.random.default_rng(seed)
+    pos = ["QB"] * 5 + ["RB"] * 10 + ["WR"] * 16 + ["TE"] * 8 + ["DST"] * 5
+    n = len(pos); teams = [f"T{i % 12}" for i in range(n)]
+    ids = [f"p{i:02d}" if pos[i] != "DST" else f"{teams[i]}_DST" for i in range(n)]
+    game_of_team = {f"T{t}": f"G{t // 2}" for t in range(12)}; start_of_game = {f"G{g}": ("2026-09-27T17:00:00Z" if g < 4 else "2026-09-27T20:25:00Z") for g in range(6)}
+    proj = rng.uniform(4, 20, n).round(2); market = proj.copy(); flagged = rng.choice([i for i in range(n) if pos[i] != "DST"], 6, replace=False)
+    market[flagged] = (proj[flagged] * 0.7).round(2)          # served > 1.15 x market for these six
+    market[rng.choice(n, 4, replace=False)] = np.nan            # a few rows without a market value
+    fr = pd.DataFrame({"id": ids, "name": [f"N{i}" for i in range(n)], "pos": pos, "team": teams, "salary": 4000, "proj": proj, "market_points": market,
+                       "game_id": [game_of_team[t] for t in teams], "game_start": [start_of_game[game_of_team[t]] for t in teams]})
+    fr.loc[fr.pos == "DST", "proj"] = 8.0
+    qbs, dsts = [i for i in range(n) if pos[i] == "QB"], [i for i in range(n) if pos[i] == "DST"]
+    rbs, wrs, tes = [i for i in range(n) if pos[i] == "RB"], [i for i in range(n) if pos[i] == "WR"], [i for i in range(n) if pos[i] == "TE"]
+    rosters = set()
+    while len(rosters) < n_cands:
+        flex = int(rng.choice(rbs + wrs + tes)); core = [int(rng.choice(qbs)), int(rng.choice(dsts)), *rng.choice(rbs, 2, replace=False), *rng.choice(wrs, 3, replace=False), int(rng.choice(tes))]
+        if flex in core: continue
+        rosters.add(tuple(sorted(core + [flex])))
+    rosters = sorted(rosters); idx = np.array(rosters)
+    banks = [rng.normal(10, 6, (n, sims)).astype(np.float32) for _ in range(2)]
+    sys.path.insert(0, str(pathlib.Path(CLONE) / "src")); from nfl2.selectors import select_expected_max
+    Td = totals_law(banks, idx); book = select_expected_max(Td, K)
+    rank = np.zeros(n_cands); rank[book] = np.arange(1, K + 1)
+    cands = pd.DataFrame({"cand": range(n_cands), "players": [",".join(ids[i] for i in r) for r in rosters], "names": ["|".join(fr.name[i] for i in r) for r in rosters], "book_rank": rank})
+    run = tmp / "run"; run.mkdir(); fr.to_parquet(run / "frame.parquet"); cands.to_parquet(run / "candidates.parquet")
+    np.save(run / "incumbent_player_scores.npy", banks[0]); np.save(run / "corrected_hsim_player_scores.npy", banks[1])
+    (run / "receipt.json").write_text(json.dumps({"identity": {"test": True}, "config": {"selector": "dual_emax", "operational_k": K, "sims": sims, "seed": 1, "hsim_seed": 2, "hsim_worlds": sims}}))
+    (run / "book.json").write_text(json.dumps({"entries": [{"rank": r + 1, "players": [fr.name[i] for i in rosters[b]]} for r, b in enumerate(book)]}))
+    contests = tmp / "contests.json"; contests.write_text(json.dumps([{"name": "milly", "contest_id": "1", "entries": 1}, {"name": "flea", "contest_id": "2", "entries": K - 1}]))
+    return run, contests, fr, rosters, banks, idx, book, Td, select_expected_max
+
+
+def test_exposure_market_and_rowshape_arms(tmp_path):
+    run, contests, fr, rosters, banks, idx, book, Td, select_expected_max = make_run_rich(tmp_path); K = len(book)
+    r = run_runner(run, contests, tmp_path / "shadow"); assert r.returncode == 0, r.stdout + r.stderr
+    m = json.loads((tmp_path / "shadow" / "manifest.json").read_text()); b = json.loads((tmp_path / "shadow" / "books.json").read_text())["arms"]
+    assert m["schema"] == "week3-shadow-runner/v2" and m["parity"] == {"membership": True, "order": True, "book_json_names": True}
+    for name in ("cap30", "cap20", "marketpull", "cap20pull", "games5", "late3"): assert name in b and name in m["arms"]
+    # exposure caps: K unique rows and no player above floor(cap x K) rows when feasible; never relaxed when not
+    for name, cap in (("cap30", 0.30), ("cap20", 0.20), ("cap20pull", 0.20)):
+        arm = b[name]; limit = int(np.floor(cap * K + 1e-9)); assert arm["max_rows_per_player"] == limit and arm["iterations"] >= 1 and "refill_law" in arm
+        if arm["feasible"]:
+            assert len(arm["order"]) == K and len(set(arm["order"])) == K
+            counts = {}
+            for row in arm["candidate_ids"]:
+                for p in row: counts[p] = counts.get(p, 0) + 1
+            assert max(counts.values()) <= limit and arm["max_exposure_rows"] == max(counts.values())
+        else:
+            assert arm["order"] == [] and "not relaxed" in arm["note"]
+    assert b["cap30"]["feasible"], b["cap30"]
+    # market pull: the recorded shifts follow the law and the order is the control selector on the shifted totals
+    pj = fr.proj.to_numpy(float); mk = fr.market_points.to_numpy(float); flag = np.isfinite(mk) & (pj > 1.15 * mk) & (fr.pos != "DST").to_numpy()
+    delta = np.where(flag, (mk + 0.25 * (pj - mk)) - pj, 0.0); arm = b["marketpull"]
+    assert arm["feasible"] and arm["n_shifted_players"] == int(flag.sum()) == 6
+    for s in arm["shifted_players"]: k = list(fr.id).index(s["id"]); assert flag[k] and abs(s["delta"] - delta[k]) < 1e-9 and s["delta"] < 0
+    shift_rows = np.array([sum(delta[i] for i in r_) for r_ in rosters], dtype=np.float32)
+    expected = [int(i) for i in select_expected_max(Td + shift_rows[:, None], K)]
+    assert arm["order"] == expected and arm["order"] != b["control"]["order"] or arm["order"] == expected
+    # row-shape filters: pool sizes match brute force
+    pos = dict(zip(fr.id, fr.pos)); game = dict(zip(fr.id, fr.game_id)); late = dict(zip(fr.id, fr.game_start == "2026-09-27T20:25:00Z"))
+    n_games5 = sum(1 for r_ in rosters if len({game[fr.id[i]] for i in r_ if pos[fr.id[i]] != "DST"}) >= 5)
+    n_late3 = sum(1 for r_ in rosters if sum(1 for i in r_ if late[fr.id[i]]) >= 3)
+    assert b["games5"]["pool"] == n_games5 and b["late3"]["pool"] == n_late3 and b["late3"]["first_kickoff_utc"].startswith("2026-09-27 17:00")
+    for name in ("games5", "late3"):
+        if b[name]["feasible"]: assert len(b[name]["order"]) == K and all(len(x) == 9 for x in b[name]["candidate_ids"])
+        else: assert b[name]["pool"] < K
+
+
+def test_optional_arms_are_infeasible_without_frame_columns(tmp_path):
+    run, contests, *_ = make_run(tmp_path)
+    r = run_runner(run, contests, tmp_path / "shadow"); assert r.returncode == 0, r.stdout + r.stderr
+    b = json.loads((tmp_path / "shadow" / "books.json").read_text())["arms"]
+    for name in ("marketpull", "cap20pull", "games5", "late3"):
+        assert b[name]["feasible"] is False and "not approximated" in b[name]["note"] and b[name]["order"] == []
+    assert b["cap30"]["max_rows_per_player"] == 1 and b["cap20"]["max_rows_per_player"] == 1
