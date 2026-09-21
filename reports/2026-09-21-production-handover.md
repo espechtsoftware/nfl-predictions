@@ -7,6 +7,8 @@ Where they disagree, this file wins. Everything below was re-derived from git, B
 **2026-09-21 between 05:00 and 07:00 CT**; nothing depends on any session's memory. Times are Central (CT) unless
 marked Z.
 
+Every claim below was re-checked adversarially on 2026-09-21 (118 claims, 18 corrected before publication).
+
 **The single rule that governs every new step (operator, 2026-09-20):** no fallbacks that hide failures. A step
 works as designed or the run stops. Any stand-in that survives is recorded per row and shown before upload.
 
@@ -22,13 +24,16 @@ and its gaps · 6 tools · 7 paid data · 8 the two-agent channel · 9 ranked ri
    `/home/erich/projects/nfl-predictions` (production, GCP `nfl-predictions-503414`) and `/home/erich/projects/nfl2`
    (lab, GCP `nfl-2-506823`). **Never work in either primary checkout** — production is dirty on 143 files on an old
    branch, nfl2 is dirty on 14. Use a detached worktree in a scratch directory.
-2. **Read this file, then section 8**, then the four laptop documents listed there.
-3. **Check the one live process**: `ps -p $(cat /home/erich/week1-sunday/host_ingest_dk_loop.pid)` — the hourly
+2. **Read this file, then section 8**, then the six reading-list entries there (items 1-5 plus the paid-data chain).
+3. **Check the two live processes.** `ps -p $(cat /home/erich/week1-sunday/host_ingest_dk_loop.pid)` — the hourly
    DraftKings pull loop, pid 4129, running 4 days 23 h, log `/home/erich/week1-sunday/host_ingest_dk_loop.log`
    (healthy lines: "Loading N rows into … dk_salaries", "Polled N contests"). Its log mixes UTC banners with
    local-time Python lines, so the newest stamp always looks five hours stale — convert before judging and never
    restart on that stamp alone. If it is dead:
    `setsid nohup /home/erich/week1-sunday/host_ingest_dk_loop.sh > /home/erich/week1-sunday/host_ingest_dk_loop.log 2>&1 < /dev/null &`
+   The second is `nfl-cloud-build-monitor.service` (pid 395), a read-only Cloud Build poller across both projects.
+   **`nfl-shared-handoff-inbox.service` is INACTIVE on this host**, despite the outgoing lab note saying the
+   workstation inbox is polled every 300 s. Nothing watches the channel automatically — poll it yourself.
 4. **Re-establish a periodic check.** The previous session polled both remotes every 5 minutes and the host hourly.
    Session crons die with the session. Poll: both remotes, the DK loop, and from Saturday the week timers.
 5. **Know the three things that block Week 3** before you plan anything (details in section 5):
@@ -59,19 +64,19 @@ contain none of the repair work.
 | Week-3 shadow runner/reader | `production/week3-shadow-runner-20260920` | `3782d520` |
 | Sunday final path v2 | `production/sunday-final-path-v2-20260920` | `8b2bf164` |
 | QB availability gate | `production/qb-availability-gate-20260919` | `8dd7abc9` |
-| rules/reports (this document) | `production/in-season-rules-20260919` | `5c53e108` |
+| rules/reports (this document) | `production/in-season-rules-20260919` | moves as this file is edited — `git ls-remote` it |
 | operational worktree branch (what Sunday actually ran) | `production/week1-audit-adjust-20260912` | `e45798ba` |
 | paid-data / Fantasy Points matchup chain | `research/2026-09-paid-source-preflight` | `6ccf5894` |
 | **RETIRED, reference only** — a second, conflicting matchup loader | `fix/fantasy-points-matchup-staging-20260921` | `d673fd4a` |
-| lab → workstation channel (nfl2) | `lab/workstation-reply-bank991-20260918` | `fc1bc63d` |
-| workstation → lab channel (nfl2) | `review/prereg101-reply-20260918` | `d85f0527` |
+| lab → workstation channel (nfl2) | `lab/workstation-reply-bank991-20260918` | moving; `56987faf` at 2026-09-21 06:05, carries `handoffs/2026-09-21-START-HERE-new-lab-model.md` |
+| workstation → lab channel (nfl2) | `review/prereg101-reply-20260918` | moving; `ce41e304` at 2026-09-21 06:11, carries the outgoing lab model's own `handoffs/2026-09-21-takeover-state.md` |
 | lab release pinned for the Week-2 book (nfl2) | worktree `/home/erich/projects/.nfl2-worktrees/week2-release-2dc116c` | `2dc116c`, clean |
 
 `production/week3-integration-20260921` @ `a37e3339` is new (pushed 2026-09-21): all ten production branches merged
 with **zero conflicts**, 86 files and 7,021 insertions against `main`, and **191 passed / 1 skipped** across the
-fifteen affected test modules. It is the only tree that contains every script the Week-3 cadence calls. Three
-earlier local integration commits (`387b1e47`, `a29f727f`, `e679e785`) are referenced in older notes; **they are
-unreachable from any ref and will be lost** — use `a37e3339`.
+fifteen affected test modules (named in section 10). It is the only tree that contains every script the Week-3
+cadence calls. Three earlier integration commits (`387b1e47`, `a29f727f`, `e679e785`) are cited in older notes; all
+three are ancestors of `a37e3339` and are now on the remote, so nothing is lost — cite the branch tip, not them.
 
 `fix/fantasy-points-matchup-staging-20260921` must not be merged. Its shadow SQL sits under `sql/features/`, which
 `build-features` globs, so the feature build would execute it against a table that does not exist; and its loader
@@ -82,7 +87,7 @@ requires a run-level `complete` manifest, which rejects the real Week-1 sealed c
 
 | job | image | state |
 |---|---|---|
-| `project-slate` (hourly projections) | `nfl-dfs@sha256:0993ee01…`, tag `week2-qb-f06a192c`, `_CODE_SHA f06a192c`, built 2026-09-19T20:28Z | **runs the pre-repair market code**: commit `f06a192c` contains zero references to `MarketMatchError` or `market_source_log`. Last five executions all succeeded (latest 2026-09-20T16:02Z). |
+| `project-slate` (hourly projections) | `nfl-dfs@sha256:0993ee01…`, tag `week2-qb-f06a192c`; build `d7089008` started 2026-09-19T20:28Z. The `_CODE_SHA` substitution is baked at build time and survives only in the tag suffix — **the job carries no `CODE_SHA` env var** (its envs are `MODEL_ENSEMBLE=1`, `MODEL_REGISTRY_VARIANT=tail_k1`, `BLEND_MODEL_WEIGHT=0.45`, `GAME_SIM_MODE=possession`) | **runs the pre-repair market code**: commit `f06a192c` contains zero references to `MarketMatchError` or `market_source_log`. Last five executions all succeeded (latest 2026-09-20T16:02Z). |
 | `build-features` | `nfl-dfs@sha256:8d9b3cb5…`, tag `salary-week-99440a23` | unchanged by this weekend's work |
 | `train-weekly` | `nfl-dfs@sha256:41de2eae…` | last run 2026-09-15 |
 | `ingest-props`, `ingest-odds` | `nfl-dfs@sha256:0a55920d…`, tag `odds-shadow-aad6739` | both succeeding |
@@ -96,12 +101,20 @@ Run jobs — the JobsPerProject quota. Never create a job; reuse one and pass `-
 Scheduler: 45 jobs, **22 enabled**, 23 paused. Enabled and relevant: `s-features` Tue 06:30, `s-train` Tue 07:30,
 `s-score` Tue 08:00, `s-project-tu` Tue 09:30, `s-props` 09:30 Wed–Sun, `s-odds` 09:00/15:00, `s-dk` hourly,
 `s-contests` 10:00, `s-us-dfs` 10:30, `s-weather` 08:00 Fri–Sun, `s-nflverse` 05:00 daily, `s-freshness` 08:00,
-`s-backup` 07:00, `s-trends` Wed 11:00, and the Sunday set `s-features-sun` 05:30–10:30, `s-contests-sun` 06–11,
-`s-project-su` hourly 06–11. **Paused — do not resume without the gate decision:** the four Route Share shadows
-(`s-shadow-k1-roleunion` early/late, `s-shadow-k1-route-roleunion` early/late), the SIS pass-tail pair, and the rest
-of the k1/k3/archetype/freeze-tail family. The Route Share pair is the operator's Monday decision; the SIS pass-tail
-pair still has no frozen gate document (write it or move them to DORMANT with a reason before Week 5 — never silence
-the checker by parking a live gate).
+`s-backup` 07:00, `s-trends` Wed 11:00, `s-dk` hourly **Wed–Sun** (`0 * * * 3-7`), and the Sunday set
+`s-features-sun` 05:30–10:30, `s-contests-sun` 06–11, `s-project-su` hourly 06–11.
+
+**Two research shadows are ENABLED and will fire inside the Week-3 Sunday build window**:
+`s-shadow-cbwu-oi-paired-early` 09:45 and `s-shadow-cbwu-oi-paired-late` 10:45. Confirm they are still wanted before
+Saturday. `s-cfb`, `s-cfb-sat` and `s-us-dfs-sun` are also enabled and unrelated to NFL DFS.
+
+**Paused — do not resume without the gate decision:** the four Route Share shadows (`s-shadow-k1-roleunion`
+early/late, `s-shadow-k1-route-roleunion` early/late), the SIS pass-tail trio
+(`s-shadow-sis-pass-tail-paired`, `s-tabpfn-sis-pass-tail-control`, `s-tabpfn-sis-pass-tail-treatment`), and the rest
+of the k1/k3/archetype/freeze-tail family. The Route Share pair is the operator's Monday decision. The SIS pass-tail
+trio **does** have a gate document, in DRAFT awaiting lab acceptance:
+`reports/2026-09-21-sis-pass-tail-2026-prospective-gate.md` on the rules branch. Get it accepted or move the three
+jobs to DORMANT with a reason before Week 5 — never silence the checker by parking a live gate.
 
 ### 2.3 Warehouse (`nfl-predictions-503414`)
 
@@ -110,24 +123,27 @@ the checker by parking a live gate).
 | `nfl_predictions.player_projections` | **weeks 1 and 2 only — no Week-3 batch exists.** Newest Week-2 batch 2026-09-20T16:02:22Z, 513 rows, 32 DST, 69 rows ≤ 0. **Max projection is Justin Jefferson 25.349166975629** — the exact Week-2 defect value, still served. That number is the standing proof the repair is not deployed. |
 | `nfl_features.tabpfn_projections` | **week 2 only, 877 rows.** No Week-3 cache: the Wednesday `tabpfn-gen` run is required before any Week-3 build. |
 | `nfl_predictions.market_source_log` | **does not exist.** Created by the first repaired `project-slate` run. |
-| `nfl_predictions.own_shadow` | 2,370 rows, all 2026 W1, last written 2026-09-10. Not an in-season monitor. The 18,185 synthetic rows from offline tests were deleted 2026-09-21 and the count now proves it. |
+| `nfl_predictions.own_shadow` | 2,370 rows, all 2026 W1, last written 2026-09-10. Not an in-season monitor. Synthetic rows written by offline tests were deleted 2026-09-21; the row count is consistent with that but is not proof — no job id or before-count was recorded. The `tests/conftest.py` guard on the integration branch is what prevents a recurrence. |
 | `nfl_predictions.div_shadow` | W1 2,142 rows / 11 batches; **W2 2,393 rows / 12 batches through 2026-09-20T16:02Z**. It *is* collecting in-season — an earlier note saying otherwise was wrong. Its blindness is to rows without a prop-sourced market, which is precisely the Week-2 defect class it could not see. |
 | `nfl_raw.weekly_stats` (nflverse actuals) | **max week 2** (W1 1,118 rows, W2 1,044), loaded 2026-09-21T10:04Z. The Week-2 outcomes builder can run now. |
 | `nfl_raw.contest_entries` / `contest_ownership` | **2026 W1 only** (994,328 / 2,212 rows, 3 contests). **The Week-2 standings capture has not been applied.** There is no table called `dk_contest_standings`; these two are what the capture writes. |
-| `nfl_raw.fantasy_points_route_share` | W1 265 rows (target week 2, run `20260917T172911Z…`, archived to GCS at ingest, sha `07642ab6…`); W2 200 rows (target week 3, 2026-09-21T02:54Z, archived). This **is** a live model feature (`featureset.py`). |
+| `nfl_raw.fantasy_points_route_share` | W1 265 rows (target week 2, run `20260917T172911Z…`, archived to GCS at ingest, sha `07642ab6…`); W2 200 rows (target week 3, 2026-09-21T02:54Z, archived). This **is** a live model feature: `src/nfl_dfs/models/featureset.py` lines 129-132 name `fp_route_share_last`, `_l4`, `_jump` and `fp_route_cross_season`; `sql/features/017k_fantasy_points_route.sql` builds them and `021`/`023` consume them. |
 | `nfl_raw.sis_team_context_game` | W1 **64 rows: 32 clean + 32 with `team`, `opp`, `source_run_id` and `ingested_at` all NULL** — a full duplicate of all 32 teams, so any query that forgets `team IS NOT NULL` double-counts every Week-1 team. W2 2 rows (the Thursday game only; SIS posts games over the following days). |
 | `nfl_raw.sis_team_run_context_game` | W1 32 clean, W2 2. No NULL block. |
 | Fantasy Points matchup tables | **none exist** — confirmed by an INFORMATION_SCHEMA sweep. Section 7. |
-| `nfl_raw.schedules` | Week 3: 16 games, first kickoff **Thu 2026-09-24 20:15 ET**, Sunday main block 2026-09-27 13:00 ET (10 games), last game Mon 2026-09-28. Week 4 opens Thu 2026-10-01. |
+| `nfl_raw.schedules` | Week 3: 16 games, first kickoff **Thu 2026-09-24 20:15 ET**, Sunday main block 2026-09-27 13:00 ET (**9** games; 2 at 16:05, 2 at 16:25, 1 at 20:20 — size the contests off 9), last game Mon 2026-09-28. Week 4 opens Thu 2026-10-01. |
 
 ### 2.4 This host
 
-- **One NFL process is running**: the DK pull loop (pid 4129). Nothing else — no watcher, no build, no timer.
+- **Two NFL processes are running**: the DK pull loop (pid 4129) and `nfl-cloud-build-monitor.service` (pid 395,
+  enabled and active, a read-only Cloud Build poller across both GCP projects). No watcher, no build, no week timer.
+  `nfl-shared-handoff-inbox.service` is **inactive** — the channel is not polled automatically.
 - **No week timers exist.** Every `nfl-week2-*` transient unit is gone, as transient units are.
 - **Two systemd user services are crash-looping**: `nfl-cloud-run-lane-monitor.service` and
   `nfl-lab-action-note-monitor.service` (both `activating (auto-restart)`). Two more (`nfl-lab-repo-transition-monitor`,
   `nfl-production-monitor-heartbeat`) are dangling symlinks into a deleted worktree. None is on the money path;
-  none was diagnosed.
+  none was diagnosed. The lane monitor's unit file is a symlink into the dirty primary checkout, where that same
+  file shows an uncommitted edit — the likely cause.
 - **The operational worktree** `/home/erich/projects/.nfl-predictions-worktrees/week1-audit-adjust-20260912` @
   `e45798ba` has **one uncommitted file**: `scripts/arm_week_timers.sh`, carrying the hand-applied release-pin patch
   (`EXPECT_SHA`/`CLONE`). It is not committed anywhere. A clean checkout loses it. **Commit it before Tuesday.**
@@ -141,9 +157,11 @@ the checker by parking a live gate).
   Never commit anything under `ENTERED/`.
 - Vendor sessions: SIS refreshed 2026-09-20 21:58 (expires in days — operator re-login needed); Fantasy Points
   2026-09-12, still authenticating.
-- The four SIS plan files under `automation/sis/plans/` are **untracked in the primary checkout** and are on
-  `production/vendor-sessions-per-step-20260921`; a clean clone of that branch has them, the primary checkout's
-  copies would be lost.
+- Four SIS plan files under `automation/sis/plans/` are **untracked in the primary checkout**. Three of them
+  (`team-context-2026-w01-w02-v2.json`, `-w02.json`, `-w03.json`) are on
+  `production/vendor-sessions-per-step-20260921`. **`team-context-2026-w01-w02.json` (the non-v2) is on no ref at
+  all** and is one `git clean` from gone; `-v2` supersedes it (v1 included the `passing-value` report, which never
+  renders to a submitted state), so either commit it for the record or confirm the supersession in writing.
 - Disk: 21% of 1 TB used. No pressure.
 - **Durability**: every branch above is on the remote (verified individually). The working copies used this weekend
   live under `/tmp/claude-1000/…/scratchpad/` and will vanish; the branches will not.
@@ -185,9 +203,12 @@ window question (Week-3 `_l4` features are two-game windows); the chain-level pr
 Until this is done, **every Week-3 projection batch carries the Week-2 defect.** The first Week-3 batch will be
 written by `s-project-tu` on Tuesday 09:30.
 
-1. Review `production/week3-integration-20260921` @ `a37e3339` (or merge the branches yourself in the order in
-   section 2.1; they merge clean and the inventory source-set v8 must travel with the market repair — its tests pin
-   the hashes).
+1. Deploy `production/week3-integration-20260921` @ `a37e3339`. **Do not re-derive the merge by hand.** It merges
+   exactly ten branches: wiring, prop-name, standings-capture, regeneration-lineage, vendor-sessions, weather-precip,
+   shadow-arms, shadow-outcomes, shadow-runner, sunday-final-path-v2. `production/qb-availability-gate-20260919` is
+   deliberately **not** in it — it edits `src/nfl_dfs/inference/run_projections.py`, the same file the market repair
+   rewrites, so merging it is a separate and untested decision. `production/in-season-rules-20260919` is documents
+   only. The inventory source-set v8 travels with the market repair; its tests pin the hashes.
 2. Build the image (cloudbuild runs the suite first):
    `gcloud builds submit --config cloudbuild.yaml --project nfl-predictions-503414 --substitutions _IMAGE=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:week3-market-source,_CODE_SHA=$(git rev-parse HEAD)`
 3. Point the job at it (**operator or laptop — the workstation assistant's harness refuses job updates**):
@@ -252,10 +273,11 @@ after the first repaired batch.
 release SHA (`--expect-sha`), refresh receipts. Refresh in order **after** the 09:30 props pull: `build-features` →
 `tabpfn-gen` → `project-slate`, each `--wait`. Then arm the timers and **verify the three watcher processes**.
 
-**Sunday.** The chain `sunday_after_build.sh` (classify → vet → replace against the live DK status feed → emit →
-sequential ENTER layout → verify bundle → atomic swap), then `run_promotion.sh` and `relayout_enter.sh`; with the
-integration branch the chain then runs `regeneration_lineage.py` and `exposure_sheet.py` and writes both results
-into the TODAY file. **Read every exposure-sheet flag to the operator before upload.** The entries watcher fills the
+**Sunday.** On the integration branch `sunday_after_build.sh` runs everything in one pass: classify → vet →
+replace against the live DK status feed → emit → sequential ENTER layout → verify bundle → atomic swap →
+`run_promotion.sh` (which itself calls `relayout_enter.sh`) → `regeneration_lineage.py` → `exposure_sheet.py`,
+writing every result into the TODAY file. **Do not invoke `run_promotion.sh` or `relayout_enter.sh` separately
+afterwards** — that would re-publish an already-published bundle. **Read every exposure-sheet flag to the operator before upload.** The entries watcher fills the
 newest `DKEntries*.csv`; the operator uploads before the 12:00 CT lock (11:15 target); the late-inactives watcher
 runs to 20:25Z; `apply_swaps.py` v1.1 handles late swaps and refuses locked games.
 
@@ -268,8 +290,10 @@ assistant; commit anything under `ENTERED/`.
 
 All are on `production/week3-integration-20260921`. None is in the primary checkout.
 
-- `scripts/exposure_sheet.py` — flags `over_30`, `majors_over_20`, `dst_over_20`, `injured_over_10`,
-  `no_line_over_5`, `market_gap`. On the entered Week-2 book it flags exactly the six players that busted.
+- `scripts/exposure_sheet.py` (flag logic in `src/nfl_dfs/inference/exposure_sheet.py`) — flags `over_30`,
+  `majors_over_20`, `dst_over_20`, `injured_over_10`, `no_line_over_5`, `market_gap`. On the entered Week-2 book it
+  flagged the six players that busted; reproducing that needs the Week-2 book under `ENTERED/`, and until the
+  repaired image has run the sheet prints `MARKET-SOURCE MONITOR NOT DEPLOYED` with every market source `unknown`.
 - `scripts/check_build_inputs.py` — the money-build input gate (projection freshness and coverage, the market-source
   monitor, the TabPFN cache for the target week, the dose file, `contests.json`). Exit 1 stops the build. It FAILs
   today: the monitor does not exist and there is no Week-3 TabPFN cache.
@@ -281,7 +305,8 @@ All are on `production/week3-integration-20260921`. None is in the primary check
   exist** (21 KB on the arms branch, 11 KB on the runner branch); the integration branch carries the arms version.
   Confirm which the lab wants before running the shadow.
 - `scripts/rehearse_final_path.sh` — the Sunday chain against an archived artifact. Re-run it on whatever tree you
-  actually deploy. Its `--test-exclude-dk` / `--no-fresh-dk` flags must never reach the operational chain.
+  actually deploy. The rehearsal-only flags `--test-exclude-dk` (on `vet_replace_v4.py`) and `--no-fresh-dk` (on
+  `vet_replace_v4.py` and `apply_swaps.py`) must never reach the operational chain.
 - `/home/erich/week2-sunday/apply_swaps.py` v1.1 (sha `2a1750c8…`), `qb_flags.sh`, `gen_sheet.py`.
 - `nfl-dfs capture-dk-standings` — validation, then apply with the two confirmations.
 
@@ -354,10 +379,14 @@ prose.**
    No finding carries an owner field; ownership is only in the notes below.
 2. `review:handoffs/2026-09-21-complete-week2-repair-and-experiment-plan.md` — phases and the ownership split.
 3. `bank:handoffs/2026-09-21-workstation-repairs-progress-5.md` — the per-finding assignment.
-4. `bank:handoffs/2026-09-21-workstation-repairs-progress-9.md` — status table and merge order.
+4. `bank:handoffs/2026-09-21-workstation-repairs-progress-11.md` — the newest status note (SIS Weeks 1-2 captured
+   and loaded with lineage; the 32 NULL-lineage Week-1 rows). Read `-9.md` after it, for the merge-order table.
 5. `bank:handoffs/2026-09-21-workstation-provenance-gate-fields.md` — the exact fields `run_week_build.sh` must gate
    on. That file is laptop-owned; the fields were delivered as text.
-6. The paid-data chain, in order: `bank:…paid-data-coordination.md` → `review:…paid-data-coordination.md` →
+6. `review:handoffs/2026-09-21-takeover-state.md` — the outgoing lab model's own parting note (2026-09-21 06:11).
+   One correction to it: it says the workstation handoff inbox is monitored by `nfl-shared-handoff-inbox.service`
+   every 300 s; that service is **inactive** on this host.
+7. The paid-data chain, in order: `bank:…paid-data-coordination.md` → `review:…paid-data-coordination.md` →
    `bank:…-ack.md` → `bank:…progress-1.md` → `bank:…progress-2.md` → `bank:…reconciliation.md` →
    `review:…contract-disposition.md` → `bank:…review-set.md` → `review:…contract-review.md`.
 
@@ -417,8 +446,14 @@ bind.
 
 - [ ] BigQuery read/write, GCS read, `gcloud run jobs describe`, `gcloud scheduler jobs list` all work; whoever
       deploys has `gcloud builds submit` and `gcloud run jobs update`.
-- [ ] A checkout of `production/week3-integration-20260921` @ `a37e3339`; the fifteen affected test modules re-run
-      (expect 191 passed, 1 skipped).
+- [ ] A checkout of `production/week3-integration-20260921` @ `a37e3339`, with exactly this command re-run
+      (a different selection is not comparable): `python -m pytest tests/test_market_source.py
+      tests/test_prop_market_ambiguity.py tests/test_exposure_sheet.py tests/test_market_monitor.py
+      tests/test_build_inputs.py tests/test_live_smoke.py tests/test_dk_standings_capture.py
+      tests/test_regeneration_lineage.py tests/test_week3_shadow_runner.py tests/test_week3_shadow_outcomes.py
+      tests/test_weekly_vendor_data.py tests/test_sis_team_context_weekly.py
+      tests/test_effective_policy_rule_inventory.py tests/test_feature_sql.py tests/test_leakage.py`
+      → expect **191 passed, 1 skipped** (recorded 2026-09-21, ~6 min).
 - [ ] Image digests read from the console and compared with section 2.2; after the rebuild,
       `check_market_monitor.py --season 2026 --week 3` reports OK on the first repaired batch.
 - [ ] `exposure_sheet.py` reproduces the six flagged players on the entered Week-2 book.
@@ -449,15 +484,15 @@ bind.
 
 ## 12. Where things are
 
-- **Rules branch** `production/in-season-rules-20260919` @ `5c53e108`: this document, the Week-2 post-mortem, the
+- **Rules branch** `production/in-season-rules-20260919` (tip moves with this file): this document, the Week-2 post-mortem, the
   evidence record, the Monday command sheet, the supplier scorecard, the season-window audit, the SIS pass-tail gate
   draft, the data-source value map, the QB availability repair design, `reports/OPEN-DEFECTS.md`, and three scripts.
 - **Paid-data documents** are on `research/2026-09-paid-source-preflight` @ `6ccf5894`, not on the rules branch:
   `reports/2026-09-21-fantasy-points-matchup-staging-contract.md` (the contract in one page) and
   `reports/2026-09-21-fantasy-points-matchup-capture-incident.md`.
 - **Deployable code**: `production/week3-integration-20260921` @ `a37e3339`.
-- **Channel**: nfl2 `lab/workstation-reply-bank991-20260918` @ `fc1bc63d` (notes, receipts under
-  `handoffs/receipts/`, tools under `handoffs/tools/`) and `review/prereg101-reply-20260918` @ `d85f0527`.
+- **Channel**: nfl2 `lab/workstation-reply-bank991-20260918` (notes, receipts under `handoffs/receipts/`, tools
+  under `handoffs/tools/`) and `review/prereg101-reply-20260918`. Both move; `git ls-remote` before citing a sha.
 - **Sunday outputs**: `/home/erich/week2-sunday/`, with raw exports under `ENTERED/` and the standings downloads
   under `ENTERED/standings/`.
 - **Assistant memory** (not authoritative, and the incoming model has none of it):
