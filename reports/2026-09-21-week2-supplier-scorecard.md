@@ -45,6 +45,26 @@ By position (correlation with realized):
   is better" therefore has one answer this week: among what actually ran, the corrected-HSIM marginal; among external
   suppliers, the props feed, and only for receivers.
 
+## The paid Fantasy Points route data that was in the Week-2 frame
+
+The Week-2 build frame carried the licensed Fantasy Points route share (`fp_route_share_last` / `_l4`, 267 skill
+players, sourced from Week 1 of 2026 for 144 of them and from late 2025 for the rest; no fallback rows) next to the
+free nflverse usage windows. Against realized points on the same players:
+
+| signal (pre-lock) | coverage | corr, all skill | corr, RB/WR/TE |
+|---|---|---|---|
+| snap share, last 4 (free) | 250 | 0.547 | 0.478 |
+| target share, last 4 (free) | 250 | 0.271 | 0.456 |
+| targets, last 4 (free) | 250 | 0.268 | 0.449 |
+| Fantasy Points route share, last game (paid) | 267 | 0.235 | 0.449 |
+| Fantasy Points route share, last 4 (paid) | 267 | 0.206 | 0.429 |
+| Fantasy Points route-share jump (paid) | 242 | 0.199 | 0.227 |
+
+On this slate the paid route share carried the same information as the free target share for receivers and less
+than snap share overall. That is one week; the frozen Route Share gate (Week 3 is its first graded week) is the
+proper test. The SIS pass-tail and the Fantasy Points matchup/alignment products are not in the frame at all
+(their schedulers are paused and, at week 3, the alignment/pass-tail steps do not run by design).
+
 ## What follows from it (proposals, not adoptions)
 
 1. Keep the paired component attribution in the Week-3 shadow; the market-pull arm targets exactly the receivers where
