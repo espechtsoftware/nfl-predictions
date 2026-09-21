@@ -66,3 +66,58 @@ After your five decisions, CI should report roughly 30 failures instead of 365 �
 and a *new* one would finally be visible, which is the entire point. The way
 `test_bq_load.py` sat silently broken for a day is that a genuine regression had
 363 other failures to hide behind.
+
+---
+
+## CORRECTION (same day): do not take these decisions until CI has run once with `fetch-depth: 0`
+
+The five-item table above over-assigns work to you. Two of those chains read
+tracked git objects, so some of their failures are the shallow-clone artifact —
+already fixed — rather than drift.
+
+**Confirmed a clone artifact: item 5, `validate_a7_v2_source_lineage_extension`
+(8 failures).** It conflates "cannot read" with "does not match":
+
+```python
+def _git_blob(root, commit, relative):
+    result = _git(root, "show", f"{commit}:{relative}")
+    if result.returncode == 0:
+        return result.stdout
+    return None                      # <- shallow miss becomes None ...
+```
+
+…and the caller then reports a **sha mismatch**. Likewise `_require_ancestry`
+raises `"A7 lineage ancestry differs"` when `merge-base` merely fails, which in
+a depth-1 clone it always does. So in CI this chain reported *differs* for what
+was actually *absent*. Nothing had drifted.
+
+That is a real diagnostic defect in the chain, independent of CI: a check that
+names the wrong cause sends the reader to re-freeze a manifest that was never
+wrong. `_resolve_commit` in the same file gets it right — it says *"exact commit
+is unavailable"* — so the honest wording already exists a few lines up.
+
+**Uncertain: item 1, `finish_a7_select_ladder` (39 failures).** Its `_git_blob`
+uses `check=True` and `_git_archive_sha` raises `"archive cannot be
+reconstructed"`, so a clone miss surfaces honestly there. But the observed
+message is `"A7 committed Cloud Build contract differs"`, which is a different
+comparison. Some of those 39 may be genuine. Not claiming either way without
+evidence.
+
+**Unaffected, still genuinely yours:** items 2 (`effective_policy_rule_inventory`,
+20), 3 (evidence graph, 18) and 4 (`corpus_composite_retrieval_laws`, 10) — none
+of those three shells out to git; they hash working-tree files, so their drift
+is real.
+
+### Practical recommendation
+
+**Let one CI run complete on `fetch-depth: 0` before deciding anything.** At
+least 8 of the 137 disappear, plausibly up to 47, and re-freezing a manifest
+that was never drifted would be worse than leaving it: it would bake a CI
+configuration artifact into a frozen identity permanently.
+
+The verified mechanism, reproduced locally:
+
+```
+depth-1 clone : git show 93bca249…:src/… -> FAILED exit 128   (matches CI exactly)
+full clone    : git show 93bca249…:src/… -> SUCCEEDED
+```
