@@ -167,7 +167,7 @@ PYEOF
     echo "FIRST-ENTRY PROMOTION: $PROMOTION_STATUS"; echo
     echo "REGENERATION LINEAGE: $LINEAGE_STATUS"; echo
     echo "EXPOSURE SHEET: $SHEET_STATUS"; echo
-    if [ -f "$lo/exposure/exposure-sheet.md" ]; then echo "FLAGGED PLAYERS (each flag needs a stated reason before upload):"; grep -E '^\| ' "$lo/exposure/exposure-sheet.md" | awk -F'|' 'NR<=2 || $NF ~ /[a-z]/' | head -n 25 | sed 's#^#  #'; echo; fi
+    if [ -f "$lo/exposure/exposure-sheet.md" ]; then echo "FLAGGED PLAYERS (each flag needs a stated reason before upload):"; grep -E '^\| ' "$lo/exposure/exposure-sheet.md" | awk -F'|' 'NR<=2 || $(NF-1) ~ /[a-z]/' | head -n 25 | sed 's#^#  #'; echo; fi
     echo "PER-CONTEST FILES FOR THE RESERVED ENTRIES (fill the DK entries export with scripts/fill_dk_entries.py or let the watcher do it):"
     sed 's#^#  #' "$E/ENTER-layout.txt"
     echo; echo "Files (Windows path): \\\\wsl.localhost\\Ubuntu$(echo "$E" | sed 's#/#\\#g')\\"; ls "$E"/ENTER-*.csv | xargs -n1 basename | sed 's#^#    #'
