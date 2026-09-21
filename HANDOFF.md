@@ -16,9 +16,16 @@ consumed, no skipping); new `ingest/fantasy_points_matchups_weekly.py` staging l
 (re-derives every gate; run dir or the Week-1 seal; append key includes the source hash;
 deterministic load job id); new `research/fp_matchup_shadow.py` (latest capture strictly
 before kickoff, `MatchupLeakageError` otherwise; `nfl_features.fp_matchup_shadow_*`;
-not wired into `featureset.py`/`sql/features`, test-asserted). Tests: 31 new/updated
-offline tests plus 37 neighbours green. Reality contact: real Week-1 seal re-validates in
-dry-run (QB 61/58 resolved, WR 284/250, OL/DL 32; nothing written). No BigQuery write
+not wired into `featureset.py`/`sql/features`, test-asserted). An adversarial review
+(four lenses, two skeptics per finding) surfaced 15 real defects, all fixed the same night:
+the loader now takes kickoff and pairs from `nfl_raw.schedules` and cross-checks file
+modification times and games played; the append key is a pure function of the bytes;
+archive URIs are checked for layout, existence and generation; parse/regime/archive
+failures carry their own classes with true attempt counts; one clock drives the capture;
+the shadow dedupes on vendor identity, resolves ids at build time and records `consumed`
+on the captures it selected. Tests: 44 offline tests in the four new/updated modules plus
+37 neighbours green. Reality contact: real Week-1 seal re-validates in dry-run against the
+warehouse kickoff (QB 61/58 resolved, WR 284/250, OL/DL 32; nothing written). No BigQuery write
 has been run; operator commands are in the incident note section 4. `ops/
 weekly_vendor_data.py` unchanged. Next: lab review of the schema contract, then
 `--write` for Week 1 and the Week-3 capture once the vendor opens the week.

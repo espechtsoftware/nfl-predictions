@@ -17,7 +17,8 @@ from typing import Any, Iterator
 
 import pandas as pd
 
-from nfl_dfs.ingest.fantasy_points_matchups_weekly import EXPECTED_HEADERS
+from nfl_dfs.config import settings
+from nfl_dfs.ingest.fantasy_points_matchups_weekly import EXPECTED_HEADERS, expected_archive_uri
 from nfl_dfs.ops import fantasy_points_matchups as matchups
 
 
@@ -27,6 +28,7 @@ TEAM_FULL = {
     "LAC": "Los Angeles Chargers", "CHI": "Chicago Bears",
 }
 VENDOR_CODE = {"BAL": "BLT", "ARI": "ARZ"}  # vendor spellings for some clubs
+DEFAULT_NOW = datetime(2026, 9, 22, 15, 0, tzinfo=UTC)
 
 
 def schedule_frame(
@@ -63,26 +65,27 @@ def player_rows(
     *,
     season: int = 2025,
     value: float = 0.5,
+    games: int = 17,
 ) -> list[list[str]]:
     """``players`` = (name, vendor team cell, pos, vendor opponent cell)."""
     width = len(EXPECTED_HEADERS[report])
     rows = []
     for rank, (name, team, pos, opponent) in enumerate(players, start=1):
-        identity = [str(rank), name, team, pos, "17", str(season), opponent]
+        identity = [str(rank), name, team, pos, str(games), str(season), opponent]
         metrics = [f"{value + rank / 100:.2f}"] * (width - len(identity))
         rows.append(identity + metrics)
     return rows
 
 
 def line_rows(
-    pairs: list[tuple[str, str]], *, season: int = 2025, value: float = 1.5,
+    pairs: list[tuple[str, str]], *, season: int = 2025, value: float = 1.5, games: int = 17,
 ) -> list[list[str]]:
     rows = []
     for rank, (team, opponent) in enumerate(pairs, start=1):
         full = TEAM_FULL[team]
         location, nickname = full.rsplit(" ", 1)
         rows.append([
-            str(rank), full, "17", str(season), location, nickname,
+            str(rank), full, str(games), str(season), location, nickname,
             f"{value:.2f}", f"{value:.2f}", f"{value:.2f}", "40.0", "5.0",
             VENDOR_CODE.get(team, team), "500", "900",
             TEAM_FULL[opponent], f"{value:.2f}", "35.0", "1.0", "480", "1000",
@@ -126,8 +129,7 @@ class FakeDriver:
     """Scripted vendor surface.
 
     ``script`` maps a report key to the list of exports the vendor answers
-    with on successive attempts; each entry is the row list to write.  The
-    ``week_behaviour`` hook decides what the Schedule Week control shows.
+    with on successive attempts; each entry is the row list to write.
     """
 
     def __init__(
@@ -194,17 +196,21 @@ class FakeDriver:
         return f"{self.current.property}Export.csv"
 
 
-@contextmanager
-def driver_factory(driver: FakeDriver) -> Iterator[FakeDriver]:
-    yield driver
-
-
 def factory_for(driver: FakeDriver):
     @contextmanager
     def factory(profile_dir: Path, headless: bool, timeout_seconds: float) -> Iterator[FakeDriver]:
         yield driver
 
     return factory
+
+
+def fake_archive(path: Path, digest: str, season: int, week: int) -> str:
+    """Same hash-addressed object law as the real archive, no upload."""
+    return expected_archive_uri(digest, path.name, week)
+
+
+def archive_check_ok(uri: str) -> dict[str, Any]:
+    return {"exists": True, "generation": "1"}
 
 
 def capture(
@@ -218,17 +224,15 @@ def capture(
     archive: bool = False,
     max_attempts: int = 3,
 ) -> Path:
-    """Run the capture against the fake driver; returns the manifest path."""
+    """Run the capture against the fake driver with a frozen clock."""
     schedule = schedule_frame() if schedule is None else schedule
+    frozen = now or DEFAULT_NOW
     monkeypatch.setattr(matchups, "_schedule", lambda season, week: schedule)
-    monkeypatch.setattr(
-        matchups, "_archive",
-        lambda path, digest, season, week: f"gs://test-bucket/live-matchups/{week:02d}/{digest}/{path.name}",
-    )
+    monkeypatch.setattr(matchups, "_archive", fake_archive)
     return matchups.run(
         season=2026, week=week, output_root=tmp_path / "automated",
         profile_dir=tmp_path / "profile", headless=True, timeout_seconds=1.0,
-        archive=archive, now=now or datetime(2026, 9, 22, 15, 0, tzinfo=UTC),
+        archive=archive, now=frozen, clock=lambda: frozen,
         max_attempts=max_attempts, driver_factory=factory_for(driver),
     )
 
@@ -243,3 +247,10 @@ def snapshots_for(schedule: pd.DataFrame) -> pd.DataFrame:
                 "name": f"{pos} {team}", "pos": pos, "team": team,
             })
     return pd.DataFrame(rows)
+
+
+__all__ = [
+    "DEFAULT_NOW", "FakeDriver", "_write_grouped", "archive_check_ok", "capture",
+    "directional_pairs", "export_rows_for", "fake_archive", "schedule_frame",
+    "settings", "snapshots_for",
+]

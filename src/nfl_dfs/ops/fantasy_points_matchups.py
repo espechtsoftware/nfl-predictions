@@ -93,9 +93,12 @@ FAILURE_CLASSES = (
     "no-rows",                   # the table rendered no rows
     "schedule-gate",             # pairs mismatched on every attempt
     "source-regime",             # the export's source season is not allowed
+    "export-contract",           # the export could not be parsed (vendor drift)
+    "archive",                   # the hash-addressed GCS archive failed
     "after-kickoff",             # capture finished after the first kickoff
     "browser",                   # any other browser/export failure
 )
+RETRIABLE_REJECTIONS = frozenset({"schedule-gate"})
 
 
 class MatchupCaptureError(RuntimeError):
@@ -397,11 +400,28 @@ def advance_ledger(
     current = entry.get(status)
     if status == "downloaded":
         attempts = list(current["attempts"]) if current else []
-        if not any(item.get("sha256") == record.get("sha256") for item in attempts):
+        same = [
+            item for item in attempts
+            if item.get("attempt") == record.get("attempt")
+            and item.get("path") == record.get("path")
+        ]
+        if same:
+            if same[0].get("sha256") != record.get("sha256"):
+                raise RuntimeError(
+                    f"{key}: attempt {record.get('attempt')} already recorded with another hash"
+                )
+        else:
             attempts.append(record)
         entry[status] = {"at_utc": attempts[0]["at_utc"], "attempts": attempts}
         _write_ledger(run_dir, payload)
         return payload
+    if status in {"staged", "consumed"}:
+        bound = (entry.get("validated") or {}).get("sha256")
+        if record.get("sha256") != bound:
+            raise RuntimeError(
+                f"{key}: {status!r} names hash {record.get('sha256')!r} but the validated "
+                f"artifact is {bound!r}"
+            )
     if current is not None:
         if current.get("sha256") != record.get("sha256"):
             raise RuntimeError(
@@ -664,6 +684,9 @@ def _status_counts(reports: Sequence[dict[str, Any]]) -> dict[str, int]:
     return counts
 
 
+Clock = Callable[[], datetime]
+
+
 def _capture_attempt(
     driver: Any,
     definition: MatchupDefinition,
@@ -673,6 +696,7 @@ def _capture_attempt(
     week: int,
     run_dir: Path,
     expected: set[tuple[str, str]],
+    clock: Clock,
 ) -> dict[str, Any]:
     """One navigate/select/apply/export cycle, filling ``report`` in place.
 
@@ -702,7 +726,7 @@ def _capture_attempt(
     finally:
         if destination.is_file():
             report.update({
-                "retrieved_at_utc": datetime.now(UTC).isoformat(),
+                "retrieved_at_utc": clock().isoformat(),
                 "source_url": driver.url,
                 "path": destination.name,
                 "bytes": destination.stat().st_size,
@@ -717,8 +741,10 @@ def _capture_attempt(
             destination, definition.key
         )
     except ValueError as exc:
+        # The export could not even be parsed: vendor header drift, an unknown
+        # team name or an empty table.  Re-downloading cannot help.
         report["status"] = "rejected"
-        report["rejection"] = {"failure_class": "schedule-gate", "detail": str(exc)}
+        report["rejection"] = {"failure_class": "export-contract", "detail": str(exc)}
         return report
     report["source_rows"] = source_rows
     report["source_seasons"] = sorted(source_seasons)
@@ -756,14 +782,22 @@ def run(
     now: datetime | None = None,
     max_attempts: int = DEFAULT_MAX_ATTEMPTS,
     driver_factory: DriverFactory | None = None,
+    clock: Clock | None = None,
 ) -> Path:
+    """Capture the three reports for ``week``; returns the manifest path.
+
+    ``clock`` is the one source of time for the start gate, every attempt's
+    ``retrieved_at_utc`` and the two kickoff gates, so a test can freeze it;
+    ``now`` (the run start) defaults to ``clock()``.
+    """
     if season != 2026 or not 1 <= week <= 18:
         raise ValueError("live matchup contract is frozen to 2026 Weeks 1-18")
     if max_attempts < 1:
         raise ValueError("max_attempts must be at least 1")
     factory = driver_factory or _playwright_driver
+    clock = clock or (lambda: datetime.now(UTC))
 
-    now = now or datetime.now(UTC)
+    now = now or clock()
     schedule = _schedule(season, week)
     expected = expected_schedule_pairs(schedule)
     deadline = first_kickoff_utc(schedule)
@@ -790,6 +824,7 @@ def run(
         "validated_reports": {},
         "status_counts": _status_counts([]),
         "schedule_gate_failures": [],
+        "rejected_reports": {},
         "archive_requested": archive,
         "status": "running",
     }
@@ -821,6 +856,7 @@ def run(
                         _capture_attempt(
                             driver, definition, report, season=season,
                             week=week, run_dir=run_dir, expected=expected,
+                            clock=clock,
                         )
                     finally:
                         # Keep whatever bytes reached disk on record, even
@@ -836,21 +872,51 @@ def run(
                     if report["status"] == "validated":
                         accepted = report
                         break
-                    if report["rejection"]["failure_class"] != "schedule-gate":
-                        break
+                    rejection = report["rejection"]
+                    manifest["rejected_reports"][definition.key] = {
+                        "failure_class": rejection["failure_class"],
+                        "attempts": attempt,
+                        "detail": rejection["detail"],
+                    }
+                    persist()
+                    if rejection["failure_class"] not in RETRIABLE_REJECTIONS:
+                        # Re-downloading cannot change a parse or regime
+                        # failure; fail the run under that class now.
+                        raise MatchupCaptureError(
+                            rejection["failure_class"],
+                            f"{definition.title}: {rejection['detail']}",
+                            report=definition.key, attempts=attempt,
+                        )
                 if accepted is None:
                     manifest["schedule_gate_failures"].append(definition.key)
                     persist()
                     continue
-                if pd.Timestamp.now(tz="UTC") >= deadline:
+                if pd.Timestamp(clock()) >= deadline:
                     raise MatchupCaptureError(
                         "after-kickoff",
                         f"{definition.title} capture completed after first kickoff",
                     )
                 if archive:
-                    accepted["archive_uri"] = _archive(
-                        run_dir / accepted["path"], accepted["sha256"], season, week
-                    )
+                    try:
+                        accepted["archive_uri"] = _archive(
+                            run_dir / accepted["path"], accepted["sha256"], season, week
+                        )
+                    except Exception as exc:
+                        accepted["archive_error"] = f"{type(exc).__name__}: {exc}"
+                        manifest["validated_reports"][definition.key] = {
+                            "path": accepted["path"],
+                            "sha256": accepted["sha256"],
+                            "attempt": accepted["attempt"],
+                            "status": accepted["status"],
+                            "archive_uri": None,
+                            "archive_error": accepted["archive_error"],
+                        }
+                        persist()
+                        raise MatchupCaptureError(
+                            "archive",
+                            f"{definition.title}: hash-addressed archive failed: {exc}",
+                            report=definition.key,
+                        ) from exc
                     accepted["status"] = "archived"
                 manifest["validated_reports"][definition.key] = {
                     "path": accepted["path"],
@@ -867,12 +933,15 @@ def run(
                     archive_uri=accepted.get("archive_uri"),
                 )
         if manifest["schedule_gate_failures"]:
-            failed = ", ".join(manifest["schedule_gate_failures"])
+            failed = ", ".join(
+                f"{key} ({manifest['rejected_reports'][key]['attempts']} attempts)"
+                for key in manifest["schedule_gate_failures"]
+            )
             raise MatchupCaptureError(
                 "schedule-gate",
-                f"matchup schedule gate failed after {max_attempts} attempts for: {failed}",
+                f"matchup schedule gate failed for: {failed}",
             )
-        finished = datetime.now(UTC)
+        finished = clock()
         if pd.Timestamp(finished) >= deadline:
             raise MatchupCaptureError(
                 "after-kickoff", "capture finished after target week's first kickoff",
@@ -885,7 +954,7 @@ def run(
         )
         if isinstance(exc, MatchupCaptureError) and exc.detail:
             manifest["failure_detail"] = exc.detail
-        manifest["finished_at_utc"] = datetime.now(UTC).isoformat()
+        manifest["finished_at_utc"] = clock().isoformat()
         persist()
         raise
     manifest["status"] = "complete"

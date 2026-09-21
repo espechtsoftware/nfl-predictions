@@ -46,7 +46,13 @@ could not be told apart from a missing option or a changed label.
   `after_apply` (selected week, history scope). Typed `failure_class` on the run:
   `vendor-week-unavailable` (option absent, options listed), `vendor-week-not-retained`
   (Week-3 case), `control-missing`, `history-scope-not-default`, `values-contract`,
-  `no-rows`, `schedule-gate`, `source-regime`, `after-kickoff`, `browser`.
+  `no-rows`, `schedule-gate` (the only retriable rejection), `export-contract` (the
+  export could not be parsed: vendor header drift, unknown team, empty table; no
+  re-download), `source-regime`, `archive`, `after-kickoff`, `browser`. The manifest's
+  `rejected_reports` carries the terminal class and the real attempt count per report.
+* **One clock** drives the start gate, every attempt's `retrieved_at_utc` and the two
+  kickoff gates (`clock` parameter), so the offline suite is frozen in time rather than
+  expiring at the fixture's kickoff.
 * **Team aliases** extended for matchup exports only (`JAC->JAX`, `WSH->WAS`,
   `LAR->LA`) on top of the untouched Route Share `TEAM_MAP`.
 * **Retention ledger** `status-ledger.json` per run with the order
@@ -58,10 +64,16 @@ could not be told apart from a missing option or a changed label.
 
 ### Staging loader `src/nfl_dfs/ingest/fantasy_points_matchups_weekly.py` (new)
 
-* Input: a schema-2 run directory, or a seal (Week 1). Every gate is re-derived from
-  the bytes: hash, byte count, frozen group-qualified headers, schedule pairs against
-  the manifest's expected pairs, source regime, retrieval strictly before the first
-  kickoff. A schema-1 run directory is refused with a pointer to the seal path.
+* Input: a schema-2 run directory, or a seal (Week 1). **The first kickoff and the
+  scheduled pairs come from `nfl_raw.schedules` at load time**; the manifest's or
+  seal's copies must agree or the import stops (the first review found the loader
+  comparing two manifest fields to each other). Every other gate is re-derived from
+  the bytes: hash, byte count, frozen group-qualified headers, schedule pairs, source
+  regime, retrieval strictly before kickoff. Retrieval time has no warehouse authority,
+  so it is cross-checked against the export file's own modification time (written
+  before kickoff, not after the recorded retrieval; a copy must preserve mtime) and,
+  for active-season exports, the games-played column (no more than target week − 1).
+  A schema-1 run directory is refused with a pointer to the seal path.
 * Tables (`nfl_raw`): `fantasy_points_qb_coverage_matchup_weekly`,
   `fantasy_points_wr_coverage_matchup_weekly`, `fantasy_points_line_matchup_weekly`.
   Columns: identity (`season`, `target_week`, `report`, `identity`, `team`,
@@ -69,25 +81,34 @@ could not be told apart from a missing option or a changed label.
   `group__metric` floats, and lineage (`source_sha256`, `source_run_id`,
   `source_attempt`, `source_retrieved_at`, `first_kickoff_utc`, `archive_uri`,
   `capture_ref`, `ingested_at`).
-* Append key `(season, target_week, report, identity, team, opponent, source_sha256)`:
-  re-running on the same bytes appends nothing; a second capture of the same week
-  appends beside the first (every pre-lock snapshot kept). Loads carry a deterministic
-  BigQuery job id per (report, week, hash) so an ambiguous client return resumes
-  rather than double-appends. `--write` requires the archive URI. `--allow-partial`
-  is explicit and audited.
+* Append key `(season, target_week, report, source_sha256, source_row)`, a pure
+  function of the bytes: re-running on the same export appends nothing even when the
+  roster snapshot has changed; a second capture of the same week appends beside the
+  first (every pre-lock snapshot kept). Loads carry a deterministic BigQuery job id per
+  (report, week, hash) so an ambiguous client return resumes rather than
+  double-appends. `--write` requires the archive URI to be the hash-addressed object
+  for these exact bytes **and** to exist in GCS (generation compared when the seal
+  names one); a report without an archive is refused, or skipped and listed under
+  `--allow-partial`. Ledger transitions are prepared before any load, so a seal whose
+  members share one run directory (the real Week-1 shape) stages cleanly.
 * Player resolution reuses the Route Share resolver against `rosters_weekly`
-  (weeks <= target). Unresolved identities stay `UNRESOLVED:name:pos:teams`, never
-  guessed. Ledger -> `staged`; a `staging-receipt-{report}.json` is written beside the
-  manifest.
+  (weeks <= target) and is stored as an attribute of the staged row (as of staging);
+  the shadow join re-resolves from one snapshot at build time. Unresolved identities
+  stay `UNRESOLVED:name:pos:teams`, never guessed. Ledger -> `staged` (bound to the
+  validated hash); a `staging-receipt-{report}.json` is written beside the manifest.
 
 ### Shadow join `src/nfl_dfs/research/fp_matchup_shadow.py` (new, not activated)
 
 * Reads the three staging tables for one target week, keeps the latest capture per
-  identity strictly before that week's first kickoff, and writes
+  **vendor identity** (report, team, opponent, normalized name, position; stable across
+  captures) strictly before that week's first kickoff (from `nfl_raw.schedules`, never
+  from the rows), resolves player ids once from one roster snapshot, and writes
   `nfl_features.fp_matchup_shadow_{qb_coverage,wr_coverage,line}_week` with
   `pit_lag_hours` and `captures_available`. A row at/after kickoff raises
-  `MatchupLeakageError`; nothing is dropped silently. Append-once on the same key.
-  Ledger -> `consumed` when `--run-dir` is given.
+  `MatchupLeakageError`; nothing is dropped silently. Append-once on
+  (season, week, report, hash, source row). With `--output-root`, the ledger of each
+  capture the join actually selected records `consumed` (bound to that run's own
+  validated hash); without it the audit says the ledgers were not touched.
 * `featureset.py`, `sql/features/*.sql` and `inference/` do not reference any of
   these tables (a test asserts it). Activation is a separate reviewed change.
 
@@ -102,18 +123,36 @@ Week 1, 9 runs all failed, downloads 8/7/5 (QB/WR/OL), gate passes 3/2/2, valida
 staged/consumed 0; Week 3, 1 run failed, nothing downloaded. This is the PAID-001
 separation the lab audit asked for.
 
+### Adversarial review (2026-09-21, four lenses, two skeptics per finding)
+
+22 raw findings, 15 survived refutation, all fixed above and each covered by a test:
+loader trusted manifest kickoff/pairs (now schedule authority + file-time + games
+checks); real Week-1 seal would have failed after loading (ledger prepared before
+loads, per member); append key depended on roster resolution (now bytes only);
+`archive_uri` trusted verbatim (layout + existence + generation checks); source-regime
+and parse failures misfiled as schedule-gate and retried (typed `export-contract`,
+terminal class and true attempt count); wall-clock leaks in the capture (one clock);
+shadow stamped the operator's run dir `consumed` regardless of selection (selected
+captures' ledgers, bound hash); identity drift across captures duplicated shadow rows
+(vendor identity + build-time resolution); ledger de-duplicated attempts by hash
+(keyed by attempt); the vendor-week-unavailable classification was only exercised by
+the fake (driver unit tests with a stubbed page). Seven findings were refuted.
+
 ## 3. Evidence
 
 * Tests (offline, mocked driver and warehouse): `tests/test_fantasy_points_matchups.py`
-  16, `tests/test_fantasy_points_matchups_weekly.py` 10, `tests/test_fp_matchup_shadow.py`
-  5; neighbours `test_weekly_vendor_data.py` 6, `test_fantasy_points_route_weekly.py` 5,
+  21, `tests/test_fantasy_points_matchups_weekly.py` 15, `tests/test_fp_matchup_shadow.py`
+  7, `tests/test_fantasy_points_matchup_status.py` 1; neighbours
+  `test_weekly_vendor_data.py` 6, `test_fantasy_points_route_weekly.py` 5,
   `test_fantasy_points_downloads.py` 26 still pass.
 * Reality contact (read-only, `--write` not passed) against the real Week-1 seal and
   the member runs on this host: all three members re-validate; QB 61 rows (58
   resolved, 3 unresolved: Russell Wilson, Philip Rivers, Jake Browning), WR/TE 284
   rows (250 resolved, 34 unresolved, all prior-season players absent from the 2026
   Week-1 rosters, e.g. Tyreek Hill, DeAndre Hopkins, Zach Ertz), OL/DL 32 rows;
-  32 teams in each; 12 multi-team cells reconciled; no table existed; nothing written.
+  32 teams in each; 12 multi-team cells reconciled; kickoff 2026-09-10T00:20Z read from
+  `nfl_raw.schedules`; every export file's modification time equals its recorded
+  retrieval to the second; no table existed; nothing written.
 
 ## 4. Operator steps (none run by me)
 
@@ -129,7 +168,7 @@ nfl-weekly-data run --week 3 --skip-odds --no-login-if-needed   # capture, archi
 python -m nfl_dfs.ingest.fantasy_points_matchups_weekly \
   --input fantasy-points/automated/<run id> --target-week 3 --write
 python -m nfl_dfs.research.fp_matchup_shadow --week 3 --write \
-  --run-dir fantasy-points/automated/<run id>
+  --output-root fantasy-points/automated
 ```
 
 ## 5. Open items (lab agent)

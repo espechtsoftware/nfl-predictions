@@ -3,7 +3,8 @@
 The capture (``ops.fantasy_points_matchups``) validates and archives three
 vendor exports per target week but never loaded them anywhere; this module is
 the missing ``nfl_raw`` path.  It accepts two inputs and re-derives every gate
-from the bytes on disk rather than trusting a manifest field:
+from the bytes on disk and the warehouse schedule rather than trusting a
+manifest field:
 
 * a ``schema_version`` 2 capture run directory (one ``validated``/``archived``
   attempt per report, all attempts preserved on disk); or
@@ -11,16 +12,29 @@ from the bytes on disk rather than trusting a manifest field:
   matchup-capture-seal.json`` that names independently validated members from
   older ``schema_version`` 1 runs.
 
+Authority
+---------
+The target week's first kickoff and its scheduled pairs come from
+``nfl_raw.schedules`` at load time; the manifest's or seal's copies must agree
+or the import stops.  The retrieval time has no warehouse authority, so it is
+cross-checked against the export file's own modification time (a download
+cannot have been retrieved before it was written, nor after kickoff) and, in
+the active-season regime, against the games-played column (no team can have
+played more games than the target week allows).
+
 Row law
 -------
 One staged row is one vendor row, tagged with the target week it was captured
 for, the source season the vendor aggregated, the capture time, the exact
 source hash and run id.  The append key is
-``(season, target_week, report, identity, team, opponent, source_sha256)``:
-a second capture of the same target week with different bytes appends beside
-the first (every pre-lock snapshot is kept; the shadow join picks the latest
-one before kickoff), while re-running the loader on the same bytes appends
-nothing.  A conflicting duplicate inside one export fails the whole import.
+``(season, target_week, report, source_sha256, source_row)`` -- a pure function
+of the bytes -- so re-running the loader on the same export appends nothing,
+while a second capture of the same target week with different bytes appends
+beside the first (every pre-lock snapshot is kept; the shadow join picks the
+latest one before kickoff).  Player identity (``gsis_id``) is resolved against
+the roster snapshot at staging time and stored as an attribute for audit; the
+shadow join re-resolves from one snapshot at build time, so a player who
+becomes resolvable later is never staged twice.
 
 Nothing here touches the Route Share path; the player resolver and team map
 are imported read-only from it.
@@ -33,21 +47,25 @@ import json
 import re
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any, Callable, Sequence
 
 import pandas as pd
 
+from ..config import settings
 from ..names import norm_name
 from ..ops.fantasy_points_matchups import (
     CAPTURE_ID,
     MANIFEST_SCHEMA_VERSION,
     MATCHUPS,
     _csv_shape,
+    _schedule,
     _team,
     advance_ledger,
     expected_schedule_pairs,
+    first_kickoff_utc,
     ledger_path,
     new_ledger,
+    read_ledger,
     read_matchup_pairs,
     reconcile_team,
     source_regime,
@@ -66,10 +84,10 @@ TABLES = {
     "line-matchups": "fantasy_points_line_matchup_weekly",
 }
 SEAL_STATUS = "COMPLETE_FROM_INDEPENDENTLY_VALIDATED_REPORTS"
-KEY_COLUMNS = (
-    "season", "target_week", "report", "identity", "team", "opponent",
-    "source_sha256",
-)
+KEY_COLUMNS = ("season", "target_week", "report", "source_sha256", "source_row")
+VENDOR_KEY = ("report", "team", "opponent", "normalized_name", "vendor_pos")
+MTIME_TOLERANCE_SECONDS = 120.0
+ARCHIVE_PREFIX = "licensed/fantasy-points/live-matchups"
 
 # Frozen group-qualified vendor headers, read from the sealed Week-1 exports.
 # Any drift fails the import; widen the contract deliberately, never by
@@ -119,6 +137,13 @@ GROUP_PREFIX = {
     "Player Details": "id", "Team Details": "id",
     "Offense Stats": "offense", "Defense Stats": "defense",
 }
+GAMES_COLUMN = {
+    "qb-coverage-matchup": "Player Details::G",
+    "wr-coverage-matchup": "Player Details::G",
+    "line-matchups": "Team Details::G",
+}
+
+ArchiveCheck = Callable[[str], dict[str, Any]]
 
 
 def metric_column(semantic: str) -> str:
@@ -157,6 +182,36 @@ def _safe_relative(value: object) -> Path:
     return relative
 
 
+def _pairs_from(value: object, *, what: str) -> set[tuple[str, str]]:
+    pairs = {(str(team), str(opponent)) for team, opponent in (value or [])}
+    if not pairs:
+        raise ValueError(f"{what} has no expected schedule pairs")
+    return pairs
+
+
+def _require_authority(
+    *, what: str, claimed_kickoff: pd.Timestamp, kickoff: pd.Timestamp,
+    claimed_pairs: set[tuple[str, str]], expected: set[tuple[str, str]],
+) -> None:
+    if claimed_kickoff != kickoff:
+        raise ValueError(
+            f"{what} first kickoff {claimed_kickoff.isoformat()} differs from the "
+            f"schedule authority {kickoff.isoformat()}"
+        )
+    if claimed_pairs != expected:
+        raise ValueError(
+            f"{what} expected pairs differ from the schedule authority "
+            f"(claimed {len(claimed_pairs)}, authority {len(expected)})"
+        )
+
+
+def expected_archive_uri(digest: str, path: str, week: int, *, bucket: str | None = None) -> str:
+    return (
+        f"gs://{bucket or settings.gcs_bucket}/{ARCHIVE_PREFIX}/"
+        f"season={SEASON}/week={int(week):02d}/sha256={digest}/{path}"
+    )
+
+
 def _rederive_artifact(
     *,
     report: str,
@@ -167,6 +222,7 @@ def _rederive_artifact(
     expected: set[tuple[str, str]],
     first_kickoff: pd.Timestamp,
     target_week: int,
+    archive_uri: object,
 ) -> dict[str, Any]:
     """Re-run every capture-time gate on the bytes actually on disk."""
     if not local_path.is_file():
@@ -174,11 +230,23 @@ def _rederive_artifact(
     digest = _sha256(local_path)
     if digest != claimed_sha256:
         raise ValueError(f"{report}: artifact hash differs from the record")
-    if local_path.stat().st_size != int(claimed_bytes):
+    stat = local_path.stat()
+    if stat.st_size != int(claimed_bytes):
         raise ValueError(f"{report}: artifact byte count differs from the record")
     if retrieved_at >= first_kickoff:
         raise ValueError(f"{report}: retrieved at/after the target week's first kickoff")
-    columns, _ = _grouped_rows(local_path)
+    written_at = pd.Timestamp(stat.st_mtime, unit="s", tz="UTC")
+    if written_at >= first_kickoff:
+        raise ValueError(
+            f"{report}: export file written at {written_at.isoformat()}, at/after "
+            "the first kickoff (a copy must preserve the original modification time)"
+        )
+    if written_at > retrieved_at + pd.Timedelta(seconds=MTIME_TOLERANCE_SECONDS):
+        raise ValueError(
+            f"{report}: export file written at {written_at.isoformat()}, after its "
+            f"recorded retrieval {retrieved_at.isoformat()}"
+        )
+    columns, rows = _grouped_rows(local_path)
     if tuple(columns) != EXPECTED_HEADERS[report]:
         raise ValueError(f"{report}: vendor header drift; refusing to stage")
     pairs, seasons, source_rows = read_matchup_pairs(local_path, report)
@@ -189,15 +257,35 @@ def _rederive_artifact(
             f"(unexpected {gate['unexpected_pairs']}, missing {gate['missing_pairs']})"
         )
     regime = source_regime(seasons, SEASON, target_week)
-    rows, width = _csv_shape(local_path)
+    games = pd.to_numeric(
+        pd.Series([row[GAMES_COLUMN[report]].strip() or None for row in rows]),
+        errors="coerce",
+    )
+    if games.isna().any():
+        raise ValueError(f"{report}: games-played column is not numeric")
+    if regime.startswith("vendor-active-season") and int(games.max()) > int(target_week) - 1:
+        raise ValueError(
+            f"{report}: {int(games.max())} games played in an active-season export "
+            f"for target Week {target_week}; the export post-dates the target week"
+        )
+    if archive_uri is not None:
+        wanted = expected_archive_uri(digest, local_path.name, target_week)
+        if str(archive_uri) != wanted:
+            raise ValueError(
+                f"{report}: archive_uri {archive_uri!r} is not the hash-addressed "
+                f"object {wanted!r}"
+            )
+    csv_rows, width = _csv_shape(local_path)
     return {
         "sha256": digest,
         "bytes": int(claimed_bytes),
-        "csv_rows_including_headers": rows,
+        "csv_rows_including_headers": csv_rows,
         "max_csv_columns": width,
         "source_rows": source_rows,
         "source_seasons": sorted(seasons),
         "source_regime": regime,
+        "max_games": int(games.max()),
+        "written_at": written_at,
         "schedule_gate": gate,
     }
 
@@ -206,9 +294,11 @@ def validate_run_dir(
     run_dir: str | Path,
     *,
     target_week: int,
+    kickoff: pd.Timestamp,
+    expected: set[tuple[str, str]],
     allow_partial: bool = False,
 ) -> tuple[dict[str, Any], dict[str, dict[str, Any]]]:
-    """Validate a schema-2 capture run and return its stageable artifacts."""
+    """Validate a schema-2 capture run against the schedule authority."""
     root = Path(run_dir)
     manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
     if manifest.get("schema_version") != MANIFEST_SCHEMA_VERSION:
@@ -224,40 +314,50 @@ def validate_run_dir(
         raise ValueError("matchup capture target week differs from request")
     if manifest.get("status") not in {"complete", "failed"}:
         raise ValueError("matchup capture manifest is still running")
-    first_kickoff = _utc_timestamp(manifest.get("first_kickoff_utc"), "first_kickoff_utc")
-    expected = {
-        (str(team), str(opponent))
-        for team, opponent in manifest.get("expected_schedule_pairs", [])
-    }
-    if not expected:
-        raise ValueError("matchup capture manifest has no expected schedule pairs")
+    _require_authority(
+        what="matchup capture manifest",
+        claimed_kickoff=_utc_timestamp(manifest.get("first_kickoff_utc"), "first_kickoff_utc"),
+        kickoff=kickoff,
+        claimed_pairs=_pairs_from(manifest.get("expected_schedule_pairs"), what="matchup capture manifest"),
+        expected=expected,
+    )
     validated = manifest.get("validated_reports") or {}
-    reports = {
-        report["key"]: report for report in manifest.get("reports", [])
-        if report.get("status") in {"validated", "archived"}
-    }
-    if set(validated) != set(reports):
-        raise ValueError("matchup capture validated_reports disagree with report statuses")
-    missing = [key for key in REPORTS if key not in reports]
-    if missing and not allow_partial:
-        raise ValueError(
-            f"matchup capture has no validated export for {missing}; "
-            "pass allow_partial to stage the validated reports only"
-        )
+    records = manifest.get("reports", [])
+    missing: dict[str, str] = {}
     artifacts: dict[str, dict[str, Any]] = {}
-    for key, report in reports.items():
-        if key not in REPORTS:
+    for key in REPORTS:
+        entry = validated.get(key)
+        if entry is None:
+            passed = [
+                r for r in records
+                if r.get("key") == key and r.get("status") in {"validated", "archived"}
+            ]
+            missing[key] = "validated-but-not-accepted" if passed else "no-validated-export"
+            continue
+        if key not in TABLES:
             raise ValueError(f"matchup capture names an unknown report {key!r}")
-        if validated[key].get("sha256") != report.get("sha256"):
-            raise ValueError(f"{key}: validated_reports hash differs from the report record")
-        relative = _safe_relative(report.get("path"))
-        retrieved = _utc_timestamp(report.get("retrieved_at_utc"), "retrieved_at_utc")
+        record = next(
+            (
+                r for r in records
+                if r.get("key") == key and r.get("sha256") == entry.get("sha256")
+                and r.get("status") in {"validated", "archived"}
+            ),
+            None,
+        )
+        if record is None:
+            raise ValueError(f"{key}: validated_reports names a hash with no validated record")
+        relative = _safe_relative(record.get("path"))
+        retrieved = _utc_timestamp(record.get("retrieved_at_utc"), "retrieved_at_utc")
+        archive_uri = entry.get("archive_uri")
+        if archive_uri != record.get("archive_uri"):
+            raise ValueError(f"{key}: validated_reports archive_uri differs from the record")
         derived = _rederive_artifact(
             report=key, local_path=root / relative,
-            claimed_sha256=str(report.get("sha256")),
-            claimed_bytes=int(report.get("bytes", -1)),
+            claimed_sha256=str(entry.get("sha256")),
+            claimed_bytes=int(record.get("bytes", -1)),
             retrieved_at=retrieved, expected=expected,
-            first_kickoff=first_kickoff, target_week=int(target_week),
+            first_kickoff=kickoff, target_week=int(target_week),
+            archive_uri=archive_uri,
         )
         artifacts[key] = {
             **derived,
@@ -265,19 +365,24 @@ def validate_run_dir(
             "path": relative.name,
             "local_path": root / relative,
             "run_dir": root,
-            "attempt": int(report.get("attempt", 0)),
+            "attempt": int(record.get("attempt", 0)),
             "retrieved_at": retrieved,
-            "source_url": str(report.get("source_url", "")),
+            "source_url": str(record.get("source_url", "")),
             "source_run_id": str(manifest["run_id"]),
-            "archive_uri": report.get("archive_uri"),
-            "ledger_exists": ledger_path(root).is_file(),
+            "archive_uri": archive_uri,
+            "archive_generation": None,
         }
+    if missing and not allow_partial:
+        raise ValueError(
+            f"matchup capture has no accepted export for {missing}; "
+            "pass allow_partial to stage the accepted reports only"
+        )
     capture = {
         "input_kind": "run-dir",
         "capture_ref": root.name,
         "target_season": SEASON,
         "target_week": int(target_week),
-        "first_kickoff_utc": first_kickoff,
+        "first_kickoff_utc": kickoff,
         "expected_pairs": expected,
         "run_status": manifest.get("status"),
         "missing_reports": missing,
@@ -290,6 +395,8 @@ def validate_seal(
     *,
     target_week: int,
     output_root: str | Path,
+    kickoff: pd.Timestamp,
+    expected: set[tuple[str, str]],
 ) -> tuple[dict[str, Any], dict[str, dict[str, Any]]]:
     """Validate a seal of independently validated schema-1 run members."""
     seal_path = Path(seal_path)
@@ -304,7 +411,12 @@ def validate_seal(
         raise ValueError("matchup seal is not the 2026 season")
     if seal.get("target_week") != int(target_week):
         raise ValueError("matchup seal target week differs from request")
-    first_kickoff = _utc_timestamp(seal.get("first_kickoff_utc"), "first_kickoff_utc")
+    seal_kickoff = _utc_timestamp(seal.get("first_kickoff_utc"), "first_kickoff_utc")
+    if seal_kickoff != kickoff:
+        raise ValueError(
+            f"matchup seal first kickoff {seal_kickoff.isoformat()} differs from the "
+            f"schedule authority {kickoff.isoformat()}"
+        )
     members = seal.get("members")
     if not isinstance(members, list) or sorted(
         member.get("report") for member in members
@@ -312,7 +424,6 @@ def validate_seal(
         raise ValueError("matchup seal must name exactly the three reports once")
     root = Path(output_root)
     artifacts: dict[str, dict[str, Any]] = {}
-    expected_pairs: set[tuple[str, str]] | None = None
     for member in members:
         key = str(member["report"])
         run_id = str(member.get("source_run_id", ""))
@@ -324,17 +435,13 @@ def validate_seal(
             "target_week"
         ) != int(target_week) or run_manifest.get("target_season") != SEASON:
             raise ValueError(f"{key}: member run manifest identity differs from the seal")
-        run_kickoff = _utc_timestamp(run_manifest.get("first_kickoff_utc"), "first_kickoff_utc")
-        if run_kickoff != first_kickoff:
-            raise ValueError(f"{key}: member run kickoff differs from the seal")
-        pairs = {
-            (str(team), str(opponent))
-            for team, opponent in run_manifest.get("expected_schedule_pairs", [])
-        }
-        if expected_pairs is None:
-            expected_pairs = pairs
-        elif pairs != expected_pairs:
-            raise ValueError(f"{key}: member runs disagree on the expected schedule")
+        _require_authority(
+            what=f"{key}: member run manifest",
+            claimed_kickoff=_utc_timestamp(run_manifest.get("first_kickoff_utc"), "first_kickoff_utc"),
+            kickoff=kickoff,
+            claimed_pairs=_pairs_from(run_manifest.get("expected_schedule_pairs"), what=f"{key}: member run manifest"),
+            expected=expected,
+        )
         record = next(
             (
                 report for report in run_manifest.get("reports", [])
@@ -348,12 +455,16 @@ def validate_seal(
         retrieved = _utc_timestamp(member.get("retrieved_at_utc"), "retrieved_at_utc")
         if retrieved != _utc_timestamp(record.get("retrieved_at_utc"), "retrieved_at_utc"):
             raise ValueError(f"{key}: seal retrieval time differs from the run record")
+        archive_uri = member.get("archive_uri")
+        if not archive_uri:
+            raise ValueError(f"{key}: seal member has no archive_uri")
         derived = _rederive_artifact(
             report=key, local_path=run_dir / relative,
             claimed_sha256=str(member.get("sha256")),
             claimed_bytes=int(member.get("bytes", -1)),
-            retrieved_at=retrieved, expected=pairs,
-            first_kickoff=first_kickoff, target_week=int(target_week),
+            retrieved_at=retrieved, expected=expected,
+            first_kickoff=kickoff, target_week=int(target_week),
+            archive_uri=archive_uri,
         )
         artifacts[key] = {
             **derived,
@@ -365,19 +476,20 @@ def validate_seal(
             "retrieved_at": retrieved,
             "source_url": str(member.get("source_url", "")),
             "source_run_id": run_id,
-            "archive_uri": member.get("archive_uri"),
-            "ledger_exists": ledger_path(run_dir).is_file(),
+            "archive_uri": str(archive_uri),
+            "archive_generation": (
+                str(member["archive_generation"]) if member.get("archive_generation") else None
+            ),
         }
-    assert expected_pairs is not None
     capture = {
         "input_kind": "seal",
         "capture_ref": seal_path.name,
         "target_season": SEASON,
         "target_week": int(target_week),
-        "first_kickoff_utc": first_kickoff,
-        "expected_pairs": expected_pairs,
+        "first_kickoff_utc": kickoff,
+        "expected_pairs": expected,
         "run_status": seal.get("status"),
-        "missing_reports": [],
+        "missing_reports": {},
     }
     return capture, artifacts
 
@@ -463,9 +575,9 @@ def normalize_report(
                     f"Week {capture['target_week']} pair"
                 )
             canonical = (team,)
-            pos = None
+            pos = ""
             resolved_pos = None
-            normalized = None
+            normalized = ""
             gsis_id, status = None, "team"
             identity = team
             games = row["Team Details::G"].strip()
@@ -476,9 +588,11 @@ def normalize_report(
             "season": SEASON,
             "target_week": int(capture["target_week"]),
             "report": report,
-            "identity": identity,
+            "source_sha256": str(artifact["sha256"]),
+            "source_row": source_row,
             "team": team,
             "opponent": opponent,
+            "identity": identity,
             "gsis_id": gsis_id,
             "resolution_status": status,
             "vendor_name": vendor_name,
@@ -497,8 +611,6 @@ def normalize_report(
             )
         record.update({
             "source_file": str(artifact["path"]),
-            "source_sha256": str(artifact["sha256"]),
-            "source_row": source_row,
             "source_retrieved_at": artifact["retrieved_at"],
             "source_run_id": str(artifact["source_run_id"]),
             "source_attempt": int(artifact["attempt"]),
@@ -510,10 +622,10 @@ def normalize_report(
     out = pd.DataFrame(records)
     if out.empty:
         raise ValueError(f"{report}: export has no rows")
-    keys = list(KEY_COLUMNS)
-    if out.duplicated(keys).any():
-        bad = out.loc[out.duplicated(keys, keep=False), keys].head(5).to_dict("records")
-        raise ValueError(f"{report}: duplicate identities inside one export: {bad}")
+    vendor_keys = list(VENDOR_KEY)
+    if out.duplicated(vendor_keys).any():
+        bad = out.loc[out.duplicated(vendor_keys, keep=False), vendor_keys].head(5).to_dict("records")
+        raise ValueError(f"{report}: duplicate vendor identities inside one export: {bad}")
     audit = {
         "report": report,
         "source_rows": int(len(rows)),
@@ -534,9 +646,10 @@ def normalize_report(
 def rows_to_append(rows: pd.DataFrame, existing: pd.DataFrame) -> pd.DataFrame:
     """Return rows whose append key is absent from ``existing``.
 
-    Same key means same bytes (the hash is part of the key), so an overlap is
-    skipped, never compared or overwritten.  Duplicate keys already stored
-    are a corrupted table and fail closed.
+    The key is a pure function of the bytes (hash and source row), so an
+    overlap is the same vendor row already staged; it is skipped, never
+    compared or overwritten.  Duplicate keys already stored are a corrupted
+    table and fail closed.
     """
     keys = list(KEY_COLUMNS)
     if missing := set(keys) - set(rows.columns):
@@ -567,28 +680,40 @@ def _write_receipt(artifact: dict[str, Any], receipt: dict[str, Any]) -> Path:
     return path
 
 
-def _record_staged(artifact: dict[str, Any], *, rows: int, table: str, now: datetime) -> None:
+def _prepare_ledger(artifact: dict[str, Any], *, now: datetime) -> None:
+    """Make sure the run's ledger can accept ``staged`` for this report.
+
+    A schema-1 member run predates the ledger: its ``downloaded`` and
+    ``validated`` statuses were re-derived from the bytes above and are
+    recorded as such, per report, never assumed from a sibling.  A schema-2
+    run must already carry ``validated`` for the same hash.
+    """
     run_dir = Path(artifact["run_dir"])
     key = str(artifact["report"])
     if not ledger_path(run_dir).is_file():
-        # A schema-1 member run predates the ledger.  Its downloaded and
-        # validated statuses were re-derived above from the bytes on disk,
-        # and are recorded as such rather than assumed.
         new_ledger(run_dir, str(artifact["source_run_id"]), REPORTS)
-        advance_ledger(
-            run_dir, key, "downloaded", now=now, path=artifact["path"],
-            sha256=artifact["sha256"], attempt=artifact["attempt"],
-            rederived_by="fantasy_points_matchups_weekly",
-        )
-        advance_ledger(
-            run_dir, key, "validated", now=now, path=artifact["path"],
-            sha256=artifact["sha256"], attempt=artifact["attempt"],
-            archive_uri=artifact.get("archive_uri"),
-            rederived_by="fantasy_points_matchups_weekly",
-        )
+    entry = read_ledger(run_dir)["reports"].get(key)
+    if entry is None:
+        raise RuntimeError(f"{key}: the run ledger has no entry for this report")
+    if entry.get("validated") is not None:
+        if entry["validated"].get("sha256") != artifact["sha256"]:
+            raise RuntimeError(
+                f"{key}: ledger validated hash {entry['validated'].get('sha256')!r} "
+                f"differs from the artifact {artifact['sha256']!r}"
+            )
+        return
+    if entry.get("downloaded") is not None:
+        raise RuntimeError(f"{key}: ledger shows a download that was never validated")
     advance_ledger(
-        run_dir, key, "staged", now=now, path=artifact["path"],
-        sha256=artifact["sha256"], table=table, rows=int(rows),
+        run_dir, key, "downloaded", now=now, path=artifact["path"],
+        sha256=artifact["sha256"], attempt=artifact["attempt"],
+        rederived_by="fantasy_points_matchups_weekly",
+    )
+    advance_ledger(
+        run_dir, key, "validated", now=now, path=artifact["path"],
+        sha256=artifact["sha256"], attempt=artifact["attempt"],
+        archive_uri=artifact.get("archive_uri"),
+        rederived_by="fantasy_points_matchups_weekly",
     )
 
 
@@ -599,14 +724,46 @@ def _existing_rows(table_ref: str, target_week: int):
 
     try:
         frame = query_df(f"""
-            SELECT season, target_week, report, identity, team, opponent,
-                   source_sha256
+            SELECT season, target_week, report, source_sha256, source_row
             FROM `{table_ref}`
             WHERE season = @season AND target_week = @target_week
             """, params={"season": SEASON, "target_week": int(target_week)})
     except NotFound:
         return pd.DataFrame(columns=list(KEY_COLUMNS)), False
     return frame, True
+
+
+def _gcs_archive_check(uri: str) -> dict[str, Any]:
+    """Confirm the hash-addressed object exists; returns its generation."""
+    from google.cloud import storage
+
+    if not uri.startswith("gs://"):
+        raise ValueError(f"archive uri is not a GCS object: {uri!r}")
+    bucket_name, _, object_name = uri[len("gs://"):].partition("/")
+    blob = storage.Client().bucket(bucket_name).get_blob(object_name)
+    if blob is None:
+        return {"exists": False, "generation": None}
+    return {"exists": True, "generation": str(blob.generation)}
+
+
+def _require_archive(artifact: dict[str, Any], check: ArchiveCheck) -> dict[str, Any]:
+    key = str(artifact["report"])
+    uri = artifact.get("archive_uri")
+    if not uri:
+        raise ValueError(
+            f"{key}: no hash-addressed archive recorded; a write needs the GCS "
+            "object (re-run the capture with --archive)"
+        )
+    found = check(str(uri))
+    if not found.get("exists"):
+        raise ValueError(f"{key}: archive object is missing: {uri}")
+    generation = artifact.get("archive_generation")
+    if generation and str(found.get("generation")) != str(generation):
+        raise ValueError(
+            f"{key}: archive generation {found.get('generation')!r} differs from the "
+            f"sealed generation {generation!r}"
+        )
+    return {"archive_uri": str(uri), "archive_generation": found.get("generation")}
 
 
 def run(
@@ -617,33 +774,48 @@ def run(
     allow_partial: bool = False,
     output_root: str | Path | None = None,
     now: datetime | None = None,
+    archive_check: ArchiveCheck | None = None,
 ) -> dict[str, Any]:
     """Audit one capture (run dir or seal) and optionally append it."""
     from ..bq import load_dataframe, query_df
-    from ..config import settings
 
     if not 1 <= int(target_week) <= 18:
         raise ValueError("matchup target week must be between 1 and 18")
+    schedule = _schedule(SEASON, int(target_week))
+    kickoff = first_kickoff_utc(schedule)
+    expected = expected_schedule_pairs(schedule)
     input_path = Path(input_path)
     if input_path.is_dir():
         capture, artifacts = validate_run_dir(
-            input_path, target_week=target_week, allow_partial=allow_partial,
+            input_path, target_week=target_week, kickoff=kickoff,
+            expected=expected, allow_partial=allow_partial,
         )
     elif input_path.is_file() and input_path.suffix == ".json":
         if output_root is None:
             raise ValueError("a seal needs output_root to locate its member runs")
         capture, artifacts = validate_seal(
             input_path, target_week=target_week, output_root=output_root,
+            kickoff=kickoff, expected=expected,
         )
     else:
         raise ValueError(f"matchup input is neither a run directory nor a seal: {input_path}")
+    stamp = now or datetime.now(UTC)
+    archive_receipts: dict[str, dict[str, Any]] = {}
     if write:
+        check = archive_check or _gcs_archive_check
+        unarchived = [key for key, artifact in artifacts.items() if not artifact.get("archive_uri")]
+        if unarchived and not allow_partial:
+            raise ValueError(
+                f"{unarchived}: no hash-addressed archive recorded; a write needs the "
+                "GCS object (re-run the capture with --archive, or pass allow_partial)"
+            )
+        for key in unarchived:
+            capture["missing_reports"][key] = "no-archive"
+            artifacts.pop(key)
         for key, artifact in artifacts.items():
-            if not artifact.get("archive_uri"):
-                raise ValueError(
-                    f"{key}: no hash-addressed archive recorded; a write needs the "
-                    "GCS object (re-run the capture with --archive)"
-                )
+            archive_receipts[key] = _require_archive(artifact, check)
+        for artifact in artifacts.values():
+            _prepare_ledger(artifact, now=stamp)
     snapshots = None
     if any(key != "line-matchups" for key in artifacts):
         snapshots = query_df(f"""
@@ -654,13 +826,13 @@ def run(
               AND CAST(week AS INT64) <= @target_week
               AND gsis_id IS NOT NULL AND full_name IS NOT NULL
             """, params={"season": SEASON, "target_week": int(target_week)})
-    stamp = now or datetime.now(UTC)
     audit: dict[str, Any] = {
         "input_kind": capture["input_kind"],
         "capture_ref": capture["capture_ref"],
         "season": SEASON,
         "target_week": int(target_week),
-        "first_kickoff_utc": capture["first_kickoff_utc"].isoformat(),
+        "first_kickoff_utc": kickoff.isoformat(),
+        "schedule_authority": f"{settings.raw}.schedules",
         "run_status": capture["run_status"],
         "missing_reports": capture["missing_reports"],
         "allow_partial": bool(allow_partial),
@@ -681,9 +853,12 @@ def run(
             "existing_rows_for_target_week": int(len(existing)),
             "append_rows": int(len(novel)),
             "archive_uri": artifact.get("archive_uri"),
+            "written_at": artifact["written_at"].isoformat(),
+            "max_games": artifact["max_games"],
             "status": "validated",
         })
         if write:
+            report_audit.update(archive_receipts[key])
             if novel.empty:
                 report_audit["write_disposition"] = "already-identical"
             else:
@@ -694,7 +869,11 @@ def run(
                     job_id=_job_id(key, artifact, target_week),
                 )
                 report_audit["write_disposition"] = "appended"
-            _record_staged(artifact, rows=len(novel), table=table_ref, now=stamp)
+            advance_ledger(
+                Path(artifact["run_dir"]), key, "staged", now=stamp,
+                path=artifact["path"], sha256=artifact["sha256"],
+                table=table_ref, rows=int(len(novel)),
+            )
             report_audit["status"] = "staged"
             report_audit["receipt"] = str(_write_receipt(artifact, {
                 **report_audit, "staged_at_utc": stamp.isoformat(),
@@ -719,7 +898,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--output-root", type=Path, default=None,
                         help="fantasy-points/automated root (needed for a seal)")
     parser.add_argument("--allow-partial", action="store_true",
-                        help="stage the validated reports even if a report has none")
+                        help="stage the accepted reports even if a report has none")
     parser.add_argument("--write", action="store_true")
     return parser
 
