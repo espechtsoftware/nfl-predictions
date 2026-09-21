@@ -50,9 +50,28 @@ already red, which is the classic way a real alarm gets missed.
 ### Recommended, operator's call
 
 1. **Swap to the tracked loop before Week 3**, run from the integration
-   checkout rather than the old worktree. The tracked script supports
-   `--check` then `--once` before starting the loop, so it can be validated
-   without disturbing anything. Do it at a quiet time, not Saturday.
+   checkout rather than the old worktree. Tested here 2026-09-21:
+
+       PROD=<integration checkout> bash scripts/host_ingest_dk_loop.sh --check
+       host DK ingest check ok: project=nfl-predictions-503414
+         cli=…/.venv/bin/python -m nfl_dfs.cli
+         pid_file=/home/erich/week1-sunday/host_ingest_dk_loop.pid interval=3600s
+
+   `--check` exits at line 45, before the `flock` at line 54, so running it
+   cannot disturb the loop that is currently up. Confirmed.
+
+   **Order matters, and one detail is easy to get wrong.** `LOCK_FILE` is
+   derived from `PID_FILE`, and `PID_FILE` defaults to
+   `${OUT:-$HOME/week1-sunday}/host_ingest_dk_loop.pid`. So:
+
+   - Started with `OUT` unset or pointing at `week1-sunday`, the tracked loop
+     sees pid 4129 alive and refuses — which is the protection working.
+   - Started with `OUT=$HOME/week3-sunday`, it uses a **different** pid and lock
+     file, does not see the prototype at all, and **both loops would run
+     together**, double-pulling every hour.
+
+   So stop the prototype first and confirm it is gone, then start the tracked
+   loop. Do it at a quiet time, not Saturday.
 2. **Make `check-freshness` meaningful again** — either restore the CFB feed or
    scope it out of the gate deliberately. A permanently red alarm is not an
    alarm.
