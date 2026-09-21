@@ -5,6 +5,62 @@
 
 # Project handoff
 
+## 2026-09-21 — the DraftKings ingest is running on an unsupervised prototype
+
+Found while checking whether the production cadence is healthy going into
+Tuesday. **Nothing is broken right now and Week-3 salaries are present**, but the
+arrangement keeping them present is more fragile than it looks, and the alarm
+that would tell us is already red for an unrelated reason.
+
+### What is actually happening
+
+- **Cloud Run `ingest-dk` has failed 60 consecutive runs**, back to at least
+  2026-09-18 17:00 UTC, every one a `403 Forbidden` from
+  `https://api.draftkings.com/draftgroups/v1/`. `ingest-cfb` fails the same way.
+  This is the known egress block (defect 18, 2026-09-16), not a new fault.
+- **Salaries are current anyway**, because a host-side loop is doing the pulls.
+  Week-3 draft group **153769** holds 5,931 rows, first game 2026-09-27, pulled
+  2026-09-21 12:53 UTC. So the Week-3 build has its salaries.
+- **But the process doing it is the old prototype, not the tracked script.**
+  Running: pid 4129, five days old,
+  `/home/erich/week1-sunday/host_ingest_dk_loop.sh` — twelve lines, no
+  `set -e`, no locking, no exit-status checking (it pipes each pull to
+  `tail -n 2` and discards the status), and `PROD` pointed at the **old
+  operational worktree** `week1-audit-adjust-20260912`, the one the Week-3
+  arming notes say not to use.
+- The repository has a **hardened replacement** at
+  `scripts/host_ingest_dk_loop.sh`: `set -Eeuo pipefail`, `--check` and `--once`
+  modes, `flock` single-instance protection, a stale-pid check, a `GCP_PROJECT`
+  guard, per-pull exit status, and a cleanup trap. **It was never swapped in.**
+
+### Why this matters before Sunday
+
+There is no supervisor. If pid 4129 dies, DK salaries stop silently: the Cloud
+Run job is 403-blocked, so there is no fallback, and the running prototype
+discards exit statuses so its own log would not distinguish a failing pull from
+a successful one.
+
+And the alarm that should catch it is already failing for an unrelated reason.
+`check-freshness` has been exiting 1 daily on exactly one feed —
+`raw.cfb_dk_salaries`, stale 138h against a 36h limit, because `ingest-cfb` is
+403-blocked with no host fallback. Every NFL feed it checks is fresh. So a
+genuine `dk_salaries` staleness would arrive as one more line in a check that is
+already red, which is the classic way a real alarm gets missed.
+
+### Recommended, operator's call
+
+1. **Swap to the tracked loop before Week 3**, run from the integration
+   checkout rather than the old worktree. The tracked script supports
+   `--check` then `--once` before starting the loop, so it can be validated
+   without disturbing anything. Do it at a quiet time, not Saturday.
+2. **Make `check-freshness` meaningful again** — either restore the CFB feed or
+   scope it out of the gate deliberately. A permanently red alarm is not an
+   alarm.
+
+**Not done here on purpose.** Restarting the only working salary path is not
+something to do unprompted, and the running loop is currently succeeding.
+
+
 ## 2026-09-21 — Week-3 arming rehearsed end to end; exactly three things are missing
 
 Rehearsed six days early rather than discovering any of this on Saturday night:
