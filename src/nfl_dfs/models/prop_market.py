@@ -14,9 +14,24 @@ from datetime import time
 import numpy as np
 import pandas as pd
 
-from ..bq import query_df
 from ..config import settings
 from .blend import american_to_prob, devig_two_way, prop_line_to_mean
+
+
+def query_df(sql: str, params: dict | None = None):
+    """Read through the ``bq`` module attribute, never a value bound at import.
+
+    Binding ``query_df`` at import time made every call site here invisible to
+    ``monkeypatch.setattr(nfl_dfs.bq, "query_df", ...)``, so the offline live
+    smokes reached the real warehouse: they passed on a workstation with
+    credentials and failed inside Cloud Build with "ProjectId must be
+    non-empty" (build of 2026-09-21).  One call site had already been fixed
+    this way; this makes the whole module consistent.
+    """
+    from .. import bq as _bq
+
+    return _bq.query_df(sql, params) if params is not None else _bq.query_df(sql)
+
 
 log = logging.getLogger(__name__)
 
@@ -317,10 +332,8 @@ def prop_feed_player_names(season: int, week: int) -> set[str]:
     (``inference.market_source``).  Read through the ``bq`` module attribute
     so offline smokes that stub ``bq.query_df`` see an empty feed.
     """
-    from .. import bq as _bq
-
     market_list = ", ".join(f"'{market}'" for market in STANDARD_MARKETS)
-    df = _bq.query_df(
+    df = query_df(
         f"""SELECT DISTINCT player
             FROM `{settings.raw}.prop_lines`
             WHERE season = {int(season)} AND week = {int(week)}
