@@ -5,6 +5,55 @@
 
 # Project handoff
 
+## 2026-09-21 — what the image carries, and the two things waiting on the operator
+
+**No image rebuild is needed for anything done on 2026-09-21.** Verified rather
+than assumed:
+
+- The only **container** change of the day is the prop-market read-path repair
+  (`src/nfl_dfs/models/prop_market.py`, `1da2b2b9`). It **is** an ancestor of
+  `cf630a68`, which is the commit the pending image `week3-market-source-cf630a68`
+  was built from. So the repoint does ship it.
+- Everything after it — the ordering identity gate (`player_score.py`), the
+  Sunday driver (`sunday_build_host.sh`), the SIS weekly loader, the receipt
+  freshness sweep, the weekly score reader — are **host scripts**, run from the
+  `$PROD` checkout via `$TOOLS`. They take effect from the checkout, not the
+  container. None of them is in the image and none of them needs to be.
+
+**The consequence: arm Week 3 from a checkout of
+`production/week3-integration-20260921` (currently `116f2717`).** Pointing the
+job at the new image without moving the checkout gets the market repair and none
+of the ordering, loader or freshness work. Moving the checkout without the
+repoint gets everything except the market repair, and the build-input gate will
+refuse to start because `market_source_log` will still be absent.
+
+### Waiting on the operator
+
+1. **Repoint `project-slate`.** Still serving `sha256:0993ee01…`. Until it is
+   repointed, the build-input gate fails closed on the missing
+   `nfl_predictions.market_source_log` and the Week-3 build will not start.
+
+       gcloud run jobs update project-slate --project nfl-predictions-503414 \
+         --region us-central1 \
+         --image us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:week3-market-source-cf630a68
+
+   Then verify the next batch logs `market blend source: props`, and roll back to
+   `sha256:0993ee01…` if it does not.
+
+2. **Delete the 32 orphan SIS rows.** One statement. They are the unresolved
+   duplicates described in the data deficiency log; the loader that produced them
+   is repaired, so this will not recur.
+
+       DELETE FROM `nfl-predictions-503414.nfl_raw.sis_team_context_game`
+       WHERE season = 2026 AND week = 1 AND team IS NULL
+
+   Expect 32 rows deleted, leaving 32 for 2026 Week 1, matching every other
+   season-week. Nothing on the money path reads this table.
+
+Both are database or job writes, which is why they are here as statements rather
+than having been run.
+
+
 ## 2026-09-21 workstation — the composite ordering scored Week 2 against Week 1
 
 **Read this before touching any script that takes a `--week`.** Integration
