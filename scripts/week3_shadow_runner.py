@@ -12,7 +12,21 @@ resolved clone commit and clean-state assertion are recorded in manifest.json be
   control      the delivered `nfl2.selectors.select_expected_max` (dual_emax) from the pinned lab release
   ladder016    PREREG-016 `cap_prefix_then_fill`: inclusive rungs 194/200/210/220, weights 1/2/6/12, gamma 4, mean tie-break
   floor8       row filter: lowest served non-DST projection >= 8, then the control selector
+  floor10      row filter: lowest served non-DST projection >= 10, then the control selector
   nodepth4     row filter: at most 3 same-team WR/TE with the QB, then the control selector
+  depth2       row filter: at most 2 same-team WR/TE with the QB, then the control selector
+  cap30        control selector under a per-player exposure cap of 30% of K (drop-later-rows, refill from the
+               eligible pool with the same selector; iterated until no player exceeds the cap)
+  cap20        the same with a 20% cap
+  marketpull   selection-only market pull: for players whose served projection exceeds the frame's market_points by
+               more than 15%, every lineup total is shifted by (market + 0.25 x (served - market)) - served per such
+               player (a per-row constant, shape untouched), then the control selector
+  cap20pull    marketpull totals under the 20% cap
+  games5       row filter: at least 5 distinct games among the non-DST players, then the control selector
+  late3        row filter: at least 3 players whose game starts after the slate's first kickoff, then the control selector
+(floor 12 stays a diagnostic outside the registered arms; the lab's plan of 2026-09-20 names the first six arms; the
+Week-2 post-mortem of 2026-09-20 adds the six exposure / market / row-shape arms; arms whose frame columns are absent
+are recorded infeasible, never approximated)
 
 Operational K is read from contests.json (sum of entries). Infeasible arms (fewer than K rows after a filter) are
 recorded, never relaxed. Outputs (all outcome-blind; nothing here reads a score): manifest.json (input hashes, selector
@@ -29,7 +43,17 @@ import numpy as np, pandas as pd
 RUNGS = {194.0: 1.0, 200.0: 2.0, 210.0: 6.0, 220.0: 12.0}
 GAMMA = 4
 FLOOR = 8.0
+FLOOR10 = 10.0
 MAX_SAME_TEAM_WRTE = 3
+MAX_SAME_TEAM_WRTE_2 = 2
+CAP30 = 0.30
+CAP20 = 0.20
+MAX_CAP_ITER = 8
+PULL_TRIGGER = 1.15      # served proj > 1.15 x market_points triggers the pull
+PULL_KEEP = 0.25         # share of the served-minus-market divergence kept after the pull
+MIN_GAMES = 5
+MIN_LATE = 3
+OPTIONAL_FRAME_COLUMNS = ["market_points", "game_id", "game_start"]
 BANKS = ["incumbent_player_scores.npy", "corrected_hsim_player_scores.npy"]
 sha = lambda p: hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()
 
@@ -83,7 +107,9 @@ import nfl2.selectors as _sel  # noqa: E402
 
 t0 = time.time()
 receipt = json.loads((run / "receipt.json").read_text())
-fr = pd.read_parquet(run / "frame.parquet", columns=["id", "name", "pos", "team", "salary", "proj"])
+import pyarrow.parquet as pq  # noqa: E402
+_frame_names = pq.ParquetFile(run / "frame.parquet").schema.names
+fr = pd.read_parquet(run / "frame.parquet", columns=["id", "name", "pos", "team", "salary", "proj", *[c for c in OPTIONAL_FRAME_COLUMNS if c in _frame_names]])
 cands = pd.read_parquet(run / "candidates.parquet")
 book = json.loads((run / "book.json").read_text())["entries"]
 contests = json.load(open(a.contests)); contests = contests if isinstance(contests, list) else contests["contests"]
@@ -145,7 +171,71 @@ arms["ladder016"] = {"arm": "ladder016", "feasible": len(order016) == K, "pool":
                      "rungs_inclusive": {str(int(r)): w for r, w in RUNGS.items()}, "gamma": GAMMA, "tie_break": "pooled mean total"}
 print(f"ladder016 in {time.time()-t1:.0f}s (prefix {prefix016})", flush=True)
 arms["floor8"] = run_filtered(min_proj >= FLOOR, "floor8"); arms["floor8"].update({"floor": FLOOR, "applies_to": "lowest served proj among non-DST players"})
+arms["floor10"] = run_filtered(min_proj >= FLOOR10, "floor10"); arms["floor10"].update({"floor": FLOOR10, "applies_to": "lowest served proj among non-DST players"})
 arms["nodepth4"] = run_filtered(depth <= MAX_SAME_TEAM_WRTE, "nodepth4"); arms["nodepth4"].update({"max_same_team_wrte": MAX_SAME_TEAM_WRTE})
+arms["depth2"] = run_filtered(depth <= MAX_SAME_TEAM_WRTE_2, "depth2"); arms["depth2"].update({"max_same_team_wrte": MAX_SAME_TEAM_WRTE_2})
+
+
+def capped_control(T, cap, name):
+    """Control selector under a per-player exposure cap. Accept the selector's rows in its own order while no player
+    exceeds floor(cap x K) rows; a row that would breach is excluded from every later refill; the open slots are refilled
+    by the same selector on the eligible pool (rows not chosen, not excluded, and holding no player already at the cap).
+    The delivered selector has no fixed-set argument, so each refill is a fresh expected-max selection of the open slots
+    (recorded as such). Iterates until K rows hold or MAX_CAP_ITER; never relaxes the cap."""
+    limit = int(np.floor(cap * K + 1e-9)); excluded = np.zeros(n, dtype=bool); order = list(select_expected_max(T, K)); it = 0
+    while True:
+        it += 1; counts, chosen = {}, []
+        for i in order:
+            ps = players[i]
+            if all(counts.get(p, 0) < limit for p in ps):
+                chosen.append(int(i))
+                for p in ps: counts[p] = counts.get(p, 0) + 1
+            else:
+                excluded[i] = True
+        if len(chosen) >= K or it >= MAX_CAP_ITER: break
+        at_limit = {p for p, c_ in counts.items() if c_ >= limit}
+        mask = ~excluded; mask[chosen] = False
+        if at_limit: mask &= np.array([not any(p in at_limit for p in ps) for ps in players])
+        keep = np.flatnonzero(mask); need = K - len(chosen)
+        if len(keep) < need: break
+        fill = select_expected_max(T[keep], need); order = chosen + [int(keep[j]) for j in fill]
+    feasible = len(chosen) >= K; chosen = chosen[:K]
+    exp = {}
+    for i in chosen:
+        for p in players[i]: exp[p] = exp.get(p, 0) + 1
+    return {"arm": name, "feasible": feasible, "pool": n, "order": chosen if feasible else [], "cap": cap, "max_rows_per_player": limit, "iterations": it,
+            "max_exposure_rows": (max(exp.values()) if exp else 0), "refill_law": "fresh expected-max selection of the open slots from the eligible pool (no warm start in the delivered selector)",
+            **({} if feasible else {"note": f"cap {cap} infeasible after {it} iterations; {len(chosen)} rows held; not relaxed"})}
+
+
+t1 = time.time()
+arms["cap30"] = capped_control(Td, CAP30, "cap30"); arms["cap20"] = capped_control(Td, CAP20, "cap20")
+print(f"cap arms in {time.time()-t1:.0f}s", flush=True)
+if "market_points" in fr.columns:
+    _mk = pd.to_numeric(fr.market_points, errors="coerce").to_numpy(dtype=float); _pj = pd.to_numeric(fr.proj, errors="coerce").to_numpy(dtype=float)
+    _flag = np.isfinite(_mk) & np.isfinite(_pj) & (_pj > PULL_TRIGGER * _mk) & (fr.pos.astype(str).to_numpy() != "DST")
+    _delta = np.where(_flag, (_mk + PULL_KEEP * (_pj - _mk)) - _pj, 0.0)
+    delta_by_row = np.array([sum(_delta[row_of[p]] for p in ps) for ps in players], dtype=np.float32)
+    shifted = [{"id": ids[k], "name": str(fr.name.iloc[k]), "proj": float(_pj[k]), "market_points": float(_mk[k]), "delta": float(_delta[k])} for k in np.flatnonzero(_flag)]
+    t1 = time.time(); Tp = Td + delta_by_row[:, None]
+    _pull_meta = {"trigger_ratio": PULL_TRIGGER, "keep_share_of_divergence": PULL_KEEP, "n_shifted_players": int(_flag.sum()), "shifted_players": shifted,
+                  "law": "per-row constant shift = sum over the row's flagged players of (market + keep x (served - market)) - served; applied identically to both banks"}
+    arms["marketpull"] = {"arm": "marketpull", "feasible": True, "pool": n, "order": [int(i) for i in select_expected_max(Tp, K)], **_pull_meta}
+    arms["cap20pull"] = {**capped_control(Tp, CAP20, "cap20pull"), **_pull_meta}; del Tp
+    print(f"market-pull arms in {time.time()-t1:.0f}s ({int(_flag.sum())} players shifted)", flush=True)
+else:
+    for _nm in ("marketpull", "cap20pull"): arms[_nm] = {"arm": _nm, "feasible": False, "pool": n, "order": [], "note": "frame has no market_points column; arm not approximated"}
+if "game_id" in fr.columns:
+    game = dict(zip(ids, fr.game_id.astype(str))); ngames = np.array([len({game[p] for p in ps if pos[p] != "DST"}) for ps in players])
+    arms["games5"] = run_filtered(ngames >= MIN_GAMES, "games5"); arms["games5"].update({"min_distinct_games_non_dst": MIN_GAMES})
+else:
+    arms["games5"] = {"arm": "games5", "feasible": False, "pool": n, "order": [], "note": "frame has no game_id column; arm not approximated"}
+if "game_start" in fr.columns:
+    _gs = pd.to_datetime(fr.game_start, utc=True, errors="coerce"); _first = _gs.min(); late_flag = dict(zip(ids, (_gs > _first).fillna(False).tolist()))
+    nlate = np.array([sum(1 for p in ps if late_flag.get(p, False)) for ps in players])
+    arms["late3"] = run_filtered(nlate >= MIN_LATE, "late3"); arms["late3"].update({"min_late_players": MIN_LATE, "first_kickoff_utc": (str(_first) if pd.notna(_first) else None)})
+else:
+    arms["late3"] = {"arm": "late3", "feasible": False, "pool": n, "order": [], "note": "frame has no game_start column; arm not approximated"}
 print("arms done", {k: (v["feasible"], v["pool"]) for k, v in arms.items()}, flush=True)
 
 # contest blocks (sequential layout: contests.json order)
@@ -164,14 +254,18 @@ def diag(order):
     for b in blocks:
         rows = order[b["rows"][0] - 1: b["rows"][1]]
         if rows: pm = Td[rows].max(axis=0); pref[b["name"]] = {"rows": b["rows"], "max_mean": float(pm.mean()), "p220": float((pm >= 220).mean())}
+    kpref = {}
+    for K in (20, 40, 80):
+        if len(order) >= K:
+            pm = Td[order[:K]].max(axis=0); kpref[str(K)] = {"max_mean": float(pm.mean()), "p200": float((pm >= 200).mean()), "p210": float((pm >= 210).mean()), "p220": float((pm >= 220).mean())}
     return {"pooled": {"max_mean": float(mx.mean()), "p194": float((mx >= 194).mean()), "p200": float((mx >= 200).mean()), "p210": float((mx >= 210).mean()),
-                       "p220": float((mx >= 220).mean()), "p230": float((mx >= 230).mean()), "p240": float((mx >= 240).mean())},
+                       "p220": float((mx >= 220).mean()), "p230": float((mx >= 230).mean()), "p240": float((mx >= 240).mean())}, "k_prefixes": kpref,
             "per_bank": per_bank, "row_mean_of_means": float(mean_total[order].mean()), "prefix_blocks": pref,
             "overlap_with_control": len(set(order) & set(control)), "order_positions_equal_control": sum(1 for i, j in zip(order, control) if i == j)}
 
 diagnostics = {k: diag(v["order"]) for k, v in arms.items()}
 books = {k: {**v, "rosters": [names_by_cand[i].split("|") for i in v["order"]], "candidate_ids": [players[i] for i in v["order"]]} for k, v in arms.items()}
-manifest = {"schema": "week3-shadow-runner/v1", "label": a.label, "built_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "run_dir": str(run),
+manifest = {"schema": "week3-shadow-runner/v2", "label": a.label, "built_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "run_dir": str(run),
             "inputs_sha256": {f: sha(run / f) for f in ["frame.parquet", "candidates.parquet", "receipt.json", "book.json", *BANKS]},
             "contests_sha256": sha(a.contests), "K": K, "sims_per_bank": sims, "banks": BANKS, "pool_size": n,
             "selector_module": {"path": str(pathlib.Path(_sel.__file__)), "sha256": sha(_sel.__file__)},
@@ -181,7 +275,12 @@ manifest = {"schema": "week3-shadow-runner/v1", "label": a.label, "built_utc": t
             "totals_law": "per bank: float32 sequential sum of bank rows in ascending frame-row order; equal-mass concatenation [incumbent | corrected_hsim]",
             "parity": {"membership": parity_membership, "order": parity_order, "book_json_names": parity_book_json},
             "arms": {"control": "nfl2.selectors.select_expected_max", "ladder016": "nfl2.selectors.cap_prefix_then_fill inclusive 194/200/210/220 w 1/2/6/12 gamma 4",
-                     "floor8": f"row filter min non-DST served proj >= {FLOOR} then control", "nodepth4": f"row filter same-team WR/TE with QB <= {MAX_SAME_TEAM_WRTE} then control"},
+                     "floor8": f"row filter min non-DST served proj >= {FLOOR} then control", "floor10": f"row filter min non-DST served proj >= {FLOOR10} then control",
+                     "nodepth4": f"row filter same-team WR/TE with QB <= {MAX_SAME_TEAM_WRTE} then control", "depth2": f"row filter same-team WR/TE with QB <= {MAX_SAME_TEAM_WRTE_2} then control",
+                     "cap30": f"control under a per-player exposure cap of {CAP30} x K (drop-later-rows, same-selector refill, <= {MAX_CAP_ITER} iterations)", "cap20": f"control under a per-player exposure cap of {CAP20} x K",
+                     "marketpull": f"totals shifted by (market + {PULL_KEEP} x (served - market)) - served for players with served > {PULL_TRIGGER} x market_points, then control",
+                     "cap20pull": f"marketpull totals under the {CAP20} x K cap", "games5": f"row filter >= {MIN_GAMES} distinct games among non-DST players then control",
+                     "late3": f"row filter >= {MIN_LATE} players whose game starts after the slate's first kickoff then control"},
             "current_outcomes_read": False, "runner_sha256": sha(__file__), "seconds": round(time.time() - t0, 1)}
 (out / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n"); (out / "books.json").write_text(json.dumps({"blocks": blocks, "arms": books}, indent=2) + "\n")
 (out / "diagnostics.json").write_text(json.dumps(diagnostics, indent=2) + "\n")

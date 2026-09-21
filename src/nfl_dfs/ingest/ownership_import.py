@@ -295,10 +295,21 @@ def _validate_ownership_against_entries(
     minor: list[str] = []
     mismatched: list[str] = []
     for name in sorted(set(derived) & set(summary)):
-        gap = abs(float(summary[name]) - derived[name])
+        shown = float(summary[name])
+        ours = derived[name]
+        gap = abs(shown - ours)
         if gap <= 0.011:
             continue
-        if gap <= 2.0 * one_entry + 0.011 and float(summary[name]) < 1.0:
+        # 2026-09-21 (all twelve Week-2 exports): DraftKings' own summary is short by one or two entries for a player
+        # held by a handful of entries in a small field (68-entry satellite 1.47% shown vs 2.94% derived; 59-entry
+        # qualifier 3.39 vs 6.78), and shows roughly half the lineup-derived share for a player below ~0.2% of a large
+        # field (Millionaire 0.02% shown vs 0.04% derived from 69 lineups; Huddle 0.05 vs 0.11; a 594-entry supersat
+        # 0.51 vs 1.01 for a player held by six entries). Both are tolerated
+        # only while the shown share is small (< 5%), are RECORDED in the receipt and logged, and the lineup-derived
+        # share stays the authority. A gap of that size on a widely held player still fails closed.
+        if shown < 5.0 and gap <= 2.0 * one_entry + 0.011:
+            minor.append(name)
+        elif shown < 5.0 and ours < 2.0 and gap <= 0.6 * ours + 0.011:
             minor.append(name)
         else:
             mismatched.append(name)
@@ -307,6 +318,12 @@ def _validate_ownership_against_entries(
             "ownership summary does not reproduce the complete entry field: "
             f"missing={missing[:3]} unexpected={unexpected[:3]} "
             f"pct_mismatch={mismatched[:3]}"
+        )
+    if minor:
+        log.warning(
+            "ownership summary short for %d low-owned player(s); tolerated and recorded, "
+            "lineup-derived shares are the authority: %s",
+            len(minor), minor[:10],
         )
     return minor
 
@@ -379,10 +396,16 @@ def _validate_full_field_payload(
     # blank-lineup entries carry no players, so DK's summed %Drafted is the full mass scaled by the filled share
     expected_mass *= len(entries) / float(len(entries) + blank_lineup_entries)
     ownership_mass = float(ownership.pct_drafted.sum())
-    if abs(ownership_mass - expected_mass) > 2.0:
+    # 2026-09-21: the per-player shortfalls above also shorten the summed mass; in a 68-entry field the sum came to
+    # 895.43 with every lineup complete. Tolerate up to six entries' worth of one roster slot, never more than 10
+    # points and never less than the historical 2.0.
+    field_total = float(len(entries) + blank_lineup_entries)
+    mass_tolerance = min(10.0, max(2.0, 6.0 * 100.0 / field_total))
+    if abs(ownership_mass - expected_mass) > mass_tolerance:
         raise ValueError(
             f"ownership mass {ownership_mass:.3f} is inconsistent with "
-            f"{roster_format} expected mass {expected_mass:.1f}"
+            f"{roster_format} expected mass {expected_mass:.1f} "
+            f"(tolerance {mass_tolerance:.2f})"
         )
     ownership_minor_mismatches = _validate_ownership_against_entries(entries, ownership, field_size=len(entries) + blank_lineup_entries)
 
@@ -401,6 +424,7 @@ def _validate_full_field_payload(
         "winner_score": float(entries.loc[entries["rank"].eq(1), "points"].max()),
         "blank_lineup_entries": blank_lineup_entries,
         "ownership_minor_mismatches": ownership_minor_mismatches,
+        "ownership_mass_tolerance": mass_tolerance,
     }
 
 
