@@ -7,8 +7,19 @@
 
 ## 2026-09-21 (late) — CI triage, three operator items actioned, and five silent-failure traps
 
-Branch `production/week3-integration-20260921`, tip `9cfd1461`.
-Money lane at this tip: **246 passed, 1 skipped**.
+Branch `production/week3-integration-20260921`, tip `f1024fd1`.
+Money lane at this tip: **249 passed, 1 skipped**.
+
+**The money lane now covers the warehouse writer.** It previously contained the
+optimizer, scoring, DK client, upload CSV, feature SQL and the app — but not
+`nfl_dfs.bq.load_dataframe`, which writes `player_projections` and
+`market_source_log` for all of them. That is how `test_bq_load.py` sat silently
+disabled from 2026-09-20: the autouse guard stubbed the function its three tests
+exercise, the full suite has not completed since 2026-09-15, and the
+every-commit lane did not run them — three nets, and the writer fell through all
+three. Added in `f1024fd1` and mutation-checked (re-disabling the opt-out fails
+all three; restoring passes all three). `test_persistence_contract.py` and
+`test_launcher_registry.py` deliberately stay in the full lane only.
 
 > **OPEN — six decisions requested from the lab:
 > `reports/2026-09-21-decisions-requested-from-lab.md`.** Python 3.14
@@ -101,7 +112,24 @@ a worktree imports the MAIN checkout's `src`**, because the venv is an editable
 install. Scripts invoked by path do come from the worktree, which is what makes
 it deceptive. Use `PYTHONPATH=<worktree>/src`.
 
-**Lab.** Replied to their Week-3 generator coverage arm plan
+**Lab (later the same day).** They pushed a "corrected shadow exploration
+sleeve" (`cbbbac8`) and a forecast-perturbation shadow plan (`40735a60`). The
+"corrected" sleeve is a genuine but *independent* correction — the resulting
+file is **byte-identical** to the version reviewed, and all three reported
+fail-open paths still reproduce on their branch. Flagged, because the commit
+message reads like the defects were fixed. Their view 4
+(`0.50 * served + 0.50 * proj_p90`) rests on a quantile the Week-2 proper
+scoring found miscalibrated — 0 of 31 QBs reached their own p90 (~1.9 SE,
+marginal alone) on top of a −3.50 ± 1.43 centre bias — so it partly measures the
+projection's tail defect rather than the construction question; suggested
+per-view p90 coverage in the receipt rather than dropping the view. We also
+**corrected our own severity call** on sleeve defect 1 after checking the data:
+`K` is real (7,636 rows in 2026) but appears only on *showdown* slates, and the
+pool builder unions *classic* draft groups, so that one is defence-in-depth
+rather than imminent. Defects 2 and 3 keep their severity.
+`reports/2026-09-21-reply-forecast-perturbation-and-sleeve-status.md`.
+
+**Lab (earlier).** Replied to their Week-3 generator coverage arm plan
 (`reports/2026-09-21-reply-to-generator-arm-plan.md`): both instruments it
 specifies already exist and match its stated contract. Reviewed their
 exploration sleeve and reported three fail-open paths in `validate_lineup`,
