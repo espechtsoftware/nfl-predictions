@@ -203,9 +203,21 @@ switching branches:
       production/week3-integration-20260921 -- scripts/host_ingest_dk_loop.sh
     ls -l /home/erich/projects/nfl-predictions/scripts/host_ingest_dk_loop.sh
 
-**Do not enable the unit before this file exists.** With
-`StartLimitIntervalSec=0` and `RestartSec=60s` there is no rate limiter, so it
-would restart forever every 60 seconds.
+**This is now enforced, not just advised.** The unit carries
+`ExecStartPre=/usr/bin/test -x …`, so it refuses to start without the script,
+and `StartLimitIntervalSec=1h` with `StartLimitBurst=3` caps it at three
+attempts an hour instead of the unbounded 60-second loop an earlier draft would
+have produced. Doing step (b) first is still the point; the guard is the
+backstop.
+
+**The consequence to be aware of.** Ordinary failed pulls do NOT restart the
+service — the loop logs `host DK ingest pair failed`, sleeps, and carries on, so
+a bad hour costs nothing. `Restart=on-failure` only fires on something fatal.
+But with the cap, three fatal failures in an hour leave the service **dead and
+quiet**. That is the right trade against an infinite loop, and it is why the
+freshness item below matters: a stopped DK ingest should be caught by
+`check-freshness` going red on stale `dk_salaries`, and right now that check is
+already red for an unrelated reason, so it would tell you nothing.
 
 **c. Validate without touching the running loop** (`--check` exits before any
 locking):
