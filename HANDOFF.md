@@ -5,6 +5,39 @@
 
 # Project handoff
 
+## 2026-09-21 — Week-3 arming is GREEN with no overrides; four operator items left
+
+The live clone now exists. Created on this host with the laptop's reviewed
+command and verified as they specified: HEAD
+`2dc116ce95647a776ba9c36cf194f44d022d03a4`, clean.
+
+**The arming rehearsal now passes with no `CLONE` or `EXPECT_SHA` override at
+all** (only `OUT` pointed at a scratch directory, so the real `week3-sunday` is
+untouched):
+
+    role=build     season=2026 week=3 group=153769 book_entries=97
+                   layout=sequential clone=2dc116ce…  exit 0
+    role=watchers  same                                exit 0
+
+**The lab side is closed.** Everything remaining is the operator's:
+
+1. Repoint `project-slate`; the build-input gate fails closed while
+   `market_source_log` is absent. Verify by the job log, not the table — see the
+   entry below for the failure line and the positive confirmation.
+2. The real `$OUT/contests.json` and `$OUT/chosen-dose.env`.
+3. Delete the 32 orphan SIS rows.
+4. Swap the DK host loop, prototype stopped and confirmed gone first.
+
+On (4): the laptop's supervisor unit is merged at `68744d51` as
+`deploy/systemd/nfl-host-dk-ingest.service`, **added but not enabled**. Its
+single-instance guard was repaired on merge — it now pins `PID_FILE` to the
+prototype's own path so it refuses to start beside a live prototype, instead of
+quietly using a different pid file and double-pulling. Two hazards before
+enabling: `ExecStart` does not resolve on the main checkout's current branch,
+and with `StartLimitIntervalSec=0` there is no rate limiter, so enabling it
+before the script is present gives an unbounded 60-second restart loop.
+
+
 ## 2026-09-21 — the DraftKings ingest is running on an unsupervised prototype
 
 Found while checking whether the production cadence is healthy going into
