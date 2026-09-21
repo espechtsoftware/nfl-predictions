@@ -1,0 +1,85 @@
+{
+  "schema": "week-ceiling-coverage/v1",
+  "season": 2026,
+  "week": 2,
+  "checked_utc": "2026-09-21T17:08:30.818733+00:00",
+  "pool_candidates": 12555,
+  "pool_best": 197.26,
+  "contests": [
+    {
+      "contest_name": "NFL $3M Fantasy Football Millionaire [$1",
+      "entries": 172692,
+      "winning": 232.37999,
+      "median_pts": 113.82,
+      "p99": 179.78
+    },
+    {
+      "contest_name": "NFL $350K Flea Flicker [$50K to 1st]",
+      "entries": 83200,
+      "winning": 235.48,
+      "median_pts": 117.22,
+      "p99": 182.36
+    },
+    {
+      "contest_name": "NFL $100K Huddle [Single Entry]",
+      "entries": 23758,
+      "winning": 223.0,
+      "median_pts": 111.82,
+      "p99": 176.86
+    },
+    {
+      "contest_name": "NFL $40K Pylon [Single Entry]",
+      "entries": 15838,
+      "winning": 215.18001,
+      "median_pts": 113.020004,
+      "p99": 178.95999
+    },
+    {
+      "contest_name": "NFL $40K Nickel [5 Entry Max]",
+      "entries": 9512,
+      "winning": 217.26,
+      "median_pts": 118.78,
+      "p99": 182.1
+    },
+    {
+      "contest_name": "NFL SUPERSat to $20 NFL Fantasy Football",
+      "entries": 6537,
+      "winning": 215.06,
+      "median_pts": 115.17999,
+      "p99": 178.95999
+    },
+    {
+      "contest_name": "NFL SUPERSatellite to NFL $555 Fantasy F",
+      "entries": 68,
+      "winning": 182.06,
+      "median_pts": 124.22,
+      "p99": 182.06
+    },
+    {
+      "contest_name": "NFL $18 2026 FFWC Qualifier SUPERSatelli",
+      "entries": 59,
+      "winning": 183.84001,
+      "median_pts": 124.28,
+      "p99": 183.84001
+    }
+  ],
+  "winnable_contests": [
+    "NFL SUPERSatellite to NFL $555 Fantasy F",
+    "NFL $18 2026 FFWC Qualifier SUPERSatelli"
+  ],
+  "coverage": {
+    "roster_size": 9,
+    "exact_matches": 0,
+    "by_shared_players": {
+      "5": 2,
+      "4": 15,
+      "3": 242,
+      "2": 1358,
+      "1": 4797,
+      "0": 6141
+    },
+    "contest": "%Millionaire%",
+    "winner": "elidkatz1 (49/150)",
+    "winning_points": 232.37999
+  }
+}
