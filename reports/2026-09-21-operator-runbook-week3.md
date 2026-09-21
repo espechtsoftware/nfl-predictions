@@ -31,15 +31,30 @@ force one now:
     gcloud run jobs execute project-slate \
       --project nfl-predictions-503414 --region us-central1 --wait
 
-**Verify by the JOB LOG, not by the table.** Two lines to look for:
+**Verify by the JOB LOG, not by the table — and on the RIGHT line.**
 
-    market blend source: props (N/M rows)      <- the repair working
-    market-source log: N rows (props=…)        <- the monitor row write
+**Corrected 2026-09-21 after testing this against the live logs.** An earlier
+draft of this runbook said to check for `market blend source: props`. **That is
+not a valid check**: the OLD image already logs it. Across the last 400
+`project-slate` log entries, on the current image:
+
+    "market blend source"  : 3 occurrences   <- old image logs this too, USELESS as a check
+    "market-source log:"   : 0 occurrences   <- only the repaired image writes this
+
+So the one line that proves the repoint took is:
+
+    market-source log: N rows (props=…, …)
 
     gcloud logging read \
       'resource.type="cloud_run_job" AND resource.labels.job_name="project-slate"' \
       --project nfl-predictions-503414 --limit 200 --format='value(textPayload)' \
-      | grep -E "market blend source|market-source log"
+      | grep -E "market-source log:"
+
+If that returns nothing, the repaired image did not run, whatever else the log
+says. For context while reading: the old image logs
+`market blend source: props (388/481 rows)`, i.e. it blends props for 388 of 481
+players and silently falls back for the other 93. That silent fallback is the
+Week-2 defect; under the repair every row's source is recorded instead.
 
 **If the gate is still red afterwards**, read the log for this line before
 suspecting the image — the write is deliberately best-effort and swallows its
@@ -47,7 +62,7 @@ own failure:
 
     market-source log write failed; projections unaffected but the monitor is blind for this batch
 
-**Rollback** if `market blend source` does not say `props`:
+**Rollback** if no `market-source log:` line appears after a completed run:
 
     gcloud run jobs update project-slate \
       --project nfl-predictions-503414 --region us-central1 \
