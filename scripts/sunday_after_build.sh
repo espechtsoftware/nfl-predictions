@@ -196,6 +196,29 @@ PYF
   if [[ "$PROMOTION_STATUS" != "NOT REQUESTED" ]]; then
     echo "PROMOTION STEP: $PROMOTION_STATUS" >> "$OUT/TODAY-30-LATEST.md"
   fi
+  # Input-freshness sweep. On 2026-09-20 every composite ordering read the last
+  # WEEK-1 projection batch and Week-1 props, and nothing failed: the join is by
+  # player, so it returned last week's numbers and coverage looked healthy. The
+  # only trace was a timestamp in a receipt, so check that trace mechanically.
+  # Reported, not fatal: it is a date heuristic, and blocking an entered book at
+  # 11:15 CT on a heuristic is worse than a loud line the operator reads. A hit
+  # means STOP and check which slice the tool selected.
+  local WINDOW_START; WINDOW_START=$(date -u -d "$SUNDAY - 5 days" +%F 2>/dev/null || echo "")
+  if [ -n "$WINDOW_START" ] && [ -f "$PROD/scripts/receipt_freshness_sweep.py" ]; then
+    if $PY "$PROD/scripts/receipt_freshness_sweep.py" --dir "$OUT" --after "$WINDOW_START" \
+         > "$OUT/input-freshness-$tag.txt" 2>&1; then
+      echo "INPUT FRESHNESS: OK (no artifact read data from before $WINDOW_START)" >> "$OUT/TODAY-30-LATEST.md"
+    else
+      log "STALE INPUTS DETECTED -- see $OUT/input-freshness-$tag.txt"
+      { echo
+        echo "*** STALE INPUTS DETECTED -- DO NOT UPLOAD UNTIL CHECKED ***"
+        echo "One or more artifacts recorded reading data from before $WINDOW_START,"
+        echo "which is the Week-2 defect class: a tool silently selected another"
+        echo "week's slice. Full list: $OUT/input-freshness-$tag.txt"
+        grep -E "^  STALE" "$OUT/input-freshness-$tag.txt" | head -20
+      } >> "$OUT/TODAY-30-LATEST.md"
+    fi
+  fi
   log "done $(basename "$run") -> $OUT/TODAY-30-LATEST.md"
 
 }
