@@ -77,13 +77,18 @@ HANDOFF, and continue with everything else — never route around a refusal.
 
 ```bash
 source .venv/bin/activate
-pytest                      # full suite, runs offline (no GCP needed)
+pytest                      # full suite; offline (no credentials, no network)
+                            # but needs the gcp EXTRA installed to import
 nfl-dfs --help              # every pipeline job as a CLI subcommand
 nfl-dfs build-features      # feature SQL + leakage checks (needs GCP auth)
 ```
 
-Install: `pip install -e ".[dev,app]"` for code work; add `gcp` for
-pipeline work. BigQuery is the only database — there is no local-data mode.
+Install: `pip install -e ".[dev,app,gcp]"`. The `gcp` extra is required even
+for plain test runs: many test modules import `google.cloud.bigquery` /
+`google.cloud.storage` at module scope, so without it collection fails. The
+suite still makes no network calls and needs no credentials — CI has none. CI
+installed only `[dev,app]` until 2026-09-21 and had therefore been failing at
+collection with 54 errors since 2026-08-09; see the Data deficiency log. BigQuery is the only database — there is no local-data mode.
 Config is env vars only, all read in `src/nfl_dfs/config.py`. Work in a git
 worktree per task (`git worktree add`), never in a dirty main checkout; the
 `.venv` of a checkout is an editable install of *that* checkout, so pass
