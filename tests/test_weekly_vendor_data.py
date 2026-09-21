@@ -1,4 +1,6 @@
 import json
+
+import pytest
 from datetime import UTC, datetime
 from pathlib import Path
 from types import SimpleNamespace
@@ -218,7 +220,7 @@ def test_run_week_verifies_sis_but_does_not_query_without_approved_plan(
         weekly.fp_matchups, "run", lambda **_: Path("matchups/manifest.json")
     )
 
-    weekly.run_week(
+    manifest_path = weekly.run_week(
         week=1,
         fp_profile_dir=tmp_path / "fp-profile",
         sis_profile_dir=tmp_path / "sis-profile",
@@ -231,7 +233,12 @@ def test_run_week_verifies_sis_but_does_not_query_without_approved_plan(
         login_if_needed=False,
         now=datetime(2026, 9, 2, 14, tzinfo=UTC),
     )
-    assert events == ["verify-fp", "verify-sis"]
+    # 2026-09-21 (defect 28): the SIS session is verified only when an SIS step runs; this week-2 run has none, so the
+    # step is recorded as not required and the Fantasy Points capture proceeds
+    assert events == ["verify-fp"]
+    manifest = json.loads(manifest_path.read_text())
+    sis_step = next(s for s in manifest["steps"] if s["name"] == "sis-session")
+    assert sis_step["result"]["status"] == "not-required"
 
 
 def test_failed_step_is_durable(monkeypatch, tmp_path):
@@ -265,3 +272,51 @@ def test_failed_step_is_durable(monkeypatch, tmp_path):
     assert manifest["status"] == "failed"
     assert manifest["steps"][-1]["name"] == "odds-api-game-lines"
     assert manifest["steps"][-1]["error"] == "quota"
+
+
+def test_expired_sis_session_does_not_block_a_run_with_no_sis_step(monkeypatch, tmp_path):
+    """Defect 28: an expired SIS session must not lose the Fantasy Points capture when no SIS step runs (week < 5, no plan)."""
+    events = []
+    monkeypatch.setattr(weekly.fp, "load_plan", lambda *_: ({}, [object()]))
+    monkeypatch.setattr(weekly.fp, "select_target_week", lambda specs, _: specs)
+    monkeypatch.setattr(weekly.fp, "verify_login", lambda *_: events.append("verify-fp"))
+
+    def expired(*_):
+        raise RuntimeError("SIS saved session is missing, expired, or cannot load Player Leaderboards")
+
+    monkeypatch.setattr(weekly.sis, "verify_login", expired)
+    monkeypatch.setattr(weekly.sis, "interactive_login", lambda *a, **k: events.append("login-sis"))
+    monkeypatch.setattr(weekly.fp, "run_downloads", lambda *a, **k: events.append("fp-download") or (tmp_path / "fp" / "manifest.json"))
+    monkeypatch.setattr(weekly.fantasy_points_route_weekly, "run", lambda *a, **k: events.append("fp-import") or {"rows": 1})
+    manifest_path = weekly.run_week(
+        week=3, fp_profile_dir=tmp_path / "fp-profile", sis_profile_dir=tmp_path / "sis-profile", timeout_seconds=10,
+        output_root=tmp_path / "runs", fp_output_root=tmp_path / "fp-output", sis_output_root=tmp_path / "sis-output",
+        capture_matchups=False, capture_sis_pass_tail=True, ingest_odds=False, login_if_needed=False,
+        now=datetime(2026, 9, 21, 4, tzinfo=UTC),
+    )
+    manifest = json.loads(manifest_path.read_text())
+    assert manifest["status"] == "complete" and "login-sis" not in events and "fp-download" in events and "fp-import" in events
+    sis_step = next(s for s in manifest["steps"] if s["name"] == "sis-session")
+    assert sis_step["status"] == "complete" and sis_step["result"]["status"] == "not-required"
+
+
+def test_expired_sis_session_still_stops_a_run_that_needs_sis(monkeypatch, tmp_path):
+    monkeypatch.setattr(weekly.fp, "load_plan", lambda *_: ({}, [object()]))
+    monkeypatch.setattr(weekly.fp, "select_target_week", lambda specs, _: specs)
+    monkeypatch.setattr(weekly.fp, "verify_login", lambda *_: None)
+    monkeypatch.setattr(weekly.sis, "load_plan", lambda *_: [])
+    monkeypatch.setattr(weekly.sis, "plan_request_ceiling", lambda *_: 10)
+
+    def expired(*_):
+        raise RuntimeError("SIS saved session is missing, expired, or cannot load Player Leaderboards")
+
+    monkeypatch.setattr(weekly.sis, "verify_login", expired)
+    monkeypatch.setattr(weekly.fp, "run_downloads", lambda *a, **k: (_ for _ in ()).throw(AssertionError("must not download before the SIS gate")))
+    plan = tmp_path / "sis-plan.json"; plan.write_text("[]")
+    with pytest.raises(RuntimeError, match="SIS saved session"):
+        weekly.run_week(
+            week=3, fp_profile_dir=tmp_path / "fp-profile", sis_profile_dir=tmp_path / "sis-profile", timeout_seconds=10,
+            output_root=tmp_path / "runs", fp_output_root=tmp_path / "fp-output", sis_output_root=tmp_path / "sis-output",
+            sis_plan=plan, capture_matchups=False, capture_sis_pass_tail=False, ingest_odds=False, login_if_needed=False,
+            now=datetime(2026, 9, 21, 4, tzinfo=UTC),
+        )

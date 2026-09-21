@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "max_exports": 22,
+  "max_api_requests": 110,
+  "description": "2026 in-season game-grain team context for completed Weeks 1-2: the six tranche-1 reports and the five valid tranche-2 reports (passing-value excluded: SIS never renders it to the submitted state, as the tranche-2 importer records). Target-week joins may use only prior completed games.",
+  "exports": [
+    {
+      "entity": "teams",
+      "seasons": [2026],
+      "week_windows": [[1, 2]],
+      "split_by_game": true,
+      "reports": [
+        "pass-defense-totals", "pass-defense-value", "pass-rush-totals", "pass-rush-value", "blocking-totals", "blocking-value",
+        "passing-totals", "rushing-totals", "rushing-value", "run-defense-totals", "run-defense-value"
+      ]
+    }
+  ]
+}
