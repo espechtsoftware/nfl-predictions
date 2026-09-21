@@ -17,6 +17,7 @@ any stand-in that survives is recorded per row and shown before upload.**
 | capture tolerances + typed result classes | `production/standings-capture-tolerances-20260921` (off 5f8f61a5; tip in the reply-branch note 3) | tests green (22 + 15); twelve Week-2 exports validate; `CaptureValidationError.result_class` and `--failure-manifest`; NOT merged; nothing applied |
 | Week-3 shadow arms | `production/week3-shadow-arms-20260920` @ 22b68295 | 6 tests green; pending merge by the labs |
 | Week-3 outcomes builder | `production/week3-shadow-outcomes-20260920` @ 767df073 | 3 tests green; pending merge |
+| weather precipitation plumbing | `production/weather-precip-plumbing-20260921` (off 5f8f61a5) | 3 offline tests + BigQuery dry-run compile green; takes effect at the next `build-features` (s-features Tue 06:30) once merged; not a model feature |
 | rules/reports branch | `production/in-season-rules-20260919` @ db05b27d | post-mortem, evidence record, command sheet, this document |
 | labs reply channel | nfl2 `lab/workstation-reply-bank991-20260918` @ ab6f15a (and later) | all handoff notes and receipts; the laptop's reviews land here |
 | lab release used for Week 2 | nfl2 `/home/erich/projects/.nfl2-worktrees/week2-release-2dc116c` @ 2dc116c | clean; the Week-3 runner pins the lab clone by `--expect-sha` |
@@ -66,8 +67,12 @@ Full analysis: `reports/2026-09-21-week2-post-mortem.md`. The causes, in order, 
 7. **Behaviour change to be aware of:** DST rows are now model-only (they were 0.45 model + 0.55 DK PPG). The laptop
    was asked to confirm or choose a DST market that is not a one-game PPG.
 
-Pending (not started or not finished): the cross-season window audit (laptop's Priority 1; a repair only with a
-reproducer and a retrain cycle); the typed capture result class; the chain-level provenance gate (`production_rows >
+Pending (not started or not finished): the point-in-time weather shadow (precipitation probability now plumbed
+through on `production/weather-precip-plumbing-20260921`; audit ING-002); the rest of the laptop's end-to-end audit
+queue (`handoffs/2026-09-21-end-to-end-week2-audit.json` on nfl2 `review/prereg101-reply-20260918`: credential-failure
+telemetry, strict-prior support receipts, salary-week regression fixtures, candidate-pool sidecars, row-level
+regeneration lineage, upload-manifest telemetry); the cross-season window audit (done as a bounded read; a repair only
+with a reproducer and a retrain cycle); the typed capture result class; the chain-level provenance gate (`production_rows >
 0`, TabPFN target-week cache identity, `market blend source: props`) in the laptop's `run_week_build.sh` preflight;
 wiring the exposure sheet into `sunday_after_build.sh` before the ENTER publication; the QB availability contract
 repair (design on the rules branch, `2026-09-19-qb-availability-contract-repair-design.md`).

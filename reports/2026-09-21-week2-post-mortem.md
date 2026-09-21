@@ -295,9 +295,14 @@ Some exposure to an injured impact player is right when the market prices him (O
      17.3) though not by Jefferson's margin. Fix order: suppress the fallback when it rests on fewer than four games
      (model-only for that row) and resolve ambiguous prop names against the slate; then cross-season windows with a
      season-change shrinkage.
-  3. **Wind.** `wind_mph` is in the frame (14.1 for MIN-CHI, the next highest 7.9); that game got the most exposure of
-     any game (1.15 player-slots per row, field 1.04, top-100 0.66) and produced the fewest points (104 skill points
-     vs 204 for WAS-DAL).
+  3. **Wind, and rain that never reached the model.** `wind_mph` is in the frame (14.1 for MIN-CHI, the next highest
+     7.9); that game got the most exposure of any game (1.15 player-slots per row, field 1.04, top-100 0.66) and
+     produced the fewest points (104 skill points vs 204 for WAS-DAL). The laptop's end-to-end audit (ING-002) found
+     that the weather ingest has stored the forecast precipitation probability all along and `020_game_weather.sql`
+     dropped it: MIN-CHI carried 72% / 40% / 51% on the three pre-lock snapshots and no precipitation value reached
+     the feature tables, the frame or the selector. Plumbed through as pass-through columns on
+     `production/weather-precip-plumbing-20260921` (not a model feature until a point-in-time weather shadow supports
+     it); deficiency-log row added.
   4. **Prop absence for a Questionable player** (McConkey): a signal, unused.
   5. **Ownership.** `nfl_predictions.own_shadow` has zero Week-2 rows: the ownership model did not run for this
      slate. The naive fade inside the lab generator pushed the book to a 99 ownership sum against a top-1% of 126.
