@@ -145,6 +145,11 @@ Times are Central. Authoritative list of inputs: `reports/2026-09-15-week2-opera
 - `nfl-dfs capture-dk-standings` (capture branch): validation, then apply with the two confirmations.
 - `scripts/check_prospective_gates.py --week N` (operational worktree): the frozen pre-lock gates; the three Route Share
   FAILs are known and accepted until the operator's Monday decision.
+- `scripts/check_market_monitor.py --season 2026 --week N` (market repair branch): the latest projection batch's market
+  sources (age, props share, model-only players); FAIL until the repaired image has run. Run it Tuesday after the
+  first repaired batch, before the Saturday build and before the Sunday chain.
+- `scripts/regeneration_lineage.py` (lineage branch): row-level proof of the Sunday regeneration; the chain runs it
+  after promotion; run it by hand with `--entries-csv` on the operator's post-upload DK export.
 
 ## 6. Unresolved risks, in the order they can hurt
 
@@ -183,7 +188,8 @@ Times are Central. Authoritative list of inputs: `reports/2026-09-15-week2-opera
 - [ ] `pytest` green on the merged tree for the affected modules (200 passed on 387b1e47, reply-branch note 3); the
       full suite runs in cloudbuild before any image.
 - [ ] Image digests of `project-slate` and `build-features` read from the console and compared with section 1 and
-      with the rebuilt image after section 4.
+      with the rebuilt image after section 4; then `scripts/check_market_monitor.py --season 2026 --week 3` reports OK
+      on the first repaired batch.
 - [ ] `scripts/exposure_sheet.py` run on the entered Week-2 book (`/home/erich/week2-sunday/after-K97-...-1048/paid-vetted-promoted/book.csv`
       + the run frame + `contests.json`) reproduces the six flagged players.
 - [ ] `scripts/rehearse_final_path.sh` green on the merged tree (done 2026-09-21 02:03Z on 387b1e47; repeat on the
