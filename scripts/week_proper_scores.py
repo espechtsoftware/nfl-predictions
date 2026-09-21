@@ -63,6 +63,15 @@ def played_teams(client: bigquery.Client, season: int, week: int) -> set[str]:
     unplayed Monday game as zeros, manufacturing negative bias in every position.
     Derived from the data rather than from a date so a postponed or in-progress
     game is handled the same way.
+
+    A STRONGER pattern already exists in this repository and is the one to copy if
+    this is ever extended: `scripts/week3_shadow_outcomes.py` establishes finality
+    per GAME, by joining schedules to the latest play-by-play and requiring the
+    terminal description to match "end of game", rather than inferring it from the
+    presence of stat rows. That path was already correct when this bug was found;
+    it was this ad-hoc reader that was weak. The team-level check here is adequate
+    for nflverse `weekly_stats`, which is published after a game is processed
+    rather than live, but it is a heuristic and the other one is not.
     """
     q = f"""
     SELECT DISTINCT team FROM `{PROJECT}.nfl_raw.weekly_stats`
