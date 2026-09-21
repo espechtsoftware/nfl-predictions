@@ -89,6 +89,24 @@ refuse to start because `market_source_log` will still be absent.
    Then verify the next batch logs `market blend source: props`, and roll back to
    `sha256:0993ee01…` if it does not.
 
+   **Verify by the job log, not by the table.** Two things checked 2026-09-21 so
+   nobody debugs the wrong thing:
+
+   - `nfl_predictions.market_source_log` **does not need creating**. The write
+     goes through `bq.load_dataframe`, which leaves `create_disposition` at its
+     `CREATE_IF_NEEDED` default with `autodetect=True`, so the table appears on
+     the first successful `project-slate` run after the repoint. No DDL, no
+     manual step.
+   - **The write is deliberately best-effort and swallows its own failure.**
+     `run_projections.py` wraps it in `try/except` and logs
+     `market-source log write failed; projections unaffected but the monitor is
+     blind for this batch`. That is by design — a monitoring failure must not
+     kill the money path — but it sets a diagnosis trap now that the build-input
+     gate depends on the table existing. **If the gate is still red after a
+     repoint and a batch, read the job log for that failure line before
+     concluding the image did not take.** The positive confirmation to look for
+     is `market-source log: N rows (props=…)`.
+
 2. **Delete the 32 orphan SIS rows.** One statement. They are the unresolved
    duplicates described in the data deficiency log; the loader that produced them
    is repaired, so this will not recur.
