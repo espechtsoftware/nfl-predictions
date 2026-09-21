@@ -24,9 +24,51 @@ AVAIL_WEIGHT = 1.0   # composite z-units per vetting risk point
 
 def implied_prob(a): a = float(a); return 100 / (a + 100) if a > 0 else -a / (-a + 100)
 
+class ScopeError(ValueError):
+    """The run and the live source scope do not identify the same slate."""
+
+def resolve_scope(run, cli_season, cli_week):
+    """Resolve the target from the run receipt; never silently default to Week 1.
+
+    The Week 2 incident came from invoking this script without its target
+    arguments, which left the old ``week=1`` default in place.  A run receipt
+    is now mandatory and supplies the target when the CLI omits it.  Explicit
+    arguments must agree with the receipt before any output directory is
+    created.
+    """
+    receipt_path = pathlib.Path(run) / "receipt.json"
+    if not receipt_path.is_file():
+        raise ScopeError(f"missing run receipt: {receipt_path}")
+    try:
+        receipt = json.loads(receipt_path.read_text())
+    except (OSError, json.JSONDecodeError) as exc:
+        raise ScopeError(f"cannot read run receipt: {receipt_path}") from exc
+    if not isinstance(receipt, dict):
+        raise ScopeError(f"run receipt must be an object: {receipt_path}")
+    def declared(*keys):
+        for key in keys:
+            if receipt.get(key) is not None:
+                return int(receipt[key])
+        return None
+    receipt_season = declared("season", "target_season")
+    receipt_week = declared("week", "target_week")
+    season = receipt_season if cli_season is None else int(cli_season)
+    week = receipt_week if cli_week is None else int(cli_week)
+    if season is None or week is None:
+        raise ScopeError("target season/week must be present in receipt.json or supplied explicitly")
+    if receipt_season is not None and season != receipt_season:
+        raise ScopeError(f"CLI season {season} disagrees with run receipt season {receipt_season}")
+    if receipt_week is not None and week != receipt_week:
+        raise ScopeError(f"CLI week {week} disagrees with run receipt week {receipt_week}")
+    run_id = str(receipt.get("run_id") or receipt.get("source_run") or pathlib.Path(run).name)
+    if not run_id or run_id == "None":
+        raise ScopeError("run receipt has no stable run identity")
+    return {"season": season, "week": week, "run_id": run_id}
+
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument("run"); ap.add_argument("--k", type=int, default=30); ap.add_argument("--output-dir"); ap.add_argument("--vetting"); ap.add_argument("--season", type=int, default=2026); ap.add_argument("--week", type=int, default=1); a = ap.parse_args()
-    run = pathlib.Path(a.run); out = pathlib.Path(a.output_dir or (str(run) + "-composite")); out.mkdir(parents=True, exist_ok=True)
+    ap = argparse.ArgumentParser(); ap.add_argument("run"); ap.add_argument("--k", type=int, default=30); ap.add_argument("--output-dir"); ap.add_argument("--vetting"); ap.add_argument("--season", type=int); ap.add_argument("--week", type=int); a = ap.parse_args()
+    run = pathlib.Path(a.run); scope = resolve_scope(run, a.season, a.week); season, week = scope["season"], scope["week"]
+    out = pathlib.Path(a.output_dir or (str(run) + "-composite")); out.mkdir(parents=True, exist_ok=True)
     f = pd.read_parquet(run / "frame.parquet"); f["dk"] = f.dk_player_id.astype(str); f["fid"] = f.id.astype(str)
     idx = {fid: k for k, fid in enumerate(f.fid)}; dk2fid = dict(zip(f.dk, f.fid)); name = dict(zip(f.dk, f.display_name.astype(str))); pos = dict(zip(f.dk, f.position.astype(str)))
     gsis = dict(zip(f.dk, f.gsis_id.astype(str))); ppg = dict(zip(f.dk, pd.to_numeric(f.get("dk_ppg"), errors="coerce"))) if "dk_ppg" in f.columns else {}
@@ -35,13 +77,17 @@ def main():
     inc = np.load(run / "incumbent_player_scores.npy"); hs = np.load(run / "corrected_hsim_player_scores.npy")
     c = bigquery.Client(project="nfl-predictions-503414")
     ids = sorted({gsis[d] for d in players if gsis.get(d) not in (None, "None", "nan", "")})
-    prod = c.query("""SELECT gsis_id, dk_player_id, proj_points, proj_p90, p_20_plus, position, generated_at FROM `nfl-predictions-503414.nfl_predictions.player_projections`
+    prod = c.query("""SELECT season, week, gsis_id, dk_player_id, proj_points, proj_p90, p_20_plus, position, generated_at FROM `nfl-predictions-503414.nfl_predictions.player_projections`
                       WHERE season=@s AND week=@w AND generated_at=(SELECT MAX(generated_at) FROM `nfl-predictions-503414.nfl_predictions.player_projections` WHERE season=@s AND week=@w)""",
-                   job_config=bigquery.QueryJobConfig(query_parameters=[bigquery.ScalarQueryParameter("s", "INT64", a.season), bigquery.ScalarQueryParameter("w", "INT64", a.week)])).result().to_dataframe()
+                   job_config=bigquery.QueryJobConfig(query_parameters=[bigquery.ScalarQueryParameter("s", "INT64", season), bigquery.ScalarQueryParameter("w", "INT64", week)])).result().to_dataframe()
+    if prod.empty or not ((prod.season == season) & (prod.week == week)).all():
+        raise ScopeError(f"projection batch is empty or outside target {season}/{week}")
     by_gsis = prod.drop_duplicates("gsis_id").set_index(prod.drop_duplicates("gsis_id").gsis_id.astype(str)); by_dk = prod.drop_duplicates("dk_player_id").set_index(prod.drop_duplicates("dk_player_id").dk_player_id.astype(str))
-    L = c.query("""SELECT DATE(pulled_at) AS d, player, market, outcome_name, AVG(point) AS point, AVG(price) AS price FROM `nfl-predictions-503414.nfl_raw.prop_lines`
-                   WHERE season=@s AND week=@w GROUP BY d, player, market, outcome_name""",
-                job_config=bigquery.QueryJobConfig(query_parameters=[bigquery.ScalarQueryParameter("s", "INT64", a.season), bigquery.ScalarQueryParameter("w", "INT64", a.week)])).result().to_dataframe()
+    L = c.query("""SELECT season, week, DATE(pulled_at) AS d, player, market, outcome_name, AVG(point) AS point, AVG(price) AS price FROM `nfl-predictions-503414.nfl_raw.prop_lines`
+                   WHERE season=@s AND week=@w GROUP BY season, week, d, player, market, outcome_name""",
+                job_config=bigquery.QueryJobConfig(query_parameters=[bigquery.ScalarQueryParameter("s", "INT64", season), bigquery.ScalarQueryParameter("w", "INT64", week)])).result().to_dataframe()
+    if L.empty or not ((L.season == season) & (L.week == week)).all():
+        raise ScopeError(f"prop batch is empty or outside target {season}/{week}")
     days = sorted(L.d.unique())
     def implied(df):
         pts = Counter()
@@ -83,7 +129,7 @@ def main():
     LS = pd.DataFrame({"source_rank": range(1, n + 1), "lineup_score": np.round(lineup_scores, 3), "hard": lineup_hard}); LS["composite_pos"] = [order.index(i) + 1 for i in range(n)]
     LS.to_csv(out / "lineup_scores.csv", index=False)
     top_before, top_after = set(range(a.k)), set(order[:a.k])
-    rec = {"version": "player-score-v1", "source_run": str(run), "k": a.k, "weights": WEIGHTS, "avail_weight": AVAIL_WEIGHT, "prop_fetch_days": [str(x) for x in days[-2:]],
+    rec = {"version": "player-score-v2", "source_run": str(run), "run_id": scope["run_id"], "season": season, "week": week, "k": a.k, "weights": WEIGHTS, "avail_weight": AVAIL_WEIGHT, "prop_fetch_days": [str(x) for x in days[-2:]],
            "projection_generated_at": str(prod.generated_at.max()) if "generated_at" in prod.columns else None, "players": len(P), "coverage": {c_: int(P[c_].notna().sum()) for c_ in WEIGHTS},
            "order_source_ranks": [i + 1 for i in order], "demoted_out_of_top_k": sorted(i + 1 for i in top_before - top_after), "promoted_into_top_k": sorted(i + 1 for i in top_after - top_before),
            "overlap_top_k_with_greedy": len(top_before & top_after), "built_utc": datetime.now(UTC).isoformat()}
