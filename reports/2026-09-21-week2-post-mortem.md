@@ -481,7 +481,8 @@ market-agreement term, given that the exposure tilt starts in the pool (Jefferso
 - Status of the section-14 items as of 2026-09-20 late evening: R1 built and pushed as
   `production/prop-name-ambiguity-and-fallback-guard-20260921` (props-or-nothing live market, per-row source log,
   inventory v8, exposure sheet); R4 built and pushed as `production/standings-capture-tolerances-20260921` (twelve of
-  twelve exports validate); C5-C9 built as selection-only arms in `production/week3-shadow-arms-20260920` (cap30,
+  twelve exports validate; typed `CaptureValidationError.result_class` and `--failure-manifest` added on the laptop's
+  review); C5-C9 built as selection-only arms in `production/week3-shadow-arms-20260920` (cap30,
   cap20, marketpull, cap20pull, games5, late3). The introduced commit of the name-ambiguity drop is 5878c841
   (2026-09-04, "Resolve live Week 1 prop player identities"), on main since; Week 1 did not trip it because the
   colliding roster rows were not yet in the 2026 roster union.
