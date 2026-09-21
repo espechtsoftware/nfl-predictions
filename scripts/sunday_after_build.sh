@@ -56,6 +56,38 @@ process_run() {
       log "  $PROMOTION_STATUS"
     fi
   fi
+  # 2026-09-21 (Week-2 post-mortem; operator directive: no silent fallbacks). Two monitors run on the FINAL book before
+  # the operator is told what to upload. (1) Regeneration lineage: every row changed by the replacement step must have
+  # a receipted reason, the receipts' hashes must bind the books, the promotion must be exactly its recorded
+  # permutation, and the promoted upload CSV must carry the promoted book in order; a failure is written into the
+  # TODAY file as DO NOT UPLOAD and the chain returns non-zero (the promoted bundle is already published by the
+  # promotion step, so the stop is surfaced, not hidden). (2) Exposure sheet: shares, majors shares, market source from
+  # market_source_log (or a plain 'monitor not deployed' line), DK status, and the flags that need a stated reason;
+  # a sheet that cannot be produced is written into the TODAY file as EXPOSURE SHEET FAILED, never skipped quietly.
+  local FINAL="$VET" LINEAGE_STATUS="NOT APPLICABLE (no promotion)" SHEET_STATUS=""
+  if (( PROMOTION_PUBLISHED == 1 )); then
+    FINAL="$lo/paid-vetted-promoted"
+    if [ -d "$lo/paid-vetted-replaced" ]; then
+      rm -f "$lo/lineage.json"
+      if PYTHONPATH=$PROD/src $PY "$PROD/scripts/regeneration_lineage.py" --vetted-dir "$lo/paid-vetted" --replaced-dir "$lo/paid-vetted-replaced" \
+           --promoted-dir "$lo/paid-vetted-promoted" --upload-csv "$OUT/upload-$tag-promoted-paid-vetted-all.csv" --out "$lo/lineage.json" > "$lo/lineage.log" 2>&1; then
+        LINEAGE_STATUS="OK: $(grep -m1 '^lineage OK' "$lo/lineage.log" | cut -c1-200)"
+      else
+        LINEAGE_STATUS="LINEAGE FAILED -- DO NOT UPLOAD: $(grep -m1 -E 'LINEAGE FAILED|problem:' "$lo/lineage.log" | cut -c1-300 || echo "see $lo/lineage.log")"
+      fi
+    else
+      LINEAGE_STATUS="NOT APPLICABLE (no replacement step ran)"
+    fi
+    log "  lineage: $LINEAGE_STATUS"
+  fi
+  if PYTHONPATH=$PROD/src $PY "$PROD/scripts/exposure_sheet.py" --book "$FINAL/book.csv" --frame "$run/frame.parquet" --contests "$CONTESTS_JSON" \
+       --season "$SEASON" --week "$WEEK" --draft-group "$GROUP" --out "$lo/exposure" > "$lo/exposure.log" 2>&1; then
+    cp "$lo/exposure/exposure-sheet.md" "$OUT/exposure-sheet-$tag.md"; cp "$lo/exposure/exposure-sheet.csv" "$OUT/exposure-sheet-$tag.csv"
+    SHEET_STATUS="$(head -n 1 "$lo/exposure/exposure-sheet.md" | cut -c1-200) -- full sheet $OUT/exposure-sheet-$tag.md"
+  else
+    SHEET_STATUS="EXPOSURE SHEET FAILED: $(grep -m1 -E 'Error|error|Traceback' "$lo/exposure.log" | cut -c1-200 || echo "see $lo/exposure.log") -- read $lo/exposure.log before uploading"
+  fi
+  log "  exposure sheet: $SHEET_STATUS"
   # ENTER/ is overwritten by every newer run: stable paths for the operator
   # 2026-09-17 review finding 5: stage the whole bundle, verify it, then swap it in -- the entries watcher polls this
   # directory continuously and must never see a half-written set, nor lose the previous good one on a failure.
@@ -133,6 +165,9 @@ PYEOF
   { echo "TODAY'S ENTRY = the vetted paid book (HARD/material lineups to the back), keepers first. Source run $(basename "$run"), K$entries, built $(date -u +%H:%M:%SZ), week $WEEK group $GROUP"; echo
     echo "REPLACEMENT STEP: $REPL_STATUS"; echo
     echo "FIRST-ENTRY PROMOTION: $PROMOTION_STATUS"; echo
+    echo "REGENERATION LINEAGE: $LINEAGE_STATUS"; echo
+    echo "EXPOSURE SHEET: $SHEET_STATUS"; echo
+    if [ -f "$lo/exposure/exposure-sheet.md" ]; then echo "FLAGGED PLAYERS (each flag needs a stated reason before upload):"; grep -E '^\| ' "$lo/exposure/exposure-sheet.md" | awk -F'|' 'NR<=2 || $NF ~ /[a-z]/' | head -n 25 | sed 's#^#  #'; echo; fi
     echo "PER-CONTEST FILES FOR THE RESERVED ENTRIES (fill the DK entries export with scripts/fill_dk_entries.py or let the watcher do it):"
     sed 's#^#  #' "$E/ENTER-layout.txt"
     echo; echo "Files (Windows path): \\\\wsl.localhost\\Ubuntu$(echo "$E" | sed 's#/#\\#g')\\"; ls "$E"/ENTER-*.csv | xargs -n1 basename | sed 's#^#    #'
@@ -157,6 +192,7 @@ PYF
       echo "ROLLBACK CSV (ordinary vetted order): $all"
     fi
   } > "$OUT/TODAY-30-LATEST.md"
+  if [[ "$LINEAGE_STATUS" == LINEAGE\ FAILED* ]]; then log "LINEAGE FAILED -- the TODAY file says DO NOT UPLOAD"; return 1; fi
   if [[ "$PROMOTION_STATUS" != "NOT REQUESTED" ]]; then
     echo "PROMOTION STEP: $PROMOTION_STATUS" >> "$OUT/TODAY-30-LATEST.md"
   fi
