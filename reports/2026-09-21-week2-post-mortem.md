@@ -18,14 +18,19 @@ against field means of 113-120. No row came within 30 points of a ticket or a to
 
 **Three compounding causes, in order of size.**
 
-1. **A top-of-board projection failure with one player at its centre.** Justin Jefferson was served at 25.3 points,
-   the highest projection on the slate. The props market said 16.6 (79 receiving yards, 6.5 receptions, 35% anytime
-   TD at two books). With the production blend weight of 0.45 on the model, a served 25.3 implies the pre-blend model
-   mean was about 36. His only 2026 data point was Week 1 (31.2) and every rolling feature restarts each season
-   (`sql/features/014`: `PARTITION BY gsis_id, season`), so the Week-2 model saw one game of usage for everyone. The
-   divergence shadow, the instrument built to show exactly this model-vs-market gap, has no Week-2 row for Jefferson
-   (nor DeVonta Smith, nor Zay Flowers) although prop lines existed all week. He scored 8.5 in the windiest game of the
-   slate (14 mph at Chicago; the MIN-CHI game produced the fewest skill points of all 13 games).
+1. **A top-of-board projection failure with one player at its centre, caused by a name-matching miss and a
+   fallback rule.** Justin Jefferson was served at 25.3 points, the highest projection on the slate, while the props
+   market said 16.4 (79 receiving yards, 6.5 receptions, 35% anytime TD at two books). Production's prop-name matcher
+   on the main tip dropped him: the normalized spelling "justin jefferson" maps to two GSIS ids in the 2026 roster
+   union, the matcher refuses ambiguous spellings, and the blend then silently substituted his DraftKings
+   points-per-game, which after one game is his Week-1 score of 31.2, as the "market" at 55% weight:
+   25.3 = 0.45 x 18.1 (the model) + 0.55 x 31.2. The model itself had him near 18, in line with the market. The same
+   miss pulled DeVonta Smith the other way (model 18.3, fallback 8.3, served 12.8; he scored 30.7). The divergence
+   shadow logs only prop-sourced rows, so the instrument built to show model-vs-market gaps was blind to exactly the
+   two players that fell through. Confirmed two ways: re-running the main-tip market function on the Week-2 prop rows
+   (447 player rows; Jefferson and Smith absent, Lamb present at 16.66) and the projection job's own log for the
+   16:02Z run ("market blend source: props (388/481 rows)", "div-shadow: 211 rows logged"). He then scored 8.5 in the
+   windiest game of the slate (14 mph at Chicago; MIN-CHI produced the fewest skill points of all 13 games).
 2. **Concentration.** Six players sat in 25-57% of the book and all six busted: Jefferson 55 rows (8.5 pts), Bijan
    Robinson 45 (11.1), 49ers DST 39 (8.0), Javonte Williams 28 (8.0), Ladd McConkey 28 (6.5), Drake London 26 (8.9).
    Rows holding one of the six averaged 116 points; rows holding three averaged 92. The generator started it (Jefferson
@@ -40,9 +45,12 @@ against field means of 113-120. No row came within 30 points of a ticket or a to
    (corr(proj - market, realized - proj) = -0.29 over players projected 12+).
 
 **It was not bad luck within the pool.** 222 of the 12,555 delivered candidates scored 150+ and the best scored 197.26
-(a boom row with simulated mean 116 that was never ranked). The selector's simulated mean was inverted against reality
-across the pool: corr(sel_mean, realized) = -0.49; the top decile by simulated mean (mean 139.7) realized 69.8 on
-average, the bottom decile (111.5) realized 109.3. Ninety-seven random rows from the pool would have averaged 92 with a
+(a boom row with simulated mean 116 that was never ranked). The stored `sel_mean` was inverted against reality across
+the pool: corr = -0.49; the top decile by that mean (139.7) realized 69.8 on average, the bottom decile (111.5)
+realized 109.3. The laptop's independent attribution (`receipts/2026-09-21-independent-review/`) shows the stored
+`sel_mean` is the incumbent component's mean, not the pooled decision score: incumbent -0.488, corrected HSIM -0.087,
+equal-mass pooled -0.332. The severe inversion is mostly the incumbent law; both components were poor on this slate;
+no weight change follows from one slate. Ninety-seven random rows from the pool would have averaged 92 with a
 best of 159; greedy-by-mean with a 25% per-player cap would have averaged 106 with a best of 184 and eight rows at 150+;
 the entered book averaged 105 with a best of 156 and one row at 150+.
 
@@ -128,7 +136,9 @@ Construction, Millionaire field sample (20,000 rows) vs its top 1% (1,727 rows) 
 | players priced $3,500 or less (non-DST) | 0.47 | 0.99 | 0.70 |
 | distinct games per row | 5.35 | 5.40 | 3.70 |
 
-Stack depth in the field (QB + same-team WR/TE): 0 stack 16.6% of the field, 11.7% of the top 1% (lift 0.71); one
+Stack depth (definition: QB plus same-team WR/TE in any slot including FLEX; our book counts 87 rows at two, 8 at three,
+2 at four, matching the labs' frozen-delivery review; with same-team RBs included it is 46 / 45 / 4 / 2). In the field:
+0 stack 16.6% of the field, 11.7% of the top 1% (lift 0.71); one
 55.8% / 56.7% (1.02); two 26.0% / 30.0% (1.16); three 1.7% / 1.6% (0.91). Mean points by depth 112.9 / 115.5 / 117.0 /
 117.9. Expensive players: rows with three $7k+ players had lift 2.21 into the top 1% and the highest mean (123.2); rows
 with one had lift 0.16. Late-game players: rows with 4-6 late players had lifts 1.3-1.8, rows with 0-2 had 0.09-0.55.
@@ -172,17 +182,20 @@ alike. What was predictable is the allocation: we held the slate's three most ex
 (Lamb, $7,300) and 57% (Jefferson, $7,800), and the two QBs of the highest-total game plus the 13.5-point favourite's
 QB at 5%/4% while holding Herbert at 10%. A salary-tier spread rule (section 14) would have put JSN and Lamb near 20%
 each without any foresight. The $2,700-4,500 pops (Panthers, Tucker, Bateman, Boston, Ferguson) are where the winners'
-salary went after spending up; they are not forecastable individually, and the field found them at 0.5-8%.
+salary went after spending up; no source we hold forecast them individually (our projection, the props, DK PPG and
+ownership all sat within a point of each other), and the field found them at 0.5-8%.
 
 ## 4. Study 3: our underperformers, one by one
 
 Served projection / frame market / implied production model mean (from the 0.45 blend weight) / Week-1 points / 2025
 mean / our exposure / field ownership / points:
 
-- **Justin Jefferson** 25.3 / 16.6 / 35.9 / 31.2 / 12.4 / 56.7% / 18.9% / 8.5. Highest projection on the slate; the
-  market had him 8.7 lower, the largest model-vs-market gap on the board; his 2025 mean was 12.4 over 17 games; wind
-  14.1 mph (slate high) in the game that scored least. The projection was unchanged from Thursday (24.5) to Sunday
-  (25.3). Available and unused: the market gap, the wind, the one-game window, the 2025 baseline.
+- **Justin Jefferson** 25.3 / no matched market (DK-PPG fallback 31.2) / 18.1 / 31.2 / 12.4 / 56.7% / 18.9% / 8.5.
+  Highest projection on the slate because the name matcher dropped his prop lines and the blend used his one-game
+  DraftKings PPG as the market (section 0); the model had him at 18.1 and the books at 16.4. His 2025 mean was 12.4
+  over 17 games; wind 14.1 mph (slate high) in the game that scored least. The projection was unchanged from Thursday
+  (24.5) to Sunday (25.3) because the miss was present in every batch. Available and unused: the prop lines
+  themselves, the wind, the 2025 baseline.
 - **Bijan Robinson** 21.7 / 22.7 / 20.5 / 31.3 / 23.2 / 46.4% / 47.2% / 11.1. The market agreed with us and the field
   held him at our level; this one is variance. But 46% exposure at 47% ownership is pure chalk with no leverage: had he
   hit, the field would have hit with us.
@@ -275,10 +288,13 @@ Some exposure to an injured impact player is right when the market prices him (O
   1. **Model-vs-market divergence.** The frame carries `market_points` for 346 players; the selection never sees the
      gap. The divergence shadow (`nfl_predictions.div_shadow`, 211 rows in the last pre-lock batch) has no row for
      Jefferson, DeVonta Smith or Zay Flowers although both books posted lines all week; the writer needs a look.
-  2. **The one-game feature window.** Every `_l4` feature restarts each season; in Week 2 they equal Week 1. The
-     production model's implied means for Week-1 risers were far above the market (Jefferson 36, London 21.5, Caleb
-     Williams 25.6, Montgomery 17.3). Cross-season windows (2025 tail + 2026) with a season-change shrinkage would have
-     been the fix; nflverse serves 2025 fully.
+  2. **The DK-PPG fallback and the one-game window.** A slate player whose prop lines fail to match gets DraftKings'
+     points-per-game as his market at 55% weight; in Week 2 that figure is one game (Jefferson 31.2, DeVonta Smith
+     8.3). Every `_l4` feature also restarts each season, so the model's own Week-2 inputs were one game for everyone;
+     the model's implied means for Week-1 risers sat above the market (London 21.5, Caleb Williams 25.6, Montgomery
+     17.3) though not by Jefferson's margin. Fix order: suppress the fallback when it rests on fewer than four games
+     (model-only for that row) and resolve ambiguous prop names against the slate; then cross-season windows with a
+     season-change shrinkage.
   3. **Wind.** `wind_mph` is in the frame (14.1 for MIN-CHI, the next highest 7.9); that game got the most exposure of
      any game (1.15 player-slots per row, field 1.04, top-100 0.66) and produced the fewest points (104 skill points
      vs 204 for WAS-DAL).
@@ -302,7 +318,8 @@ Some exposure to an injured impact player is right when the market prices him (O
   has; a row with one or two late players cannot use it.
 - Distinct games per row: ours 3.70, field 5.35, top 1% 5.40. Two-deep stack + bring-back + a DST from a third game
   leaves four games; the winners spread over five or six.
-- Within-contest variety was not the problem: mean pairwise shared players, ours Flea 1.60 (23 rows, 12 QBs, 7 DSTs),
+- Within-contest variety was not the problem: mean pairwise shared players on canonical nine-player sets, ours Flea
+  1.60 (23 rows, 12 QBs, 7 DSTs; max 6 shared, 4 of 253 pairs share 5+),
   supersats 1.07-1.58, Nickel 2.10; the winning multi-entry users were less diverse (2.1-3.7 shared) but around the
   right core (the supersat winner's ten rows: 3.1 shared, 4 QBs, mean 160). We varied widely around a wrong core; they
   varied narrowly around a right one. Variety cannot substitute for the core being right, but the core should not be
@@ -388,11 +405,15 @@ fall where they fell.
 - corr(sel_mean, realized) = -0.49 over the pool; -0.20 over the 97 entered rows. Realized mean by simulated-mean
   decile: 109.3, 108.5, 103.3, 100.1, 96.0, 93.1, 91.4, 88.4, 76.8, 69.8 (lowest to highest simulated mean). The
   simulator's top decile is the Jefferson-Bijan-49ers-Javonte-McConkey core; its bottom decile is where JSN, Lamb and
-  Dak lived.
-- Counterfactual selections from the same pool, 97 rows: entered book 105.0 mean / 156.2 best / 1 row at 150+; greedy
-  by simulated mean, no cap 71.0 / 109.7 / 0; cap 35% 101.2 / 183.6 / 10; cap 25% 106.3 / 183.6 / 8; cap 15% 108.6 /
-  183.6 / 7; greedy by simulated P(194+), no cap 70.1 / 107.5 / 0, cap 25% 106.4 / 168.5 / 5; 97 random rows 92.1 /
-  158.7 / 1.3 (20 draws); 97 random boom rows 97.6 / 164.7 / 2.1.
+  Dak lived. Attribution by component (laptop, independent recomputation from the archived banks): the stored
+  `sel_mean` equals the incumbent bank's mean (-0.488); the corrected-HSIM bank is -0.087 and the equal-mass pooled
+  mean -0.332 (max difference from the stored mean 10.87 points). Within boom rows: -0.359 / -0.037 / -0.196.
+- Counterfactual selections from the same pool, 97 rows (EXPLORATORY: these change the selection law to a mean sort,
+  so they are not an isolated cap effect; the fair comparison is the cap arm on the delivered selector in the Week-3
+  runner): entered book 105.0 mean / 156.2 best / 1 row at 150+; greedy by simulated mean, no cap 71.0 / 109.7 / 0;
+  cap 35% 101.2 / 183.6 / 10; cap 25% 106.3 / 183.6 / 8; cap 15% 108.6 / 183.6 / 7; greedy by simulated P(194+), no
+  cap 70.1 / 107.5 / 0, cap 25% 106.4 / 168.5 / 5; 97 random rows 92.1 / 158.7 / 1.3 (20 draws); 97 random boom rows
+  97.6 / 164.7 / 2.1.
 - Read: the entered book beat a random draw on mean (the dual expected-max selector with its coverage terms did work as
   a mean selector), but every simulated score was inverted at the top, and a per-player cap alone recovers the tail
   (best 184 vs 156) by forcing the selection out of the core. The 220+ supply question is unchanged: nothing in the pool
@@ -402,10 +423,16 @@ fall where they fell.
 ## 14. Proposals for Week 3 (for the labs' review; the operator decides)
 
 Class R (repairs; no protocol question):
-1. Cross-season rolling windows with a season-change shrinkage for the `_l4` / `_last` / `_jump` features, so Week 2-4
-   projections are not one-to-three-game windows (production feature SQL; leakage checks must stay as they are).
-2. Divergence shadow completeness: every player with a frame `market_points` must have a row; Jefferson, DeVonta
-   Smith and Flowers were missing.
+1. Prop-name ambiguity and the DK-PPG fallback (the Jefferson mechanism): resolve a normalized spelling shared by
+   several GSIS ids by preferring the one id on the current slate; suppress the DK-PPG market fallback for any row
+   whose PPG rests on fewer than four games of the season (model-only for that row) and log the suppressed rows; write
+   fallback rows to the divergence shadow with their source so the instrument is no longer blind to them. Branch
+   `production/prop-name-ambiguity-and-fallback-guard-20260921` (tests), for the laptop's merge before Saturday.
+1b. Cross-season rolling windows with a season-change shrinkage for the `_l4` / `_last` / `_jump` features, so Week
+   2-4 projections are not one-to-three-game windows (production feature SQL; leakage checks must stay as they are;
+   needs a retrain cycle, so it is a reviewed branch, not a Saturday change).
+2. Divergence shadow completeness: every slate player with prop lines must have a row; Jefferson and DeVonta Smith were
+   missing because the matcher dropped them (item 1); Flowers had a TD-only line.
 3. Ownership model: `own_shadow` wrote nothing for Week 2; find out why before Saturday.
 4. Standings capture validator: entries-based tolerances (command sheet section 2a); until then the Millionaire and
    Flea exports cannot be loaded, and the field-calibration work has no Week-2 rows.
@@ -437,9 +464,12 @@ market-agreement term, given that the exposure tilt starts in the pool (Jefferso
 
 ## 15. Corrections, data-quality items and method notes
 
-- Correction to an interim claim made while this was being prepared: the props blend did reach Jefferson. The frame's
-  market value for him is 16.6; the divergence shadow, not the frame, lacked his row. The served 25.3 came from the
-  model side of the blend.
+- Corrections made while this was being prepared. The first draft said the props blend had missed Jefferson (a join
+  error on my side); the second said the model itself carried him near 36 (inferred from the lab frame's market column,
+  which the lab computes with older matching code). Both were wrong. The main-tip production code, re-run on the
+  Week-2 prop rows, has no market row for Jefferson or DeVonta Smith; the projection job's log confirms props reached
+  388 of 481 rows; the served 25.3 is the 0.45/0.55 blend of the model (18.1) with his one-game DK PPG (31.2). The
+  sections above now say that.
 - Realized points are DK FPTS from the standings exports; they matched our 97 entries' DK scores to 0.00001. The
   nflverse-based outcomes builder and proper-score reader run Monday and may differ by DK stat corrections.
 - The `nfl-dfs` CLI in the operational worktree runs pre-2026-09-14 capture code; the main-tip code validates 6 of 12
@@ -448,6 +478,13 @@ market-agreement term, given that the exposure tilt starts in the pool (Jefferso
   and were disclosed to the labs on 2026-09-20; no lineup score was read before the release.
 - Field ownership used here is the Millionaire's %Drafted summed over roster slots; the Flea and the other contests'
   ownership are in the shared table and differ by a few points.
+- Status of the section-14 items as of 2026-09-20 late evening: R1 built and pushed as
+  `production/prop-name-ambiguity-and-fallback-guard-20260921` (props-or-nothing live market, per-row source log,
+  inventory v8, exposure sheet); R4 built and pushed as `production/standings-capture-tolerances-20260921` (twelve of
+  twelve exports validate); C5-C9 built as selection-only arms in `production/week3-shadow-arms-20260920` (cap30,
+  cap20, marketpull, cap20pull, games5, late3). The introduced commit of the name-ambiguity drop is 5878c841
+  (2026-09-04, "Resolve live Week 1 prop player identities"), on main since; Week 1 did not trip it because the
+  colliding roster rows were not yet in the 2026 roster union.
 - Files: `handoffs/receipts/2026-09-21-week2-post-mortem/` on the reply branch: `contest-field-summary.csv`,
   `our-97-results.csv`, `player-signals-week2.csv`, `pool-realized-12555.csv`, `standings-player-ownership-fpts.csv`,
   `top100-lineups-by-contest.csv`, `top10-features-by-contest.csv`, `games-week2.csv`,
