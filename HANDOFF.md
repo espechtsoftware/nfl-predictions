@@ -6,6 +6,65 @@
 
 # Project handoff
 
+## 2026-09-21 — Week 2 answered, and three weekly instruments that did not exist
+
+**The conclusion first, because it changes what is worth working on.** Week 2 was
+not lost by selection. The pool's best candidate scored **197.26** against a
+Millionaire winning score of **232.4** — 35 points short, zero candidates in the
+field's top 0.1%, and only 20.4% above the field *median*. No ordering, selector
+or promotion rule could have produced a winner, because the pool did not contain
+one.
+
+**Projections are not the lever, and the evidence is unusually clean.** Every one
+of the nine players in the winning lineup was in our pool and priced. We valued
+that exact lineup at **119.51**; it scored **232.38**. Winning required a
+113-point collective overperformance that no model predicts. Do not answer a bad
+week with projection work.
+
+**Why coverage failed, concretely.** The winning roster shares 35 of its 36 pairs
+with our 12,555 candidates. The one it never contained is Kittle + Schultz — two
+tight ends, ranked 8th and 6th of 95 by our own projection. Not a missing player
+and not a forbidden shape: we build 1,735 two-TE lineups. But those hold only 380
+distinct TE pairs where 1,735 were achievable, so an 8th-ranked TE never meets a
+6th-ranked one. A generator that allocates exploration by projection
+systematically under-samples the combinations that win, because winners are made
+of players who overperform.
+
+### The three instruments, all committed with tests
+
+| script | question it answers | run when |
+|---|---|---|
+| `week_proper_scores.py` | how did served projections score, by position | after outcomes are released |
+| `week_ceiling_and_coverage.py` | was the week winnable with the pool we built, and how close did we come to the winner | after standings are applied |
+| `pool_pair_support.py` | which combinations are we systematically failing to explore | **before the slate**, on the generated pool |
+
+The third is the one that would have helped on Saturday. On the Week-2 pool,
+told nothing about the outcome, it flags TE pair coverage at 21.9% of achievable
+against WR 36.6% and RB 29.8%, and names six well-projected tight ends meeting
+under half their peers. No other position is flagged.
+
+### Two levers, both supply-side, and where each applies
+
+- **Entries where the pool already contains winners.** The two small satellites
+  held 7 and 4 winning candidates; 97 picks give 5.3% and 3.0%, 500 picks give
+  24.3% and 14.7%. Millionaire top-10 finishers entered a median of **150**
+  lineups; we entered 1.
+- **Coverage where it does not.** For the six large fields no number of entries
+  helps, because the ceiling is short. That is the laptop's correction to an
+  earlier over-broad claim of mine and it is right.
+
+### One number that changes an existing proposal
+
+The operator's projection-floor rule must be set **no higher than 8**. The
+winning lineup's minimum skill projection was **8.65**, so a floor of 10 or 12
+would have discarded it. Measured separately, floor 10 retains only 4 of 222
+candidates at ≥150. Floor 4–6 is the useful range: it cuts the pool 60–70% while
+keeping the best lineup and about three quarters of the 150+ candidates.
+
+Full working, including three measurements I had to correct, is in
+`reports/2026-09-21-week2-evidence-record.md`.
+
+
 This tracked file is the authoritative record for resuming development. It
 must travel with the repository. Do not rely on assistant memory, an
 individual workstation, unpushed commits, or cloud artifacts as the only copy
