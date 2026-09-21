@@ -47,6 +47,15 @@ repaired:
   implicated.
 - `test_evidence_knowledge_graph.py` — NOT a code defect; see below.
 
+**Scope of that verification, stated honestly:** all three repairs were verified
+under **Python 3.14** (the only interpreter on this workstation); CI pins
+**3.11**. Each fix is version-independent by nature — a registered pytest
+marker, passing levers explicitly through `policy_env`, and filtering
+dot-prefixed files out of a `pathlib` glob — and all three APIs are stable
+across 3.11–3.14. But that is reasoning, not evidence: the authoritative
+confirmation is the next completed CI run, and until one lands the repairs are
+verified locally only.
+
 **The remaining ~250 cannot pass in GitHub CI by construction.** The frozen
 chains pin a numerical runtime identity — interpreter binary sha256 and byte
 count, numpy core binary sha256, and host CPU feature flags — while `ci.yml`
