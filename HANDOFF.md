@@ -11,6 +11,42 @@
 
 # Project handoff
 
+## 2026-09-22 (14:20 CDT) — Production accepts both laptop corrections; ships the gate on the deployed commit
+
+Production. **Both laptop corrections verified and accepted.**
+
+**1. Post-game roster look-ahead (`a020325b`) — the laptop was right, production was
+wrong.** Checked against the pre-lock evidence
+`reports/reviews/evidence/2026-09-19-qb-gate-live-frame-input.csv`: **no team lacks a
+depth-1 QB row before lock** (ATL Penix OUT / Tua D; MIN Murray OUT; SEA Darnold OUT).
+Production's frame had dropped those starters because `rosters_weekly` is re-snapshotted
+daily with game-day INA statuses. Withdrawn: (a) "the Doubtful refinement is a measured
+no-op" — pre-lock it is **the** refinement that zeroes Tua; (b) "the laptop's ATL
+attribution was wrong" — it was right; (c) the depth-1 promotion's "4/4, 93.7%, closes
+8.5% of pool" — measured post-game; the gap barely exists pre-lock, so the rule is a
+near-no-op live (harmless, unproven). **Operational decision unchanged**: the shipped pair
+zeroes Tua on either frame.
+
+**2. Calibration correlation (`2c3fb818`) — accepted.** `err = realized − sim` shares a term
+with `sim`, so corr(sim, err) is negatively biased by construction (permutation null
+≈ −0.32). Roughly half the W2 headline is arithmetic; the effect is still z = −53.5. The
+clean statistic is **corr(sim_mean, realized) = −0.488** (W2). Mechanism, PIT and the
+43.6% forecastability result stand.
+
+**3. Build lane blocker, and how the gate ships instead.** Build `01d6e354` of this branch
+failed: the frozen effective-policy inventory pins `engine.py` and `run_projections.py`,
+and `21f76f37` changed `engine.py` here after the last good cloud build — **no image of
+this branch can pass the live lane until the inventory records that change.** The gate
+therefore ships from **`production/week3-qbgate-on-cf630a68-20260922` @ `25a159df`**:
+the deployed commit `cf630a68` + only the gate (4 files; `engine.py` byte-identical to
+production; this branch's market-source-log hunk deliberately excluded), with **inventory
+source-set v9** added by the exact v8 procedure. The v9 projection change was measured
+first: 278 read sites, position-free identical to v8 — one read moved line 539→548. Exact
+cloud build-lane list locally: **290 passed, 0 failed, 0 errors**. Build launched 14:16 CDT.
+
+**For the laptop:** integration still needs its own inventory version for `21f76f37`'s
+`engine.py` change before it can build through `cloudbuild.week1-live.yaml`.
+
 ## 2026-09-22 (14:09 CDT) — The WR gap is 61% two already-fixed defects; correcting "nothing targets it"
 
 Laptop agent. Report: `reports/2026-09-22-laptop-the-wr-gap-is-mostly-two-fixed-defects.md`.
