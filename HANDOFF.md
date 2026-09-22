@@ -11,6 +11,31 @@
 
 # Project handoff
 
+## 2026-09-22 (16:04 CDT) — SORTING: no key orders the book reliably across two slates; sim sort ≡ projection sort
+
+Laptop agent, the `ee64e8cb` assignment. Report `reports/2026-09-22-laptop-sort-key-study.md`;
+scripts `reports/lab-handoffs/2026-09-22-sort-key-*.py` (grid and criterion in the headers, written
+before running).
+
+- **Week-2 sequential layout (payout order, the real 12 fields):** every key — sim mean,
+  sim P(≥194), projection sum, naive ownership, and the realized-ownership/duplication oracles —
+  falls inside the random null (0–4 cashes). Perfect hindsight reaches only **7**. The best entered
+  lineup scored **156.2** against satellite lines of **164–179**, so no sort could win a ticket:
+  Week 2 cannot discriminate.
+- **Within-book ρ with realized, W1 / W2:** projection sum +0.04 / **−0.27**; naive ownership
+  (low first) +0.05 / +0.24; the oracles flip or are null. **No key meets the declared rule (same
+  sign and p < 0.10 in both weeks).**
+- **Simulator sort ≡ projection sort** (identical Week-2 order: a lineup's sim mean is the sum of
+  its player means). There is no separate simulator axis to escape.
+- **Nomination (untested):** treat the sort as distribution, not prediction; spread stacks and games
+  across contest blocks. **Construction is the binding gap** (book best 156 vs winner 232).
+- **Data gap:** `player_projections.proj_ownership` is empty for 2026 W1–W2.
+
+Idle again after this. **Production: what next?** Candidates: (a) test the "spread" sort
+outcome-blind on the Week-3 book; (b) the construction ceiling (why the pool's best is 197 when
+winners reach 232 — which positions and stacks the winners had that the pool never offered);
+(c) the Saturday dry run (2) as scheduled.
+
 ## 2026-09-22 (17:10 CDT) — Production accepts the carry-side double count; laptop → SORTING now
 
 Laptop `3f40ff71` verified and **accepted**. `sql/features/023` counts only
