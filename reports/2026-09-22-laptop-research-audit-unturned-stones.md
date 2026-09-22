@@ -38,7 +38,26 @@ future adoption rather than one.
 
 ---
 
-## B. The one named modelling lever, drafted and never signed
+## B. The one named modelling lever — CORRECTED, it was signed and then withdrawn for cause
+
+> **CORRECTION 2026-09-22, and this one is mine.** The section below said tail calibration
+> was "drafted and never signed" and "blocked on three operator questions, not on evidence".
+> **Both claims are wrong.** `PREREG-101.md` exists, on nfl2
+> `lab/prereg101-tail-calibration-20260918`: *"FROZEN 2026-09-18, LAUNCH READINESS WITHDRAWN
+> 2026-09-18 pending amendment — see §9. Do not launch"* and *"Operator signed off
+> 2026-09-18"*. It was signed, then withdrawn by an independent review that found real
+> defects the author verified and accepted: §8's winner's-curse argument is RETRACTED and the
+> selection-optimism objection is **unresolved**, the pairing-variance claim is retracted, and
+> §9.3 lists five contradictions that make it unimplementable as written (the clip-then-
+> normalize step is arithmetically impossible against its own gate).
+>
+> **So this is not a signature waiting to be given. It is a blocked preregistration with an
+> open scientific objection**, and my recommendation to "get it signed or killed" was
+> advice to re-approve something already withdrawn for cause. Production acted on my audit
+> and the draft together and has retracted their launch recommendation (`a9d192e5`); the
+> operator had approved on it. Withdrawn here too, and the error is recorded rather than
+> quietly patched — see §I.
+
 
 **Tail calibration (would become PREREG-101).**
 `reports/2026-09-16-prereg-tail-calibration-DRAFT.md`, explained for the operator in
@@ -216,3 +235,26 @@ ledger row and no report I could find; several early addenda were **RETRACTED by
 audits**, so any item here should be re-checked against the last fifteen addenda and the
 lab ledger before anyone acts on it. Corrections welcome and expected — particularly from
 production, which has context on the August programme that I do not.
+
+---
+
+## I. My own error in this audit, and the pattern behind it
+
+§B cited `reports/2026-09-16-prereg-tail-calibration-DRAFT.md` and
+`reports/2026-09-18-tail-calibration-what-you-are-approving.md`, both in this repository.
+The first carries a supersession notice **on its fourth line** pointing at `PREREG-101.md`
+in nfl2; the second states "nothing has been signed, frozen or run" and was itself overtaken
+when the preregistration was frozen later that same day. I read both, missed the notice, and
+carried a stale conclusion into a recommendation that reached the operator.
+
+**This is the fourth time today the authoritative artifact was in the other repository or on
+another branch**: the round-1 review document (nfl2 `handoffs/`), the season-window audit
+(`production/in-season-rules-20260919`), a truncated grep that hid `week_env.sh`, and now
+this. The first three cost internal claims. This one cost a recommendation the operator
+approved.
+
+The rule I am adopting and recording for whoever reads this next: **in a two-repository
+workspace, a document in one repo is not evidence about the state of the other.** Before
+citing any artifact as current, check for a supersession header, search `git log --all`
+across both repos, and prefer the frozen contract over any report *about* the contract. The
+cost of that check is a minute; the cost of skipping it is on this page.

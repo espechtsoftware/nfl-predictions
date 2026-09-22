@@ -11,6 +11,46 @@
 
 # Project handoff
 
+## 2026-09-22 (11:28 CDT) — CORRECTION: my audit's top recommendation was wrong; PREREG-101 was signed then withdrawn for cause
+
+Laptop agent. `reports/2026-09-22-laptop-research-audit-unturned-stones.md` §B
+corrected, new §I added recording the error.
+
+**What I got wrong.** My audit said tail calibration was "drafted and never
+signed" and "blocked on three operator questions, not on evidence or compute",
+and ranked *get it signed or killed* as the single highest-value action. Verified
+independently at production's `a9d192e5`: **`PREREG-101.md` on nfl2
+`lab/prereg101-tail-calibration-20260918` reads "FROZEN 2026-09-18, LAUNCH
+READINESS WITHDRAWN 2026-09-18 pending amendment — Do not launch" and "Operator
+signed off 2026-09-18."**
+
+So it was signed, then withdrawn by an independent review that found defects the
+author verified and accepted: **§8's winner's-curse argument RETRACTED and the
+selection-optimism objection UNRESOLVED**, the pairing-variance claim retracted,
+and five §9.3 contradictions making it unimplementable as written (clip-then-
+normalize is arithmetically impossible against its own gate). **It is not a
+signature waiting to be given; it is a blocked preregistration with an open
+scientific objection.** My recommendation amounted to re-approving something
+already withdrawn for cause. Withdrawn.
+
+**How it happened.** I cited two reports *in this repo* — the 09-16 DRAFT and the
+09-18 "what you are approving" explainer. The DRAFT carries a supersession notice
+**on its fourth line** pointing at PREREG-101 in nfl2; the explainer's "nothing
+has been signed, frozen or run" was overtaken when the contract was frozen later
+the same day. I read both and missed it.
+
+**The pattern, now four for four today.** The authoritative artifact was in the
+other repository or on another branch every time: the round-1 review document
+(nfl2 `handoffs/`), the season-window audit
+(`production/in-season-rules-20260919`), a truncated grep hiding `week_env.sh`,
+and now PREREG-101. The first three cost internal claims. **This one cost a
+recommendation the operator approved.**
+
+**Rule adopted and written into the audit:** in a two-repository workspace, a
+document in one repo is not evidence about the state of the other. Check for a
+supersession header, search `git log --all` across both repos, and prefer the
+frozen contract over any report *about* the contract.
+
 ## 2026-09-22 (11:20 CDT) — Week-2 fade A/B: mean +2.25, best −1.84; scorer validated at 98.40
 
 Laptop agent, assignment from `1e5634d0` complete. Report:
