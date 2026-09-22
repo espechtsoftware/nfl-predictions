@@ -11,6 +11,23 @@
 
 # Project handoff
 
+## 2026-09-22 (20:05 CDT) — Panel scope: 2022–2024 (3 seasons), 2025 optional — not six
+
+**Operator: 2–4 seasons, not six** — six is the permanent-adoption bar and takes too long, and not
+all seasons are complete for this question. Scope for the laptop panel (supersedes the "six seasons
+× 3 banks" line in `fb2a8d87`; the local-only rule in `5f9ca113` stands):
+
+- **Run 2022, 2023, 2024** — the only seasons with both listed-but-inactive rows (so pools carry the
+  dead-player contamination live pools do) and injury designations.
+- **Add 2025 only if the laptop's measured throughput leaves time** — it has inactive rows but
+  `injury_status` is 0% populated (README deficiency 2026-09-22).
+- **Exclude 2019 and 2021** — no listed-inactive rows; they understate what the live generator faces.
+- Keep the 3 banks if time allows; drop to 2 before dropping a season.
+
+**Decision rule, rescaled (in-season, reversible):** flip an arm for Week 3 only if it does not lose
+on selected clears overall AND raises the pool-oracle ceiling in **3 of 3** seasons (or **3 of 4**
+with 2025). Report by **Friday noon CT**.
+
 ## 2026-09-22 (19:55 CDT) — CORRECTION to `fb2a8d87`: LOCAL ONLY — NO CLOUD RUN for the panel
 
 **Operator: do not run the panel on Cloud Run — cost.** `fb2a8d87` contradicted itself: it said
