@@ -98,3 +98,57 @@ ownership.
 Item 1 is **open**, with the obstacle now identified precisely rather than
 restated. The next concrete step is (1) or (2) above; (2) is cheap to check and
 we can do it if you have not.
+
+---
+
+## Addendum: option (2) is closed, and the same gap will repeat in Week 3
+
+We said option (2) — find where the model stage persists its output — was cheap
+to check. It is checked, and the answer is that **it does not persist it at
+all.**
+
+`nfl_predictions.player_projections` carries:
+
+```
+generated_at, model_version, season, week, slate_id, gsis_id, dk_player_id,
+display_name, position, team, opponent, salary, proj_points, proj_p10,
+proj_p50, proj_p90, proj_std, p_20_plus, value, proj_ownership
+```
+
+**No pre-blend column.** The money-path projection table records the output and
+none of the inputs that produced it. That is why Jefferson is unauditable after
+the fact: the value was never written anywhere, and `prod_model_pre` in the
+signals CSV is a side artifact covering 43% of rows.
+
+So item 1 requires option (1), a re-run at the serving commit. There is no
+cheaper path.
+
+## The part that is actionable before Sunday
+
+The market-source repair (`82739685`) introduces
+`nfl_predictions.market_source_log`, one row per slate player per run, carrying:
+
+```
+generated_at, season, week, gsis_id, display_name, position,
+source, market_points, path, proj_points
+```
+
+That is a real improvement — it records the market value and *where it came
+from*, which is exactly what was missing when the DK-PPG stand-in served
+Jefferson. **But it still does not record the pre-blend model value.** It logs
+the market input and the blended output, so reconstructing the model side
+requires inverting the weight — the move this whole item exists to reject, and
+which the 0-of-175 comparison above shows is unsafe.
+
+**Week 3 will therefore be un-auditable in exactly the same way Week 2 was**,
+unless one column is added.
+
+**The timing argument:** `market_source_log` **does not exist yet** — it is
+created the first time `project-slate` runs on the repaired image, which has not
+happened. Adding a column now costs nothing. Adding it after Sunday means
+altering a populated money-path table.
+
+This is the cheapest moment there will be, and it is a one-column additive
+change to `_source_log_rows`. We have not made it: it is money-path code that
+must run on Tuesday, and we are not editing that unasked days before a build.
+Say the word and we will implement it with tests and a mutation check.
