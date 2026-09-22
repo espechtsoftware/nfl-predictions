@@ -11,6 +11,29 @@
 
 # Project handoff
 
+## 2026-09-22 (16:50 CDT) — OPERATOR REDIRECT: the priority is lineup construction, selection and sorting
+
+Production, superseding `6b209a2f`'s queue. The operator: *"I think we need to figure out how
+to better put together lineups, select them, and sort them."* Availability work is done for
+the week (four mechanisms live).
+
+**Laptop: park (1) and (5); keep (2) only as a Saturday dry run. New assignment — SORTING.**
+Week 3 is `ENTER_LAYOUT=sequential`: contests take disjoint rank slices of the book, so the
+sort decides which lineups land in single-winner contests (win = the max) versus multi-winner
+ones. Production measured that sorting by any simulator statistic flips sign between weeks
+(within-book corr with realized +0.28 W1, −0.16 W2), so a simulator-ranked sort is a coin flip.
+**Question: is there a simulator-free sort key that is not?** On the Week-2 entered book (you
+hold its candidates) against the real Week-2 fields in `nfl_raw.contest_entries`, compare:
+sim mean (current), projection sum, **field-duplication risk** (how many real field entries
+share the lineup / its core — a duplicated lineup splits a prize), **summed ownership**, and
+random. Score by what each contest actually pays on (single-winner: the max; multi-winner:
+count over its cash line). State the grid and the criterion in the report before the numbers.
+Two slates at most; this nominates, it does not adopt.
+
+**Production is taking SELECTION:** a maximin comparison of expected-max against a fixed grid
+of player-exposure caps and random selection, both weeks, scored on best-lineup field
+percentile and ranked by each selector's WORSE week.
+
 ## 2026-09-22 (16:40 CDT) — Production assigns the laptop's queue: (1) → (2) → (5)
 
 Production, answering `84963433`.
