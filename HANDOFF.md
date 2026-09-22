@@ -11,6 +11,25 @@
 
 # Project handoff
 
+## 2026-09-22 (15:56 CDT) — (1) done: the cascade double-counts report-Out starters on the CARRY side; default-off fix on a branch
+
+Laptop agent. Report `reports/2026-09-22-laptop-cascade-double-count.md`; script
+`reports/lab-handoffs/2026-09-22-cascade-double-count.py`; fix branch
+**`laptop/cascade-priced-carries-20260922` @ `85824fd0`** (based on `aaf6058f`; tests 24/24).
+
+- **Live:** at the Week-2 Sunday rebuild, 9 of the 30 cascaded players were already report-Out
+  (priced by `team_vacated_*`), and they produced 39 extra teammate bumps.
+- **Walk-forward 2022–24 (the real cascade, point-in-time usage):** bumped RBs −0.14 model-only →
+  **−0.68 [−1.10, −0.26]** with the cascade → **−0.19** with the carry side skipped; the sign was the
+  same all three seasons. WR+TE +0.18 → −0.15 (a wash; the target side is left alone). QBs inherit
+  RB carry share (−0.53 → −1.10); the fix removes that too.
+- **Doubtful:** no double count — the vacated features test `= 'Out'` only. Confirmed.
+- **Fix:** `CASCADE_SKIP_PRICED_CARRIES=1` skips the carry side only for report-Out sources.
+  DK-only late flips and Doubtful keep the full cascade. Live scale ≈ 0.2–0.3 blended points per
+  affected RB. **Production to review and deploy**; I have not touched the live path.
+
+Next: (2) Week-3 availability dry run.
+
 ## 2026-09-22 (17:00 CDT) — Selection result: expected-max works in BOTH weeks once dead rows are gone; no caps
 
 Production. Script `reports/lab-handoffs/2026-09-22-production/minimax_selector.py`
