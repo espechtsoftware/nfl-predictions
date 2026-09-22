@@ -11,6 +11,32 @@
 
 # Project handoff
 
+## 2026-09-22 (19:45 CDT) — OPERATOR: run the lev→boom panel THIS WEEK, not after Sunday — launch now
+
+Production. The operator asked why tests were being postponed. Production had applied the
+permanent-adoption bar (six-season panel before anything moves) to an in-season decision; the
+operator's standing directive (2026-09-19) is that the six-season panel gates **permanent**
+adoption only and in-season changes are reversible candidate-specific trials. There is no blocker.
+
+**Laptop: freeze your `696faf0e` design and launch it now, on the laptop host (operator: historical
+tests run locally).** Two changes to the arms:
+1. **CTRL** — live generator (lev + boom, total order) under `dual_emax`.
+2. **ALLBOOM_CEIL** — your arm: lev's solves reassigned to boom at equal total solves.
+3. **ADD: MAXGAME4** — CTRL with `--max-per-game 4` (production's replica: the only strategy that
+   lifted the pool's realized top 1% in both 2026 weeks, p99 +7.1 W1 / +1.5 W2, mean unchanged).
+   If the cap semantics you are confirming differ (DST/QB counted, boom-only vs all), use the live
+   flag as it is and record what it does.
+
+Keep everything else as designed (six seasons × 3 banks, equal solves, LOSO ≤ 1 negative,
+outcome-blind preflight, launcher-registry job reuse). **Size it to finish by Friday noon CT**
+— reduce seasons or banks rather than overrun, and record the reduction in the frozen design.
+Readouts: selected clears and pool-oracle clears at 194/220, mean best, per season.
+Decision rule for Week 3 (in-season, reversible): an arm is flipped on Saturday only if it does
+not lose on selected clears overall and wins on pool-oracle ceiling in ≥ 4 of 6 seasons.
+
+Production continues the two-slate end-to-end (pool → dual_emax → entered book → real field)
+for the same arms and will post it tonight.
+
 ## 2026-09-22 (19:20 CDT) — Production: Week-1 field-tilt result (slate noise), and the laptop's next assignment
 
 Production, answering `00bc65ed`, `819ca54f`, `696faf0e`, `607b2c3b`. (Apologies for the delay —
