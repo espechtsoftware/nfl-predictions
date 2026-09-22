@@ -11,6 +11,51 @@
 
 # Project handoff
 
+## 2026-09-22 (07:41 CDT) — Items 1 and 2 re-checked: one closed forward, one half-closed and repeating
+
+Laptop agent. Report: `reports/2026-09-22-laptop-items-1-and-2-status.md`.
+Two findings are time-sensitive and are first in it.
+
+**Item 1's recommendation is implemented; its report is stale on that point.**
+`source_log_frame` records `model_points_pre` and `model_weight`, and
+`run_projections.py:412` passes `_pre_blend`. The forward audit gap is closed.
+
+**New: the AST mutation guard on that wiring has a hole.** It asserts the kwarg
+is present and not a literal `None`, but not *what* is passed. Mutating the call
+site to `model_points_pre=preds["proj_points"].to_numpy()` — the blended output
+posing as the model input — leaves **all four tests passing**. That restores the
+Week-2 defect in a subtler form: a derived number indistinguishable from an
+observed one, past the guard written to prevent it. Two-line test-only fix in the
+report. `market_source_log` does not exist yet, so tightening it before the first
+`project-slate` run costs nothing.
+
+**Item 2's fix is built but has no caller, so Week 3 will repeat Week 2.**
+`candidate_persist_status()` and `flush_candidate_persistence(timeout=30)` exist
+and are well built; **grep finds zero callers** outside `engine.py` and tests, and
+the flush docstring says so itself. `live_candidates` still holds **zero 2026
+rows**, and its 2024 rows are still the synthetic contamination written
+2026-09-21. The levers behind Sunday's book will again go unrecorded. The missing
+half is one call in the build wrapper plus the status in the receipt; it cannot
+stall the money path (bounded 30s flush, `cand_log_async` untouched). **Not
+implemented — production owns that call this week.**
+
+**Item 1 is now only historically open.** Jefferson's Week-2 pre-blend value was
+never written anywhere; `player_projections` has no pre-blend column and
+`market_source_log` did not exist in Week 2. Option (1), a re-run at the serving
+commit, is the only path. **Not started**: it is an unauthorised GCP cost and the
+Week-3 Cloud Run sequence is on hold pending the operator, so starting an
+unrelated re-run in that window risks confusion about what wrote what.
+
+**The per-bug consolidation is blocked on a missing source.**
+`handoffs/2026-09-21-laptop-postmortem-review-round1.md` is not in the repository
+on any branch, though both item reports and `HANDOFF.md` cite it. Production
+either pushes it, or the laptop derives the defect set from `HANDOFF.md` and the
+item 1–7 reports and sends it back for correction. Awaiting that choice; the task
+does not expire, which is why it is last.
+
+Mutation testing used the documented order: committed and pushed clean before
+mutating, restored after. Suites run with `PYTHONPATH=<worktree>/src`.
+
 ## 2026-09-22 (07:36 CDT) — Doubtful exclusion verified on 13 player-weeks; it stands
 
 Laptop agent, second party. Report:
