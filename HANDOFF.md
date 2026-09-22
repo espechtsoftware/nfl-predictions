@@ -11,6 +11,55 @@
 
 # Project handoff
 
+## 2026-09-22 (14:05 CDT) — Backup-QB gate merged; it was built 09-19 and never deployed. Doubtful is already live
+
+Production, on the operator's approval of both availability repairs. Report:
+`reports/2026-09-22-qb-gate-merge-and-deploy-gap.md`.
+
+**Operator asked whether the backup-QB problem was already addressed. It was BUILT and
+never shipped.** What was live in Week 2 was only the downstream Sunday vetting
+(`qb_flags.py` → `vet_book.py`/`gen_sheet.py`), which inspects the book after it is
+built. That is why the measurements split the way they did: **1 of 97** entered rows
+used a cheap never-played QB (vetting worked) while **19.5%/20.0%** of the pool carried
+one (generation was never protected).
+
+**Verified not-deployed before merging:** none of `027d1220`/`2855cba1`/`d879beba`/
+`8dd7abc9` were ancestors of the integration branch; the gate is not in `cf630a68`; the
+live job runs `nfl-dfs:week3-market-source-cf630a68`; the tree had no `QB_BACKUP_GATE`
+code. No hold reason on the branch — it carries 13 tests and an env rollback.
+
+**Dry-run on the REAL served Week-2 frame (not a reconstruction): the gate fires.**
+38 QBs zeroed, 304.1 served points removed (Bagent 16.55, Keenum 15.55, McKee 14.31,
+Ehlinger 14.26 …, all $4,000–4,200 at depth 2–3), and **3,514 of 12,555 pool lineups
+(28.0%)** used a QB it would have zeroed.
+
+**The two repairs are complementary.** The gate deliberately skips a team whose primary
+is Doubtful — confirmed in the dry run, **Tua is NOT gated** — and Tua is exactly the
+player who put five dead rows in the entered book. **The Doubtful exclusion is ALREADY
+LIVE for Week 3**: clone `week3-live-center` at `EXPECT_SHA=69f98a75…`, clean, with
+`DK_INACTIVE_STATUSES = {"O","OUT","IR","D"}`. Today's A/B is retrospective validation
+of a shipped change, not a proposal.
+
+**Two coverage gaps closed:** `tests/test_cascade_adjust.py` was in **neither** the
+money lane nor `cloudbuild.week1-live.yaml` — the image would have carried the gate
+untested. Added to both. Money lane **281 passed / 1 skipped**; gate module 13 passed.
+
+**OPERATOR ACTION — the harness cannot run it, and it is time-sensitive.** The gate only
+reaches Week-3 projections through the image, and `project-slate` has **not yet run for
+Week 3**, so there is still time:
+1. `gcloud builds submit --config cloudbuild.week1-live.yaml` from this branch
+   (**not** `cloudbuild.yaml` — it times out at its 3h ceiling).
+2. `gcloud run jobs deploy project-slate --image <new tag> --region us-central1` — an
+   **update** of the existing job, never a creation (us-central1 at the 1000-job quota).
+3. Run `project-slate` for Week 3; verify in the job log:
+   `backup-QB gate: zeroed N QB(s) listed behind a healthy primary`.
+Rollback without redeploy: `QB_BACKUP_GATE=0`.
+
+**Worth, honestly:** the selector already avoids these rows, so this is generation
+efficiency (~a fifth to a quarter of pool capacity), priced at **~1.7 points of ceiling**
+by the measured log law — not the ~35 a winning line needs. It is worth doing because it
+is correct in either simulator regime (see [[simulator-regime-flip]] entry above).
+
 ## 2026-09-22 (13:20 CDT) — The simulator's ranking flips sign between weeks; five instruments agree
 
 Production. Reports: `reports/2026-09-22-production-simulator-regime-flip.md` and

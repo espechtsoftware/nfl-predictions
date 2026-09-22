@@ -51,6 +51,7 @@ show_quarantine() {
 # the suite and none of them gate the season.
 MONEY_TESTS=(
   tests/test_production_policy.py
+  tests/test_cascade_adjust.py
   tests/test_optimizer.py
   tests/test_optimizer_policy_isolation.py
   tests/test_scoring.py
