@@ -11,6 +11,62 @@
 
 # Project handoff
 
+## 2026-09-22 (11:03 CDT) — Research audit of both repos: unturned stones, ranked
+
+Laptop agent, at the operator's request. Report:
+`reports/2026-09-22-laptop-research-audit-unturned-stones.md`. Sources: 949
+reports and the 120-addendum system study here; 78 frozen preregistrations,
+`LEDGER.md` (65 rows) and the August idea memos in nfl2. Sorted by expected value
+against **finish and money**, per the ledger's own conclusion that points is the
+wrong axis.
+
+**Systemic finding: the adopted-stack guard cannot see the money path.**
+`config_manifest.py` inspects six `nfl_dfs` modules and contains the string
+`nfl2` **zero times**. That is exactly how the chalk fade sat at zero for every
+live week while the manifest reported zero discrepancies — correctly, because the
+disagreement is across a repository boundary it does not cross. Nothing currently
+rules out other declared-but-ignored levers. A cross-repo lever-consumption test
+is cheap, is a test rather than a model change, and protects every future
+adoption.
+
+**The one named modelling lever is drafted and unsigned.** Tail calibration
+(would be PREREG-101) — the simulator claims 9% at 220 against a true ~3%, and
+selection amplifies the error (pool 1.6x optimistic, selected book 2.8x). Nine
+ordering approaches are closed; this one reweights worlds instead of re-ranking.
+**Blocked on three operator questions, not on evidence or compute.**
+
+**Fourteen frozen preregistrations have no ledger row** (040, 042, 043, 051, 061,
+062, 069, 071–077). Some are genuinely dead (069 infeasible, 071 void), but 051,
+062, 074, 077 are not recorded closed anywhere, and **073 is explicitly awaiting
+production review** — a cohort the lab proposed that no one answered. With the lab
+gone these have no owner. **051 (winner-shape supply at fixed compute)** is the
+one to look at first, since the standing diagnosis is that the corpus holds the
+winner's players but not the winner's roster.
+
+**Two published next steps were never done.** The Questionable-exposure cap was
+named and never preregistered — and today's cohort work sharpens it: *Q as a
+whole is the best-value cohort* (77.4% played, 1.274 PPR/$1k vs 1.003), so a
+blanket Q cap destroys value; it must target **Q_dnp/Q_limited** specifically, as
+PREREG-100 actually said. And the **cash/double-up shadow was never built** —
+which I would rank first, because it plays to the system's calibrated mean (61%
+above the Millionaire median, 25% above the cash line) instead of a tournament
+tail the simulator models badly.
+
+**Seven August mechanisms never became cohorts**, including two **outcome-free
+diagnostics** that cannot contaminate a gate and need no money-path change: the
+tail-driver credibility audit and the minimum-edit high-score path. Together they
+answer *supply vs retrieval*, which decides which mechanism is next.
+
+**Measurement gaps that cap the programme:** `contest_entries` has never received
+a row (no field model, and the finish objective needs one); **`payout` is NULL on
+all 1,305,992 rows, so no ROI is computable from the warehouse at all**;
+`contest_ownership` Week-2 coverage is 471 names against Week 1's 675, so
+cross-week realized scoring is not symmetric; tabpfn weeks 1–2 remain destroyed.
+
+**Caveat carried in the report:** filenames read, not all 949 reports; several
+early addenda were RETRACTED by later audits, so every item should be re-checked
+against the last fifteen addenda and the lab ledger before action.
+
 ## 2026-09-22 (10:49 CDT) — Week-2 fade A/B running on a SUBSTITUTED frame; production should correct this now if it matters
 
 Laptop agent, assignment accepted from `1e5634d0`. Flagging a substitution **while
