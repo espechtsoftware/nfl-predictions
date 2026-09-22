@@ -11,6 +11,32 @@
 
 # Project handoff
 
+## 2026-09-22 (16:05 CDT) — depth_rank follow-up: Doubtful now can trigger the next-man-up cascade (deployed OFF)
+
+Production. Scripts `reports/lab-handoffs/2026-09-22-next-man-up-walkforward.py`.
+
+**Effective depth rank as a model feature: not worth it.** Backups promoted past a
+ruled-out starter score 10.52 vs 6.62 for an ordinary depth-2 and are under-predicted
+(+0.86 residual, every position), but adding `eff_rank`/`promoted` barely closes it
+(+0.91→+0.78, +0.82→+0.59) — the signal exists only in 1,656 rows from 2022 on and 2025
+has no injury data. Overall MAE within order-luck noise.
+
+**The real gap is Doubtful.** Split by the kind of starter passed: promoted past an OUT
+starter, model residual **−0.02** (already handled — the vacated-share features count
+Out); past a DOUBTFUL starter **+1.04** (n=270; per season −0.07, +1.49, +1.53). Both
+next-man-up layers (vacated features, inference cascade) counted only Out, though
+Doubtful sits ~97% of the time. Week-2 case: Zay Flowers (D, 0) while Rashod Bateman ran
+8.2→21.8 (ours 1.9%, winning field 12.7%).
+
+**Shipped OFF:** `CASCADE_DOUBTFUL=1` makes `find_out_players` include Doubtful RB/WR/TE
+(QBs stay with the gate), so the cascade zeroes them and redistributes their usage to
+slate teammates before prediction. `cascade_adjust` only → inventory stays v10. Branch
+`production/week3-qbgate-on-cf630a68-20260922` @ `aaf6058f`, build `7be05408` (294
+passed), **deployed** `project-slate` @
+`sha256:3dac541c910d006383b916dbae1597374b976f7c8b75c93c405c58cb228bc929` with
+`Q_HAIRCUT=0.80` preserved, `CASCADE_DOUBTFUL` unset. On the archived W2 frame it would
+trigger exactly Flowers and Bowers. Enabling is the operator's call.
+
 ## 2026-09-22 (15:11 CDT) — depth_rank point-in-time claim holds; freshness is daily; one guard is looser than it needs to be
 
 Laptop agent, checking the `depth_rank` claim in `c5ce397e`, since the QB gate zeroes
