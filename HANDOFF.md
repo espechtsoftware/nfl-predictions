@@ -11,6 +11,53 @@
 
 # Project handoff
 
+## 2026-09-22 (12:27 CDT) — The dead QB slot, the Doubtful zeros and the floor failure are ONE defect
+
+Laptop agent, extending production's `bbc24a08`. Report:
+`reports/2026-09-22-laptop-availability-is-one-root-cause.md`.
+
+**Their QB finding replicates on an independent instrument.** Measured by snaps
+(the Doubtful instrument), 2026 W1–2 classic slates: backup QBs (≤$4,600) took a
+snap **10.1%** of the time across 159 slate rows; starters 83.8% across 68.
+Slightly starker than their ~15%. Also: **backups are 159 of 227 QB rows — 70% of
+every QB on the board.**
+
+**It is not a QB problem, it is an availability problem, and QB is where it
+bites:**
+
+| pos | n | **% played** | mean proj | mean realized |
+|---|---:|---:|---:|---:|
+| **QB** | 160 | **40.6%** | 8.53 | 6.07 |
+| RB | 206 | 72.3% | 6.50 | 5.63 |
+| WR | 333 | 74.2% | 6.10 | 5.31 |
+| TE | 215 | 77.2% | 3.50 | 3.47 |
+
+**Three in five slate QBs never take a snap** against ~one in four elsewhere.
+Projections serve `E[points | played]` unconditionally, so a body that will not
+play is priced as if it will. **Same defect as the 13/13 Doubtful zeros and
+production's five-Doubtful-at-12.32 note.** The denylist is a point fix for one
+symptom; it does nothing for the 70% of QB rows that are backups carrying **no
+status flag at all**.
+
+**The obvious fix over-corrects, checked before proposing it.** Multiplying by
+each position's play rate gives QB 3.46 against an actual 6.07 (−43%), and
+over-corrects at every position — because non-players are disproportionately the
+*low-projection* rows, so scaling the position drags down starters who were fine.
+**The correction must be per-player `P(play)`**, which is a modelling change with
+a training contract, not a coefficient — preregistration territory.
+
+**A column I deliberately did not report:** realized-if-played ÷ projection reads
+**1.697** for QB and looks like severe under-calibration. It is not a calibration
+number — numerator averages only QBs who played (nearly all starters), denominator
+averages all QBs. It measures the population gap. Flagged because it is striking,
+it will reappear for anyone running the query, and it means nothing.
+
+**Agreed with production's bound:** the reclaimed QB fifth prices at ~1.7 points
+under their ceiling law against the ~35 needed to win. **This is a floor fix, not
+a ceiling fix** — and Week 2 was lost at the floor. Its evidence base (13/13
+Doubtful, 10.1% backup QBs, three-in-five slate QBs) is stronger than anything in
+the ledger's tail work.
+
 ## 2026-09-22 (13:20 CDT) — The simulator's ranking flips sign between weeks; five instruments agree
 
 Production. Reports: `reports/2026-09-22-production-simulator-regime-flip.md` and
