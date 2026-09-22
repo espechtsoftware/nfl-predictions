@@ -1,3 +1,4 @@
+import pytest
 """Late-inactive slate adjustment: out players zeroed, teammates bumped."""
 
 import numpy as np
@@ -372,3 +373,44 @@ def test_no_depth1_promotion_kill_switch(monkeypatch):
         {"gsis_id": "A3", "display_name": "Three", "dk_position": "QB", "team_abbr": "ATL", "status": None, "injury_status": None, "depth_rank": 3},
     ])
     assert find_backup_qbs(feats) == [], "with the switch off the team is left alone"
+
+
+def _q_frame():
+    feats = pd.DataFrame([
+        {"gsis_id": "Q1", "status": "Q", "injury_status": None},
+        {"gsis_id": "Q2", "status": None, "injury_status": "Questionable"},
+        {"gsis_id": "H1", "status": None, "injury_status": None},
+        {"gsis_id": "D1", "status": "D", "injury_status": "Doubtful"},
+    ])
+    out = pd.DataFrame({"gsis_id": feats.gsis_id, "proj_points": 10.0, "proj_p90": 20.0, "value": 2.0})
+    return feats, out
+
+
+def test_questionable_haircut_defaults_to_a_no_op(monkeypatch):
+    monkeypatch.delenv("Q_HAIRCUT", raising=False)
+    from nfl_dfs.inference import cascade_adjust as C
+    feats, out = _q_frame()
+    h = C.questionable_haircut(feats)
+    assert h == 1.0
+    pd.testing.assert_frame_equal(C.apply_questionable_haircut(out, C.find_questionable_players(feats), h), out)
+
+
+def test_questionable_haircut_scales_only_q_players_and_only_mean_columns(monkeypatch):
+    monkeypatch.setenv("Q_HAIRCUT", "0.85")
+    from nfl_dfs.inference import cascade_adjust as C
+    feats, out = _q_frame()
+    ids = C.find_questionable_players(feats)
+    assert ids == ["Q1", "Q2"], "DK status Q and report Questionable both count; Doubtful and healthy do not"
+    got = C.apply_questionable_haircut(out, ids, C.questionable_haircut(feats)).set_index("gsis_id")
+    assert got.loc["Q1", "proj_points"] == 8.5 and got.loc["Q2", "value"] == 1.7
+    assert got.loc["H1", "proj_points"] == 10.0 and got.loc["D1", "proj_points"] == 10.0
+    assert (got.proj_p90 == 20.0).all(), "quantiles are not scaled"
+
+
+def test_questionable_haircut_fails_closed_on_a_bad_value(monkeypatch):
+    from nfl_dfs.inference import cascade_adjust as C
+    feats, _ = _q_frame()
+    for bad in ("0", "1.2", "-0.5", "abc"):
+        monkeypatch.setenv("Q_HAIRCUT", bad)
+        with pytest.raises(ValueError):
+            C.questionable_haircut(feats)

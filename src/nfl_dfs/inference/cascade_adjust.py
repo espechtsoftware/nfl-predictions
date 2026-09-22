@@ -265,3 +265,49 @@ def find_backup_qbs(feats: pd.DataFrame) -> list[str]:
             # the Doubtful QB himself, at any depth, including above the cut
             ids.extend(g.loc[g.doubtful & ~g.out, "gsis_id"].astype(str))
     return sorted(set(ids))
+
+
+# Questionable availability haircut (2026-09-22). The featureset carries no
+# injury or practice feature, so a Questionable player is served E[points | he
+# plays at full strength]. Walk-forward 2018-2024 on the training panel, model fit
+# on active rows exactly as production fits it: Questionable players under-ran
+# healthy players in 7 of 7 seasons (mean gap -1.33, sd 0.56); their
+# realized/projected ratio relative to healthy players is 0.77-0.91 (0.86 pooled,
+# 0.77-0.83 in 2022-24). The market blend does not price it away: on the served
+# 2026 projections Q players ran 0.45x (W1) and 0.63x (W2) of healthy.
+#
+# Q_HAIRCUT is the multiplier; the DEFAULT 1.0 IS A NO-OP. Only proj_points and
+# value are scaled -- the money path reads proj_points alone, and scaling the
+# quantiles or proj_std of a play/no-play mixture by a constant would be wrong.
+# A value outside (0, 1] fails closed rather than being ignored.
+QUESTIONABLE_STATUSES_Q = {"Q", "QUESTIONABLE"}
+
+
+def questionable_haircut(feats: pd.DataFrame) -> float:
+    raw = os.environ.get("Q_HAIRCUT", "1.0")
+    try:
+        h = float(raw)
+    except ValueError as exc:
+        raise ValueError(f"Q_HAIRCUT must be a number in (0, 1], got {raw!r}") from exc
+    if not (0.0 < h <= 1.0):
+        raise ValueError(f"Q_HAIRCUT must be in (0, 1], got {h}")
+    return h
+
+
+def find_questionable_players(feats: pd.DataFrame) -> list[str]:
+    """GSIS ids of skill players designated Questionable (DK status or report)."""
+    status = _col(feats, "status").fillna("").astype(str).str.upper().str.strip()
+    report = _col(feats, "injury_status").fillna("").astype(str).str.upper().str.strip()
+    q = status.isin(QUESTIONABLE_STATUSES_Q) | report.eq("QUESTIONABLE")
+    return sorted(set(feats.loc[q & feats.gsis_id.notna(), "gsis_id"].astype(str)))
+
+
+def apply_questionable_haircut(out: pd.DataFrame, q_ids: list[str], h: float) -> pd.DataFrame:
+    if h == 1.0 or not q_ids:
+        return out
+    out = out.copy()
+    mask = out.gsis_id.astype(str).isin(q_ids)
+    for col in ("proj_points", "value"):
+        if col in out.columns:
+            out.loc[mask, col] = out.loc[mask, col] * h
+    return out

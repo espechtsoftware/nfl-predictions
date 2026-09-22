@@ -477,6 +477,12 @@ def project(
         log.info("backup-QB gate: zeroed %d QB(s) listed behind a healthy "
                  "primary: %s", len(backup_ids),
                  ", ".join(sorted(names.astype(str))))
+    # Questionable availability haircut (2026-09-22); Q_HAIRCUT=1.0 is a no-op.
+    q_h = cascade_adjust.questionable_haircut(feats)
+    q_ids = cascade_adjust.find_questionable_players(feats)
+    if q_h != 1.0:
+        log.info("questionable haircut: x%.3f on %d Questionable player(s)", q_h, len(q_ids))
+    out = cascade_adjust.apply_questionable_haircut(out, q_ids, q_h)
     return cascade_adjust.zero_out_projections(out, out_ids + backup_ids)
 
 
