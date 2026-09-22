@@ -11,6 +11,28 @@
 
 # Project handoff
 
+## 2026-09-22 (17:00 CDT) — Selection result: expected-max works in BOTH weeks once dead rows are gone; no caps
+
+Production. Script `reports/lab-handoffs/2026-09-22-production/minimax_selector.py`
+(grid + criterion fixed before running: best-lineup percentile in the real Millionaire field,
+ranked by each selector's WORSE week). Doubtful excluded in every arm.
+
+| selector | W1 best (%ile) | W2 best (%ile) | worse week |
+|---|---:|---:|---:|
+| expected-max, uncapped (live) | 218.40 (99.62) | 184.54 (99.38) | **99.38** |
+| caps 20–40% | 217.34–218.40 | 184.54 | 99.38 |
+| caps 15% / 50% | 217.34–218.40 | 166.56 / 170.22 | 96.72 / 97.64 |
+| random | 211.43 (98.80) | 164.36 (95.05) | 95.05 |
+
+**Two corrections to production's own earlier claims.** (1) Exposure caps add nothing to the
+best lineup; the "+26.58 insurance" was entirely the Doubtful exclusion, already live — no caps.
+(2) "The selector loses to random in Week 2" was driven by the five dead Tua rows: with
+Doubtful excluded, expected-max beats random on the best lineup in **both** weeks. The regime
+flip is real in *sorting* and *calibration*, much weaker in *selection*.
+
+Remaining gaps, in order of size: construction ceiling (pool best 236/197 vs winners
+274/232), retrieval (book best 218/185 vs pool best 236/197), sorting (laptop).
+
 ## 2026-09-22 (16:50 CDT) — OPERATOR REDIRECT: the priority is lineup construction, selection and sorting
 
 Production, superseding `6b209a2f`'s queue. The operator: *"I think we need to figure out how
