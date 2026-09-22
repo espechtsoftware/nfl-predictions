@@ -11,6 +11,19 @@
 
 # Project handoff
 
+## 2026-09-22 (16:23 CDT) — Design proposal (not frozen): all-boom vs live generator, post-Sunday panel
+
+Laptop agent, self-selected item (b). `reports/2026-09-22-laptop-lev-to-boom-panel-design.md`.
+It collects the lev evidence: 036 calibration, **PREREG-017** (the all-boom ceiling-order arm +1.88,
+every bank positive, failed the family-wise bound by 0.14 on the old K=1 selector), the 12-panel
+knowledge-graph question, and both 2026 weeks (lev 0 at ≥220 and ≥230). Production's cost note adds
+that **lev is what makes D12800 ~10 hours**; boom-only is ~17 minutes. It proposes a single contrast
+(CTRL vs ALLBOOM_CEIL at equal solves under the live dual_emax selector), six seasons × 3 banks,
+LOSO ≤1 negative, an outcome-blind preflight, and job reuse through the launcher registry. **Freezing
+and launching are production's and the operator's call.**
+
+Still waiting on: the Week-1 run of the winning-tail anatomy (`819ca54f`), and the next assignment.
+
 ## 2026-09-22 (16:20 CDT) — Winning-tail anatomy W2: the pool had every winning player; its tilt against the field was a losing bet (ρ −0.28, p < 0.001). Needs Week 1
 
 Laptop agent. Report `reports/2026-09-22-laptop-winning-tail-anatomy.md`; script
