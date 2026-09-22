@@ -3,11 +3,17 @@
 Item 2's broader ask — per bug: introduced commit, reproducer, affected outputs,
 regression test, fixed-path replay, in one table.
 
-**This is option (b), and it is provisional.** The source list
-`handoffs/2026-09-21-laptop-postmortem-review-round1.md` is not in the repository on
-any branch, so this set is derived from `HANDOFF.md` and the committed item 1–7
-reports. **Anything raised only in chat is missing from it, and I cannot know what.**
-Correct it rather than adopt it. Every commit below was verified with `git log`, not
+**RESOLVED 2026-09-22 — the source document is now in hand and this table survives it.**
+It was first derived as option (b) because the round-1 document appeared to be in no
+repository. That premise was wrong and the error was mine: it is in **nfl2**
+`handoffs/`, and I searched only `nfl-predictions`. Production pushed a byte-identical
+mirror at `reports/lab-handoffs/2026-09-21-laptop-postmortem-review-round1.md`, sha256
+`4f409801…a4404`, which I verified equal across both nfl2 branches and the mirror.
+
+Reading the source changes the table not at all, for a reason worth stating: **round 1
+does not enumerate bugs.** It lists eight requested corrections, and item 2 asks for the
+five fields "for each confirmed bug" without naming them. So the bug set was always
+something to be assembled from the repository, which is what this is. See §diff. Every commit below was verified with `git log`, not
 copied from prose; every test file was confirmed present and collected.
 
 ## Summary
@@ -76,9 +82,58 @@ lands, Week 3's levers go unrecorded exactly as Week 2's did.
   visible, which is worth noting because "introduced commit" and "commit that made it
   fail" are not the same column and this table uses the former.
 
-## What is missing from this, by construction
+## §diff — round 1's eight items against what was answered
 
-Bugs raised only in the round1 document or in chat. If you push
-`handoffs/2026-09-21-laptop-postmortem-review-round1.md` I will diff its eight
-requested corrections against this set and report what I missed — that diff is worth
-more than either list alone.
+Now that the source is readable, the promised diff. Seven of eight items are answered by
+committed reports. **One clause is not answered anywhere**, and it is not a small one.
+
+| item | subject | status |
+|---|---|---|
+| 1 | Jefferson pre-blend trace | answered (open on the re-run) |
+| **1 (second clause)** | **season-partitioned windows, training vs serving contracts, cold-start** | **UNANSWERED — see below** |
+| 2 | per-bug table + telemetry vs money-path input | this document + item-2 report |
+| 3 | caps compared on the same objective/pool/K/assignment | answered |
+| 4 | stack counts and overlap definition | answered (87/8/2 reproduced) |
+| 5 | injured concentration, feed gaps vs observation times | answered |
+| 6 | all entrants stratified, not winners only | answered |
+| 7 | standings validator, ties/duplicates/rejected rows | answered |
+| 8 | Tuesday handover: image identities, pending vs done, risks | answered by the handover chain |
+
+### The unanswered clause, quoted in full
+
+Item 1 is two questions, and only the first was ever engaged:
+
+> Season-partitioned windows alone do not prove a new defect or justify classifying
+> cross-season training-feature changes as a repair; compare the training and serving
+> contracts and historical cold-start behavior.
+
+The item-1 report is entirely about the Jefferson trace. Grepping every committed report
+under `reports/` for `season-partitioned window`, `cross-season training-feature` and
+`historical cold-start` returns **nothing**; the only near-hits inside the item-1 report
+are two incidental uses of the word "repair" about the market-source commit.
+
+**Why it matters more than a missed sub-bullet.** It challenges a *classification*, not a
+number: whether a cross-season training-feature change was properly called a repair at
+all. If it was not, then something recorded as a fix is actually a behavioural change to
+the training contract, and the distinction decides whether a downstream verdict
+transfers — which is exactly what this project's post-ensemble and post-selection law
+exists to protect. It is also the one item-1 question that does **not** need the re-run
+at the serving commit, so it is unblocked today.
+
+I am not answering it inside this table; it needs its own comparison of the training and
+serving contracts. Flagging it as the diff's actual finding.
+
+## Verifications run against production's 2026-09-22 reply
+
+Claims checked rather than accepted, all confirmed exactly:
+
+| claim | result |
+|---|---|
+| round-1 mirror is byte-identical to nfl2 | sha256 `4f409801…a4404` equal across both nfl2 branches and the mirror |
+| `build-features` wrote Week-3 rows | `player_week_inference` season 2026 week 3 = **928** |
+| `tabpfn-gen` recovered from 51 rows | `tabpfn_projections` 2026 week 3 = **928**, matching inference one-for-one |
+| week resolver returns 3 | exact `project-slate` query returns **3** today |
+
+One observation production did not state: `tabpfn_projections` holds **only** week 3 for
+2026 — weeks 1 and 2 are still absent, the known truncate-and-rewrite damage from the
+bad early run. Already logged; noted here so the 928 is not read as a full-season cache.

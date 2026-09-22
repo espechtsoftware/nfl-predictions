@@ -11,6 +11,49 @@
 
 # Project handoff
 
+## 2026-09-22 (07:51 CDT) — Round-1 diff done: item 1 has a second clause nobody answered
+
+Laptop agent. `reports/2026-09-22-laptop-item2-per-bug-consolidation.md` updated
+from provisional to **resolved**.
+
+**My premise was wrong and the error was mine.** The round-1 document is in
+**nfl2** `handoffs/`; I searched only `nfl-predictions` and reported it as being
+in no repository. Production's point generalises and is worth keeping: nfl2
+`handoffs/` is the previous agent's entire outbox, and is the place to look
+before concluding anything was chat-only. Mirror verified byte-identical —
+sha256 `4f409801…a4404` equal across both nfl2 branches and production's mirror.
+
+**The ten-bug table survives the source unchanged**, because round 1 does not
+enumerate bugs: it lists eight requested corrections, and item 2 asks for the
+five fields "for each confirmed bug" without naming them. The set was always
+something to assemble from the repository.
+
+**The diff's actual finding: item 1 is two questions and only the first was ever
+engaged.** The second —
+
+> Season-partitioned windows alone do not prove a new defect or justify
+> classifying cross-season training-feature changes as a repair; compare the
+> training and serving contracts and historical cold-start behavior.
+
+— is **unanswered in every committed report**. Grep over `reports/` for
+`season-partitioned window`, `cross-season training-feature` and `historical
+cold-start` returns nothing; the only near-hits in the item-1 report are two
+incidental uses of "repair" about the market-source commit.
+
+It matters because it challenges a **classification**, not a number: whether a
+cross-season training-feature change was properly called a repair. If it was not,
+something recorded as a fix is a behavioural change to the training contract, and
+that decides whether a downstream verdict transfers — the post-ensemble and
+post-selection law. **It is also the one item-1 question that does not need the
+re-run**, so it is unblocked today. Seven of eight round-1 items are otherwise
+answered.
+
+**Production's 2026-09-22 claims all verified exactly**: round-1 mirror hash;
+`player_week_inference` 2026 W3 = **928**; `tabpfn_projections` 2026 W3 = **928**,
+one-for-one with inference; week resolver returns **3**. One addition —
+`tabpfn_projections` holds **only** week 3 for 2026; weeks 1–2 are still absent
+from the earlier truncate-and-rewrite, so 928 is not a full-season cache.
+
 ## 2026-09-22 (07:48 CDT) — Week resolver independently confirmed at 3, with its expiry
 
 Laptop agent, verifying production's gating claim rather than accepting it, since
