@@ -1,3 +1,24 @@
+> # CORRECTED 2026-09-22 — the 99.9% headline was a DST artifact, and the attribution IS measurable.
+>
+> Both definitions I used here counted **defenses** as phantoms: a DST has no row in
+> `snap_counts` (offensive snaps belong to players), so "projected ≥ 5 and zero snaps" caught
+> **23 of the 26 DSTs**. Every lineup rosters exactly one DST, so contamination read 99.9%.
+>
+> Excluding DSTs (`reports/lab-handoffs/phantom_contamination.py`):
+>
+> | | value |
+> |---|---:|
+> | genuine phantoms | **38** (QB 22, WR 8, RB 5, TE 3) |
+> | pool share carrying ≥ 1 | **63.8%** (not 99.9%) |
+> | zero-phantom control group | **4,543** candidates (not 14) |
+> | Spearman(sel_mean, realized), all | −0.4908 |
+> | Spearman, zero-phantom candidates | **−0.3449** (p = 4.7e-127) |
+>
+> **Availability accounts for about 30% of the inversion; about 70% is something else**
+> (players who played and were mis-projected — the Jefferson stand-in is the named case).
+> That restores, with a better number, the "about a quarter" I first reported in `ce932e77`
+> and then withdrew here as unmeasurable. The monotone table below survives unchanged in shape.
+
 # 99.9% of the Week-2 pool contained a player who never took a snap — which is why
 # the availability share of the inversion cannot be cleanly estimated
 

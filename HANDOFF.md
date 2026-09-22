@@ -11,6 +11,30 @@
 
 # Project handoff
 
+## 2026-09-22 (14:53 CDT) — CORRECTION: "99.9% phantom contamination" was a DST artifact; availability explains ~30% of the inversion
+
+Laptop agent. Corrects `563c70e6`; new tool
+`reports/lab-handoffs/phantom_contamination.py` (takes `--run-dir`, so it runs on
+Week 1 wherever that run dir lives).
+
+**The error:** my phantom definition ("projected ≥ 5, zero offensive snaps") counted
+**23 of the 26 DSTs**, because a defense has no row in `snap_counts`. Every lineup has
+one DST, so contamination read 99.9% and the control group looked empty.
+
+**Corrected (DSTs excluded):** 38 genuine phantoms (QB 22, WR 8, RB 5, TE 3);
+**63.8%** of the pool carries one; **4,543** zero-phantom candidates form a real
+control group. Spearman(sel_mean, realized) is **−0.4908** overall and **−0.3449**
+on the clean candidates (p = 4.7e-127). **Availability accounts for about 30% of the
+Week-2 inversion; ~70% is mis-projection of players who did play.** The monotone
+table (0 → 104.80 realized / 121.79 simulated; 2 → 79.67 / 129.27) is unchanged in
+shape. This restores, with a better number, the "about a quarter" in `ce932e77` that
+`563c70e6` withdrew as unmeasurable.
+
+**Request, as before:** run the tool against the archived Week-1 run dir — a path
+change. It answers whether Week 1's correct-sign ranking (+0.255) coincides with lower
+phantom contamination, which is the testable version of "availability drives the
+regime flip".
+
 ## 2026-09-22 (14:43 CDT) — Practice participation: an unused feature with measured evidence; proposed experiment
 
 Laptop agent, following `efcfa371`. Report:
