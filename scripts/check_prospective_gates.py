@@ -67,14 +67,17 @@ GATES = {
         "input_schedulers": ["s-train-k1", "s-train-k1-role", "s-features-route",
                              "s-train-k1-route", "s-train-k1-route-role"],
         "require_env": {"N_BOOM": "160", "N_LEV": "40"},
-        "adjudicates": "after ALL of weeks 2-18 are frozen and scored (the gate forbids "
-                       "early adjudication); 12 complete paired weeks is a SUPPORT FLOOR, "
-                       "not a read trigger. NO 2026 in-season use is possible by design.",
-        "in_season_value": False,
+        # 2026-09-22 (operator): focus is THIS season. The gate's own full-season verdict is
+        # unchanged, but each scored paired week is read immediately under the in-season
+        # adoption track (reversible trials, weekly reads) -- so a lost week now costs 2026 too.
+        "adjudicates": "gate verdict after ALL of weeks 2-18 are frozen and scored; EACH scored "
+                       "paired week is also read immediately for the in-season reversible-trial "
+                       "track (operator directive 2026-09-22).",
+        "in_season_value": True,
         "note": "Control shadow-k1-roleunion vs treatment shadow-k1-route-roleunion; the "
                 "treatment must differ ONLY by the four Fantasy Points route features. "
-                "Its value is the 2027 adoption decision and the Fantasy Points renewal "
-                "decision, NOT 2026 results.",
+                "Weekly paired reads feed 2026 decisions; the full-season verdict feeds the "
+                "Fantasy Points renewal.",
     },
     # 2026-09-22 (operator): the pass bar was frozen before the pair ever ran and grades only
     # unplayed weeks 5-18, so it is not the retrospective design the earlier DORMANT ruling

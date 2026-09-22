@@ -47,6 +47,29 @@ Panel status: the full-size outcome-blind smoke (1 slate, 3 arms, D3200) is stil
 far). The small-scale full-path smoke passed (all arms 320/320 unique, MAXGAME4 pool at exactly 4 per
 game, no infeasible solves). Freeze and launch follow the smoke.
 
+## 2026-09-22 (late, 6) — OPERATOR: focus is THIS season. Route Share read weekly; market bias does not help picks
+
+- **Directive (operator, 2026-09-22):** paid-source work must serve 2026, not the renewal. The Route Share
+  paired shadow is therefore read **every week, immediately**, under the in-season adoption track
+  (candidate-specific reversible trials, weekly reads). Report per scored week: control
+  (`shadow-k1-roleunion`) vs treatment (`shadow-k1-route-roleunion`) best-of-80 realized, ≥194/≥187
+  counts, mean. If the treatment keeps winning, the operator may switch Route Share on as a reversible
+  change. The gate's own full-season verdict is unchanged. `check_prospective_gates.py` now marks this
+  gate `in_season_value: True`, so a lost week is a 2026 cost. Week 3 is the first valid week.
+  SIS pass-tail cannot run before Week 5; the same weekly read applies once it does.
+- **Supersedes (late, 5)'s** "this gate reads only after Week 18 — informs the renewal, not 2026 lineups".
+- **Trainers executed by the operator** (2026-09-22 ~19:00 CT): `train-weekly-k1-xgnhv`,
+  `train-weekly-k1-role-qxlzt`, `train-weekly-k1-route-kltqh`, `train-weekly-k1-route-role-j6xsm`
+  (results pending; production verifies completion and 2026 training rows).
+- **Market bias in the SERVED blend (0.45 model + 0.55 market, 2023–24, ≥2 markets):** survives only for
+  WRs — actual − served +0.8/+0.6 (6–10), +2.0/+0.7 (10–14), +2.2/+1.2 (14–18), +3.0/+1.6 (18+). A
+  cross-season WR-only correction removes most of the bias (+1.20→+0.83, +0.64→−0.24) but **does not pick
+  better players**: all-position top-k realized 16.37→16.37 and 15.73→15.73; top-30 RB/WR/TE 16.56→16.42
+  and 15.96→15.86. Level bias, not ranking. **No change.** (scratchpad `served_bias.py`)
+- **Summary for the operator:** every paid/crowd signal measured today (Route Share +0.6–1.0, LineStar
+  ownership +0.6–1.2/log-unit, market bias) is real but too small to change which lineups win.
+  Remaining 2026 effort goes to the pool's ceiling supply (220+ lineups).
+
 ## 2026-09-22 (late, 5) — OPERATOR: grade the paid sources. Route-gate trainers resumed; SIS pass bar frozen
 
 - **Route Share gate inputs were dead.** The two paired shadows were ENABLED (09-21), but all four weekly
