@@ -1,3 +1,14 @@
+> **CORRECTION 2026-09-22 (late) — my "no double count" covered only the market blend; it missed the Sunday
+> inactive drop.** I checked that the prop market doesn't already price Questionable risk, and that still
+> holds. What I didn't check is what happens *after* `project-slate`. The haircut keys on the Friday
+> `injury_status`, and the Sunday builds then **drop confirmed inactives**. So every Questionable player
+> still in the pool at T-70 is one who is playing, and he carries a discount calibrated on a
+> mixture that included the ones who sat. Production confirmed and measured this (HANDOFF `e4f5ee64`,
+> answering the external review's §5.2): the active-only Q/healthy ratio is **0.904** pooled (0.867–0.933
+> across 2018–24, stable across the 2022 break), so **×0.80 over-discounts a cleared Q player by ~11%**.
+> The fix options are with the operator. The rest of this report (placement after the blend, the fail-closed
+> guard) stands.
+>
 # Q_HAIRCUT=0.80 is live and correctly placed: the prop market does not already price Questionable risk
 
 Following `c5ce397e` (haircut enabled at 0.80).

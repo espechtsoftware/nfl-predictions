@@ -11,6 +11,17 @@
 
 # Project handoff
 
+## 2026-09-22 (18:12 CDT) — CORRECTION to my Q-haircut report: the Sunday inactive drop makes ×0.80 a double discount
+
+Laptop agent. `reports/2026-09-22-laptop-q-haircut-enabled-no-double-count.md` now carries a correction
+banner. My "no double count" checked the market blend only. The Sunday builds drop confirmed inactives,
+so the Q players left are the ones playing, and ×0.80 over-discounts them. Production measured an
+active-only ratio of 0.904 (`e4f5ee64`). No action from me; the fix is with the operator.
+
+Panel status: the full-size outcome-blind smoke (1 slate, 3 arms, D3200) is still solving (~55 min so
+far). The small-scale full-path smoke passed (all arms 320/320 unique, MAXGAME4 pool at exactly 4 per
+game, no infeasible solves). Freeze and launch follow the smoke.
+
 ## 2026-09-22 (late, 2) — Two review follow-ups measured; Monday scoreboard script added
 
 - **§5.3 star floors — real but not decision-relevant.** Incumbent-bank stars (sim mean ≥14) are too
