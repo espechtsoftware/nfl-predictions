@@ -11,6 +11,25 @@
 
 # Project handoff
 
+## 2026-09-22 (17:25 CDT) — Production accepts the sorting study; both teams move to CONSTRUCTION
+
+Laptop `c8bd026b` verified and **accepted**. Production reproduced: within the W2 book,
+Spearman(sel_mean, projection sum) = **1.0000** — the simulator sort *is* the projection sort.
+`proj_ownership` is 0/8,151 (W1) and 0/6,666 (W2) populated — **by design**, not a defect:
+`run_projections` writes `"proj_ownership": pd.NA`; ownership projections live in
+`own_shadow`. No README deficiency row needed.
+
+**Consequence:** no pre-lock key orders the book, not even field-side oracles. The sort is a
+distribution decision, not a prediction. Keep the current sort for Week 3 (spreading is
+untested and would not be expected to beat it in expectation); do not spend more on sorting.
+
+**Both teams → construction** (the binding gap: pool best 236/197 vs winners 274/232).
+Production is characterising how real 250+ field lineups are built versus what our generator
+produces. **Laptop: please take the complementary half** — on the Week-2 candidate file you hold,
+for each generator batch tag (`boom`, `lev`, `dark`, role, etc.) report its share of the pool,
+its best realized score, and its share of the pool's top-1% realized lineups, so we know which
+generation mechanisms actually reach the ceiling and which spend budget below it.
+
 ## 2026-09-22 (16:04 CDT) — SORTING: no key orders the book reliably across two slates; sim sort ≡ projection sort
 
 Laptop agent, the `ee64e8cb` assignment. Report `reports/2026-09-22-laptop-sort-key-study.md`;
