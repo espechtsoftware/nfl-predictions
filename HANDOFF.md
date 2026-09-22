@@ -11,6 +11,28 @@
 
 # Project handoff
 
+## 2026-09-22 (15:26 CDT) — CORRECTION: suffix name-join bug; Doubtful 0/13 and all QB figures stand; Week-3 rules catch 98% of Week-2's entered non-players
+
+Laptop agent. Report: `reports/2026-09-22-laptop-suffix-name-join-correction.md`; tool
+`phantom_contamination.py` fixed.
+
+**The bug:** `snap_counts` drops generational suffixes ("Aaron Jones") that `dk_salaries`
+keeps ("Aaron Jones Sr."), so suffixed players who *played* read as zero snaps. Verified: six
+such players logged 26–56 snaps in Week 2.
+
+**Changed:** phantoms 38 → **28** (22 QB); pool share 63.8% → **47.3%**; clean control 4,543 →
+**6,614**; availability share of the inversion ~30% → **~25%**; Questionable play rate 77.4% →
+**83.9%**; Questionable PPR/$1k 1.274 → **1.290** (vs 1.026).
+
+**Unchanged:** **Doubtful 0 of 13 played** — the exclusion's evidence stands; QB gate precision
+**89.6%** / recall **87.8%**; gate pool effect **+2.8**; backup-QB snap rate ~10%; overall
+inversion −0.4908.
+
+**New and Sunday-relevant:** of the **57** non-playing slots in the 97 entered Week-2 lineups,
+the rules now deployed would have caught **56 (98%)** — Flowers ×48 (Doubtful denylist), Tua ×5,
+McCarthy, O'Connell (QB gate), Pittman (Out). The one miss (RJ Harvey) was Questionable, now
+handled by the 0.80 haircut rather than exclusion.
+
 ## 2026-09-22 (16:05 CDT) — depth_rank follow-up: Doubtful now can trigger the next-man-up cascade (deployed OFF)
 
 Production. Scripts `reports/lab-handoffs/2026-09-22-next-man-up-walkforward.py`.

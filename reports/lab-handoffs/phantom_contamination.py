@@ -25,6 +25,15 @@ import pandas as pd
 from scipy import stats
 
 from nfl_dfs.bq import query_df
+import re
+
+# 2026-09-22 FIX: snap_counts lists names WITHOUT generational suffixes ("Aaron Jones")
+# while dk_salaries keeps them ("Aaron Jones Sr."). The first version stripped only
+# non-letters, so every suffixed player who played read as zero snaps -- a false
+# phantom. Strip jr/sr/ii-v as whole tokens before comparing.
+_SUF = re.compile(r"\b(jr|sr|ii|iii|iv|v)\b")
+def _norm(s):
+    return re.sub(r"[^a-z]", "", _SUF.sub(" ", re.sub(r"[^a-z ]", " ", str(s).lower())))
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--run-dir", required=True); ap.add_argument("--season", type=int, required=True)
@@ -34,12 +43,12 @@ fr = pd.read_parquet(D / "frame.parquet").reset_index(drop=True)
 cd_ = pd.read_parquet(D / "candidates.parquet").reset_index(drop=True)
 own = query_df(f"""SELECT display_name, MAX(fpts) f FROM `nfl-predictions-503414.nfl_raw.contest_ownership`
                    WHERE season={a.season} AND week={a.week} GROUP BY 1""")
-sn = query_df(f"""SELECT REGEXP_REPLACE(LOWER(player), r'[^a-z]','') nn, SUM(COALESCE(offense_snaps,0)) off
+sn = query_df(f"""SELECT player AS nn, SUM(COALESCE(offense_snaps,0)) off
                   FROM `nfl-predictions-503414.nfl_raw.snap_counts`
                   WHERE season={a.season} AND week={a.week} AND game_type='REG' GROUP BY 1""")
 lut = {str(k).strip(): float(v) for k, v in zip(own.display_name, own.f)}
-snl = dict(zip(sn.nn, sn.off))
-nn = fr.display_name.astype(str).str.lower().str.replace(r"[^a-z]", "", regex=True)
+snl = {_norm(k): v for k, v in zip(sn.nn, sn.off)}
+nn = [_norm(x) for x in fr.display_name]
 pts = np.nan_to_num(np.array([lut.get(str(n).strip(), np.nan) for n in fr.display_name], float), nan=0.0)
 snaps = np.array([snl.get(x, 0.0) for x in nn]); proj = fr.mean_projection.to_numpy(float)
 is_dst = fr.pos.astype(str).str.upper().eq("DST").to_numpy()
