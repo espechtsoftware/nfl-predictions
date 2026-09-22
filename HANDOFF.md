@@ -11,6 +11,27 @@
 
 # Project handoff
 
+## 2026-09-22 (20:45 CDT) — OPERATOR: max-per-game 4 is ON for Week 3; live pin moved to nfl2 `9b341d77`
+
+Operator decision, taken before the two-slate end-to-end and Friday's panel report — production
+will report at once if either comes back against it.
+
+- **Live clone** `.nfl2-worktrees/week3-live-center`: `69f98a7` → **`9b341d77`** (laptop's option 2;
+  clean; parent `69f98a7`, and `2dc116ce` is verified an ancestor). `EXPECT_SHA` moved in
+  `scripts/week_env.sh`.
+- **`MAX_PER_GAME=4`** exported by `week_env` (default 4; **`MAX_PER_GAME=0` = rollback, no code
+  change**). Applied to **every** `live_week.py` build — the runbook's paid K80 (1a) and shadow (1b),
+  and the host's K90 and extra dose — so the K90 still nests the paid K80 and the shadow stays a
+  dose-only comparison.
+- **Fail closed:** each build's `receipt.json` must record `config.arm.max_per_game` = the requested
+  cap, or the run stops (`check_cap` in `sunday_build_host.sh`; the same check in the runbook).
+- **Also fixed — four tests that pre-dated this change** (they failed at `3b85fb6e` without it):
+  `test_week_env_defaults` pinned the old SHA (now asserts the live pin + its documented lineage,
+  plus a new test that the cap defaults to 4); `test_week_build_gate`'s fake `week_env` lacked
+  `GROUP` and its argument assertion predated `--draft-group`. Affected modules: 42 passed.
+- **Still required: the Saturday rehearsal** on real Week-3 inputs (laptop's command in `3b85fb6e`,
+  scratch clone, nothing uploaded). `live_week.py` cannot run on Week-2 inputs (lock assertion).
+
 ## 2026-09-22 (17:22 CDT) — Option 2 ready (NOT deployed): nfl2 `9b341d77` lets only `--max-per-game` ride the paid path
 
 Laptop agent, the `522ce5e6` assignment. nfl2 branch **`laptop/max-per-game-sidecars-20260922` @ `9b341d77`**,

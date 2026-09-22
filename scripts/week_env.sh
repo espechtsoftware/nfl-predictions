@@ -44,7 +44,13 @@ week_settings() {
   # entered a Doubtful player in 48 of 97 rows including the Millionaire seat for 0.0.
   # The clone .nfl2-worktrees/week3-live-center is checked out at this commit; if the
   # two ever disagree the runtime check fails closed, which is the point.
-  export EXPECT_SHA=${EXPECT_SHA:-${NFL2_EXPECT_SHA:-69f98a752be41e05107daace59a570ef58efa94f}}
+  # 2026-09-22 (operator): moved 69f98a75 -> 9b341d77 (nfl2 laptop/max-per-game-sidecars-20260922), which
+  # lets --max-per-game ride the paid --emit-a5-sidecars path (every other shadow flag still refused;
+  # a cap below 4 is refused). Parent is 69f98a75, so the Doubtful inactive set is unchanged.
+  export EXPECT_SHA=${EXPECT_SHA:-${NFL2_EXPECT_SHA:-9b341d77dd34c7e9ba6e82610ba06ccdf6a588ee}}
+  # Week-3 construction cap (operator, 2026-09-22): max 4 players per game in every lev and boom
+  # solve, QB and DST included. MAX_PER_GAME=0 removes the flag (rollback, no code change).
+  export MAX_PER_GAME=${MAX_PER_GAME:-4}
   export CLONE EXPECT_SHA
   export RUN_SUFFIX=${RUN_SUFFIX:-${EXPECT_SHA:0:7}}
   export PROD=${PROD:-$WEEK_ENV_REPO}

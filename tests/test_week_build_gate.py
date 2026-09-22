@@ -14,7 +14,7 @@ def test_gate_precedes_driver_and_propagates_failure(tmp_path, gate_code):
     root = Path(__file__).resolve().parents[1]
     shutil.copy2(root / "scripts/run_week_build.sh", scripts)
     (scripts / "week_env.sh").write_text('''week_env() {
-      export WEEK="$1" SEASON=2026 OUT="$TEST_ROOT" PROD="$TEST_ROOT"
+      export WEEK="$1" SEASON=2026 GROUP=153769 OUT="$TEST_ROOT" PROD="$TEST_ROOT"
       export PROD_PY="$TEST_ROOT/fake-python"
       export CHOSEN_FILE="$TEST_ROOT/dose file.env" CONTESTS_JSON="$TEST_ROOT/contests file.json"
     }
@@ -40,8 +40,9 @@ exit 99
     assert result.returncode == gate_code, result.stderr
     args = (tmp_path / "gate-args").read_text().splitlines()
     assert args[1:9] == ["--season", "2026", "--week", "3", "--chosen-dose", str(tmp_path / "dose file.env"), "--contests", str(tmp_path / "contests file.json")]
-    assert args[9] == "--receipt"
-    assert Path(args[10]).is_file()
+    assert args[9:11] == ["--draft-group", "153769"], "the gate must be told which DK draft group to size against"
+    assert args[11] == "--receipt"
+    assert Path(args[12]).is_file()
     assert (tmp_path / "driver-args").exists() == (gate_code == 0)
     if gate_code == 0:
         assert (tmp_path / "driver-args").read_text().strip() == "argument with spaces"

@@ -17,6 +17,20 @@
 # each build's run dir is identified by its own receipt (lev/boom and build window), never by LATEST.
 set -uo pipefail
 : "${WEEK:?source scripts/week_env.sh and call week_env WEEK first}"
+# Week-3 per-game cap (week_env.sh MAX_PER_GAME, default 4; 0 = flag omitted). Applied to EVERY
+# live_week.py build here and in sunday_runbook.sh, so the K90 book still nests the paid K80 book.
+MPG_ARGS=(); if [[ "${MAX_PER_GAME:-0}" != "0" ]]; then MPG_ARGS=(--max-per-game "$MAX_PER_GAME"); fi
+echo "per-game cap: ${MPG_ARGS[*]:-off}"
+check_cap() {  # $1 run dir -- fail closed if the receipt does not record the cap this run asked for
+  python3 - "$1" "${MAX_PER_GAME:-0}" <<'CAPEOF' || { echo "per-game cap NOT in effect in $1"; exit 1; }
+import json, sys
+r = json.load(open(sys.argv[1] + "/receipt.json")); want = int(sys.argv[2])
+got = (r.get("config", {}).get("arm", {}) or {}).get("max_per_game")
+ok = (got is None) if want == 0 else (got == want)
+print(f"receipt max_per_game={got} expected={want or None}")
+sys.exit(0 if ok else 1)
+CAPEOF
+}
 : "${GROUP:?}" "${OUT:?}" "${CLONE:?}" "${PROD:?}" "${PROD_PY:?}" "${LAB_PY:?}" "${TOOLS:?}" "${CONTESTS_JSON:?}" "${WEEKDIR:?}" "${RUN_SUFFIX:?}"
 mkdir -p "$OUT"
 LOG="$OUT/build-$(date -u +%Y%m%dT%H%M%SZ).log"; exec > >(tee -a "$LOG") 2>&1
@@ -113,8 +127,9 @@ else
   # 2026-09-17 review finding 3: the builder's exit status is required, not just the presence of a matching directory.
   if ( cd "$CLONE" && NFL2_LIVE_CENTER=production PYTHONPATH="$CLONE/src" OMP_NUM_THREADS=1 "$LAB_PY" scripts/live_week.py \
       --season "$SEASON" --week "$WEEK" --group "$GROUP" --selector dual_emax --lev "$PAID_LEV" --boom "$PAID_BOOM" --sims 10000 --k 1 \
-      --seed 2026 --entries "$BOOK_ENTRIES" --emit-a5-sidecars > /dev/null 2> "$OUT/k90-$RUN_TAG.err" ); then
+      --seed 2026 --entries "$BOOK_ENTRIES" --emit-a5-sidecars "${MPG_ARGS[@]}" > /dev/null 2> "$OUT/k90-$RUN_TAG.err" ); then
     K90_DIR=$(find_run_dir "$PAID_LEV" "$PAID_BOOM" "$T0")
+    [[ -n "$K90_DIR" ]] && check_cap "$K90_DIR"
   else
     echo "K90 builder exited non-zero (see $OUT/k90-$RUN_TAG.err); refusing to adopt any run dir"; exit 1
   fi
@@ -171,8 +186,8 @@ if [[ -n "${EXTRA_LEV:-}" && -n "${EXTRA_BOOM:-}" ]]; then
   T1=$(date +%s)
   ( cd "$CLONE" && NFL2_LIVE_CENTER=production PYTHONPATH="$CLONE/src" OMP_NUM_THREADS=1 "$LAB_PY" scripts/live_week.py \
       --season "$SEASON" --week "$WEEK" --group "$GROUP" --selector dual_emax --lev "$EXTRA_LEV" --boom "$EXTRA_BOOM" \
-      --sims 10000 --k 1 --seed 2026 --entries 90 --emit-a5-sidecars > /dev/null 2> "$OUT/dose-$RUN_TAG.err" )
-  DOSE_DIR=$(find_run_dir "$EXTRA_LEV" "$EXTRA_BOOM" "$T1"); echo "extra shadow (D$((EXTRA_LEV + EXTRA_BOOM)))=$DOSE_DIR"
+      --sims 10000 --k 1 --seed 2026 --entries 90 --emit-a5-sidecars "${MPG_ARGS[@]}" > /dev/null 2> "$OUT/dose-$RUN_TAG.err" )
+  DOSE_DIR=$(find_run_dir "$EXTRA_LEV" "$EXTRA_BOOM" "$T1"); [[ -n "$DOSE_DIR" ]] && check_cap "$DOSE_DIR"; echo "extra shadow (D$((EXTRA_LEV + EXTRA_BOOM)))=$DOSE_DIR"
 fi
 
 # 4. per-contest upload CSVs (draftable ids) from run dirs

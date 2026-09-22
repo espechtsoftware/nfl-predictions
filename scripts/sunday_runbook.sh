@@ -11,6 +11,8 @@
 #         scripts/sunday_runbook.sh --run-id ... --paid-dir DIR --shadow-dir DIR    # reuse builds
 set -euo pipefail
 : "${WEEK:?source scripts/week_env.sh and call week_env WEEK first}"
+# Week-3 per-game cap (week_env.sh MAX_PER_GAME; 0 = omitted). Same cap as sunday_build_host.sh.
+MPG_FLAG=""; if [[ "${MAX_PER_GAME:-0}" != "0" ]]; then MPG_FLAG="--max-per-game $MAX_PER_GAME"; fi
 : "${GROUP:?}" "${LOCK_UTC:?}" "${WEEKDIR:?}" "${CLONE:?}" "${LAB_PY:?}" "${EXPECT_SHA:?}" "${OUT:?}"
 LEV=${PAID_LEV:-160}; BOOM=${PAID_BOOM:-640}; SHADOW_LEV=${SHADOW_LEV:-80}; SHADOW_BOOM=${SHADOW_BOOM:-320}
 
@@ -70,13 +72,22 @@ PYEOF
 
 if [[ -z "$PAID_DIR" ]]; then
   step "1a. build D$((LEV + BOOM)) paid (lev $LEV / boom $BOOM, K80, sidecars)"
-  PAID_DIR=$(build "$LEV" "$BOOM" 80 --emit-a5-sidecars)
+  PAID_DIR=$(build "$LEV" "$BOOM" 80 "--emit-a5-sidecars $MPG_FLAG")
 fi
 if [[ -z "$SHADOW_DIR" ]]; then
   step "1b. build D$((SHADOW_LEV + SHADOW_BOOM)) shadow (lev $SHADOW_LEV / boom $SHADOW_BOOM)"
-  SHADOW_DIR=$(build "$SHADOW_LEV" "$SHADOW_BOOM" 80 "")
+  SHADOW_DIR=$(build "$SHADOW_LEV" "$SHADOW_BOOM" 80 "$MPG_FLAG")
 fi
 step "2. verify receipts (lock $LOCK_UTC, group $GROUP)"
+for _d in "$PAID_DIR" "$SHADOW_DIR"; do
+  python3 - "$_d" "${MAX_PER_GAME:-0}" <<'CAPEOF' || { echo "per-game cap NOT in effect in $_d"; exit 1; }
+import json, sys
+r = json.load(open(sys.argv[1] + "/receipt.json")); want = int(sys.argv[2])
+got = (r.get("config", {}).get("arm", {}) or {}).get("max_per_game")
+print(f"receipt max_per_game={got} expected={want or None}")
+sys.exit(0 if ((got is None) if want == 0 else (got == want)) else 1)
+CAPEOF
+done
 verify "$PAID_DIR" "$LEV" "$BOOM" 80 1
 verify "$SHADOW_DIR" "$SHADOW_LEV" "$SHADOW_BOOM" 80 0
 echo "paid=$PAID_DIR"
