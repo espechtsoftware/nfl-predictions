@@ -76,7 +76,13 @@ Row added to README's data deficiency log, per `CLAUDE.md`: `rosters_weekly` kee
 history, so retrospective runs of roster-dependent logic leak post-game information. Suggested
 fix recorded there — append snapshots with their `nflverse_pulled_at` rather than replace.
 
-**One scope note I have not verified:** `fantasy_points_alignment_weekly.py` and
-`fantasy_points_route_weekly.py` also read `rosters_weekly`. If either uses a past week's
-**status** in a feature, that would be a training-side leak rather than an evaluation one. I
-have not checked which columns they read; flagging so it is checked rather than assumed.
+**Scope check, now done — no training-side leak.** `fantasy_points_alignment_weekly.py:300`
+and `fantasy_points_route_weekly.py:319` read `rosters_weekly` as
+`SELECT DISTINCT season, gsis_id, full_name, position, team … WHERE week <= @target_week` — an
+identity crosswalk. **Neither reads `status`**, so post-game inactives cannot enter a feature
+through them. The leak is confined to *retrospective evaluation* of roster-dependent logic.
+
+One minor residual, not a status leak: because only the latest snapshot exists, `team` for a past
+week is the player's team **today**, so a player traded after week W is mapped to his new team for
+week W. That affects crosswalk accuracy for traded players only, and is covered by the same fix
+(keep snapshot history).
