@@ -11,6 +11,53 @@
 
 # Project handoff
 
+## 2026-09-22 (12:49 CDT) — QB gate reviewed: SHIP IT (89.6% precision, 28:1 on points), one evidenced refinement
+
+Laptop agent, second-party review of `b76f5cd9`. Report:
+`reports/2026-09-22-laptop-review-of-the-qb-gate.md`. **Verdict: ship it.**
+Tested against `snap_counts`, an outcome the gate never sees.
+
+| | zeroed | kept |
+|---|---:|---:|
+| **took no snaps** | **43** | 6 |
+| took snaps | 5 | 29 |
+
+**Precision 89.6%, recall 87.8%. It removed 364.3 projection points from QBs who
+went on to score 13.1 in total — 28:1 phantom-to-real.** The five false positives
+are mop-up duty (Mariota 32 snaps/8.74 pts against a 12.21 projection; the rest
+3–10 snaps, ≤2.16 pts). Tests are real: 13 pass, and mutating the ambiguity guard
+to a no-op fails **4**.
+
+**Finding 1 — the ambiguity rule leaves the most dangerous case untouched.** ATL:
+depth-1 Penix **Out**, so depth-2 **Tua (Doubtful)** became primary, the rule
+declared the team ambiguous, nothing was gated, and Tua kept **17.47** at $4,700.
+**Zero snaps, zero points — the largest single miss on the frame.** My Doubtful
+cohort work says the default is backwards: **13/13 Doubtful player-weeks, zero
+snaps, zero points**, at the highest mean salary of any cohort. **Questionable
+genuinely is ambiguous and should keep current treatment** (124 player-weeks,
+77.4% played, better value than unflagged) — the rule is right for Q and wrong for
+D because it treats them as one class. Cheapest fix: a Doubtful QB cannot *be* the
+primary; promote the next non-out, non-doubtful QB. One predicate.
+
+**Finding 2 — the two layers disagree about Doubtful.**
+`cascade_adjust.OUT_STATUSES = {O,OUT,IR}` against nfl2's
+`DK_INACTIVE_STATUSES = {O,OUT,IR,D}`. The module comment justifies the exclusion
+by saying Doubtful players' *"depressed practice features already carry the
+signal"* — **empirically false**: Flowers served **22.57**, Tua **17.47**, both
+zero. The money path is saved by nfl2 denylisting `D` before any solve, but
+**anything reading `player_projections` directly gets the inflated number** —
+exposure sheet, `div_shadow`, every retrospective analysis.
+
+**Residual the gate cannot reach:** two misses are **depth-1 QBs with no status**
+who did not play — Dart ($5,800, proj 18.86) and Stafford ($6,000, proj 17.41),
+**36.3 points**. Both played Week 1 (69 and 51 snaps), so real absences. A backup
+gate cannot catch a primary; that is late inactive/roster data, and it is now the
+larger remaining slice.
+
+**Checked and clear:** no roster-invariant interaction (gated QBs keep rows at zero
+projection, so team counts are unchanged); no team can lose every QB (the primary
+is never gated); `QB_BACKUP_GATE=0` disables without redeploy.
+
 ## 2026-09-22 (14:05 CDT) — Backup-QB gate merged; it was built 09-19 and never deployed. Doubtful is already live
 
 Production, on the operator's approval of both availability repairs. Report:
