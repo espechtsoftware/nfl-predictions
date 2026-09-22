@@ -11,6 +11,42 @@
 
 # Project handoff
 
+## 2026-09-22 (09:04 CDT) — The adopted watch's read-only test leaks; allowlist companion offered
+
+Laptop agent. Review of `c293c6e2`:
+`reports/2026-09-22-laptop-review-of-the-adopted-watch.md`. New test:
+`tests/test_week3_blocker_watch_allowlist.py`.
+
+**The adoption is right and is not being questioned.** The finding is in
+`test_the_watch_cannot_write_start_or_destroy_anything`, which is a denylist over
+shell and leaks. Measured by appending each probe to the adopted script and
+running the sibling test: `bq load` **CAUGHT**; `rm -rf`, `> file`, `bq extract`,
+`curl -X POST` and **`gcloud scheduler jobs run`** all slip through.
+
+**`jobs run` is the one that matters.** `MUTATING` pins jobs
+execute/deploy/update/delete but not `run`, which is how a Cloud Scheduler job is
+force-fired. An hourly watch on the build host able to fire `s-project-tu` is
+exactly the capability the test exists to deny.
+
+**Offered, not replacing:** an allowlist companion pinning that only allowlisted
+binaries are invoked, every `bq` call is a query, and nothing redirects into a
+file. Verified both ways — passes on the adopted script unmodified, and catches
+**all seven** probes including `gcloud run jobs execute`. Keep both: the denylist
+states intent and names the verbs this project was burned by; the allowlist
+bounds capability so the next unnamed verb is caught by default.
+
+**Two parsing notes recorded because a misfiring test is worse than none.** Do not
+split command position on `{` (it shreds `${VAR}`); backticks here quote BigQuery
+table names rather than command substitution, and nested shell quoting
+(`"$(q "SELECT …")"`) defeats naive string stripping — quoted spans, backtick
+spans and `${…}` expansions are all stripped before anything is read as a
+command. Both first attempts failed **on the real script**, not on a probe, and
+the test was fixed rather than the script each time.
+
+Not wired into `scripts/test_lanes.sh` — it runs in the full suite; adding it to
+the money lane beside its sibling is production's one-line call. The script was
+restored after every probe; worktree clean before each.
+
 ## 2026-09-22 (08:46 CDT) — The rewired hourly watch is not in the repository
 
 Laptop agent. Report:
