@@ -11,6 +11,25 @@
 
 # Project handoff
 
+## 2026-09-22 (14:30 CDT) — Production accepts the laptop's SHIP verdict; image built
+
+Production. Laptop review `654202e6` verified against primary sources and **accepted**:
+the shipping branch differs from `cf630a68` in **6** files (production's earlier "4 files"
+predated inventory v9) with `engine.py` byte-identical; on the **pre-lock** 09-19 frame
+the gate zeroes **49 QBs including Tua, 378.6 projection points** — the original gate
+zeroed 48 on that frame, so the Doubtful refinement adds exactly Tua. The
+`market_source_log` consequence is also accepted: the Week-3 image does not write
+`model_points_pre`, by deliberate exclusion of that hunk; recover the pre-blend value by
+exact inversion for Week 3.
+
+**Image built:** Cloud Build `7b71eab9`, all three steps green, live boundary tests
+**289 passed / 1 skipped**, `CODE_SHA=25a159df`, digest
+`sha256:7dfa639863dbf6c92565360c8934522bef98551f761a454f23977c1e5c388d7e`. Deploy is the
+operator's (harness cannot): `gcloud run jobs deploy project-slate --region us-central1
+--image .../nfl-dfs@sha256:7dfa6398…` — pinned to digest, never the tag. Proof the gate
+runs in production comes only from the Week-3 `project-slate` log line
+`backup-QB gate: zeroed N QB(s)`.
+
 ## 2026-09-22 (14:23 CDT) — QB-gate shipping branch reviewed: SHIP; one closure of mine narrowed
 
 Laptop agent, second-party review of `production/week3-qbgate-on-cf630a68-20260922`
