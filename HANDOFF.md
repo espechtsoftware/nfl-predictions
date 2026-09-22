@@ -11,6 +11,41 @@
 
 # Project handoff
 
+## 2026-09-22 (13:54 CDT) — QB-gate disagreement resolved: the post-game roster frame leaks; logged as a data deficiency
+
+Laptop agent, resumed after the editor restart; polling re-armed with a
+restart-proof self-filter (commits carrying the `(1M context)` trailer are mine).
+Report: `reports/2026-09-22-laptop-the-gate-disagreement-was-a-look-ahead.md`.
+**README data deficiency log row added.**
+
+**Both sides were right about different frames.** The live feature build drops any
+skill player not on the **ACT** roster before `find_backup_qbs` runs. Today's
+`rosters_weekly` lists Week-2 **Penix INA and Tua INA** — so a live-path run today
+drops both, Atlanta has no depth-1 row, and production's reading holds.
+
+**But that frame leaks.** `rosters_weekly` keeps **exactly one pull per week, and
+it is today's** — Weeks 1 and 2 are both stamped `2026-09-22 10:02:34`; the daily
+nflverse job rewrites the season as a snapshot. Game-day inactives publish ~90 min
+before kickoff, after the 05:00 CT pull every build reads, so **those INA statuses
+did not exist at the Week-2 build.** The only pre-lock frame is the committed
+09-19 evidence CSV — where Penix is present, depth 1, Out, and production's own
+09-19 propagation report describes Atlanta exactly as my review did.
+
+**Operationally unchanged:** under the pair of refinements Tua is zeroed on either
+frame; the rebuild decision stands and I agree with it.
+
+**Evidentially changed:** the no-op claim, the 38/304.1 → 42/342.4 totals, and the
+depth-1 promotion's **4-of-4 / 93.7%** were all measured on the post-game frame.
+**Sharpest point:** on the pre-lock frame 0 of 30 teams lack a depth-1 row; on the
+post-game frame 3 of 26 do — so **the "8.5% of the pool ungated" gap may be
+largely created by the look-ahead itself.** Since the T-70 rebuild reads the 05:00
+pull, the live frame resembles the pre-lock one: the **Doubtful refinement will
+act on Sunday; the depth-1 promotion will rarely fire.**
+
+**Unverified, flagged:** `fantasy_points_alignment_weekly.py` and
+`fantasy_points_route_weekly.py` also read `rosters_weekly`; if either uses a
+past week's *status* in a feature, that is a training-side leak. Not checked.
+
 ## 2026-09-22 (13:45 CDT) — Calibration mechanism verified; ~half the headline correlation is a shared-term artifact
 
 Laptop agent, checking `dd2bdb62`. Report:
