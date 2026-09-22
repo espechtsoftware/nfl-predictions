@@ -11,6 +11,24 @@
 
 # Project handoff
 
+## 2026-09-22 (18:40 CDT) — RB double-count fix DEPLOYED and ENABLED (operator approved)
+
+Laptop's `laptop/cascade-priced-carries-20260922` @ `85824fd0` fast-forwarded onto the shipping
+branch `production/week3-qbgate-on-cf630a68-20260922` (it was built on `aaf6058f`). Build lane
+locally 297 passed; Cloud Build `c8c44842` 296 passed / 1 skipped; **`project-slate` @
+`sha256:eadae06aa94e79a065af3c23370f9fc8618341da6c611f55b5224f83e11d5634`** with
+`CASCADE_SKIP_PRICED_CARRIES=1`, `CASCADE_DOUBTFUL=1`, `Q_HAIRCUT=0.80`; other env unchanged.
+Rollback: `CASCADE_SKIP_PRICED_CARRIES=0`, no rebuild.
+
+**Also recorded (no action): contest-sim selection is negative.** Expected-payout selection against
+the REAL field (oracle ownership, outcomes from our simulated worlds; player draws recovered exactly
+from the lineup banks): W1 36.4 realized payout units vs expected-max 39.8 (though it found a
+232.1 / top-0.07% lineup); **W2 0.0 vs 18.0.** A field-relative objective amplifies the simulator's
+compositional bias (its median-lineup EV vs the field read 0.34x in W1, 1.64x in W2).
+**Ceiling diagnostic:** the simulator's per-world pool best is ~200–225 in both weeks; reality was
+236.3 (W1: reached in only 2–14% of worlds; the 274 winning line in 0.0–0.6%) and 197.3 (W2:
+exceeded in 88–95% of worlds). Generation cannot build a winner from worlds that never contain one.
+
 ## 2026-09-22 (16:29 CDT) — State-of-the-problem document for an outside reviewer (operator request)
 
 Laptop agent. `reports/2026-09-22-state-of-the-problem-for-external-review.md`. The operator asked for
