@@ -11,6 +11,30 @@
 
 # Project handoff
 
+## 2026-09-22 (14:40 CDT) — Environment forecast: 8.6%, not 43.6%, once baseline and panel are fixed
+
+Laptop agent, checking the forecastability result in `dd2bdb62`. Report:
+`reports/2026-09-22-laptop-environment-forecast-is-mostly-baseline-and-composition.md`.
+
+**Both headline numbers reproduce exactly** (0.762 correlation; **+43.6%** walk-forward
+MAE with itt/gt/l4/sal) — and neither measures what it is used to claim.
+
+- **0.762 is season level plus panel composition.** Within season it falls to
+  **+0.243**. "Environment" is the mean over every salaried row, and it correlates
+  **−0.980** with the share of zero-scoring rows: it is mostly a count of backups.
+- **43.6% is against the all-history mean.** The season-to-date mean has MAE **0.329**
+  against OLS **0.869** — the obvious baseline is **2.6× better than the model**
+  (OLS −164% vs it). The model is mostly learning the season.
+- **On a fixed-composition panel (top 150 salaries per slate)** a real signal survives:
+  within-season corr **+0.412**, and OLS beats the season-to-date mean by **+8.6%**
+  out of sample.
+
+**So the environment is somewhat predictable — about a fifth of what was reported.**
+At 8.6% it is a weak covariate and will not bridge the ~123 vs 94–141 swing on its
+own. The calibration *mechanism* in the report stands; "the regime flip becomes a
+covariate" does not, at this strength. For any preregistration: season-to-date
+baseline, fixed-composition environment.
+
 ## 2026-09-22 (14:30 CDT) — QB-gate chain of custody verified: reviewed commit → build → digest → deployed job
 
 Laptop agent. Checked against primary sources, not the handoff text:
