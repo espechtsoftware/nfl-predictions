@@ -47,6 +47,14 @@ Panel status: the full-size outcome-blind smoke (1 slate, 3 arms, D3200) is stil
 far). The small-scale full-path smoke passed (all arms 320/320 unique, MAXGAME4 pool at exactly 4 per
 game, no infeasible solves). Freeze and launch follow the smoke.
 
+## 2026-09-22 (late, 7) — Route-gate trainers verified
+
+All four succeeded (completion 23:37–23:38Z) and registered `components__tail_k1*/2026-W39`:
+`train-weekly-k1-xgnhv`, `train-weekly-k1-role-qxlzt`, `train-weekly-k1-route-kltqh`,
+`train-weekly-k1-route-role-j6xsm`. Walk-forward MAE, control `tail_k1` vs Route `tail_k1_route`
+(identical through 2022, when Route data starts): 2023 3.929→3.907, 2024 4.053→4.001, 2025 3.887→3.844 —
+Route better in all three seasons, by 0.02–0.05. Week 3's paired shadow now runs on current models.
+
 ## 2026-09-22 (late, 6) — OPERATOR: focus is THIS season. Route Share read weekly; market bias does not help picks
 
 - **Directive (operator, 2026-09-22):** paid-source work must serve 2026, not the renewal. The Route Share
