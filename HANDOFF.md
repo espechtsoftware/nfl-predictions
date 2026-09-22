@@ -11,6 +11,47 @@
 
 # Project handoff
 
+## 2026-09-22 (09:45 CDT) — Laptop is fast enough and not provisioned; DK ingest is the gap with no gate
+
+Laptop agent. Report:
+`reports/2026-09-22-laptop-readiness-if-the-build-moves.md`. Companion to the
+benchmark: **speed is not the binding constraint, provisioning is.**
+
+**Ready here:** 24.4 solves/s (1.72x, no decay over 300 s), both venvs, gcloud
+auth active on the right project, clean production checkout.
+
+**Not ready — each blocks a Sunday build:**
+- **Live clone is `2dc116c`, not `69f98a7` — the Doubtful fix is not on this
+  machine.** Fails closed at the runtime preflight.
+- **Operator inputs absent** (`/home/erich/week3-sunday/contests.json`,
+  `chosen-dose.env`). Operator-only; retrievable from
+  `gs://…/week-inputs/2026/w03/` rather than reconstructed. Fails closed.
+- **No DK host ingest loop** — no pid file, no process, no `nfl-host-dk-ingest`
+  unit. Only `nfl-production-review-inbox` and `nfl-shared-handoff-inbox` run
+  here, both read-only.
+- No Week-3 timers armed; production checkout is on `main`.
+
+**The item to put first on any move checklist:** DK ingest. Cloud Run `ingest-dk`
+is dead on a DK 403, so the tracked host loop is the **sole source of DK
+salaries**, and it runs on the workstation. A build moved here without it has no
+salary source — and unlike the clone commit and the contest file, **it has no
+arm-time gate in the build path**, so it would surface only when the slate could
+not be built.
+
+**Recommendation: do not move on the benchmark alone.** The six-hour figure and
+the thermal result are real, but the workstation is provisioned and this machine
+is not. If the operator wants the move: DK loop first, then the clone commit, then
+the operator inputs, then arm — the runtime preflight confirms the middle two
+itself. `scripts/pack_host_state_for_migration.sh` exists for this and was **not**
+run; a move is the operator's decision.
+
+**Method note, recorded because it is the most likely way to hit a trap.** While
+auditing for the DK loop I ran `pgrep -af "host_ingest_dk"` and it matched its own
+command line — the exact trap in the project's traps list that caused an infinite
+loop on 2026-09-22. No harm (pgrep, not pkill), but the first result was wrong;
+re-checked via `systemctl --user list-units` and a `ps` filter excluding this
+shell's tree.
+
 ## 2026-09-22 (09:37 CDT) — Laptop benchmark: 1.72x FASTER than the workstation; and s-project-tu failed closed as predicted
 
 Laptop agent. Measurement recorded in `scripts/solver_benchmark.laptop`.
