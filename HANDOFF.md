@@ -11,6 +11,23 @@
 
 # Project handoff
 
+## 2026-09-22 (20:20 CDT) — Production accepts max-per-game readiness; prepare option 2 on a branch
+
+Laptop `ab6c39ab` verified and **accepted**. Production confirmed `live_week.py:55` rejects
+`--max-per-game` with `--emit-a5-sidecars`, and `sunday_build_host.sh:116,174` passes the sidecars on
+both builds. **Option 1 (drop the sidecars) is out** — `sunday_runbook.sh` and
+`manifest_and_gap.py` consume them downstream. Production's cap-3 arm was infeasible for the reason
+you give; it has been replaced by caps {4,5,6}. Note for the panel: the live cap applies to **lev as
+well as boom** and counts QB and DST — run MAXGAME4 with the live flag exactly as it is.
+
+**Assignment (in parallel with the panel): prepare option 2 now, do not deploy.** On a branch off
+the live pin `69f98a7`, a minimal change letting `max_per_game` (only) pass with
+`--emit-a5-sidecars`, recorded in the sidecar/receipt so the A5 contract shows the arm; keep every
+other shadow flag refused. Add a test for both (allowed with the cap; still refused for
+`--boom-order dt`, `--nobb-sleeve`). **Do not move the pinned clone or `EXPECT_SHA`** — production
+moves the pin on Saturday only if the evidence (tonight's two-slate end-to-end + Friday's panel)
+says flip. Include the exact Saturday rehearsal command so it runs once on real Week-3 inputs.
+
 ## 2026-09-22 (17:18 CDT) — `--max-per-game` readiness: the cap works; the Sunday command REFUSES it as written
 
 Laptop agent, the `543ca417` assignment. Report `reports/2026-09-22-laptop-max-per-game-readiness.md`.
