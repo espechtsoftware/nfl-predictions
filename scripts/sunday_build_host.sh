@@ -227,4 +227,17 @@ COMP_DIR="$OUT/composite-$RUN_TAG"
 HYB_DIR="$OUT/hybrid15-$RUN_TAG"
 ( cd "$CLONE" && "$LAB_PY" "$TOOLS/hybrid30.py" "$K90_DIR" --core 15 --k 30 --output-dir "$HYB_DIR" > "$OUT/hybrid15-$RUN_TAG.txt" 2>&1 ) \
   && { echo "hybrid15 -> $HYB_DIR"; emit "$HYB_DIR" hybrid15-all30 1-30; } || echo "HYBRID15 FAILED (see $OUT/hybrid15-$RUN_TAG.txt)"
+# 6. exposure caps (reported, never entered automatically).  2026-09-22: Week 2 entered a
+# player listed Doubtful at build time in 48 of 97 rows including the Millionaire seat; he
+# scored 0.0.  A tool that could have bounded that existed but was not in the chain, so it
+# runs here.  It re-selects from the SAME pool with the SAME objective at the SAME K, so its
+# book is comparable to the delivered one row for row, and it fails closed rather than emit a
+# book that breaches a cap.  The operator reads $CAP_DIR/exposure_sheet.md before upload.
+CAP_DIR="$OUT/exposure-caps-$RUN_TAG"
+( cd "$PROD" && PYTHONPATH="$PROD/src" "$PROD_PY" "$TOOLS/exposure_cap_book.py" "$K90_DIR" \
+    --contests "$CONTESTS_JSON" --entries "$BOOK_ENTRIES" --layout "${ENTER_LAYOUT:-sequential}" \
+    --output-dir "$CAP_DIR" > "$OUT/exposure-caps-$RUN_TAG.txt" 2>&1 ) \
+  && { echo "exposure caps -> $CAP_DIR (sheet $CAP_DIR/exposure_sheet.md)"
+       grep -m1 "E\[max\]" "$OUT/exposure-caps-$RUN_TAG.txt" || true; } \
+  || echo "EXPOSURE CAPS FAILED (see $OUT/exposure-caps-$RUN_TAG.txt) -- check the injury sheet by hand before upload"
 echo "== done $(date -u). The after-build chain (scripts/sunday_after_build.sh) writes ENTER/ and TODAY-30-LATEST.md from the vetted book; the operator uploads in the DK UI by 11:15 CT."

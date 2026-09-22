@@ -1,0 +1,69 @@
+{
+  "cap_reasons": {
+    "49ers": "DST -> 39 rows",
+    "Aidan O'Connell": "Questionable -> 19 rows",
+    "Bears": "DST -> 39 rows",
+    "Bengals": "DST -> 39 rows",
+    "Brock Bowers": "Doubtful -> 0 rows",
+    "Broncos": "DST -> 39 rows",
+    "Browns": "DST -> 39 rows",
+    "Buccaneers": "DST -> 39 rows",
+    "Cardinals": "DST -> 39 rows",
+    "Chargers": "DST -> 39 rows",
+    "Chris Olave": "Questionable -> 19 rows",
+    "Commanders": "DST -> 39 rows",
+    "Cowboys": "DST -> 39 rows",
+    "Dolphins": "DST -> 39 rows",
+    "Eagles": "DST -> 39 rows",
+    "Falcons": "DST -> 39 rows",
+    "Jaguars": "DST -> 39 rows",
+    "Jalen McMillan": "Questionable -> 19 rows",
+    "Jets": "DST -> 39 rows",
+    "Joe Burrow": "Questionable -> 19 rows",
+    "Kaelon Black": "Questionable -> 19 rows",
+    "Ladd McConkey": "Questionable -> 19 rows",
+    "Michael Pittman Jr.": "Questionable -> 19 rows",
+    "Packers": "DST -> 39 rows",
+    "Panthers": "DST -> 39 rows",
+    "Patriots": "DST -> 39 rows",
+    "RJ Harvey": "Questionable -> 19 rows",
+    "Raiders": "DST -> 39 rows",
+    "Ravens": "DST -> 39 rows",
+    "Saints": "DST -> 39 rows",
+    "Seahawks": "DST -> 39 rows",
+    "Steelers": "DST -> 39 rows",
+    "Texans": "DST -> 39 rows",
+    "Titans": "DST -> 39 rows",
+    "Tua Tagovailoa": "Doubtful -> 0 rows",
+    "Vikings": "DST -> 39 rows",
+    "Zay Flowers": "Doubtful -> 0 rows"
+  },
+  "contests_unconstrained_by_contest_cap": [
+    "sat20 x19"
+  ],
+  "delivered_max_exposure_rows": 99,
+  "diagnostics": {
+    "candidates_blocked_by_player_cap": 9682,
+    "capped_expected_max": 204.155,
+    "delivered_expected_max": 208.3464,
+    "overlap_with_delivered": 62,
+    "position_retries_from_contest_cap": 271257,
+    "sim_expected_max": 204.155
+  },
+  "max_exposure_rows": 59,
+  "policy": {
+    "contest_max_share": 0.34,
+    "doubtful_max_share": 0.0,
+    "dst_max_share": 0.2,
+    "entries": 198,
+    "layout": "sequential",
+    "player_max_share": 0.3,
+    "questionable_max_share": 0.1
+  },
+  "run_dir": "/home/erich/projects/.nfl2-worktrees/week2-release-2dc116c/results/live/2026-w02/20260919T153008787414Z-2dc116c",
+  "source_identity": {
+    "diff_sha256": null,
+    "dirty": false,
+    "sha": "2dc116ce95647a776ba9c36cf194f44d022d03a4"
+  }
+}

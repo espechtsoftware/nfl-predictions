@@ -66,6 +66,11 @@ MONEY_TESTS=(
   # from 2026-09-20 -- an autouse guard stubbed the very function they test, the
   # full suite has not completed since 2026-09-15, and this lane did not run them.
   tests/test_bq_load.py
+  # exposure_cap_book.py runs inside sunday_build_host.sh and emits the sheet the
+  # operator reads before upload, so its guarantees belong in the lane that must be
+  # green on Sunday. Added 2026-09-22.
+  tests/test_exposure_cap_book.py
+  tests/test_ownership_slot_reconciliation.py
 )
 
 changed_tests() {
