@@ -71,6 +71,9 @@ MONEY_TESTS=(
   # green on Sunday. Added 2026-09-22.
   tests/test_exposure_cap_book.py
   tests/test_ownership_slot_reconciliation.py
+  # The Week-3 blocker watch guards the Saturday prop landing, the tightest window
+  # of the week. Its read-only property is what makes it safe to arm on a timer.
+  tests/test_week3_blocker_watch_is_read_only.py
 )
 
 changed_tests() {

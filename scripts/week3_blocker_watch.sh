@@ -1,10 +1,20 @@
 #!/usr/bin/env bash
 # Week-3 blocker watch: rosters and props, the two things gating project-slate.
 #
-# Offered as a TRACKED replacement for the host-local hourly check described in
-# reports/2026-09-22-production-accepts-the-saturday-deadline.md. Not wired into
-# deploy/systemd/ -- that is production's call. Read-only: it queries BigQuery
-# and prints, and starts nothing.
+# Written by the laptop agent and ADOPTED by production 2026-09-22, unchanged in
+# substance. It replaces a session-only cron that lived in one agent's memory on one
+# host: that cron guarded the Saturday prop landing -- the tightest window of the week,
+# decided in hours -- and its failure mode was silence. A watch that exists only in a
+# process is not a watch. Read-only: it queries BigQuery and prints, and starts nothing.
+#
+# Arm it hourly on the build host (systemd unit writes are refused by the assistant
+# harness, so the operator runs this line):
+#
+#   systemd-run --user --unit=week3-blocker-watch --on-calendar='*:07' \
+#     --setenv=GCP_PROJECT=nfl-predictions-503414 \
+#     /bin/bash <PROD>/scripts/week3_blocker_watch.sh 2026 3
+#
+# Or by hand, any host with `bq` and credentials:
 #
 #   watch:  bash reports/lab-handoffs/week3_blocker_watch.sh 2026 3
 #
