@@ -11,6 +11,29 @@
 
 # Project handoff
 
+## 2026-09-22 (15:40 CDT) — Model input study; Questionable haircut deployed OFF
+
+Production. Report `reports/2026-09-22-model-input-study.md`.
+
+**Input study (operator request).** Walk-forward 2019–2025, active rows. The real noise
+floor is **column-order luck (0.0052 MAE)**, ~3× the seed floor: a third of pure column
+reorderings read as "harmful". With it: **clearly helpful** — `qb_cpoe_l6` (+0.042, 7/7,
+worth more than all of Vegas), Vegas family, `depth_rank`, `snap_share_l4`,
+`carry_share_l4`, production trail, `game_total`, `ref_flags_prior`, `salary_delta_wow`,
+`team_vacated_target_share`; salary kept for ranking (largest Spearman/AUC loss). **No
+feature demonstrably harmful**; ~24 are within order luck. Four first-pass "harmful"
+verdicts withdrawn. Flag: confirm `depth_rank` is point-in-time given the rosters_weekly
+look-ahead.
+
+**Questionable haircut deployed, OFF.** Walk-forward 2018–2024: Q players under-ran
+healthy in **7/7 seasons** (gap −1.33, sd 0.56), relative ratio 0.77–0.91 (0.86 pooled);
+served 2026 projections 0.45/0.63 of healthy. Same panel: 176 Doubtful player-weeks,
+2.8% played — grounds the Doubtful exclusion. Branch
+`production/week3-qbgate-on-cf630a68-20260922` @ `dfefbc55`, inventory v10, build
+`fe88fb38` (292 passed), **deployed** to `project-slate` @
+`sha256:98efdfa64abdf1303cf02aff05b146b7325501d5c77749a6e0a93cce64c27df9`. `Q_HAIRCUT`
+defaults to 1.0 = no-op; enabling it is the operator's call.
+
 ## 2026-09-22 (14:53 CDT) — CORRECTION: "99.9% phantom contamination" was a DST artifact; availability explains ~30% of the inversion
 
 Laptop agent. Corrects `563c70e6`; new tool
