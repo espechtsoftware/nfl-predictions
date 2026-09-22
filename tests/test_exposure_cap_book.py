@@ -172,7 +172,11 @@ def test_the_per_contest_cap_actually_binds(run_dir, tmp_path):
 
 def test_a_contest_too_small_to_constrain_is_named_not_silently_ignored(run_dir, tmp_path):
     _, receipt = _run(run_dir, tmp_path, "--contest-max-share", "0.5")
-    assert "single" in receipt["contests_unconstrained_by_contest_cap"]
+    # names are deduplicated with a count ("single x1"), because the receipt is committed
+    # and contests.json is the stake plan: aggregates only, never a per-contest breakdown.
+    unconstrained = receipt["contests_unconstrained_by_contest_cap"]
+    assert any(u.startswith("single x") for u in unconstrained), unconstrained
+    assert len(unconstrained) == len(set(unconstrained))
 
 
 # ------------------------------------------------------------- failing closed

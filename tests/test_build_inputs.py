@@ -49,7 +49,21 @@ def test_sufficiency_that_cannot_be_computed_fails_closed(caplog):
     good = assess_files({"CHOSEN_LEV": "2560", "CHOSEN_BOOM": "10240"}, [{"name": "milly", "contest_id": "1", "entries": 1}, {"name": "flea", "contest_id": "2", "entries": 96}])
     assert good["ok"]
     assert "chosen-dose" in assess_files(None, [{"name": "m", "contest_id": "1", "entries": 97}])["reason"]
-    assert "minimum" in assess_files({"CHOSEN_LEV": "1", "CHOSEN_BOOM": "1"}, [{"name": "m", "contest_id": "1", "entries": 10}])["reason"]
+    assert "minimum" in assess_files({"CHOSEN_LEV": "1", "CHOSEN_BOOM": "1"}, [{"name": "m", "contest_id": "1", "entries": 10}], min_book_entries=90)["reason"]
+
+
+def test_an_ordinary_small_week_is_not_refused_as_if_it_were_malformed():
+    """The floor was 90 and the operator states he typically will not exceed 90, so an
+    89-entry week would have failed closed on Sunday morning with nothing wrong."""
+    dose = {"CHOSEN_LEV": "2560", "CHOSEN_BOOM": "10240"}
+    for total in (89, 40, 1):
+        r = assess_files(dose, [{"name": "milly", "contest_id": "1", "entries": total}])
+        assert r["ok"], (total, r["reason"])
+    # the real malformations still fail
+    assert not assess_files(dose, [])["ok"]
+    assert not assess_files(dose, [{"name": "m", "contest_id": "1", "entries": 0}])["ok"]
+    assert "contest_id" in assess_files(dose, [{"name": "", "contest_id": "", "entries": 50}])["reason"]
+    assert not assess_files(dose, [{"name": "m", "contest_id": "1", "entries": "many"}])["ok"]
 
 
 def test_verdict_names_every_failing_check():

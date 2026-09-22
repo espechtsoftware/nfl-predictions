@@ -70,27 +70,6 @@ GATES = {
                 "Its value is the 2027 adoption decision and the Fantasy Points renewal "
                 "decision, NOT 2026 results.",
     },
-    "sis-pass-tail-2026": {
-        # NOTE (2026-09-18): no frozen prospective-gate DOCUMENT governs this pair.  The
-        # Week-5 start is implementation-derived: the shadow builds a last-four-weeks
-        # context, so week 5 is the earliest target with four completed weeks.  That is a
-        # finding, not a registry convenience -- a paired job with a scheduler but no
-        # written gate cannot be graded.  Write the gate, or move it to DORMANT.
-        "doc": "src/nfl_dfs/inference/sis_pass_tail_shadow.py",
-        "first_week": 5,
-        "last_week": 18,
-        "floor_weeks": None,
-        "schedulers": [
-            "s-shadow-sis-pass-tail-paired",
-            "s-tabpfn-sis-pass-tail-control", "s-tabpfn-sis-pass-tail-treatment",
-        ],
-        "require_env": None,
-        "adjudicates": "unknown -- no frozen gate document exists to say.",
-        "in_season_value": None,
-        "note": "NO FROZEN GATE DOCUMENT FOUND. Week 5 comes from the last-four-weeks "
-                "context in the module. Before week 5: either write the gate and declare "
-                "its policy contract, or move these schedulers to DORMANT with a reason.",
-    },
 }
 
 # Schedulers deliberately dormant.  A reason is mandatory: this is the list that has to
@@ -109,6 +88,22 @@ DORMANT = {
     "s-shadow-cbwu-volume": "Route-tail union volume probe; research intake, not a graded gate.",
     "s-shadow-cbwu-oi-paired-early": "ENABLED and running; ownership-inclusive paired shadow.",
     "s-shadow-cbwu-oi-paired-late": "ENABLED and running; ownership-inclusive paired shadow.",
+    # 2026-09-22. Ruled dormant, not silenced. These three carried a GATES entry whose own
+    # note recorded that NO FROZEN GATE DOCUMENT EXISTS: the week-5 start was derived from a
+    # last-four-weeks context inside the module, not from anything preregistered. A paired job
+    # with a scheduler but no written gate cannot be graded, so the entry could only ever warn.
+    # The registry note offered two exits -- write the gate, or move to DORMANT with a reason.
+    # Writing it now would mean choosing what it adjudicates AFTER two weeks of 2026 outcomes
+    # are visible, which is retrospective design and is forbidden. All three are PAUSED, and
+    # no live feature, model or inference path reads the SIS pass-tail tables.
+    "s-shadow-sis-pass-tail-paired": "No frozen prospective gate document exists; week-5 start "
+        "was implementation-derived, and writing the gate now (after 2026 outcomes are visible) "
+        "would be retrospective design. PAUSED, no live reader. Re-open only with a gate frozen "
+        "BEFORE the weeks it grades.",
+    "s-tabpfn-sis-pass-tail-control": "Control arm of the same ungraded pair; see "
+        "s-shadow-sis-pass-tail-paired.",
+    "s-tabpfn-sis-pass-tail-treatment": "Treatment arm of the same ungraded pair; see "
+        "s-shadow-sis-pass-tail-paired.",
 }
 
 

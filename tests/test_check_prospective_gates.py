@@ -73,24 +73,54 @@ def test_unclassified_shadow_scheduler_is_an_error(world):
     assert any("UNCLASSIFIED" in e and "s-shadow-brand-new-thing" in e for e in errors), errors
 
 
-def test_gate_outside_its_window_is_not_an_error(world):
-    """Week 1 precedes the route gate and is more than the lookahead from SIS."""
+def test_gate_outside_its_window_is_not_an_error(world, monkeypatch):
+    """A gate more than the lookahead away is a note, never an error.
+
+    2026-09-22: this used to lean on sis-pass-tail being the far-off gate, so it broke
+    when that row was ruled dormant. It now supplies its own far-off gate.
+    """
     state, _ = world
     for s in cpg.GATES["fp-route-share-2026"]["schedulers"]:
         state[s]["state"] = "PAUSED"
+    gate = {"doc": "scripts/check_prospective_gates.py", "first_week": 12, "last_week": 18,
+            "floor_weeks": None, "schedulers": ["s-synthetic-faroff"], "require_env": None,
+            "adjudicates": "synthetic", "in_season_value": None, "note": "test fixture"}
+    monkeypatch.setitem(cpg.GATES, "synthetic-faroff-2026", gate)
+    state["s-synthetic-faroff"] = {"state": "PAUSED", "schedule": "0 0 * * 7"}
     errors, _, notes = cpg.audit(week=1)
     assert errors == [], errors
     assert any("dormant this week" in n for n in notes), notes
 
 
-def test_upcoming_gate_warns_but_does_not_fail(world):
-    """Two weeks of warning before a gate starts grading, so there is time to fix it."""
+def test_upcoming_gate_warns_but_does_not_fail(world, monkeypatch):
+    """Two weeks of warning before a gate starts grading, so there is time to fix it.
+
+    2026-09-22: this used to reach into the real sis-pass-tail entry, so it tested a
+    registry row rather than the lookahead mechanism and broke when that row was ruled
+    dormant. It now injects its own upcoming gate and tests the behaviour.
+    """
     state, _ = world
-    for s in cpg.GATES["sis-pass-tail-2026"]["schedulers"]:
-        state[s]["state"] = "PAUSED"
+    gate = {"doc": "scripts/check_prospective_gates.py", "first_week": 5, "last_week": 18,
+            "floor_weeks": None, "schedulers": ["s-synthetic-upcoming"], "require_env": None,
+            "adjudicates": "synthetic", "in_season_value": None, "note": "test fixture"}
+    monkeypatch.setitem(cpg.GATES, "synthetic-upcoming-2026", gate)
+    state["s-synthetic-upcoming"] = {"state": "PAUSED", "schedule": "0 0 * * 7"}
     errors, warnings, _ = cpg.audit(week=3)
-    assert not any("sis-pass-tail" in e for e in errors), errors
-    assert any("sis-pass-tail" in w and "not ENABLED" in w for w in warnings), warnings
+    assert not any("synthetic-upcoming" in e for e in errors), errors
+    assert any("synthetic-upcoming" in w and "not ENABLED" in w for w in warnings), warnings
+
+
+def test_the_sis_pass_tail_pair_is_classified_dormant_and_says_why():
+    """It was ruled dormant, not silenced: no frozen gate document ever existed, so it
+    could only warn. The reason must survive in the registry, not just in a report."""
+    names = ["s-shadow-sis-pass-tail-paired", "s-tabpfn-sis-pass-tail-control",
+             "s-tabpfn-sis-pass-tail-treatment"]
+    assert "sis-pass-tail-2026" not in cpg.GATES
+    for n in names:
+        assert n in cpg.DORMANT, n
+    lead = cpg.DORMANT["s-shadow-sis-pass-tail-paired"]
+    assert "no frozen prospective gate" in lead.lower()
+    assert "retrospective" in lead.lower()
 
 
 def test_every_dormant_entry_carries_a_reason():

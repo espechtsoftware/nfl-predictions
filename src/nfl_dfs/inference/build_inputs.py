@@ -67,7 +67,20 @@ def assess_tabpfn(rows_for_week: int, weeks_present: list[int], *, target_week: 
             "sufficiency_floor": floor, "min_coverage": float(min_coverage)}
 
 
-def assess_files(chosen_dose: dict | None, contests: list | None, *, min_book_entries: int = 90) -> dict:
+def assess_files(chosen_dose: dict | None, contests: list | None, *, min_book_entries: int = 1) -> dict:
+    """Validate the two operator files.
+
+    2026-09-22: the floor was 90, which is not a data-quality test -- it is a volume
+    test, and it refuses to build a week the operator legitimately wants. The operator
+    states he typically will not exceed 90 entries, so a 90 floor sits exactly on his
+    normal volume and an 89-entry week would fail closed on Sunday morning for no
+    defect. A small book is a choice; a malformed file is a defect, and the genuine
+    malformations -- absent file, zero entries, missing contest_id or name,
+    non-integer entries -- are each checked separately and still fail.
+
+    The floor is kept as a parameter so a caller can impose one deliberately, but it
+    no longer defaults to a number that blocks ordinary weeks.
+    """
     problems = []
     if not chosen_dose or not all(k in chosen_dose for k in ("CHOSEN_LEV", "CHOSEN_BOOM")):
         problems.append("chosen-dose file missing or without CHOSEN_LEV/CHOSEN_BOOM")
