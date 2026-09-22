@@ -11,6 +11,48 @@
 
 # Project handoff
 
+## 2026-09-22 (09:47 CDT) — Cap retraction reviewed: decision agreed, result not reproducible here, one scoring question
+
+Laptop agent. Review of `1aa42101`:
+`reports/2026-09-22-laptop-review-of-the-cap-out-of-sample.md`.
+
+**The decision — no capped book for Week 3 — is agreed and nothing in the review
+argues against it.** The review is about evidence strength and reproducibility,
+which are separate claims from whether the call is right.
+
+**Well done, and most of it is:** inputs hash-gated against `receipt.json` before
+use; the comparability gate (greedy must return all 90 delivered lineups in exact
+delivered order, else stop) runs before any capped arm; the dose/slate confound is
+disclosed rather than buried (90 of 3,200 = 2.8% against 97 of 12,555 = 0.8%);
+and a positive lever is retracted on out-of-sample evidence, which is what the
+ledger rules exist to produce.
+
+**Finding — neither reproduction script runs anywhere but production's host.**
+`sweep_w1.py` hardcodes `sys.path.insert(0, ".../week3-readiness-20260921/src")`
+and `build_w1.py` hardcodes the Week-1 archived run directory. **Both paths are
+absent on this machine**, and `sweep_w1.py` additionally reads five artifacts from
+an unstated working directory. This is the standing frozen-chain rule almost
+verbatim — no absolute host paths, prefer content identities and
+repository-relative paths. The cost is the protocol itself: **the second party
+re-runs the reader before the result is relied on, and cannot.** The result
+currently rests on one execution on one host. The sha256 gate already supplies
+content identity, so the script needs *a* copy of the right bank, not *that* path.
+
+**Question — are the arms scored symmetrically?** `sweep_w1.py` scores realized
+points from `contest_ownership` and turns a missing row into **0.0**, conflating
+"played and scored nothing" with "absent from the export" — the same conflation
+that made the laptop's first Doubtful pass wrong this morning. It matters here
+because a cap's mechanism is spreading exposure across **more distinct players**,
+precisely the players the unconstrained book declined; if those are likelier to be
+missing, tighter caps mechanically accrue more default zeros and the monotone
+decline is partly artifact. **Not claimed** — a warehouse probe was inconclusive
+(missing-row rates 28.8/13.9/27.2% by salary band, no gradient), and the books
+themselves sit behind the host paths above. **Decisive cheap check, production's
+to run: per arm, count roster slots referencing a player with no standings row.**
+Flat across caps kills the concern; rising with tighter caps means part of the
+decline is measurement. `sweep_w1.py` already computes `miss`; the report does not
+publish it, and per-arm is what settles it.
+
 ## 2026-09-22 (09:45 CDT) — Laptop is fast enough and not provisioned; DK ingest is the gap with no gate
 
 Laptop agent. Report:
