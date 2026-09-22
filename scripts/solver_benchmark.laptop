@@ -1,0 +1,25 @@
+# Laptop measurement for scripts/solver_benchmark.sh
+# 2026-09-22, Intel i9-14900HX (32 threads), 54 GB RAM, WSL2
+# Same tracked script, same fixed seed, same N as the workstation baseline.
+solves=40  total=1.63s  mean=40.7ms  first=17.0ms  last=66.3ms  rate=24.4/s   (median of 3: 24.23, 24.56, 24.59)
+
+# Ratio to the workstation baseline (14.19/s): 1.72x FASTER.
+# Applying the ratio the way the baseline file sanctions -- ratios transfer, absolute
+# counts do not -- the Week-2 D12800 build's 36,788 s becomes roughly 21,400 s = 5.9 h.
+
+# Sustained-load check (the question a burst benchmark cannot answer).
+# The benchmark runs 1.6 s; the Saturday build runs hours. Laptops throttle, so the
+# N=40 benchmark was repeated back to back for 300 s:
+#   first 30 s mean 24.4/s   last 30 s mean 24.1/s   decline ~1%, within run-to-run noise
+# No thermal decay. Expected: the build is single-core bound, and one busy core is a
+# load this chassis dissipates easily. A multi-core build would NOT inherit this result.
+
+# Problem-size curve on this machine (the extrapolation's weak point -- see below):
+#   N=40    rate=24.40/s   mean=40.7ms   last=66.3ms
+#   N=80    rate=13.12/s   mean=76.2ms   last=160.7ms
+#   N=150   rate= 7.20/s   mean=138.9ms  last=233.5ms
+
+# Toolchain, so the comparison can be checked for fairness:
+#   python 3.14.4, pulp 3.3.2, bundled CBC at pulp/solverdir/cbc/linux/i64/cbc
+#   Production should record the same three for the workstation: a different CBC build
+#   would make the ratio a solver comparison rather than a machine comparison.

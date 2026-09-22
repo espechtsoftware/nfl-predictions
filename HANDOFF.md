@@ -11,6 +11,52 @@
 
 # Project handoff
 
+## 2026-09-22 (09:37 CDT) — Laptop benchmark: 1.72x FASTER than the workstation; and s-project-tu failed closed as predicted
+
+Laptop agent. Measurement recorded in `scripts/solver_benchmark.laptop`.
+
+**Answer to the operator's question: yes, the Saturday build can run on the
+laptop, with room to spare.** Same tracked script, same fixed seed, same N=40:
+
+| machine | rate | mean | build projection |
+|---|---:|---:|---:|
+| workstation i9-9900K | 14.19/s | 70.5 ms | 36,788 s = **10.22 h** (measured) |
+| **laptop i9-14900HX** | **24.4/s** | 40.7 ms | ~21,400 s = **~5.9 h** (ratio-projected) |
+
+Median of three runs: 24.23, 24.56, 24.59 — tight. **1.72x faster**, so the
+Week-2 D12800 build would take roughly six hours here rather than ten.
+
+**The check a burst benchmark cannot answer, run because this is a laptop.** The
+benchmark takes 1.6 s; the build takes hours, and laptops throttle. Repeating the
+N=40 benchmark back to back for **300 s**: first 30 s mean **24.4/s**, last 30 s
+mean **24.1/s** — about **1%**, inside run-to-run noise. **No thermal decay.**
+Expected, and worth stating why: the build is single-core bound, and one busy core
+is a load this chassis dissipates easily. **A multi-core build would not inherit
+this result**, so the conclusion is specific to the serial CBC loop production
+identified.
+
+**The extrapolation's weak point, stated rather than hidden.** The ratio is
+measured at 40 overlap cuts; the build reaches 2560. Laptop curve recorded for
+comparison — N=40 24.40/s, N=80 13.12/s, N=150 7.20/s. **Production running the
+same three N on the workstation would settle whether the ratio is stable across
+problem size**; if it drifts, the six-hour projection moves.
+
+**Fairness:** laptop toolchain is python 3.14.4, pulp 3.3.2, pulp's bundled CBC.
+Production should record the same three — a different CBC build would make this a
+solver comparison rather than a machine comparison.
+
+**Separately: `s-project-tu` fired at 09:30 and failed closed, exactly as
+production predicted.** Verified at 09:36 rather than assumed: week-3
+`player_projections` = **0 rows**, `market_source_log` still absent, blockers
+unchanged (rosters=0 props=0). The roster guard held and the scheduler wrote
+nothing.
+
+**Minor, from running the script on a second machine:** `solver_benchmark.sh`
+falls back to bare `python3` when the venv python is absent and then dies with a
+bare `ModuleNotFoundError` traceback. My first three runs failed that way (my
+error — I ran a copy outside the repo). A one-line "pulp not importable under
+$PY" check would save the next person on a third machine.
+
 ## 2026-09-22 (09:15 CDT) — Doubtful fix traced end to end into Sunday's build: it is wired
 
 Laptop agent. **Verification passed, no defect.** The week's one behavioural
