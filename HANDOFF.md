@@ -11,6 +11,21 @@
 
 # Project handoff
 
+## 2026-09-22 (late) — Production review of the external suggestions (`review/external-suggestions-20260922` @ e4d8fc6b)
+
+- **Finding A (W2 was the defects, not a regime): CONFIRMED and reproduced exactly.** My
+  "simulator calibration is the defect" and "regime flip" conclusions are withdrawn; see Addendum 2 of
+  `reports/2026-09-22-simulator-calibration-is-the-defect.md`. Week 1 composition is ordinary against its
+  worlds; what remains is a slate LEVEL factor (W1 world-rank 0.98, W2 ≈0.05 corrected).
+- **§5.2 Questionable haircut: CONFIRMED.** `find_questionable_players` keys on Friday `injury_status`, the
+  haircut is baked into the pre-Sunday `project-slate` output, and the Sunday builds additionally drop
+  confirmed inactives — so an ACTIVE noon-game Q player carries both. Measured active-only Q/healthy ratio
+  (walk-forward, E[pts|played]): 0.913/0.909/0.884/0.907/0.867/0.931/0.933 for 2018–24, pooled **0.904**,
+  stable across the 2022 break. ×0.80 over-discounts a cleared player by ~11%. Fix options → operator.
+- **§5.1 P_MIX absent from the money path: CONFIRMED** (no participation logic in live_week/live/pipeline/
+  selectors/lineup at the pinned clone). No retirement decision found. Not changed for Week 3.
+- Not yet verified by production: Finding B (crowd information), D (LineStar ownership 0.784), §5.3
+  recentering floors. The review's scripts (`slate_ppc.py`, `crowd_and_gap.py`) were not pushed with the doc.
 ## 2026-09-22 (17:33 CDT) — Review of `227ac65c` (max-per-game ON, pin → `9b341d77`): sound; one host note
 
 Laptop agent.

@@ -129,3 +129,32 @@ the laptop's observation that it could — which rested on this number — does 
 The PIT and compositional-bias findings are unaffected; only the forecastability claim falls.
 Practical consequence for Week 3: no environment-conditioned rule; keep the threshold-free
 expected-max selector.
+
+## Addendum 2 (2026-09-22, late) — the compositional finding is also withdrawn
+
+The external review (`review/external-suggestions-20260922`, Finding A) showed the Week-2
+compositional error is the availability defects, not the simulator. Production reproduced its
+incumbent-bank numbers exactly with an independent mean-shift script:
+
+| Week 2, incumbent bank | raw | 31 non-players zeroed | + 4 DK-PPG stand-ins restored |
+|---|---:|---:|---:|
+| simulated pool mean (realized 93.7) | 125.0 | 114.1 | 109.9 |
+| corr(sim mean, error) | −0.690 | −0.280 | **−0.087** |
+| corr(sim mean, realized) | −0.488 | +0.152 | **+0.340** |
+| top − bottom decile error | −67.7 | −29.1 | **−7.3** |
+
+"Non-players" are skill players projected ≥ 5 with no `weekly_stats` row (backup QBs, Tua,
+Flowers, Bowers, Pittman, …); the stand-ins are Jefferson 25.3→17.3, Flowers 22.6→14.7,
+McConkey 17.2→14.8, Bech 9.4→7.1. Both defects are fixed in the Week-3 path.
+
+Week 1 against its own worlds: corr(sim mean, error) +0.201 sits at world-rank 0.685
+(incumbent) / 0.500 (hsim) — ordinary. Its realized pool mean 141.1 sits at world-rank 0.983 /
+0.948; Week 2's is at 0.0003 raw (≈0.05 after the corrections, per the review).
+
+**What stands:** a slate-wide scoring LEVEL the simulator under-disperses (two slates at
+opposite ends of its world range). Expected-max and field-relative objectives are nearly
+immune to it; absolute thresholds (cash line, P(≥194)) are not. **What falls:** "error is
+compositional", "the simulator's ranking flips between weeks", and any recommendation to
+recalibrate composition from Week 2. Week-2 post-mortem lever reads (caps, fade A/B, cash
+objective, sort-key correlation) were measured on a defect-dominated book and are not
+evidence of a regime.
