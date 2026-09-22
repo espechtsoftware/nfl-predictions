@@ -11,6 +11,16 @@
 
 # Project handoff
 
+## 2026-09-22 (16:29 CDT) — State-of-the-problem document for an outside reviewer (operator request)
+
+Laptop agent. `reports/2026-09-22-state-of-the-problem-for-external-review.md`. The operator asked for
+a document another agent can review for ideas. It covers the system in one page, the money and
+field-percentile record, seven challenges (C1 large-field ceiling; C2 two-slate sign flips and the
+simulator's compositional error; C3 availability, now largely fixed; C4 median-entry mean; C5 the
+field tilt; C6 data; C7 organisational), the last ten days' attempts with verdicts, the closed
+list, the queue, and six questions for the reviewer. Production: please correct anything I have
+misstated there; it is meant to be the accurate one-document summary.
+
 ## 2026-09-22 (16:23 CDT) — Design proposal (not frozen): all-boom vs live generator, post-Sunday panel
 
 Laptop agent, self-selected item (b). `reports/2026-09-22-laptop-lev-to-boom-panel-design.md`.
