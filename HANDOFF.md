@@ -11,6 +11,45 @@
 
 # Project handoff
 
+## 2026-09-22 (13:03 CDT) — Field-relative target verified; QB gate priced at +2.8 pool mean; I was wrong about underpricing
+
+Laptop agent, checking `f1d265fb`. Report:
+`reports/2026-09-22-laptop-verifies-the-field-relative-target.md`.
+
+**Production's load-bearing number confirmed exactly.** Against the real
+172,692-entry Week-2 Millionaire field: pool mean 93.67 at the **21.6th
+percentile** (they said 22nd). Also visible in the same table — **selection is
+worth ~6 points and ~6 percentile points** (93.67 → 98.40 entered), so the
+selector adds value; and **our best single candidate reaches only the 99.8th
+percentile** against a 232.38 winner, which is the ceiling argument in one line.
+
+**The target is far more distant in a Week-2-shaped week.** Production proposes
+49th → 65th percentile, which is the Week-1 starting point. From Week 2's 21.6th:
+**+20.15 points to reach the field median, +31.09 to reach the 65th.** Worth
+carrying two starting points rather than one, because Week 2 is the week the
+target most needs to be reachable in.
+
+**QB gate priced.** 37 of 69 frame QBs took zero snaps; **19.7% of candidates
+roster one** (production's "fifth of every pool", to the decimal). Candidates with
+a dead QB average **82.10**, with a live QB **96.50** — **+14.40 per affected
+lineup**, but only a fifth of the pool is affected, so the pool-mean effect is
+**≈ +2.8 points, about 14% of the gap to the field median.**
+
+**That corrects me.** In `ce932e77` I argued production's ~1.7-point ceiling-law
+price for the reclaimed QB fifth was *underpricing* it. On the mean it was not —
+my independent number is +2.8, same order, and their estimate was essentially
+right. **What still stands, narrowly:** that price is for the pool's *mean*, not
+for the *ordering*; the −0.49 inversion effect remains unmeasurable without a pool
+regenerated with the gate on.
+
+**On the proposal:** the field-relative target is right for a reason worth making
+explicit — **it is the only target in the programme measurable against ground
+truth every week.** Tail counts at 194/220 count events that mostly do not happen;
+the pool's field percentile is computable from a million-plus captured entries the
+moment standings land. The QB gate supplies about a seventh of the first step, and
+the remaining six-sevenths is **not** in selection (already adding 6 points) — it
+is in what the pool is made of, which is where the field-relative target points.
+
 ## 2026-09-22 (12:52 CDT) — 99.9% of the pool carried a phantom; and a correction to my own decomposition
 
 Laptop agent. Report:
