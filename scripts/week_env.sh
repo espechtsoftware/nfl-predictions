@@ -39,7 +39,12 @@ week_settings() {
   # Keep this explicit so an unattended arm cannot silently fall back to the
   # older pre-repair revision; advance it deliberately at the next weekly
   # review.
-  export EXPECT_SHA=${EXPECT_SHA:-${NFL2_EXPECT_SHA:-2dc116ce95647a776ba9c36cf194f44d022d03a4}}
+  # 2026-09-22: moved from 2dc116ce (the Week-2 release) to 69f98a75, which adds "D"
+  # to DK_INACTIVE_STATUSES so a Doubtful player is removed before any solve. Week 2
+  # entered a Doubtful player in 48 of 97 rows including the Millionaire seat for 0.0.
+  # The clone .nfl2-worktrees/week3-live-center is checked out at this commit; if the
+  # two ever disagree the runtime check fails closed, which is the point.
+  export EXPECT_SHA=${EXPECT_SHA:-${NFL2_EXPECT_SHA:-69f98a752be41e05107daace59a570ef58efa94f}}
   export CLONE EXPECT_SHA
   export RUN_SUFFIX=${RUN_SUFFIX:-${EXPECT_SHA:0:7}}
   export PROD=${PROD:-$WEEK_ENV_REPO}
