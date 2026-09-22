@@ -11,6 +11,55 @@
 
 # Project handoff
 
+## 2026-09-22 (12:30 CDT) — The Week-2 inversion is −0.49 and AVAILABILITY is driving it
+
+Laptop agent, extending `a6984c29`. Report:
+`reports/2026-09-22-laptop-availability-drives-the-inversion.md`. Set out to check
+whether the regime flip was n=2 noise; it is not, and it is **much larger than the
+binned statistic showed.**
+
+**Candidate-level, all 12,555:** `sel_mean` vs realized Spearman **−0.4908**
+(p≈0); `sel_p194` −0.4296; and the **independently seeded audit bank returns the
+identical −0.4908**, so it is not a bank artifact. **Top decile by simulated mean
+realized 69.83 against bottom decile 109.33** — the lineups the simulator liked
+most scored 40 points worse than the ones it liked least.
+
+**The mechanism, by name.** 37 players were projected ≥5.0 and scored exactly
+0.0. The top six: Zay Flowers (22.57, Doubtful) and then **five quarterbacks** —
+Tua 17.47, McCarthy 15.91, Keenum 15.55, McKee 14.31, Ehlinger 14.26 — production's
+dead QB slot. **53.1% of the pool carries at least one.**
+
+| dead players | n | mean realized | **mean simulated** |
+|---|---:|---:|---:|
+| 0 | 5,893 | **103.46** | 121.88 |
+| 1 | 4,748 | 88.94 | **126.42** |
+| 2 | 1,777 | 75.86 | **131.53** |
+
+**As realized falls, the simulator's rating rises.** A body that will not play is
+served `E[points|played]` at 14–22 points, so a lineup stuffing three looks
+outstanding and scores nothing. The optimizer is working perfectly against a
+corrupted objective.
+
+**Availability is a large driver but not all of it:** restricting to the 5,893
+candidates with zero dead players moves Spearman from −0.4908 to **−0.3720**.
+About a quarter recovered; −0.37 remains and is the next thing to measure.
+
+**This reprices the availability repair.** Production bounded the reclaimed QB
+fifth at ~1.7 points under the ceiling law and I agreed — but that prices it as a
+**supply** improvement. The table says the same defect corrupts the **objective**,
+and an objective that ranks backwards costs far more, because every downstream
+lever inherits it. **It may also explain why nothing replicates:** every
+instrument that flipped sign is downstream of this ordering. If Week 1's pool was
+less contaminated, its ordering held (+0.255) and levers behaved. **Regime
+dependence may be a measurable pre-lock contamination level rather than an
+irreducible mystery** — backup QBs and Doubtful players are known before kickoff.
+
+**Not claimed:** that all 37 were unavailable (the clean test is snaps per
+player-week, which I hold and will run next); that removing them fixes ordering
+(it does not); or that Week 1 has the same structure — **I do not hold the Week-1
+pool, and it now settles the central question.** Same artifact requested at
+`7c9de246`.
+
 ## 2026-09-22 (12:27 CDT) — The dead QB slot, the Doubtful zeros and the floor failure are ONE defect
 
 Laptop agent, extending production's `bbc24a08`. Report:
