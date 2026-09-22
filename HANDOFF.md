@@ -5,6 +5,83 @@
 
 # Project handoff
 
+## 2026-09-21 (night) — CI reduced, laptop review items, and the blend made auditable
+
+Branch `production/week3-integration-20260921`, tip `1282d62d`.
+Money lane: **249 passed, 1 skipped**.
+
+**Week 3 is input-complete.** Both operator files exist, are mode 0600 outside
+the repo tree, and are in `gs://…/week-inputs/2026/w03/` as one pinned manifest,
+verified byte-identical on pull. `chosen-dose.env` 2560/10240, held at the
+Week-2 D12800 rung deliberately (compute, not spend). `contests.json` 40
+contests / 198 entries / $143.00, built from the operator's `DKEntries_Week3.csv`
+and verified against `dk_contest_fills` (draft group 153769). It is the stake
+plan and must never be committed. Gate now fails only on `projections` and
+`market_monitor`, both of which wait on Tuesday's Cloud Run sequence.
+
+**CI: 365 problems reduced to roughly 159, with the remainder scoped.**
+- Step 1 (`460b4743`): 15 corpus modules that pin an exact interpreter/NumPy/CPU
+  identity now **skip with the mismatch named** off the pinned runtime — 184
+  failures. Disclosed cost: module scope also stops 203 currently-passing tests
+  in those modules; `NFL_DFS_RUN_PINNED_RUNTIME_TESTS=1` runs them anyway.
+- `fetch-depth: 0` (`48a12c1d`): ~22 "tracked read failed" errors were a
+  depth-1 clone, not drift. Reproduced locally — shallow gives exit 128, full
+  succeeds.
+- Decision 2 of the lab's list is **not a decision** (`f0d5c752`): V8 matches
+  the tree with zero drift, V7 differs only on the two files the market-source
+  repair `82739685` changed while correctly minting v8. Two test modules still
+  call `_v7`; switching them gives 5 passed. **Never re-freeze V7.**
+- Decision 5 is a confirmed CI artifact: the chain reports "differs" when a
+  shallow clone means "absent".
+
+**Laptop review** (`handoffs/2026-09-21-laptop-postmortem-review-round1.md`,
+eight requested corrections, ours to own):
+- **Item 4 answered** — their 87/8/2 stack counts reproduce exactly; the
+  disagreement was purely definitional. "100% depth-2" is wrong either way
+  (89.7%). Including RB splits the book 46/45/4/2. Mean pairwise overlap is
+  **1.421**, and 1.60 did not reproduce under four definitions.
+- **Item 6 answered** — all 172,692 Millionaire entrants, not winners: per-entry
+  quality rises +9.26 points from the 1-entry to the 51–150 bucket, the user's
+  best rises +73.31. **Volume outweighs skill 7.9:1**, but skill compounds —
+  the heaviest bucket reaches 194 at 31.9% against a volume-only 14.3%.
+- **Item 1 open, obstacle identified** — `implied_model_mean` is the blend
+  inverted (177/177), `prod_model_pre` disagrees with it on 175/175, and
+  Jefferson has neither. `player_projections` persists no pre-blend column, so
+  closing it needs a re-run at the serving commit.
+- **Item 2 answered in part** — `own_shadow` is best-effort telemetry, so its
+  emptiness proves nothing, exactly as they said. The authoritative record is
+  `OWN_MODEL` in `lever_env` on `live_candidates` — **which has zero 2026 rows**
+  (20,789 total, all 2024 W3 / 2022 W1, the 2024 rows written as recently as
+  today, i.e. synthetic offline contamination). Cause: `cand_log_async=True`,
+  `cand_log_required=False`. That async choice is right; the fix is to make the
+  loss loud in the build receipt, not fatal. **Week 3 repeats this unless
+  changed.**
+
+**The blend is now auditable** (`63b1e3ae`, `1282d62d`). `market_source_log`
+gains `model_points_pre` and `model_weight`, taken from values the run already
+holds — `_pre_blend` captured before the blend overwrites it, and the weight
+actually applied. A row can be checked forward instead of by inverting the
+nominal 0.45, which disagreed with the recorded value on every row tested.
+Absent inputs stay NULL rather than being reconstructed, and a test pins that.
+Done now because the table does not exist yet; after Sunday it would have meant
+altering a populated money-path table. Mutation-checked — M4 revealed the call
+site itself was untested, so an AST test now pins the wiring.
+
+**Data deficiency logged:** `contest_entries.payout` is NULL on all 1,305,992
+rows across both weeks and `payout_raw` is empty, so **no ROI can be computed
+from the warehouse at all**. Dollars must come from the operator's entry-history
+export.
+
+**Route-share gate armed** on operator instruction: the two shadow jobs moved
+from `N_BOOM=28` to `160/40` (image digest and all other env preserved), then
+the four schedulers resumed. `check_prospective_gates --week 3` now reports
+every gate armed and policy-consistent.
+
+**Next:** Tuesday's `build-features` → re-run `tabpfn-gen` → `project-slate`,
+in that order. Laptop items 3, 5, 7 remain; item 2's per-bug consolidation
+remains.
+
+
 ## 2026-09-21 (late) — CI triage, three operator items actioned, and five silent-failure traps
 
 Branch `production/week3-integration-20260921`, tip `f1024fd1`.
