@@ -1,9 +1,51 @@
-> **Take-over document: `reports/2026-09-21-production-handover.md`, on branch `production/in-season-rules-20260919`. Read it before anything below.**
+> **INCOMING AGENT START HERE: `reports/2026-09-22-laptop-agent-handover.md`** (on
+> `production/week3-integration-20260921`). Roles for Week 3: **production is in charge**
+> (operator instruction 2026-09-22); the laptop agent is the second party and should verify
+> claims rather than accept them. The lab agent is gone.**
+> **Deep background: `reports/2026-09-21-production-handover.md` on
+> `production/in-season-rules-20260919` @ `52acb4ab` — still accurate on architecture and
+> history, superseded on current state.**
 > **`reports/2026-09-15-week2-operating-handoff.md` is SUPERSEDED except for its §4 (Sunday money path) and §3a (standing weekly cadence).**
 > **Operator's own Week-2 steps (timers, Saturday refresh, Sunday upload): `reports/2026-09-17-week2-operator-checklist.md`.**
 > **Operator's machine-move guide: `reports/2026-09-15-workstation-to-laptop-transition-guide.md`.**
 
 # Project handoff
+
+## 2026-09-22 (midday) — Doubtful excluded at eligibility; money path moved; laptop handover written
+
+Branch `production/week3-integration-20260921`, tip `0645b20f`.
+Money-path clone `.nfl2-worktrees/week3-live-center` now at nfl2 **`69f98a7`**.
+Runtime preflight passes on **both** roles at that commit.
+
+**Operator instruction 2026-09-22: production is in charge for Week 3.** That
+changes next week. The incoming laptop agent is the second party; its start
+document is `reports/2026-09-22-laptop-agent-handover.md` and `HANDOFF.md`'s
+header now points there.
+
+**The Week-2 own-goal is closed.** nfl2 `DK_INACTIVE_STATUSES` retained `"D"`, so
+a Doubtful player reached the pool priced like a healthy one — Zay Flowers held
+**48 of 97 entered rows including the Millionaire seat** and scored **0.0**; all
+three Doubtful players scored zero and none played. `"D"` is now in the
+denylist, applied by `apply_dk_status_invariant` *before any simulation or
+candidate solve*. It is an availability rule, not an exposure cap: objective,
+draws and construction are untouched, so book and prospective shadows move
+together. **Questionable is deliberately still eligible** (Week-2 Q rows averaged
+98.3 vs 98.4; Olave 22.6, Burrow 16.2).
+
+**Route taken deliberately:** a real nfl2 commit on
+`fix/doubtful-eligibility-20260922` (pushed), the clone moved onto it, and
+`EXPECT_SHA` moved with it — not a patch on a dirty clone, which would have
+forced an `EXPECT_SHA` override, the silent-override pattern this project has
+been burned by. **`week2-release-2dc116c` was never touched and is still CLEAN at
+`2dc116c`**; the work was done in a fresh worktree off that commit. One existing
+nfl2 test pinned the old behaviour (`retained_designations {"Q":1,"D":1}`) and
+its expectation moved visibly. Mutation-checked: reverting the frozenset fails
+all six new tests.
+
+**Still to run, strictly ordered, all Cloud Run:** `build-features` wk3 →
+re-run `tabpfn-gen TABPFN_UPCOMING=2026:3` → `project-slate`. The gate FAILs on
+projections, market_monitor and tabpfn until then, all expected.
+
 
 ## 2026-09-22 — the lab agent is gone; its decisions taken over
 
