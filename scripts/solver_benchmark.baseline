@@ -1,0 +1,20 @@
+# Workstation baseline for scripts/solver_benchmark.sh
+# 2026-09-22, DESKTOP-PI346P2, Intel i9-9900K @ 3.6GHz (8C/16T), 54 GB RAM
+solves=40  total=2.82s  mean=70.5ms  first=37.0ms  last=114.7ms  rate=14.19/s
+
+# Reference point this benchmark is calibrated against:
+#   Week-2 D12800 build (LEV 2560 / BOOM 10240, K=97): 36,788 s = 10.22 h wall clock
+#   on this machine. receipt.json "seconds", run 20260919T153008787414Z-2dc116c.
+#
+# Why solves/sec is the right measure:
+#   nfl2 core/lineup.py optimize_many is `for _ in range(n_lineups)` calling
+#   prob.solve(pulp.PULP_CBC_CMD(msg=0)) -- a serial loop of single-threaded CBC
+#   subprocesses. No multiprocessing, joblib, or thread pool anywhere in the
+#   generation path, and no threads= on the solver. 15 of 16 threads sit idle.
+#   So the build is SINGLE-CORE bound: core count barely matters, sustained
+#   single-thread clock is everything.
+#
+# Note first=37ms vs last=115ms over only 40 solves: each new lineup adds an
+# overlap cut against every previous one, so per-solve cost grows through the
+# run. That is the measured ~n^2.5 superlinearity. Do NOT extrapolate 40 solves
+# linearly to 2560 LEV solves -- but the RATIO between two machines does transfer.
