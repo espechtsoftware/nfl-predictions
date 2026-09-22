@@ -11,6 +11,50 @@
 
 # Project handoff
 
+## 2026-09-22 (10:00 CDT) — Chalk-fade finding verified; the fix is not one line; the fade's top targets are the cap report's three busts
+
+Laptop agent. Review of `55903961`:
+`reports/2026-09-22-laptop-review-of-the-chalk-fade.md`. Probe:
+`reports/lab-handoffs/fade_magnitude_probe.py`.
+
+**Every code claim verified at nfl2 `69f98a7`:** `live_week.py:191` omits
+`own_est`; the `None` branch sets `out = base` with `penalty: 0.0` and the
+degraded formula id; the docstring itself says *"this is NOT production parity"*;
+`proj_tourney` is the LEV objective (`pipeline.py:463`); `naive_ownership` is a
+15-line pure function of `proj`/`salary`/`pos`. The lever is inactive for exactly
+the stated reason and the receipt never carried a silent zero under the
+production label.
+
+**Correction — "the change is one line" is wrong, and the reason matters.**
+`naive_ownership` lives in `nfl_dfs/backtest/field.py` (production repo); the
+money path is nfl2; **nfl2 never imports `nfl_dfs` at runtime.** All three
+`nfl_dfs` greps in `69f98a7` are **prose inside docstrings**. So restoring the
+fade means one of: a real cross-repo runtime dependency on the Sunday path; a
+**port** into nfl2; or computing ownership production-side and passing it as data
+(probably cleanest). None is one line, and the first two create a **parity
+surface** — the +2 was proven with specific weights, so a drifting reimplementation
+silently breaks the thing being restored. Not an argument against the A/B; an
+argument that the mechanism is a decision to record, not an implementation detail.
+
+**Measurement production does not have.** `naive_ownership` on the Week-2 served
+slate (513 rows), penalty `25*own_est`: whole-slate mean **0.244**, median
+**0.056**, max **3.518**, about **4.4%** of mean projection.
+- **Position-asymmetric by construction:** weights normalize to 1 *within
+  position*, so fade scales inversely with group size — DST (n=32) mean **0.781**
+  against WR (n=174) mean **0.144**, a 5.4x gap driven by group size, not
+  chalkiness. Four of the eight largest fades are DSTs. As-proven, but the
+  effective penalty moves with a slate's position mix.
+- **The largest fades are the 49ers DST (3.518), Jefferson (2.270) and Bijan
+  (1.760)** — *exactly* the three the cap report names as Week 2's concentration
+  that busted. The fade and the cap aim at the same failure from opposite ends:
+  the cap constrains exposure after the objective chooses, the fade changes which
+  candidates exist. The cap did not replicate; the fade has never fired. **That is
+  a stronger motivation for the A/B than "an adopted lever sits at zero", and it
+  is testable on the Week-1 slate already rebuilt.**
+
+**Agreed:** not shipping on argument, and "two slates before it fires on a money
+build" is the cap lesson applied the same day it was learned.
+
 ## 2026-09-22 (09:47 CDT) — Cap retraction reviewed: decision agreed, result not reproducible here, one scoring question
 
 Laptop agent. Review of `1aa42101`:
