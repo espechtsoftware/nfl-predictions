@@ -26,6 +26,7 @@ of vanishing into NaNs.
 from __future__ import annotations
 
 import logging
+import os
 
 import numpy as np
 import pandas as pd
@@ -175,3 +176,66 @@ def zero_out_projections(out: pd.DataFrame, out_ids: list[str]) -> pd.DataFrame:
         if col in out.columns:
             out.loc[mask, col] = 0.0
     return out
+
+
+# Backup-QB availability gate (2026-09-19). The component models fit on
+# active rows only, so a backup QB's served projection is E[points | he
+# played] — and a backup who plays usually plays most of a game. History
+# (2022-25, by depth_rank): depth-2 QBs appear 30% of weeks, 6.0 pts when
+# they do, 1.8 pts unconditionally; depth-3 0.8. Week 2 of 2026 served
+# depth-2 QBs 9.8 pts on average at the minimum salary, and 29% of a 6,400
+# candidate pool carried one behind a healthy starter. Nothing downstream
+# converts the conditional number: find_out_players sees only O/IR/Out.
+# Status-only gate: the team's primary QB is the shallowest depth-chart QB
+# who is not out; every deeper QB projects to zero. A Doubtful primary
+# leaves the team untouched (a split rule is a later, measured refinement),
+# and a team with no depth-chart QB on file is untouched. QB_BACKUP_GATE=0
+# disables it without a redeploy.
+DOUBTFUL_STATUSES = {"D", "DOUBTFUL"}
+QUESTIONABLE_STATUSES = {"Q", "QUESTIONABLE"}
+
+
+def _col(feats: pd.DataFrame, *names: str) -> pd.Series:
+    for n in names:
+        if n in feats.columns:
+            return feats[n]
+    return pd.Series([None] * len(feats), index=feats.index, dtype=object)
+
+
+def find_backup_qbs(feats: pd.DataFrame) -> list[str]:
+    """GSIS ids of QBs listed behind a primary QB who is expected to play."""
+    if os.environ.get("QB_BACKUP_GATE", "1") == "0" or "depth_rank" not in feats.columns:
+        return []
+    pos = _col(feats, "position", "dk_position").fillna("").astype(str).str.upper()
+    team = _col(feats, "team", "team_abbr").fillna("").astype(str)
+    depth = pd.to_numeric(feats["depth_rank"], errors="coerce")
+    status = _col(feats, "status").fillna("").astype(str).str.upper().str.strip()
+    report = _col(feats, "injury_status").fillna("").astype(str).str.upper().str.strip()
+    is_out = status.isin(OUT_STATUSES) | report.eq("OUT")
+    is_doubtful = status.isin(DOUBTFUL_STATUSES) | report.eq("DOUBTFUL")
+    is_questionable = status.isin(QUESTIONABLE_STATUSES) | report.eq("QUESTIONABLE")
+    qbs = feats.loc[pos.eq("QB") & depth.notna() & feats.gsis_id.notna() & team.ne(""),
+                    ["gsis_id"]].assign(team=team, depth=depth, out=is_out,
+                                        doubtful=is_doubtful, questionable=is_questionable)
+    # Shared rule (tools/qb_classify.py, lab review 2026-09-19): a team needs a
+    # depth-1 row on file; the primary is that QB unless he is out, in which
+    # case the shallowest non-out QB is promoted. A Doubtful or Questionable
+    # primary makes the team ambiguous -- nothing is gated. Blank teams are
+    # never grouped. Deterministic zeroing is a declared practical
+    # approximation of the unconditional expectation, not a proved correction.
+    ids: list[str] = []
+    for _, g in qbs.groupby("team"):
+        g = g.sort_values(["depth", "gsis_id"])
+        if not (g.depth == 1).any():
+            continue
+        primary = g[~g.out]
+        if primary.empty:
+            continue
+        # Ties at the shallowest non-out depth (two depth-1 rows) resolve order-independently: any tied row
+        # Doubtful/Questionable -> ambiguous team, nothing gated (lab v4 boundary).
+        top = primary[primary.depth == primary.iloc[0]["depth"]]
+        if top.doubtful.any() or top.questionable.any():
+            continue
+        cut = top.iloc[0]["depth"]
+        ids.extend(g.loc[(g.depth > cut) & ~g.out, "gsis_id"].astype(str))
+    return sorted(set(ids))
