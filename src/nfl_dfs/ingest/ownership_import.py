@@ -268,6 +268,97 @@ def _validate_settled_time(values: pd.Series) -> None:
         )
 
 
+# DraftKings prints %Drafted to two decimals, so a correctly reported share can sit
+# at most half a printed unit from the truth.
+DK_PRINTED_PRECISION = 0.005
+_PRECISION_EPS = 1e-4
+
+
+def _reconcile_ownership_by_slot(
+    entries: pd.DataFrame,
+    ownership: pd.DataFrame,
+    field_size: int,
+) -> dict[str, Any]:
+    """Reconcile DK's %Drafted summary against the lineups in the SAME export, at the
+    (player, roster position) granularity DK actually writes.
+
+    DK's summary block is keyed by player AND roster position -- a player used at RB and
+    at FLEX gets two rows -- and it OMITS rows held by very few entries. Comparing per
+    PLAYER therefore conflates two different things: a genuine disagreement about a
+    share, and DK silently dropping one of that player's slot rows.
+
+    Measured across all twelve settled Week-2 exports (2026-09-22): at this granularity
+    every single listed share is within 0.005 of the lineup-derived value -- there are no
+    real per-player mismatches at all -- and the entire summed-mass shortfall is the mass
+    of the omitted rows. The tolerances this module accumulated on 2026-09-14 and
+    2026-09-21 were therefore absorbing a granularity mismatch in our own check rather
+    than DraftKings error, which left them unable to fail closed on a genuine one.
+
+    The lineups stay the authority. Omission is counted and receipted, never tolerated
+    as a fuzzy allowance on a share.
+    """
+    counts: Counter[tuple[str, str]] = Counter()
+    for slots_json in entries.lineup_slots_json:
+        for item in json.loads(slots_json):
+            counts[(item["player"], item["slot"])] += 1
+    denominator = float(field_size if field_size else len(entries))
+    derived = {key: n * 100.0 / denominator for key, n in counts.items()}
+
+    keys = list(zip(ownership.display_name.astype(str),
+                    ownership.roster_position.astype(str), strict=True))
+    if len(keys) != len(set(keys)):
+        dupes = sorted({k for k in keys if keys.count(k) > 1})[:3]
+        raise CaptureValidationError(
+            "entries_complete_ownership_incomplete",
+            f"ownership summary repeats (player, roster position) rows: {dupes}",
+        )
+    shown = dict(zip(keys, ownership.pct_drafted.astype(float), strict=True))
+
+    limit = DK_PRINTED_PRECISION + _PRECISION_EPS
+    contradicted = sorted(
+        (f"{k[0]}/{k[1]}: shown {shown[k]:.4f} vs lineups {derived[k]:.4f}"
+         for k in set(shown) & set(derived)
+         if abs(shown[k] - derived[k]) > limit),
+    )
+    unexpected = sorted(
+        f"{k[0]}/{k[1]}: shown {shown[k]:.4f}, never rostered"
+        for k in set(shown) - set(derived) if shown[k] > limit
+    )
+    omitted = sorted(set(derived) - set(shown), key=lambda k: -derived[k])
+    omitted_mass = sum(derived[k] for k in omitted)
+
+    if contradicted or unexpected:
+        raise CaptureValidationError(
+            "ownership_mismatch" if contradicted else "entries_complete_ownership_incomplete",
+            "ownership summary contradicts the lineups in the same export: "
+            f"contradicted={contradicted[:3]} unexpected={unexpected[:3]}",
+        )
+
+    # Every listed row is exact to DK's printed precision, so what is left of the mass
+    # gap after crediting the omitted rows can only be accumulated printing error.
+    expected_mass = sum(derived.values())
+    residual = expected_mass - float(ownership.pct_drafted.sum()) - omitted_mass
+    residual_budget = DK_PRINTED_PRECISION * len(keys) + _PRECISION_EPS
+    if abs(residual) > residual_budget:
+        raise CaptureValidationError(
+            "entries_complete_ownership_incomplete",
+            f"ownership mass residual {residual:.4f} exceeds the printing budget "
+            f"{residual_budget:.4f} after crediting {len(omitted)} omitted "
+            f"(player, slot) rows worth {omitted_mass:.4f}",
+        )
+    return {
+        "slot_rows_listed": len(keys),
+        "slot_rows_derived": len(derived),
+        "slot_rows_omitted_by_dk": len(omitted),
+        "omitted_mass": round(omitted_mass, 4),
+        "mass_residual": round(residual, 4),
+        "mass_residual_budget": round(residual_budget, 4),
+        "max_listed_deviation": round(
+            max((abs(shown[k] - derived[k]) for k in set(shown) & set(derived)), default=0.0), 5),
+        "omitted_examples": [f"{k[0]}/{k[1]}={derived[k]:.4f}" for k in omitted[:5]],
+    }
+
+
 def _validate_ownership_against_entries(
     entries: pd.DataFrame,
     ownership: pd.DataFrame,
@@ -447,18 +538,15 @@ def _validate_full_field_payload_classified(
     # blank-lineup entries carry no players, so DK's summed %Drafted is the full mass scaled by the filled share
     expected_mass *= len(entries) / float(len(entries) + blank_lineup_entries)
     ownership_mass = float(ownership.pct_drafted.sum())
-    # 2026-09-21: the per-player shortfalls above also shorten the summed mass; in a 68-entry field the sum came to
-    # 895.43 with every lineup complete. Tolerate up to six entries' worth of one roster slot, never more than 10
-    # points and never less than the historical 2.0.
-    field_total = float(len(entries) + blank_lineup_entries)
-    mass_tolerance = min(10.0, max(2.0, 6.0 * 100.0 / field_total))
-    if abs(ownership_mass - expected_mass) > mass_tolerance:
-        raise CaptureValidationError(
-            "entries_complete_ownership_incomplete",
-            f"ownership mass {ownership_mass:.3f} is inconsistent with "
-            f"{roster_format} expected mass {expected_mass:.1f} "
-            f"(tolerance {mass_tolerance:.2f})", **_entries_ok,
-        )
+    field_total = int(len(entries) + blank_lineup_entries)
+    # 2026-09-22: the summed-mass gap is not slop to be tolerated -- it is the mass of the
+    # (player, slot) rows DK omits from its own summary, and it is computable exactly from
+    # the lineups in the same file. This replaces the heuristic mass tolerance, which had
+    # been widened twice and by then admitted up to ten points of unexplained mass.
+    try:
+        slot_reconciliation = _reconcile_ownership_by_slot(entries, ownership, field_total)
+    except CaptureValidationError as exc:
+        raise CaptureValidationError(exc.result_class, str(exc), **_entries_ok) from exc
     try:
         ownership_minor_mismatches = _validate_ownership_against_entries(entries, ownership, field_size=len(entries) + blank_lineup_entries)
     except ValueError as exc:
@@ -477,12 +565,13 @@ def _validate_full_field_payload_classified(
         "source_filename": source.name,
         "roster_format": roster_format,
         "ownership_mass": ownership_mass,
+        "slot_reconciliation": slot_reconciliation,
         "distinct_lineups": int(len(dupes)),
         "max_duplicate_count": int(dupes.max()),
         "winner_score": float(entries.loc[entries["rank"].eq(1), "points"].max()),
         "blank_lineup_entries": blank_lineup_entries,
         "ownership_minor_mismatches": ownership_minor_mismatches,
-        "ownership_mass_tolerance": mass_tolerance,
+        "ownership_mass_residual": slot_reconciliation["mass_residual"],
         "result_class": "complete_and_reproduced",
     }
 

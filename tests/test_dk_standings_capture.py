@@ -183,8 +183,11 @@ def test_validation_reconstructs_ownership_from_entry_rosters(tmp_path):
     frame = pd.read_csv(source, dtype=str)
     frame.loc[0, "Player"] = "Wrong Player"  # mass remains exactly 900
     frame.to_csv(source, index=False)
-    with pytest.raises(ValueError, match="ownership summary does not reproduce"):
+    # 2026-09-22: still fails closed, and now names the offending (player, slot) key
+    # rather than only reporting that the summary did not reproduce.
+    with pytest.raises(ValueError, match="never rostered") as err:
         oi.validate_full_field_capture(source, expected_entries=4)
+    assert "Wrong Player/QB" in str(err.value)
 
 
 def test_capture_id_binds_persisted_metadata(tmp_path):
@@ -345,8 +348,13 @@ def test_shortfall_on_a_widely_held_player_still_fails_closed():
         oi._validate_ownership_against_entries(entries, ownership, field_size=68)
 
 
-def test_mass_tolerance_scales_with_the_field(tmp_path):
-    """68 complete lineups summing to 895.43 (Week-2 satellite) validate; the same shortfall in a 4-entry field does not."""
+def test_the_summed_mass_gap_is_priced_against_the_lineups_not_tolerated(tmp_path):
+    """Superseded 2026-09-22. This was `test_mass_tolerance_scales_with_the_field`, which
+    pinned a heuristic allowance of up to ten points of unexplained mass. Reconciling all
+    twelve Week-2 exports at (player, slot) granularity showed the gap is the mass of the
+    rows DK omits, computable exactly, so the allowance is gone. Here all 68 lineups hold
+    the Defense: 95.43% is a 4.57-point contradiction on a fully-owned player, not a
+    shortfall, and the clean export must reconcile to a residual of zero."""
     rows = 68
     data = {
         "Rank": [str(i + 1) for i in range(rows)], "EntryId": [f"{i:04d}" for i in range(rows)], "EntryName": ["u"] * rows,
@@ -357,12 +365,14 @@ def test_mass_tolerance_scales_with_the_field(tmp_path):
         "FPTS": ["10.0"] * 9 + [None] * (rows - 9),
     }
     source = tmp_path / "standings.csv"; pd.DataFrame(data).to_csv(source, index=False)
-    with pytest.raises(ValueError, match="pct_mismatch"):      # a 4.57-point gap on a 95%-owned player is not a rounding shortfall
+    with pytest.raises(ValueError, match="contradicts the lineups") as err:
         oi.validate_full_field_capture(source, expected_entries=68)
+    assert "Defense/DST" in str(err.value)
     data["%Drafted"] = ["100.00%"] * 8 + ["100.00%"] + [None] * (rows - 9)
     pd.DataFrame(data).to_csv(source, index=False)
     result = oi.validate_full_field_capture(source, expected_entries=68)
-    assert result["ownership_mass_tolerance"] == pytest.approx(min(10.0, max(2.0, 600.0 / 68)))
+    assert result["ownership_mass_residual"] == pytest.approx(0.0, abs=1e-6)
+    assert result["slot_reconciliation"]["slot_rows_omitted_by_dk"] == 0
 
 
 def test_validation_failures_carry_a_typed_result_class(tmp_path):
@@ -376,9 +386,18 @@ def test_validation_failures_carry_a_typed_result_class(tmp_path):
         oi.validate_full_field_capture(bad, expected_entries=4)
     assert err.value.result_class == "ownership_mismatch" and err.value.entries_parsed == 4
     raw = pd.read_csv(source, dtype=str)
+    # 2026-09-22 reclassified: the row IS listed and its number is wrong, which is a
+    # contradiction. "Incomplete" is now reserved for a summary that is structurally
+    # unusable -- an out-of-range share, a repeated (player, slot) row, or a mass
+    # residual the printing precision cannot account for.
     raw.loc[raw.Player.eq("Flex Player"), "%Drafted"] = "20.00%"; short = tmp_path / "short.csv"; raw.to_csv(short, index=False)
     with pytest.raises(oi.CaptureValidationError) as err:
         oi.validate_full_field_capture(short, expected_entries=4)
+    assert err.value.result_class == "ownership_mismatch"
+    raw = pd.read_csv(source, dtype=str)
+    raw.loc[raw.Player.eq("Flex Player"), "%Drafted"] = "140.00%"; bad_range = tmp_path / "range.csv"; raw.to_csv(bad_range, index=False)
+    with pytest.raises(oi.CaptureValidationError) as err:
+        oi.validate_full_field_capture(bad_range, expected_entries=4)
     assert err.value.result_class == "entries_complete_ownership_incomplete"
     raw = pd.read_csv(source, dtype=str)
     raw.loc[raw.Rank.eq("1"), "Rank"] = "2"; invalid = tmp_path / "invalid.csv"; raw.to_csv(invalid, index=False)
