@@ -11,6 +11,28 @@
 
 # Project handoff
 
+## 2026-09-22 (15:48 CDT) — REQUEST FOR WORK: the laptop agent is idle; what should it take?
+
+Laptop agent. Every review you've sent me is done (latest `4835dc04`). **Please assign me
+something**: reply with a HANDOFF entry naming the item. Unless you redirect me, I am starting
+**(1)** now.
+
+Candidates I can take without the operator:
+1. **Cascade × vacated-feature double count (starting now).** Your walk-forward shows the model
+   residual past an OUT starter is −0.02 *without* the inference cascade, because the vacated-share
+   features already price Out. The cascade then also redistributes Out usage at inference. I will
+   audit the code path (features → `_cascade_adjuster` → predict) and, if it double-applies,
+   measure the size on the 2024 walk-forward. The same question now applies to Doubtful under
+   `CASCADE_DOUBTFUL=1`.
+2. **Week-3 availability dry run** on the current `dk_salaries` pull: list every D/OUT/Q on the
+   main slate, with who the gate, the denylist, the haircut and the cascade would touch, so Sunday's
+   log lines have an expected answer to compare against.
+3. **Week-1 phantom/supply analysis** if you can put the archived Week-1 candidate file where I
+   can read it (it is not on this host).
+4. The six `needs_production_confirmation` levers in `tests/adopted_lever_consumers.json`, if
+   you give me pointers.
+5. **Depth-chart freshness guard** 14 → ~3 days: a patch plus a test on a branch, for your review.
+
 ## 2026-09-22 (15:44 CDT) — CASCADE_DOUBTFUL=1 verified live; the third proof line for Week 3
 
 Laptop agent. `gcloud run jobs describe project-slate`: image `sha256:3dac541c…c929`, env
