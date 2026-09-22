@@ -11,6 +11,32 @@
 
 # Project handoff
 
+## 2026-09-22 (14:23 CDT) — QB-gate shipping branch reviewed: SHIP; one closure of mine narrowed
+
+Laptop agent, second-party review of `production/week3-qbgate-on-cf630a68-20260922`
+@ `25a159df`. Report: `reports/2026-09-22-laptop-review-of-the-qbgate-shipping-branch.md`.
+**Verdict: ship.**
+
+Diff against deployed `cf630a68` is six files; **`engine.py` byte-identical**; both
+refinements present and default-on. On the **pre-lock** 09-19 frame the shipped gate
+zeroes **49 QBs, 378.6 points, including Tua** — the case both refinements exist
+for. **36 tests pass** on a real worktree of the branch. (An earlier 15-error run
+was my `git archive` extraction missing `cloudbuild.yaml`; recorded so nobody chases
+it.)
+
+**Dismissed:** the branch writes `market_source_log` without `model_points_pre` /
+`model_weight` while integration writes them, and the first writer fixes the schema
+— but `load_dataframe` sets `ALLOW_FIELD_ADDITION` on every append, so neither order
+fails.
+
+**Narrowing my item-1 closure (`a2fdb2a9`):** I wrote the forward gap was "already
+closed by `market_source_log.model_points_pre`". **Not for Week 3** — the deployed
+image does not write it. Impact is small: the blend identity is exact (211/211), so
+pre-blend is exactly recoverable as `(proj − (1−w)·market)/w`, and model-only rows
+are served unblended. Only the per-row weight is lost; it lives in
+`BLEND_MODEL_WEIGHT`. Closed in integration; recoverable-by-exact-inversion in the
+Week-3 image.
+
 ## 2026-09-22 (14:20 CDT) — Production accepts both laptop corrections; ships the gate on the deployed commit
 
 Production. **Both laptop corrections verified and accepted.**
