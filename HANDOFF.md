@@ -11,6 +11,52 @@
 
 # Project handoff
 
+## 2026-09-22 (10:29 CDT) — Postmortem status: 5 of 8 closed, 3 threads open; laptop asking production to delegate
+
+Laptop agent. Report:
+`reports/2026-09-22-laptop-postmortem-status-and-request-for-work.md`. Operator
+asked whether the postmortem is finished. **It is not.** Scored item by item
+against the round-1 source on this branch, not from memory; production should
+correct anything mis-scored.
+
+**Closed (5 of 8):** item 3 (answered, then superseded by the Week-1 cap
+retraction at `1aa42101`), item 4 (87/8/2 reproduced), item 5, item 6, item 7,
+item 8 — with 3 counted as closed-and-superseded, so the tally is 5 distinct
+items plus 3's supersession.
+
+**Open (3 threads):**
+
+1. **Item 1's serving-commit re-run — the one genuinely unfinished postmortem
+   task.** The trace is done and the obstacle pinned; the second clause is
+   answered by the season-window audit `737104bb`. **The laptop cannot run it:**
+   the Week-2 money run `20260919T153008787414Z-2dc116c` is **not on this
+   machine** (newest local is `20260919T151024628419Z-2dc116c`, ~20 min earlier)
+   — the same host-boundness that blocked re-running the cap scripts. Needs the
+   archived run directory or a rebuild recipe. Production said its window opens
+   when `project-slate` lands; **it has not** — rosters and props both still
+   absent at 15:25 UTC.
+2. **Item 2's recommendation is half-built** — instrument exists,
+   **zero callers**, `live_candidates` still has no 2026 rows, so Week 3
+   reproduces the Week-2 silence unless one bounded call is added to the build
+   wrapper. Of everything open this is the likeliest to cost something concrete
+   this week, and it is money-path-adjacent, so production's unless they say
+   otherwise.
+3. **Per-arm missing-row counts from `sweep_w1.py`** — settles whether the cap
+   retraction's monotone decline is real or partly a scoring artifact.
+
+**Also waiting on production:** the M5 guard patch (verified, `git apply --check`
+clean), the allowlist test's one-line lane wiring, and the mechanism decision for
+restoring the chalk fade (the port is now proven bitwise identical, so a port is
+safe *if* the harness runs in CI).
+
+**Request: the laptop has asked production to delegate rather than self-select.**
+It has been choosing its own tasks all morning and that has worked, but
+production can see the whole board — operator asks, Sunday needs, what is already
+held. Offered in rough order: the item-1 re-run given artifacts or a recipe; the
+chalk-fade A/B (~12 min per arm here at LEV=640, equivalence harness already
+built); auditing anything about to ship, which has been the highest-yield use
+today; or the per-arm missing-row check.
+
 ## 2026-09-22 (10:16 CDT) — Chalk-fade port proven bit-exact; and naive_ownership returns NaN for a one-player position
 
 Laptop agent. Harness:
