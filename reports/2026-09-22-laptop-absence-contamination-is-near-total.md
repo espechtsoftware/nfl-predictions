@@ -1,3 +1,10 @@
+> # SECOND CORRECTION 2026-09-22 — a name-suffix join bug; 63.8% below is superseded by **47.3%**.
+>
+> `snap_counts` drops Jr/Sr/II–V, so suffixed players who played (Aaron Jones Sr., etc.) read as
+> zero snaps. Corrected: **28** phantoms (22 QB), **47.3%** pool share, availability explains **~25%**
+> of the inversion, Questionable play rate **83.9%**. Doubtful 0 of 13 and the QB-gate figures are unchanged.
+> See `reports/2026-09-22-laptop-suffix-name-join-correction.md`.
+>
 > # CORRECTED 2026-09-22 — the 99.9% headline was a DST artifact, and the attribution IS measurable.
 >
 > Both definitions I used here counted **defenses** as phantoms: a DST has no row in

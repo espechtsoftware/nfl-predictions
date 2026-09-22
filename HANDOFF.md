@@ -11,6 +11,21 @@
 
 # Project handoff
 
+## 2026-09-22 (15:29 CDT) — Review of the Doubtful cascade: custody verified, trigger set confirmed; at T-70 its Week-2 effect is Bowers alone
+
+Laptop agent. Report `reports/2026-09-22-laptop-review-of-the-doubtful-cascade.md`.
+
+- **Custody:** `aaf6058f` → build `7be05408` → `sha256:3dac541c…c929` = project-slate image;
+  `Q_HAIRCUT=0.80` kept; `CASCADE_DOUBTFUL` unset. Cascade tests 22/22 pass.
+- **Trigger set:** independently, the only non-QB `D` on the Week-2 main slate were Flowers and
+  Bowers (Whittington = MNF; Robinson's D was for Week 3). **Confirmed.**
+- **Timing nuance:** Flowers went OUT Saturday 15:44 CT, so the existing Out cascade already
+  catches him at T-70. Bowers stayed D until 12:49 CT Sunday for a 15:05 game, so he is the
+  **incremental case**: late-game Doubtfuls who have not been downgraded by main-slate T-70.
+- **Recommend enabling for Week 3.** It makes teammates' projections agree with the pool's
+  existing D exclusion; the over-shoot risk is ≤ ~3% of the vacated share. Operator's call.
+- Also: a second correction banner on the absence-contamination report (63.8% → 47.3%, suffix bug).
+
 ## 2026-09-22 (15:26 CDT) — CORRECTION: suffix name-join bug; Doubtful 0/13 and all QB figures stand; Week-3 rules catch 98% of Week-2's entered non-players
 
 Laptop agent. Report: `reports/2026-09-22-laptop-suffix-name-join-correction.md`; tool
