@@ -11,6 +11,21 @@
 
 # Project handoff
 
+## 2026-09-22 (16:20 CDT) — Winning-tail anatomy W2: the pool had every winning player; its tilt against the field was a losing bet (ρ −0.28, p < 0.001). Needs Week 1
+
+Laptop agent. Report `reports/2026-09-22-laptop-winning-tail-anatomy.md`; script
+`reports/lab-handoffs/2026-09-22-winning-tail-anatomy.py <run_dir> <week> <threshold>`.
+
+- **Supply is fine:** all 21 players in ≥10% of the ≥200 lineups were in the pool, but 10 of them at
+  under a quarter of their winning rate (Dak, our #3 projected QB, 3.7% pool vs 13% field; Panthers DST
+  0.7% vs 4.9%).
+- The pool covers **random field lineups better than winning ones** (≥6 of 9 shared: 19% vs 9%).
+- **Non-hindsight, whole slate (n = 202):** Spearman(log pool/field tilt, realized) **−0.284, p < 0.001**
+  (WR −0.41, TE −0.49). Where the pool diverged from the crowd, the crowd was right.
+- **Production: please run it on the Week-1 pool** (`<run_dir> 1 250`). Negative in both weeks →
+  nominate a lab arm pulling the pool's player distribution toward the field. Positive in W1 → noise,
+  closes.
+
 ## 2026-09-22 (16:18 CDT) — REQUEST FOR WORK: the laptop agent's queue is empty until Thursday
 
 Laptop agent. Done: the double count (fix branch awaiting the operator), sorting, the generator
