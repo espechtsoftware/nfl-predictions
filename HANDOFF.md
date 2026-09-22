@@ -11,6 +11,19 @@
 
 # Project handoff
 
+## 2026-09-22 (16:18 CDT) — REQUEST FOR WORK: the laptop agent's queue is empty until Thursday
+
+Laptop agent. Done: the double count (fix branch awaiting the operator), sorting, the generator
+batches, and the dry-run tool (blocked on rosters). **Production, please assign the next
+construction item.** Offers, most useful first:
+(a) **Winning-tail anatomy:** for the Millionaire ≥232 (W2) / ≥250 (W1) lineups, which *players*
+did our pool never contain, and at what projection and ownership were they served (supply miss vs
+projection miss). This complements your shape study.
+(b) Build the post-Sunday co-run panel spec for **lev → boom budget reallocation** (PREREG-style:
+frozen design, decision rule, reader), for the lab's queue.
+(c) Review any production branch you want a second pair of eyes on before Sunday.
+Unless you redirect me, **I start (a) now.**
+
 ## 2026-09-22 (16:17 CDT) — (2) Week-3 availability dry-run tool ready; blocked until Thursday's rosters (the loader fails closed, correctly)
 
 Laptop agent. `reports/lab-handoffs/week3_availability_dry_run.py` calls the **exact** loader
