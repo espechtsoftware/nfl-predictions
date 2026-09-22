@@ -28,6 +28,54 @@ from .payout import Contest, roi
 
 log = logging.getLogger(__name__)
 
+# --- candidate-persistence observability -------------------------------------
+# The candidate rows carry `lever_env`, the only record of WHICH LEVERS produced
+# a book. On 2026-09-21 `predictions.live_candidates` held zero 2026 rows, so the
+# Week-2 post-mortem could not say what generation consumed.
+#
+# The cause is not (only) a failing warehouse. The write runs on a
+# `daemon=True` thread, and a daemon thread is KILLED at interpreter exit: a
+# build that finishes shortly after starting the write abandons it silently,
+# with no exception and no log line. Fire-and-forget was deliberate -- a stalled
+# warehouse call must never block a Sunday build -- but "not blocking" was
+# implemented as "may be discarded without trace".
+#
+# This keeps the default non-blocking and adds two things: the outcome is
+# recorded where a caller can read it, and a caller that WANTS to wait can do so
+# with its own bounded timeout via flush_candidate_persistence(). Nothing here
+# changes when the money path blocks.
+_CANDIDATE_PERSIST: dict[str, object] = {"state": "not_attempted"}
+_CANDIDATE_PERSIST_THREADS: list = []
+
+
+def candidate_persist_status() -> dict:
+    """Outcome of the most recent candidate-row persistence attempt.
+
+    ``state`` is one of: not_attempted, skipped, started, ok, failed. ``started``
+    surviving to the end of a run means the write was still in flight -- on a
+    daemon thread that is indistinguishable from discarded, which is exactly the
+    condition that left 2026 unrecorded.
+    """
+    return dict(_CANDIDATE_PERSIST)
+
+
+def flush_candidate_persistence(timeout: float = 30.0) -> dict:
+    """Give any in-flight candidate write up to ``timeout`` seconds to finish.
+
+    Callers opt in. Not called anywhere in the money path, so default blocking
+    behaviour is unchanged; a build wrapper that wants the record durable calls
+    this once at the end and puts the returned status in its receipt.
+    """
+    for th in list(_CANDIDATE_PERSIST_THREADS):
+        if th.is_alive():
+            th.join(timeout=timeout)
+        if not th.is_alive():
+            _CANDIDATE_PERSIST_THREADS.remove(th)
+    if _CANDIDATE_PERSIST.get("state") == "started" and _CANDIDATE_PERSIST_THREADS:
+        _CANDIDATE_PERSIST["state"] = "timeout"
+        _CANDIDATE_PERSIST["timeout_seconds"] = float(timeout)
+    return dict(_CANDIDATE_PERSIST)
+
 REQUIRED_COLS = {"id", "name", "pos", "team", "opp", "game_id",
                  "salary", "proj", "actual"}
 
@@ -2748,20 +2796,32 @@ def tail_select_lineups(
                 else:
                     _write_feats()
 
+            _CANDIDATE_PERSIST.clear()
+            _CANDIDATE_PERSIST.update({
+                "state": "started", "table": str(_cand_tbl), "rows": int(len(df)),
+                "run": str(slate_run_id), "asynchronous": bool(cand_log_async),
+                "required": bool(cand_log_required), "error": None,
+            })
+
             def _write():
                 try:
                     load_dataframe(df, _cand_tbl,
                                    write_disposition="WRITE_APPEND")
+                    _CANDIDATE_PERSIST["state"] = "ok"
                     log.info("candidates persisted: %d -> %s (run %s)",
                              len(df), _cand_tbl, slate_run_id)
-                except Exception:
+                except Exception as exc:
+                    _CANDIDATE_PERSIST["state"] = "failed"
+                    _CANDIDATE_PERSIST["error"] = f"{type(exc).__name__}: {exc}"[:400]
                     log.exception("candidate persistence failed")
                     if cand_log_required:
                         raise
 
             if cand_log_async:
                 import threading
-                threading.Thread(target=_write, daemon=True).start()
+                th = threading.Thread(target=_write, daemon=True)
+                _CANDIDATE_PERSIST_THREADS.append(th)
+                th.start()
             else:
                 _write()
         except Exception:
