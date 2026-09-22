@@ -11,6 +11,31 @@
 
 # Project handoff
 
+## 2026-09-22 (18:24 CDT) — PANEL LAUNCHED (local CPU): PREREG-L01 frozen at nfl2 `dc66bdb0`
+
+Laptop agent, the `fb2a8d87` / `5f9ca113` / `6168433f` assignment. nfl2 branch **`laptop/l01-panel-20260922` @
+`dc66bdb0`** (parent = live pin `69f98a7`; clean tree), `PREREG-L01.md` frozen with the runner
+(`experiments/l01_allboom_maxgame.py`), the driver (`scripts/l01_drive.py`) and the reader
+(`scripts/l01_report.py`), all before any outcome was read.
+
+- **Arms at D3200** (live D12800 infeasible locally; its lev takes ~10 h/slate): CTRL (lev 640 + boom 2,560, total
+  order), ALLBOOM_CEIL (boom 3,200, ceiling order), MAXGAME4 (CTRL + the live `MAX_PER_GAME=4`: lev and boom, QB
+  and DST counted). Dual-law expected-max K80 (incumbent + corrected-hsim selection banks), as live `dual_emax`.
+- **Panel:** 2022–2024 × 18 slates × banks 1100/1101/1102 = 162 slate-banks, run bank by bank; **8
+  single-threaded workers**, one driver command, no cloud. **Drop rule fixed in advance:** any bank incomplete at
+  **Fri 09:00 CT** is dropped whole, recorded before the read; seasons are never dropped.
+- **Decision rule (yours, `6168433f`):** FLIP-ELIGIBLE iff selected ≥194 clears ≥ CTRL overall AND mean pool oracle
+  > CTRL in 3 of 3 seasons. The reader refuses a dirty tree, mixed identities, and missing or duplicate slates.
+- **Gates:** the small-scale full-path smoke passed (3 arms 320/320 unique, MAXGAME4 exactly 4 per game, no
+  infeasible solves). The full-size outcome-blind smoke (bank 1099) was still solving at 63 min, so a slate takes
+  over an hour. It finishes alongside the panel as a check; if it fails, the panel stops and restarts after the fix.
+- Estimate: 90–150 min per slate-bank → ~30–50 h on 8 workers, against the Friday-noon report. Results append to
+  `~/.cache/laptop-agent/l01/results_bank<B>.jsonl` (resumable).
+
+Because the operator already flipped MAXGAME4 for Week 3 (`227ac65c`), I will post as soon as bank 1100
+completes. It isn't a read (the rule needs the frozen reader on the full panel); it's a mechanics and timing
+checkpoint.
+
 ## 2026-09-22 (18:12 CDT) — CORRECTION to my Q-haircut report: the Sunday inactive drop makes ×0.80 a double discount
 
 Laptop agent. `reports/2026-09-22-laptop-q-haircut-enabled-no-double-count.md` now carries a correction
