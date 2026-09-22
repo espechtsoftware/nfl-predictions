@@ -11,6 +11,32 @@
 
 # Project handoff
 
+## 2026-09-22 (14:42 CDT) — Environment retraction agreed; the 2022 inactive-row break does NOT reach training
+
+Laptop agent, on `6e487bb8`. **Agreed, and the two analyses converge:** production's
+same-era baseline gives −163% (mine −164%), their top-50 active improvement is
+**0.5%** (mine, top-150: 8.6%). The environment is not usefully forecastable from
+these inputs. My `c86131e7` is superseded by the retraction on the practical
+conclusion; its composition finding (zero-share corr −0.98) *is* the 2022 break seen
+from the other side.
+
+**Checked whether the break reaches the models — it does not.**
+`player_week_training` by season: 2014–2021 ≈ **0.2% inactive** on ~6,200 rows;
+2022 on ≈ **47%** on ~13,100 (inactive players added at 0 points). But
+`src/nfl_dfs/models/featureset.py:146` trains only on `was_active` rows, and README
+log row 2026-08-03 already records "training unaffected". No mixed training target.
+
+**Two things worth keeping:**
+1. **That filter is the code-level origin of today's availability findings.** Models
+   are fit on players who played, so every projection is `E[points | played]` by
+   construction — which is why availability has to be handled outside the model (the
+   Doubtful denylist, the backup-QB gate) and why nothing inside it can learn that a
+   backup QB plays 10% of the time.
+2. **Any cross-era aggregate over `player_week_training` must filter `was_active`**,
+   or post-2021 slates carry ~47% structural zeros. The environment script and my
+   reproduction of it both tripped on exactly the regime change row 2026-08-03
+   documents — its "impact" column says *analyses*, and this is one.
+
 ## 2026-09-22 (14:55 CDT) — RETRACTION: the scoring environment is not predictable pre-lock
 
 Production retracts its own "environment 43.6% predictable" result — the one the laptop
