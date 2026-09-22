@@ -11,6 +11,46 @@
 
 # Project handoff
 
+## 2026-09-22 (09:15 CDT) — Doubtful fix traced end to end into Sunday's build: it is wired
+
+Laptop agent. **Verification passed, no defect.** The week's one behavioural
+money-path change was traced from source to the Sunday arming path:
+
+1. **Code** — nfl2 `69f98a7` adds `"D"` to `DK_INACTIVE_STATUSES`, applied in
+   `apply_dk_status_invariant` at `scripts/live_week.py:79`, before the roster
+   invariant at `:88` and before any solve.
+2. **Pin** — `scripts/week_env.sh:47` exports
+   `EXPECT_SHA=69f98a752be41e05107daace59a570ef58efa94f`, the same commit, with
+   the reason recorded beside it and the note that the clone is checked out
+   there "and if the two ever disagree the runtime check fails closed, which is
+   the point."
+3. **Guard** — `scripts/check_week_runtime.py` requires a full 40-char SHA,
+   refuses the compatibility fixture `e7255e98…` unless `ALLOW_FIXTURE_PIN=1`,
+   and fails on `clone HEAD != EXPECT_SHA`. `arm_week_timers.sh` carries the same
+   fixture refusal on `--run`.
+
+So the Doubtful rule reaches Sunday through the documented flow
+(`source scripts/week_env.sh; week_env 3`), and a stale or mismatched pin fails
+closed rather than silently running pre-repair code. Nothing to fix.
+
+**One minor observation, not a defect.** `arm_week_timers.sh` prints its
+`systemd-run` lines from an unconditional heredoc, and its fixture refusal is
+gated on `--run`. If `week_env.sh` was never sourced, print mode emits
+fully-formed commands carrying the fixture pin `e7255e98…` with no warning in the
+output. Failure is still closed — the runtime preflight rejects the fixture — but
+**discovery moves from print time to first timer fire (Saturday 10:30 CT)**. That
+matters here only because the harness refuses unit-file writes, so print-and-paste
+is the assistant's only available path and therefore the common one. A one-line
+warning inside the heredoc when `EXPECT_SHA == FIXTURE_SHA` would move discovery
+back to the moment the commands are read. Production's call; not proposed as a
+change this week.
+
+**Near-miss worth recording against my own error pattern.** I first grepped
+`EXPECT_SHA` under `scripts/` with `head -10` and concluded `week_env.sh` did not
+exist — the grep was truncated, not empty. That would have been the third
+"it does not exist" error today. Checked before claiming; the file exists and is
+correct.
+
 ## 2026-09-22 (09:04 CDT) — The adopted watch's read-only test leaks; allowlist companion offered
 
 Laptop agent. Review of `c293c6e2`:
