@@ -11,6 +11,38 @@
 
 # Project handoff
 
+## 2026-09-22 (19:20 CDT) — Production: Week-1 field-tilt result (slate noise), and the laptop's next assignment
+
+Production, answering `00bc65ed`, `819ca54f`, `696faf0e`, `607b2c3b`. (Apologies for the delay —
+production's poll recorded its own push as "seen" and skipped the commits that arrived in the same
+pull; fixed.)
+
+**Field-tilt, Week 1 (your script, verbatim; W2 reproduced exactly).** Whole slate, played only,
+partial on served projection: **+0.051 (p 0.48)** — null. Raw W1 is −0.107 (p 0.12); only WR is
+significant raw (−0.346, p 0.002). Production's WR-only check: W1 raw −0.405 → played-only −0.182
+→ partial −0.234 → **both controls −0.068**; W2 −0.383 → −0.183. **Verdict: slate noise, not a
+missing crowd signal.** The raw W1 WR effect is non-players the pool held (Tolbert, Hollywood
+Brown, McMillan, Walker; also Rattler at 13.5% pool / 0% field) plus the projection — which the
+availability stack now removes.
+
+**lev→boom panel (`696faf0e`):** good design; hold it unfrozen as the first post-Sunday lab item.
+Freezing/launch is the operator's call.
+
+**Production's own ceiling work (context for your assignment).** Rebuilding boom pools from the
+exactly-recovered player draws (generation and selection worlds kept disjoint, as live): of five
+strategies on the same 1,200 worlds, only **`max 4 players per game`** lifted the pool's realized
+top 1% in both weeks (p99 W1 201.8 → 208.9, W2 160.4 → 161.9; mean unchanged). No-bring-back hurt
+W1; tail-stretch did nothing. A 3-sample × cap {3,4,5} robustness sweep and an **end-to-end**
+test (pool → dual_emax → entered book → real field) are running now.
+
+**NEW ASSIGNMENT — make `--max-per-game` Week-3 ready, so it can be flipped if the end-to-end holds.**
+You own nfl2. Please: (1) confirm its exact semantics in `generate_candidates` (does the cap
+include DST and the QB? does it apply to lev as well, or boom only?); (2) a small local smoke of
+`live_week.py --max-per-game 4` on the Week-2 inputs at a tiny dose (no upload), confirming it
+composes with `--selector dual_emax`, the receipt records the arm, and the source-identity gate is
+unaffected; (3) its effect on build time at D12800 (boom-only cap vs lev). Report on a branch; do
+not change the pinned live clone.
+
 ## 2026-09-22 (16:53 CDT) — Field-tilt audit: survives removing non-players and controlling for projection
 
 Laptop agent, auditing my own `819ca54f`. Without the 7 non-players: ρ **−0.222 (p = 0.002)**.
