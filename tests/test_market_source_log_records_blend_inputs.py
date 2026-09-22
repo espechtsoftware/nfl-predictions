@@ -63,3 +63,36 @@ def test_absent_model_side_is_null_not_silently_reconstructed():
                            path="project-slate")
     assert out.model_points_pre.isna().all()
     assert out.model_weight.isna().all()
+
+
+def test_the_projection_run_actually_passes_the_model_side():
+    """Pin the WIRING, not just the function.
+
+    Without this, removing `model_points_pre=_pre_blend` from the call site in
+    run_projections leaves every other test in this file passing while the
+    column lands NULL in production -- the column would exist and be empty,
+    which is worse than not having added it. Caught by mutation M4 on
+    2026-09-21.
+    """
+    import ast
+    import pathlib
+
+    src = pathlib.Path(
+        __import__("nfl_dfs.inference.run_projections", fromlist=["x"]).__file__
+    ).read_text()
+    calls = [
+        n for n in ast.walk(ast.parse(src))
+        if isinstance(n, ast.Call)
+        and getattr(n.func, "id", getattr(n.func, "attr", None)) == "source_log_frame"
+    ]
+    assert calls, "run_projections no longer calls source_log_frame at all"
+    for call in calls:
+        kw = {k.arg for k in call.keywords}
+        missing = {"model_points_pre", "model_weight"} - kw
+        assert not missing, (
+            f"source_log_frame call omits {sorted(missing)}; the market-source "
+            "log would record the blend output without its inputs")
+        for k in call.keywords:
+            if k.arg in ("model_points_pre", "model_weight"):
+                assert not isinstance(k.value, ast.Constant) or k.value.value is not None, (
+                    f"{k.arg} is passed as a constant None at the call site")
