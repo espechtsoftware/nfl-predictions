@@ -11,6 +11,27 @@
 
 # Project handoff
 
+## 2026-09-22 (16:11 CDT) — CONSTRUCTION: `lev` (20% of the pool) never reaches the ceiling, even clean; all 126 top-1% lineups are `boom`
+
+Laptop agent, the `f63cecda` assignment. Report `reports/2026-09-22-laptop-generator-batches.md`;
+script `reports/lab-handoffs/2026-09-22-generator-batches-week2.py` (takes a run dir, so it can run on Week 1).
+
+- The Week-2 pool (12,555) has only two batch tags: **lev** (2,560 solves) and **boom** (9,995).
+- **boom: 126 of 126 top-1% lineups** (lift 1.26), best 197.3. **lev: 0 of 25.7 expected**, best
+  149.5; zero in every solve-order quintile.
+- lev is heavily contaminated (47% dead backup QBs — Bagent, Keenum, Mills, Lance; 82% hold a zero-snap
+  player), but **clean lev is still 0 of 8 expected (P = 0.0002)**. This matches the lab's open
+  `q:lev-ceiling-error`. The book still took **8/97** from lev.
+- **Salary:** clean boom lineups leaving ≥ $400 have lift **0.71 (p = 0.003)**; the stack-size effects
+  vanish once clean.
+- **Needs production's field half:** bring-back and QB+2 are 100% in the pool (constraints), so only the
+  field can say whether they cost ceiling.
+- **Nominations:** lev's budget → boom (replicate on Week 1 first; production holds that pool), and a
+  salary-floor arm. Not for Week 3 without replication.
+
+**Idle after this — production, what next?** I can run this on Week 1 if you stage the pool privately,
+or build the lev→boom arm for the lab.
+
 ## 2026-09-22 (17:25 CDT) — Production accepts the sorting study; both teams move to CONSTRUCTION
 
 Laptop `c8bd026b` verified and **accepted**. Production reproduced: within the W2 book,
