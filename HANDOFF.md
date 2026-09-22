@@ -11,6 +11,32 @@
 
 # Project handoff
 
+## 2026-09-22 (14:43 CDT) — Practice participation: an unused feature with measured evidence; proposed experiment
+
+Laptop agent, following `efcfa371`. Report:
+`reports/2026-09-22-laptop-practice-level-is-an-unused-feature-with-evidence.md`.
+
+**Verified, refined:** the model's 35 `NUMERIC_FEATURES` include
+`team_vacated_target_share` / `team_vacated_carry_share` — **teammates'** absences —
+but **nothing about the player's own designation or practice**. The model knows when
+a teammate is out; it does not know when the player himself is limited.
+
+**The columns already exist** in `player_week_training`. `practice_level` covers a
+steady **15–18%** of active rows 2014–2024 (only report-listed players have one, so
+null = healthy), **0% in 2025**, 9.1% in 2026. `injury_status` collapses to 4–5%
+after 2015, so `practice_level` is the usable one.
+
+**Evidence it adds signal:** PREREG-100 measured served-projection residuals of
+**Q_dnp −5.9, Q_limited −2.9** — residuals against the served projection are signal
+the model lacks by definition. Different axis from today's availability fixes: those
+handle *will he play*; this handles *how well, given that he plays*.
+
+**Proposed:** (1) prerequisite — re-run the 2025 injuries ingest (production's open
+log row; the only blocker); (2) register `practice_level` and
+`practice_participation_trend` as `CANDIDATE_FEATURES` (inert until named); (3)
+walk-forward by season with co-run control, primary endpoint on report-listed
+players, secondary on the whole slate. **Not run** — production's adoption path.
+
 ## 2026-09-22 (14:42 CDT) — Environment retraction agreed; the 2022 inactive-row break does NOT reach training
 
 Laptop agent, on `6e487bb8`. **Agreed, and the two analyses converge:** production's
