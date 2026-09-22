@@ -5,6 +5,74 @@
 
 # Project handoff
 
+## 2026-09-22 — the lab agent is gone; its decisions taken over
+
+Branch `production/week3-integration-20260921`, tip `cefcb2ee`.
+Money lane: **268 passed, 1 skipped**. Week 3 locks **Sunday 2026-09-27**.
+
+The operator lost access to the lab model. Everything that was "open with the
+lab" now has one owner. Rulings on all six of its decisions and the three
+exposure-cap questions:
+`reports/2026-09-22-decisions-taken-after-the-lab-closed.md`.
+
+**Structural consequence, and the item that needs the operator.** nfl2 is still
+in the money path — `sunday_build_host.sh` runs `$CLONE/scripts/live_week.py`
+with `$LAB_PY`. Two standing rules were built around a second party who no
+longer exists: "nothing in nfl2 is modified by us" and "the clone stays CLEAN at
+`2dc116c`". With no counterparty the first now means *nobody* fixes nfl2.
+
+**The blocked change is the best one available for Week 3.**
+`nfl2/src/nfl2/live.py:211` sets `DK_INACTIVE_STATUSES = {"O","OUT","IR"}`, and
+the receipt reads `retained_designations: {"Q": 10, "D": 3}` — **Doubtful is
+retained deliberately and treated exactly like a healthy player.** Week 2
+entered a Doubtful player (Flowers) in **48 of 97 rows including the Millionaire
+seat**; he scored 0.0, as did both other Doubtful players, and none played.
+Adding `"D"` is the whole diff. It is an availability rule, not an exposure cap:
+objective, draws and construction never move, so book and shadows stay mutually
+consistent. Patch + evidence + failing test:
+`reports/lab-handoffs/2026-09-22-doubtful-eligibility-patch.md`. **The clone is
+untouched.** Needs (a) authorization and (b) a decision on how it reaches the
+money path — new clone at a new nfl2 commit, or a disclosed patch to the
+existing one.
+
+**Done this session:**
+- **TabPFN sufficiency** (`2748e666`): the floor is derived from the slate's
+  skill-player count, not a constant. Verified against the live warehouse — the
+  old gate passed this week's cache, the new one fails it (*51 rows for week 3
+  against a 633-skill-player slate, floor 506*). Three mutations caught.
+- **Two defects found while measuring.** `dk_salaries.week` is **NULL on every
+  row** (a slate can only be found by `draft_group_id`; `--draft-group` added and
+  `run_week_build.sh` passes the `GROUP` `week_env.sh` already resolves) — in the
+  README deficiency log. And **2026 week 2's TabPFN rows are gone**, truncated by
+  the bad run, so there is no in-season history left, only 2025.
+- **`min_book_entries` 90 → 1.** A volume test wearing a data-quality test's
+  clothes; it sat exactly on the operator's stated normal volume, so an 89-entry
+  week would have failed closed on Sunday morning with nothing wrong. Every real
+  malformation still fails.
+- **`sis-pass-tail-2026` ruled DORMANT, not silenced.** Its own registry note
+  recorded that no frozen gate document exists, so it could only ever warn.
+  Writing the gate now — with two weeks of 2026 outcomes visible — would be
+  retrospective design. Reasoning lives in the registry; a test pins it.
+  **The audit is now clean, so the hourly check's expected "four sis-pass-tail
+  WARNs" is STALE — their reappearance is now the departure.**
+
+**Decided, and worth knowing:** the **capped book is not uploaded Sunday**. The
+pre-lock shadows grade the selector's book; a multi-week instrument outweighs a
+one-slate edge. That is an argument against the *caps*, not against the Doubtful
+patch. The cap sheet still emits every Sunday as step 6.
+
+**Queued, deliberately after Week 3:** re-freeze the contracts against Python
+`3.14.4-1ubuntu0.2` (no live panel needs bit-comparability now; PREREG-099 closed,
+101 not launched, bank 991 unread) — but not in the five days before a money
+build. Also queued: point `ci.yml` at `test_lanes.sh`, and resolve evidence-graph
+pins at the recorded commit (nothing re-pinned to head).
+
+**Still open:** laptop item 1 needs a re-run at the serving commit; item 2's
+per-bug consolidation is unwritten. The exploration sleeve's three fail-open
+paths are parked — research-only, not the money path, same nfl2 ownership
+question without the urgency.
+
+
 ## 2026-09-21 (late) — exposure caps implemented and in the Sunday chain
 
 Branch `production/week3-integration-20260921`, tip `973042c8`.
