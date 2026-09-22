@@ -57,12 +57,31 @@ _PROJ_ZERO_COLS = ["proj_points", "proj_p10", "proj_p50", "proj_p90",
 
 def find_out_players(feats: pd.DataFrame) -> list[str]:
     """GSIS ids of slate players who won't play: DK status O/IR or an
-    injury-report Out designation."""
+    injury-report Out designation -- and, when CASCADE_DOUBTFUL=1, Doubtful
+    NON-QB skill players too.
+
+    Doubtful as absent (2026-09-22). Both next-man-up layers counted only "Out":
+    the vacated-share features and this cascade. Walk-forward 2022-24, model fit
+    on active rows as production fits it: a backup promoted past an OUT starter
+    has model residual -0.02 (already handled), past a DOUBTFUL starter +1.04
+    (n=270; per season -0.07, +1.49, +1.53). Doubtful starters sit ~97% of the
+    time (176 panel player-weeks, 2.8% played), yet nothing redistributed their
+    opportunity -- e.g. Week-2 Zay Flowers (D, 0 pts) while Rashod Bateman ran
+    8.2 -> 21.8. QBs are excluded: QB availability goes through find_backup_qbs.
+    DEFAULT OFF: CASCADE_DOUBTFUL unset or "0" leaves behaviour unchanged.
+    """
     status = feats.get("status", pd.Series(index=feats.index, dtype=object))
-    dk_out = status.fillna("").astype(str).str.upper().isin(OUT_STATUSES)
+    st = status.fillna("").astype(str).str.upper().str.strip()
+    dk_out = st.isin(OUT_STATUSES)
     report = feats.get("injury_status", pd.Series(index=feats.index, dtype=object))
-    report_out = report.fillna("").astype(str).str.upper().eq("OUT")
-    ids = feats.loc[(dk_out | report_out) & feats.gsis_id.notna(), "gsis_id"]
+    rep = report.fillna("").astype(str).str.upper().str.strip()
+    report_out = rep.eq("OUT")
+    absent = dk_out | report_out
+    if os.environ.get("CASCADE_DOUBTFUL", "0") == "1":
+        pos = _col(feats, "position", "dk_position").fillna("").astype(str).str.upper()
+        doubtful = st.isin(DOUBTFUL_STATUSES) | rep.eq("DOUBTFUL")
+        absent = absent | (doubtful & pos.ne("QB"))
+    ids = feats.loc[absent & feats.gsis_id.notna(), "gsis_id"]
     return sorted(set(ids))
 
 

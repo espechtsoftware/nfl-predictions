@@ -414,3 +414,29 @@ def test_questionable_haircut_fails_closed_on_a_bad_value(monkeypatch):
         monkeypatch.setenv("Q_HAIRCUT", bad)
         with pytest.raises(ValueError):
             C.questionable_haircut(feats)
+
+
+def _dbt_slate():
+    return pd.DataFrame([
+        {"gsis_id": "WR_D", "position": "WR", "status": "D", "injury_status": "Doubtful"},
+        {"gsis_id": "TE_D", "position": "TE", "status": None, "injury_status": "Doubtful"},
+        {"gsis_id": "QB_D", "position": "QB", "status": "D", "injury_status": "Doubtful"},
+        {"gsis_id": "RB_O", "position": "RB", "status": "O", "injury_status": "Out"},
+        {"gsis_id": "WR_Q", "position": "WR", "status": "Q", "injury_status": "Questionable"},
+        {"gsis_id": "WR_H", "position": "WR", "status": None, "injury_status": None},
+    ])
+
+
+def test_cascade_doubtful_defaults_off(monkeypatch):
+    monkeypatch.delenv("CASCADE_DOUBTFUL", raising=False)
+    from nfl_dfs.inference.cascade_adjust import find_out_players
+    assert find_out_players(_dbt_slate()) == ["RB_O"], "default: only Out triggers the cascade"
+
+
+def test_cascade_doubtful_on_adds_non_qb_doubtful_only(monkeypatch):
+    monkeypatch.setenv("CASCADE_DOUBTFUL", "1")
+    from nfl_dfs.inference.cascade_adjust import find_out_players
+    got = find_out_players(_dbt_slate())
+    assert got == ["RB_O", "TE_D", "WR_D"], got
+    assert "QB_D" not in got, "Doubtful QBs stay with the QB gate"
+    assert "WR_Q" not in got and "WR_H" not in got
