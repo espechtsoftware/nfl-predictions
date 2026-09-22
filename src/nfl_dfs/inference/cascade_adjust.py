@@ -218,24 +218,40 @@ def find_backup_qbs(feats: pd.DataFrame) -> list[str]:
                     ["gsis_id"]].assign(team=team, depth=depth, out=is_out,
                                         doubtful=is_doubtful, questionable=is_questionable)
     # Shared rule (tools/qb_classify.py, lab review 2026-09-19): a team needs a
-    # depth-1 row on file; the primary is that QB unless he is out, in which
-    # case the shallowest non-out QB is promoted. A Doubtful or Questionable
-    # primary makes the team ambiguous -- nothing is gated. Blank teams are
-    # never grouped. Deterministic zeroing is a declared practical
-    # approximation of the unconditional expectation, not a proved correction.
+    # depth-1 row on file; the primary is that QB unless he is unavailable, in
+    # which case the shallowest available QB is promoted. Blank teams are never
+    # grouped. Deterministic zeroing is a declared practical approximation of the
+    # unconditional expectation, not a proved correction.
+    #
+    # Doubtful counts as UNAVAILABLE, not as ambiguous (refinement 2026-09-22,
+    # laptop review). The original rule treated Doubtful and Questionable as one
+    # ambiguous class and so skipped the whole team. Measured: 13 of 13 Doubtful
+    # player-weeks took zero offensive snaps and scored zero, while Questionable
+    # played 77.4% of the time. The rule is right for Q and was wrong for D. Its
+    # cost was concrete -- a Doubtful QB promoted to primary kept a 17.47
+    # projection, scored zero, and left his backups ungated. A Doubtful QB is
+    # therefore zeroed himself and never blocks the promotion.
+    # QB_DOUBTFUL_ABSENT=0 restores the previous ambiguous-on-Doubtful behaviour.
+    doubtful_absent = os.environ.get("QB_DOUBTFUL_ABSENT", "1") != "0"
     ids: list[str] = []
     for _, g in qbs.groupby("team"):
         g = g.sort_values(["depth", "gsis_id"])
         if not (g.depth == 1).any():
             continue
-        primary = g[~g.out]
+        unavailable = g.out | (g.doubtful if doubtful_absent else False)
+        primary = g[~unavailable]
         if primary.empty:
             continue
-        # Ties at the shallowest non-out depth (two depth-1 rows) resolve order-independently: any tied row
-        # Doubtful/Questionable -> ambiguous team, nothing gated (lab v4 boundary).
+        # Ties at the shallowest available depth (two depth-1 rows) resolve
+        # order-independently: any tied row Questionable -> ambiguous team,
+        # nothing gated (lab v4 boundary). Doubtful ties are already excluded
+        # above when doubtful_absent.
         top = primary[primary.depth == primary.iloc[0]["depth"]]
-        if top.doubtful.any() or top.questionable.any():
+        if top.questionable.any() or (not doubtful_absent and top.doubtful.any()):
             continue
         cut = top.iloc[0]["depth"]
         ids.extend(g.loc[(g.depth > cut) & ~g.out, "gsis_id"].astype(str))
+        if doubtful_absent:
+            # the Doubtful QB himself, at any depth, including above the cut
+            ids.extend(g.loc[g.doubtful & ~g.out, "gsis_id"].astype(str))
     return sorted(set(ids))
