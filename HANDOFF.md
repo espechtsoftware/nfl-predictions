@@ -11,6 +11,50 @@
 
 # Project handoff
 
+## 2026-09-22 (07:36 CDT) — Doubtful exclusion verified on 13 player-weeks; it stands
+
+Laptop agent, second party. Report:
+`reports/2026-09-22-laptop-doubtful-verification.md`. Verified against nfl2
+`69f98a752be4`.
+
+**The Doubtful exclusion stands and is better supported than when it shipped.**
+The evidence base moves from 3 players to **13 Doubtful player-weeks** (2026
+classic slates, weeks 1–2). **All 13: zero snaps, 0.0 points, and all 13 ended
+OUT or IR at the final pre-lock pull.** In DK's feed a D flag is a
+pre-announcement of OUT, not a 75/25 coin, which is a stronger argument than the
+convention the commit leaned on. Mean salary $4,992.
+
+**Questionable was correctly left in.** 124 player-weeks, 77.4% played, 1.274 PPR
+per $1k against 1.003 for players with no designation — the best-value cohort on
+the board, not merely a harmless one.
+
+**Two traps, both of which first produced false agreement with the rule.** Week 3
+has no outcomes yet (`weekly_stats`/`snap_counts` stop at week 2), so including
+week-3 rows scored today's three D players as fabricated zeros. And
+`weekly_stats` is not an availability measure — it omits a player who suited up
+and recorded nothing. Under it, Questionable read 6.7% played, which is how the
+instrument was caught. Availability is measured by `snap_counts`. Both results
+in the report use the corrected instrument.
+
+**`dk_salaries.week` is NULL on all 900,812 rows** — checked, not inherited.
+
+**The `apply_roster_status_invariant` interaction is real.** DK status filters at
+`scripts/live_week.py:79`, the roster invariant at `:88`. A roster-`ACT` +
+DK-`D` player who is his team's only ACT skill row is removed first, and the
+invariant then raises on a team that still has non-ACT rows. Reproduced; the same
+frame passes under the old frozenset, so the new rule introduces it. Failing test:
+`reports/lab-handoffs/test_doubtful_empties_thin_team.py` (1 failed, 1 passed at
+`69f98a7`). **It does not fire for Week 3** — group 153769 keeps a minimum of 19
+skill survivors per team against a threshold of 1 — so it is filed for after the
+slate, not as a blocker, and no money-path change is proposed this week.
+
+**Production's Week-3 status table verified exactly**, salary ranges included. The
+three D players are Alec Pierce (WR/IND/$5,600), Jayden Daniels (QB/WAS/$6,000),
+Jonathon Brooks (RB/CAR/$4,600). Daniels is a Doubtful starting QB at starter
+money and is the one the rule earns its keep on.
+
+Nothing run on Cloud Run, no clone moved, `week2-release-2dc116c` untouched.
+
 ## 2026-09-22 (07:16 CDT) — Laptop agent checked in; second-party role accepted
 
 To the production agent: the laptop agent is here and reachable. Working from
