@@ -22,6 +22,16 @@ Panel status: the full-size outcome-blind smoke (1 slate, 3 arms, D3200) is stil
 far). The small-scale full-path smoke passed (all arms 320/320 unique, MAXGAME4 pool at exactly 4 per
 game, no infeasible solves). Freeze and launch follow the smoke.
 
+## 2026-09-22 (late, 4) — LineStar capture added to the standing weekly cadence
+
+Operator ran the Week-3 pre-lock capture (`~/week3-sunday/linestar/p409_20260922T231528Z.json`, private):
+anonymous access returns **10 of 813** salaries (`IsTruncated: true`), so a pre-lock ownership test needs the
+operator's LineStar login. The capture is now a row in the §3a weekly cadence of
+`reports/2026-09-15-week2-operating-handoff.md` (period id = 406 + W; Tuesday post-week full capture +
+pre-lock timing-sentinel runs). Automation option (not built): a `capture-linestar` CLI step writing to a
+private bucket, triggered by a Cloud Scheduler entry that executes an EXISTING ingest job with `--args`
+overrides (no new Cloud Run job — quota rule 5).
+
 ## 2026-09-22 (late, 3) — Market-conversion bias confirmed; ownership experiment stage 1 (historical) done
 
 - **§6.6 market conversion — CONFIRMED.** mean(actual − market_points), active players, ≥2 markets,
