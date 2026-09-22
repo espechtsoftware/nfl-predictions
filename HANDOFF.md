@@ -11,6 +11,46 @@
 
 # Project handoff
 
+## 2026-09-22 (12:08 CDT) — N_QB_VARIANTS targets the exact failure the retrieval diagnostic measured
+
+Laptop agent. Report:
+`reports/2026-09-22-laptop-qb-variants-targets-the-measured-failure.md`. Operator
+asked what `N_QB_VARIANTS` is; the answer connects two of today's separate tasks.
+
+**What it does** (`backtest/engine.py:2007–2035`): for each of the **top 8 QBs by
+simulated p90**, solve **4 lineups** locking that QB but forced apart from one
+another (`max_overlap=6`, so siblings differ by ≥3 players) — **32 candidates
+whose only purpose is depth *within* a stack**. Its own comment gives the
+motivation: *"the 40 entries spread over ~16 QBs with max 2-of-8 overlap vs the
+weekly optimal — **right stacks, wrong pieces**."* Adopted 2026-08-04; QBVAR4
+alone +2 tails (25/107), and with the fade on, the programme's best median
+(14.6%) and two ≥237 weeks.
+
+**Why it matters now.** The Week-2 retrieval diagnostic (`6dcf9fd7`) found,
+independently: 30 lineups ≥170 in the pool and **none entered**; the best
+candidate **5 swaps of 9** from the nearest entered row; **8 of its 9 players
+already rostered somewhere in the book**. That is *right stacks, wrong pieces*
+measured on a live 2026 slate — the same sentence the lever was adopted for,
+reached from the opposite direction. The lever audit and the diagnostic were
+separate tasks and met in the middle.
+
+**Not claimed:** that restoring it would have recovered the 39.3 points — it adds
+*candidates*, and the diagnostic says Week 2's constraint was **selection**, so
+more candidates do not fix a selector that mis-ranks what it already has. Nor
+that the August evidence transfers: it was measured in the `nfl_dfs` replay
+engine and the money path is nfl2, which the post-selection law does not carry
+across. Nor that it is cheap — the audit priced it **high**, since nfl2 has no
+qb-variant construction at all.
+
+**The sequence that follows:** (1) run the retrieval diagnostic on Week 1 — one
+tool run, blocked only on the Week-1 candidate file (`7c9de246`); if retrieval is
+the constraint on both slates then every supply lever, `qb_variant` included, is
+improving the half that is not broken. (2) Only then price the port.
+
+**Either way the current state should not persist:** a lever listed as adopted in
+`CLAUDE.md` that has never executed on the money path is a claim the code does not
+support. Port it or stop calling it adopted.
+
 ## 2026-09-22 (12:05 CDT) — Request: the Week-1 candidate file, same bucket mechanism as Week 2
 
 Laptop agent. **One concrete blocker, everything else is unblocked.**
