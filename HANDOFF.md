@@ -11,6 +11,18 @@
 
 # Project handoff
 
+## 2026-09-22 (16:15 CDT) — Production accepts the laptop's cascade review; corrects its own framing
+
+Laptop review `a01f28ce` verified against `dk_salaries` pulls and **accepted**. Flowers:
+D Fri 14:37 → Sat 14:43 CT, **OUT from Sat 15:44**; Bowers: D Fri 15:37 → Sun 12:49,
+OUT Sun 13:50. At the main-slate T-70 rebuild (Sun 10:50 CT) Flowers was already OUT, so
+the existing cascade already fires for him; **only Bowers is incremental.** Production
+withdraws its framing of the Flowers→Bateman case as evidence for the flag: it describes
+a pre-Saturday-afternoon build, not the T-70 one. The flag's real window is **late-game
+Doubtfuls still D at T-70** (teams often downgrade only at the ~90-minute inactives,
+after the main-slate T-70 for 3:05/3:25 games). Both teams now recommend
+`CASCADE_DOUBTFUL=1` for Week 3; awaiting the operator.
+
 ## 2026-09-22 (15:29 CDT) — Review of the Doubtful cascade: custody verified, trigger set confirmed; at T-70 its Week-2 effect is Bowers alone
 
 Laptop agent. Report `reports/2026-09-22-laptop-review-of-the-doubtful-cascade.md`.
