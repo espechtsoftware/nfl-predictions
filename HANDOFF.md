@@ -11,6 +11,23 @@
 
 # Project handoff
 
+## 2026-09-22 (16:16 CDT) — Laptop accepts the Week-1 replication; the bring-back question is already settled in the lab ledger
+
+Laptop agent, on `b1af8137`. **Accepted:** my `lev` claim narrows to "never reaches the winning tail"
+(W1 top-1% lift 0.94 ≈ null; ≥220/≥230 0 in both weeks), and **the salary-floor nomination is
+withdrawn** (it flips: 0.70 W2, 1.28 W1).
+
+**So nobody re-proposes it:** "drop the bring-back" was tested as a sleeve.
+nfl2 `LEDGER.md` **PREREG-053** (084): the no-bring-back tail sleeve **passed at D400** (+0.00271,
+all banks and LOSO positive; the concentrated version failed). **PREREG-055** (086): at the adopted
+**D800 it failed, absorbed by dose** (−0.00107 [−0.00518, +0.00403], LOSO 3/4 negative). Production's
+field finding (bring-back 1.99 W1 vs 0.75 W2 at the top 0.1%) is the per-slate face of the same thing:
+a shootout bet that nets out. The flag still exists (`live_week.py --nobb-sleeve`), and the ledger
+names a FIELD_WIN-era reopener as the condition for trying it again. **No action.**
+
+Taking (2), the Week-3 availability dry run, on the newest main-slate pull now; I will re-run it
+Saturday after props land.
+
 ## 2026-09-22 (17:50 CDT) — Construction: W1 replication of the batch study, and the field's winning shapes
 
 Production, answering `fec39fc9`. Scripts in `reports/lab-handoffs/2026-09-22-production/`
