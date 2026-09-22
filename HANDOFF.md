@@ -11,6 +11,56 @@
 
 # Project handoff
 
+## 2026-09-22 (11:36 CDT) — Cross-repo lever audit delivered: 20 dead, 6 shadowed, guard in the money lane
+
+Laptop agent, assignment `3c05dcad` complete. Report:
+`reports/2026-09-22-laptop-cross-repo-lever-audit.md`. Verdicts:
+`tests/adopted_lever_consumers.json`. Guard:
+`tests/test_adopted_levers_are_consumed_across_repos.py`, **wired into
+`MONEY_TESTS`**. Nothing fixed, per instruction.
+
+**Structural answer: nfl2's money path configures itself from three sources, none
+of which is the adopted policy** — a hardcoded `PRODUCTION_ENV` of **five keys**
+against the policy's **75**, scattered `os.environ` reads, and **CLI arguments**
+(dose is `a.lev`/`a.boom`, not `N_LEV`/`N_BOOM`). No import, no shared constant,
+no assertion links the repos.
+
+**Verdicts:** off 21 · **dead 20** · consumed 16 · **shadowed 6** ·
+production_side 6 · needs_production_confirmation 6.
+
+**Dead and non-zero** — `N_QB_VARIANTS=4`, `N_GAMESTACK=4`, `N_DARKGAME=10`,
+`N_EPISTEMIC=12`, `REPLACEMENT_SLOTS=12`, plus `OWN_MODEL`. Proven by call-path
+trace: `generate_candidates` builds exactly **lev + boom**, and the money path's
+call at `live_week.py:218` passes `extra_profiles=None` outside the research
+sleeve. **`N_QB_VARIANTS` is named in CLAUDE.md's adopted stack and has never run.**
+
+**`shadowed` is the category to watch:** `MAX_OVERLAP`, `MIN_GAMES`,
+`SERVED_POSITION_SCALES`, `GAME_SIM_MODE`, `TABPFN_MARGINALS`, `SIM_WIDEN_DRAWS`
+are each declared in the policy *and* hardcoded independently in nfl2 — **all
+equal today**, compared literal-for-literal. Unguarded coincidences, not bugs.
+**`MAX_OVERLAP` nearly became a false finding**: policy 7 against `optimize()`'s
+default 8 looked like live divergence, but `optimize_many` (the LEV family)
+defaults 7 and the boom loop passes no bans, so the 8 is inert. Checked before
+reporting.
+
+**Restoration cost: only `OWN_MODEL` is cheap, and the two-slate A/B says do not
+ship it.** The other five are unported generation families — new construction,
+not wiring.
+
+**My own guard had a real flaw, found by mutation.** v1 filtered to non-zero
+levers, so **M1 (deleting `OWN_MODEL`'s entry) PASSED** — because `OWN_MODEL` is
+declared `""` and `""` *selects* the naive fade rather than disabling it. The
+guard would have skipped the exact defect it exists for. Now every lever needs a
+status and `off` is a claim, not an inference. All four mutations now caught.
+Test 3 also needed tightening: a bare substring match called `N_LEV`/`N_BOOM`
+(local constants in a research script) and `N_DARKGAME` (inside a **comment**)
+"consumed"; it now strips comments and matches real env reads.
+
+**Six questions for production:** `DST_CORR_DRAWS`, `EMP_POS`, `GEN_POOL_CAP_MAP`,
+`PUNT_BOOM_WR`, `ROOKIE_WIDEN`, `TABPFN_MARGINAL_TABLE` are declared `""` and
+unread by nfl2; whether `""` is inert or selects a default is production-side
+semantics, and `OWN_MODEL` proves `""` can mean "apply the fade".
+
 ## 2026-09-22 (11:30 CDT) — Chalk fade across both slates: signs crossed, does not replicate
 
 Laptop agent. Report:

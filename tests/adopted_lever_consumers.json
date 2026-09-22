@@ -1,0 +1,309 @@
+{
+  "_doc": "Cross-repo consumption status for every adopted lever with a non-zero declared value. Reviewed by hand 2026-09-22 by CALL-PATH TRACE, not grep. consumed = the nfl2 money path reads this key; production_side = consumed in nfl-predictions before nfl2 runs; shadowed = nfl2 implements the same concept with its OWN literal/default, so the declared value is ignored even though the behaviour happens (currently equal, unguarded); dead = declared here and not consumed by the money path. A new non-zero lever with no entry fails the test. off = declared 0 and therefore inert. EVERY lever needs an entry: value-based filtering is unsafe, because OWN_MODEL is declared '' and '' SELECTS the naive fade rather than disabling it -- the very defect this guard exists for. Found by mutation M1, 2026-09-22. needs_production_confirmation = declared '' and unread by nfl2; only production knows whether '' is inert or selects a default.",
+  "_traced_at": {
+    "nfl2": "69f98a752be41e05107daace59a570ef58efa94f",
+    "entrypoint": "scripts/live_week.py"
+  },
+  "levers": {
+    "GAME_SIM_MODE": {
+      "status": "shadowed",
+      "proof": "nfl2 PRODUCTION_ENV hardcodes this value independently of the policy; equal today, unguarded."
+    },
+    "GAME_SIM_TEAM_FACTORS": {
+      "status": "consumed",
+      "proof": "nfl2 env read"
+    },
+    "TABPFN_MARGINALS": {
+      "status": "shadowed",
+      "proof": "nfl2 PRODUCTION_ENV hardcodes this value independently of the policy; equal today, unguarded."
+    },
+    "SIM_WIDEN_DRAWS": {
+      "status": "shadowed",
+      "proof": "nfl2 PRODUCTION_ENV hardcodes this value independently of the policy; equal today, unguarded."
+    },
+    "SERVED_POSITION_SCALES": {
+      "status": "shadowed",
+      "proof": "nfl2 PRODUCTION_ENV hardcodes 'QB:0.970,RB:1.005,TE:0.940,WR:1.070'; the policy dataclass declares the identical string. Compared literal-for-literal 2026-09-22: EQUAL. Independent literals, unguarded."
+    },
+    "MODEL_ENSEMBLE": {
+      "status": "consumed",
+      "proof": "nfl2 env read in pipeline.simulate_slate"
+    },
+    "SELECT_LADDER": {
+      "status": "consumed",
+      "proof": "nfl2 env read"
+    },
+    "SELECT_LSE": {
+      "status": "consumed",
+      "proof": "nfl2 env read"
+    },
+    "EMP_MARGINALS": {
+      "status": "production_side",
+      "proof": "marginals are built in project-slate before nfl2 runs"
+    },
+    "SHAPE_MIX": {
+      "status": "production_side",
+      "proof": "draw shaping applied production-side"
+    },
+    "MODEL_REGISTRY_VARIANT": {
+      "status": "production_side",
+      "proof": "model loading is nfl_dfs; nfl2 consumes served means"
+    },
+    "BLEND_MODEL_WEIGHT": {
+      "status": "production_side",
+      "proof": "blend happens in run_projections"
+    },
+    "LIVE_SIMS": {
+      "status": "production_side",
+      "proof": "nfl2 takes sims from its own --sims CLI arg"
+    },
+    "SERVED_TAIL_SCALE": {
+      "status": "production_side",
+      "proof": "applied to served draws production-side"
+    },
+    "CE_GAMES": {
+      "status": "dead",
+      "proof": "N_CE is 0, so the CE family never runs; CE_GAMES is inert"
+    },
+    "CE_SEED": {
+      "status": "dead",
+      "proof": "same: CE family absent from generate_candidates"
+    },
+    "EPISTEMIC_FAMILY": {
+      "status": "dead",
+      "proof": "no epistemic family in nfl2 generate_candidates"
+    },
+    "N_EPISTEMIC": {
+      "status": "dead",
+      "proof": "declared 12; generate_candidates builds only lev+boom"
+    },
+    "REPLACEMENT_SLOTS": {
+      "status": "dead",
+      "proof": "declared 12; no replacement-slot construction in nfl2"
+    },
+    "N_QB_VARIANTS": {
+      "status": "dead",
+      "proof": "declared 4; zero qb-variant references in nfl2 src/scripts; generate_candidates builds only lev+boom"
+    },
+    "N_GAMESTACK": {
+      "status": "dead",
+      "proof": "declared 4; no gamestack family in nfl2"
+    },
+    "N_DARKGAME": {
+      "status": "dead",
+      "proof": "declared 10; no darkgame family in nfl2"
+    },
+    "CAND_MULT": {
+      "status": "dead",
+      "proof": "nfl2 dose comes from live_week.py CLI --lev/--boom, not from the policy"
+    },
+    "N_LEV": {
+      "status": "dead",
+      "proof": "live_week.py passes n_lev=a.lev from the CLI; the policy value is not read"
+    },
+    "N_BOOM": {
+      "status": "dead",
+      "proof": "live_week.py passes n_boom=a.boom from the CLI; the policy value is not read"
+    },
+    "GEN_TOTAL_BUDGET": {
+      "status": "dead",
+      "proof": "derived from n_role+n_boom; nfl2 never reads it"
+    },
+    "ROLE_BELIEF_FEATURES": {
+      "status": "dead",
+      "proof": "no role-belief construction in nfl2"
+    },
+    "ROLE_BELIEF_SEED": {
+      "status": "dead",
+      "proof": "same"
+    },
+    "OWN_MODEL": {
+      "status": "dead",
+      "proof": "PROVEN 2026-09-22: live_week.py:191 calls proj_tourney_production(fr, draws) with own_est omitted, taking the degraded branch every run"
+    },
+    "SELECT_OBJ": {
+      "status": "dead",
+      "proof": "nfl2 selects via its own --selector CLI arg (dual_emax), not this key"
+    },
+    "MULTISEED_PORTFOLIO": {
+      "status": "dead",
+      "proof": "no multiseed portfolio path in nfl2"
+    },
+    "MULTISEED_SEED_PAIRS": {
+      "status": "dead",
+      "proof": "same"
+    },
+    "MULTISEED_WORLDS_PER_BLOCK": {
+      "status": "dead",
+      "proof": "same"
+    },
+    "MULTISEED_CANDIDATE_ENTRY_BASIS": {
+      "status": "dead",
+      "proof": "same"
+    },
+    "MIN_LINEUP_SALARY": {
+      "status": "consumed",
+      "proof": "nfl2 core/lineup.py:150 _env.get('MIN_LINEUP_SALARY','49000')"
+    },
+    "VALUE2_MAX": {
+      "status": "consumed",
+      "proof": "nfl2 core/lineup.py:200 _env.get('VALUE2_MAX','5300')"
+    },
+    "OWN_BARBELL_HIGH": {
+      "status": "consumed",
+      "proof": "nfl2 core/lineup.py:215 _env.get('OWN_BARBELL_HIGH','0.20')"
+    },
+    "OWN_BARBELL_LOW": {
+      "status": "consumed",
+      "proof": "nfl2 core/lineup.py env read, same block"
+    },
+    "OWN_BARBELL_NHIGH": {
+      "status": "consumed",
+      "proof": "nfl2 core/lineup.py env read, same block"
+    },
+    "OWN_BARBELL_NLOW": {
+      "status": "consumed",
+      "proof": "nfl2 core/lineup.py env read, same block"
+    },
+    "PUNT_MAX": {
+      "status": "consumed",
+      "proof": "nfl2 core/lineup.py:524 _env.get('PUNT_MAX')"
+    },
+    "MAX_OVERLAP": {
+      "status": "shadowed",
+      "proof": "declared 7. nfl2 never reads the key; optimize_many (core/lineup.py:506, the LEV family) has its own default max_overlap=7 and nothing passes it. Currently EQUAL, so no live divergence -- checked rather than assumed. optimize() at :279 defaults 8 but the boom loop passes no bans, so that constraint is inert. If the policy moves off 7, nfl2 stays at 7 silently."
+    },
+    "MIN_GAMES": {
+      "status": "shadowed",
+      "proof": "declared 2. nfl2 core/lineup.py:39 defines its own module constant MIN_GAMES = 2. Equal today, independent literals, unguarded."
+    },
+    "BOOM_UNIQUE_FILL": {
+      "status": "off",
+      "proof": "declared '0': the family/flag is disabled, so a downstream gap cannot change a lineup"
+    },
+    "DST_CORR_DRAWS": {
+      "status": "needs_production_confirmation",
+      "proof": "declared '' and nfl2 never reads the key. Whether '' means inert or selects a default is production-side semantics the laptop cannot determine from nfl2 alone -- OWN_MODEL proves '' can mean 'apply the naive fade' rather than 'off'. Production to confirm."
+    },
+    "EMP_POS": {
+      "status": "needs_production_confirmation",
+      "proof": "declared '' and nfl2 never reads the key. Whether '' means inert or selects a default is production-side semantics the laptop cannot determine from nfl2 alone -- OWN_MODEL proves '' can mean 'apply the naive fade' rather than 'off'. Production to confirm."
+    },
+    "GAME_SIM_PACE": {
+      "status": "consumed",
+      "proof": "nfl2 env read in core/game_sim (declared '' = default; the key IS read)"
+    },
+    "GAME_SIM_USAGE": {
+      "status": "consumed",
+      "proof": "nfl2 env read in core/game_sim (declared '' = default; the key IS read)"
+    },
+    "GEN_POOL_CAP": {
+      "status": "off",
+      "proof": "declared '0': the family/flag is disabled, so a downstream gap cannot change a lineup"
+    },
+    "GEN_POOL_CAP_MAP": {
+      "status": "needs_production_confirmation",
+      "proof": "declared '' and nfl2 never reads the key. Whether '' means inert or selects a default is production-side semantics the laptop cannot determine from nfl2 alone -- OWN_MODEL proves '' can mean 'apply the naive fade' rather than 'off'. Production to confirm."
+    },
+    "HYPER_BOOM": {
+      "status": "off",
+      "proof": "declared '0': the family/flag is disabled, so a downstream gap cannot change a lineup"
+    },
+    "M4_QBLOCK": {
+      "status": "off",
+      "proof": "declared '0': the family/flag is disabled, so a downstream gap cannot change a lineup"
+    },
+    "MAX_PER_GAME": {
+      "status": "off",
+      "proof": "declared '0': the family/flag is disabled, so a downstream gap cannot change a lineup"
+    },
+    "MAX_QBS": {
+      "status": "off",
+      "proof": "declared '0': the family/flag is disabled, so a downstream gap cannot change a lineup"
+    },
+    "MIN_LOWOWN": {
+      "status": "off",
+      "proof": "declared '0': the family/flag is disabled, so a downstream gap cannot change a lineup"
+    },
+    "N_CE": {
+      "status": "off",
+      "proof": "declared '0': the family/flag is disabled, so a downstream gap cannot change a lineup"
+    },
+    "N_GUMBEL": {
+      "status": "off",
+      "proof": "declared '0': the family/flag is disabled, so a downstream gap cannot change a lineup"
+    },
+    "N_LOWSAL": {
+      "status": "off",
+      "proof": "declared '0': the family/flag is disabled, so a downstream gap cannot change a lineup"
+    },
+    "N_MIDQB": {
+      "status": "off",
+      "proof": "declared '0': the family/flag is disabled, so a downstream gap cannot change a lineup"
+    },
+    "N_NOSTACK": {
+      "status": "off",
+      "proof": "declared '0': the family/flag is disabled, so a downstream gap cannot change a lineup"
+    },
+    "OPEN_BOOM_SOLVES": {
+      "status": "off",
+      "proof": "declared '0': the family/flag is disabled, so a downstream gap cannot change a lineup"
+    },
+    "OWN_BARBELL": {
+      "status": "consumed",
+      "proof": "nfl2 core/lineup.py env read (declared '' = default; the key IS read)"
+    },
+    "PEAK_SLICE": {
+      "status": "off",
+      "proof": "declared '0': the family/flag is disabled, so a downstream gap cannot change a lineup"
+    },
+    "PUNT_BOOM": {
+      "status": "off",
+      "proof": "declared '0': the family/flag is disabled, so a downstream gap cannot change a lineup"
+    },
+    "PUNT_BOOM_WR": {
+      "status": "needs_production_confirmation",
+      "proof": "declared '' and nfl2 never reads the key. Whether '' means inert or selects a default is production-side semantics the laptop cannot determine from nfl2 alone -- OWN_MODEL proves '' can mean 'apply the naive fade' rather than 'off'. Production to confirm."
+    },
+    "PUNT_MIN": {
+      "status": "off",
+      "proof": "declared '0': the family/flag is disabled, so a downstream gap cannot change a lineup"
+    },
+    "PUNT_STRICT": {
+      "status": "consumed",
+      "proof": "nfl2 core/lineup.py env read (declared '' = default; the key IS read)"
+    },
+    "Q99_WILD": {
+      "status": "off",
+      "proof": "declared '0': the family/flag is disabled, so a downstream gap cannot change a lineup"
+    },
+    "QD_CELLS": {
+      "status": "off",
+      "proof": "declared '0': the family/flag is disabled, so a downstream gap cannot change a lineup"
+    },
+    "ROOKIE_WIDEN": {
+      "status": "needs_production_confirmation",
+      "proof": "declared '' and nfl2 never reads the key. Whether '' means inert or selects a default is production-side semantics the laptop cannot determine from nfl2 alone -- OWN_MODEL proves '' can mean 'apply the naive fade' rather than 'off'. Production to confirm."
+    },
+    "SINGLE_STACK_BOOM_SOLVES": {
+      "status": "off",
+      "proof": "declared '0': the family/flag is disabled, so a downstream gap cannot change a lineup"
+    },
+    "TABPFN_MARGINAL_TABLE": {
+      "status": "needs_production_confirmation",
+      "proof": "declared '' and nfl2 never reads the key. Whether '' means inert or selects a default is production-side semantics the laptop cannot determine from nfl2 alone -- OWN_MODEL proves '' can mean 'apply the naive fade' rather than 'off'. Production to confirm."
+    },
+    "TD_LEDGER": {
+      "status": "consumed",
+      "proof": "nfl2 env read (declared '' = default; the key IS read)"
+    },
+    "VALUE2_MIN": {
+      "status": "off",
+      "proof": "declared '0': the family/flag is disabled, so a downstream gap cannot change a lineup"
+    },
+    "WR_BOOM": {
+      "status": "off",
+      "proof": "declared '0': the family/flag is disabled, so a downstream gap cannot change a lineup"
+    }
+  }
+}
