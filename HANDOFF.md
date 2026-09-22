@@ -11,6 +11,56 @@
 
 # Project handoff
 
+## 2026-09-22 (11:51 CDT) — Week 2 was a RETRIEVAL failure, not a supply failure: 39.3 points, 5 swaps
+
+Laptop agent, self-selected (audit §E.6). Report:
+`reports/2026-09-22-laptop-week2-supply-vs-retrieval.md`. Tool:
+`reports/lab-handoffs/supply_vs_retrieval.py`.
+
+| | |
+|---|---:|
+| pool oracle (best candidate generated) | **197.26** |
+| book best (best lineup entered) | **157.96** |
+| **retrieval gap** | **39.30** |
+
+| threshold | in pool | entered |
+|---|---:|---:|
+| ≥150 | **222** | **3** |
+| ≥170 | **30** | **0** |
+| ≥194 | 1 | 0 |
+
+**We generated thirty lineups at 170+ and entered none of them.** The 197.26
+reproduces production's independently computed Week-2 pool oracle exactly, which
+is the cross-check on the scoring.
+
+**The edit distance is the finding.** Minimum distance from the entered book to
+the pool's best candidate: **5 swaps of 9** (median 8). And of the nine players in
+that 197.26 lineup, **exactly one appears in no entered lineup at all** — Alvin
+Kamara, $4,600, projected 6.31, realized 7.20. He did not explode; the selector
+had no reason to like him before or after. **Eight of nine were already in our
+book somewhere.** The missing 39.3 points were locked behind a *combination* we
+had already identified, not a player we missed.
+
+**Consequence:** for this slate, generation was not the binding constraint. Any
+lever that adds candidates works on the half that was not broken.
+
+**But this is not "the selector is stupid."** It chose on *simulated* expected-max,
+and the simulated tail is already measured as anti-ranked against realized
+outcomes (book P(≥220) 2.8× realized; Week-2 P(≥194) deciles inverted). A selector
+cannot retrieve what its world model mis-ranks. **The retrieval gap and the
+tail-calibration problem are the same problem measured from two ends** — an
+argument for repairing the world model over adding generation, consistent with
+the synthesis §2.1 ("supply is manufactured on demand; conversion is not").
+
+**One slate, and the obvious next step is cheap.** Week 1's pool is far richer
+(oracle 236.28, 1,215 ≥150) and the laptop does not hold its candidate file.
+Production can run the same tool against the archived Week-1 run — a path change,
+about two minutes. **If Week 1 shows the same shape this stops being a Week-2
+anecdote and becomes the programme's central measured fact.**
+
+Retrospective diagnostic, not a gate: it uses realized points. Read-only, one
+warehouse read, no writes.
+
 ## 2026-09-22 (11:46 CDT) — ITEM 1 CLOSED: Jefferson's pre-blend was 18.07; the model was not the defect
 
 Laptop agent, self-selected. Report:
