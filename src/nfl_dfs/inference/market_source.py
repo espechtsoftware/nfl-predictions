@@ -126,14 +126,38 @@ def source_log_frame(
     season: int,
     week: int,
     proj_points: np.ndarray | pd.Series | None = None,
+    model_points_pre: np.ndarray | pd.Series | None = None,
+    model_weight: float | None = None,
     path: str,
     generated_at: datetime | None = None,
 ) -> pd.DataFrame:
-    """Rows for ``nfl_predictions.market_source_log`` (one per slate player per run)."""
+    """Rows for ``nfl_predictions.market_source_log`` (one per slate player per run).
+
+    Records the blend's INPUTS, not only its output.  Before 2026-09-21 this
+    logged ``market_points`` and the blended ``proj_points`` but nothing of the
+    model side, so reconstructing what the model said required inverting the
+    nominal weight.  That inversion is unsafe: on the Week-2 signals export the
+    inverted value disagreed with the independently recorded pre-blend value on
+    175 of 175 rows, worst on quarterbacks, and for Justin Jefferson -- the row
+    the Week-2 post-mortem turns on -- no pre-blend value was recorded anywhere
+    at all.
+
+    With ``model_points_pre`` and ``model_weight`` present a reader can check
+
+        proj_points == model_weight * model_points_pre
+                       + (1 - model_weight) * market_points
+
+    directly, instead of assuming the weight and solving backwards.  A caller
+    that does not supply the model side leaves these NULL: filling them by
+    inversion would recreate the exact defect the columns exist to end.
+    """
     out = frame.copy()
     out.insert(0, "generated_at", generated_at or datetime.now(timezone.utc))
     out.insert(1, "season", int(season))
     out.insert(2, "week", int(week))
     out["path"] = str(path)
     out["proj_points"] = (np.asarray(proj_points, dtype=float) if proj_points is not None else np.nan)
+    out["model_points_pre"] = (
+        np.asarray(model_points_pre, dtype=float) if model_points_pre is not None else np.nan)
+    out["model_weight"] = (float(model_weight) if model_weight is not None else np.nan)
     return out

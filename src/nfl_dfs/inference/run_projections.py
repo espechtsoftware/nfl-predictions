@@ -394,9 +394,9 @@ def project(
     log.info("market blend source: %s (%d/%d rows)",
              _mkt_src, int(_prop_market_mask.sum()), len(feats))
     _pre_blend = preds["proj_points"].to_numpy().copy()
+    _model_weight = effective_model_weight(policy_env)
     preds["proj_points"] = blend(
-        _pre_blend, np.asarray(market, dtype=float),
-        effective_model_weight(policy_env)
+        _pre_blend, np.asarray(market, dtype=float), _model_weight
     )
     # Monitor for the operator: one row per slate player per run with the
     # market source.  A failed write is logged loudly and does not stop the
@@ -406,6 +406,11 @@ def project(
             source_log_frame(
                 _market_sources, season=season, week=week,
                 proj_points=preds["proj_points"].to_numpy(),
+                # The blend's model side, captured before it is overwritten,
+                # plus the weight actually used -- so the row can be checked
+                # rather than inverted. See source_log_frame's docstring.
+                model_points_pre=_pre_blend,
+                model_weight=_model_weight,
                 path="project-slate"),
             f"{settings.predictions}.{SOURCE_LOG_TABLE}",
             write_disposition="WRITE_APPEND")

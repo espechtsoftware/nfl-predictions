@@ -53,5 +53,11 @@ def test_duplicate_market_ids_fail_closed():
 def test_source_log_frame_shape():
     _, src = resolve_live_market(_feats(), _market(("00-0036322", 16.4), ("00-0036358", 16.7)), {"Justin Jefferson", "CeeDee Lamb"})
     log = source_log_frame(src, season=2026, week=3, proj_points=np.arange(5, dtype=float), path="project-slate")
-    assert list(log.columns) == ["generated_at", "season", "week", "gsis_id", "display_name", "position", "source", "market_points", "path", "proj_points"]
+    # model_points_pre/model_weight added 2026-09-21: the log records the blend's
+    # inputs, not only its output, so a row can be checked forward instead of by
+    # inverting the weight. Kept as an exact list on purpose -- a silently added
+    # or dropped column in a money-path audit record should fail here.
+    assert list(log.columns) == ["generated_at", "season", "week", "gsis_id", "display_name", "position", "source", "market_points", "path", "proj_points", "model_points_pre", "model_weight"]
+    # not supplied here, so they must be NULL rather than reconstructed
+    assert log.model_points_pre.isna().all() and log.model_weight.isna().all()
     assert len(log) == 5 and log.week.eq(3).all() and log.path.eq("project-slate").all() and log.proj_points.tolist() == [0, 1, 2, 3, 4]
