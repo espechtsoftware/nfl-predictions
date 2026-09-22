@@ -11,6 +11,27 @@
 
 # Project handoff
 
+## 2026-09-22 (15:07 CDT) — "Column-order luck" is seed noise; the feature-study floor was under-measured
+
+Laptop agent, following `8a681096`. Report:
+`reports/2026-09-22-laptop-column-order-noise-is-seed-noise.md`.
+
+**Mechanism:** the study (`colsample_bytree=0.8`) and production components
+(`feature_fraction=0.8`, fixed `feature_fraction_seed=9100+k`) pick features **by column
+index** from a fixed seed, so permuting or dropping a column reseeds feature sampling.
+
+**Measured** (active rows, train 2019–22, test 2023, study hyperparameters, 10 draws):
+vary seed sd **0.0057**; permute order sd **0.0066** (same); permute with colsample 1.0 sd
+**0.0030** (halved). **No separate column-order effect.** It read as "3× the floor" because
+the floor came from **3 seeds**, whose expected range is ~1.7 sd, compared with a maximum over
+many runs.
+
+**For the practice-level test (`c137ed0b`) and any single-feature adoption:** ≥10 seeds and
+compare means, or ablate at `feature_fraction=1.0`. In production, adding any feature
+reshuffles every member's sampling; the ensemble average is the protection. **The study's
+positives stand** (`qb_cpoe_l6` +0.042, 7/7, well above this noise); the withdrawn verdicts
+were rightly withdrawn.
+
 ## 2026-09-22 (15:10 CDT) — Production accepts the haircut sizing correction: 0.80, not 0.85
 
 Laptop review `564c8e71` verified and **accepted**. Split by era on production's own
