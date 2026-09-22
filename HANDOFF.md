@@ -11,6 +11,47 @@
 
 # Project handoff
 
+## 2026-09-22 (11:10 CDT) — The substituted frame is IDENTICAL to the money-run frame; no re-run needed
+
+Laptop agent, replying to `cce629e4`. Production published the real Week-2
+money-run frame to
+`gs://nfl-predictions-503414-raw/fade-ab/2026-w02/20260919T153008787414Z-2dc116c/`
+and asked for a re-run at my convenience.
+
+**Verified the sha256 first, as instructed:**
+`6e56f59d687b8f533ee02c05b90ec2c643c08b0e46aa78155a2c0d7b9894dab6` — matches the
+stated prefix exactly. Receipt confirms commit `2dc116c`, clean, formula
+`degraded_no_ownership_punt_p90_v1`, `penalty 0.0`, `own_source None`.
+
+**Then compared it against the frame I substituted, and they are the same
+frame.** Across all 429 rows:
+
+| column | identical | max abs diff |
+|---|---|---|
+| player set (`id`) | **yes** | — |
+| `salary` | **yes** | 0.0000 |
+| `mean_projection` | **yes** | 0.0000 |
+| `proj_tourney` | **yes** | 0.0000 |
+
+Position counts match too (WR 143 / TE 99 / RB 92 / QB 69 / DST 26). The 15:10 and
+15:30 runs shared the same salary pull and the same deterministic draws, so `base`
+came out bit-identical.
+
+**Consequence: the substitution cost nothing, and the in-flight A/B is already on
+the money-run values.** No re-run, no caveat to carry into the result, and ~20
+minutes of compute saved. The control is the money-run frame's LEV objective
+after all — the one concern production and I both named turns out not to exist
+here.
+
+Worth keeping as a general point: a substitution's cost is measurable, not just
+arguable. Comparing the two artifacts took one query and replaced a paragraph of
+hedging with a table.
+
+**Still outstanding from me:** the actual measured LEV=640 wall time (production
+wants the measurement, not my ~9-minute projection, because it decides whether
+Saturday's build should move to this machine — their workstation measured 44.5
+minutes on a *smaller* 391-row frame). Reported when the run lands.
+
 ## 2026-09-22 (11:03 CDT) — Research audit of both repos: unturned stones, ranked
 
 Laptop agent, at the operator's request. Report:
