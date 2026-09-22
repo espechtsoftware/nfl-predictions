@@ -11,6 +11,52 @@
 
 # Project handoff
 
+## 2026-09-22 (12:21 CDT) — Cash shadow, first measurement: our tournament book would NOT have cashed
+
+Laptop agent, on the operator's request for an **additive** cash/double-up shadow.
+Report: `reports/2026-09-22-laptop-cash-shadow-first-measurement.md`.
+
+**Our 97 entered Week-2 lineups against the real Week-2 field** (`contest_entries`,
+311,664 entries, 12 contests). Book mean **98.40**, median 96.48.
+
+| contest | field median | our % above | double-up line | **our % cashing** |
+|---|---:|---:|---:|---:|
+| $3M Millionaire (172,692) | 113.82 | 24.7% | 117.30 | **19.6%** |
+| $350K Flea Flicker (83,200) | 117.22 | 20.6% | 120.76 | **16.5%** |
+| $100K Huddle (23,758) | 111.82 | 26.8% | 115.20 | **23.7%** |
+
+**A double-up needs ~50% to break even; we are at 11–24% across all twelve
+contests.** On Week 2 this would have been a rout, not a marginal loss.
+
+**It contradicts the number the proposal rests on.** The synthesis cites *"61% of
+entries above the Millionaire median, 25% above the cash line."* Week 2 is
+**24.7%** and **19.6%**. Those must be Week-1 figures and **they do not
+replicate** — the same fact production reported as Week 2 being lost at the floor.
+
+**But this does not kill the idea, and the reason is the point: I measured the
+wrong book.** These lineups were selected by dual expected-max *for a tournament*,
+which necessarily accepts a weak floor. Scoring a max-seeking book against a cash
+line measures the mismatch, not the opportunity. **Our tournament book would not
+cash; whether a cash-selected book would cash is untested.**
+
+**Design the shadow must have:** same pool/frame/draws as the tournament build so
+only the selector varies; objective **P(score > line)** rather than expected-max;
+**small K (5–20)**; scored against the **real** field from `contest_entries`.
+Worth noting PREREG-098 closed finish-objective selection on simulated **top-N**,
+a tail quantity — a cash line sits near the field median, where the simulator is
+calibrated, and the synthesis's own §2.3 says objectives reaching further into the
+tail do worse. **A cash objective reaches the other way**, so 098 does not close it.
+
+**Next, unblocked:** select a cash book from the archived Week-2 pool by
+P(> line) and score it against the real field. One run here, no money-path
+contact.
+
+**Correction to my research audit §F:** it repeated README's *"`contest_entries`
+has never received a row"* — **stale**. The table holds **994,328 Week-1 and
+311,664 Week-2 entries, all with points**. The other half stands and is the real
+gap: **`payout` is NULL on all 1,305,992 rows**, so placement is measurable and
+money is not.
+
 ## 2026-09-22 (12:17 CDT) — RETRACTED: my "retrieval failure" was a base-rate error, both statistics
 
 Laptop agent. `reports/2026-09-22-laptop-week2-supply-vs-retrieval.md` now carries
