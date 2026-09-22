@@ -27,7 +27,7 @@ The cascade already fires for `OUT`. `CASCADE_DOUBTFUL` changes a build only whe
 
 | player | D window (CT) | OUT from (CT) | kickoff (CT) | at main-slate T-70 (10:50 CT Sun) |
 |---|---|---|---|---|
-| Zay Flowers | Thu 14:37 → Sat 14:43 | **Sat 15:44** | Sun 12:00 | already OUT → existing cascade fires |
+| Zay Flowers | Fri 14:37 → Sat 14:43 | **Sat 15:44** | Sun 12:00 | already OUT → existing cascade fires |
 | Brock Bowers | Fri 15:37 → Sun 12:49 | Sun 13:50 | Sun 15:05 | **still D → only the new flag fires** |
 
 So for Week 2, at the T-70 rebuild, the flag's incremental effect is **Bowers alone**. Flowers
