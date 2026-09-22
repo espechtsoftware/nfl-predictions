@@ -232,8 +232,10 @@ def test_backup_qb_gate_report_out_promotes_the_next_qb(monkeypatch):
 
 
 def test_backup_qb_gate_lab_review_cases(monkeypatch):
-    """Lab review 2026-09-19: (a) a depth-2 + depth-3 team with NO depth-1 row is unknown, nothing gated;
-    (b) blank-team rows are never grouped together; (c) a Questionable primary makes the team ambiguous."""
+    """Lab review 2026-09-19, amended 2026-09-22: (a) a depth-2 + depth-3 team with no depth-1 row now
+    PROMOTES the shallowest QB present and gates the rest -- the original "unknown, nothing gated" rule was
+    the actual cause of the Week-2 Atlanta miss and left 8.5% of that pool ungated; (b) blank-team rows are
+    still never grouped together; (c) a Questionable primary still makes the team ambiguous."""
     monkeypatch.delenv("QB_BACKUP_GATE", raising=False)
     from nfl_dfs.inference.cascade_adjust import find_backup_qbs
     feats = _qb_slate()
@@ -245,11 +247,13 @@ def test_backup_qb_gate_lab_review_cases(monkeypatch):
     ])], ignore_index=True)
     feats.loc[feats.gsis_id == "CHI1", "injury_status"] = "Questionable"
     got = find_backup_qbs(feats)
-    assert "NYJ3" not in got and "NYJ2" not in got, "no depth-1 row: unknown, nothing gated"
+    assert "NYJ3" in got, "no depth-1 row: the shallowest present QB is promoted and deeper ones gated"
+    assert "NYJ2" not in got, "the promoted shallowest QB is not gated"
     assert "BLANK2" not in got, "blank teams are not grouped"
     assert "CHI2" not in got and "CHI3" not in got, "Questionable primary: ambiguous, nothing gated"
-    # MIA's Doubtful starter is gated under the 2026-09-22 refinement; Q is still ambiguous.
-    assert got == ["ATL3", "MIA1"], got
+    # MIA's Doubtful starter is gated (2026-09-22 refinement); NYJ3 by the no-depth-1 promotion;
+    # Q is still ambiguous so CHI is untouched; blank teams are never grouped.
+    assert got == ["ATL3", "MIA1", "NYJ3"], got
 
 
 def test_backup_qb_gate_tied_primaries_are_order_independent(monkeypatch):
@@ -332,3 +336,39 @@ def test_doubtful_absent_kill_switch_restores_the_old_rule(monkeypatch):
     got = find_backup_qbs(_qb_slate())
     assert got == ["ATL3", "CHI2", "CHI3"], got
     assert "MIA1" not in got, "with the switch off a Doubtful primary makes MIA ambiguous again"
+
+
+def test_no_depth1_team_promotes_the_shallowest_qb_present(monkeypatch):
+    """2026-09-22: teams with no depth-1 row on the DK slate were ungated entirely.
+
+    That -- not the ambiguity rule -- is why Week-2 Atlanta kept a 17.47 projection on a
+    Doubtful QB who scored zero. ATL, MIN and SEA together covered 8.5% of the Week-2
+    pool. A QB absent from the slate cannot be rostered, so the shallowest present QB is
+    promoted. Measured 4 of 4 correct across both released weeks.
+    """
+    monkeypatch.delenv("QB_BACKUP_GATE", raising=False)
+    monkeypatch.delenv("QB_DOUBTFUL_ABSENT", raising=False)
+    monkeypatch.delenv("QB_NO_DEPTH1_PROMOTE", raising=False)
+    from nfl_dfs.inference.cascade_adjust import find_backup_qbs
+    # the real Week-2 ATL shape: no depth-1 row, a Doubtful depth-2, two deeper QBs
+    feats = pd.DataFrame([
+        {"gsis_id": "TUA", "display_name": "Doubtful Two", "dk_position": "QB", "team_abbr": "ATL", "status": "D", "injury_status": None, "depth_rank": 2},
+        {"gsis_id": "RUSH", "display_name": "Third", "dk_position": "QB", "team_abbr": "ATL", "status": None, "injury_status": None, "depth_rank": 3},
+        {"gsis_id": "STRAND", "display_name": "Fourth", "dk_position": "QB", "team_abbr": "ATL", "status": None, "injury_status": None, "depth_rank": 4},
+    ])
+    got = find_backup_qbs(feats)
+    assert "TUA" in got, "the Doubtful QB is gated even with no depth-1 row on file"
+    assert "STRAND" in got, "QBs behind the promoted primary are gated"
+    assert "RUSH" not in got, "the shallowest available QB is promoted, not gated"
+
+
+def test_no_depth1_promotion_kill_switch(monkeypatch):
+    """QB_NO_DEPTH1_PROMOTE=0 restores leaving a no-depth-1 team entirely alone."""
+    monkeypatch.delenv("QB_BACKUP_GATE", raising=False)
+    monkeypatch.setenv("QB_NO_DEPTH1_PROMOTE", "0")
+    from nfl_dfs.inference.cascade_adjust import find_backup_qbs
+    feats = pd.DataFrame([
+        {"gsis_id": "A2", "display_name": "Two", "dk_position": "QB", "team_abbr": "ATL", "status": None, "injury_status": None, "depth_rank": 2},
+        {"gsis_id": "A3", "display_name": "Three", "dk_position": "QB", "team_abbr": "ATL", "status": None, "injury_status": None, "depth_rank": 3},
+    ])
+    assert find_backup_qbs(feats) == [], "with the switch off the team is left alone"

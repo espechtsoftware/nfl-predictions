@@ -61,3 +61,45 @@ boundary tests that now cover the gate) does **not** contain this refinement. Si
 refinement is a measured no-op on both available slates, there is no reason to rebuild
 for it — it should ride the next build. The deployed gate is the substantive change:
 38 QBs zeroed, 28.0% of pool, precision 89.6% / recall 87.8% against snap counts.
+
+
+---
+
+## Addendum (same day): the depth-1 gap is now closed too
+
+Measured "promote the shallowest QB present" on both released weeks for every team that
+lacked a depth-1 row:
+
+| team-week | promoted | played? | gated | proj removed | those QBs scored |
+|---|---|---|---|---:|---|
+| W1 ATL | Cooper Rush | yes, 7.7 | Strand | 2.50 | 0 |
+| W2 ATL | Cooper Rush | yes, 2.4 | **Tua**, Strand | 20.03 | Tua **0**, Strand 2.0 |
+| W2 MIN | Carson Wentz | yes, 6.3 | McCarthy | 15.91 | 0 |
+| W2 SEA | Drew Lock | yes, 21.4 | Milroe | 2.34 | 0 |
+
+**Promotion correct in 4 of 4 team-weeks**, and **38.22 of the 40.78** projection points
+removed came from QBs who scored exactly zero — **93.7% precision**, against 89.6% for
+the deployed depth-1 path. Implemented behind `QB_NO_DEPTH1_PROMOTE=1`, 17 tests pass.
+
+Combined effect of both refinements on the archived frames:
+
+| | QBs zeroed | proj removed | pool lineups affected | Tua gated |
+|---|---:|---:|---:|---|
+| Week 2, deployed image | 38 | 304.1 | 3,514 (28.0%) | no |
+| **Week 2, with both** | **42** | **342.4** | **3,891 (31.0%)** | **yes** |
+| Week 1, deployed | 38 | 269.4 | 651 (20.3%) | n/a |
+| Week 1, with both | 39 | 271.9 | 651 (20.3%) | n/a |
+
+**This changes the shipping recommendation.** The Doubtful refinement alone was a no-op
+and did not justify a rebuild; together with the depth-1 promotion it is worth one, and
+the two share a single build. `project-slate` has still not run for Week 3, so it is in
+time.
+
+## Also verified, no change needed
+
+`nfl2/scripts/live_week.py` defaults `--selector` to **`cov194`**, a threshold-keyed
+selector at 194 — precisely the objective the calibration work shows is wrong by 146x in
+Week 2. **`sunday_build_host.sh` passes `--selector dual_emax` explicitly on both bank
+invocations**, so Sunday is safe. Recorded as a latent hazard: the safe path is guarded
+only by the call site, and a manual invocation of `live_week.py` would silently select on
+a threshold the simulator cannot calibrate.

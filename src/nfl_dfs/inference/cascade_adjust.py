@@ -232,11 +232,21 @@ def find_backup_qbs(feats: pd.DataFrame) -> list[str]:
     # projection, scored zero, and left his backups ungated. A Doubtful QB is
     # therefore zeroed himself and never blocks the promotion.
     # QB_DOUBTFUL_ABSENT=0 restores the previous ambiguous-on-Doubtful behaviour.
+    # No depth-1 row on file (2026-09-22): previously the whole team was left alone,
+    # which is the ACTUAL cause of the Week-2 Atlanta miss -- not the ambiguity rule.
+    # Three of twenty-six teams in Week 2 (ATL, MIN, SEA) had no depth-1 QB on the DK
+    # slate and were ungated entirely, covering 8.5% of the candidate pool. A QB absent
+    # from the slate cannot be rostered, so the shallowest QB present is the best
+    # available read on the starter. Measured on both released weeks: the promotion is
+    # correct in 4 of 4 team-weeks, and 38.22 of the 40.78 projection points it removes
+    # came from QBs who scored exactly zero (93.7% precision, against 89.6% for the
+    # depth-1 path). QB_NO_DEPTH1_PROMOTE=0 restores the leave-the-team-alone behaviour.
     doubtful_absent = os.environ.get("QB_DOUBTFUL_ABSENT", "1") != "0"
+    promote_no_depth1 = os.environ.get("QB_NO_DEPTH1_PROMOTE", "1") != "0"
     ids: list[str] = []
     for _, g in qbs.groupby("team"):
         g = g.sort_values(["depth", "gsis_id"])
-        if not (g.depth == 1).any():
+        if not (g.depth == 1).any() and not promote_no_depth1:
             continue
         unavailable = g.out | (g.doubtful if doubtful_absent else False)
         primary = g[~unavailable]
