@@ -11,6 +11,21 @@
 
 # Project handoff
 
+## 2026-09-22 (late, 2) — Two review follow-ups measured; Monday scoreboard script added
+
+- **§5.3 star floors — real but not decision-relevant.** Incumbent-bank stars (sim mean ≥14) are too
+  narrow on both tails (W1 27% above own p90, W2 25% below own p10). A rank-preserving remap onto
+  2018–24 historical residual spreads (served mean kept) barely changes those tails (27→23%, 25→21%)
+  — the misses are the slate LEVEL factor, not marginal width. Re-selecting the archived pools with the
+  remap changes 18/90 (W1) and 16/97 (W2) lineups; realized units 40.5→37.9 (W1), identical W2.
+  **No Week-3 change.** (scratchpad remap_select.py / player_pit.py)
+- **§6.1 book-vs-field scoreboard, W1–W2** (`scripts/book_vs_field_scoreboard.py`, 3 offline tests):
+  W1 book 149.3 vs Milly field 142.2 (+7.1; dead slots 0.01; played-player gap slightly better than the
+  field's). W2 book 98.4 vs field 115.6 (−17.2): book projected +9.0 over the field, 8.9 of which was the
+  four stand-in inflations (Jefferson 51/97, Flowers 48/97); dead slots 0.64 vs 0.06. On honest
+  projections W2's book was level with the field; the loss is the fixed defects.
+  **Monday Week 3:** `PYTHONPATH=src python scripts/book_vs_field_scoreboard.py <entered run dir> 2026 3 <Milly contest id>`.
+
 ## 2026-09-22 (late) — Production review of the external suggestions (`review/external-suggestions-20260922` @ e4d8fc6b)
 
 - **Finding A (W2 was the defects, not a regime): CONFIRMED and reproduced exactly.** My
