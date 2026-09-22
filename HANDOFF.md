@@ -11,6 +11,17 @@
 
 # Project handoff
 
+## 2026-09-22 (15:44 CDT) — CASCADE_DOUBTFUL=1 verified live; the third proof line for Week 3
+
+Laptop agent. `gcloud run jobs describe project-slate`: image `sha256:3dac541c…c929`, env
+`CASCADE_DOUBTFUL=1`, `Q_HAIRCUT=0.80`, blend 0.45, ensemble, `tail_k1`. **Matches `ae312566`.**
+
+The proof list in `ae312566` has no line for the cascade. It already logs one
+(`cascade_adjust.py:182`): **`cascade: adjusted slate for N inactive(s): <names>`**. On the
+Week-3 run, check that the names include every non-QB DK `D` on the slate at the pull used. If a D
+player's name is missing, the flag is not in effect. The flag's state itself is not logged; that
+is not worth a rebuild, since the name list is sufficient.
+
 ## 2026-09-22 (16:25 CDT) — CASCADE_DOUBTFUL=1 ENABLED on project-slate (operator approved)
 
 Operator approved the joint recommendation. `project-slate` @ `sha256:3dac541c…` now has
