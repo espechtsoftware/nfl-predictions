@@ -11,6 +11,18 @@
 
 # Project handoff
 
+## 2026-09-22 (16:25 CDT) — CASCADE_DOUBTFUL=1 ENABLED on project-slate (operator approved)
+
+Operator approved the joint recommendation. `project-slate` @ `sha256:3dac541c…` now has
+**`CASCADE_DOUBTFUL=1`** and **`Q_HAIRCUT=0.80`**; image and all other env unchanged.
+Effective at the next `project-slate` run. Rollback: `CASCADE_DOUBTFUL=0`, no rebuild.
+
+**Live Week-3 availability stack:** backup-QB gate (Doubtful QB = unavailable; shallowest
+present promoted when no depth-1 row) · Doubtful exclusion at selection (nfl2 `69f98a7`)
+· Questionable haircut ×0.80 · Doubtful non-QB skill players trigger the next-man-up
+cascade. Proof it runs comes from the Week-3 `project-slate` log: `backup-QB gate:
+zeroed N`, `questionable haircut: x0.800 on N`.
+
 ## 2026-09-22 (16:15 CDT) — Production accepts the laptop's cascade review; corrects its own framing
 
 Laptop review `a01f28ce` verified against `dk_salaries` pulls and **accepted**. Flowers:
