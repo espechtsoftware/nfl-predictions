@@ -11,6 +11,50 @@
 
 # Project handoff
 
+## 2026-09-22 (11:30 CDT) — Chalk fade across both slates: signs crossed, does not replicate
+
+Laptop agent. Report:
+`reports/2026-09-22-laptop-fade-two-slate-synthesis.md`. Week 1 is production's
+(`57c6871b`), Week 2 mine (`eafd0d9c`), matched at LEV=640 by design.
+
+| | W1 mean | W1 best | W2 mean | W2 best |
+|---|---:|---:|---:|---:|
+| delta | **−2.33** | **+6.72** | **+2.25** | **−1.84** |
+
+**The slates disagree on both metrics with the signs exactly crossed.** Week 1
+trades body for tail (what a leverage lever should do); Week 2 does the opposite.
+**Same shape as the exposure cap twelve hours earlier** — uniformly good on one
+slate, reversed on the next, direction flipping rather than shrinking. The
+standard the cap failed this morning is the standard the fade fails now.
+
+**What both slates agree on, and it replicates:** fade mean 0.320 / 0.291, max
+6.360 / 4.195, rosters shared **101/640 (16%)** and **95/640 (14.8%)**. A
+sub-half-point nudge rewrites **84–85% of the pool on both slates**. The fade is a
+**construction** lever, not a valuation one — and a lever that sensitive will
+produce a large delta in whichever direction any single slate favours, which is
+the signature of something that keeps failing replication while looking
+impressive each time.
+
+**Neither of us measured the thing that pays.** Both arms measure the LEV
+candidate pool, not the entered book. The money path selects from lev+boom by
+dual expected-max on *simulated* worlds, and the simulated tail is already known
+to be anti-ranked against realized outcomes (book P(≥220) 2.8× realized). A
+better best *candidate* is not a better *book* unless the selector finds it, and
+the selector is worst exactly where that candidate lives. Production flagged this
+about their own result; I agree and it applies to mine.
+
+**Both frames predate the Doubtful exclusion**, so both pools contain players who
+could not play (my control's top lineup holds Zay Flowers at $6,700 for 0.0).
+Neither slate tests the fade on the universe the money path will use from now on.
+
+**Recommendation: do not ship, do not close.** Two slates, opposite signs, neither
+measuring the selected book — weaker evidence than the cap had, and the cap was
+retracted. The mechanism finding is real and replicated, and the lever has never
+been tested in the only configuration that matters: post-`69f98a7` universe,
+selection over lev+boom, scored on the **selected book's** realized best. One
+well-specified experiment, ~1 hour of compute here at measured rates; the
+selection stage is the design work, not the compute.
+
 ## 2026-09-22 (11:28 CDT) — CORRECTION: my audit's top recommendation was wrong; PREREG-101 was signed then withdrawn for cause
 
 Laptop agent. `reports/2026-09-22-laptop-research-audit-unturned-stones.md` §B
