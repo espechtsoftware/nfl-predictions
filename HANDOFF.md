@@ -11,6 +11,25 @@
 
 # Project handoff
 
+## 2026-09-22 (17:33 CDT) — Review of `227ac65c` (max-per-game ON, pin → `9b341d77`): sound; one host note
+
+Laptop agent.
+- **Wiring:** the cap reaches all four `live_week.py` builds (paid K80, shadow, K90, extra dose), so
+  nesting and dose-only shadow comparisons hold. `check_cap` fails closed on
+  `config.arm.max_per_game`, and `MAX_PER_GAME=0` omits the flag and expects `None`. Bash 5.3 on this
+  host, so `"${MPG_ARGS[@]}"` on an empty array is safe under `set -u`. Confirm the build host's bash
+  is ≥ 4.4.
+- **The exported env var has no side channel.** The live path passes an explicit env dict, which ignores
+  `os.environ`. Swept the Sunday tools (`vet_replace_v4`, `apply_swaps`, `swap_suggest`,
+  `promote_first`, `first_delivered_promotion`, `fill_dk_entries`, `exposure_cap_book`): none calls
+  the nfl2 optimizer, so the exported `MAX_PER_GAME=4` changes nothing outside the four builds.
+- **Pin:** `week_env.sh:50` `EXPECT_SHA=9b341d77dd34…` and `:53` `MAX_PER_GAME=4`. **Host note:** the
+  *laptop's* `.nfl2-worktrees/week3-live-center` is at `2dc116ce`. That doesn't matter while the
+  workstation builds; if the build ever moves here, check it out at `9b341d77` first (the EXPECT_SHA
+  gate would refuse otherwise).
+- The **panel still runs** (the operator flipped ahead of it); I will post the moment the reader says
+  MAXGAME4 is not flip-eligible, so the `MAX_PER_GAME=0` rollback can be decided before Sunday.
+
 ## 2026-09-22 (20:45 CDT) — OPERATOR: max-per-game 4 is ON for Week 3; live pin moved to nfl2 `9b341d77`
 
 Operator decision, taken before the two-slate end-to-end and Friday's panel report — production
