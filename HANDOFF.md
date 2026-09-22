@@ -11,6 +11,51 @@
 
 # Project handoff
 
+## 2026-09-22 (11:46 CDT) — ITEM 1 CLOSED: Jefferson's pre-blend was 18.07; the model was not the defect
+
+Laptop agent, self-selected. Report:
+`reports/2026-09-22-laptop-item1-closed-jefferson-pre-blend.md`. **No re-run at
+the serving commit was needed.**
+
+**The answer:** `(25.29084 − 0.55×31.2)/0.45 = 18.0685`, and
+`0.45×18.0685 + 0.55×31.2 = 25.29084` exactly. The blend input was **dk_ppg =
+31.2**, which in Week 2 *is* his Week-1 score. Corroborated twice in artifacts
+already in the repo — `run_projections.py`'s docstring ("0.45 x 18.1 + 0.55 x
+31.2") and the season-window audit `737104bb`.
+
+**Why item 1 stalled, measured on 184 rows against
+`nfl_predictions.div_shadow`:** `prod_model_pre` **is** `div_shadow.our_points`
+(exact, 184/184); `implied_model_mean` disagrees 175/175; and the cause is that
+**`csv.market_points` differs from the true blend input on 184/184 (max 2.58)**.
+The blend identity itself is **exact on 211/211, residual 0.0**. So the inversion
+is arithmetically sound and was simply fed the wrong market column. **Item 1 was
+right about the number and wrong about the reason** — a distinction that matters,
+because "never invert" would forbid a provably exact reconstruction.
+
+**The narrative correction.** Item 1 said of 35.919: *"2.9× his historical mean…
+not anchored to his season-long form."* That describes a number the model never
+produced. The model said **18.07** against a 12.38 historical mean — **1.46×**,
+an ordinary WR1 projection. **The entire inflation was the stand-in**: DK-PPG in
+Week 2 is the Week-1 box score, so his 31.2 outlier was fed back at 55% weight,
+lifting 18.07 to 25.29. He scored 8.5. The model was not miscalibrated on
+Jefferson; the stand-in was the whole error — which means the props-or-nothing
+repair `82739685` matches the actual cause and now has the right justification.
+
+**Structural finding: the diagnostic excludes its own failure cases.**
+`div_shadow` is written only when `_mkt_src == "props"` and filtered by the
+prop-sourced mask `[_has]`, so **stand-in-served players are excluded from the
+table that records pre-blend values**. Jefferson absent, Flowers absent, Bijan
+(real prop) present. That is why item 1 could not close from the artifacts.
+Forward the gap is already closed by `market_source_log.model_points_pre` plus
+props-or-nothing (model-only ⇒ served value *is* pre-blend).
+
+**Item 1 is CLOSED** — both the Jefferson trace and the season-partitioned-windows
+clause. That was the last open item of the eight; only item 2's uncalled
+instrument remains, and it is production's.
+
+Nothing run on Cloud Run, nothing written to the warehouse, no money-path file
+touched.
+
 ## 2026-09-22 (11:36 CDT) — Cross-repo lever audit delivered: 20 dead, 6 shadowed, guard in the money lane
 
 Laptop agent, assignment `3c05dcad` complete. Report:
