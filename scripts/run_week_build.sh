@@ -18,5 +18,6 @@ INPUT_RECEIPT=$(mktemp "$OUT/build-inputs-$(date -u +%Y%m%dT%H%M%SZ)-XXXXXX.json
 "$PROD_PY" "$SCRIPT_DIR/check_build_inputs.py" \
   --season "$SEASON" --week "$WEEK" \
   --chosen-dose "$CHOSEN_FILE" --contests "$CONTESTS_JSON" \
+  --draft-group "$GROUP" \
   --receipt "$INPUT_RECEIPT"
 exec "$PROD/scripts/sunday_build_host.sh" "$@"

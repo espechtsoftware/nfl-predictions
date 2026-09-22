@@ -13,9 +13,39 @@ def test_projection_batch_freshness_and_coverage():
 
 
 def test_tabpfn_and_files():
-    assert assess_tabpfn(400, [1, 2, 3], target_week=3)["ok"]
-    assert "no rows" in assess_tabpfn(0, [1, 2], target_week=3)["reason"]
-    assert "beyond the target" in assess_tabpfn(400, [1, 2, 3, 4], target_week=3)["reason"]
+    # 2026-09-22: presence alone is no longer a pass -- the sufficiency floor is derived
+    # from the slate, so every call now states the slate it was checked against.
+    assert assess_tabpfn(400, [1, 2, 3], target_week=3, expected_rows=480)["ok"]
+    assert "no rows" in assess_tabpfn(0, [1, 2], target_week=3, expected_rows=480)["reason"]
+    assert "beyond the target" in assess_tabpfn(400, [1, 2, 3, 4], target_week=3, expected_rows=480)["reason"]
+
+
+def test_a_truncated_tabpfn_cache_is_caught_instead_of_passing_on_presence():
+    """The real 2026 week-3 failure: a tabpfn-gen run made before build-features wrote 51
+    rows against a 633-skill-player slate, and the old gate went green on rows > 0."""
+    truncated = assess_tabpfn(51, [3], target_week=3, expected_rows=633)
+    assert not truncated["ok"]
+    assert "51 rows" in truncated["reason"] and "633" in truncated["reason"]
+    assert truncated["sufficiency_floor"] == 506
+    # the same 51 rows passed every check the gate made before the floor existed
+    assert 51 > 0 and not [w for w in [3] if w > 3]
+
+
+def test_a_complete_cache_clears_the_floor_at_historic_coverage():
+    """2025 full caches ran 637-800 rows on comparable slates: about one row per skill
+    player. A complete cache must not sit near the floor, or the floor is mis-set."""
+    for rows, slate in ((877, 813), (633, 633), (750, 780)):
+        assert assess_tabpfn(rows, [3], target_week=3, expected_rows=slate)["ok"], (rows, slate)
+
+
+def test_sufficiency_that_cannot_be_computed_fails_closed(caplog):
+    """dk_salaries.week is NULL on every row, so the slate is found by draft group. With no
+    draft group the floor cannot be derived -- that must not read as a pass."""
+    unchecked = assess_tabpfn(400, [3], target_week=3)
+    assert not unchecked["ok"]
+    assert "not checkable" in unchecked["reason"]
+    assert unchecked["expected_rows"] is None and unchecked["sufficiency_floor"] is None
+    assert not assess_tabpfn(400, [3], target_week=3, expected_rows=0)["ok"]
     good = assess_files({"CHOSEN_LEV": "2560", "CHOSEN_BOOM": "10240"}, [{"name": "milly", "contest_id": "1", "entries": 1}, {"name": "flea", "contest_id": "2", "entries": 96}])
     assert good["ok"]
     assert "chosen-dose" in assess_files(None, [{"name": "m", "contest_id": "1", "entries": 97}])["reason"]

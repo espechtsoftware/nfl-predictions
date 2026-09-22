@@ -27,12 +27,44 @@ def assess_projections(batch: pd.DataFrame, *, now: datetime, max_age_minutes: f
     return {"ok": not problems, "reason": "; ".join(problems), "rows": int(len(batch)), "skill_rows": skill, "generated_at": gen.isoformat(), "age_minutes": age}
 
 
-def assess_tabpfn(rows_for_week: int, weeks_present: list[int], *, target_week: int) -> dict:
+def assess_tabpfn(rows_for_week: int, weeks_present: list[int], *, target_week: int,
+                  expected_rows: int | None = None, min_coverage: float = 0.80) -> dict:
+    """Presence AND sufficiency.
+
+    2026-09-21: a `tabpfn-gen` run made before `build-features` wrote **51** rows for
+    week 3 against a 633-skill-player slate, and this gate went green because it only
+    tested `rows_for_week <= 0`. A cache can be present and still be a one-game cache.
+
+    `expected_rows` is the target slate's skill-player count, which is why the threshold
+    is derived rather than constant -- a constant here becomes the next `N_BOOM=40`.
+    Historic full caches run at roughly one row per skill player (2025 weeks: 637-800),
+    so 80% is a floor that a complete cache clears comfortably and a truncated one
+    cannot approach.
+
+    Sufficiency that cannot be computed is NOT silently skipped: with no `expected_rows`
+    the check reports that it could not be made, and the gate fails closed.
+    """
     problems = []
-    if rows_for_week <= 0: problems.append(f"TabPFN cache has no rows for week {target_week}")
+    if rows_for_week <= 0:
+        problems.append(f"TabPFN cache has no rows for week {target_week}")
     beyond = sorted(w for w in weeks_present if int(w) > int(target_week))
-    if beyond: problems.append(f"TabPFN cache carries weeks beyond the target: {beyond[:5]} (target-week discipline)")
-    return {"ok": not problems, "reason": "; ".join(problems), "rows_for_week": int(rows_for_week), "weeks_present": sorted(int(w) for w in weeks_present)}
+    if beyond:
+        problems.append(f"TabPFN cache carries weeks beyond the target: {beyond[:5]} (target-week discipline)")
+    floor = None
+    if expected_rows is None or int(expected_rows) <= 0:
+        problems.append("TabPFN sufficiency not checkable: no slate skill-player count "
+                        "(pass --draft-group so the floor is derived from the slate)")
+    elif rows_for_week > 0:
+        floor = int(min_coverage * int(expected_rows))
+        if rows_for_week < floor:
+            problems.append(
+                f"TabPFN cache has {rows_for_week} rows for week {target_week} against a "
+                f"{int(expected_rows)}-skill-player slate (floor {floor} = "
+                f"{min_coverage:.0%}); it looks truncated, re-run tabpfn-gen AFTER build-features")
+    return {"ok": not problems, "reason": "; ".join(problems), "rows_for_week": int(rows_for_week),
+            "weeks_present": sorted(int(w) for w in weeks_present),
+            "expected_rows": None if expected_rows is None else int(expected_rows),
+            "sufficiency_floor": floor, "min_coverage": float(min_coverage)}
 
 
 def assess_files(chosen_dose: dict | None, contests: list | None, *, min_book_entries: int = 90) -> dict:
