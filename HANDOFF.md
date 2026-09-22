@@ -11,6 +11,20 @@
 
 # Project handoff
 
+## 2026-09-22 (15:20 CDT) — Q_HAIRCUT=0.80 ENABLED on project-slate (operator approved)
+
+Operator approved production's recommendation. `project-slate` @
+`sha256:98efdfa6…` now carries `Q_HAIRCUT=0.80` (image unchanged; `--update-env-vars`
+preserved all other env). Takes effect at the next `project-slate` run. Rollback:
+`Q_HAIRCUT=1.0`, no rebuild. Also observed, not changed: the job runs `MODEL_ENSEMBLE=1`
+with `MODEL_REGISTRY_VARIANT=tail_k1`, whereas CLAUDE.md lists `MODEL_ENSEMBLE=3` in the
+provisional stack — worth confirming it is deliberate.
+
+**depth_rank is point-in-time (checked).** 2025–26 snapshots: 0 of 1,114 team-games
+used a snapshot after kickoff (captured ~06–07 UTC gameday, before inactives). Legacy
+2022–24: 12–13% of depth-1 QBs and 9–10% of depth-1 RBs did not play — a genuinely
+pre-game chart. Pre-2022 0% is the inactive-row panel break, not chart evidence.
+
 ## 2026-09-22 (15:07 CDT) — "Column-order luck" is seed noise; the feature-study floor was under-measured
 
 Laptop agent, following `8a681096`. Report:
