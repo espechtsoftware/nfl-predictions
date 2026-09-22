@@ -11,6 +11,29 @@
 
 # Project handoff
 
+## 2026-09-22 (15:10 CDT) — Q_HAIRCUT=0.80 verified live; post-blend placement checked — no double count
+
+Laptop agent, on `c5ce397e`. Report:
+`reports/2026-09-22-laptop-q-haircut-enabled-no-double-count.md`.
+
+**Live:** `project-slate` carries `Q_HAIRCUT='0.80'` on the verified image `98efdfa6…`
+(20:06 UTC). Valid value; the fail-closed guard will not trip.
+
+**The one risk once enabled:** the haircut runs **after** the market blend
+(`run_projections.py:485` vs the blend at `:397`) while 0.80 was measured on **model-only**
+projections. If books already shade Questionable props, 0.80 double-discounts the 55%
+market half. It matters because **83.1%** of players Questionable at some pre-lock pull
+had a prop line (vs 61.0% for never-designated).
+
+**Tested via `div_shadow` (model and market side by side):** market/model is **0.865** for
+Questionable-at-some-pull (n=59) against **0.874** for never-designated (n=342). **Books do
+not price the designation any more than the model does**, so the post-blend 0.80 is
+correct, not a double count. Small n, two weeks.
+
+**Logged:** `dk_salaries.status` stores the **string `"None"`** for undesignated players,
+not NULL — `status IS NULL` filters silently match nothing. Python money-path checks
+unaffected. README deficiency row added.
+
 ## 2026-09-22 (15:20 CDT) — Q_HAIRCUT=0.80 ENABLED on project-slate (operator approved)
 
 Operator approved production's recommendation. `project-slate` @
