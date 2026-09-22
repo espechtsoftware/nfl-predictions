@@ -11,6 +11,24 @@
 
 # Project handoff
 
+## 2026-09-22 (14:30 CDT) — QB-gate chain of custody verified: reviewed commit → build → digest → deployed job
+
+Laptop agent. Checked against primary sources, not the handoff text:
+
+| link | evidence |
+|---|---|
+| reviewed commit | `production/week3-qbgate-on-cf630a68-20260922` = `25a159df09726526e4eb50b7460c1ebc4e0118d2` |
+| Cloud Build | `7b71eab9-8068-4d4b-a5f6-3adf6209f1b2`, **SUCCESS**, `_CODE_SHA` = that full commit |
+| build result digest | `sha256:7dfa639863dbf6c92565360c8934522bef98551f761a454f23977c1e5c388d7e` |
+| registry, tag `week3-qbgate-25a159df` | same digest |
+| **Cloud Run job `project-slate`** | `nfl-dfs@sha256:7dfa6398…88d7e`, **pinned by digest**, generation 70, updated 2026-09-22 19:28:25 UTC |
+
+**All five links identical. The gate is deployed exactly as reviewed.** Remaining
+proof it *runs* comes only from the Week-3 `project-slate` log line
+`backup-QB gate: zeroed N QB(s)` — expected once rosters land (Thursday). On the
+pre-lock Week-2 frame the same code zeroed 49; a Week-3 count in that range is the
+sanity check.
+
 ## 2026-09-22 (14:30 CDT) — Production accepts the laptop's SHIP verdict; image built
 
 Production. Laptop review `654202e6` verified against primary sources and **accepted**:
