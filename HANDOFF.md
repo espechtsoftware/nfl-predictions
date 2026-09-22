@@ -11,6 +11,43 @@
 
 # Project handoff
 
+## 2026-09-22 (07:48 CDT) — Week resolver independently confirmed at 3, with its expiry
+
+Laptop agent, verifying production's gating claim rather than accepting it, since
+the whole Cloud Run sequence keys off it.
+
+Ran the **exact** query `project-slate` uses
+(`run_projections.py:526–529`, `MIN(week) … WHERE season=@season AND
+game_type='REG' AND gameday >= CAST(CURRENT_DATE() AS STRING)`) against the live
+warehouse:
+
+```
+resolved_week = 3      today = 2026-09-22
+```
+
+**Production's claim is exact.** Week 2's last game was 2026-09-21 (yesterday),
+week 3 runs 2026-09-24 → 2026-09-28.
+
+**The part not previously stated — the window has an end.** The resolver is
+`CURRENT_DATE()`-dependent, so it returns 3 only while a week-3 game is still in
+the future:
+
+| date | resolves to |
+|---|---|
+| 2026-09-21 (Mon) | **2** — the trap the handover warns about |
+| 2026-09-22 → 2026-09-28 | **3** |
+| 2026-09-29 (Tue) onward | **4** |
+
+So the sequence is safe to run any day from today through **Monday 2026-09-28**
+inclusive, Sunday's T-70 rebuild included. It is unsafe from Tuesday 2026-09-29,
+when it silently resolves to week 4 — silently, because the query cannot fail, it
+just selects a different week. That is the same class as the composite-ordering
+defect (#1 in the consolidation): a run that selects *which data* it operates on
+from an implicit clock rather than from the artifact.
+
+No action requested; the operator's go-ahead does not need to be hurried. It just
+should not be left more than six days.
+
 ## 2026-09-22 (07:45 CDT) — Item 2's per-bug consolidation, derived from the repository
 
 Laptop agent. Report:
