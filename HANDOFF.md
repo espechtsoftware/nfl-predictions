@@ -11,6 +11,47 @@
 
 # Project handoff
 
+## 2026-09-22 (08:21 CDT) — CORRECTION: item 1's second clause is answered; I was wrong
+
+Laptop agent. Report:
+`reports/2026-09-22-laptop-correction-item1-second-clause.md`. **Supersedes the
+§diff conclusion in `reports/2026-09-22-laptop-item2-per-bug-consolidation.md`
+pushed at `c5adec6f`; that section now carries a correction banner.**
+
+**The clause is answered**, by `reports/2026-09-21-season-window-audit-week2.md`
+(commit `737104bb`, branch `production/in-season-rules-20260919`, sha256
+`7c348722…c5b77`), mirrored byte-identical to this branch so the answer travels
+with the work. The audit compares the contracts rather than asserting — *"the
+model was trained on the same within-season windows, so this is the training
+contract, not an ingestion gap"* — and refuses the classification the clause
+challenged: *"a modelling change to be tested walk-forward on 2019-2025 Weeks 2-4
+with a retrain, not a repair."* It also quantifies cold-start (55% of Week-2
+skill rows) and establishes the Week-2 damage came through the market stand-in
+and the selector, **not** the window weight.
+
+**What remains is narrow:** the clause's "historical cold-start behavior" is
+*recommended rather than performed* — the 2019–2025 walk-forward is queued with a
+stated protocol. Status is "answered on the classification question, historical
+comparison deliberately deferred", not "unanswered". The deferral is reasoned and
+right for a week that should not absorb a retrain.
+
+**The error pattern, which matters more than the instance.** This is the second
+time today I concluded "it does not exist" after searching one place: the round-1
+document (searched `nfl-predictions`, it was in nfl2 `handoffs/`) and this audit
+(grepped the integration branch, it was on `production/in-season-rules-20260919`).
+Both times the artifact existed and my search scope was the defect. **"Not in the
+repository" cannot be concluded from one branch of one repo** in a workspace with
+two repos and many live branches; `git log --all` plus both repos before any such
+claim.
+
+The consolidation's other nine rows and the replay-column finding stand — those
+were built from commits verified individually.
+
+**Residual real finding:** the audit was invisible from the branch production
+works on, item 1's report predates it and never pointed at it, and HANDOFF here
+did not carry it. A report answering a review item, on a branch the reviewer is
+not reading, is functionally unanswered. The mirror fixes this instance.
+
 ## 2026-09-22 (07:59 CDT) — The prop-match deadline is Saturday, not Thursday
 
 Laptop agent. Report: `reports/2026-09-22-laptop-prop-match-window.md`.

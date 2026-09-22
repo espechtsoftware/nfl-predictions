@@ -84,13 +84,20 @@ lands, Week 3's levers go unrecorded exactly as Week 2's did.
 
 ## §diff — round 1's eight items against what was answered
 
+> **CORRECTED 2026-09-22 — the conclusion below about item 1's second clause is WRONG.**
+> It IS answered, by `reports/2026-09-21-season-window-audit-week2.md` (commit `737104bb`,
+> branch `production/in-season-rules-20260919`, sha256 `7c348722…c5b77`), now mirrored to
+> this branch. I had grepped only the integration branch's `reports/`. See
+> `reports/2026-09-22-laptop-correction-item1-second-clause.md`. The rest of this
+> document — the ten-bug table and the replay-column finding — is unaffected.
+
 Now that the source is readable, the promised diff. Seven of eight items are answered by
 committed reports. **One clause is not answered anywhere**, and it is not a small one.
 
 | item | subject | status |
 |---|---|---|
 | 1 | Jefferson pre-blend trace | answered (open on the re-run) |
-| **1 (second clause)** | **season-partitioned windows, training vs serving contracts, cold-start** | **UNANSWERED — see below** |
+| ~~1 (second clause)~~ | season-partitioned windows, training vs serving contracts, cold-start | **ANSWERED** — `737104bb`; my claim was wrong, see the correction report |
 | 2 | per-bug table + telemetry vs money-path input | this document + item-2 report |
 | 3 | caps compared on the same objective/pool/K/assignment | answered |
 | 4 | stack counts and overlap definition | answered (87/8/2 reproduced) |
@@ -99,7 +106,7 @@ committed reports. **One clause is not answered anywhere**, and it is not a smal
 | 7 | standings validator, ties/duplicates/rejected rows | answered |
 | 8 | Tuesday handover: image identities, pending vs done, risks | answered by the handover chain |
 
-### The unanswered clause, quoted in full
+### ~~The unanswered clause~~ — superseded, retained for the record
 
 Item 1 is two questions, and only the first was ever engaged:
 
