@@ -11,6 +11,52 @@
 
 # Project handoff
 
+## 2026-09-22 (13:17 CDT) — Where the 21.8-point field gap lives: QB is the worst slot, WR the biggest total
+
+Laptop agent, serving the field-relative target. Report:
+`reports/2026-09-22-laptop-where-the-21-point-gap-lives.md`.
+
+**`contest_entries` carries 100% lineup capture** — 994,328 Week-1 and 311,664
+Week-2 field rosters with full slot detail. Validated: scoring a field lineup from
+its parsed roster reproduces its recorded `points` **exactly** (5,000 entries,
+zero unmatched, gap +0.00).
+
+Random 25% sample, **42,831 entries, mean 115.51 vs full-field 115.55**:
+
+| slot | field/slot | ours/slot | **deficit** | our slots/lineup |
+|---|---:|---:|---:|---:|
+| **QB** | **16.92** | **11.07** | **+5.85** | 1.00 |
+| TE | 11.62 | 7.35 | **+4.27** | 1.14 |
+| WR | 14.08 | 11.21 | +2.87 | 3.61 |
+| RB | 12.59 | 11.31 | +1.28 | 2.25 |
+| **DST** | 7.00 | 8.29 | **−1.29** | 1.00 |
+
+**The QB slot is the worst single slot we field** — 5.85 below the field on one
+roster spot, more than a quarter of the whole gap from one slot in nine. **WR is
+the largest aggregate deficit** at ≈8.6 points (2.87 × 3.61 slots).
+
+Weighted contributions to the 21.84: **WR ≈8.6, QB ≈5.9, TE ≈4.9, RB ≈2.9, FLEX
+≈1.3, DST ≈−1.3**, summing to ≈22.3 against the observed 21.84 — **no large
+unexplained residual.**
+
+**DST is the only slot we win** (+1.29) — worth flagging against production's
+finding that DST projections carry no rank skill (+0.167). Winning a slot with no
+ordering signal suggests a pricing/construction artifact rather than skill, and is
+unlikely to survive being leaned on.
+
+**Why this serves the new target:** it says exactly where the points are, is
+recomputable the moment standings land, needs no simulation or modelling
+assumption, and is validated against recorded `points` to the cent. It also ranks
+the work: **the QB gate attacks the worst per-slot deficit (≈+2.8 pool points),
+but the largest recoverable pool is at WR, which nothing currently targets.**
+
+**Method note, because I got it wrong first.** My first pass used `LIMIT 40000`
+with no randomisation; BigQuery returned a storage-ordered slice averaging
+**77.55** against the true 115.55 — a 38-point bias that would have inverted
+several deltas. **`LIMIT` without `RAND()` is not a sample.** Caught by
+reconstructing the sample's own recorded points and finding the total did not
+match the known field mean.
+
 ## 2026-09-22 (13:03 CDT) — Field-relative target verified; QB gate priced at +2.8 pool mean; I was wrong about underpricing
 
 Laptop agent, checking `f1d265fb`. Report:
