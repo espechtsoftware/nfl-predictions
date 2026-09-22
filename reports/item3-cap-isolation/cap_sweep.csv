@@ -1,0 +1,17 @@
+objective,cap,max_exp,top_player,n,mean,best,n150,n170,n194
+dual_emax,none,51,Justin Jefferson,97,98.4,157.96,3,0,0
+mean_greedy,none,97,Justin Jefferson,97,70.99,109.7,0,0,0
+dual_emax,40%,38,Justin Jefferson,97,102.98,184.54,5,1,0
+mean_greedy,40%,38,49ers,97,97.67,183.56,7,2,0
+dual_emax,35%,33,49ers,97,105.99,184.54,5,1,0
+mean_greedy,35%,33,49ers,97,102.18,183.56,10,2,0
+dual_emax,30%,29,49ers,97,108.56,184.54,7,1,0
+mean_greedy,30%,29,49ers,97,103.45,183.56,9,2,0
+dual_emax,25%,24,Patriots,97,109.75,184.54,9,1,0
+mean_greedy,25%,24,Patriots,97,106.89,183.56,8,1,0
+dual_emax,20%,19,Patriots,97,113.53,184.54,10,1,0
+mean_greedy,20%,19,Patriots,97,107.48,183.56,9,1,0
+dual_emax,15%,14,Broncos,91,113.44,184.54,7,1,0
+mean_greedy,15%,14,Patriots,87,109.15,183.56,7,2,0
+dual_emax,proposal,29,Justin Jefferson,97,114.68,184.54,9,2,0
+mean_greedy,proposal,29,Dalton Schultz,97,111.84,183.56,6,1,0
