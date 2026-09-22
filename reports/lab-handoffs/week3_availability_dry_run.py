@@ -8,7 +8,7 @@ deployed code: PYTHONPATH=<worktree at the deployed commit>/src.
     python week3_availability_dry_run.py --season 2026 --week 3
 """
 import argparse, os
-os.environ.setdefault("Q_HAIRCUT", "0.80"); os.environ.setdefault("CASCADE_DOUBTFUL", "1")
+os.environ.setdefault("Q_HAIRCUT", "0.80"); os.environ.setdefault("CASCADE_DOUBTFUL", "1"); os.environ.setdefault("CASCADE_SKIP_PRICED_CARRIES", "1")
 import pandas as pd
 from nfl_dfs.inference import run_projections as RP, cascade_adjust as CA
 ap = argparse.ArgumentParser(); ap.add_argument("--season", type=int, required=True); ap.add_argument("--week", type=int, required=True)
@@ -36,3 +36,5 @@ print("\nEXPECTED project-slate log lines:")
 print(f"  backup-QB gate: zeroed {len(bq)}")
 print(f"  questionable haircut: x{h:.3f} on {len(q)}")
 print(f"  cascade: adjusted slate for {len(out_ids)} inactive(s): {', '.join(out_ids)}")
+for i in sorted(CA._report_out_ids(f) & set(out_ids)) if hasattr(CA, "_report_out_ids") else []:
+    print(f"  cascade: {i} carries already priced by team_vacated_carry_share; carry side skipped")

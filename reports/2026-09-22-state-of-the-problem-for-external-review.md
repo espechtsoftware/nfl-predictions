@@ -103,6 +103,8 @@ predicts a lineup mean of about 123 every week, while realized means were 141 (W
 - Expected-max selection is threshold-free and degrades gracefully.
 - Every threshold-keyed objective (cash line, P(top-N), tail counts) inherits the full error.
 
+**The ceiling is also a simulator property:** in Week 1 the winning line (274) appears in under 0.6% of simulated worlds, so generation cannot build a winner from worlds that never contain one (HANDOFF `db3cec6c`).
+
 A claim that the slate scoring environment is predictable pre-lock was **retracted** the same
 day: it had fitted a 2022 data break in the training panel, where the share of inactive rows
 jumps from 0.3% to 46.6%.
@@ -173,8 +175,10 @@ won in Week 2" (`2026-09-22-laptop-winning-tail-anatomy.md`).
 | Sort order across contests | no key ranks the book in both weeks, not even post-lock oracles; the simulator sort is the projection sort | `2026-09-22-laptop-sort-key-study.md` |
 | Generator batches | all Week-2 top-1% lineups are `boom`; `lev` never reaches 220+ in either week | `2026-09-22-laptop-generator-batches.md`, HANDOFF `b1af8137` |
 | Field shapes (QB stack / bring-back) | QB+2+ is best per lineup both weeks; naked QB worst; the bring-back flips | HANDOFF `b1af8137` |
-| Cascade double count (injury redistribution) | the carry side over-projects RBs (−0.68 residual, 3/3 seasons); default-off fix on a branch | `2026-09-22-laptop-cascade-double-count.md` |
+| Cascade double count (injury redistribution) | the carry side over-projects RBs (−0.68 residual, 3/3 seasons); fix **deployed and enabled** 09-22 (`CASCADE_SKIP_PRICED_CARRIES=1`) | `2026-09-22-laptop-cascade-double-count.md` |
 | Cash/double-up shadow | the Week-2 book would have cashed 11–24% against a ~50% break-even | `2026-09-22-laptop-cash-shadow-first-measurement.md` |
+| Expected-payout selection against the REAL field (oracle ownership, simulated outcomes) | **negative**: W1 36.4 vs expected-max 39.8 payout units; W2 0.0 vs 18.0; a field-relative objective amplifies the simulator's compositional bias | HANDOFF `db3cec6c` |
+| Ceiling diagnostic: does the simulator ever produce the winning line? | its per-world pool best is ~200–225 both weeks; W1's real pool best 236.3 occurs in only 2–14% of worlds and the 274 winning line in 0.0–0.6%; W2's 197.3 is exceeded in 88–95% | HANDOFF `db3cec6c` |
 | Tail calibration (PREREG-101) | frozen, then **withdrawn**: selection-optimism objection unresolved; do not launch | HANDOFF 2026-09-22 11:28 |
 
 ## 5. Already closed — please don't re-propose without a new mechanism
@@ -199,7 +203,6 @@ From the lab ledger (`nfl2/LEDGER.md`) and the briefing's §3
 | Thu 09-24 | Week-3 rosters land → run the availability dry run (`reports/lab-handoffs/week3_availability_dry_run.py`) | laptop |
 | Sat 09-26 | props + injury report → re-run the dry run; prop-match preflight | laptop / production |
 | **Sun 09-27** | **Week-3 build**: 198 entries across 40 contests, sequential layout, 12,800 solves (2,560 lev + 10,240 boom), all four availability rules live | production + operator |
-| operator decision | enable the carry-side cascade fix (`laptop/cascade-priced-carries-20260922`) | operator |
 | after Sunday | all-`boom` vs live-generator panel (design, not frozen: `2026-09-22-laptop-lev-to-boom-panel-design.md`) | production / operator |
 | after Sunday | Week-1 replication of the field-tilt result (C5) | production |
 | after Sunday | Python 3.14 re-freeze of the pinned runtime | production |

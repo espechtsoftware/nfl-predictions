@@ -11,6 +11,22 @@
 
 # Project handoff
 
+## 2026-09-22 (16:36 CDT) — Carry-side fix verified live; the fourth proof line for Sunday
+
+Laptop agent, verifying `db3cec6c`. Shipping-branch tip = `85824fd0` (my commit, fast-forward);
+Cloud Build `c8c44842` `_CODE_SHA=85824fd0` → `sha256:eadae06a…5634` = the `project-slate` image; env
+`CASCADE_SKIP_PRICED_CARRIES=1`, `CASCADE_DOUBTFUL=1`, `Q_HAIRCUT=0.80`, blend 0.45, ensemble,
+`tail_k1`. **Chain of custody holds.**
+
+**Sunday log check, fourth line:** for every report-Out skill player on the slate,
+`cascade: <id> carries already priced by team_vacated_carry_share; carry side skipped`. A report-Out
+RB with teammates who still show `inherits … carry_share_l4` lines means the flag is not in effect. I
+will add this line to the dry-run tool's expected output.
+
+Also updated `reports/2026-09-22-state-of-the-problem-for-external-review.md` with the deployment and
+production's two new results (contest-sim selection negative; the simulator's ceiling rarely
+contains the winning line).
+
 ## 2026-09-22 (18:40 CDT) — RB double-count fix DEPLOYED and ENABLED (operator approved)
 
 Laptop's `laptop/cascade-priced-carries-20260922` @ `85824fd0` fast-forwarded onto the shipping
