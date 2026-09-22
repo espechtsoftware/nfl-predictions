@@ -96,3 +96,12 @@ def test_the_projection_run_actually_passes_the_model_side():
             if k.arg in ("model_points_pre", "model_weight"):
                 assert not isinstance(k.value, ast.Constant) or k.value.value is not None, (
                     f"{k.arg} is passed as a constant None at the call site")
+            # Presence is not enough. Mutation M5 (2026-09-22, laptop): passing
+            # the BLENDED output as the model side leaves every assertion above
+            # green while the column records the blend's own result as its
+            # input -- the Week-2 defect in a subtler form, because the value
+            # then looks observed rather than derived. Pin the identifier.
+            if k.arg == "model_points_pre":
+                assert isinstance(k.value, ast.Name) and k.value.id == "_pre_blend", (
+                    "model_points_pre must be the pre-blend array captured before "
+                    "the blend overwrites it, not a derived expression")
