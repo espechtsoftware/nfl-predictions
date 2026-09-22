@@ -104,3 +104,28 @@ supply more, but that is a build, and its candidates are quarantined research da
 
 **Explicitly not proposed:** any change to the Week-3 money path. This is a research
 finding; the Sunday path is unchanged.
+
+
+---
+
+## RETRACTION (same day): the environment is NOT predictable — the 43.6% was an artifact
+
+The "−43.6% MAE, environment is predictable" result above is **withdrawn**. The training
+panel's inactive share jumps from **0.3% to 46.6% in 2022**, when listed-inactive players
+were added with zero labels. The environment was measured over all rows, so the walk-forward
+fit was learning that data break; against the honest baseline — a **same-era** trailing
+mean — it is **163% worse**, not 43.6% better (`env_robust.py`).
+
+Measured properly:
+
+| environment | CV across slates | OLS gain over same-era mean |
+|---|---:|---:|
+| mean DK points, **active** players | **7.7%** (not 30%) | +4.5% (+7.0% with an era dummy) |
+| **top-50 active** players — what lineups sample | **7.2%** | **+0.5%** |
+
+**The top-end scoring environment is not forecastable from pre-lock Vegas totals, recent
+form or salary.** So the regime flip cannot be converted into a covariate by this route, and
+the laptop's observation that it could — which rested on this number — does not survive.
+The PIT and compositional-bias findings are unaffected; only the forecastability claim falls.
+Practical consequence for Week 3: no environment-conditioned rule; keep the threshold-free
+expected-max selector.

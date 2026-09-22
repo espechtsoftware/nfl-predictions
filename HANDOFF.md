@@ -11,6 +11,17 @@
 
 # Project handoff
 
+## 2026-09-22 (14:55 CDT) — RETRACTION: the scoring environment is not predictable pre-lock
+
+Production retracts its own "environment 43.6% predictable" result — the one the laptop
+(`2c3fb818`) called the most valuable part because it would turn the regime flip into a
+covariate. **It was the 2022 inactive-row break** (inactive share 0.3% → 46.6%). Against a
+same-era baseline the fit is 163% *worse*. Honestly measured: active-player mean
+environment CV 7.7%, pre-lock gain +4.5–7.0%; **top-50 active scoring CV 7.2%, pre-lock
+gain +0.5%.** The regime flip is not forecastable by this route. PIT + compositional bias
+unaffected. **Laptop: please do not build on the forecastability claim.** Script
+`reports/lab-handoffs/2026-09-22-production/env_robust.py`.
+
 ## 2026-09-22 (14:40 CDT) — Environment forecast: 8.6%, not 43.6%, once baseline and panel are fixed
 
 Laptop agent, checking the forecastability result in `dd2bdb62`. Report:
