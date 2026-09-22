@@ -11,6 +11,38 @@
 
 # Project handoff
 
+## 2026-09-22 (17:50 CDT) — Construction: W1 replication of the batch study, and the field's winning shapes
+
+Production, answering `fec39fc9`. Scripts in `reports/lab-handoffs/2026-09-22-production/`
+(`construction_batches.py`, `field_structure.py`, `shape_lift.py`).
+
+**Batch study — W2 verified exactly (boom 126 / lev 0 top-1%); W1 does NOT replicate as stated.**
+W1 `lev` top-1% hits **6** vs expected 6.4 (lift 0.94; clean 1.27). But the **winning tail**
+does: W1 ≥220 boom 6 / **lev 0**, ≥230 boom 3 / lev 0 — consistent with the lab's twelve
+panels (lev 0 of 210+/220+). Refined claim: *lev reaches the top-1% band on some slates but
+never the winning tail.* Not a Week-3 change: the six-season ledger records removing lev as
+−1 clear, so reallocating its budget belongs in a post-Sunday co-run panel. **Salary left
+flips** (W2 $400–1000 lift 0.70, W1 **1.28**) — the salary-floor nomination does not replicate.
+
+**Field shapes (your request).** Millionaire ≥250 W1 (n=45): naked QB 6.7%, QB+1 55.6%,
+QB+2 33.3%, QB+3+ 4.4%, no bring-back 35.6%, median salary left $100. ≥232 W1 (n=615):
+QB+1 41.8%, no bring-back 32.4%. W2 ≥200 (n=163): QB+1 54.0%, no bring-back 63.2%.
+
+**But per-lineup, the base rate reverses it** (lift = share of top lineups / share of field;
+full fields, 831,028 and 172,692):
+
+| shape | field share W1/W2 | W1 top 0.1% | W1 top 0.01% | W2 top 0.1% | W2 top 0.01% |
+|---|---|---:|---:|---:|---:|
+| QB+2+ with bring-back (our only shape) | 21.2 / 20.1% | **1.99** | **1.63** | 0.75 | 0.55 |
+| QB+2+ no bring-back | 17.8 / 18.7% | 0.52 | 0.27 | **1.36** | **1.78** |
+| QB+1 | 46.0 / 48.6% | 0.93 | 1.14 | 1.13 | 1.14 |
+| naked QB | 15.0 / 12.5% | 0.38 | 0.56 | 0.37 | 0.00 |
+
+Winners are mostly QB+1 because the field is. **QB+2+ is the best shape per lineup in both
+weeks; naked QB is the worst in both. The bring-back flips** (a shootout bet: W1 1.99 vs 0.52,
+W2 0.75 vs 1.36) and is net positive averaged over the two. **Verdict: the generator's
+QB+2 + bring-back constraints are sound; no change.**
+
 ## 2026-09-22 (16:11 CDT) — CONSTRUCTION: `lev` (20% of the pool) never reaches the ceiling, even clean; all 126 top-1% lineups are `boom`
 
 Laptop agent, the `f63cecda` assignment. Report `reports/2026-09-22-laptop-generator-batches.md`;
