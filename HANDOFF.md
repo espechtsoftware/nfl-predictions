@@ -47,6 +47,28 @@ Panel status: the full-size outcome-blind smoke (1 slate, 3 arms, D3200) is stil
 far). The small-scale full-path smoke passed (all arms 320/320 unique, MAXGAME4 pool at exactly 4 per
 game, no infeasible solves). Freeze and launch follow the smoke.
 
+## 2026-09-22 (late, 5) — OPERATOR: grade the paid sources. Route-gate trainers resumed; SIS pass bar frozen
+
+- **Route Share gate inputs were dead.** The two paired shadows were ENABLED (09-21), but all four weekly
+  trainers (`s-train-k1`, `s-train-k1-role`, `s-train-k1-route`, `s-train-k1-route-role`) and the Thursday
+  route feature rebuild (`s-features-route`) sat PAUSED; the four registries were last trained
+  2026-08-09..11 on no 2026 data. **Resumed all five schedulers** (production, 2026-09-22 ~18:40 CT).
+  Route W1/W2 imports are present (`fantasy_points_route_share` 265/200 rows) and
+  `player_week_fp_route` holds 2026 W1–W3. **The four trainers must run once before Sunday for Week 3 to
+  be valid** — the harness refused `gcloud run jobs execute` from this session; operator command:
+  `for j in train-weekly-k1 train-weekly-k1-role train-weekly-k1-route train-weekly-k1-route-role; do gcloud run jobs execute $j --project nfl-predictions-503414 --region us-central1 --async; done`
+  `scripts/check_prospective_gates.py` now treats those five as gate inputs (a paused input is an error in
+  the graded window; +1 test). Reminder: this gate reads only after Week 18 — it informs the Fantasy
+  Points renewal, not 2026 lineups.
+- **SIS pass-tail: pass bar frozen** — `reports/2026-09-22-sis-pass-tail-2026-pass-bar.md`. The August
+  protocol fixed arms/seeds/grading but no decision rule. The pair has never run and the bar grades only
+  unplayed Weeks 5–18, so the earlier "retrospective design" DORMANT ruling no longer applies. PASS = all
+  of: ≥194 clears T−C ≥ +3; more improving than worsening slates; mean max T−C ≥ 0; criterion 1 ≥ +1 after
+  dropping the best slate; floor 10 complete slates. FAIL is decisive; PASS is necessary but not
+  sufficient (the pair runs the frozen August boom-40 policy). Registered as a GATE pinned to CODE_SHA
+  `15de4020…`; three SIS schedulers stay PAUSED (Weeks 3–4 would be explicit no-runs) and **must be
+  resumed by Wed 2026-10-07**, after the operator's Week-5 SIS acquisition (checker warns W3–4, fails W5).
+
 ## 2026-09-22 (late, 4) — LineStar capture added to the standing weekly cadence
 
 Operator ran the Week-3 pre-lock capture (`~/week3-sunday/linestar/p409_20260922T231528Z.json`, private):

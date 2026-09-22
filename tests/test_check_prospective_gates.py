@@ -26,7 +26,8 @@ SPEC.loader.exec_module(cpg)
 def world(monkeypatch):
     """A healthy world: every registered scheduler ENABLED, every job on-policy."""
     state = {s: {"state": "ENABLED", "schedule": "20 10 * * 7"}
-             for g in cpg.GATES.values() for s in g["schedulers"]}
+             for g in cpg.GATES.values()
+             for s in g["schedulers"] + g.get("input_schedulers", [])}
     state.update({s: {"state": "PAUSED", "schedule": "0 0 * * 7"} for s in cpg.DORMANT})
     envs: dict[str, dict[str, str]] = {}
     for gate in cpg.GATES.values():
@@ -110,17 +111,34 @@ def test_upcoming_gate_warns_but_does_not_fail(world, monkeypatch):
     assert any("synthetic-upcoming" in w and "not ENABLED" in w for w in warnings), warnings
 
 
-def test_the_sis_pass_tail_pair_is_classified_dormant_and_says_why():
-    """It was ruled dormant, not silenced: no frozen gate document ever existed, so it
-    could only warn. The reason must survive in the registry, not just in a report."""
-    names = ["s-shadow-sis-pass-tail-paired", "s-tabpfn-sis-pass-tail-control",
-             "s-tabpfn-sis-pass-tail-treatment"]
-    assert "sis-pass-tail-2026" not in cpg.GATES
-    for n in names:
-        assert n in cpg.DORMANT, n
-    lead = cpg.DORMANT["s-shadow-sis-pass-tail-paired"]
-    assert "no frozen prospective gate" in lead.lower()
-    assert "retrospective" in lead.lower()
+def test_paused_input_trainer_in_graded_window_is_an_error(world):
+    """The 2026-09-22 failure: shadows ENABLED, their weekly trainers PAUSED since August,
+    so every graded week would have compared August models."""
+    state, _ = world
+    state["s-train-k1-route"]["state"] = "PAUSED"
+    errors, _, _ = cpg.audit(week=3)
+    assert any("not ENABLED" in e and "s-train-k1-route" in e for e in errors), errors
+
+
+def test_sis_pass_tail_gate_warns_before_week_5_and_fails_from_week_5(world):
+    state, _ = world
+    for s in cpg.GATES["sis-pass-tail-2026"]["schedulers"]:
+        state[s]["state"] = "PAUSED"
+    errors, warnings, _ = cpg.audit(week=3)
+    assert not any("sis-pass-tail-2026" in e for e in errors), errors
+    assert any("sis-pass-tail-2026" in w and "not ENABLED" in w for w in warnings), warnings
+    errors, _, _ = cpg.audit(week=5)
+    assert any("sis-pass-tail-2026" in e and "not ENABLED" in e for e in errors), errors
+
+
+def test_sis_pass_tail_gate_pins_the_frozen_code_identity(world):
+    """Its policy is frozen in code, not env, so the contract is the protocol's CODE_SHA."""
+    _, envs = world
+    spec = cpg.GATES["sis-pass-tail-2026"]
+    assert spec["require_env"] == {"CODE_SHA": "15de40206963b5db9e6a4acff0f865833678d44d"}
+    envs["job-for-s-shadow-sis-pass-tail-paired"] = {"CODE_SHA": "deadbeef"}
+    errors, _, _ = cpg.audit(week=5)
+    assert any("contradicts the declared policy" in e for e in errors), errors
 
 
 def test_every_dormant_entry_carries_a_reason():

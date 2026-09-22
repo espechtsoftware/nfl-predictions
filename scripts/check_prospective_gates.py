@@ -60,6 +60,12 @@ GATES = {
             "s-shadow-k1-roleunion-early", "s-shadow-k1-roleunion-late",
             "s-shadow-k1-route-roleunion-early", "s-shadow-k1-route-roleunion-late",
         ],
+        # 2026-09-22: the gate needs all four registries retrained weekly on one cutoff, and the
+        # route treatment needs the Thursday feature rebuild after Wednesday's W-1 import. All
+        # five sat PAUSED since August while the shadows were ENABLED -- the shadows would have
+        # graded August models. A paused input is as fatal as a paused shadow.
+        "input_schedulers": ["s-train-k1", "s-train-k1-role", "s-features-route",
+                             "s-train-k1-route", "s-train-k1-route-role"],
         "require_env": {"N_BOOM": "160", "N_LEV": "40"},
         "adjudicates": "after ALL of weeks 2-18 are frozen and scored (the gate forbids "
                        "early adjudication); 12 complete paired weeks is a SUPPORT FLOOR, "
@@ -69,6 +75,24 @@ GATES = {
                 "treatment must differ ONLY by the four Fantasy Points route features. "
                 "Its value is the 2027 adoption decision and the Fantasy Points renewal "
                 "decision, NOT 2026 results.",
+    },
+    # 2026-09-22 (operator): the pass bar was frozen before the pair ever ran and grades only
+    # unplayed weeks 5-18, so it is not the retrospective design the earlier DORMANT ruling
+    # guarded against. The pair runs its own frozen August policy (no N_BOOM/N_LEV env), so
+    # the contract pins the frozen code identity instead.
+    "sis-pass-tail-2026": {
+        "doc": "reports/2026-09-22-sis-pass-tail-2026-pass-bar.md",
+        "first_week": 5,
+        "last_week": 18,
+        "floor_weeks": 10,
+        "schedulers": ["s-tabpfn-sis-pass-tail-control", "s-tabpfn-sis-pass-tail-treatment",
+                       "s-shadow-sis-pass-tail-paired"],
+        "require_env": {"CODE_SHA": "15de40206963b5db9e6a4acff0f865833678d44d"},
+        "adjudicates": "once, after Week 18 is scored; interim reads at Weeks 8 and 13 are "
+                       "descriptive only. It can decide the SIS renewal, not 2026 lineups.",
+        "in_season_value": False,
+        "note": "Protocol reports/2026-08-15-prospective-sis-pass-tail-finite-k-protocol.md; needs "
+                "the operator's Wednesday SIS acquisition from Week 5.",
     },
 }
 
@@ -88,22 +112,8 @@ DORMANT = {
     "s-shadow-cbwu-volume": "Route-tail union volume probe; research intake, not a graded gate.",
     "s-shadow-cbwu-oi-paired-early": "ENABLED and running; ownership-inclusive paired shadow.",
     "s-shadow-cbwu-oi-paired-late": "ENABLED and running; ownership-inclusive paired shadow.",
-    # 2026-09-22. Ruled dormant, not silenced. These three carried a GATES entry whose own
-    # note recorded that NO FROZEN GATE DOCUMENT EXISTS: the week-5 start was derived from a
-    # last-four-weeks context inside the module, not from anything preregistered. A paired job
-    # with a scheduler but no written gate cannot be graded, so the entry could only ever warn.
-    # The registry note offered two exits -- write the gate, or move to DORMANT with a reason.
-    # Writing it now would mean choosing what it adjudicates AFTER two weeks of 2026 outcomes
-    # are visible, which is retrospective design and is forbidden. All three are PAUSED, and
-    # no live feature, model or inference path reads the SIS pass-tail tables.
-    "s-shadow-sis-pass-tail-paired": "No frozen prospective gate document exists; week-5 start "
-        "was implementation-derived, and writing the gate now (after 2026 outcomes are visible) "
-        "would be retrospective design. PAUSED, no live reader. Re-open only with a gate frozen "
-        "BEFORE the weeks it grades.",
-    "s-tabpfn-sis-pass-tail-control": "Control arm of the same ungraded pair; see "
-        "s-shadow-sis-pass-tail-paired.",
-    "s-tabpfn-sis-pass-tail-treatment": "Treatment arm of the same ungraded pair; see "
-        "s-shadow-sis-pass-tail-paired.",
+    # 2026-09-22: the SIS pass-tail pair was ruled dormant earlier today and re-opened the same
+    # day with a pass bar frozen before it ever ran (GATES["sis-pass-tail-2026"]).
 }
 
 
@@ -158,7 +168,7 @@ def audit(week: int) -> tuple[list[str], list[str], list[str]]:
         if spec.get("in_season_value") is False:
             notes.append(f"{gate}: NOT a current-season lever -- {spec.get('adjudicates', '')} "
                          f"A lost week here costs the multi-season instrument, not this season.")
-        paused = [s for s in spec["schedulers"]
+        paused = [s for s in spec["schedulers"] + spec.get("input_schedulers", [])
                   if live.get(s, {}).get("state", "MISSING") != "ENABLED"]
         if paused:
             msg = (f"{gate}: {when}, but these are not ENABLED: "
