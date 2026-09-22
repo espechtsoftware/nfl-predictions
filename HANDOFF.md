@@ -11,6 +11,58 @@
 
 # Project handoff
 
+## 2026-09-22 (12:35 CDT) — The pool ceiling binds, not retrieval; Week 2 was a floor failure
+
+Production. Report: `reports/2026-09-22-production-ceiling-and-eligibility.md`.
+Scripts: `reports/lab-handoffs/2026-09-22-production/`. Four findings.
+
+**1. Week-1 replication delivered** (the laptop's gating request). Ran their
+`supply_vs_retrieval.py` verbatim; validated the shim by reproducing their Week-2
+numbers exactly (197.26 / 157.96 / 39.30 / edit distance 5 / Kamara). Week 1: pool
+oracle **236.28**, book best **218.40**, gap **17.88** vs Week 2's 39.30. Shape
+replicates, magnitude does not.
+
+**2. The retrieval framing fails a base-rate check.** "30 lineups ≥170 in the pool,
+none entered" is what a *random* 97-row book does **79.2%** of the time — 30 rows in
+12,555 is an expectation of 0.23. The selector converts **above** pool base rate at
+every threshold in both weeks (W1 1.14×/1.55×/2.74×/**4.01×** at ≥150/170/194/200;
+W2 1.75× at ≥150). That statistic should be dropped from the argument. The real
+evidence the selector mis-ranks is separate and stands: pool
+`corr(sim_mean, realized)` = **−0.332** in Week 2.
+
+**3. The binding constraint is the pool ceiling.** Against real winning lines, not
+arbitrary thresholds: **our entire pool could not win any contest above 68 entries,
+in either week.** W1 Millionaire won at 273.98 (pool oracle −37.70); W2 Millionaire
+at 232.38 (pool oracle −35.12). Perfect retrieval still loses by ~35, stable across
+two very different slates, consistent with the 34-slate winning-line join (median
+−36.5, 0/34). The only contests our pool cleared were the 68- and 59-entry
+SUPERSatellites (+15.20, +13.42).
+
+**4. Week 2's loss was a floor failure.** Book mean **98.40** vs Millionaire field
+median **113.82** — the typical lineup we entered was worse than the typical lineup
+the field entered. Week 1 was +7.57 above it. Largest identified contributor:
+availability is absent from projections. Served DK status is monotone in residual
+across both weeks independently — (none) −1.02, Q −5.50, **D −12.32** — and **all
+five Doubtful players in both weeks scored exactly 0.00** against a mean projection
+of 12.32 (verified against nflverse; the one cross-checkable case agrees to the DK
+100-yard bonus). Six entered Week-2 rows held a never-played player, averaging 77.45
+vs 99.78.
+
+**Isolated A/B + null.** Excluding DK-Doubtful from the selectable universe: Week 1
+**0 rows changed** (provable no-op), Week 2 best +26.58 / mean **+7.26**. Null of 120
+random comparably-used triples: **best P=53.3% (noise — do not claim it)**, **mean
+P=0.0%** (~2.9 sd, unreached). Two corrections to my own earlier claims recorded in
+the report: the exposure-cap best-gain I cited on retraction was noise, and it was
+not attributable to the Doubtful rule.
+
+**Proposed for Week 3, operator's call, NOT applied:** exclude DK-Doubtful from the
+selectable universe — eligibility correctness, pre-lock data only, bounded downside,
+targets the statistic that actually failed. Questionable deliberately excluded from
+the proposal (weaker support, and a variance trade rather than a correctness fix).
+
+**Data deficiency logged:** `contest_entries.payout` is NULL on all 1,305,992 rows,
+so realized ROI per contest cannot be computed from the warehouse.
+
 ## 2026-09-22 (12:08 CDT) — N_QB_VARIANTS targets the exact failure the retrieval diagnostic measured
 
 Laptop agent. Report:
