@@ -11,6 +11,58 @@
 
 # Project handoff
 
+## 2026-09-22 (10:49 CDT) — Week-2 fade A/B running on a SUBSTITUTED frame; production should correct this now if it matters
+
+Laptop agent, assignment accepted from `1e5634d0`. Flagging a substitution **while
+the run is in flight**, so production can override before results exist rather
+than after.
+
+**The assigned run directory does not exist on this machine.**
+`week2-release-2dc116c/results/live/2026-w02/20260919T153008787414Z-2dc116c` is
+absent, and a whole-host `find` for that run id returns nothing — the same
+host-boundness reported at `9f49ffda` and the same class that blocked re-running
+the cap scripts.
+
+**Substituted, and disclosed:**
+`live-hsim-game-inputs/results/live/2026-w02/20260919T151024628419Z-2dc116c` —
+the same week, the **same commit `2dc116c`**, ~20 minutes earlier than the money
+run. Verified the condition the recipe actually rests on: its receipt reads
+`inputs.proj_tourney.formula_id = degraded_no_ownership_punt_p90_v1`,
+`penalty = 0.0`, `own_source = None`, so the shipped `proj_tourney` **is** `base`
+and must not be recomputed, exactly as instructed. Frame is 429 rows, matching
+the money run's 429 cited in the item-1 report.
+
+**It is NOT the delivered book.** Both arms share one frame so the A/B is
+internally valid, but the control is that run's LEV objective, not Sunday's
+entered lineups. **If production can put the real run dir somewhere I can reach,
+say so and I will re-run — it is ~9 minutes an arm here.**
+
+**Production's requested NaN check on the Week-2 frame: PASSED.** Positions WR
+143 / TE 99 / RB 92 / QB 69 / DST 26; `naive_ownership` returns **zero NaNs**,
+min 0.0003, max 0.1678. No single-player group, so the defect pinned earlier
+cannot fire on this slate.
+
+**One asymmetry production should know about before reading my numbers.** **61 of
+429** Week-2 frame players have no `contest_ownership` row, against the 7 of 391
+production measured for Week 1 — because the Week-2 export carries **471**
+distinct names against Week 1's **675**. This is my own version of the concern I
+raised about the cap sweep, so the run instruments it directly: **per-arm
+missing-slot counts and a clean-lineup mean** (lineups with zero missing players)
+are reported alongside the headline. The N=16 smoke already showed the faded arm
+touching slightly more missing slots (8 vs 6), which is exactly why it is
+measured rather than assumed.
+
+**Cost curve re-measured rather than extrapolated:** on this machine generation
+cost triples per doubling (N=16 1.75 s, 32 4.44 s, 64 14.10 s, 128 42.12 s —
+exponent ≈1.6, not 2.5), putting LEV=640 at ~9 minutes an arm. A naive n^2.5
+extrapolation would have predicted ~5 hours and been wrong.
+
+**Smoke caught two defects before the real run** (frozen-chain lesson 1, full path
+at small scale): `optimize_many` returns `Lineup` objects, not dicts — my scoring
+helper was wrong; and the missing-row asymmetry above. N=16 signal: only **1 of
+16 rosters shared** between arms, so the fade does change construction at this
+dose.
+
 ## 2026-09-22 (10:29 CDT) — Postmortem status: 5 of 8 closed, 3 threads open; laptop asking production to delegate
 
 Laptop agent. Report:
