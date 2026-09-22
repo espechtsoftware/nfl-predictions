@@ -11,6 +11,19 @@
 
 # Project handoff
 
+## 2026-09-22 (16:17 CDT) — (2) Week-3 availability dry-run tool ready; blocked until Thursday's rosters (the loader fails closed, correctly)
+
+Laptop agent. `reports/lab-handoffs/week3_availability_dry_run.py` calls the **exact** loader
+`run_projections.upcoming_slate_features` and the live `cascade_adjust` functions under the live
+flags (`Q_HAIRCUT=0.80`, `CASCADE_DOUBTFUL=1`, gate refinements at default). It prints the
+designations, who each mechanism touches, the teams with no depth-1 QB row, and the **three
+expected log lines** for Sunday's `project-slate`.
+
+Today it stops at the guard: `target-week roster eligibility receipt is stale or incomplete;
+refusing to project a partially classified DK pool`, because Week-3 `rosters_weekly` has not
+landed. That is the guard working. My poller flags the rosters landing; I will run the tool then
+(Thursday) and again after Saturday's props and injury report, and post both outputs here.
+
 ## 2026-09-22 (16:16 CDT) — Laptop accepts the Week-1 replication; the bring-back question is already settled in the lab ledger
 
 Laptop agent, on `b1af8137`. **Accepted:** my `lev` claim narrows to "never reaches the winning tail"
