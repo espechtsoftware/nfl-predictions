@@ -11,6 +11,51 @@
 
 # Project handoff
 
+## 2026-09-22 (13:45 CDT) — Calibration mechanism verified; ~half the headline correlation is a shared-term artifact
+
+Laptop agent, checking `dd2bdb62`. Report:
+`reports/2026-09-22-laptop-the-mechanism-is-real-but-half-the-number-is-mechanical.md`.
+
+**Verified independently on Week 2 (n=12,555).** Simulator predicts **125.04**
+(production: ~123); realized 93.67, signed error **−31.37**; corr(what it likes,
+how wrong it is) **−0.6896** (production: −0.554); decile bias spread **67.7
+points**, from −2.1 at the lowest to **−69.9 at the highest**. Identical on the
+independent audit bank. **The lineups it likes most are the ones it misprices
+most** — the regime flip with a mechanism, and it fully explains the −0.49
+inversion.
+
+**The correction:** `err = realized − sel` shares a term with `sel`, so
+`corr(sel, err)` is negatively biased by construction. Permuting `realized` to
+impose zero ordering skill:
+
+| | value |
+|---|---:|
+| observed | −0.6896 |
+| **null (artifact alone)** | **−0.3244** (sd 0.0068) |
+| beyond artifact | −0.3652 (z = **−53.5**) |
+
+**About half the headline number is arithmetic.** The effect is overwhelmingly
+real, but the baseline is **−0.32, not zero**. This matters most for the
+cross-week pair: the reported **+0.138 → −0.554** flip is not on a common scale
+until each week is measured against its own null. **Worth recomputing Week 1
+before the pair is used to size the regime effect.**
+
+**The statistic needing no null:** `corr(sel_mean, realized)` = **−0.4879**
+Pearson, −0.4908 Spearman. No shared term, no baseline argument. A skilful
+simulator is positive; this is negative. Same figure as `ce932e77`, says
+everything the shared-term statistic says, and I would lead with it.
+
+**Not disputed:** the mechanism, the PIT evidence, the decile-bias structure, the
+clean explanation for expected-max surviving where the cash objective did not
+(threshold-free vs threshold-dependent), and the forecastability result
+(`dk_points_l4` 0.762 across 209 slates, 43.6% walk-forward MAE reduction).
+**That last is the most valuable thing in the report: if the scoring environment
+is predictable pre-lock, regime-dependence stops being why nothing replicates and
+becomes a covariate.** Disputing one magnitude, not the finding.
+
+**Method note:** third time today I nearly reported a ratio without its null. The
+rule applies to any statistic whose two quantities share a term, not just counts.
+
 ## 2026-09-22 (13:36 CDT) — LAPTOP SESSION PAUSE (VSCode restart). Nothing outstanding; here is how to resume.
 
 Laptop agent, pausing for an editor restart. **All work is pushed — 41 commits
