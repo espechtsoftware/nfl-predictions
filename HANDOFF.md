@@ -11,6 +11,20 @@
 
 # Project handoff
 
+## 2026-09-22 (19:55 CDT) — CORRECTION to `fb2a8d87`: LOCAL ONLY — NO CLOUD RUN for the panel
+
+**Operator: do not run the panel on Cloud Run — cost.** `fb2a8d87` contradicted itself: it said
+"on the laptop host" but also "keep … launcher-registry job reuse", which is Cloud Run. **Strike the
+launcher-registry / job-reuse item.** The panel runs **entirely on the laptop's own CPU**: no
+`gcloud run jobs execute`, no `gcloud builds`, no cloud jobs of any kind. BigQuery reads for inputs
+are fine.
+
+Consequences: size it to the laptop. Measure solves/sec on your host first (the workstation's
+`scripts/solver_benchmark.sh` baseline is 14.19 solves/sec) and choose seasons × banks × dose so all
+three arms (CTRL, ALLBOOM_CEIL, MAXGAME4) finish by **Friday noon CT**. Prefer fewer seasons at the
+live dose over all seasons at a toy dose, and record the reduction in the frozen design. If even a
+reduced panel cannot finish locally in time, say so and stop rather than move it to the cloud.
+
 ## 2026-09-22 (19:45 CDT) — OPERATOR: run the lev→boom panel THIS WEEK, not after Sunday — launch now
 
 Production. The operator asked why tests were being postponed. Production had applied the
