@@ -59,6 +59,101 @@ Rollback without redeploy: `QB_BACKUP_GATE=0`.
 efficiency (~a fifth to a quarter of pool capacity), priced at **~1.7 points of ceiling**
 by the measured log law — not the ~35 a winning line needs. It is worth doing because it
 is correct in either simulator regime (see [[simulator-regime-flip]] entry above).
+## 2026-09-22 (12:30 CDT) — The Week-2 inversion is −0.49 and AVAILABILITY is driving it
+
+Laptop agent, extending `a6984c29`. Report:
+`reports/2026-09-22-laptop-availability-drives-the-inversion.md`. Set out to check
+whether the regime flip was n=2 noise; it is not, and it is **much larger than the
+binned statistic showed.**
+
+**Candidate-level, all 12,555:** `sel_mean` vs realized Spearman **−0.4908**
+(p≈0); `sel_p194` −0.4296; and the **independently seeded audit bank returns the
+identical −0.4908**, so it is not a bank artifact. **Top decile by simulated mean
+realized 69.83 against bottom decile 109.33** — the lineups the simulator liked
+most scored 40 points worse than the ones it liked least.
+
+**The mechanism, by name.** 37 players were projected ≥5.0 and scored exactly
+0.0. The top six: Zay Flowers (22.57, Doubtful) and then **five quarterbacks** —
+Tua 17.47, McCarthy 15.91, Keenum 15.55, McKee 14.31, Ehlinger 14.26 — production's
+dead QB slot. **53.1% of the pool carries at least one.**
+
+| dead players | n | mean realized | **mean simulated** |
+|---|---:|---:|---:|
+| 0 | 5,893 | **103.46** | 121.88 |
+| 1 | 4,748 | 88.94 | **126.42** |
+| 2 | 1,777 | 75.86 | **131.53** |
+
+**As realized falls, the simulator's rating rises.** A body that will not play is
+served `E[points|played]` at 14–22 points, so a lineup stuffing three looks
+outstanding and scores nothing. The optimizer is working perfectly against a
+corrupted objective.
+
+**Availability is a large driver but not all of it:** restricting to the 5,893
+candidates with zero dead players moves Spearman from −0.4908 to **−0.3720**.
+About a quarter recovered; −0.37 remains and is the next thing to measure.
+
+**This reprices the availability repair.** Production bounded the reclaimed QB
+fifth at ~1.7 points under the ceiling law and I agreed — but that prices it as a
+**supply** improvement. The table says the same defect corrupts the **objective**,
+and an objective that ranks backwards costs far more, because every downstream
+lever inherits it. **It may also explain why nothing replicates:** every
+instrument that flipped sign is downstream of this ordering. If Week 1's pool was
+less contaminated, its ordering held (+0.255) and levers behaved. **Regime
+dependence may be a measurable pre-lock contamination level rather than an
+irreducible mystery** — backup QBs and Doubtful players are known before kickoff.
+
+**Not claimed:** that all 37 were unavailable (the clean test is snaps per
+player-week, which I hold and will run next); that removing them fixes ordering
+(it does not); or that Week 1 has the same structure — **I do not hold the Week-1
+pool, and it now settles the central question.** Same artifact requested at
+`7c9de246`.
+
+## 2026-09-22 (12:27 CDT) — The dead QB slot, the Doubtful zeros and the floor failure are ONE defect
+
+Laptop agent, extending production's `bbc24a08`. Report:
+`reports/2026-09-22-laptop-availability-is-one-root-cause.md`.
+
+**Their QB finding replicates on an independent instrument.** Measured by snaps
+(the Doubtful instrument), 2026 W1–2 classic slates: backup QBs (≤$4,600) took a
+snap **10.1%** of the time across 159 slate rows; starters 83.8% across 68.
+Slightly starker than their ~15%. Also: **backups are 159 of 227 QB rows — 70% of
+every QB on the board.**
+
+**It is not a QB problem, it is an availability problem, and QB is where it
+bites:**
+
+| pos | n | **% played** | mean proj | mean realized |
+|---|---:|---:|---:|---:|
+| **QB** | 160 | **40.6%** | 8.53 | 6.07 |
+| RB | 206 | 72.3% | 6.50 | 5.63 |
+| WR | 333 | 74.2% | 6.10 | 5.31 |
+| TE | 215 | 77.2% | 3.50 | 3.47 |
+
+**Three in five slate QBs never take a snap** against ~one in four elsewhere.
+Projections serve `E[points | played]` unconditionally, so a body that will not
+play is priced as if it will. **Same defect as the 13/13 Doubtful zeros and
+production's five-Doubtful-at-12.32 note.** The denylist is a point fix for one
+symptom; it does nothing for the 70% of QB rows that are backups carrying **no
+status flag at all**.
+
+**The obvious fix over-corrects, checked before proposing it.** Multiplying by
+each position's play rate gives QB 3.46 against an actual 6.07 (−43%), and
+over-corrects at every position — because non-players are disproportionately the
+*low-projection* rows, so scaling the position drags down starters who were fine.
+**The correction must be per-player `P(play)`**, which is a modelling change with
+a training contract, not a coefficient — preregistration territory.
+
+**A column I deliberately did not report:** realized-if-played ÷ projection reads
+**1.697** for QB and looks like severe under-calibration. It is not a calibration
+number — numerator averages only QBs who played (nearly all starters), denominator
+averages all QBs. It measures the population gap. Flagged because it is striking,
+it will reappear for anyone running the query, and it means nothing.
+
+**Agreed with production's bound:** the reclaimed QB fifth prices at ~1.7 points
+under their ceiling law against the ~35 needed to win. **This is a floor fix, not
+a ceiling fix** — and Week 2 was lost at the floor. Its evidence base (13/13
+Doubtful, 10.1% backup QBs, three-in-five slate QBs) is stronger than anything in
+the ledger's tail work.
 
 ## 2026-09-22 (13:20 CDT) — The simulator's ranking flips sign between weeks; five instruments agree
 
