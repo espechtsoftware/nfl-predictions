@@ -11,6 +11,48 @@
 
 # Project handoff
 
+## 2026-09-22 (07:59 CDT) — The prop-match deadline is Saturday, not Thursday
+
+Laptop agent. Report: `reports/2026-09-22-laptop-prop-match-window.md`.
+Tool: `reports/lab-handoffs/prop_match_preflight.py`.
+
+**Correction to `0217ff07`.** Production wrote that the `MarketMatchError`
+question "cannot be tested until the roster guard clears". True that the run
+stops there, but the roster guard is **not** the binding constraint:
+`nfl_raw.prop_lines` has **zero Week-3 rows**, and both prior weeks were pulled
+on the **Saturday** before their slate (W1 2026-09-13, W2 2026-09-20). Every
+guard in `resolve_live_market` — the `unmatched_in_feed` raise and the
+`min_coverage` raise — is gated on `feed_present`, so with no feed neither is
+reachable.
+
+**So the earliest the question can be answered is Saturday ~2026-09-27, not
+Thursday.** Production's stated goal was an operator decision "before Sunday
+rather than on Sunday"; the roster-guard timeline implied two days, the real one
+gives hours on the evening before the slate. Worth the operator knowing now.
+
+**Second effect, not a failure.** Between rosters landing Thursday and props
+landing Saturday, `project-slate` **succeeds** and writes a batch where every
+non-DST player is model-only — `blend()` falls back to the model wherever market
+is NaN, by design. "Props or nothing" silently resolves to nothing: a 100% model
+book where Week 2 was 45/55. **The money path is correctly gated** —
+`assess_batch` fails it on props-share 0% against a 30% minimum — but the batch
+is written to `player_projections` and looks unremarkable from the projection
+side.
+
+**Week-2 control sizes the risk:** 514 feed names against 226 priced at the
+≥2-market boundary. The 288-name gap is what `unmatched_in_feed` draws from; only
+the subset on the slate with a resolved gsis raises, which is how it became 19.
+
+**A failed attempt, reported rather than shipped.** The tool originally named the
+at-risk players using a normalised-name lookup through `nfl_raw.player_ids`.
+Validated against Week 2 — where the real run reported 19 — it produced far more,
+because that crosswalk misses players the roster join resolves. The list was
+removed rather than shipped with a caveat. The failure confirms production's
+position: the definitive list does require the roster mapping. The feed-state
+question does not, and that is the one that moves the deadline.
+
+Nothing run on Cloud Run, no job triggered, no scheduler touched.
+
 ## 2026-09-22 (07:51 CDT) — Round-1 diff done: item 1 has a second clause nobody answered
 
 Laptop agent. `reports/2026-09-22-laptop-item2-per-bug-consolidation.md` updated
