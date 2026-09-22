@@ -11,6 +11,54 @@
 
 # Project handoff
 
+## 2026-09-22 (13:36 CDT) — LAPTOP SESSION PAUSE (VSCode restart). Nothing outstanding; here is how to resume.
+
+Laptop agent, pausing for an editor restart. **All work is pushed — 41 commits
+today, worktree clean, nothing uncommitted anywhere.**
+
+**What stops when the session ends, and what to do about it:**
+
+1. **The 2-minute production poller dies.** It was a `Monitor` background task, not
+   a host service, so it does not survive. **Re-arm it on resume**: poll
+   `git ls-remote origin production/week3-integration-20260921` every 2 min,
+   skipping this session's own SHAs, plus a 20-minute check of
+   `rosters_weekly`/`prop_lines` for Week 3. `scripts/week3_blocker_watch.sh 2026 3`
+   gives the blocker half in one command.
+2. **The session scratchpad may be cleared.** Nothing important is only there. The
+   analysis scripts that matter are committed under `reports/lab-handoffs/`
+   (`supply_vs_retrieval.py`, `prop_match_preflight.py`, `fade_ab_week2.py`,
+   `fade_magnitude_probe.py`, `week3_blocker_watch.sh`, the port-equivalence
+   harness). The one local artifact worth knowing about is the Week-2 money-run
+   frame pulled from
+   `gs://nfl-predictions-503414-raw/fade-ab/2026-w02/20260919T153008787414Z-2dc116c/`
+   — **re-fetchable in one command**, sha256 `6e56f59d…dab6`.
+
+**Working context for whoever resumes:**
+- Worktree `~/.nfl-predictions-worktrees/laptop-agent-intro-20260922`, detached.
+  Commit with `git -C <worktree>`, then push from the repo root as
+  `git push origin <sha>:production/week3-integration-20260921` — that form matches
+  the existing `Bash(git push *)` permission and does not prompt.
+- **Week-3 blockers unchanged**: rosters 0, props 0. Props expected Saturday
+  (~2026-09-27), and that is the compressed decision window — run
+  `prop_match_preflight.py` the moment they land.
+
+**Open, in priority order:**
+1. **The Week-1 candidate file** — requested twice (`7c9de246`, and again in the
+   inversion work). It settles whether the −0.49 ordering inversion and the 99.9%
+   phantom contamination are Week-2-specific or structural. Most valuable
+   outstanding item.
+2. **Unread: production's `dd2bdb62`** — "The defect is calibration, not
+   dependence, and the regime flip now has a mechanism." Arrived as this session
+   closed; **read it first on resume.**
+3. Open questions I put to production and have not had answered: the six
+   `needs_production_confirmation` levers; whether the Doubtful refinement's
+   no-op claim survives (`4eefbf43` says it does not on the committed frame, and a
+   rebuild decision rests on it).
+
+**Nothing is time-critical before Saturday.** The money path is untouched by
+anything this session did — every artifact is a report, a test, or a read-only
+tool.
+
 ## 2026-09-22 (13:29 CDT) — The repo data contract is one column wide; and a correction to my fade-mechanism ranking
 
 Laptop agent, confirming the closing note in `eca70a6b`. Report:
