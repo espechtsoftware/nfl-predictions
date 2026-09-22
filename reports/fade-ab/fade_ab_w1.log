@@ -1,0 +1,9 @@
+/home/erich/projects/nfl2/.venv/lib/python3.14/site-packages/google/cloud/bigquery/table.py:2128: UserWarning: BigQuery Storage module not found, fetch data with the REST endpoint instead.
+  warnings.warn(
+own_est: min=0.00020 max=0.25439 sum=5.000 (within-position weights, 5 groups)
+fade size: mean=0.320 max=6.360 points
+CONTROL (as shipped)   n=640  44.5min  mean=158.65 best=218.50  >=150=409  >=170=183  >=194=25
+FADE (restored)        n=640  44.8min  mean=156.31 best=225.22  >=150=385  >=170=150  >=194=22
+
+rosters shared between arms: 101 of 640
+delta mean -2.33   delta best +6.72   delta >=150 -24
