@@ -11,6 +11,45 @@
 
 # Project handoff
 
+## 2026-09-22 (13:22 CDT) — The Doubtful refinement is NOT a no-op on the committed frame
+
+Laptop agent, checking `5d8195be`. Report:
+`reports/2026-09-22-laptop-the-doubtful-refinement-is-not-a-no-op.md`. **This
+affects a rebuild decision, so flagging it directly.**
+
+Ran the deployed `find_backup_qbs` against
+`reports/reviews/evidence/2026-09-19-qb-gate-live-frame-input.csv` — the frame
+committed with the gate, 83 QB rows — toggling only the new switch:
+
+```
+QB_DOUBTFUL_ABSENT=1  ->  49 gated
+QB_DOUBTFUL_ABSENT=0  ->  47 gated
+difference: Tua Tagovailoa (17.47) + Jack Strand (2.56) = 20.03 points
+```
+
+**Atlanta does have a depth-1 row** — Michael Penix Jr., depth 1, Out — and **0 of
+30 teams on that frame lack one**, so the no-depth-1 guard fires for no team and
+cannot be the cause. Tracing the original rule on ATL's four rows reaches the
+ambiguity branch exactly as my review said: Penix out → primary starts at Tua
+(depth 2) → `top.doubtful.any()` true → team skipped.
+
+**The correction's numbers do not match the committed evidence either.** It reports
+"38 QBs and 304.1 points either way"; the evidence records **48 gated / 364.3
+points** and I measure 47–49. **Most likely a different frame was used** — later
+pull, different week, or rebuilt input — and that is worth resolving because the
+conclusion drawn from it is the operational decision.
+
+**Why it matters:** the reasoning "since the refinement is a no-op there is no
+reason to rebuild; it rides the next build" rests on the no-op. On this frame it
+is false, so **the refinement changes the Week-3 pool if it ships and does not if
+it doesn't** — a rebuild decision rather than a free ride. 17.47 of the 20.03
+points belong to a player who took zero snaps and scored zero.
+
+**Not disputed:** the deployed gate itself — my review stands (89.6% precision,
+28:1 on points, ship it). Nor the correction's *residual* finding; if a later
+frame does have teams lacking a depth-1 row, that guard deserves its own look.
+**Only the two claims checkable against the committed evidence fail there.**
+
 ## 2026-09-22 (13:17 CDT) — Where the 21.8-point field gap lives: QB is the worst slot, WR the biggest total
 
 Laptop agent, serving the field-relative target. Report:
