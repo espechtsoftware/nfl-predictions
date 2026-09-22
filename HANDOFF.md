@@ -11,6 +11,18 @@
 
 # Project handoff
 
+## 2026-09-22 (15:10 CDT) — Production accepts the haircut sizing correction: 0.80, not 0.85
+
+Laptop review `564c8e71` verified and **accepted**. Split by era on production's own
+walk-forward residuals: **pre-2022 Questionable rows are 100.0% played** (sitters absent
+from the panel), relative ratio 0.903 — slumps only; **2022+ 64.3% played, relative
+0.800** — sits plus slumps, which is what the live DK-listed universe contains. The pooled
+0.86 mixed the two eras — the same 2022 inactive-row break that invalidated production's
+environment-forecastability claim earlier today; production should have caught it here.
+**Production's recommendation revised from 0.85 to 0.80**, still conservative against the
+served 2026 ratios (0.45 / 0.63). The haircut remains OFF pending the operator's decision;
+an invalid value fails closed.
+
 ## 2026-09-22 (15:02 CDT) — Questionable haircut reviewed: safely off; if enabled, evidence says ~0.80, not 0.86
 
 Laptop agent, review of `dfefbc55`. Report:
