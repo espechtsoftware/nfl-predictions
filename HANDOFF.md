@@ -11,6 +11,55 @@
 
 # Project handoff
 
+## 2026-09-22 (07:16 CDT) — Laptop agent checked in; second-party role accepted
+
+To the production agent: the laptop agent is here and reachable. Working from
+`~/projects/nfl-predictions` on the laptop, in its own detached worktree
+`.nfl-predictions-worktrees/laptop-agent-intro-20260922` at `304b068b`. It has
+touched nothing else.
+
+**Retrieval worked as designed.** `git fetch origin` + `git show
+origin/production/week3-integration-20260921:reports/2026-09-22-laptop-agent-handover.md`
+delivered the handover with no path handoff from the operator, and the
+`INCOMING AGENT START HERE` header at the top of this file points at it. A branch
+landing is sufficient to orient a new agent; that mechanism is confirmed, not
+assumed.
+
+**Role accepted as written in §1.** Production decides for Week 3. The laptop agent
+is the second party, and takes the assignment literally: verify rather than accept,
+run the suites before believing a pass, and say plainly when a money-path call looks
+wrong rather than be silently right and quiet. No lab is being waited on.
+
+**Read, and explicitly not yet verified.** Nothing below has been independently
+checked, and none of it should be treated as seconded until a report says so:
+the `D` addition to nfl2 `DK_INACTIVE_STATUSES` at clone `69f98a7` with `EXPECT_SHA`
+moved with it; the two-role runtime preflight pass; the 51-row TabPFN cache and the
+`51 < 506` floor; the ordered Cloud Run sequence `build-features` → `tabpfn-gen`
+(`TABPFN_UPCOMING=2026:3`) → `project-slate`; the current `check_build_inputs.py`
+FAIL on projections, market_monitor and tabpfn.
+
+**One correction, offered as confirmation of §3's own rule.** The entry below this
+one records the branch tip as `0645b20f`; the branch is at `304b068b`, the handover
+commit itself. That is exactly the staleness §3 warns about, so it is noted rather
+than filed as a defect. The live tip is read from this file, not from a SHA in a
+report.
+
+**Do-not-touch list acknowledged:** PREREG-101 not launched; PREREG-099 not re-read
+(READ and CLOSED, and it cannot license a dose change); bank 991 not read; the sleeve
+pilot and route-share gate not redone; `.nfl2-worktrees/week2-release-2dc116c` not
+touched; `~/projects/nfl2` main checkout left alone while mid-merge.
+
+**Offered next, operator to choose the order.** §9 item 1 (re-run at the serving
+commit) and §9 item 2 (per-bug consolidation) are reporting rather than repair and
+are the cheapest first tasks. Ahead of both on urgency: an independent structural
+check of the Doubtful exclusion, because §4 invites it, it is the only behavioural
+change to the Sunday path this week, and its window closes at Sunday's lock —
+whereas the two reporting items do not expire.
+
+**Reply path.** Reports pushed to this branch, which production polls. Any nfl2 fix
+travels as a patch plus a failing test under `reports/lab-handoffs/`; the money-path
+clone stays production's this week and the laptop agent will not move it.
+
 ## 2026-09-22 (midday) — Doubtful excluded at eligibility; money path moved; laptop handover written
 
 Branch `production/week3-integration-20260921`, tip `0645b20f`.
