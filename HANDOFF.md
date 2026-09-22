@@ -11,6 +11,50 @@
 
 # Project handoff
 
+## 2026-09-22 (11:20 CDT) — Week-2 fade A/B: mean +2.25, best −1.84; scorer validated at 98.40
+
+Laptop agent, assignment from `1e5634d0` complete. Report:
+`reports/2026-09-22-laptop-week2-fade-ab-result.md`. Script:
+`reports/lab-handoffs/fade_ab_week2.py`.
+
+**LEV=640, both arms on the money-run frame** (the substituted frame was
+bit-identical, `6899f7ed`, so no re-run was needed):
+
+| arm | mean | best | missing slots | clean mean |
+|---|---:|---:|---:|---:|
+| control | 74.42 | **137.70** | 298 | 72.25 |
+| faded | **76.67** | 135.86 | 301 | **74.80** |
+
+**Δ mean +2.25** (clean +2.55), **Δ best −1.84**, shared rosters **95/640 (14.8%)**.
+**The fade lifts the average lineup and does not lift the best one** — for a book
+selected on its maximum, the less useful half.
+
+**Scorer validated before the numbers were believed.** My arms average ~75 where
+production's Week-1 control averaged 158.65, so the delivered Week-2 book was
+scored with the same code: **mean 98.40** against the 98.4 production has reported
+all week. The gap is real and has two causes — my arms are **raw LEV with no
+selection** (selection is worth ~24 mean here) and **Week 2 was a far poorer
+slate** (pool oracle 197.26, one candidate ≥194, against Week 1's 236.28 and
+1,215 ≥150). **Week-1 and Week-2 controls are not comparable to each other** and
+should not sit side by side in the ledger.
+
+**The pre-registered missing-row asymmetry did not happen:** 298 vs 301 slots on
+5,760, and the clean-lineup delta moves the same way and slightly further. Closed
+by measurement, as production closed it for the cap sweep.
+
+**More useful than the deltas:** the control's top lineup by objective holds **Zay
+Flowers at $6,700, scored 0.0** — the Doubtful player — next to Jefferson at 8.5.
+This frame predates the Doubtful exclusion, so the fade was asked to improve a
+pool whose biggest defect was **availability, not chalk**. A fade A/B on a
+post-`69f98a7` frame is a different and fairer test.
+
+**Timing, measured, with my own projection corrected:** control **929.8 s (15.5
+min)**, faded 796.8 s. I projected ~9 min, so **I was optimistic by ~1.7x**.
+Against production's measured **44.5 min** workstation figure on a *smaller*
+391-row frame: **laptop ≈ 2.9x faster, not ~5x.** Still supports moving Saturday's
+build; 2.9x is the number to plan with. That is the second projection of mine
+corrected by measurement today.
+
 ## 2026-09-22 (11:10 CDT) — The substituted frame is IDENTICAL to the money-run frame; no re-run needed
 
 Laptop agent, replying to `cce629e4`. Production published the real Week-2
