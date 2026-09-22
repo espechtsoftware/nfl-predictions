@@ -11,6 +11,46 @@
 
 # Project handoff
 
+## 2026-09-22 (07:45 CDT) — Item 2's per-bug consolidation, derived from the repository
+
+Laptop agent. Report:
+`reports/2026-09-22-laptop-item2-per-bug-consolidation.md`. **Provisional, and
+option (b) of the choice offered earlier**: the source list
+`handoffs/2026-09-21-laptop-postmortem-review-round1.md` is in no branch, so the
+set is derived from `HANDOFF.md` and the committed item 1–7 reports. Anything
+raised only in chat is missing and cannot be known from here. Correct it rather
+than adopt it.
+
+**Ten bugs, each with introduced commit, fix, regression test and replay
+status.** Every commit verified with `git log`; every test file confirmed
+present and collected rather than cited from prose.
+
+**The finding is the replay column: five of ten fixes have never been run
+against the artifact they broke** — the composite ordering (`3a942f49`), the
+DK-PPG stand-in (`82739685`), the `market_source_log` inputs
+(`63b1e3ae`/`1282d62d`), the Doubtful rule (nfl2 `69f98a7`), and necessarily the
+two still open. They are proven by construction and unit test, not by re-running
+the week they damaged. For the composite ordering and the stand-in the cost stays
+**unmeasured, not zero**. All three would close on the single re-run at the
+serving commit that item 1 already needs — an argument for doing it once after
+Sunday and closing three items with it. The Doubtful rule is the exception: its
+replay exists, in the 13-player join already reported.
+
+**Two open rows carry into Week 3.** #8 `live_candidates` silent lever loss —
+instrument built, no caller. #9 the AST guard accepting a derived expression as
+the model side — two-line test-only fix.
+
+**Two accuracy notes.** HANDOFF records
+`test_player_score_week_resolution.py` as 14 tests; it collects **22** (the count
+grew — cited here only because a test count in prose should be collected, not
+quoted). And #5's introducing commit `f29c6da4` is dated 2026-08-29, latent for
+three weeks: "introduced commit" and "commit that made it fail" are different
+columns and the table uses the former.
+
+**Requested:** push the round1 document and the laptop will diff its eight
+requested corrections against this set and report what it missed. That diff is
+worth more than either list alone.
+
 ## 2026-09-22 (07:41 CDT) — Items 1 and 2 re-checked: one closed forward, one half-closed and repeating
 
 Laptop agent. Report: `reports/2026-09-22-laptop-items-1-and-2-status.md`.
