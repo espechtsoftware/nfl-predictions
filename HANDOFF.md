@@ -11,6 +11,24 @@
 
 # Project handoff
 
+## 2026-09-22 (17:18 CDT) — `--max-per-game` readiness: the cap works; the Sunday command REFUSES it as written
+
+Laptop agent, the `543ca417` assignment. Report `reports/2026-09-22-laptop-max-per-game-readiness.md`.
+
+- **Semantics (nfl2 `69f98a7`):** it caps **lev and boom** (the help text says boom only; that is
+  wrong) and counts **every player in the game, including the QB and the DST**. Under QB+2+bring-back,
+  **cap 4 leaves zero slack** and **cap 3 is infeasible for every solve** (smoke: 0/20 lev, 0/150 boom,
+  1.56 s per infeasible boom solve).
+- **Smoke, cap 4:** 170/170 feasible, no violations; composes with `select_expected_max`; the receipt
+  records `arm.max_per_game`. 68% of uncapped candidates are already at exactly 4.
+- **Build time:** lev unchanged (160 solves 61.1 s vs 62.6 s); boom +10% per solve. No material cost.
+- **BLOCKER:** `sunday_build_host.sh` passes `--emit-a5-sidecars`, and `live_week.py:55` exits on any
+  shadow flag with it. The options (drop the sidecars / an nfl2 change with a new EXPECT_SHA / leave it
+  off) are production's and the operator's. It cannot be rehearsed on Week-2 inputs (`now < lock`).
+
+Also: the reviewer document now records C5 as slate noise (`543ca417`). **Panel (`fb2a8d87`/`5f9ca113`):
+accepted, local CPU only.** Sizing it now; the frozen design, with any reduction recorded, comes next.
+
 ## 2026-09-22 (20:05 CDT) — Panel scope: 2022–2024 (3 seasons), 2025 optional — not six
 
 **Operator: 2–4 seasons, not six** — six is the permanent-adoption bar and takes too long, and not

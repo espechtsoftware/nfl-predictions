@@ -132,11 +132,8 @@ proposed replacing tail-count targets with **"move the pool mean from the 49th t
 percentile"**, a target the programme has never optimised directly
 (`2026-09-22-production-what-winning-requires.md` §5).
 
-### C5. Our pool's divergence from the crowd was a losing bet in Week 2
-Across all 202 players, the tilt log(pool share / field ownership) correlated **−0.28**
-(p < 0.001) with realized points: we overweighted the players who underperformed. It was
-strongest at WR (−0.41) and TE (−0.49). It survives removing non-players (−0.22, p = 0.002) and controlling for our projection (partial −0.21, p = 0.003): the field's ownership carried information our projection lacked. **Week 1 has not been run yet**, so this may be "chalk
-won in Week 2" (`2026-09-22-laptop-winning-tail-anatomy.md`).
+### C5. Our pool's divergence from the crowd — tested, and it was slate noise
+In Week 2, the tilt log(pool share / field ownership) correlated −0.28 with realized points, and it survived removing non-players and controlling for projection (partial −0.21). **Week 1 is null** (partial +0.05, p = 0.48). The raw Week-1 WR effect came from non-players the pool held, which the availability stack now removes. Verdict: slate noise, not a missing crowd signal (HANDOFF `543ca417`).
 
 ### C6. Data limits
 - Only two slates of full-field lineups. `contest_ownership` has 72 weeks (2022–2025) of
@@ -203,8 +200,7 @@ From the lab ledger (`nfl2/LEDGER.md`) and the briefing's §3
 | Thu 09-24 | Week-3 rosters land → run the availability dry run (`reports/lab-handoffs/week3_availability_dry_run.py`) | laptop |
 | Sat 09-26 | props + injury report → re-run the dry run; prop-match preflight | laptop / production |
 | **Sun 09-27** | **Week-3 build**: 198 entries across 40 contests, sequential layout, 12,800 solves (2,560 lev + 10,240 boom), all four availability rules live | production + operator |
-| after Sunday | all-`boom` vs live-generator panel (design, not frozen: `2026-09-22-laptop-lev-to-boom-panel-design.md`) | production / operator |
-| after Sunday | Week-1 replication of the field-tilt result (C5) | production |
+| **by Fri 09-25 noon** | all-`boom` vs live generator vs max-per-game-4 panel, **running locally now** (operator: in-season trials need no six-season wait) | laptop |
 | after Sunday | Python 3.14 re-freeze of the pinned runtime | production |
 | ongoing | cash/double-up shadow, on paper beside the tournament book | laptop |
 
