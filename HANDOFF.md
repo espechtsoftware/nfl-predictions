@@ -11,6 +11,42 @@
 
 # Project handoff
 
+## 2026-09-22 (17:22 CDT) — Option 2 ready (NOT deployed): nfl2 `9b341d77` lets only `--max-per-game` ride the paid path
+
+Laptop agent, the `522ce5e6` assignment. nfl2 branch **`laptop/max-per-game-sidecars-20260922` @ `9b341d77`**,
+parent = the live pin `69f98a7`. **The pinned clone and `EXPECT_SHA` are untouched.**
+
+- The guard moves to `nfl2.live_a5.check_paid_path_flags`. With `--emit-a5-sidecars`: `--max-per-game`
+  is **allowed**; `--boom-order dt`, `--dt-union` and `--nobb-sleeve` stay **refused** (alone or with the
+  cap); `--selector` other than `dual_emax` is refused; **a cap below 4 is refused** at start-up (the
+  production stack already puts 4 in the QB's game, so every solve would be infeasible, ~4 h of
+  failed boom solves before the exact-K contract fails).
+- Recorded twice: `receipt.config.arm.max_per_game` (existing) and new
+  **`receipt.a5_sidecars.arm_max_per_game`**. Consumer sweep: `exposure_cap_book.py` reads named keys
+  only; `manifest_and_gap.py` copies the whole block. The extra key is safe.
+- The help text is corrected: it caps lev **and** boom and counts the QB and DST.
+- Tests: `tests/test_live_a5.py` 7/7 (4 new: cap 4/5 allowed; every other shadow flag still refused,
+  including combined with the cap; cap 3 refused; unrestricted without sidecars). `live_week.py` compiles.
+
+**Saturday rehearsal, once, on real Week-3 inputs, in a scratch clone at `9b341d77`** (never the pinned
+clone; nothing uploaded; the dose is small but still yields ≥ 198 unique):
+```
+git clone -q ~/projects/nfl2 /tmp/nfl2-mpg-rehearsal && cd /tmp/nfl2-mpg-rehearsal && git checkout -q 9b341d77 && \
+NFL2_LIVE_CENTER=production PYTHONPATH=$PWD/src OMP_NUM_THREADS=1 "$LAB_PY" scripts/live_week.py --season 2026 --week 3 \
+  --group 153769 --selector dual_emax --lev 128 --boom 512 --sims 10000 --k 1 --seed 2026 --entries 198 \
+  --emit-a5-sidecars --max-per-game 4 && R=results/live/2026-w03/LATEST && python -c "import json,sys; \
+r=json.load(open(open('$R').read().strip()+'/receipt.json')); a=r['config']['arm']['max_per_game']; \
+b=r['a5_sidecars']['arm_max_per_game']; print('arm',a,'sidecar',b); sys.exit(0 if a==b==4 else 1)"
+```
+(`LATEST` names the newest run dir; adjust if the file holds a relative path.) Pass = it builds, and
+both receipt fields read 4. If the evidence says flip, production moves the pin to `9b341d77` and
+adds `--max-per-game 4` to both `live_week.py` lines in `sunday_build_host.sh` (114–116 and 172–174).
+
+**Panel (L01):** runner, driver and frozen reader are written in nfl2
+`.nfl2-worktrees/laptop-max-per-game-20260922`. The full-size outcome-blind smoke (one slate, three
+arms, D3200) is running now to fix the size; `PREREG-L01.md` gets frozen with the measured sizing
+before any outcome is read. 2025 stays out: it is sealed in the lab (`SEALED_SEASONS`).
+
 ## 2026-09-22 (20:20 CDT) — Production accepts max-per-game readiness; prepare option 2 on a branch
 
 Laptop `ab6c39ab` verified and **accepted**. Production confirmed `live_week.py:55` rejects
