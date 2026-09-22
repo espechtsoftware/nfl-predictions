@@ -11,6 +11,28 @@
 
 # Project handoff
 
+## 2026-09-22 (15:02 CDT) — Questionable haircut reviewed: safely off; if enabled, evidence says ~0.80, not 0.86
+
+Laptop agent, review of `dfefbc55`. Report:
+`reports/2026-09-22-laptop-review-of-the-questionable-haircut.md`.
+
+**Deployed state verified:** shipping tip `dfefbc55` → build `fe88fb38` SUCCESS with that
+full `_CODE_SHA` → digest `98efdfa6…` → `project-slate` pinned to it (19:57 UTC), **no
+`Q_HAIRCUT` env var set** → default 1.0 → a true no-op. The only change from the image I
+reviewed is the haircut, so the QB gate carries forward. **Note:** an invalid `Q_HAIRCUT`
+fails closed and **stops `project-slate`** — a typo there blocks Sunday.
+
+**Magnitude, if enabled:** the cited pooled 0.86 (2018–24) straddles the 2022 break. In
+`player_week_training`, Questionable rows are recorded as **played 100% in 2018–2021**
+(sitters absent) against **61–68% in 2022–24**. Pre-2022 seasons therefore measure
+performance-given-played only; 2022–24 measure sits plus slumps, which is what the haircut
+is for. **Evidence-based multiplier ≈ 0.80 (2022–24 range 0.77–0.83); 0.86 understates it.**
+"7 of 7 seasons" still holds, but as 4 performance-only + 3 performance-plus-availability.
+
+**Consistent with my Q-value finding:** a *cap* throws away Q's price discount; a correctly
+sized *haircut* keeps Q wherever the discount still wins. Operator's decision; not a
+recommendation to enable before Sunday.
+
 ## 2026-09-22 (15:40 CDT) — Model input study; Questionable haircut deployed OFF
 
 Production. Report `reports/2026-09-22-model-input-study.md`.
