@@ -148,6 +148,25 @@ def _redistribute(
                  row.gsis_id, row.delta, share_col, out_id, row.method)
 
 
+def _report_out_ids(feats: pd.DataFrame) -> set[str]:
+    """Players the injury report already lists Out: the feature build prices
+    their vacated carries through team_vacated_carry_share (sql/features/023),
+    so redistributing carry share again at inference counts them twice.
+
+    Double-count audit (2026-09-22, walk-forward 2022-24, model fit on prior
+    active rows, the real cascade fed report-Out sources with usage strictly
+    before the week): bumped RBs' mean residual was -0.14 without the cascade,
+    -0.68 [-1.10, -0.26] with it, and -0.19 with the carry side skipped; the
+    effect had the same sign every season (-0.61, -0.68, -0.39). The target
+    side is left alone (WR+TE +0.18 -> -0.15, a wash). DK-only late flips and
+    Doubtful sources are not in team_vacated_* and keep the full cascade.
+    DEFAULT OFF: CASCADE_SKIP_PRICED_CARRIES unset or "0" leaves behaviour
+    unchanged."""
+    rep = feats.get("injury_status", pd.Series(index=feats.index, dtype=object))
+    rep = rep.fillna("").astype(str).str.upper().str.strip()
+    return set(feats.loc[rep.eq("OUT") & feats.gsis_id.notna(), "gsis_id"])
+
+
 def adjust_for_inactives(
     feats: pd.DataFrame,
     usage_rec: pd.DataFrame,
@@ -172,10 +191,16 @@ def adjust_for_inactives(
     G = slate_graph(feats)
     skip = set(out_ids)
     rush = usage_rush.rename(columns=_RUSH_AS_TARGETS)
+    priced = _report_out_ids(feats) if os.environ.get(
+        "CASCADE_SKIP_PRICED_CARRIES", "0") == "1" else set()
     for out_id in out_ids:
         _redistribute(feats, G, usage_rec, injuries, out_id, skip,
                       share_col="target_share_l4", wopr_col="wopr_l4",
                       smoothed_col="rz20_targets_smoothed", share_cap=0.5)
+        if out_id in priced:
+            log.info("cascade: %s carries already priced by team_vacated_carry_share; "
+                     "carry side skipped", out_id)
+            continue
         _redistribute(feats, G, rush, injuries, out_id, skip,
                       share_col="carry_share_l4", wopr_col=None,
                       smoothed_col="gl3_carries_smoothed", share_cap=0.85)

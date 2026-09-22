@@ -440,3 +440,31 @@ def test_cascade_doubtful_on_adds_non_qb_doubtful_only(monkeypatch):
     assert got == ["RB_O", "TE_D", "WR_D"], got
     assert "QB_D" not in got, "Doubtful QBs stay with the QB gate"
     assert "WR_Q" not in got and "WR_H" not in got
+
+
+def test_skip_priced_carries_defaults_off(monkeypatch):
+    monkeypatch.delenv("CASCADE_SKIP_PRICED_CARRIES", raising=False)
+    feats = slate()
+    feats.loc[feats.gsis_id == "RB1", "injury_status"] = "Out"
+    adjusted, _ = adjust_for_inactives(feats, usage_rec(), usage_rush(), no_injuries())
+    rb2 = lambda df, c: float(df.loc[df.gsis_id == "RB2", c].iloc[0])
+    assert rb2(adjusted, "carry_share_l4") > rb2(feats, "carry_share_l4")
+
+
+def test_skip_priced_carries_on_skips_only_report_out_carry_side(monkeypatch):
+    monkeypatch.setenv("CASCADE_SKIP_PRICED_CARRIES", "1")
+    rb2 = lambda df, c: float(df.loc[df.gsis_id == "RB2", c].iloc[0])
+    # Report-Out: carries already priced by team_vacated_carry_share -> no carry bump,
+    # but the target side still redistributes.
+    feats = slate()
+    feats.loc[feats.gsis_id == "RB1", "injury_status"] = "Out"
+    adjusted, out_ids = adjust_for_inactives(feats, usage_rec(), usage_rush(), no_injuries())
+    assert out_ids == ["RB1"]
+    assert rb2(adjusted, "carry_share_l4") == rb2(feats, "carry_share_l4")
+    assert rb2(adjusted, "gl3_carries_smoothed") == rb2(feats, "gl3_carries_smoothed")
+    assert rb2(adjusted, "target_share_l4") > rb2(feats, "target_share_l4")
+    # DK-only late flip (not on the report, so not in the features) keeps the carry side.
+    feats = slate()
+    feats.loc[feats.gsis_id == "RB1", "status"] = "O"
+    adjusted, _ = adjust_for_inactives(feats, usage_rec(), usage_rush(), no_injuries())
+    assert rb2(adjusted, "carry_share_l4") > rb2(feats, "carry_share_l4")
