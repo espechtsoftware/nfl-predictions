@@ -50,14 +50,33 @@ print(f"candidates {len(cd_)}   entered {book_mask.sum()}   "
 print(f"pool oracle   {realized[oracle]:.2f}")
 print(f"book best     {realized[book_best]:.2f}")
 print(f"RETRIEVAL GAP {realized[oracle] - realized[book_best]:.2f}")
+K, N = int(book_mask.sum()), len(rosters)
+print("  threshold   in pool   entered   expected-if-random   lift   P(random enters 0)")
 for t in (150, 170, 194, 200, 220):
-    a_, b_ = int((realized >= t).sum()), int((realized[book_mask] >= t).sum())
-    flag = "  <- generated, none entered" if a_ and not b_ else ""
-    print(f"  >= {t}: {a_:6d} in pool {b_:4d} entered{flag}")
+    a_ = int((realized >= t).sum()); b_ = int((realized[book_mask] >= t).sum())
+    if not a_:
+        continue
+    exp_ = K * a_ / N
+    p0 = 1.0
+    for i in range(K):
+        p0 *= (N - a_ - i) / (N - i)
+    lift = (b_ / exp_) if exp_ else float("nan")
+    print(f"  >= {t:4d}    {a_:6d}   {b_:5d}        {exp_:8.2f}       {lift:5.2f}x      {p0:6.1%}")
+print("  (a zero entered count is only meaningful when P(random enters 0) is SMALL)")
 
 best = rosters[oracle]
 dists = [9 - len(best & rosters[i]) for i in book_idx]
-print(f"\nmin edit distance book -> pool best: {min(dists)} of 9 (median {int(np.median(dists))})")
+obs = min(dists)
+# NULL, added 2026-09-22 after this tool's first output was over-read. A K-row
+# sample from a pool thousands of times larger misses almost everything by
+# construction, so every count below needs dividing by what chance would give.
+rng = np.random.default_rng(20260922)
+dall = np.array([9 - len(best & r) for r in rosters])
+sims = np.array([dall[rng.choice(len(rosters), size=len(book_idx), replace=False)].min()
+                 for _ in range(2000)])
+print(f"\nmin edit distance book -> pool best: {obs} of 9 (median {int(np.median(dists))})")
+print(f"  NULL over 2000 random books of the same size: median {int(np.median(sims))}, "
+      f"mean {sims.mean():.2f}, P(random <= observed) = {(sims <= obs).mean():.1%}")
 entered = set().union(*[rosters[i] for i in book_idx])
 never = [p for p in best if p not in entered]
 print(f"players in the pool best never rostered anywhere in the book: {len(never)}")

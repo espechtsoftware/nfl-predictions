@@ -11,6 +11,45 @@
 
 # Project handoff
 
+## 2026-09-22 (12:17 CDT) — RETRACTED: my "retrieval failure" was a base-rate error, both statistics
+
+Laptop agent. `reports/2026-09-22-laptop-week2-supply-vs-retrieval.md` now carries
+a retraction banner and a new §Z; `reports/lab-handoffs/supply_vs_retrieval.py`
+now prints its own null so the error cannot be repeated with it.
+
+**Production caught the first statistic (`43656321`); I verified it independently
+and then found the second myself with the same test.**
+
+| statistic I reported | the null I failed to compute |
+|---|---|
+| "30 lineups ≥170, **0 entered**" | expectation **0.23**; a **random** book enters none **79.2%** of the time — entering zero is the *majority* outcome |
+| "min edit distance **5 of 9**" | null over 4,000 random 97-row books: **median 5, mean 4.96**, **53.8% land on exactly 5**, 75.8% ≤ 5 |
+
+**Measured properly the selector converts ABOVE pool base rate** at every
+threshold where it entered anything (W2 ≥150: 3 against an expected 1.72, 1.75×),
+and **in Week 1 its lift grows with the threshold — 1.14× at ≥150 rising to
+4.01× at ≥200.** That is the opposite of my conclusion.
+
+**What survives:** the raw measurements (197.26 / 157.96 / gap 39.30 / Kamara)
+are correct — production reproduced them byte-for-byte before running Week 1 with
+the same tool. Only the interpretation is retracted.
+
+**What replaces it** is production's reframing: the binding constraint is the
+**ceiling** — the whole pool could not win any contest above 68 entries in either
+week, with the Millionaire going at 273.98 and 232.38 against pool oracles of
+236.28 and 197.26 — and Week 2 specifically was lost at the **floor**, book mean
+98.40 against a field median of 113.82.
+
+**The error, plainly:** I compared "what existed" to "what we chose" and never
+divided by what a random chooser would have got. With 97 rows drawn from 12,555,
+"we missed the best one" is arithmetic, not a finding. **Rule recorded in §Z, and
+the tool now prints expected-if-random, lift, and P(random enters zero) beside
+every count.**
+
+Second retraction today (the first: recommending PREREG-101 without reading the
+frozen contract). Both caught, both recorded rather than quietly patched, both
+from treating a plausible artifact as a finding without testing the null.
+
 ## 2026-09-22 (12:35 CDT) — The pool ceiling binds, not retrieval; Week 2 was a floor failure
 
 Production. Report: `reports/2026-09-22-production-ceiling-and-eligibility.md`.

@@ -1,3 +1,35 @@
+> # RETRACTED 2026-09-22 — the conclusion below is wrong, and the error is mine.
+>
+> **"Week 2 was a retrieval failure" does not survive a base-rate check**, and neither of
+> the two statistics this report leads with is evidence of anything. Production caught the
+> first (`43656321`); I verified it independently and then found the second myself by
+> applying the same test.
+>
+> | statistic I reported | the null I failed to compute |
+> |---|---|
+> | "30 lineups ≥170 in the pool, **0 entered**" | 30 of 12,555 drawn 97 times has expectation **0.23**. A **random** book enters none **79.2%** of the time. Entering zero is the *majority* outcome. |
+> | "min edit distance **5 of 9**" | Null over 4,000 random 97-row books: **median 5, mean 4.96**, and **75.8%** are ≤ 5. **53.8% land on exactly 5.** Our book is precisely typical. |
+>
+> Measured properly, the selector converts **above** pool base rate at every threshold where
+> it entered anything — and in Week 1 its lift over random **grows** with the threshold
+> (1.14× at ≥150 → **4.01× at ≥200**). That is the opposite of the conclusion below.
+>
+> **What survives:** the raw measurements (pool oracle 197.26, book best 157.96, gap 39.30,
+> Kamara as the sole never-rostered player) are correct as numbers. Only the *interpretation*
+> is retracted. The tool is sound — production reproduced these numbers byte-for-byte before
+> running Week 1 with it.
+>
+> **What replaces it** is production's reframing in
+> `reports/2026-09-22-production-ceiling-and-eligibility.md`: the binding constraint is the
+> **ceiling** (the whole pool could not win any contest above 68 entries in either week —
+> the Millionaire went at 273.98 and 232.38 against pool oracles of 236.28 and 197.26), and
+> Week 2 specifically was lost at the **floor** (book mean 98.40 against a field median of
+> 113.82).
+>
+> My methodological error, stated plainly: **I reported two striking-sounding ratios without
+> computing what either would look like by chance.** A 97-row sample from 12,555 candidates
+> misses almost everything by construction; that is arithmetic, not a finding. See §Z.
+
 # Week 2 was a retrieval failure, not a supply failure — and the margin is 39.3 points
 
 The minimum-edit diagnostic from my research audit §E.6, run on the Week-2 money-run
@@ -78,3 +110,24 @@ and was run read-only against an archived frame and a warehouse read. No re-run,
 Tool: `reports/lab-handoffs/supply_vs_retrieval.py` — takes `--run-dir --season --week`, so
 pointing it at the archived Week-1 run is a path change and nothing else. Verified against
 the Week-2 run, output reproduced above.
+
+---
+
+## §Z. The error, for the record
+
+Both statistics were computed correctly and interpreted wrongly, in the same way: I compared
+an observed count to **zero** instead of to **what chance would produce**.
+
+The retrieval framing needed one hypergeometric line to test and I did not write it. The
+edit-distance framing needed a permutation null over random books — about ten lines — and I
+did not write that either. Production wrote the first; I wrote the second only after being
+corrected, and it killed the statistic just as thoroughly.
+
+The rule I am recording: **a ratio between "what existed" and "what we chose" is not evidence
+until it is divided by what a random chooser would have got.** With K rows drawn from a pool
+thousands of times larger, "we missed the best one" is the default state of the universe.
+
+This is the second substantive error I have had to retract today (the first was recommending
+PREREG-101 without reading the frozen contract). Both were caught, both are recorded rather
+than quietly patched, and both came from treating a plausible-looking artifact as a finding
+without testing the null case.
