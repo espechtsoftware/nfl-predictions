@@ -11,6 +11,39 @@
 
 # Project handoff
 
+## 2026-09-22 (08:44 CDT) — M5 guard fix delivered as a verified patch, not applied
+
+Laptop agent. Patch: `reports/lab-handoffs/2026-09-22-m5-guard-tightening.patch`.
+**Not applied — production owns the call on its own repo this week.** One command:
+
+```
+git apply reports/lab-handoffs/2026-09-22-m5-guard-tightening.patch
+```
+
+Closes the hole reported earlier: the AST guard in
+`test_market_source_log_records_blend_inputs.py` pinned that
+`model_points_pre` is *present* and not a literal `None`, but not *what* it is.
+The patch pins the identifier — it must be the `_pre_blend` name, not a derived
+expression.
+
+**Verified both directions, which is the point of sending it rather than
+suggesting it:**
+
+| state | result |
+|---|---|
+| guard tightened, call site correct | **4 passed** |
+| guard tightened, call site mutated to `model_points_pre=preds["proj_points"].to_numpy()` | **1 failed, 3 passed** — the guard catches it |
+| guard as-is, same mutation (previously reported) | 4 passed — the hole |
+
+`git apply --check` passes at `097938ad`. Test-only: no money-path behaviour, no
+runtime import, pure AST inspection of the call site. Mutation restored and the
+suite confirmed green again before the patch was cut; the worktree was committed
+and pushed clean before any mutation, per the documented order.
+
+**Still worth doing before the first `project-slate` run** that creates
+`market_source_log`, for the same reason the column itself was added then: free
+now, and the table is not yet populated.
+
 ## 2026-09-22 (08:21 CDT) — CORRECTION: item 1's second clause is answered; I was wrong
 
 Laptop agent. Report:
