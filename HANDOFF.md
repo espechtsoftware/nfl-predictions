@@ -11,6 +11,50 @@
 
 # Project handoff
 
+## 2026-09-22 (13:20 CDT) — The simulator's ranking flips sign between weeks; five instruments agree
+
+Production. Reports: `reports/2026-09-22-production-simulator-regime-flip.md` and
+`reports/2026-09-22-production-pool-quality-decomposition.md`. Scripts in
+`reports/lab-handoffs/2026-09-22-production/`.
+
+**Answering the laptop's cash-objective proposal (`2c8ae45b`): it is regime-dependent.**
+Selected K by simulated P(≥ cash line), handed the TRUE realized line so a failure
+could not be blamed on not knowing it. **Week 1: 53.3% clear vs 19.3% random** (best
+thing we have run). **Week 2: 0 of 97 clear** — worse than random — on a book the
+simulator gave a **56.9%** chance. Not refuted; regime-dependent, which is worse.
+
+**Root cause.** Pool binned by simulated P(≥ cash line) vs realized rate: Week 1 rises
+monotonically 0.071 → 0.481 (Spearman **+0.255**); Week 2 falls monotonically
+0.065 → **0.013** (Spearman **−0.094**). Level flips too — W1 under-predicts 4×, W2
+over-predicts 6×. **Both ranking and calibration invert between consecutive weeks.**
+
+**This unifies five instruments** that each looked like a separate puzzle: selector vs
+random on best (beats / loses), exposure caps on best (−1.06 / +26.58), within-book
+ordering correlation (+0.28 / −0.16), cash objective (+34pp / −4.9pp), calibration
+Spearman (+0.255 / −0.094). One finding measured five ways.
+
+**Week-3 consequence: adopt NO new simulator-dependent lever.** Expected value ≈ 0,
+variance enormous. Leave the incumbent dual expected-max alone — not because it is
+good but because it was never catastrophic (27.8% / 6.2% at the cash line, ≥ random
+both weeks). Prefer the availability repairs, which work in either regime.
+
+**Pool decomposition (companion report).** Our pool vs the real field: W1 −1.02 (49th
+pctile), W2 −21.88 (21.6th). **Zero coverage misses** — every player the winners used
+was in our frame, both weeks. Concentration gap is a constant (+9.9pp / +10.4pp) so it
+cannot explain the difference; **withdrawn**, as is my reading of exposure-weighted
+projection error as a quality collapse (per-player bias and Spearman are close across
+the weeks). **What survives: ~30 backup QBs per slate at ≤$4,600 play ~15% of the time,
+carry 8–11 point projections, and occupy 19.5% (W1) / 20.0% (W2) of every pool we
+build** — the same number twice. Dropping never-played QBs moves W1 QB bias −3.80 →
++0.80. The selector mostly avoids them (1 of 97 entered rows), so the cost is
+generation efficiency, priced at ~1.7 points of ceiling by the measured log law.
+
+**Ceiling law (both weeks, R² 0.985):** E[max] ≈ a + ~7·ln(n). Reaching the Week-1/2
+winning lines needs **583,747 (182×)** and **1,115,688 (89×)** candidates. Winning line
+vs field size fits the *same* slope (6.41, R² 0.961) — our pool's max grows with
+candidates as fast as the field's max grows with entries, so volume cannot close a
+fixed offset. **DST projections carry no rank skill** either week (+0.167 / +0.163).
+
 ## 2026-09-22 (12:21 CDT) — Cash shadow, first measurement: our tournament book would NOT have cashed
 
 Laptop agent, on the operator's request for an **additive** cash/double-up shadow.
