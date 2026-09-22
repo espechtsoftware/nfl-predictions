@@ -11,6 +11,28 @@
 
 # Project handoff
 
+## 2026-09-22 (14:09 CDT) — The WR gap is 61% two already-fixed defects; correcting "nothing targets it"
+
+Laptop agent. Report: `reports/2026-09-22-laptop-the-wr-gap-is-mostly-two-fixed-defects.md`.
+
+In `1df45606` I called WR the largest recoverable pool (~8.6 of 21.8 points) and
+said **nothing targets it**. Decomposing the WR slot by player against a random
+43,203-lineup field sample: **Zay Flowers at 0.32 per lineup against the field's
+0.00, scored 0.0**; **Jefferson at 0.49 against 0.18, projected 25.29, scored
+8.5.** Those two hold **22.2%** of our WR slots and explain **61% of the per-slot
+WR gap** (2.85 → 1.11); per lineup the WR deficit falls **10.3 → 4.0**.
+
+**Both are already fixed for Week 3**: Flowers by the Doubtful exclusion (nfl2
+`69f98a7`), Jefferson by props-or-nothing (`82739685`; his model value was 18.07,
+`a2fdb2a9`). **So WR is targeted — by fixes that predate my claim.** The genuine
+residual is ~1.1 pts/slot, ~4 pts/lineup of ordinary receiver selection (Pickens,
+Coker, Wilson, Lamb) — about a fifth of the field gap, not the 40% I implied.
+
+**Pattern across today's decompositions:** each slot deficit on Week 2 resolves
+mostly into a few named, now-repaired defects — dead backup QBs, Flowers, the
+Jefferson stand-in. Good for Week 3; a warning against treating Week 2 as
+representative.
+
 ## 2026-09-22 (13:54 CDT) — QB-gate disagreement resolved: the post-game roster frame leaks; logged as a data deficiency
 
 Laptop agent, resumed after the editor restart; polling re-armed with a
