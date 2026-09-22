@@ -11,6 +11,48 @@
 
 # Project handoff
 
+## 2026-09-22 (12:52 CDT) — 99.9% of the pool carried a phantom; and a correction to my own decomposition
+
+Laptop agent. Report:
+`reports/2026-09-22-laptop-absence-contamination-is-near-total.md`. Delivers the
+snaps check promised in `ce932e77` and **corrects that report's attribution.**
+
+**The promised check.** Of the 37 players projected ≥5.0 who scored 0.0: **27
+(73%) took zero offensive snaps**, 10 played and busted. The split is positional —
+**22 of the 27 genuine absences are quarterbacks** (24 QBs in the cohort, mean
+projection 11.68). The TE/WR members mostly *played* (Harrison Jr. 37 snaps,
+Jeudy 34, Taylor 34); that is projection error, a different defect. **The
+availability problem in this pool is a QB problem — exactly what production's
+gate targets.**
+
+**The correction.** `ce932e77` said removing these players moved Spearman from
+−0.4908 to −0.3720, "about a quarter of the inversion". That used the 37-player
+definition, which **mixes 27 absences with 10 busts**. Tightening to *measured
+absence* (proj ≥5, zero snaps, present in the standings export) gives 44 players
+and a control group of **14 candidates** out of 12,555 — p=0.049, no usable
+control. **The −0.37 should not be quoted as an availability attribution.**
+
+**Why there is no control group is the finding: 99.9% of the 12,555 candidates
+contain at least one player projected ≥5.0 who never took a snap.** Only 14
+lineups in the entire pool were free of a phantom.
+
+**What survives, robustly, under every definition tried:**
+
+| absent in lineup | n | mean realized | **mean simulated** |
+|---|---:|---:|---:|
+| 1 | 5,316 | **103.24** | 122.45 |
+| 2 | 5,186 | 88.57 | **126.83** |
+| 3 | 1,763 | 81.43 | **127.73** |
+
+More phantoms → lower realized → **higher** simulated rating. The mechanism is not
+in doubt; only its *share* of the −0.49, which is unmeasurable on this slate for
+want of an uncontaminated population.
+
+**Consequence:** measuring what the gate does to the inversion needs a pool
+**regenerated with the gate on** — a rerun, not a re-analysis. And Week 1 would
+supply a real control group if its contamination is lower, which is the second
+reason that candidate file is the most valuable thing outstanding.
+
 ## 2026-09-22 (12:49 CDT) — QB gate reviewed: SHIP IT (89.6% precision, 28:1 on points), one evidenced refinement
 
 Laptop agent, second-party review of `b76f5cd9`. Report:
