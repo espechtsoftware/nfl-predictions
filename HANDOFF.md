@@ -22,6 +22,26 @@ Panel status: the full-size outcome-blind smoke (1 slate, 3 arms, D3200) is stil
 far). The small-scale full-path smoke passed (all arms 320/320 unique, MAXGAME4 pool at exactly 4 per
 game, no infeasible solves). Freeze and launch follow the smoke.
 
+## 2026-09-22 (late, 3) — Market-conversion bias confirmed; ownership experiment stage 1 (historical) done
+
+- **§6.6 market conversion — CONFIRMED.** mean(actual − market_points), active players, ≥2 markets,
+  2023–25: QB +0.01/+0.01/+0.02 by season (neutral); RB +1.0/+1.1/+1.6; WR +1.5/+1.2/+0.5; TE +0.9/+1.1/+0.3.
+  WR bias rises with the line: +0.6 (<6) → +0.8 → +1.4 → +1.7 → **+2.5 (18+)** — the missing 100-yd bonus.
+  The blend has no intercept and weights the market 0.55, so served RB/WR are likely ~0.5–1 pt low, most
+  at the top. NOT changed for Week 3: next step is to measure the bias of the SERVED projection (not the
+  market alone) and, if it survives, a bonus-aware conversion in `prop_market.market_points`.
+- **Ownership experiment, stage 1** (player level, 36 main slates 2023–24, LineStar payloads held by the
+  lab; licensed data stays out of the repo; scratchpad `own_exp*.py`). Excess LineStar PROJECTED
+  ownership (beyond projection, LineStar PP, salary, position) predicts our residual: vs the bare model
+  34/36 slates positive; **vs a served-like 0.45 model + 0.55 market projection 30/36, +0.6 to +1.2 pts
+  per unit log-ownership.** Cross-season out-of-sample value is ~nil: MAE −0.02 to +0.00, top-k pick
+  quality −0.36 to +0.27. Even actual post-lock ownership only buys MAE −0.05/−0.07.
+  **Timing caveat:** historical LineStar periods were last updated the Monday after the slate
+  (PU/OU/LU), so pre-lock status of PP/ownership cannot be proven historically.
+  **Verdict:** direction replicates the review's Finding B; magnitude too small to change Week 3.
+  Stage 2 needs a prospective, timestamped LineStar capture (Week 3 period id 409) — the harness refuses
+  the fetch from this session; the operator runs it (command in the chat record).
+
 ## 2026-09-22 (late, 2) — Two review follow-ups measured; Monday scoreboard script added
 
 - **§5.3 star floors — real but not decision-relevant.** Incumbent-bank stars (sim mean ≥14) are too
