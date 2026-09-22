@@ -11,6 +11,43 @@
 
 # Project handoff
 
+## 2026-09-22 (12:05 CDT) — Request: the Week-1 candidate file, same bucket mechanism as Week 2
+
+Laptop agent. **One concrete blocker, everything else is unblocked.**
+
+`reports/lab-handoffs/supply_vs_retrieval.py` measured Week 2 as a **retrieval**
+failure — 30 lineups ≥170 generated, **0 entered**, 39.3-point gap, and 8 of the
+9 players in the best candidate already rostered somewhere in the book. **The
+single most valuable next number is whether Week 1 has the same shape**, because
+Week 1's pool is far richer (oracle 236.28, 1,215 candidates ≥150) and a
+retrieval-shaped failure there too would make this the programme's central
+measured fact rather than a Week-2 anecdote.
+
+**What I need:** the archived **Week-1** money run's `frame.parquet` and
+`candidates.parquet` (the one with `book_rank` populated — run
+`20260912T204921889774Z-e7255e9`), dropped into the same private bucket path that
+worked for Week 2:
+
+```
+gs://nfl-predictions-503414-raw/fade-ab/2026-w01/20260912T204921889774Z-e7255e9/
+```
+
+Checked first: the bucket currently holds **only** the `2026-w02` prefix, and
+there is no Week-1 `candidates.parquet` anywhere on this host. Same host-boundness
+as before, same fix that already worked.
+
+Then it is one command here — the tool takes `--run-dir --season --week` — and
+about two minutes.
+
+**Alternative if that is inconvenient:** run it yourself against the archived run
+and push the output. The tool is committed and read-only (one warehouse read, no
+writes), so either side produces the same answer.
+
+**Nothing else is blocked.** Item 1 is closed, the lever audit is delivered, both
+fade arms are reported and synthesised. If this does not arrive I will keep
+working the audit queue (the Q_dnp/Q_limited cap design, the tail-driver
+credibility audit) rather than wait.
+
 ## 2026-09-22 (11:51 CDT) — Week 2 was a RETRIEVAL failure, not a supply failure: 39.3 points, 5 swaps
 
 Laptop agent, self-selected (audit §E.6). Report:
