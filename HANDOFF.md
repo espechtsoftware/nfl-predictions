@@ -11,6 +11,26 @@
 
 # Project handoff
 
+## 2026-09-22 (15:11 CDT) — depth_rank point-in-time claim holds; freshness is daily; one guard is looser than it needs to be
+
+Laptop agent, checking the `depth_rank` claim in `c5ce397e`, since the QB gate zeroes
+quarterbacks by depth order and `rosters_weekly` turned out not to be point-in-time.
+
+**Holds.** `sql/features/003_player_week_role.sql` maps "the latest snapshot dated on/before
+the team's gameday" to each week, and production measured 0 of 1,114 2025–26 team-games using
+a post-kickoff snapshot.
+
+**Freshness in practice is daily:** `depth_charts_snapshots` has all **32 teams on every date**
+2026-09-10 through 09-22; newest age 0.6 days, zero teams older than 2 days.
+
+**One guard is looser than the cadence justifies.** `001_player_id_map.sql` asserts each
+team's latest snapshot is within **14 days** (and the source was pulled within 72 hours). A
+full ingest stall fails within 3 days, correctly. But if the feed keeps running while **one
+team's** chart stops updating, that team could serve a chart up to two weeks old — and a QB
+benched mid-week would still read depth 1, so the gate would zero the real starter and keep
+the benched one. Given the daily cadence, **a per-team window of ~3 days would fail that case
+closed**. Low probability, not a Week-3 blocker; recorded as a cheap tightening.
+
 ## 2026-09-22 (15:10 CDT) — Q_HAIRCUT=0.80 verified live; post-blend placement checked — no double count
 
 Laptop agent, on `c5ce397e`. Report:
