@@ -26,6 +26,7 @@ of vanishing into NaNs.
 from __future__ import annotations
 
 import logging
+import os
 
 import numpy as np
 import pandas as pd
@@ -175,3 +176,92 @@ def zero_out_projections(out: pd.DataFrame, out_ids: list[str]) -> pd.DataFrame:
         if col in out.columns:
             out.loc[mask, col] = 0.0
     return out
+
+
+# Backup-QB availability gate (2026-09-19). The component models fit on
+# active rows only, so a backup QB's served projection is E[points | he
+# played] — and a backup who plays usually plays most of a game. History
+# (2022-25, by depth_rank): depth-2 QBs appear 30% of weeks, 6.0 pts when
+# they do, 1.8 pts unconditionally; depth-3 0.8. Week 2 of 2026 served
+# depth-2 QBs 9.8 pts on average at the minimum salary, and 29% of a 6,400
+# candidate pool carried one behind a healthy starter. Nothing downstream
+# converts the conditional number: find_out_players sees only O/IR/Out.
+# Status-only gate: the team's primary QB is the shallowest depth-chart QB
+# who is not out; every deeper QB projects to zero. A Doubtful primary
+# leaves the team untouched (a split rule is a later, measured refinement),
+# and a team with no depth-chart QB on file is untouched. QB_BACKUP_GATE=0
+# disables it without a redeploy.
+DOUBTFUL_STATUSES = {"D", "DOUBTFUL"}
+QUESTIONABLE_STATUSES = {"Q", "QUESTIONABLE"}
+
+
+def _col(feats: pd.DataFrame, *names: str) -> pd.Series:
+    for n in names:
+        if n in feats.columns:
+            return feats[n]
+    return pd.Series([None] * len(feats), index=feats.index, dtype=object)
+
+
+def find_backup_qbs(feats: pd.DataFrame) -> list[str]:
+    """GSIS ids of QBs listed behind a primary QB who is expected to play."""
+    if os.environ.get("QB_BACKUP_GATE", "1") == "0" or "depth_rank" not in feats.columns:
+        return []
+    pos = _col(feats, "position", "dk_position").fillna("").astype(str).str.upper()
+    team = _col(feats, "team", "team_abbr").fillna("").astype(str)
+    depth = pd.to_numeric(feats["depth_rank"], errors="coerce")
+    status = _col(feats, "status").fillna("").astype(str).str.upper().str.strip()
+    report = _col(feats, "injury_status").fillna("").astype(str).str.upper().str.strip()
+    is_out = status.isin(OUT_STATUSES) | report.eq("OUT")
+    is_doubtful = status.isin(DOUBTFUL_STATUSES) | report.eq("DOUBTFUL")
+    is_questionable = status.isin(QUESTIONABLE_STATUSES) | report.eq("QUESTIONABLE")
+    qbs = feats.loc[pos.eq("QB") & depth.notna() & feats.gsis_id.notna() & team.ne(""),
+                    ["gsis_id"]].assign(team=team, depth=depth, out=is_out,
+                                        doubtful=is_doubtful, questionable=is_questionable)
+    # Shared rule (tools/qb_classify.py, lab review 2026-09-19): a team needs a
+    # depth-1 row on file; the primary is that QB unless he is unavailable, in
+    # which case the shallowest available QB is promoted. Blank teams are never
+    # grouped. Deterministic zeroing is a declared practical approximation of the
+    # unconditional expectation, not a proved correction.
+    #
+    # Doubtful counts as UNAVAILABLE, not as ambiguous (refinement 2026-09-22,
+    # laptop review). The original rule treated Doubtful and Questionable as one
+    # ambiguous class and so skipped the whole team. Measured: 13 of 13 Doubtful
+    # player-weeks took zero offensive snaps and scored zero, while Questionable
+    # played 77.4% of the time. The rule is right for Q and was wrong for D. Its
+    # cost was concrete -- a Doubtful QB promoted to primary kept a 17.47
+    # projection, scored zero, and left his backups ungated. A Doubtful QB is
+    # therefore zeroed himself and never blocks the promotion.
+    # QB_DOUBTFUL_ABSENT=0 restores the previous ambiguous-on-Doubtful behaviour.
+    # No depth-1 row on file (2026-09-22): previously the whole team was left alone,
+    # which is the ACTUAL cause of the Week-2 Atlanta miss -- not the ambiguity rule.
+    # Three of twenty-six teams in Week 2 (ATL, MIN, SEA) had no depth-1 QB on the DK
+    # slate and were ungated entirely, covering 8.5% of the candidate pool. A QB absent
+    # from the slate cannot be rostered, so the shallowest QB present is the best
+    # available read on the starter. Measured on both released weeks: the promotion is
+    # correct in 4 of 4 team-weeks, and 38.22 of the 40.78 projection points it removes
+    # came from QBs who scored exactly zero (93.7% precision, against 89.6% for the
+    # depth-1 path). QB_NO_DEPTH1_PROMOTE=0 restores the leave-the-team-alone behaviour.
+    doubtful_absent = os.environ.get("QB_DOUBTFUL_ABSENT", "1") != "0"
+    promote_no_depth1 = os.environ.get("QB_NO_DEPTH1_PROMOTE", "1") != "0"
+    ids: list[str] = []
+    for _, g in qbs.groupby("team"):
+        g = g.sort_values(["depth", "gsis_id"])
+        if not (g.depth == 1).any() and not promote_no_depth1:
+            continue
+        unavailable = g.out | (g.doubtful if doubtful_absent else False)
+        primary = g[~unavailable]
+        if primary.empty:
+            continue
+        # Ties at the shallowest available depth (two depth-1 rows) resolve
+        # order-independently: any tied row Questionable -> ambiguous team,
+        # nothing gated (lab v4 boundary). Doubtful ties are already excluded
+        # above when doubtful_absent.
+        top = primary[primary.depth == primary.iloc[0]["depth"]]
+        if top.questionable.any() or (not doubtful_absent and top.doubtful.any()):
+            continue
+        cut = top.iloc[0]["depth"]
+        ids.extend(g.loc[(g.depth > cut) & ~g.out, "gsis_id"].astype(str))
+        if doubtful_absent:
+            # the Doubtful QB himself, at any depth, including above the cut
+            ids.extend(g.loc[g.doubtful & ~g.out, "gsis_id"].astype(str))
+    return sorted(set(ids))

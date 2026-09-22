@@ -548,6 +548,42 @@ _V8_SOURCE_SET = _SourceSetContract(
     frozen_source_sha256=tuple(sorted(V8_FROZEN_SOURCE_SHA256.items())),
 )
 
+# Source-set v9 binds the tree after the Week-3 backup-QB availability gate
+# (2026-09-22): run_projections zeroes backup quarterbacks listed behind an
+# available primary, treats a Doubtful quarterback as unavailable rather than
+# ambiguous, and promotes the shallowest quarterback present when a team has no
+# depth-1 row on the slate. The rule itself lives in cascade_adjust (not a frozen
+# source role); only the call site in run_projections changes. V5, v6, v7 and v8
+# remain immutable historical identities; never rewrite their hashes.
+V9_SOURCE_SET_ID = (
+    "adopted-classic-policy-20260922-week3-qb-availability-gate-v9"
+)
+# Differs from v8 ONLY by the line of run_projections' single direct input read
+# (539 -> 548, pushed down by the gate's call site). Verified 2026-09-22: 278 read
+# sites in both v8 and v9, position-free identical -- no runtime input added or
+# removed.
+V9_CLASSIFIED_INPUT_PROJECTION_SHA256 = (
+    "4635ad55efc75a43f43e33ce7959d64ea0be8ed1a3e3c75971f617893957a606"
+)
+V9_FROZEN_SOURCE_SHA256: Mapping[str, str] = {
+    **V8_FROZEN_SOURCE_SHA256,
+    "src/nfl_dfs/inference/run_projections.py": (
+        "49abc54fd67be65298a7af40c646e50b9dae8fa053d58f26e34682f510778daa"
+    ),
+}
+
+_V9_SOURCE_SET = _SourceSetContract(
+    schema=SCHEMA,
+    source_set_id=V9_SOURCE_SET_ID,
+    policy_env_sha256=POLICY_ENV_SHA256,
+    classified_input_projection_sha256=(
+        V9_CLASSIFIED_INPUT_PROJECTION_SHA256
+    ),
+    classified_input_key_count=CLASSIFIED_INPUT_KEY_COUNT,
+    direct_input_read_site_count=DIRECT_INPUT_READ_SITE_COUNT,
+    frozen_source_sha256=tuple(sorted(V9_FROZEN_SOURCE_SHA256.items())),
+)
+
 
 @dataclass(frozen=True)
 class _Locator:
@@ -2159,6 +2195,15 @@ def generate_effective_policy_rule_inventory_v8(
     )
 
 
+def generate_effective_policy_rule_inventory_v9(
+    root: Path,
+) -> dict[str, Any]:
+    """Generate the explicit current Week-3 source-set v9 inventory."""
+    return _generate_effective_policy_rule_inventory(
+        root, source_set=_V9_SOURCE_SET
+    )
+
+
 def _source_set_for_inventory(
     inventory: Mapping[str, Any],
 ) -> _SourceSetContract:
@@ -2171,6 +2216,8 @@ def _source_set_for_inventory(
         return _V7_SOURCE_SET
     if source_set_id == V8_SOURCE_SET_ID:
         return _V8_SOURCE_SET
+    if source_set_id == V9_SOURCE_SET_ID:
+        return _V9_SOURCE_SET
     raise EffectivePolicyInventoryError(
         "effective-policy inventory source-set id is not registered"
     )

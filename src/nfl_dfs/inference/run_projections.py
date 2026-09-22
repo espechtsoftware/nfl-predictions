@@ -468,7 +468,16 @@ def project(
             "proj_ownership": pd.NA,
         }
     )
-    return cascade_adjust.zero_out_projections(out, out_ids)
+    # Backup QBs behind a healthy primary project to zero (status-only
+    # availability gate, 2026-09-19) — see cascade_adjust.find_backup_qbs.
+    backup_ids = cascade_adjust.find_backup_qbs(feats)
+    if backup_ids:
+        names = feats.loc[feats.gsis_id.isin(backup_ids), "display_name"] \
+            if "display_name" in feats.columns else pd.Series(backup_ids)
+        log.info("backup-QB gate: zeroed %d QB(s) listed behind a healthy "
+                 "primary: %s", len(backup_ids),
+                 ", ".join(sorted(names.astype(str))))
+    return cascade_adjust.zero_out_projections(out, out_ids + backup_ids)
 
 
 def _cascade_adjuster(season: int):

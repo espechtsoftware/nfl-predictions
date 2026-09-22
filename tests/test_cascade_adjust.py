@@ -183,3 +183,192 @@ def test_zero_out_projections():
     assert zeroed.loc[1, "proj_points"] == 11.0
     # untouched without out_ids
     pd.testing.assert_frame_equal(zero_out_projections(out, []), out)
+
+
+def _qb_slate(**over):
+    """Four teams: CHI healthy starter + two backups; ATL starter OUT (DK
+    'O') so the depth-2 QB is primary; MIA starter Doubtful; NYJ has no
+    depth-1 QB on file. A WR with depth_rank 2 must never be touched."""
+    rows = [
+        {"gsis_id": "CHI1", "display_name": "Chi Starter", "dk_position": "QB", "team_abbr": "CHI", "status": None, "injury_status": None, "depth_rank": 1},
+        {"gsis_id": "CHI2", "display_name": "Chi Backup", "dk_position": "QB", "team_abbr": "CHI", "status": None, "injury_status": None, "depth_rank": 2},
+        {"gsis_id": "CHI3", "display_name": "Chi Third", "dk_position": "QB", "team_abbr": "CHI", "status": None, "injury_status": None, "depth_rank": 3},
+        {"gsis_id": "ATL1", "display_name": "Atl Starter", "dk_position": "QB", "team_abbr": "ATL", "status": "O", "injury_status": None, "depth_rank": 1},
+        {"gsis_id": "ATL2", "display_name": "Atl Backup", "dk_position": "QB", "team_abbr": "ATL", "status": None, "injury_status": None, "depth_rank": 2},
+        {"gsis_id": "ATL3", "display_name": "Atl Third", "dk_position": "QB", "team_abbr": "ATL", "status": None, "injury_status": None, "depth_rank": 3},
+        {"gsis_id": "MIA1", "display_name": "Mia Starter", "dk_position": "QB", "team_abbr": "MIA", "status": None, "injury_status": "Doubtful", "depth_rank": 1},
+        {"gsis_id": "MIA2", "display_name": "Mia Backup", "dk_position": "QB", "team_abbr": "MIA", "status": None, "injury_status": None, "depth_rank": 2},
+        {"gsis_id": "NYJ2", "display_name": "Jet Backup", "dk_position": "QB", "team_abbr": "NYJ", "status": None, "injury_status": None, "depth_rank": 2},
+        {"gsis_id": "CHIWR", "display_name": "Chi Receiver", "dk_position": "WR", "team_abbr": "CHI", "status": None, "injury_status": None, "depth_rank": 2},
+    ]
+    df = pd.DataFrame(rows)
+    for k, v in over.items():
+        df.loc[df.gsis_id == k[0], k[1]] = v
+    return df
+
+
+def test_backup_qb_gate_zeroes_backups_behind_a_healthy_primary(monkeypatch):
+    monkeypatch.delenv("QB_BACKUP_GATE", raising=False)
+    from nfl_dfs.inference.cascade_adjust import find_backup_qbs
+    got = find_backup_qbs(_qb_slate())
+    # CHI: both backups behind a healthy starter. ATL: starter OUT, so the
+    # depth-2 QB is primary and only the third-stringer is gated. MIA: the
+    # Doubtful starter is UNAVAILABLE (refinement 2026-09-22 -- 13/13 Doubtful
+    # player-weeks took zero snaps), so he is gated himself and MIA2 is promoted
+    # rather than the team being skipped. NYJ: no depth-1 on file, left alone.
+    assert got == ["ATL3", "CHI2", "CHI3", "MIA1"]
+    assert "CHIWR" not in got and "ATL2" not in got and "MIA2" not in got and "NYJ2" not in got
+
+
+def test_backup_qb_gate_report_out_promotes_the_next_qb(monkeypatch):
+    monkeypatch.delenv("QB_BACKUP_GATE", raising=False)
+    from nfl_dfs.inference.cascade_adjust import find_backup_qbs
+    feats = _qb_slate()
+    feats.loc[feats.gsis_id == "CHI1", "injury_status"] = "Out"   # report, not DK feed
+    feats.loc[feats.gsis_id == "CHI2", "status"] = "O"            # depth 2 also out
+    got = find_backup_qbs(feats)
+    assert "CHI3" not in got, "the third-stringer is the primary once 1 and 2 are out"
+    assert "CHI2" not in got, "already out; zeroed by find_out_players, not by the gate"
+
+
+def test_backup_qb_gate_lab_review_cases(monkeypatch):
+    """Lab review 2026-09-19, amended 2026-09-22: (a) a depth-2 + depth-3 team with no depth-1 row now
+    PROMOTES the shallowest QB present and gates the rest -- the original "unknown, nothing gated" rule was
+    the actual cause of the Week-2 Atlanta miss and left 8.5% of that pool ungated; (b) blank-team rows are
+    still never grouped together; (c) a Questionable primary still makes the team ambiguous."""
+    monkeypatch.delenv("QB_BACKUP_GATE", raising=False)
+    from nfl_dfs.inference.cascade_adjust import find_backup_qbs
+    feats = _qb_slate()
+    feats.loc[feats.gsis_id == "NYJ2", "team_abbr"] = "NYJ"
+    feats = pd.concat([feats, pd.DataFrame([
+        {"gsis_id": "NYJ3", "display_name": "Jet Third", "dk_position": "QB", "team_abbr": "NYJ", "status": None, "injury_status": None, "depth_rank": 3},
+        {"gsis_id": "BLANK1", "display_name": "No Team A", "dk_position": "QB", "team_abbr": "", "status": None, "injury_status": None, "depth_rank": 1},
+        {"gsis_id": "BLANK2", "display_name": "No Team B", "dk_position": "QB", "team_abbr": "", "status": None, "injury_status": None, "depth_rank": 2},
+    ])], ignore_index=True)
+    feats.loc[feats.gsis_id == "CHI1", "injury_status"] = "Questionable"
+    got = find_backup_qbs(feats)
+    assert "NYJ3" in got, "no depth-1 row: the shallowest present QB is promoted and deeper ones gated"
+    assert "NYJ2" not in got, "the promoted shallowest QB is not gated"
+    assert "BLANK2" not in got, "blank teams are not grouped"
+    assert "CHI2" not in got and "CHI3" not in got, "Questionable primary: ambiguous, nothing gated"
+    # MIA's Doubtful starter is gated (2026-09-22 refinement); NYJ3 by the no-depth-1 promotion;
+    # Q is still ambiguous so CHI is untouched; blank teams are never grouped.
+    assert got == ["ATL3", "MIA1", "NYJ3"], got
+
+
+def test_backup_qb_gate_tied_primaries_are_order_independent(monkeypatch):
+    """Lab v4 boundary: two depth-1 rows, one Doubtful — permuting their ids must not change the gating.
+    Since 2026-09-22 a Doubtful row is UNAVAILABLE rather than ambiguous, so the healthy co-starter is
+    the primary, the Doubtful one is gated, and the deeper QBs are gated. Order must not matter.
+    A Questionable tied row still makes the team ambiguous (Q plays 77.4% of the time)."""
+    monkeypatch.delenv("QB_BACKUP_GATE", raising=False)
+    from nfl_dfs.inference.cascade_adjust import find_backup_qbs
+    base = _qb_slate()
+    for a, b in (("CHI1", "CHI9"), ("CHI9", "CHI1")):          # the two lexical orders of the tied pair
+        feats = pd.concat([base, pd.DataFrame([{"gsis_id": "CHI9", "display_name": "Chi Co-Starter", "dk_position": "QB",
+                                               "team_abbr": "CHI", "status": None, "injury_status": "Doubtful", "depth_rank": 1}])], ignore_index=True)
+        feats.loc[feats.gsis_id == "CHI1", "gsis_id"] = "TMP"; feats.loc[feats.gsis_id == "CHI9", "gsis_id"] = a
+        feats.loc[feats.gsis_id == "TMP", "gsis_id"] = b
+        got = find_backup_qbs(feats)
+        assert "CHI2" in got and "CHI3" in got, f"order {a},{b}: the healthy co-starter is primary, deeper QBs gated"
+        # the fixture gives the Doubtful row id `a` and the healthy one `b`
+        assert a in got, f"order {a},{b}: the Doubtful tied row is gated itself"
+        assert b not in got, f"order {a},{b}: the healthy co-starter is the primary"
+    # a Questionable tied primary is still ambiguous
+    feats = pd.concat([base, pd.DataFrame([{"gsis_id": "CHI9", "display_name": "Chi Co-Starter", "dk_position": "QB",
+                                           "team_abbr": "CHI", "status": None, "injury_status": "Questionable", "depth_rank": 1}])], ignore_index=True)
+    got = find_backup_qbs(feats)
+    assert "CHI2" not in got and "CHI3" not in got, "a Questionable tied primary must still make CHI ambiguous"
+    feats = pd.concat([base, pd.DataFrame([{"gsis_id": "CHI0", "display_name": "Chi Co-Starter", "dk_position": "QB",
+                                           "team_abbr": "CHI", "status": None, "injury_status": None, "depth_rank": 1}])], ignore_index=True)
+    got = find_backup_qbs(feats)
+    assert "CHI2" in got and "CHI3" in got and "CHI0" not in got, "an all-healthy tie still gates the deeper QBs"
+
+
+def test_backup_qb_gate_is_a_noop_without_depth_or_when_disabled(monkeypatch):
+    from nfl_dfs.inference.cascade_adjust import find_backup_qbs
+    monkeypatch.delenv("QB_BACKUP_GATE", raising=False)
+    assert find_backup_qbs(_qb_slate().drop(columns=["depth_rank"])) == []
+    monkeypatch.setenv("QB_BACKUP_GATE", "0")
+    assert find_backup_qbs(_qb_slate()) == []
+
+
+def test_backup_qb_gate_zeroes_only_the_gated_rows_in_the_output(monkeypatch):
+    monkeypatch.delenv("QB_BACKUP_GATE", raising=False)
+    from nfl_dfs.inference.cascade_adjust import find_backup_qbs
+    feats = _qb_slate()
+    out = pd.DataFrame({"gsis_id": feats.gsis_id, "proj_points": 12.0, "proj_p90": 30.0, "value": 3.0})
+    zeroed = zero_out_projections(out, find_backup_qbs(feats))
+    gated = zeroed.gsis_id.isin(["ATL3", "CHI2", "CHI3", "MIA1"])
+    assert zeroed.loc[gated, ["proj_points", "proj_p90", "value"]].eq(0).all().all()
+    pd.testing.assert_frame_equal(zeroed.loc[~gated].reset_index(drop=True), out.loc[~gated].reset_index(drop=True))
+
+
+def test_doubtful_primary_is_absence_not_ambiguity(monkeypatch):
+    """Refinement 2026-09-22 (laptop review, 13/13 Doubtful player-weeks at zero snaps).
+
+    A Doubtful QB cannot be the primary: he is gated himself and the next
+    available QB is promoted, so his backups stop carrying inflated projections.
+    This is the ATL/Tua case from Week 2 -- depth-1 Out, a Doubtful depth-2
+    promoted, the team declared ambiguous, and a 17.47 projection that scored 0.
+    """
+    monkeypatch.delenv("QB_BACKUP_GATE", raising=False)
+    monkeypatch.delenv("QB_DOUBTFUL_ABSENT", raising=False)
+    from nfl_dfs.inference.cascade_adjust import find_backup_qbs
+    feats = pd.DataFrame([
+        {"gsis_id": "T1", "display_name": "Starter", "dk_position": "QB", "team_abbr": "ATL", "status": "O", "injury_status": None, "depth_rank": 1},
+        {"gsis_id": "T2", "display_name": "Doubtful Two", "dk_position": "QB", "team_abbr": "ATL", "status": "D", "injury_status": None, "depth_rank": 2},
+        {"gsis_id": "T3", "display_name": "Healthy Three", "dk_position": "QB", "team_abbr": "ATL", "status": None, "injury_status": None, "depth_rank": 3},
+        {"gsis_id": "T4", "display_name": "Fourth", "dk_position": "QB", "team_abbr": "ATL", "status": None, "injury_status": None, "depth_rank": 4},
+    ])
+    got = find_backup_qbs(feats)
+    assert "T2" in got, "the Doubtful QB is gated himself"
+    assert "T4" in got, "QBs behind the promoted primary are gated"
+    assert "T3" not in got, "the promoted primary is not gated"
+    assert "T1" not in got, "an Out QB is left to the existing out-player path"
+
+
+def test_doubtful_absent_kill_switch_restores_the_old_rule(monkeypatch):
+    """QB_DOUBTFUL_ABSENT=0 reverts to ambiguous-on-Doubtful, without a redeploy."""
+    monkeypatch.delenv("QB_BACKUP_GATE", raising=False)
+    from nfl_dfs.inference.cascade_adjust import find_backup_qbs
+    monkeypatch.setenv("QB_DOUBTFUL_ABSENT", "0")
+    got = find_backup_qbs(_qb_slate())
+    assert got == ["ATL3", "CHI2", "CHI3"], got
+    assert "MIA1" not in got, "with the switch off a Doubtful primary makes MIA ambiguous again"
+
+
+def test_no_depth1_team_promotes_the_shallowest_qb_present(monkeypatch):
+    """2026-09-22: teams with no depth-1 row on the DK slate were ungated entirely.
+
+    That -- not the ambiguity rule -- is why Week-2 Atlanta kept a 17.47 projection on a
+    Doubtful QB who scored zero. ATL, MIN and SEA together covered 8.5% of the Week-2
+    pool. A QB absent from the slate cannot be rostered, so the shallowest present QB is
+    promoted. Measured 4 of 4 correct across both released weeks.
+    """
+    monkeypatch.delenv("QB_BACKUP_GATE", raising=False)
+    monkeypatch.delenv("QB_DOUBTFUL_ABSENT", raising=False)
+    monkeypatch.delenv("QB_NO_DEPTH1_PROMOTE", raising=False)
+    from nfl_dfs.inference.cascade_adjust import find_backup_qbs
+    # the real Week-2 ATL shape: no depth-1 row, a Doubtful depth-2, two deeper QBs
+    feats = pd.DataFrame([
+        {"gsis_id": "TUA", "display_name": "Doubtful Two", "dk_position": "QB", "team_abbr": "ATL", "status": "D", "injury_status": None, "depth_rank": 2},
+        {"gsis_id": "RUSH", "display_name": "Third", "dk_position": "QB", "team_abbr": "ATL", "status": None, "injury_status": None, "depth_rank": 3},
+        {"gsis_id": "STRAND", "display_name": "Fourth", "dk_position": "QB", "team_abbr": "ATL", "status": None, "injury_status": None, "depth_rank": 4},
+    ])
+    got = find_backup_qbs(feats)
+    assert "TUA" in got, "the Doubtful QB is gated even with no depth-1 row on file"
+    assert "STRAND" in got, "QBs behind the promoted primary are gated"
+    assert "RUSH" not in got, "the shallowest available QB is promoted, not gated"
+
+
+def test_no_depth1_promotion_kill_switch(monkeypatch):
+    """QB_NO_DEPTH1_PROMOTE=0 restores leaving a no-depth-1 team entirely alone."""
+    monkeypatch.delenv("QB_BACKUP_GATE", raising=False)
+    monkeypatch.setenv("QB_NO_DEPTH1_PROMOTE", "0")
+    from nfl_dfs.inference.cascade_adjust import find_backup_qbs
+    feats = pd.DataFrame([
+        {"gsis_id": "A2", "display_name": "Two", "dk_position": "QB", "team_abbr": "ATL", "status": None, "injury_status": None, "depth_rank": 2},
+        {"gsis_id": "A3", "display_name": "Three", "dk_position": "QB", "team_abbr": "ATL", "status": None, "injury_status": None, "depth_rank": 3},
+    ])
+    assert find_backup_qbs(feats) == [], "with the switch off the team is left alone"
