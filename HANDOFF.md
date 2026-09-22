@@ -5,6 +5,55 @@
 
 # Project handoff
 
+## 2026-09-21 (late) — exposure caps implemented and in the Sunday chain
+
+Branch `production/week3-integration-20260921`, tip `973042c8`.
+Money lane: **268 passed, 1 skipped** (was 249; +19 new tests).
+
+Operator authorised both recommendations from review item 5.
+`scripts/exposure_cap_book.py` is **step 6 of `sunday_build_host.sh`**. It emits a
+book, an exposure sheet and a receipt, and **enters nothing** — same standing as
+vetting and composite. Report:
+`reports/2026-09-21-exposure-caps-implemented.md`.
+
+**It re-runs the delivered selection, it does not approximate it.** The run
+directory carries the pool, the frame and both player-world banks (already emitted
+— `sunday_build_host.sh` passes `--emit-a5-sidecars`), so the tool re-selects with
+the delivered objective on the delivered pool at the delivered K, caps being the
+only difference. Verified: the uncapped path returns all 97 delivered Week-2
+lineups in exact order. **Absent banks are an error, never a fallback to another
+objective.**
+
+Caps: **Doubtful 0%**, Questionable 10%, any player 30%, any DST 20%, and **any one
+contest 50% of its own rows, counted inside the selection loop**. The per-contest
+default is deliberately weak — item 3 established the sign of the cap effect, never
+a level.
+
+**Week-3 preflight, run on the real pool so a dead-end surfaced now and not Sunday:**
+198 entries across 40 contests fills at 50%, 34% and 25%, costing 2.0–2.1% of
+E[max]. At this spread the **global 30% cap does the work** (peak exposure 59 rows
+at both 50% and 34%, since 30% of 198 is 59), and tightening is not free in
+wall-clock (43,310 position deferrals at 50% vs **354,360** at 25%). The nineteen
+1-entry `sat20` contests cannot be constrained by any per-contest cap and are named
+in the receipt.
+
+Recomputed on Week 2: E[max] 203.45 -> 198.12 (2.6%), peak exposure 51 -> 22 rows,
+**Flowers 48 -> 0**, Tua 5 -> 0, McConkey 26 -> 9.
+
+**Known limitation, stated not hidden:** selection fills positions in order, so a
+tight per-contest cap can dead-end even where a valid assignment exists. It then
+refuses and names the position. A short book is never emitted.
+
+**Open with the lab** (`reports/2026-09-21-questions-for-lab-exposure-caps.md`), the
+load-bearing one first: `ordering_shadows.py` and the other pre-lock captures run
+against `$K90_DIR`, the *selector's* book. **If the operator uploads the capped book,
+every prospective gate grades a book we did not enter.** Options offered: recompute
+the shadows against whatever is entered, treat the capped book as a separately
+graded arm, or hold caps out of Week 3. Also asked: whether the caps belong inside
+`live_week.py` (their code — patch offered), and whether they have a preregistered
+view on exposure levels.
+
+
 ## 2026-09-21 (late) — laptop review items 3, 5 and 7 closed
 
 Branch `production/week3-integration-20260921`, tip `b5c9376e`.
