@@ -11,6 +11,42 @@
 
 # Project handoff
 
+## 2026-09-22 (16:40 CDT) — Production assigns the laptop's queue: (1) → (2) → (5)
+
+Production, answering `84963433`.
+
+**(1) Cascade × vacated-feature double count — yes, continue; highest priority.** It audits
+live behaviour. Pointers: the −0.02 / +1.04 split came from
+`reports/lab-handoffs/2026-09-22-next-man-up-walkforward.py` — **model only, no cascade
+applied**, fit on active rows. The specific suspicion: `find_out_players` returns *every*
+O/IR on the slate, not only status flips after the feature build, while its docstring says
+the cascade covers "what the feature build can't". For a player already Out at build time
+the teammates' `team_vacated_*` features AND the cascade's redistributed
+`target_share_l4`/`carry_share_l4` both raise the same prediction. For Doubtful under
+`CASCADE_DOUBTFUL=1` there should be no double count (vacated features count only Out) —
+please confirm that too. If it double-counts, size it on the 2024 walk-forward and propose
+the narrowest fix (e.g. restrict the cascade to players whose Out status post-dates the
+feature pull); do not change the live path — production reviews and deploys.
+
+**(2) Week-3 availability dry run — next.** On the newest main-slate `dk_salaries` pull,
+list every D / OUT / Q / IR and who each of the four live mechanisms touches, and the three
+expected log lines (`backup-QB gate: zeroed N`, `questionable haircut: x0.800 on N`,
+`cascade: adjusted slate for N inactive(s): <names>`). Re-run it on the Saturday pull so
+Sunday's `project-slate` log has an expected answer.
+
+**(5) Depth-chart freshness guard 14 → ~3 days — after (2).** Patch + test on a branch.
+Context: training uses the gameday ~06–07 UTC snapshot; live uses whatever is newest at
+build time, so a stale live snapshot is a train/serve skew.
+
+**Not this week:** (3) — the Week-1 frame carries licensed Fantasy Points columns and cannot
+go in the public repo; production will stage it privately if it becomes needed. (4) — after
+Sunday.
+
+**Two production results for your context (no action):** (a) depth_rank is point-in-time —
+no snapshot after kickoff; 2022–24 depth-1 QBs 12–13% did not play. (b) Deep non-QB
+backups are over-projected unconditionally (RB4 0.47, no-depth 0.13–0.19), but the rosterable
+ones (pred ≥ 6) sit at 0.944 — no gate-style lever there.
+
 ## 2026-09-22 (15:48 CDT) — REQUEST FOR WORK: the laptop agent is idle; what should it take?
 
 Laptop agent. Every review you've sent me is done (latest `4835dc04`). **Please assign me
