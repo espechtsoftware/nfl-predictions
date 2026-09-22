@@ -58,3 +58,27 @@ qb = allp[allp.pos == "QB"].sort_values("pool", ascending=False)
 qb["proj"] = [P.proj.get(p, np.nan) for p in qb.index]
 print("\nQBs: pool share vs field ownership (top 14 by pool share)")
 print(qb.head(14)[["pool", "o", "proj", "f"]].assign(pool=lambda x: (100 * x.pool).round(1)).rename(columns={"pool": "pool%", "o": "field%", "f": "real"}).to_string())
+# --- robustness (audit before verdict): drop players who took zero offensive snaps (availability, not judgement) ---
+import re
+sn = query_df(f"""SELECT player nn, SUM(COALESCE(offense_snaps,0)) off FROM `nfl-predictions-503414.nfl_raw.snap_counts`
+                 WHERE season=2026 AND week={WK} GROUP BY 1""")
+_SUF = re.compile(r"\b(jr|sr|ii|iii|iv|v)\b")
+def _norm(s): return re.sub(r"[^a-z]", "", _SUF.sub(" ", re.sub(r"[^a-z ]", " ", str(s).lower())))
+snl = {_norm(k): v for k, v in zip(sn.nn, sn.off)}
+allp["played"] = [(pz == "DST") or snl.get(_norm(p), 0) > 0 for p, pz in zip(allp.index, allp.pos)]
+print(f"\n=== robustness: players who played only (dropped {int((~allp.played).sum())}: "
+      f"{', '.join(allp.index[~allp.played][:12])}) ===")
+pl = allp[allp.played]
+for pz, g in [("ALL", pl)] + list(pl.groupby("pos")):
+    if len(g) < 8: continue
+    r = spearmanr(g.tilt, g.f).correlation
+    nul = np.array([spearmanr(g.tilt, rng.permutation(g.f.values)).correlation for _ in range(3000)])
+    print(f"  {pz:4s} n={len(g):3d} rho {r:+.3f} p {float((np.abs(nul) >= abs(r)).mean()):.3f}")
+# and controlling for the served projection: partial rank correlation (tilt vs realized, given proj)
+from scipy.stats import rankdata
+pl = pl.assign(proj=[P.proj.get(p, np.nan) for p in pl.index]).dropna(subset=["proj"])
+def resid(y, x):
+    ry, rx = rankdata(y), rankdata(x); b = np.polyfit(rx, ry, 1); return ry - np.polyval(b, rx)
+r = np.corrcoef(resid(pl.tilt, pl.proj), resid(pl.f, pl.proj))[0, 1]
+nul = np.array([np.corrcoef(resid(pl.tilt, pl.proj), resid(rng.permutation(pl.f.values), pl.proj))[0, 1] for _ in range(3000)])
+print(f"  partial rank corr(tilt, realized | served proj), played only: {r:+.3f}  p {float((np.abs(nul) >= abs(r)).mean()):.3f}  n={len(pl)}")

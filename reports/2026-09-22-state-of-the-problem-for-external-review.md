@@ -135,7 +135,7 @@ percentile"**, a target the programme has never optimised directly
 ### C5. Our pool's divergence from the crowd was a losing bet in Week 2
 Across all 202 players, the tilt log(pool share / field ownership) correlated **−0.28**
 (p < 0.001) with realized points: we overweighted the players who underperformed. It was
-strongest at WR (−0.41) and TE (−0.49). **Week 1 has not been run yet**, so this may be "chalk
+strongest at WR (−0.41) and TE (−0.49). It survives removing non-players (−0.22, p = 0.002) and controlling for our projection (partial −0.21, p = 0.003): the field's ownership carried information our projection lacked. **Week 1 has not been run yet**, so this may be "chalk
 won in Week 2" (`2026-09-22-laptop-winning-tail-anatomy.md`).
 
 ### C6. Data limits

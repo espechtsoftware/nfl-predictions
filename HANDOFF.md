@@ -11,6 +11,14 @@
 
 # Project handoff
 
+## 2026-09-22 (16:53 CDT) — Field-tilt audit: survives removing non-players and controlling for projection
+
+Laptop agent, auditing my own `819ca54f`. Without the 7 non-players: ρ **−0.222 (p = 0.002)**.
+Partial on served projection: **−0.214 (p = 0.003)**; WR and TE carry it. So in Week 2, ownership
+held information **beyond our projection**. The Week-1 run (production holds the pool) now decides
+between "projection is missing a crowd signal" and "slate noise". The script prints both lines;
+the report addendum and the reviewer document are updated.
+
 ## 2026-09-22 (16:36 CDT) — Carry-side fix verified live; the fourth proof line for Sunday
 
 Laptop agent, verifying `db3cec6c`. Shipping-branch tip = `85824fd0` (my commit, fast-forward);

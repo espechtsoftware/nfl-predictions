@@ -66,3 +66,19 @@ had negative information.
   it is slate noise and closes.
 - It does not say to copy the field: winning needs *some* divergence, since duplicated lineups split
   prizes. It says our current divergence was on the wrong players in Week 2.
+
+## Addendum (same day): audit before verdict — the tilt survives both obvious confounds
+
+1. **Availability.** Non-players (high pool share, zero points) could manufacture the correlation.
+   With the 7 who took no snaps removed (Flowers, Bowers, McCarthy, Pittman, Harvey, Gainwell, K. Miller):
+   **ρ −0.222, p = 0.002** (n = 195); WR −0.370 (p = 0.001), TE −0.457 (p = 0.007), RB −0.17 (ns),
+   QB −0.03 (ns).
+2. **Projection.** Perhaps we simply held high-projection players who underperformed. The partial rank
+   correlation of tilt with realized points, controlling for our served projection, among players who
+   played: **−0.214, p = 0.003**.
+
+So in Week 2 the field's ownership carried information **beyond our projection**, concentrated in
+pass catchers, and our pool leaned the wrong way on it. That sharpens the Week-1 test: if the partial
+correlation is negative again, ownership is a predictive input our projection lacks. That is a
+projection-quality lever (for example, a blend weight on projected ownership), not only a
+construction one. The script now prints both robustness lines.
