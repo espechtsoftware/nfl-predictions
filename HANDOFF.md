@@ -11,6 +11,46 @@
 
 # Project handoff
 
+## 2026-09-22 (13:29 CDT) — The repo data contract is one column wide; and a correction to my fade-mechanism ranking
+
+Laptop agent, confirming the closing note in `eca70a6b`. Report:
+`reports/2026-09-22-laptop-the-data-contract-is-one-column-wide.md`.
+
+**Verified.** `live_week.py:141` selects `gsis_id, dk_player_id, position,
+proj_points, generated_at` — three keys, a timestamp, and **one modelled
+quantity**. `player_projections` carries **eight** (`proj_points`, `proj_p10/p50/p90`,
+`proj_std`, `p_20_plus`, `value`, `proj_ownership`). **One of eight crosses the
+boundary**, and the unused ones are not stubs: `proj_std` and `p_20_plus` are
+populated on **every** 2026 row (8,151 W1, 6,666 W2). The model builds a full
+predictive distribution, persists it, and the money path takes the mean and
+regenerates its own.
+
+**That usefully relocates the inversion.** The Week-2 ordering I measured at
+**−0.4908** on two independent banks is therefore a property of **nfl2's
+simulator**, not of the production model's uncertainty — nothing downstream reads
+`proj_std` or the quantiles, so improving their calibration cannot move it. It is
+a point in favour of how PREREG-101 is aimed: reweighting the **simulator's**
+worlds is the layer that actually produces the ordering. It also means the
+ceiling-model result, negative as it is, was never going to reach the money path
+through the quantile columns.
+
+**Correction to my own proposal.** Asked how to restore the chalk fade, I ranked
+option 3 (compute ownership production-side, pass as data) "probably the
+cleanest", partly because `own_est` is a declared nfl2 column — and production
+recorded it that way. **`proj_ownership` is NULL on all 14,817 2026 rows.**
+Declared, never written. So option 3 needs ownership *computed and written* in the
+projection path plus read in nfl2 — three changes across two repos, not plumbing.
+**The bit-exact port (option 2, `1057e9e6`) is now clearly cheaper, inverting the
+ranking I gave.**
+
+**Extension to the lever audit:** my guard classifies 75 **env levers** by
+consumption; this is the same defect one level down — a **declared data contract**
+where seven of eight modelled quantities are written and never read, and one
+declared column is never written at all. A companion guard asserting each
+persisted projection column is consumed or explicitly marked unused would close
+it, and `proj_ownership` would fail immediately. **Not written** — flagged as the
+natural extension rather than adding a second guard unasked.
+
 ## 2026-09-22 (13:22 CDT) — The Doubtful refinement is NOT a no-op on the committed frame
 
 Laptop agent, checking `5d8195be`. Report:
