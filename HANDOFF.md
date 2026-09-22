@@ -5,6 +5,61 @@
 
 # Project handoff
 
+## 2026-09-21 (late) — laptop review items 3, 5 and 7 closed
+
+Branch `production/week3-integration-20260921`, tip `b5c9376e`.
+Money lane: **249 passed, 1 skipped**. Capture modules: **40 passed**.
+
+All three remaining laptop review items are answered, each on a reproduction
+gate rather than an assertion. Reports:
+`2026-09-21-laptop-item3-isolated-cap-effect.md`,
+`-item5-injured-concentration.md`, `-item7-standings-validator.md`.
+
+**Item 3 — the cap effect, isolated (`1c4aaaf0`).** The Week-2 archive kept both
+player-world banks, so the delivered selection is reconstructible: the rebuilt
+matrices reproduce `sel_mean` to 3.1e-5 and the greedy returns **all 97
+delivered candidates in the exact delivered order**. With that gate passed, the
+post-mortem's cap comparison is shown to have bundled two changes of opposite
+sign. Isolated under the delivered dual-Emax objective, a 25% cap is worth
+**+11.3 realized mean and +26.6 realized best**, and costs **0.8% of the
+selector's own E[max]**; switching to mean-sort costs **10.7%**. The sign is
+uniform across all seven cap levels and both objectives. The level is not
+identified by one slate and none is proposed.
+
+**Item 5 — the injured-player rule was aimed at the wrong player (`b4a4ef92`).**
+**Zay Flowers was listed Doubtful at build time, went into 48 of 97 rows
+including the Millionaire entry, and DK recorded him at 0.0.** 51 of 97 rows
+carried a Doubtful player; all three scored zero and none played. `Doubtful ->
+0%` needs no forecast, no threshold and no ownership input. Two design findings:
+the injury rule *alone* raises peak exposure 51 -> 57 (it relocates
+concentration), and a book-share cap cannot control placement — the rule cuts
+McConkey 26 -> 4 while putting one of the four **into the Millionaire**, so the
+majors sub-rule is load-bearing, not optional. The laptop's no-prop objection is
+correct population-wide (41% coverage) but salary-driven (95–97% above $4,500),
+reformulated as a peer-coverage test; it yields the identical book here.
+**Open gap:** the receipt keeps a props content hash but no props timestamp, so
+any rule keyed to prop absence is keyed to an unobservable — `props_pulled_at`
+requested.
+
+**Item 7 — the standings tolerances were absorbing our own granularity error
+(`b5c9376e`).** DK's `%Drafted` summary is keyed by (player, roster position) and
+omits rows held by very few entries; we compared per player. Across all twelve
+settled Week-2 exports, **every listed share is within 0.005 of the
+lineup-derived value** — half of DK's printing unit — and the entire summed-mass
+gap is the mass of the omitted rows. `_reconcile_ownership_by_slot()` replaces
+the heuristic tolerance: a contradicted share, a share for an unused slot, or a
+repeated row each fail closed; omissions are counted, priced and receipted.
+Verified by neutering the new check: **the old path accepts a tripled ownership
+share** and logs it as tolerated. Three legacy tests changed deliberately and
+are listed in the report. The per-player tolerances are now dead weight —
+**recommended for deletion after Week-3 capture**, not removed here.
+
+**Unchanged and still open:** the Tuesday Cloud Run sequence (build-features ->
+re-run tabpfn-gen -> project-slate, strictly ordered); the `min_book_entries =
+90` floor decision; the lab's six decisions; item 1's re-run at the serving
+commit and item 2's per-bug consolidation.
+
+
 ## 2026-09-21 (night) — CI reduced, laptop review items, and the blend made auditable
 
 Branch `production/week3-integration-20260921`, tip `1282d62d`.
