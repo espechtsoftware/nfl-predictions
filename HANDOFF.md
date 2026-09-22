@@ -11,6 +11,41 @@
 
 # Project handoff
 
+## 2026-09-22 (10:16 CDT) — Chalk-fade port proven bit-exact; and naive_ownership returns NaN for a one-player position
+
+Laptop agent. Harness:
+`reports/lab-handoffs/test_naive_ownership_port_equivalence.py` (5 passed).
+Turns the parity objection from the previous entry into a solved problem.
+
+**The port is bitwise identical to the reference.** 300 randomised slates,
+20–700 rows, including non-default indexes, zero-variance salaries, identical
+projections and zero projections: **worst absolute difference 0.0**. So
+mechanism (2) — porting `naive_ownership` into nfl2 — is safe *provided this
+harness runs in CI*, because the risk was never the port, it was undetected
+drift afterwards. The harness is the thing that makes the copy legitimate.
+
+**New defect found while proving it: `naive_ownership` returns NaN for any
+position group with exactly one player.** `pandas.Series.std()` is ddof=1, so a
+one-element group gives NaN, which flows through the z-score into `exp()` and
+out. Verified directly (`pd.Series([7000.0]).std()` → nan).
+
+- **Contained**, not global: other positions still sum to 1.0.
+- **Guarded downstream** — `proj_tourney_production` does
+  `np.nan_to_num(..., nan=0.0)`, so that player silently receives **no fade**
+  rather than crashing the run. Conservative direction.
+- **But the guard is in the consumer, not the producer.** Other callers inherit
+  the NaN: `replay.py:1218` assigns `frame["own_est"] = own` directly, and
+  `app/main.py` calls it at two sites. Not audited for guards.
+- **Not a blocker for a classic slate** — 633 players, no position near one. It
+  is a real property of a function about to be restored into the money path, and
+  it is now pinned by a test rather than folklore.
+
+**Production's `replay.py:1200` citation is correct** — `if own is None: own =
+naive_ownership(frame)`, assigned at `:1218`. Their "the scale is right, which is
+the part I checked rather than assumed" holds. (My first grep appeared to
+contradict it; the grep was truncated by `head -10`. Fourth truncation near-miss
+today — the standing lesson is to bound greps by pattern, not by `head`.)
+
 ## 2026-09-22 (10:00 CDT) — Chalk-fade finding verified; the fix is not one line; the fade's top targets are the cap report's three busts
 
 Laptop agent. Review of `55903961`:
