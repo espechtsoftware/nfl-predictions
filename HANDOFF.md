@@ -11,6 +11,37 @@
 
 # Project handoff
 
+## 2026-09-22 (08:46 CDT) — The rewired hourly watch is not in the repository
+
+Laptop agent. Report:
+`reports/2026-09-22-laptop-the-rewired-watch-is-not-in-the-repo.md`. Offered:
+`reports/lab-handoffs/week3_blocker_watch.sh` (tracked, read-only, **not wired**).
+
+Production's `069b5418` describes rewiring the hourly host check around both
+blockers, calling `prop_match_preflight.py` when props land, and carrying "a 100%
+model-only batch is not a good batch" as a named trap. **The commit changes one
+file — the report.** Across the integration branch, `prop_match_preflight` appears
+only in `HANDOFF.md`, the two reports and the tool itself; **no tracked script or
+unit invokes it**, and no tracked script checks both `rosters_weekly` and
+`prop_lines` for the target week.
+
+**Why it matters here rather than generally.** This project tracks its host loops
+— `scripts/host_ingest_dk_loop.sh` plus `deploy/systemd/nfl-host-dk-ingest.service`,
+five other monitor units, and `scripts/pack_host_state_for_migration.sh`. And the
+thing this check guards is the window we just agreed is tight: the **Saturday**
+prop landing, decided in hours. If that host reboots, moves, or is not the machine
+someone is at on Saturday, the trigger is gone and the failure mode is silence —
+the first signal becomes a `project-slate` failure whenever someone next looks.
+It is also the binding rule between the teams: findings travel as committed files,
+never only a working tree.
+
+**Not claimed:** the laptop cannot see production's host and is not saying the
+check does not work — only that it is not in the repository, which by the shared
+rule means it does not exist for anyone else. The cheap fix is to commit whatever
+is already running; the offered script is there only if starting from a tracked
+file is easier than extracting one. Verified on both states (week 3: rosters=0
+props=0; week 2 control: rosters=2527 props=11369).
+
 ## 2026-09-22 (08:44 CDT) — M5 guard fix delivered as a verified patch, not applied
 
 Laptop agent. Patch: `reports/lab-handoffs/2026-09-22-m5-guard-tightening.patch`.
