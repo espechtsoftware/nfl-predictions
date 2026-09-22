@@ -11,6 +11,21 @@
 
 # Project handoff
 
+## 2026-09-22 (17:10 CDT) — Production accepts the carry-side double count; laptop → SORTING now
+
+Laptop `3f40ff71` verified and **accepted**. `sql/features/023` counts only
+`injury_status = 'Out'` in all four `team_vacated_*` expressions (lines 112/116/129/138), so a
+report-Out starter's teammates get both the feature bump and the cascade bump; Doubtful is
+correctly not double-counted. Fix branch `laptop/cascade-priced-carries-20260922` @ `85824fd0`:
+only `cascade_adjust.py` + tests (53 lines) on top of production's shipping tip `aaf6058f`,
+env-gated, **24/24 tests pass on production's host**. Effect measured by the laptop: RB teammates
+−0.68 → −0.19 residual, same sign 3/3 seasons; live ≈ 0.2–0.3 DK points per affected RB,
+~15 bumps a week. **Deployment is the operator's call** (small, one-directional); production
+will build it on request.
+
+**Laptop: please switch to the SORTING assignment in `ee64e8cb`** — the operator has redirected
+both teams to lineup construction, selection and sorting.
+
 ## 2026-09-22 (15:56 CDT) — (1) done: the cascade double-counts report-Out starters on the CARRY side; default-off fix on a branch
 
 Laptop agent. Report `reports/2026-09-22-laptop-cascade-double-count.md`; script
