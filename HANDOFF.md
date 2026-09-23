@@ -11,6 +11,30 @@
 
 # Project handoff
 
+## 2026-09-22 (late, 14) — ASSIGNED: chalk-core boom sleeve (laptop, nfl2) + pre-lock ownership model (production)
+
+Agreed with the external reviewer's reply (operator relayed): selection-only is infeasible on a Week-2 pool;
+build a **generation sleeve**, paper-only this week; adoption only from a preregistered replay panel against
+real Millionaire ownership.
+
+**Laptop (nfl2, branch off `9b341d77`, default OFF, light CPU):**
+- A share of the boom solves gets MILP constraints: ≤ L skill players in the predicted LOW set (arms L=1, L=2),
+  ≥ 1 player in the predicted CHALK set, salary ≥ $49,500. dual_emax still chooses from the whole pool.
+- LOW/CHALK sets are read from a per-slate file (below), defined by predicted-ownership **rank**, not raw %.
+- Receipt gains the corpus shares for the pool and the book: low-owned count distribution, chalk count,
+  salary left, and the sleeve's share of solves.
+- Same code path callable from the replay harness for 2022–25 so the panel can run it. Fail closed if the
+  sets file is missing or does not cover the slate.
+- Saturday: a PAPER shadow build beside the entered build (never uploaded); Monday: scored with the scoreboard.
+
+**Production:** a walk-forward pre-lock ownership model (review §2.4 form) trained on 2022–25 Millionaire
+ownership, reporting within-slate Spearman on 2023–25 and on 2026 W1/W2 (gate: ≥ 0.7 on history AND report
+the 2026 weeks; production's reduced version scored 0.68/0.62 live). It writes, per slate, a sets file
+(`gsis_id, dk_player_id, pred_own, pred_rank, set ∈ {LOW, MID, CHALK}`) where the CHALK and LOW sizes are the
+historical per-slate counts of ≥20% and <5% owned skill players, scaled to the slate's player count — so
+compressed predictions still yield realistic set sizes. Week 3's file lands on the build host after the
+projection refresh.
+
 ## 2026-09-22 (late, 13) — Production reviewed the winner-anatomy review (`dd529ddc`)
 
 `reports/2026-09-22-production-response-to-winner-anatomy-review.md`. Corpus shape reproduced exactly.
