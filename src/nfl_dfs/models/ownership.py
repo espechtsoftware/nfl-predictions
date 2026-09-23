@@ -62,19 +62,30 @@ def training_frame() -> pd.DataFrame:
     df = query_df(f"""
         WITH own_rows AS (
           -- Safe-import retries append the same contest export again. Keep
-          -- the latest copy per contest/player so one retried contest cannot
-          -- receive extra weight in the ownership target.
-          SELECT season, week, contest_id, display_name, pct_drafted
+          -- the latest copy per contest/player/SLOT so one retried contest
+          -- cannot receive extra weight in the ownership target.
+          -- 2026-09-22: the 2026 DraftKings standings import writes one row per
+          -- roster slot (a WR has a WR row and a FLEX row); 2022-2025 rows are
+          -- one per player. Deduplicate per slot, then SUM the slots into the
+          -- player's contest ownership, then average across contests. For
+          -- one-row-per-player history this is identical to before.
+          SELECT season, week, contest_id, display_name, roster_position, pct_drafted
           FROM `{settings.raw}.contest_ownership`
           QUALIFY ROW_NUMBER() OVER (
-            PARTITION BY season, week, contest_id, display_name
+            PARTITION BY season, week, contest_id, display_name, roster_position
             ORDER BY imported_at DESC
           ) = 1
+        ),
+        per_contest AS (
+          SELECT season, week, contest_id, display_name,
+                 SUM(pct_drafted) AS pct_drafted
+          FROM own_rows
+          GROUP BY season, week, contest_id, display_name
         ),
         own AS (
           SELECT season, week, UPPER(display_name) AS uname,
                  AVG(pct_drafted) AS pct_drafted
-          FROM own_rows
+          FROM per_contest
           GROUP BY season, week, uname
         ),
         sal AS (
