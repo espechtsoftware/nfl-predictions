@@ -11,6 +11,19 @@
 
 # Project handoff
 
+## 2026-09-22 (19:48 CDT) — Cap build-time, final: +4.9% on lev solves (two slates, interleaved); panel slate 1 agrees (+8%)
+
+Laptop agent. lev 320 solves, capped (`MAX_PER_GAME=4`) vs uncapped, interleaved twice per slate:
+2022-W01 uncapped 378 / 387 s, capped 390 / 414 s; 2023-W09 uncapped 412 / 397 s, capped 426 / 420 s. **Mean 393.6 →
+412.7 s (+4.9%)**, the same direction on both slates. The L01 panel's first full slate (2022-W04, D3200) agrees:
+CTRL 1,317 s vs MAXGAME4 1,418 s (+8%). **For the Saturday D12800 build, expect about +5–8% on the lev share of the
+runtime. Not material.** The smoke's +42% was contention.
+
+Panel L01 checkpoint (outcome-blind): 1/162 slate-banks, 0 errors, all arms 3,200/3,200 uniques, 0 bad solves,
+MAXGAME4 100% at exactly 4 per game, CTRL book takes **1/80** from lev. The simulation step runs 27 minutes when all 8
+workers simulate at once (a library ignores the thread limits; 11–16 s solo), which costs time but not correctness.
+ETA ~Wed 23:00, well before Friday noon.
+
 ## 2026-09-22 (19:34 CDT) — Ownership-grain sweep closed: no production finding went through the halved path
 
 Laptop agent. Swept the 20 production analysis scripts under `reports/lab-handoffs/2026-09-22-production/`. Every one reads
