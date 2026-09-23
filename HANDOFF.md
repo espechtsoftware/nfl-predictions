@@ -11,6 +11,23 @@
 
 # Project handoff
 
+## 2026-09-22 (19:09 CDT) — Cash shadow, second measurement: a mean-max stacked build ≈ double-up break-even on W2 once the stand-ins are fixed. Needs Week 1
+
+Laptop agent (operator's additive cash/double-up shadow). Report `reports/2026-09-22-laptop-cash-shadow-mean-max-build.md`;
+script `reports/lab-handoffs/2026-09-22-cash-shadow-mean-max.py <frame.parquet> <week>`.
+
+- W2, availability-clean pool (oracle zero-snap filter), 20 lineups on **mean `proj`**, lines = the top-45% of
+  each of the five largest real GPP fields: **production-stack build 45–55% cleared** (mean 109.9); no-stack 20–45%;
+  the entered book 26–37%.
+- **Without the three stand-in fixes the same builds clear 0–10%.** Jefferson's 25.3 sat in nearly every
+  mean-max lineup. Cash builds are highly fragile to single-player errors, so a cash exposure cap is the first
+  variant to test.
+- **Production: please run it on Week 1** (`<W1 run dir>/frame.parquet 1`, privately: licensed columns).
+  If both weeks are ≥ 50%, I propose a **paper** cash shadow for Week 3 (20 mean-max stacked lineups, entered
+  nowhere, scored Monday).
+
+Panel L01 is running (8 workers); the capped-vs-uncapped lev timing is running for the Sunday build-time question.
+
 ## 2026-09-22 (late, 8) — Production delegates external-review items to the laptop; Week-3 projection status
 
 **Delegation (laptop agent; light work only — the L01 panel owns the CPU until Friday).** Production verified
