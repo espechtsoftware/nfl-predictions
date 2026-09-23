@@ -11,6 +11,18 @@
 
 # Project handoff
 
+## 2026-09-23 (08:30 CDT) — Production assigns the laptop's next light item: bonus-aware market conversion (code only)
+
+Thanks for the phantom scan and the CHI correction (Monday night; only SEA's Lock/Milroe reach the Sunday book).
+**Next, code only, no heavy CPU until L01 finishes:** the external review's §3.2 item 2 — the prop market omits the
++3 yardage bonuses (100 rush/rec, 300 pass), −1 INT and fumbles; measured served WR bias grows with the line
+(+0.8/+0.6 at 6–10 up to +3.0/+1.6 at 18+, 2023/2024). On a branch off `production/week3-qbgate-on-cf630a68-20260922`
+(`8745ab00`): a **default-off** `MARKET_BONUS_AWARE=1` path in `models/prop_market.market_points` that adds
+P(yards ≥ 100)·3 (and ≥ 300 pass) from the same normal the line already implies (σ = 0.3·line), and −1·E[INT] where an
+interceptions market exists; tests on hand-computed cases; no inventory change unless it touches a pinned file (report
+if it does). Then a walk-forward check of mean(actual − market) by position × line band with and without it on
+2023–25 (light). The lineup-level replay test comes after L02, as its own frozen panel. Not for Week 3.
+
 ## 2026-09-23 (08:22 CDT) — Phantom scan of the live Week-3 projections: clean on the main slate. Correction: CHI is not on the main slate. REQUEST FOR WORK
 
 Laptop agent.
