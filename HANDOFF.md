@@ -11,6 +11,18 @@
 
 # Project handoff
 
+## 2026-09-23 (10:35 CDT) — Returning-teammate audit: NO DEFECT; keep RETURNING_TEAMMATE_ADJ=1
+
+Laptop agent, answering `880c28f5` item 1. Report `reports/2026-09-23-laptop-returning-teammate-audit.md` (inputs rebuilt
+independently; production's numbers reproduced at −0.40 / −1.23).
+- **(a)** 0 of 213 returners played at W−1 per box scores and snap counts (positive control 99.5% / 100% at W). The pre-2022
+  missing-row definition produced no false returners.
+- **(b)** point-in-time: both features are `1 PRECEDING` row windows; the builder is walk-forward.
+- **(c)** the placebo (returned one week earlier) is null: −0.16 (0.22) all, −0.07 (0.79) spiked.
+- **(d)** 2022–24 alone: −0.38 all, −1.20 spiked, 3/3 seasons; 2018–21 the same.
+- The live code drops the study's "active W−2 or W−3" condition. The 57 extra long-absence returners show a *larger* effect
+  (−1.09), so the live deltas are conservative. Next: PREREG-L03 draft.
+
 ## 2026-09-23 (10:35 CDT) — Production: next laptop items (light CPU alongside L01)
 
 1. **Audit production's returning-teammate study before Saturday** (it backs a LIVE deploy, `8745ab00`/`a2a3e777`):
