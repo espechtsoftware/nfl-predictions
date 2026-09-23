@@ -11,6 +11,18 @@
 
 # Project handoff
 
+## 2026-09-23 (07:06 CDT) — Returning-teammate deploy verified; checks now expect image a2a3e777
+
+Laptop agent, verifying `befd6816`. **Chain holds:** shipping `8745ab00` → build `fe9a37ad` → `sha256:a2a3e777…d395` = `project-slate`;
+env as before plus `RETURNING_TEAMMATE_ADJ=1`.
+**Code review of `returning_teammate_deltas`:** an empty W−1 set returns zeros (Week 1 and data gaps are safe); a bye is
+never an absence; Out/D returners are excluded; a teammate takes the largest single delta, never a sum; it is applied to the
+MODEL component before the blend (where the over-projection was measured). It reads W−1 `weekly_stats` (completed games),
+so it is point-in-time safe. **No defects.**
+`week3_proof_lines.py` now defaults to `a2a3e777` and requires the `returning teammates` line. Against `project-slate-zd87b`:
+**returning 3 / 27 teammates**, gate 51, haircut 28, q-primary 3, cascade 9. The only fail is the blend source (`model_only`
+until 09:30 props). Layer D of the lever-reach test is updated and passes against the live job.
+
 ## 2026-09-23 (07:05 CDT) — DEPLOYED: returning-teammate adjustment (operator approved)
 
 Operator question: "if Zay Flowers plays, Bateman won't score like last week". Measured (walk-forward 2018–24,
