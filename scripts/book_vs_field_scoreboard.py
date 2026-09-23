@@ -23,23 +23,34 @@ import pandas as pd
 SKILL = ("QB", "RB", "WR", "TE")
 
 
-def player_arrays(fr: pd.DataFrame, played: set[str], real: dict[str, float], pcol: str) -> dict:
-    """Per-frame-row arrays used by summarize(); real is keyed by display_name (0 when absent)."""
+def player_arrays(fr: pd.DataFrame, played: set[str], real: dict[str, float], pcol: str,
+                  own: dict[str, float] | None = None) -> dict:
+    """Per-frame-row arrays used by summarize(); real and own are keyed by display_name (0 when absent).
+    `own` is slot-summed field ownership in percent (the 2026 import writes one row per roster slot)."""
     skill = fr.position.isin(SKILL).to_numpy()
     dnp = skill & ~fr.gsis_id.astype(str).isin(played).to_numpy()
     r = np.array([real.get(str(n), 0.0) for n in fr.display_name], float)
     p = pd.to_numeric(fr[pcol], errors="coerce").fillna(0.0).to_numpy(float)
+    o = np.array([(own or {}).get(str(n), 0.0) for n in fr.display_name], float)
+    sal = pd.to_numeric(fr.get("salary", pd.Series(0, index=fr.index)), errors="coerce").fillna(0).to_numpy(float)
     pl = skill & ~dnp
     return {"proj": p, "real": r, "dnp": dnp.astype(float), "gap": np.where(pl, r - p, 0.0),
-            "played": pl.astype(float)}
+            "played": pl.astype(float), "low": ((o < 5.0) & skill).astype(float),
+            "chalk": (o >= 20.0).astype(float), "salary": sal}
 
 
 def summarize(a: dict, idx: np.ndarray) -> dict:
     """idx: (n_lineups, 9) frame row indices."""
     n_pl = np.maximum(a["played"][idx].sum(1), 1)
+    low = a["low"][idx].sum(1)
     return {"n": len(idx), "proj": a["proj"][idx].sum(1).mean(), "realized": a["real"][idx].sum(1).mean(),
             "dnp_slots": a["dnp"][idx].sum(1).mean(), "gap_played": a["gap"][idx].sum(1).mean(),
-            "gap_per_played": (a["gap"][idx].sum(1) / n_pl).mean()}
+            "gap_per_played": (a["gap"][idx].sum(1) / n_pl).mean(),
+            # corpus shape (external review §2.2): share with 3+ / 0-1 skill players under 5% owned,
+            # share with no 20%+ player, mean salary left
+            "pct_3plus_low": 100 * (low >= 3).mean(), "pct_0to1_low": 100 * (low <= 1).mean(),
+            "pct_no_chalk": 100 * (a["chalk"][idx].sum(1) == 0).mean(),
+            "salary_left": (50000 - a["salary"][idx].sum(1)).mean()}
 
 
 def book_rows(fr: pd.DataFrame, book: pd.DataFrame) -> np.ndarray:
@@ -64,6 +75,12 @@ def name_rows(fr: pd.DataFrame, keys: pd.Series) -> tuple[np.ndarray, np.ndarray
     return np.array([[n2i[x] for x in k] for k in parts[ok]]), ok
 
 
+def heavy_user_mask(entry_names: pd.Series, lo: int = 51, hi: int = 150) -> np.ndarray:
+    """Entries whose DK suffix "(i/N)" declares N in [lo, hi]; single entries carry no suffix."""
+    n = entry_names.astype(str).str.extract(r"\(\d+/(\d+)\)\s*$")[0].astype(float)
+    return n.between(lo, hi).to_numpy()
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("run_dir", type=Path)
@@ -84,10 +101,16 @@ def main() -> None:
         raise SystemExit(f"weekly_stats has no rows for {s} week {w}; refresh nflverse first")
     own = query_df(f"SELECT display_name, MAX(fpts) fpts FROM `{settings.raw}.contest_ownership` "
                    f"WHERE season={s} AND week={w} GROUP BY 1")
-    a = player_arrays(fr, played, dict(zip(own.display_name.astype(str), own.fpts.astype(float))), pcol)
+    field_own = query_df(f"""SELECT display_name, SUM(pct_drafted) own FROM (
+        SELECT * FROM `{settings.raw}.contest_ownership`
+        WHERE season={s} AND week={w} AND contest_id='{args.contest_id}'
+        QUALIFY ROW_NUMBER() OVER (PARTITION BY display_name, roster_position ORDER BY imported_at DESC) = 1)
+        GROUP BY 1""")
+    a = player_arrays(fr, played, dict(zip(own.display_name.astype(str), own.fpts.astype(float))), pcol,
+                      dict(zip(field_own.display_name.astype(str), field_own.own.astype(float))))
 
     out = []
-    f = query_df(f"SELECT points, players_key FROM `{settings.raw}.contest_entries` "
+    f = query_df(f"SELECT points, players_key, entry_name FROM `{settings.raw}.contest_entries` "
                  f"WHERE season={s} AND week={w} AND contest_id='{args.contest_id}'")
     if f.empty:
         raise SystemExit(f"no contest_entries for contest {args.contest_id}")
@@ -96,6 +119,9 @@ def main() -> None:
     pts = f.points.to_numpy()[ok]
     out.append({"group": "field", **summarize(a, idx)})
     out.append({"group": "field top 1%", **summarize(a, idx[pts >= np.quantile(pts, 0.99)])})
+    heavy = heavy_user_mask(f.entry_name[ok])
+    if heavy.any():
+        out.append({"group": "heavy users (51-150 entries)", **summarize(a, idx[heavy])})
     cands = pd.read_parquet(args.run_dir / "candidates.parquet")
     pidx, pok = name_rows(fr, cands.names)
     out.append({"group": f"our pool ({pok.mean():.3f} matched)", **summarize(a, pidx)})

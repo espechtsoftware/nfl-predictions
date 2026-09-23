@@ -46,3 +46,18 @@ def test_name_rows_drops_unmatched_lineups():
     keys = pd.Series(["|".join(f"p{i}" for i in range(9)), "|".join(["zz"] + [f"p{i}" for i in range(1, 9)])])
     rows, ok = sb.name_rows(fr, keys)
     assert ok.tolist() == [True, False] and rows.shape == (1, 9)
+
+
+def test_corpus_shape_counts_low_and_chalk_by_slot_summed_ownership():
+    fr = _frame()
+    own = {"p0": 25.0, "p1": 3.0, "p2": 4.0, "p3": 2.0, "p4": 30.0, "p5": 10.0, "p6": 1.0, "p7": 8.0, "p8": 50.0}
+    a = sb.player_arrays(fr, {f"g{i}" for i in range(10)}, {}, "proj", own)
+    s = sb.summarize(a, np.array([list(range(9))]))
+    # skill players under 5%: p1, p2, p3, p6 -> 4 (DST p8 never counts as low)
+    assert s["pct_3plus_low"] == 100.0 and s["pct_0to1_low"] == 0.0
+    assert s["pct_no_chalk"] == 0.0
+
+
+def test_heavy_user_mask_reads_the_declared_entry_count():
+    names = pd.Series(["a (3/150)", "b (1/20)", "c", "d (51/51)", "e (2/151)"])
+    assert sb.heavy_user_mask(names).tolist() == [True, False, False, True, False]
