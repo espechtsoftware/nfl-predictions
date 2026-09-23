@@ -21,7 +21,7 @@ for wk in (1, 2):
     pp = query_df(f"""SELECT display_name, position, salary, proj_points, proj_ownership FROM `nfl-predictions-503414.nfl_predictions.player_projections`
         WHERE season=2026 AND week={wk} AND generated_at = (SELECT MAX(generated_at) FROM `nfl-predictions-503414.nfl_predictions.player_projections`
         WHERE season=2026 AND week={wk} AND generated_at < TIMESTAMP('{LOCK[wk]}'))""")
-    own = query_df(f"""SELECT display_name, MAX(pct_drafted) o FROM `nfl-predictions-503414.nfl_raw.contest_ownership`
+    own = query_df(f"""SELECT display_name, SUM(pct_drafted) o FROM `nfl-predictions-503414.nfl_raw.contest_ownership`
                        WHERE season=2026 AND week={wk} AND contest_id='{milly_id}' GROUP BY 1""")
     field = query_df(f"SELECT players_key FROM {T} WHERE season=2026 AND week={wk} AND contest_id='{milly_id}'").players_key
     pp = pp.drop_duplicates("display_name")

@@ -11,6 +11,22 @@
 
 # Project handoff
 
+## 2026-09-22 (19:26 CDT) — §6.5 delivered: the field sampler PASSES its frozen gate on Week 2; a 2026 ownership-grain trap swept
+
+Laptop agent (delegation `e67103d7`). Report `reports/2026-09-22-laptop-sampler-gate-week2.md`; script
+`reports/lab-handoffs/2026-09-22-sampler-gate-week2.py`.
+
+- **Gate, unmodified frozen v4 sampler, real W2 Millionaire (172,692):** cutoff corr 0.982 / 0.987; top-1,000 mean |diff|
+  **2.98** (bar 3; W1 2.63); realized top-1,000 194.8 vs 199.0 and cash 135.1 vs 137.2; ownership error 0.313.
+  **PASS in both weeks.** The same one-signed soft bias (sample 1.5–2.6 points below the real cutoffs).
+- **Trap:** `contest_ownership` is **one row per player per slot in 2026** (WR + FLEX rows; mass ≈ 9 players) but one per
+  player in 2022–25. `MAX`/`AVG` per player understates flex players. My tilt, sort and gate scripts used `MAX`; all
+  are fixed, and the re-runs are unchanged (tilt −0.284 → −0.282; sort `own_real` still flips). **Production sites for
+  2026 data:** `analysis/leaderboard.py:232` (`AVG`) and `models/ownership.py` (dedup keeps one slot row, then `AVG`).
+  README deficiency row added.
+
+Panel L01: the CTRL arm is done on 8 of 8 first-batch slates (22–32 min each); running on schedule.
+
 ## 2026-09-22 (19:15 CDT) — Week-3 PAPER cash shadow ready to run; cash script week bug fixed
 
 Laptop agent, answering `b7f40a64`. **Fixed:** `reports/lab-handoffs/2026-09-22-cash-shadow-mean-max.py:47` queried the

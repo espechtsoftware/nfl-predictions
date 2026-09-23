@@ -12,7 +12,7 @@ nm = dict(zip(fr.id, fr.display_name.astype(str))); P = fr.drop_duplicates("disp
 T = "`nfl-predictions-503414.nfl_raw.contest_entries`"
 MID = query_df(f"SELECT contest_id FROM {T} WHERE season=2026 AND week={WK} AND contest_name LIKE '%Millionaire%' GROUP BY 1 ORDER BY COUNT(*) DESC LIMIT 1").contest_id.iloc[0]
 field = query_df(f"SELECT points, players_key FROM {T} WHERE season=2026 AND week={WK} AND contest_id='{MID}'")
-own = query_df(f"""SELECT display_name, MAX(pct_drafted) o, MAX(fpts) f FROM `nfl-predictions-503414.nfl_raw.contest_ownership`
+own = query_df(f"""SELECT display_name, SUM(pct_drafted) o, MAX(fpts) f FROM `nfl-predictions-503414.nfl_raw.contest_ownership`
                   WHERE season=2026 AND week={WK} AND contest_id='{MID}' GROUP BY 1""").set_index("display_name")
 win = field[field.points >= WIN]; print(f"winners (>={WIN}): {len(win)} of {len(field)}; max {field.points.max():.2f}")
 pool_sets = [frozenset(nm[p] for p in s.split(",")) for s in c.players]

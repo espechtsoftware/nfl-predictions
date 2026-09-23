@@ -53,7 +53,7 @@ M = np.load(f"{D}/incumbent_player_scores.npy")
 rows = [[ix[p] for p in k.split("|")] for k in ours.players_key]
 sims = np.stack([M[r].sum(0) for r in rows])
 own_n = naive_ownership(fr[["pos", "proj", "salary"]]); proj = fr.proj.to_numpy(float)
-ow = query_df("SELECT display_name, MAX(pct_drafted) o FROM `nfl-predictions-503414.nfl_raw.contest_ownership` WHERE season=2026 AND week=2 AND contest_id='195648007' GROUP BY 1")
+ow = query_df("SELECT display_name, SUM(pct_drafted) o FROM `nfl-predictions-503414.nfl_raw.contest_ownership` WHERE season=2026 AND week=2 AND contest_id='195648007' GROUP BY 1")
 olut = dict(zip(ow.display_name.astype(str), ow.o.astype(float)))
 milly = query_df(f"SELECT players_key FROM {T} WHERE season=2026 AND week=2 AND contest_id='195648007'").players_key
 vocab = {}; F = np.array([[vocab.setdefault(p, len(vocab)) for p in k.split("|")] for k in milly if k and k.count("|") == 8])
