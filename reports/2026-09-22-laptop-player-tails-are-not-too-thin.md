@@ -1,4 +1,4 @@
-# The simulator's missing ceiling is not thin per-player tails (2021 diagnostic)
+# The simulator's missing ceiling is not a tail defect: players, lineups and slate level are all calibrated or wide (2021)
 
 Production's ceiling diagnostic (`db3cec6c`): the simulator's per-world pool best tops out around 200–225, while real
 winning lines reached 236 and 274, so generation cannot build a winner from worlds that never contain one. One candidate
@@ -40,3 +40,33 @@ bank only (not the corrected hsim law the selector also uses).
 **Suggested next measurement (for production's ceiling work):** the same PIT at the **lineup** level, split by stack structure
 (QB+2 same-game versus spread) on these 2021 slates. If stacked lineups' realized PITs pile up above p99 while spread
 lineups' do not, the missing ceiling is within-game co-movement.
+
+## Follow-up (same evening): the joint tail and the slate level, same 2021 slates
+
+**Joint tail** (`reports/lab-handoffs/2026-09-22-lineup-tail-calibration-2021.py`): a 240-lineup boom pool per slate (production
+stack), each lineup's realized score placed in its own distribution on an **independent** bank. 4,320 lineups:
+
+| | > sim p99 | > p95 | > p90 | mean PIT |
+|---|---:|---:|---:|---:|
+| all | **0.35%** (1%) | 2.38% (5%) | 5.51% (10%) | 0.451 |
+| 4 players from one game | 0.43% | 2.34% | 5.93% | 0.446 |
+| 5+ from one game | 0.20% | 2.46% | 4.72% | 0.460 |
+
+The simulator **over-states** the lineup tail (as the lab's 036 found), and game-heavy lineups are no exception. By slate, the
+share above p99 is 0–2.1%. **Co-booms are not under-simulated.**
+
+**Slate level** (`reports/lab-handoffs/2026-09-22-slate-level-calibration-2021.py`): the realized mean of a 120-lineup pool,
+ranked among the 10,000 per-world means on an independent bank. Ranks across the 18 slates run 0.044–0.749; **6%** fall in the
+outer 10% (calibrated 10%); KS against uniform p = 0.175. The simulated level sd **11.2** is wider than the realized
+across-slate sd **8.9**. The simulator runs **slightly high** on average (12 of 18 ranks below 0.5; pool mean 121 vs 116).
+
+## Conclusion
+On the 2021 replay, **none of the three candidate mechanisms is too narrow:** per-player tails, joint (co-boom) tails and
+slate-level dispersion are calibrated or conservative. The Week-1 2026 winning line sitting outside the simulated worlds
+(world-rank 0.98) is what a **rare high-scoring slate** looks like under a calibrated level, about 1 week in 50, not a
+structural simulator defect. That strengthens production's structural reading (`2026-09-22-production-what-winning-requires.md`):
+the large-field winning line is out of reach because the field is large, not because generation cannot see it. Ceiling
+work should target construction and field-relative position, not simulator dispersion.
+
+Limits: one season; the lab replay centring (`NFL2_CENTER=mean`), not the live production-centred path; boom-only pools.
+Running the same three scripts on 2025 would need the sealed season's unseal, which is the operator's call.

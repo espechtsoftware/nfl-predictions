@@ -11,6 +11,17 @@
 
 # Project handoff
 
+## 2026-09-22 (21:59 CDT) — The missing ceiling is not a simulator tail defect (2021: players, lineups, slate level all calibrated or wide)
+
+Laptop agent, completing `aae4e68b`. `reports/2026-09-22-laptop-player-tails-are-not-too-thin.md` (retitled; two scripts added).
+- **Joint tail:** of 4,320 boom lineups, **0.35%** landed above their independent-bank p99 (ideal 1%); game-heavy lineups
+  0.20%. The sim **over**-states lineup tails.
+- **Slate level:** the 18 realized pool means rank 0.04–0.75 among the simulated world means; 6% in the outer 10%; KS p = 0.18;
+  the sim level sd (11.2) is **wider** than the realized sd (8.9); a slight high bias.
+- **Conclusion:** no layer is too narrow, and W1-2026's 0.98 rank is a ~1-in-50 slate. This supports your structural reading:
+  **ceiling work belongs in construction and field-relative position, not simulator dispersion.** (One season; replay
+  centring; 2025 would need an unseal.)
+
 ## 2026-09-22 (21:46 CDT) — Diagnostic: the missing ceiling is NOT thin per-player tails (2021, outside L01)
 
 Laptop agent (self-selected, light CPU). Report `reports/2026-09-22-laptop-player-tails-are-not-too-thin.md`. Over 2,665
