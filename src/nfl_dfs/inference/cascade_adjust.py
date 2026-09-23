@@ -57,12 +57,31 @@ _PROJ_ZERO_COLS = ["proj_points", "proj_p10", "proj_p50", "proj_p90",
 
 def find_out_players(feats: pd.DataFrame) -> list[str]:
     """GSIS ids of slate players who won't play: DK status O/IR or an
-    injury-report Out designation."""
+    injury-report Out designation -- and, when CASCADE_DOUBTFUL=1, Doubtful
+    NON-QB skill players too.
+
+    Doubtful as absent (2026-09-22). Both next-man-up layers counted only "Out":
+    the vacated-share features and this cascade. Walk-forward 2022-24, model fit
+    on active rows as production fits it: a backup promoted past an OUT starter
+    has model residual -0.02 (already handled), past a DOUBTFUL starter +1.04
+    (n=270; per season -0.07, +1.49, +1.53). Doubtful starters sit ~97% of the
+    time (176 panel player-weeks, 2.8% played), yet nothing redistributed their
+    opportunity -- e.g. Week-2 Zay Flowers (D, 0 pts) while Rashod Bateman ran
+    8.2 -> 21.8. QBs are excluded: QB availability goes through find_backup_qbs.
+    DEFAULT OFF: CASCADE_DOUBTFUL unset or "0" leaves behaviour unchanged.
+    """
     status = feats.get("status", pd.Series(index=feats.index, dtype=object))
-    dk_out = status.fillna("").astype(str).str.upper().isin(OUT_STATUSES)
+    st = status.fillna("").astype(str).str.upper().str.strip()
+    dk_out = st.isin(OUT_STATUSES)
     report = feats.get("injury_status", pd.Series(index=feats.index, dtype=object))
-    report_out = report.fillna("").astype(str).str.upper().eq("OUT")
-    ids = feats.loc[(dk_out | report_out) & feats.gsis_id.notna(), "gsis_id"]
+    rep = report.fillna("").astype(str).str.upper().str.strip()
+    report_out = rep.eq("OUT")
+    absent = dk_out | report_out
+    if os.environ.get("CASCADE_DOUBTFUL", "0") == "1":
+        pos = _col(feats, "position", "dk_position").fillna("").astype(str).str.upper()
+        doubtful = st.isin(DOUBTFUL_STATUSES) | rep.eq("DOUBTFUL")
+        absent = absent | (doubtful & pos.ne("QB"))
+    ids = feats.loc[absent & feats.gsis_id.notna(), "gsis_id"]
     return sorted(set(ids))
 
 
@@ -129,6 +148,25 @@ def _redistribute(
                  row.gsis_id, row.delta, share_col, out_id, row.method)
 
 
+def _report_out_ids(feats: pd.DataFrame) -> set[str]:
+    """Players the injury report already lists Out: the feature build prices
+    their vacated carries through team_vacated_carry_share (sql/features/023),
+    so redistributing carry share again at inference counts them twice.
+
+    Double-count audit (2026-09-22, walk-forward 2022-24, model fit on prior
+    active rows, the real cascade fed report-Out sources with usage strictly
+    before the week): bumped RBs' mean residual was -0.14 without the cascade,
+    -0.68 [-1.10, -0.26] with it, and -0.19 with the carry side skipped; the
+    effect had the same sign every season (-0.61, -0.68, -0.39). The target
+    side is left alone (WR+TE +0.18 -> -0.15, a wash). DK-only late flips and
+    Doubtful sources are not in team_vacated_* and keep the full cascade.
+    DEFAULT OFF: CASCADE_SKIP_PRICED_CARRIES unset or "0" leaves behaviour
+    unchanged."""
+    rep = feats.get("injury_status", pd.Series(index=feats.index, dtype=object))
+    rep = rep.fillna("").astype(str).str.upper().str.strip()
+    return set(feats.loc[rep.eq("OUT") & feats.gsis_id.notna(), "gsis_id"])
+
+
 def adjust_for_inactives(
     feats: pd.DataFrame,
     usage_rec: pd.DataFrame,
@@ -153,10 +191,16 @@ def adjust_for_inactives(
     G = slate_graph(feats)
     skip = set(out_ids)
     rush = usage_rush.rename(columns=_RUSH_AS_TARGETS)
+    priced = _report_out_ids(feats) if os.environ.get(
+        "CASCADE_SKIP_PRICED_CARRIES", "0") == "1" else set()
     for out_id in out_ids:
         _redistribute(feats, G, usage_rec, injuries, out_id, skip,
                       share_col="target_share_l4", wopr_col="wopr_l4",
                       smoothed_col="rz20_targets_smoothed", share_cap=0.5)
+        if out_id in priced:
+            log.info("cascade: %s carries already priced by team_vacated_carry_share; "
+                     "carry side skipped", out_id)
+            continue
         _redistribute(feats, G, rush, injuries, out_id, skip,
                       share_col="carry_share_l4", wopr_col=None,
                       smoothed_col="gl3_carries_smoothed", share_cap=0.85)
@@ -265,3 +309,49 @@ def find_backup_qbs(feats: pd.DataFrame) -> list[str]:
             # the Doubtful QB himself, at any depth, including above the cut
             ids.extend(g.loc[g.doubtful & ~g.out, "gsis_id"].astype(str))
     return sorted(set(ids))
+
+
+# Questionable availability haircut (2026-09-22). The featureset carries no
+# injury or practice feature, so a Questionable player is served E[points | he
+# plays at full strength]. Walk-forward 2018-2024 on the training panel, model fit
+# on active rows exactly as production fits it: Questionable players under-ran
+# healthy players in 7 of 7 seasons (mean gap -1.33, sd 0.56); their
+# realized/projected ratio relative to healthy players is 0.77-0.91 (0.86 pooled,
+# 0.77-0.83 in 2022-24). The market blend does not price it away: on the served
+# 2026 projections Q players ran 0.45x (W1) and 0.63x (W2) of healthy.
+#
+# Q_HAIRCUT is the multiplier; the DEFAULT 1.0 IS A NO-OP. Only proj_points and
+# value are scaled -- the money path reads proj_points alone, and scaling the
+# quantiles or proj_std of a play/no-play mixture by a constant would be wrong.
+# A value outside (0, 1] fails closed rather than being ignored.
+QUESTIONABLE_STATUSES_Q = {"Q", "QUESTIONABLE"}
+
+
+def questionable_haircut(feats: pd.DataFrame) -> float:
+    raw = os.environ.get("Q_HAIRCUT", "1.0")
+    try:
+        h = float(raw)
+    except ValueError as exc:
+        raise ValueError(f"Q_HAIRCUT must be a number in (0, 1], got {raw!r}") from exc
+    if not (0.0 < h <= 1.0):
+        raise ValueError(f"Q_HAIRCUT must be in (0, 1], got {h}")
+    return h
+
+
+def find_questionable_players(feats: pd.DataFrame) -> list[str]:
+    """GSIS ids of skill players designated Questionable (DK status or report)."""
+    status = _col(feats, "status").fillna("").astype(str).str.upper().str.strip()
+    report = _col(feats, "injury_status").fillna("").astype(str).str.upper().str.strip()
+    q = status.isin(QUESTIONABLE_STATUSES_Q) | report.eq("QUESTIONABLE")
+    return sorted(set(feats.loc[q & feats.gsis_id.notna(), "gsis_id"].astype(str)))
+
+
+def apply_questionable_haircut(out: pd.DataFrame, q_ids: list[str], h: float) -> pd.DataFrame:
+    if h == 1.0 or not q_ids:
+        return out
+    out = out.copy()
+    mask = out.gsis_id.astype(str).isin(q_ids)
+    for col in ("proj_points", "value"):
+        if col in out.columns:
+            out.loc[mask, col] = out.loc[mask, col] * h
+    return out

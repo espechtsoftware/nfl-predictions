@@ -64,8 +64,10 @@ class TestContests:
         assert wi.validate_contests(wrapped) == []
 
     def test_too_few_entries_is_refused(self):
-        """The gate's own minimum; accepting fewer here would fail later, confusingly."""
-        assert any("minimum" in p for p in wi.validate_contests(contests(n=2, entries=8)))
+        """The minimum mechanism, at an explicit floor (the default floor is 1 since
+        2026-09-22, matching build_inputs; a volume floor is not a quality check)."""
+        assert any("minimum" in p for p in wi.validate_contests(contests(n=2, entries=8), min_entries=90))
+        assert wi.validate_contests(contests(n=2, entries=8)) == []
 
     def test_a_duplicate_contest_id_is_refused(self):
         rows = json.loads(contests())
@@ -360,5 +362,6 @@ class TestPullFailsClosed:
         assert not (out / "chosen-dose.env").exists()
 
     def test_push_refuses_to_publish_an_invalid_pair(self, fake, tmp_path):
-        assert _push(fake, tmp_path, contests(n=2), GOOD_DOSE) == 1
+        bad = json.loads(contests(n=2)); bad[1]["contest_id"] = bad[0]["contest_id"]   # duplicate id
+        assert _push(fake, tmp_path, json.dumps(bad), GOOD_DOSE) == 1
         assert not fake.store, "an invalid pair reached the bucket"

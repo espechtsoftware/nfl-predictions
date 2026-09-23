@@ -38,7 +38,9 @@ MANIFEST = "manifest.json"
 INPUT_FILES = ("contests.json", "chosen-dose.env")
 PREFIX = "week-inputs"
 PROJECT = "nfl-predictions-503414"
-MIN_BOOK_ENTRIES = 90
+# Matches build_inputs.assess_files (90 -> 1 on 2026-09-22): a volume floor is not a data-quality
+# check, and 90 would fail closed on an ordinary 89-entry week. Every real malformation still fails.
+MIN_BOOK_ENTRIES = 1
 CONTEST_FIELDS = ("name", "contest_id", "entries", "keep", "fee")
 DOSE_KEYS = ("CHOSEN_LEV", "CHOSEN_BOOM")
 

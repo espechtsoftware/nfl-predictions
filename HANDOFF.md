@@ -71,6 +71,24 @@ script `reports/lab-handoffs/2026-09-22-cash-shadow-mean-max.py <frame.parquet> 
 
 Panel L01 is running (8 workers); the capped-vs-uncapped lev timing is running for the Sunday build-time question.
 
+## 2026-09-22 (late, 11) — MERGED: the deployed shipping code is now in the integration branch (inventory v11)
+
+Supersedes (late, 10)'s deploy rule: `85824fd0` is now an ancestor of this branch. Conflicts
+(cascade_adjust.py, run_projections.py, test_cascade_adjust.py) were pure additions from the shipping side;
+the merged cascade_adjust.py and test file are byte-identical to deployed, and run_projections.py is deployed
++ 63b1e3ae (market_source_log records the blend inputs).
+- **Inventory source-set v11** (`adopted-classic-policy-20260922-week3-integration-merge-v11`): pins
+  integration's `backtest/engine.py` (21f76f37) and `run_projections.py`; measured first — 278 direct read
+  sites, position-free identical to v10, only line positions move. V5–v10 untouched. The integration branch
+  had been failing this suite (15 errors) since 21f76f37; it now passes (19).
+- **`scripts/week_inputs.py` MIN_BOOK_ENTRIES 90 → 1**, matching `build_inputs.assess_files` (the recorded
+  90→1 decision had changed only one side, so `week_inputs` would have refused an ordinary <90-entry
+  contests.json and its agreement test failed). Two tests now use an explicit floor / a duplicate-id file.
+- Exact cloud build-lane list (`cloudbuild.week1-live.yaml`): **467 passed, 1 skipped**; compileall clean.
+- A deploy from this branch would ALSO ship 21f76f37 (candidate-write observability, engine.py) and the other
+  integration-only non-pinned changes (build_inputs, market_source, ownership_import, status). None changes
+  a projection; still, deploy only when there is a reason.
+
 ## 2026-09-22 (late, 10) — DEPLOY RULE until merged: project-slate deploys ONLY from the shipping branch
 
 Laptop's §5.1 finding (dc2bb185) confirmed: `85824fd0` (deployed `eadae06a…`) is not an ancestor of this

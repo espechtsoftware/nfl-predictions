@@ -1,3 +1,4 @@
+import pytest
 """Late-inactive slate adjustment: out players zeroed, teammates bumped."""
 
 import numpy as np
@@ -372,3 +373,98 @@ def test_no_depth1_promotion_kill_switch(monkeypatch):
         {"gsis_id": "A3", "display_name": "Three", "dk_position": "QB", "team_abbr": "ATL", "status": None, "injury_status": None, "depth_rank": 3},
     ])
     assert find_backup_qbs(feats) == [], "with the switch off the team is left alone"
+
+
+def _q_frame():
+    feats = pd.DataFrame([
+        {"gsis_id": "Q1", "status": "Q", "injury_status": None},
+        {"gsis_id": "Q2", "status": None, "injury_status": "Questionable"},
+        {"gsis_id": "H1", "status": None, "injury_status": None},
+        {"gsis_id": "D1", "status": "D", "injury_status": "Doubtful"},
+    ])
+    out = pd.DataFrame({"gsis_id": feats.gsis_id, "proj_points": 10.0, "proj_p90": 20.0, "value": 2.0})
+    return feats, out
+
+
+def test_questionable_haircut_defaults_to_a_no_op(monkeypatch):
+    monkeypatch.delenv("Q_HAIRCUT", raising=False)
+    from nfl_dfs.inference import cascade_adjust as C
+    feats, out = _q_frame()
+    h = C.questionable_haircut(feats)
+    assert h == 1.0
+    pd.testing.assert_frame_equal(C.apply_questionable_haircut(out, C.find_questionable_players(feats), h), out)
+
+
+def test_questionable_haircut_scales_only_q_players_and_only_mean_columns(monkeypatch):
+    monkeypatch.setenv("Q_HAIRCUT", "0.85")
+    from nfl_dfs.inference import cascade_adjust as C
+    feats, out = _q_frame()
+    ids = C.find_questionable_players(feats)
+    assert ids == ["Q1", "Q2"], "DK status Q and report Questionable both count; Doubtful and healthy do not"
+    got = C.apply_questionable_haircut(out, ids, C.questionable_haircut(feats)).set_index("gsis_id")
+    assert got.loc["Q1", "proj_points"] == 8.5 and got.loc["Q2", "value"] == 1.7
+    assert got.loc["H1", "proj_points"] == 10.0 and got.loc["D1", "proj_points"] == 10.0
+    assert (got.proj_p90 == 20.0).all(), "quantiles are not scaled"
+
+
+def test_questionable_haircut_fails_closed_on_a_bad_value(monkeypatch):
+    from nfl_dfs.inference import cascade_adjust as C
+    feats, _ = _q_frame()
+    for bad in ("0", "1.2", "-0.5", "abc"):
+        monkeypatch.setenv("Q_HAIRCUT", bad)
+        with pytest.raises(ValueError):
+            C.questionable_haircut(feats)
+
+
+def _dbt_slate():
+    return pd.DataFrame([
+        {"gsis_id": "WR_D", "position": "WR", "status": "D", "injury_status": "Doubtful"},
+        {"gsis_id": "TE_D", "position": "TE", "status": None, "injury_status": "Doubtful"},
+        {"gsis_id": "QB_D", "position": "QB", "status": "D", "injury_status": "Doubtful"},
+        {"gsis_id": "RB_O", "position": "RB", "status": "O", "injury_status": "Out"},
+        {"gsis_id": "WR_Q", "position": "WR", "status": "Q", "injury_status": "Questionable"},
+        {"gsis_id": "WR_H", "position": "WR", "status": None, "injury_status": None},
+    ])
+
+
+def test_cascade_doubtful_defaults_off(monkeypatch):
+    monkeypatch.delenv("CASCADE_DOUBTFUL", raising=False)
+    from nfl_dfs.inference.cascade_adjust import find_out_players
+    assert find_out_players(_dbt_slate()) == ["RB_O"], "default: only Out triggers the cascade"
+
+
+def test_cascade_doubtful_on_adds_non_qb_doubtful_only(monkeypatch):
+    monkeypatch.setenv("CASCADE_DOUBTFUL", "1")
+    from nfl_dfs.inference.cascade_adjust import find_out_players
+    got = find_out_players(_dbt_slate())
+    assert got == ["RB_O", "TE_D", "WR_D"], got
+    assert "QB_D" not in got, "Doubtful QBs stay with the QB gate"
+    assert "WR_Q" not in got and "WR_H" not in got
+
+
+def test_skip_priced_carries_defaults_off(monkeypatch):
+    monkeypatch.delenv("CASCADE_SKIP_PRICED_CARRIES", raising=False)
+    feats = slate()
+    feats.loc[feats.gsis_id == "RB1", "injury_status"] = "Out"
+    adjusted, _ = adjust_for_inactives(feats, usage_rec(), usage_rush(), no_injuries())
+    rb2 = lambda df, c: float(df.loc[df.gsis_id == "RB2", c].iloc[0])
+    assert rb2(adjusted, "carry_share_l4") > rb2(feats, "carry_share_l4")
+
+
+def test_skip_priced_carries_on_skips_only_report_out_carry_side(monkeypatch):
+    monkeypatch.setenv("CASCADE_SKIP_PRICED_CARRIES", "1")
+    rb2 = lambda df, c: float(df.loc[df.gsis_id == "RB2", c].iloc[0])
+    # Report-Out: carries already priced by team_vacated_carry_share -> no carry bump,
+    # but the target side still redistributes.
+    feats = slate()
+    feats.loc[feats.gsis_id == "RB1", "injury_status"] = "Out"
+    adjusted, out_ids = adjust_for_inactives(feats, usage_rec(), usage_rush(), no_injuries())
+    assert out_ids == ["RB1"]
+    assert rb2(adjusted, "carry_share_l4") == rb2(feats, "carry_share_l4")
+    assert rb2(adjusted, "gl3_carries_smoothed") == rb2(feats, "gl3_carries_smoothed")
+    assert rb2(adjusted, "target_share_l4") > rb2(feats, "target_share_l4")
+    # DK-only late flip (not on the report, so not in the features) keeps the carry side.
+    feats = slate()
+    feats.loc[feats.gsis_id == "RB1", "status"] = "O"
+    adjusted, _ = adjust_for_inactives(feats, usage_rec(), usage_rush(), no_injuries())
+    assert rb2(adjusted, "carry_share_l4") > rb2(feats, "carry_share_l4")
