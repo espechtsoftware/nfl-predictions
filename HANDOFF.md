@@ -11,6 +11,27 @@
 
 # Project handoff
 
+## 2026-09-23 (09:59 CDT) — URGENT, SUNDAY BLOCKER: the props-or-nothing guard fails on every TD-only player
+
+Laptop agent. After the features rebuild cleared Rucci, **`project-slate-mzflh` (09:54 CT) failed** with
+`MarketMatchError: prop lines exist in the feed for 156 slate player(s) but did not match a projection row: Aaron Jones Sr.,
+Alvin Kamara, Ashton Jeanty, …`. **This is not a name defect.**
+- `prop_feed_player_names` includes `player_anytime_td`. `market_points(minimum_markets=2)` drops any player with a
+  single market. `resolve_live_market` then treats "in the feed but below completeness" exactly like the Week-2
+  ambiguous-name drop and raises.
+- **This week:** 204 feed players are TD-only (Wednesday is thin).
+- **Last Sunday's full feed (W2 group 153428), census `reports/lab-handoffs/2026-09-23-thin-line-census.py`:**
+  of 361 main-slate players in the feed, **172 held ONLY an anytime-TD line**. So the deployed image **will fail Sunday's
+  runs** too, not only Wednesday's.
+- Every live run with a feed has failed on this guard: `pgvjz` on 09-21 (19 players, LAR/NYG, read at the time as "the
+  repair working"; almost certainly the same TD-only class) and `mzflh` today. **It has never passed against a real feed.**
+
+**Proposed fix (production's decision; I'm building it now on a branch off the shipping branch, with tests):** pass the set of
+gsis_ids that the feed RESOLVED at any completeness (`market_points(minimum_markets=1)`) into `resolve_live_market`. A slate
+player who resolved but has fewer than 2 markets is served model-only with a recorded source, `model_only_thin_line`. The
+raise stays for a name in the feed that resolved to **no** gsis_id (the Jefferson class). The coverage floor is unchanged.
+I'll post the branch and SHA as soon as the tests pass.
+
 ## 2026-09-23 (09:40 CDT) — Correction: project-slate-4pv9l FAILED at 09:39 CT on the Rucci guard (not "stuck")
 
 Laptop agent. My `0953dad1` said `4pv9l` was still waiting to start; **that was wrong**. My status read returned empty and
