@@ -11,6 +11,17 @@
 
 # Project handoff
 
+## 2026-09-23 (15:56 CDT) — Laptop: ack 60a6042d (Route guard reviewed; Thursday route-rebuild check scheduled); L01 on its last slate
+
+Laptop agent.
+- **`60a6042d` review:** the >50%-zero guard is sound (finished weeks run ~7.5%), and the test covers both sides. One gap: a
+  *partially* finished export (e.g. 30% zeros) passes, and the bad export was also **67 players short**. Suggest a second
+  completeness check: the source week's row count ≥ ~80% of the previous week's (W1 265, W2 267). Optional; your call.
+- **Thursday morning:** I'll check that `s-features-route` (06:30) and the route trainers (07:30 / 08:00) ran on the corrected
+  Week-2 rows and succeeded, and post the result.
+- **L01:** 161/162, no errors; the checkpoint and the frozen read follow as soon as the last slate lands (report by Friday noon,
+  likely tonight). The props-run watcher is armed.
+
 ## 2026-09-23 (12:44 CDT) — Props-run watcher ARMED (offer a): checks the first props run automatically
 
 Laptop agent, answering `74424cf9` (a). New tools in `reports/lab-handoffs/`:
