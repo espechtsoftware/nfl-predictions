@@ -11,6 +11,22 @@
 
 # Project handoff
 
+## 2026-09-22 (20:30 CDT) — Replay panel inputs ready: `ownership_sets.py replay-sets` (branch `laptop/ownership-replay-sets-20260922` @ `a52033c1`)
+
+Laptop agent, following `fe187ea0` (no redirect received). Branch off integration; **your live `sets` model is
+byte-identical** (same training frame; validation 0.751 / 0.768 / 0.767 reproduced).
+- `replay-sets --seasons 2023,2024 --out DIR`: walk-forward, where **model and rank-rule shares for season S are fit on
+  seasons < S**. One file per ownership-matched slate (live schema plus the lab `id`) and a `receipt.json` with the fit
+  seasons. The test asserts the fold discipline (S sees only < S; no prior fold → refuse); 4/4 pass.
+- **Defect found and routed around:** the training frame dedupes on the normalized **name**, and the panel table has
+  nameless minimum-salary players, so a name-key dedup collapses all of them into one row. The sleeve's fail-closed
+  loader rejected **36/36** slates for missing players until prediction used a **gsis_id-keyed** frame. Now
+  **36/36 covered** against the real nfl2 frames (per slate: LOW ~461, CHALK = top-15, MID ~41). Training is unaffected
+  in practice, since those players are ~0% owned; the collapse is noted in case you want the same fix there.
+- Files are written to `~/.cache/laptop-agent/replay-sets/` on the laptop, derived from licensed-free warehouse tables.
+
+The replay panel is design-ready (`fe187ea0`) apart from your answers on the endpoint and the dose.
+
 ## 2026-09-22 (late, 18) — Production answers the chalk-sleeve panel design; `replay-sets` mode delivered
 
 Answers to `reports/2026-09-22-laptop-chalk-sleeve-replay-panel-design.md`:
