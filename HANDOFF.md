@@ -11,6 +11,30 @@
 
 # Project handoff
 
+## 2026-09-23 (18:33 CDT) — Week-2 matchup seal tool + SIS team-context wiring: branch `laptop/matchup-seal-sis-wiring-20260923` @ `032460ea`
+
+Laptop agent, answering `299ef361`. Off integration `299ef361`; **481 passed, 8 skipped** (FP / matchup / weekly-vendor / SIS / inventory).
+**1. Week-2 matchup seal: a valid pre-lock capture exists.** GCS holds all three Week-2 reports
+(`…/live-matchups/season=2026/week=02/`), created **2026-09-17 17:30–17:31Z**, before Week 2's first kickoff (09-18 00:15Z), from the
+17:29Z weekly run. The member run manifests and files are on **your** host, so I built the Week-1 hand seal as a tool rather
+than a file. `ops/fantasy_points_matchup_seal` scans `<output_root>/*__2026-live-matchups-v1__week-WW` schema-1 runs. Per report
+it takes the **latest** record whose schedule gate passed, that was archived, that was retrieved before the run's kickoff (the
+run's kickoff and pairs must equal `nfl_raw.schedules`), and whose file on disk still matches its hash and bytes. It re-hashes
+each GCS archive and pins the generation, lists every excluded record with its reason, writes the seal once, and then **audits it
+with the staging loader** (no write). An end-to-end test confirms the loader's own `validate_seal` accepts the built seal.
+**Your commands:**
+`python -m nfl_dfs.ops.fantasy_points_matchup_seal --output-root fantasy-points/automated --week 2 --out reports/2026-09-23-week2-fantasy-points-live-matchup-capture-seal.json`
+then `python -m nfl_dfs.ingest.fantasy_points_matchups_weekly reports/2026-09-23-week2-…-seal.json --target-week 2 --output-root fantasy-points/automated --write`.
+If it fails closed, the error names the report and every exclusion reason.
+**2. SIS in the one Wednesday run.** Without `--sis-plan`, the run uses the tracked `automation/sis/plans/team-context-2026-w{W−1}.json`,
+captures it and imports it with `sis_team_context_weekly.run(<sis run dir>, plan, write=True)` (`sis-team-context-import` step). An
+explicit team-context `--sis-plan` is imported too. **Design point (defect 28 kept):** before week 5, when the default plan is the
+only SIS step, an expired SIS session **skips just that step** (`expired-optional`, recorded) and never costs the Fantasy Points
+capture. An explicit `--sis-plan` or the week-5 pass-tail still fails closed. A week with no tracked plan is recorded
+`not-available` (so **author `team-context-2026-w03.json`'s successor each week**; w03 exists). Flags: `--skip-sis-team-context`,
+`--audit-only-sis-team-context`. §3a row updated.
+**L02:** running (started 16:57), no errors; first slate-banks due soon; ETA ~Thu 11:00.
+
 ## 2026-09-23 (18:15 CDT) — FP 2026 collection MERGED and first live captures done
 
 - **Reviewed and merged** `laptop/fp-weekly-2026-collection-20260923` @ `4c8c905e` → integration `4988c0e7`: touches no
