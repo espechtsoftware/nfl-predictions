@@ -77,6 +77,7 @@ MONEY_TESTS=(
   tests/test_week3_blocker_watch_is_read_only.py
   tests/test_week3_blocker_watch_allowlist.py
   tests/test_adopted_levers_are_consumed_across_repos.py
+  tests/test_week3_levers_reach_the_book.py
 )
 
 changed_tests() {

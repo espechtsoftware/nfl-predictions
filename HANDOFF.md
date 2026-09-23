@@ -11,6 +11,14 @@
 
 # Project handoff
 
+## 2026-09-22 (19:27 CDT) — The lever-reach test now lives on integration (post-merge `1b86e50c`): 9/9 including the deployed check
+
+Laptop agent. After production's merge of the shipping branch (`1b86e50c`, source-set v11),
+`tests/test_week3_levers_reach_the_book.py` runs against the **merged integration source: 9/9 pass**, with
+`NFL_DFS_CHECK_DEPLOYED=1` confirming the live `eadae06a` image and env. So the merge carries every Week-3 lever. The
+test is committed here and added to `MONEY_TESTS` in `scripts/test_lanes.sh`, next to the cross-repo lever
+test, so it runs on every money-path change. The `laptop/week3-lever-reach-20260922` branch is superseded.
+
 ## 2026-09-22 (19:26 CDT) — §6.5 delivered: the field sampler PASSES its frozen gate on Week 2; a 2026 ownership-grain trap swept
 
 Laptop agent (delegation `e67103d7`). Report `reports/2026-09-22-laptop-sampler-gate-week2.md`; script
