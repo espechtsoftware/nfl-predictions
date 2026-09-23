@@ -311,6 +311,68 @@ def find_backup_qbs(feats: pd.DataFrame) -> list[str]:
     return sorted(set(ids))
 
 
+def q_primary_backup_scale() -> float:
+    """QB_Q_PRIMARY_BACKUP_SCALE: multiplier for QBs listed behind a Questionable primary (default 1.0, a
+    no-op). A value outside [0, 1] fails closed."""
+    v = float(os.environ.get("QB_Q_PRIMARY_BACKUP_SCALE", "1.0"))
+    if not 0.0 <= v <= 1.0:
+        raise ValueError(f"QB_Q_PRIMARY_BACKUP_SCALE must be in [0, 1], got {v}")
+    return v
+
+
+def find_q_primary_backups(feats: pd.DataFrame) -> list[str]:
+    """GSIS ids of QBs listed behind a QUESTIONABLE primary (2026-09-23, operator decision).
+
+    find_backup_qbs leaves such a team alone (lab v4 boundary: the starter may sit), so its backups keep a
+    full as-if-starting projection. A Questionable QB plays ~80-84% of the time, so his backup starts ~16-20%
+    of the time; run_projections scales these rows by QB_Q_PRIMARY_BACKUP_SCALE (the complement of
+    Q_HAIRCUT). Same primary and promotion rules as find_backup_qbs; the Questionable primary himself is not
+    returned (Q_HAIRCUT prices him), nor is a Doubtful QB (unavailable, handled elsewhere). Week 3 dry run:
+    SEA (Darnold Q -> Lock, Milroe) and CHI (Williams D, Bagent Q -> Keenum)."""
+    if os.environ.get("QB_BACKUP_GATE", "1") == "0" or "depth_rank" not in feats.columns:
+        return []
+    pos = _col(feats, "position", "dk_position").fillna("").astype(str).str.upper()
+    team = _col(feats, "team", "team_abbr").fillna("").astype(str)
+    depth = pd.to_numeric(feats["depth_rank"], errors="coerce")
+    status = _col(feats, "status").fillna("").astype(str).str.upper().str.strip()
+    report = _col(feats, "injury_status").fillna("").astype(str).str.upper().str.strip()
+    is_out = status.isin(OUT_STATUSES) | report.eq("OUT")
+    is_doubtful = status.isin(DOUBTFUL_STATUSES) | report.eq("DOUBTFUL")
+    is_questionable = status.isin(QUESTIONABLE_STATUSES) | report.eq("QUESTIONABLE")
+    qbs = feats.loc[pos.eq("QB") & depth.notna() & feats.gsis_id.notna() & team.ne(""),
+                    ["gsis_id"]].assign(team=team, depth=depth, out=is_out,
+                                        doubtful=is_doubtful, questionable=is_questionable)
+    doubtful_absent = os.environ.get("QB_DOUBTFUL_ABSENT", "1") != "0"
+    promote_no_depth1 = os.environ.get("QB_NO_DEPTH1_PROMOTE", "1") != "0"
+    ids: list[str] = []
+    for _, g in qbs.groupby("team"):
+        g = g.sort_values(["depth", "gsis_id"])
+        if not (g.depth == 1).any() and not promote_no_depth1:
+            continue
+        unavailable = g.out | (g.doubtful if doubtful_absent else False)
+        primary = g[~unavailable]
+        if primary.empty:
+            continue
+        top = primary[primary.depth == primary.iloc[0]["depth"]]
+        if not top.questionable.any():
+            continue                                  # healthy primary: find_backup_qbs zeroes the backups
+        cut = top.iloc[0]["depth"]
+        ids.extend(g.loc[(g.depth > cut) & ~unavailable, "gsis_id"].astype(str))
+    return sorted(set(ids))
+
+
+def apply_scale(out: pd.DataFrame, ids: list[str], scale: float) -> pd.DataFrame:
+    """Scale proj_points and value of `ids` by `scale` (1.0 or no ids: unchanged)."""
+    if scale == 1.0 or not ids:
+        return out
+    out = out.copy()
+    mask = out.gsis_id.astype(str).isin(ids)
+    for col in ("proj_points", "value"):
+        if col in out.columns:
+            out.loc[mask, col] = out.loc[mask, col] * scale
+    return out
+
+
 # Questionable availability haircut (2026-09-22). The featureset carries no
 # injury or practice feature, so a Questionable player is served E[points | he
 # plays at full strength]. Walk-forward 2018-2024 on the training panel, model fit

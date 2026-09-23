@@ -483,6 +483,12 @@ def project(
     if q_h != 1.0:
         log.info("questionable haircut: x%.3f on %d Questionable player(s)", q_h, len(q_ids))
     out = cascade_adjust.apply_questionable_haircut(out, q_ids, q_h)
+    # Backups behind a Questionable primary (2026-09-23); QB_Q_PRIMARY_BACKUP_SCALE=1.0 is a no-op.
+    qb_s = cascade_adjust.q_primary_backup_scale()
+    qb_ids = cascade_adjust.find_q_primary_backups(feats)
+    if qb_s != 1.0:
+        log.info("q-primary backups: x%.3f on %d QB(s)", qb_s, len(qb_ids))
+    out = cascade_adjust.apply_scale(out, qb_ids, qb_s)
     return cascade_adjust.zero_out_projections(out, out_ids + backup_ids)
 
 

@@ -468,3 +468,32 @@ def test_skip_priced_carries_on_skips_only_report_out_carry_side(monkeypatch):
     feats.loc[feats.gsis_id == "RB1", "status"] = "O"
     adjusted, _ = adjust_for_inactives(feats, usage_rec(), usage_rush(), no_injuries())
     assert rb2(adjusted, "carry_share_l4") > rb2(feats, "carry_share_l4")
+
+
+def test_q_primary_backups_are_found_and_scaled_only_when_enabled(monkeypatch):
+    """2026-09-23 (operator): backups behind a Questionable primary keep a full as-if-starting projection
+    under find_backup_qbs (team ambiguous). They are returned here and scaled by QB_Q_PRIMARY_BACKUP_SCALE."""
+    for k in ("QB_BACKUP_GATE", "QB_DOUBTFUL_ABSENT", "QB_NO_DEPTH1_PROMOTE", "QB_Q_PRIMARY_BACKUP_SCALE"):
+        monkeypatch.delenv(k, raising=False)
+    from nfl_dfs.inference.cascade_adjust import (apply_scale, find_backup_qbs, find_q_primary_backups,
+                                                  q_primary_backup_scale)
+    feats = _qb_slate()
+    feats.loc[feats.gsis_id == "CHI1", "status"] = "Q"                       # SEA-like: primary Questionable
+    # MIA-like with CHI's week-3 shape: Doubtful starter, promoted primary Questionable, a third behind him
+    feats.loc[feats.gsis_id == "MIA2", "status"] = "Q"
+    feats = pd.concat([feats, pd.DataFrame([{"gsis_id": "MIA3", "display_name": "Mia Third", "dk_position": "QB",
+                                             "team_abbr": "MIA", "status": None, "injury_status": None,
+                                             "depth_rank": 3}])], ignore_index=True)
+    got = find_q_primary_backups(feats)
+    assert got == ["CHI2", "CHI3", "MIA3"]                                    # never the Q primary, never Doubtful
+    assert not set(got) & set(find_backup_qbs(feats)), "disjoint from the zeroing gate"
+    assert "ATL3" not in got                                                  # healthy promoted primary: gate's job
+    assert q_primary_backup_scale() == 1.0                                    # default is a no-op
+    out = pd.DataFrame({"gsis_id": ["CHI1", "CHI2", "MIA3"], "proj_points": [20.0, 12.0, 8.0], "value": [3.0, 2.0, 1.5]})
+    pd.testing.assert_frame_equal(apply_scale(out, got, 1.0), out)
+    monkeypatch.setenv("QB_Q_PRIMARY_BACKUP_SCALE", "0.2")
+    s = apply_scale(out, got, q_primary_backup_scale())
+    assert s.proj_points.tolist() == pytest.approx([20.0, 2.4, 1.6]) and s.value.tolist() == pytest.approx([3.0, 0.4, 0.3])
+    monkeypatch.setenv("QB_Q_PRIMARY_BACKUP_SCALE", "1.5")
+    with pytest.raises(ValueError):
+        q_primary_backup_scale()
