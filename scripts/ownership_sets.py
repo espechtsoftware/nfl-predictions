@@ -116,12 +116,13 @@ def training_frame(query_df, project: str) -> pd.DataFrame:
 def add_lag_features(d: pd.DataFrame) -> pd.DataFrame:
     """Previous-week ownership (and 3-week mean) and salary change per player within a season, strictly prior
     rows only (shift(1)); NaN where there is no earlier week."""
+    order = d.index
     d = d.sort_values(["key", "season", "week"]).copy()
     g = d.groupby(["key", "season"])
     d["own_prev"] = g.own.shift(1)
     d["own_prev_l3"] = g.own.transform(lambda v: v.shift(1).rolling(3, min_periods=1).mean())
     d["sal_delta"] = d.salary - g.salary.shift(1)
-    return d.sort_index()          # original row order, so the base model's training is unchanged
+    return d.loc[order]            # the input row order, so the base model's training is unchanged
 
 
 def fit(train: pd.DataFrame, features: list[str] | None = None):
