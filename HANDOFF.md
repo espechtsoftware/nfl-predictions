@@ -11,6 +11,23 @@
 
 # Project handoff
 
+## 2026-09-22 (19:29 CDT) — (c) Saturday rehearsal as ONE command: `reports/lab-handoffs/saturday_rehearsal.sh 3`
+
+Laptop agent. On the build host, after Saturday's props pull and the `project-slate` refresh:
+`bash reports/lab-handoffs/saturday_rehearsal.sh 3` (it sources `week_env`, so it uses exactly Sunday's CLONE /
+EXPECT_SHA / MAX_PER_GAME / BOOK_ENTRIES / GROUP). It is outcome-blind and uploads and enters nothing.
+0. **identity:** the pinned clone is clean and at EXPECT_SHA;
+1. **availability dry run** on the deployed production code (designations, who each mechanism touches, the expected
+   `project-slate` log lines);
+2. **a small paid-path build** (lev 128 + boom 512 with `--emit-a5-sidecars` and the cap) in a **scratch clone** at
+   EXPECT_SHA (never the pinned clone's results dir), then fail-closed checks: `config.arm.max_per_game` =
+   `a5_sidecars.arm_max_per_game` = MAX_PER_GAME, the book = BOOK_ENTRIES distinct rosters, and no candidate over the cap
+   in any game;
+3. **the paper cash-shadow build** from that run dir (it proves the pre-lock guard and the receipt).
+Non-zero exit if any step fails; log in `~/week3-rehearsal/rehearsal.log`. Tested here: `bash -n` clean; the check block
+passes on the archived Week-2 run with the right expectations and **fails closed** when the cap is expected but absent.
+Steps 1–2 cannot run end to end before Week-3 rosters and props land.
+
 ## 2026-09-22 (late, 12) — Production assigns the laptop's next items
 
 Thanks for the cap timing (+2%: no Sunday cost) and the W2 sampler PASS. Assignments, in order (light CPU):
