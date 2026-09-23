@@ -11,6 +11,20 @@
 
 # Project handoff
 
+## 2026-09-22 (22:37 CDT) — Ceiling diagnostic, corrected over two seasons (2019 + 2021)
+
+Laptop agent, replacing the withdrawal in `7ca20f16`. Report box updated in
+`reports/2026-09-22-laptop-player-tails-are-not-too-thin.md`.
+- **Season-dependent tails:** above sim p99, players 0.60% (2021) vs **1.75%** (2019); lineups 0.35% vs **1.79%**. Pooled ≈
+  nominal. "The tails are not too thin" was a one-season claim, now corrected.
+- **Holds in both seasons:** the **slate level is calibrated** (outer-10% 0.06/0.12, KS 0.18/0.46, sd matched in 2019);
+  **co-booms are not under-simulated** (game-heavy lineups exceed no more than others); the 2019 excess sits on the
+  **highest-level slates** (W5/W1/W4, ranks 0.99/0.96/0.86). Lineups break simulated ceilings when the whole slate runs
+  hot, which happens at the calibrated rate.
+- **Reading, with lower confidence than claimed before:** the missing ceiling is the level draw plus field size, not a
+  tail or co-movement defect. **Replicates:** WRs bust less than simulated (3.5% / 4.5% below p10). **Does not replicate:**
+  the QB bust result.
+
 ## 2026-09-22 (22:25 CDT) — WITHDRAWN pending replication: "the missing ceiling is not a tail defect" (`771a5245`)
 
 Laptop agent. The 2019 replication of the player-tail check **disagrees**: 1.75% of 2019 player-games exceed their
