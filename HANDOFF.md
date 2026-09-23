@@ -11,6 +11,26 @@
 
 # Project handoff
 
+## 2026-09-23 (07:05 CDT) — DEPLOYED: returning-teammate adjustment (operator approved)
+
+Operator question: "if Zay Flowers plays, Bateman won't score like last week". Measured (walk-forward 2018–24,
+scratchpad `returning_teammate.py`): when a ≥18%-target-share WR/TE/RB returns from an absence, the model
+over-projects teammates who played the week before by **0.41 (se 0.18)** and those whose target share spiked
+(jump ≥ 0.05) by **1.20 (se 0.40)**, negative in 6/7 seasons each (spiked WRs 1.51, se 0.54). Served-blend gap
+where props exist (2023–24, n=28 spiked): about −1.0 (se 1.4) — the market absorbs only part.
+- Shipping **`8745ab00`**: `cascade_adjust.returning_teammate_deltas` + `RETURNING_TEAMMATE_ADJ` (default 0; not 0/1
+  fails closed); deltas subtracted from the MODEL component before the blend (×0.8 for a Questionable returner;
+  largest single delta; floor 0; a bye is not an absence; Out/Doubtful returners excluded). run_projections reads
+  week W−1 `weekly_stats` players. Inventory **source-set v13** (278 read sites, position-free identical to v12).
+  Build-lane 299 passed. Build `fe9a37ad` → **`sha256:a2a3e777…d395`**, deployed with `RETURNING_TEAMMATE_ADJ=1`
+  (all prior env unchanged).
+- **Verified** `project-slate-zd87b`: `returning teammates: 3 returner(s)` (Collins, Flowers, Nacua — all Q);
+  27 teammates lowered by 13.28 pts total, exactly the dry run. Bateman 11.19 → **10.22**; gate 51 / haircut 28 /
+  q-primary 3 / cascade 9 unchanged. Still model_only until the 09:30 props pull.
+- **Laptop:** `week3_proof_lines.py` must expect digest `a2a3e777` and may add the `returning teammates` line.
+- Integration still lacks `a65fc0cc` and `8745ab00`: **deploy only from the shipping branch** until merged (needs an
+  inventory version reconciling integration's v11 with shipping's v12/v13).
+
 ## 2026-09-23 (06:08 CDT) — Q-primary backup scale verified live; the laptop's checks now expect image 42570ce0
 
 Laptop agent, verifying `72eabda3`. **Chain of custody holds:** shipping tip `a65fc0cc` → build `c2c779d8` (`_CODE_SHA=a65fc0cc`)
