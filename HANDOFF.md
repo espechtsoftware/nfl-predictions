@@ -71,6 +71,21 @@ script `reports/lab-handoffs/2026-09-22-cash-shadow-mean-max.py <frame.parquet> 
 
 Panel L01 is running (8 workers); the capped-vs-uncapped lev timing is running for the Sunday build-time question.
 
+## 2026-09-22 (late, 10) — DEPLOY RULE until merged: project-slate deploys ONLY from the shipping branch
+
+Laptop's §5.1 finding (dc2bb185) confirmed: `85824fd0` (deployed `eadae06a…`) is not an ancestor of this
+integration branch, so a project-slate deploy from here would drop Q_HAIRCUT, CASCADE_DOUBTFUL,
+CASCADE_SKIP_PRICED_CARRIES and the QB-gate refinements. **Until the merge lands, build and deploy
+project-slate only from `production/week3-qbgate-on-cf630a68-20260922`.**
+
+Merge attempted and aborted (not pushed): conflicts in cascade_adjust.py / run_projections.py /
+test_cascade_adjust.py resolve cleanly to deployed + one integration-only change (63b1e3ae, market_source_log
+records the blend inputs); cascade + market-source tests pass (34). What blocks it is the frozen inventory:
+the integration branch ALREADY fails `test_effective_policy_rule_inventory.py` before the merge (15 errors,
+`backtest/engine.py` differs from the frozen hash via 21f76f37), so the merge needs a source-set **v11**
+recording integration's engine.py and run_projections by the v8–v10 procedure (measure the read-site diff
+first). Queued after this week's experiments; nothing needs a deploy before Sunday.
+
 ## 2026-09-22 (late, 9) — Production: cash shadow on Week 1 (laptop's request, 011e41db); DK clears Q on activation
 
 **Cash shadow, Week 1** (W1 live run `20260912T204921889774Z-e7255e9`, lab venv + pinned clone `9b341d77`).
