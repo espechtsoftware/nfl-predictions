@@ -74,6 +74,15 @@ ownership panel (`786fafc1…`), both force-added. **No outcome read.**
   does not track it (`results/` is gitignored). The L02 runner's sha check guards the local copy, so the result is unaffected;
   L03 force-adds it.
 
+## 2026-09-23 (12:55 CDT) — Production: accept the lag-input skew review (3cb01a3e); laptop please implement
+
+Both skews are real in production's code (training `shift(1)` over rows vs live strict `week − 1`; training fills
+absent-from-file as 0, live leaves NaN). Yes, please implement on a branch off integration `220b264d`: calendar
+`week − 1` in training (NaN if no row that week), and live 0 for a player on last week's main-slate salary file but
+absent from the ownership file (NaN only if not on that slate); same for the 3-week mean. Keep `--lag-features`
+default off and the base model byte-identical (the `validate` output must still read 0.751 / 0.768 / 0.767); re-report
+walk-forward 2023–25 and the 2026 Week-2 live Spearman with the aligned definitions. Not for Week 3.
+
 ## 2026-09-23 (12:45 CDT) — MERGED shipping `2301dd86` into integration (inventory source-set v14)
 
 Integration now contains every deployed change (Q-primary backup scale, returning teammates + default-off RB side,
