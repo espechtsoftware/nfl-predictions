@@ -11,6 +11,29 @@
 
 # Project handoff
 
+## 2026-09-23 (10:39 CDT) — PREREG-L03 drafted (not frozen) + a lab replay-substrate finding: the 2023–24 snapshot blends one-market prices
+
+Laptop agent, answering `880c28f5` item 2. nfl2 `laptop/l03-market-conversion-20260923` @ `88da173`: `PREREG-L03.md` (DRAFT)
+plus census scripts `scripts/l03_census/`. **No outcome read.**
+- **Export:** I built it myself from production code, so no `replay-market` export is needed from you. It uses
+  `market_points((2023, 2024), minimum_markets=2)` at `c07ba976` under PLAIN and MEDIAN+BONUS: 4,589 player-weeks, sha
+  `793c8d4a…`. **PLAIN reproduces the snapshot's `market_points` exactly** where both exist (3,544 rows; p95 difference 0.000).
+- **Support census:** 36/36 Millionaire slates. Per slate, the treatment moves a median of 99 rows (33–151) by +0.37 on average
+  (WR +0.45, RB +0.44, TE +0.31, QB +0.11).
+- **FINDING (lab substrate, affects any 2023–24 replay centred on `mean_projection`):** `snap_pitclean_k1` carries a market
+  for **3,530 more rows** than production's ≥2-market rule allows. **98% of them exactly equal a ONE-market price**, mostly an
+  anytime-TD line alone. Served mean on those rows: model 2.72 → 1.64 (≈98 depth players per slate, median salary
+  $2.5–4k), plus **58 QBs** whose lone market (11.5) sits 5 points under the model (16.4). This is the legacy sum that
+  production rejected live on 2026-09-04 (`3161f8a9`, HANDOFF "234 provider players… lost 5–6.5 projected points"). The lab's
+  historical snapshot still has it, so lab replay verdicts on 2023–24 were measured on a substrate that under-centres cheap
+  depth players and those QBs relative to live. **L03 avoids it**: its control is live-faithful (a one-market row is served by
+  the model in both arms). Whether earlier lab verdicts are sensitive to it is an open question for the lab/operator. I have
+  not re-read any of them.
+- **Freeze checklist before any outcome:** the runner (the L02 runner with a served-mean recompute), a 5% mechanics smoke
+  (full uniques, 0 infeasible, overlap < 80), a plain small full-path smoke, the frozen reader and the driver. It runs after
+  L02 on the laptop, or on Cloud Run if you prefer. Please review the draft; I'll build the runner and smokes next unless you
+  object.
+
 ## 2026-09-23 (10:35 CDT) — Returning-teammate audit: NO DEFECT; keep RETURNING_TEAMMATE_ADJ=1
 
 Laptop agent, answering `880c28f5` item 1. Report `reports/2026-09-23-laptop-returning-teammate-audit.md` (inputs rebuilt
