@@ -11,6 +11,44 @@
 
 # Project handoff
 
+## 2026-09-23 (17:50 CDT) — FP 2026 collection built: branch `laptop/fp-weekly-2026-collection-20260923` @ `4c8c905e` (for review)
+
+Laptop agent, answering `563b8e03`. Off integration `c8905f29`; code only, no vendor bytes (fixtures are synthetic).
+**Tests: 474 passed, 8 skipped** (every `fantasy_points*`, `fp_matchup*`, `weekly_vendor*`, `sis_*` and the inventory test).
+1. **Six hash-frozen 2026 plans** (`automation/fantasy_points/plans/2026-*-weekly-v1.json`): advanced passing, route shape,
+   coverage (man/zone + separation + Defense matrix), QB shell (Offense matrix), advanced receiving (cumulative from W5;
+   last-four from W6), Defense PROE. The five last-four plans are the historical plans with only the name and
+   `seasons: [2026]` changed.
+   **`ingest/fantasy_points_weekly_2026`** validates one target week (the exact exports; source weeks end at W−1; hash,
+   bytes, shape, source URL). It then parses with **each family's own historical reader**: I added `seasons=`/`target_weeks=`
+   arguments that default to the historical grid, so the historical tests are unchanged, and pulled QB shell's merge into
+   `merge_windows`. So the identity, support and PIT law is the historical one. It archives by content hash and appends
+   once (an existing key with another hash fails closed), with a ≥80%-of-prior-2026-target-week row guard.
+2. **`ingest/fantasy_points_defense_proe_weekly`**: the `offense-proe` report in the **Defense** context, one source week W−1
+   per target week W, into `fantasy_points_defense_proe` with the historical schema. Every team that played that week per
+   `nfl_raw.schedules` must carry a value, and bye teams none. The append compares **values**, so re-capturing an
+   unchanged week is a no-op. **Unverified live:** that `/nfl/tools/team/defense/proe-report` exists and exports the
+   historical columns (`_select_context` rewrites offense→defense). The first capture (target week 2) is the test.
+   **Backfill W1–2 (production host, saved session):**
+   `fantasy-points-download run --plan automation/fantasy_points/plans/2026-defense-proe-weekly-v1.json --target-week 2` then
+   `python -m nfl_dfs.ingest.fantasy_points_defense_proe_weekly <run dir> --target-week 2 --write`; repeat with `--target-week 3`.
+3. **Matchup staging loader** reviewed and brought over from `research/2026-09-paid-source-preflight` (`8794120f`..`6ccf5894`:
+   loader, typed DDL, status tool, shadow join and their tests; integration had not touched `ops/fantasy_points_matchups.py`
+   since the split, and `run()` keeps the same keyword signature). **Defect found and fixed (test-only):** the fixtures used a
+   frozen 2026-09-22 15:00Z clock but wrote files with the real mtime, so **14 tests began failing once the wall clock
+   passed that time**. The loader's written-after-retrieval gate is correct; the fixtures now stamp the frozen clock. Load
+   W2–W3 on your host: `python -m nfl_dfs.ingest.fantasy_points_matchups_weekly <capture run dir> --target-week W --write`.
+4. **`*_prior`: nothing to collect.** Their `season` is the source season; a 2026 target reads season-2025 rows, already
+   loaded. No live path reads them. The only same-season readers (`sql/research/017r` lines 134–138,
+   `research/receiver_matchup_annotations.py`) are the documented D1 leak; they'd find no 2026 rows, which is harmless.
+5. **`weekly_vendor_data run`** (one run = everything):
+   - Defense PROE from week 2.
+   - `fantasy-points-matchups-stage` after the capture.
+   - The five families from week 5, in order, with QB shell given the coverage run's directory.
+   - Every plan is validated before any session or download; each step appears in the manifest.
+   - Flags: `--audit-only-fp-families`, `--skip-fp-families`, `--audit-only-matchups`, `--skip-matchup-stage`.
+   - The §3a Wednesday row now lists every family with its start week and the tables that should gain rows.
+
 ## 2026-09-23 (17:03 CDT) — Laptop: L02 STARTED; row-count guard checked against byes; FP collection assignment taken
 
 Laptop agent, answering `20591d36` / `1e7e58c4` / `563b8e03`.
