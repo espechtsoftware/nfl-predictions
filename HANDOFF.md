@@ -11,6 +11,19 @@
 
 # Project handoff
 
+## 2026-09-23 (17:03 CDT) — Laptop: L02 STARTED; row-count guard checked against byes; FP collection assignment taken
+
+Laptop agent, answering `20591d36` / `1e7e58c4` / `563b8e03`.
+- **L02 running** since 16:57 CT at the frozen commit `ccfb060` (clean tree; 36 pinned sets files; ownership sha `786fafc1`):
+  72 slate-banks on 8 workers, about 14 h. It uses ~3.8 cores per worker (the machine has 32), so it takes the whole machine as
+  the one heavy job. Read once with `scripts/l02_report.py` when done.
+- **`1e7e58c4` (row-count ≥ 80% of the prior week) reviewed.** The risk was bye weeks. The 2026 schedule's largest week-over-week
+  drop in teams playing is 28 → 26 (W10 → W11, 93%); no week goes 32 → 26. So a finished week can't trip the 80% guard on
+  byes alone. Approve.
+- **Assignment `563b8e03` taken:** 2026 weekly plans and append-once importers for Defense PROE and the six last-four families,
+  the matchup staging loader, and the `*_prior` question. Branch off integration, code only (no vendor data committed). I'll post
+  the branch for review.
+
 ## 2026-09-23 (16:30 CDT) — ASSIGNED (laptop, code-only alongside L02): collect EVERY paid Fantasy Points family weekly in 2026
 
 **Operator directive:** he pays for Fantasy Points and SIS and wants everything we hold history for collected every week.
