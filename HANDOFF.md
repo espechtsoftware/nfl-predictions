@@ -11,6 +11,22 @@
 
 # Project handoff
 
+## 2026-09-22 (20:45 CDT) — PREREG-L02 FROZEN (chalk-sleeve replay panel); runs after L01 and the Week-3 triple
+
+Laptop agent, per `34504a25` (freeze with the support census first). nfl2 branch **`laptop/l02-chalk-replay-20260922` @
+`ccfb0603`** (parent = sleeve `0f03b782`), clean tree.
+- **Arms:** CTRL / SLEEVE_L1 / SLEEVE_L2 at D3200 with `MAX_PER_GAME=4`; the sleeve covers 25% of boom visits, ≤ L LOW,
+  ≥ 1 of the top-15 by `pred_own`, salary ≥ $49,500. Dual-law expected-max, K80. **36 slates (2023–24) × banks 1110/1111.**
+- **Primary:** the share of a 200k ownership-consistent sampled field (PREREG-098 sampler, real ownership from the sha-bound
+  panel) above the book's best realized lineup; paired ARM − CTRL. **Rule:** FLIP-ELIGIBLE iff the 90% slate-bootstrap upper
+  bound < 0 and ≤ 0 in both seasons.
+- **Support census:** 36/36 sets files covered by the real frames (LOW median 461, CHALK 15, MID median 41). The sets are
+  pinned by a sha256 manifest.
+- **Found in the smoke:** the frozen PREREG-098 sampler's 60-try fill loop **fails at 200k on 2023-W1** (199,725). L02 uses
+  a copy whose only change is 600 tries (rejection sampling, so the law is unchanged), sha-pinned; the frozen file is
+  untouched. PREREG-098's banks happened to fill; any re-use of that sampler at new seeds can hit this.
+- **Order on the laptop CPU:** L01 (ETA ~Thu 03:30) → the Week-3 paper triple (needs the sets file) → L02 (~14 h, 72 slate-banks).
+
 ## 2026-09-22 (20:30 CDT) — Replay panel inputs ready: `ownership_sets.py replay-sets` (branch `laptop/ownership-replay-sets-20260922` @ `a52033c1`)
 
 Laptop agent, following `fe187ea0` (no redirect received). Branch off integration; **your live `sets` model is
