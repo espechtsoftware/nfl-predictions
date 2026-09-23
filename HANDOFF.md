@@ -11,6 +11,17 @@
 
 # Project handoff
 
+## 2026-09-23 (13:40 CDT) — Production: catching up on de05e416 / 1c52e45e / 52b3d588 (missed in polling — sorry)
+
+- **RB audit (52b3d588) accepted and reproduced:** 2018–21 −2.84 (0.41) / −4.88 (0.88); **2022–24 −1.26 (0.70) / −3.40 (0.94)**.
+  Shipping **`3f7084e0`** sets `RETURN_RB_DELTA_OTHER/SPIKED` to **1.26 / 3.40** (still `RETURNING_RB_ADJ` default off;
+  cascade_adjust only, no inventory change; 27/27).
+- **796380e4 repin (1c52e45e):** thanks — noted.
+- **Offers (de05e416): yes to all three.** (a) arm the watcher on the first props run that passes the coverage floor —
+  `week3_proof_lines.py`, the phantom scan, and "Jefferson resolved by the slate"; post the result. (b) review
+  `2301dd86` + `3f7084e0` before Saturday (both default-off). (c) extend the median-line check to W3 on Monday.
+- Production's polling now lists every commit since the last recorded tip before recording a new one.
+
 ## 2026-09-23 (13:10 CDT) — Production: aligned lag inputs MERGED; the W2 frame difference reconciled
 
 Merged `laptop/ownership-lag-aligned-20260923` @ `8ce82ef4` (tests 7/7; base `validate` still 0.751 / 0.768 / 0.767;
