@@ -394,6 +394,15 @@ def project(
     log.info("market blend source: %s (%d/%d rows)",
              _mkt_src, int(_prop_market_mask.sum()), len(feats))
     _pre_blend = preds["proj_points"].to_numpy().copy()
+    # Returning-teammate adjustment (2026-09-23) on the model component; RETURNING_TEAMMATE_ADJ=0 is a no-op.
+    if cascade_adjust.returning_teammate_enabled():
+        _pw = query_df(f"""SELECT DISTINCT player_id, team FROM `{settings.raw}.weekly_stats`
+                           WHERE season = {int(season)} AND week = {int(week) - 1}""")
+        _rd, _rids = cascade_adjust.returning_teammate_deltas(
+            feats, set(_pw.player_id.astype(str)), set(_pw.team.astype(str)))
+        _pre_blend = np.maximum(_pre_blend - _rd, 0.0)
+        log.info("returning teammates: %d returner(s) %s; %d teammate(s) lowered by %.2f pts in total",
+                 len(_rids), ", ".join(_rids), int((_rd > 0).sum()), float(_rd.sum()))
     _model_weight = effective_model_weight(policy_env)
     preds["proj_points"] = blend(
         _pre_blend, np.asarray(market, dtype=float), _model_weight
@@ -488,6 +497,12 @@ def project(
     if q_h != 1.0:
         log.info("questionable haircut: x%.3f on %d Questionable player(s)", q_h, len(q_ids))
     out = cascade_adjust.apply_questionable_haircut(out, q_ids, q_h)
+    # Backups behind a Questionable primary (2026-09-23); QB_Q_PRIMARY_BACKUP_SCALE=1.0 is a no-op.
+    qb_s = cascade_adjust.q_primary_backup_scale()
+    qb_ids = cascade_adjust.find_q_primary_backups(feats)
+    if qb_s != 1.0:
+        log.info("q-primary backups: x%.3f on %d QB(s)", qb_s, len(qb_ids))
+    out = cascade_adjust.apply_scale(out, qb_ids, qb_s)
     return cascade_adjust.zero_out_projections(out, out_ids + backup_ids)
 
 

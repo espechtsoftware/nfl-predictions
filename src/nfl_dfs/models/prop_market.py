@@ -324,20 +324,33 @@ def market_points(
     return complete[["season", "week", "gsis_id", "market_points"]]
 
 
-def prop_feed_player_names(season: int, week: int) -> set[str]:
-    """Raw prop-feed player names for the week, matched or not.
+def prop_feed_player_names(season: int, week: int, minimum_markets: int = 2) -> set[str]:
+    """Raw prop-feed player names for the week with at least ``minimum_markets``
+    distinct scoring markets, matched or not.
 
     The live paths compare these against the slate: a slate player whose
     spelling is in the feed but received no market stops the run
     (``inference.market_source``).  Read through the ``bq`` module attribute
     so offline smokes that stub ``bq.query_df`` see an empty feed.
+
+    ``minimum_markets`` must equal the live ``market_points`` completeness
+    boundary (2).  2026-09-23: the name list counted a player with only an
+    anytime-TD price as "in the feed", while ``market_points`` requires two
+    markets, so every TD-only slate player (236 on Wednesday of Week 3, and
+    hundreds of depth players on any Sunday) tripped the name-match guard and
+    stopped ``project-slate``.  A real spelling mismatch (the Jefferson case: a
+    fully priced player whose id did not resolve) is still caught.
     """
+    if minimum_markets < 1:
+        raise ValueError("minimum_markets must be at least 1")
     market_list = ", ".join(f"'{market}'" for market in STANDARD_MARKETS)
     df = query_df(
-        f"""SELECT DISTINCT player
+        f"""SELECT player
             FROM `{settings.raw}.prop_lines`
             WHERE season = {int(season)} AND week = {int(week)}
-              AND market IN ({market_list})"""
+              AND market IN ({market_list})
+            GROUP BY player
+            HAVING COUNT(DISTINCT market) >= {int(minimum_markets)}"""
     )
     if df is None or df.empty or "player" not in df.columns:
         return set()

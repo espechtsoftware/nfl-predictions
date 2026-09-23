@@ -650,6 +650,102 @@ _V11_SOURCE_SET = _SourceSetContract(
 )
 
 
+# Source-set v12 (2026-09-23): run_projections additionally scales QBs listed
+# behind a Questionable primary (QB_Q_PRIMARY_BACKUP_SCALE, default 1.0 = no-op).
+# The rule and its env read live in cascade_adjust (not a frozen source role);
+# only the call site in run_projections changes. Measured before pinning: 278
+# direct read sites, position-free identical to v10; one read moved 554 -> 560.
+# (Named v12 because the integration branch already registers a different v11.)
+# V5-v10 remain immutable; never rewrite them.
+V12_SOURCE_SET_ID = (
+    "adopted-classic-policy-20260923-week3-q-primary-backup-scale-v12"
+)
+V12_CLASSIFIED_INPUT_PROJECTION_SHA256 = (
+    "8b69934e51ab1ab41e58c7c34dbfbf8296a9f2205d830317066cb00dadbcc543"
+)
+V12_FROZEN_SOURCE_SHA256: Mapping[str, str] = {
+    **V10_FROZEN_SOURCE_SHA256,
+    "src/nfl_dfs/inference/run_projections.py": (
+        "fa0c67fbad19466fb06e9101f1b417b393bf55a82a4940f499f840aca2f67656"
+    ),
+}
+
+_V12_SOURCE_SET = _SourceSetContract(
+    schema=SCHEMA,
+    source_set_id=V12_SOURCE_SET_ID,
+    policy_env_sha256=POLICY_ENV_SHA256,
+    classified_input_projection_sha256=(
+        V12_CLASSIFIED_INPUT_PROJECTION_SHA256
+    ),
+    classified_input_key_count=CLASSIFIED_INPUT_KEY_COUNT,
+    direct_input_read_site_count=DIRECT_INPUT_READ_SITE_COUNT,
+    frozen_source_sha256=tuple(sorted(V12_FROZEN_SOURCE_SHA256.items())),
+)
+
+# Source-set v13 (2026-09-23): run_projections additionally lowers the model
+# component of teammates of a returning top receiver (RETURNING_TEAMMATE_ADJ,
+# default 0 = off) and reads the previous week's box-score players for it. The
+# rule and its env read live in cascade_adjust (not a frozen source role).
+# Measured before pinning: 278 direct read sites, position-free identical to
+# v12; one read moved 560 -> 569. V5-v12 remain immutable; never rewrite them.
+V13_SOURCE_SET_ID = (
+    "adopted-classic-policy-20260923-week3-returning-teammate-v13"
+)
+V13_CLASSIFIED_INPUT_PROJECTION_SHA256 = (
+    "402ec72f4e341a6e31a15a741ead75c5479ed829f2b93538b3cb2a20753d5061"
+)
+V13_FROZEN_SOURCE_SHA256: Mapping[str, str] = {
+    **V12_FROZEN_SOURCE_SHA256,
+    "src/nfl_dfs/inference/run_projections.py": (
+        "d8516c35a3d0cb7bdde0009528e2608bc7acab923cc3c3ca47d56c7130e9cef9"
+    ),
+}
+
+_V13_SOURCE_SET = _SourceSetContract(
+    schema=SCHEMA,
+    source_set_id=V13_SOURCE_SET_ID,
+    policy_env_sha256=POLICY_ENV_SHA256,
+    classified_input_projection_sha256=(
+        V13_CLASSIFIED_INPUT_PROJECTION_SHA256
+    ),
+    classified_input_key_count=CLASSIFIED_INPUT_KEY_COUNT,
+    direct_input_read_site_count=DIRECT_INPUT_READ_SITE_COUNT,
+    frozen_source_sha256=tuple(sorted(V13_FROZEN_SOURCE_SHA256.items())),
+)
+
+# Source-set v14 (2026-09-23): the integration branch merges shipping v13 (Q-primary backup
+# scale, returning-teammate adjustment, TD-only name guard) with integration's v11 changes
+# (engine.py candidate-write observability; run_projections records the blend inputs).
+# Measured before pinning: 278 direct read sites, position-free identical to v13; only line
+# positions move. V5-v13 remain immutable; never rewrite them.
+V14_SOURCE_SET_ID = (
+    "adopted-classic-policy-20260923-week3-integration-merge-v14"
+)
+V14_CLASSIFIED_INPUT_PROJECTION_SHA256 = (
+    "f8105c7b29f6e3c421551217cec3b45edc847e17c66e744a38029b66decd03e5"
+)
+V14_FROZEN_SOURCE_SHA256: Mapping[str, str] = {
+    **V13_FROZEN_SOURCE_SHA256,
+    "src/nfl_dfs/backtest/engine.py": (
+        "afe9a92446a7f6384a342a8e58e2a7ed4b1cd8435ada2585a1dfea518c5effec"
+    ),
+    "src/nfl_dfs/inference/run_projections.py": (
+        "3359d5e2cc178721064d4b8d198610a48841471a7d0a6cd5514ceeffac901e24"
+    ),
+}
+
+_V14_SOURCE_SET = _SourceSetContract(
+    schema=SCHEMA,
+    source_set_id=V14_SOURCE_SET_ID,
+    policy_env_sha256=POLICY_ENV_SHA256,
+    classified_input_projection_sha256=(
+        V14_CLASSIFIED_INPUT_PROJECTION_SHA256
+    ),
+    classified_input_key_count=CLASSIFIED_INPUT_KEY_COUNT,
+    direct_input_read_site_count=DIRECT_INPUT_READ_SITE_COUNT,
+    frozen_source_sha256=tuple(sorted(V14_FROZEN_SOURCE_SHA256.items())),
+)
+
 @dataclass(frozen=True)
 class _Locator:
     path: str
@@ -2287,6 +2383,33 @@ def generate_effective_policy_rule_inventory_v11(
     )
 
 
+def generate_effective_policy_rule_inventory_v12(
+    root: Path,
+) -> dict[str, Any]:
+    """Generate the explicit current Week-3 source-set v12 inventory."""
+    return _generate_effective_policy_rule_inventory(
+        root, source_set=_V12_SOURCE_SET
+    )
+
+
+def generate_effective_policy_rule_inventory_v13(
+    root: Path,
+) -> dict[str, Any]:
+    """Generate the explicit current Week-3 source-set v13 inventory."""
+    return _generate_effective_policy_rule_inventory(
+        root, source_set=_V13_SOURCE_SET
+    )
+
+
+def generate_effective_policy_rule_inventory_v14(
+    root: Path,
+) -> dict[str, Any]:
+    """Generate the explicit current Week-3 source-set v14 inventory."""
+    return _generate_effective_policy_rule_inventory(
+        root, source_set=_V14_SOURCE_SET
+    )
+
+
 def _source_set_for_inventory(
     inventory: Mapping[str, Any],
 ) -> _SourceSetContract:
@@ -2305,6 +2428,12 @@ def _source_set_for_inventory(
         return _V10_SOURCE_SET
     if source_set_id == V11_SOURCE_SET_ID:
         return _V11_SOURCE_SET
+    if source_set_id == V12_SOURCE_SET_ID:
+        return _V12_SOURCE_SET
+    if source_set_id == V13_SOURCE_SET_ID:
+        return _V13_SOURCE_SET
+    if source_set_id == V14_SOURCE_SET_ID:
+        return _V14_SOURCE_SET
     raise EffectivePolicyInventoryError(
         "effective-policy inventory source-set id is not registered"
     )

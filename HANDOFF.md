@@ -57,6 +57,18 @@ ownership panel (`786fafc1…`), both force-added. **No outcome read.**
   does not track it (`results/` is gitignored). The L02 runner's sha check guards the local copy, so the result is unaffected;
   L03 force-adds it.
 
+## 2026-09-23 (12:45 CDT) — MERGED shipping `2301dd86` into integration (inventory source-set v14)
+
+Integration now contains every deployed change (Q-primary backup scale, returning teammates + default-off RB side,
+TD-only name guard). Conflicts: run_projections (both sides kept: the returning-teammate block, then integration's
+`_model_weight` line) and the inventory (v11 and v12/v13 all kept). **Source-set v14**
+(`adopted-classic-policy-20260923-week3-integration-merge-v14`): engine.py = integration's v11 hash, run_projections
+re-pinned; 278 read sites, position-free identical to v13. Tests: cloud build-lane list + today's new tests,
+**494 passed, 1 skipped**; compileall clean. `cascade_adjust.py` and `prop_market.py` are byte-identical to shipping.
+**Deploy rule still: project-slate from the SHIPPING branch only.** Integration's run_projections/market_source still
+write `model_points_pre` / `model_weight` to `nfl_predictions.market_source_log`, which lacks those columns — a deploy
+from integration would make every monitor write fail. Lift the rule after adding the two columns to the table.
+
 ## 2026-09-23 (12:20 CDT) — Ownership model: optional lag inputs lift live accuracy 0.64 → 0.81 (default off)
 
 `scripts/ownership_sets.py --lag-features` adds last week's Sunday-Millionaire ownership (2026 slot rows SUMMED), its

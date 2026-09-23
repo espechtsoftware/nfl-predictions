@@ -311,6 +311,167 @@ def find_backup_qbs(feats: pd.DataFrame) -> list[str]:
     return sorted(set(ids))
 
 
+def q_primary_backup_scale() -> float:
+    """QB_Q_PRIMARY_BACKUP_SCALE: multiplier for QBs listed behind a Questionable primary (default 1.0, a
+    no-op). A value outside [0, 1] fails closed."""
+    v = float(os.environ.get("QB_Q_PRIMARY_BACKUP_SCALE", "1.0"))
+    if not 0.0 <= v <= 1.0:
+        raise ValueError(f"QB_Q_PRIMARY_BACKUP_SCALE must be in [0, 1], got {v}")
+    return v
+
+
+def find_q_primary_backups(feats: pd.DataFrame) -> list[str]:
+    """GSIS ids of QBs listed behind a QUESTIONABLE primary (2026-09-23, operator decision).
+
+    find_backup_qbs leaves such a team alone (lab v4 boundary: the starter may sit), so its backups keep a
+    full as-if-starting projection. A Questionable QB plays ~80-84% of the time, so his backup starts ~16-20%
+    of the time; run_projections scales these rows by QB_Q_PRIMARY_BACKUP_SCALE (the complement of
+    Q_HAIRCUT). Same primary and promotion rules as find_backup_qbs; the Questionable primary himself is not
+    returned (Q_HAIRCUT prices him), nor is a Doubtful QB (unavailable, handled elsewhere). Week 3 dry run:
+    SEA (Darnold Q -> Lock, Milroe) and CHI (Williams D, Bagent Q -> Keenum)."""
+    if os.environ.get("QB_BACKUP_GATE", "1") == "0" or "depth_rank" not in feats.columns:
+        return []
+    pos = _col(feats, "position", "dk_position").fillna("").astype(str).str.upper()
+    team = _col(feats, "team", "team_abbr").fillna("").astype(str)
+    depth = pd.to_numeric(feats["depth_rank"], errors="coerce")
+    status = _col(feats, "status").fillna("").astype(str).str.upper().str.strip()
+    report = _col(feats, "injury_status").fillna("").astype(str).str.upper().str.strip()
+    is_out = status.isin(OUT_STATUSES) | report.eq("OUT")
+    is_doubtful = status.isin(DOUBTFUL_STATUSES) | report.eq("DOUBTFUL")
+    is_questionable = status.isin(QUESTIONABLE_STATUSES) | report.eq("QUESTIONABLE")
+    qbs = feats.loc[pos.eq("QB") & depth.notna() & feats.gsis_id.notna() & team.ne(""),
+                    ["gsis_id"]].assign(team=team, depth=depth, out=is_out,
+                                        doubtful=is_doubtful, questionable=is_questionable)
+    doubtful_absent = os.environ.get("QB_DOUBTFUL_ABSENT", "1") != "0"
+    promote_no_depth1 = os.environ.get("QB_NO_DEPTH1_PROMOTE", "1") != "0"
+    ids: list[str] = []
+    for _, g in qbs.groupby("team"):
+        g = g.sort_values(["depth", "gsis_id"])
+        if not (g.depth == 1).any() and not promote_no_depth1:
+            continue
+        unavailable = g.out | (g.doubtful if doubtful_absent else False)
+        primary = g[~unavailable]
+        if primary.empty:
+            continue
+        top = primary[primary.depth == primary.iloc[0]["depth"]]
+        if not top.questionable.any():
+            continue                                  # healthy primary: find_backup_qbs zeroes the backups
+        cut = top.iloc[0]["depth"]
+        ids.extend(g.loc[(g.depth > cut) & ~unavailable, "gsis_id"].astype(str))
+    return sorted(set(ids))
+
+
+def apply_scale(out: pd.DataFrame, ids: list[str], scale: float) -> pd.DataFrame:
+    """Scale proj_points and value of `ids` by `scale` (1.0 or no ids: unchanged)."""
+    if scale == 1.0 or not ids:
+        return out
+    out = out.copy()
+    mask = out.gsis_id.astype(str).isin(ids)
+    for col in ("proj_points", "value"):
+        if col in out.columns:
+            out.loc[mask, col] = out.loc[mask, col] * scale
+    return out
+
+
+# Returning-teammate adjustment (2026-09-23, operator decision). When a top receiver who missed last week is
+# back, his teammates' recent-usage features still carry the week he was out, and the model over-projects
+# them. Walk-forward 2018-2024 on the training panel (E[pts|played] fit on active rows, as production fits
+# it; returner = WR/TE/RB with target_share_l4 >= 0.18, inactive at W-1, active at W-2 or W-3; teammates
+# = WR/TE/RB who played W-1): residual in the return week vs all other teammate-weeks -0.41 (se 0.18) for
+# all teammates and -1.20 (se 0.40) for teammates whose target share spiked >= 5 points (target_share_jump),
+# negative in 6 of 7 seasons each; spiked WRs -1.51 (se 0.54). The market absorbs part of it: on the
+# 2023-24 rows with >= 2 prop markets the served-blend gap for spiked teammates is about -1.0 (se 1.4).
+# The deltas below are applied to the MODEL component before the market blend, so the blend dilutes them
+# exactly where the market carries information. A Questionable returner scales them by 0.8.
+RETURN_MIN_TARGET_SHARE = 0.18
+RETURN_SPIKE_JUMP = 0.05
+RETURN_DELTA_SPIKED = 1.20
+RETURN_DELTA_OTHER = 0.41
+RETURN_Q_FACTOR = 0.80
+# Carry side (2026-09-23): when a lead RB (carry_share_l4 >= 0.40) returns, the model over-projects the RBs who
+# played while he was out by 2.40 (se 0.36) and those whose carry share spiked (carry_share_jump >= 0.10) by
+# 4.35 (se 0.66), negative in 7 of 7 seasons each (same walk-forward panel and definitions as above). Backup RBs
+# rarely carry two prop markets, so the served projection is mostly the model's and keeps the whole bias.
+# RETURNING_RB_ADJ=1 enables it (default off); it runs only inside the RETURNING_TEAMMATE_ADJ path.
+RETURN_RB_MIN_CARRY_SHARE = 0.40
+RETURN_RB_SPIKE_JUMP = 0.10
+RETURN_RB_DELTA_SPIKED = 4.35
+RETURN_RB_DELTA_OTHER = 2.40
+
+
+def returning_rb_enabled() -> bool:
+    """RETURNING_RB_ADJ=1 enables the carry-side adjustment (default off); not 0/1 fails closed."""
+    v = os.environ.get("RETURNING_RB_ADJ", "0").strip()
+    if v not in ("0", "1"):
+        raise ValueError(f"RETURNING_RB_ADJ must be 0 or 1, got {v!r}")
+    return v == "1"
+
+
+def returning_teammate_enabled() -> bool:
+    """RETURNING_TEAMMATE_ADJ=1 enables the adjustment (default off). Any other non-empty value but 0/1
+    fails closed."""
+    v = os.environ.get("RETURNING_TEAMMATE_ADJ", "0").strip()
+    if v not in ("0", "1"):
+        raise ValueError(f"RETURNING_TEAMMATE_ADJ must be 0 or 1, got {v!r}")
+    return v == "1"
+
+
+def returning_teammate_deltas(feats: pd.DataFrame, prev_played: set[str],
+                              prev_teams: set[str]) -> tuple[np.ndarray, list[str]]:
+    """Per-row points to SUBTRACT from the model component (aligned with feats), and the returners' ids.
+
+    prev_played: gsis ids with a box-score line in week W-1; prev_teams: teams that played in W-1 (a bye
+    week is never an absence). Returners are WR/TE/RB with target_share_l4 >= 0.18 who did not play W-1,
+    whose team did, and who are not Out/Doubtful now. Each WR/TE/RB teammate who played W-1 loses 1.20
+    (target_share_jump >= 0.05) or 0.41, times 0.8 if every returner on his team is Questionable. A player
+    with several returning teammates takes the largest single delta, never a sum."""
+    n = len(feats)
+    delta = np.zeros(n)
+    if n == 0 or not prev_played:
+        return delta, []
+    pos = _col(feats, "position", "dk_position").fillna("").astype(str).str.upper()
+    team = _col(feats, "team", "team_abbr").fillna("").astype(str)
+    gid = feats.gsis_id.astype(str)
+    status = _col(feats, "status").fillna("").astype(str).str.upper().str.strip()
+    report = _col(feats, "injury_status").fillna("").astype(str).str.upper().str.strip()
+    ts = pd.to_numeric(_col(feats, "target_share_l4"), errors="coerce").fillna(0.0)
+    jump = pd.to_numeric(_col(feats, "target_share_jump"), errors="coerce").fillna(0.0)
+    skill = pos.isin(["WR", "TE", "RB"])
+    unavailable = status.isin(OUT_STATUSES | DOUBTFUL_STATUSES) | report.isin({"OUT", "DOUBTFUL"})
+    questionable = status.isin(QUESTIONABLE_STATUSES) | report.eq("QUESTIONABLE")
+    played_prev = gid.isin(prev_played)
+    returner = (skill & (ts >= RETURN_MIN_TARGET_SHARE) & ~played_prev & team.isin(prev_teams)
+                & ~unavailable & team.ne(""))
+    def _team_factor(mask: pd.Series) -> dict[str, float]:
+        out: dict[str, float] = {}
+        for t, q in zip(team[mask], questionable[mask]):
+            out[t] = max(out.get(t, 0.0), RETURN_Q_FACTOR if q else 1.0)
+        return out
+
+    returner_ids: set[str] = set()
+    fac = _team_factor(returner)
+    if fac:
+        base = np.where(jump >= RETURN_SPIKE_JUMP, RETURN_DELTA_SPIKED, RETURN_DELTA_OTHER)
+        f_row = team.map(fac).fillna(0.0).to_numpy()
+        benef = (skill & played_prev & ~returner).to_numpy()
+        delta = np.maximum(delta, np.where(benef, base * f_row, 0.0))
+        returner_ids |= set(gid[returner])
+    if returning_rb_enabled():
+        cs = pd.to_numeric(_col(feats, "carry_share_l4"), errors="coerce").fillna(0.0)
+        cjump = pd.to_numeric(_col(feats, "carry_share_jump"), errors="coerce").fillna(0.0)
+        rb = pos.eq("RB")
+        rb_ret = (rb & (cs >= RETURN_RB_MIN_CARRY_SHARE) & ~played_prev & team.isin(prev_teams)
+                  & ~unavailable & team.ne(""))
+        rfac = _team_factor(rb_ret)
+        if rfac:
+            rbase = np.where(cjump >= RETURN_RB_SPIKE_JUMP, RETURN_RB_DELTA_SPIKED, RETURN_RB_DELTA_OTHER)
+            rf_row = team.map(rfac).fillna(0.0).to_numpy()
+            rbenef = (rb & played_prev & ~rb_ret).to_numpy()
+            delta = np.maximum(delta, np.where(rbenef, rbase * rf_row, 0.0))
+            returner_ids |= set(gid[rb_ret])
+    return delta, sorted(returner_ids)
+
+
 # Questionable availability haircut (2026-09-22). The featureset carries no
 # injury or practice feature, so a Questionable player is served E[points | he
 # plays at full strength]. Walk-forward 2018-2024 on the training panel, model fit

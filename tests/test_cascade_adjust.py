@@ -468,3 +468,106 @@ def test_skip_priced_carries_on_skips_only_report_out_carry_side(monkeypatch):
     feats.loc[feats.gsis_id == "RB1", "status"] = "O"
     adjusted, _ = adjust_for_inactives(feats, usage_rec(), usage_rush(), no_injuries())
     assert rb2(adjusted, "carry_share_l4") > rb2(feats, "carry_share_l4")
+
+
+def test_q_primary_backups_are_found_and_scaled_only_when_enabled(monkeypatch):
+    """2026-09-23 (operator): backups behind a Questionable primary keep a full as-if-starting projection
+    under find_backup_qbs (team ambiguous). They are returned here and scaled by QB_Q_PRIMARY_BACKUP_SCALE."""
+    for k in ("QB_BACKUP_GATE", "QB_DOUBTFUL_ABSENT", "QB_NO_DEPTH1_PROMOTE", "QB_Q_PRIMARY_BACKUP_SCALE"):
+        monkeypatch.delenv(k, raising=False)
+    from nfl_dfs.inference.cascade_adjust import (apply_scale, find_backup_qbs, find_q_primary_backups,
+                                                  q_primary_backup_scale)
+    feats = _qb_slate()
+    feats.loc[feats.gsis_id == "CHI1", "status"] = "Q"                       # SEA-like: primary Questionable
+    # MIA-like with CHI's week-3 shape: Doubtful starter, promoted primary Questionable, a third behind him
+    feats.loc[feats.gsis_id == "MIA2", "status"] = "Q"
+    feats = pd.concat([feats, pd.DataFrame([{"gsis_id": "MIA3", "display_name": "Mia Third", "dk_position": "QB",
+                                             "team_abbr": "MIA", "status": None, "injury_status": None,
+                                             "depth_rank": 3}])], ignore_index=True)
+    got = find_q_primary_backups(feats)
+    assert got == ["CHI2", "CHI3", "MIA3"]                                    # never the Q primary, never Doubtful
+    assert not set(got) & set(find_backup_qbs(feats)), "disjoint from the zeroing gate"
+    assert "ATL3" not in got                                                  # healthy promoted primary: gate's job
+    assert q_primary_backup_scale() == 1.0                                    # default is a no-op
+    out = pd.DataFrame({"gsis_id": ["CHI1", "CHI2", "MIA3"], "proj_points": [20.0, 12.0, 8.0], "value": [3.0, 2.0, 1.5]})
+    pd.testing.assert_frame_equal(apply_scale(out, got, 1.0), out)
+    monkeypatch.setenv("QB_Q_PRIMARY_BACKUP_SCALE", "0.2")
+    s = apply_scale(out, got, q_primary_backup_scale())
+    assert s.proj_points.tolist() == pytest.approx([20.0, 2.4, 1.6]) and s.value.tolist() == pytest.approx([3.0, 0.4, 0.3])
+    monkeypatch.setenv("QB_Q_PRIMARY_BACKUP_SCALE", "1.5")
+    with pytest.raises(ValueError):
+        q_primary_backup_scale()
+
+
+def _ret_slate():
+    """BAL: Flowers (top WR) missed last week and is back; Bateman spiked; a TE played normally; a RB also
+    played. KC: bye last week (no absence). NYG: returner is Out now (no adjustment)."""
+    rows = [
+        ("FLOW", "WR", "BAL", None, None, 0.25, 0.00),
+        ("BATE", "WR", "BAL", None, None, 0.18, 0.27),
+        ("ANDR", "TE", "BAL", None, None, 0.15, 0.00),
+        ("HENR", "RB", "BAL", None, None, 0.05, 0.01),
+        ("KCWR", "WR", "KC", None, None, 0.30, 0.00),
+        ("KCTE", "TE", "KC", None, None, 0.20, 0.10),
+        ("NYWR", "WR", "NYG", "O", None, 0.28, 0.00),
+        ("NYTE", "TE", "NYG", None, None, 0.12, 0.08),
+    ]
+    return pd.DataFrame(rows, columns=["gsis_id", "dk_position", "team_abbr", "status", "injury_status",
+                                       "target_share_l4", "target_share_jump"])
+
+
+def test_returning_teammate_deltas(monkeypatch):
+    from nfl_dfs.inference.cascade_adjust import (RETURN_DELTA_OTHER, RETURN_DELTA_SPIKED, RETURN_Q_FACTOR,
+                                                  returning_teammate_deltas, returning_teammate_enabled)
+    feats = _ret_slate()
+    prev = {"BATE", "ANDR", "HENR", "NYTE"}                 # Flowers did not play W-1; KC was on bye
+    teams = {"BAL", "NYG"}
+    d, rids = returning_teammate_deltas(feats, prev, teams)
+    by = dict(zip(feats.gsis_id, d))
+    assert rids == ["FLOW"]
+    assert by["BATE"] == pytest.approx(RETURN_DELTA_SPIKED)             # spiked teammate
+    assert by["ANDR"] == pytest.approx(RETURN_DELTA_OTHER) and by["HENR"] == pytest.approx(RETURN_DELTA_OTHER)
+    assert by["FLOW"] == 0 and by["KCWR"] == 0 and by["KCTE"] == 0     # returner untouched; a bye is not an absence
+    assert by["NYTE"] == 0                                             # an Out returner is not returning
+    feats.loc[feats.gsis_id == "FLOW", "status"] = "Q"
+    d, _ = returning_teammate_deltas(feats, prev, teams)
+    assert dict(zip(feats.gsis_id, d))["BATE"] == pytest.approx(RETURN_DELTA_SPIKED * RETURN_Q_FACTOR)
+    feats.loc[feats.gsis_id == "FLOW", "status"] = "D"
+    d, rids = returning_teammate_deltas(feats, prev, teams)
+    assert rids == [] and not d.any()                                  # Doubtful returner: no adjustment
+    assert returning_teammate_deltas(feats.iloc[0:0], prev, teams)[0].size == 0
+    monkeypatch.delenv("RETURNING_TEAMMATE_ADJ", raising=False)
+    assert returning_teammate_enabled() is False                       # default off
+    monkeypatch.setenv("RETURNING_TEAMMATE_ADJ", "yes")
+    with pytest.raises(ValueError):
+        returning_teammate_enabled()
+
+
+def test_returning_lead_rb_lowers_backup_rbs_only_when_enabled(monkeypatch):
+    from nfl_dfs.inference.cascade_adjust import (RETURN_RB_DELTA_OTHER, RETURN_RB_DELTA_SPIKED, RETURN_Q_FACTOR,
+                                                  returning_teammate_deltas)
+    rows = [  # gsis, pos, team, status, target_share_l4, target_share_jump, carry_share_l4, carry_share_jump
+        ("LEAD", "RB", "DET", None, 0.08, 0.00, 0.62, 0.00),
+        ("BACK", "RB", "DET", None, 0.06, 0.02, 0.35, 0.30),
+        ("THRD", "RB", "DET", None, 0.02, 0.00, 0.05, 0.02),
+        ("DETW", "WR", "DET", None, 0.22, 0.01, 0.00, 0.00),
+    ]
+    feats = pd.DataFrame(rows, columns=["gsis_id", "dk_position", "team_abbr", "status", "target_share_l4",
+                                        "target_share_jump", "carry_share_l4", "carry_share_jump"])
+    feats["injury_status"] = None
+    prev, teams = {"BACK", "THRD", "DETW"}, {"DET"}
+    monkeypatch.delenv("RETURNING_RB_ADJ", raising=False)
+    d, rids = returning_teammate_deltas(feats, prev, teams)
+    assert rids == [] and not d.any()                                  # off by default: lead RB (8% targets) ignored
+    monkeypatch.setenv("RETURNING_RB_ADJ", "1")
+    d, rids = returning_teammate_deltas(feats, prev, teams)
+    by = dict(zip(feats.gsis_id, d))
+    assert rids == ["LEAD"]
+    assert by["BACK"] == pytest.approx(RETURN_RB_DELTA_SPIKED) and by["THRD"] == pytest.approx(RETURN_RB_DELTA_OTHER)
+    assert by["DETW"] == 0 and by["LEAD"] == 0                         # carry side touches RBs only
+    feats.loc[feats.gsis_id == "LEAD", "status"] = "Q"
+    d, _ = returning_teammate_deltas(feats, prev, teams)
+    assert dict(zip(feats.gsis_id, d))["BACK"] == pytest.approx(RETURN_RB_DELTA_SPIKED * RETURN_Q_FACTOR)
+    monkeypatch.setenv("RETURNING_RB_ADJ", "2")
+    with pytest.raises(ValueError):
+        returning_teammate_deltas(feats, prev, teams)
