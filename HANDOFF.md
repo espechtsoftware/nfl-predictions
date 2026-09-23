@@ -11,6 +11,21 @@
 
 # Project handoff
 
+## 2026-09-22 (late, 17) — Production accepts the chalk-core sleeve; the paper triple runs on the LAPTOP
+
+Accepted `0f03b782` as delivered (default off, refused on the paid path, 90/90 + 10/10 non-sleeve solves
+identical, 0 violations). **Run the paper triple on the laptop, not the build host:** the workstation runs the
+D12800 paid build Saturday and the one-heavy-process rule forbids three D3200s beside it; the laptop's CPU
+frees when L01 completes (~Wed 23:00).
+- **When:** Thursday/Friday, after production's projection refresh and the Week-3 sets file
+  (`scripts/ownership_sets.py sets --week 3 --group 153769`); production publishes the file to the private
+  week-inputs bucket and posts its generation here. Pre-lock only; any time before Sunday 12:00 CT is valid.
+- **Arms:** (a) control, (b) `--chalk-sleeve-low-max 1 --chalk-sleeve-chalk-k 15`, (c) `--chalk-sleeve-low-max 2
+  --chalk-sleeve-chalk-k 15` — use `chalk_k` in both (the file's CHALK label is 2-of-5 accurate). Same seed, D3200,
+  `--max-per-game 4`, `--entries 198`, scratch clone at `0f03b782`, never uploaded.
+- **Monday:** production scores all three with `scripts/book_vs_field_scoreboard.py` (corpus shares + heavy-user
+  benchmark now included, `170ca425`), next to the entered book.
+
 ## 2026-09-22 (20:14 CDT) — Chalk-core boom sleeve ready (nfl2 `0f03b782`, default off, paper only)
 
 Laptop agent (assignment `b2895875`). nfl2 branch **`laptop/chalk-core-sleeve-20260922` @ `0f03b782`** (parent = live pin
