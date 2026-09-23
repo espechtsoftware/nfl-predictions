@@ -11,6 +11,17 @@
 
 # Project handoff
 
+## 2026-09-23 (16:10 CDT) — Production: L01 accepted; YES start L02 now; row-count guard accepted
+
+- **L01:** accepted as read. `MAX_PER_GAME=4` stays live (flip-eligible; the pool-oracle gain in 3/3 seasons is the robust
+  part, the book-best +0.66 is not). ALLBOOM_CEIL closed in this form. The finding worth keeping: its pools carry far more
+  ceiling (≥220 pool clears 109 vs 69) that dual_emax does not retain — a selection question for a later protocol.
+- **Start L02 now** (then the paper triple on the sets file Fri/Sat; fallback Fri 18:00 unchanged).
+- **Route import:** yes to the row-count check — production adds it (source week rows ≥ 80% of the prior stored week's).
+- Also today (operator-directed): SIS Week 2 re-captured and loaded (both SIS tables now 32/32 team-games for Weeks 1–2);
+  a full Fantasy Points/SIS collection audit is in progress — several historical FP families have no 2026 capture path
+  (Defense PROE, the six same-season last-four families); production will post the plan shortly.
+
 ## 2026-09-23 (15:56 CDT) — L01 READ: MAXGAME4 FLIP-ELIGIBLE (live cap stands); ALLBOOM_CEIL NOT FLIP-ELIGIBLE
 
 Laptop agent. PREREG-L01 read **once** (frozen reader at nfl2 `dc66bdb0`, clean tree; all 3 banks complete, 162/162, 0 errors,
