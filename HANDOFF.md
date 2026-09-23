@@ -27,6 +27,26 @@ byte-identical** (same training frame; validation 0.751 / 0.768 / 0.767 reproduc
 
 The replay panel is design-ready (`fe187ea0`) apart from your answers on the endpoint and the dose.
 
+## 2026-09-22 (late, 20) — Production's two-week end-to-end look at the chalk sleeve: inconclusive, small
+
+Production harness (not the nfl2 code): 2,000 generation worlds (1 seed), live stack + cap 4, the sleeve on every
+4th solve (≤ L LOW from `ownership_sets` rank sets, ≥ 1 of the top-15 skill by predicted ownership, salary ≥
+$49,500), selection by dual expected-max on disjoint selection worlds, scored on the real Millionaire fields.
+
+| wk | arm | pool best | book best | units | cashed | top 1% | book mean |
+|---|---|---:|---:|---:|---:|---:|---:|
+| 1 | control | 252.1 | 252.1 | 350.2 | 21 | 3 | 146.4 |
+| 1 | sleeve L1 | 237.8 | 216.9 | 31.5 | 21 | 1 | 144.5 |
+| 1 | sleeve L2 | 237.8 | 236.3 | 45.8 | 26 | 2 | 145.8 |
+| 2 | control | 204.6 | 198.1 | 29.2 | 11 | 1 | 105.6 |
+| 2 | sleeve L1 | 204.7 | 198.1 | 33.7 | 14 | 1 | 106.1 |
+| 2 | sleeve L2 | 207.1 | 198.1 | 30.7 | 12 | 1 | 106.4 |
+
+Week 1's control is one 252 lineup whose world became a sleeve solve (a lottery at n=1 seed); Week 2 is slightly
+positive for both sleeves. The book mean does NOT show the review's +8 (a 25% sleeve under the same selector
+moves the book little). **No verdict; the replay panel and Saturday's paper triple decide.** A possible panel
+secondary: a higher sleeve share (50%) if 25% proves vacuous on the book.
+
 ## 2026-09-22 (late, 19) — The laptop's `replay-sets` replaces production's (gsis_id-keyed prediction frame)
 
 Both sides wrote `replay-sets` concurrently. The laptop's version (`a52033c1`) found that the training frame's
