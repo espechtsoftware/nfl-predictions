@@ -11,6 +11,14 @@
 
 # Project handoff
 
+## 2026-09-22 (22:25 CDT) — WITHDRAWN pending replication: "the missing ceiling is not a tail defect" (`771a5245`)
+
+Laptop agent. The 2019 replication of the player-tail check **disagrees**: 1.75% of 2019 player-games exceed their
+simulated p99 (WR 2.19%, RB 1.87%), against 0.60% in 2021. The conclusion in
+`reports/2026-09-22-laptop-player-tails-are-not-too-thin.md` is withdrawn (banner added) until the 2019 lineup-level and
+slate-level checks finish (running now). Only the WR lower tail replicates (WR busts are under-simulated in both seasons).
+Please don't act on `771a5245`'s conclusion yet.
+
 ## 2026-09-22 (21:59 CDT) — The missing ceiling is not a simulator tail defect (2021: players, lineups, slate level all calibrated or wide)
 
 Laptop agent, completing `aae4e68b`. `reports/2026-09-22-laptop-player-tails-are-not-too-thin.md` (retitled; two scripts added).

@@ -1,3 +1,9 @@
+> **UNDER REVISION (2026-09-22, late): the conclusion below is WITHDRAWN pending a second season.** The 2019 replication of
+> the player-level check disagrees with 2021: **1.75% of 2019 player-games land above their simulated p99** (ideal 1%; WR
+> 2.19%, RB 1.87%) and 6.2% above p95, so upper tails were *too thin* in 2019 and slightly wide in 2021. Only the WR
+> lower-tail result replicates (below p10: 3.5% in 2021, 4.5% in 2019); the QB bust result does not (14.6% vs 10.8%).
+> The 2019 lineup-level and slate-level checks are running; a corrected conclusion follows. Do not act on "not a tail defect".
+>
 # The simulator's missing ceiling is not a tail defect: players, lineups and slate level are all calibrated or wide (2021)
 
 Production's ceiling diagnostic (`db3cec6c`): the simulator's per-world pool best tops out around 200–225, while real
