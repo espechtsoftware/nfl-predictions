@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "name": "2026-route-shape-last-four-weekly-v1",
+  "reports": [
+    {
+      "report": "receiving-separation-by-breaks",
+      "seasons": [2026],
+      "target_weeks": "5-18",
+      "source_window": "last-four-prior",
+      "context": "Player",
+      "include_group_headers": true
+    }
+  ]
+}

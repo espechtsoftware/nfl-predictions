@@ -74,6 +74,14 @@ def test_run_week_preflights_sessions_then_runs_all_selected_steps(
         lambda **_kwargs: events.append("matchups") or Path("matchups/manifest.json"),
     )
     monkeypatch.setattr(
+        weekly.fantasy_points_defense_proe_weekly, "run",
+        lambda *_args, **kwargs: events.append(f"proe-import-{kwargs['write']}") or {},
+    )
+    monkeypatch.setattr(
+        weekly.fantasy_points_matchups_weekly, "run",
+        lambda path, **kwargs: events.append(f"matchups-stage-{path}-{kwargs['write']}") or {},
+    )
+    monkeypatch.setattr(
         weekly.sis, "run_plan",
         lambda *_args, **_kwargs: events.append("sis-plan") or {"completed": 2},
     )
@@ -95,12 +103,13 @@ def test_run_week_preflights_sessions_then_runs_all_selected_steps(
 
     assert events == [
         "verify-fp", "verify-sis", "ingest-odds", "ingest-props",
-        "route-download", "route-import-True", "matchups", "sis-plan",
+        "route-download", "route-import-True", "route-download", "proe-import-True",
+        "matchups", "matchups-stage-matchups-True", "sis-plan",
     ]
     manifest = json.loads(manifest_path.read_text())
     assert manifest["status"] == "complete"
     assert manifest["target_week"] == 2
-    assert [step["status"] for step in manifest["steps"]] == ["complete"] * 8
+    assert [step["status"] for step in manifest["steps"]] == ["complete"] * 11
 
 
 def test_run_week_forces_fresh_sis_login(monkeypatch, tmp_path):
@@ -181,6 +190,14 @@ def test_week_five_adds_frozen_alignment_download_and_import(
         weekly.sis_pass_tail_weekly, "run",
         lambda *_args, **_kwargs: events.append("sis-pass-tail-import") or {},
     )
+    monkeypatch.setattr(
+        weekly.fantasy_points_defense_proe_weekly, "run",
+        lambda *_args, **kwargs: events.append(f"proe-import-{kwargs['write']}") or {},
+    )
+    monkeypatch.setattr(
+        weekly.fantasy_points_weekly_2026, "run",
+        lambda key, *_args, **kwargs: events.append(f"{key}-import-{kwargs['write']}") or {},
+    )
 
     weekly.run_week(
         week=5,
@@ -194,13 +211,26 @@ def test_week_five_adds_frozen_alignment_download_and_import(
         ingest_odds=False,
         login_if_needed=False,
         write_alignment=False,
+        write_fp_families=False,
         now=datetime(2026, 9, 30, 14, tzinfo=UTC),
     )
     assert events == [
         "2026-route-share-weekly-v1.json",
         "route-import",
+        "2026-defense-proe-weekly-v1.json",
+        "proe-import-False",
         "2026-alignment-last-four-weekly-v1.json",
         "alignment-import-False",
+        "2026-advanced-passing-last-four-weekly-v1.json",
+        "advanced-passing-import-False",
+        "2026-route-shape-last-four-weekly-v1.json",
+        "route-shape-import-False",
+        "2026-coverage-last-four-weekly-v1.json",
+        "coverage-import-False",
+        "2026-qb-shell-fit-last-four-weekly-v1.json",
+        "qb-shell-import-False",
+        "2026-advanced-receiving-support-windows-weekly-v1.json",
+        "advanced-receiving-import-False",
         "sis-pass-tail-download",
         "sis-pass-tail-import",
     ]
@@ -219,6 +249,7 @@ def test_run_week_verifies_sis_but_does_not_query_without_approved_plan(
     monkeypatch.setattr(
         weekly.fp_matchups, "run", lambda **_: Path("matchups/manifest.json")
     )
+    monkeypatch.setattr(weekly.fantasy_points_matchups_weekly, "run", lambda *_a, **_k: {})
 
     manifest_path = weekly.run_week(
         week=1,
@@ -288,6 +319,7 @@ def test_expired_sis_session_does_not_block_a_run_with_no_sis_step(monkeypatch, 
     monkeypatch.setattr(weekly.sis, "interactive_login", lambda *a, **k: events.append("login-sis"))
     monkeypatch.setattr(weekly.fp, "run_downloads", lambda *a, **k: events.append("fp-download") or (tmp_path / "fp" / "manifest.json"))
     monkeypatch.setattr(weekly.fantasy_points_route_weekly, "run", lambda *a, **k: events.append("fp-import") or {"rows": 1})
+    monkeypatch.setattr(weekly.fantasy_points_defense_proe_weekly, "run", lambda *a, **k: events.append("proe-import") or {})
     manifest_path = weekly.run_week(
         week=3, fp_profile_dir=tmp_path / "fp-profile", sis_profile_dir=tmp_path / "sis-profile", timeout_seconds=10,
         output_root=tmp_path / "runs", fp_output_root=tmp_path / "fp-output", sis_output_root=tmp_path / "sis-output",
@@ -320,3 +352,37 @@ def test_expired_sis_session_still_stops_a_run_that_needs_sis(monkeypatch, tmp_p
             sis_plan=plan, capture_matchups=False, capture_sis_pass_tail=False, ingest_odds=False, login_if_needed=False,
             now=datetime(2026, 9, 21, 4, tzinfo=UTC),
         )
+
+
+def test_qb_shell_import_receives_the_same_weeks_coverage_run(monkeypatch, tmp_path):
+    """The five last-four families run in order after alignment; qb-shell is parsed with the coverage run's directory."""
+    runs = {}
+
+    def download(plan, *_args, **_kwargs):
+        run_dir = tmp_path / plan.stem
+        run_dir.mkdir(exist_ok=True)
+        (run_dir / "manifest.json").write_text("{}")
+        runs[plan.stem] = run_dir
+        return run_dir / "manifest.json"
+
+    seen = []
+    monkeypatch.setattr(weekly.fp, "verify_login", lambda *_: None)
+    monkeypatch.setattr(weekly.sis, "verify_login", lambda *_: None)
+    monkeypatch.setattr(weekly.fp, "run_downloads", download)
+    monkeypatch.setattr(weekly.fantasy_points_route_weekly, "run", lambda *_a, **_k: {})
+    monkeypatch.setattr(weekly.fantasy_points_alignment_weekly, "run", lambda *_a, **_k: {})
+    monkeypatch.setattr(weekly.fantasy_points_defense_proe_weekly, "run", lambda *_a, **_k: {})
+    monkeypatch.setattr(
+        weekly.fantasy_points_weekly_2026, "run",
+        lambda key, run_dir, **kwargs: seen.append((key, run_dir.name, kwargs["coverage_dir"], kwargs["target_week"])) or {},
+    )
+    weekly.run_week(
+        week=6, fp_profile_dir=tmp_path / "fp", sis_profile_dir=tmp_path / "sis", timeout_seconds=10,
+        output_root=tmp_path / "runs", fp_output_root=tmp_path / "fp-out", sis_output_root=tmp_path / "sis-out",
+        capture_matchups=False, capture_sis_pass_tail=False, ingest_odds=False, login_if_needed=False,
+        now=datetime(2026, 10, 7, 14, tzinfo=UTC),
+    )
+    assert [key for key, *_ in seen] == list(weekly.FP_FAMILY_ORDER)
+    shell = next(item for item in seen if item[0] == "qb-shell")
+    assert shell[2] == runs["2026-coverage-last-four-weekly-v1"] and shell[3] == 6
+    assert all(item[2] is None for item in seen if item[0] != "qb-shell")
