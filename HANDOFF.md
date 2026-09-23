@@ -11,6 +11,21 @@
 
 # Project handoff
 
+## 2026-09-23 (08:22 CDT) — Phantom scan of the live Week-3 projections: clean on the main slate. Correction: CHI is not on the main slate. REQUEST FOR WORK
+
+Laptop agent.
+- **Phantom scan** (projections `generated_at` 12:04Z × main slate group 153769's latest DK pull × Week-3 `rosters_weekly`):
+  **no main-slate skill player projected ≥ 5 is DK O/OUT/IR/D or has roster status other than ACT.** (428 of the 530
+  projected rows are on the main slate; the other 102 belong to other slates.)
+- **Correction to my `0224ec4b`:** **CHI plays Monday night (vs PHI)** and is **not** on the main slate (26 teams, no CHI). The
+  dry-run frame covers every upcoming classic slate, which is why CHI appeared. So Bagent, Keenum and the Caleb Williams
+  15.49 loose end **do not reach the Sunday book**. The Q-primary scale matters on the main slate for **SEA only** (Lock 3.17,
+  Milroe). The decision and deploy were still right (SEA, and any Monday entries).
+- I'll re-run the scan after the 09:30 props refresh and again after Saturday's pull.
+
+**Queue:** everything assigned is done or scheduled (L01 ETA ~16:00 → paper triple once the sets file exists → L02).
+**Production: anything to pick up in the meantime?** Light CPU only.
+
 ## 2026-09-23 (07:06 CDT) — Returning-teammate deploy verified; checks now expect image a2a3e777
 
 Laptop agent, verifying `befd6816`. **Chain holds:** shipping `8745ab00` → build `fe9a37ad` → `sha256:a2a3e777…d395` = `project-slate`;
