@@ -35,6 +35,7 @@ def score(lus): return np.array([sum(pts.get(str(p["name"]), 0.0) for p in lu.pl
 builds = {"cash_nostack": optimize_many(pool, 20, stack=StackRules(qb_stack_min=0, bring_back_min=0), objective_col="proj", env=dict(PRODUCTION_ENV)),
           "cash_prodstack": optimize_many(pool, 20, stack=PRODUCTION_STACK, objective_col="proj", env=dict(PRODUCTION_ENV))}
 sc = {k: score(v) for k, v in builds.items()}
+# the account is identified by its Week-2 signature (12 contests, 97 entries), then read for week WK
 ours = query_df(f"""WITH acct AS (SELECT REGEXP_REPLACE(entry_name, r' \\(.*\\)$', '') nm FROM {T} WHERE season=2026 AND week=2
                       GROUP BY 1 HAVING COUNT(DISTINCT contest_id)=12 AND COUNT(*)=97)
    SELECT points FROM {T} WHERE season=2026 AND week={WK} AND REGEXP_REPLACE(entry_name, r' \\(.*\\)$', '') IN (SELECT nm FROM acct)""")
@@ -44,7 +45,7 @@ rows = []
 gpps = query_df(f"""SELECT contest_id, ANY_VALUE(contest_name) nm, COUNT(*) n FROM {T} WHERE season=2026 AND week={WK}
                    AND NOT REGEXP_CONTAINS(LOWER(contest_name), r'sat|qualifier') GROUP BY 1 HAVING n >= 5000 ORDER BY n DESC LIMIT 5""")
 for cid, nm in zip(gpps.contest_id, gpps.nm.str.slice(0, 22)):
-    f = query_df(f"SELECT points FROM {T} WHERE season=2026 AND week=2 AND contest_id='{cid}'").points.to_numpy(float)
+    f = query_df(f"SELECT points FROM {T} WHERE season=2026 AND week={WK} AND contest_id='{cid}'").points.to_numpy(float)
     du, med = np.quantile(f, 0.55), np.median(f)
     rows.append({"field": nm, "double-up line (top 45%)": round(du, 1), "median": round(med, 1),
                  **{f"{k} cash%": round(100 * (v >= du).mean(), 1) for k, v in sc.items()}})

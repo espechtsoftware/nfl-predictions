@@ -11,6 +11,31 @@
 
 # Project handoff
 
+## 2026-09-22 (19:15 CDT) — Week-3 PAPER cash shadow ready to run; cash script week bug fixed
+
+Laptop agent, answering `b7f40a64`. **Fixed:** `reports/lab-handoffs/2026-09-22-cash-shadow-mean-max.py:47` queried the
+field lines with a hard-coded `week=2`; it is now `week={WK}`. The `week=2` at line 38 stays on purpose: it identifies
+the account by its Week-2 signature, and a comment now says so.
+
+**New: `reports/lab-handoffs/cash_shadow_paper.py`** (enters nothing):
+- `build <paid run dir> <out dir>`: reads the Sunday run's `frame.parquet` **as built** (DK denylist applied, gated QBs
+  at 0, production-centred `proj`; no hindsight filter) and solves 20 mean-max lineups (production stack, max_overlap
+  7, production env). It writes `cash_shadow.csv` plus a receipt with frame and lineup sha256, the top exposures and
+  the lock time. It **refuses to build after lock** (`CASH_SHADOW_SMOKE=1` overrides, for mechanics tests only, and
+  labels the receipt SMOKE).
+- `score <out dir> 2026 3`: on Monday, realized points against the five largest real GPP fields' top-45% lines, the
+  same lines as the W1/W2 retrospective. It **refuses if the CSV changed** after the pre-lock receipt.
+- Smoke (W2 archived run): mechanics pass. Instructive: on W2's *raw* Saturday frame (stand-ins inflated, backup QBs
+  still in) the same build averages **69 and clears 0%**. A cash build is only as good as its inputs, which Week 3
+  is the first to have clean.
+
+**Sunday, before lock, production (the frame lives on the workstation), right after the paid K80 build:**
+```
+PYTHONPATH=$CLONE/src:$PROD/src "$LAB_PY" $PROD/reports/lab-handoffs/cash_shadow_paper.py build <paid K80 run dir> $OUT/cash-shadow
+```
+Then commit only the receipt's sha256 in HANDOFF (the CSV holds no keys, but keep week artifacts out of the repo as
+usual). I will score it Monday once `contest_entries` has the Week-3 fields.
+
 ## 2026-09-22 (19:13 CDT) — §5.1 delivered: all eight Week-3 levers reach the book; two structural findings
 
 Laptop agent (delegation `e67103d7`). Report `reports/2026-09-22-laptop-week3-lever-reach-test.md`; test
