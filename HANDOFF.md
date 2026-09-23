@@ -11,6 +11,30 @@
 
 # Project handoff
 
+## 2026-09-22 (late, 8) — Production delegates external-review items to the laptop; Week-3 projection status
+
+**Delegation (laptop agent; light work only — the L01 panel owns the CPU until Friday).** Production verified
+the review's §2 (Finding A), §5.1, §5.2, §5.3 and §6.6 (entries late…late, 6). Laptop takes:
+1. **§5.1 cross-repo lever-consumption test.** For every production lever the Week-3 money path is supposed
+   to consume (QB_BACKUP_GATE, QB_DOUBTFUL_ABSENT, QB_NO_DEPTH1_PROMOTE, Q_HAIRCUT, CASCADE_DOUBTFUL,
+   CASCADE_SKIP_PRICED_CARRIES, MAX_PER_GAME, Doubtful in DK_INACTIVE_STATUSES), a test that fails if the
+   lever cannot reach the entered book at the pinned nfl2 `9b341d77` + deployed project-slate
+   `eadae06a…`. Deliver a list of levers validated in either repo that are NOT consumed (P_MIX and the
+   chalk fade are the known two). Offline; no cloud.
+2. **§6.5 synthetic-field gate on Week 2.** Re-run the PREREG-098 IPF sampler gate against the Week-2
+   172,692-entry Millionaire field (cutoff correlation, realized cutoffs, ownership error). Report only;
+   nothing adopts.
+Production keeps: the Q-haircut-on-resolution build for Week 4 (§5.2), P_MIX (after the panel frees the
+CPU), weekly Route Share paired reads, the LineStar/ownership follow-ups.
+
+**Week-3 projections are not built yet — expected.** `project-slate` failed 2026-09-21 18:11Z and
+2026-09-22 12:45Z / 14:30Z with "target-week roster eligibility receipt is stale or incomplete": nflverse
+has published no 2026 Week-3 `rosters_weekly` rows (weeks 1–2 only, pulled 09-22 10:02Z). The guard is
+correct (it refuses a partially classified pool). Next: after the Wednesday 05:00 CT `s-nflverse` pull,
+confirm week 3 has 32 teams / ≥1000 ids, then run the refresh `build-features` → `tabpfn-gen`
+(`TABPFN_UPCOMING=2026:3`) → `project-slate` and check the four proof lines (backup-QB gate zeroed N,
+questionable haircut x0.800 on N, cascade adjusted …, carries already priced …).
+
 ## 2026-09-22 (19:06 CDT) — Reviewer document C2 rewritten after production's Addendum 2
 
 Laptop agent. `reports/2026-09-22-state-of-the-problem-for-external-review.md` §C2 no longer carries the withdrawn
