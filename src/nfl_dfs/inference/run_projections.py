@@ -384,11 +384,14 @@ def project(
     }
     # A one-market row is often only an anytime-TD component, not a
     # complete fantasy-point proxy; never blend it as a whole-player value.
-    _pm = _prop_points((season,), minimum_markets=2, prefer_ids=_slate_ids)
-    _pm = _pm[_pm.week == week]
+    # Priced at any count, then split: >= 2 markets blend; fewer is a thin line served model-only.
+    _pm_all = _prop_points((season,), minimum_markets=1, prefer_ids=_slate_ids, with_counts=True)
+    _pm_all = _pm_all[_pm_all.week == week]
+    _pm = _pm_all[_pm_all.market_count >= 2]
     _feed_names = prop_feed_player_names(season, week)
     market, _market_sources = resolve_live_market(
-        feats, _pm[["gsis_id", "market_points"]], _feed_names)
+        feats, _pm[["gsis_id", "market_points"]], _feed_names,
+        resolved_ids=set(_pm_all.gsis_id.astype(str)))
     _prop_market_mask = _market_sources.source.eq("props").to_numpy()
     _mkt_src = "props" if _prop_market_mask.any() else "model_only"
     log.info("market blend source: %s (%d/%d rows)",

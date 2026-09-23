@@ -679,6 +679,41 @@ _V13_SOURCE_SET = _SourceSetContract(
     frozen_source_sha256=tuple(sorted(V13_FROZEN_SOURCE_SHA256.items())),
 )
 
+# Source-set v14 (2026-09-23): the live market resolution tells a THIN line (feed
+# lines resolved to the player's gsis_id but price fewer than two markets --
+# typically an anytime-TD line alone) from a name miss. run_projections and
+# live_lineups price the week once at any market count (with_counts), blend only
+# >= 2 markets as before, and pass the resolved ids to resolve_live_market, which
+# records a thin line as model_only_no_line_thin instead of raising. No new read
+# site. V5-v13 remain immutable; never rewrite them.
+V14_SOURCE_SET_ID = (
+    "adopted-classic-policy-20260923-week3-thin-line-market-v14"
+)
+V14_CLASSIFIED_INPUT_PROJECTION_SHA256 = (
+    "6a1a36cbd7a6d3eea87bb99a1580aff1bed37071c39ca9b0c41344f8e1f7aa03"
+)
+V14_FROZEN_SOURCE_SHA256: Mapping[str, str] = {
+    **V13_FROZEN_SOURCE_SHA256,
+    "src/nfl_dfs/inference/live_lineups.py": (
+        "9ceeeef695f2db6f920db6f3183dcb619b3800d6c636eac461dbe05394b839df"
+    ),
+    "src/nfl_dfs/inference/run_projections.py": (
+        "5faf77d348e76e1db4d95b0162a4afcf4563806096c600ebeffd4c696a5de049"
+    ),
+}
+
+_V14_SOURCE_SET = _SourceSetContract(
+    schema=SCHEMA,
+    source_set_id=V14_SOURCE_SET_ID,
+    policy_env_sha256=POLICY_ENV_SHA256,
+    classified_input_projection_sha256=(
+        V14_CLASSIFIED_INPUT_PROJECTION_SHA256
+    ),
+    classified_input_key_count=CLASSIFIED_INPUT_KEY_COUNT,
+    direct_input_read_site_count=DIRECT_INPUT_READ_SITE_COUNT,
+    frozen_source_sha256=tuple(sorted(V14_FROZEN_SOURCE_SHA256.items())),
+)
+
 @dataclass(frozen=True)
 class _Locator:
     path: str
@@ -2325,6 +2360,15 @@ def generate_effective_policy_rule_inventory_v13(
     )
 
 
+def generate_effective_policy_rule_inventory_v14(
+    root: Path,
+) -> dict[str, Any]:
+    """Generate the explicit current Week-3 source-set v14 inventory."""
+    return _generate_effective_policy_rule_inventory(
+        root, source_set=_V14_SOURCE_SET
+    )
+
+
 def _source_set_for_inventory(
     inventory: Mapping[str, Any],
 ) -> _SourceSetContract:
@@ -2345,6 +2389,8 @@ def _source_set_for_inventory(
         return _V12_SOURCE_SET
     if source_set_id == V13_SOURCE_SET_ID:
         return _V13_SOURCE_SET
+    if source_set_id == V14_SOURCE_SET_ID:
+        return _V14_SOURCE_SET
     raise EffectivePolicyInventoryError(
         "effective-policy inventory source-set id is not registered"
     )

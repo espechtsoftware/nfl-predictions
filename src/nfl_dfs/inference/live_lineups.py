@@ -362,12 +362,14 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
         str(g) for g in skill.get("gsis_id", pd.Series(dtype=object))
         .dropna().tolist() if str(g).strip()
     }
-    _pm = _prop_points((int(season),), minimum_markets=2,
-                       prefer_ids=_slate_ids)
-    _pm = _pm[_pm.week == int(week)]
+    # Priced at any count, then split: >= 2 markets blend; fewer is a thin line served model-only.
+    _pm_all = _prop_points((int(season),), minimum_markets=1, prefer_ids=_slate_ids, with_counts=True)
+    _pm_all = _pm_all[_pm_all.week == int(week)]
+    _pm = _pm_all[_pm_all.market_count >= 2]
     _feed_names = prop_feed_player_names(int(season), int(week))
     market, _market_sources = resolve_live_market(
-        skill, _pm[["gsis_id", "market_points"]], _feed_names)
+        skill, _pm[["gsis_id", "market_points"]], _feed_names,
+        resolved_ids=set(_pm_all.gsis_id.astype(str)))
     prop_market_mask = _market_sources.source.eq("props").to_numpy()
     log.info("live blend source: %s (%d/%d rows)",
              "props" if prop_market_mask.any() else "model_only",

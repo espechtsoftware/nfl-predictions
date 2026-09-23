@@ -11,6 +11,12 @@ Rules implemented by :func:`resolve_live_market`:
 * a player with a matched prop market uses it (``source = "props"``);
 * a non-DST slate player whose spelling IS in the week's prop feed but did not
   match raises :class:`MarketMatchError` (the Week-2 defect; fail closed);
+* a slate player whose feed lines DID resolve to his gsis_id but price fewer
+  markets than the completeness boundary (typically an anytime-TD line alone,
+  which is not a whole-player value) is served by the model and recorded as
+  ``model_only_no_line_thin`` (2026-09-23: 172 main-slate players held only a TD
+  line on the Week-2 Sunday feed; without this every live run with a feed
+  failed closed).  Callers opt in by passing ``resolved_ids``;
 * a prop feed that exists but matches fewer than ``min_coverage`` of the
   non-DST slate raises :class:`MarketMatchError` (broken feed; fail closed);
 * a player for whom the books posted no line, or a DST, or a week with no feed
@@ -47,13 +53,17 @@ def resolve_live_market(
     feed_player_names: set[str] | frozenset[str],
     *,
     min_coverage: float = 0.30,
+    resolved_ids: set[str] | frozenset[str] | None = None,
 ) -> tuple[np.ndarray, pd.DataFrame]:
     """Return (market vector aligned with ``feats``, per-player source frame).
 
     ``feats`` needs ``gsis_id``, ``display_name`` and ``position``.
     ``market_week`` is ``prop_market.market_points`` restricted to the week
     (``gsis_id``, ``market_points``).  ``feed_player_names`` are the raw prop
-    feed names for the week (matched or not).
+    feed names for the week (matched or not).  ``resolved_ids`` are the gsis_ids
+    the feed resolved at ANY market count (``market_points(minimum_markets=1)``);
+    a slate player in that set but not priced in ``market_week`` is thin-lined,
+    not unmatched.
     """
     if not 0.0 <= min_coverage <= 1.0:
         raise ValueError("min_coverage must be between 0 and 1")
@@ -69,6 +79,7 @@ def resolve_live_market(
     points_by_id = dict(zip(mw.gsis_id.astype(str), mw.market_points.astype(float))) if len(mw) else {}
     feed_norms = {norm_name(x) for x in feed_player_names if str(x).strip()}
     feed_present = bool(feed_norms)
+    resolved = {str(i) for i in resolved_ids} if resolved_ids else set()
 
     market = np.full(n, np.nan, dtype=float)
     source = np.empty(n, dtype=object)
@@ -85,6 +96,9 @@ def resolve_live_market(
             continue
         if not feed_present:
             source[k] = "model_only_no_feed"
+            continue
+        if key is not None and key in resolved:
+            source[k] = "model_only_no_line_thin"
             continue
         if norm_name(names.iloc[k]) in feed_norms:
             source[k] = "unmatched_in_feed"
@@ -112,8 +126,10 @@ def resolve_live_market(
         "market_points": market,
     })
     log.info(
-        "live market sources: props %d, model_only_no_line %d, model_only_dst %d, model_only_no_feed %d%s",
-        matched, int((source == "model_only_no_line").sum()), int((source == "model_only_dst").sum()),
+        "live market sources: props %d, model_only_no_line %d, model_only_no_line_thin %d, model_only_dst %d, "
+        "model_only_no_feed %d%s",
+        matched, int((source == "model_only_no_line").sum()), int((source == "model_only_no_line_thin").sum()),
+        int((source == "model_only_dst").sum()),
         int((source == "model_only_no_feed").sum()),
         (": no line for " + ", ".join(sorted(names[source == "model_only_no_line"])[:25])) if (source == "model_only_no_line").any() else "",
     )

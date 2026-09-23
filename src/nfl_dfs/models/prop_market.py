@@ -144,6 +144,7 @@ def market_points(
     *,
     minimum_markets: int = 1,
     prefer_ids: set[str] | frozenset[str] | None = None,
+    with_counts: bool = False,
 ) -> pd.DataFrame:
     """Return market-point sums from ``nfl_raw.prop_lines``.
 
@@ -321,7 +322,9 @@ def market_points(
              "completeness (%.0f%% of prop names matched)", len(out),
              len(complete), minimum_markets,
              100 * matched.norm.nunique() / max(per_mkt.norm.nunique(), 1))
-    return complete[["season", "week", "gsis_id", "market_points"]]
+    # with_counts (2026-09-23): the live paths need the priced market count to tell a thin line (resolved, too few
+    # markets) from a name miss without a second warehouse read.
+    return complete[["season", "week", "gsis_id", "market_points", *(["market_count"] if with_counts else [])]]
 
 
 def prop_feed_player_names(season: int, week: int) -> set[str]:
