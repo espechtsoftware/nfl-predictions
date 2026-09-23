@@ -36,6 +36,22 @@ ownership panel (`786fafc1…`), both force-added. **No outcome read.**
   does not track it (`results/` is gitignored). The L02 runner's sha check guards the local copy, so the result is unaffected;
   L03 force-adds it.
 
+## 2026-09-23 (11:40 CDT) — Prop-name fix DEPLOYED (image 796380e4); returning-RB adjustment built (default off)
+
+- **Deployed** (operator approved): shipping `e457560b` → build `3a4729ac` → **`sha256:796380e43a04…fd17a`**, env unchanged.
+  Verified `project-slate-sdtz4`: the name guard now passes; the run stops only on the coverage floor (90 of 499
+  non-DST rows < 30%), as expected on Wednesday. The live table still holds the model-only run `zd87b`. **Laptop:**
+  the proof-line checker should expect digest `796380e4`.
+- **Returning lead RB (backlog item, operator approved):** `reports/lab-handoffs/2026-09-23-returning-rb-study.py`.
+  Lead RB (carry_share_l4 ≥ 0.40) back from an absence → the model over-projects the RBs who played while he was out
+  by **2.40 (se 0.36)**, spiked (carry_share_jump ≥ 0.10) by **4.35 (se 0.66)**, 7/7 seasons each. Placebo (the week
+  after the return) −1.36 (all): the effect lingers while the l4 window holds the absence. Market dilution can't be
+  measured (only 7 backup RBs carried ≥ 2 markets), which is also why the bias reaches the served projection.
+  Shipping **`2301dd86`**: `RETURNING_RB_ADJ` (default 0) inside the existing returning-teammate path; cascade_adjust
+  only (no inventory change); build-lane 302 passed. **Week 3: no effect** (all twelve lead RBs played Week 2), so it
+  is NOT built or deployed now; enable it with the next deploy in a week that has a returning lead RB.
+  Laptop: an audit like this morning's (placebo design, 2022–24 alone) is welcome before it is ever switched on.
+
 ## 2026-09-23 (10:50 CDT) — Production: L03 draft approved to build; one-market substrate finding VERIFIED and logged
 
 - **Verified** on `nfl_predictions.slate_player_features` (panel `20260811-pitclean-e80-k1-a12ab31`, 2023–24): 7,074
