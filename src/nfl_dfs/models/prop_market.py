@@ -62,6 +62,30 @@ BONUS_AT = {"player_rush_yds": 100.0, "player_reception_yds": 100.0}
 PASS_BONUS_AT = {"player_pass_yds": 300.0}
 INT_MARKET = "player_pass_interceptions"
 
+# Median-line yardage law (2026-09-23, production HANDOFF de3042c0; DEFAULT OFF via MARKET_LINE_MEDIAN=1).
+# Yardage prop lines behave like MEDIANS (realized median ~ line in every band, 2023-25), but the normal conversion
+# returns mean = line at an even price; realized mean yards ran +4 receiving / +2.7 rushing above it. With the flag
+# on, a rushing/receiving line is priced with a GAMMA whose over-probability at the line equals the de-vigged
+# p_over, with shape k = exp(a + b * ln(line)) fitted on 2023-24 only (mean-yards least squares; gamma beat the
+# lognormal on 2023-24 tail calibration at 50/75/100/125 yards). The 100-yard bonus (MARKET_BONUS_AWARE) then
+# comes from the same gamma. Other markets are unchanged. Flag off = byte-identical.
+MEDIAN_LINE_GAMMA = {"player_reception_yds": (-1.4142, 0.6436), "player_rush_yds": (-1.1398, 0.7652)}
+
+
+def line_median() -> bool:
+    v = os.environ.get("MARKET_LINE_MEDIAN", "0")
+    if v not in ("0", "1"):
+        raise ValueError(f"MARKET_LINE_MEDIAN must be 0 or 1, got {v!r}")
+    return v == "1"
+
+
+def median_line_gamma(market: str, line: float, p_over: float) -> tuple[float, float]:
+    """(shape, scale) of the gamma with P(Y > line) = p_over for a rushing/receiving yardage line."""
+    a, b = MEDIAN_LINE_GAMMA[market]
+    line = max(float(line), 0.5)
+    k = float(np.exp(a + b * np.log(line)))
+    return k, line / float(stats.gamma.isf(min(max(float(p_over), 0.02), 0.98), k))
+
 
 def bonus_aware() -> bool:
     v = os.environ.get("MARKET_BONUS_AWARE", "0")
@@ -198,6 +222,7 @@ def market_points(
     if minimum_markets < 1:
         raise ValueError("minimum_markets must be at least 1")
     bonus = bonus_aware()
+    median = line_median()
     season_list = ", ".join(str(int(s)) for s in seasons)
     markets = STANDARD_MARKETS + ((INT_MARKET,) if bonus else ())
     market_list = ", ".join(f"'{market}'" for market in markets)
@@ -305,15 +330,23 @@ def market_points(
                                   american_to_prob(r.Under))
         dist = "poisson" if r.market in ("player_receptions",
                                          "player_pass_tds", INT_MARKET) else "normal"
+        law = None
         try:
-            mean = prop_line_to_mean(float(r.point), p_over, dist)
+            if median and r.market in MEDIAN_LINE_GAMMA:
+                law = median_line_gamma(r.market, float(r.point), p_over)
+                mean = law[0] * law[1]
+            else:
+                mean = prop_line_to_mean(float(r.point), p_over, dist)
         except Exception:
             continue
         pts = (YARD_PTS.get(r.market, 0.0) * mean
                + (1.0 if r.market == "player_receptions" else 0.0) * mean
                + (4.0 if r.market == "player_pass_tds" else 0.0) * mean)
         if bonus:
-            pts += yardage_bonus_points(r.market, float(r.point), mean)
+            if law is not None:
+                pts += 3.0 * float(stats.gamma.sf(BONUS_AT[r.market], law[0], scale=law[1]))
+            else:
+                pts += yardage_bonus_points(r.market, float(r.point), mean)
             if r.market == INT_MARKET:
                 pts = -1.0 * mean
         rows.append({"season": r.season, "week": r.week, "norm": r.norm,
