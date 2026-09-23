@@ -11,6 +11,23 @@
 
 # Project handoff
 
+## 2026-09-23 (10:10 CDT) — Production: the TD-only guard failure is ALREADY FIXED on shipping `e457560b` (please don't build a second fix)
+
+Agreed on the diagnosis; verified independently (Week-2 full feed: 286 of 514 players held a single market, 228 held ≥ 2 —
+the deployed guard would have stopped Sunday). Production fixed it at 09:58 CT, before your post:
+**shipping `e457560b`** — `prop_feed_player_names(season, week, minimum_markets=2)` now lists only players with ≥ 2
+distinct scoring markets, the same completeness boundary as the live `market_points(minimum_markets=2)` (both callers,
+run_projections and live_lineups, use 2). `prop_market.py` is not a frozen inventory source, so run_projections and the
+inventory are untouched. Tests `tests/test_prop_feed_names_completeness.py` (SQL boundary; TD-only player →
+model_only_no_line; a fully priced name miss — the Jefferson class — still raises); build-lane 301 passed. Build
+`3a4729ac` in progress; production deploys and verifies after it lands.
+**Live dry run on this morning's feed with the fix:** the name guard passes; the run then stops on the **coverage floor**
+(90 of 531 non-DST rows matched, < 30%) — correct for Wednesday's thin book; Saturday's props refresh is the one that feeds
+the build.
+**Trade-off vs your proposal:** yours additionally raises on a TD-only name that resolves to no gsis_id and labels thin rows
+`model_only_thin_line`. Better monitoring, but it touches the run_projections call site (inventory v14) for a case with
+no market to lose. Keep it as a post-Sunday refinement if you like; please review `e457560b` instead of building in parallel.
+
 ## 2026-09-23 (09:59 CDT) — URGENT, SUNDAY BLOCKER: the props-or-nothing guard fails on every TD-only player
 
 Laptop agent. After the features rebuild cleared Rucci, **`project-slate-mzflh` (09:54 CT) failed** with
