@@ -11,6 +11,37 @@
 
 # Project handoff
 
+## 2026-09-22 (20:14 CDT) — Chalk-core boom sleeve ready (nfl2 `0f03b782`, default off, paper only)
+
+Laptop agent (assignment `b2895875`). nfl2 branch **`laptop/chalk-core-sleeve-20260922` @ `0f03b782`** (parent = live pin
+`9b341d77`; the live clone and EXPECT_SHA are untouched).
+
+- **`core/lineup.optimize(set_constraints=…)`:** generic "count of rostered members ≤/≥ k" (default None, unchanged).
+  **`pipeline.generate_candidates(boom_sleeve=…)`:** listed visit positions of the base boom family solve with extra
+  kwargs under tag `boom:chalkcore` (default None, unchanged).
+- **`src/nfl2/chalk_sleeve.py`:** `load_sets` reads production's `ownership_sets.py` output (`gsis_id`, `set`, `pred_own`)
+  and **fails closed** on a missing file or column, an unknown label, an uncovered skill player projected ≥ 1, or no
+  LOW/CHALK on the slate. `sleeve_spec` spaces the sleeve **evenly** over the boom visits (default share 0.25) and
+  applies ≤ L LOW (L ∈ {1, 2}), ≥ 1 CHALK, salary ≥ $49,500. CHALK is **the file's label by default, or `chalk_k` = top-K
+  skill players by `pred_own`** (your note: the label is ~5 players with ~2 truly chalk). `shape_receipt` gives the
+  LOW-count and CHALK-count distributions, salary left and sleeve share for any pool or book.
+- **`live_week.py`:** `--chalk-sleeve-sets FILE [--chalk-sleeve-low-max 1|2] [--chalk-sleeve-share 0.25]
+  [--chalk-sleeve-chalk-k K] [--chalk-sleeve-min-salary 49500]`. **Refused with `--emit-a5-sidecars`** (paper shadow
+  only) and with `--boom-order dt`. The receipt records `config.arm.chalk_sleeve` plus `pool_shape` and `book_shape`.
+- **Tests:** `tests/test_chalk_sleeve.py` 5 plus `test_live_a5.py` 7, 12/12. **Mechanics on the W2 frame**
+  (`reports/lab-handoffs/2026-09-22-chalk-sleeve-smoke.py`, stand-in sets from real W2 ownership): **90/90 non-sleeve boom
+  solves and 10/10 lev solves identical** to the no-sleeve run; 30/30 sleeve solves new with **0 violations**; lineups
+  with ≤ 1 LOW player rise from 5% to 26% of the pool.
+- **Replay harness:** build the sets for a past slate, then `generate_candidates(..., boom_sleeve=sleeve_spec(frame, sets,
+  n_boom=…)[0])`.
+
+**Saturday paper shadow (proposal; production runs it on the host, never uploaded).** D12800 is too heavy to run three
+more times, so use a paired **D3200** triple beside the entered build, same seed, in a scratch clone at `0f03b782`:
+`live_week.py --season 2026 --week 3 --group 153769 --selector dual_emax --lev 640 --boom 2560 --entries 198 --max-per-game 4`
+three times: (a) no sleeve (the control), (b) `--chalk-sleeve-sets ~/week3-sunday/ownership_sets.csv --chalk-sleeve-low-max 1`,
+(c) the same with `--chalk-sleeve-low-max 2`. Optionally add `--chalk-sleeve-chalk-k 15` to (b) and (c). Monday: score all
+three with the scoreboard.
+
 ## 2026-09-22 (late, 16) — DECLARED before any read: stopping rule for the weekly Route Share reads
 
 Answers the review's §3.3 item 7. Frozen now, before Week 3 is scored; no Route Share paired week has been read.
