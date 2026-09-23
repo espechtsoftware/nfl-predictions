@@ -235,6 +235,18 @@ def normalize_artifact(
     }
 
 
+MIN_ROWS_VS_PRIOR_WEEK = 0.80   # completeness guard (laptop review of 60a6042d, 2026-09-23)
+
+
+def check_row_count(rows: int, prior_rows: int) -> None:
+    """A finished week lists about as many players as the week before (265, then 267 in 2026); the unfinished
+    2026 Week-2 export listed 200. Refuse a source week below 80% of the prior stored week (no check without one)."""
+    if prior_rows > 0 and rows < MIN_ROWS_VS_PRIOR_WEEK * prior_rows:
+        raise ValueError(
+            f"weekly Route source week looks unfinished: {rows} rows vs {prior_rows} in the prior week "
+            f"(minimum {MIN_ROWS_VS_PRIOR_WEEK:.0%}); re-download after the vendor finishes processing the week")
+
+
 def _logical_identity(frame: pd.DataFrame) -> pd.Series:
     return frame.gsis_id.fillna(
         "UNRESOLVED:"
@@ -342,6 +354,12 @@ def run(
         FROM `{table_ref}`
         WHERE season = @season AND week = @source_week
         """, params={"season": SEASON, "source_week": int(artifact["source_week"])})
+    source_week = int(artifact["source_week"])
+    if source_week > 1:
+        prior_rows = int(query_df(f"""
+            SELECT COUNT(*) AS n FROM `{table_ref}` WHERE season = @season AND week = @prior_week
+            """, params={"season": SEASON, "prior_week": source_week - 1}).n.iloc[0])
+        check_row_count(len(rows), prior_rows)
     novel = rows_to_append(rows, existing)
     audit.update({
         "table": table_ref,

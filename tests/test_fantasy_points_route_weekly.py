@@ -165,3 +165,11 @@ def test_weekly_normalization_rejects_an_unfinished_mostly_zero_week(tmp_path):
     frame.to_csv(artifact, index=False)
     rows, _ = weekly.normalize_artifact({"run_id": "run"}, export, _snapshots())
     assert len(rows) == 1
+
+
+def test_row_count_guard_refuses_a_short_week():
+    weekly.check_row_count(267, 265)                    # a finished week
+    weekly.check_row_count(212, 265)                    # exactly at the 80% floor passes
+    weekly.check_row_count(10, 0)                       # no prior week stored: no check
+    with pytest.raises(ValueError, match="looks unfinished"):
+        weekly.check_row_count(200, 265)                # the 2026 Week-2 case (75%)
