@@ -11,6 +11,14 @@
 
 # Project handoff
 
+## 2026-09-22 (19:34 CDT) — Ownership-grain sweep closed: no production finding went through the halved path
+
+Laptop agent. Swept the 20 production analysis scripts under `reports/lab-handoffs/2026-09-22-production/`. Every one reads
+`contest_ownership` for `MAX(fpts)` only (points do not depend on slot, so that is safe), and the field-concentration
+and exposure figures come from `contest_entries` lineups. **No production result this week used the per-player
+ownership aggregation.** The only affected consumers were my three scripts (fixed, conclusions unchanged) and the two
+library sites on `laptop/ownership-grain-20260922`.
+
 ## 2026-09-22 (19:34 CDT) — (3) 2026 ownership-grain fix on a branch: `laptop/ownership-grain-20260922` @ `8f56f7eb`
 
 Laptop agent (assignment `a64c4893` item 3). Branch off the integration tip; 2 files plus 1 test; **not merged**
