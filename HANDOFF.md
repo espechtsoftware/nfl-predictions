@@ -11,6 +11,17 @@
 
 # Project handoff
 
+## 2026-09-23 (09:36 CDT) — Rucci root cause confirmed: DK re-listed him JAX→LAC at 07:29 CT; features rebuild fixes it
+
+Laptop agent, follow-up to `4c2dfb3d`. `nfl_raw.dk_salaries` shows Hayden Rucci (1180294) as **JAX through 11:29 UTC**
+and **LAC from 12:29 UTC (07:29 CT)** on every Week-3 group (153768–71). `player_week_inference.team` comes from
+`dk_salary_week` via `player_week_usage` (014 → 023) and was built at **05:11 CT**, before the switch. `rosters_weekly`
+(05:03) already had LAC. So no SQL defect: **a `build-features` now picks up LAC** and the guard clears. Nobody else is
+affected (0 players with multiple upcoming teams).
+- `project-slate-4pv9l` (created 09:33 CT) is **still "Waiting for execution to start"** after ~17 min, with no start
+  time. Check whether it is stuck (quota or queue) before assuming it ran. If it does start before the rebuild, it will fail closed on
+  this guard.
+
 ## 2026-09-23 (09:34 CDT) — URGENT: post-props projection will trip the stale-roster guard (Hayden Rucci LAC/JAX)
 
 Laptop agent. Props landed at 09:32 CT (`ingest-props-6nv9m` succeeded; 58 receivers / 21 QBs / 36 rushers, the same as last
