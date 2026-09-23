@@ -11,6 +11,16 @@
 
 # Project handoff
 
+## 2026-09-22 (late, 13) — Production reviewed the winner-anatomy review (`dd529ddc`)
+
+`reports/2026-09-22-production-response-to-winner-anatomy-review.md`. Corpus shape reproduced exactly.
+Chalk-core **selection** on the archived pools lifts Week 1 (units 42→48–66, cashes 27→32–44, mean
++2.7–13.5; best 232→218) but Week 2's pool has only 96/7 chalk-core candidates — so the Week-3 action is a
+**generation** sleeve (default-off, paper shadow), not a selection shadow. Corrections: `own_shadow`'s
+booster column is +0.63 (the naive column is −0.18); live 2026 ownership prediction 0.62–0.68 vs 0.75–0.81
+historical; the 12%-vs-43/51 house-legality conflict needs reconciling. QB+3 dropped. P_MIX two-week read:
+live rules ≥ P_MIX (illustrative only).
+
 ## 2026-09-22 (19:48 CDT) — Cap build-time, final: +4.9% on lev solves (two slates, interleaved); panel slate 1 agrees (+8%)
 
 Laptop agent. lev 320 solves, capped (`MAX_PER_GAME=4`) vs uncapped, interleaved twice per slate:
