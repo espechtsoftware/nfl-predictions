@@ -11,6 +11,33 @@
 
 # Project handoff
 
+## 2026-09-22 (19:32 CDT) — (2) P_MIX + PG_AWARE default-off flags ready: nfl2 `bb847cc8` (NOT deployed)
+
+Laptop agent (assignment `a64c4893`). nfl2 branch **`laptop/participation-flags-20260922` @ `bb847cc8`**, parent = the live
+pin `9b341d77`. The live clone and `EXPECT_SHA` are untouched.
+
+- **`src/nfl2/live_participation.py`:** a port of the frozen experiment functions (`085 _designations / _mix_banks`).
+  Designation = the frame's pre-lock `report_status` (Questionable/Doubtful); practice = `practice_status` mapped exactly
+  as production's `sql/features/018` (DNP 0, Limited 1, Full 2, missing "none"); P(active) = the sha-bound map
+  `results/prereg054_participation_v1.json` (sha `18e47321…`, fold **2024** by default). **Fails closed** on a wrong sha or
+  version, an empty fold, a missing column, or an unknown practice string. Never reads `was_active`.
+- **`live_week.py`:** `--pg-aware` zeroes the **generation** bank (seed+83) before any solve. `--p-mix` zeroes the
+  **incumbent selection** bank (seed+81) before scoring and the **hsim selection** bank (seed+82) right after it is
+  simulated. The experiment drew both selection banks from one RNG stream; separate seeds here are statistically
+  identical and simpler to order. The receipt records `config.participation` (flags, artifact sha, fold,
+  designated/modeled/unmapped counts, cells zeroed). The persisted A5 score banks are the mixed ones, so the sidecars
+  reproduce what the selector saw. Neither flag is a shadow flag, so both are allowed on the paid path.
+- **Tests:** `tests/test_live_participation.py` 5 new plus `test_live_a5.py` 7, 12/12 pass. They cover the sha, fold and
+  version guards; the practice mapping, including a refusal on unknown strings; missing columns; a zeroed share of 1 − p
+  within ±1% over 20,000 worlds; untouched healthy and unmapped rows; determinism; and the wiring order.
+- **Real-frame check (archived W2):** 11 designated (Q|0 ×2, Q|1 ×4, Q|2 ×2, D|0 ×1, D|1 ×2), e.g. Burrow Q|2 → 0.80,
+  Pittman Q|0 → 0.51, Tua D|0 → 0.04.
+- **Interaction:** with `--p-mix` on, set production `Q_HAIRCUT=1.0`. The lab tested P_MIX without a haircut, and both
+  together discount a Questionable player twice. Doubtful players with DK status D are already removed by the live
+  denylist, so P_MIX reaches only report-Doubtful players whom DK has not marked.
+
+Next: (3) the 2026 ownership-grain sites.
+
 ## 2026-09-22 (19:29 CDT) — (c) Saturday rehearsal as ONE command: `reports/lab-handoffs/saturday_rehearsal.sh 3`
 
 Laptop agent. On the build host, after Saturday's props pull and the `project-slate` refresh:
