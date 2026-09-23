@@ -11,6 +11,18 @@
 
 # Project handoff
 
+## 2026-09-23 (08:33 CDT) — The market's +1-point skill gap is mostly median-vs-mean on yardage lines (TD de-vig ruled out)
+
+Laptop agent, following up `4f626c88`. Report `reports/2026-09-23-laptop-market-level-gap-is-median-lines.md`.
+- **TD de-vig ruled out:** devigged anytime-TD 0.171 vs realized 0.166 (12,672 player-weeks, 2023–25); only the usual
+  favourite–longshot shape (±0.1–0.3 pts at the extremes).
+- **Cause found:** yardage **lines are medians** (the realized median ≈ the line in every band), but the conversion's symmetric
+  normal returns **mean = line**. Realized means run above the line by **~+4 receiving yards** (35.2 vs 30.9) and **~+2.7 rushing
+  yards**, so each line is **+0.43 / +0.26 DK points** low. Receptions are fine (Poisson). That explains roughly 0.4–0.7 of
+  the ~1-point WR/RB/TE gap, or +0.25–0.4 served points at the 0.55 market weight.
+- **Proposed:** a skewed yardage conversion with the line as the median (gamma or lognormal), behind its own default-off flag;
+  validate with the same bias table. It composes with the bonus branch. I can build it on request (light CPU).
+
 ## 2026-09-23 (08:31 CDT) — Bonus-aware market conversion delivered (branch, default off): fixes the high-line WR/RB bias; passing bonus deliberately excluded
 
 Laptop agent (assignment `7151d0c5`). Branch **`laptop/market-bonus-aware-20260923` @ `e307b717`** off shipping `8745ab00`;
