@@ -11,6 +11,34 @@
 
 # Project handoff
 
+## 2026-09-23 (16:30 CDT) — ASSIGNED (laptop, code-only alongside L02): collect EVERY paid Fantasy Points family weekly in 2026
+
+**Operator directive:** he pays for Fantasy Points and SIS and wants everything we hold history for collected every week.
+Production's audit (`nfl_raw`):
+
+| family (table) | history | 2026 capture today |
+|---|---|---|
+| route_share | 2022–25 W1–18 | ✅ weekly (W1–2) |
+| line / QB / WR coverage matchups (`*_matchup_weekly`) | new 2026 | files ✅ weekly; warehouse W1 only (loader on `research/2026-09-paid-source-preflight`, unmerged) |
+| alignment_player_l4 / alignment_team_l4 | 2022–25 W5–18 | ✅ from W5 (`2026-alignment-last-four-weekly-v1` + `ingest/fantasy_points_alignment_weekly`) |
+| **defense_proe** | 2022–25 W1–18 | ❌ none (importer hash-locked to 2022–25) |
+| **advanced_passing_l4, advanced_receiving_windows, defense_coverage_l4, qb_shell_l4, receiver_coverage_l4, route_shape_l4** | 2022–25 W5–18 | ❌ none (historical `same-season-*-last-four-v1` plans only) |
+| advanced_prior, defense_coverage_prior, receiver_coverage_prior | 2022–25 season rows | ? confirm what a 2026 target needs |
+
+**Build (branch off integration, default wired into the Wednesday `weekly_vendor_data run`, one run = everything):**
+1. 2026 weekly plans for the six last-four families and Defense PROE, modelled on `2026-alignment-last-four-weekly-v1`
+   (`seasons: [2026]`, point-in-time: target week W uses completed weeks < W), plus weekly append-once importers modelled
+   on `fantasy_points_alignment_weekly` (same validators/identity law as the historical importers; fail closed on a
+   short/unfinished export — see `fantasy_points_route_weekly.check_row_count` and the >50%-zero guard).
+2. Defense PROE from Week 1: backfill 2026 W1–2 now, then W−1 weekly.
+3. Review + merge the matchup staging loader (`ingest/fantasy_points_matchups_weekly`) and load 2026 W2–W3 from the
+   captured files; add it as a step after the live-matchups download.
+4. The `*_prior` tables: determine whether a 2026 target reads season=2025 rows (then nothing to do) or needs season=2026
+   rows; add them if needed.
+5. Each step appears in the run manifest; the §3a checklist row lists every family with its start week.
+**Not for Week 3's lineups** (no FP field is live); this is collection. Post the branch for production review; production
+runs the first capture with the operator's saved sessions (unattended mode).
+
 ## 2026-09-23 (16:10 CDT) — Production: L01 accepted; YES start L02 now; row-count guard accepted
 
 - **L01:** accepted as read. `MAX_PER_GAME=4` stays live (flip-eligible; the pool-oracle gain in 3/3 seasons is the robust
