@@ -541,3 +541,33 @@ def test_returning_teammate_deltas(monkeypatch):
     monkeypatch.setenv("RETURNING_TEAMMATE_ADJ", "yes")
     with pytest.raises(ValueError):
         returning_teammate_enabled()
+
+
+def test_returning_lead_rb_lowers_backup_rbs_only_when_enabled(monkeypatch):
+    from nfl_dfs.inference.cascade_adjust import (RETURN_RB_DELTA_OTHER, RETURN_RB_DELTA_SPIKED, RETURN_Q_FACTOR,
+                                                  returning_teammate_deltas)
+    rows = [  # gsis, pos, team, status, target_share_l4, target_share_jump, carry_share_l4, carry_share_jump
+        ("LEAD", "RB", "DET", None, 0.08, 0.00, 0.62, 0.00),
+        ("BACK", "RB", "DET", None, 0.06, 0.02, 0.35, 0.30),
+        ("THRD", "RB", "DET", None, 0.02, 0.00, 0.05, 0.02),
+        ("DETW", "WR", "DET", None, 0.22, 0.01, 0.00, 0.00),
+    ]
+    feats = pd.DataFrame(rows, columns=["gsis_id", "dk_position", "team_abbr", "status", "target_share_l4",
+                                        "target_share_jump", "carry_share_l4", "carry_share_jump"])
+    feats["injury_status"] = None
+    prev, teams = {"BACK", "THRD", "DETW"}, {"DET"}
+    monkeypatch.delenv("RETURNING_RB_ADJ", raising=False)
+    d, rids = returning_teammate_deltas(feats, prev, teams)
+    assert rids == [] and not d.any()                                  # off by default: lead RB (8% targets) ignored
+    monkeypatch.setenv("RETURNING_RB_ADJ", "1")
+    d, rids = returning_teammate_deltas(feats, prev, teams)
+    by = dict(zip(feats.gsis_id, d))
+    assert rids == ["LEAD"]
+    assert by["BACK"] == pytest.approx(RETURN_RB_DELTA_SPIKED) and by["THRD"] == pytest.approx(RETURN_RB_DELTA_OTHER)
+    assert by["DETW"] == 0 and by["LEAD"] == 0                         # carry side touches RBs only
+    feats.loc[feats.gsis_id == "LEAD", "status"] = "Q"
+    d, _ = returning_teammate_deltas(feats, prev, teams)
+    assert dict(zip(feats.gsis_id, d))["BACK"] == pytest.approx(RETURN_RB_DELTA_SPIKED * RETURN_Q_FACTOR)
+    monkeypatch.setenv("RETURNING_RB_ADJ", "2")
+    with pytest.raises(ValueError):
+        returning_teammate_deltas(feats, prev, teams)

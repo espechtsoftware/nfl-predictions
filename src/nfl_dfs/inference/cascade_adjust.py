@@ -388,6 +388,23 @@ RETURN_SPIKE_JUMP = 0.05
 RETURN_DELTA_SPIKED = 1.20
 RETURN_DELTA_OTHER = 0.41
 RETURN_Q_FACTOR = 0.80
+# Carry side (2026-09-23): when a lead RB (carry_share_l4 >= 0.40) returns, the model over-projects the RBs who
+# played while he was out by 2.40 (se 0.36) and those whose carry share spiked (carry_share_jump >= 0.10) by
+# 4.35 (se 0.66), negative in 7 of 7 seasons each (same walk-forward panel and definitions as above). Backup RBs
+# rarely carry two prop markets, so the served projection is mostly the model's and keeps the whole bias.
+# RETURNING_RB_ADJ=1 enables it (default off); it runs only inside the RETURNING_TEAMMATE_ADJ path.
+RETURN_RB_MIN_CARRY_SHARE = 0.40
+RETURN_RB_SPIKE_JUMP = 0.10
+RETURN_RB_DELTA_SPIKED = 4.35
+RETURN_RB_DELTA_OTHER = 2.40
+
+
+def returning_rb_enabled() -> bool:
+    """RETURNING_RB_ADJ=1 enables the carry-side adjustment (default off); not 0/1 fails closed."""
+    v = os.environ.get("RETURNING_RB_ADJ", "0").strip()
+    if v not in ("0", "1"):
+        raise ValueError(f"RETURNING_RB_ADJ must be 0 or 1, got {v!r}")
+    return v == "1"
 
 
 def returning_teammate_enabled() -> bool:
@@ -425,17 +442,34 @@ def returning_teammate_deltas(feats: pd.DataFrame, prev_played: set[str],
     played_prev = gid.isin(prev_played)
     returner = (skill & (ts >= RETURN_MIN_TARGET_SHARE) & ~played_prev & team.isin(prev_teams)
                 & ~unavailable & team.ne(""))
-    factor_by_team: dict[str, float] = {}
-    for t, q in zip(team[returner], questionable[returner]):
-        f = RETURN_Q_FACTOR if q else 1.0
-        factor_by_team[t] = max(factor_by_team.get(t, 0.0), f)
-    if not factor_by_team:
-        return delta, []
-    base = np.where(jump >= RETURN_SPIKE_JUMP, RETURN_DELTA_SPIKED, RETURN_DELTA_OTHER)
-    f_row = team.map(factor_by_team).fillna(0.0).to_numpy()
-    benef = (skill & played_prev & ~returner).to_numpy()
-    delta = np.where(benef, base * f_row, 0.0)
-    return delta, sorted(gid[returner].tolist())
+    def _team_factor(mask: pd.Series) -> dict[str, float]:
+        out: dict[str, float] = {}
+        for t, q in zip(team[mask], questionable[mask]):
+            out[t] = max(out.get(t, 0.0), RETURN_Q_FACTOR if q else 1.0)
+        return out
+
+    returner_ids: set[str] = set()
+    fac = _team_factor(returner)
+    if fac:
+        base = np.where(jump >= RETURN_SPIKE_JUMP, RETURN_DELTA_SPIKED, RETURN_DELTA_OTHER)
+        f_row = team.map(fac).fillna(0.0).to_numpy()
+        benef = (skill & played_prev & ~returner).to_numpy()
+        delta = np.maximum(delta, np.where(benef, base * f_row, 0.0))
+        returner_ids |= set(gid[returner])
+    if returning_rb_enabled():
+        cs = pd.to_numeric(_col(feats, "carry_share_l4"), errors="coerce").fillna(0.0)
+        cjump = pd.to_numeric(_col(feats, "carry_share_jump"), errors="coerce").fillna(0.0)
+        rb = pos.eq("RB")
+        rb_ret = (rb & (cs >= RETURN_RB_MIN_CARRY_SHARE) & ~played_prev & team.isin(prev_teams)
+                  & ~unavailable & team.ne(""))
+        rfac = _team_factor(rb_ret)
+        if rfac:
+            rbase = np.where(cjump >= RETURN_RB_SPIKE_JUMP, RETURN_RB_DELTA_SPIKED, RETURN_RB_DELTA_OTHER)
+            rf_row = team.map(rfac).fillna(0.0).to_numpy()
+            rbenef = (rb & played_prev & ~rb_ret).to_numpy()
+            delta = np.maximum(delta, np.where(rbenef, rbase * rf_row, 0.0))
+            returner_ids |= set(gid[rb_ret])
+    return delta, sorted(returner_ids)
 
 
 # Questionable availability haircut (2026-09-22). The featureset carries no
