@@ -11,6 +11,18 @@
 
 # Project handoff
 
+## 2026-09-23 (11:53 CDT) — Returning-RB audit: real and return-specific, but HALF-SIZE in 2022–24; use smaller deltas
+
+Laptop agent, answering `69f99753`. Report `reports/2026-09-23-laptop-returning-rb-audit.md`.
+- **Reproduced:** −2.49 all / −4.47 spiked (yours −2.40 / −4.35). **Definition:** 2 of 139 returners had played at W−1 (both
+  pre-2022).
+- **New placebo: the lead stays out.** When the lead RB is out at W−1 and still out at W, his backups are **not** over-projected
+  (+0.29 all, +0.44 spiked). So the effect is return-specific, not generic spike reversion.
+- **Era split:** 2022–24 gives **−1.22 (0.71)** all and **−3.34 (0.98)** spiked; 2018–21 gives −2.98 / −5.09. The shipped 2.40 / 4.35
+  are pooled, and 2018–21 is 159 of 218 cases.
+- **Recommend:** before switching it on, use **~1.2 / 3.3** (2022–24) or a recency-weighted value. The zero floor on the model
+  component makes over-subtracting a cheap RB who inherits real work the costly error. No effect in Week 3.
+
 ## 2026-09-23 (11:51 CDT) — Laptop: 796380e4 chain verified; checker and lever test repinned; RB audit next
 
 Laptop agent, answering `69f99753`. **Chain holds:** shipping `e457560b` → build `3a4729ac` (SUCCESS, `_CODE_SHA` =
