@@ -19,7 +19,10 @@ from typing import Any, Callable, Sequence
 
 from ..ingest import (
     fantasy_points_alignment_weekly,
+    fantasy_points_defense_proe_weekly,
+    fantasy_points_matchups_weekly,
     fantasy_points_route_weekly,
+    fantasy_points_weekly_2026,
     sis_pass_tail_weekly,
 )
 from . import fantasy_points_downloads as fp
@@ -44,6 +47,17 @@ DEFAULT_FP_ALIGNMENT_PLAN = (
     / "plans"
     / "2026-alignment-last-four-weekly-v1.json"
 )
+
+
+PLANS_DIR = PROJECT_ROOT / "automation" / "fantasy_points" / "plans"
+# 2026-09-23 (operator directive): every paid Fantasy Points family with history is collected every week.
+# Defense PROE from target week 2 (source week W-1); the five last-four families from target week 5, in this order
+# (qb-shell parses with the same week's coverage run, so coverage comes first).
+DEFAULT_FP_PROE_PLAN = PLANS_DIR / f"{fantasy_points_defense_proe_weekly.PLAN_NAME}.json"
+FP_FAMILY_ORDER = ("advanced-passing", "route-shape", "coverage", "qb-shell", "advanced-receiving")
+DEFAULT_FP_FAMILY_PLANS = {
+    key: PLANS_DIR / f"{fantasy_points_weekly_2026.FAMILIES[key].plan_name}.json" for key in FP_FAMILY_ORDER
+}
 
 
 def _stamp(now: datetime | None = None) -> str:
@@ -114,13 +128,19 @@ def run_week(
     sis_output_root: Path,
     fp_plan: Path = DEFAULT_FP_PLAN,
     fp_alignment_plan: Path = DEFAULT_FP_ALIGNMENT_PLAN,
+    fp_proe_plan: Path = DEFAULT_FP_PROE_PLAN,
+    fp_family_plans: dict[str, Path] | None = None,
     sis_plan: Path | None = None,
     project: str = DEFAULT_PROJECT,
     region: str = DEFAULT_REGION,
     headed: bool = False,
     write_route: bool = True,
     write_alignment: bool = True,
+    collect_fp_families: bool = True,
+    write_fp_families: bool = True,
     capture_matchups: bool = True,
+    stage_matchups: bool = True,
+    write_matchups: bool = True,
     capture_sis_pass_tail: bool = True,
     ingest_odds: bool = True,
     ingest_props: bool = False,
@@ -136,6 +156,14 @@ def run_week(
     if week >= 5:
         _, alignment_specs = fp.load_plan(fp_alignment_plan)
         fp.select_target_week(alignment_specs, week)
+    family_plans = {**DEFAULT_FP_FAMILY_PLANS, **(fp_family_plans or {})}
+    if collect_fp_families:
+        # every plan this run will use is validated before any session or download
+        if week >= 2:
+            fp.select_target_week(fp.load_plan(fp_proe_plan)[1], week)
+        if week >= 5:
+            for key in FP_FAMILY_ORDER:
+                fp.select_target_week(fp.load_plan(family_plans[key])[1], week)
     if sis_plan is not None:
         sis.load_plan(sis_plan)
         sis.plan_request_ceiling(sis_plan)
@@ -159,7 +187,18 @@ def run_week(
             "sis_plan": str(sis_plan) if sis_plan is not None else None,
             "write_route": bool(write_route),
             "write_alignment": bool(write_alignment),
+            "fantasy_points_defense_proe_plan": (
+                str(fp_proe_plan) if collect_fp_families and week >= 2 else None
+            ),
+            "fantasy_points_family_plans": (
+                {key: str(family_plans[key]) for key in FP_FAMILY_ORDER}
+                if collect_fp_families and week >= 5 else None
+            ),
+            "collect_fp_families": bool(collect_fp_families),
+            "write_fp_families": bool(write_fp_families),
             "capture_matchups": bool(capture_matchups),
+            "stage_matchups": bool(capture_matchups and stage_matchups),
+            "write_matchups": bool(write_matchups),
             "capture_sis_pass_tail": bool(capture_sis_pass_tail),
             "ingest_odds": bool(ingest_odds),
             "ingest_props": bool(ingest_props),
@@ -278,8 +317,28 @@ def run_week(
                 write=write_route,
             ),
         )
+        if collect_fp_families:
+            proe_manifest = step(
+                "fantasy-points-defense-proe-download",
+                lambda: fp.run_downloads(
+                    fp_proe_plan,
+                    fp_output_root,
+                    fp_profile_dir,
+                    headless=not headed,
+                    timeout_seconds=timeout_seconds,
+                    target_week=week,
+                ),
+            )
+            step(
+                "fantasy-points-defense-proe-import",
+                lambda: fantasy_points_defense_proe_weekly.run(
+                    proe_manifest.parent,
+                    target_week=week,
+                    write=write_fp_families,
+                ),
+            )
     if capture_matchups:
-        step(
+        matchups_manifest = step(
             "fantasy-points-live-matchups",
             lambda: fp_matchups.run(
                 season=2026,
@@ -291,6 +350,15 @@ def run_week(
                 archive=True,
             ),
         )
+        if stage_matchups:
+            step(
+                "fantasy-points-matchups-stage",
+                lambda: fantasy_points_matchups_weekly.run(
+                    Path(matchups_manifest).parent,
+                    target_week=week,
+                    write=write_matchups,
+                ),
+            )
     if week >= 5:
         fp_alignment_manifest = step(
             "fantasy-points-alignment-download",
@@ -311,6 +379,31 @@ def run_week(
                 write=write_alignment,
             ),
         )
+        if collect_fp_families:
+            family_dirs: dict[str, Path] = {}
+            for key in FP_FAMILY_ORDER:
+                family_manifest = step(
+                    f"fantasy-points-{key}-download",
+                    lambda key=key: fp.run_downloads(
+                        family_plans[key],
+                        fp_output_root,
+                        fp_profile_dir,
+                        headless=not headed,
+                        timeout_seconds=timeout_seconds,
+                        target_week=week,
+                    ),
+                )
+                family_dirs[key] = Path(family_manifest).parent
+                step(
+                    f"fantasy-points-{key}-import",
+                    lambda key=key: fantasy_points_weekly_2026.run(
+                        key,
+                        family_dirs[key],
+                        target_week=week,
+                        write=write_fp_families,
+                        coverage_dir=family_dirs.get("coverage") if key == "qb-shell" else None,
+                    ),
+                )
     if sis_plan is not None:
         step(
             "sis-approved-plan",
@@ -387,6 +480,22 @@ def _parser() -> argparse.ArgumentParser:
         action="store_true",
         help="validate alignment without archiving/appending the guarded import",
     )
+    run.add_argument(
+        "--audit-only-fp-families",
+        action="store_true",
+        help="validate Defense PROE and the last-four families without archiving/appending",
+    )
+    run.add_argument(
+        "--skip-fp-families",
+        action="store_true",
+        help="do not download Defense PROE or the last-four families",
+    )
+    run.add_argument(
+        "--audit-only-matchups",
+        action="store_true",
+        help="validate the matchup staging load without appending",
+    )
+    run.add_argument("--skip-matchup-stage", action="store_true")
     run.add_argument("--include-props", action="store_true")
     run.add_argument("--skip-odds", action="store_true")
     run.add_argument("--skip-matchups", action="store_true")
@@ -430,7 +539,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         headed=args.headed,
         write_route=not args.audit_only_route,
         write_alignment=not args.audit_only_alignment,
+        collect_fp_families=not args.skip_fp_families,
+        write_fp_families=not args.audit_only_fp_families,
         capture_matchups=not args.skip_matchups,
+        stage_matchups=not args.skip_matchup_stage,
+        write_matchups=not args.audit_only_matchups,
         capture_sis_pass_tail=not args.skip_sis_pass_tail,
         ingest_odds=not args.skip_odds,
         ingest_props=args.include_props,

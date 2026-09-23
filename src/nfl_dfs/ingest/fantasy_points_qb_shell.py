@@ -153,20 +153,18 @@ def _read_matrix(artifact: dict, *, prefix: str) -> list[dict]:
     return output
 
 
-def read_exports(
-    input_dir: str | Path,
-    defense_input_dir: str | Path,
-) -> tuple[pd.DataFrame, dict]:
-    """Parse the Offense grid and the accepted matching Defense grid."""
-    offense_manifest, offense_artifacts = validate_manifest(input_dir)
-    defense_manifest, defense_artifacts = validate_defense_manifest(
-        defense_input_dir)
-    if not str(defense_manifest["run_id"]).endswith(f"__{DEFENSE_PLAN_NAME}"):
-        raise ValueError("QB shell defense source has the wrong plan")
+def merge_windows(
+    offense_artifacts: dict[tuple, dict],
+    defense_artifacts: dict[tuple, dict],
+    *,
+    seasons: tuple[int, ...] = SEASONS,
+    target_weeks: tuple[int, ...] = TARGET_WEEKS,
+) -> pd.DataFrame:
+    """Parse and join the Offense and Defense matrices of each target window (32 teams each)."""
     offense_rows: list[dict] = []
     defense_rows: list[dict] = []
-    for season in SEASONS:
-        for target_week in TARGET_WEEKS:
+    for season in seasons:
+        for target_week in target_weeks:
             offense_rows.extend(_read_matrix(
                 offense_artifacts[(season, target_week)], prefix="off"))
             defense_rows.extend(_read_matrix(
@@ -179,9 +177,23 @@ def read_exports(
     if offense.duplicated(keys).any() or defense.duplicated(keys).any():
         raise ValueError("QB shell source has duplicate team windows")
     rows = offense.merge(defense, on=keys, how="inner", validate="one_to_one")
-    expected_rows = len(SEASONS) * len(TARGET_WEEKS) * 32
+    expected_rows = len(seasons) * len(target_weeks) * 32
     if len(rows) != expected_rows:
         raise ValueError(f"QB shell merge has {len(rows)} rows, expected {expected_rows}")
+    return rows
+
+
+def read_exports(
+    input_dir: str | Path,
+    defense_input_dir: str | Path,
+) -> tuple[pd.DataFrame, dict]:
+    """Parse the Offense grid and the accepted matching Defense grid."""
+    offense_manifest, offense_artifacts = validate_manifest(input_dir)
+    defense_manifest, defense_artifacts = validate_defense_manifest(
+        defense_input_dir)
+    if not str(defense_manifest["run_id"]).endswith(f"__{DEFENSE_PLAN_NAME}"):
+        raise ValueError("QB shell defense source has the wrong plan")
+    rows = merge_windows(offense_artifacts, defense_artifacts)
     rows["offense_source_run_id"] = offense_manifest["run_id"]
     rows["defense_source_run_id"] = defense_manifest["run_id"]
     return rows, {

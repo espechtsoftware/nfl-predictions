@@ -123,6 +123,9 @@ def read_windows(
     manifest: dict,
     artifacts: dict[tuple, dict],
     snapshots: pd.DataFrame,
+    *,
+    seasons: tuple[int, ...] = SEASONS,
+    target_weeks: tuple[int, ...] = TARGET_WEEKS,
 ) -> tuple[pd.DataFrame, dict]:
     """Parse, resolve and normalize every exact route-shape window."""
     by_name, by_season_team = _snapshot_maps(snapshots)
@@ -136,8 +139,8 @@ def read_windows(
         "Player Details::Season", "Overall::RTE",
         *(f"{group}::RTE" for group in ROUTE_GROUPS),
     }
-    for season in SEASONS:
-        for target_week in TARGET_WEEKS:
+    for season in seasons:
+        for target_week in target_weeks:
             artifact = artifacts[(season, target_week)]
             columns, rows = _grouped_rows(artifact["local_path"])
             if missing := required - set(columns):

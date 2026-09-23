@@ -161,13 +161,16 @@ def read_receiver_windows(
     manifest: dict,
     artifacts: dict[tuple, dict],
     snapshots: pd.DataFrame,
+    *,
+    seasons: tuple[int, ...] = SEASONS,
+    target_weeks: tuple[int, ...] = TARGET_WEEKS,
 ) -> tuple[pd.DataFrame, dict]:
     by_name, by_season_team = _snapshot_maps(snapshots)
     output: list[dict] = []
     statuses: Counter[str] = Counter()
     duplicate_groups = 0
-    for season in SEASONS:
-        for target_week in TARGET_WEEKS:
+    for season in seasons:
+        for target_week in target_weeks:
             man_artifact = artifacts[
                 ("receiving-man-vs-zone", season, target_week)]
             sep_artifact = artifacts[
@@ -263,10 +266,13 @@ def read_receiver_windows(
 def read_defense_windows(
     manifest: dict,
     artifacts: dict[tuple, dict],
+    *,
+    seasons: tuple[int, ...] = SEASONS,
+    target_weeks: tuple[int, ...] = TARGET_WEEKS,
 ) -> tuple[pd.DataFrame, dict]:
     output: list[dict] = []
-    for season in SEASONS:
-        for target_week in TARGET_WEEKS:
+    for season in seasons:
+        for target_week in target_weeks:
             artifact = artifacts[("coverage-matrix", season, target_week)]
             path = artifact["local_path"]
             with path.open(encoding="utf-8-sig", newline="") as handle:
