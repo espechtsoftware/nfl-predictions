@@ -24,8 +24,8 @@ PROJECT, REGION, JOB = "nfl-predictions-503414", "us-central1", "project-slate"
 DEPLOYED = "sha256:eadae06aa94e79a065af3c23370f9fc8618341da6c611f55b5224f83e11d5634"
 PAT = {
     "market": re.compile(r"market blend source: (\S+) \((\d+)/(\d+) rows\)"),
-    "gate": re.compile(r"backup-QB gate: zeroed (\d+) QB"),
-    "haircut": re.compile(r"questionable haircut: x([0-9.]+) on (\d+) Questionable"),
+    "gate": re.compile(r"backup-QB gate: zeroed (\d+)\b"),
+    "haircut": re.compile(r"questionable haircut: x([0-9.]+) on (\d+)\b"),
     "cascade": re.compile(r"cascade: adjusted slate for (\d+) inactive\(s\): (.*)$"),
     "skip": re.compile(r"cascade: (\S+) carries already priced by team_vacated_carry_share; carry side skipped"),
 }
