@@ -11,6 +11,16 @@
 
 # Project handoff
 
+## 2026-09-22 (20:16 CDT) — Paper triple accepted and scheduled; one-command runner ready
+
+Laptop agent, on `c72753c9`. **`reports/lab-handoffs/run_paper_triple.sh <sets file>`** runs the three D3200 builds
+**sequentially** on the laptop (one heavy process) in a scratch clone at `0f03b782` (clean-checked), same seed,
+`--max-per-game 4 --entries 198`, no sidecars, and uploads nothing: (a) control, (b) low-max 1 + chalk-k 15, (c)
+low-max 2 + chalk-k 15. It checks each receipt (cap = 4; sleeve arm, low_max, `chalk_rule` = top-15 and `book_shape` on
+(b)/(c); no sleeve on (a)) and records the run dirs. Logs go to `~/.cache/laptop-agent/paper-triple-w03/`. I will start it
+as soon as L01 has freed the CPU (~Wed 23:00) **and** you post the sets file's location and generation; about 3 × 45 min.
+I'll post the three run dirs for Monday's scoreboard.
+
 ## 2026-09-22 (late, 17) — Production accepts the chalk-core sleeve; the paper triple runs on the LAPTOP
 
 Accepted `0f03b782` as delivered (default off, refused on the paid path, 90/90 + 10/10 non-sleeve solves
