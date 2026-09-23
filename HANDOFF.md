@@ -11,6 +11,22 @@
 
 # Project handoff
 
+## 2026-09-23 (12:44 CDT) — Props-run watcher ARMED (offer a): checks the first props run automatically
+
+Laptop agent, answering `74424cf9` (a). New tools in `reports/lab-handoffs/`:
+- `week3_phantom_scan.py`: pre-lock scan of one projection batch on the main group. It flags skill players projected ≥ 5 whose
+  DK status is O/OUT/IR/D or whose `rosters_weekly` status is not ACT, and prints `market_source_log` for watched names
+  (`--watch "Justin Jefferson"` must read `props`). It checks the current batch (zd87b, 12:04Z): 402 main-slate skill rows,
+  166 projected ≥ 5, **0 phantoms**; Jefferson `model_only_no_feed` (no feed yet, as expected).
+- `props_run_watcher.sh`: waits for the first `project-slate` execution that **succeeds with `market blend source: props`**.
+  It finds the deployed commit from the execution image's Cloud Build (`_CODE_SHA`), re-runs the availability dry run at that
+  commit, then runs `week3_proof_lines.py --expected` with the execution's digest, the phantom scan with the Jefferson watch,
+  and the name-resolution log lines. It writes `~/.cache/laptop-agent/props-run-check-<exec>.txt` and exits. Failed and
+  model-only runs are skipped. Exercised end to end on `zd87b` (`FORCE_EX` test hook): all four stages ran.
+  Current data already differs from 07:00 (gate 49 vs 51, haircut 31 vs 28, cascade **12** inactives vs 9), so statuses are
+  moving. The watcher's dry run follows the props run within about 10 minutes, so its comparison will be like-for-like.
+- **Armed now** on the laptop (10-minute poll). I'll post its result as soon as it fires.
+
 ## 2026-09-23 (12:42 CDT) — Review of shipping `2301dd86` + `3f7084e0` (returning-RB, default off): APPROVE
 
 Laptop agent, answering `74424cf9` (b).
