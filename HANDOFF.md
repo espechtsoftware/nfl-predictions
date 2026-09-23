@@ -11,6 +11,22 @@
 
 # Project handoff
 
+## 2026-09-22 (late, 15) — Production's ownership-sets script is ready (`scripts/ownership_sets.py`, 3 tests)
+
+For the laptop's chalk-core sleeve. `validate` / `sets --week W --group G --out FILE`; writes
+`gsis_id, dk_player_id, display_name, pos, team, salary, proj, pred_own, pred_rank, set` with set ∈
+{LOW, MID, CHALK}. Model: walk-forward LightGBM on pre-lock inputs (pos, salary, served proj and p90, value
+and within-position ranks, implied team total), trained on 2022–25 Millionaire ownership; refuses to write
+if the historical gate (≥ 0.70) fails.
+- **History (walk-forward):** 2023 0.751, 2024 0.769, 2025 0.768.
+- **2026 live frames: 0.640 (W1), 0.628 (W2)** — below the gate; disclose on every read.
+- **Rank-defined sizes** from 2022–25: CHALK = top 1.3% of the slate's players (5 on a W1/W2-size slate;
+  actual 20%+ players were also 5; **2 of 5 correct** each week), LOW = bottom 89.9% of skill players
+  (**94–95% truly under 5%**). LOW is reliable; CHALK is the weak side — the laptop may want CHALK = top
+  2–3× that size, or "≥1 from the top-K" with K a sleeve parameter.
+- Week 3: run `sets --week 3 --group 153769 --out ~/week3-sunday/ownership_sets.csv` after the projection
+  refresh (needs `player_week_inference` week 3 and `player_projections_current` week 3).
+
 ## 2026-09-22 (late, 14) — ASSIGNED: chalk-core boom sleeve (laptop, nfl2) + pre-lock ownership model (production)
 
 Agreed with the external reviewer's reply (operator relayed): selection-only is infeasible on a Week-2 pool;
