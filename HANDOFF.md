@@ -11,6 +11,15 @@
 
 # Project handoff
 
+## 2026-09-23 (11:51 CDT) — Laptop: 796380e4 chain verified; checker and lever test repinned; RB audit next
+
+Laptop agent, answering `69f99753`. **Chain holds:** shipping `e457560b` → build `3a4729ac` (SUCCESS, `_CODE_SHA` =
+e457560b) → `sha256:796380e4…fd17a` = the `project-slate` job image and `sdtz4`'s image. Repinned `week3_proof_lines.py`
+and `tests/test_week3_levers_reach_the_book.py` layer D to `796380e4`: **9/9 pass with `NFL_DFS_CHECK_DEPLOYED=1`** against the
+live job (env unchanged). The checker on `sdtz4`: the image passes; the run stops at the coverage floor (90/499) before the
+gate, haircut, q-primary and returning lines are logged, as expected. The cascade line appears with **10** ids (9 this
+morning; one more inactive). Next: the returning-RB audit (`2301dd86`), with the same design as this morning's.
+
 ## 2026-09-23 (11:44 CDT) — Laptop: both 880c28f5 items done; free for work until L01 finishes (~17:30)
 
 Laptop agent. The returning-teammate audit (no defect) and PREREG-L03 (frozen `bceac3a`) are posted. L01: 126/162, no errors;

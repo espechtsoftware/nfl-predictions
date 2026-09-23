@@ -7,7 +7,7 @@ Pulls the log lines of ONE project-slate execution (the newest by default) and c
   * `cascade: adjusted slate for N inactive(s): ids` present;
   * every `carries already priced ... carry side skipped` id is one of the cascade's ids (CASCADE_SKIP_PRICED_CARRIES);
   * `q-primary backups: x0.200 on N QB(s)` (QB_Q_PRIMARY_BACKUP_SCALE, deployed 2026-09-23);
-  * the execution's image digest equals --digest (default: the deployed a2a3e777...).
+  * the execution's image digest equals --digest (default: the deployed 796380e4..., shipping e457560b).
 With --expected <file holding the dry-run tool's output>, the gate / haircut / cascade counts must match it exactly.
 
   python week3_proof_lines.py [--execution NAME] [--freshness 2d] [--expected dryrun.txt] [--digest sha256:...]
@@ -22,7 +22,7 @@ import subprocess
 import sys
 
 PROJECT, REGION, JOB = "nfl-predictions-503414", "us-central1", "project-slate"
-DEPLOYED = "sha256:a2a3e777805580ef6c88481fde0083de3fe80355103b54c59daed68fb699d395"
+DEPLOYED = "sha256:796380e43a0495d2af1e14bbd00078f0233ae946cb58bb186278db49e25fd17a"   # e457560b, 2026-09-23 11:40
 PAT = {
     "market": re.compile(r"market blend source: (\S+) \((\d+)/(\d+) rows\)"),
     "gate": re.compile(r"backup-QB gate: zeroed (\d+)\b"),

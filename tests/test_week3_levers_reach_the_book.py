@@ -31,7 +31,7 @@ from nfl_dfs.inference import run_projections as RP
 NFL2_REPO = Path(os.environ.get("NFL2_REPO", Path.home() / "projects" / "nfl2"))
 PROD_REPO = Path(__file__).resolve().parents[1]
 INTEGRATION_REF = os.environ.get("WEEK3_INTEGRATION_REF", "origin/production/week3-integration-20260921")
-DEPLOYED_DIGEST = "sha256:a2a3e777805580ef6c88481fde0083de3fe80355103b54c59daed68fb699d395"   # 8745ab00, 2026-09-23
+DEPLOYED_DIGEST = "sha256:796380e43a0495d2af1e14bbd00078f0233ae946cb58bb186278db49e25fd17a"   # e457560b (build 3a4729ac), 2026-09-23 11:40; env unchanged
 DEPLOYED_ENV = {"Q_HAIRCUT": "0.80", "CASCADE_DOUBTFUL": "1", "CASCADE_SKIP_PRICED_CARRIES": "1", "QB_Q_PRIMARY_BACKUP_SCALE": "0.20", "RETURNING_TEAMMATE_ADJ": "1"}
 
 
