@@ -395,8 +395,11 @@ RETURN_Q_FACTOR = 0.80
 # RETURNING_RB_ADJ=1 enables it (default off); it runs only inside the RETURNING_TEAMMATE_ADJ path.
 RETURN_RB_MIN_CARRY_SHARE = 0.40
 RETURN_RB_SPIKE_JUMP = 0.10
-RETURN_RB_DELTA_SPIKED = 4.35
-RETURN_RB_DELTA_OTHER = 2.40
+# 2022-24 values (laptop audit 52b3d588, reproduced by production): pooled 2018-24 is 2.40 / 4.35, but 159 of 218
+# return cases are 2018-21 (-2.84 / -4.88); 2022-24 alone is -1.26 (se 0.70) / -3.40 (se 0.94). The zero floor on
+# the model component makes over-subtraction the costlier error, so the recent-era values are used.
+RETURN_RB_DELTA_SPIKED = 3.40
+RETURN_RB_DELTA_OTHER = 1.26
 
 
 def returning_rb_enabled() -> bool:
