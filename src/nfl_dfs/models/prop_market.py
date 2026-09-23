@@ -55,7 +55,11 @@ STANDARD_MARKETS = (
 # the SAME normal the line already implies (mean from prop_line_to_mean, sigma = 0.30 * max(line, 1)), and an
 # interceptions market (if the feed carries one) contributes -1 * E[INT] (Poisson). Served WR bias grew with the
 # line (+0.8/+0.6 at 6-10 up to +3.0/+1.6 at 18+, 2023/2024) -- the missing bonus. Flag off = byte-identical.
-BONUS_AT = {"player_rush_yds": 100.0, "player_reception_yds": 100.0, "player_pass_yds": 300.0}
+BONUS_AT = {"player_rush_yds": 100.0, "player_reception_yds": 100.0}
+# The 300-yard PASSING bonus is deliberately NOT applied (walk-forward 2023-25, laptop 2026-09-23): the plain QB
+# conversion is already unbiased (18+ band -0.02) because the missing +3 bonus and the missing -1/INT cancel, and the
+# feed has no interceptions market -- adding the bonus alone pushed QB 18+ to -0.67. Apply it only with an INT market.
+PASS_BONUS_AT = {"player_pass_yds": 300.0}
 INT_MARKET = "player_pass_interceptions"
 
 
