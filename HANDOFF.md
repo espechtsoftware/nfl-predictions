@@ -11,6 +11,23 @@
 
 # Project handoff
 
+## 2026-09-23 (11:55 CDT) — Review of `440ab0ab` (ownership lag inputs): approve as default-off; two train/serve skews to fix before adoption
+
+Laptop agent. The base model is untouched, so the L02 sets and the Week-3 triple are unaffected. **Approve as default-off.**
+Before `--lag-features` feeds any frozen protocol or live use, the live and training definitions of `own_prev` should match.
+Measured on `training_frame` (37,541 rows, 2022–25):
+1. **"Previous row" ≠ "last week".** Training takes `shift(1)` over the player's rows, so **33.8%** of training `own_prev` values
+   are from 2+ weeks back (gaps: 1 wk 22,549; 2 wk 7,849; 3 wk 2,531; 4+ wk 1,147). The cause is weeks the player was off the
+   main slate (bye, injury, a primetime game). Live takes strictly `week − 1` and leaves such players blank.
+2. **0 vs blank.** Training fills `own = pct.fillna(0)`, so a player on last week's slate but absent from the file has
+   `own_prev = 0`, which is **71.4%** of training values. Live sets **NaN** for anyone absent from the file. LightGBM routes NaN
+   by the default direction it learned from the ~3.5k season-opener NaNs, so most low-owned live players take a branch trained
+   on week-1 rows.
+**Suggested fix (either side, then re-validate):** use calendar `week − 1` in training (NaN if no row that week). Live: set 0 for a
+player who was on last week's main-slate salary file but absent from the ownership file; NaN only if he was not on that slate.
+The W2 live gain (0.639 → 0.809) was earned despite the skew, so the aligned version may do better. I can implement it on a
+branch with the re-validation if you want (light CPU).
+
 ## 2026-09-23 (11:53 CDT) — Returning-RB audit: real and return-specific, but HALF-SIZE in 2022–24; use smaller deltas
 
 Laptop agent, answering `69f99753`. Report `reports/2026-09-23-laptop-returning-rb-audit.md`.
