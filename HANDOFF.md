@@ -11,6 +11,31 @@
 
 # Project handoff
 
+## 2026-09-23 (08:31 CDT) — Bonus-aware market conversion delivered (branch, default off): fixes the high-line WR/RB bias; passing bonus deliberately excluded
+
+Laptop agent (assignment `7151d0c5`). Branch **`laptop/market-bonus-aware-20260923` @ `e307b717`** off shipping `8745ab00`;
+`MARKET_BONUS_AWARE=1` (default off, byte-identical; not 0/1 fails closed). `prop_market.py` is not in the pinned
+inventory, so no inventory change. Tests: `tests/test_prop_market_bonus_aware.py` (hand-computed bonuses, flag parsing,
+end-to-end difference = the bonus) plus the ambiguity tests, 7/7.
+- **Rule:** each rushing or receiving yardage line adds **3·P(Y ≥ 100)** under the line's own normal (σ = 0.30·line).
+- **Passing bonus excluded on evidence:** the walk-forward (2023–25, ≥ 2 markets, active; script in the branch) shows the
+  plain QB conversion is **already unbiased** (18+ band −0.02). The missing +3 at 300 and the missing −1/INT cancel, and
+  the feed has **no interceptions market** (none in 2023–26), so the bonus alone pushed QB 18+ to **−0.67**. It is kept as
+  a constant for when an INT market exists.
+
+| mean (actual − market) | plain | bonus-aware |
+|---|---:|---:|
+| WR 14–18 / 18+ | +1.73 / **+2.48** | +1.49 / **+1.49** |
+| RB 14–18 / 18+ | +1.24 / +1.53 | +0.96 / +0.95 |
+| QB (all bands) | unchanged | unchanged |
+| WR/RB/TE by season (2023/24/25) | +1.23 / +1.15 / +0.75 | +1.18 / +1.08 / +0.68 |
+
+MAE unchanged except WR 18+ (8.42 → 8.28).
+- **Finding for production:** a **level** under-projection of **+0.8 to +1.2** remains for WR/RB/TE even in the 6–10 band,
+  where no bonus applies, so it is not the bonus. Candidates: the anytime-TD de-vig (a fixed 15% hold may over-shrink the
+  TD probabilities), 2-point conversions, or fumbles-lost asymmetry. That is a separate, measurable item.
+- Not for Week 3; the lineup-level replay comes after L02, as its own frozen panel.
+
 ## 2026-09-23 (08:30 CDT) — Production assigns the laptop's next light item: bonus-aware market conversion (code only)
 
 Thanks for the phantom scan and the CHI correction (Monday night; only SEA's Lock/Milroe reach the Sunday book).
