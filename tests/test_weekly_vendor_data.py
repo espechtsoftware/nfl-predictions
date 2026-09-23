@@ -329,7 +329,11 @@ def test_expired_sis_session_does_not_block_a_run_with_no_sis_step(monkeypatch, 
     manifest = json.loads(manifest_path.read_text())
     assert manifest["status"] == "complete" and "login-sis" not in events and "fp-download" in events and "fp-import" in events
     sis_step = next(s for s in manifest["steps"] if s["name"] == "sis-session")
-    assert sis_step["status"] == "complete" and sis_step["result"]["status"] == "not-required"
+    # 2026-09-23: week 3 now defaults to the tracked team-context plan for week 2; its session is optional, so the
+    # expired session skips that capture (recorded) and every Fantasy Points step still runs
+    assert sis_step["status"] == "complete" and sis_step["result"]["status"] == "expired-optional"
+    tc = next(s for s in manifest["steps"] if s["name"] == "sis-team-context-import")
+    assert tc["result"]["status"] == "not-available" and "session unavailable" in tc["result"]["reason"]
 
 
 def test_expired_sis_session_still_stops_a_run_that_needs_sis(monkeypatch, tmp_path):
@@ -386,3 +390,43 @@ def test_qb_shell_import_receives_the_same_weeks_coverage_run(monkeypatch, tmp_p
     shell = next(item for item in seen if item[0] == "qb-shell")
     assert shell[2] == runs["2026-coverage-last-four-weekly-v1"] and shell[3] == 6
     assert all(item[2] is None for item in seen if item[0] != "qb-shell")
+
+
+def _quiet_fp(monkeypatch, tmp_path, events):
+    monkeypatch.setattr(weekly.fp, "verify_login", lambda *_: None)
+    monkeypatch.setattr(weekly.fp, "run_downloads", lambda *a, **k: (tmp_path / "fp" / "manifest.json"))
+    monkeypatch.setattr(weekly.fantasy_points_route_weekly, "run", lambda *a, **k: {})
+    monkeypatch.setattr(weekly.fantasy_points_defense_proe_weekly, "run", lambda *a, **k: {})
+    monkeypatch.setattr(weekly.sis, "verify_login", lambda *_: events.append("verify-sis"))
+
+
+def test_default_team_context_plan_is_captured_and_loaded(monkeypatch, tmp_path):
+    """One Wednesday run captures AND loads the completed week's SIS team context (tracked plan for W-1)."""
+    events = []
+    _quiet_fp(monkeypatch, tmp_path, events)
+    monkeypatch.setattr(weekly.sis, "run_plan", lambda profile, timeout, out, plan: events.append(("capture", plan.name)) or {})
+    monkeypatch.setattr(weekly.sis_team_context_weekly, "run",
+                        lambda out, plan, **kw: events.append(("import", plan.name, kw["write"])) or {})
+    manifest_path = weekly.run_week(
+        week=3, fp_profile_dir=tmp_path / "fp", sis_profile_dir=tmp_path / "sis", timeout_seconds=10,
+        output_root=tmp_path / "runs", fp_output_root=tmp_path / "fp-out", sis_output_root=tmp_path / "sis-out",
+        capture_matchups=False, ingest_odds=False, login_if_needed=False, now=datetime(2026, 9, 23, 20, tzinfo=UTC),
+    )
+    assert events == ["verify-sis", ("capture", "team-context-2026-w02.json"),
+                      ("import", "team-context-2026-w02.json", True)]
+    config = json.loads(manifest_path.read_text())["configuration"]
+    assert config["sis_plan"].endswith("team-context-2026-w02.json") and config["sis_team_context_import"]
+
+
+def test_a_week_without_a_tracked_team_context_plan_is_recorded_not_silent(monkeypatch, tmp_path):
+    events = []
+    _quiet_fp(monkeypatch, tmp_path, events)
+    monkeypatch.setattr(weekly, "SIS_PLANS_DIR", tmp_path / "no-plans")
+    manifest_path = weekly.run_week(
+        week=4, fp_profile_dir=tmp_path / "fp", sis_profile_dir=tmp_path / "sis", timeout_seconds=10,
+        output_root=tmp_path / "runs", fp_output_root=tmp_path / "fp-out", sis_output_root=tmp_path / "sis-out",
+        capture_matchups=False, ingest_odds=False, login_if_needed=False, now=datetime(2026, 9, 30, 20, tzinfo=UTC),
+    )
+    steps = {s["name"]: s for s in json.loads(manifest_path.read_text())["steps"]}
+    assert steps["sis-session"]["result"]["status"] == "not-required" and "verify-sis" not in events
+    assert "team-context-2026-w03.json" in steps["sis-team-context-import"]["result"]["reason"]
