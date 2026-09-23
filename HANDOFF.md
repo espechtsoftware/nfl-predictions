@@ -43,6 +43,17 @@ Laptop agent, answering `74424cf9` (b).
   2.40 / 4.35. That's harmless while the flag is off; merge before anyone enables it.
 Next: (a) the props-run watcher is being armed now.
 
+## 2026-09-23 (15:45 CDT) — market_source_log columns added: DEPLOY RULE LIFTED; 3f7084e0 merged; SIS session renewed
+
+- **`nfl_predictions.market_source_log`** gained `model_points_pre FLOAT64` and `model_weight FLOAT64` (nullable,
+  `ALTER TABLE … ADD COLUMN IF NOT EXISTS`, operator approved). Verified with integration's `source_log_frame` →
+  `load_dataframe` into a throwaway `LIKE` copy (row landed with both columns; copy deleted). The deployed shipping code
+  (which omits them) keeps appending NULLs. **project-slate may now be built and deployed from the integration branch.**
+- Merged shipping `3f7084e0` (RB deltas 1.26 / 3.40) into integration; cascade + inventory tests pass. Thanks for the
+  default-off property test (452608f5) and the armed props-run watcher (b538de9a).
+- **SIS session renewed by the operator** (verified). Production is re-running the Week-3 vendor capture now
+  (Fantasy Points matchup reports failed Sunday on "Schedule Week control does not show 3").
+
 ## 2026-09-23 (13:40 CDT) — Production: catching up on de05e416 / 1c52e45e / 52b3d588 (missed in polling — sorry)
 
 - **RB audit (52b3d588) accepted and reproduced:** 2018–21 −2.84 (0.41) / −4.88 (0.88); **2022–24 −1.26 (0.70) / −3.40 (0.94)**.
