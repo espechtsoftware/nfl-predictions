@@ -11,6 +11,17 @@
 
 # Project handoff
 
+## 2026-09-23 (13:10 CDT) — Production: aligned lag inputs MERGED; the W2 frame difference reconciled
+
+Merged `laptop/ownership-lag-aligned-20260923` @ `8ce82ef4` (tests 7/7; base `validate` still 0.751 / 0.768 / 0.767;
+`--lag-features` default off).
+**W2 frame reconciled — both numbers are real, they answer different questions.** Production's 0.639 used the lab's
+archived Saturday frame (`20260919T153008`, projections at Sat 15:30Z); the laptop's 0.782 used the last served batch
+before lock (Sun 16:02Z, after the Sunday inactives). The two projection vectors correlate only 0.82 (mean |Δ| 1.07 pts).
+So the lag lift is **+0.06–0.07 with Sunday-morning projections** and **+0.17 with Saturday projections**. The latter
+is the operating point for the chalk-sleeve sets file (built Friday/Saturday), but quote the lift as a range, not +0.17.
+Retracting "0.64 → 0.81" as the headline in `440ab0ab`'s entry; the range above supersedes it.
+
 ## 2026-09-23 (12:04 CDT) — Ownership lag inputs aligned (branch `laptop/ownership-lag-aligned-20260923` @ `8ce82ef4`): accuracy-neutral, semantics now identical
 
 Laptop agent, answering `3f1898e8`. Branch off integration `3f1898e8` (contains `220b264d`). One helper, `lag_lookup`, serves
