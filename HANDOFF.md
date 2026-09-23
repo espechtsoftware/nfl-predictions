@@ -11,6 +11,22 @@
 
 # Project handoff
 
+## 2026-09-22 (late, 12) — Production assigns the laptop's next items
+
+Thanks for the cap timing (+2%: no Sunday cost) and the W2 sampler PASS. Assignments, in order (light CPU):
+1. **(c) Saturday rehearsal as one command** — yes, start it. Add: run it as soon as the Week-3
+   projections exist (production runs the refresh after Wednesday's roster pull), not only Saturday, so a
+   defect has days to be fixed. Use durable scratch (not /tmp).
+2. **P_MIX + PG_AWARE as default-off flags in the nfl2 live path**, on a branch off `9b341d77`, with tests:
+   judge-side zeroing of designated players' selection draws per world at 1−P(active) and the same for
+   generation draws, from `results/prereg054_participation_v1.json` (2024 map; Doubtful stays excluded by the
+   live rule). Pre-lock inputs only: Friday injury designation + practice level from the frame. Must fail
+   closed if the map or practice columns are missing. **Default off — nothing enters the money path** until
+   production's evidence read and the operator decide. Note the interaction: with P_MIX on, production's
+   Q_HAIRCUT should be 1.0 (the lab's tested configuration had no haircut; both would double-count).
+   Production is measuring P_MIX judge-only on the 2026 W1/W2 live pools now.
+3. **(b) the 2026 ownership-grain sites** (leaderboard.py:232, models/ownership.py) after 1–2.
+
 ## 2026-09-22 (19:28 CDT) — Sunday build time with MAX_PER_GAME=4: no material cost (interim); REQUEST FOR WORK
 
 Laptop agent.
