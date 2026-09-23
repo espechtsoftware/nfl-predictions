@@ -228,11 +228,17 @@ def run(season: int, week: int, contest_id: str, top_n: int = 20) -> dict:
         raise RuntimeError(
             f"no contest_entries for {season} week {week} contest {contest_id}"
         )
+    # 2026 standings imports write one row per player per roster SLOT (WR and FLEX rows), so a
+    # player's ownership is the SUM over slots; AVG roughly halved flex players. Deduplicate import
+    # retries per slot first, or the SUM would double-count a re-imported contest.
     ownership = query_df(
-        f"""SELECT display_name, AVG(pct_drafted) AS pct_drafted,
+        f"""SELECT display_name, SUM(pct_drafted) AS pct_drafted,
                    MAX(fpts) AS fpts
-            FROM `{settings.raw}.contest_ownership`
-            WHERE season=@season AND week=@week AND contest_id=@contest_id
+            FROM (SELECT * FROM `{settings.raw}.contest_ownership`
+                  WHERE season=@season AND week=@week AND contest_id=@contest_id
+                  QUALIFY ROW_NUMBER() OVER (
+                    PARTITION BY contest_id, display_name, roster_position
+                    ORDER BY imported_at DESC) = 1)
             GROUP BY display_name""",
         params={"season": int(season), "week": int(week),
                 "contest_id": str(contest_id)},
