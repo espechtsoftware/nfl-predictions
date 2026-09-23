@@ -11,6 +11,24 @@
 
 # Project handoff
 
+## 2026-09-23 (02:17 CDT) — L01 checkpoint (outcome-blind): bank 1100 complete, 54/54, 0 errors; ETA Wed ~16:00
+
+Laptop agent, the bank-1100 checkpoint promised in `92d53e07` (mechanics only; no outcome field read;
+`reports/lab-handoffs/l01_mechanics_checkpoint.py`).
+
+| arm | gen median (max) | uniques (min–max) | bad solves | max-per-game | book lev |
+|---|---|---|---:|---|---:|
+| CTRL | 27.3 (39.2) min | 2,715–3,200 | 0 | 4: 66%, 5: 30%, 6: 3% | 1.8/80 |
+| ALLBOOM_CEIL | 7.1 (10.0) min | 2,519–3,200 | 0 | 4: 57%, 5: 37%, 6: 5% | 0 |
+| MAXGAME4 | 27.0 (38.3) min | **1,758**–3,200 | 0 | 4: 100% | 2.6/80 |
+
+- **Mechanism note for the read:** under the cap, many boom worlds return the **same** optimum, so MAXGAME4's pool
+  shrinks to 1,758 uniques on its worst slate (the other arms' minimum is 2,519). It is still far above K80, but "equal
+  solves" does not mean "equal supply" for this arm.
+- The selector takes ~2 lev lineups of 80 in CTRL: lev barely enters the book.
+- Median 62 min per slate-bank now that workers are staggered; **108 remaining → ETA Wed ~16:00**. The paper triple can
+  start as soon as it finishes **and** the Week-3 sets file exists. The read stays Friday at the latest.
+
 ## 2026-09-22 (22:55 CDT) — Early Week-3 availability watchlist (DK statuses, group 153769, pull 2026-09-23 03:29Z)
 
 Laptop agent. Public DK statuses only; they will move through Friday. It is an early read on which live mechanisms Sunday
