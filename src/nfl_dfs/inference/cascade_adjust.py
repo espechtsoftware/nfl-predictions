@@ -373,6 +373,71 @@ def apply_scale(out: pd.DataFrame, ids: list[str], scale: float) -> pd.DataFrame
     return out
 
 
+# Returning-teammate adjustment (2026-09-23, operator decision). When a top receiver who missed last week is
+# back, his teammates' recent-usage features still carry the week he was out, and the model over-projects
+# them. Walk-forward 2018-2024 on the training panel (E[pts|played] fit on active rows, as production fits
+# it; returner = WR/TE/RB with target_share_l4 >= 0.18, inactive at W-1, active at W-2 or W-3; teammates
+# = WR/TE/RB who played W-1): residual in the return week vs all other teammate-weeks -0.41 (se 0.18) for
+# all teammates and -1.20 (se 0.40) for teammates whose target share spiked >= 5 points (target_share_jump),
+# negative in 6 of 7 seasons each; spiked WRs -1.51 (se 0.54). The market absorbs part of it: on the
+# 2023-24 rows with >= 2 prop markets the served-blend gap for spiked teammates is about -1.0 (se 1.4).
+# The deltas below are applied to the MODEL component before the market blend, so the blend dilutes them
+# exactly where the market carries information. A Questionable returner scales them by 0.8.
+RETURN_MIN_TARGET_SHARE = 0.18
+RETURN_SPIKE_JUMP = 0.05
+RETURN_DELTA_SPIKED = 1.20
+RETURN_DELTA_OTHER = 0.41
+RETURN_Q_FACTOR = 0.80
+
+
+def returning_teammate_enabled() -> bool:
+    """RETURNING_TEAMMATE_ADJ=1 enables the adjustment (default off). Any other non-empty value but 0/1
+    fails closed."""
+    v = os.environ.get("RETURNING_TEAMMATE_ADJ", "0").strip()
+    if v not in ("0", "1"):
+        raise ValueError(f"RETURNING_TEAMMATE_ADJ must be 0 or 1, got {v!r}")
+    return v == "1"
+
+
+def returning_teammate_deltas(feats: pd.DataFrame, prev_played: set[str],
+                              prev_teams: set[str]) -> tuple[np.ndarray, list[str]]:
+    """Per-row points to SUBTRACT from the model component (aligned with feats), and the returners' ids.
+
+    prev_played: gsis ids with a box-score line in week W-1; prev_teams: teams that played in W-1 (a bye
+    week is never an absence). Returners are WR/TE/RB with target_share_l4 >= 0.18 who did not play W-1,
+    whose team did, and who are not Out/Doubtful now. Each WR/TE/RB teammate who played W-1 loses 1.20
+    (target_share_jump >= 0.05) or 0.41, times 0.8 if every returner on his team is Questionable. A player
+    with several returning teammates takes the largest single delta, never a sum."""
+    n = len(feats)
+    delta = np.zeros(n)
+    if n == 0 or not prev_played:
+        return delta, []
+    pos = _col(feats, "position", "dk_position").fillna("").astype(str).str.upper()
+    team = _col(feats, "team", "team_abbr").fillna("").astype(str)
+    gid = feats.gsis_id.astype(str)
+    status = _col(feats, "status").fillna("").astype(str).str.upper().str.strip()
+    report = _col(feats, "injury_status").fillna("").astype(str).str.upper().str.strip()
+    ts = pd.to_numeric(_col(feats, "target_share_l4"), errors="coerce").fillna(0.0)
+    jump = pd.to_numeric(_col(feats, "target_share_jump"), errors="coerce").fillna(0.0)
+    skill = pos.isin(["WR", "TE", "RB"])
+    unavailable = status.isin(OUT_STATUSES | DOUBTFUL_STATUSES) | report.isin({"OUT", "DOUBTFUL"})
+    questionable = status.isin(QUESTIONABLE_STATUSES) | report.eq("QUESTIONABLE")
+    played_prev = gid.isin(prev_played)
+    returner = (skill & (ts >= RETURN_MIN_TARGET_SHARE) & ~played_prev & team.isin(prev_teams)
+                & ~unavailable & team.ne(""))
+    factor_by_team: dict[str, float] = {}
+    for t, q in zip(team[returner], questionable[returner]):
+        f = RETURN_Q_FACTOR if q else 1.0
+        factor_by_team[t] = max(factor_by_team.get(t, 0.0), f)
+    if not factor_by_team:
+        return delta, []
+    base = np.where(jump >= RETURN_SPIKE_JUMP, RETURN_DELTA_SPIKED, RETURN_DELTA_OTHER)
+    f_row = team.map(factor_by_team).fillna(0.0).to_numpy()
+    benef = (skill & played_prev & ~returner).to_numpy()
+    delta = np.where(benef, base * f_row, 0.0)
+    return delta, sorted(gid[returner].tolist())
+
+
 # Questionable availability haircut (2026-09-22). The featureset carries no
 # injury or practice feature, so a Questionable player is served E[points | he
 # plays at full strength]. Walk-forward 2018-2024 on the training panel, model fit

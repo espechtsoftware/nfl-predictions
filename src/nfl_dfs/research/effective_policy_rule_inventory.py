@@ -648,6 +648,37 @@ _V12_SOURCE_SET = _SourceSetContract(
     frozen_source_sha256=tuple(sorted(V12_FROZEN_SOURCE_SHA256.items())),
 )
 
+# Source-set v13 (2026-09-23): run_projections additionally lowers the model
+# component of teammates of a returning top receiver (RETURNING_TEAMMATE_ADJ,
+# default 0 = off) and reads the previous week's box-score players for it. The
+# rule and its env read live in cascade_adjust (not a frozen source role).
+# Measured before pinning: 278 direct read sites, position-free identical to
+# v12; one read moved 560 -> 569. V5-v12 remain immutable; never rewrite them.
+V13_SOURCE_SET_ID = (
+    "adopted-classic-policy-20260923-week3-returning-teammate-v13"
+)
+V13_CLASSIFIED_INPUT_PROJECTION_SHA256 = (
+    "402ec72f4e341a6e31a15a741ead75c5479ed829f2b93538b3cb2a20753d5061"
+)
+V13_FROZEN_SOURCE_SHA256: Mapping[str, str] = {
+    **V12_FROZEN_SOURCE_SHA256,
+    "src/nfl_dfs/inference/run_projections.py": (
+        "d8516c35a3d0cb7bdde0009528e2608bc7acab923cc3c3ca47d56c7130e9cef9"
+    ),
+}
+
+_V13_SOURCE_SET = _SourceSetContract(
+    schema=SCHEMA,
+    source_set_id=V13_SOURCE_SET_ID,
+    policy_env_sha256=POLICY_ENV_SHA256,
+    classified_input_projection_sha256=(
+        V13_CLASSIFIED_INPUT_PROJECTION_SHA256
+    ),
+    classified_input_key_count=CLASSIFIED_INPUT_KEY_COUNT,
+    direct_input_read_site_count=DIRECT_INPUT_READ_SITE_COUNT,
+    frozen_source_sha256=tuple(sorted(V13_FROZEN_SOURCE_SHA256.items())),
+)
+
 @dataclass(frozen=True)
 class _Locator:
     path: str
@@ -2285,6 +2316,15 @@ def generate_effective_policy_rule_inventory_v12(
     )
 
 
+def generate_effective_policy_rule_inventory_v13(
+    root: Path,
+) -> dict[str, Any]:
+    """Generate the explicit current Week-3 source-set v13 inventory."""
+    return _generate_effective_policy_rule_inventory(
+        root, source_set=_V13_SOURCE_SET
+    )
+
+
 def _source_set_for_inventory(
     inventory: Mapping[str, Any],
 ) -> _SourceSetContract:
@@ -2303,6 +2343,8 @@ def _source_set_for_inventory(
         return _V10_SOURCE_SET
     if source_set_id == V12_SOURCE_SET_ID:
         return _V12_SOURCE_SET
+    if source_set_id == V13_SOURCE_SET_ID:
+        return _V13_SOURCE_SET
     raise EffectivePolicyInventoryError(
         "effective-policy inventory source-set id is not registered"
     )

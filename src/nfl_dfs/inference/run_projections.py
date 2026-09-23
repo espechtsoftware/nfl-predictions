@@ -394,6 +394,15 @@ def project(
     log.info("market blend source: %s (%d/%d rows)",
              _mkt_src, int(_prop_market_mask.sum()), len(feats))
     _pre_blend = preds["proj_points"].to_numpy().copy()
+    # Returning-teammate adjustment (2026-09-23) on the model component; RETURNING_TEAMMATE_ADJ=0 is a no-op.
+    if cascade_adjust.returning_teammate_enabled():
+        _pw = query_df(f"""SELECT DISTINCT player_id, team FROM `{settings.raw}.weekly_stats`
+                           WHERE season = {int(season)} AND week = {int(week) - 1}""")
+        _rd, _rids = cascade_adjust.returning_teammate_deltas(
+            feats, set(_pw.player_id.astype(str)), set(_pw.team.astype(str)))
+        _pre_blend = np.maximum(_pre_blend - _rd, 0.0)
+        log.info("returning teammates: %d returner(s) %s; %d teammate(s) lowered by %.2f pts in total",
+                 len(_rids), ", ".join(_rids), int((_rd > 0).sum()), float(_rd.sum()))
     preds["proj_points"] = blend(
         _pre_blend, np.asarray(market, dtype=float),
         effective_model_weight(policy_env)

@@ -497,3 +497,47 @@ def test_q_primary_backups_are_found_and_scaled_only_when_enabled(monkeypatch):
     monkeypatch.setenv("QB_Q_PRIMARY_BACKUP_SCALE", "1.5")
     with pytest.raises(ValueError):
         q_primary_backup_scale()
+
+
+def _ret_slate():
+    """BAL: Flowers (top WR) missed last week and is back; Bateman spiked; a TE played normally; a RB also
+    played. KC: bye last week (no absence). NYG: returner is Out now (no adjustment)."""
+    rows = [
+        ("FLOW", "WR", "BAL", None, None, 0.25, 0.00),
+        ("BATE", "WR", "BAL", None, None, 0.18, 0.27),
+        ("ANDR", "TE", "BAL", None, None, 0.15, 0.00),
+        ("HENR", "RB", "BAL", None, None, 0.05, 0.01),
+        ("KCWR", "WR", "KC", None, None, 0.30, 0.00),
+        ("KCTE", "TE", "KC", None, None, 0.20, 0.10),
+        ("NYWR", "WR", "NYG", "O", None, 0.28, 0.00),
+        ("NYTE", "TE", "NYG", None, None, 0.12, 0.08),
+    ]
+    return pd.DataFrame(rows, columns=["gsis_id", "dk_position", "team_abbr", "status", "injury_status",
+                                       "target_share_l4", "target_share_jump"])
+
+
+def test_returning_teammate_deltas(monkeypatch):
+    from nfl_dfs.inference.cascade_adjust import (RETURN_DELTA_OTHER, RETURN_DELTA_SPIKED, RETURN_Q_FACTOR,
+                                                  returning_teammate_deltas, returning_teammate_enabled)
+    feats = _ret_slate()
+    prev = {"BATE", "ANDR", "HENR", "NYTE"}                 # Flowers did not play W-1; KC was on bye
+    teams = {"BAL", "NYG"}
+    d, rids = returning_teammate_deltas(feats, prev, teams)
+    by = dict(zip(feats.gsis_id, d))
+    assert rids == ["FLOW"]
+    assert by["BATE"] == pytest.approx(RETURN_DELTA_SPIKED)             # spiked teammate
+    assert by["ANDR"] == pytest.approx(RETURN_DELTA_OTHER) and by["HENR"] == pytest.approx(RETURN_DELTA_OTHER)
+    assert by["FLOW"] == 0 and by["KCWR"] == 0 and by["KCTE"] == 0     # returner untouched; a bye is not an absence
+    assert by["NYTE"] == 0                                             # an Out returner is not returning
+    feats.loc[feats.gsis_id == "FLOW", "status"] = "Q"
+    d, _ = returning_teammate_deltas(feats, prev, teams)
+    assert dict(zip(feats.gsis_id, d))["BATE"] == pytest.approx(RETURN_DELTA_SPIKED * RETURN_Q_FACTOR)
+    feats.loc[feats.gsis_id == "FLOW", "status"] = "D"
+    d, rids = returning_teammate_deltas(feats, prev, teams)
+    assert rids == [] and not d.any()                                  # Doubtful returner: no adjustment
+    assert returning_teammate_deltas(feats.iloc[0:0], prev, teams)[0].size == 0
+    monkeypatch.delenv("RETURNING_TEAMMATE_ADJ", raising=False)
+    assert returning_teammate_enabled() is False                       # default off
+    monkeypatch.setenv("RETURNING_TEAMMATE_ADJ", "yes")
+    with pytest.raises(ValueError):
+        returning_teammate_enabled()
