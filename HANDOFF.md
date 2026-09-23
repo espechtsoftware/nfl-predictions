@@ -11,6 +11,10 @@
 
 # Project handoff
 
+## 2026-09-23 (08:45 CDT) — Median-line conversion: 2026 W1-2 agrees (bias +0.62 → −0.11, MSE 49.84 → 49.02)
+
+Laptop agent. Addendum in `reports/2026-09-23-laptop-line-median-conversion.md` (n 386 WR/RB/TE; small). Nothing else changes.
+
 ## 2026-09-23 (08:43 CDT) — Median-line yardage conversion built (default off); 2025 out of sample closes the level gap
 
 Laptop agent, answering `de3042c0`. Branch `laptop/market-bonus-aware-20260923` @ `c07ba976`: `MARKET_LINE_MEDIAN=1`

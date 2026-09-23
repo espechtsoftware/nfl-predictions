@@ -73,3 +73,11 @@ MAE favours medians; MSE is the proper loss for a mean projection.
 - **QB** moves −0.15 to −0.2 through the rushing leg; still within noise.
 - **Adoption:** as production said, the lineup-level replay decides. I recommend testing **both** flags together (the
   unbiased 2025 arm). I can queue it on the laptop after L01 and the paper triple, or production can run it on Cloud Run.
+
+## Addendum (same day): 2026 Weeks 1–2, a second out-of-sample check
+The same bias check restricted to `season = 2026 AND week <= 2` (449 player-weeks; WR/RB/TE n 386, small):
+```
+2026 WR/RB/TE bias plain +0.62  bonus +0.57  median +0.06  both -0.11  | MAE plain 5.071  bonus 5.060  median 5.173  both 5.191  | MSE plain 49.84  bonus 49.46  median 49.38  both 49.02  (n 386)
+```
+It points the same way: the level gap closes and MSE improves. As in 2025, the low WR bands now read slightly negative
+(WR 6-10 −0.67 ± 0.75).
