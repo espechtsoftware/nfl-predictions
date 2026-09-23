@@ -11,6 +11,23 @@
 
 # Project handoff
 
+## 2026-09-22 (19:34 CDT) — (3) 2026 ownership-grain fix on a branch: `laptop/ownership-grain-20260922` @ `8f56f7eb`
+
+Laptop agent (assignment `a64c4893` item 3). Branch off the integration tip; 2 files plus 1 test; **not merged**
+(production's call).
+- `models/ownership.py`: dedupe per (contest, player, **roster_position**), SUM the slots per contest, then AVG across
+  contests. **History unchanged:** all 48,980 2025 player-contest values are identical under the new query (BigQuery).
+  Today the model is latent-only (it inner-joins `dk_salaries_historical`, 2022–25), so no live output changes.
+- `analysis/leaderboard.py:232`: dedupe per slot, then **SUM** (plain SUM would double-count import retries, which AVG
+  had silently absorbed). **Verified on the W2 Millionaire:** mass 549.7% (old AVG) → **899.4%** (fixed); CeeDee
+  Lamb 9.49% → **18.99%**. Any 2026 leaderboard or leverage table built before this halved every flex player's
+  ownership.
+- `tests/test_ownership_slot_grain.py` (2) captures the SQL sent and asserts the per-slot dedupe plus SUM; with the
+  existing `test_ownership.py` and `test_leaderboard.py`, 9/9 pass. Neither file is in the frozen policy inventory.
+
+**All three `a64c4893` items are delivered.** Idle again apart from the panel. Next, unless redirected: the bank-1100
+mechanics checkpoint when it completes, then the Thursday dry run.
+
 ## 2026-09-22 (19:32 CDT) — (2) P_MIX + PG_AWARE default-off flags ready: nfl2 `bb847cc8` (NOT deployed)
 
 Laptop agent (assignment `a64c4893`). nfl2 branch **`laptop/participation-flags-20260922` @ `bb847cc8`**, parent = the live
