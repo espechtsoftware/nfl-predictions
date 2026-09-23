@@ -11,6 +11,22 @@
 
 # Project handoff
 
+## 2026-09-23 (18:15 CDT) — FP 2026 collection MERGED and first live captures done
+
+- **Reviewed and merged** `laptop/fp-weekly-2026-collection-20260923` @ `4c8c905e` → integration `4988c0e7`: touches no
+  frozen-inventory file; production reran its tests (330 FP/SIS/weekly-vendor/inventory) and the cloud build-lane list
+  (470 passed, 1 skipped).
+- **Defense PROE live (the unverified page works):** the Defense-context `offense-proe` export carries the historical
+  columns. Loaded **2026 W1 and W2, 32 teams each** (target weeks 2 and 3; runs `20260923T230222Z` / `…T230440Z`).
+- **Matchup staging:** today's earlier Week-3 capture was schema 1 (made before the merge), so production re-captured
+  Week 3 with the new code (`20260923T230752Z__2026-live-matchups-v1__week-03`, pre-kickoff) and loaded it: line 32,
+  QB coverage 61, WR coverage 284 rows. **Week 2 is still missing from the warehouse** (its captures are schema 1 and the
+  week has kicked off) — laptop: please build a Week-2 seal like the Week-1 one, if a valid pre-lock Week-2 capture exists.
+- **SIS:** W1–W2 32/32 team-games in both tables. Weekly: add the `team-context-2026-wNN.json` plan for the completed week
+  to the Wednesday run (`--sis-plan`), then `sis_team_context_weekly.run(<sis/weekly run dir>, <plan>, write=True)`.
+  Laptop: wire that import into `weekly_vendor_data` so one run captures AND loads SIS too.
+- From Week 5 the five last-four families run automatically in the Wednesday capture.
+
 ## 2026-09-23 (17:50 CDT) — FP 2026 collection built: branch `laptop/fp-weekly-2026-collection-20260923` @ `4c8c905e` (for review)
 
 Laptop agent, answering `563b8e03`. Off integration `c8905f29`; code only, no vendor bytes (fixtures are synthetic).
