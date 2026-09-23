@@ -31,6 +31,10 @@ import pandas as pd
 PANEL = "20260811-pitclean-e80-k1-a12ab31"      # point-in-time replay projections, 2019/2021-2025
 FEATURES = ["pos_c", "salary", "proj", "proj_p90", "value", "proj_rank", "value_rank", "sal_rank",
             "value_z", "implied_team_total"]
+# Optional pre-lock lag inputs (2026-09-23): last week's Millionaire ownership, its 3-week mean, and the salary
+# change vs last week. Walk-forward within-slate Spearman 2023/24/25: 0.751/0.768/0.767 base -> 0.781/0.786/0.789.
+# OFF by default: the frozen L02 panel pins sets built with FEATURES; switch on only for a new frozen protocol.
+LAG_FEATURES = ["own_prev", "own_prev_l3", "sal_delta"]
 SKILL = ("QB", "RB", "WR", "TE")
 LOW_PCT, CHALK_PCT = 5.0, 20.0
 
@@ -105,24 +109,39 @@ def training_frame(query_df, project: str) -> pd.DataFrame:
     d = d[[(s, w) in have for s, w in zip(d.season, d.week)]]
     d = d.merge(own, on=["season", "week", "key"], how="left")
     d["own"] = d.pct.fillna(0.0)
+    d = add_lag_features(d)
     return add_features(d, ["season", "week"])
 
 
-def fit(train: pd.DataFrame):
+def add_lag_features(d: pd.DataFrame) -> pd.DataFrame:
+    """Previous-week ownership (and 3-week mean) and salary change per player within a season, strictly prior
+    rows only (shift(1)); NaN where there is no earlier week."""
+    d = d.sort_values(["key", "season", "week"]).copy()
+    g = d.groupby(["key", "season"])
+    d["own_prev"] = g.own.shift(1)
+    d["own_prev_l3"] = g.own.transform(lambda v: v.shift(1).rolling(3, min_periods=1).mean())
+    d["sal_delta"] = d.salary - g.salary.shift(1)
+    return d.sort_index()          # original row order, so the base model's training is unchanged
+
+
+def fit(train: pd.DataFrame, features: list[str] | None = None):
     import lightgbm as lgb
-    return lgb.LGBMRegressor(n_estimators=400, learning_rate=0.03, num_leaves=31, min_child_samples=40,
-                             verbose=-1, random_state=20260922).fit(train[FEATURES], np.log(train.own + 0.1))
+    f = FEATURES if features is None else features
+    m = lgb.LGBMRegressor(n_estimators=400, learning_rate=0.03, num_leaves=31, min_child_samples=40,
+                          verbose=-1, random_state=20260922).fit(train[f], np.log(train.own + 0.1))
+    m.feature_list_ = list(f)
+    return m
 
 
 def predict(model, x: pd.DataFrame) -> np.ndarray:
-    return np.exp(model.predict(x[FEATURES])) - 0.1
+    return np.exp(model.predict(x[getattr(model, "feature_list_", FEATURES)])) - 0.1
 
 
-def validate(d: pd.DataFrame) -> dict[int, float]:
+def validate(d: pd.DataFrame, features: list[str] | None = None) -> dict[int, float]:
     from scipy.stats import spearmanr
     out = {}
     for y in (2023, 2024, 2025):
-        m = fit(d[d.season < y])
+        m = fit(d[d.season < y], features)
         te = d[d.season == y].copy()
         te["pred"] = predict(m, te)
         r = [spearmanr(g.pred, g.own).statistic for _, g in te[te.proj >= 3].groupby("week")]
@@ -148,6 +167,46 @@ def slate_frame(query_df, settings, week: int, group: int) -> pd.DataFrame:
                          "run the projection refresh first")
     x["slate"] = int(group)
     return add_features(x, ["slate"])
+
+
+def live_lag_features(query_df, settings, x: pd.DataFrame, season: int, week: int) -> pd.DataFrame:
+    """Lag inputs for a live slate: prior weeks' Sunday-Millionaire ownership (2026 rows are one per roster SLOT, so
+    ownership is SUMMED per player per contest), and salary change vs the player's latest earlier-week DK salary."""
+    own = query_df(f"""
+        WITH c AS (SELECT week, contest_id, ANY_VALUE(contest_name) nm, COUNT(*) n
+                   FROM `{settings.raw}.contest_ownership` WHERE season = {int(season)} AND week < {int(week)}
+                   GROUP BY 1, 2),
+        pick AS (SELECT week, ARRAY_AGG(contest_id ORDER BY n DESC LIMIT 1)[OFFSET(0)] cid FROM c
+                 WHERE REGEXP_CONTAINS(nm, r"Millionaire") AND NOT REGEXP_CONTAINS(nm, r"\\(Thu\\)|MEGA|\\$555")
+                 GROUP BY 1),
+        slots AS (SELECT o.week, o.display_name, o.roster_position, ANY_VALUE(o.pct_drafted) p
+                  FROM `{settings.raw}.contest_ownership` o JOIN pick ON o.week = pick.week AND o.contest_id = pick.cid
+                  WHERE o.season = {int(season)} GROUP BY 1, 2, 3)
+        SELECT week, display_name, SUM(p) own FROM slots GROUP BY 1, 2""")
+    x = x.copy()
+    x["key"] = x.display_name.map(norm)
+    if own.empty:
+        x["own_prev"] = np.nan; x["own_prev_l3"] = np.nan
+    else:
+        own["key"] = own.display_name.map(norm)
+        w = own.pivot_table(index="key", columns="week", values="own", aggfunc="sum")
+        prev = w.get(week - 1)
+        x["own_prev"] = x.key.map(prev) if prev is not None else np.nan
+        last3 = [c for c in w.columns if week - 3 <= c <= week - 1]
+        x["own_prev_l3"] = x.key.map(w[last3].mean(axis=1)) if last3 else np.nan
+        # a player absent from a prior contest file was 0% owned there, but only if he was on that slate; unknown -> NaN
+    # dk_salaries.week is NULL for 2026 rows; identify last week's pulls by game date against the schedule
+    # (the same rule run_projections uses to find a week's slate).
+    sal = query_df(f"""
+        WITH gd AS (SELECT DISTINCT PARSE_DATE('%Y-%m-%d', gameday) d FROM `{settings.raw}.schedules`
+                    WHERE season = {int(season)} AND week = {int(week) - 1} AND game_type = 'REG')
+        SELECT CAST(s.dk_player_id AS STRING) dk, ARRAY_AGG(s.salary ORDER BY s.pulled_at DESC LIMIT 1)[OFFSET(0)] prev_sal
+        FROM `{settings.raw}.dk_salaries` s JOIN gd ON DATE(s.game_start, 'America/New_York') = gd.d
+        WHERE CAST(s.season AS INT64) = {int(season)} AND s.slate_type = 'classic' GROUP BY 1""") \
+        if week > 1 else pd.DataFrame(columns=["dk", "prev_sal"])
+    ps = dict(zip(sal.dk.astype(str), sal.prev_sal)) if len(sal) else {}
+    x["sal_delta"] = x.salary - x.dk_player_id.astype(str).map(ps).astype(float)
+    return x
 
 
 def replay_frame(query_df, project: str, seasons: list[int]) -> pd.DataFrame:
@@ -194,14 +253,18 @@ def main() -> None:
     ap.add_argument("mode", choices=["validate", "sets", "replay-sets"])
     ap.add_argument("--seasons", default="2023,2024")
     ap.add_argument("--week", type=int)
+    ap.add_argument("--season", type=int, default=2026)
     ap.add_argument("--group", type=int)
     ap.add_argument("--out", type=Path)
     ap.add_argument("--min-spearman", type=float, default=0.70)
+    ap.add_argument("--lag-features", action="store_true",
+                    help="add last week's ownership and salary change (NOT for sets feeding the frozen L02 panel)")
     a = ap.parse_args()
     from nfl_dfs.bq import query_df
     from nfl_dfs.config import settings
     d = training_frame(query_df, settings.project)
-    val = validate(d)
+    feats = FEATURES + LAG_FEATURES if a.lag_features else FEATURES
+    val = validate(d, feats)
     print("walk-forward within-slate Spearman:", {k: round(v, 3) for k, v in val.items()})
     if min(val.values()) < a.min_spearman:
         raise SystemExit(f"ownership model below the {a.min_spearman} gate on history; refusing to write sets")
@@ -220,7 +283,9 @@ def main() -> None:
         raise SystemExit("sets needs --week, --group and --out")
     chalk_share, low_share = set_shares(d)
     x = slate_frame(query_df, settings, a.week, a.group)
-    x["pred_own"] = predict(fit(d), x)
+    if a.lag_features:
+        x = live_lag_features(query_df, settings, x, a.season, a.week)
+    x["pred_own"] = predict(fit(d, feats), x)
     s = assign_sets(x, chalk_share, low_share)
     cols = ["gsis_id", "dk_player_id", "display_name", "pos", "team", "salary", "proj", "pred_own",
             "pred_rank", "set"]

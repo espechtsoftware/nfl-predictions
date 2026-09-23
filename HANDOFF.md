@@ -57,6 +57,16 @@ ownership panel (`786fafc1…`), both force-added. **No outcome read.**
   does not track it (`results/` is gitignored). The L02 runner's sha check guards the local copy, so the result is unaffected;
   L03 force-adds it.
 
+## 2026-09-23 (12:20 CDT) — Ownership model: optional lag inputs lift live accuracy 0.64 → 0.81 (default off)
+
+`scripts/ownership_sets.py --lag-features` adds last week's Sunday-Millionaire ownership (2026 slot rows SUMMED), its
+3-week mean, and the salary change vs last week (dk_salaries.week is NULL for 2026, so last week's pulls are found by
+game date against the schedule). Within-slate Spearman: walk-forward 2023/24/25 **0.751/0.768/0.767 → 0.781/0.786/0.789**;
+**2026 Week 2 live: 0.639 → 0.809** (own_prev coverage 80%, salary change 100%). **Default OFF and the base model is
+byte-for-byte unchanged** (validation reproduces 0.751/0.768/0.767; lag computation restores row order; +1 test,
+5/5), because PREREG-L02 pins sets built with the base model. Recommendation: the Week-3 paper triple keeps the base
+sets (consistency with L02, as frozen); a future L02 successor / live adoption should use `--lag-features`.
+
 ## 2026-09-23 (11:40 CDT) — Prop-name fix DEPLOYED (image 796380e4); returning-RB adjustment built (default off)
 
 - **Deployed** (operator approved): shipping `e457560b` → build `3a4729ac` → **`sha256:796380e43a04…fd17a`**, env unchanged.

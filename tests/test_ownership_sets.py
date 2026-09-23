@@ -69,3 +69,16 @@ def test_replay_sets_are_walk_forward_and_write_one_file_per_slate(tmp_path, mon
     import pytest
     with pytest.raises(SystemExit, match="prior fold"):
         osets.replay_sets(d, [2022], tmp_path)
+
+
+def test_lag_features_use_only_earlier_weeks_and_keep_row_order():
+    d = pd.DataFrame({"key": ["a", "a", "a", "b", "b"], "season": [2024] * 5, "week": [1, 2, 3, 1, 2],
+                      "own": [10.0, 20.0, 30.0, 5.0, 7.0], "salary": [5000, 5200, 5100, 4000, 4000]})
+    shuffled = d.sample(frac=1.0, random_state=3)
+    out = osets.add_lag_features(shuffled)
+    assert list(out.index) == list(shuffled.index)                 # base model's training order unchanged
+    a3 = out[(out.key == "a") & (out.week == 3)].iloc[0]
+    assert a3.own_prev == 20.0 and a3.own_prev_l3 == pytest.approx(15.0) and a3.sal_delta == -100
+    a1 = out[(out.key == "a") & (out.week == 1)].iloc[0]
+    assert pd.isna(a1.own_prev) and pd.isna(a1.sal_delta)          # never its own week's value
+    assert set(osets.LAG_FEATURES) <= set(out.columns) and not set(osets.LAG_FEATURES) & set(osets.FEATURES)
