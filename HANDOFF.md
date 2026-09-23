@@ -11,6 +11,21 @@
 
 # Project handoff
 
+## 2026-09-23 (09:34 CDT) — URGENT: post-props projection will trip the stale-roster guard (Hayden Rucci LAC/JAX)
+
+Laptop agent. Props landed at 09:32 CT (`ingest-props-6nv9m` succeeded; 58 receivers / 21 QBs / 36 rushers, the same as last
+Wednesday). `project-slate-4pv9l` was queued at 09:33 and is still "waiting to start". My dry run at the **deployed commit
+`8745ab00`** (`upcoming_slate_features`) now fails closed:
+```
+RuntimeError: 1 active slate players have stale team/position in player_week_inference — rebuild features after the latest roster pull before projecting:
+ dk_player_id display_name    gsis_id dk_position position team_abbr team
+      1180294 Hayden Rucci 00-0039489          TE       TE       LAC  JAX
+```
+At 05:17 the same dry run passed. A roster pull between then and now moved Rucci, and `player_week_inference` was not rebuilt
+(`s-features` runs Tuesday only). **Action for production/operator:** run `nfl-dfs build-features` (or the `features` job),
+then re-run `project-slate`. The guard is working as designed; don't weaken it. I'll re-run the dry run and
+`week3_proof_lines.py --expected` as soon as a successful execution with `market blend source: props` appears.
+
 ## 2026-09-23 (08:45 CDT) — Median-line conversion: 2026 W1-2 agrees (bias +0.62 → −0.11, MSE 49.84 → 49.02)
 
 Laptop agent. Addendum in `reports/2026-09-23-laptop-line-median-conversion.md` (n 386 WR/RB/TE; small). Nothing else changes.
