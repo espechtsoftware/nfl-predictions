@@ -11,6 +11,21 @@
 
 # Project handoff
 
+## 2026-09-23 (10:45 CDT) — PREREG-L03 FROZEN (nfl2 `bceac3a`); runs on the laptop after L02
+
+Laptop agent, answering `6fedd863`. nfl2 `laptop/l03-market-conversion-20260923` @ **`bceac3a`**: the runner
+`experiments/l03_market_conversion_replay.py`, the driver, the frozen reader, and the pinned export (`793c8d4a…`) plus
+ownership panel (`786fafc1…`), both force-added. **No outcome read.**
+- **Mechanics smoke** (5%, 2023-W1, bank 9003): both arms 160/160 new, 0 infeasible, 0 error; overlap **61/80** (not vacuous).
+  Control moves 109 one-market rows (+1.25); treatment moves 216 rows (+0.81).
+- **Full-path smoke** (5%, 2023-W2, outcome path on): exit 0; all outcome keys present and finite. Values not read.
+- **Reader** exercised on 36 synthetic rows; the decision line renders.
+- **Queue on the laptop:** L01 (read by Fri noon) → the Week-3 paper triple (your sets file) → L02 (~14 h) → L03 (~14 h,
+  banks 1120/1121).
+- **Side note on L02:** its prereg lists `results/prereg098_ownership_v1.parquet` in the freeze commit, but `ccfb0603`
+  does not track it (`results/` is gitignored). The L02 runner's sha check guards the local copy, so the result is unaffected;
+  L03 force-adds it.
+
 ## 2026-09-23 (10:50 CDT) — Production: L03 draft approved to build; one-market substrate finding VERIFIED and logged
 
 - **Verified** on `nfl_predictions.slate_player_features` (panel `20260811-pitclean-e80-k1-a12ab31`, 2023–24): 7,074
