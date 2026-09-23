@@ -14,6 +14,7 @@ players at >= 20% and skill players under 5%.
 
     python scripts/ownership_sets.py validate                      # walk-forward 2023-25 Spearman
     python scripts/ownership_sets.py sets --week 3 --group 153769 --out ~/week3-sunday/ownership_sets.csv
+    python scripts/ownership_sets.py replay-sets --season 2023 --out DIR   # walk-forward, one file per slate
 
 Reads BigQuery; the output holds no DraftKings standings and may live on the build host.
 """
@@ -95,7 +96,7 @@ def training_frame(query_df, project: str) -> pd.DataFrame:
     own["key"] = own.display_name.map(norm)
     own = own.groupby(["season", "week", "key"], as_index=False).pct.max()
     spf = query_df(f"""
-        SELECT season, week, name, pos, salary, mean_projection AS proj, proj_p90, implied_team_total
+        SELECT season, week, gsis_id, name, pos, salary, mean_projection AS proj, proj_p90, implied_team_total
         FROM `{project}.nfl_predictions.slate_player_features`
         WHERE panel_run_id = "{PANEL}" AND season BETWEEN 2022 AND 2025""")
     spf["key"] = spf.name.map(norm)
@@ -129,6 +130,35 @@ def validate(d: pd.DataFrame) -> dict[int, float]:
     return out
 
 
+def write_replay_sets(d: pd.DataFrame, season: int, out_dir: Path) -> int:
+    """Walk-forward sets for every replay slate of `season`: model AND set shares fitted on seasons < season
+    only, predicted from the replay panel's pre-lock inputs, one `<season>-w<WW>.csv` per slate, same schema
+    as the live file (keyed by gsis_id; dk_player_id is empty on the replay panel)."""
+    train = d[d.season < season]
+    if train.empty:
+        raise SystemExit(f"no training seasons before {season}; the first walk-forward season is "
+                         f"{int(d.season.min()) + 1}")
+    test = d[d.season == season]
+    if test.empty:
+        raise SystemExit(f"no replay slates with Millionaire ownership in {season}")
+    model = fit(train)
+    chalk_share, low_share = set_shares(train)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    n = 0
+    for (s_, w_), g in test.groupby(["season", "week"]):
+        g = g.copy()
+        g["pred_own"] = predict(model, g)
+        g["dk_player_id"] = pd.NA
+        g["display_name"] = g["name"]
+        g["team"] = pd.NA
+        sets = assign_sets(g.reset_index(drop=True), chalk_share, low_share)
+        cols = ["gsis_id", "dk_player_id", "display_name", "pos", "team", "salary", "proj", "pred_own",
+                "pred_rank", "set"]
+        sets[cols].sort_values("pred_rank").to_csv(out_dir / f"{int(s_)}-w{int(w_):02d}.csv", index=False)
+        n += 1
+    return n
+
+
 def slate_frame(query_df, settings, week: int, group: int) -> pd.DataFrame:
     """The Sunday-main slate's served projections (latest generation) with the implied team total."""
     x = query_df(f"""
@@ -151,7 +181,8 @@ def slate_frame(query_df, settings, week: int, group: int) -> pd.DataFrame:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("mode", choices=["validate", "sets"])
+    ap.add_argument("mode", choices=["validate", "sets", "replay-sets"])
+    ap.add_argument("--season", type=int)
     ap.add_argument("--week", type=int)
     ap.add_argument("--group", type=int)
     ap.add_argument("--out", type=Path)
@@ -165,6 +196,12 @@ def main() -> None:
     if min(val.values()) < a.min_spearman:
         raise SystemExit(f"ownership model below the {a.min_spearman} gate on history; refusing to write sets")
     if a.mode == "validate":
+        return
+    if a.mode == "replay-sets":
+        if not (a.season and a.out):
+            raise SystemExit("replay-sets needs --season and --out (a directory)")
+        n = write_replay_sets(d, a.season, a.out)
+        print(f"wrote {n} slate files for {a.season} to {a.out}")
         return
     if not (a.week and a.group and a.out):
         raise SystemExit("sets needs --week, --group and --out")

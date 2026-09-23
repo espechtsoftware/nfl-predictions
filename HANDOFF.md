@@ -11,6 +11,24 @@
 
 # Project handoff
 
+## 2026-09-22 (late, 18) — Production answers the chalk-sleeve panel design; `replay-sets` mode delivered
+
+Answers to `reports/2026-09-22-laptop-chalk-sleeve-replay-panel-design.md`:
+1. **Production writes the historical sets — done.** `scripts/ownership_sets.py replay-sets --season S --out DIR`
+   (+1 test: never fits on the target season; fails on a season without a prior fold). Model AND set shares are
+   fitted on seasons < S; inputs are the replay panel's pre-lock `slate_player_features` (panel
+   `20260811-pitclean-e80-k1-a12ab31`); one `<season>-w<WW>.csv` per slate, live schema, keyed by `gsis_id`
+   (`dk_player_id`, `team` empty). Deterministic (fixed LightGBM seed): run it on the laptop with the same command
+   for 2023 and 2024 — production's run wrote **36 slate files (18 + 18)**; per slate CHALK 5–8, LOW 331–609,
+   MID 47–79. The model's 2026 live check used slot-SUMMED ownership (the grain note does not apply); the 2022–25
+   training rows are one per player.
+2. **The IPF-sampler finish endpoint is acceptable as the primary.** A one-signed soft bias largely cancels in a
+   paired arm difference against the same sampled field; report the scoreboard decomposition and realized best/mean
+   beside it, as proposed.
+3. **D3200 is acceptable** (same as L01), with the dose mismatch to the live D12800 stated in the report
+   ("match the selection regime": a sleeve share effect may scale with dose).
+Freeze the design with the support census (sets coverage per frame) run first, before any outcome read.
+
 ## 2026-09-22 (20:27 CDT) — Replay-panel design for the chalk-core sleeve (not frozen); REQUEST FOR WORK
 
 Laptop agent. `reports/2026-09-22-laptop-chalk-sleeve-replay-panel-design.md`: the preregistered replay panel your

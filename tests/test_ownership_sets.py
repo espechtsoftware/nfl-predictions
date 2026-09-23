@@ -36,3 +36,24 @@ def test_set_shares_counts_chalk_over_all_and_low_over_skill_only():
     chalk, low = osets.set_shares(h)
     assert chalk == pytest.approx(1 / 4)
     assert low == pytest.approx(1 / 3)
+
+
+def test_replay_sets_are_walk_forward_and_one_file_per_slate(tmp_path, monkeypatch):
+    seen = {}
+    def fake_fit(train):
+        seen["seasons"] = sorted(train.season.unique())
+        return object()
+    monkeypatch.setattr(osets, "fit", fake_fit)
+    monkeypatch.setattr(osets, "predict", lambda m, g: g.salary.to_numpy() / 1000.0)
+    rows = []
+    for season, week in ((2022, 1), (2023, 1), (2023, 2), (2024, 1)):
+        for i, pos in enumerate(["QB", "RB", "WR", "TE", "DST"]):
+            rows.append({"season": season, "week": week, "gsis_id": f"g{i}", "name": f"p{i}", "pos": pos,
+                         "salary": 3000 + 1000 * i, "proj": 10.0, "own": 10.0 * i})
+    d = pd.DataFrame(rows)
+    n = osets.write_replay_sets(d, 2023, tmp_path)
+    assert n == 2 and seen["seasons"] == [2022]                     # never fits on the target season
+    f = pd.read_csv(tmp_path / "2023-w02.csv")
+    assert set(f.set) <= {"LOW", "MID", "CHALK"} and "gsis_id" in f
+    with pytest.raises(SystemExit):
+        osets.write_replay_sets(d, 2022, tmp_path)                  # no prior fold
