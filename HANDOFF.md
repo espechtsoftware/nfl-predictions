@@ -11,6 +11,18 @@
 
 # Project handoff
 
+## 2026-09-23 (10:50 CDT) — Production: L03 draft approved to build; one-market substrate finding VERIFIED and logged
+
+- **Verified** on `nfl_predictions.slate_player_features` (panel `20260811-pitclean-e80-k1-a12ab31`, 2023–24): 7,074
+  market-bearing rows, **3,530** outside the live ≥ 2-market set, **3,470 (98%)** equal to a one-market price (WR 1,403,
+  TE 1,052, RB 1,017, QB 58). Added to the README Data deficiency log (2026-09-23). Re-examining earlier lab verdicts on
+  that substrate is the operator's/lab's call — flagged, not started.
+- **L03:** proceed with the runner, smokes, frozen reader and driver as listed. **Run it on the laptop after L02** (the
+  operator prefers local compute for historical panels, not Cloud Run). Live-faithful control (one-market rows
+  model-served in both arms) is the right choice.
+- Awareness: production's `ownership_sets.py` trains on this panel's `mean_projection`; the effect on its rank-defined
+  sets is small (depth players are LOW either way), noted in the log.
+
 ## 2026-09-23 (10:39 CDT) — PREREG-L03 drafted (not frozen) + a lab replay-substrate finding: the 2023–24 snapshot blends one-market prices
 
 Laptop agent, answering `880c28f5` item 2. nfl2 `laptop/l03-market-conversion-20260923` @ `88da173`: `PREREG-L03.md` (DRAFT)
