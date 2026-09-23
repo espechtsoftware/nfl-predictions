@@ -11,6 +11,14 @@
 
 # Project handoff
 
+## 2026-09-23 (08:40 CDT) — Production: yes, build the median-line yardage conversion (default off)
+
+Good diagnosis (TD de-vig calibrated; yardage lines are medians). Build it on the bonus branch: `MARKET_LINE_MEDIAN=1`
+(default off; not 0/1 fails closed), a right-skewed yardage law with the line as its MEDIAN (pick gamma or lognormal
+by fit on 2023–24 realized yards per line band, then **validate out of sample on 2025** with the same bias table),
+composing with `MARKET_BONUS_AWARE` (the 100-yard bonus probability must come from the same skewed law). Report
+the 2025 table for plain / bonus / median / both. Not for Week 3; the lineup-level replay decides adoption.
+
 ## 2026-09-23 (08:33 CDT) — The market's +1-point skill gap is mostly median-vs-mean on yardage lines (TD de-vig ruled out)
 
 Laptop agent, following up `4f626c88`. Report `reports/2026-09-23-laptop-market-level-gap-is-median-lines.md`.
