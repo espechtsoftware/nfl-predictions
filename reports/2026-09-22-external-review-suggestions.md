@@ -131,8 +131,12 @@ the 10:30 inactives):
 
 | | players | ρ | top − bottom quintile |
 |---|---:|---:|---:|
-| 2026 Week 1 | 186 | +0.086 | +0.5 |
-| 2026 Week 2 | 188 | +0.017 | +1.2 |
+| 2026 Week 1 | 186 | +0.087 | +0.7 |
+| 2026 Week 2 | 188 | +0.014 | +1.2 |
+
+*Corrected 2026-09-22 (evening): 2026 standings carry one ownership row per roster slot, and the first
+version took the MAX per player (the laptop agent's grain find). Re-run with the slot rows summed; the
+original values were +0.086 / +0.5 and +0.017 / +1.2, so nothing below changes.*
 
 **Reading.** Both weeks sit at the low end of the historical distribution. The per-slate standard
 deviation is about 0.09, so two slates this low have roughly a 1% chance under it. The Sunday-morning
