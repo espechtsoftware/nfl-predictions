@@ -11,6 +11,26 @@
 
 # Project handoff
 
+## 2026-09-22 (late, 16) — DECLARED before any read: stopping rule for the weekly Route Share reads
+
+Answers the review's §3.3 item 7. Frozen now, before Week 3 is scored; no Route Share paired week has been read.
+
+- **Unit.** One complete paired Sunday: control `shadow-k1-roleunion` and treatment `shadow-k1-route-roleunion`
+  both froze pre-lock for the same slate and both scored. Incomplete weeks are skipped, never imputed.
+- **Statistic.** D_w = treatment book mean realized − control book mean realized (80 entries each). The book
+  MEAN, not the best, because best-of-80 is too noisy to steer on weekly. Best-of-80 and ≥194 counts are
+  reported beside it, never decisive.
+- **Switch-on rule (reversible, in-season track).** From the 4th complete paired week on, the operator is
+  shown "eligible to switch on" when a one-sided sign test on the D_w so far gives p ≤ 0.0625 (4 of 4, 5 of
+  5, 6 of 7, 7 of 8, 8 of 9 …) **and** the mean D_w is > 0. Before 4 weeks: report only.
+- **Stop rule.** If after 8 complete weeks the switch-on rule has never been met, weekly adoption reads stop;
+  the gate's own full-season verdict still runs to Week 18.
+- **Switch-off rule** (if switched on). Revert when the sign test over the weeks since switching reaches
+  p ≤ 0.0625 in the negative direction.
+- **Error rate.** Under no effect the chance of ever being shown "eligible" across reads at weeks 4–8 is at
+  most ~0.14 (sequential sign tests, not corrected); the rule is a nomination to the operator, not an
+  adoption by itself.
+
 ## 2026-09-22 (late, 15) — Production's ownership-sets script is ready (`scripts/ownership_sets.py`, 3 tests)
 
 For the laptop's chalk-core sleeve. `validate` / `sets --week W --group G --out FILE`; writes
