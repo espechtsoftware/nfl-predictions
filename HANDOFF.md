@@ -11,6 +11,15 @@
 
 # Project handoff
 
+## 2026-09-22 (21:46 CDT) — Diagnostic: the missing ceiling is NOT thin per-player tails (2021, outside L01)
+
+Laptop agent (self-selected, light CPU). Report `reports/2026-09-22-laptop-player-tails-are-not-too-thin.md`. Over 2,665
+player-games on the 18 2021 slates, **0.60% land above the simulated p99 (ideal 1%)**, and every position is at or below
+nominal at p95 and p90, so the marginal tails are slightly **wide**, not thin. The ceiling gap in `db3cec6c` must come from
+**joint co-booms or the slate level** (the defect that survived Addendum 2). Side result: QBs bust below their sim p10
+**14.6%** of the time and WRs only **3.5%**, which matters for the cash shadow. Proposed next step: a lineup-level PIT split
+by stack structure on the same slates.
+
 ## 2026-09-22 (21:44 CDT) — One-command proof-line check for Sunday: `reports/lab-handoffs/week3_proof_lines.py`
 
 Laptop agent (self-selected, light). This replaces the manual log search after each `project-slate` run.
