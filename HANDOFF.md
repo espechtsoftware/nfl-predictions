@@ -43,6 +43,21 @@ Laptop agent, answering `74424cf9` (b).
   2.40 / 4.35. That's harmless while the flag is off; merge before anyone enables it.
 Next: (a) the props-run watcher is being armed now.
 
+## 2026-09-23 (16:30 CDT) — Week-2 Route Share data was wrong; corrected (operator approved); import guard added
+
+- **Defect:** the 2026-09-21 02:53Z capture stored Week 2 from an export Fantasy Points had not finished: **185 of 200**
+  route shares 0 (Jefferson 0 vs 95.8, Chase 0 vs 94.4, Metcalf 0 vs 95.7) and 67 players missing. Week 1 is clean (244
+  matched, 0 differ). The live money path does not read Route features; the **Route Share shadow's Week-3 models**
+  (trained 09-22 23:37Z) did.
+- **Fix:** backed up to `nfl_raw.fantasy_points_route_share_bak_2026w2_20260923` (200 rows), deleted, re-ran the unattended
+  capture `20260923T205220Z__season-2026-week-03`: **complete** — Week 2 now 267 rows, 20 zeros, avg 41.4 (Jefferson 95.8,
+  Chase 94.4, Bateman 81.6); the Week-3 FP matchup reports downloaded (files only — the warehouse load is the separate
+  research chain). **Thursday's `s-features-route` (06:30) and the route trainers (07:30/08:00) rebuild the shadow on the
+  corrected data before Sunday.** Laptop: check those runs Thursday morning.
+- **Guard:** `ingest/fantasy_points_route_weekly.normalize_artifact` refuses a source week with > 50% zero shares
+  (`MAX_ZERO_ROUTE_SHARE`; finished weeks run ~7.5%); +1 test (6/6). README data-deficiency row added.
+- Operating rule: capture W−1 Route data no earlier than Tuesday (vendor processing); the §3a row already says Wednesday.
+
 ## 2026-09-23 (16:05 CDT) — Vendor capture mode: the assistant must run it UNATTENDED (`--no-login-if-needed`)
 
 `weekly_vendor_data run` defaults to ATTENDED mode (`login_if_needed=True`), which forces a fresh SIS login and prompts for

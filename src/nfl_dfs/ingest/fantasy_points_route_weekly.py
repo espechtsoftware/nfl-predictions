@@ -28,6 +28,8 @@ from .fantasy_points_route import (
 from ..names import norm_name
 
 
+MAX_ZERO_ROUTE_SHARE = 0.50   # completeness guard; see normalize (2026-09-23)
+
 PLAN_NAME = "2026-route-share-weekly-v1"
 PLAN_SHA256 = "cb6cf183c9f7455344954b227100152baeded9df4d5b3699b326d5b4e6baa35a"
 SEASON = 2026
@@ -205,6 +207,15 @@ def normalize_artifact(
     if conflicts.gt(1).any():
         bad = conflicts[conflicts.gt(1)].index.tolist()[:5]
         raise ValueError(f"conflicting weekly Route player-weeks: {bad}")
+    # Completeness guard (2026-09-23). The 2026-09-21 02:53Z import stored Week 2 from an export Fantasy Points had
+    # not finished processing: 185 of 200 route shares were 0 (Jefferson 0 vs 95.8 final), and 67 players were
+    # missing. The append-once rule then (correctly) refused the finished export, so the defect persisted until an
+    # operator-approved delete. A finished week has ~7.5% zeros (20 of 265 in Week 1, 20 of 267 in Week 2).
+    zero_share = float(out.route_share_pct.fillna(0).eq(0).mean()) if len(out) else 1.0
+    if zero_share > MAX_ZERO_ROUTE_SHARE:
+        raise ValueError(
+            f"weekly Route source week looks unfinished: {zero_share:.0%} of {len(out)} route shares are 0 "
+            f"(limit {MAX_ZERO_ROUTE_SHARE:.0%}); re-download after the vendor finishes processing the week")
     before = len(out)
     out = out.sort_values(
         ["season", "week", "_identity", "source_row"], kind="stable"

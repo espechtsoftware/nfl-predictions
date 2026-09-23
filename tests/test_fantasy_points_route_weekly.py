@@ -147,3 +147,21 @@ def test_rows_to_append_keeps_unresolved_identity_stable():
         "source_sha256": "abc",
     }])
     assert weekly.rows_to_append(row, row.copy()).empty
+
+
+def test_weekly_normalization_rejects_an_unfinished_mostly_zero_week(tmp_path):
+    """2026-09-23: Week 2 was imported from an export the vendor had not finished (185 of 200 shares = 0)."""
+    _, export = _manifest(tmp_path)
+    artifact = tmp_path / export["path"]
+    frame = pd.read_csv(artifact)
+    frame["W1"] = 0.0
+    frame.to_csv(artifact, index=False)
+    export["local_path"] = artifact
+    export["source_week"] = 1
+    export["retrieved_at"] = pd.Timestamp("2026-09-15T15:00:00Z")
+    with pytest.raises(ValueError, match="looks unfinished"):
+        weekly.normalize_artifact({"run_id": "run"}, export, _snapshots())
+    frame["W1"] = 75.0                                  # a finished week passes
+    frame.to_csv(artifact, index=False)
+    rows, _ = weekly.normalize_artifact({"run_id": "run"}, export, _snapshots())
+    assert len(rows) == 1
