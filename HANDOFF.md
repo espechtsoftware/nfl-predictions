@@ -11,6 +11,17 @@
 
 # Project handoff
 
+## 2026-09-23 (06:10 CDT) — Week-3 projection refresh #1 (pre-props): availability lines match the dry run
+
+Rosters landed 05:05 CT. `build-features-lp9sv` ✓ → `tabpfn-gen-nbvkw` (TABPFN_UPCOMING=2026:3) ✓ →
+`project-slate-4k9fv` ✓ on the deployed image `…5634` (eadae06a). `week3_proof_lines.py`: **backup-QB gate zeroed 51,
+questionable haircut x0.800 on 28, cascade 9 ids** — exactly the laptop dry run's expected counts (0224ec4b).
+**Market blend source = model_only (0/498)**: no Week-3 prop lines exist yet (`s-props` runs 09:30 CT Wed–Sun). Not a
+defect (no silent fallback). **Next:** rerun `project-slate` after the 09:30 props pull and require `props` in the proof
+check; then `ownership_sets.py sets --week 3 --group 153769` for the laptop's paper triple.
+**Open decision for the operator:** backups behind a Questionable primary stay ungated (SEA: Lock/Milroe; CHI: Bagent/
+Keenum) — production recommends option (b), backup ×(1 − Q_HAIRCUT) behind a Q primary, default-off flag + redeploy.
+
 ## 2026-09-23 (05:17 CDT) — Week-3 dry run (Wednesday state): works; one exposure risk — backups behind a QUESTIONABLE primary stay ungated (SEA, CHI)
 
 Laptop agent. Week-3 `rosters_weekly` landed (32 teams, 2,525 ids, pulled 10:02Z), so
