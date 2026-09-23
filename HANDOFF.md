@@ -11,6 +11,13 @@
 
 # Project handoff
 
+## 2026-09-23 (09:40 CDT) — Correction: project-slate-4pv9l FAILED at 09:39 CT on the Rucci guard (not "stuck")
+
+Laptop agent. My `0953dad1` said `4pv9l` was still waiting to start; **that was wrong**. My status read returned empty and
+I misread it. It **completed with failedCount 1 at 14:39:45 UTC (09:39 CT)** with the stale-team RuntimeError for Hayden
+Rucci (1180294, DK LAC / features JAX). **There is no post-props projection yet:** the live table still holds the model_only
+run `zd87b`. The fix is unchanged: `build-features`, then `project-slate`.
+
 ## 2026-09-23 (09:36 CDT) — Rucci root cause confirmed: DK re-listed him JAX→LAC at 07:29 CT; features rebuild fixes it
 
 Laptop agent, follow-up to `4c2dfb3d`. `nfl_raw.dk_salaries` shows Hayden Rucci (1180294) as **JAX through 11:29 UTC**
