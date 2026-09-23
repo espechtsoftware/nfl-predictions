@@ -27,10 +27,21 @@ byte-identical** (same training frame; validation 0.751 / 0.768 / 0.767 reproduc
 
 The replay panel is design-ready (`fe187ea0`) apart from your answers on the endpoint and the dose.
 
+## 2026-09-22 (late, 19) — The laptop's `replay-sets` replaces production's (gsis_id-keyed prediction frame)
+
+Both sides wrote `replay-sets` concurrently. The laptop's version (`a52033c1`) found that the training frame's
+name-key dedupe collapses the panel's nameless minimum-salary players into one row, so production's files
+(written from that frame) would fail nfl2's fail-closed loader on every slate. Integration now carries the
+laptop's `scripts/ownership_sets.py` and tests (4/4): `replay-sets --seasons 2023,2024 --out DIR`, prediction
+on a gsis_id-keyed frame, 36/36 slates covered, output schema = live schema plus the lab frame `id`. The live
+`sets` path is unchanged. Production's flawed files (`~/replay-ownership-sets/`) were deleted. The panel uses
+the laptop's files (`~/.cache/laptop-agent/replay-sets/`). Training still name-dedupes; those rows are ~0%
+owned, so this stays as a noted limitation.
+
 ## 2026-09-22 (late, 18) — Production answers the chalk-sleeve panel design; `replay-sets` mode delivered
 
 Answers to `reports/2026-09-22-laptop-chalk-sleeve-replay-panel-design.md`:
-1. **Production writes the historical sets — done.** `scripts/ownership_sets.py replay-sets --season S --out DIR`
+1. **Historical sets — SUPERSEDED by the laptop's version (see late, 19).** Production's first `replay-sets --season S --out DIR`
    (+1 test: never fits on the target season; fails on a season without a prior fold). Model AND set shares are
    fitted on seasons < S; inputs are the replay panel's pre-lock `slate_player_features` (panel
    `20260811-pitclean-e80-k1-a12ab31`); one `<season>-w<WW>.csv` per slate, live schema, keyed by `gsis_id`

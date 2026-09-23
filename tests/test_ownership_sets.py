@@ -38,22 +38,34 @@ def test_set_shares_counts_chalk_over_all_and_low_over_skill_only():
     assert low == pytest.approx(1 / 3)
 
 
-def test_replay_sets_are_walk_forward_and_one_file_per_slate(tmp_path, monkeypatch):
-    seen = {}
+def test_replay_sets_are_walk_forward_and_write_one_file_per_slate(tmp_path, monkeypatch):
+    import numpy as np
+    import pandas as pd
+    seen = []
+
+    class M:
+        def predict(self, X):
+            return np.log(np.linspace(30, 1, len(X)) + 0.1)
+
     def fake_fit(train):
-        seen["seasons"] = sorted(train.season.unique())
-        return object()
+        seen.append(sorted(train.season.unique().tolist()))
+        return M()
     monkeypatch.setattr(osets, "fit", fake_fit)
-    monkeypatch.setattr(osets, "predict", lambda m, g: g.salary.to_numpy() / 1000.0)
     rows = []
-    for season, week in ((2022, 1), (2023, 1), (2023, 2), (2024, 1)):
-        for i, pos in enumerate(["QB", "RB", "WR", "TE", "DST"]):
-            rows.append({"season": season, "week": week, "gsis_id": f"g{i}", "name": f"p{i}", "pos": pos,
-                         "salary": 3000 + 1000 * i, "proj": 10.0, "own": 10.0 * i})
-    d = pd.DataFrame(rows)
-    n = osets.write_replay_sets(d, 2023, tmp_path)
-    assert n == 2 and seen["seasons"] == [2022]                     # never fits on the target season
-    f = pd.read_csv(tmp_path / "2023-w02.csv")
-    assert set(f.set) <= {"LOW", "MID", "CHALK"} and "gsis_id" in f
-    with pytest.raises(SystemExit):
-        osets.write_replay_sets(d, 2022, tmp_path)                  # no prior fold
+    for season in (2022, 2023, 2024):
+        for week in (1, 2):
+            for i in range(40):
+                pos = ["QB", "RB", "WR", "TE", "DST"][i % 5]
+                rows.append({"season": season, "week": week, "id": f"p{i}", "gsis_id": f"g{i}", "name": f"P {i}",
+                             "team": "T", "pos": pos, "salary": 4000 + 100 * i, "proj": 5 + i % 7,
+                             "proj_p90": 10 + i % 7, "implied_team_total": 22.0, "own": float(i % 25)})
+    d = osets.add_features(pd.DataFrame(rows), ["season", "week"])
+    recs = osets.replay_sets(d, [2023, 2024], tmp_path)
+    assert seen == [[2022], [2022, 2023]], "season S must be fit on seasons before S only"
+    assert [r["fit_seasons"] for r in recs] == [[2022], [2022], [2022, 2023], [2022, 2023]]
+    f = pd.read_csv(tmp_path / "2024-w02.csv")
+    assert list(f.columns) == ["gsis_id", "id", "display_name", "pos", "team", "salary", "proj", "pred_own", "pred_rank", "set"]
+    assert set(f["set"]) <= {"LOW", "MID", "CHALK"} and (f["set"] == "CHALK").sum() >= 1
+    import pytest
+    with pytest.raises(SystemExit, match="prior fold"):
+        osets.replay_sets(d, [2022], tmp_path)
