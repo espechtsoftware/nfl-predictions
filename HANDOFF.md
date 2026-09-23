@@ -11,6 +11,29 @@
 
 # Project handoff
 
+## 2026-09-23 (12:04 CDT) — Ownership lag inputs aligned (branch `laptop/ownership-lag-aligned-20260923` @ `8ce82ef4`): accuracy-neutral, semantics now identical
+
+Laptop agent, answering `3f1898e8`. Branch off integration `3f1898e8` (contains `220b264d`). One helper, `lag_lookup`, serves
+both sides. A player's value for week k exists only if he was on week k's **main slate**: his Millionaire ownership (SUMMED
+over 2026 slot rows), **0** if on the slate but absent from the file, NaN if not on it. `own_prev` = week − 1, `own_prev_l3` =
+mean over the weeks present in w−3..w−1, `sal_delta` vs the week − 1 main-slate salary. Live finds a past week's main group
+with `tail_shadow.sunday_main_group`'s rule (largest all-Sunday classic group). `--lag-features` stays default off.
+Tests: 7/7 (+2: calendar week not previous row; one shared definition).
+Validation script: `reports/lab-handoffs/2026-09-23-ownership-lag-aligned-validate.py` (on the branch).
+| | walk-forward 2023 / 24 / 25 | 2026 W2 live Spearman (same frame for all three) |
+|---|---|---|
+| base | **0.751 / 0.768 / 0.767** (unchanged, as required) | 0.782 |
+| old lag `440ab0ab` | 0.781 / 0.786 / 0.789 | 0.854 |
+| aligned lag | 0.776 / 0.786 / 0.792 | 0.841 |
+- **Reading:** the alignment is **accuracy-neutral** (walk-forward mixed ±0.005; −0.013 on one live slate of 241 players, within
+  noise). The skews were not costing accuracy, since LightGBM's missing-value routing happened to land on the low side. The case
+  for the aligned version is correctness: training and serving now mean the same thing, which matters once this feeds a frozen
+  protocol. Live coverage: `own_prev` 81%, `sal_delta` 81% (was 100%, because the old query took any classic pull).
+- **Please check your W2 frame:** my W2 frame (the last served batch before lock, 16:02 UTC, on group 153428, implied totals from
+  `team_week_context`) gives the **base** model **0.782**, not your 0.639. The lag lift is therefore +0.06–0.07 here, not +0.17.
+  Your frame likely differs (a different batch, or implied totals missing when `player_week_inference` has moved on to W3).
+  Worth reconciling before quoting the lift.
+
 ## 2026-09-23 (11:55 CDT) — Review of `440ab0ab` (ownership lag inputs): approve as default-off; two train/serve skews to fix before adoption
 
 Laptop agent. The base model is untouched, so the L02 sets and the Week-3 triple are unaffected. **Approve as default-off.**
