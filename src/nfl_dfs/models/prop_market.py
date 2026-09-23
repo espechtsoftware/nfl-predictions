@@ -9,6 +9,7 @@ Names matched to gsis_ids via normalized full display name.
 from __future__ import annotations
 
 import logging
+import os
 from datetime import time
 
 import numpy as np
@@ -16,6 +17,7 @@ import pandas as pd
 
 from ..config import settings
 from .blend import american_to_prob, devig_two_way, prop_line_to_mean
+from scipy import stats
 
 
 def query_df(sql: str, params: dict | None = None):
@@ -45,6 +47,32 @@ STANDARD_MARKETS = (
     "player_receptions",
     "player_anytime_td",
 )
+
+
+# Bonus-aware conversion (2026-09-23, external review §3.2 item 2; DEFAULT OFF via MARKET_BONUS_AWARE=1).
+# DraftKings pays +3 at 100 rush / 100 receiving / 300 passing yards and -1 per interception; the plain
+# conversion prices only the mean yards. With the flag on, each yardage line adds 3 * P(Y >= threshold) under
+# the SAME normal the line already implies (mean from prop_line_to_mean, sigma = 0.30 * max(line, 1)), and an
+# interceptions market (if the feed carries one) contributes -1 * E[INT] (Poisson). Served WR bias grew with the
+# line (+0.8/+0.6 at 6-10 up to +3.0/+1.6 at 18+, 2023/2024) -- the missing bonus. Flag off = byte-identical.
+BONUS_AT = {"player_rush_yds": 100.0, "player_reception_yds": 100.0, "player_pass_yds": 300.0}
+INT_MARKET = "player_pass_interceptions"
+
+
+def bonus_aware() -> bool:
+    v = os.environ.get("MARKET_BONUS_AWARE", "0")
+    if v not in ("0", "1"):
+        raise ValueError(f"MARKET_BONUS_AWARE must be 0 or 1, got {v!r}")
+    return v == "1"
+
+
+def yardage_bonus_points(market: str, line: float, mean: float) -> float:
+    """3 * P(Y >= threshold) for a yardage market under the line's implied normal; 0 for other markets."""
+    thr = BONUS_AT.get(market)
+    if thr is None:
+        return 0.0
+    sigma = 0.30 * max(float(line), 1.0)
+    return float(3.0 * stats.norm.sf(thr, loc=mean, scale=sigma))
 
 
 def _norm(s: pd.Series) -> pd.Series:
@@ -165,8 +193,10 @@ def market_points(
     """
     if minimum_markets < 1:
         raise ValueError("minimum_markets must be at least 1")
+    bonus = bonus_aware()
     season_list = ", ".join(str(int(s)) for s in seasons)
-    market_list = ", ".join(f"'{market}'" for market in STANDARD_MARKETS)
+    markets = STANDARD_MARKETS + ((INT_MARKET,) if bonus else ())
+    market_list = ", ".join(f"'{market}'" for market in markets)
     props = query_df(
         f"""SELECT season, week, bookmaker, market, outcome_name, player,
                    price, point, snapshot_ts
@@ -270,7 +300,7 @@ def market_points(
         p_over, _ = devig_two_way(american_to_prob(r.Over),
                                   american_to_prob(r.Under))
         dist = "poisson" if r.market in ("player_receptions",
-                                         "player_pass_tds") else "normal"
+                                         "player_pass_tds", INT_MARKET) else "normal"
         try:
             mean = prop_line_to_mean(float(r.point), p_over, dist)
         except Exception:
@@ -278,6 +308,10 @@ def market_points(
         pts = (YARD_PTS.get(r.market, 0.0) * mean
                + (1.0 if r.market == "player_receptions" else 0.0) * mean
                + (4.0 if r.market == "player_pass_tds" else 0.0) * mean)
+        if bonus:
+            pts += yardage_bonus_points(r.market, float(r.point), mean)
+            if r.market == INT_MARKET:
+                pts = -1.0 * mean
         rows.append({"season": r.season, "week": r.week, "norm": r.norm,
                      "market": r.market, "bookmaker": r.bookmaker,
                      "pts": pts})
