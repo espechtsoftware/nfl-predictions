@@ -113,16 +113,35 @@ def training_frame(query_df, project: str) -> pd.DataFrame:
     return add_features(d, ["season", "week"])
 
 
+def lag_lookup(history: pd.DataFrame, targets: pd.DataFrame) -> pd.DataFrame:
+    """The lag inputs for each target row, by CALENDAR week (2026-09-23 alignment; one definition for training and live).
+
+    history: one row per (key, season, week) the player was ON that week's main slate, with `own` (his Millionaire
+    ownership there, 0 when he was on the slate but absent from the ownership file) and `salary`.
+    targets: rows with key, season, week (and salary for sal_delta).
+    own_prev = own at week - 1 (NaN if he was not on that slate); own_prev_l3 = mean own over the weeks week-3..week-1
+    he was on (NaN if none); sal_delta = salary - salary at week - 1 (NaN if not on that slate)."""
+    h = history.groupby(["key", "season", "week"], as_index=True)[["own", "salary"]].mean()
+    t = pd.MultiIndex.from_frame(targets[["key", "season", "week"]].astype({"season": int, "week": int}))
+    prev = [h.reindex(pd.MultiIndex.from_arrays([t.get_level_values(0), t.get_level_values(1), t.get_level_values(2) - k]))
+            for k in (1, 2, 3)]
+    out = pd.DataFrame(index=targets.index)
+    out["own_prev"] = prev[0].own.to_numpy()
+    win = np.column_stack([p.own.to_numpy(dtype=float) for p in prev]).reshape(len(targets), 3)
+    cnt = np.isfinite(win).sum(axis=1)
+    out["own_prev_l3"] = np.where(cnt > 0, np.nansum(win, axis=1) / np.maximum(cnt, 1), np.nan)
+    out["sal_delta"] = pd.to_numeric(targets.salary, errors="coerce").to_numpy(dtype=float) - prev[0].salary.to_numpy(dtype=float)
+    return out
+
+
 def add_lag_features(d: pd.DataFrame) -> pd.DataFrame:
-    """Previous-week ownership (and 3-week mean) and salary change per player within a season, strictly prior
-    rows only (shift(1)); NaN where there is no earlier week."""
-    order = d.index
-    d = d.sort_values(["key", "season", "week"]).copy()
-    g = d.groupby(["key", "season"])
-    d["own_prev"] = g.own.shift(1)
-    d["own_prev_l3"] = g.own.transform(lambda v: v.shift(1).rolling(3, min_periods=1).mean())
-    d["sal_delta"] = d.salary - g.salary.shift(1)
-    return d.loc[order]            # the input row order, so the base model's training is unchanged
+    """Training lag inputs: every panel row is a player on that week's main slate, with own = pct.fillna(0), so the
+    panel itself is the history (calendar week - 1, never 'the previous row'). Row order is untouched."""
+    d = d.copy()
+    lag = lag_lookup(d[["key", "season", "week", "own", "salary"]], d)
+    for c in LAG_FEATURES:
+        d[c] = lag[c]
+    return d
 
 
 def fit(train: pd.DataFrame, features: list[str] | None = None):
@@ -170,9 +189,40 @@ def slate_frame(query_df, settings, week: int, group: int) -> pd.DataFrame:
     return add_features(x, ["slate"])
 
 
+def main_slate_players(query_df, settings, season: int, week: int) -> pd.DataFrame:
+    """(dk_player_id, display_name, salary) of a PAST week's Sunday main slate: the largest all-Sunday classic draft group
+    on that week's Sunday (tail_shadow.sunday_main_group's rule), latest pull per player. dk_salaries.week is NULL for
+    2026, so the week's Sunday comes from the schedule."""
+    from nfl_dfs.inference.tail_shadow import sunday_main_group
+    sun = query_df(f"""SELECT DISTINCT PARSE_DATE('%Y-%m-%d', gameday) d FROM `{settings.raw}.schedules`
+                       WHERE season = {int(season)} AND week = {int(week)} AND game_type = 'REG' AND weekday = 'Sunday'""")
+    if sun.empty:
+        return pd.DataFrame(columns=["dk_player_id", "display_name", "salary"])
+    sunday = pd.to_datetime(sun.d.iloc[0]).date()
+    rows = query_df(f"""
+        SELECT draft_group_id, CAST(dk_player_id AS STRING) dk_player_id, display_name, team_abbr, salary, game_start, pulled_at
+        FROM `{settings.raw}.dk_salaries`
+        WHERE CAST(season AS INT64) = {int(season)} AND slate_type = 'classic'
+          AND DATE(game_start, 'America/New_York') = DATE('{sunday.isoformat()}')""")
+    if rows.empty:
+        return pd.DataFrame(columns=["dk_player_id", "display_name", "salary"])
+    groups = rows.groupby(["draft_group_id", "game_start"]).agg(teams=("team_abbr", "nunique"),
+                                                               players=("dk_player_id", "nunique")).reset_index()
+    # a group is all-Sunday only if none of its rows fall on another day; rows on other days were filtered out above,
+    # so drop groups that also carry players on other dates
+    other = query_df(f"""SELECT DISTINCT draft_group_id FROM `{settings.raw}.dk_salaries`
+                         WHERE draft_group_id IN ({", ".join(str(int(g)) for g in groups.draft_group_id.unique())})
+                           AND DATE(game_start, 'America/New_York') != DATE('{sunday.isoformat()}')""")
+    groups = groups[~groups.draft_group_id.isin(set(other.draft_group_id))]
+    gid = sunday_main_group(groups, sunday)
+    g = rows[rows.draft_group_id == gid].sort_values("pulled_at").groupby("dk_player_id").tail(1)
+    return g[["dk_player_id", "display_name", "salary"]].reset_index(drop=True)
+
+
 def live_lag_features(query_df, settings, x: pd.DataFrame, season: int, week: int) -> pd.DataFrame:
-    """Lag inputs for a live slate: prior weeks' Sunday-Millionaire ownership (2026 rows are one per roster SLOT, so
-    ownership is SUMMED per player per contest), and salary change vs the player's latest earlier-week DK salary."""
+    """Lag inputs for a live slate with the TRAINING definition (lag_lookup): for each of the three prior weeks, the
+    players on that week's main slate, with their Sunday-Millionaire ownership (2026 rows are one per roster SLOT, so
+    ownership is SUMMED per player) or 0 when on the slate but absent from the file; NaN for a player not on it."""
     own = query_df(f"""
         WITH c AS (SELECT week, contest_id, ANY_VALUE(contest_name) nm, COUNT(*) n
                    FROM `{settings.raw}.contest_ownership` WHERE season = {int(season)} AND week < {int(week)}
@@ -184,29 +234,32 @@ def live_lag_features(query_df, settings, x: pd.DataFrame, season: int, week: in
                   FROM `{settings.raw}.contest_ownership` o JOIN pick ON o.week = pick.week AND o.contest_id = pick.cid
                   WHERE o.season = {int(season)} GROUP BY 1, 2, 3)
         SELECT week, display_name, SUM(p) own FROM slots GROUP BY 1, 2""")
+    if len(own):
+        own["key"] = own.display_name.map(norm)
+    hist = []
+    for k in (1, 2, 3):
+        wk = int(week) - k
+        if wk < 1:
+            continue
+        on = main_slate_players(query_df, settings, season, wk)
+        if on.empty:
+            continue                      # no main-slate record that week: every player is NaN for it, as in training
+        on = on.assign(key=on.display_name.map(norm), season=int(season), week=wk)
+        pct = own[own.week == wk].groupby("key").own.sum() if len(own) else pd.Series(dtype=float)
+        if pct.empty:
+            continue                      # no ownership file that week: unknown, not 0
+        on["own"] = on.key.map(pct).fillna(0.0)
+        hist.append(on[["key", "season", "week", "own", "salary"]])
     x = x.copy()
     x["key"] = x.display_name.map(norm)
-    if own.empty:
-        x["own_prev"] = np.nan; x["own_prev_l3"] = np.nan
+    tgt = x.assign(season=int(season), week=int(week))
+    if hist:
+        lag = lag_lookup(pd.concat(hist, ignore_index=True), tgt)
+        for c in LAG_FEATURES:
+            x[c] = lag[c]
     else:
-        own["key"] = own.display_name.map(norm)
-        w = own.pivot_table(index="key", columns="week", values="own", aggfunc="sum")
-        prev = w.get(week - 1)
-        x["own_prev"] = x.key.map(prev) if prev is not None else np.nan
-        last3 = [c for c in w.columns if week - 3 <= c <= week - 1]
-        x["own_prev_l3"] = x.key.map(w[last3].mean(axis=1)) if last3 else np.nan
-        # a player absent from a prior contest file was 0% owned there, but only if he was on that slate; unknown -> NaN
-    # dk_salaries.week is NULL for 2026 rows; identify last week's pulls by game date against the schedule
-    # (the same rule run_projections uses to find a week's slate).
-    sal = query_df(f"""
-        WITH gd AS (SELECT DISTINCT PARSE_DATE('%Y-%m-%d', gameday) d FROM `{settings.raw}.schedules`
-                    WHERE season = {int(season)} AND week = {int(week) - 1} AND game_type = 'REG')
-        SELECT CAST(s.dk_player_id AS STRING) dk, ARRAY_AGG(s.salary ORDER BY s.pulled_at DESC LIMIT 1)[OFFSET(0)] prev_sal
-        FROM `{settings.raw}.dk_salaries` s JOIN gd ON DATE(s.game_start, 'America/New_York') = gd.d
-        WHERE CAST(s.season AS INT64) = {int(season)} AND s.slate_type = 'classic' GROUP BY 1""") \
-        if week > 1 else pd.DataFrame(columns=["dk", "prev_sal"])
-    ps = dict(zip(sal.dk.astype(str), sal.prev_sal)) if len(sal) else {}
-    x["sal_delta"] = x.salary - x.dk_player_id.astype(str).map(ps).astype(float)
+        for c in LAG_FEATURES:
+            x[c] = np.nan
     return x
 
 

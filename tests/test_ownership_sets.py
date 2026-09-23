@@ -82,3 +82,23 @@ def test_lag_features_use_only_earlier_weeks_and_keep_row_order():
     a1 = out[(out.key == "a") & (out.week == 1)].iloc[0]
     assert pd.isna(a1.own_prev) and pd.isna(a1.sal_delta)          # never its own week's value
     assert set(osets.LAG_FEATURES) <= set(out.columns) and not set(osets.LAG_FEATURES) & set(osets.FEATURES)
+
+
+def test_lag_features_are_calendar_week_not_previous_row():
+    # c missed week 2 (bye / off the main slate): at week 3 his last-week value is UNKNOWN, not his week-1 value
+    d = pd.DataFrame({"key": ["c", "c"], "season": [2024, 2024], "week": [1, 3], "own": [12.0, 9.0], "salary": [6000, 6400]})
+    c3 = osets.add_lag_features(d).iloc[1]
+    assert pd.isna(c3.own_prev) and pd.isna(c3.sal_delta)
+    assert c3.own_prev_l3 == pytest.approx(12.0)                   # week 1 is inside the week-3..week-1 window
+    # 0% (on the slate, absent from the file) is a value, carried as 0 -- not missing
+    z = pd.DataFrame({"key": ["z", "z"], "season": [2024, 2024], "week": [4, 5], "own": [0.0, 1.0], "salary": [3000, 3000]})
+    assert osets.add_lag_features(z).iloc[1].own_prev == 0.0
+
+
+def test_live_and_training_lags_share_one_definition():
+    hist = pd.DataFrame({"key": ["a", "a", "b"], "season": [2026] * 3, "week": [1, 2, 2], "own": [3.0, 0.0, 8.0],
+                         "salary": [4000, 4100, 7000]})
+    tgt = pd.DataFrame({"key": ["a", "b", "new"], "season": [2026] * 3, "week": [3] * 3, "salary": [4300, 7200, 5000]})
+    lag = osets.lag_lookup(hist, tgt)
+    assert lag.own_prev.tolist()[:2] == [0.0, 8.0] and pd.isna(lag.own_prev.iloc[2])
+    assert lag.own_prev_l3.iloc[0] == pytest.approx(1.5) and lag.sal_delta.tolist()[:2] == [200.0, 200.0]
