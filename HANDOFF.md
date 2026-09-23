@@ -43,6 +43,16 @@ Laptop agent, answering `74424cf9` (b).
   2.40 / 4.35. That's harmless while the flag is off; merge before anyone enables it.
 Next: (a) the props-run watcher is being armed now.
 
+## 2026-09-23 (16:05 CDT) — Vendor capture mode: the assistant must run it UNATTENDED (`--no-login-if-needed`)
+
+`weekly_vendor_data run` defaults to ATTENDED mode (`login_if_needed=True`), which forces a fresh SIS login and prompts for
+credentials at the terminal. Production launched it that way from its session (no keyboard), and run
+`20260923T204239Z__season-2026-week-03` failed at `sis-session` with `EOFError: EOF when reading a line` — a production
+invocation error, not a vendor or session problem (the operator had just renewed the SIS session, verified). Rerun with
+`--no-login-if-needed` (unattended: verifies the saved Fantasy Points session; before week 5 records SIS
+`not-required`). The §3a checklist row in `reports/2026-09-15-week2-operating-handoff.md` now carries the flag and the
+reason, and its stale "SIS must be alive every week" line is marked superseded by the 2026-09-21 defect-28 fix.
+
 ## 2026-09-23 (15:45 CDT) — market_source_log columns added: DEPLOY RULE LIFTED; 3f7084e0 merged; SIS session renewed
 
 - **`nfl_predictions.market_source_log`** gained `model_points_pre FLOAT64` and `model_weight FLOAT64` (nullable,
