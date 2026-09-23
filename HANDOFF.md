@@ -11,6 +11,26 @@
 
 # Project handoff
 
+## 2026-09-23 (06:10 CDT) — DEPLOYED: backups behind a Questionable primary scaled ×0.20 (operator approved)
+
+Operator approved option (b) from the laptop's dry-run finding (0224ec4b). Shipping branch
+`production/week3-qbgate-on-cf630a68-20260922` @ **`a65fc0cc`**: `cascade_adjust.find_q_primary_backups` +
+`apply_scale`, env `QB_Q_PRIMARY_BACKUP_SCALE` (default 1.0 no-op; out of [0,1] fails closed); the Q primary
+and any Doubtful QB are never scaled; disjoint from the zeroing gate (test). Inventory **source-set v12**
+(`adopted-classic-policy-20260923-week3-q-primary-backup-scale-v12`; run_projections only, 278 read sites
+position-free identical to v10, one read 554→560). Build-lane list 298 passed.
+- Build `c2c779d8` → image **`sha256:42570ce05b8532988bfca8d5ecca5e1651634db49c9aa2756807907e48e9f51d`**; deployed
+  to `project-slate` with env unchanged + `QB_Q_PRIMARY_BACKUP_SCALE=0.20`.
+- **Verified** `project-slate-4r6b4`: `q-primary backups: x0.200 on 3 QB(s)` (Lock 3.18, Milroe 0.37, Keenum 2.37);
+  gate 51, haircut 28, cascade 9 unchanged; Darnold 10.29 and Bagent 8.27 (×0.80); WAS/NYG promotions Mariota
+  11.51 / Winston 13.02 with Daniels/Dart 0. Still model_only (props land 09:30 CT) — rerun after.
+- **Laptop:** `week3_proof_lines.py` must now expect digest `42570ce0…` (not `eadae06a`), and may add the
+  `q-primary backups` line.
+- **Loose end:** Caleb Williams (DK D) keeps 15.50 in `player_projections` because the gate `continue`s on a Q
+  top; nfl2's Doubtful denylist removes him from every build. Cosmetic for the money path; fix after Sunday.
+- **Integration does NOT yet contain `a65fc0cc`**: deploy project-slate ONLY from the shipping branch until it
+  is merged (the merge needs an inventory version reconciling integration's v11 with shipping's v12).
+
 ## 2026-09-23 (06:10 CDT) — Week-3 projection refresh #1 (pre-props): availability lines match the dry run
 
 Rosters landed 05:05 CT. `build-features-lp9sv` ✓ → `tabpfn-gen-nbvkw` (TABPFN_UPCOMING=2026:3) ✓ →
