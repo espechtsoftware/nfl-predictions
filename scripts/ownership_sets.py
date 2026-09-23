@@ -14,6 +14,7 @@ players at >= 20% and skill players under 5%.
 
     python scripts/ownership_sets.py validate                      # walk-forward 2023-25 Spearman
     python scripts/ownership_sets.py sets --week 3 --group 153769 --out ~/week3-sunday/ownership_sets.csv
+    python scripts/ownership_sets.py replay-sets --seasons 2023,2024 --out DIR   # walk-forward, one file per slate
 
 Reads BigQuery; the output holds no DraftKings standings and may live on the build host.
 """
@@ -95,7 +96,7 @@ def training_frame(query_df, project: str) -> pd.DataFrame:
     own["key"] = own.display_name.map(norm)
     own = own.groupby(["season", "week", "key"], as_index=False).pct.max()
     spf = query_df(f"""
-        SELECT season, week, name, pos, salary, mean_projection AS proj, proj_p90, implied_team_total
+        SELECT season, week, id, gsis_id, name, team, pos, salary, mean_projection AS proj, proj_p90, implied_team_total
         FROM `{project}.nfl_predictions.slate_player_features`
         WHERE panel_run_id = "{PANEL}" AND season BETWEEN 2022 AND 2025""")
     spf["key"] = spf.name.map(norm)
@@ -149,9 +150,49 @@ def slate_frame(query_df, settings, week: int, group: int) -> pd.DataFrame:
     return add_features(x, ["slate"])
 
 
+def replay_frame(query_df, project: str, seasons: list[int]) -> pd.DataFrame:
+    """Every player of each replay slate, deduplicated on gsis_id -- NOT the name key training uses: the panel table
+    has players with no name (minimum-salary fringe rows), and a name-key dedup collapses all of them into one row,
+    which would leave the sets file unable to cover the slate (the sleeve's loader fails closed on that)."""
+    spf = query_df(f"""
+        SELECT season, week, id, gsis_id, name, team, pos, salary, mean_projection AS proj, proj_p90, implied_team_total
+        FROM `{project}.nfl_predictions.slate_player_features`
+        WHERE panel_run_id = "{PANEL}" AND season IN ({", ".join(str(int(v)) for v in seasons)})""")
+    x = spf[spf.salary.notna() & spf.proj.notna() & spf.gsis_id.notna()].drop_duplicates(["season", "week", "gsis_id"])
+    return add_features(x, ["season", "week"])
+
+
+def replay_sets(d: pd.DataFrame, seasons: list[int], out_dir: Path, pred_frame: pd.DataFrame | None = None) -> list[dict]:
+    """Walk-forward historical sets for the replay panel (laptop, 2026-09-22): for season S the model AND the rank-rule
+    shares are fit on seasons < S only (training frame `d`, unchanged), then every S slate that has Millionaire
+    ownership in `d` is predicted from its pre-lock inputs in `pred_frame` (all players; see replay_frame).
+    One file per slate, the live schema plus the lab's frame `id`, keyed by gsis_id so nfl2 frames join."""
+    out_dir.mkdir(parents=True, exist_ok=True)
+    pred_frame = d if pred_frame is None else pred_frame
+    receipts = []
+    for season in seasons:
+        train = d[d.season < season]
+        if train.empty:
+            raise SystemExit(f"no seasons before {season} to fit on; walk-forward sets need a prior fold")
+        chalk_share, low_share = set_shares(train)
+        model = fit(train)
+        matched = set(d[d.season == season].week.unique())
+        for week, x in pred_frame[(pred_frame.season == season) & pred_frame.week.isin(matched)].groupby("week"):
+            x = x.copy(); x["pred_own"] = predict(model, x)
+            sets = assign_sets(x, chalk_share, low_share)
+            f = out_dir / f"{season}-w{int(week):02d}.csv"
+            cols = ["gsis_id", "id", "name", "pos", "team", "salary", "proj", "pred_own", "pred_rank", "set"]
+            sets[cols].sort_values("pred_rank").rename(columns={"name": "display_name"}).to_csv(f, index=False)
+            receipts.append({"season": season, "week": int(week), "file": str(f), "players": len(sets),
+                             "chalk": int((sets.set == "CHALK").sum()), "low": int((sets.set == "LOW").sum()),
+                             "fit_seasons": sorted(int(v) for v in train.season.unique())})
+    return receipts
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("mode", choices=["validate", "sets"])
+    ap.add_argument("mode", choices=["validate", "sets", "replay-sets"])
+    ap.add_argument("--seasons", default="2023,2024")
     ap.add_argument("--week", type=int)
     ap.add_argument("--group", type=int)
     ap.add_argument("--out", type=Path)
@@ -165,6 +206,15 @@ def main() -> None:
     if min(val.values()) < a.min_spearman:
         raise SystemExit(f"ownership model below the {a.min_spearman} gate on history; refusing to write sets")
     if a.mode == "validate":
+        return
+    if a.mode == "replay-sets":
+        if not a.out:
+            raise SystemExit("replay-sets needs --out DIR")
+        seasons = [int(v) for v in a.seasons.split(",")]
+        recs = replay_sets(d, seasons, a.out, pred_frame=replay_frame(query_df, settings.project, seasons))
+        import json
+        (a.out / "receipt.json").write_text(json.dumps({"panel": PANEL, "validation": val, "slates": recs}, indent=1))
+        print(f"wrote {len(recs)} slate files to {a.out}")
         return
     if not (a.week and a.group and a.out):
         raise SystemExit("sets needs --week, --group and --out")
