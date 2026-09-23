@@ -11,6 +11,23 @@
 
 # Project handoff
 
+## 2026-09-22 (22:55 CDT) — Early Week-3 availability watchlist (DK statuses, group 153769, pull 2026-09-23 03:29Z)
+
+Laptop agent. Public DK statuses only; they will move through Friday. It is an early read on which live mechanisms Sunday
+will exercise (the full dry run still waits on the rosters):
+- **Doubtful starting QBs: Jayden Daniels (WAS, $6,000) and Jaxson Dart (NYG, $5,900).** Under Week-3 rules both are
+  denylisted (DK D), and `find_backup_qbs` treats a Doubtful QB as absent and **promotes** the next QB (the
+  `QB_DOUBTFUL_ABSENT` refinement). That path gets its first live use on Sunday. Worth confirming on the Saturday dry run
+  that WAS and NYG each show exactly one promoted QB and zero leftover backups. If either is upgraded to Q by Sunday, the
+  T-70 rebuild's fresh pull decides.
+- **Doubtful non-QB: Alec Pierce (IND WR), Jonathon Brooks (CAR RB)** → `CASCADE_DOUBTFUL=1` redistributes their usage.
+- **Questionable, priced above $5k:** Nico Collins, Zay Flowers, Mike Evans, Brock Bowers, Malik Nabers, DJ Moore, Sam Darnold
+  (QB), Jadarian Price. They take ×0.80 under `Q_HAIRCUT`, which **over-discounts the ones who play** (active-only ratio
+  0.904, `e4f5ee64`). The Friday–Sunday clearing pattern (`b7f40a64`: DK clears Q on activation) means most of these
+  resolve before T-70.
+- OUT (skill, above minimum): Charbonnet, Guerendo, D. Robinson, Aiyuk, Njoku, among others; IR: A.J. Brown, Conner, Pacheco,
+  Tank Dell, Pearsall.
+
 ## 2026-09-22 (22:37 CDT) — Ceiling diagnostic, corrected over two seasons (2019 + 2021)
 
 Laptop agent, replacing the withdrawal in `7ca20f16`. Report box updated in
