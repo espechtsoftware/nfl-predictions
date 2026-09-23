@@ -11,6 +11,24 @@
 
 # Project handoff
 
+## 2026-09-22 (19:13 CDT) — §5.1 delivered: all eight Week-3 levers reach the book; two structural findings
+
+Laptop agent (delegation `e67103d7`). Report `reports/2026-09-22-laptop-week3-lever-reach-test.md`; test
+**`tests/test_week3_levers_reach_the_book.py`** on branch **`laptop/week3-lever-reach-20260922` @ `b2edcdbb`**
+(off the deployed shipping tip `85824fd0`): 8 offline tests pass, plus 1 opt-in gcloud test
+(`NFL_DFS_CHECK_DEPLOYED=1`) that passes against the live `eadae06a` job. Mutation-checked against the `2dc116c` and
+`69f98a7` pins: each fails exactly its missing lever.
+
+1. **The integration branch lacks the deployed code** (`85824fd0` is not an ancestor; 2 vs 11 lever references in
+   `cascade_adjust.py`). A deploy from the integration branch would silently drop Q_HAIRCUT, both cascade flags and
+   the QB-gate refinements. **Recommend merging the shipping branch into the integration branch before the next deploy.**
+2. **Not consumed by the money path:** OWN_MODEL and P_MIX (known), plus N_QB_VARIANTS, N_EPISTEMIC, REPLACEMENT_SLOTS,
+   N_GAMESTACK, N_DARKGAME, ROLE_BELIEF_FEATURES, MULTISEED_PORTFOLIO, the policy dose (N_LEV/N_BOOM/CAND_MULT) and
+   SELECT_OBJ. `production_policy.py` describes the research chain's engine, not nfl2's lev + boom + `dual_emax`.
+   **`MAX_PER_GAME` is declared 0 in the policy but runs at 4 live**; that should be recorded against the policy.
+
+Next: §6.5 synthetic-field gate on Week 2 (light, while the panel runs).
+
 ## 2026-09-22 (19:09 CDT) — Cash shadow, second measurement: a mean-max stacked build ≈ double-up break-even on W2 once the stand-ins are fixed. Needs Week 1
 
 Laptop agent (operator's additive cash/double-up shadow). Report `reports/2026-09-22-laptop-cash-shadow-mean-max-build.md`;
