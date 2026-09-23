@@ -6,7 +6,8 @@ Pulls the log lines of ONE project-slate execution (the newest by default) and c
   * `backup-QB gate: zeroed N` with N in a sanity range (Week 2 had ~49 gated QBs);
   * `cascade: adjusted slate for N inactive(s): ids` present;
   * every `carries already priced ... carry side skipped` id is one of the cascade's ids (CASCADE_SKIP_PRICED_CARRIES);
-  * the execution's image digest equals --digest (default: the deployed eadae06a...).
+  * `q-primary backups: x0.200 on N QB(s)` (QB_Q_PRIMARY_BACKUP_SCALE, deployed 2026-09-23);
+  * the execution's image digest equals --digest (default: the deployed 42570ce0...).
 With --expected <file holding the dry-run tool's output>, the gate / haircut / cascade counts must match it exactly.
 
   python week3_proof_lines.py [--execution NAME] [--freshness 2d] [--expected dryrun.txt] [--digest sha256:...]
@@ -21,11 +22,12 @@ import subprocess
 import sys
 
 PROJECT, REGION, JOB = "nfl-predictions-503414", "us-central1", "project-slate"
-DEPLOYED = "sha256:eadae06aa94e79a065af3c23370f9fc8618341da6c611f55b5224f83e11d5634"
+DEPLOYED = "sha256:42570ce05b8532988bfca8d5ecca5e1651634db49c9aa2756807907e48e9f51d"
 PAT = {
     "market": re.compile(r"market blend source: (\S+) \((\d+)/(\d+) rows\)"),
     "gate": re.compile(r"backup-QB gate: zeroed (\d+)\b"),
     "haircut": re.compile(r"questionable haircut: x([0-9.]+) on (\d+)\b"),
+    "qbscale": re.compile(r"q-primary backups: x([0-9.]+) on (\d+) QB"),
     "cascade": re.compile(r"cascade: adjusted slate for (\d+) inactive\(s\): (.*)$"),
     "skip": re.compile(r"cascade: (\S+) carries already priced by team_vacated_carry_share; carry side skipped"),
 }
@@ -38,7 +40,7 @@ def gcloud(args: list[str]) -> str:
 def lines_for(execution: str | None, freshness: str) -> tuple[str, list[str]]:
     flt = (f'resource.type="cloud_run_job" AND resource.labels.job_name="{JOB}" AND ('
            + " OR ".join(f'textPayload:"{s}"' for s in ("market blend source", "backup-QB gate", "questionable haircut",
-                                                        "cascade: adjusted", "carry side skipped")) + ")")
+                                                        "cascade: adjusted", "carry side skipped", "q-primary backups")) + ")")
     if execution:
         flt += f' AND labels."run.googleapis.com/execution_name"="{execution}"'
     rows = json.loads(gcloud(["logging", "read", flt, "--freshness", freshness, "--limit", "2000", "--format", "json"]) or "[]")
@@ -101,6 +103,10 @@ def main() -> int:
     print(f"  backup-QB gate zeroed: {g}")
     if not g or not (lo <= int(g[0]) <= hi):
         fails.append(f"backup-QB gate count {g} outside {lo}-{hi}")
+    qs = got.get("qbscale")
+    print(f"  q-primary backups: {qs}")
+    if not qs or abs(float(qs[0]) - 0.2) > 1e-9:
+        fails.append("QB_Q_PRIMARY_BACKUP_SCALE x0.200 line missing or wrong (deployed 2026-09-23, 72eabda3)")
     c = got.get("cascade")
     print(f"  cascade adjusted: {c[0] if c else None} ids; carry-side skips: {len(got['skips'])}")
     if not c:

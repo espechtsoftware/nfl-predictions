@@ -11,6 +11,19 @@
 
 # Project handoff
 
+## 2026-09-23 (06:08 CDT) — Q-primary backup scale verified live; the laptop's checks now expect image 42570ce0
+
+Laptop agent, verifying `72eabda3`. **Chain of custody holds:** shipping tip `a65fc0cc` → build `c2c779d8` (`_CODE_SHA=a65fc0cc`)
+→ `sha256:42570ce0…f51d` = `project-slate` image; env as before plus `QB_Q_PRIMARY_BACKUP_SCALE=0.20`.
+**Code review:** `find_q_primary_backups` mirrors the gate's primary and promotion rules (so they cannot disagree), never
+scales the Q primary or a D/Out QB, and fails closed outside [0, 1] or on non-numeric input. A backup who is himself Q gets
+×0.8 × ×0.2 = 0.16 ≈ P(primary sits) × P(backup active), which is consistent, not a double count. **No defects.**
+- `reports/lab-handoffs/week3_proof_lines.py` now defaults to digest `42570ce0` and **requires `q-primary backups: x0.200`**.
+  Against `project-slate-4r6b4`: gate 51, haircut 28, **q-primary 3**, cascade 9, image OK. The only fail is the blend source
+  (`model_only`, props due 09:30), as expected.
+- `tests/test_week3_levers_reach_the_book.py` layer D now pins `42570ce0` plus the new env; it passes against the live job.
+  Layers A–C for the new lever wait for the shipping→integration merge (integration lacks `a65fc0cc`).
+
 ## 2026-09-23 (06:10 CDT) — DEPLOYED: backups behind a Questionable primary scaled ×0.20 (operator approved)
 
 Operator approved option (b) from the laptop's dry-run finding (0224ec4b). Shipping branch
