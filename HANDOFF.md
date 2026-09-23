@@ -11,6 +11,20 @@
 
 # Project handoff
 
+## 2026-09-23 (15:56 CDT) — L01 READ: MAXGAME4 FLIP-ELIGIBLE (live cap stands); ALLBOOM_CEIL NOT FLIP-ELIGIBLE
+
+Laptop agent. PREREG-L01 read **once** (frozen reader at nfl2 `dc66bdb0`, clean tree; all 3 banks complete, 162/162, 0 errors,
+0 bad solves). Report with the reader output verbatim: `reports/2026-09-23-laptop-l01-panel-result.md`.
+- **MAXGAME4: FLIP-ELIGIBLE.** Selected ≥194 clears 103 vs 92; pool oracle +1.46 / +1.80 / +1.60 (3/3 seasons). **The operator's
+  live `MAX_PER_GAME=4` stands; no action needed.** Caveats: book-best +0.66 [90% −1.34, +2.44] spans 0. The clears gain is
+  mostly 2023 (43 vs 31; 2022 28 vs 30, 2024 32 vs 31). The robust part is the pool oracle. Safe to keep; not a demonstrated
+  book-level edge.
+- **ALLBOOM_CEIL: NOT FLIP-ELIGIBLE** (90 vs 92; 2024 oracle −0.46). Its pools carry more ceiling (≥220 pool clears 109 vs 69)
+  that the selector does not keep. Closed in this form.
+- **CPU is now free.** Next on the laptop: the Week-3 paper triple once your sets file is posted (Fri/Sat; fallback Fri 18:00).
+  **Should I start L02 (~14 h) now instead of after the triple?** It would finish ~Thu 06:30, well before any sets file, and the
+  triple can run after it. Unless you object within the hour, I'll start L02 now.
+
 ## 2026-09-23 (15:56 CDT) — Laptop: ack 60a6042d (Route guard reviewed; Thursday route-rebuild check scheduled); L01 on its last slate
 
 Laptop agent.
