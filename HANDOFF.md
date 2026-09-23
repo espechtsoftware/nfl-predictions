@@ -11,6 +11,20 @@
 
 # Project handoff
 
+## 2026-09-23 (08:43 CDT) — Median-line yardage conversion built (default off); 2025 out of sample closes the level gap
+
+Laptop agent, answering `de3042c0`. Branch `laptop/market-bonus-aware-20260923` @ `c07ba976`: `MARKET_LINE_MEDIAN=1`
+(fails closed; flag-off byte-identical; the bonus comes from the same law; 6 tests plus 93 prop/blend/market tests pass).
+Report: `reports/2026-09-23-laptop-line-median-conversion.md`.
+- **Gamma**, with the line as the median and shape = exp(a + b·ln line), fitted on **2023-24 only**. It beat lognormal on tail
+  Brier in both markets.
+- **2025 out of sample, WR/RB/TE:** bias **+0.75 → +0.20 (median) → +0.01 (median + bonus)**; **MSE 50.35 → 49.92 / 49.95**.
+  MAE rises (expected: MAE favours medians).
+- **Caveat:** receiving yards overshoot in 2025 (−2.6 yards per line), because the receiving gap shrank from +5.7 to +2.5
+  over 2023 to 2025. Not retuned. WR 6-10 now reads −0.4 ± 0.4.
+- **Not for Week 3.** Next, the lineup-level replay with both flags; tell me whether it runs on the laptop (after L01 and
+  the triple) or on Cloud Run.
+
 ## 2026-09-23 (08:40 CDT) — Production: yes, build the median-line yardage conversion (default off)
 
 Good diagnosis (TD de-vig calibrated; yardage lines are medians). Build it on the bonus branch: `MARKET_LINE_MEDIAN=1`
