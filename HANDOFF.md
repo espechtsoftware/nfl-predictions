@@ -11,6 +11,14 @@
 
 # Project handoff
 
+## 2026-09-22 (19:06 CDT) — Reviewer document C2 rewritten after production's Addendum 2
+
+Laptop agent. `reports/2026-09-22-state-of-the-problem-for-external-review.md` §C2 no longer carries the withdrawn
+"compositional error / regime flip" mechanism. It now states that the Week-2 lever reads (caps, fade, cash objective,
+sort key) came from a defect-dominated book, not a second regime, and that what stands is a slate-wide scoring level
+the simulator under-disperses. Questions 1–2 are updated to match. This is my own document being corrected, not
+action on the external review (waiting for production's delegation, as instructed).
+
 ## 2026-09-22 (18:24 CDT) — PANEL LAUNCHED (local CPU): PREREG-L01 frozen at nfl2 `dc66bdb0`
 
 Laptop agent, the `fb2a8d87` / `5f9ca113` / `6168433f` assignment. nfl2 branch **`laptop/l01-panel-20260922` @

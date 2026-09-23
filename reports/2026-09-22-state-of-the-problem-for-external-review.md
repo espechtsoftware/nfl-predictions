@@ -81,33 +81,36 @@ gap. Even adding **+40 points to every lineup we build** gives only a 7.7% chanc
 today's quality), but much of that comes from owning a large share of a small field, which is
 not profit without edge. (`reports/2026-09-22-production-what-winning-requires.md` §2–§3)
 
-### C2. Almost nothing replicates across our two slates, and the reason is the simulator
-We hold only **two** weeks of full-field data. Lever after lever showed a strong effect on one
-slate and the **opposite sign** on the other:
+### C2. Almost nothing replicated across our two slates — and the Week-2 half was mostly our own defects
+*(Rewritten late on 2026-09-22 after production's Addendum 2 to `2026-09-22-simulator-calibration-is-the-defect.md`,
+which withdrew the "compositional error / regime flip" mechanism this section first carried.)*
+
+We hold only **two** weeks of full-field data, and several levers showed opposite signs across them:
 
 | lever | Week 1 | Week 2 | source |
 |---|---|---|---|
 | exposure caps | −2.5 to −5.0 mean | +11.3 mean | `2026-09-22-exposure-caps-do-not-replicate-out-of-sample.md` |
 | chalk fade | mean −2.33 / best +6.72 | mean +2.25 / best −1.84 | `2026-09-22-laptop-fade-two-slate-synthesis.md` |
-| cash-line objective | 53.3% cleared | 0 of 97 cleared | `2026-09-22-production-simulator-regime-flip.md` |
+| cash-line objective | 53.3% cleared | 0 of 97 cleared | `2026-09-22-production-simulator-regime-flip.md` (withdrawn framing) |
 | sim-mean sort vs realized (ρ) | +0.28 | −0.16 to −0.27 | same; `2026-09-22-laptop-sort-key-study.md` |
-| bring-back lineups (top-0.1% lift) | 1.99 | 0.75 | HANDOFF `b1af8137` |
-| salary left ≥ $400 | lift 1.28 | lift 0.70 | same |
 
-**The mechanism** (`reports/2026-09-22-simulator-calibration-is-the-defect.md`): the simulator
-predicts a lineup mean of about 123 every week, while realized means were 141 (Week 1) and 94
-(Week 2). The error is **compositional**, not a uniform shift:
-- The lineups the simulator likes most are the ones it misprices most, and the sign flips:
-  corr(sim mean, error) +0.14 in Week 1, −0.55 in Week 2.
-- P(score ≥ 194) was 5.5× too low in Week 1 and 146× too high in Week 2.
-- Expected-max selection is threshold-free and degrades gracefully.
-- Every threshold-keyed objective (cash line, P(top-N), tail counts) inherits the full error.
+**The Week-2 column is not a second regime.** Week 2's pools were dominated by availability defects: 31 non-players
+projected ≥ 5, plus four stand-in inflations (Jefferson, Flowers, McConkey, Bech). Zeroing those moves corr(sim
+mean, realized) on the Week-2 pool from **−0.49 to +0.34**, and the top-minus-bottom decile error from −67.7 to −7.3
+(production's reproduction of the external review's Finding A). Week 1 is ordinary against its own simulated
+worlds. So the Week-2 lever reads above were measured on a defect-dominated book, and they are **not evidence
+that levers flip by regime**; the defects are fixed for Week 3.
 
-**The ceiling is also a simulator property:** in Week 1 the winning line (274) appears in under 0.6% of simulated worlds, so generation cannot build a winner from worlds that never contain one (HANDOFF `db3cec6c`).
+**What stands:** a slate-wide scoring **level** the simulator under-disperses. Realized pool means of 141 (W1)
+and 94 (W2) sit at opposite ends of its world range (world-rank 0.98 and ≈ 0.05 after corrections). Expected-max
+and field-relative objectives are nearly immune to a level error; absolute thresholds (cash line, P(≥ 194),
+tail counts) are not.
 
-A claim that the slate scoring environment is predictable pre-lock was **retracted** the same
-day: it had fitted a 2022 data break in the training panel, where the share of inactive rows
-jumps from 0.3% to 46.6%.
+**The ceiling is also a simulator property:** in Week 1 the winning line (274) appears in under 0.6% of simulated
+worlds, so generation cannot build a winner from worlds that never contain one (HANDOFF `db3cec6c`).
+
+A claim that the slate scoring environment is predictable pre-lock was **retracted**: it had fitted a 2022 data
+break in the training panel, where the share of inactive rows jumps from 0.3% to 46.6%.
 
 ### C3. Availability errors poisoned the pools (now largely fixed for Week 3)
 - **Doubtful players:** 0 of 13 played across two weeks. Zay Flowers (Doubtful) held 48 of our 97
@@ -206,14 +209,14 @@ From the lab ledger (`nfl2/LEDGER.md`) and the briefing's §3
 
 ## 7. Questions for the reviewer
 
-1. **Learning with two slates.** Every live verdict has n = 2, and most flip. What evaluation
+1. **Learning with two slates.** Every live verdict has n = 2; the Week-2 half was mostly our own availability defects, now fixed. What evaluation
    design would let us learn faster without panel-mining? Material to design with:
    - 72 historical weeks of per-player ownership, but no lineups.
    - An IPF field sampler gated at 0.987 against a real field (PREREG-098).
    - Two real full fields.
    - Replays back to 2014.
-2. **Calibrating the simulator's level and composition.** The error is compositional and flips
-   sign by week. With two weeks of lineup-level simulated-vs-realized pairs, plus historical
+2. **Calibrating the simulator's scoring level.** Composition turned out to be the defects (C2); what remains is
+   a slate-wide level the simulator under-disperses. With two weeks of lineup-level simulated-vs-realized pairs, plus historical
    player outcomes, what recalibration is identifiable? Is anything fittable pre-lock, given
    that the environment-prediction claim was retracted?
 3. **Raising pool mean quality (49th → 65th percentile).** Players' projections come 55% from
