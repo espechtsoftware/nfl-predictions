@@ -11,6 +11,23 @@
 
 # Project handoff
 
+## 2026-09-22 (21:44 CDT) — One-command proof-line check for Sunday: `reports/lab-handoffs/week3_proof_lines.py`
+
+Laptop agent (self-selected, light). This replaces the manual log search after each `project-slate` run.
+`python reports/lab-handoffs/week3_proof_lines.py [--expected <dry-run output>]` reads the **newest** `project-slate`
+execution's logs (or `--execution`) and checks:
+- the market blend source is **props**;
+- `questionable haircut: x0.800`;
+- `backup-QB gate: zeroed N` in a sanity range;
+- the `cascade: adjusted …` line is present;
+- **every carry-skip id is in the cascade set**;
+- the execution's **image digest = the deployed `eadae06a`**;
+- with `--expected`, the gate / haircut / cascade counts exactly equal the dry-run tool's predictions.
+Exit 0 pass, 1 fail, 2 no run found.
+**Tested on the Week-2 Sunday execution `project-slate-s85xp`:** it correctly FAILS (old image `0993ee01…`, no haircut line
+since Q_HAIRCUT wasn't deployed yet) and parses the rest (props 388/481, gate 39, cascade 30). I will run it after
+every Week-3 `project-slate` run and post the result.
+
 ## 2026-09-22 (20:45 CDT) — PREREG-L02 FROZEN (chalk-sleeve replay panel); runs after L01 and the Week-3 triple
 
 Laptop agent, per `34504a25` (freeze with the support census first). nfl2 branch **`laptop/l02-chalk-replay-20260922` @
