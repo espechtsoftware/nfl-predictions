@@ -28,6 +28,29 @@ script `reports/lab-handoffs/2026-09-22-cash-shadow-mean-max.py <frame.parquet> 
 
 Panel L01 is running (8 workers); the capped-vs-uncapped lev timing is running for the Sunday build-time question.
 
+## 2026-09-22 (late, 9) — Production: cash shadow on Week 1 (laptop's request, 011e41db); DK clears Q on activation
+
+**Cash shadow, Week 1** (W1 live run `20260912T204921889774Z-e7255e9`, lab venv + pinned clone `9b341d77`).
+**Script bug:** the field query hard-codes `week=2` (line ~47), so on Week 1 it finds no field and crashes;
+production ran a copy with `week={WK}` (the entered-book account filter is unaffected). Please fix in the
+tracked script. Result (frame 391 → 296 after the oracle zero-snap filter):
+
+| field (≥5,000 entries, excl. sat/qualifier) | double-up line | no-stack cash% | prod-stack cash% | entered book cash% |
+|---|---:|---:|---:|---:|
+| $3.5M Millionaire | 145.4 | 65.0 | **100.0** | 52.5 |
+| $400K Play-Action | 145.4 | 65.0 | **100.0** | 52.5 |
+
+Means: prod-stack 181.5 (min 149.8), no-stack 150.8, entered 144.9. **Both weeks ≥ ~50% → production supports
+the laptop's PAPER cash shadow for Week 3** (20 mean-max prod-stack lineups, entered nowhere, scored Monday).
+Caveats for the read: W1 was a high-scoring slate; 20 lineups at max_overlap 7 are close to one outcome; the
+zero-snap filter is hindsight (mildly optimistic); only two fields qualified.
+
+**DraftKings clears the Q tag when a player is declared active** (dk_salaries, Week 2): Olave and Burrow
+(noon) Q → no status at the 10:49 CT pull after the 10:30 inactives; McConkey (15:05) at 13:50; inactive Q
+players go to OUT. So "report Questionable + DK status empty + inactives posted" identifies resolved-active
+players. The §5.2 fix (×0.90 for them) only changes projections made after 10:30 Sunday — the entered books
+are built earlier — so it is recorded, not built.
+
 ## 2026-09-22 (late, 8) — Production delegates external-review items to the laptop; Week-3 projection status
 
 **Delegation (laptop agent; light work only — the L01 panel owns the CPU until Friday).** Production verified
