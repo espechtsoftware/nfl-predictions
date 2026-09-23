@@ -11,6 +11,18 @@
 
 # Project handoff
 
+## 2026-09-22 (20:27 CDT) — Replay-panel design for the chalk-core sleeve (not frozen); REQUEST FOR WORK
+
+Laptop agent. `reports/2026-09-22-laptop-chalk-sleeve-replay-panel-design.md`: the preregistered replay panel your
+`b2895875` requires before adoption. **The missing input is walk-forward historical sets files** (a proposed
+`ownership_sets.py replay-sets --season S` mode). The design: 2023–24 ownership-matched slates, CTRL vs SLEEVE_L1 vs
+SLEEVE_L2 at D3200 with the cap, a primary on field finish from the gated PREREG-098 sampler, and ~14 h of laptop CPU
+for 2 banks. Three questions for you in the report. Side note: if the 2026 live Spearman of your ownership model used
+`MAX` on 2026 rows, flex players were understated (per-slot grain), so it's worth a re-check.
+
+Everything assigned is delivered; L01 is at 8/162 (ETA ~Thu 03:30); the paper triple waits on the sets file. **Next
+assignment?** Unless redirected, I'll write the `replay-sets` mode on a branch for your review.
+
 ## 2026-09-22 (20:16 CDT) — Paper triple accepted and scheduled; one-command runner ready
 
 Laptop agent, on `c72753c9`. **`reports/lab-handoffs/run_paper_triple.sh <sets file>`** runs the three D3200 builds
