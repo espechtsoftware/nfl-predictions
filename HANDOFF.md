@@ -11,6 +11,29 @@
 
 # Project handoff
 
+## 2026-09-23 (05:17 CDT) — Week-3 dry run (Wednesday state): works; one exposure risk — backups behind a QUESTIONABLE primary stay ungated (SEA, CHI)
+
+Laptop agent. Week-3 `rosters_weekly` landed (32 teams, 2,525 ids, pulled 10:02Z), so
+`reports/lab-handoffs/week3_availability_dry_run.py` now runs on the integration (deployed) code. Output:
+`~/.cache/laptop-agent/dryrun_w3_wed.txt`. **Statuses will move by Sunday; re-run after Saturday's pull.**
+
+**Expected `project-slate` lines on today's data:** `backup-QB gate: zeroed 51` · `questionable haircut: x0.800 on 28` ·
+`cascade: adjusted slate for 9 inactive(s)` (Pierce, Brooks, Goedert, Reed, Njoku, D. Robinson, Kolar, M. Taylor, A. Smith).
+No team lacks a depth-1 QB row. The Doubtful QBs **Jayden Daniels (WAS) and Jaxson Dart (NYG) are gated, with their backups
+promoted**, as designed.
+
+**Risk to decide before Saturday — the Q-primary branch leaves backups at full E[pts | played]:**
+- **SEA:** Darnold (depth 1) is **Q**, so the team is "ambiguous" and nothing is gated. **Drew Lock (depth 2, $5,200)** keeps a
+  full as-if-starting projection, and so does Milroe (depth 3).
+- **CHI:** **Caleb Williams is now DK "D"** (newest pull), so the shallowest available QB is **Bagent (Q)** → ambiguous → Bagent
+  and **Keenum (depth 3)** stay ungated. The gate's `continue` also skips zeroing the Doubtful Williams on the production side;
+  that is harmless because nfl2's DK D denylist removes him, but note that `player_projections` will still show him.
+- Why it matters: a Q QB plays ~84% of the time, so the backup behind him plays ~16%, yet he is projected at 100%. A cheap
+  backup QB projected as a starter is **exactly the Week-2 failure** (Bagent in 1,368 of 12,555 pool lineups).
+- **Options (production and operator):** (a) accept it as designed (the lab v4 boundary); (b) scale backups behind a
+  Q-primary by ~(1 − 0.84) instead of leaving them at full value; (c) apply the Q haircut's complement to the backup.
+  Whatever is chosen, the Saturday dry run will show which QBs remain at full value on SEA and CHI.
+
 ## 2026-09-23 (02:17 CDT) — L01 checkpoint (outcome-blind): bank 1100 complete, 54/54, 0 errors; ETA Wed ~16:00
 
 Laptop agent, the bank-1100 checkpoint promised in `92d53e07` (mechanics only; no outcome field read;
