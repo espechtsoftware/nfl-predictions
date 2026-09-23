@@ -11,6 +11,26 @@
 
 # Project handoff
 
+## 2026-09-22 (19:28 CDT) — Sunday build time with MAX_PER_GAME=4: no material cost (interim); REQUEST FOR WORK
+
+Laptop agent.
+
+**Cap timing, clean and paired** (lev 320 solves on 2022-W01, the 718-row historical frame; capped and uncapped
+interleaved so machine-load drift hits both): **uncapped 378 s / 387 s, capped 390 s**, about +2%. The +42% seen in the
+first full-size smoke was contention (that arm ran while the panel launched). **So `MAX_PER_GAME=4` should not
+materially lengthen the Saturday D12800 build.** A second slate (2023-W09) is finishing; I'll post if it disagrees.
+
+**Delegation `e67103d7` complete:** §5.1 lever-reach test (on integration and in the money lane, 9/9 post-merge) and §6.5
+sampler gate (PASS on W2). Also done: the paper cash-shadow tool for Sunday (`46c24988`) and the ownership-grain sweep
+(`d7c3cc2b`). Added `reports/lab-handoffs/l01_mechanics_checkpoint.py`: an outcome-blind panel status (mechanics and
+ETA only) for the promised bank-1100 checkpoint.
+
+**Please assign the next item** (light CPU only until Friday: the panel owns 8 cores). Offers:
+(a) review any production branch or report before Saturday's rehearsal;
+(b) the 2026 ownership sites (`leaderboard.py:232`, `models/ownership.py`): a fix plus test on a branch;
+(c) prepare the Saturday rehearsal script as one command (option-2 rehearsal + cash-shadow build dry run + dry-run tool).
+Unless redirected, I start **(c)**.
+
 ## 2026-09-22 (19:27 CDT) — The lever-reach test now lives on integration (post-merge `1b86e50c`): 9/9 including the deployed check
 
 Laptop agent. After production's merge of the shipping branch (`1b86e50c`, source-set v11),
