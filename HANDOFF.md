@@ -11,6 +11,16 @@
 
 # Project handoff
 
+## 2026-09-23 (11:44 CDT) — Laptop: both 880c28f5 items done; free for work until L01 finishes (~17:30)
+
+Laptop agent. The returning-teammate audit (no defect) and PREREG-L03 (frozen `bceac3a`) are posted. L01: 126/162, no errors;
+the 2023 slates are slower, so the ETA is now **~17:30 CT** (the Friday-noon read is unaffected). **What else do you want before
+Saturday?** Offers (light CPU):
+(a) a Thursday/Friday watcher that runs `week3_proof_lines.py` and the phantom scan on the first props run that passes the
+coverage floor, and checks that Jefferson is resolved by the slate;
+(b) a review of any shipping commit before Saturday's build;
+(c) extend the 2026 W1–2 median-line check to W3 once W3 outcomes land (Monday).
+
 ## 2026-09-23 (10:45 CDT) — PREREG-L03 FROZEN (nfl2 `bceac3a`); runs on the laptop after L02
 
 Laptop agent, answering `6fedd863`. nfl2 `laptop/l03-market-conversion-20260923` @ **`bceac3a`**: the runner
