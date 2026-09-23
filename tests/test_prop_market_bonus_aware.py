@@ -13,8 +13,8 @@ LAMB = "00-0036358"
 def test_hand_computed_bonus_values():
     # receiving 85.5 at an even price: mean 85.5, sigma 0.30*85.5 = 25.65, z = 14.5/25.65 = 0.5653 -> P = 0.28593
     assert prop_market.yardage_bonus_points("player_reception_yds", 85.5, 85.5) == pytest.approx(3 * 0.285931, abs=1e-4)
-    # passing 265.5: sigma 79.65, z = 34.5/79.65 = 0.43315 -> P = 0.33245
-    assert prop_market.yardage_bonus_points("player_pass_yds", 265.5, 265.5) == pytest.approx(3 * 0.332452, abs=1e-4)
+    # passing is deliberately NOT bonused (QB conversion already unbiased; no INT market to offset it)
+    assert prop_market.yardage_bonus_points("player_pass_yds", 265.5, 265.5) == 0.0
     # rushing uses the 100-yard threshold too; far below it the bonus is ~0
     assert prop_market.yardage_bonus_points("player_rush_yds", 20.5, 20.5) < 1e-6
     # 160.5: sigma 48.15, z = -60.5/48.15 = -1.2565 -> P = 0.89553 (a wide line keeps real miss risk)
