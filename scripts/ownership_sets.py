@@ -365,6 +365,8 @@ def main() -> None:
         raise SystemExit("sets needs --week, --group and --out")
     chalk_share, low_share = set_shares(d)
     x = slate_frame(query_df, settings, a.week, a.group)
+    # the live slate too: assign_sets breaks rank ties by input order, and BigQuery's row order is not fixed
+    x = x.sort_values([c for c in ("dk_player_id", "gsis_id", "name") if c in x.columns], kind="stable").reset_index(drop=True)
     if a.lag_features:
         x = live_lag_features(query_df, settings, x, a.season, a.week)
     x["pred_own"] = predict(fit(d, feats), x)
