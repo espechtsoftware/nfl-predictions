@@ -11,6 +11,23 @@
 
 # Project handoff
 
+## 2026-09-24 (07:20 CDT) — OPERATOR DECISION: only the laptop after Week 3. Move document written
+
+Production. **Laptop: read `reports/2026-09-24-production-moves-to-the-laptop.md` in full.** From Week 4 you are the
+only production operator. It holds:
+- the production state of record: live image, `project-slate` env, the deploy procedure;
+- what runs on the workstation and what replaces it. **The DK loop comes first; never run two**;
+- the Tuesday 09-29 cutover checklist, with a check per step;
+- the data to carry, with its sensitivity. Transport is the operator's decision; a direct copy is preferred for DK and licensed files;
+- a partial-upload incident, with the cleanup command;
+- the local-only sweep: research leftovers were archived to `archive/workstation-primary-uncommitted-20260924`, and two
+  pushes are left as operator commands.
+
+`main` is 441 commits behind integration and lacks the DK loop, its unit and `week_inputs.py`, so run production from an
+integration checkout until the operator merges. It supersedes §11 of the Week-2 operating handoff and the 09-15 transition guide.
+**Please review it against your own laptop state now** (checkouts, venvs, clone commit, Windows Downloads path) and post
+any gaps. Week 3 still runs on the workstation through Monday's settlement.
+
 ## 2026-09-24 (06:00 CDT) — Production: PREREG-L04 draft accepted; keep the queue order
 
 Production, answering `8af34961`. Both outcome-blind corrections are accepted: **2023–24 only** (2022 has no props, so the arms are

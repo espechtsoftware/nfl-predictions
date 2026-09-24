@@ -142,7 +142,23 @@ The script needs a real `--list` mode and a fail-closed argument check before an
 
 ## 6. Code and documents that exist only on the workstation
 
-(Filled in from a read-only classification of every checkout with local-only state; see below.)
+A read-only sweep on 2026-09-24 checked every worktree of both repos. It hashed each modified or untracked file
+against every object on the remotes and ran `git cherry` on the unpushed commits.
+**Nothing on the production money path exists only here:** every production branch and tool is on GitHub. What was
+unique here is research leftovers:
+
+| item | status |
+|---|---|
+| Primary checkout (`~/projects/nfl-predictions`), 8 modified files and 27 untracked research modules, runners and tests (r6 corpus / fair-fill / scheduler, cloud_core_v1 recovery, foundry v12 lane exports, recourse-aware transport) | **pushed** to `archive/workstation-primary-uncommitted-20260924` @ `155737d5`. The 19 untracked `reports/*.md` were already on origin/main |
+| `week1-audit-adjust-20260912`: `scripts/arm_week_timers.sh`, a Week-2 release-pin hotfix, since superseded by the integration rewrite | **pushed**, `53591bcd` on its branch |
+| `~/projects/nfl-predictions-explicit-construction-policy`: 7 modified files plus the 2026-09-05 construction-law runtime audit; the branch has no remote | **operator command** (the session's safety check refused the push): `cd ~/projects/nfl-predictions-explicit-construction-policy && git add -A && git commit -m "Archive the explicit construction-law audit WIP" && git push -u origin codex/explicit-construction-policy-v1` |
+| nfl2 main checkout: 13 untracked lab reports (2026-08-29 to 09-01, 530 KB), plus `.nfl2-worktrees/prereg098-finish-20260914/scripts/arm_118_now.sh` | **operator command** (same refusal). From a new nfl2 worktree on `origin/main` (branch `archive/workstation-uncommitted-20260924`), copy `git -C ~/projects/nfl2 status --porcelain \| grep '^?? reports/'` files and that script, commit, push. nfl2 is private. Do not touch the main checkout's in-progress cherry-pick of `8eaddf0`: its content is already on the remote, so `git cherry-pick --abort` loses nothing |
+| ~2,220 run receipts under `reports/corpus-parametric-runs/…v12a|v12b…/transport-live-*`, `reports/r6-full-union-realized-runs/…`, t230 runs (≈ 280 MB with the `tasks/` dirs) | **left behind unless the operator wants them.** Research evidence for retired frozen chains. About half carry the Google account email in Cloud Run creator fields, so they do not belong in the public repo. The private bucket would be the place |
+| Superseded drafts (cfb-audit, cp1-efficacy-package, jpar-a9, prereg073-r2-template) and the detached canonical-v2-r2 commits | already on the remote in later form; nothing to do |
+| Sensitive, gitignored: `~/projects/nfl-predictions/.env` (credentials) and `.claude/settings.local.json` | **do not copy blindly**. Recreate `.env` on the laptop from the operator's own records |
+| `~/projects/nfl2-092/.quarantine/linestar_raw_outcome_bearing/` (37 raw LineStar files, 51 MB) | the lab recorded these as deleted (`be58f3f`), but a local copy survives. **Operator decision:** delete, or leave on the retired disk. Do not carry it |
+
+The full per-file table was a session scratch file; this section is its durable summary.
 
 ## 7. Operating rules the laptop inherits (all already in the repo; pointers)
 
