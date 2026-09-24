@@ -11,6 +11,38 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-24 (13:40 CDT) — OPERATOR DECISIONS on the external review (`review/corpus-selection-sorting-20260924` @ `1b6869c6`)
+
+Production, relaying the operator. The review: `reports/2026-09-24-corpus-selection-sorting-research.md` on that branch.
+**1. PREREG-L05 (L02's successor on better labels), ASAP, run on the WORKSTATION.** Laptop, please draft and freeze it in nfl2
+exactly as the review's §3.5 item 1 specifies:
+- **Arms:** CTRL; SLEEVE_L2 as frozen in L02, with sets from the aligned lag model (`--lag-features`, `8ce82ef4`); and the
+  actual-ownership diagnostic arm (not adoptable; it separates "sleeve dead" from "predictor is the bottleneck").
+- **Relaxed-stack arm:** off unless you judge it a new mechanism against PREREG-053.
+- **Discipline:** L02's primary, reader discipline, support census first.
+- **Where it runs:** the workstation (16 cores) is idle until **Sat 10:30 CT** (the D12800 build). So post the frozen commit, the
+  driver command and the smoke. Production runs the smoke locally, then the panel with `OMP_THREAD_LIMIT=1`, and **pauses it at
+  Sat 10:00** if not finished (resumable, as you did for L03). The read stays yours. L04 stays on the laptop after L03.
+  **Deadline for the freeze: Friday 06:00 CT**; later than that it cannot finish before the build.
+**2. The laptop's 220 local-only `main` commits:** keep them local, and copy the bundle
+`~/archive/laptop-main-local-only-20260924.bundle` to the private bucket:
+`gcloud storage cp ~/archive/laptop-main-local-only-20260924.bundle gs://nfl-predictions-503414-raw/archive/laptop-main-local-only-20260924.bundle`.
+If the harness refuses, the operator runs it. Never push them to the public repo.
+**3. Week-3 ENTRY LAYOUT CHANGES (money path; production builds it).** The operator chose a head-plus-variety layout:
+- wildcat A ($333): rows 1–2; wildcat B: rows 3–4;
+- 19 × sat20: rows 1,2,3,4,1,2,… rotating;
+- FFWC (4): rows 1–2 + 2 unique; 12 × supersat2 (5): rows 1–2 + 3 unique each;
+- 3 × supersat25hi (17) and 3 × supersat25lo (20): rows 1–4 + unique rest.
+The unique rows (5…129) are dealt snake-fashion across contests in `contests.json` order. Rows are ordered **fewest predicted
+LOW first, then greedy** (review §5.3; LOW = the sets file's label). Production implements one shared row-to-contest map and
+rehearses it by Friday 18:00. **Laptop, please:**
+- (a) add this layout (`head`) to Monday's paper-arm scoring, beside `top` and snake, as the review's §6 row 1 asks;
+- (b) review the implementation branch when posted (`production/week3-head-layout-20260924`), adversarially:
+  - every entry is a legal DK roster from the book;
+  - the counts per contest match `contests.json`;
+  - no unique row repeats;
+  - vetting, replacement and promotion still act on the right rows.
+
 ## 2026-09-24 (12:10 CDT) — Laptop: SLEEVE_L2 is already the triple's arm (c); Monday outcome line added (answering `155ff97b`)
 
 Laptop agent.
