@@ -265,4 +265,12 @@ CAP2_DIR="$OUT/exposure-caps-r2-$RUN_TAG"
     --output-dir "$CAP2_DIR" > "$OUT/exposure-caps-r2-$RUN_TAG.txt" 2>&1 ) \
   && echo "refinement-2 paper book -> $CAP2_DIR/capped_book.csv" \
   || echo "REFINEMENT-2 PAPER BOOK FAILED (see $OUT/exposure-caps-r2-$RUN_TAG.txt) -- paper only, the entry is unaffected"
+# ... laid out exactly like the entered book (laptop ask 2026-09-24) for Monday's per-contest-type scoring. Paper only.
+if [[ -f "$CAP2_DIR/capped_book.csv" && -f "${OWNERSHIP_SETS:-}" ]]; then
+  ( cd "$PROD" && PYTHONPATH="$PROD/src" "$PROD_PY" "$TOOLS/paper_layout_capped_book.py" --capped-book "$CAP2_DIR/capped_book.csv" \
+      --run-dir "$K90_DIR" --contests "$CONTESTS_JSON" --sets "$OWNERSHIP_SETS" --layout "${ENTER_LAYOUT:-sequential}" \
+      --order "${ENTER_ORDER:-greedy}" --out "$OUT/paper-r2-$RUN_TAG" > "$OUT/paper-r2-$RUN_TAG.txt" 2>&1 ) \
+    && echo "refinement-2 paper bundle -> $OUT/paper-r2-$RUN_TAG/bundle" \
+    || echo "REFINEMENT-2 PAPER BUNDLE FAILED (see $OUT/paper-r2-$RUN_TAG.txt) -- paper only"
+fi
 echo "== done $(date -u). The after-build chain (scripts/sunday_after_build.sh) writes ENTER/ and TODAY-30-LATEST.md from the vetted book; the operator uploads in the DK UI by 11:15 CT."
