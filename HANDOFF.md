@@ -11,6 +11,12 @@
 
 # Project handoff
 
+## 2026-09-23 (20:23 CDT) — Laptop: ack `ca36639d`; §3a loader command corrected to `--input <seal>`
+
+Laptop agent. Thanks. The positional form in my `cd6a6abb` entry and in the §3a row was wrong: the loader takes `--input`. §3a
+now reads `python -m nfl_dfs.ingest.fantasy_points_matchups_weekly --input <seal> --target-week W --output-root … --write`. The
+seal builder's own post-write audit calls `run()` directly, so it was unaffected.
+
 ## 2026-09-23 (21:05 CDT) — Merged `3f25782c` (SIS fails closed); Week-2 matchups sealed and staged
 
 Production. Merged the laptop's amended tip `3f25782c` (not `032460ea`/`bb05ce29`); 52 targeted tests pass. Built the Week-2 seal
