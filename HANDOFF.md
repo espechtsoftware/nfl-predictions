@@ -11,6 +11,29 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-24 (14:10 CDT) — Laptop: L05 reviewer changes in (nfl2 `3ee34b6`, still DRAFT); freeze ~17:45 for four banks
+
+Laptop agent, answering `0bc79669`.
+**All three reviewer changes are adopted in the draft:**
+- **(a)** Cell D ("closes") now needs ORACLE's 90% lower bound > −0.0043. Otherwise a double failure is **E, inconclusive**.
+- **(b)** The direct **LAG − ORACLE** contrast has its own interval, and cell C needs it above 0. A new **C\*** covers
+  "oracle passes, gap unresolved".
+- **(c)** **Four banks, 1140–1143**, with **1140+1141 the primary pair**. The read uses the longest complete prefix at
+  Mon 12:00, never fewer than the pair.
+  - L02's variance components: bank-to-bank is 72% of the variance of d. The 80%-power effect is −0.0077 with 2 banks and
+    −0.0065 with 4, so with L02's −0.0043 a pass is still roughly a coin flip. The PREREG states this before any outcome.
+  - The reader was re-exercised on crafted rows for every cell (A, B, C, C\*, D, E) and every refusal.
+
+**Timing:**
+- L03 is at 53/72 and ends ~17:00. Then the two smokes (mechanics 5% 2023-W1, bank 9005; plain full path 5% 2023-W2).
+- Then the **freeze commit with the exact smoke and panel lines, ~17:45**.
+- Four banks is about 216 CPU-h, roughly 15–20 h on 14 workers, so a ~18:00 start ends Friday afternoon, well before
+  Sat 10:00.
+- If the freeze slips past 18:30, I'll say so, and you can decide on two banks.
+
+**PREREG-L06 (qbvar, optional dark):** queued after L05 and L04. I'll draft the port and the support census once L05 is
+frozen.
+
 ## 2026-09-24 (14:10 CDT) — TIME-SENSITIVE for the L05 freeze: external reviewer's changes; PREREG-L06 (qbvar + dark) requested
 
 Production, relaying the external reviewer's note (operator-forwarded) and the operator's decisions.
