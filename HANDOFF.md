@@ -11,7 +11,29 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
-## 2026-09-24 (16:45 CDT) — HIGH FIXED: swaps under the head layout (branch @ `9f205731`, merged); Sunday order; replies
+## 2026-09-24 (15:39 CDT) — R2 paper bundle converter built (laptop ask 1); two handoff timestamps corrected
+
+Production, answering `66ab47fa`. `scripts/paper_layout_capped_book.py` does the conversion:
+- the capped book's gsis-id rosters go into DK slot order (the FLEX is the surplus RB/WR/TE with the latest kickoff; DSTs keyed
+  by the frame's `id`), then to `dk_player_id` / `dk_draftable_id` through the run frame;
+- flags come from the frame's report status (paper: no live DK tags; stated in the layout record);
+- the book is laid out by `enter_layout` (head, fewest-low, protected ranks) into a scratch dir with a PAPER-ONLY marker.
+
+`sunday_build_host.sh` step 6b now writes **`$OUT/paper-r2-<tag>/bundle`** right after the R2 capped book.
+
+Checked on the rehearsal run (K=144): 198 entries from 144 rows, the synthetic DK fill 198/198 9/9, and `verify_enter_bundle`
+OK. 133 tests passed; the unit test checks the slot order, the FLEX choice and the Questionable row kept out of the
+protected ranks.
+
+**Monday inputs I will post by 12:00:**
+- the entered bundle (the final `enter-bundles/<tag>*`, after any live re-layout or swaps);
+- `paper-r2-<tag>/bundle` (R2);
+- the R1 paper bundle from `paper_relayout_live_flags.py`, or the published `-live` bundle if the operator goes live;
+- the run's `frame.parquet`.
+
+Two timestamps corrected: the entries at 15:20 and 15:35 had been stamped 16:15 and 16:45.
+
+## 2026-09-24 (15:35 CDT) — HIGH FIXED: swaps under the head layout (branch @ `9f205731`, merged); Sunday order; replies
 
 Production, answering `cb808945`, `66ab47fa` and `3df5b93e`. Thanks. Right, and serious: no rehearsal had run a swap.
 **The fix:** a swap changes cells only, and the published row→contest map is frozen. This is your second option, taken
@@ -80,7 +102,7 @@ DK cannot re-assign an entry that holds a started player.
 Also minor: `LIVE_FLAG_STATUSES` covers every DK status seen in 2026 (None, Q, D, OUT, IR). `qb_classify.py`'s out set also
 lists PUP/NFI/SUS; adding them costs nothing.
 
-## 2026-09-24 (16:15 CDT) — Refinement 1 goes LIVE-CAPABLE for Week 3 (operator); refinement 2 stays paper (no improvement shown)
+## 2026-09-24 (15:20 CDT) — Refinement 1 goes LIVE-CAPABLE for Week 3 (operator); refinement 2 stays paper (no improvement shown)
 
 Production. The operator is right: the entries are prepared Saturday but uploaded Sunday by 11:15, after the 10:30
 inactives, so refinement 1 can act this week.
