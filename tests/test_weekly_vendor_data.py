@@ -430,3 +430,14 @@ def test_a_week_without_a_tracked_team_context_plan_is_recorded_not_silent(monke
     steps = {s["name"]: s for s in json.loads(manifest_path.read_text())["steps"]}
     assert steps["sis-session"]["result"]["status"] == "not-required" and "verify-sis" not in events
     assert "team-context-2026-w03.json" in steps["sis-team-context-import"]["result"]["reason"]
+
+
+def test_every_remaining_run_week_has_a_tracked_team_context_plan_for_the_completed_week():
+    """So the Wednesday run never depends on someone authoring next week's plan (weeks 3-18 -> completed weeks 2-17)."""
+    from nfl_dfs.ops import sis_downloads as sis
+
+    for week in range(3, 19):
+        (spec, *_), plan = sis.load_plan(weekly.sis_team_context_plan(week)), weekly.sis_team_context_plan(week)
+        specs = sis.load_plan(plan)
+        assert {(s.season, s.start_week, s.end_week) for s in specs} == {(2026, week - 1, week - 1)}, plan.name
+        assert len(specs) == 11 and sis.plan_request_ceiling(plan) <= 60
