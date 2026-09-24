@@ -255,4 +255,14 @@ CAP_DIR="$OUT/exposure-caps-$RUN_TAG"
   && { echo "exposure caps -> $CAP_DIR (sheet $CAP_DIR/exposure_sheet.md)"
        grep -m1 "E\[max\]" "$OUT/exposure-caps-$RUN_TAG.txt" || true; } \
   || echo "EXPOSURE CAPS FAILED (see $OUT/exposure-caps-$RUN_TAG.txt) -- check the injury sheet by hand before upload"
+# 6b. Refinement 2 PAPER arm (operator 2026-09-24): the same capped re-selection with tighter caps for Questionable
+#     QBs and Questionable players whose latest practice was DNP (both play ~50% vs 72% for Questionable overall).
+#     Written beside the report above, never entered; scored Monday against the entered book.
+CAP2_DIR="$OUT/exposure-caps-r2-$RUN_TAG"
+( cd "$PROD" && PYTHONPATH="$PROD/src" "$PROD_PY" "$TOOLS/exposure_cap_book.py" "$K90_DIR" \
+    --contests "$CONTESTS_JSON" --entries "$BOOK_ENTRIES" --layout "${ENTER_LAYOUT:-sequential}" \
+    --questionable-qb-max-share "${R2_QB_SHARE:-0.05}" --questionable-dnp-max-share "${R2_DNP_SHARE:-0.05}" \
+    --output-dir "$CAP2_DIR" > "$OUT/exposure-caps-r2-$RUN_TAG.txt" 2>&1 ) \
+  && echo "refinement-2 paper book -> $CAP2_DIR/capped_book.csv" \
+  || echo "REFINEMENT-2 PAPER BOOK FAILED (see $OUT/exposure-caps-r2-$RUN_TAG.txt) -- paper only, the entry is unaffected"
 echo "== done $(date -u). The after-build chain (scripts/sunday_after_build.sh) writes ENTER/ and TODAY-30-LATEST.md from the vetted book; the operator uploads in the DK UI by 11:15 CT."

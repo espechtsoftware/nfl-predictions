@@ -308,3 +308,35 @@ def test_exposure_sheet_counts_entries_under_head(tmp_path):
     # book row 1 (greedy order) holds ids 0..8: it is in 21 of 198 entries (wildcat A, one sat20, FFWC, 12 supersat2, 6 supersats)
     top = sheet.set_index("id").loc["0"]
     assert int(top["rows"]) == 1 + 1 + 3 + 1 + 12 + 3 and abs(top["share"] - int(top["rows"]) / 198) < 1e-3
+
+
+def test_paper_relayout_live_flags_clears_resolved_actives(tmp_path):
+    """Refinement 1 paper test: a player whose live DK status has cleared stops barring his rows from the protected
+    ranks; the script writes only to a scratch dir and marks it paper-only."""
+    cs = week3_shaped()
+    n = 150
+    book, up, sets, _ = _book_fixture(tmp_path, n)
+    rows = list(csv.reader(open(book)))[1:]
+    # Saturday: rows 0..29 carry a report:Questionable tag for their first player -> barred from ranks 1-19
+    vf = {"lineups": [{"position": i + 1, "source": "x", "salary": 1,
+                       "flags": ({rows[i][0]: ["report:Questionable"]} if i < 30 else {})} for i in range(n)]}
+    bd = tmp_path / "bookdir"; bd.mkdir()
+    (bd / "book.csv").write_text(open(book).read()); (bd / "vetting_final.json").write_text(json.dumps(vf))
+    (tmp_path / "contests.json").write_text(json.dumps(cs))
+    st = tmp_path / "status.csv"
+    with open(st, "w", newline="") as f:          # Sunday: rows 0..9's players still Q, rows 10..29 cleared
+        w = csv.writer(f); w.writerow(["id", "status"]); w.writerows([[rows[i][0], "Q"] for i in range(10)])
+    out = tmp_path / "paper"
+    r = subprocess.run([sys.executable, str(ROOT / "scripts/paper_relayout_live_flags.py"), "--book-dir", str(bd),
+                        "--upload", str(up), "--contests", str(tmp_path / "contests.json"), "--sets", str(sets),
+                        "--out", str(out), "--status-csv", str(st)], capture_output=True, text=True,
+                       env={**os.environ, "PYTHONPATH": str(ROOT / "src")})
+    assert r.returncode == 0, r.stdout + r.stderr
+    summary = json.loads((out / "paper-relayout.json").read_text())
+    assert summary["rows_newly_protected"] and all(11 <= x <= 30 for x in summary["rows_newly_protected"])
+    assert (out / "PAPER-ONLY-NOT-FOR-UPLOAD.txt").is_file()
+    r2 = subprocess.run([sys.executable, str(ROOT / "scripts/paper_relayout_live_flags.py"), "--book-dir", str(bd),
+                         "--upload", str(up), "--contests", str(tmp_path / "contests.json"), "--sets", str(sets),
+                         "--out", str(out), "--status-csv", str(st)], capture_output=True, text=True,
+                        env={**os.environ, "PYTHONPATH": str(ROOT / "src")})
+    assert r2.returncode != 0 and "not empty" in (r2.stdout + r2.stderr)

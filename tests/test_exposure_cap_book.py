@@ -228,3 +228,36 @@ def test_top_layout_puts_the_first_rank_in_every_contest(run_dir):
     assert positions[6] == [0]             # past sat_a, still inside major
     seq = ecb.contest_of_position(CONTESTS, 17, "sequential")
     assert seq[0] == [0] and seq[10] == [1] and seq[16] == [2]
+
+
+# ---- refinement 2 (operator 2026-09-24): tighter caps for Questionable QBs and missed-last-practice Questionables
+
+
+def _status_frame():
+    return pd.DataFrame({
+        "display_name": ["qbQ", "qbH", "wrQdnp", "wrQlim", "rbH", "dst"],
+        "position": ["QB", "QB", "WR", "WR", "RB", "DST"],
+        "report_status": ["Questionable", None, "Questionable", "Questionable", None, None],
+        "practice_level": [1.0, 2.0, 0.0, 1.0, 2.0, None],
+    })
+
+
+def test_refinement2_caps_are_off_by_default():
+    caps, _ = ecb.build_player_caps(_status_frame(), 100, player_share=0.3, dst_share=0.2, doubtful_share=0.0,
+                                    questionable_share=0.10)
+    assert list(caps) == [10, 30, 10, 10, 30, 20]
+
+
+def test_refinement2_caps_bind_only_their_groups():
+    caps, why = ecb.build_player_caps(_status_frame(), 100, player_share=0.3, dst_share=0.2, doubtful_share=0.0,
+                                      questionable_share=0.10, questionable_qb_share=0.05, questionable_dnp_share=0.03)
+    assert list(caps) == [5, 30, 3, 10, 30, 20]
+    assert why["qbQ"].startswith("Questionable QB") and why["wrQdnp"].startswith("Questionable, missed last practice")
+    assert why["wrQlim"].startswith("Questionable ->")
+
+
+def test_refinement2_missed_practice_cap_needs_practice_level():
+    fr = _status_frame().drop(columns=["practice_level"])
+    with pytest.raises(ecb.CapError, match="practice_level"):
+        ecb.build_player_caps(fr, 100, player_share=0.3, dst_share=0.2, doubtful_share=0.0, questionable_share=0.10,
+                              questionable_dnp_share=0.05)

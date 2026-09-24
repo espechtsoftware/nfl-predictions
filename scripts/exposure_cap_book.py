@@ -179,8 +179,14 @@ def contest_of_position(contests: list[dict], k: int, layout: str) -> list[list[
 
 def build_player_caps(frame: pd.DataFrame, k: int, *, player_share: float,
                       dst_share: float, doubtful_share: float,
-                      questionable_share: float) -> tuple[np.ndarray, dict]:
-    """Per-player maximum rows, and a per-player reason for every binding cap."""
+                      questionable_share: float, questionable_qb_share: float | None = None,
+                      questionable_dnp_share: float | None = None) -> tuple[np.ndarray, dict]:
+    """Per-player maximum rows, and a per-player reason for every binding cap.
+
+    Refinement 2 (operator, 2026-09-24; external analysis 2018-25): two Questionable groups play only about half the
+    time -- Questionable QBs (50%) and Questionable players whose latest practice was Did Not Participate
+    (practice_level 0; 52%) -- against 72% for Questionable players overall. `questionable_qb_share` and
+    `questionable_dnp_share` give them a tighter cap than `questionable_share`; None keeps the Questionable cap."""
     if "report_status" not in frame:
         raise CapError("frame has no report_status column; injury caps cannot be applied")
     caps = np.full(len(frame), int(np.floor(player_share * k)), dtype=np.int32)
@@ -193,13 +199,25 @@ def build_player_caps(frame: pd.DataFrame, k: int, *, player_share: float,
 
     q = status.eq(STATUS_QUESTIONABLE).to_numpy()
     caps[q] = np.minimum(caps[q], int(np.floor(questionable_share * k)))
+    qb_q = q & position.eq("QB").to_numpy()
+    dnp_q = np.zeros(len(frame), dtype=bool)
+    if questionable_dnp_share is not None:
+        if "practice_level" not in frame:
+            raise CapError("frame has no practice_level column; the missed-practice cap cannot be applied")
+        dnp_q = q & pd.to_numeric(frame.practice_level, errors="coerce").eq(0).to_numpy()
+    if questionable_qb_share is not None:
+        caps[qb_q] = np.minimum(caps[qb_q], int(np.floor(questionable_qb_share * k)))
+    if questionable_dnp_share is not None:
+        caps[dnp_q] = np.minimum(caps[dnp_q], int(np.floor(questionable_dnp_share * k)))
     d = status.eq(STATUS_DOUBTFUL).to_numpy()
     caps[d] = int(np.floor(doubtful_share * k))
 
     for i in np.flatnonzero(d):
         reasons[str(frame.display_name.iloc[i])] = f"Doubtful -> {caps[i]} rows"
     for i in np.flatnonzero(q):
-        reasons[str(frame.display_name.iloc[i])] = f"Questionable -> {caps[i]} rows"
+        why = ("Questionable QB" if qb_q[i] and questionable_qb_share is not None else
+               "Questionable, missed last practice" if dnp_q[i] else "Questionable")
+        reasons[str(frame.display_name.iloc[i])] = f"{why} -> {caps[i]} rows"
     for i in np.flatnonzero(is_dst):
         reasons.setdefault(str(frame.display_name.iloc[i]), f"DST -> {caps[i]} rows")
     return caps, reasons
@@ -359,6 +377,10 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--player-max-share", type=float, default=0.30)
     ap.add_argument("--dst-max-share", type=float, default=0.20)
     ap.add_argument("--questionable-max-share", type=float, default=0.10)
+    ap.add_argument("--questionable-qb-max-share", type=float, default=None,
+                    help="refinement 2: tighter cap for Questionable QBs (default: the Questionable cap)")
+    ap.add_argument("--questionable-dnp-max-share", type=float, default=None,
+                    help="refinement 2: tighter cap for Questionable players whose latest practice was DNP")
     ap.add_argument("--doubtful-max-share", type=float, default=0.0,
                     help="default 0.0: a Doubtful player takes no rows. Week 2 entered one "
                          "in 48 of 97 rows including the Millionaire seat; he scored 0.0.")
@@ -392,7 +414,8 @@ def main(argv: list[str] | None = None) -> int:
 
     caps, reasons = build_player_caps(
         run.frame, k, player_share=a.player_max_share, dst_share=a.dst_max_share,
-        doubtful_share=a.doubtful_max_share, questionable_share=a.questionable_max_share)
+        doubtful_share=a.doubtful_max_share, questionable_share=a.questionable_max_share,
+        questionable_qb_share=a.questionable_qb_max_share, questionable_dnp_share=a.questionable_dnp_max_share)
 
     uncapped, u_diag = select_capped(run, k, player_caps=np.full(len(run.frame), k, dtype=np.int32))
     book, diag = select_capped(run, k, player_caps=caps,
@@ -409,6 +432,8 @@ def main(argv: list[str] | None = None) -> int:
     run.cands.iloc[book].assign(book_rank=range(1, k + 1)).to_csv(out / "capped_book.csv", index=False)
     policy = {"player_max_share": a.player_max_share, "dst_max_share": a.dst_max_share,
               "questionable_max_share": a.questionable_max_share,
+              "questionable_qb_max_share": a.questionable_qb_max_share,
+              "questionable_dnp_max_share": a.questionable_dnp_max_share,
               "doubtful_max_share": a.doubtful_max_share,
               "contest_max_share": a.contest_max_share, "layout": a.layout, "entries": k}
     (out / "exposure_sheet.md").write_text(
