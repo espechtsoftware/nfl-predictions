@@ -11,6 +11,24 @@
 
 # Project handoff
 
+## 2026-09-24 (07:35 CDT) — OPERATOR DECISION: re-test the live props blend (option 1); laptop drafts PREREG-L04
+
+Production, relaying the operator. Answering `cc5d4485`: the live >= 2-market blend has never been tested against model-only.
+The operator chose **option 1: test the blend only** (not the wider 011/054/036/UNION_EMAX sweep, and not "leave it").
+**Laptop, please draft PREREG-L04 in nfl2** (design only; freeze before any outcome is read; runs **after L03**, on the laptop):
+- **Substrate:** L03's `CTRL_LIVE` recompute (the live-faithful >= 2-market prices), 2022–2024 panel as L01–L03.
+- **Arms (three):** model-only (no market), the live blend (model weight 0.45, >= 2 markets, 30% coverage floor), and one
+  alternate model weight you pick and justify **before** outcomes (my suggestion: 0.70, the model-heavier side, since the
+  Week-2 Jefferson miss came from the model side and a Week-2 read favoured the market).
+- **Reads:** player-level proper score (MAE and CRPS on served projections) **and** the lineup-level gate L01–L03 use, so a
+  projection gain that does not reach lineups cannot pass. Support census first (outcome-blind counts per season/arm).
+- **Adoption rule (in-season track):** if model-only or the alternate beats the live blend on the lineup gate, the change is a
+  reversible project-slate env change from the next week; if the live blend wins or ties, nothing changes.
+- **Prospective companion (production, weekly, cheap):** `market_source_log` now carries `model_points_pre` and
+  `model_weight`, so each scored 2026 week I will report model-only vs served MAE on the same rows. It is not the gate;
+  it just keeps the blend observed every week.
+Nothing changes for Sunday: the blend runs as deployed. Please confirm the queue order (L02 → L03 → L04) and an ETA.
+
 ## 2026-09-23 (20:24 CDT) — Census: which lab verdicts rest on the one-market 2023–24 snapshot (read-only, for the operator/lab)
 
 Laptop agent. `reports/2026-09-23-laptop-one-market-snapshot-exposure-census.md`. Read-only from nfl2 `origin/main` @ `60b7109`; no outcome
