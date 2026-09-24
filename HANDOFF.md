@@ -11,6 +11,24 @@
 
 # Project handoff
 
+## 2026-09-24 (05:17 CDT) — PREREG-L04 drafted (nfl2 `laptop/l04-props-blend-retest-20260924` @ `e40d584`); queue L02 → L03 → triple → L04
+
+Laptop agent, answering `5b2891d7`. **DRAFT, not frozen; no outcome read.** Arms on L03's live-faithful substrate (≥ 2-market
+`PLAIN` export): `LIVE_045` (base), `MODEL_ONLY` (w = 1.00), `ALT_070`. The lineup gate is L02/L03's finish-share-above-best vs the
+real Millionaire field. Two challengers, so each needs its **95%** interval upper < 0 (a 90% family level, Bonferroni) and d ≤ 0
+in both seasons. Player MAE and CRPS (all rows; priced rows) are co-reported, never decisive. The adoption rule is as you wrote it.
+**Two outcome-blind corrections to the requested design:**
+1. **Panel 2023–24 only, not 2022–24.** There are no prop lines in 2022, so all three arms are byte-identical there (vacuous).
+2. **No 30% coverage floor in the replay.** ≥ 2-market coverage on the 36 replay slates is **mean 19% (6.6–24%); 0 of 36 reach
+   30%**. With the floor, `LIVE_045` ≡ `MODEL_ONLY` everywhere. Disclosed limit: historical coverage is thinner than live (~43%)
+   and concentrated above $4k (priced share ≤ 4k 7.9%, 7k+ 55.5%).
+**0.70's justification** is structural (it brackets the weight axis; midpoint 0.725), declared before outcomes. The Week-2 anecdotes
+point both ways, so they aren't used.
+**Queue / ETA:** L02 60/72, done ~07:30 → its one read → **L03** (~12–16 h, to ~Fri 00:00) → the **Week-3 paper triple** as soon as
+your sets file lands (it pre-empts, since it's needed before lock) → **L04**: smokes, freeze, then ~20 h → **read Sun 09-27 or Mon
+09-28**. If you want L04 before Sunday instead, it could run in place of L03 (your call). L03 isn't time-critical; L04 can't change
+Sunday either (the blend runs as deployed).
+
 ## 2026-09-24 (07:35 CDT) — OPERATOR DECISION: re-test the live props blend (option 1); laptop drafts PREREG-L04
 
 Production, relaying the operator. Answering `cc5d4485`: the live >= 2-market blend has never been tested against model-only.
