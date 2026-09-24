@@ -102,9 +102,9 @@ def test_run_week_preflights_sessions_then_runs_all_selected_steps(
     )
 
     assert events == [
-        "verify-fp", "verify-sis", "ingest-odds", "ingest-props",
+        "verify-fp", "ingest-odds", "ingest-props",
         "route-download", "route-import-True", "route-download", "proe-import-True",
-        "matchups", "matchups-stage-matchups-True", "sis-plan",
+        "matchups", "matchups-stage-matchups-True", "verify-sis", "sis-plan",
     ]
     manifest = json.loads(manifest_path.read_text())
     assert manifest["status"] == "complete"
@@ -212,6 +212,7 @@ def test_week_five_adds_frozen_alignment_download_and_import(
         login_if_needed=False,
         write_alignment=False,
         write_fp_families=False,
+        sis_team_context=False,
         now=datetime(2026, 9, 30, 14, tzinfo=UTC),
     )
     assert events == [
@@ -305,8 +306,9 @@ def test_failed_step_is_durable(monkeypatch, tmp_path):
     assert manifest["steps"][-1]["error"] == "quota"
 
 
-def test_expired_sis_session_does_not_block_a_run_with_no_sis_step(monkeypatch, tmp_path):
-    """Defect 28: an expired SIS session must not lose the Fantasy Points capture when no SIS step runs (week < 5, no plan)."""
+def test_expired_sis_session_fails_the_run_only_after_every_fantasy_points_step(monkeypatch, tmp_path):
+    """Defect 28 + the operator's 2026-09-23 rule: an expired SIS session never loses the Fantasy Points capture
+    (every FP step runs first), and the run still fails closed at the SIS step with the renewal and re-run commands."""
     events = []
     monkeypatch.setattr(weekly.fp, "load_plan", lambda *_: ({}, [object()]))
     monkeypatch.setattr(weekly.fp, "select_target_week", lambda specs, _: specs)
@@ -317,19 +319,21 @@ def test_expired_sis_session_does_not_block_a_run_with_no_sis_step(monkeypatch, 
 
     monkeypatch.setattr(weekly.sis, "verify_login", expired)
     monkeypatch.setattr(weekly.sis, "interactive_login", lambda *a, **k: events.append("login-sis"))
+    monkeypatch.setattr(weekly.sis, "run_plan", lambda *a, **k: events.append("sis-capture"))
     monkeypatch.setattr(weekly.fp, "run_downloads", lambda *a, **k: events.append("fp-download") or (tmp_path / "fp" / "manifest.json"))
     monkeypatch.setattr(weekly.fantasy_points_route_weekly, "run", lambda *a, **k: events.append("fp-import") or {"rows": 1})
     monkeypatch.setattr(weekly.fantasy_points_defense_proe_weekly, "run", lambda *a, **k: events.append("proe-import") or {})
-    manifest_path = weekly.run_week(
-        week=3, fp_profile_dir=tmp_path / "fp-profile", sis_profile_dir=tmp_path / "sis-profile", timeout_seconds=10,
-        output_root=tmp_path / "runs", fp_output_root=tmp_path / "fp-output", sis_output_root=tmp_path / "sis-output",
-        capture_matchups=False, capture_sis_pass_tail=True, ingest_odds=False, login_if_needed=False,
-        now=datetime(2026, 9, 21, 4, tzinfo=UTC),
-    )
-    manifest = json.loads(manifest_path.read_text())
-    assert manifest["status"] == "complete" and "login-sis" not in events and "fp-download" in events and "fp-import" in events
-    sis_step = next(s for s in manifest["steps"] if s["name"] == "sis-session")
-    assert sis_step["status"] == "complete" and sis_step["result"]["status"] == "not-required"
+    with pytest.raises(RuntimeError, match="sis-download login.*--skip-fantasy-points"):
+        weekly.run_week(
+            week=3, fp_profile_dir=tmp_path / "fp-profile", sis_profile_dir=tmp_path / "sis-profile", timeout_seconds=10,
+            output_root=tmp_path / "runs", fp_output_root=tmp_path / "fp-output", sis_output_root=tmp_path / "sis-output",
+            capture_matchups=False, capture_sis_pass_tail=True, ingest_odds=False, login_if_needed=False,
+            now=datetime(2026, 9, 21, 4, tzinfo=UTC),
+        )
+    assert events == ["verify-fp", "fp-download", "fp-import", "fp-download", "proe-import"]   # FP captured, no SIS
+    manifest = json.loads(next((tmp_path / "runs").glob("*/manifest.json")).read_text())
+    assert manifest["status"] == "failed" and manifest["steps"][-1]["name"] == "sis-session"
+    assert manifest["configuration"]["sis_plan"].endswith("team-context-2026-w02.json")
 
 
 def test_expired_sis_session_still_stops_a_run_that_needs_sis(monkeypatch, tmp_path):
@@ -343,15 +347,20 @@ def test_expired_sis_session_still_stops_a_run_that_needs_sis(monkeypatch, tmp_p
         raise RuntimeError("SIS saved session is missing, expired, or cannot load Player Leaderboards")
 
     monkeypatch.setattr(weekly.sis, "verify_login", expired)
-    monkeypatch.setattr(weekly.fp, "run_downloads", lambda *a, **k: (_ for _ in ()).throw(AssertionError("must not download before the SIS gate")))
+    downloads = []
+    monkeypatch.setattr(weekly.fp, "run_downloads", lambda *a, **k: downloads.append(1) or (tmp_path / "fp" / "manifest.json"))
+    monkeypatch.setattr(weekly.fantasy_points_route_weekly, "run", lambda *a, **k: {})
+    monkeypatch.setattr(weekly.fantasy_points_defense_proe_weekly, "run", lambda *a, **k: {})
+    monkeypatch.setattr(weekly.sis, "run_plan", lambda *a, **k: (_ for _ in ()).throw(AssertionError("no SIS query past the gate")))
     plan = tmp_path / "sis-plan.json"; plan.write_text("[]")
-    with pytest.raises(RuntimeError, match="SIS saved session"):
+    with pytest.raises(RuntimeError, match="SIS saved session is not usable"):
         weekly.run_week(
             week=3, fp_profile_dir=tmp_path / "fp-profile", sis_profile_dir=tmp_path / "sis-profile", timeout_seconds=10,
             output_root=tmp_path / "runs", fp_output_root=tmp_path / "fp-output", sis_output_root=tmp_path / "sis-output",
             sis_plan=plan, capture_matchups=False, capture_sis_pass_tail=False, ingest_odds=False, login_if_needed=False,
             now=datetime(2026, 9, 21, 4, tzinfo=UTC),
         )
+    assert downloads, "the Fantasy Points capture runs before the SIS gate"
 
 
 def test_qb_shell_import_receives_the_same_weeks_coverage_run(monkeypatch, tmp_path):
@@ -380,9 +389,79 @@ def test_qb_shell_import_receives_the_same_weeks_coverage_run(monkeypatch, tmp_p
         week=6, fp_profile_dir=tmp_path / "fp", sis_profile_dir=tmp_path / "sis", timeout_seconds=10,
         output_root=tmp_path / "runs", fp_output_root=tmp_path / "fp-out", sis_output_root=tmp_path / "sis-out",
         capture_matchups=False, capture_sis_pass_tail=False, ingest_odds=False, login_if_needed=False,
-        now=datetime(2026, 10, 7, 14, tzinfo=UTC),
+        sis_team_context=False, now=datetime(2026, 10, 7, 14, tzinfo=UTC),
     )
     assert [key for key, *_ in seen] == list(weekly.FP_FAMILY_ORDER)
     shell = next(item for item in seen if item[0] == "qb-shell")
     assert shell[2] == runs["2026-coverage-last-four-weekly-v1"] and shell[3] == 6
     assert all(item[2] is None for item in seen if item[0] != "qb-shell")
+
+
+def _quiet_fp(monkeypatch, tmp_path, events):
+    monkeypatch.setattr(weekly.fp, "verify_login", lambda *_: None)
+    monkeypatch.setattr(weekly.fp, "run_downloads", lambda *a, **k: (tmp_path / "fp" / "manifest.json"))
+    monkeypatch.setattr(weekly.fantasy_points_route_weekly, "run", lambda *a, **k: {})
+    monkeypatch.setattr(weekly.fantasy_points_defense_proe_weekly, "run", lambda *a, **k: {})
+    monkeypatch.setattr(weekly.sis, "verify_login", lambda *_: events.append("verify-sis"))
+
+
+def test_default_team_context_plan_is_captured_and_loaded(monkeypatch, tmp_path):
+    """One Wednesday run captures AND loads the completed week's SIS team context (tracked plan for W-1)."""
+    events = []
+    _quiet_fp(monkeypatch, tmp_path, events)
+    monkeypatch.setattr(weekly.sis, "run_plan", lambda profile, timeout, out, plan: events.append(("capture", plan.name)) or {})
+    monkeypatch.setattr(weekly.sis_team_context_weekly, "run",
+                        lambda out, plan, **kw: events.append(("import", plan.name, kw["write"])) or {})
+    manifest_path = weekly.run_week(
+        week=3, fp_profile_dir=tmp_path / "fp", sis_profile_dir=tmp_path / "sis", timeout_seconds=10,
+        output_root=tmp_path / "runs", fp_output_root=tmp_path / "fp-out", sis_output_root=tmp_path / "sis-out",
+        capture_matchups=False, ingest_odds=False, login_if_needed=False, now=datetime(2026, 9, 23, 20, tzinfo=UTC),
+    )
+    assert events == ["verify-sis", ("capture", "team-context-2026-w02.json"),
+                      ("import", "team-context-2026-w02.json", True)]
+    config = json.loads(manifest_path.read_text())["configuration"]
+    assert config["sis_plan"].endswith("team-context-2026-w02.json") and config["sis_team_context_import"]
+
+
+def test_a_week_without_a_tracked_team_context_plan_fails_loudly_after_fantasy_points(monkeypatch, tmp_path):
+    events = []
+    _quiet_fp(monkeypatch, tmp_path, events)
+    monkeypatch.setattr(weekly, "SIS_PLANS_DIR", tmp_path / "no-plans")
+    monkeypatch.setattr(weekly, "PROJECT_ROOT", tmp_path)
+    with pytest.raises(FileNotFoundError, match=r"team-context-2026-w03\.json.*--skip-fantasy-points"):
+        weekly.run_week(
+            week=4, fp_profile_dir=tmp_path / "fp", sis_profile_dir=tmp_path / "sis", timeout_seconds=10,
+            output_root=tmp_path / "runs", fp_output_root=tmp_path / "fp-out", sis_output_root=tmp_path / "sis-out",
+            capture_matchups=False, capture_sis_pass_tail=False, ingest_odds=False, login_if_needed=False,
+            now=datetime(2026, 9, 30, 20, tzinfo=UTC),
+        )
+    steps = [s["name"] for s in json.loads(next((tmp_path / "runs").glob("*/manifest.json")).read_text())["steps"]]
+    assert steps.index("fantasy-points-route-import") < steps.index("sis-team-context-plan") == len(steps) - 1
+
+
+def test_skip_fantasy_points_is_the_sis_only_rerun(monkeypatch, tmp_path):
+    events = []
+    monkeypatch.setattr(weekly.fp, "verify_login", lambda *_: events.append("verify-fp"))
+    monkeypatch.setattr(weekly.fp, "run_downloads", lambda *a, **k: events.append("fp-download"))
+    monkeypatch.setattr(weekly.sis, "verify_login", lambda *_: events.append("verify-sis"))
+    monkeypatch.setattr(weekly.sis, "run_plan", lambda profile, timeout, out, plan: events.append(("capture", plan.name)))
+    monkeypatch.setattr(weekly.sis_team_context_weekly, "run", lambda out, plan, **kw: events.append(("import", plan.name)))
+    manifest_path = weekly.run_week(
+        week=3, fp_profile_dir=tmp_path / "fp", sis_profile_dir=tmp_path / "sis", timeout_seconds=10,
+        output_root=tmp_path / "runs", fp_output_root=tmp_path / "fp-out", sis_output_root=tmp_path / "sis-out",
+        capture_matchups=False, ingest_odds=False, login_if_needed=False, skip_fantasy_points=True,
+        now=datetime(2026, 9, 23, 22, tzinfo=UTC),
+    )
+    assert events == ["verify-sis", ("capture", "team-context-2026-w02.json"), ("import", "team-context-2026-w02.json")]
+    assert json.loads(manifest_path.read_text())["status"] == "complete"
+
+
+def test_every_remaining_run_week_has_a_tracked_team_context_plan_for_the_completed_week():
+    """So the Wednesday run never depends on someone authoring next week's plan (weeks 3-18 -> completed weeks 2-17)."""
+    from nfl_dfs.ops import sis_downloads as sis
+
+    for week in range(3, 19):
+        (spec, *_), plan = sis.load_plan(weekly.sis_team_context_plan(week)), weekly.sis_team_context_plan(week)
+        specs = sis.load_plan(plan)
+        assert {(s.season, s.start_week, s.end_week) for s in specs} == {(2026, week - 1, week - 1)}, plan.name
+        assert len(specs) == 11 and sis.plan_request_ceiling(plan) <= 60

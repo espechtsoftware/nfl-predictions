@@ -24,6 +24,7 @@ from ..ingest import (
     fantasy_points_route_weekly,
     fantasy_points_weekly_2026,
     sis_pass_tail_weekly,
+    sis_team_context_weekly,
 )
 from . import fantasy_points_downloads as fp
 from . import fantasy_points_matchups as fp_matchups
@@ -58,6 +59,18 @@ FP_FAMILY_ORDER = ("advanced-passing", "route-shape", "coverage", "qb-shell", "a
 DEFAULT_FP_FAMILY_PLANS = {
     key: PLANS_DIR / f"{fantasy_points_weekly_2026.FAMILIES[key].plan_name}.json" for key in FP_FAMILY_ORDER
 }
+
+
+SIS_PLANS_DIR = PROJECT_ROOT / "automation" / "sis" / "plans"
+
+
+def sis_team_context_plan(week: int) -> Path:
+    """The tracked in-season SIS team-context plan for the completed week W-1 (one plan per week)."""
+    return SIS_PLANS_DIR / f"team-context-2026-w{int(week) - 1:02d}.json"
+
+
+def _is_team_context_plan(plan: Path | None) -> bool:
+    return plan is not None and plan.stem.startswith("team-context-2026-")
 
 
 def _stamp(now: datetime | None = None) -> str:
@@ -144,20 +157,39 @@ def run_week(
     capture_sis_pass_tail: bool = True,
     ingest_odds: bool = True,
     ingest_props: bool = False,
+    sis_team_context: bool = True,
+    write_sis_team_context: bool = True,
+    skip_fantasy_points: bool = False,
     login_if_needed: bool = True,
     now: datetime | None = None,
 ) -> Path:
     """Run all approved target-week acquisition steps and return its manifest."""
     if not 1 <= week <= 18:
         raise ValueError("target week must be within 1..18")
-    if week >= 2:
+    # --skip-fantasy-points: the SIS-only re-run after an SIS failure (the Fantasy Points files were already captured)
+    fp_on = not skip_fantasy_points
+    if fp_on and week >= 2:
         _, fp_specs = fp.load_plan(fp_plan)
         fp.select_target_week(fp_specs, week)
-    if week >= 5:
+    if fp_on and week >= 5:
         _, alignment_specs = fp.load_plan(fp_alignment_plan)
         fp.select_target_week(alignment_specs, week)
     family_plans = {**DEFAULT_FP_FAMILY_PLANS, **(fp_family_plans or {})}
-    if collect_fp_families:
+    # 2026-09-23 (operator: SIS is paid for and collected EVERY week; no silent fallbacks): one run captures AND loads
+    # the SIS team context of the completed week. Without an explicit --sis-plan the tracked plan for W-1 is used; a
+    # missing plan fails the run loudly at the SIS stage (after every Fantasy Points step, so nothing FP is lost).
+    sis_team_context_missing: str | None = None
+    if sis_plan is None and sis_team_context and week >= 2:
+        default_plan = sis_team_context_plan(week)
+        if default_plan.is_file():
+            sis_plan = default_plan
+        else:
+            sis_team_context_missing = (
+                f"no tracked SIS team-context plan {default_plan.relative_to(PROJECT_ROOT)} for completed week "
+                f"{week - 1}; add it (copy the previous week's plan and change the week), then re-run with "
+                f"--skip-fantasy-points"
+            )
+    if fp_on and collect_fp_families:
         # every plan this run will use is validated before any session or download
         if week >= 2:
             fp.select_target_week(fp.load_plan(fp_proe_plan)[1], week)
@@ -185,6 +217,8 @@ def run_week(
                 str(fp_alignment_plan) if week >= 5 else None
             ),
             "sis_plan": str(sis_plan) if sis_plan is not None else None,
+            "sis_team_context_import": bool(_is_team_context_plan(sis_plan)),
+            "write_sis_team_context": bool(write_sis_team_context),
             "write_route": bool(write_route),
             "write_alignment": bool(write_alignment),
             "fantasy_points_defense_proe_plan": (
@@ -236,7 +270,7 @@ def run_week(
         _persist(manifest_path, manifest)
         return result
 
-    needs_fp = capture_matchups or week >= 2
+    needs_fp = fp_on and (capture_matchups or week >= 2)
     if needs_fp:
         if login_if_needed:
             step(
@@ -254,12 +288,26 @@ def run_week(
                 "fantasy-points-session",
                 lambda: fp.verify_login(fp_profile_dir, timeout_seconds),
             )
-    # 2026-09-21 (Week-2 post-mortem; defect 28): the SIS session is required only when an SIS step will run in this
-    # invocation (an approved plan, or the pass-tail acquisition from week 5). Requiring it unconditionally lost the
-    # whole Week-2 Fantasy Points capture to an expired SIS session on 2026-09-17. When no SIS step runs, the manifest
-    # records that the session was not required (never a silent skip); when one runs, an expired session still stops
-    # the run before any step.
-    needs_sis = sis_plan is not None or (week >= 5 and capture_sis_pass_tail)
+    # SIS session (defect 28, then the operator's 2026-09-23 rule). An attended run renews the session up front as
+    # before. An unattended run verifies it IMMEDIATELY BEFORE the first SIS step -- after every Fantasy Points step --
+    # so an expired session never loses the FP capture, yet the run still fails closed (non-zero exit) with the
+    # renewal command; the SIS-only re-run is `--skip-fantasy-points`. With no SIS step at all the manifest records
+    # that the session was not required.
+    sis_steps = sis_plan is not None or sis_team_context_missing is not None or (week >= 5 and capture_sis_pass_tail)
+    sis_rerun = (f"nfl-weekly-data run --week {week} --skip-fantasy-points --skip-odds --skip-matchups "
+                 "--no-login-if-needed")
+
+    def _require_sis_session() -> dict[str, Any]:
+        try:
+            sis.verify_login(sis_profile_dir, timeout_seconds)
+        except Exception as exc:
+            raise RuntimeError(
+                f"SIS saved session is not usable ({exc}). The Fantasy Points steps of this run are complete. "
+                "Renew the session with `sis-download login --terminal-credentials --fresh`, then run "
+                f"`{sis_rerun}`"
+            ) from exc
+        return {"status": "verified", "checked": "immediately before the SIS steps"}
+
     if login_if_needed:
         # attended run: the operator is at the terminal, so the SIS session is renewed every week as before
         step(
@@ -274,16 +322,11 @@ def run_week(
                 sis.verify_login(sis_profile_dir, timeout_seconds),
             ),
         )
-    elif needs_sis:
-        step(
-            "sis-session",
-            lambda: sis.verify_login(sis_profile_dir, timeout_seconds),
-        )
-    else:
+    elif not sis_steps:
         # unattended run without an SIS step: recorded, never silently skipped
         step(
             "sis-session",
-            lambda: {"status": "not-required", "reason": "no SIS step in this invocation (no approved plan; pass-tail acquisition starts at week 5)"},
+            lambda: {"status": "not-required", "reason": "no SIS step in this invocation"},
         )
 
     if ingest_odds:
@@ -297,7 +340,7 @@ def run_week(
             lambda: _run_cloud_job("ingest-props", project=project, region=region),
         )
 
-    if week >= 2:
+    if fp_on and week >= 2:
         fp_manifest = step(
             "fantasy-points-route-download",
             lambda: fp.run_downloads(
@@ -337,7 +380,7 @@ def run_week(
                     write=write_fp_families,
                 ),
             )
-    if capture_matchups:
+    if fp_on and capture_matchups:
         matchups_manifest = step(
             "fantasy-points-live-matchups",
             lambda: fp_matchups.run(
@@ -359,7 +402,7 @@ def run_week(
                     write=write_matchups,
                 ),
             )
-    if week >= 5:
+    if fp_on and week >= 5:
         fp_alignment_manifest = step(
             "fantasy-points-alignment-download",
             lambda: fp.run_downloads(
@@ -404,6 +447,13 @@ def run_week(
                         coverage_dir=family_dirs.get("coverage") if key == "qb-shell" else None,
                     ),
                 )
+    if sis_steps and not login_if_needed:
+        step("sis-session", _require_sis_session)
+    if sis_team_context_missing is not None:
+        def _missing_plan() -> None:
+            raise FileNotFoundError(sis_team_context_missing)
+
+        step("sis-team-context-plan", _missing_plan)
     if sis_plan is not None:
         step(
             "sis-approved-plan",
@@ -414,6 +464,15 @@ def run_week(
                 sis_plan,
             ),
         )
+        if _is_team_context_plan(sis_plan):
+            step(
+                "sis-team-context-import",
+                lambda: sis_team_context_weekly.run(
+                    sis_output_root / run_id,
+                    sis_plan,
+                    write=write_sis_team_context,
+                ),
+            )
     if week >= 5 and capture_sis_pass_tail:
         sis_pass_tail_dir = sis_output_root / run_id / "pass-tail"
         step(
@@ -496,6 +555,21 @@ def _parser() -> argparse.ArgumentParser:
         help="validate the matchup staging load without appending",
     )
     run.add_argument("--skip-matchup-stage", action="store_true")
+    run.add_argument(
+        "--skip-fantasy-points",
+        action="store_true",
+        help="skip every Fantasy Points step (the SIS-only re-run after an SIS session failure)",
+    )
+    run.add_argument(
+        "--skip-sis-team-context",
+        action="store_true",
+        help="do not default --sis-plan to the tracked team-context plan for the completed week",
+    )
+    run.add_argument(
+        "--audit-only-sis-team-context",
+        action="store_true",
+        help="capture the SIS team-context plan but validate its import without appending",
+    )
     run.add_argument("--include-props", action="store_true")
     run.add_argument("--skip-odds", action="store_true")
     run.add_argument("--skip-matchups", action="store_true")
@@ -544,6 +618,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         capture_matchups=not args.skip_matchups,
         stage_matchups=not args.skip_matchup_stage,
         write_matchups=not args.audit_only_matchups,
+        sis_team_context=not args.skip_sis_team_context,
+        skip_fantasy_points=args.skip_fantasy_points,
+        write_sis_team_context=not args.audit_only_sis_team_context,
         capture_sis_pass_tail=not args.skip_sis_pass_tail,
         ingest_odds=not args.skip_odds,
         ingest_props=args.include_props,
