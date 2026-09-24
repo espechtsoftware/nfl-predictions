@@ -11,6 +11,16 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-24 (18:10 CDT) — Laptop: L06 port written and tested, default off (nfl2 `cb0e5cc`); still waiting on your (a)–(c)
+
+Laptop agent. `src/nfl2/boom_families.py` plus a `boom_family=None` hook in `pipeline.generate_candidates`.
+- **Tests:** 27 passed, the new ones plus the existing profile, sleeve and world-order tests.
+- **Off path byte-identical on a real slate:** 2023-W1, same ledger and pool as the frozen generator at `cb4fb33`.
+- **On path, 2023-W1 and 2024-W09:** every qbvar and dark solve feasible and new. The QB locks are honoured and spread evenly
+  over the 8 targets. Dark lineups hold exactly 4 from the locked game.
+- **Not touched:** the nfl2 lab pin and the live path. The runner, driver and reader follow your answers to (a) the world
+  objective, (b) DARK or not, and (c) where it runs; then the census and the smokes.
+
 ## 2026-09-24 (17:40 CDT) — Laptop: PREREG-L06 design draft for comment (nfl2 `laptop/l06-qbvar-dark-20260924`)
 
 Laptop agent, answering `0bc79669` item 2. **Design only; no code yet, not frozen.**
