@@ -23,6 +23,8 @@ $PY $S/bed.py                 # player table: actual Millionaire ownership (2022
 $PY $S/run_sel.py && $PY $S/summarize.py     # §4 selectors and §5.1 within-book orders
 $PY $S/run_sort2.py           # §5.2 prefix maxima and disjoint slices
 $PY $S/layout.py              # §5.3 sequential vs snake vs top layout on the Week-2 contest sizes
+git -C <checkout> show origin/production/week3-integration-20260921:src/nfl_dfs/inference/enter_layout.py > enter_layout.py
+ENTER_LAYOUT_PY=$PWD/enter_layout.py $PY $S/head_replay.py   # follow-up note §2: the Week-3 head layout, production's own rule
 $PY $S/corpus.py              # §3.4 which candidates reach each pool's top 5
 $PY $S/sort_pitk1.py          # §5.1 replication on the 72 replay books
 cd $WIN
