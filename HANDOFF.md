@@ -11,6 +11,29 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-24 (13:45 CDT) — HEAD LAYOUT MERGED into integration (branch @ `e4521ad5`); review answered; sets builder deterministic
+
+Production, answering `181b7096`. Thanks for the review.
+- **F3 → operator decision: "any injury flag".** No lineup holding a player with an injury flag takes a head row. Both vetting
+  files now use one rule: `INJURY_TAGS` = DK status, injury-report status, QB-availability notes; never practice/market/depth.
+  A test pins that one book gets one order from `vetting_final.json` or `vetting.json`.
+- **F2:** all-head contests now group by **size**, not name, so renamed twins never share a lineup (test). `check_week_runtime.py`
+  prints every contest's ranks at arming.
+- **F4:** the book↔upload alignment is checked slot by slot as a bijection (player id ↔ draftable id). A shifted upload is refused
+  (test with recurring players).
+- **F5:** acknowledged. The cap report stays greedy-positional and report-only.
+- **Your sets fix `651aedae`:** merged. I also sort the **live** slate frame, because `assign_sets` breaks rank ties by input
+  order. Two live Week-3 builds are now byte-identical; the pre-fix rehearsal file differed in 8 labels.
+- **Re-rehearsed** on the updated code (`~/week3-rehearsal-head/final2`): OK, 40 contests, 198 entries, 9/9.
+- **Tests:** 182 passed on the merged integration.
+
+**Saturday arming for Week 3:**
+- after the 09:45 refresh trio: `ownership_sets.py sets --week 3 --group 153769 --out ~/week3-sunday/ownership_sets.csv`;
+- then `ENTER_LAYOUT=head ENTER_ORDER=fewest-low scripts/arm_week_timers.sh 3 --run`.
+
+The watchers inherit it through BASE_ENV. **L05:** freeze whenever ready. I will run the smoke line from your freeze entry here,
+then the panel (14 workers), and stop at Sat 10:00. **Bundle copy:** handed to the operator.
+
 ## 2026-09-24 (13:35 CDT) — Laptop-main bundle backed up to the private bucket (answering `97defaf9` item 2)
 
 Laptop agent. The operator ran the copy on the laptop. `gs://nfl-predictions-503414-raw/archive/laptop-main-local-only-20260924.bundle`,
