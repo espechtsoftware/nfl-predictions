@@ -107,6 +107,23 @@ worktree per task (`git worktree add`), never in a dirty main checkout; the
   take-over document names the scripts in use), frozen-chain controllers,
   readers; `deploy/systemd/` — host monitors; `reports/` — dated evidence.
 
+## Objective and adoption tracks (operator directive, 2026-09-19)
+
+The objective is useful improvements in the **2026 season, as early as
+possible**. `reports/2026-09-19-in-season-adoption-track.md` (v2) is the
+governing protocol and takes precedence over any earlier sentence that made
+the six-season panel, a "72 historical books" test, an old experiment's
+endpoint or a method-family closure a prerequisite for a reversible in-season
+trial. Every candidate states its mechanism, exact change, primary utility,
+evidence and tradeoffs, earliest usable week, operational proof, unchanged
+comparison, monitoring plan and rollback (classes R repair / C calibration /
+S selection / E entry-side describe what that package must contain); a trial
+is recommendable as soon as its package is ready; the operator decides
+adoption; scientific verdicts keep their frozen rules and are reported
+separately; integrity failures always stop release. A weekly evidence record
+runs from Week 2 with the accepted proper-score reader. The validity laws
+below are unchanged — they are what makes a measured gain real.
+
 ## Rules
 
 - **Frozen-chain lessons (2026-08-18: seven serialized fix cycles, each
@@ -146,7 +163,9 @@ worktree per task (`git worktree add`), never in a dirty main checkout; the
      records and generalise beside them.
 - **Money-path rules** (each one cost real money in Week 1 of 2026; the
   current take-over document carries the full list): never enter an untested
-  rule on an entered book — test it on the historical books first; remove a
+  rule on an entered book — test it before entering, on the historical books
+  where they exist and otherwise on a fixed-book replay or a paired shadow
+  (the test is required; the 72-book form is not — adoption track v2); remove a
   player from entered lineups only when DraftKings marks him OUT/IR or the
   official inactives name him, and answer "replace X" with his live status
   first; never select lineups on raw expected payout (a 1-in-10,000 event
@@ -221,7 +240,9 @@ worktree per task (`git worktree add`), never in a dirty main checkout; the
   validation trail in HANDOFF. Frozen chains pinned to an older environment
   fail closed against the live policy — that is the guard working
   (`reports/2026-09-11-frozen-factorial-policy-drift.md`).
-- **Validation laws that do not change**: six-season panels with a co-run
+- **Validation laws that do not change** (they govern historical verdicts
+  and permanent adoption; in-season use follows
+  `reports/2026-09-19-in-season-adoption-track.md`): six-season panels with a co-run
   control on the SAME image build; leave-one-season-out with at most one
   negative; vacuity checks (byte-identical arms are a dead lever); the
   post-ensemble and post-selection law (a verdict does not transfer across a

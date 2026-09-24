@@ -1,0 +1,419 @@
+{
+  "schema": "pool-pair-support/v1",
+  "season": 2026,
+  "week": 2,
+  "checked_utc": "2026-09-21T17:18:06.957841+00:00",
+  "candidates": 12555,
+  "by_position": {
+    "QB": {
+      "position": "QB",
+      "players_used": 57,
+      "lineups_with_two_or_more": 0,
+      "possible_pairs": 1596,
+      "achievable_pairs": 0,
+      "distinct_pairs": 0,
+      "share_of_possible": 0.0,
+      "share_of_achievable": null,
+      "repetition_factor": null
+    },
+    "RB": {
+      "position": "RB",
+      "players_used": 84,
+      "lineups_with_two_or_more": 12554,
+      "possible_pairs": 3486,
+      "achievable_pairs": 3486,
+      "distinct_pairs": 1040,
+      "share_of_possible": 0.2983362019506598,
+      "share_of_achievable": 0.2983362019506598,
+      "repetition_factor": 18.15576923076923,
+      "under_paired": [
+        {
+          "player": "Bijan Robinson",
+          "projection_rank": 1,
+          "projection": 21.52,
+          "in_candidates": 4669,
+          "distinct_partners": 71,
+          "partner_coverage": 0.8554216867469879
+        },
+        {
+          "player": "Christian McCaffrey",
+          "projection_rank": 2,
+          "projection": 18.92,
+          "in_candidates": 2529,
+          "distinct_partners": 60,
+          "partner_coverage": 0.7228915662650602
+        },
+        {
+          "player": "Javonte Williams",
+          "projection_rank": 3,
+          "projection": 17.74,
+          "in_candidates": 1911,
+          "distinct_partners": 55,
+          "partner_coverage": 0.6626506024096386
+        },
+        {
+          "player": "Derrick Henry",
+          "projection_rank": 4,
+          "projection": 17.36,
+          "in_candidates": 1921,
+          "distinct_partners": 60,
+          "partner_coverage": 0.7228915662650602
+        },
+        {
+          "player": "Ashton Jeanty",
+          "projection_rank": 5,
+          "projection": 16.11,
+          "in_candidates": 1631,
+          "distinct_partners": 58,
+          "partner_coverage": 0.6987951807228916
+        },
+        {
+          "player": "Saquon Barkley",
+          "projection_rank": 6,
+          "projection": 15.39,
+          "in_candidates": 998,
+          "distinct_partners": 54,
+          "partner_coverage": 0.6506024096385542
+        },
+        {
+          "player": "David Montgomery",
+          "projection_rank": 7,
+          "projection": 15.3,
+          "in_candidates": 1151,
+          "distinct_partners": 54,
+          "partner_coverage": 0.6506024096385542
+        },
+        {
+          "player": "Breece Hall",
+          "projection_rank": 8,
+          "projection": 15.22,
+          "in_candidates": 1072,
+          "distinct_partners": 51,
+          "partner_coverage": 0.6144578313253012
+        },
+        {
+          "player": "Bucky Irving",
+          "projection_rank": 9,
+          "projection": 15.09,
+          "in_candidates": 989,
+          "distinct_partners": 52,
+          "partner_coverage": 0.6265060240963856
+        },
+        {
+          "player": "D'Andre Swift",
+          "projection_rank": 10,
+          "projection": 14.62,
+          "in_candidates": 1048,
+          "distinct_partners": 51,
+          "partner_coverage": 0.6144578313253012
+        },
+        {
+          "player": "Rhamondre Stevenson",
+          "projection_rank": 11,
+          "projection": 14.51,
+          "in_candidates": 829,
+          "distinct_partners": 49,
+          "partner_coverage": 0.5903614457831325
+        },
+        {
+          "player": "Chase Brown",
+          "projection_rank": 12,
+          "projection": 14.41,
+          "in_candidates": 979,
+          "distinct_partners": 53,
+          "partner_coverage": 0.6385542168674698
+        },
+        {
+          "player": "De'Von Achane",
+          "projection_rank": 13,
+          "projection": 14.32,
+          "in_candidates": 776,
+          "distinct_partners": 50,
+          "partner_coverage": 0.6024096385542169
+        },
+        {
+          "player": "Omarion Hampton",
+          "projection_rank": 14,
+          "projection": 13.75,
+          "in_candidates": 605,
+          "distinct_partners": 48,
+          "partner_coverage": 0.5783132530120482
+        },
+        {
+          "player": "Aaron Jones Sr.",
+          "projection_rank": 15,
+          "projection": 13.17,
+          "in_candidates": 562,
+          "distinct_partners": 44,
+          "partner_coverage": 0.5301204819277109
+        }
+      ]
+    },
+    "WR": {
+      "position": "WR",
+      "players_used": 137,
+      "lineups_with_two_or_more": 12555,
+      "possible_pairs": 9316,
+      "achievable_pairs": 9316,
+      "distinct_pairs": 3405,
+      "share_of_possible": 0.3655002146844139,
+      "share_of_achievable": 0.3655002146844139,
+      "repetition_factor": 17.805286343612334,
+      "under_paired": [
+        {
+          "player": "Justin Jefferson",
+          "projection_rank": 1,
+          "projection": 25.35,
+          "in_candidates": 6094,
+          "distinct_partners": 127,
+          "partner_coverage": 0.9338235294117647
+        },
+        {
+          "player": "Ja'Marr Chase",
+          "projection_rank": 2,
+          "projection": 18.25,
+          "in_candidates": 1546,
+          "distinct_partners": 108,
+          "partner_coverage": 0.7941176470588235
+        },
+        {
+          "player": "Jaxon Smith-Njigba",
+          "projection_rank": 3,
+          "projection": 17.41,
+          "in_candidates": 1385,
+          "distinct_partners": 120,
+          "partner_coverage": 0.8823529411764706
+        },
+        {
+          "player": "Ladd McConkey",
+          "projection_rank": 4,
+          "projection": 17.21,
+          "in_candidates": 1407,
+          "distinct_partners": 105,
+          "partner_coverage": 0.7720588235294118
+        },
+        {
+          "player": "CeeDee Lamb",
+          "projection_rank": 5,
+          "projection": 16.6,
+          "in_candidates": 1255,
+          "distinct_partners": 103,
+          "partner_coverage": 0.7573529411764706
+        },
+        {
+          "player": "Drake London",
+          "projection_rank": 6,
+          "projection": 16.57,
+          "in_candidates": 985,
+          "distinct_partners": 106,
+          "partner_coverage": 0.7794117647058824
+        },
+        {
+          "player": "Chris Olave",
+          "projection_rank": 7,
+          "projection": 15.48,
+          "in_candidates": 1244,
+          "distinct_partners": 106,
+          "partner_coverage": 0.7794117647058824
+        },
+        {
+          "player": "Garrett Wilson",
+          "projection_rank": 8,
+          "projection": 14.86,
+          "in_candidates": 805,
+          "distinct_partners": 98,
+          "partner_coverage": 0.7205882352941176
+        },
+        {
+          "player": "George Pickens",
+          "projection_rank": 9,
+          "projection": 14.33,
+          "in_candidates": 697,
+          "distinct_partners": 100,
+          "partner_coverage": 0.7352941176470589
+        },
+        {
+          "player": "Jaylen Waddle",
+          "projection_rank": 10,
+          "projection": 14.06,
+          "in_candidates": 726,
+          "distinct_partners": 90,
+          "partner_coverage": 0.6617647058823529
+        },
+        {
+          "player": "Emeka Egbuka",
+          "projection_rank": 11,
+          "projection": 14.05,
+          "in_candidates": 723,
+          "distinct_partners": 100,
+          "partner_coverage": 0.7352941176470589
+        },
+        {
+          "player": "Luther Burden III",
+          "projection_rank": 12,
+          "projection": 13.05,
+          "in_candidates": 1399,
+          "distinct_partners": 87,
+          "partner_coverage": 0.6397058823529411
+        },
+        {
+          "player": "Parker Washington",
+          "projection_rank": 13,
+          "projection": 13.03,
+          "in_candidates": 642,
+          "distinct_partners": 88,
+          "partner_coverage": 0.6470588235294118
+        },
+        {
+          "player": "Mike Evans",
+          "projection_rank": 14,
+          "projection": 12.83,
+          "in_candidates": 669,
+          "distinct_partners": 100,
+          "partner_coverage": 0.7352941176470589
+        },
+        {
+          "player": "Tetairoa McMillan",
+          "projection_rank": 15,
+          "projection": 12.81,
+          "in_candidates": 623,
+          "distinct_partners": 97,
+          "partner_coverage": 0.7132352941176471
+        }
+      ]
+    },
+    "TE": {
+      "position": "TE",
+      "players_used": 95,
+      "lineups_with_two_or_more": 1735,
+      "possible_pairs": 4465,
+      "achievable_pairs": 1735,
+      "distinct_pairs": 380,
+      "share_of_possible": 0.0851063829787234,
+      "share_of_achievable": 0.21902017291066284,
+      "repetition_factor": 4.565789473684211,
+      "under_paired": [
+        {
+          "player": "Trey McBride",
+          "projection_rank": 1,
+          "projection": 15.31,
+          "in_candidates": 987,
+          "distinct_partners": 52,
+          "partner_coverage": 0.5531914893617021
+        },
+        {
+          "player": "Colston Loveland",
+          "projection_rank": 2,
+          "projection": 12.98,
+          "in_candidates": 1696,
+          "distinct_partners": 41,
+          "partner_coverage": 0.43617021276595747
+        },
+        {
+          "player": "Mark Andrews",
+          "projection_rank": 3,
+          "projection": 11.16,
+          "in_candidates": 701,
+          "distinct_partners": 36,
+          "partner_coverage": 0.3829787234042553
+        },
+        {
+          "player": "Dallas Goedert",
+          "projection_rank": 4,
+          "projection": 10.62,
+          "in_candidates": 628,
+          "distinct_partners": 35,
+          "partner_coverage": 0.3723404255319149
+        },
+        {
+          "player": "Michael Mayer",
+          "projection_rank": 5,
+          "projection": 10.51,
+          "in_candidates": 530,
+          "distinct_partners": 19,
+          "partner_coverage": 0.20212765957446807
+        },
+        {
+          "player": "Dalton Schultz",
+          "projection_rank": 6,
+          "projection": 10.34,
+          "in_candidates": 1028,
+          "distinct_partners": 28,
+          "partner_coverage": 0.2978723404255319
+        },
+        {
+          "player": "Tucker Kraft",
+          "projection_rank": 7,
+          "projection": 10.26,
+          "in_candidates": 467,
+          "distinct_partners": 32,
+          "partner_coverage": 0.3404255319148936
+        },
+        {
+          "player": "George Kittle",
+          "projection_rank": 8,
+          "projection": 9.05,
+          "in_candidates": 271,
+          "distinct_partners": 23,
+          "partner_coverage": 0.24468085106382978
+        },
+        {
+          "player": "Brock Bowers",
+          "projection_rank": 9,
+          "projection": 9.0,
+          "in_candidates": 255,
+          "distinct_partners": 23,
+          "partner_coverage": 0.24468085106382978
+        },
+        {
+          "player": "Cade Otton",
+          "projection_rank": 10,
+          "projection": 8.88,
+          "in_candidates": 497,
+          "distinct_partners": 19,
+          "partner_coverage": 0.20212765957446807
+        },
+        {
+          "player": "T.J. Hockenson",
+          "projection_rank": 11,
+          "projection": 8.87,
+          "in_candidates": 644,
+          "distinct_partners": 25,
+          "partner_coverage": 0.26595744680851063
+        },
+        {
+          "player": "Juwan Johnson",
+          "projection_rank": 12,
+          "projection": 8.72,
+          "in_candidates": 575,
+          "distinct_partners": 21,
+          "partner_coverage": 0.22340425531914893
+        },
+        {
+          "player": "Hunter Henry",
+          "projection_rank": 13,
+          "projection": 8.46,
+          "in_candidates": 299,
+          "distinct_partners": 17,
+          "partner_coverage": 0.18085106382978725
+        },
+        {
+          "player": "Brenton Strange",
+          "projection_rank": 14,
+          "projection": 8.45,
+          "in_candidates": 384,
+          "distinct_partners": 18,
+          "partner_coverage": 0.19148936170212766
+        },
+        {
+          "player": "Harold Fannin Jr.",
+          "projection_rank": 15,
+          "projection": 8.27,
+          "in_candidates": 237,
+          "distinct_partners": 11,
+          "partner_coverage": 0.11702127659574468
+        }
+      ]
+    }
+  }
+}

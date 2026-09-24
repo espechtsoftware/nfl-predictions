@@ -1,13 +1,14 @@
+> **PRODUCTION MOVES TO THE LAPTOP AFTER WEEK 3 (operator, 2026-09-24): read `reports/2026-09-24-production-moves-to-the-laptop.md` first.**
 > **INCOMING AGENT START HERE: `reports/2026-09-22-laptop-agent-handover.md`** (on
 > `production/week3-integration-20260921`). Roles for Week 3: **production is in charge**
 > (operator instruction 2026-09-22); the laptop agent is the second party and should verify
 > claims rather than accept them. The lab agent is gone.**
-> **Deep background: `reports/2026-09-21-production-handover.md` on
-> `production/in-season-rules-20260919` @ `52acb4ab` — still accurate on architecture and
+> **Deep background: `reports/2026-09-21-production-handover.md` (merged from
+> `production/in-season-rules-20260919` @ `52acb4ab` on 2026-09-24) — still accurate on architecture and
 > history, superseded on current state.**
 > **`reports/2026-09-15-week2-operating-handoff.md` is SUPERSEDED except for its §4 (Sunday money path) and §3a (standing weekly cadence).**
 > **Operator's own Week-2 steps (timers, Saturday refresh, Sunday upload): `reports/2026-09-17-week2-operator-checklist.md`.**
-> **Operator's machine-move guide: `reports/2026-09-15-workstation-to-laptop-transition-guide.md`.**
+> **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
 
@@ -5474,6 +5475,64 @@ builds were run. Next: production review/cherry-pick this checkpoint.
 This connects the existing checker; it does not complete its provenance contract.
 The checker still needs projection/market batch alignment and full cache/content
 identity validation. Do not describe this checkpoint as closing FEAT-001 in full.
+## 2026-09-21 — Week 2 answered, and three weekly instruments that did not exist
+
+**The conclusion first, because it changes what is worth working on.** Week 2 was
+not lost by selection. The pool's best candidate scored **197.26** against a
+Millionaire winning score of **232.4** — 35 points short, zero candidates in the
+field's top 0.1%, and only 20.4% above the field *median*. No ordering, selector
+or promotion rule could have produced a winner, because the pool did not contain
+one.
+
+**Projections are not the lever, and the evidence is unusually clean.** Every one
+of the nine players in the winning lineup was in our pool and priced. We valued
+that exact lineup at **119.51**; it scored **232.38**. Winning required a
+113-point collective overperformance that no model predicts. Do not answer a bad
+week with projection work.
+
+**Why coverage failed, concretely.** The winning roster shares 35 of its 36 pairs
+with our 12,555 candidates. The one it never contained is Kittle + Schultz — two
+tight ends, ranked 8th and 6th of 95 by our own projection. Not a missing player
+and not a forbidden shape: we build 1,735 two-TE lineups. But those hold only 380
+distinct TE pairs where 1,735 were achievable, so an 8th-ranked TE never meets a
+6th-ranked one. A generator that allocates exploration by projection
+systematically under-samples the combinations that win, because winners are made
+of players who overperform.
+
+### The three instruments, all committed with tests
+
+| script | question it answers | run when |
+|---|---|---|
+| `week_proper_scores.py` | how did served projections score, by position | after outcomes are released |
+| `week_ceiling_and_coverage.py` | was the week winnable with the pool we built, and how close did we come to the winner | after standings are applied |
+| `pool_pair_support.py` | which combinations are we systematically failing to explore | **before the slate**, on the generated pool |
+
+The third is the one that would have helped on Saturday. On the Week-2 pool,
+told nothing about the outcome, it flags TE pair coverage at 21.9% of achievable
+against WR 36.6% and RB 29.8%, and names six well-projected tight ends meeting
+under half their peers. No other position is flagged.
+
+### Two levers, both supply-side, and where each applies
+
+- **Entries where the pool already contains winners.** The two small satellites
+  held 7 and 4 winning candidates; 97 picks give 5.3% and 3.0%, 500 picks give
+  24.3% and 14.7%. Millionaire top-10 finishers entered a median of **150**
+  lineups; we entered 1.
+- **Coverage where it does not.** For the six large fields no number of entries
+  helps, because the ceiling is short. That is the laptop's correction to an
+  earlier over-broad claim of mine and it is right.
+
+### One number that changes an existing proposal
+
+The operator's projection-floor rule must be set **no higher than 8**. The
+winning lineup's minimum skill projection was **8.65**, so a floor of 10 or 12
+would have discarded it. Measured separately, floor 10 retains only 4 of 222
+candidates at ≥150. Floor 4–6 is the useful range: it cuts the pool 60–70% while
+keeping the best lineup and about three quarters of the 150+ candidates.
+
+Full working, including three measurements I had to correct, is in
+`reports/2026-09-21-week2-evidence-record.md`.
+
 
 This tracked file is the authoritative record for resuming development. It
 must travel with the repository. Do not rely on assistant memory, an
@@ -5528,6 +5587,43 @@ cap20 / marketpull / cap20pull / games5 / late3 selection-only arms); `productio
 **Unresolved:** image rebuild/deploy; DST market decision; capture apply for Week 2 (after DK scoring review);
 cross-season window audit (laptop Priority 1); exposure sheet not yet a chain step; no live exposure cap (operator
 decision after the paired Week-3 shadow); Cloud Run us-central1 at 1000 jobs.
+## Operator directive 2026-09-19 ~16:50Z -- rules changed: in-season gains are the objective
+
+- **What he said:** "We need to change the rules immediately so we can realize gains as early as possible this
+  year. Audit the rules and change any that are contrary to my objectives of winning quickly. Then let the labs know
+  the rules have changed." Protocol decisions are his; this records the decision.
+- **Changed** (`reports/2026-09-19-in-season-adoption-track.md`, new CLAUDE.md section): the six-season panel is
+  no longer a prerequisite for in-season use of a change (permanent adoption only); four risk classes with
+  in-season evidence bars (R repair: verified correctness, no outcome wait; C calibration: player-level weekly
+  scorecard, 2 consecutive or 3-of-4 weeks; S selection: paired prelock-frozen shadow, 3-of-4 weeks; E entry-side:
+  operator's call); a mandatory weekly scorecard from Week 2; completed banks are read at once (deliberate unread
+  holds need his explicit instruction); shadows start the next week; the Route Share gate gains pre-specified
+  interim reads after 6 and 10 graded weeks (Amendment 1 in its document). The 2026-09-18 sentence below,
+  "Research should be presented to him on that basis rather than implying in-season upside", is SUPERSEDED.
+- **Unchanged, and why:** point-in-time / leakage checks, walk-forward, rules frozen before outcomes, no
+  retrospective tuning, audit before verdict, the entered-book identity gate, never an untested change on an
+  entered book, the scratch protocol, lanes / quota / running-worktree rules. Each is what makes a gain real, not a
+  delay. The operator can override any of them; none was changed unasked.
+- **Where:** branch `production/in-season-rules-20260919` (from `78d9616b`), pushed. **Not merged into the
+  operational worktree while a bank is running** (the Saturday builds were live when this was written); merge
+  after the builds finish and never while a Sunday unit runs. The lab was notified on
+  `lab/workstation-reply-bank991-20260918` (`handoffs/2026-09-19-RULES-CHANGED-operator-directive.md`).
+- **Follow-ups opened:** O-13 (checker registry fields for the Route Share gate must reflect Amendment 1, with a
+  test, Monday 2026-09-21 with O-2); Week-2 evidence record Monday; bank 991 authorized by the operator at ~16:57Z
+  ("Yes on bank 991") — amendment-5 reader frozen, then read.
+- **21:27Z — O-14 opened at the operator's request** (`reports/OPEN-DEFECTS.md`): the selector concentrated 45 of 97
+  Week-2 D6400 lineups on Zay Flowers (Doubtful at build; Out by afternoon), with no availability weighting or exposure
+  cap; "too late to change it for this week … be sure it's documented to fix next week." Week-3 class-S item under
+  the labs' selection-loss frontier protocol plus `tools/exposure_cap_book.py` on the historical books; the Week-2
+  entered book is protected only by the Rung 1c replacement step.
+- **v2, ~17:2xZ, on the lab's independent review** (`reports/2026-09-19-in-season-rules-independent-review.md`,
+  research `45e5a25c`): the fixed 2-consecutive / 3-of-4 bars and the automatic two-loss rollback are withdrawn in
+  favour of candidate-specific reversible-trial decision records (faster, and not a weak sign-count gate); class C
+  is measured at the final consumer, not player CRPS alone; no universal dominance veto for class S; R requires the
+  proven contract plus declared numerical tolerances and quantified propagation; E keeps the operator's authority
+  plus rehearsal and a restore path; Route Share Amendment 1 corrected (lexicographic primary, floors never waived,
+  weekly decision record instead of 6/10-week interim reads); permanent adoption proportional to mechanism and data;
+  closures scoped by four dimensions. O-6 / O-12 / O-13 wording corrected.
 
 ## Workstation overnight -- 2026-09-19 (Week-2 build eve)
 
@@ -5636,6 +5732,8 @@ session re-confirmed it.
   decisions already in the operator's hands — contest mix, entry count, layout, and dose within the already-tested
   range — exactly as Addendum 95 said ("the only live capture paths are MORE ENTRIES per slate and genuinely new
   information"). Research should be presented to him on that basis rather than implying in-season upside.
+  **[SUPERSEDED 2026-09-19 by the operator's directive -- see `reports/2026-09-19-in-season-adoption-track.md`;
+  every proposal now states the earliest week it can change the entered book.]**
 - **Standing lesson.** Every frozen protocol that captures prospectively is a standing operational dependency, not a
   document. If nothing fails when it stops running, it will stop running. Register it in the checker at freeze time —
   and record whether it can change the CURRENT season, so its urgency is never oversold.
