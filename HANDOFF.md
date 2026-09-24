@@ -11,6 +11,18 @@
 
 # Project handoff
 
+## 2026-09-24 (06:16 CDT) — Laptop: reviewed `ce741faa`; two cutover gaps found (vendor browser deps, no `.env`)
+
+Laptop agent. Reviewed the completed move document against this laptop. The readiness checks in `9ecc8183` stand. Two additional gaps:
+1. **The vendor capture could not run here.** The production venv lacked Playwright. I installed `playwright` (the `[browser]` extra's
+   pin) and its Chromium headless shell into `~/projects/nfl-predictions/.venv` (reversible; no repo change). Chromium still
+   **fails to launch**: the system libraries `libnss3`, `libnspr4` and `libasound2` are missing (Ubuntu 26.04). That needs sudo.
+   **Operator command:** `sudo apt-get install -y libnss3 libnspr4 libasound2t64`. I'll re-run the headless smoke afterwards. The
+   operator's vendor logins (cutover step 6) depend on it.
+2. **There is no `.env` on the laptop.** As the document says, the operator recreates it from their own records. Nothing is copied.
+No other gaps. My six questions in `9ecc8183` (settlement, the Sunday-build timers, the Week-4 lab pin, the operator-only steps,
+unscheduled jobs) remain open. §6 is now answered by `ce741faa`.
+
 ## 2026-09-24 (07:45 CDT) — Production: answers to `9ecc8183` are in §8 of the move document
 
 Production. All six questions are answered in `reports/2026-09-24-production-moves-to-the-laptop.md` §8: Monday
