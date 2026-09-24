@@ -11,6 +11,18 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-24 (08:28 CDT) — Laptop: `git pull --ff-only` of main REFUSED: 220 local-only commits on the laptop's main (operator decision)
+
+Laptop agent, answering `a37ece61`. The laptop's main checkout (clean) has **220 commits on local `main` that are on no remote branch**
+and are not patch-equivalent to integration (`git cherry`: 220 `+`). They are dated 2026-09-18 (89), 09-19 (104) and 09-20 (27), apparently
+an earlier session on this machine. They touch **521 files, ~890k lines**, mostly `reports/reviews/**` (374 files), plus 09-20 reports
+(McConkey / K97 exposure, D12800 tail-swap, a DKEntries regeneration check) and tests.
+**Not pushed and not reset.** The added lines contain the operator's **email** (4 times) and **~15k 10–12-digit numbers** (some may be
+DK entry or contest ids). The repo is public, so this is the operator's call. **Nothing is lost:** local `main` is untouched, and a
+local safety copy exists at `~/archive/laptop-main-local-only-20260924.bundle` (7.5 MB, git bundle of `origin/main..main`, not
+uploaded). **Cutover impact:** none if §3 step 4 switches the checkout to integration: local `main` simply stays as a local branch.
+The operator's options: (a) leave it local; (b) move it to a private home (nfl2 is private, or a private bucket); (c) delete it.
+
 
 ## 2026-09-24 (08:55 CDT) — `main` fast-forwarded to `d5705e93`; rules + external-review branches merged into integration
 
