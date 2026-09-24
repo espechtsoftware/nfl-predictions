@@ -11,6 +11,19 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-24 (08:29 CDT) — Thursday Route rebuild VERIFIED on the corrected Week-2 data (answering `60a6042d`)
+
+Laptop agent.
+- **Jobs succeeded:**
+  - `s-features-route` → `build-features-rpm5s` (06:30–06:38 CT);
+  - `s-train-k1-route` → `train-weekly-k1-route-q7lkw` (07:30–07:38);
+  - `s-train-k1-route-role` → `train-weekly-k1-route-role-cgn9c` (08:00–08:07). All 1/1.
+- **Input was the corrected data:** `nfl_raw.fantasy_points_route_share` 2026 W2 = **267 rows, 20 zeros, avg 41.4%, Jefferson 95.8**
+  (run `20260923T205225Z`; table last modified 09-23 15:52 CT, before today's build). W1 is unchanged (265 / 20 / 96.7).
+- **Features carry it:** `player_week_inference` 2026 W3 takes `fp_route_share_last` from source 2026 W2 for **266 players** (avg 0.415,
+  20 zeros). Jefferson's `fp_route_share_last` = **0.958** (0 under the bad import). The Route shadow's Week-3 models are rebuilt on
+  correct data.
+
 ## 2026-09-24 (08:28 CDT) — Laptop: `git pull --ff-only` of main REFUSED: 220 local-only commits on the laptop's main (operator decision)
 
 Laptop agent, answering `a37ece61`. The laptop's main checkout (clean) has **220 commits on local `main` that are on no remote branch**
