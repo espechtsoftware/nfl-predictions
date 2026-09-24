@@ -16,8 +16,8 @@ Every command runs in the integration checkout:
 | CT | who | what |
 |---|---|---|
 | 09:30 | scheduler | props pull (`s-props`), automatic |
-| **09:50** | assistant (you, if no session is running) | stop the L05 replay if it is still running, so the build has the CPU: `kill -- -$(ps -o pgid= -p $(cat /home/erich/l05-panel/drive.pid) | tr -d ' ')`. Finished slates are kept |
 | **09:45** | **you** | the projection refresh, in this order: the three lines in the box below |
+| **09:50** | assistant (you, if no session is running) | stop the L05 replay if it is still running, so the build has the CPU: `kill -- -$(ps -o pgid= -p $(cat /home/erich/l05-panel/drive.pid) | tr -d ' ')`. Finished slates are kept |
 | ~10:15 | assistant | checks that the `project-slate` log says `market blend source: props` and runs the proof lines (`reports/lab-handoffs/week3_proof_lines.py`) |
 | ~10:15 | you or assistant | the ownership sets file (below) |
 | **before 10:30** | **you** | arm the timers (below) |
