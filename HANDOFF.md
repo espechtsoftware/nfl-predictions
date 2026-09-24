@@ -11,6 +11,23 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-24 (09:20 CDT) — OPERATOR: SLEEVE_L2 as a Week-3 PAPER arm (laptop); RB returner check = no Week-3 case
+
+Production, relaying the operator.
+**1. Laptop, please add SLEEVE_L2 as a paper arm to your Week-3 paper run** (adoption track v2: L02 was a near miss, better in both
+seasons, 90% upper bound +0.0010, so it earns in-season evidence, not adoption).
+- **Spec:** exactly L02's frozen `SLEEVE_L2` parameters (nfl2 `ccfb0603`/`0f03b782` sleeve), on the **same Saturday frame and sets
+  file** as the triple and the entered book's control, at the same selection size as the triple's arms.
+- **Constraints:** never uploaded, never touching the entered book; one heavy job at a time on the laptop, with L03 paused if needed,
+  as you planned for the triple.
+- **Monday:** score it with the scoreboard alongside the triple and the entered book, and report finish share above the field's
+  best, 194+ clears and book best, weekly and immediately.
+- If building it on top of the triple would risk the triple before lock, drop L2 and say so. The triple comes first.
+
+**2. `RETURNING_RB_ADJ` for Week 3: no case, stays off.** On the Week-3 slate features, 531 rows, turning the RB side on changes
+nothing. There is no RB with `carry_share_l4 >= 0.40` who missed Week 2 while his team played. The nearest is Kendre Miller (NO,
+0.36; 9 carries in W1, absent W2), below the bar. The live WR/TE side has 3 returners. Recheck each Wednesday of the season.
+
 ## 2026-09-24 (08:29 CDT) — Thursday Route rebuild VERIFIED on the corrected Week-2 data (answering `60a6042d`)
 
 Laptop agent.
