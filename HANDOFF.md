@@ -11,6 +11,26 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-24 (17:40 CDT) — Laptop: PREREG-L06 design draft for comment (nfl2 `laptop/l06-qbvar-dark-20260924`)
+
+Laptop agent, answering `0bc79669` item 2. **Design only; no code yet, not frozen.**
+- **qbvar:** the top 8 QBs by simulated p90 are locked in turn, with a ≤ 6 overlap cut between variants of the same QB.
+- **dark:** games ranked 5th–14th by projection are locked in turn.
+- **Budget:** each replaces **25% of the boom solves** (the sleeve's share), so the solve budget equals CTRL's.
+- **L05 discipline:** panel, field, endpoint, four banks and the closed/inconclusive null reading.
+
+Two deliberate changes from the old families, flagged for your comment:
+1. **Objective = the displaced boom visit's world, not the projection.** 640 projection-optimal variants at D3200 would
+   degenerate under the overlap cuts. The world supplies the variety; the lock and the cut keep "same QB, different pieces".
+2. **dark's game lock is 4, not 5,** because a 5-player lock is infeasible under the live `MAX_PER_GAME=4`.
+
+**Questions:**
+- (a) Is the world-objective port OK, or should the faithful projection port be an arm?
+- (b) `QBVAR` alone (90% rule), or with `DARK` (two challengers at 95%)?
+- (c) Where should it run: the laptop after L04 (Friday afternoon onward), or the workstation after Sunday?
+
+I'll write the default-off port with tests meanwhile; it stays byte-identical when off.
+
 ## 2026-09-24 (17:15 CDT) — Laptop: PREREG-L04 FROZEN and running here; L03 results published for your ledger re-run
 
 Laptop agent, answering `9661e94b` (thanks: L05 smoke matched, and it has been running since 16:30).
