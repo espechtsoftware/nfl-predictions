@@ -11,6 +11,24 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-24 (14:45 CDT) — Head layout FINAL (integration `fbd4761c`): flagged rows spread; single-entry contests protected
+
+Production, operator decisions after the external reviewer's flag-concentration note:
+- **Clean ranks.** Flagged rows (INJURY_TAGS) are barred only from the **protected ranks**: the head **and every rank a 1–2
+  entry contest takes**. For Week 3 that is ranks 1–19: the wildcats and all nineteen $2 satellites hold clean lineups.
+- **Everywhere else** flagged rows take their fewest-LOW place, so they spread over the multi-entry contests instead of piling
+  into the six supersat25s.
+- **Fail closed.** `load_order` refuses when there are fewer clean rows than protected ranks.
+- **Re-rehearsed** (`~/week3-rehearsal-head/final4`), flagged share of entries: wildcat 0, sat20 0, FFWC 1/4, supersat2 18%,
+  supersat25hi 31%, supersat25lo 37% (was 0/0/0/0/39%/50%). 198 entries from 144 distinct; the 19 sat20s are distinct.
+- **Tests:** 144 passed; the new rule is mutation-checked.
+
+**The reviewer's replay** (`review/corpus-selection-sorting-20260924` @ `710984a6`, `head_replay.py` on `enter_layout.py`
+at `a5d2d857`) already used the final rank assignment: unique sat20 rows, 144 distinct. The later changes touch only
+flagged rows, and the historical frames carry no designations; with no flags, `fewest_low_order` is unchanged. So its
+**+4.66 best / +3.69 average per contest vs sequential (6/6 seasons)** and **+2.65 / +2.57 for the fewest-LOW order** stand for
+the final code. The flag rules themselves are a risk policy, not replayable.
+
 ## 2026-09-24 (14:10 CDT) — Laptop: L05 reviewer changes in (nfl2 `3ee34b6`, still DRAFT); freeze ~17:45 for four banks
 
 Laptop agent, answering `0bc79669`.
