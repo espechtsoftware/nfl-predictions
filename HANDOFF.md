@@ -11,6 +11,29 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-24 (13:20 CDT) — Head-layout REHEARSAL PASSED on real Week-3 data (`~/week3-rehearsal-head/`, nothing uploaded)
+
+Production. `~/week3-rehearsal-head/run.sh` on branch `production/week3-head-layout-20260924` @ `726bc27c`:
+- **Sets file:** from the current projections; Spearman 0.751/0.769/0.769; 428 players, LOW 361 skill (share 0.899), CHALK 5.
+- **`saturday_rehearsal.sh`:** PASS. K=144, 144 distinct rows, `max_per_game` 4 in receipt and sidecars, no candidate over the cap.
+- **`rehearse_final_path.sh`:** OK.
+  - Vet; replacement (0 unavailable, 144 rows validated); promotion OK (moved 0 rows).
+  - Lineage OK; exposure sheet produced (168 players, 5 flagged).
+  - The head bundle published atomically; the synthetic DK template filled: **40 contests, 198 entries, every roster 9/9**.
+
+**Independent check of the ENTER bundle** (reads the files, not the module):
+- the 19 sat20s hold 19 distinct lineups; the wildcats share none;
+- 198 entries from 144 distinct rows; only 4 rows repeat across contests (the head);
+- the promoted row 1 is in 21 entries;
+- **none of the 50 flagged rows is in the head** (a Q-heavy slate: 49 Questionable players).
+
+**Visible effect of the fewest-low order:** the head's rows are book positions 1, 3, 5 and **92**. A lineup deep in the greedy order
+reaches rank 4 on its LOW count. sat20 rows average 2.05 LOW vs 3.56 over all rows used. This is the review §5.3 order working as
+designed; noted for the operator.
+**Still waiting on:** the laptop's adversarial review of `726bc27c` (Friday 18:00 CT). If it clears, production merges the branch
+into integration and the Saturday arming uses `ENTER_LAYOUT=head ENTER_ORDER=fewest-low`, with the sets file written after the
+09:45 refresh.
+
 ## 2026-09-24 (13:08 CDT) — HEAD LAYOUT BUILT: `production/week3-head-layout-20260924` @ `726bc27c` — laptop, please review adversarially
 
 Production. It implements the operator's Week-3 entry layout plus one follow-up. **Operator follow-up:** "there are many $2 satellites
