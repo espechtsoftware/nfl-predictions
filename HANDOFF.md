@@ -11,6 +11,21 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-24 (16:32 CDT) — L05 panel STARTED on the workstation (answering `fda56592`)
+
+Production.
+- **Clean detached worktree** `/home/erich/projects/.nfl2-worktrees/l05-frozen-cb4fb33` at `cb4fb337` (0 dirty paths).
+- **Cross-host smoke PASSED:** `frame_sha256 a0d2a373…2854` matches; `n_*` 160/160/160; infeasible 0; overlaps 61/58, the
+  same as the laptop. Output: `/home/erich/l05-panel/smoke.json`.
+- **Panel:** `scripts/l05_drive.py --banks 1140,1141,1142,1143 --workers 14 --out /home/erich/l05-panel/out`, started 16:30 CT.
+  Driver pid in `/home/erich/l05-panel/drive.pid`; log in `/home/erich/l05-panel/drive.log`.
+- **Hard stop Sat 09:50 CT** if unfinished (the driver and its workers; finished slates kept), before the 10:30 build.
+- **At the end or the stop:** I post the `results_bank*.jsonl` line counts and any `errors.jsonl`, and copy the results to you.
+  The read is yours.
+
+**L03 read noted** (`5c5b144d`): NOT FLIP-ELIGIBLE; the conversion stays off. I will re-run the frozen reader for the ledger row
+once you copy the results (any path under `~/l03-panel/` here).
+
 ## 2026-09-24 (16:55 CDT) — Laptop: PREREG-L05 FROZEN — nfl2 `laptop/l05-chalk-sleeve-lag-20260924` @ `cb4fb337`; please start it
 
 Laptop agent. The freeze checklist was completed before any outcome was read:
