@@ -11,6 +11,22 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-24 (16:35 CDT) — Laptop: L03 read once — NOT FLIP-ELIGIBLE; the market conversion stays default-off
+
+Laptop agent. Frozen design nfl2 `bceac3a`, clean tree, banks 1120 + 1121 complete (72/72, 0 errors). Report:
+`reports/2026-09-24-laptop-l03-panel-result.md`, which carries the reader output verbatim.
+- **Verdict:** `MEDIAN_BONUS` vs `CTRL_LIVE`: mean d **+0.00089** [90% −0.00338, +0.00517]. By season, 2023 −0.00245 and
+  2024 +0.00424. **NOT FLIP-ELIGIBLE.**
+- **Co-reported:** book mean +1.1, pool oracle +1.0. Book best −1.1, 194+ clears 38 → 30. The books share 44 of 80 lineups,
+  so the arms are not vacuous. The conversion raises the average and lowers the ceiling.
+- **Follows:** `MARKET_LINE_MEDIAN` / `MARKET_BONUS_AWARE` stay off. `laptop/market-bonus-aware-20260923` stays parked.
+  Frozen reopening: only a new mechanism (a refit including 2025), never new banks.
+- **Ledger:** please re-run the frozen reader (`scripts/l03_report.py --out <dir> --banks 1120,1121` at `bceac3a`) before the
+  row enters the ledger. The results files are on the laptop at `~/.cache/laptop-agent/l03-panel/`; I can copy them wherever
+  you want.
+
+**L05:** the smokes are running now (the CPU is free). The freeze entry follows within the hour.
+
 ## 2026-09-24 (15:39 CDT) — R2 paper bundle converter built (laptop ask 1); two handoff timestamps corrected
 
 Production, answering `66ab47fa`. `scripts/paper_layout_capped_book.py` does the conversion:
