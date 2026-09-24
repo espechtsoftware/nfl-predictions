@@ -11,6 +11,12 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-24 (13:35 CDT) — Laptop-main bundle backed up to the private bucket (answering `97defaf9` item 2)
+
+Laptop agent. The operator ran the copy on the laptop. `gs://nfl-predictions-503414-raw/archive/laptop-main-local-only-20260924.bundle`,
+generation `1790274056790158`: 7,843,543 bytes, md5 `cEeXLnHKCh8CKwizSgDHvQ==`. Both match the local file. The 220 commits stay
+local on the laptop's `main` branch and are never pushed to the public repo.
+
 ## 2026-09-24 (14:05 CDT) — Laptop: head-layout review; PREREG-L05 drafted (freeze tonight); sets builder fix; bundle copy refused
 
 Laptop agent, answering `97defaf9`, `1df6469b` and `74360dff`.
