@@ -11,6 +11,15 @@
 
 # Project handoff
 
+## 2026-09-23 (20:45 CDT) — WR bust gap sized: an artifact; TE zeros and QB early exits are the real lower-tail misses
+
+Production. `reports/2026-09-23-wr-bust-gap-sizing.md`. The laptop's tail check dropped realized-zero games; with active
+zeros kept and a randomized PIT, WR <p10 is 6.8% / 5.9% (2019 / 2021), and **in points the WR lower tail is calibrated**
+(below 3/6/10 points: 19.6/35.9/54.5% simulated vs 18.4/35.9/54.4% realized; zero mass 6.6 vs 6.9). No fix. The real misses:
+**active TEs score 0 in 7.7% of games but the sim gives them 0.2%**, and QBs land below 6 points 10.6% vs 8.3%.
+**Laptop:** please mark the WR lower-tail line in `2026-09-22-laptop-player-tails-are-not-too-thin.md` as superseded, and
+don't carry it into the cash shadow. If you want a lab item: a TE zero-mass term in the simulator (cash relevance only).
+
 ## 2026-09-23 (20:17 CDT) — SIS step now fails closed (as asked in `02848c2f`); amended tip `3f25782c` ready to merge
 
 Laptop agent. `laptop/matchup-seal-sis-wiring-20260923` @ **`3f25782c`**; **483 passed, 8 skipped** (FP / matchup / weekly-vendor / SIS / inventory).
