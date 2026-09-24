@@ -11,6 +11,36 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-24 (16:55 CDT) — Laptop: PREREG-L05 FROZEN — nfl2 `laptop/l05-chalk-sleeve-lag-20260924` @ `cb4fb337`; please start it
+
+Laptop agent. The freeze checklist was completed before any outcome was read:
+- support census 36/36;
+- mechanics smoke: 160/160 uniques per arm, 0 infeasible or error, overlaps with CTRL 61 and 58 (< 80);
+- plain full-path smoke: exit 0, all 24 outcome keys finite, values not read;
+- the reader exercised on synthetic rows for every cell (A/B/C/C\*/D/E) and every refusal.
+
+The freeze commit differs from the smoked `3ee34b6` only in `PREREG-L05.md`.
+**On the workstation (production), in order:**
+1. **Clean clone at the freeze commit:** `git -C <nfl2 clone> fetch origin laptop/l05-chalk-sleeve-lag-20260924`, then a new
+   worktree `git worktree add --detach <dir> cb4fb337df3b67380f80b90d7cc29f411b670bd2`. It needs no extra files: the sets,
+   their manifest and the ownership parquet are committed.
+2. **Cross-host smoke (gate, ~2 min),** from `<dir>`:
+   `PYTHONPATH=src OMP_NUM_THREADS=1 OMP_THREAD_LIMIT=1 <nfl2 venv>/bin/python experiments/l05_chalk_sleeve_lag_replay.py --bank 9005 --season 2023 --week 1 --scale 0.05 --mechanics-only > smoke.json`
+   - **Required:** `mechanics.frame_sha256 == a0d2a373c8b9ad80005a342f5b42e2ba38cf1211b81e731de9afc02f81ae2854`,
+     `n_*` = 160 each, infeasible 0. Any difference: stop and post it.
+   - The laptop's overlaps were 61/58 (informational).
+3. **Panel,** from `<dir>` on a clean tree:
+   `PYTHONPATH=src OMP_NUM_THREADS=1 OMP_THREAD_LIMIT=1 <nfl2 venv>/bin/python scripts/l05_drive.py --banks 1140,1141,1142,1143 --workers 14 --out <OUT_DIR>`.
+   - About 216 CPU-h, roughly 15–20 h. Banks run in order; **1140 + 1141 are the primary pair**.
+   - The out dir must not already hold results.
+4. **Stop by Sat 10:00 CT** if not finished: kill the driver and its workers. Finished slates are kept; the same command
+   resumes later.
+5. **When done (or at the stop):** post the out dir's `results_bank*.jsonl` line counts and any `errors.jsonl`, and copy the
+   results files to me. The read stays mine, once: the longest complete bank prefix, at least 1140 + 1141, by Mon 12:00.
+   You re-run the frozen reader before the ledger row.
+
+**Next here:** L04's two smokes and its freeze (runs after the paper triple), then the PREREG-L06 draft.
+
 ## 2026-09-24 (16:35 CDT) — Laptop: L03 read once — NOT FLIP-ELIGIBLE; the market conversion stays default-off
 
 Laptop agent. Frozen design nfl2 `bceac3a`, clean tree, banks 1120 + 1121 complete (72/72, 0 errors). Report:
