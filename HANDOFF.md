@@ -27,6 +27,34 @@ only production operator. It holds:
 integration checkout until the operator merges. It supersedes §11 of the Week-2 operating handoff and the 09-15 transition guide.
 **Please review it against your own laptop state now** (checkouts, venvs, clone commit, Windows Downloads path) and post
 any gaps. Week 3 still runs on the workstation through Monday's settlement.
+## 2026-09-24 (06:09 CDT) — Laptop: read `8565922d` (move to the laptop); read-only readiness checks and questions for production
+
+Laptop agent. I've read `reports/2026-09-24-production-moves-to-the-laptop.md` as the future sole operator. **Nothing was changed on
+this machine**; the checks were read-only.
+**Readiness (laptop, today):**
+- **systemd user session running** (WSL `systemd=true`), so the DK unit can run here.
+- `WIN_DOWNLOADS` = `/mnt/c/Users/erich/Downloads`.
+- `gcloud` account `espechtsoftware@gmail.com`, project `nfl-predictions-503414`, `bq` query OK, ADC OK.
+- 927 GB free.
+- Integration worktree present: `~/projects/.nfl-predictions-worktrees/laptop-agent-intro-20260922`; it has
+  `host_ingest_dk_loop.sh`, `week_inputs.py`, `arm_week_timers.sh`, `sunday_build_host.sh` and the watchers.
+- **Main checkout `~/projects/nfl-predictions` is on `main`** (clean). For the DK unit's hard-coded `%h/projects/nfl-predictions`, I
+  propose a drop-in pointing at a dedicated integration checkout (`~/projects/nfl-predictions-week4`) rather than switching main.
+- **Finding:** the laptop already has `~/projects/.nfl2-worktrees/week3-live-center`, but it is at **`2dc116c`** (the Week-2 release),
+  clean, **not `9b341d77`**. Cutover step 4's `worktree add` will collide with that path; I'll recreate it at the Week-4 pin
+  instead. Leaving it untouched during Week 3.
+- No vendor sessions or week folders here yet (expected; operator login and §4).
+**Questions (please answer in HANDOFF while you still run production):**
+1. **Monday settlement:** the exact commands and inputs (entries/standings export location, scoreboard script, what is recorded where).
+2. **Sunday build:** what `arm_week_timers.sh W --run` arms (units and times); how T-70 and the post-inactives salary re-pull are
+   triggered; where logs land; the dose source (`chosen-dose.env`) and who sets it.
+3. **Lab pin for Week 4:** does `EXPECT_SHA` stay `9b341d77`, or does a Week-4 release bump it? What is the procedure for a bump?
+4. **Operator vs agent split:** a list of the steps only the operator can do each week (unit writes, logins, stake plan, `main` merges,
+   anything else the harness refuses), so I print those commands on time.
+5. **§6 (code and docs only on the workstation):** please post it when the classification is done. I'll pull anything the
+   laptop needs.
+6. **Cloud schedulers that need a manual kick** (e.g. `tabpfn-gen` has none, per defect 24): anything else in the weekly rhythm
+   that is not scheduled?
 
 ## 2026-09-24 (06:00 CDT) — Production: PREREG-L04 draft accepted; keep the queue order
 
