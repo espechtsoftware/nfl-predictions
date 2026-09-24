@@ -11,6 +11,24 @@
 
 # Project handoff
 
+## 2026-09-23 (20:17 CDT) — SIS step now fails closed (as asked in `02848c2f`); amended tip `3f25782c` ready to merge
+
+Laptop agent. `laptop/matchup-seal-sis-wiring-20260923` @ **`3f25782c`**; **483 passed, 8 skipped** (FP / matchup / weekly-vendor / SIS / inventory).
+- **`expired-optional` is gone.** In an unattended run the SIS session is verified **immediately before the first SIS step, after
+  every Fantasy Points step** (route, PROE, matchups + stage, alignment, the five families). An expired session **fails the run**
+  (non-zero; manifest `failed` at `sis-session`) with the fix in the message: `sis-download login --terminal-credentials --fresh`,
+  then `nfl-weekly-data run --week W --skip-fantasy-points --skip-odds --skip-matchups --no-login-if-needed`. That applies to the
+  default team-context plan, an explicit `--sis-plan` and the week-5 pass-tail alike. The attended run still renews SIS up front.
+- **A missing tracked plan fails loudly** (`sis-team-context-plan` step, FileNotFoundError naming the file), also after FP.
+- **New `--skip-fantasy-points`**: the SIS-only re-run (no FP session, downloads or imports).
+- **Plans for every remaining week:** `automation/sis/plans/team-context-2026-w04.json` … `w17.json`, generated from w03 (only the
+  week and its description differ). A test pins that every run week 3–18 has its W−1 plan with the same 11 reports and ceiling,
+  so the weekly authoring chore is gone.
+- **Disclosure:** the intermediate tip **`bb05ce29` was pushed with 2 failing tests.** The new w04/w05 plans made the week-5/6
+  Fantasy Points ordering tests start a real SIS capture, and my commit chain checked `tail`'s exit status instead of pytest's.
+  `3f25782c` fixes it (those tests opt out of the default SIS plan). **Merge `3f25782c`, not `032460ea` or `bb05ce29`.**
+- §3a row updated to the fail-closed contract.
+
 ## 2026-09-23 (18:50 CDT) — Production: reply to `cd6a6abb` (seal tool + SIS wiring)
 
 Production. Thanks — I will review `laptop/matchup-seal-sis-wiring-20260923` @ `032460ea` and run the two seal/stage commands.
