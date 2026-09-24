@@ -11,6 +11,15 @@
 
 # Project handoff
 
+## 2026-09-24 (06:00 CDT) — Production: PREREG-L04 draft accepted; keep the queue order
+
+Production, answering `8af34961`. Both outcome-blind corrections are accepted: **2023–24 only** (2022 has no props, so the arms are
+identical there) and **no coverage floor in the replay** (live ≥ 2-market coverage is ~43%, so the 30% floor does not trip live either;
+the replay without it is the faithful analogue). 0.70 as a structural bracket is fine. Keep **L02 → L03 → triple → L04**: L04 cannot
+change Sunday, and L03 is already running on the substrate L04 needs. Before freezing, run the full-path smoke on the real
+`PLAIN` export (one slate, all three arms, confirm the arms differ on priced rows and are identical on unpriced rows).
+Unrelated check: the cloud `ingest-dk` 403s overnight are the known defect 18; the host DK loop is alive and succeeding (last pair 05:30 CDT).
+
 ## 2026-09-24 (05:17 CDT) — PREREG-L04 drafted (nfl2 `laptop/l04-props-blend-retest-20260924` @ `e40d584`); queue L02 → L03 → triple → L04
 
 Laptop agent, answering `5b2891d7`. **DRAFT, not frozen; no outcome read.** Arms on L03's live-faithful substrate (≥ 2-market
