@@ -35,12 +35,15 @@ MAX_LOGICAL_GRADE_BYTES=""
 SOURCE_PANEL_IDENTITY_FILE=""
 T230_PANEL_RELEASE_IDENTITY_FILE=""
 LEASE_RECEIPT_FILE=""
+RECOVER_FAILED_STAGE=""
 POLL_SECONDS=15
 MAX_WAIT_SECONDS=23000
 
 SOURCE_PANEL_CANON=""
 T230_PANEL_RELEASE_CANON=""
 LEASE_RECEIPT_CANON=""
+RECOVERY_CONSUMED=0
+STAGE_OPERATION_LOCK_FD=""
 
 die() {
   printf 'ERROR: %s\n' "$*" >&2
@@ -61,13 +64,19 @@ Usage:
     --grade-run-id ID --grade-output-prefix gs://.../ \
     --max-logical-grade-bytes N \
     --source-panel-identity FILE --t230-panel-release-identity FILE \
-    [--lease-receipt FILE] [--poll-seconds N] [--max-wait-seconds N]
+    [--lease-receipt FILE] [--recover-failed-stage catalog|outcome|grade] \
+    [--poll-seconds N] [--max-wait-seconds N]
 
 `outcome` and `all` require --lease-receipt. Acquire that lease explicitly
 with scripts/historical_outcome_lease.py before this operator. The operator
 exact-reads the known Core completion and materializes the strict local release
 evidence, but never acquires, abandons, or deletes the lease. Release remains
 explicit after the grade is durably closed.
+
+Terminally failed executions are retained and refused by default. A reviewed
+manual recovery must name exactly one failed stage with
+--recover-failed-stage. That flag never authorizes an automatic retry or a
+different command, image, input, output, lease, or outcome-query identity.
 USAGE
 }
 
@@ -99,6 +108,12 @@ parse_args() {
       --source-panel-identity) require_value "$1" "${2:-}"; SOURCE_PANEL_IDENTITY_FILE="$2"; shift 2 ;;
       --t230-panel-release-identity) require_value "$1" "${2:-}"; T230_PANEL_RELEASE_IDENTITY_FILE="$2"; shift 2 ;;
       --lease-receipt) require_value "$1" "${2:-}"; LEASE_RECEIPT_FILE="$2"; shift 2 ;;
+      --recover-failed-stage)
+        require_value "$1" "${2:-}"
+        [[ -z "$RECOVER_FAILED_STAGE" ]] || die "--recover-failed-stage may be supplied only once"
+        RECOVER_FAILED_STAGE="$2"
+        shift 2
+        ;;
       --poll-seconds) require_value "$1" "${2:-}"; POLL_SECONDS="$2"; shift 2 ;;
       --max-wait-seconds) require_value "$1" "${2:-}"; MAX_WAIT_SECONDS="$2"; shift 2 ;;
       --help|-h) usage; exit 0 ;;
@@ -109,7 +124,7 @@ parse_args() {
 
 require_tools() {
   local tool
-  for tool in gcloud jq sha256sum cmp mktemp date sleep awk chmod cp dirname ln rm tr wc; do
+  for tool in gcloud jq sha256sum cmp mktemp date sleep awk chmod cp dirname flock ln mv rm tr wc; do
     command -v "$tool" >/dev/null 2>&1 || die "required tool is absent: $tool"
   done
   [[ -x "$PYTHON_BIN" ]] || die "Core v1 local Python is absent or not executable"
@@ -185,6 +200,19 @@ validate_cli() {
     [[ -n "$LEASE_RECEIPT_FILE" && -f "$LEASE_RECEIPT_FILE" && ! -L "$LEASE_RECEIPT_FILE" ]] || \
       die "outcome execution requires one supplied regular lease receipt"
   fi
+  case "$RECOVER_FAILED_STAGE:$MODE" in
+    :*) ;;
+    catalog:catalog) ;;
+    outcome:outcome) ;;
+    grade:grade) ;;
+    catalog:all|outcome:all|grade:all)
+      die "failed-stage recovery must close in its exact stage mode before all mode"
+      ;;
+    catalog:*|outcome:*|grade:*)
+      die "--recover-failed-stage is outside the selected mode"
+      ;;
+    *) die "--recover-failed-stage differs" ;;
+  esac
 }
 
 canonicalize_identity() {
@@ -272,6 +300,37 @@ write_local_equal() {
   printf '%s\n' "$value" >"$temp"
   install_local_equal "$temp" "$target"
   rm -f -- "$temp"
+}
+
+acquire_stage_operation_lock() {
+  local run_dir="$1" stage="$2"
+  local lock_root="$run_dir/stages/recovery-transition-locks"
+  local lock_file="$lock_root/$stage.lock" temp
+  [[ -z "$STAGE_OPERATION_LOCK_FD" ]] || die "stage operation lock is already held"
+  [[ ! -L "$run_dir/stages" && ! -L "$lock_root" && ! -L "$lock_file" ]] || \
+    die "stage operation lock path cannot be a symlink"
+  mkdir -p "$lock_root"
+  [[ -d "$lock_root" && ! -L "$lock_root" ]] || \
+    die "stage operation lock root differs"
+  temp="$(mktemp)"
+  : >"$temp"
+  install_local_equal "$temp" "$lock_file"
+  rm -f -- "$temp"
+  [[ -f "$lock_file" && ! -L "$lock_file" ]] || \
+    die "stage operation lock file differs"
+  exec {STAGE_OPERATION_LOCK_FD}<>"$lock_file"
+  if ! flock -n "$STAGE_OPERATION_LOCK_FD"; then
+    exec {STAGE_OPERATION_LOCK_FD}>&-
+    STAGE_OPERATION_LOCK_FD=""
+    die "another invocation owns the stage recovery-transition lock: $stage"
+  fi
+}
+
+release_stage_operation_lock() {
+  [[ -n "$STAGE_OPERATION_LOCK_FD" ]] || die "stage operation lock is not held"
+  flock -u "$STAGE_OPERATION_LOCK_FD" || die "stage operation lock release failed"
+  exec {STAGE_OPERATION_LOCK_FD}>&-
+  STAGE_OPERATION_LOCK_FD=""
 }
 
 prepare_chain_config() {
@@ -411,6 +470,107 @@ stage_launch_receipt() {
   rm -f -- "$temp"
 }
 
+stage_launch_intent() {
+  local run_dir="$1" stage_dir="$2" stage="$3" gate="$4" command="$5"
+  local temp config_sha launch_sha job_config_sha file
+  for file in "$run_dir/config.json" "$stage_dir/launch.json" "$stage_dir/job-config.json"; do
+    [[ -f "$file" && ! -L "$file" ]] || die "launch-intent predecessor is unsafe: $file"
+  done
+  config_sha="$(sha256sum "$run_dir/config.json" | awk '{print $1}')"
+  launch_sha="$(sha256sum "$stage_dir/launch.json" | awk '{print $1}')"
+  job_config_sha="$(sha256sum "$stage_dir/job-config.json" | awk '{print $1}')"
+  temp="$(mktemp)"
+  jq -cnS --arg schema_version "core-v1-score-chain-launch-intent/v1" \
+    --arg stage "$stage" --arg job "$JOB" --arg image "$IMAGE" \
+    --arg service_account "$SERVICE_ACCOUNT" --arg gate "$gate" \
+    --arg bash_command "$command" --arg config_sha "$config_sha" \
+    --arg launch_sha "$launch_sha" --arg job_config_sha "$job_config_sha" '
+    {schema_version:$schema_version,stage:$stage,job:$job,image:$image,
+      service_account:$service_account,gate:$gate,bash_command:$bash_command,
+      chain_config_sha256:$config_sha,launch_receipt_sha256:$launch_sha,
+      job_config_sha256:$job_config_sha,manual_recovery_required_after_ambiguity:true,
+      blind_reinvocation_licensed:false,automatic_retry_licensed:false}
+  ' >"$temp"
+  install_local_equal "$temp" "$stage_dir/launch-intent.json"
+  rm -f -- "$temp"
+}
+
+build_stage_launch_claim() {
+  local run_dir="$1" stage_dir="$2" stage="$3" output="$4"
+  local recovery_attempt="${5:-}"
+  local config_sha intent_sha started_sha file archive recovery_claim_sha recovery_receipt_sha
+  local recovery_binding="null"
+  for file in \
+    "$run_dir/config.json" \
+    "$stage_dir/launch-intent.json" \
+    "$stage_dir/started-at-epoch.txt"; do
+    [[ -f "$file" && ! -L "$file" ]] || \
+      die "launch-claim predecessor is unsafe: $file"
+  done
+  config_sha="$(sha256sum "$run_dir/config.json" | awk '{print $1}')"
+  intent_sha="$(sha256sum "$stage_dir/launch-intent.json" | awk '{print $1}')"
+  started_sha="$(sha256sum "$stage_dir/started-at-epoch.txt" | awk '{print $1}')"
+  if [[ -n "$recovery_attempt" ]]; then
+    validate_nonnegative_int "$recovery_attempt" "launch-claim recovery attempt ordinal"
+    printf -v archive '%s/stages/failed-attempts/%s/attempt-%04d' \
+      "$run_dir" "$stage" "$recovery_attempt"
+    for file in \
+      "$archive/manual-recovery-owner-claim.json" \
+      "$archive/manual-recovery.json"; do
+      [[ -f "$file" && ! -L "$file" ]] || \
+        die "replacement launch recovery binding is unsafe: $file"
+    done
+    recovery_claim_sha="$(sha256sum "$archive/manual-recovery-owner-claim.json" | awk '{print $1}')"
+    recovery_receipt_sha="$(sha256sum "$archive/manual-recovery.json" | awk '{print $1}')"
+    recovery_binding="$(jq -cnS --argjson attempt "$recovery_attempt" \
+      --arg claim_sha "$recovery_claim_sha" --arg receipt_sha "$recovery_receipt_sha" '
+      {failed_attempt_ordinal:$attempt,
+        manual_recovery_owner_claim_sha256:$claim_sha,
+        manual_recovery_receipt_sha256:$receipt_sha}
+    ')"
+  fi
+  jq -cnS --arg schema_version "core-v1-score-chain-launch-owner-claim/v1" \
+    --arg stage "$stage" --arg job "$JOB" --arg image "$IMAGE" \
+    --arg config_sha "$config_sha" --arg intent_sha "$intent_sha" \
+    --arg started_sha "$started_sha" --argjson recovery_binding "$recovery_binding" '
+    {schema_version:$schema_version,stage:$stage,job:$job,image:$image,
+      chain_config_sha256:$config_sha,launch_intent_sha256:$intent_sha,
+      started_at_epoch_sha256:$started_sha,
+      failed_stage_recovery_binding:$recovery_binding,
+      creator_alone_may_launch:true,equal_preexisting_claim_licenses_launch:false,
+      automatic_retry_licensed:false}
+  ' >"$output"
+}
+
+claim_stage_launch_owner() {
+  local run_dir="$1" stage_dir="$2" stage="$3" recovery_attempt="${4:-}" target temp
+  target="$stage_dir/launch-owner-claim.json"
+  [[ ! -e "$target" && ! -L "$target" ]] || \
+    die "stage launch already has an owner; this invocation cannot launch: $stage"
+  temp="$(mktemp "$stage_dir/.launch-owner-claim.XXXXXX")"
+  build_stage_launch_claim "$run_dir" "$stage_dir" "$stage" "$temp" "$recovery_attempt"
+  chmod 0600 "$temp"
+  if ! ln "$temp" "$target" 2>/dev/null; then
+    rm -f -- "$temp"
+    die "another invocation atomically owns the stage launch: $stage"
+  fi
+  rm -f -- "$temp"
+}
+
+validate_stage_launch_claim() {
+  local run_dir="$1" stage_dir="$2" stage="$3" recovery_attempt="${4:-}" target temp
+  target="$stage_dir/launch-owner-claim.json"
+  [[ -f "$target" && ! -L "$target" ]] || \
+    die "stage launch owner claim is unsafe: $target"
+  temp="$(mktemp "$stage_dir/.launch-owner-validation.XXXXXX")"
+  build_stage_launch_claim "$run_dir" "$stage_dir" "$stage" "$temp" "$recovery_attempt"
+  if ! cmp -s "$temp" "$target"; then
+    rm -f -- "$temp"
+    die "stage launch owner claim differs: $target"
+  fi
+  rm -f -- "$temp"
+}
+
 terminal_state() {
   local source="$1" execution="$2"
   jq -er --arg execution "$execution" '
@@ -459,20 +619,360 @@ validate_terminal_envelope() {
 }
 
 validate_closed_stage() {
-  local stage_dir="$1" gate="$2" command="$3" execution state
+  local run_dir="$1" stage_dir="$2" stage="$3" gate="$4" command="$5"
+  local archive_count="$6" recovery_attempt=""
+  local execution state response_execution launch_status started_epoch file
+  validate_nonnegative_int "$archive_count" "closed-stage failed archive count"
   [[ -f "$stage_dir/execution-name.txt" && ! -L "$stage_dir/execution-name.txt" ]] || return 1
-  [[ -f "$stage_dir/terminal-execution.json" && ! -L "$stage_dir/terminal-execution.json" ]] || return 1
-  [[ -f "$stage_dir/elapsed-seconds.txt" && ! -L "$stage_dir/elapsed-seconds.txt" ]] || return 1
+  for file in \
+    "$run_dir/config.json" \
+    "$stage_dir/launch.json" \
+    "$stage_dir/job-config.json" \
+    "$stage_dir/started-at-epoch.txt" \
+    "$stage_dir/launch-intent.json" \
+    "$stage_dir/launch-owner-claim.json" \
+    "$stage_dir/launch-output.txt" \
+    "$stage_dir/launch-exit-status.txt"; do
+    [[ -f "$file" && ! -L "$file" ]] || \
+      die "retained stage launch evidence is unsafe: $file"
+  done
+  stage_launch_receipt "$stage_dir" "$stage" "$gate" "$command"
+  stage_launch_intent "$run_dir" "$stage_dir" "$stage" "$gate" "$command"
+  if [[ "$archive_count" -gt 0 ]]; then
+    recovery_attempt=$((archive_count - 1))
+  fi
+  validate_stage_launch_claim "$run_dir" "$stage_dir" "$stage" "$recovery_attempt"
   execution="$(tr -d '\n' <"$stage_dir/execution-name.txt")"
   [[ "$execution" =~ ^[a-z0-9][a-z0-9-]{2,127}$ ]] || die "retained execution name differs"
+  response_execution="$(tr -d '\r\n' <"$stage_dir/launch-output.txt")"
+  [[ "$response_execution" == "$execution" ]] || \
+    die "retained launch output differs from its execution name"
+  launch_status="$(tr -d '\n' <"$stage_dir/launch-exit-status.txt")"
+  validate_nonnegative_int "$launch_status" "retained launch exit status"
+  [[ "$launch_status" == "0" ]] || die "retained launch exit status differs"
+  started_epoch="$(tr -d '\n' <"$stage_dir/started-at-epoch.txt")"
+  validate_positive_int "$started_epoch" "retained stage start epoch"
+  [[ -f "$stage_dir/terminal-execution.json" && ! -L "$stage_dir/terminal-execution.json" ]] || return 1
+  [[ -f "$stage_dir/elapsed-seconds.txt" && ! -L "$stage_dir/elapsed-seconds.txt" ]] || return 1
   state="$(terminal_state "$stage_dir/terminal-execution.json" "$execution")"
-  [[ "$state" == "True" ]] || die "retained stage execution is not successful"
+  [[ "$state" == "True" || "$state" == "False" ]] || \
+    die "retained stage execution terminal state differs"
   validate_terminal_envelope "$stage_dir/terminal-execution.json" "$execution" "$gate" "$command"
   has_completion_time "$stage_dir/terminal-execution.json" || \
     die "retained terminal execution lacks completion time"
   validate_nonnegative_int \
     "$(tr -d '\n' <"$stage_dir/elapsed-seconds.txt")" "retained elapsed seconds"
+  [[ "$state" == "True" ]] || return 4
   return 0
+}
+
+build_failed_recovery_claim() {
+  local run_dir="$1" stage_dir="$2" stage="$3" attempt="$4" output="$5"
+  local config_sha terminal_sha launch_claim_sha execution file
+  for file in \
+    "$run_dir/config.json" \
+    "$stage_dir/terminal-execution.json" \
+    "$stage_dir/launch-owner-claim.json" \
+    "$stage_dir/execution-name.txt"; do
+    [[ -f "$file" && ! -L "$file" ]] || \
+      die "recovery-claim predecessor is unsafe: $file"
+  done
+  validate_nonnegative_int "$attempt" "recovery-claim attempt ordinal"
+  execution="$(tr -d '\n' <"$stage_dir/execution-name.txt")"
+  [[ "$execution" =~ ^[a-z0-9][a-z0-9-]{2,127}$ ]] || \
+    die "recovery-claim execution name differs"
+  config_sha="$(sha256sum "$run_dir/config.json" | awk '{print $1}')"
+  terminal_sha="$(sha256sum "$stage_dir/terminal-execution.json" | awk '{print $1}')"
+  launch_claim_sha="$(sha256sum "$stage_dir/launch-owner-claim.json" | awk '{print $1}')"
+  jq -cnS --arg schema_version "core-v1-score-chain-recovery-owner-claim/v1" \
+    --arg stage "$stage" --argjson attempt "$attempt" \
+    --arg execution "$execution" --arg config_sha "$config_sha" \
+    --arg terminal_sha "$terminal_sha" --arg launch_claim_sha "$launch_claim_sha" '
+    {schema_version:$schema_version,stage:$stage,failed_attempt_ordinal:$attempt,
+      failed_execution:$execution,chain_config_sha256:$config_sha,
+      terminal_execution_sha256:$terminal_sha,
+      launch_owner_claim_sha256:$launch_claim_sha,
+      creator_alone_may_archive_and_recover:true,
+      equal_preexisting_claim_licenses_recovery:false,
+      equal_preexisting_claim_allows_locked_transaction_replay:true,
+      automatic_retry_licensed:false}
+  ' >"$output"
+}
+
+claim_failed_recovery_owner() {
+  local run_dir="$1" stage_dir="$2" stage="$3" attempt="$4" target temp
+  [[ "$RECOVER_FAILED_STAGE" == "$stage" && -n "$STAGE_OPERATION_LOCK_FD" ]] || \
+    die "failed-stage recovery claim requires its explicit locked transaction"
+  target="$stage_dir/manual-recovery-owner-claim.json"
+  temp="$(mktemp "$stage_dir/.recovery-owner-claim.XXXXXX")"
+  build_failed_recovery_claim "$run_dir" "$stage_dir" "$stage" "$attempt" "$temp"
+  chmod 0600 "$temp"
+  if [[ -e "$target" || -L "$target" ]]; then
+    [[ -f "$target" && ! -L "$target" ]] || {
+      rm -f -- "$temp"
+      die "failed-stage recovery owner claim is unsafe: $target"
+    }
+    if ! cmp -s "$temp" "$target"; then
+      rm -f -- "$temp"
+      die "failed-stage recovery owner claim differs: $target"
+    fi
+    rm -f -- "$temp"
+    return 0
+  fi
+  if ! ln "$temp" "$target" 2>/dev/null; then
+    [[ -f "$target" && ! -L "$target" ]] && cmp -s "$temp" "$target" || {
+      rm -f -- "$temp"
+      die "failed-stage recovery owner claim create/equal race differs: $target"
+    }
+  fi
+  rm -f -- "$temp"
+}
+
+validate_failed_recovery_claim() {
+  local run_dir="$1" stage_dir="$2" stage="$3" attempt="$4" target temp
+  target="$stage_dir/manual-recovery-owner-claim.json"
+  [[ -f "$target" && ! -L "$target" ]] || \
+    die "failed-stage recovery owner claim is unsafe: $target"
+  temp="$(mktemp "$stage_dir/.recovery-owner-validation.XXXXXX")"
+  build_failed_recovery_claim "$run_dir" "$stage_dir" "$stage" "$attempt" "$temp"
+  if ! cmp -s "$temp" "$target"; then
+    rm -f -- "$temp"
+    die "failed-stage recovery owner claim differs: $target"
+  fi
+  rm -f -- "$temp"
+}
+
+manual_recovery_receipt() {
+  local run_dir="$1" stage_dir="$2" stage="$3" attempt="$4" gate="$5" command="$6"
+  local temp lease_sha lease_object fixed_outcome file
+  local config_sha launch_sha job_config_sha started_sha intent_sha claim_sha
+  local recovery_claim_sha response_sha
+  local response_status_sha execution_sha terminal_sha elapsed_sha
+  local execution elapsed launch_status started_epoch response_execution
+  local prior_recovery_attempt=""
+  for file in \
+    "$run_dir/config.json" \
+    "$stage_dir/launch.json" \
+    "$stage_dir/job-config.json" \
+    "$stage_dir/started-at-epoch.txt" \
+    "$stage_dir/launch-intent.json" \
+    "$stage_dir/launch-owner-claim.json" \
+    "$stage_dir/manual-recovery-owner-claim.json" \
+    "$stage_dir/launch-output.txt" \
+    "$stage_dir/launch-exit-status.txt" \
+    "$stage_dir/execution-name.txt" \
+    "$stage_dir/terminal-execution.json" \
+    "$stage_dir/elapsed-seconds.txt"; do
+    [[ -f "$file" && ! -L "$file" ]] || die "failed-stage recovery predecessor is unsafe: $file"
+  done
+  validate_nonnegative_int "$attempt" "failed-stage attempt ordinal"
+  execution="$(tr -d '\n' <"$stage_dir/execution-name.txt")"
+  [[ "$execution" =~ ^[a-z0-9][a-z0-9-]{2,127}$ ]] || die "failed execution name differs"
+  response_execution="$(tr -d '\r\n' <"$stage_dir/launch-output.txt")"
+  [[ "$response_execution" == "$execution" ]] || \
+    die "failed launch response does not bind its execution name"
+  launch_status="$(tr -d '\n' <"$stage_dir/launch-exit-status.txt")"
+  validate_nonnegative_int "$launch_status" "failed launch exit status"
+  [[ "$launch_status" == "0" ]] || die "failed launch exit status differs"
+  started_epoch="$(tr -d '\n' <"$stage_dir/started-at-epoch.txt")"
+  validate_positive_int "$started_epoch" "failed stage start epoch"
+  [[ "$(terminal_state "$stage_dir/terminal-execution.json" "$execution")" == "False" ]] || \
+    die "manual recovery requires one terminally failed execution"
+  validate_terminal_envelope "$stage_dir/terminal-execution.json" "$execution" "$gate" "$command"
+  has_completion_time "$stage_dir/terminal-execution.json" || \
+    die "failed execution lacks completion time"
+  elapsed="$(tr -d '\n' <"$stage_dir/elapsed-seconds.txt")"
+  validate_nonnegative_int "$elapsed" "failed execution elapsed seconds"
+  stage_launch_receipt "$stage_dir" "$stage" "$gate" "$command"
+  stage_launch_intent "$run_dir" "$stage_dir" "$stage" "$gate" "$command"
+  if [[ "$attempt" -gt 0 ]]; then
+    prior_recovery_attempt=$((attempt - 1))
+  fi
+  validate_stage_launch_claim \
+    "$run_dir" "$stage_dir" "$stage" "$prior_recovery_attempt"
+  validate_failed_recovery_claim "$run_dir" "$stage_dir" "$stage" "$attempt"
+
+  config_sha="$(sha256sum "$run_dir/config.json" | awk '{print $1}')"
+  launch_sha="$(sha256sum "$stage_dir/launch.json" | awk '{print $1}')"
+  job_config_sha="$(sha256sum "$stage_dir/job-config.json" | awk '{print $1}')"
+  started_sha="$(sha256sum "$stage_dir/started-at-epoch.txt" | awk '{print $1}')"
+  intent_sha="$(sha256sum "$stage_dir/launch-intent.json" | awk '{print $1}')"
+  claim_sha="$(sha256sum "$stage_dir/launch-owner-claim.json" | awk '{print $1}')"
+  recovery_claim_sha="$(sha256sum "$stage_dir/manual-recovery-owner-claim.json" | awk '{print $1}')"
+  response_sha="$(sha256sum "$stage_dir/launch-output.txt" | awk '{print $1}')"
+  response_status_sha="$(sha256sum "$stage_dir/launch-exit-status.txt" | awk '{print $1}')"
+  execution_sha="$(sha256sum "$stage_dir/execution-name.txt" | awk '{print $1}')"
+  terminal_sha="$(sha256sum "$stage_dir/terminal-execution.json" | awk '{print $1}')"
+  elapsed_sha="$(sha256sum "$stage_dir/elapsed-seconds.txt" | awk '{print $1}')"
+  lease_sha=""
+  lease_object="null"
+  fixed_outcome="null"
+  if [[ "$stage" == "outcome" ]]; then
+    [[ -n "$LEASE_RECEIPT_CANON" && -f "$LEASE_RECEIPT_CANON" ]] || \
+      die "outcome recovery lacks its exact lease receipt"
+    lease_sha="$(sha256sum "$LEASE_RECEIPT_CANON" | awk '{print $1}')"
+    lease_object="$(jq -c '.object' "$LEASE_RECEIPT_CANON")"
+    fixed_outcome="$(jq -cnS --arg run_id "$OUTCOME_RUN_ID" \
+      --arg lease_sha "$lease_sha" --argjson lease_object "$lease_object" '
+      {outcome_run_id:$run_id,lease_receipt_sha256:$lease_sha,
+        historical_outcome_lease_object:$lease_object,
+        same_deterministic_query_job_get_or_create_only:true,
+        duplicate_query_licensed:false}
+    ')"
+  fi
+  temp="$(mktemp)"
+  jq -cnS --arg schema_version "core-v1-score-chain-manual-recovery/v1" \
+    --arg stage "$stage" --argjson failed_attempt_ordinal "$attempt" \
+    --arg failed_execution "$execution" --arg job "$JOB" --arg image "$IMAGE" \
+    --arg service_account "$SERVICE_ACCOUNT" --arg gate "$gate" \
+    --arg bash_command "$command" --arg config_sha "$config_sha" \
+    --arg launch_sha "$launch_sha" --arg job_config_sha "$job_config_sha" \
+    --arg started_sha "$started_sha" --arg intent_sha "$intent_sha" \
+    --arg claim_sha "$claim_sha" \
+    --arg recovery_claim_sha "$recovery_claim_sha" \
+    --arg response_sha "$response_sha" --arg response_status_sha "$response_status_sha" \
+    --arg execution_sha "$execution_sha" --arg terminal_sha "$terminal_sha" \
+    --arg elapsed_sha "$elapsed_sha" --arg catalog_id "$CATALOG_ID" \
+    --arg catalog_prefix "$CATALOG_OUTPUT_PREFIX" --arg outcome_run_id "$OUTCOME_RUN_ID" \
+    --arg outcome_prefix "$OUTCOME_OUTPUT_PREFIX" --arg grade_run_id "$GRADE_RUN_ID" \
+    --arg grade_prefix "$GRADE_OUTPUT_PREFIX" --argjson fixed_outcome "$fixed_outcome" '
+    {schema_version:$schema_version,stage:$stage,
+      failed_attempt_ordinal:$failed_attempt_ordinal,
+      failed_execution:$failed_execution,job:$job,image:$image,
+      service_account:$service_account,gate:$gate,bash_command:$bash_command,
+      chain_config_sha256:$config_sha,launch_receipt_sha256:$launch_sha,
+      job_config_sha256:$job_config_sha,started_at_epoch_sha256:$started_sha,
+      launch_intent_sha256:$intent_sha,launch_output_sha256:$response_sha,
+      launch_owner_claim_sha256:$claim_sha,
+      manual_recovery_owner_claim_sha256:$recovery_claim_sha,
+      launch_exit_status_sha256:$response_status_sha,
+      execution_name_sha256:$execution_sha,terminal_execution_sha256:$terminal_sha,
+      elapsed_seconds_sha256:$elapsed_sha,
+      output_binding:{catalog_id:$catalog_id,catalog_output_prefix:$catalog_prefix,
+        outcome_run_id:$outcome_run_id,outcome_output_prefix:$outcome_prefix,
+        grade_run_id:$grade_run_id,grade_output_prefix:$grade_prefix},
+      fixed_outcome_recovery:$fixed_outcome,explicit_manual_recovery:true,
+      command_image_input_output_drift_licensed:false,
+      blind_outcome_reinvocation_licensed:false,automatic_retry_licensed:false}
+  ' >"$temp"
+  install_local_equal "$temp" "$stage_dir/manual-recovery.json"
+  rm -f -- "$temp"
+}
+
+validate_failed_attempt_archive() {
+  local run_dir="$1" archive="$2" stage="$3" attempt="$4" gate="$5" command="$6"
+  local file
+  local -a expected=(
+    elapsed-seconds.txt
+    execution-name.txt
+    job-config.json
+    launch-exit-status.txt
+    launch-intent.json
+    launch-output.txt
+    launch-owner-claim.json
+    launch.json
+    manual-recovery-owner-claim.json
+    manual-recovery.json
+    started-at-epoch.txt
+    terminal-execution.json
+  )
+  local -a observed=()
+  [[ -d "$archive" && ! -L "$archive" ]] || die "failed-stage archive is unsafe: $archive"
+  [[ -f "$archive/manual-recovery.json" && ! -L "$archive/manual-recovery.json" ]] || \
+    die "failed-stage archive lacks its manual recovery receipt"
+  shopt -s dotglob nullglob
+  observed=("$archive"/*)
+  shopt -u dotglob nullglob
+  [[ "${#observed[@]}" -eq "${#expected[@]}" ]] || \
+    die "failed-stage archive inventory differs: $archive"
+  for file in "${expected[@]}"; do
+    [[ -f "$archive/$file" && ! -L "$archive/$file" ]] || \
+      die "failed-stage archive inventory differs: $archive"
+  done
+  manual_recovery_receipt "$run_dir" "$archive" "$stage" "$attempt" "$gate" "$command"
+}
+
+failed_attempt_count() {
+  local run_dir="$1" stage="$2" gate="$3" command="$4"
+  local root="$run_dir/stages/failed-attempts/$stage" expected ordinal
+  local -a entries=()
+  [[ ! -L "$run_dir/stages/failed-attempts" && ! -L "$root" ]] || \
+    die "failed-stage evidence path cannot be a symlink"
+  if [[ ! -e "$root" ]]; then
+    printf '0\n'
+    return 0
+  fi
+  [[ -d "$root" && ! -L "$root" ]] || die "failed-stage evidence root is unsafe"
+  shopt -s dotglob nullglob
+  entries=("$root"/*)
+  shopt -u dotglob nullglob
+  for ((ordinal = 0; ordinal < ${#entries[@]}; ordinal += 1)); do
+    printf -v expected '%s/attempt-%04d' "$root" "$ordinal"
+    [[ "${entries[$ordinal]}" == "$expected" ]] || \
+      die "failed-stage attempt archive sequence differs"
+    validate_failed_attempt_archive \
+      "$run_dir" "$expected" "$stage" "$ordinal" "$gate" "$command"
+  done
+  printf '%s\n' "${#entries[@]}"
+}
+
+archive_failed_stage() {
+  local run_dir="$1" stage_dir="$2" stage="$3" attempt="$4" gate="$5" command="$6"
+  local root="$run_dir/stages/failed-attempts/$stage" archive
+  [[ ! -L "$run_dir/stages/failed-attempts" && ! -L "$root" ]] || \
+    die "failed-stage evidence path cannot be a symlink"
+  mkdir -p "$root"
+  [[ -d "$root" && ! -L "$root" ]] || die "failed-stage evidence root is unsafe"
+  printf -v archive '%s/attempt-%04d' "$root" "$attempt"
+  [[ ! -e "$archive" && ! -L "$archive" ]] || die "failed-stage attempt archive already exists"
+  [[ "$RECOVER_FAILED_STAGE" == "$stage" && -n "$STAGE_OPERATION_LOCK_FD" ]] || \
+    die "failed-stage archive requires its explicit locked transaction"
+  if [[ -e "$stage_dir/manual-recovery.json" || -L "$stage_dir/manual-recovery.json" ]]; then
+    [[ -f "$stage_dir/manual-recovery-owner-claim.json" && \
+       ! -L "$stage_dir/manual-recovery-owner-claim.json" ]] || \
+      die "failed-stage recovery receipt lacks its exact owner claim"
+  fi
+  claim_failed_recovery_owner "$run_dir" "$stage_dir" "$stage" "$attempt"
+  manual_recovery_receipt "$run_dir" "$stage_dir" "$stage" "$attempt" "$gate" "$command"
+  validate_failed_attempt_archive \
+    "$run_dir" "$stage_dir" "$stage" "$attempt" "$gate" "$command"
+  mv -T -- "$stage_dir" "$archive"
+  mkdir -p "$stage_dir"
+  [[ -d "$stage_dir" && ! -L "$stage_dir" ]] || die "recovery stage directory differs"
+  validate_failed_attempt_archive \
+    "$run_dir" "$archive" "$stage" "$attempt" "$gate" "$command"
+  printf 'CORE_V1_STAGE_FAILED_ATTEMPT_RETAINED %s attempt=%s execution=%s\n' \
+    "$stage" "$attempt" "$(tr -d '\n' <"$archive/execution-name.txt")"
+}
+
+preflight_recovery_target() {
+  local run_dir="$1" stage="$2" gate="$3" command="$4" stage_dir
+  local archive_count closed_status file
+  [[ "$RECOVER_FAILED_STAGE" == "$stage" ]] || return 0
+  stage_dir="$run_dir/stages/$stage"
+  [[ ! -L "$run_dir/stages" && ! -L "$stage_dir" ]] || \
+    die "failed-stage recovery target path cannot be a symlink"
+  mkdir -p "$stage_dir"
+  archive_count="$(failed_attempt_count "$run_dir" "$stage" "$gate" "$command")"
+  validate_nonnegative_int "$archive_count" "failed-stage recovery archive count"
+  if validate_closed_stage \
+    "$run_dir" "$stage_dir" "$stage" "$gate" "$command" "$archive_count"; then
+    die "failed-stage recovery was requested for an already successful stage: $stage"
+  else
+    closed_status=$?
+  fi
+  if [[ "$closed_status" -eq 4 ]]; then
+    return 0
+  fi
+  [[ "$closed_status" -eq 1 ]] || die "failed-stage recovery target differs"
+  [[ "$archive_count" -gt 0 ]] || \
+    die "failed-stage recovery requires one retained terminally failed attempt"
+  for file in \
+    execution-name.txt terminal-execution.json launch-intent.json \
+    launch-owner-claim.json launch-output.txt launch-exit-status.txt; do
+    [[ ! -e "$stage_dir/$file" && ! -L "$stage_dir/$file" ]] || \
+      die "failed-stage recovery cannot replace an ambiguous or active launch"
+  done
 }
 
 wait_for_terminal() {
@@ -507,17 +1007,47 @@ wait_for_terminal() {
   done
 }
 
-run_stage() {
+run_stage_locked() {
   local run_dir="$1" stage="$2" gate="$3" command="$4"
   local stage_dir="$run_dir/stages/$stage" execution started_epoch launch_output
+  local closed_status archive_count launch_status recovery_authorized=0
+  local recovery_binding_attempt=""
   [[ ! -L "$run_dir/stages" && ! -L "$stage_dir" ]] || \
     die "stage evidence directory cannot be a symlink"
   mkdir -p "$stage_dir"
   [[ -d "$stage_dir" && ! -L "$stage_dir" ]] || die "stage evidence directory differs"
-  if validate_closed_stage "$stage_dir" "$gate" "$command"; then
+  archive_count="$(failed_attempt_count "$run_dir" "$stage" "$gate" "$command")"
+  validate_nonnegative_int "$archive_count" "failed-stage archive count"
+  if validate_closed_stage \
+    "$run_dir" "$stage_dir" "$stage" "$gate" "$command" "$archive_count"; then
+    [[ "$RECOVER_FAILED_STAGE" != "$stage" ]] || \
+      die "failed-stage recovery was requested for an already successful stage: $stage"
     printf 'CORE_V1_STAGE_RECOVERED %s %s\n' "$stage" "$(tr -d '\n' <"$stage_dir/execution-name.txt")"
     return 0
+  else
+    closed_status=$?
   fi
+  if [[ "$closed_status" -eq 4 ]]; then
+    [[ "$RECOVER_FAILED_STAGE" == "$stage" ]] || \
+      die "terminally failed stage is retained; review it and rerun with --recover-failed-stage $stage"
+    archive_failed_stage \
+      "$run_dir" "$stage_dir" "$stage" "$archive_count" "$gate" "$command"
+    archive_count=$((archive_count + 1))
+    recovery_authorized=1
+    RECOVERY_CONSUMED=1
+  elif [[ "$closed_status" -ne 1 ]]; then
+    die "retained stage state differs"
+  elif [[ "$RECOVER_FAILED_STAGE" == "$stage" ]]; then
+    [[ "$archive_count" -gt 0 ]] || \
+      die "failed-stage recovery requires one retained terminally failed attempt"
+    [[ ! -e "$stage_dir/execution-name.txt" && ! -L "$stage_dir/execution-name.txt" ]] || \
+      die "failed-stage recovery cannot replace an execution that is not terminally failed"
+    [[ ! -e "$stage_dir/launch-intent.json" && ! -L "$stage_dir/launch-intent.json" ]] || \
+      die "failed-stage recovery cannot resolve an ambiguous prior launch"
+    recovery_authorized=1
+    RECOVERY_CONSUMED=1
+  fi
+
   stage_launch_receipt "$stage_dir" "$stage" "$gate" "$command"
   if [[ -f "$stage_dir/started-at-epoch.txt" && ! -L "$stage_dir/started-at-epoch.txt" ]]; then
     started_epoch="$(tr -d '\n' <"$stage_dir/started-at-epoch.txt")"
@@ -529,24 +1059,58 @@ run_stage() {
   if [[ -f "$stage_dir/execution-name.txt" && ! -L "$stage_dir/execution-name.txt" ]]; then
     execution="$(tr -d '\n' <"$stage_dir/execution-name.txt")"
   else
+    if [[ -e "$stage_dir/launch-intent.json" || -L "$stage_dir/launch-intent.json" || \
+          -e "$stage_dir/launch-owner-claim.json" || -L "$stage_dir/launch-owner-claim.json" || \
+          -e "$stage_dir/launch-output.txt" || -L "$stage_dir/launch-output.txt" || \
+          -e "$stage_dir/launch-exit-status.txt" || -L "$stage_dir/launch-exit-status.txt" ]]; then
+      die "prior Cloud Run launch is ambiguous; blind reinvocation is forbidden"
+    fi
+    if [[ "$archive_count" -gt 0 && "$recovery_authorized" -ne 1 ]]; then
+      die "failed-stage retry remains unlicensed; rerun with --recover-failed-stage $stage"
+    fi
     job_contract "$stage_dir"
+    stage_launch_intent "$run_dir" "$stage_dir" "$stage" "$gate" "$command"
+    if [[ "$archive_count" -gt 0 ]]; then
+      [[ "$recovery_authorized" -eq 1 ]] || \
+        die "replacement launch lacks explicit failed-stage recovery authorization"
+      recovery_binding_attempt=$((archive_count - 1))
+    fi
+    claim_stage_launch_owner \
+      "$run_dir" "$stage_dir" "$stage" "$recovery_binding_attempt"
     launch_output="$(mktemp)"
-    if ! gcloud run jobs execute "$JOB" \
+    if gcloud run jobs execute "$JOB" \
       --project "$PROJECT" --region "$REGION" \
       --args="-ceu,$command" --update-env-vars="$gate=1" \
       --async --quiet --format='value(metadata.name)' >"$launch_output"; then
-      rm -f -- "$launch_output"
-      die "Cloud Run launch response was ambiguous; the fixed stage is safe to recover/reinvoke"
+      launch_status=0
+    else
+      launch_status=$?
     fi
     execution="$(tr -d '\r\n' <"$launch_output")"
+    install_local_equal "$launch_output" "$stage_dir/launch-output.txt"
+    write_local_equal "$stage_dir/launch-exit-status.txt" "$launch_status"
     rm -f -- "$launch_output"
-    [[ "$execution" =~ ^[a-z0-9][a-z0-9-]{2,127}$ ]] || die "Cloud Run execution name differs"
+    [[ "$launch_status" -eq 0 ]] || \
+      die "Cloud Run launch response is ambiguous; blind reinvocation is forbidden"
+    [[ "$execution" =~ ^[a-z0-9][a-z0-9-]{2,127}$ ]] || \
+      die "Cloud Run launch response is ambiguous; blind reinvocation is forbidden"
     write_local_equal "$stage_dir/execution-name.txt" "$execution"
   fi
   [[ "$execution" =~ ^[a-z0-9][a-z0-9-]{2,127}$ ]] || die "Cloud Run execution name differs"
   wait_for_terminal "$stage_dir" "$execution" "$started_epoch" "$gate" "$command"
+  validate_closed_stage \
+    "$run_dir" "$stage_dir" "$stage" "$gate" "$command" "$archive_count" || \
+    die "stage did not exact-replay its complete closed evidence envelope"
   printf 'CORE_V1_STAGE_CLOSED %s %s elapsed=%s\n' \
     "$stage" "$execution" "$(tr -d '\n' <"$stage_dir/elapsed-seconds.txt")"
+}
+
+run_stage() {
+  local run_dir="$1" stage="$2" gate="$3" command="$4"
+  acquire_stage_operation_lock "$run_dir" "$stage"
+  preflight_recovery_target "$run_dir" "$stage" "$gate" "$command"
+  run_stage_locked "$run_dir" "$stage" "$gate" "$command"
+  release_stage_operation_lock
 }
 
 catalog_command() {
@@ -661,6 +1225,9 @@ main() {
       record_release_required "$run_dir"
       ;;
   esac
+  if [[ -n "$RECOVER_FAILED_STAGE" && "$RECOVERY_CONSUMED" -ne 1 ]]; then
+    die "requested failed-stage recovery was not consumed"
+  fi
   printf 'CORE_V1_SCORE_CHAIN_CLOSED mode=%s run_dir=%s lease_release_external=%s\n' \
     "$MODE" "$run_dir" "$([[ "$MODE" == "outcome" || "$MODE" == "all" ]] && printf true || printf false)"
 }

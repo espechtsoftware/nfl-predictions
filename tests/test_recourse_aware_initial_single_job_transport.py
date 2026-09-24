@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib.util
 import inspect
 import json
+from hashlib import sha256
 from pathlib import Path
 import subprocess
 
@@ -428,3 +429,95 @@ def test_successful_harvest_restores_before_terminal_completion() -> None:
     assert "--if-generation-match=0" in inspect.getsource(
         transport._upload_report_create_once
     )
+
+
+def test_terminal_root_binds_exact_harvest_and_shard_identity_ledger(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(transport, "OUT", tmp_path)
+    report_identity = {
+        "uri": f"{transport.PREFIX}/report.json",
+        "generation": "700",
+        "sha256": "a" * 64,
+        "bytes": 123,
+    }
+    report_upload = {
+        "version": "recourse-aware-initial-book-report-upload-v1",
+        "create_only": True,
+        **report_identity,
+    }
+    execution_identities = []
+    object_identities = []
+    for source, (season, week) in enumerate(transport.ALL_CELLS):
+        execution_identities.append({
+            "execution": f"fixture-execution-{source:02d}",
+            "metadata_sha256": sha256(f"execution:{source}".encode()).hexdigest(),
+        })
+        object_identities.append({
+            "uri": transport.expected_uri(season, week),
+            "generation": str(1_000 + source),
+            "sha256": sha256(f"shard:{source}".encode()).hexdigest(),
+            "bytes": 10_000 + source,
+        })
+    harvest = {
+        "version": "recourse-aware-initial-book-single-job-harvest-v1",
+        "run_id": transport.RUN_ID,
+        "complete": True,
+        "executions": 54,
+        "slates": 54,
+        "folds": 270,
+        "uses_realized_outcomes": False,
+        "production_change_licensed": False,
+        "passes_scorefree_gate": True,
+        "historical_policy_diagnostic_licensed": True,
+        "disposition": "recourse-aware-initial-book-premise-passes",
+        "report_sha256": report_identity["sha256"],
+        "report_upload": report_upload,
+        "execution_identities": execution_identities,
+        "object_identities": object_identities,
+    }
+    (tmp_path / "harvest-completion.json").write_text(
+        json.dumps(harvest, sort_keys=True, separators=(",", ":")),
+        encoding="utf-8",
+    )
+    (tmp_path / "report-upload.json").write_text(
+        json.dumps(report_upload), encoding="utf-8",
+    )
+    for name in ("job-restoration.json", "grid-terminal.json", "canary-completion.json"):
+        (tmp_path / name).write_text("{}\n", encoding="utf-8")
+    restoration_sha = sha256((tmp_path / "job-restoration.json").read_bytes()).hexdigest()
+    (tmp_path / "completion.txt").write_text(
+        "\n".join((
+            f"run_id={transport.RUN_ID}",
+            "uses_realized_outcomes=false",
+            "passes_scorefree_gate=true",
+            f"report_sha256={report_identity['sha256']}",
+            f"job_restoration_sha256={restoration_sha}",
+            "",
+        )),
+        encoding="utf-8",
+    )
+
+    def upload(path: Path) -> dict[str, object]:
+        raw = path.read_bytes()
+        return {
+            "version": "recourse-aware-initial-book-terminal-root-upload-v1",
+            "create_only": True,
+            "uri": transport.TERMINAL_ROOT_URI,
+            "generation": "900",
+            "sha256": sha256(raw).hexdigest(),
+            "bytes": len(raw),
+        }
+
+    monkeypatch.setattr(transport, "_upload_terminal_root_create_once", upload)
+    result = transport._seal_terminal_root()
+    assert result["complete"] is True
+    assert result["terminal_before_realized_outcome_read"] is True
+    assert result["scorefree_report_identity"] == report_identity
+    assert len(result["shard_identity_ledger"]) == 54
+    assert result["shard_identity_ledger"][0]["source_ordinal"] == 0
+    assert result["shard_identity_ledger"][-1]["season"] == 2025
+    assert result["shard_identity_ledger_sha256"] == transport._canonical_sha(
+        result["shard_identity_ledger"]
+    )
+    assert result["terminal_root_identity"]["generation"] == "900"

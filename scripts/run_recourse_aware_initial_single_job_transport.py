@@ -23,6 +23,10 @@ PREFIX = (
     "gs://nfl-predictions-503414-raw/research/"
     f"recourse-aware-initial-book-runs/{RUN_ID}"
 )
+TERMINAL_ROOT_URI = f"{PREFIX}/terminal-root.json"
+TERMINAL_ROOT_VERSION = (
+    "recourse-aware-initial-book-single-job-terminal-root-v1"
+)
 OUT = ROOT / "reports/recourse-aware-initial-book-runs" / RUN_ID
 JOB = "atlas-cbc-32g-full-2023-w8-v1"
 JOB_UID = "1f4bcf0a-2300-4afa-9fc1-9981844c8275"
@@ -69,6 +73,12 @@ KICKOFF_AMENDMENT_SHA256 = (
 )
 KICKOFF_TIME_AMENDMENT_SHA256 = (
     "89b2e5a5296bfbee5a4cebaf6f87bd091900fc79361c409a21214f28ac1edf64"
+)
+TRANSPORT_AMENDMENT_SHA256 = (
+    "22783dff9d5ff8a74cf9b79183901957c55ba0599823d752ef9d65b765a74a0f"
+)
+TERMINAL_AUTHORITY_AMENDMENT_SHA256 = (
+    "d43588901cb9c47f927646e5d394a4036cb5e8a7e626fb4208674bb82f93501a"
 )
 CBWU_SHA256 = (
     "556adeca6e0bf2855ad82296b1e708041a20446dc27e2c988c1d11e8c5bd4d33"
@@ -125,6 +135,13 @@ def _unique_json(raw: str | bytes) -> Any:
 
 def _sha(path: Path) -> str:
     return sha256(path.read_bytes()).hexdigest()
+
+
+def _canonical_sha(value: Any) -> str:
+    raw = json.dumps(
+        value, sort_keys=True, separators=(",", ":"), allow_nan=False,
+    ).encode()
+    return sha256(raw).hexdigest()
 
 
 def _create_bytes(path: Path, raw: bytes) -> None:
@@ -399,6 +416,7 @@ def _validate_local_sources() -> None:
         ROOT / "reports/2026-08-17-recourse-aware-initial-book-execution-protocol.md": EXECUTION_SHA256,
         ROOT / "reports/2026-08-29-recourse-aware-initial-book-kickoff-population-amendment.md": KICKOFF_AMENDMENT_SHA256,
         ROOT / "reports/2026-08-29-recourse-aware-initial-book-kickoff-time-reconstruction-amendment.md": KICKOFF_TIME_AMENDMENT_SHA256,
+        ROOT / "reports/2026-08-29-recourse-aware-initial-book-terminal-root-amendment.md": TERMINAL_AUTHORITY_AMENDMENT_SHA256,
         ROOT / "reports/cbwu-order-invariant-runs/20260815-cbwu-order-invariant-repair-v1/report.json": CBWU_SHA256,
     }
     if any(not path.is_file() or _sha(path) != digest for path, digest in frozen.items()):
@@ -1171,6 +1189,185 @@ def _upload_report_create_once(report_path: Path) -> dict[str, Any]:
     }
 
 
+def _upload_terminal_root_create_once(path: Path) -> dict[str, Any]:
+    result = _run([
+        "gcloud", "storage", "cp", str(path), TERMINAL_ROOT_URI,
+        "--if-generation-match=0", "--project", PROJECT,
+    ], check=False)
+    try:
+        metadata = _gcloud_json([
+            "storage", "objects", "describe", TERMINAL_ROOT_URI,
+            "--project", PROJECT,
+        ])
+        raw = _download_bytes(TERMINAL_ROOT_URI)
+    except Exception:
+        if result.returncode != 0:
+            raise RuntimeError(
+                "recourse terminal-root create-once upload failed: "
+                + result.stderr.strip()
+            )
+        raise
+    if raw != path.read_bytes():
+        raise ValueError("recourse terminal-root cloud bytes differ")
+    identity = _validate_object_metadata(metadata, TERMINAL_ROOT_URI, raw)
+    return {
+        "version": "recourse-aware-initial-book-terminal-root-upload-v1",
+        "create_only": True,
+        **identity,
+    }
+
+
+def _terminal_object_identity(value: Any, *, label: str) -> dict[str, Any]:
+    digest = str(value.get("sha256", "")) if isinstance(value, Mapping) else ""
+    if not isinstance(value, Mapping) or set(value) != {
+        "uri", "generation", "bytes", "sha256",
+    } or not str(value.get("uri", "")).startswith("gs://") or not str(
+        value.get("generation", "")
+    ).isdigit() or type(value.get("bytes")) is not int or int(
+        value["bytes"]
+    ) <= 0 or len(digest) != 64 or any(
+        character not in "0123456789abcdef" for character in digest
+    ):
+        raise ValueError(f"recourse terminal {label} identity differs")
+    return {
+        "uri": str(value["uri"]),
+        "generation": str(value["generation"]),
+        "sha256": digest,
+        "bytes": int(value["bytes"]),
+    }
+
+
+def _seal_terminal_root() -> dict[str, Any]:
+    required = {
+        "harvest": OUT / "harvest-completion.json",
+        "report_upload": OUT / "report-upload.json",
+        "restoration": OUT / "job-restoration.json",
+        "completion": OUT / "completion.txt",
+        "grid_terminal": OUT / "grid-terminal.json",
+        "canary": OUT / "canary-completion.json",
+    }
+    if any(not path.is_file() or path.is_symlink() for path in required.values()):
+        raise ValueError("recourse terminal root lacks completed local authority")
+    harvest = _unique_json(required["harvest"].read_bytes())
+    report_upload = _unique_json(required["report_upload"].read_bytes())
+    restoration = _unique_json(required["restoration"].read_bytes())
+    if not isinstance(harvest, Mapping) or not isinstance(
+        report_upload, Mapping
+    ) or not isinstance(restoration, Mapping):
+        raise ValueError("recourse terminal local authority schema differs")
+    if set(harvest) != {
+        "version", "run_id", "executions", "slates", "folds",
+        "execution_identities", "object_identities", "report_sha256",
+        "report_upload", "passes_scorefree_gate",
+        "historical_policy_diagnostic_licensed", "disposition",
+        "uses_realized_outcomes", "production_change_licensed", "complete",
+    } or harvest.get("version") != (
+        "recourse-aware-initial-book-single-job-harvest-v1"
+    ) or harvest.get("run_id") != RUN_ID or harvest.get("complete") is not True or \
+            harvest.get("executions") != 54 or harvest.get("slates") != 54 or \
+            harvest.get("folds") != 270 or \
+            harvest.get("uses_realized_outcomes") is not False or \
+            harvest.get("production_change_licensed") is not False:
+        raise ValueError("recourse terminal harvest authority differs")
+    report_identity = _terminal_object_identity({
+        key: report_upload.get(key) for key in (
+            "uri", "generation", "sha256", "bytes",
+        )
+    }, label="report")
+    if set(report_upload) != {
+        "version", "create_only", "uri", "generation", "sha256", "bytes",
+    } or report_upload.get("version") != (
+        "recourse-aware-initial-book-report-upload-v1"
+    ) or report_upload.get("create_only") is not True or \
+            report_identity["uri"] != f"{PREFIX}/report.json" or \
+            harvest.get("report_sha256") != report_identity["sha256"] or \
+            harvest.get("report_upload") != report_upload:
+        raise ValueError("recourse terminal report authority differs")
+    executions = harvest.get("execution_identities")
+    objects = harvest.get("object_identities")
+    if not isinstance(executions, list) or not isinstance(objects, list) or \
+            len(executions) != 54 or len(objects) != 54:
+        raise ValueError("recourse terminal shard/execution ledger differs")
+    shard_ledger = []
+    for source, ((season, week), execution, raw_identity) in enumerate(zip(
+        ALL_CELLS, executions, objects, strict=True,
+    )):
+        if not isinstance(execution, Mapping) or set(execution) != {
+            "execution", "metadata_sha256",
+        } or not str(execution.get("execution", "")) or len(str(
+            execution.get("metadata_sha256", "")
+        )) != 64 or any(
+            character not in "0123456789abcdef"
+            for character in str(execution.get("metadata_sha256", ""))
+        ):
+            raise ValueError("recourse terminal execution identity differs")
+        identity = _terminal_object_identity(raw_identity, label="shard")
+        if identity["uri"] != expected_uri(season, week):
+            raise ValueError("recourse terminal shard coordinate differs")
+        shard_ledger.append({
+            "source_ordinal": source,
+            "season": season,
+            "week": week,
+            "execution": str(execution["execution"]),
+            "execution_metadata_sha256": str(execution["metadata_sha256"]),
+            "shard_identity": identity,
+        })
+    completion = required["completion"].read_text(encoding="utf-8")
+    completion_fields = dict(
+        line.split("=", 1) for line in completion.splitlines() if "=" in line
+    )
+    passed = harvest.get("passes_scorefree_gate") is True
+    if completion_fields.get("run_id") != RUN_ID or \
+            completion_fields.get("uses_realized_outcomes") != "false" or \
+            completion_fields.get("passes_scorefree_gate") != str(
+                passed
+            ).lower() or completion_fields.get("report_sha256") != \
+            report_identity["sha256"] or \
+            completion_fields.get("job_restoration_sha256") != \
+            _sha(required["restoration"]):
+        raise ValueError("recourse terminal completion authority differs")
+    body = {
+        "version": TERMINAL_ROOT_VERSION,
+        "run_id": RUN_ID,
+        "job": JOB,
+        "job_uid": JOB_UID,
+        "frozen_code_sha": CODE_SHA,
+        "frozen_image": IMAGE,
+        "transport_amendment_sha256": TRANSPORT_AMENDMENT_SHA256,
+        "terminal_authority_amendment_sha256": (
+            TERMINAL_AUTHORITY_AMENDMENT_SHA256
+        ),
+        "scorefree_report_identity": report_identity,
+        "scorefree_report_sha256": report_identity["sha256"],
+        "shard_count": 54,
+        "fold_count": 270,
+        "shard_identity_ledger": shard_ledger,
+        "shard_identity_ledger_sha256": _canonical_sha(shard_ledger),
+        "harvest_completion_sha256": _sha(required["harvest"]),
+        "grid_terminal_sha256": _sha(required["grid_terminal"]),
+        "canary_completion_sha256": _sha(required["canary"]),
+        "job_restoration_sha256": _sha(required["restoration"]),
+        "completion_sha256": _sha(required["completion"]),
+        "passes_scorefree_gate": passed,
+        "historical_policy_diagnostic_licensed": bool(
+            harvest.get("historical_policy_diagnostic_licensed")
+        ),
+        "disposition": harvest.get("disposition"),
+        "uses_realized_outcomes": False,
+        "production_change_licensed": False,
+        "terminal_before_realized_outcome_read": True,
+        "complete": True,
+    }
+    root = {**body, "terminal_root_sha256": _canonical_sha(body)}
+    path = OUT / "terminal-root.json"
+    _create_or_equal_json(path, root)
+    upload = _upload_terminal_root_create_once(path)
+    _create_or_equal_json(OUT / "terminal-root-upload.json", upload)
+    return {**root, "terminal_root_identity": {
+        key: upload[key] for key in ("uri", "generation", "sha256", "bytes")
+    }}
+
+
 def harvest_grid() -> None:
     if not OUT.is_dir() or OUT.is_symlink() or \
             not (OUT / "grid-release.json").is_file() or \
@@ -1178,6 +1375,7 @@ def harvest_grid() -> None:
         raise ValueError("recourse harvest state differs")
     if (OUT / "completion.txt").is_file():
         restore_shared_job("full-harvest-complete")
+        _seal_terminal_root()
         print("RECOURSE_SINGLE_JOB_ALREADY_HARVESTED", RUN_ID)
         return
     _validate_local_sources()
@@ -1329,6 +1527,12 @@ def harvest_grid() -> None:
         f"disposition={report['disposition']}\n",
     )).encode()
     _create_or_equal_bytes(OUT / "completion.txt", completion)
+    terminal = _seal_terminal_root()
+    print(
+        "RECOURSE_SINGLE_JOB_TERMINAL_ROOT",
+        terminal["terminal_root_identity"]["generation"],
+        terminal["terminal_root_identity"]["sha256"],
+    )
     print("RECOURSE_SINGLE_JOB_HARVESTED", report["disposition"])
 
 
