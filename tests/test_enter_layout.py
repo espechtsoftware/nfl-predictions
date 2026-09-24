@@ -409,3 +409,40 @@ def test_frozen_swap_refuses_cells_the_receipt_does_not_name(tmp_path):
     new2 = [list(x) for x in body]; new2[5][2] = "X"; new2[5][3] = "Z"        # no receipt: two cells in one row
     with pytest.raises(EL.LayoutError, match="at most one cell"):
         EL.frozen_contest_rows(cs, b, new2, None)
+
+
+def test_paper_layout_capped_book_slots_and_lays_out(tmp_path):
+    """R2 paper bundle converter: gsis-id rosters -> DK slot order (FLEX = surplus with the latest kickoff), both id
+    forms from the frame, Questionable rows kept out of the protected ranks, written to a scratch dir only."""
+    import pandas as pd
+    cs = [{"name": "a", "contest_id": "1", "entries": 1, "keep": 1}, {"name": "b", "contest_id": "2", "entries": 5, "keep": 5}]
+    pos = ["QB", "RB", "RB", "RB", "WR", "WR", "WR", "TE", "DST"]
+    frame, caps, sets = [], [], []
+    for r in range(8):
+        ids = []
+        for s, p in enumerate(pos):
+            g = f"g{r}_{s}" if p != "DST" else f"T{r}_DST"
+            frame.append({"gsis_id": g if p != "DST" else "0.0", "id": g, "position": p, "dk_player_id": f"p{r}{s}",
+                          "dk_draftable_id": f"d{r}{s}", "display_name": g,
+                          "report_status": "Questionable" if (r == 0 and s == 1) else None,
+                          "game_start": pd.Timestamp("2026-09-27 17:00", tz="UTC") + pd.Timedelta(hours=3 * (s == 3))})
+            sets.append({"dk_player_id": f"p{r}{s}", "pos": p, "set": "MID"})
+            ids.append(g)
+        caps.append({"players": ",".join(reversed(ids)), "book_rank": r + 1})
+    run = tmp_path / "run"; run.mkdir()
+    pd.DataFrame(frame).to_parquet(run / "frame.parquet")
+    pd.DataFrame(caps).to_csv(tmp_path / "capped.csv", index=False)
+    pd.DataFrame(sets).to_csv(tmp_path / "sets.csv", index=False)
+    (tmp_path / "contests.json").write_text(json.dumps(cs))
+    out = tmp_path / "paper"
+    r = subprocess.run([sys.executable, str(ROOT / "scripts/paper_layout_capped_book.py"), "--capped-book",
+                        str(tmp_path / "capped.csv"), "--run-dir", str(run), "--contests", str(tmp_path / "contests.json"),
+                        "--sets", str(tmp_path / "sets.csv"), "--out", str(out)], capture_output=True, text=True,
+                       env={**os.environ, "PYTHONPATH": str(ROOT / "src")})
+    assert r.returncode == 0, r.stdout + r.stderr
+    book = list(csv.reader(open(out / "book" / "book.csv")))
+    assert book[0] == ["QB", "RB", "RB", "WR", "WR", "WR", "TE", "FLEX", "DST"]
+    assert book[1][7] == "p03" and book[1][8] == "p08"           # the late-kickoff RB is the FLEX; DST last
+    single = list(csv.reader(open(out / "bundle" / EL.enter_filename(cs[0]))))[1]
+    assert single[1] != "d01"                                     # the Questionable row is not the protected entry
+    assert (out / "bundle" / "PAPER-ONLY-NOT-FOR-UPLOAD.txt").is_file()
