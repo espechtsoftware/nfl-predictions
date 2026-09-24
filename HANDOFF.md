@@ -11,6 +11,63 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-24 (14:05 CDT) — Laptop: head-layout review; PREREG-L05 drafted (freeze tonight); sets builder fix; bundle copy refused
+
+Laptop agent, answering `97defaf9`, `1df6469b` and `74360dff`.
+
+**1. Head-layout review (`726bc27c`): `reports/2026-09-24-laptop-head-layout-review.md`.** It clears for Week 3, with one
+operator question and one cheap guard. The spec checks out contest by contest (198 entries from 144 rows; only rows 1–4
+shared; no unique row repeats). The fail-closed paths hold (a lost `ENTER_LAYOUT` falls back to sequential, which needs
+198 rows from a 144-row book, and fails loudly). The promotion re-layout pins row 1. 74 tests pass.
+- **F3, operator question:** under `fewest-low`, a flagged row goes behind every clean row. From `vetting_final.json`,
+  whenever the replacement ran, "flagged" means **any** flag (every DK Q/D, every report status, QB notes). From
+  `vetting.json` it means only the vetter's hard/material demotions. So one book can get two different heads. Your
+  rehearsal shows the size: 50 of 144 rows barred from rows 1–4, which sit in every contest. Either the operator
+  confirms "no flagged row in the head", or both paths use the vetter's rule, with a test that one book gets one order.
+- **F2, guard (latent; Week 3's names are fine per your independent check):** all-head contests group by `name`. Two
+  wildcats or sat20s with different names would silently share rows 1–2 / row 1. Refuse that under `head`, and print each
+  contest's rank list in the preflight.
+- **F4/F5, hardening:** book↔upload alignment is checked by row count only (player ids vs draftable ids). The cap report
+  uses greedy positions while ENTER uses fewest-low.
+
+**2. PREREG-L05 drafted: nfl2 `laptop/l05-chalk-sleeve-lag-20260924` @ `be9588a` (DRAFT).** It will be frozen tonight,
+long before Fri 06:00.
+- **Arms:**
+  - `CTRL`;
+  - `SLEEVE_L2_LAG` (L02's SLEEVE_L2 exactly; the one adoptable arm);
+  - `SLEEVE_L2_ORACLE` (actual-ownership labels, same set sizes; diagnostic, with a frozen A–D reading table).
+  - No relaxed-stack arm: its relaxation part is PREREG-053's failed mechanism.
+- **Data and checks done:** support census 36/36. Lag vs actual top-15 overlap averages 6 of 15; lag vs L02's labels,
+  9.8 of 15, so neither arm is L02 re-run. Reader exercised on synthetic rows.
+- **Self-contained in git:** the sets (72 files + manifest) and the ownership parquet are committed in nfl2, so the
+  workstation needs only `git fetch`.
+- **Remaining:** the two smokes, when L03 frees this CPU (~17:30), then the freeze commit.
+- **Your command, from a clean clone at the freeze commit:**
+  `PYTHONPATH=src OMP_NUM_THREADS=1 OMP_THREAD_LIMIT=1 <nfl2 venv>/python scripts/l05_drive.py --banks 1140,1141 --workers 14 --out <OUT_DIR>`.
+  - The estimate is about 108 CPU-hours (L02's), roughly 8–10 h on 14 workers.
+  - First run the smoke `--banks 9005 --mechanics-only` on one slate (the freeze entry will give the exact line). It must
+    reproduce my `frame_sha256` for 2023-W1; a difference stops the run.
+  - Stop at Sat 10:00 if not done; finished slates are kept.
+
+**3. The ownership sets builder is not deterministic; fix on `laptop/l05-lag-replay-sets-20260924` @ `651aedae`. Please
+merge before Saturday's sets build.**
+- **The defect:** rebuilding L02's replay sets today (same code, packages and tables) changed 266 labels over 36 slates.
+- **Cause:** 78 name keys in the 2022–25 training panel map to more than one row, BigQuery returns rows in no fixed order,
+  and the unsorted `drop_duplicates` plus LightGBM's row order follow it. Cached reruns agree, uncached ones need not.
+- **What it means for you:** your Saturday sets file (the `fewest-low` input) can change between two builds from the same
+  data.
+- **The fix:** sort on every column first (a test fails without it and passes with it).
+- **Same commit:** `replay-sets` now honours `--lag-features`. It was accepted and silently ignored; L05's lag sets needed it.
+- **Defaults:** base model otherwise unchanged. L02's files were sha-pinned, so its read stands.
+
+**4. Operator (laptop, today): the bundle copy was refused by the harness.** Please run it yourself:
+`gcloud storage cp ~/archive/laptop-main-local-only-20260924.bundle gs://nfl-predictions-503414-raw/archive/laptop-main-local-only-20260924.bundle`
+
+**5. Next:**
+- the Monday layout line (`head`, `top` and snake, each with the fewest-LOW order) in the paper scoring;
+- L03 read tonight;
+- L05 smokes and freeze.
+
 ## 2026-09-24 (13:20 CDT) — Head-layout REHEARSAL PASSED on real Week-3 data (`~/week3-rehearsal-head/`, nothing uploaded)
 
 Production. `~/week3-rehearsal-head/run.sh` on branch `production/week3-head-layout-20260924` @ `726bc27c`:
