@@ -38,8 +38,10 @@ from ..optimizer.paid_classic_book_v2 import (
     to_paid_dk_csv_v2,
 )
 from ..optimizer.construction_presets import (
+    BASE_CONSTRUCTION_RECEIPT_SCOPE,
     INCUMBENT_GPP_PRESET_ID,
     LEGALITY_ONLY_PRESET_ID,
+    verify_construction_execution,
 )
 from ..optimizer.showdown import optimize_many_showdown
 from ..inference.production_policy import (
@@ -2609,11 +2611,15 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
     )
     if req.apply_notes:
         pool = _notes.apply_prefs(pool, req.season, req.week)
+    construction_env = construction.optimizer_environment()
+    verify_construction_execution(
+        construction.receipt(), stack=stack, env=construction_env,
+    )
     lineups = optimize_many(
         pool, n_lineups=req.n_lineups, stack=stack,
         locks=set(req.locks), bans=set(req.bans),
         max_overlap=construction.max_overlap,
-        env=construction.optimizer_environment(),
+        env=construction_env,
     )
     for lu in lineups:
         lu.construction_preset_receipt = construction.receipt()
@@ -2720,6 +2726,7 @@ def _classic_policy_identity(req: LineupRequest, lineups: list) -> dict:
             "entries": len(lineups),
             "contest_entry_policy": req.entry_policy(),
             "construction_preset": construction.receipt(),
+            "construction_receipt_scope": BASE_CONSTRUCTION_RECEIPT_SCOPE,
         }
     model_version = (getattr(lineups[0], "model_version", None)
                      if lineups else None)
@@ -2877,12 +2884,16 @@ def build_core_lineups(
     upside_pool = _player_pool(df, req.objective, dk_ids)
     construction = _request_construction_preset(req)
     stack = construction.stack
+    construction_env = construction.optimizer_environment()
+    verify_construction_execution(
+        construction.receipt(), stack=stack, env=construction_env,
+    )
     core, lineups = core_and_variations(
         stable_pool, upside_pool, n_lineups=req.n_lineups,
         core_size=req.core_size, stack=stack,
         locks=set(req.locks), bans=set(req.bans),
         max_overlap=construction.max_overlap,
-        env=construction.optimizer_environment(),
+        env=construction_env,
     )
     if not lineups:
         raise HTTPException(422, "No feasible lineup under the given constraints")
@@ -2892,6 +2903,7 @@ def build_core_lineups(
     return {
         "tail_line": req.line(),
         "construction_preset": construction.receipt(),
+        "construction_receipt_scope": BASE_CONSTRUCTION_RECEIPT_SCOPE,
         "core": [
             {"id": c["id"], "conviction": c["conviction"],
              "name": by_id[c["id"]]["name"], "pos": by_id[c["id"]]["pos"],

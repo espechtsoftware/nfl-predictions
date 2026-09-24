@@ -42268,3 +42268,52 @@ the top-p rule, the 20/60 quota, or its asymmetric duplicate backfill on the
   `results/read-transcripts/sdc095r2-production-crossverify-merge-transcript.txt`.
   This confirms reproducibility only: SD-C remains diagnostic/development-only,
   promotes nothing, and nominates no experiment by itself.
+
+- 2026-09-05 — Classic construction-law runtime audit and base-receipt
+  verification in progress
+
+  Owner direction is now explicit: only DraftKings Classic legality may be
+  treated as universal. QB/catcher stacks, opponent bring-backs, RB
+  exclusions, salary floors, multi-game requirements, overlap limits, and
+  candidate-family locks remain named strategy or experiment laws. A source
+  audit confirmed that bare `StackRules` is neutral, while the current named
+  incumbent GPP preset intentionally requires QB + two same-team WR/TE, one
+  opposing RB/WR/TE, both RB exclusions, a 49,000 salary floor, two games,
+  and overlap seven. There is no universal opposing-WR rule.
+
+  Work is isolated on branch `codex/explicit-construction-policy-v1` in
+  `/home/erich/projects/nfl-predictions-explicit-construction-policy`, based
+  on production `origin/main` `562d9208`. The detailed source/evidence audit
+  is `reports/2026-09-05-explicit-construction-law-runtime-audit.md`; the
+  companion lab evidence classification is durable at lab commit `0b38aff`.
+  The implementation reopens and authenticates the complete v1 base-preset
+  receipt, verifies it against the actual `StackRules` and all base optimizer
+  environment fields before generation, applies the check to non-tail replay
+  and plain/core API routes, exposes all eight stack dimensions through the
+  named resolver, and labels the existing batch receipt honestly as
+  `base-policy-only-v1`. It intentionally does not claim that this
+  batch-level receipt covers dynamic family overlays.
+
+  Independent static review found no P0 defect and repaired five bounded P1
+  edges without changing behavior: live sim generation now verifies at
+  ingress before model/world work as well as at the engine boundary; absent
+  receipts are labeled `unreceipted`; production, manual-MILP, and core API
+  identities disclose the base-only scope; negative route tests cover live,
+  tail, and non-tail fail-before-generation behavior; and the legacy
+  `use_stack=False` adapter neutralizes all eight `StackRules` fields. The
+  generic primitive remains optionally receipted for frozen/legacy callers,
+  but absence is explicit; mandatory new-entry-point enforcement and
+  candidate-aligned overlay/activation identities remain the prospective
+  Phases 2--4 boundary.
+
+  Post-review in-memory compilation of the six changed Python files and
+  `git diff --check` pass. Ruff is unavailable in the shared virtual
+  environment, so no Ruff result is claimed. Focused pytest remains held
+  while the lab's long PREREG-069 r6a1 census owns the local heavy slot; no
+  cloud, live policy, scoring, entry, or deployment state was changed. The
+  branch is still based on `562d9208`; production `origin/main` is now
+  `b951f893`, although none of the six implementation/test files differs
+  upstream. Next: run the focused tests after the census exits, rebase and
+  inspect the resulting handoff merge, then commit. Do not deploy or call the
+  receipt a complete effective construction identity until candidate-aligned
+  overlay and activation receipts land.

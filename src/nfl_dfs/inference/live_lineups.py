@@ -559,8 +559,18 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
     allowed_ids: restrict to one DK slate's player set (draft_group_id
     requests) — draw_idx stays valid because rows only get DROPPED."""
     from ..backtest.engine import tail_select_lineups
+    from ..optimizer.construction_presets import verify_construction_execution
 
-    runtime_env = policy_env or {}
+    runtime_env = {} if policy_env is None else policy_env
+    if construction_preset_receipt is not None:
+        # Authenticate the shared construction identity before model lookup,
+        # world creation, candidate generation, or optional persistence. The
+        # engine repeats this check at its own boundary as defense in depth.
+        verify_construction_execution(
+            construction_preset_receipt,
+            stack=stack,
+            env=runtime_env,
+        )
     portfolio = runtime_env.get("MULTISEED_PORTFOLIO", "").upper()
     multiseed_portfolios = {
         "CBWU", "CBWU_ARCHETYPE_SHADOW", "CBWU_LATENT_ROLE_SHADOW",

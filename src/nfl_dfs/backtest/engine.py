@@ -20,6 +20,10 @@ from dataclasses import dataclass, field as dc_field, replace as dc_replace
 import numpy as np
 import pandas as pd
 
+from ..optimizer.construction_presets import (
+    construction_receipt_scope,
+    verify_construction_execution,
+)
 from ..optimizer.lineup import (Lineup, StackRules, optimize, optimize_many,
                                 select_tail_entries)
 from ..research.candidate_features import PLAYER_SNAPSHOT_FEATURES
@@ -1128,6 +1132,15 @@ def tail_select_lineups(
         raise ValueError(
             "required candidate persistence cannot run asynchronously")
     runtime_env = {} if policy_env is None else policy_env
+    if construction_preset_receipt is not None:
+        # A receipt is executable evidence, not a caller-supplied label.  Fail
+        # before draws or solves if the base StackRules or any base optimizer
+        # setting differs from what the hashed receipt claims.
+        verify_construction_execution(
+            construction_preset_receipt,
+            stack=stack,
+            env=runtime_env,
+        )
     generation_started = perf_counter()
     rd = _row_draws(slate, draws, env=runtime_env)
     locks = locks or set()
@@ -2267,6 +2280,14 @@ def tail_select_lineups(
             "construction_preset_receipt": dict(
                 construction_preset_receipt or {}
             ),
+            # This v1 receipt binds the shared/base construction only.  The
+            # engine also contains explicitly tagged candidate families with
+            # locks, salary bands, and stack variants; those need candidate-
+            # aligned overlay receipts before the identity can be described
+            # as the complete effective construction law.
+            "construction_receipt_scope": construction_receipt_scope(
+                construction_preset_receipt
+            ),
             "role_candidate_input_receipt": dict(
                 slate.attrs.get("role_candidate_input_receipt") or {}
             ),
@@ -2909,9 +2930,16 @@ def run_week(
 
     pool = slate.to_dict("records")
     obj = "proj_tourney" if "proj_tourney" in slate.columns else "proj"
+    runtime_env = {} if policy_env is None else policy_env
+    if construction_preset_receipt is not None and not (
+        draws is not None and tail_line is not None and "draw_idx" in slate.columns
+    ):
+        verify_construction_execution(
+            construction_preset_receipt,
+            stack=stack,
+            env=runtime_env,
+        )
     if draws is not None and tail_line is not None and "draw_idx" in slate.columns:
-        runtime_env = {} if policy_env is None else policy_env
-
         lineups = tail_select_lineups(
             slate, pool, draws, tail_line, n_entries, stack, obj,
             contest=contest, sharp_fraction=sharp_fraction,
@@ -2927,7 +2955,7 @@ def run_week(
             construction_preset_receipt=construction_preset_receipt)
     else:
         lineups = optimize_many(pool, n_lineups=n_entries, stack=stack,
-                                objective_col=obj, env=policy_env)
+                                objective_col=obj, env=runtime_env)
     if not lineups:
         log.warning("No feasible lineups for %s week %s", season, week)
         return None

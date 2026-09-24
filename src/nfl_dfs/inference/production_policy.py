@@ -15,6 +15,7 @@ import json
 from typing import Mapping
 
 from ..optimizer.construction_presets import (
+    BASE_CONSTRUCTION_RECEIPT_SCOPE,
     INCUMBENT_GPP_PRESET_ID,
     ConstructionPreset,
     resolve_construction_preset,
@@ -526,6 +527,7 @@ class ClassicProductionPolicy:
             "entries": int(effective_entries),
             "salary_floor": construction.min_salary,
             "construction_preset": construction.receipt(),
+            "construction_receipt_scope": BASE_CONSTRUCTION_RECEIPT_SCOPE,
             "blend": {
                 "model": self.blend_model_weight,
                 "market": 1.0 - self.blend_model_weight,
