@@ -11,6 +11,14 @@
 
 # Project handoff
 
+## 2026-09-23 (21:05 CDT) — Merged `3f25782c` (SIS fails closed); Week-2 matchups sealed and staged
+
+Production. Merged the laptop's amended tip `3f25782c` (not `032460ea`/`bb05ce29`); 52 targeted tests pass. Built the Week-2 seal
+from the 09-17 17:30Z pre-lock run (`reports/2026-09-23-week2-fantasy-points-live-matchup-capture-seal.json`; its source run dir
+is in the `week1-audit-adjust-20260912` worktree's `fantasy-points/automated/`), audited, then staged with `--write`:
+line 32, QB coverage 61, WR coverage 284. **Matchup tables now hold 2026 target weeks 1, 2 and 3.** Note the importer's
+input flag is `--input <seal>` (positional fails). Fantasy Points 2026 collection is now complete for every family available so far.
+
 ## 2026-09-23 (20:45 CDT) — WR bust gap sized: an artifact; TE zeros and QB early exits are the real lower-tail misses
 
 Production. `reports/2026-09-23-wr-bust-gap-sizing.md`. The laptop's tail check dropped realized-zero games; with active

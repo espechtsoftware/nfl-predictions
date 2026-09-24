@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "capture_id": "2026-live-matchups-v1",
+  "status": "COMPLETE_FROM_INDEPENDENTLY_VALIDATED_REPORTS",
+  "sealed_at_utc": "2026-09-24T01:20:46Z",
+  "target_season": 2026,
+  "target_week": 2,
+  "first_kickoff_utc": "2026-09-18T00:15:00+00:00",
+  "source_seasons": [
+    2025
+  ],
+  "source_regime": "vendor-prior-season-early",
+  "schedule_contract": {
+    "expected_directional_pairs": 32,
+    "required_unexpected_pairs": [],
+    "required_missing_pairs": [],
+    "schedule_source": "nfl_raw.schedules"
+  },
+  "members": [
+    {
+      "report": "qb-coverage-matchup",
+      "source_run_id": "20260917T173009Z__2026-live-matchups-v1__week-02",
+      "source_code_commit": null,
+      "retrieved_at_utc": "2026-09-17T17:30:27.598756+00:00",
+      "source_url": "https://data.fantasypoints.com/nfl/tools/player/qb-coverage-matchup",
+      "source_rows": 61,
+      "normalized_observed_pairs": 33,
+      "schedule_gate_passes": true,
+      "source_seasons": [
+        2025
+      ],
+      "source_regime": "vendor-prior-season-early",
+      "sha256": "16a4f7fae60807d276dc3f407379827488e5dad053a7bed5a9c4c32e16f85a85",
+      "bytes": 13973,
+      "archive_uri": "gs://nfl-predictions-503414-raw/licensed/fantasy-points/live-matchups/season=2026/week=02/sha256=16a4f7fae60807d276dc3f407379827488e5dad053a7bed5a9c4c32e16f85a85/qb-coverage-matchup.csv",
+      "archive_generation": "1789666229904643"
+    },
+    {
+      "report": "wr-coverage-matchup",
+      "source_run_id": "20260917T173009Z__2026-live-matchups-v1__week-02",
+      "source_code_commit": null,
+      "retrieved_at_utc": "2026-09-17T17:30:54.125635+00:00",
+      "source_url": "https://data.fantasypoints.com/nfl/tools/player/wr-coverage-matchup",
+      "source_rows": 284,
+      "normalized_observed_pairs": 44,
+      "schedule_gate_passes": true,
+      "source_seasons": [
+        2025
+      ],
+      "source_regime": "vendor-prior-season-early",
+      "sha256": "a3e8705490a82f37e62f98e3e850b04c7b1d55209a79d151e4662085ceeeaf01",
+      "bytes": 74988,
+      "archive_uri": "gs://nfl-predictions-503414-raw/licensed/fantasy-points/live-matchups/season=2026/week=02/sha256=a3e8705490a82f37e62f98e3e850b04c7b1d55209a79d151e4662085ceeeaf01/wr-coverage-matchup.csv",
+      "archive_generation": "1789666256550642"
+    },
+    {
+      "report": "line-matchups",
+      "source_run_id": "20260917T173009Z__2026-live-matchups-v1__week-02",
+      "source_code_commit": null,
+      "retrieved_at_utc": "2026-09-17T17:31:02.601575+00:00",
+      "source_url": "https://data.fantasypoints.com/nfl/tools/team/line-matchups",
+      "source_rows": 32,
+      "normalized_observed_pairs": 32,
+      "schedule_gate_passes": true,
+      "source_seasons": [
+        2025
+      ],
+      "source_regime": "vendor-prior-season-early",
+      "sha256": "064c2869b21f77f8ed90e47e5e70440b55450fca202038d6f7018ae8ac41439c",
+      "bytes": 5602,
+      "archive_uri": "gs://nfl-predictions-503414-raw/licensed/fantasy-points/live-matchups/season=2026/week=02/sha256=064c2869b21f77f8ed90e47e5e70440b55450fca202038d6f7018ae8ac41439c/line-matchups.csv",
+      "archive_generation": "1789666264800445"
+    }
+  ],
+  "excluded_records": [],
+  "integrity": {
+    "all_members_retrieved_before_first_kickoff": true,
+    "all_members_source_regime_identical": true,
+    "all_members_schedule_gate_passes": true,
+    "all_members_hash_addressed_and_generation_pinned": true,
+    "vendor_rows_rewritten": false,
+    "failed_or_mismatched_exports_admitted": false
+  }
+}
