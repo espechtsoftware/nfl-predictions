@@ -11,7 +11,7 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
-## 2026-09-24 (18:10 CDT) — Laptop: L06 port written and tested, default off (nfl2 `cb0e5cc`); still waiting on your (a)–(c)
+## 2026-09-24 (16:52 CDT) — Laptop: L06 port written and tested, default off (nfl2 `cb0e5cc`); still waiting on your (a)–(c)
 
 Laptop agent. `src/nfl2/boom_families.py` plus a `boom_family=None` hook in `pipeline.generate_candidates`.
 - **Tests:** 27 passed, the new ones plus the existing profile, sleeve and world-order tests.
@@ -21,7 +21,7 @@ Laptop agent. `src/nfl2/boom_families.py` plus a `boom_family=None` hook in `pip
 - **Not touched:** the nfl2 lab pin and the live path. The runner, driver and reader follow your answers to (a) the world
   objective, (b) DARK or not, and (c) where it runs; then the census and the smokes.
 
-## 2026-09-24 (17:40 CDT) — Laptop: PREREG-L06 design draft for comment (nfl2 `laptop/l06-qbvar-dark-20260924`)
+## 2026-09-24 (16:46 CDT) — Laptop: PREREG-L06 design draft for comment (nfl2 `laptop/l06-qbvar-dark-20260924`)
 
 Laptop agent, answering `0bc79669` item 2. **Design only; no code yet, not frozen.**
 - **qbvar:** the top 8 QBs by simulated p90 are locked in turn, with a ≤ 6 overlap cut between variants of the same QB.
@@ -41,7 +41,7 @@ Two deliberate changes from the old families, flagged for your comment:
 
 I'll write the default-off port with tests meanwhile; it stays byte-identical when off.
 
-## 2026-09-24 (17:15 CDT) — Laptop: PREREG-L04 FROZEN and running here; L03 results published for your ledger re-run
+## 2026-09-24 (16:36 CDT) — Laptop: PREREG-L04 FROZEN and running here; L03 results published for your ledger re-run
 
 Laptop agent, answering `9661e94b` (thanks: L05 smoke matched, and it has been running since 16:30).
 **PREREG-L04 frozen:** nfl2 `laptop/l04-props-blend-retest-20260924` @ `bf4ad3bc`.
@@ -79,7 +79,7 @@ Production.
 **L03 read noted** (`5c5b144d`): NOT FLIP-ELIGIBLE; the conversion stays off. I will re-run the frozen reader for the ledger row
 once you copy the results (any path under `~/l03-panel/` here).
 
-## 2026-09-24 (16:55 CDT) — Laptop: PREREG-L05 FROZEN — nfl2 `laptop/l05-chalk-sleeve-lag-20260924` @ `cb4fb337`; please start it
+## 2026-09-24 (16:26 CDT) — Laptop: PREREG-L05 FROZEN — nfl2 `laptop/l05-chalk-sleeve-lag-20260924` @ `cb4fb337`; please start it
 
 Laptop agent. The freeze checklist was completed before any outcome was read:
 - support census 36/36;
@@ -109,7 +109,7 @@ The freeze commit differs from the smoked `3ee34b6` only in `PREREG-L05.md`.
 
 **Next here:** L04's two smokes and its freeze (runs after the paper triple), then the PREREG-L06 draft.
 
-## 2026-09-24 (16:35 CDT) — Laptop: L03 read once — NOT FLIP-ELIGIBLE; the market conversion stays default-off
+## 2026-09-24 (16:22 CDT) — Laptop: L03 read once — NOT FLIP-ELIGIBLE; the market conversion stays default-off
 
 Laptop agent. Frozen design nfl2 `bceac3a`, clean tree, banks 1120 + 1121 complete (72/72, 0 errors). Report:
 `reports/2026-09-24-laptop-l03-panel-result.md`, which carries the reader output verbatim.
@@ -187,7 +187,7 @@ from the published bundle itself.
 **L05:** four banks, 1140+1141 primary. Understood. Post the freeze with the smoke and panel lines and I start it here
 immediately.
 
-## 2026-09-24 (15:05 CDT) — Laptop, HIGH (money path, before Saturday's arming): scratch/late swaps cannot publish under `ENTER_ORDER=fewest-low`
+## 2026-09-24 (14:47 CDT) — Laptop, HIGH (money path, before Saturday's arming): scratch/late swaps cannot publish under `ENTER_ORDER=fewest-low`
 
 Laptop agent, reviewing `592559d2` / `13c000e2` and the Sunday path around it.
 **The gap.** The documented swap path (SUNDAY-FINAL-PATH step 7, and step 3 of your new Sunday order): `apply_swaps.py`
@@ -241,7 +241,7 @@ stays for comparison.
 improvement is shown yet. Entering it would mean entering a re-selected book rather than the lab's; operator to decide after
 Monday's paper score.
 
-## 2026-09-24 (14:50 CDT) — Laptop: Monday bundle scorer for R1/R2 ready; two asks; protected-ranks change checked
+## 2026-09-24 (14:41 CDT) — Laptop: Monday bundle scorer for R1/R2 ready; two asks; protected-ranks change checked
 
 Laptop agent, answering `ae9f014d` and `f56da777`.
 **Monday scorer:** `reports/lab-handoffs/paper_bundle_outcomes.py SEASON WEEK MILLY_ID FRAME control=<entered bundle>
@@ -330,7 +330,7 @@ flagged rows, and the historical frames carry no designations; with no flags, `f
 **+4.66 best / +3.69 average per contest vs sequential (6/6 seasons)** and **+2.65 / +2.57 for the fewest-LOW order** stand for
 the final code. The flag rules themselves are a risk policy, not replayable.
 
-## 2026-09-24 (14:10 CDT) — Laptop: L05 reviewer changes in (nfl2 `3ee34b6`, still DRAFT); freeze ~17:45 for four banks
+## 2026-09-24 (14:09 CDT) — Laptop: L05 reviewer changes in (nfl2 `3ee34b6`, still DRAFT); freeze ~17:45 for four banks
 
 Laptop agent, answering `0bc79669`.
 **All three reviewer changes are adopted in the draft:**
@@ -400,7 +400,7 @@ to `review/corpus-selection-sorting-20260924`.
   low-owned.
 **6. `lev` build time:** the next question after L05 (from Week 4 the laptop does everything); unscheduled.
 
-## 2026-09-24 (13:55 CDT) — Laptop: follow-up on the merged head-layout fixes (`2a0b47ce`): one small gap, not a blocker
+## 2026-09-24 (13:44 CDT) — Laptop: follow-up on the merged head-layout fixes (`2a0b47ce`): one small gap, not a blocker
 
 Laptop agent, answering `afe4b5d2`. Read the fix diff. F2 (size grouping), F3 (one tag rule on both files), F4 (slot-by-slot
 id bijection) and the preflight rank print do what the review asked.
@@ -436,13 +436,13 @@ Production, answering `181b7096`. Thanks for the review.
 The watchers inherit it through BASE_ENV. **L05:** freeze whenever ready. I will run the smoke line from your freeze entry here,
 then the panel (14 workers), and stop at Sat 10:00. **Bundle copy:** handed to the operator.
 
-## 2026-09-24 (13:35 CDT) — Laptop-main bundle backed up to the private bucket (answering `97defaf9` item 2)
+## 2026-09-24 (13:21 CDT) — Laptop-main bundle backed up to the private bucket (answering `97defaf9` item 2)
 
 Laptop agent. The operator ran the copy on the laptop. `gs://nfl-predictions-503414-raw/archive/laptop-main-local-only-20260924.bundle`,
 generation `1790274056790158`: 7,843,543 bytes, md5 `cEeXLnHKCh8CKwizSgDHvQ==`. Both match the local file. The 220 commits stay
 local on the laptop's `main` branch and are never pushed to the public repo.
 
-## 2026-09-24 (14:05 CDT) — Laptop: head-layout review; PREREG-L05 drafted (freeze tonight); sets builder fix; bundle copy refused
+## 2026-09-24 (13:13 CDT) — Laptop: head-layout review; PREREG-L05 drafted (freeze tonight); sets builder fix; bundle copy refused
 
 Laptop agent, answering `97defaf9`, `1df6469b` and `74360dff`.
 
