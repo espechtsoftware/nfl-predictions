@@ -47,7 +47,7 @@ def test_replay_sets_are_walk_forward_and_write_one_file_per_slate(tmp_path, mon
         def predict(self, X):
             return np.log(np.linspace(30, 1, len(X)) + 0.1)
 
-    def fake_fit(train):
+    def fake_fit(train, features=None):
         seen.append(sorted(train.season.unique().tolist()))
         return M()
     monkeypatch.setattr(osets, "fit", fake_fit)
@@ -102,3 +102,49 @@ def test_live_and_training_lags_share_one_definition():
     lag = osets.lag_lookup(hist, tgt)
     assert lag.own_prev.tolist()[:2] == [0.0, 8.0] and pd.isna(lag.own_prev.iloc[2])
     assert lag.own_prev_l3.iloc[0] == pytest.approx(1.5) and lag.sal_delta.tolist()[:2] == [200.0, 200.0]
+
+
+def test_replay_lag_features_see_only_earlier_weeks_of_the_training_panel():
+    d = pd.DataFrame({"key": ["a", "a", "a"], "season": 2024, "week": [1, 2, 3], "own": [4.0, 9.0, 30.0],
+                      "salary": [5000, 5200, 5600]})
+    pred = pd.DataFrame({"name": ["A", "A", None], "season": 2024, "week": [3, 1, 3], "salary": [5600, 5000, 3000]})
+    x = osets.replay_lag_features(pred, d)
+    assert x.own_prev.iloc[0] == 9.0 and x.own_prev_l3.iloc[0] == pytest.approx(6.5)   # weeks 1-2 only, never week 3
+    assert x.sal_delta.iloc[0] == 400.0 and pd.isna(x.own_prev.iloc[1])                 # week 1 has no prior week
+    assert x[osets.LAG_FEATURES].iloc[2].isna().all()                                   # nameless row: no lag
+
+
+def test_replay_sets_pass_the_feature_list_to_the_fit(tmp_path, monkeypatch):
+    import numpy as np
+    got = []
+
+    class M:
+        def predict(self, X):
+            return np.log(np.linspace(30, 1, len(X)) + 0.1)
+
+    monkeypatch.setattr(osets, "fit", lambda train, features=None: got.append(features) or M())
+    rows = [{"season": s, "week": 1, "id": f"p{i}", "gsis_id": f"g{i}", "name": f"P {i}", "team": "T",
+             "pos": ["QB", "RB", "WR", "TE"][i % 4], "salary": 4000 + 100 * i, "proj": 5.0, "proj_p90": 10.0,
+             "implied_team_total": 22.0, "own": float(i)} for s in (2022, 2023) for i in range(12)]
+    d = osets.add_features(pd.DataFrame(rows), ["season", "week"])
+    feats = osets.FEATURES + osets.LAG_FEATURES
+    osets.replay_sets(d, [2023], tmp_path, features=feats)
+    osets.replay_sets(d, [2023], tmp_path / "base")
+    assert got == [feats, None]              # the default (L02's pinned base model) is unchanged
+
+
+def test_training_frame_does_not_depend_on_the_query_row_order():
+    import numpy as np
+    own = pd.DataFrame({"season": 2024, "week": 1, "display_name": ["Mike Williams", "Joe Burrow"], "pct": [12.0, 30.0]})
+    spf = pd.DataFrame({"season": 2024, "week": 1, "id": ["a", "b", "c"], "gsis_id": ["g1", "g2", "g3"],
+                        "name": ["Mike Williams", "Mike Williams", "Joe Burrow"], "team": ["NYJ", "PIT", "CIN"],
+                        "pos": ["WR", "WR", "QB"], "salary": [5000, 3000, 7000], "proj": [11.0, 4.0, 20.0],
+                        "proj_p90": [20.0, 9.0, 30.0], "implied_team_total": [21.0, 18.0, 25.0]})
+
+    def frames(order):
+        return lambda sql: own.copy() if "contest_ownership" in sql else spf.iloc[order].reset_index(drop=True)
+    a = osets.training_frame(frames([0, 1, 2]), "p")
+    b = osets.training_frame(frames([2, 1, 0]), "p")
+    cols = ["season", "week", "key", "gsis_id", "salary", "own"]
+    pd.testing.assert_frame_equal(a[cols].reset_index(drop=True), b[cols].reset_index(drop=True))
+    assert a[a.key == "mikewilliams"].gsis_id.tolist() == ["g1"]
