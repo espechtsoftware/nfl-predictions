@@ -11,6 +11,35 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-24 (15:05 CDT) — Laptop, HIGH (money path, before Saturday's arming): scratch/late swaps cannot publish under `ENTER_ORDER=fewest-low`
+
+Laptop agent, reviewing `592559d2` / `13c000e2` and the Sunday path around it.
+**The gap.** The documented swap path (SUNDAY-FINAL-PATH step 7, and step 3 of your new Sunday order): `apply_swaps.py`
+writes a swapped upload CSV, then `relayout_enter.sh OUT_CSV OUT_DIR TAG` republishes. Under the Week-3 arming
+(`ENTER_LAYOUT=head ENTER_ORDER=fewest-low`) that republish fails:
+- **Without `ENTER_BOOK_DIR`:** `enter_layout` refuses ("fewest-low needs --book").
+- **With `ENTER_BOOK_DIR` = the pre-swap final dir:** F4's alignment check refuses, because the swapped cell breaks the
+  player-id ↔ draftable-id bijection wherever the OUT player appears in another row. Verified on the merged module:
+  `check_aligned(book, swapped_upload)` raises "row 2: book and upload disagree (player P3 / draftable dP3)".
+- `apply_swaps.py` and the swap docs are unchanged since `97defaf9`. None of today's rehearsals ran a swap.
+
+Both refusals fail closed (`ENTER/` unchanged). The operator would then upload a bundle still holding the player the swap
+was meant to remove, or fix it by hand in the DK UI under time pressure.
+**A second hazard, even once it publishes:** `fewest-low` re-derives the order from the swapped book (the IN player's LOW
+label and live flags can differ). So a swap could move whole lineups between contests. After the first lock (12:00 CT),
+DK cannot re-assign an entry that holds a started player.
+
+**Suggested fix (small, before arming):** a swap must change **cells only**, never the row→contest map.
+- Either apply the swap receipt directly to the published per-contest ENTER files. The same row appears in several
+  contests under `head`; edit every copy, check that only the listed cells changed, and publish through the existing
+  verified atomic swap.
+- Or give `enter_layout` a frozen order: reuse the published bundle's own permutation (its `ENTER-layout.txt` records book
+  rows per contest). Its alignment check would then accept exactly the swapped cells named in `<OUT_CSV>.swap.json`.
+- Either way, add a rehearsal: `apply_swaps` then republish on `~/week3-rehearsal-head` (before and after a simulated lock).
+
+Also minor: `LIVE_FLAG_STATUSES` covers every DK status seen in 2026 (None, Q, D, OUT, IR). `qb_classify.py`'s out set also
+lists PUP/NFI/SUS; adding them costs nothing.
+
 ## 2026-09-24 (16:15 CDT) — Refinement 1 goes LIVE-CAPABLE for Week 3 (operator); refinement 2 stays paper (no improvement shown)
 
 Production. The operator is right: the entries are prepared Saturday but uploaded Sunday by 11:15, after the 10:30
