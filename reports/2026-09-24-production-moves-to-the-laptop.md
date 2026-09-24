@@ -25,7 +25,7 @@ Nothing in the cloud moves: Cloud Run jobs, schedulers, Cloud Build, BigQuery an
 |---|---|
 | Integration branch (all production work, handoff, tools) | `production/week3-integration-20260921`; live tip in `HANDOFF.md`, never in memory |
 | Shipping branch (the deployed code) | `production/week3-qbgate-on-cf630a68-20260922` @ `3f7084e0` (default-off changes after the deploy; not built) |
-| `main` | `9afb1784`, **441 commits behind integration**. `host_ingest_dk_loop.sh`, `nfl-host-dk-ingest.service` and `week_inputs.py` are **not on main**. Run production from an integration checkout (§3 step 4) until the operator merges integration into `main` (pushes to `main` are operator-only). |
+| `main` | **fast-forwarded by the operator on 2026-09-24 to `d5705e93`** (the integration tip after merging the rules and external-review branches; 513 commits). It now carries the DK loop, its unit, `week_inputs.py` and every Sunday tool. Production work still lands on the integration branch; the operator fast-forwards `main` to it at each weekly milestone (Tuesday), with `git push origin <integration sha>:refs/heads/main`. |
 | Live image (`project-slate`) | `…/nfl-dfs/nfl-dfs@sha256:796380e43a0495d2af1e14bbd00078f0233ae946cb58bb186278db49e25fd17a`, built from shipping `e457560b` |
 | `project-slate` env (besides `GCP_PROJECT` and the `ODDS_API_KEY` secret) | `GAME_SIM_MODE=possession MODEL_ENSEMBLE=1 MODEL_REGISTRY_VARIANT=tail_k1 BLEND_MODEL_WEIGHT=0.45 Q_HAIRCUT=0.80 CASCADE_DOUBTFUL=1 CASCADE_SKIP_PRICED_CARRIES=1 QB_Q_PRIMARY_BACKUP_SCALE=0.20 RETURNING_TEAMMATE_ADJ=1` (`RETURNING_RB_ADJ` is unset, so off) |
 | Lab money-path clone | nfl2 at exactly `9b341d77` (`EXPECT_SHA`); on the workstation `/home/erich/projects/.nfl2-worktrees/week3-live-center` |
@@ -71,17 +71,18 @@ Each step has its check. Do not start the next step until the check passes.
    Remember `PYTHONPATH=<worktree>/src` whenever you run from a worktree. The main venv imports the main checkout, so
    without it you silently test the wrong code.
 4. **Laptop: checkouts.**
-   - An integration checkout, either `git worktree add ~/projects/nfl-predictions-week4 production/week3-integration-20260921`
-     or the main checkout switched to that branch.
+   - **Switch the laptop's main checkout `~/projects/nfl-predictions` (clean) to the integration branch**:
+     `git -C ~/projects/nfl-predictions switch production/week3-integration-20260921`, then `pull --ff-only`. With `main` now
+     current (2026-09-24) the switch is small, and every path the DK unit and the Sunday scripts hard-code
+     (`%h/projects/nfl-predictions`) then points at the branch production commits to. No drop-in or second checkout is needed.
    - The lab clone at exactly `9b341d77`: `git -C ~/projects/nfl2 worktree add ~/projects/.nfl2-worktrees/week3-live-center 9b341d77`.
      It must be clean. The runtime preflight refuses any other HEAD.
 5. **Move the DK loop, workstation first, then laptop.**
    - Workstation: `kill $(cat ~/week1-sunday/host_ingest_dk_loop.pid)`, then confirm the pid is gone.
    - Laptop: `scripts/host_ingest_dk_loop.sh --check` from the integration checkout.
-   - Then install the unit. It hard-codes `%h/projects/nfl-predictions` as `PROD` and as the script path, so either
-     that checkout is on the integration branch, or you add a drop-in (`systemctl --user edit nfl-host-dk-ingest`)
-     that sets `WorkingDirectory`, `Environment=PROD=` and `ExecStart` to the integration checkout.
-     Keep `PID_FILE=%h/week1-sunday/host_ingest_dk_loop.pid`.
+   - Then install the unit as tracked: `mkdir -p ~/week1-sunday ~/.config/systemd/user && ln -s
+     ~/projects/nfl-predictions/deploy/systemd/nfl-host-dk-ingest.service ~/.config/systemd/user/`. It uses
+     `%h/projects/nfl-predictions`, which step 4 put on the integration branch, and `PID_FILE=%h/week1-sunday/host_ingest_dk_loop.pid`.
    - `systemctl --user daemon-reload && systemctl --user enable --now nfl-host-dk-ingest`.
      Writing a unit is operator-only; the harness refuses it.
    - Check: within the hour, `journalctl --user -u nfl-host-dk-ingest` shows `host DK ingest pair succeeded`, and the
@@ -183,8 +184,8 @@ answer names the file to read, not a remembered value.
 **Laptop state noted:**
 - The existing `~/projects/.nfl2-worktrees/week3-live-center` at `2dc116c` stays untouched during Week 3. At
   cutover, recreate it at the Week-4 pin. The path must match `CLONE` in `scripts/week_env.sh`, or export `CLONE`.
-- The DK unit runs through a drop-in on a dedicated integration checkout (`~/projects/nfl-predictions-week4`), not by
-  switching `main`. Agreed.
+- ~~The DK unit runs through a drop-in on a dedicated integration checkout~~ **Superseded 2026-09-24:** `main` was fast-forwarded,
+  so the laptop's main checkout switches to the integration branch and the tracked unit works unchanged (§3 steps 4–5).
 
 **1. Monday settlement.**
 - The operator downloads each entered contest's full standings (`https://www.draftkings.com/contest/exportfullstandingscsv/<contestId>`;
@@ -297,8 +298,8 @@ Found by read-only checks on the laptop (`9ecc8183`, `bb68115f`). They **add to*
 | L1 | **Chromium system libraries** (vendor capture) | operator (sudo) | `sudo apt-get install -y libnss3 libnspr4 libasound2t64` (Ubuntu 26.04). Playwright and its headless Chromium are already installed in `~/projects/nfl-predictions/.venv` (done 2026-09-24) | `~/projects/nfl-predictions/.venv/bin/python -c "from playwright.sync_api import sync_playwright as s; p=s().start(); b=p.chromium.launch(); print('ok'); b.close(); p.stop()"` prints `ok`. **Must pass before §3 step 6** |
 | L2 | **No `.env` on the laptop** | operator | recreate from the operator's own records (never copied from the workstation; §6) | the commands that need it run; nothing is logged |
 | L3 | **Lab clone is at the wrong commit**: `~/projects/.nfl2-worktrees/week3-live-center` exists at `2dc116c` (the Week-2 release), not `9b341d77` | laptop agent | after Week 3 only: `git -C ~/projects/nfl2 worktree remove ~/projects/.nfl2-worktrees/week3-live-center`, then `git -C ~/projects/nfl2 worktree add ~/projects/.nfl2-worktrees/week3-live-center 9b341d77`. The path must equal `CLONE` in `scripts/week_env.sh` | `git -C <clone> rev-parse HEAD` = `9b341d77…` and `status --porcelain` is empty; the runtime preflight passes |
-| L4 | **Main checkout is on `main`** (441 commits behind) | laptop agent | create the dedicated integration checkout: `git -C ~/projects/nfl-predictions worktree add ~/projects/nfl-predictions-week4 production/week3-integration-20260921`; run everything from it with `PYTHONPATH=~/projects/nfl-predictions-week4/src` (or give it its own venv with `.[dev,gcp,app,browser]` and `playwright install chromium`) | `git -C ~/projects/nfl-predictions-week4 rev-parse HEAD` = the HANDOFF tip |
-| L5 | **DK unit drop-in** for that checkout | operator (unit write) | `systemctl --user edit nfl-host-dk-ingest`: `WorkingDirectory=%h/projects/nfl-predictions-week4`, `Environment=PROD=%h/projects/nfl-predictions-week4`, `ExecStart=` reset, then the checkout's `scripts/host_ingest_dk_loop.sh`. Create `~/week1-sunday/` first (the unit's `PID_FILE` lives there). **The workstation loop must be stopped first (§3 step 5); never two loops** | `journalctl --user -u nfl-host-dk-ingest` shows `host DK ingest pair succeeded` within the hour |
+| L4 | ~~Main checkout is on `main` (441 behind)~~ **resolved 2026-09-24**: `main` = `d5705e93`; switch the main checkout to the integration branch (§3 step 4) | laptop agent | `git -C ~/projects/nfl-predictions switch production/week3-integration-20260921 && git -C ~/projects/nfl-predictions pull --ff-only` | `git -C ~/projects/nfl-predictions rev-parse HEAD` = the HANDOFF tip |
+| L5 | ~~DK unit drop-in~~ **not needed**: the tracked unit's `%h/projects/nfl-predictions` is the integration checkout after L4 | operator (unit link) | §3 step 5; create `~/week1-sunday/` first. **The workstation loop must be stopped first; never two loops** | `journalctl --user -u nfl-host-dk-ingest` shows `host DK ingest pair succeeded` within the hour |
 | L6 | **Sunday watchers' Downloads path** | laptop agent | `WIN_DOWNLOADS=/mnt/c/Users/erich/Downloads` in the watcher environment | a test export dropped there is picked up |
 | L7 | **CPU contention** | laptop agent | the laptop builds the Sunday book itself from Week 4 (~6 h, one heavy job at a time). **No lab panel (L0x) may run over Sat 10:30 – Sun 12:00 CT.** Schedule panels Mon–Fri only | `ps` shows no panel workers during the build window |
 | L8 | **Operator logins after L1** | operator | §3 step 6: `sis-download login --terminal-credentials --fresh`, `fantasy-points-download login` | `python -m nfl_dfs.ops.weekly_vendor_data verify-login` passes |

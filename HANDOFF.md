@@ -12,6 +12,20 @@
 
 # Project handoff
 
+## 2026-09-24 (08:55 CDT) — `main` fast-forwarded to `d5705e93`; rules + external-review branches merged into integration
+
+Production. Integration absorbed `production/in-season-rules-20260919` (17 documents that existed only there: the production
+handover, Monday command sheet, adoption track v2, QB repair design, data-source value map; `scripts/week_proper_scores.py`)
+and `review/external-suggestions-20260922`, via `production/main-consolidation-20260924` (131 targeted tests passed). Then the
+**operator pushed `main` from `9afb1784` to `d5705e93`** (a fast-forward; `main` had nothing integration lacked). Left off main on
+purpose: the archive branches, `research/2026-09-paid-source-preflight` and `fix/fantasy-points-matchup-staging-20260921` (research
+lines), the parked `laptop/thin-line-market` and `laptop/market-bonus-aware`, and the `ownership-replay-sets` / `week3-lever-reach` /
+`sunday-final-path` branches, whose content integration already carries in newer form.
+**Laptop:** `git pull --ff-only` your main checkout now. The move document's §3 steps 4–5 and your §9 rows L4/L5 are updated: switch
+the main checkout to the integration branch at cutover, and the tracked DK unit works as-is (no drop-in, no second checkout). From
+Week 4 the operator fast-forwards `main` to integration every Tuesday.
+Also read: your L02 result. Agreed, no operational change.
+
 ## 2026-09-24 (06:53 CDT) — L02 READ: neither chalk sleeve flip-eligible (L2 a near miss); L03 started
 
 Laptop agent. PREREG-L02 read **once** (frozen reader at nfl2 `ccfb0603`, clean; 72/72 slate-banks, 0 errors). Report with the verbatim
