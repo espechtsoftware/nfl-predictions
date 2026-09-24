@@ -63,6 +63,13 @@ def test_head_small_groups_rotate_per_group():
     assert [[v + 1 for v in r] for r in EL.assign_ranks(cs, "head")] == [[1, 2], [3, 4], [5, 6]]
 
 
+def test_head_groups_by_size_not_name():
+    """Laptop review F2: differently named single-entry contests must not share a lineup."""
+    cs = [{"name": n, "contest_id": str(i), "entries": 1, "keep": 1} for i, n in enumerate(["sat20", "sat20b", "other"] * 3)]
+    firsts = [r[0] for r in EL.assign_ranks(cs, "head")]
+    assert len(set(firsts)) == len(firsts) == 9
+
+
 def test_unknown_layout_and_bad_entries_fail_closed():
     with pytest.raises(EL.LayoutError):
         EL.assign_ranks(week3_shaped(), "snake")
@@ -140,13 +147,45 @@ def _book_fixture(tmp: Path, n: int, *, low_every: int = 3, flagged=(), vetting_
                 w.writerow(["g", pid, "n", pos, "LOW" if (s < 8 and (r + s) % low_every == 0) else "MID"])
     if vetting_kind == "final":
         v = {"version": "t", "publishable": True,
-             "lineups": [{"position": i + 1, "source": "x", "salary": 50000, "flags": ({"p": ["Q"]} if i in flagged else {})}
+             "lineups": [{"position": i + 1, "source": "x", "salary": 50000, "flags": ({"p": ["DK:Q"]} if i in flagged else {})}
                          for i in range(n)]}
     else:
         v = {"order_source_ranks": list(range(1, n + 1)),
-             "lineups": [{"rank": i + 1, "hard": False, "material": i in flagged, "flags": {}} for i in range(n)]}
+             "lineups": [{"rank": i + 1, "hard": False, "material": i in flagged,
+                          "flags": ({"p": ["report:Questionable"]} if i in flagged else {})} for i in range(n)]}
     (tmp / "vetting.json").write_text(json.dumps(v))
     return tmp / "book.csv", tmp / "upload.csv", tmp / "sets.csv", tmp / "vetting.json"
+
+
+def test_both_vetting_forms_give_one_order(tmp_path):
+    """Laptop review F3 + operator 2026-09-24 ("any injury flag"): the same book gets the same order from either file;
+    practice/market tags never bar a row, DK/report/QB tags always do."""
+    book, _, sets, _ = _book_fixture(tmp_path, 12)
+    tags = {2: {"A": ["DK:Q"]}, 4: {"B": ["practice:Limited", "market:no_props"]}, 6: {"C": ["report:Questionable"]},
+            8: {"D": ["qb:backup-risk"]}}
+    final = {"lineups": [{"position": i + 1, "source": "x", "salary": 1, "flags": tags.get(i, {})} for i in range(12)]}
+    plain = {"order_source_ranks": [12 - i for i in range(12)],       # vetter reversed the book: rank 12 is row 1
+             "lineups": [{"rank": 12 - i, "hard": False, "material": False, "flags": tags.get(i, {})} for i in range(12)]}
+    (tmp_path / "vf.json").write_text(json.dumps(final)); (tmp_path / "v.json").write_text(json.dumps(plain))
+    assert EL.flagged_positions(tmp_path / "vf.json", 12) == EL.flagged_positions(tmp_path / "v.json", 12) == {2, 6, 8}
+    a = EL.load_order("fewest-low", 12, book=book, vetting=tmp_path / "vf.json", sets=sets, pin_first=False)[0]
+    b = EL.load_order("fewest-low", 12, book=book, vetting=tmp_path / "v.json", sets=sets, pin_first=False)[0]
+    assert a == b and set(a[-3:]) == {2, 6, 8}
+
+
+def test_book_upload_alignment_is_checked(tmp_path):
+    """Laptop review F4: a shifted upload is refused even when the row count matches."""
+    rng = random.Random(3)
+    rows = [[str(rng.randrange(25)) for _ in range(9)] for _ in range(12)]    # players recur across rows, as in a real book
+    EL.check_aligned(rows, [[f"9{p}" for p in r] for r in rows])
+    with pytest.raises(EL.LayoutError, match="not the same book"):
+        EL.check_aligned(rows, [[f"9{p}" for p in r] for r in rows[1:] + rows[:1]])
+    book, up, sets, vet = _book_fixture(tmp_path, 12)
+    body = list(csv.reader(open(up)))[1:]
+    EL.load_order("fewest-low", 12, book=book, vetting=vet, sets=sets, pin_first=False, upload_rows=body)
+    shifted = [body[0][:1] + body[1][1:]] + body[1:]              # one slot swapped in from another lineup
+    with pytest.raises(EL.LayoutError, match="not the same book"):
+        EL.load_order("fewest-low", 12, book=book, vetting=vet, sets=sets, pin_first=False, upload_rows=shifted)
 
 
 @pytest.mark.parametrize("kind", ["final", "plain"])

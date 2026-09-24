@@ -11,8 +11,8 @@ Layouts (ENTER_LAYOUT):
   head        (operator, 2026-09-24, Week 3) every contest opens with the book's best rows and fills the rest with
               lineups used nowhere else:
                 - head size h = 2 for contests of <= 5 entries, 4 for larger ones (never more than n);
-                - contests whose entries are all head (n <= 2) take rows 1-4 in blocks of n, per group of identical
-                  contests (same name and size), and NEVER repeat a lineup inside the group (operator, 2026-09-24:
+                - contests whose entries are all head (n <= 2) take rows 1-4 in blocks of n, per group of contests of
+                  the same SIZE (whatever their names), and NEVER repeat a lineup inside the group (operator, 2026-09-24:
                   the nineteen $2 single-entry satellites must not share entries): two 2-entry contests take rows 1-2
                   and 3-4; of nineteen 1-entry contests four take rows 1-4 and the other fifteen take the next unique
                   rows (5-19), which are dealt before any other contest's unique rows;
@@ -22,8 +22,10 @@ Layouts (ENTER_LAYOUT):
 Order (ENTER_ORDER): the ranks above index an ORDER over the upload's rows.
   greedy      the book's own order (vetted, replaced and promoted), rank r = upload row r.
   fewest-low  (external review 2026-09-24 §5.3) rows sorted by their count of predicted LOW-owned players, fewest
-              first, ties in the book's order; flagged (vetted) rows stay behind every clean row, and a promoted
-              row 1 stays row 1. LOW comes from the ownership sets file, matched on the book's dk_player_id.
+              first, ties in the book's order; flagged rows stay behind every clean row, and a promoted row 1
+              stays row 1. "Flagged" (operator, 2026-09-24: "any injury flag") is any player tag from INJURY_TAGS --
+              a DK status, an injury-report status or a QB-availability note -- read the same way from
+              vetting_final.json and vetting.json, so one book always gets one order. LOW comes from the ownership sets file, matched on the book's dk_player_id.
 
 Command line (the chain's writer and the relayout check call these):
   python -m nfl_dfs.inference.enter_layout write CONTESTS UPLOAD_CSV STAGE_DIR [order options]
@@ -47,6 +49,7 @@ HEAD_TOP = 4             # the head rows every contest draws from
 HEAD_SMALL, HEAD_LARGE = 2, 4
 SMALL_MAX_ENTRIES = 5
 MIN_SETS_COVERAGE = 0.90  # share of the book's distinct skill ids the sets file must know
+INJURY_TAGS = ("DK", "report", "qb", "backup_qb")   # flag-tag prefixes that bar a row from the head (not practice/market)
 
 
 class LayoutError(ValueError):
@@ -93,7 +96,7 @@ def assign_ranks(contests: list[dict], layout: str) -> list[list[int]]:
     for i, (c, n) in enumerate(zip(contests, sizes)):
         h = head_size(n)
         if n <= HEAD_SMALL:                       # the whole contest is head: one head block per group member
-            key = (str(c.get("name")), n)
+            key = n                               # by size, not name: renamed twins must not share rows
             b = seen.get(key, 0)
             seen[key] = b + 1
             if b < HEAD_TOP // n:
@@ -118,6 +121,12 @@ def assign_ranks(contests: list[dict], layout: str) -> list[list[int]]:
     return out
 
 
+def rank_summary(contests: list[dict], layout: str) -> list[str]:
+    """One line per contest (preflight print): its entries and the 1-based ranks it takes."""
+    return [f"{c.get('name')} [{c.get('contest_id')}] x{int(c['entries'])}: ranks {_ranges(r)}"
+            for c, r in zip(contests, assign_ranks(contests, layout))]
+
+
 def rows_needed(contests: list[dict], layout: str) -> int:
     """Distinct book rows the layout reads (the book must hold at least this many)."""
     ranks = assign_ranks(contests, layout)
@@ -140,12 +149,16 @@ def fewest_low_order(book_rows: list[list[str]], low_ids: set[str], flagged: set
     return sorted(range(len(book_rows)), key=key)
 
 
-def flagged_positions(vetting: Path, n_rows: int) -> set[int]:
-    """0-based book positions the vetting judged risky; they must stay behind every clean row.
+def _injury_flagged(flags: dict | None) -> bool:
+    return any(str(t).split(":", 1)[0] in INJURY_TAGS for tags in (flags or {}).values() for t in tags)
 
-    vetting_final.json (the replacement's final vetting, and the promoted book's): a row with any flag.
-    vetting.json (the plain vetter, when no replacement ran): a row the vetter itself demotes (hard or material),
-    mapped from source rank to book position through order_source_ranks."""
+
+def flagged_positions(vetting: Path, n_rows: int) -> set[int]:
+    """0-based book positions holding a player with an injury flag (INJURY_TAGS); they stay behind every clean row.
+
+    vetting_final.json (the replacement's final vetting, and the promoted book's) lists flags by book position;
+    vetting.json (the plain vetter, when no replacement ran) lists them by source rank, mapped to book position
+    through order_source_ranks. Both are read with the SAME tag rule."""
     v = json.loads(Path(vetting).read_text())
     lineups = v.get("lineups")
     if not isinstance(lineups, list) or not lineups:
@@ -153,7 +166,7 @@ def flagged_positions(vetting: Path, n_rows: int) -> set[int]:
     if "position" in lineups[0]:
         if len(lineups) != n_rows:
             raise LayoutError(f"vetting file {vetting} describes {len(lineups)} rows, the book has {n_rows}")
-        return {int(x["position"]) - 1 for x in lineups if x.get("flags")}
+        return {int(x["position"]) - 1 for x in lineups if _injury_flagged(x.get("flags"))}
     order = v.get("order_source_ranks")
     if not isinstance(order, list) or len(order) != n_rows:
         raise LayoutError(f"vetting file {vetting} has no order_source_ranks for the {n_rows}-row book")
@@ -163,13 +176,29 @@ def flagged_positions(vetting: Path, n_rows: int) -> set[int]:
         lu = by_rank.get(int(src))
         if lu is None:
             raise LayoutError(f"vetting file {vetting}: source rank {src} has no lineup record")
-        if lu.get("hard") or lu.get("material"):
+        if _injury_flagged(lu.get("flags")):
             out.add(pos)
     return out
 
 
+def check_aligned(book_rows: list[list[str]], upload_rows: list[list[str]]) -> None:
+    """The book (dk_player_id) and the upload (draftable ids) must be the same lineups in the same order: every
+    player id maps to exactly one draftable id and back, slot for slot. A shifted or foreign upload breaks that."""
+    if len(book_rows) != len(upload_rows):
+        raise LayoutError(f"book has {len(book_rows)} rows, upload has {len(upload_rows)}")
+    fwd: dict[str, str] = {}
+    back: dict[str, str] = {}
+    for r, (b, u) in enumerate(zip(book_rows, upload_rows)):
+        if len(b) != len(u):
+            raise LayoutError(f"row {r + 1}: book and upload hold different slot counts")
+        for pid, did in zip(b, u):
+            if fwd.setdefault(pid, did) != did or back.setdefault(did, pid) != pid:
+                raise LayoutError(f"row {r + 1}: book and upload disagree (player {pid} / draftable {did}); "
+                                  "they are not the same book in the same order")
+
+
 def load_order(order: str, n_rows: int, *, book: Path | None, vetting: Path | None, sets: Path | None,
-               pin_first: bool) -> tuple[list[int], dict]:
+               pin_first: bool, upload_rows: list[list[str]] | None = None) -> tuple[list[int], dict]:
     """The order over upload rows, and a record of how it was made. Fails closed on any missing input."""
     if order not in ORDERS:
         raise LayoutError(f"unknown ENTER_ORDER {order!r}; expected one of {ORDERS}")
@@ -182,6 +211,8 @@ def load_order(order: str, n_rows: int, *, book: Path | None, vetting: Path | No
     _, brows = _read_rows(Path(book))
     if len(brows) != n_rows:
         raise LayoutError(f"book {book} has {len(brows)} rows but the upload has {n_rows}; they must be the same book")
+    if upload_rows is not None:
+        check_aligned(brows, upload_rows)
     flagged = flagged_positions(Path(vetting), n_rows)
     with open(sets, newline="") as f:
         srows = list(csv.DictReader(f))
@@ -296,8 +327,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if a.upload is None or a.stage is None:
         raise LayoutError(f"{a.cmd} needs UPLOAD_CSV and STAGE_DIR")
-    n = len(_read_rows(a.upload)[1])
-    perm_info = load_order(a.order, n, book=a.book, vetting=a.vetting, sets=a.sets, pin_first=a.pin_first)
+    body = _read_rows(a.upload)[1]
+    perm_info = load_order(a.order, len(body), book=a.book, vetting=a.vetting, sets=a.sets, pin_first=a.pin_first,
+                           upload_rows=body)
     if a.cmd == "write":
         print("\n".join(write(contests, a.upload, a.stage, a.layout, perm_info)))
         return 0

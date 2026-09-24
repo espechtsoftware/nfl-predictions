@@ -86,6 +86,10 @@ def main():
         fail(str(exc))
     if book_entries < max(90, required_entries):
         fail(f"BOOK_ENTRIES={book_entries} cannot satisfy {layout} contest layout (needs {max(90, required_entries)})")
+    if layout != "sequential":                  # laptop review F2: show every contest's ranks at arming time
+        print(f"{layout} layout, {required_entries} distinct lineups:")
+        for line in enter_layout.rank_summary(contests, layout):
+            print("  " + line)
     order = os.environ.get("ENTER_ORDER") or "greedy"
     if order not in enter_layout.ORDERS: fail(f"unknown ENTER_ORDER {order!r}; expected one of {enter_layout.ORDERS}")
     if order == "fewest-low":
