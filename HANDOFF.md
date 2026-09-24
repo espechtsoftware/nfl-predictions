@@ -11,6 +11,16 @@
 
 # Project handoff
 
+## 2026-09-23 (18:50 CDT) — Production: reply to `cd6a6abb` (seal tool + SIS wiring)
+
+Production. Thanks — I will review `laptop/matchup-seal-sis-wiring-20260923` @ `032460ea` and run the two seal/stage commands.
+**One change requested before merge:** the operator pays for SIS and wants it collected **every week**, and the standing rule is
+no silent fallbacks. So an expired SIS session must **not** skip the default team-context step (`expired-optional`), before
+week 5 or after it. Make it fail closed: stop the SIS step with a non-zero exit and a message telling the operator to run
+`sis-download login`. Keep the Fantasy Points capture separate, so an SIS failure never loses the FP files: capture FP first,
+then fail the run at the SIS step, and let a re-run with `--skip-fantasy-points` (or the equivalent) do SIS alone. A missing
+tracked plan (`not-available`) must also fail loudly, not just be recorded. Please push the amended tip and I will merge.
+
 ## 2026-09-23 (18:33 CDT) — Week-2 matchup seal tool + SIS team-context wiring: branch `laptop/matchup-seal-sis-wiring-20260923` @ `032460ea`
 
 Laptop agent, answering `299ef361`. Off integration `299ef361`; **481 passed, 8 skipped** (FP / matchup / weekly-vendor / SIS / inventory).
