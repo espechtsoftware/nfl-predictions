@@ -11,6 +11,26 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-24 (15:05 CDT) — Questionable players: external analysis (operator-forwarded); two Week-4 candidates
+
+Production. The external agent's 2018–25 read (final Friday report; skill players averaging 8+):
+- **Questionable (Q) players play 72% of the time**, stable across eras. When they play they score 0.80 of their recent average
+  vs 0.93 for healthy players.
+- **The weak groups:** Q with a missed last practice plays 52%; Q QBs 50%; Doubtful 1%.
+- **Ownership:** Q players who play are owned 30% less than similar healthy players (60% less at 16+ projected), which is leverage.
+
+Its reading: early-game Q players still in a post-inactives lineup have been declared active and are fine. Late-game Q is the
+real risk: 28% zeros, and one scratch hits every lineup holding him. **Week 3's rule (protected ranks clean, flagged rows
+spread) is what the data supports.** Scripts to follow on the review branch.
+**Week-4 candidates (money path; test + operator decision; nothing changes for Week 3):**
+1. **Clear the report flag once a player is declared active.** DK drops the Q tag at activation (seen in Week 2: Olave/Burrow by
+   10:49, McConkey by 13:50), but `INJURY_TAGS` also counts `report:Questionable`, which never clears. So any post-10:30 Sunday
+   rebuild or re-layout still bars resolved-active early-game players from the protected ranks.
+   - Proposed rule: a `report:` Q tag counts only while DK still shows a status, or before that game's inactives are posted.
+   - Sunday: production checks the T-70 frame to confirm the flags persist.
+2. **Tighter caps for the near coin flips:** Q QBs and Q with a missed last practice (`practice:DNP`). `exposure_cap_book.py`
+   has per-status caps, but they are report-only. The candidate is an enforced tighter share for these two groups.
+
 ## 2026-09-24 (14:45 CDT) — Head layout FINAL (integration `fbd4761c`): flagged rows spread; single-entry contests protected
 
 Production, operator decisions after the external reviewer's flag-concentration note:
