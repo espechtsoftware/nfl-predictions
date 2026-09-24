@@ -126,10 +126,38 @@ def test_sequential_and_top_match_the_old_writer(seed, layout):
 def test_fewest_low_order_pins_promoted_row_and_keeps_flagged_rows_behind():
     low = {"L"}
     rows = [["L", "L", "a"], ["L", "a", "a"], ["a", "a", "a"], ["L", "L", "L"], ["a", "a", "a"]]
-    # row 3 (0-based 2) is flagged: no LOW but must stay behind every clean row
-    perm = EL.fewest_low_order(rows, low, flagged={2}, pin_first=True)
-    assert perm == [0, 4, 1, 3, 2]
+    # row 3 (0-based 2) is flagged: no LOW, so it would rank first -- it is kept out of the protected head only
+    assert EL.fewest_low_order(rows, low, flagged={2}, pin_first=True, protect=4) == [0, 4, 1, 3, 2]
+    assert EL.fewest_low_order(rows, low, flagged={2}, pin_first=True, protect=2) == [0, 4, 2, 1, 3]
     assert EL.fewest_low_order(rows, low, flagged=set(), pin_first=False) == [2, 4, 1, 0, 3]
+
+
+def test_single_entry_and_head_ranks_are_protected():
+    """Operator 2026-09-24: the wildcats and all nineteen $2 single-entry satellites hold clean lineups."""
+    cs = week3_shaped()
+    assert EL.protected_ranks(cs, "head") == 19 and EL.protected_ranks(cs, "top") == 4
+    n = 150
+    flagged = set(range(0, n, 3))
+    perm = EL.fewest_low_order([[f"p{r}"] for r in range(n)], set(), flagged, pin_first=False, protect=19)
+    per = EL.contest_rows(cs, n, "head", perm)
+    small = [i for c, r in zip(cs, per) if c["entries"] <= 2 for i in r]
+    assert len(small) == 23 and not flagged & set(small)
+
+
+def test_flagged_rows_spread_across_contests_not_into_the_last_dealt():
+    """Operator 2026-09-24 after the external review: flagged rows stay out of rows 1-4 but are otherwise dealt like any
+    other row, so they do not all land in the supersat25 contests."""
+    cs = week3_shaped()
+    n = 150
+    rows = [[f"p{r}"] for r in range(n)]
+    flagged = set(range(0, n, 3))                                # a third of the book, spread through it
+    perm = EL.fewest_low_order(rows, set(), flagged, pin_first=False)
+    assert not flagged & set(perm[:4])
+    per = EL.contest_rows(cs, n, "head", perm)
+    big = {i for c, r in zip(cs, per) if c["name"].startswith("supersat25") for i in r}
+    other = {i for c, r in zip(cs, per) if not c["name"].startswith("supersat25") for i in r[2:] if c["entries"] > 2}
+    assert flagged & other, "flagged rows must also reach the smaller multi-entry contests"
+    assert len(flagged & big) < len(flagged & set(perm[:144]))
 
 
 def _book_fixture(tmp: Path, n: int, *, low_every: int = 3, flagged=(), vetting_kind="final"):
@@ -170,7 +198,7 @@ def test_both_vetting_forms_give_one_order(tmp_path):
     assert EL.flagged_positions(tmp_path / "vf.json", 12) == EL.flagged_positions(tmp_path / "v.json", 12) == {2, 6, 8}
     a = EL.load_order("fewest-low", 12, book=book, vetting=tmp_path / "vf.json", sets=sets, pin_first=False)[0]
     b = EL.load_order("fewest-low", 12, book=book, vetting=tmp_path / "v.json", sets=sets, pin_first=False)[0]
-    assert a == b and set(a[-3:]) == {2, 6, 8}
+    assert a == b and not {2, 6, 8} & set(a[:4])
 
 
 def test_book_upload_alignment_is_checked(tmp_path):
@@ -192,7 +220,7 @@ def test_book_upload_alignment_is_checked(tmp_path):
 def test_load_order_reads_both_vetting_forms(tmp_path, kind):
     book, _, sets, vet = _book_fixture(tmp_path, 12, flagged={0, 5}, vetting_kind=kind)
     perm, info = EL.load_order("fewest-low", 12, book=book, vetting=vet, sets=sets, pin_first=False)
-    assert sorted(perm) == list(range(12)) and perm[-2:] == [0, 5] and info["flagged_rows"] == 2
+    assert sorted(perm) == list(range(12)) and not {0, 5} & set(perm[:4]) and info["flagged_rows"] == 2
 
 
 def test_load_order_fails_closed_on_missing_inputs_and_wrong_ids(tmp_path):

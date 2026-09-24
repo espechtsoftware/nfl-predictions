@@ -46,7 +46,7 @@ if _layout != "sequential":
     _perm, _info = enter_layout.load_order(os.environ.get("ENTER_ORDER") or "greedy", len(book), book=pathlib.Path(a.book),
                                            vetting=pathlib.Path(a.vetting) if a.vetting else None,
                                            sets=pathlib.Path(os.environ["OWNERSHIP_SETS"]) if os.environ.get("OWNERSHIP_SETS") else None,
-                                           pin_first=a.pin_first)
+                                           pin_first=a.pin_first, protect=enter_layout.protected_ranks(contests, _layout))
     _rows = enter_layout.contest_rows(contests, len(book), _layout, _perm)
     print(f"{_layout} layout, {_info['order']} order: {len(book)} book rows -> {sum(len(r) for r in _rows)} entries")
     book = [book[i] for r in _rows for i in r]      # one row per ENTRY, contests in order: the sheet's blocks now hold

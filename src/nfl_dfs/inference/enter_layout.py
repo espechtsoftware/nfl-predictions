@@ -22,8 +22,11 @@ Layouts (ENTER_LAYOUT):
 Order (ENTER_ORDER): the ranks above index an ORDER over the upload's rows.
   greedy      the book's own order (vetted, replaced and promoted), rank r = upload row r.
   fewest-low  (external review 2026-09-24 §5.3) rows sorted by their count of predicted LOW-owned players, fewest
-              first, ties in the book's order; flagged rows stay behind every clean row, and a promoted row 1
-              stays row 1. "Flagged" (operator, 2026-09-24: "any injury flag") is any player tag from INJURY_TAGS --
+              first, ties in the book's order; a promoted row 1 stays row 1, and flagged rows are kept out of the
+              PROTECTED ranks only -- the head rows and every rank an all-head (1-2 entry) contest takes, so the
+              wildcats and the nineteen single-entry satellites hold clean lineups (operator, 2026-09-24) -- elsewhere they take their fewest-LOW place, so they spread across the
+              contests instead of piling into the last-dealt ones (operator, 2026-09-24, after the external
+              reviewer showed that "flagged behind every clean row" put all 50 flagged rows into the six supersat25s). "Flagged" (operator, 2026-09-24: "any injury flag") is any player tag from INJURY_TAGS --
               a DK status, an injury-report status or a QB-availability note -- read the same way from
               vetting_final.json and vetting.json, so one book always gets one order. LOW comes from the ownership sets file, matched on the book's dk_player_id.
 
@@ -129,6 +132,16 @@ def rank_summary(contests: list[dict], layout: str) -> list[str]:
             for c, r in zip(contests, assign_ranks(contests, layout))]
 
 
+def protected_ranks(contests: list[dict], layout: str) -> int:
+    """How many leading ranks must hold clean (unflagged) rows: the head, plus under `head` every rank an all-head
+    contest takes (its whole entry list is shared or single, with no second lineup to cover a late scratch)."""
+    if layout != "head":
+        return HEAD_TOP
+    ranks = assign_ranks(contests, layout)
+    small = [max(r) + 1 for c, r in zip(contests, ranks) if int(c["entries"]) <= HEAD_SMALL and r]
+    return max([HEAD_TOP] + small)
+
+
 def rows_needed(contests: list[dict], layout: str) -> int:
     """Distinct book rows the layout reads (the book must hold at least this many)."""
     ranks = assign_ranks(contests, layout)
@@ -142,13 +155,21 @@ def _read_rows(path: Path) -> tuple[list[str], list[list[str]]]:
     return rows[0], rows[1:]
 
 
-def fewest_low_order(book_rows: list[list[str]], low_ids: set[str], flagged: set[int], pin_first: bool) -> list[int]:
-    """Row order: [promoted row 1], clean rows by (LOW count, book rank), then flagged rows in book order."""
+def fewest_low_order(book_rows: list[list[str]], low_ids: set[str], flagged: set[int], pin_first: bool,
+                     protect: int = HEAD_TOP) -> list[int]:
+    """Row order by (LOW count, book rank), a promoted row 1 first; the first `protect` ranks take clean rows only,
+    and the flagged rows they skip keep their fewest-LOW place right after them."""
     def key(i: int):
-        if pin_first and i == 0:
-            return (0, 0, 0, i)
-        return (1, 1 if i in flagged else 0, sum(1 for pid in book_rows[i] if pid in low_ids), i)
-    return sorted(range(len(book_rows)), key=key)
+        return (0 if (pin_first and i == 0) else 1, sum(1 for pid in book_rows[i] if pid in low_ids), i)
+    ordered = sorted(range(len(book_rows)), key=key)
+    head: list[int] = []
+    for i in ordered:
+        if len(head) >= protect:
+            break
+        if i not in flagged or (pin_first and i == 0):
+            head.append(i)
+    taken = set(head)
+    return head + [i for i in ordered if i not in taken]
 
 
 def _injury_flagged(flags: dict | None) -> bool:
@@ -200,7 +221,8 @@ def check_aligned(book_rows: list[list[str]], upload_rows: list[list[str]]) -> N
 
 
 def load_order(order: str, n_rows: int, *, book: Path | None, vetting: Path | None, sets: Path | None,
-               pin_first: bool, upload_rows: list[list[str]] | None = None) -> tuple[list[int], dict]:
+               pin_first: bool, upload_rows: list[list[str]] | None = None,
+               protect: int = HEAD_TOP) -> tuple[list[int], dict]:
     """The order over upload rows, and a record of how it was made. Fails closed on any missing input."""
     if order not in ORDERS:
         raise LayoutError(f"unknown ENTER_ORDER {order!r}; expected one of {ORDERS}")
@@ -228,10 +250,13 @@ def load_order(order: str, n_rows: int, *, book: Path | None, vetting: Path | No
     if coverage < MIN_SETS_COVERAGE:
         raise LayoutError(f"the sets file knows only {coverage:.0%} of the book's players (need "
                           f"{MIN_SETS_COVERAGE:.0%}): wrong week, wrong slate or wrong id form")
-    perm = fewest_low_order(brows, low_ids, flagged, pin_first)
+    clean = n_rows - len(flagged - ({0} if pin_first else set()))
+    if clean < min(protect, n_rows):
+        raise LayoutError(f"only {clean} clean rows for {protect} protected ranks; widen the book or relax the layout")
+    perm = fewest_low_order(brows, low_ids, flagged, pin_first, protect=protect)
     counts = [sum(1 for pid in brows[i] if pid in low_ids) for i in range(n_rows)]
     return perm, {"order": "fewest-low", "sets": str(sets), "book": str(book), "vetting": str(vetting),
-                  "pin_first": pin_first, "flagged_rows": len(flagged), "sets_coverage": round(coverage, 4),
+                  "pin_first": pin_first, "flagged_rows": len(flagged), "protected_ranks": protect, "sets_coverage": round(coverage, 4),
                   "low_players": len(low_ids), "skill_players_known": len(skill_known),
                   "low_count_first_10": [counts[i] for i in perm[:10]]}
 
@@ -331,7 +356,7 @@ def main(argv: list[str] | None = None) -> int:
         raise LayoutError(f"{a.cmd} needs UPLOAD_CSV and STAGE_DIR")
     body = _read_rows(a.upload)[1]
     perm_info = load_order(a.order, len(body), book=a.book, vetting=a.vetting, sets=a.sets, pin_first=a.pin_first,
-                           upload_rows=body)
+                           upload_rows=body, protect=protected_ranks(contests, a.layout))
     if a.cmd == "write":
         print("\n".join(write(contests, a.upload, a.stage, a.layout, perm_info)))
         return 0
