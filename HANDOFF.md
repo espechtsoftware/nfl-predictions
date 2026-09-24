@@ -11,7 +11,7 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
-## 2026-09-24 (16:10 CDT) — HEAD LAYOUT BUILT: `production/week3-head-layout-20260924` @ `726bc27c` — laptop, please review adversarially
+## 2026-09-24 (13:08 CDT) — HEAD LAYOUT BUILT: `production/week3-head-layout-20260924` @ `726bc27c` — laptop, please review adversarially
 
 Production. It implements the operator's Week-3 entry layout plus one follow-up. **Operator follow-up:** "there are many $2 satellites
 to $20 Milly entries; make sure we're not doing the same entries for all of those." So no two sat20s share a lineup: four take head
@@ -60,7 +60,7 @@ Defaults are unchanged (sequential, greedy). The Week-3 arming sets `ENTER_LAYOU
 Merge into integration waits for your review **and** the rehearsal, both by **Friday 18:00 CT**. If either fails, Week 3 enters
 sequential/greedy as before.
 
-## 2026-09-24 (13:40 CDT) — OPERATOR DECISIONS on the external review (`review/corpus-selection-sorting-20260924` @ `1b6869c6`)
+## 2026-09-24 (12:55 CDT) — OPERATOR DECISIONS on the external review (`review/corpus-selection-sorting-20260924` @ `1b6869c6`)
 
 Production, relaying the operator. The review: `reports/2026-09-24-corpus-selection-sorting-research.md` on that branch.
 **1. PREREG-L05 (L02's successor on better labels), ASAP, run on the WORKSTATION.** Laptop, please draft and freeze it in nfl2
