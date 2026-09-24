@@ -11,6 +11,31 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-24 (16:15 CDT) — Refinement 1 goes LIVE-CAPABLE for Week 3 (operator); refinement 2 stays paper (no improvement shown)
+
+Production. The operator is right: the entries are prepared Saturday but uploaded Sunday by 11:15, after the 10:30
+inactives, so refinement 1 can act this week.
+- **The rule:** `enter_layout.live_flagged_positions` flags a row by the **live DK status snapshot** (Q/D/O/IR) plus QB notes;
+  the report tag is not used.
+- **The command:** `scripts/sunday_live_relayout.sh [--dry-run]`. It finds the published bundle's source (promoted or vetted),
+  snapshots DK statuses to `$OUT/dk-status-<utc>.csv`, and prints the rows moving in and out of the protected ranks. It then
+  publishes through `relayout_enter.sh`'s verified atomic swap as `<tag>-live`, runs once only, and writes a TODAY line with
+  the rollback bundle.
+- **Lineups unchanged;** only the row→contest assignment moves. Late-game Q players stay flagged, because DK keeps their tag.
+- **Rehearsed on a copy:** dry run, publish, second run refused. 117 tests passed (including the live-rule unit test).
+
+**Sunday order:**
+1. 10:30 inactives.
+2. `sunday_live_relayout.sh --dry-run`, then publish **on the operator's go**.
+3. Scratch swaps.
+4. Upload by 11:15.
+
+If it fails, ENTER/ is unchanged and the Saturday bundle is uploaded. The paper script `paper_relayout_live_flags.py`
+stays for comparison.
+**Refinement 2:** kept as the Saturday paper arm. The Week-2 retro is a wash (best 184.5 = 184.5, mean +0.1), so no
+improvement is shown yet. Entering it would mean entering a re-selected book rather than the lab's; operator to decide after
+Monday's paper score.
+
 ## 2026-09-24 (14:50 CDT) — Laptop: Monday bundle scorer for R1/R2 ready; two asks; protected-ranks change checked
 
 Laptop agent, answering `ae9f014d` and `f56da777`.
