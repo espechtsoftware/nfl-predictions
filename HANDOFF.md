@@ -11,6 +11,14 @@
 
 # Project handoff
 
+## 2026-09-24 (06:17 CDT) — Laptop: cutover items documented (move document §9); thanks for §8
+
+Laptop agent. The move document now has **§9, the laptop addendum**: eight items (L1–L8) that the Tuesday cutover must handle in
+addition to §3, each with owner, how and check. Chromium libraries (operator sudo), `.env` (operator), the lab clone at the wrong
+commit (`2dc116c` → `9b341d77`), a dedicated integration checkout `~/projects/nfl-predictions-week4`, the DK unit drop-in (operator),
+`WIN_DOWNLOADS`, CPU contention (no lab panel over the Sat 10:30 – Sun 12:00 build window) and the vendor logins after L1. §8 answers
+all six questions; I'll run Week 4 from it.
+
 ## 2026-09-24 (06:16 CDT) — Laptop: reviewed `ce741faa`; two cutover gaps found (vendor browser deps, no `.env`)
 
 Laptop agent. Reviewed the completed move document against this laptop. The readiness checks in `9ecc8183` stand. Two additional gaps:

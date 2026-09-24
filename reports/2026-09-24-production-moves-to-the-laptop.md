@@ -286,3 +286,24 @@ these on time:
 | `s-us-dfs`, `s-us-dfs-sun` | US DFS | as scheduled |
 | `s-trends` | trends | Wed 11:00 |
 | `s-dk` | Cloud Run DK pull | hourly Wed–Sun; **403s by design (defect 18)**, the host loop replaces it |
+
+## 9. Laptop addendum: items found on the laptop that the cutover must handle (laptop agent, 2026-09-24)
+
+Found by read-only checks on the laptop (`9ecc8183`, `bb68115f`). They **add to** §3; do them in the same Tuesday session. Each has a check.
+
+| # | item | who | how | check |
+|---|---|---|---|---|
+| L1 | **Chromium system libraries** (vendor capture) | operator (sudo) | `sudo apt-get install -y libnss3 libnspr4 libasound2t64` (Ubuntu 26.04). Playwright and its headless Chromium are already installed in `~/projects/nfl-predictions/.venv` (done 2026-09-24) | `~/projects/nfl-predictions/.venv/bin/python -c "from playwright.sync_api import sync_playwright as s; p=s().start(); b=p.chromium.launch(); print('ok'); b.close(); p.stop()"` prints `ok`. **Must pass before §3 step 6** |
+| L2 | **No `.env` on the laptop** | operator | recreate from the operator's own records (never copied from the workstation; §6) | the commands that need it run; nothing is logged |
+| L3 | **Lab clone is at the wrong commit**: `~/projects/.nfl2-worktrees/week3-live-center` exists at `2dc116c` (the Week-2 release), not `9b341d77` | laptop agent | after Week 3 only: `git -C ~/projects/nfl2 worktree remove ~/projects/.nfl2-worktrees/week3-live-center`, then `git -C ~/projects/nfl2 worktree add ~/projects/.nfl2-worktrees/week3-live-center 9b341d77`. The path must equal `CLONE` in `scripts/week_env.sh` | `git -C <clone> rev-parse HEAD` = `9b341d77…` and `status --porcelain` is empty; the runtime preflight passes |
+| L4 | **Main checkout is on `main`** (441 commits behind) | laptop agent | create the dedicated integration checkout: `git -C ~/projects/nfl-predictions worktree add ~/projects/nfl-predictions-week4 production/week3-integration-20260921`; run everything from it with `PYTHONPATH=~/projects/nfl-predictions-week4/src` (or give it its own venv with `.[dev,gcp,app,browser]` and `playwright install chromium`) | `git -C ~/projects/nfl-predictions-week4 rev-parse HEAD` = the HANDOFF tip |
+| L5 | **DK unit drop-in** for that checkout | operator (unit write) | `systemctl --user edit nfl-host-dk-ingest`: `WorkingDirectory=%h/projects/nfl-predictions-week4`, `Environment=PROD=%h/projects/nfl-predictions-week4`, `ExecStart=` reset, then the checkout's `scripts/host_ingest_dk_loop.sh`. Create `~/week1-sunday/` first (the unit's `PID_FILE` lives there). **The workstation loop must be stopped first (§3 step 5); never two loops** | `journalctl --user -u nfl-host-dk-ingest` shows `host DK ingest pair succeeded` within the hour |
+| L6 | **Sunday watchers' Downloads path** | laptop agent | `WIN_DOWNLOADS=/mnt/c/Users/erich/Downloads` in the watcher environment | a test export dropped there is picked up |
+| L7 | **CPU contention** | laptop agent | the laptop builds the Sunday book itself from Week 4 (~6 h, one heavy job at a time). **No lab panel (L0x) may run over Sat 10:30 – Sun 12:00 CT.** Schedule panels Mon–Fri only | `ps` shows no panel workers during the build window |
+| L8 | **Operator logins after L1** | operator | §3 step 6: `sis-download login --terminal-credentials --fresh`, `fantasy-points-download login` | `python -m nfl_dfs.ops.weekly_vendor_data verify-login` passes |
+
+**Laptop state already verified (2026-09-24):**
+- systemd user session running (WSL `systemd=true`);
+- `gcloud`/`bq` as `espechtsoftware@gmail.com` on `nfl-predictions-503414`, with ADC set;
+- 927 GB free;
+- the tracked production scripts are on integration.
