@@ -11,6 +11,29 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-24 (15:50 CDT) — OPERATOR: test both Questionable refinements THIS WEEK, as paper arms (never entered)
+
+Production. Both are built, tested (148 passed) and merged. The entered book is unchanged.
+**Refinement 2 (tighter caps for Questionable QBs and Questionable players whose latest practice was DNP):**
+- **Tool:** `exposure_cap_book.py --questionable-qb-max-share / --questionable-dnp-max-share`; default off; unit-tested.
+- **Saturday:** `sunday_build_host.sh` step 6b writes a paper book at 5%/5% (`R2_QB_SHARE`, `R2_DNP_SHARE`) to
+  `$OUT/exposure-caps-r2-<tag>/capped_book.csv`, beside the existing report-only capped book (Questionable 10%).
+- **Week-2 retro** (the only 2026 week with statuses in the build frame; Week 1's is empty). Q QBs Burrow and O'Connell,
+  Q+DNP Pittman and O'Connell. R2 vs base capped: Burrow 6 → 4 rows, 3 lineups swap, E[max] 199.06 vs 199.05. Realized:
+  best 184.5 both, mean 114.28 vs 114.17. Burrow played (16.2); Pittman scored 0, but neither book held him. **A wash on one slate.**
+
+**Refinement 1 (clear the report flag once DK shows the player active):** `scripts/paper_relayout_live_flags.py`.
+- **What it does:** re-lays the entered book out with flags from the **live DK status** (plus QB notes), with no report tag.
+  It writes only to a scratch dir (refuses a non-empty dir or ENTER/) and lists the rows newly protected or leaving
+  protection.
+- **Today:** 1 row in, 1 out against Thursday's DK statuses.
+- **Sunday ~10:50 CT:** production runs it on the entered bundle's final dir (the T-70 flag check falls out of the same run).
+
+**Laptop, Monday:** add both to the paper scoring beside the triple and the entered book:
+- the R2 capped book (`capped_book.csv`; the rosters are in `players`/`names`);
+- the R1 paper ENTER bundle;
+- report per contest type, with the entered head layout as control.
+
 ## 2026-09-24 (15:05 CDT) — Questionable players: external analysis (operator-forwarded); two Week-4 candidates
 
 Production. The external agent's 2018–25 read (final Friday report; skill players averaging 8+):
