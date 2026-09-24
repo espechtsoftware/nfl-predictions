@@ -77,10 +77,22 @@ def main():
         if int(contest["entries"]) < int(contest["keep"]): fail(f"keep exceeds entries: {contest!r}")
         total += int(contest["entries"])
     book_entries = int(os.environ["BOOK_ENTRIES"])
-    layout = os.environ.get("ENTER_LAYOUT", "sequential")
-    required_entries = total if layout == "sequential" else max(int(c["entries"]) for c in contests)
+    layout = os.environ.get("ENTER_LAYOUT") or "sequential"
+    sys.path.insert(0, str(prod / "src"))
+    from nfl_dfs.inference import enter_layout   # the one layout rule (2026-09-24)
+    try:
+        required_entries = enter_layout.rows_needed(contests, layout)
+    except enter_layout.LayoutError as exc:
+        fail(str(exc))
     if book_entries < max(90, required_entries):
         fail(f"BOOK_ENTRIES={book_entries} cannot satisfy {layout} contest layout (needs {max(90, required_entries)})")
+    order = os.environ.get("ENTER_ORDER") or "greedy"
+    if order not in enter_layout.ORDERS: fail(f"unknown ENTER_ORDER {order!r}; expected one of {enter_layout.ORDERS}")
+    if order == "fewest-low":
+        sets = Path(os.environ.get("OWNERSHIP_SETS", ""))
+        if not sets.is_file():
+            fail(f"ENTER_ORDER=fewest-low needs the Saturday sets file OWNERSHIP_SETS={sets} (scripts/ownership_sets.py sets "
+                 f"--week {os.environ['WEEK']} --group {os.environ['GROUP']} --out {sets}); write it before arming")
     if args.role == "watchers":
         chosen = Path(os.environ.get("CHOSEN_FILE", ""))
         if not chosen.is_file(): fail(f"chosen dose file missing: {chosen}; write CHOSEN_LEV/CHOSEN_BOOM before arming watchers")
@@ -89,7 +101,7 @@ def main():
             if not re.search(rf"^\s*{name}\s*=\s*[0-9]+\s*$", text, re.MULTILINE):
                 fail(f"chosen dose file lacks {name}=integer: {chosen}")
     print(f"week runtime preflight ok: role={args.role} season={os.environ['SEASON']} week={os.environ['WEEK']} "
-          f"group={os.environ['GROUP']} book_entries={book_entries} layout={layout} clone={actual} tools={tools}")
+          f"group={os.environ['GROUP']} book_entries={book_entries} layout={layout} order={order} clone={actual} tools={tools}")
 
 
 if __name__ == "__main__":

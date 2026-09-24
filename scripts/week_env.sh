@@ -70,6 +70,12 @@ week_settings() {
   # derives BOOK_ENTRIES from contests.json and every downstream check (verify_k90, the bundle verifier, the filler)
   # is governed by it.  Set ENTER_LAYOUT=top in the environment to fall back.
   export ENTER_LAYOUT=${ENTER_LAYOUT:-sequential}
+  # 2026-09-24: "head" (operator, Week 3) opens every contest with the book's best rows and fills the rest with lineups
+  # used nowhere else; the rule is src/nfl_dfs/inference/enter_layout.py. ENTER_ORDER=fewest-low orders the rows by
+  # predicted LOW-owned count (external review 2026-09-24 §5.3) from OWNERSHIP_SETS, the Saturday sets file
+  # (scripts/ownership_sets.py sets). Defaults keep the pre-2026-09-24 behaviour.
+  export ENTER_ORDER=${ENTER_ORDER:-greedy}
+  export OWNERSHIP_SETS=${OWNERSHIP_SETS:-$OUT/ownership_sets.csv}
 }
 
 week_env() {
@@ -81,7 +87,9 @@ week_env() {
   # "sequential" -- that would let a short book past the gate and fail later, confusingly, at the bundle verifier.
   if [[ -z "${BOOK_ENTRIES:-}" ]]; then
     [[ -f "$CONTESTS_JSON" ]] || { echo "week_env: contests file missing: $CONTESTS_JSON (create the reviewed Week-${WEEK} contests.json before arming)" >&2; return 1; }
-    BOOK_ENTRIES=$("$PROD_PY" -c "import json,os,sys; c=json.load(open(sys.argv[1])); tot=sum(int(x['entries']) for x in c); print(max(90, tot) if os.environ.get('ENTER_LAYOUT','top')=='sequential' else 90)" "$CONTESTS_JSON") || return
+    # The book must hold every distinct row the layout reads (sequential: the entry total; top: the widest contest;
+    # head: the four head rows plus every unique row), and never fewer than 90.
+    BOOK_ENTRIES=$(PYTHONPATH="$PROD/src" "$PROD_PY" -c "import json,sys; from nfl_dfs.inference.enter_layout import rows_needed; print(max(90, rows_needed(json.load(open(sys.argv[1])), sys.argv[2])))" "$CONTESTS_JSON" "$ENTER_LAYOUT") || return
   fi
   export BOOK_ENTRIES
   if [[ -z "$group" ]]; then

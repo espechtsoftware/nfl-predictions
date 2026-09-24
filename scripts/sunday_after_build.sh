@@ -65,12 +65,14 @@ process_run() {
   # market_source_log (or a plain 'monitor not deployed' line), DK status, and the flags that need a stated reason;
   # a sheet that cannot be produced is written into the TODAY file as EXPOSURE SHEET FAILED, never skipped quietly.
   local FINAL="$VET" LINEAGE_STATUS="NOT APPLICABLE (no promotion)" SHEET_STATUS=""
+  # The lineage report labels rows with contests by the sequential rule only; under another layout it runs unlabelled.
+  local SEQ_CONTESTS=(); [[ "${ENTER_LAYOUT:-sequential}" == "sequential" ]] && SEQ_CONTESTS=(--contests "$CONTESTS_JSON")
   if (( PROMOTION_PUBLISHED == 1 )); then
     FINAL="$lo/paid-vetted-promoted"
     if [ -d "$lo/paid-vetted-replaced" ]; then
       rm -f "$lo/lineage.json"
       if PYTHONPATH=$PROD/src $PY "$PROD/scripts/regeneration_lineage.py" --vetted-dir "$lo/paid-vetted" --replaced-dir "$lo/paid-vetted-replaced" \
-           --promoted-dir "$lo/paid-vetted-promoted" --upload-csv "$OUT/upload-$tag-promoted-paid-vetted-all.csv" --contests "$CONTESTS_JSON" --out "$lo/lineage.json" > "$lo/lineage.log" 2>&1; then
+           --promoted-dir "$lo/paid-vetted-promoted" --upload-csv "$OUT/upload-$tag-promoted-paid-vetted-all.csv" ${SEQ_CONTESTS[@]+"${SEQ_CONTESTS[@]}"} --out "$lo/lineage.json" > "$lo/lineage.log" 2>&1; then
         LINEAGE_STATUS="OK: $(grep -m1 '^lineage OK' "$lo/lineage.log" | cut -c1-200)"
       else
         LINEAGE_STATUS="LINEAGE FAILED -- DO NOT UPLOAD: $(grep -m1 -E 'LINEAGE FAILED|problem:' "$lo/lineage.log" | cut -c1-300 || echo "see $lo/lineage.log")"
@@ -80,7 +82,11 @@ process_run() {
     fi
     log "  lineage: $LINEAGE_STATUS"
   fi
+  # The sheet counts ENTRIES (each contest's rows through the same layout and order the writer uses).
+  local SHEET_VF="$FINAL/vetting_final.json"; [ -f "$SHEET_VF" ] || SHEET_VF="$FINAL/vetting.json"
+  local SHEET_PIN=(); (( PROMOTION_PUBLISHED == 1 )) && SHEET_PIN=(--pin-first)
   if PYTHONPATH=$PROD/src $PY "$PROD/scripts/exposure_sheet.py" --book "$FINAL/book.csv" --frame "$run/frame.parquet" --contests "$CONTESTS_JSON" \
+       --vetting "$SHEET_VF" ${SHEET_PIN[@]+"${SHEET_PIN[@]}"} \
        --season "$SEASON" --week "$WEEK" --draft-group "$GROUP" --out "$lo/exposure" > "$lo/exposure.log" 2>&1; then
     cp "$lo/exposure/exposure-sheet.md" "$OUT/exposure-sheet-$tag.md"; cp "$lo/exposure/exposure-sheet.csv" "$OUT/exposure-sheet-$tag.csv"
     SHEET_STATUS="$(head -n 1 "$lo/exposure/exposure-sheet.md" | cut -c1-200) -- full sheet $OUT/exposure-sheet-$tag.md"
@@ -94,50 +100,15 @@ process_run() {
   local STAGE="$OUT/.ENTER-staging-$tag"
   if (( PROMOTION_PUBLISHED == 0 )); then
     rm -rf "$STAGE"; mkdir -p "$STAGE" "$E"
-  $PY - "$CONTESTS_JSON" "$all" "$STAGE" "$entries" <<'PYEOF' > "$STAGE/ENTER-layout.txt"
-import csv, json, sys, pathlib
-import os
-contests, src, E, entries = json.load(open(sys.argv[1])), sys.argv[2], pathlib.Path(sys.argv[3]), int(sys.argv[4])
-rows = list(csv.reader(open(src))); hdr, body = rows[0], rows[1:]
-layout = os.environ.get("ENTER_LAYOUT", "top")   # top: every contest gets vetted ranks 1..n (contests pay independently,
-                                                 # so each deserves the best lineups; Week-2 default).  sequential: the
-                                                 # Week-1 layout (unique lineups across contests, keepers first).
-if layout == "top":
-    # A contest may set "block": true to take its own consecutive block of the book instead of ranks 1..n
-    # (2026-09-18 operator decision, measured on the corrected Week-2 book's own worlds: for five satellite contests,
-    # repeating the top block gives more EXPECTED seats but all-or-nothing; distinct blocks raise P(at least one seat)
-    # from 35% to 58% at a 190-point cutoff, costing ~15% of expected seats. Fixed-value seats favour reliability.)
-    cursor = 0
-    for c in contests:
-        n, k = int(c["entries"]), int(c["keep"]); lab = f"{c['name']}-{c['contest_id']}"
-        if c.get("block"):
-            lines = body[cursor:cursor + n]; lo, hi = cursor + 1, cursor + n; cursor += n; kind = "own block"
-        else:
-            lines = body[:n]; lo, hi = 1, n; kind = "top"
-        if len(lines) != n:
-            print(f"WARNING {lab}: only {len(lines)} of {n} lineups available from a K{entries} book (ranks {lo}-{hi})")
-        out = E / f"ENTER-{lab}-{n}-entries-KEEP-first-{k}.csv"
-        with open(out, "w", newline="") as f:
-            w = csv.writer(f); w.writerow(hdr); w.writerows(lines)
-        print(f"{lab}: {n} entries = vetted ranks {lo}-{hi} ({kind}; keep {k}) -> {out.name}")
-    if cursor > entries:
-        print(f"WARNING: blocked contests need ranks up to {cursor} but the book holds {entries}")
-    print(f"top layout: {sum(int(c['entries']) for c in contests)} entries; blocked contests consumed ranks 1-{cursor}" if cursor else
-          f"top layout: every contest receives the vetted book's first N; {sum(int(c['entries']) for c in contests)} entries in total")
-else:
-    keep_total = sum(int(c["keep"]) for c in contests); fill_next = keep_total + 1; keep_next = 1
-    for c in contests:
-        n, k = int(c["entries"]), int(c["keep"]); lab = f"{c['name']}-{c['contest_id']}"
-        keepers = body[keep_next - 1: keep_next - 1 + k]; keep_next += k
-        fills = body[fill_next - 1: fill_next - 1 + (n - k)]; fill_next += n - k
-        if len(keepers) + len(fills) != n:
-            print(f"WARNING {lab}: only {len(keepers) + len(fills)} of {n} lineups available from a K{entries} book")
-        out = E / f"ENTER-{lab}-{n}-entries-KEEP-first-{k}.csv"
-        with open(out, "w", newline="") as f:
-            w = csv.writer(f); w.writerow(hdr); w.writerows(keepers + fills)
-        print(f"{lab}: {n} entries, keep rows 1-{k} (vetted ranks {keep_next - k}-{keep_next - 1}), fill rows {k + 1}-{n} -> {out.name}")
-    print(f"keepers total {keep_total}; fills drawn from vetted ranks {keep_total + 1}-{fill_next - 1}")
-PYEOF
+  # 2026-09-24: the layout rule lives in ONE module (src/nfl_dfs/inference/enter_layout.py) that this writer, the
+  # relayout check, the exposure sheet and the book-size gates all call. ENTER_LAYOUT (sequential|top|head) and
+  # ENTER_ORDER (greedy|fewest-low; fewest-low reads OWNERSHIP_SETS and this book's vetting) come from week_env.
+  # An unknown layout, a missing order input or a short book stops here: NOT published, previous ENTER/ kept.
+  local VFILE="$VET/vetting_final.json"; [ -f "$VFILE" ] || VFILE="$VET/vetting.json"
+  if ! PYTHONPATH=$PROD/src $PY -m nfl_dfs.inference.enter_layout write "$CONTESTS_JSON" "$all" "$STAGE" \
+       --book "$VET/book.csv" --vetting "$VFILE" > "$STAGE/ENTER-layout.txt" 2> "$lo/enter-layout.err"; then
+    log "ENTER layout FAILED: $(head -c 300 "$lo/enter-layout.err") -- NOT published, previous ENTER/ kept"; return 1
+  fi
   cp "$all" "$STAGE/ENTER-all-rows-1-to-$(( $($PY -c "import json; print(sum(c['keep'] for c in json.load(open('$CONTESTS_JSON'))))") ))-are-the-KEEPERS.csv"
   cp "$OUT/lineup-sheet-$tag-paid-vetted-30.md" "$STAGE/ENTER-sheet-keepers.md" 2>/dev/null
   # verify the staged bundle before it becomes visible: one file per contest, each with its configured entry count

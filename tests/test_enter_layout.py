@@ -1,0 +1,243 @@
+"""The ENTER layout module (2026-09-24): the operator's Week-3 head layout, legacy equivalence of sequential/top,
+the fewest-LOW order, and the writer/check round trip through relayout_enter.sh. Synthetic contests and ids only."""
+from __future__ import annotations
+
+import csv
+import json
+import os
+import random
+import subprocess
+import sys
+from pathlib import Path
+
+import pytest
+
+from nfl_dfs.inference import enter_layout as EL
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def week3_shaped() -> list[dict]:
+    """The Week-3 contest SHAPE (names, sizes, order) with made-up ids: 198 entries across 40 contests."""
+    cs, cid = [], 1000
+    def add(name, n, times):
+        nonlocal cid
+        for _ in range(times):
+            cs.append({"name": name, "contest_id": str(cid), "entries": n, "keep": n}); cid += 1
+    add("wildcat", 2, 2); add("sat20", 1, 19); add("supersat25hi", 17, 3); add("ffwc", 4, 1)
+    add("supersat2", 5, 12); add("supersat25lo", 20, 3)
+    return cs
+
+
+# ---------------------------------------------------------------- the operator's head layout
+
+
+def test_head_layout_is_the_operators_week3_spec():
+    cs = week3_shaped()
+    ranks = EL.assign_ranks(cs, "head")
+    assert sum(len(r) for r in ranks) == 198
+    assert EL.rows_needed(cs, "head") == 144
+    one = [[x + 1 for x in r] for r in ranks]          # 1-based, as the operator stated it
+    by = lambda name: [r for c, r in zip(cs, one) if c["name"] == name]
+    assert by("wildcat") == [[1, 2], [3, 4]]
+    # operator 2026-09-24: no two $2 single-entry satellites share a lineup; rows 1-4, then the best unique rows 5-19
+    assert [r[0] for r in by("sat20")] == list(range(1, 20))
+    for r in by("ffwc") + by("supersat2"):
+        assert r[:2] == [1, 2] and all(x > 4 for x in r[2:])
+    for r in by("supersat25hi") + by("supersat25lo"):
+        assert r[:4] == [1, 2, 3, 4] and all(x > 4 for x in r[4:])
+    for c, r in zip(cs, one):
+        assert len(r) == c["entries"] and len(set(r)) == len(r)
+    unique = [x for r in one for x in r if x > 4]
+    assert len(unique) == len(set(unique)) == 140 and sorted(unique) == list(range(5, 145))
+
+
+def test_head_unique_rows_are_dealt_snake_fashion():
+    cs = [{"name": "a", "contest_id": "1", "entries": 5, "keep": 5}, {"name": "b", "contest_id": "2", "entries": 5, "keep": 5}]
+    a, b = [[x + 1 for x in r] for r in EL.assign_ranks(cs, "head")]
+    assert a == [1, 2, 5, 8, 9] and b == [1, 2, 6, 7, 10]
+
+
+def test_head_small_groups_rotate_per_group():
+    cs = [{"name": "x", "contest_id": str(i), "entries": 2, "keep": 2} for i in range(3)]
+    assert [[v + 1 for v in r] for r in EL.assign_ranks(cs, "head")] == [[1, 2], [3, 4], [5, 6]]
+
+
+def test_unknown_layout_and_bad_entries_fail_closed():
+    with pytest.raises(EL.LayoutError):
+        EL.assign_ranks(week3_shaped(), "snake")
+    with pytest.raises(EL.LayoutError):
+        EL.assign_ranks([{"name": "x", "contest_id": "1", "entries": 0, "keep": 0}], "head")
+    with pytest.raises(EL.LayoutError, match="needs 144"):
+        EL.contest_rows(week3_shaped(), 143, "head", list(range(143)))
+
+
+# ---------------------------------------------------------------- legacy equivalence
+
+
+def legacy_rows(contests, body, layout):
+    """The pre-2026-09-24 inline writer (sunday_after_build.sh / relayout_enter.sh), verbatim in logic."""
+    out = []
+    if layout == "top":
+        cursor = 0
+        for c in contests:
+            n = int(c["entries"])
+            if c.get("block"):
+                out.append(body[cursor:cursor + n]); cursor += n
+            else:
+                out.append(body[:n])
+    else:
+        keep_total = sum(int(c["keep"]) for c in contests); fill_next = keep_total + 1; keep_next = 1
+        for c in contests:
+            n, k = int(c["entries"]), int(c["keep"])
+            keepers = body[keep_next - 1: keep_next - 1 + k]; keep_next += k
+            fills = body[fill_next - 1: fill_next - 1 + (n - k)]; fill_next += n - k
+            out.append(keepers + fills)
+    return out
+
+
+@pytest.mark.parametrize("seed", range(25))
+@pytest.mark.parametrize("layout", ["sequential", "top"])
+def test_sequential_and_top_match_the_old_writer(seed, layout):
+    rng = random.Random(seed)
+    cs = []
+    for i in range(rng.randint(1, 12)):
+        n = rng.randint(1, 23)
+        c = {"name": f"c{i}", "contest_id": str(i), "entries": n, "keep": rng.randint(0, n)}
+        if layout == "top" and rng.random() < 0.3:
+            c["block"] = True
+        cs.append(c)
+    n_rows = max(EL.rows_needed(cs, layout), 1) + rng.randint(0, 5)
+    body = [[f"r{i}"] for i in range(n_rows)]
+    new = [[body[i] for i in rows] for rows in EL.contest_rows(cs, n_rows, layout, list(range(n_rows)))]
+    assert new == legacy_rows(cs, body, layout)
+
+
+# ---------------------------------------------------------------- the fewest-LOW order
+
+
+def test_fewest_low_order_pins_promoted_row_and_keeps_flagged_rows_behind():
+    low = {"L"}
+    rows = [["L", "L", "a"], ["L", "a", "a"], ["a", "a", "a"], ["L", "L", "L"], ["a", "a", "a"]]
+    # row 3 (0-based 2) is flagged: no LOW but must stay behind every clean row
+    perm = EL.fewest_low_order(rows, low, flagged={2}, pin_first=True)
+    assert perm == [0, 4, 1, 3, 2]
+    assert EL.fewest_low_order(rows, low, flagged=set(), pin_first=False) == [2, 4, 1, 0, 3]
+
+
+def _book_fixture(tmp: Path, n: int, *, low_every: int = 3, flagged=(), vetting_kind="final"):
+    ids = [[f"{r * 10 + s}" for s in range(9)] for r in range(n)]
+    with open(tmp / "book.csv", "w", newline="") as f:
+        w = csv.writer(f); w.writerow(["QB", "RB", "RB", "WR", "WR", "WR", "TE", "FLEX", "DST"]); w.writerows(ids)
+    up = [[f"9{x}" for x in r] for r in ids]                     # draftable ids differ from dk_player_id
+    with open(tmp / "upload.csv", "w", newline="") as f:
+        w = csv.writer(f); w.writerow(["QB", "RB", "RB", "WR", "WR", "WR", "TE", "FLEX", "DST"]); w.writerows(up)
+    with open(tmp / "sets.csv", "w", newline="") as f:
+        w = csv.writer(f); w.writerow(["gsis_id", "dk_player_id", "display_name", "pos", "set"])
+        for r, row in enumerate(ids):
+            for s, pid in enumerate(row):
+                pos = "DST" if s == 8 else "WR"
+                w.writerow(["g", pid, "n", pos, "LOW" if (s < 8 and (r + s) % low_every == 0) else "MID"])
+    if vetting_kind == "final":
+        v = {"version": "t", "publishable": True,
+             "lineups": [{"position": i + 1, "source": "x", "salary": 50000, "flags": ({"p": ["Q"]} if i in flagged else {})}
+                         for i in range(n)]}
+    else:
+        v = {"order_source_ranks": list(range(1, n + 1)),
+             "lineups": [{"rank": i + 1, "hard": False, "material": i in flagged, "flags": {}} for i in range(n)]}
+    (tmp / "vetting.json").write_text(json.dumps(v))
+    return tmp / "book.csv", tmp / "upload.csv", tmp / "sets.csv", tmp / "vetting.json"
+
+
+@pytest.mark.parametrize("kind", ["final", "plain"])
+def test_load_order_reads_both_vetting_forms(tmp_path, kind):
+    book, _, sets, vet = _book_fixture(tmp_path, 12, flagged={0, 5}, vetting_kind=kind)
+    perm, info = EL.load_order("fewest-low", 12, book=book, vetting=vet, sets=sets, pin_first=False)
+    assert sorted(perm) == list(range(12)) and perm[-2:] == [0, 5] and info["flagged_rows"] == 2
+
+
+def test_load_order_fails_closed_on_missing_inputs_and_wrong_ids(tmp_path):
+    book, _, sets, vet = _book_fixture(tmp_path, 12)
+    with pytest.raises(EL.LayoutError, match="needs --sets"):
+        EL.load_order("fewest-low", 12, book=book, vetting=vet, sets=None, pin_first=False)
+    with pytest.raises(EL.LayoutError, match="same book"):
+        EL.load_order("fewest-low", 11, book=book, vetting=vet, sets=sets, pin_first=False)
+    rows = list(csv.reader(open(sets)))
+    with open(sets, "w", newline="") as f:           # a sets file for another slate: ids do not match the book
+        w = csv.writer(f); w.writerow(rows[0]); w.writerows([[r[0], "x" + r[1]] + r[2:] for r in rows[1:]])
+    with pytest.raises(EL.LayoutError, match="knows only"):
+        EL.load_order("fewest-low", 12, book=book, vetting=vet, sets=sets, pin_first=False)
+    with pytest.raises(EL.LayoutError):
+        EL.load_order("random", 12, book=None, vetting=None, sets=None, pin_first=False)
+    assert EL.load_order("greedy", 5, book=None, vetting=None, sets=None, pin_first=False)[0] == [0, 1, 2, 3, 4]
+
+
+# ---------------------------------------------------------------- writer / check / relayout end to end
+
+
+def test_write_then_check_round_trip_and_tamper_detection(tmp_path):
+    cs = week3_shaped()
+    book, up, sets, vet = _book_fixture(tmp_path, 150, flagged={1, 7})
+    (tmp_path / "contests.json").write_text(json.dumps(cs))
+    info = EL.load_order("fewest-low", 150, book=book, vetting=vet, sets=sets, pin_first=True)
+    stage = tmp_path / "stage"
+    EL.write(cs, up, stage, "head", info)
+    assert EL.check(cs, up, stage, "head", info) == []
+    body = list(csv.reader(open(up)))[1:]
+    first = [body[i] for i in info[0][:4]]
+    wild = list(csv.reader(open(stage / EL.enter_filename(cs[0]))))[1:]
+    assert wild == first[:2] and list(csv.reader(open(stage / EL.enter_filename(cs[1]))))[1:] == first[2:4]
+    assert info[0][0] == 0 and 1 not in info[0][:4]           # promoted row pinned; a flagged row never in the head
+    f = stage / EL.enter_filename(cs[-1])
+    rows = list(csv.reader(open(f))); rows[3], rows[4] = rows[4], rows[3]
+    with open(f, "w", newline="") as fh:
+        csv.writer(fh).writerows(rows)
+    assert EL.check(cs, up, stage, "head", info)
+
+
+def test_relayout_enter_publishes_the_head_layout(tmp_path):
+    cs = week3_shaped()
+    book, up, sets, vet = _book_fixture(tmp_path, 150)
+    out = tmp_path / "out"; out.mkdir()
+    (out / "contests.json").write_text(json.dumps(cs))
+    env = {**os.environ, "PROD": str(ROOT), "PY": sys.executable, "CONTESTS_JSON": str(out / "contests.json"),
+           "ENTER_LAYOUT": "head", "ENTER_ORDER": "fewest-low", "OWNERSHIP_SETS": str(sets),
+           "ENTER_BOOK_DIR": str(tmp_path), "ENTER_PIN_FIRST": "1"}
+    r = subprocess.run(["bash", str(ROOT / "scripts/relayout_enter.sh"), str(up), str(out), "t1"],
+                       env=env, capture_output=True, text=True)
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert "published bundle t1" in r.stdout
+    staged = out / "ENTER"
+    assert len(list(staged.glob("ENTER-*-entries-KEEP-first-*.csv"))) == 40
+    layout_txt = (staged / "ENTER-layout.txt").read_text()
+    assert "layout head; order fewest-low; 198 entries from 144 distinct book rows of 150" in layout_txt
+    # without the sets file the relayout refuses and leaves ENTER/ as it was
+    env2 = {**env, "OWNERSHIP_SETS": str(tmp_path / "missing.csv")}
+    r2 = subprocess.run(["bash", str(ROOT / "scripts/relayout_enter.sh"), str(up), str(out), "t2"],
+                        env=env2, capture_output=True, text=True)
+    assert r2.returncode != 0 and "ENTER layout FAILED" in r2.stdout
+    assert os.readlink(staged).endswith("t1")
+
+
+def test_exposure_sheet_counts_entries_under_head(tmp_path):
+    import pandas as pd
+    cs = week3_shaped()
+    book, up, sets, vet = _book_fixture(tmp_path, 150)
+    ids = [r for r in csv.reader(open(book))][1:]
+    all_ids = sorted({x for r in ids for x in r})
+    pd.DataFrame({"dk_player_id": all_ids, "name": all_ids, "pos": "WR", "team": "T", "salary": 5000,
+                  "proj": 10.0}).to_parquet(tmp_path / "frame.parquet")
+    (tmp_path / "contests.json").write_text(json.dumps(cs))
+    (tmp_path / "ms.csv").write_text("id,source,market_points\n")
+    (tmp_path / "st.csv").write_text("id,status\n")
+    env = {**os.environ, "ENTER_LAYOUT": "head", "ENTER_ORDER": "greedy"}
+    r = subprocess.run([sys.executable, str(ROOT / "scripts/exposure_sheet.py"), "--book", str(book), "--frame",
+                        str(tmp_path / "frame.parquet"), "--contests", str(tmp_path / "contests.json"), "--out",
+                        str(tmp_path / "sheet"), "--market-source-csv", str(tmp_path / "ms.csv"), "--status-csv",
+                        str(tmp_path / "st.csv"), "--vetting", str(vet)], env=env, capture_output=True, text=True)
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert "150 book rows -> 198 entries" in r.stdout
+    sheet = pd.read_csv(tmp_path / "sheet/exposure-sheet.csv", dtype={"id": str})
+    # book row 1 (greedy order) holds ids 0..8: it is in 21 of 198 entries (wildcat A, one sat20, FFWC, 12 supersat2, 6 supersats)
+    top = sheet.set_index("id").loc["0"]
+    assert int(top["rows"]) == 1 + 1 + 3 + 1 + 12 + 3 and abs(top["share"] - int(top["rows"]) / 198) < 1e-3

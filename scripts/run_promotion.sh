@@ -35,12 +35,15 @@ for t in vet_book.py qb_classify.py; do [ -e "$TOOLS/$t" ] || fail "missing $TOO
 for t in promote_first.py first_delivered_promotion.py; do [ -e "$PT/$t" ] || fail "missing $PT/$t"; done
 BS=$TOOLS/book_sheet.py; [ -e "$BS" ] || fail "missing $BS"
 mkdir -p "$PR"; rm -rf "$PR/staging" "$PR/vet-final" "$STAGE"; mkdir -p "$PR/staging" "$STAGE"
+# 2026-09-24: promote_first.py and the lineage report label moves with contests by the SEQUENTIAL rule (entries summing
+# to the book); under another ENTER_LAYOUT they run without contest labels. The layout itself is enter_layout.py's.
+SEQ_CONTESTS=(); [[ "${ENTER_LAYOUT:-sequential}" == "sequential" ]] && SEQ_CONTESTS=(--contests "$OUT/contests.json")
 cp "$VET/book.csv" "$VET/frame.parquet" "$PR/staging/" && cp "$VET/source_receipt.json" "$PR/staging/receipt.json" || fail "staging copy"
 QBF=""; [ -e "$AFTER/qb-flags.csv" ] && QBF=$AFTER/qb-flags.csv
 log "final book $(sha256sum "$VET/book.csv" | cut -c1-16): running the cleared vetter ($(sha256sum "$TOOLS/vet_book.py" | cut -c1-16)) on it (frame = the run's own frame, unchanged)"
 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=$PROD/src:$TOOLS $PY "$TOOLS/vet_book.py" "$PR/staging" --k 30 --season "$SEASON" --week "$WEEK" --output-dir "$PR/vet-final" ${QBF:+--qb-flags "$QBF"} > "$PR/vet-final.log" 2>&1 || fail "final-book vetter failed (see $PR/vet-final.log)"
 log "applying the promotion rule (promote_first.py $(sha256sum "$PT/promote_first.py" | cut -c1-16), rule $(sha256sum "$PT/first_delivered_promotion.py" | cut -c1-16))"
-PYTHONDONTWRITEBYTECODE=1 $LPY "$PT/promote_first.py" "$VET" "$RUN" "$PROMOTED" --final-vetting "$PR/vet-final" --contests "$OUT/contests.json" > "$PR/promote.log" 2>&1; RC=$?
+PYTHONDONTWRITEBYTECODE=1 $LPY "$PT/promote_first.py" "$VET" "$RUN" "$PROMOTED" --final-vetting "$PR/vet-final" ${SEQ_CONTESTS[@]+"${SEQ_CONTESTS[@]}"} > "$PR/promote.log" 2>&1; RC=$?
 if [ $RC -eq 3 ]; then
   MSG=$(grep -m1 'PROMOTION STOP' "$PR/promote.log")
   log "$MSG"
@@ -82,7 +85,7 @@ then fail "verification failed (nothing published)"; fi
 # promoted book in order. A failure publishes nothing.
 LIN_ARGS=(--vetted-dir "$AFTER/paid-vetted" --promoted-dir "$PROMOTED" --upload-csv "$SUP" --out "$PR/lineage.json")
 [ -d "$VET" ] && LIN_ARGS+=(--replaced-dir "$VET")
-[ -f "$OUT/contests.json" ] && LIN_ARGS+=(--contests "$OUT/contests.json")
+[ -f "$OUT/contests.json" ] && [[ "${ENTER_LAYOUT:-sequential}" == "sequential" ]] && LIN_ARGS+=(--contests "$OUT/contests.json")
 rm -f "$PR/lineage.json"
 PYTHONPATH=$PROD/src $PY "$PROD/scripts/regeneration_lineage.py" "${LIN_ARGS[@]}" > "$PR/lineage.log" 2>&1 || fail "regeneration lineage failed (see $PR/lineage.log and $PR/lineage.json); nothing published"
 log "lineage: $(grep -m1 '^lineage' "$PR/lineage.log" | cut -c1-160)"
@@ -90,7 +93,7 @@ log "lineage: $(grep -m1 '^lineage' "$PR/lineage.log" | cut -c1-160)"
 # atomic bundle swap) -- the DK-entries watcher refills DKEntries-FILLED-keepers-first.csv from it within a minute.  Runs BEFORE
 # the promoted upload/sheet become discoverable, so a failure here leaves ENTER/ and OUT_DIR exactly as the chain left them.
 RL=$PT/relayout_enter.sh; [ -x "$RL" ] || fail "missing $RL"
-CONTESTS_JSON=$OUT/contests.json PROD=$PROD PY=$PY "$RL" "$SUP" "$OUT" "$TAG-promoted" "$STAGE/sheet.md" > "$PR/relayout.log" 2>&1 || fail "ENTER re-layout failed (see $PR/relayout.log); ENTER/ unchanged, nothing published"
+CONTESTS_JSON=$OUT/contests.json PROD=$PROD PY=$PY ENTER_BOOK_DIR="$PROMOTED" ENTER_PIN_FIRST=1 "$RL" "$SUP" "$OUT" "$TAG-promoted" "$STAGE/sheet.md" > "$PR/relayout.log" 2>&1 || fail "ENTER re-layout failed (see $PR/relayout.log); ENTER/ unchanged, nothing published"
 grep -q 'published bundle' "$PR/relayout.log" || fail "ENTER re-layout did not publish (see $PR/relayout.log)"
 # atomic publication of the upload + sheet (same filesystem: AFTER_DIR lives under OUT_DIR in the chain layout)
 mv -n "$STAGE/sheet.md" "$SHEET.md" && mv -n "$STAGE/sheet.csv" "$SHEET.csv" && mv -n "$SUP" "$UP" || fail "publication move failed"
