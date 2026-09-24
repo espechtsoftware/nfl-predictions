@@ -2,6 +2,8 @@
 # Chalk-core PAPER triple for the live week (production HANDOFF c72753c9). Runs on the LAPTOP, never uploads, never
 # enters. Three D3200 builds, one at a time (one heavy process), same seed, in a scratch clone at the sleeve commit:
 #   (a) control   (b) --chalk-sleeve-low-max 1 --chalk-sleeve-chalk-k 15   (c) --chalk-sleeve-low-max 2 --chalk-sleeve-chalk-k 15
+# (c) IS L02's SLEEVE_L2 (operator 155ff97b asks for it as a Week-3 paper arm): L02 froze share 0.25, <= 2 LOW, top-15 by
+# pred_own, salary >= 49,500, lev 640 + boom 2,560, max-per-game 4 at this same sleeve commit; the receipt check pins each one.
 # all with --max-per-game 4 --entries 198 --selector dual_emax, no --emit-a5-sidecars (paper path).
 #
 #   bash run_paper_triple.sh <sets file> [group=153769] [week=3] [entries=198]
@@ -42,6 +44,7 @@ if label == "a_control":
 else:
     want = 1 if label.startswith("b") else 2
     ok &= bool(cs) and cs.get("low_max") == want and "book_shape" in cs and cs.get("chalk_rule") == "top-15 by pred_own"
+    ok &= cs.get("share") == 0.25 and cs.get("min_salary") == 49_500 and cs.get("of_boom") == 2560 and cs.get("solves") == 640
     print(f"  sleeve: {cs.get('solves')} solves, book shape {cs.get('book_shape')}")
 print(f"  {label}: {run}  max_per_game={arm.get('max_per_game')}  written={r.get('written')}  -> {'OK' if ok else 'FAIL'}")
 sys.exit(0 if ok else 1)

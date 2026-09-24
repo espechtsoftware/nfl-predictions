@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Monday scoring of the laptop's Week-N paper artifacts (run only after the week's outcomes are released and the
 # Millionaire standings are imported into nfl_raw.contest_entries). Read-only against BigQuery; writes a log only.
-#   bash monday_laptop_scoring.sh [week=3]
+#   [ENTERED_BOOK=<entered lineups csv>] bash monday_laptop_scoring.sh [week=3]
 # Scores, with production's scripts/book_vs_field_scoreboard.py, each chalk-sleeve paper-triple run dir listed in
-# ~/.cache/laptop-agent/paper-triple-wNN/run_dirs.txt (a control, b low-max 1, c low-max 2), and, if the paper cash
+# ~/.cache/laptop-agent/paper-triple-wNN/run_dirs.txt (a control, b low-max 1, c low-max 2 = L02 SLEEVE_L2), and, if the paper cash
 # shadow's out dir is on this host (CASH_DIR, default ~/.cache/laptop-agent/cash-shadow-wNN), scores it too.
 set -uo pipefail
 WEEK=${1:-3}; WW=$(printf %02d "$WEEK")
@@ -21,6 +21,14 @@ if [[ -f "$T/run_dirs.txt" ]]; then
     echo "--- paper triple ($label): $dir"
     PYTHONPATH="$PROD/src" "$PY" "$PROD/scripts/book_vs_field_scoreboard.py" "$dir" 2026 "$WEEK" "$MID" || echo "FAIL: scoreboard ($label)"
   done < "$T/run_dirs.txt"
+  # operator 155ff97b: finish share above best, 194+ clears and book best per arm, beside the entered book when
+  # ENTERED_BOOK names its lineup CSV (DK ids only, never entry keys; mapped through arm (a)'s Saturday frame).
+  specs=(); while read -r label dir; do specs+=("$label=$dir"); done < "$T/run_dirs.txt"
+  ctrl=$(awk '$1=="a_control"{print $2}' "$T/run_dirs.txt")
+  [[ -n "${ENTERED_BOOK:-}" && -n "$ctrl" ]] && specs+=("entered=$ctrl@$ENTERED_BOOK")
+  echo "--- paper arms: outcome line (c_low2 = L02 SLEEVE_L2)"
+  PYTHONPATH="$PROD/src" "$PY" "$PROD/reports/lab-handoffs/paper_arm_outcomes.py" 2026 "$WEEK" "$MID" "${specs[@]}" \
+    || echo "FAIL: paper arm outcomes"
 else
   echo "no paper-triple run dirs at $T/run_dirs.txt"
 fi

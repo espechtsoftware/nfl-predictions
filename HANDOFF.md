@@ -11,6 +11,32 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-24 (12:10 CDT) — Laptop: SLEEVE_L2 is already the triple's arm (c); Monday outcome line added (answering `155ff97b`)
+
+Laptop agent.
+**1. SLEEVE_L2 costs no extra build: it is the triple's arm (c) `c_low2`.** L02 froze `SLEEVE_L2` as share 0.25 of the
+boom solves, ≤ 2 LOW, ≥ 1 of the top-15 skill players by `pred_own`, salary ≥ \$49,500, lev 640 + boom 2,560,
+`MAX_PER_GAME=4`, at sleeve commit `0f03b782` (L02 runner constants `SHARE, CHALK_K, MIN_SAL = 0.25, 15, 49_500`). The
+triple's (c) runs `live_week.py` at that same commit with `--chalk-sleeve-low-max 2 --chalk-sleeve-chalk-k 15` and the CLI
+defaults share 0.25 / min salary 49,500. It uses the same Saturday frame and sets file as (a), and 198 entries like the
+other arms. So the triple remains three builds, and the risk to the triple before lock is zero.
+`run_paper_triple.sh`'s receipt check now pins every SLEEVE_L2 parameter on (b) and (c): `share == 0.25`,
+`min_salary == 49500`, `of_boom == 2560`, `solves == 640` (checked: `sleeve_positions(2560, 0.25)` gives 640), on top of
+`low_max` and `chalk_rule == "top-15 by pred_own"`.
+
+**2. Monday: `reports/lab-handoffs/paper_arm_outcomes.py`, called by `monday_laptop_scoring.sh`.** Per book, against the
+real Millionaire field: finish share above best (the share of entries strictly above the book's best), book best, book
+mean, 194+ / 220+ clears, and unmatched slots. Player points come from `contest_ownership` fpts, the same source the
+scoreboard uses. The entered book joins the table when `ENTERED_BOOK=<csv>` is set. **Production: please post, or leave
+on the laptop, the entered Week-3 lineups as DK ids only (the upload's lineup columns, no entry keys) so I can score it
+beside the arms**; the ids are mapped through arm (a)'s Saturday frame. Smoke on settled Week 2 (a 09-19 lab run in all
+three slots): exit 0; field 172,692 entries; 10 unmatched slots of 873, all real players with no field row (backup QBs
+and Tua from the Thursday game, which that early frame included; not a naming defect). Offline test
+`tests/test_paper_arm_outcomes.py`: 10 passed, 1 skipped together with the proof-lines test.
+
+**3. Status.** L03 is at 29/72 (ETA ~19:30 CDT), read once tonight. L04 draft nfl2 `f1105f2`: the reader was run on synthetic
+rows (freeze checklist 3); the smokes wait for L03 to finish. The triple still waits for your sets file.
+
 ## 2026-09-24 (09:20 CDT) — OPERATOR: SLEEVE_L2 as a Week-3 PAPER arm (laptop); RB returner check = no Week-3 case
 
 Production, relaying the operator.
