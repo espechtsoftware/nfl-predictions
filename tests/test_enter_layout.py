@@ -340,3 +340,22 @@ def test_paper_relayout_live_flags_clears_resolved_actives(tmp_path):
                          "--out", str(out), "--status-csv", str(st)], capture_output=True, text=True,
                         env={**os.environ, "PYTHONPATH": str(ROOT / "src")})
     assert r2.returncode != 0 and "not empty" in (r2.stdout + r2.stderr)
+
+
+def test_live_status_rule_clears_activated_players_and_keeps_qb_notes(tmp_path):
+    """Refinement 1 on the money path: flags come from the live DK snapshot (plus QB notes), never the report tag."""
+    book, up, sets, _ = _book_fixture(tmp_path, 12)
+    rows = list(csv.reader(open(book)))[1:]
+    vf = {"lineups": [{"position": i + 1, "source": "x", "salary": 1, "flags": (
+        {rows[i][0]: ["report:Questionable", "DK:Q"]} if i in (1, 2) else
+        {rows[i][0]: ["qb:backup-risk"]} if i == 3 else {})} for i in range(12)]}
+    (tmp_path / "vf.json").write_text(json.dumps(vf))
+    snap = tmp_path / "snap.csv"
+    with open(snap, "w", newline="") as f:
+        w = csv.writer(f); w.writerow(["id", "status"])
+        w.writerows([[p, "Q" if p == rows[2][0] else ""] for r in rows for p in r])   # row 1's player now active
+    assert EL.flagged_positions(tmp_path / "vf.json", 12) == {1, 2, 3}
+    assert EL.live_flagged_positions(tmp_path / "vf.json", 12, rows, snap) == {2, 3}
+    short = tmp_path / "short.csv"; short.write_text("id,status\n1,Q\n")
+    with pytest.raises(EL.LayoutError, match="lacks"):
+        EL.live_flagged_positions(tmp_path / "vf.json", 12, rows, short)

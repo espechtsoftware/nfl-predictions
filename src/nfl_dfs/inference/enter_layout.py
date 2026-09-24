@@ -204,6 +204,32 @@ def flagged_positions(vetting: Path, n_rows: int) -> set[int]:
     return out
 
 
+LIVE_FLAG_STATUSES = {"Q", "D", "O", "OUT", "IR", "QUESTIONABLE", "DOUBTFUL"}
+QB_NOTE_TAGS = ("qb", "backup_qb")
+
+
+def live_flagged_positions(vetting: Path, n_rows: int, book_rows: list[list[str]], live_status: Path) -> set[int]:
+    """Refinement 1 (operator, 2026-09-24; run after the Sunday inactives): a row is flagged when any player's CURRENT
+    DraftKings status is Q/D/O/IR, or the vetting gave it a QB-availability note (DK does not carry those). The Friday
+    injury-report tag is not used: DK drops Q when a player is declared active, the report never clears.
+    `live_status` is a CSV snapshot (id = dk_player_id, status) taken at run time, kept for the audit trail."""
+    v = json.loads(Path(vetting).read_text())
+    lineups = v.get("lineups")
+    if not isinstance(lineups, list) or not lineups or "position" not in lineups[0] or len(lineups) != n_rows:
+        raise LayoutError(f"the live flag rule needs the final vetting by position for the {n_rows}-row book")
+    with open(live_status, newline="") as f:
+        rows = list(csv.DictReader(f))
+    if not rows or not {"id", "status"} <= set(rows[0]):
+        raise LayoutError(f"live status snapshot {live_status} lacks id/status")
+    status = {str(r["id"]): str(r.get("status") or "").upper() for r in rows}
+    missing = {p for row in book_rows for p in row} - set(status)
+    if missing:
+        raise LayoutError(f"the live status snapshot lacks {len(missing)} of the book's players (wrong draft group?)")
+    qb = {int(x["position"]) - 1 for x in lineups
+          if any(str(t).split(":", 1)[0] in QB_NOTE_TAGS for tags in (x.get("flags") or {}).values() for t in tags)}
+    return qb | {i for i, row in enumerate(book_rows) if any(status[p] in LIVE_FLAG_STATUSES for p in row)}
+
+
 def check_aligned(book_rows: list[list[str]], upload_rows: list[list[str]]) -> None:
     """The book (dk_player_id) and the upload (draftable ids) must be the same lineups in the same order: every
     player id maps to exactly one draftable id and back, slot for slot. A shifted or foreign upload breaks that."""
@@ -222,7 +248,7 @@ def check_aligned(book_rows: list[list[str]], upload_rows: list[list[str]]) -> N
 
 def load_order(order: str, n_rows: int, *, book: Path | None, vetting: Path | None, sets: Path | None,
                pin_first: bool, upload_rows: list[list[str]] | None = None,
-               protect: int = HEAD_TOP) -> tuple[list[int], dict]:
+               protect: int = HEAD_TOP, live_status: Path | None = None) -> tuple[list[int], dict]:
     """The order over upload rows, and a record of how it was made. Fails closed on any missing input."""
     if order not in ORDERS:
         raise LayoutError(f"unknown ENTER_ORDER {order!r}; expected one of {ORDERS}")
@@ -237,7 +263,9 @@ def load_order(order: str, n_rows: int, *, book: Path | None, vetting: Path | No
         raise LayoutError(f"book {book} has {len(brows)} rows but the upload has {n_rows}; they must be the same book")
     if upload_rows is not None:
         check_aligned(brows, upload_rows)
-    flagged = flagged_positions(Path(vetting), n_rows)
+    _, _brows = _read_rows(Path(book))
+    flagged = (live_flagged_positions(Path(vetting), n_rows, _brows, Path(live_status)) if live_status
+               else flagged_positions(Path(vetting), n_rows))
     with open(sets, newline="") as f:
         srows = list(csv.DictReader(f))
     if not srows or not {"dk_player_id", "set", "pos"} <= set(srows[0]):
@@ -256,7 +284,8 @@ def load_order(order: str, n_rows: int, *, book: Path | None, vetting: Path | No
     perm = fewest_low_order(brows, low_ids, flagged, pin_first, protect=protect)
     counts = [sum(1 for pid in brows[i] if pid in low_ids) for i in range(n_rows)]
     return perm, {"order": "fewest-low", "sets": str(sets), "book": str(book), "vetting": str(vetting),
-                  "pin_first": pin_first, "flagged_rows": len(flagged), "protected_ranks": protect, "sets_coverage": round(coverage, 4),
+                  "pin_first": pin_first, "flagged_rows": len(flagged), "protected_ranks": protect,
+                  "flag_rule": f"live DK status ({live_status})" if live_status else "vetting tags (INJURY_TAGS)", "sets_coverage": round(coverage, 4),
                   "low_players": len(low_ids), "skill_players_known": len(skill_known),
                   "low_count_first_10": [counts[i] for i in perm[:10]]}
 
@@ -347,6 +376,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--vetting", type=Path)
     ap.add_argument("--sets", type=Path, default=Path(os.environ["OWNERSHIP_SETS"]) if os.environ.get("OWNERSHIP_SETS") else None)
     ap.add_argument("--pin-first", action="store_true")
+    ap.add_argument("--live-status", type=Path,
+                    default=Path(os.environ["ENTER_LIVE_STATUS"]) if os.environ.get("ENTER_LIVE_STATUS") else None,
+                    help="refinement 1: a DK status snapshot (id,status); flags come from it instead of the report")
     a = ap.parse_args(argv)
     contests = _contests(a.contests)
     if a.cmd == "rows-needed":
@@ -356,7 +388,7 @@ def main(argv: list[str] | None = None) -> int:
         raise LayoutError(f"{a.cmd} needs UPLOAD_CSV and STAGE_DIR")
     body = _read_rows(a.upload)[1]
     perm_info = load_order(a.order, len(body), book=a.book, vetting=a.vetting, sets=a.sets, pin_first=a.pin_first,
-                           upload_rows=body, protect=protected_ranks(contests, a.layout))
+                           upload_rows=body, protect=protected_ranks(contests, a.layout), live_status=a.live_status)
     if a.cmd == "write":
         print("\n".join(write(contests, a.upload, a.stage, a.layout, perm_info)))
         return 0
