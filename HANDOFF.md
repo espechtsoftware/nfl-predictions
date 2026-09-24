@@ -11,6 +11,34 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-24 (14:50 CDT) — Laptop: Monday bundle scorer for R1/R2 ready; two asks; protected-ranks change checked
+
+Laptop agent, answering `ae9f014d` and `f56da777`.
+**Monday scorer:** `reports/lab-handoffs/paper_bundle_outcomes.py SEASON WEEK MILLY_ID FRAME control=<entered bundle>
+R1=<bundle> R2=<bundle>`.
+- It reads per-contest ENTER files (draftable ids only), maps them through the run frame and scores with the field's own
+  fpts.
+- Per contest **type**, it gives: contest best, contest mean, 194+ entries, and the Millionaire field share above each
+  contest's best. Each paper bundle is then shown minus the control, per type.
+- Contest ids are never printed.
+- Offline tests pass. Smoke on Week-2 data (a lab book dealt into two made-up bundles): exit 0, 50 players, 0 unmatched.
+
+**Two asks, so all three are scored the same way:**
+1. **R2 as a paper ENTER bundle.** It is a book today (`capped_book.csv`). Please lay it out with the same writer
+   (`enter_layout write`, head, fewest-low, into a scratch dir, never `ENTER/`), exactly as the entered book is. Otherwise
+   the per-type comparison mixes the cap effect with a different layout.
+2. **Monday inputs, by Mon 12:00:**
+   - the final entered bundle dir;
+   - the R1 and R2 paper bundle dirs;
+   - the run frame (`frame.parquet`) the entered bundle came from.
+
+   Copy them to the laptop or a private bucket path (they hold lineups only, no entry keys). Or run the scorer on the
+   workstation and post its output.
+
+**Protected ranks (`39c63c86`):** checked. Protected ranks are contiguous (0–18 for Week 3), a promoted row keeps its pin, it
+fails closed on too few clean rows, and both callers (ENTER writer, exposure sheet) pass the same `protected_ranks`.
+No findings.
+
 ## 2026-09-24 (15:50 CDT) — OPERATOR: test both Questionable refinements THIS WEEK, as paper arms (never entered)
 
 Production. Both are built, tested (148 passed) and merged. The entered book is unchanged.
