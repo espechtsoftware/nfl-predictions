@@ -1,0 +1,76 @@
+# Week 3 weekend — the operator's commands (Sat 09-26 / Sun 09-27 / Mon 09-28)
+
+Written 2026-09-24 by production for the operator. The Week-3 changes since the Week-2 sheet:
+- the **head** entry layout with the **fewest-LOW** order;
+- **clean protected ranks** (the top rows and every single-entry contest);
+- a **live-status re-layout** after the Sunday inactives (refinement 1, on your go);
+- **frozen-map swaps**;
+- two **paper** arms (refinement 2's capped book, and the R1 comparison), which are never uploaded.
+
+Every command runs in the integration checkout:
+
+    cd /home/erich/projects/.nfl-predictions-worktrees/week3-readiness-20260921
+
+## Saturday 09-26
+
+| CT | who | what |
+|---|---|---|
+| 09:30 | scheduler | props pull (`s-props`), automatic |
+| **09:45** | **you** | the projection refresh, in this order: the three lines in the box below |
+| ~10:15 | assistant | checks that the `project-slate` log says `market blend source: props` and runs the proof lines (`reports/lab-handoffs/week3_proof_lines.py`) |
+| ~10:15 | you or assistant | the ownership sets file (below) |
+| **before 10:30** | **you** | arm the timers (below) |
+| 10:30 → ~20:30 | timers | the D12800 build (the entry); the D6400 fallback at 10:35 |
+| evening | assistant | reads the TODAY file, the exposure sheet and the paper bundles; tells you what to check |
+
+**09:45 refresh:**
+
+    gcloud run jobs execute build-features --project nfl-predictions-503414 --region us-central1 --wait
+    gcloud run jobs execute tabpfn-gen --project nfl-predictions-503414 --region us-central1 --update-env-vars TABPFN_UPCOMING=2026:3 --wait
+    gcloud run jobs execute project-slate --project nfl-predictions-503414 --region us-central1 --wait
+
+**Sets file** (the fewest-LOW order reads it; the arming preflight refuses without it):
+
+    PYTHONPATH=src /home/erich/projects/nfl-predictions/.venv/bin/python scripts/ownership_sets.py sets --week 3 --group 153769 --out /home/erich/week3-sunday/ownership_sets.csv
+
+**Arm** (the preflight prints every contest's ranks: check that the wildcats show 1-2 / 3-4 and the nineteen sat20s show
+ranks 1 to 19, one each):
+
+    ENTER_LAYOUT=head ENTER_ORDER=fewest-low OWNERSHIP_SETS=/home/erich/week3-sunday/ownership_sets.csv \
+      PROMOTE_FIRST_ENTRY=1 RUN_WEEK3_SHADOW=1 scripts/arm_week_timers.sh 3 --run
+
+- `PROMOTE_FIRST_ENTRY=1` is the Week-2 mean promotion (row 1 becomes the highest-mean clean row among the first 30).
+  Use 0 to skip it.
+- `RUN_WEEK3_SHADOW=1` is the selection-only shadow on the Saturday D12800 build: paper only, never uploaded.
+- `HOST_INGEST` stays unset, because the host DraftKings loop is already running.
+
+## Sunday 09-27
+
+| CT | who | what |
+|---|---|---|
+| 09:12 | timer | watchers start. Assistant checks that all three processes are up (the 09-20 lesson) |
+| **10:30** | NFL | early-game inactives |
+| ~10:35 | assistant | `scripts/sunday_live_relayout.sh --dry-run`: DK status snapshot, and which rows move into or out of the protected ranks |
+| ~10:40 | **your go** | assistant publishes `scripts/sunday_live_relayout.sh`. It must run **before any swap**, and refuses after one |
+| ~10:45 | assistant, on your confirmation of each OUT | `scripts/sunday_swap.sh ROW:OUT_DD:IN_DD [...]` per scratch. Only confirmed OUT/IR is removed; a Questionable player who is active stays |
+| **by 11:15** | **you** | upload `DKEntries-FILLED-keepers-first.csv` (the watcher refills it after every publish) in the DraftKings site |
+| ~13:35 / ~13:55 | NFL | late-game inactives (about 90 minutes before the 15:05 / 15:25 kickoffs) |
+| then | assistant + you | `scripts/sunday_swap.sh` for late scratches. Swaps after the noon lock are allowed only for players whose game has not started; the tool refuses the rest. **Please be reachable.** |
+
+Nothing is ever uploaded from `paper-r2-*` or `paper-r1` directories (they carry a PAPER-ONLY marker). If the live
+re-layout or a swap fails, `ENTER/` is unchanged and the previous bundle stays the upload.
+
+## Monday 09-28
+
+- **You:** download every entered contest's full standings and the contest entry-history export into
+  `/home/erich/week3-sunday/ENTERED/standings/` (DraftKings purges them after about 4 days).
+- **Assistant:** loads them (`capture-dk-standings`), runs the scoreboard, posts the Monday inputs for the laptop's paper
+  scoring by 12:00, and writes the week's evidence record. The inputs are the entered bundle, the R1 and R2 paper bundles
+  and the run frame.
+- **Laptop:** the paper triple, the SLEEVE_L2 arm, and the R1/R2 bundles scored per contest type; the Route read; the L05 read.
+
+## Deadlines that are not this weekend
+
+- **Tue 09-29:** the laptop cutover (`reports/2026-09-24-production-moves-to-the-laptop.md` §3). The DK loop moves first.
+- **Wed 10-07:** resume the three SIS pass-tail schedulers after the Week-5 SIS acquisition
+  (`reports/2026-09-22-sis-pass-tail-2026-pass-bar.md`; Weeks 3–4 are deliberate no-runs).
