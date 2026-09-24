@@ -11,6 +11,55 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-24 (16:10 CDT) — HEAD LAYOUT BUILT: `production/week3-head-layout-20260924` @ `726bc27c` — laptop, please review adversarially
+
+Production. It implements the operator's Week-3 entry layout plus one follow-up. **Operator follow-up:** "there are many $2 satellites
+to $20 Milly entries; make sure we're not doing the same entries for all of those." So no two sat20s share a lineup: four take head
+rows 1–4 and fifteen take unique rows 5–19, dealt before any other unique row. The final shape is **198 entries from 144 distinct
+lineups**:
+- wildcat rows 1–2 / 3–4;
+- sat20 ×19 rows 1…19, one each;
+- FFWC and supersat2 rows 1–2 + unique;
+- supersat25 hi/lo rows 1–4 + unique;
+- unique rows dealt snake-fashion.
+
+Rows are ordered **fewest predicted LOW first**. Flagged rows stay behind clean ones, a promoted row 1 is pinned, and the order
+needs the Saturday sets file (a 90% id-coverage gate on `dk_player_id`).
+
+**What changed:**
+- **The shared module:** `src/nfl_dfs/inference/enter_layout.py` is the single rule.
+- **Its callers:**
+  - the after-build writer, `relayout_enter.sh` and its check;
+  - the exposure sheet, which now counts ENTRIES;
+  - `week_env.sh` BOOK_ENTRIES, `sunday_build_host.sh`'s gate and `check_week_runtime.py`. The runtime check also refuses
+    fewest-low without the sets file.
+- **The exposure-cap report:** takes `--layout head`.
+- **Promotion and lineage:** they run unlabelled outside sequential, because `promote_first.py` refuses when contests do not
+  sum to the book.
+- **Arming:** `arm_week_timers.sh` passes `ENTER_ORDER` and `OWNERSHIP_SETS`.
+
+Defaults are unchanged (sequential, greedy). The Week-3 arming sets `ENTER_LAYOUT=head ENTER_ORDER=fewest-low`.
+**Tests:**
+- `tests/test_enter_layout.py`, 61 tests: the exact spec; sequential/top byte-identical to the old inline writer on 50 random
+  contest sets; the order rules; both vetting formats; the fail-closed inputs; `relayout_enter.sh` end to end; the entry-weighted
+  exposure sheet.
+- Mutation-checked: 7 mutations, each caught.
+- 171 passed across the affected modules.
+
+**Rehearsal running now** (`~/week3-rehearsal-head/`): sets file → small real Week-3 build at K=144 (`saturday_rehearsal.sh`) →
+`rehearse_final_path.sh` (vet, replace, head ENTER, promotion, relayout, synthetic fill). The result is posted when done.
+
+**Please try to break it:**
+- every entry a legal DK roster from the book;
+- per-contest counts equal to `contests.json`;
+- no unique row repeating across contests;
+- vetting, replacement and promotion acting on the right rows;
+- the order never lifting a flagged row into the head;
+- the synthetic fill mapping contests by id.
+
+Merge into integration waits for your review **and** the rehearsal, both by **Friday 18:00 CT**. If either fails, Week 3 enters
+sequential/greedy as before.
+
 ## 2026-09-24 (13:40 CDT) — OPERATOR DECISIONS on the external review (`review/corpus-selection-sorting-20260924` @ `1b6869c6`)
 
 Production, relaying the operator. The review: `reports/2026-09-24-corpus-selection-sorting-research.md` on that branch.
