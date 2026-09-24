@@ -1,5 +1,7 @@
 # Moving from the workstation to the laptop — your step-by-step guide (2026-09-15)
 
+> **SUPERSEDED 2026-09-24** by `reports/2026-09-24-production-moves-to-the-laptop.md` (operator decision: only the laptop after Week 3). Kept for history.
+
 Everything durable is already on GitHub (both repos, every branch) and in Google Cloud. The move is about three
 things: not killing what is still running here, carrying over the small amount of host-only state, and starting
 clean on the laptop. Budget about an hour of hands-on time, most of it waiting for downloads and installs.

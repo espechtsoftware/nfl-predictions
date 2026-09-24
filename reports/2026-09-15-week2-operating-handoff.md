@@ -528,7 +528,7 @@ code there. Both directions use branches, never prose relayed by the operator:
 
 ---
 
-## 11. Moving to another machine (the laptop) — checklist (DEFERRED: the operator stays on this workstation through Week 2; the operator's guide is `reports/2026-09-15-workstation-to-laptop-transition-guide.md`)
+## 11. Moving to another machine (the laptop) — SUPERSEDED 2026-09-24 by `reports/2026-09-24-production-moves-to-the-laptop.md` (the workstation retires after Week 3); kept for history — checklist (DEFERRED: the operator stays on this workstation through Week 2; the operator's guide is `reports/2026-09-15-workstation-to-laptop-transition-guide.md`)
 
 Everything durable is on GitHub (both repos, every branch pushed) and in GCS/BigQuery. What is host-only, and what
 assumes this host's paths:
