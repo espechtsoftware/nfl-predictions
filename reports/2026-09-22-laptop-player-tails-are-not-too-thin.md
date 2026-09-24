@@ -1,3 +1,5 @@
+> **SUPERSEDED 2026-09-23 (WR lower tail), production `dbad2eb1` / `reports/2026-09-23-wr-bust-gap-sizing.md`:** the "WR below sim p10" figures here (3.5% / 4.5%) and the conclusion that WR floors are simulated too low are an **artifact of this check dropping realized-zero games**. With active zeros kept and a randomized PIT, WR <p10 is 6.8% / 5.9%, and in points the WR lower tail is calibrated. **Do not carry the WR lower-tail line into the cash shadow.** The real lower-tail misses are active TEs scoring 0 (7.7% realized vs 0.2% simulated) and QBs below 6 points (10.6% vs 8.3%). The upper-tail rows below are unaffected.
+>
 > **CORRECTED 2026-09-22 (late) after a second season (2019). Read this box; the 2021-only text below is superseded where
 > it says tails are "wide".**
 >
@@ -8,7 +10,7 @@
 > | game-heavy (5+ from one game) lineups above p99 | 0.20% | 1.41% | 1% |
 > | slate-level rank: outer-10% share / KS p | 0.06 / 0.18 | 0.12 / 0.46 | 0.10 / — |
 > | realized vs simulated level sd across slates | 8.9 vs 11.2 | 11.2 vs 11.3 | equal |
-> | WR below sim p10 | 3.5% | 4.5% | 10% |
+> | WR below sim p10 (**superseded 09-23: artifact of dropped zeros**) | 3.5% | 4.5% | 10% |
 >
 > **Corrected conclusion.** Upper-tail calibration **varies by season** (thin in 2019, wide in 2021; pooled ≈ 1.2% above p99,
 > close to nominal), so "the tails are not too thin" was a one-season result. What holds in **both** seasons:
@@ -18,8 +20,8 @@
 > Lineups break their simulated ceilings **when the whole slate scores high**, and high slates arrive at the calibrated
 > rate. So the missing ceiling is still best read as the level draw (W1-2026 at rank 0.98) plus field size, not a structural
 > tail or co-movement defect. The confidence is lower than the 2021-only text claimed.
-> **Replicates in both seasons:** WRs bust **less** often than simulated (3.5% and 4.5% below p10), so WR floors are
-> simulated too low. The QB bust result (14.6%) **does not** replicate (10.8% in 2019).
+> **[Superseded 09-23 — artifact of dropped zero games; see the top banner]** ~~**Replicates in both seasons:** WRs bust **less** often than simulated (3.5% and 4.5% below p10), so WR floors are
+> simulated too low.~~ The QB bust result (14.6%) **does not** replicate (10.8% in 2019).
 > Scripts (season as the first argument): `reports/lab-handoffs/2026-09-22-{tail_calibration,lineup_tail,level_rank}-by-season.py`.
 
 # The simulator's missing ceiling is not a tail defect: players, lineups and slate level are all calibrated or wide (2021)
@@ -53,7 +55,7 @@ Mean simulated 12.25 vs realized 12.03 (level fine in 2021).
    game/team co-movement) or from **the slate-wide level**, the one simulator defect that survived production's Addendum 2
    (W1 at world-rank 0.98). A slate whose level lands in the simulator's top 2% is exactly where a 274 can appear in
    reality and not in the worlds.
-3. **Lower tails are miscalibrated by position:** QBs finish below their simulated p10 **14.6%** of the time (they bust
+3. **[WR part superseded 2026-09-23 — dropped-zero artifact; see the top banner]** **Lower tails are miscalibrated by position:** QBs finish below their simulated p10 **14.6%** of the time (they bust
    more than simulated), while WRs do so only **3.5%** (they bust less than simulated). The QB result is
    consistent with the availability and early-exit failures this season fixed only partly. The WR result means WR floors
    are simulated too low. Neither affects the ceiling, but both matter for the cash shadow.
