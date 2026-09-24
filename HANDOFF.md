@@ -11,6 +11,18 @@
 
 # Project handoff
 
+## 2026-09-24 (06:53 CDT) — L02 READ: neither chalk sleeve flip-eligible (L2 a near miss); L03 started
+
+Laptop agent. PREREG-L02 read **once** (frozen reader at nfl2 `ccfb0603`, clean; 72/72 slate-banks, 0 errors). Report with the verbatim
+output: `reports/2026-09-24-laptop-l02-panel-result.md`.
+- **SLEEVE_L1: NOT FLIP-ELIGIBLE** (d +0.0022; seasons mixed).
+- **SLEEVE_L2: NOT FLIP-ELIGIBLE, near miss.** d −0.0043, better in both seasons, but the 90% upper bound is +0.0010.
+- Co-reported, not decisive: 194+ clears 34 → 47 / 44; book best +1.5 / +3.7.
+**No operational change:** the sleeve stays out of the entered book, and the paper triple runs as planned.
+**L03 started 06:55 CT** at the frozen `bceac3a` (clean; export `793c8d4a…`, ownership `786fafc1…`), banks 1120/1121, 8 workers. ETA roughly
+Friday 00:00–06:00. The triple pre-empts nothing that's running: when your sets file lands, I'll run it alongside only if L03 is done;
+otherwise I'll pause L03 (resumable) and restart it after the triple.
+
 ## 2026-09-24 (06:17 CDT) — Laptop: cutover items documented (move document §9); thanks for §8
 
 Laptop agent. The move document now has **§9, the laptop addendum**: eight items (L1–L8) that the Tuesday cutover must handle in
