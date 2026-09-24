@@ -83,6 +83,14 @@ def assign_sets(pred: pd.DataFrame, chalk_share: float, low_share: float) -> pd.
     return out
 
 
+def stable_order(spf: pd.DataFrame) -> pd.DataFrame:
+    """BigQuery returns rows in no fixed order, and 78 name keys of the 2022-25 panel map to more than one row, so an
+    unsorted drop_duplicates (and LightGBM's row order) made the sets depend on the query's row order (found 2026-09-24:
+    a rebuild of L02's walk-forward sets differed in 266 labels). Sort on every column first."""
+    cols = [c for c in ("season", "week", "key", "gsis_id", "id", "salary", "proj", "name") if c in spf.columns]
+    return spf.sort_values(cols, na_position="last", kind="stable").reset_index(drop=True)
+
+
 def training_frame(query_df, project: str) -> pd.DataFrame:
     own = query_df(f"""
         WITH c AS (
@@ -104,6 +112,7 @@ def training_frame(query_df, project: str) -> pd.DataFrame:
         FROM `{project}.nfl_predictions.slate_player_features`
         WHERE panel_run_id = "{PANEL}" AND season BETWEEN 2022 AND 2025""")
     spf["key"] = spf.name.map(norm)
+    spf = stable_order(spf)
     d = spf[spf.salary.notna() & spf.proj.notna()].drop_duplicates(["season", "week", "key"])
     have = set(map(tuple, own[["season", "week"]].drop_duplicates().to_numpy()))
     d = d[[(s, w) in have for s, w in zip(d.season, d.week)]]
@@ -271,11 +280,26 @@ def replay_frame(query_df, project: str, seasons: list[int]) -> pd.DataFrame:
         SELECT season, week, id, gsis_id, name, team, pos, salary, mean_projection AS proj, proj_p90, implied_team_total
         FROM `{project}.nfl_predictions.slate_player_features`
         WHERE panel_run_id = "{PANEL}" AND season IN ({", ".join(str(int(v)) for v in seasons)})""")
+    spf = stable_order(spf)
     x = spf[spf.salary.notna() & spf.proj.notna() & spf.gsis_id.notna()].drop_duplicates(["season", "week", "gsis_id"])
     return add_features(x, ["season", "week"])
 
 
-def replay_sets(d: pd.DataFrame, seasons: list[int], out_dir: Path, pred_frame: pd.DataFrame | None = None) -> list[dict]:
+def replay_lag_features(pred_frame: pd.DataFrame, d: pd.DataFrame) -> pd.DataFrame:
+    """Lag inputs for replay prediction rows (L05, 2026-09-24): the training panel `d` is the history, exactly as in
+    training (add_lag_features), keyed by the same name key; weeks W-1..W-3 only, so a W row sees no week >= W.
+    Nameless fringe rows get NaN lags rather than the panel's one nameless history row."""
+    x = pred_frame.copy()
+    named = x.name.notna() & (x.name.astype(str).str.strip() != "")
+    x["key"] = x.name.map(norm)
+    lag = lag_lookup(d[["key", "season", "week", "own", "salary"]], x)
+    for c in LAG_FEATURES:
+        x[c] = lag[c].where(named)
+    return x
+
+
+def replay_sets(d: pd.DataFrame, seasons: list[int], out_dir: Path, pred_frame: pd.DataFrame | None = None,
+                features: list[str] | None = None) -> list[dict]:
     """Walk-forward historical sets for the replay panel (laptop, 2026-09-22): for season S the model AND the rank-rule
     shares are fit on seasons < S only (training frame `d`, unchanged), then every S slate that has Millionaire
     ownership in `d` is predicted from its pre-lock inputs in `pred_frame` (all players; see replay_frame).
@@ -288,7 +312,7 @@ def replay_sets(d: pd.DataFrame, seasons: list[int], out_dir: Path, pred_frame: 
         if train.empty:
             raise SystemExit(f"no seasons before {season} to fit on; walk-forward sets need a prior fold")
         chalk_share, low_share = set_shares(train)
-        model = fit(train)
+        model = fit(train, features)
         matched = set(d[d.season == season].week.unique())
         for week, x in pred_frame[(pred_frame.season == season) & pred_frame.week.isin(matched)].groupby("week"):
             x = x.copy(); x["pred_own"] = predict(model, x)
@@ -328,15 +352,21 @@ def main() -> None:
         if not a.out:
             raise SystemExit("replay-sets needs --out DIR")
         seasons = [int(v) for v in a.seasons.split(",")]
-        recs = replay_sets(d, seasons, a.out, pred_frame=replay_frame(query_df, settings.project, seasons))
+        pred = replay_frame(query_df, settings.project, seasons)
+        if a.lag_features:
+            pred = replay_lag_features(pred, d)
+        recs = replay_sets(d, seasons, a.out, pred_frame=pred, features=feats)
         import json
-        (a.out / "receipt.json").write_text(json.dumps({"panel": PANEL, "validation": val, "slates": recs}, indent=1))
+        (a.out / "receipt.json").write_text(json.dumps({"panel": PANEL, "features": feats, "validation": val,
+                                                        "slates": recs}, indent=1))
         print(f"wrote {len(recs)} slate files to {a.out}")
         return
     if not (a.week and a.group and a.out):
         raise SystemExit("sets needs --week, --group and --out")
     chalk_share, low_share = set_shares(d)
     x = slate_frame(query_df, settings, a.week, a.group)
+    # the live slate too: assign_sets breaks rank ties by input order, and BigQuery's row order is not fixed
+    x = x.sort_values([c for c in ("dk_player_id", "gsis_id", "name") if c in x.columns], kind="stable").reset_index(drop=True)
     if a.lag_features:
         x = live_lag_features(query_df, settings, x, a.season, a.week)
     x["pred_own"] = predict(fit(d, feats), x)

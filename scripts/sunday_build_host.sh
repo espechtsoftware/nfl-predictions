@@ -41,7 +41,7 @@ DOSE_FILE=${DOSE_FILE:-$OUT/dose.env}   # optional: PAID_LEV=640 PAID_BOOM=2560 
 export PAID_LEV=${PAID_LEV:-160} PAID_BOOM=${PAID_BOOM:-640}
 # 2026-09-18: the book must hold one lineup per reserved entry when ENTER_LAYOUT=sequential (unique across contests).
 # BOOK_ENTRIES defaults to 90 and is raised from contests.json when the week reserves more.
-export BOOK_ENTRIES=${BOOK_ENTRIES:-$("$PROD_PY" -c "import json,os,sys; c=json.load(open(sys.argv[1])); tot=sum(int(x['entries']) for x in c); print(max(90, tot) if os.environ.get('ENTER_LAYOUT','top')=='sequential' else 90)" "$CONTESTS_JSON")}
+export BOOK_ENTRIES=${BOOK_ENTRIES:-$(PYTHONPATH="$PROD/src" "$PROD_PY" -c "import json,sys; from nfl_dfs.inference.enter_layout import rows_needed; print(max(90, rows_needed(json.load(open(sys.argv[1])), sys.argv[2])))" "$CONTESTS_JSON" "${ENTER_LAYOUT:-sequential}")}
 LIVE="$CLONE/results/live/$WEEKDIR"; mkdir -p "$LIVE"
 echo "== $(date -u) week $WEEK group $GROUP run tag $RUN_TAG dose lev $PAID_LEV / boom $PAID_BOOM (D$((PAID_LEV + PAID_BOOM))) skip_pair ${SKIP_PAIR:-0}"
 # the run dir this build creates: newest receipt with our lev/boom whose built_utc falls inside our window (concurrent
@@ -94,16 +94,16 @@ for x in c:
     assert set(x) >= {"name", "contest_id", "entries", "keep"} and str(x["contest_id"]).isdigit() and x["entries"] >= x["keep"] >= 0, x
     assert "REPLACE" not in json.dumps(x), f"contests.json still holds a template entry: {x}"
 tot = sum(x["entries"] for x in c); keep = sum(x["keep"] for x in c); widest = max(x["entries"] for x in c)
-layout = os.environ.get("ENTER_LAYOUT", "top")
+layout = os.environ.get("ENTER_LAYOUT") or "sequential"
 print(f"contests: {[(x['name'], x['contest_id'], x['entries'], x['keep']) for x in c]} total entries {tot} keepers {keep} widest contest {widest} layout {layout}")
 # 2026-09-18: under the default `top` layout every contest independently receives the vetted book's first N, so the
 # book only has to be as large as the WIDEST contest; the sum may exceed the book size (Week 2: 97 entries across 12
 # contests, widest 23).  Under `sequential` (the Week-1 unique-across-contests layout) the SUM is the binding limit.
 book = int(os.environ.get("BOOK_ENTRIES", "90"))
-if layout == "sequential":
-    assert tot <= book, f"sequential layout needs one unique lineup per entry: {tot} entries > {book}-lineup book"
-else:
-    assert widest <= book, f"the widest contest reserves {widest} entries but the book holds {book} lineups"
+sys.path.insert(0, os.path.join(os.environ["PROD"], "src"))
+from nfl_dfs.inference.enter_layout import rows_needed   # the one layout rule (2026-09-24)
+need = rows_needed(c, layout)
+assert need <= book, f"the {layout} layout reads {need} distinct lineups but the book holds {book}"
 PYEOF
 
 # 1. the governed pair (paid K80 / shadow) with receipt checks -- skipped with SKIP_PAIR=1 (the K90 below carries the

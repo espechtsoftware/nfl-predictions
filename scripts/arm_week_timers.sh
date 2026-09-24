@@ -58,6 +58,8 @@ BASE_ENV=(env
 [[ -n "${CHOSEN_FILE:-}" ]] && BASE_ENV+=("CHOSEN_FILE=$CHOSEN_FILE")
 [[ -n "${WIN_DOWNLOADS:-}" ]] && BASE_ENV+=("WIN_DOWNLOADS=$WIN_DOWNLOADS")
 [[ -n "${ENTER_LAYOUT:-}" ]] && BASE_ENV+=("ENTER_LAYOUT=$ENTER_LAYOUT")
+[[ -n "${ENTER_ORDER:-}" ]] && BASE_ENV+=("ENTER_ORDER=$ENTER_ORDER")
+[[ -n "${OWNERSHIP_SETS:-}" ]] && BASE_ENV+=("OWNERSHIP_SETS=$OWNERSHIP_SETS")
 [[ -n "${ALLOW_FIXTURE_PIN:-}" ]] && BASE_ENV+=("ALLOW_FIXTURE_PIN=$ALLOW_FIXTURE_PIN")
 
 # The selection-only shadow is approved for the Saturday D12800 build only. Keep it out of the fallback and Sunday
@@ -94,6 +96,8 @@ cat <<EOT
 gcloud run jobs execute build-features --project nfl-predictions-503414 --region us-central1 --wait
 gcloud run jobs execute tabpfn-gen --project nfl-predictions-503414 --region us-central1 --update-env-vars TABPFN_UPCOMING=${SEASON}:${WEEK} --wait
 gcloud run jobs execute project-slate --project nfl-predictions-503414 --region us-central1 --wait
+# then, when ENTER_ORDER=fewest-low, the Saturday sets file (the preflight refuses to arm without it):
+PYTHONPATH=\$PROD/src \$PROD_PY \$PROD/scripts/ownership_sets.py sets --week ${WEEK} --group \${GROUP} --out \${OWNERSHIP_SETS}
 #
 # Saturday $SATURDAY: D12800 at 10:30 CT, D6400 fallback at 10:35 CT; Sunday: D6400 05:30 CT, D3200 09:10 CT,
 # D800 T-70 at 10:50 CT, persistent watchers at 09:12 CT.

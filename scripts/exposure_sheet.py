@@ -22,6 +22,10 @@ ap = argparse.ArgumentParser()
 ap.add_argument("--book", required=True); ap.add_argument("--frame", required=True); ap.add_argument("--contests", required=True); ap.add_argument("--out", required=True)
 ap.add_argument("--market-source-csv"); ap.add_argument("--season", type=int); ap.add_argument("--week", type=int)
 ap.add_argument("--status-csv"); ap.add_argument("--draft-group", type=int); ap.add_argument("--field-own-csv")
+# 2026-09-24: under a non-sequential ENTER_LAYOUT a book row can sit in many contests, so shares are counted over
+# ENTRIES: each contest's rows through the same layout and order (enter_layout.py) the ENTER writer uses.
+ap.add_argument("--vetting", help="the book's vetting_final.json or vetting.json (needed for ENTER_ORDER=fewest-low)")
+ap.add_argument("--pin-first", action="store_true", help="the book's row 1 is a promoted entry (fewest-low keeps it first)")
 a = ap.parse_args()
 
 book = [r for r in csv.reader(open(a.book)) if r and not r[0].startswith("QB")]
@@ -35,6 +39,17 @@ if "gsis_id" in fr.columns or "id" in fr.columns:
 else:
     id_by_gsis = {}
 contests = json.load(open(a.contests)); contests = contests if isinstance(contests, list) else contests["contests"]
+import os
+from nfl_dfs.inference import enter_layout  # noqa: E402
+_layout = os.environ.get("ENTER_LAYOUT") or "sequential"
+if _layout != "sequential":
+    _perm, _info = enter_layout.load_order(os.environ.get("ENTER_ORDER") or "greedy", len(book), book=pathlib.Path(a.book),
+                                           vetting=pathlib.Path(a.vetting) if a.vetting else None,
+                                           sets=pathlib.Path(os.environ["OWNERSHIP_SETS"]) if os.environ.get("OWNERSHIP_SETS") else None,
+                                           pin_first=a.pin_first)
+    _rows = enter_layout.contest_rows(contests, len(book), _layout, _perm)
+    print(f"{_layout} layout, {_info['order']} order: {len(book)} book rows -> {sum(len(r) for r in _rows)} entries")
+    book = [book[i] for r in _rows for i in r]      # one row per ENTRY, contests in order: the sheet's blocks now hold
 
 market_source = None
 if a.market_source_csv:
