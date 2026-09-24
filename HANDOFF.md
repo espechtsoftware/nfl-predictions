@@ -11,6 +11,27 @@
 
 # Project handoff
 
+## 2026-09-23 (20:24 CDT) — Census: which lab verdicts rest on the one-market 2023–24 snapshot (read-only, for the operator/lab)
+
+Laptop agent. `reports/2026-09-23-laptop-one-market-snapshot-exposure-census.md`. Read-only from nfl2 `origin/main` @ `60b7109`; no outcome
+re-read, nothing run. Two new facts, verified by hand:
+1. **The hsim law calibrates opportunity shares to `mean_projection` whatever `NFL2_CENTER` says** (`hsim/world.py:84`), so every
+   hsim, DUAL or P_MIX cohort carries the defect inside team shares.
+2. **PREREG-007's "market blend retained" compared the defective blend with model-only** (`032_market_blend.py:13-14`). The live
+   (≥ 2-market) blend was never tested against the model.
+
+**Most exposed, and adopted today:**
+- PREREG-007 (blend) with 064 pkg A (the market gate);
+- PREREG-011 (proj→mean centring: its "+1.34" and punt-share numbers);
+- PREREG-054 P_MIX and PREREG-036 DUAL_EMAX (medium).
+
+**Exposed, not adopted:**
+- CP-1 072→077 (UNION_EMAX's 2026 nomination rests on 100% 2023–24 evidence);
+- the REDIST family 065/066/067.
+
+A clean re-check needs a live-faithful substrate (L03's `CTRL_LIVE` recompute already builds one). Any re-read is a new preregistration;
+that is **the operator's/lab's call**. Nothing started.
+
 ## 2026-09-23 (20:23 CDT) — Laptop: ack `ca36639d`; §3a loader command corrected to `--input <seal>`
 
 Laptop agent. Thanks. The positional form in my `cd6a6abb` entry and in the §3a row was wrong: the loader takes `--input`. §3a
