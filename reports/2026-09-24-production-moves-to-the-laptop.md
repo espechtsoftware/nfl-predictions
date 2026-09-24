@@ -173,3 +173,116 @@ The full per-file table was a session scratch file; this section is its durable 
   the week. The first clean run comes after the Friday or Saturday 09:30 props pull.
 - The weekly steps are §3a of `reports/2026-09-15-week2-operating-handoff.md`. The Week-3 operator steps are in
   `reports/2026-09-21-operator-runbook-week3.md`.
+
+## 8. Answers to the laptop's cutover questions (`9ecc8183`)
+
+Answered by production from the tracked scripts and the Week-2 record. Where a detail is not pinned in a script, the
+answer names the file to read, not a remembered value.
+
+**Laptop state noted:**
+- The existing `~/projects/.nfl2-worktrees/week3-live-center` at `2dc116c` stays untouched during Week 3. At
+  cutover, recreate it at the Week-4 pin. The path must match `CLONE` in `scripts/week_env.sh`, or export `CLONE`.
+- The DK unit runs through a drop-in on a dedicated integration checkout (`~/projects/nfl-predictions-week4`), not by
+  switching `main`. Agreed.
+
+**1. Monday settlement.**
+- The operator downloads each entered contest's full standings (`https://www.draftkings.com/contest/exportfullstandingscsv/<contestId>`;
+  DraftKings purges them after about 4 days) and the contest entry-history export, into `~/week<W>-sunday/ENTERED/`.
+  Week 2 used `ENTERED/standings/`.
+- Load them with `nfl-dfs capture-dk-standings …`: first without `--apply` (validation), then `--apply --confirm-settled
+  --confirm-full-field`. The tolerance fixes (branch `production/standings-capture-tolerances-20260921` @ `e30662dd`)
+  are on integration. The load writes `nfl_raw.contest_entries` and `nfl_raw.contest_ownership`.
+- Scoreboard: `python scripts/book_vs_field_scoreboard.py <RUN_DIR> 2026 <W> <CONTEST_ID> [--book <book.csv>]` for each
+  entered contest (the entered run dir is in the live clone's `results/`).
+- The paper triple and the cash shadow are scored by their own tools (`reports/lab-handoffs/run_paper_triple.sh`,
+  `cash_shadow_paper.py score`). The Route paired shadow is read every week.
+- Record it all in `HANDOFF.md` plus a week evidence record (pattern: `reports/2026-09-21-week2-evidence-record.md`) and,
+  when the week warrants one, a post-mortem (pattern: `reports/2026-09-21-week2-post-mortem.md`).
+- `s-score` (Tue 08:00) scores last week's projections automatically.
+
+**2. Sunday build.** `scripts/arm_week_timers.sh W` prints the plan, and `--run` arms it (operator: it writes systemd
+timers). The transient units (times CT):
+
+| unit | when | dose (LEV/BOOM) |
+|---|---|---|
+| `nfl-weekW-d12800-sat-build` | Sat 10:30 | 2560 / 10240, **the entry** |
+| `nfl-weekW-d6400-sat-build` | Sat 10:35 | 1280 / 5120, fallback |
+| `nfl-weekW-d6400-build` | Sun 05:30 | 1280 / 5120 |
+| `nfl-weekW-sunday-build` | Sun 09:10 | 640 / 2560 |
+| `nfl-weekW-t70-build` | Sun 10:50 | 160 / 640, **the T-70 build** |
+| `nfl-weekW-watchers` | Sun 09:12 | DK-entries watcher and late-inactives watcher; check that all three processes are up (the 09-20 note) |
+
+- **Before arming, Saturday ~09:45, after the 09:30 `s-props` pull:** `build-features` → `tabpfn-gen` (with
+  `TABPFN_UPCOMING=2026:W`) → `project-slate`, each `--wait`, then the proof-line check. This is not scheduled.
+- **Dose:** the D12800 values come from `chosen-dose.env`. The operator decides it and publishes it with
+  `scripts/week_inputs.py push`; the laptop pulls it with `pull`. The operator decided to hold D12800 for Week 3.
+- **Late inactives:**
+  - No automatic salary re-pull is needed. The hourly DK loop keeps salaries current, and Sunday's schedulers refresh
+    features and projections hourly (`s-features-sun` 05:30–10:30, `s-project-su` 06:00–11:00, `s-contests-sun`).
+  - The late-inactives watcher alerts. Scratches follow the protocol "remove only confirmed OUT; cap exposure instead
+    of removing actives" (Week-1 evidence in the settlement reports) and are done by hand on the chosen book.
+- **Logs:** `~/week<W>-sunday/` (`build-*.log`, `composite-*`, `after_build*.log`, watcher logs). The run dirs and
+  receipts are in `<CLONE>/results/`.
+
+**3. Lab pin.**
+- `EXPECT_SHA` defaults to `9b341d77…` in `scripts/week_env.sh` (`NFL2_EXPECT_SHA` overrides), and
+  `tests/test_week_env_defaults.py::LIVE_PIN_SHA` pins it.
+- It stays `9b341d77` for Week 4 unless a lab change must reach the money path.
+- A bump means:
+  1. a new nfl2 commit built on the current pin's lineage (not off nfl2 `main`);
+  2. the full-path smoke locally with no upload;
+  3. update both `week_env.sh` and the test in one commit;
+  4. recreate the clone clean at the new SHA;
+  5. the Saturday rehearsal (`reports/lab-handoffs/saturday_rehearsal.sh`) passes before arming.
+
+**4. Operator-only steps**, which the harness refuses to the assistant or which need the operator's accounts. Print
+these on time:
+- **Vendor logins:** `sis-download login --terminal-credentials --fresh`, `fantasy-points-download login`, and
+  whenever `verify-login` fails.
+- **LineStar `curl`** (§3a).
+- **Stake plan and dose:** fill `contests.json`, then `scripts/week_inputs.py push`.
+- **Timers and units:** `arm_week_timers.sh W --run`, the DK unit install and any user-unit writes.
+- **DraftKings browser work:** the entries export download, uploading the filled CSV, late swaps and the Monday
+  standings and entry-history exports.
+- **Git:** pushes and merges to `main`. Never `git fetch --prune`.
+- **Cloud:** create-once publishes and deleting cloud artifacts.
+- **The assistant may run:** Cloud Run executes for the week's build (standing authorization: `project-slate`,
+  `build-features`, `tabpfn-gen`), `gcloud builds submit`, and `gcloud run jobs update` of existing jobs.
+
+**5. §6:** done, above. The laptop needs none of the archived research code for production.
+
+**6. Weekly steps with no scheduler:**
+- Wednesday: the vendor capture, then `tabpfn-gen` (with `TABPFN_UPCOMING`).
+- Again after every manual `build-features`: `tabpfn-gen`.
+- Saturday: the 09:45 refresh trio.
+- Monday: the standings load.
+- The LineStar captures.
+- `week_inputs` push/pull.
+- Thursday: `week_env` (group detection) and the rehearsals.
+
+**Scheduled already** (CT; `gcloud scheduler jobs list --location us-central1`):
+
+| scheduler | what | when |
+|---|---|---|
+| `s-nflverse` | nflverse ingest | daily 05:00 |
+| `s-backup` | backup | daily 07:00 |
+| `s-freshness` | freshness check | daily 08:00 |
+| `s-features` | build-features | Tue 06:30 |
+| `s-features-route` | Route features | Thu 06:30 |
+| `s-features-sun` | build-features | Sun hourly 05:30–10:30 |
+| `s-train` | training | Tue 07:30 |
+| `s-train-k1` | training | Tue 08:30 |
+| `s-train-k1-role` | training | Tue 08:45 |
+| `s-train-k1-route` | training | Thu 07:30 |
+| `s-train-k1-route-role` | training | Thu 08:00 |
+| `s-score` | scores last week's projections | Tue 08:00 |
+| `s-project-tu` | project-slate | Tue 09:30 |
+| `s-project-su` | project-slate | Sun hourly 06:00–11:00 |
+| `s-props` | props pull | Wed–Sun 09:30 |
+| `s-odds` | odds | Wed–Sun 09:00 and 15:00 |
+| `s-weather` | weather | Fri–Sun 08:00 |
+| `s-contests` | contests | Wed–Sat 10:00 |
+| `s-contests-sun` | contests | Sun 06:00–11:00 |
+| `s-us-dfs`, `s-us-dfs-sun` | US DFS | as scheduled |
+| `s-trends` | trends | Wed 11:00 |
+| `s-dk` | Cloud Run DK pull | hourly Wed–Sun; **403s by design (defect 18)**, the host loop replaces it |

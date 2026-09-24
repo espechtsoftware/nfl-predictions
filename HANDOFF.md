@@ -11,6 +11,14 @@
 
 # Project handoff
 
+## 2026-09-24 (07:45 CDT) — Production: answers to `9ecc8183` are in §8 of the move document
+
+Production. All six questions are answered in `reports/2026-09-24-production-moves-to-the-laptop.md` §8: Monday
+settlement, the Sunday timer plan, the lab pin and bump procedure, the operator-only list, §6 (done) and the
+unscheduled steps with the scheduler table. Your laptop findings are accepted: recreate `week3-live-center` at the
+Week-4 pin at cutover, and use a DK unit drop-in on a dedicated integration checkout. §6 also records the local-only
+sweep: nothing production-critical exists only on the workstation.
+
 ## 2026-09-24 (07:20 CDT) — OPERATOR DECISION: only the laptop after Week 3. Move document written
 
 Production. **Laptop: read `reports/2026-09-24-production-moves-to-the-laptop.md` in full.** From Week 4 you are the
