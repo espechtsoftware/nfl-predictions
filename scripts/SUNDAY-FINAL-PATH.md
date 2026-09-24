@@ -15,7 +15,13 @@ Order of operations (Week-2 Sunday, reviewed by the lab on `lab/workstation-repl
    watcher sees the promoted bundle on success. If the promotion fails, the chain publishes its ordinary vetted bundle
    and records the failure for a manual retry; no partially promoted file is entered.
 6. fill: `fill_dk_entries.py` on the newest DK entries export (`sunday_watch_dk_entries.sh` until its loop ends; then by hand)
-7. late swaps: `apply_swaps.py` v1.1 (fresh-feed presence check, locked-game refusal, receipt) + `relayout_enter.sh` + fill
+6a. (2026-09-24, Week 3, operator's go) after the 10:30 CT inactives and BEFORE any swap: `sunday_live_relayout.sh --dry-run`,
+    then `sunday_live_relayout.sh` -- re-lays the bundle out with live DK statuses (refinement 1); refuses once a swap exists
+7. late swaps: **`sunday_swap.sh ROW:OUT_DD:IN_DD [...]`** (2026-09-24) = `apply_swaps.py` v1.1 (fresh-feed presence check,
+   locked-game refusal, receipt) + `relayout_enter.sh` with `ENTER_FROZEN_BUNDLE` (the published row->contest map is frozen;
+   only the receipt's cells may change; every copy of a lineup entered in several contests is edited) + fill. Never call
+   `relayout_enter.sh` for a swap without `ENTER_FROZEN_BUNDLE`: under `ENTER_ORDER=fewest-low` it refuses (fail closed),
+   and a re-derived order could move lineups between contests after a lock.
 8. page/sheet/archive: `make_page.sh`, `gen_sheet.py`, `book_sheet.py`, `swap_suggest.py`, `manifest_and_gap.py`, `qb_flags.sh`
 
 The four vetting tools (`qb_classify.py`, `qb_flags.py`, `vet_book.py`, `vet_replace_v4.py`) are byte-identical to the

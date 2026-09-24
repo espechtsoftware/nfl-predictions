@@ -27,6 +27,10 @@ if [ -n "${ENTER_BOOK_DIR:-}" ]; then
   ORDER_ARGS=(--book "$ENTER_BOOK_DIR/book.csv" --vetting "$VF")
 fi
 [ "${ENTER_PIN_FIRST:-0}" = "1" ] && ORDER_ARGS+=(--pin-first)
+# Swap re-publication (2026-09-24, laptop review HIGH): ENTER_FROZEN_BUNDLE=<the published bundle dir> keeps its row->contest
+# map exactly and changes only the swapped cells (checked against <UPLOAD>.swap.json); no re-ordering, so no lineup moves
+# between contests after a lock.
+if [ -n "${ENTER_FROZEN_BUNDLE:-}" ]; then ORDER_ARGS=(--frozen-bundle "$ENTER_FROZEN_BUNDLE"); fi
 if ! PYTHONPATH=$PROD/src $PY -m nfl_dfs.inference.enter_layout write "$CONTESTS_JSON" "$all" "$STAGE" ${ORDER_ARGS[@]+"${ORDER_ARGS[@]}"} > "$STAGE/ENTER-layout.txt" 2> "$STAGE.err"; then
   log "ENTER layout FAILED: $(head -c 300 "$STAGE.err") -- NOT published, previous ENTER/ kept"; rm -rf "$STAGE"; exit 1
 fi

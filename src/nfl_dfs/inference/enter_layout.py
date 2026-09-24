@@ -204,7 +204,7 @@ def flagged_positions(vetting: Path, n_rows: int) -> set[int]:
     return out
 
 
-LIVE_FLAG_STATUSES = {"Q", "D", "O", "OUT", "IR", "QUESTIONABLE", "DOUBTFUL"}
+LIVE_FLAG_STATUSES = {"Q", "D", "O", "OUT", "IR", "QUESTIONABLE", "DOUBTFUL", "PUP", "NFI", "SUS"}
 QB_NOTE_TAGS = ("qb", "backup_qb")
 
 
@@ -299,6 +299,61 @@ def contest_rows(contests: list[dict], n_rows: int, layout: str, perm: list[int]
     return [[perm[r] for r in rs] for rs in ranks]
 
 
+def frozen_contest_rows(contests: list[dict], bundle: Path, new_rows: list[list[str]],
+                        receipt: Path | None = None) -> tuple[list[list[int]], dict]:
+    """Swap re-publication (laptop review 2026-09-24, HIGH): a swap changes CELLS, never which book row a contest holds.
+
+    The published bundle records its own upload (ENTER-all-rows-*-KEEPERS.csv, copied at publication); every contest's
+    rows are located in it, and the new bundle takes the SAME row indices from the swapped upload. Nothing is re-ordered,
+    so no lineup moves between contests (after a lock DraftKings cannot re-assign an entry). The swapped upload may differ
+    from the bundle's only in the cells a swap receipt names (apply_swaps.py's <OUT_CSV>.swap.json) -- or, without a
+    receipt, in at most one cell per changed row."""
+    base_files = sorted(Path(bundle).glob("ENTER-all-rows-*-KEEPERS.csv"))
+    if len(base_files) != 1:
+        raise LayoutError(f"{bundle} holds {len(base_files)} ENTER-all-rows-*-KEEPERS.csv files; expected exactly one")
+    base = _read_rows(base_files[0])[1]
+    if len(base) != len(new_rows):
+        raise LayoutError(f"the swapped upload has {len(new_rows)} rows, the published bundle's upload {len(base)}")
+    index: dict[tuple, int] = {}
+    for i, r in enumerate(base):
+        if tuple(r) in index:
+            raise LayoutError(f"the published upload repeats a lineup (rows {index[tuple(r)] + 1} and {i + 1})")
+        index[tuple(r)] = i
+    per = []
+    for c in contests:
+        f = Path(bundle) / enter_filename(c)
+        if not f.is_file():
+            raise LayoutError(f"the published bundle lacks {f.name}")
+        rows = _read_rows(f)[1]
+        try:
+            per.append([index[tuple(r)] for r in rows])
+        except KeyError:
+            raise LayoutError(f"{f.name} holds a lineup that is not in the bundle's own upload") from None
+        if len(rows) != int(c["entries"]):
+            raise LayoutError(f"{f.name} holds {len(rows)} entries, contests.json says {c['entries']}")
+    changed = {(i, j) for i, (a, b) in enumerate(zip(base, new_rows)) for j, (x, y) in enumerate(zip(a, b)) if x != y}
+    if any(len(a) != len(b) for a, b in zip(base, new_rows)):
+        raise LayoutError("the swapped upload changes a row's slot count")
+    if receipt is not None and Path(receipt).is_file():
+        rec = json.loads(Path(receipt).read_text())
+        allowed = set()
+        for sw in rec.get("swaps", []):                  # apply_swaps.py v1.1: row (1-based), slot_index, out.dd
+            row, j = int(sw["row"]) - 1, int(sw["slot_index"])
+            if base[row][j] != str(sw["out"]["dd"]):
+                raise LayoutError(f"swap receipt row {row + 1} slot {j}: the published upload does not hold {sw['out']['dd']} there")
+            allowed.add((row, j))
+        if not changed <= allowed:
+            raise LayoutError(f"the swapped upload changes cells the swap receipt does not name: {sorted(changed - allowed)[:5]}")
+    else:
+        per_row: dict[int, int] = {}
+        for i, _ in changed:
+            per_row[i] = per_row.get(i, 0) + 1
+        if any(v > 1 for v in per_row.values()):
+            raise LayoutError("without a swap receipt, a row may change in at most one cell")
+    return per, {"order": "frozen (swap re-publication)", "bundle": str(bundle), "changed_cells": len(changed),
+                 "rows_changed": sorted({i + 1 for i, _ in changed}), "receipt": str(receipt) if receipt else None}
+
+
 def label(c: dict) -> str:
     return f"{c['name']}-{c['contest_id']}"
 
@@ -321,29 +376,31 @@ def _ranges(xs: list[int]) -> str:
     return ",".join(out)
 
 
-def write(contests: list[dict], upload: Path, stage: Path, layout: str, perm_info: tuple[list[int], dict]) -> list[str]:
+def write(contests: list[dict], upload: Path, stage: Path, layout: str, perm_info: tuple[list[int], dict],
+          frozen: list[list[int]] | None = None) -> list[str]:
     hdr, body = _read_rows(upload)
     perm, info = perm_info
-    per = contest_rows(contests, len(body), layout, perm)
+    per = frozen if frozen is not None else contest_rows(contests, len(body), layout, perm)
     stage.mkdir(parents=True, exist_ok=True)
     lines = [f"layout {layout}; order {info['order']}; {sum(len(r) for r in per)} entries from "
              f"{len(set(x for r in per for x in r))} distinct book rows of {len(body)}"]
     if info["order"] != "greedy":
         lines.append("order record: " + json.dumps(info, sort_keys=True))
-    ranks = assign_ranks(contests, layout)
+    ranks = assign_ranks(contests, layout) if frozen is None else [[] for _ in contests]
     for c, rows, rk in zip(contests, per, ranks):
         with open(stage / enter_filename(c), "w", newline="") as f:
             w = csv.writer(f)
             w.writerow(hdr)
             w.writerows(body[i] for i in rows)
-        lines.append(f"{label(c)}: {len(rows)} entries = ranks {_ranges(rk)} (book rows {_ranges(sorted(rows))}; "
+        lines.append(f"{label(c)}: {len(rows)} entries = ranks {_ranges(rk) if rk else 'frozen'} (book rows {_ranges(sorted(rows))}; "
                      f"keep {int(c['keep'])}) -> {enter_filename(c)}")
     return lines
 
 
-def check(contests: list[dict], upload: Path, stage: Path, layout: str, perm_info: tuple[list[int], dict]) -> list[str]:
+def check(contests: list[dict], upload: Path, stage: Path, layout: str, perm_info: tuple[list[int], dict],
+          frozen: list[list[int]] | None = None) -> list[str]:
     _, body = _read_rows(upload)
-    per = contest_rows(contests, len(body), layout, perm_info[0])
+    per = frozen if frozen is not None else contest_rows(contests, len(body), layout, perm_info[0])
     bad = []
     for c, rows in zip(contests, per):
         f = stage / enter_filename(c)
@@ -376,6 +433,10 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--vetting", type=Path)
     ap.add_argument("--sets", type=Path, default=Path(os.environ["OWNERSHIP_SETS"]) if os.environ.get("OWNERSHIP_SETS") else None)
     ap.add_argument("--pin-first", action="store_true")
+    ap.add_argument("--frozen-bundle", type=Path,
+                    default=Path(os.environ["ENTER_FROZEN_BUNDLE"]) if os.environ.get("ENTER_FROZEN_BUNDLE") else None,
+                    help="swap re-publication: keep this published bundle's row->contest map, change cells only")
+    ap.add_argument("--swap-receipt", type=Path, default=None, help="apply_swaps.py receipt (default: UPLOAD.swap.json)")
     ap.add_argument("--live-status", type=Path,
                     default=Path(os.environ["ENTER_LIVE_STATUS"]) if os.environ.get("ENTER_LIVE_STATUS") else None,
                     help="refinement 1: a DK status snapshot (id,status); flags come from it instead of the report")
@@ -387,6 +448,18 @@ def main(argv: list[str] | None = None) -> int:
     if a.upload is None or a.stage is None:
         raise LayoutError(f"{a.cmd} needs UPLOAD_CSV and STAGE_DIR")
     body = _read_rows(a.upload)[1]
+    if a.frozen_bundle is not None:
+        receipt = a.swap_receipt or Path(str(a.upload) + ".swap.json")
+        frozen, info = frozen_contest_rows(contests, a.frozen_bundle, body, receipt if receipt.is_file() else None)
+        fz = (list(range(len(body))), info)
+        if a.cmd == "write":
+            print("\n".join(write(contests, a.upload, a.stage, a.layout, fz, frozen=frozen)))
+            return 0
+        bad = check(contests, a.upload, a.stage, a.layout, fz, frozen=frozen)
+        for b in bad:
+            print(b)
+        print("staged bundle == the published bundle's row map with the swapped cells:", not bad)
+        return 1 if bad else 0
     perm_info = load_order(a.order, len(body), book=a.book, vetting=a.vetting, sets=a.sets, pin_first=a.pin_first,
                            upload_rows=body, protect=protected_ranks(contests, a.layout), live_status=a.live_status)
     if a.cmd == "write":

@@ -359,3 +359,53 @@ def test_live_status_rule_clears_activated_players_and_keeps_qb_notes(tmp_path):
     short = tmp_path / "short.csv"; short.write_text("id,status\n1,Q\n")
     with pytest.raises(EL.LayoutError, match="lacks"):
         EL.live_flagged_positions(tmp_path / "vf.json", 12, rows, short)
+
+
+def _published_bundle(tmp_path, n=150):
+    cs = week3_shaped()
+    book, up, sets, vet = _book_fixture(tmp_path, n)
+    info = EL.load_order("fewest-low", n, book=book, vetting=vet, sets=sets, pin_first=True,
+                         protect=EL.protected_ranks(cs, "head"))
+    b = tmp_path / "bundle"
+    EL.write(cs, up, b, "head", info)
+    (b / "ENTER-all-rows-1-to-198-are-the-KEEPERS.csv").write_text(open(up).read())
+    return cs, up, b
+
+
+def test_frozen_swap_changes_cells_only_and_keeps_every_contests_rows(tmp_path):
+    """Laptop review HIGH (2026-09-24): a swap re-publication keeps the published row->contest map and edits every copy."""
+    cs, up, b = _published_bundle(tmp_path)
+    rows = list(csv.reader(open(up))); hdr, body = rows[0], rows[1:]
+    top = list(csv.reader(open(b / EL.enter_filename(cs[0]))))[1][0:9]     # wildcat A's first entry
+    r = next(i for i, x in enumerate(body) if x == top)
+    new = [list(x) for x in body]; new[r][3] = "SWAPPED"
+    sw = tmp_path / "swapped.csv"
+    with open(sw, "w", newline="") as f:
+        csv.writer(f).writerows([hdr] + new)
+    (tmp_path / "swapped.csv.swap.json").write_text(json.dumps({"swaps": [{"row": r + 1, "slot_index": 3,
+                                                                          "out": {"dd": body[r][3]}, "in": {"dd": "SWAPPED"}}]}))
+    per, info = EL.frozen_contest_rows(cs, b, new, tmp_path / "swapped.csv.swap.json")
+    out = tmp_path / "out"
+    EL.write(cs, sw, out, "head", (list(range(len(new))), info), frozen=per)
+    changed = 0
+    for c in cs:
+        a = list(csv.reader(open(b / EL.enter_filename(c))))[1:]; z = list(csv.reader(open(out / EL.enter_filename(c))))[1:]
+        for x, y in zip(a, z):
+            d = [(p, q) for p, q in zip(x, y) if p != q]
+            assert d in ([], [(body[r][3], "SWAPPED")])
+            changed += bool(d)
+    assert changed >= 2                                   # the head row sits in many contests; every copy was edited
+    assert EL.check(cs, sw, out, "head", (list(range(len(new))), info), frozen=per) == []
+
+
+def test_frozen_swap_refuses_cells_the_receipt_does_not_name(tmp_path):
+    cs, up, b = _published_bundle(tmp_path)
+    rows = list(csv.reader(open(up))); body = rows[1:]
+    new = [list(x) for x in body]; new[5][2] = "X"; new[9][4] = "Y"          # two edits, receipt names one
+    rec = tmp_path / "r.json"
+    rec.write_text(json.dumps({"swaps": [{"row": 6, "slot_index": 2, "out": {"dd": body[5][2]}, "in": {"dd": "X"}}]}))
+    with pytest.raises(EL.LayoutError, match="does not name"):
+        EL.frozen_contest_rows(cs, b, new, rec)
+    new2 = [list(x) for x in body]; new2[5][2] = "X"; new2[5][3] = "Z"        # no receipt: two cells in one row
+    with pytest.raises(EL.LayoutError, match="at most one cell"):
+        EL.frozen_contest_rows(cs, b, new2, None)

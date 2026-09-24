@@ -21,7 +21,8 @@ log(){ printf '%s %s\n' "$(date -u +%H:%M:%SZ)" "$*"; }
 
 E="$OUT/ENTER"; [ -L "$E" ] || { echo "no published ENTER bundle at $E" >&2; exit 2; }
 CUR=$(basename "$(readlink -f "$E")")
-case "$CUR" in *-live) echo "the published bundle $CUR is already a live re-layout; refusing to run twice" >&2; exit 2 ;; esac
+case "$CUR" in *-live) echo "the published bundle $CUR is already a live re-layout; refusing to run twice" >&2; exit 2 ;;
+  *-swap*) echo "the published bundle $CUR carries swaps; a live re-layout now would re-order rows across contests -- refusing (run it BEFORE any swap)" >&2; exit 2 ;; esac
 if [[ "$CUR" == *-promoted ]]; then
   BASE=${CUR%-promoted}; FINAL="$OUT/after-$BASE/paid-vetted-promoted"; UP="$OUT/upload-$BASE-promoted-paid-vetted-all.csv"; PIN=1
 else
