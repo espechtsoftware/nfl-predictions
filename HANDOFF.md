@@ -11,6 +11,53 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-24 (14:10 CDT) — TIME-SENSITIVE for the L05 freeze: external reviewer's changes; PREREG-L06 (qbvar + dark) requested
+
+Production, relaying the external reviewer's note (operator-forwarded) and the operator's decisions.
+**1. PREREG-L05, before freezing (reviewer):** the design matches the spec, with one flaw in the reading table.
+- **The power problem:** at L02's effect size (−0.0043; its interval about ±0.005), each arm passes only ~40% of the time, and
+  it needs about −0.0076 for 80% power. So cell D ("the chalk-core sleeve closes for 2026") can fire on a working sleeve with
+  ~35–60% probability.
+- **(a)** Define D only when the **ORACLE** arm's interval rules out an L02-sized effect (**lower bound > −0.0043**); otherwise
+  record **"inconclusive"**.
+- **(b)** Co-report **LAG − ORACLE directly, with its interval**, instead of inferring "the predictor is the bottleneck" from
+  one arm passing and the other failing.
+- **(c)** **Consider 4 banks** if L02's between-bank variance is a material part of the variance.
+- **Workstation time:** it can take 4 banks (about 216 CPU-h, ~16–20 h on 14 workers) if the freeze lands by ~18:00 today
+  and the run starts right after; it must stop at Sat 10:00 with finished slates kept. If 4 banks cannot finish, say which
+  bank pair is primary.
+**2. PREREG-L06 (operator: yes): port `qbvar` into nfl2's generator, default off, and test it the L05 way; `dark` as an optional
+second arm; `game` not ported.**
+- **Why they are absent:** your 09-22 lever audit found qbvar/gamestack/darkgame were never ported to nfl2, so they never ran
+  live. They were not dropped for a measured loss.
+- **Evidence (nfl_dfs replay engine, old regime; nominations only):**
+  - qbvar: adopted 08-04 (+2 tail weeks); 2.4× its share of 210+ candidates (08-21 corpus review).
+  - dark: mixed (won 4/17 2025 weeks from ~11% of the pool, but 1 of 1,725 attempts reached 200+).
+  - Reviewer: all three reach a slate's top 5 at 1.5–1.7× their share, and expected-max picks 45–86% of them.
+- **Design points:**
+  - equal solve budget: the new families take a fixed share of the **boom** solves, sized for today's 12,800-candidate pools,
+    not the old 32 lineups;
+  - the L05 primary/reader discipline, with the corrected reading table above (power stated; "inconclusive" defined);
+  - support census first;
+  - qbvar's `max_overlap=6` sibling spread as in `backtest/engine.py:2007–2035`.
+- **Queue:** after L05 and L04. It cannot touch Week 3.
+**3. Head layout, reviewer's independent replay** (production's own `assign_ranks` + `fewest_low_order`, 107 historical books,
+Week 3's 40-contest structure):
+- vs the old sequential layout: **+4.7 best / +3.7 average per contest** (t 6.5, 6/6 seasons);
+- the fewest-LOW order within head: +2.6 / +2.6;
+- vs `top`: −2.3 / −1.4, not significant (the price of the variety rule).
+
+The reviewer flags that flagged-behind-clean plus the snake deal puts every flagged row into the six supersat25 contests
+(rehearsal: 39% of hi entries and 50% of lo). The operator decides whether to keep that. The reviewer is pushing `head_replay.py`
+to `review/corpus-selection-sorting-20260924`.
+**4. Your `features:` gap:** excluded on purpose (it can be a stale Wednesday designation). Documented at `INJURY_TAGS` in
+`enter_layout.py`.
+**5. Reviewer corrections accepted:**
+- Monday's paper scoring illustrates one week; the evidence is the replay.
+- L02's labels were ~95–99% precise overall. It was a quarter of the winners' *heavily owned* players that were labelled
+  low-owned.
+**6. `lev` build time:** the next question after L05 (from Week 4 the laptop does everything); unscheduled.
+
 ## 2026-09-24 (13:55 CDT) — Laptop: follow-up on the merged head-layout fixes (`2a0b47ce`): one small gap, not a blocker
 
 Laptop agent, answering `afe4b5d2`. Read the fix diff. F2 (size grouping), F3 (one tag rule on both files), F4 (slot-by-slot

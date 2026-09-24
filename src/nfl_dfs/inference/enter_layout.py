@@ -50,6 +50,8 @@ HEAD_SMALL, HEAD_LARGE = 2, 4
 SMALL_MAX_ENTRIES = 5
 MIN_SETS_COVERAGE = 0.90  # share of the book's distinct skill ids the sets file must know
 INJURY_TAGS = ("DK", "report", "qb", "backup_qb")   # flag-tag prefixes that bar a row from the head (not practice/market)
+# Deliberately NOT "features:" (vet_book.py's designation read from player_week_inference, which can be Wednesday's and
+# stale; vet_replace_v4.py never emits it). Only the live DK status, the injury report and QB-availability notes count.
 
 
 class LayoutError(ValueError):
