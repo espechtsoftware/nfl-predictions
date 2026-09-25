@@ -446,3 +446,19 @@ def test_paper_layout_capped_book_slots_and_lays_out(tmp_path):
     single = list(csv.reader(open(out / "bundle" / EL.enter_filename(cs[0]))))[1]
     assert single[1] != "d01"                                     # the Questionable row is not the protected entry
     assert (out / "bundle" / "PAPER-ONLY-NOT-FOR-UPLOAD.txt").is_file()
+
+
+def test_explicitly_pinned_ranks(tmp_path):
+    """Operator 2026-09-25: the $20 Millionaire takes row 1 and three $13 satellites rows 1, 2, 3; the rest is unchanged."""
+    base = week3_shaped()
+    extra = [{"name": "milly20", "contest_id": "9001", "entries": 1, "keep": 1, "ranks": [1]}] + [
+        {"name": "sat13", "contest_id": str(9002 + j), "entries": 1, "keep": 1, "ranks": [j + 1]} for j in range(3)]
+    cs = extra + base
+    ranks = EL.assign_ranks(cs, "head")
+    assert [r for r in ranks[:4]] == [[0], [0], [1], [2]]
+    assert ranks[4:] == EL.assign_ranks(base, "head")           # nothing else moves
+    assert EL.rows_needed(cs, "head") == 144 and EL.protected_ranks(cs, "head") == 19
+    for bad in ([5], [0], [1, 1], "1", [True]):
+        with pytest.raises(EL.LayoutError, match="ranks"):
+            EL.assign_ranks([{"name": "x", "contest_id": "1", "entries": len(bad) if isinstance(bad, list) else 1,
+                              "keep": 1, "ranks": bad}], "head")

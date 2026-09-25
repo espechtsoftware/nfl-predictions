@@ -17,7 +17,10 @@ Layouts (ENTER_LAYOUT):
                   and 3-4; of nineteen 1-entry contests four take rows 1-4 and the other fifteen take the next unique
                   rows (5-19), which are dealt before any other contest's unique rows;
                 - the other contests take rows 1..h, then unique rows, dealt snake-fashion (one per contest per
-                  round, in contests.json order, reversing each round).
+                  round, in contests.json order, reversing each round);
+                - a contest may pin its rows explicitly with "ranks": [1-based ranks] (operator, 2026-09-25: the $20
+                  Millionaire takes row 1, three $13 satellites rows 1, 2, 3). Pinned ranks must lie inside the
+                  head rows 1-4, and the contest takes no part in the rotation, the overflow or the deal.
 
 Order (ENTER_ORDER): the ranks above index an ORDER over the upload's rows.
   greedy      the book's own order (vetted, replaced and promoted), rank r = upload row r.
@@ -100,6 +103,13 @@ def assign_ranks(contests: list[dict], layout: str) -> list[list[int]]:
     overflow: list[int] = []                   # all-head contests past their group's head blocks
     for i, (c, n) in enumerate(zip(contests, sizes)):
         h = head_size(n)
+        if "ranks" in c:                          # explicit pin (operator)
+            r = c["ranks"]
+            if (not isinstance(r, list) or len(r) != n or len(set(r)) != n
+                    or any(not isinstance(x, int) or isinstance(x, bool) or not 1 <= x <= HEAD_TOP for x in r)):
+                raise LayoutError(f"contests.json: {c.get('name')!r} ranks {r!r} must be {n} distinct integers in 1..{HEAD_TOP}")
+            out[i] = [x - 1 for x in r]
+            continue
         if n <= HEAD_SMALL:                       # the whole contest is head: one head block per group member
             key = n                               # by size, not name: renamed twins must not share rows
             b = seen.get(key, 0)
