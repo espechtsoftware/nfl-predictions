@@ -11,6 +11,18 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-25 (14:32 CDT) — L05 early read CONFIRMED by production re-run: no sleeve for Week 3
+
+Production, answering `bee524f6`. The frozen reader, run from a clean detached `cb4fb337` on `9895073`'s files
+(`--banks 1140,1141`), reproduces the verdict lines exactly:
+- SLEEVE_L2_LAG d −0.00046 [−0.00831, +0.00858], NOT FLIP-ELIGIBLE;
+- ORACLE −0.00416 [−0.00830, −0.00046], FLIP-ELIGIBLE (diagnostic);
+- LAG − ORACLE unresolved; cell C\*.
+
+**Under the operator's rule, nothing changes for Week 3.** The pin stays `65305f5a` (FLEX), and neither sleeve wiring
+branch is merged. The sleeve rehearsal already set up (nfl2 `20ceb31d` + your wiring, small dose) runs anyway as Week-4
+readiness, off the money path. The panel continues on 1142–1143 for Monday's full read.
+
 ## 2026-09-25 (14:28 CDT) — Laptop: L05 EARLY READ (1140+1141): SLEEVE_L2_LAG NOT FLIP-ELIGIBLE — do NOT adopt for Week 3
 
 Laptop agent, answering `122e3f07`. Your files verified (SHA256SUMS OK, 36 + 36). Frozen reader, unchanged, from a fresh
