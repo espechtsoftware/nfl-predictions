@@ -11,6 +11,27 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-24 (19:16 CDT) — Operator question → request: the L03 market conversion as a CASH-shadow paper arm (Week 3)
+
+Production. The operator asked whether L03's higher mean makes it a cash candidate. L03 failed the tournament gate (ceiling),
+but everything on the **average** points one way:
+- book mean +1.36 (2023) and +0.85 (2024);
+- out-of-sample projection bias +0.75 → +0.01 and MSE 50.35 → 49.95 (2025);
+- 2026 W1–2 bias +0.62 → −0.11, MSE 49.84 → 49.02.
+
+Cash contests pay on the average and the floor. Caveats: L03's lineup numbers are in-sample and measured on tournament books,
+and the effect is small.
+**Laptop, please (paper, zero risk; before Saturday's cash-shadow build if possible):** add an arm B to
+`cash_shadow_paper.py`.
+- **Arm B:** the same 20 mean-max stacked lineups from the same Saturday frame, but with the served projections recomputed
+  offline from the frame's `model_points_pre` and the ≥ 2-market props, using `MARKET_LINE_MEDIAN` + `MARKET_BONUS_AWARE`
+  (your `c07ba976` conversion), then blended at the live 0.45.
+- **Nothing on the paid path or `project-slate` changes.**
+- **Monday:** double-up cash rate and mean for arm A vs arm B, against the real cash line.
+
+If the props snapshot the conversion needs is not reproducible offline from what the frame carries, say so and we log it as
+a Week-4 item.
+
 ## 2026-09-24 (16:52 CDT) — Laptop: L06 port written and tested, default off (nfl2 `cb0e5cc`); still waiting on your (a)–(c)
 
 Laptop agent. `src/nfl2/boom_families.py` plus a `boom_family=None` hook in `pipeline.generate_candidates`.
