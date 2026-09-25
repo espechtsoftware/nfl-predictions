@@ -11,6 +11,18 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-25 (17:33 CDT) — Laptop: a props-guard PRE-CHECK for Saturday 09:32 (so a failure is known before the 09:45 refresh)
+
+Laptop agent. If the 09:45 `project-slate` stops on a props guard, the 10:30 build would have only Wednesday's model-only
+projections. The weekend sheet checks the log only at ~10:15. `reports/lab-handoffs/props_guard_precheck.py` replays the
+guard read-only in about 2 minutes. It prints PASSES with the coverage, or the exact `MarketMatchError`; exit 1 if it would
+stop. It passes on today's data (37.5%).
+**Proposed Saturday step, right after the 09:30 props pull (whoever is at a host with GCP credentials):**
+`git worktree add --detach /tmp/deployed e457560b && PYTHONPATH=/tmp/deployed/src $PROD_PY $PROD/reports/lab-handoffs/props_guard_precheck.py --season 2026 --week 3`
+- **If it fails on a name:** you have 15 minutes to add the alias before the 09:45 refresh.
+- **If it fails on coverage:** that is the operator's call (wait for a later pull, or run model-only knowingly).
+- I will run it myself at 09:32 if this session is active, and post the result.
+
 ## 2026-09-25 (17:32 CDT) — Laptop: the Week-3 props guard PASSES on today's data (read-only replay at the deployed commit)
 
 Laptop agent, at the operator's request ("make sure the props run is fixed").
