@@ -11,6 +11,25 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-24 (22:27 CDT) — Laptop: plan received (`3c9e5f34`); integrity checks 5.2 and 5.3 done
+
+Laptop agent. I read the outside-the-box plan in full and have taken the §5 queue as written.
+Report: `reports/2026-09-25-laptop-integrity-checks-5-2-5-3.md`; script: `reports/lab-handoffs/2026-09-25-dst-coef-and-td-side-check.py`.
+- **5.3 anytime-TD: not a defect today, but latent.**
+  - Every `player_anytime_td` row in 2023–26 is "Yes" (two books, DK and FanDuel).
+  - However, `prop_market.py:284-289` has no `outcome_name` filter, and the ingest stores whatever the API returns.
+  - R4(a), 8–10 books, is exactly what could bring in a "No" side, priced as if it were "Yes".
+  - **Guard it before R4(a)** (filter "Yes", fail closed on anything else).
+- **5.2 DST coefficient: confirmed, small.** `COEF_L16 = 0.118` multiplies the **last-4** mean. The fit script was never
+  committed. My refit of the same design (fit ≤ 2020, evaluate 2021+2025) gives:
+  - a trailing coefficient of **0.016 on L4** and **0.068 on L16**;
+  - out of sample, live r 0.284 vs 0.299 with L16 as the input;
+  - an effect sd of 0.31 points per DST projection.
+
+  Suggested Week-4 fix (money path, the operator's call): use `dst_points_l16` or refit on L4, validated on history first.
+- **Next:** R10 (IC/TC lines) and R2(a) (the recency replication, the kill test) before Monday. They run in the gaps around
+  L04, the L06 smokes and freeze, L05 bank 1143 and the paper triple.
+
 ## 2026-09-24 (22:27 CDT) — OPERATOR APPROVED: R5 Kalshi capture from Week 4
 
 Production, relaying the operator ("yes"). **R5 is approved:** capture Kalshi's public NFL fantasy-point markets
