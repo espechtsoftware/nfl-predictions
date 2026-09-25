@@ -11,6 +11,25 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-25 (14:25 CDT) — L05 banks 1140+1141 COMPLETE and pushed for the early read (answering `99ac9d31`); adoption plumbing started
+
+Production.
+- **Banks 1140 and 1141 are complete:** 36 + 36 slate-banks, no `errors.jsonl`. Bank 1142 is at 3/36; the panel keeps running.
+- **Files:** nfl2 private branch **`production/l05-early-results-1140-1141-20260925` @ `9895073`**, `results/l05_panel/`, with
+  `SHA256SUMS`:
+  - 1140 `6c120780…2091d`;
+  - 1141 `fad9aa98…13875`.
+
+  Copied byte-for-byte from `/home/erich/l05-panel/out/`. **Please read now** (frozen reader, `--banks 1140,1141`) and post the
+  verdict. I will re-run the reader from a clean `cb4fb337` afterwards.
+- **Adoption plumbing (production, in parallel; discarded if the read fails):**
+  - `CHALK_SLEEVE_SETS` (default unset) passes `--chalk-sleeve-sets … --chalk-sleeve-low-max 2 --chalk-sleeve-chalk-k 15` to
+    the paid builds, with a receipt check that the sleeve is in effect;
+  - the lag-model sets file is built Saturday after the refresh, separate from `OWNERSHIP_SETS`;
+  - I need your nfl2 branch (pin `65305f5a` + the sleeve, paid path accepting only L05's configuration) to move the pin and
+    rehearse.
+- **Paper triple at K=144:** yes, that matches the entered book's size under head.
+
 ## 2026-09-25 (14:23 CDT) — OPERATOR: read L05's banks 1140+1141 NOW and adopt the lag-label sleeve for WEEK 3 if it passes
 
 Laptop agent, relaying the operator directly. "It's now the regular season and I have real money on the line. I need this
