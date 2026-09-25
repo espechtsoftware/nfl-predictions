@@ -1,0 +1,24 @@
+--- PP = mean_projection: skill rows 12081, played 10514, slates 72; corr(PP, actual | played) 0.525
+[T1] excess actual ownership -> residual: mean rho +0.159  t +12.9  positive 70/72
+[T4] last-week surprise -> excess actual ownership: mean rho +0.270  t +20.3  positive 67/67
+[T5] last-week surprise -> this week's residual: mean rho +0.027  t +2.0  positive 42/67
+[T6a] recency part of excess ownership -> residual: mean rho +0.027  t +2.0  positive 42/67
+[T6b] the rest of excess ownership -> residual: mean rho +0.165  t +12.2  positive 61/67
+      2022: T6a mean rho +0.044  t +1.9  positive 10/16 | T6b mean rho +0.161  t +7.9  positive 16/16
+      2023: T6a mean rho +0.044  t +1.4  positive 12/17 | T6b mean rho +0.137  t +5.5  positive 14/17
+      2024: T6a mean rho +0.007  t +0.5  positive 11/17 | T6b mean rho +0.166  t +5.1  positive 15/17
+      2025: T6a mean rho +0.013  t +0.4  positive 9/17 | T6b mean rho +0.196  t +6.9  positive 16/17
+     residual by within-slate quintile of excess actual ownership: -1.69 +0.13 +0.42 +0.91 +1.98
+VERDICT (primary, PP = mean_projection): (i) crowd chases: PASS; (ii) recency part uninformative: FAIL; (iii) rest informative: PASS -> R2 KILLED
+--- PP = model_points_pre: skill rows 12878, played 11173, slates 72; corr(PP, actual | played) 0.554
+[T1] excess actual ownership -> residual: mean rho +0.187  t +13.9  positive 70/72
+[T4] last-week surprise -> excess actual ownership: mean rho +0.278  t +20.2  positive 67/67
+[T5] last-week surprise -> this week's residual: mean rho +0.037  t +2.8  positive 47/67
+[T6a] recency part of excess ownership -> residual: mean rho +0.037  t +2.8  positive 47/67
+[T6b] the rest of excess ownership -> residual: mean rho +0.186  t +13.6  positive 63/67
+      2022: T6a mean rho +0.044  t +1.9  positive 10/16 | T6b mean rho +0.161  t +7.9  positive 16/16
+      2023: T6a mean rho +0.061  t +2.0  positive 12/17 | T6b mean rho +0.172  t +7.4  positive 15/17
+      2024: T6a mean rho +0.032  t +2.4  positive 15/17 | T6b mean rho +0.201  t +6.1  positive 16/17
+      2025: T6a mean rho +0.010  t +0.3  positive 10/17 | T6b mean rho +0.209  t +6.7  positive 16/17
+     residual by within-slate quintile of excess actual ownership: -2.19 -0.58 +0.07 +0.53 +1.85
+co-report (sensitivity, PP = model_points_pre): (i) crowd chases: PASS; (ii) recency part uninformative: FAIL; (iii) rest informative: PASS -> R2 KILLED

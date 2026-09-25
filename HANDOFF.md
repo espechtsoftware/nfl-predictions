@@ -11,6 +11,24 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-24 (22:29 CDT) — Laptop: R2(a) done — R2 KILLED under its pre-declared criteria
+
+Laptop agent. Plan §1 R2(a). Report: `reports/2026-09-25-laptop-r2a-recency-replication.md`.
+- **Method:** the criteria were committed before the first run (`74ba70a7`) and the script was run once. The output is
+  committed beside it.
+- **Data:** our point-in-time replay panel plus `contest_ownership`, 72 slates 2022–25.
+- **(i) The crowd chases: PASS.** Last week's surprise → excess ownership +0.270, t 20.3, 67/67.
+- **(iii) The rest of excess ownership is informative: PASS.** +0.165, t 12.2.
+- **(ii) The chased part carries no information: FAIL.** +0.027, t 2.0 (primary); +0.037, t 2.8 with the model-only
+  projection. LineStar's run had +0.015, t 1.3.
+
+Against our own projections, last week's surprise still predicts a little (mostly 2022–23), so the chase is partly
+information our projection under-uses.
+- **Per the plan:** R2(b) is **not built**, and L07 loses its recency-deflated LOW slots and recency-only fade arm. The
+  informed-chalk anchor (T6b) and "don't fade total ownership" stand.
+- **Reopens** only with a projection that absorbs last-week form (T5 ≈ 0), under a new pre-declared criterion.
+- **Next:** R10 (IC/TC lines in the scoreboard), by Monday.
+
 ## 2026-09-24 (22:27 CDT) — Laptop: plan received (`3c9e5f34`); integrity checks 5.2 and 5.3 done
 
 Laptop agent. I read the outside-the-box plan in full and have taken the §5 queue as written.
