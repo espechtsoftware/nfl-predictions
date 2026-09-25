@@ -22,6 +22,7 @@ Every command runs in the integration checkout:
 | ~10:15 | you or assistant | the ownership sets file (below) |
 | **before 10:30** | **you** | arm the timers (below) |
 | 10:30 → ~20:30 | timers | the D12800 build (the entry); the D6400 fallback at 10:35 |
+| ~10:30 | assistant | Kalshi snapshot (R5, capture only): `scripts/kalshi_capture.py --season 2026 --week 3 --label sat-build --out ~/week3-sunday/kalshi --upload`. If the create-once upload is refused by the session's safety check, it captures locally and the operator runs the upload line |
 | evening | assistant | reads the TODAY file, the exposure sheet and the paper bundles; tells you what to check |
 | evening, before lock | assistant | the two paper cash shadows from the D12800 paid run dir (entered nowhere): arm A `PYTHONPATH=$CLONE/src:$PROD/src $LAB_PY reports/lab-handoffs/cash_shadow_paper.py build <run dir> $OUT/cash-shadow-w03-A --n 20`; arm B (the L03 market conversion) from `/home/erich/projects/.nfl-predictions-worktrees/cash-arm-b-5fdefadc`: `... cash_shadow_paper.py build-b <run dir> $OUT/cash-shadow-w03-B --n 20` |
 
@@ -56,7 +57,9 @@ ranks 1 to 19, one each):
 | ~10:35 | assistant | `scripts/sunday_live_relayout.sh --dry-run`: DK status snapshot, and which rows move into or out of the protected ranks |
 | ~10:40 | **your go** | assistant publishes `scripts/sunday_live_relayout.sh`. It must run **before any swap**, and refuses after one |
 | ~10:45 | assistant, on your confirmation of each OUT | `scripts/sunday_swap.sh ROW:OUT_DD:IN_DD [...]` per scratch. Only confirmed OUT/IR is removed; a Questionable player who is active stays |
+| ~10:50 | assistant | Kalshi snapshot, `--label t70` |
 | **by 11:15** | **you** | upload `DKEntries-FILLED-keepers-first.csv` (the watcher refills it after every publish) in the DraftKings site |
+| after the upload | assistant | R1(c) paper shadow (never uploaded): `scripts/r1c_sunday_reselect.py --saturday-run <D12800 run> --t70-run <T-70 run> --k 144 --out $OUT/paper-r1c --dk-status $OUT/dk-status-<utc>.csv`, then `scripts/paper_layout_capped_book.py --capped-book $OUT/paper-r1c/r1c_book.csv --run-dir <T-70 run> ... --out $OUT/paper-r1c/bundle` |
 | ~13:35 / ~13:55 | NFL | late-game inactives (about 90 minutes before the 15:05 / 15:25 kickoffs) |
 | then | assistant + you | `scripts/sunday_swap.sh` for late scratches. Swaps after the noon lock are allowed only for players whose game has not started; the tool refuses the rest. **Please be reachable.** |
 
