@@ -23,6 +23,7 @@ Every command runs in the integration checkout:
 | **before 10:30** | **you** | arm the timers (below) |
 | 10:30 → ~20:30 | timers | the D12800 build (the entry); the D6400 fallback at 10:35 |
 | evening | assistant | reads the TODAY file, the exposure sheet and the paper bundles; tells you what to check |
+| evening, before lock | assistant | the two paper cash shadows from the D12800 paid run dir (entered nowhere): arm A `PYTHONPATH=$CLONE/src:$PROD/src $LAB_PY reports/lab-handoffs/cash_shadow_paper.py build <run dir> $OUT/cash-shadow-w03-A --n 20`; arm B (the L03 market conversion) from `/home/erich/projects/.nfl-predictions-worktrees/cash-arm-b-5fdefadc`: `... cash_shadow_paper.py build-b <run dir> $OUT/cash-shadow-w03-B --n 20` |
 
 **09:45 refresh:**
 
