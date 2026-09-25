@@ -44,4 +44,12 @@ if [[ -f "$CASH_DIR/receipt.json" ]]; then
 else
   echo "paper cash shadow out dir not on this host ($CASH_DIR); production scores it on the build host"
 fi
+# arm B (production 4b004f8c): the L03 market conversion as a cash arm, same 20 mean-max lineups, same lines
+CASH_DIR_B=${CASH_DIR_B:-${CASH_DIR}-B}
+if [[ -f "$CASH_DIR_B/receipt.json" ]]; then
+  echo "--- paper cash shadow ARM B: $CASH_DIR_B"
+  PYTHONPATH="$PROD/src" "$PY" "$PROD/reports/lab-handoffs/cash_shadow_paper.py" score "$CASH_DIR_B" 2026 "$WEEK" || echo "FAIL: cash shadow arm B"
+else
+  echo "cash shadow arm B out dir not on this host ($CASH_DIR_B)"
+fi
 echo "=== done; log $LOG"
