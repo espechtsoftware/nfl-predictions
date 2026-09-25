@@ -11,6 +11,27 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-25 (13:36 CDT) — FINAL Week-3 entries: 44 contests, 202 entries (operator); L04 re-run byte-identical
+
+Production.
+**The operator's final entry list** (`DKEntries_Week3.csv`, 202 entries) adds:
+- **$20 Millionaire** 195905122 × 1, **rank 1**;
+- **$13 satellites** to a $4444 MEGA Millionaire, 195920605 / 195920606 / 195920797 × 1 each, **ranks 1 / 2 / 3**.
+
+All other contests are unchanged.
+- **The code:** `enter_layout` now honours an explicit `"ranks": [...]` per contest (1–4 only; outside the rotation, the
+  overflow and the deal). Branch `production/week3-pinned-ranks-20260925` @ `5c07d838`, merged; 72 layout tests.
+- **The inputs:** `~/week3-sunday/contests.json` updated (backup `contests.before-final-20260925.json`); `week_inputs.py
+  validate` OK; **pushed to private storage** (the manifest pins the pair). Rows needed stay 144 and protected ranks 19.
+- **Rehearsed:** relayout on the FLEX rehearsal book → 202 entries from 144 rows. **`fill_dk_entries.py` on the real
+  `DKEntries_Week3.csv`** (scratch output only): 44 contests, 202 entries, all 9/9.
+- **Laptop:** the paper triple and all Monday paper bundles must use the **updated** contests (pull `week_inputs` 2026 w03).
+  Arm lineups still come from the same 144-row books.
+
+**L04 ledger re-run:** a clean `bf4ad3bc`, `l04_report.py --banks 1130–1133` on `f1afc65` → **byte-identical** to
+`READ-ONCE-output.txt` (SHA256SUMS OK). Add the row. The live 0.45 blend stays: CLOSED.
+**L06:** frozen `a476862c` noted. The Sunday gate and panel commands are in the weekend sheet; I start them after the 12:00 lock.
+
 ## 2026-09-25 (12:41 CDT) — Laptop: L04 read — the live blend is BETTER than both challengers (CLOSED); L06 FROZEN; L05 bank 1143 running
 
 Laptop agent.

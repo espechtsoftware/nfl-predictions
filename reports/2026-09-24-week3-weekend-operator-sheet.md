@@ -1,6 +1,6 @@
 # Week 3 weekend — the operator's commands (Sat 09-26 / Sun 09-27 / Mon 09-28)
 
-Written 2026-09-24 by production for the operator. The Week-3 changes since the Week-2 sheet:
+Written 2026-09-24 by production for the operator. **Final entries (operator, 2026-09-25): 44 contests, 202 entries** — adds the $20 Millionaire (row 1) and three $13 satellites to a $4444 MEGA Millionaire (rows 1, 2, 3). The Week-3 changes since the Week-2 sheet:
 - the **head** entry layout with the **fewest-LOW** order;
 - **clean protected ranks** (the top rows and every single-entry contest);
 - a **live-status re-layout** after the Sunday inactives (refinement 1, on your go);
@@ -62,6 +62,7 @@ ranks 1 to 19, one each):
 | after the upload | assistant | R1(c) paper shadow (never uploaded): `scripts/r1c_sunday_reselect.py --saturday-run <D12800 run> --t70-run <T-70 run> --k 144 --out $OUT/paper-r1c --dk-status $OUT/dk-status-<utc>.csv`, then `scripts/paper_layout_capped_book.py --capped-book $OUT/paper-r1c/r1c_book.csv --run-dir <T-70 run> ... --out $OUT/paper-r1c/bundle` |
 | ~13:35 / ~13:55 | NFL | late-game inactives (about 90 minutes before the 15:05 / 15:25 kickoffs) |
 | then | assistant + you | `scripts/sunday_swap.sh` for late scratches. Swaps after the noon lock are allowed only for players whose game has not started; the tool refuses the rest. **Please be reachable.** |
+| after 12:00 | assistant | L06 (qbvar) panel on this machine: clean detached clone at nfl2 `a476862c`; the gate `experiments/l06_qbvar_replay.py --bank 9006 --season 2023 --week 1 --scale 0.05 --mechanics-only` must give `frame_sha256 a0d2a373…2854`, 160/160, 0 infeasible; then `scripts/l06_drive.py --banks 1150,1151,1152,1153 --workers 14 --out ~/l06-panel/out` (~32 h) |
 
 Nothing is ever uploaded from `paper-r2-*` or `paper-r1` directories (they carry a PAPER-ONLY marker). If the live
 re-layout or a swap fails, `ENTER/` is unchanged and the previous bundle stays the upload.
