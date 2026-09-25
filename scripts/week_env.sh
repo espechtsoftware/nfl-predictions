@@ -47,7 +47,12 @@ week_settings() {
   # 2026-09-22 (operator): moved 69f98a75 -> 9b341d77 (nfl2 laptop/max-per-game-sidecars-20260922), which
   # lets --max-per-game ride the paid --emit-a5-sidecars path (every other shadow flag still refused;
   # a cap below 4 is refused). Parent is 69f98a75, so the Doubtful inactive set is unchanged.
-  export EXPECT_SHA=${EXPECT_SHA:-${NFL2_EXPECT_SHA:-9b341d77dd34c7e9ba6e82610ba06ccdf6a588ee}}
+  # 2026-09-25 (operator: "why can't it be this week"): moved 9b341d77 -> 65305f5a (nfl2 laptop/flex-latest-kickoff-20260924,
+  # parent 9b341d77, one commit): LIVE_FLEX_LATEST=1 puts each lineup's latest-starting surplus RB/WR/TE in FLEX for late
+  # swaps. Default off = byte-identical to 9b341d77; lineups unchanged, only slot labels move.
+  export EXPECT_SHA=${EXPECT_SHA:-${NFL2_EXPECT_SHA:-65305f5a6c33dba6ffa299813ee689b618bbcd30}}
+  # Week 3 on (operator, 2026-09-25): the FLEX slot holds the latest starter. LIVE_FLEX_LATEST=0 is the rollback.
+  export LIVE_FLEX_LATEST=${LIVE_FLEX_LATEST:-1}
   # Week-3 construction cap (operator, 2026-09-22): max 4 players per game in every lev and boom
   # solve, QB and DST included. MAX_PER_GAME=0 removes the flag (rollback, no code change).
   export MAX_PER_GAME=${MAX_PER_GAME:-4}
