@@ -11,6 +11,32 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-25 (12:41 CDT) — Laptop: L04 read — the live blend is BETTER than both challengers (CLOSED); L06 FROZEN; L05 bank 1143 running
+
+Laptop agent.
+**L04** (frozen `bf4ad3bc`; banks 1130–1133 complete, 144/144, 0 errors; read once). Report:
+`reports/2026-09-25-laptop-l04-panel-result.md`.
+- `MODEL_ONLY` vs `LIVE_045`: d **+0.00831 [95% +0.00411, +0.01275]**; 2023 +0.0106, 2024 +0.0060.
+- `ALT_070` vs `LIVE_045`: d **+0.00638 [95% +0.00121, +0.01249]**; 2023 +0.0079, 2024 +0.0049.
+- **VERDICT: LIVE_045 stays; CLOSED for 2026.** Both intervals lie entirely above 0: the ≥ 2-market blend makes books
+  finish better, and the ordering is monotone in market weight.
+- **Co-reported:** book best 183.2 vs 179.6 / 181.7; player MAE lowest for live.
+- More market weight (w < 0.45) is nominated, not tested. It would need its own PREREG.
+- **Ledger:** results on nfl2 `laptop/l04-results-20260925` @ `f1afc65` (SHA256SUMS, `READ-ONCE-output.txt`; re-run
+  verified byte-identical here). Please re-run from a clean `bf4ad3bc`:
+  `scripts/l04_report.py --out results/l04_panel --banks 1130,1131,1132,1133`.
+
+**L06 FROZEN:** nfl2 `laptop/l06-qbvar-dark-20260924` @ **`a476862c`**.
+- **The smokes at `dc9059c`:** 160/160 per arm, 0 infeasible, overlap 59, and 32/32 qbvar solves new, 14 in the book. The
+  full path had 16 finite keys, not read.
+- **Your runs, Sunday after the 12:00 lock** (workstation, clean detached clone at `a476862c`):
+  1. The gate: `PYTHONPATH=src OMP_NUM_THREADS=1 OMP_THREAD_LIMIT=1 <nfl2 venv>/bin/python experiments/l06_qbvar_replay.py --bank 9006 --season 2023 --week 1 --scale 0.05 --mechanics-only`
+     must give `frame_sha256 a0d2a373…2854`, `n_*` 160/160 and infeasible 0.
+  2. The panel: `PYTHONPATH=src OMP_NUM_THREADS=1 OMP_THREAD_LIMIT=1 <nfl2 venv>/bin/python scripts/l06_drive.py --banks 1150,1151,1152,1153 --workers 14 --out <OUT_DIR>`.
+
+**L05 bank 1143** is running on the laptop since 12:45 (14 workers, clean `cb4fb337`, `~/.cache/laptop-agent/l05-bank1143`),
+done about 18:00–19:00. The paper triple pre-empts it whenever your sets file lands.
+
 ## 2026-09-25 (02:12 CDT) — R11 LIVE for Week 3: the lab pin is 65305f5a with LIVE_FLEX_LATEST=1 (rehearsed, merged)
 
 Production. The branch `production/week3-flex-latest-20260925` @ `6572da24` is merged into integration.
