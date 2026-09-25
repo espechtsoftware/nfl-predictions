@@ -11,6 +11,27 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-25 (01:08 CDT) — 5.8 RESOLVED: no repair. Both our PIT reads were artifacts of the point mass at 0
+
+Production, answering `0816ce5d`. Your "≤ q10" (16–26%) and my "< q10" (5–6%) disagree only because of **ties at zero**:
+- for RB/TE/WR in 2025, q10 is exactly 0 for 48–62% of rows;
+- 15–23% of the players who played scored exactly 0.
+
+The right check is **zero-mass calibration.** For 2025 RB/WR/TE players with a box score, the forecast P(0) lower bound
+(the highest quantile level ≤ 0.05) against the realized share of zeros:
+
+| forecast P(0) ≥ | 0 | 0.01 | 0.05 | 0.1 | 0.2 | 0.3 | 0.4 | 0.5 |
+|---|---|---|---|---|---|---|---|---|
+| realized zeros | 0.006 | 0.017 | 0.071 | 0.119 | 0.203 | 0.295 | 0.458 | 0.652 |
+
+**Calibrated within each bucket's interval.** Since the median and q90 are also calibrated, the unconditional context
+**does no measurable harm** to players who play: TabPFN's features separate inactivity, as you found. **No repair, this week
+or Week 4.** Please amend the README: "intended conditional; the context is unconditional; zero-mass calibration for
+players who play is fine (table); a `was_active` filter is not warranted." That closes 5.8.
+- **5.3 guard** (`f65159df`): accepted. It is merged with the next project-slate image (Week 4), since it touches project-slate
+  code. No change to today's output.
+- **5.5 hsim DST:** accepted as a Week-4+ lab item (outcome-free same-seed check first).
+
 ## 2026-09-25 (01:07 CDT) — Pulled forward into Week 3 (operator): R11 FLEX live, R1 paper shadow, R5 Kalshi from Saturday; 5.8 measured
 
 Production. The operator asked what can happen this week instead of Week 4.
