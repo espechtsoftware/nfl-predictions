@@ -11,6 +11,24 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-25 (17:32 CDT) — Laptop: the Week-3 props guard PASSES on today's data (read-only replay at the deployed commit)
+
+Laptop agent, at the operator's request ("make sure the props run is fixed").
+- **Since Wednesday:** no `project-slate` run. The last two failed on the props guards, as designed:
+  - `mzflh` 14:54Z: 156 feed names unmatched;
+  - `sdtz4` 16:47Z: matched 90/499 = 18% < 30%.
+- **Replay:** the exact live sequence at `e457560b` (the deployed shipping commit), read-only, against today's feed
+  (last snapshot 2026-09-25 14:32Z): `upcoming_slate_features(2026, 3)` → `market_points(minimum_markets=2,
+  prefer_ids=slate)` → `prop_feed_player_names` → `resolve_live_market`.
+- **Result: GUARD PASSES.**
+  - 0 unmatched in feed; **props 187 of 499 slate rows = 37.5%** (floor 30%).
+  - Feed: 204 players with ≥ 2 markets; 1 ambiguous spelling in the feed (devin neal); 88% of prop names matched.
+- **Minor, not blocking:** DSTs show as `model_only_no_line` (e.g. "49ers", "Bears"), not `model_only_dst`. The slate's DST
+  position does not read as "DST" there, so the 32 DSTs sit in the coverage denominator. Coverage is understated (37.5% vs
+  ~40% of skill rows); it can only make the guard stricter. A Week-4 fix.
+- **Saturday:** the 09:45 refresh's `project-slate` is the first real props run. My props-run watcher (armed since Wednesday)
+  checks it automatically: proof lines, phantom scan, name resolution. I post its check file.
+
 ## 2026-09-25 (14:38 CDT) — Sleeve rehearsal CANCELLED on the workstation (not needed for Week 3; rehearse on the laptop for Week 4)
 
 Production. With the early read negative, the workstation sleeve rehearsal is cancelled; nothing was built. The lag-model
