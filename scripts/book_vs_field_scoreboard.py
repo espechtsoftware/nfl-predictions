@@ -34,7 +34,7 @@ def player_arrays(fr: pd.DataFrame, played: set[str], real: dict[str, float], pc
     o = np.array([(own or {}).get(str(n), 0.0) for n in fr.display_name], float)
     sal = pd.to_numeric(fr.get("salary", pd.Series(0, index=fr.index)), errors="coerce").fillna(0).to_numpy(float)
     pl = skill & ~dnp
-    return {"proj": p, "real": r, "dnp": dnp.astype(float), "gap": np.where(pl, r - p, 0.0),
+    return {"proj": p, "real": r, "own": o / 100.0, "dnp": dnp.astype(float), "gap": np.where(pl, r - p, 0.0),
             "played": pl.astype(float), "low": ((o < 5.0) & skill).astype(float),
             "chalk": (o >= 20.0).astype(float), "salary": sal}
 
@@ -51,6 +51,33 @@ def summarize(a: dict, idx: np.ndarray) -> dict:
             "pct_3plus_low": 100 * (low >= 3).mean(), "pct_0to1_low": 100 * (low <= 1).mean(),
             "pct_no_chalk": 100 * (a["chalk"][idx].sum(1) == 0).mean(),
             "salary_left": (50000 - a["salary"][idx].sum(1)).mean()}
+
+
+def information_lines(a: dict, book_idx: np.ndarray) -> dict:
+    """R10 (outside-the-box plan): Grinold-Kahn accounting of one book against the field, per week.
+
+    Per player i (every player we hold or the field drafted): w_i = our expected count per lineup (book share), f_i = field
+    ownership as expected count per lineup (slot-summed ownership / 100), active weight a_i = w_i - f_i, realized p_i,
+    served projection mu_i. c_i = the crowd-implied value: within-slate OLS of mu on log ownership and log salary.
+      IC             Spearman(a_i, p_i - mu_i): do our active bets beat our own projection's error?
+      projection IC  Spearman(mu_i - c_i, p_i - c_i): is our view against the crowd right?
+      TC             Pearson(mu_i - c_i, a_i): do the delivered active weights follow that view (transfer)?
+      active share   0.5 x sum |w_i - f_i| / 9 (0 = the field's exposures, 1 = disjoint)
+    Identity (a check, not a statistic): book mean - field mean = sum_i a_i p_i when field mean = sum_i f_i p_i."""
+    from scipy import stats
+    w = np.bincount(np.asarray(book_idx).ravel(), minlength=len(a["proj"])) / len(book_idx)
+    f = a["own"]
+    keep = (w > 0) | (f > 0)
+    act, p, mu = (w - f)[keep], a["real"][keep], a["proj"][keep]
+    X = np.column_stack([np.ones(keep.sum()), np.log(f[keep] + 1e-3), np.log(np.maximum(a["salary"][keep], 2000.0))])
+    c = X @ np.linalg.lstsq(X, mu, rcond=None)[0]
+    return {"players": int(keep.sum()),
+            "IC": float(stats.spearmanr(act, p - mu)[0]),
+            "projection_IC": float(stats.spearmanr(mu - c, p - c)[0]),
+            "TC": float(np.corrcoef(mu - c, act)[0, 1]),
+            "active_share": float(0.5 * np.abs(w - f).sum() / 9.0),
+            "sum_a_p": float((act * p).sum()),
+            "book_mean_minus_own_field_mean": float(a["real"][book_idx].sum(1).mean() - (f * a["real"]).sum())}
 
 
 def book_rows(fr: pd.DataFrame, book: pd.DataFrame) -> np.ndarray:
@@ -126,9 +153,14 @@ def main() -> None:
     pidx, pok = name_rows(fr, cands.names)
     out.append({"group": f"our pool ({pok.mean():.3f} matched)", **summarize(a, pidx)})
     book = pd.read_csv(args.book or args.run_dir / "book.csv")
-    out.append({"group": "our book", **summarize(a, book_rows(fr, book))})
+    bidx = book_rows(fr, book)
+    out.append({"group": "our book", **summarize(a, bidx)})
     pd.set_option("display.width", 200)
     print(pd.DataFrame(out).round(2).to_string(index=False))
+    ic = information_lines(a, bidx)
+    print(f"information (R10): IC {ic['IC']:+.3f}, projection IC {ic['projection_IC']:+.3f}, TC {ic['TC']:+.3f}, "
+          f"active share {ic['active_share']:.3f} over {ic['players']} players; identity: sum a*p {ic['sum_a_p']:+.2f} "
+          f"= book mean - ownership-weighted field mean {ic['book_mean_minus_own_field_mean']:+.2f}")
 
 
 if __name__ == "__main__":

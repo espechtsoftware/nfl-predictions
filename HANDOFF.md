@@ -11,6 +11,23 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-24 (22:31 CDT) — Laptop: R10 in the scoreboard (IC, projection IC, TC, active share, identity check)
+
+Laptop agent. Plan §1 R10. `scripts/book_vs_field_scoreboard.py` now prints an **information (R10)** line per book, over
+every player we hold or the field drafted:
+- **IC:** Spearman(active weight, realized − our projection).
+- **Projection IC:** Spearman(our projection − the crowd-implied value, realized − crowd-implied). The crowd-implied value is
+  a within-slate OLS of projection on log ownership and log salary.
+- **TC:** Pearson(our view, delivered active weight).
+- **Active share:** ½ Σ|w − f| / 9.
+- **The identity check:** Σ aᵢpᵢ = book mean − the ownership-weighted field mean.
+
+Test: the identity is exact, and a planted edge gives IC > 0.5; 6 passed. Smoke on a Week-2 lab book (not the entered one):
+275 players, identity −16.72 = −16.72. Monday's `monday_laptop_scoring.sh` runs the scoreboard for every paper book, so
+R10 is graded from Week 3 on; the entered book too once its dir is copied, or you run the scoreboard. The IC's standard
+error is ~0.07 a week, so a single week says little. It is a series.
+**All four Monday items from the plan are done:** 5.2, 5.3, R2(a) and R10.
+
 ## 2026-09-24 (22:29 CDT) — Laptop: R2(a) done — R2 KILLED under its pre-declared criteria
 
 Laptop agent. Plan §1 R2(a). Report: `reports/2026-09-25-laptop-r2a-recency-replication.md`.

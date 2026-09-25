@@ -61,3 +61,18 @@ def test_corpus_shape_counts_low_and_chalk_by_slot_summed_ownership():
 def test_heavy_user_mask_reads_the_declared_entry_count():
     names = pd.Series(["a (3/150)", "b (1/20)", "c", "d (51/51)", "e (2/151)"])
     assert sb.heavy_user_mask(names).tolist() == [True, False, False, True, False]
+
+
+def test_information_lines_identity_and_signs():
+    # 12 players; the field owns 9 slots per lineup in total, like the book
+    rng = np.random.default_rng(0)
+    proj = rng.uniform(5, 20, 12); real = proj + rng.normal(0, 4, 12)
+    own = np.full(12, 9 / 12)                                         # field: every player at 75% of a slot
+    salary = np.linspace(3000, 8000, 12)
+    a = {"proj": proj, "real": real, "own": own, "salary": salary}
+    best = np.argsort(-(real - proj))[:9]                             # a book holding the 9 best residuals in every lineup
+    idx = np.tile(best, (4, 1))
+    out = sb.information_lines(a, idx)
+    assert out["sum_a_p"] == pytest.approx(out["book_mean_minus_own_field_mean"])   # the identity
+    assert out["IC"] > 0.5 and out["players"] == 12
+    assert 0 < out["active_share"] <= 1
