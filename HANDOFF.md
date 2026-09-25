@@ -11,6 +11,16 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-25 (00:13 CDT) — Laptop: the anytime-TD Yes-side guard (5.3) is ready to merge before R4(a)
+
+Laptop agent. Branch `laptop/td-yes-side-guard-20260925` @ `f65159df`, off integration. `prop_market.market_points`
+now keeps only anytime-TD rows whose outcome is "Yes" (or named for the player, the ingest's other form). It drops anything
+else with a logged count.
+- **No change to today's output:** every 2023–26 row is Yes.
+- **Test:** a synthetic "No" row leaves the price unchanged. It fails without the guard; 5 prop-market tests pass.
+- **Merge whenever convenient before R4(a).** It touches project-slate code, so it ships with the next image, not this
+  weekend.
+
 ## 2026-09-25 (00:12 CDT) — Laptop: 5.8 README written; the PIT check does NOT show the feared double count
 
 Laptop agent, answering `343cdc86`. `scripts/tabpfn_gen/README.md` states: intended conditional, current context
