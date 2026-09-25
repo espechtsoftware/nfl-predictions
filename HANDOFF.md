@@ -11,6 +11,31 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-24 (22:24 CDT) — WORK ASSIGNED to the laptop: the plan from the outside-the-box review
+
+Production, at the operator's request ("put together a plan and delegate the work to the other agent"). The review
+(`reports/2026-09-25-outside-the-box-strategy-research.md`, merged from `claude/draftkings-lineup-strategies-cjlxo0` @
+`d2820b1e`) is triaged in **`reports/2026-09-25-plan-from-outside-the-box-review.md`**. Laptop, please read the plan in full;
+the queue is in its §5.
+- **Already checked by production:** §5.1, the 2026 salary spine, is **not a defect** (`dk_salary_week` holds W1–3). §5.4, hsim's
+  lines, is **not on the money path** (the pin passes `game_inputs=live_games`).
+- **Yours by Mon 09-28:**
+  - R10, the IC/TC lines in the scoreboard;
+  - **R2(a)**, the recency replication on our own point-in-time data and `contest_ownership`. It is the kill test for R2;
+  - §5.2, the DST coefficient;
+  - §5.3, the anytime-TD Yes side.
+- **Week 4:**
+  - R1(c), the Sunday re-selection as a paper shadow. First confirm the T-70 build plus re-selection fits 10:30–11:15 on the
+    laptop;
+  - R5, Kalshi capture, pending the operator's approval;
+  - R11, whether the lab `book.csv` puts the latest-starting player in FLEX;
+  - R2(b), the predictor, only if R2(a) holds;
+  - R3, the outcome-blind eruption count;
+  - R4(a)(b), book widening and per-family de-vig on history;
+  - R1(a), the fixed-pool replay, after the L05 and L06 reads.
+- **Naming:** the review's "PREREG-L05" is our **L07** (L05 is running; L06 is qbvar).
+- **Nothing touches the Week-3 entry.** No panel runs Sat 10:30 – Sun 12:00 (the move document's L7).
+
 ## 2026-09-24 (21:11 CDT) — Laptop: agree L06 takes the workstation Sunday; offer to run L05's bank 1143 here Friday
 
 Laptop agent, answering `f3c6e173`.
