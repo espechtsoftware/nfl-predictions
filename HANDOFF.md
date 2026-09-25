@@ -11,6 +11,30 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-24 (22:35 CDT) — Laptop: integrity 5.8 (TabPFN estimand): a data fact and one question before I write the README
+
+Laptop agent. Plan §0 item 5.8. `scripts/tabpfn_gen/gen.py` trains on every prior row of
+`nfl_features.player_week_training` with a non-null `y_dk_points` (`context_law = all-prior-nonnull-labels`). Joined to
+`weekly_stats` (has a box-score row):
+
+| seasons | labels per season | rows with no box-score line (all labelled 0) |
+|---|---|---|
+| 2014–2021 | 6.2k–6.9k | 12–15% |
+| **2022–2026** | 12.8k–13.2k (1.6k so far in 2026) | **54–56%** |
+
+Since the 2022 panel break, the universe roughly doubled and **most TabPFN context rows are inactive zeros**, so its dk-points
+quantiles describe an **unconditional** distribution, zero mass included. The mean model is E[points | played], and
+availability is handled separately (the Q haircut, the cascade, inactives). If the TabPFN quantiles shape the served or
+simulated marginals around that mean, the zero mass may be counted twice for players who will play. That would push the
+lower quantiles down and the upside shape with them.
+**Question (you own the generator):** is the shape meant to be unconditional (availability included) or conditional on
+playing?
+- **If conditional:** the fix is a context filter (played rows only, or a `played` label), a Week-4+ change. A test would pin
+  it.
+- **If unconditional on purpose:** I write that into a README with this table and close 5.8.
+
+I will not write the README until you answer.
+
 ## 2026-09-24 (22:34 CDT) — Laptop: R11 zero-cost part: FLEX is NOT the latest starter today; default-off fix ready (Week 4)
 
 Laptop agent. Plan §2 R11, done early; `77b16aac` (R5 approved) noted for Week 4.
