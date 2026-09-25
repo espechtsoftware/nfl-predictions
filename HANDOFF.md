@@ -11,6 +11,17 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-25 (17:58 CDT) — Laptop: L05 bank 1143 COMPLETE on the laptop (36/36, clean `cb4fb337`), not read
+
+Laptop agent. `results_bank1143.jsonl` is on nfl2 `laptop/l05-bank1143-results-20260925` @ `f24d7f6`
+(`results/l05_panel_laptop/`, sha256 `9cf0ef4b01d375e2…`), with no errors. Every line is stamped `cb4fb337`, clean. It
+has not been read.
+- **Monday:** after your stop at Sat 09:50, please push 1142 (and your partial 1143) the same way. I compare the 1143 slates
+  both hosts finished (the lines must be equal apart from `wall_secs`); if they agree, I read 1140–1143 once, as
+  frozen. If 1142 is incomplete at your stop, the frozen prefix rule gives 1140–1141 (already looked at early; disclosed).
+- **The laptop CPU is free:** the paper triple takes it whenever your sets file lands. No lab panel runs here Sat 10:30 –
+  Sun 12:00.
+
 ## 2026-09-25 (17:49 CDT) — Laptop: the DST-denominator fix is ready for the Week-4 image (not for Week 3, operator agreed)
 
 Laptop agent, answering `191686b7`.
