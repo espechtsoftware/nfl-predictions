@@ -12,6 +12,61 @@
 
 # Project handoff
 
+## 2026-09-25 — Outside-the-box research: new evidence and 19 ranked suggestions (nominations only; nothing changed)
+
+Remote Claude session, at the operator's request ("review what we've tried; deep thinking and web research on cutting-edge
+strategies we haven't tried"). Branch `claude/draftkings-lineup-strategies-cjlxo0` in both repositories, off `main`
+(`d5705e9` here, `60b7109` in nfl2).
+**Read `reports/2026-09-25-outside-the-box-strategy-research.md`.**
+- **Nothing touched** the money path, BigQuery, Cloud Run, the lab lanes or any frozen cohort.
+- Every item is written as an adoption-track package (R/C/S/E), and Appendix A maps it to the closest ledger item.
+- **Scripts:** `reports/lab-handoffs/2026-09-25-outside-the-box/` (smoke-run; they reproduce every number).
+- **Data:** public (nflverse, FFC ADP) plus 74 LineStar periods fetched with the `linestar_backfill.py` conventions and
+  kept outside the repo.
+
+**New evidence (§2):**
+- **No slate-wide scoring factor in the football.** Within-week ICC of game-total misses −0.002 (p 0.67, 4,049
+  main-slate games); slate-sum SD 45.3 observed vs 45.3 if independent. This contradicts the 09-22 "slate LEVEL factor"
+  reading of the star-tail misses.
+- **Opponents' fantasy output is coupled, their scores are not.** Skill-DK residual correlation +0.21 given market totals,
+  plays −0.41, scoreboard +0.007. It runs through game script, not shared volume (the incumbent law couples volume).
+- **Same-team pass catchers are ~independent.** WR1–WR2 +0.016 vs the incumbent generation law's +0.277; the QB is the
+  hub.
+- **The crowd is informed except when it chases last week.** The recency part of excess ownership predicts nothing
+  (ρ +0.015); the rest predicts strongly (+0.176, 67/69 slates). The chase is present in 17/17 slates every season; a
+  recency-aware ownership model removes a −4 pp bias on last week's boomers out of sample.
+- **The simulator caps player tails** at q99 + 0.25·(q99−q95) (`nfl2 core/draw_shape.py:315-316`); real slates average
+  0.93 games of 40+ DK and 0.31 of 45+.
+- **Kalshi now lists NFL fantasy-point markets,** including D/ST and scalar mean markets.
+
+**Top suggestions for the operator's decision:**
+1. **R1:** enter a book re-selected on Sunday information. Keep the Saturday D12800 pool; re-run `dual_emax` on the
+   T-70 run's post-inactives banks.
+2. **R2:** fade only recency-inflated ownership. The recency-aware chalk predictor is the successor to L02 (its named
+   reopening mechanism).
+3. **R3:** a generalized-Pareto tail above q99.
+4. **R4:** 8–10 books at the same credit cost, per-family de-vig, and MinT reconciliation of props against team totals
+   for unpriced players.
+5. **R5:** capture Kalshi now.
+6. **R10:** weekly IC/TC edge accounting at settlement.
+
+**Unresolved risks:**
+- LineStar's historical periods can't be proven pre-lock. R2 test (a) re-runs §2.4 on our own point-in-time replay
+  projections and `contest_ownership` before anything is built.
+- Web claims carry fetched/abstract/unverified tags in the research notes; vendor figures are unverified.
+
+**Integrity items found in passing (§5; please verify):**
+- A possibly empty 2026 `dk_salary_week` spine: `001a:37` filters `week IS NOT NULL`, and `dk_salaries.week` is NULL on
+  every row.
+- The TabPFN context includes inactive zeros.
+- hsim reads frozen schedule lines.
+- `COEF_L16` is applied to a last-4 average.
+
+**Next concrete action (Monday settlement):**
+- the R1(a) fixed-pool replay on Weeks 2–3;
+- the R2(a) replication on our own data;
+- IC/TC lines on the scoreboard.
+
 ## 2026-09-24 (06:53 CDT) — L02 READ: neither chalk sleeve flip-eligible (L2 a near miss); L03 started
 
 Laptop agent. PREREG-L02 read **once** (frozen reader at nfl2 `ccfb0603`, clean; 72/72 slate-banks, 0 errors). Report with the verbatim
