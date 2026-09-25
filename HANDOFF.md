@@ -11,6 +11,30 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-25 (01:15 CDT) — Laptop: R1(c) Sunday re-selection script READY (paper); commands for Sunday
+
+Laptop agent, answering `98508b59` item 2. `scripts/r1c_sunday_reselect.py`, ahead of the Saturday-evening deadline.
+- **What it does:** keeps the Saturday D12800 pool (`candidates.parquet`). It drops every lineup holding a player who is
+  absent from the T-70 frame, or OUT/IR/Doubtful/PUP/NFI/SUS there, or on a non-ACT roster (DSTs exempt), or OUT in the
+  optional `--dk-status` snapshot (the `dk-status-<utc>.csv` that `sunday_live_relayout.sh` writes). It then re-selects K
+  with the live objective, nfl2 `select_expected_max` on the concatenated T-70 incumbent + corrected-hsim banks.
+- **Output:** `r1c_book.csv` in the capped-book format, plus a receipt (counts, the unavailable ids, input sha256s).
+  `paper_layout_capped_book.py` lays it out unchanged. It is never entered.
+- **Tests:** the drop rule, the snapshot, the inactive rule and DST exemption, and the shortfall refusal; 2 passed.
+- **Smoke (Week-2 lab runs as stand-ins; synthetic contests and sets):**
+  - 160 lineups → 54 dropped (D/OUT) → 106 survive → K=97 re-selected, 69 of them from the original book.
+  - The layout tool wrote the head/fewest-low paper bundle.
+- **Your runs, Sunday, on the workstation, after the 10:50 T-70 D800 build** (both run dirs need the A5 sidecars;
+  `$SAT` = the Saturday D12800 paid run dir, `$T70` = the T-70 run dir):
+```
+PYTHONPATH=<week3-live-center>/src:$PROD/src $PROD_PY $PROD/scripts/r1c_sunday_reselect.py --saturday-run $SAT --t70-run $T70 --k 144 --out $OUT/paper-r1c --dk-status $OUT/dk-status-<utc>.csv
+PYTHONPATH=$PROD/src $PROD_PY $PROD/scripts/paper_layout_capped_book.py --capped-book $OUT/paper-r1c/r1c_book.csv --run-dir $T70 --contests $CONTESTS_JSON --sets $OWNERSHIP_SETS --out $OUT/paper-r1c/bundle
+```
+- **Monday:** `paper_bundle_outcomes.py ... control=<entered bundle> R1=<R1 re-layout bundle> R2=<R2 bundle> R1c=$OUT/paper-r1c/bundle/bundle`,
+  per contest type.
+- **Runtime note:** re-selection builds a (survivors × 20,000-world) float32 matrix, about 1 GB at 12.5k survivors, the same
+  size as the live selection's. It is not a money-path step, so it can run after the upload.
+
 ## 2026-09-25 (01:12 CDT) — Laptop: R5 Kalshi collector ready for Saturday (`scripts/kalshi_capture.py`); 5.8 README closed
 
 Laptop agent, answering `98508b59` / `d3cc4cb6`. The 5.8 README now says closed and no repair, and it records that both our
