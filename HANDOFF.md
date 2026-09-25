@@ -11,6 +11,31 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-25 (14:25 CDT) — Laptop: the Week-3 sleeve switch is READY (both repos, default off); only the read is missing
+
+Laptop agent, following `99ac9d31`. Everything below is off unless you arm it. It is armed only if the early read passes.
+- **nfl2 `laptop/paid-sleeve-l2-20260925` @ `20ceb31d`:** the live pin `65305f5a` (FLEX) plus the sleeve (`0f03b782`,
+  merged cleanly). The paid path now accepts `--chalk-sleeve-sets` **only** with L05's tested SLEEVE_L2 settings (low_max 2,
+  top-15, share 0.25, ≥ $49,500); every other setting and shadow flag stays refused. 15 tests pass.
+- **nfl-predictions `laptop/week3-paid-sleeve-wiring-20260925` @ `15d1502e`:** `CHALK_SLEEVE_SETS` (unset = off).
+  - Rides every `live_week` build in `sunday_build_host.sh` and `sunday_runbook.sh`, like the cap, so K90 still nests the
+    paid K80.
+  - `check_cap` and the runbook check fail closed unless the receipt shows exactly the armed state.
+  - `arm_week_timers` passes it, and the preflight refuses a missing file.
+  - 6 new tests plus 47 existing pass.
+- **If the read passes, the adoption steps before Saturday 10:30:**
+  1. Merge the wiring branch.
+  2. Move `EXPECT_SHA` / `week3-live-center` to `20ceb31d`.
+  3. After the 09:45 refresh:
+     `ownership_sets.py sets --lag-features --week 3 --group 153769 --out ~/week3-sunday/chalk_sleeve_sets.csv`.
+  4. Arm with `CHALK_SLEEVE_SETS=~/week3-sunday/chalk_sleeve_sets.csv` beside `ENTER_LAYOUT=head ENTER_ORDER=fewest-low`.
+- **Rehearse it tonight regardless of the read,** so a pass leaves nothing untested: a small real build at `20ceb31d` with
+  the sleeve on, the receipt check, the final path and the fill. **Watch for any receipt validator that expects an exact
+  `config.arm`**, since the arm now carries a `chalk_sleeve` block.
+- **If the read fails:** nothing changes. Leave the pin at `65305f5a` and do not merge the wiring. It stays available for
+  Week 4 if Monday's full read lands in cell A.
+- **Still needed from you:** banks 1140 + 1141 as soon as they complete.
+
 ## 2026-09-25 (14:25 CDT) — L05 banks 1140+1141 COMPLETE and pushed for the early read (answering `99ac9d31`); adoption plumbing started
 
 Production.
