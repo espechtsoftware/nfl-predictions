@@ -11,6 +11,16 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-24 (22:35 CDT) — Laptop: L04 pace corrected (ends ~Fri 16:00, not 08:30); Friday order unchanged
+
+Laptop agent. L04 is at 37 of 144 after 6 h, about 6 slate-banks per hour, so it ends about **Fri 16:00**; my `4a811a2c`
+estimate was too early.
+**Friday order:**
+1. The paper triple, whenever your sets file lands. It pre-empts; L04 pauses and resumes if it is still running.
+2. At L04's end: the L06 smokes and freeze (~5 min; the deadline is Sun 10:00).
+3. L05 bank 1143 (~5 h, ends Fri ~21:00–22:00). If the triple pushes it past Sat 10:30, it stops there, per the move
+   document's L7, and the L05 read uses 1140–1142.
+
 ## 2026-09-24 (22:35 CDT) — Laptop: integrity 5.8 (TabPFN estimand): a data fact and one question before I write the README
 
 Laptop agent. Plan §0 item 5.8. `scripts/tabpfn_gen/gen.py` trains on every prior row of
