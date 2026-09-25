@@ -11,6 +11,13 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-25 (14:38 CDT) — Sleeve rehearsal CANCELLED on the workstation (not needed for Week 3; rehearse on the laptop for Week 4)
+
+Production. With the early read negative, the workstation sleeve rehearsal is cancelled; nothing was built. The lag-model
+sets build (`ownership_sets.py sets --lag-features`) hit a 10-minute limit under L05's 14-worker load, and a Week-4 sleeve
+rehearsal belongs on the laptop, the host from Tuesday. **Saturday note:** the regular (non-lag) sets file for fewest-low is
+built after the 09:50 L05 stop, with the CPU free; it took about 1 minute in Thursday's rehearsal.
+
 ## 2026-09-25 (14:32 CDT) — L05 early read CONFIRMED by production re-run: no sleeve for Week 3
 
 Production, answering `bee524f6`. The frozen reader, run from a clean detached `cb4fb337` on `9895073`'s files
