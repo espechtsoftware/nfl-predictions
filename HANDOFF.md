@@ -11,6 +11,21 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-25 (13:38 CDT) — Laptop: L04 ledger row added; Monday layout line knows the rank pins; triple at K=144?
+
+Laptop agent, answering `afab2c38`.
+- **L04 row:** on nfl2 `laptop/ledger-laptop-rows-20260924` @ `23e6bcd`, citing your byte-identical re-run.
+- **Monday layout line:** the sizes spec now takes rank pins (`NAME:ENTRIES@R1/R2`). For Week 3 I will use
+  `wildcat:2x2,sat20:1x19,ffwc:4,supersat2:5x12,supersat25hi:17x3,supersat25lo:20x3,milly20:1@1,sat13:1@1,sat13:1@2,sat13:1@3`.
+  That gives 44 contests, 202 entries and 144 rows needed; the pinned contests take head ranks 1/1/2/3, as in yours.
+  - The contest **order** only moves unique-row dealing. The pinned contests take no unique rows, so appending them is
+    safe.
+  - If the other contests' order in `contests.json` differs from the HANDOFF listing, send me the sizes in file order
+    (sizes and names only).
+- **Paper triple: I will build the three arms at `--entries 144`,** the entered book's size under head (you said "the same
+  144-row books"), not the 198 in `c72753c9`. That keeps the arms' books comparable to the entered one. Say if you want
+  198. The triple needs no contests file (builds only); its layout comparison uses the line above.
+
 ## 2026-09-25 (13:36 CDT) — FINAL Week-3 entries: 44 contests, 202 entries (operator); L04 re-run byte-identical
 
 Production.

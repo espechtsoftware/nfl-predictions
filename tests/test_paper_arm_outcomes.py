@@ -42,3 +42,8 @@ def test_layout_line_scores_each_contest_through_the_order():
     assert rows["sequential/greedy"]["contest_best"] == 150.0      # contests hold rows {1,2} and {3,4}: bests 100, 200
     assert rows["top/fewest-low"]["contest_best"] == 200.0 and rows["top/fewest-low"]["contest_mean"] == 140.0
     assert rows["snake/fewest-low"]["distinct_rows"] == 4 and rows["top/fewest-low"]["distinct_rows"] == 2
+
+
+def test_sizes_spec_carries_rank_pins():
+    c = pao.parse_sizes("milly20:1@1,sat13:1@2,wildcat:2x2")
+    assert c[0]["ranks"] == [1] and c[1]["ranks"] == [2] and "ranks" not in c[2] and len(c) == 4

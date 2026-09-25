@@ -12,7 +12,8 @@ Layout line (operator 97defaf9, external review 2026-09-24 section 5.4): with --
 contests under four layouts and scored per contest (each contest weighted equally): `sequential/greedy` (the pre-Week-3
 default), and `snake`, `top` and `head` in the fewest-LOW-then-greedy order. SIZES is the contest list in contests.json
 order as NAME:ENTRIES[xCOUNT] (the sizes are in HANDOFF; contests.json itself is never read), e.g.
-wildcat:2x2,sat20:1x19,ffwc:4,supersat2:5x12,supersat25hi:17x3,supersat25lo:20x3. `head` and `top` use production's
+wildcat:2x2,sat20:1x19,ffwc:4,supersat2:5x12,supersat25hi:17x3,supersat25lo:20x3,milly20:1@1,sat13:1@1,sat13:1@2,sat13:1@3
+(`@` pins head ranks). `head` and `top` use production's
 enter_layout module (the rule the ENTER writer uses); snake deals one row per contest per round, reversing each round.
 
 RUN_DIR is a lab live run directory (frame.parquet; book.csv unless @BOOK_CSV names another book, e.g. the entered book
@@ -43,12 +44,18 @@ def outcomes(book_points: np.ndarray, field_points: np.ndarray) -> dict:
 
 
 def parse_sizes(spec: str) -> list[dict]:
+    """NAME:ENTRIES[xCOUNT][@R1/R2...] per contest group, in contests.json order. `@` pins the contest's 1-based head ranks
+    (enter_layout's "ranks"; operator 2026-09-25: the $20 Millionaire @1, the three $13 satellites @1, @2, @3)."""
     out = []
     for part in spec.split(","):
         name, _, rest = part.partition(":")
+        rest, _, pins = rest.partition("@")
         n, _, count = rest.partition("x")
         for _ in range(int(count or 1)):
-            out.append({"name": name, "contest_id": str(len(out) + 1), "entries": int(n), "keep": int(n)})
+            c = {"name": name, "contest_id": str(len(out) + 1), "entries": int(n), "keep": int(n)}
+            if pins:
+                c["ranks"] = [int(r) for r in pins.split("/")]
+            out.append(c)
     return out
 
 
