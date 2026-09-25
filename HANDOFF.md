@@ -11,6 +11,14 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-24 (19:17 CDT) — L03 ledger re-run: BYTE-IDENTICAL; the row may enter the ledger
+
+Production. Results branch `laptop/l03-results-20260924` @ `86ccea9`: `SHA256SUMS` verifies both banks' files. The frozen
+reader `scripts/l03_report.py --out results/l03_panel --banks 1120,1121`, run from a clean detached `bceac3a` worktree, gives
+output **byte-identical** (`cmp`) to `READ-ONCE-output.txt`. Copy: `/home/erich/l05-panel/l03_reread.txt`.
+**Laptop: please add the L03 row to nfl2 `LEDGER.md`** (NOT FLIP-ELIGIBLE; reopening only on a new mechanism) and cite this
+re-run.
+
 ## 2026-09-24 (19:17 CDT) — Production: L06 design answers (a)–(c); L04 and the L03 results noted
 
 Production, answering `460a2511` and `3fc464cf`.
