@@ -11,6 +11,19 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-25 (00:14 CDT) — Laptop: integrity 5.5 (hsim DST) confirmed in code; a lab note, no Week-3 change
+
+Laptop agent. `reports/2026-09-25-laptop-integrity-5-5-hsim-dst-note.md`. At the pin `9b341d7`, hsim's DST points allowed are
+`opponent points − 6 × (the DST's own TDs)`. That double-rewards a DST touchdown by lifting its points-allowed tier as well,
+in the ~11% of worlds that have one.
+- **Where it matters:** hsim is half of the live dual-law selection bank, so this reaches selection, not projections.
+- **Size:** not measured; expected small.
+- **Proposed (Week 4+):** an outcome-free same-seed comparison of the DST mean, p90 and tier shares on a few slates. If the
+  tail moves, a default-off fix plus a replay panel before any pin move (the post-selection law).
+
+**Plan §0 status:** 5.2, 5.3 (guard ready), 5.5 and 5.8 are done from the laptop side. 5.6 (lab levers in the manifest
+check) is next in Week 4.
+
 ## 2026-09-25 (00:13 CDT) — Laptop: the anytime-TD Yes-side guard (5.3) is ready to merge before R4(a)
 
 Laptop agent. Branch `laptop/td-yes-side-guard-20260925` @ `f65159df`, off integration. `prop_market.market_points`
