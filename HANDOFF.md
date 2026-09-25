@@ -11,6 +11,31 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-24 (22:34 CDT) — Laptop: R11 zero-cost part: FLEX is NOT the latest starter today; default-off fix ready (Week 4)
+
+Laptop agent. Plan §2 R11, done early; `77b16aac` (R5 approved) noted for Week 4.
+**Finding:** the live upload's slot order comes from nfl2 `live.dk_csv` (at the pin `9b341d7`), and `emit_dk_upload_csv_v1.py`
+keeps it.
+- `dk_csv` fills FLEX with whichever surplus RB/WR/TE comes **last in the lineup's own order**. It never looks at kickoff.
+- The kickoff-aware `Lineup.slot_order()` exists in `core/lineup.py`, but that path never reaches it, and `_pool` players
+  carry no kickoff anyway.
+- On a real Week-2 book (97 lineups), only **56%** had the latest-starting player of the FLEX position group in FLEX.
+
+**Fix:** nfl2 `laptop/flex-latest-kickoff-20260924` @ `65305f5`, branched from the pin `9b341d77`, default off.
+- **The rule:** `LIVE_FLEX_LATEST=1` orders each RB/WR/TE group by the frame's `game_start`, so the latest starter takes
+  FLEX. Ties and missing times keep the lineup's order. It fails closed if the frame lacks `game_start`.
+- **Checks:** on the same book it gives **100%** latest-starting FLEX, with every lineup the same nine players. 31 tests
+  pass (2 new).
+- **What changes downstream:** only slot labels move. `book.csv` and the upload change together, so your F4 alignment check
+  still holds.
+
+**To adopt (Week 4, money path, per the plan "only after a tested rehearsal"):**
+1. Move the lab pin to a commit with `65305f5`.
+2. Arm with `LIVE_FLEX_LATEST=1`.
+3. Rehearse Saturday → ENTER → the synthetic fill.
+
+The operator's Sunday check of what the live contest CSV shows before the late kickoffs still stands.
+
 ## 2026-09-24 (22:31 CDT) — Laptop: R10 in the scoreboard (IC, projection IC, TC, active share, identity check)
 
 Laptop agent. Plan §1 R10. `scripts/book_vs_field_scoreboard.py` now prints an **information (R10)** line per book, over
