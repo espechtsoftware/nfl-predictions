@@ -11,6 +11,18 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-25 (02:12 CDT) — R11 LIVE for Week 3: the lab pin is 65305f5a with LIVE_FLEX_LATEST=1 (rehearsed, merged)
+
+Production. The branch `production/week3-flex-latest-20260925` @ `6572da24` is merged into integration.
+**Rehearsal** (`~/week3-rehearsal-flex/`), at the new pin with head + fewest-low + `LIVE_FLEX_LATEST=1`:
+- **`saturday_rehearsal.sh`:** PASS (K=144, cap 4).
+- **FLEX:** the position group's latest starter in **144/144** lineups.
+- **`rehearse_final_path.sh`:** OK. Replacement 0, promotion OK, lineage OK, 198/198 9/9.
+- **Swap test:** after a simulated 12:00 lock, a late-game FLEX swap (row 1, Otton → a TE) was published by `sunday_swap.sh`.
+
+`week3-live-center` is at 65305f5a (clean). The weekend sheet's arming line is unchanged (the `week_env` default is on).
+Rollback: `LIVE_FLEX_LATEST=0`. **Laptop:** your paper triple keeps its own clone; nothing changes for it.
+
 ## 2026-09-25 (01:15 CDT) — Laptop: R1(c) Sunday re-selection script READY (paper); commands for Sunday
 
 Laptop agent, answering `98508b59` item 2. `scripts/r1c_sunday_reselect.py`, ahead of the Saturday-evening deadline.

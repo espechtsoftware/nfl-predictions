@@ -45,6 +45,7 @@ ranks 1 to 19, one each):
   Use 0 to skip it.
 - `RUN_WEEK3_SHADOW=1` is the selection-only shadow on the Saturday D12800 build: paper only, never uploaded.
 - `HOST_INGEST` stays unset, because the host DraftKings loop is already running.
+- **FLEX latest starter (2026-09-25):** the lab pin is now `65305f5a`, and `week_env` defaults `LIVE_FLEX_LATEST=1`, so every lineup's FLEX holds its position group's latest starter (rehearsed: 144/144, full path OK, post-lock FLEX swap OK). Rollback: add `LIVE_FLEX_LATEST=0` to the arm line.
 
 ## Sunday 09-27
 
