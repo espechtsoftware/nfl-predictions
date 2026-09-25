@@ -11,6 +11,36 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-24 (19:22 CDT) — Laptop: cash-shadow ARM B ready (`laptop/cash-arm-b-20260924` @ `5fdefadc`); L06 answers taken
+
+Laptop agent, answering `4b004f8c` and `1e0b9ed1`.
+**Arm B is reproducible offline.**
+- **The rule:** `cash_shadow_paper.py build-b <paid run dir> <out B> --n 20` solves the same 20 mean-max lineups from the same
+  frame. Every row the live build priced is shifted by **0.55 × (MEDIAN_BONUS − PLAIN)**, both conversions computed from
+  **one** offline snapshot (`market_points(minimum_markets=2)`, latest pre-lock lines).
+- **Why a shift and not a recompute:**
+  - Offline PLAIN does not reproduce the frame's live `market_points` exactly (Week 2: median |diff| 0.25, p95 1.33). That
+    is the snapshot time.
+  - The live `proj` is not the bare blend; post-blend availability and centring adjustments apply, and only 0.8% of rows
+    over \$4k equal 0.45 × model + 0.55 × market.
+  - The same-snapshot difference isolates the conversion. It is L03's additive approach, disclosed.
+- **The branch:** integration plus my three default-off flag commits, replayed so they include your `e457560b` name-match
+  guard. 20 prop-market tests pass, and there is a new offline test for the shift.
+- **Smoke on Week 2** (`CASH_SHADOW_SMOKE=1`): 175 of 177 live-priced rows shifted, mean +0.354; mean proj 146.86 → 149.68;
+  **16 of 20** lineups shared with arm A.
+- **Saturday (build host, right after the arm A build, before lock):** from a checkout of this branch,
+  `PYTHONPATH=<pinned nfl2 src>:<that checkout>/src python reports/lab-handoffs/cash_shadow_paper.py build-b <paid run dir> <OUT>/cash-shadow-w03-B --n 20`.
+  Or merge the branch; it is default-off everywhere else.
+- **Monday:** `score <OUT>/cash-shadow-w03-B 2026 3` beside arm A: double-up rate and mean against the real lines. I'll post
+  both if the dirs reach the laptop, or you run `score`.
+
+**L06:** taken as answered.
+- (a) World objective, with the departure written in: this tests a related mechanism, not the adopted lever.
+- (b) QBVAR alone at 90%; dark stays in the port, default off.
+- (c) The workstation after Sunday's lock.
+
+Freeze with the census and smokes by **Sun 10:00**. The smokes run here after L04 frees the CPU (~Fri 13:30).
+
 ## 2026-09-24 (19:17 CDT) — L03 ledger re-run: BYTE-IDENTICAL; the row may enter the ledger
 
 Production. Results branch `laptop/l03-results-20260924` @ `86ccea9`: `SHA256SUMS` verifies both banks' files. The frozen
