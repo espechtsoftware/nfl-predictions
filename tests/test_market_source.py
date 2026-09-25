@@ -61,3 +61,17 @@ def test_source_log_frame_shape():
     # not supplied here, so they must be NULL rather than reconstructed
     assert log.model_points_pre.isna().all() and log.model_weight.isna().all()
     assert len(log) == 5 and log.week.eq(3).all() and log.path.eq("project-slate").all() and log.proj_points.tolist() == [0, 1, 2, 3, 4]
+
+
+def test_dst_with_blank_position_is_recognised_from_dk_position():
+    # the live slate frame: `position` blank for DSTs, `dk_position` = "DST" (2026-09-25, Week-3 replay: 30 DSTs had been
+    # counted as "no line" in the coverage denominator)
+    feats = pd.DataFrame({"gsis_id": ["00-1", "00-2", "00-3", None], "display_name": ["A", "B", "C", "Bears"],
+                          "position": ["WR", "RB", "WR", np.nan], "dk_position": ["WR", "RB", "WR", "DST"]})
+    mw = pd.DataFrame({"gsis_id": ["00-1"], "market_points": [12.0]})
+    _, src = resolve_live_market(feats, mw, {"A"}, min_coverage=0.30)
+    assert src.set_index("display_name").source.to_dict() == {"A": "props", "B": "model_only_no_line",
+                                                              "C": "model_only_no_line", "Bears": "model_only_dst"}
+    # coverage is 1 of 3 non-DST rows (33%), so a 34% floor must stop the run; before the fix the DST sat in the denominator
+    with pytest.raises(MarketMatchError, match="1 of 3 non-DST"):
+        resolve_live_market(feats, mw, {"A"}, min_coverage=0.34)

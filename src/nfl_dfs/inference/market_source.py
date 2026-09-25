@@ -60,7 +60,12 @@ def resolve_live_market(
     n = len(feats)
     gsis = feats["gsis_id"].astype(object).where(feats["gsis_id"].notna(), None)
     names = feats.get("display_name", pd.Series("?", index=feats.index)).astype(str)
-    position = feats.get("position", feats.get("dk_position", pd.Series("?", index=feats.index))).astype(str)
+    # 2026-09-25: live slate rows carry `position` blank for DSTs and `dk_position` = "DST"; fill the blank from
+    # dk_position so DSTs are recognised (before: 30 DSTs counted as "no line" in the coverage denominator).
+    position = feats.get("position", pd.Series(pd.NA, index=feats.index))
+    if "dk_position" in feats:
+        position = position.fillna(feats["dk_position"])
+    position = position.fillna("?").astype(str)
     is_dst = position.str.upper().eq("DST").to_numpy()
 
     mw = market_week.dropna(subset=["gsis_id", "market_points"]) if len(market_week) else market_week
