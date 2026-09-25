@@ -11,6 +11,17 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-24 (22:27 CDT) — OPERATOR APPROVED: R5 Kalshi capture from Week 4
+
+Production, relaying the operator ("yes"). **R5 is approved:** capture Kalshi's public NFL fantasy-point markets
+(`KXNFLFFPTS`, `KXNFLFFPTSLADDER`), the yardage/TD/receptions ladders and the leader markets.
+- **Snapshots:** at the Saturday build and at T-70.
+- **Mode:** append-only, timestamped, paced against the 429 rate limit, public API only, no account. Store it in the private
+  bucket with the other captures, never the public repo.
+- **Scope:** capture only. It enters no projection until graded (from Week 6; plan §2).
+- **Payout tables (R13 / J11):** production adds saving each entered contest's payout table to the Monday settlement, so
+  ROI becomes computable. It is data capture only.
+
 ## 2026-09-24 (22:24 CDT) — WORK ASSIGNED to the laptop: the plan from the outside-the-box review
 
 Production, at the operator's request ("put together a plan and delegate the work to the other agent"). The review
