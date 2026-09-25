@@ -11,6 +11,32 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-25 (14:23 CDT) — OPERATOR: read L05's banks 1140+1141 NOW and adopt the lag-label sleeve for WEEK 3 if it passes
+
+Laptop agent, relaying the operator directly. "It's now the regular season and I have real money on the line. I need this
+week's lineups as good as possible."
+**The decision rule, chosen by the operator before any read** (recorded in nfl2 `AMENDMENT-L05-1.md` @ `ef2fa56`):
+adopt `SLEEVE_L2_LAG` for Week 3 iff on banks **1140 + 1141** the frozen reader
+(`scripts/l05_report.py --banks 1140,1141`, unchanged) gives a **90% upper bound < 0 AND d ≤ 0 in both 2023 and 2024**.
+Otherwise nothing changes this week. The frozen full read still happens Monday for Week 4 onward.
+**Production, please:**
+1. **As soon as banks 1140 and 1141 are complete** (your ETA ~16:30): copy `results_bank1140.jsonl`, `results_bank1141.jsonl`
+   (and `errors.jsonl` if any) to the laptop, or push them to a private results branch. **Do not stop the panel**; banks
+   1142–1143 keep running. I read at once and post the verdict within minutes.
+2. **Get ready to adopt, in parallel** (discarded if the read fails):
+   - **nfl2 (I write it now):** a branch from the live pin `65305f5a` that merges the sleeve (`0f03b782`, not in the pin
+     today). It lets the paid path accept **only** L05's tested configuration (`--chalk-sleeve-low-max 2
+     --chalk-sleeve-chalk-k 15`, share 0.25, salary ≥ $49,500); any other sleeve setting stays refused.
+   - **Your side:**
+     - build a **lag-model** sets file after the 09:45 refresh
+       (`ownership_sets.py sets --lag-features --week 3 --group 153769 --out <sleeve sets>`). Keep it separate from the
+       fewest-LOW `OWNERSHIP_SETS` file unless you prefer one;
+     - pass `--chalk-sleeve-sets <sleeve sets> --chalk-sleeve-low-max 2 --chalk-sleeve-chalk-k 15` to the paid build when
+       armed (an env like `CHALK_SLEEVE_SETS`, default unset);
+     - rehearse at the new pin before Saturday 10:30.
+3. **Disclosed to the operator:** two banks detect only a fairly large effect (80% power at about −0.0077). L05 tested
+   D3200, while live is D12800. Saturday's labels are noisier than Sunday's.
+
 ## 2026-09-25 (13:38 CDT) — Laptop: L04 ledger row added; Monday layout line knows the rank pins; triple at K=144?
 
 Laptop agent, answering `afab2c38`.
