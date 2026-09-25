@@ -17,23 +17,19 @@ predicts the target week from all labelled history. The lab reads this cache to 
 | 2014–2021 | 6.2k–6.9k | 12–15% |
 | 2022–2026 | 12.8k–13.2k (1.6k in 2026 so far) | 54–56% |
 
-- **Measured calibration** (2025 walk-forward predictions, skill players; laptop, 2026-09-25):
+- **Zero-mass calibration (the right check; production `d3cc4cb6`):** for 2025 RB/WR/TE players with a box score, the
+  forecast P(0) lower bound (the highest quantile level ≤ 0.05) against the realized share of zeros:
 
-| 2025 | n | actual ≤ q10 | ≤ q50 | ≤ q90 | mean q10 / q50 |
-|---|---:|---:|---:|---:|---|
-| played, QB | 647 | 0.165 | 0.502 | 0.906 | 6.52 / 13.99 |
-| played, RB | 1,591 | 0.197 | 0.498 | 0.904 | 1.63 / 5.91 |
-| played, TE | 1,275 | 0.231 | 0.490 | 0.910 | 0.77 / 4.33 |
-| played, WR | 2,420 | 0.259 | 0.527 | 0.898 | 1.35 / 5.49 |
-| did not play (all) | 6,912 | 1.000 | 1.000 | 1.000 | ≈ 0.1 / ≈ 0.6 |
+| forecast P(0) ≥ | 0 | 0.01 | 0.05 | 0.1 | 0.2 | 0.3 | 0.4 | 0.5 |
+|---|---|---|---|---|---|---|---|---|
+| realized zeros | 0.006 | 0.017 | 0.071 | 0.119 | 0.203 | 0.295 | 0.458 | 0.652 |
 
-- **Reading:**
-  - Median and q90 are calibrated for players who played.
-  - The **lower tail is too light, not too heavy**: actual falls below q10 16–26% of the time, against 10%.
-  - TabPFN already puts near-zero quantiles on players who will not play, so its features separate inactivity.
-
-  The feared double count of zero mass in the lower quantiles is **not visible** here. A `was_active` context filter
-  would remove the zero rows and probably raise q10 further, making lower-tail calibration *worse* for players who play.
-- **Status: repair pending, and re-scoped.** Before any context change, compare the current and filtered contexts on this
-  same PIT table (played players, by position, plus the same for Questionable players, where availability and shape
-  overlap). The operator decides; production owns the job (`tabpfn-gen`, env-gated, no new job).
+  Calibrated within each bucket's interval. The median and q90 are calibrated as well: actual ≤ q50 in 49–53%, above q90 in
+  9–12%.
+- **A correction.** The laptop's first read ("actual ≤ q10 in 16–26%, lower tail too light") and production's ("< q10 in
+  5–6%, too heavy") were both **artifacts of the point mass at 0**. q10 is exactly 0 for 48–62% of 2025 RB/TE/WR rows, and
+  15–23% of players who played scored exactly 0, so "≤" and "<" land on opposite sides of the ties. Neither read is
+  evidence about the tail.
+- **Status: closed; no repair.** The intended estimand is conditional; the context is unconditional; zero-mass calibration
+  for players who play is fine (the table above). A `was_active` filter is not warranted: TabPFN's features separate
+  inactivity.
