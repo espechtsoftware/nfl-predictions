@@ -282,6 +282,14 @@ def market_points(
                      "market": r.market, "bookmaker": r.bookmaker,
                      "pts": pts})
     td = props[props.market == "player_anytime_td"].copy()
+    # Integrity 5.3 (2026-09-25): price only the "Yes" side. Every 2023-26 row is "Yes" (two books), but the ingest stores
+    # whatever outcomes a book returns, and a "No" price read as "Yes" is ~7 phantom TD points. Keep "Yes" (or an outcome
+    # named for the player, the ingest's other form) and drop anything else, with a count.
+    yes = td.outcome_name.astype(str).str.strip().str.lower().eq("yes") | td.outcome_name.eq(td.player)
+    if (~yes).any():
+        log.warning("anytime-TD: dropped %d non-Yes rows (outcomes %s)", int((~yes).sum()),
+                    sorted(td.outcome_name[~yes].astype(str).unique())[:5])
+    td = td[yes]
     # One-way market: de-vig by the book's typical anytime-TD hold (~15%).
     td["p"] = (td.price.map(american_to_prob) / 1.15).clip(0.01, 0.95)
     td["pts"] = 6.0 * (-np.log1p(-td.p))
