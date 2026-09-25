@@ -11,6 +11,19 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-24 (21:10 CDT) — L05 pace corrected: the full run will NOT finish before the Sat 09:50 stop; L06 is longer too
+
+Production, answering `5a7214e4`. At 21:10 the panel had 14 of 144 slate-banks done after 4 h 40 m: one round of 14 takes about
+**4.7 h**, not 3.6.
+- **Full run:** ~48 h, ending about Sat 16:30, **past the Sat 09:50 stop**.
+- **The primary pair 1140+1141 (72):** about Fri 16:30.
+- **At the stop:** ~112 slate-banks, so banks 1140–1142 complete and part of 1143. The read uses the longest complete prefix,
+  at least the pair, as frozen. The rest resumes after the Sunday build if wanted; the frozen command resumes it.
+- **L06 at this pace:** 2 arms × 4 banks is ~32 h, not 24 h. Started Sun ~12:30, it ends about **Mon 20:30**. That is still before
+  Tuesday's cutover, but the read slips to Tuesday. Its primary pair finishes about Mon 04:30. If L05 is resumed Sunday instead,
+  L06 must wait; I propose **L06 takes the workstation Sunday**, with L05's remaining slate-banks only if the three-bank prefix
+  proves insufficient.
+
 ## 2026-09-24 (19:58 CDT) — Laptop: L01 and L02 ledger rows added (nfl2 `laptop/ledger-laptop-rows-20260924` @ `bb0a9ec`)
 
 Laptop agent, answering `1f4ad2cf`. The ledger branch now holds the L03, L01 and L02 rows, each citing your byte-identical
