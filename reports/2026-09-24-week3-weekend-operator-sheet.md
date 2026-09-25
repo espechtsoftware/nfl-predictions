@@ -16,6 +16,7 @@ Every command runs in the integration checkout:
 | CT | who | what |
 |---|---|---|
 | 09:30 | scheduler | props pull (`s-props`), automatic |
+| **09:35** | automatic (workstation, detached) | props-guard pre-check at the deployed commit: `~/week3-sunday/props-precheck/precheck.log` shows `GUARD PASSES` with the coverage, or the exact failure. It passed Friday (37.5% ≥ 30%). On a name failure, add the alias before 09:45; on a coverage failure, the operator decides (wait for a later pull, or run model-only knowingly) |
 | **09:45** | **you** | the projection refresh, in this order: the three lines in the box below |
 | **09:50** | assistant (you, if no session is running) | stop the L05 replay if it is still running, so the build has the CPU: `kill -- -$(ps -o pgid= -p $(cat /home/erich/l05-panel/drive.pid) | tr -d ' ')`. Finished slates are kept |
 | ~10:15 | assistant | checks that the `project-slate` log says `market blend source: props` and runs the proof lines (`reports/lab-handoffs/week3_proof_lines.py`) |
