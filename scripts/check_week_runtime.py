@@ -90,6 +90,9 @@ def main():
         print(f"{layout} layout, {required_entries} distinct lineups:")
         for line in enter_layout.rank_summary(contests, layout):
             print("  " + line)
+    sleeve = os.environ.get("CHALK_SLEEVE_SETS") or ""
+    if sleeve and not Path(sleeve).is_file():
+        fail(f"CHALK_SLEEVE_SETS={sleeve} does not exist; build it with ownership_sets.py sets --lag-features before arming")
     order = os.environ.get("ENTER_ORDER") or "greedy"
     if order not in enter_layout.ORDERS: fail(f"unknown ENTER_ORDER {order!r}; expected one of {enter_layout.ORDERS}")
     if order == "fewest-low":

@@ -20,6 +20,31 @@ set -uo pipefail
 # Week-3 per-game cap (week_env.sh MAX_PER_GAME, default 4; 0 = flag omitted). Applied to EVERY
 # live_week.py build here and in sunday_runbook.sh, so the K90 book still nests the paid K80 book.
 MPG_ARGS=(); if [[ "${MAX_PER_GAME:-0}" != "0" ]]; then MPG_ARGS=(--max-per-game "$MAX_PER_GAME"); fi
+# Chalk-core sleeve on the PAID path (operator 2026-09-25: adopted for Week 3 only if PREREG-L05's early read of banks
+# 1140+1141 passes the frozen rule). CHALK_SLEEVE_SETS = the Saturday lag-model sets file; unset = no sleeve. Only L05's
+# tested configuration is ever passed (low_max 2, chalk_k 15, share 0.25, min salary 49,500); the receipt check below
+# refuses a build whose recorded sleeve differs, or that carries a sleeve nobody asked for.
+SLEEVE_ARGS=()
+if [[ -n "${CHALK_SLEEVE_SETS:-}" ]]; then
+  [[ -f "$CHALK_SLEEVE_SETS" ]] || { echo "CHALK_SLEEVE_SETS=$CHALK_SLEEVE_SETS does not exist"; exit 2; }
+  SLEEVE_ARGS=(--chalk-sleeve-sets "$CHALK_SLEEVE_SETS" --chalk-sleeve-low-max 2 --chalk-sleeve-chalk-k 15)
+fi
+check_sleeve() {  # $1 run dir
+  python3 - "$1" "${CHALK_SLEEVE_SETS:-}" <<'SLEEVEEOF' || { echo "chalk sleeve NOT as requested in $1"; exit 1; }
+import json, sys
+r = json.load(open(sys.argv[1] + "/receipt.json")); want = bool(sys.argv[2])
+cs = ((r.get("config") or {}).get("arm") or {}).get("chalk_sleeve")
+if not want:
+    sys.exit(0 if not cs else print("a chalk sleeve is recorded but CHALK_SLEEVE_SETS is unset") or 1)
+bad = [] if cs else ["no chalk_sleeve in the receipt"]
+if cs:
+    for k, v in (("share", 0.25), ("low_max", 2), ("min_salary", 49500)):
+        if cs.get(k) != v: bad.append(f"{k}={cs.get(k)!r} != {v!r}")
+    if "15" not in str(cs.get("chalk_rule", "")): bad.append(f"chalk_rule={cs.get('chalk_rule')!r}")
+if bad: print("CHALK SLEEVE CHECK FAILED: " + "; ".join(bad)); sys.exit(1)
+print(f"chalk sleeve in effect: {cs.get('solves')} of {cs.get('of_boom')} boom solves, low_max 2, top-15 chalk, >= $49,500")
+SLEEVEEOF
+}
 echo "per-game cap: ${MPG_ARGS[*]:-off}"
 check_cap() {  # $1 run dir -- fail closed if the receipt does not record the cap this run asked for
   python3 - "$1" "${MAX_PER_GAME:-0}" <<'CAPEOF' || { echo "per-game cap NOT in effect in $1"; exit 1; }
@@ -127,9 +152,9 @@ else
   # 2026-09-17 review finding 3: the builder's exit status is required, not just the presence of a matching directory.
   if ( cd "$CLONE" && NFL2_LIVE_CENTER=production PYTHONPATH="$CLONE/src" OMP_NUM_THREADS=1 "$LAB_PY" scripts/live_week.py \
       --season "$SEASON" --week "$WEEK" --group "$GROUP" --selector dual_emax --lev "$PAID_LEV" --boom "$PAID_BOOM" --sims 10000 --k 1 \
-      --seed 2026 --entries "$BOOK_ENTRIES" --emit-a5-sidecars "${MPG_ARGS[@]}" > /dev/null 2> "$OUT/k90-$RUN_TAG.err" ); then
+      --seed 2026 --entries "$BOOK_ENTRIES" --emit-a5-sidecars "${MPG_ARGS[@]}" ${SLEEVE_ARGS[@]+"${SLEEVE_ARGS[@]}"} > /dev/null 2> "$OUT/k90-$RUN_TAG.err" ); then
     K90_DIR=$(find_run_dir "$PAID_LEV" "$PAID_BOOM" "$T0")
-    [[ -n "$K90_DIR" ]] && check_cap "$K90_DIR"
+    [[ -n "$K90_DIR" ]] && check_cap "$K90_DIR" && check_sleeve "$K90_DIR"
   else
     echo "K90 builder exited non-zero (see $OUT/k90-$RUN_TAG.err); refusing to adopt any run dir"; exit 1
   fi
