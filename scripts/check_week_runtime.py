@@ -97,6 +97,10 @@ def main():
         if not sets.is_file():
             fail(f"ENTER_ORDER=fewest-low needs the Saturday sets file OWNERSHIP_SETS={sets} (scripts/ownership_sets.py sets "
                  f"--week {os.environ['WEEK']} --group {os.environ['GROUP']} --out {sets}); write it before arming")
+    sleeve = os.environ.get("CHALK_SLEEVE_SETS", "")
+    if sleeve and not Path(sleeve).is_file():
+        fail(f"CHALK_SLEEVE_SETS={sleeve} is set but missing (ownership_sets.py sets --lag-features --week "
+             f"{os.environ['WEEK']} --group {os.environ['GROUP']} --out {sleeve}); write it or unset it before arming")
     if args.role == "watchers":
         chosen = Path(os.environ.get("CHOSEN_FILE", ""))
         if not chosen.is_file(): fail(f"chosen dose file missing: {chosen}; write CHOSEN_LEV/CHOSEN_BOOM before arming watchers")
@@ -105,7 +109,8 @@ def main():
             if not re.search(rf"^\s*{name}\s*=\s*[0-9]+\s*$", text, re.MULTILINE):
                 fail(f"chosen dose file lacks {name}=integer: {chosen}")
     print(f"week runtime preflight ok: role={args.role} season={os.environ['SEASON']} week={os.environ['WEEK']} "
-          f"group={os.environ['GROUP']} book_entries={book_entries} layout={layout} order={order} clone={actual} tools={tools}")
+          f"group={os.environ['GROUP']} book_entries={book_entries} layout={layout} order={order} "
+          f"chalk_sleeve={'on' if sleeve else 'off'} clone={actual} tools={tools}")
 
 
 if __name__ == "__main__":

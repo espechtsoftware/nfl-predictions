@@ -13,6 +13,11 @@ set -euo pipefail
 : "${WEEK:?source scripts/week_env.sh and call week_env WEEK first}"
 # Week-3 per-game cap (week_env.sh MAX_PER_GAME; 0 = omitted). Same cap as sunday_build_host.sh.
 MPG_FLAG=""; if [[ "${MAX_PER_GAME:-0}" != "0" ]]; then MPG_FLAG="--max-per-game $MAX_PER_GAME"; fi
+# Week-3 chalk sleeve (operator 2026-09-25; see sunday_build_host.sh): CHALK_SLEEVE_SETS set = on for every build.
+if [[ -n "${CHALK_SLEEVE_SETS:-}" ]]; then
+  [[ -s "$CHALK_SLEEVE_SETS" && "$CHALK_SLEEVE_SETS" != *" "* ]] || { echo "CHALK_SLEEVE_SETS=$CHALK_SLEEVE_SETS missing, empty or has a space"; exit 1; }
+  MPG_FLAG="$MPG_FLAG --chalk-sleeve-sets $CHALK_SLEEVE_SETS --chalk-sleeve-low-max 2 --chalk-sleeve-chalk-k 15"
+fi
 : "${GROUP:?}" "${LOCK_UTC:?}" "${WEEKDIR:?}" "${CLONE:?}" "${LAB_PY:?}" "${EXPECT_SHA:?}" "${OUT:?}"
 LEV=${PAID_LEV:-160}; BOOM=${PAID_BOOM:-640}; SHADOW_LEV=${SHADOW_LEV:-80}; SHADOW_BOOM=${SHADOW_BOOM:-320}
 
@@ -80,12 +85,14 @@ if [[ -z "$SHADOW_DIR" ]]; then
 fi
 step "2. verify receipts (lock $LOCK_UTC, group $GROUP)"
 for _d in "$PAID_DIR" "$SHADOW_DIR"; do
-  python3 - "$_d" "${MAX_PER_GAME:-0}" <<'CAPEOF' || { echo "per-game cap NOT in effect in $_d"; exit 1; }
+  python3 - "$_d" "${MAX_PER_GAME:-0}" "${CHALK_SLEEVE_SETS:-}" <<'CAPEOF' || { echo "per-game cap / chalk sleeve NOT as armed in $_d"; exit 1; }
 import json, sys
-r = json.load(open(sys.argv[1] + "/receipt.json")); want = int(sys.argv[2])
-got = (r.get("config", {}).get("arm", {}) or {}).get("max_per_game")
-print(f"receipt max_per_game={got} expected={want or None}")
-sys.exit(0 if ((got is None) if want == 0 else (got == want)) else 1)
+r = json.load(open(sys.argv[1] + "/receipt.json")); want = int(sys.argv[2]); sleeve = bool(sys.argv[3])
+arm = r.get("config", {}).get("arm", {}) or {}
+got = arm.get("max_per_game"); cs = arm.get("chalk_sleeve")
+ok_s = (cs is None) if not sleeve else bool(cs) and cs.get("low_max") == 2 and cs.get("chalk_rule") == "top-15 by pred_own"
+print(f"receipt max_per_game={got} expected={want or None}; chalk_sleeve {'off' if cs is None else 'on'} expected {'on' if sleeve else 'off'}")
+sys.exit(0 if ((got is None) if want == 0 else (got == want)) and ok_s else 1)
 CAPEOF
 done
 verify "$PAID_DIR" "$LEV" "$BOOM" 80 1

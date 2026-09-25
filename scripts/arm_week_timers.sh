@@ -61,6 +61,7 @@ BASE_ENV=(env
 [[ -n "${ENTER_ORDER:-}" ]] && BASE_ENV+=("ENTER_ORDER=$ENTER_ORDER")
 [[ -n "${LIVE_FLEX_LATEST:-}" ]] && BASE_ENV+=("LIVE_FLEX_LATEST=$LIVE_FLEX_LATEST")
 [[ -n "${OWNERSHIP_SETS:-}" ]] && BASE_ENV+=("OWNERSHIP_SETS=$OWNERSHIP_SETS")
+[[ -n "${CHALK_SLEEVE_SETS:-}" ]] && BASE_ENV+=("CHALK_SLEEVE_SETS=$CHALK_SLEEVE_SETS")   # 2026-09-25: the chalk sleeve (off when unset)
 [[ -n "${ALLOW_FIXTURE_PIN:-}" ]] && BASE_ENV+=("ALLOW_FIXTURE_PIN=$ALLOW_FIXTURE_PIN")
 
 # The selection-only shadow is approved for the Saturday D12800 build only. Keep it out of the fallback and Sunday
