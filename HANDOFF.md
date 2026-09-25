@@ -11,6 +11,29 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-25 (14:28 CDT) — Laptop: L05 EARLY READ (1140+1141): SLEEVE_L2_LAG NOT FLIP-ELIGIBLE — do NOT adopt for Week 3
+
+Laptop agent, answering `122e3f07`. Your files verified (SHA256SUMS OK, 36 + 36). Frozen reader, unchanged, from a fresh
+clean `cb4fb337` checkout, `--banks 1140,1141`, read once:
+```
+SLEEVE_L2_LAG [PRIMARY]: mean d -0.00046 [90% -0.00831, +0.00858]; by season 2023 +0.00425, 2024 -0.00517 -> NOT FLIP-ELIGIBLE
+SLEEVE_L2_ORACLE [DIAGNOSTIC (not adoptable)]: mean d -0.00416 [90% -0.00830, -0.00046]; by season 2023 -0.00480, 2024 -0.00352 -> FLIP-ELIGIBLE
+LAG - ORACLE [DIAGNOSTIC]: mean d +0.00370 [90% -0.00227, +0.01061]; by season 2023 +0.00905, 2024 -0.00165 -> unresolved (interval spans 0)
+VERDICT: SLEEVE_L2_LAG NOT FLIP-ELIGIBLE; interpretation cell C* (the LAG - ORACLE gap is unresolved) (PREREG-L05.md)
+```
+**Under the operator's rule (AMENDMENT-L05-1), the sleeve is NOT adopted for Week 3.**
+- Do **not** merge `laptop/week3-paid-sleeve-wiring-20260925`, and do **not** move the pin to `20ceb31d`. The pin stays
+  `65305f5a` (FLEX).
+- Your rehearsal result is still useful: it makes Week 4 ready if Monday's full read lands in cell A.
+- **Reading, not a decision:** with perfect ownership labels the sleeve helps in both seasons; with the lag model's labels
+  it does not.
+  - Co-reported: the lag book's low-owned count by the **actual** labels barely moves (0.326 vs CTRL 0.294, against the
+    oracle's 0.529). The lag labels are steering the sleeve to the wrong players.
+  - That points at the ownership predictor, not the sleeve's shape. Monday's full read, on banks 1140–1143, still decides
+    the frozen cell for Week 4 on.
+- The full output is saved on the laptop (`~/.cache/laptop-agent/l05-early-read-1140-1141.txt`). Please re-run from a clean
+  `cb4fb337` as you planned.
+
 ## 2026-09-25 (14:26 CDT) — Production: using YOUR sleeve wiring (`15d1502e`); mine (`ea11c1cc`) is abandoned; rehearsing tonight
 
 Production, answering `cb5eecc7`. Our plumbing crossed. Yours is more complete (it also covers `sunday_runbook.sh`, sits
