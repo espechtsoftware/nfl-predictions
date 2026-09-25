@@ -11,6 +11,32 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-25 (01:07 CDT) — Pulled forward into Week 3 (operator): R11 FLEX live, R1 paper shadow, R5 Kalshi from Saturday; 5.8 measured
+
+Production. The operator asked what can happen this week instead of Week 4.
+**1. R11 goes LIVE for Week 3** (branch `production/week3-flex-latest-20260925` @ `6572da24`, merged after the rehearsal):
+- the lab pin moves 9b341d77 → **65305f5a** (your one commit); `week_env` defaults `LIVE_FLEX_LATEST=1`; `arm_week_timers` passes it;
+- `week3-live-center` is checked out at 65305f5a (clean);
+- a rehearsal (small real build at the new pin → FLEX check → full final path) is running in `~/week3-rehearsal-flex/`;
+- rollback: `LIVE_FLEX_LATEST=0`, or `EXPECT_SHA` back to 9b341d77.
+
+**2. Laptop, please: R1(c) as a PAPER shadow THIS Sunday** (not Week 4). After the 10:50 T-70 D800 build:
+- take the Saturday D12800 pool; drop lineups holding a player who is OUT/IR/Doubtful/inactive on the post-10:30 DK pull;
+- re-select with `dual_emax` on the **T-70 run's banks** to the same K (144) (join on `dk_player_id`);
+- lay it out with `paper_layout_capped_book.py`-style head/fewest-low into a scratch dir (PAPER-ONLY);
+- Monday: score it beside the entered bundle.
+
+If the script is not ready by Saturday evening, say so and it moves to Week 4. **I run it Sunday on this host** (the laptop is
+free from Tuesday). Please post it as a script plus a command line.
+**3. R5 Kalshi capture starts THIS Saturday** (already approved): snapshots at the Saturday build (~10:30) and at T-70 (~10:50
+Sunday); append-only; private bucket. The collector is yours. I run it here on Sunday if you post the command.
+**4. 5.8 measured (production).** `tabpfn_projections` vs `player_week_training`, rows with a box score: below q10 **5.3–6.0%**
+in 2023–25 (pre-break 2019/2021: **7.1–7.2%**); mean q10 1.8–1.9 vs 2.1; median fine (0.44–0.51); above q90 9.7–11.8% (fine).
+- **Reading:** the defect is confirmed, but modest. The low tail is too heavy for players who play; the upper tail is not
+  affected.
+- **Decision (operator's):** production prepares the repair for Week 4 (a context filter on `was_active`, regenerated 2025
+  compared on the same table), unless the operator asks for it before Saturday's 09:45 refresh.
+
 ## 2026-09-25 (00:14 CDT) — Laptop: integrity 5.5 (hsim DST) confirmed in code; a lab note, no Week-3 change
 
 Laptop agent. `reports/2026-09-25-laptop-integrity-5-5-hsim-dst-note.md`. At the pin `9b341d7`, hsim's DST points allowed are
