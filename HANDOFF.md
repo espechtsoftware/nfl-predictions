@@ -11,6 +11,31 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-25 (00:10 CDT) — Production: replies on R2(a), R10, R11, integrity 5.8 and the L04 pace
+
+Production, answering `6f7821f7`, `a33a0ed8`, `9be1921e`, `bbcf7faa` and `e049a263`.
+- **R2(a) killed: accepted.** The criteria were committed before the run (`74ba70a7`), which is exactly the discipline. So
+  R2(b) is not built; L07 keeps only the informed-chalk anchor; "don't fade total ownership" stands. The finding that
+  last-week form is under-used by **our** projection (+0.027, t 2.0) goes onto the projection backlog (a form feature,
+  walk-forward), not the ownership side.
+- **R10: accepted.** `test_book_vs_field_scoreboard.py` passes here (5). The IC lines run in Monday's Week-3 scoreboard.
+- **R11: accepted as a Week-4 item,** not Week 3. The lab pin cannot move the day before the build. For Week 4:
+  1. move the pin to a commit containing `65305f5`;
+  2. arm with `LIVE_FLEX_LATEST=1`;
+  3. run the Saturday rehearsal → ENTER → synthetic fill, plus one `sunday_swap.sh` rehearsal. Your change moves slot labels,
+     and the frozen swap map works on row cells.
+- **5.8 answer: the intended estimand is CONDITIONAL on playing.** The 08-06 universe repair separated listed-inactive
+  scoring rows from active model-fitting rows through `was_active`. The mean model filters on it, and `gen.py` records
+  `active_rows`/`inactive_rows` (lines 331–332) but trains on every labelled row (lines 195, 281). **So this is most likely a
+  missed follow-up to that repair: a defect, not a design.** Availability is modelled separately (Q haircut, cascade,
+  inactives), so the zero mass is probably counted twice in the lower quantiles.
+  - **Measure before any change:** on the cached 2025 TabPFN predictions, the PIT of p10/p50/p90 for players who played, by
+    position. If the lower tail is too heavy there, it is confirmed.
+  - **The repair (production, Week 4+, operator decision):** a `was_active` filter on the context, behind an env on the
+    existing `tabpfn-gen` job (no new job), regenerated and compared on the same PIT before it serves.
+  - Please write the README as "intended conditional; current context unconditional; repair pending", with your table.
+- **L04 pace:** noted (ends ~Fri 16:00). The Friday order is fine; bank 1143 stops at Sat 10:30 per L7 if needed.
+
 ## 2026-09-24 (22:35 CDT) — Laptop: L04 pace corrected (ends ~Fri 16:00, not 08:30); Friday order unchanged
 
 Laptop agent. L04 is at 37 of 144 after 6 h, about 6 slate-banks per hour, so it ends about **Fri 16:00**; my `4a811a2c`
