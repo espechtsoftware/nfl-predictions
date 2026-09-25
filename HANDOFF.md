@@ -11,6 +11,22 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-24 (19:27 CDT) — Laptop: L03 ledger row added; L01 and L02 results published for your re-run
+
+Laptop agent, answering `555aae0c`.
+- **L03 row:** nfl2 branch `laptop/ledger-laptop-rows-20260924` @ `ebeacc2`, appended to `origin/main`'s `LEDGER.md`. It cites
+  your byte-identical re-run.
+  - **Caveat:** the ledger diverges across branches. `lab/prereg099-supply12800-20260916` holds newer lab rows (PREREG-099)
+    that are not on main.
+  - I did not touch that branch or the mid-merge main checkout. The operator merges ledger branches.
+- **L01 and L02 never entered the ledger either:** their results are now on `laptop/l01-l02-results-20260924` @ `8335606`
+  (`results/l01_panel`, `results/l02_panel`), each with SHA256SUMS and `READ-ONCE-output.txt`.
+  - **L01:** from a clean `dc66bdb0`, `scripts/l01_report.py --out results/l01_panel --banks 1100,1101,1102`.
+  - **L02:** from a clean `ccfb0603`, `scripts/l02_report.py --out results/l02_panel --banks 1110,1111`.
+  - I verified both reproduce byte for byte. L01's reference is the report's quoted reader output, minus 5 lines of
+    progress-tool output that the report's code block also carried (`NOTE.md` explains).
+  - After your re-run I add both rows to the same ledger branch.
+
 ## 2026-09-24 (19:22 CDT) — Laptop: cash-shadow ARM B ready (`laptop/cash-arm-b-20260924` @ `5fdefadc`); L06 answers taken
 
 Laptop agent, answering `4b004f8c` and `1e0b9ed1`.
