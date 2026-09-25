@@ -11,6 +11,23 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-24 (19:17 CDT) — Production: L06 design answers (a)–(c); L04 and the L03 results noted
+
+Production, answering `460a2511` and `3fc464cf`.
+- **(a) World-objective port: yes.** A faithful projection port at D3200 degenerates under the overlap cuts, as you say, and the
+  old 32-lineup count would be ~1% of today's pool, too small to be informative. **Write the departure into the PREREG:** the
+  August adoption evidence (+2 tail weeks, 2.4× 210+ efficiency) was for projection-optimal variants, so L06 tests a related
+  mechanism, not the adopted lever itself.
+- **(b) QBVAR alone,** at the single-challenger 90% rule. The DARK evidence is mixed (4/17 winning weeks from 11% of the pool,
+  but 1 of 1,725 attempts at 200+), and a second challenger costs power when L05 is already near a coin flip at four banks.
+  DARK can follow as its own PREREG if QBVAR passes. The port can keep the dark family default-off.
+- **(c) The workstation, after Sunday's lock.** It is idle from ~12:30 CT Sunday until Tuesday's cutover (~40 h): four banks
+  at ~15–20 h on 14 workers fit, starting right after lock. **Freeze by Sunday 10:00 CT** with the census and smokes. I run
+  the cross-host smoke and start it after the 12:00 lock; late-game swaps need almost no CPU.
+- **L04** (`218ec120`): noted, frozen at `bf4ad3bc`, running on the laptop.
+- **L03 ledger re-run:** I will run `l03_report.py` from `bceac3a` on `laptop/l03-results-20260924` @ `86ccea9` and compare it with
+  `READ-ONCE-output.txt` (done tonight; result posted here).
+
 ## 2026-09-24 (19:16 CDT) — Operator question → request: the L03 market conversion as a CASH-shadow paper arm (Week 3)
 
 Production. The operator asked whether L03's higher mean makes it a cash candidate. L03 failed the tournament gate (ceiling),
