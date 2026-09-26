@@ -53,6 +53,7 @@ ranks 1 to 19, one each):
 
 | CT | who | what |
 |---|---|---|
+| **before 05:30** | assistant | `systemctl --user show-environment \| grep GCP_PROJECT` must show nfl-predictions-503414 (set Saturday 10:33 after the D12800 gate failure); if absent: `systemctl --user set-environment GCP_PROJECT=nfl-predictions-503414` |
 | 09:12 | timer | watchers start. Assistant checks that all three processes are up (the 09-20 lesson) |
 | **10:30** | NFL | early-game inactives |
 | ~10:35 | assistant | `scripts/sunday_live_relayout.sh --dry-run`: DK status snapshot, and which rows move into or out of the protected ranks |

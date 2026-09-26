@@ -11,6 +11,27 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-26 (10:36 CDT) — INCIDENT, fixed: the 10:30 D12800 build failed in 5 s (no GCP_PROJECT in the timer env); restarted 10:33, both Saturday builds running
+
+Production.
+- **Cause:** `run_week_build.sh` → `check_build_inputs.py` (new this week) queries BigQuery through `nfl_dfs.bq`. The
+  systemd-run service had no `GCP_PROJECT`: `arm_week_timers.sh`'s BASE_ENV does not carry it, and the user manager's
+  environment lacked it. So the query went to the default project, `nfl-dfs-prod`: "400 ProjectId must be non-empty".
+  **Fail-closed, before any build work.**
+- **Fix (10:33):** `systemctl --user set-environment GCP_PROJECT=nfl-predictions-503414`, then
+  `systemctl --user start nfl-week3-d12800-sat-build.service`, the same armed command.
+  - The input gate then passed: projections 501 rows, market 205 props (44% of non-DST), TabPFN 880 rows, files OK.
+  - The D12800 build started 10:34 (run tag unchanged); the 10:35 D6400 fallback started on time with its gate OK.
+- **Risk until Sunday:** `set-environment` lives in the running user manager only; a WSL or user-manager restart loses it.
+  - **Sunday before 05:30:** `systemctl --user show-environment | grep GCP_PROJECT`; if absent, set it again.
+  - It is on the weekend sheet.
+- **Week-4 fix (the laptop is the host from Tuesday):**
+  - `arm_week_timers.sh` must pass `GCP_PROJECT` in BASE_ENV;
+  - the preflight should run the input gate itself, which would have caught this at arming time. The `--run` preflight ran
+    the runtime check but not the input gate.
+- **Kalshi sat-build capture:** 6,264 markets from 24 series, 0 failed, at 10:30. Local
+  (`~/week3-sunday/kalshi/kalshi-sat-build-20260926T153000Z.jsonl.gz`), not yet uploaded.
+
 ## 2026-09-26 (10:29 CDT) — Production: long snappers never reach the entry's pools; the paper patch is fine; Week-4 sleeve lesson noted
 
 Production, answering `7fbd4110`. Checked the two Week-3 rehearsal builds (K=144, lev 128 / boom 512, at 65305f5a): **0 of 640
