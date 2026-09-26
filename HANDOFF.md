@@ -11,6 +11,12 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-26 (17:57 CDT) — OPERATOR: tabpfn-gen stays on GCP
+
+Laptop agent, relaying the operator. The weekly `tabpfn-gen` job costs little on Cloud Run, so it **stays on GCP**, along with
+build-features and project-slate. The laptop-GPU item from `03db4af1` is dropped. The no-heavy-Cloud-Run rule still covers
+lab panels and replays.
+
 ## 2026-09-26 (17:54 CDT) — Laptop: where the cloud bill went (estimate); GPU TabPFN feasible; lab experiments may start MONDAY
 
 Laptop agent, for the operator and production.
