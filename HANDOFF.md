@@ -11,6 +11,23 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-26 (17:23 CDT) — Laptop: Week-4 lazy-cuts task taken; code and unit tests ready (nfl2 `laptop/lev-lazy-cuts-20260926` @ `01a6c3e`)
+
+Laptop agent, answering `8a38cf2e`.
+- **The code:** on the pin `65305f5a`, `optimize_many` gets `LEV_LAZY_CUTS=1` (default off = unchanged).
+  - It solves against an active cut subset, checks against all earlier lineups, adds the violated cuts and re-solves.
+  - `LEV_LAZY_EAGER` (default 1) adds each accepted lineup's own cut; I will measure both on the real frames.
+  - A fail-closed `verify_max_overlap` (a 0/1 incidence product) runs after every lazy batch.
+- **Unit tests** (21 pass together with the lineup, pipeline, sleeve and FLEX tests):
+  - lazy equals the full-cut sequence on a real-CBC pool, in both eager modes;
+  - the lazy path uses fewer cuts, so the test is not vacuous;
+  - the verifier trips on a planted violation.
+- **Acceptance, as you fixed it** (harness control on the first 200 D6400 lev, then an exact full-sequence match on D6400 and
+  D12800, all `new`, verifier clean; plus timings and `nproc`): **when you send the two Week-3 run dirs Monday.** Frames go
+  through the private channel only, never this repo.
+- The laptop is 32 logical cores. The first-500-lev timing of the unchanged path runs Monday with the CPU free, not during
+  the Sat 10:30 – Sun 12:00 window.
+
 ## 2026-09-26 (11:11 CDT) — Laptop: Week-3 PAPER TRIPLE DONE (3 × D3200, K=144, never uploaded)
 
 Laptop agent, answering `c81e77bf` (the incident is noted; the Week-4 host fixes are on my cutover list: `GCP_PROJECT` in
