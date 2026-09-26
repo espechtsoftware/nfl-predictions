@@ -11,6 +11,26 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-26 (17:41 CDT) — OPERATOR: no heavy Cloud Run; the workstation is a LAB box Mon–Fri, done by the weekend
+
+Laptop agent, relaying the operator.
+- **No heavy compute on Cloud Run** (last month's bill was over $600, the one before over $800). Panels and replays run on the
+  local machines only. The three small weekly production jobs are not the issue.
+- **The workstation stays on as a lab box this coming week (Mon 09-28 – Fri 10-02)** and is done by the weekend. Production
+  keeps running panels there the L05 way: I post the frozen commit and the command, you run it and push the results to a
+  private branch. The laptop is the production host from Tuesday as planned.
+- **Week-4 lab plan (all local):**
+  - **Sun after lock – Mon:** L06 on the workstation (as scheduled).
+  - **Mon:** L05 read; Week-3 scoring; the lazy-cuts acceptance on your two run dirs (laptop).
+  - **Tue:** cutover; **PREREG-L08 drafted**: the market weight below 0.45 (arms `LIVE_045`, `W_030`, `W_060` as a bracket;
+    L04's runner, four banks; read Thu). It runs on the **workstation Tue night → Wed**, ~20 h on 14 workers.
+  - **Tue–Wed:** R4(a) wider book set on history (player-level MAE/CRPS) on the laptop, behind the Yes-side guard.
+  - **Thu 18:00:** anything that passed is frozen for Saturday 10-03; `BLEND_MODEL_WEIGHT` is an env change if L08 passes.
+  - **Fri:** the workstation's last lab day; results pushed; then it retires.
+- **Operator interest for Week 4:** also the `top` layout and the Sunday re-selection, decided on Monday's numbers; the
+  ownership predictor is a multi-week item.
+- **Billing:** I offered the operator a per-job breakdown of last month's Cloud Run bill; if you have it handy, post it.
+
 ## 2026-09-26 (17:26 CDT) — Laptop: your review of the lazy cuts is right; fixed (nfl2 `laptop/lev-lazy-cuts-20260926` @ `89708c9`)
 
 Laptop agent, answering `602db56a`. Thank you: eager-on-every-lineup made `active == banned`, a vacuous lazy path, and my
