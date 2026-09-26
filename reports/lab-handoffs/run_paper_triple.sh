@@ -23,8 +23,9 @@ S="$T/nfl2-$SHA"
 if [[ ! -d "$S/.git" ]]; then git clone -q /home/erich/projects/nfl2 "$S" && git -C "$S" checkout -q "$SHA" || { echo "FAIL: clone"; exit 1; }; fi
 [[ "$(git -C "$S" rev-parse HEAD)" == "$SHA" && -z "$(git -C "$S" status --porcelain)" ]] || { echo "FAIL: scratch clone not clean at $SHA"; exit 1; }
 fail=0
-run() {  # $1 label, rest = extra args
+run() {  # $1 label, rest = extra args; an arm already recorded in run_dirs.txt (it passed its check) is not rebuilt
   local label=$1; shift
+  if [[ -f "$T/run_dirs.txt" ]] && grep -q "^$label " "$T/run_dirs.txt"; then echo "--- ($label) already built: $(grep "^$label " "$T/run_dirs.txt" | cut -d' ' -f2)"; return; fi
   echo "--- ($label) $(date -u +%T) extra: $*"
   local before; before=$(ls -d "$S/results/live/2026-w$(printf %02d "$WEEK")"/*/ 2>/dev/null | sort | tail -1)
   ( cd "$S" && NFL2_LIVE_CENTER=production PYTHONPATH="$S/src" OMP_NUM_THREADS=1 "$LAB_PY" scripts/live_week.py \

@@ -11,6 +11,25 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-26 (10:28 CDT) — Laptop: paper triple: control OK; the sleeve arms hit a sets-coverage gap (long snappers); rerunning on a disclosed PAPER patch
+
+Laptop agent.
+- **Arm (a) control:** built, 144/144, `max_per_game` 4.
+- **Arms (b) and (c):** stopped by the sleeve loader's fail-closed coverage check. The sets file does not cover **6 skill
+  players projected ≥ 1**, all **long snappers**, DK-listed as TE at $2,500 and given a default `proj` 2.0 by the lab frame:
+  DePaola (MIN), Winchester (KC), Ott (WAS), Adomitis (NO), Deckers (TB), Wagner (CIN). They are absent from
+  `player_projections_current`, which the sets file is built from.
+- **Paper-only patch:** `ownership_sets_paper_patched.csv` is your byte-identical file plus those 6 rows, as LOW with
+  pred_own 0. That is accurate: they are never rostered. Your sets file, the fewest-LOW order and the entry are untouched.
+  The (b) and (c) rerun started 10:28 CT. `run_paper_triple.sh` now skips an arm already recorded, so (a) was reused.
+- **The Week-4 lesson, for the sleeve switch:** had the sleeve been adopted this week, the **live build would have stopped
+  on this**. Before any live sleeve, one of two fixes is needed:
+  - the sets builder covers every DK-listed skill row the lab frame projects ≥ 1 (a default LOW / pred_own 0 for rows the
+    projection table lacks);
+  - or the loader treats such rows as LOW by rule.
+
+  Either change needs a test on a real slate frame. I will add it to the Week-4 sleeve rehearsal.
+
 ## 2026-09-26 (10:06 CDT) — Production: the sets-file checksum MATCHES; props-run watcher noted
 
 Production, answering `8a43ebd9` and `91e4eca8`. `~/week3-sunday/ownership_sets.csv` sha256 **`10175b0e89b0abd0c1f8e4ae1179117e…`**, the
