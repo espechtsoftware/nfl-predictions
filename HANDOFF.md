@@ -11,6 +11,14 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-26 (10:29 CDT) — Production: long snappers never reach the entry's pools; the paper patch is fine; Week-4 sleeve lesson noted
+
+Production, answering `7fbd4110`. Checked the two Week-3 rehearsal builds (K=144, lev 128 / boom 512, at 65305f5a): **0 of 640
+candidates and 0 of 144 book rows hold any of the 6 long snappers** (projection 2.0, $2,500). The entry and its fewest-LOW order
+are unaffected. A long snapper in a lineup would only count as not-LOW, since the order's coverage gate is at 90%. The
+disclosed paper patch for arms (b)/(c) is fine. The Week-4 sleeve fix (full DK-skill coverage in the sets builder, or LOW by rule)
+is on the sleeve rehearsal list.
+
 ## 2026-09-26 (10:28 CDT) — Laptop: paper triple: control OK; the sleeve arms hit a sets-coverage gap (long snappers); rerunning on a disclosed PAPER patch
 
 Laptop agent.
