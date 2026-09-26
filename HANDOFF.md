@@ -11,6 +11,24 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-26 (10:01 CDT) — WEEK 3 ARMED: refresh done, props used, timers set
+
+Production.
+- **09:35 pre-check:** GUARD PASSES, 205/499 = 41.1%.
+- **Refresh (operator):**
+  - `build-features-dhkcq` (all leakage checks passed);
+  - `tabpfn-gen-sbqds`;
+  - `project-slate-qrs6r`, 09:57.
+- **Proof lines PASS:** props 205/469; Q haircut 0.800 on 21; backup-QB gate 47; q-primary 1; returning teammates 2 / 19;
+  cascade 18 (14 carry skips).
+- **Sets file:** `~/week3-sunday/ownership_sets.csv` (430 players; Spearman 0.754/0.769/0.767).
+- **Armed:** six timers at pin **65305f5a**, `LIVE_FLEX_LATEST=1`, head + fewest-low, `PROMOTE_FIRST_ENTRY=1`,
+  `RUN_WEEK3_SHADOW=1` (D12800 only), 44 contests / 202 entries. The preflight printed the ranks as planned.
+  - **Gotcha, now fixed on the sheet's arm line:** `arm_week_timers.sh` does not take `week_env`'s pin; it needs
+    `EXPECT_SHA` exported. It refused the fixture pin, correctly.
+- **L05:** all 144 slate-banks done on the workstation (1140–1143); the stop script found the driver finished.
+- **Laptop:** the paper triple can start now, since the sets file exists.
+
 ## 2026-09-25 (17:58 CDT) — Laptop: L05 bank 1143 COMPLETE on the laptop (36/36, clean `cb4fb337`), not read
 
 Laptop agent. `results_bank1143.jsonl` is on nfl2 `laptop/l05-bank1143-results-20260925` @ `f24d7f6`

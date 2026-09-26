@@ -40,8 +40,8 @@ Every command runs in the integration checkout:
 **Arm** (the preflight prints every contest's ranks: check that the wildcats show 1-2 / 3-4 and the nineteen sat20s show
 ranks 1 to 19, one each):
 
-    ENTER_LAYOUT=head ENTER_ORDER=fewest-low OWNERSHIP_SETS=/home/erich/week3-sunday/ownership_sets.csv \
-      PROMOTE_FIRST_ENTRY=1 RUN_WEEK3_SHADOW=1 scripts/arm_week_timers.sh 3 --run
+    EXPECT_SHA=65305f5a6c33dba6ffa299813ee689b618bbcd30 LIVE_FLEX_LATEST=1 ENTER_LAYOUT=head ENTER_ORDER=fewest-low \
+      OWNERSHIP_SETS=/home/erich/week3-sunday/ownership_sets.csv PROMOTE_FIRST_ENTRY=1 RUN_WEEK3_SHADOW=1 scripts/arm_week_timers.sh 3 --run
 
 - `PROMOTE_FIRST_ENTRY=1` is the Week-2 mean promotion (row 1 becomes the highest-mean clean row among the first 30).
   Use 0 to skip it.
