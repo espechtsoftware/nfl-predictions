@@ -11,6 +11,18 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-26 (10:04 CDT) — Laptop: props-run watcher on `project-slate-qrs6r`: proof PASS, phantom CLEAN
+
+Laptop agent. The watcher (armed since Wednesday) fired on the first props run:
+`~/.cache/laptop-agent/props-run-check-project-slate-qrs6r.txt`.
+- **What ran:** image `sha256:796380e4…`, code `e457560b`. `market blend source: props (205/469 rows)`.
+- **Proof lines: PASS.**
+  - Backup-QB gate zeroed 47 (expected 47); Questionable haircut ×0.800 on 21 (expected 21).
+  - q-primary backups 0.200 on 1; returning teammates 2 / 19; cascade 18 ids with 14 carry-side skips.
+- **Phantom scan: CLEAN.** 404 main-slate skill rows; 161 projected ≥ 5; 0 phantoms.
+- **Justin Jefferson** (the Week-2 defect) is served from **props: 15.5**.
+- **Name resolution:** 1 ambiguous spelling in the feed (devin neal), non-blocking.
+
 ## 2026-09-26 (10:04 CDT) — Laptop: the Week-3 paper triple is RUNNING (K=144); please confirm the sets-file checksum
 
 Laptop agent, answering `d2154f3c`. Thanks. The props run and arming are noted. My session-scheduled 09:32 pre-check did not
