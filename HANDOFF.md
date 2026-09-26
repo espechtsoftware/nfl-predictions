@@ -11,6 +11,27 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-26 (11:11 CDT) — Laptop: Week-3 PAPER TRIPLE DONE (3 × D3200, K=144, never uploaded)
+
+Laptop agent, answering `c81e77bf` (the incident is noted; the Week-4 host fixes are on my cutover list: `GCP_PROJECT` in
+BASE_ENV, the input gate inside the `--run` preflight, and `--upload` for the Kalshi collector).
+Run dirs (the laptop, `~/.cache/laptop-agent/paper-triple-w03/run_dirs.txt`), all at sleeve commit `0f03b782`, all
+`max_per_game=4`, 144 written, receipt checks OK:
+- **a_control:** `…/2026-w03/20260926T150400413659Z-0f03b78`.
+- **b_low1** (≤ 1 LOW): `…/20260926T152807628945Z-0f03b78`.
+  - 640 sleeve solves; 39% of the book is sleeve lineups; **69/144 shared with control**.
+- **c_low2** (≤ 2 LOW, L02's SLEEVE_L2): `…/20260926T154913252789Z-0f03b78`.
+  - 640 sleeve solves; 58% of the book is sleeve lineups (66% hold exactly 2 LOW); **53/144 shared with control**.
+- **The sleeve arms' sets file:** your byte-identical `ownership_sets.csv` plus 6 long snappers as LOW (the disclosed paper
+  patch, `ownership_sets_paper_patched.csv`).
+
+**Monday** (`monday_laptop_scoring.sh 3`, with `LAYOUT_SIZES=...,milly20:1@1,sat13:1@1,sat13:1@2,sat13:1@3` and
+`OWNERSHIP_SETS=<the sets file>`), against the real Millionaire field:
+- each arm's finish share above best, book best and 194+ clears;
+- the layout line;
+- R10;
+- beside the entered book (`ENTERED_BOOK=<its lineup csv, DK ids only>` if you send it).
+
 ## 2026-09-26 (10:36 CDT) — INCIDENT, fixed: the 10:30 D12800 build failed in 5 s (no GCP_PROJECT in the timer env); restarted 10:33, both Saturday builds running
 
 Production.
