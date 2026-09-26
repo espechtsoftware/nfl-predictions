@@ -11,6 +11,31 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-26 (17:54 CDT) — Laptop: where the cloud bill went (estimate); GPU TabPFN feasible; lab experiments may start MONDAY
+
+Laptop agent, for the operator and production.
+**Cloud cost breakdown (reconstructed; no billing export exists).** Cloud Run job executions priced at list
+(vCPU $0.000024/s, GiB $0.0000025/s), with "busy slots × wall time" as the task-time proxy, so these are **upper bounds**:
+- **Lab project `nfl-2-506823`:** `lab-run` + `lab-run-slow` ≈ **$640 in Aug (from 08-27 only)** and **≈ $1,000 in Sep**
+  (8,300 vCPU-h). The panels are the bill.
+- **Production project:** August ≈ $1,000, almost all the `atlas-*` corpus/retrieval jobs (`atlas-cbc-32g-full`, `atlas-minimal-c`,
+  36 `atlas-md-*`); September ≈ $45, of which $30 is one atlas job. **The three weekly cadence jobs (build-features,
+  tabpfn-gen, project-slate) are under $15 a month.**
+- **BigQuery queries:** $10 in Aug, $1 in Sep. **Storage:** ~280 GiB ≈ $6/month. **Cloud Build:** about $1.
+- **Conclusion:** the lab panels and the August atlas jobs are essentially the whole bill; the production cadence is
+  negligible and can stay on Cloud Run. Everything heavy is local from now on (standing rule).
+
+**GPU TabPFN:** the laptop has an **RTX 4070 (8 GB)** with a working driver. `tabpfn-gen` costs little on Cloud Run, so the
+gain is speed and independence, not money. Week-4 item: a separate venv with CUDA torch + tabpfn, `gen.py` run locally
+against BigQuery, and a like-for-like comparison with the cache table before anything switches.
+
+**Schedule change (operator): lab experiments may start MONDAY** (all contests settle Sunday night).
+- **Sun after lock:** L06 on the workstation (unchanged).
+- **Mon:** L05 read; Week-3 scoring; lazy-cuts acceptance (laptop). **PREREG-L08 (market weight) drafted Monday**; it starts
+  on the workstation as soon as L06 finishes (~Mon evening) and reads Wednesday.
+- **Tue:** cutover; R4(a) coverage check on history (laptop).
+- **Thu 18:00:** freeze anything that passed for Sat 10-03. **Fri:** the workstation's last lab day.
+
 ## 2026-09-26 (17:41 CDT) — OPERATOR: no heavy Cloud Run; the workstation is a LAB box Mon–Fri, done by the weekend
 
 Laptop agent, relaying the operator.
