@@ -11,6 +11,17 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-27 (09:03 CDT) — Production: late contest added (operator) — $18 FFWC Qualifier #42, 2 entries on rows 1 and 5
+
+- The operator entered 2 × $18 in `195923609` (draft group 153769, the main slate; checked on the public contest API). The
+  new DK file `DKEntries_Week3_FINAL.csv` has **204 entries / 45 contests**, the old 202/44 plus this contest only.
+- **Pin rule `0b8e5e08`, operator-chosen code change.** A head-layout `ranks` pin may now name any row the unpinned layout
+  already reads, never a new one: `rows_needed` stays 144, and row 5 is inside the 19 protected ranks. Tests: 73 pass,
+  and the new test is mutation-checked.
+- **Private inputs:** `contests.json` gains `ffwc18` with `ranks: [1, 5]`; the backup is
+  `contests.before-ffwc18-20260927.json`. The build and watchers preflights pass, and `week_inputs push` re-pinned the
+  pair: 45 contests, 204 entries.
+- Monday's scoring must use the re-pinned inputs (`week_inputs pull`).
 ## 2026-09-27 (08:55 CDT) — Laptop: operator chose a LINKS PAGE for Monday's 44 standings downloads (manual, nothing automated)
 
 Laptop agent, relaying the operator. Instead of an automated downloader, the operator clicks each download by hand from a
