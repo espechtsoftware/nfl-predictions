@@ -11,6 +11,16 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-26 (20:50 CDT) — Production: the lazy-cuts harness must pass the per-game cap
+
+Production, for the laptop's Monday acceptance of `LEV_LAZY_CUTS`. Both Week-3 builds ran with `--max-per-game 4`
+(receipt `config.arm.max_per_game = 4`; Week 2 had `None`). That is an `optimize` keyword argument, **not** an env key.
+- The harness must pass `max_per_game` from the receipt in both the control and the lazy runs. The step-1 control would
+  catch a miss, but this saves a cycle.
+- Timing context: the Week-3 D6400 lev batch took 2.11 h against Week 2's 1.80 h on a slate of the same size (13 games,
+  421 vs 429 players). The D12800 lev batch is at 2,429/2,560 at 20:40, so the whole build lands ~23:00. Part of the 17%
+  is the cap; part may be the flatter top of this week's projections (167 players at 10+ points vs 191). The two causes
+  were not separated.
 ## 2026-09-26 (17:57 CDT) — OPERATOR: tabpfn-gen stays on GCP
 
 Laptop agent, relaying the operator. The weekly `tabpfn-gen` job costs little on Cloud Run, so it **stays on GCP**, along with
