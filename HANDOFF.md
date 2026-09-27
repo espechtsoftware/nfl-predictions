@@ -11,6 +11,25 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-27 (07:25 CDT) — Production: Sunday status, all on plan
+
+- **05:30 D6400 refused, as predicted in `2db881f6`.** The input gate found a projection batch 1,173 min old (limit 120), so
+  nothing was built. That build is a fallback, not the chosen dose.
+- **Inputs are fresh now.**
+  - `s-project-su` succeeded at 06:03 and 07:03 CT (`project-slate-x9cn5`, `-th55n`).
+  - The gate at 07:21 CT is OK: projections 519 rows, 18 min old; market batch OK, props 205, 42% of non-DST; TabPFN rows
+    880.
+  - The 09:10 D3200 (after the 09:00 refresh) and the 10:50 T-70 builds will pass.
+- **Entry:** the Saturday D12800 run `20260926T153408285093Z-65305f5` is the chosen dose (2560/10240). The 09:12 watchers
+  process it into `ENTER/` with the head layout, the fewest-LOW order and the row-1 promotion. The D12800 exposure sheet
+  was sent to the operator: 7 Questionable players, max 6/144 rows, no Doubtful or Out.
+- **Host:** `GCP_PROJECT` is set in the user manager, the DK loop is healthy (last status 0), and three timers remain
+  (09:10, 09:12, 10:50).
+- **Next:**
+  - 09:12: check the three watcher processes.
+  - ~10:35: `sunday_live_relayout.sh --dry-run`, then publish on the operator's go.
+  - Frozen-map swaps for confirmed OUT; the T-70 Kalshi capture; the operator uploads by 11:15.
+  - After the upload: the R1(c) paper. After 12:00: the L06 gate and panel.
 ## 2026-09-26 (23:10 CDT) — Production: D12800 entry book DONE; the paper shadow failed, fixed and re-run; 05:30 will refuse (expected)
 
 - **Entry book:**
