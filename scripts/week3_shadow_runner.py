@@ -28,7 +28,7 @@ resolved clone commit and clean-state assertion are recorded in manifest.json be
 Week-2 post-mortem of 2026-09-20 adds the six exposure / market / row-shape arms; arms whose frame columns are absent
 are recorded infeasible, never approximated)
 
-Operational K is read from contests.json (sum of entries). Infeasible arms (fewer than K rows after a filter) are
+Operational K is read from contests.json: the sum of entries (sequential) or the layout's distinct rows (head/top). Infeasible arms (fewer than K rows after a filter) are
 recorded, never relaxed. Outputs (all outcome-blind; nothing here reads a score): manifest.json (input hashes, selector
 module hash, config), books.json (ordered candidate indices and rosters per arm, contest blocks), diagnostics.json
 (pooled and per-bank simulated max statistics, membership overlap with control, prefix summaries). --label rehearsal
@@ -62,6 +62,8 @@ ap.add_argument("--run", required=True); ap.add_argument("--contests", required=
 ap.add_argument("--expect-sha", help="require the lab clone HEAD to equal this full 40-character commit SHA")
 ap.add_argument("--out", required=True); ap.add_argument("--label", default="live", choices=["live", "rehearsal"])
 ap.add_argument("--chunk", type=int, default=1000)
+ap.add_argument("--layout", default=os.environ.get("ENTER_LAYOUT", "sequential"), choices=["sequential", "top", "head"],
+                help="the ENTER layout of the delivered book (default $ENTER_LAYOUT, else sequential): K and the contest blocks follow it")
 a = ap.parse_args()
 
 
@@ -113,7 +115,15 @@ fr = pd.read_parquet(run / "frame.parquet", columns=["id", "name", "pos", "team"
 cands = pd.read_parquet(run / "candidates.parquet")
 book = json.loads((run / "book.json").read_text())["entries"]
 contests = json.load(open(a.contests)); contests = contests if isinstance(contests, list) else contests["contests"]
-K = int(sum(int(c["entries"]) for c in contests))
+# 2026-09-26: under the head/top layouts the book holds rows_needed() distinct rows, not one row per entry (Week 3: 144
+# rows for 202 entries). K and the contest blocks follow the production layout rule; sequential is unchanged.
+if a.layout == "sequential":
+    K = int(sum(int(c["entries"]) for c in contests)); layout_ranks = None
+else:
+    import importlib.util
+    _spec = importlib.util.spec_from_file_location("enter_layout", pathlib.Path(__file__).resolve().parents[1] / "src" / "nfl_dfs" / "inference" / "enter_layout.py")
+    _el = importlib.util.module_from_spec(_spec); _spec.loader.exec_module(_el)
+    K = int(_el.rows_needed(contests, a.layout)); layout_ranks = _el.assign_ranks(contests, a.layout)
 assert receipt["config"]["operational_k"] == K, f"contests K {K} != receipt operational_k {receipt['config']['operational_k']}"
 assert receipt["config"]["selector"] == "dual_emax", receipt["config"]["selector"]
 sims = int(receipt["config"]["sims"])
@@ -238,10 +248,22 @@ else:
     arms["late3"] = {"arm": "late3", "feasible": False, "pool": n, "order": [], "note": "frame has no game_start column; arm not approximated"}
 print("arms done", {k: (v["feasible"], v["pool"]) for k, v in arms.items()}, flush=True)
 
-# contest blocks (sequential layout: contests.json order)
+# contest blocks: sequential = contiguous row ranges in contests.json order; head/top = each contest's 1-based book ranks
+# (in book order; the fewest-LOW entry permutation is not applied to shadow arms)
 blocks, p0 = [], 0
-for c in contests:
-    e = int(c["entries"]); blocks.append({"name": c.get("name"), "contest_id": str(c.get("contest_id", "")), "rows": [p0 + 1, p0 + e]}); p0 += e
+for ci, c in enumerate(contests):
+    e = int(c["entries"])
+    if layout_ranks is None:
+        blocks.append({"name": c.get("name"), "contest_id": str(c.get("contest_id", "")), "rows": [p0 + 1, p0 + e]}); p0 += e
+    else:
+        blocks.append({"name": c.get("name"), "contest_id": str(c.get("contest_id", "")), "ranks": sorted({r + 1 for r in layout_ranks[ci]})})
+
+
+def block_rows(b, order):
+    """The arm's rows a contest block reads (positions in `order`)."""
+    if "ranks" in b:
+        return [order[r - 1] for r in b["ranks"] if r - 1 < len(order)]
+    return order[b["rows"][0] - 1: b["rows"][1]]
 
 def diag(order):
     if not order: return None
@@ -252,8 +274,8 @@ def diag(order):
         per_bank[bname] = {"max_mean": float(m.mean()), "p200": float((m >= 200).mean()), "p220": float((m >= 220).mean()), "p230": float((m >= 230).mean()), "p240": float((m >= 240).mean())}
     pref = {}
     for b in blocks:
-        rows = order[b["rows"][0] - 1: b["rows"][1]]
-        if rows: pm = Td[rows].max(axis=0); pref[b["name"]] = {"rows": b["rows"], "max_mean": float(pm.mean()), "p220": float((pm >= 220).mean())}
+        rows = block_rows(b, order)
+        if rows: pm = Td[rows].max(axis=0); pref[b["name"]] = {"rows": b.get("rows", b.get("ranks")), "max_mean": float(pm.mean()), "p220": float((pm >= 220).mean())}
     kpref = {}
     for K in (20, 40, 80):
         if len(order) >= K:
@@ -267,7 +289,7 @@ diagnostics = {k: diag(v["order"]) for k, v in arms.items()}
 books = {k: {**v, "rosters": [names_by_cand[i].split("|") for i in v["order"]], "candidate_ids": [players[i] for i in v["order"]]} for k, v in arms.items()}
 manifest = {"schema": "week3-shadow-runner/v2", "label": a.label, "built_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "run_dir": str(run),
             "inputs_sha256": {f: sha(run / f) for f in ["frame.parquet", "candidates.parquet", "receipt.json", "book.json", *BANKS]},
-            "contests_sha256": sha(a.contests), "K": K, "sims_per_bank": sims, "banks": BANKS, "pool_size": n,
+            "contests_sha256": sha(a.contests), "layout": a.layout, "K": K, "sims_per_bank": sims, "banks": BANKS, "pool_size": n,
             "selector_module": {"path": str(pathlib.Path(_sel.__file__)), "sha256": sha(_sel.__file__)},
             "lab_clone": str(clone_root), "lab_clone_commit": head, "lab_clone_expected_sha": expected,
             "lab_clone_clean": True,

@@ -18,7 +18,7 @@ def totals_law(banks, idx):
     return np.concatenate(out, axis=1)
 
 
-def make_run(tmp, n_cands=30, sims=40, seed=7):
+def make_run(tmp, n_cands=30, sims=40, seed=7, K=5, contests_list=None):
     rng = np.random.default_rng(seed)
     pos = ["QB"] * 3 + ["RB"] * 4 + ["WR"] * 6 + ["TE"] * 3 + ["DST"] * 2
     teams = ["A", "B", "C"] * 6
@@ -32,21 +32,23 @@ def make_run(tmp, n_cands=30, sims=40, seed=7):
     rosters = sorted(rosters); idx = np.array(rosters)
     banks = [rng.normal(10, 6, (n, sims)).astype(np.float32) for _ in range(2)]
     sys.path.insert(0, str(pathlib.Path(CLONE) / "src")); from nfl2.selectors import select_expected_max
-    K = 5; book = select_expected_max(totals_law(banks, idx), K)
+    book = select_expected_max(totals_law(banks, idx), K)
     rank = np.zeros(n_cands); rank[book] = np.arange(1, K + 1)
     cands = pd.DataFrame({"cand": range(n_cands), "players": [",".join(ids[i] for i in r) for r in rosters], "names": ["|".join(fr.name[i] for i in r) for r in rosters], "book_rank": rank})
     run = tmp / "run"; run.mkdir(); fr.to_parquet(run / "frame.parquet"); cands.to_parquet(run / "candidates.parquet")
     np.save(run / "incumbent_player_scores.npy", banks[0]); np.save(run / "corrected_hsim_player_scores.npy", banks[1])
     (run / "receipt.json").write_text(json.dumps({"identity": {"test": True}, "config": {"selector": "dual_emax", "operational_k": K, "sims": sims, "seed": 1, "hsim_seed": 2, "hsim_worlds": sims}}))
     (run / "book.json").write_text(json.dumps({"entries": [{"rank": r + 1, "players": [fr.name[i] for i in rosters[b]]} for r, b in enumerate(book)]}))
-    contests = tmp / "contests.json"; contests.write_text(json.dumps([{"name": "milly", "contest_id": "1", "entries": 1}, {"name": "flea", "contest_id": "2", "entries": 4}]))
+    contests = tmp / "contests.json"; contests.write_text(json.dumps(contests_list or [{"name": "milly", "contest_id": "1", "entries": 1}, {"name": "flea", "contest_id": "2", "entries": 4}]))
     return run, contests, fr, rosters, banks, idx, book
 
 
-def run_runner(run, contests, out, label="rehearsal", clone=CLONE, expect_sha=None):
+def run_runner(run, contests, out, label="rehearsal", clone=CLONE, expect_sha=None, layout=None):
     cmd = [PY, str(ROOT / "scripts" / "week3_shadow_runner.py"), "--run", str(run), "--contests", str(contests), "--clone", clone, "--out", str(out), "--label", label, "--chunk", "7"]
     if expect_sha is not None: cmd += ["--expect-sha", expect_sha]
-    return subprocess.run(cmd, capture_output=True, text=True)
+    if layout is not None: cmd += ["--layout", layout]
+    env = {k: v for k, v in os.environ.items() if k != "ENTER_LAYOUT"}
+    return subprocess.run(cmd, capture_output=True, text=True, env=env)
 
 
 def test_runner_parity_and_arms(tmp_path):
@@ -208,3 +210,23 @@ def test_optional_arms_are_infeasible_without_frame_columns(tmp_path):
     for name in ("marketpull", "cap20pull", "games5", "late3"):
         assert b[name]["feasible"] is False and "not approximated" in b[name]["note"] and b[name]["order"] == []
     assert b["cap30"]["max_rows_per_player"] == 1 and b["cap20"]["max_rows_per_player"] == 1
+
+
+def test_runner_head_layout_reads_distinct_rows_not_entries(tmp_path):
+    """Week 3 (2026-09-26): 202 entries sat on a 144-row head book and the runner asserted K == sum(entries). Under
+    head/top, K is the layout's distinct rows and each contest block is its book ranks."""
+    sys.path.insert(0, str(ROOT / "src")); from nfl_dfs.inference.enter_layout import assign_ranks, rows_needed
+    cl = [{"name": "milly", "contest_id": "1", "entries": 1}, {"name": "big", "contest_id": "2", "entries": 6},
+          {"name": "big2", "contest_id": "3", "entries": 6}]
+    K = rows_needed(cl, "head"); assert K < sum(c["entries"] for c in cl)
+    run, contests, fr, rosters, banks, idx, book = make_run(tmp_path, K=K, contests_list=cl)
+    bad = run_runner(run, contests, tmp_path / "seq")                      # the old rule still refuses a head book
+    assert bad.returncode != 0 and "operational_k" in bad.stderr
+    r = run_runner(run, contests, tmp_path / "shadow", layout="head"); assert r.returncode == 0, r.stdout + r.stderr
+    m = json.loads((tmp_path / "shadow" / "manifest.json").read_text()); b = json.loads((tmp_path / "shadow" / "books.json").read_text())
+    assert m["K"] == K and m["layout"] == "head" and m["parity"]["order"] is True
+    want = [sorted({x + 1 for x in rk}) for rk in assign_ranks(cl, "head")]
+    assert [blk["ranks"] for blk in b["blocks"]] == want and all("rows" not in blk for blk in b["blocks"])
+    d = json.loads((tmp_path / "shadow" / "diagnostics.json").read_text())
+    ctrl = d["arms"]["control"] if "arms" in d else d["control"]
+    assert set(ctrl["prefix_blocks"]) == {"milly", "big", "big2"}

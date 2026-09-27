@@ -126,8 +126,8 @@ def read(arm):
     r = np.array(rows); mx = float(r.max()); pos = int(r.argmax()) + 1
     pref = {}
     for b in books["blocks"]:
-        seg = r[b["rows"][0] - 1: b["rows"][1]]
-        if len(seg): pref[b["name"]] = {"rows": b["rows"], "max": float(seg.max()), "clears_200": int((seg >= 200).sum())}
+        seg = r[[x - 1 for x in b["ranks"] if x - 1 < len(r)]] if "ranks" in b else r[b["rows"][0] - 1: b["rows"][1]]
+        if len(seg): pref[b["name"]] = {"rows": b.get("rows", b.get("ranks")), "max": float(seg.max()), "clears_200": int((seg >= 200).sum())}
     prefixes = {}
     for K in PREFIX_KS:
         seg = r[:K]
