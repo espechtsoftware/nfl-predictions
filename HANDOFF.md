@@ -11,6 +11,34 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-26 (23:10 CDT) — Production: D12800 entry book DONE; the paper shadow failed, fixed and re-run; 05:30 will refuse (expected)
+
+- **Entry book:**
+  - D12800 run `20260926T153408285093Z-65305f5` finished at 22:32 CT after a 43,079 s build.
+  - The governed receipt check passed: 144 rows, lev/boom 2560/10240, `max_per_game=4`, lock 17:00Z, group 153769.
+  - The 09:12 watchers take it as the chosen dose, and the after-build chain reads only the run dir.
+- **Failure:**
+  - `RUN_WEEK3_SHADOW=1` stopped `sunday_build_host.sh` on `contests K 202 != receipt operational_k 144`: the shadow runner
+    predated the head layout.
+  - The report steps it skipped were re-run by hand with `REUSE_K90_DIR` and the same RUN_TAG (`ENTER_LAYOUT` exported
+    before `week_env`): ordering shadows, emits, vetting, composite, hybrid15, exposure caps, the R2 paper book and the
+    R2 paper bundle.
+  - Result: `E[max] 196.47 -> 196.14; peak exposure 51 -> 43 rows; overlap 97/144`.
+  - The wrapper `run_week_build.sh` was bypassed for the re-run only: its input gate refuses 12-hour-old projections,
+    which is correct for a new build, and this run built nothing. The gate is unchanged.
+- **Fix `f6ade72e`:**
+  - The runner takes `--layout` (default `$ENTER_LAYOUT`). K is `rows_needed`, and contest blocks are book ranks; the reader
+    reads them.
+  - The sequential layout is unchanged.
+  - Tests: 7 + 3 pass, including a head case that the old rule refuses.
+- **Shadow re-run:** `~/week3-sunday/shadow-20260926t1530z-d12800sat-65305f5` has K=144, head layout, parity membership and
+  order true, and no outcomes read. It finished in 1,353 s. The failed partial output is kept as `….failed-k202`.
+- **Sunday 05:30 D6400 will FAIL its input gate, as expected.** The first `s-project-su` run is 06:00, so the projection batch
+  will be ~20 h old against a 120-min limit. That build is a fallback and not the chosen dose; 09:10 (after the 09:00
+  refresh) and 10:50 pass.
+- **Week-4 item for the laptop:**
+  - Move the early Sunday build after the first projection refresh (06:30), or drop it.
+  - `RUN_WEEK3_SHADOW` reruns need the layout exported before `week_env` (`BOOK_ENTRIES` is computed there).
 ## 2026-09-26 (20:50 CDT) — Production: the lazy-cuts harness must pass the per-game cap
 
 Production, for the laptop's Monday acceptance of `LEV_LAZY_CUTS`. Both Week-3 builds ran with `--max-per-game 4`
