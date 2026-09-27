@@ -101,14 +101,16 @@ def assign_ranks(contests: list[dict], layout: str) -> list[list[int]]:
     seen: dict[tuple, int] = {}
     unique_slots = [0] * len(contests)
     overflow: list[int] = []                   # all-head contests past their group's head blocks
+    pinned: list[int] = []
     for i, (c, n) in enumerate(zip(contests, sizes)):
         h = head_size(n)
         if "ranks" in c:                          # explicit pin (operator)
             r = c["ranks"]
             if (not isinstance(r, list) or len(r) != n or len(set(r)) != n
-                    or any(not isinstance(x, int) or isinstance(x, bool) or not 1 <= x <= HEAD_TOP for x in r)):
-                raise LayoutError(f"contests.json: {c.get('name')!r} ranks {r!r} must be {n} distinct integers in 1..{HEAD_TOP}")
+                    or any(not isinstance(x, int) or isinstance(x, bool) or x < 1 for x in r)):
+                raise LayoutError(f"contests.json: {c.get('name')!r} ranks {r!r} must be {n} distinct positive integers")
             out[i] = [x - 1 for x in r]
+            pinned.append(i)
             continue
         if n <= HEAD_SMALL:                       # the whole contest is head: one head block per group member
             key = n                               # by size, not name: renamed twins must not share rows
@@ -133,6 +135,13 @@ def assign_ranks(contests: list[dict], layout: str) -> list[list[int]]:
                 nxt += 1
                 unique_slots[i] -= 1
         rnd += 1
+    # 2026-09-27 (operator: a 2-entry $18 qualifier on rows 1 and 5): a pin may name any row the unpinned layout already
+    # reads (at least the head), never a new one -- so a pin cannot grow the book, and rows_needed is unchanged by pins.
+    limit = max([HEAD_TOP] + [max(r) + 1 for j, r in enumerate(out) if j not in pinned and r])
+    for i in pinned:
+        if max(out[i]) + 1 > limit:
+            raise LayoutError(f"contests.json: {contests[i].get('name')!r} ranks {contests[i]['ranks']!r} must be "
+                              f"{sizes[i]} distinct integers in 1..{limit} (a pin may not add rows to the book)")
     return out
 
 

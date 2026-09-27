@@ -462,3 +462,19 @@ def test_explicitly_pinned_ranks(tmp_path):
         with pytest.raises(EL.LayoutError, match="ranks"):
             EL.assign_ranks([{"name": "x", "contest_id": "1", "entries": len(bad) if isinstance(bad, list) else 1,
                               "keep": 1, "ranks": bad}], "head")
+
+
+def test_pin_may_name_any_row_the_layout_already_reads(tmp_path):
+    """Operator 2026-09-27: a 2-entry $18 qualifier on rows 1 and 5. A pin may reach past the head into rows the unpinned
+    layout already reads, never beyond them, so the book does not grow and nothing else moves."""
+    base = week3_shaped()
+    pin = {"name": "ffwc18", "contest_id": "9100", "entries": 2, "keep": 2, "ranks": [1, 5]}
+    cs = base + [pin]
+    ranks = EL.assign_ranks(cs, "head")
+    assert ranks[-1] == [0, 4] and ranks[:-1] == EL.assign_ranks(base, "head")
+    assert EL.rows_needed(cs, "head") == EL.rows_needed(base, "head") == 144
+    assert EL.protected_ranks(cs, "head") == EL.protected_ranks(base, "head") == 19     # row 5 stays in the clean head
+    top = EL.rows_needed(base, "head")
+    EL.assign_ranks(base + [{**pin, "ranks": [1, top]}], "head")                         # the last existing row is fine
+    with pytest.raises(EL.LayoutError, match="may not add rows"):
+        EL.assign_ranks(base + [{**pin, "ranks": [1, top + 1]}], "head")                  # one past it is refused
