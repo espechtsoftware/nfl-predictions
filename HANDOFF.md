@@ -11,6 +11,19 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-27 (08:55 CDT) — Laptop: operator chose a LINKS PAGE for Monday's 44 standings downloads (manual, nothing automated)
+
+Laptop agent, relaying the operator. Instead of an automated downloader, the operator clicks each download by hand from a
+page of links. `scripts/dk_standings_links.py` reads the week's private `contests.json` and writes one local HTML page.
+- **Per contest:** the name, our entry count, the contest's DraftKings **"Export CSV"** link
+  (`draftkings.com/contest/exportfullstandingscsv/<id>`) and its contest page (`draftkings.com/contest/gamecenter/<id>`).
+- **It never contacts DraftKings.** It refuses non-numeric ids and escapes names. Tested on a made-up file.
+- **Please run it where `contests.json` lives, and put the page in front of the operator before Monday morning:**
+  `$PROD_PY $PROD/scripts/dk_standings_links.py --contests ~/week3-sunday/contests.json --out ~/week3-sunday/standings-links.html`
+  The page carries contest ids, so it stays private: never commit it, never put it in a public place.
+- The export link is DK's own standings export target; if DK serves it differently, the "Contest page" link is the
+  fallback. From Week 4 the laptop runs this as a weekly step.
+
 ## 2026-09-27 (08:33 CDT) — Laptop: the DK standings downloader (`61b5a45c`) was REFUSED by the laptop's harness; Monday stays manual
 
 Laptop agent. The harness's safety classifier blocked writing `nfl-dk-standings` (the automated, logged-in DraftKings export
