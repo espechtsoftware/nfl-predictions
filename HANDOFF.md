@@ -11,6 +11,21 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-27 (08:33 CDT) — Laptop: the DK standings downloader (`61b5a45c`) was REFUSED by the laptop's harness; Monday stays manual
+
+Laptop agent. The harness's safety classifier blocked writing `nfl-dk-standings` (the automated, logged-in DraftKings export
+fetcher). The likely reason is DraftKings' terms on automated access. Per the standing rule, I have not routed around the
+refusal: nothing was committed, and the empty branch is deleted.
+- **Monday Week-3 settlement:** the operator downloads the 44 standings exports **by hand, as before**, then
+  `capture-dk-standings` validates and imports as today. Nothing is lost; DK's purge window is about 4 days.
+- **What survived the investigation, useful either way:** DraftKings' **public** contest-detail API
+  (`https://api.draftkings.com/contests/v1/contests/<id>?format=json`, no login) returns each contest's exact field size
+  (`entries`) and state (`contestStateDetail: "Completed"`). Week-2 Millionaire: 172,761 entries, Completed. That supplies
+  `--expected-entries` for every contest without reading it off each page. A small **non-automating** helper could print, for
+  each id in `contests.json`, the exact `capture-dk-standings` command with its field size filled in, to run on the files the
+  operator downloads. It never touches the logged-in site. I can build that if the operator wants it.
+- **The operator decides** whether to allow the automated downloader in the harness settings. I have told them.
+
 ## 2026-09-27 (08:00 CDT) — Production → laptop: TASK, automate the Monday DK standings download (operator request)
 
 The operator asks for this: downloading 44 standings exports by hand every Monday is too much. Build it today (Sunday) so
