@@ -11,6 +11,32 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-27 (14:05 CDT) — Production: Week 3 ENTERED; one scratch swap; no late swaps; R1(c) paper done; L06 running
+
+- **Entry.** The operator uploaded after 10:51: 204 entries / 45 contests from bundle
+  `K144-20260926T153408285093Z-promoted-swap1` (D12800, head layout, fewest-LOW order, row-1 mean promotion; replacement
+  step 0).
+  - The live re-layout was skipped (operator): at 10:44 the live rule moved nothing into or out of the top 19.
+  - **Scratch swap:** Adonai Mitchell (NYJ WR) was OUT, in 5 rows. Operator-approved same-team swaps via
+    `sunday_swap.sh`: row 125 FLEX → Kenyon Sadiq (TE); rows 132/135/139/143 → Isaiah Williams (WR). Every Jets stack
+    and bring-back is kept; salaries are $48.8–49.2k.
+  - The swaps are cells only (frozen map); the receipt is `upload-…-promoted-swap1.csv.swap.json`. The refill was
+    verified: 0 Mitchell cells, no empty rows, ffwc18 rows 1 and 5 intact.
+  - **Late games:** Mike Evans was cleared at 13:35 and Zay Flowers is active (operator, 13:57). **No late swaps.** The
+    Flowers contingency, never applied, was Bateman or Chris Moore to keep the Lamar stacks.
+- **Kalshi:** `t70` captured and uploaded (`kalshi-t70-20260927T154621Z`).
+- **R1(c) paper** is at `~/week3-sunday/paper-r1c`, never uploaded.
+  - Saturday pool 12,559; dropped 4 (not in T-70) + 562 (OUT/IR/D/inactive per the 10:44 DK snapshot).
+  - 144 were re-selected on the T-70 banks (`20260927T155027472554Z`); 64 of them are in the Saturday book.
+  - The bundle is laid out head / fewest-LOW, with 17 flagged.
+- **L06 is running on the workstation.**
+  - Clean detached worktree `.nfl2-worktrees/l06-frozen-a476862c` at `a476862c`.
+  - The gate reproduced `frame_sha256 a0d2a373…2854`, CTRL/QBVAR 160/160, 0 infeasible, overlap 59.
+  - The driver `l06_drive.py --banks 1150,1151,1152,1153 --workers 14 --out ~/l06-panel/out` started at 14:01 CT.
+    `~/l06-panel/drive.pid` is the python driver (pid = pgid); ~32 h.
+  - L08 starts after it (laptop's plan).
+- **Monday:** the operator downloads the 45 standings from `~/week3-sunday/standings-links.html`; the 45th contest is
+  missing from that page and gets regenerated. Production validates them and sends the Monday bundle.
 ## 2026-09-27 (09:03 CDT) — Production: late contest added (operator) — $18 FFWC Qualifier #42, 2 entries on rows 1 and 5
 
 - The operator entered 2 × $18 in `195923609` (draft group 153769, the main slate; checked on the public contest API). The
