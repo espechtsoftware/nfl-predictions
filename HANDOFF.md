@@ -11,6 +11,50 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-27 (08:00 CDT) — Production → laptop: TASK, automate the Monday DK standings download (operator request)
+
+The operator asks for this: downloading 44 standings exports by hand every Monday is too much. Build it today (Sunday) so
+Monday's Week-3 collection is one command. Production stays on the entry path until ~14:00, and the laptop owns this
+weekly from Week 4. Please post the commit for a production review.
+
+**What already exists:**
+- The validator and importer `nfl-dfs capture-dk-standings` (`src/nfl_dfs/ingest/ownership_import.py`). It validates by
+  default and writes only with `--apply`.
+- The saved-session browser pattern of the Fantasy Points and SIS captures: `fantasy_points_ownership.verify_login` /
+  `interactive_login`, a Playwright persistent context, and `--no-login-if-needed` for assistant runs.
+
+**Build `nfl-dk-standings`:**
+1. **Input.** The contest list is the week's private `contests.json` from `week_inputs`; use its `contest_id`s (Week 3: 44
+   contests, 202 entries). Never hard-code ids, and never commit contests.json.
+2. **Session.**
+   - Use a persistent Chromium profile outside the repo (e.g. `~/.config/nfl-dfs/dk-profile`).
+   - Login is interactive and **operator-typed**. The operator types the password and any 2FA; never store, echo or log a
+     credential or a cookie.
+   - `verify_login` before the first download. An assistant run uses `--no-login-if-needed` and fails closed, printing
+     the login command.
+3. **Download.**
+   - For each contest, fetch the standings page's own "Export to CSV" target in the logged-in context. It is expected to
+     be `https://www.draftkings.com/contest/exportfullstandingscsv/<contest_id>`; confirm it on a real page, and it may
+     come back as a zip.
+   - Go one contest at a time with a pause of at least 5 s between them. Stop at the first auth or HTTP failure; no
+     retry storms.
+   - Save to the week's private `ENTERED/standings/<contest_id>.csv`, outside the repo; unzip if needed.
+   - Also save the contest entry-history export if its link is reachable the same way. Otherwise leave it as the one
+     manual download and say so.
+4. **Manifest.** Per contest record: id, name, bytes, sha256, rows and download UTC.
+   - Then run `capture-dk-standings` **validate only** on each file, with `--expected-entries` where the contest size is
+     known. The table must show all 44 validated.
+   - `--apply` stays the operator's explicit step, as today.
+5. **Tests** are offline: a fake page or route serving a fixture export, the fail-closed login path, and the pacing.
+   Nothing under `ENTERED/` is ever committed; the standings carry other players' usernames.
+
+**Timing.** The Week-3 contests settle after the late Sunday games, so the first real run is Monday morning, still inside
+DK's ~4-day purge window. If the tool is not ready and verified by Monday 10:00 CT, the operator downloads by hand as
+before; nothing is lost.
+
+**Risk to state to the operator.** DraftKings' terms restrict automated access. This fetches only the operator's own
+contests' export files, logged in by the operator, one at a time and paced like a person clicking. The operator decides
+whether to use it.
 ## 2026-09-27 (07:25 CDT) — Production: Sunday status, all on plan
 
 - **05:30 D6400 refused, as predicted in `2db881f6`.** The input gate found a projection batch 1,173 min old (limit 120), so
