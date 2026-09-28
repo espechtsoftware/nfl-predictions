@@ -11,6 +11,50 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (09:05 CDT) — Production: D1 (T-70 rules) and D2 (late-inactive replacement) BUILT on the integration branch
+
+**D1 — the T-70 rules (operator decision 2), four commits, all default OFF; the Week-4 defaults turn them on in `week_env`:**
+- `inference/cascade_adjust.py` (`1af86144`, `0f8ff86e`): `T70_ACTIVE_Q=1` — a Questionable player whose game starts
+  within `T70_ACTIVE_Q_WINDOW_MIN` (90) minutes of the run and who is not marked out at the pull is active: no haircut.
+  `T70_VACATED_BUMP=1` — the depth-2 same-position teammate of a depth-1 Out/Doubtful/IR skill starter gets
+  RB/TE +1.6, WR +0.7 (other +1.0) NET of the cascade's effect on the blended number (model_weight × the model-side
+  difference between a pass with the cascade and a cascade-free pass on the same frame), floored at 0. `T70_NOW`
+  (ISO) fixes the clock for replays. Both fail closed without `game_start` / `depth_rank`.
+- `inference/run_projections.py`: keeps the pre-cascade frame, runs the cascade-free pass only when there is a target,
+  applies both rules after the output frame is built, and writes receipt columns on every row: `t70_active_q`,
+  `t70_vacated_gross`, `t70_cascade_effect`, `t70_vacated_net`. The pure helper `apply_t70_rules` is unit-tested and
+  mutation-checked (netting removed → its test fails).
+- `enter_layout.live_flagged_positions` (`ed5e837d`): `ENTER_FLAG_LATE_Q_ONLY=1` flags a Questionable row only when the
+  player's game starts after `LOCK_UTC`; `sunday_live_relayout.sh`'s snapshot now carries `game_start`; fails closed
+  without either. Passed through by `arm_week_timers.sh` with the other Week-4 levers.
+- `audit_build_levers.py` (`012d0730`): `t70_rules_effect` — declared ON (`--t70 on`, set by the chain from
+  `T70_ACTIVE_Q`/`T70_VACATED_BUMP`) must show a bumped backup when an absent depth-1 starter exists and an activation
+  when an early-game Questionable exists; declared OFF must show no trace. Tested both ways.
+- **The Sunday step the projection half needs (laptop; it owns deploys):** the rules live in `project-slate`
+  (Cloud Run). The image must be rebuilt from the integration branch this week, and on Sunday a projection execution
+  must run AFTER the 10:30 inactives and BEFORE the 10:50 build:
+  `gcloud run jobs execute project-slate --region us-central1 --update-env-vars T70_ACTIVE_Q=1,T70_VACATED_BUMP=1 --wait`
+  (`T70_NOW` unset = wall clock). The hourly `s-project-su` runs stay as they are (the 10:00 run has no inactives yet).
+  The cadence calendar (08:15 entry) gains this line at ~10:33.
+- **Rehearsal owed (laptop):** the Week-3 T-70 replay with `T70_NOW=2026-09-27T15:50:00Z` on the T-70 frame:
+  Sadiq and Isaiah Williams must carry `t70_vacated_net > 0` (Mason Taylor / Mitchell out; depth ranks permitting);
+  Warren, Bowers, Flowers, Evans must show `t70_active_q = True` (early-game Q, not marked out); Jalen Coker's early
+  game keeps nothing extra if he was marked out. Report the four columns for those players.
+
+**D2 — late-inactive replacement (R4), `scripts/late_inactive_swaps.py` + `tests/test_late_inactive_swaps.py` (4 tests):**
+- Input: the published bundle's `ENTER-all-rows-*-KEEPERS.csv`, the run frame, a live snapshot (`id,status,game_start`),
+  `--now`. For every entry holding a player now O/OUT/IR/D (or absent from the fresh feed) whose game has not started,
+  it picks the same-slot replacement with the best served `proj` that fits [floor, 50000], is not in the row, keeps
+  ≤ 8 per team and ≥ 2 games, from players whose game has not started. A second out player in the same row sees the
+  repaired row. Output: the `ROW:OUT_DD:IN_DD` list for `sunday_swap.sh` (which runs `apply_swaps.py`'s fresh-feed,
+  lock and roster checks and the frozen-map re-publication) and a receipt JSON. A row with no legal replacement or a
+  locked cell is UNREPAIRED and the exit code is 2 — never a silent skip.
+- **Real-artifact smoke (Week 3, Flowers marked OUT at 13:40 CT):** rows 123/127/136/137 WR → George Pickens (15.0),
+  row 131 FLEX → Trey McBride (16.5), salaries 49,600–49,700; exit 0.
+- Sunday use: `~13:55 CT: scripts/sunday_live_relayout.sh --dry-run` (fresh snapshot with game_start) →
+  `late_inactive_swaps.py --upload <bundle upload> --frame <T-70 frame> --snapshot <snapshot>` → `sunday_swap.sh $(...)`
+  → the watcher refills the DK export → the operator re-uploads the affected entries. The ESPN points feed is not
+  needed for R4 (statuses only), as the laptop said.
 ## 2026-09-28 (08:06 CDT) — Laptop: class model for the tail seats — conditions 1(a)–(e) met; the Week-3 rehearsal with the pre-lock map
 
 **(b) Model file:** `scripts/fit_field_class_model.py` (this commit).
