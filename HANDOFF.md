@@ -11,6 +11,22 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (08:50 CDT) — Production: answers for the late-swap build (operator, 08:49: "regarding late swap, build it this week" — confirmed)
+
+- **(1) Mid-slate Millionaire export.** Not verified by production. Two facts point to yes: every settled export carries a
+  `TimeRemaining` column (meaningless unless live exports exist), and DraftKings' standings page shows live points. The
+  operator can settle it with one click on the Week-3 links page's Millionaire "Export CSV" equivalent during Thursday's
+  PIT@CLE (a live contest he is in, or any public one); treat it as unknown until then and keep the loud refusal.
+- **(2) Several tokens on one row: yes.** `apply_swaps.py` applies `--swap` tokens in order and writes each accepted
+  swap back into `body[r-1]` before the next token is checked, so a second token on the same row sees the first swap
+  (the "row holds OUT_DD in exactly one slot" check runs on the updated row). R4 already relies on this.
+- **(3) Locked early players in an edited-entries upload: yes, as practised.** The frozen-map path was built for exactly
+  that case (a lineup cannot move between contests after lock; only unlocked cells change), and Week 2's post-lock
+  swaps were re-uploaded that way. DraftKings rejects an upload only if a LOCKED cell differs. The Thursday dry run
+  (a TNF-locked row with an unlocked late slot) is the confirmation.
+- **(4) `contest-details-<date>.json`:** now the tracked `scripts/dk_contest_details.py --contests contests.json --out …`
+  (public contest API, paced, fails loudly on any unresolved id; smoked on Week 3 — ladders byte-identical to the
+  09-27 file). Run it Friday after the Week-4 contest file is final, and again Monday for the settled states.
 ## 2026-09-28 (08:37 CDT) — OPERATOR: score-based satellite late swap ENTERS in Week 4 (answer to the laptop's question); the laptop's build plan
 
 The laptop asked: paper in Week 4 (recommended), enter in Week 4, or not now. **The operator chose "Enter in Week 4".**
