@@ -79,3 +79,23 @@ def test_main_refuses_on_gap_and_leaves_file(tmp_path):
     cfile.write_text(json.dumps(CONTESTS)); dfile.write_text(json.dumps({"1": DETAILS["1"]}))
     assert sct.main(["--contests", str(cfile), "--details", str(dfile), "--write"]) == 2
     assert json.loads(cfile.read_text()) == CONTESTS
+
+
+def test_all_main_puts_every_contest_on_the_main_track_in_file_order_without_priorities():
+    """Operator 2026-09-28 10:07 (configuration A): the class selector orders the whole book over the head layout."""
+    cs = [{k: v for k, v in c.items() if k != "priority"} for c in CONTESTS]
+    out, lines, problems = sct.decide(cs, DETAILS, 20, all_main=True)
+    assert problems == []
+    assert [c["name"] for c in out] == [c["name"] for c in CONTESTS] and all(c["track"] == "mean" for c in out)
+    assert all("main (class selector" in ln for ln in lines) and not any(ln.startswith("deal:") for ln in lines)
+    _, _, problems = sct.decide([dict(cs[0], track_override="tail")] + cs[1:], DETAILS, 20, all_main=True)
+    assert problems == ["1 (sat20): track_override 'tail' contradicts --all-main"]
+
+
+def test_all_main_flag_writes_config_a(tmp_path, capsys):
+    cfile = tmp_path / "contests.json"; dfile = tmp_path / "details.json"
+    cfile.write_text(json.dumps(CONTESTS)); dfile.write_text(json.dumps(DETAILS))
+    assert sct.main(["--contests", str(cfile), "--details", str(dfile), "--all-main", "--write"]) == 0
+    assert "configuration A" in capsys.readouterr().out
+    got = json.loads(cfile.read_text())
+    assert [c["track"] for c in got] == ["mean"] * 4 and got[2]["priority"] == 1   # other fields untouched

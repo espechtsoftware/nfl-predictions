@@ -37,6 +37,37 @@ pre-lock map, exact ladders):
 - **Production, please:** confirm the setter and the chain produce configuration A, and correct the calendar entry.
 
 The Week-1 out-of-sample gate for items 1 and 2 is next, on the run dir production uploaded (0f41b772).
+## 2026-09-28 (10:25 CDT) — Production: configuration A CONFIRMED end to end; the setter has `--all-main`; the cutover list corrected
+
+The operator's 10:07 choice (class selector for the $2 satellites too, wired as `LIVE_SELECTOR=class` over the head
+layout, no tail sleeve) is what the chain produces with these settings, checked at each stage on the integration head
+(tip of this commit):
+
+- **Setter:** `python scripts/set_contest_tracks.py --contests $OUT/contests.json --details $OUT/contest-details-<date>.json
+  --all-main --write` puts `track: mean` (the layout's name for the main track) on every contest in file order, needs no
+  priorities, refuses a `track_override: tail`, and prints "configuration A: N contests (E entries) all on the main track;
+  TAIL_SLEEVE=0, LIVE_SELECTOR=class, ENTER_LAYOUT=head, ENTER_ORDER=greedy". On the Week-3 contest set: 45 contests,
+  204 entries, head layout needs 144 rows, sleeve 0. Nine tests.
+- **week_env:** `TAIL_SLEEVE` is computed from the contests (0); `BOOK_ENTRIES` = the head layout's row count (144 on the
+  Week-3 shape; floor 1, no 90). `LIVE_SELECTOR=class` and `ENTER_LAYOUT=head` are NOT the defaults (`dual_emax`,
+  `sequential`): the cutover sets them.
+- **Build host:** with `LIVE_SELECTOR=class` it passes `--selector class --class-model "$CLASS_MODEL"` (json + `.sha256`
+  required) plus `--mean-dst-cap` (and the tilt only when ≠ 0); `CLASS_SLEEVE_EVERY=2` adds `--class-sleeve-every 2`; the
+  preflight requires the pinned clone to expose `"class"`, `--class-model`, `--class-sleeve-every`. `verify_k90` requires
+  the receipt's `config.selector == "class"`, sleeve 0, `written == operational_k == BOOK_ENTRIES`, unique rows.
+- **Audit:** `selector_and_tracks` expects selector `class`, sleeve 0, `written == len(book) >= mean rows`.
+- **Layout/order:** `ENTER_ORDER=greedy` is the book's own order (rank r = upload row r; it never re-sorts), so the class
+  score order the lab writes is what the head layout deals: the shared top four rows to every contest, then unique rows.
+  `fewest-low` would re-order by LOW flags and must stay off.
+
+**Corrected cutover list (replaces the one in the 10:00 entry):** `week_env.sh` defaults `LIVE_SELECTOR=class`,
+`ENTER_LAYOUT=head`, `ENTER_ORDER=greedy`, `CLASS_SLEEVE_EVERY=2`, `CLASS_MODEL=$OUT/class_model_w4.json` (+ `.sha256`
+`d1b609fa…`), together with `tests/test_week_env_defaults.py`; the Sunday `dose.env` with `PAID_LEV=0`; `EXPECT_SHA` to
+the lab commit carrying `dd0ce98`; `contests.json` written by the setter with `--all-main`. `TAIL_SLEEVE_SELECTOR` and
+`MEAN_OWN_TILT` are moot with no sleeve and tilt 0. The 09:15 package's item 3 (tail by line percentile) and the 09:50
+revision's tail-by-priority dealing are both superseded by configuration A; the tail/priority path stays in the setter for
+a week that wants a separate sleeve.
+
 ## 2026-09-28 (10:20 CDT) — Production: the 90-row mean floor is DROPPED (laptop's 09:35 ask); the $2-satellite track is the operator's call
 
 - `enter_layout.MEAN_ROWS_FLOOR` is 1; `week_env.sh` and `sunday_build_host.sh` compute `BOOK_ENTRIES` as
