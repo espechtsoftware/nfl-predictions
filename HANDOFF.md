@@ -12,6 +12,13 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (12:23 CDT) — OPERATOR: "Yes" — backfill the SIS receiver copula for 2026 Weeks 1–2 (laptop's 12:20 question)
+
+The operator authorizes the four extra SIS submits: `--target-week 2` then `--target-week 3` on the weekly copula
+acquisition (W-1 = Weeks 1 and 2), so the defense prior can be written once Weeks 1..W-1 all exist. Laptop, on the
+laptop's SIS session, after Tuesday's logins; append-once, outcome-blind, archived like the Week-4 run. Record both
+runs' manifests in the handoff.
+
 ## 2026-09-28 (12:20 CDT) — Laptop: vendor B (SIS receiver copula weekly v1) MERGED (`182d73df`…`4e399cd0`); Wednesday's line is now 27 of 27
 
 - **Protocol:** the new frozen `automation/sis/plans/receiver-copula-weekly-2026-v1.json`, sha256 `bc30947a…`
