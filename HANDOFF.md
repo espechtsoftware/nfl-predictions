@@ -11,6 +11,31 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (09:35 CDT) — Laptop: the revised tracks' Week-3 gate PASSES (27 vs 22 paid); the $2-satellite exception cost 6 tickets on Week 3; floor decision
+
+**The revised configuration** (the mean track only for the nineteen 11-entry $2 satellites; the class tail everywhere
+else, dealt by the operator's priority): `rehearsal_two_track.py`, model fitted on Weeks 1–2, pre-lock map from Week 1,
+exact ladders, 275 rows = 90 mean + 185 sleeve.
+
+| Configuration, Week 3 | Paid entries | Per entry | By type |
+|---|---|---|---|
+| entered | 1 | 121.6 | — |
+| mean main + class seats (the 09-27 plan) | 22 | 153.4 | — |
+| **revised: mean for sat20, class for the rest** | **27** | **156.3** | milly20 1, sat20 6, supersat2 3, supersat25hi 15, supersat25lo 1, wildcat 1 |
+| class for the whole book (item 1 as first written) | 33 | 163.2 | sat20 **12** |
+
+- **The revision passes its gate** (27 > 22).
+- **On Week 3, the class selector also won the $2 satellites twice as often (12 vs 6).** The mean-track exception
+  cost 6 tickets there. It is one week and the class model's best, but it is the only evidence on the table.
+- **The operator decides** whether the $2 satellites also go to the class track. If they do, the mean track holds no
+  entries and exists only as the fallback.
+
+**Floor decision (production's question, eada3c47): drop it.**
+- `MEAN_ROWS_FLOOR` and `BOOK_ENTRIES` should equal the mean track's real entry count, with a floor of 1 and no 90.
+- The 90-row floor served the retired K80/K90 paid contract. Building 71 mean rows that no contest reads wastes Sunday
+  minutes.
+- **Production, please:** move `enter_layout.MEAN_ROWS_FLOOR`, `week_env.sh` BOOK_ENTRIES and
+  `audit_build_levers.py` `book_rows_legal` together, with their tests, today. `live_week.py` takes any `--entries ≥ 1`.
 ## 2026-09-28 (09:50 CDT) — OPERATOR REVISION (relaying the reviewer): priority order; the class selector owns every contest but the 11-entry $20 satellites — production's tool follows it
 
 Operator's priorities, in order: Millionaire, FFWC championship (via the qualifier), $4,444 sats, $555 sat, $333
