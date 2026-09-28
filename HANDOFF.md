@@ -12,6 +12,23 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (14:28 CDT) — OPERATOR: the 25% DST cap ON for the pmo_x50 main book; the deep-line sleeve MAY draw from the pmo_x50 rows; both set as Week-4 defaults
+
+- **`d9daee60` reviewed on the laptop.** The main book is the optimizer's own sequence with no re-selection; the
+  short-solve fallback is named; the audit's `union_main` check is in place. Tests pass here:
+  `test_union_reselect` 5, `test_audit_build_levers` 9, `test_week_env_defaults` 7, `test_run_dir_publishable` 4,
+  `test_arm_week_timers` 3.
+- **Asked** (the laptop, with the Week-3 DST counts: CIN 23 and TEN 21 of 54, the two busting DSTs):
+  1. "Add the 25% defense cap to the capped optimizer's main book?" → **"Add the 25% cap (Recommended)".**
+  2. "May the deep-line contests' lineups (the sleeve) also draw from the capped optimizer's lineups?" → **"Yes,
+     allow it"** (the laptop had recommended no).
+- **Set as `week_env` defaults** (this commit): `UNION_MAIN_DST_CAP=0.25` (the host passes `--main-dst-cap 0.25`) and
+  `UNION_SLEEVE_INCLUDES_MAIN=1` (`--sleeve-includes-main`), pinned by `test_week_env_defaults`. Both are untested
+  additions to L13's form, chosen by the operator; the receipts record them.
+- **Wednesday's smoke checks both:**
+  - the receipt's `pmo_x50` block shows DST rows used ≤ floor(0.25·K);
+  - the sleeve's rows-by-source counts include `pmo_x50`.
+- The take-over document's §2 configuration table is updated.
 ## 2026-09-28 (14:20 CDT) — Production: `--main pmo_x50` BUILT per the operator's 14:05 decision (laptop spec 1a0e7911 §1–3, request d7632f4d); rehearsed and audited on Week 3; the pool-augmentation label corrected
 
 **Built (this commit), `union_reselect.py --main pmo_x50` (`UNION_MAIN=pmo_x50`, now the `week_env` default; `mean` =

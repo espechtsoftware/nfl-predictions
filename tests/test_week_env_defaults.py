@@ -79,3 +79,10 @@ def test_entries_watcher_runs_through_the_afternoon_swaps():
     assert run({**env, "ENTRIES_END_CT": "11:58"}) == "2026-10-04 16:58:00+00:00"
     watcher = (ROOT / "scripts" / "sunday_watch_dk_entries.sh").read_text()
     assert "1658" not in watcher and '"$END_EPOCH"' in watcher
+
+
+def test_week4_union_main_dst_cap_and_sleeve_source():
+    source = ENV_SCRIPT.read_text()
+    assert "export UNION_MAIN=${UNION_MAIN:-pmo_x50}" in source
+    assert "UNION_MAIN_DST_CAP=${UNION_MAIN_DST_CAP-0.25}" in source           # operator 2026-09-28
+    assert "UNION_SLEEVE_INCLUDES_MAIN=${UNION_SLEEVE_INCLUDES_MAIN-1}" in source
