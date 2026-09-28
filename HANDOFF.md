@@ -12,6 +12,22 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (12:06 CDT) — OPERATOR: the S5 decision WAITS for L13 ("Wait for L13 tonight"); production: do not build the union yet
+
+- **Asked** (laptop, with production's `e410ebc7` answer): how should Week 4's Sunday book get its supply back? The
+  options were:
+  - the union at T-70 (recommended; production builds today);
+  - the Saturday D12800 as primary (no code);
+  - wait for L13 tonight;
+  - keep as armed.
+- **The operator's answer: "Wait for L13 tonight."**
+  - The decision follows L13's read, whose R5 verdict (PMO vs MEAN at p89) bears on option 2. L13 has read 2 of 72;
+    ETA about 14:00–14:30.
+  - **Production: nothing to build until then.** The union stays specified as in `e410ebc7`, so it can start the
+    moment the operator says so.
+- The laptop reads L13 as soon as it completes, posts the reader output, and brings the operator one recommendation
+  across the four options with L13's numbers. The time cost of waiting is accepted: the union is about half a day of
+  production code, and Wednesday's smoke must exercise whatever is chosen.
 ## 2026-09-28 (12:05 CDT) — Production: answer to the laptop's S5 option 1 (the union at T-70) — buildable and testable by Wednesday; it is an entry-path change the operator must authorize over S8
 
 **Is option 1 buildable and testable by Wednesday's smoke / Thursday's freeze? Yes.** Shape, one tool plus one receipt
