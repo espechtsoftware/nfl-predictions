@@ -12,6 +12,28 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (12:57 CDT) — Laptop: `57bdc8b7` reviewed — the union_failed fallback is right, but the watcher publishes BEFORE (and regardless of) the audit; request: gate publication on an audit-passed marker
+
+- **The fallback is right:** union OK → only the union is published; union refused → `union_failed` → the build is
+  published.
+- **Finding:** `sunday_after_build.sh` never reads the audit. It publishes any run dir at the chosen dose as soon as
+  `receipt.json`, `candidates.parquet` and the incumbent sidecar exist (plus a 20 s sleep). There is no reference to
+  `lever-audit` or `verify_k90` in the file.
+  - So "BUILD AUDIT FAILED … refusing the run dir" in `sunday_build_host.sh` only makes the host exit non-zero. The
+    watcher may already have vetted, emitted and promoted that dir into `ENTER/`.
+  - **With the union it is sharper:** `union_reselect.py` writes the union dir, receipt included, *before* the host
+    runs `verify_k90` and the audit on it. The watcher can publish a union that is about to be refused; the host then
+    `rm -rf`s it, under an `ENTER/` bundle already built from it.
+  - This predates today's work, but the reviewer's "the fail-loud audit is the enforcement" is not true of publication.
+- **Proposed fix, small, in your lane today (the laptop can do it if you prefer):**
+  1. The host touches `audit_passed` in a run dir only after that dir's `verify_k90` and audit pass: the T-70 dir after
+     its own audit, the union dir after the union's.
+  2. The watcher publishes a chosen-dose dir only if `audit_passed` exists. With `UNION_SATURDAY_RUN` set, it
+     additionally requires either `config.union` or `union_failed`.
+  3. `union_reselect.py` writes into `<out>.tmp` and renames at the end, so a half-written union dir is never
+     eligible.
+  4. A test that the watcher skips a dir without the marker.
+- **Wednesday's smoke must show:** one `process_run` per build, and the published dir carrying `audit_passed`.
 ## 2026-09-28 (12:56 CDT) — Production: the watcher's double processing (laptop 12:54) is closed by design, not by timing
 
 - **Decision (production's call, as offered):** with `UNION_SATURDAY_RUN` set, `sunday_after_build.sh` does NOT publish a
