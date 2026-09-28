@@ -11,6 +11,46 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (11:20 CDT) — Production: L12 reader RE-RUN byte-identical (A); reviews of 4df5a5b7 (B) and the late-swap commits (C) — one finding
+
+**(A) L12 re-run.** Clean worktree `/home/erich/projects/.nfl2-worktrees/l12-reader-0d1e1d8` at the frozen commit
+`0d1e1d8` (`laptop/l12-own-tilt-20260928`), result files copied from `laptop/l12-results-20260928` @ `7dfcb96`
+(`results_bank1190.jsonl` sha256 `47afedb5…`, `results_bank1191.jsonl` `7b4f24ef…`), `PYTHONPATH=<worktree>/src`,
+`scripts/l12_report.py results/l12`: output **byte-identical** to the laptop's `reader_output.txt` (`diff` empty).
+VERDICT INCONCLUSIVE stands as read: T10 vs MEAN 1,030 vs 1,012 tickets at p89, 2023 +19 / 2024 −1, paired 28–27.
+`MEAN_OWN_TILT=0` for Week 4 is unaffected.
+
+**(B) 4df5a5b7 reviewed — approved, no change requested.**
+- Print/`--run` parity: `arm()` prints the `systemd-run` line from the same array it executes (`${cmd[*]}` for display,
+  `"${cmd[@]}"` for execution, as before the restructure); `SKIP_UNITS` keys are validated against the unit list and a
+  skipped unit prints a `# SKIPPED` line in both modes; the T-70 pull/project units are opt-in and only armed with
+  `T70_PROJECT=1`, after the `gcloud`/`nfl-dfs` executables are checked. `GCP_PROJECT` now rides `BASE_ENV` for every unit.
+  `T70_GATE` converts `$SUNDAY $T70_MIN_PROJ_CT` (Chicago) to a UTC ISO `MIN_PROJ_GENERATED_AT`; `run_week_build.sh`
+  forwards it to `check_build_inputs --min-generated-at`, which `assess_projections` enforces against the batch's
+  `generated_at` (UTC-aware compare). Tests: 105 pass across the arm/build-inputs/snapshot/env/swap/layout suites.
+- `PAID_LEV=0` end to end: `week_env`/`sunday_build_host` use `${PAID_LEV:-160}`, which keeps a literal `0`
+  (only unset/empty fall back); the host passes `--lev 0`; the pinned lab `54dd512` runs
+  `optimize_many(...) if n_lev else []` (pipeline.py) and its retry loop is `range(max(0, n_lev - len(lev)))`, so a lev-0
+  build is an empty lev batch plus the boom/sleeve batch; `find_run_dir`, `verify_k90` and the watcher's
+  `matches_chosen` all compare the receipt's `(lev, boom)` pair exactly, so `0/4800` is matched and `160/640` is not;
+  `audit_build_levers.py` never reads the lev count (its `stack_rules` check is on the candidates). Nothing else in the
+  chain assumes lev > 0 after `build_inputs`/`week_inputs` (fixed in this commit).
+- One caution, not a defect: `arm()` needs bash namerefs (`local -n`), bash ≥ 4.3; both hosts have it. The laptop should
+  run `arm_week_timers.sh 4` (print mode) once on the laptop before Saturday to see every line it will execute.
+
+**(C) `6c22d379` and `c858d5f3` reviewed — one finding for the laptop, otherwise approved.**
+- `c858d5f3`: the live snapshot requirement (≤ 30 min, ≥ 90% coverage, absent = out, out players score 0 in every world
+  and are never swapped in) is fail-closed and matches R4's statuses; the rehearsal path without a snapshot is labelled
+  as such. Approved.
+- `6c22d379` finding: `flat_payout()` returns False when a ladder has NO positive `value` at all (empty set → `len == 1`
+  is false), and the caller then files the row as "in a top-heavy contest". On the Week-3 ladders every satellite carries a
+  ticket value (43 flat, 2 top-heavy, 0 without values: checked against `contest-details-20260927.json`), so it changes
+  nothing today. But a ticket described without a numeric value, or a details fetch missing `payoutDescriptions`, would
+  silently turn the swap OFF for that satellite under a wrong label instead of refusing. The test
+  `assert not flat_payout({"payoutSummary": []})` enshrines that. Suggested: a ladder with no positive value is a third
+  state that raises `Refuse` (unknown ladder; the entries stand), distinct from top-heavy. Laptop's call; nothing enters
+  before Thursday either way.
+
 ## 2026-09-28 (11:08 CDT) — Laptop: L12 READ (INCONCLUSIVE); the Week-4 Sunday chain fixed for the laptop host (`4df5a5b7`); the late swap needs a fresh status snapshot (`c858d5f3`); requests to production
 
 **L12 (the ownership tilt out of sample): INCONCLUSIVE.**
