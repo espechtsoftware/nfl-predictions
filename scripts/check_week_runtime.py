@@ -117,6 +117,17 @@ def main():
             cm = os.environ.get("CLASS_MODEL", "")
             if not (cm and Path(cm).is_file() and Path(cm + ".sha256").is_file()):
                 fail(f"LIVE_SELECTOR=class needs CLASS_MODEL (json + .sha256); got {cm!r}")
+        if os.environ.get("UNION_SATURDAY_RUN"):
+            if os.environ.get("LIVE_SELECTOR", "dual_emax") != "mean":
+                fail(f"UNION_SATURDAY_RUN needs LIVE_SELECTOR=mean; got {os.environ.get('LIVE_SELECTOR')!r}")
+            if not (clone / "src" / "nfl2" / "two_track.py").is_file() or "dst_of" not in (clone / "src" / "nfl2" / "two_track.py").read_text():
+                fail(f"the pinned lab clone {clone} has no DST-capped select_top_mean (union_reselect.py needs it)")
+            u = os.environ["UNION_SATURDAY_RUN"]
+            if u != "auto" and not Path(u, "receipt.json").is_file():
+                fail(f"UNION_SATURDAY_RUN={u!r} is neither 'auto' nor a run dir with a receipt")
+            dose = os.environ.get("UNION_SAT_DOSE", "2560/10240")
+            if not re.fullmatch(r"\d+/\d+", dose):
+                fail(f"UNION_SAT_DOSE={dose!r} must be lev/boom")
         if os.environ.get("CLASS_SLEEVE_EVERY", "0") not in ("", "0"):
             wanted += ["--class-sleeve-every", "--class-model"]
             cm = os.environ.get("CLASS_MODEL", "")

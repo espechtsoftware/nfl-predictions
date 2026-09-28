@@ -65,10 +65,10 @@ def test_two_track_contests_split_mean_rows_and_the_tail_sleeve(tmp_path):
     env = os.environ.copy()
     env.update({"GROUP": "153769", "SEASON": "2026", "OUT": str(tmp_path / "out"), "CONTESTS_JSON": str(contests),
                 "ENTER_LAYOUT": "head", "PROD_PY": sys.executable, "PROD": str(ROOT)})
-    r = subprocess.run(["bash", "-c", f"source {ENV_SCRIPT}; week_env 3 >/dev/null && echo $BOOK_ENTRIES $TAIL_SLEEVE $LIVE_SELECTOR $LIVE_MIN_PROJ $MEAN_OWN_TILT $MEAN_DST_CAP $ENTER_FLAG_LATE_Q_ONLY $T70_ACTIVE_Q $T70_VACATED_BUMP $TAIL_SLEEVE_SELECTOR $CLASS_SLEEVE_EVERY"],
+    r = subprocess.run(["bash", "-c", f"source {ENV_SCRIPT}; week_env 3 >/dev/null && echo $BOOK_ENTRIES $TAIL_SLEEVE $LIVE_SELECTOR $LIVE_MIN_PROJ $MEAN_OWN_TILT $MEAN_DST_CAP $ENTER_FLAG_LATE_Q_ONLY $T70_ACTIVE_Q $T70_VACATED_BUMP $TAIL_SLEEVE_SELECTOR $CLASS_SLEEVE_EVERY ${{UNION_SATURDAY_RUN:-none}} $UNION_SAT_DOSE $UNION_PMO"],
                        env=env, text=True, capture_output=True, check=False)
     assert r.returncode == 0, r.stderr
-    assert r.stdout.split() == ["35", "1", "mean", "1.0", "0", "0.25", "1", "1", "1", "mean", "2"]   # reviewer 2026-09-28 10:30: mean everywhere, class sleeve 2, class withdrawn   # operator decisions 2026-09-28 as defaults
+    assert r.stdout.split() == ["35", "1", "mean", "1.0", "0", "0.25", "1", "1", "1", "mean", "2", "none", "2560/10240", "0"]   # reviewer 2026-09-28 10:30: mean everywhere, class sleeve 2, class withdrawn   # operator decisions 2026-09-28 as defaults
 
 
 def test_entries_watcher_runs_through_the_afternoon_swaps():

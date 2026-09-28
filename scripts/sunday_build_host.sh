@@ -83,6 +83,10 @@ need_flags=(); [[ -n "${LIVE_MIN_PROJ:-}" ]] && need_flags+=(--min-proj); [[ "$T
 [[ "$LIVE_SELECTOR" == "mean" && -n "${MEAN_DST_CAP:-}" ]] && need_flags+=(--mean-dst-cap)
 [[ "$TAIL_SLEEVE" != "0" ]] && need_flags+=(--tail-sleeve-selector)
 [[ "${CLASS_SLEEVE_EVERY:-0}" != "0" ]] && need_flags+=(--class-sleeve-every --class-model)
+if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
+  grep -q 'dst_of' "$CLONE/src/nfl2/two_track.py" || { echo "the pinned lab clone $CLONE has no DST-capped select_top_mean (needed by union_reselect.py)"; exit 1; }
+  [[ -f "$PROD/scripts/union_reselect.py" ]] || { echo "union_reselect.py missing in $PROD/scripts"; exit 1; }
+fi
 [[ "$TAIL_SLEEVE" != "0" && "${TAIL_SLEEVE_SELECTOR:-emax}" == "class" ]] && need_flags+=(--class-model)
 if [[ "$TAIL_SLEEVE" != "0" && "${TAIL_SLEEVE_SELECTOR:-emax}" == "mean" ]]; then
   grep -A1 -- '"--tail-sleeve-selector"' "$CLONE/scripts/live_week.py" | grep -q '"mean"' || { echo "the pinned lab clone $CLONE has no --tail-sleeve-selector mean (lab 54dd512+); move the pin or declare no tail contests"; exit 1; }
@@ -233,6 +237,30 @@ verify_k90 "$K90_DIR" || { echo "K90 receipt verification FAILED for $K90_DIR"; 
     --min-salary "${MIN_LINEUP_SALARY:-49000}" --fade "${AUDIT_FADE:-off}" --sources "${AUDIT_SOURCES:-market_points:0.30,dk_ppg:0.80}" \
     --t70 "$( [[ "${T70_ACTIVE_Q:-0}" == "1" || "${T70_VACATED_BUMP:-0}" == "1" ]] && echo on || echo off )" \
     --out "$OUT/lever-audit-$RUN_TAG.json" | tee "$OUT/lever-audit-$RUN_TAG.txt" ) || { echo "BUILD AUDIT FAILED for $K90_DIR (see $OUT/lever-audit-$RUN_TAG.txt); refusing the run dir"; exit 1; }
+# 2a. The T-70 UNION (operator 2026-09-28): with UNION_SATURDAY_RUN set, the Saturday paid pool's survivors join the T-70
+# pool and the book is re-selected with the same mean selector; the union run dir is verified and audited like any build
+# and becomes the run dir the chain emits and the watcher promotes (newest, same lev/boom as the T-70 run).
+if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
+  [[ "$LIVE_SELECTOR" == "mean" ]] || { echo "the union is defined for LIVE_SELECTOR=mean (got $LIVE_SELECTOR)"; exit 1; }
+  UNION_ARGS=(--saturday-run "$UNION_SATURDAY_RUN" --saturday-dose "${UNION_SAT_DOSE:-2560/10240}" --t70-run "$K90_DIR" --live-dir "$LIVE_DIR"
+              --entries "$BOOK_ENTRIES" --tail-sleeve "$TAIL_SLEEVE" --mean-max-shared 7 --min-proj "${LIVE_MIN_PROJ:-1.0}"
+              --max-per-game "${MAX_PER_GAME:-4}" --min-salary "${MIN_LINEUP_SALARY:-49000}" --pmo "${UNION_PMO:-0}")
+  [[ -n "${MEAN_DST_CAP:-}" ]] && UNION_ARGS+=(--mean-dst-cap "$MEAN_DST_CAP")
+  [[ -n "${UNION_DK_STATUS:-}" ]] && UNION_ARGS+=(--dk-status "$UNION_DK_STATUS")
+  T2=$(date +%s)
+  ( cd "$PROD" && LIVE_FLEX_LATEST="${LIVE_FLEX_LATEST:-1}" PYTHONPATH="$CLONE/src:$PROD/src" "$LAB_PY" scripts/union_reselect.py "${UNION_ARGS[@]}" \
+      | tee "$OUT/union-$RUN_TAG.txt" ) || { echo "UNION FAILED (see $OUT/union-$RUN_TAG.txt); the T-70 run dir $K90_DIR stands"; exit 1; }
+  UNION_DIR=$(sed -n 's/^UNION -> //p' "$OUT/union-$RUN_TAG.txt" | tail -1)
+  [[ -n "$UNION_DIR" && -f "$UNION_DIR/receipt.json" ]] || { echo "union run dir not found in $OUT/union-$RUN_TAG.txt"; exit 1; }
+  verify_k90 "$UNION_DIR" || { echo "K90 receipt verification FAILED for the union $UNION_DIR"; exit 1; }
+  ( cd "$PROD" && PYTHONPATH="$PROD/src" "$PROD_PY" scripts/audit_build_levers.py "$UNION_DIR" --contests "$CONTESTS_JSON" \
+      --layout "${ENTER_LAYOUT:-sequential}" --expect-selector "$LIVE_SELECTOR" ${MAX_PER_GAME:+--expect-max-per-game "$MAX_PER_GAME"} \
+      --min-salary "${MIN_LINEUP_SALARY:-49000}" --fade "${AUDIT_FADE:-off}" --sources "${AUDIT_SOURCES:-market_points:0.30,dk_ppg:0.80}" \
+      --t70 "$( [[ "${T70_ACTIVE_Q:-0}" == "1" || "${T70_VACATED_BUMP:-0}" == "1" ]] && echo on || echo off )" \
+      --out "$OUT/lever-audit-$RUN_TAG-union.json" | tee "$OUT/lever-audit-$RUN_TAG-union.txt" ) || { echo "BUILD AUDIT FAILED for the union $UNION_DIR; refusing it (the T-70 run dir $K90_DIR stands)"; exit 1; }
+  echo "union=$UNION_DIR (T-70 run $K90_DIR; $(( $(date +%s) - T2 )) s)"
+  K90_DIR=$UNION_DIR
+fi
 [[ -n "$PAID_DIR" ]] || PAID_DIR=$K90_DIR
 echo "k90=$K90_DIR"
 # The approved Saturday D12800 build may opt into the selection-only Week-3 shadow.  Keep this explicit so fallback and

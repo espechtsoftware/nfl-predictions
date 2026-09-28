@@ -141,6 +141,12 @@ def test_selector_tracks_and_book_are_checked(tmp_path, monkeypatch):
     assert "selector_and_tracks" in _audit(run2, contests=tail, expect_selector="mean")["failed"]   # sleeve not recorded
     dup = _run_dir(tmp_path / "d", book=[_lineup("A", "B", "C"), _lineup("A", "B", "C"), _lineup("C", "D", "E"), _lineup("E", "F", "G"), _lineup("G", "H", "A")])
     assert "book_rows_legal" in _audit(dup)["failed"]
+    # the adopted mean sleeve repeats mean rows: a sleeve row may equal a mean row, but sleeve rows stay distinct among themselves
+    rep = _run_dir(tmp_path / "e", lineups=lus, book=lus[:5] + [lus[0]], receipt={"written": 6, "config": {"selector": "mean", "operational_k": 5, "tail_sleeve": {"rows": 1, "selector_used": "mean"}}})
+    res = _audit(rep, contests=tail, expect_selector="mean")
+    assert "book_rows_legal" not in res["failed"], res["checks"][-1]
+    rep2 = _run_dir(tmp_path / "f", lineups=lus, book=lus[:4] + [lus[0], lus[0]], receipt={"written": 6, "config": {"selector": "mean", "operational_k": 4, "tail_sleeve": {"rows": 2, "selector_used": "mean"}}})
+    assert "book_rows_legal" in _audit(rep2, contests=tail, expect_selector="mean")["failed"]      # a sleeve row twice
 
 
 def test_cli_exits_2_and_writes_a_receipt_on_failure(tmp_path):

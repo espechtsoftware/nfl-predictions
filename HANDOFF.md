@@ -12,6 +12,68 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (12:47 CDT) — Production: the T-70 UNION is BUILT, wired, tested and rehearsed on Week 3 (operator authorization 12:2x); one audit defect found and fixed that would have refused Sunday's mean sleeve
+
+**Operator (verbatim):** "authorize the union at T-70 now; it repairs the regression from dropping the lev batch, which
+was my recommendation. If L13 supports it, add plain-mean-optimizer rows solved on the T-70 frame to the same union
+(3 minutes of solver time). Skip S4. Stake is the operator's lever this week; the union restores roughly the points
+needed for break-even, not more."
+
+**The tool: `scripts/union_reselect.py`** (production; runs with the pinned lab clone on `PYTHONPATH`).
+- Pool = the T-70 run's candidates + every Saturday candidate that survives the T-70 information (no player absent
+  from the T-70 frame; none OUT/IR/Doubtful/inactive by the T-70 frame or the DK status snapshot — `r1c`'s rule; no
+  skill player under `--min-proj` on the T-70 frame; the per-game cap; not already in the T-70 pool) + optional
+  `--pmo N` plain-mean-optimizer rows solved on the T-70 frame (L13's R5 form; `UNION_PMO`, default 0, set only if L13
+  supports R5). The same survivor rules are applied to the T-70 pool defensively (a clean T-70 build drops nothing).
+- Selection = exactly `live_week.py --selector mean`: top-K by the sum of the T-70 `mean_projection` under the overlap
+  cap (7) and the DST cap (25%); the tail sleeve = top-T by the same score (it may repeat main rows). Every written
+  roster is revalidated against the DK contract (a failure stops the run) and the house rules (counted).
+- Output = a new run dir in the live tree (`<utc>-union-<t70 sha7>`): the T-70 frame, sidecar banks, universe and
+  exposure ledgers copied; a union `candidates.parquet` (`source_run` t70|saturday|pmo, `saturday_cand`, `proj_sum`);
+  `book.csv` via the lab's `dk_csv` (FLEX-latest as the chain sets it); `book.json`; a receipt copied from the T-70
+  run's with `config.union` (both source runs, identities, input sha256s, every drop count, book rows by source, the
+  tool's sha256 and production commit), `config.lev/boom` = the T-70 run's (so `verify_k90` and the watcher's chosen
+  dose match), `written = K + T`. `--saturday-run auto` picks the newest `UNION_SAT_DOSE` (2560/10240) run built before
+  the T-70 run. `--rehearsal` accepts a non-mean T-70 receipt for paper runs only and must write outside the live tree.
+- Refuses, named: a T-70 receipt whose selector is not mean, a Saturday run built after the T-70 run, a frame/bank
+  mismatch, fewer survivors than K + T, a DK-illegal written roster, an existing output dir.
+
+**Chain wiring (this commit):** `week_env.sh` exports `UNION_SATURDAY_RUN` (empty = no union; `auto` or a run dir),
+`UNION_SAT_DOSE=2560/10240`, `UNION_PMO=0`; `sunday_build_host.sh` runs the union after the T-70 run passes
+`verify_k90` and the audit, then runs `verify_k90` and the audit on the UNION dir and makes it the run dir the chain
+emits (`K90_DIR`); the watcher promotes it as the newest matching book. Preflight (`check_week_runtime.py` and the host)
+requires `LIVE_SELECTOR=mean`, the pinned clone's DST-capped `select_top_mean`, a run dir or `auto`, and a `lev/boom`
+dose string. `arm_week_timers.sh` passes `UNION_SATURDAY_RUN UNION_SAT_DOSE UNION_PMO UNION_DK_STATUS`. Tests:
+`test_union_reselect` 5 (the pure parts), `test_week_env_defaults` 6, `test_audit_build_levers` 9, `test_enter_layout` 76.
+**The cutover turns it on:** `UNION_SATURDAY_RUN=auto` (the Saturday D12800 at 2560/10240 must exist with sidecars
+before the T-70 build; the tool refuses otherwise and the T-70 run dir stands).
+
+**Week-3 rehearsal (`--rehearsal`; Saturday D12800 `20260926T153408285093Z` + the 09-27 10:50 build
+`20260927T155027472554Z`, which was a D800 160/640 under dual_emax, so its pool is 800 rows, not Sunday's 7,200):**
+- Pool: T-70 784 of 800 (16 dropped below min-proj: the pre-Q4b build) + Saturday 12,016 of 12,559 (4 missing from the
+  T-70 frame, 0 unavailable, 434 below min-proj, 0 over the game cap, 105 duplicates of T-70 rows) = 12,800.
+- Book (54 mean + 132 sleeve, the Week-3 adopted shape): 52 of 54 mean rows and 130 of 132 sleeve rows come from the
+  Saturday supply; projected sum first/last/mean 132.8 / 130.1 / 130.8 (the laptop's S5 table: Saturday pool top-144
+  130.6; boom-only 126.0–128.2). **The supply is restored.** 0 strategy violations.
+- Audit on the union dir: PASS on every check except `punt_valuation_availability`, which fails on the Week-3 T-70
+  FRAME (91 non-players valued at upside: the pre-Q4b defect, fixed in code since) — a Week-3 artifact, not the union's.
+- Exact ladders (`rehearsal_two_track.py … --main-selector mean --tail-selector mean --allow-unidentified`, our own
+  entries left in the fields): **13 paid entries, 148.1 per entry** (sat20 5, supersat25hi 5, supersat2 1,
+  supersat25lo 1, milly20 1). The laptop's same-configuration numbers on the SATURDAY pool with Saturday projections:
+  23 paid, 151.9. The difference is the projections, not the supply: the union scores on the Sunday 10:50
+  projections, and on Week 3 a mean re-selection of the Saturday pool on those projections realized 148.3
+  (post-mortem) — the same figure. One week, hindsight, and Week 3's Sunday projections had no T-70 rules. What the
+  rehearsal proves is the mechanism (supply restored under the T-70 information, the chain's checks pass); whether
+  Sunday projections rank better than Saturday's is the Sunday-build question the operator already decided.
+- Artifacts: `gs://nfl-predictions-503414-raw/private/rehearsal/2026-w03/union-w3b/` (the union run dir + its audit).
+
+**Audit defect found and fixed (would have refused Sunday's book with or without the union):**
+`audit_build_levers.py` `book_rows_legal` required every book row to be distinct, but the adopted mean sleeve is the
+top-T by the same score as the main book, so its rows REPEAT the top mean rows by design (Week 3 shape: all 54 mean
+rows recur in the 132-row sleeve; `verify_k90` already allowed it). The check now requires the mean rows distinct
+among themselves and the sleeve rows distinct among themselves, reports the sleeve's repeats of mean rows, and still
+fails a sleeve row that appears twice. Test added. Without this fix the Sunday T-70 build would have failed its audit.
+
 ## 2026-09-28 (12:25 CDT) — Laptop: `70f10a48` and `396220b5` acknowledged — the copula backfill is on Tuesday's list; L14 as queued
 
 - **Copula backfill (operator "Yes"):** Tuesday, on the laptop's SIS session after the logins and **before**

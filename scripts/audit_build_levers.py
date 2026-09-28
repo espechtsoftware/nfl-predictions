@@ -29,7 +29,7 @@ The checks (each named in the output):
                              count equal the layout's mean rows + sleeve rows
   t70_rules_effect           --t70 on: an absent depth-1 starter must have produced a bumped backup and an early-game
                              Questionable an activation (the t70_* receipt columns); --t70 off: no trace at all
-  book_rows_legal            book rows are unique, complete, and every id is in the frame
+  book_rows_legal            mean rows distinct, sleeve rows distinct (a sleeve row may repeat a mean row), complete, ids in the frame
 """
 from __future__ import annotations
 
@@ -208,11 +208,18 @@ def audit(run: Path, contests: list[dict], *, layout: str, expect_selector: str 
 
     # ---- book_rows_legal
     frame_ids = set(fr["id"].astype(str)) | set(fr["dk_player_id"].astype(str)) if "dk_player_id" in fr else set(fr["id"].astype(str))
-    dup = len(book) - len({tuple(sorted(r)) for r in book})
+    # The mean rows (the first k_mean) must be distinct and so must the sleeve rows among themselves; a sleeve row MAY repeat
+    # a mean row (the adopted mean sleeve is the top-T by the same score, so the deep contests take the top mean rows again;
+    # reviewer 2026-09-28). No contest ever holds one lineup twice: a deep contest reads sleeve rows only.
+    main_rows, sleeve_rows = book[:k_mean], book[k_mean:]
+    dup = (len(main_rows) - len({tuple(sorted(r)) for r in main_rows})) + (len(sleeve_rows) - len({tuple(sorted(r)) for r in sleeve_rows}))
+    repeats = len({tuple(sorted(r)) for r in sleeve_rows} & {tuple(sorted(r)) for r in main_rows})
     unknown = sum(1 for r in book for x in r if x.strip() not in frame_ids)
     short = sum(1 for r in book if len(r) != 9)
     record("book_rows_legal", dup == 0 and unknown == 0 and short == 0,
-           f"{dup} duplicate rows, {unknown} ids not in the frame, {short} rows without 9 slots", duplicates=dup, unknown_ids=unknown, short_rows=short)
+           f"{dup} duplicate rows (within the mean rows or within the sleeve; {repeats} sleeve rows repeat a mean row, allowed), "
+           f"{unknown} ids not in the frame, {short} rows without 9 slots", duplicates=dup, sleeve_repeats_of_main=repeats,
+           unknown_ids=unknown, short_rows=short)
 
     failed = [c["check"] for c in checks if not c["ok"]]
     return {"run": str(run), "layout": layout, "checks": checks, "failed": failed, "ok": not failed}

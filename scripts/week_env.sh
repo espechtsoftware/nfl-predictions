@@ -127,7 +127,11 @@ week_env() {
   export TAIL_SLEEVE_SELECTOR=${TAIL_SLEEVE_SELECTOR-mean} CLASS_MODEL=${CLASS_MODEL:-$OUT/class_model.json}   # class withdrawn 10:30; mean = the only sleeve selector allowed if a week declares tail contests
   # Class sleeve (reviewer item 2, 2026-09-28): every Nth boom visit is solved under the field's 193+ shape
   # (--class-sleeve-every N; lab dd0ce98, needs CLASS_MODEL). 0 = flag omitted. The Wednesday cutover sets 2.
-  export CLASS_SLEEVE_EVERY=${CLASS_SLEEVE_EVERY-2}   # adopted 2026-09-28: half the boom visits under the 193+ shape (needs CLASS_MODEL + .sha256; the preflight checks)
+  export CLASS_SLEEVE_EVERY=${CLASS_SLEEVE_EVERY-2}
+  # The T-70 union (operator 2026-09-28: authorized; repairs the lev-0 supply regression). UNION_SATURDAY_RUN = a Saturday
+  # run dir, or auto (the newest UNION_SAT_DOSE run in LIVE_DIR built before the T-70 run); empty = no union. UNION_PMO = N
+  # plain-mean-optimizer rows solved on the T-70 frame into the same union (0 = none; set only if L13 supports R5).
+  export UNION_SATURDAY_RUN=${UNION_SATURDAY_RUN-} UNION_SAT_DOSE=${UNION_SAT_DOSE:-2560/10240} UNION_PMO=${UNION_PMO-0}   # adopted 2026-09-28: half the boom visits under the 193+ shape (needs CLASS_MODEL + .sha256; the preflight checks)
   if [[ -z "$group" ]]; then
     group=$(PYTHONPATH="$PROD/src" "$PROD_PY" "$PROD/scripts/find_main_draft_group.py" --season "$SEASON" --sunday "$SUNDAY") || { echo "week_env: could not detect the Sunday-main draft group for $SUNDAY (set GROUP explicitly)" >&2; return 1; }
   fi
