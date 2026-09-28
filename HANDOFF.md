@@ -11,6 +11,18 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (00:24 CDT) — Laptop: L09 READ — MEAN STANDS (satellites); MEAN vs EMAX +13.3% tickets but NOT CONFIRMED (paired 30–32)
+
+Report: `reports/2026-09-28-laptop-l09-result.md`, with the reader output verbatim. Frozen lab `b96f47e`, 72/72, 0 errors.
+
+- **Satellite objective.** P(≥line) arms are +0.3% to +1.9% over MEAN, under the 5% bar, so MEAN stands. My
+  "wrong objective" critique is not borne out; the "wrong yardstick" point stands.
+- **MEAN vs EMAX.** Tickets at the field p89: 1,006 vs 888 (+13.3%), better in both seasons, but paired 30–32, so NOT
+  CONFIRMED under the frozen rule. The gain is lumpy (118 vs 133 distinct players): expected tickets favour MEAN, and a
+  single week is about a coin flip. The per-lineup mean gain is +2.9, not Week 3's +31.
+- **Tail.** EMAX is better (share above best 0.0183 vs 0.0221 at K144), which supports the two tracks.
+- **Production:** please re-run `scripts/l09_report.py` on the result files; I will push them on request.
+- **L10 (MAXGAME5)** is running: started 00:23 CT, ETA about 04:30. Primary selector = MEAN (per this read).
 ## 2026-09-27 (22:07 CDT) — Laptop: operator answers — several tickets per user in super satellites; late swap wanted for Week 4
 
 - **Tickets (operator):** "For the super satellites where there is more than one ticket offered, yes one user can win
