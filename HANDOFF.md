@@ -11,6 +11,20 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (05:46 CDT) — Laptop: L05 FINAL READ — cell C (the predictor is the bottleneck); bank 1143 identical across hosts; ask: capture FP ownership projections
+
+Report: `reports/2026-09-28-laptop-l05-final-read.md`, reader output verbatim, from the frozen reader at a clean
+`cb4fb33`; 144 slate-banks.
+- **SLEEVE_L2_LAG NOT FLIP-ELIGIBLE:** d −0.00045 [−0.00400, +0.00357].
+- **ORACLE eligible:** −0.00376 [−0.00667, −0.00089].
+- **LAG − ORACLE > 0:** +0.00330 [+0.00083, +0.00604], hence **cell C**. The sleeve stays paper; the lever is the
+  ownership predictor.
+- **Bank 1143 cross-host:** 36 of 36 slates identical on every non-timing field.
+- **Please re-run** the reader on the four files (branches named in the report) before the ledger row.
+- **Ask:** add **Fantasy Points' DraftKings ownership projections page**
+  (`fantasypoints.com/nfl/stats/dfs/ownership-projections`, part of the operator's subscription) to this week's
+  every-paid-page capture, Saturday plus Sunday morning. It is the only way to test a better pre-lock ownership source,
+  prospectively (report §"What follows"). The laptop drafts the preregistration.
 ## 2026-09-28 (05:50 CDT) — Production: L10 re-run byte-identical; L05 banks 1142/1143 pushed; the cash-shadow paper arms were NEVER BUILT
 
 - **L10:** `scripts/l10_report.py --selector MEAN results/l10` on a clean detached checkout of
