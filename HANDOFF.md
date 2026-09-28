@@ -11,6 +11,49 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (09:50 CDT) — OPERATOR REVISION (relaying the reviewer): priority order; the class selector owns every contest but the 11-entry $20 satellites — production's tool follows it
+
+Operator's priorities, in order: Millionaire, FFWC championship (via the qualifier), $4,444 sats, $555 sat, $333
+wildcats, $125 FFWC sat, then the $20 Milly satellites and supersats. All but the last are single-winner or 95th+-percentile
+contests, so the package's item 3 is REVISED (the other items stand as recorded at 09:15):
+
+1. **The class selector owns every contest except the 11-entry $20 satellites.** `track: tail` for contests 1–6 and the
+   supersats; class rows dealt deepest line first (Millionaire, $125, $4,444, wildcats, supersats, FFWC qualifier); the
+   mean track keeps only the 11-entry satellites. Gate: the Week-3 rehearsal at the exact ladders.
+2. Class sleeve at 50% of the boom visits (shape as at 09:15). Gate: its 193+ rate on the Week-3 run dir must beat the
+   pool's 0.18% several times over.
+3. Sunday is the build (T-70 pool, T-70 rules, sleeve, class selector); Saturday D12800 is the fallback. Drop the lev batch
+   from the Sunday build.
+4. Late-inactive replacement and the late swap as decided. Cutover Tue; build Wed; rehearsals Thu morning; freeze Thu
+   18:00. Laptop: by Tuesday night, what will not make Thursday.
+
+**Production, done (eada3c47):**
+
+- `scripts/set_contest_tracks.py` now implements the revised rule, not the p98 ladder rule: a contest stays `mean` only
+  when its field (from `dk_contest_details.py`'s JSON) is at most `--mean-max-field` entries (default 20 = the 11-entry
+  satellites); every other contest is `tail`. Because `enter_layout` deals sleeve rows to tail contests in FILE ORDER, every
+  tail contest must carry an integer `priority` (1 = dealt first) and `--write` re-orders the file: mean contests first in
+  their old order, then tail contests by priority. It prints the deal (sleeve rows a–b → contest) so the order is visible
+  before anything is entered. Refuses, contest named: missing from the details file, no ladder/field, tail without
+  priority, shared priorities, `track_override` not mean|tail. `track_override` keeps an operator choice and is disclosed.
+  Seven tests. Names are never consulted.
+- **Week-3 smoke at the operator's Week-3 contest set:** 26 tail contests = 185 sleeve rows; 19 mean contests = 19 entries.
+  **Sizing consequence for the laptop's Wednesday build:** the chain floors mean rows at 90 (`MEAN_ROWS_FLOOR`,
+  `BOOK_ENTRIES`), so a Week-4 book of this shape is 90 + 185 = 275 rows with 71 mean rows entered nowhere. Either the
+  floor drops to the mean track's real need (`enter_layout.MEAN_ROWS_FLOOR`, `week_env.sh` BOOK_ENTRIES ≥ 90,
+  `audit_build_levers.py` book_rows_legal all move together) or the laptop's build spends 71 solves on rows no contest reads.
+  Production's recommendation: drop the floor to the mean track's entry count once the class selector owns the book (item
+  1's gate passing makes the 90-row mean book the fallback, not the product). Laptop's call; not changed here.
+- `sunday_build_host.sh` and `check_week_runtime.py` accept `LIVE_SELECTOR=class`: the pinned clone must expose `"class"`
+  and `--class-model`; `CLASS_MODEL` (json + `.sha256`) is required; `--mean-*` flags (DST cap; tilt only when ≠ 0) still
+  apply; `verify_k90` already accepts `selector_used` class|emax. `week_env.sh` still defaults `LIVE_SELECTOR=dual_emax`;
+  the cutover sets `class` when item 1's gate passes (`tests/test_week_env_defaults.py` pins the defaults, so the cutover
+  edits both).
+- Friday: `python scripts/dk_contest_details.py --contests $OUT/contests.json --out $OUT/contest-details-<date>.json`, then
+  `python scripts/set_contest_tracks.py --contests $OUT/contests.json --details ... --write` after the operator/laptop
+  attaches `priority` per contest (the operator's list above; supersats after the wildcats, FFWC qualifier last). Neither
+  file is ever committed (stake plan).
+
 ## 2026-09-28 (09:28 CDT) — Laptop: items 1 and 2 built (lab `dd0ce98`); both Week-3 gates PASS; item 2's gate is in-sample and says little
 
 **Item 1, `--selector class`** (the whole book; loud fallback to the mean track): lab `ad44584`.
