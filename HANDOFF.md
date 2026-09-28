@@ -11,6 +11,50 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (07:24 CDT) — Laptop: FEASIBILITY of the operator's Week-4 decisions (5435c539) — yes, with one calibration caveat; build order
+
+**1. The class model for the tail seats: feasible by Wednesday night; the rehearsal lands Thursday before 18:00.**
+- **(a) Pre-lock percentile map:**
+  - port L02's field sampler (`experiments/l02_field_sampler.py`, frozen and used in L05/L09–L12) into `nfl2`;
+  - sample the field on the Saturday frame with the Saturday sets file's `pred_own`, and score it with the served means;
+  - `proj_pct` = the percentile of a pool row's projected sum within that sampled field;
+  - receipted: the sets sha256, the sample size, the seed, and the map's quantiles.
+- **(b) Model file:** a production script fits shape-only logistic top-1% (and top-100) on all settled 2026 Millionaire
+  fields. The model is written as JSON (scaler + coefficients, no pickle) with its sha256, and refit each Monday.
+- **(c)** The class path refuses to score unless `--min-proj` is set and no candidate holds a non-player; the chain's
+  build audit refuses the run dir in any case.
+- **(d)** `--tail-sleeve-selector class --class-model <json>`. If the class path fails its own checks, it prints the
+  failure and falls back to `emax` (af828a2 already has `emax`); the receipt names which ran.
+- **(e)** The rehearsal on the shared Week-3 run dir: the model fitted on Weeks 1–2, the pre-lock map, and the seats
+  scored at the real ladders.
+
+**2. The T-70 rules: code feasible Tue–Wed; one calibration caveat on (i).**
+- **(i) Vacated volume.** `cascade_adjust` already redistributes an Out starter's target and carry shares, on the
+  report and on DK late flips.
+  - The review's +1.0 (§5.1) was measured against the replay test bed's `mean_projection`. That projection almost
+    certainly lacks the inference-time cascade (it is built from features alone).
+  - Adding +1.0 on top of the live cascade could double-count.
+  - **Plan:** the bump = the §5.1 per-position target (RB +1.6, TE +1.6, WR +0.7), **minus the cascade's own
+    point effect on that player** (a second projection pass with the cascade off, same frame). It is floored at 0 and
+    applied only to the depth-2 same-position teammate of a depth-1 Out/Doubtful starter.
+  - **Production, one question: does the test bed's `mean_projection` include the inference cascade?** If it does,
+    the net rule reduces to the full table value.
+- **(ii) Haircut off for active Q.** A Q player whose game is within 90 minutes of kickoff and who is not marked
+  O/inactive at the T-70 pull takes the blend without `Q_HAIRCUT`. Late-game Q players keep it.
+- **(iii) Flag rule, late-game Q only:** `live_flagged_positions` flags Q rows only when the player's game starts after
+  the upload.
+- **Tests:** Week-3 T-70 replay (Sadiq and Isaiah Williams must rise; Warren, Bowers, Flowers and Evans lose the
+  haircut; Jalen Coker's early game keeps nothing extra), plus the audit's `t70_rules_effect` check.
+
+**Build order (laptop, Mon–Thu), with the week's other commitments:**
+1. The Week-4 pre-lock smoke and the pin, as soon as the Sunday draft group exists.
+2. The class selector (1a–1e).
+3. The T-70 rules (2).
+4. R4, late-inactive replacement: the ESPN feed is done; a Thursday TNF dry run.
+5. L13 read (about 14:30 today) and L11/L12 reads.
+6. The R5 paper arm, the plain-mean optimizer. **It is the first item to slip to Week 5 if time runs short.**
+
+**Tuesday morning is the cutover.** The operator's steps come first.
 ## 2026-09-28 (07:30 CDT) — OPERATOR DECISIONS on the review (override of the paper-week default; his call)
 
 1. **The Millionaire / FFWC seats ENTER on the class model in Week 4.** Conditions production attaches so this is an
