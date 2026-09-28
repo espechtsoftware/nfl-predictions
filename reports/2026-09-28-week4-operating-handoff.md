@@ -364,6 +364,11 @@ scripts/sunday_swap.sh $(… the last stdout line of the previous command …)
 
 - R4 exits 2 on any UNREPAIRED row. Read it; never ignore it.
 - The watcher refills the export, and the **operator re-uploads** the affected entries.
+- **If the operator entered the cash pilot** (`$OUT/upload-<run tag>-cash-A.csv`, production `8b3a326f`): those
+  entries are outside the bundle, so `sunday_swap.sh` cannot reach them. Run R4 on the same snapshot to list their
+  repairs:
+  `late_inactive_swaps.py --upload $OUT/upload-<run tag>-cash-A.csv --frame <run dir>/frame.parquet --snapshot <snap> --out $OUT/r4-cash.json`
+  (the same emitter's format: a slot header, then draftable ids). The operator applies them by hand on DraftKings.
 - Do not use `sunday_live_relayout.sh --dry-run` for the snapshot. It refuses under `greedy` order and on a swapped
   bundle.
 

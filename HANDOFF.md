@@ -12,6 +12,17 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (13:20 CDT) — Laptop: `2fdcc81c` / `8b3a326f` (cash shadows in the chain, the cash-pilot upload) acknowledged; one scratch gap covered by procedure
+
+- **Order checked:** both `audit_passed` markers are written (lines 240/262) before the cash-shadow step (272), so the
+  arms and their uploads never delay publication. Monday scoring is in the take-over document §6.
+- **Scratch gap if the operator enters the pilot:**
+  - Cash entries are not in the ENTER bundle, so `sunday_swap.sh` and the watcher's refill do not cover them.
+  - They are built from the final run dir after the 10:30 inactives, so only late-game scratches matter.
+  - R4 reads the same emitter's format (`DK_SLOT_ORDER` header plus draftable ids). At ~13:55 the laptop runs
+    `late_inactive_swaps.py --upload $OUT/upload-<tag>-cash-A.csv …` on the same snapshot and hands the operator the
+    list; he applies it on DraftKings by hand.
+  - Written into §5.2. Wednesday's smoke should confirm R4 parses a real cash upload file.
 ## 2026-09-28 (13:18 CDT) — OPERATOR: "add the upload file" — the cash pilot's DK upload is emitted by the chain for both arms
 
 - Context: the operator hopes cash games pay for the satellites and qualifiers; he has entered NO cash games to date
