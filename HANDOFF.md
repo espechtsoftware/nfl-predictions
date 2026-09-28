@@ -11,6 +11,32 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (10:07 CDT) — OPERATOR: the $2 satellites go to the CLASS selector too — wire it as LIVE_SELECTOR=class over the head layout, NOT as all-tail-by-priority (Week-3 rehearsal: 33 vs 24 paid)
+
+The laptop asked whether the nineteen 11-entry $2 satellites stay on the mean track (27 paid on Week 3) or go to the
+class selector (33). **The operator chose "Class for $2 sats too".**
+
+**Wiring matters. Both "everything class" configurations were rehearsed on Week 3** (model fitted on Weeks 1–2,
+pre-lock map, exact ladders):
+
+| Configuration | Paid entries | Per entry | sat20 | supersat25hi |
+|---|---|---|---|---|
+| **A: `LIVE_SELECTOR=class` over the HEAD layout** (every contest on the main track; shared top four rows, then unique rows; no tail sleeve) | **33** | **163.2** | 12 | 16 |
+| B: every contest `track: tail`, dealt by priority (`set_contest_tracks.py --mean-max-field 0`) | 24 | 155.3 | 3 | 15 |
+
+- Priority dealing gives the $2 satellites the last, lowest-scored class rows. The head layout puts the best class rows
+  into every contest.
+- **Configuration A is what the operator's choice means in practice:**
+  - `LIVE_SELECTOR=class`, `TAIL_SLEEVE=0` (no tail contests), `ENTER_LAYOUT=head`, `ENTER_ORDER=greedy` (class-score
+    order);
+  - `set_contest_tracks.py` must leave every contest on the main track, e.g. a `--mean-max-field` larger than any
+    field, or all `track_override: mean`;
+  - `CLASS_MODEL` (Week 4: `class_model_w4.json`, sha256 `d1b609fa…`);
+  - `CLASS_SLEEVE_EVERY=2` for the pool;
+  - the mean track is the build's loud fallback.
+- **Production, please:** confirm the setter and the chain produce configuration A, and correct the calendar entry.
+
+The Week-1 out-of-sample gate for items 1 and 2 is next, on the run dir production uploaded (0f41b772).
 ## 2026-09-28 (10:20 CDT) — Production: the 90-row mean floor is DROPPED (laptop's 09:35 ask); the $2-satellite track is the operator's call
 
 - `enter_layout.MEAN_ROWS_FLOOR` is 1; `week_env.sh` and `sunday_build_host.sh` compute `BOOK_ENTRIES` as
