@@ -37,6 +37,41 @@ def paid_places(details: dict) -> int | None:
     return max(int(t["maxPosition"]) for t in tiers)
 
 
+def decide_by_line(contests: list[dict], details: dict, tail_share: float = 0.02) -> tuple[list[dict], list[str], list[str]]:
+    """Reviewer 2026-09-28 (after the Week-1 gate): every contest is mean-selected on the main track; the contests are
+    ordered by line percentile, deepest line first, so the head layout deals the book's best unique rows to the deepest
+    lines. Contests whose ladder pays at or above the field's (1 - tail_share) percentile are labelled `deep_line: true`
+    (the p98 rule) for the record; `track` stays "mean" for all (no sleeve: the class selector is withdrawn and the lab's
+    other sleeve selectors are not the mean selector)."""
+    decided, lines, problems = [], [], []
+    for c in contests:
+        cid = str(c["contest_id"]); d = details.get(cid)
+        if d is None:
+            problems.append(f"{cid} ({c.get('name')}): not in the details file"); continue
+        field = d.get("max") or d.get("maximumEntries") or d.get("entries")
+        places = paid_places(d)
+        if not field or places is None:
+            problems.append(f"{cid} ({c.get('name')}): field size or ladder missing"); continue
+        if c.get("track_override") not in (None, "mean"):
+            problems.append(f"{cid} ({c.get('name')}): track_override {c.get('track_override')!r} is not a mean-track contest; --rule line has no sleeve"); continue
+        share = places / float(field)
+        n = dict(c); n["track"] = "mean"; n["line_percentile"] = round(100.0 * (1.0 - share), 2); n["deep_line"] = share <= tail_share
+        n["_field"] = int(field)
+        decided.append(n)
+    if problems:
+        return list(contests), lines, problems
+    # deepest line first; ties (same percentile) by the larger field, then file order (stable sort)
+    out = sorted(decided, key=lambda c: (-c["line_percentile"], -c["_field"]))
+    for c in out:
+        c.pop("_field")
+    cursor = 1
+    for c in out:
+        lines.append(f"{str(c.get('name')):14s} {c['contest_id']} line p{c['line_percentile']:.1f}{' DEEP' if c['deep_line'] else '     '} "
+                     f"entries {int(c['entries']):>3} -> main track, dealt #{cursor} (head layout: rows 1-4 shared by every contest, unique rows in this order)")
+        cursor += 1
+    return out, lines, problems
+
+
 def decide(contests: list[dict], details: dict, mean_max_field: int, all_main: bool = False) -> tuple[list[dict], list[str], list[str]]:
     """Returns (contests in the new file order, printout lines, problems). Mean contests keep file order and come first;
     tail contests follow, sorted by priority. With all_main every contest is main-track (track "mean") in file order."""
@@ -92,16 +127,29 @@ def main(argv=None) -> int:
     ap.add_argument("--details", type=Path, required=True)
     ap.add_argument("--mean-max-field", type=int, default=20, help="a field at most this size stays on the mean track (the 11-entry $20 satellites)")
     ap.add_argument("--all-main", action="store_true", help="configuration A (operator 2026-09-28): every contest on the main track; LIVE_SELECTOR=class orders the book")
+    ap.add_argument("--rule", choices=["field", "line"], default="field",
+                    help="field: the 09:50 tail-by-priority rule (needs priority on tail contests); line: reviewer 2026-09-28 after the Week-1 gate -- "
+                         "every contest main-track, ordered deepest line first, deep_line flagged at the p98 rule")
+    ap.add_argument("--tail-share", type=float, default=0.02, help="--rule line: paid places / field at or below this = deep_line (0.02 = the 98th percentile)")
     ap.add_argument("--write", action="store_true")
     a = ap.parse_args(argv)
     raw = json.loads(a.contests.read_text()); contests = raw if isinstance(raw, list) else raw["contests"]
     details = json.loads(a.details.read_text())
-    out, lines, problems = decide(contests, details, a.mean_max_field, all_main=a.all_main)
+    if a.rule == "line" and a.all_main:
+        print("--rule line already puts every contest on the main track; drop --all-main", file=sys.stderr); return 2
+    if a.rule == "line":
+        out, lines, problems = decide_by_line(contests, details, a.tail_share)
+    else:
+        out, lines, problems = decide(contests, details, a.mean_max_field, all_main=a.all_main)
     for ln in lines:
         print(ln)
     if problems:
         print("TRACKS NOT SET: " + "; ".join(problems), file=sys.stderr); return 2
     n_tail = [c for c in out if c["track"] == "tail"]
+    if a.rule == "line":
+        deep = [c for c in out if c.get("deep_line")]
+        print(f"rule line: {len(out)} contests ({sum(int(c['entries']) for c in out)} entries) all mean-selected on the main track, ordered deepest line first; "
+              f"{len(deep)} deep-line contests ({sum(int(c['entries']) for c in deep)} entries) at or above p{100 * (1 - a.tail_share):.0f}; TAIL_SLEEVE=0, ENTER_LAYOUT=head, ENTER_ORDER=greedy")
     if a.all_main:
         print(f"configuration A: {len(out)} contests ({sum(int(c['entries']) for c in out)} entries) all on the main track; "
               f"TAIL_SLEEVE=0, ENTER_LAYOUT=head, ENTER_ORDER=greedy; LIVE_SELECTOR (mean or class, the operator's call) orders the book")

@@ -150,6 +150,36 @@ pre-lock map, exact ladders):
 - **Production, please:** confirm the setter and the chain produce configuration A, and correct the calendar entry.
 
 The Week-1 out-of-sample gate for items 1 and 2 is next, on the run dir production uploaded (0f41b772).
+## 2026-09-28 (11:05 CDT) — OPERATOR (relaying the reviewer): class selector WITHDRAWN for entry; Week 4 = mean selector everywhere + class sleeve; class selector becomes a paper arm; tail contests by line percentile kept; Sunday T-70 build primary
+
+Verbatim: "the laptop's Week-1 test settles it; I withdraw the class selector for entry. Adopt the laptop's
+recommendation: mean selector for every contest, class sleeve on half the boom visits, class selector as a paper arm
+refit Monday on Weeks 1 and 3 only (not the defect week), scored at real lines. Keep: tail contests by line percentile
+with the deepest rows dealt to the deepest lines; the Sunday T-70 build as primary."
+
+**Week-4 entry configuration (the cutover, Tuesday):** `LIVE_SELECTOR=mean`, `ENTER_LAYOUT=head`, `ENTER_ORDER=greedy`,
+`CLASS_SLEEVE_EVERY=2` with `CLASS_MODEL` (the sleeve's shape band still needs the model file), `MEAN_DST_CAP=0.25`,
+`MEAN_OWN_TILT=0`, Sunday `dose.env` with `PAID_LEV=0`, `EXPECT_SHA` at the lab commit carrying `dd0ce98`.
+
+**Class selector paper arm (laptop):** refit Monday on Weeks 1 and 3 only (Week 2 is the availability-defect week), never
+on the entered book; scored at the real lines each week beside the entered mean book. Not an entry lever until a
+prospective, pre-registered read says so.
+
+**Tail contests by line percentile, deepest rows to deepest lines — production's implementation, pending one operator
+answer (below):** `set_contest_tracks.py --rule line` puts every contest on the main track (mean-selected), orders the
+file deepest line first (line percentile descending; ties by the larger field) and flags `deep_line: true` at the p98
+rule. Under the head layout every contest shares the book's top four rows, and the unique rows after them are dealt in
+file order, so the deepest lines receive the best unique mean rows. Week-3 smoke: 21 deep-line contests (131 entries)
+lead the file; the Millionaire (p76.9) is dealt last but, as a 1-entry contest, still takes row 1. No sleeve: the lab's
+remaining sleeve selectors (pline, emax) are not the mean selector, so a `track: tail` sleeve would contradict "mean
+selector for every contest". Eleven tests.
+
+**Open question to the operator (asked 11:05):** whether "tail contests by line percentile" means only this dealing
+order (production's reading, no lab change, the laptop's mean-over-head numbers apply as measured), or a separate
+sleeve for the deep-line contests chosen by the lab's P(total >= line) or expected-max selector (the pre-class design;
+L13 at ~14:30 is the first measurement of exactly those selectors at p99 lines). Until answered the chain is armed for
+the first reading.
+
 ## 2026-09-28 (10:45 CDT) — OPERATOR: the Week-1 class-selector evidence goes to the reviewer before any selector decision
 
 The operator has asked the laptop to package the Week-1 out-of-sample evidence (10:14 entry) for the external reviewer

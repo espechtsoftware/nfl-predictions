@@ -99,3 +99,27 @@ def test_all_main_flag_writes_config_a(tmp_path, capsys):
     assert "configuration A" in capsys.readouterr().out
     got = json.loads(cfile.read_text())
     assert [c["track"] for c in got] == ["mean"] * 4 and got[2]["priority"] == 1   # other fields untouched
+
+
+def test_rule_line_orders_deepest_line_first_all_main_track_with_deep_flags():
+    """Reviewer 2026-09-28 after the Week-1 gate: mean selector for every contest; deepest rows dealt to the deepest lines."""
+    cs = [{k: v for k, v in c.items() if k != "priority"} for c in CONTESTS]
+    out, lines, problems = sct.decide_by_line(cs, DETAILS, 0.02)
+    assert problems == []
+    assert [c["name"] for c in out] == ["supersat", "wildcat", "sat20", "milly"]        # p98.95, p98.73, p90.9, p76.9
+    assert [c["deep_line"] for c in out] == [True, True, False, False] and all(c["track"] == "mean" for c in out)
+    assert lines[0].startswith("supersat") and "dealt #1" in lines[0] and "DEEP" in lines[0]
+    _, _, problems = sct.decide_by_line([dict(cs[0], track_override="tail")] + cs[1:], DETAILS, 0.02)
+    assert problems == ["1 (sat20): track_override 'tail' is not a mean-track contest; --rule line has no sleeve"]
+    _, _, problems = sct.decide_by_line(cs, {k: v for k, v in DETAILS.items() if k != "2"}, 0.02)
+    assert problems == ["2 (wildcat): not in the details file"]
+
+
+def test_rule_line_main_writes_the_order(tmp_path, capsys):
+    cfile = tmp_path / "contests.json"; dfile = tmp_path / "details.json"
+    cfile.write_text(json.dumps({"week": 4, "contests": CONTESTS})); dfile.write_text(json.dumps(DETAILS))
+    assert sct.main(["--contests", str(cfile), "--details", str(dfile), "--rule", "line", "--write"]) == 0
+    assert "rule line:" in capsys.readouterr().out
+    got = json.loads(cfile.read_text())
+    assert got["week"] == 4 and [c["name"] for c in got["contests"]] == ["supersat", "wildcat", "sat20", "milly"]
+    assert sct.main(["--contests", str(cfile), "--details", str(dfile), "--rule", "line", "--all-main"]) == 2
