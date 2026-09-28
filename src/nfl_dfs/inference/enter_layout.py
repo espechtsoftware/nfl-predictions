@@ -58,6 +58,7 @@ from pathlib import Path
 
 LAYOUTS = ("sequential", "top", "head")
 TRACKS = ("mean", "tail")     # per-contest selection track (2026-09-27): satellites by mean, Millionaire seats by tail
+MEAN_ROWS_FLOOR = 90          # the chain never builds fewer mean rows (week_env / sunday_build_host floor); the sleeve starts after them
 ORDERS = ("greedy", "fewest-low")
 HEAD_TOP = 4             # the head rows every contest draws from
 HEAD_SMALL, HEAD_LARGE = 2, 4
@@ -114,7 +115,9 @@ def assign_ranks(contests: list[dict], layout: str) -> list[list[int]]:
     tail_idx = [i for i, t in enumerate(tracks) if t == "tail"]
     if tail_idx:
         mean_out = _head_ranks([contests[i] for i in mean_idx], [sizes[i] for i in mean_idx]) if mean_idx else []
-        k = max((max(r) + 1 for r in mean_out if r), default=0)
+        # The sleeve starts after the mean rows the BUILDER writes, which the chain floors at MEAN_ROWS_FLOOR; a layout
+        # that needs fewer mean rows must still address the sleeve from row 90 (laptop review 2026-09-27).
+        k = max(MEAN_ROWS_FLOOR, max((max(r) + 1 for r in mean_out if r), default=0))
         t_total = sum(sizes[i] for i in tail_idx)
         out: list[list[int]] = [[] for _ in contests]
         for j, i in enumerate(mean_idx):
@@ -376,7 +379,8 @@ def contest_rows(contests: list[dict], n_rows: int, layout: str, perm: list[int]
     # mean rows + sleeve rows; a longer book would put the sleeve on mean-track lineups without anyone noticing.
     t = sleeve_size(contests, layout)
     if t and n_rows != need:
-        raise LayoutError(f"two-track book must hold exactly {need} rows ({need - t} mean + {t} sleeve); it holds {n_rows}")
+        raise LayoutError(f"two-track book must hold exactly {need} rows ({need - t} mean rows, floored at {MEAN_ROWS_FLOOR}, "
+                          f"+ {t} sleeve); it holds {n_rows}")
     return [[perm[r] for r in rs] for rs in ranks]
 
 

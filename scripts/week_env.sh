@@ -106,6 +106,10 @@ week_env() {
   # The live selector. dual_emax is the incumbent (byte-identical default); "mean" is the two-track satellite selector,
   # which the pinned lab commit must support (the arming preflight and the build audit check the receipt).
   export LIVE_SELECTOR=${LIVE_SELECTOR:-dual_emax} TAIL_LINE=${TAIL_LINE:-210}
+  # Q4b (operator 2026-09-27, fail loudly / no fallbacks): players projected below LIVE_MIN_PROJ leave the universe before
+  # generation, so no candidate holds a non-player and none is valued at his upside; the build audit refuses the pool
+  # otherwise. Empty = flag omitted (the pre-Q4b lab pin does not know it; the arming preflight checks support).
+  export LIVE_MIN_PROJ=${LIVE_MIN_PROJ-1.0}
   if [[ -z "$group" ]]; then
     group=$(PYTHONPATH="$PROD/src" "$PROD_PY" "$PROD/scripts/find_main_draft_group.py" --season "$SEASON" --sunday "$SUNDAY") || { echo "week_env: could not detect the Sunday-main draft group for $SUNDAY (set GROUP explicitly)" >&2; return 1; }
   fi

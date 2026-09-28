@@ -126,7 +126,10 @@ def test_market_and_declared_sources_fail_closed(tmp_path):
     assert "declared_sources_present" in res["failed"] and "fp_route_share_l4: column absent" in res["checks"][7]["detail"]
 
 
-def test_selector_tracks_and_book_are_checked(tmp_path):
+def test_selector_tracks_and_book_are_checked(tmp_path, monkeypatch):
+    import sys as _sys; _sys.path.insert(0, str(ROOT / "src"))
+    from nfl_dfs.inference import enter_layout as _el
+    monkeypatch.setattr(_el, "MEAN_ROWS_FLOOR", 5)                     # the chain's 90-row floor, shrunk for a 6-row fixture
     assert "selector_and_tracks" in _audit(_run_dir(tmp_path), expect_selector="mean")["failed"]
     tail = CONTESTS + [{"name": "milly", "contest_id": "9", "entries": 1, "keep": 1, "track": "tail"}]
     lus = [_lineup("A", "B", "C"), _lineup("C", "D", "E"), _lineup("E", "F", "G"), _lineup("G", "H", "A"), _lineup("B", "A", "D"), _lineup("D", "C", "F")]

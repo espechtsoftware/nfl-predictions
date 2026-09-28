@@ -172,6 +172,7 @@ def audit(run: Path, contests: list[dict], *, layout: str, expect_selector: str 
     sleeve_rows = int(sleeve_cfg.get("rows", 0)) if isinstance(sleeve_cfg, dict) else int(sleeve_cfg or 0)
     written = int(receipt.get("written", 0)); opk = int(cfg.get("operational_k", 0) or 0)
     if t:
+        # k_mean already carries the chain's 90-row floor (enter_layout.MEAN_ROWS_FLOOR), so the equality is exact
         tracks_ok = sleeve_rows == t and opk == k_mean and written == k_mean + t and len(book) == written
     else:
         tracks_ok = sleeve_rows == 0 and written == len(book) and written >= k_mean

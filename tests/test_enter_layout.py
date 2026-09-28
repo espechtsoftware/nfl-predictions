@@ -509,3 +509,16 @@ def test_tail_track_contests_take_a_sleeve_after_the_mean_rows():
     assert rows[0] == [K] and rows[-1] == [K + 1, K + 2]
     with pytest.raises(EL.LayoutError, match="exactly"):
         EL.contest_rows(cs, n + 1, "head", list(range(n + 1)))                        # a longer book: sleeve would slide
+
+
+def test_sleeve_starts_after_the_builder_floor_when_the_layout_is_small():
+    """Laptop review 2026-09-27: the chain floors the mean rows at 90, so a small week's sleeve starts at row 90, not at
+    the layout's own count; the book must then hold exactly 90 + T rows."""
+    cs = [{"name": "sat", "contest_id": str(i), "entries": 1, "keep": 1} for i in range(6)] + \
+         [{"name": "milly", "contest_id": "99", "entries": 2, "keep": 2, "track": "tail"}]
+    ranks = EL.assign_ranks(cs, "head")
+    assert max(max(r) for r in ranks[:6]) + 1 == 6 and ranks[6] == [90, 91]
+    assert EL.rows_needed(cs, "head") == 92 and EL.sleeve_size(cs, "head") == 2
+    EL.contest_rows(cs, 92, "head", list(range(92)))
+    with pytest.raises(EL.LayoutError, match="exactly 92"):
+        EL.contest_rows(cs, 93, "head", list(range(93)))            # a longer book: the sleeve would slide

@@ -11,6 +11,34 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (05:25 CDT) — Production: OPERATOR DECISIONS for Week 4; MIN_PROJ passthrough; the 90-row sleeve floor; overnight gap
+
+**Overnight:** VSCode crashed and the workstation was rebooted ~05:12; nothing ran between ~21:05 and 05:15. L06 was
+restarted at 05:16 from its 32 finished slate-banks (driver resumes; new pid in `~/l06-panel/drive.pid`);
+`GCP_PROJECT` was re-set in the user manager; the poll scripts lived in /tmp and are being recreated durably.
+
+**OPERATOR DECISIONS (2026-09-28 early):**
+1. **Adopt for Week 4 (pending the laptop's rehearsal):** selection by mean for the satellites, order by mean
+   (`ENTER_ORDER=greedy`), the Sunday build, the 25% DST cap. YES.
+2. **Ownership tilt: ADOPT** (mean + 0.1 × ownership sum for the mean track; the rehearsal's best; Week-1 chalk evidence).
+   Lab: `--selector mean` needs `--mean-own-tilt 0.1` reading the pre-lock ownership estimate (`own_est` / the sets file
+   source); receipt the λ and the ownership source; the audit's `fade_effect` is unaffected (that check is on
+   `proj_tourney`).
+3. **Tail track:** the contests the operator wants to WIN are the Millionaire, the championship qualifiers, and the $555
+   and $4,444 satellites. Production's call, per the operator ("do as you suggest"): `track: tail` for the Millionaire
+   seats and the FFWC qualifiers (large fields, top-heavy); `mean` for the $555/$4,444 satellites (they pay one ticket
+   to the winner of a few-hundred-entry field — an average-maximising lineup wins those, and the tail sleeve's Week-3
+   picks scored 110–137). Revisit after Q11.
+4. **Vendor data collection:** the operator is upset that 14 of 22 paid vendor tables have no 2026 rows. "Fix that." An
+   investigation of each table's writer and why it stopped is running now; the fix (weekly raw capture of everything
+   he pays for, whether or not a feature uses it) goes on this week's list with the highest priority after the
+   two-track rehearsal.
+
+**Code (this commit):** `MIN_PROJ` (default 1.0) in `week_env`, `--min-proj "$MIN_PROJ"` in the builder call
+(laptop asked for `LIVE_MIN_PROJ`; the name is `MIN_PROJ`, matching `MAX_PER_GAME`); the chain and the arming
+preflight now refuse a pinned clone that does not accept every flag they will send (`--min-proj`, `--tail-sleeve`,
+`--tail-line`, `"mean"`), so an argument-parsing death on Saturday is impossible; the sleeve now starts at
+`max(90, K)` in the layout (`enter_layout.MEAN_ROWS_FLOOR`) and the audit follows it — the laptop's edge case. 90 tests.
 ## 2026-09-28 (00:40 CDT) — Laptop: overnight queue on the laptop — L10 (MAXGAME5) running, L11 (satellite late swap) frozen and queued
 
 | Test | Frozen commit | Banks | Status | Primary |

@@ -91,6 +91,19 @@ def main():
         fail(f"BOOK_ENTRIES={book_entries} + TAIL_SLEEVE={tail_sleeve} cannot satisfy {layout} contest layout (needs {max(90, required_entries)})")
     if tail_sleeve and os.environ.get("LIVE_SELECTOR", "dual_emax") != "mean":
         fail(f"tail-track contests need LIVE_SELECTOR=mean (the two-track builder); got {os.environ.get('LIVE_SELECTOR')!r}")
+    # Every lever the chain will send as a flag must be one the pinned lab clone accepts (operator 2026-09-27: fail here,
+    # at arming, never at Saturday's argument parsing). The clone's live_week.py is the authority.
+    clone = Path(os.environ["CLONE"]) if os.environ.get("CLONE") else None
+    live_week = (clone / "scripts" / "live_week.py") if clone else None
+    if live_week is not None and live_week.is_file():
+        text = live_week.read_text()
+        wanted = []
+        if os.environ.get("LIVE_MIN_PROJ"): wanted.append("--min-proj")
+        if tail_sleeve: wanted += ["--tail-sleeve", "--tail-line"]
+        if os.environ.get("LIVE_SELECTOR", "dual_emax") == "mean": wanted.append('"mean"')
+        missing = [w for w in wanted if w not in text]
+        if missing:
+            fail(f"the pinned lab clone {clone} does not accept {missing}; move EXPECT_SHA to a commit that does, or unset the lever")
     if layout != "sequential":                  # laptop review F2: show every contest's ranks at arming time
         print(f"{layout} layout, {required_entries} distinct lineups:")
         for line in enter_layout.rank_summary(contests, layout):
