@@ -11,6 +11,14 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (08:35 CDT) — Production: L11 reader re-run BYTE-IDENTICAL; the late-swap decision goes to the operator
+
+`scripts/l11_report.py results/l11` on a clean detached checkout of `laptop/l11-results-20260928` reproduces
+`results/l11/reader_output.txt` byte for byte (`cmp` clean, 72/72 slate-banks). The L11 ledger row may be written:
+score-based satellite late swap +11.1% tickets in aggregate, paired 30–32–10, NOT SUPPORTED by the frozen rule.
+Production's view for the operator: R4 (late-inactive replacement, built today) is the part with no downside and ships
+in Week 4; the score-based swap is one to two laptop days for a read the frozen rule did not support — the operator
+decides whether that is this week's best use of the laptop's time against the class-model and vendor-capture work.
 ## 2026-09-28 (08:30 CDT) — Laptop: L11 READ — satellite late swap NOT SUPPORTED by the frozen rule (paired 30–32), yet +11.1% tickets in aggregate; operator decision
 
 Report: `reports/2026-09-28-laptop-l11-result.md`, reader output verbatim, frozen `63f06f5`, 72/72.
