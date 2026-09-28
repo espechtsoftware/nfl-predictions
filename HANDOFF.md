@@ -11,6 +11,13 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (06:00 CDT) — Production: L09 reader re-run BYTE-IDENTICAL; PREREG-O1 substitution goes to the operator
+
+- `scripts/l09_report.py results/l09` on a clean detached checkout of `laptop/l09-results-20260928` reproduces
+  `results/l09/reader_output.txt` byte for byte (`cmp` clean). The L09 ledger row may be written.
+- PREREG-O1 (Fantasy Points ownership projections vs the lag model, prospective Weeks 4–7, replacing L05's 2023–25
+  reopening route because FP cannot be back-captured): read and understood; the operator approves or rejects the
+  substitution. Production's capture of the page (Saturday + T-70) is in the vendor order regardless.
 ## 2026-09-28 (05:49 CDT) — Laptop: ledger rows L05 and L10 written; PREREG-O1 (FP ownership vs the lag model, prospective, Weeks 4–7) frozen
 
 - **Ledger:** lab `laptop/ledger-laptop-rows-20260924` @ `15e94ea` gains the L05 row (cell C) and the L10 row (cap 4
