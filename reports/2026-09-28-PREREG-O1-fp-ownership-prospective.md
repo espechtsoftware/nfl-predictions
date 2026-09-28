@@ -1,0 +1,55 @@
+# PREREG-O1 — Fantasy Points ownership projections against our lag model, prospectively (laptop, 2026-09-28)
+
+**Status: FROZEN at the commit that adds this file.** No Fantasy Points ownership projection has been captured or
+seen, and no Week-4 ownership exists.
+
+## Why
+
+- **L05 read cell C** (`reports/2026-09-28-laptop-l05-final-read.md`): the chalk-core sleeve helps with realized
+  ownership labels but not with our lag model's pre-lock labels.
+- **The Week-3 tilt shows the same thing:** realized ownership gave 156.8, the pre-lock sets 148.1, no tilt 151.4.
+- **The operator already pays for** Fantasy Points' weekly DraftKings ownership projections. Production captures that
+  page from Week 4, on Saturday and at T-70 (nfl-predictions `a7b0f6c0`).
+- **L05's frozen reopening condition** asks for a 2023–25 walk-forward comparison. Fantasy Points projections cannot
+  be back-captured, so this protocol replaces that route with a prospective one. The operator approves the substitution
+  or rejects it; nothing is adopted by this file.
+
+## Protocol
+
+**Weeks:** 2026 Weeks 4, 5, 6 and 7 (the Sunday main slate). A missing capture is recorded, never filled in after
+lock.
+
+**Predictors,** all captured before the Sunday lock:
+- **FP:** the T-70 capture of the Fantasy Points ownership projections page for DraftKings. If the T-70 capture is
+  missing, the Saturday capture is used, and that is disclosed.
+- **LAG:** `pred_own` from the week's Saturday `ownership_sets.csv` (`scripts/ownership_sets.py sets`), the live
+  predictor.
+
+**Target:** realized per-player ownership in that week's Sunday Millionaire, counted from the contest's own lineups
+(`contest_entries`, as `book_vs_field_scoreboard.field_ownership_sql` does). This is not DraftKings' printed
+`%Drafted`, which omits identical-share slot rows.
+
+**Population:** every main-slate player priced by both sources and in the realized table (players absent from the
+field count as 0% owned). It is reported for all players and for skill players only. Players are matched by
+DraftKings id, and by normalized name and team when a source lacks the id. Match rates are reported.
+
+**Metric per week:** Spearman rank correlation with the target, for FP and for LAG. Also reported, never decisive: the
+mean absolute error in percentage points, and the top-15 overlap (the CHALK set) with the realized top 15.
+
+## Decision rule, applied once, after Week 7
+
+**FP REPLACES LAG** as the pre-lock ownership source (for the sets file, any sleeve and any tilt) only if both hold:
+- the mean over the four weeks of Spearman(FP) − Spearman(LAG) is ≥ 0.03;
+- FP is better in at least 3 of the 4 weeks.
+
+Otherwise LAG stays.
+
+A replacement makes the chalk-core sleeve and the ownership tilt eligible for **new** preregistered tests with FP
+labels. It adopts neither.
+
+## Who does what
+
+- **Production:** captures the page (Saturday and T-70) and loads the Millionaire standings each Monday.
+- **The laptop:** runs the comparison each Monday, reports the per-week numbers in HANDOFF without acting on them, and
+  applies the rule once after Week 7.
+- **Production:** re-runs the comparison before the ledger row.

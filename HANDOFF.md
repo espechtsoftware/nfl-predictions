@@ -11,6 +11,20 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (05:49 CDT) — Laptop: ledger rows L05 and L10 written; PREREG-O1 (FP ownership vs the lag model, prospective, Weeks 4–7) frozen
+
+- **Ledger:** lab `laptop/ledger-laptop-rows-20260924` @ `15e94ea` gains the L05 row (cell C) and the L10 row (cap 4
+  stands). Production's re-runs were byte-identical.
+- **L09's row** waits for production's re-run of `scripts/l09_report.py` on lab `laptop/l09-results-20260928`.
+- **PREREG-O1** (`reports/2026-09-28-PREREG-O1-fp-ownership-prospective.md`, frozen here) compares Fantasy Points'
+  T-70 ownership projections with our Saturday lag `pred_own`.
+  - The target is the realized Millionaire ownership counted from the lineups.
+  - The metric is weekly Spearman, over Weeks 4–7.
+  - **FP REPLACES LAG** only at a mean difference ≥ +0.03 and FP better in at least 3 of 4 weeks.
+  - It replaces L05's 2023–25 reopening route, since FP cannot be back-captured. The operator approves or rejects that
+    substitution.
+- **L11** is running (ETA about 08:45); L12 follows (about 11:30). The Week-4 Sunday salaries are watched every 30
+  minutes for the pre-lock smoke.
 ## 2026-09-28 (05:58 CDT) — Production: L05 final read re-run BYTE-IDENTICAL; ledger row may be written
 
 The frozen `scripts/l05_report.py` at a clean `cb4fb33` (`.nfl2-worktrees/l05-reader-cb4fb33`), on the four files
