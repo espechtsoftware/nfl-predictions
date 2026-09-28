@@ -11,6 +11,52 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (08:06 CDT) — Laptop: class model for the tail seats — conditions 1(a)–(e) met; the Week-3 rehearsal with the pre-lock map
+
+**(b) Model file:** `scripts/fit_field_class_model.py` (this commit).
+- Shape-only logistic top-1% and top-100 models on the settled Millionaire fields, written as JSON (scaler +
+  coefficients + intercept, no pickle) with a `.sha256` beside it.
+- Leave-one-week-out lifts are receipted in the file. Refit each Monday with an explicit `--weeks` spec.
+- The laptop's reproduction of the review (all three weeks):
+  - top-1% lift at the model's top 1%: **W1 2.84×, W3 15.9×** (review 1.9×, 16.7×);
+  - **W2 0.0×** (the defect week; the review did not test it).
+  - The model is only as good as that week's projection. The fail-loud audit is the guard.
+
+**(a) Pre-lock percentile map.** The L02 field sampler could not be used.
+- On the Saturday sets' predicted ownership it fails to fill a field under the $50k cap: prediction over-weights
+  expensive players, and 20,000 tries filled 30,769 of 50,000 in 28 minutes.
+- **The map instead:** each field entry's projected sum ÷ that week's salary-legal optimum by served projection (DK
+  rules only) is **stable across clean weeks**: p50 0.884 / 0.885, p90 0.925 / 0.929, p99 0.952 / 0.959 in Weeks 1 and
+  3. Week 2 sits lower (0.835), a defect, and is excluded.
+- The model file carries the pooled ratio quantiles over `--map-weeks`. The live build solves its own frame's optimum
+  (one MILP) and reads proj_pct = F(ratio).
+- Everything is pre-lock: prior weeks are settled, and this week's optimum comes from served projections.
+
+**(c)/(d)** Lab `laptop/two-track-selector-20260927` @ `7d65b65`: `--tail-sleeve-selector class --class-model <json>`.
+- It requires `--min-proj`. Any failure prints `CLASS SELECTOR FAILED (…); the tail sleeve falls back to EMAX`.
+- Receipt `config.tail_sleeve`: `selector_used` and `class{model_sha256, map_weeks, frame_optimum, scores | failure}`.
+- 21 tests pass. The chain's audit still refuses a failing pool.
+
+**(e) Rehearsal on the Week-3 D12800 pool** (`rehearsal_two_track.py --tail-selector …`). Model fitted on the **Week-1
+and Week-2 fields only**, map from **Week 1 only**; mean track as adopted (no tilt, DST cap 0.25); exact ladders; tail
+= milly20, ffwc, ffwc18 (7 sleeve rows):
+
+| Sleeve selector | Seven sleeve rows realized | Paid entries (of 204) | Millionaire best (finish) |
+|---|---|---|---|
+| P(≥210) | 128, 110, 137, 85, 118, 145, 134 | 20 | 137.3 (≈55,900) |
+| EMAX | 128, 85, 117, 179, 93, 132, 127 | 20 | 117.2 (≈106,000) |
+| **class** | **166, 176, 168, 166, 186, 164, 178** | **22** (Millionaire min-cash 1, ffwc18 1) | **167.9 (10,261)** |
+
+One walk-forward week, and the week that most rewarded this shape. My EMAX suggestion (39afa75d) did worst here, and the
+operator's class choice stands on better evidence than it had this morning.
+
+**Chain asks for production (D-list):**
+- `CLASS_MODEL=<json>` in `week_env`;
+- `--tail-sleeve-selector class --class-model "$CLASS_MODEL"` when `TAIL_SLEEVE > 0`;
+- the preflight flag check covers both flags;
+- `verify_k90` accepts `selector_used` = class or emax, and prints which.
+
+The laptop runs the Monday refit.
 ## 2026-09-28 (08:15 CDT) — Production: CUTOVER STATE (laptop request `5fd433b7` B) and requests A/C status
 
 **Operator (relayed by the laptop):** the laptop runs production from this week and going forward; the workstation is

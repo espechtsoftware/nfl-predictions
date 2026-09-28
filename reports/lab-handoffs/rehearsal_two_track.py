@@ -63,6 +63,9 @@ def main() -> None:
     ap.add_argument("--details", type=Path, help="contest details JSON keyed by contest id (payoutSummary ladders): exact paid "
                                                   "places replace the p-quantile line")
     ap.add_argument("--show-value", action="store_true", help="also print payout value per arm (private: never commit it)")
+    ap.add_argument("--tail-selector", choices=["pline", "emax", "class"], default="pline",
+                    help="how the tail sleeve is chosen (live_week --tail-sleeve-selector)")
+    ap.add_argument("--class-model", type=Path, help="with --tail-selector class: the fit_field_class_model.py JSON")
     a = ap.parse_args()
     from nfl2.two_track import load_own_estimates, own_sums, select_tail_sleeve, select_top_mean
     from nfl_dfs.bq import query_df
@@ -139,6 +142,25 @@ def main() -> None:
         fields.append({"cid": cid, "pay": ladders.get(str(cid)), "others": np.sort(g.loc[g.user != me, "points"].to_numpy(float)),
                        "ours": g.loc[g.user == me, "points"].to_numpy(float), "n": len(g)})
 
+    sleeve_note = a.tail_selector
+    class_scores = None
+    if a.tail_selector == "class":
+        from nfl2.class_selector import load_model, pool_features, prelock_map, salary_legal_optimum, score
+        cm, cm_sha = load_model(a.class_model); qs, pm = prelock_map(a.class_model)
+        opt = salary_legal_optimum(fr)
+        class_scores = score(cm, pool_features([list(r) for r in idx], fr, qs, opt))
+        sleeve_note = f"class (model sha {cm_sha[:12]}, map weeks {pm['map_weeks']}, this frame's optimum {opt:.1f})"
+
+    def sleeve_rows(cand: np.ndarray) -> list[int]:
+        if not t_rows:
+            return []
+        if a.tail_selector == "emax":
+            from nfl2.selectors import select_expected_max
+            return [int(cand[j]) for j in select_expected_max(tot[cand], t_rows)]
+        if a.tail_selector == "class":
+            return [int(cand[j]) for j in select_top_mean(class_scores[cand], [rosters[i] for i in cand], t_rows, max_shared=7)]
+        return [int(cand[j]) for j in select_tail_sleeve(tot[cand], t_rows, a.tail_line, [rosters[i] for i in cand])]
+
     def arm_rows(tilt: float, dst_cap: float | None, mean_only_dual: bool = False) -> list[int]:
         cand = np.flatnonzero(playable)
         score = psum[cand] + tilt * osum[cand]
@@ -146,8 +168,7 @@ def main() -> None:
         if dst_cap:
             kw = {"dst_of": [dst_of[i] for i in cand], "dst_cap": max(1, math.floor(dst_cap * k_mean))}
         mean_rows = [int(cand[j]) for j in select_top_mean(score, [rosters[i] for i in cand], k_mean, max_shared=7, **kw)]
-        sleeve = [int(cand[j]) for j in select_tail_sleeve(tot[cand], t_rows, a.tail_line, [rosters[i] for i in cand])] if t_rows else []
-        return mean_rows + sleeve
+        return mean_rows + sleeve_rows(cand)
 
     def paid(p: np.ndarray, f: dict) -> tuple[int, float]:
         """Exact: rank each of our rows among the other entrants and our own rows (1 + strictly higher scores)."""
@@ -192,7 +213,7 @@ def main() -> None:
 
     print(f"pool {len(c)} candidates ({int((~playable).sum())} hold a skill player projected < {a.min_proj}); ownership "
           f"slot coverage {cov:.3f}; layout: {len(contests)} contests, {need} rows = {k_mean} mean + {t_rows} sleeve "
-          f"(tail: {sorted(tail)}); " + ("EXACT payout ladders" if a.details else f"line = field p{a.line_q:g} (11-entry satellites: strict first place)"))
+          f"(tail: {sorted(tail)}, sleeve by {sleeve_note}); " + ("EXACT payout ladders" if a.details else f"line = field p{a.line_q:g} (11-entry satellites: strict first place)"))
     arms = {"ENTERED (as played)": entered,
             "PLAN (mean + tilt + DST cap + sleeve)": score_arm(arm_rows(a.tilt, a.dst_cap)),
             "PLAN without tilt": score_arm(arm_rows(0.0, a.dst_cap)),
@@ -203,6 +224,9 @@ def main() -> None:
               + (f"; Millionaire best {v['milly_best']} (finish {v['milly_best_finish']}), rows >= min-cash {v['milly_cash']}"
                  if v.get("milly_best") is not None else ""))
         print("  by contest type: " + ", ".join(f"{n} {t}" for n, t in sorted(v["by_type"].items())))
+    if t_rows:
+        cand = np.flatnonzero(playable); srow = sleeve_rows(cand)
+        print(f"\nsleeve rows ({a.tail_selector}): realized {[round(float(act[i]), 1) for i in srow]}")
 
 
 if __name__ == "__main__":
