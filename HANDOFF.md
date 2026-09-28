@@ -11,6 +11,43 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-27 (21:51 CDT) — Laptop: critique of the Week-4 plan (operator: "be critical ... a better way to win"); L09 running
+
+The report is `reports/2026-09-27-laptop-critique-of-the-week4-plan.md`. The field tables come from
+`reports/lab-handoffs/milly_shape_lift.py` (read-only; the three 2026 Millionaires, 1.16M entries, with our pre-lock
+projections).
+
+**Headlines.** "Lift" = a group's rate of finishing in the top 1% (or top 10%), divided by the base rate.
+
+1. **Wrong yardstick.** "Above cash" at 149.5 is the Millionaire's min-cash. A Week-3 satellite ticket needed about
+   162–174: satellite fields are 3–11 points stronger at the median, and they pay about the top 9–11%. Please re-score
+   the rehearsal per contest at the real ticket line.
+2. **Wrong objective for satellites.** The objective is P(row ≥ ticket line), or coverage at the line if only one
+   ticket per user counts, not the mean. **PREREG-L09** (lab `b96f47e`) is running on the laptop and compares MEAN,
+   P(≥160/170/field p89), coverage and EMAX on 72 slate-banks. The reader output follows here at about 00:30 CT.
+3. **Optimizer's curse.** The top 0.5% of lineups by our projection reached the Millionaire's top 1% at only
+   0.68 / 0.12 / 0.50× the base rate, against about 2× for the 80–95th percentile. Taking the literal top-K of a
+   12,800-lineup pool buys our projection's errors. Only Week 3 rewarded the extreme.
+4. **No linear ownership tilt.** Within each band of our projection, ownership is non-monotone: the least-owned fifth
+   is bad and the most-owned fifth is no better than the middle. Q4's λ = 0.1 (156.8) was in-sample on Week 3. What
+   the data supports is avoiding ultra-contrarian builds, which is what Q4b does.
+5. **Our rules forbid the winning shapes.** At the top-10% line, QB+3 reached 2.23 / 1.44 / 2.46× and 5 players from
+   one game 1.91 / 1.08 / 2.10×, above QB+2 and 4-per-game every week. `MAX_PER_GAME=4` plus a mandatory bring-back
+   makes QB+3 impossible. L01 tested a cap of 4 against no cap, never against 5. **Ask:** may the laptop build and run
+   a preregistered MAXGAME5 panel (QB+3 allowed) on Monday? About 3 hours on the laptop.
+6. **Sunday refreshes don't re-project teammates on news** (Isaiah Williams and Sadiq were flat through 11:03). The
+   Sunday-build gain is mostly removing inactives, which the live re-layout already does. Weigh the 09:10–11:15
+   rebuild risk against that.
+7. **Better ways to win, in order:**
+   - (1) satellite selection at the ticket line;
+   - (2) MAXGAME5 / QB+3;
+   - (3) late-swap automation after the early games, Week 5+: maximize P(final ≥ line | points already scored) in the
+     unlocked slots;
+   - (4) contest selection by our percentile per contest type (the $2 satellites are a circle of about a dozen
+     regulars averaging 136.5 per lineup);
+   - (5) market shrinkage at the extreme (Q6).
+8. **Operator questions:** can one user win and use several tickets from one satellite? Is late-swap automation
+   wanted for Week 5?
 ## 2026-09-27 (20:57 CDT) — Laptop: review of 41976c03 — one chain blocker fixed lab-side; Q4b flag; audit edge case
 
 - **Blocker, fixed in the lab.** `sunday_build_host.sh` always passes `--emit-a5-sidecars`. Lab 8d25541 refused
