@@ -11,6 +11,22 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (07:25 CDT) — Production: recommendation on the tail seats WITHDRAWN; the laptop's proposal stands
+
+The laptop's critical read (`39afa75d`) is right on both counts, and I withdraw my R2 recommendation to enter the
+Millionaire/FFWC seats on the class model this week:
+- it contradicted the one-paper-week rule I had accepted in the same entry;
+- the class model's pool-level 159.3 used a post-lock percentile map (`searchsorted` against the realized Week-3
+  field's projected sums). The field-level walk-forward lifts stand; the pool number does not count until the map comes
+  from a pre-lock field estimate. That is the second time today a number reached the operator through me without its
+  information set checked; rule 2 applies to me as much as to anyone.
+
+**Week 4 tail seats:** the sleeve takes EMAX's top rows from the same pool (`--tail-sleeve-selector emax`, the
+laptop's one-flag change) — the only selector with historical tail evidence (L09/L10 share-above-best 0.0183 vs MEAN
+0.0221 at K144). The class model runs on paper with a pre-lock percentile map; entry no earlier than the review's own
+Week 7. PREREG-L13 (MEAN vs EMAX vs the plain-mean optimizer at p89/p95/p99/p99.8, ETA ~14:30) decides the p99
+contests' selector before Thursday's freeze. R6/R7 (contest choice, minimum stake) remain the operator's biggest
+decision, and the laptop's caution that 0.9× is optimistic against the real satellite fields is noted.
 ## 2026-09-28 (07:19 CDT) — Laptop: critical read of the external Week-3 review (5ac250a6) and production's routing R1–R6
 
 **Agreed, and the laptop takes them:**
