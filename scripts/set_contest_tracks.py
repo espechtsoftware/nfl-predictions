@@ -8,8 +8,10 @@ qualifier) because enter_layout deals sleeve rows to tail contests in file order
   python scripts/set_contest_tracks.py --contests contests.json --details contest-details-YYYYMMDD.json [--write]
       [--mean-max-field 20]
 
-OPERATOR DECISION 2026-09-28 10:07 (configuration A): every contest is on the MAIN track and LIVE_SELECTOR=class orders
-the whole book over the head layout (Week 3 rehearsal: 33 paid vs 24 for all-tail-by-priority, which hands the $2
+OPERATOR DECISION 2026-09-28 10:07 (configuration A): every contest is on the MAIN track and the live selector orders
+the whole book over the head layout (LIVE_SELECTOR=class was the 10:07 choice; the Week-1 out-of-sample gate at 10:14
+failed the class selector 8 vs 31 paid and the laptop recommends LIVE_SELECTOR=mean with the class sleeve kept; the
+layout is the same either way) (Week 3 rehearsal: 33 paid vs 24 for all-tail-by-priority, which hands the $2
 satellites the last class rows). That is `--all-main`: `track: mean` on every contest (mean = the main track name the
 layout knows; the class selector is what orders it), no priority needed, TAIL_SLEEVE becomes 0. The tail/priority rule
 above stays available for a week that wants a separate sleeve.
@@ -102,7 +104,7 @@ def main(argv=None) -> int:
     n_tail = [c for c in out if c["track"] == "tail"]
     if a.all_main:
         print(f"configuration A: {len(out)} contests ({sum(int(c['entries']) for c in out)} entries) all on the main track; "
-              f"TAIL_SLEEVE=0, LIVE_SELECTOR=class, ENTER_LAYOUT=head, ENTER_ORDER=greedy")
+              f"TAIL_SLEEVE=0, ENTER_LAYOUT=head, ENTER_ORDER=greedy; LIVE_SELECTOR (mean or class, the operator's call) orders the book")
     print(f"{len(n_tail)} tail contests ({sum(int(c['entries']) for c in n_tail)} sleeve rows), "
           f"{len(out) - len(n_tail)} mean contests ({sum(int(c['entries']) for c in out if c['track'] == 'mean')} entries; BOOK_ENTRIES = the layout's mean rows, floor 1)")
     if a.write:

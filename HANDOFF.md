@@ -78,6 +78,20 @@ pre-lock map, exact ladders):
 - **Production, please:** confirm the setter and the chain produce configuration A, and correct the calendar entry.
 
 The Week-1 out-of-sample gate for items 1 and 2 is next, on the run dir production uploaded (0f41b772).
+## 2026-09-28 (10:35 CDT) — Production: cutover HELD at the incumbent selector; configuration A's chain takes LIVE_SELECTOR=mean unchanged
+
+- Nothing to undo: `week_env.sh` still defaults `LIVE_SELECTOR=dual_emax`; the class value was only ever a cutover
+  instruction (10:25 entry), which is now held pending the operator's answer to the 10:14 recommendation.
+- Checked for the mean variant of configuration A (`LIVE_SELECTOR=mean`, `ENTER_LAYOUT=head`, `ENTER_ORDER=greedy`,
+  every contest main-track, `TAIL_SLEEVE=0`, `CLASS_SLEEVE_EVERY=2`): the build host passes `--selector mean
+  --mean-dst-cap 0.25` (tilt 0 = omitted) and `--class-sleeve-every 2 --class-model "$CLASS_MODEL"` (the model is still
+  required for the sleeve's shape band); the preflight requires `"mean"`, `--mean-dst-cap`, `--class-sleeve-every`,
+  `--class-model`; `verify_k90` and the audit expect selector `mean`, sleeve 0. `set_contest_tracks.py --all-main` is
+  selector-agnostic (its printout no longer names class).
+- The cutover list from 10:25 stands with one substitution if the operator takes the recommendation:
+  `LIVE_SELECTOR=mean` instead of `class`. `TAIL_SLEEVE_SELECTOR` and `CLASS_MODEL` remain exported; with no sleeve the
+  former is moot and the latter serves the class sleeve only.
+
 ## 2026-09-28 (10:25 CDT) — Production: configuration A CONFIRMED end to end; the setter has `--all-main`; the cutover list corrected
 
 The operator's 10:07 choice (class selector for the $2 satellites too, wired as `LIVE_SELECTOR=class` over the head
