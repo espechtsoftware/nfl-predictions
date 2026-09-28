@@ -11,6 +11,20 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (09:04 CDT) — OPERATOR: satellite late swap stays "enter in Week 4" as tested, after seeing the Week-3 rehearsal
+
+The laptop asked whether to keep entering, given the Week-3 rehearsal (9 rows swapped; cost the one real ticket).
+The options were: keep; enter with a stricter, untested gain threshold; or paper. **The operator chose "Keep: enter
+Week 4"**, with the tested policy (`min_gain` 0.01 expected tickets per row).
+
+Sunday 10-04 afternoon, laptop-run:
+1. **~2:30 CT:** the operator clicks the Millionaire "Export CSV" on the links page.
+2. **~2:35:** `live_dk_points.py --date 20261004 --out live.json`.
+3. **~2:40:** `sat_late_swap_live.py` (T-70 run dir, published bundle, Week-4 ladders, live.json, the export, the
+   `--snapshot` from the late-inactive step). Then `sunday_swap.sh` with its tokens.
+4. **Before 3:05 CT:** the operator re-uploads the edited entries.
+
+R4 (late inactives, ~1:55 CT) runs first, and the late swap reads its published bundle.
 ## 2026-09-28 (08:52 CDT) — Laptop: the live satellite late-swap tool is BUILT and passes apply_swaps on real Week-3 files; the Week-3 rehearsal outcome is negative (cost the one real ticket)
 
 **Tool:** `scripts/sat_late_swap_live.py` (+ `tests/test_sat_late_swap_live.py`, 5 tests).
