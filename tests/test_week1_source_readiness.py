@@ -797,5 +797,7 @@ def test_upcoming_slate_pool_ignores_draft_groups_whose_first_game_started():
     from nfl_dfs.inference import run_projections
 
     source = inspect.getsource(run_projections.upcoming_slate_features)
-    assert "HAVING MIN(game_start) >= CURRENT_TIMESTAMP()" in source
-    assert "HAVING MAX(game_start) >= CURRENT_TIMESTAMP()" not in source
+    # 2026-09-28: the clock is a parameter (replays pass as_of); live it is CURRENT_TIMESTAMP().
+    assert "HAVING MIN(game_start) >= {clock}" in source
+    assert 'clock = "CURRENT_TIMESTAMP()"' in source
+    assert "HAVING MAX(game_start)" not in source

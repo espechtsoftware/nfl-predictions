@@ -40,7 +40,7 @@ def _canonical_live_team(values: pd.Series) -> pd.Series:
     return normalized.replace(_LIVE_TEAM_ALIASES)
 
 
-def upcoming_slate_features(season: int, week: int) -> pd.DataFrame:
+def upcoming_slate_features(season: int, week: int, as_of: str | None = None) -> pd.DataFrame:
     """Feature rows for the players in the current classic slate, with the
     same point-in-time features the model trained on. Unmatched slate
     players fail loudly — a dropped player is a lineup you can't build.
@@ -53,7 +53,16 @@ def upcoming_slate_features(season: int, week: int) -> pd.DataFrame:
     per group), deduped per player, so any slate — Sunday main, full
     Thu-Mon, afternoon-only — can be built from these projections. A single
     MAX(pulled_at) would pick just one arbitrary group: each group gets its
-    own timestamp within an ingest run."""
+    own timestamp within an ingest run.
+
+    as_of (replays only, 2026-09-28): an ISO UTC instant that stands in for CURRENT_TIMESTAMP() in the clock checks
+    (roster freshness, "the group's first game has not started", and the DK pull used: the last one at or before it),
+    so a settled week can be re-projected as it stood at T-70. None (every live path) keeps CURRENT_TIMESTAMP().
+    Replay limitation: rosters_weekly keeps only the latest pull per week (overwritten after the games), so a replay
+    sees the post-game roster; players marked INA afterwards drop out of the replayed slate."""
+    clock = "CURRENT_TIMESTAMP()"
+    if as_of is not None:
+        clock = f"TIMESTAMP('{pd.Timestamp(as_of).tz_convert('UTC').strftime('%Y-%m-%d %H:%M:%S')}')"
     df = query_df(
         f"""
         WITH current_roster_receipt AS (
@@ -67,7 +76,7 @@ def upcoming_slate_features(season: int, week: int) -> pd.DataFrame:
             COUNT(DISTINCT r.team) = 32
             AND COUNT(DISTINCT r.gsis_id) >= 1000
             AND MAX(r.nflverse_pulled_at) >=
-                TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 72 HOUR)
+                TIMESTAMP_SUB({clock}, INTERVAL 72 HOUR)
               AS receipt_is_valid
           FROM `{settings.raw}.rosters_weekly` r
           JOIN current_roster_receipt x
@@ -140,14 +149,16 @@ def upcoming_slate_features(season: int, week: int) -> pd.DataFrame:
           -- DK's full-week classic group keeps a Monday game (so MAX would keep
           -- it) but stops being pulled once Wednesday's game starts; selecting
           -- it served a stale pool with already-played teams (2026 Week 1).
-          SELECT draft_group_id, MAX(pulled_at) AS ts
+          -- pulls at or before the clock (a no-op live; a replay's as_of reads the pull that existed then)
+          SELECT draft_group_id, MAX(IF(pulled_at <= {clock}, pulled_at, NULL)) AS ts
           FROM eligible_salaries
           GROUP BY draft_group_id
-          HAVING MIN(game_start) >= CURRENT_TIMESTAMP()
+          HAVING MIN(game_start) >= {clock} AND ts IS NOT NULL
         ),
         latest AS (
           SELECT DISTINCT s.dk_player_id, s.display_name, s.salary,
                  s.position AS dk_position, s.team_abbr, s.status, s.dk_ppg,
+                 s.game_start,          -- the T-70 activation rule needs each player's kickoff (2026-09-28)
                  s.draft_group_id, CAST(s.season AS INT64) AS season
           FROM eligible_salaries s
           JOIN pulls p

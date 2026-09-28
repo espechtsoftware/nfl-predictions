@@ -11,6 +11,54 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (08:27 CDT) — Laptop: T-70 rules REHEARSAL on Week 3 — found and fixed a Sunday-breaking gap (no `game_start` in the projection features); Sunday sequencing requirement
+
+**Replay:** `reports/lab-handoffs/t70_rules_replay.py`. It **writes nothing**: `run_projections.load_dataframe` is
+swapped for a guard, and both monitor-log writes were refused and logged.
+- Production's `project()` runs twice, rules off and rules on, with `T70_NOW=2026-09-27T15:50:00Z`, statuses from the
+  last DK pull before the cutoff, and the **live job's environment** (`Q_HAIRCUT=0.80`, `CASCADE_DOUBTFUL=1`,
+  `CASCADE_SKIP_PRICED_CARRIES=1`, `QB_Q_PRIMARY_BACKUP_SCALE=0.20`, read from `gcloud run jobs describe
+  project-slate`).
+
+**1. Bug found and fixed (this commit): `upcoming_slate_features` did not carry `game_start`.**
+- `find_active_questionable` fails closed without it, so **`T70_ACTIVE_Q=1` would never have activated anyone
+  live**.
+- The new audit check (`t70_rules_effect`, declared ON with an early-game Q present) would then have **refused
+  Sunday's build at about 10:50**.
+- Now `latest` selects `s.game_start`.
+- Also: an `as_of` parameter for replays stands in for `CURRENT_TIMESTAMP()` in the clock checks, and the DK pull
+  used is the last one at or before the clock. Both are no-ops live.
+- One source-inspection test was updated to the new contract. `test_week1_source_readiness`, `test_cascade_adjust` and
+  `test_live_smoke` pass.
+
+**2. Results with the fix** (rules ON − OFF; other rows differ only by simulation noise):
+- **Active-Q (early games only):** Warren 11.62 → 14.59 (actual 23.6), Coker 10.03 → 12.58 (3.8), DJ Moore
+  8.32 → 10.45 (12.7), Pittman +1.60, Coleman +1.68, Spears +1.10, Miller +1.02; Lance 0 (backup QB).
+  - **Bowers, Evans and Flowers were late-game Q (3:05 / 3:25 CT kicks)** and correctly keep the haircut.
+  - The review's "ten Q players scored the market's 102" is mostly late-game value, which the operator's T-70 rule
+    does not touch: Bowers 30.6, Flowers 15.4, Evans 12.4.
+- **Vacated bump:** fires for Johnny Mundt only (gross +1.6, cascade +1.19, net +0.41).
+  - **Sadiq:** the depth chart already had him TE1, since Mason Taylor was out all week, so no absent starter
+    existed. That is correct.
+  - **Isaiah Williams:** Mitchell was still **"Q" in the 10:29 CT DK pull**. He turned O at about 10:44, after the
+    hourly pull, so no rule could see it.
+- Replay limitation: `rosters_weekly` keeps only the latest pull per week (Monday's post-game roster), so the replay
+  drops players marked INA afterwards.
+
+**3. SUNDAY SEQUENCING REQUIREMENT (new).** The host DK ingest loop and the cloud `s-dk` pull are **hourly**; on Week 3
+the pull fell at :29. For the T-70 projection to see the 10:30 inactives, a **DK pull must run after the inactives
+and before the T-70 `project-slate`:**
+- 10:32 `nfl-dfs ingest-dk`, one pull on the laptop;
+- 10:35 `gcloud run jobs execute project-slate … --update-env-vars T70_ACTIVE_Q=1,T70_VACATED_BUMP=1 --wait`;
+- 10:50 the build.
+
+The laptop adds this to the Week-4 calendar and to the arm-timer chain.
+
+**4. Deploy:** the `project-slate` image must be rebuilt from integration with D1 and this fix before Saturday. The
+laptop does it Wednesday, after the tests and before the weekly data run.
+
+**5. The Week-4 pre-lock smoke** waits for Wednesday's weekly data run. The Sunday main group **154078** (619 players)
+is posted, but Week-4 features hold only 55 rows (TNF) and there are no Week-4 projections yet.
 ## 2026-09-28 (09:05 CDT) — Production: D1 (T-70 rules) and D2 (late-inactive replacement) BUILT on the integration branch
 
 **D1 — the T-70 rules (operator decision 2), four commits, all default OFF; the Week-4 defaults turn them on in `week_env`:**
