@@ -12,6 +12,62 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (11:49 CDT) — Laptop: the second review's S5 CONFIRMED on the Week-3 pool — dropping lev starves the mean selector; options for the operator; the laptop's read of S1–S11
+
+**S5, measured outcome-free on the Week-3 D12800 pool** (`20260926T153408285093Z-65305f5`):
+- Method: Q4b applied (skill < 1.0 dropped); `select_top_mean`, ≤ 7 shared, DST cap 25%; the mean track's own
+  score (`sel_mean` = the projected sum).
+- **89% of the top-144-by-mean came from the lev rows.**
+
+| Pool the mean selector sees | top-144 projected | top-40 projected | realized (hindsight) top-144 |
+|---|---|---|---|
+| lev 2,560 + boom 9,999 (Saturday D12800) | **130.6** | 131.4 | 151.8 |
+| boom only, 9,999 | 128.2 | 129.7 | 129.9 |
+| boom only, 2,400 (the size of Sunday's plain half) | **126.0** | 128.0 | 129.0 |
+| first 160 lev + boom 2,400 | 126.7 | 128.2 | 134.4 |
+| first 640 lev + boom 2,400 | 127.6 | 130.1 | 135.9 |
+
+- **Dropping lev costs 2.4–4.6 projected points per row at K144.** At the review's ~+6% tickets per point at p89,
+  that is roughly −15% to −28% tickets. The realized gap on Week 3 was −22 points, but that is one week and hindsight.
+- **A small lev batch does not fix it.** `optimize_many` is sequential and deterministic, so the first N rows of the
+  2,560 are exactly what a smaller batch would build. The high-mean lev rows come late in the sequence: 640 recovers
+  only +1.6. At about 5 s per early solve, even 640 does not fit the T-70 window.
+- Week 1's archived pool is a D800 (160/640) and cannot replicate this, so this is one week of evidence. The class
+  sleeve (half the Sunday boom visits) caps its rows' projection at the map's p95 by design, so it will not
+  supply top-mean rows either.
+
+**Consequence:** the armed Sunday configuration (09:10 and T-70 builds both lev 0) feeds the mean selector a pool whose
+top rows project several points below Saturday's. **The operator decides; options, in the laptop's order:**
+1. **The union at T-70:**
+   - The T-70 mean book is selected from the Saturday D12800 candidates, re-scored on the T-70 projections with any row
+     holding an OUT/IR/inactive player dropped, together with the Sunday T-70 pool.
+   - No solver time at T-70: one selection step. It keeps both the lev supply and the T-70 information.
+   - It needs a chain change: a union run dir that the watcher promotes like any other. `r1c_sunday_reselect.py` already
+     re-selects the Saturday pool on T-70 banks.
+   - **Production: is this buildable and testable by Wednesday's smoke / Thursday's freeze?**
+2. **Plain-mean-optimizer rows in the Sunday pool** (review S5 / R5): 144–300 solves in about 3 min, projecting 133.3
+   on Week 3 (above the full pool's 130.6), though they realized 136.5 against the lev-dominated 151.8 that week.
+   **L13's R5 verdict (PMO vs MEAN at p89, 72 slate-banks) lands this afternoon** and decides whether this is
+   supported.
+3. **Saturday D12800 primary:** set `chosen-dose.env` to 2560/10240, with the morning scratch swaps and R4. It keeps
+   the supply but loses the T-70 projection rules. Week 3's mean re-selection of the Saturday pool on Sunday
+   projections realized 148.3 (post-mortem).
+4. **Keep lev 0** only if Wednesday's full-size smoke shows the Sunday pool's top-144 at or above the Saturday
+   D12800's top-144 on the same frame (the review's own kill condition). Wednesday's smoke prints both.
+
+**The laptop's read of the other nominations** (production's premise checks at 11:44 stand):
+- **S8 (a written failure order): agree.** It goes into the take-over document with one amendment: the 09:10 book is
+  also lev 0 unless option 1 or 3 is taken, so "the floor" inherits S5's problem.
+- **S1 (variance-aware P(≥p99) with an empirical Gaussian): agree it is untested.** It is PREREG-L14 on L13's harness
+  after L13 reads; a lab panel, not Week 4.
+- **S3 (LineStar projected ownership):** the laptop checks one pull's payload for a projected field on Tuesday (the
+  harness refused the fetch on 09-22; the operator may need to run it), then L05's reopening test.
+- **S4 (repeat the top rows across the 11-entry sats): the operator's variance choice.** The laptop will run
+  `rehearsal_two_track.py` on Weeks 1 and 3 with (a) unique, (b) top row everywhere and (c) the top four cycled, and
+  post expected tickets.
+- **S11 late-swap guard: keep as tested** (L11's 0.01 threshold); the operator entered it "as tested" (09:04 CDT). The
+  receipt already logs `p_keep`/`p_new` for every row, swapped or not.
+- **S2, S6, S7, S9, S10:** later weeks, as the review sequences them.
 ## 2026-09-28 (11:44 CDT) — Laptop: vendor capture A, C, D MERGED into integration (`685d8055`…`551334bd`); B needs production's protocol decision; E is Tuesday's smoke
 
 Production's order of 05:40 CDT, built on `laptop/vendor-capture-a-e-20260928`. The laptop reviewed it (plan hashes,
