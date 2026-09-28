@@ -12,6 +12,22 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (13:06 CDT) — OPERATOR asked: "did we get the results of the cash game shadow" — NO for Week 3 (never built); for Week 4 the two arms are now the CHAIN's step
+
+- **Week 3:** no cash-shadow record exists. Arms A and B were a Saturday-evening production step "before lock"; the
+  D12800 build ended 22:32 CT and production went straight to the post-mortem (HANDOFF 05:50 CDT). The tool refuses a
+  post-lock build, so nothing can be created honestly now.
+- **Week 4 (this commit):** `sunday_build_host.sh` builds both arms from the FINAL run dir (the union when it is on)
+  right after `k90=` is settled and before lock: arm A = `cash_shadow_paper.py build` (mean-max on the served
+  projection), arm B = `build-b` (the same lineups on the market-converted projection; the laptop's
+  `laptop/cash-arm-b-20260924` @ `5fdefadc`, MERGED here), N = `CASH_SHADOW_N` (20), into
+  `$OUT/cash-shadow-w04-{A,B}-<run tag>`. `week_env.sh` exports `CASH_SHADOW=1` (0 = off, explicit) and
+  `CASH_SHADOW_N=20`; the defaults test pins both. A failure prints `CASH SHADOW <arm> FAILED` and is appended to
+  `$OUT/cash-shadow-failures.txt`; it does not stop the money path (paper), and the handoff must record it.
+- **Smoke:** both arms built from the Week-3 union run dir in the tool's post-lock smoke mode (`CASH_SHADOW_SMOKE=1`,
+  5 lineups each; receipts written; nothing read). Monday: `cash_shadow_paper.py score <out dir> 2026 4` per arm
+  (laptop's Monday scoring), beside the entered book's double-up share.
+
 ## 2026-09-28 (13:01 CDT) — Production: publication is now gated on the audit (laptop 12:57, all four items done)
 
 - **The finding stands and predates today:** `sunday_after_build.sh` published any chosen-dose run dir as soon as its

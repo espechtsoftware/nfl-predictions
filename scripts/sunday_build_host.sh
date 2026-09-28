@@ -265,6 +265,21 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
 fi
 [[ -n "$PAID_DIR" ]] || PAID_DIR=$K90_DIR
 echo "k90=$K90_DIR"
+# 2b. Cash/double-up PAPER shadows, arms A (mean-max on the served projection) and B (the same on the market-converted
+# projection), built from the FINAL run dir before lock, entered nowhere, scored Monday (cash_shadow_paper.py score).
+# Week 3 had none because this was a human evening step; now it is the chain's. A failure is printed in capitals and
+# recorded, and does not stop the money path (paper).
+if [[ "${CASH_SHADOW:-1}" == "1" ]]; then
+  for arm in A B; do
+    CS_OUT="$OUT/cash-shadow-w$(printf '%02d' "$WEEK")-$arm-$RUN_TAG"
+    if ( cd "$PROD" && PYTHONPATH="$CLONE/src:$PROD/src" "$LAB_PY" reports/lab-handoffs/cash_shadow_paper.py \
+           "$( [[ "$arm" == "B" ]] && echo build-b || echo build )" "$K90_DIR" "$CS_OUT" --n "${CASH_SHADOW_N:-20}" > "$CS_OUT.log" 2>&1 ); then
+      echo "cash shadow $arm -> $CS_OUT (from $K90_DIR)"
+    else
+      echo "CASH SHADOW $arm FAILED (see $CS_OUT.log); the money path continues -- record it in the handoff"; echo "cash-shadow-$arm FAILED $RUN_TAG" >> "$OUT/cash-shadow-failures.txt"
+    fi
+  done
+fi
 # The approved Saturday D12800 build may opt into the selection-only Week-3 shadow.  Keep this explicit so fallback and
 # T-70 builds cannot silently replace the live shadow; the wrapper pins CLONE/EXPECT_SHA and refuses an existing output.
 if [[ "${RUN_WEEK3_SHADOW:-0}" == "1" ]]; then
