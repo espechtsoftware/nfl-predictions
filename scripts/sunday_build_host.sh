@@ -203,6 +203,7 @@ verify_k90 "$K90_DIR" || { echo "K90 receipt verification FAILED for $K90_DIR"; 
 ( cd "$PROD" && PYTHONPATH="$PROD/src" "$PROD_PY" scripts/audit_build_levers.py "$K90_DIR" --contests "$CONTESTS_JSON" \
     --layout "${ENTER_LAYOUT:-sequential}" --expect-selector "$LIVE_SELECTOR" ${MAX_PER_GAME:+--expect-max-per-game "$MAX_PER_GAME"} \
     --min-salary "${MIN_LINEUP_SALARY:-49000}" --fade "${AUDIT_FADE:-off}" --sources "${AUDIT_SOURCES:-market_points:0.30,dk_ppg:0.80}" \
+    --t70 "$( [[ "${T70_ACTIVE_Q:-0}" == "1" || "${T70_VACATED_BUMP:-0}" == "1" ]] && echo on || echo off )" \
     --out "$OUT/lever-audit-$RUN_TAG.json" | tee "$OUT/lever-audit-$RUN_TAG.txt" ) || { echo "BUILD AUDIT FAILED for $K90_DIR (see $OUT/lever-audit-$RUN_TAG.txt); refusing the run dir"; exit 1; }
 [[ -n "$PAID_DIR" ]] || PAID_DIR=$K90_DIR
 echo "k90=$K90_DIR"

@@ -27,6 +27,8 @@ The checks (each named in the output):
   declared_sources_present   each declared frame column meets its non-null coverage floor
   selector_and_tracks        receipt selector == expected; tail contests => the receipt's sleeve size and the book's row
                              count equal the layout's mean rows + sleeve rows
+  t70_rules_effect           --t70 on: an absent depth-1 starter must have produced a bumped backup and an early-game
+                             Questionable an activation (the t70_* receipt columns); --t70 off: no trace at all
   book_rows_legal            book rows are unique, complete, and every id is in the frame
 """
 from __future__ import annotations
@@ -53,7 +55,7 @@ def _players_of(cell: str) -> list[str]:
 
 def audit(run: Path, contests: list[dict], *, layout: str, expect_selector: str | None, expect_max_per_game: int | None,
           min_salary: int, punt_max: int, market_floor: float, sources: dict[str, float], fade: str,
-          top_owned: int = 20) -> dict:
+          top_owned: int = 20, t70: str = "off") -> dict:
     fr = pd.read_parquet(run / "frame.parquet")
     cands = pd.read_parquet(run / "candidates.parquet")
     receipt = json.loads((run / "receipt.json").read_text())
@@ -181,6 +183,29 @@ def audit(run: Path, contests: list[dict], *, layout: str, expect_selector: str 
            f"receipt written {written}, operational_k {opk}, sleeve {sleeve_rows}; book rows {len(book)}",
            selector=cfg.get("selector"), mean_rows=k_mean, sleeve=t, written=written, operational_k=opk, book_rows=len(book))
 
+    # ---- t70_rules_effect (operator 2026-09-28): declared ON must leave a trace when there was something to act on;
+    # declared OFF must leave none. The trace is the t70_* receipt columns the projection step writes.
+    has_cols = {"t70_active_q", "t70_vacated_net"} <= set(fr.columns)
+    n_active = int(fr["t70_active_q"].fillna(False).astype(bool).sum()) if has_cols else 0
+    n_bumped = int((pd.to_numeric(fr["t70_vacated_net"], errors="coerce").fillna(0) > 0).sum()) if has_cols else 0
+    st_up = fr["status"].astype(str).str.upper() if "status" in fr else pd.Series("", index=fr.index)
+    absent_starters = int(((pd.to_numeric(fr.get("depth_rank"), errors="coerce") == 1) & st_up.isin(OUT_STATUSES)).sum()) if "depth_rank" in fr else 0
+    early_q = 0
+    if "game_start" in fr and "status" in fr:
+        starts = pd.to_datetime(fr["game_start"], errors="coerce", utc=True)
+        first = starts.min()
+        early_q = int((st_up.isin({"Q", "QUESTIONABLE"}) & (starts == first)).sum())
+    if t70 == "on":
+        ok = has_cols and ((absent_starters == 0 or n_bumped > 0) and (early_q == 0 or n_active > 0))
+        record("t70_rules_effect", ok,
+               f"T-70 rules declared ON: receipt columns {'present' if has_cols else 'ABSENT'}; {absent_starters} absent depth-1 "
+               f"starter(s) -> {n_bumped} bumped backup(s); {early_q} early-game Questionable(s) -> {n_active} activated",
+               absent_starters=absent_starters, bumped=n_bumped, early_q=early_q, activated=n_active)
+    else:
+        record("t70_rules_effect", n_active == 0 and n_bumped == 0,
+               f"T-70 rules declared OFF: {n_active} activated, {n_bumped} bumped (undeclared lever if nonzero)",
+               activated=n_active, bumped=n_bumped)
+
     # ---- book_rows_legal
     frame_ids = set(fr["id"].astype(str)) | set(fr["dk_player_id"].astype(str)) if "dk_player_id" in fr else set(fr["id"].astype(str))
     dup = len(book) - len({tuple(sorted(r)) for r in book})
@@ -207,6 +232,8 @@ def main(argv: list[str] | None = None) -> int:
                     help="comma list of frame_column:min_nonnull_share that must be present")
     ap.add_argument("--fade", choices=["on", "off"], default="off",
                     help="whether an ownership fade is declared ON for this build (the audit checks its trace either way)")
+    ap.add_argument("--t70", choices=["on", "off"], default="off",
+                    help="whether the T-70 rules (T70_ACTIVE_Q / T70_VACATED_BUMP) are declared ON for this build")
     ap.add_argument("--out", type=Path, default=None)
     a = ap.parse_args(argv)
     contests = json.loads(a.contests.read_text()); contests = contests if isinstance(contests, list) else contests["contests"]
@@ -214,7 +241,8 @@ def main(argv: list[str] | None = None) -> int:
     for item in [x for x in a.sources.split(",") if x.strip()]:
         col, floor = item.split(":"); sources[col.strip()] = float(floor)
     result = audit(a.run, contests, layout=a.layout, expect_selector=a.expect_selector, expect_max_per_game=a.expect_max_per_game,
-                   min_salary=a.min_salary, punt_max=a.punt_max, market_floor=a.market_floor, sources=sources, fade=a.fade)
+                   min_salary=a.min_salary, punt_max=a.punt_max, market_floor=a.market_floor, sources=sources, fade=a.fade,
+                   t70=a.t70)
     out = a.out or (a.run / "lever_audit.json")
     out.write_text(json.dumps(result, indent=2) + "\n")
     for c in result["checks"]:

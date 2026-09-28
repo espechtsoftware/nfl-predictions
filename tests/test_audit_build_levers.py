@@ -149,3 +149,17 @@ def test_cli_exits_2_and_writes_a_receipt_on_failure(tmp_path):
     contests = tmp_path / "contests.json"; contests.write_text(json.dumps(CONTESTS))
     rc = ABL.main([str(run), "--contests", str(contests), "--layout", "head", "--min-salary", "40000", "--out", str(tmp_path / "a.json")])
     assert rc == 2 and json.loads((tmp_path / "a.json").read_text())["failed"] == ["candidates_no_nonplayers"]
+
+
+def test_t70_rules_effect_is_checked_both_ways(tmp_path):
+    fr = _frame(); fr["depth_rank"] = 1; fr["game_start"] = "2026-09-27T17:00:00Z"
+    fr.loc[fr["id"] == "ARB0", "status"] = "OUT"                                  # an absent depth-1 starter
+    fr.loc[fr["id"] == "ARB1", "depth_rank"] = 2
+    fr.loc[fr["id"] == "BWR0", "status"] = "Q"                                    # an early-game Questionable
+    base = fr.copy()
+    assert "t70_rules_effect" in _audit(_run_dir(tmp_path, fr=base), t70="on")["failed"]           # ON but no trace columns
+    traced = base.copy(); traced["t70_active_q"] = traced["id"] == "BWR0"; traced["t70_vacated_net"] = (traced["id"] == "ARB1") * 1.15
+    assert "t70_rules_effect" not in _audit(_run_dir(tmp_path / "b", fr=traced), t70="on")["failed"]
+    assert "t70_rules_effect" in _audit(_run_dir(tmp_path / "c", fr=traced), t70="off")["failed"]   # OFF with a trace: undeclared
+    half = base.copy(); half["t70_active_q"] = False; half["t70_vacated_net"] = (half["id"] == "ARB1") * 1.15
+    assert "t70_rules_effect" in _audit(_run_dir(tmp_path / "d", fr=half), t70="on")["failed"]     # bump but no activation
