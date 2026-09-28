@@ -137,7 +137,7 @@ Settled 2026-09-28. The operator relayed the reviewer's ruling at 10:26 CDT (HAN
 
 ---
 
-## 3. What is running now (2026-09-28, Monday 11:30 CDT)
+## 3. What is running now (2026-09-28, Monday 11:19 CDT)
 
 - **Workstation:** the hourly DK loop, still the only DK salary source. Its last pull was 14:57Z today; group 154078 is
   in the warehouse. It is killed at the cutover, before the laptop unit starts (machine-move §3 step 5). **Never run
