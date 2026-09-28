@@ -11,6 +11,41 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (10:29 CDT) — Laptop: the adopted Week-4 configuration REHEARSED on Weeks 3 and 1 (beats the all-main layout both weeks); production wiring list
+
+**Configuration (reviewer/operator, 717c76bf):**
+- **Main track:** mean selector, head layout, for contests below the p98 line.
+- **Tail track:** contests at or above the p98 line (the Millionaire first, then by line depth), with tail rows also by
+  mean.
+- Lab `laptop/two-track-selector-20260927` @ `54dd512` adds `--tail-sleeve-selector mean`.
+
+| Configuration, exact ladders | Week 3 paid (per entry) | Week 1 paid (per entry) |
+|---|---|---|
+| all main, mean, head layout | 20 (152.2) | 31 (159.9) |
+| **adopted: deep lines on the tail by depth, mean rows** | **23 (151.9)** | **40 (163.7)** |
+
+- **Week 3** by type: supersat25hi 12, sat20 6, supersat2 2, supersat25lo 2, ffwc18 1. Tail = milly20, sat13, ffwc,
+  supersat2, supersat25lo, wildcat (132 sleeve rows); main = sat20, supersat25hi, ffwc18.
+- **Week 1:** the Millionaire's 57 on the tail got **27 paid vs 17**; main = Play-Action, FFWC qualifier.
+- Commands: `rehearsal_two_track.py … --main-selector mean --tail-selector mean --tail <deep contests>`, with the sizes
+  ordered main first, then tail by depth.
+
+**Class model, refit on Weeks 1 and 3** (the reviewer: not the defect week): `class_model_w4_w1w3.json`, sha256
+`92cec733…`, in `gs://…/private/week4/`.
+- Leave-one-week-out at field level: W1 5.52×, W3 11.9× (top-1% at the model's top 1%).
+- **Use:** the class sleeve's projection band, and the Sunday class paper arm (computed from Sunday's pool, never
+  entered, scored Monday at real lines).
+
+**Production wiring, please:**
+1. `LIVE_SELECTOR=mean` (not class) and `TAIL_SLEEVE_SELECTOR=mean` → `--tail-sleeve-selector mean`; add it to the
+   preflight flag check.
+2. `set_contest_tracks.py` in **line-percentile mode**, i.e. the p98 rule from this morning, not `--all-main`:
+   - tail when the ladder's paid line is at or above the field's 98th percentile, plus the Millionaire;
+   - tail priority by line depth, the Millionaire first;
+   - main otherwise.
+3. `CLASS_SLEEVE_EVERY=2` with `CLASS_MODEL=class_model_w4_w1w3.json`: the sleeve reads the map from it.
+4. The class paper arm: the laptop writes a small post-build script (`class_paper_arm.py`: class rows from the run dir,
+   written beside it, never uploaded) and scores it on Monday.
 ## 2026-09-28 (10:26 CDT) — OPERATOR (relaying the reviewer): the class selector is WITHDRAWN for entry; the laptop's recommendation is adopted
 
 The reviewer's words, as relayed by the operator: "the laptop's Week-1 test settles it; I withdraw the class selector

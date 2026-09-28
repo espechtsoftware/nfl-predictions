@@ -63,7 +63,7 @@ def main() -> None:
     ap.add_argument("--details", type=Path, help="contest details JSON keyed by contest id (payoutSummary ladders): exact paid "
                                                   "places replace the p-quantile line")
     ap.add_argument("--show-value", action="store_true", help="also print payout value per arm (private: never commit it)")
-    ap.add_argument("--tail-selector", choices=["pline", "emax", "class"], default="pline",
+    ap.add_argument("--tail-selector", choices=["pline", "emax", "class", "mean"], default="pline",
                     help="how the tail sleeve is chosen (live_week --tail-sleeve-selector)")
     ap.add_argument("--class-model", type=Path, help="with --tail-selector class: the fit_field_class_model.py JSON")
     ap.add_argument("--allow-unidentified", action="store_true",
@@ -168,6 +168,8 @@ def main() -> None:
             return [int(cand[j]) for j in select_expected_max(tot[cand], t_rows)]
         if a.tail_selector == "class":
             return [int(cand[j]) for j in select_top_mean(class_scores[cand], [rosters[i] for i in cand], t_rows, max_shared=7)]
+        if a.tail_selector == "mean":
+            return [int(cand[j]) for j in select_top_mean(psum[cand], [rosters[i] for i in cand], t_rows, max_shared=7)]
         return [int(cand[j]) for j in select_tail_sleeve(tot[cand], t_rows, a.tail_line, [rosters[i] for i in cand])]
 
     def arm_rows(tilt: float, dst_cap: float | None, mean_only_dual: bool = False) -> list[int]:
