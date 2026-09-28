@@ -5,8 +5,8 @@ from pathlib import Path
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-from sat_late_swap_live import (Refuse, RowSkip, expand_rows, flat_payout, game_fraction_left, pair_tokens,  # noqa: E402
-                                 paid_places, parse_layout)
+from sat_late_swap_live import (Refuse, RowSkip, expand_rows, flat_payout, game_fraction_left,  # noqa: E402
+                                 late_status_out, pair_tokens, paid_places, parse_layout)
 
 
 def test_expand_rows_and_layout(tmp_path):
@@ -82,3 +82,15 @@ def test_only_flat_payout_contests_get_a_score_line():
     assert flat_payout(sat) and paid_places(sat) == (40, 1000)
     assert not flat_payout(milly) and paid_places(milly) == (230, 1000)
     assert not flat_payout({"payoutSummary": []})
+
+
+def test_late_status_out_matches_the_inactive_tool():
+    import numpy as np
+    import pandas as pd
+    fr = pd.DataFrame({"id": ["a", "b", "c", "d", "e"], "dk_player_id": [1, 2, 3, 4, 5]})
+    late = np.array([True, True, True, False, True])
+    snap = pd.DataFrame({"id": ["1", "2", "3", "4"], "status": ["", "OUT", "Q", "IR"]})   # 5 absent from the feed
+    out, cover = late_status_out(snap, fr, late)
+    assert out == {"b", "e"} and cover == 0.8          # d is IR but early (already locked): not the swap's business
+    snap.loc[2, "status"] = "Injured Reserve"
+    assert late_status_out(snap, fr, late)[0] == {"b", "c", "e"}

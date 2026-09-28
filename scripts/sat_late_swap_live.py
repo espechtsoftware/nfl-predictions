@@ -14,6 +14,10 @@ Live line per contest: the Millionaire field's conditional final-score quantile 
 entries, from the payout ladder), plus the contest type's strength offset (a satellite field is stronger than the
 Millionaire's; Week-3 offsets below, refit each Monday). The field comes from the operator's manual Millionaire
 "Export CSV" click (every entry's lineup). Without it the script refuses (exit 3): no swaps, the entries stand.
+Late inactives: live, a fresh DK status snapshot (--snapshot, `sunday_live_relayout.sh`'s `id,status,game_start` CSV,
+<= 30 min old, covering >= 90% of the frame) is required. A late-game player out by it (O/OUT/IR/D..., or absent from it,
+as in late_inactive_swaps.py) scores 0 in every world and is never swapped in. Run it AFTER late_inactive_swaps.py (R4),
+on the bundle R4's swaps re-published.
 Only flat-payout contests (satellites: every paid place wins the same ticket) get a line. A row that also sits in a
 top-heavy contest (the Millionaire, a cash qualifier) is left exactly as entered and receipted: there the last paid
 place is a min-cash, and chasing it would trade the row's top-prize equity for a safe cash.
@@ -44,7 +48,17 @@ DEFAULT_OFFSETS = {"supersat2": 2.7, "supersat25hi": 0.6, "supersat25lo": 5.3, "
                    "sat13": 3.3, "sat20": 6.5, "ffwc18": 6.0, "ffwc": 23.2, "milly20": 0.0}
 SLOTS = ["QB", "RB", "RB", "WR", "WR", "WR", "TE", "FLEX", "DST"]
 ACCEPTS = {"QB": {"QB"}, "RB": {"RB"}, "WR": {"WR"}, "TE": {"TE"}, "FLEX": {"RB", "WR", "TE"}, "DST": {"DST"}}
-OUT = {"O", "OUT", "IR", "D", "DOUBTFUL"}
+OUT = {"O", "OUT", "IR", "D", "DOUBTFUL", "INJURED RESERVE", "SUSPENDED", "PUP", "NA"}   # = late_inactive_swaps.py
+
+
+def late_status_out(snapshot: pd.DataFrame, fr: pd.DataFrame, late: np.ndarray) -> tuple[set[str], float]:
+    """Late-game frame ids that are out by the live DK status snapshot (id = dk_player_id, status), and the share of
+    frame players the snapshot covers. As in late_inactive_swaps.py a player absent from the snapshot counts as out."""
+    st = dict(zip(snapshot["id"].astype(str), snapshot["status"].fillna("").astype(str).str.upper()))
+    dk = fr.dk_player_id.astype("Int64").astype(str).tolist()
+    ids = fr.id.astype(str).tolist()
+    cover = sum(d in st for d in dk) / max(1, len(dk))
+    return {i for i, d, l in zip(ids, dk, late) if l and (d not in st or st[d] in OUT)}, cover
 ESPN_TO_DK = {"WSH": "WAS", "LAR": "LA", "JAC": "JAX"}
 LAYOUT_RE = re.compile(r"^(?P<name>[A-Za-z0-9_]+)-(?P<cid>\d+): (?P<n>\d+) entries .*?book rows (?P<rows>[\d,\-]+);")
 
@@ -205,6 +219,7 @@ def main() -> int:
     ap.add_argument("--now", default=None); ap.add_argument("--out", type=Path)
     ap.add_argument("--field-limit", type=int, default=20_000); ap.add_argument("--worlds", type=int, default=4_000)
     ap.add_argument("--max-live-age-min", type=float, default=15.0)
+    ap.add_argument("--max-snapshot-age-min", type=float, default=30.0)
     ap.add_argument("--rehearsal", action="store_true", help="replays only: skip the live-snapshot age check (receipted)")
     a = ap.parse_args()
     from nfl2.sat_late_swap import late_world_quantiles, swap_entry
@@ -233,6 +248,24 @@ def main() -> int:
         bank = np.concatenate([inc, hs], axis=1)[:, cols]
         cond, late, crec = conditional_worlds(fr, bank, live, now)
         receipt["worlds"] = {"n": int(bank.shape[1]), **crec}
+        # late inactives: a fresh DK status snapshot is required live; an out late player scores 0 in every world, so
+        # keeping him is valued honestly and he is never swapped in
+        if a.snapshot is None or not a.snapshot.is_file():
+            if not a.rehearsal:
+                raise Refuse("no DK status snapshot (--snapshot): late inactives unknown; NO SWAPS (the entries stand)")
+            status_out, cover = set(), None
+        else:
+            if not a.rehearsal:
+                sage = (datetime.now(timezone.utc).timestamp() - a.snapshot.stat().st_mtime) / 60
+                if sage > a.max_snapshot_age_min:
+                    raise Refuse(f"DK status snapshot is {sage:.1f} min old (limit {a.max_snapshot_age_min}); take a fresh one")
+            status_out, cover = late_status_out(pd.read_csv(a.snapshot, dtype=str), fr, late)
+            if cover < 0.9:
+                raise Refuse(f"DK status snapshot covers {cover:.1%} of the frame's players; take a full one")
+        for i in status_out:
+            cond[fr.index[fr.id.astype(str) == i][0]] = 0.0
+        receipt["late_out"] = {"snapshot_cover": None if cover is None else round(cover, 4),
+                               "players": sorted(fr.set_index(fr.id.astype(str)).loc[sorted(status_out), "name"].astype(str))}
         # field and lines
         fidx, frate = field_lineups(a.field_export, fr, a.field_limit, 7)
         if frate < 0.95 or len(fidx) < 1000:
@@ -258,11 +291,6 @@ def main() -> int:
         id_to_dd = {v: k for k, v in dd_to_id.items()}
         pos = dict(zip(ids, fr.pos.astype(str)))
         dd_salary = dict(zip(fr.dk_draftable_id.astype("Int64").astype(str), pd.to_numeric(fr.salary, errors="coerce").fillna(99_999)))
-        status_out = set()
-        if a.snapshot and a.snapshot.is_file():
-            sn = pd.read_csv(a.snapshot, dtype=str)
-            dk2id = dict(zip(fr.dk_player_id.astype("Int64").astype(str), ids))
-            status_out = {dk2id[i] for i, s in zip(sn["id"], sn["status"]) if str(s).upper() in OUT and i in dk2id}
         rec = fr.assign(id=fr.id.astype(str))[["id", "name", "pos", "team", "opp", "game_id", "salary", "proj"]].to_dict("records")
         players = {r["id"]: r for r in rec}
         late_ids = {i for i, l in zip(ids, late) if l}
