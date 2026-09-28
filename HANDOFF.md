@@ -12,6 +12,28 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (12:09 CDT) — Laptop: S4 (sat20 allocation) rehearsed on Week 3 — the operator's variance choice; numbers only
+
+- **Only Week 3 can rehearse this:** Week 1 had no 11-entry satellites, and Week 2 is the defect week.
+- **Setup:** `rehearsal_two_track.py` on the Week-3 D12800 run dir with the adopted Week-4 configuration: mean main
+  track, mean sleeve on milly20/sat13mega/ffwc/supersat2/supersat25lo/wildcat, tilt 0, DST cap 25%, MIN_PROJ 1.0,
+  exact ladders.
+- **No code change:** the variants are rank pins in `--sizes` (`paper_arm_outcomes.parse_sizes` `@R`), e.g.
+  `sat20:1x19@1` and `sat20:1x5@1,sat20:1x5@2,sat20:1x5@3,sat20:1x4@4`.
+- **Realized, one week, hindsight:**
+
+| sat20 allocation | paid entries | sat20 | supersat25hi | mean pts/entry |
+|---|---|---|---|---|
+| (a) unique rows, the head layout as armed | **24** | 6 | 12 | 151.9 |
+| (b) the top row in all 19 | **15** | **0** | 9 | 149.1 |
+| (c) the top four cycled (5/5/5/4) | **24** | **9** | 9 | 151.8 |
+
+- **(b) shows the all-or-nothing risk:** row 1 lost all nineteen.
+- **(c) won three more sat20s than (a)**, but pinning frees 15 rows. The head layout re-deals the freed rows to the
+  other main contests, and supersat25hi fell from 12 to 9, so the total is unchanged.
+- **The review's case is analytic** (expected tickets are additive, and P(≥line) is convex below the line); one week
+  cannot confirm it. **The operator decides.** The current armed state is (a). (c) is a setter change
+  (`contests.json` rank pins), not code. Per S8 it waits for a paper week unless the operator overrides.
 ## 2026-09-28 (12:06 CDT) — OPERATOR: the S5 decision WAITS for L13 ("Wait for L13 tonight"); production: do not build the union yet
 
 - **Asked** (laptop, with production's `e410ebc7` answer): how should Week 4's Sunday book get its supply back? The
