@@ -290,6 +290,19 @@ Operator steps are marked **(operator, laptop)**. Everything else is the agent's
 
 ## 5. The Sunday money path (10-04)
 
+### 5.0 The failure order (second review S8, agreed 09-28): what may fail and what stands
+
+1. **The 09:10 book is the floor.** It is uploaded if anything after it fails. **Open (S5, HANDOFF 09-28):** with lev
+   0 it selects from a weaker pool than Saturday's. The operator's choice among the union at T-70, PMO rows, the
+   Saturday D12800 as primary, or keeping lev 0 decides what the floor is.
+2. **The T-70 build replaces it only if its input gate and audit pass.** A refusal is a normal outcome, not an
+   incident.
+3. **The class sleeve is the first thing to switch off** (`CLASS_SLEEVE_EVERY=0`) if Wednesday's smoke is slow or the
+   sleeve's projection band is empty on the Week-4 frame.
+4. **R4 runs.** The satellite late swap runs only if Thursday's TNF dry run passed end to end, including the edit
+   upload, and only on flat-payout rows (the tool enforces the latter).
+5. **No other entry-path change enters this week,** whatever Monday's paper numbers say.
+
 ### 5.1 Morning (CT)
 
 | Time | What | Who |
@@ -446,7 +459,7 @@ arms it as a timer (`T70_PROJECT=1`).
 |---|---|---|
 | 1 | **The mid-slate Millionaire export is unverified**, and the late swap depends on it | Thursday TNF dry run; without it the script refuses and the entries stand |
 | 2 | **The afternoon edit upload** (fill of an edit-entries export after lock) has never been rehearsed on this chain | Thursday dry run; the watcher now runs to 15:20 CT |
-| 3 | **A new generator (lev 0 + class sleeve) and a new selector (mean) on the laptop's first week as host** | Wednesday's full-size smoke; the audit and preflight fail closed; the 09:10 book is an automatic fallback |
+| 3 | **A new generator (lev 0 + class sleeve) and a new selector (mean) on the laptop's first week as host.** S5: on Week 3 a lev-0 pool's top-144 projects 2.4–4.6 below Saturday's (HANDOFF 09-28) | Wednesday's full-size smoke; the audit and preflight fail closed; the 09:10 book is an automatic fallback |
 | 4 | **The FP ownership `collect` has never loaded a row**; it needs a second FP login | Tuesday login + `inspect`; the first `collect` on Friday |
 | 5 | **Vendor capture:** A, C and D merged 09-28, untested live; B (SIS receiver copula) not built | Tuesday smoke (E); Wednesday's `PAID PAGES` line; B awaits production's protocol decision |
 | 6 | **Contest selection and stake: TBD** (operator) | L13 and the review's §2 table are the inputs |
