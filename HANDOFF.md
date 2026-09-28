@@ -11,6 +11,21 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (09:19 CDT) — Laptop: Week-4 class model fitted (Monday refit); PREREG-L13 (selectors at p99; plain-mean optimizer) frozen and queued
+
+- **Class model for Week 4:** `fit_field_class_model.py`, all three settled Millionaires (1.17M entries); pre-lock map
+  from the clean Weeks 1 and 3 (optima 138.99 and 139.04).
+  - Stored at `gs://nfl-predictions-503414-raw/private/week4/class_model_w4.json`, sha256 `d1b609fa…8c`.
+  - Chain: `CLASS_MODEL=<local copy>`, with `--tail-sleeve-selector class --class-model "$CLASS_MODEL"` when
+    `TAIL_SLEEVE > 0` (production's D-list ask, 4a0b8c84).
+- **PREREG-L13** (lab `laptop/l13-p99-selectors-20260928` @ `5d3aaa9`, frozen):
+  - arms: EMAX, MEAN, PMO (the review's plain-mean optimizer, 144 MILP rows) and PMO_X50 (50% exposure cap);
+  - tickets at the realized field p89, p95, **p99** and p99.8;
+  - verdicts: LEADER AT P99 / NO CLEAR LEADER; PMO and PMO_X50 vs MEAN at p89, SUPPORTED / NOT;
+  - queued after L12 on the laptop; ETA about 14:30 CT.
+  - The smoke showed PMO very concentrated (one player in 137 of 144 rows at 5% scale). That is exactly what the
+    X50 arm measures.
+- **Inputs for the operator's R6/R7 contest and stake decision:** L13, and the review's §2 table.
 ## 2026-09-28 (09:04 CDT) — OPERATOR: satellite late swap stays "enter in Week 4" as tested, after seeing the Week-3 rehearsal
 
 The laptop asked whether to keep entering, given the Week-3 rehearsal (9 rows swapped; cost the one real ticket).
