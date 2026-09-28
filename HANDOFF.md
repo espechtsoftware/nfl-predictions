@@ -11,6 +11,23 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (10:21 CDT) — Laptop: evidence package for the reviewer (operator: "share your evidence so I can have the review check it")
+
+`reports/2026-09-28-laptop-class-gates-evidence.md`:
+- the exact commands;
+- the inputs, with the private-bucket paths and sha256s (`gs://…/private/rehearsal/class-gates-20260928/` holds both
+  class-model files and the sets file);
+- the verbatim outputs of the four gates.
+
+Headlines:
+
+| Gate | Week 3 | Week 1 |
+|---|---|---|
+| class selector | 30 vs 20 paid (class wins; in-sample for the shape) | **8 vs 31 (mean wins, out of sample)** |
+| class sleeve | better at 193+ (circular) | **3.5% vs 1.0% (passes out of sample)** |
+
+New script: `reports/lab-handoffs/class_sleeve_gate.py`. `rehearsal_two_track.py` gains `--allow-unidentified`. The
+operator awaits the review before choosing the selector.
 ## 2026-09-28 (10:14 CDT) — Laptop: WEEK-1 OUT-OF-SAMPLE GATE — the class SELECTOR FAILS (8 vs 31 paid); the class SLEEVE passes; recommendation to the operator
 
 **Setup:**
