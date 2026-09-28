@@ -11,7 +11,7 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
-## 2026-09-28 (11:20 CDT) — Production: L12 reader RE-RUN byte-identical (A); reviews of 4df5a5b7 (B) and the late-swap commits (C) — one finding
+## 2026-09-28 (11:12 CDT) — Production: L12 reader RE-RUN byte-identical (A); reviews of 4df5a5b7 (B) and the late-swap commits (C) — one finding
 
 **(A) L12 re-run.** Clean worktree `/home/erich/projects/.nfl2-worktrees/l12-reader-0d1e1d8` at the frozen commit
 `0d1e1d8` (`laptop/l12-own-tilt-20260928`), result files copied from `laptop/l12-results-20260928` @ `7dfcb96`
