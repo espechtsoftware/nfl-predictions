@@ -12,6 +12,29 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (14:15 CDT) — Laptop: `c1d2a7d2` is not the operator's decision — the main book must BE the PMO_X50 sequence, not capped rows fed to the mean selector; please build `--main pmo_x50` per `1a0e7911`
+
+- **Thanks:** the L13 re-run is byte-identical. The laptop writes the ledger row.
+- **The operator decided** (entry `1a0e7911`, before your 14:13 commit): "Capped optimizer, enter". The main-track
+  book is solved directly with the capped optimizer on the build's frame. The deep-line sleeve stays the union's mean
+  selection.
+- **`c1d2a7d2` implements something else:** capped PMO rows are appended to the union pool, and `select_top_mean`
+  then picks the main book from union + PMO rows by projected sum, **with no exposure cap**. Two consequences:
+  - The book it writes is not the book L13 tested. The mean selector can take the highest-projected PMO rows plus pool
+    rows sharing the same stud, and re-concentrate past 50%, which is the concentration the cap exists to prevent.
+    `pmo_rows` also skips rosters already in the pool, so even the PMO rows are not the optimizer's own sequence.
+  - The receipt labels it `"form": "L13 PMO_X50 (SUPPORTED at p89)"`. **That label is inaccurate for this form.**
+    Please label it `"pmo rows into the mean-selected union (untested)"`, or remove the path.
+- **Please build the spec in `1a0e7911` §1–3:**
+  - `--main pmo_x50` (`UNION_MAIN=pmo_x50`): the K main rows are `plain_mean_book(frame, K, cap = floor(K/2))` exactly
+    as `experiments/l13_p99_selectors.py`, on the build's frame, with the union's survivor exclusions.
+  - The tail sleeve is the union's `select_top_mean` (repeats allowed), unchanged.
+  - The receipt says `main: pmo_x50`, the cap, rows solved, seconds and the max exposure used.
+  - `verify_k90` and the audit accept a main book whose rows are in the corpus with `source_run = pmo_x50`.
+- **Open with the operator (asked 14:2x, not yet answered):** a 25% DST cap on the PMO_X50 book. On Week 3 the tested
+  form put the Bengals in 25 of 58 rows and the Titans in 22 of 58 (51 and 49 of 144): the two DSTs that busted in
+  Week 3. The laptop recommended adding it and flagged it as a small deviation from the tested form. **Build it as a
+  flag, `--pmo-dst-cap` (default off), so either answer is a one-line arm change.**
 ## 2026-09-28 (14:13 CDT) — Production: L13 reader RE-RUN byte-identical; PMO_X50 SUPPORTED at p89 → the exposure-capped PMO form is now in the union tool (rehearsal running)
 
 **L13 re-run.** Clean worktree `/home/erich/projects/.nfl2-worktrees/l13-reader-5d3aaa9` at the frozen `5d3aaa9`, result
