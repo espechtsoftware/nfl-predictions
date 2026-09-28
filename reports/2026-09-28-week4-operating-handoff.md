@@ -193,7 +193,10 @@ Operator steps are marked **(operator, laptop)**. Everything else is the agent's
    - SIS-only rerun: `nfl-weekly-data run --week 4 --skip-fantasy-points --skip-odds --skip-matchups --no-login-if-needed`.
 2. **Rebuild the `project-slate` image from the integration branch**, which carries D1 and the `game_start` fix (§8).
    Then `gcloud run jobs update`, one execution **(operator)**, and the proof lines.
-3. **The Week-4 pre-lock smoke on group 154078**, at full size, from a clean detached lab worktree at 54dd512:
+3. **The Week-4 pre-lock smoke on group 154078**, at full size. It needs Week-4 inputs first. On 09-28 the input gate
+   read 0 projection rows, no market batch and no TabPFN rows for Week 4, so the operator runs the refresh trio
+   (build-features → tabpfn-gen `TABPFN_UPCOMING=2026:4` → project-slate) after the new image is live. The clone is a
+   clean detached lab worktree at 54dd512 (created 09-28):
    ```
    git -C ~/projects/nfl2 worktree add --detach ~/projects/.nfl2-worktrees/week4-live-center 54dd5126be04020a2267dc41a0ef1504d1415296
    ```
@@ -201,7 +204,12 @@ Operator steps are marked **(operator, laptop)**. Everything else is the agent's
    - Check the receipt and the audit (`audit_build_levers.py`, `t70_rules_effect`).
    - Then move `week_env.sh`'s `CLONE`/`EXPECT_SHA` defaults to it, with `tests/test_week_env_defaults.py`'s pin and
      lineage assertion.
+   - Already checked on 09-28 with placeholder contests: both `check_week_runtime.py` preflights pass on this clone
+     (build and watchers; the head layout printed; the class model json + `.sha256`; `chosen-dose.env` 0/4800).
+     Export `OUT`/`CLONE`/`EXPECT_SHA` before calling `week_env`: bash `VAR=x week_env` assignments revert when the
+     function returns.
 4. `$OUT/class_model.json` + `.sha256` from `gs://…/private/week4/class_model_w4_w1w3.json` (sha256 `92cec733…`).
+   Regenerate the `.sha256` under the installed name (`sha256sum class_model.json > class_model.json.sha256`).
    `sunday_build_host.sh` exits 1 without both files.
 
 ### Thursday 10-01
