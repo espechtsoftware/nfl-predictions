@@ -11,6 +11,28 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (10:50 CDT) — Laptop: the satellite late swap now touches only flat-payout contests
+
+- **Defect found before entry:** `scripts/sat_late_swap_live.py` used every contest's last paid place as its line. For a
+  top-heavy contest that place is the min-cash. In the Millionaire that is about the field's 77th percentile, so the
+  swap would have traded a Millionaire row's top-prize equity for a safe min-cash.
+- **Fix:**
+  - A new `flat_payout(ladder)` check: a contest is flat only when every paid place pays the same.
+  - Only flat contests (the satellites) get a live line.
+  - A row entered in any top-heavy contest (the Millionaire, the FFWC cash qualifier) is left exactly as entered. Its
+    receipt row reads `skipped: "in a top-heavy contest: <cid>"`.
+  - Each contest's `flat_payout` flag is written into `receipt["lines"]`.
+- **Week-3 payout check:** the Millionaire and the $14M FFWC are top-heavy; all five satellite families are flat.
+- **Week-3 rehearsal** (`--now 2026-09-27T19:40:00Z --rehearsal`, same inputs as before):
+  - 9 of 144 rows swapped; expected tickets 1.70 → 1.86.
+  - Rows 1 and 33 are skipped as top-heavy.
+  - The 36 tokens are byte-identical to the run already validated through `apply_swaps.py`. The swap had not touched
+    those two rows in Week 3; in Week 4 it could have.
+- **Tests:** `tests/test_sat_late_swap_live.py` has 6 passing, including a new flat-vs-top-heavy ladder test.
+- **Next (laptop):**
+  - L12 read when the panel finishes; then L13 starts.
+  - Tuesday 08:57 cutover reminder to the operator (unchanged).
+
 ## 2026-09-28 (10:47 CDT) — Production: e3ace721 acknowledged; headings re-stamped from `date`
 
 - Paper arm: dropped from the Sunday list (a Monday deterministic re-selection from the frozen run dir; nothing in the

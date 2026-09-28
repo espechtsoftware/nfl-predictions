@@ -5,7 +5,8 @@ from pathlib import Path
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-from sat_late_swap_live import Refuse, RowSkip, expand_rows, game_fraction_left, pair_tokens, parse_layout  # noqa: E402
+from sat_late_swap_live import (Refuse, RowSkip, expand_rows, flat_payout, game_fraction_left, pair_tokens,  # noqa: E402
+                                 paid_places, parse_layout)
 
 
 def test_expand_rows_and_layout(tmp_path):
@@ -70,3 +71,14 @@ def test_unrealizable_row_is_skipped_not_fatal():
     row = cells(i5="dc")
     with pytest.raises(RowSkip):
         pair_tokens(9, row, ["c"], ["m"], DD, POS, sal)    # 45,000 - 1,000 + 15,000 > 50,000
+
+
+def test_only_flat_payout_contests_get_a_score_line():
+    def ladder(*tiers):
+        return {"entries": 1000, "payoutSummary": [{"minPosition": a, "maxPosition": b, "payoutDescriptions": [{"value": v}]}
+                                                   for a, b, v in tiers]}
+    sat = ladder((1, 40, 20.0), (41, 1000, 0.0))                       # every paid place wins the same ticket
+    milly = ladder((1, 1, 1000000.0), (2, 10, 500.0), (11, 230, 30.0))  # top-heavy: the last paid place is a min-cash
+    assert flat_payout(sat) and paid_places(sat) == (40, 1000)
+    assert not flat_payout(milly) and paid_places(milly) == (230, 1000)
+    assert not flat_payout({"payoutSummary": []})

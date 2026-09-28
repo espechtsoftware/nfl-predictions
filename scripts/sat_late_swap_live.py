@@ -14,6 +14,9 @@ Live line per contest: the Millionaire field's conditional final-score quantile 
 entries, from the payout ladder), plus the contest type's strength offset (a satellite field is stronger than the
 Millionaire's; Week-3 offsets below, refit each Monday). The field comes from the operator's manual Millionaire
 "Export CSV" click (every entry's lineup). Without it the script refuses (exit 3): no swaps, the entries stand.
+Only flat-payout contests (satellites: every paid place wins the same ticket) get a line. A row that also sits in a
+top-heavy contest (the Millionaire, a cash qualifier) is left exactly as entered and receipted: there the last paid
+place is a min-cash, and chasing it would trade the row's top-prize equity for a safe cash.
 
     PYTHONPATH=$CLONE/src:$PROD/src python scripts/sat_late_swap_live.py --bundle <published bundle dir> \\
         --run-dir <T-70 run dir> --details contest-details.json --live-points live.json --field-export milly.csv \\
@@ -74,6 +77,15 @@ def parse_layout(path: Path) -> list[dict]:
     if n_lines != len(out):
         raise Refuse(f"{path}: parsed {len(out)} of {n_lines} contest lines")
     return out
+
+
+def flat_payout(ladder: dict) -> bool:
+    """True when every paid place pays the same (a satellite's tickets). The score-based swap maximizes P(final >= the
+    last paid place), which is the right objective only then: for a top-heavy contest (the Millionaire, a cash-and-seat
+    qualifier) it would steer rows toward a safe min-cash."""
+    vals = {round(float(x.get("value", 0) or 0), 2) for t in ladder.get("payoutSummary", [])
+            for x in t.get("payoutDescriptions", []) if float(x.get("value", 0) or 0) > 0}
+    return len(vals) == 1
 
 
 def paid_places(ladder: dict) -> tuple[int, int]:
@@ -238,7 +250,8 @@ def main() -> int:
             q = 1 - paid / n
             lines[c["cid"]] = float(np.quantile(ftot, q)) + float(offsets.get(c["name"], 0.0))
         receipt["field"] = {"entries": int(len(fidx)), "slot_match": round(frate, 4)}
-        receipt["lines"] = {c["cid"]: {"name": c["name"], "line": round(lines[c["cid"]], 2)} for c in layout}
+        flat = {c["cid"]: flat_payout(det[c["cid"]]) for c in layout}
+        receipt["lines"] = {c["cid"]: {"name": c["name"], "line": round(lines[c["cid"]], 2), "flat_payout": flat[c["cid"]]} for c in layout}
         # rows
         ids = fr.id.astype(str).tolist(); row_of = {i: k for k, i in enumerate(ids)}
         dd_to_id = dict(zip(fr.dk_draftable_id.astype("Int64").astype(str), ids))
@@ -263,6 +276,10 @@ def main() -> int:
         for rno, cells in enumerate(upload, start=1):
             cids = contests_of_row.get(rno)
             if not cids:
+                continue
+            if not all(flat[c] for c in cids):             # a row in a top-heavy contest stays as entered (receipted)
+                per_row.append({"row": rno, "contests": cids, "swapped": False, "p_keep": None, "p_new": None,
+                                "skipped": "in a top-heavy contest: " + ",".join(c for c in cids if not flat[c])})
                 continue
             rid = [dd_to_id[c] for c in cells[:9]]
             slots = {pid: SLOTS[k] for k, pid in enumerate(rid)}
