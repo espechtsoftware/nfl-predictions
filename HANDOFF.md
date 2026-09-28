@@ -11,6 +11,27 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (10:35 CDT) — Laptop: the ARMED configuration rehearsed exactly, for the reviewer (numbers only; the ruling stands until revised)
+
+Production armed "dealing order only" (b1ff54b2): one mean-selected book, every contest on the main track, head layout,
+**contests ordered deepest line first** (line percentile from the ladders). Rehearsed exactly as armed, on the same
+pools and exact ladders as a98c1f5f:
+- Week 3 order: sat13 (99.75), ffwc (99.32), supersat2 ×12 (98.95), supersat25lo ×3 (98.95), wildcat ×2 (98.73),
+  supersat25hi ×3 (95.8), ffwc18 (94.8), sat20 ×19 (90.9), milly20 (76.9).
+- Week 1 order: FFWC qualifier (94.8), Millionaire (79.2), Play-Action (78.0).
+
+| Configuration | Week 3 paid | Week 1 paid |
+|---|---|---|
+| **armed: deepest line first, head layout, no sleeve** | **20** (sat20 3, supersat25hi 10, supersat25lo 3, supersat2 2, ffwc18 1, milly20 1) | **31** (Millionaire 16, Play-Action 15) |
+| all main, head layout, original order | 20 | 31 |
+| **the laptop's mean-selected sleeve for the deep lines** (a98c1f5f) | **23** | **40** (Millionaire 27) |
+
+- Dealing order alone moves the paid count by nothing on either week.
+- The **mean-selected** sleeve does, because it lets the deep contests take the top mean rows again. Under the head
+  layout they get the shared top four plus unique rows dealt down the book.
+- This is not the P(≥line) or EMAX sleeve the reviewer ruled against.
+- **The operator and the reviewer decide.** The alternative is `set_contest_tracks.py --deep-as-tail` with
+  `TAIL_SLEEVE_SELECTOR=mean`, both already accepted by the chain (production b1ff54b2).
 ## 2026-09-28 (10:29 CDT) — Laptop: the adopted Week-4 configuration REHEARSED on Weeks 3 and 1 (beats the all-main layout both weeks); production wiring list
 
 **Configuration (reviewer/operator, 717c76bf):**
