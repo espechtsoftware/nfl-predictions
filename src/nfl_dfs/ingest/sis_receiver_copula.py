@@ -39,9 +39,22 @@ def read_player_games(input_dir: str | Path) -> tuple[pd.DataFrame, dict]:
     verified = sis.analyze_receiver_copula_acquisition(root, manifest)
     if verified != result or not result.get("passes"):
         raise ValueError("SIS receiver-copula acquisition did not reproduce")
+    frame = player_game_rows(root, manifest["artifacts"])
+    return frame, {
+        "rows": int(len(frame)),
+        "artifacts": int(len(manifest["artifacts"])),
+        "distinct_player_ids": int(frame.defender_player_id.nunique()),
+        "teams": int(frame.defender_team_id.nunique()),
+        "protocol_sha256": manifest["protocol_sha256"],
+        "source_week_min": int(frame.week.min()),
+        "source_week_max": int(frame.week.max()),
+    }
 
+
+def player_game_rows(root: Path, artifacts: list[dict]) -> pd.DataFrame:
+    """Parse verified manifest artifacts into defender-game rows (shared with the 2026 weekly path)."""
     records: list[dict] = []
-    for item in manifest["artifacts"]:
+    for item in artifacts:
         path = root / item["artifact"]
         identities: dict[tuple[str, str], dict] = {}
         for identity in item["identities"]:
@@ -88,18 +101,14 @@ def read_player_games(input_dir: str | Path) -> tuple[pd.DataFrame, dict]:
         raise ValueError("SIS receiver-copula player games are empty or duplicated")
     if not set(frame.alignment) == {"wide", "slot"}:
         raise ValueError("SIS receiver-copula alignment universe differs")
-    return frame, {
-        "rows": int(len(frame)),
-        "artifacts": int(len(manifest["artifacts"])),
-        "distinct_player_ids": int(frame.defender_player_id.nunique()),
-        "teams": int(frame.defender_team_id.nunique()),
-        "protocol_sha256": manifest["protocol_sha256"],
-        "source_week_min": int(frame.week.min()),
-        "source_week_max": int(frame.week.max()),
-    }
+    return frame
 
 
-def _target_spine(schedule: pd.DataFrame) -> pd.DataFrame:
+def _target_spine(
+    schedule: pd.DataFrame,
+    seasons: tuple[int, ...],
+    target_weeks: tuple[int, ...],
+) -> pd.DataFrame:
     required = {"season", "week", "team", "opponent"}
     if missing := required - set(schedule):
         raise ValueError(f"receiver-copula schedule missing {sorted(missing)}")
@@ -109,8 +118,8 @@ def _target_spine(schedule: pd.DataFrame) -> pd.DataFrame:
     spine["team"] = spine.team.astype(str)
     spine["opponent"] = spine.opponent.astype(str)
     spine = spine[
-        spine.season.isin(sis.RECEIVER_COPULA_SEASONS)
-        & spine.week.isin(TARGET_WEEKS)
+        spine.season.isin(seasons)
+        & spine.week.isin(target_weeks)
     ].copy()
     if spine.empty or spine.duplicated(["season", "week", "team"]).any():
         raise ValueError("receiver-copula target spine is empty or duplicated")
@@ -120,8 +129,15 @@ def _target_spine(schedule: pd.DataFrame) -> pd.DataFrame:
 def build_defense_prior(
     player_games: pd.DataFrame,
     schedule: pd.DataFrame,
+    *,
+    seasons: tuple[int, ...] = sis.RECEIVER_COPULA_SEASONS,
+    target_weeks: tuple[int, ...] = TARGET_WEEKS,
 ) -> tuple[pd.DataFrame, dict]:
-    """Build cross-season last-eight defense/alignment context without W data."""
+    """Build cross-season last-eight defense/alignment context without W data.
+
+    The target grid defaults to the frozen 2022-2025 Weeks 5-18; the 2026
+    weekly path passes its single target week.
+    """
     required = {
         "season", "week", "alignment", "defense", "coverage_snaps",
         "targets", "completions", "yards", "touchdowns",
@@ -143,7 +159,7 @@ def build_defense_prior(
     if games.duplicated(["season", "week", "defense", "alignment"]).any():
         raise ValueError("receiver-copula defense games repeat a cell")
     games["order"] = games.season.astype(int) * 100 + games.week.astype(int)
-    spine = _target_spine(schedule)
+    spine = _target_spine(schedule, seasons, target_weeks)
     records: list[dict] = []
     for target in spine.itertuples(index=False):
         target_order = int(target.season) * 100 + int(target.week)
@@ -303,5 +319,5 @@ def run(input_dir: str | Path, *, write: bool = False) -> dict:
 __all__ = [
     "DEFENSE_PRIOR_TABLE", "MIN_PRIOR_GAMES", "PLAYER_GAME_TABLE",
     "PRIOR_GAMES", "SOURCE_RUN", "TARGET_WEEKS", "build_defense_prior",
-    "read_player_games", "run",
+    "player_game_rows", "read_player_games", "run",
 ]

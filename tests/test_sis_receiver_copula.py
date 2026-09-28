@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
+import pytest
 
 from nfl_dfs.ingest.sis_receiver_copula import build_defense_prior
 
@@ -73,3 +74,16 @@ def test_defense_prior_marks_less_than_four_games_unsupported():
     result, audit = build_defense_prior(games, schedule)
     assert not result.context_supported.any()
     assert audit["supported_rows"] == 0
+
+
+def test_defense_prior_defaults_to_the_frozen_grid_and_takes_one_2026_week():
+    games = _player_games().assign(season=lambda frame: frame.season + 4)  # 2026 W1-18, 2027 W1-5
+    schedule = pd.DataFrame([{"season": 2026, "week": 4, "team": "ARI", "opponent": "BUF"}])
+    with pytest.raises(ValueError, match="target spine is empty"):
+        build_defense_prior(games, schedule)                  # 2022-2025 Weeks 5-18 only
+    result, audit = build_defense_prior(
+        games, schedule, seasons=(2026,), target_weeks=(4,),
+    )
+    assert len(result) == 2 and set(result.target_week) == {4}
+    assert result.prior_games.eq(3).all() and not result.context_supported.any()
+    assert audit["source_last_week_max"] == 3

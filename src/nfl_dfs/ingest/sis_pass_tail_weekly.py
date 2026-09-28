@@ -232,17 +232,26 @@ def _novel_or_identical(
 
 
 def _archive(root: Path, manifest: dict, bucket_name: str) -> list[dict]:
+    return archive_once(
+        root, manifest["artifacts"], bucket_name,
+        prefix=(
+            "licensed/sis/pass-tail/season=2026/"
+            f"target_week={int(manifest['target_week']):02d}"
+        ),
+    )
+
+
+def archive_once(
+    root: Path, artifacts: list[dict], bucket_name: str, *, prefix: str,
+) -> list[dict]:
+    """Create-once GCS copies at ``<prefix>/sha256=<h>/<artifact>``; a re-run verifies the stored bytes."""
     from google.api_core.exceptions import PreconditionFailed
     from google.cloud import storage
 
     bucket = storage.Client().bucket(bucket_name)
     output = []
-    for item in manifest["artifacts"]:
-        object_name = (
-            "licensed/sis/pass-tail/season=2026/"
-            f"target_week={int(manifest['target_week']):02d}/"
-            f"sha256={item['sha256']}/{item['artifact']}"
-        )
+    for item in artifacts:
+        object_name = f"{prefix}/sha256={item['sha256']}/{item['artifact']}"
         blob = bucket.blob(object_name)
         disposition = "created"
         try:
@@ -339,4 +348,4 @@ def run(
     return audit
 
 
-__all__ = ["read_exports", "run"]
+__all__ = ["archive_once", "read_exports", "run"]

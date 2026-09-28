@@ -635,6 +635,17 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--write", action="store_true")
 
     p = sub.add_parser(
+        "import-sis-receiver-copula-weekly",
+        help="Audit/append one 2026 target week's SIS CB-vs-WR games (week W-1) and its defense prior",
+    )
+    p.add_argument("--input-dir", required=True)
+    p.add_argument("--target-week", type=int, required=True)
+    p.add_argument(
+        "--write", action="store_true",
+        help="Archive the CSVs and append once; without it the import is audit-only",
+    )
+
+    p = sub.add_parser(
         "import-fantasy-points-advanced",
         help="Audit/import hash-locked Fantasy Points Advanced player data",
     )
@@ -1317,6 +1328,12 @@ def main(argv: list[str] | None = None) -> None:
         from .ingest import sis_receiver_copula
 
         sis_receiver_copula.run(args.input_dir, write=args.write)
+    elif args.command == "import-sis-receiver-copula-weekly":
+        from .ingest import sis_receiver_copula_weekly
+
+        sis_receiver_copula_weekly.run(
+            args.input_dir, target_week=args.target_week, write=args.write,
+        )
     elif args.command == "import-fantasy-points-advanced":
         from .ingest import fantasy_points_advanced
 
