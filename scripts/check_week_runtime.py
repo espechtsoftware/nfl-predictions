@@ -125,6 +125,8 @@ def main():
             u = os.environ["UNION_SATURDAY_RUN"]
             if u != "auto" and not Path(u, "receipt.json").is_file():
                 fail(f"UNION_SATURDAY_RUN={u!r} is neither 'auto' nor a run dir with a receipt")
+            if os.environ.get("UNION_MAIN", "mean") not in ("mean", "pmo_x50"):
+                fail(f"UNION_MAIN={os.environ.get('UNION_MAIN')!r} must be mean or pmo_x50")
             dose = os.environ.get("UNION_SAT_DOSE", "2560/10240")
             if not re.fullmatch(r"\d+/\d+", dose):
                 fail(f"UNION_SAT_DOSE={dose!r} must be lev/boom")

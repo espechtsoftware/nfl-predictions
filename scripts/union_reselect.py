@@ -10,9 +10,14 @@ projections), and writes a NEW run dir beside them in the live results tree:
     --min-proj on the T-70 frame (Q4b), the per-game cap respected, and not already in the T-70 pool;
   * optionally --pmo N plain-mean-optimizer rows solved on the T-70 frame (L13's R5 form: sequential MILP on the
     served mean projection, house rules, the per-game cap, the salary floor, <= max-shared with every earlier row);
-then re-selects with the Week-4 selector exactly as the pinned live_week.py does for --selector mean: the main book =
-top-K by the sum of the T-70 `mean_projection` under the overlap cap and the DST cap; the tail sleeve = top-T by the same
-score under the overlap cap (it may repeat main rows). Every written roster is revalidated against the DK contract.
+then builds the book. `--main mean` (the paper arm): the main book = top-K by the sum of the T-70 `mean_projection` under
+the overlap cap and the DST cap, exactly as the pinned live_week.py does for --selector mean. `--main pmo_x50` (ENTERS
+Week 4, operator 2026-09-28 14:05, L13's SUPPORTED form): the main book = K sequential plain-mean-optimizer solves on the
+T-70 frame in solve order (objective the served mean_projection, house rules, the per-game cap, the salary floor,
+<= 7 shared with every earlier row, and a per-player exposure cap: a player in >= floor(0.5 K) rows is banned from later
+solves, DST included; NO 25% DST cap -- the tested arm had none). Either way the tail sleeve = top-T of the union pool by
+projected sum under the overlap cap (it may repeat main rows). Every written roster is revalidated against the DK contract.
+A pmo_x50 main that cannot reach K rows REFUSES (exit 2, named); the chain then builds the mean main loudly.
 
 The run dir carries the T-70 run's frame, sidecar banks, universe and exposure ledgers unchanged; a union corpus
 (`candidates.parquet` with `source_run` = t70 | saturday | pmo); `book.csv` / `book.json`; and a receipt copied from the
@@ -140,13 +145,14 @@ def frame_players(t70: pd.DataFrame) -> dict[str, dict]:
 
 
 def pmo_rows(t70: pd.DataFrame, exclude: set[str], n: int, max_shared: int, cap: int | None, min_salary: int,
-             existing: set[frozenset], exposure_cap: int | None = None) -> list[list[str]]:
+             existing: set[frozenset], exposure_cap: int | None = None, dst_cap: int | None = None) -> list[list[str]]:
     """Plain-mean-optimizer rows on the T-70 frame (L13's R5 form), skipping rosters already in the pool. With
     exposure_cap (L13's PMO_X50: max(1, N // 2)), a player already in that many PMO rows is banned from later solves --
     the form L13 SUPPORTED at p89 (+27.7% tickets vs MEAN, both seasons); the uncapped form was NOT SUPPORTED."""
     from nfl2.core.lineup import optimize                      # the pinned lab clone on PYTHONPATH
     from nfl2.pipeline import PRODUCTION_STACK
     pool = [p for i, p in frame_players(t70).items() if i not in exclude]
+    dst_ids = {p["id"] for p in pool if p["pos"] == "DST"}
     env = {"MIN_LINEUP_SALARY": str(min_salary)}
     if cap is not None:
         env["MAX_PER_GAME"] = str(cap)
@@ -156,7 +162,10 @@ def pmo_rows(t70: pd.DataFrame, exclude: set[str], n: int, max_shared: int, cap:
     tries = 0
     while len(rows) < n and tries < 3 * n:
         tries += 1
-        bans = {p for p, c in count.items() if exposure_cap is not None and c >= exposure_cap} or None
+        bans = {p for p, c in count.items() if exposure_cap is not None and c >= exposure_cap}
+        if dst_cap is not None:
+            bans |= {p for p, c in count.items() if p in dst_ids and c >= dst_cap}
+        bans = bans or None
         lu = optimize(pool, stack=PRODUCTION_STACK, objective_col="proj", banned_lineups=prev, max_overlap=max_shared, bans=bans, env=env)
         if lu is None:
             break
@@ -190,6 +199,14 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--min-proj", type=float, default=1.0); ap.add_argument("--max-per-game", type=int, default=4)
     ap.add_argument("--min-salary", type=int, default=49_000); ap.add_argument("--pmo", type=int, default=0)
     ap.add_argument("--pmo-cap-share", type=float, default=0.5, help="PMO per-player exposure cap as a share of --pmo rows (L13's PMO_X50 = 0.5; 0 = uncapped, NOT supported by L13)")
+    ap.add_argument("--main-dst-cap", type=float, default=None,
+                    help="with --main pmo_x50: a DST in >= floor(share*K) rows is banned from later solves (operator's open question; "
+                         "the tested arm had none -- Week 3 put two busting DSTs in 25 and 22 of 58 rows). Default none.")
+    ap.add_argument("--sleeve-includes-main", action="store_true",
+                    help="with --main pmo_x50: let the tail sleeve also pick from the optimizer's rows (they project highest, so they would take "
+                         "most of it). Default off: the sleeve is the union pool's mean selection, the form rehearsed at 23/40 paid.")
+    ap.add_argument("--main", choices=["mean", "pmo_x50"], default="mean",
+                    help="the main book: mean = the union pool's top-K by projected sum (paper arm); pmo_x50 = K capped plain-mean-optimizer rows solved on the T-70 frame (ENTERS Week 4)")
     ap.add_argument("--dk-status", type=Path); ap.add_argument("--tail-line", type=float, default=None)
     ap.add_argument("--out", type=Path, help="explicit output dir (default: <live-dir>/<utc stamp>-union-<t70 sha7>)")
     ap.add_argument("--rehearsal", action="store_true", help="paper: accept a T-70 run built with another selector (Week 3 was dual_emax); "
@@ -232,6 +249,8 @@ def main(argv: list[str] | None = None) -> int:
     tags = list(t70["cands"]["tag"].astype(str).iloc[t70_idx]) + list(sat["cands"]["tag"].astype(str).iloc[sat_idx])
     sat_cand = [None] * len(t70_rosters) + [int(i) for i in sat_idx]
     n_pmo = 0
+    if a.main == "pmo_x50" and a.pmo > 0:
+        raise SystemExit("--pmo (extra pool rows) is for --main mean; --main pmo_x50 solves the main book itself")
     if a.pmo > 0:
         gone = unavailable_ids(fr, dk)
         proj_all = dict(zip(fr.id.astype(str), pd.to_numeric(fr.mean_projection, errors="coerce")))
@@ -256,8 +275,39 @@ def main(argv: list[str] | None = None) -> int:
         import math
         dst_cap = max(1, math.floor(a.mean_dst_cap * a.entries))
         dst_args = {"dst_of": [next(i for i in r if pos[i] == "DST") for r in rosters], "dst_cap": dst_cap}
-    book = select_top_mean(score, frozen, a.entries, max_shared=a.mean_max_shared, **dst_args)
-    book_tail = select_top_mean(score, frozen, a.tail_sleeve, max_shared=a.mean_max_shared) if a.tail_sleeve else []
+    pmo_main: dict = {}
+    if a.main == "pmo_x50":
+        import time as _time
+        gone = unavailable_ids(fr, dk)
+        proj_all = dict(zip(fr.id.astype(str), pd.to_numeric(fr.mean_projection, errors="coerce")))
+        pos_all = dict(zip(fr.id.astype(str), fr.pos.astype(str)))
+        excl = gone | {i for i in proj_all if pos_all[i] in SKILL and not (proj_all[i] >= a.min_proj)}
+        xcap = max(1, int(0.5 * a.entries))
+        t_pmo = _time.time()
+        dcap = max(1, int(a.main_dst_cap * a.entries)) if a.main_dst_cap else None
+        main_rows = pmo_rows(fr, excl, a.entries, a.mean_max_shared, cap, a.min_salary, set(), exposure_cap=xcap, dst_cap=dcap)
+        secs_pmo = round(_time.time() - t_pmo, 1)
+        if len(main_rows) < a.entries:
+            raise SystemExit(f"PMO_X50 MAIN REFUSED: {len(main_rows)} of {a.entries} rows solved on the T-70 frame under the caps "
+                             f"(exposure cap {xcap}, overlap {a.mean_max_shared}, per-game {cap}, salary floor {a.min_salary}); the union's mean main stands")
+        # the PMO rows join the corpus (source pmo_x50) and ARE the main book, in solve order; a PMO row that duplicates a pool
+        # roster is still the PMO row (the corpus keeps both; the book is unique by construction)
+        base = len(rosters)
+        rosters += main_rows; source += ["pmo_x50"] * len(main_rows); tags += ["pmo_x50"] * len(main_rows); sat_cand += [None] * len(main_rows)
+        frozen = [frozenset(r) for r in rosters]; score = projected_sum(rosters, proj)
+        book = list(range(base, base + a.entries))
+        sleeve_score = score if a.sleeve_includes_main else np.where(np.arange(len(rosters)) < base, score, -np.inf)
+        expo = Counter(p for i in book for p in rosters[i])
+        dst_expo = Counter(p for i in book for p in rosters[i] if pos[p] == "DST")
+        pmo_main = {"exposure_cap": xcap, "rows_solved": len(main_rows), "secs": secs_pmo, "max_exposure_used": max(expo.values()),
+                    "sleeve_includes_main": bool(a.sleeve_includes_main),
+                    "distinct_players": len(expo), "dst_cap": dcap if dcap else "none (the tested arm had none)",
+                    "max_dst_rows_used": max(dst_expo.values()), "dst_rows": dict(dst_expo.most_common(3))}
+        dst_args = {}
+    else:
+        book = select_top_mean(score, frozen, a.entries, max_shared=a.mean_max_shared, **dst_args)
+        sleeve_score = score
+    book_tail = select_top_mean(np.where(np.isfinite(sleeve_score), sleeve_score, -1e9), frozen, a.tail_sleeve, max_shared=a.mean_max_shared) if a.tail_sleeve else []
     if len(book) != a.entries or len(set(book)) != a.entries or (a.tail_sleeve and len(book_tail) != a.tail_sleeve):
         raise SystemExit("the selector did not return the requested rows")
 
@@ -330,21 +380,28 @@ def main(argv: list[str] | None = None) -> int:
                                       "t70_frame": sha256_file(a.t70_run / "frame.parquet"), **{b: sha256_file(a.t70_run / b) for b in BANKS}},
                      "dk_status": str(a.dk_status) if a.dk_status else None, "counts": counts, "pmo_rows": n_pmo,
                      "pmo": {"requested": a.pmo, "solved": n_pmo, "exposure_cap_share": a.pmo_cap_share,
-                             "form": "L13 PMO_X50 (SUPPORTED at p89)" if a.pmo and a.pmo_cap_share > 0 else ("L13 PMO uncapped (NOT SUPPORTED)" if a.pmo else "none")},
+                             "form": "pmo rows into the mean-selected union (UNTESTED: not L13's arm; the mean selector re-picks without the cap)" if a.pmo else "none"},
                      "pool": {"t70": len(t70_rosters), "saturday": len(sat_rosters), "pmo": n_pmo, "total": len(rosters)},
                      "book_by_source": dict(by_src), "tail_by_source": dict(by_src_tail),
-                     "selection": "union_reselect.py: top-K by sum of the T-70 mean_projection under the overlap cap and the DST cap; "
-                                  "the tail sleeve top-T by the same score (may repeat main rows) -- live_week.py --selector mean semantics",
+                     "selection": ("union_reselect.py --main pmo_x50: K capped plain-mean-optimizer rows on the T-70 frame in solve order (L13 PMO_X50); "
+                                   if a.main == "pmo_x50" else
+                                   "union_reselect.py --main mean: top-K by sum of the T-70 mean_projection under the overlap cap and the DST cap; ")
+                                  + "the tail sleeve top-T of the union pool by the same score (may repeat main rows)",
                      "min_proj": a.min_proj, "max_per_game": cap, "tool": {"path": str(tool), "sha256": sha256_file(tool), "production_sha": prod_sha}}
     conf["operational_k"] = a.entries
-    conf["selector"] = "mean"
+    conf["selector"] = "mean"                       # LIVE_SELECTOR; the main's own form is config.union.main / main_selector_used
     if a.rehearsal:
         conf["union"]["rehearsal"] = {"t70_selector_was": cfg.get("selector"), "note": "PAPER: never entered"}
-    conf["main_selector_used"] = "mean"
     conf["mean_max_shared"] = a.mean_max_shared
     conf["book_projected_sum"] = {"first": round(float(score[book[0]]), 3), "last": round(float(score[book[-1]]), 3), "mean": round(float(score[book].mean()), 3)}
-    if dst_cap is not None:
+    if dst_cap is not None and a.main == "mean":
         conf["mean_dst_cap"] = {"share": a.mean_dst_cap, "max_rows_per_dst": dst_cap, "max_rows_used": max(Counter(dst_args["dst_of"][i] for i in book).values())}
+    else:
+        conf.pop("mean_dst_cap", None)
+    conf["union"]["main"] = a.main
+    if pmo_main:
+        conf["union"]["pmo_x50"] = pmo_main
+    conf["main_selector_used"] = a.main
     if a.tail_sleeve:
         conf["tail_sleeve"] = {"rows": a.tail_sleeve, "line": tail_line, "selector": "mean", "selector_used": "mean", "class": {},
                                "worlds": "incumbent selection + corrected hsim", "book_rows": f"{a.entries + 1}..{a.entries + a.tail_sleeve}",
@@ -356,7 +413,7 @@ def main(argv: list[str] | None = None) -> int:
     receipt.setdefault("inputs", {})["book_contract"] = contract
     (out / "receipt.json").write_text(json.dumps(receipt, indent=1) + "\n")
     out.rename(final_out); out = final_out
-    print(f"UNION -> {out}\n  pool: t70 {len(t70_rosters)} (of {counts['t70_pool']}; dropped {counts['t70_dropped']}) + saturday {len(sat_rosters)} (of {counts['saturday_pool']}; dropped "
+    print(f"UNION -> {out}\n  main {a.main}{(' ' + json.dumps(pmo_main)) if pmo_main else ''}\n  pool: t70 {len(t70_rosters)} (of {counts['t70_pool']}; dropped {counts['t70_dropped']}) + saturday {len(sat_rosters)} (of {counts['saturday_pool']}; dropped "
           f"{counts.get('dropped_missing_from_t70', 0)} missing, {counts.get('dropped_unavailable', 0)} unavailable, "
           f"{counts.get('dropped_below_min_proj', 0)} below min-proj, {counts.get('dropped_game_cap', 0)} game cap, "
           f"{counts.get('dropped_duplicate_of_t70', 0)} duplicates) + pmo {n_pmo} = {len(rosters)}\n"

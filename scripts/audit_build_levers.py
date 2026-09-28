@@ -29,6 +29,7 @@ The checks (each named in the output):
                              count equal the layout's mean rows + sleeve rows
   t70_rules_effect           --t70 on: an absent depth-1 starter must have produced a bumped backup and an early-game
                              Questionable an activation (the t70_* receipt columns); --t70 off: no trace at all
+  union_main                 a union receipt's declared main form (mean | pmo_x50) matches the book's rows and the exposure cap held
   book_rows_legal            mean rows distinct, sleeve rows distinct (a sleeve row may repeat a mean row), complete, ids in the frame
 """
 from __future__ import annotations
@@ -205,6 +206,23 @@ def audit(run: Path, contests: list[dict], *, layout: str, expect_selector: str 
         record("t70_rules_effect", n_active == 0 and n_bumped == 0,
                f"T-70 rules declared OFF: {n_active} activated, {n_bumped} bumped (undeclared lever if nonzero)",
                activated=n_active, bumped=n_bumped)
+
+    # ---- union_main: a union receipt's declared main form must be what the book holds (lever check)
+    uni = cfg.get("union") or {}
+    if uni:
+        main = uni.get("main", "mean")
+        if "source_run" in cands.columns and "book_rank" in cands.columns:
+            top = cands[cands["book_rank"].notna() & (cands["book_rank"] <= k_mean)]
+            n_pmo = int((top["source_run"] == "pmo_x50").sum())
+            if main == "pmo_x50":
+                px = uni.get("pmo_x50") or {}
+                ok = n_pmo == len(top) == k_mean and int(px.get("max_exposure_used", 10**9)) <= int(px.get("exposure_cap", 0))
+                record("union_main", ok, f"union main declared pmo_x50: {n_pmo} of {len(top)} main rows are pmo_x50 rows (need {k_mean}); "
+                       f"max exposure used {px.get('max_exposure_used')} <= cap {px.get('exposure_cap')}", main=main, pmo_rows_in_main=n_pmo)
+            else:
+                record("union_main", n_pmo == 0, f"union main declared {main}: {n_pmo} pmo_x50 rows in the main book (must be 0)", main=main, pmo_rows_in_main=n_pmo)
+        else:
+            record("union_main", False, "union receipt without source_run/book_rank columns in candidates.parquet", main=main)
 
     # ---- book_rows_legal
     frame_ids = set(fr["id"].astype(str)) | set(fr["dk_player_id"].astype(str)) if "dk_player_id" in fr else set(fr["id"].astype(str))

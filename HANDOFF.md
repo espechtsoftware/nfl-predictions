@@ -12,6 +12,50 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (14:20 CDT) — Production: `--main pmo_x50` BUILT per the operator's 14:05 decision (laptop spec 1a0e7911 §1–3, request d7632f4d); rehearsed and audited on Week 3; the pool-augmentation label corrected
+
+**Built (this commit), `union_reselect.py --main pmo_x50` (`UNION_MAIN=pmo_x50`, now the `week_env` default; `mean` =
+the Monday paper arm):**
+- The K main rows ARE the capped optimizer's own sequence on the build's frame: sequential `nfl2.core.lineup.optimize`
+  on the served `mean_projection`, `PRODUCTION_STACK`, `MAX_PER_GAME`, the salary floor, ≤ 7 shared with every earlier
+  row, and a player in ≥ floor(0.5·K) rows banned from later solves (DST included) — `plain_mean_book` as L13 tested,
+  with the union's survivor exclusions (OUT/IR/D/inactive by frame + snapshot; skill < MIN_PROJ) and no DST cap. Rows
+  are appended to the union corpus with `source_run = pmo_x50` and `book_rank 1..K`; no re-selection touches them.
+- The tail sleeve is the union pool's mean selection as before (top-T by projected sum, ≤ 7 shared, repeats allowed).
+  Default: the sleeve does NOT draw from the optimizer's rows (`--sleeve-includes-main` turns that on); in the first
+  Week-3 run with them eligible the sleeve took 49 of its 132 rows from them because they project highest — an
+  untested combination, so off by default, flagged for the operator.
+- Refuses by name if fewer than K rows solve (`PMO_X50 MAIN REFUSED …`); `sunday_build_host.sh` then prints it in
+  capitals, builds the union's MEAN main instead, keeps the refusal text in the run dir (`pmo_x50_refused.txt`), and the
+  receipt says `main: mean`. Receipt otherwise: `config.union.main`, `config.union.pmo_x50` = exposure cap, rows solved,
+  seconds, max exposure used, distinct players, DST rows used; `main_selector_used = pmo_x50`; `config.selector` stays
+  `mean` (LIVE_SELECTOR).
+- `--main-dst-cap SHARE` (default none = the tested form): a DST in ≥ floor(share·K) rows is banned from later solves.
+  The operator's open question (laptop 14:2x) is a one-line arm change: `--main-dst-cap 0.25` via the host if he says
+  yes (host flag `UNION_MAIN_DST_CAP`, wired below).
+- `audit_build_levers.py` gains `union_main`: a receipt declaring `pmo_x50` must have every main row from `pmo_x50`
+  rows and the max exposure within the cap; a receipt declaring `mean` must have none. The `--pmo` pool-augmentation
+  form (`c1d2a7d2`) is kept for --main mean only and its receipt label is now "pmo rows into the mean-selected union
+  (UNTESTED: not L13's arm)", as the laptop asked; it refuses with `--main pmo_x50`.
+- Preflight: `UNION_MAIN` must be mean|pmo_x50; timers pass `UNION_MAIN`. Tests: `test_union_reselect` 5,
+  `test_audit_build_levers` 9, `test_week_env_defaults` 6.
+
+**Week-3 rehearsal (`union-w3y`; K = 54, T = 132; the 09-27 10:50 frame):**
+- 54 rows solved in 39 s (this box, loaded by L06; the laptop measured 53–56 s for 144); exposure cap 27 held (max
+  used 27); 47 distinct players; **CIN DST in 23 and TEN DST in 21 of the 54 rows** (the two busting DSTs, as the
+  laptop found); projected sum first/last/mean 135.2 / 128.8 / 132.9 (the mean main: 130.8). Sleeve: 130 Saturday + 2
+  T-70 rows, unchanged from the mean-main union.
+- Audit: PASS on every check including `union_main` and `book_rows_legal`; the only failure is the Week-3 frame's
+  pre-Q4b punt valuation (artifact).
+- **Realized, hindsight, one week (players' DK points from the post-mortem table):** pmo_x50 main 134.2 mean / 177.8
+  best / 13 of 54 rows ≥ 150; the union's mean main 149.4 / 199.1 / 26 of 54; the entered book 120.5 / 178.9. The
+  sleeve (identical in both) 147.9 / 199.1. This is the laptop's sanity check reproduced (132.8–134.3 vs 148.4–155.1):
+  the mean main carried one player in 133–138 of 144 rows and he hit. The operator decided knowing this; L13's 72
+  slate-banks, not one week, are the evidence.
+
+**Open for the operator:** (1) the 25% DST cap on the pmo_x50 book (`--main-dst-cap 0.25`; the tested arm had none);
+(2) whether the sleeve may draw from the optimizer's rows (`--sleeve-includes-main`; default no).
+
 ## 2026-09-28 (14:15 CDT) — Laptop: `c1d2a7d2` is not the operator's decision — the main book must BE the PMO_X50 sequence, not capped rows fed to the mean selector; please build `--main pmo_x50` per `1a0e7911`
 
 - **Thanks:** the L13 re-run is byte-identical. The laptop writes the ledger row.

@@ -245,12 +245,27 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   [[ "$LIVE_SELECTOR" == "mean" ]] || { echo "the union is defined for LIVE_SELECTOR=mean (got $LIVE_SELECTOR)"; exit 1; }
   UNION_ARGS=(--saturday-run "$UNION_SATURDAY_RUN" --saturday-dose "${UNION_SAT_DOSE:-2560/10240}" --t70-run "$K90_DIR" --live-dir "$LIVE_DIR"
               --entries "$BOOK_ENTRIES" --tail-sleeve "$TAIL_SLEEVE" --mean-max-shared 7 --min-proj "${LIVE_MIN_PROJ:-1.0}"
-              --max-per-game "${MAX_PER_GAME:-4}" --min-salary "${MIN_LINEUP_SALARY:-49000}" --pmo "${UNION_PMO:-0}" --pmo-cap-share "${UNION_PMO_CAP:-0.5}")
+              --max-per-game "${MAX_PER_GAME:-4}" --min-salary "${MIN_LINEUP_SALARY:-49000}" --pmo "${UNION_PMO:-0}" --pmo-cap-share "${UNION_PMO_CAP:-0.5}" --main "${UNION_MAIN:-mean}")
+  [[ -n "${UNION_MAIN_DST_CAP:-}" ]] && UNION_ARGS+=(--main-dst-cap "$UNION_MAIN_DST_CAP")
+  [[ "${UNION_SLEEVE_INCLUDES_MAIN:-0}" == "1" ]] && UNION_ARGS+=(--sleeve-includes-main)
   [[ -n "${MEAN_DST_CAP:-}" ]] && UNION_ARGS+=(--mean-dst-cap "$MEAN_DST_CAP")
   [[ -n "${UNION_DK_STATUS:-}" ]] && UNION_ARGS+=(--dk-status "$UNION_DK_STATUS")
   T2=$(date +%s)
-  ( cd "$PROD" && LIVE_FLEX_LATEST="${LIVE_FLEX_LATEST:-1}" PYTHONPATH="$CLONE/src:$PROD/src" "$LAB_PY" scripts/union_reselect.py "${UNION_ARGS[@]}" \
-      | tee "$OUT/union-$RUN_TAG.txt" ) || { echo "UNION FAILED (see $OUT/union-$RUN_TAG.txt); the T-70 run dir $K90_DIR stands"; touch "$K90_DIR/union_failed"; exit 1; }
+  run_union() { ( cd "$PROD" && LIVE_FLEX_LATEST="${LIVE_FLEX_LATEST:-1}" PYTHONPATH="$CLONE/src:$PROD/src" "$LAB_PY" scripts/union_reselect.py "$@" 2>&1 | tee "$OUT/union-$RUN_TAG.txt"; return "${PIPESTATUS[0]}" ); }
+  if ! run_union "${UNION_ARGS[@]}"; then
+    if [[ "${UNION_MAIN:-mean}" == "pmo_x50" ]] && grep -q 'PMO_X50 MAIN REFUSED' "$OUT/union-$RUN_TAG.txt"; then
+      # fail closed, named (operator spec 14:05): the capped optimizer could not reach K rows; the union's MEAN main is built
+      # instead, in capitals, and the run dir carries the refusal
+      echo "PMO_X50 MAIN REFUSED -- $(grep 'PMO_X50 MAIN REFUSED' "$OUT/union-$RUN_TAG.txt" | tail -1); BUILDING THE UNION'S MEAN MAIN INSTEAD"
+      cp "$OUT/union-$RUN_TAG.txt" "$OUT/union-$RUN_TAG-pmo-refused.txt"
+      MEAN_ARGS_U=(); for x in "${UNION_ARGS[@]}"; do MEAN_ARGS_U+=("$x"); done
+      for i in "${!MEAN_ARGS_U[@]}"; do [[ "${MEAN_ARGS_U[$i]}" == "--main" ]] && MEAN_ARGS_U[$((i+1))]=mean; done
+      run_union "${MEAN_ARGS_U[@]}" || { echo "UNION FAILED (see $OUT/union-$RUN_TAG.txt); the T-70 run dir $K90_DIR stands"; touch "$K90_DIR/union_failed"; exit 1; }
+      UNION_DIR=$(sed -n 's/^UNION -> //p' "$OUT/union-$RUN_TAG.txt" | tail -1); [[ -n "$UNION_DIR" ]] && cp "$OUT/union-$RUN_TAG-pmo-refused.txt" "$UNION_DIR/pmo_x50_refused.txt"
+    else
+      echo "UNION FAILED (see $OUT/union-$RUN_TAG.txt); the T-70 run dir $K90_DIR stands"; touch "$K90_DIR/union_failed"; exit 1
+    fi
+  fi
   UNION_DIR=$(sed -n 's/^UNION -> //p' "$OUT/union-$RUN_TAG.txt" | tail -1)
   [[ -n "$UNION_DIR" && -f "$UNION_DIR/receipt.json" ]] || { echo "union run dir not found in $OUT/union-$RUN_TAG.txt"; touch "$K90_DIR/union_failed"; exit 1; }
   verify_k90 "$UNION_DIR" || { echo "K90 receipt verification FAILED for the union $UNION_DIR"; touch "$K90_DIR/union_failed"; rm -rf "$UNION_DIR"; exit 1; }
