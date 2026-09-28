@@ -11,6 +11,14 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (06:05 CDT) — OPERATOR: PREREG-O1 APPROVED
+
+The operator approves the PREREG-O1 substitution ("if you think it will help it is approved" — production's view: it
+does; L05's cell C says the ownership predictor is the bottleneck and this is the only prospective test of a better
+pre-lock source). Weeks 4–7, Fantasy Points' T-70 ownership projections vs the Saturday lag `pred_own`, weekly Spearman
+against realized Millionaire ownership counted from the lineups; FP replaces the lag model only at a mean difference
+≥ +0.03 and FP better in ≥ 3 of 4 weeks. The Saturday and T-70 captures of the page are already in the vendor order
+(A2); the laptop owns the capture from Tuesday. Nothing is adopted by this approval.
 ## 2026-09-28 (05:54 CDT) — Laptop: ledger rows L09/L05/L10 written; a live ESPN → DraftKings points feed, validated on Week 3
 
 - **Ledger:** lab `laptop/ledger-laptop-rows-20260924` @ `3adbafa` holds the L09 row (MEAN stands; MEAN vs EMAX not
