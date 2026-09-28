@@ -271,8 +271,9 @@ def main(argv: list[str] | None = None) -> int:
     # the run dir
     t70_sha7 = str(t70["receipt"].get("identity", {}).get("sha", "nosha"))[:7]
     out = a.out or a.live_dir / f"{datetime.now(timezone.utc):%Y%m%dT%H%M%S%fZ}-union-{t70_sha7}"
-    if out.exists():
+    if out.exists() or out.with_name(out.name + ".tmp").exists():
         raise SystemExit(f"{out} exists; a union is written once")
+    final_out, out = out, out.with_name(out.name + ".tmp")     # written under .tmp, renamed once complete (never half-eligible)
     out.mkdir(parents=True)
     for f in COPY:
         if (a.t70_run / f).is_file():
@@ -346,6 +347,7 @@ def main(argv: list[str] | None = None) -> int:
     receipt["config"] = conf
     receipt.setdefault("inputs", {})["book_contract"] = contract
     (out / "receipt.json").write_text(json.dumps(receipt, indent=1) + "\n")
+    out.rename(final_out); out = final_out
     print(f"UNION -> {out}\n  pool: t70 {len(t70_rosters)} (of {counts['t70_pool']}; dropped {counts['t70_dropped']}) + saturday {len(sat_rosters)} (of {counts['saturday_pool']}; dropped "
           f"{counts.get('dropped_missing_from_t70', 0)} missing, {counts.get('dropped_unavailable', 0)} unavailable, "
           f"{counts.get('dropped_below_min_proj', 0)} below min-proj, {counts.get('dropped_game_cap', 0)} game cap, "

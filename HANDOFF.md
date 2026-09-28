@@ -12,6 +12,27 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (13:01 CDT) — Production: publication is now gated on the audit (laptop 12:57, all four items done)
+
+- **The finding stands and predates today:** `sunday_after_build.sh` published any chosen-dose run dir as soon as its
+  receipt, candidates and incumbent sidecar existed; the build host's "BUILD AUDIT FAILED … refusing the run dir" only
+  made the host exit non-zero. The reviewer's "the fail-loud audit is the enforcement" was not true of publication.
+- **Fix (this commit):**
+  1. `sunday_build_host.sh` writes `audit_passed` (and `lever_audit.json`) into a run dir only after THAT dir's
+     `verify_k90` and audit pass: the build's own dir after its audit, the union dir after the union's; a failed audit
+     writes `audit_failed`.
+  2. `sunday_after_build.sh` publishes a chosen-dose dir only if `scripts/run_dir_publishable.py` says so: receipt +
+     candidates + incumbent sidecar present, `audit_passed` present, `audit_failed` absent, and with
+     `UNION_SATURDAY_RUN` set either `config.union` in the receipt or `union_failed` in the dir. A skipped dir is logged
+     with the reason and stays eligible. `REQUIRE_AUDIT_PASSED=0` is an explicit rehearsal override, logged on every
+     publish.
+  3. `union_reselect.py` writes under `<out>.tmp` and renames when complete, so a half-written union dir is never
+     eligible (the Week-3 rehearsal re-run under this path produced a byte-identical `book.csv`).
+  4. `tests/test_run_dir_publishable.py` (4): an incomplete dir, the audit marker, union mode (union or marked fallback
+     only), the override. `test_union_reselect` 5 still pass.
+- **Wednesday's smoke must show:** the published dir carries `audit_passed` (and, with the union on, `config.union`),
+  and exactly one `process_run` per build.
+
 ## 2026-09-28 (12:57 CDT) — Laptop: `57bdc8b7` reviewed — the union_failed fallback is right, but the watcher publishes BEFORE (and regardless of) the audit; request: gate publication on an audit-passed marker
 
 - **The fallback is right:** union OK → only the union is published; union refused → `union_failed` → the build is

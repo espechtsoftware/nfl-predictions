@@ -254,12 +254,14 @@ while [ "$(date -u +%H%M)" -lt 1650 ]; do
     # 2026-09-17 review finding 4: a run is recorded as seen ONLY after it is published, and a run skipped for the
     # wrong dose is never recorded at all, so changing the chosen dose and restarting really does re-evaluate it.
     matches_chosen "$run" || { log "skip $d (not the chosen dose; still eligible if the chosen dose changes)"; continue; }
-    # The T-70 union (2026-09-28): with UNION_SATURDAY_RUN set, a build's own run dir is NOT published; its union dir (same
-    # lev/boom, newer, receipt config.union) is. A non-union dir is published only when the build host marked the union
-    # as failed for it (the file union_failed in the run dir), so a failed union falls back to the build, never to nothing.
-    if [[ -n "${UNION_SATURDAY_RUN:-}" ]] && ! $PY -c "import json,sys; sys.exit(0 if json.load(open('$run/receipt.json')).get('config',{}).get('union') else 1)" && [ ! -f "$run/union_failed" ]; then
-      log "skip $d (UNION_SATURDAY_RUN set: waiting for its union dir, or a union_failed marker)"; continue
+    # Publication gate (2026-09-28, laptop finding: the watcher used to publish before, and regardless of, the audit):
+    # only a run dir the build host marked audit_passed (after ITS verify_k90 and audit) is published; with the union on,
+    # only the union dir, or a build marked union_failed (the fallback). A skipped dir stays eligible (never marked seen).
+    # REQUIRE_AUDIT_PASSED=0 is an explicit rehearsal override and is logged on every publish.
+    if ! why=$($PY "$TOOLS/run_dir_publishable.py" "$run" $( [[ -n "${UNION_SATURDAY_RUN:-}" ]] && echo --union-mode ) $( [[ "${REQUIRE_AUDIT_PASSED:-1}" == "0" ]] && echo --no-audit-gate )); then
+      log "skip $d ($why)"; continue
     fi
+    [[ "$why" == *override* ]] && log "PUBLISHING $d WITHOUT the audit gate ($why)"
     entries=$($PY -c "import json; print(json.load(open('$run/receipt.json'))['written'])" 2>/dev/null) || { log "unreadable receipt for $d"; continue; }
     [ "$entries" -ge "${BOOK_ENTRIES:-90}" ] || { log "skip $d (K$entries; the ENTER layout needs at least ${BOOK_ENTRIES:-90})"; echo "$d" >> "$SEEN"; continue; }
     if process_run "$run" "K${entries}-${d%%-*}"; then echo "$d" >> "$SEEN"; else log "process_run FAILED for $d -- left eligible for retry"; fi

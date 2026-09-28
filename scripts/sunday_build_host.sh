@@ -236,7 +236,8 @@ verify_k90 "$K90_DIR" || { echo "K90 receipt verification FAILED for $K90_DIR"; 
     --layout "${ENTER_LAYOUT:-sequential}" --expect-selector "$LIVE_SELECTOR" ${MAX_PER_GAME:+--expect-max-per-game "$MAX_PER_GAME"} \
     --min-salary "${MIN_LINEUP_SALARY:-49000}" --fade "${AUDIT_FADE:-off}" --sources "${AUDIT_SOURCES:-market_points:0.30,dk_ppg:0.80}" \
     --t70 "$( [[ "${T70_ACTIVE_Q:-0}" == "1" || "${T70_VACATED_BUMP:-0}" == "1" ]] && echo on || echo off )" \
-    --out "$OUT/lever-audit-$RUN_TAG.json" | tee "$OUT/lever-audit-$RUN_TAG.txt" ) || { echo "BUILD AUDIT FAILED for $K90_DIR (see $OUT/lever-audit-$RUN_TAG.txt); refusing the run dir"; exit 1; }
+    --out "$OUT/lever-audit-$RUN_TAG.json" | tee "$OUT/lever-audit-$RUN_TAG.txt" ) || { echo "BUILD AUDIT FAILED for $K90_DIR (see $OUT/lever-audit-$RUN_TAG.txt); refusing the run dir"; touch "$K90_DIR/audit_failed"; exit 1; }
+cp "$OUT/lever-audit-$RUN_TAG.json" "$K90_DIR/lever_audit.json" && touch "$K90_DIR/audit_passed"   # the watcher publishes only marked dirs
 # 2a. The T-70 UNION (operator 2026-09-28): with UNION_SATURDAY_RUN set, the Saturday paid pool's survivors join the T-70
 # pool and the book is re-selected with the same mean selector; the union run dir is verified and audited like any build
 # and becomes the run dir the chain emits and the watcher promotes (newest, same lev/boom as the T-70 run).
@@ -258,6 +259,7 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
       --min-salary "${MIN_LINEUP_SALARY:-49000}" --fade "${AUDIT_FADE:-off}" --sources "${AUDIT_SOURCES:-market_points:0.30,dk_ppg:0.80}" \
       --t70 "$( [[ "${T70_ACTIVE_Q:-0}" == "1" || "${T70_VACATED_BUMP:-0}" == "1" ]] && echo on || echo off )" \
       --out "$OUT/lever-audit-$RUN_TAG-union.json" | tee "$OUT/lever-audit-$RUN_TAG-union.txt" ) || { echo "BUILD AUDIT FAILED for the union $UNION_DIR; refusing it (the T-70 run dir $K90_DIR stands)"; touch "$K90_DIR/union_failed"; rm -rf "$UNION_DIR"; exit 1; }
+  cp "$OUT/lever-audit-$RUN_TAG-union.json" "$UNION_DIR/lever_audit.json" && touch "$UNION_DIR/audit_passed"
   echo "union=$UNION_DIR (T-70 run $K90_DIR; $(( $(date +%s) - T2 )) s)"
   K90_DIR=$UNION_DIR
 fi
