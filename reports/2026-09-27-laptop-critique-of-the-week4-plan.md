@@ -174,7 +174,7 @@ The salary-left signal agrees with our $49k floor.
 1. **Select satellite rows at the ticket line** (L09, tonight). Set each contest's line from its real payout count.
 2. **Let the optimizer build QB+3 and 5-per-game stacks** (a MAXGAME5 panel, Monday–Tuesday). This is the most
    consistent structural signal in 1.16M entries, and our rules currently forbid it.
-3. **Automate late swap for the 3:25/4:05 games** (Week 5+). After the early games, re-optimize each satellite
+3. **[CORRECTED 2026-09-28: already tested for the tail objective and closed negative. The lab ran 009 (invalid), then 023, "chase", k100 Δ −1.23, and 024/PREREG-003, "fresh tickets", −0.42; system study Addendum 67 found legal swaps worth +0.9, NULL. None of them measured tickets at a satellite line; see the HANDOFF entry of this date.]** Automate late swap for the 3:25/4:05 games (Week 5+). After the early games, re-optimize each satellite
    lineup's unlocked slots to maximize P(final ≥ line | points already scored). A lineup far below the line needs
    variance; one near it needs floor. DraftKings supports editing entries by CSV, and the FLEX-latest ordering (R11)
    already keeps those slots open. Pros do this, and the answer depends on information the field's static lineups

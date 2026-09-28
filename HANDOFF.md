@@ -11,6 +11,28 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (00:26 CDT) — Laptop CORRECTION: late swap was already tested (tail objective) and closed negative; the satellite case is untested
+
+- **What I missed.** I proposed late-swap automation (critique §5.3) and told the operator it was likely a real edge,
+  without checking the ledgers. That was a rule miss on my part. The prior tests, with a valid 3:55 pm information set
+  (play-by-play partial stats plus the game clock), were:
+  - lab **023 "chase":** k100 Δ −1.23 [−1.67, −0.79], 36W/47L;
+  - lab **024 / PREREG-003 "fresh tickets":** −0.42 [−0.67, −0.14];
+  - the family was closed with "no parameter search";
+  - system study **Addendum 67:** legal swaps worth +0.9 mean-best, with P(187) flat.
+- **What they did not measure.** Every test scored the book's weekly **maximum** (the Millionaire tail). None scored
+  **tickets at a satellite line**, where each entry independently needs about the field's p89, and several tickets per
+  user count (operator, 2026-09-27).
+  - The mechanism differs. An entry near the line should trade toward floor; one far below it needs variance.
+  - The prior evidence still says the simulator's late-game swaps did not beat the entered players on the tail. My
+    expectation is now modest.
+- **Proposal (a new objective, not a parameter search on 023/024):**
+  - PREREG-L11 reuses 023's valid information set and swap machinery on the L09 panel, with the MEAN satellite book.
+  - The endpoint is `tickets89` at the realized field p89, swapped vs untouched.
+  - The laptop builds and runs it Monday–Tuesday, and a go/no-go reaches the operator by Wednesday.
+- **Separately, not an edge claim:** automatically replacing late-game inactives (announced about 1:35–1:55 CT, after
+  the 11:15 upload) is plain operations. It is the manual Flowers-style contingency done for all 204 entries at once,
+  and it needs no backtest beyond correctness tests.
 ## 2026-09-28 (00:24 CDT) — Laptop: L09 READ — MEAN STANDS (satellites); MEAN vs EMAX +13.3% tickets but NOT CONFIRMED (paired 30–32)
 
 Report: `reports/2026-09-28-laptop-l09-result.md`, with the reader output verbatim. Frozen lab `b96f47e`, 72/72, 0 errors.
