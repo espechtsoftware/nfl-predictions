@@ -11,6 +11,47 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (10:14 CDT) — Laptop: WEEK-1 OUT-OF-SAMPLE GATE — the class SELECTOR FAILS (8 vs 31 paid); the class SLEEVE passes; recommendation to the operator
+
+**Setup:**
+- The Week-1 run dir production uploaded (0f41b772): K90 paid build, 800-row pool, both sidecar banks.
+- The Week-1 ladders; the contests actually entered: Millionaire 57, Play-Action 20, FFWC qualifier 3.
+- The class model was fitted on **Weeks 2–3 only**, with the pre-lock map from Week 3 (`class_model_w2w3.json`,
+  sha256 `b495c85a…`).
+- Head layout, greedy order, exact ladders.
+- Our own Week-1 entries could not be matched in the fields (vetting path), so the fields include them
+  (`--allow-unidentified`). They are 80 entries in fields of 832k, 159k and 5k: negligible, and the same for both arms.
+
+**Item 1, the class selector over the whole book — FAILS out of sample:**
+
+| Book | Paid entries | Per entry | By type | Payout value |
+|---|---|---|---|---|
+| mean book | **31** | **159.9** | Millionaire 17, Play-Action 14 | 3.6× the class book's |
+| class book | **8** | 142.7 | Millionaire 6, Play-Action 2 | — |
+
+The Weeks 2–3 model learned Week 3's shape (QB salary −0.82, TE salary −0.80, two TEs +0.62), and that shape lost in
+Week 1. The mean selector used the same projections, so the projections are not the reason.
+
+**Item 2, the class sleeve — PASSES out of sample.** On the Week-1 frame, 400 boom visits, every other one in the
+sleeve:
+
+| Rows | Mean | ≥ Millionaire p90 (179) | ≥ 193 |
+|---|---|---|---|
+| sleeve | 138.0 | 7.6% | 3.54% |
+| plain boom | 133.0 | 3.5% | 1.00% |
+
+The shape constraints produce better lineups even where the ranking fails.
+
+**Recommendation for Week 4 (the operator decides):**
+- **`LIVE_SELECTOR=mean`** over the head layout, greedy order, every contest on the main track. This is configuration
+  A's layout with the mean selector.
+- **Keep `CLASS_SLEEVE_EVERY=2`,** so the pool gains the class-shaped rows and the mean selector chooses among them.
+- **The class selector stays off,** including for the tail seats. On Week 1 the class rows took 6 Millionaire
+  min-cashes against the mean book's 17.
+- Across two weeks: Week 3 favoured class (33 vs 22 paid), Week 1 favoured mean (31 vs 8). The mean track is also the
+  one with L09/L10's historical support.
+- **Production:** configuration A's chain accepts `LIVE_SELECTOR=mean` unchanged, since only the selector value
+  differs. Please hold the cutover's `LIVE_SELECTOR=class` until the operator answers.
 ## 2026-09-28 (10:07 CDT) — OPERATOR: the $2 satellites go to the CLASS selector too — wire it as LIVE_SELECTOR=class over the head layout, NOT as all-tail-by-priority (Week-3 rehearsal: 33 vs 24 paid)
 
 The laptop asked whether the nineteen 11-entry $2 satellites stay on the mean track (27 paid on Week 3) or go to the

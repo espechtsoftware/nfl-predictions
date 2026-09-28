@@ -66,6 +66,9 @@ def main() -> None:
     ap.add_argument("--tail-selector", choices=["pline", "emax", "class"], default="pline",
                     help="how the tail sleeve is chosen (live_week --tail-sleeve-selector)")
     ap.add_argument("--class-model", type=Path, help="with --tail-selector class: the fit_field_class_model.py JSON")
+    ap.add_argument("--allow-unidentified", action="store_true",
+                    help="proceed when our entries cannot be found in the fields (e.g. a week entered through a vetting path); "
+                         "fields then include our own entries and the ENTERED line is skipped (disclosed)")
     ap.add_argument("--main-selector", choices=["mean", "class"], default="mean",
                     help="how the satellite (mean-track) rows are chosen: projected sum, or the class model's score")
     a = ap.parse_args()
@@ -114,8 +117,12 @@ def main() -> None:
     ent["pset"] = ent.lineup_slots_json.map(lambda s: frozenset(i["player"] for i in json.loads(s)))
     ours = ent[ent.pset.isin(book_sets)].user.value_counts()
     if ours.empty or ours.iloc[0] < 50:
-        raise SystemExit("could not identify our entries in the fields (fewer than 50 book matches)")
-    me = ours.index[0]
+        if not a.allow_unidentified:
+            raise SystemExit("could not identify our entries in the fields (fewer than 50 book matches)")
+        print("NOTE: our entries were not identified; the fields include them and the ENTERED line is skipped")
+        me = None
+    else:
+        me = ours.index[0]
     nmap = dict(p.split("=") for p in a.names_map.split(",") if p)
     by_label = {}
     for cid, g in ent.groupby("contest_id"):
@@ -201,7 +208,7 @@ def main() -> None:
         return out
 
     entered = {"tickets": 0, "value": 0.0, "by_type": Counter()}
-    for ct, f in zip(contests, fields):
+    for ct, f in zip(contests, fields if me is not None else []):
         p = f["ours"]
         if f["pay"] is not None:
             won, val = paid(p, f); entered["value"] += val
@@ -210,7 +217,7 @@ def main() -> None:
         else:
             won = int((p >= np.percentile(np.concatenate([f["others"], p]), a.line_q)).sum())
         entered["tickets"] += won; entered["by_type"][ct["name"]] += won
-    entered["mean_pts"] = round(float(np.concatenate([f["ours"] for f in fields]).mean()), 2)
+    entered["mean_pts"] = round(float(np.concatenate([f["ours"] for f in fields]).mean()), 2) if me is not None else float("nan")
     entered["by_type"] = dict(entered["by_type"])
 
     print(f"pool {len(c)} candidates ({int((~playable).sum())} hold a skill player projected < {a.min_proj}); ownership "
