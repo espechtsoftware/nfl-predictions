@@ -109,7 +109,9 @@ def test_run_week_preflights_sessions_then_runs_all_selected_steps(
     manifest = json.loads(manifest_path.read_text())
     assert manifest["status"] == "complete"
     assert manifest["target_week"] == 2
-    assert [step["status"] for step in manifest["steps"]] == ["complete"] * 11
+    assert [step["status"] for step in manifest["steps"]] == ["complete"] * 12
+    assert manifest["steps"][-1]["name"] == "paid-page-completeness"
+    assert manifest["paid_pages"]["line"] == "PAID PAGES: 5 of 5 paid pages captured for Week 2"
 
 
 def test_run_week_forces_fresh_sis_login(monkeypatch, tmp_path):
@@ -232,6 +234,9 @@ def test_week_five_adds_frozen_alignment_download_and_import(
         "qb-shell-import-False",
         "2026-advanced-receiving-support-windows-weekly-v1.json",
         "advanced-receiving-import-False",
+        # the cumulative pages follow every established step, and --audit-only-fp-families covers them too
+        *[event for key in weekly.FP_CUMULATIVE_ORDER for event in (
+            weekly.DEFAULT_FP_CUMULATIVE_PLANS[key].name, f"{key}-import-False")],
         "sis-pass-tail-download",
         "sis-pass-tail-import",
     ]
@@ -383,7 +388,7 @@ def test_qb_shell_import_receives_the_same_weeks_coverage_run(monkeypatch, tmp_p
     monkeypatch.setattr(weekly.fantasy_points_defense_proe_weekly, "run", lambda *_a, **_k: {})
     monkeypatch.setattr(
         weekly.fantasy_points_weekly_2026, "run",
-        lambda key, run_dir, **kwargs: seen.append((key, run_dir.name, kwargs["coverage_dir"], kwargs["target_week"])) or {},
+        lambda key, run_dir, **kwargs: seen.append((key, run_dir.name, kwargs.get("coverage_dir"), kwargs["target_week"])) or {},
     )
     weekly.run_week(
         week=6, fp_profile_dir=tmp_path / "fp", sis_profile_dir=tmp_path / "sis", timeout_seconds=10,
@@ -391,7 +396,7 @@ def test_qb_shell_import_receives_the_same_weeks_coverage_run(monkeypatch, tmp_p
         capture_matchups=False, capture_sis_pass_tail=False, ingest_odds=False, login_if_needed=False,
         sis_team_context=False, now=datetime(2026, 10, 7, 14, tzinfo=UTC),
     )
-    assert [key for key, *_ in seen] == list(weekly.FP_FAMILY_ORDER)
+    assert [key for key, *_ in seen] == [*weekly.FP_FAMILY_ORDER, *weekly.FP_CUMULATIVE_ORDER]
     shell = next(item for item in seen if item[0] == "qb-shell")
     assert shell[2] == runs["2026-coverage-last-four-weekly-v1"] and shell[3] == 6
     assert all(item[2] is None for item in seen if item[0] != "qb-shell")
@@ -465,3 +470,106 @@ def test_every_remaining_run_week_has_a_tracked_team_context_plan_for_the_comple
         specs = sis.load_plan(plan)
         assert {(s.season, s.start_week, s.end_week) for s in specs} == {(2026, week - 1, week - 1)}, plan.name
         assert len(specs) == 11 and sis.plan_request_ceiling(plan) <= 60
+
+
+def test_week_four_declares_every_paid_page():
+    """Production's order D (2026-09-28): the declared list for Wednesday 09-30 (target Week 4, completed Week 3)."""
+    pages = weekly.paid_pages(4, sis_plan=None)
+    labels = [page["page"] for page in pages]
+    assert len(labels) == len(set(labels)) == 25
+    groups = [page["group"] for page in pages]
+    assert {g: groups.count(g) for g in groups} == {
+        "route-share": 1, "defense-proe": 1, "matchups": 3, "fp-cumulative": 9, "sis-team-context": 11,
+    }
+    assert "fantasy-points advanced-rushing-cumulative: advanced-rushing/Player weeks 01-03" in labels
+    assert "fantasy-points advanced-passing-cumulative: advanced-passing/Player weeks 01-03" in labels
+    assert "fantasy-points route-share week 03" in labels and "sis pass-defense-totals week 03" in labels
+    for week in range(2, 19):                                   # unique every week; last-four join from Week 5
+        pages = weekly.paid_pages(week, sis_plan=None)
+        assert len({page["page"] for page in pages}) == len(pages)
+        groups = {page["group"] for page in pages}
+        assert {"alignment", "fp-families", "sis-pass-tail"} <= groups if week >= 5 else "fp-families" not in groups
+
+
+def _wednesday(monkeypatch, tmp_path, events, *, fail=None):
+    """Every Week-4 capture faked; `fail` names one step action that raises."""
+    def act(name, value=None):
+        events.append(name)
+        if name == fail:
+            raise RuntimeError(f"{name} broke")
+        return value
+
+    def download(plan, *_a, **_k):
+        run_dir = tmp_path / "fp" / plan.stem
+        run_dir.mkdir(parents=True, exist_ok=True)
+        return act(plan.stem, run_dir / "manifest.json")
+
+    monkeypatch.setattr(weekly.fp, "verify_login", lambda *_: None)
+    monkeypatch.setattr(weekly.sis, "verify_login", lambda *_: None)
+    monkeypatch.setattr(weekly.fp, "run_downloads", download)
+    monkeypatch.setattr(weekly.fantasy_points_route_weekly, "run", lambda *a, **k: act("route-import", {}))
+    monkeypatch.setattr(weekly.fantasy_points_defense_proe_weekly, "run", lambda *a, **k: act("proe-import", {}))
+    monkeypatch.setattr(weekly.fp_matchups, "run", lambda **_: act("matchups", tmp_path / "m" / "manifest.json"))
+    monkeypatch.setattr(weekly.fantasy_points_matchups_weekly, "run", lambda *a, **k: act("matchups-stage", {}))
+    monkeypatch.setattr(weekly.fantasy_points_weekly_2026, "run",
+                        lambda key, run_dir, **kw: act(f"{key}-import-{kw['write']}", {}))
+    monkeypatch.setattr(weekly.sis, "run_plan", lambda *a, **k: act("sis-capture", {}))
+    monkeypatch.setattr(weekly.sis_team_context_weekly, "run", lambda *a, **k: act("sis-import", {}))
+    return dict(
+        week=4, fp_profile_dir=tmp_path / "fp-profile", sis_profile_dir=tmp_path / "sis-profile", timeout_seconds=10,
+        output_root=tmp_path / "runs", fp_output_root=tmp_path / "fp-out", sis_output_root=tmp_path / "sis-out",
+        ingest_odds=False, login_if_needed=False, now=datetime(2026, 9, 30, 14, 30, tzinfo=UTC),
+    )
+
+
+def test_wednesday_week_four_run_captures_every_paid_page(monkeypatch, tmp_path, capsys):
+    """`nfl-weekly-data run --week 4 --skip-odds --no-login-if-needed`: the cumulative pages run after every
+    established Fantasy Points step and before SIS, and the operator reads one line."""
+    events = []
+    manifest_path = weekly.run_week(**_wednesday(monkeypatch, tmp_path, events))
+    cumulative = [e for key in weekly.FP_CUMULATIVE_ORDER
+                  for e in (weekly.DEFAULT_FP_CUMULATIVE_PLANS[key].stem, f"{key}-import-True")]
+    assert events == ["2026-route-share-weekly-v1", "route-import", "2026-defense-proe-weekly-v1", "proe-import",
+                      "matchups", "matchups-stage", *cumulative, "sis-capture", "sis-import"]
+    manifest = json.loads(manifest_path.read_text())
+    assert manifest["status"] == "complete" and manifest["steps"][-1]["result"] == {"expected": 25, "captured": 25}
+    assert {page["status"] for page in manifest["paid_pages"]["pages"]} == {"captured"}
+    assert "PAID PAGES: 25 of 25 paid pages captured for Week 4\n" in capsys.readouterr().out
+    assert manifest["configuration"]["fantasy_points_cumulative_plans"].keys() == set(weekly.FP_CUMULATIVE_ORDER)
+
+
+def test_a_failed_cumulative_page_is_named_and_fails_the_run_after_sis_is_captured(monkeypatch, tmp_path, capsys):
+    events = []
+    with pytest.raises(RuntimeError, match=r"PAID PAGES: 24 of 25 .*NOT CAPTURED: fantasy-points "
+                                           r"advanced-rushing-cumulative: advanced-rushing/Player weeks 01-03"):
+        weekly.run_week(**_wednesday(monkeypatch, tmp_path, events, fail="advanced-rushing-cumulative-import-True"))
+    assert events[-2:] == ["sis-capture", "sis-import"]                  # SIS was not lost to the vendor page
+    assert "route-shape-cumulative-import-True" in events                 # nor were the pages after it
+    manifest = json.loads(next((tmp_path / "runs").glob("*/manifest.json")).read_text())
+    assert manifest["status"] == "failed" and manifest["steps"][-1]["name"] == "paid-page-completeness"
+    (failed,) = [page for page in manifest["paid_pages"]["pages"] if page["status"] == "FAILED"]
+    assert failed["reason"].startswith("fantasy-points-advanced-rushing-cumulative-import failed")
+
+
+def test_a_fatal_failure_still_names_every_page_it_leaves_uncaptured(monkeypatch, tmp_path, capsys):
+    events = []
+    with pytest.raises(RuntimeError, match="matchups broke"):
+        weekly.run_week(**_wednesday(monkeypatch, tmp_path, events, fail="matchups"))
+    manifest = json.loads(next((tmp_path / "runs").glob("*/manifest.json")).read_text())
+    assert manifest["steps"][-1]["name"] == "fantasy-points-live-matchups"     # no step after the failure
+    status = {page["page"]: page for page in manifest["paid_pages"]["pages"]}
+    assert status["fantasy-points route-share week 03"]["status"] == "captured"
+    assert status["fantasy-points qb-coverage-matchup (live, Week 4)"]["reason"].startswith(
+        "fantasy-points-live-matchups failed")
+    assert status["sis pass-defense-totals week 03"]["reason"] == "sis-approved-plan never ran"
+    assert "PAID PAGES: 2 of 25 paid pages captured for Week 4; NOT CAPTURED:" in capsys.readouterr().out
+
+
+def test_skipped_pages_are_named_not_failed(monkeypatch, tmp_path, capsys):
+    """The SIS-only re-run: the Fantasy Points pages are named as skipped by the flag, never counted as captured."""
+    events = []
+    kwargs = _wednesday(monkeypatch, tmp_path, events)
+    weekly.run_week(**{**kwargs, "skip_fantasy_points": True, "capture_matchups": False})
+    assert events == ["sis-capture", "sis-import"]
+    assert ("PAID PAGES: 11 of 11 paid pages captured for Week 4 (14 skipped by --skip-fantasy-points)\n"
+            in capsys.readouterr().out)

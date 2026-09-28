@@ -59,6 +59,22 @@ FP_FAMILY_ORDER = ("advanced-passing", "route-shape", "coverage", "qb-shell", "a
 DEFAULT_FP_FAMILY_PLANS = {
     key: PLANS_DIR / f"{fantasy_points_weekly_2026.FAMILIES[key].plan_name}.json" for key in FP_FAMILY_ORDER
 }
+# 2026-09-28 (operator: "Fix that" -- every paid page, every week): the cumulative (1..W-1) page of every windowed
+# family, and Advanced Rushing, from target week 4, raw-captured into *_cumulative tables. They run after every
+# established Fantasy Points step and are not fatal: a failure is recorded, the run goes on to SIS, and the paid-page
+# gate names the pages and fails the run at the end.
+FP_CUMULATIVE_ORDER = (
+    "advanced-passing-cumulative", "advanced-rushing-cumulative", "route-shape-cumulative", "coverage-cumulative",
+    "qb-shell-cumulative", "alignment-cumulative", "advanced-receiving-cumulative",
+)
+DEFAULT_FP_CUMULATIVE_PLANS = {
+    key: PLANS_DIR / f"{fantasy_points_weekly_2026.FAMILIES[key].plan_name}.json" for key in FP_CUMULATIVE_ORDER
+}
+SIS_PASS_TAIL_VIEWS = (
+    ("pass-defense-totals", "all"), ("pass-defense-value", "all"), ("pass-rush-totals", "all"),
+    ("pass-defense-totals", "wide"), ("pass-defense-totals", "slot"),
+)
+PAID_PAGE_GATE = "paid-page-completeness"
 
 
 SIS_PLANS_DIR = PROJECT_ROOT / "automation" / "sis" / "plans"
@@ -71,6 +87,56 @@ def sis_team_context_plan(week: int) -> Path:
 
 def _is_team_context_plan(plan: Path | None) -> bool:
     return plan is not None and plan.stem.startswith("team-context-2026-")
+
+
+def _weeks(first: int, last: int) -> str:
+    return f"week {last:02d}" if first == last else f"weeks {first:02d}-{last:02d}"
+
+
+def paid_pages(week: int, *, sis_plan: Path | None, stage_matchups: bool = True) -> list[dict[str, Any]]:
+    """Declare every paid Fantasy Points and SIS page target week W must capture (production's order D, 2026-09-28).
+
+    Each page names the steps that download, validate and load it; it counts as captured only when all of them
+    completed. `group` is what a --skip flag can leave out. Without an explicit SIS plan the tracked team-context
+    plan of the completed week declares the SIS pages (a missing plan is itself a page that cannot be captured).
+    """
+    pages: list[dict[str, Any]] = []
+
+    def add(group: str, labels: Sequence[str], steps: Sequence[str]) -> None:
+        pages.extend({"page": label, "group": group, "steps": list(steps)} for label in labels)
+
+    if week >= 2:
+        add("route-share", [f"fantasy-points route-share {_weeks(week - 1, week - 1)}"],
+            ("fantasy-points-route-download", "fantasy-points-route-import"))
+        add("defense-proe", [f"fantasy-points offense-proe/Defense {_weeks(week - 1, week - 1)}"],
+            ("fantasy-points-defense-proe-download", "fantasy-points-defense-proe-import"))
+    add("matchups", [f"fantasy-points {m.key} (live, Week {week})" for m in fp_matchups.MATCHUPS],
+        ("fantasy-points-live-matchups", *(("fantasy-points-matchups-stage",) if stage_matchups else ())))
+    if week >= 5:
+        add("alignment", [f"fantasy-points alignment: receiving-separation-by-alignment/Player "
+                          f"{_weeks(week - 4, week - 1)}"],
+            ("fantasy-points-alignment-download", "fantasy-points-alignment-import"))
+    for group, keys in (("fp-families", FP_FAMILY_ORDER if week >= 5 else ()), ("fp-cumulative", FP_CUMULATIVE_ORDER)):
+        for key in keys:
+            add(group, [f"fantasy-points {key}: {w.report}/{w.context} "
+                        f"{_weeks(1 if w.kind == 'cumulative' else week - 4, week - 1)}"
+                        for w in fantasy_points_weekly_2026.FAMILIES[key].windows if week >= w.first_target_week],
+                (f"fantasy-points-{key}-download", f"fantasy-points-{key}-import"))
+    plan = sis_plan if sis_plan is not None else (sis_team_context_plan(week) if week >= 2 else None)
+    if plan is not None and plan.is_file():
+        team_context = _is_team_context_plan(plan)
+        add("sis-team-context" if team_context else "sis-plan",
+            [f"sis {spec.report} {_weeks(spec.start_week, spec.end_week)}" for spec in sis.load_plan(plan)],
+            ("sis-approved-plan", *(("sis-team-context-import",) if team_context else ())))
+    elif plan is not None:
+        add("sis-team-context", [f"sis team context {_weeks(week - 1, week - 1)} (no tracked plan {plan.name})"],
+            ("sis-team-context-import",))
+    if week >= 5:
+        first = 1 if week == 5 else week - 1          # as run_pass_tail_weekly_acquisition
+        add("sis-pass-tail", [f"sis pass-tail {report}/{view} {_weeks(first, week - 1)}"
+                              for report, view in SIS_PASS_TAIL_VIEWS],
+            ("sis-pass-tail-download", "sis-pass-tail-import"))
+    return pages
 
 
 def _stamp(now: datetime | None = None) -> str:
@@ -143,6 +209,7 @@ def run_week(
     fp_alignment_plan: Path = DEFAULT_FP_ALIGNMENT_PLAN,
     fp_proe_plan: Path = DEFAULT_FP_PROE_PLAN,
     fp_family_plans: dict[str, Path] | None = None,
+    fp_cumulative_plans: dict[str, Path] | None = None,
     sis_plan: Path | None = None,
     project: str = DEFAULT_PROJECT,
     region: str = DEFAULT_REGION,
@@ -175,6 +242,9 @@ def run_week(
         _, alignment_specs = fp.load_plan(fp_alignment_plan)
         fp.select_target_week(alignment_specs, week)
     family_plans = {**DEFAULT_FP_FAMILY_PLANS, **(fp_family_plans or {})}
+    cumulative_plans = {**DEFAULT_FP_CUMULATIVE_PLANS, **(fp_cumulative_plans or {})}
+    cumulative_keys = [key for key in FP_CUMULATIVE_ORDER
+                       if week >= fantasy_points_weekly_2026.FAMILIES[key].first_target_week]
     # 2026-09-23 (operator: SIS is paid for and collected EVERY week; no silent fallbacks): one run captures AND loads
     # the SIS team context of the completed week. Without an explicit --sis-plan the tracked plan for W-1 is used; a
     # missing plan fails the run loudly at the SIS stage (after every Fantasy Points step, so nothing FP is lost).
@@ -196,6 +266,8 @@ def run_week(
         if week >= 5:
             for key in FP_FAMILY_ORDER:
                 fp.select_target_week(fp.load_plan(family_plans[key])[1], week)
+        for key in cumulative_keys:
+            fp.select_target_week(fp.load_plan(cumulative_plans[key])[1], week)
     if sis_plan is not None:
         sis.load_plan(sis_plan)
         sis.plan_request_ceiling(sis_plan)
@@ -228,6 +300,10 @@ def run_week(
                 {key: str(family_plans[key]) for key in FP_FAMILY_ORDER}
                 if collect_fp_families and week >= 5 else None
             ),
+            "fantasy_points_cumulative_plans": (
+                {key: str(cumulative_plans[key]) for key in cumulative_keys}
+                if collect_fp_families and cumulative_keys else None
+            ),
             "collect_fp_families": bool(collect_fp_families),
             "write_fp_families": bool(write_fp_families),
             "capture_matchups": bool(capture_matchups),
@@ -240,9 +316,62 @@ def run_week(
         "steps": [],
         "status": "running",
     }
+    # D. The paid-page gate (production's order, 2026-09-28): every page declared for this week ends the run either
+    # captured, left out by a named --skip flag, or FAILED and named in the operator's one line -- never an absent row.
+    fp_skip = None if fp_on else "--skip-fantasy-points"
+    families_skip = fp_skip or (None if collect_fp_families else "--skip-fp-families")
+    skip_flags = {
+        "route-share": fp_skip, "alignment": fp_skip, "defense-proe": families_skip,
+        "fp-families": families_skip, "fp-cumulative": families_skip,
+        "matchups": fp_skip or (None if capture_matchups else "--skip-matchups"),
+        "sis-team-context": None if sis_plan is not None or sis_team_context else "--skip-sis-team-context",
+        "sis-plan": None, "sis-pass-tail": None if capture_sis_pass_tail else "--skip-sis-pass-tail",
+    }
+    audit_only = {
+        "route-share": not write_route, "alignment": not write_alignment, "defense-proe": not write_fp_families,
+        "fp-families": not write_fp_families, "fp-cumulative": not write_fp_families,
+        "matchups": not write_matchups, "sis-team-context": not write_sis_team_context,
+    }
+    manifest["paid_pages"] = {"pages": [
+        {**page, "skipped_by": skip_flags[page["group"]], "audit_only": audit_only.get(page["group"], False),
+         "status": "pending"}
+        for page in paid_pages(week, sis_plan=sis_plan, stage_matchups=stage_matchups)
+    ]}
     _persist(manifest_path, manifest)
 
-    def step(name: str, action: Callable[[], Any]) -> Any:
+    def paid_page_verdict() -> list[dict[str, Any]]:
+        """Score every declared page against the recorded steps; persist and print the operator's one line."""
+        latest = {record["name"]: record for record in manifest["steps"]}
+        section = manifest["paid_pages"]
+        failed: list[dict[str, Any]] = []
+        for page in section["pages"]:
+            records = [latest.get(name) for name in page["steps"]]
+            if page["skipped_by"]:
+                page["status"] = "skipped"
+            elif all(record is not None and record["status"] == "complete" for record in records):
+                page["status"] = "captured"
+            else:
+                broken = next((r for r in records if r is not None and r["status"] != "complete"), None)
+                page["status"] = "FAILED"
+                page["reason"] = (f"{broken['name']} {broken['status']}: {broken.get('error', '')}" if broken
+                                  else f"{page['steps'][records.index(None)]} never ran")
+                failed.append(page)
+        expected = [page for page in section["pages"] if not page["skipped_by"]]
+        flags = sorted({page["skipped_by"] for page in section["pages"] if page["skipped_by"]})
+        audited = sorted({page["group"] for page in expected if page["audit_only"]})
+        line = f"PAID PAGES: {len(expected) - len(failed)} of {len(expected)} paid pages captured for Week {week}"
+        if flags:
+            line += f" ({len(section['pages']) - len(expected)} skipped by {', '.join(flags)})"
+        if audited:
+            line += f" (audit-only, not archived or appended: {', '.join(audited)})"
+        if failed:
+            line += "; NOT CAPTURED: " + "; ".join(f"{page['page']} [{page['reason']}]" for page in failed)
+        section.update(expected=len(expected), captured=len(expected) - len(failed), line=line)
+        _persist(manifest_path, manifest)
+        print(line, flush=True)
+        return failed
+
+    def step(name: str, action: Callable[[], Any], *, fatal: bool = True) -> Any:
         record: dict[str, Any] = {
             "name": name,
             "status": "running",
@@ -259,8 +388,19 @@ def run_week(
                 "error": str(exc),
                 "finished_at_utc": datetime.now(UTC).isoformat(),
             })
+            if not fatal:
+                # an unproven page: recorded here, named by the paid-page gate at the end; the run goes on
+                _persist(manifest_path, manifest)
+                print(f"{name} FAILED ({type(exc).__name__}: {exc}); continuing, the paid-page gate names its pages",
+                      flush=True)
+                return None
             manifest["status"] = "failed"
             _persist(manifest_path, manifest)
+            if name != PAID_PAGE_GATE:
+                try:
+                    paid_page_verdict()          # names every page this failure leaves uncaptured
+                except Exception as verdict_exc:  # never mask the step's own failure
+                    print(f"paid-page verdict unavailable: {verdict_exc}", flush=True)
             raise
         record.update({
             "status": "complete",
@@ -447,6 +587,28 @@ def run_week(
                         coverage_dir=family_dirs.get("coverage") if key == "qb-shell" else None,
                     ),
                 )
+    if fp_on and collect_fp_families:
+        for key in cumulative_keys:
+            cumulative_manifest = step(
+                f"fantasy-points-{key}-download",
+                lambda key=key: fp.run_downloads(
+                    cumulative_plans[key],
+                    fp_output_root,
+                    fp_profile_dir,
+                    headless=not headed,
+                    timeout_seconds=timeout_seconds,
+                    target_week=week,
+                ),
+                fatal=False,
+            )
+            if cumulative_manifest is not None:
+                step(
+                    f"fantasy-points-{key}-import",
+                    lambda key=key, run_dir=Path(cumulative_manifest).parent: fantasy_points_weekly_2026.run(
+                        key, run_dir, target_week=week, write=write_fp_families,
+                    ),
+                    fatal=False,
+                )
     if sis_steps and not login_if_needed:
         step("sis-session", _require_sis_session)
     if sis_team_context_missing is not None:
@@ -493,6 +655,12 @@ def run_week(
             ),
         )
 
+    def _paid_page_gate() -> dict[str, int]:
+        if paid_page_verdict():
+            raise RuntimeError(manifest["paid_pages"]["line"])
+        return {key: manifest["paid_pages"][key] for key in ("expected", "captured")}
+
+    step(PAID_PAGE_GATE, _paid_page_gate)
     manifest["status"] = "complete"
     manifest["finished_at_utc"] = datetime.now(UTC).isoformat()
     _persist(manifest_path, manifest)
@@ -542,12 +710,12 @@ def _parser() -> argparse.ArgumentParser:
     run.add_argument(
         "--audit-only-fp-families",
         action="store_true",
-        help="validate Defense PROE and the last-four families without archiving/appending",
+        help="validate Defense PROE, the last-four families and the cumulative pages without archiving/appending",
     )
     run.add_argument(
         "--skip-fp-families",
         action="store_true",
-        help="do not download Defense PROE or the last-four families",
+        help="do not download Defense PROE, the last-four families or the cumulative pages",
     )
     run.add_argument(
         "--audit-only-matchups",

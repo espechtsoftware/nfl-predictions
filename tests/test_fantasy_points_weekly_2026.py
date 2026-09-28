@@ -71,8 +71,8 @@ def _write(path, report, context, weeks):
             writer.writerow(["Team"] + [""] * 21)
             writer.writerow(qb_shell._HEADER)
             for rank, name in enumerate(sorted(TEAM_NAMES)[:32], start=1):
-                writer.writerow([rank, name, min(4, len(weeks)), 2026, "", name, 150, 30, 0.4, 70, 0.3, 50, 0.35, 50, 0.36,
-                                 1, 20, 15, 5, 30, 20, 9])
+                writer.writerow([rank, name, min(4, len(weeks)), 2026, "", name, 150, 30, 0.4, 70, 0.3, 50, 0.35,
+                                 50, 0.36, 1, 20, 15, 5, 30, 20, 9])
     else:
         raise AssertionError(report)
 
@@ -295,7 +295,8 @@ def test_first_cumulative_append_creates_the_table_without_querying_it(tmp_path,
     monkeypatch.setattr(weekly, "_table_exists", lambda ref: False)
     monkeypatch.setattr(bq, "query_df", lambda *a, **k: (_ for _ in ()).throw(AssertionError("no query needed")))
     monkeypatch.setattr(bq, "load_dataframe", lambda frame, ref, **kw: loads.append((ref, len(frame), kw)))
-    monkeypatch.setattr(weekly, "_archive", lambda fam, item, bucket: archived.append(item["report"]) or ("gs://x", "created"))
+    monkeypatch.setattr(weekly, "_archive",
+                        lambda fam, item, bucket: archived.append(item["report"]) or ("gs://x", "created"))
     audit = weekly.run("coverage-cumulative", root, target_week=4, write=True)
     ((ref, rows, kwargs),) = loads
     assert ref.endswith(".fantasy_points_coverage_cumulative") and kwargs == {"write_disposition": "WRITE_APPEND"}
