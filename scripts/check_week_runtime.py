@@ -100,7 +100,12 @@ def main():
         wanted = []
         if os.environ.get("LIVE_MIN_PROJ"): wanted.append("--min-proj")
         if tail_sleeve: wanted += ["--tail-sleeve", "--tail-line"]
-        if os.environ.get("LIVE_SELECTOR", "dual_emax") == "mean": wanted.append('"mean"')
+        if os.environ.get("LIVE_SELECTOR", "dual_emax") == "mean":
+            wanted.append('"mean"')
+            if os.environ.get("MEAN_OWN_TILT"): wanted += ["--mean-own-tilt", "--mean-own-source"]
+            if os.environ.get("MEAN_DST_CAP"): wanted.append("--mean-dst-cap")
+            if os.environ.get("MEAN_OWN_TILT") and not Path(os.environ.get("MEAN_OWN_SOURCE", "")).is_file():
+                fail(f"MEAN_OWN_TILT={os.environ['MEAN_OWN_TILT']} needs MEAN_OWN_SOURCE (the ownership sets file); got {os.environ.get('MEAN_OWN_SOURCE')!r}")
         missing = [w for w in wanted if w not in text]
         if missing:
             fail(f"the pinned lab clone {clone} does not accept {missing}; move EXPECT_SHA to a commit that does, or unset the lever")

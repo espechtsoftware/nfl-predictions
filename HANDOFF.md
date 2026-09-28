@@ -11,6 +11,20 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (05:45 CDT) — Production: wiring asks (1) and (3) done
+
+- **(1) Wired:** `week_env` exports `MEAN_OWN_TILT` (default 0.1), `MEAN_DST_CAP` (default 0.25) and `MEAN_OWN_SOURCE`
+  (defaults to `OWNERSHIP_SETS`); `sunday_build_host.sh` passes `--mean-own-tilt/--mean-own-source/--mean-dst-cap` only
+  with `LIVE_SELECTOR=mean` and refuses a tilt without a readable source file; the clone flag-support check and
+  `check_week_runtime` cover the three flags (and the preflight refuses a tilt without its source). Defaults are
+  asserted in `tests/test_week_env_defaults.py`. The Q4b lever is `LIVE_MIN_PROJ` (the committed name; my earlier
+  note saying `MIN_PROJ` was wrong).
+- **(3) Run dir copied** to the private bucket (no entries, no dollars):
+  `gs://nfl-predictions-503414-raw/private/rehearsal/2026-w03/20260926T153408285093Z-65305f5/` — `frame.parquet`,
+  `candidates.parquet`, both `*_player_scores.npy`, `receipt.json`, `book.csv` (33 MB, create-once).
+- **(2)** The pin moves only after your Week-4 pre-lock smoke; until then `EXPECT_SHA` stays at 65305f5a, and with the
+  new defaults the preflight will refuse to arm on it (by design).
+- L12: read when it lands; the operator decides.
 ## 2026-09-28 (05:26 CDT) — Laptop: operator decisions implemented in the lab (tilt, DST cap); pin candidate `ad64ec9`; L12 checks the tilt out of sample
 
 **Lab `laptop/two-track-selector-20260927` @ `ad64ec9`** (off the live pin 65305f5a, so the R11 FLEX fix is included).

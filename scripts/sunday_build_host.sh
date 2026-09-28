@@ -48,10 +48,21 @@ export LIVE_SELECTOR=${LIVE_SELECTOR:-dual_emax} TAIL_LINE=${TAIL_LINE:-210}
 SLEEVE_ARGS=(); if [[ "${TAIL_SLEEVE}" != "0" ]]; then SLEEVE_ARGS=(--tail-sleeve "$TAIL_SLEEVE" --tail-line "$TAIL_LINE"); fi
 # Q4b: drop players projected below LIVE_MIN_PROJ before generation (empty = flag omitted; the audit then fails on non-players).
 MINPROJ_ARGS=(); if [[ -n "${LIVE_MIN_PROJ:-}" ]]; then MINPROJ_ARGS=(--min-proj "$LIVE_MIN_PROJ"); fi
-echo "selector: $LIVE_SELECTOR; mean rows: $BOOK_ENTRIES; tail sleeve: $TAIL_SLEEVE; min proj: ${LIVE_MIN_PROJ:-off}"
+# Mean-track levers (operator 2026-09-28): ownership tilt with its source file, and the per-DST cap. Only with the mean selector.
+MEAN_ARGS=()
+if [[ "$LIVE_SELECTOR" == "mean" ]]; then
+  if [[ -n "${MEAN_OWN_TILT:-}" ]]; then
+    [[ -f "${MEAN_OWN_SOURCE:-}" ]] || { echo "MEAN_OWN_TILT=$MEAN_OWN_TILT needs MEAN_OWN_SOURCE (the Saturday ownership sets file); got '${MEAN_OWN_SOURCE:-}'"; exit 1; }
+    MEAN_ARGS+=(--mean-own-tilt "$MEAN_OWN_TILT" --mean-own-source "$MEAN_OWN_SOURCE")
+  fi
+  [[ -n "${MEAN_DST_CAP:-}" ]] && MEAN_ARGS+=(--mean-dst-cap "$MEAN_DST_CAP")
+fi
+echo "selector: $LIVE_SELECTOR; mean rows: $BOOK_ENTRIES; tail sleeve: $TAIL_SLEEVE; min proj: ${LIVE_MIN_PROJ:-off}; own tilt: ${MEAN_OWN_TILT:-off}; dst cap: ${MEAN_DST_CAP:-off}"
 # Every flag this chain sends must be one the pinned lab clone accepts; a build that dies at argument parsing on
 # Saturday morning is the failure the operator refuses to hear about afterwards (2026-09-27).
 need_flags=(); [[ -n "${LIVE_MIN_PROJ:-}" ]] && need_flags+=(--min-proj); [[ "$TAIL_SLEEVE" != "0" ]] && need_flags+=(--tail-sleeve --tail-line); [[ "$LIVE_SELECTOR" == "mean" ]] && need_flags+=('"mean"')
+[[ "$LIVE_SELECTOR" == "mean" && -n "${MEAN_OWN_TILT:-}" ]] && need_flags+=(--mean-own-tilt --mean-own-source)
+[[ "$LIVE_SELECTOR" == "mean" && -n "${MEAN_DST_CAP:-}" ]] && need_flags+=(--mean-dst-cap)
 for f in "${need_flags[@]}"; do
   grep -q -- "$f" "$CLONE/scripts/live_week.py" || { echo "the pinned lab clone $CLONE does not accept $f (LIVE_SELECTOR=$LIVE_SELECTOR TAIL_SLEEVE=$TAIL_SLEEVE LIVE_MIN_PROJ=${LIVE_MIN_PROJ:-}); move the pin or unset the lever"; exit 1; }
 done
@@ -140,7 +151,7 @@ else
   # 2026-09-17 review finding 3: the builder's exit status is required, not just the presence of a matching directory.
   if ( cd "$CLONE" && NFL2_LIVE_CENTER=production PYTHONPATH="$CLONE/src" OMP_NUM_THREADS=1 "$LAB_PY" scripts/live_week.py \
       --season "$SEASON" --week "$WEEK" --group "$GROUP" --selector "$LIVE_SELECTOR" --lev "$PAID_LEV" --boom "$PAID_BOOM" --sims 10000 --k 1 \
-      --seed 2026 --entries "$BOOK_ENTRIES" --emit-a5-sidecars "${MPG_ARGS[@]}" "${SLEEVE_ARGS[@]}" "${MINPROJ_ARGS[@]}" > /dev/null 2> "$OUT/k90-$RUN_TAG.err" ); then
+      --seed 2026 --entries "$BOOK_ENTRIES" --emit-a5-sidecars "${MPG_ARGS[@]}" "${SLEEVE_ARGS[@]}" "${MINPROJ_ARGS[@]}" "${MEAN_ARGS[@]}" > /dev/null 2> "$OUT/k90-$RUN_TAG.err" ); then
     K90_DIR=$(find_run_dir "$PAID_LEV" "$PAID_BOOM" "$T0")
     [[ -n "$K90_DIR" ]] && check_cap "$K90_DIR"
   else
