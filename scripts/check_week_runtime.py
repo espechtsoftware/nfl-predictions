@@ -103,6 +103,10 @@ def main():
         if os.environ.get("LIVE_MIN_PROJ"): wanted.append("--min-proj")
         if tail_sleeve:
             wanted += ["--tail-sleeve", "--tail-line", "--tail-sleeve-selector"]
+            if os.environ.get("TAIL_SLEEVE_SELECTOR", "emax") == "mean":
+                import re as _re
+                if not _re.search(r'"--tail-sleeve-selector"[^\n]*\n?[^\n]*"mean"', text):
+                    fail(f"the pinned lab clone {clone} has no --tail-sleeve-selector mean (lab 54dd512+); move the pin or declare no tail contests")
             if os.environ.get("TAIL_SLEEVE_SELECTOR", "emax") == "class":
                 wanted.append("--class-model")
                 cm = os.environ.get("CLASS_MODEL", "")

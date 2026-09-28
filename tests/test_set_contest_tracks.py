@@ -123,3 +123,15 @@ def test_rule_line_main_writes_the_order(tmp_path, capsys):
     got = json.loads(cfile.read_text())
     assert got["week"] == 4 and [c["name"] for c in got["contests"]] == ["supersat", "wildcat", "sat20", "milly"]
     assert sct.main(["--contests", str(cfile), "--details", str(dfile), "--rule", "line", "--all-main"]) == 2
+
+
+def test_deep_as_tail_is_the_laptops_alternative_not_the_default():
+    """The laptop's measured 10:29 configuration stays one flag away: deep-line contests + a forced Millionaire on a
+    mean-selected sleeve, the Millionaire first, then by depth; main contests keep their depth order before them."""
+    cs = [{k: v for k, v in c.items() if k != "priority"} for c in CONTESTS]
+    cs[2] = dict(cs[2], track_override="tail")                       # the Millionaire (p76.9) forced onto the sleeve
+    out, lines, problems = sct.decide_by_line(cs, DETAILS, 0.02, deep_as_tail=True)
+    assert problems == []
+    assert [(c["name"], c["track"]) for c in out] == [("sat20", "mean"), ("milly", "tail"), ("supersat", "tail"), ("wildcat", "tail")]
+    assert [c["priority"] for c in out[1:]] == [1, 2, 3]
+    assert [ln for ln in lines if ln.startswith("deal:")][0] == "deal: sleeve rows 1-20 -> milly (line p76.9, priority 1)"

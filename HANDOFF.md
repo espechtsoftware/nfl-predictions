@@ -150,6 +150,39 @@ pre-lock map, exact ladders):
 - **Production, please:** confirm the setter and the chain produce configuration A, and correct the calendar entry.
 
 The Week-1 out-of-sample gate for items 1 and 2 is next, on the run dir production uploaded (0f41b772).
+## 2026-09-28 (11:20 CDT) — OPERATOR (relaying the reviewer, 11:15): DEALING ORDER ONLY — one mean-selected book, deep-line contests dealt first, no sleeve; "arm now". Production ARMED it. One discrepancy flagged for the reviewer.
+
+Verbatim: "dealing order only. P(≥line) and EMAX both measured below the mean at every real line on the Week-3 pool (and
+within 2% of MEAN in L09), so a separate sleeve from them would put worse rows into the deepest contests. One
+mean-selected book, deep-line contests dealt first; the class sleeve (half the boom visits) is what raises the deep-line
+rows, and the mean selector will rank them into the top on its own. Arm now; L13 can be read but shouldn't change this."
+
+**Flag for the reviewer (production, not a re-litigation):** the laptop's 10:29 configuration is NOT a P(≥line) or EMAX
+sleeve. It is a MEAN-selected sleeve (lab 54dd512, `--tail-sleeve-selector mean`: tail rows by projected sum under the
+overlap cap) for the deep-line contests, the Millionaire first, then by depth, and on the exact ladders it beat the
+armed configuration on both rehearsal weeks: Week 3 **23 vs 20** paid, Week 1 **40 vs 31** (the Millionaire's 57 entries
+took 27 paid vs 17). The reviewer's reason (worse selectors in the deepest contests) does not apply to it; the mechanism
+is different: a sleeve may REPEAT the main book's top rows, so the Millionaire's 57 entries are the top-57 by mean, while
+under the armed head layout its 57 entries are the shared top four plus 53 UNIQUE rows dealt down the book. The
+reviewer's ruling stands and is armed; the alternative is one setter flag away (`--deep-as-tail`, with
+`TAIL_SLEEVE_SELECTOR=mean`, both accepted by the chain) if the reviewer revises after seeing these numbers.
+
+**Armed (this commit) — `week_env.sh` defaults are now the adopted configuration:** `LIVE_SELECTOR=mean`,
+`ENTER_LAYOUT=head`, `ENTER_ORDER=greedy`, `CLASS_SLEEVE_EVERY=2`, `TAIL_SLEEVE_SELECTOR=mean` (moot with no tail
+contests; the only sleeve selector the chain accepts besides emax/class), `MEAN_DST_CAP=0.25`, `MEAN_OWN_TILT=0`,
+`LIVE_MIN_PROJ=1.0`, T-70 rules on. `tests/test_week_env_defaults.py` pins them. Contest file:
+`set_contest_tracks.py --rule line --write` (every contest main-track, deepest line first, `deep_line` flagged at p98);
+Week-3 smoke: 45 contests, 204 entries, 21 deep-line contests lead the file, head layout needs 144 rows, sleeve 0.
+
+**Still required before the Sunday build can run (the preflight refuses each one loudly):**
+1. `EXPECT_SHA` → the lab commit carrying `dd0ce98` and `54dd512` (`--class-sleeve-every`; `--tail-sleeve-selector mean`);
+   the current pin 65305f5a fails the flag check.
+2. `$OUT/class_model.json` + `.sha256` = the laptop's `class_model_w4_w1w3.json` (sha256 `92cec733…`, in
+   `gs://…/private/week4/`); the sleeve's shape band reads its map.
+3. Sunday `$OUT/dose.env` with `PAID_LEV=0` and the boom count the laptop sets (item 6).
+4. Friday: `dk_contest_details.py` then `set_contest_tracks.py --rule line --write` on the Week-4 contest file.
+5. The class paper arm (`class_paper_arm.py`, laptop) after the Sunday build, never uploaded, scored Monday.
+
 ## 2026-09-28 (11:05 CDT) — OPERATOR (relaying the reviewer): class selector WITHDRAWN for entry; Week 4 = mean selector everywhere + class sleeve; class selector becomes a paper arm; tail contests by line percentile kept; Sunday T-70 build primary
 
 Verbatim: "the laptop's Week-1 test settles it; I withdraw the class selector for entry. Adopt the laptop's

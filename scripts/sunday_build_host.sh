@@ -84,6 +84,9 @@ need_flags=(); [[ -n "${LIVE_MIN_PROJ:-}" ]] && need_flags+=(--min-proj); [[ "$T
 [[ "$TAIL_SLEEVE" != "0" ]] && need_flags+=(--tail-sleeve-selector)
 [[ "${CLASS_SLEEVE_EVERY:-0}" != "0" ]] && need_flags+=(--class-sleeve-every --class-model)
 [[ "$TAIL_SLEEVE" != "0" && "${TAIL_SLEEVE_SELECTOR:-emax}" == "class" ]] && need_flags+=(--class-model)
+if [[ "$TAIL_SLEEVE" != "0" && "${TAIL_SLEEVE_SELECTOR:-emax}" == "mean" ]]; then
+  grep -A1 -- '"--tail-sleeve-selector"' "$CLONE/scripts/live_week.py" | grep -q '"mean"' || { echo "the pinned lab clone $CLONE has no --tail-sleeve-selector mean (lab 54dd512+); move the pin or declare no tail contests"; exit 1; }
+fi
 for f in "${need_flags[@]}"; do
   grep -q -- "$f" "$CLONE/scripts/live_week.py" || { echo "the pinned lab clone $CLONE does not accept $f (LIVE_SELECTOR=$LIVE_SELECTOR TAIL_SLEEVE=$TAIL_SLEEVE LIVE_MIN_PROJ=${LIVE_MIN_PROJ:-}); move the pin or unset the lever"; exit 1; }
 done
@@ -197,7 +200,7 @@ if r["config"].get("selector") != selector: problems.append(f"selector {r['confi
 _ts = (r["config"].get("tail_sleeve") or {}); got_sleeve = int(_ts.get("rows", 0)) if isinstance(_ts, dict) else int(_ts or 0)
 if got_sleeve != sleeve: problems.append(f"tail sleeve {got_sleeve} != configured {sleeve}")
 sleeve_used = (_ts.get("selector_used") if isinstance(_ts, dict) else None) or "none"
-if sleeve and sleeve_used not in ("class", "emax"): problems.append(f"tail sleeve selector_used {sleeve_used!r} is neither class nor emax")
+if sleeve and sleeve_used not in ("class", "emax", "mean"): problems.append(f"tail sleeve selector_used {sleeve_used!r} is none of class/emax/mean")
 if sleeve and sleeve_used == "emax" and isinstance(_ts, dict) and isinstance(_ts.get("class"), dict) and _ts["class"].get("failure"):
     print(f"NOTE: the class selector FAILED and the sleeve fell back to EMAX: {_ts['class'].get('failure')}")
 total_rows = entries + sleeve
