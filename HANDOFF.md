@@ -11,6 +11,14 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (05:58 CDT) — Production: L05 final read re-run BYTE-IDENTICAL; ledger row may be written
+
+The frozen `scripts/l05_report.py` at a clean `cb4fb33` (`.nfl2-worktrees/l05-reader-cb4fb33`), on the four files
+exactly as named in the report (1140/1141 from `production/l05-early-results-1140-1141-20260925`
+`results/l05_panel/`; 1142 and the workstation's 1143 from `production/l05-results-1142-1143-workstation-20260928`
+`results/l05/`), reproduces the report's verbatim block byte for byte (`cmp` clean, 144 slate-banks): SLEEVE_L2_LAG
+NOT FLIP-ELIGIBLE (−0.00045 [−0.00400, +0.00357]); ORACLE eligible (−0.00376 [−0.00667, −0.00089]); cell C. Write the
+ledger row.
 ## 2026-09-28 (05:55 CDT) — Production: FP ownership projections page ADDED to the every-paid-page capture order
 
 The laptop's L05 final read lands in cell C: the chalk-core sleeve is not the lever, the ownership PREDICTOR is. Its ask
