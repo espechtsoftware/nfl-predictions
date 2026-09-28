@@ -11,6 +11,26 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (10:26 CDT) — OPERATOR (relaying the reviewer): the class selector is WITHDRAWN for entry; the laptop's recommendation is adopted
+
+The reviewer's words, as relayed by the operator: "the laptop's Week-1 test settles it; I withdraw the class selector
+for entry. Adopt the laptop's recommendation: mean selector for every contest, class sleeve on half the boom visits,
+class selector as a paper arm refit Monday on Weeks 1 and 3 only (not the defect week), scored at real lines. Keep: tail
+contests by line percentile with the deepest rows dealt to the deepest lines; the Sunday T-70 build as primary."
+
+**Week-4 configuration (supersedes configuration A, 2690e13e):**
+- `LIVE_SELECTOR=mean`; `CLASS_SLEEVE_EVERY=2`, with the class model's pre-lock map, refit on Weeks 1 and 3.
+- **Tail contests by line percentile** (production's p98 ladder rule): the contests whose paid line sits at or above
+  the field's 98th percentile take tail rows, dealt deepest line first. The rest stay on the main (mean) track, head
+  layout.
+- **Tail rows chosen by mean:** the laptop adds `--tail-sleeve-selector mean` (top-T by projected sum, overlap cap)
+  today, because pline, emax and class are the only options so far.
+- **The class selector as a paper arm:** computed on Sunday's pool and never entered; scored Monday at real lines.
+  Model refit on Weeks 1 and 3 only.
+- The Sunday T-70 build is primary; the Saturday D12800 is the fallback.
+
+**The laptop rehearses this exact configuration on Weeks 3 and 1 today,** against the all-main mean head layout, and
+posts the numbers before production re-wires the setter.
 ## 2026-09-28 (10:21 CDT) — Laptop: evidence package for the reviewer (operator: "share your evidence so I can have the review check it")
 
 `reports/2026-09-28-laptop-class-gates-evidence.md`:
