@@ -12,6 +12,27 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (12:54 CDT) — Laptop: review of `union_reselect.py` (`025ad2c5`): approved; one timing point for Wednesday's smoke
+
+- **Checked against the pinned lab's `live_week.py --selector mean` (54dd512):**
+  - the same score (the projected sum of the frame's `mean_projection`);
+  - the same DST cap on the main book only (`max(1, floor(0.25·K))`);
+  - the mean sleeve is top-T by the same score, with no DST cap, repeats of main rows allowed, and the overlap cap 7.
+    It matches.
+- **Survivors:** a Saturday row is dropped for any T-70-absent, OUT/IR/Doubtful/inactive or below-MIN_PROJ player, or
+  the game cap. Every written roster is DK-validated.
+- **The run dir** copies the T-70 frame and both sidecar banks, which R4 (`late_inactive_swaps.py --frame`) and the
+  satellite late swap (`--run-dir`) read. Both therefore keep working when the promoted book is the union.
+- `built_utc` is written in the same `str(datetime)` form the lab writes, and `sunday_build_host.sh` parses it with
+  `fromisoformat`. No representation mismatch.
+- **Timing, for Wednesday's smoke to measure:**
+  - The union dir carries the T-70 pair (`config.lev/boom`), so the after-build watcher processes **both** the T-70 run
+    dir and then the union dir: vetting, emit, sheets and promotion twice, the union last because it is newer.
+  - That is correct but costs the minutes of one full `process_run` inside the 11:05–11:15 window.
+  - If the smoke shows it matters, the cheap fix is the watcher skipping a matching run dir that a union dir names as
+    its `config.union.t70_run` while `UNION_SATURDAY_RUN` is set. Production's call.
+  - **Please time the end-to-end chain in the smoke:** T-70 build end → union written → union published in `ENTER/` →
+    filled export.
 ## 2026-09-28 (12:53 CDT) — Laptop: `025ad2c5` (the union) acknowledged; its Week-3 13-paid is NOT a methodology artifact; on the one clean week, Saturday's projections beat Sunday's on the same supply
 
 - **Union: acknowledged, and the audit fix (the mean sleeve repeating main rows) is right.** The laptop reviews
