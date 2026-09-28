@@ -11,6 +11,72 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (11:08 CDT) — Laptop: L12 READ (INCONCLUSIVE); the Week-4 Sunday chain fixed for the laptop host (`4df5a5b7`); the late swap needs a fresh status snapshot (`c858d5f3`); requests to production
+
+**L12 (the ownership tilt out of sample): INCONCLUSIVE.**
+- T10 vs MEAN at p89: 1,030 vs 1,012 (+1.8%); 2023 475 vs 456, 2024 555 vs 556; paired 28–27. T20 is worse (989).
+- Week 4 is unaffected: `MEAN_OWN_TILT=0` stands.
+- The question reopens only if PREREG-O1 finds a materially better ownership predictor.
+- Report: `reports/2026-09-28-laptop-l12-result.md` (reader output verbatim). Result files: lab
+  `laptop/l12-results-20260928` @ `7dfcb96`.
+- **L13 started automatically at 11:06** (72 slate-banks, 24 workers).
+
+**The Week-4 Sunday chain, checked against the code (the laptop owns it from Week 4):** five problems would have
+broken or degraded Sunday 10-04 on the laptop. Fixed in `4df5a5b7`, with tests:
+1. **The lev-0 dose was refused.** `build_inputs.assess_files` and `week_inputs.validate_dose` required
+   `CHOSEN_LEV > 0`, and the watcher promotes only the chosen dose. Lev 0 is now a dose; boom must still be > 0.
+2. **The T-70 slot ignored `dose.env`.**
+   - Every timer passes explicit `PAID_LEV`/`PAID_BOOM` with `DOSE_FILE=/dev/null`, so the T-70 build was 160/640.
+   - The dose now comes from `D800_*`/`D3200_*` at arm time.
+   - New `SKIP_UNITS`: the laptop must not run the 05:30 D6400 or the Saturday D6400 beside the builds it depends on.
+3. **Nothing forced the T-70 build onto post-inactives projections.** The 10:03 hourly batch passes a 120-minute age
+   check.
+   - `check_build_inputs --min-generated-at` (armed as `T70_MIN_PROJ_CT=10:30`) now refuses it.
+   - Opt-in `T70_PROJECT=1` arms a 10:33 `nfl-dfs ingest-dk` and a 10:36
+     `gcloud run jobs execute project-slate --update-env-vars T70_ACTIVE_Q=1,T70_VACATED_BUMP=1 --wait`. An execution
+     takes about 3 minutes (the 09-27 runs took 2:43–3:19).
+   - Both are operator-armed like the rest.
+4. **`GCP_PROJECT` is now on every unit.** The Week-3 D12800 died in 5 s without it; the promised fix was never
+   committed.
+5. **Two afternoon gaps:**
+   - (a) R4's snapshot step (`sunday_live_relayout.sh --dry-run`) refuses unless `ENTER_ORDER=fewest-low`, and
+     refuses a swapped bundle. New `scripts/dk_status_snapshot.py --group G` writes the same `id,status,game_start`
+     file; live on 154078 today it returned 619 players.
+   - (b) The DK-entries watcher stopped at a hard-coded 16:58Z. It now runs to `ENTRIES_END_UTC` (15:20 CT), so the
+     R4 and late-swap bundles get a refilled export.
+
+**Proposed Week-4 arming** (operator, laptop, Saturday morning; the dose is confirmed by Wednesday's timing):
+- `chosen-dose.env` = `CHOSEN_LEV=0 CHOSEN_BOOM=4800`.
+- ```
+  EXPECT_SHA=54dd5126be04020a2267dc41a0ef1504d1415296 CLONE=$HOME/projects/.nfl2-worktrees/week4-live-center \
+  D3200_LEV=0 D3200_BOOM=4800 D800_LEV=0 D800_BOOM=4800 SKIP_UNITS="d6400sat d6400" \
+  T70_MIN_PROJ_CT=10:30 T70_PROJECT=1 scripts/arm_week_timers.sh 4 --run
+  ```
+- What each slot does:
+  - The 09:10 slot builds the same shape before the inactives and is promoted first: an automatic fallback that is
+    done about 09:30, so it never competes with the T-70 build.
+  - The T-70 build (10:50, gated on the 10:36 projections) replaces it.
+  - The Saturday D12800 stays as the second fallback: change `chosen-dose.env` to 2560/10240 and restart the watcher.
+- 54dd512 descends from the Week-3 pin 65305f5a and the Week-2 repair 2dc116ce (checked with `merge-base
+  --is-ancestor`). `week_env`'s defaults move to it Wednesday, after the full-size smoke.
+
+**Late swap (`c858d5f3`):**
+- `--snapshot` is now required live, ≤ 30 min old and covering ≥ 90% of the frame. Without it the script refuses and
+  the entries stand.
+- A late player who is out (R4's statuses, or absent from the feed) scores 0 in every world and is never swapped in.
+- Week-3 rehearsal with Flowers OUT: he is never swapped in, and two flat-contest rows swap him out.
+- It runs after R4, on R4's re-published bundle.
+- **R4 replayed on the laptop:** `late_inactive_swaps.py` on the Week-3 bundle reproduces production's smoke exactly
+  (rows 123/127/136/137 → Pickens, 131 → McBride; exit 0).
+
+**Requests to production** (before the workstation goes away):
+- **(A)** Re-run the L12 reader (`scripts/l12_report.py` from a clean `0d1e1d8` on lab `laptop/l12-results-20260928`)
+  and `cmp` it.
+- **(B)** Review `4df5a5b7`. You built this chain, so please check:
+  - that the arm-script restructure keeps print/`--run` parity (one `arm()` does both now);
+  - that `sunday_build_host.sh` → `live_week.py` accepts `PAID_LEV=0` end to end;
+  - anything else in the chain that assumes lev > 0 (the receipt's `config.lev`, the audit).
+- **(C)** Review `c858d5f3` and `6c22d379`.
 ## 2026-09-28 (10:50 CDT) — Laptop: the satellite late swap now touches only flat-payout contests
 
 - **Defect found before entry:** `scripts/sat_late_swap_live.py` used every contest's last paid place as its line. For a
