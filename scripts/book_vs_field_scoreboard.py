@@ -26,7 +26,7 @@ SKILL = ("QB", "RB", "WR", "TE")
 def player_arrays(fr: pd.DataFrame, played: set[str], real: dict[str, float], pcol: str,
                   own: dict[str, float] | None = None) -> dict:
     """Per-frame-row arrays used by summarize(); real and own are keyed by display_name (0 when absent).
-    `own` is slot-summed field ownership in percent (the 2026 import writes one row per roster slot)."""
+    `own` is field ownership in percent (main() counts it from the contest's lineups; see field_ownership_sql)."""
     skill = fr.position.isin(SKILL).to_numpy()
     dnp = skill & ~fr.gsis_id.astype(str).isin(played).to_numpy()
     r = np.array([real.get(str(n), 0.0) for n in fr.display_name], float)
@@ -108,6 +108,18 @@ def heavy_user_mask(entry_names: pd.Series, lo: int = 51, hi: int = 150) -> np.n
     return n.between(lo, hi).to_numpy()
 
 
+def field_ownership_sql(raw: str, season: int, week: int, contest_id: str) -> str:
+    """Per-player field ownership (percent of lineups) counted from the contest's own lineups.  The stored
+    %Drafted rows are DK's printed summary, which omits a player's second slot row when both slots carry the
+    identical share (HANDOFF 2026-09-27 19:35), so a slot sum of the printed rows can halve a player."""
+    return f"""WITH e AS (SELECT * FROM `{raw}.contest_entries` WHERE season={int(season)} AND week={int(week)}
+          AND contest_id='{contest_id}'
+          QUALIFY ROW_NUMBER() OVER (PARTITION BY entry_id ORDER BY imported_at DESC) = 1)
+        SELECT JSON_VALUE(it, '$.player') display_name,
+               100.0 * COUNT(DISTINCT e.entry_id) / (SELECT COUNT(*) FROM e) own
+        FROM e, UNNEST(JSON_QUERY_ARRAY(e.lineup_slots_json)) it GROUP BY 1"""
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("run_dir", type=Path)
@@ -128,11 +140,16 @@ def main() -> None:
         raise SystemExit(f"weekly_stats has no rows for {s} week {w}; refresh nflverse first")
     own = query_df(f"SELECT display_name, MAX(fpts) fpts FROM `{settings.raw}.contest_ownership` "
                    f"WHERE season={s} AND week={w} GROUP BY 1")
-    field_own = query_df(f"""SELECT display_name, SUM(pct_drafted) own FROM (
+    field_own = query_df(field_ownership_sql(settings.raw, s, w, args.contest_id))
+    printed = query_df(f"""SELECT display_name, SUM(pct_drafted) own FROM (
         SELECT * FROM `{settings.raw}.contest_ownership`
         WHERE season={s} AND week={w} AND contest_id='{args.contest_id}'
         QUALIFY ROW_NUMBER() OVER (PARTITION BY display_name, roster_position ORDER BY imported_at DESC) = 1)
         GROUP BY 1""")
+    gap = field_own.merge(printed, on="display_name", how="left", suffixes=("", "_printed")).fillna({"own_printed": 0.0})
+    gap = gap[(gap.own - gap.own_printed).abs() > 0.05]   # rounding and blank-lineup entries stay under 0.05
+    print(f"field ownership from the contest's lineups; {len(gap)} player(s) differ from the summed printed %Drafted "
+          f"(DK omits identical-share slot rows)" + (f", e.g. {gap.sort_values('own').display_name.iloc[-1]}" if len(gap) else ""))
     a = player_arrays(fr, played, dict(zip(own.display_name.astype(str), own.fpts.astype(float))), pcol,
                       dict(zip(field_own.display_name.astype(str), field_own.own.astype(float))))
 
