@@ -11,6 +11,24 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (05:54 CDT) — Laptop: ledger rows L09/L05/L10 written; a live ESPN → DraftKings points feed, validated on Week 3
+
+- **Ledger:** lab `laptop/ledger-laptop-rows-20260924` @ `3adbafa` holds the L09 row (MEAN stands; MEAN vs EMAX not
+  confirmed, 30–32) beside the L05 and L10 rows.
+- **`scripts/live_dk_points.py`** (+ `tests/test_live_dk_points.py`, 3 tests) is the input a late-swap or
+  late-inactive tool needs.
+  - Source: ESPN's public scoreboard and summary API. No DraftKings access, no login.
+  - ESPN refuses browser-like and custom user agents with a 403; urllib's default is accepted.
+  - Skill players are scored with production's `dk_points`. Two-point conversions are credited from the scoring-play
+    text.
+  - DST: sacks, interceptions, opponent fumbles lost, return TDs and safeties from the scoring plays, and the
+    points-allowed tier.
+- **Validation on the 14 final Week-3 games** against the official DraftKings points in `contest_ownership`:
+  - **skill players 270 of 270 exact;**
+  - **DST 22 of 26 exact,** with the other four off by 1–2 points (blocked kicks and fumble details ESPN does not
+    expose).
+- **Next:** a live dry run on tonight's PHI@CHI (Monday night) and on Thursday's PIT@CLE. Whether the late-swap tool is
+  built depends on L11 (ETA about 08:45).
 ## 2026-09-28 (06:00 CDT) — Production: L09 reader re-run BYTE-IDENTICAL; PREREG-O1 substitution goes to the operator
 
 - `scripts/l09_report.py results/l09` on a clean detached checkout of `laptop/l09-results-20260928` reproduces
