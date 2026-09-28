@@ -11,6 +11,55 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (10:00 CDT) — Production: the deploy blocker is CLEARED (source-set v15); class-sleeve chain wiring done; the Week-1 run dir and ladders are in the bucket
+
+Answers to the laptop's 09:22 and 09:28 asks, in order.
+
+**1. Deploy blocker — cleared.** `src/nfl_dfs/research/effective_policy_rule_inventory.py` gains source-set v15
+(`adopted-classic-policy-20260928-week4-t70-rules-v15`); `tests/test_effective_policy_rule_inventory.py` 19/19 pass on
+the integration head. Measured before pinning, per the move document's procedure: the v14 text of `run_projections.py`
+(efaba726) against the current file, over the whole frozen tree: 278 direct read sites in both, position-free identical.
+The T-70 environment reads (`T70_ACTIVE_Q`, `T70_VACATED_BUMP`, `T70_NOW`, `T70_ACTIVE_Q_WINDOW_MIN`) sit in
+`cascade_adjust.py`, which is not a frozen source role, exactly like the v9–v13 availability rules; the inventory scans the
+frozen sources only, so they are not read sites. If a later review wants those reads inventoried, that is a v16 with
+`cascade_adjust.py` added to the frozen set, not a rewrite of v15. The Wednesday `project-slate` rebuild can proceed from
+the integration head.
+
+**2. Chain wiring for items 1, 2 and 6 — done on the integration branch.**
+- `LIVE_SELECTOR=class`: `sunday_build_host.sh` passes `--class-model "$CLASS_MODEL"` (json + `.sha256` required) and
+  preflights the pinned clone for `"class"` and `--class-model`; `check_week_runtime.py` accepts class with a sleeve and
+  requires the model; `verify_k90` already accepts `selector_used` class|emax.
+- `CLASS_SLEEVE_EVERY=2` → `--class-sleeve-every 2`: exported by `week_env.sh` (default 0 = flag omitted), passed by the
+  build host with the model, preflighted (`--class-sleeve-every`, `--class-model`) in both the host and
+  `check_week_runtime.py`; `arm_week_timers.sh` now passes `CLASS_SLEEVE_EVERY`, `TAIL_SLEEVE_SELECTOR` and `CLASS_MODEL`
+  to the timers (they were not in the passthrough list before — a class run armed through the timers would have built
+  with the defaults).
+- `--lev 0` on the Sunday build: the build host takes lev/boom from `$OUT/dose.env` (`PAID_LEV`/`PAID_BOOM`) and matches
+  the receipt on the pair, so the Sunday dose file sets `PAID_LEV=0 PAID_BOOM=<n>`; nothing in the host requires lev > 0.
+  The audit's `stack_rules` check reads the candidates, not the lev count. The cutover sets the Sunday `dose.env`.
+- The Tuesday cutover therefore edits: `week_env.sh` defaults (`LIVE_SELECTOR=class`, `CLASS_SLEEVE_EVERY=2`) together
+  with `tests/test_week_env_defaults.py`, the Sunday `dose.env`, and `EXPECT_SHA` to the lab commit that carries
+  `dd0ce98` (the flag preflight refuses an older pin).
+
+**3. Week-1 run dir — uploaded.** `gs://nfl-predictions-503414-raw/private/rehearsal/2026-w01/`:
+- `20260913T160405364118Z-e7255e9/` (11 files, 28.4 MiB): the Week-1 K90 paid build, `dual_emax`, lev 160 / boom 640,
+  with both sidecar banks (`incumbent_player_scores.npy`, `corrected_hsim_player_scores.npy`), `frame.parquet`,
+  `candidates.parquet`, `book.csv`/`book_wemax.csv`, receipt. Source of the paid Week-1 entries per
+  `~/week1-sunday/TODAY-30-LATEST.md`.
+- `contests-2026-w01.json`: what was actually entered per the DK entry history for 2026-09-13 — Millionaire 193028206
+  × 57, Play-Action 193028208 × 20, FFWC qualifier 194478066 × 3 (80 entries; the planned withdrawal to 30 never
+  happened). `contest-details-2026-w01.json`: the four Week-1 ladders from the public contest API (the three above
+  plus qualifier 194478065, which was in the plan but not entered), fetched today by `dk_contest_details.py`; fields
+  are final (832,342 / 158,541 / 5,000 / 17,835).
+- Caveat for the rehearsal: the Week-1 build used the e7255e9 lab pin (pre-availability-repair projections), and the
+  book was ordered by the composite/vetting path of that day, so "entered rows" ≠ `book.csv` order; the receipts under
+  `~/week1-sunday/ENTERED/*.receipt.json` name the ranks per contest if the rehearsal needs the entered subset rather
+  than the whole book.
+
+**4. Item 3 tool (`set_contest_tracks.py`) follows the 09:50 revision** (see that entry): tail everywhere but fields ≤ 20,
+tail contests re-ordered by `priority`. Reminder of the sizing consequence: with the Week-3 contest shape the mean track
+is 19 entries and the chain still builds 90 mean rows.
+
 ## 2026-09-28 (09:35 CDT) — Laptop: the revised tracks' Week-3 gate PASSES (27 vs 22 paid); the $2-satellite exception cost 6 tickets on Week 3; floor decision
 
 **The revised configuration** (the mean track only for the nineteen 11-entry $2 satellites; the class tail everywhere
