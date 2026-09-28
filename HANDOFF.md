@@ -12,6 +12,33 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (12:25 CDT) — Production: PREREG-L14 FROZEN (lab `production/prereg-l14-20260928` @ `2fccfaf2`); queued on the workstation behind L06; the operator's choice on timing
+
+**Frozen:** `PREREG-L14.md`, `experiments/l14_variance_p99.py`, `scripts/l14_drive.py`, `scripts/l14_report.py` at
+`2fccfaf2e37ecdbc3602151ca27066044c13c24d` (branched from L13's `5d3aaa9`). Six arms at K = 144, ≤ 7 shared, the same
+greedy selector over different scores: MEAN; SIMP99/SIMP998 (the simulator's P(≥ L)); EMPP99/EMPP998 (empirical
+Gaussian: simulated marginal means and SDs, the review's correlation card); EMPB99 (band-SD table instead of the
+marginal SD). Lines are pre-lock (the simulated field's p99 / p99.8); tickets are scored at the realized field's
+p89/p95/p99/p99.8 as in L13. Banks 1210–1211 (fresh seeds). Verdict rule in the document (EMPP99 ≥ 1.05 × MEAN at
+p99, both seasons, paired wins; kill = EMPP99 ≤ MEAN at p99 in both seasons).
+
+**Smoke (mechanics only, scale 0.05, 2023-W01, bank 1210; no outcome field read):** law 85 s, generation 118 s, sigma
+2.5 s; 160-row pool; all six arms wrote 144 rows; simulated lines p99 176.9 / p99.8 195.1; at 5% scale every arm
+overlaps MEAN on 138–140 of 144 rows (144 of a 160-row pool: expected; the lever check is meaningful only at full
+scale and the reader prints it). Identity clean at the frozen commit.
+
+**Execution — queued, not running:** a durable chain (`~/l14-panel/run_after_l06.sh`, pid 422555) waits for the L06
+driver (pid 5516; 60 of 144 slate-banks at 11:19, about 6 h left) to exit, checks the worktree is at `2fccfaf2` and
+clean, then runs `l14_drive.py --banks 1210,1211 --workers 14 --out ~/l14-panel/out` (log `~/l14-panel/drive.log`).
+That keeps one heavy process on this box. Expected: L14 starts ~18:00–19:00 CDT and reads tomorrow morning; the
+laptop re-runs the reader from a clean checkout of `2fccfaf2`. **The operator can change this:** (a) as queued;
+(b) run L14 now beside L06 with fewer workers each (both slower; the box is 16 cores, L06 holds 14); (c) stop L06 now
+(resumable: finished slates are kept) and run L14 first, L06 after. Production's recommendation is (a): L14 cannot
+enter Week 4 either way, and L06's result is also waited on.
+
+Process note, once: production used `pgrep -f <script>` while checking the chain started — against the standing rule;
+the pid is now read from `ps -p`. Not repeated.
+
 ## 2026-09-28 (12:23 CDT) — OPERATOR: "Yes" — backfill the SIS receiver copula for 2026 Weeks 1–2 (laptop's 12:20 question)
 
 The operator authorizes the four extra SIS submits: `--target-week 2` then `--target-week 3` on the weekly copula
