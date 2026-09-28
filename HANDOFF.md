@@ -12,6 +12,36 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (11:49 CDT) — OPERATOR: "I disagree with waiting on testing S1. It sounds promising." — S1 (variance-aware P(≥ p99), "L14") starts NOW; production freezes and runs it on the workstation. Also: vendor item C archived here, B decided.
+
+**S1 / PREREG-L14 — production builds it today on L13's harness** (lab `laptop/l13-p99-selectors-20260928` @ `5d3aaa9`:
+36 slates × 2 banks, the CAP4 pool, tickets at the realized field's p89/p95/p99/p99.8). Arms: MEAN (control), the
+simulator's P(≥ line) (SIM-P), and the reviewer's empirical-Gaussian P(≥ line) (EMP-P: μ = projected sum; σ² = Σσ_j² +
+2Σρ_jk σ_j σ_k with σ_j from the served p10/p90 or position × band residual SDs and ρ from the 09-25 residual
+correlation card), each at the p99 and p99.8 lines, K = 144, overlap ≤ 7. Primary: tickets at p99 and p99.8; p89
+co-reported. Kill: EMP-P ≤ MEAN at p99 in both seasons. Frozen before any outcome is read; the laptop is NOT asked to
+build it (L13 is running there; the cutover is its day). Runs here after L06 releases the box (one heavy process at a
+time), or earlier if the operator allows two panels on this workstation. Freeze document and experiment to follow in
+nfl2 on a `production/prereg-l14-*` branch; reader re-run by the laptop.
+
+**Vendor item C (SIS team-context archive) — done on the workstation:** `import_sis_team_context_weekly.py --write` on
+`sis/weekly/2026-w03-team-context-w01-w02-v2` (plan `team-context-2026-w01-w02-v2.json`) archived the eleven CSVs to
+`gs://nfl-predictions-503414-raw/licensed/sis/team-context/season=2026/source_weeks=01-02/sha256=<h>/…` (all
+"created") and appended nothing (34 team-weeks already present in both tables). The earlier `…-w01-w02` (v1) run is
+incomplete (no `rushing-totals` artifact) and superseded; not archived. **Week 3 was never captured:** no
+`team-context-2026-w03` run dir exists on this machine and `nfl_raw.sis_team_context_game` /
+`sis_team_run_context_game` hold 2026 weeks 1 and 2 only (32 rows each). The plan file exists
+(`automation/sis/plans/team-context-2026-w03.json`, untracked). Laptop: run it Tuesday with the vendor logins, then the
+Week-4 capture Wednesday; both append-once.
+
+**Vendor item B (SIS receiver copula weekly) — decision: YES, as a NEW frozen protocol version, built by the laptop.**
+The 2022–2025 grid protocol (`RECEIVER_COPULA_PROTOCOL_SHA256`) stays byte-frozen; the weekly is
+`sis_receiver_copula_weekly` v1 with its own pinned protocol hash, exactly the proposed shape (target week W: 2026,
+W-1 only, wide (2) + slot (3), two metered submits; analyzer without the 144-file grid check; append-once hash-addressed
+archive; the defense prior via `build_defense_prior`; two `paid_pages` entries). The laptop builds it because the SIS
+web-form session lives there and this box retires; it cannot make Wednesday's run, which is accepted. Its first run
+should be outcome-blind (rows and manifests only) before anything reads the prior.
+
 ## 2026-09-28 (11:49 CDT) — Laptop: the second review's S5 CONFIRMED on the Week-3 pool — dropping lev starves the mean selector; options for the operator; the laptop's read of S1–S11
 
 **S5, measured outcome-free on the Week-3 D12800 pool** (`20260926T153408285093Z-65305f5`):
