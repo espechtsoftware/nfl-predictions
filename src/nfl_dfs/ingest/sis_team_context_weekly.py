@@ -12,9 +12,14 @@ Append-once by canonical (season, week, team): rows whose key already exists in 
 rewritten; a week is loaded even when charting is incomplete (SIS posts games over the following days), and the
 audit records which games have both sides. Column sets are checked against the live table before any write (fail
 closed). Nothing is substituted; every skipped key is named in the audit.
+
+A write run first archives every planned CSV to GCS by content hash (production's order C, 2026-09-28; the pass-tail
+pattern): ``licensed/sis/team-context/season=S/source_weeks=A-B/sha256=H/<artifact>``, created once, a re-run
+verifying the stored bytes are identical. The bytes are kept even when the import then refuses them.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 from datetime import datetime, timezone
 from pathlib import Path
@@ -97,6 +102,34 @@ def coverage(frame: pd.DataFrame) -> dict:
     return out
 
 
+def archive(root: Path, specs, bucket_name: str) -> list[dict]:
+    """Hash-addressed GCS copy of every planned artifact, each checked against its own manifest first."""
+    from google.api_core.exceptions import PreconditionFailed
+    from google.cloud import storage
+
+    bucket = storage.Client().bucket(bucket_name)
+    output = []
+    for spec in specs:
+        name = artifact_name(spec)
+        path = root / name
+        manifest = json.loads(path.with_suffix(".manifest.json").read_text(encoding="utf-8"))
+        digest = ctx._sha256(path)
+        if manifest.get("artifact") != name or manifest.get("sha256") != digest:
+            raise ValueError(f"SIS {name} differs from its manifest; not archived")
+        object_name = (f"licensed/sis/team-context/season={spec.season}/"
+                       f"source_weeks={spec.start_week:02d}-{spec.end_week:02d}/sha256={digest}/{name}")
+        blob = bucket.blob(object_name)
+        disposition = "created"
+        try:
+            blob.upload_from_filename(str(path), content_type="text/csv", if_generation_match=0)
+        except PreconditionFailed:
+            if hashlib.sha256(blob.download_as_bytes()).hexdigest() != digest:
+                raise RuntimeError(f"hash-addressed SIS team-context archive differs: {object_name}")
+            disposition = "already-identical"
+        output.append({"artifact": name, "uri": f"gs://{bucket_name}/{object_name}", "disposition": disposition})
+    return output
+
+
 def run(input_dir: str | Path, plan_path: str | Path, *, write: bool = False, now: datetime | None = None) -> dict:
     """Validate, merge, compare against the live tables and (optionally) append. Returns the audit."""
     from ..bq import client, load_dataframe, query_df
@@ -107,6 +140,8 @@ def run(input_dir: str | Path, plan_path: str | Path, *, write: bool = False, no
     source_run_id = f"sis-team-context-weekly:{plan.stem}"
     audit: dict = {"plan": str(plan), "plan_sha256": ctx._sha256(plan), "input_dir": str(root), "source_run_id": source_run_id,
                    "write_requested": bool(write), "families": {}, "checked_at_utc": (now or datetime.now(timezone.utc)).isoformat()}
+    if write:
+        audit["archive"] = archive(root, specs, settings.gcs_bucket)
     for family, spec in FAMILIES.items():
         frame = _merge_family(root, specs, spec["module"], spec["reports"])
         if frame is None:
