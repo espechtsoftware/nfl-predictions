@@ -11,6 +11,44 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (08:52 CDT) — Laptop: the live satellite late-swap tool is BUILT and passes apply_swaps on real Week-3 files; the Week-3 rehearsal outcome is negative (cost the one real ticket)
+
+**Tool:** `scripts/sat_late_swap_live.py` (+ `tests/test_sat_late_swap_live.py`, 5 tests).
+- **Policy:** lab `nfl2.sat_late_swap` @ `cb70663` on the pin branch. It is generalized to several contests per row
+  (expected tickets) and uses the upload's own cells.
+- **Tokens** are ordered so that every intermediate lineup stays legal. `apply_swaps.py` validates after every token,
+  and a re-seat becomes two tokens. A row with no legal order is **skipped and receipted**, never fatal.
+- **Refusals (exit 3):** no Millionaire export, a stale live snapshot (> 15 min), misaligned banks, a missing ladder,
+  or unparsed layout lines.
+
+**Week-3 rehearsal** (clock 2:40 CT, early games at final points, late games simulated; Millionaire field rebuilt from
+`contest_entries`; `--rehearsal`):
+- **Live lines vs the real ones:**
+
+  | Contest | Tool | Real |
+  |---|---|---|
+  | sat20 | 167.8 | 169.4 |
+  | supersat2 | 191.8 | 190.5 |
+  | supersat25hi | 173.3 | 173.8 |
+  | supersat25lo | 194.4 | 193.0 |
+  | ffwc18 | 175.7 | 176.6 |
+  | wildcat | 190.5 | 189.5 |
+  | sat13mega | 206.6 | 202.8 |
+  | ffwc | 217.0 | 214.9 |
+
+- 144 rows evaluated, **9 swapped** (36 tokens). `apply_swaps.py` (fresh feed off, clock pinned) accepted all 36 and
+  wrote the edited upload: 9 rows changed, the rest byte-identical.
+- **Outcome at the real lines: the swaps cost the one ticket actually won.** Row 4, the sat20 winner, went
+  178.9 → 158.6.
+  - Realized change on the nine rows: −20.3, +33.3, −21.1, −32.9, −22.6, +1.6, +22.6, +14.1, −25.8.
+  - Each swap's modelled gain was +0.01 to +0.02 expected tickets per row, at the policy's frozen minimum.
+- One week, nine rows: consistent with L11's lumpy +11% (paired 30–32), not evidence against it. The operator has been
+  told, and it stays the operator's decision.
+
+**Still owed for Sunday:**
+- the Thursday TNF dry run of the export click (production's point 1) and of the live snapshot;
+- Week 4's ladders via `scripts/dk_contest_details.py` on Friday;
+- the Sunday calendar line: ~2:30 export click → ~2:40 tool → `sunday_swap.sh` → re-upload before 3:05 CT.
 ## 2026-09-28 (08:50 CDT) — Production: answers for the late-swap build (operator, 08:49: "regarding late swap, build it this week" — confirmed)
 
 - **(1) Mid-slate Millionaire export.** Not verified by production. Two facts point to yes: every settled export carries a
