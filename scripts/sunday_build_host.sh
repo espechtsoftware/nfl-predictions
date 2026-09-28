@@ -53,6 +53,13 @@ if [[ "${TAIL_SLEEVE}" != "0" ]]; then
     SLEEVE_ARGS+=(--class-model "$CLASS_MODEL")
   fi
 fi
+# Class sleeve (reviewer item 2): every Nth boom visit under the 193+ shape; 0 = flag omitted; needs the class model.
+CLASS_SLEEVE_ARGS=()
+if [[ "${CLASS_SLEEVE_EVERY:-0}" != "0" ]]; then
+  [[ -f "${CLASS_MODEL:-}" && -f "${CLASS_MODEL}.sha256" ]] || { echo "CLASS_SLEEVE_EVERY=$CLASS_SLEEVE_EVERY needs CLASS_MODEL (json + .sha256); got '${CLASS_MODEL:-}'"; exit 1; }
+  CLASS_SLEEVE_ARGS=(--class-sleeve-every "$CLASS_SLEEVE_EVERY")
+  [[ "$LIVE_SELECTOR" == "class" || "${TAIL_SLEEVE_SELECTOR:-emax}" == "class" ]] || CLASS_SLEEVE_ARGS+=(--class-model "$CLASS_MODEL")
+fi
 # Q4b: drop players projected below LIVE_MIN_PROJ before generation (empty = flag omitted; the audit then fails on non-players).
 MINPROJ_ARGS=(); if [[ -n "${LIVE_MIN_PROJ:-}" ]]; then MINPROJ_ARGS=(--min-proj "$LIVE_MIN_PROJ"); fi
 # Mean-track levers (operator 2026-09-28): ownership tilt with its source file, and the per-DST cap. Only with the mean selector.
@@ -75,6 +82,7 @@ need_flags=(); [[ -n "${LIVE_MIN_PROJ:-}" ]] && need_flags+=(--min-proj); [[ "$T
 [[ "$LIVE_SELECTOR" == "mean" && -n "${MEAN_OWN_TILT:-}" ]] && need_flags+=(--mean-own-tilt --mean-own-source)
 [[ "$LIVE_SELECTOR" == "mean" && -n "${MEAN_DST_CAP:-}" ]] && need_flags+=(--mean-dst-cap)
 [[ "$TAIL_SLEEVE" != "0" ]] && need_flags+=(--tail-sleeve-selector)
+[[ "${CLASS_SLEEVE_EVERY:-0}" != "0" ]] && need_flags+=(--class-sleeve-every --class-model)
 [[ "$TAIL_SLEEVE" != "0" && "${TAIL_SLEEVE_SELECTOR:-emax}" == "class" ]] && need_flags+=(--class-model)
 for f in "${need_flags[@]}"; do
   grep -q -- "$f" "$CLONE/scripts/live_week.py" || { echo "the pinned lab clone $CLONE does not accept $f (LIVE_SELECTOR=$LIVE_SELECTOR TAIL_SLEEVE=$TAIL_SLEEVE LIVE_MIN_PROJ=${LIVE_MIN_PROJ:-}); move the pin or unset the lever"; exit 1; }
@@ -164,7 +172,7 @@ else
   # 2026-09-17 review finding 3: the builder's exit status is required, not just the presence of a matching directory.
   if ( cd "$CLONE" && NFL2_LIVE_CENTER=production PYTHONPATH="$CLONE/src" OMP_NUM_THREADS=1 "$LAB_PY" scripts/live_week.py \
       --season "$SEASON" --week "$WEEK" --group "$GROUP" --selector "$LIVE_SELECTOR" --lev "$PAID_LEV" --boom "$PAID_BOOM" --sims 10000 --k 1 \
-      --seed 2026 --entries "$BOOK_ENTRIES" --emit-a5-sidecars "${MPG_ARGS[@]}" "${SLEEVE_ARGS[@]}" "${MINPROJ_ARGS[@]}" "${MEAN_ARGS[@]}" > /dev/null 2> "$OUT/k90-$RUN_TAG.err" ); then
+      --seed 2026 --entries "$BOOK_ENTRIES" --emit-a5-sidecars "${MPG_ARGS[@]}" "${SLEEVE_ARGS[@]}" "${CLASS_SLEEVE_ARGS[@]}" "${MINPROJ_ARGS[@]}" "${MEAN_ARGS[@]}" > /dev/null 2> "$OUT/k90-$RUN_TAG.err" ); then
     K90_DIR=$(find_run_dir "$PAID_LEV" "$PAID_BOOM" "$T0")
     [[ -n "$K90_DIR" ]] && check_cap "$K90_DIR"
   else

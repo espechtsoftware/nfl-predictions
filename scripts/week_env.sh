@@ -123,6 +123,9 @@ week_env() {
   # --tail-sleeve-selector "$TAIL_SLEEVE_SELECTOR" and, for class, --class-model "$CLASS_MODEL" (must exist: no fallback here;
   # the lab falls back to EMAX only when the class path fails its own checks, and prints it).
   export TAIL_SLEEVE_SELECTOR=${TAIL_SLEEVE_SELECTOR-class} CLASS_MODEL=${CLASS_MODEL:-$OUT/class_model.json}
+  # Class sleeve (reviewer item 2, 2026-09-28): every Nth boom visit is solved under the field's 193+ shape
+  # (--class-sleeve-every N; lab dd0ce98, needs CLASS_MODEL). 0 = flag omitted. The Wednesday cutover sets 2.
+  export CLASS_SLEEVE_EVERY=${CLASS_SLEEVE_EVERY-0}
   if [[ -z "$group" ]]; then
     group=$(PYTHONPATH="$PROD/src" "$PROD_PY" "$PROD/scripts/find_main_draft_group.py" --season "$SEASON" --sunday "$SUNDAY") || { echo "week_env: could not detect the Sunday-main draft group for $SUNDAY (set GROUP explicitly)" >&2; return 1; }
   fi

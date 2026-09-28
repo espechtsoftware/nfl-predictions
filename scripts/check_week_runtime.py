@@ -111,6 +111,11 @@ def main():
             cm = os.environ.get("CLASS_MODEL", "")
             if not (cm and Path(cm).is_file() and Path(cm + ".sha256").is_file()):
                 fail(f"LIVE_SELECTOR=class needs CLASS_MODEL (json + .sha256); got {cm!r}")
+        if os.environ.get("CLASS_SLEEVE_EVERY", "0") not in ("", "0"):
+            wanted += ["--class-sleeve-every", "--class-model"]
+            cm = os.environ.get("CLASS_MODEL", "")
+            if not (cm and Path(cm).is_file() and Path(cm + ".sha256").is_file()):
+                fail(f"CLASS_SLEEVE_EVERY={os.environ['CLASS_SLEEVE_EVERY']} needs CLASS_MODEL (json + .sha256); got {cm!r}")
         if os.environ.get("LIVE_SELECTOR", "dual_emax") in ("mean", "class"):
             wanted.append('"mean"')
             if os.environ.get("MEAN_OWN_TILT"): wanted += ["--mean-own-tilt", "--mean-own-source"]
