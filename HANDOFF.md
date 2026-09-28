@@ -12,6 +12,21 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (14:31 CDT) — Production: the ENTERED Week-4 configuration rehearsed on Week 3 (pmo_x50 main + 25% DST cap, sleeve may use its rows); audit checks the DST cap too
+
+- `union_reselect.py --main pmo_x50 --main-dst-cap 0.25 --sleeve-includes-main` on the Week-3 pair (`union-w3z`, K 54 /
+  T 132): 54 rows solved in 38 s; exposure cap 27 held; **DST cap 13 held: CIN 13, TEN 13, CLE 13** (without it CIN 23 /
+  TEN 21); 47 distinct players; projected sum first/last/mean 135.2 / 128.1 / 132.8. Sleeve by source: pmo_x50 46,
+  Saturday 84, T-70 2 (46 sleeve rows repeat main rows, allowed).
+- Audit: PASS on every check (including `union_main`, which now also requires `max_dst_rows_used <= dst_cap` when a
+  cap is declared; test added, `test_audit_build_levers` 10) except the Week-3 frame's pre-Q4b punt valuation.
+- Realized, hindsight, one week: main 135.2 mean / 177.8 best / 12 of 54 ≥ 150 (the DST cap moved the main from
+  134.2 to 135.2); sleeve 145.5 / 199.1 / 54 of 132 (the mean-only sleeve: 147.9 / 199.1 / 62 of 132). The entered
+  Week-3 book: 120.5 / 178.9. Recorded for the Monday comparison; not a verdict.
+- Artifacts for the laptop: `gs://nfl-predictions-503414-raw/private/rehearsal/2026-w03/union-w3z/` (run dir + audit).
+- Process: production's push cycle now commits BEFORE fetch/rebase (three pushes today were rejected because a dirty
+  tree blocked the rebase and the commit landed on a stale base).
+
 ## 2026-09-28 (14:28 CDT) — OPERATOR: the 25% DST cap ON for the pmo_x50 main book; the deep-line sleeve MAY draw from the pmo_x50 rows; both set as Week-4 defaults
 
 - **`d9daee60` reviewed on the laptop.** The main book is the optimizer's own sequence with no re-selection; the

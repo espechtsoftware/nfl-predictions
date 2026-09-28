@@ -169,3 +169,24 @@ def test_t70_rules_effect_is_checked_both_ways(tmp_path):
     assert "t70_rules_effect" in _audit(_run_dir(tmp_path / "c", fr=traced), t70="off")["failed"]   # OFF with a trace: undeclared
     half = base.copy(); half["t70_active_q"] = False; half["t70_vacated_net"] = (half["id"] == "ARB1") * 1.15
     assert "t70_rules_effect" in _audit(_run_dir(tmp_path / "d", fr=half), t70="on")["failed"]     # bump but no activation
+
+
+def test_union_main_check_reads_the_declared_form(tmp_path):
+    """A union receipt declaring pmo_x50 must have every main row from pmo_x50 rows, the exposure cap and the DST cap held."""
+    import pandas as pd
+    lus = [_lineup("A", "B", "C"), _lineup("C", "D", "E"), _lineup("E", "F", "G"), _lineup("G", "H", "A"), _lineup("B", "A", "D"), _lineup("D", "C", "F")]
+    tail = CONTESTS + [{"name": "milly", "contest_id": "9", "entries": 1, "keep": 1, "track": "tail"}]
+    good = {"written": 6, "config": {"selector": "mean", "operational_k": 5, "tail_sleeve": {"rows": 1, "selector_used": "mean"},
+                                     "union": {"main": "pmo_x50", "pmo_x50": {"exposure_cap": 3, "max_exposure_used": 3, "dst_cap": 2, "max_dst_rows_used": 2}}}}
+    run = _run_dir(tmp_path / "u", lineups=lus, book=lus[:6], receipt=good)
+    c = pd.read_parquet(run / "candidates.parquet"); c["source_run"] = ["pmo_x50"] * 5 + ["saturday"]; c["book_rank"] = [1, 2, 3, 4, 5, None]
+    c.to_parquet(run / "candidates.parquet")
+    assert "union_main" not in _audit(run, contests=tail, expect_selector="mean")["failed"]
+    bad = {"written": 6, "config": {**good["config"], "union": {"main": "pmo_x50", "pmo_x50": {"exposure_cap": 3, "max_exposure_used": 3, "dst_cap": 2, "max_dst_rows_used": 3}}}}
+    run2 = _run_dir(tmp_path / "v", lineups=lus, book=lus[:6], receipt=bad)
+    c.to_parquet(run2 / "candidates.parquet")
+    assert "union_main" in _audit(run2, contests=tail, expect_selector="mean")["failed"]          # the DST cap was breached
+    mean_rec = {"written": 6, "config": {**good["config"], "union": {"main": "mean"}}}
+    run3 = _run_dir(tmp_path / "w", lineups=lus, book=lus[:6], receipt=mean_rec)
+    c.to_parquet(run3 / "candidates.parquet")
+    assert "union_main" in _audit(run3, contests=tail, expect_selector="mean")["failed"]          # mean main holding pmo rows

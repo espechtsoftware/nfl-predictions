@@ -216,9 +216,12 @@ def audit(run: Path, contests: list[dict], *, layout: str, expect_selector: str 
             n_pmo = int((top["source_run"] == "pmo_x50").sum())
             if main == "pmo_x50":
                 px = uni.get("pmo_x50") or {}
-                ok = n_pmo == len(top) == k_mean and int(px.get("max_exposure_used", 10**9)) <= int(px.get("exposure_cap", 0))
+                dcap = px.get("dst_cap")
+                dst_ok = True if not isinstance(dcap, int) else int(px.get("max_dst_rows_used", 10**9)) <= dcap
+                ok = n_pmo == len(top) == k_mean and int(px.get("max_exposure_used", 10**9)) <= int(px.get("exposure_cap", 0)) and dst_ok
                 record("union_main", ok, f"union main declared pmo_x50: {n_pmo} of {len(top)} main rows are pmo_x50 rows (need {k_mean}); "
-                       f"max exposure used {px.get('max_exposure_used')} <= cap {px.get('exposure_cap')}", main=main, pmo_rows_in_main=n_pmo)
+                       f"max exposure used {px.get('max_exposure_used')} <= cap {px.get('exposure_cap')}; DST rows used {px.get('max_dst_rows_used')} "
+                       f"<= DST cap {dcap}", main=main, pmo_rows_in_main=n_pmo, dst_cap_ok=dst_ok)
             else:
                 record("union_main", n_pmo == 0, f"union main declared {main}: {n_pmo} pmo_x50 rows in the main book (must be 0)", main=main, pmo_rows_in_main=n_pmo)
         else:
