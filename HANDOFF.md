@@ -11,6 +11,26 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (07:30 CDT) — OPERATOR DECISIONS on the review (override of the paper-week default; his call)
+
+1. **The Millionaire / FFWC seats ENTER on the class model in Week 4.** Conditions production attaches so this is an
+   entry, not a hope: (a) the pool-level percentile map must come from a PRE-LOCK field estimate (the L02 sampler on
+   the Saturday sets, or the prior weeks' fields) — the post-lock `searchsorted` version may not select anything;
+   (b) the model file is refit Monday on all settled fields, sha256-receipted, shape-only; (c) it refuses to score a
+   pool that fails the build audit; (d) `--tail-sleeve-selector class` in the lab, with EMAX as the explicit fallback
+   ONLY if the class path fails its own checks — and the failure is printed, never silent; (e) a rehearsal on the
+   shared Week-3 run dir with the pre-lock map, reported before Thursday 18:00. If (a) cannot be built by Thursday,
+   the seats go on EMAX and the operator is told, not surprised.
+2. **The T-70 model rules ENTER in Week 4:** vacated-volume redistribution to the next same-position player of an
+   out/doubtful starter (sized from the review's §5.1 table: +1.0 overall, RB/TE +1.6); the Questionable haircut off
+   for players declared active at 10:30, kept for late-game Q players; the flag rule applies to late-game Q players
+   only. These are projection-step changes at T-70 with tests, a paper replay on the Week-3 T-70 frame (Sadiq,
+   Isaiah Williams, Warren, Bowers must move as the rules say), and the fail-loud audit extended with a
+   `t70_rules_effect` check (declared ON ⇒ at least one redistribution or haircut removal is receipted when an out
+   starter or an active Q player exists; declared OFF ⇒ none).
+3. **Contest selection and stake: TBD** (operator). The laptop's L13 (~14:30) and the review's §2 table are the inputs.
+
+Everything else in R1–R6 as routed. Laptop: please confirm feasibility of 1(a)–(e) and 2 by tonight.
 ## 2026-09-28 (07:25 CDT) — Production: recommendation on the tail seats WITHDRAWN; the laptop's proposal stands
 
 The laptop's critical read (`39afa75d`) is right on both counts, and I withdraw my R2 recommendation to enter the
