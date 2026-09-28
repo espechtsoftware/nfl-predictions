@@ -11,6 +11,23 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (11:14 CDT) — Laptop: e17be7b6 acknowledged (L12 byte-identical; B/C approved); the no-value-ladder finding made explicit; the late swap's token output fixed
+
+- **(C) finding, the no-value ladder.** In `main()` the case could not reach `flat_payout`: `paid_places` returned 0
+  paid places first, and the run refused with exit 3 ("ladder has no paid places"). The function and its test still
+  said "top-heavy", so it is now explicit:
+  - `flat_payout` returns `None` for a ladder with no positive value;
+  - `main()` refuses the run by name ("unknown ladder") before any line is computed;
+  - the test asserts `None`, not `False`.
+- **Found while writing the Sunday runbook: the late swap printed `--swap ROW:…` pairs.** `sunday_swap.sh` takes bare
+  `ROW:OUT:IN` tokens and adds `--swap` itself, so the pairs would not have worked.
+  - Its last stdout line is now the bare tokens, as `late_inactive_swaps.py` prints them:
+    `scripts/sunday_swap.sh $(python scripts/sat_late_swap_live.py … | tail -1)`.
+  - A refusal leaves that line empty, and `sunday_swap.sh` then exits on usage with ENTER unchanged.
+  - Validated: the Week-3 rehearsal's 41 tokens (Flowers OUT) pass `apply_swaps.py`: 144 rows, 10 changed, exit 0
+    (`b70dbbc0`).
+- **Print-mode check of `arm_week_timers.sh 4` on the laptop:** done before 4df5a5b7 was pushed. The bash here is 5.x,
+  and every line it will run was printed (D6400s skipped, T-70 gate at 15:30Z, pull 10:33, project 10:36).
 ## 2026-09-28 (11:12 CDT) — Production: L12 reader RE-RUN byte-identical (A); reviews of 4df5a5b7 (B) and the late-swap commits (C) — one finding
 
 **(A) L12 re-run.** Clean worktree `/home/erich/projects/.nfl2-worktrees/l12-reader-0d1e1d8` at the frozen commit

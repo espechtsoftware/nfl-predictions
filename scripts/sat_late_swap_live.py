@@ -94,13 +94,14 @@ def parse_layout(path: Path) -> list[dict]:
     return out
 
 
-def flat_payout(ladder: dict) -> bool:
-    """True when every paid place pays the same (a satellite's tickets). The score-based swap maximizes P(final >= the
-    last paid place), which is the right objective only then: for a top-heavy contest (the Millionaire, a cash-and-seat
-    qualifier) it would steer rows toward a safe min-cash."""
+def flat_payout(ladder: dict) -> bool | None:
+    """True when every paid place pays the same (a satellite's tickets); False when it is top-heavy; None when the
+    ladder has no positive value at all (unknown -- the caller refuses the run, never files it as top-heavy). The
+    score-based swap maximizes P(final >= the last paid place), which is the right objective only for a flat ladder:
+    for a top-heavy contest (the Millionaire, a cash-and-seat qualifier) it would steer rows toward a safe min-cash."""
     vals = {round(float(x.get("value", 0) or 0), 2) for t in ladder.get("payoutSummary", [])
             for x in t.get("payoutDescriptions", []) if float(x.get("value", 0) or 0) > 0}
-    return len(vals) == 1
+    return None if not vals else len(vals) == 1
 
 
 def paid_places(ladder: dict) -> tuple[int, int]:
@@ -278,6 +279,8 @@ def main() -> int:
         for c in layout:
             if c["cid"] not in det:
                 raise Refuse(f"no payout ladder for contest {c['cid']} ({c['name']})")
+            if flat_payout(det[c["cid"]]) is None:
+                raise Refuse(f"contest {c['cid']} ({c['name']}): payout ladder has no positive value (unknown ladder)")
             paid, n = paid_places(det[c["cid"]])
             if paid <= 0 or n <= 0:
                 raise Refuse(f"contest {c['cid']}: ladder has no paid places / entries")

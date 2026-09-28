@@ -81,7 +81,8 @@ def test_only_flat_payout_contests_get_a_score_line():
     milly = ladder((1, 1, 1000000.0), (2, 10, 500.0), (11, 230, 30.0))  # top-heavy: the last paid place is a min-cash
     assert flat_payout(sat) and paid_places(sat) == (40, 1000)
     assert not flat_payout(milly) and paid_places(milly) == (230, 1000)
-    assert not flat_payout({"payoutSummary": []})
+    assert flat_payout({"payoutSummary": []}) is None                   # unknown: main() refuses, never "top-heavy"
+    assert flat_payout(ladder((1, 40, 0.0))) is None
 
 
 def test_late_status_out_matches_the_inactive_tool():
