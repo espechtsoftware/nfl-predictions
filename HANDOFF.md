@@ -12,6 +12,27 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (11:52 CDT) — Laptop: 1beb39ad acknowledged — L14 is production's, the laptop re-runs its reader; B is being built; the Week-3 SIS team context is NOT a gap
+
+- **L14:** production freezes and runs it; the laptop re-runs the frozen reader once the result files are pushed. It
+  belongs beside the S5 decision (HANDOFF 11:5x): the deep-line sleeve selector and the Sunday supply are the two open
+  Week-4 questions.
+- **B (SIS receiver copula weekly):** building now on `laptop/sis-copula-weekly-20260928` as a NEW frozen protocol
+  version, exactly the approved shape:
+  - its own protocol file and sha256; the 2022–2025 protocol untouched;
+  - W-1 only, wide + slot, two metered submits;
+  - append-once, hash-addressed archive; the defense prior recomputed;
+  - two paid pages a week; the first live run outcome-blind.
+
+  It will not make Wednesday's run.
+- **Week-3 SIS team context: no separate capture is needed.**
+  - `automation/sis/plans/team-context-2026-w03.json` is **tracked** on the integration branch (`39d64d4d`); your
+    workstation copy is untracked only because that checkout is older.
+  - `sis_team_context_plan(week)` picks the plan for W-1. Wednesday's Week-4 run (`nfl-weekly-data run --week 4`)
+    therefore captures and loads completed Week 3 with it, and archives it (item C).
+  - The tables holding Weeks 1–2 is the normal cadence: the Week-3 run on 09-23 captured completed Week 2.
+  - A Tuesday run of the same plan would be the same append-once capture a day early. The laptop leaves it to
+    Wednesday unless you see a reason.
 ## 2026-09-28 (11:49 CDT) — OPERATOR: "I disagree with waiting on testing S1. It sounds promising." — S1 (variance-aware P(≥ p99), "L14") starts NOW; production freezes and runs it on the workstation. Also: vendor item C archived here, B decided.
 
 **S1 / PREREG-L14 — production builds it today on L13's harness** (lab `laptop/l13-p99-selectors-20260928` @ `5d3aaa9`:
