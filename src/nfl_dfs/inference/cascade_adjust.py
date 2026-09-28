@@ -616,3 +616,54 @@ def apply_questionable_haircut(out: pd.DataFrame, q_ids: list[str], h: float) ->
         if col in out.columns:
             out.loc[mask, col] = out.loc[mask, col] * h
     return out
+
+
+def t70_now() -> pd.Timestamp:
+    """The T-70 clock. T70_NOW (ISO-8601) overrides it for replays and rehearsals; otherwise the wall clock, UTC."""
+    raw = os.environ.get("T70_NOW", "").strip()
+    if raw:
+        ts = pd.Timestamp(raw)
+        return ts.tz_localize("UTC") if ts.tzinfo is None else ts.tz_convert("UTC")
+    return pd.Timestamp.now(tz="UTC")
+
+
+def apply_t70_rules(out: pd.DataFrame, feats: pd.DataFrame, q_ids: list[str], *,
+                    pre_blend_with_cascade: np.ndarray | None, pre_blend_without_cascade: np.ndarray | None,
+                    model_weight: float, now: pd.Timestamp | None = None) -> tuple[pd.DataFrame, list[str], dict]:
+    """Apply both T-70 rules to the projection output and receipt them as columns.
+
+    Returns (out, q_ids_to_haircut, receipt). The haircut list excludes active Questionable players when T70_ACTIVE_Q=1.
+    The vacated bump (T70_VACATED_BUMP=1) is the §5.1 gross value net of the cascade's effect on the BLENDED number,
+    i.e. model_weight x (model-side projection with the cascade - without it), floored at 0. Columns written on every
+    row (0 / False where nothing applied): t70_active_q, t70_vacated_gross, t70_cascade_effect, t70_vacated_net."""
+    out = out.copy()
+    receipt: dict = {"active_q": [], "vacated": {}}
+    ids = out.gsis_id.astype(str)
+    out["t70_active_q"] = False
+    out["t70_vacated_gross"] = 0.0
+    out["t70_cascade_effect"] = 0.0
+    out["t70_vacated_net"] = 0.0
+    if t70_active_q_enabled():
+        active = find_active_questionable(feats, now if now is not None else t70_now())
+        receipt["active_q"] = active
+        out.loc[ids.isin(active), "t70_active_q"] = True
+        q_ids = [q for q in q_ids if q not in set(active)]
+    if t70_vacated_bump_enabled():
+        gross = find_t70_vacated_targets(feats)
+        effect: dict[str, float] = {}
+        if gross:
+            if pre_blend_with_cascade is None or pre_blend_without_cascade is None:
+                raise ValueError("T70_VACATED_BUMP=1 needs the model-side projection with and without the cascade")
+            fid = feats.gsis_id.astype(str).to_numpy()
+            delta = np.asarray(pre_blend_with_cascade, dtype=float) - np.asarray(pre_blend_without_cascade, dtype=float)
+            for gid in gross:
+                rows = np.flatnonzero(fid == gid)
+                effect[gid] = float(model_weight * delta[rows].max()) if rows.size else 0.0
+        out, net = apply_t70_vacated_bump(out, gross, effect)
+        for gid, g in gross.items():
+            m = ids == gid
+            out.loc[m, "t70_vacated_gross"] = g
+            out.loc[m, "t70_cascade_effect"] = effect.get(gid, 0.0)
+            out.loc[m, "t70_vacated_net"] = net.get(gid, 0.0)
+        receipt["vacated"] = {gid: {"gross": gross[gid], "cascade_effect": effect.get(gid, 0.0), "net": net.get(gid, 0.0)} for gid in gross}
+    return out, q_ids, receipt

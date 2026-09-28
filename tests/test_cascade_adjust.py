@@ -614,3 +614,23 @@ def test_vacated_targets_are_depth_two_same_position_teammates_of_an_absent_star
     assert bumped.loc[0, "proj_points"] == 8.7 and bumped.loc[1, "proj_points"] == 5.0 and bumped.loc[2, "proj_points"] == 12.0
     assert abs(bumped.loc[0, "value"] - 8.7 / 5.0) < 1e-9
     assert ca.find_t70_vacated_targets(f.drop(columns=["depth_rank"])) == {}    # fails closed without depth
+
+
+def test_apply_t70_rules_receipts_columns_and_nets_the_cascade(monkeypatch):
+    f = _t70_frame()
+    out = pd.DataFrame({"gsis_id": f.gsis_id, "proj_points": [12.0, 9.0, 0.0, 0.0, 8.0, 3.0, 0.0, 5.0],
+                        "salary": [6000, 5500, 5000, 7000, 5000, 4000, 4500, 3500]})
+    out["value"] = out.proj_points / (out.salary / 1000)
+    with_c = np.array([12, 9, 0, 0, 9.0, 3, 0, 5.0]); without = np.array([12, 9, 0, 0, 8.0, 3, 0, 5.0])   # cascade gave b1 +1.0 model-side
+    monkeypatch.delenv("T70_ACTIVE_Q", raising=False); monkeypatch.delenv("T70_VACATED_BUMP", raising=False)
+    o, q, r = ca.apply_t70_rules(out, f, ["q1", "q2", "q3"], pre_blend_with_cascade=with_c, pre_blend_without_cascade=without, model_weight=0.45)
+    assert q == ["q1", "q2", "q3"] and r == {"active_q": [], "vacated": {}} and (o.t70_vacated_net == 0).all()   # off: nothing moves
+    monkeypatch.setenv("T70_ACTIVE_Q", "1"); monkeypatch.setenv("T70_VACATED_BUMP", "1"); monkeypatch.setenv("T70_NOW", "2026-09-27T15:50:00Z")
+    o, q, r = ca.apply_t70_rules(out, f, ["q1", "q2", "q3"], pre_blend_with_cascade=with_c, pre_blend_without_cascade=without, model_weight=0.45)
+    assert q == ["q2", "q3"] and r["active_q"] == ["q1"] and bool(o.loc[o.gsis_id == "q1", "t70_active_q"].iloc[0])
+    b1 = o[o.gsis_id == "b1"].iloc[0]; b3 = o[o.gsis_id == "b3"].iloc[0]
+    assert abs(b1.t70_cascade_effect - 0.45) < 1e-9 and abs(b1.t70_vacated_net - (1.6 - 0.45)) < 1e-9 and abs(b1.proj_points - (8.0 + 1.15)) < 1e-9
+    assert b3.t70_cascade_effect == 0.0 and abs(b3.t70_vacated_net - 1.6) < 1e-9 and abs(b3.proj_points - 6.6) < 1e-9
+    assert (o.loc[~o.gsis_id.isin(["b1", "b3"]), "t70_vacated_net"] == 0).all()
+    with pytest.raises(ValueError, match="with and without the cascade"):
+        ca.apply_t70_rules(out, f, [], pre_blend_with_cascade=None, pre_blend_without_cascade=None, model_weight=0.45)

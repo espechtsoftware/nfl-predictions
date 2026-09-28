@@ -347,6 +347,9 @@ def project(
     see inference.cascade_adjust."""
     feats = coldstart.fill_cold_start_features(feats)
     out_ids: list[str] = []
+    # T-70 vacated bump (operator 2026-09-28, default off): the bump is net of what the cascade already gives the
+    # backup, measured as a second, cascade-free pass on the same frame. Keep that frame before `adjust` runs.
+    _feats_no_cascade = feats.copy() if cascade_adjust.t70_vacated_bump_enabled() else None
     if adjust is not None:
         feats, out_ids = adjust(feats)
     comps = model.predict_components(feats)
@@ -394,6 +397,16 @@ def project(
     log.info("market blend source: %s (%d/%d rows)",
              _mkt_src, int(_prop_market_mask.sum()), len(feats))
     _pre_blend = preds["proj_points"].to_numpy().copy()
+    _pre_blend_no_cascade = None
+    if _feats_no_cascade is not None and cascade_adjust.find_t70_vacated_targets(feats):
+        # second pass, cascade off, same frame and seed: only the model-side mean is used
+        _c0 = manual_notes.apply_notes(model.predict_components(_feats_no_cascade), _feats_no_cascade, season, week)
+        _s0 = simulate.simulate(_c0, n_sims=n_sims, game_ids=_feats_no_cascade.get("game_id"),
+                                team_ids=_feats_no_cascade.get("team"), game_totals=_feats_no_cascade.get("game_total"),
+                                env=policy_env)
+        _p0 = calibration.apply_widen(_s0.summary, _feats_no_cascade.get("position", _feats_no_cascade.get("dk_position")))
+        _pre_blend_no_cascade = _p0["proj_points"].to_numpy().copy()
+        log.info("t70 vacated bump: cascade-free pass done for %d target(s)", len(cascade_adjust.find_t70_vacated_targets(feats)))
     # Returning-teammate adjustment (2026-09-23) on the model component; RETURNING_TEAMMATE_ADJ=0 is a no-op.
     if cascade_adjust.returning_teammate_enabled():
         _pw = query_df(f"""SELECT DISTINCT player_id, team FROM `{settings.raw}.weekly_stats`
@@ -494,6 +507,14 @@ def project(
     # Questionable availability haircut (2026-09-22); Q_HAIRCUT=1.0 is a no-op.
     q_h = cascade_adjust.questionable_haircut(feats)
     q_ids = cascade_adjust.find_questionable_players(feats)
+    # T-70 rules (operator 2026-09-28; default off): active Questionables skip the haircut; depth-2 backups of an
+    # absent starter get the vacated bump net of the cascade. Receipted as t70_* columns on every row.
+    out, q_ids, _t70 = cascade_adjust.apply_t70_rules(
+        out, feats, q_ids, pre_blend_with_cascade=_pre_blend, pre_blend_without_cascade=_pre_blend_no_cascade,
+        model_weight=_model_weight)
+    if _t70["active_q"] or _t70["vacated"]:
+        log.info("t70 rules: %d active Questionable(s) exempt from the haircut %s; vacated bumps %s",
+                 len(_t70["active_q"]), _t70["active_q"], _t70["vacated"])
     if q_h != 1.0:
         log.info("questionable haircut: x%.3f on %d Questionable player(s)", q_h, len(q_ids))
     out = cascade_adjust.apply_questionable_haircut(out, q_ids, q_h)
