@@ -99,7 +99,13 @@ def main():
         text = live_week.read_text()
         wanted = []
         if os.environ.get("LIVE_MIN_PROJ"): wanted.append("--min-proj")
-        if tail_sleeve: wanted += ["--tail-sleeve", "--tail-line"]
+        if tail_sleeve:
+            wanted += ["--tail-sleeve", "--tail-line", "--tail-sleeve-selector"]
+            if os.environ.get("TAIL_SLEEVE_SELECTOR", "emax") == "class":
+                wanted.append("--class-model")
+                cm = os.environ.get("CLASS_MODEL", "")
+                if not (cm and Path(cm).is_file() and Path(cm + ".sha256").is_file()):
+                    fail(f"TAIL_SLEEVE_SELECTOR=class needs CLASS_MODEL (json + .sha256); got {cm!r}")
         if os.environ.get("LIVE_SELECTOR", "dual_emax") == "mean":
             wanted.append('"mean"')
             if os.environ.get("MEAN_OWN_TILT"): wanted += ["--mean-own-tilt", "--mean-own-source"]

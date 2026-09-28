@@ -45,7 +45,14 @@ export BOOK_ENTRIES=${BOOK_ENTRIES:-$(PYTHONPATH="$PROD/src" "$PROD_PY" -c "impo
 export TAIL_SLEEVE=${TAIL_SLEEVE:-$(PYTHONPATH="$PROD/src" "$PROD_PY" -c "import json,sys; from nfl_dfs.inference.enter_layout import sleeve_size; print(sleeve_size(json.load(open(sys.argv[1])), sys.argv[2]))" "$CONTESTS_JSON" "${ENTER_LAYOUT:-sequential}")}
 export LIVE_SELECTOR=${LIVE_SELECTOR:-dual_emax} TAIL_LINE=${TAIL_LINE:-210}
 # Two tracks (operator 2026-09-27): --entries = mean rows, --tail-sleeve = Millionaire rows after them (0 = flag omitted).
-SLEEVE_ARGS=(); if [[ "${TAIL_SLEEVE}" != "0" ]]; then SLEEVE_ARGS=(--tail-sleeve "$TAIL_SLEEVE" --tail-line "$TAIL_LINE"); fi
+SLEEVE_ARGS=()
+if [[ "${TAIL_SLEEVE}" != "0" ]]; then
+  SLEEVE_ARGS=(--tail-sleeve "$TAIL_SLEEVE" --tail-line "$TAIL_LINE" --tail-sleeve-selector "${TAIL_SLEEVE_SELECTOR:-emax}")
+  if [[ "${TAIL_SLEEVE_SELECTOR:-emax}" == "class" ]]; then
+    [[ -f "${CLASS_MODEL:-}" && -f "${CLASS_MODEL}.sha256" ]] || { echo "TAIL_SLEEVE_SELECTOR=class needs CLASS_MODEL (json + .sha256); got '${CLASS_MODEL:-}'"; exit 1; }
+    SLEEVE_ARGS+=(--class-model "$CLASS_MODEL")
+  fi
+fi
 # Q4b: drop players projected below LIVE_MIN_PROJ before generation (empty = flag omitted; the audit then fails on non-players).
 MINPROJ_ARGS=(); if [[ -n "${LIVE_MIN_PROJ:-}" ]]; then MINPROJ_ARGS=(--min-proj "$LIVE_MIN_PROJ"); fi
 # Mean-track levers (operator 2026-09-28): ownership tilt with its source file, and the per-DST cap. Only with the mean selector.
@@ -63,6 +70,8 @@ echo "selector: $LIVE_SELECTOR; mean rows: $BOOK_ENTRIES; tail sleeve: $TAIL_SLE
 need_flags=(); [[ -n "${LIVE_MIN_PROJ:-}" ]] && need_flags+=(--min-proj); [[ "$TAIL_SLEEVE" != "0" ]] && need_flags+=(--tail-sleeve --tail-line); [[ "$LIVE_SELECTOR" == "mean" ]] && need_flags+=('"mean"')
 [[ "$LIVE_SELECTOR" == "mean" && -n "${MEAN_OWN_TILT:-}" ]] && need_flags+=(--mean-own-tilt --mean-own-source)
 [[ "$LIVE_SELECTOR" == "mean" && -n "${MEAN_DST_CAP:-}" ]] && need_flags+=(--mean-dst-cap)
+[[ "$TAIL_SLEEVE" != "0" ]] && need_flags+=(--tail-sleeve-selector)
+[[ "$TAIL_SLEEVE" != "0" && "${TAIL_SLEEVE_SELECTOR:-emax}" == "class" ]] && need_flags+=(--class-model)
 for f in "${need_flags[@]}"; do
   grep -q -- "$f" "$CLONE/scripts/live_week.py" || { echo "the pinned lab clone $CLONE does not accept $f (LIVE_SELECTOR=$LIVE_SELECTOR TAIL_SLEEVE=$TAIL_SLEEVE LIVE_MIN_PROJ=${LIVE_MIN_PROJ:-}); move the pin or unset the lever"; exit 1; }
 done
@@ -173,8 +182,12 @@ r = json.loads((d / "receipt.json").read_text())
 problems = []
 # Two tracks: the receipt's operational_k is the mean rows and written = mean + sleeve rows; both must match the layout.
 if r["config"].get("selector") != selector: problems.append(f"selector {r['config'].get('selector')!r} != configured {selector!r}")
-got_sleeve = (r["config"].get("tail_sleeve") or {}); got_sleeve = int(got_sleeve.get("rows", 0)) if isinstance(got_sleeve, dict) else int(got_sleeve or 0)
+_ts = (r["config"].get("tail_sleeve") or {}); got_sleeve = int(_ts.get("rows", 0)) if isinstance(_ts, dict) else int(_ts or 0)
 if got_sleeve != sleeve: problems.append(f"tail sleeve {got_sleeve} != configured {sleeve}")
+sleeve_used = (_ts.get("selector_used") if isinstance(_ts, dict) else None) or "none"
+if sleeve and sleeve_used not in ("class", "emax"): problems.append(f"tail sleeve selector_used {sleeve_used!r} is neither class nor emax")
+if sleeve and sleeve_used == "emax" and isinstance(_ts, dict) and isinstance(_ts.get("class"), dict) and _ts["class"].get("failure"):
+    print(f"NOTE: the class selector FAILED and the sleeve fell back to EMAX: {_ts['class'].get('failure')}")
 total_rows = entries + sleeve
 ident = r.get("identity") or {}
 if not ident.get("sha"): problems.append("receipt carries no identity sha")
@@ -193,7 +206,7 @@ missing = [n for n in need if not (d / n).is_file()]
 if missing: problems.append(f"missing {missing}")
 if problems:
     print("K90 RECEIPT CHECK FAILED: " + "; ".join(problems)); sys.exit(1)
-print(f"k90 receipt verified (governed): {d.name} lev/boom {lev}/{boom} entries {entries} (+{sleeve} sleeve) selector {selector} group {group} lock {lock}")
+print(f"k90 receipt verified (governed): {d.name} lev/boom {lev}/{boom} entries {entries} (+{sleeve} sleeve, selector_used {sleeve_used}) selector {selector} group {group} lock {lock}")
 PYEOF
 }
 verify_k90 "$K90_DIR" || { echo "K90 receipt verification FAILED for $K90_DIR"; exit 1; }

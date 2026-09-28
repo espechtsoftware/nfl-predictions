@@ -118,6 +118,11 @@ week_env() {
   # Questionable player flags a row only if his game starts after the lock). The projection half (T70_ACTIVE_Q,
   # T70_VACATED_BUMP) runs in the project-slate job executed after the 10:30 inactives with these values.
   export ENTER_FLAG_LATE_Q_ONLY=${ENTER_FLAG_LATE_Q_ONLY-1} T70_ACTIVE_Q=${T70_ACTIVE_Q-1} T70_VACATED_BUMP=${T70_VACATED_BUMP-1}
+  # Tail-track selector (operator decision 1, 2026-09-28): the field-fitted class model (JSON + .sha256, refit each
+  # Monday by the laptop's fit_field_class_model.py). With TAIL_SLEEVE > 0 the chain passes
+  # --tail-sleeve-selector "$TAIL_SLEEVE_SELECTOR" and, for class, --class-model "$CLASS_MODEL" (must exist: no fallback here;
+  # the lab falls back to EMAX only when the class path fails its own checks, and prints it).
+  export TAIL_SLEEVE_SELECTOR=${TAIL_SLEEVE_SELECTOR-class} CLASS_MODEL=${CLASS_MODEL:-$OUT/class_model.json}
   if [[ -z "$group" ]]; then
     group=$(PYTHONPATH="$PROD/src" "$PROD_PY" "$PROD/scripts/find_main_draft_group.py" --season "$SEASON" --sunday "$SUNDAY") || { echo "week_env: could not detect the Sunday-main draft group for $SUNDAY (set GROUP explicitly)" >&2; return 1; }
   fi
