@@ -511,17 +511,25 @@ def test_tail_track_contests_take_a_sleeve_after_the_mean_rows():
         EL.contest_rows(cs, n + 1, "head", list(range(n + 1)))                        # a longer book: sleeve would slide
 
 
-def test_sleeve_starts_after_the_builder_floor_when_the_layout_is_small():
-    """Laptop review 2026-09-27: the chain floors the mean rows at 90, so a small week's sleeve starts at row 90, not at
-    the layout's own count; the book must then hold exactly 90 + T rows."""
+def test_sleeve_starts_right_after_the_mean_rows_and_the_floor_is_one():
+    """Laptop 2026-09-28: the 90-row mean floor is gone (it built rows no contest read); the sleeve starts right after
+    the layout's own mean rows and the book holds exactly mean + T rows. MEAN_ROWS_FLOOR is 1: a tail-only week still
+    builds one mean row (the fallback track), so the sleeve starts at row 1."""
     cs = [{"name": "sat", "contest_id": str(i), "entries": 1, "keep": 1} for i in range(6)] + \
          [{"name": "milly", "contest_id": "99", "entries": 2, "keep": 2, "track": "tail"}]
     ranks = EL.assign_ranks(cs, "head")
-    assert max(max(r) for r in ranks[:6]) + 1 == 6 and ranks[6] == [90, 91]
-    assert EL.rows_needed(cs, "head") == 92 and EL.sleeve_size(cs, "head") == 2
-    EL.contest_rows(cs, 92, "head", list(range(92)))
-    with pytest.raises(EL.LayoutError, match="exactly 92"):
-        EL.contest_rows(cs, 93, "head", list(range(93)))            # a longer book: the sleeve would slide
+    assert max(max(r) for r in ranks[:6]) + 1 == 6 and ranks[6] == [6, 7]
+    assert EL.rows_needed(cs, "head") == 8 and EL.sleeve_size(cs, "head") == 2
+    EL.contest_rows(cs, 8, "head", list(range(8)))
+    assert EL.MEAN_ROWS_FLOOR == 1
+    tail_only = [{"name": "milly", "contest_id": "99", "entries": 2, "keep": 2, "track": "tail"}]
+    assert EL.assign_ranks(tail_only, "head") == [[1, 2]] and EL.rows_needed(tail_only, "head") == 3
+    with pytest.raises(EL.LayoutError, match="needs 3 distinct lineups"):
+        EL.contest_rows(tail_only, 2, "head", [0, 1])
+    with pytest.raises(EL.LayoutError, match="exactly 3 rows"):
+        EL.contest_rows(tail_only, 4, "head", [0, 1, 2, 3])
+    with pytest.raises(EL.LayoutError, match="exactly 8 rows"):
+        EL.contest_rows(cs, 9, "head", list(range(9)))            # a longer book: the sleeve would slide
 
 
 def test_late_game_only_questionable_flag(tmp_path, monkeypatch):

@@ -41,7 +41,7 @@ DOSE_FILE=${DOSE_FILE:-$OUT/dose.env}   # optional: PAID_LEV=640 PAID_BOOM=2560 
 export PAID_LEV=${PAID_LEV:-160} PAID_BOOM=${PAID_BOOM:-640}
 # 2026-09-18: the book must hold one lineup per reserved entry when ENTER_LAYOUT=sequential (unique across contests).
 # BOOK_ENTRIES defaults to 90 and is raised from contests.json when the week reserves more.
-export BOOK_ENTRIES=${BOOK_ENTRIES:-$(PYTHONPATH="$PROD/src" "$PROD_PY" -c "import json,sys; from nfl_dfs.inference.enter_layout import rows_needed, sleeve_size; c=json.load(open(sys.argv[1])); print(max(90, rows_needed(c, sys.argv[2]) - sleeve_size(c, sys.argv[2])))" "$CONTESTS_JSON" "${ENTER_LAYOUT:-sequential}")}
+export BOOK_ENTRIES=${BOOK_ENTRIES:-$(PYTHONPATH="$PROD/src" "$PROD_PY" -c "import json,sys; from nfl_dfs.inference.enter_layout import rows_needed, sleeve_size; c=json.load(open(sys.argv[1])); print(max(1, rows_needed(c, sys.argv[2]) - sleeve_size(c, sys.argv[2])))" "$CONTESTS_JSON" "${ENTER_LAYOUT:-sequential}")}
 export TAIL_SLEEVE=${TAIL_SLEEVE:-$(PYTHONPATH="$PROD/src" "$PROD_PY" -c "import json,sys; from nfl_dfs.inference.enter_layout import sleeve_size; print(sleeve_size(json.load(open(sys.argv[1])), sys.argv[2]))" "$CONTESTS_JSON" "${ENTER_LAYOUT:-sequential}")}
 export LIVE_SELECTOR=${LIVE_SELECTOR:-dual_emax} TAIL_LINE=${TAIL_LINE:-210}
 # Two tracks (operator 2026-09-27): --entries = mean rows, --tail-sleeve = Millionaire rows after them (0 = flag omitted).

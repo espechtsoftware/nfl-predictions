@@ -96,7 +96,7 @@ week_env() {
     # head: the four head rows plus every unique row), and never fewer than 90.
     # Two tracks (operator 2026-09-27): BOOK_ENTRIES is the MEAN-track row count the builder receives as --entries; the
     # tail sleeve (Millionaire seats, "track": "tail") is TAIL_SLEEVE rows appended after them (--tail-sleeve).
-    BOOK_ENTRIES=$(PYTHONPATH="$PROD/src" "$PROD_PY" -c "import json,sys; from nfl_dfs.inference.enter_layout import rows_needed, sleeve_size; c=json.load(open(sys.argv[1])); print(max(90, rows_needed(c, sys.argv[2]) - sleeve_size(c, sys.argv[2])))" "$CONTESTS_JSON" "${ENTER_LAYOUT:-sequential}") || return 1
+    BOOK_ENTRIES=$(PYTHONPATH="$PROD/src" "$PROD_PY" -c "import json,sys; from nfl_dfs.inference.enter_layout import rows_needed, sleeve_size; c=json.load(open(sys.argv[1])); print(max(1, rows_needed(c, sys.argv[2]) - sleeve_size(c, sys.argv[2])))" "$CONTESTS_JSON" "${ENTER_LAYOUT:-sequential}") || return 1
   fi
   export BOOK_ENTRIES
   if [[ -z "${TAIL_SLEEVE:-}" ]]; then

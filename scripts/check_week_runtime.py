@@ -87,8 +87,10 @@ def main():
     tail_sleeve = int(os.environ.get("TAIL_SLEEVE", "0") or 0)
     if tail_sleeve != enter_layout.sleeve_size(contests, layout):
         fail(f"TAIL_SLEEVE={tail_sleeve} but the contests declare {enter_layout.sleeve_size(contests, layout)} tail-track rows")
-    if book_entries + tail_sleeve < max(90, required_entries):
-        fail(f"BOOK_ENTRIES={book_entries} + TAIL_SLEEVE={tail_sleeve} cannot satisfy {layout} contest layout (needs {max(90, required_entries)})")
+    if book_entries + tail_sleeve < required_entries:
+        fail(f"BOOK_ENTRIES={book_entries} + TAIL_SLEEVE={tail_sleeve} cannot satisfy {layout} contest layout (needs {required_entries})")
+    if book_entries < enter_layout.MEAN_ROWS_FLOOR:
+        fail(f"BOOK_ENTRIES={book_entries} is below the mean-track floor {enter_layout.MEAN_ROWS_FLOOR}")
     if tail_sleeve and os.environ.get("LIVE_SELECTOR", "dual_emax") not in ("mean", "class"):
         fail(f"tail-track contests need LIVE_SELECTOR=mean or class (the two-track builder); got {os.environ.get('LIVE_SELECTOR')!r}")
     # Every lever the chain will send as a flag must be one the pinned lab clone accepts (operator 2026-09-27: fail here,

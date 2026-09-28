@@ -58,7 +58,9 @@ from pathlib import Path
 
 LAYOUTS = ("sequential", "top", "head")
 TRACKS = ("mean", "tail")     # per-contest selection track (2026-09-27): satellites by mean, Millionaire seats by tail
-MEAN_ROWS_FLOOR = 90          # the chain never builds fewer mean rows (week_env / sunday_build_host floor); the sleeve starts after them
+MEAN_ROWS_FLOOR = 1           # the mean track's floor (laptop 2026-09-28: the 90-row floor served the retired K80/K90 contract; it built
+                              # 71 rows no contest read once the class track owned the book). week_env / sunday_build_host /
+                              # check_week_runtime floor BOOK_ENTRIES at the same value; the sleeve starts after the mean rows.
 ORDERS = ("greedy", "fewest-low")
 HEAD_TOP = 4             # the head rows every contest draws from
 HEAD_SMALL, HEAD_LARGE = 2, 4
@@ -115,8 +117,8 @@ def assign_ranks(contests: list[dict], layout: str) -> list[list[int]]:
     tail_idx = [i for i, t in enumerate(tracks) if t == "tail"]
     if tail_idx:
         mean_out = _head_ranks([contests[i] for i in mean_idx], [sizes[i] for i in mean_idx]) if mean_idx else []
-        # The sleeve starts after the mean rows the BUILDER writes, which the chain floors at MEAN_ROWS_FLOOR; a layout
-        # that needs fewer mean rows must still address the sleeve from row 90 (laptop review 2026-09-27).
+        # The sleeve starts after the mean rows the BUILDER writes, which the chain floors at MEAN_ROWS_FLOOR (1 since
+        # 2026-09-28; it was 90 while the K90 paid contract lived).
         k = max(MEAN_ROWS_FLOOR, max((max(r) + 1 for r in mean_out if r), default=0))
         t_total = sum(sizes[i] for i in tail_idx)
         out: list[list[int]] = [[] for _ in contests]
