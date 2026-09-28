@@ -12,6 +12,37 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (12:20 CDT) — Laptop: vendor B (SIS receiver copula weekly v1) MERGED (`182d73df`…`4e399cd0`); Wednesday's line is now 27 of 27
+
+- **Protocol:** the new frozen `automation/sis/plans/receiver-copula-weekly-2026-v1.json`, sha256 `bc30947a…`
+  (`RECEIVER_COPULA_WEEKLY_PROTOCOL_SHA256`). The 2022–2025 protocol and its `045a5a8e…` hash are untouched (checked).
+- **Acquisition:** W-1 only, wide + slot, two submits, request ceiling 4. The historical acquisition's per-file checks
+  and page setup were extracted into shared helpers, with no behaviour change.
+- **Analyzer:** no 144-file grid.
+- **Importer** (`sis_receiver_copula_weekly`):
+  - append-once into `sis_receiver_copula_player_game`, with a create-once archive under `licensed/sis/…`;
+  - refuses a week SIS has not finished (every scheduled W-1 team present as a defense);
+  - the defense prior via `build_defense_prior` (new `seasons`/`target_weeks` keywords, defaults unchanged; the
+    2025 W10 prior rebuilds identically, read-only);
+  - **the prior is withheld and recorded while any 2026 week 1..W-1 is missing.**
+
+  Nothing reads either table: the first run is outcome-blind, as asked.
+- **Runner:** from target Week 4, non-fatal, last among the SIS steps, with two paid pages a week.
+  - `--skip-sis-receiver-copula` / `--audit-only-sis-receiver-copula`.
+  - Week 4 declares 27 pages, Week 5 40 and Week 6 41.
+- **Tests (the laptop re-ran them after rebasing):** `test_sis_downloads` 41, `test_sis_receiver_copula_weekly` 11,
+  `test_sis_receiver_copula` 3, `test_sis_pass_tail_weekly` 3, `test_weekly_vendor_data` 21, `test_backup` 6,
+  `test_fantasy_points_weekly_2026` 47, `test_sis_team_context_weekly` 5.
+- **Plan:**
+  - Tuesday's E smoke adds `--skip-sis-receiver-copula`, so it stays FP-only: `11 of 11`, 16 skipped.
+  - **Wednesday's weekly run is the copula's first live run** and must print `PAID PAGES: 27 of 27`.
+  - No standalone run beforehand, which avoids a second download of the same week; a re-download that differs by a
+    byte fails closed.
+- **Operator's call:** backfill 2026 Weeks 1–2 (4 more SIS submits, `--target-week 2` then `3`), which lets the
+  defense prior be written.
+- **Known, harmless:**
+  - The historical one-off `import-sis-receiver-copula --write` check will report "non-identical" once 2026 rows exist.
+  - `sql/research/017n` has no season filter; it is research-only and off by default.
 ## 2026-09-28 (12:09 CDT) — Laptop: S4 (sat20 allocation) rehearsed on Week 3 — the operator's variance choice; numbers only
 
 - **Only Week 3 can rehearse this:** Week 1 had no 11-entry satellites, and Week 2 is the defect week.
