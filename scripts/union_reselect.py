@@ -140,8 +140,10 @@ def frame_players(t70: pd.DataFrame) -> dict[str, dict]:
 
 
 def pmo_rows(t70: pd.DataFrame, exclude: set[str], n: int, max_shared: int, cap: int | None, min_salary: int,
-             existing: set[frozenset]) -> list[list[str]]:
-    """Plain-mean-optimizer rows on the T-70 frame (L13 R5 form), skipping rosters already in the pool."""
+             existing: set[frozenset], exposure_cap: int | None = None) -> list[list[str]]:
+    """Plain-mean-optimizer rows on the T-70 frame (L13's R5 form), skipping rosters already in the pool. With
+    exposure_cap (L13's PMO_X50: max(1, N // 2)), a player already in that many PMO rows is banned from later solves --
+    the form L13 SUPPORTED at p89 (+27.7% tickets vs MEAN, both seasons); the uncapped form was NOT SUPPORTED."""
     from nfl2.core.lineup import optimize                      # the pinned lab clone on PYTHONPATH
     from nfl2.pipeline import PRODUCTION_STACK
     pool = [p for i, p in frame_players(t70).items() if i not in exclude]
@@ -150,17 +152,19 @@ def pmo_rows(t70: pd.DataFrame, exclude: set[str], n: int, max_shared: int, cap:
         env["MAX_PER_GAME"] = str(cap)
     prev: list[frozenset] = [frozenset(r) for r in existing]
     rows: list[list[str]] = []
+    count: Counter = Counter()
     tries = 0
     while len(rows) < n and tries < 3 * n:
         tries += 1
-        lu = optimize(pool, stack=PRODUCTION_STACK, objective_col="proj", banned_lineups=prev, max_overlap=max_shared, env=env)
+        bans = {p for p, c in count.items() if exposure_cap is not None and c >= exposure_cap} or None
+        lu = optimize(pool, stack=PRODUCTION_STACK, objective_col="proj", banned_lineups=prev, max_overlap=max_shared, bans=bans, env=env)
         if lu is None:
             break
         ids = [str(p["id"]) for p in lu.players]
         prev.append(frozenset(ids))
         if frozenset(ids) in existing:
             continue
-        rows.append(ids); existing.add(frozenset(ids))
+        rows.append(ids); existing.add(frozenset(ids)); count.update(ids)
     if len(rows) < n:
         print(f"PMO: {len(rows)} of {n} rows solved (the frame ran out of distinct legal rows under the caps)", file=sys.stderr)
     return rows
@@ -185,6 +189,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--mean-max-shared", type=int, default=7); ap.add_argument("--mean-dst-cap", type=float, default=0.25)
     ap.add_argument("--min-proj", type=float, default=1.0); ap.add_argument("--max-per-game", type=int, default=4)
     ap.add_argument("--min-salary", type=int, default=49_000); ap.add_argument("--pmo", type=int, default=0)
+    ap.add_argument("--pmo-cap-share", type=float, default=0.5, help="PMO per-player exposure cap as a share of --pmo rows (L13's PMO_X50 = 0.5; 0 = uncapped, NOT supported by L13)")
     ap.add_argument("--dk-status", type=Path); ap.add_argument("--tail-line", type=float, default=None)
     ap.add_argument("--out", type=Path, help="explicit output dir (default: <live-dir>/<utc stamp>-union-<t70 sha7>)")
     ap.add_argument("--rehearsal", action="store_true", help="paper: accept a T-70 run built with another selector (Week 3 was dual_emax); "
@@ -233,7 +238,8 @@ def main(argv: list[str] | None = None) -> int:
         pos_all = dict(zip(fr.id.astype(str), fr.pos.astype(str)))
         excl = gone | {i for i in proj_all if pos_all[i] in SKILL and not (proj_all[i] >= a.min_proj)}
         existing = t70_set | {frozenset(r) for r in sat_rosters}
-        pm = pmo_rows(fr, excl, a.pmo, a.mean_max_shared, cap, a.min_salary, existing)
+        xcap = max(1, int(a.pmo_cap_share * a.pmo)) if a.pmo_cap_share > 0 else None
+        pm = pmo_rows(fr, excl, a.pmo, a.mean_max_shared, cap, a.min_salary, existing, exposure_cap=xcap)
         rosters += pm; source += ["pmo"] * len(pm); tags += ["pmo"] * len(pm); sat_cand += [None] * len(pm); n_pmo = len(pm)
     need = a.entries + a.tail_sleeve
     if len(rosters) < need:
@@ -323,6 +329,8 @@ def main(argv: list[str] | None = None) -> int:
                      "input_sha256": {"saturday_candidates": sha256_file(sat_dir / "candidates.parquet"), "t70_candidates": sha256_file(a.t70_run / "candidates.parquet"),
                                       "t70_frame": sha256_file(a.t70_run / "frame.parquet"), **{b: sha256_file(a.t70_run / b) for b in BANKS}},
                      "dk_status": str(a.dk_status) if a.dk_status else None, "counts": counts, "pmo_rows": n_pmo,
+                     "pmo": {"requested": a.pmo, "solved": n_pmo, "exposure_cap_share": a.pmo_cap_share,
+                             "form": "L13 PMO_X50 (SUPPORTED at p89)" if a.pmo and a.pmo_cap_share > 0 else ("L13 PMO uncapped (NOT SUPPORTED)" if a.pmo else "none")},
                      "pool": {"t70": len(t70_rosters), "saturday": len(sat_rosters), "pmo": n_pmo, "total": len(rosters)},
                      "book_by_source": dict(by_src), "tail_by_source": dict(by_src_tail),
                      "selection": "union_reselect.py: top-K by sum of the T-70 mean_projection under the overlap cap and the DST cap; "

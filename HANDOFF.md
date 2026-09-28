@@ -12,6 +12,36 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (14:13 CDT) — Production: L13 reader RE-RUN byte-identical; PMO_X50 SUPPORTED at p89 → the exposure-capped PMO form is now in the union tool (rehearsal running)
+
+**L13 re-run.** Clean worktree `/home/erich/projects/.nfl2-worktrees/l13-reader-5d3aaa9` at the frozen `5d3aaa9`, result
+files from `laptop/l13-results-20260928` @ `2aa8046` (`results_bank1200.jsonl` sha256 `d4ff3a26…`, `results_bank1201.jsonl`
+`b7947128…`), `PYTHONPATH=<worktree>/src`, `scripts/l13_report.py results/l13`: output **byte-identical** to the
+laptop's `reader_output.txt`. As read (72 slate-banks):
+
+| arm | tickets89 | tickets95 | tickets99 | tickets99.8 | mean | best | distinct players | max exposure |
+|---|---|---|---|---|---|---|---|---|
+| EMAX | 934 | 438 | 106 | 27 | 119.3 | 189.0 | 133 | 64 |
+| MEAN | 1,085 | 512 | 106 | 27 | 123.0 | 186.8 | 118 | 84 |
+| PMO | 1,175 | 524 | 107 | 13 | 128.2 | 176.6 | 57 | 132 |
+| **PMO_X50** | **1,386** | **699** | **184** | **46** | 129.2 | 181.2 | 56 | 72 |
+
+- VERDICT 1 (p99): top arm PMO_X50, +73.6% over MEAN and EMAX at p99 (2023 68 vs 52/37; 2024 116 vs 54/69) but paired
+  23–23 against EMAX → **NO CLEAR LEADER AT P99** under the frozen rule (paired wins must exceed losses).
+- VERDICT 2 (R5 at p89): PMO uncapped 1,175 vs MEAN 1,085 (+8.3%, paired 27–40) → **NOT SUPPORTED**; **PMO_X50 1,386 vs
+  1,085 (+27.7%; 2023 609 vs 492; 2024 777 vs 593; paired 32–31) → SUPPORTED.**
+- Production's read: the plain-mean optimizer with the 50% exposure cap beats the pool's mean track at the satellite
+  lines on both seasons; it is the only arm to move the p99 count (184 vs 106) but the p99 verdict is blocked by an
+  even paired split with EMAX. The uncapped form concentrates (max exposure 132 of 144 rows) and loses the paired
+  count. The exposure cap is doing the work.
+
+**Consequence for the union (operator 12:2x: "If L13 supports it, add plain-mean-optimizer rows solved on the T-70
+frame to the same union").** L13 supports the CAPPED form only, and `union_reselect.py --pmo N` implemented the
+uncapped form; this commit adds `--pmo-cap-share` (default 0.5 = L13's PMO_X50: a player in ≥ N/2 PMO rows is banned
+from later solves) and records the form in the receipt. Chain: `UNION_PMO_CAP=0.5` in `week_env`, passed by the host
+and the timers; `UNION_PMO` stays 0 until the operator sets it (144 = L13's K). A Week-3 rehearsal of the union with
+144 capped PMO rows is running (row counts and projected sums first; the exact-ladder read after).
+
 ## 2026-09-28 (14:05 CDT) — OPERATOR: the capped plain-mean optimizer (PMO_X50) ENTERS Week 4 as the main-track book; production builds it today; L13 read (`ac39f9ad`)
 
 **L13 (the laptop's read, `reports/2026-09-28-laptop-l13-result.md`):**

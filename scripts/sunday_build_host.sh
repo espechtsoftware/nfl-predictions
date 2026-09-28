@@ -245,7 +245,7 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   [[ "$LIVE_SELECTOR" == "mean" ]] || { echo "the union is defined for LIVE_SELECTOR=mean (got $LIVE_SELECTOR)"; exit 1; }
   UNION_ARGS=(--saturday-run "$UNION_SATURDAY_RUN" --saturday-dose "${UNION_SAT_DOSE:-2560/10240}" --t70-run "$K90_DIR" --live-dir "$LIVE_DIR"
               --entries "$BOOK_ENTRIES" --tail-sleeve "$TAIL_SLEEVE" --mean-max-shared 7 --min-proj "${LIVE_MIN_PROJ:-1.0}"
-              --max-per-game "${MAX_PER_GAME:-4}" --min-salary "${MIN_LINEUP_SALARY:-49000}" --pmo "${UNION_PMO:-0}")
+              --max-per-game "${MAX_PER_GAME:-4}" --min-salary "${MIN_LINEUP_SALARY:-49000}" --pmo "${UNION_PMO:-0}" --pmo-cap-share "${UNION_PMO_CAP:-0.5}")
   [[ -n "${MEAN_DST_CAP:-}" ]] && UNION_ARGS+=(--mean-dst-cap "$MEAN_DST_CAP")
   [[ -n "${UNION_DK_STATUS:-}" ]] && UNION_ARGS+=(--dk-status "$UNION_DK_STATUS")
   T2=$(date +%s)
