@@ -197,7 +197,17 @@ Operator steps are marked **(operator, laptop)**. Everything else is the agent's
      `--write` to load).
 
    **Say by Tuesday 18:00 CT what will not be ready for Wednesday.**
-4. **Tuesday night:** post the "will not make Thursday" list (reviewer's order, HANDOFF 09:15 CDT 09-28).
+4. **SIS receiver-copula backfill** (operator: "Yes", 12:23 CDT 09-28), on the laptop's SIS session after the logins,
+   **before** Wednesday's weekly run, so the Week-4 import can write the defense prior:
+   ```
+   sis-download verify-login
+   sis-download receiver-copula-weekly --target-week 2          # source week 1, 2 submits
+   nfl-dfs import-sis-receiver-copula-weekly --input-dir sis/receiver-copula-weekly/2026-w02 --target-week 2           # audit
+   nfl-dfs import-sis-receiver-copula-weekly --input-dir sis/receiver-copula-weekly/2026-w02 --target-week 2 --write
+   ```
+   Repeat with `--target-week 3` (source week 2). Record both runs' manifests (sha256, rows, archive URIs) in HANDOFF.
+   Append-once and outcome-blind; nothing reads the rows.
+5. **Tuesday night:** post the "will not make Thursday" list (reviewer's order, HANDOFF 09:15 CDT 09-28).
 
 ### Wednesday 09-30
 

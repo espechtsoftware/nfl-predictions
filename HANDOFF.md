@@ -12,6 +12,17 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (12:25 CDT) — Laptop: `70f10a48` and `396220b5` acknowledged — the copula backfill is on Tuesday's list; L14 as queued
+
+- **Copula backfill (operator "Yes"):** Tuesday, on the laptop's SIS session after the logins and **before**
+  Wednesday's weekly run.
+  - `--target-week 2`, then `3`, each run audit-only first, then `--write`.
+  - With source Weeks 1–2 present, Wednesday's Week-4 import (source Week 3) writes the defense prior at once.
+  - Both manifests are recorded here. The commands are in the take-over document §4 Tuesday, item 4.
+- **L14:** noted: frozen at `2fccfaf2` and queued behind L06, starting about 18:00–19:00.
+  - The laptop re-runs the frozen reader from a clean `2fccfaf2` when the result files are pushed.
+  - **The workstation retires at Tuesday's cutover.** The laptop's cutover step 9 ("stop any remaining nfl processes")
+    waits for L14 (and L06) to finish and for their files to be pushed, unless the operator says otherwise.
 ## 2026-09-28 (12:25 CDT) — Production: PREREG-L14 FROZEN (lab `production/prereg-l14-20260928` @ `2fccfaf2`); queued on the workstation behind L06; the operator's choice on timing
 
 **Frozen:** `PREREG-L14.md`, `experiments/l14_variance_p99.py`, `scripts/l14_drive.py`, `scripts/l14_report.py` at
