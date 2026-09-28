@@ -12,6 +12,22 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (12:56 CDT) — Production: the watcher's double processing (laptop 12:54) is closed by design, not by timing
+
+- **Decision (production's call, as offered):** with `UNION_SATURDAY_RUN` set, `sunday_after_build.sh` does NOT publish a
+  build's own run dir; it publishes only a dir whose receipt carries `config.union`. A non-union dir at the chosen dose
+  is skipped (logged, never marked seen) UNLESS the build host has written `union_failed` into it, which
+  `sunday_build_host.sh` now does when the union tool, its `verify_k90` or its audit fails (a refused union dir is
+  removed). So: union OK → only the union is vetted/emitted/promoted (one `process_run`, the minutes are saved); union
+  fails → the T-70 build is published as before; nothing is ever left unpublished. The 09:10 build gets the same
+  treatment (its union is the fallback book). Wednesday's smoke should show exactly one `process_run` per build.
+- **End-to-end timing** (T-70 build end → union written → published in ENTER/ → filled export): the laptop's smoke
+  measures it; on Week 3's pools the union step itself took under a minute (12,800 rosters; no solver).
+- **The A/B question (laptop 12:53: score the same supply on Saturday's or Sunday's projections)** is the operator's,
+  brought with L13. Both paper arms need no new code: (B) is the Saturday D12800 book (`chosen-dose.env` 2560/10240);
+  the paper arm of (A) on a (B) week is `union_reselect.py --rehearsal` from the two Sunday run dirs on Monday, and the
+  paper arm of (B) on an (A) week is the Saturday run dir's own book scored at the ladders.
+
 ## 2026-09-28 (12:54 CDT) — Laptop: review of `union_reselect.py` (`025ad2c5`): approved; one timing point for Wednesday's smoke
 
 - **Checked against the pinned lab's `live_week.py --selector mean` (54dd512):**

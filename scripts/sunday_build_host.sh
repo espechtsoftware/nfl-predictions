@@ -249,15 +249,15 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   [[ -n "${UNION_DK_STATUS:-}" ]] && UNION_ARGS+=(--dk-status "$UNION_DK_STATUS")
   T2=$(date +%s)
   ( cd "$PROD" && LIVE_FLEX_LATEST="${LIVE_FLEX_LATEST:-1}" PYTHONPATH="$CLONE/src:$PROD/src" "$LAB_PY" scripts/union_reselect.py "${UNION_ARGS[@]}" \
-      | tee "$OUT/union-$RUN_TAG.txt" ) || { echo "UNION FAILED (see $OUT/union-$RUN_TAG.txt); the T-70 run dir $K90_DIR stands"; exit 1; }
+      | tee "$OUT/union-$RUN_TAG.txt" ) || { echo "UNION FAILED (see $OUT/union-$RUN_TAG.txt); the T-70 run dir $K90_DIR stands"; touch "$K90_DIR/union_failed"; exit 1; }
   UNION_DIR=$(sed -n 's/^UNION -> //p' "$OUT/union-$RUN_TAG.txt" | tail -1)
-  [[ -n "$UNION_DIR" && -f "$UNION_DIR/receipt.json" ]] || { echo "union run dir not found in $OUT/union-$RUN_TAG.txt"; exit 1; }
-  verify_k90 "$UNION_DIR" || { echo "K90 receipt verification FAILED for the union $UNION_DIR"; exit 1; }
+  [[ -n "$UNION_DIR" && -f "$UNION_DIR/receipt.json" ]] || { echo "union run dir not found in $OUT/union-$RUN_TAG.txt"; touch "$K90_DIR/union_failed"; exit 1; }
+  verify_k90 "$UNION_DIR" || { echo "K90 receipt verification FAILED for the union $UNION_DIR"; touch "$K90_DIR/union_failed"; rm -rf "$UNION_DIR"; exit 1; }
   ( cd "$PROD" && PYTHONPATH="$PROD/src" "$PROD_PY" scripts/audit_build_levers.py "$UNION_DIR" --contests "$CONTESTS_JSON" \
       --layout "${ENTER_LAYOUT:-sequential}" --expect-selector "$LIVE_SELECTOR" ${MAX_PER_GAME:+--expect-max-per-game "$MAX_PER_GAME"} \
       --min-salary "${MIN_LINEUP_SALARY:-49000}" --fade "${AUDIT_FADE:-off}" --sources "${AUDIT_SOURCES:-market_points:0.30,dk_ppg:0.80}" \
       --t70 "$( [[ "${T70_ACTIVE_Q:-0}" == "1" || "${T70_VACATED_BUMP:-0}" == "1" ]] && echo on || echo off )" \
-      --out "$OUT/lever-audit-$RUN_TAG-union.json" | tee "$OUT/lever-audit-$RUN_TAG-union.txt" ) || { echo "BUILD AUDIT FAILED for the union $UNION_DIR; refusing it (the T-70 run dir $K90_DIR stands)"; exit 1; }
+      --out "$OUT/lever-audit-$RUN_TAG-union.json" | tee "$OUT/lever-audit-$RUN_TAG-union.txt" ) || { echo "BUILD AUDIT FAILED for the union $UNION_DIR; refusing it (the T-70 run dir $K90_DIR stands)"; touch "$K90_DIR/union_failed"; rm -rf "$UNION_DIR"; exit 1; }
   echo "union=$UNION_DIR (T-70 run $K90_DIR; $(( $(date +%s) - T2 )) s)"
   K90_DIR=$UNION_DIR
 fi
