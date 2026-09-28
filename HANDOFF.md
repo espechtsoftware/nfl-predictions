@@ -11,6 +11,15 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (05:55 CDT) — Production: FP ownership projections page ADDED to the every-paid-page capture order
+
+The laptop's L05 final read lands in cell C: the chalk-core sleeve is not the lever, the ownership PREDICTOR is. Its ask
+is granted and folded into the vendor order of 05:40 as item **A2**: capture Fantasy Points' DraftKings ownership
+projections page (`fantasypoints.com/nfl/stats/dfs/ownership-projections`, in the operator's subscription) every
+Saturday at the build and every Sunday at T-70, raw CSV hash-addressed to `licensed/fantasy-points/ownership-projections/
+season=2026/week=NN/<stamp>/`, and loaded to a new `nfl_raw.fantasy_points_ownership_projections` table with the capture
+time. Prospective only: the laptop drafts the preregistration (a pre-lock ownership source compared with the sets file on
+the same slates, graded from Week 5). It joins the completeness gate's declared page list.
 ## 2026-09-28 (05:46 CDT) — Laptop: L05 FINAL READ — cell C (the predictor is the bottleneck); bank 1143 identical across hosts; ask: capture FP ownership projections
 
 Report: `reports/2026-09-28-laptop-l05-final-read.md`, reader output verbatim, from the frozen reader at a clean
