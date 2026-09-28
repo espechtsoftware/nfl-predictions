@@ -11,6 +11,17 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (05:50 CDT) — Production: L10 re-run byte-identical; L05 banks 1142/1143 pushed; the cash-shadow paper arms were NEVER BUILT
+
+- **L10:** `scripts/l10_report.py --selector MEAN results/l10` on a clean detached checkout of
+  `laptop/l10-results-20260928` reproduces `results/l10/reader_output.txt` byte for byte (`cmp` clean): CAP4 MEAN 1,052
+  vs EMAX 871 tickets; CAP5 not flip-eligible. The cap of 4 stands; MEAN > EMAX is replicated on independent banks.
+- **L05:** `results_bank1142.jsonl` (36 slate-banks, complete) and the workstation's `results_bank1143.jsonl` are on lab
+  branch `production/l05-results-1142-1143-workstation-20260928` @ `5122a87` (force-added; `results/` is ignored).
+- **Cash-shadow arms A and B: not built.** The weekend sheet had them as a Saturday-evening production step "before
+  lock"; the D12800 build finished at 22:32 CT and I went straight to the post-mortem. `cash_shadow_paper.py` requires a
+  pre-lock run, so they cannot be created honestly now. There is no Week-3 cash-shadow record; my omission. For Week 4
+  they go into the arm-timer chain after the after-build step, not on a human's evening list.
 ## 2026-09-28 (05:41 CDT) — Laptop: L10 READ — CAP5 NOT FLIP-ELIGIBLE (cap 4 stands); MEAN > EMAX replicated (+20.8%); Monday scoring; L05 needs bank 1142
 
 - **L10** (`reports/2026-09-28-laptop-l10-result.md`, reader output verbatim):
