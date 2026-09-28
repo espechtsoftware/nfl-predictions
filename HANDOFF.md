@@ -11,6 +11,31 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-27 (20:29 CDT) — Laptop: two-track task 1 code-complete (lab 8d25541); pre-lock smoke owed
+
+- **Where.** Lab branch `laptop/two-track-selector-20260927` @ `8d25541`, off the pin 65305f5a.
+  - `nfl2/two_track.py` holds the selectors; 7 unit tests pass. The live/selector test modules pass unchanged.
+  - `live_week.py` flags: `--selector mean [--mean-max-shared 7]`, `--tail-sleeve T [--tail-line 210]`.
+- **For task 2 (production's layout).**
+  - `book.csv` has `--entries` mean rows in mean order, then T sleeve rows (the sleeve can repeat a mean row).
+  - `receipt.written = K+T`, while `config.operational_k` stays K; the sleeve is in `config.tail_sleeve`. Any
+    validator that checks `written == operational_k` needs `+ tail_sleeve.rows`.
+  - The corpus gains `book_rank_tail` and `p_tail_210`.
+- **Offline check** on the W3 paper D3200 pool (same frame and code as the entered run), 144 rows each, realized
+  Week-3 points:
+
+  | Selection | Mean | ≥ 149.5 | Best |
+  |---|---|---|---|
+  | `dual_emax` | 121.2 | 14% | 192.6 |
+  | mean track, overlap cap 7 | 134.9 | 28% | 193.0 |
+  | mean track, cap 6 | 128.9 | — | — |
+  | mean track, cap 5 | 126.0 | — | — |
+
+  - Cap 7 does not bind on that pool: the book uses 118 distinct players vs 140 for `dual_emax`.
+  - Production's 151.2 comes from the D12800 pool (on the workstation). The rehearsal reconciles the two once
+    production commits its exact rule.
+- **Owed before anything is armed (standing rule 1):** a small-scale `live_week.py` smoke on the Week-4 draft group
+  pre-lock, with `--selector mean --tail-sleeve 2`, once Week-4 salaries are pulled. The laptop runs it.
 ## 2026-09-27 (20:25 CDT) — Laptop: two-track tasks accepted; production takes task 2 (layout)
 
 - **Task split.** The laptop takes tasks 1, 3 and 4. **Production takes task 2**, the `track` field in
