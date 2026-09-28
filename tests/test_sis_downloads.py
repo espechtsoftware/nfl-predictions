@@ -384,6 +384,57 @@ def test_receiver_copula_grid_and_protocol_are_frozen():
     )
 
 
+def test_receiver_copula_weekly_is_its_own_frozen_protocol_version():
+    """Production 2026-09-28 (Vendor item B): a new protocol file pinned by its own hash; the parent stays frozen."""
+    protocol = sis.RECEIVER_COPULA_WEEKLY_PROTOCOL
+    assert protocol == (
+        sis.Path(__file__).resolve().parents[1]
+        / "automation/sis/plans/receiver-copula-weekly-2026-v1.json"
+    )
+    assert sis._sha256(protocol) == sis.RECEIVER_COPULA_WEEKLY_PROTOCOL_SHA256
+    assert sis.RECEIVER_COPULA_WEEKLY_PROTOCOL_SHA256 != sis.RECEIVER_COPULA_PROTOCOL_SHA256
+    payload = json.loads(protocol.read_text(encoding="utf-8"))
+    assert payload["protocol"] == sis.RECEIVER_COPULA_WEEKLY_VERSION
+    assert payload["parent_protocol"]["sha256"] == sis.RECEIVER_COPULA_PROTOCOL_SHA256
+    assert payload["season"] == 2026 and payload["target_weeks"] == "2-18"
+    assert sis.RECEIVER_COPULA_WEEKLY_TARGET_WEEKS == tuple(range(2, 19))
+    acquisition = payload["acquisition"]
+    assert acquisition["filters"] == sis.RECEIVER_COPULA_FILTERS
+    assert tuple((name, tuple(values)) for name, values in acquisition["alignments"]) == (
+        sis.RECEIVER_COPULA_ALIGNMENTS)
+    assert acquisition["max_api_requests_per_week"] == (
+        sis.RECEIVER_COPULA_WEEKLY_API_REQUEST_CEILING)
+    assert sis._receiver_copula_weekly_artifact(4, "slot") == (
+        "2026-week03-slot-wr-cb-pass-defense-totals.csv"
+    )
+    with pytest.raises(ValueError):
+        sis._receiver_copula_weekly_artifact(1, "wide")        # W-1 must be a completed week
+
+
+def test_receiver_copula_weekly_refuses_before_any_browser(monkeypatch, tmp_path):
+    with pytest.raises(ValueError, match="within 2..18"):
+        sis.run_receiver_copula_weekly_acquisition(tmp_path, 1, tmp_path / "out", target_week=19)
+    changed = tmp_path / "protocol.json"
+    changed.write_text("{}")
+    monkeypatch.setattr(sis, "RECEIVER_COPULA_WEEKLY_PROTOCOL", changed)
+    with pytest.raises(RuntimeError, match="protocol is missing or changed"):
+        sis.run_receiver_copula_weekly_acquisition(tmp_path, 1, tmp_path / "out", target_week=4)
+    assert not (tmp_path / "out").exists()
+
+
+def test_receiver_copula_weekly_cli_defaults_to_a_target_week_directory(monkeypatch):
+    seen = {}
+    monkeypatch.setattr(
+        sis, "run_receiver_copula_weekly_acquisition",
+        lambda profile, timeout, output_dir, *, target_week: seen.update(
+            output_dir=output_dir, target_week=target_week) or {"passes": True},
+    )
+    assert sis.main(["receiver-copula-weekly", "--target-week", "4"]) == 0
+    assert seen == {
+        "output_dir": sis.Path("sis/receiver-copula-weekly/2026-w04"), "target_week": 4,
+    }
+
+
 def test_asoe_acquisition_grid_is_frozen_and_subcap():
     assert sis.ASOE_SEASONS == (2022, 2023, 2024, 2025)
     assert sis.ASOE_WINDOWS == ((1, 6), (7, 12), (13, 17))

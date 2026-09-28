@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "protocol": "sis-receiver-copula-weekly-v1",
+  "frozen": "2026-09-28",
+  "decision": "HANDOFF 2026-09-28 (11:49 CDT), Vendor item B: a NEW frozen protocol version; the 2022-2025 grid protocol stays byte-frozen",
+  "parent_protocol": {
+    "version": "20260815-sis-receiver-copula-v1",
+    "document": "reports/2026-08-15-sis-receiver-copula-protocol.md",
+    "sha256": "045a5a8e90bdbc95b5fdfa4ff29574f71fe03fcc69701d3c39dfc159c1395274"
+  },
+  "season": 2026,
+  "target_weeks": "2-18",
+  "weekly_runner_first_target_week": 4,
+  "source_window": "target week W reads regular-season week W-1 only; nothing from week >= W",
+  "acquisition": {
+    "page": "SIS NFL Player Leaderboards, Pass Defense Totals",
+    "entity": "players",
+    "report": "pass-defense-totals",
+    "split_by_game": true,
+    "include_playoffs": false,
+    "filters": {
+      "GameFilters.Team": ["-1"],
+      "PassDefenseFilters.DefenderPos": ["12"],
+      "PassDefenseFilters.ReceiverPos": ["4"],
+      "PassDefenseFilters.MinTargets": ["0"],
+      "PassDefenseFilters.MinAttempts": ["0"]
+    },
+    "alignments": [["wide", ["2"]], ["slot", ["3"]]],
+    "scientific_requests_per_week": 2,
+    "max_api_requests_per_week": 4,
+    "rows_per_artifact": [1, 199],
+    "artifact": "2026-week<W-1, two digits>-<alignment>-wr-cb-pass-defense-totals.csv"
+  },
+  "analyzer": "the parent protocol's per-artifact checks (hash, name, rows, schema, submitted scope, spec, CSV scope, API identities unique at (player, team) with season 2026, week W-1 and Games 1, CSV/API identity parity, numeric validity with yards allowed negative) without the 144-artifact grid or the 32-team union; exactly the two W-1 artifacts; 2 <= requests used <= 4",
+  "import": {
+    "player_table": "nfl_raw.sis_receiver_copula_player_game",
+    "player_keys": ["season", "week", "alignment", "defender_player_id", "defender_team_id"],
+    "append": "append-once; an identical re-run is a no-op; a different source_sha256 for an existing key fails closed",
+    "completeness": "every team scheduled in regular-season week W-1 must appear as a defense in the union of both alignments and every (defense, offense) pair must be scheduled, otherwise nothing is archived or appended",
+    "archive": "licensed/sis/receiver-copula/season=2026/week=<W-1, two digits>/sha256=<sha256>/<artifact>, created once; a re-run verifies the stored bytes",
+    "write": "only with --write; without it the import is audit-only (no archive, no append)"
+  },
+  "defense_prior": {
+    "prior_table": "nfl_raw.sis_receiver_copula_defense_prior",
+    "function": "nfl_dfs.ingest.sis_receiver_copula.build_defense_prior",
+    "input": "every warehouse player-game row strictly before (2026, W), crossing seasons, plus this import's W-1 rows",
+    "prior_games": 8,
+    "minimum_prior_games": 4,
+    "unsupported_cells": "recorded (context_supported false) and appended; never a failed import",
+    "withheld": "the target-week prior is not written while any 2026 source week 1..W-1 is absent from the warehouse; the withheld weeks are recorded",
+    "prior_keys": ["season", "target_week", "defense", "alignment"],
+    "source_run_id": "the acquisition identity",
+    "source_sha256": "sha256 of the newline-joined sorted distinct source_sha256 values of every player-game row the prior read",
+    "append": "append-once by prior key; a different source_sha256 for an existing key fails closed"
+  },
+  "outcome_blind_first_run": "the first run records rows and manifests only; no reader of the 2026 rows or the 2026 prior is added by this protocol and nothing on the money path reads either table"
+}
