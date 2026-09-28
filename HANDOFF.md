@@ -12,6 +12,30 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+
+## 2026-09-28 (11:41 CDT) — Remote review after Week 3: scoring suggestions on top of the armed Week-4 configuration (nominations only)
+
+Remote Claude session (branch `claude/draftkings-lineup-strategies-cjlxo0`, fast-forwarded onto integration `914e8255`), at the
+operator's request: pull the latest, review the post-mortem and the steps since, suggest scoring improvements.
+**Read `reports/2026-09-28-scoring-suggestions-after-week3.md`.** Nothing touches the money path, a frozen cohort or the
+Week-4 configuration. Scripts: `reports/lab-handoffs/2026-09-28-scoring-suggestions/` (public panel from 09-25).
+- **Agrees with:** the two-track diagnosis, the real-line yardstick, the economics, the Sunday build, the class sleeve, the
+  R2(a) kill of the recency fade (correctly applied).
+- **New evidence:** at p99 lines a 10% larger lineup SD is worth ×1.6 in tickets (as much as +5 points of mean); at p89
+  only ×1.14, which is why L09's P(≥line) arms tied MEAN. Player residual SDs run 5–11 by band, so lineups differ in
+  variance. LineStar's projected ownership beats the lag model by +0.03–0.04 Spearman on 2023–25 (L05's reopening bar);
+  the payload is what `linestar_backfill.py` already fetches. Band calibration and a linear ceiling term did nothing in a
+  56-slate replay (null); the top-20-by-projection books realize 9% below their projection (the lineup-level curse).
+- **Top suggestions:** S1 a variance-aware P(≥p99) arm with an empirical Gaussian ("L14", on L13's harness); S2 a
+  public-projection news channel captured Saturday and at T-70; S3 unblock the ownership predictor now (a LineStar arm in
+  O1 and the historical L05 reopening test; `surprise_prev` in the lag model); S4 repeat the top rows across the 11-entry
+  satellites (the operator's variance choice, quantified on the rehearsal tool); S5 guard the boom-only Sunday pool's
+  top-144 mean on Wednesday and add plain-mean-optimizer rows if it is below Saturday's 130.6; S6 class model v2 on every
+  ticket-line field; S7 PREREG-L04b (model weight 0.30/0.15) and a row-level model−market penalty; S8 a written
+  minimum-viable-Sunday order; S10 a market-anchored DST model.
+- **Operator command (S3):** the historical LineStar pull (the harness refused it on the laptop on 09-22): one pass at 1.2 s,
+  `python reports/lab-handoffs/2026-09-25-outside-the-box/fetch_public_inputs.py <dir outside the repo>`.
+
 ## 2026-09-28 (11:17 CDT) — Laptop: the Week-4 take-over document is written (`reports/2026-09-28-week4-operating-handoff.md`); L12 ledger row; two gaps it surfaced
 
 - **The take-over document** for Week 4, with the laptop as host, covers:
