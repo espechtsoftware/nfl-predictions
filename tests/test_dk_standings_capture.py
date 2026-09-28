@@ -418,3 +418,31 @@ def test_failure_manifest_is_written_before_the_error_propagates(tmp_path, monke
     assert record["entries_parsed"] == 4 and record["contest"]["contest_id"] == "777" and len(record["source"]["sha256"]) == 64
     ok = oi.capture_full_field(str(source), season=2026, week=2, contest_id="777", contest_name="Test", expected_entries=4, bucket_name="bucket")
     assert ok["status"] == "validated-only" and "result_class" not in ok["validation"]   # the frozen receipt contract is unchanged; the class lives in the validation result and the failure manifest
+
+
+def test_identical_share_in_two_slots_prints_one_row_and_is_not_a_contradiction():
+    """Week 3 (2026-09-27), 28 of 45 exports: Kittle held by 20 lineups at TE and 20 at FLEX in a 402-entry field;
+    DraftKings printed ONE row at 4.98%. The per-player check must compare over the printed slot rows only (the
+    omitted row is priced by the slot reconciliation); a genuine contradiction on a printed row still fails."""
+    n, field = 20, 402
+    lineup_te = LINEUP                                                   # Tight End at TE, Flex Player at FLEX
+    lineup_flex = LINEUP.replace("TE Tight End", "TE Other End").replace("FLEX Flex Player", "FLEX Tight End")
+    lineups = [lineup_te] * n + [lineup_flex] * n
+    players = [("Quarter Back", "QB"), ("Runner One", "RB"), ("Runner Two", "RB"), ("Wide One", "WR"), ("Wide Two", "WR"),
+               ("Wide Three", "WR"), ("Tight End", "TE"), ("Flex Player", "FLEX"), ("Defense", "DST"), ("Other End", "TE")]
+    share = {("Tight End", "TE"): n, ("Flex Player", "FLEX"): n, ("Other End", "TE"): n}
+    rows = len(lineups)
+    data = {"Rank": [str(i + 1) for i in range(rows)], "EntryId": [f"{i:04d}" for i in range(rows)], "EntryName": ["u"] * rows,
+            "TimeRemaining": ["0"] * rows, "Points": ["100.0"] * rows, "Lineup": lineups,
+            "Player": [p for p, _ in players] + [None] * (rows - len(players)),
+            "Roster Position": [s for _, s in players] + [None] * (rows - len(players)),
+            "%Drafted": [f"{100.0 * share.get((p, s), rows) / field:.2f}%" for p, s in players] + [None] * (rows - len(players)),
+            "FPTS": ["10.0"] * len(players) + [None] * (rows - len(players))}
+    raw = pd.DataFrame(data)
+    entries, ownership = oi._parse_entries_frame(raw, "synthetic"), oi._parse_standings_frame(raw, "synthetic")
+    assert oi._validate_ownership_against_entries(entries, ownership, field_size=field) == []     # no contradiction
+    recon = oi._reconcile_ownership_by_slot(entries, ownership, field)
+    assert recon["slot_rows_omitted_by_dk"] == 1 and recon["omitted_examples"] == [f"Tight End/FLEX={100.0 * n / field:.4f}"]
+    ownership.loc[ownership.display_name.eq("Tight End"), "pct_drafted"] = 9.95   # DK claiming the full share on the TE row
+    with pytest.raises(ValueError, match="pct_mismatch"):                          # is a real contradiction of that row
+        oi._validate_ownership_against_entries(entries, ownership, field_size=field)

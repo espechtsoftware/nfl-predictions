@@ -367,8 +367,18 @@ def _validate_ownership_against_entries(
     """DraftKings' %Drafted denominator is the whole submitted field, including entries whose lineup is blank
     (2026-09-14); `field_size` carries that count so the cross-check reproduces DK's shares exactly."""
     appearances: Counter[str] = Counter()
+    # 2026-09-27 (Week 3, 28 of 45 exports): DraftKings prints one row for a player whose two slot rows carry the
+    # IDENTICAL share (Kittle 20 lineups at TE and 20 at FLEX in a 402-entry satellite: one row at 4.98%), so a
+    # per-player sum of the printed rows is half the lineup-derived share. That omission is a granularity fact, not
+    # a contradiction: _reconcile_ownership_by_slot prices every omitted (player, slot) row exactly and receipts it.
+    # Here a player is compared over the slot rows DraftKings actually printed; a player with no printed row at all
+    # is still counted in full so "missing" fires as before.
+    listed = set(zip(ownership.display_name.astype(str), ownership.roster_position.astype(str), strict=True))
+    listed_players = {name for name, _slot in listed}
     for slots_json in entries.lineup_slots_json:
-        appearances.update(item["player"] for item in json.loads(slots_json))
+        for item in json.loads(slots_json):
+            if item["player"] not in listed_players or (item["player"], item["slot"]) in listed:
+                appearances[item["player"]] += 1
     denominator = float(field_size if field_size else len(entries))
     derived = {
         name: count * 100.0 / denominator
