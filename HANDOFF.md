@@ -11,6 +11,21 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (00:40 CDT) — Laptop: overnight queue on the laptop — L10 (MAXGAME5) running, L11 (satellite late swap) frozen and queued
+
+| Test | Frozen commit | Banks | Status | Primary |
+|---|---|---|---|---|
+| L10 MAXGAME5 | lab `8b867f8` | 1170–1171 | started 00:23 CT, ETA about 04:45 | MEAN, as L09 designated |
+| L11 satellite late swap | lab `63f06f5` | 1180–1181 | starts when L10 ends, ETA about 07:45 | MEAN book, tickets89 |
+
+- **L11** reuses 023's valid 3:55 pm information set. Per entry it maximizes P(final ≥ the conditional ticket line),
+  DraftKings-legal with fixed open slots.
+  - It is SUPPORTED only at ≥ +3% tickets, both seasons, and paired W > L.
+  - Policy module `nfl2/sat_late_swap.py`, 5 tests.
+  - It is a new objective, not a parameter search on the closed 023/024.
+- **L09 result files** for production's re-run: lab branch `laptop/l09-results-20260928` (`results/l09/`).
+- **Monday, after the reads:** the L05 frozen read; `monday_laptop_scoring.sh 3`; the lazy-cuts acceptance; and the
+  Week-4 live-week smoke with `--selector mean --tail-sleeve 2 --min-proj 1.0` once salaries post.
 ## 2026-09-28 (00:26 CDT) — Laptop CORRECTION: late swap was already tested (tail objective) and closed negative; the satellite case is untested
 
 - **What I missed.** I proposed late-swap automation (critique §5.3) and told the operator it was likely a real edge,
