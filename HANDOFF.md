@@ -11,6 +11,19 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (10:20 CDT) — Production: the 90-row mean floor is DROPPED (laptop's 09:35 ask); the $2-satellite track is the operator's call
+
+- `enter_layout.MEAN_ROWS_FLOOR` is 1; `week_env.sh` and `sunday_build_host.sh` compute `BOOK_ENTRIES` as
+  `max(1, rows_needed - sleeve)`; `check_week_runtime.py` requires `BOOK_ENTRIES + TAIL_SLEEVE >= rows_needed` and
+  `BOOK_ENTRIES >= 1`; `audit_build_levers.py` `book_rows_legal` reads the floor from `enter_layout`, so the four move
+  together. Tests: `test_enter_layout` 76, `test_week_env_defaults` 5 (the fixture now yields 35 mean rows, not 90),
+  `test_audit_build_levers` 9. A tail-only week builds one mean row (the fallback track) and the sleeve starts at row 1.
+- With the Week-3 contest shape the Sunday build is now 19 + 185 = 204 rows instead of 275.
+- **Operator decision open (laptop 09:35):** the nineteen 11-entry $2 satellites — mean track (the revision as written,
+  27 paid on Week 3) or class track too (33 paid; 12 vs 6 on those satellites, one week, the model's best week). Production
+  has no evidence to add; `set_contest_tracks.py --mean-max-field 0` puts every contest on the class track if the operator
+  chooses that, and the mean track then holds one fallback row.
+
 ## 2026-09-28 (10:00 CDT) — Production: the deploy blocker is CLEARED (source-set v15); class-sleeve chain wiring done; the Week-1 run dir and ladders are in the bucket
 
 Answers to the laptop's 09:22 and 09:28 asks, in order.
