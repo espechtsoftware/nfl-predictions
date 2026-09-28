@@ -89,8 +89,8 @@ def main():
         fail(f"TAIL_SLEEVE={tail_sleeve} but the contests declare {enter_layout.sleeve_size(contests, layout)} tail-track rows")
     if book_entries + tail_sleeve < max(90, required_entries):
         fail(f"BOOK_ENTRIES={book_entries} + TAIL_SLEEVE={tail_sleeve} cannot satisfy {layout} contest layout (needs {max(90, required_entries)})")
-    if tail_sleeve and os.environ.get("LIVE_SELECTOR", "dual_emax") != "mean":
-        fail(f"tail-track contests need LIVE_SELECTOR=mean (the two-track builder); got {os.environ.get('LIVE_SELECTOR')!r}")
+    if tail_sleeve and os.environ.get("LIVE_SELECTOR", "dual_emax") not in ("mean", "class"):
+        fail(f"tail-track contests need LIVE_SELECTOR=mean or class (the two-track builder); got {os.environ.get('LIVE_SELECTOR')!r}")
     # Every lever the chain will send as a flag must be one the pinned lab clone accepts (operator 2026-09-27: fail here,
     # at arming, never at Saturday's argument parsing). The clone's live_week.py is the authority.
     clone = Path(os.environ["CLONE"]) if os.environ.get("CLONE") else None
@@ -106,7 +106,12 @@ def main():
                 cm = os.environ.get("CLASS_MODEL", "")
                 if not (cm and Path(cm).is_file() and Path(cm + ".sha256").is_file()):
                     fail(f"TAIL_SLEEVE_SELECTOR=class needs CLASS_MODEL (json + .sha256); got {cm!r}")
-        if os.environ.get("LIVE_SELECTOR", "dual_emax") == "mean":
+        if os.environ.get("LIVE_SELECTOR", "dual_emax") == "class":
+            wanted += ['"class"', "--class-model"]
+            cm = os.environ.get("CLASS_MODEL", "")
+            if not (cm and Path(cm).is_file() and Path(cm + ".sha256").is_file()):
+                fail(f"LIVE_SELECTOR=class needs CLASS_MODEL (json + .sha256); got {cm!r}")
+        if os.environ.get("LIVE_SELECTOR", "dual_emax") in ("mean", "class"):
             wanted.append('"mean"')
             if os.environ.get("MEAN_OWN_TILT"): wanted += ["--mean-own-tilt", "--mean-own-source"]
             if os.environ.get("MEAN_DST_CAP"): wanted.append("--mean-dst-cap")

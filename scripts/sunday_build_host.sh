@@ -57,7 +57,11 @@ fi
 MINPROJ_ARGS=(); if [[ -n "${LIVE_MIN_PROJ:-}" ]]; then MINPROJ_ARGS=(--min-proj "$LIVE_MIN_PROJ"); fi
 # Mean-track levers (operator 2026-09-28): ownership tilt with its source file, and the per-DST cap. Only with the mean selector.
 MEAN_ARGS=()
-if [[ "$LIVE_SELECTOR" == "mean" ]]; then
+if [[ "$LIVE_SELECTOR" == "class" ]]; then
+  [[ -f "${CLASS_MODEL:-}" && -f "${CLASS_MODEL}.sha256" ]] || { echo "LIVE_SELECTOR=class needs CLASS_MODEL (json + .sha256); got '${CLASS_MODEL:-}'"; exit 1; }
+  MEAN_ARGS+=(--class-model "$CLASS_MODEL")
+fi
+if [[ "$LIVE_SELECTOR" == "mean" || "$LIVE_SELECTOR" == "class" ]]; then
   if [[ -n "${MEAN_OWN_TILT:-}" && "${MEAN_OWN_TILT}" != "0" ]]; then
     [[ -f "${MEAN_OWN_SOURCE:-}" ]] || { echo "MEAN_OWN_TILT=$MEAN_OWN_TILT needs MEAN_OWN_SOURCE (the Saturday ownership sets file); got '${MEAN_OWN_SOURCE:-}'"; exit 1; }
     MEAN_ARGS+=(--mean-own-tilt "$MEAN_OWN_TILT" --mean-own-source "$MEAN_OWN_SOURCE")
@@ -67,7 +71,7 @@ fi
 echo "selector: $LIVE_SELECTOR; mean rows: $BOOK_ENTRIES; tail sleeve: $TAIL_SLEEVE; min proj: ${LIVE_MIN_PROJ:-off}; own tilt: ${MEAN_OWN_TILT:-off}; dst cap: ${MEAN_DST_CAP:-off}"
 # Every flag this chain sends must be one the pinned lab clone accepts; a build that dies at argument parsing on
 # Saturday morning is the failure the operator refuses to hear about afterwards (2026-09-27).
-need_flags=(); [[ -n "${LIVE_MIN_PROJ:-}" ]] && need_flags+=(--min-proj); [[ "$TAIL_SLEEVE" != "0" ]] && need_flags+=(--tail-sleeve --tail-line); [[ "$LIVE_SELECTOR" == "mean" ]] && need_flags+=('"mean"')
+need_flags=(); [[ -n "${LIVE_MIN_PROJ:-}" ]] && need_flags+=(--min-proj); [[ "$TAIL_SLEEVE" != "0" ]] && need_flags+=(--tail-sleeve --tail-line); [[ "$LIVE_SELECTOR" == "mean" ]] && need_flags+=('"mean"'); [[ "$LIVE_SELECTOR" == "class" ]] && need_flags+=('"class"' --class-model)
 [[ "$LIVE_SELECTOR" == "mean" && -n "${MEAN_OWN_TILT:-}" ]] && need_flags+=(--mean-own-tilt --mean-own-source)
 [[ "$LIVE_SELECTOR" == "mean" && -n "${MEAN_DST_CAP:-}" ]] && need_flags+=(--mean-dst-cap)
 [[ "$TAIL_SLEEVE" != "0" ]] && need_flags+=(--tail-sleeve-selector)
