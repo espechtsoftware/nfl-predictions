@@ -243,6 +243,9 @@ Operator steps are marked **(operator, laptop)**. Everything else is the agent's
    - Check the receipt and the audit (`audit_build_levers.py`, `t70_rules_effect`).
    - Then move `week_env.sh`'s `CLONE`/`EXPECT_SHA` defaults to it, with `tests/test_week_env_defaults.py`'s pin and
      lineage assertion.
+   - **Union checks in the smoke:** the published dir carries `audit_passed` and `config.union`, and there is exactly one
+     `process_run` per build. Time T-70 build end → union → published → filled export. Compare the top-144 projected
+     sum of the lev-0 pool with the union's (S5).
    - Already checked on 09-28 with placeholder contests: both `check_week_runtime.py` preflights pass on this clone
      (build and watchers; the head layout printed; the class model json + `.sha256`; `chosen-dose.env` 0/4800).
      Export `OUT`/`CLONE`/`EXPECT_SHA` before calling `week_env`: bash `VAR=x week_env` assignments revert when the
@@ -296,13 +299,22 @@ Operator steps are marked **(operator, laptop)**. Everything else is the agent's
    ```
    EXPECT_SHA=54dd5126be04020a2267dc41a0ef1504d1415296 CLONE=$HOME/projects/.nfl2-worktrees/week4-live-center \
    D3200_LEV=0 D3200_BOOM=4800 D800_LEV=0 D800_BOOM=4800 SKIP_UNITS="d6400sat d6400" \
-   T70_MIN_PROJ_CT=10:30 T70_PROJECT=1 scripts/arm_week_timers.sh 4 --run
+   T70_MIN_PROJ_CT=10:30 T70_PROJECT=1 UNION_SATURDAY_RUN=auto UNION_PMO=0 scripts/arm_week_timers.sh 4 --run
    ```
+   **The union (operator-authorized 12:2x CDT 09-28; production `025ad2c5`, `57bdc8b7`, `c753be99`):**
+   - Each Sunday build (09:10 and T-70) is followed by `union_reselect.py`: the build's pool plus every Saturday D12800
+     candidate that survives the build's frame (no OUT/IR/Doubtful/inactive or below-MIN_PROJ player).
+   - The union is re-selected by mean on the build's projections and verified and audited like any build.
+   - **The watcher publishes only a dir marked `audit_passed`.** With the union on, that means the union dir, or the
+     build itself if the host marked `union_failed`.
+   - `UNION_PMO` stays 0 unless L13's R5 supports it.
    Run it without `--run` first and read every line. The `week_env` defaults supply `LIVE_SELECTOR=mean`,
    `TAIL_SLEEVE_SELECTOR=mean`, `CLASS_SLEEVE_EVERY=2`, `MEAN_DST_CAP=0.25`, `MEAN_OWN_TILT=0`,
    `LIVE_MIN_PROJ=1.0`, `ENTER_LAYOUT=head`, `ENTER_ORDER=greedy` and the T-70 flags.
-6. 10:30 the Saturday D12800 (2560/10240), the second fallback. It takes about 6 h on the laptop and is never promoted
-   unless `chosen-dose.env` is changed to 2560/10240.
+6. 10:30 the Saturday D12800 (2560/10240). **It is now a required input: the union's supply.** It takes about 6 h on
+   the laptop and must finish, with its sidecars, before Sunday 09:10. If it is missing, the union refuses and the
+   Sunday builds publish on their own (lev 0; S5). It is promoted on its own only if `chosen-dose.env` is changed to
+   2560/10240.
 
 ---
 
@@ -310,9 +322,9 @@ Operator steps are marked **(operator, laptop)**. Everything else is the agent's
 
 ### 5.0 The failure order (second review S8, agreed 09-28): what may fail and what stands
 
-1. **The 09:10 book is the floor.** It is uploaded if anything after it fails. **Open (S5, HANDOFF 09-28):** with lev
-   0 it selects from a weaker pool than Saturday's. The operator's choice among the union at T-70, PMO rows, the
-   Saturday D12800 as primary, or keeping lev 0 decides what the floor is.
+1. **The 09:10 book (its union with the Saturday pool) is the floor.** It is uploaded if anything after it fails. The
+   union repairs S5's lev-0 supply gap. Still open for the operator: whether the book is scored on Sunday's or
+   Saturday's projections (HANDOFF 12:53 CDT 09-28).
 2. **The T-70 build replaces it only if its input gate and audit pass.** A refusal is a normal outcome, not an
    incident.
 3. **The class sleeve is the first thing to switch off** (`CLASS_SLEEVE_EVERY=0`) if Wednesday's smoke is slow or the
@@ -325,14 +337,14 @@ Operator steps are marked **(operator, laptop)**. Everything else is the agent's
 
 | Time | What | Who |
 |---|---|---|
-| 09:10 | `nfl-week4-d3200-build`: lev 0 / boom 4800 + class sleeve on the 09:03 projections. It is promoted by the watcher about 09:30. **This is the automatic fallback book**, pre-inactives | timer |
+| 09:10 | `nfl-week4-d3200-build`: lev 0 / boom 4800 + class sleeve on the 09:03 projections, then **its union with the Saturday pool**. The watcher publishes the union (`audit_passed`) about 09:30. **This is the automatic fallback book**, pre-inactives | timer |
 | 09:12 | `nfl-week4-watchers`: after-build (until 11:50), DK entries (until **15:20**), late inactives | timer |
 | 10:30 | official inactives | — |
 | 10:33 | `nfl-week4-t70-pull`: `nfl-dfs ingest-dk`. The hourly loop pulls at whatever minute it started (the workstation's at :57), so it cannot be relied on for a post-10:30 pull | timer |
 | 10:36 | `nfl-week4-t70-project`: `project-slate` with `T70_ACTIVE_Q=1,T70_VACATED_BUMP=1` (about 3 min) | timer (operator-armed) |
 | ~10:40 | check that the T-70 batch landed: proof lines, and the receipt columns `t70_active_q`/`t70_vacated_net` on the out starters' backups. Capture the FP ownership page at T-70 (O1) | agent |
-| 10:50 | `nfl-week4-t70-build`: lev 0 / boom 4800. **Refuses projections generated before 10:30** (`MIN_PROJ_GENERATED_AT`); a refusal leaves the 09:10 book in ENTER | timer |
-| ~11:05 | the watcher promotes the T-70 book → `ENTER/`, refills `DKEntries-FILLED-keepers-first.csv` | watcher |
+| 10:50 | `nfl-week4-t70-build`: lev 0 / boom 4800. **Refuses projections generated before 10:30** (`MIN_PROJ_GENERATED_AT`); a refusal leaves the 09:10 book in ENTER. Then the union (under a minute; written under `.tmp`, renamed when complete) and its `verify_k90` + audit | timer |
+| ~11:05 | the watcher publishes the T-70 **union** → `ENTER/` (or the T-70 build if `union_failed`), and refills `DKEntries-FILLED-keepers-first.csv` | watcher |
 | ~11:05 | read `TODAY-30-LATEST.md`, the audit, the vetting. Scratch swaps only for DK OUT/IR or the official inactives: `scripts/sunday_swap.sh ROW:OUT_DD:IN_DD …` | agent → operator's go |
 | by 11:15 | **upload** the filled export | **operator** |
 | 12:00 | lock | — |
