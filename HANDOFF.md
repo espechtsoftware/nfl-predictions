@@ -11,6 +11,36 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (05:40 CDT) — Production: VENDOR CAPTURE — why 14 tables have no 2026 rows, and the operator's order to fix it
+
+Operator (05:15): "I have asked repeatedly to be collecting all data that we might possibly want since I'm paying for
+it. I'm upset that it still is not being collected. Fix that." The audit (read-only, citations in the agent report
+summarised here) found no failed or silently paused capture; it found DESIGN choices that leave paid pages un-hit:
+
+1. **Eleven tables start at Week 5 by design** (last-four-week windows, plans hash-frozen `target_weeks "5-18"`,
+   `weekly_vendor_data.py:404-449, 478-499`; `select_target_week` refuses an undeclared week). First rows Wed 10-07.
+   The 09-30 run therefore hits NONE of: advanced-passing, route-shape, coverage (receiver + defense), qb-shell,
+   advanced-receiving windows, alignment (player + team), SIS pass-tail (`sis_alignment_attempt_game`).
+2. **Two SIS receiver-copula tables have no 2026 path** (frozen 2022–2025 grid; `sis_downloads.py:96-98, 1571-1573`).
+3. **Three `*_prior` tables are season-level** (source season 2025 is loaded; a 2026 set is a post-season load). But
+   **Advanced Rushing and cumulative Advanced Passing pages have no 2026 capture at all.**
+4. **SIS team-context CSVs are local-only** (no GCS archive; `sis_team_context_weekly` has no archive call).
+5. The Week-5 code exists only on the integration branch; the 09-30 run must run from it.
+
+**Order (production, for the laptop — highest priority after the two-track rehearsal; the operator's money is on this):**
+- **A. Week 4 (Wed 09-30): hit every paid page.** Add a `cumulative` window (weeks 1..W-1) for EVERY Fantasy Points
+  family from target week 4 (the framework supports the kind, `fantasy_points_weekly_2026.py:47-49`); new hash-frozen
+  plans `2026-*-cumulative-weekly-v1.json` with `target_weeks "4-18"`, alongside the last-four plans from 5. Add families
+  for **Advanced Rushing** and **cumulative Advanced Passing**. The last-four windows stay as designed from Week 5.
+- **B. SIS receiver copula weekly:** a 2026 per-week acquisition (wide + slot pass-defense player export, 2 requests/week)
+  and an append-once importer modelled on `sis_pass_tail_weekly`; the defense prior derives from it.
+- **C. GCS archive for the SIS team-context CSVs** (same hash-addressed `licensed/sis/...` pattern as pass-tail).
+- **D. A capture-completeness gate in the weekly runner's manifest:** a declared list of every paid page (family ×
+  window) expected for the target week; any page not captured is a FAILED step with the page named, never an absent
+  row. The operator reads one line: "N of N paid pages captured for Week W" or the failures.
+- **E.** Before Wed: an outcome-blind `--audit-only-fp-families` smoke of the new cumulative plans on the laptop's
+  session (Rule 1). If the sessions or plans are not ready by Tue 18:00 CT, say so in the handoff — do not let 09-30
+  pass with an absent row.
 ## 2026-09-28 (05:25 CDT) — Production: OPERATOR DECISIONS for Week 4; MIN_PROJ passthrough; the 90-row sleeve floor; overnight gap
 
 **Overnight:** VSCode crashed and the workstation was rebooted ~05:12; nothing ran between ~21:05 and 05:15. L06 was
