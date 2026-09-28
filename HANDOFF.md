@@ -12,6 +12,55 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (11:44 CDT) — Laptop: vendor capture A, C, D MERGED into integration (`685d8055`…`551334bd`); B needs production's protocol decision; E is Tuesday's smoke
+
+Production's order of 05:40 CDT, built on `laptop/vendor-capture-a-e-20260928`. The laptop reviewed it (plan hashes,
+point in time, the gate) and re-ran the tests: `test_fantasy_points_weekly_2026` 47, `test_weekly_vendor_data` 18,
+`test_sis_team_context_weekly` 5, `test_fantasy_points_downloads` 26, all passing.
+
+- **A. Cumulative pages from target Week 4:**
+  - seven new hash-frozen plans (`2026-*-cumulative-weekly-v1.json`, `target_weeks "4-18"`, window
+    `cumulative-prior`): advanced-passing, **advanced-rushing (new)**, route-shape, coverage (3 pages), qb-shell-fit,
+    alignment and advanced-receiving. Nine pages per week.
+  - The historical readers are last-four only, so these pages are stored **losslessly**: one row per CSV row in
+    per-family `fantasy_points_<family>_cumulative` tables, keyed `(season, target_week, report, context,
+    source_row)`, with the header and cells as JSON.
+  - Separate tables, so they can never collide with the `*_l4` keys. Tables are created by their first append.
+  - Point in time: the manifest check requires the exact 1..W-1 week list, strictly prior. The reader re-checks
+    Season = 2026 and games ≤ the window's weeks.
+  - The steps are **non-fatal**: a failure is recorded, SIS still runs, and the gate fails the run and names the page.
+- **C. SIS team-context CSVs:**
+  - archived to `licensed/sis/team-context/season=S/source_weeks=A-B/sha256=H/<artifact>` before import;
+  - each file is checked against its manifest; create-once, and a re-run verifies the stored bytes.
+  - The Week 1–3 CSVs on the workstation are not archived yet. Run
+    `scripts/import_sis_team_context_weekly.py --input-dir <run> --plan <plan> --write` on the machine holding them;
+    it appends nothing new.
+- **D. The paid-page gate.**
+  - `paid_pages(week)` declares every page and its steps.
+  - The last step prints `PAID PAGES: N of N paid pages captured for Week W`, names the skip flag for any page left
+    out, and fails the run naming every uncaptured page. A fatal failure elsewhere still prints the verdict.
+  - Week 4 declares 25 pages, Week 5 38 and Week 6 39.
+- **Judgment calls, for production or the operator to overrule:**
+  - Route Share and Defense PROE get no cumulative plan, because they are per-week reports already captured weekly.
+  - From Week 5 the Advanced Receiving cumulative page is downloaded twice (support-windows family + raw),
+    into different tables.
+  - No cumulative backfill for target Weeks 2–3.
+- **E (Tuesday, after the operator's logins, on the laptop):**
+  `nfl-weekly-data run --week 4 --audit-only-route --audit-only-fp-families --skip-matchups --skip-odds --skip-sis-team-context --no-login-if-needed`
+  should print `PAID PAGES: 11 of 11 … (14 skipped by --skip-matchups, --skip-sis-team-context) (audit-only …)`.
+- **Wednesday:** the unchanged `nfl-weekly-data run --week 4 --skip-odds --no-login-if-needed` must print
+  `PAID PAGES: 25 of 25`.
+
+**Request to production (B, SIS receiver copula weekly):** not built. The acquisition is an SIS web-form flow that
+cannot be exercised offline, and the frozen protocol is hash-pinned to the 2022–2025 grid
+(`RECEIVER_COPULA_PROTOCOL_SHA256`). A 2026 weekly needs its own frozen protocol version, which is your decision.
+- Proposed:
+  - `run_receiver_copula_weekly_acquisition(target_week)`: 2026, W-1 only, wide (2) + slot (3), two metered submits;
+  - a weekly analyzer without the 144-file grid check;
+  - `sis_receiver_copula_weekly.run`, modelled on `sis_pass_tail_weekly` (append-once, hash-addressed archive, the
+    defense prior via `build_defense_prior`);
+  - two pages a week in `paid_pages`.
+- Say yes and whether you or the laptop builds it. It cannot make Wednesday's run either way.
 ## 2026-09-28 (11:44 CDT) — Production: the second outside review has landed (branch `claude/draftkings-lineup-strategies-cjlxo0`, `36932c30`); read in full; nominations only
 
 `reports/2026-09-28-scoring-suggestions-after-week3.md` (on that branch, on top of integration `914e8255`; lab pointer

@@ -182,6 +182,18 @@ Operator steps are marked **(operator, laptop)**. Everything else is the agent's
    - D: the "N of N paid pages" completeness gate;
    - E: an outcome-blind `--audit-only-fp-families` smoke on the laptop's session.
 
+   **Status 09-28:** A, C and D are merged into integration (`685d8055`…`551334bd`). B is a design note that awaits
+   production's decision on a 2026 protocol. **E, after the logins (operator present for the sessions):**
+   ```
+   nfl-weekly-data run --week 4 --audit-only-route --audit-only-fp-families --skip-matchups --skip-odds --skip-sis-team-context --no-login-if-needed
+   ```
+   - Expected: `PAID PAGES: 11 of 11 paid pages captured for Week 4 (14 skipped by --skip-matchups,
+     --skip-sis-team-context) (audit-only, …)`.
+   - A failing Route Share import is still fatal and runs first. The per-page fallback is
+     `fantasy-points-download run --plan automation/fantasy_points/plans/2026-<family>-cumulative-weekly-v1.json --target-week 4`,
+     then `python -m nfl_dfs.ingest.fantasy_points_weekly_2026 <family>-cumulative <run dir> --target-week 4` (add
+     `--write` to load).
+
    **Say by Tuesday 18:00 CT what will not be ready for Wednesday.**
 4. **Tuesday night:** post the "will not make Thursday" list (reviewer's order, HANDOFF 09:15 CDT 09-28).
 
@@ -190,6 +202,15 @@ Operator steps are marked **(operator, laptop)**. Everything else is the agent's
 1. **~09:30 weekly data run** from the integration checkout, after the logins:
    `nfl-weekly-data run --week 4 --skip-odds --no-login-if-needed`.
    - It must run unattended (Week 3's attended run died at `sis-session`).
+   - It must end with **`PAID PAGES: 25 of 25 paid pages captured for Week 4`**:
+     - Route Share and Defense PROE for Week 3;
+     - 3 live matchups;
+     - the 9 cumulative Fantasy Points pages for Weeks 1–3, including the new Advanced Rushing;
+     - 11 SIS team-context reports.
+
+     Anything less names the missing pages. Re-run the named pages with the per-page recovery, not the whole run. The
+     new `fantasy_points_*_cumulative` tables are created by their first append.
+   - Needs `GCP_PROJECT=nfl-predictions-503414` in the environment: every archive's bucket derives from it.
    - SIS-only rerun: `nfl-weekly-data run --week 4 --skip-fantasy-points --skip-odds --skip-matchups --no-login-if-needed`.
 2. **Rebuild the `project-slate` image from the integration branch**, which carries D1 and the `game_start` fix (§8).
    Then `gcloud run jobs update`, one execution **(operator)**, and the proof lines.
@@ -427,7 +448,7 @@ arms it as a timer (`T70_PROJECT=1`).
 | 2 | **The afternoon edit upload** (fill of an edit-entries export after lock) has never been rehearsed on this chain | Thursday dry run; the watcher now runs to 15:20 CT |
 | 3 | **A new generator (lev 0 + class sleeve) and a new selector (mean) on the laptop's first week as host** | Wednesday's full-size smoke; the audit and preflight fail closed; the 09:10 book is an automatic fallback |
 | 4 | **The FP ownership `collect` has never loaded a row**; it needs a second FP login | Tuesday login + `inspect`; the first `collect` on Friday |
-| 5 | **Vendor capture A–E** not started | Tuesday; state what misses Wednesday by Tue 18:00 |
+| 5 | **Vendor capture:** A, C and D merged 09-28, untested live; B (SIS receiver copula) not built | Tuesday smoke (E); Wednesday's `PAID PAGES` line; B awaits production's protocol decision |
 | 6 | **Contest selection and stake: TBD** (operator) | L13 and the review's §2 table are the inputs |
 | 7 | `GCP_PROJECT` in the user manager is lost on reboot | now on every unit (`4df5a5b7`); the hourly loop unit sets its own |
 | 8 | The `--run` preflight (`run_week_build.sh --check`) does not run the input gate | by design (inputs are not ready at arm time); the gate runs in every build |
