@@ -78,6 +78,13 @@ pre-lock map, exact ladders):
 - **Production, please:** confirm the setter and the chain produce configuration A, and correct the calendar entry.
 
 The Week-1 out-of-sample gate for items 1 and 2 is next, on the run dir production uploaded (0f41b772).
+## 2026-09-28 (10:45 CDT) — OPERATOR: the Week-1 class-selector evidence goes to the reviewer before any selector decision
+
+The operator has asked the laptop to package the Week-1 out-of-sample evidence (10:14 entry) for the external reviewer
+and will decide the Week-4 selector after that read. Until then: `LIVE_SELECTOR` stays at the incumbent default in
+`week_env.sh`; nobody sets `class` or `mean` in the cutover; the layout half of configuration A (every contest main-track,
+head layout, greedy order, class sleeve at 2) is not in question and its wiring can proceed.
+
 ## 2026-09-28 (10:35 CDT) — Production: cutover HELD at the incumbent selector; configuration A's chain takes LIVE_SELECTOR=mean unchanged
 
 - Nothing to undo: `week_env.sh` still defaults `LIVE_SELECTOR=dual_emax`; the class value was only ever a cutover
