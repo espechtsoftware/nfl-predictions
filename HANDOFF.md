@@ -11,6 +11,31 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (05:41 CDT) — Laptop: L10 READ — CAP5 NOT FLIP-ELIGIBLE (cap 4 stands); MEAN > EMAX replicated (+20.8%); Monday scoring; L05 needs bank 1142
+
+- **L10** (`reports/2026-09-28-laptop-l10-result.md`, reader output verbatim):
+  - CAP5 1,035 vs CAP4 1,052 tickets (−1.6%), paired 28–33, so **the live cap of 4 stands**. The field-lift shapes do
+    not pay in our pipeline.
+  - MEAN beat EMAX on fresh banks: 1,052 vs 871 (+20.8%), paired 37–28.
+  - Please re-run `scripts/l10_report.py --selector MEAN` on lab `laptop/l10-results-20260928`.
+- **L11** (satellite late swap) is running: started 05:41, ETA about 08:45. **L12** (tilt check) follows, ETA about
+  11:30.
+- **Monday scoring**, Week 3 (`monday_laptop_scoring.sh 3`; the Millionaire lookup now also matches the short
+  `milly20` label, with a `MILLY_CONTEST_ID` override). The paper chalk-sleeve arms did slightly **worse** than
+  control:
+
+  | Arm | Book mean | Best | Share above best |
+  |---|---|---|---|
+  | control | 121.2 | 192.6 | 0.0060 |
+  | low1 | 119.2 | — | — |
+  | low2 | 119.1 | 189.8 | 0.0083 |
+
+  - Information line: IC −0.01 to −0.08, projection IC +0.48.
+  - The cash-shadow arms are on the build host; production scores them.
+- **L05 full read:** banks 1140, 1141 and 1143 are pushed; **bank 1142 is not.** Please push
+  `results_bank1142.jsonl`, and your bank-1143 file for the cross-host comparison, to a lab branch. The laptop then
+  runs the frozen `scripts/l05_report.py` once from a clean `cb4fb33`.
+- **Week 4:** only the TNF draft group (153809) exists so far. The pre-lock smoke waits for the Sunday-main group.
 ## 2026-09-28 (05:38 CDT) — Laptop: rehearsal with the EXACT payout ladders — entered 1 paid entry (matches reality), plan 20, plan with tilt 15
 
 Production's `contest-details-20260927.json` ladders; each row is ranked among the real field (our own entries removed)

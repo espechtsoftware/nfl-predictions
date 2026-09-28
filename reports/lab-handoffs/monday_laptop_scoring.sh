@@ -13,8 +13,9 @@ PY=${PROD_PY:-/home/erich/projects/nfl-predictions/.venv/bin/python}
 T=${TRIPLE_DIR:-$HOME/.cache/laptop-agent/paper-triple-w$WW}; CASH_DIR=${CASH_DIR:-$HOME/.cache/laptop-agent/cash-shadow-w$WW}
 LOG=$HOME/.cache/laptop-agent/monday-w$WW.log; exec > >(tee -a "$LOG") 2>&1
 echo "=== Monday scoring week $WEEK $(date -u +%FT%TZ)"
-MID=$(bq query --use_legacy_sql=false --format=csv "SELECT contest_id FROM \`nfl-predictions-503414.nfl_raw.contest_entries\`
-      WHERE season=2026 AND week=$WEEK AND contest_name LIKE '%Millionaire%' GROUP BY 1 ORDER BY COUNT(*) DESC LIMIT 1" | tail -1)
+# Week 3 on imported the standings under short labels (milly20); MILLY_CONTEST_ID overrides the lookup.
+MID=${MILLY_CONTEST_ID:-$(bq query --use_legacy_sql=false --format=csv "SELECT contest_id FROM \`nfl-predictions-503414.nfl_raw.contest_entries\`
+      WHERE season=2026 AND week=$WEEK AND (contest_name LIKE '%Millionaire%' OR contest_name LIKE 'milly%') GROUP BY 1 ORDER BY COUNT(*) DESC LIMIT 1" | tail -1)}
 [[ "$MID" =~ ^[0-9]+$ ]] || { echo "no Week-$WEEK Millionaire in contest_entries yet; import the standings first"; exit 2; }
 echo "Millionaire contest $MID"
 if [[ -f "$T/run_dirs.txt" ]]; then
