@@ -44,9 +44,11 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from live_dk_points import norm  # noqa: E402
 
-# Satellite line minus the Millionaire's final-score quantile at the same percentile, Week 3 (HANDOFF 0ea1ed74).
+# Satellite line minus the Millionaire's final-score quantile at the same percentile, Week 3 (HANDOFF 0ea1ed74), with
+# our own entries removed from the satellite fields (scripts/fit_late_swap_offsets.py, 2026-09-28: sat20 6.5 -> 5.8, the
+# 11-entry sats we won had set the line at our own score; the rest unchanged). Refit each Monday; pass --offsets.
 DEFAULT_OFFSETS = {"supersat2": 2.7, "supersat25hi": 0.6, "supersat25lo": 5.3, "wildcat": 3.5, "sat13mega": 3.3,
-                   "sat13": 3.3, "sat20": 6.5, "ffwc18": 6.0, "ffwc": 23.2, "milly20": 0.0}
+                   "sat13": 3.3, "sat20": 5.8, "ffwc18": 6.0, "ffwc": 23.2, "milly20": 0.0}
 SLOTS = ["QB", "RB", "RB", "WR", "WR", "WR", "TE", "FLEX", "DST"]
 ACCEPTS = {"QB": {"QB"}, "RB": {"RB"}, "WR": {"WR"}, "TE": {"TE"}, "FLEX": {"RB", "WR", "TE"}, "DST": {"DST"}}
 OUT = {"O", "OUT", "IR", "D", "DOUBTFUL", "INJURED RESERVE", "SUSPENDED", "PUP", "NA"}   # = late_inactive_swaps.py

@@ -359,7 +359,11 @@ scripts/sunday_swap.sh $(… the last stdout line of the previous command …)
 5. **Refits:**
    - the class model on Weeks 1, 3 and 4 (not the Week-2 defect week): `scripts/fit_field_class_model.py --weeks
      WEEK:CID:DG:LOCK …`, sha256-receipted, stored under `gs://…/private/week5/`;
-   - the late-swap offsets: each satellite's real line minus the Millionaire's final quantile at the same percentile.
+   - the late-swap offsets: `scripts/fit_late_swap_offsets.py --layout <entered bundle>/ENTER-layout.txt --details
+     <settled details> --season 2026 --week 4 --milly-contest-id <id> --out offsets-w04.json`. It computes each flat
+     satellite's real line among the OTHER entrants (ours removed) minus the Millionaire's final quantile at the same
+     share. Sunday passes the file with `--offsets`. On Week 3 it reproduces the defaults, except sat20 +5.8, not +6.5:
+     our wins had set those lines.
 6. **O1:** the Week-4 Spearman for FP (T-70 capture) and LAG (Saturday `pred_own`) against the Millionaire's realized
    ownership, counted from `contest_entries`. Record it; the decision rule applies once, after Week 7.
 7. The post-mortem. Archive the entered bundle to `gs://…/private/handover/week4/enter-bundles/`.
