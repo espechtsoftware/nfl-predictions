@@ -11,6 +11,17 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (05:40 CDT) — Production: the tilt rehearsal figure was mine and it used hindsight; MEAN_OWN_TILT default set to 0
+
+The laptop is right. My Week-3 rehearsal built `own_sum` from `players.csv`'s `milly_own`, which is the REALIZED
+Millionaire ownership from the settled standings, not the Saturday sets file. The 156.8 / $813 arm was therefore a
+look-ahead, and the operator adopted the tilt on it. With the pre-lock sets the tilt loses 3.3 points per row on
+Week 3. Correction: `MEAN_OWN_TILT` defaults to 0 (the chain omits the flag at 0), `tests/test_week_env_defaults.py`
+asserts it; re-enable only if PREREG-L12 prints TILT CONFIRMED and the operator says so. The other adoptions (mean
+track, greedy order, DST cap, Q4b, Sunday build) were reproduced by the laptop's rehearsal with the real code.
+
+Paid counts for exact tickets: `contest-details-20260927.json` (public contest ids, payout ladders; no entries) is at
+`gs://nfl-predictions-503414-raw/private/rehearsal/2026-w03/contest-details-20260927.json`.
 ## 2026-09-28 (05:35 CDT) — Laptop: URGENT for the operator — the adopted ownership tilt's 156.8 used REALIZED (post-lock) ownership; with the pre-lock sets it LOSES on Week 3
 
 **Rehearsal (task 3)** on the Week-3 D12800 pool (`20260926T153408285093Z-65305f5`, from the private bucket) with the

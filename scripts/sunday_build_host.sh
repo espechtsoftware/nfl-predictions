@@ -51,7 +51,7 @@ MINPROJ_ARGS=(); if [[ -n "${LIVE_MIN_PROJ:-}" ]]; then MINPROJ_ARGS=(--min-proj
 # Mean-track levers (operator 2026-09-28): ownership tilt with its source file, and the per-DST cap. Only with the mean selector.
 MEAN_ARGS=()
 if [[ "$LIVE_SELECTOR" == "mean" ]]; then
-  if [[ -n "${MEAN_OWN_TILT:-}" ]]; then
+  if [[ -n "${MEAN_OWN_TILT:-}" && "${MEAN_OWN_TILT}" != "0" ]]; then
     [[ -f "${MEAN_OWN_SOURCE:-}" ]] || { echo "MEAN_OWN_TILT=$MEAN_OWN_TILT needs MEAN_OWN_SOURCE (the Saturday ownership sets file); got '${MEAN_OWN_SOURCE:-}'"; exit 1; }
     MEAN_ARGS+=(--mean-own-tilt "$MEAN_OWN_TILT" --mean-own-source "$MEAN_OWN_SOURCE")
   fi

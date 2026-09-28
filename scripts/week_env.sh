@@ -112,7 +112,7 @@ week_env() {
   export LIVE_MIN_PROJ=${LIVE_MIN_PROJ-1.0}
   # Operator decisions 2026-09-28 for the mean track: ownership tilt (0.1 x summed pre-lock predicted ownership from the
   # Saturday sets file) and a 25% cap on any one DST. Empty = flag omitted. MEAN_OWN_SOURCE defaults to OWNERSHIP_SETS.
-  export MEAN_OWN_TILT=${MEAN_OWN_TILT-0.1} MEAN_DST_CAP=${MEAN_DST_CAP-0.25}
+  export MEAN_OWN_TILT=${MEAN_OWN_TILT-0} MEAN_DST_CAP=${MEAN_DST_CAP-0.25}   # tilt OFF (2026-09-28 05:40): the 156.8 used realized ownership; pre-lock sets lose 3.3/row
   export MEAN_OWN_SOURCE=${MEAN_OWN_SOURCE:-${OWNERSHIP_SETS:-}}
   if [[ -z "$group" ]]; then
     group=$(PYTHONPATH="$PROD/src" "$PROD_PY" "$PROD/scripts/find_main_draft_group.py" --season "$SEASON" --sunday "$SUNDAY") || { echo "week_env: could not detect the Sunday-main draft group for $SUNDAY (set GROUP explicitly)" >&2; return 1; }

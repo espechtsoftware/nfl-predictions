@@ -68,4 +68,4 @@ def test_two_track_contests_split_mean_rows_and_the_tail_sleeve(tmp_path):
     r = subprocess.run(["bash", "-c", f"source {ENV_SCRIPT}; week_env 3 >/dev/null && echo $BOOK_ENTRIES $TAIL_SLEEVE $LIVE_SELECTOR $LIVE_MIN_PROJ $MEAN_OWN_TILT $MEAN_DST_CAP"],
                        env=env, text=True, capture_output=True, check=False)
     assert r.returncode == 0, r.stderr
-    assert r.stdout.split() == ["90", "1", "dual_emax", "1.0", "0.1", "0.25"]   # operator decisions 2026-09-28 as defaults
+    assert r.stdout.split() == ["90", "1", "dual_emax", "1.0", "0", "0.25"]   # operator decisions 2026-09-28 as defaults
