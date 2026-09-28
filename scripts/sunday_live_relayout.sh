@@ -38,9 +38,10 @@ import csv, sys
 from nfl_dfs.ingest.dk_client import fetch_draftables
 seen = {}
 for d in fetch_draftables(int(sys.argv[1]))["draftables"]:
-    st = d.get("status"); seen[str(d.get("playerId"))] = "" if st in (None, "None", "") else str(st)
+    st = d.get("status"); comp = d.get("competition") or {}
+    seen[str(d.get("playerId"))] = ("" if st in (None, "None", "") else str(st), str(comp.get("startTime") or ""))
 with open(sys.argv[2], "w", newline="") as f:
-    w = csv.writer(f); w.writerow(["id", "status"]); w.writerows(sorted(seen.items()))
+    w = csv.writer(f); w.writerow(["id", "status", "game_start"]); w.writerows((k, v[0], v[1]) for k, v in sorted(seen.items()))
 print(f"DK status snapshot: {len(seen)} players, {sum(1 for s in seen.values() if s)} with a status -> {sys.argv[2]}")
 PY
 

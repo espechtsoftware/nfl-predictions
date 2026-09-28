@@ -114,6 +114,10 @@ week_env() {
   # Saturday sets file) and a 25% cap on any one DST. Empty = flag omitted. MEAN_OWN_SOURCE defaults to OWNERSHIP_SETS.
   export MEAN_OWN_TILT=${MEAN_OWN_TILT-0} MEAN_DST_CAP=${MEAN_DST_CAP-0.25}   # tilt OFF (2026-09-28 05:40): the 156.8 used realized ownership; pre-lock sets lose 3.3/row
   export MEAN_OWN_SOURCE=${MEAN_OWN_SOURCE:-${OWNERSHIP_SETS:-}}
+  # T-70 rules (operator decision 2, 2026-09-28). The layout half runs on this host (ENTER_FLAG_LATE_Q_ONLY: a
+  # Questionable player flags a row only if his game starts after the lock). The projection half (T70_ACTIVE_Q,
+  # T70_VACATED_BUMP) runs in the project-slate job executed after the 10:30 inactives with these values.
+  export ENTER_FLAG_LATE_Q_ONLY=${ENTER_FLAG_LATE_Q_ONLY-1} T70_ACTIVE_Q=${T70_ACTIVE_Q-1} T70_VACATED_BUMP=${T70_VACATED_BUMP-1}
   if [[ -z "$group" ]]; then
     group=$(PYTHONPATH="$PROD/src" "$PROD_PY" "$PROD/scripts/find_main_draft_group.py" --season "$SEASON" --sunday "$SUNDAY") || { echo "week_env: could not detect the Sunday-main draft group for $SUNDAY (set GROUP explicitly)" >&2; return 1; }
   fi

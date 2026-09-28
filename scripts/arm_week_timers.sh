@@ -61,6 +61,9 @@ BASE_ENV=(env
 [[ -n "${ENTER_ORDER:-}" ]] && BASE_ENV+=("ENTER_ORDER=$ENTER_ORDER")
 [[ -n "${LIVE_FLEX_LATEST:-}" ]] && BASE_ENV+=("LIVE_FLEX_LATEST=$LIVE_FLEX_LATEST")
 [[ -n "${OWNERSHIP_SETS:-}" ]] && BASE_ENV+=("OWNERSHIP_SETS=$OWNERSHIP_SETS")
+for v in ENTER_FLAG_LATE_Q_ONLY T70_ACTIVE_Q T70_VACATED_BUMP LIVE_SELECTOR TAIL_LINE LIVE_MIN_PROJ MEAN_OWN_TILT MEAN_OWN_SOURCE MEAN_DST_CAP; do
+  [[ -n "${!v:-}" ]] && BASE_ENV+=("$v=${!v}")
+done
 [[ -n "${ALLOW_FIXTURE_PIN:-}" ]] && BASE_ENV+=("ALLOW_FIXTURE_PIN=$ALLOW_FIXTURE_PIN")
 
 # The selection-only shadow is approved for the Saturday D12800 build only. Keep it out of the fallback and Sunday

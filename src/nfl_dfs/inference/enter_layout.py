@@ -303,9 +303,40 @@ def live_flagged_positions(vetting: Path, n_rows: int, book_rows: list[list[str]
     missing = {p for row in book_rows for p in row} - set(status)
     if missing:
         raise LayoutError(f"the live status snapshot lacks {len(missing)} of the book's players (wrong draft group?)")
+    # T-70 rule (iii) (operator 2026-09-28, review §5.2): with ENTER_FLAG_LATE_Q_ONLY=1 a Questionable player is a flag
+    # only if his game starts after the lock -- an early-game Questionable still listed at the T-70 pull is active (his
+    # inactives are public). Needs `game_start` in the snapshot and LOCK_UTC in the environment; fails closed otherwise.
+    late_only = os.environ.get("ENTER_FLAG_LATE_Q_ONLY", "0") == "1"
+    q_only = {"Q", "QUESTIONABLE"}
+    if late_only:
+        lock_raw = os.environ.get("LOCK_UTC", "")
+        if not lock_raw or "game_start" not in rows[0]:
+            raise LayoutError("ENTER_FLAG_LATE_Q_ONLY=1 needs LOCK_UTC and a live snapshot with game_start")
+        from datetime import datetime, timezone
+        lock = datetime.fromisoformat(lock_raw.replace("Z", "+00:00"))
+        if lock.tzinfo is None:
+            lock = lock.replace(tzinfo=timezone.utc)
+        start = {}
+        for r in rows:
+            g = str(r.get("game_start") or "").replace("Z", "+00:00")
+            if g:
+                try:
+                    t = datetime.fromisoformat(g[:26] + g[26:] if "." not in g else g.split(".")[0] + "+00:00")
+                except ValueError:
+                    t = None
+                start[str(r["id"])] = t.replace(tzinfo=timezone.utc) if t is not None and t.tzinfo is None else t
+        def is_flag(p: str) -> bool:
+            st = status[p]
+            if st in q_only:
+                t = start.get(p)
+                return t is None or t > lock
+            return st in LIVE_FLAG_STATUSES
+    else:
+        def is_flag(p: str) -> bool:
+            return status[p] in LIVE_FLAG_STATUSES
     qb = {int(x["position"]) - 1 for x in lineups
           if any(str(t).split(":", 1)[0] in QB_NOTE_TAGS for tags in (x.get("flags") or {}).values() for t in tags)}
-    return qb | {i for i, row in enumerate(book_rows) if any(status[p] in LIVE_FLAG_STATUSES for p in row)}
+    return qb | {i for i, row in enumerate(book_rows) if any(is_flag(p) for p in row)}
 
 
 def check_aligned(book_rows: list[list[str]], upload_rows: list[list[str]]) -> None:

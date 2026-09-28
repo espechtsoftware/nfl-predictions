@@ -522,3 +522,25 @@ def test_sleeve_starts_after_the_builder_floor_when_the_layout_is_small():
     EL.contest_rows(cs, 92, "head", list(range(92)))
     with pytest.raises(EL.LayoutError, match="exactly 92"):
         EL.contest_rows(cs, 93, "head", list(range(93)))            # a longer book: the sleeve would slide
+
+
+def test_late_game_only_questionable_flag(tmp_path, monkeypatch):
+    """T-70 rule (iii), operator 2026-09-28: with ENTER_FLAG_LATE_Q_ONLY=1 an early-game Questionable still listed at
+    the pull is not a flag; a late-game Questionable is; OUT/IR/D flag regardless; the rule fails closed."""
+    rows = [["e1"], ["l1"], ["o1"], ["c1"]]                            # early Q, late Q, early OUT, clean
+    vf = {"lineups": [{"position": i + 1, "flags": {}} for i in range(4)]}
+    (tmp_path / "vf.json").write_text(json.dumps(vf))
+    snap = tmp_path / "snap.csv"
+    snap.write_text("id,status,game_start\ne1,Q,2026-09-27T17:00:00.0000000Z\nl1,Q,2026-09-27T20:25:00.0000000Z\n"
+                    "o1,OUT,2026-09-27T17:00:00.0000000Z\nc1,,2026-09-27T17:00:00.0000000Z\n")
+    monkeypatch.delenv("ENTER_FLAG_LATE_Q_ONLY", raising=False)
+    assert EL.live_flagged_positions(tmp_path / "vf.json", 4, rows, snap) == {0, 1, 2}     # the old rule: every Q
+    monkeypatch.setenv("ENTER_FLAG_LATE_Q_ONLY", "1"); monkeypatch.setenv("LOCK_UTC", "2026-09-27 17:00:00+00:00")
+    assert EL.live_flagged_positions(tmp_path / "vf.json", 4, rows, snap) == {1, 2}        # early Q is active
+    monkeypatch.delenv("LOCK_UTC")
+    with pytest.raises(EL.LayoutError, match="LOCK_UTC"):
+        EL.live_flagged_positions(tmp_path / "vf.json", 4, rows, snap)
+    old = tmp_path / "old.csv"; old.write_text("id,status\ne1,Q\nl1,Q\no1,OUT\nc1,\n")
+    monkeypatch.setenv("LOCK_UTC", "2026-09-27 17:00:00+00:00")
+    with pytest.raises(EL.LayoutError, match="game_start"):
+        EL.live_flagged_positions(tmp_path / "vf.json", 4, rows, old)                      # a snapshot without game starts
