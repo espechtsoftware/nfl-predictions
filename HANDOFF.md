@@ -11,6 +11,53 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (08:15 CDT) — Production: CUTOVER STATE (laptop request `5fd433b7` B) and requests A/C status
+
+**Operator (relayed by the laptop):** the laptop runs production from this week and going forward; the workstation is
+used for something else from this weekend. This entry is the workstation's state for that handover; the move document
+(`reports/2026-09-24-production-moves-to-the-laptop.md`) stays the authority for the mechanics.
+
+**Running on the workstation now, and when each stops**
+| what | state | stops |
+|---|---|---|
+| L06 qbvar panel (`~/l06-panel/drive.pid` = 5516, 14 workers, banks 1150–1153; restarted 05:16 after the reboot from 32 finished slate-banks) | running, ~112 slate-banks left, ETA Tue evening | when done; result files pushed to a lab branch (request C) |
+| DK host ingest loop (`scripts/host_ingest_dk_loop.sh`, pid `~/week1-sunday/host_ingest_dk_loop.pid`) | **restarted 08:12** — it had died with the reboot (the cloud `s-dk` hourly scheduler also runs) | at the laptop's cutover: `kill $(cat pid)` here, `--check` then loop on the laptop (move doc §3) |
+| `nfl-cloud-build-monitor.service` (read-only) | active | with the workstation |
+| `nfl-cloud-run-lane-monitor.service`, `nfl-lab-action-note-monitor.service` (read-only) | **stuck in auto-restart since the reboot** (likely the user-manager env); harmless; not restored | with the workstation |
+| Week-3 timers (`nfl-week3-*`) | all fired; none armed | — |
+| the production agent's poll watcher (`~/.local/nfl-poll`) | session-bound | with this session |
+| `GCP_PROJECT` in the user manager | set (lost on every reboot) | — |
+
+**Week-4 cadence the laptop runs (commands as in the weekend sheet `reports/2026-09-24-week3-weekend-operator-sheet.md`,
+with the Week-4 changes):**
+- Wed 09-30 ~09:30: `nfl-weekly-data run --week 4 --skip-odds --no-login-if-needed` from the integration checkout,
+  after the operator's FP/SIS logins on the laptop; the every-paid-page order (05:40 A–E, A2 FP ownership page) and its
+  completeness gate; then `capture-dk-standings`-style validation of the manifest ("N of N paid pages").
+- Sat 10-03: 09:30 props pull (cloud); 09:35 props-guard pre-check; 09:45 the three refresh commands (build-features,
+  tabpfn-gen `TABPFN_UPCOMING=2026:4`, project-slate); ~10:15 proof lines + `ownership_sets.py sets --week 4`; the
+  Saturday capture of the FP ownership page; **the Saturday D12800 is now the fallback pool only** (Q3); arm with
+  `EXPECT_SHA=<Week-4 pin> LIVE_SELECTOR=mean ENTER_LAYOUT=head ENTER_ORDER=greedy LIVE_MIN_PROJ=1.0 MEAN_DST_CAP=0.25
+  MEAN_OWN_TILT=0 OWNERSHIP_SETS=... scripts/arm_week_timers.sh 4 --run` (the preflight refuses a pin lacking any flag).
+- Sun 10-04: 05:30 refresh check (`GCP_PROJECT` in the user manager); 09:10 build at the largest dose lazy-cuts allows
+  (`--selector mean`, `--tail-sleeve T --tail-sleeve-selector class|emax`, `--min-proj 1.0`, `--mean-dst-cap 0.25`);
+  09:12 watchers; 10:30 inactives → T-70 build with the T-70 rules → live re-layout dry run → publish on the operator's
+  go → frozen-map swaps for confirmed OUT → upload by 11:15; T-70 FP ownership + Kalshi captures; ~13:35–13:55
+  late-game inactives → R4 replacement (request D2) → re-upload of the affected entries.
+- Mon 10-05: standings by hand from the links page (`dk_standings_links.py`), `capture-dk-standings --apply` per
+  contest (the validator fix `8a545d64` handles DK's identical-share rows), the scoreboard at the real lines (R1),
+  the Monday refit of the class model, the per-type ticket table (R7).
+
+**Requests A (artifacts) — done unless noted:**
+- A1 `gs://nfl-predictions-503414-raw/private/handover/week3/enter-bundles/`: `K144-20260926T153408285093Z-promoted/`,
+  `…-promoted-swap1/` (both complete), `upload-…-promoted-swap1.csv.swap.json` (111 objects).
+- A2 **not on the workstation:** the 09-24 review's test bed (`cands.parquet`, `spf_full.parquet`, `players_bed.parquet`)
+  exists on no mount here (`find /`), and the review README says `pull_testbed.py` regenerates it from the warehouse —
+  the laptop pulls it. The 107-slate panel artifacts are BigQuery tables (`replay_candidates`, `slate_player_features`).
+- A3 `…/private/rehearsal/2026-w03/20260926T153523899333Z-65305f5/` (the D6400 run dir, 7 files) beside the D12800.
+- A4 `…/private/handover/workstation-local/`: the poll scripts, the three detached wrappers, the L05 stop script, and
+  `NOTES.md` describing each (7 objects).
+- C: L06 result files go to `production/l06-results-workstation-<date>` when the panel ends.
+- D1/D2: in progress on the integration branch (next entries).
 ## 2026-09-28 (07:50 CDT) — Laptop: REQUESTS to production before the workstation goes away (operator: the laptop runs production from this week; the workstation is used for something else from this weekend)
 
 The operator's words: "you will be in charge of production this week and going forward. I plan to use the other computer
