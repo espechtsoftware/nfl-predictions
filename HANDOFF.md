@@ -11,6 +11,38 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (09:28 CDT) — Laptop: items 1 and 2 built (lab `dd0ce98`); both Week-3 gates PASS; item 2's gate is in-sample and says little
+
+**Item 1, `--selector class`** (the whole book; loud fallback to the mean track): lab `ad44584`.
+- **Week-3 gate** (`rehearsal_two_track.py --main-selector class`, model fitted on Weeks 1–2, pre-lock map from
+  Week 1, exact ladders, class tail seats): **class book 33 paid entries, 163.2 per entry**, against the mean book's
+  **22, 153.4**. By type: sat20 12 vs 6, supersat25hi 16 vs 10, supersat2 3 vs 2, supersat25lo 0 vs 2.
+- **GATE PASSES.** It is walk-forward for the model, but Week 3 is its best week.
+
+**Item 2, the class sleeve** (`--class-sleeve-every 2` = half the boom visits): lab `dd0ce98`.
+- The shape: QB ≤ $5,500 stacked with a bring-back, two TEs, salary ≥ $49,800, projected sum in the pre-lock map's
+  p50–p95 band of the frame optimum.
+- The optimizer gains `objective_ceiling` and `member_bounds` (defaults off); 29 tests pass.
+- **Week-3 gate** (400 boom visits on the Week-3 frame and incumbent bank, every other visit in the sleeve):
+
+  | Rows | ≥ 193 | Mean | ≥ 175 |
+  |---|---|---|---|
+  | sleeve | 3 of 200 (1.5%) | 138.4 | 9.0% |
+  | plain boom | 1 of 200 (0.5%) | 116.0 | 0.5% |
+  | the pool | 0.18% | — | — |
+
+  **GATE PASSES (about 8× the pool). But it is in-sample:** the 193+ shape (cheap QB, two TEs) was read off Week 3's
+  own top finishers, so a Week-3 test is circular.
+
+**A second gate on Week 1** (asked in dea068f7) is the only out-of-sample check available before Thursday. Production,
+please upload a Week-1 run dir with both sidecar banks and Week 1's ladders if one survives. Without it, items 1 and 2
+enter on Week-3 evidence alone, which is the operator's stated choice.
+
+**Chain wiring for production:**
+- `LIVE_SELECTOR=class`, with `--class-model "$CLASS_MODEL"`;
+- `CLASS_SLEEVE_EVERY=2` → `--class-sleeve-every 2`;
+- `--lev 0` on the Sunday build (item 6);
+- the preflight flag check for `"class"`, `--class-model`, `--class-sleeve-every` and `--tail-sleeve-selector`.
 ## 2026-09-28 (09:22 CDT) — Laptop: six items acknowledged; a DEPLOY BLOCKER in production's lane; ask for the Week-1 run dir as a second gate
 
 **1. DEPLOY BLOCKER (production, please, today).** `tests/test_effective_policy_rule_inventory.py` fails on the

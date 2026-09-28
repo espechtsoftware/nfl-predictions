@@ -66,6 +66,8 @@ def main() -> None:
     ap.add_argument("--tail-selector", choices=["pline", "emax", "class"], default="pline",
                     help="how the tail sleeve is chosen (live_week --tail-sleeve-selector)")
     ap.add_argument("--class-model", type=Path, help="with --tail-selector class: the fit_field_class_model.py JSON")
+    ap.add_argument("--main-selector", choices=["mean", "class"], default="mean",
+                    help="how the satellite (mean-track) rows are chosen: projected sum, or the class model's score")
     a = ap.parse_args()
     from nfl2.two_track import load_own_estimates, own_sums, select_tail_sleeve, select_top_mean
     from nfl_dfs.bq import query_df
@@ -144,7 +146,7 @@ def main() -> None:
 
     sleeve_note = a.tail_selector
     class_scores = None
-    if a.tail_selector == "class":
+    if a.tail_selector == "class" or a.main_selector == "class":
         from nfl2.class_selector import load_model, pool_features, prelock_map, salary_legal_optimum, score
         cm, cm_sha = load_model(a.class_model); qs, pm = prelock_map(a.class_model)
         opt = salary_legal_optimum(fr)
@@ -163,7 +165,7 @@ def main() -> None:
 
     def arm_rows(tilt: float, dst_cap: float | None, mean_only_dual: bool = False) -> list[int]:
         cand = np.flatnonzero(playable)
-        score = psum[cand] + tilt * osum[cand]
+        score = (class_scores[cand] if a.main_selector == "class" else psum[cand]) + tilt * osum[cand]
         kw = {}
         if dst_cap:
             kw = {"dst_of": [dst_of[i] for i in cand], "dst_cap": max(1, math.floor(dst_cap * k_mean))}
@@ -213,7 +215,7 @@ def main() -> None:
 
     print(f"pool {len(c)} candidates ({int((~playable).sum())} hold a skill player projected < {a.min_proj}); ownership "
           f"slot coverage {cov:.3f}; layout: {len(contests)} contests, {need} rows = {k_mean} mean + {t_rows} sleeve "
-          f"(tail: {sorted(tail)}, sleeve by {sleeve_note}); " + ("EXACT payout ladders" if a.details else f"line = field p{a.line_q:g} (11-entry satellites: strict first place)"))
+          f"(tail: {sorted(tail)}, sleeve by {sleeve_note}; main rows by {a.main_selector}); " + ("EXACT payout ladders" if a.details else f"line = field p{a.line_q:g} (11-entry satellites: strict first place)"))
     arms = {"ENTERED (as played)": entered,
             "PLAN (mean + tilt + DST cap + sleeve)": score_arm(arm_rows(a.tilt, a.dst_cap)),
             "PLAN without tilt": score_arm(arm_rows(0.0, a.dst_cap)),
