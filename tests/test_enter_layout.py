@@ -478,3 +478,34 @@ def test_pin_may_name_any_row_the_layout_already_reads(tmp_path):
     EL.assign_ranks(base + [{**pin, "ranks": [1, top]}], "head")                         # the last existing row is fine
     with pytest.raises(EL.LayoutError, match="may not add rows"):
         EL.assign_ranks(base + [{**pin, "ranks": [1, top + 1]}], "head")                  # one past it is refused
+
+
+def test_tail_track_contests_take_a_sleeve_after_the_mean_rows():
+    """Operator 2026-09-27: two tracks from one pool. Satellites (mean) keep the head layout exactly; Millionaire seats
+    (tail) take sleeve rows after the last mean row, pins allowed inside the sleeve; the sleeve is never permuted."""
+    base = week3_shaped()
+    milly = {"name": "milly20", "contest_id": "9001", "entries": 1, "keep": 1, "track": "tail"}
+    quali = {"name": "ffwc18", "contest_id": "9002", "entries": 2, "keep": 2, "track": "tail"}
+    cs = [milly] + base + [quali]                                    # tail contests anywhere in the file
+    ranks = EL.assign_ranks(cs, "head")
+    K = EL.rows_needed(base, "head")                                  # 144: the mean rows are the base layout, untouched
+    assert ranks[1:-1] == EL.assign_ranks(base, "head")
+    assert ranks[0] == [K] and ranks[-1] == [K + 1, K + 2]           # the sleeve, in file order, unique rows
+    assert EL.rows_needed(cs, "head") == K + 3 and EL.sleeve_size(cs, "head") == 3
+    assert EL.protected_ranks(cs, "head") == EL.protected_ranks(base, "head") == 19   # the sleeve is not "protected"
+    pinned = [{**milly, "ranks": [3]}] + base + [{**quali, "ranks": [1, 2]}]
+    r2 = EL.assign_ranks(pinned, "head"); assert r2[0] == [K + 2] and r2[-1] == [K, K + 1]
+    with pytest.raises(EL.LayoutError, match="sleeve"):
+        EL.assign_ranks([{**milly, "ranks": [4]}] + base + [quali], "head")           # past the sleeve
+    with pytest.raises(EL.LayoutError, match="needs ENTER_LAYOUT=head"):
+        EL.assign_ranks(cs, "sequential")                                              # never silently laid out as mean
+    with pytest.raises(EL.LayoutError, match="track must be one of"):
+        EL.assign_ranks([{**milly, "track": "tial"}] + base, "head")
+    # the order permutes the mean rows only; the sleeve keeps its book position
+    n = K + 3
+    perm = EL.fewest_low_order([[f"p{r}"] for r in range(n)], set(), flagged={0, 1}, pin_first=False, protect=19, fixed_tail=3)
+    assert perm[-3:] == [K, K + 1, K + 2] and sorted(perm[:K]) == list(range(K)) and perm[0] not in (0, 1)
+    rows = EL.contest_rows(cs, n, "head", perm)
+    assert rows[0] == [K] and rows[-1] == [K + 1, K + 2]
+    with pytest.raises(EL.LayoutError, match="exactly"):
+        EL.contest_rows(cs, n + 1, "head", list(range(n + 1)))                        # a longer book: sleeve would slide

@@ -358,7 +358,66 @@ panel. None needs a new model. The first three are already read above; they need
 | Q7 | **Two-cell swaps** (move TE to FLEX to open a WR slot for a starting TE) | Sadiq 26.5 in 1 of 5 Mitchell rows | Unit test + rehearsal | laptop |
 | Q8 | **Core + variations generator:** 3–5 cores (QB stack + 2 studs) × variations over TE/DST/cheap flex, selected by mean | The small-entry winners' shape; our pool's 200+ lineups were all one core. Prior evidence is mixed: "core + one-player swaps" around the expected-max book's core was far weaker than the book's own top ranks (7.7% vs 24.6% at 180 over 65 slates), and the Week-2 study's verdict was "we varied widely around a wrong core; they varied narrowly around a right one" — the core must come from the mean/market, not from the tail selector | Prototype as a selection filter on the W3 pool first (cluster top-mean rows by shared 6-player core; keep the best 3–5 cores × up to 10 variations) | laptop, Wed–Thu |
 | Q10 | **Simulator pace from the Vegas total** (`GAME_SIM_PACE=vegas`) and a cross-team correlation check | Drive counts currently ignore the total; realized cross-team fantasy correlation +0.21 vs ~0 simulated | Same-image A/B on one live frame, boom-pool composition and mean-selected book | laptop, Wed |
+| Q11 | **Millionaire winners' portfolio anatomy and emulation** (§12): measure every ≥20-entry top-100 user's portfolio shape over Weeks 1–3, test persistence, then build a 150-lineup portfolio from our pool that matches the shape and score it on each week | The top-10 150-entry users: 60–73% on the same 3–4 players, chalkier than the field, mean 138–152, cash 32–47%; the tail-track sleeve from our simulator picked 110–137-point rows | A report by Wed; the emulation read by Thu; the tail track for Sat 10-03 follows what it finds | laptop, Mon–Thu |
+| S1 | **Fail-loud build audit** (`scripts/audit_build_levers.py`, wired after the receipt check): every declared lever must leave its trace, no undeclared lever may, no candidate may hold a non-player, declared sources must be present, selector/tracks/book must agree | Run on the Week-3 D12800 run dir tonight: FAILS on 438 non-player candidates and 87 non-players valued at upside, passes the other eight checks | The laptop rehearses it on the Week-4 smoke; it must fail until Q4b lands and pass after | production (built), laptop (rehearse) |
 | Q9 | **Contest mix:** stake concentrated where a 150-average book pays (satellites/supersats), Millionaire seat kept at one | The Millionaire top 100 was unreachable from any pool we built | Your call | operator |
+
+## 11. Dress rehearsal (operator ask, 2026-09-27 evening): the Week-4 process replayed on Weeks 2 and 3
+
+The exact Week-4 process — one pool, the mean track selected by projected mean (overlap ≤7), the tail track by
+simulated P(≥210), the head layout with the week's contests, placed into the real fields — replayed on this week's
+Saturday pool (K=147 mean rows, 3 sleeve rows for the Millionaire seat and the $18 qualifier):
+
+| Process | Mean track: avg / row 1 / best / above cash | Tail rows | Return |
+|---|---|---|---|
+| What we did (entered) | 120.5 / 127.6 / 178.9 / 15 of 144 | — | [private copy] |
+| A. Two tracks: plain mean + P(≥210) sleeve | 151.4 / 127.6 / 202.4 / 74 of 147 | 128, 110, 137 | [dollars: private copy] |
+| B. Same, mean + 0.1 × ownership sum | 156.8 / 171.8 / 202.4 / 92 of 147 | same | **[dollars: private copy]** |
+| B at 0.2 / 0.3 | 154.7 / 153.9 | same | [dollars: private copy] |
+| C. Cores anchored in the top-3-total games, 3 cores × 20 variations, mean fill | 148.8 / 108.3 / 203.4 / 68 of 147 | same | [dollars: private copy] |
+
+The exact rule behind A (for the laptop's reproduction): rank the pool by the frame's projected sum over the lineup's
+nine players (`sel_mean` in `candidates.parquet` is that sum exactly, correlation 1.000), take the top K greedily with
+pairwise shared players ≤ 7 (the cap changed one pair this week: 151.2 → 151.4), order rows by the same sum; the tail
+sleeve is the top T by P(total ≥ 210) over the two persisted score banks (`incumbent_player_scores.npy` +
+`corrected_hsim_player_scores.npy`, equal mass), duplicates with the mean rows allowed. Week 1 under the same rule:
+169.7 average vs 146.6 entered (55% vs 30% above the cash line).
+
+The tail sleeve chose 128/110/137-point lineups: no lineup in the pool could reach the Millionaire's top 100, so the
+sleeve did what it could, which was nothing (§12 is the answer to that). The core-of-top-games form lost to the plain
+mean this week: the market's highest totals included a dud (LAC@BUF 50.5 → 40 points) and every core it built carried
+the Bengals DST. It gets one more form in Q8 (DST outside the core; mean ordering inside).
+
+**Week 2** cannot be rehearsed cleanly on its Saturday pool: 19 quarterbacks projected 10+ points scored zero (the
+backup contract defect, fixed the following week), so a mean selection from that pool picks non-players (mean 70). On
+the Sunday 09:10 pool, which had two such quarterbacks, the two-track mean book scores 102.3 average against the 98.4
+entered — a wash. Week 2 was the week the pool held nothing (its post-mortem said so; the field's cash line was 138);
+the process change would not have rescued it, and the Sunday build was the only thing that helped there.
+
+## 12. The Millionaire: reverse-engineering the winners' pools (operator directive, 2026-09-27)
+
+"It not being possible is not an option." Agreed, and the data to do this properly now exists on our side: every lineup
+from three Millionaires (Weeks 1–3, ~1.1 million entries) with the user behind each one, so the multi-entry winners'
+whole portfolios are measurable, week after week. Tonight's first look (§1) already says: the 150-entry users who
+finished top-10 are not diversified — 60–73% of their lineups share the same three or four players — they are chalkier
+than the field, they run 10–25 quarterbacks, and their portfolios average 138–152 with 32–47% above the cash line; the
+small-entry winners build 3–5 lineups around one core and vary two slots. That is the behaviour of a simulation-driven
+builder with exposure targets and no fade, not of a coverage selector.
+
+The study (laptop, this week; a report, then an emulation test):
+1. **Portfolio anatomy** for every user with ≥20 entries who finished top-100 in any of the three Millionaires, and
+   for a matched sample who finished mid-field: exposure concentration (share on the top 1/3/5 players), ownership
+   profile versus the field, quarterback count, stack and bring-back rates, game concentration, salary allocation by
+   position, pairwise overlap distribution (how many "cores", how the variations are made — which slots vary), share
+   of lineups that are unique in the field, and the portfolio's mean / cash share / best.
+2. **Persistence:** the same usernames across the three weeks — is a good portfolio shape a stable trait (a process)
+   or a one-week draw?
+3. **Emulation:** build a 150-lineup portfolio from OUR pool that matches the winners' shape statistics (exposure
+   targets, chalk level, core count, variation pattern) and score it against theirs on each week. If we can land in
+   their class of average score and cash share from our own projections, the remaining gap to the top 10 is the
+   projection edge, which is then the next study; if we cannot, the shape is not the explanation and we say so.
+
+This is Q11 in §10a.
 
 What I would **not** change on this evidence: the projection model itself (as accurate as the market), the stack rules,
 OPRK (no signal), cheap-QB-as-a-rule (one week), Kalshi (no incremental information).

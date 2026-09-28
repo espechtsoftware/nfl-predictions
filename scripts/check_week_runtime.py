@@ -84,8 +84,13 @@ def main():
         required_entries = enter_layout.rows_needed(contests, layout)
     except enter_layout.LayoutError as exc:
         fail(str(exc))
-    if book_entries < max(90, required_entries):
-        fail(f"BOOK_ENTRIES={book_entries} cannot satisfy {layout} contest layout (needs {max(90, required_entries)})")
+    tail_sleeve = int(os.environ.get("TAIL_SLEEVE", "0") or 0)
+    if tail_sleeve != enter_layout.sleeve_size(contests, layout):
+        fail(f"TAIL_SLEEVE={tail_sleeve} but the contests declare {enter_layout.sleeve_size(contests, layout)} tail-track rows")
+    if book_entries + tail_sleeve < max(90, required_entries):
+        fail(f"BOOK_ENTRIES={book_entries} + TAIL_SLEEVE={tail_sleeve} cannot satisfy {layout} contest layout (needs {max(90, required_entries)})")
+    if tail_sleeve and os.environ.get("LIVE_SELECTOR", "dual_emax") != "mean":
+        fail(f"tail-track contests need LIVE_SELECTOR=mean (the two-track builder); got {os.environ.get('LIVE_SELECTOR')!r}")
     if layout != "sequential":                  # laptop review F2: show every contest's ranks at arming time
         print(f"{layout} layout, {required_entries} distinct lineups:")
         for line in enter_layout.rank_summary(contests, layout):

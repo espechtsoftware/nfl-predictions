@@ -11,6 +11,61 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-27 (20:55 CDT) — Production: task 2 done (layout tracks), the exact mean rule, the FAIL-LOUD BUILD AUDIT, the dress rehearsal, and two operator directives
+
+**Answers to `67cac5ef` / `1bf74203`.**
+- **The exact top-mean rule behind 151.2 (W3) / 169.7 (W1):** rank by `sel_mean` from `candidates.parquet`, which IS the
+  frame's projected sum over the lineup (correlation 1.000 with `sum(frame.proj)`); take the top K. With your greedy
+  pairwise cap ≤ 7 the W3 book becomes 151.4 mean / 202.4 best / 73 above cash (one pair shared 8). Your D3200 paper
+  pool gives 134.9 because it is the smaller pool; the D12800's 2,560 leverage lineups hold the high means. Ordering =
+  the same sum, descending.
+- **P(≥210) is persisted:** both A5 sidecar banks are in every run dir (`incumbent_player_scores.npy`,
+  `corrected_hsim_player_scores.npy`); rebuild the totals exactly as `week3_shadow_runner.py` does (float32 sums in
+  frame-row order per bank, equal-mass concatenation) and take `mean(total ≥ 210)`. No fresh draw needed. My sleeve
+  for W3 (T=3, milly20 + ffwc18) picked rows scoring 127.6 / 109.5 / 137.3.
+- **Contract, as implemented in production (commit below):** `contests.json` `"track": "tail"`; the layout's mean rows
+  K = `rows_needed(mean contests)`; the sleeve T = `sleeve_size(contests, layout)`; the book must hold EXACTLY K+T rows
+  (a longer book fails: the sleeve would slide onto mean rows); `week_env` exports `BOOK_ENTRIES=K` (still ≥ 90),
+  `TAIL_SLEEVE=T`, `LIVE_SELECTOR` (default `dual_emax`, byte-identical), `TAIL_LINE=210`;
+  `sunday_build_host.sh` passes `--selector "$LIVE_SELECTOR"` and `--tail-sleeve T --tail-line L` when T>0; the
+  governed verifier requires `receipt.config.selector == LIVE_SELECTOR`, `config.tail_sleeve.rows == T`,
+  `operational_k == K`, `written == K+T`, `book.csv` = K unique mean rows + T sleeve rows (the sleeve may repeat);
+  `check_week_runtime` requires `TAIL_SLEEVE` to equal the contests' sleeve and `LIVE_SELECTOR=mean` when T>0. The
+  fewest-LOW order now permutes the mean rows only (`fixed_tail`); the sleeve keeps its book position. Dropping
+  fewest-LOW itself is `ENTER_ORDER=greedy` on the arm line (no code).
+- Heading restamped: the post-mortem entry now reads 20:24 CDT.
+
+**FAIL-LOUD BUILD AUDIT (operator directive 2026-09-27: "implement safeguards and fail loudly ... I don't want
+fallbacks").** `scripts/audit_build_levers.py` (+ `tests/test_audit_build_levers.py`, 8 tests, mutation-checked) runs in
+`sunday_build_host.sh` right after `verify_k90` and refuses the run dir on any failed check:
+`candidates_no_nonplayers`, `punt_valuation_availability`, `fade_effect` (declared ON must move the most-owned; declared
+OFF must move nobody above the punt price), `max_per_game`, `stack_rules`, `salary_bounds`, `market_sources`,
+`declared_sources_present` (`AUDIT_SOURCES=col:min_share,...`; default `market_points:0.30,dk_ppg:0.80`),
+`selector_and_tracks`, `book_rows_legal`. Receipt: `$OUT/lever-audit-<RUN_TAG>.json|txt`. **Run tonight on the Week-3
+D12800 run dir it FAILS** on 438 candidates holding a non-player and 87 non-players valued at upside (fullbacks,
+blocking TEs, $4k backups), and passes the other eight — that is the gate working; Q4b (availability-aware punt
+valuation) is what makes it pass. `AUDIT_FADE=on|off` declares the fade; it is `off` until a fade actually receives
+ownership. **The laptop must rehearse the gate on the Week-4 smoke: it must fail before Q4b and pass after.**
+
+**Dress rehearsal (operator ask) — Week 3 on the entered Saturday pool, real contests and fields:** two tracks, plain
+mean: 151.4 mean / 74 of 147 above cash / 202.4 best; with a 0.1 × ownership tilt: 156.8 / 92 / row 1 171.8; the
+operator's "cores in the top-total games + variations" form: 148.8 / 68 / row 1 108.3 (every core carried the Bengals
+DST; LAC@BUF 50.5 was a dud). Dollar figures are in the private report. **Week 2** cannot be rehearsed on its Saturday
+pool (19 QBs projected 10+ scored 0: the backup defect); on the Sunday 09:10 pool the mean book is 102.3 vs 98.4
+entered — a wash; Week 2's pool held nothing.
+
+**Two more operator directives tonight:**
+1. **Millionaire — "not possible is not an option."** Q11 (report §12): portfolio anatomy of every ≥20-entry top-100
+   user over the three 2026 Millionaires (`contest_entries`), persistence across weeks, then an emulation from our pool
+   that matches the winners' shape statistics, scored per week. Report by Wed, emulation read by Thu; the Sat 10-03 tail
+   track follows what it finds. First look already in the report §1.
+2. **Cores anchored in high-total games with slight variations** — tested (above), one more form in Q8 (DST outside the
+   core, mean ordering inside), then decide.
+
+**Files:** `src/nfl_dfs/inference/enter_layout.py` (+2 tests: sleeve, fixed order), `scripts/week_env.sh`,
+`scripts/sunday_build_host.sh`, `scripts/check_week_runtime.py`, `scripts/audit_build_levers.py`,
+`tests/test_audit_build_levers.py`, `tests/test_week_env_defaults.py`, the report copies. 107 tests pass over the touched
+modules. Nothing on the Week-3 entry changed (it is settled).
 ## 2026-09-27 (20:29 CDT) — Laptop: two-track task 1 code-complete (lab 8d25541); pre-lock smoke owed
 
 - **Where.** Lab branch `laptop/two-track-selector-20260927` @ `8d25541`, off the pin 65305f5a.
@@ -62,7 +117,7 @@
   restamp it from `date`.
 - Monday's existing items (the L05 read, `monday_laptop_scoring.sh`, the lazy-cuts acceptance, the L08 draft) still
   run. Order on Monday: task 1 finished, L05 read, scoring, then the task-3 rehearsal.
-## 2026-09-27 (21:30 CDT) — Production: WEEK-3 POST-MORTEM and the Week-4 TWO-TRACK plan (operator decisions inside)
+## 2026-09-27 (20:24 CDT, restamped from `date`) — Production: WEEK-3 POST-MORTEM and the Week-4 TWO-TRACK plan (operator decisions inside)
 
 Report: `reports/2026-09-27-week3-post-mortem.md` (repo copy; dollars in the private copy) and
 `reports/2026-09-27-week3-vendor-signals-audit.md`. Data: `~/week3-sunday/postmortem/` (private; `players.csv`,

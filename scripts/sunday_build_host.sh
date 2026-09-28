@@ -41,7 +41,12 @@ DOSE_FILE=${DOSE_FILE:-$OUT/dose.env}   # optional: PAID_LEV=640 PAID_BOOM=2560 
 export PAID_LEV=${PAID_LEV:-160} PAID_BOOM=${PAID_BOOM:-640}
 # 2026-09-18: the book must hold one lineup per reserved entry when ENTER_LAYOUT=sequential (unique across contests).
 # BOOK_ENTRIES defaults to 90 and is raised from contests.json when the week reserves more.
-export BOOK_ENTRIES=${BOOK_ENTRIES:-$(PYTHONPATH="$PROD/src" "$PROD_PY" -c "import json,sys; from nfl_dfs.inference.enter_layout import rows_needed; print(max(90, rows_needed(json.load(open(sys.argv[1])), sys.argv[2])))" "$CONTESTS_JSON" "${ENTER_LAYOUT:-sequential}")}
+export BOOK_ENTRIES=${BOOK_ENTRIES:-$(PYTHONPATH="$PROD/src" "$PROD_PY" -c "import json,sys; from nfl_dfs.inference.enter_layout import rows_needed, sleeve_size; c=json.load(open(sys.argv[1])); print(max(90, rows_needed(c, sys.argv[2]) - sleeve_size(c, sys.argv[2])))" "$CONTESTS_JSON" "${ENTER_LAYOUT:-sequential}")}
+export TAIL_SLEEVE=${TAIL_SLEEVE:-$(PYTHONPATH="$PROD/src" "$PROD_PY" -c "import json,sys; from nfl_dfs.inference.enter_layout import sleeve_size; print(sleeve_size(json.load(open(sys.argv[1])), sys.argv[2]))" "$CONTESTS_JSON" "${ENTER_LAYOUT:-sequential}")}
+export LIVE_SELECTOR=${LIVE_SELECTOR:-dual_emax} TAIL_LINE=${TAIL_LINE:-210}
+# Two tracks (operator 2026-09-27): --entries = mean rows, --tail-sleeve = Millionaire rows after them (0 = flag omitted).
+SLEEVE_ARGS=(); if [[ "${TAIL_SLEEVE}" != "0" ]]; then SLEEVE_ARGS=(--tail-sleeve "$TAIL_SLEEVE" --tail-line "$TAIL_LINE"); fi
+echo "selector: $LIVE_SELECTOR; mean rows: $BOOK_ENTRIES; tail sleeve: $TAIL_SLEEVE"
 LIVE="$CLONE/results/live/$WEEKDIR"; mkdir -p "$LIVE"
 echo "== $(date -u) week $WEEK group $GROUP run tag $RUN_TAG dose lev $PAID_LEV / boom $PAID_BOOM (D$((PAID_LEV + PAID_BOOM))) skip_pair ${SKIP_PAIR:-0}"
 # the run dir this build creates: newest receipt with our lev/boom whose built_utc falls inside our window (concurrent
@@ -126,8 +131,8 @@ else
   T0=$(date +%s)
   # 2026-09-17 review finding 3: the builder's exit status is required, not just the presence of a matching directory.
   if ( cd "$CLONE" && NFL2_LIVE_CENTER=production PYTHONPATH="$CLONE/src" OMP_NUM_THREADS=1 "$LAB_PY" scripts/live_week.py \
-      --season "$SEASON" --week "$WEEK" --group "$GROUP" --selector dual_emax --lev "$PAID_LEV" --boom "$PAID_BOOM" --sims 10000 --k 1 \
-      --seed 2026 --entries "$BOOK_ENTRIES" --emit-a5-sidecars "${MPG_ARGS[@]}" > /dev/null 2> "$OUT/k90-$RUN_TAG.err" ); then
+      --season "$SEASON" --week "$WEEK" --group "$GROUP" --selector "$LIVE_SELECTOR" --lev "$PAID_LEV" --boom "$PAID_BOOM" --sims 10000 --k 1 \
+      --seed 2026 --entries "$BOOK_ENTRIES" --emit-a5-sidecars "${MPG_ARGS[@]}" "${SLEEVE_ARGS[@]}" > /dev/null 2> "$OUT/k90-$RUN_TAG.err" ); then
     K90_DIR=$(find_run_dir "$PAID_LEV" "$PAID_BOOM" "$T0")
     [[ -n "$K90_DIR" ]] && check_cap "$K90_DIR"
   else
@@ -140,33 +145,46 @@ fi
 # local copy — it requires identity present, sha equal and NOT dirty, exact written/operational_k, the week's lock,
 # the draft group, a legal unique 90-row book.csv and every sidecar file. Applied to reused directories too.
 verify_k90() {  # $1 run dir
-  "$LAB_PY" - "$1" "$PAID_LEV" "$PAID_BOOM" "$BOOK_ENTRIES" 1 "$EXPECT_SHA" "$LOCK_UTC" "$GROUP" <<'PYEOF'
+  "$LAB_PY" - "$1" "$PAID_LEV" "$PAID_BOOM" "$BOOK_ENTRIES" 1 "$EXPECT_SHA" "$LOCK_UTC" "$GROUP" "$TAIL_SLEEVE" "$LIVE_SELECTOR" <<'PYEOF'
 import csv, json, sys
 from pathlib import Path
 d, lev, boom, entries, sidecars, sha, lock, group = Path(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3]), int(sys.argv[4]), sys.argv[5] == "1", sys.argv[6], sys.argv[7], sys.argv[8]
+sleeve, selector = int(sys.argv[9]), sys.argv[10]
 r = json.loads((d / "receipt.json").read_text())
 problems = []
+# Two tracks: the receipt's operational_k is the mean rows and written = mean + sleeve rows; both must match the layout.
+if r["config"].get("selector") != selector: problems.append(f"selector {r['config'].get('selector')!r} != configured {selector!r}")
+got_sleeve = (r["config"].get("tail_sleeve") or {}); got_sleeve = int(got_sleeve.get("rows", 0)) if isinstance(got_sleeve, dict) else int(got_sleeve or 0)
+if got_sleeve != sleeve: problems.append(f"tail sleeve {got_sleeve} != configured {sleeve}")
+total_rows = entries + sleeve
 ident = r.get("identity") or {}
 if not ident.get("sha"): problems.append("receipt carries no identity sha")
 elif ident["sha"] != sha or ident.get("dirty"): problems.append(f"identity {ident}")
 if (r["config"]["lev"], r["config"]["boom"]) != (lev, boom): problems.append(f"config {r['config']['lev']}/{r['config']['boom']} != {lev}/{boom}")
-if r["written"] != entries or r["config"].get("operational_k") != entries: problems.append(f"written {r['written']} / operational_k {r['config'].get('operational_k')} != {entries}")
+if r["written"] != total_rows or r["config"].get("operational_k") != entries: problems.append(f"written {r['written']} / operational_k {r['config'].get('operational_k')} != {total_rows} / {entries}")
 if str(r["lock_utc"]) != lock: problems.append(f"lock_utc {r['lock_utc']} != {lock}")
 if str(r["draft_group"]) != str(group): problems.append(f"draft_group {r['draft_group']} != {group}")
 if r.get("book_k80_is_nested_prefix") is not True: problems.append("K80 is not a nested prefix of the K90 book")
 rows = list(csv.reader((d / "book.csv").open()))
 if rows[0] != ["QB", "RB", "RB", "WR", "WR", "WR", "TE", "FLEX", "DST"]: problems.append("book.csv header")
-if len(rows) - 1 != entries or len({tuple(sorted(x)) for x in rows[1:]}) != entries: problems.append("book.csv rows/uniqueness")
+if len(rows) - 1 != total_rows or len({tuple(sorted(x)) for x in rows[1:entries + 1]}) != entries: problems.append("book.csv rows/uniqueness (mean rows must be unique; the sleeve may repeat)")
 need = ["book.csv", "book.json", "candidates.parquet", "frame.parquet", "exposure_ledger.json", "receipt.json"]
 if sidecars: need += ["book_wemax.csv", "book_wemax.json", "incumbent_player_scores.npy", "corrected_hsim_player_scores.npy"]
 missing = [n for n in need if not (d / n).is_file()]
 if missing: problems.append(f"missing {missing}")
 if problems:
     print("K90 RECEIPT CHECK FAILED: " + "; ".join(problems)); sys.exit(1)
-print(f"k90 receipt verified (governed): {d.name} lev/boom {lev}/{boom} entries {entries} group {group} lock {lock}")
+print(f"k90 receipt verified (governed): {d.name} lev/boom {lev}/{boom} entries {entries} (+{sleeve} sleeve) selector {selector} group {group} lock {lock}")
 PYEOF
 }
 verify_k90 "$K90_DIR" || { echo "K90 receipt verification FAILED for $K90_DIR"; exit 1; }
+# Fail-loud build audit (operator 2026-09-27): every declared lever must leave its trace, no undeclared lever may, every
+# candidate must be legal and playable, the declared sources must be present, and the selector/tracks must match. A
+# failure stops the chain here; the run dir is never adopted. AUDIT_SOURCES lists frame_column:min_share pairs.
+( cd "$PROD" && PYTHONPATH="$PROD/src" "$PROD_PY" scripts/audit_build_levers.py "$K90_DIR" --contests "$CONTESTS_JSON" \
+    --layout "${ENTER_LAYOUT:-sequential}" --expect-selector "$LIVE_SELECTOR" ${MAX_PER_GAME:+--expect-max-per-game "$MAX_PER_GAME"} \
+    --min-salary "${MIN_LINEUP_SALARY:-49000}" --fade "${AUDIT_FADE:-off}" --sources "${AUDIT_SOURCES:-market_points:0.30,dk_ppg:0.80}" \
+    --out "$OUT/lever-audit-$RUN_TAG.json" | tee "$OUT/lever-audit-$RUN_TAG.txt" ) || { echo "BUILD AUDIT FAILED for $K90_DIR (see $OUT/lever-audit-$RUN_TAG.txt); refusing the run dir"; exit 1; }
 [[ -n "$PAID_DIR" ]] || PAID_DIR=$K90_DIR
 echo "k90=$K90_DIR"
 # The approved Saturday D12800 build may opt into the selection-only Week-3 shadow.  Keep this explicit so fallback and

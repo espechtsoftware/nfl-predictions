@@ -94,9 +94,18 @@ week_env() {
     [[ -f "$CONTESTS_JSON" ]] || { echo "week_env: contests file missing: $CONTESTS_JSON (create the reviewed Week-${WEEK} contests.json before arming)" >&2; return 1; }
     # The book must hold every distinct row the layout reads (sequential: the entry total; top: the widest contest;
     # head: the four head rows plus every unique row), and never fewer than 90.
-    BOOK_ENTRIES=$(PYTHONPATH="$PROD/src" "$PROD_PY" -c "import json,sys; from nfl_dfs.inference.enter_layout import rows_needed; print(max(90, rows_needed(json.load(open(sys.argv[1])), sys.argv[2])))" "$CONTESTS_JSON" "$ENTER_LAYOUT") || return
+    # Two tracks (operator 2026-09-27): BOOK_ENTRIES is the MEAN-track row count the builder receives as --entries; the
+    # tail sleeve (Millionaire seats, "track": "tail") is TAIL_SLEEVE rows appended after them (--tail-sleeve).
+    BOOK_ENTRIES=$(PYTHONPATH="$PROD/src" "$PROD_PY" -c "import json,sys; from nfl_dfs.inference.enter_layout import rows_needed, sleeve_size; c=json.load(open(sys.argv[1])); print(max(90, rows_needed(c, sys.argv[2]) - sleeve_size(c, sys.argv[2])))" "$CONTESTS_JSON" "${ENTER_LAYOUT:-sequential}") || return 1
   fi
   export BOOK_ENTRIES
+  if [[ -z "${TAIL_SLEEVE:-}" ]]; then
+    TAIL_SLEEVE=$(PYTHONPATH="$PROD/src" "$PROD_PY" -c "import json,sys; from nfl_dfs.inference.enter_layout import sleeve_size; print(sleeve_size(json.load(open(sys.argv[1])), sys.argv[2]))" "$CONTESTS_JSON" "${ENTER_LAYOUT:-sequential}") || return 1
+  fi
+  export TAIL_SLEEVE
+  # The live selector. dual_emax is the incumbent (byte-identical default); "mean" is the two-track satellite selector,
+  # which the pinned lab commit must support (the arming preflight and the build audit check the receipt).
+  export LIVE_SELECTOR=${LIVE_SELECTOR:-dual_emax} TAIL_LINE=${TAIL_LINE:-210}
   if [[ -z "$group" ]]; then
     group=$(PYTHONPATH="$PROD/src" "$PROD_PY" "$PROD/scripts/find_main_draft_group.py" --season "$SEASON" --sunday "$SUNDAY") || { echo "week_env: could not detect the Sunday-main draft group for $SUNDAY (set GROUP explicitly)" >&2; return 1; }
   fi

@@ -1,4 +1,6 @@
+import json
 import os
+import sys
 import subprocess
 from pathlib import Path
 
@@ -49,3 +51,21 @@ def test_missing_contests_file_fails_with_an_actionable_message(tmp_path):
     )
     assert result.returncode == 1
     assert f"contests file missing: {missing}" in result.stderr
+
+
+def test_two_track_contests_split_mean_rows_and_the_tail_sleeve(tmp_path):
+    """Operator 2026-09-27: BOOK_ENTRIES is the mean-track row count the builder receives; TAIL_SLEEVE the Millionaire
+    rows appended after them. Under head with 19 one-entry satellites + a 20-entry supersat + a tail Millionaire seat:
+    mean rows = 4 head + 15 unique + 16 unique = 35 -> floored at 90; sleeve = 1."""
+    contests = tmp_path / "contests.json"
+    cs = [{"name": "sat20", "contest_id": str(1000 + i), "entries": 1, "keep": 1} for i in range(19)]
+    cs += [{"name": "supersat", "contest_id": "2000", "entries": 20, "keep": 20},
+           {"name": "milly20", "contest_id": "3000", "entries": 1, "keep": 1, "track": "tail"}]
+    contests.write_text(json.dumps(cs))
+    env = os.environ.copy()
+    env.update({"GROUP": "153769", "SEASON": "2026", "OUT": str(tmp_path / "out"), "CONTESTS_JSON": str(contests),
+                "ENTER_LAYOUT": "head", "PROD_PY": sys.executable, "PROD": str(ROOT)})
+    r = subprocess.run(["bash", "-c", f"source {ENV_SCRIPT}; week_env 3 >/dev/null && echo $BOOK_ENTRIES $TAIL_SLEEVE $LIVE_SELECTOR"],
+                       env=env, text=True, capture_output=True, check=False)
+    assert r.returncode == 0, r.stderr
+    assert r.stdout.split() == ["90", "1", "dual_emax"]

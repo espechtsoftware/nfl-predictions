@@ -19,8 +19,15 @@ Layouts (ENTER_LAYOUT):
                 - the other contests take rows 1..h, then unique rows, dealt snake-fashion (one per contest per
                   round, in contests.json order, reversing each round);
                 - a contest may pin its rows explicitly with "ranks": [1-based ranks] (operator, 2026-09-25: the $20
-                  Millionaire takes row 1, three $13 satellites rows 1, 2, 3). Pinned ranks must lie inside the
-                  head rows 1-4, and the contest takes no part in the rotation, the overflow or the deal.
+                  Millionaire takes row 1, three $13 satellites rows 1, 2, 3). Pinned ranks may name any row the
+                  unpinned layout already reads (2026-09-27), and the contest takes no part in the rotation, the
+                  overflow or the deal;
+                - TWO TRACKS (operator, 2026-09-27, after Week 3): a contest marked "track": "tail" (default "mean")
+                  draws from a SLEEVE of rows placed after every mean-track row: the mean rows 1..K are the
+                  highest-projected-mean lineups for the satellites, the sleeve rows K+1..K+T are the tail-selected
+                  lineups for the Millionaire seats. Tail contests take consecutive unique sleeve rows in file order, or
+                  pin "ranks" 1-based INSIDE the sleeve (rank 1 = book row K+1). The order (below) permutes the mean
+                  rows only; sleeve rows keep their book position. "tail" under any other layout is an error.
 
 Order (ENTER_ORDER): the ranks above index an ORDER over the upload's rows.
   greedy      the book's own order (vetted, replaced and promoted), rank r = upload row r.
@@ -50,6 +57,7 @@ import sys
 from pathlib import Path
 
 LAYOUTS = ("sequential", "top", "head")
+TRACKS = ("mean", "tail")     # per-contest selection track (2026-09-27): satellites by mean, Millionaire seats by tail
 ORDERS = ("greedy", "fewest-low")
 HEAD_TOP = 4             # the head rows every contest draws from
 HEAD_SMALL, HEAD_LARGE = 2, 4
@@ -78,6 +86,8 @@ def assign_ranks(contests: list[dict], layout: str) -> list[list[int]]:
         if not isinstance(n, int) or isinstance(n, bool) or n <= 0:
             raise LayoutError(f"contests.json: entries for {c.get('name')!r} must be a positive integer (got {n!r})")
         sizes.append(n)
+    if layout != "head" and any(str(c.get("track", "mean")) == "tail" for c in contests):
+        raise LayoutError(f"contests.json: a \"track\": \"tail\" contest needs ENTER_LAYOUT=head (got {layout!r})")
     if layout == "sequential":
         keep_total = sum(int(c["keep"]) for c in contests)
         keep_next, fill_next, out = 0, keep_total, []
@@ -96,7 +106,45 @@ def assign_ranks(contests: list[dict], layout: str) -> list[list[int]]:
             else:
                 out.append(list(range(n)))
         return out
-    # head
+    # head: two tracks. The mean-track contests get the head algorithm below; tail-track contests get the sleeve after it.
+    tracks = [str(c.get("track", "mean")) for c in contests]
+    if any(t not in TRACKS for t in tracks):
+        raise LayoutError(f"contests.json: track must be one of {TRACKS} (got {sorted(set(tracks) - set(TRACKS))})")
+    mean_idx = [i for i, t in enumerate(tracks) if t == "mean"]
+    tail_idx = [i for i, t in enumerate(tracks) if t == "tail"]
+    if tail_idx:
+        mean_out = _head_ranks([contests[i] for i in mean_idx], [sizes[i] for i in mean_idx]) if mean_idx else []
+        k = max((max(r) + 1 for r in mean_out if r), default=0)
+        t_total = sum(sizes[i] for i in tail_idx)
+        out: list[list[int]] = [[] for _ in contests]
+        for j, i in enumerate(mean_idx):
+            out[i] = mean_out[j]
+        cursor = 0
+        for i in tail_idx:
+            c, n = contests[i], sizes[i]
+            if "ranks" in c:
+                r = c["ranks"]
+                if (not isinstance(r, list) or len(r) != n or len(set(r)) != n
+                        or any(not isinstance(x, int) or isinstance(x, bool) or not 1 <= x <= t_total for x in r)):
+                    raise LayoutError(f"contests.json: tail contest {c.get('name')!r} ranks {r!r} must be {n} distinct "
+                                      f"integers in 1..{t_total} (sleeve ranks, 1 = the first row after the mean rows)")
+                out[i] = [k + x - 1 for x in r]
+            else:
+                out[i] = list(range(k + cursor, k + cursor + n))
+                cursor += n
+        return out
+    return _head_ranks(contests, sizes)
+
+
+def sleeve_size(contests: list[dict], layout: str) -> int:
+    """How many book rows the tail track holds (0 unless head with tail contests)."""
+    if layout != "head":
+        return 0
+    return sum(int(c["entries"]) for c in contests if str(c.get("track", "mean")) == "tail")
+
+
+def _head_ranks(contests: list[dict], sizes: list[int]) -> list[list[int]]:
+    """The head algorithm over one track's contests (0-based ranks)."""
     out = [[] for _ in contests]
     seen: dict[tuple, int] = {}
     unique_slots = [0] * len(contests)
@@ -157,7 +205,8 @@ def protected_ranks(contests: list[dict], layout: str) -> int:
     if layout != "head":
         return HEAD_TOP
     ranks = assign_ranks(contests, layout)
-    small = [max(r) + 1 for c, r in zip(contests, ranks) if int(c["entries"]) <= HEAD_SMALL and r]
+    small = [max(r) + 1 for c, r in zip(contests, ranks)
+             if int(c["entries"]) <= HEAD_SMALL and r and str(c.get("track", "mean")) == "mean"]
     return max([HEAD_TOP] + small)
 
 
@@ -175,9 +224,16 @@ def _read_rows(path: Path) -> tuple[list[str], list[list[str]]]:
 
 
 def fewest_low_order(book_rows: list[list[str]], low_ids: set[str], flagged: set[int], pin_first: bool,
-                     protect: int = HEAD_TOP) -> list[int]:
+                     protect: int = HEAD_TOP, fixed_tail: int = 0) -> list[int]:
     """Row order by (LOW count, book rank), a promoted row 1 first; the first `protect` ranks take clean rows only,
-    and the flagged rows they skip keep their fewest-LOW place right after them."""
+    and the flagged rows they skip keep their fewest-LOW place right after them. The last `fixed_tail` rows (the
+    tail-track sleeve) are never moved."""
+    n_all = len(book_rows)
+    if not 0 <= fixed_tail <= n_all:
+        raise LayoutError(f"fixed_tail {fixed_tail} outside 0..{n_all}")
+    if fixed_tail:
+        head_perm = fewest_low_order(book_rows[:n_all - fixed_tail], low_ids, flagged, pin_first, protect=protect)
+        return head_perm + list(range(n_all - fixed_tail, n_all))
     def key(i: int):
         return (0 if (pin_first and i == 0) else 1, sum(1 for pid in book_rows[i] if pid in low_ids), i)
     ordered = sorted(range(len(book_rows)), key=key)
@@ -267,7 +323,7 @@ def check_aligned(book_rows: list[list[str]], upload_rows: list[list[str]]) -> N
 
 def load_order(order: str, n_rows: int, *, book: Path | None, vetting: Path | None, sets: Path | None,
                pin_first: bool, upload_rows: list[list[str]] | None = None,
-               protect: int = HEAD_TOP, live_status: Path | None = None) -> tuple[list[int], dict]:
+               protect: int = HEAD_TOP, live_status: Path | None = None, fixed_tail: int = 0) -> tuple[list[int], dict]:
     """The order over upload rows, and a record of how it was made. Fails closed on any missing input."""
     if order not in ORDERS:
         raise LayoutError(f"unknown ENTER_ORDER {order!r}; expected one of {ORDERS}")
@@ -297,13 +353,14 @@ def load_order(order: str, n_rows: int, *, book: Path | None, vetting: Path | No
     if coverage < MIN_SETS_COVERAGE:
         raise LayoutError(f"the sets file knows only {coverage:.0%} of the book's players (need "
                           f"{MIN_SETS_COVERAGE:.0%}): wrong week, wrong slate or wrong id form")
-    clean = n_rows - len(flagged - ({0} if pin_first else set()))
-    if clean < min(protect, n_rows):
+    n_mean = n_rows - fixed_tail
+    clean = n_mean - len({i for i in flagged if i < n_mean} - ({0} if pin_first else set()))
+    if clean < min(protect, n_mean):
         raise LayoutError(f"only {clean} clean rows for {protect} protected ranks; widen the book or relax the layout")
-    perm = fewest_low_order(brows, low_ids, flagged, pin_first, protect=protect)
+    perm = fewest_low_order(brows, low_ids, flagged, pin_first, protect=protect, fixed_tail=fixed_tail)
     counts = [sum(1 for pid in brows[i] if pid in low_ids) for i in range(n_rows)]
     return perm, {"order": "fewest-low", "sets": str(sets), "book": str(book), "vetting": str(vetting),
-                  "pin_first": pin_first, "flagged_rows": len(flagged), "protected_ranks": protect,
+                  "pin_first": pin_first, "flagged_rows": len(flagged), "protected_ranks": protect, "fixed_tail": fixed_tail,
                   "flag_rule": f"live DK status ({live_status})" if live_status else "vetting tags (INJURY_TAGS)", "sets_coverage": round(coverage, 4),
                   "low_players": len(low_ids), "skill_players_known": len(skill_known),
                   "low_count_first_10": [counts[i] for i in perm[:10]]}
@@ -315,6 +372,11 @@ def contest_rows(contests: list[dict], n_rows: int, layout: str, perm: list[int]
     need = max((max(r) + 1 for r in ranks if r), default=0)
     if need > n_rows:
         raise LayoutError(f"the {layout} layout needs {need} distinct lineups but the book holds {n_rows}")
+    # Two tracks: the sleeve starts right after the mean rows the layout counted, so the book must hold EXACTLY
+    # mean rows + sleeve rows; a longer book would put the sleeve on mean-track lineups without anyone noticing.
+    t = sleeve_size(contests, layout)
+    if t and n_rows != need:
+        raise LayoutError(f"two-track book must hold exactly {need} rows ({need - t} mean + {t} sleeve); it holds {n_rows}")
     return [[perm[r] for r in rs] for rs in ranks]
 
 
@@ -480,7 +542,8 @@ def main(argv: list[str] | None = None) -> int:
         print("staged bundle == the published bundle's row map with the swapped cells:", not bad)
         return 1 if bad else 0
     perm_info = load_order(a.order, len(body), book=a.book, vetting=a.vetting, sets=a.sets, pin_first=a.pin_first,
-                           upload_rows=body, protect=protected_ranks(contests, a.layout), live_status=a.live_status)
+                           upload_rows=body, protect=protected_ranks(contests, a.layout), live_status=a.live_status,
+                           fixed_tail=sleeve_size(contests, a.layout))
     if a.cmd == "write":
         print("\n".join(write(contests, a.upload, a.stage, a.layout, perm_info)))
         return 0
