@@ -104,34 +104,44 @@ def test_all_main_flag_writes_config_a(tmp_path, capsys):
 def test_rule_line_orders_deepest_line_first_all_main_track_with_deep_flags():
     """Reviewer 2026-09-28 after the Week-1 gate: mean selector for every contest; deepest rows dealt to the deepest lines."""
     cs = [{k: v for k, v in c.items() if k != "priority"} for c in CONTESTS]
-    out, lines, problems = sct.decide_by_line(cs, DETAILS, 0.02)
+    out, lines, problems = sct.decide_by_line(cs, DETAILS, 0.02, deep_as_tail=False)
     assert problems == []
     assert [c["name"] for c in out] == ["supersat", "wildcat", "sat20", "milly"]        # p98.95, p98.73, p90.9, p76.9
     assert [c["deep_line"] for c in out] == [True, True, False, False] and all(c["track"] == "mean" for c in out)
     assert lines[0].startswith("supersat") and "dealt #1" in lines[0] and "DEEP" in lines[0]
-    _, _, problems = sct.decide_by_line([dict(cs[0], track_override="tail")] + cs[1:], DETAILS, 0.02)
+    _, _, problems = sct.decide_by_line([dict(cs[0], track_override="tail")] + cs[1:], DETAILS, 0.02, deep_as_tail=False)
     assert problems == ["1 (sat20): track_override 'tail' is not a mean-track contest; --rule line has no sleeve"]
-    _, _, problems = sct.decide_by_line(cs, {k: v for k, v in DETAILS.items() if k != "2"}, 0.02)
+    _, _, problems = sct.decide_by_line(cs, {k: v for k, v in DETAILS.items() if k != "2"}, 0.02, deep_as_tail=False)
     assert problems == ["2 (wildcat): not in the details file"]
 
 
 def test_rule_line_main_writes_the_order(tmp_path, capsys):
     cfile = tmp_path / "contests.json"; dfile = tmp_path / "details.json"
     cfile.write_text(json.dumps({"week": 4, "contests": CONTESTS})); dfile.write_text(json.dumps(DETAILS))
-    assert sct.main(["--contests", str(cfile), "--details", str(dfile), "--rule", "line", "--write"]) == 0
+    assert sct.main(["--contests", str(cfile), "--details", str(dfile), "--rule", "line", "--no-sleeve", "--write"]) == 0
     assert "rule line:" in capsys.readouterr().out
     got = json.loads(cfile.read_text())
     assert got["week"] == 4 and [c["name"] for c in got["contests"]] == ["supersat", "wildcat", "sat20", "milly"]
     assert sct.main(["--contests", str(cfile), "--details", str(dfile), "--rule", "line", "--all-main"]) == 2
 
 
-def test_deep_as_tail_is_the_laptops_alternative_not_the_default():
-    """The laptop's measured 10:29 configuration stays one flag away: deep-line contests + a forced Millionaire on a
+def test_rule_line_default_is_the_adopted_mean_sleeve_millionaire_first_then_by_depth(tmp_path, capsys):
+    """Reviewer 2026-09-28 11:40 ("use the laptop's version"): deep-line contests + the forced Millionaire on a
     mean-selected sleeve, the Millionaire first, then by depth; main contests keep their depth order before them."""
     cs = [{k: v for k, v in c.items() if k != "priority"} for c in CONTESTS]
     cs[2] = dict(cs[2], track_override="tail")                       # the Millionaire (p76.9) forced onto the sleeve
-    out, lines, problems = sct.decide_by_line(cs, DETAILS, 0.02, deep_as_tail=True)
+    out, lines, problems = sct.decide_by_line(cs, DETAILS, 0.02)
     assert problems == []
     assert [(c["name"], c["track"]) for c in out] == [("sat20", "mean"), ("milly", "tail"), ("supersat", "tail"), ("wildcat", "tail")]
     assert [c["priority"] for c in out[1:]] == [1, 2, 3]
     assert [ln for ln in lines if ln.startswith("deal:")][0] == "deal: sleeve rows 1-20 -> milly (line p76.9, priority 1)"
+    cfile = tmp_path / "contests.json"; dfile = tmp_path / "details.json"
+    cfile.write_text(json.dumps(cs)); dfile.write_text(json.dumps(DETAILS))
+    assert sct.main(["--contests", str(cfile), "--details", str(dfile), "--rule", "line", "--write"]) == 0
+    out_text = capsys.readouterr().out
+    assert "adopted 2026-09-28 11:40" in out_text and "forced first (milly)" in out_text
+    got = json.loads(cfile.read_text())
+    assert [(c["name"], c["track"]) for c in got] == [("sat20", "mean"), ("milly", "tail"), ("supersat", "tail"), ("wildcat", "tail")]
+    cfile.write_text(json.dumps([{k: v for k, v in c.items() if k != "track_override"} for c in cs]))
+    assert sct.main(["--contests", str(cfile), "--details", str(dfile), "--rule", "line"]) == 0
+    assert "NONE - is the Millionaire missing" in capsys.readouterr().out

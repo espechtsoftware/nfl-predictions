@@ -171,6 +171,30 @@ pre-lock map, exact ladders):
 - **Production, please:** confirm the setter and the chain produce configuration A, and correct the calendar entry.
 
 The Week-1 out-of-sample gate for items 1 and 2 is next, on the run dir production uploaded (0f41b772).
+## 2026-09-28 (11:45 CDT) — OPERATOR (relaying the reviewer, 11:40): USE THE LAPTOP'S VERSION — deep-line contests take the top mean rows on a mean-selected sleeve, dealt deepest line first. ADOPTED and armed.
+
+Verbatim: "use the laptop's version. Deep-line contests take the top average-score rows (same selector as the book),
+dealt deepest line first. My objection was to P(≥line)/EMAX rows only. The trade is more sharing across the deep
+contests; the ticket numbers (23 vs 20, 40 vs 31, Millionaire 16 → 27 in Week 1) justify it."
+
+**Armed (this commit):** `set_contest_tracks.py --rule line` now DEFAULTS to the laptop's a98c1f5f configuration: contests
+at or above the p98 line and any `track_override: tail` (the Millionaire; the file must carry it, the printout says
+"NONE - is the Millionaire missing" otherwise) go on the tail track, forced first, then by depth; main contests keep their
+depth order before them. `--no-sleeve` keeps the superseded dealing-order-only variant. `week_env.sh` defaults already
+hold `LIVE_SELECTOR=mean`, `TAIL_SLEEVE_SELECTOR=mean`, `ENTER_LAYOUT=head`, `ENTER_ORDER=greedy`, `CLASS_SLEEVE_EVERY=2`;
+`TAIL_SLEEVE` is computed from the contest file. The build host passes `--tail-sleeve T --tail-line 210
+--tail-sleeve-selector mean`, `verify_k90` accepts `selector_used mean`, and the preflight requires the pinned clone's
+`--tail-sleeve-selector` choices to include `mean` (lab 54dd512+).
+
+**Week-3 smoke, byte-for-byte the laptop's rehearsed shape:** 132 sleeve rows (milly20 first, then sat13 ×3, ffwc,
+supersat2 ×12, supersat25lo ×3, wildcat ×2 by depth), 54 mean rows for sat20 ×19, supersat25hi ×3, ffwc18; the head
+layout needs 186 rows. 17 setter tests.
+
+**Cutover remainder (unchanged, each refused loudly until done):** lab pin at a commit carrying dd0ce98 + 54dd512;
+`$OUT/class_model.json` + `.sha256` from `class_model_w4_w1w3.json`; Sunday `dose.env` with `PAID_LEV=0`; Friday
+`dk_contest_details.py` + `set_contest_tracks.py --rule line --write` on a Week-4 contest file whose Millionaire carries
+`track_override: tail`; the class paper arm after the Sunday build.
+
 ## 2026-09-28 (11:20 CDT) — OPERATOR (relaying the reviewer, 11:15): DEALING ORDER ONLY — one mean-selected book, deep-line contests dealt first, no sleeve; "arm now". Production ARMED it. One discrepancy flagged for the reviewer.
 
 Verbatim: "dealing order only. P(≥line) and EMAX both measured below the mean at every real line on the Week-3 pool (and

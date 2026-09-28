@@ -37,7 +37,7 @@ def paid_places(details: dict) -> int | None:
     return max(int(t["maxPosition"]) for t in tiers)
 
 
-def decide_by_line(contests: list[dict], details: dict, tail_share: float = 0.02, deep_as_tail: bool = False) -> tuple[list[dict], list[str], list[str]]:
+def decide_by_line(contests: list[dict], details: dict, tail_share: float = 0.02, deep_as_tail: bool = True) -> tuple[list[dict], list[str], list[str]]:
     """Reviewer 2026-09-28 (after the Week-1 gate): every contest is mean-selected on the main track; the contests are
     ordered by line percentile, deepest line first, so the head layout deals the book's best unique rows to the deepest
     lines. Contests whose ladder pays at or above the field's (1 - tail_share) percentile are labelled `deep_line: true`
@@ -65,8 +65,10 @@ def decide_by_line(contests: list[dict], details: dict, tail_share: float = 0.02
     for c in out:
         c.pop("_field")
     if deep_as_tail:
-        # the laptop's measured alternative (10:29): deep-line contests and any track_override "tail" (the Millionaire) form a
-        # mean-selected tail sleeve, overrides first, then by depth; main contests keep their depth order before them
+        # ADOPTED (reviewer 2026-09-28 11:40, "use the laptop's version"): deep-line contests and any track_override "tail"
+        # (the Millionaire) form a MEAN-selected tail sleeve (TAIL_SLEEVE_SELECTOR=mean: the same selector as the book, so the
+        # deep contests take the top mean rows again), overrides first, then by depth; main contests keep their depth order
+        # before them. Week 3: 23 vs 20 paid; Week 1: 40 vs 31 (Millionaire 27 vs 16).
         forced = [c for c in out if c.get("track_override") == "tail"]
         deep = [c for c in out if c["deep_line"] and c not in forced]
         main = [c for c in out if c not in forced and c not in deep]
@@ -146,9 +148,9 @@ def main(argv=None) -> int:
                     help="field: the 09:50 tail-by-priority rule (needs priority on tail contests); line: reviewer 2026-09-28 after the Week-1 gate -- "
                          "every contest main-track, ordered deepest line first, deep_line flagged at the p98 rule")
     ap.add_argument("--tail-share", type=float, default=0.02, help="--rule line: paid places / field at or below this = deep_line (0.02 = the 98th percentile)")
-    ap.add_argument("--deep-as-tail", action="store_true",
-                    help="--rule line: NOT the adopted configuration (reviewer 11:15: dealing order only). Puts the deep-line contests and any "
-                         "track_override tail (the Millionaire) on a mean-selected tail sleeve, overrides first then by depth: the laptop's 10:29 alternative")
+    ap.add_argument("--no-sleeve", action="store_true",
+                    help="--rule line: NOT the adopted configuration (superseded 11:40). Every contest main-track, deepest line first, no sleeve "
+                         "(measured: dealing order alone moves nothing)")
     ap.add_argument("--write", action="store_true")
     a = ap.parse_args(argv)
     raw = json.loads(a.contests.read_text()); contests = raw if isinstance(raw, list) else raw["contests"]
@@ -156,7 +158,7 @@ def main(argv=None) -> int:
     if a.rule == "line" and a.all_main:
         print("--rule line already puts every contest on the main track; drop --all-main", file=sys.stderr); return 2
     if a.rule == "line":
-        out, lines, problems = decide_by_line(contests, details, a.tail_share, deep_as_tail=a.deep_as_tail)
+        out, lines, problems = decide_by_line(contests, details, a.tail_share, deep_as_tail=not a.no_sleeve)
     else:
         out, lines, problems = decide(contests, details, a.mean_max_field, all_main=a.all_main)
     for ln in lines:
@@ -164,9 +166,12 @@ def main(argv=None) -> int:
     if problems:
         print("TRACKS NOT SET: " + "; ".join(problems), file=sys.stderr); return 2
     n_tail = [c for c in out if c["track"] == "tail"]
-    if a.rule == "line" and a.deep_as_tail:
-        print("NOT the adopted configuration (reviewer 2026-09-28 11:15: dealing order only); this file needs TAIL_SLEEVE_SELECTOR=mean and a lab pin at 54dd512+")
-    if a.rule == "line" and not a.deep_as_tail:
+    if a.rule == "line" and not a.no_sleeve:
+        forced = [c for c in out if c.get("track_override") == "tail"]
+        print(f"rule line (adopted 2026-09-28 11:40): {len(n_tail)} deep-line/forced contests ({sum(int(c['entries']) for c in n_tail)} rows) on the MEAN-selected sleeve, "
+              f"forced first ({', '.join(str(c.get('name')) for c in forced) or 'NONE - is the Millionaire missing its track_override: tail?'}), then by depth; "
+              f"{len(out) - len(n_tail)} main contests; needs TAIL_SLEEVE_SELECTOR=mean, LIVE_SELECTOR=mean, ENTER_LAYOUT=head")
+    if a.rule == "line" and a.no_sleeve:
         deep = [c for c in out if c.get("deep_line")]
         print(f"rule line: {len(out)} contests ({sum(int(c['entries']) for c in out)} entries) all mean-selected on the main track, ordered deepest line first; "
               f"{len(deep)} deep-line contests ({sum(int(c['entries']) for c in deep)} entries) at or above p{100 * (1 - a.tail_share):.0f}; TAIL_SLEEVE=0, ENTER_LAYOUT=head, ENTER_ORDER=greedy")
