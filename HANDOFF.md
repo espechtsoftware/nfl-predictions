@@ -12,6 +12,37 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (12:53 CDT) — Laptop: `025ad2c5` (the union) acknowledged; its Week-3 13-paid is NOT a methodology artifact; on the one clean week, Saturday's projections beat Sunday's on the same supply
+
+- **Union: acknowledged, and the audit fix (the mean sleeve repeating main rows) is right.** The laptop reviews
+  `union_reselect.py` before Wednesday's smoke. **`UNION_PMO` stays 0 until L13's R5 reads** (22+ of 72; ETA ~14:00).
+- **The 13 paid, re-run with our entries removed.**
+  - `rehearsal_two_track.py` now identifies our handle by contest reach when a run dir's book was never entered (it is
+    the user in all 45 contests); the book match is still tried first. Uncommitted edit, pushed with this entry.
+  - Union run dir `union-w3b` (from the bucket), the same adopted configuration and exact ladders: **13 paid, 148.13 per
+    entry.** The fields were not the cause.
+- **Same Saturday supply, scored two ways (Week 3, realized, one week, hindsight):**
+
+| Scored on | book source | paid | mean pts/entry |
+|---|---|---|---|
+| Saturday projections (the D12800 run dir) | Saturday pool | **24** | **151.9** |
+| Sunday 10:50 projections (the union) | 52/54 mean + 130/132 sleeve rows from the Saturday pool | 13 | 148.1 |
+
+- **What that says about "Sunday beats Saturday":**
+  - The post-mortem's §6.2 table compared **dual_emax** books. Week 3's means were 120.5 / 120.6 / 120.5 (identical);
+    only the row-1 and best-row figures moved.
+  - Week 2's Sunday win came from the backup-QB defect in Saturday's projections, and Week 2 is excluded elsewhere as a
+    defect week.
+  - Under the **mean** selector, the one clean week favours Saturday's projections by about 3.8 points per entry on the
+    same supply. That is before the scratch swaps the Saturday book would have had (Taylor, Mitchell).
+  - One week and hindsight, and Week 3's Sunday projections had no D1 rules. Not evidence enough to reverse a decision;
+    enough that it should not be treated as settled.
+- **For the operator (decision is his; the laptop brings it with L13's read):**
+  - (A) as authorized: the union scored on the T-70 projections.
+  - (B) the same union supply scored on **Saturday's** projections, i.e. the Saturday D12800 book with the morning
+    scratch swaps and R4 (`chosen-dose.env` 2560/10240; no code).
+  - Either way, **a Monday paper arm of the other** (deterministic re-selection from the two run dirs, like the class
+    paper arm) builds the evidence this question lacks.
 ## 2026-09-28 (12:47 CDT) — Production: the T-70 UNION is BUILT, wired, tested and rehearsed on Week 3 (operator authorization 12:2x); one audit defect found and fixed that would have refused Sunday's mean sleeve
 
 **Operator (verbatim):** "authorize the union at T-70 now; it repairs the regression from dropping the lev batch, which

@@ -117,6 +117,13 @@ def main() -> None:
     ent["pset"] = ent.lineup_slots_json.map(lambda s: frozenset(i["player"] for i in json.loads(s)))
     ours = ent[ent.pset.isin(book_sets)].user.value_counts()
     if ours.empty or ours.iloc[0] < 50:
+        # a run dir whose book was never entered (a union or paper book): our handle is the user entered in the most
+        # of the week's contests (every entered week covers them all), as fit_late_swap_offsets.py identifies it
+        reach = ent.groupby("user").contest_id.nunique().sort_values(ascending=False)
+        if len(reach) and reach.iloc[0] >= 0.8 * ent.contest_id.nunique():
+            ours = pd.Series({reach.index[0]: 50})
+            print(f"our entries identified by contest reach ({reach.iloc[0]} of {ent.contest_id.nunique()} contests)")
+    if ours.empty or ours.iloc[0] < 50:
         if not a.allow_unidentified:
             raise SystemExit("could not identify our entries in the fields (fewer than 50 book matches)")
         print("NOTE: our entries were not identified; the fields include them and the ENTERED line is skipped")
