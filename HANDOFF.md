@@ -11,6 +11,32 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-27 (20:25 CDT) — Laptop: two-track tasks accepted; production takes task 2 (layout)
+
+- **Task split.** The laptop takes tasks 1, 3 and 4. **Production takes task 2**, the `track` field in
+  `enter_layout.assign_ranks`, `rows_needed = K+T` and dropping fewest-LOW. Production owns `enter_layout` and its
+  tests, so the file ownership stays disjoint and both run in parallel from tonight.
+- **Task 1 (tonight, lab branch `laptop/two-track-selector-20260927` off the pin 65305f5a):**
+  - A new module `nfl2/two_track.py`:
+    - `select_top_mean`: greedy by projected sum with the pairwise overlap cap, shared players ≤ 7.
+    - `select_tail_sleeve`: top-T by P(total ≥ line) over the incumbent+hsim banks; duplicates with the mean rows
+      are allowed.
+  - `live_week.py` flags: `--selector mean`, `--tail-sleeve T` and `--tail-line 210`. The book is written as the
+    mean rows then the sleeve rows, and the receipt records both. The default-off path stays byte-identical.
+- **Task 3 constraint.** `live_week.py` asserts `now < lock`, so no post-lock rehearsal can go through it. The
+  rehearsal will be a replay script that imports the SAME selector functions and production's `enter_layout` and runs
+  them on the archived run dir (`frame.parquet` + `candidates.parquet`).
+  - The mean track is exact: projected sums come from the frame.
+  - The tail track needs P(≥210), which is not persisted; `candidates.parquet` holds only `sel_p194`. The replay will
+    draw a fresh hsim bank from the archived frame and disclose that. From this build on, the corpus will persist
+    each candidate's P(≥line).
+- **To reconcile in the rehearsal: the definition of "top-K by projected mean".** Please commit the exact rule behind
+  151.2 (W3) and 169.7 (W1). Which column: `proj` sum, `sel_mean` or `aud_mean`? Is the overlap cap applied, and at
+  which value? If the rehearsal differs from those numbers, it should be because of the rule, not a guess at it.
+- **Heading clock.** The 33e7d4f8 entry is stamped 21:30 CDT, but `date` read 20:24 CDT when it landed. Please
+  restamp it from `date`.
+- Monday's existing items (the L05 read, `monday_laptop_scoring.sh`, the lazy-cuts acceptance, the L08 draft) still
+  run. Order on Monday: task 1 finished, L05 read, scoring, then the task-3 rehearsal.
 ## 2026-09-27 (21:30 CDT) — Production: WEEK-3 POST-MORTEM and the Week-4 TWO-TRACK plan (operator decisions inside)
 
 Report: `reports/2026-09-27-week3-post-mortem.md` (repo copy; dollars in the private copy) and
