@@ -571,3 +571,46 @@ def test_returning_lead_rb_lowers_backup_rbs_only_when_enabled(monkeypatch):
     monkeypatch.setenv("RETURNING_RB_ADJ", "2")
     with pytest.raises(ValueError):
         returning_teammate_deltas(feats, prev, teams)
+
+
+# ---- T-70 model rules (operator 2026-09-28; review §5) ----------------------------------------------------------
+from nfl_dfs.inference import cascade_adjust as ca  # noqa: E402
+def _t70_frame():
+    return pd.DataFrame({
+        "gsis_id": ["q1", "q2", "q3", "s1", "b1", "b2", "s2", "b3"],
+        "display_name": ["Early Q", "Late Q", "Early Q out", "Starter out", "Backup RB", "Backup RB2", "Starter TE", "Backup TE"],
+        "position": ["WR", "WR", "WR", "RB", "RB", "RB", "TE", "TE"],
+        "team": ["A", "B", "C", "D", "D", "D", "E", "E"],
+        "status": ["Q", "Q", "OUT", "OUT", "None", "None", "D", "None"],
+        "injury_status": ["Questionable", "Questionable", "Questionable", "Out", None, None, "Doubtful", None],
+        "depth_rank": [1, 1, 1, 1, 2, 3, 1, 2],
+        "game_start": ["2026-09-27T17:00:00Z", "2026-09-27T20:25:00Z", "2026-09-27T17:00:00Z", "2026-09-27T17:00:00Z",
+                       "2026-09-27T17:00:00Z", "2026-09-27T17:00:00Z", "2026-09-27T20:05:00Z", "2026-09-27T20:05:00Z"],
+    })
+
+
+def test_t70_rules_are_off_by_default(monkeypatch):
+    monkeypatch.delenv("T70_ACTIVE_Q", raising=False); monkeypatch.delenv("T70_VACATED_BUMP", raising=False)
+    assert not ca.t70_active_q_enabled() and not ca.t70_vacated_bump_enabled()
+
+
+def test_active_questionable_is_the_early_game_q_player_not_marked_out(monkeypatch):
+    f = _t70_frame(); now = pd.Timestamp("2026-09-27T15:50:00Z")             # T-70: 10:50 CT
+    assert ca.find_active_questionable(f, now) == ["q1"]                       # early game, still Q -> active
+    assert ca.find_active_questionable(f, now, window_minutes=300) == ["q1", "q2"]   # a wide window reaches the late game
+    assert ca.find_active_questionable(f.drop(columns=["game_start"]), now) == []     # fails closed without game starts
+    monkeypatch.setenv("T70_ACTIVE_Q_WINDOW_MIN", "0"); import pytest
+    with pytest.raises(ValueError, match="T70_ACTIVE_Q_WINDOW_MIN"):
+        ca.find_active_questionable(f, now)
+
+
+def test_vacated_targets_are_depth_two_same_position_teammates_of_an_absent_starter():
+    f = _t70_frame()
+    got = ca.find_t70_vacated_targets(f)
+    assert got == {"b1": 1.6, "b3": 1.6}                                        # RB behind an Out RB; TE behind a Doubtful TE
+    out = pd.DataFrame({"gsis_id": ["b1", "b3", "q1"], "proj_points": [8.0, 5.0, 12.0], "salary": [5000, 3500, 6000], "value": [1.6, 1.43, 2.0]})
+    bumped, net = ca.apply_t70_vacated_bump(out, got, {"b1": 0.9, "b3": 2.5})   # net of what the cascade already gave
+    assert set(net) == {"b1", "b3"} and abs(net["b1"] - 0.7) < 1e-9 and net["b3"] == 0.0
+    assert bumped.loc[0, "proj_points"] == 8.7 and bumped.loc[1, "proj_points"] == 5.0 and bumped.loc[2, "proj_points"] == 12.0
+    assert abs(bumped.loc[0, "value"] - 8.7 / 5.0) < 1e-9
+    assert ca.find_t70_vacated_targets(f.drop(columns=["depth_rank"])) == {}    # fails closed without depth

@@ -510,6 +510,103 @@ def find_questionable_players(feats: pd.DataFrame) -> list[str]:
     return sorted(set(feats.loc[q & feats.gsis_id.notna(), "gsis_id"].astype(str)))
 
 
+# ---------------------------------------------------------------------------------------------------------------------
+# T-70 model rules (operator decision 2026-09-28, external Week-3 review §5). Both default OFF: with the env unset the
+# projection is byte-identical. They are meant for the T-70 refresh, after the early-game inactives are known.
+#
+#  T70_ACTIVE_Q=1      a Questionable player whose game kicks off within T70_ACTIVE_Q_WINDOW_MIN minutes of the run and
+#                      who is not marked out at the DraftKings pull is ACTIVE: the haircut does not apply to him. Late-game
+#                      Questionable players (their inactives come ~90 min before their own kickoff) keep the haircut.
+#                      Week 3: ten such players scored the market's 101.8 against our served 84.9 (review §5.2).
+#  T70_VACATED_BUMP=1  the depth-2 same-position teammate of a depth-1 starter who is Out/Doubtful/IR gets the review's
+#                      §5.1 residual (RB +1.6, TE +1.6, WR +0.7, other +1.0) NET of what the inference cascade already
+#                      gave him (run_projections measures that with a second pass), floored at 0. Historically positive
+#                      in all five seasons; Sadiq stayed at 7.5 all Sunday morning and scored 26.5.
+# ---------------------------------------------------------------------------------------------------------------------
+ABSENT_STATUSES = {"OUT", "O", "IR", "D", "DOUBTFUL", "INJURED RESERVE", "SUSPENDED", "PUP", "NA"}
+T70_VACATED_TABLE = {"RB": 1.6, "TE": 1.6, "WR": 0.7}
+T70_VACATED_DEFAULT = 1.0
+
+
+def t70_active_q_enabled() -> bool:
+    return os.environ.get("T70_ACTIVE_Q", "0").strip() == "1"
+
+
+def t70_vacated_bump_enabled() -> bool:
+    return os.environ.get("T70_VACATED_BUMP", "0").strip() == "1"
+
+
+def t70_active_q_window_minutes() -> float:
+    raw = os.environ.get("T70_ACTIVE_Q_WINDOW_MIN", "90")
+    try:
+        v = float(raw)
+    except ValueError as exc:
+        raise ValueError(f"T70_ACTIVE_Q_WINDOW_MIN must be a number of minutes, got {raw!r}") from exc
+    if not (0 < v <= 24 * 60):
+        raise ValueError(f"T70_ACTIVE_Q_WINDOW_MIN must be in (0, 1440], got {v}")
+    return v
+
+
+def find_active_questionable(feats: pd.DataFrame, now: pd.Timestamp, window_minutes: float | None = None) -> list[str]:
+    """Questionable players who count as ACTIVE at a T-70 run: their game starts within `window_minutes` of `now`
+    (so their inactives are already public) and the DraftKings status at the pull is not an absent status. Fails
+    closed on a frame without `game_start` (nothing is activated, and the caller receipts that)."""
+    if "game_start" not in feats.columns:
+        return []
+    win = t70_active_q_window_minutes() if window_minutes is None else float(window_minutes)
+    now = pd.Timestamp(now)
+    if now.tzinfo is None:
+        now = now.tz_localize("UTC")
+    starts = pd.to_datetime(feats["game_start"], errors="coerce", utc=True)
+    status = _col(feats, "status").fillna("").astype(str).str.upper().str.strip()
+    report = _col(feats, "injury_status").fillna("").astype(str).str.upper().str.strip()
+    q_ids = set(find_questionable_players(feats))
+    soon = starts.notna() & ((starts - now) <= pd.Timedelta(minutes=win)) & ((starts - now) > pd.Timedelta(minutes=-30))
+    absent = status.isin(ABSENT_STATUSES) | report.isin({"OUT", "DOUBTFUL"})
+    ids = feats.loc[soon & ~absent & feats.gsis_id.notna(), "gsis_id"].astype(str)
+    return sorted(set(ids) & q_ids)
+
+
+def find_t70_vacated_targets(feats: pd.DataFrame) -> dict[str, float]:
+    """gsis_id -> the gross §5.1 bump for the depth-2 same-position teammate(s) of a depth-1 skill starter who is
+    Out / Doubtful / IR at the run (DraftKings status or the report). Needs `depth_rank`, `team`, `position`."""
+    need = {"depth_rank", "team"}
+    if not need <= set(feats.columns) or feats.gsis_id.isna().all():
+        return {}
+    pos = _col(feats, "position", "pos").fillna("").astype(str).str.upper()
+    status = _col(feats, "status").fillna("").astype(str).str.upper().str.strip()
+    report = _col(feats, "injury_status").fillna("").astype(str).str.upper().str.strip()
+    depth = pd.to_numeric(feats["depth_rank"], errors="coerce")
+    absent = status.isin(ABSENT_STATUSES) | report.isin({"OUT", "DOUBTFUL"})
+    out = {}
+    starters = feats[(depth == 1) & absent & pos.isin(list(T70_VACATED_TABLE) + ["QB"])]
+    for _, st in starters.iterrows():
+        p = str(st.get("position", st.get("pos", ""))).upper()
+        if p == "QB":
+            continue                                   # the QB backup path has its own gate (find_backup_qbs)
+        mates = feats[(feats["team"] == st["team"]) & (pos == p) & (depth == 2) & ~absent & feats.gsis_id.notna()]
+        for gid in mates.gsis_id.astype(str):
+            out[gid] = max(out.get(gid, 0.0), T70_VACATED_TABLE.get(p, T70_VACATED_DEFAULT))
+    return out
+
+
+def apply_t70_vacated_bump(out: pd.DataFrame, gross: dict[str, float], cascade_effect: dict[str, float]) -> tuple[pd.DataFrame, dict[str, float]]:
+    """Add max(0, gross - cascade_effect) to proj_points for each target; return the frame and the net bumps applied."""
+    if not gross:
+        return out, {}
+    out = out.copy()
+    net = {}
+    for gid, g in gross.items():
+        n = max(0.0, float(g) - float(cascade_effect.get(gid, 0.0)))
+        net[gid] = n
+        mask = out.gsis_id.astype(str) == gid
+        if n > 0 and mask.any():
+            out.loc[mask, "proj_points"] = out.loc[mask, "proj_points"] + n
+            if "value" in out.columns and "salary" in out.columns:
+                out.loc[mask, "value"] = out.loc[mask, "proj_points"] / (out.loc[mask, "salary"] / 1000.0)
+    return out, net
+
+
 def apply_questionable_haircut(out: pd.DataFrame, q_ids: list[str], h: float) -> pd.DataFrame:
     if h == 1.0 or not q_ids:
         return out
