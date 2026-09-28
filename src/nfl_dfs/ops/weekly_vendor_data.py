@@ -24,6 +24,7 @@ from ..ingest import (
     fantasy_points_route_weekly,
     fantasy_points_weekly_2026,
     sis_pass_tail_weekly,
+    sis_receiver_copula_weekly,
     sis_team_context_weekly,
 )
 from . import fantasy_points_downloads as fp
@@ -74,6 +75,10 @@ SIS_PASS_TAIL_VIEWS = (
     ("pass-defense-totals", "all"), ("pass-defense-value", "all"), ("pass-rush-totals", "all"),
     ("pass-defense-totals", "wide"), ("pass-defense-totals", "slot"),
 )
+# 2026-09-28 (production, Vendor item B): the frozen SIS receiver-copula weekly protocol, wide + slot of week W-1.
+# The runner declares it from target week 4 (the first Wednesday run after the build); target weeks 2-3 (source weeks
+# 1-2) are one-time backfills with `sis-download receiver-copula-weekly`, not runner pages.
+SIS_RECEIVER_COPULA_FIRST_WEEK = 4
 PAID_PAGE_GATE = "paid-page-completeness"
 
 
@@ -136,6 +141,10 @@ def paid_pages(week: int, *, sis_plan: Path | None, stage_matchups: bool = True)
         add("sis-pass-tail", [f"sis pass-tail {report}/{view} {_weeks(first, week - 1)}"
                               for report, view in SIS_PASS_TAIL_VIEWS],
             ("sis-pass-tail-download", "sis-pass-tail-import"))
+    if week >= SIS_RECEIVER_COPULA_FIRST_WEEK:
+        add("sis-receiver-copula", [f"sis receiver-copula wr-cb pass-defense-totals/{alignment} "
+                                    f"{_weeks(week - 1, week - 1)}" for alignment, _ in sis.RECEIVER_COPULA_ALIGNMENTS],
+            ("sis-receiver-copula-download", "sis-receiver-copula-import"))
     return pages
 
 
@@ -222,6 +231,8 @@ def run_week(
     stage_matchups: bool = True,
     write_matchups: bool = True,
     capture_sis_pass_tail: bool = True,
+    capture_sis_receiver_copula: bool = True,
+    write_sis_receiver_copula: bool = True,
     ingest_odds: bool = True,
     ingest_props: bool = False,
     sis_team_context: bool = True,
@@ -310,6 +321,8 @@ def run_week(
             "stage_matchups": bool(capture_matchups and stage_matchups),
             "write_matchups": bool(write_matchups),
             "capture_sis_pass_tail": bool(capture_sis_pass_tail),
+            "capture_sis_receiver_copula": bool(capture_sis_receiver_copula),
+            "write_sis_receiver_copula": bool(write_sis_receiver_copula),
             "ingest_odds": bool(ingest_odds),
             "ingest_props": bool(ingest_props),
         },
@@ -326,11 +339,13 @@ def run_week(
         "matchups": fp_skip or (None if capture_matchups else "--skip-matchups"),
         "sis-team-context": None if sis_plan is not None or sis_team_context else "--skip-sis-team-context",
         "sis-plan": None, "sis-pass-tail": None if capture_sis_pass_tail else "--skip-sis-pass-tail",
+        "sis-receiver-copula": None if capture_sis_receiver_copula else "--skip-sis-receiver-copula",
     }
     audit_only = {
         "route-share": not write_route, "alignment": not write_alignment, "defense-proe": not write_fp_families,
         "fp-families": not write_fp_families, "fp-cumulative": not write_fp_families,
         "matchups": not write_matchups, "sis-team-context": not write_sis_team_context,
+        "sis-receiver-copula": not write_sis_receiver_copula,
     }
     manifest["paid_pages"] = {"pages": [
         {**page, "skipped_by": skip_flags[page["group"]], "audit_only": audit_only.get(page["group"], False),
@@ -433,7 +448,9 @@ def run_week(
     # so an expired session never loses the FP capture, yet the run still fails closed (non-zero exit) with the
     # renewal command; the SIS-only re-run is `--skip-fantasy-points`. With no SIS step at all the manifest records
     # that the session was not required.
-    sis_steps = sis_plan is not None or sis_team_context_missing is not None or (week >= 5 and capture_sis_pass_tail)
+    capture_copula = week >= SIS_RECEIVER_COPULA_FIRST_WEEK and capture_sis_receiver_copula
+    sis_steps = (sis_plan is not None or sis_team_context_missing is not None or (week >= 5 and capture_sis_pass_tail)
+                 or capture_copula)
     sis_rerun = (f"nfl-weekly-data run --week {week} --skip-fantasy-points --skip-odds --skip-matchups "
                  "--no-login-if-needed")
 
@@ -654,6 +671,24 @@ def run_week(
                 write=True,
             ),
         )
+    if capture_copula:
+        # not fatal, like the cumulative pages: a failure is recorded and the paid-page gate names both pages
+        copula_dir = sis_output_root / run_id / "receiver-copula"
+        acquired = step(
+            "sis-receiver-copula-download",
+            lambda: sis.run_receiver_copula_weekly_acquisition(
+                sis_profile_dir, timeout_seconds, copula_dir, target_week=week,
+            ),
+            fatal=False,
+        )
+        if acquired is not None:
+            step(
+                "sis-receiver-copula-import",
+                lambda: sis_receiver_copula_weekly.run(
+                    copula_dir, target_week=week, write=write_sis_receiver_copula,
+                ),
+                fatal=False,
+            )
 
     def _paid_page_gate() -> dict[str, int]:
         if paid_page_verdict():
@@ -742,6 +777,16 @@ def _parser() -> argparse.ArgumentParser:
     run.add_argument("--skip-odds", action="store_true")
     run.add_argument("--skip-matchups", action="store_true")
     run.add_argument("--skip-sis-pass-tail", action="store_true")
+    run.add_argument(
+        "--skip-sis-receiver-copula",
+        action="store_true",
+        help="do not download the SIS receiver-copula wide/slot pages of week W-1",
+    )
+    run.add_argument(
+        "--audit-only-sis-receiver-copula",
+        action="store_true",
+        help="capture the SIS receiver-copula pages but validate their import without archiving/appending",
+    )
     run.add_argument("--no-login-if-needed", action="store_true")
     return parser
 
@@ -790,6 +835,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         skip_fantasy_points=args.skip_fantasy_points,
         write_sis_team_context=not args.audit_only_sis_team_context,
         capture_sis_pass_tail=not args.skip_sis_pass_tail,
+        capture_sis_receiver_copula=not args.skip_sis_receiver_copula,
+        write_sis_receiver_copula=not args.audit_only_sis_receiver_copula,
         ingest_odds=not args.skip_odds,
         ingest_props=args.include_props,
         login_if_needed=not args.no_login_if_needed,

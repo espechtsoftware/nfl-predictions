@@ -193,6 +193,16 @@ def test_week_five_adds_frozen_alignment_download_and_import(
         lambda *_args, **_kwargs: events.append("sis-pass-tail-import") or {},
     )
     monkeypatch.setattr(
+        weekly.sis, "run_receiver_copula_weekly_acquisition",
+        lambda *_args, **kwargs: events.append(
+            f"sis-receiver-copula-download-{kwargs['target_week']}") or {},
+    )
+    monkeypatch.setattr(
+        weekly.sis_receiver_copula_weekly, "run",
+        lambda *_args, **kwargs: events.append(
+            f"sis-receiver-copula-import-{kwargs['write']}") or {},
+    )
+    monkeypatch.setattr(
         weekly.fantasy_points_defense_proe_weekly, "run",
         lambda *_args, **kwargs: events.append(f"proe-import-{kwargs['write']}") or {},
     )
@@ -239,6 +249,8 @@ def test_week_five_adds_frozen_alignment_download_and_import(
             weekly.DEFAULT_FP_CUMULATIVE_PLANS[key].name, f"{key}-import-False")],
         "sis-pass-tail-download",
         "sis-pass-tail-import",
+        "sis-receiver-copula-download-5",
+        "sis-receiver-copula-import-True",
     ]
 
 
@@ -393,8 +405,8 @@ def test_qb_shell_import_receives_the_same_weeks_coverage_run(monkeypatch, tmp_p
     weekly.run_week(
         week=6, fp_profile_dir=tmp_path / "fp", sis_profile_dir=tmp_path / "sis", timeout_seconds=10,
         output_root=tmp_path / "runs", fp_output_root=tmp_path / "fp-out", sis_output_root=tmp_path / "sis-out",
-        capture_matchups=False, capture_sis_pass_tail=False, ingest_odds=False, login_if_needed=False,
-        sis_team_context=False, now=datetime(2026, 10, 7, 14, tzinfo=UTC),
+        capture_matchups=False, capture_sis_pass_tail=False, capture_sis_receiver_copula=False, ingest_odds=False,
+        login_if_needed=False, sis_team_context=False, now=datetime(2026, 10, 7, 14, tzinfo=UTC),
     )
     assert [key for key, *_ in seen] == [*weekly.FP_FAMILY_ORDER, *weekly.FP_CUMULATIVE_ORDER]
     shell = next(item for item in seen if item[0] == "qb-shell")
@@ -476,11 +488,14 @@ def test_week_four_declares_every_paid_page():
     """Production's order D (2026-09-28): the declared list for Wednesday 09-30 (target Week 4, completed Week 3)."""
     pages = weekly.paid_pages(4, sis_plan=None)
     labels = [page["page"] for page in pages]
-    assert len(labels) == len(set(labels)) == 25
+    assert len(labels) == len(set(labels)) == 27
     groups = [page["group"] for page in pages]
     assert {g: groups.count(g) for g in groups} == {
         "route-share": 1, "defense-proe": 1, "matchups": 3, "fp-cumulative": 9, "sis-team-context": 11,
+        "sis-receiver-copula": 2,
     }
+    assert "sis receiver-copula wr-cb pass-defense-totals/wide week 03" in labels
+    assert "sis receiver-copula wr-cb pass-defense-totals/slot week 03" in labels
     assert "fantasy-points advanced-rushing-cumulative: advanced-rushing/Player weeks 01-03" in labels
     assert "fantasy-points advanced-passing-cumulative: advanced-passing/Player weeks 01-03" in labels
     assert "fantasy-points route-share week 03" in labels and "sis pass-defense-totals week 03" in labels
@@ -489,6 +504,7 @@ def test_week_four_declares_every_paid_page():
         assert len({page["page"] for page in pages}) == len(pages)
         groups = {page["group"] for page in pages}
         assert {"alignment", "fp-families", "sis-pass-tail"} <= groups if week >= 5 else "fp-families" not in groups
+        assert ("sis-receiver-copula" in groups) == (week >= 4)
 
 
 def _wednesday(monkeypatch, tmp_path, events, *, fail=None):
@@ -515,6 +531,10 @@ def _wednesday(monkeypatch, tmp_path, events, *, fail=None):
                         lambda key, run_dir, **kw: act(f"{key}-import-{kw['write']}", {}))
     monkeypatch.setattr(weekly.sis, "run_plan", lambda *a, **k: act("sis-capture", {}))
     monkeypatch.setattr(weekly.sis_team_context_weekly, "run", lambda *a, **k: act("sis-import", {}))
+    monkeypatch.setattr(weekly.sis, "run_receiver_copula_weekly_acquisition",
+                        lambda *a, **k: act("sis-receiver-copula-download", {"passes": True}))
+    monkeypatch.setattr(weekly.sis_receiver_copula_weekly, "run",
+                        lambda *a, **k: act(f"sis-receiver-copula-import-{k['write']}", {}))
     return dict(
         week=4, fp_profile_dir=tmp_path / "fp-profile", sis_profile_dir=tmp_path / "sis-profile", timeout_seconds=10,
         output_root=tmp_path / "runs", fp_output_root=tmp_path / "fp-out", sis_output_root=tmp_path / "sis-out",
@@ -530,20 +550,22 @@ def test_wednesday_week_four_run_captures_every_paid_page(monkeypatch, tmp_path,
     cumulative = [e for key in weekly.FP_CUMULATIVE_ORDER
                   for e in (weekly.DEFAULT_FP_CUMULATIVE_PLANS[key].stem, f"{key}-import-True")]
     assert events == ["2026-route-share-weekly-v1", "route-import", "2026-defense-proe-weekly-v1", "proe-import",
-                      "matchups", "matchups-stage", *cumulative, "sis-capture", "sis-import"]
+                      "matchups", "matchups-stage", *cumulative, "sis-capture", "sis-import",
+                      "sis-receiver-copula-download", "sis-receiver-copula-import-True"]
     manifest = json.loads(manifest_path.read_text())
-    assert manifest["status"] == "complete" and manifest["steps"][-1]["result"] == {"expected": 25, "captured": 25}
+    assert manifest["status"] == "complete" and manifest["steps"][-1]["result"] == {"expected": 27, "captured": 27}
     assert {page["status"] for page in manifest["paid_pages"]["pages"]} == {"captured"}
-    assert "PAID PAGES: 25 of 25 paid pages captured for Week 4\n" in capsys.readouterr().out
+    assert "PAID PAGES: 27 of 27 paid pages captured for Week 4\n" in capsys.readouterr().out
     assert manifest["configuration"]["fantasy_points_cumulative_plans"].keys() == set(weekly.FP_CUMULATIVE_ORDER)
 
 
 def test_a_failed_cumulative_page_is_named_and_fails_the_run_after_sis_is_captured(monkeypatch, tmp_path, capsys):
     events = []
-    with pytest.raises(RuntimeError, match=r"PAID PAGES: 24 of 25 .*NOT CAPTURED: fantasy-points "
+    with pytest.raises(RuntimeError, match=r"PAID PAGES: 26 of 27 .*NOT CAPTURED: fantasy-points "
                                            r"advanced-rushing-cumulative: advanced-rushing/Player weeks 01-03"):
         weekly.run_week(**_wednesday(monkeypatch, tmp_path, events, fail="advanced-rushing-cumulative-import-True"))
-    assert events[-2:] == ["sis-capture", "sis-import"]                  # SIS was not lost to the vendor page
+    assert events[-4:] == ["sis-capture", "sis-import", "sis-receiver-copula-download",
+                           "sis-receiver-copula-import-True"]            # SIS was not lost to the vendor page
     assert "route-shape-cumulative-import-True" in events                 # nor were the pages after it
     manifest = json.loads(next((tmp_path / "runs").glob("*/manifest.json")).read_text())
     assert manifest["status"] == "failed" and manifest["steps"][-1]["name"] == "paid-page-completeness"
@@ -562,7 +584,7 @@ def test_a_fatal_failure_still_names_every_page_it_leaves_uncaptured(monkeypatch
     assert status["fantasy-points qb-coverage-matchup (live, Week 4)"]["reason"].startswith(
         "fantasy-points-live-matchups failed")
     assert status["sis pass-defense-totals week 03"]["reason"] == "sis-approved-plan never ran"
-    assert "PAID PAGES: 2 of 25 paid pages captured for Week 4; NOT CAPTURED:" in capsys.readouterr().out
+    assert "PAID PAGES: 2 of 27 paid pages captured for Week 4; NOT CAPTURED:" in capsys.readouterr().out
 
 
 def test_skipped_pages_are_named_not_failed(monkeypatch, tmp_path, capsys):
@@ -570,6 +592,42 @@ def test_skipped_pages_are_named_not_failed(monkeypatch, tmp_path, capsys):
     events = []
     kwargs = _wednesday(monkeypatch, tmp_path, events)
     weekly.run_week(**{**kwargs, "skip_fantasy_points": True, "capture_matchups": False})
-    assert events == ["sis-capture", "sis-import"]
-    assert ("PAID PAGES: 11 of 11 paid pages captured for Week 4 (14 skipped by --skip-fantasy-points)\n"
+    assert events == ["sis-capture", "sis-import", "sis-receiver-copula-download", "sis-receiver-copula-import-True"]
+    assert ("PAID PAGES: 13 of 13 paid pages captured for Week 4 (14 skipped by --skip-fantasy-points)\n"
             in capsys.readouterr().out)
+
+
+def test_a_failed_receiver_copula_download_is_named_and_the_run_goes_on(monkeypatch, tmp_path, capsys):
+    """Vendor item B: the copula steps are not fatal; the gate names both pages of week W-1 and fails the run."""
+    events = []
+    with pytest.raises(RuntimeError, match=r"PAID PAGES: 25 of 27 .*NOT CAPTURED: sis receiver-copula wr-cb "
+                                           r"pass-defense-totals/wide week 03"):
+        weekly.run_week(**_wednesday(monkeypatch, tmp_path, events, fail="sis-receiver-copula-download"))
+    assert events[-1] == "sis-receiver-copula-download"                 # no import of a failed acquisition
+    manifest = json.loads(next((tmp_path / "runs").glob("*/manifest.json")).read_text())
+    failed = [page for page in manifest["paid_pages"]["pages"] if page["status"] == "FAILED"]
+    assert [page["group"] for page in failed] == ["sis-receiver-copula"] * 2
+    assert all(page["reason"].startswith("sis-receiver-copula-download failed") for page in failed)
+
+
+def test_receiver_copula_skip_and_audit_only_flags(monkeypatch, tmp_path, capsys):
+    events = []
+    kwargs = _wednesday(monkeypatch, tmp_path, events)
+    weekly.run_week(**{**kwargs, "capture_sis_receiver_copula": False})
+    assert "sis-receiver-copula-download" not in events
+    assert ("PAID PAGES: 25 of 25 paid pages captured for Week 4 (2 skipped by --skip-sis-receiver-copula)\n"
+            in capsys.readouterr().out)
+    events.clear()
+    weekly.run_week(**{**kwargs, "write_sis_receiver_copula": False, "output_root": tmp_path / "runs-2"})
+    assert events[-1] == "sis-receiver-copula-import-False"
+    assert ("PAID PAGES: 27 of 27 paid pages captured for Week 4 (audit-only, not archived or appended: "
+            "sis-receiver-copula)\n" in capsys.readouterr().out)
+
+
+def test_receiver_copula_cli_flags_reach_the_run(monkeypatch):
+    seen = {}
+    monkeypatch.setattr(weekly, "run_week", lambda **kwargs: seen.update(kwargs) or Path("manifest.json"))
+    weekly.main(["run", "--week", "4", "--skip-sis-receiver-copula", "--audit-only-sis-receiver-copula"])
+    assert seen["capture_sis_receiver_copula"] is False and seen["write_sis_receiver_copula"] is False
+    weekly.main(["run", "--week", "4"])
+    assert seen["capture_sis_receiver_copula"] is True and seen["write_sis_receiver_copula"] is True
