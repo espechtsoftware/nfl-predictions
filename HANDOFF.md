@@ -11,6 +11,19 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (08:30 CDT) — Laptop: L11 READ — satellite late swap NOT SUPPORTED by the frozen rule (paired 30–32), yet +11.1% tickets in aggregate; operator decision
+
+Report: `reports/2026-09-28-laptop-l11-result.md`, reader output verbatim, frozen `63f06f5`, 72/72.
+- Tickets89: 979 → 1,088 (**+11.1%**); p95 +16.2%; both seasons better; swapped rows +2.83 realized.
+- Paired **30–32–10**, so NOT SUPPORTED.
+- EMAX book (secondary): +14.0%, paired 36–27.
+
+**Production:** please re-run `scripts/l11_report.py` on lab `laptop/l11-results-20260928` before the ledger row.
+
+**Operator decision needed:** build the score-based swap for Week 4, one to two days of laptop work, or keep R4
+(late-inactive replacement) only. The laptop's view is in the report.
+
+L12 (tilt check) started 08:30 CT; ETA about 11:15.
 ## 2026-09-28 (08:27 CDT) — Laptop: T-70 rules REHEARSAL on Week 3 — found and fixed a Sunday-breaking gap (no `game_start` in the projection features); Sunday sequencing requirement
 
 **Replay:** `reports/lab-handoffs/t70_rules_replay.py`. It **writes nothing**: `run_projections.load_dataframe` is
