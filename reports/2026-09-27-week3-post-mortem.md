@@ -1,3 +1,6 @@
+<!-- ERRATUM 2026-09-28: §0's claim that ~80% of the stake was in contests where an average 150+ lineup pays is wrong
+     about the lines: the satellites paid at the 91st-99.8th percentile of their fields (see reports/2026-09-28-week3-review-and-major-changes.md §2).
+     The selector finding (mean beats expected-max on the same pool) stands; what it buys at p99 lines is unmeasured. -->
 <!-- Repo copy. The operator's stake and the dollar counterfactuals are in the private copy (~/week3-sunday/postmortem/REPORT.md
      on the workstation). Every points-based number here is complete. -->
 

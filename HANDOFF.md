@@ -11,6 +11,53 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (07:35 CDT) — Production: the external Week-3 review (`review/week3-review-20260928` @ `5ac250a6`) — accepted where it corrects us; routing
+
+Read in full. It corrects the post-mortem on a point that matters and I accept it:
+- **The satellite lines are the 91st–99.8th percentile of their fields, not "an average lineup".** The $2 satellites
+  paid at 169 (p91), the 594-supersats at 174 (p96), the 190- and 2,378-supersats and wildcats at 190–193 (p99), the
+  $4,444 satellites at 197–206 (p99.8). My "80% of the stake pays the average lineup" was wrong about the lines; the
+  mean track is aimed at p89–p95, and about half the satellite stake sits behind p99 lines.
+- **At our rake a field-average book loses 9–16%/week; the MEAN book is ~0.9× the field's ticket rate historically
+  (L09/L10), EMAX 0.8×.** Nothing adopted or planned yet reaches the 1.10–1.19× needed to break even.
+- **A field-fitted class model** (logistic "top 1%" on shape + our projection percentile, no ownership, fitted on two
+  Millionaire fields and scored on the third) lifts top-1% finishes 1.9× (W1) and 16.7× (W3) walk-forward, and on our
+  W3 pool its 144 rows realize 159.3 vs the mean track's 151.4 (8.3% at 190+ vs 4.9%); its top-100 model's 40 rows
+  hold 9 of the pool's 35 rows at 190+. The simulator's P(≥210) sleeve picked 128/110/137. **This replaces the tail
+  sleeve as the Millionaire/qualifier selector, paper by design first.**
+- **T-70 is a model gap:** backups of an out starter beat our projection by +1.0 historically (RB/TE +1.6, positive in
+  all five seasons) and are owned 1.3–2.3× what our model expects; the Questionable haircut (~×0.80) stayed on players
+  declared active (ten such: market 101.8, served 84.9, actual 102.6). Two model rules follow (redistribute vacated
+  volume; haircut off on activation, flag late-game Q only).
+- **The pool is built for the wrong objective:** a plain-mean optimizer solves 144 diverse house-legal rows in 3 min at
+  projected mean 133.3 vs the 10-hour pool's best 144 at 130.6; historically +8.0/lineup over the pool's best 40 in
+  all six seasons.
+- **Not supported:** the tilt (already reverted), the market floor (nil at the player level historically), MAXGAME5,
+  simulated P(≥line) selection, the corrected-hsim bank's shifts (correlation −0.04 with Sunday's residual).
+- **The lesson on the order** is the reviewer's own and I share it: one paper week before any selection, ordering or
+  construction change reaches an entered book; the paper arms live in the arm-timer chain.
+
+**Routing (laptop owns Week 4; each item is a nomination for the operator):**
+- Keep as adopted and rehearsed: mean track for the p89–p96 satellites, greedy order, Sunday 09:10 build with the T-70
+  fallback, LIVE_MIN_PROJ, DST cap, cap 4, O1, the vendor order, the audit.
+- **R1 — real lines everywhere:** `contests.json` gains each contest's ladder line percentile; the rehearsal, Monday
+  scoring and every future read report tickets at the contest's own line (the review's §2 table is the template).
+- **R2 — class-model selector** for `track: tail` (Millionaire, FFWC qualifiers) and, on paper, for the p99 satellites:
+  refit each Monday on all settled fields, shape-only, refuses a pool that fails the audit; `--selector class` in the
+  lab with the model file receipted (sha256). Paper track in Week 4 beside the sleeve; the operator decides whether the
+  2–3 tail seats enter on it this week (small stake, two walk-forward weeks of evidence) — production recommends yes
+  for the seats, paper for the p99 satellites.
+- **R3 — T-70 model rules** (vacated-volume redistribution; haircut off for active Q players; flag late-game Q only):
+  paper arm in Week 4, entry Week 5 unless the Thursday rehearsal is clean and the operator says otherwise.
+- **R4 — late-game inactive replacement** from the ESPN feed + frozen-map swaps: build regardless of L11.
+- **R5 — plain-mean optimizer pool** for the satellite track (house rules, cap 4, $49k, overlap ≤7, MIN_PROJ, an
+  exposure target the operator sets; default 50%): paper arm Week 4 beside the lev+boom pool; it also makes the Sunday
+  build minutes, not hours.
+- **R6 — contest selection and stake:** the operator's call from the §2 table; production's read: drop the $2
+  satellites unless the paper book averages 160+, treat the FFWC and 2,378-supersats as tail, the 594-supersats are the
+  softest per line.
+Production's earlier "80%/average lineup" line in `reports/2026-09-27-week3-post-mortem.md` is superseded by the
+review's §2; a one-line erratum is added there.
 ## 2026-09-28 (06:05 CDT) — OPERATOR: PREREG-O1 APPROVED
 
 The operator approves the PREREG-O1 substitution ("if you think it will help it is approved" — production's view: it
