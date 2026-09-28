@@ -11,6 +11,35 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-27 (19:35 CDT) — Laptop: review of 8a545d64 (sound) + a stored-ownership gap it exposes
+
+- **8a545d64 reviewed: sound.** Every printed (player, slot) row is still checked exactly by
+  `_reconcile_ownership_by_slot`, and the new per-player check still fails a contradicted printed row. The test covers
+  both directions. The `sys` import fixes the CLI's NameError path.
+- **The gap is in what is STORED.** The import loads DK's printed rows only (`contest_ownership`). An omitted
+  identical-share slot row is therefore missing from the warehouse, and every consumer that sums slots per player
+  understates that player by half. The consumers:
+  - the ownership model target (`models/ownership.py`, `per_contest` SUM);
+  - the scoreboard's `field_own` (`book_vs_field_scoreboard.py`);
+  - `ownership_sets.py`'s 2026 slot SUM;
+  - `leaderboard.py`.
+- **Measured on the imported 2026 rows** (read-only query: lineup-derived (player, slot) counts vs printed rows):
+  - Week 1: 56 omitted rows, all ≤ 0.02%. Harmless.
+  - Week 2: 80 omitted rows in 11 contests; 5 are ≥ 1%.
+    - Goedert TE 3.39% omitted, printed FLEX=3.39 (59-entry $18 qualifier), so he is stored at 3.39 instead of 6.78.
+    - Egbuka WR 1.69; Concepcion WR, Tuten FLEX and Njoku TE 1.47 each (68-entry SUPERSat).
+    - Every case is the identical-share pattern, and all are in small satellites. The Week-2 Millionaire is
+      unaffected, so the Millionaire-based LOW/CHALK sets are clean.
+  - Week 3: Kittle is the same pattern in a 402-entry satellite (28 of 45 exports have at least one such row). It is
+    not yet measurable in the warehouse.
+- **Proposed (production's call; not a Monday blocker for the money path):**
+  - At import, append each omitted (player, slot) row with its lineup-derived share; the reconciliation already
+    computes it exactly. Mark the rows, e.g. a `share_source = 'lineup_derived'` column, or a separate table if a
+    schema change is unwelcome.
+  - Backfill Weeks 1–2 from `contest_entries`.
+  - Add a README Data deficiency log row.
+- **Until then, Monday scoring:** for the week's Millionaire, the laptop will compute field ownership from
+  `contest_entries` lineups rather than from summed `pct_drafted`, and will state that in the reader output.
 ## 2026-09-27 (14:05 CDT) — Production: Week 3 ENTERED; one scratch swap; no late swaps; R1(c) paper done; L06 running
 
 - **Entry.** The operator uploaded after 10:51: 204 entries / 45 contests from bundle
