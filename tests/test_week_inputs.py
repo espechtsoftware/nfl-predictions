@@ -44,8 +44,9 @@ class TestDose:
         text = "\n".join(l for l in GOOD_DOSE.splitlines() if not l.startswith(key))
         assert any(key in p for p in wi.validate_dose(text))
 
-    def test_zero_and_negative_are_refused(self):
-        assert wi.validate_dose("CHOSEN_LEV=0\nCHOSEN_BOOM=10240") != []
+    def test_zero_boom_and_negative_are_refused_lev_zero_is_a_dose(self):
+        assert wi.validate_dose("CHOSEN_LEV=0\nCHOSEN_BOOM=4800") == []      # Week 4: no lev batch
+        assert wi.validate_dose("CHOSEN_LEV=640\nCHOSEN_BOOM=0") != []
         assert wi.validate_dose("CHOSEN_LEV=-1\nCHOSEN_BOOM=10240") != []
 
     def test_a_non_integer_is_refused(self):
@@ -348,7 +349,7 @@ class TestPullFailsClosed:
         _push(fake, tmp_path, contests(), GOOD_DOSE)
         key = next(k for k in fake.store if k.endswith("chosen-dose.env"))
         gen, raw = fake.store[key][-1]
-        bad = b"CHOSEN_LEV=0\nCHOSEN_BOOM=10240\n"
+        bad = b"CHOSEN_LEV=-1\nCHOSEN_BOOM=10240\n"
         fake.store[key][-1] = (gen, bad)
         m_key = next(k for k in fake.store if k.endswith(wi.MANIFEST))
         m_gen, m_raw = fake.store[m_key][-1]

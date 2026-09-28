@@ -69,3 +69,13 @@ def test_two_track_contests_split_mean_rows_and_the_tail_sleeve(tmp_path):
                        env=env, text=True, capture_output=True, check=False)
     assert r.returncode == 0, r.stderr
     assert r.stdout.split() == ["35", "1", "mean", "1.0", "0", "0.25", "1", "1", "1", "mean", "2"]   # reviewer 2026-09-28 10:30: mean everywhere, class sleeve 2, class withdrawn   # operator decisions 2026-09-28 as defaults
+
+
+def test_entries_watcher_runs_through_the_afternoon_swaps():
+    env = {k: v for k, v in os.environ.items() if k not in ("ENTRIES_END_CT", "ENTRIES_END_UTC")}
+    run = lambda e: subprocess.run(["bash", "-c", f"source {ENV_SCRIPT} && week_env 4 >/dev/null 2>&1; echo $ENTRIES_END_UTC"],
+                                   capture_output=True, text=True, env=e).stdout.strip()
+    assert run(env) == "2026-10-04 20:20:00+00:00"                     # 15:20 CT, after the ~14:40 late swap
+    assert run({**env, "ENTRIES_END_CT": "11:58"}) == "2026-10-04 16:58:00+00:00"
+    watcher = (ROOT / "scripts" / "sunday_watch_dk_entries.sh").read_text()
+    assert "1658" not in watcher and '"$END_EPOCH"' in watcher

@@ -19,5 +19,6 @@ INPUT_RECEIPT=$(mktemp "$OUT/build-inputs-$(date -u +%Y%m%dT%H%M%SZ)-XXXXXX.json
   --season "$SEASON" --week "$WEEK" \
   --chosen-dose "$CHOSEN_FILE" --contests "$CONTESTS_JSON" \
   --draft-group "$GROUP" \
+  ${MIN_PROJ_GENERATED_AT:+--min-generated-at "$MIN_PROJ_GENERATED_AT"} \
   --receipt "$INPUT_RECEIPT"
 exec "$PROD/scripts/sunday_build_host.sh" "$@"

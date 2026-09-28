@@ -69,8 +69,9 @@ def validate_dose(text: str) -> list[str]:
             problems.append(f"chosen-dose is missing {key}")
             continue
         try:
-            if int(dose[key]) <= 0:
-                problems.append(f"{key} must be positive, got {dose[key]!r}")
+            floor = 0 if key == "CHOSEN_LEV" else 1          # lev 0 is a real dose (Week 4); boom may not be 0
+            if int(dose[key]) < floor:
+                problems.append(f"{key} must be >= {floor}, got {dose[key]!r}")
         except ValueError:
             problems.append(f"{key} is not an integer: {dose[key]!r}")
     return problems

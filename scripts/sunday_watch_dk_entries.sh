@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 # Watch for a DraftKings entries export (DKEntries*.csv) in the Windows Downloads folder or in $OUT/ENTER; fill it
-# keepers-first from the ENTER files whenever it appears or the ENTER files change (T-70 rebuild).  Runs until 16:58Z.
+# keepers-first from the ENTER files whenever it appears or the ENTER files change (T-70 rebuild, a swap).  Runs until
+# ENTRIES_END_UTC from week_env (15:20 CT; ENTRIES_END_CT overrides) so afternoon swaps are refilled too.
 #   source scripts/week_env.sh && week_env 2; scripts/sunday_watch_dk_entries.sh
 set -u
-: "${OUT:?source scripts/week_env.sh and call week_env WEEK first}" "${LIVE_DIR:?}" "${PROD_PY:?}" "${TOOLS:?}"
+: "${OUT:?source scripts/week_env.sh and call week_env WEEK first}" "${LIVE_DIR:?}" "${PROD_PY:?}" "${TOOLS:?}" "${ENTRIES_END_UTC:?}"
+END_EPOCH=$(date -u -d "$ENTRIES_END_UTC" +%s) || { echo "unparseable ENTRIES_END_UTC=$ENTRIES_END_UTC" >&2; exit 2; }
 E=$OUT/ENTER; T=$TOOLS/fill_dk_entries.py
 if [ -n "${WIN_DOWNLOADS:-}" ]; then
   WIN=$WIN_DOWNLOADS
@@ -15,7 +17,7 @@ fi
 : "${WEEK:?}"
 log() { echo "$(date -u +%H:%M:%SZ) $*"; }
 last=""
-while [ "$(date -u +%H%M)" -lt 1658 ]; do
+while [ "$(date -u +%s)" -lt "$END_EPOCH" ]; do
   tpl=$(ls -t "$WIN"/DKEntries*.csv /mnt/c/Users/Erich/Desktop/DKEntries*.csv "$E"/DKEntries*.csv "$OUT"/DKEntries*.csv 2>/dev/null | grep -v FILLED | head -n 1)
   if [ -n "$tpl" ]; then
     B=$(readlink -f "$E" 2>/dev/null || echo "$E")   # resolve the bundle pointer ONCE per iteration (atomic swap)

@@ -14,7 +14,10 @@ import pandas as pd
 from .market_monitor import assess_batch
 
 
-def assess_projections(batch: pd.DataFrame, *, now: datetime, max_age_minutes: float = 120.0, min_skill_rows: int = 300) -> dict:
+def assess_projections(batch: pd.DataFrame, *, now: datetime, max_age_minutes: float = 120.0, min_skill_rows: int = 300,
+                        min_generated_at: datetime | None = None) -> dict:
+    """`min_generated_at`: the batch must be at least this new (Week 4: the T-70 build needs the projection run made
+    after the 10:30 CT inactives; the hourly 10:03 batch is fresh by age and still pre-inactives)."""
     if batch is None or len(batch) == 0:
         return {"ok": False, "reason": "no production projection batch for the target week", "rows": 0}
     gen = pd.to_datetime(batch["generated_at"].iloc[0], utc=True)
@@ -22,6 +25,8 @@ def assess_projections(batch: pd.DataFrame, *, now: datetime, max_age_minutes: f
     skill = int((batch["position"].astype(str).str.upper() != "DST").sum())
     problems = []
     if age > max_age_minutes: problems.append(f"projection batch is {age:.0f} min old (limit {max_age_minutes:.0f})")
+    if min_generated_at is not None and gen.to_pydatetime() < min_generated_at.astimezone(timezone.utc):
+        problems.append(f"projection batch generated {gen.isoformat()} is older than the required {min_generated_at.isoformat()}")
     if skill < min_skill_rows: problems.append(f"projection batch has {skill} skill rows (minimum {min_skill_rows})")
     if batch["proj_points"].isna().all(): problems.append("projection batch has no proj_points")
     return {"ok": not problems, "reason": "; ".join(problems), "rows": int(len(batch)), "skill_rows": skill, "generated_at": gen.isoformat(), "age_minutes": age}
@@ -86,7 +91,9 @@ def assess_files(chosen_dose: dict | None, contests: list | None, *, min_book_en
         problems.append("chosen-dose file missing or without CHOSEN_LEV/CHOSEN_BOOM")
     else:
         try:
-            if int(chosen_dose["CHOSEN_LEV"]) <= 0 or int(chosen_dose["CHOSEN_BOOM"]) <= 0: problems.append("chosen dose must be positive")
+            # lev 0 is a real dose (Week 4: the Sunday build drops the lev batch, operator 2026-09-28); boom may not be 0
+            if int(chosen_dose["CHOSEN_LEV"]) < 0 or int(chosen_dose["CHOSEN_BOOM"]) <= 0:
+                problems.append("chosen dose needs CHOSEN_LEV >= 0 and CHOSEN_BOOM > 0")
         except ValueError:
             problems.append("chosen dose is not numeric")
     if not contests:

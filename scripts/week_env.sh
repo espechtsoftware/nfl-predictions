@@ -26,7 +26,9 @@ week_settings() {
   SUNDAY=$(date -u -d "$FIRST_SUNDAY + $(( (WEEK - 1) * 7 )) days" +%Y-%m-%d) || return
   export FIRST_SUNDAY WEEKDIR SUNDAY
   local name spec epoch
-  for spec in 'LOCK_UTC 12:00' 'LATE_CUTOFF_UTC 13:30' 'WATCH_END_UTC 15:25' 'AFTER_BUILD_END_UTC 11:50' 'ENTRIES_END_UTC 11:58'; do
+  # ENTRIES_END (Week 4): the DK-entries watcher now runs to 15:20 CT so the afternoon swaps (R4 ~13:55, the satellite
+  # late swap ~14:40) get a refilled export like the morning ones; it used to stop at 11:58 CT (a hard-coded 16:58Z).
+  for spec in 'LOCK_UTC 12:00' 'LATE_CUTOFF_UTC 13:30' 'WATCH_END_UTC 15:25' 'AFTER_BUILD_END_UTC 11:50' "ENTRIES_END_UTC ${ENTRIES_END_CT:-15:20}"; do
     read -r name spec <<< "$spec"
     epoch=$(TZ=America/Chicago date -d "$SUNDAY $spec" +%s) || return
     printf -v "$name" '%s' "$(date -u -d "@$epoch" '+%Y-%m-%d %H:%M:%S+00:00')"

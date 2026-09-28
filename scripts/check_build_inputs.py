@@ -21,6 +21,9 @@ ap.add_argument("--season", type=int, required=True); ap.add_argument("--week", 
 ap.add_argument("--chosen-dose"); ap.add_argument("--contests"); ap.add_argument("--receipt")
 ap.add_argument("--max-age-minutes", type=float, default=120.0); ap.add_argument("--min-props-share", type=float, default=0.30)
 ap.add_argument("--tabpfn-table", default="tabpfn_projections")
+ap.add_argument("--min-generated-at", default=None,
+                help="ISO time the latest projection batch must be at least as new as (the T-70 build: after the "
+                     "10:30 CT inactives' projection run). Unset = age check only.")
 ap.add_argument("--draft-group", type=int, default=None,
                 help="DK draft group of the target slate. The TabPFN sufficiency floor is derived from its "
                      "skill-player count; without it sufficiency cannot be checked and the gate fails closed. "
@@ -33,7 +36,8 @@ now = datetime.now(timezone.utc)
 
 proj = query_df(f"""SELECT generated_at, gsis_id, position, proj_points FROM `{settings.predictions}.player_projections`
                     WHERE season = {a.season} AND week = {a.week} QUALIFY generated_at = MAX(generated_at) OVER ()""")
-p = assess_projections(proj, now=now, max_age_minutes=a.max_age_minutes)
+p = assess_projections(proj, now=now, max_age_minutes=a.max_age_minutes,
+                       min_generated_at=datetime.fromisoformat(a.min_generated_at) if a.min_generated_at else None)
 try:
     ms = query_df(f"""SELECT generated_at, gsis_id, display_name, position, source, market_points, proj_points
                       FROM `{settings.predictions}.market_source_log` WHERE season = {a.season} AND week = {a.week} AND path = 'project-slate'

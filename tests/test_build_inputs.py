@@ -70,3 +70,17 @@ def test_verdict_names_every_failing_check():
     v = verdict({"ok": True}, {"ok": False, "line": "monitor absent"}, {"ok": True}, {"ok": False, "reason": "no contests"})
     assert v["status"] == "FAIL" and len(v["reasons"]) == 2 and any("monitor absent" in r for r in v["reasons"])
     assert verdict({"ok": True}, {"ok": True}, {"ok": True}, {"ok": True})["status"] == "OK"
+
+
+def test_lev_zero_is_a_dose_and_the_t70_batch_must_postdate_the_inactives():
+    cs = [{"name": "m", "contest_id": "1", "entries": 10}]
+    assert assess_files({"CHOSEN_LEV": "0", "CHOSEN_BOOM": "4800"}, cs)["ok"]
+    assert not assess_files({"CHOSEN_LEV": "0", "CHOSEN_BOOM": "0"}, cs)["ok"]
+    assert not assess_files({"CHOSEN_LEV": "-1", "CHOSEN_BOOM": "4800"}, cs)["ok"]
+    now = datetime(2026, 10, 4, 15, 50, tzinfo=timezone.utc)
+    batch = pd.DataFrame({"generated_at": [now - timedelta(minutes=47)] * 400, "position": ["WR"] * 400, "proj_points": [5.0] * 400})
+    inactives = datetime(2026, 10, 4, 15, 30, tzinfo=timezone.utc)
+    r = assess_projections(batch, now=now, min_generated_at=inactives)          # the 15:03Z hourly batch: fresh, pre-inactives
+    assert not r["ok"] and "older than the required" in r["reason"]
+    assert assess_projections(batch.assign(generated_at=now - timedelta(minutes=12)), now=now, min_generated_at=inactives)["ok"]
+    assert assess_projections(batch, now=now)["ok"]                             # unset: the age check only
