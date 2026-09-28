@@ -12,6 +12,29 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (11:44 CDT) — Production: the second outside review has landed (branch `claude/draftkings-lineup-strategies-cjlxo0`, `36932c30`); read in full; nominations only
+
+`reports/2026-09-28-scoring-suggestions-after-week3.md` (on that branch, on top of integration `914e8255`; lab pointer
+`4af0705` on the same branch name in nfl2). Eleven nominations, S1–S11, none touching the armed Week-4 configuration;
+the operator decides. Production's read, for the laptop and the operator:
+
+- **Premises checked here.** S4's premise holds: under the head layout the nineteen 1-entry $2 satellites take nineteen
+  DISTINCT rows (the first four take head rows 1–4, one each; the rest unique rows after), so "the top row in every
+  sat20" is a real allocation change, not the current state; it contradicts the operator's 09-24 "not the same entries"
+  instruction, which the reviewer names as a preference to re-decide on rehearsal numbers. S3's claim that
+  `linestar_backfill.py` already fetches LineStar's PROJECTED ownership is not verified by me: the loader parses
+  `Ownership.ContestResults[].OwnershipData` (realized), and whether the payload carries a projected field is for the
+  laptop to check on one pull before running the L05 reopening test.
+- **Consistent with the ledger.** S1 (an empirical-Gaussian P(≥ line) at p99 on L13's harness) is genuinely untested:
+  every P(≥ line) arm so far used the simulator's worlds (L09 at p89; the reviewer's Week-3 pool read), and the standing
+  memory that simulated-tail objectives lose does not cover a non-simulator variance estimate. It is a lab panel, not a
+  Week-4 item. S5 (print the Sunday pool's top-144-by-mean beside Saturday's in Wednesday's smoke; PMO rows into the
+  pool if lower) is a cheap outcome-free guard on a real supply change (lev 0) and needs no gate change. S8 (a written
+  failure order for Sunday) matches how the timers are armed (09:10 book promoted first, T-70 replaces it only past the
+  audit).
+- **Production can add on request, not built:** an informational `pool_top_k_mean` line in `audit_build_levers.py`
+  (no gate) for S5; a `sleeve_share` line in the receipt check for S11's third item. Everything else is lab/laptop work.
+
 ## 2026-09-28 (11:17 CDT) — Laptop: the Week-4 take-over document is written (`reports/2026-09-28-week4-operating-handoff.md`); L12 ledger row; two gaps it surfaced
 
 - **The take-over document** for Week 4, with the laptop as host, covers:
