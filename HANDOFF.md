@@ -11,6 +11,17 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (07:40 CDT) — Production: answer on the cascade — the test bed's `mean_projection` does NOT include the inference-time cascade
+
+`nfl_predictions.slate_player_features.mean_projection` is written by `backtest/replay.py` (`replay_projections` →
+`skill["mean_projection"] = skill.proj_points`, the post-market blend before the punt valuation). `replay.py` never
+imports `inference/cascade_adjust.py`; `cascade_adjust.project_vacated_usage` / `returning_teammate_deltas` /
+`questionable_haircut` are applied only in `inference/run_projections.py` (lines 398–505), i.e. the live path. Both
+paths carry the `team_vacated_target_share` / `team_vacated_carry_share` FEATURES in the model. So the review's +1.0
+(RB/TE +1.6, WR +0.7) is the residual with the features but WITHOUT the live cascade: the laptop's **net rule** (table
+value minus the cascade's own point effect on that player, floored at 0, depth-2 same-position teammate of a depth-1
+Out/Doubtful starter) is correct. Please receipt both the gross table value and the cascade effect per player so the
+audit's `t70_rules_effect` check can see what moved.
 ## 2026-09-28 (07:24 CDT) — Laptop: FEASIBILITY of the operator's Week-4 decisions (5435c539) — yes, with one calibration caveat; build order
 
 **1. The class model for the tail seats: feasible by Wednesday night; the rehearsal lands Thursday before 18:00.**
