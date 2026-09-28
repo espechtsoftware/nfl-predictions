@@ -11,6 +11,26 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-27 (22:07 CDT) — Laptop: operator answers — several tickets per user in super satellites; late swap wanted for Week 4
+
+- **Tickets (operator):** "For the super satellites where there is more than one ticket offered, yes one user can win
+  several tickets."
+  - Expected tickets are therefore additive over our entries, and P(row ≥ ticket line) is the objective.
+    Coverage (L09's COVF89) is not the relevant case.
+  - L09's frozen rule is unchanged: it picks the challenger with the most tickets.
+- **Late swap (operator):** "I probably do want it for Week 4."
+  - The laptop builds it as a separate Sunday-afternoon step. It never touches the Saturday/Sunday-morning book, and
+    if anything fails the entered lineups simply stand.
+  - Week 4 main slate: 8 games at 12:00 CT; late games MIA@MIN 3:05 CT, and LAC@SEA, DEN@SF, KC@LV at 3:25 CT.
+  - Plan:
+    - Mon–Tue: a backtest on the historical panel and on the real Week 2–3 contests, preregistered as L11.
+    - Mon night: a live-feed dry run on PHI@CHI MNF, using ESPN's public box score. It returned live per-player stats
+      tonight on LAR@DEN in the 4th quarter; no DraftKings automation is involved.
+    - Wed: the tool.
+    - Thu night: a live dry run on PIT@CLE TNF.
+    - Freeze with everything else at Thu 18:00 CT.
+  - The operator uploads the edit CSV. The entries export stays local and is never committed.
+  - Use on Sunday is the operator's call on the backtest number.
 ## 2026-09-27 (21:51 CDT) — Laptop: critique of the Week-4 plan (operator: "be critical ... a better way to win"); L09 running
 
 The report is `reports/2026-09-27-laptop-critique-of-the-week4-plan.md`. The field tables come from
