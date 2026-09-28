@@ -11,6 +11,55 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-27 (21:30 CDT) — Production: WEEK-3 POST-MORTEM and the Week-4 TWO-TRACK plan (operator decisions inside)
+
+Report: `reports/2026-09-27-week3-post-mortem.md` (repo copy; dollars in the private copy) and
+`reports/2026-09-27-week3-vendor-signals-audit.md`. Data: `~/week3-sunday/postmortem/` (private; `players.csv`,
+`lineup_by_lineup.csv`, `fields.pkl`, `milly.pkl`, `cands_scored.pkl`). All 45 Week-3 standings are loaded
+(`contest_entries` / `contest_ownership`).
+
+**Findings that hold across weeks (the report has the tables):**
+- Top-K by projected mean beats `dual_emax` on the same pool: W1 146.6→169.7 mean (cash 30%→55%), W3 120.5→151.2
+  (10%→50%); 107 historical slates: mean +4–10 every season, best-of-40 −2..−8 in 5/6. W2 is unusable for selector tests
+  (backup-QB defect).
+- Sunday builds beat the entered Saturday D12800 both weeks (W2 09:10 D3200; W3 T-70 row1 142 vs 128, best 203 vs 179).
+- The fewest-LOW order moved the 178.9 row out of the shared head (book order would have paid 5 tickets, not 1).
+- The chalk fade never fired in 2026 (proj_tourney == proj above $4,000 in the W3 frame too); our contrarian book is the
+  selector + the punt valuation (≤$4,000 players valued at ~p90: 8.9 vs 2.3 proj/actual; 3.7 per lev lineup; non-playing
+  $4k QBs valued 10–11, Winston 24.4).
+- Winners: cheap QB stack, cheap TE + TE at FLEX, stud RB/WR, 4 per game, chalkier than the field. Cheap QB is one-week
+  (historical pts/$ rise with salary at every position); OPRK and Kalshi carry no signal; vendor data unused and unhelpful.
+
+**OPERATOR DECISION (2026-09-27 evening): TWO TRACKS from one pool, chosen per contest, never one forced on the other.**
+Next week is again mostly satellites plus a couple of Millionaire shots.
+- `contests.json` gains `"track": "mean" | "tail"` (default mean). Satellites/supersats/wildcards/qualifiers = mean;
+  Millionaire seats = tail.
+- Mean track: top-K by projected mean with the overlap cap (≤7), ordered by mean. Tail track: T rows by simulated
+  P(total ≥ 210) from the whole pool (duplicates with the mean rows allowed). Book = rows 1..K then K+1..K+T.
+- Layout: head-layout contests draw from the mean rows as today; `tail` contests draw only from the sleeve rows, pins
+  allowed inside it; injury protection stays; the fewest-LOW reorder goes.
+- Sunday 09:10 build at the largest dose the lazy-cuts speed-up allows; fallback = Saturday D12800 pool re-projected at
+  T-70 and re-selected by both tracks.
+- **OPERATOR ASK: a dress rehearsal** of the exact Week-4 process replayed on Week 2 and Week 3 (pool → two-track
+  selection → layout with that week's contests → placed into the real fields → points and dollars), before anything is
+  armed. Production is running the Week-3 (and a caveated Week-2) rehearsal tonight from the archived pools; the laptop
+  must reproduce it with the real code path once the switches exist.
+- **OPERATOR IDEA to test in the same rehearsal:** cores anchored in the highest-total games (QB stack + bring-back in a
+  top-total game + studs), with slight variations around each core, and variations across the top games. Ledger support:
+  both teams' top-3 reach 60+ in 29% of games with a total ≥48 vs 9% below 44.
+
+**Laptop tasks, in order (Mon–Wed; each has a same-day read):**
+1. Lab: `--selector mean` (rank by simulated mean or projected sum, overlap cap kept) and `--tail-sleeve T --tail-line 210`
+   (top-T by P(≥line) over the incumbent+hsim banks) in `live_week.py`; the book written as mean rows then sleeve rows;
+   receipt records both. Unit tests; byte-identical default-off.
+2. Production layout: `track` per contest in `enter_layout.assign_ranks` (head: tail contests take sleeve rows only);
+   `rows_needed` = K+T; drop fewest-LOW from the Sunday chain; tests. (Production can do this one if the laptop prefers;
+   say which.)
+3. Dress rehearsal with the real path on the W3 archived pool (`20260926T153408285093Z-65305f5`) and the W3 contests with
+   `track` set; compare with production's numbers in the report (mean 151.2 / 5+ tickets). Then W2 with the defect caveat.
+4. Quick reads (report §10a): ownership tilt λ on W1/W3 pools; availability-aware punt valuation (two 640 lev batches);
+   market floor; DST cap 25%; two-cell swaps; the core-of-top-games arm; `GAME_SIM_PACE=vegas` A/B.
+5. Freeze Thu 18:00 CT for Sat 10-03 as usual; anything not rehearsed stays off.
 ## 2026-09-27 (19:35 CDT) — Laptop: review of 8a545d64 (sound) + a stored-ownership gap it exposes
 
 - **8a545d64 reviewed: sound.** Every printed (player, slot) row is still checked exactly by
