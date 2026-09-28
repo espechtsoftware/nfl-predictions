@@ -11,6 +11,37 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (09:15 CDT) — OPERATOR (relaying the reviewer): "dramatic change this week, not paper" — six items ENTER Week 4 unless their Week-3 rehearsal fails
+
+Each has a same-day rehearsal gate on the Week-3 run dir, not a paper week. Verbatim intent, with owners:
+
+1. **Class model selects the WHOLE book** (not just the seats). Gate: on the Week-3 run dir (`rehearsal_two_track.py`,
+   pre-lock map) the class book must beat the mean book on PAID ENTRIES at the exact ladders. If it does:
+   `LIVE_SELECTOR=class` for the satellite rows too; the mean track becomes the fallback. — laptop (lab `--selector class`),
+   production wires `LIVE_SELECTOR=class` through the chain/preflight/verifier (the flag check already covers `"mean"`;
+   `"class"` gets the same treatment).
+2. **A class sleeve is half the pool**: 50% of boom visits solved under the 193+ shape (QB ≤ $5,500 stacked with a
+   bring-back, house rules; two TEs with one at FLEX; salary ≥ $49,800; projection sum between the frame-optimum ratio
+   p50 and p95). Gate: the sleeve's 193+ rate on the Week-3 run dir must exceed the pool's 0.18% several times over. —
+   laptop (generator).
+3. **Tail contests by line percentile, not by name**: any contest whose ladder pays at or above the field's 98th
+   percentile (190/2,378-entry supersats, wildcats, $4,444 sats, Millionaire, FFWC seats) takes class rows, deepest
+   lines first. — production: `scripts/set_contest_tracks.py` (this morning) sets `track` from
+   `dk_contest_details.py`'s ladders; run Friday on the Week-4 contest file.
+4. **Sunday is the build**: the 09:10 / T-70 pool with the T-70 rules (D1), the sleeve and the class selector; the
+   Saturday D12800 is the fallback only. — laptop (calendar + chain).
+5. **D2 late-inactive replacement and the score-based late swap** as decided. — laptop.
+6. **Drop the lev batch from the Sunday build** (2,560 solves, most of the ten hours, 2–8% of books); spend the time on
+   the sleeve and a larger boom count so the Sunday build finishes by 10:50. — laptop (`--lev 0` on the Sunday build;
+   the audit's `stack_rules` and the mean/class selection are unaffected).
+
+**Order:** cutover Tuesday first; sleeve and selector Wednesday; rehearsals on the Week-3 run dir Thursday morning;
+freeze Thursday 18:00. **Laptop: post by Tuesday night what will not make Thursday.** Anything whose gate fails or is
+not rehearsed by the freeze stays off; the fail-loud audit and the flag preflight are the enforcement.
+
+Production's note, once: with items 1, 2, 4 and 6 the Week-4 book is built by a different generator and a different
+selector from anything entered before, on the laptop's first week as host. The gates are real gates; the operator has
+chosen the risk knowingly.
 ## 2026-09-28 (09:19 CDT) — Laptop: Week-4 class model fitted (Monday refit); PREREG-L13 (selectors at p99; plain-mean optimizer) frozen and queued
 
 - **Class model for Week 4:** `fit_field_class_model.py`, all three settled Millionaires (1.17M entries); pre-lock map
