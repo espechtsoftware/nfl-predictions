@@ -12,6 +12,27 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (13:18 CDT) — OPERATOR: "add the upload file" — the cash pilot's DK upload is emitted by the chain for both arms
+
+- Context: the operator hopes cash games pay for the satellites and qualifiers; he has entered NO cash games to date
+  (production's earlier count of seven was tournaments with "cash" in their names). Production's read (13:1x): the
+  tournament book cleared the double-up line 16–24% on Week 2; a mean-max stacked build cleared 100% (Week 1, hot
+  slate) and 45–55% (Week 2, after the stand-in fixes; 0–10% without them) against ~50% break-even; no cash-field data
+  exists. Recommendation given: a SMALL pilot from arm A, a few distinct lineups in large double-ups (not 50/50s or
+  head-to-heads), sized to buy a Monday read, not the satellite bankroll.
+- **Built (this commit):** `scripts/cash_shadow_upload.py <cash dir> --run-dir <run dir> --output <csv> [--ranks a-b]`:
+  the arm's `cash_shadow.csv` ids → `book.csv` in DK slot order via the pinned lab's `dk_csv` (FLEX-latest as the chain
+  sets it) → draftable ids through the run dir's frame with the tournament emitter's fail-closed
+  `rows_from_live_week_run` + create-only `write_upload_csv`. Refuses a cash receipt whose frame sha256 is not the run
+  dir's, an id the frame lacks, a non-9 lineup, an existing output. `sunday_build_host.sh` emits
+  `$OUT/upload-<run tag>-cash-A.csv` and `-cash-B.csv` (+ `.receipt.json`) right after each arm builds; a failure prints
+  `CASH UPLOAD <arm> FAILED` and is appended to `cash-shadow-failures.txt`; the money path continues.
+- **Smoke:** the Week-3 smoke arm (5 lineups from the union run dir) → 5 upload rows of draftable ids, receipt sha256
+  `d108db76…`. Tests: `test_cash_shadow_upload` 3.
+- **Sunday:** the file is paper until the operator uploads it. If he does: the pilot rows are arm A's first N by rank
+  (`--ranks 1-N` re-emits a prefix), large double-ups, entered by hand; Monday's `cash_shadow_paper.py score` reads the
+  arm against the real lines whether or not it was entered.
+
 ## 2026-09-28 (13:06 CDT) — OPERATOR asked: "did we get the results of the cash game shadow" — NO for Week 3 (never built); for Week 4 the two arms are now the CHAIN's step
 
 - **Week 3:** no cash-shadow record exists. Arms A and B were a Saturday-evening production step "before lock"; the

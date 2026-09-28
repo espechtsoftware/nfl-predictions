@@ -275,6 +275,13 @@ if [[ "${CASH_SHADOW:-1}" == "1" ]]; then
     if ( cd "$PROD" && PYTHONPATH="$CLONE/src:$PROD/src" "$LAB_PY" reports/lab-handoffs/cash_shadow_paper.py \
            "$( [[ "$arm" == "B" ]] && echo build-b || echo build )" "$K90_DIR" "$CS_OUT" --n "${CASH_SHADOW_N:-20}" > "$CS_OUT.log" 2>&1 ); then
       echo "cash shadow $arm -> $CS_OUT (from $K90_DIR)"
+      # the upload file for a cash pilot (operator 2026-09-28): draftable ids, create-only; paper unless the operator uploads it
+      if ( cd "$PROD" && LIVE_FLEX_LATEST="${LIVE_FLEX_LATEST:-1}" PYTHONPATH="$CLONE/src:$PROD/src" "$LAB_PY" scripts/cash_shadow_upload.py "$CS_OUT" \
+             --run-dir "$K90_DIR" --output "$OUT/upload-$RUN_TAG-cash-$arm.csv" > "$OUT/upload-$RUN_TAG-cash-$arm.receipt.json" 2>&1 ); then
+        echo "cash upload $arm -> $OUT/upload-$RUN_TAG-cash-$arm.csv"
+      else
+        echo "CASH UPLOAD $arm FAILED (see $OUT/upload-$RUN_TAG-cash-$arm.receipt.json)"; echo "cash-upload-$arm FAILED $RUN_TAG" >> "$OUT/cash-shadow-failures.txt"
+      fi
     else
       echo "CASH SHADOW $arm FAILED (see $CS_OUT.log); the money path continues -- record it in the handoff"; echo "cash-shadow-$arm FAILED $RUN_TAG" >> "$OUT/cash-shadow-failures.txt"
     fi
