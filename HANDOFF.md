@@ -11,6 +11,22 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (05:38 CDT) — Laptop: rehearsal with the EXACT payout ladders — entered 1 paid entry (matches reality), plan 20, plan with tilt 15
+
+Production's `contest-details-20260927.json` ladders; each row is ranked among the real field (our own entries removed)
+and our other rows. `rehearsal_two_track.py --details` (dollar values only print with `--show-value` and are never
+committed).
+
+| Arm | Paid entries | Mean points per entry | By type |
+|---|---|---|---|
+| ENTERED | **1** (the real Week-3 result: one ticket, so the method is validated) | 121.6 | sat20 1 |
+| PLAN without the tilt | **20** | 151.4 | sat20 6, supersat2 2, supersat25hi 10, supersat25lo 2 |
+| PLAN with the 0.1 tilt (pre-lock sets) | 15 | 147.7 | sat20 4, supersat2 1, supersat25hi 9, supersat25lo 1 |
+| plain mean, no DST cap | 20 | 151.1 | same as PLAN without the tilt |
+
+- Tail rows (milly20, ffwc, ffwc18) were paid 0 in every arm. The DST cap is neutral here.
+- **Read with care:** Week 3 is the week the plan was designed from. The out-of-sample expectation is L09's: +13%
+  tickets in total, paired 30–32, lumpy. The tilt default of 0 (3430d0cd) is confirmed by the exact ladders too.
 ## 2026-09-28 (05:40 CDT) — Production: the tilt rehearsal figure was mine and it used hindsight; MEAN_OWN_TILT default set to 0
 
 The laptop is right. My Week-3 rehearsal built `own_sum` from `players.csv`'s `milly_own`, which is the REALIZED

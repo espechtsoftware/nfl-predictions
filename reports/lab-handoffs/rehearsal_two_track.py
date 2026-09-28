@@ -60,6 +60,9 @@ def main() -> None:
     ap.add_argument("--tilt", type=float, default=0.1); ap.add_argument("--dst-cap", type=float, default=0.25)
     ap.add_argument("--min-proj", type=float, default=1.0); ap.add_argument("--tail-line", type=float, default=210.0)
     ap.add_argument("--line-q", type=float, default=90.0); ap.add_argument("--milly-cash", type=float, default=149.5)
+    ap.add_argument("--details", type=Path, help="contest details JSON keyed by contest id (payoutSummary ladders): exact paid "
+                                                  "places replace the p-quantile line")
+    ap.add_argument("--show-value", action="store_true", help="also print payout value per arm (private: never commit it)")
     a = ap.parse_args()
     from nfl2.two_track import load_own_estimates, own_sums, select_tail_sleeve, select_top_mean
     from nfl_dfs.bq import query_df
@@ -112,6 +115,16 @@ def main() -> None:
     by_label = {}
     for cid, g in ent.groupby("contest_id"):
         by_label.setdefault(str(g.contest_name.iloc[0]), []).append(cid)
+    ladders = {}
+    if a.details:
+        det = json.loads(a.details.read_text())
+        for cid, d in det.items():
+            pay = {}
+            for t in d.get("payoutSummary", []):
+                v = sum(float(x.get("value", 0.0)) * (x.get("quantity") or 1) for x in t.get("payoutDescriptions", []))
+                for r in range(int(t["minPosition"]), int(t["maxPosition"]) + 1):
+                    pay[r] = v
+            ladders[str(cid)] = pay
     used = Counter()
     fields = []
     for ct in contests:
@@ -121,7 +134,9 @@ def main() -> None:
             raise SystemExit(f"no warehouse contest left for {ct['name']} (label {lab})")
         cid = cids[used[lab]]; used[lab] += 1
         g = ent[ent.contest_id == cid]
-        fields.append({"cid": cid, "others": np.sort(g.loc[g.user != me, "points"].to_numpy(float)),
+        if a.details and str(cid) not in ladders:
+            raise SystemExit(f"--details has no payout ladder for contest {cid}")
+        fields.append({"cid": cid, "pay": ladders.get(str(cid)), "others": np.sort(g.loc[g.user != me, "points"].to_numpy(float)),
                        "ours": g.loc[g.user == me, "points"].to_numpy(float), "n": len(g)})
 
     def arm_rows(tilt: float, dst_cap: float | None, mean_only_dual: bool = False) -> list[int]:
@@ -134,12 +149,21 @@ def main() -> None:
         sleeve = [int(cand[j]) for j in select_tail_sleeve(tot[cand], t_rows, a.tail_line, [rosters[i] for i in cand])] if t_rows else []
         return mean_rows + sleeve
 
+    def paid(p: np.ndarray, f: dict) -> tuple[int, float]:
+        """Exact: rank each of our rows among the other entrants and our own rows (1 + strictly higher scores)."""
+        allp = np.concatenate([f["others"], p])
+        rk = np.array([1 + int((allp > x).sum()) for x in p])
+        vals = np.array([f["pay"].get(int(r), 0.0) for r in rk])
+        return int((vals > 0).sum()), float(vals.sum())
+
     def score_arm(rows: list[int]) -> dict:
         pts = act[rows]
-        out = {"tickets": 0, "by_type": Counter(), "milly_best": None}
+        out = {"tickets": 0, "value": 0.0, "by_type": Counter(), "milly_best": None}
         for ct, rk, f in zip(contests, ranks, fields):
             p = pts[rk]
-            if f["n"] <= 12:                                  # single-ticket small satellite: strict first place
+            if f["pay"] is not None:
+                won, val = paid(p, f); out["value"] += val
+            elif f["n"] <= 12:                                  # single-ticket small satellite: strict first place
                 won = int((p > f["others"].max()).sum() > 0) if len(f["others"]) else 0
             else:
                 line = float(np.percentile(np.concatenate([f["others"], p]), a.line_q))
@@ -153,10 +177,12 @@ def main() -> None:
         out["by_type"] = dict(out["by_type"])
         return out
 
-    entered = {"tickets": 0, "by_type": Counter()}
+    entered = {"tickets": 0, "value": 0.0, "by_type": Counter()}
     for ct, f in zip(contests, fields):
         p = f["ours"]
-        if f["n"] <= 12:
+        if f["pay"] is not None:
+            won, val = paid(p, f); entered["value"] += val
+        elif f["n"] <= 12:
             won = int(len(p) and (p.max() > f["others"].max()))
         else:
             won = int((p >= np.percentile(np.concatenate([f["others"], p]), a.line_q)).sum())
@@ -166,13 +192,14 @@ def main() -> None:
 
     print(f"pool {len(c)} candidates ({int((~playable).sum())} hold a skill player projected < {a.min_proj}); ownership "
           f"slot coverage {cov:.3f}; layout: {len(contests)} contests, {need} rows = {k_mean} mean + {t_rows} sleeve "
-          f"(tail: {sorted(tail)}); line = field p{a.line_q:g} (11-entry satellites: strict first place)")
+          f"(tail: {sorted(tail)}); " + ("EXACT payout ladders" if a.details else f"line = field p{a.line_q:g} (11-entry satellites: strict first place)"))
     arms = {"ENTERED (as played)": entered,
             "PLAN (mean + tilt + DST cap + sleeve)": score_arm(arm_rows(a.tilt, a.dst_cap)),
             "PLAN without tilt": score_arm(arm_rows(0.0, a.dst_cap)),
             "plain mean (no tilt, no DST cap) + sleeve": score_arm(arm_rows(0.0, None))}
     for k, v in arms.items():
-        print(f"\n{k}: tickets {v['tickets']}; mean points per entry {v['mean_pts']}"
+        print(f"\n{k}: paid entries {v['tickets']}; mean points per entry {v['mean_pts']}"
+              + (f"; payout value {v['value']:.2f}" if a.show_value else "")
               + (f"; Millionaire best {v['milly_best']} (finish {v['milly_best_finish']}), rows >= min-cash {v['milly_cash']}"
                  if v.get("milly_best") is not None else ""))
         print("  by contest type: " + ", ".join(f"{n} {t}" for n, t in sorted(v["by_type"].items())))
