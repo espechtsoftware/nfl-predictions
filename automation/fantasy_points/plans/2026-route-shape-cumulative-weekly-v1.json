@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "name": "2026-route-shape-cumulative-weekly-v1",
+  "delay_between_downloads_seconds": 2,
+  "reports": [
+    {
+      "report": "receiving-separation-by-breaks",
+      "seasons": [2026],
+      "target_weeks": "4-18",
+      "source_window": "cumulative-prior",
+      "include_group_headers": true,
+      "context": "Player"
+    }
+  ]
+}

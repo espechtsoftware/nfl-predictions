@@ -58,13 +58,20 @@ def _write(path, report, context, weeks):
         extra = [("Receiving", "RTE"), *[(s.split("::")[0], s.split("::")[1]) for s in specs]]
         row = [1, "Wide One", "HST", "WR", min(len(weeks), 4), 2026, 120] + ["0.2"] * len(specs)
         _grouped(path, _player_cols(extra), [row])
+    elif report == "advanced-rushing":
+        extra = [("Rushing", "ATT"), ("Advanced", "i5 %"), ("Advanced", "MTF/ATT"), ("Advanced", "STUFF %")]
+        _grouped(path, _player_cols(extra), [ident(1, "Run Back Jr.", "rb") + [60, "40%", "0.2", "15%"],
+                                             ident(2, "Quarter Back", "QB") + [12, "", "", ""]])
+    elif report == "receiving-separation-by-alignment":
+        extra = [(g, m) for g in ("Wide", "Slot") for m in ("RTE", "SEP SCORE")]
+        _grouped(path, _player_cols(extra), [ident(1, "Wide One", "WR") + [80, "0.5", 20, "0.4"]])
     elif report == "coverage-matrix":
         with path.open("w", newline="") as handle:
             writer = csv.writer(handle)
             writer.writerow(["Team"] + [""] * 21)
             writer.writerow(qb_shell._HEADER)
             for rank, name in enumerate(sorted(TEAM_NAMES)[:32], start=1):
-                writer.writerow([rank, name, 4, 2026, "", name, 150, 30, 0.4, 70, 0.3, 50, 0.35, 50, 0.36,
+                writer.writerow([rank, name, min(4, len(weeks)), 2026, "", name, 150, 30, 0.4, 70, 0.3, 50, 0.35, 50, 0.36,
                                  1, 20, 15, 5, 30, 20, 9])
     else:
         raise AssertionError(report)
@@ -193,3 +200,105 @@ def test_completeness_guard():
         weekly.check_completeness(table, 30, 45)
     with pytest.raises(ValueError, match="no rows"):
         weekly.check_completeness(table, 0, None)
+
+
+RAW = sorted(key for key, family in weekly.FAMILIES.items() if family.raw_capture)
+
+
+def test_every_windowed_family_and_advanced_rushing_has_a_cumulative_page_from_week_4():
+    """Operator 2026-09-28 ("Fix that"): Week 4 hits every paid windowed page; each lands in its own raw table."""
+    pages = {(w.report, w.context) for key in RAW for w in weekly.FAMILIES[key].windows}
+    windowed = {(w.report, w.context) for f in weekly.FAMILIES.values() if not f.raw_capture for w in f.windows}
+    windowed |= {("receiving-separation-by-alignment", "Player")}       # the alignment family's own module
+    assert pages == windowed | {("advanced-rushing", "Player")}
+    for key in RAW:
+        family = weekly.FAMILIES[key]
+        assert family.first_target_week == 4 and {w.kind for w in family.windows} == {"cumulative"}
+        (table,) = family.tables
+        assert table.name.endswith("_cumulative") and table.keys == weekly.RAW_KEYS
+    historical = {t.name for f in weekly.FAMILIES.values() if not f.raw_capture for t in f.tables}
+    assert historical.isdisjoint(t.name for key in RAW for t in weekly.FAMILIES[key].tables)
+
+
+@pytest.mark.parametrize("week", [4, 8])
+@pytest.mark.parametrize("key", RAW)
+def test_cumulative_pages_are_stored_losslessly_and_strictly_prior(tmp_path, key, week):
+    family = weekly.FAMILIES[key]
+    root = _run_dir(tmp_path, family, week)
+    manifest, artifacts = weekly.validate_manifest(family, root, target_week=week)
+    (table,) = family.tables
+    rows = weekly.parse(family, manifest, artifacts, SNAPSHOTS.iloc[0:0], target_week=week)[table.name]
+    assert len(rows) and not rows.duplicated(list(table.keys)).any()
+    assert rows.season.eq(2026).all() and rows.target_week.eq(week).all() and rows.window_type.eq("cumulative").all()
+    assert rows.source_week_start.eq(1).all() and rows.source_week_end.eq(week - 1).all()     # 1..W-1, never W
+    assert set(zip(rows.report, rows.context)) == {(w.report, w.context) for w in family.windows}
+    for item in artifacts:                                                    # header + cells reproduce the CSV
+        page = rows[rows.report.eq(item["report"]) & rows.context.eq(item["context"])].sort_values("source_row")
+        original = list(csv.reader(item["local_path"].open()))
+        assert json.loads(page.header_json.iloc[0]) == original[:2]
+        assert [json.loads(cells) for cells in page.row_json] == original[2:]
+        assert page.source_row.tolist() == list(range(3, len(original) + 1))
+        assert page.source_sha256.eq(item["sha256"]).all()
+
+
+def test_raw_identity_cells_are_kept_when_the_page_has_them(tmp_path):
+    family = weekly.FAMILIES["advanced-rushing-cumulative"]
+    manifest, artifacts = weekly.validate_manifest(family, _run_dir(tmp_path, family, 4), target_week=4)
+    rows = weekly.read_raw_windows(manifest, artifacts, target_week=4)
+    first = rows.iloc[0]
+    assert (first.vendor_name, first.normalized_name, first.vendor_team, first.pos, first.games) == \
+        ("Run Back Jr.", "run back", "HST", "RB", 3)
+    matrix = weekly.FAMILIES["qb-shell-cumulative"]
+    manifest, artifacts = weekly.validate_manifest(matrix, _run_dir(tmp_path, matrix, 4), target_week=4)
+    teams = weekly.read_raw_windows(manifest, artifacts, target_week=4)
+    assert len(teams) == 32 and teams.vendor_team.isna().all() and teams.pos.isna().all()     # team pages: no cells
+    assert str(teams.pos.dtype) == "string" and str(teams.games.dtype) == "Int64"              # typed for the load
+
+
+@pytest.mark.parametrize("cell, value, match", [(4, "4", "G=4 in a 3-week window"), (5, "2025", "season 2025")])
+def test_raw_capture_refuses_a_page_outside_the_window(tmp_path, cell, value, match):
+    family = weekly.FAMILIES["advanced-passing-cumulative"]
+    root = _run_dir(tmp_path, family, 4)
+    path = next(root.glob("*.csv"))
+    rows = list(csv.reader(path.open()))
+    rows[2][cell] = value
+    with path.open("w", newline="") as handle:
+        csv.writer(handle).writerows(rows)
+    manifest = json.loads((root / "manifest.json").read_text())
+    for item in manifest["exports"]:
+        item.update(sha256=hashlib.sha256(path.read_bytes()).hexdigest(), bytes=path.stat().st_size)
+    (root / "manifest.json").write_text(json.dumps(manifest))
+    manifest, artifacts = weekly.validate_manifest(family, root, target_week=4)
+    with pytest.raises(ValueError, match=match):
+        weekly.read_raw_windows(manifest, artifacts, target_week=4)
+
+
+def test_a_cumulative_manifest_cannot_pass_as_last_four_or_carry_week_w(tmp_path):
+    cumulative = weekly.FAMILIES["advanced-passing-cumulative"]
+    with pytest.raises(ValueError, match="wrong run id"):                      # a last-four run is not this family's
+        weekly.validate_manifest(cumulative, _run_dir(tmp_path, weekly.FAMILIES["advanced-passing"], 5),
+                                 target_week=5)
+    root = _run_dir(tmp_path, cumulative, 6, mutate=lambda m: m["exports"][0].update(weeks=[1, 2, 3, 4, 5, 6]))
+    with pytest.raises(ValueError, match="unexpected or repeated"):
+        weekly.validate_manifest(cumulative, root, target_week=6)
+    with pytest.raises(ValueError, match="within 4..18"):
+        weekly.validate_manifest(cumulative, root, target_week=3)
+
+
+def test_first_cumulative_append_creates_the_table_without_querying_it(tmp_path, monkeypatch):
+    """Week 4 is the first target week of every *_cumulative table: nothing to compare, nothing stored yet."""
+    from nfl_dfs import bq
+
+    family = weekly.FAMILIES["coverage-cumulative"]
+    root = _run_dir(tmp_path, family, 4)
+    loads, archived = [], []
+    monkeypatch.setattr(weekly, "_table_exists", lambda ref: False)
+    monkeypatch.setattr(bq, "query_df", lambda *a, **k: (_ for _ in ()).throw(AssertionError("no query needed")))
+    monkeypatch.setattr(bq, "load_dataframe", lambda frame, ref, **kw: loads.append((ref, len(frame), kw)))
+    monkeypatch.setattr(weekly, "_archive", lambda fam, item, bucket: archived.append(item["report"]) or ("gs://x", "created"))
+    audit = weekly.run("coverage-cumulative", root, target_week=4, write=True)
+    ((ref, rows, kwargs),) = loads
+    assert ref.endswith(".fantasy_points_coverage_cumulative") and kwargs == {"write_disposition": "WRITE_APPEND"}
+    assert rows == 1 + 1 + 32 and sorted(archived) == sorted(w.report for w in family.windows)
+    table = audit["tables"]["fantasy_points_coverage_cumulative"]
+    assert table["table_exists"] is False and table["append_rows"] == rows and table["write_disposition"] == "appended"

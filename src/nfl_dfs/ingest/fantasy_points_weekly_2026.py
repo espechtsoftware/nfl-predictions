@@ -9,6 +9,15 @@ law is identical to the historical rows), archives the bytes by content hash, an
 only the logical rows that are not already present (identical re-runs are no-ops; a different hash for an existing
 key fails closed).
 
+Cumulative raw capture (operator 2026-09-28, "Fix that": every paid page every week, whether or not a feature reads
+it).  Each windowed family, plus Advanced Rushing, has a second hash-frozen plan with a cumulative (1..W-1) window
+from target week 4.  The historical readers are last-four only (they refuse G > 4 and stamp a W-4 start), so these
+pages are stored losslessly instead: one row per CSV data row in the family's own `*_cumulative` table, keyed by
+(season, target_week, report, context, source_row), with the header row(s) and the row's cells as JSON and the
+identity cells the page has.  A separate table is what keeps a cumulative page from ever colliding with a last-four
+row: from Week 5 both windows share the (season, target_week, name, pos) key of the `*_l4` tables, and at Weeks 4-5
+the two windows are even the same weeks.  The new tables are created by their first append.
+
 Point-in-time: every export's source weeks end at W-1 (the plan and the manifest check both enforce it).
 Completeness: a table's row count for W must be at least MIN_ROWS_VS_PRIOR_TARGET of its latest earlier 2026
 target week (the unfinished-export lesson of the 2026 Week-2 Route Share capture).
@@ -19,6 +28,7 @@ target week (the unfinished-export lesson of the 2026 Week-2 Route Share capture
 from __future__ import annotations
 
 import argparse
+import csv
 import hashlib
 import json
 from dataclasses import dataclass
@@ -35,6 +45,7 @@ from . import fantasy_points_same_season_passing as passing
 from . import fantasy_points_same_season_route_shape as route_shape
 from .fantasy_points_route import _sha256
 from .fantasy_points_same_season_coverage import _csv_shape
+from ..names import norm_name
 
 
 SEASON = 2026
@@ -64,10 +75,22 @@ class Family:
     plan_sha256: str
     windows: tuple[Window, ...]
     tables: tuple[Table, ...]
+    raw_capture: bool = False     # cumulative pages stored losslessly (read_raw_windows), not by a historical reader
 
     @property
     def first_target_week(self) -> int:
         return min(window.first_target_week for window in self.windows)
+
+
+CUMULATIVE_FIRST_TARGET_WEEK = 4
+RAW_KEYS = ("season", "target_week", "report", "context", "source_row")
+
+
+def _cumulative(key: str, plan_name: str, plan_sha256: str, pages: tuple[tuple[str, str], ...], table: str) -> Family:
+    """A raw-capture family: one cumulative window per (report, context) page from target week 4, one table."""
+    windows = tuple(Window(report, context, "cumulative", CUMULATIVE_FIRST_TARGET_WEEK) for report, context in pages)
+    return Family(key, plan_name, plan_sha256, windows, (Table(table, RAW_KEYS, ("source_sha256",)),),
+                  raw_capture=True)
 
 
 FAMILIES: dict[str, Family] = {family.key: family for family in (
@@ -108,6 +131,32 @@ FAMILIES: dict[str, Family] = {family.key: family for family in (
         (Table(adv_receiving.TABLE, ("season", "target_week", "window_type", "normalized_name", "pos"),
                ("source_sha256",)),),
     ),
+    # 2026-09-28 (operator: every paid page, every week): the cumulative 1..W-1 page of every windowed family, and
+    # Advanced Rushing (no 2026 capture before), from target week 4, raw-captured (module docstring).  Advanced
+    # Receiving's cumulative page is also read by the support-windows family above from Week 5; the two downloads
+    # land in different tables, so they cannot collide.
+    _cumulative("advanced-passing-cumulative", "2026-advanced-passing-cumulative-weekly-v1",
+                "303dd52b991905a493655e4a76f5357170e63a638dd87d2277502afaa204a57d",
+                (("advanced-passing", "Player"),), "fantasy_points_advanced_passing_cumulative"),
+    _cumulative("advanced-rushing-cumulative", "2026-advanced-rushing-cumulative-weekly-v1",
+                "e0fba889f60e5e96e2a0a379c1c91c58896a0be2ffff25e6b07c117224e3a935",
+                (("advanced-rushing", "Player"),), "fantasy_points_advanced_rushing_cumulative"),
+    _cumulative("route-shape-cumulative", "2026-route-shape-cumulative-weekly-v1",
+                "73d424c46dbadf3029917b0052242f1ae9e9106f33def6c72928f7d6a62a52be",
+                (("receiving-separation-by-breaks", "Player"),), "fantasy_points_route_shape_cumulative"),
+    _cumulative("coverage-cumulative", "2026-coverage-cumulative-weekly-v1",
+                "b0830f455dc3b1cb6f3b50b79db11a779e4242d26d94f0d0479fd8695462b34b",
+                (("receiving-man-vs-zone", "Player"), ("receiving-separation-by-coverage", "Player"),
+                 ("coverage-matrix", "Defense")), "fantasy_points_coverage_cumulative"),
+    _cumulative("qb-shell-cumulative", "2026-qb-shell-fit-cumulative-weekly-v1",
+                "67f89b3750601eb19a5d2bc6a654db0fd5bd7716b81f842d42cbf9578df680f5",
+                (("coverage-matrix", "Offense"),), "fantasy_points_qb_shell_cumulative"),
+    _cumulative("alignment-cumulative", "2026-alignment-cumulative-weekly-v1",
+                "992bf7ec04568ca11d437ed041cc339e92e93eeefd227e9d72d92618b28d1c4d",
+                (("receiving-separation-by-alignment", "Player"),), "fantasy_points_alignment_cumulative"),
+    _cumulative("advanced-receiving-cumulative", "2026-advanced-receiving-cumulative-weekly-v1",
+                "78be303612105a37a69b817be487438532e977a60f4dec54bce05867e0777a8e",
+                (("advanced-receiving", "Player"),), "fantasy_points_advanced_receiving_cumulative"),
 )}
 
 
@@ -194,6 +243,64 @@ def _keyed(family: Family, artifacts: list[dict]) -> dict[tuple, dict]:
     return out
 
 
+_IDENTITY_CELLS = {"Name": "vendor_name", "Team": "vendor_team", "POS": "pos", "G": "games"}
+_RAW_STRINGS = ("vendor_name", "normalized_name", "vendor_team", "pos")
+
+
+def read_raw_windows(manifest: dict, artifacts: list[dict], *, target_week: int) -> pd.DataFrame:
+    """Every data row of every export, losslessly (header row(s) and cells as JSON), with the scope law re-applied:
+    the page's Season/G columns must show 2026 and at most as many games as the window has weeks."""
+    output: list[dict] = []
+    for item in artifacts:
+        with Path(item["local_path"]).open(encoding="utf-8-sig", newline="") as handle:
+            rows = list(csv.reader(handle))
+        depth = 2 if item["include_group_headers"] else 1
+        names = [name.strip() for name in rows[depth - 1]] if len(rows) >= depth else []
+        if "Season" not in names or "G" not in names:
+            raise ValueError(f"{item['path']} has no Season/G scope columns")
+        column = {name: names.index(name) for name in (*_IDENTITY_CELLS, "Season") if name in names}
+        weeks = [int(week) for week in item["weeks"]]
+        header_json = json.dumps(rows[:depth])
+        for source_row, row in enumerate(rows[depth:], start=depth + 1):
+            if not any(cell.strip() for cell in row):
+                continue
+            if len(row) != len(names):
+                raise ValueError(f"{item['path']} row {source_row} has {len(row)} cells; the header has {len(names)}")
+            season, games = row[column["Season"]].strip(), row[column["G"]].strip()
+            if season and int(season) != SEASON:
+                raise ValueError(f"{item['path']} row {source_row} has season {season}")
+            if games and not 1 <= int(float(games)) <= len(weeks):
+                raise ValueError(f"{item['path']} row {source_row} has G={games} in a {len(weeks)}-week window")
+            cells = {field: row[column[name]].strip() or None
+                     for name, field in _IDENTITY_CELLS.items() if name in column}
+            output.append({
+                "season": SEASON,
+                "target_week": int(target_week),
+                "window_type": item["window_type"],
+                "report": item["report"],
+                "context": item["context"],
+                "source_week_start": min(weeks),
+                "source_week_end": max(weeks),
+                "source_row": source_row,
+                "vendor_name": cells.get("vendor_name"),
+                "normalized_name": norm_name(cells["vendor_name"]) if cells.get("vendor_name") else None,
+                "vendor_team": cells.get("vendor_team"),
+                "pos": cells["pos"].upper() if cells.get("pos") else None,
+                "games": int(float(games)) if games else None,
+                "header_json": header_json,
+                "row_json": json.dumps(row),
+                "source_run_id": manifest["run_id"],
+                "source_file": item["path"],
+                "source_sha256": item["sha256"],
+                "retrieved_at_utc": str(item["retrieved_at_utc"]),
+            })
+    frame = pd.DataFrame(output)
+    if frame.empty:
+        return frame
+    # explicit nullable types, so a page without Team/POS cells still loads (and first creates) a typed table
+    return frame.astype({**{name: "string" for name in _RAW_STRINGS}, "games": "Int64"})
+
+
 def parse(
     family: Family,
     manifest: dict,
@@ -204,7 +311,9 @@ def parse(
     coverage_manifest: dict | None = None,
     coverage_artifacts: list[dict] | None = None,
 ) -> dict[str, pd.DataFrame]:
-    """Rows per table for one 2026 target week, parsed by the historical family reader."""
+    """Rows per table for one 2026 target week, parsed by the historical family reader (or stored raw)."""
+    if family.raw_capture:
+        return {family.tables[0].name: read_raw_windows(manifest, artifacts, target_week=target_week)}
     grid: dict[str, Any] = {"seasons": (SEASON,), "target_weeks": (int(target_week),)}
     keyed = _keyed(family, artifacts)
     if family.key == "advanced-passing":
@@ -258,6 +367,19 @@ def check_completeness(table: Table, rows: int, prior_rows: int | None) -> None:
                          f"(minimum {MIN_ROWS_VS_PRIOR_TARGET:.0%}); re-download after the vendor finishes the week")
 
 
+def _table_exists(ref: str) -> bool:
+    """A `*_cumulative` table does not exist until its first append creates it."""
+    from google.api_core.exceptions import NotFound
+
+    from ..bq import client
+
+    try:
+        client().get_table(ref)
+    except NotFound:
+        return False
+    return True
+
+
 def _archive(family: Family, artifact: dict, bucket_name: str) -> tuple[str, str]:
     from google.api_core.exceptions import PreconditionFailed
     from google.cloud import storage
@@ -295,7 +417,7 @@ def run(
             raise ValueError("qb-shell needs --coverage-dir (the same target week's coverage run)")
         coverage_manifest, coverage_artifacts = validate_manifest(
             FAMILIES["coverage"], coverage_dir, target_week=target_week)
-    snapshots = query_df(f"""
+    snapshots = pd.DataFrame() if family.raw_capture else query_df(f"""
         SELECT DISTINCT CAST(season AS INT64) AS season, gsis_id, full_name AS name, position AS pos, team
         FROM `{settings.raw}.rosters_weekly`
         WHERE CAST(season AS INT64) = @season AND CAST(week AS INT64) <= @target_week
@@ -315,20 +437,21 @@ def run(
     for table in family.tables:
         rows = tables[table.name]
         ref = f"{settings.raw}.{table.name}"
+        present = _table_exists(ref)
         prior = query_df(f"""
             SELECT COUNT(*) AS n FROM `{ref}`
             WHERE season = @season AND target_week = (
               SELECT MAX(target_week) FROM `{ref}` WHERE season = @season AND target_week < @target_week)
-            """, params={"season": SEASON, "target_week": int(target_week)})
+            """, params={"season": SEASON, "target_week": int(target_week)}) if present else pd.DataFrame()
         prior_rows = int(prior.n.iloc[0]) if len(prior) else 0
         check_completeness(table, len(rows), prior_rows)
         existing = query_df(f"""
             SELECT {', '.join(table.keys)}, {', '.join(table.hash_columns)} FROM `{ref}`
             WHERE season = @season AND target_week = @target_week
-            """, params={"season": SEASON, "target_week": int(target_week)})
+            """, params={"season": SEASON, "target_week": int(target_week)}) if present else pd.DataFrame()
         novel_by_table[table.name] = novel_or_identical(rows, existing, table)
         audit["tables"][table.name] = {
-            "rows": int(len(rows)), "prior_target_week_rows": prior_rows,
+            "table_exists": present, "rows": int(len(rows)), "prior_target_week_rows": prior_rows,
             "existing_rows": int(len(existing)), "append_rows": int(len(novel_by_table[table.name])),
             **({"resolved_rows": int(rows.gsis_id.notna().sum())} if "gsis_id" in rows else {}),
         }
@@ -361,4 +484,5 @@ if __name__ == "__main__":  # pragma: no cover
     raise SystemExit(main())
 
 
-__all__ = ["FAMILIES", "Family", "check_completeness", "novel_or_identical", "parse", "run", "validate_manifest"]
+__all__ = ["FAMILIES", "Family", "check_completeness", "novel_or_identical", "parse", "read_raw_windows", "run",
+           "validate_manifest"]
