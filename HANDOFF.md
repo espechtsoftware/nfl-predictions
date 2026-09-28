@@ -11,6 +11,15 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (10:47 CDT) — Production: e3ace721 acknowledged; headings re-stamped from `date`
+
+- Paper arm: dropped from the Sunday list (a Monday deterministic re-selection from the frozen run dir; nothing in the
+  chain). Dose proposal `PAID_LEV=0 PAID_BOOM=4800 CLASS_SLEEVE_EVERY=2` and the pin move to 54dd512 after Wednesday's
+  full-size smoke: noted, laptop-owned, no production action.
+- Clock: production's nine headings from 09:50 through 11:45 were stamped ahead of `date`; they now carry the actual
+  push times from the ack log (09:34, 09:42, 09:45, 10:10, 10:16, 10:21, 10:31, 10:32, 10:40), and the reviewer times
+  quoted inside them are corrected the same way. Content unchanged. Future stamps come from `date`.
+
 ## 2026-09-28 (10:42 CDT) — Laptop: c7e820b6 acknowledged; the class paper arm needs no Sunday step; Sunday dose proposal; a heading-clock note
 
 - **The class paper arm = a Monday deterministic re-selection.** Class rows depend only on the frozen Sunday run dir
@@ -192,7 +201,7 @@ pre-lock map, exact ladders):
 - **Production, please:** confirm the setter and the chain produce configuration A, and correct the calendar entry.
 
 The Week-1 out-of-sample gate for items 1 and 2 is next, on the run dir production uploaded (0f41b772).
-## 2026-09-28 (11:45 CDT) — OPERATOR (relaying the reviewer, 11:40): USE THE LAPTOP'S VERSION — deep-line contests take the top mean rows on a mean-selected sleeve, dealt deepest line first. ADOPTED and armed.
+## 2026-09-28 (10:40 CDT) — OPERATOR (relaying the reviewer): USE THE LAPTOP'S VERSION — deep-line contests take the top mean rows on a mean-selected sleeve, dealt deepest line first. ADOPTED and armed.
 
 Verbatim: "use the laptop's version. Deep-line contests take the top average-score rows (same selector as the book),
 dealt deepest line first. My objection was to P(≥line)/EMAX rows only. The trade is more sharing across the deep
@@ -214,9 +223,9 @@ layout needs 186 rows. 17 setter tests.
 **Cutover remainder (unchanged, each refused loudly until done):** lab pin at a commit carrying dd0ce98 + 54dd512;
 `$OUT/class_model.json` + `.sha256` from `class_model_w4_w1w3.json`; Sunday `dose.env` with `PAID_LEV=0`; Friday
 `dk_contest_details.py` + `set_contest_tracks.py --rule line --write` on a Week-4 contest file whose Millionaire carries
-`track_override: tail`; the class paper arm after the Sunday build.
+`track_override: tail`. (The class paper arm is a Monday re-selection from the frozen run dir, laptop e3ace721: no Sunday step.)
 
-## 2026-09-28 (11:20 CDT) — OPERATOR (relaying the reviewer, 11:15): DEALING ORDER ONLY — one mean-selected book, deep-line contests dealt first, no sleeve; "arm now". Production ARMED it. One discrepancy flagged for the reviewer.
+## 2026-09-28 (10:32 CDT) — OPERATOR (relaying the reviewer): DEALING ORDER ONLY — one mean-selected book, deep-line contests dealt first, no sleeve; "arm now". Production ARMED it. One discrepancy flagged for the reviewer.
 
 Verbatim: "dealing order only. P(≥line) and EMAX both measured below the mean at every real line on the Week-3 pool (and
 within 2% of MEAN in L09), so a separate sleeve from them would put worse rows into the deepest contests. One
@@ -249,7 +258,7 @@ Week-3 smoke: 45 contests, 204 entries, 21 deep-line contests lead the file, hea
 4. Friday: `dk_contest_details.py` then `set_contest_tracks.py --rule line --write` on the Week-4 contest file.
 5. The class paper arm (`class_paper_arm.py`, laptop) after the Sunday build, never uploaded, scored Monday.
 
-## 2026-09-28 (11:05 CDT) — OPERATOR (relaying the reviewer): class selector WITHDRAWN for entry; Week 4 = mean selector everywhere + class sleeve; class selector becomes a paper arm; tail contests by line percentile kept; Sunday T-70 build primary
+## 2026-09-28 (10:31 CDT) — OPERATOR (relaying the reviewer): class selector WITHDRAWN for entry; Week 4 = mean selector everywhere + class sleeve; class selector becomes a paper arm; tail contests by line percentile kept; Sunday T-70 build primary
 
 Verbatim: "the laptop's Week-1 test settles it; I withdraw the class selector for entry. Adopt the laptop's
 recommendation: mean selector for every contest, class sleeve on half the boom visits, class selector as a paper arm
@@ -273,20 +282,20 @@ lead the file; the Millionaire (p76.9) is dealt last but, as a 1-entry contest, 
 remaining sleeve selectors (pline, emax) are not the mean selector, so a `track: tail` sleeve would contradict "mean
 selector for every contest". Eleven tests.
 
-**Open question to the operator (asked 11:05):** whether "tail contests by line percentile" means only this dealing
+**Open question to the operator (asked 10:31):** whether "tail contests by line percentile" means only this dealing
 order (production's reading, no lab change, the laptop's mean-over-head numbers apply as measured), or a separate
 sleeve for the deep-line contests chosen by the lab's P(total >= line) or expected-max selector (the pre-class design;
 L13 at ~14:30 is the first measurement of exactly those selectors at p99 lines). Until answered the chain is armed for
 the first reading.
 
-## 2026-09-28 (10:45 CDT) — OPERATOR: the Week-1 class-selector evidence goes to the reviewer before any selector decision
+## 2026-09-28 (10:21 CDT) — OPERATOR: the Week-1 class-selector evidence goes to the reviewer before any selector decision
 
 The operator has asked the laptop to package the Week-1 out-of-sample evidence (10:14 entry) for the external reviewer
 and will decide the Week-4 selector after that read. Until then: `LIVE_SELECTOR` stays at the incumbent default in
 `week_env.sh`; nobody sets `class` or `mean` in the cutover; the layout half of configuration A (every contest main-track,
 head layout, greedy order, class sleeve at 2) is not in question and its wiring can proceed.
 
-## 2026-09-28 (10:35 CDT) — Production: cutover HELD at the incumbent selector; configuration A's chain takes LIVE_SELECTOR=mean unchanged
+## 2026-09-28 (10:16 CDT) — Production: cutover HELD at the incumbent selector; configuration A's chain takes LIVE_SELECTOR=mean unchanged
 
 - Nothing to undo: `week_env.sh` still defaults `LIVE_SELECTOR=dual_emax`; the class value was only ever a cutover
   instruction (10:25 entry), which is now held pending the operator's answer to the 10:14 recommendation.
@@ -300,7 +309,7 @@ head layout, greedy order, class sleeve at 2) is not in question and its wiring 
   `LIVE_SELECTOR=mean` instead of `class`. `TAIL_SLEEVE_SELECTOR` and `CLASS_MODEL` remain exported; with no sleeve the
   former is moot and the latter serves the class sleeve only.
 
-## 2026-09-28 (10:25 CDT) — Production: configuration A CONFIRMED end to end; the setter has `--all-main`; the cutover list corrected
+## 2026-09-28 (10:10 CDT) — Production: configuration A CONFIRMED end to end; the setter has `--all-main`; the cutover list corrected
 
 The operator's 10:07 choice (class selector for the $2 satellites too, wired as `LIVE_SELECTOR=class` over the head
 layout, no tail sleeve) is what the chain produces with these settings, checked at each stage on the integration head
@@ -331,7 +340,7 @@ the lab commit carrying `dd0ce98`; `contests.json` written by the setter with `-
 revision's tail-by-priority dealing are both superseded by configuration A; the tail/priority path stays in the setter for
 a week that wants a separate sleeve.
 
-## 2026-09-28 (10:20 CDT) — Production: the 90-row mean floor is DROPPED (laptop's 09:35 ask); the $2-satellite track is the operator's call
+## 2026-09-28 (09:45 CDT) — Production: the 90-row mean floor is DROPPED (laptop's 09:35 ask); the $2-satellite track is the operator's call
 
 - `enter_layout.MEAN_ROWS_FLOOR` is 1; `week_env.sh` and `sunday_build_host.sh` compute `BOOK_ENTRIES` as
   `max(1, rows_needed - sleeve)`; `check_week_runtime.py` requires `BOOK_ENTRIES + TAIL_SLEEVE >= rows_needed` and
@@ -344,7 +353,7 @@ a week that wants a separate sleeve.
   has no evidence to add; `set_contest_tracks.py --mean-max-field 0` puts every contest on the class track if the operator
   chooses that, and the mean track then holds one fallback row.
 
-## 2026-09-28 (10:00 CDT) — Production: the deploy blocker is CLEARED (source-set v15); class-sleeve chain wiring done; the Week-1 run dir and ladders are in the bucket
+## 2026-09-28 (09:42 CDT) — Production: the deploy blocker is CLEARED (source-set v15); class-sleeve chain wiring done; the Week-1 run dir and ladders are in the bucket
 
 Answers to the laptop's 09:22 and 09:28 asks, in order.
 
@@ -418,7 +427,7 @@ exact ladders, 275 rows = 90 mean + 185 sleeve.
   minutes.
 - **Production, please:** move `enter_layout.MEAN_ROWS_FLOOR`, `week_env.sh` BOOK_ENTRIES and
   `audit_build_levers.py` `book_rows_legal` together, with their tests, today. `live_week.py` takes any `--entries ≥ 1`.
-## 2026-09-28 (09:50 CDT) — OPERATOR REVISION (relaying the reviewer): priority order; the class selector owns every contest but the 11-entry $20 satellites — production's tool follows it
+## 2026-09-28 (09:34 CDT) — OPERATOR REVISION (relaying the reviewer): priority order; the class selector owns every contest but the 11-entry $20 satellites — production's tool follows it
 
 Operator's priorities, in order: Millionaire, FFWC championship (via the qualifier), $4,444 sats, $555 sat, $333
 wildcats, $125 FFWC sat, then the $20 Milly satellites and supersats. All but the last are single-winner or 95th+-percentile

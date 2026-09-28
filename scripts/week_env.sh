@@ -105,7 +105,7 @@ week_env() {
   export TAIL_SLEEVE
   # The live selector. dual_emax is the incumbent (byte-identical default); "mean" is the two-track satellite selector,
   # which the pinned lab commit must support (the arming preflight and the build audit check the receipt).
-  export LIVE_SELECTOR=${LIVE_SELECTOR:-mean} TAIL_LINE=${TAIL_LINE:-210}   # reviewer 2026-09-28 11:15: the mean selector for every contest (dual_emax retired; class withdrawn)
+  export LIVE_SELECTOR=${LIVE_SELECTOR:-mean} TAIL_LINE=${TAIL_LINE:-210}   # reviewer 2026-09-28 10:30: the mean selector for every contest (dual_emax retired; class withdrawn)
   # Q4b (operator 2026-09-27, fail loudly / no fallbacks): players projected below LIVE_MIN_PROJ leave the universe before
   # generation, so no candidate holds a non-player and none is valued at his upside; the build audit refuses the pool
   # otherwise. Empty = flag omitted (the pre-Q4b lab pin does not know it; the arming preflight checks support).
@@ -122,7 +122,7 @@ week_env() {
   # Monday by the laptop's fit_field_class_model.py). With TAIL_SLEEVE > 0 the chain passes
   # --tail-sleeve-selector "$TAIL_SLEEVE_SELECTOR" and, for class, --class-model "$CLASS_MODEL" (must exist: no fallback here;
   # the lab falls back to EMAX only when the class path fails its own checks, and prints it).
-  export TAIL_SLEEVE_SELECTOR=${TAIL_SLEEVE_SELECTOR-mean} CLASS_MODEL=${CLASS_MODEL:-$OUT/class_model.json}   # class withdrawn 11:15; mean = the only sleeve selector allowed if a week declares tail contests
+  export TAIL_SLEEVE_SELECTOR=${TAIL_SLEEVE_SELECTOR-mean} CLASS_MODEL=${CLASS_MODEL:-$OUT/class_model.json}   # class withdrawn 10:30; mean = the only sleeve selector allowed if a week declares tail contests
   # Class sleeve (reviewer item 2, 2026-09-28): every Nth boom visit is solved under the field's 193+ shape
   # (--class-sleeve-every N; lab dd0ce98, needs CLASS_MODEL). 0 = flag omitted. The Wednesday cutover sets 2.
   export CLASS_SLEEVE_EVERY=${CLASS_SLEEVE_EVERY-2}   # adopted 2026-09-28: half the boom visits under the 193+ shape (needs CLASS_MODEL + .sha256; the preflight checks)

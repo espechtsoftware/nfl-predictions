@@ -65,7 +65,7 @@ def decide_by_line(contests: list[dict], details: dict, tail_share: float = 0.02
     for c in out:
         c.pop("_field")
     if deep_as_tail:
-        # ADOPTED (reviewer 2026-09-28 11:40, "use the laptop's version"): deep-line contests and any track_override "tail"
+        # ADOPTED (reviewer 2026-09-28 10:37, "use the laptop's version"): deep-line contests and any track_override "tail"
         # (the Millionaire) form a MEAN-selected tail sleeve (TAIL_SLEEVE_SELECTOR=mean: the same selector as the book, so the
         # deep contests take the top mean rows again), overrides first, then by depth; main contests keep their depth order
         # before them. Week 3: 23 vs 20 paid; Week 1: 40 vs 31 (Millionaire 27 vs 16).
@@ -149,7 +149,7 @@ def main(argv=None) -> int:
                          "every contest main-track, ordered deepest line first, deep_line flagged at the p98 rule")
     ap.add_argument("--tail-share", type=float, default=0.02, help="--rule line: paid places / field at or below this = deep_line (0.02 = the 98th percentile)")
     ap.add_argument("--no-sleeve", action="store_true",
-                    help="--rule line: NOT the adopted configuration (superseded 11:40). Every contest main-track, deepest line first, no sleeve "
+                    help="--rule line: NOT the adopted configuration (superseded 10:37). Every contest main-track, deepest line first, no sleeve "
                          "(measured: dealing order alone moves nothing)")
     ap.add_argument("--write", action="store_true")
     a = ap.parse_args(argv)
@@ -168,7 +168,7 @@ def main(argv=None) -> int:
     n_tail = [c for c in out if c["track"] == "tail"]
     if a.rule == "line" and not a.no_sleeve:
         forced = [c for c in out if c.get("track_override") == "tail"]
-        print(f"rule line (adopted 2026-09-28 11:40): {len(n_tail)} deep-line/forced contests ({sum(int(c['entries']) for c in n_tail)} rows) on the MEAN-selected sleeve, "
+        print(f"rule line (adopted 2026-09-28 10:37): {len(n_tail)} deep-line/forced contests ({sum(int(c['entries']) for c in n_tail)} rows) on the MEAN-selected sleeve, "
               f"forced first ({', '.join(str(c.get('name')) for c in forced) or 'NONE - is the Millionaire missing its track_override: tail?'}), then by depth; "
               f"{len(out) - len(n_tail)} main contests; needs TAIL_SLEEVE_SELECTOR=mean, LIVE_SELECTOR=mean, ENTER_LAYOUT=head")
     if a.rule == "line" and a.no_sleeve:

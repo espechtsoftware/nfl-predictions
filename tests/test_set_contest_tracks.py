@@ -126,7 +126,7 @@ def test_rule_line_main_writes_the_order(tmp_path, capsys):
 
 
 def test_rule_line_default_is_the_adopted_mean_sleeve_millionaire_first_then_by_depth(tmp_path, capsys):
-    """Reviewer 2026-09-28 11:40 ("use the laptop's version"): deep-line contests + the forced Millionaire on a
+    """Reviewer 2026-09-28 10:37 ("use the laptop's version"): deep-line contests + the forced Millionaire on a
     mean-selected sleeve, the Millionaire first, then by depth; main contests keep their depth order before them."""
     cs = [{k: v for k, v in c.items() if k != "priority"} for c in CONTESTS]
     cs[2] = dict(cs[2], track_override="tail")                       # the Millionaire (p76.9) forced onto the sleeve
@@ -139,7 +139,7 @@ def test_rule_line_default_is_the_adopted_mean_sleeve_millionaire_first_then_by_
     cfile.write_text(json.dumps(cs)); dfile.write_text(json.dumps(DETAILS))
     assert sct.main(["--contests", str(cfile), "--details", str(dfile), "--rule", "line", "--write"]) == 0
     out_text = capsys.readouterr().out
-    assert "adopted 2026-09-28 11:40" in out_text and "forced first (milly)" in out_text
+    assert "adopted 2026-09-28 10:37" in out_text and "forced first (milly)" in out_text
     got = json.loads(cfile.read_text())
     assert [(c["name"], c["track"]) for c in got] == [("sat20", "mean"), ("milly", "tail"), ("supersat", "tail"), ("wildcat", "tail")]
     cfile.write_text(json.dumps([{k: v for k, v in c.items() if k != "track_override"} for c in cs]))
