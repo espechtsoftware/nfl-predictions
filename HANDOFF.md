@@ -12,6 +12,47 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (14:05 CDT) — OPERATOR: the capped plain-mean optimizer (PMO_X50) ENTERS Week 4 as the main-track book; production builds it today; L13 read (`ac39f9ad`)
+
+**L13 (the laptop's read, `reports/2026-09-28-laptop-l13-result.md`):**
+- R5 **PMO_X50 vs MEAN at p89: SUPPORTED.** 1,386 vs 1,085 (+27.7%), both seasons, paired 32–31; realized +6.3 per
+  row.
+- **PMO uncapped: NOT SUPPORTED** (paired 27–40; max exposure 132/144).
+- **p99: NO CLEAR LEADER**, although PMO_X50 is +72–74% in aggregate. It ties EMAX 23–23 paired.
+- Production: please re-run the reader (lab `laptop/l13-results-20260928` @ `2aa8046`) for the ledger row.
+
+**Asked** (the laptop): how should Week 4's satellite main-track book be built? The options were the capped optimizer,
+entered; paper it this week; or uncapped rows into the union, as the 12:2x instruction literally said.
+**The operator's answer: "Capped optimizer, enter (Recommended)."** The option text: "At T-70, solve the main book
+directly with the capped optimizer on the T-70 projections (under a minute). The deep-line contests keep the union's
+mean-selected rows. Production builds it today; Wednesday's smoke tests it; the union's mean book is scored on paper
+Monday."
+
+**Spec for production — L13's tested form, exactly (`experiments/l13_p99_selectors.py` `plain_mean_book`):**
+1. **Main book (the K mean-track rows):**
+   - K sequential `nfl2.core.lineup.optimize` solves on the build's frame, objective the served `mean_projection`;
+   - house rules (`PRODUCTION_STACK`: QB + 2, bring-back 1), `MAX_PER_GAME=4`, `MIN_LINEUP_SALARY=49000`;
+   - `banned_lineups` = every earlier row with `max_overlap=7`;
+   - **per-player exposure cap: a player in ≥ floor(0.5·K) rows is banned from later solves** (all positions,
+     DST included).
+   - The pool excludes OUT/IR/Doubtful/inactive (the frame and the DK snapshot, as the union's survivor rule does) and
+     skill players under MIN_PROJ 1.0.
+   - **No 25% DST cap on this book:** the tested arm had none, and its 50% cap covers DSTs. Adding it is an untested
+     combination; the operator can ask for it.
+   - If the solver runs out of rows before K, the build refuses and the union's mean book stands (fail closed, named).
+2. **The tail sleeve (the deep-line contests): unchanged.** The union's mean selection (top-T by projected sum, ≤ 7
+   shared, repeats allowed). Verdict 1 did not change the p99 rule.
+3. **Where:** in `union_reselect.py` (e.g. `--main pmo_x50`, `UNION_MAIN=pmo_x50` in `week_env`), so it inherits the
+   union's receipt, `verify_k90`, audit, `audit_passed` and publication path.
+   - Receipt: `config.union.main = "pmo_x50"`, the exposure cap, rows solved, the solve seconds, max exposure used.
+   - `verify_k90` and the audit must accept a main book not drawn from `candidates.parquet`. Append the PMO rows to
+     the union corpus with `source_run = pmo_x50`.
+4. **Paper:** on Monday the laptop re-selects the union's MEAN main book (`union_reselect.py --rehearsal`, main =
+   mean) and scores both at the exact ladders.
+5. **Timing:** 144 rows solve in 53–56 s on the laptop (Week-3 frames), 58 rows in 13 s.
+6. **Week-3 sanity check (hindsight, one week, in the report):** PMO_X50 realized 132.8–134.3 per row against the mean
+   book's 148.4–155.1. The mean book carried one player in 133–138 of 144 rows, and he hit. The operator decided
+   knowing this.
 ## 2026-09-28 (13:20 CDT) — Laptop: `2fdcc81c` / `8b3a326f` (cash shadows in the chain, the cash-pilot upload) acknowledged; one scratch gap covered by procedure
 
 - **Order checked:** both `audit_passed` markers are written (lines 240/262) before the cash-shadow step (272), so the
