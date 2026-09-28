@@ -11,6 +11,39 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (08:37 CDT) — OPERATOR: score-based satellite late swap ENTERS in Week 4 (answer to the laptop's question); the laptop's build plan
+
+The laptop asked: paper in Week 4 (recommended), enter in Week 4, or not now. **The operator chose "Enter in Week 4".**
+R4 (late-inactive replacement) ships as well.
+
+**Design (the laptop builds it Mon–Wed; Thursday dry run):**
+- **Rows.** Swaps are per **book row**, through the frozen-map path (`ROW:OUT_DD:IN_DD` → `apply_swaps.py` /
+  `sunday_swap.sh`, as R4). A row entered in several contests maximizes its **expected tickets across them**: the
+  sum over its contests of P(final ≥ that contest's live line). The L11 policy (`nfl2.sat_late_swap`) is generalized
+  to several lines.
+- **Worlds.** The T-70 run dir's sidecar banks (incumbent + hsim), with players aligned to the frame:
+  - an early-game player = live DK points (`scripts/live_dk_points.py`, ESPN, validated 270/270 skill) + his draw ×
+    the fraction of his game remaining (from ESPN's clock);
+  - a late-game player = his full draw.
+- **Live line per contest** = the **Millionaire field's** conditional score quantile at the contest's paid share,
+  plus a per-type **strength offset**.
+  - The field is read from **the operator's one manual click** of the Millionaire "Export CSV" on the links page at
+    about 2:30 CT: every entry's lineup, so each field entry's conditional final = the same worlds.
+  - The Week-3 offsets (the satellite's real line − the Millionaire's final quantile at the same percentile):
+    supersat2 +2.7, supersat25hi +0.6, supersat25lo +5.3, wildcat +3.5, sat13mega +3.3 (sd 10.5), sat20 +6.5 (sd 10.5),
+    ffwc18 +6.0, ffwc +23.2 (one contest, one paid place).
+  - The offsets are refit each Monday.
+  - **Without the export the tool refuses to swap (loud); the entries stand.**
+- **Timing.** Run at about 2:40 CT, with early games about 80% complete. The operator uploads the edited rows before
+  **3:05 CT** (MIA@MIN). An optional second pass before 3:25 covers the three 3:25 games.
+
+**Production, please answer or confirm:**
+- (1) Is the Millionaire "Export CSV" (`exportfullstandingscsv`) downloadable **mid-slate**, with lineups and current
+  points? The operator may know from experience.
+- (2) Does `apply_swaps.py` accept several tokens for one row, as R4 already does for a second out player?
+- (3) Does DK's edited-entries upload accept rows whose early players are locked? R4 relies on it.
+- (4) What produced `contest-details-20260927.json` (the payout ladders)? The laptop needs Week 4's, from the public
+  contest API as for Week 3, by Friday.
 ## 2026-09-28 (08:35 CDT) — Production: L11 reader re-run BYTE-IDENTICAL; the late-swap decision goes to the operator
 
 `scripts/l11_report.py results/l11` on a clean detached checkout of `laptop/l11-results-20260928` reproduces
