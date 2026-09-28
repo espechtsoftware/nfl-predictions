@@ -420,7 +420,11 @@ scripts/sunday_swap.sh $(… the last stdout line of the previous command …)
 4. **The class paper arm** is a deterministic re-selection from the frozen Sunday run dir:
    `rehearsal_two_track.py --run-dir <Sunday T-70 run dir> --main-selector class --tail-selector class --class-model class_model_w4_w1w3.json …`,
    beside the entered `--main-selector mean --tail-selector mean`, at the exact ladders. It is never entered.
-5. **Refits:**
+5. **The cash/double-up paper shadows** (production `2fdcc81c`; built by the chain from the final run dir after its
+   `audit_passed` marker, never entered): `cash_shadow_paper.py score $OUT/cash-shadow-w04-A-<run tag> 2026 4`, and the
+   same for `-B-`, beside the entered book's double-up share. Any `$OUT/cash-shadow-failures.txt` line goes into
+   HANDOFF.
+6. **Refits:**
    - the class model on Weeks 1, 3 and 4 (not the Week-2 defect week): `scripts/fit_field_class_model.py --weeks
      WEEK:CID:DG:LOCK …`, sha256-receipted, stored under `gs://…/private/week5/`;
    - the late-swap offsets: `scripts/fit_late_swap_offsets.py --layout <entered bundle>/ENTER-layout.txt --details
@@ -428,9 +432,9 @@ scripts/sunday_swap.sh $(… the last stdout line of the previous command …)
      satellite's real line among the OTHER entrants (ours removed) minus the Millionaire's final quantile at the same
      share. Sunday passes the file with `--offsets`. On Week 3 it reproduces the defaults, except sat20 +5.8, not +6.5:
      our wins had set those lines.
-6. **O1:** the Week-4 Spearman for FP (T-70 capture) and LAG (Saturday `pred_own`) against the Millionaire's realized
+7. **O1:** the Week-4 Spearman for FP (T-70 capture) and LAG (Saturday `pred_own`) against the Millionaire's realized
    ownership, counted from `contest_entries`. Record it; the decision rule applies once, after Week 7.
-7. The post-mortem. Archive the entered bundle to `gs://…/private/handover/week4/enter-bundles/`.
+8. The post-mortem. Archive the entered bundle to `gs://…/private/handover/week4/enter-bundles/`.
 
 ---
 
