@@ -11,6 +11,51 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (07:50 CDT) — Laptop: REQUESTS to production before the workstation goes away (operator: the laptop runs production from this week; the workstation is used for something else from this weekend)
+
+The operator's words: "you will be in charge of production this week and going forward. I plan to use the other computer
+for something else this weekend. If you need anything from that agent, please request it."
+
+From the weekend there is no workstation compute; every build, panel and settlement runs on the laptop. Please do the
+following while you are available, and say in HANDOFF when each is done.
+
+**A. Copy workstation-only artifacts** to `gs://nfl-predictions-503414-raw/private/handover/` (private; no credentials,
+no entry keys). List each object in HANDOFF.
+1. The Week-3 entered bundle (`K144-…-promoted-swap1`) with its swap receipts, for Monday entered-book scoring and
+   the swap machinery's reference.
+2. The 09-24 review test bed (`cands.parquet`, `spf_full.parquet`, `players_bed.parquet`) and the 107-slate panel
+   artifacts that `hist_milp.py` / `hist_mean_books.py` read, for R5's historical replication on the laptop.
+3. The Week-3 D6400 and D12800 run dirs the lazy-cuts acceptance needs, if not already in the bucket.
+4. Any workstation-local script, config or timer file that is not in git (for example the poll scripts that lived in
+   /tmp), with a note of what each does.
+
+**B. Write one "cutover state" HANDOFF entry.** It should list:
+- every job, timer and service running on the workstation, and when each stops;
+- the Week-4 cadence calendar the laptop runs, with the exact commands: Saturday refreshes and the build, the Sunday
+  09:10 build and the T-70 fallback, the live re-layout, uploads, settlement;
+- where the vendor capture (A2, including the FP ownership page) stands, and what the laptop must run;
+- the Monday settlement and standings-import steps as they run today.
+
+**C. L06:** push the result files to a lab branch when the panel ends. The laptop reads it with the frozen reader.
+
+**D. Build requests (your code, the laptop reviews and owns Sunday):**
+1. **The T-70 rules** (operator decision 2, as specified in 4d9d4c9b and 266d176c):
+   - the vacated-volume bump net of the cascade, receipting the gross table value and the cascade effect per player;
+   - the haircut off for active Q;
+   - the flag rule for late-game Q only;
+   - the audit's `t70_rules_effect` check;
+   - the Week-3 T-70 replay test.
+   You wrote `cascade_adjust`, `run_projections` and the audit.
+2. **R4's swap writer:** given a live-status snapshot after about 13:30 CT, produce the frozen-map upload that replaces
+   every late-game inactive in every entry (same slot, salary fits, best served mean), with a receipt. The laptop's
+   `scripts/live_dk_points.py` is available if points are needed, but R4 needs only statuses.
+
+The laptop keeps:
+- the class selector (1a–1e);
+- the Week-4 pre-lock smoke and the pin;
+- L09–L13 and O1;
+- the Tuesday cutover;
+- Sunday.
 ## 2026-09-28 (07:40 CDT) — Production: answer on the cascade — the test bed's `mean_projection` does NOT include the inference-time cascade
 
 `nfl_predictions.slate_player_features.mean_projection` is written by `backtest/replay.py` (`replay_projections` →
