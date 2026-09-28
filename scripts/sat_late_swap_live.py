@@ -5,7 +5,8 @@ aggregate, paired 30-32 so not supported by the frozen rule -- the operator's ca
 At about 2:40 CT, before the 3:05 lock, each entered book row's late-game players are re-chosen to maximize the row's
 EXPECTED TICKETS: the sum over the contests it is entered in of P(final >= that contest's live line). The policy is
 the lab's nfl2.sat_late_swap (pinned clone on PYTHONPATH). This script only PROPOSES swaps: it prints the ROW:OUT_DD:IN_DD
-tokens for apply_swaps.py / sunday_swap.sh, which re-check locks, the fresh DK feed and roster legality before writing.
+tokens for sunday_swap.sh (the LAST stdout line, bare, as late_inactive_swaps.py prints them: `scripts/sunday_swap.sh $(python
+scripts/sat_late_swap_live.py ... | tail -1)`), which re-checks locks, the fresh DK feed and roster legality before writing.
 
 Worlds: the T-70 run dir's two sidecar banks (players x worlds, frame-row aligned). An early-game player = his live DK
 points (scripts/live_dk_points.py snapshot, ESPN) + his draw x the fraction of his game remaining; a late-game player =
@@ -330,7 +331,9 @@ def main() -> int:
                         "tokens": tokens})
         print(f"lines: " + ", ".join(f"{v['name']} {v['line']:.1f}" for v in receipt["lines"].values()))
         print(f"rows swapped {receipt['rows_swapped']} of {len(per_row)}; expected tickets {tickets_keep:.2f} -> {tickets_new:.2f}")
-        print(" ".join(f"--swap {t}" for t in tokens) if tokens else "NO SWAPS")
+        if not tokens:
+            print("NO SWAPS", file=sys.stderr)
+        print(" ".join(tokens))            # last stdout line = bare tokens, as late_inactive_swaps.py: sunday_swap.sh $(... | tail -1)
         code = 0
     except Refuse as e:
         receipt["refused"] = str(e); print(f"REFUSED: {e}", file=sys.stderr); code = 3
