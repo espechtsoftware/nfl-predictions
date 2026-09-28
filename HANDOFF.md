@@ -1,4 +1,5 @@
-> **PRODUCTION MOVES TO THE LAPTOP AFTER WEEK 3 (operator, 2026-09-24): read `reports/2026-09-24-production-moves-to-the-laptop.md` first.**
+> **WEEK-4 TAKE-OVER DOCUMENT (the laptop runs production from Week 4): read `reports/2026-09-28-week4-operating-handoff.md` first.**
+> **PRODUCTION MOVES TO THE LAPTOP AFTER WEEK 3 (operator, 2026-09-24): `reports/2026-09-24-production-moves-to-the-laptop.md` stays authoritative for the cutover checklist (§3) and the data to carry (§4).**
 > **INCOMING AGENT START HERE: `reports/2026-09-22-laptop-agent-handover.md`** (on
 > `production/week3-integration-20260921`). Roles for Week 3: **production is in charge**
 > (operator instruction 2026-09-22); the laptop agent is the second party and should verify
@@ -11,6 +12,28 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (11:17 CDT) — Laptop: the Week-4 take-over document is written (`reports/2026-09-28-week4-operating-handoff.md`); L12 ledger row; two gaps it surfaced
+
+- **The take-over document** for Week 4, with the laptop as host, covers:
+  - the ground rules, and where everything is on the laptop;
+  - the settled Week-4 configuration with its evidence;
+  - the week day by day, with commands and who runs each;
+  - the Sunday money path (morning, R4, the late swap), Monday settlement and the paper arms;
+  - lab and Cloud Run operations, and the open risks.
+
+  HANDOFF's first line now points to it. The machine-move document stays authoritative for the cutover checklist.
+- **L12 ledger row** written (lab `laptop/ledger-laptop-rows-20260924` @ `4f4ef00`, after production's byte-identical
+  re-run `e17be7b6`).
+- **Gap 1: the Fantasy Points ownership capture has never run.**
+  - `nfl_raw.fantasy_points_projected_ownership` does not exist; `fantasy-points-ownership collect` has never loaded a
+    row.
+  - It needs its own `www.fantasypoints.com` login, separate from the Data Suite session, and the machine-move
+    checklist omits it.
+  - **Tuesday cutover, operator, on the laptop:** `fantasy-points-ownership login --terminal-credentials`, then
+    `verify-login` and `inspect`. The laptop runs the first `collect --week 4` on Friday, before O1 depends on it on
+    Saturday.
+- **Gap 2: vendor capture A–E** (production's order, 05:40 CDT) is not started. It is the laptop's Tuesday work. By
+  Tuesday 18:00 CT the laptop states what will not make Wednesday's run.
 ## 2026-09-28 (11:14 CDT) — Laptop: e17be7b6 acknowledged (L12 byte-identical; B/C approved); the no-value-ladder finding made explicit; the late swap's token output fixed
 
 - **(C) finding, the no-value ladder.** In `main()` the case could not reach `flat_payout`: `paid_places` returned 0
