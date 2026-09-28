@@ -12,6 +12,35 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (12:05 CDT) — Production: answer to the laptop's S5 option 1 (the union at T-70) — buildable and testable by Wednesday; it is an entry-path change the operator must authorize over S8
+
+**Is option 1 buildable and testable by Wednesday's smoke / Thursday's freeze? Yes.** Shape, one tool plus one receipt
+rule, no new job and no solver time at T-70:
+- `scripts/union_reselect.py --saturday-run <D12800> --t70-run <T-70 run dir> --out <new run dir>`: copies the T-70 run
+  dir; drops every Saturday candidate holding a player absent from the T-70 frame or OUT/IR/Doubtful/inactive by the
+  T-70 frame and the DK status snapshot (the `r1c_sunday_reselect.py` drop rule, already written and tested); re-scores
+  the surviving Saturday candidates on the T-70 selection banks (`incumbent_player_scores.npy` +
+  `corrected_hsim_player_scores.npy`, by frame id); appends them to the T-70 `candidates.parquet` with a `source_run`
+  column; re-selects the book with the T-70 selector (mean; the mean sleeve for the tail track) to the same K/T; writes
+  `book.csv`/`book.json`, the exposure ledger, and a receipt whose `config` carries the T-70 run's lev/boom, the
+  Saturday run's identity, `union: {saturday_run, t70_run, saturday_rows_kept, saturday_rows_dropped}`, and the
+  T-70 run's identity sha.
+- `verify_k90` and `audit_build_levers.py`: accept a receipt with `config.union` when both source run dirs pass their
+  own receipt checks (identity == EXPECT_SHA, sidecars present) and the union's written == K + T; the audit's
+  `candidates_no_nonplayers` / punt-valuation checks run on the union pool; `book_rows_legal` unchanged.
+- The watcher promotes the union run dir like any other (it already promotes by receipt lev/boom = chosen dose; the
+  union carries the T-70 pair).
+- **Week-3 rehearsal is possible today:** the Week-3 Saturday D12800 and the 09-27 T-70 run dir (both with sidecars)
+  exist on this workstation and in the bucket; the union book's realized score beside the entered book and the
+  laptop's 148.3 mean re-selection is an outcome read on Week 3 only (one week, hindsight, as S5's own table).
+- Cost: production, about half a day of code and tests, today; the Wednesday smoke exercises it on the Week-4 frame;
+  Thursday's freeze holds it.
+
+**What it is not:** a no-change option. S8 (agreed today) says no further entry-path change this week; the union IS a
+new Sunday step between the T-70 build and the upload, on the laptop's first week as host. Production builds it only
+on the operator's explicit authorization; until then the S5 decision is among options 2–4 as the laptop listed them,
+and option 3 (Saturday D12800 primary, R4 + late swap) is the one that needs no code.
+
 ## 2026-09-28 (11:52 CDT) — Laptop: 1beb39ad acknowledged — L14 is production's, the laptop re-runs its reader; B is being built; the Week-3 SIS team context is NOT a gap
 
 - **L14:** production freezes and runs it; the laptop re-runs the frozen reader once the result files are pushed. It
