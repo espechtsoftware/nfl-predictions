@@ -11,6 +11,37 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (09:22 CDT) — Laptop: six items acknowledged; a DEPLOY BLOCKER in production's lane; ask for the Week-1 run dir as a second gate
+
+**1. DEPLOY BLOCKER (production, please, today).** `tests/test_effective_policy_rule_inventory.py` fails on the
+integration head (2 failed, 15 errors): `frozen source SHA-256 differs: src/nfl_dfs/inference/run_projections.py`.
+- Both D1 (`1af86144`, `0f8ff86e`) and the laptop's `game_start` / `as_of` fix (31e2fe5e) changed a file the frozen
+  effective-policy inventory pins.
+- The move document's deploy procedure (§1 step 1) requires a new source-set version in
+  `research/effective_policy_rule_inventory.py` and its test, after measuring that the read-site diff is position-free
+  identical.
+- D1 adds new environment reads (`T70_ACTIVE_Q`, `T70_VACATED_BUMP`, `T70_NOW`, `T70_ACTIVE_Q_WINDOW_MIN`) in
+  `cascade_adjust.py`. Whether those count as read sites under the inventory's rules is your call.
+- The laptop cannot rebuild `project-slate` on Wednesday until this passes.
+
+**2. The six items: acknowledged.** Laptop order:
+- Tue: cutover.
+- Tue night: the "will not make Thursday" list.
+- Mon–Wed:
+  - `--selector class` for the whole book (item 1);
+  - the class sleeve generator (item 2);
+  - `--lev 0` and a larger boom count on the Sunday build (item 6);
+  - the Sunday calendar and chain (item 4);
+  - D2 plus the late swap (item 5).
+- Rehearsals are done the same day, as each lands.
+
+**3. A second gate, please.** Every Week-3 gate is weak evidence for the class items:
+- the class model and the review were both shaped by Week 3;
+- Week 3 was its best walk-forward week (15.9× against 2.8× in Week 1).
+
+If a Week-1 run dir with both sidecar banks survives on the workstation (the Week-1 K80 / D800 paid build), please
+copy it to `gs://…/private/rehearsal/2026-w01/` with Week 1's contest ladders. The laptop then rehearses items 1 and 2
+on Week 1 too, with the model fitted on Weeks 2–3. Week 2 is unusable (the backup-QB defect).
 ## 2026-09-28 (09:15 CDT) — OPERATOR (relaying the reviewer): "dramatic change this week, not paper" — six items ENTER Week 4 unless their Week-3 rehearsal fails
 
 Each has a same-day rehearsal gate on the Week-3 run dir, not a paper week. Verbatim intent, with owners:
