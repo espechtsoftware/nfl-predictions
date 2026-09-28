@@ -11,6 +11,51 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (07:19 CDT) — Laptop: critical read of the external Week-3 review (5ac250a6) and production's routing R1–R6
+
+**Agreed, and the laptop takes them:**
+- R1: real lines everywhere; the laptop's rehearsal already uses the ladders.
+- R3: T-70 rules as a paper arm.
+- R4: late-inactive replacement, built regardless of L11. The ESPN feed is done; the laptop builds the rest Tue–Thu.
+- R5: the plain-mean optimizer as a paper arm.
+- The one-paper-week rule.
+- The economics: the system is at best field-average and pays full rake.
+
+**Four points of disagreement or caution:**
+
+1. **The tail seats this week.** Production recommends entering the Millionaire and FFWC seats on the class model now.
+   That contradicts the review's own §9 item 2 ("paper Weeks 4–6 … entry Week 7 at the earliest") and its §8 lesson,
+   which production just accepted.
+   - If the seats need a selector this week, **EMAX is the only one with historical tail evidence.** L09 and L10 show
+     it best on the Millionaire line: share above best 0.0183 vs MEAN 0.0221 at K144, and 0.0428 vs 0.0542 at K40. It
+     is also the lab's long-panel tail adoption.
+   - The P(≥210) sleeve has none (and picked 128/110/137), and the class model has one pool-level walk-forward week.
+   - **Proposal:** in Week 4 the sleeve takes EMAX's top rows from the same pool (a one-flag lab change the laptop
+     makes today: `--tail-sleeve-selector emax`), and the class model runs on paper. The operator decides.
+2. **The class model's pool application uses a post-lock input.** `w3_class_model.py` sets each pool row's
+   `proj_pct`, the model's strongest term together with its square, by ranking its projected sum against the **realized
+   Week-3 field's** projected sums (`searchsorted(w3.proj_sum)`). The field's lineups exist only after lock.
+   - The field-level walk-forward lifts rank entries among themselves and are fine.
+   - The pool-level 159.3 needs the percentile map from a **pre-lock** field estimate: the L02 sampler on the Saturday
+     sets, or the prior weeks' fields. This is the laptop's rule 2; it is fixable and must be fixed before the paper
+     track counts.
+   - Also note: 16.7× is one test week, whose winning shape (cheap QB, cheap TE, stack) is exactly what the
+     coefficients reward. Entries within a week share player outcomes, so the effective sample is two slates, not
+     1.17M rows.
+3. **"0.9× the field" is if anything optimistic.** It is measured against L02's *sampled* Millionaire-ownership field.
+   The real satellite fields are 3–11 points stronger at the median than the Millionaire (critique §1) and full of
+   multi-entry grinders.
+   - So R6/R7 (contest choice and stake) is the biggest money decision on the table, and the operator should see it
+     plainly.
+   - The laptop agrees with R7's minimum-stake stance until a paper ticket rate above break-even is measured.
+4. **The p99 contests (about half the satellite stake) have no measured selector.** L09 and L10 stopped at p89/p95.
+   **PREREG-L13 (laptop, today):**
+   - the question: MEAN vs EMAX vs the plain-mean optimizer (144 rows, overlap ≤ 7, house rules, cap 4, $49k), plus
+     the optimizer with a 50% exposure cap;
+   - the lines: tickets at the sampled field's p89, p95, **p99 and p99.8**;
+   - the panel: L09's, run after L12. ETA about 14:30 CT, read before Thursday's freeze.
+   - It answers which selector the p99 contests should use, if the operator keeps them, and gives R5 its first
+     real-line historical test at pool scale.
 ## 2026-09-28 (07:35 CDT) — Production: the external Week-3 review (`review/week3-review-20260928` @ `5ac250a6`) — accepted where it corrects us; routing
 
 Read in full. It corrects the post-mortem on a point that matters and I accept it:
