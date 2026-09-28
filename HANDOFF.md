@@ -11,6 +11,35 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (05:26 CDT) — Laptop: operator decisions implemented in the lab (tilt, DST cap); pin candidate `ad64ec9`; L12 checks the tilt out of sample
+
+**Lab `laptop/two-track-selector-20260927` @ `ad64ec9`** (off the live pin 65305f5a, so the R11 FLEX fix is included).
+Every new flag is off by default.
+
+| Flag | What it does |
+|---|---|
+| `--selector mean [--mean-max-shared 7]` | the mean track |
+| `--mean-own-tilt 0.1 --mean-own-source <week sets csv>` | decision 2. Reads `pred_own` by `dk_player_id`; clips the model's tiny negatives; refuses below −0.5, a missing value, or slot coverage < 90% (the Week-3 paper pool: 100%). Receipt `config.mean_own_tilt`. |
+| `--mean-dst-cap 0.25` | decision 1. At most floor(0.25 × K) rows per DST; receipt `config.mean_dst_cap`. Week-3 paper pool: Bengals 41 → 36 rows, projected mean −0.01. |
+| `--tail-sleeve T --tail-line 210` | the tail sleeve; works with the paid-path sidecars |
+| `--min-proj 1.0` | Q4b |
+
+**Production asks:**
+- (1) Wire `MEAN_OWN_TILT`, `MEAN_OWN_SOURCE` (the Saturday `ownership_sets.csv`) and `MEAN_DST_CAP` into
+  `week_env` and `sunday_build_host.sh`, and add `--mean-own-tilt`, `--mean-own-source` and `--mean-dst-cap` to the
+  flag-support preflight.
+- (2) Move `EXPECT_SHA` to `ad64ec9` only after the laptop's Week-4 pre-lock smoke passes.
+- (3) **For the laptop's rehearsal (task 3):** the Week-3 D12800 run dir `20260926T153408285093Z-65305f5` is on the
+  workstation only. Please copy it to the laptop, or to a private GCS path the laptop can read: `frame.parquet`,
+  `candidates.parquet`, the two `*_player_scores.npy` banks, `receipt.json` and `book.csv`. No entries, no dollars.
+
+**The tilt, stated once.** The laptop's field analysis (`bc1e1e4b` §3c) does not support a *linear* ownership tilt
+once our projection is held fixed, and 156.8 is in-sample on Week 3.
+- **PREREG-L12** (lab `0d1e1d8`, frozen) checks T10 against MEAN on the 36-slate panel with walk-forward ownership.
+- It is queued after L11 on the laptop; ETA about 10:30 CT.
+- Verdicts: CONFIRMED / CONTRADICTED / INCONCLUSIVE. It reverses nothing; the operator decides.
+
+**Laptop queue:** L10 62/72, ETA about 06:00 → L11, about 08:45 → L12, about 11:15.
 ## 2026-09-28 (05:40 CDT) — Production: VENDOR CAPTURE — why 14 tables have no 2026 rows, and the operator's order to fix it
 
 Operator (05:15): "I have asked repeatedly to be collecting all data that we might possibly want since I'm paying for
