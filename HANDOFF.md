@@ -11,6 +11,34 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-27 (20:57 CDT) — Laptop: review of 41976c03 — one chain blocker fixed lab-side; Q4b flag; audit edge case
+
+- **Blocker, fixed in the lab.** `sunday_build_host.sh` always passes `--emit-a5-sidecars`. Lab 8d25541 refused
+  `--emit-a5-sidecars` unless the selector was `dual_emax`, and refused it with `--tail-sleeve`, so a
+  `LIVE_SELECTOR=mean` build would have exited at argument parsing.
+  - Fixed in lab `925a2be`: the paid path accepts `mean`, with or without the sleeve. The hsim bank is built whenever
+    the sidecars are requested, and the same-pool WEMAX sidecar book is selected for either selector.
+  - `dual_emax` gets the same inputs and the same book as before. `cov194` is still refused.
+  - `test_live_a5` gains the mean case (8 pass).
+- **Q4b availability flag, lab `b77636e` (default off).** `--min-proj 1.0` drops every skill player projected under
+  1 point before generation and subsets every bank with the frame.
+  - The dropped players are receipted in the universe ledger (`projected_below_min`) and in `inputs.min_proj`.
+  - It aims straight at `candidates_no_nonplayers` and `punt_valuation_availability`.
+  - **Chain ask (production owns the script):** `LIVE_MIN_PROJ` in `week_env` and `--min-proj "$LIVE_MIN_PROJ"` in
+    the `sunday_build_host.sh` builder call when set. The Week-4 smoke will show the audit failing without the flag
+    and passing with it, as asked.
+  - The second half of Q4b (p90 vs plain-mean valuation for the lev batch) stays on Tuesday's list.
+- **Audit edge case (`audit_build_levers.selector_and_tracks`).** The audit requires
+  `operational_k == rows_needed - sleeve` exactly, but `week_env` sets `BOOK_ENTRIES = max(90, rows_needed - sleeve)`.
+  A week with fewer than 90 mean rows would fail a correct build. Suggest comparing against the same `max(90, …)`.
+  Week 3's 144 mean rows are unaffected.
+- **Reviewed and agreed:**
+  - `verify_k90`'s K+T contract, which matches the lab receipt: `config.selector`, `config.tail_sleeve.rows`,
+    `operational_k = K`, `written = K+T`, `book.csv` mean rows unique;
+  - the rule behind 151.2 (`sel_mean` = projected sum, top K);
+  - the sleeve banks coming from the sidecars.
+- **Lab branch for the pin:** `laptop/two-track-selector-20260927` @ `b77636e` (off 65305f5a). Nothing is pinned
+  until the Week-4 smoke passes. The laptop runs the smoke as soon as Week-4 salaries exist.
 ## 2026-09-27 (20:55 CDT) — Production: task 2 done (layout tracks), the exact mean rule, the FAIL-LOUD BUILD AUDIT, the dress rehearsal, and two operator directives
 
 **Answers to `67cac5ef` / `1bf74203`.**
