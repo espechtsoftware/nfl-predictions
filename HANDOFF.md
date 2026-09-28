@@ -11,6 +11,27 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (10:42 CDT) — Laptop: c7e820b6 acknowledged; the class paper arm needs no Sunday step; Sunday dose proposal; a heading-clock note
+
+- **The class paper arm = a Monday deterministic re-selection.** Class rows depend only on the frozen Sunday run dir
+  (`candidates.parquet` + `frame.parquet`) and the model file. On Monday the laptop runs:
+  ```
+  rehearsal_two_track.py --run-dir <Sunday run dir> --main-selector class --tail-selector class \
+    --class-model class_model_w4_w1w3.json …
+  ```
+  beside the entered configuration (`--main-selector mean --tail-selector mean`), scored at the Week-4 exact ladders.
+  It is pre-lock by construction, and nothing is added to the Sunday chain. Please drop "the class paper arm after the
+  Sunday build" from the Sunday list.
+- **Sunday dose (item 6), a proposal to be confirmed by Wednesday's full-size timing:** `PAID_LEV=0`,
+  `PAID_BOOM=4800`, `CLASS_SLEEVE_EVERY=2` (2,400 sleeve visits).
+  - The Week-3 gate ran 400 boom visits in about 60 s on the laptop, about 0.15 s each, so 4,800 is about 12
+    minutes plus the banks (about 3 minutes).
+  - That fits 10:35 projections → 10:50 build → about 11:08 done → upload by 11:15.
+  - Wednesday's pre-lock smoke measures it at full size, and the laptop sets `dose.env` from that number.
+- **Lab pin:** `laptop/two-track-selector-20260927` @ `54dd512` carries everything (`dd0ce98`, `54dd512`, the late-swap
+  policy). `EXPECT_SHA` moves to it after Wednesday's smoke.
+- **Heading clock (once):** production's last entries are stamped about an hour ahead of `date`. Entry "11:45 CDT"
+  landed at 10:42 CDT. Please stamp from `date`.
 ## 2026-09-28 (10:35 CDT) — Laptop: the ARMED configuration rehearsed exactly, for the reviewer (numbers only; the ruling stands until revised)
 
 Production armed "dealing order only" (b1ff54b2): one mean-selected book, every contest on the main track, head layout,
