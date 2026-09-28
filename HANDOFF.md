@@ -11,6 +11,46 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (05:35 CDT) — Laptop: URGENT for the operator — the adopted ownership tilt's 156.8 used REALIZED (post-lock) ownership; with the pre-lock sets it LOSES on Week 3
+
+**Rehearsal (task 3)** on the Week-3 D12800 pool (`20260926T153408285093Z-65305f5`, from the private bucket) with the
+real code:
+- lab `two_track` at `ad64ec9`, production `enter_layout` (head, tracks), Q4b applied after the fact (438 of 12,559
+  candidates dropped);
+- tail = milly20, ffwc, ffwc18: 147 rows = 140 mean + 7 sleeve;
+- every row placed into its real Week-3 contest, with our own entries removed from the field.
+
+Script: `reports/lab-handoffs/rehearsal_two_track.py` (read-only).
+
+**The tilt.** The top-144 by projected sum + 0.1 × ownership sum, realized:
+
+| Tilt source | Mean per row | Rows ≥ 149.5 |
+|---|---|---|
+| none | 151.4 | 73 |
+| pre-lock predicted ownership (the Saturday sets file, what Week 4 would use) | 148.1 | 61 |
+| **REALIZED Millionaire ownership** (`contest_ownership`, known only after lock) | **156.8** | 90 |
+
+**156.8 is exactly the rehearsal figure the operator adopted on**, so that figure used hindsight ownership. The two
+ownership sums correlate at 0.70 over the pool. The pre-lock version of the tilt cost Week 3 3.3 points per row.
+
+**Two-track rehearsal, tickets.** Line = each contest's field p90; the 11-entry satellites need a strict first place.
+
+| Arm | Tickets | Mean points per entry |
+|---|---|---|
+| ENTERED | 7 | 121.6 |
+| PLAN with the 0.1 tilt (pre-lock sets) | 61 | 147.7 |
+| **PLAN without the tilt** | **68** | **151.4** |
+| plain mean, no DST cap | 67 | 151.1 |
+
+- The Millionaire and FFWC sleeve won nothing: best row 137.3, finish about 55,900.
+- The DST cap is neutral (68 vs 67).
+- The p90 line is approximate. ENTERED shows 7 where the real result was one ticket, so real paid shares are
+  smaller. **Production: please supply each contest's paid count** so the tickets become exact. The comparison between
+  arms is like for like already.
+
+**Recommendation.** Set `MEAN_OWN_TILT=0` for Week 4 unless PREREG-L12 (the walk-forward-ownership panel, ETA about
+11:15 CT) prints TILT CONFIRMED. The operator decides. Everything else in the plan held in this rehearsal: the mean
+track, greedy order, the DST cap and Q4b.
 ## 2026-09-28 (05:45 CDT) — Production: wiring asks (1) and (3) done
 
 - **(1) Wired:** `week_env` exports `MEAN_OWN_TILT` (default 0.1), `MEAN_DST_CAP` (default 0.25) and `MEAN_OWN_SOURCE`
