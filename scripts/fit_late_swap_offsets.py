@@ -5,8 +5,8 @@ The live line of a flat-payout contest is the Millionaire field's conditional fi
 plus the contest type's offset: satellite fields are stronger than the Millionaire's. After settlement the offset is
 measured directly, per contest: its real line (the points of its last paid place AMONG THE OTHER ENTRANTS -- our own
 entries are removed, as the rehearsal does, so a contest we won does not set the line at our own score) minus the
-Millionaire's final score quantile at the same share (1 - paid / entries), averaged over the contests of each type (the
-layout name: sat20, supersat2, ...). Only flat-payout contests are fitted; top-heavy ones are never swapped.
+Millionaire's final score quantile at the same share (1 - paid / entries), averaged over the contests of each FIELD SIZE (DK `max`; labels change every week), plus the
+pooled median over every flat contest (the fallback for a size with no near neighbour). Only flat-payout contests are fitted; top-heavy ones are never swapped.
 Our handle is the user entered in the most layout contests (>= 80% of them); it is kept in memory, never printed.
 Read-only against BigQuery.
 
@@ -27,9 +27,9 @@ from sat_late_swap_live import flat_payout, paid_places, parse_layout  # noqa: E
 
 
 def fit_offsets(layout: list[dict], details: dict, points_by_cid: dict[str, np.ndarray], milly_points: np.ndarray) -> dict:
-    """{type: {offset, sd, n}} over the flat-payout contests with settled standings.
-    `points_by_cid[cid]` = the final points of the contest's OTHER entrants (ours removed), any order."""
-    per: dict[str, list[float]] = {}
+    """{field size: {offset, sd, n}} over the flat-payout contests with settled standings, plus "pooled" (the median of
+    every contest's offset). `points_by_cid[cid]` = the final points of the contest's OTHER entrants (ours removed)."""
+    per: dict[int, list[float]] = {}
     seen: set[str] = set()
     for c in layout:
         cid, name = c["cid"], c["name"]
@@ -41,9 +41,14 @@ def fit_offsets(layout: list[dict], details: dict, points_by_cid: dict[str, np.n
         if paid <= 0 or n <= 0 or len(pts) < paid:
             continue
         line = float(np.sort(pts)[::-1][paid - 1])                     # the last paid place's points
-        per.setdefault(name, []).append(line - float(np.quantile(milly_points, 1 - paid / n)))
-    return {k: {"offset": round(float(np.mean(v)), 2), "sd": round(float(np.std(v, ddof=1)), 2) if len(v) > 1 else None,
-                "n": len(v)} for k, v in sorted(per.items())}
+        size = int(details[cid].get("max") or n)
+        per.setdefault(size, []).append(line - float(np.quantile(milly_points, 1 - paid / n)))
+    out = {k: {"offset": round(float(np.mean(v)), 2), "sd": round(float(np.std(v, ddof=1)), 2) if len(v) > 1 else None,
+               "n": len(v)} for k, v in sorted(per.items())}
+    allv = [x for v in per.values() for x in v]
+    if allv:
+        out["pooled"] = {"offset": round(float(np.median(allv)), 2), "sd": None, "n": len(allv)}
+    return out
 
 
 def main() -> int:
@@ -76,13 +81,11 @@ def main() -> int:
         print(f"no settled Millionaire standings for contest {a.milly_contest_id}", file=sys.stderr)
         return 2
     fit = fit_offsets(layout, details, by, by[a.milly_contest_id])
-    missing = sorted({c["name"] for c in layout if c["cid"] in details and flat_payout(details[c["cid"]])} - set(fit))
     for k, v in fit.items():
-        print(f"{k:14s} offset {v['offset']:+6.2f}  (n {v['n']}, sd {v['sd']})")
-    if missing:
-        print(f"flat contest types without settled standings (offset not refit): {', '.join(missing)}", file=sys.stderr)
+        print(f"field {str(k):8s} offset {v['offset']:+6.2f}  (n {v['n']}, sd {v['sd']})")
     if a.out:
-        a.out.write_text(json.dumps({k: v["offset"] for k, v in fit.items()}, indent=1))
+        a.out.write_text(json.dumps({"by_field": {str(k): v["offset"] for k, v in fit.items() if k != "pooled"},
+                                     "pooled": fit.get("pooled", {}).get("offset", 0.0)}, indent=1))
         print(f"wrote {a.out} (pass it to sat_late_swap_live.py --offsets)")
     return 0
 

@@ -21,5 +21,5 @@ def test_offsets_per_type_flat_only():
     pts = {"s1": np.array([950.0, 10.0, 5.0]), "s2": np.array([3.0, 931.0]), "m": milly}
     fit = fit_offsets(layout, details, pts, milly)
     q = float(np.quantile(milly, 0.9))
-    assert set(fit) == {"sat20"} and fit["sat20"]["n"] == 2                 # s1 counted once; the Millionaire excluded
-    assert abs(fit["sat20"]["offset"] - round(((950 - q) + (931 - q)) / 2, 2)) < 1e-9
+    assert set(fit) == {10, "pooled"} and fit[10]["n"] == 2                 # keyed by field size; s1 once; no Millionaire
+    assert abs(fit[10]["offset"] - round(((950 - q) + (931 - q)) / 2, 2)) < 1e-9 and fit["pooled"]["n"] == 2

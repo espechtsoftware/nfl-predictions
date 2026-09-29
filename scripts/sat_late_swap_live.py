@@ -45,10 +45,28 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from live_dk_points import norm  # noqa: E402
 
 # Satellite line minus the Millionaire's final-score quantile at the same percentile, Week 3 (HANDOFF 0ea1ed74), with
-# our own entries removed from the satellite fields (scripts/fit_late_swap_offsets.py, 2026-09-28: sat20 6.5 -> 5.8, the
-# 11-entry sats we won had set the line at our own score; the rest unchanged). Refit each Monday; pass --offsets.
-DEFAULT_OFFSETS = {"supersat2": 2.7, "supersat25hi": 0.6, "supersat25lo": 5.3, "wildcat": 3.5, "sat13mega": 3.3,
-                   "sat13": 3.3, "sat20": 5.8, "ffwc18": 6.0, "ffwc": 23.2, "milly20": 0.0}
+# our own entries removed (scripts/fit_late_swap_offsets.py). Keyed by the contest's FIELD SIZE (DK `max`), not its
+# label: labels are per-week (Week 4's contests_from_entries labels matched none of Week 3's, so every flat contest
+# silently got 0 -- sweep 2026-09-29). Refit each Monday; pass --offsets (the refit's JSON).
+DEFAULT_OFFSETS = {"by_field": {11: 5.8, 79: 3.4, 148: 23.2, 190: 2.8, 402: 3.3, 594: 0.6, 2378: 5.3},
+                   "pooled": 2.7}                                   # the median over Week 3's 43 flat contests
+NEAREST_FIELD_RATIO = 1.25
+
+
+def offset_for(max_entries: int, offsets: dict) -> tuple[float, str]:
+    """(offset, source) for a contest of this field size: the exact size, else the nearest fitted size within a factor
+    of NEAREST_FIELD_RATIO, else the pooled median. Never silently 0."""
+    by = {int(k): float(v) for k, v in (offsets.get("by_field") or {}).items()}
+    if "pooled" not in offsets:
+        raise Refuse("offsets JSON lacks a pooled fallback (expected {by_field: {size: offset}, pooled: x})")
+    if max_entries in by:
+        return by[max_entries], f"field {max_entries}"
+    near = [(abs(np.log(max_entries / k)), k) for k in by if max_entries > 0 and k > 0]
+    if near:
+        dist, k = min(near)
+        if dist <= np.log(NEAREST_FIELD_RATIO):
+            return by[k], f"nearest field {k}"
+    return float(offsets["pooled"]), "pooled"
 SLOTS = ["QB", "RB", "RB", "WR", "WR", "WR", "TE", "FLEX", "DST"]
 ACCEPTS = {"QB": {"QB"}, "RB": {"RB"}, "WR": {"WR"}, "TE": {"TE"}, "FLEX": {"RB", "WR", "TE"}, "DST": {"DST"}}
 OUT = {"O", "OUT", "IR", "D", "DOUBTFUL", "INJURED RESERVE", "SUSPENDED", "PUP", "NA"}   # = late_inactive_swaps.py
@@ -252,6 +270,9 @@ def main() -> int:
         bank = np.concatenate([inc, hs], axis=1)[:, cols]
         cond, late, crec = conditional_worlds(fr, bank, live, now)
         receipt["worlds"] = {"n": int(bank.shape[1]), **crec}
+        if crec.get("early_teams_without_live_game") and not a.rehearsal:
+            raise Refuse(f"{crec['early_teams_without_live_game']} early-game team(s) have no live game in the ESPN snapshot "
+                         "(a team-code or date mismatch); their players would keep full draws")
         # late inactives: a fresh DK status snapshot is required live; an out late player scores 0 in every world, so
         # keeping him is valued honestly and he is never swapped in
         if a.snapshot is None or not a.snapshot.is_file():
@@ -277,20 +298,25 @@ def main() -> int:
         ftot = np.concatenate([cond[ch].sum(axis=1) for ch in np.array_split(fidx, max(1, len(fidx) // 2000))], axis=0)
         det = json.loads(a.details.read_text())
         offsets = json.loads(a.offsets.read_text()) if a.offsets else DEFAULT_OFFSETS
-        lines = {}
+        lines, offset_used = {}, {}
         for c in layout:
             if c["cid"] not in det:
                 raise Refuse(f"no payout ladder for contest {c['cid']} ({c['name']})")
             if flat_payout(det[c["cid"]]) is None:
                 raise Refuse(f"contest {c['cid']} ({c['name']}): payout ladder has no positive value (unknown ladder)")
+            if str(det[c["cid"]].get("state", "")).lower() == "upcoming" and not a.rehearsal:
+                raise Refuse(f"contest {c['cid']} ({c['name']}): details are pre-lock ('Upcoming'); re-run dk_contest_details.py "
+                             "after the lock so entries and paid places are final")
             paid, n = paid_places(det[c["cid"]])
-            if paid <= 0 or n <= 0:
-                raise Refuse(f"contest {c['cid']}: ladder has no paid places / entries")
+            if paid <= 0 or n <= 0 or paid > n:
+                raise Refuse(f"contest {c['cid']}: ladder has {paid} paid places for {n} entries")
             q = 1 - paid / n
-            lines[c["cid"]] = float(np.quantile(ftot, q)) + float(offsets.get(c["name"], 0.0))
+            offset_used[c["cid"]] = offset_for(int(det[c["cid"]].get("max") or n), offsets)
+            lines[c["cid"]] = float(np.quantile(ftot, q)) + offset_used[c["cid"]][0]
         receipt["field"] = {"entries": int(len(fidx)), "slot_match": round(frate, 4)}
         flat = {c["cid"]: flat_payout(det[c["cid"]]) for c in layout}
-        receipt["lines"] = {c["cid"]: {"name": c["name"], "line": round(lines[c["cid"]], 2), "flat_payout": flat[c["cid"]]} for c in layout}
+        receipt["lines"] = {c["cid"]: {"name": c["name"], "line": round(lines[c["cid"]], 2), "flat_payout": flat[c["cid"]],
+                                       "offset": offset_used[c["cid"]][0], "offset_source": offset_used[c["cid"]][1]} for c in layout}
         # rows
         ids = fr.id.astype(str).tolist(); row_of = {i: k for k, i in enumerate(ids)}
         dd_to_id = dict(zip(fr.dk_draftable_id.astype("Int64").astype(str), ids))

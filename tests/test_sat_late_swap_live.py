@@ -5,8 +5,8 @@ from pathlib import Path
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-from sat_late_swap_live import (Refuse, RowSkip, expand_rows, flat_payout, game_fraction_left,  # noqa: E402
-                                 late_status_out, pair_tokens, paid_places, parse_layout)
+from sat_late_swap_live import (DEFAULT_OFFSETS, Refuse, RowSkip, expand_rows, flat_payout,  # noqa: E402
+                                 game_fraction_left, late_status_out, offset_for, pair_tokens, paid_places, parse_layout)
 
 
 def test_expand_rows_and_layout(tmp_path):
@@ -95,3 +95,13 @@ def test_late_status_out_matches_the_inactive_tool():
     assert out == {"b", "e"} and cover == 0.8          # d is IR but early (already locked): not the swap's business
     snap.loc[2, "status"] = "Injured Reserve"
     assert late_status_out(snap, fr, late)[0] == {"b", "c", "e"}
+
+
+def test_offsets_by_field_size_nearest_and_pooled_never_zero():
+    assert offset_for(594, DEFAULT_OFFSETS) == (0.6, "field 594")
+    assert offset_for(198, DEFAULT_OFFSETS) == (2.8, "nearest field 190")      # within 1.25x
+    assert offset_for(72, DEFAULT_OFFSETS) == (3.4, "nearest field 79")
+    assert offset_for(23, DEFAULT_OFFSETS) == (2.7, "pooled")                   # 11 is > 1.25x away
+    assert offset_for(118, DEFAULT_OFFSETS)[1] == "pooled"
+    with pytest.raises(Refuse):
+        offset_for(594, {"by_field": {594: 0.6}})                                 # no pooled fallback
