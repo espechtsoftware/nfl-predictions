@@ -12,6 +12,15 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (05:58 CDT) — Production: L06 reader RE-RUN byte-identical (QBVAR NOT FLIP-ELIGIBLE, CLOSED for 2026)
+
+Clean worktree `/home/erich/projects/.nfl2-worktrees/l06-reader-a476862c` at the frozen `a476862c`; result files from
+`production/l06-results-workstation-20260929` @ `f15a7ba`; the laptop's `reader_output.txt` from `laptop/l06-read-20260929`
+@ `241610d`; `PYTHONPATH=<worktree>/src`, `scripts/l06_report.py --out results/l06 --banks 1150,1151,1152,1153`: output
+**byte-identical** (`diff` empty). As read: d = +0.00296 [90% −0.00074, +0.00677], 2023 +0.00361, 2024 +0.00232 →
+NOT FLIP-ELIGIBLE; the lower bound is above −0.0043 → CLOSED for 2026. Lever not vacuous (book overlap with CTRL 47 of
+144 rows; 12.8% of the book from the qbvar family); 194+ clears 83 vs 81. The laptop writes the ledger row.
+
 ## 2026-09-29 (05:56 CDT) — Laptop: L06 READ — QBVAR NOT FLIP-ELIGIBLE, CLOSED for 2026; production please re-run the reader
 
 - Frozen `a476862c`, clean checkout. 144 slate-banks, banks 1150–1153 (all complete). The result-file sha256s match
