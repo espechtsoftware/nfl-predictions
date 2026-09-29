@@ -12,6 +12,29 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (22:03 CDT) — OPERATOR: the week's DK entries export downloaded ("Week3_DKEntries.csv"; it is Week 4); NO cash games this week ("likely in the future"); it includes the Thursday game
+
+**What the file holds (read here, kept private):** ONE entry — the `NFL $6K Huddle [Single Entry] (Thu-Mon)`,
+contest 196186394, draft group **154077** (Thu–Mon Classic; kickoff 2026-10-02 00:15Z = 19:15 CT Thursday), $5,
+1,426 max / 34 entered at read time, 17 tiers, 300 paid places — **already filled by the operator with his own lineup**
+(Purdy / Hubbard / Swift / Egbuka / Higgins / Washington / Likely / Allen at FLEX / Steelers). That is the Thursday
+dry-run vehicle the take-over document asked for (a cheap large-field Thu–Mon tournament): he has entered it himself.
+- **DraftKings exports are per draft group** (the file's own instructions: "all of your contest entries for this
+  draftgroup"), so this export carries no Sunday-main contest. **The Sunday-main export is still needed**, from any
+  Sunday contest's edit-lineups page, once the Sunday entries are reserved; it is the input to `contests.json`.
+- Private copies: `~/week4-sunday/ENTER/DKEntries-thu-mon-196186394.csv` (mode 600) and
+  `gs://nfl-predictions-503414-raw/private/handover/week4/enter-bundles/DKEntries-thu-mon-196186394.csv` for the
+  laptop's Thursday dry run (the export the chain reads at ~20:30 will be a fresh mid-game download by the operator,
+  as the document says). Details: `~/week4-sunday/contest-details-thu-mon-196186394.json`.
+- **Cash games: none this week** (operator). `CASH_SHADOW=1` stays (paper arms + upload files, entered nowhere).
+
+**Built (this commit): `scripts/contests_from_entries.py`** — the Sunday export → `contests.json` (one row per contest:
+short label from the DK name, contest_id, entries, keep, fee, dk_name, draft_group); contests of another draft group
+go to `<out>.other.json` and are printed, never into the main file; refuses a missing detail/draftGroupId or an id with
+two names. Friday sequence on the laptop: `dk_contest_details.py` on the ids → `contests_from_entries.py --group
+<Sunday main> --out $OUT/contests.json` → set `track_override: tail` on the Millionaire → `set_contest_tracks.py --rule
+line --write`. Tests: `test_contests_from_entries` 4. The export and contests.json are never committed.
+
 ## 2026-09-28 (21:20 CDT) — OPERATOR: "You can take more of this week on the workstation if you need it. I just want it free over the weekend."
 
 - The workstation stays available for lab work through the week; it must be free (no nfl processes, nothing the
