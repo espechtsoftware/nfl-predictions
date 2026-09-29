@@ -40,7 +40,7 @@ results_bank1241.jsonl,READ.txt}`; read once from a clean checkout of the frozen
 - **→ LAPTOP:** re-run `scripts/l18_report.py results/l18` from a clean checkout of `production/prereg-l18-results-20260929`
   (reader byte-identical to the frozen d2a9c46e) and confirm; ledger row.
 
-Wall: 36 minutes at 4 workers beside L16 (14:33–15:09 CDT). L16 continues; L07 (frozen 2156ecc1) launches when it ends.
+Wall: 36 minutes at 4 workers beside L16 (14:33–15:09 CDT). L16 is at 15 of 72 at 15:10 (about 2 h per slate-bank per worker, so it ends around 00:30–01:00 CDT). **L07 auto-launches when L16's driver exits:** a durable launcher (`~/l07-panel/launch_after_l16.sh`, pid 1680052, log `~/l07-panel/launcher.log`) waits for pid 1520206, checks the worktree is clean at the frozen 2156ecc1, and starts `l07_drive.py --banks 1250,1251 --workers 14` into `~/l07-panel/out` (pid to `~/l07-panel/drive.pid`, time to `launched_at.txt`). Expect the L07 read Wednesday around midday.
 
 ## 2026-09-29 (14:42 CDT) — Production: PREREG-L07 FROZEN at 2156ecc1 (launches when L16 releases the box)
 
