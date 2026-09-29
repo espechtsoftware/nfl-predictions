@@ -12,6 +12,81 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (08:55 CDT) — Laptop: operator-requested Week-4 SWEEP, part 1 (the Sunday money path) — THREE defects would stop Sunday's book from publishing (verified on the laptop); fixes split by file
+
+A read-only review of every script the Sunday chain executes, on the laptop at `e5fcd4d8`. The laptop re-verified
+each blocker below against the code. Parts 2 (the weekday and Monday tools) and 3 (the lab code at 54dd512) are
+still running.
+
+**BREAKS SUNDAY (verified):**
+1. **The T-70 audit fails every build.**
+   - `audit_build_levers.py:189–200` reads `t70_active_q` / `t70_vacated_net` from the run dir's `frame.parquet`; with
+     `--t70 on`, `ok = has_cols and …`.
+   - The pinned lab's `live_week.py` (54dd512) never carries those columns into the frame: "t70" appears nowhere in
+     the clone. They live in `player_projections`.
+   - `week_env` defaults `T70_ACTIVE_Q=1 T70_VACATED_BUMP=1`, and `sunday_build_host.sh:238/275` derives `--t70 on`
+     from them for **every** build: Saturday's D12800, the 09:10 and the T-70.
+   - So every run dir gets `audit_failed`, the watcher publishes nothing, and even the 2560/10240 fallback is
+     refused.
+2. **Repeated rows are refused downstream.** The tail sleeve repeats main rows by design (the union: 46–54
+   repeats), but three places treat a repeat as an error:
+   - `dk_upload_csv_v1.check_rows` (`:89–90`, "lineup N repeats an earlier roster");
+   - `vet_replace_v4.py:217` ("duplicate lineup");
+   - `enter_layout.py:437–438` ("the published upload repeats a lineup").
+
+   The effects:
+   - `process_run`'s emit fails and retries every 30 s, so `ENTER/` is never published;
+   - the replacement step fails;
+   - **every `sunday_swap.sh` fails**: the scratch swaps, R4 and the late swap. `frozen_contest_rows` reverse-looks-up
+     a row by roster, which breaks when rosters repeat.
+3. **Timer units cannot find the draft group.** No `GROUP` is on the arm line, so every unit auto-detects it with
+   `find_main_draft_group.py`, which shells out to `bq` by name. The systemd `--user` PATH
+   (`/usr/local/sbin:…:/snap/bin`) lacks `~/google-cloud-sdk/bin`, so `week_env` fails in every timer unit, Saturday
+   included. The interactive `--run` preflight passes, which hides it.
+
+**WRONG RESULT / RISK (from the same review; the laptop has spot-checked, not fully re-verified):**
+4. `vet_book.py:135` sorts the whole 121-row book by hard/material flags, which moves flagged mean rows into sleeve
+   ranks and clean sleeve rows into mean ranks. Sort within the mean block and the sleeve block separately.
+5. `sat_late_swap_live.DEFAULT_OFFSETS` is keyed by Week-3 contest names; Week-4 labels from
+   `contests_from_entries` differ, so flat contests silently get offset 0 (lines too low).
+6. The watcher publishes **any** chosen-dose dir in `LIVE_DIR`, with no draft-group or build-time filter.
+   Wednesday's smoke (group 154078, lev 0/boom 4800) and a Thursday paper build written under the same
+   `results/live/2026-w04` would be published Sunday at 09:12, and would stay the floor if the 09:10 build failed.
+   `pick_saturday_run` does not check the group either.
+7. The Saturday D12800 unit receives `UNION_SATURDAY_RUN`, so it runs a union against itself: `auto` finds no
+   earlier 2560/10240 run, the dir is marked `union_failed` and the unit exits 1. Worse, if an older 2560/10240 dir
+   exists, the Saturday union dir becomes Sunday's supply.
+8. `receipt_freshness_sweep.py --after $SUNDAY-5d` in `sunday_after_build.sh` flags `$OUT/class_model.json`
+   (`fitted_utc` 09-28; `weeks[].lock` 09-13/09-27). Every TODAY file would read "STALE INPUTS DETECTED -- DO NOT
+   UPLOAD".
+9. `week_env.sh` defaults `CLONE`=`week3-live-center` and `EXPECT_SHA`=65305f5. On the laptop that clone path holds
+   2dc116c, with no `sat_late_swap.py` or `two_track.py`, so any interactive `week_env 4` without exports points at the
+   wrong code.
+10. `check_week_runtime.py:59` refuses a dirty production checkout at every unit start. PROD must be frozen from
+    arming until Sunday 15:30 (and bash reads scripts lazily, so do not pull during the Saturday build).
+11. `arm_week_timers.sh:63–77` drops `ENTRIES_END_CT`, `MAX_PER_GAME`, `CASH_SHADOW`, `MIN_LINEUP_SALARY`, `AUDIT_*`
+    and `REQUIRE_AUDIT_PASSED` typed on the arm line.
+12. If the 09:10 build ran past ~10:50, its union could be published after the T-70 union: publication is in name
+    order.
+
+**Split by file ownership, so nothing collides:**
+- **Production, please (you built these today; the workstation is available):**
+  - **1:** read the t70 columns for the build's own projection batch from `player_projections` (or have the lab carry
+    them into the frame), and declare `--t70 on` only for the T-70 build (e.g. when `MIN_PROJ_GENERATED_AT` is set).
+  - **2:** repeats allowed across the main block [0,K) and the sleeve block [K,K+T), never within one, using the
+    receipt's `operational_k`, in `check_rows`, `vet_replace` and the publish/`frozen_contest_rows` path. Write a
+    per-contest row map at publish rather than a reverse lookup.
+  - **4, 6, 7, 8, 12.**
+  - Each with a test, and a re-run of the Week-3 union rehearsal **through `sunday_after_build.sh once` and one
+    `sunday_swap.sh`**: the step no rehearsal has exercised yet.
+- **Laptop (now):**
+  - **3:** `GROUP` pinned on the arm line, and `PATH` with the gcloud SDK forwarded to every unit.
+  - **5:** offsets by contest type, refusing a flat contest without one.
+  - **9:** `week_env` defaults move to `week4-live-center`/54dd5126, with the test.
+  - **11:** the pass-list.
+  - **10:** into the take-over document.
+  - Files: `arm_week_timers.sh`, `week_env.sh` (+ its test), `find_main_draft_group.py`, `sat_late_swap_live.py`,
+    `fit_late_swap_offsets.py`, the take-over document.
 ## 2026-09-29 (08:42 CDT) — Laptop: FOUND before Wednesday — the Data Suite session was SIGNED OUT, `verify-login` passed anyway, and gated reports export a 5-ROW PREVIEW; fixed in code; operator re-logging in
 
 - **Symptom:** all seven cumulative plans downloaded and passed the audit-only import (`read_raw_windows` scope checks),
