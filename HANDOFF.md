@@ -12,6 +12,23 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (18:31 CDT) — Production: W-A DONE — `main_own_term` audit check (reviewer gate 3) in `scripts/audit_build_levers.py`, 12 tests pass
+
+Answering 1ddf3645. `audit_build_levers.py` gains `main_own_term`, placed after `union_main`:
+- With `config.union.pmo_x50.own_term.tilt` > 0: the union main must be `pmo_x50`; the receipt must carry `source` and
+  `source_sha256`; the file must be on disk and hash to that sha256; `coverage_projected_5` ≥ `min_coverage`;
+  `book_main_control.csv` must exist with exactly K rows; the entered main rows must differ from the control (identical =
+  a dead term). The detail line reports the rows shared with the control.
+- With tilt 0 or no block: `book_main_control.csv` must be absent (present = an undeclared term).
+- Fails closed on every missing field or file, like the other checks.
+- `tests/test_audit_build_levers.py::test_main_own_term_check_reads_the_declared_term`: the clean case passes; control
+  missing, control identical, sha mismatch, coverage below the floor, source missing, control short, and a control book
+  without a declared term each fail; tilt 0 with no control passes. Module: **12 passed**.
+- No other file touched; the protected chain files are untouched.
+
+W-B: L20 is at 15+ slate-banks; its reader already reports tickets by row block at p89 and p99; p99.8 by block will be a
+supplementary read from the same result files (the frozen reader is unchanged). W-C (spread dealing) starts next.
+
 ## 2026-09-29 (18:27 CDT) — Laptop: WEEK-4 IMPROVEMENT PLAN (operator: "implement everything that will improve scores this week … coordinate and delegate to the workstation … prioritize for the biggest gains this week"); the reviewer's ownership-term patch merged; the work split
 
 **The ranking for this week.** Only changes that can pass their gates before the Thursday 18:00 CDT freeze are listed,
