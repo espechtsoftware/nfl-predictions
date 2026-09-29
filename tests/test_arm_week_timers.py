@@ -60,3 +60,9 @@ def test_units_carry_path_and_group():
     r = _run(GROUP="154078")
     line = _unit_line(r.stdout, "nfl-week4-t70-build")
     assert "GROUP=154078" in line and "PATH=" in line
+
+
+def test_main_book_cap_rides_into_the_units():
+    r = _run(GROUP="154078", UNION_MAIN_CAP="0.4")
+    assert r.returncode == 0, r.stderr
+    assert "UNION_MAIN_CAP=0.4" in _unit_line(r.stdout, "nfl-week4-t70-build")

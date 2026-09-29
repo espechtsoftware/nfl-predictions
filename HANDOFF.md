@@ -12,6 +12,49 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (14:25 CDT) — Laptop: the main book's cap is now a setting (`UNION_MAIN_CAP`, default 0.5 = as entered); → WORKSTATION: freeze and run PREREG-L18 (tighter cap) now
+
+**Operator (chat, after L17):** "is there a reason that the tighter cap can't be tested now and considered for this week if
+successful". There is no blocker. L17 took 42 minutes at 4 workers beside L16, and its curve rose at every line as the cap
+tightened (X100 → X80 → X67 → X50).
+
+**Correction (mine and L17's).** The entered 50% cap was **hard-coded** at `union_reselect.py:299` (`int(0.5 * a.entries)`).
+- `UNION_PMO_CAP`, named in PREREG-L17's verdict section and in my 14:16 entry, caps the extra `--pmo` pool rows, which are
+  off (`UNION_PMO=0`). It never controlled the main book.
+- L17 was HARMFUL, so nothing was moved on the wrong variable.
+
+**Fix (this commit).** `union_reselect.py --main-cap-share` (default 0.5) through a new helper `main_exposure_cap(share, K)`
+= `max(1, int(share·K))`, identical arithmetic to the old line.
+- `week_env.sh`: `UNION_MAIN_CAP=${UNION_MAIN_CAP:-0.5}`. `sunday_build_host.sh` passes it; `arm_week_timers.sh`
+  pass-list; the receipt's `union.pmo_x50` gains `exposure_cap_share`; the audit's `union_main` check reads
+  `exposure_cap` as before.
+- At K = 36: 0.5 → 18, 0.4 → 14, 0.34 → 12, 0.25 → 9.
+- Tests: `test_union_reselect.py`, `test_week_env_defaults.py`, `test_arm_week_timers.py`: 22 passed.
+- The take-over doc §2 row names the lever.
+- **Nothing changes for Week 4 unless the operator sets `UNION_MAIN_CAP`.** The Wednesday/Thursday smoke runs at the
+  default.
+
+**→ WORKSTATION (lab role): please freeze and launch PREREG-L18 now, beside L16 at 4 workers as L17 ran**, so L07's
+place after L16 is not delayed. The design is L17 copied, with only the arms changed:
+- **Arms** (K = 36, 25% DST cap, house rules, cap 4, $49k, ≤ 7 shared, MIN_PROJ 1.0, as L17):
+  - **X50** control (18 rows);
+  - **X40** challenger (14 rows, `int(0.40·36)`);
+  - **X33** (12 rows, live share 0.34) and **X25** (9 rows), co-reported, never decisive.
+- **Fresh banks:** the next unused pair after 1231 (your registry).
+- **Verdict:** X40 vs X50 at `tickets89` by L13's rule, unchanged: ≥ 1.05×, ≥ in both seasons, more paired wins than
+  losses. p95/p99/p99.8, book mean, best, distinct players, max exposure and the X40 ∩ X50 overlap are co-reported.
+  Please also co-report the number of slate-banks where an arm solved fewer than 36 rows: in the live build a short solve
+  falls back to the union's mean main, so X25's feasibility matters.
+- **Disclose in the PREREG:**
+  - These are the same 36 slates as L13 and L17. X50 has been the comparator twice on them, and the tighter direction was
+    chosen after L17's monotone read, so only the full rule counts and there is no relaxed reading.
+  - The X67-vs-X50 paired record was 17–20 (35 ties), and 2023 was 138 vs 142: the L17 gap rested on a minority of
+    slate-banks.
+  - Main book only, as L17. The sleeve draws from main rows (`UNION_SLEEVE_INCLUDES_MAIN=1`), and that interaction is
+    untested.
+- **Live lever:** name `UNION_MAIN_CAP` (this commit), not `UNION_PMO_CAP`, in the verdict section.
+- **Please read by Wednesday 12:00 CT** so a SUPPORTED X40 can be exercised in the smoke and go to the operator and
+  reviewer before the Thursday 18:00 freeze. The laptop re-runs the frozen reader.
 ## 2026-09-29 (14:16 CDT) — Laptop: L17 reader re-run BYTE-IDENTICAL (looser cap HARMFUL; X50 stays); ledger row written
 
 - Clean detached checkout of `production/prereg-l17-results-20260929`. `scripts/l17_report.py`,

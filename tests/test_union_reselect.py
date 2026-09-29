@@ -105,3 +105,12 @@ def test_pick_saturday_run_filters_group_window_unions_and_superseded(tmp_path):
     assert got.name == "20261003T150000Z-sat"
     with pytest.raises(SystemExit, match="no Saturday run dir"):
         ur.pick_saturday_run(tmp_path, 2560, 10240, "2026-10-04 15:50:00+00:00", group="154078", after="2026-10-03T15:30:00")
+
+
+def test_main_exposure_cap_rows_at_the_week4_shape():
+    assert ur.main_exposure_cap(0.5, 36) == 18                 # as entered (L13's PMO_X50); the old hard-coded int(0.5 * K)
+    assert [ur.main_exposure_cap(s, 36) for s in (0.4, 0.34, 0.25, 1.0)] == [14, 12, 9, 36]
+    assert ur.main_exposure_cap(0.5, 1) == 1
+    for bad in (0, -0.1, 1.01):
+        with pytest.raises(ValueError):
+            ur.main_exposure_cap(bad, 36)

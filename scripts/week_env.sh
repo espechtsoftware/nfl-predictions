@@ -146,6 +146,9 @@ week_env() {
   export UNION_MAIN=${UNION_MAIN:-pmo_x50}   # Week 4 arms UNION_SATURDAY_RUN=auto; UNION_PMO > 0 only if L13's R5 supports it
   # Operator 2026-09-28 14:3x: the 25% DST cap on the pmo_x50 main book, and the deep-line sleeve may draw from its rows.
   export UNION_MAIN_DST_CAP=${UNION_MAIN_DST_CAP-0.25} UNION_SLEEVE_INCLUDES_MAIN=${UNION_SLEEVE_INCLUDES_MAIN-1}
+  # The main book's per-player exposure cap as a share of K (0.5 = L13's PMO_X50, as entered; L17 09-29: looser is HARMFUL).
+  # UNION_PMO_CAP is NOT this lever: it caps the extra --pmo pool rows, which are off (UNION_PMO=0).
+  export UNION_MAIN_CAP=${UNION_MAIN_CAP:-0.5}
   # Cash/double-up PAPER shadows (operator 2026-09-22; never built in Week 3 by omission): arms A and B are built by the
   # chain from the final run dir before lock, entered nowhere, scored Monday. 1 = build them; 0 = off (explicit).
   export CASH_SHADOW=${CASH_SHADOW-1} CASH_SHADOW_N=${CASH_SHADOW_N:-20}

@@ -198,6 +198,14 @@ class _LU:                                                   # what dk_csv / val
         return int(sum(p["salary"] for p in self.players))
 
 
+
+def main_exposure_cap(share: float, k: int) -> int:
+    """The main book's per-player exposure cap in rows: a player in this many rows is banned from later solves.
+    int(share * K) with a floor of 1, the form L13 and L17 tested (0.5 at K = 36 -> 18)."""
+    if not 0 < share <= 1:
+        raise ValueError(f"exposure cap share must be in (0, 1] (got {share})")
+    return max(1, int(share * k))
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--saturday-run", required=True, help="a run dir, or 'auto' (newest --saturday-dose run in --live-dir built before the T-70 run)")
@@ -211,6 +219,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--min-proj", type=float, default=1.0); ap.add_argument("--max-per-game", type=int, default=4)
     ap.add_argument("--min-salary", type=int, default=49_000); ap.add_argument("--pmo", type=int, default=0)
     ap.add_argument("--pmo-cap-share", type=float, default=0.5, help="PMO per-player exposure cap as a share of --pmo rows (L13's PMO_X50 = 0.5; 0 = uncapped, NOT supported by L13)")
+    ap.add_argument("--main-cap-share", type=float, default=0.5,
+                    help="with --main pmo_x50: a player in >= int(share*K) rows is banned from later solves (L13's PMO_X50 = 0.5, as "
+                         "entered; L17: 0.67/0.8/uncapped HARMFUL). At K=36: 0.5 -> 18, 0.4 -> 14, 0.34 -> 12, 0.25 -> 9")
     ap.add_argument("--main-dst-cap", type=float, default=None,
                     help="with --main pmo_x50: a DST in >= floor(share*K) rows is banned from later solves (operator's open question; "
                          "the tested arm had none -- Week 3 put two busting DSTs in 25 and 22 of 58 rows). Default none.")
@@ -224,6 +235,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--rehearsal", action="store_true", help="paper: accept a T-70 run built with another selector (Week 3 was dual_emax); "
                                                             "the receipt records rehearsal=true; never point --out into the live tree")
     a = ap.parse_args(argv)
+    if not 0 < a.main_cap_share <= 1:
+        raise SystemExit(f"--main-cap-share must be in (0, 1] (got {a.main_cap_share})")
     if a.rehearsal and (a.out is None or a.live_dir in a.out.resolve().parents):
         raise SystemExit("--rehearsal needs --out outside --live-dir")
     from nfl2.two_track import select_top_mean, tail_probability   # the pinned lab clone on PYTHONPATH
@@ -296,7 +309,7 @@ def main(argv: list[str] | None = None) -> int:
         proj_all = dict(zip(fr.id.astype(str), pd.to_numeric(fr.mean_projection, errors="coerce")))
         pos_all = dict(zip(fr.id.astype(str), fr.pos.astype(str)))
         excl = gone | {i for i in proj_all if pos_all[i] in SKILL and not (proj_all[i] >= a.min_proj)}
-        xcap = max(1, int(0.5 * a.entries))
+        xcap = main_exposure_cap(a.main_cap_share, a.entries)
         t_pmo = _time.time()
         dcap = max(1, int(a.main_dst_cap * a.entries)) if a.main_dst_cap else None
         main_rows = pmo_rows(fr, excl, a.entries, a.mean_max_shared, cap, a.min_salary, set(), exposure_cap=xcap, dst_cap=dcap)
@@ -313,7 +326,7 @@ def main(argv: list[str] | None = None) -> int:
         sleeve_score = score if a.sleeve_includes_main else np.where(np.arange(len(rosters)) < base, score, -np.inf)
         expo = Counter(p for i in book for p in rosters[i])
         dst_expo = Counter(p for i in book for p in rosters[i] if pos[p] == "DST")
-        pmo_main = {"exposure_cap": xcap, "rows_solved": len(main_rows), "secs": secs_pmo, "max_exposure_used": max(expo.values()),
+        pmo_main = {"exposure_cap": xcap, "exposure_cap_share": a.main_cap_share, "rows_solved": len(main_rows), "secs": secs_pmo, "max_exposure_used": max(expo.values()),
                     "sleeve_includes_main": bool(a.sleeve_includes_main),
                     "distinct_players": len(expo), "dst_cap": dcap if dcap else "none (the tested arm had none)",
                     "max_dst_rows_used": max(dst_expo.values()), "dst_rows": dict(dst_expo.most_common(3))}

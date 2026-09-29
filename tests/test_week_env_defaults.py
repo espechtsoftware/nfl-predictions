@@ -91,6 +91,13 @@ def test_week4_union_main_dst_cap_and_sleeve_source():
     assert "UNION_SLEEVE_INCLUDES_MAIN=${UNION_SLEEVE_INCLUDES_MAIN-1}" in source
 
 
+def test_main_book_cap_is_a_setting_that_reaches_the_union_step():
+    assert "export UNION_MAIN_CAP=${UNION_MAIN_CAP:-0.5}" in ENV_SCRIPT.read_text()   # as entered; L17: looser HARMFUL
+    host = (ROOT / "scripts" / "sunday_build_host.sh").read_text()
+    assert '--main-cap-share "$UNION_MAIN_CAP"' in host
+    assert "int(0.5 * a.entries)" not in (ROOT / "scripts" / "union_reselect.py").read_text()
+
+
 def test_week_window_starts_saturday_midnight_central():
     env = {k: v for k, v in os.environ.items() if k != "WEEK_WINDOW_START_UTC"}
     r = subprocess.run(["bash", "-c", f"source {ENV_SCRIPT} && week_env 4 154078 >/dev/null 2>&1; echo $SATURDAY $WEEK_WINDOW_START_UTC"],
