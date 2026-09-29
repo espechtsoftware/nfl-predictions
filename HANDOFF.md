@@ -12,6 +12,38 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (12:34 CDT) — Production: PREREG-L15 FROZEN and READ — LineStar alone does NOT clear L05's reopening bar; the LAG+LineStar BLEND does (+0.085 / +0.068, paired 35–1); caveats recorded; a question for the reviewer
+
+- **Frozen** at lab `production/prereg-l15-20260929` @ `cef00b4` (branched from L05's `ef2fa56`, whose `results/l05_sets/`
+  lag and oracle files are the inputs): `PREREG-L15.md`, `experiments/l15_linestar_ownership.py`. Then `fetch` (36
+  LineStar periods, GetSalariesV5, 1.2 s pacing; raw payloads in `~/.cache/linestar-l15/`, third-party, never
+  committed; a private copy for the laptop at `gs://nfl-predictions-503414-raw/private/l15/linestar-cache/`), then `read`
+  once from the clean frozen checkout.
+- **Reader output, verbatim:**
+```
+slates read: 36 (expected 36); players joined per slate: mean 172 (min 88), lag-set coverage mean 0.33
+           LAG  LINESTAR   BLEND  LAG_skill  LINESTAR_skill  BLEND_skill
+season                                                                  
+2023    0.7504    0.7787  0.8353     0.7504          0.7787       0.8353
+2024    0.7968    0.8076  0.8646     0.7968          0.8076       0.8646
+LINESTAR - LAG by season: {2023: 0.0283, 2024: 0.0108}; paired slates (win-loss) {2023: (10, 8), 2024: (10, 8)} -> does NOT clear the bar
+BLEND - LAG by season: {2023: 0.0849, 2024: 0.0678}; paired slates (win-loss) {2023: (18, 0), 2024: (17, 1)} -> CLEARS the +0.03 reopening bar in every season
+VERDICT: L05 REOPENS for the clearing predictor(s); PREREG-L07 (the informed-chalk anchor) may be re-run with those labels
+```
+- **Read.** LINESTAR alone: +0.028 (2023) / +0.011 (2024) over LAG → does not clear. BLEND (the mean of the two
+  within-slate ranks): +0.085 / +0.068, paired 18–0 / 17–1 → clears in both seasons. **Caveats, before anyone acts on
+  it:** (1) the sample is the players LineStar projects on the Main slate — about a third of each slate's lag set
+  (mean 172 of ~520 rows; min 88) — so this is a within-projected-subset comparison; the all-players and skill-only
+  columns coincide because the join reaches no DST row (LineStar names defenses differently); (2) LineStar's historical
+  `Projected` field's pre-lock status is unproven (PREREG caveat), so the blend's gain may include post-lock updates;
+  (3) the rule was frozen on the difference of season means, and a rank-average of two correlated predictors gaining
+  +0.07 is large — worth the laptop's byte-identical re-run and a reviewer's eye before L07 is re-run.
+- **Consequence under the frozen rule:** L05 REOPENS for the BLEND predictor. Nothing enters Week 4. The next step is
+  the reviewer's call (the operator asks him this turn): re-run PREREG-L07 with blended labels as a Week-5 paper arm, or
+  first measure the blend prospectively as a third O1 arm from Week 4 (LineStar's live capture is pre-lock-proven).
+- The laptop: please re-run `experiments/l15_linestar_ownership.py read --cache <the copied cache>` from a clean
+  `cef00b4` and `cmp` against `reader_output.txt` in the cache copy; then the ledger row.
+
 ## 2026-09-29 (12:29 CDT) — Laptop: the project-slate IMAGE is rebuilt from integration and DEPLOYED (the Week-4 smoke starts today, operator's choice)
 
 - **Build:** `61b9cba6-2e10-4e90-bb47-a0033b93938d` (Cloud Build, `cloudbuild.week1-live.yaml`, 4 min 57 s, SUCCESS) from
