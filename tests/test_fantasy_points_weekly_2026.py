@@ -289,6 +289,7 @@ def test_first_cumulative_append_creates_the_table_without_querying_it(tmp_path,
     """Week 4 is the first target week of every *_cumulative table: nothing to compare, nothing stored yet."""
     from nfl_dfs import bq
 
+    monkeypatch.setattr(weekly, "MIN_RAW_PAGE_ROWS", {"Player": 1, "Offense": 1, "Defense": 1})   # synthetic 1-row pages
     family = weekly.FAMILIES["coverage-cumulative"]
     root = _run_dir(tmp_path, family, 4)
     loads, archived = [], []
@@ -303,3 +304,15 @@ def test_first_cumulative_append_creates_the_table_without_querying_it(tmp_path,
     assert rows == 1 + 1 + 32 and sorted(archived) == sorted(w.report for w in family.windows)
     table = audit["tables"]["fantasy_points_coverage_cumulative"]
     assert table["table_exists"] is False and table["append_rows"] == rows and table["write_disposition"] == "appended"
+
+
+def test_raw_pages_below_the_floor_are_refused():
+    import pandas as pd
+    import pytest
+    from nfl_dfs.ingest import fantasy_points_weekly_2026 as fw
+    table = fw.FAMILIES["advanced-passing-cumulative"].tables[0]
+    five = pd.DataFrame({"report": ["advanced-passing"] * 5, "context": ["Player"] * 5})
+    with pytest.raises(ValueError, match="paywalled preview"):
+        fw.check_raw_pages(table, five)
+    fw.check_raw_pages(table, pd.DataFrame({"report": ["advanced-passing"] * 51, "context": ["Player"] * 51}))
+    fw.check_raw_pages(table, pd.DataFrame({"report": ["coverage-matrix"] * 30, "context": ["Defense"] * 30}))

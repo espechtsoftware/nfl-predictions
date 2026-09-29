@@ -574,17 +574,26 @@ def test_a_failed_cumulative_page_is_named_and_fails_the_run_after_sis_is_captur
 
 
 def test_a_fatal_failure_still_names_every_page_it_leaves_uncaptured(monkeypatch, tmp_path, capsys):
+    """Defense PROE's import is fatal (its schedule check is the W-1 completeness gate ahead of the cumulative pages)."""
     events = []
-    with pytest.raises(RuntimeError, match="matchups broke"):
-        weekly.run_week(**_wednesday(monkeypatch, tmp_path, events, fail="matchups"))
+    with pytest.raises(RuntimeError, match="proe-import broke"):
+        weekly.run_week(**_wednesday(monkeypatch, tmp_path, events, fail="proe-import"))
     manifest = json.loads(next((tmp_path / "runs").glob("*/manifest.json")).read_text())
-    assert manifest["steps"][-1]["name"] == "fantasy-points-live-matchups"     # no step after the failure
+    assert manifest["steps"][-1]["name"] == "fantasy-points-defense-proe-import"     # no step after the failure
     status = {page["page"]: page for page in manifest["paid_pages"]["pages"]}
     assert status["fantasy-points route-share week 03"]["status"] == "captured"
-    assert status["fantasy-points qb-coverage-matchup (live, Week 4)"]["reason"].startswith(
-        "fantasy-points-live-matchups failed")
+    assert status["fantasy-points offense-proe/Defense week 03"]["reason"].startswith(
+        "fantasy-points-defense-proe-import failed")
     assert status["sis pass-defense-totals week 03"]["reason"] == "sis-approved-plan never ran"
-    assert "PAID PAGES: 2 of 27 paid pages captured for Week 4; NOT CAPTURED:" in capsys.readouterr().out
+    assert "PAID PAGES: 1 of 27 paid pages captured for Week 4; NOT CAPTURED:" in capsys.readouterr().out
+
+
+def test_a_failed_matchups_capture_is_named_and_the_run_goes_on(monkeypatch, tmp_path, capsys):
+    """2026-09-29 sweep: the matchups steps are not fatal (Week 4 is their first current-season week)."""
+    events = []
+    with pytest.raises(RuntimeError, match=r"PAID PAGES: 24 of 27 .*NOT CAPTURED: fantasy-points qb-coverage-matchup"):
+        weekly.run_week(**_wednesday(monkeypatch, tmp_path, events, fail="matchups"))
+    assert "matchups-stage" not in events and "sis-capture" in events                  # no stage; SIS still ran
 
 
 def test_skipped_pages_are_named_not_failed(monkeypatch, tmp_path, capsys):

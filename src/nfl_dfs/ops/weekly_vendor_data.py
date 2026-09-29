@@ -538,6 +538,8 @@ def run_week(
                 ),
             )
     if fp_on and capture_matchups:
+        # not fatal (2026-09-29 sweep): Week 4 is the first week the matchups must be current-season; a vendor still
+        # serving last season would otherwise stop the run before the cumulative and SIS pages. The gate names it.
         matchups_manifest = step(
             "fantasy-points-live-matchups",
             lambda: fp_matchups.run(
@@ -549,8 +551,9 @@ def run_week(
                 timeout_seconds=timeout_seconds,
                 archive=True,
             ),
+            fatal=False,
         )
-        if stage_matchups:
+        if stage_matchups and matchups_manifest is not None:
             step(
                 "fantasy-points-matchups-stage",
                 lambda: fantasy_points_matchups_weekly.run(
@@ -558,6 +561,7 @@ def run_week(
                     target_week=week,
                     write=write_matchups,
                 ),
+                fatal=False,
             )
     if fp_on and week >= 5:
         fp_alignment_manifest = step(

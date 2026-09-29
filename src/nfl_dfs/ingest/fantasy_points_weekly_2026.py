@@ -358,6 +358,23 @@ def novel_or_identical(rows: pd.DataFrame, existing: pd.DataFrame, table: Table)
     return rows.merge(novel, on=keys, how="inner", validate="one_to_one") if len(novel) else rows.iloc[0:0].copy()
 
 
+# 2026-09-29 sweep: a signed-out Data Suite session exported every gated page as a 5-row preview, and a first-week
+# cumulative table has no prior week to compare with. A page below these floors is refused (a team page covers 32
+# teams, or 30 when the Monday game is not in yet; a player page historically holds 50+).
+MIN_RAW_PAGE_ROWS = {"Player": 20, "Offense": 28, "Defense": 28}
+
+
+def check_raw_pages(table: Table, rows: pd.DataFrame) -> None:
+    """Refuse a raw-captured page (report, context) below its row floor (a paywalled preview or an unfinished export)."""
+    if rows.empty:
+        return
+    for (report, context), n in rows.groupby(["report", "context"]).size().items():
+        floor = MIN_RAW_PAGE_ROWS.get(str(context), 20)
+        if n < floor:
+            raise ValueError(f"{table.name}: {report}/{context} holds {n} rows (floor {floor}); a paywalled preview or an "
+                             "unfinished export -- check the Data Suite login and re-download")
+
+
 def check_completeness(table: Table, rows: int, prior_rows: int | None) -> None:
     """Refuse a week far smaller than the latest earlier 2026 target week (an unfinished vendor export)."""
     if rows == 0:
@@ -445,6 +462,8 @@ def run(
             """, params={"season": SEASON, "target_week": int(target_week)}) if present else pd.DataFrame()
         prior_rows = int(prior.n.iloc[0]) if len(prior) else 0
         check_completeness(table, len(rows), prior_rows)
+        if family.raw_capture:
+            check_raw_pages(table, rows)
         existing = query_df(f"""
             SELECT {', '.join(table.keys)}, {', '.join(table.hash_columns)} FROM `{ref}`
             WHERE season = @season AND target_week = @target_week
