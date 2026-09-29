@@ -216,3 +216,39 @@ def test_t70_trace_is_read_from_player_projections_when_the_frame_lacks_it(tmp_p
     # declared OFF on a frame without the columns: no trace, passes
     res3 = _audit(run, expect_selector="mean", t70="off")
     assert [c for c in res3["checks"] if c["check"] == "t70_rules_effect"][0]["ok"]
+
+
+def test_main_own_term_check_reads_the_declared_term(tmp_path):
+    """A declared ownership term must have its source file (sha256 matching), coverage above the floor and a control main
+    that differs from the entered main; without a term there must be no control book (reviewer 2026-09-29 gate 3)."""
+    import hashlib
+    import pandas as pd
+    lus = [_lineup("A", "B", "C"), _lineup("C", "D", "E"), _lineup("E", "F", "G"), _lineup("G", "H", "A"), _lineup("B", "A", "D"), _lineup("D", "C", "F")]
+    tail = CONTESTS + [{"name": "milly", "contest_id": "9", "entries": 1, "keep": 1, "track": "tail"}]
+    src = tmp_path / "ownership_blend.csv"
+    src.write_text("id,pred_own\nAQB,22.5\nCQB,15.0\nEQB,9.0\n")
+    sha = hashlib.sha256(src.read_bytes()).hexdigest()
+    term = {"tilt": 0.2, "source": str(src), "source_sha256": sha, "coverage_projected_5": 0.97, "min_coverage": 0.9}
+    pmo = {"exposure_cap": 3, "max_exposure_used": 3, "dst_cap": 2, "max_dst_rows_used": 2, "own_term": term}
+    cfg = {"selector": "mean", "operational_k": 5, "tail_sleeve": {"rows": 1, "selector_used": "mean"}, "union": {"main": "pmo_x50", "pmo_x50": pmo}}
+
+    def make(sub, own_term=None, control=None):
+        rec = {"written": 6, "config": {**cfg, "union": {"main": "pmo_x50", "pmo_x50": {**pmo, "own_term": own_term if own_term is not None else term}}}}
+        run = _run_dir(tmp_path / sub, lineups=lus, book=lus[:6], receipt=rec)
+        c = pd.read_parquet(run / "candidates.parquet"); c["source_run"] = ["pmo_x50"] * 5 + ["saturday"]; c["book_rank"] = [1, 2, 3, 4, 5, None]
+        c.to_parquet(run / "candidates.parquet")
+        if control is not None:
+            with (run / "book_main_control.csv").open("w", newline="") as f:
+                w = csv.writer(f); w.writerow(["QB", "RB", "RB", "WR", "WR", "WR", "TE", "FLEX", "DST"]); w.writerows(control)
+        return run
+
+    ctrl = [lus[1], lus[2], lus[3], lus[4], lus[5]]                      # differs from the main (lus[0..4]) in two rows
+    assert "main_own_term" not in _audit(make("ok", control=ctrl), contests=tail, expect_selector="mean")["failed"]
+    assert "main_own_term" in _audit(make("nocontrol"), contests=tail, expect_selector="mean")["failed"]                    # control missing
+    assert "main_own_term" in _audit(make("same", control=lus[:5]), contests=tail, expect_selector="mean")["failed"]        # identical: dead term
+    assert "main_own_term" in _audit(make("sha", own_term={**term, "source_sha256": "0" * 64}, control=ctrl), contests=tail, expect_selector="mean")["failed"]
+    assert "main_own_term" in _audit(make("cov", own_term={**term, "coverage_projected_5": 0.5}, control=ctrl), contests=tail, expect_selector="mean")["failed"]
+    assert "main_own_term" in _audit(make("gone", own_term={**term, "source": str(tmp_path / "missing.csv")}, control=ctrl), contests=tail, expect_selector="mean")["failed"]
+    assert "main_own_term" in _audit(make("short", control=ctrl[:4]), contests=tail, expect_selector="mean")["failed"]      # control not K rows
+    assert "main_own_term" not in _audit(make("off", own_term={"tilt": 0.0}), contests=tail, expect_selector="mean")["failed"]
+    assert "main_own_term" in _audit(make("undeclared", own_term={"tilt": 0.0}, control=ctrl), contests=tail, expect_selector="mean")["failed"]  # control without a term

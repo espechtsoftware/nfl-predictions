@@ -30,12 +30,15 @@ The checks (each named in the output):
   t70_rules_effect           --t70 on: an absent depth-1 starter must have produced a bumped backup and an early-game
                              Questionable an activation (the t70_* receipt columns); --t70 off: no trace at all
   union_main                 a union receipt's declared main form (mean | pmo_x50) matches the book's rows and the exposure cap held
+  main_own_term              a declared ownership term (union.pmo_x50.own_term.tilt > 0) has its source file, sha256 and coverage,
+                             and a control main (book_main_control.csv) that differs from the entered main; no term -> no control book
   book_rows_legal            mean rows distinct, sleeve rows distinct (a sleeve row may repeat a mean row), complete, ids in the frame
 """
 from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import json
 import sys
 from pathlib import Path
@@ -259,6 +262,51 @@ def audit(run: Path, contests: list[dict], *, layout: str, expect_selector: str 
                 record("union_main", n_pmo == 0, f"union main declared {main}: {n_pmo} pmo_x50 rows in the main book (must be 0)", main=main, pmo_rows_in_main=n_pmo)
         else:
             record("union_main", False, "union receipt without source_run/book_rank columns in candidates.parquet", main=main)
+
+    # ---- main_own_term: a declared ownership term must leave its trace (source file, sha256, coverage, a control main that
+    # differs); an undeclared one must leave none (reviewer 2026-09-29 gate 3; laptop W-A)
+    if uni:
+        px = uni.get("pmo_x50") or {}
+        term = px.get("own_term") or {}
+        tilt = float(term.get("tilt") or 0.0)
+        control = run / "book_main_control.csv"
+        if tilt > 0:
+            problems: list[str] = []
+            if uni.get("main", "mean") != "pmo_x50":
+                problems.append(f"own_term declared on main={uni.get('main')}")
+            src = term.get("source"); want = term.get("source_sha256")
+            if not src or not want:
+                problems.append("receipt own_term lacks source/source_sha256")
+            elif not Path(src).is_file():
+                problems.append(f"ownership source {src} is not on disk")
+            else:
+                got = hashlib.sha256(Path(src).read_bytes()).hexdigest()
+                if got != want:
+                    problems.append(f"ownership source sha256 {got[:12]} != receipt {str(want)[:12]}")
+            cov = term.get("coverage_projected_5"); min_cov = term.get("min_coverage")
+            if cov is None or min_cov is None:
+                problems.append("receipt own_term lacks coverage_projected_5/min_coverage")
+            elif float(cov) < float(min_cov):
+                problems.append(f"coverage {float(cov):.3f} below min_coverage {float(min_cov):.2f}")
+            if not control.is_file():
+                problems.append("book_main_control.csv missing")
+            else:
+                ctrl = [r for r in csv.reader(control.open())][1:]
+                ctrl_set = {tuple(sorted(r)) for r in ctrl}
+                main_set = {tuple(sorted(r)) for r in book[:k_mean]}
+                if len(ctrl) != k_mean:
+                    problems.append(f"book_main_control.csv holds {len(ctrl)} rows, not {k_mean}")
+                if main_set == ctrl_set:
+                    problems.append("the entered main is identical to the control main (the term changed nothing)")
+                shared = len(main_set & ctrl_set)
+            record("main_own_term", not problems,
+                   f"ownership term declared (tilt {tilt}): " + ("; ".join(problems) if problems else
+                   f"source sha256 matches, coverage {term.get('coverage_projected_5')} >= {term.get('min_coverage')}, control main present, "
+                   f"{shared} of {k_mean} main rows shared with it"), tilt=tilt, problems=len(problems))
+        else:
+            record("main_own_term", not control.is_file(),
+                   "no ownership term declared: " + ("book_main_control.csv is present (an undeclared term?)" if control.is_file() else "no control book, as expected"),
+                   tilt=0.0)
 
     # ---- book_rows_legal
     frame_ids = set(fr["id"].astype(str)) | set(fr["dk_player_id"].astype(str)) if "dk_player_id" in fr else set(fr["id"].astype(str))
