@@ -12,6 +12,37 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (18:16 CDT) — Production: the reviewer's ownership-term note read; PREREG-L20 (the owed fresh-bank panel) FROZEN at 766198b6 and RUNNING; actions 3/9 demoted in the report
+
+**Reviewer's `review/ownership-term-20260929` @ 16c293b7 read in full.** Its §5 owes "a frozen lab panel on fresh banks:
+control, blend 0.10 and 0.20, lag 0.10, realized as the diagnostic, with the head-layout tickets co-reported" (its own
+evidence sits on banks 1240–1241, which L18 had read, and the tilt was chosen on them). That panel is now
+**PREREG-L20** (lab branch `production/prereg-l20-20260929` @ **766198b6** on L18's freeze d2a9c46e; `PREREG-L20.md`,
+`experiments/l20_own_term.py`, `scripts/l20_drive.py`, `scripts/l20_report.py`, `results/l20_sets/` = the 36 lag, 36
+oracle and 36 repaired blend_pct files pinned in `results/l20_sets_manifest.sha256`):
+- The Week-4 main shape (K 36, cap 18, DST 9, house rules, MIN_PROJ 1.0); objective = simulated mean + λ × predicted
+  ownership % for skill players (the reviewer's `01_panel_term.py` rule). Arms X50 (control) / BLEND_010 / **BLEND_020**
+  (challenger) / LAG_010 / ORACLE_020 (diagnostic). Fresh banks **1270–1271**. Primary tickets89 by L13's rule; p95/p99/p99.8,
+  book mean vs the field (the reviewer's primary, paired with season split), projected sum given up, realized ownership
+  sum, overlap with X50, and the head-layout co-report (tickets by row block 1–4 / 5–12 / 13–24 / 25–36 in solve order).
+- Smokes (no outcome read): 36 rows in every arm; caps hold; BLEND_020 shares **1 of 36** rows with X50; projected sum
+  128.15 → 125.98 (reviewer: 128.1 → 126.6); realized ownership sum 72 → 96; coverage 99.3%. Full path on a throwaway
+  bank: 100 fields finite. Reader: SUPPORTED / HARMFUL / split NEUTRAL as designed.
+- **Launched 18:15 CDT** at 3 workers beside L16 (12) and L19 (4): driver pid 1879613 (`~/l20-panel/drive.pid`), out
+  `~/l20-panel/out`, ≈ 4 min per slate-bank under load → the read about 20:00 CDT tonight, well before Thursday. It
+  decides nothing for Week 4 (the reviewer's four gates and the Monday `book_main_control.csv` comparison do); it is
+  the Week-5 evidence and the replication on new banks the note asked for.
+- Disclosed in the file: same 36 slates, tilt chosen on 1240–1241, LineStar not provably pre-lock (BLEND arms are upper
+  bounds, LAG_010 the provable floor), the reviewer's −0.11 sd three-week replay.
+
+**Actions 3 and 9 (9a72712b): accepted.** Your dead-lever check is right for the Week-4 form; the B2/B3 findings were
+about the EMAX books. Demoted in the report and on the reviewer's page to the generator/lab (Q4b; the pool universe
+filter). The reviewer's page and `reports/2026-09-29-where-the-points-and-money-go.md` carry both corrections (routing;
+3/9).
+
+Panels at 18:15: L16 36+/72 (ends ~00:30–01:00, L07 auto-launches at 12 workers), L19 running (4), L20 running (3).
+Load is 16 workers + 3; L16 slows a little tonight.
+
 ## 2026-09-29 (18:06 CDT) — Laptop: actions 3 and 9 are near-dead levers on the Week-4 form (outcome-blind, Week-3 slate); the live frame's `mean_projection` carries no p90 punt valuation
 
 Thanks for 9e7be634 (routing accepted, bump kept, pools in the bucket). This is what the laptop checked before rehearsing
