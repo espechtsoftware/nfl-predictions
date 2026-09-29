@@ -152,3 +152,103 @@ def test_sleeve_exposure_reads_the_slice():
     fr = pd.DataFrame({"id": ["a", "b", "c"], "name": ["A", "B", "C"]})
     ex = ur.sleeve_exposure([0, 1], _rows("ab", "ac"), fr)
     assert ex["max_rows_per_player"] == 2 and ex["distinct_players"] == 3 and ex["top5"][0] == {"id": "a", "name": "A", "rows": 2}
+
+
+# ---- the ownership term in the main's objective (reviewer 2026-09-29) ----
+
+def _own_file(tmp_path, rows, name="own.csv"):
+    p = tmp_path / name
+    pd.DataFrame(rows).to_csv(p, index=False)
+    return p
+
+
+def _own_rows(fr, values=None, by="dk_player_id"):
+    sk = fr[fr.pos != "DST"]
+    v = values or {}
+    return [{by: (r.dk_player_id if by == "dk_player_id" else r.id), "display_name": r["name"], "pos": r.pos,
+             "pred_own": v.get(r.id, 4.0)} for _, r in sk.iterrows()]
+
+
+def test_own_bonus_is_tilt_times_percent_for_skill_players_only(tmp_path):
+    fr = _frame()
+    rows = _own_rows(fr, {"p0": 30.0, "p1": -0.2, "p2": 0.0}) + [{"dk_player_id": 999, "display_name": "A", "pos": "DST", "pred_own": 50.0}]
+    bonus, meta = ur.own_bonus(_own_file(tmp_path, rows), fr, {"p7"}, 0.2, 0.9)
+    assert bonus["p0"] == pytest.approx(6.0) and bonus["p3"] == pytest.approx(0.8)
+    assert "A_DST" not in bonus                                   # a DST never carries the term
+    assert "p1" not in bonus and "p2" not in bonus                # a clipped negative and a zero add nothing
+    assert "p7" not in bonus                                      # excluded from the pool (OUT)
+    assert meta["negatives_clipped"] == 1 and meta["matched_by"] == {"dk_player_id": 12} and meta["coverage_projected_5"] == 1.0
+    assert meta["tilt"] == 0.2 and len(meta["source_sha256"]) == 64 and meta["largest_terms"][0]["name"] == "P0"
+
+
+def test_own_bonus_matches_float_spelled_ids_and_falls_to_gsis(tmp_path):
+    fr = _frame()
+    rows = _own_rows(fr)
+    for r in rows:
+        r["dk_player_id"] = f"{r['dk_player_id']}.0"              # a csv round trip through a float column
+    bonus, meta = ur.own_bonus(_own_file(tmp_path, rows), fr, set(), 0.1, 0.9)
+    assert len(bonus) == 12 and meta["matched_by"] == {"dk_player_id": 12}
+    bonus, meta = ur.own_bonus(_own_file(tmp_path, _own_rows(fr, by="gsis_id"), "g.csv"), fr, set(), 0.1, 0.9)
+    assert len(bonus) == 12 and meta["matched_by"] == {"gsis_id": 12}
+
+
+def test_own_bonus_refuses_by_name(tmp_path):
+    fr = _frame()
+    good = _own_rows(fr)
+    with pytest.raises(SystemExit, match="OWN TERM REFUSED.*does not exist"):
+        ur.own_bonus(tmp_path / "absent.csv", fr, set(), 0.2, 0.9)
+    with pytest.raises(SystemExit, match="OWN TERM REFUSED.*outside"):
+        ur.own_bonus(_own_file(tmp_path, good), fr, set(), 2.0, 0.9)            # 2.0 points per ownership point: a typo
+    with pytest.raises(SystemExit, match="OWN TERM REFUSED.*needs pred_own"):
+        ur.own_bonus(_own_file(tmp_path, [{"dk_player_id": 100, "own": 3.0}], "cols.csv"), fr, set(), 0.2, 0.9)
+    with pytest.raises(SystemExit, match="OWN TERM REFUSED.*not numbers"):
+        ur.own_bonus(_own_file(tmp_path, good[:-1] + [dict(good[-1], pred_own="n/a")], "nan.csv"), fr, set(), 0.2, 0.9)
+    with pytest.raises(SystemExit, match="OWN TERM REFUSED.*below -0.5"):
+        ur.own_bonus(_own_file(tmp_path, good[:-1] + [dict(good[-1], pred_own=-3.0)], "neg.csv"), fr, set(), 0.2, 0.9)
+    with pytest.raises(SystemExit, match="OWN TERM REFUSED.*fractions"):
+        ur.own_bonus(_own_file(tmp_path, [dict(r, pred_own=0.2) for r in good], "frac.csv"), fr, set(), 0.2, 0.9)
+    # p5 projects 0.4 (below the coverage floor) and p7 is excluded, so 10 players count; 8 named = 80% < 90%
+    short = [r for r in good if r["dk_player_id"] not in (100, 101)]
+    with pytest.raises(SystemExit, match=r"OWN TERM REFUSED.*8 of the pool's 10 .*missing e.g. \['P0', 'P1'\]"):
+        ur.own_bonus(_own_file(tmp_path, short, "short.csv"), fr, {"p7"}, 0.2, 0.9)
+    assert len(ur.own_bonus(_own_file(tmp_path, short, "short2.csv"), fr, {"p7"}, 0.2, 0.8)[0]) == 9
+
+
+def _fake_lab(monkeypatch, seen):
+    """The pinned lab clone is not needed: a stand-in optimize records what it is asked to maximize."""
+    import types
+
+    class LU:
+        def __init__(self, players):
+            self.players = players
+
+    def optimize(pool, stack, objective_col, banned_lineups, max_overlap, bans, env):
+        seen.append({"objective_col": objective_col, "values": {p["id"]: p[objective_col] for p in pool}, "keys": set(pool[0])})
+        best = sorted((p for p in pool if not bans or p["id"] not in bans), key=lambda p: (-p[objective_col], p["id"]))[:9]
+        return None if len(seen) > 1 else LU(best)
+    lineup = types.ModuleType("nfl2.core.lineup"); lineup.optimize = optimize
+    pipeline = types.ModuleType("nfl2.pipeline"); pipeline.PRODUCTION_STACK = "stack"
+    for name, mod in (("nfl2", types.ModuleType("nfl2")), ("nfl2.core", types.ModuleType("nfl2.core")),
+                      ("nfl2.core.lineup", lineup), ("nfl2.pipeline", pipeline)):
+        monkeypatch.setitem(sys.modules, name, mod)
+
+
+def test_pmo_rows_without_a_term_is_the_call_entered_in_week4(monkeypatch):
+    seen = []
+    _fake_lab(monkeypatch, seen)
+    rows = ur.pmo_rows(_frame(), {"p7"}, 1, 7, 4, 49_000, set())
+    assert len(rows) == 1 and seen[0]["objective_col"] == "proj" and "obj" not in seen[0]["keys"]
+    seen.clear()
+    ur.pmo_rows(_frame(), {"p7"}, 1, 7, 4, 49_000, set(), bonus={})             # an empty term is no term
+    assert seen[0]["objective_col"] == "proj" and "obj" not in seen[0]["keys"]
+
+
+def test_pmo_rows_with_a_term_maximizes_projection_plus_the_term(monkeypatch):
+    seen = []
+    _fake_lab(monkeypatch, seen)
+    rows = ur.pmo_rows(_frame(), {"p7"}, 1, 7, 4, 49_000, set(), bonus={"p0": 6.0, "p9": 0.5})
+    v = seen[0]["values"]
+    assert seen[0]["objective_col"] == "obj"
+    assert v["p0"] == pytest.approx(16.0) and v["p9"] == pytest.approx(10.5) and v["p1"] == pytest.approx(10.0)
+    assert v["A_DST"] == pytest.approx(7.0) and "p7" not in v
+    assert rows[0][0] == "p0"                                                   # the term moved the first pick
