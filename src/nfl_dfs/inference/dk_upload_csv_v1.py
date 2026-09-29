@@ -187,6 +187,7 @@ def rows_from_live_week_run(run_dir: Path) -> tuple[list[list[int]], dict]:
             break
     checked = check_rows(rows, position_by_draftable_id=positions, mean_rows=mean_rows)
     receipt = {
+        "mean_rows": mean_rows,
         "source": "live-week-run-dir",
         "run_dir": str(run_dir),
         "draft_group_id": next(iter(groups)),
@@ -231,9 +232,18 @@ def slice_ranks(
     return [list(row) for row in rows[first - 1:last]]
 
 
-def write_upload_csv(rows: Sequence[Sequence[int]], path: Path) -> dict:
-    """Write the upload file create-only and return its receipt."""
-    checked = check_rows(rows)
+def block_after_slice(mean_rows: int | None, first: int, n: int) -> int | None:
+    """The mean/sleeve boundary of a rank slice ``first..`` of ``n`` rows: rows before ``first`` fall away, so the boundary
+    moves up by first-1 and is clipped to [0, n]; None stays None (a one-track book)."""
+    if mean_rows is None:
+        return None
+    return max(0, min(int(mean_rows) - (int(first) - 1), int(n)))
+
+
+def write_upload_csv(rows: Sequence[Sequence[int]], path: Path, *, mean_rows: int | None = None) -> dict:
+    """Write the upload file create-only and return its receipt. ``mean_rows`` (K) makes the sleeve block [K, end) free
+    to repeat mean rows, as in ``check_rows``."""
+    checked = check_rows(rows, mean_rows=mean_rows)
     if path.exists():
         _fail(f"refusing to overwrite {path}")
     lines = [",".join(DK_SLOT_ORDER)] + [",".join(str(v) for v in r) for r in checked]

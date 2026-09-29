@@ -173,3 +173,13 @@ def test_check_rows_allows_a_sleeve_row_to_repeat_a_mean_row_but_not_another_sle
         up.check_rows([a, a, b], mean_rows=2)
     with pytest.raises(up.DkUploadCsvError, match="within its block"):
         up.check_rows([a, b, a, a], mean_rows=2)
+
+
+def test_write_upload_csv_and_rank_slices_keep_the_sleeve_block_rule(tmp_path) -> None:
+    a = [1, 2, 3, 4, 5, 6, 7, 8, 9]; b = [11, 12, 13, 14, 15, 16, 17, 18, 19]
+    out = tmp_path / "u.csv"
+    with pytest.raises(up.DkUploadCsvError):
+        up.write_upload_csv([a, b, a], out)                         # one-track: refused
+    assert up.write_upload_csv([a, b, a], out, mean_rows=2)["rows"] == 3
+    assert up.block_after_slice(54, 1, 186) == 54 and up.block_after_slice(54, 55, 132) == 0
+    assert up.block_after_slice(54, 10, 100) == 45 and up.block_after_slice(None, 3, 5) is None

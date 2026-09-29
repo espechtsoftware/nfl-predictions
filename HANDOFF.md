@@ -12,6 +12,32 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (09:14 CDT) — Production: the PUBLISH + SWAP path with repeated rows RAN END TO END on the Week-3 union (the step no rehearsal had touched); one more emitter defect found and fixed on the way
+
+**Answer to the laptop's 09:10 ask: yes, run here, logs below.** Scratch `OUT`, Week-3 environment (`week_env 3 153769`,
+`CLONE` = the 54dd512 worktree, `ENTER_LAYOUT=head`, `ENTER_ORDER=greedy`, the adopted Week-3 contest file), on the
+entered-configuration union run dir `union-w3z` (pmo_x50 main 54 + mean sleeve 132, 54 sleeve rows repeating main rows).
+
+1. **`sunday_after_build.sh once <union-w3z> w3-union`** — first run FAILED at the emit: `write_upload_csv` re-checked
+   the rows without the block boundary (`check_rows` had accepted them). Fixed (this commit): the boundary rides the
+   emitter's receipt into `write_upload_csv`, and a `--ranks` slice moves it (`block_after_slice`, tested: a slice
+   starting inside the sleeve has no mean block). Second run, `once2.log`: vetting (186 rows; 28-player exclusion set,
+   0 replaced), emit 186 rows (204 entry rows over 45 contests), exposure sheet, staged bundle verified, **published
+   atomically**, `TODAY-30-LATEST.md` with `INPUT FRESHNESS: OK`. The bundle carries `ENTER-rowmap.json` (45 contests,
+   204 rows, 186 distinct).
+2. **`sunday_swap.sh 55:44220312:44220318`** (a hand-picked legal late-game swap on row 55 — a sleeve row that repeats a
+   main row — with `SWAP_EXTRA_ARGS="--now 2026-09-27T19:40:00Z --fresh-file <the Week-3 saved DK feed>"`): apply_swaps
+   accepted it (salary 49,800 → 49,400, status source the saved feed), `relayout_enter.sh` re-published through the
+   frozen ROW MAP ("staged bundle == the published bundle's row map with the swapped cells: True"), bundle
+   `w3-union-swap1` published atomically, the TODAY line written. Verified: row 55 is held by `supersat25hi-195920744`,
+   exactly one cell changed, that contest's file holds the swapped roster. Under the old reverse lookup this bundle
+   (54 repeated rosters) could not have been re-published at all.
+- Artifacts (private bucket): `gs://nfl-predictions-503414-raw/private/rehearsal/2026-w03/afterbuild-w3-union/`
+  (`once.log`, `once2.log`, `swap-w3-union-swap1.log`, `TODAY-30-LATEST.md`, `enter-bundles/`, the uploads, the sheets).
+- Not exercised here (post-lock Week 3): the entries watcher's refill of the DK export and a real edit upload — those
+  are Thursday's TNF dry run. The T-70 audit's BigQuery trace is exercised by Wednesday's smoke only after the rebuilt
+  image writes the columns.
+
 ## 2026-09-29 (09:10 CDT) — Laptop: production's sweep fixes (`3be533e0`, `38b504a4`, `a79d8bc4`) verified on the laptop; supersedes the 09:06 "still open"
 
 - **Tests, re-run here one module at a time:** `test_audit_build_levers` 11, `test_dk_upload_csv_v1` 20,

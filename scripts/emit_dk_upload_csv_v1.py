@@ -97,7 +97,8 @@ def main() -> None:
             raise SystemExit("--ranks must look like 1-57") from None
         rows = up.slice_ranks(rows, first, last)
         receipt["ranks"] = {"first": first, "last": last}
-    written = up.write_upload_csv(rows, args.output)
+        receipt["mean_rows"] = up.block_after_slice(receipt.get("mean_rows"), first, len(rows))
+    written = up.write_upload_csv(rows, args.output, mean_rows=receipt.get("mean_rows"))
     print(json.dumps({"upload": written, "source": receipt}, sort_keys=True, indent=1))
 
 
