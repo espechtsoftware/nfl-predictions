@@ -12,6 +12,33 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (18:40 CDT) — Production: W-C step 2 — Week-3 rehearsal at the exact ladders, head vs spread: 23 → 25 paid with the armed configuration, 21 → 19 without the DST cap (one week; the layout moves nothing that one week can show)
+
+`rehearsal_two_track.py --layout head|spread` on the Week-3 Saturday D12800 run dir (`20260926T153408285093Z-65305f5`),
+sizes = the Week-3 shape (wildcat 2×2, sat20 1×19, supersat25hi 17×3, ffwc 4×1, supersat2 5×12, supersat25lo 20×3;
+milly20 1, sat13mega 1×3, ffwc18 2 pinned @1/5), tail = milly20/sat13mega/ffwc/supersat2/supersat25lo/wildcat (the Week-4
+deep-line routing), mean main + mean sleeve, DST cap 0.25, tilt 0, `--details` = the 45 real ladders, our entries left in
+the fields. Hindsight, one week; no payout values printed.
+
+| Arm | Layout | Paid entries | Mean points per entry | sat20 | supersat25hi | ffwc18 | tail contests (sleeve, layout-invariant) |
+|---|---|---:|---:|---:|---:|---:|---|
+| mean + DST cap + sleeve (as armed) | head | 23 | 151.92 | 6 | 12 | 1 | supersat2 2, supersat25lo 2, others 0 |
+| the same | **spread** | **25** | 152.65 | **8** | 12 | 1 | same |
+| plain mean, no DST cap | head | 21 | 151.22 | 6 | 10 | 1 | same |
+| plain mean, no DST cap | spread | 19 | 152.38 | 5 | 9 | 1 | same |
+| entered (as played) | — | 1 | 121.62 | 1 | 0 | 0 | — |
+
+- Only the mean-track contests (sat20, supersat25hi, ffwc18) can differ between layouts; the sleeve is identical.
+- +2 with the armed configuration, −2 without the DST cap: inside one week's noise, and consistent with the winners study's
+  claim (expected hits unchanged; the gain is fewer EMPTY weeks, which one slate cannot show). Mean points per entry are
+  +0.7 / +1.2 under spread because the singles no longer all sit on rows 1–19.
+- Caveat: this is the mean main, not the PMO_X50 main (the rehearsal tool has no PMO arm); the layout question is the
+  same for either sequence.
+- The Week-1 rehearsal (the K90 run dir, the Week-1 plan from the private bucket) runs next; then the choice is the
+  operator's and the reviewer's for Thursday noon, else Week 5. The code (379bfd5a) is default-off.
+
+L20: 23+ of 72 slate-banks.
+
 ## 2026-09-29 (18:40 CDT) — OPERATOR DECISIONS for Week 4 (chat, answering the laptop): contest mix unchanged; supersats on the main book; the ownership term armed unless L20 reads HARMFUL
 
 1. **Contest mix: "Keep my current mix."** Action 1's re-allocation is declined. The stake plan stays as it is. No
