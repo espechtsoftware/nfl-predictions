@@ -240,6 +240,8 @@ def main() -> int:
     ap.add_argument("--offsets", type=Path, help="JSON {contest type: points}; default: the Week-3 offsets")
     ap.add_argument("--now", default=None); ap.add_argument("--out", type=Path)
     ap.add_argument("--field-limit", type=int, default=20_000); ap.add_argument("--worlds", type=int, default=4_000)
+    ap.add_argument("--min-field", type=int, default=1000,
+                    help="refuse an export with fewer full lineups (the Thursday dry run's contest holds at most 1,426)")
     ap.add_argument("--max-live-age-min", type=float, default=15.0)
     ap.add_argument("--max-snapshot-age-min", type=float, default=30.0)
     ap.add_argument("--rehearsal", action="store_true", help="replays only: skip the live-snapshot age check (receipted)")
@@ -293,7 +295,7 @@ def main() -> int:
                                "players": sorted(fr.set_index(fr.id.astype(str)).loc[sorted(status_out), "name"].astype(str))}
         # field and lines
         fidx, frate = field_lineups(a.field_export, fr, a.field_limit, 7)
-        if frate < 0.95 or len(fidx) < 1000:
+        if frate < 0.95 or len(fidx) < a.min_field:
             raise Refuse(f"Millionaire export matched {frate:.1%} of player slots / {len(fidx)} full lineups to the frame")
         ftot = np.concatenate([cond[ch].sum(axis=1) for ch in np.array_split(fidx, max(1, len(fidx) // 2000))], axis=0)
         det = json.loads(a.details.read_text())

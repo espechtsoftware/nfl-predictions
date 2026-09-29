@@ -281,8 +281,10 @@ Operator steps are marked **(operator, laptop)**. Everything else is the agent's
    The chain:
    - the operator's mid-game Millionaire-style **Export CSV** click. Whether DraftKings serves the export mid-slate is
      **unverified**, and it is the late swap's hard dependency;
-   - `live_dk_points.py`, then `dk_status_snapshot.py`;
-   - `sat_late_swap_live.py --rehearsal`;
+   - `live_dk_points.py --date 20261001`, then `dk_status_snapshot.py --group 154077`. Pass the group: with
+     `week_env` sourced, the default is Sunday's 154078;
+   - `sat_late_swap_live.py --rehearsal --min-field 300`. The Huddle is top-heavy, so the tool skips its row by design;
+     to exercise the swap mechanics, pass a scratch copy of its details with the ladder treated as flat (paper only);
    - `apply_swaps.py --no-fresh-dk`;
    - a manual fill of an edit-entries export with `fill_dk_entries.py` (the afternoon upload format has never been
      rehearsed).
@@ -400,6 +402,9 @@ scripts/sunday_swap.sh $(… the last stdout line of the previous command …)
 
 ### 5.3 The satellite late swap (~14:30–15:05)
 
+0. **~12:05 (after the lock), re-fetch the ladders:** `dk_contest_details.py --contests $OUT/contests.json --out
+   $OUT/contest-details-postlock.json`. The late swap refuses pre-lock ("Upcoming") details, because entries and paid
+   places are only final after the lock. Pass this file as `--details` below.
 1. ~14:30 **(operator)** the Millionaire **Export CSV** click. The script refuses (exit 3) without it, and the
    entries stand.
 2. ~14:35 `live_dk_points.py --date 20261004 --out $OUT/live.json` (ESPN, ≤ 15 min old) and a fresh
@@ -457,7 +462,7 @@ scripts/sunday_swap.sh $(… the last stdout line of the previous command …)
    HANDOFF.
 6. **Refits:**
    - the class model on Weeks 1, 3 and 4 (not the Week-2 defect week): `scripts/fit_field_class_model.py --weeks
-     WEEK:CID:DG:LOCK …`, sha256-receipted, stored under `gs://…/private/week5/`;
+     WEEK:CID:DG:LOCK … --map-weeks 1,3,4`, sha256-receipted, stored under `gs://…/private/week5/`;
    - the late-swap offsets: `scripts/fit_late_swap_offsets.py --layout <entered bundle>/ENTER-layout.txt --details
      <settled details> --season 2026 --week 4 --milly-contest-id <id> --out offsets-w04.json`. It computes each flat
      satellite's real line among the OTHER entrants (ours removed) minus the Millionaire's final quantile at the same
@@ -533,6 +538,9 @@ arms it as a timer (`T70_PROJECT=1`).
 | 9 | The cash shadows are not in the chain | paper only; Monday |
 | 10 | The stored-ownership gap for identical-share slot rows (HANDOFF 19:35 CDT 09-27) | ownership is counted from `contest_entries` lineups (`field_ownership_sql`) |
 | 11 | `arm()` needs bash namerefs (≥ 4.3) | the laptop has bash 5.3 |
+| 12 | **The production checkout must stay clean and unchanged from arming (Saturday) until Sunday 15:30.** Every unit re-runs `check_week_runtime.py`, which refuses a dirty `~/projects/nfl-predictions`, and bash reads scripts lazily | no `git pull`, edits or untracked files there over the weekend; work in a worktree |
+| 13 | The proof script's `DEPLOYED` digest constant is Week 3's | pass `--digest sha256:<Wednesday's digest>` on every proof run after the redeploy |
+| 14 | **Sweep 2026-09-29:** four defects that would have stopped Sunday, found and fixed or assigned: the T-70 audit, the repeated rows, `GROUP` under systemd, the Rams `LAR`/`LA` alias | HANDOFF 09-29; production owns the audit, the repeats, vet sort, watcher filters, the Saturday self-union and the freshness sweep |
 
 ---
 

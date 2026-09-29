@@ -23,6 +23,8 @@ def main():
     ap.add_argument("--frame", default=None, help="frame.parquet for 'Name (ID)' cells; bare IDs if absent")
     ap.add_argument("--contests", default=os.environ.get("CONTESTS_JSON"), help="the week's contests.json (name, contest_id, entries, keep)"); a = ap.parse_args()
     global CONTESTS
+    if not a.contests:   # 2026-09-29 sweep: the Week-1 CONTESTS fallback can only refuse; name the missing input instead
+        ap.error("--contests (or CONTESTS_JSON) is required: the week's contests.json")
     if a.contests:
         CONTESTS = {str(c["contest_id"]): (f"ENTER-{c['name']}-{c['contest_id']}-*-entries-KEEP-first-*.csv", int(c["keep"])) for c in json.load(open(a.contests))}
     raw = pathlib.Path(a.template).read_bytes().decode("utf-8-sig"); rows = list(csv.reader(raw.splitlines()))
