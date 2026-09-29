@@ -49,3 +49,21 @@ def test_rehearsal_override_is_explicit(tmp_path):
     ok, why = rp.publishable(d, False, audit_gate=False)
     assert ok and "rehearsal override" in why
     assert rp.main([str(d)]) == 1 and rp.main([str(d), "--no-audit-gate"]) == 0
+
+
+def test_group_window_and_superseded_gate_publication(tmp_path):
+    d = _run(tmp_path); (d / "audit_passed").touch()
+    (d / "receipt.json").write_text(json.dumps({"draft_group": 154078, "built_utc": "2026-10-03 15:00:00+00:00", "config": {}}))
+    assert rp.publishable(d, False, group="154078", built_after="2026-10-03T05:00:00")[0]
+    ok, why = rp.publishable(d, False, group="154077")
+    assert not ok and "draft group" in why
+    ok, why = rp.publishable(d, False, built_after="2026-10-03T16:00:00")
+    assert not ok and "before this week's window" in why
+    (d / "superseded").touch()
+    ok, why = rp.publishable(d, False)
+    assert not ok and "superseded" in why
+
+
+def test_parse_utc_compares_the_lab_form_and_iso_by_content():
+    assert rp.parse_utc("2026-10-03 15:00:00.123456+00:00") > rp.parse_utc("2026-10-03T05:00:00")
+    assert rp.parse_utc("2026-10-03T15:00:00Z") == rp.parse_utc("2026-10-03 15:00:00+00:00")

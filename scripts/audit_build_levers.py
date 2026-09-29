@@ -54,9 +54,35 @@ def _players_of(cell: str) -> list[str]:
     return [x.strip() for x in str(cell).split(",") if x.strip()]
 
 
+def t70_trace_from_bq(receipt: dict, reader=None) -> "pd.DataFrame | None":
+    """The t70_* columns of the build's own projection batch from nfl_predictions.player_projections (season, week,
+    generated_at = the receipt's config.production_generated_at). Returns None, with the reason printed, when the batch
+    is not identifiable or the table lacks the columns; the caller then fails the check."""
+    cfg = receipt.get("config", {}) or {}
+    gen = cfg.get("production_generated_at"); season = receipt.get("season"); week = receipt.get("week")
+    if not gen or season is None or week is None:
+        print("t70 trace: the receipt names no projection batch (config.production_generated_at)", file=sys.stderr); return None
+    if reader is None:
+        def reader(sql):
+            from nfl_dfs.bq import client
+            return client().query(sql).result().to_dataframe()
+    import os
+    project = os.environ.get("GCP_PROJECT", "")
+    table = f"`{project + '.' if project else ''}nfl_predictions.player_projections`"
+    try:
+        df = reader(f"SELECT gsis_id, t70_active_q, t70_vacated_net FROM {table} WHERE season = {int(season)} AND week = {int(week)} "
+                    f"AND generated_at = TIMESTAMP('{gen}')")
+    except Exception as exc:                                   # noqa: BLE001 -- named, then the check fails
+        print(f"t70 trace: player_projections query failed ({type(exc).__name__}: {str(exc)[:200]}); the batch carries no t70 columns "
+              "or the table lacks them (the deployed projection image predates the T-70 rules)", file=sys.stderr); return None
+    if df is None or len(df) == 0:
+        print(f"t70 trace: no player_projections rows for season {season} week {week} generated_at {gen}", file=sys.stderr); return None
+    return df
+
+
 def audit(run: Path, contests: list[dict], *, layout: str, expect_selector: str | None, expect_max_per_game: int | None,
           min_salary: int, punt_max: int, market_floor: float, sources: dict[str, float], fade: str,
-          top_owned: int = 20, t70: str = "off") -> dict:
+          top_owned: int = 20, t70: str = "off", t70_reader=None) -> dict:
     fr = pd.read_parquet(run / "frame.parquet")
     cands = pd.read_parquet(run / "candidates.parquet")
     receipt = json.loads((run / "receipt.json").read_text())
@@ -185,10 +211,17 @@ def audit(run: Path, contests: list[dict], *, layout: str, expect_selector: str 
            selector=cfg.get("selector"), mean_rows=k_mean, sleeve=t, written=written, operational_k=opk, book_rows=len(book))
 
     # ---- t70_rules_effect (operator 2026-09-28): declared ON must leave a trace when there was something to act on;
-    # declared OFF must leave none. The trace is the t70_* receipt columns the projection step writes.
-    has_cols = {"t70_active_q", "t70_vacated_net"} <= set(fr.columns)
-    n_active = int(fr["t70_active_q"].fillna(False).astype(bool).sum()) if has_cols else 0
-    n_bumped = int((pd.to_numeric(fr["t70_vacated_net"], errors="coerce").fillna(0) > 0).sum()) if has_cols else 0
+    # declared OFF must leave none. The trace is the t70_* columns the projection step writes. The lab's frame does not
+    # carry them (sweep 2026-09-29 item 1), so with --t70 on they are read from player_projections for the build's own
+    # batch (the receipt's config.production_generated_at); a batch without the columns FAILS the check by name (the
+    # deployed projection image predates the rules), never silently.
+    trace = fr[["t70_active_q", "t70_vacated_net"]] if {"t70_active_q", "t70_vacated_net"} <= set(fr.columns) else None
+    trace_src = "frame"
+    if trace is None and t70 == "on":
+        trace, trace_src = t70_trace_from_bq(receipt, t70_reader), "player_projections"
+    has_cols = trace is not None
+    n_active = int(trace["t70_active_q"].fillna(False).astype(bool).sum()) if has_cols else 0
+    n_bumped = int((pd.to_numeric(trace["t70_vacated_net"], errors="coerce").fillna(0) > 0).sum()) if has_cols else 0
     st_up = fr["status"].astype(str).str.upper() if "status" in fr else pd.Series("", index=fr.index)
     absent_starters = int(((pd.to_numeric(fr.get("depth_rank"), errors="coerce") == 1) & st_up.isin(OUT_STATUSES)).sum()) if "depth_rank" in fr else 0
     early_q = 0
@@ -199,9 +232,9 @@ def audit(run: Path, contests: list[dict], *, layout: str, expect_selector: str 
     if t70 == "on":
         ok = has_cols and ((absent_starters == 0 or n_bumped > 0) and (early_q == 0 or n_active > 0))
         record("t70_rules_effect", ok,
-               f"T-70 rules declared ON: receipt columns {'present' if has_cols else 'ABSENT'}; {absent_starters} absent depth-1 "
+               f"T-70 rules declared ON: trace {'present (' + trace_src + ')' if has_cols else 'ABSENT'}; {absent_starters} absent depth-1 "
                f"starter(s) -> {n_bumped} bumped backup(s); {early_q} early-game Questionable(s) -> {n_active} activated",
-               absent_starters=absent_starters, bumped=n_bumped, early_q=early_q, activated=n_active)
+               absent_starters=absent_starters, bumped=n_bumped, early_q=early_q, activated=n_active, trace_source=trace_src if has_cols else None)
     else:
         record("t70_rules_effect", n_active == 0 and n_bumped == 0,
                f"T-70 rules declared OFF: {n_active} activated, {n_bumped} bumped (undeclared lever if nonzero)",

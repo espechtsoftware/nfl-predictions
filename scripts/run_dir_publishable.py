@@ -22,6 +22,17 @@ import sys
 from pathlib import Path
 
 
+def parse_utc(text: str):
+    """A UTC datetime from either the lab's str(datetime) form ("2026-10-03 15:00:00.123+00:00") or ISO with T and an
+    optional Z / offset; naive values are taken as UTC. Compare times by content, never by string (the frozen-chain lesson)."""
+    from datetime import datetime, timezone
+    t = str(text).strip().replace(" ", "T", 1)
+    if t.endswith("Z"):
+        t = t[:-1] + "+00:00"
+    d = datetime.fromisoformat(t)
+    return d if d.tzinfo else d.replace(tzinfo=timezone.utc)
+
+
 def publishable(run: Path, union_mode: bool, audit_gate: bool = True, group: str | None = None,
                 built_after: str | None = None) -> tuple[bool, str]:
     for f in ("receipt.json", "candidates.parquet", "incumbent_player_scores.npy"):
@@ -38,8 +49,13 @@ def publishable(run: Path, union_mode: bool, audit_gate: bool = True, group: str
             return False, f"unreadable receipt: {exc}"
         if group is not None and str(rec.get("draft_group")) != str(group):
             return False, f"draft group {rec.get('draft_group')} is not this week's {group}"
-        if built_after is not None and str(rec.get("built_utc", "")) < built_after:
-            return False, f"built {rec.get('built_utc')} before this week's window start {built_after} (a smoke or an old build)"
+        if built_after is not None:
+            try:
+                early = parse_utc(rec.get("built_utc", "")) < parse_utc(built_after)
+            except (TypeError, ValueError) as exc:
+                return False, f"unparseable built_utc / window start: {exc}"
+            if early:
+                return False, f"built {rec.get('built_utc')} before this week's window start {built_after} (a smoke or an old build)"
     if audit_gate and not (run / "audit_passed").is_file():
         return False, "no audit_passed marker yet (the build host writes it after verify_k90 and the audit pass)"
     if union_mode:

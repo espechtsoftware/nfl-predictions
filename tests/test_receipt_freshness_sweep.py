@@ -159,3 +159,13 @@ class TestItIsWiredIntoTheSundayChain:
         """Silence must not be the only signal for OK; say so explicitly."""
         chain = (Path(__file__).resolve().parents[1] / "scripts" / "sunday_after_build.sh").read_text()
         assert "INPUT FRESHNESS: OK" in chain
+
+
+def test_model_artifacts_are_not_swept_as_inputs(tmp_path):
+    """A fitted class model carries its training weeks' locks and a Monday fitted_utc: legitimately before the window."""
+    import json
+    from datetime import date
+    (tmp_path / "class_model.json").write_text(json.dumps({"fitted_utc": "2026-09-28T12:00:00Z", "weeks": [{"lock": "2026-09-13T17:00:00Z"}]}))
+    (tmp_path / "other.json").write_text(json.dumps({"salary_pull": "2026-09-13T12:00:00Z"}))
+    findings, scanned = rfs.sweep(tmp_path, date(2026, 9, 29))
+    assert scanned == 1 and [f["file"] for f in findings] == [str(tmp_path / "other.json")]

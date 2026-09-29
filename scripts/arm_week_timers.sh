@@ -98,7 +98,10 @@ WATCH_FLAGS=()
 L12800=("${BASE_ENV[@]}" "${SHADOW_FLAGS[@]}" "PAID_LEV=$D12800_LEV" "PAID_BOOM=$D12800_BOOM" SKIP_PAIR=1 DOSE_FILE=/dev/null "RUN_TAG=$(sat 10:30 d12800sat)" "$DRIVER")
 L6400SAT=("${BASE_ENV[@]}" "PAID_LEV=$D6400_LEV" "PAID_BOOM=$D6400_BOOM" SKIP_PAIR=1 DOSE_FILE=/dev/null "RUN_TAG=$(sat 10:35 d6400sat)" "$DRIVER")
 L6400=("${BASE_ENV[@]}" "PAID_LEV=$D6400_LEV" "PAID_BOOM=$D6400_BOOM" SKIP_PAIR=1 DOSE_FILE=/dev/null "RUN_TAG=$(tag 05:30 d6400)" "$DRIVER")
-L3200=("${BASE_ENV[@]}" "PAID_LEV=$D3200_LEV" "PAID_BOOM=$D3200_BOOM" SKIP_PAIR=1 DOSE_FILE=/dev/null "RUN_TAG=$(tag 09:10 d3200)" "$DRIVER")
+# sweep item 12: the 09:10 build is the floor only until the T-70 build starts; if it finishes later its dirs are marked
+# superseded (the watcher never publishes them), so a slow 09:10 union can never displace the T-70 union.
+SUPERSEDE_T70=$(date -u -d "@$(TZ=America/Chicago date -d "$SUNDAY ${T70_BUILD_CT:-10:50}" +%s)" +%Y-%m-%dT%H:%M:%S)
+L3200=("${BASE_ENV[@]}" "SUPERSEDE_AFTER_UTC=$SUPERSEDE_T70" "PAID_LEV=$D3200_LEV" "PAID_BOOM=$D3200_BOOM" SKIP_PAIR=1 DOSE_FILE=/dev/null "RUN_TAG=$(tag 09:10 d3200)" "$DRIVER")
 T70_GATE=()
 if [[ -n "${T70_MIN_PROJ_CT:-}" ]]; then
   T70_GATE=("MIN_PROJ_GENERATED_AT=$(date -u -d "@$(TZ=America/Chicago date -d "$SUNDAY $T70_MIN_PROJ_CT" +%s)" +%Y-%m-%dT%H:%M:%S+00:00)")

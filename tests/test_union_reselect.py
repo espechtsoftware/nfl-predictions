@@ -83,3 +83,25 @@ def test_frame_players_carry_the_lab_shape():
     p = ur.frame_players(fr)
     assert set(p["p0"]) == {"id", "name", "pos", "team", "opp", "salary", "game_id", "proj"} and p["p0"]["proj"] == 10.0
     assert ur._LU([p["p0"], p["A_DST"]], "t").salary == 8000
+
+
+def test_pick_saturday_run_filters_group_window_unions_and_superseded(tmp_path):
+    def mk(name, lev, boom, built, group=154078, union=False, superseded=False):
+        d = tmp_path / name; d.mkdir()
+        cfg = {"lev": lev, "boom": boom}
+        if union:
+            cfg["union"] = {"t70_run": "x"}
+        (d / "receipt.json").write_text(json.dumps({"built_utc": built, "draft_group": group, "config": cfg}))
+        for b in ur.BANKS:
+            (d / b).write_bytes(b"x")
+        if superseded:
+            (d / "superseded").touch()
+    mk("20260930T150000Z-smoke", 2560, 10240, "2026-09-30 15:00:00+00:00")                 # Wednesday's smoke: before the window
+    mk("20261003T150000Z-sat", 2560, 10240, "2026-10-03 15:00:00+00:00")
+    mk("20261003T160000Z-sat-other", 2560, 10240, "2026-10-03 16:00:00+00:00", group=154077)  # another slate
+    mk("20261003T170000Z-union", 2560, 10240, "2026-10-03 17:00:00+00:00", union=True)        # a union dir, never the supply
+    mk("20261003T180000Z-sup", 2560, 10240, "2026-10-03 18:00:00+00:00", superseded=True)
+    got = ur.pick_saturday_run(tmp_path, 2560, 10240, "2026-10-04 15:50:00+00:00", group="154078", after="2026-10-03T05:00:00")
+    assert got.name == "20261003T150000Z-sat"
+    with pytest.raises(SystemExit, match="no Saturday run dir"):
+        ur.pick_saturday_run(tmp_path, 2560, 10240, "2026-10-04 15:50:00+00:00", group="154078", after="2026-10-03T15:30:00")

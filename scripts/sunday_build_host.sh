@@ -229,21 +229,31 @@ print(f"k90 receipt verified (governed): {d.name} lev/boom {lev}/{boom} entries 
 PYEOF
 }
 verify_k90 "$K90_DIR" || { echo "K90 receipt verification FAILED for $K90_DIR"; exit 1; }
+# The T-70 rules are declared ON for the audit only on the T-70 build: the unit that carries MIN_PROJ_GENERATED_AT (the
+# projections made after the 10:30 inactives). Every other build (Saturday, 09:10) runs on projections the rules never
+# touched, so it declares OFF (sweep 2026-09-29 item 1; with ON on every build the audit refused every run dir).
+T70_DECLARED=off; [[ -n "${MIN_PROJ_GENERATED_AT:-}" && ( "${T70_ACTIVE_Q:-0}" == "1" || "${T70_VACATED_BUMP:-0}" == "1" ) ]] && T70_DECLARED=on
+echo "T-70 rules declared $T70_DECLARED for the audit (MIN_PROJ_GENERATED_AT=${MIN_PROJ_GENERATED_AT:-unset})"
 # Fail-loud build audit (operator 2026-09-27): every declared lever must leave its trace, no undeclared lever may, every
 # candidate must be legal and playable, the declared sources must be present, and the selector/tracks must match. A
 # failure stops the chain here; the run dir is never adopted. AUDIT_SOURCES lists frame_column:min_share pairs.
 ( cd "$PROD" && PYTHONPATH="$PROD/src" "$PROD_PY" scripts/audit_build_levers.py "$K90_DIR" --contests "$CONTESTS_JSON" \
     --layout "${ENTER_LAYOUT:-sequential}" --expect-selector "$LIVE_SELECTOR" ${MAX_PER_GAME:+--expect-max-per-game "$MAX_PER_GAME"} \
     --min-salary "${MIN_LINEUP_SALARY:-49000}" --fade "${AUDIT_FADE:-off}" --sources "${AUDIT_SOURCES:-market_points:0.30,dk_ppg:0.80}" \
-    --t70 "$( [[ "${T70_ACTIVE_Q:-0}" == "1" || "${T70_VACATED_BUMP:-0}" == "1" ]] && echo on || echo off )" \
+    --t70 "$T70_DECLARED" \
     --out "$OUT/lever-audit-$RUN_TAG.json" | tee "$OUT/lever-audit-$RUN_TAG.txt" ) || { echo "BUILD AUDIT FAILED for $K90_DIR (see $OUT/lever-audit-$RUN_TAG.txt); refusing the run dir"; touch "$K90_DIR/audit_failed"; exit 1; }
 cp "$OUT/lever-audit-$RUN_TAG.json" "$K90_DIR/lever_audit.json" && touch "$K90_DIR/audit_passed"   # the watcher publishes only marked dirs
 # 2a. The T-70 UNION (operator 2026-09-28): with UNION_SATURDAY_RUN set, the Saturday paid pool's survivors join the T-70
 # pool and the book is re-selected with the same mean selector; the union run dir is verified and audited like any build
 # and becomes the run dir the chain emits and the watcher promotes (newest, same lev/boom as the T-70 run).
+if [[ -n "${UNION_SATURDAY_RUN:-}" && "$PAID_LEV/$PAID_BOOM" == "${UNION_SAT_DOSE:-2560/10240}" ]]; then
+  echo "this build ($PAID_LEV/$PAID_BOOM) IS the Saturday supply (UNION_SAT_DOSE): no union for it (sweep item 7)"
+  UNION_SATURDAY_RUN=""
+fi
 if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   [[ "$LIVE_SELECTOR" == "mean" ]] || { echo "the union is defined for LIVE_SELECTOR=mean (got $LIVE_SELECTOR)"; exit 1; }
   UNION_ARGS=(--saturday-run "$UNION_SATURDAY_RUN" --saturday-dose "${UNION_SAT_DOSE:-2560/10240}" --t70-run "$K90_DIR" --live-dir "$LIVE_DIR"
+              --group "$GROUP" ${WEEK_WINDOW_START_UTC:+--saturday-after "$WEEK_WINDOW_START_UTC"}
               --entries "$BOOK_ENTRIES" --tail-sleeve "$TAIL_SLEEVE" --mean-max-shared 7 --min-proj "${LIVE_MIN_PROJ:-1.0}"
               --max-per-game "${MAX_PER_GAME:-4}" --min-salary "${MIN_LINEUP_SALARY:-49000}" --pmo "${UNION_PMO:-0}" --pmo-cap-share "${UNION_PMO_CAP:-0.5}" --main "${UNION_MAIN:-mean}")
   [[ -n "${UNION_MAIN_DST_CAP:-}" ]] && UNION_ARGS+=(--main-dst-cap "$UNION_MAIN_DST_CAP")
@@ -272,11 +282,17 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   ( cd "$PROD" && PYTHONPATH="$PROD/src" "$PROD_PY" scripts/audit_build_levers.py "$UNION_DIR" --contests "$CONTESTS_JSON" \
       --layout "${ENTER_LAYOUT:-sequential}" --expect-selector "$LIVE_SELECTOR" ${MAX_PER_GAME:+--expect-max-per-game "$MAX_PER_GAME"} \
       --min-salary "${MIN_LINEUP_SALARY:-49000}" --fade "${AUDIT_FADE:-off}" --sources "${AUDIT_SOURCES:-market_points:0.30,dk_ppg:0.80}" \
-      --t70 "$( [[ "${T70_ACTIVE_Q:-0}" == "1" || "${T70_VACATED_BUMP:-0}" == "1" ]] && echo on || echo off )" \
+      --t70 "$T70_DECLARED" \
       --out "$OUT/lever-audit-$RUN_TAG-union.json" | tee "$OUT/lever-audit-$RUN_TAG-union.txt" ) || { echo "BUILD AUDIT FAILED for the union $UNION_DIR; refusing it (the T-70 run dir $K90_DIR stands)"; touch "$K90_DIR/union_failed"; rm -rf "$UNION_DIR"; exit 1; }
   cp "$OUT/lever-audit-$RUN_TAG-union.json" "$UNION_DIR/lever_audit.json" && touch "$UNION_DIR/audit_passed"
   echo "union=$UNION_DIR (T-70 run $K90_DIR; $(( $(date +%s) - T2 )) s)"
   K90_DIR=$UNION_DIR
+fi
+if [[ -n "${SUPERSEDE_AFTER_UTC:-}" && "$(date -u +%Y-%m-%dT%H:%M:%S)" > "$SUPERSEDE_AFTER_UTC" ]]; then
+  # sweep item 12: this build (the 09:10 slot) finished after the T-70 build started; publication is by newest dir, so
+  # its union would displace the T-70 union. Mark every dir this build produced; the watcher never publishes a marked dir.
+  for d in "$K90_DIR" ${UNION_DIR:+"$UNION_DIR"}; do touch "$d/superseded"; done
+  echo "SUPERSEDED: this build finished at $(date -u +%H:%M:%S)Z, after $SUPERSEDE_AFTER_UTC (the T-70 build's start); it will not be published"
 fi
 [[ -n "$PAID_DIR" ]] || PAID_DIR=$K90_DIR
 echo "k90=$K90_DIR"

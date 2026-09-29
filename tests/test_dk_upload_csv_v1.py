@@ -159,3 +159,17 @@ def test_slice_ranks_is_inclusive_and_bounded() -> None:
                                (1, 6, "exceeds")):
         with pytest.raises(up.DkUploadCsvError, match=match):
             up.slice_ranks(rows, first, last)
+
+
+def test_check_rows_allows_a_sleeve_row_to_repeat_a_mean_row_but_not_another_sleeve_row() -> None:
+    a = [1, 2, 3, 4, 5, 6, 7, 8, 9]; b = [11, 12, 13, 14, 15, 16, 17, 18, 19]
+    # one-track book: no repeat anywhere
+    with pytest.raises(up.DkUploadCsvError, match="repeats an earlier roster"):
+        up.check_rows([a, b, a])
+    # two-track book, K = 2: the sleeve (row 2) may repeat mean row 0
+    assert up.check_rows([a, b, a], mean_rows=2) == [a, b, a]
+    # ...but two mean rows may not repeat each other, nor two sleeve rows
+    with pytest.raises(up.DkUploadCsvError, match="within its block"):
+        up.check_rows([a, a, b], mean_rows=2)
+    with pytest.raises(up.DkUploadCsvError, match="within its block"):
+        up.check_rows([a, b, a, a], mean_rows=2)

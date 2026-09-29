@@ -18,6 +18,14 @@ import argparse, csv, json, pathlib, shutil
 from collections import Counter, defaultdict
 from datetime import UTC, datetime
 import numpy as np, pandas as pd
+
+
+def block_order(tiers, k_mean):
+    """Vetted order of a two-track book: rows sorted by (hard, material, index) WITHIN [0, k_mean) and WITHIN [k_mean, n)
+    separately, so no row crosses between the mean block and the sleeve block (2026-09-29 sweep item 4)."""
+    n = len(tiers); k = min(max(int(k_mean), 0), n)
+    key = lambda i: (bool(tiers[i][0]), bool(tiers[i][1]), i)
+    return sorted(range(k), key=key) + sorted(range(k, n), key=key)
 from google.cloud import bigquery
 from nfl_dfs.names import norm_name
 
@@ -138,8 +146,7 @@ def main():
     _src = json.loads((run / "receipt.json").read_text())
     _k_mean = int((_src.get("config") or {}).get("operational_k") or n)
     _k_mean = min(max(_k_mean, 0), n)
-    _key = lambda i: (lineups[i]["hard"], lineups[i]["material"], i)
-    order = sorted(range(_k_mean), key=_key) + sorted(range(_k_mean, n), key=_key)
+    order = block_order([(lu["hard"], lu["material"]) for lu in lineups], _k_mean)
     with (out / "book.csv").open("w", newline="") as h:
         wr = csv.writer(h); wr.writerow(SLOTS); [wr.writerow(book[i]) for i in order]
     shutil.copy(run / "frame.parquet", out / "frame.parquet"); shutil.copy(run / "receipt.json", out / "source_receipt.json")

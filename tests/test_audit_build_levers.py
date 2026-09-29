@@ -190,3 +190,29 @@ def test_union_main_check_reads_the_declared_form(tmp_path):
     run3 = _run_dir(tmp_path / "w", lineups=lus, book=lus[:6], receipt=mean_rec)
     c.to_parquet(run3 / "candidates.parquet")
     assert "union_main" in _audit(run3, contests=tail, expect_selector="mean")["failed"]          # mean main holding pmo rows
+
+
+def test_t70_trace_is_read_from_player_projections_when_the_frame_lacks_it(tmp_path):
+    """Sweep 2026-09-29 item 1: the lab frame never carries the t70_* columns; with --t70 on the audit reads the build's
+    own batch from player_projections (by the receipt's production_generated_at) and fails by name without it."""
+    import pandas as pd
+    lus = [_lineup("A", "B", "C"), _lineup("C", "D", "E"), _lineup("E", "F", "G"), _lineup("G", "H", "A"), _lineup("B", "A", "D")]
+    rec = {"written": 5, "season": 2026, "week": 4, "config": {"selector": "mean", "operational_k": 5, "production_generated_at": "2026-10-04 15:36:00+00:00"}}
+    run = _run_dir(tmp_path / "t", lineups=lus, book=lus[:5], receipt=rec)
+    calls = []
+    def reader(sql):
+        calls.append(sql)
+        return pd.DataFrame({"gsis_id": ["x", "y"], "t70_active_q": [True, False], "t70_vacated_net": [0.0, 1.6]})
+    res = _audit(run, expect_selector="mean", t70="on", t70_reader=reader)
+    chk = [c for c in res["checks"] if c["check"] == "t70_rules_effect"][0]
+    assert chk["ok"] and chk["trace_source"] == "player_projections" and chk["activated"] == 1 and chk["bumped"] == 1
+    assert "generated_at = TIMESTAMP('2026-10-04 15:36:00+00:00')" in calls[0] and "week = 4" in calls[0]
+    # the table lacks the columns (the deployed image predates the rules): the check FAILS by name
+    def broken(sql):
+        raise RuntimeError("Unrecognized name: t70_active_q")
+    res2 = _audit(run, expect_selector="mean", t70="on", t70_reader=broken)
+    chk2 = [c for c in res2["checks"] if c["check"] == "t70_rules_effect"][0]
+    assert not chk2["ok"] and "ABSENT" in chk2["detail"]
+    # declared OFF on a frame without the columns: no trace, passes
+    res3 = _audit(run, expect_selector="mean", t70="off")
+    assert [c for c in res3["checks"] if c["check"] == "t70_rules_effect"][0]["ok"]

@@ -552,3 +552,27 @@ def test_late_game_only_questionable_flag(tmp_path, monkeypatch):
     monkeypatch.setenv("LOCK_UTC", "2026-09-27 17:00:00+00:00")
     with pytest.raises(EL.LayoutError, match="game_start"):
         EL.live_flagged_positions(tmp_path / "vf.json", 4, rows, old)                      # a snapshot without game starts
+
+
+def test_frozen_swap_uses_the_row_map_when_the_sleeve_repeats_a_mean_row(tmp_path):
+    """Sweep 2026-09-29 item 2: the mean sleeve repeats main rows by design; the published row map (not a reverse roster
+    lookup) tells the swap re-publication which upload rows each contest holds."""
+    import csv, json
+    cs = [{"name": "sat", "contest_id": "1", "entries": 1, "keep": 1}, {"name": "milly", "contest_id": "2", "entries": 2, "keep": 2, "track": "tail"}]
+    hdr = ["QB", "RB", "RB", "WR", "WR", "WR", "TE", "FLEX", "DST"]
+    r1 = [str(100 + i) for i in range(9)]; r2 = [str(200 + i) for i in range(9)]
+    body = [r1, r2, r1]                                   # mean row 0 = r1; sleeve rows 1, 2 = r2, r1 (a repeat of the mean row)
+    up = tmp_path / "upload.csv"
+    with up.open("w", newline="") as f:
+        w = csv.writer(f); w.writerow(hdr); w.writerows(body)
+    stage = tmp_path / "bundle"
+    EL.write(cs, up, stage, "head", (list(range(3)), {"order": "greedy"}))
+    rowmap = json.loads((stage / EL.ROWMAP_NAME).read_text())
+    assert rowmap == {"sat-1": [0], "milly-2": [1, 2]}
+    (stage / "ENTER-all-rows-1-to-3-are-the-KEEPERS.csv").write_bytes(up.read_bytes())
+    new = [r1, r2, r1[:8] + ["999"]]                      # one cell changed in the repeated sleeve row
+    per, info = EL.frozen_contest_rows(cs, stage, new, None)
+    assert per == [[0], [1, 2]] and info["rows_changed"] == [3]
+    (stage / EL.ROWMAP_NAME).unlink()                     # a bundle without the map: the reverse lookup refuses repeats by name
+    with pytest.raises(EL.LayoutError, match="no row map"):
+        EL.frozen_contest_rows(cs, stage, new, None)

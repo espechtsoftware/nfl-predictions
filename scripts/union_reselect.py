@@ -53,6 +53,7 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from r1c_sunday_reselect import BANKS, OUT_STATUSES, unavailable_ids  # noqa: E402
+from run_dir_publishable import parse_utc  # noqa: E402
 
 SKILL = ("QB", "RB", "WR", "TE")
 COPY = ("frame.parquet", "universe_ledger.parquet", "exposure_ledger.json", "book_wemax.csv", "book_wemax.json", *BANKS)
@@ -87,8 +88,11 @@ def pick_saturday_run(live_dir: Path, lev: int, boom: int, before: str, group: s
             continue
         if group is not None and str(r.get("draft_group")) != str(group):
             continue
-        b = str(r.get("built_utc", ""))
-        if b < before and (after is None or b >= after) and all((d / x).is_file() for x in BANKS):
+        try:
+            b = parse_utc(r.get("built_utc", ""))
+        except (TypeError, ValueError):
+            continue
+        if b < parse_utc(before) and (after is None or b >= parse_utc(after)) and all((d / x).is_file() for x in BANKS):
             hits.append(d)
     if not hits:
         raise SystemExit(f"no Saturday run dir with lev/boom {lev}/{boom} (sidecars, group {group}, built in [{after}, {before})) under {live_dir}")
@@ -238,7 +242,7 @@ def main(argv: list[str] | None = None) -> int:
     else:
         sat_dir = Path(a.saturday_run)
     sat = load_run(sat_dir)
-    if str(sat["receipt"].get("built_utc", "")) >= str(t70["receipt"].get("built_utc", "")):
+    if parse_utc(sat["receipt"].get("built_utc", "")) >= parse_utc(t70["receipt"].get("built_utc", "")):
         raise SystemExit(f"the Saturday run {sat_dir.name} was built at or after the T-70 run {a.t70_run.name}")
     fr = t70["frame"]
     inc, hs = (np.load(a.t70_run / b) for b in BANKS)
