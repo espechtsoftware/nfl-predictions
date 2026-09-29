@@ -12,6 +12,36 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (15:50 CDT) — Production: the Week-3 sleeve-cap rehearsal (ask 1, outcome-blind): the uncapped sleeve put one player in 107 of 132 rows; `--sleeve-cap-share 0.5` holds every player at the cap with no fallback; L19 freezing now (ask 2)
+
+**Ask 1, from b0df56c1's `union_reselect.py` (tool sha `60f52d38…`, production_sha b0df56c1), the Week-3 pair (Saturday
+`20260926T153408…-65305f5`, T-70 `20260927T155027…-65305f5`), `--main pmo_x50 --main-dst-cap 0.25 --sleeve-includes-main
+--rehearsal`, the pinned lab clone `week4-live-center` @ 54dd512 on the path. Receipts only; no realized points read.**
+
+| Run | Main | Sleeve T | Cap | Max rows per player | Distinct | Top five (rows) | Sleeve by source | Fell back |
+|---|---|---|---|---|---|---|---|---|
+| w3y-nocap-K54T132 (the rehearsal's shape) | 54 | 132 | none | **107** | 82 | Gibbs 107, K. Walker 84, St. Brown 79, Shough 77, Olave 60 | pmo_x50 46 / Sat 84 / T-70 2 | — |
+| w3y-cap50-K54T132 | 54 | 132 | 66 | **66** | 91 | Shough 66, St. Brown 66, Gibbs 66, Walker 66, Jeanty 60 | pmo_x50 54 / Sat 74 / T-70 4 | no |
+| w3y-nocap-K36T85 (Week 4's shape) | 36 | 85 | none | **67** | 69 | Gibbs 67, Walker 56, St. Brown 53, Shough 50, Olave 39 | pmo_x50 31 / Sat 52 / T-70 2 | — |
+| w3y-cap50-K36T85 | 36 | 85 | 42 | **42** | 80 | Shough 42, St. Brown 42, Gibbs 42, Walker 42, Jeanty 38 | pmo_x50 36 / Sat 47 / T-70 2 | no |
+
+- The uncapped K54/T132 run reproduces union-w3z's sleeve by source (46 / 84 / 2), so the inputs are the same.
+- The flag works as designed: every capped run fills T, `player_cap.fell_back=false`, and the top players sit exactly at
+  the cap (four of them), with distinct players up 82 → 91 and 69 → 80. Under the cap the sleeve takes ALL the main rows
+  (54 of 54, 36 of 36) instead of 46 / 31, so the cap pushes the sleeve further toward the optimizer's rows.
+- Artifacts (run dirs + receipts): `gs://nfl-predictions-503414-raw/private/rehearsal/2026-w03/sleevecap/`. No
+  realized points anywhere in this entry or those dirs' receipts.
+
+**Ask 2, PREREG-L19:** built on L16's harness (branch `production/prereg-l19-20260929` from f657c1a8) with the live
+sleeve form (entered main K = 36 / cap 18 / DST 9; sleeve from pool + main; top-85 by mean, ≤ 7 shared) and the capped
+arms calling the vendored `select_top_mean_player_cap` from b0df56c1 (file sha `60f52d38…` pinned, the function's own
+sha recorded per row): S_NONE / **S50** / S33 / S67, primary tickets99 on the sleeve rows by L13's rule, the fell-back
+count co-reported. Mechanics smoke passed (85 rows in every arm, no fallback; S33 binds at 5%, S50 coincides with
+S_NONE at the 5% pool only — disclosed). Full-path smoke running; freeze and launch at 4 workers beside L16 follow in the
+next entry. Compute: ≈ 1.2 h per slate-bank per worker (the pool), ≈ 88 CPU-h; L07's launcher was re-armed at 12 workers
+(not 14) so both fit: L19's read Wednesday afternoon, L07's Wednesday midday, both before Thursday 12:00 CT. **L19 does
+not delay L07 beyond about two hours.**
+
 ## 2026-09-29 (15:34 CDT) — Laptop: optional tail-sleeve player cap (`UNION_SLEEVE_CAP`, off = as entered); → WORKSTATION: PREREG-L19 (tail cap) by Thursday 12:00 CT, and a Week-3 exposure read today
 
 **Operator (chat).** He asked whether the 50% cap applies to the tail contests. It does not: the 85-row sleeve (dealt to
