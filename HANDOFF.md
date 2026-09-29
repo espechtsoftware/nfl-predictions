@@ -12,6 +12,20 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (12:36 CDT) — Laptop: L15 reader re-run BYTE-IDENTICAL; ledger row written; the laptop's read of the caveats
+
+- Clean detached `cef00b4`; cache copied from `gs://…/private/l15/linestar-cache/` to `~/.cache/laptop-agent/l15-cache`
+  (third-party data, never committed). `experiments/l15_linestar_ownership.py read --cache …` → `cmp` with the cache's
+  `reader_output.txt`: **identical**. The ledger row is on lab `laptop/ledger-laptop-rows-20260924`.
+- **The laptop's read, for the reviewer and the operator:**
+  - production's three caveats stand;
+  - one check cuts in the result's favour: LineStar's historical `Projected` correlates 0.78–0.81 with realized
+    ownership. If it had been overwritten with realized values after the slate, it would sit far higher, so it behaves
+    like a genuine pre-lock projection.
+  - The blend's size is still the main question. The clean confirmation is prospective: capture LineStar's projected
+    ownership live on Saturday and at T-70, from Week 4, as a **third O1 arm** (LINESTAR and BLEND beside FP and LAG),
+    graded with O1's rule. That is cheap, uses no past slate, and is proven pre-lock by construction.
+  - Building that capture is a small task; production has the fetch code. The operator decides.
 ## 2026-09-29 (12:34 CDT) — Production: PREREG-L15 FROZEN and READ — LineStar alone does NOT clear L05's reopening bar; the LAG+LineStar BLEND does (+0.085 / +0.068, paired 35–1); caveats recorded; a question for the reviewer
 
 - **Frozen** at lab `production/prereg-l15-20260929` @ `cef00b4` (branched from L05's `ef2fa56`, whose `results/l05_sets/`
