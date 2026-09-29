@@ -500,6 +500,31 @@ def _visible(locator: Any) -> Any | None:
     return None
 
 
+# 2026-09-29: a signed-out (or unsubscribed) Data Suite session still opens every report, but the gated ones render a
+# 5-row preview under this banner and export exactly those 5 rows. Route Share opens fully signed out, so opening a
+# report proves nothing; the header's "Sign in" link and the banner are the signed-out evidence.
+PAYWALL_TEXT = re.compile(r"requires an active Fantasy Points Data Suite subscription", re.IGNORECASE)
+
+
+def signed_out_reason(body_text: str, header_sign_in_visible: bool) -> str | None:
+    """Why a rendered Data Suite page is signed out or paywalled, or None when it is a paid session."""
+    if PAYWALL_TEXT.search(body_text or ""):
+        return "the page shows the Data Suite subscription paywall (a 5-row preview)"
+    if header_sign_in_visible:
+        return "the page header offers 'Sign in'"
+    return None
+
+
+def _assert_signed_in(page: Any) -> None:
+    body = page.locator("body").inner_text() if page.locator("body").count() else ""
+    reason = signed_out_reason(body, _visible(page.get_by_text("Sign in", exact=True)) is not None)
+    if reason:
+        raise RuntimeError(
+            f"Fantasy Points Data Suite session is not signed in: {reason}; run `fantasy-points-download login`, "
+            "sign in in the opened browser, and press Enter only once the header no longer shows 'Sign in'"
+        )
+
+
 def _click_visible(locator: Any, description: str) -> None:
     candidate = _visible(locator)
     if candidate is None:
@@ -907,6 +932,7 @@ def _download_one(page: Any, spec: ExportSpec, destination: Path, timeout_ms: in
     _assert_values_response_scope(response_info.value, spec)
     _verify_applied_filters(page, spec)
     _wait_for_rendered_scope(page, spec, timeout_ms)
+    _assert_signed_in(page)          # never export a paywalled 5-row preview
 
     _open_export_panel(page)
     _set_checkbox(page, "Include Group Headers", spec.include_group_headers)
@@ -1204,9 +1230,9 @@ def interactive_login(
                 ) from exc
             print("Login completed; the authenticated browser profile is saved locally.")
         else:
-            print("Sign in to Fantasy Points in the opened browser.")
+            print("Sign in to Fantasy Points in the opened browser; keep the window open.")
             input(
-                "After the Data Suite dashboard is visible, press Enter here to save the session: "
+                "When the Data Suite header no longer shows 'Sign in', press Enter here to save the session: "
             )
         context.close()
 
@@ -1232,7 +1258,12 @@ def verify_login(profile_dir: Path, timeout_seconds: float) -> None:
         page.set_default_timeout(timeout_ms)
         try:
             _navigate_to_report(page, REPORTS["route-share"], timeout_ms)
-            print(f"Fantasy Points session verified: {page.url}")
+            try:
+                page.wait_for_load_state("networkidle", timeout=min(timeout_ms, 30_000))
+            except Exception:
+                pass
+            _assert_signed_in(page)
+            print(f"Fantasy Points session verified (signed in): {page.url}")
         except Exception as exc:
             raise RuntimeError(
                 "Fantasy Points saved session could not open the protected Route "

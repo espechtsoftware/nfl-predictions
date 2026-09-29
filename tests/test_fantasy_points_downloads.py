@@ -443,3 +443,11 @@ def test_reuse_prefix_revalidates_and_copies_download(tmp_path):
     with pytest.raises(ValueError, match="hash differs"):
         _reuse_download_prefix(
             prior, destination, [spec], plan_sha256="plan-hash")
+
+
+def test_signed_out_reason_detects_the_paywall_preview_and_the_sign_in_header():
+    from nfl_dfs.ops.fantasy_points_downloads import signed_out_reason
+    banner = "The tool you are trying to access requires an active Fantasy Points Data Suite subscription."
+    assert "paywall" in signed_out_reason(f"Rank Name\n1 A\n{banner}\nSign up", False)
+    assert "Sign in" in signed_out_reason("Advanced Passing\n1 A", True)
+    assert signed_out_reason("Advanced Passing\n1 A\n2 B", False) is None

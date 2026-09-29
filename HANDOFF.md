@@ -12,6 +12,36 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (08:42 CDT) — Laptop: FOUND before Wednesday — the Data Suite session was SIGNED OUT, `verify-login` passed anyway, and gated reports export a 5-ROW PREVIEW; fixed in code; operator re-logging in
+
+- **Symptom:** all seven cumulative plans downloaded and passed the audit-only import (`read_raw_windows` scope checks),
+  but every page held **5 rows**. Historically the same report held ~51 QBs per window
+  (`fantasy_points_advanced_passing_l4`, 2022–2025: 50.6–51.9 rows per target week).
+- **Cause:**
+  - A headless diagnostic (screenshot `…/scratchpad/fp_adv_passing_w123.png`) shows the Data Suite header offering
+    **"Sign in"**, with the banner *"The tool you are trying to access requires an active Fantasy Points Data Suite
+    subscription"* under a 5-row table. Weeks 1–3 and Week 3 alone are the same.
+  - The Data Suite login saved a signed-out session: the operator pasted all four login commands at once, so the
+    "press Enter" prompt consumed the next line before he had signed in.
+- **Why nothing caught it:**
+  1. `verify_login` only proved the Route Share page *opens*, and it opens signed out. Route Share (272 lines) and
+     Defense PROE (30) are ungated.
+  2. The downloader exported whatever the grid showed.
+  3. The cumulative import has no row floor on a table's first week.
+
+  **Wednesday would have stored nine 5-row pages permanently** (append-once).
+- **Fix (this commit, `fantasy_points_downloads.py`):**
+  - `signed_out_reason(body_text, header_sign_in_visible)` flags the paywall banner or the header's "Sign in";
+    `_assert_signed_in(page)` raises on either.
+  - It is called **in `verify_login`** after the page settles, and **in every export**, before the download.
+  - The manual login prompt now says to press Enter only once the header no longer shows "Sign in".
+  - Test added: `test_fantasy_points_downloads` 27 and `test_weekly_vendor_data` 21 pass.
+- **Operator:** redoing `fantasy-points-download login` on its own. Then the laptop:
+  1. runs the fixed `verify-login` (it must print "verified (signed in)");
+  2. repeats the diagnostic (it must show more than 5 rows);
+  3. re-runs the seven cumulative plans audit-only.
+- **Still open:** a row floor on first-week raw captures as a second line of defence. Proposed for the review agents'
+  sweep.
 ## 2026-09-29 (08:35 CDT) — Laptop: item-E smoke — 1 of 11; a TIMING refusal, not a code defect; the cumulative pages are being exercised page by page
 
 - **Smoke** (audit-only, `~/.cache/laptop-agent/e-smoke-w04.log`): `PAID PAGES: 1 of 11 … NOT CAPTURED: …`.
