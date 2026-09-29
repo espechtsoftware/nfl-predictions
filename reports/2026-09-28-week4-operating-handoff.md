@@ -249,7 +249,7 @@ Operator steps are marked **(operator, laptop)**. Everything else is the agent's
    (build-features → tabpfn-gen `TABPFN_UPCOMING=2026:4` → project-slate) after the new image is live. The clone is a
    clean detached lab worktree at 54dd512 (created 09-28):
    ```
-   git -C ~/projects/nfl2 worktree add --detach ~/projects/.nfl2-worktrees/week4-live-center 54dd5126be04020a2267dc41a0ef1504d1415296
+   git -C ~/projects/.nfl2-worktrees/week4-live-center checkout --detach 826d8de6129eaeefe2235467212cc4cfccb57deb   # done 09-29 (the LAR->LA alias on top of 54dd512)
    ```
    - Measure the lev-0 / boom-4800 / class-sleeve build time; that confirms `chosen-dose.env`.
    - Check the receipt and the audit (`audit_build_levers.py`, `t70_rules_effect`).
@@ -323,7 +323,7 @@ Operator steps are marked **(operator, laptop)**. Everything else is the agent's
 5. **(operator, laptop) arm**, after `chosen-dose.env` holds `CHOSEN_LEV=0` / `CHOSEN_BOOM=4800` (or Wednesday's
    measured boom):
    ```
-   EXPECT_SHA=54dd5126be04020a2267dc41a0ef1504d1415296 CLONE=$HOME/projects/.nfl2-worktrees/week4-live-center \
+   GROUP=154078 EXPECT_SHA=826d8de6129eaeefe2235467212cc4cfccb57deb CLONE=$HOME/projects/.nfl2-worktrees/week4-live-center \
    D3200_LEV=0 D3200_BOOM=4800 D800_LEV=0 D800_BOOM=4800 SKIP_UNITS="d6400sat d6400" \
    T70_MIN_PROJ_CT=10:30 T70_PROJECT=1 UNION_SATURDAY_RUN=auto UNION_PMO=0 scripts/arm_week_timers.sh 4 --run
    ```

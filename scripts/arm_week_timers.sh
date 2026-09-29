@@ -22,7 +22,7 @@ WEEK=${1:?usage: arm_week_timers.sh WEEK [--run]}
 RUN=${2:-}
 SEASON=${SEASON:-2026}
 PROD=${PROD:-$(cd -- "$SCRIPT_DIR/.." && pwd)}
-CLONE=${CLONE:-${NFL2_LIVE_CLONE:-/home/erich/projects/.nfl2-worktrees/week3-live-center}}
+CLONE=${CLONE:-${NFL2_LIVE_CLONE:-/home/erich/projects/.nfl2-worktrees/week4-live-center}}
 EXPECT_SHA=${EXPECT_SHA:-${NFL2_EXPECT_SHA:-e7255e98bf87297452befb61fb508ad4b368b59f}}
 PROD_PY=${PROD_PY:-/home/erich/projects/nfl-predictions/.venv/bin/python}
 LAB_PY=${LAB_PY:-/home/erich/projects/nfl2/.venv/bin/python}
@@ -36,6 +36,12 @@ CODE_TAG=${RUN_SUFFIX:-${EXPECT_SHA:0:7}}
 FIXTURE_SHA=e7255e98bf87297452befb61fb508ad4b368b59f
 if [[ "$RUN" == "--run" && "$EXPECT_SHA" == "$FIXTURE_SHA" && "${ALLOW_FIXTURE_PIN:-0}" != "1" ]]; then
   echo "refusing to arm Week $WEEK with the compatibility fixture EXPECT_SHA=$FIXTURE_SHA; export the approved Week-3 pin (or set ALLOW_FIXTURE_PIN=1 only for a deliberate rehearsal)" >&2
+  exit 2
+fi
+# 2026-09-29: GROUP must be explicit when arming. Without it every unit auto-detects it through the `bq` CLI, which the
+# systemd --user PATH does not contain (the gcloud SDK lives in ~/google-cloud-sdk/bin): week_env failed in every unit.
+if [[ "$RUN" == "--run" && -z "${GROUP:-}" ]]; then
+  echo "refusing to arm Week $WEEK without GROUP (the Sunday-main draft group id, e.g. GROUP=154078)" >&2
   exit 2
 fi
 
@@ -60,7 +66,8 @@ UI="nfl-week${WEEK}-host-dk-ingest"
 
 GCP_PROJECT=${GCP_PROJECT:-nfl-predictions-503414}
 # GCP_PROJECT rides every unit: the Week-3 D12800 died in 5 s without it (systemd-run does not inherit the shell's env).
-BASE_ENV=(env "GCP_PROJECT=$GCP_PROJECT"
+# PATH rides every unit too: systemd-run --user units get /usr/bin:/bin-style PATHs without the gcloud SDK (bq, gcloud).
+BASE_ENV=(env "GCP_PROJECT=$GCP_PROJECT" "PATH=$PATH"
   "SEASON=$SEASON" "WEEK=$WEEK" "PROD=$PROD" "CLONE=$CLONE" "EXPECT_SHA=$EXPECT_SHA"
   "PROD_PY=$PROD_PY" "LAB_PY=$LAB_PY" "TOOLS=$TOOLS" "OUT=$OUT" "CONTESTS_JSON=$CONTESTS_JSON"
   "RUN_SUFFIX=$CODE_TAG")
@@ -71,7 +78,8 @@ BASE_ENV=(env "GCP_PROJECT=$GCP_PROJECT"
 [[ -n "${ENTER_ORDER:-}" ]] && BASE_ENV+=("ENTER_ORDER=$ENTER_ORDER")
 [[ -n "${LIVE_FLEX_LATEST:-}" ]] && BASE_ENV+=("LIVE_FLEX_LATEST=$LIVE_FLEX_LATEST")
 [[ -n "${OWNERSHIP_SETS:-}" ]] && BASE_ENV+=("OWNERSHIP_SETS=$OWNERSHIP_SETS")
-for v in ENTER_FLAG_LATE_Q_ONLY T70_ACTIVE_Q T70_VACATED_BUMP LIVE_SELECTOR TAIL_LINE LIVE_MIN_PROJ MEAN_OWN_TILT MEAN_OWN_SOURCE MEAN_DST_CAP TAIL_SLEEVE_SELECTOR CLASS_MODEL CLASS_SLEEVE_EVERY UNION_SATURDAY_RUN UNION_SAT_DOSE UNION_PMO UNION_PMO_CAP UNION_MAIN UNION_MAIN_DST_CAP UNION_SLEEVE_INCLUDES_MAIN UNION_DK_STATUS; do
+for v in ENTER_FLAG_LATE_Q_ONLY T70_ACTIVE_Q T70_VACATED_BUMP LIVE_SELECTOR TAIL_LINE LIVE_MIN_PROJ MEAN_OWN_TILT MEAN_OWN_SOURCE MEAN_DST_CAP TAIL_SLEEVE_SELECTOR CLASS_MODEL CLASS_SLEEVE_EVERY UNION_SATURDAY_RUN UNION_SAT_DOSE UNION_PMO UNION_PMO_CAP UNION_MAIN UNION_MAIN_DST_CAP UNION_SLEEVE_INCLUDES_MAIN UNION_DK_STATUS \
+         ENTRIES_END_CT MAX_PER_GAME MIN_LINEUP_SALARY CASH_SHADOW CASH_SHADOW_N REQUIRE_AUDIT_PASSED; do
   [[ -n "${!v:-}" ]] && BASE_ENV+=("$v=${!v}")
 done
 [[ -n "${ALLOW_FIXTURE_PIN:-}" ]] && BASE_ENV+=("ALLOW_FIXTURE_PIN=$ALLOW_FIXTURE_PIN")

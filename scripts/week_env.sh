@@ -36,7 +36,7 @@ week_settings() {
   done
   export OUT=${OUT:-$HOME/week${WEEK}-sunday}
   # The live revision is a reviewed weekly choice, never inferred from an arbitrary checkout HEAD.
-  export CLONE=${CLONE:-${NFL2_LIVE_CLONE:-/home/erich/projects/.nfl2-worktrees/week3-live-center}}
+  export CLONE=${CLONE:-${NFL2_LIVE_CLONE:-/home/erich/projects/.nfl2-worktrees/week4-live-center}}
   # Week 3 must retain the reviewed live-game-input repair that Week 2 used.
   # Keep this explicit so an unattended arm cannot silently fall back to the
   # older pre-repair revision; advance it deliberately at the next weekly
@@ -52,7 +52,11 @@ week_settings() {
   # 2026-09-25 (operator: "why can't it be this week"): moved 9b341d77 -> 65305f5a (nfl2 laptop/flex-latest-kickoff-20260924,
   # parent 9b341d77, one commit): LIVE_FLEX_LATEST=1 puts each lineup's latest-starting surplus RB/WR/TE in FLEX for late
   # swaps. Default off = byte-identical to 9b341d77; lineups unchanged, only slot labels move.
-  export EXPECT_SHA=${EXPECT_SHA:-${NFL2_EXPECT_SHA:-65305f5a6c33dba6ffa299813ee689b618bbcd30}}
+  # 2026-09-29 (Week 4, the laptop host): moved 65305f5a -> 826d8de6 (nfl2 laptop/two-track-selector-20260927): the mean
+  # selector and mean tail sleeve, the class sleeve, --min-proj, the DST cap, the late-swap policy (54dd512), plus the DK->
+  # nflverse team alias (LAR->LA; Week 4's LA@PHI refused every build at 54dd512). Descends from 65305f5a and 2dc116ce
+  # (merge-base --is-ancestor); the clone .nfl2-worktrees/week4-live-center is checked out at it.
+  export EXPECT_SHA=${EXPECT_SHA:-${NFL2_EXPECT_SHA:-826d8de6129eaeefe2235467212cc4cfccb57deb}}
   # Week 3 on (operator, 2026-09-25): the FLEX slot holds the latest starter. LIVE_FLEX_LATEST=0 is the rollback.
   export LIVE_FLEX_LATEST=${LIVE_FLEX_LATEST:-1}
   # Week-3 construction cap (operator, 2026-09-22): max 4 players per game in every lev and boom

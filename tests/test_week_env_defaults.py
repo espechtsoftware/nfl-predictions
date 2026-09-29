@@ -12,12 +12,15 @@ LIVE_REPAIR_SHA = "2dc116ce95647a776ba9c36cf194f44d022d03a4"
 # descends from 2dc116ce (the reviewed Week-2 live-game input repair). Verified with
 # `git merge-base --is-ancestor 2dc116ce 9b341d77` when the pin moved.
 # 2026-09-25: advanced to 65305f5a (parent 9b341d77, one commit: LIVE_FLEX_LATEST, default off in nfl2).
-LIVE_PIN_SHA = "65305f5a6c33dba6ffa299813ee689b618bbcd30"
+# 2026-09-29: advanced to 826d8de6 for Week 4 (the two-track branch + the DK->nflverse team alias); it descends from
+# 65305f5a and 2dc116ce.
+LIVE_PIN_SHA = "826d8de6129eaeefe2235467212cc4cfccb57deb"
 
 
 def test_week3_default_keeps_the_reviewed_live_game_input_repair():
     source = ENV_SCRIPT.read_text()
-    assert f"NFL2_EXPECT_SHA:-{LIVE_PIN_SHA}" in source, "EXPECT_SHA default is not the reviewed Week-3 pin"
+    assert f"NFL2_EXPECT_SHA:-{LIVE_PIN_SHA}" in source, "EXPECT_SHA default is not the reviewed live pin"
+    assert "week4-live-center" in source and "week3-live-center}}" not in source
     assert LIVE_REPAIR_SHA[:8] in source, "the pin's lineage to the Week-2 repair is no longer documented"
     assert "e7255e98bf87297452befb61fb508ad4b368b59f" not in source
 

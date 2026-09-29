@@ -48,3 +48,15 @@ def test_defaults_arm_every_build_and_no_t70_units():
 def test_unknown_skip_key_is_refused():
     r = _run(SKIP_UNITS="d6400 nonsense")
     assert r.returncode == 2 and "unknown unit key nonsense" in r.stderr
+
+
+def test_run_refuses_without_group_before_any_preflight():
+    r = subprocess.run(["bash", str(SCRIPT), "4", "--run"], capture_output=True, text=True,
+                       env={**{k: v for k, v in os.environ.items() if k != "GROUP"}, "EXPECT_SHA": PIN})
+    assert r.returncode == 2 and "without GROUP" in r.stderr
+
+
+def test_units_carry_path_and_group():
+    r = _run(GROUP="154078")
+    line = _unit_line(r.stdout, "nfl-week4-t70-build")
+    assert "GROUP=154078" in line and "PATH=" in line
