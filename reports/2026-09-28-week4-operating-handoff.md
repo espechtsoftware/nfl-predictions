@@ -451,8 +451,18 @@ scripts/sunday_swap.sh $(… the last stdout line of the previous command …)
    - `$PROD_PY scripts/dk_standings_links.py --contests ~/week4-sunday/contests.json --out ~/week4-sunday/standings-links.html`;
    - the operator exports each contest by hand (the automated downloader is refused);
    - per contest, `python -m nfl_dfs.cli capture-dk-standings <file> --season 2026 --week 4 --contest-id <id>
-     --contest-name "<name>" --expected-entries <n> --confirm-settled --confirm-full-field`, first without `--apply`,
-     then with it. The validator fix `8a545d64` handles identical-share rows.
+     --contest-name "<label>" --expected-entries <field size> --confirm-settled --confirm-full-field`, first without
+     `--apply`, then with it. The validator fix `8a545d64` handles identical-share rows.
+   - **One convention (2026-09-29 sweep A5): `--contest-name` is the contest's `contests.json` LABEL** (Week 3 did the
+     same: `milly20`, `sat13mega`, …), never the DK display name, so every Monday tool finds the same names. Week 4's
+     labels come from `contests_from_entries.py` (the private `~/week4-sunday/contests.json`): `milly` = the
+     Millionaire **196151357**; `sat` = the $555 satellite 196170540; `ffwc` = the FFWC qualifier satellite 196170762;
+     `supersat`, `supersat2`, `supersat3` = the 23-entry 4x SUPERSats 196170703–705; `supersat4`–`supersat7` = the
+     2,378-entry SUPERSats 196170706–709; `supersat8`–`supersat11` = the 594-entry 196170710–713; `supersat12`,
+     `supersat13` = the 198-entry 196170714–715; `supersat14`, `supersat15` = the 118-entry 196170716–717. Read the
+     label from the file, do not retype it. The scorers take the Millionaire by id: `MILLY_CONTEST_ID=196151357
+     bash reports/lab-handoffs/monday_laptop_scoring.sh 4`, `cash_shadow_paper.py score … --milly-contest-id 196151357`,
+     `rehearsal_two_track.py --contests ~/week4-sunday/contests.json --milly-contest-id 196151357 --details <settled>`.
 2. `dk_contest_details.py` again, for the settled states.
 3. **Scoring:**
    - `book_vs_field_scoreboard.py <RUN_DIR> 2026 4 <CONTEST_ID>`;

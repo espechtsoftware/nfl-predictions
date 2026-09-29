@@ -16,7 +16,7 @@ clearing the double-up line).
           market_points(minimum_markets=2), the latest pre-lock lines), so the shift isolates the conversion
           (MARKET_LINE_MEDIAN + MARKET_BONUS_AWARE) from snapshot timing. 0.55 is the live market weight (1 - 0.45).
           Needs a checkout whose prop_market has those flags (laptop/cash-arm-b-20260924). Paper only; enters nothing.
-  score:  python cash_shadow_paper.py score <out dir> <season> <week>
+  score:  python cash_shadow_paper.py score <out dir> <season> <week> [--milly-contest-id ID]
           After the slate: realized DK points per lineup (Millionaire ownership file), and the share clearing each
           of the five largest real GPP fields' top-45% line (double-up depth) and median, next to the entered
           book's share. The same lines as the retrospective, so the three weeks are comparable.
@@ -112,15 +112,34 @@ def build(run_dir: str, out_dir: str, n: int = 20, arm_b: bool = False) -> None:
     print(json.dumps(receipt, indent=1))
 
 
-def score(out_dir: str, season: int, week: int) -> None:
+ENTRIES_TABLE = "`nfl-predictions-503414.nfl_raw.contest_entries`"
+
+
+def find_millionaire(query_df, season: int, week: int, contest_id: str | None = None) -> str:
+    """The week's Millionaire contest id in contest_entries: the given id (verified present), else the largest contest
+    whose name is DraftKings' ("…Millionaire…") or the import label ("milly", "milly20", …: Week 3's standings were
+    imported under labels, Week 4's labels come from contests_from_entries). Refuses by name when nothing matches."""
+    if contest_id:
+        n = query_df(f"SELECT COUNT(*) n FROM {ENTRIES_TABLE} WHERE season={int(season)} AND week={int(week)} AND contest_id='{contest_id}'")
+        if len(n) == 0 or int(n.n.iloc[0]) == 0:
+            raise SystemExit(f"contest {contest_id} has no rows in contest_entries for {season} W{week}; import the standings first")
+        return str(contest_id)
+    m = query_df(f"SELECT contest_id, COUNT(*) n FROM {ENTRIES_TABLE} WHERE season={int(season)} AND week={int(week)} "
+                 "AND (contest_name LIKE '%Millionaire%' OR LOWER(contest_name) LIKE 'milly%') GROUP BY 1 ORDER BY n DESC LIMIT 1")
+    if len(m) == 0:
+        raise SystemExit(f"no Millionaire in contest_entries for {season} W{week} (neither a DK name nor a milly label); "
+                         "import the standings or pass --milly-contest-id")
+    return str(m.contest_id.iloc[0])
+
+
+def score(out_dir: str, season: int, week: int, milly_contest_id: str | None = None) -> None:
     from nfl_dfs.bq import query_df
     out = Path(out_dir); rec = json.loads((out / "receipt.json").read_text())
     df = pd.read_csv(out / "cash_shadow.csv")
     if _sha((out / "cash_shadow.csv").read_bytes()) != rec["lineups_sha256"]:
         raise SystemExit("cash_shadow.csv changed after the pre-lock receipt; refusing to score")
-    T = "`nfl-predictions-503414.nfl_raw.contest_entries`"
-    mid = query_df(f"SELECT contest_id FROM {T} WHERE season={season} AND week={week} AND contest_name LIKE '%Millionaire%' "
-                   "GROUP BY 1 ORDER BY COUNT(*) DESC LIMIT 1").contest_id.iloc[0]
+    T = ENTRIES_TABLE
+    mid = find_millionaire(query_df, season, week, milly_contest_id)
     own = query_df(f"""SELECT display_name, MAX(fpts) f FROM `nfl-predictions-503414.nfl_raw.contest_ownership`
                        WHERE season={season} AND week={week} AND contest_id='{mid}' GROUP BY 1""")
     pts = dict(zip(own.display_name.astype(str), own.f.astype(float)))
@@ -143,6 +162,7 @@ if __name__ == "__main__":
         build(sys.argv[2], sys.argv[3], int(sys.argv[5]) if len(sys.argv) > 5 and sys.argv[4] == "--n" else 20,
               arm_b=sys.argv[1] == "build-b")
     elif sys.argv[1] == "score":
-        score(sys.argv[2], int(sys.argv[3]), int(sys.argv[4]))
+        mid = sys.argv[sys.argv.index("--milly-contest-id") + 1] if "--milly-contest-id" in sys.argv else None
+        score(sys.argv[2], int(sys.argv[3]), int(sys.argv[4]), milly_contest_id=mid)
     else:
         raise SystemExit(__doc__)

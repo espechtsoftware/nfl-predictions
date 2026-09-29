@@ -28,6 +28,10 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+# The Sunday Millionaire by name: DraftKings' contest name, or the import label ("milly", "milly20": Week 3's standings
+# were imported under labels; Week 4's labels come from contests_from_entries). RE2 syntax (BigQuery REGEXP_CONTAINS).
+MILLIONAIRE_NAME_RE = r"Millionaire|^milly"
+
 PANEL = "20260811-pitclean-e80-k1-a12ab31"      # point-in-time replay projections, 2019/2021-2025
 FEATURES = ["pos_c", "salary", "proj", "proj_p90", "value", "proj_rank", "value_rank", "sal_rank",
             "value_z", "implied_team_total"]
@@ -237,7 +241,7 @@ def live_lag_features(query_df, settings, x: pd.DataFrame, season: int, week: in
                    FROM `{settings.raw}.contest_ownership` WHERE season = {int(season)} AND week < {int(week)}
                    GROUP BY 1, 2),
         pick AS (SELECT week, ARRAY_AGG(contest_id ORDER BY n DESC LIMIT 1)[OFFSET(0)] cid FROM c
-                 WHERE REGEXP_CONTAINS(nm, r"Millionaire") AND NOT REGEXP_CONTAINS(nm, r"\\(Thu\\)|MEGA|\\$555")
+                 WHERE REGEXP_CONTAINS(nm, r"{MILLIONAIRE_NAME_RE}") AND NOT REGEXP_CONTAINS(nm, r"\\(Thu\\)|MEGA|\\$555")
                  GROUP BY 1),
         slots AS (SELECT o.week, o.display_name, o.roster_position, ANY_VALUE(o.pct_drafted) p
                   FROM `{settings.raw}.contest_ownership` o JOIN pick ON o.week = pick.week AND o.contest_id = pick.cid

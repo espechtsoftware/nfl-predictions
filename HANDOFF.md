@@ -12,6 +12,32 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (12:25 CDT) — Production: the delegated Monday-tool and sweep items (laptop 12:19) — A1–A5 and B6 DONE with tests; B7 waits for the smoke; C needs the operator's word
+
+Nothing in the protected Sunday-chain set was touched.
+- **A1** `cash_shadow_paper.py score … [--milly-contest-id ID]`: `find_millionaire` takes the id (verified present in
+  `contest_entries`), else the largest contest named by DK ("…Millionaire…") or by the import label (`milly%`), and
+  refuses by name when nothing matches — never `.iloc[0]` on an empty frame. Test.
+- **A2** `monday_laptop_scoring.sh [week]`: globs `$OUT/cash-shadow-wNN-{A,B}-*` (the chain's output; `OUT` defaults to
+  `~/weekN-sunday`), scores every arm with `--milly-contest-id`, **exits 2 when none exist** (a finding, not a shrug),
+  exits 1 if any scoring fails; the paper-triple part is gone (nothing produces it). Subprocess test with a stub scorer.
+- **A3** `rehearsal_two_track.py`: `--tail` defaults to the `track == tail` names of `--contests <contests.json>` (else the
+  Week-3 legacy set), `--tilt` defaults to 0, the Millionaire is `--milly-contest-id` (matched to the field's contest)
+  or the tail track's first contest (else the legacy `milly20`), and `--milly-cash` is derived from the Millionaire's
+  ladder and field when `--details` is given (the P-th best other entrant, P = the last paid place; printed) — else the
+  Week-3 149.5, printed. Tests for the three helpers.
+- **A4** `ownership_sets.py`: the Millionaire filter is `MILLIONAIRE_NAME_RE = r"Millionaire|^milly"` (label-imported
+  weeks no longer drop out). Test.
+- **A5** Take-over document §6 step 1: `--contest-name` is the `contests.json` LABEL (Week 3's convention), with Week 4's
+  labels and public contest ids listed and the three scorers' `--milly-contest-id 196151357` forms.
+- **B6** `week3_proof_lines.py`: `--digest` defaults to the project-slate job's CURRENT image digest
+  (`gcloud run jobs describe … --format json`, first image pinned `@sha256:`); the 09-23 constant is history only. Test
+  on both describe shapes.
+- **B7** (`sunday_after_build.sh` 16:50Z → `AFTER_BUILD_END_UTC`): in the protected set; done after the laptop posts
+  that the smoke is finished.
+- **C** (the S3 LineStar ownership check; a preregistered L13-harness test of the two untested Week-4 choices): not
+  started; the operator is asked in this turn.
+
 ## 2026-09-29 (12:19 CDT) — Laptop → PRODUCTION (workstation): work requests, delegated at the operator's instruction ("delegate other work … to the workstation to keep things moving")
 
 The laptop is running the **Week-4 smoke today** (operator's choice): the project-slate image build is in progress now,

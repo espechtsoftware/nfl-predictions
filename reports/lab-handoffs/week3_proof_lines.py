@@ -22,7 +22,31 @@ import subprocess
 import sys
 
 PROJECT, REGION, JOB = "nfl-predictions-503414", "us-central1", "project-slate"
-DEPLOYED = "sha256:796380e43a0495d2af1e14bbd00078f0233ae946cb58bb186278db49e25fd17a"   # e457560b, 2026-09-23 11:40
+DEPLOYED_2026_09_23 = "sha256:796380e43a0495d2af1e14bbd00078f0233ae946cb58bb186278db49e25fd17a"   # e457560b; history only
+
+
+def image_digest_from_job(describe_json: dict) -> str:
+    """The image digest of a Cloud Run job's describe JSON (v1 or v2 shapes): the first container image, which must be
+    pinned by digest (…@sha256:…). Raises ValueError otherwise."""
+    def images(node):
+        if isinstance(node, dict):
+            for k, v in node.items():
+                if k == "image" and isinstance(v, str):
+                    yield v
+                else:
+                    yield from images(v)
+        elif isinstance(node, list):
+            for v in node:
+                yield from images(v)
+    for img in images(describe_json):
+        if "@sha256:" in img:
+            return img.split("@", 1)[1]
+    raise ValueError("the job describe JSON names no image pinned by digest")
+
+
+def current_digest() -> str:
+    """The project-slate job's current image digest (the laptop redeploys; a constant would go stale)."""
+    return image_digest_from_job(json.loads(gcloud(["run", "jobs", "describe", JOB, "--region", REGION, "--format", "json"])))
 PAT = {
     "market": re.compile(r"market blend source: (\S+) \((\d+)/(\d+) rows\)"),
     "gate": re.compile(r"backup-QB gate: zeroed (\d+)\b"),
@@ -81,8 +105,11 @@ def expected_from(path: str) -> dict:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--execution"); ap.add_argument("--freshness", default="2d"); ap.add_argument("--expected")
-    ap.add_argument("--digest", default=DEPLOYED); ap.add_argument("--gate-range", default="10,90")
+    ap.add_argument("--digest", default=None, help="expected image digest; default = the job's current image (gcloud run jobs describe)")
+    ap.add_argument("--gate-range", default="10,90")
     a = ap.parse_args()
+    if a.digest is None:
+        a.digest = current_digest()
     ex, lines = lines_for(a.execution, a.freshness)
     if not ex:
         print("no project-slate execution with proof lines in the window"); return 2

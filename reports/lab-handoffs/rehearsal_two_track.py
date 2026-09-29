@@ -50,16 +50,55 @@ def totals(bank: np.ndarray, idx: np.ndarray, chunk: int = 2000) -> np.ndarray:
     return out
 
 
+LEGACY_TAIL = "milly20,ffwc,ffwc18"
+
+
+def tail_names(tail_arg: str | None, contests_path: Path | None) -> set:
+    """The tail-track contest names: --tail if given; else the `track == "tail"` names of the week's contests.json; else
+    the Week-3 legacy set (2026-09-29 sweep A3)."""
+    if tail_arg is not None:
+        return {t for t in tail_arg.split(",") if t}
+    if contests_path is not None:
+        c = json.loads(Path(contests_path).read_text()); c = c if isinstance(c, list) else c.get("contests", [])
+        return {str(x["name"]) for x in c if str(x.get("track", "mean")) == "tail"}
+    return set(LEGACY_TAIL.split(","))
+
+
+def millionaire_label(contests: list, milly_contest_id: str | None) -> str:
+    """The spec name that is the Millionaire: the tail track's first contest, else the legacy 'milly20'. (An explicit
+    --milly-contest-id is matched to a warehouse contest by the caller before this fallback.)"""
+    tails = [ct["name"] for ct in contests if ct.get("track") == "tail"]
+    if milly_contest_id and not tails:
+        raise SystemExit(f"--milly-contest-id {milly_contest_id} matched no contest in the fields, and there is no tail track to fall back on")
+    return tails[0] if tails else "milly20"
+
+
+def milly_cash_from_ladder(pay: dict, others: np.ndarray) -> float:
+    """The Millionaire's min-cash points from its ladder (the last paid place) and the other entrants' points: the
+    points of the P-th best other entrant, P = the last paid place."""
+    paid_places = max((int(r) for r, v in pay.items() if float(v) > 0), default=0)
+    if paid_places <= 0 or len(others) == 0:
+        raise SystemExit("cannot derive the Millionaire's min-cash: an empty ladder or field")
+    desc = np.sort(np.asarray(others, dtype=float))[::-1]
+    return round(float(desc[min(paid_places, len(desc)) - 1]), 2)
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--run-dir", type=Path, required=True); ap.add_argument("--season", type=int, required=True)
     ap.add_argument("--week", type=int, required=True); ap.add_argument("--sizes", required=True)
-    ap.add_argument("--tail", default="milly20,ffwc,ffwc18", help="contest names on the tail track")
+    ap.add_argument("--tail", default=None, help="contest names on the tail track; default: the tail-track names of --contests, "
+                                                 "else the Week-3 legacy 'milly20,ffwc,ffwc18'")
+    ap.add_argument("--contests", type=Path, help="the week's contests.json: its track field gives --tail; its first tail contest is the "
+                                                 "Millionaire unless --milly-contest-id says otherwise")
+    ap.add_argument("--milly-contest-id", help="the Millionaire's warehouse contest id (Week 4: 196151357); default: the tail track's first contest")
     ap.add_argument("--sets", type=Path, required=True, help="the week's ownership sets file (dk_player_id, pred_own)")
     ap.add_argument("--names-map", default="sat13=sat13mega", help="spec name=warehouse contest_name pairs")
-    ap.add_argument("--tilt", type=float, default=0.1); ap.add_argument("--dst-cap", type=float, default=0.25)
+    ap.add_argument("--tilt", type=float, default=0.0); ap.add_argument("--dst-cap", type=float, default=0.25)
     ap.add_argument("--min-proj", type=float, default=1.0); ap.add_argument("--tail-line", type=float, default=210.0)
-    ap.add_argument("--line-q", type=float, default=90.0); ap.add_argument("--milly-cash", type=float, default=149.5)
+    ap.add_argument("--line-q", type=float, default=90.0)
+    ap.add_argument("--milly-cash", type=float, default=None, help="the Millionaire's min-cash points; default: derived from the ladder "
+                                                                   "and the field when --details is given, else the Week-3 149.5")
     ap.add_argument("--details", type=Path, help="contest details JSON keyed by contest id (payoutSummary ladders): exact paid "
                                                   "places replace the p-quantile line")
     ap.add_argument("--show-value", action="store_true", help="also print payout value per arm (private: never commit it)")
@@ -93,7 +132,7 @@ def main() -> None:
 
     # contests, tracks, layout
     contests = parse_sizes(a.sizes)
-    tail = set(a.tail.split(",")) if a.tail else set()
+    tail = tail_names(a.tail, a.contests)
     for ct in contests:
         ct["track"] = "tail" if ct["name"] in tail else "mean"
     ranks = assign_ranks(contests, "head")
@@ -146,6 +185,7 @@ def main() -> None:
             ladders[str(cid)] = pay
     used = Counter()
     fields = []
+    milly_label = None
     for ct in contests:
         lab = nmap.get(ct["name"], ct["name"])
         cids = sorted(by_label.get(lab, []))
@@ -157,6 +197,19 @@ def main() -> None:
             raise SystemExit(f"--details has no payout ladder for contest {cid}")
         fields.append({"cid": cid, "pay": ladders.get(str(cid)), "others": np.sort(g.loc[g.user != me, "points"].to_numpy(float)),
                        "ours": g.loc[g.user == me, "points"].to_numpy(float), "n": len(g)})
+        if a.milly_contest_id and str(cid) == str(a.milly_contest_id):
+            milly_label = ct["name"]
+    if milly_label is None:
+        milly_label = millionaire_label(contests, a.milly_contest_id)
+    milly_cash = a.milly_cash
+    if milly_cash is None:
+        mf = next((f for ct, f in zip(contests, fields) if ct["name"] == milly_label), None)
+        if mf is not None and mf.get("pay"):
+            milly_cash = milly_cash_from_ladder(mf["pay"], mf["others"])
+            print(f"Millionaire = {milly_label} (contest {mf['cid']}); min-cash derived from the ladder: {milly_cash}")
+        else:
+            milly_cash = 149.5
+            print(f"Millionaire = {milly_label}; no ladder for it: min-cash falls back to the Week-3 149.5 (pass --milly-cash)")
 
     sleeve_note = a.tail_selector
     class_scores = None
@@ -207,9 +260,9 @@ def main() -> None:
             else:
                 line = float(np.percentile(np.concatenate([f["others"], p]), a.line_q))
                 won = int((p >= line).sum())
-            if ct["name"] == "milly20":
+            if ct["name"] == milly_label:
                 out["milly_best"] = round(float(p.max()), 2)
-                out["milly_cash"] = int((p >= a.milly_cash).sum())
+                out["milly_cash"] = int((p >= milly_cash).sum())
                 out["milly_best_finish"] = int((f["others"] > p.max()).sum()) + 1
             out["tickets"] += won; out["by_type"][ct["name"]] += won
         out["mean_pts"] = round(float(np.mean(np.concatenate([pts[rk] for rk in ranks]))), 2)
