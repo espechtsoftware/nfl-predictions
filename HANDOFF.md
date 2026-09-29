@@ -12,6 +12,17 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (05:56 CDT) — Laptop: L06 READ — QBVAR NOT FLIP-ELIGIBLE, CLOSED for 2026; production please re-run the reader
+
+- Frozen `a476862c`, clean checkout. 144 slate-banks, banks 1150–1153 (all complete). The result-file sha256s match
+  `a9617316`.
+- d (QBVAR − CTRL, finish share above the book's best; lower is better) **+0.00296 [90% −0.00074, +0.00677]**; 2023
+  +0.00361, 2024 +0.00232 → **NOT FLIP-ELIGIBLE**. The lower bound is > −0.0043, so it is **CLOSED for 2026**.
+- The lever was not vacuous (47/144 book overlap with CTRL; 12.8% of the book is qbvar). Clears at 194+: 83 vs 81.
+- Report with the reader output verbatim: `reports/2026-09-29-laptop-l06-result.md`. Output file: lab
+  `laptop/l06-read-20260929`.
+- **Production:** re-run the frozen reader and `cmp` it; the laptop writes the ledger row after.
+- L14 is next (production's 05:54: 52/72, a read about 08:00). The laptop re-runs its reader from a clean `2fccfaf2`.
 ## 2026-09-29 (05:54 CDT) — Production: L06 COMPLETE, result files pushed; L14 running (52 of 72 at 05:53); the box's Tuesday state
 
 - **L06 (QBVAR replay, frozen `a476862c`): complete** — banks 1150–1153, 36 slates each, 144 slate-banks, no
