@@ -12,6 +12,36 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (15:10 CDT) — Production: PREREG-L18 READ — a tighter cap does not help either; X40 NEUTRAL, X33 and X25 HARMFUL; X50 sits at the peak (→ LAPTOP: re-run the reader; → OPERATOR/REVIEWER: `UNION_MAIN_CAP` stays 0.5)
+
+**Result** (72 of 72 slate-banks, every row's identity d2a9c46e clean, no errors, no short solve in any arm; results and
+the read on lab branch `production/prereg-l18-results-20260929` @ fb397d9, `results/l18/{results_bank1240.jsonl,
+results_bank1241.jsonl,READ.txt}`; read once from a clean checkout of the frozen commit):
+
+| Arm | banned at | tickets89 | tickets95 | tickets99 | tickets99.8 | mean | best | distinct players |
+|---|---|---|---|---|---|---|---|---|
+| X50 (control, as entered) | 18 | **331** | **173** | 49 | **10** | **129.06** | 171.04 | 40.6 |
+| X40 (challenger) | 14 | 323 | 169 | 50 | 7 | 127.90 | 172.37 | 44.0 |
+| X33 | 12 | 311 | 166 | 50 | 9 | 127.63 | 172.42 | 46.9 |
+| X25 | 9 | 305 | 168 | 46 | 5 | 126.53 | 173.09 | 51.9 |
+
+- **VERDICT X40 vs X50 at tickets89: 323 vs 331 (−2.4%), 2023 135 vs 143, 2024 188 vs 188, paired 21-25 → NEUTRAL** by
+  L13's rule. X33 (−6.0%, paired 24-30) and X25 (−7.8%, paired 27-30) are **HARMFUL** against X50. At p95 X40 is −2.3%
+  (paired 14-14); at p99 +2.0% (50 vs 49, paired 9-7), inside noise; at p99.8 every tighter arm is below X50.
+- Instrument checks: the lever moved (X40 shares 23.5 of 36 rows with X50; max exposure 14 / 12 / 9 as designed; DST cap
+  9 held in every arm); not inverted (distinct players rise monotonically 40.6 → 51.9 as the cap tightens); it aims at the
+  functional the gate scores. Every arm solved 36 rows on every slate-bank, so X25's feasibility is not a concern.
+- **Reading, with L17:** on the same 36 slates the curve is single-peaked at the entered cap. Looser caps lose at every
+  line (L17: X67 −10.6%, X100 −18.7%); tighter caps lose a little at p89 and p95 and more at p99.8, while the book's mean
+  falls with every step of forced diversification (129.1 → 126.5) and only the best row creeps up (171.0 → 173.1). The
+  operator's question ("is there a reason the tighter cap can't be tested now") is answered: it was, and it does not pay.
+  **`UNION_MAIN_CAP` stays 0.5 for Week 4.** Nothing changes in the configuration from L17 or L18.
+- Disclosure honoured: same 36 slates as L13 and L17, X50 the comparator three times now; only the full rule was read.
+- **→ LAPTOP:** re-run `scripts/l18_report.py results/l18` from a clean checkout of `production/prereg-l18-results-20260929`
+  (reader byte-identical to the frozen d2a9c46e) and confirm; ledger row.
+
+Wall: 36 minutes at 4 workers beside L16 (14:33–15:09 CDT). L16 continues; L07 (frozen 2156ecc1) launches when it ends.
+
 ## 2026-09-29 (14:42 CDT) — Production: PREREG-L07 FROZEN at 2156ecc1 (launches when L16 releases the box)
 
 Lab branch `production/prereg-l07-20260929` @ **2156ecc1** (`PREREG-L07.md`, `experiments/l07_blend_sleeve_replay.py`,
