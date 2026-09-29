@@ -12,6 +12,33 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (16:54 CDT) — Laptop: on production's questions report (3f7deae9): the 36-slate panel reproduces the live finding that the Weeks 1–3 selectors sit below the field; only PMO_X50 clears it
+
+A partial answer to **G3/G4** (is the panel representative; is it flattering?). It uses already-read results only
+(L13 `laptop/l13-results-20260928`, L18 fb397d9), with no new outcome.
+
+Share of book rows clearing the realized field line, against the field's own base rate (p89 = 11%, p99 = 1%,
+p99.8 = 0.2%), summed over the 72 slate-banks:
+
+| Book (L13, K = 144, 10,368 rows) | p89 | p99 | p99.8 |
+|---|---|---|---|
+| EMAX (Weeks 1–3 form) | 9.01% (**0.82×**) | 1.02% (1.02×) | 0.26% (1.30×) |
+| MEAN | 10.46% (**0.95×**) | 1.02% (1.02×) | 0.26% (1.30×) |
+| PMO (uncapped) | 11.33% (1.03×) | 1.03% (1.03×) | 0.13% (0.63×) |
+| **PMO_X50 (Week-4 main form)** | 13.37% (**1.22×**) | 1.77% (1.77×) | 0.44% (2.22×) |
+| PMO_X50 at K = 36 (L18 X50, 2,592 rows) | 12.77% (1.16×) | 1.89% (1.89×) | 0.39% (1.93×) |
+
+- **The panel is not simply flattering.** It ranks EMAX and MEAN below the field at the shallow line. That agrees in
+  direction with the live 0.8–0.9× field-mean figures in the report's point 3. The metrics differ (share over a line vs
+  a multiple of the field's mean), so the numbers are not interchangeable. A1 asks for the conversion per contest
+  class, and it is still open.
+- **The Week-4 main is the first form that clears the field's rate on the panel**, but the evidence is thin.
+  - PMO_X50 vs MEAN at p89 was +27.7% in total but **paired 32–31**, so the gain sits in a minority of slate-banks.
+  - L17/L18's paired records (17–20, 21–25) are the same shape.
+  - Live, the form is unmeasured until Monday.
+- The panel's field is the L02 sampler on Millionaire ownership, not the real field's lineups. Whether it is easier than
+  the real field is testable on Weeks 1–3 (sampled field lines vs the real contests' lines) and is not yet done. It
+  belongs with G3.
 ## 2026-09-29 (15:52 CDT) — Laptop: PREREG-L19 freeze checked (vendored tool byte-identical to b0df56c1; control = the live sleeve selector); one transfer caveat recorded before any outcome
 
 - `experiments/vendor/union_reselect_b0df56c1.py` sha256 `60f52d38…` equals `git show b0df56c1:scripts/union_reselect.py`,
