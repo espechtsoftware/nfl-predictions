@@ -61,9 +61,14 @@ Sections:
 1. **Operator-only actions.** The harness refuses:
    - pushes to `main`;
    - systemd unit writes;
-   - `gcloud run jobs execute` on the production project;
    - create-once publishes;
    - the automated DraftKings standings downloader.
+
+   **Cloud Run cadence jobs are the agent's (operator, 2026-09-29: "can we make it so you can run these commands so I
+   don't ever miss anything").** The laptop agent executes `ingest-nflverse`, `build-features`, `ingest-props`,
+   `tabpfn-gen`, and `project-slate` with or without the T-70 flags itself, on schedule. It checks each execution's
+   `succeededCount` and the proof lines. If the harness ever refuses one again, stop and print the command for the
+   operator.
 
    Never route around a refusal. Print the exact one-line command for the operator, naming **which machine and which
    day**, record it in `HANDOFF.md`, and carry on with everything else.
@@ -317,7 +322,9 @@ Operator steps are marked **(operator, laptop)**. Everything else is the agent's
 ### Saturday 10-03
 
 1. 09:30 props pull (cloud scheduler); 09:35 props-guard pre-check.
-2. **(operator)** 09:45 the refresh trio, in order:
+2. **(the laptop agent)** 09:45 the refresh, in order (the agent runs these since 09-29). If the Week-4 rosters are
+   not in `rosters_weekly`, run `ingest-nflverse` first: `project-slate` refuses a stale roster receipt, as the
+   scheduled 09:30 run did on 09-29:
    - `gcloud run jobs execute build-features … --wait`;
    - `tabpfn-gen … --update-env-vars TABPFN_UPCOMING=2026:4 --wait`;
    - `project-slate … --wait`.
