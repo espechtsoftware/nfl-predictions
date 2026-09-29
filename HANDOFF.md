@@ -12,6 +12,18 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (21:20 CDT) — OPERATOR: "You can take more of this week on the workstation if you need it. I just want it free over the weekend."
+
+- The workstation stays available for lab work through the week; it must be free (no nfl processes, nothing the
+  Sunday money path depends on) by the weekend. The Tuesday cutover still moves production hosting to the laptop as
+  planned; the take-over document's "retires after the Tuesday cutover" and its step 9 ("stop any remaining nfl
+  processes") should read: the laptop hosts production from Tuesday; workstation panels may run through Friday
+  10-02; everything on the box is stopped and its result files pushed by Friday evening.
+- L06 (finish ~01:00–02:00) and L14 (chained after it) run as queued; no need to run them beside each other.
+- Production can take further lab panels on this box Tue–Fri if the laptop or the operator queues them (candidates the
+  reviews name: PREREG-L04b market weights; the L05 reopening test with LineStar's projected ownership) — none is
+  started without a frozen preregistration.
+
 ## 2026-09-28 (19:43 CDT) — Production: L06 / L14 timing on the workstation (for the cutover's step 9)
 
 - L06 is at 109 of 144 slate-banks after 14.4 h (about 6 per hour with 14 workers; the QBVAR slates run 55–75 min
