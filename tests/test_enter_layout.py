@@ -576,3 +576,50 @@ def test_frozen_swap_uses_the_row_map_when_the_sleeve_repeats_a_mean_row(tmp_pat
     (stage / EL.ROWMAP_NAME).unlink()                     # a bundle without the map: the reverse lookup refuses repeats by name
     with pytest.raises(EL.LayoutError, match="no row map"):
         EL.frozen_contest_rows(cs, stage, new, None)
+
+
+# ---------------------------------------------------------------- the spread layout (winners study 2026-09-29 §4.2; laptop W-C)
+
+
+def test_spread_layout_keeps_the_head_book_size_and_spreads_each_contest():
+    cs = week3_shaped()
+    head = EL.assign_ranks(cs, "head"); spread = EL.assign_ranks(cs, "spread")
+    # the spread positions int((j + 0.5) * K / n) end at 141 of the head layout's K = 144: the book holds 141 mean rows
+    assert EL.rows_needed(cs, "head") == 144 and EL.rows_needed(cs, "spread") == 141
+    assert sum(len(r) for r in spread) == 198
+    K = 144
+    for c, r in zip(cs, spread):
+        assert len(r) == c["entries"] and len(set(r)) == len(r) and all(0 <= x < K for x in r)
+    one = [[x + 1 for x in r] for r in spread]
+    by = lambda name: [r for c, r in zip(cs, one) if c["name"] == name]
+    # a 20-entry contest sits K/20 = 7.2 rows apart along the sequence: ranks 4, 11, 18, ... 141
+    for r in by("supersat25lo"):
+        assert r == [int((j + 0.5) * K / 20) + 1 for j in range(20)] and r[0] == 4 and r[-1] == 141
+        assert min(b - a for a, b in zip(r, r[1:])) >= 7
+    # the nineteen single-entry satellites never share a lineup and are spread over the whole block, not rows 1-19
+    singles = [r[0] for r in by("sat20")]
+    assert len(set(singles)) == 19 and singles[0] == 4 and singles[-1] == 141 and max(singles) - min(singles) > 100
+    # the two 2-entry wildcats take a 4-row spread as one group, in blocks of 2
+    assert by("wildcat") == [[19, 55], [91, 127]]
+    # the head layout's own ranks are untouched
+    assert head == EL.assign_ranks(cs, "head")
+
+
+def test_spread_layout_two_tracks_pins_and_protection():
+    cs = [{"name": "a", "contest_id": "1", "entries": 5, "keep": 5}, {"name": "b", "contest_id": "2", "entries": 5, "keep": 5},
+          {"name": "milly", "contest_id": "9", "entries": 2, "keep": 2, "track": "tail"}]
+    head = EL.assign_ranks(cs, "head"); spread = EL.assign_ranks(cs, "spread")
+    k = max(max(r) + 1 for r in head[:2])                              # the mean block the head layout reads (10 rows)
+    assert [x + 1 for x in spread[0]] == [x + 1 for x in spread[1]] == [2, 4, 6, 8, 10]   # two multi-entry contests may share rows
+    assert spread[2] == head[2] == [k, k + 1]                          # the sleeve starts after the mean rows, as under head
+    assert EL.sleeve_size(cs, "spread") == 2 and EL.rows_needed(cs, "spread") == EL.rows_needed(cs, "head") == 12
+    pinned = [{"name": "q", "contest_id": "3", "entries": 2, "keep": 2, "ranks": [1, 5]}] + cs
+    assert EL.assign_ranks(pinned, "spread")[0] == [0, 4]
+    with pytest.raises(EL.LayoutError):
+        EL.assign_ranks([{"name": "q", "contest_id": "3", "entries": 2, "keep": 2, "ranks": [1, 99]}] + cs, "spread")
+    with pytest.raises(EL.LayoutError):                                # a tail contest needs a two-track layout
+        EL.assign_ranks(cs, "top")
+    # protected ranks reach to the last rank an all-head contest takes: singles are spread over the whole mean block
+    singles = [{"name": "s", "contest_id": str(i), "entries": 1, "keep": 1} for i in range(4)] + [cs[0]]
+    assert EL.protected_ranks(singles, "spread") == max(r[0] for r in EL.assign_ranks(singles, "spread")[:4]) + 1
+    assert EL.protected_ranks(singles, "spread") > EL.protected_ranks(singles, "head")

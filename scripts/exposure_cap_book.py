@@ -138,22 +138,22 @@ def contest_of_position(contests: list[dict], k: int, layout: str) -> list[list[
     top:        every contest independently receives ranks 1..entries, so the slices
                 OVERLAP and an early position sits in many contests at once.
     """
-    if layout not in ("sequential", "top", "head"):
-        raise CapError(f"unknown ENTER_LAYOUT {layout!r}; expected 'sequential', 'top' or 'head'")
+    if layout not in ("sequential", "top", "head", "spread"):
+        raise CapError(f"unknown ENTER_LAYOUT {layout!r}; expected 'sequential', 'top', 'head' or 'spread'")
     out: list[list[int]] = [[] for _ in range(k)]
-    if layout == "head":
+    if layout in ("head", "spread"):
         # 2026-09-24: the rule lives in enter_layout.py. Positions here are greedy ranks; ENTER_ORDER=fewest-low
         # re-orders rows at ENTER time, so this report-only tool's per-contest caps are approximate under it.
         sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
         from nfl_dfs.inference.enter_layout import LayoutError, assign_ranks
         try:
-            ranks = assign_ranks(contests, "head")
+            ranks = assign_ranks(contests, layout)
         except LayoutError as exc:
             raise CapError(str(exc)) from exc
         for ci, rs in enumerate(ranks):
             for p in rs:
                 if p >= k:
-                    raise CapError(f"head layout reads rank {p + 1} but the book is {k}")
+                    raise CapError(f"{layout} layout reads rank {p + 1} but the book is {k}")
                 out[p].append(ci)
         return out
     if layout == "sequential":
@@ -372,7 +372,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("run_dir", type=Path, help="lab run directory (needs --emit-a5-sidecars artifacts)")
     ap.add_argument("--contests", type=Path, required=True, help="contests.json (never committed)")
     ap.add_argument("--entries", type=int, required=True, help="book size K")
-    ap.add_argument("--layout", default="sequential", choices=["sequential", "top", "head"])
+    ap.add_argument("--layout", default="sequential", choices=["sequential", "top", "head", "spread"])
     ap.add_argument("--output-dir", type=Path, required=True)
     ap.add_argument("--player-max-share", type=float, default=0.30)
     ap.add_argument("--dst-max-share", type=float, default=0.20)

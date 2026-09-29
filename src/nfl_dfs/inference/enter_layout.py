@@ -29,6 +29,17 @@ Layouts (ENTER_LAYOUT):
                   pin "ranks" 1-based INSIDE the sleeve (rank 1 = book row K+1). The order (below) permutes the mean
                   rows only; sleeve rows keep their book position. "tail" under any other layout is an error.
 
+  spread      (winners study 2026-09-29 §4.2; laptop W-C) the head layout's TWO TRACKS and book size, but every mean-track
+              contest takes its rows SPREAD EVENLY over the mean rows 1..K (K = the head layout's row count for the same
+              contests, so the builder's BOOK_ENTRIES is unchanged) instead of the shared head plus consecutive unique rows:
+                - a contest of n entries takes ranks floor((i + 0.5) * K / n) + 1, i = 0..n-1 (n <= K), in the book's order,
+                  so its rows sit K/n apart along the optimizer's sequence and hit or miss less together;
+                - all-head contests (n <= 2), grouped by SIZE as the head does, take the group's G*n spread ranks in blocks
+                  of n, so no two single-entry satellites share a lineup;
+                - two multi-entry contests MAY hold the same lineup (as the head rows already do); one contest never does;
+                - pins ("ranks") and tail-track contests behave exactly as under head; protected ranks cover every rank an
+                  all-head contest takes, which now reach across the whole mean block.
+
 Order (ENTER_ORDER): the ranks above index an ORDER over the upload's rows.
   greedy      the book's own order (vetted, replaced and promoted), rank r = upload row r.
   fewest-low  (external review 2026-09-24 §5.3) rows sorted by their count of predicted LOW-owned players, fewest
@@ -56,7 +67,8 @@ import os
 import sys
 from pathlib import Path
 
-LAYOUTS = ("sequential", "top", "head")
+LAYOUTS = ("sequential", "top", "head", "spread")
+TWO_TRACK = ("head", "spread")   # layouts with a tail sleeve after the mean rows
 TRACKS = ("mean", "tail")     # per-contest selection track (2026-09-27): satellites by mean, Millionaire seats by tail
 ROWMAP_NAME = "ENTER-rowmap.json"   # published beside the per-contest files: {label: [0-based rows of the bundle's upload]}
 MEAN_ROWS_FLOOR = 1           # the mean track's floor (laptop 2026-09-28: the 90-row floor served the retired K80/K90 contract; it built
@@ -90,8 +102,8 @@ def assign_ranks(contests: list[dict], layout: str) -> list[list[int]]:
         if not isinstance(n, int) or isinstance(n, bool) or n <= 0:
             raise LayoutError(f"contests.json: entries for {c.get('name')!r} must be a positive integer (got {n!r})")
         sizes.append(n)
-    if layout != "head" and any(str(c.get("track", "mean")) == "tail" for c in contests):
-        raise LayoutError(f"contests.json: a \"track\": \"tail\" contest needs ENTER_LAYOUT=head (got {layout!r})")
+    if layout not in TWO_TRACK and any(str(c.get("track", "mean")) == "tail" for c in contests):
+        raise LayoutError(f"contests.json: a \"track\": \"tail\" contest needs ENTER_LAYOUT=head or spread (got {layout!r})")
     if layout == "sequential":
         keep_total = sum(int(c["keep"]) for c in contests)
         keep_next, fill_next, out = 0, keep_total, []
@@ -110,14 +122,16 @@ def assign_ranks(contests: list[dict], layout: str) -> list[list[int]]:
             else:
                 out.append(list(range(n)))
         return out
-    # head: two tracks. The mean-track contests get the head algorithm below; tail-track contests get the sleeve after it.
+    # head / spread: two tracks. The mean-track contests get the head or spread algorithm below; tail-track contests get
+    # the sleeve after it.
+    mean_algo = _head_ranks if layout == "head" else _spread_ranks
     tracks = [str(c.get("track", "mean")) for c in contests]
     if any(t not in TRACKS for t in tracks):
         raise LayoutError(f"contests.json: track must be one of {TRACKS} (got {sorted(set(tracks) - set(TRACKS))})")
     mean_idx = [i for i, t in enumerate(tracks) if t == "mean"]
     tail_idx = [i for i, t in enumerate(tracks) if t == "tail"]
     if tail_idx:
-        mean_out = _head_ranks([contests[i] for i in mean_idx], [sizes[i] for i in mean_idx]) if mean_idx else []
+        mean_out = mean_algo([contests[i] for i in mean_idx], [sizes[i] for i in mean_idx]) if mean_idx else []
         # The sleeve starts after the mean rows the BUILDER writes, which the chain floors at MEAN_ROWS_FLOOR (1 since
         # 2026-09-28; it was 90 while the K90 paid contract lived).
         k = max(MEAN_ROWS_FLOOR, max((max(r) + 1 for r in mean_out if r), default=0))
@@ -139,12 +153,12 @@ def assign_ranks(contests: list[dict], layout: str) -> list[list[int]]:
                 out[i] = list(range(k + cursor, k + cursor + n))
                 cursor += n
         return out
-    return _head_ranks(contests, sizes)
+    return mean_algo(contests, sizes)
 
 
 def sleeve_size(contests: list[dict], layout: str) -> int:
-    """How many book rows the tail track holds (0 unless head with tail contests)."""
-    if layout != "head":
+    """How many book rows the tail track holds (0 unless a two-track layout with tail contests)."""
+    if layout not in TWO_TRACK:
         return 0
     return sum(int(c["entries"]) for c in contests if str(c.get("track", "mean")) == "tail")
 
@@ -199,6 +213,41 @@ def _head_ranks(contests: list[dict], sizes: list[int]) -> list[list[int]]:
     return out
 
 
+def _spread_ranks(contests: list[dict], sizes: list[int]) -> list[list[int]]:
+    """The spread algorithm over one track's contests (0-based ranks): the head layout's row count K for the same
+    contests, each contest's rows spread evenly over 0..K-1 (all-head groups spread as one block), pins as under head."""
+    K = max((max(r) + 1 for r in _head_ranks(contests, sizes) if r), default=0)
+    out = [[] for _ in contests]
+    pinned: list[int] = []
+    groups: dict[int, list[int]] = {}
+    for i, (c, n) in enumerate(zip(contests, sizes)):
+        if "ranks" in c:
+            r = c["ranks"]
+            if (not isinstance(r, list) or len(r) != n or len(set(r)) != n
+                    or any(not isinstance(x, int) or isinstance(x, bool) or not 1 <= x <= K for x in r)):
+                raise LayoutError(f"contests.json: {c.get('name')!r} ranks {r!r} must be {n} distinct integers in 1..{K} "
+                                  f"(a pin may not add rows to the book)")
+            out[i] = [x - 1 for x in r]
+            pinned.append(i)
+        elif n <= HEAD_SMALL:
+            groups.setdefault(n, []).append(i)
+        else:
+            if n > K:
+                raise LayoutError(f"contests.json: {c.get('name')!r} has {n} entries but the layout holds {K} mean rows")
+            out[i] = [int((j + 0.5) * K / n) for j in range(n)]
+    for n, members in groups.items():                       # G contests of n entries: G*n spread ranks, dealt in blocks of n
+        total = n * len(members)
+        if total > K:
+            raise LayoutError(f"contests.json: {len(members)} contests of {n} entries need {total} distinct rows; the layout holds {K}")
+        spots = [int((j + 0.5) * K / total) for j in range(total)]
+        for g, i in enumerate(members):
+            out[i] = spots[g * n:(g + 1) * n]
+    for i, r in enumerate(out):
+        if len(set(r)) != len(r):
+            raise LayoutError(f"contests.json: {contests[i].get('name')!r} would repeat a row under the spread layout")
+    return out
+
+
 def rank_summary(contests: list[dict], layout: str) -> list[str]:
     """One line per contest (preflight print): its entries and the 1-based ranks it takes."""
     return [f"{c.get('name')} [{c.get('contest_id')}] x{int(c['entries'])}: ranks {_ranges(r)}"
@@ -208,7 +257,7 @@ def rank_summary(contests: list[dict], layout: str) -> list[str]:
 def protected_ranks(contests: list[dict], layout: str) -> int:
     """How many leading ranks must hold clean (unflagged) rows: the head, plus under `head` every rank an all-head
     contest takes (its whole entry list is shared or single, with no second lineup to cover a late scratch)."""
-    if layout != "head":
+    if layout not in TWO_TRACK:
         return HEAD_TOP
     ranks = assign_ranks(contests, layout)
     small = [max(r) + 1 for c, r in zip(contests, ranks)

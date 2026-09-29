@@ -105,6 +105,8 @@ def main() -> None:
     ap.add_argument("--tail-selector", choices=["pline", "emax", "class", "mean"], default="pline",
                     help="how the tail sleeve is chosen (live_week --tail-sleeve-selector)")
     ap.add_argument("--class-model", type=Path, help="with --tail-selector class: the fit_field_class_model.py JSON")
+    ap.add_argument("--layout", choices=["head", "spread"], default="head",
+                    help="the ENTER layout the contests are dealt under (spread = winners study 2026-09-29 s4.2; laptop W-C)")
     ap.add_argument("--allow-unidentified", action="store_true",
                     help="proceed when our entries cannot be found in the fields (e.g. a week entered through a vetting path); "
                          "fields then include our own entries and the ENTERED line is skipped (disclosed)")
@@ -135,7 +137,7 @@ def main() -> None:
     tail = tail_names(a.tail, a.contests)
     for ct in contests:
         ct["track"] = "tail" if ct["name"] in tail else "mean"
-    ranks = assign_ranks(contests, "head")
+    ranks = assign_ranks(contests, a.layout)
     t_rows = sum(int(ct["entries"]) for ct in contests if ct["track"] == "tail")
     need = max(max(r) + 1 for r in ranks if r)
     k_mean = need - t_rows

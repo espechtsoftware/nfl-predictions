@@ -62,7 +62,7 @@ ap.add_argument("--run", required=True); ap.add_argument("--contests", required=
 ap.add_argument("--expect-sha", help="require the lab clone HEAD to equal this full 40-character commit SHA")
 ap.add_argument("--out", required=True); ap.add_argument("--label", default="live", choices=["live", "rehearsal"])
 ap.add_argument("--chunk", type=int, default=1000)
-ap.add_argument("--layout", default=os.environ.get("ENTER_LAYOUT", "sequential"), choices=["sequential", "top", "head"],
+ap.add_argument("--layout", default=os.environ.get("ENTER_LAYOUT", "sequential"), choices=["sequential", "top", "head", "spread"],
                 help="the ENTER layout of the delivered book (default $ENTER_LAYOUT, else sequential): K and the contest blocks follow it")
 a = ap.parse_args()
 
