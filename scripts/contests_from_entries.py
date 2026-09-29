@@ -27,16 +27,16 @@ from pathlib import Path
 
 def short_label(dk_name: str) -> str:
     n = dk_name.lower()
-    if "millionaire" in n and "satellite" not in n and "ticket" not in n:
-        return "milly"
     if "wild card" in n or "wildcat" in n:
         return "wildcat"
     if "super satellite" in n or "supersat" in n:
         return "supersat"
-    if "satellite" in n or "qualifier" in n and "world championship" not in n:
-        return "sat"
     if "world championship" in n or "ffwc" in n:
         return "ffwc"
+    if "satellite" in n or "qualifier" in n:
+        return "sat"
+    if "millionaire" in n and "ticket" not in n:
+        return "milly"
     if "huddle" in n:
         return "huddle"
     if "play-action" in n or "play action" in n:

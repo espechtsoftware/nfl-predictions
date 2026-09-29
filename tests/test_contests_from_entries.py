@@ -24,6 +24,8 @@ def test_labels_are_derived_from_dk_names():
     assert ce.short_label("$14M 2026 Fantasy Football World Championship Qualifier") == "ffwc"
     assert ce.short_label("NFL $6K Huddle [Single Entry] (Thu-Mon)") == "huddle"
     assert ce.short_label("NFL $333 Wild Card Satellite") == "wildcat"
+    assert ce.short_label("NFL SUPERSat to $20 NFL Fantasy Football Millionaire [25x]") == "supersat"
+    assert ce.short_label("NFL $490 2026 FFWC Qualifier Satellite") == "ffwc"
 
 
 def test_export_rows_count_entries_per_contest_and_refuse_two_names(tmp_path):

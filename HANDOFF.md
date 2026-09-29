@@ -12,6 +12,27 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (22:07 CDT) — OPERATOR: the Sunday-main entries export is in ("Main_Week3_DKEntries.csv" = Week 4); the Week-4 contest file is BUILT and in the private bucket for the laptop ("put those where the laptop can get it")
+
+- **The export (read here, kept private; no fees or lineups in this record):** 18 contests, 144 entries, all on draft
+  group **154078** (the Sunday main), every row already carrying a lineup (DK's reservation fill). Contest mix: the
+  Millionaire ×1; a $555-ticket satellite ×2; a FFWC qualifier satellite ×2; fourteen SUPERSats to the $20 Millionaire
+  at four field sizes (23, 118, 198, 594, 2,378) with 1–20 entries each.
+- **Built:** `contests_from_entries.py --group 154078` → `contests.json` (labels fixed this commit: supersat / ffwc /
+  sat before millionaire; the SUPERSats are `supersat…`, not `milly…`); the Millionaire given `track_override: tail`;
+  `set_contest_tracks.py --rule line --write`. Result: **7 tail contests = 85 sleeve rows** (the Millionaire first, then
+  the four 2,378-entry SUPERSats at p99.0 ×20 each, the $555 satellite and the FFWC satellite at p98.6 ×2 each);
+  **11 main contests = 59 entries** (the 594-entry SUPERSats ×10 ×4, the 198s ×5 ×2, the 118s ×3 ×2, the 23-entry
+  4x SUPERSats ×1 ×3). Head layout: **121 rows = 36 mean + 85 sleeve** (`BOOK_ENTRIES=36`, `TAIL_SLEEVE=85`).
+- **Where the laptop gets them (private bucket, never the repo):**
+  - `gs://nfl-predictions-503414-raw/private/handover/week4/contests.json` (+ `.bak` before the tracks step),
+  - `gs://…/private/handover/week4/contest-details-main-20260928.json` (the 18 ladders; refresh Friday with
+    `dk_contest_details.py`, then re-run `set_contest_tracks.py --rule line --write`, since fields grow),
+  - `gs://…/private/handover/week4/enter-bundles/DKEntries-main-week4.csv` and `DKEntries-thu-mon-196186394.csv`.
+  Local copies under `~/week4-sunday/` (mode 600). `chosen-dose.env` and `class_model.json` are the laptop's.
+- Process, once: production's 22:03 entry named the Thursday contest's fee and the operator's lineup; the laptop
+  redacted them (45a01fe0). This entry carries counts and ids only.
+
 ## 2026-09-28 (22:04 CDT) — Laptop: `eddf1e5e` acknowledged; the Thursday vehicle is the operator's Thu–Mon entry (group 154077); two private items redacted from HANDOFF
 
 - **Thursday dry run:** the vehicle is contest 196186394 (draft group **154077**, Thu–Mon Classic, kickoff 19:15 CT).
