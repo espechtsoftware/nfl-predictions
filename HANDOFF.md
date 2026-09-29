@@ -12,6 +12,27 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (13:03 CDT) — Laptop: reboot-safety pass (operator asked); three old laptop branches pushed; the agent's reminder schedule (re-create if the session restarts)
+
+- **Unpushed work found and pushed**, each to its **own** remote name. Their upstreams pointed at other branches, one
+  of them the integration branch, so a plain `git push` would have landed them there. Upstreams are now reset to
+  themselves:
+  - `laptop/ownership-replay-sets-20260922` (1 commit);
+  - `laptop/thin-line-market-20260923` (1, parked);
+  - lab `laptop/l04-props-blend-retest-20260924` (5, the L04 PREREG).
+
+  No dirty or unpushed worktree remains in either repo.
+- **The session scratch folder** (under `/tmp`) is copied to `~/.cache/laptop-agent/scratch-archive-20260929/` (174 MB,
+  mode 700, contains a DK export copy: never commit).
+- **Persistence facts:** WSL has systemd, and the DK unit is enabled and active. **Linger is off.** The Sunday timers
+  are transient and die with a reboot or WSL restart. The recovery is in the take-over document's new §9a (re-arm; the
+  operator's one-time `sudo loginctl enable-linger erich`).
+- **The agent's reminders this week** (session-only; a new session re-creates them from this list):
+  - Wed 09-30 09:33: the weekly vendor run (27 of 27);
+  - Thu 10-01 14:57: dry-run prep and the operator's lineup by 16:30; the export test ~20:30;
+  - Fri 10-02 09:07: the ladders and tracks, the FP ownership capture;
+  - Sat 10-03 09:32: the props-guard pre-check (Week 4, at the deployed commit);
+  - Sat 10-03 09:47: the refresh, the sets file, `chosen-dose.env`, then the arm line to the operator by 10:25.
 ## 2026-09-29 (12:41 CDT) — Laptop: CUTOVER COMPLETE (consolidated record); Week-4 refresh blocked only by nflverse's late Week-4 roster (now published)
 
 **Machine-move §3, as done today** (details in the entries of 07:59–10:26):

@@ -566,6 +566,32 @@ arms it as a timer (`T70_PROJECT=1`).
 
 ---
 
+## 9a. After a laptop reboot, a WSL restart, or a VS Code/agent restart
+
+What survives:
+- git: everything is pushed;
+- the private bucket;
+- `~/week4-sunday/` (contests, details, class model);
+- the vendor browser profiles (the logins);
+- `.env` and the gcloud auth;
+- Cloud Run executions already started (they run server-side).
+
+What does NOT survive, and the recovery:
+1. **The DK salary loop pauses until WSL starts again.** The unit is enabled, so it restarts when the user session
+   starts. After any reboot: open the Ubuntu (WSL) terminal, then `systemctl --user is-active nfl-host-dk-ingest`
+   (expect `active`) and `journalctl --user -u nfl-host-dk-ingest -n 5`. Recommended once (operator, needs sudo):
+   `sudo loginctl enable-linger erich`, so the user services start with WSL rather than with a login shell.
+2. **The Sunday timers are transient** (`systemd-run --on-calendar`): **a reboot or WSL restart after Saturday's
+   arming deletes them all.** After any restart between arming and Sunday 12:00:
+   - check `systemctl --user list-timers --all | grep nfl-week4`;
+   - if they are gone, re-run the same arm line (dry-run first, then `--run`);
+   - skip the Saturday D12800 if its run dir already exists: add `d12800sat` to `SKIP_UNITS`.
+   - Keep a WSL terminal open over the weekend so the VM stays up.
+3. **The agent's own reminders are session-only.** A new session reads `HANDOFF.md` (the newest entry lists them) and
+   this document's §4, and re-creates them.
+4. **Session scratch files** live under `/tmp`. The 09-29 copy is in `~/.cache/laptop-agent/scratch-archive-20260929/`
+   (private; it contains a DK export copy, never committed).
+
 ## 10. File index (most used)
 
 | File | What |
