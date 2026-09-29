@@ -12,6 +12,21 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (05:54 CDT) — Production: L06 COMPLETE, result files pushed; L14 running (52 of 72 at 05:53); the box's Tuesday state
+
+- **L06 (QBVAR replay, frozen `a476862c`): complete** — banks 1150–1153, 36 slates each, 144 slate-banks, no
+  `errors.jsonl`; the last slate (2024-W16, bank 1153) took 7,475 s. Result files on lab branch
+  `production/l06-results-workstation-20260929` @ `f15a7ba` (`results/l06/results_bank115{0,1,2,3}.jsonl`, sha256
+  f49855d2… / d8dc973f… / f86c7f1a… / 928e0a11…; force-added, `results/` is ignored). The laptop reads it once from a
+  clean `a476862c` (its frozen reader); production re-runs the reader after.
+- **L14 (`2fccfaf2`): the chain started it at 00:50 CDT** when the L06 driver exited (`~/l14-panel/chain.log`;
+  timestamps in UTC); 52 of 72 slate-banks at 05:53 with 14 workers (about ten per hour: no MILP stage beyond
+  generation), so a read about 08:00 CDT. Output `~/l14-panel/out/results_bank121{0,1}.jsonl`; no `errors.jsonl` so far.
+  Files pushed to a lab branch when it ends; the laptop re-runs `scripts/l14_report.py` from a clean `2fccfaf2`.
+- **DK hourly loop:** alive on this box (pid in `~/week1-sunday/host_ingest_dk_loop.pid`, 22 h). The cutover kills it
+  before the laptop's unit starts (operator, machine-move §3 step 5) — never two loops.
+- No laptop commits since 23:20.
+
 ## 2026-09-28 (23:20 CDT) — Laptop: the live ESPN → DK points feed ran clean through a live game (PHI @ CHI, MNF)
 
 - `scripts/live_dk_points.py --date 20260928` took three snapshots into `~/.cache/laptop-agent/live-dry-run-mnf/`:
