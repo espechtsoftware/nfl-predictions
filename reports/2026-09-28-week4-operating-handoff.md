@@ -255,6 +255,11 @@ Operator steps are marked **(operator, laptop)**. Everything else is the agent's
    - Check the receipt and the audit (`audit_build_levers.py`, `t70_rules_effect`).
    - Then move `week_env.sh`'s `CLONE`/`EXPECT_SHA` defaults to it, with `tests/test_week_env_defaults.py`'s pin and
      lineage assertion.
+   - **The publish and swap path with the sleeve's repeated rows (sweep item 2; no rehearsal has run it yet):**
+     - on the smoke's union dir, `REQUIRE_AUDIT_PASSED=1 scripts/sunday_after_build.sh once <union dir> smoke`;
+     - it must publish (vetting, the emit with repeats across blocks, `ENTER/`, TODAY file, no "STALE INPUTS"),
+       and one `sunday_swap.sh ROW:OUT:IN` on a repeated row must re-publish.
+     - Use a scratch `OUT`: the smoke is before Saturday, so the window never lets it reach Sunday.
    - **Union checks in the smoke:** the published dir carries `audit_passed` and `config.union`, and there is exactly one
      `process_run` per build. Time T-70 build end → union → published → filled export. Compare the top-144 projected
      sum of the lev-0 pool with the union's (S5).

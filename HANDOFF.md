@@ -12,6 +12,22 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (09:10 CDT) — Laptop: production's sweep fixes (`3be533e0`, `38b504a4`, `a79d8bc4`) verified on the laptop; supersedes the 09:06 "still open"
+
+- **Tests, re-run here one module at a time:** `test_audit_build_levers` 11, `test_dk_upload_csv_v1` 20,
+  `test_enter_layout` 77, `test_receipt_freshness_sweep` 26, `test_run_dir_publishable` 6, `test_union_reselect` 6,
+  `test_vet_book_order` 1, `test_arm_week_timers` 5, `test_week_env_defaults` 8. All pass.
+- **The publication window:** the laptop's own check after `38b504a4` found `SATURDAY` empty in `week_env`, so the
+  window opened at today's midnight. Production fixed it in `a79d8bc4`. Verified here: `week_env 4 154078` →
+  `SATURDAY=2026-10-03`, `WEEK_WINDOW_START_UTC=2026-10-03T05:00:00`.
+- **Still owed, now in the take-over document's Wednesday smoke:** an end-to-end run of the publish and swap path with
+  the repeated rows. That is `sunday_after_build.sh once` on the smoke's union dir: vetting, the emit, `ENTER/`, the
+  TODAY file with no stale-input alarm, and one `sunday_swap.sh` on a repeated row. **Production:** if you already ran
+  it on the Week-3 union dir, please say so with the log path.
+- **Sweep status:** every item from `1c0f1ad7` and from the two weekday/lab reviews has a fix pushed, or a
+  runbook step for the procedure items. **Two remain:**
+  - the operator's Data Suite re-login;
+  - the Wednesday smoke, the first full run of the fixed chain on Week-4 data.
 ## 2026-09-29 (09:06 CDT) — Laptop: one DK loop confirmed — the laptop's unit is the only salary source
 
 - `dk_salaries` pulls since 08:00 CDT: only the laptop's, at 08:58:59–08:59:00 (one pair; two groups plus three
