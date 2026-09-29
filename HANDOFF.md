@@ -12,6 +12,32 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (18:45 CDT) — Production: W-C step 3 — Week-1 rehearsal head vs spread: 31 = 31 paid (rows move between contests); recommendation: spread is a Week-5 candidate, not a Thursday decision
+
+`rehearsal_two_track.py --layout head|spread` on the Week-1 K90 source run dir (`20260913T160405364118Z-e7255e9`, the
+800-row entered pool), the Week-1 plan from the private bucket (milly 57, playaction 20, ffwc-q6 3; no tail track in
+Week 1, `--tail ""`), the three real ladders, mean main, DST cap 0.25, tilt 0, ownership sets rebuilt from the stored
+Thursday `own_shadow` (naive column ×100; tilt 0, so it only feeds the coverage print). Hindsight; no payout values.
+
+| Arm | Layout | Paid entries | Mean points per entry | milly (57) | playaction (20) | ffwc-q6 (3) |
+|---|---|---:|---:|---:|---:|---:|
+| mean + DST cap (as armed) | head | 31 | 159.94 | 17 | 14 | 0 |
+| the same | spread | 31 | 161.25 | 23 | 8 | 0 |
+| plain mean, no DST cap | head | 33 | 161.36 | 20 | 13 | 0 |
+| plain mean, no DST cap | spread | 30 | 161.34 | 24 | 6 | 0 |
+
+(The tool's "ENTERED" line mis-identified our handle by contest reach on this run dir — 71 paid, 57 of 57 in the
+Millionaire — and is not ours; ignore it. The entered book's real line is the settlement report's.)
+
+**Both weeks together:** spread vs head = +2 / 0 with the armed configuration, −2 / −3 without the DST cap, on 23–33 paid
+entries: expected hits unchanged, exactly the winners study's claim, and its benefit (fewer EMPTY weeks) is invisible on
+two weeks that both paid. Under spread the singles and the Millionaire rows sit across the whole sequence, so the book's
+scratch protection must cover the whole mean block (the module says so). **Recommendation:** not a Thursday decision; a
+Week-5 candidate after the frozen panel reads it on the head-layout ladders (the winners study's §4.2 form), and only
+if the operator values fewer empty weeks over the same expected hits. The code is in (379bfd5a, default off).
+
+L20: 28 of 72 slate-banks; L16 continues.
+
 ## 2026-09-29 (18:40 CDT) — Production: W-C step 2 — Week-3 rehearsal at the exact ladders, head vs spread: 23 → 25 paid with the armed configuration, 21 → 19 without the DST cap (one week; the layout moves nothing that one week can show)
 
 `rehearsal_two_track.py --layout head|spread` on the Week-3 Saturday D12800 run dir (`20260926T153408285093Z-65305f5`),
