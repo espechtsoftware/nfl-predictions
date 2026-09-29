@@ -12,6 +12,45 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (18:33 CDT) — Laptop: L-A and L-B done (ownership term wired into the chain; `--hold-on-main`); first live-path checks
+
+**Correction to 18:27:** the push rebased the merge, so the reviewer's two commits landed as **a5110c99** (patch) and
+**7d9712d9** (report), not as a merge commit. Their content is byte-identical to 0c1af977 / 16c293b7
+(`ownership_blend.py`, its tests, the report and `union_reselect.py` all equal).
+
+**L-A: the chain (eed343df).**
+- `week_env.sh`: `UNION_MAIN_OWN_TILT` (default 0), `OWNERSHIP_LAG=$OUT/ownership_lag.csv`, `LINESTAR_DIR=$OUT/linestar`.
+- `sunday_build_host.sh`, with `UNION_MAIN=pmo_x50` and tilt ≠ 0, before each union:
+  - The LineStar capture (label = RUN_TAG). A failure keeps the newest earlier capture.
+  - `ownership_blend.py` to `$OUT/ownership_blend-$RUN_TAG.csv`. Only on success do the two flags join the union args; a
+    refused blend prints "OWNERSHIP BLEND REFUSED … WITHOUT THE OWNERSHIP TERM".
+  - Both steps sit under `timeout 120`.
+  - The union's exit code decides: `OWN TERM REFUSED` re-runs without the flags (`strip_own`), named, and
+    `own_term_refused.txt` is copied into the union dir.
+  - The PMO-refused mean fallback also strips the term's flags (the term is defined for pmo_x50 only).
+- `arm_week_timers.sh`:
+  - The pass-list gains `UNION_MAIN_OWN_TILT OWNERSHIP_LAG LINESTAR_DIR`.
+  - The printed Saturday steps gain the lag file (`--lag-features`), its gate and a Saturday capture.
+  - **With tilt ≠ 0, `--run` refuses unless `check_ownership_lag.py` passes (gate 4: sum ≥ 280, percentages, ≥ 100
+    rows).**
+- Tests: `test_check_ownership_lag.py` (new, 3); `test_week_env_defaults.py` (+2, including a behavioural test of
+  `strip_own`); `test_arm_week_timers.py` (+1). All Sunday-path modules pass: **282 passed, 1 skipped** (a Week-2 file
+  not on this host).
+- The take-over doc §4 has the Friday routing flag, the Saturday term steps and the arm-line additions.
+
+**L-B: routing.** `set_contest_tracks.py --hold-on-main 2378,190` sets `track_override: mean` by field size, with
+`--rule line` only. It refuses a size that matches no contest and a contest forced to the tail. 14 tests pass.
+
+**First live-path checks (scratch dirs, nothing in ~/week4-sunday):**
+- `ownership_sets.py sets --season 2026 --week 4 --lag-features`: the lag model fits (walk-forward Spearman 0.775 /
+  0.787 / 0.792 for 2023/24/25), then it stops with "no served projections for week 4": the props guard has held
+  project-slate since this morning.
+- The LineStar capture for W4 refuses: "only 41 players carry a projected ownership", LineStar has not filled the
+  week. The refusal path works.
+- **Both get their first real run in the Wednesday smoke**, right after project-slate passes: the lag file and gate 4,
+  a capture, the blend, the union with `--main-own-tilt 0.20`, the sleeve compared with a run without the term, and the
+  refusal path with the blend removed.
+- **Workstation:** W-A (the `main_own_term` audit check) is still needed before that smoke.
 ## 2026-09-29 (18:31 CDT) — Production: W-A DONE — `main_own_term` audit check (reviewer gate 3) in `scripts/audit_build_levers.py`, 12 tests pass
 
 Answering 1ddf3645. `audit_build_levers.py` gains `main_own_term`, placed after `union_main`:
