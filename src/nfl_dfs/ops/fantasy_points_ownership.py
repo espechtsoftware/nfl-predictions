@@ -66,7 +66,7 @@ def validate_surface_state(
     if not session_uid_present:
         raise RuntimeError(
             "Fantasy Points ownership API returned no authenticated session; "
-            "run `fantasy-points-ownership login --terminal-credentials`"
+            "run `fantasy-points-ownership login` (sign in by any method, then press Enter)"
         )
     normalized = [" ".join(str(text).split()) for text in headings]
     seasons = {
@@ -218,10 +218,10 @@ def interactive_login(
                 )
                 print("Fantasy Points ownership session is already authenticated.")
                 return
-            _visible(_sign_in_button(page)).click()
-            dialog = page.get_by_role("dialog")
-            dialog.first.wait_for(state="visible", timeout=timeout_ms)
             if terminal_credentials:
+                _visible(_sign_in_button(page)).click()
+                dialog = page.get_by_role("dialog")
+                dialog.first.wait_for(state="visible", timeout=timeout_ms)
                 print(
                     "Credentials fill only the open Fantasy Points dialog; "
                     "they are not logged or saved by this project."
@@ -259,9 +259,14 @@ def interactive_login(
                         "verify the credentials and any site challenge"
                     ) from exc
             else:
-                print("Sign in to Fantasy Points in the opened browser.")
+                # The account may sign in through Google (a redirect, no email/password dialog), so the manual path
+                # never waits for the dialog (2026-09-29: it did, and the Enter prompt never appeared).
+                print(
+                    "Sign in to Fantasy Points in the opened browser by any method (email or Google); "
+                    "keep the window open."
+                )
                 input(
-                    "After the ownership page is visible, press Enter here "
+                    "When the ownership projections show (no Sign In button), press Enter here "
                     "to verify and save the session: "
                 )
             api_evidence = _open_surface(page, timeout_ms=timeout_ms)
