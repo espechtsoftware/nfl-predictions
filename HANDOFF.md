@@ -12,6 +12,58 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (17:55 CDT) — Production: the 35 questions ANSWERED — `reports/2026-09-29-where-the-points-and-money-go.md` (for the reviewer); twelve ranked actions; four new findings
+
+Seven parallel read-only analyses (light compute beside L16/L19) plus the winners study (`origin/review/winners-study-20260929`).
+Theme files and scripts: `reports/lab-handoffs/2026-09-29-questions-research/` (no data files; the field exports carry user
+names). The same content is on the operator's shared page for the reviewer.
+
+**Four findings that were not in any report before today:**
+1. **The dumb baseline beats the entered book.** A plain optimizer on the props-implied projection, DK rules only, no
+   simulator/generator/selector, K = 36: +12.5 / +14.1 / +12.9 / +32.1 per row over the machine book in all four frames
+   (W1, W2, W3 Sat, W3 T-70) and above the Millionaire median in both clean weeks. Top-mean from our own pool still beats
+   it on the clean weeks (169.7 vs 157.1; 151.2 vs 133.1). On the three clean frames the generator + simulator +
+   expected-max selector cost 21–25 per row against a plain optimizer on the same served projection with the house rules,
+   and the house rules themselves added +40 / +7 / +7. Caveat: the historical snapshot's `proj` carries the p90 punt
+   valuation for ≤ $4k players, so historical top-K-by-`proj` reads are the tournament objective; `mean_projection` must be
+   verified before any further historical read.
+2. **The funnel's biggest drop is the selector, in the residual.** Top-K-by-mean → entered book: −29 (W1) / −31 (W3)
+   realized per row; only a quarter visible in projected points. Every one of our books sits ABOVE the field in projected
+   points; the entered rows realize 2 / 16 / 10 less relative to projection than the field's rows, the top-mean rows 20 / 15
+   more. Predictable duds 3.5–4.7 per entered row, almost all the p90-valued punt (4-punt lev rows realize 13–24 below
+   3-punt rows; the valuation overstates every punt slot by 9–14 and ranks punts no better than the mean). The stack mandate
+   EARNS mean points (field rows with our shape +3 to +5, cash 26–27% vs 18%); its cost is concentration.
+3. **Two bank defects.** The corrected-hsim bank runs +5 to +7 per lineup above the served projection in every 2026 build
+   (QB +9%, top quartile +7%) although its receipt says self-calibrated; the incumbent bank's DST row has zero variance.
+   The main book is simulator-free (its "simulated mean" = the served projection to 2e-6). No tail/sleeve read should cite
+   a simulated P(≥line) until both are fixed (L14 already says the simulator's loses at every line).
+4. **Every winning player was in our pool all three weeks (81/81); the book skipped two each week** (W1 Coker/Steelers
+   0 of 57; W3 Geno 5%, Sadiq 3% vs two busting DSTs at 35%/33%). Heavy winners' portfolios have no cores (pairwise overlap
+   1.9, 93% unique): our own shape with better player choice. At RB/WR/TE the crowd's top picks beat our top projections
+   in 48–50 of 72 historical slates; the Thursday ownership input in W1 was wrecked by the QB defect (ρ −0.16; the same
+   formula on the T-70 frame +0.82).
+
+**Also settled:** `payout` is NULL because the importer expects a Winnings column the DK export lacks; all 60 ladders
+fetch from the public endpoint and sum to the stated pools (load them; Data-deficiency-log row due). W2/W3 cash lines were
+recorded high (135.5 / 146.4). Duplication is not a lever (fields 90–94% unique). Sunday re-projection adds nothing for
+active players (independently reproduced); the W1/W3 T-70 frames were pulled before the inactives. Persistence W2→W3
++0.27; nine named top-100 repeaters. The panel's verdict labels flip in ~half of bootstrap draws (paired-wins clause), the
+large directions do not; 43% of season splits disagree in sign.
+
+**Twelve ranked actions** (the report's last section): (1) fund only the 2,378/190 supersats (594 optional), drop the
+11-entry/402 sats and the FFWC qualifier, one Milly seat; (2) judge on book-vs-field, size for 4 losing weeks in 5;
+(3) cap punts at 3 per row / drop 4-punt lev rows before mean selection (entry change, rehearse); (4) market-only plain
+book as Sunday shadow + fallback (paper); (5) DK pull after inactives, Q scale on, no re-projection; (6) blended-ownership
+term inside the capped objective as a T-70 paper book (entry ≥ Week 5, gated on provable captures); (7) exposure toward
+the winners' shared pieces via a rehearsed chalk-core tie-breaker; (8) spread dealing; (9) punt-band availability filter;
+(10) fix the bank defects, retire simulated P(≥line); (11) ladders/cash lines/provable captures/DK export checks/own_shadow
+weekly; (12) bootstrap intervals beside verdicts, the symmetric adopt/withdraw rule, re-read six tail-era closures on the
+mean track. Entry changes need the operator's and the reviewer's yes before Thursday 18:00; the armed configuration stands.
+
+**→ LAPTOP:** items 3, 7 and 9 are rehearsable on the Week-1/3 pools with the existing tools; item 4 is `B6/live_books.py`;
+item 5 is a sequencing check on the Sunday chain. **→ REVIEWER:** the report is the ask.
+Panels: L16 36/72, L19 3/72 at 17:36; L07 launches on L16's exit.
+
 ## 2026-09-29 (16:54 CDT) — Laptop: on production's questions report (3f7deae9): the 36-slate panel reproduces the live finding that the Weeks 1–3 selectors sit below the field; only PMO_X50 clears it
 
 A partial answer to **G3/G4** (is the panel representative; is it flattering?). It uses already-read results only
