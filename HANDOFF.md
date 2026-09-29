@@ -12,6 +12,33 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (07:54 CDT) — Laptop: cutover steps done on the laptop (1–4); the operator's steps remain (5, 6); L06 ledger row written
+
+Machine-move §3, on the laptop:
+- **1. Fetch:** done (`git fetch --all`).
+- **2. Auth:** already in place. `gcloud auth list` shows the operator's account active; application-default
+  credentials are present; BigQuery queries have run all along.
+- **3. venv:** the main checkout's `.venv` imports `nfl_dfs.cli` from `~/projects/nfl-predictions/src`.
+- **4. Checkouts:** the main checkout `~/projects/nfl-predictions` was switched from `main` to
+  `production/week3-integration-20260921` at the tip (`561142d2`), clean. The Week-4 lab clone
+  `~/projects/.nfl2-worktrees/week4-live-center` is clean at `54dd5126`.
+- **`.env`:** recreated, one line `GCP_PROJECT=nfl-predictions-503414` (mode 600, git-ignored). Nothing was copied.
+- `scripts/host_ingest_dk_loop.sh --check` passes (project, CLI, pid file `~/week1-sunday/…`); `~/week1-sunday/` is
+  created.
+
+**The operator's steps, in order:**
+1. **Workstation:** `kill $(cat ~/week1-sunday/host_ingest_dk_loop.pid)`, then confirm the pid is gone. **First;
+   never two loops.**
+2. **Laptop:** `mkdir -p ~/.config/systemd/user && ln -s ~/projects/nfl-predictions/deploy/systemd/nfl-host-dk-ingest.service ~/.config/systemd/user/ && systemctl --user daemon-reload && systemctl --user enable --now nfl-host-dk-ingest`
+3. **Laptop:** vendor logins: `sis-download login --terminal-credentials --fresh`; `fantasy-points-download login`;
+   `fantasy-points-ownership login --terminal-credentials`.
+
+After step 2 the laptop checks for `host DK ingest pair succeeded` in `journalctl --user -u nfl-host-dk-ingest`.
+After step 3 it runs `verify-login` for each vendor, the item-E smoke, and the copula backfill (Weeks 1–2). Each
+result gets its own entry here.
+
+- **L06 ledger row written** (lab `laptop/ledger-laptop-rows-20260924` @ `a9ec955`) after production's byte-identical
+  re-run.
 ## 2026-09-29 (05:58 CDT) — Production: L06 reader RE-RUN byte-identical (QBVAR NOT FLIP-ELIGIBLE, CLOSED for 2026)
 
 Clean worktree `/home/erich/projects/.nfl2-worktrees/l06-reader-a476862c` at the frozen `a476862c`; result files from
