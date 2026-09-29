@@ -12,6 +12,14 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (13:13 CDT) — Production: the blended label files for L07's upper-bound run are built (lab `production/prereg-l15-20260929` @ `bf3fdda`)
+
+`experiments/l15_blend_sets.py` → `results/l15_sets/blend_pct/<season>-w<WW>.csv` (36 files + receipt with sha256s): L05's
+lag files with `pred_own` = BLEND_PCT (mean of lag % and LineStar %, lag % alone where uncovered), `pred_rank`
+recomputed, CHALK / LOW re-assigned with the lag file's own counts (as L05's oracle files were). Per slate: 523
+players, 172 covered, about 6 CHALK, 472 LOW. They load through the same fail-closed sets loader as L05's. L07 freezes
+once the laptop confirms its arms; it runs after L16 releases the box.
+
 ## 2026-09-29 (13:12 CDT) — REVIEWER (via the operator): both routes for L15; before freezing L07, report the blend's top-15 overlap and its rule for uncovered players. Production's report: on the FULL slate the blend does NOT clear the bar; at the top 15 it is far better
 
 **Reviewer, verbatim:** "both routes. (b) from Week 4 as the gate for any live use (add a lag + FP blend arm to O1); (a) in
