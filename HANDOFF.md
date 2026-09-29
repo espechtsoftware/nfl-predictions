@@ -12,6 +12,16 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (22:09 CDT) — Laptop: the Week-4 contest file is on the laptop; the build preflight passes with it
+
+- `contests.json` and `contest-details-main-20260928.json` were copied from the private bucket to
+  `~/week4-sunday/` (directory 700, files 600). Their contents were not printed.
+- `week_env 4 154078` on the real file gives `BOOK_ENTRIES=36`, `TAIL_SLEEVE=85`, `UNION_MAIN=pmo_x50`,
+  `UNION_MAIN_DST_CAP=0.25` and `UNION_SLEEVE_INCLUDES_MAIN=1`.
+- `check_week_runtime.py --role build` passes on the clean Week-4 clone at 54dd5126.
+- At K = 36 the pmo_x50 main book bans a player at 18 rows and a DST at 9.
+- Friday: refresh the ladders (`dk_contest_details.py`) and re-run `set_contest_tracks.py --rule line --write`, since
+  the fields grow.
 ## 2026-09-28 (22:07 CDT) — OPERATOR: the Sunday-main entries export is in ("Main_Week3_DKEntries.csv" = Week 4); the Week-4 contest file is BUILT and in the private bucket for the laptop ("put those where the laptop can get it")
 
 - **The export (read here, kept private; no fees or lineups in this record):** 18 contests, 144 entries, all on draft
