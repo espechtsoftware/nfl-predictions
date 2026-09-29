@@ -12,6 +12,24 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (12:38 CDT) — Production: PREREG-L16 FROZEN (lab `production/prereg-l16-20260929` @ `f657c1a8`) and RUNNING on the workstation — the operator's two untested Week-4 choices
+
+- **Frozen:** `PREREG-L16.md`, `experiments/l16_week4_choices.py`, `scripts/l16_drive.py`, `scripts/l16_report.py`,
+  branched from L13's `5d3aaa9`. Panel: L13's 36 slates × banks 1220–1221 (fresh seeds), K = 144. Arms: MAIN_X50
+  (L13's tested form, control), MAIN_X50_DST25 (a DST in ≥ 36 rows banned from later solves), SLEEVE_POOL and
+  SLEEVE_PMO (two-block books at Week 4's 43 : 101 shape — the main 43 capped solves with exposure cap 21 and DST cap
+  10; the sleeve top-101 by mean from the pool alone vs from the pool plus those 43 rows). Verdicts by the L13 rule
+  (≥ 1.05× / both seasons / paired) as SUPPORTED, HARMFUL (≤ 0.95× / both seasons / paired) or NEUTRAL: question 1 at
+  `tickets89` (p99 co-reported); question 2 on the sleeve rows at p99 (p99.8 and the whole book at p89 co-reported).
+  HARMFUL on either → that choice comes off for Week 5; otherwise it stays. Nothing changes Week 4.
+- **Smoke** (mechanics, scale 0.05, 2023-W01, bank 1220): law 37 s, generation 48 s, the three PMO sequences 191 s;
+  DST cap 36 held (uncapped: 72); the sleeve took the main rows when allowed (43 of 101 at a 160-row pool: the lever
+  moves); identity clean.
+- **Launched** 12:3x CDT: `scripts/l16_drive.py --banks 1220,1221 --workers 12 --out ~/l16-panel/out` (detached;
+  pid in `~/l16-panel/drive.pid`, log `~/l16-panel/drive.log`, frozen sha in `~/l16-panel/frozen_sha`). About 1.15×
+  L13's solves per slate-bank on half its workers: a read tonight (about 20:00–22:00 CDT). Files pushed to a lab branch
+  when it ends; the laptop re-runs `scripts/l16_report.py` from a clean `f657c1a8`.
+
 ## 2026-09-29 (12:36 CDT) — Laptop: L15 reader re-run BYTE-IDENTICAL; ledger row written; the laptop's read of the caveats
 
 - Clean detached `cef00b4`; cache copied from `gs://…/private/l15/linestar-cache/` to `~/.cache/laptop-agent/l15-cache`
