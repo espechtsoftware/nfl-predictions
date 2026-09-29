@@ -120,6 +120,16 @@ stands throughout.
 | 11 | Data: payout ladders and the rank-to-tier view; corrected cash lines; provable LineStar/FP captures; verify the two DraftKings exports with receipts; store `own_shadow` and grade the capture every Monday | process | A4, H1–H4, C3 | high |
 | 12 | Research process: bootstrap interval and P(effect > 0) beside every verdict; the symmetric adopt/withdraw rule; re-read the six tail-era closures on the mean track; verify the historical `mean_projection`; a third season on any panel adoption | process | G1–G4, B6 | high |
 
+**Correction to action 1 (the laptop, 17:59 CDT).** Both transfers in A2 priced the 2,378- and 190-entry supersats
+with the capped optimizer's rows, and the winners study's week simulation dealt its 36-row main book to every class.
+Under the armed routing those contests are not dealt those rows: the deep-line rule sends every contest paying 2% or
+less of its field (25 of 2,378 and 2 of 190 both qualify) to the 85-row tail sleeve, the top-85 by projected sum from
+pool plus main rows (31 of 85 optimizer rows in the Week-3 rehearsal). The mean-selected pool rows' panel rate at p99
+is 1.02× the field's, below the 1.19× break-even, so action 1's +20–36% holds only if the funded supersats are routed
+to the main book (`track_override: "mean"` per contest; the main book then grows to cover them; L13 supports the form
+at K = 144: 1.22× at p89, 1.77× at p99). That is an entry change for the operator and the reviewer before Thursday
+18:00. When L19 reads, the supersats' EV under sleeve dealing will be recomputed from the sleeve's own rate.
+
 Do not: re-arm the chalk fade; treat cores as a lever or add uniqueness constraints; pin the simulator's level to the
 market total; copy named repeaters; re-project active players on Sunday; read Week 2's served books as projection
 evidence; adopt anything from the panel without a paired live control from the same pool.
