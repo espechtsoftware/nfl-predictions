@@ -12,6 +12,26 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (08:35 CDT) — Laptop: item-E smoke — 1 of 11; a TIMING refusal, not a code defect; the cumulative pages are being exercised page by page
+
+- **Smoke** (audit-only, `~/.cache/laptop-agent/e-smoke-w04.log`): `PAID PAGES: 1 of 11 … NOT CAPTURED: …`.
+  - **Route Share week 03: captured** (audit-only).
+  - **Defense PROE week 03: refused, by its schedule check:** "teams differ from the Week-3 schedule: missing ['CHI',
+    'PHI']". Fantasy Points had not yet added last night's MNF game (PHI @ CHI) when the smoke ran at ~08:40.
+  - That import is **fatal and runs before the cumulative steps**, so the nine cumulative pages "never ran".
+- **This ordering protects Wednesday.** The cumulative pages are append-once, and an export missing MNF would be
+  stored incomplete and then block the finished one. Defense PROE's schedule check is the W-1 completeness gate
+  ahead of them.
+  - If FP is still missing the MNF game at Wednesday 09:30, the run stops there. It is re-run once FP is complete,
+    with nothing appended from the cumulative pages.
+  - This is the Week-2 Route Share lesson ("capture W-1 no earlier than Tuesday"): MNF data lands during Tuesday.
+- **The cumulative pages, exercised directly now** (no writes): for each of the seven plans,
+  `fantasy-points-download run --plan … --target-week 4`, then
+  `python -m nfl_dfs.ingest.fantasy_points_weekly_2026 <family>-cumulative <run dir> --target-week 4` without
+  `--write`. Log: `~/.cache/laptop-agent/e-smoke-cumulative-w04.log`. Results next entry.
+- **Ownership login tool fixed** (`3e5ad9a0`, `e5fcd4d8`). The manual path prompts for Enter without waiting for the
+  email dialog (Google sign-in redirects), and both "not authenticated" messages point to it.
+  `test_fantasy_points_ownership` 9 pass.
 ## 2026-09-29 (08:33 CDT) — Laptop: CUTOVER step 6 done — all three vendor sessions verified on the laptop; the item-E smoke is running
 
 - `nfl-weekly-data verify-login`: **SIS verified** (`pro.sisdatahub.com`) and **Fantasy Points Data Suite verified**
