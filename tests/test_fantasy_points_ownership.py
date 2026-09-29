@@ -112,3 +112,30 @@ def test_collector_fails_closed_on_locked_values_offseason_and_wrong_week():
 def test_collector_redaction_drops_session_identity_but_keeps_roles():
     red = ownership._redacted(_payload([_row("A")], roles=("role_fantasy_pro",), uid="secret"))
     assert red["session"] == {"uid_present": True, "roles": ["role_fantasy_pro"]} and "secret" not in str(red)
+
+
+def test_archive_addresses_each_object_by_its_own_hash(tmp_path, monkeypatch):
+    """A re-capture with an identical CSV must not collide with the previous capture's raw JSON or manifest."""
+    import hashlib
+    from google.api_core.exceptions import PreconditionFailed
+    from google.cloud import storage
+    from nfl_dfs.ops import fantasy_points_ownership as own
+
+    store: dict[str, bytes] = {}
+
+    class Blob:
+        def __init__(self, name): self.name = name
+        def upload_from_filename(self, path, content_type=None, if_generation_match=None):
+            if self.name in store:
+                raise PreconditionFailed("exists")
+            store[self.name] = open(path, "rb").read()
+        def download_as_bytes(self): return store[self.name]
+
+    class Client:
+        def bucket(self, name): return type("B", (), {"blob": lambda _self, n: Blob(n)})()
+
+    monkeypatch.setattr(storage, "Client", Client)
+    for i, text in enumerate(("raw-saturday", "raw-t70")):              # the same CSV, two different raw payloads
+        raw = tmp_path / f"cap{i}" / "ownership-raw.json"; raw.parent.mkdir(); raw.write_text(text)
+        own._archive_create_once(raw, hashlib.sha256(raw.read_bytes()).hexdigest(), 2026, 4)
+    assert len(store) == 2 and all(f"sha256={hashlib.sha256(v).hexdigest()}/" in k for k, v in store.items())

@@ -623,7 +623,11 @@ def collect_ownership(
     }
     if archive:
         manifest["archive"]["ownership.csv"] = _archive_create_once(csv_path, csv_digest, expected_season, expected_week)
-        manifest["archive"]["ownership-raw.json"] = _archive_create_once(raw_path, csv_digest, expected_season, expected_week)
+        # each object is addressed and compared by ITS OWN sha256 (2026-09-29 sweep: the raw JSON and manifest were stored
+        # under the CSV's hash, so any re-capture with an identical CSV -- a retry, the T-70 after Saturday -- failed
+        # "non-identical" before the BigQuery load)
+        manifest["archive"]["ownership-raw.json"] = _archive_create_once(raw_path, _sha256_file(raw_path), expected_season,
+                                                                         expected_week)
     if load:
         import pandas as pd
 
@@ -643,7 +647,7 @@ def collect_ownership(
     manifest_path = out_dir / "manifest.json"
     manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     if archive:
-        _archive_create_once(manifest_path, csv_digest, expected_season, expected_week)
+        _archive_create_once(manifest_path, _sha256_file(manifest_path), expected_season, expected_week)
     print(json.dumps({k: v for k, v in manifest.items() if k != "receipts"}, indent=2, sort_keys=True))
     return manifest
 
