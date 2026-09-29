@@ -12,6 +12,47 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (07:57 CDT) — Production: PREREG-L14 COMPLETE and READ — NOT SUPPORTED, NOT KILLED (the empirical Gaussian beats MEAN at p99 in 2024 only, +3.9% overall, paired 12–11); the simulator's P(≥ line) loses everywhere
+
+- **Run:** 72 of 72 slate-banks (banks 1210–1211), no errors, 00:50–07:5x CDT on this box (14 workers). Result files on
+  lab `production/prereg-l14-results-20260929` (`results/l14/results_bank1210.jsonl` sha256 0ef48e47…,
+  `results_bank1211.jsonl` 426f3329…; production's `reader_output.txt` beside them). Read once from a clean detached
+  checkout of the frozen `2fccfaf2` (`/home/erich/projects/.nfl2-worktrees/l14-reader-2fccfaf2`). **Laptop: please
+  re-run `scripts/l14_report.py results/l14` from a clean `2fccfaf2` and `cmp`, then the ledger row.**
+- **Reader output, verbatim:**
+```
+slate-banks read: 72 (expected 72)
+         tickets89  tickets95  tickets99  tickets99.8  t99_2023  t99_2024    mean    best  sim_mean  emp_sigma  distinct_players  max_exposure
+MEAN        1047.0      525.0      128.0         36.0      59.0      69.0  122.56  186.81    122.53      25.47             117.4          85.1
+SIMP99      1026.0      520.0      120.0         32.0      48.0      72.0  121.57  185.89    122.04      25.71             122.2          81.7
+EMPP99      1102.0      554.0      133.0         39.0      54.0      79.0  122.36  188.36    122.26      25.75             121.5          82.6
+EMPB99      1055.0      522.0      124.0         37.0      50.0      74.0  122.18  187.03    122.20      25.68             121.8          84.6
+SIMP998     1010.0      511.0      107.0         28.0      45.0      62.0  121.35  185.23    121.75      25.71             124.6          79.9
+EMPP998     1101.0      558.0      136.0         40.0      52.0      84.0  122.32  188.55    122.13      25.80             122.7          82.8
+
+lever check: mean overlap of the EMPP99 book with the MEAN book 111.5 / 144; SIMP99 with MEAN 101.6 / 144 (144 = a dead lever)
+VERDICT 1 (EMPP99 vs MEAN, tickets99): 133 vs 128 (+3.9%); seasons {2023: (54, 59), 2024: (79, 69)}; paired 12-11 -> NOT SUPPORTED
+VERDICT 1 (EMPB99 vs MEAN, tickets99): 124 vs 128 (-3.1%); seasons {2023: (50, 59), 2024: (74, 69)}; paired 10-13 -> NOT SUPPORTED
+VERDICT 1 (SIMP99 vs MEAN, tickets99): 120 vs 128 (-6.2%); seasons {2023: (48, 59), 2024: (72, 69)}; paired 11-18 -> NOT SUPPORTED
+VERDICT 2 (EMPP998 vs MEAN, tickets99.8): 40 vs 36 (+11.1%); seasons {2023: (12, 13), 2024: (28, 23)}; paired 4-2 -> NOT SUPPORTED
+VERDICT 2 (SIMP998 vs MEAN, tickets99.8): 28 vs 36 (-22.2%); seasons {2023: (8, 13), 2024: (20, 23)}; paired 1-6 -> NOT SUPPORTED
+KILL (EMPP99 <= MEAN at p99 in both seasons): no
+co-report (EMPP99 vs MEAN, tickets89, expected to lose a little): 1102 vs 1047 (+5.2%)
+```
+- **Production's read.** Under the frozen rule (≥ 1.05× MEAN at p99, ≥ MEAN in both seasons, paired wins > losses)
+  nothing is SUPPORTED, and the kill (EMPP99 ≤ MEAN in both seasons) does not fire either: the empirical-Gaussian
+  arm beats MEAN in 2024 (79 vs 69 at p99; 84 vs 69 at p99.8) and loses in 2023 (54 vs 59; 52 vs 59), paired 12–11.
+  Two things are clear: (1) the SIMULATOR's P(≥ line) loses to MEAN at every line (−6% at p99, −22% at p99.8,
+  paired 11–18 / 1–6) — the reviewer's diagnosis of the dependence holds; (2) the same estimate with the empirical
+  card instead of the simulated dependence is never worse than MEAN in aggregate and beat it at p89 too (+5.2%,
+  where it was expected to lose a little) — so the variance ranking carries something, but one season of two.
+  The lever moved (111 of 144 rows shared with the MEAN book). Verdict for the ledger: **INCONCLUSIVE at p99/p99.8;
+  S1 stays a lab question**; the mean sleeve remains right for the deep lines this week. A follow-up (not this week)
+  would pin the correlation card from more seasons and test a shrunk card (half the ρ) — the 2023/2024 split suggests
+  the card, not the idea, is the unstable part. Nothing enters Week 4.
+- The workstation is now idle apart from the DK hourly loop (the operator's cutover step 1 kills it) and the
+  after-build poll scripts; every panel's files are pushed.
+
 ## 2026-09-29 (07:54 CDT) — Laptop: cutover steps done on the laptop (1–4); the operator's steps remain (5, 6); L06 ledger row written
 
 Machine-move §3, on the laptop:
