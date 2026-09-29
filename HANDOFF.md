@@ -12,6 +12,20 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (09:22 CDT) — Laptop: SIS receiver-copula backfill WRITTEN for 2026 Weeks 1–2 (operator "Yes"); manifests
+
+Protocol `receiver-copula-weekly-2026-v1` (sha256 `bc30947a…`); 4 SIS submits in total, as authorized. Each week ran
+audit-only first (clean), then `--write`, in order, so the Week-2 prior could read Week 1.
+
+| target week | source week | acquisition identity | player rows (wide/slot) | defenses | prior | archive (licensed/sis/receiver-copula/…) |
+|---|---|---|---|---|---|---|
+| 2 | 1 | `ac698fbd…6fb12` | 216 (106/110) | 32 of 32 scheduled, complete | computed, 64 rows, no unsupported cells | `season=2026/week=01/sha256=6c7868bb…/…wide…csv`, `sha256=f8993c8d…/…slot…csv` |
+| 3 | 2 | `8623de73…cae1a` | 227 (112/115) | 32 of 32, complete | computed, 64 rows (withheld at audit until Week 1 existed) | `week=02/sha256=12141a01…/…wide…csv`, `sha256=dc4f9af7…/…slot…csv` |
+
+- Tables: `nfl_raw.sis_receiver_copula_player_game`, `nfl_raw.sis_receiver_copula_defense_prior`.
+- Outcome-blind: nothing reads either table.
+- Logs: `~/.cache/laptop-agent/copula-backfill.log` (download and audit) and `copula-write-w0{2,3}.log`.
+- Wednesday's weekly run adds source Week 3 (target 4), and its prior is written straight away.
 ## 2026-09-29 (09:19 CDT) — Laptop: the Data Suite re-login WORKS — the nine cumulative pages now export full tables (audit-only); the copula backfill is running
 
 - **Operator re-login:** `fantasy-points-download login`, run on its own.
