@@ -30,7 +30,16 @@ $PY $H/03_read_arms.py tilt3 tilt3b tilt3lag tilt4a tilt4b tilt4c     # §2.1-2.
 $PY $H/04_by_rank.py tilt3 tilt3b                                     # §2.3: by position in the book
 # §2.4: the 2026 replay, with the PATCHED tool and the Week-4 pinned lab clone
 PYTHONPATH=<pinned clone>/src:<checkout>/src $LAB_PY $H/05_replay_2026.py <checkout>/scripts rehearsal
+# the addendum (reports/2026-09-29-ownership-term-addendum-routing-and-dealing.md): 100 main rows, and the layouts
+KROWS=100 WORKERS=14 $LAB_PY $H/01_panel_term.py 1240 k100a base=0,blend20=0.2 blendsets       # about 6 minutes
+KROWS=100 WORKERS=14 $LAB_PY $H/01_panel_term.py 1241 k100b base=0,blend20=0.2 blendsets
+$PY $H/06_read_k100.py k100a k100b                        # §1: by contest class under head and spread; p99 / p99.8 by row block
+$PY $H/07_read_layouts.py routed k100a k100b              # §3: head, spread as built, spread with one offset per contest
+$PY $H/07_read_layouts.py filed tilt3 tilt3b
 ```
+
+`06_read_k100.py` and `07_read_layouts.py` need `ENTER_LAYOUT_PY` from a checkout that has the `spread` layout
+(integration `f0da76d5` or later). "routed" holds the plan's deep-line supersats on the main book.
 
 The 2026 ownership files (`own2026_w<W>.parquet`) are the ownership model's predictions for the week's slate with
 `implied_team_total` taken from the archived frame. `ownership_sets.py sets` for a past week finds no rows in

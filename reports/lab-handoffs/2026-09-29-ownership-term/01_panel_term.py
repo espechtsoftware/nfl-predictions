@@ -1,5 +1,6 @@
-"""Descriptive: the armed main-book form (K 36, cap 18, DST cap 9) with an ownership term in the objective; the lambda
-curve past 0.20 and a second bank. Saves the rows so later reads need no new solves.
+"""Descriptive: the armed main-book form (K rows, exposure cap K/2, DST cap K/4; KROWS in the environment, default 36)
+with an ownership term in the objective; the lambda curve past 0.20 and a second bank. Saves the rows so later reads
+need no new solves. WORKERS in the environment sets the pool size (default 12).
     python tilt3_run.py <bank> <outdir> <arm=lambda,...>      e.g. 1240 tilt3 base=0,blend20=0.2,blend30=0.3,blend40=0.4
 """
 import os, sys, json, math
@@ -7,7 +8,7 @@ os.environ.setdefault("OMP_NUM_THREADS", "1"); os.environ.setdefault("OMP_THREAD
 WT = os.environ["LAB_WT"]            # a lab checkout at L18's freeze (fb397d9), imported read-only
 sys.path.insert(0, WT + "/src"); sys.path.insert(0, WT + "/experiments")
 import numpy as np, pandas as pd
-BANK = int(sys.argv[1]); OUT = sys.argv[2]
+BANK = int(sys.argv[1]); OUT = sys.argv[2]; KROWS = int(os.environ.get("KROWS", "36"))
 ARMS = [(a.split("=")[0], float(a.split("=")[1])) for a in sys.argv[3].split(",")]
 SRC = sys.argv[4] if len(sys.argv) > 4 else "blendsets"
 def one(args):
@@ -38,7 +39,7 @@ def one(args):
     base_ids = None
     for name, lam in ARMS:
         obj = pm + lam * pred
-        b = L.plain_mean_book(frp, obj[keep], 36, 18, max(1, math.floor(0.25 * 36)))
+        b = L.plain_mean_book(frp, obj[keep], KROWS, max(1, int(0.5 * KROWS)), max(1, int(0.25 * KROWS)))
         a = np.asarray(candidate_actual(fr, b), dtype=float)
         rows = [[str(p["id"]) for p in lu.players] for lu in b]
         idset = [frozenset(r) for r in rows]
@@ -55,6 +56,6 @@ if __name__ == "__main__":
     os.makedirs(OUT, exist_ok=True)
     rows = [json.loads(l)["result"] for l in open(WT + "/results/l18/results_bank1240.jsonl")]
     slates = sorted({(r["season"], r["week"]) for r in rows})
-    with Pool(12) as p:
+    with Pool(int(os.environ.get("WORKERS", "12"))) as p:
         for o in p.imap_unordered(one, slates): print("done", o, flush=True)
     print("ALL DONE", flush=True)
