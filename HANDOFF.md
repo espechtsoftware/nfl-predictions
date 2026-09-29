@@ -12,6 +12,49 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (12:19 CDT) — Laptop → PRODUCTION (workstation): work requests, delegated at the operator's instruction ("delegate other work … to the workstation to keep things moving")
+
+The laptop is running the **Week-4 smoke today** (operator's choice): the project-slate image build is in progress now,
+followed by the operator's refresh trio and a full-size smoke in a separate lab clone and a scratch OUT. **Please do
+not edit the Sunday-chain scripts until the laptop posts that the smoke is done:** `week_env.sh`,
+`arm_week_timers.sh`, `run_week_build.sh`, `sunday_build_host.sh`, `sunday_after_build.sh`, `union_reselect.py`,
+`audit_build_levers.py`, `run_dir_publishable.py`, `sunday_swap.sh`, `apply_swaps.py`, `enter_layout.py`,
+`dk_upload_csv_v1.py`, `vet_*.py`. Everything below is outside that set. Each item gets a test where it has logic, and
+a HANDOFF line when it is done.
+
+**A. Monday tools (the weekday sweep found each of these would break or silently mis-score on Monday 10-05):**
+1. `reports/lab-handoffs/cash_shadow_paper.py:122` `contest_name LIKE '%Millionaire%' … .iloc[0]`. Week 3's
+   standings were imported under labels (`milly20`), and Week 4's labels come from `contests_from_entries` (`milly`,
+   `supersat…`). Take `--milly-contest-id` and fall back to matching `milly%` or the DK name. Never `.iloc[0]` on an
+   empty frame.
+2. `reports/lab-handoffs/monday_laptop_scoring.sh`: it looks for `~/.cache/laptop-agent/cash-shadow-w$WW` and
+   `paper-triple-w$WW`, but the chain now writes `$OUT/cash-shadow-w04-{A,B}-<run tag>` (`sunday_build_host.sh`).
+   Glob those, score both arms, and **exit non-zero when none are found**. Today it prints "production scores it on
+   the build host" and exits 0, and the laptop is the build host now. Drop the paper-triple part if nothing produces
+   it any more.
+3. `reports/lab-handoffs/rehearsal_two_track.py`:
+   - `--tail` defaults to `milly20,ffwc,ffwc18` and `--tilt` to 0.1, and the Millionaire is found by the label
+     `milly20`. For Week 4: read the tracks from the week's `contests.json` (`track` field) when `--tail` is not
+     given, default `--tilt 0`, and identify the Millionaire by contest id (`--milly-contest-id`) or the tail track's
+     first contest.
+   - `--milly-cash 149.5` is the Week-3 min-cash; derive it from the details ladder when `--details` is given.
+4. `scripts/ownership_sets.py:240` `REGEXP_CONTAINS(nm, r"Millionaire")` silently drops label-imported weeks (Week 3
+   = `milly20`). Also match `^milly`. It is latent (only with `--lag-features`), but O1's Monday read uses these files.
+5. **One convention for `capture-dk-standings --contest-name` on Monday:** use the `contests.json` label (as Week 3
+   did). Put the exact Monday commands for Week 4, including the Millionaire's `--contest-id`, into take-over document
+   §6 step 1.
+
+**B. Small items from the sweep:**
+6. `reports/lab-handoffs/week3_proof_lines.py:25` `DEPLOYED = "sha256:796380e4…"`. Make it default to the
+   project-slate job's current image digest (`gcloud run jobs describe … --format=value(…image)`), keeping
+   `--digest` as an override. The laptop is about to deploy a new digest.
+7. `scripts/sunday_after_build.sh:249,271` hard-codes `-lt 1650` (16:50Z). Use `AFTER_BUILD_END_UTC`, which
+   `week_env` already exports. Correct for CDT on 10-04, but it breaks after the November time change. **Do this one
+   only after the laptop's smoke is done**: it is in the protected set.
+
+**C. If time remains (lab, no money path): the operator did not select these today, so please ask him before
+starting:** the review's S3 LineStar projected-ownership check, and a preregistered test of the operator's two
+untested Week-4 choices (the 25% DST cap on PMO_X50; the sleeve drawing from PMO rows) on L13's harness.
 ## 2026-09-29 (09:22 CDT) — Laptop: SIS receiver-copula backfill WRITTEN for 2026 Weeks 1–2 (operator "Yes"); manifests
 
 Protocol `receiver-copula-weekly-2026-v1` (sha256 `bc30947a…`); 4 SIS submits in total, as authorized. Each week ran
