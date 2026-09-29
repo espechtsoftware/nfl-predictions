@@ -19,8 +19,16 @@ solves, DST included; NO 25% DST cap -- the tested arm had none). Either way the
 projected sum under the overlap cap (it may repeat main rows). Every written roster is revalidated against the DK contract.
 A pmo_x50 main that cannot reach K rows REFUSES (exit 2, named); the chain then builds the mean main loudly.
 
+`--main-own-tilt L --main-own-source FILE` (with --main pmo_x50; default 0 = as entered in Week 4): the optimizer's
+objective for a skill player becomes mean_projection + L x predicted ownership % (FILE's `pred_own`, the week's blended
+ownership file from scripts/ownership_blend.py; DST and players the file does not name get no term). The plain-mean rows
+are solved as well: they stay the tail sleeve's supply (so the sleeve is the sleeve of the L = 0 build, row for row) and
+are written as `book_main_control.csv`, Monday's paper comparison. An ownership file that is missing, unreadable, holds a
+value below -0.5 or a non-number, or covers fewer than --main-own-min-coverage of the pool's skill players projected
+>= 5 REFUSES before any solve ("OWN TERM REFUSED", exit 2); the chain then builds the L = 0 union loudly.
+
 The run dir carries the T-70 run's frame, sidecar banks, universe and exposure ledgers unchanged; a union corpus
-(`candidates.parquet` with `source_run` = t70 | saturday | pmo); `book.csv` / `book.json`; and a receipt copied from the
+(`candidates.parquet` with `source_run` = t70 | saturday | pmo | pmo_x50 | pmo_x50_control); `book.csv` / `book.json`; and a receipt copied from the
 T-70 run's with `config.union` (both source runs, their receipts' identities and sha256s, the survivor counts), the new
 `written` and `candidates`, and the selection receipt. `config.lev` / `config.boom` stay the T-70 run's, so the
 after-build watcher promotes the union under the chosen dose like any other run dir; its timestamp is newer than the
@@ -154,14 +162,96 @@ def frame_players(t70: pd.DataFrame) -> dict[str, dict]:
     return {r["id"]: r for r in df.to_dict("records")}
 
 
+OWN_FLOOR_PROJ = 5.0          # coverage of the ownership file is counted over the pool's skill players projected at least this
+OWN_TILT_MAX = 0.5            # the tested range is 0.05-0.40 points per ownership point; anything above is a typo
+
+
+def _key(v: object) -> str:
+    """An id as the frame spells it: '1164402.0' and 1164402 are both '1164402'; a missing value is ''."""
+    s = str(v).strip()
+    if s.lower() in ("", "nan", "none", "<na>"):
+        return ""
+    return s[:-2] if s.endswith(".0") and s[:-2].isdigit() else s
+
+
+def own_bonus(source: Path, t70: pd.DataFrame, exclude: set[str], tilt: float, min_coverage: float) -> tuple[dict[str, float], dict]:
+    """The ownership term per frame id, in projection points: tilt x predicted ownership % (negatives clipped to 0), skill
+    players only. The file is matched on dk_player_id, then on gsis_id / id against the frame's id. Refuses (SystemExit
+    'OWN TERM REFUSED: ...') on every gap named in the module docstring; never fills a value in."""
+    def refuse(why: str):
+        raise SystemExit(f"OWN TERM REFUSED: {why}; the plain-mean main (as entered) stands")
+    if not 0 < tilt <= OWN_TILT_MAX:
+        refuse(f"--main-own-tilt {tilt} outside (0, {OWN_TILT_MAX}]")
+    if source is None or not Path(source).is_file():
+        refuse(f"the ownership file {source} does not exist")
+    try:
+        own = pd.read_csv(source, dtype=str)
+    except (OSError, ValueError) as exc:
+        refuse(f"the ownership file {source} is unreadable ({exc})")
+    keys = [c for c in ("dk_player_id", "gsis_id", "id") if c in own.columns]
+    if "pred_own" not in own.columns or not keys:
+        refuse(f"the ownership file {source} needs pred_own and one of dk_player_id / gsis_id / id (has {list(own.columns)})")
+    val = pd.to_numeric(own.pred_own, errors="coerce")
+    if len(own) == 0 or not np.all(np.isfinite(val)):
+        refuse(f"the ownership file {source} holds {int((~np.isfinite(val)).sum())} pred_own values that are not numbers (of {len(own)})")
+    if float(val.min()) < -0.5:
+        refuse(f"the ownership file {source} holds pred_own {float(val.min()):.2f} (below -0.5: not a percentage)")
+    if float(val.max()) <= 1.0:
+        refuse(f"the ownership file {source} tops out at pred_own {float(val.max()):.3f}: fractions, not percentages")
+    clipped = int((val < 0).sum())
+    val = val.clip(lower=0.0)
+    by = {c: {} for c in keys}
+    for c in keys:
+        for k, v in zip(own[c].map(_key), val):
+            if k:
+                by[c][k] = max(v, by[c].get(k, 0.0))            # a player listed twice (two slots) keeps his larger value
+    ids = t70.id.astype(str).tolist()
+    pos = dict(zip(ids, t70.pos.astype(str)))
+    proj = dict(zip(ids, pd.to_numeric(t70.mean_projection, errors="coerce").fillna(0.0)))
+    dk_of = dict(zip(ids, t70.dk_player_id.map(_key))) if "dk_player_id" in t70.columns else {}
+    found: dict[str, float] = {}
+    how: Counter = Counter()
+    for i in ids:
+        if pos[i] not in SKILL:
+            continue
+        for c in keys:
+            k = dk_of.get(i, "") if c == "dk_player_id" else _key(i)
+            if k and k in by[c]:
+                found[i] = float(by[c][k]); how[c] += 1
+                break
+    core = [i for i in ids if pos[i] in SKILL and i not in exclude and proj[i] >= OWN_FLOOR_PROJ]
+    covered = sum(1 for i in core if i in found)
+    coverage = covered / len(core) if core else 0.0
+    if coverage < min_coverage:
+        miss = sorted((i for i in core if i not in found), key=lambda i: -proj[i])[:8]
+        name = dict(zip(ids, t70.name.astype(str)))
+        refuse(f"the ownership file {source} names {covered} of the pool's {len(core)} skill players projected >= {OWN_FLOOR_PROJ} "
+               f"({coverage:.1%} < {min_coverage:.0%}); missing e.g. {[name[i] for i in miss]}")
+    bonus = {i: tilt * v for i, v in found.items() if v > 0 and i not in exclude}
+    top = sorted(bonus, key=lambda i: -bonus[i])[:5]
+    name = dict(zip(ids, t70.name.astype(str)))
+    meta = {"tilt": tilt, "source": str(source), "source_sha256": sha256_file(Path(source)), "file_rows": int(len(own)),
+            "matched_skill_players": len(found), "matched_by": dict(how), "coverage_projected_5": round(coverage, 4),
+            "min_coverage": min_coverage, "negatives_clipped": clipped, "players_with_a_term": len(bonus),
+            "largest_terms": [{"id": i, "name": name[i], "pred_own": round(found[i], 2), "points": round(bonus[i], 2)} for i in top]}
+    return bonus, meta
+
+
 def pmo_rows(t70: pd.DataFrame, exclude: set[str], n: int, max_shared: int, cap: int | None, min_salary: int,
-             existing: set[frozenset], exposure_cap: int | None = None, dst_cap: int | None = None) -> list[list[str]]:
+             existing: set[frozenset], exposure_cap: int | None = None, dst_cap: int | None = None,
+             bonus: dict[str, float] | None = None) -> list[list[str]]:
     """Plain-mean-optimizer rows on the T-70 frame (L13's R5 form), skipping rosters already in the pool. With
     exposure_cap (L13's PMO_X50: max(1, N // 2)), a player already in that many PMO rows is banned from later solves --
-    the form L13 SUPPORTED at p89 (+27.7% tickets vs MEAN, both seasons); the uncapped form was NOT SUPPORTED."""
+    the form L13 SUPPORTED at p89 (+27.7% tickets vs MEAN, both seasons); the uncapped form was NOT SUPPORTED. With
+    bonus (own_bonus), the objective is the projection plus the player's ownership term; without it, the call is the
+    one entered in Week 4."""
     from nfl2.core.lineup import optimize                      # the pinned lab clone on PYTHONPATH
     from nfl2.pipeline import PRODUCTION_STACK
     pool = [p for i, p in frame_players(t70).items() if i not in exclude]
+    objective = "proj"
+    if bonus:
+        pool = [dict(p, obj=p["proj"] + float(bonus.get(p["id"], 0.0))) for p in pool]
+        objective = "obj"
     dst_ids = {p["id"] for p in pool if p["pos"] == "DST"}
     env = {"MIN_LINEUP_SALARY": str(min_salary)}
     if cap is not None:
@@ -176,7 +266,7 @@ def pmo_rows(t70: pd.DataFrame, exclude: set[str], n: int, max_shared: int, cap:
         if dst_cap is not None:
             bans |= {p for p, c in count.items() if p in dst_ids and c >= dst_cap}
         bans = bans or None
-        lu = optimize(pool, stack=PRODUCTION_STACK, objective_col="proj", banned_lineups=prev, max_overlap=max_shared, bans=bans, env=env)
+        lu = optimize(pool, stack=PRODUCTION_STACK, objective_col=objective, banned_lineups=prev, max_overlap=max_shared, bans=bans, env=env)
         if lu is None:
             break
         ids = [str(p["id"]) for p in lu.players]
@@ -271,6 +361,13 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--sleeve-includes-main", action="store_true",
                     help="with --main pmo_x50: let the tail sleeve also pick from the optimizer's rows (they project highest, so they would take "
                          "most of it). Default off: the sleeve is the union pool's mean selection, the form rehearsed at 23/40 paid.")
+    ap.add_argument("--main-own-tilt", type=float, default=0.0,
+                    help="with --main pmo_x50: projection points added to a skill player's objective per point of predicted ownership %% "
+                         "(reviewer 2026-09-29: 0.20 with the blended file). Default 0 = the plain-mean optimizer, as entered in Week 4")
+    ap.add_argument("--main-own-source", type=Path, default=None,
+                    help="with --main-own-tilt: the week's ownership file (pred_own in %%, dk_player_id / gsis_id), from scripts/ownership_blend.py")
+    ap.add_argument("--main-own-min-coverage", type=float, default=0.9,
+                    help="with --main-own-tilt: refuse when the file names fewer than this share of the pool's skill players projected >= 5")
     ap.add_argument("--main", choices=["mean", "pmo_x50"], default="mean",
                     help="the main book: mean = the union pool's top-K by projected sum (paper arm); pmo_x50 = K capped plain-mean-optimizer rows solved on the T-70 frame (ENTERS Week 4)")
     ap.add_argument("--dk-status", type=Path); ap.add_argument("--tail-line", type=float, default=None)
@@ -284,6 +381,8 @@ def main(argv: list[str] | None = None) -> int:
         raise SystemExit(f"--sleeve-cap-share must be in (0, 1] (got {a.sleeve_cap_share})")
     if a.rehearsal and (a.out is None or a.live_dir in a.out.resolve().parents):
         raise SystemExit("--rehearsal needs --out outside --live-dir")
+    if a.main_own_tilt and a.main != "pmo_x50":
+        raise SystemExit("--main-own-tilt is defined for --main pmo_x50 (the term sits in the optimizer's objective)")
     from nfl2.two_track import select_top_mean, tail_probability   # the pinned lab clone on PYTHONPATH
     from nfl2.live import dk_csv
     from nfl2.validator import validate_roster
@@ -355,26 +454,59 @@ def main(argv: list[str] | None = None) -> int:
         pos_all = dict(zip(fr.id.astype(str), fr.pos.astype(str)))
         excl = gone | {i for i in proj_all if pos_all[i] in SKILL and not (proj_all[i] >= a.min_proj)}
         xcap = main_exposure_cap(a.main_cap_share, a.entries)
-        t_pmo = _time.time()
         dcap = max(1, int(a.main_dst_cap * a.entries)) if a.main_dst_cap else None
-        main_rows = pmo_rows(fr, excl, a.entries, a.mean_max_shared, cap, a.min_salary, set(), exposure_cap=xcap, dst_cap=dcap)
+        bonus, own_meta = own_bonus(a.main_own_source, fr, excl, a.main_own_tilt, a.main_own_min_coverage) if a.main_own_tilt else ({}, {})
+        t_pmo = _time.time()
+        plain_rows = pmo_rows(fr, excl, a.entries, a.mean_max_shared, cap, a.min_salary, set(), exposure_cap=xcap, dst_cap=dcap)
         secs_pmo = round(_time.time() - t_pmo, 1)
-        if len(main_rows) < a.entries:
-            raise SystemExit(f"PMO_X50 MAIN REFUSED: {len(main_rows)} of {a.entries} rows solved on the T-70 frame under the caps "
+        if len(plain_rows) < a.entries:
+            raise SystemExit(f"PMO_X50 MAIN REFUSED: {len(plain_rows)} of {a.entries} rows solved on the T-70 frame under the caps "
                              f"(exposure cap {xcap}, overlap {a.mean_max_shared}, per-game {cap}, salary floor {a.min_salary}); the union's mean main stands")
+        main_rows = plain_rows
+        if bonus:
+            t_own = _time.time()
+            main_rows = pmo_rows(fr, excl, a.entries, a.mean_max_shared, cap, a.min_salary, set(), exposure_cap=xcap, dst_cap=dcap, bonus=bonus)
+            own_meta["secs"] = round(_time.time() - t_own, 1)
+            if len(main_rows) < a.entries:
+                raise SystemExit(f"OWN TERM REFUSED: {len(main_rows)} of {a.entries} rows solved with the ownership term under the caps; "
+                                 "the plain-mean main (as entered) stands")
         # the PMO rows join the corpus (source pmo_x50) and ARE the main book, in solve order; a PMO row that duplicates a pool
-        # roster is still the PMO row (the corpus keeps both; the book is unique by construction)
+        # roster is still the PMO row (the corpus keeps both; the book is unique by construction). With the ownership term
+        # the plain-mean rows keep these places (source pmo_x50_control: the sleeve's supply, as entered) and the term's
+        # rows follow them; a term row equal to a plain row IS that row.
         base = len(rosters)
-        rosters += main_rows; source += ["pmo_x50"] * len(main_rows); tags += ["pmo_x50"] * len(main_rows); sat_cand += [None] * len(main_rows)
-        frozen = [frozenset(r) for r in rosters]; score = projected_sum(rosters, proj)
+        rosters += plain_rows; source += ["pmo_x50"] * len(plain_rows); tags += ["pmo_x50"] * len(plain_rows); sat_cand += [None] * len(plain_rows)
         book = list(range(base, base + a.entries))
-        sleeve_score = score if a.sleeve_includes_main else np.where(np.arange(len(rosters)) < base, score, -np.inf)
+        sleeve_until = len(rosters)                              # the sleeve never reads past the plain rows
+        if bonus:
+            at = {frozenset(r): base + k for k, r in enumerate(plain_rows)}
+            book = []
+            for r in main_rows:
+                if frozenset(r) in at:
+                    book.append(at[frozenset(r)])
+                else:
+                    book.append(len(rosters)); rosters.append(r); source.append("pmo_x50"); tags.append("pmo_x50"); sat_cand.append(None)
+            in_book = set(book)
+            for k in range(base, base + len(plain_rows)):
+                if k not in in_book:
+                    source[k] = "pmo_x50_control"
+        frozen = [frozenset(r) for r in rosters]; score = projected_sum(rosters, proj)
+        sleeve_score = np.where(np.arange(len(rosters)) < (sleeve_until if a.sleeve_includes_main else base), score, -np.inf)
+        if bonus:
+            own_pts = {i: v / a.main_own_tilt for i, v in bonus.items()}
+            control = list(range(base, base + a.entries))
+            own_meta.update({"rows_shared_with_the_plain_main": len(set(book) & set(control)),
+                             "projected_sum_mean": {"with_term": round(float(score[book].mean()), 3), "plain": round(float(score[control].mean()), 3)},
+                             "pred_own_sum_mean": {"with_term": round(float(np.mean([sum(own_pts.get(p, 0.0) for p in rosters[i]) for i in book])), 2),
+                                                   "plain": round(float(np.mean([sum(own_pts.get(p, 0.0) for p in rosters[i]) for i in control])), 2)},
+                             "control_book": "book_main_control.csv"})
         expo = Counter(p for i in book for p in rosters[i])
         dst_expo = Counter(p for i in book for p in rosters[i] if pos[p] == "DST")
         pmo_main = {"exposure_cap": xcap, "exposure_cap_share": a.main_cap_share, "rows_solved": len(main_rows), "secs": secs_pmo, "max_exposure_used": max(expo.values()),
                     "sleeve_includes_main": bool(a.sleeve_includes_main),
                     "distinct_players": len(expo), "dst_cap": dcap if dcap else "none (the tested arm had none)",
-                    "max_dst_rows_used": max(dst_expo.values()), "dst_rows": dict(dst_expo.most_common(3))}
+                    "max_dst_rows_used": max(dst_expo.values()), "dst_rows": dict(dst_expo.most_common(3)),
+                    "own_term": own_meta if bonus else {"tilt": 0.0}}
         dst_args = {}
     else:
         book = select_top_mean(score, frozen, a.entries, max_shared=a.mean_max_shared, **dst_args)
@@ -423,6 +555,10 @@ def main(argv: list[str] | None = None) -> int:
     n_written = dk_csv([lus[i] for i in book + book_tail], fr, out / "book.csv")
     if n_written != need:
         raise SystemExit(f"dk_csv wrote {n_written} rows for a {a.entries}+{a.tail_sleeve} book")
+    if pmo_main.get("own_term", {}).get("tilt"):
+        # PAPER: the main as entered in Week 4 (no ownership term), in solve order; never uploaded, scored Monday beside the book
+        if dk_csv([lus[i] for i in range(base, base + a.entries)], fr, out / "book_main_control.csv") != a.entries:
+            raise SystemExit("dk_csv did not write the control main")
     row_of = {i: r for r, i in enumerate(ids_)}
     idx = np.array([[row_of[i] for i in r] for r in rosters])
     sel = inc[idx].sum(axis=1); aud = hs[idx].sum(axis=1)             # candidates x worlds, per bank
@@ -455,7 +591,7 @@ def main(argv: list[str] | None = None) -> int:
     receipt.update({"built_utc": str(datetime.now(timezone.utc)), "written": n_written, "candidates": len(rosters),
                     "book_k80_is_nested_prefix": True,
                     "artifacts": ["book.csv", "book.json", "candidates.parquet", "frame.parquet", "exposure_ledger.json"]
-                                 + [f for f in ("book_wemax.csv", "book_wemax.json", *BANKS) if (out / f).is_file()]})
+                                 + [f for f in ("book_wemax.csv", "book_wemax.json", "book_main_control.csv", *BANKS) if (out / f).is_file()]})
     conf = dict(cfg)
     conf["union"] = {"saturday_run": str(sat_dir), "t70_run": str(a.t70_run),
                      "saturday_identity": sat["receipt"].get("identity"), "t70_identity": t70["receipt"].get("identity"),
@@ -467,7 +603,8 @@ def main(argv: list[str] | None = None) -> int:
                              "form": "pmo rows into the mean-selected union (UNTESTED: not L13's arm; the mean selector re-picks without the cap)" if a.pmo else "none"},
                      "pool": {"t70": len(t70_rosters), "saturday": len(sat_rosters), "pmo": n_pmo, "total": len(rosters)},
                      "book_by_source": dict(by_src), "tail_by_source": dict(by_src_tail),
-                     "selection": ("union_reselect.py --main pmo_x50: K capped plain-mean-optimizer rows on the T-70 frame in solve order (L13 PMO_X50); "
+                     "selection": ("union_reselect.py --main pmo_x50: K capped plain-mean-optimizer rows on the T-70 frame in solve order (L13 PMO_X50)"
+                                   + (f", objective = mean + {a.main_own_tilt} x predicted ownership % (skill players)" if a.main_own_tilt else "") + "; "
                                    if a.main == "pmo_x50" else
                                    "union_reselect.py --main mean: top-K by sum of the T-70 mean_projection under the overlap cap and the DST cap; ")
                                   + "the tail sleeve top-T of the union pool by the same score (may repeat main rows)",
