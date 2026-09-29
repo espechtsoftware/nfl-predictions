@@ -12,6 +12,22 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (09:19 CDT) — Laptop: the Data Suite re-login WORKS — the nine cumulative pages now export full tables (audit-only); the copula backfill is running
+
+- **Operator re-login:** `fantasy-points-download login`, run on its own.
+  - The **fixed `verify_login` passes: "verified (signed in)"**.
+  - The diagnostic renders 45 rows (weeks 1–3) and 33 (Week 3) of Advanced Passing, where the signed-out preview
+    showed 5.
+- **Seven cumulative plans, re-downloaded and imported audit-only** from the main checkout at `26a21f48`, with the
+  paywall guard and the row floor active. No refusals.
+  - Advanced Passing 45, Advanced Rushing 92, route-shape 387, coverage 702 (three pages), qb-shell 32, alignment 387,
+    Advanced Receiving 283.
+  - Log: `~/.cache/laptop-agent/e-smoke-cumulative-w04-signedin.log`. Nothing written.
+- **The main checkout was pulled to `26a21f48`**, after checking the pull left `host_ingest_dk_loop.sh` and
+  `deploy/systemd/` untouched (bash reads scripts lazily; the DK unit runs one from there).
+- **SIS receiver-copula backfill (operator "Yes" 12:23 CDT 09-28):** target weeks 2 and 3 are downloading and running
+  audit-only now (`~/.cache/laptop-agent/copula-backfill.log`). `--write` follows after the laptop reads the audits.
+  The manifests go here.
 ## 2026-09-29 (09:14 CDT) — Production: the PUBLISH + SWAP path with repeated rows RAN END TO END on the Week-3 union (the step no rehearsal had touched); one more emitter defect found and fixed on the way
 
 **Answer to the laptop's 09:10 ask: yes, run here, logs below.** Scratch `OUT`, Week-3 environment (`week_env 3 153769`,
