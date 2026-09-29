@@ -12,6 +12,35 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (13:32 CDT) — Production: PREREG-L17 FROZEN and RUNNING (main-book cap level X50/X67/X80/X100 at K=36); O1 amendment and L07 arms read
+
+**PREREG-L17** (lab branch `production/prereg-l17-20260929`, frozen at **6e35e4b2** on L13's harness 5d3aaa9; `PREREG-L17.md`,
+`experiments/l17_cap_level.py`, `scripts/l17_drive.py`, `scripts/l17_report.py`):
+- Arms at the Week-4 main shape K = 36, every arm with the 25% DST cap (a DST banned at 9 rows), house rules, cap 4, $49k,
+  ≤ 7 shared, MIN_PROJ 1.0: **X50** (banned at 18, the control as entered), **X67** (banned at 24, the challenger), X80 (29,
+  co-reported), X100 (uncapped, reference). Panel: L09's 36 slates × fresh banks 1230-1231. Outcome: tickets at the realized
+  200k field's p89 (primary) / p95 / p99 / p99.8, mean, best, distinct players, max exposure, max DST rows, X67∩X50 overlap.
+- Verdict X67 vs X50 at tickets89 by L13's rule: SUPPORTED (≥ +5%, both seasons, more paired wins) / HARMFUL (the mirror) /
+  NEUTRAL. Nothing adopts by the file; a SUPPORTED read is what would move `UNION_PMO_CAP` before Thursday 18:00 CDT.
+- Smokes (no outcome read): mechanics on 2023 wk1 bank 1230: 36 rows per arm, max exposure 18/24/29/32, max DST rows 9 in
+  every arm, X67 shares 26 of 36 rows with X50 (the lever moves), 2:42 wall beside L16, 1.5 GB. Full path on throwaway bank
+  1299 (2024 wk5): 32 outcome fields present, none non-finite, identity clean at 6e35e4b2; values not read.
+- **Launched 13:31 CDT** beside L16: driver pid 1566021 (`~/l17-panel/drive.pid`), 4 workers, out `~/l17-panel/out`, log
+  `~/l17-panel/drive.log`, `~/l17-panel/frozen_sha`. About 3 min per slate-bank → roughly 1 h of wall at 4 workers. When it
+  completes: results pushed to a `production/prereg-l17-results-*` branch, read once from a clean 6e35e4b2 checkout; the
+  laptop re-runs the reader. Well inside the Thursday 18:00 freeze.
+
+**L16** (pid 1520206, 12 workers since 12:38 CDT): no slate-bank finished yet at 13:31; all 12 CBC solvers busy, no errors.
+L17 shares the box at 4 workers; both fit in memory (14 of 54 GB used before L17).
+
+**Read:** the laptop's 13:18 entry (dfcb432e): PREREG-O1 amendment 1 (LINESTAR, BLEND_LS, BLEND_FP; blend rule frozen;
+top-15 co-reported) and the L07 arms confirmation (CTRL vs BLEND primary; LAG and ORACLE co-reported; the Week-4-style
+top-K-by-projected-sum book co-reported per arm at p89/p99 and finish share). L07 freezes after L16 releases the box, on
+the confirmed arms with the `results/l15_sets/blend_pct/` labels.
+
+**Next (production):** L16 completion → results branch + one clean read; L17 the same; L07 freeze; after the laptop's
+Wed/Thu smoke, B7 and the LineStar capture wiring (Saturday and T-70).
+
 ## 2026-09-29 (13:18 CDT) — Laptop: the reviewer's L15 routes — O1 AMENDED (three arms, the blend rule frozen, top-15 co-reported); L07's arms confirmed for production's freeze
 
 **(b) PREREG-O1, amendment 1** (`reports/2026-09-28-PREREG-O1-fp-ownership-prospective.md`), before any Week-4 outcome:
