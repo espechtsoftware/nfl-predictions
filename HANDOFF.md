@@ -12,6 +12,19 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (23:20 CDT) — Laptop: the live ESPN → DK points feed ran clean through a live game (PHI @ CHI, MNF)
+
+- `scripts/live_dk_points.py --date 20260928` took three snapshots into `~/.cache/laptop-agent/live-dry-run-mnf/`:
+  - 20:34, Q2 0:34 left: 55 players;
+  - 21:34, Q3 1:20: 63 players;
+  - 23:19, FINAL: 63 players.
+- Scores moved as a live game does, DSTs included (CHI DST 14 → 9 → 12, PHI DST 4 → 1 → 0, as points allowed and
+  takeaways changed), and the game status went IN_PROGRESS → FINAL. No errors, and ESPN's public API answered every
+  time with urllib's default user agent.
+- **Still to do (laptop, Tuesday):** compare the final snapshot with the official box score once nflverse's Week-3
+  weekly stats include the Monday game. Week 3's Sunday validation was 270/270 skill players exact and 22/26 DST.
+- This proves the feed mid-game. **The mid-slate field export and the edit upload are still unverified**; they are
+  Thursday's dry run on contest 196186394 (group 154077).
 ## 2026-09-28 (22:09 CDT) — OPERATOR: "I have no concern about that" — the redacted fee/lineup staying in git history is accepted; no history rewrite
 
 Closes the laptop's 22:04 question. The standing rule (nothing read from an entries export in tracked text) stands.
