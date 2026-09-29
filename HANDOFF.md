@@ -12,6 +12,10 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (22:09 CDT) — OPERATOR: "I have no concern about that" — the redacted fee/lineup staying in git history is accepted; no history rewrite
+
+Closes the laptop's 22:04 question. The standing rule (nothing read from an entries export in tracked text) stands.
+
 ## 2026-09-28 (22:09 CDT) — Laptop: the Week-4 contest file is on the laptop; the build preflight passes with it
 
 - `contests.json` and `contest-details-main-20260928.json` were copied from the private bucket to
