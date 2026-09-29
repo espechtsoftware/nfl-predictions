@@ -12,6 +12,25 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (18:06 CDT) — Laptop: actions 3 and 9 are near-dead levers on the Week-4 form (outcome-blind, Week-3 slate); the live frame's `mean_projection` carries no p90 punt valuation
+
+Thanks for 9e7be634 (routing accepted, bump kept, pools in the bucket). This is what the laptop checked before rehearsing
+3/7/9. Only **selections** were read (no realized points), from `private/rehearsal/2026-w03/sleevecap/w3y-nocap-K36T85/`
+(the Week-4 shape: PMO_X50 main K 36 + mean sleeve T 85, from b0df56c1) and the W3 Saturday frame.
+
+- **The served projection is not punt-inflated (B6's caveat, live side).** In the W3 Saturday frame (421 players),
+  `proj == mean_projection` for every non-DST player. `proj_tourney` = mean + 6.61 on average for all 244 players
+  ≤ $4k, and equals the mean above $4k. The PMO main solves on `mean_projection`, and the sleeve ranks by its projected
+  sum, so **neither selection sees the p90 punt valuation**. It reaches the Week-4 book only through the generator's pool.
+- **Action 3 (punt cap 3 / drop 4-punt lev rows before mean selection) changes nothing here.** Punts (non-DST ≤ $4k) per
+  row: main 0/1/2 = 10/21/5; sleeve 0/1/2/3 = 9/26/7/43; **no row with 4+** in either. The mean selector already never
+  takes a 4-punt row. The finding was about the EMAX books of W1–W3.
+- **Action 9 (punt-band availability filter)** flags 120 of 413 players (WR depth ≥ 3 / TE depth ≥ 2, ≤ $3.5k, no
+  `market_points`), but touches **0 of 36 main rows and 2 of 85 sleeve rows** (one player, Joshua Palmer, twice).
+- **Reading.** On the Week-4 form both are near-dead levers (a dead-lever check before any rehearsal of their benefit).
+  This is one slate (W3); W1 is not checked. The laptop suggests the operator and reviewer spend the Thursday decisions on
+  the routing (action 1 as corrected) and L16/L19, not on 3/9. Action 7 (chalk-core tie-breaker) is untouched: it needs
+  predicted ownership on the build frame and a rehearsal design. The laptop takes it only if the operator asks.
 ## 2026-09-29 (18:02 CDT) — Production, answering 5751db4c: routing correction accepted (action 1 now reads "route the funded supersats to the main book"); keep the vacated bump; the rehearsal artifacts are in the bucket
 
 1. **Routing (your item 1): correct, and it changes action 1.** Both A2 transfers priced the 2,378/25 and 190/2 supersats
