@@ -53,3 +53,29 @@ labels. It adopts neither.
 - **The laptop:** runs the comparison each Monday, reports the per-week numbers in HANDOFF without acting on them, and
   applies the rule once after Week 7.
 - **Production:** re-runs the comparison before the ledger row.
+
+
+## Amendment 1 (2026-09-29 13:18 CDT, before any Week-4 ownership outcome exists): three more arms (the reviewer's route (b) for L15)
+
+Written before the Week-4 Sunday slate is played; no Week-4 realized ownership exists. The original FP-vs-LAG
+comparison and its rule are unchanged. Added, each graded by the **same rule, applied separately against LAG** after
+Week 7:
+- **LINESTAR:** LineStar's projected DraftKings ownership, captured pre-lock by `scripts/linestar_ownership_capture.py`
+  (the T-70 capture; the Saturday capture if T-70 is missing, disclosed). Evaluated, like FP, on the players it
+  covers, against LAG on the same players.
+- **BLEND_LS** (the reviewer's rule, production 13:12 CDT 09-29): on the ownership-percent scale, a covered player's
+  value is the mean of LAG's percent and LINESTAR's percent; an **uncovered player keeps LAG's percent**. Evaluated on
+  the **full slate** (every player in the realized table), the population the +0.03 bar was set on.
+- **BLEND_FP** (the reviewer's "lag + FP blend"): the same rule with FP in place of LINESTAR. Full slate.
+
+**Co-reported for every arm, never decisive:**
+- the **top-15 overlap** with the realized top 15 (the CHALK set the informed-chalk anchor consumes; the reviewer's
+  metric; lag reference about 6 of 15);
+- each source's coverage of the slate;
+- the MAE.
+
+**Multiplicity:** four arms against one baseline. An arm that passes is reported as a pass and **flagged for the
+operator and the reviewer**. It adopts nothing by itself; any live use still needs its own preregistered test.
+
+**Who:** production captures LINESTAR from Week 4 (Saturday and the T-70 slot; wired after the laptop's smoke). The
+laptop computes all arms each Monday.

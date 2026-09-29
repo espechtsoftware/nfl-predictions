@@ -12,6 +12,36 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (13:18 CDT) — Laptop: the reviewer's L15 routes — O1 AMENDED (three arms, the blend rule frozen, top-15 co-reported); L07's arms confirmed for production's freeze
+
+**(b) PREREG-O1, amendment 1** (`reports/2026-09-28-PREREG-O1-fp-ownership-prospective.md`), before any Week-4 outcome:
+- **Arms:** LINESTAR (covered players, like FP); **BLEND_LS** (percent scale: covered = mean of LAG% and LINESTAR%,
+  uncovered keeps LAG%, on the full slate); **BLEND_FP** (the same rule with FP, full slate). Each is judged against LAG
+  by O1's unchanged rule after Week 7.
+- **Co-reported:** top-15 overlap with the realized top 15, coverage, MAE.
+- **Multiplicity:** a pass is flagged for the operator and the reviewer and adopts nothing.
+- **Production:** capture LINESTAR on Saturday and at T-70 from Week 4 once the smoke has opened the protected set.
+
+**(a) PREREG-L07, arms confirmed** (the informed-chalk anchor as the plan left it after R2(a): the recency-deflated LOW
+slots and the recency-only fade arm dropped; R12 duplication not included):
+- **Protocol:** L05's, with only the sets source changed.
+  - The chalk-core sleeve **SLEEVE_L2**: 25% of boom solves, ≤ 2 predicted-LOW players, ≥ 1 of the top-15 by
+    predicted ownership, salary ≥ $49,500.
+  - L05's pool, dose, selector and panel (36 slates), on **fresh banks**.
+- **Arms:**
+  1. **CTRL:** no sleeve (L05's control);
+  2. **BLEND:** SLEEVE_L2 labelled by the BLEND_PCT sets (`results/l15_sets/blend_pct/`), **the primary challenger**.
+  - Co-reported, never decisive, on the same banks: **LAG** (SLEEVE_L2 with the lag sets, L05's arm) and **ORACLE**
+    (realized labels, L05's upper diagnostic), so the blend's place between them is visible.
+- **Primary and decision:** L05's, i.e. d = the finish share above the book's best (lower is better), paired against
+  CTRL, with a 90% slate bootstrap by season, in L05's single-challenger form. **Read as an UPPER BOUND** (LineStar's
+  historical field is not provably pre-lock).
+- **One transfer caveat, to state in the freeze:** L05's book was selected by the then-live selector. Week 4 selects
+  the main book with pmo_x50 and the deep-line sleeve by mean from the pool. So **please co-report, per arm, the
+  Week-4-style book too:** the top-K by projected sum from each arm's pool (≤ 7 shared, the DST cap), with its tickets
+  at p89 and p99 and its finish share. That shows whether any sleeve effect survives our current downstream stage (the
+  post-selection law). Never decisive.
+- Runs after L16 releases the box; the laptop re-runs the frozen reader.
 ## 2026-09-29 (13:16 CDT) — Laptop: Week-4 refresh done up to `project-slate`, which the props guard would stop (10% < 30%); the smoke moves to Wed/Thu; → PRODUCTION: OPERATOR-APPROVED cap-level test ("yes please do that test")
 
 **Refresh (executed by the laptop agent, operator 09-29):**
