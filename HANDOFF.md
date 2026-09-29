@@ -12,6 +12,42 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (17:59 CDT) — Laptop on the 35-answers report (99d89be5): **the supersats' EV was computed on the main book's form, but the armed routing deals them from the tail sleeve**; a deep-line `track_override: mean` is now honoured; item 5 checked
+
+**1. Routing vs action 1 (for production, the reviewer and the operator).** A1d/A2 price the 2,378/25 and 190/2 supersats
+with PMO_X50's panel curve (1.78× at p99, 2.22× at p99.8). Under the armed routing those contests are **not dealt PMO_X50
+rows**:
+- `set_contest_tracks --rule line` (sleeve on) sends every contest paying ≤ 2% of its field to the 85-row tail sleeve.
+  25/2,378 = 1.05% and 2/190 = 1.05% both qualify, as do the 402/1 satellite (0.25%) and the forced Millionaire.
+- The sleeve is dealt Millionaire first, then by depth (402s, then 2,378s, then 190s). The sleeve is top-85 by projected
+  sum from pool + main rows; in the Week-3 rehearsal at K36/T85, 31 of 85 sleeve rows were PMO rows.
+- The supersats would therefore get mostly mean-selected pool rows. MEAN's panel rate at p99 is **1.02×** (L13), against a
+  break-even of about 1.19× (1.25% vs 1.05%), which is below break-even by the same panel.
+- Action 1's "+20% to +36%" holds only if those contests are dealt PMO_X50 rows. The 594/25 (4.2%), 11/1 and FFWC are
+  main-track already.
+- **Asks to production:** (a) when L19 reads, recompute the supersats' EV with the sleeve's own rate (S_NONE tickets99
+  over its 85 rows, and S50 if it moves); (b) state which book A2's weekly-expectation simulation (winners study §5.2)
+  dealt to each class.
+- **Asks to the operator/reviewer (Thursday 18:00 freeze):** route the funded supersats to the main book
+  (`track_override: "mean"` in contests.json). BOOK_ENTRIES is derived from contests.json, so the PMO_X50 main grows to
+  cover them. L13 supports the form at K = 144: 1.22× at p89, 1.77× at p99.
+
+**2. Fix (this commit).** `decide_by_line` with the sleeve on silently sent a deep-line contest marked
+`track_override: "mean"` to the tail. It now keeps it on the main book, prints "held on the main book by track_override
+mean: …", and refuses an override other than mean|tail. `enter_layout` routes by `track` only, so nothing downstream
+changes. Tests: `test_set_contest_tracks.py` 13 passed. Behaviour is unchanged unless the override is set.
+
+**3. Item 5 (sequencing check).** The armed Week-4 chain already has the order the report asks for: 10:33 CT
+`nfl-dfs ingest-dk` after the 10:30 inactives, then 10:36 project-slate `--wait` with `T70_ACTIVE_Q=1`, then the 10:50
+T-70 build refusing projections older than 10:30 (`MIN_PROJ_GENERATED_AT`; `test_week4_arm_line`). **One question:** the
+armed flags include `T70_VACATED_BUMP=1`, which re-projects teammates of newly inactive players. Does "re-project nothing
+else" / "do not re-project active players on Sunday" (D1–D2) cover the vacated bump? Please say keep or drop. Dropping
+it is an entry change and goes to the operator.
+
+**4. Items 3, 7, 9 (rehearsals on the Week-1/3 pools).** The pools (`cands_scored.pkl` and the served frames) are not on
+the laptop. Please put them under the private bucket (`gs://…-raw/private/rehearsal/2026-w01|w03/`) or name their path,
+and the laptop rehearses 3 (punt cap / drop 4-punt lev rows before mean selection) and 9 (punt-band availability filter)
+first. Item 4 (`B6/live_books.py` as a Sunday paper shadow) comes after the smoke.
 ## 2026-09-29 (17:55 CDT) — Production: the 35 questions ANSWERED — `reports/2026-09-29-where-the-points-and-money-go.md` (for the reviewer); twelve ranked actions; four new findings
 
 Seven parallel read-only analyses (light compute beside L16/L19) plus the winners study (`origin/review/winners-study-20260929`).

@@ -54,6 +54,8 @@ def decide_by_line(contests: list[dict], details: dict, tail_share: float = 0.02
             problems.append(f"{cid} ({c.get('name')}): field size or ladder missing"); continue
         if not deep_as_tail and c.get("track_override") not in (None, "mean"):
             problems.append(f"{cid} ({c.get('name')}): track_override {c.get('track_override')!r} is not a mean-track contest; --rule line has no sleeve"); continue
+        if deep_as_tail and c.get("track_override") not in (None, "mean", "tail"):
+            problems.append(f"{cid} ({c.get('name')}): track_override must be mean or tail, got {c.get('track_override')!r}"); continue
         share = places / float(field)
         n = dict(c); n["track"] = "mean"; n["line_percentile"] = round(100.0 * (1.0 - share), 2); n["deep_line"] = share <= tail_share
         n["_field"] = int(field)
@@ -69,10 +71,16 @@ def decide_by_line(contests: list[dict], details: dict, tail_share: float = 0.02
         # (the Millionaire) form a MEAN-selected tail sleeve (TAIL_SLEEVE_SELECTOR=mean: the same selector as the book, so the
         # deep contests take the top mean rows again), overrides first, then by depth; main contests keep their depth order
         # before them. Week 3: 23 vs 20 paid; Week 1: 40 vs 31 (Millionaire 27 vs 16).
+        # track_override "mean" keeps a deep-line contest on the main book (operator 2026-09-29: the supersats' EV estimate
+        # was made on the main book's form, so he may route them there); it was silently ignored before, now honoured and
+        # disclosed
         forced = [c for c in out if c.get("track_override") == "tail"]
-        deep = [c for c in out if c["deep_line"] and c not in forced]
+        held = [c for c in out if c["deep_line"] and c.get("track_override") == "mean"]
+        deep = [c for c in out if c["deep_line"] and c not in forced and c not in held]
         main = [c for c in out if c not in forced and c not in deep]
         tails = forced + deep
+        for c in held:
+            lines.append(f"held on the main book by track_override mean: {c.get('name')} (line p{c['line_percentile']:.1f}, entries {int(c['entries'])})")
         for i, c in enumerate(tails, 1):
             c["track"] = "tail"; c["priority"] = i
         out = main + tails

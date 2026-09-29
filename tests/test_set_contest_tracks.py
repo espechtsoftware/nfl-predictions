@@ -145,3 +145,20 @@ def test_rule_line_default_is_the_adopted_mean_sleeve_millionaire_first_then_by_
     cfile.write_text(json.dumps([{k: v for k, v in c.items() if k != "track_override"} for c in cs]))
     assert sct.main(["--contests", str(cfile), "--details", str(dfile), "--rule", "line"]) == 0
     assert "NONE - is the Millionaire missing" in capsys.readouterr().out
+
+
+def test_rule_line_honours_a_mean_override_on_a_deep_line_contest(tmp_path, capsys):
+    """Operator 2026-09-29: a deep-line contest (the 2,378-entry supersat, 1.05% paid) marked track_override mean stays
+    on the main book and is disclosed; before, the sleeve took it silently."""
+    cs = [{k: v for k, v in c.items() if k != "priority"} for c in CONTESTS]
+    cs[2] = dict(cs[2], track_override="tail")
+    cs[3] = dict(cs[3], track_override="mean")
+    out, lines, problems = sct.decide_by_line(cs, DETAILS, 0.02)
+    assert problems == []
+    assert [(c["name"], c["track"]) for c in out] == [("supersat", "mean"), ("sat20", "mean"), ("milly", "tail"), ("wildcat", "tail")]
+    assert out[0]["deep_line"] is True and "priority" not in out[0]
+    assert "held on the main book by track_override mean: supersat (line p99.0, entries 5)" in lines
+    assert [c["priority"] for c in out if c["track"] == "tail"] == [1, 2]
+    bad = [dict(c, track_override="sleeve") if c["name"] == "supersat" else c for c in cs]
+    _, _, problems = sct.decide_by_line(bad, DETAILS, 0.02)
+    assert problems and "must be mean or tail" in problems[0]
