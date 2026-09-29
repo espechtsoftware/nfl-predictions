@@ -61,7 +61,7 @@ def validate_surface_state(
     if sign_in_visible:
         raise RuntimeError(
             "Fantasy Points ownership session is not authenticated; run "
-            "`fantasy-points-ownership login --terminal-credentials`"
+            "`fantasy-points-ownership login` (sign in by any method, then press Enter)"
         )
     if not session_uid_present:
         raise RuntimeError(
