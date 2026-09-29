@@ -63,13 +63,19 @@ def check_rows(
     rows: Sequence[Sequence[int]],
     *,
     position_by_draftable_id: Mapping[int, str] | None = None,
+    mean_rows: int | None = None,
 ) -> list[list[int]]:
-    """Validate slot rows: nine distinct ids, eligible positions, no repeats."""
+    """Validate slot rows: nine distinct ids, eligible positions, no repeats within a block. With ``mean_rows`` = K
+    (the receipt's ``operational_k``) the book is two blocks, the mean rows [0, K) and the tail sleeve [K, end); a sleeve
+    row MAY repeat a mean row (the adopted mean sleeve is the top-T by the same score, 2026-09-28), never another sleeve
+    row, and no mean row repeats another. Without ``mean_rows`` no repeat is allowed anywhere (the one-track book)."""
     if not rows:
         _fail("no lineups to write")
     checked: list[list[int]] = []
     seen: set[frozenset[int]] = set()
     for ordinal, row in enumerate(rows):
+        if mean_rows is not None and ordinal == mean_rows:
+            seen = set()                                   # the sleeve block starts: repeats of mean rows are allowed
         if len(row) != ROSTER_SIZE:
             _fail(f"lineup {ordinal} does not fill exactly {ROSTER_SIZE} slots")
         ids = [_draftable_id(v, label=f"lineup {ordinal} slot {i}")
@@ -87,7 +93,7 @@ def check_rows(
                     )
         key = frozenset(ids)
         if key in seen:
-            _fail(f"lineup {ordinal} repeats an earlier roster")
+            _fail(f"lineup {ordinal} repeats an earlier roster" + (" within its block" if mean_rows is not None else ""))
         seen.add(key)
         checked.append(ids)
     return checked
@@ -166,7 +172,20 @@ def rows_from_live_week_run(run_dir: Path) -> tuple[list[list[int]], dict]:
             row.append(mapping[key][0])
         rows.append(row)
     positions = {draftable: position for draftable, position in mapping.values()}
-    checked = check_rows(rows, position_by_draftable_id=positions)
+    # the two-track block boundary: the run's receipt (or the vetter's copy of it) names the mean rows K; a sleeve row may
+    # repeat a mean row (2026-09-28), so repeats are checked within each block only
+    mean_rows = None
+    for name in ("receipt.json", "source_receipt.json"):
+        rp = run_dir / name
+        if rp.is_file():
+            try:
+                cfg = json.loads(rp.read_text()).get("config", {}) or {}
+                if cfg.get("tail_sleeve") and cfg.get("operational_k"):
+                    mean_rows = int(cfg["operational_k"])
+            except (OSError, ValueError):
+                _fail(f"{rp} is not readable JSON")
+            break
+    checked = check_rows(rows, position_by_draftable_id=positions, mean_rows=mean_rows)
     receipt = {
         "source": "live-week-run-dir",
         "run_dir": str(run_dir),

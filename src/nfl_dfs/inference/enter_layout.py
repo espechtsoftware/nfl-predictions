@@ -58,6 +58,7 @@ from pathlib import Path
 
 LAYOUTS = ("sequential", "top", "head")
 TRACKS = ("mean", "tail")     # per-contest selection track (2026-09-27): satellites by mean, Millionaire seats by tail
+ROWMAP_NAME = "ENTER-rowmap.json"   # published beside the per-contest files: {label: [0-based rows of the bundle's upload]}
 MEAN_ROWS_FLOOR = 1           # the mean track's floor (laptop 2026-09-28: the 90-row floor served the retired K80/K90 contract; it built
                               # 71 rows no contest read once the class track owned the book). week_env / sunday_build_host /
                               # check_week_runtime floor BOOK_ENTRIES at the same value; the sleeve starts after the mean rows.
@@ -432,21 +433,33 @@ def frozen_contest_rows(contests: list[dict], bundle: Path, new_rows: list[list[
     base = _read_rows(base_files[0])[1]
     if len(base) != len(new_rows):
         raise LayoutError(f"the swapped upload has {len(new_rows)} rows, the published bundle's upload {len(base)}")
+    rowmap_file = Path(bundle) / ROWMAP_NAME
+    rowmap = json.loads(rowmap_file.read_text()) if rowmap_file.is_file() else None
     index: dict[tuple, int] = {}
-    for i, r in enumerate(base):
-        if tuple(r) in index:
-            raise LayoutError(f"the published upload repeats a lineup (rows {index[tuple(r)] + 1} and {i + 1})")
-        index[tuple(r)] = i
+    if rowmap is None:                                   # a bundle published before the row map: the reverse lookup
+        for i, r in enumerate(base):
+            if tuple(r) in index:
+                raise LayoutError(f"the published upload repeats a lineup (rows {index[tuple(r)] + 1} and {i + 1}); "
+                                  "this bundle has no row map, so its contests cannot be re-published")
+            index[tuple(r)] = i
     per = []
     for c in contests:
         f = Path(bundle) / enter_filename(c)
         if not f.is_file():
             raise LayoutError(f"the published bundle lacks {f.name}")
         rows = _read_rows(f)[1]
-        try:
-            per.append([index[tuple(r)] for r in rows])
-        except KeyError:
-            raise LayoutError(f"{f.name} holds a lineup that is not in the bundle's own upload") from None
+        if rowmap is not None:
+            got = rowmap.get(label(c))
+            if not isinstance(got, list) or len(got) != len(rows) or any(not isinstance(i, int) or not 0 <= i < len(base) for i in got):
+                raise LayoutError(f"the bundle's row map does not cover {label(c)} ({len(rows)} rows)")
+            if any(base[i] != r for i, r in zip(got, rows)):
+                raise LayoutError(f"{f.name} does not match the row map's rows of the bundle's own upload")
+            per.append(list(got))
+        else:
+            try:
+                per.append([index[tuple(r)] for r in rows])
+            except KeyError:
+                raise LayoutError(f"{f.name} holds a lineup that is not in the bundle's own upload") from None
         if len(rows) != int(c["entries"]):
             raise LayoutError(f"{f.name} holds {len(rows)} entries, contests.json says {c['entries']}")
     changed = {(i, j) for i, (a, b) in enumerate(zip(base, new_rows)) for j, (x, y) in enumerate(zip(a, b)) if x != y}
@@ -512,6 +525,9 @@ def write(contests: list[dict], upload: Path, stage: Path, layout: str, perm_inf
             w.writerows(body[i] for i in rows)
         lines.append(f"{label(c)}: {len(rows)} entries = ranks {_ranges(rk) if rk else 'frozen'} (book rows {_ranges(sorted(rows))}; "
                      f"keep {int(c['keep'])}) -> {enter_filename(c)}")
+    # The row map (2026-09-29): which 0-based rows of the bundle's own upload each contest holds. A swap re-publication
+    # reads it instead of reverse-looking rows up by roster, which breaks once the sleeve repeats a mean row.
+    (stage / ROWMAP_NAME).write_text(json.dumps({label(c): list(rows) for c, rows in zip(contests, per)}, indent=1) + "\n")
     return lines
 
 

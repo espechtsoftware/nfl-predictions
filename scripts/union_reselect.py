@@ -73,8 +73,9 @@ def load_run(run: Path) -> dict:
     return {"dir": run, "frame": fr, "cands": cands, "receipt": receipt}
 
 
-def pick_saturday_run(live_dir: Path, lev: int, boom: int, before: str) -> Path:
-    """The newest run dir in live_dir whose receipt lev/boom equal the Saturday dose and which was built before the T-70 run."""
+def pick_saturday_run(live_dir: Path, lev: int, boom: int, before: str, group: str | None = None, after: str | None = None) -> Path:
+    """The newest run dir in live_dir whose receipt lev/boom equal the Saturday dose, built before the T-70 run and (when
+    given) after this week's window start, on this week's draft group, with its sidecars, not superseded, not itself a union."""
     hits = []
     for d in sorted(p for p in live_dir.iterdir() if p.is_dir()):
         try:
@@ -82,10 +83,15 @@ def pick_saturday_run(live_dir: Path, lev: int, boom: int, before: str) -> Path:
         except (OSError, ValueError):
             continue
         c = r.get("config", {})
-        if (c.get("lev"), c.get("boom")) == (lev, boom) and str(r.get("built_utc", "")) < before and all((d / b).is_file() for b in BANKS):
+        if (c.get("lev"), c.get("boom")) != (lev, boom) or c.get("union") or (d / "superseded").is_file():
+            continue
+        if group is not None and str(r.get("draft_group")) != str(group):
+            continue
+        b = str(r.get("built_utc", ""))
+        if b < before and (after is None or b >= after) and all((d / x).is_file() for x in BANKS):
             hits.append(d)
     if not hits:
-        raise SystemExit(f"no Saturday run dir with lev/boom {lev}/{boom} (and sidecars) built before {before} under {live_dir}")
+        raise SystemExit(f"no Saturday run dir with lev/boom {lev}/{boom} (sidecars, group {group}, built in [{after}, {before})) under {live_dir}")
     return hits[-1]
 
 
@@ -192,6 +198,8 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--saturday-run", required=True, help="a run dir, or 'auto' (newest --saturday-dose run in --live-dir built before the T-70 run)")
     ap.add_argument("--saturday-dose", default="2560/10240")
+    ap.add_argument("--group", help="with --saturday-run auto: this week's draft group (a run dir for another group is never the supply)")
+    ap.add_argument("--saturday-after", help="with --saturday-run auto: ISO UTC window start (a smoke or an old build built before it is never the supply)")
     ap.add_argument("--t70-run", type=Path, required=True)
     ap.add_argument("--live-dir", type=Path, required=True, help="the live results tree the union dir is created in (results/live/<season>-w<WW>)")
     ap.add_argument("--entries", type=int, required=True); ap.add_argument("--tail-sleeve", type=int, default=0)
@@ -224,7 +232,9 @@ def main(argv: list[str] | None = None) -> int:
         raise SystemExit(f"the union is defined for the mean selector; the T-70 receipt says {cfg.get('selector')!r}")
     if a.saturday_run == "auto":
         lev, boom = (int(x) for x in a.saturday_dose.split("/"))
-        sat_dir = pick_saturday_run(a.live_dir, lev, boom, str(t70["receipt"].get("built_utc", "")))
+        sat_dir = pick_saturday_run(a.live_dir, lev, boom, str(t70["receipt"].get("built_utc", "")), group=a.group, after=a.saturday_after)
+    if str(t70["receipt"].get("config", {}).get("lev")) + "/" + str(t70["receipt"].get("config", {}).get("boom")) == a.saturday_dose:
+        raise SystemExit(f"the T-70 run {a.t70_run.name} IS a {a.saturday_dose} build (the Saturday supply itself); no union for it")
     else:
         sat_dir = Path(a.saturday_run)
     sat = load_run(sat_dir)

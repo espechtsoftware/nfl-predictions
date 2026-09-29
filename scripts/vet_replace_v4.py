@@ -214,7 +214,9 @@ def main():
     # ---- final-book validation BEFORE writing ----
     problems = []
     if len(book) != n_book: problems.append(f"row count {len(book)} != {n_book}")
-    if len({frozenset(r) for r in book}) != len(book): problems.append("duplicate lineup")
+    _kb = int(src.get("config", {}).get("operational_k") or len(book)); _kb = min(max(_kb, 0), len(book))
+    for _name, _blk in (("mean block", book[:_kb]), ("sleeve block", book[_kb:])):     # a sleeve row may repeat a mean row (2026-09-28)
+        if len({frozenset(r) for r in _blk}) != len(_blk): problems.append(f"duplicate lineup within the {_name}")
     for p, r in enumerate(book):
         if len(set(r)) != 9: problems.append(f"row {p+1}: ids not distinct")
         if sum(sal_of[d] for d in r) > CAP: problems.append(f"row {p+1}: salary {sum(sal_of[d] for d in r)} > {CAP}")

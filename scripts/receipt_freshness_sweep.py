@@ -78,6 +78,11 @@ def sweep(root, after, benign=DEFAULT_BENIGN):
     root = pathlib.Path(root)
     findings, scanned = [], 0
     for f in sorted(set(list(root.glob("*.json")) + list(root.glob("*/*.json")))):
+        if f.name.startswith("class_model"):
+            # a fitted MODEL, not a data input: its weeks[].lock are the training weeks and fitted_utc is the Monday
+            # refit, both legitimately before the week's window (2026-09-29 sweep item 8). The build audit checks the
+            # model's sha256 separately.
+            continue
         try:
             data = json.loads(f.read_text())
         except (ValueError, OSError):

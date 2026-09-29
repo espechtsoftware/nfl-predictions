@@ -132,7 +132,14 @@ def main():
     # tiers: hard (vetoed to the back) > material (risk >= threshold: Q/D, silent-market DNP, no props) > clean/soft (selector order kept)
     thr = a.material_threshold
     for lu in lineups: lu["material"] = (not lu["hard"]) and lu["risk"] >= thr
-    order = sorted(range(n), key=lambda i: (lineups[i]["hard"], lineups[i]["material"], i))
+    # Two-track books (2026-09-28): the tail sleeve (rows K..K+T of the source receipt's operational_k) is dealt to the
+    # deep-line contests and may repeat main rows; vetting re-orders WITHIN the mean block and WITHIN the sleeve block,
+    # never across them (a flagged mean row must not slide into a sleeve rank, nor a clean sleeve row into a mean rank).
+    _src = json.loads((run / "receipt.json").read_text())
+    _k_mean = int((_src.get("config") or {}).get("operational_k") or n)
+    _k_mean = min(max(_k_mean, 0), n)
+    _key = lambda i: (lineups[i]["hard"], lineups[i]["material"], i)
+    order = sorted(range(_k_mean), key=_key) + sorted(range(_k_mean, n), key=_key)
     with (out / "book.csv").open("w", newline="") as h:
         wr = csv.writer(h); wr.writerow(SLOTS); [wr.writerow(book[i]) for i in order]
     shutil.copy(run / "frame.parquet", out / "frame.parquet"); shutil.copy(run / "receipt.json", out / "source_receipt.json")
