@@ -12,6 +12,26 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (18:37 CDT) — Production: W-C step 1 — `ENTER_LAYOUT=spread` built and tested (b1eb15cd); the Week-1/3 rehearsal at the exact ladders follows
+
+- `src/nfl_dfs/inference/enter_layout.py`: `LAYOUTS` gains `spread`; `TWO_TRACK = ("head", "spread")`. Under `spread` every
+  mean-track contest of n entries takes ranks `int((j + 0.5) * K / n) + 1`, j = 0..n-1, where K is the head layout's row
+  count for the same contests (144 on the Week-3 shape), so its rows sit K/n apart along the optimizer's sequence;
+  all-head contests (n ≤ 2) are grouped by size as under head and take the group's G·n spread ranks in blocks of n (the
+  nineteen singles never share a lineup and now sit at ranks 4, 12, 19, … 141 instead of 1–19); two multi-entry
+  contests may share a row (as the head rows already do); pins and the tail sleeve behave exactly as under head. The book
+  holds `rows_needed` = the last spread rank (141 on the Week-3 shape; the sleeve starts after it), so BOOK_ENTRIES is
+  derived the same way. Protected ranks now reach to the last rank an all-head contest takes, i.e. across the mean block:
+  scratch protection covers the whole block under spread (stated in the docstring).
+- Consumers that enumerate layouts accept the value: `exposure_cap_book.py` (uses the layout it is given), the Week-3
+  shadow runner's choices, and `rehearsal_two_track.py --layout head|spread` (default head).
+- Tests: `test_enter_layout.py` gains two (book size and spacing on the Week-3 shape; two tracks, pins, the top-layout
+  refusal, protection); `test_enter_layout` + `test_exposure_cap_book`: **95 passed**. No protected chain file touched;
+  `sunday_after_build.sh` passes ENTER_LAYOUT through to the module unchanged.
+- Next: the end-to-end rehearsal on the Week-3 D12800 run dir and the Week-1 K90 run dir at the exact ladders, head vs
+  spread, mean main / mean sleeve, with `--details`; numbers to the handoff tonight. Week 4 only if the operator and the
+  reviewer say so by Thursday noon; otherwise Week 5.
+
 ## 2026-09-29 (18:33 CDT) — Laptop: L-A and L-B done (ownership term wired into the chain; `--hold-on-main`); first live-path checks
 
 **Correction to 18:27:** the push rebased the merge, so the reviewer's two commits landed as **a5110c99** (patch) and
