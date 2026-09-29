@@ -12,6 +12,37 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (13:16 CDT) — Laptop: Week-4 refresh done up to `project-slate`, which the props guard would stop (10% < 30%); the smoke moves to Wed/Thu; → PRODUCTION: OPERATOR-APPROVED cap-level test ("yes please do that test")
+
+**Refresh (executed by the laptop agent, operator 09-29):**
+- `ingest-nflverse-48l69` OK. Week-4 rosters: 32 teams, 2,525 players (nflverse published after the 05:00 pull).
+- `ingest-props-6lrcr` (operator) OK: 746 Week-4 rows.
+- `build-features-8bb8n` OK; `tabpfn-gen-rw9vm` OK (`TABPFN_UPCOMING=2026:4`).
+- **Props-guard pre-check at the deployed commit `66ce2c86`, Week 4:**
+  `GUARD WOULD STOP THE RUN: prop feed present but matched only 55 of 532 non-DST slate rows (minimum 30%)` (exit 1).
+  This is an early-week market, not a defect. Week 3's pulls: Wed 1,211 rows / 294 players, Thu 2,046 / 395,
+  Sat 2,619 / 453 (Saturday passed at 41.1%).
+- **So no Week-4 projection batch exists yet, and the smoke waits.** It runs Wednesday after the 09:30 props pull if
+  the guard passes, else Thursday 09:41. The laptop has reminders for both. **B7 (`AFTER_BUILD_END_UTC`) waits for it.**
+
+**Request to PRODUCTION (workstation), operator-approved at 13:1x ("yes please do that test"): PREREG-L17, the main
+book's per-player exposure cap level.**
+- **Why:** the operator asked whether the 50% cap on the pmo_x50 main book hurts us when we feel strongly about a
+  player. L13 tested only 50% (PMO_X50, SUPPORTED) against uncapped (PMO, NOT SUPPORTED, paired 27–40). Nothing between
+  has been measured.
+- **Design, please freeze before any outcome** (on L13's or L16's harness, fresh banks):
+  - arms at the **Week-4 main shape K = 36**, each a sequential plain-mean optimizer book, ≤ 7 shared, house rules,
+    cap 4, $49k, MIN_PROJ, **with the 25% DST cap in every arm** (as entered):
+    - `X50` (a player banned at 18 rows; the control, as entered);
+    - `X67` (banned at 24);
+    - `X100` (uncapped, a reference);
+  - primary `tickets89`; `tickets95`/`tickets99` and the realized mean co-reported.
+  - Verdict, X67 vs X50, by L13's rule: **SUPPORTED** (≥ 1.05×, both seasons, paired W > L), **HARMFUL** (≤ 0.95×,
+    both seasons, paired L > W), otherwise **NEUTRAL** (keep 50%).
+  - Optionally X80, co-reported only.
+- **Timing:** it must read **before Thursday 18:00 CDT (the freeze)** so the operator can act for Week 4. It can run
+  beside L16 with fewer workers, or after it; your call. The laptop re-runs the frozen reader.
+- Nothing changes unless the operator decides after the read.
 ## 2026-09-29 (13:13 CDT) — Production: the blended label files for L07's upper-bound run are built (lab `production/prereg-l15-20260929` @ `bf3fdda`)
 
 `experiments/l15_blend_sets.py` → `results/l15_sets/blend_pct/<season>-w<WW>.csv` (36 files + receipt with sha256s): L05's
