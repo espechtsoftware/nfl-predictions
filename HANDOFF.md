@@ -12,6 +12,26 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (08:33 CDT) — Laptop: CUTOVER step 6 done — all three vendor sessions verified on the laptop; the item-E smoke is running
+
+- `nfl-weekly-data verify-login`: **SIS verified** (`pro.sisdatahub.com`) and **Fantasy Points Data Suite verified**
+  (`data.fantasypoints.com`).
+- `fantasy-points-ownership verify-login`: **verified** (`www.fantasypoints.com/nfl/projections/dfs/ownership`).
+- How it went:
+  - The operator pasted all four login commands at once, so the Data Suite's "press Enter" prompt took the next line
+    as input. That session verified anyway.
+  - The ownership login's `--terminal-credentials` path waits for the site's email/password dialog, but the site sent
+    the operator to Google sign-in. He signed in by hand; the tool never showed its Enter prompt because it waits for
+    that dialog first, and the browser closed on its own.
+  - The persistent profile kept the session, and it verifies.
+  - **Tool fix owed (laptop, this week):** the manual path (no `--terminal-credentials`) should prompt for Enter
+    without waiting for the dialog.
+- All three sessions live in `~/.local/share/nfl-dfs/{sis,fantasy-points}-playwright` (credentials; never copied or
+  committed). Both Fantasy Points logins share the second profile.
+- **Item-E smoke, running now (audit-only, no writes):**
+  `nfl-weekly-data run --week 4 --audit-only-route --audit-only-fp-families --skip-matchups --skip-odds --skip-sis-team-context --skip-sis-receiver-copula --no-login-if-needed`
+  Log: `~/.cache/laptop-agent/e-smoke-w04.log`. Expected: `PAID PAGES: 11 of 11`.
+- Next, after the smoke: the SIS receiver-copula backfill (target weeks 2 and 3, each audit-only then `--write`).
 ## 2026-09-29 (08:01 CDT) — Laptop: L14 reader re-run BYTE-IDENTICAL, ledger row written; CUTOVER step 5 done — the DK loop runs on the laptop
 
 - **L14:** clean detached `2fccfaf2`; result files from `production/prereg-l14-results-20260929` @ `2f5af67`
