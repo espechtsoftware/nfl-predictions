@@ -12,6 +12,59 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (18:27 CDT) — Laptop: WEEK-4 IMPROVEMENT PLAN (operator: "implement everything that will improve scores this week … coordinate and delegate to the workstation … prioritize for the biggest gains this week"); the reviewer's ownership-term patch merged; the work split
+
+**The ranking for this week.** Only changes that can pass their gates before the Thursday 18:00 CDT freeze are listed,
+in order of expected gain this week.
+
+| # | Change | Why it ranks here | Owner | Gate / deadline |
+|---|---|---|---|---|
+| 1 | **Contest mix and routing** (action 1 as corrected): fund the 2,378/25 and 190/2 supersats **on the main book**; 594s optional; drop the 11-entry sats, the 402 sats and the FFWC qualifier; one Millionaire seat | the largest EV swing: those supersats go from sleeve rows (MEAN 1.02× at p99, below the 1.19× break-even) to PMO_X50 rows (1.77×), and the dropped classes are negative under every estimate | operator (allocation); laptop (routing flag, Friday tracks) | operator's yes; Friday 09:07 tracks |
+| 2 | **The ownership term** on the main book (tilt 0.20, lag + LineStar blend), reviewer 16c293b7; the operator decided "arm for Week 4 if possible" | panel +0.16/+0.19 sd per row on two banks (under the head dealing about +12% tickets, interval includes 0); the 2026 replay −0.11 sd (upper bound, W1); L20 (fresh banks) reads tonight | laptop (chain, smoke, Saturday lag file); workstation (audit check) | the reviewer's four gates by Thursday; L20's read reported to the operator |
+| 3 | **L19 tail cap** (`UNION_SLEEVE_CAP`) and **L16** (DST cap / sleeve source), if SUPPORTED | the flags are built and tested; only a read is missing | workstation reads; laptop re-runs; operator decides | L16 tonight, L19 Wednesday afternoon |
+| 4 | Spread dealing (action 8 / winners study #2) | consistency only: expected hits unchanged, fewer empty weeks | workstation, **only after W-A** | end-to-end rehearsal by Thursday 12:00 CT, else Week 5 |
+
+Not this week: actions 3 and 9 (dead levers on this form), 7 (overlaps the ownership term), 4 (paper, Week 5), 10–12
+(process). The Sunday procedure (action 5) is already armed.
+
+**Merged:** `review/ownership-term-20260929` @ 16c293b7 → integration (merge commit on this push): `union_reselect.py
+--main-own-tilt/--main-own-source/--main-own-min-coverage`, `ownership_blend.py`, tests. It composes with
+`--main-cap-share` and `--sleeve-cap-share`: the sleeve reads only the plain rows, so the term leaves the sleeve
+unchanged. With the 826d8de6 clone, 64 tests pass (`test_union_reselect`, `test_ownership_blend`,
+`test_linestar_ownership_capture`, `test_audit_build_levers`, `test_week_env_defaults`, `test_arm_week_timers`,
+`test_set_contest_tracks`).
+
+**→ WORKSTATION (production, lab role), in this order:**
+- **W-A (by Wednesday 09:00 CT, before the laptop's smoke): the build audit check `main_own_term`** (reviewer gate 3), in
+  `scripts/audit_build_levers.py` + `tests/test_audit_build_levers.py` only.
+  - A receipt whose `config.union.pmo_x50.own_term.tilt` > 0 must carry `source`, `source_sha256` matching the file on
+    disk, and coverage ≥ `min_coverage`.
+  - `book_main_control.csv` must exist and the main rows must differ from it.
+  - With tilt 0 (or no block), no `book_main_control.csv` and no term.
+  - Fail closed like the other checks.
+- **W-B (when L16, L19 and L20 read):** the frozen reads and the laptop's re-runs as usual. For L19, re-price the supersats
+  on both routings (your 18:02 item 1a).
+  - **For L20, please also report the term's tickets at p99 and p99.8 by row block** (the supersats at p98.95 would sit on
+    the main book's first rows under the head layout).
+- **W-C (only after W-A, optional): spread dealing** as a new `ENTER_LAYOUT` value, default unchanged, in
+  `src/nfl_dfs/inference/enter_layout.py` + its tests + the rehearsal tool, with an end-to-end rehearsal on Weeks 1 and 3
+  at the exact ladders by Thursday 12:00 CT. If it cannot be rehearsed end to end by then, it is Week 5.
+- Please do not edit `scripts/week_env.sh`, `scripts/sunday_build_host.sh`, `scripts/arm_week_timers.sh`,
+  `scripts/set_contest_tracks.py` or `scripts/union_reselect.py` this week. The laptop owns them until the smoke.
+
+**Laptop (owns the chain):**
+- **L-A tonight:** wire the term into the chain.
+  - `week_env.sh`: `UNION_MAIN_OWN_TILT` (default 0 until the operator's arm line), `OWNERSHIP_LAG`, `LINESTAR_DIR`.
+  - `sunday_build_host.sh`: capture → blend → flags before the union. `OWN TERM REFUSED` re-runs without the flags,
+    named. The PMO-refused fallback also drops the term's flags.
+  - `arm_week_timers.sh`: pass-list, the Saturday lag-file command, and a preflight gate (lag file `pred_own` sum ≥ 280).
+- **L-B tonight:** `set_contest_tracks.py --hold-on-main <field sizes>`, so the operator's routing choice (e.g. 2378,190)
+  is applied by the Friday step without hand-editing the private file.
+- **L-C Wednesday (smoke):** the reviewer's gates 1–2: the union with the term, the receipt block, the control book, the
+  sleeve identical to a run without the term, and the refusal path.
+- **L-D Saturday:** `ownership_sets.py sets --lag-features` → `ownership_lag.csv` (gate 4: sum ≥ 280), plus the LineStar
+  captures.
+- **L-E:** the reader re-runs and ledger rows (L16, L19, L20).
 ## 2026-09-29 (18:16 CDT) — Production: the reviewer's ownership-term note read; PREREG-L20 (the owed fresh-bank panel) FROZEN at 766198b6 and RUNNING; actions 3/9 demoted in the report
 
 **Reviewer's `review/ownership-term-20260929` @ 16c293b7 read in full.** Its §5 owes "a frozen lab panel on fresh banks:
