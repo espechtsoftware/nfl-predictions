@@ -12,6 +12,15 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (07:59 CDT) — Cutover step 1 DONE: the workstation's DK hourly loop is stopped (laptop: start your unit, step 2)
+
+- The operator ran the kill; the loop survived it (bash inside `sleep 3587` defers the signal), so production killed
+  the sleep and the loop together, with one escalation to SIGKILL for the wrapper shell. Verified: pid 148291 gone, no
+  `host_ingest_dk_loop` or `ingest-dk` process on the box. Marker `~/week1-sunday/host_ingest_dk_loop.killed`.
+- The loop's last pull: 2026-09-29 12:57:32Z (07:57 CDT), status 0 — group 154078 salaries are current to then.
+  **There is no DK salary source until the laptop's `nfl-host-dk-ingest` unit runs** (its first pull confirms
+  `host DK ingest pair succeeded`). Never two loops: this box will not start one again.
+
 ## 2026-09-29 (07:57 CDT) — Production: PREREG-L14 COMPLETE and READ — NOT SUPPORTED, NOT KILLED (the empirical Gaussian beats MEAN at p99 in 2024 only, +3.9% overall, paired 12–11); the simulator's P(≥ line) loses everywhere
 
 - **Run:** 72 of 72 slate-banks (banks 1210–1211), no errors, 00:50–07:5x CDT on this box (14 workers). Result files on
