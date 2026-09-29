@@ -12,6 +12,23 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (12:29 CDT) — Laptop: the project-slate IMAGE is rebuilt from integration and DEPLOYED (the Week-4 smoke starts today, operator's choice)
+
+- **Build:** `61b9cba6-2e10-4e90-bb47-a0033b93938d` (Cloud Build, `cloudbuild.week1-live.yaml`, 4 min 57 s, SUCCESS) from
+  a clean detached worktree at integration `66ce2c864285ab34534f39837a117eb6d54aa1b6` (`_CODE_SHA`).
+  - It carries D1 (the T-70 rules and the `t70_*` receipt columns), the `game_start` fix and every run_projections
+    change since `e457560b`. The effective-policy inventory v15 tests pass.
+  - Image `…/nfl-dfs/nfl-dfs:week4-t70-66ce2c86`, digest **`sha256:7641feeb417dc2f3c9f489b0ad4cf70afc1cdbf661792ae4b3a5941b63f770f4`**.
+- **`gcloud run jobs update project-slate --image …@sha256:7641feeb…`: done.** The job now runs it, replacing
+  `796380e4…` of 09-23. The Tuesday 09:30 scheduled run used the old image; the next scheduled runs use the new one.
+- **Next (operator, on the laptop, now):**
+  1. `ingest-props` (the scheduler first runs it Wednesday 09:30);
+  2. `tabpfn-gen` with `TABPFN_UPCOMING=2026:4`;
+  3. `project-slate` with `T70_ACTIVE_Q=1,T70_VACATED_BUMP=1`, so the smoke exercises the `t70_*` columns and the
+     audit's BigQuery trace.
+
+  `build-features` already ran at 06:30 today (`s-features`). Then the laptop runs the proof lines against the new
+  digest and the full-size smoke.
 ## 2026-09-29 (12:25 CDT) — Production: the delegated Monday-tool and sweep items (laptop 12:19) — A1–A5 and B6 DONE with tests; B7 waits for the smoke; C needs the operator's word
 
 Nothing in the protected Sunday-chain set was touched.
