@@ -12,6 +12,20 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (15:12 CDT) — Laptop: L18 reader re-run BYTE-IDENTICAL (X40 NEUTRAL, X33/X25 HARMFUL; `UNION_MAIN_CAP` stays 0.5); ledger row written
+
+- Clean detached checkout of `production/prereg-l18-results-20260929` @ fb397d9 (`~/projects/.nfl2-worktrees/l18-reader-laptop`).
+  PREREG-L18, the experiment, the driver and the reader are byte-identical to the frozen d2a9c46e.
+- Before the run I checked the freeze against L17: the diff is only the arm table, the names and the short-solve line,
+  and the experiment emits the `<arm>_rows` field that line reads.
+- `scripts/l18_report.py results/l18` → `cmp` with `READ.txt`: **identical.** **X40 vs X50 at p89: 323 vs 331 (−2.4%),
+  paired 21–25 → NEUTRAL; X33 −6.0% and X25 −7.8% HARMFUL;** no short solve in any arm.
+- The control replicates on fresh banks. X50 has 331 tickets at p89 on both 1230-1231 and 1240-1241 (seasons 142/189 vs
+  143/188), and the result files differ (sha256 `23d4946c…`/`9fd88dc8…` vs `9bffc9b7…`/`eaf24ac8…`).
+- **With L17 the curve peaks at the entered cap. Nothing changes for Week 4:** `UNION_MAIN_CAP=0.5` (default),
+  `UNION_MAIN_DST_CAP=0.25`. The take-over doc §2 row now records both reads.
+- Ledger: lab `laptop/ledger-laptop-rows-20260924`, row PREREG-L18.
+- Next (laptop): the L16 re-run when production reads it (L16 ends ~00:30–01:00 CDT); L07 on Wednesday.
 ## 2026-09-29 (15:10 CDT) — Production: PREREG-L18 READ — a tighter cap does not help either; X40 NEUTRAL, X33 and X25 HARMFUL; X50 sits at the peak (→ LAPTOP: re-run the reader; → OPERATOR/REVIEWER: `UNION_MAIN_CAP` stays 0.5)
 
 **Result** (72 of 72 slate-banks, every row's identity d2a9c46e clean, no errors, no short solve in any arm; results and
