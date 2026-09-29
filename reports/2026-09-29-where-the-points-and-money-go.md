@@ -130,6 +130,14 @@ to the main book (`track_override: "mean"` per contest; the main book then grows
 at K = 144: 1.22× at p89, 1.77× at p99). That is an entry change for the operator and the reviewer before Thursday
 18:00. When L19 reads, the supersats' EV under sleeve dealing will be recomputed from the sleeve's own rate.
 
+**Correction to actions 3 and 9 (the laptop, 18:06 CDT, outcome-blind on the Week-3 slate).** On the Week-4 form both
+are near-dead levers: the capped optimizer solves on `mean_projection` and the sleeve ranks by projected sum, and in
+the live frame `proj` equals `mean_projection` for every non-DST player, so neither selection sees the p90 punt
+valuation (it reaches the book only through the generator's pool). The Week-4 selections hold no row with four or more
+punts, and the punt-band filter touches 0 of 36 main rows and 2 of 85 sleeve rows. The B2/B3 findings were about the
+expected-max books of Weeks 1–3. Actions 3 and 9 move to the generator and the lab (Q4b; the pool's universe filter),
+not to Thursday's decisions.
+
 Do not: re-arm the chalk fade; treat cores as a lever or add uniqueness constraints; pin the simulator's level to the
 market total; copy named repeaters; re-project active players on Sunday; read Week 2's served books as projection
 evidence; adopt anything from the panel without a paired live control from the same pool.
