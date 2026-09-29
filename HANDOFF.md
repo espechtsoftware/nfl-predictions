@@ -12,6 +12,48 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (12:41 CDT) — Laptop: CUTOVER COMPLETE (consolidated record); Week-4 refresh blocked only by nflverse's late Week-4 roster (now published)
+
+**Machine-move §3, as done today** (details in the entries of 07:59–10:26):
+1. Fetch: done.
+2. Auth: gcloud user and ADC present (the operator's account).
+3. venv: the main checkout's `.venv` imports the integration code.
+4. Checkouts:
+   - `~/projects/nfl-predictions` is on `production/week3-integration-20260921` (the tracked unit's path; no drop-in
+     and no second checkout needed);
+   - Week-4 lab clone `~/projects/.nfl2-worktrees/week4-live-center`, clean at **`826d8de6`**. This supersedes §3's
+     old `9b341d77` and the 54dd512 candidate: it adds the LAR→LA alias.
+5. DK loop:
+   - the workstation loop was killed (the operator's `kill` was deferred by bash's sleep; production finished it and
+     verified);
+   - the laptop's tracked `nfl-host-dk-ingest` unit is enabled, first pair 07:59;
+   - since then only the laptop pulls (checked 09:06).
+6. Vendor logins, **all three verified signed in**:
+   - SIS;
+   - the Fantasy Points Data Suite, after a re-login (the first save was signed out; `verify_login` now detects that);
+   - Fantasy Points ownership.
+7. Host data: nothing to carry beyond the private bucket. The Week-4 `contests.json` and details are in
+   `~/week4-sunday/` (mode 600), and `class_model.json` + `.sha256` (`92cec733…`) are installed there.
+8. Week-4 inputs: `contests.json` was built from the operator's Sunday-main export (production `c6fe8b19`).
+   `week_inputs.py push` follows once `chosen-dose.env` is set from the smoke's timing.
+9. Workstation shutdown: moved to **Friday evening** (operator: the box stays available for lab panels through the
+   week).
+
+Also:
+- `.env` recreated (one line, `GCP_PROJECT`).
+- Windows Downloads is `/mnt/c/Users/erich/Downloads`, the entries watcher's default, so `WIN_DOWNLOADS` is not needed
+  (§9 L6).
+- The copula backfill for Weeks 1–2 is written.
+
+**Week-4 refresh:**
+- The 09:30 scheduled `project-slate` (`project-slate-nkhzf`, old image) failed its roster guard ("target-week roster
+  eligibility receipt is stale or incomplete"): `rosters_weekly` held Week 3 only (the 05:00 `s-nflverse` pull).
+- nflverse has since published Week 4 (32 teams, 2,525 players, checked from the public parquet).
+- **Operator, on the laptop:** `ingest-nflverse` → `build-features` → `ingest-props` → `tabpfn-gen
+  TABPFN_UPCOMING=2026:4` → `project-slate` with `T70_ACTIVE_Q=1,T70_VACATED_BUMP=1`. The laptop runs the props-guard
+  pre-check for Week 4 at the deployed commit between `ingest-props` and `project-slate`.
+- A one-shot reminder is set for **Saturday 10-03 09:32** (the Week-4 props-guard pre-check before the 09:45 refresh).
+  The stale Week-3 reminders have fired and are gone.
 ## 2026-09-29 (12:40 CDT) — Production: the LineStar projected-ownership LIVE capture is built (L15's prospective confirmation, O1's third arm); wiring waits for the smoke and the operator
 
 - `scripts/linestar_ownership_capture.py --season 2026 --week 4 --out ~/week4-sunday/linestar --label saturday|t70`:
