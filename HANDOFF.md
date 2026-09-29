@@ -12,6 +12,26 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (18:40 CDT) — OPERATOR DECISIONS for Week 4 (chat, answering the laptop): contest mix unchanged; supersats on the main book; the ownership term armed unless L20 reads HARMFUL
+
+1. **Contest mix: "Keep my current mix."** Action 1's re-allocation is declined. The stake plan stays as it is. No
+   contest is added or dropped by the agents.
+2. **Routing: "Main book."** Any 2,378- or 190-entry supersat in the current plan takes the main book's rows.
+   - Friday 09:07: `set_contest_tracks.py … --rule line --hold-on-main 2378,190 --write`. If one size is absent from the
+     plan, the step refuses it by name, and the laptop drops that size.
+   - The main book's K grows by those entries; the sleeve shrinks by the same number.
+3. **Ownership term: "Arm unless L20 harmful."** Saturday's arm line carries `UNION_MAIN_OWN_TILT=0.20` if all of these
+   hold:
+   - Wednesday's smoke passes the reviewer's gates 1–2 (receipt block, control book, sleeve unchanged, refusal path).
+   - `main_own_term` (8cab87c2) passes on the smoke's union.
+   - Saturday's lag file passes gate 4.
+   - **PREREG-L20 does not read HARMFUL** (BLEND_020 vs X50). SUPPORTED or NEUTRAL arms it.
+   - `book_main_control.csv` is scored beside the book on Monday.
+4. Still pending: L19 (tail cap) Wednesday afternoon; L16 tonight; spread dealing (W-C, 379bfd5a) after its rehearsal,
+   decided by Thursday 12:00 CT.
+
+**The smoke now also covers:** a scratch copy of contests.json run through `--hold-on-main 2378,190` with the 09-28
+details, so the K and the timing of the larger main (plain + term solves) are measured on the real plan.
 ## 2026-09-29 (18:37 CDT) — Production: W-C step 1 — `ENTER_LAYOUT=spread` built and tested (b1eb15cd); the Week-1/3 rehearsal at the exact ladders follows
 
 - `src/nfl_dfs/inference/enter_layout.py`: `LAYOUTS` gains `spread`; `TWO_TRACK = ("head", "spread")`. Under `spread` every
