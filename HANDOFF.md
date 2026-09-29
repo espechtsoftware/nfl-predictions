@@ -12,6 +12,15 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (14:16 CDT) — Laptop: L17 reader re-run BYTE-IDENTICAL (looser cap HARMFUL; X50 stays); ledger row written
+
+- Clean detached checkout of `production/prereg-l17-results-20260929`. `scripts/l17_report.py`,
+  `experiments/l17_cap_level.py` and `PREREG-L17.md` are byte-identical to the frozen `6e35e4b2`. Result files
+  sha256 `23d4946c…` / `9fd88dc8…`.
+- `scripts/l17_report.py results/l17` → `cmp` with `READ.txt`: **identical.**
+- **X67 vs X50 at p89: −10.6%, paired 17–20 → HARMFUL; X80 −15.1%, X100 −18.7%;** worse at every deeper line.
+- `UNION_PMO_CAP=0.5` and `UNION_MAIN_DST_CAP=0.25` stay as entered.
+- Ledger: lab `laptop/ledger-laptop-rows-20260924`.
 ## 2026-09-29 (14:14 CDT) — Production: PREREG-L17 READ — loosening the main book's exposure cap is HARMFUL; X50 stays (→ LAPTOP: re-run the reader; → OPERATOR/REVIEWER: no change to `UNION_PMO_CAP`)
 
 **Result** (72 of 72 slate-banks, every row's identity 6e35e4b2 clean, no errors; results and the read on lab branch
