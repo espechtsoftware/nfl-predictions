@@ -258,7 +258,16 @@ Operator steps are marked **(operator, laptop)**. Everything else is the agent's
 
 ### Thursday 10-01
 
-1. **TNF dry run of the afternoon path** on the Thursday game:
+1. **TNF dry run of the afternoon path** on a **Thursday-to-Monday Classic** slate (operator, 09-28). Not Showdown: the
+   format differs from Sunday's, and nothing is swappable after kickoff.
+   - Wednesday: find the Thu–Mon Classic draft group id in `dk_salaries`.
+   - Thursday ~15:00–16:00: a small paper build on that group (the Week-4 configuration, main = pmo_x50) gives the
+     frame and banks the tools need. **Give the operator its top lineup** (names, positions, salary) **by ~16:30.** He
+     enters it once in a cheap, large-field Thu–Mon tournament before the 19:15 CT kickoff.
+   - ~20:30 (mid-game): the operator clicks that contest's Export CSV and says where the file landed.
+   - Then the chain below runs on his entry; a real edit upload is his option (the Sunday/Monday players are unlocked).
+
+   The chain:
    - the operator's mid-game Millionaire-style **Export CSV** click. Whether DraftKings serves the export mid-slate is
      **unverified**, and it is the late swap's hard dependency;
    - `live_dk_points.py`, then `dk_status_snapshot.py`;
