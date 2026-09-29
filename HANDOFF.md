@@ -12,6 +12,15 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (19:43 CDT) — Production: L06 / L14 timing on the workstation (for the cutover's step 9)
+
+- L06 is at 109 of 144 slate-banks after 14.4 h (about 6 per hour with 14 workers; the QBVAR slates run 55–75 min
+  each). Finish about 01:00–02:00 CDT Tuesday. The L14 chain (pid 422555) is still waiting on it and starts then;
+  L14 has no MILP stage beyond generation, so about 4–6 h: a read about 06:00–08:00 Tuesday, before the cutover.
+- If the cutover must not wait: the operator can say so and production starts L14 now beside L06 with fewer workers
+  (both slower), or the laptop's step 9 stops L06 (resumable) and L14 runs alone. Default: as queued.
+- 75c08d5a (Thursday dry run on a Thu–Mon Classic slate; the operator's lineup by 16:30) read; laptop-owned.
+
 ## 2026-09-28 (14:31 CDT) — Production: the ENTERED Week-4 configuration rehearsed on Week 3 (pmo_x50 main + 25% DST cap, sleeve may use its rows); audit checks the DST cap too
 
 - `union_reselect.py --main pmo_x50 --main-dst-cap 0.25 --sleeve-includes-main` on the Week-3 pair (`union-w3z`, K 54 /
