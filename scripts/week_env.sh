@@ -151,6 +151,12 @@ week_env() {
   export UNION_MAIN_CAP=${UNION_MAIN_CAP:-0.5}
   # The tail sleeve's per-player exposure cap as a share of T; empty = none (as entered). PREREG-L19 tests it (operator 09-29).
   export UNION_SLEEVE_CAP=${UNION_SLEEVE_CAP-}
+  # The ownership term in the main book's objective (operator 2026-09-29, reviewer 16c293b7): mean + tilt x predicted
+  # ownership % (skill players), from the lag + LineStar blend built right before each union. 0 = off (the book as armed
+  # before 09-29); 0.20 = the reviewer's specification. OWNERSHIP_LAG = Saturday's lag-model file (ownership_sets.py sets
+  # --lag-features; never rebuilt later: a past week's rebuild collapses), LINESTAR_DIR = the captures.
+  export UNION_MAIN_OWN_TILT=${UNION_MAIN_OWN_TILT:-0}
+  export OWNERSHIP_LAG=${OWNERSHIP_LAG:-$OUT/ownership_lag.csv} LINESTAR_DIR=${LINESTAR_DIR:-$OUT/linestar}
   # Cash/double-up PAPER shadows (operator 2026-09-22; never built in Week 3 by omission): arms A and B are built by the
   # chain from the final run dir before lock, entered nowhere, scored Monday. 1 = build them; 0 = off (explicit).
   export CASH_SHADOW=${CASH_SHADOW-1} CASH_SHADOW_N=${CASH_SHADOW_N:-20}

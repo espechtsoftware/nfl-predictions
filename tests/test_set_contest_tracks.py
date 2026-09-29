@@ -162,3 +162,22 @@ def test_rule_line_honours_a_mean_override_on_a_deep_line_contest(tmp_path, caps
     bad = [dict(c, track_override="sleeve") if c["name"] == "supersat" else c for c in cs]
     _, _, problems = sct.decide_by_line(bad, DETAILS, 0.02)
     assert problems and "must be mean or tail" in problems[0]
+
+
+def test_hold_on_main_by_field_size(tmp_path, capsys):
+    """Operator 2026-09-29: the funded supersats (2,378 and 190 entries) stay on the main book; the Friday step applies it
+    by field size, so the private contests file is never edited by hand."""
+    cs = [{k: v for k, v in c.items() if k != "priority"} for c in CONTESTS]
+    cs[2] = dict(cs[2], track_override="tail")
+    cfile = tmp_path / "contests.json"; dfile = tmp_path / "details.json"
+    cfile.write_text(json.dumps(cs)); dfile.write_text(json.dumps(DETAILS))
+    assert sct.main(["--contests", str(cfile), "--details", str(dfile), "--rule", "line", "--hold-on-main", "2378", "--write"]) == 0
+    assert "held on the main book by track_override mean: supersat" in capsys.readouterr().out
+    got = {c["name"]: (c["track"], c.get("track_override")) for c in json.loads(cfile.read_text())}
+    assert got["supersat"] == ("mean", "mean") and got["milly"] == ("tail", "tail") and got["wildcat"][0] == "tail"
+    cfile.write_text(json.dumps(cs))
+    assert sct.main(["--contests", str(cfile), "--details", str(dfile), "--rule", "line", "--hold-on-main", "2378,999"]) == 2
+    assert "999: no contest has that field size" in capsys.readouterr().err
+    assert sct.main(["--contests", str(cfile), "--details", str(dfile), "--rule", "line", "--hold-on-main", "161764"]) == 2
+    assert "carries track_override tail" in capsys.readouterr().err
+    assert sct.main(["--contests", str(cfile), "--details", str(dfile), "--rule", "field", "--hold-on-main", "2378"]) == 2

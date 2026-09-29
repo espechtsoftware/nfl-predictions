@@ -66,3 +66,11 @@ def test_main_book_cap_rides_into_the_units():
     r = _run(GROUP="154078", UNION_MAIN_CAP="0.4")
     assert r.returncode == 0, r.stderr
     assert "UNION_MAIN_CAP=0.4" in _unit_line(r.stdout, "nfl-week4-t70-build")
+
+
+def test_ownership_term_rides_into_the_units_and_the_saturday_steps_print():
+    r = _run(GROUP="154078", UNION_MAIN_OWN_TILT="0.20")
+    assert r.returncode == 0, r.stderr
+    assert "UNION_MAIN_OWN_TILT=0.20" in _unit_line(r.stdout, "nfl-week4-t70-build")
+    assert "--lag-features --out" in r.stdout and "check_ownership_lag.py" in r.stdout
+    assert 'check_ownership_lag.py" "${OWNERSHIP_LAG:-$OUT/ownership_lag.csv}" || exit 2' in SCRIPT.read_text()   # gate 4 before arming

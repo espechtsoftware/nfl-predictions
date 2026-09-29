@@ -97,6 +97,25 @@ def decide_by_line(contests: list[dict], details: dict, tail_share: float = 0.02
     return out, lines, problems
 
 
+def hold_on_main(contests: list[dict], details: dict, sizes: set[int]) -> tuple[list[dict], list[str]]:
+    """track_override mean on every contest whose field size is in sizes (the operator's routing choice, 2026-09-29: the
+    funded supersats take the main book's rows). Refuses a size that matches no contest and a contest already forced to
+    the tail (the Millionaire's override is never flipped silently)."""
+    out, bad, seen = [], [], set()
+    for c in contests:
+        d = details.get(str(c["contest_id"])) or {}
+        field = d.get("max") or d.get("maximumEntries") or d.get("entries")
+        if field is not None and int(field) in sizes:
+            seen.add(int(field))
+            if c.get("track_override") == "tail":
+                bad.append(f"{c['contest_id']} ({c.get('name')}): field {field} is in --hold-on-main but carries track_override tail")
+                continue
+            c = dict(c, track_override="mean")
+        out.append(c)
+    bad += [f"--hold-on-main {n}: no contest has that field size" for n in sorted(sizes - seen)]
+    return out, bad
+
+
 def decide(contests: list[dict], details: dict, mean_max_field: int, all_main: bool = False) -> tuple[list[dict], list[str], list[str]]:
     """Returns (contests in the new file order, printout lines, problems). Mean contests keep file order and come first;
     tail contests follow, sorted by priority. With all_main every contest is main-track (track "mean") in file order."""
@@ -159,12 +178,25 @@ def main(argv=None) -> int:
     ap.add_argument("--no-sleeve", action="store_true",
                     help="--rule line: NOT the adopted configuration (superseded 10:37). Every contest main-track, deepest line first, no sleeve "
                          "(measured: dealing order alone moves nothing)")
+    ap.add_argument("--hold-on-main", default="",
+                    help="--rule line: comma-separated field sizes (e.g. 2378,190) whose contests stay on the main book even when their "
+                         "line is deep (sets track_override mean, disclosed); a size that matches no contest refuses (operator 2026-09-29)")
     ap.add_argument("--write", action="store_true")
     a = ap.parse_args(argv)
     raw = json.loads(a.contests.read_text()); contests = raw if isinstance(raw, list) else raw["contests"]
     details = json.loads(a.details.read_text())
     if a.rule == "line" and a.all_main:
         print("--rule line already puts every contest on the main track; drop --all-main", file=sys.stderr); return 2
+    if a.hold_on_main:
+        if a.rule != "line":
+            print("--hold-on-main is defined for --rule line", file=sys.stderr); return 2
+        try:
+            sizes = {int(x) for x in a.hold_on_main.split(",") if x.strip()}
+        except ValueError:
+            print(f"--hold-on-main takes field sizes, got {a.hold_on_main!r}", file=sys.stderr); return 2
+        contests, bad = hold_on_main(contests, details, sizes)
+        if bad:
+            print("TRACKS NOT SET: " + "; ".join(bad), file=sys.stderr); return 2
     if a.rule == "line":
         out, lines, problems = decide_by_line(contests, details, a.tail_share, deep_as_tail=not a.no_sleeve)
     else:

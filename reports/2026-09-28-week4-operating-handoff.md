@@ -317,6 +317,9 @@ Operator steps are marked **(operator, laptop)**. Everything else is the agent's
    - **`--rule` defaults to `field`, so pass `line`.**
    - The printout must name the Millionaire as a tail contest; "NONE - is the Millionaire missing…" means the override
      is absent.
+   - **Routing (operator's choice, 09-29):** add `--hold-on-main 2378,190` (the funded supersats' field sizes) so those
+     deep-line contests take the main book's rows, not the sleeve's. Each held contest prints "held on the main book by
+     track_override mean". A size that matches no contest refuses. BOOK_ENTRIES grows with them automatically.
 4. First capture of the FP ownership page (O1): `fantasy-points-ownership collect --week 4`.
 
 ### Saturday 10-03
@@ -333,6 +336,15 @@ Operator steps are marked **(operator, laptop)**. Everything else is the agent's
 3. ~10:15 proof lines: `reports/lab-handoffs/week3_proof_lines.py`. Then the sets file:
    `PYTHONPATH=src $PROD_PY scripts/ownership_sets.py sets --week 4 --group 154078 --out ~/week4-sunday/ownership_sets.csv`.
    It is required by the preflight even with the tilt at 0, and it is O1's LAG predictor.
+   **The ownership term (operator 09-29; reviewer 16c293b7), when armed:**
+   - The lag-model file:
+     `PYTHONPATH=src $PROD_PY scripts/ownership_sets.py sets --season 2026 --week 4 --group 154078 --lag-features --out ~/week4-sunday/ownership_lag.csv`.
+   - Its gate: `$PROD_PY scripts/check_ownership_lag.py ~/week4-sunday/ownership_lag.csv` must print OK (sum ≥ 280).
+     Below that, arm with `UNION_MAIN_OWN_TILT=0`. Never rebuild this file on Sunday: a past or stale week collapses.
+   - A Saturday LineStar capture (Sunday's fallback):
+     `$PROD_PY scripts/linestar_ownership_capture.py --season 2026 --week 4 --out ~/week4-sunday/linestar --label saturday`.
+   - Sunday needs nothing by hand. Each union captures LineStar, blends, and solves the main with the term. A refused
+     capture keeps Saturday's. A refused blend or term builds the main without it, named in capitals.
 4. The FP ownership capture: `fantasy-points-ownership collect --week 4`.
 5. **(operator, laptop) arm**, after `chosen-dose.env` holds `CHOSEN_LEV=0` / `CHOSEN_BOOM=4800` (or Wednesday's
    measured boom):
@@ -341,6 +353,9 @@ Operator steps are marked **(operator, laptop)**. Everything else is the agent's
    D3200_LEV=0 D3200_BOOM=4800 D800_LEV=0 D800_BOOM=4800 SKIP_UNITS="d6400sat d6400" \
    T70_MIN_PROJ_CT=10:30 T70_PROJECT=1 UNION_SATURDAY_RUN=auto UNION_PMO=0 scripts/arm_week_timers.sh 4 --run
    ```
+   **Additions decided by Thursday 18:00** (each is off unless added to the line): `UNION_MAIN_OWN_TILT=0.20` (the
+   ownership term; the preflight refuses without a passing lag file); `UNION_SLEEVE_CAP=0.5` (only if L19 is
+   SUPPORTED); any L16 change.
    **The union (operator-authorized 12:2x CDT 09-28; production `025ad2c5`, `57bdc8b7`, `c753be99`):**
    - Each Sunday build (09:10 and T-70) is followed by `union_reselect.py`: the build's pool plus every Saturday D12800
      candidate that survives the build's frame (no OUT/IR/Doubtful/inactive or below-MIN_PROJ player).

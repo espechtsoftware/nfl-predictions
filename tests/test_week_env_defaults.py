@@ -108,3 +108,23 @@ def test_week_window_starts_saturday_midnight_central():
     r = subprocess.run(["bash", "-c", f"source {ENV_SCRIPT} && week_env 4 154078 >/dev/null 2>&1; echo $SATURDAY $WEEK_WINDOW_START_UTC"],
                        capture_output=True, text=True, env=env)
     assert r.stdout.split() == ["2026-10-03", "2026-10-03T05:00:00"]      # Saturday 00:00 CDT = 05:00Z
+
+
+def test_ownership_term_is_off_unless_armed_and_the_chain_falls_back_named():
+    src = ENV_SCRIPT.read_text()
+    assert "export UNION_MAIN_OWN_TILT=${UNION_MAIN_OWN_TILT:-0}" in src                     # off until the arm line sets 0.20
+    assert "OWNERSHIP_LAG=${OWNERSHIP_LAG:-$OUT/ownership_lag.csv}" in src
+    host = (ROOT / "scripts" / "sunday_build_host.sh").read_text()
+    assert '--main-own-tilt "$UNION_MAIN_OWN_TILT" --main-own-source "$OUT/ownership_blend-$RUN_TAG.csv"' in host
+    assert "grep -q 'OWN TERM REFUSED'" in host and "own_term_refused.txt" in host
+    assert 'strip_own "${UNION_ARGS[@]}"; MEAN_ARGS_U=("${OUT_ARGS[@]}")' in host         # the mean fallback never carries the term
+    assert "timeout 120" in host                                                           # a hung capture cannot stall the union
+
+
+def test_strip_own_drops_exactly_the_terms_flags():
+    host = (ROOT / "scripts" / "sunday_build_host.sh").read_text()
+    start = host.index("  strip_own() {"); end = host.index("done; }", start) + len("done; }")
+    fn = host[start:end]
+    script = fn + '\nstrip_own --main pmo_x50 --main-own-tilt 0.2 --entries 36 --main-own-source "/x y/b.csv" --tail-sleeve 85\nprintf "%s|" "${OUT_ARGS[@]}"'
+    out = subprocess.run(["bash", "-c", script], capture_output=True, text=True).stdout
+    assert out == "--main|pmo_x50|--entries|36|--tail-sleeve|85|"

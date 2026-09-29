@@ -262,23 +262,50 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   [[ "${UNION_SLEEVE_INCLUDES_MAIN:-0}" == "1" ]] && UNION_ARGS+=(--sleeve-includes-main)
   [[ -n "${MEAN_DST_CAP:-}" ]] && UNION_ARGS+=(--mean-dst-cap "$MEAN_DST_CAP")
   [[ -n "${UNION_DK_STATUS:-}" ]] && UNION_ARGS+=(--dk-status "$UNION_DK_STATUS")
+  # The ownership term (operator 2026-09-29, reviewer 16c293b7 §1): a LineStar capture as late as possible, the blend with
+  # Saturday's lag file, then the two flags. A failed capture keeps the newest earlier capture (the blend picks it); a
+  # refused blend or a refused term builds the main WITHOUT the term, named (the book as armed before 09-29).
+  if [[ "${UNION_MAIN:-mean}" == "pmo_x50" && "${UNION_MAIN_OWN_TILT:-0}" != "0" ]]; then
+    ( cd "$PROD" && PYTHONPATH="$PROD/src" timeout 120 "$PROD_PY" scripts/linestar_ownership_capture.py --season "$SEASON" --week "$WEEK" \
+        --out "$LINESTAR_DIR" --label "$RUN_TAG" ) || echo "LINESTAR CAPTURE FAILED for $RUN_TAG; the newest earlier capture stands"
+    if ( cd "$PROD" && PYTHONPATH="$PROD/src" timeout 120 "$PROD_PY" scripts/ownership_blend.py --sets "$OWNERSHIP_LAG" --linestar-dir "$LINESTAR_DIR" \
+           --season "$SEASON" --week "$WEEK" --out "$OUT/ownership_blend-$RUN_TAG.csv" ); then
+      UNION_ARGS+=(--main-own-tilt "$UNION_MAIN_OWN_TILT" --main-own-source "$OUT/ownership_blend-$RUN_TAG.csv")
+    else
+      echo "OWNERSHIP BLEND REFUSED for $RUN_TAG; THE MAIN BOOK IS BUILT WITHOUT THE OWNERSHIP TERM"
+    fi
+  fi
+  # drop the term's flags from an argument list (the refusal fallbacks below)
+  strip_own() { OUT_ARGS=(); local skip=0; for x in "$@"; do
+      if (( skip )); then skip=0; continue; fi
+      case "$x" in --main-own-tilt|--main-own-source) skip=1 ;; *) OUT_ARGS+=("$x") ;; esac; done; }
   T2=$(date +%s)
   run_union() { ( cd "$PROD" && LIVE_FLEX_LATEST="${LIVE_FLEX_LATEST:-1}" PYTHONPATH="$CLONE/src:$PROD/src" "$LAB_PY" scripts/union_reselect.py "$@" 2>&1 | tee "$OUT/union-$RUN_TAG.txt"; return "${PIPESTATUS[0]}" ); }
-  if ! run_union "${UNION_ARGS[@]}"; then
+  UNION_RC=0; run_union "${UNION_ARGS[@]}" || UNION_RC=$?
+  if (( UNION_RC != 0 )) && grep -q 'OWN TERM REFUSED' "$OUT/union-$RUN_TAG.txt"; then
+    # the term's file or solves refused (named, before any output): the main is built as armed without the term
+    echo "OWN TERM REFUSED -- $(grep 'OWN TERM REFUSED' "$OUT/union-$RUN_TAG.txt" | tail -1); BUILDING THE MAIN WITHOUT THE OWNERSHIP TERM"
+    cp "$OUT/union-$RUN_TAG.txt" "$OUT/union-$RUN_TAG-own-refused.txt"
+    strip_own "${UNION_ARGS[@]}"; UNION_ARGS=("${OUT_ARGS[@]}"); OWN_REFUSED=1
+    UNION_RC=0; run_union "${UNION_ARGS[@]}" || UNION_RC=$?
+  fi
+  if (( UNION_RC != 0 )); then
     if [[ "${UNION_MAIN:-mean}" == "pmo_x50" ]] && grep -q 'PMO_X50 MAIN REFUSED' "$OUT/union-$RUN_TAG.txt"; then
       # fail closed, named (operator spec 14:05): the capped optimizer could not reach K rows; the union's MEAN main is built
       # instead, in capitals, and the run dir carries the refusal
       echo "PMO_X50 MAIN REFUSED -- $(grep 'PMO_X50 MAIN REFUSED' "$OUT/union-$RUN_TAG.txt" | tail -1); BUILDING THE UNION'S MEAN MAIN INSTEAD"
       cp "$OUT/union-$RUN_TAG.txt" "$OUT/union-$RUN_TAG-pmo-refused.txt"
-      MEAN_ARGS_U=(); for x in "${UNION_ARGS[@]}"; do MEAN_ARGS_U+=("$x"); done
+      strip_own "${UNION_ARGS[@]}"; MEAN_ARGS_U=("${OUT_ARGS[@]}")     # the term is defined for pmo_x50 only
       for i in "${!MEAN_ARGS_U[@]}"; do [[ "${MEAN_ARGS_U[$i]}" == "--main" ]] && MEAN_ARGS_U[$((i+1))]=mean; done
       run_union "${MEAN_ARGS_U[@]}" || { echo "UNION FAILED (see $OUT/union-$RUN_TAG.txt); the T-70 run dir $K90_DIR stands"; touch "$K90_DIR/union_failed"; exit 1; }
       UNION_DIR=$(sed -n 's/^UNION -> //p' "$OUT/union-$RUN_TAG.txt" | tail -1); [[ -n "$UNION_DIR" ]] && cp "$OUT/union-$RUN_TAG-pmo-refused.txt" "$UNION_DIR/pmo_x50_refused.txt"
+      [[ -n "$UNION_DIR" && -n "${OWN_REFUSED:-}" ]] && cp "$OUT/union-$RUN_TAG-own-refused.txt" "$UNION_DIR/own_term_refused.txt"
     else
       echo "UNION FAILED (see $OUT/union-$RUN_TAG.txt); the T-70 run dir $K90_DIR stands"; touch "$K90_DIR/union_failed"; exit 1
     fi
   fi
   UNION_DIR=$(sed -n 's/^UNION -> //p' "$OUT/union-$RUN_TAG.txt" | tail -1)
+  [[ -n "$UNION_DIR" && -n "${OWN_REFUSED:-}" && ! -f "$UNION_DIR/own_term_refused.txt" ]] && cp "$OUT/union-$RUN_TAG-own-refused.txt" "$UNION_DIR/own_term_refused.txt"
   [[ -n "$UNION_DIR" && -f "$UNION_DIR/receipt.json" ]] || { echo "union run dir not found in $OUT/union-$RUN_TAG.txt"; touch "$K90_DIR/union_failed"; exit 1; }
   verify_k90 "$UNION_DIR" || { echo "K90 receipt verification FAILED for the union $UNION_DIR"; touch "$K90_DIR/union_failed"; rm -rf "$UNION_DIR"; exit 1; }
   ( cd "$PROD" && PYTHONPATH="$PROD/src" "$PROD_PY" scripts/audit_build_levers.py "$UNION_DIR" --contests "$CONTESTS_JSON" \

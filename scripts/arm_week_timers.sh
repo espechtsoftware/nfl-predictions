@@ -78,7 +78,7 @@ BASE_ENV=(env "GCP_PROJECT=$GCP_PROJECT" "PATH=$PATH"
 [[ -n "${ENTER_ORDER:-}" ]] && BASE_ENV+=("ENTER_ORDER=$ENTER_ORDER")
 [[ -n "${LIVE_FLEX_LATEST:-}" ]] && BASE_ENV+=("LIVE_FLEX_LATEST=$LIVE_FLEX_LATEST")
 [[ -n "${OWNERSHIP_SETS:-}" ]] && BASE_ENV+=("OWNERSHIP_SETS=$OWNERSHIP_SETS")
-for v in ENTER_FLAG_LATE_Q_ONLY T70_ACTIVE_Q T70_VACATED_BUMP LIVE_SELECTOR TAIL_LINE LIVE_MIN_PROJ MEAN_OWN_TILT MEAN_OWN_SOURCE MEAN_DST_CAP TAIL_SLEEVE_SELECTOR CLASS_MODEL CLASS_SLEEVE_EVERY UNION_SATURDAY_RUN UNION_SAT_DOSE UNION_PMO UNION_PMO_CAP UNION_MAIN UNION_MAIN_CAP UNION_SLEEVE_CAP UNION_MAIN_DST_CAP UNION_SLEEVE_INCLUDES_MAIN UNION_DK_STATUS \
+for v in ENTER_FLAG_LATE_Q_ONLY T70_ACTIVE_Q T70_VACATED_BUMP LIVE_SELECTOR TAIL_LINE LIVE_MIN_PROJ MEAN_OWN_TILT MEAN_OWN_SOURCE MEAN_DST_CAP TAIL_SLEEVE_SELECTOR CLASS_MODEL CLASS_SLEEVE_EVERY UNION_SATURDAY_RUN UNION_SAT_DOSE UNION_PMO UNION_PMO_CAP UNION_MAIN UNION_MAIN_CAP UNION_SLEEVE_CAP UNION_MAIN_OWN_TILT OWNERSHIP_LAG LINESTAR_DIR UNION_MAIN_DST_CAP UNION_SLEEVE_INCLUDES_MAIN UNION_DK_STATUS \
          ENTRIES_END_CT MAX_PER_GAME MIN_LINEUP_SALARY CASH_SHADOW CASH_SHADOW_N REQUIRE_AUDIT_PASSED; do
   [[ -n "${!v:-}" ]] && BASE_ENV+=("$v=${!v}")
 done
@@ -145,6 +145,10 @@ gcloud run jobs execute tabpfn-gen --project nfl-predictions-503414 --region us-
 gcloud run jobs execute project-slate --project nfl-predictions-503414 --region us-central1 --wait
 # then, when ENTER_ORDER=fewest-low, the Saturday sets file (the preflight refuses to arm without it):
 PYTHONPATH=\$PROD/src \$PROD_PY \$PROD/scripts/ownership_sets.py sets --week ${WEEK} --group \${GROUP} --out \${OWNERSHIP_SETS}
+# the ownership term (UNION_MAIN_OWN_TILT > 0): Saturday's lag-model file, its gate (sum >= 280), and a LineStar capture:
+PYTHONPATH=\$PROD/src \$PROD_PY \$PROD/scripts/ownership_sets.py sets --season ${SEASON:-2026} --week ${WEEK} --group \${GROUP} --lag-features --out ${OUT}/ownership_lag.csv
+\$PROD_PY \$PROD/scripts/check_ownership_lag.py ${OUT}/ownership_lag.csv
+\$PROD_PY \$PROD/scripts/linestar_ownership_capture.py --season ${SEASON:-2026} --week ${WEEK} --out ${OUT}/linestar --label saturday
 #
 # Saturday $SATURDAY: D12800 at 10:30 CT, D6400 fallback at 10:35 CT; Sunday: D6400 05:30 CT, D3200 09:10 CT,
 # D800 T-70 at 10:50 CT, persistent watchers at 09:12 CT$( [[ "${T70_PROJECT:-0}" == 1 ]] && echo "; T-70 DK pull $T70_PULL_CT CT, T-70 project-slate $T70_PROJECT_CT CT")$( [[ -n "${T70_MIN_PROJ_CT:-}" ]] && echo "; the T-70 build needs projections generated after $T70_MIN_PROJ_CT CT").
@@ -156,6 +160,10 @@ if [[ "$RUN" == "--run" ]]; then
   "${CHECK_WATCH[@]}"
   if [[ "${HOST_INGEST:-0}" == "1" ]]; then
     "$INGEST_LOOP" --check
+  fi
+  if [[ "${UNION_MAIN_OWN_TILT:-0}" != "0" ]]; then
+    # reviewer gate 4: never arm the term on a collapsed or missing lag file
+    "$PROD_PY" "$PROD/scripts/check_ownership_lag.py" "${OWNERSHIP_LAG:-$OUT/ownership_lag.csv}" || exit 2
   fi
   if [[ "${T70_PROJECT:-0}" == "1" ]]; then
     [[ -x "$GCLOUD" ]] || { echo "gcloud not executable: $GCLOUD" >&2; exit 2; }
