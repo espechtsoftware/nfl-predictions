@@ -1,7 +1,9 @@
 # Week-4 operating handoff (written 2026-09-28, Monday) — read this first
 
-This is the take-over document for whoever runs production in Week 4. From Week 4 that is **the laptop**; the workstation
-retires after the Tuesday 09-29 cutover (operator, 2026-09-24 and 2026-09-28). It is written so another model can run
+This is the take-over document for whoever runs production in Week 4. From Week 4 that is **the laptop**: production
+hosting moves at the Tuesday 09-29 cutover. The workstation stays available for lab panels through Friday 10-02 and must
+be free by the weekend: no nfl processes, nothing the money path depends on, result files pushed by Friday evening
+(operator, 21:20 CDT 09-28). It is written so another model can run
 the week without the operator re-explaining anything.
 
 - It complements `HANDOFF.md` (the chronological log, newest first) and supersedes, for current state,
@@ -166,6 +168,10 @@ Operator steps are marked **(operator, laptop)**. Everything else is the agent's
 
 ### Tuesday 09-29 — the cutover
 
+0. **The workstation after the cutover:** L06 finishes about 01:00–02:00 Tuesday, and L14 runs after it (a read about
+   06:00–08:00). Further workstation panels need a frozen preregistration and must finish by Friday evening. The
+   checklist's step 9 ("stop any remaining nfl processes") moves to **Friday 10-02 evening**, after every panel's
+   files are pushed.
 1. The machine-move checklist, §3, in order:
    - fetch; auth; venvs;
    - switch `~/projects/nfl-predictions` to the integration branch;
