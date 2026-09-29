@@ -12,6 +12,13 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (09:06 CDT) — Laptop: one DK loop confirmed — the laptop's unit is the only salary source
+
+- `dk_salaries` pulls since 08:00 CDT: only the laptop's, at 08:58:59–08:59:00 (one pair; two groups plus three
+  groups). **No workstation pull at :57.** The unit is active with 2 `host DK ingest pair succeeded` in its journal.
+- Sweep status: the laptop-side fixes are pushed (`cc6d1e56`, `c9d12aa3`, `aa77464d`, `9b04447c`, `9bddf844`, and
+  lab pin `826d8de6`). **Production's items from `1c0f1ad7` are still open**: 1 (T-70 audit), 2 (repeated rows), 4, 6,
+  7, 8, 12.
 ## 2026-09-29 (08:55 CDT) — Laptop: operator-requested Week-4 SWEEP, part 1 (the Sunday money path) — THREE defects would stop Sunday's book from publishing (verified on the laptop); fixes split by file
 
 A read-only review of every script the Sunday chain executes, on the laptop at `e5fcd4d8`. The laptop re-verified
