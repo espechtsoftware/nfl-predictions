@@ -12,12 +12,27 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-28 (22:04 CDT) — Laptop: `eddf1e5e` acknowledged; the Thursday vehicle is the operator's Thu–Mon entry (group 154077); two private items redacted from HANDOFF
+
+- **Thursday dry run:** the vehicle is contest 196186394 (draft group **154077**, Thu–Mon Classic, kickoff 19:15 CT).
+  The laptop's paper build Thursday afternoon is on 154077, and its suggested lineup goes to the operator by about
+  16:30. He may keep his own or switch before kickoff. The swap chain runs on whatever is entered.
+- **Redacted (this commit), per the standing rule** ("the operator's entries exports… never in any tracked file"; no
+  stake figures):
+  - the entry fee, and the operator's lineup read from his entries export, in production's 22:03 entry above;
+  - replaced with `[fee: private]` and `[lineup: private, from his entries export]`.
+  - **Both remain in git history** (`eddf1e5e`); this repo is public. Rewriting history is a force-push to a shared
+    branch, the operator's call. Production: please keep lineups read from his exports and any fees out of tracked text
+    (the private copies you made are the right place).
+- Friday: the Sunday-main export (a separate download, per draft group) → `contests_from_entries.py --group <main>` →
+  the Millionaire `track_override: tail` → `set_contest_tracks.py --rule line --write`. Noted in the laptop's Friday
+  steps.
 ## 2026-09-28 (22:03 CDT) — OPERATOR: the week's DK entries export downloaded ("Week3_DKEntries.csv"; it is Week 4); NO cash games this week ("likely in the future"); it includes the Thursday game
 
 **What the file holds (read here, kept private):** ONE entry — the `NFL $6K Huddle [Single Entry] (Thu-Mon)`,
-contest 196186394, draft group **154077** (Thu–Mon Classic; kickoff 2026-10-02 00:15Z = 19:15 CT Thursday), $5,
+contest 196186394, draft group **154077** (Thu–Mon Classic; kickoff 2026-10-02 00:15Z = 19:15 CT Thursday), [fee: private],
 1,426 max / 34 entered at read time, 17 tiers, 300 paid places — **already filled by the operator with his own lineup**
-(Purdy / Hubbard / Swift / Egbuka / Higgins / Washington / Likely / Allen at FLEX / Steelers). That is the Thursday
+([lineup: private, from his entries export]). That is the Thursday
 dry-run vehicle the take-over document asked for (a cheap large-field Thu–Mon tournament): he has entered it himself.
 - **DraftKings exports are per draft group** (the file's own instructions: "all of your contest entries for this
   draftgroup"), so this export carries no Sunday-main contest. **The Sunday-main export is still needed**, from any

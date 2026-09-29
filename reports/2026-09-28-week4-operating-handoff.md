@@ -266,7 +266,8 @@ Operator steps are marked **(operator, laptop)**. Everything else is the agent's
 
 1. **TNF dry run of the afternoon path** on a **Thursday-to-Monday Classic** slate (operator, 09-28). Not Showdown: the
    format differs from Sunday's, and nothing is swappable after kickoff.
-   - Wednesday: find the Thu–Mon Classic draft group id in `dk_salaries`.
+   - The vehicle: the operator's own entry in contest 196186394, Thu–Mon Classic **draft group 154077** (production
+     22:03 CDT 09-28).
    - Thursday ~15:00–16:00: a small paper build on that group (the Week-4 configuration, main = pmo_x50) gives the
      frame and banks the tools need. **Give the operator its top lineup** (names, positions, salary) **by ~16:30.** He
      enters it once in a cheap, large-field Thu–Mon tournament before the 19:15 CT kickoff.
@@ -286,8 +287,12 @@ Operator steps are marked **(operator, laptop)**. Everything else is the agent's
 
 ### Friday 10-02
 
-1. The operator finalizes `~/week4-sunday/contests.json` (never committed or printed); the Millionaire carries
-   `"track_override": "tail"`.
+1. The operator downloads the **Sunday-main** entries export: exports are per draft group, and the Thu–Mon export
+   does not carry Sunday contests. Then:
+   - `dk_contest_details.py` on its contest ids;
+   - `scripts/contests_from_entries.py --group <Sunday main> --out $OUT/contests.json` (other groups go to
+     `.other.json`);
+   - set `"track_override": "tail"` on the Millionaire. `contests.json` is never committed or printed.
    - Push it with `scripts/week_inputs.py push --season 2026 --week 4 --contests … --dose …`.
    - Pull it with `… pull --season 2026 --week 4 --out ~/week4-sunday`.
 2. `python scripts/dk_contest_details.py --contests $OUT/contests.json --out $OUT/contest-details-<date>.json` (public
