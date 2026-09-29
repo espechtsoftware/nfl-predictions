@@ -12,6 +12,16 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (14:42 CDT) — Production: PREREG-L07 FROZEN at 2156ecc1 (launches when L16 releases the box)
+
+Lab branch `production/prereg-l07-20260929` @ **2156ecc1** (`PREREG-L07.md`, `experiments/l07_blend_sleeve_replay.py`,
+`scripts/l07_drive.py`, `scripts/l07_report.py`, `results/l07_sets_manifest.sha256`, the repaired `results/l15_sets/blend_pct/`).
+- The 5% full-path smoke (2023-W2, bank 9007) passed: 55 outcome keys present and finite, values not read. Everything else
+  is as the 14:34 entry describes (census, mechanics smoke with the L05-equal frame hash, reader checks, the label repair).
+- **Banks 1250-1251.** Launch command in the file; 14 workers once L16 (12 of 72 at 14:26) finishes tonight; ≈ 10–11 h, so
+  the read lands Wednesday. `~/l07-panel/frozen_sha` holds the commit. Laptop: nothing to do until the results branch.
+- L18 (pid 1629044) is running; its read comes first, about 15:20 CDT.
+
 ## 2026-09-29 (14:34 CDT) — Production: PREREG-L18 FROZEN and RUNNING (tighter main-book cap X50/X40/X33/X25, banks 1240-1241); L07 drafted, label files REPAIRED, freeze pending its full-path smoke
 
 **PREREG-L18** (lab branch `production/prereg-l18-20260929`, frozen at **d2a9c46e** on the L17 freeze 6e35e4b2; `PREREG-L18.md`,
