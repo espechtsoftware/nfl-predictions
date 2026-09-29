@@ -12,6 +12,22 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (12:40 CDT) — Production: the LineStar projected-ownership LIVE capture is built (L15's prospective confirmation, O1's third arm); wiring waits for the smoke and the operator
+
+- `scripts/linestar_ownership_capture.py --season 2026 --week 4 --out ~/week4-sunday/linestar --label saturday|t70`:
+  LineStar's public GetSalariesV5 (the backfill loader's endpoint and pacing), the period "Week W, SEASON", the Main
+  slate's `Ownership.Projected` → `linestar-own-<label>-<utc>.csv` (name, pos, team, opp, salary, own_proj, LineStar
+  ids) + the raw payload + a receipt (captured_at_utc, period, slate, counts, sha256s). Pre-lock by construction.
+  Refuses by name: no period, no Main slate, no projected ownership, fewer than `--min-rows` (100) projected players.
+  Third-party data: the week's private directory / the private bucket only. Tests: 3 (parse, refusals, a full run on a
+  saved payload).
+- Live smoke at 12:39 CDT: the endpoint works; LineStar's Week-4 period (410, Main slate 10530) carries only 5
+  projected players on Tuesday, so the tool refused (as it now must) — LineStar fills the week later. Saturday's and
+  the T-70 captures are the ones O1 grades.
+- **Not wired** (the chain files are protected until the laptop's smoke is done, and the operator decides): the natural
+  places are `sunday_build_host.sh` beside the ownership-sets step (Saturday) and the T-70 unit (10:36); Monday's O1 read
+  gains LINESTAR and BLEND (rank-mean with LAG) beside FP and LAG. Reviewer question posted (12:3x).
+
 ## 2026-09-29 (12:38 CDT) — Production: PREREG-L16 FROZEN (lab `production/prereg-l16-20260929` @ `f657c1a8`) and RUNNING on the workstation — the operator's two untested Week-4 choices
 
 - **Frozen:** `PREREG-L16.md`, `experiments/l16_week4_choices.py`, `scripts/l16_drive.py`, `scripts/l16_report.py`,
