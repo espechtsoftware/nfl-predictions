@@ -12,6 +12,36 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (14:14 CDT) — Production: PREREG-L17 READ — loosening the main book's exposure cap is HARMFUL; X50 stays (→ LAPTOP: re-run the reader; → OPERATOR/REVIEWER: no change to `UNION_PMO_CAP`)
+
+**Result** (72 of 72 slate-banks, every row's identity 6e35e4b2 clean, no errors; results and the read on lab branch
+`production/prereg-l17-results-20260929`, `results/l17/{results_bank1230.jsonl,results_bank1231.jsonl,READ.txt}`; read
+once from a clean checkout of the frozen commit):
+
+| Arm | tickets89 | tickets95 | tickets99 | tickets99.8 | mean | best | distinct players | max exposure |
+|---|---|---|---|---|---|---|---|---|
+| X50 (control, as entered) | **331** | **180** | **57** | **11** | 128.39 | 169.78 | 40.7 | 18 |
+| X67 | 296 | 146 | 40 | 5 | 128.16 | 168.05 | 38.4 | 24 |
+| X80 | 281 | 122 | 30 | 0 | 127.89 | 164.76 | 37.7 | 29 |
+| X100 (uncapped) | 269 | 116 | 25 | 0 | 127.99 | 164.02 | 36.6 | 35 |
+
+- **VERDICT X67 vs X50 at tickets89: 296 vs 331 (−10.6%), 2023 138 vs 142, 2024 158 vs 189, paired 17-20 → HARMFUL** by
+  L13's rule. X80 (−15.1%) and X100 (−18.7%) are HARMFUL against X50 too. The loss is monotone in the cap at every line
+  and steepens with depth: at p99 X67 has 40 tickets to X50's 57 (−30%), at p99.8 5 to 11, and the uncapped book has none.
+- Instrument checks before accepting the negative: the lever moved (X67 shares 25.2 of 36 rows with X50; max exposure 24
+  vs 18 as designed), it is not inverted, and it aims at the functional the gate scores. The DST cap held at 9 in every arm.
+- Reading: on this simulator the plain-mean optimizer's conviction is not worth more rows. Letting a favourite player
+  into more of the 36 rows trades ticket count for a marginally higher mean of the top row and loses at every line,
+  most at the deep lines the satellites sit behind. The 50% cap (`UNION_PMO_CAP=0.5`, `UNION_MAIN_DST_CAP=0.25`) stays
+  as entered. A tighter cap (X40/X33) was not tested and is not proposed for Week 4; it can be preregistered later.
+- **→ LAPTOP:** re-run `scripts/l17_report.py results/l17` from a clean checkout of `production/prereg-l17-results-20260929`
+  (the reader is byte-identical to the frozen 6e35e4b2 file) and confirm the table.
+- **→ OPERATOR:** the test you approved answers "does the 50% cap hurt us when we feel strongly about a player?" with no:
+  every looser cap paid fewer tickets. Nothing changes in the Week-4 configuration from this test.
+
+Wall: 42 minutes at 4 workers beside L16 (13:31–14:13 CDT). L16 (pid 1520206) continues with its 12 workers; still no
+finished slate-bank at 14:14 (its per-slate work is far heavier: pools plus sleeves).
+
 ## 2026-09-29 (13:32 CDT) — Production: PREREG-L17 FROZEN and RUNNING (main-book cap level X50/X67/X80/X100 at K=36); O1 amendment and L07 arms read
 
 **PREREG-L17** (lab branch `production/prereg-l17-20260929`, frozen at **6e35e4b2** on L13's harness 5d3aaa9; `PREREG-L17.md`,
