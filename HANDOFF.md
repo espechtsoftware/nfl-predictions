@@ -12,6 +12,42 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (14:34 CDT) — Production: PREREG-L18 FROZEN and RUNNING (tighter main-book cap X50/X40/X33/X25, banks 1240-1241); L07 drafted, label files REPAIRED, freeze pending its full-path smoke
+
+**PREREG-L18** (lab branch `production/prereg-l18-20260929`, frozen at **d2a9c46e** on the L17 freeze 6e35e4b2; `PREREG-L18.md`,
+`experiments/l18_cap_tight.py`, `scripts/l18_drive.py`, `scripts/l18_report.py`), as requested in 92ac5478:
+- L17 copied with only the arm table changed: K = 36, 25% DST cap (9 rows), house rules, cap 4, $49k, ≤ 7 shared, MIN_PROJ
+  1.0; **X50** (18, control as entered), **X40** (14, challenger), X33 (12) and X25 (9) co-reported. Fresh banks 1240-1241.
+  Verdict X40 vs X50 at tickets89 by L13's rule; short-solve count per arm co-reported; the disclosures you asked for are
+  in the file; the live lever is named `UNION_MAIN_CAP`.
+- Smokes (no outcome read): mechanics 2023 wk1 bank 1240: 36 rows in every arm, max exposure 18/14/12/9, DST rows 9,
+  X40 shares 23 of 36 rows with X50. Full path on throwaway bank 1299: 32 outcome fields finite. Reader: synthetic
+  SUPPORTED / HARMFUL / split-season NEUTRAL read as designed.
+- **Launched 14:33 CDT** beside L16 at 4 workers: driver pid 1629044 (`~/l18-panel/drive.pid`), out `~/l18-panel/out`,
+  `~/l18-panel/frozen_sha`. L17 took 42 minutes at this setting, so the read should land about 15:20 CDT, well before
+  Wednesday 12:00 CT. Results go to `production/prereg-l18-results-20260929`; one clean read; the laptop re-runs the reader.
+
+**PREREG-L07 (draft, lab branch `production/prereg-l07-20260929` @ 5cb7875 on the L15 tip bf3fdda), freeze pending:**
+- **Defect found and repaired before any run (a correction to my 13:13 entry):** the blend_pct files at bf3fdda carried an
+  EMPTY middle label where the lag files write `MID`; read back as NaN, the fail-closed sleeve loader refused every file.
+  My claim that they "load through the same fail-closed sets loader" was wrong: the loader had not been exercised. Fixed in
+  `experiments/l15_blend_sets.py` (`MID`), the 36 files rebuilt deterministically: CHALK and LOW membership and every
+  receipt count unchanged, only the middle label's spelling. New shas in the receipt and in `results/l07_sets_manifest.sha256`
+  (108 files: lag, oracle, blend_pct).
+- Runner `experiments/l07_blend_sleeve_replay.py` = L05's with arms CTRL / **SLEEVE_L2_BLEND** (primary) / SLEEVE_L2_LAG /
+  SLEEVE_L2_ORACLE (co-reported), plus your transfer caveat: per arm the Week-4-style book (top-36 by simulated mean, ≤ 7
+  shared, DST ≤ 9 rows) with tickets at p89/p99, finish share, mean, best, overlap with CTRL. Reader = L05's rule in
+  single-challenger form (FLIP-ELIGIBLE as an UPPER BOUND iff the 90% upper bound < 0 and both seasons ≤ 0), BLEND − LAG and
+  BLEND − ORACLE contrasts co-reported.
+- Outcome-blind census, all 36 slates through the loader with all three sets: BLEND ∩ ACTUAL top-15 **9.5** (LAG 6.0),
+  BLEND ∩ LAG top-15 7.8 (min 5), LOW agreement 460.8 of 472.2.
+- Mechanics smoke 5% 2023-W1 bank 9007 at 5cb7875: 160/160 per arm, 0 infeasible / 0 error, book overlap with CTRL 61 / 61 /
+  60, Week-4 book 36 rows with DST ≤ 9, **frame_sha256 = a0d2a373…2854, equal to L05's** (cross-host identity). The 5%
+  full-path smoke (2023-W2) is running; the freeze commit follows its finiteness check. Banks **1250-1251** (1240-1241 went
+  to L18). Runs after L16 releases the box at 14 workers (≈ 144 CPU-hours, 10–11 h); done before Friday evening.
+
+**L16** (pid 1520206): 12 of 72 slate-banks at 14:26, no errors.
+
 ## 2026-09-29 (14:25 CDT) — Laptop: the main book's cap is now a setting (`UNION_MAIN_CAP`, default 0.5 = as entered); → WORKSTATION: freeze and run PREREG-L18 (tighter cap) now
 
 **Operator (chat, after L17):** "is there a reason that the tighter cap can't be tested now and considered for this week if
