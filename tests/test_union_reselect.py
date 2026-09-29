@@ -114,3 +114,41 @@ def test_main_exposure_cap_rows_at_the_week4_shape():
     for bad in (0, -0.1, 1.01):
         with pytest.raises(ValueError):
             ur.main_exposure_cap(bad, 36)
+
+
+def _rows(*rs):
+    return [frozenset(r) for r in rs]
+
+
+def test_sleeve_player_cap_skips_rows_over_the_cap():
+    rosters = _rows("ab", "ac", "ad", "bc", "bd")
+    scores = [5.0, 4.0, 3.0, 2.0, 1.0]
+    assert ur.select_top_mean_player_cap(scores, rosters, 3, None, player_cap=2) == [0, 1, 3]   # a in 2 rows: "ad" skipped
+    assert ur.select_top_mean_player_cap(scores, rosters, 3, None, player_cap=3) == [0, 1, 2]   # the cap does not bind
+
+
+def test_sleeve_player_cap_keeps_ties_repeats_and_overlap_like_the_lab():
+    rosters = _rows("abc", "abc", "abd", "xyz", "abe")
+    scores = [1.0, 1.0, 1.0, 0.5, 1.0]
+    # ties by index; the repeated roster (1) skipped; "abd" shares 2 > max_shared 1 with "abc"; "abe" likewise
+    assert ur.select_top_mean_player_cap(scores, rosters, 2, 1, player_cap=5) == [0, 3]
+    with pytest.raises(RuntimeError, match="only 2 rows"):
+        ur.select_top_mean_player_cap(scores, rosters, 3, 1, player_cap=5)
+    with pytest.raises(ValueError):
+        ur.select_top_mean_player_cap(scores, rosters, 2, 1, player_cap=0)
+
+
+def test_sleeve_player_cap_equals_the_pinned_lab_selector_when_it_never_binds():
+    two_track = pytest.importorskip("nfl2.two_track")      # the pinned lab clone on PYTHONPATH (the live build's form)
+    rng = np.random.default_rng(7)
+    rosters = [frozenset(rng.choice(40, 9, replace=False).tolist()) for _ in range(400)]
+    scores = np.round(rng.normal(120, 8, 400), 1)          # rounded: real ties
+    for max_shared in (None, 5, 7):
+        assert ur.select_top_mean_player_cap(scores, rosters, 60, max_shared, player_cap=60) == \
+            two_track.select_top_mean(scores, rosters, 60, max_shared=max_shared)
+
+
+def test_sleeve_exposure_reads_the_slice():
+    fr = pd.DataFrame({"id": ["a", "b", "c"], "name": ["A", "B", "C"]})
+    ex = ur.sleeve_exposure([0, 1], _rows("ab", "ac"), fr)
+    assert ex["max_rows_per_player"] == 2 and ex["distinct_players"] == 3 and ex["top5"][0] == {"id": "a", "name": "A", "rows": 2}

@@ -98,6 +98,11 @@ def test_main_book_cap_is_a_setting_that_reaches_the_union_step():
     assert "int(0.5 * a.entries)" not in (ROOT / "scripts" / "union_reselect.py").read_text()
 
 
+def test_sleeve_cap_is_off_unless_set():
+    assert "export UNION_SLEEVE_CAP=${UNION_SLEEVE_CAP-}" in ENV_SCRIPT.read_text()           # empty = none, as entered
+    assert '--sleeve-cap-share "$UNION_SLEEVE_CAP"' in (ROOT / "scripts" / "sunday_build_host.sh").read_text()
+
+
 def test_week_window_starts_saturday_midnight_central():
     env = {k: v for k, v in os.environ.items() if k != "WEEK_WINDOW_START_UTC"}
     r = subprocess.run(["bash", "-c", f"source {ENV_SCRIPT} && week_env 4 154078 >/dev/null 2>&1; echo $SATURDAY $WEEK_WINDOW_START_UTC"],

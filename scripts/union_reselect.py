@@ -199,6 +199,45 @@ class _LU:                                                   # what dk_csv / val
 
 
 
+def select_top_mean_player_cap(scores, rosters, k: int, max_shared: int | None, player_cap: int) -> list[int]:
+    """The pinned lab's select_top_mean (greedy top-k by score, ties by index, a repeated roster skipped, pairwise overlap
+    <= max_shared) plus a per-player exposure cap: a row is skipped when any of its players already sits in player_cap
+    chosen rows. Used only when the tail sleeve's cap is set (UNION_SLEEVE_CAP); without it the lab's function runs as
+    before. Raises RuntimeError on a shortfall, as the lab's does."""
+    s = np.asarray(scores, dtype=float)
+    if len(s) != len(rosters):
+        raise ValueError(f"{len(s)} scores for {len(rosters)} rosters")
+    if not np.all(np.isfinite(s)):
+        raise ValueError("scores must be finite")
+    if player_cap < 1:
+        raise ValueError(f"player_cap must be >= 1 (got {player_cap})")
+    chosen: list[int] = []
+    taken: list[frozenset] = []
+    seen: set[frozenset] = set()
+    n_in: Counter = Counter()
+    for i in sorted(range(len(s)), key=lambda j: (-s[j], j)):
+        r = rosters[i]
+        if r in seen:
+            continue
+        if any(n_in[p] >= player_cap for p in r):
+            continue
+        if max_shared is not None and any(len(r & t) > max_shared for t in taken):
+            continue
+        chosen.append(i); taken.append(r); seen.add(r); n_in.update(r)
+        if len(chosen) == k:
+            return chosen
+    raise RuntimeError(f"tail sleeve: only {len(chosen)} rows satisfy the overlap cap (max_shared={max_shared}) and the "
+                       f"player cap ({player_cap}); {k} required")
+
+
+def sleeve_exposure(rows: list[int], rosters, fr) -> dict:
+    """Outcome-blind concentration of a book slice: max rows per player and the five most-used players (id, name, rows)."""
+    n = Counter(p for i in rows for p in rosters[i])
+    name = dict(zip(fr.id.astype(str), fr.name.astype(str)))
+    return {"rows": len(rows), "distinct_players": len(n), "max_rows_per_player": max(n.values()) if n else 0,
+            "top5": [{"id": p, "name": name.get(p), "rows": c} for p, c in n.most_common(5)]}
+
+
 def main_exposure_cap(share: float, k: int) -> int:
     """The main book's per-player exposure cap in rows: a player in this many rows is banned from later solves.
     int(share * K) with a floor of 1, the form L13 and L17 tested (0.5 at K = 36 -> 18)."""
@@ -222,6 +261,10 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--main-cap-share", type=float, default=0.5,
                     help="with --main pmo_x50: a player in >= int(share*K) rows is banned from later solves (L13's PMO_X50 = 0.5, as "
                          "entered; L17: 0.67/0.8/uncapped HARMFUL). At K=36: 0.5 -> 18, 0.4 -> 14, 0.34 -> 12, 0.25 -> 9")
+    ap.add_argument("--sleeve-cap-share", type=float, default=None,
+                    help="the tail sleeve's per-player exposure cap as a share of T: a row is skipped when a player in it already "
+                         "sits in int(share*T) sleeve rows. Default none (as entered). A short capped sleeve falls back, named, "
+                         "to the uncapped sleeve. UNTESTED until PREREG-L19 reads")
     ap.add_argument("--main-dst-cap", type=float, default=None,
                     help="with --main pmo_x50: a DST in >= floor(share*K) rows is banned from later solves (operator's open question; "
                          "the tested arm had none -- Week 3 put two busting DSTs in 25 and 22 of 58 rows). Default none.")
@@ -237,6 +280,8 @@ def main(argv: list[str] | None = None) -> int:
     a = ap.parse_args(argv)
     if not 0 < a.main_cap_share <= 1:
         raise SystemExit(f"--main-cap-share must be in (0, 1] (got {a.main_cap_share})")
+    if a.sleeve_cap_share is not None and not 0 < a.sleeve_cap_share <= 1:
+        raise SystemExit(f"--sleeve-cap-share must be in (0, 1] (got {a.sleeve_cap_share})")
     if a.rehearsal and (a.out is None or a.live_dir in a.out.resolve().parents):
         raise SystemExit("--rehearsal needs --out outside --live-dir")
     from nfl2.two_track import select_top_mean, tail_probability   # the pinned lab clone on PYTHONPATH
@@ -334,7 +379,19 @@ def main(argv: list[str] | None = None) -> int:
     else:
         book = select_top_mean(score, frozen, a.entries, max_shared=a.mean_max_shared, **dst_args)
         sleeve_score = score
-    book_tail = select_top_mean(np.where(np.isfinite(sleeve_score), sleeve_score, -1e9), frozen, a.tail_sleeve, max_shared=a.mean_max_shared) if a.tail_sleeve else []
+    tail_scores = np.where(np.isfinite(sleeve_score), sleeve_score, -1e9)
+    sleeve_cap: dict = {"share": None, "rows": None, "fell_back": False}
+    book_tail = []
+    if a.tail_sleeve and a.sleeve_cap_share is not None:
+        pcap = main_exposure_cap(a.sleeve_cap_share, a.tail_sleeve)
+        sleeve_cap = {"share": a.sleeve_cap_share, "rows": pcap, "fell_back": False}
+        try:
+            book_tail = select_top_mean_player_cap(tail_scores, frozen, a.tail_sleeve, a.mean_max_shared, pcap)
+        except RuntimeError as e:
+            print(f"TAIL SLEEVE CAP FELL BACK: {e}; the uncapped sleeve (as entered) stands")
+            sleeve_cap["fell_back"] = True; sleeve_cap["error"] = str(e)
+    if a.tail_sleeve and not book_tail:
+        book_tail = select_top_mean(tail_scores, frozen, a.tail_sleeve, max_shared=a.mean_max_shared)
     if len(book) != a.entries or len(set(book)) != a.entries or (a.tail_sleeve and len(book_tail) != a.tail_sleeve):
         raise SystemExit("the selector did not return the requested rows")
 
@@ -433,6 +490,7 @@ def main(argv: list[str] | None = None) -> int:
         conf["tail_sleeve"] = {"rows": a.tail_sleeve, "line": tail_line, "selector": "mean", "selector_used": "mean", "class": {},
                                "worlds": "incumbent selection + corrected hsim", "book_rows": f"{a.entries + 1}..{a.entries + a.tail_sleeve}",
                                "repeats_of_main_rows": len(set(book_tail) & set(book)),
+                               "player_cap": sleeve_cap, "exposure": sleeve_exposure(book_tail, rosters, fr),
                                "p_line_first": round(float(p_tail[book_tail[0]]), 5), "p_line_last": round(float(p_tail[book_tail[-1]]), 5)}
     else:
         conf.pop("tail_sleeve", None)

@@ -12,6 +12,54 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (15:34 CDT) — Laptop: optional tail-sleeve player cap (`UNION_SLEEVE_CAP`, off = as entered); → WORKSTATION: PREREG-L19 (tail cap) by Thursday 12:00 CT, and a Week-3 exposure read today
+
+**Operator (chat).** He asked whether the 50% cap applies to the tail contests. It does not: the 85-row sleeve (dealt to
+the Millionaire and to every contest paying ≤ 2% of its field, `set_contest_tracks --rule line`) has no player cap and no
+DST cap. **He approved testing a tail cap in time for the Thursday freeze ("yes").**
+
+**Why it matters.** In the Week-3 union rehearsal (09-28 entry above) the mean selector, which the sleeve uses, carried
+one player in 133–138 of 144 rows. L17/L18 do not transfer: they cap the optimizer's book, and the sleeve is a different
+selector (post-selection law). L13 at p99 had no clear leader between the capped optimizer and MEAN.
+
+**Code (this commit; nothing changes unless `UNION_SLEEVE_CAP` is set).**
+- `union_reselect.py --sleeve-cap-share` and `select_top_mean_player_cap(scores, rosters, k, max_shared, player_cap)`.
+  It is the pinned lab's `select_top_mean` (ties by index, repeats skipped, pairwise overlap ≤ max_shared) plus: a row
+  is skipped when any of its players already sits in `player_cap` chosen sleeve rows, `player_cap = int(share·T)`.
+- Unset, the lab's function runs exactly as before. A short capped sleeve falls back, named ("TAIL SLEEVE CAP FELL BACK"),
+  to the uncapped sleeve.
+- Receipt: `tail_sleeve.player_cap` {share, rows, fell_back} and `tail_sleeve.exposure` {distinct players, max rows per
+  player, top five by id/name/rows}. The exposure block is recorded always, outcome-blind.
+- `week_env.sh` `UNION_SLEEVE_CAP=${UNION_SLEEVE_CAP-}` (empty = off); `sunday_build_host.sh` passes it; arm pass-list.
+- Tests: 27 passed, including parity with the pinned lab's `select_top_mean` on 400 random rosters with ties when the cap
+  never binds (run with the 826d8de6 clone on PYTHONPATH; it skips without it).
+
+**→ WORKSTATION (lab role), two asks:**
+
+1. **Today, outcome-blind:** re-run the Week-3 union rehearsal (`union-w3y`, `--rehearsal`, `--main pmo_x50
+   --main-dst-cap 0.25 --sleeve-includes-main`, T = 85 or the rehearsal's T) twice, without and with
+   `--sleeve-cap-share 0.5`, from this commit. Post each receipt's `tail_sleeve.exposure` and `player_cap` blocks, and no
+   realized points. This is the flag's integration test and the concentration figure for the operator.
+
+2. **PREREG-L19: the tail sleeve's per-player exposure cap. Please freeze before any outcome; read by Thursday 12:00 CT.**
+   - **Harness:** the live sleeve form on L16's sleeve harness. The pool is L16's plus the X50 main rows (K = 36, 50% cap,
+     DST cap 9, as entered; `UNION_SLEEVE_INCLUDES_MAIN=1`). Selection is top-T by simulated mean, ≤ 7 shared, T = 85.
+     The capped arms call `select_top_mean_player_cap` from this commit's `scripts/union_reselect.py` (load by path and
+     record its sha256), so the tested algorithm is the one that would be entered.
+   - **Arms:** S_NONE (control, as entered) vs **S50** (challenger, a player at 42 of 85 sleeve rows is banned);
+     S33 (28) and S67 (56) co-reported.
+   - **Outcome over the 85 sleeve rows:** tickets at **p99 (primary**; the tail contests' lines are ≥ p98). Co-reported:
+     p98, p99.8, p95, p89, mean, best, distinct players, max rows per player, S50 ∩ S_NONE overlap (dead-lever check)
+     and the fell-back count.
+   - **Rule:** L13's rule, unchanged.
+   - **Disclose:** counts at p99 are small, so power is limited; the same 36 slates; sleeve-only with the entered main.
+   - **Compute:** reuse L16's pools if the harness caches them. Otherwise say how many slate-banks fit by Thursday 12:00
+     CT beside L07. If L19 cannot make that time without delaying L07, say so here and the laptop will put the choice to
+     the operator.
+   - The laptop re-runs the reader and writes the ledger row.
+
+**Laptop:** the Wednesday/Thursday smoke reports the Week-4 sleeve's `exposure` block to the operator (outcome-blind).
+If L19 is SUPPORTED, the smoke runs the union step once more with `UNION_SLEEVE_CAP` set before the operator decides.
 ## 2026-09-29 (15:12 CDT) — Laptop: L18 reader re-run BYTE-IDENTICAL (X40 NEUTRAL, X33/X25 HARMFUL; `UNION_MAIN_CAP` stays 0.5); ledger row written
 
 - Clean detached checkout of `production/prereg-l18-results-20260929` @ fb397d9 (`~/projects/.nfl2-worktrees/l18-reader-laptop`).

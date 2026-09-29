@@ -149,6 +149,8 @@ week_env() {
   # The main book's per-player exposure cap as a share of K (0.5 = L13's PMO_X50, as entered; L17 09-29: looser is HARMFUL).
   # UNION_PMO_CAP is NOT this lever: it caps the extra --pmo pool rows, which are off (UNION_PMO=0).
   export UNION_MAIN_CAP=${UNION_MAIN_CAP:-0.5}
+  # The tail sleeve's per-player exposure cap as a share of T; empty = none (as entered). PREREG-L19 tests it (operator 09-29).
+  export UNION_SLEEVE_CAP=${UNION_SLEEVE_CAP-}
   # Cash/double-up PAPER shadows (operator 2026-09-22; never built in Week 3 by omission): arms A and B are built by the
   # chain from the final run dir before lock, entered nowhere, scored Monday. 1 = build them; 0 = off (explicit).
   export CASH_SHADOW=${CASH_SHADOW-1} CASH_SHADOW_N=${CASH_SHADOW_N:-20}

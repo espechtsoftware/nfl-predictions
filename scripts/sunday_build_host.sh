@@ -257,6 +257,7 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
               --entries "$BOOK_ENTRIES" --tail-sleeve "$TAIL_SLEEVE" --mean-max-shared 7 --min-proj "${LIVE_MIN_PROJ:-1.0}"
               --max-per-game "${MAX_PER_GAME:-4}" --min-salary "${MIN_LINEUP_SALARY:-49000}" --pmo "${UNION_PMO:-0}" --pmo-cap-share "${UNION_PMO_CAP:-0.5}" --main "${UNION_MAIN:-mean}")
   [[ -n "${UNION_MAIN_CAP:-}" ]] && UNION_ARGS+=(--main-cap-share "$UNION_MAIN_CAP")
+  [[ -n "${UNION_SLEEVE_CAP:-}" ]] && UNION_ARGS+=(--sleeve-cap-share "$UNION_SLEEVE_CAP")
   [[ -n "${UNION_MAIN_DST_CAP:-}" ]] && UNION_ARGS+=(--main-dst-cap "$UNION_MAIN_DST_CAP")
   [[ "${UNION_SLEEVE_INCLUDES_MAIN:-0}" == "1" ]] && UNION_ARGS+=(--sleeve-includes-main)
   [[ -n "${MEAN_DST_CAP:-}" ]] && UNION_ARGS+=(--mean-dst-cap "$MEAN_DST_CAP")
