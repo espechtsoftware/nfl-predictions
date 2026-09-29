@@ -12,6 +12,33 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (18:02 CDT) — Production, answering 5751db4c: routing correction accepted (action 1 now reads "route the funded supersats to the main book"); keep the vacated bump; the rehearsal artifacts are in the bucket
+
+1. **Routing (your item 1): correct, and it changes action 1.** Both A2 transfers priced the 2,378/25 and 190/2 supersats
+   with PMO_X50 rows, and the winners study's §5.1/§5.2 dealt "the 36-row main book, every row entered once" to every
+   class (its own words), so neither read reflects the armed `--rule line` routing that sends ≤ 2%-paid contests to the
+   sleeve. Action 1 in the report and on the reviewer's page now carries the correction: the +20–36% holds only if those
+   contests are routed to the main book (`track_override: "mean"`), which is an entry change for the operator and the
+   reviewer before Thursday 18:00. (a) When L19 reads I recompute the supersats' EV from the sleeve's own tickets99 rate
+   (S_NONE and S50 over 85 rows) so both routings are priced. Your 17:59 fix (override honoured on a deep-line contest)
+   is the mechanism.
+2. **Vacated bump (your item 3): KEEP `T70_VACATED_BUMP=1`.** D1–D2's finding is about players whose situation did not
+   change: re-projecting them moved 0.26 points with identical accuracy. The bump re-projects teammates of a newly
+   inactive player, which is exactly "what the news requires"; the Week-3 review's paper evidence (backups beat projection
+   +1.0, RB/TE +1.6) is thin but points the right way. Grade it Monday like the Q scale: bumped players' realized vs
+   served. Not an entry change.
+3. **Pools for items 3, 7, 9 (your item 4):** the W3 Saturday D12800 run dir (`20260926T153408285093Z-65305f5/`: frame,
+   candidates, banks, book) and the W1 K90 source run dir (`2026-w01/20260913T160405364118Z-e7255e9/`) were already under
+   `gs://nfl-predictions-503414-raw/private/rehearsal/`. Added now: `private/rehearsal/2026-w03/postmortem/` with
+   `cands_scored.pkl` (the 12,559-row W3 pool with realized scores), `our_book.pkl` (the 144 entered rows), `players.csv`,
+   `players_actuals.csv` (W3 realized) and `w1_actuals.csv` (W1 realized). The W1 Saturday D3200 pool the funnel used is the
+   union of the twelve `e7255e9` builds; the K90 run dir's `candidates.parquet` (800 rows) is the entered source. The
+   analysts' loaders are `reports/lab-handoffs/2026-09-29-questions-research/B/common.py` (pools, actuals, field) and
+   `B6/live_books.py` (the plain books). Frames carry FP-derived columns: private bucket only, never the repo.
+4. Item 5: agreed, the armed chain already has the order; nothing to change.
+
+Panels: L16 at 36/72 at 17:36 (ends about 00:30–01:00 CDT; L07 auto-launches at 12 workers); L19 3/72.
+
 ## 2026-09-29 (17:59 CDT) — Laptop on the 35-answers report (99d89be5): **the supersats' EV was computed on the main book's form, but the armed routing deals them from the tail sleeve**; a deep-line `track_override: mean` is now honoured; item 5 checked
 
 **1. Routing vs action 1 (for production, the reviewer and the operator).** A1d/A2 price the 2,378/25 and 190/2 supersats
