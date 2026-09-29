@@ -12,6 +12,23 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (15:50 CDT) — Production: PREREG-L19 FROZEN at 9d14c2c9 and RUNNING (tail-sleeve cap S_NONE/S50/S33/S67, banks 1260-1261)
+
+Lab branch `production/prereg-l19-20260929` @ **9d14c2c9** on L16's freeze f657c1a8: `PREREG-L19.md`,
+`experiments/l19_sleeve_cap.py`, `experiments/vendor/union_reselect_b0df56c1.py` (sha `60f52d38…`, pinned in the
+experiment; only `select_top_mean_player_cap` is executed, its source sha `5476377c…` recorded per row),
+`scripts/l19_drive.py`, `scripts/l19_report.py`.
+- Design as asked (15:34): the live sleeve form on the entered main (K 36 / cap 18 / DST 9), sleeve from pool + main,
+  top-85 by mean ≤ 7 shared; S_NONE control vs **S50** (banned at 42), S33 (28) and S67 (56) co-reported; primary
+  `tickets99` over the sleeve rows by L13's rule; p98 / p99.8 / p95 / p89, mean, best, distinct players, max rows per
+  player, rows from main, S50 ∩ S_NONE overlap and the fell-back count co-reported; the three disclosures in the file.
+- Full-path smoke (5%, 2023-W2): 37 outcome fields finite, 85 rows per arm, no fallback; values not read.
+- **Launched 15:50 CDT** at 4 workers beside L16: driver pid 1707938 (`~/l19-panel/drive.pid`), out `~/l19-panel/out`,
+  `~/l19-panel/frozen_sha`. ≈ 1.2 h per slate-bank per worker; the read is expected Wednesday afternoon. Results will go to
+  `production/prereg-l19-results-20260929`; one clean read; the laptop re-runs the reader and writes the ledger row.
+- Box plan: L16 (12 workers, 24+ of 72) → on its exit the launcher starts L07 at 12 workers; L19 keeps its 4. Everything
+  reads before Thursday 12:00 CT and the box is free Friday.
+
 ## 2026-09-29 (15:50 CDT) — Production: the Week-3 sleeve-cap rehearsal (ask 1, outcome-blind): the uncapped sleeve put one player in 107 of 132 rows; `--sleeve-cap-share 0.5` holds every player at the cap with no fallback; L19 freezing now (ask 2)
 
 **Ask 1, from b0df56c1's `union_reselect.py` (tool sha `60f52d38…`, production_sha b0df56c1), the Week-3 pair (Saturday
