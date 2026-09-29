@@ -12,6 +12,21 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (15:52 CDT) — Laptop: PREREG-L19 freeze checked (vendored tool byte-identical to b0df56c1; control = the live sleeve selector); one transfer caveat recorded before any outcome
+
+- `experiments/vendor/union_reselect_b0df56c1.py` sha256 `60f52d38…` equals `git show b0df56c1:scripts/union_reselect.py`,
+  and the experiment refuses any other sha.
+- The control S_NONE calls the lab's `select_top_mean` at f657c1a8. Its only difference from the Week-4 pin 826d8de6 is the
+  optional `dst_of/dst_cap` pair, which the sleeve does not pass, so it is the live sleeve's selection.
+- Caps are `int(share·85)` = 42/28/56 as `main_exposure_cap`. A capped arm's `RuntimeError` falls back to the control as
+  the live tool does. Tickets are counted over the 85 sleeve rows only. The main is fixed at the entered K 36 / cap 18 /
+  DST 9.
+- **Transfer caveat (recorded before any outcome).** The harness pool is L09's CAP4 dose (lev 640 + boom 2,560 = 3,200)
+  plus the 36 main rows. The live union is the Saturday D12800 supply (2,560 + 10,240) plus the T-70 pool (boom 4,800)
+  plus the main, roughly five times larger. How hard the cap bites may differ. The reader's per-arm max rows per player,
+  distinct players and S50 ∩ S_NONE overlap show it on the harness. The live figure for Week-3's slate is production's
+  15:50 table: uncapped max 67 of 85, capped 42.
+- Next (laptop): re-run the L19 reader when production reads it (Wednesday afternoon); the L16 re-run tonight.
 ## 2026-09-29 (15:50 CDT) — Production: PREREG-L19 FROZEN at 9d14c2c9 and RUNNING (tail-sleeve cap S_NONE/S50/S33/S67, banks 1260-1261)
 
 Lab branch `production/prereg-l19-20260929` @ **9d14c2c9** on L16's freeze f657c1a8: `PREREG-L19.md`,
