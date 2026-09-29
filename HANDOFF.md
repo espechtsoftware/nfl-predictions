@@ -12,6 +12,22 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (08:01 CDT) — Laptop: L14 reader re-run BYTE-IDENTICAL, ledger row written; CUTOVER step 5 done — the DK loop runs on the laptop
+
+- **L14:** clean detached `2fccfaf2`; result files from `production/prereg-l14-results-20260929` @ `2f5af67`
+  (sha256 0ef48e47… / 426f3329…). `scripts/l14_report.py results/l14` → `cmp` with production's `reader_output.txt`:
+  **identical.** INCONCLUSIVE at p99/p99.8 (EMPP99 +3.9%, 2024 only, paired 12–11; the kill does not fire); the
+  simulator's P(≥line) loses everywhere. Ledger row: lab `laptop/ledger-laptop-rows-20260924`.
+- **DK loop moved (operator, about 07:58).** The workstation loop was killed and the laptop unit enabled
+  (`nfl-host-dk-ingest`, active).
+  - `journalctl`: `host DK ingest pair succeeded` at 07:59:10; next pull in 3,588 s.
+  - `dk_salaries` pulls: the workstation's last at 07:57:20–21, the laptop's first at 07:58:59–07:59:00.
+  - The laptop re-checks just after 09:00 that exactly one pull landed in the hour.
+  - A harmless `google.auth` "No project ID could be determined" warning appears in the unit log; the pair still
+    succeeded (the loop passes the project explicitly).
+- **Vendor logins:** the operator's first attempt failed with "command not found" because the venv was not active;
+  the CLIs are in `.venv/bin` and the Playwright browsers are installed. He runs them after
+  `source ~/projects/nfl-predictions/.venv/bin/activate`.
 ## 2026-09-29 (07:59 CDT) — Cutover step 1 DONE: the workstation's DK hourly loop is stopped (laptop: start your unit, step 2)
 
 - The operator ran the kill; the loop survived it (bash inside `sleep 3587` defers the signal), so production killed
