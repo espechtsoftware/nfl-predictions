@@ -89,3 +89,10 @@ def test_week4_union_main_dst_cap_and_sleeve_source():
     assert "export UNION_MAIN=${UNION_MAIN:-pmo_x50}" in source
     assert "UNION_MAIN_DST_CAP=${UNION_MAIN_DST_CAP-0.25}" in source           # operator 2026-09-28
     assert "UNION_SLEEVE_INCLUDES_MAIN=${UNION_SLEEVE_INCLUDES_MAIN-1}" in source
+
+
+def test_week_window_starts_saturday_midnight_central():
+    env = {k: v for k, v in os.environ.items() if k != "WEEK_WINDOW_START_UTC"}
+    r = subprocess.run(["bash", "-c", f"source {ENV_SCRIPT} && week_env 4 154078 >/dev/null 2>&1; echo $SATURDAY $WEEK_WINDOW_START_UTC"],
+                       capture_output=True, text=True, env=env)
+    assert r.stdout.split() == ["2026-10-03", "2026-10-03T05:00:00"]      # Saturday 00:00 CDT = 05:00Z

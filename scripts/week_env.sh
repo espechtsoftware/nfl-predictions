@@ -24,9 +24,10 @@ week_settings() {
   fi
   WEEKDIR=$(printf '%s-w%02d' "$SEASON" "$WEEK")
   SUNDAY=$(date -u -d "$FIRST_SUNDAY + $(( (WEEK - 1) * 7 )) days" +%Y-%m-%d) || return
-  export FIRST_SUNDAY WEEKDIR SUNDAY
+  SATURDAY=$(date -u -d "$SUNDAY - 1 day" +%Y-%m-%d) || return
+  export FIRST_SUNDAY WEEKDIR SUNDAY SATURDAY
   # The week's publication window (sweep 2026-09-29 items 6/7): a run dir built before Saturday 00:00 CT (Wednesday's smoke, a
-  # Thursday paper build) is never published and never the union's supply. ISO UTC, compared as a string.
+  # Thursday paper build) is never published and never the union's supply. ISO UTC; consumers compare it by parsed content.
   export WEEK_WINDOW_START_UTC=${WEEK_WINDOW_START_UTC:-$(date -u -d "@$(TZ=America/Chicago date -d "$SATURDAY 00:00" +%s)" +%Y-%m-%dT%H:%M:%S)}
   local name spec epoch
   # ENTRIES_END (Week 4): the DK-entries watcher now runs to 15:20 CT so the afternoon swaps (R4 ~13:55, the satellite
