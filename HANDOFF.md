@@ -12,6 +12,50 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (13:12 CDT) — REVIEWER (via the operator): both routes for L15; before freezing L07, report the blend's top-15 overlap and its rule for uncovered players. Production's report: on the FULL slate the blend does NOT clear the bar; at the top 15 it is far better
+
+**Reviewer, verbatim:** "both routes. (b) from Week 4 as the gate for any live use (add a lag + FP blend arm to O1); (a) in
+parallel on the lab box, read as an upper bound because the historical LineStar field is not provably pre-lock. Before
+freezing L07: report the blend's top-15 overlap with the actual top 15 (lag: 6.0 of 15), and state the blend's rule for
+players LineStar does not cover. The +0.07 is on LineStar's covered third, so it is not comparable to the full-slate
++0.03 bar."
+
+**The report (`experiments/l15_blend_coverage.py` on lab `production/prereg-l15-20260929`, an addendum on the data L15
+read, not a freeze; output verbatim):**
+```
+slates: 36; lag-set rows per slate 501; LineStar covers 34.3% of them and 15.0 of the actual top 15
+        LAG_full  BLEND_full  BLEND_PCT_full  LAG_top15  BLEND_top15  BLEND_PCT_top15  LS_top15_covered
+season                                                                                                 
+2023      0.7329      0.6607          0.7471     5.3333       8.0000           9.1667            9.1667
+2024      0.7462      0.6830          0.7538     6.6667       9.2222           9.7778            9.8333
+2023: BLEND_FULL - LAG (full slate) = -0.0722; paired 0-18; top-15 overlap LAG 5.3 -> BLEND 8.0 of 15
+2024: BLEND_FULL - LAG (full slate) = -0.0632; paired 0-18; top-15 overlap LAG 6.7 -> BLEND 9.2 of 15
+FULL-SLATE READ (BLEND, uncovered players keep the lag value): {2023: -0.0722, 2024: -0.0632} -> does NOT clear the +0.03 bar on the whole lag set
+FULL-SLATE READ (BLEND_PCT, uncovered players keep the lag value): {2023: 0.0142, 2024: 0.0076} -> does NOT clear the +0.03 bar on the whole lag set
+```
+- **The rule for uncovered players, stated:** the two predictors on their COMMON scale (ownership percent): a covered
+  player's blend is the mean of the lag model's percent and LineStar's percent; an uncovered player keeps the lag
+  model's percent (`BLEND_PCT`). The percentile-rank blend (`BLEND`, L15's form applied full-slate) is WRONG on the
+  whole slate (−0.07, paired 0–18 both seasons): a percentile over LineStar's covered third inflates every covered
+  player against the uncovered two-thirds. The reviewer's point is confirmed in the numbers.
+- **The full-slate read the bar means:** BLEND_PCT − LAG = +0.014 (2023) / +0.008 (2024) → **does NOT clear +0.03.
+  L05 does not reopen on the full-slate Spearman.**
+- **The top-15 read the anchor uses:** LineStar covers all 15 of the actual top 15 on every slate; the top-15 overlap
+  with the actual top 15 is LAG 5.3 / 6.7 (L05 reported 6.0), LineStar (covered) 9.2 / 9.8, BLEND_PCT 9.2 / 9.8 of 15.
+  For identifying the CHALK set — what the informed-chalk anchor and the chalk sleeve consume — the blend is a large
+  improvement; for ranking the whole slate it is not.
+
+**Consequences:**
+- **(b), the gate for any live use:** the LineStar live capture (`scripts/linestar_ownership_capture.py`) is wired into
+  the Saturday build and the T-70 slot after the laptop's smoke (the protected set opens then; the reviewer's route (b)
+  is the operator's directive). **Laptop: PREREG-O1 gains three arms — LINESTAR, LAG+LineStar (BLEND_PCT), and the
+  reviewer's LAG+FP blend — graded by O1's rule from Week 4; the blend rule above is the one to freeze.**
+- **(a), the upper bound on the lab box:** L07 (the informed-chalk anchor) re-run with BLEND_PCT labels — the top-15
+  chalk set from the blend on L05's 36 slates, L05's protocol with only the sets source changed, fresh banks, read as an
+  upper bound. **Laptop: L07 is your draft (HANDOFF 09-24/25: the anchor only, recency parts dropped); please confirm
+  its arms so production freezes exactly that with the BLEND_PCT sets.** Production prepares the blended sets files
+  (L05's format, `results/l15_sets/blend_pct/`) meanwhile. The box is L16's until tonight; L07 runs after it.
+
 ## 2026-09-29 (13:03 CDT) — Laptop: reboot-safety pass (operator asked); three old laptop branches pushed; the agent's reminder schedule (re-create if the session restarts)
 
 - **Unpushed work found and pushed**, each to its **own** remote name. Their upstreams pointed at other branches, one
