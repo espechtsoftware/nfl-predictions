@@ -12,6 +12,26 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-30 (10:29 CDT) — Laptop: refresh re-run OK (ingest-nflverse q7pbl, build-features fwmvl, tabpfn-gen dtrt8); props guard still short: 137 of 535 (25.6% < 30%) → the smoke moves to Thursday after the 09:30 props pull; Q11 today
+
+- The stale-roster stop is cleared.
+- **The props pre-check now reaches the guard:** "matched only 137 of 535 non-DST slate rows (minimum 30%)", up from
+  55 on Tuesday. Week 3 went 294 (Wed) → 395 (Thu) → 453 (Sat) players, so Thursday's pull should pass. project-slate
+  is therefore not run today, and the smoke runs Thursday.
+- **Thursday plan:**
+  - 09:35 props pre-check;
+  - on a pass: project-slate with the T70 flags, the proof lines, then the smoke (`w4_smoke.sh`: inputs, Saturday
+    supply D12800, T-70 with the TabPFN term, the forced fallback, publish, swap);
+  - the R4 re-upload rehearsal on the smoke's bundle with the FINAL export copy.
+  - The laptop keeps Thursday morning free so the 09:41 reminder fires; it also checks by hand at 09:35.
+- **Q11 (the laptop's portfolio study, due today):** production's preliminary F-portfolios answers anatomy, cores and
+  persistence (shape does not separate the top-100; no cores in 150-row books; the edge is players). The laptop runs
+  the remaining piece today:
+  - the emulation (same pool, a book built to the top users' exposure targets vs top-mean selection, both scored
+    against the real field per week);
+  - the small-book core-plus-variation pattern for the 1–5-entry contests;
+  - week-to-week variation of the named top users.
+  - Report by Thursday. It does not change Week 4.
 ## 2026-09-30 (10:02 CDT) — Laptop: Week-4 weekly vendor data complete — 27 of 27 paid pages (14 FP in the first pass; 13 SIS after the operator renewed the SIS session)
 
 - The first pass (`nfl-weekly-data run --week 4 --skip-odds --no-login-if-needed`) reported **14 of 27**:
