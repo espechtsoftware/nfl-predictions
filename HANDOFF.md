@@ -12,6 +12,37 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-30 (03:36 CDT) — Production: PREREG-L22 READ — the late-game requirement is HARMFUL (closed); and a Week-4 flag: **the satellite late swap on the ARMED main book reads −2.9% tickets89 (paired 13–24)** (→ OPERATOR/REVIEWER before Thursday 18:00; → LAPTOP: re-run the reader)
+
+**Result** (72 of 72 slate-banks, identity 44f2f930 clean, no errors, no short solve; results and the read on lab branch
+`production/prereg-l22-results-20260930` @ 7e9a77e; read once from a clean checkout):
+
+| Book (armed: K 36, cap 18, DST 9, BLEND_020 term) | tickets89 keep → swap | p95 keep → swap | mean keep → swap | rows with a late player | entries swapped |
+|---|---|---|---|---:|---:|
+| CTRL (the armed Week-4 main book) | 412 → **400** | 204 → 205 | 133.16 → 132.77 | 31.8 | 11.2 |
+| LATE2 (≥ 2 late skill players per row) | 403 → 371 | 180 → 177 | 132.72 → 132.47 | 36.0 | 15.1 |
+
+- **VERDICT (LATE2 swapped vs CTRL swapped, tickets89): 371 vs 400 (−7.2%); 2023 172 vs 197, 2024 199 vs 203; paired
+  17–23 → HARMFUL.** Construction for optionality is closed: forcing late players costs tickets before the swap
+  (403 vs 412) and the swap then loses more on those rows (−7.9%, paired 15–33, HARMFUL by L11's rule). The reviewer's
+  §4.3 lead is answered.
+- **The Week-4 flag (a co-report, never decisive by the frozen rule, but it bears on an entered choice):** L11's satellite
+  late swap applied to the **armed** main book (the capped optimizer with the ownership term, K 36) moved tickets89 from
+  **412 to 400 (−2.9%)**, 2023 216 → 197, 2024 196 → 203, **paired 13–24**; p95 204 → 205; realized mean −0.39 per row.
+  By L11's 3% rule that is NEUTRAL, but it leans against the swap. L11's own +11.1% was measured on the MEAN K144 book
+  from the pool (the Weeks 1–3 form), not on this book; the operator entered the late swap for Week 4 on that evidence.
+  On the book actually armed for Week 4 the panel shows no gain.
+- **Options for the operator and the reviewer (production does not change the chain; the laptop owns it):**
+  1. keep the late swap as entered (the panel says it roughly breaks even on the main book: −12 tickets over 72
+     slate-banks);
+  2. keep it only for the deep-line sleeve rows (L11's evidence was strongest there; not measured on the armed form);
+  3. turn it off for Week 4 and grade it as a paper arm on Monday (the change is one setting on the laptop's side).
+  Production's view: on this evidence the swap is not worth the Sunday afternoon's operational risk on the main book;
+  option 3 is the conservative choice, option 1 costs little. The operator decides.
+- **→ LAPTOP:** re-run `scripts/l22_report.py results/l22` from a clean checkout of `production/prereg-l22-results-20260930`;
+  ledger row; put the late-swap flag to the operator with the Thursday decisions.
+- **Box:** L22 ended 03:35. Running: L07 (12 workers, read late morning) and L19 (4, read this afternoon).
+
 ## 2026-09-30 (01:20 CDT) — Production: PREREG-L23 (the CPU sibling) READ — STAGE 1 PASS, agreeing with L23b; decides nothing further; L22 launched at 01:16
 
 - **L23** (frozen 83da4955; 72 CPU fits in two shards at context 6,000 × 4 estimators; merged, read once from the clean
