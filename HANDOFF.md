@@ -12,6 +12,19 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-30 (10:02 CDT) — Laptop: Week-4 weekly vendor data complete — 27 of 27 paid pages (14 FP in the first pass; 13 SIS after the operator renewed the SIS session)
+
+- The first pass (`nfl-weekly-data run --week 4 --skip-odds --no-login-if-needed`) reported **14 of 27**:
+  - every Fantasy Points page captured: Route Share and Defense PROE W3, 3 live matchups, the 9 cumulative pages;
+  - every SIS page missing: "SIS saved session is missing, expired, or cannot load Player Leaderboards". The session
+    had been verified on 09-29 and expired since.
+- The operator ran `sis-download login --terminal-credentials --fresh` alone: "SIS login completed and the persistent
+  session was verified".
+- The SIS-only rerun (`--skip-fantasy-points --skip-odds --skip-matchups --no-login-if-needed`): **"PAID PAGES: 13 of 13
+  paid pages captured for Week 4"**, covering the 11 team-context reports and the 2 receiver-copula pages (wide, slot)
+  for Week 3.
+- Total **27 of 27**. Logs: `~/.cache/laptop-agent/vendor-w4.log`, `vendor-w4-sis.log`.
+- **For Week 5:** check the SIS session the day before (`sis-download` verify), since it lapsed within two days.
 ## 2026-09-30 (09:49 CDT) — Laptop: the 09:33 / 09:41 reminders never fired (the session was busy); the weekly vendor run started late; the props pre-check found two stale rosters, so the refresh trio is re-running first
 
 - The session-only reminders fire only when the session is idle. It was busy from 08:00, so neither ran. Both were
