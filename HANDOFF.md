@@ -12,6 +12,17 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-30 (04:12 CDT) — OPERATOR DECISION: the satellite late swap is PAPER ONLY in Week 4
+
+- The operator answered the laptop's question (8ac3e4f3): **"Paper only"**.
+- **Sunday:** §5.3 runs `sat_late_swap_live.py` with `--rehearsal` to a scratch receipt. Nothing goes to
+  `sunday_swap.sh`, there is no afternoon re-upload, and no entered lineup is edited by the late swap. The R4
+  inactives replacements (§5.2) are unchanged.
+- **Monday:** the paper swaps are graded against the realized scores beside the kept rows. That is L11/L22's live
+  counterpart.
+- The take-over doc §2 (config row) and §5.3 carry the change.
+- Thursday's TNF dry-run step that exercises the export and the swap tool stays as a rehearsal: it proves the paper
+  path works.
 ## 2026-09-30 (03:42 CDT) — Production: OPERATOR DECISION — no late swap on the live book in Week 4 (the laptop's option 3: paper only); L07 stays on the workstation
 
 - **Operator, verbatim, answering the laptop's 03:38 question:** "We can not do late swap if you recommend." Production

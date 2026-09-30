@@ -136,7 +136,7 @@ Settled 2026-09-28. The operator relayed the reviewer's ruling at 10:26 CDT (HAN
 | Sunday build | **the T-70 build is primary** (projections on the post-inactives pull); the Saturday D12800 is the fallback | reviewer ruling 09-28 |
 | T-70 rules (operator decision 2, 07:30 CDT 09-28) | `T70_VACATED_BUMP=1` (the depth-2 backup of an out/doubtful depth-1 starter gets RB/TE +1.6, WR +0.7, other +1.0, net of the cascade); `T70_ACTIVE_Q=1` (no Questionable haircut for a player whose game starts within 90 min and who is not marked out); `ENTER_FLAG_LATE_Q_ONLY=1` (flag only late-game Q). They run in the `project-slate` job alongside its live env (`Q_HAIRCUT=0.80`, `CASCADE_DOUBTFUL=1`, `CASCADE_SKIP_PRICED_CARRIES=1`, `QB_Q_PRIMARY_BACKUP_SCALE=0.20`) | production D1 (HANDOFF 09:05 CDT 09-28); the laptop's replay found the missing `game_start` and fixed it (`reports/lab-handoffs/t70_rules_replay.py`, HANDOFF 08:27 CDT) |
 | Sunday dose | proposal `PAID_LEV=0`, `PAID_BOOM=4800` (2,400 sleeve visits); **the laptop sets `dose.env` from Wednesday's full-size timing** | Week-3 gate: ~0.15 s per boom visit → ~12 min + banks |
-| Satellite late swap | **enters Week 4** (operator decision). Score-based, flat-payout contests only (§5.4) | L11: +11.1% tickets in aggregate, both seasons, but paired 30–32 → NOT SUPPORTED by the frozen rule; the operator's call |
+| Satellite late swap | **PAPER ONLY in Week 4** (operator 2026-09-30, after L22: −2.9% on the armed main book, paired 13–24; was: enters Week 4). Score-based, flat-payout contests only (§5.4) | L11: +11.1% tickets in aggregate, both seasons, but paired 30–32 → NOT SUPPORTED by the frozen rule; the operator's call |
 
 **What is NOT in Week 4:**
 - a nonzero ownership tilt, EMAX, P(≥line), coverage or class selection for entry;
@@ -427,7 +427,13 @@ scripts/sunday_swap.sh $(… the last stdout line of the previous command …)
 - Do not use `sunday_live_relayout.sh --dry-run` for the snapshot. It refuses under `greedy` order and on a swapped
   bundle.
 
-### 5.3 The satellite late swap (~14:30–15:05)
+### 5.3 The satellite late swap (~14:30–15:05) — **PAPER ONLY in Week 4** (operator, 2026-09-30)
+
+**Operator decision 2026-09-30 (after L22's co-report: the swap on the armed main book read −2.9% tickets89, paired
+13–24):** the late swap does **not** edit entered lineups in Week 4. The steps below run **with `--rehearsal`, the
+output to a scratch receipt, and nothing passed to `sunday_swap.sh`**; there is no re-upload. Monday grades the paper
+swaps against the realized scores. Everything else in §5 is unchanged; the R4 inactives replacements (§5.2) still run.
+
 
 0. **~12:05 (after the lock), re-fetch the ladders:** `dk_contest_details.py --contests $OUT/contests.json --out
    $OUT/contest-details-postlock.json`. The late swap refuses pre-lock ("Upcoming") details, because entries and paid
