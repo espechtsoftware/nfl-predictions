@@ -48,7 +48,9 @@ FEATURES = ["pos_code", "salary", "mean_projection", "value", "implied_team_tota
 FRAME_CHECKED = ["salary", "mean_projection", "value", "implied_team_total", "game_total", "spread", "salary_delta_wow"]
 ROWS_SHA256 = "0bec4237eb4c4bc1228571e5628685b3cc26e8aaed433f8b8f2056d5062edde9"   # L23's rows file
 CTX_MAX, N_ESTIMATORS, SEED = 28_000, 8, 0                                         # PREREG-L23b (repair 1 adds the flag)
-MILLIONAIRE_NAME_RE = r"Millionaire"
+# The Sunday Millionaire by DraftKings' name OR its import label ("milly", "milly20": Week 3's standings were imported
+# under labels) -- ownership_sets.py's rule. "Millionaire" alone silently dropped Week 3 (production 2026-09-30).
+MILLIONAIRE_NAME_RE = r"Millionaire|^milly"
 
 
 def refuse(why: str):
@@ -82,6 +84,14 @@ def lags_from_weeks(weeks: dict[int, dict[str, float]], week: int) -> pd.DataFra
     return pd.DataFrame(rows, columns=["key", "own_l1", "own_l3"])
 
 
+def require_prior_week(weeks: dict[int, dict[str, float]], week: int) -> None:
+    """own_l1 is last week's file: a missing week-1 Millionaire makes own_l1 NaN for EVERY player, which the fit would
+    accept silently (L23 trained with NaN only in a season's first weeks). Refuse instead (-> the blend, loudly)."""
+    if week > 1 and (week - 1) not in weeks:
+        refuse(f"no Millionaire ownership for week {week - 1} (weeks found: {sorted(weeks)}); own_l1 would be NaN for "
+               f"every player -- import last week's standings or check the contest name/label filter")
+
+
 def cmd_lags(a) -> int:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
     from nfl_dfs.bq import query_df  # noqa: E402
@@ -99,6 +109,7 @@ def cmd_lags(a) -> int:
         refuse(f"no Millionaire ownership rows for {a.season} before week {a.week}")
     own["key"] = own.display_name.map(norm)
     weeks = {int(w): g.groupby("key").own.sum().to_dict() for w, g in own.groupby("week")}
+    require_prior_week(weeks, int(a.week))
     out = lags_from_weeks(weeks, int(a.week))
     a.out.parent.mkdir(parents=True, exist_ok=True)
     out.to_csv(a.out, index=False)

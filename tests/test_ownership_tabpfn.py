@@ -149,3 +149,16 @@ def test_features_command_end_to_end(tmp_path):
     with pytest.raises(SystemExit, match="OWNERSHIP TABPFN REFUSED"):
         ot.main(["features", "--season", "2026", "--week", "4", "--frame", str(fp), "--lags", str(lp), "--linestar-dir",
                  str(tmp_path / "none"), "--history", str(hp), "--out", str(out), "--now", NOW.isoformat()])
+
+
+def test_millionaire_filter_matches_import_labels_and_last_week_is_required():
+    import re
+    pat = re.compile(ot.MILLIONAIRE_NAME_RE.replace("(?i)", ""))
+    for name in ("NFL $3.5M Fantasy Football Millionaire [$1M to 1st]", "milly20", "milly"):
+        assert pat.search(name), name                       # Week 3 was imported under the label "milly20"
+    for name in ("supersat25lo", "NFL $400K Play-Action [20 Entry Max]"):
+        assert not pat.search(name), name
+    ot.require_prior_week({1: {"a": 1.0}, 2: {"a": 2.0}, 3: {"a": 3.0}}, 4)
+    ot.require_prior_week({}, 1)                            # a season's first week has no prior file by definition
+    with pytest.raises(SystemExit, match="no Millionaire ownership for week 3"):
+        ot.require_prior_week({1: {"a": 1.0}, 2: {"a": 2.0}}, 4)

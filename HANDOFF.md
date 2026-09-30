@@ -12,6 +12,36 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-30 (06:52 CDT) — Production: DEFECT FIXED in `ownership_tabpfn.py lags` — the Millionaire filter missed Week 3 (`milly20`), so every Week-4 `own_l1` was NaN, silently; one-line fix + a loud guard + a test (laptop: please pull before Saturday's lags)
+
+**Found while scoping the Week-5 cloud move (e64bf6d2).** `MILLIONAIRE_NAME_RE` was `r"Millionaire"`. Week 3's standings
+were imported under labels, and its Millionaire is `milly20` in `raw.contest_ownership`. `ownership_sets.py` (and the
+2026 context rows) use `r"Millionaire|^milly"`. Real run, BigQuery read-only, scratch output:
+
+| `lags --season 2026 --week 4` | Weeks with a Millionaire file | Players | `own_l1` NaN share | `own_l1` max |
+|---|---|---:|---:|---:|
+| as committed (4a516cd8) | 1, 2 | 750 | **100%** | NaN |
+| this commit | 1, 2, 3 | 797 | 0% | 44.3% |
+
+- As committed, every Week-4 row would have had `own_l1` NaN and `own_l3` averaged over Weeks 1–2 only. None of the
+  transfer checks look at the lag columns, and TabPFN accepts NaN, so the fit would have run and passed the smoke
+  silently. The mechanics run used `--week 3`, where the prior weeks are labelled `Millionaire`, so it could not show
+  this.
+- **Fix:** `MILLIONAIRE_NAME_RE = r"Millionaire|^milly"`.
+- **Guard (no silent fallback):** the new `require_prior_week` refuses (`OWNERSHIP TABPFN REFUSED: no Millionaire
+  ownership for week N …`, so the blend is used, loudly) when week−1 has no Millionaire file for any week after the
+  first. This also catches a Week-4 standings import that is late or mislabelled before Week 5's lags.
+- **Test** `test_millionaire_filter_matches_import_labels_and_last_week_is_required`, mutation-checked: reverting the
+  regex fails it, and disabling the guard fails it. `tests/test_ownership_tabpfn.py`: 8 passed.
+- Only `scripts/ownership_tabpfn.py` (the constant, the helper, one call) and its test file changed. No protected
+  Sunday-chain file was touched.
+- **Week 5 note:** Week 4's Millionaire label comes from `contests_from_entries`. If it is neither DK's name nor
+  `milly…`, the guard refuses and names the weeks it found.
+
+**Week-5 cloud move (e64bf6d2): acknowledged, scoping, nothing deployed.** The plan (a `tabpfn-gen` mode reusing the
+job, the Sunday timing given the 10:50 frame and a 13–16 min execution) comes in a separate entry. Any image build or
+job update goes through the lane and the operator.
+
 ## 2026-09-30 (06:48 CDT) — OPERATOR (reconfirmed): the TabPFN ownership step runs on the laptop GPU this week; it moves into the cloud `tabpfn-gen` job from Week 5
 
 - The operator recalled the plan as "GPU for testing, then Cloud Run". The laptop pointed to the approved plan
