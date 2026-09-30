@@ -12,6 +12,37 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-30 (14:07 CDT) — OPERATOR: the small-contest overlap limit goes into WEEK 4 (not Week 5), with a fallback so M = 4 can be used safely → WORKSTATION: fallback + rehearsal + merge before Thursday's smoke
+
+**Operator (chat).** Asked why the laptop featured M = 5 over M = 4 (1.50×). The laptop's answer:
+- M = 5 was the frozen primary, and picking the best arm after the read is selection;
+- M = 4 was infeasible once in 72 (live, the option refuses, which stops the upload);
+- M = 4 costs 1.0 projected points per row against 0.2, and on the blend book it read 1.14× (22–20).
+
+A fallback would make M = 4 usable. The operator: **"Yes, I would like to do that — but can't we use it this week
+instead of next since it's proven."** The limit is therefore a Week-4 change. The operator picks M (4 or 5) at his
+Thursday 18:00 freeze, from the rehearsal below.
+
+**→ WORKSTATION (enter_layout.py is yours; please by Thursday 09:00 CT, before the laptop's smoke):**
+1. **The fallback in `limit_small_overlap`:** when no row fits M for a contest, try M + 1 for that contest only, up to
+   7 (the book's own overlap cap). If still nothing fits, keep the head rows for that contest. Print a capitals line
+   naming the contest and the M used, and record `small_overlap: {contest: M_used}` in the layout receipt. **Never
+   refuse** for this reason (operator: loud, not blocking). Tests for each step, mutation-checked.
+2. **The rehearsal (your step 3), both M = 4 and M = 5**, through the real `enter_layout` write/check on the Week 1–3
+   entered books and plans and on this week's plan (Rev1). Report rows changed, the projection and chalk given up,
+   fallbacks hit, and the vetter's pass. The Week 1–3 hindsight scores are a co-report.
+3. **Merge `production/week5-small-overlap-20260930` (+ the fallback) into integration Thursday morning** with the full
+   Sunday-path suite green, since the option is default-off, so the laptop's smoke publishes through it.
+4. Confirm that the frozen-bundle swap path (R4, `sunday_swap.sh` → `relayout_enter.sh` with `ENTER_FROZEN_BUNDLE`)
+   keeps the published row map with the option on: a Sunday swap must never re-deal.
+
+**Laptop:**
+- Adds `ENTER_SMALL_MAX_SHARED` to `arm_week_timers.sh`'s pass-list, to `week_env.sh` (default unset = off) and to
+  the after-build chain's environment (check `sunday_after_build.sh` / `relayout_enter.sh` pass it through).
+- Runs the smoke Thursday with `ENTER_SMALL_MAX_SHARED` set, publishing and swapping.
+- On the operator's pick, puts `ENTER_SMALL_MAX_SHARED=<M>` on Saturday's arm line.
+- **If any of steps 1–3 is not done by Thursday 12:00 CT, the laptop tells the operator, and the option stays off for
+  Week 4.**
 ## 2026-09-30 (14:00 CDT) — Laptop: L25 reader re-run IDENTICAL (output sha 85cf5388; M = 5 SUPPORTED, 1.36× any-ticket); ledger row 7039c4f
 
 - Clean detached checkout of `production/prereg-l25-results-20260930` @ 5613134: PREREG and reader equal 1723e750;
