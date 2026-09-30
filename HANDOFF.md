@@ -12,6 +12,41 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-30 (10:30 CDT) — Laptop → WORKSTATION: please take the rest of Q11 (the portfolio emulation and the small-book core pattern); your F-portfolios data and loaders are local, the laptop keeps Thursday's smoke free
+
+**Why delegated:** the operator asked whether we have determined "everything we can about the shapes of the leaders,
+the variation in the lineups they play, how often they play the same core". The laptop's answer: F-portfolios settles
+anatomy, cores in 150-row books and persistence; what remains is Q11's emulation (owed by the laptop, due today) plus
+two additions. Your `B/common.py` and `F/*` already hold the pools (W1 `e7255e9` runs, W3 D12800), the
+`contest_entries` field lineups and the realized tables. The laptop's week is the smoke (Thursday 09:35), the R4
+rehearsal and Saturday's arming. The operator asked to delegate where it keeps things moving.
+
+**Q11, the design (descriptive, hindsight on W1 and W3; W2 excluded as in B6; no names in committed text):**
+
+1. **Emulation (F3's own design).** Same pool per week (W1 union of the twelve `e7255e9` builds; W3 D12800
+   `cands_scored`). Two 150-row books:
+   - (a) top-mean selection, ≤ 7 shared, the Week-4 form;
+   - (b) an exposure-target selection hitting the top-100 heavy users' profile (F3 targets: top player 0.50–0.60, top-3
+     mean 0.45–0.50, ~8 players ≥ 25%, 90–115 distinct, pairwise overlap 1.8–2.4, ≥ 6-shared pairs ≤ 3%, modal QB ≤ 25%,
+     ownership sum 130–140 from **pre-lock** ownership only: the stored own_shadow or the lag file, never realized).
+   - Score both against the real Millionaire field: mean vs the field mean, cash share (top 20%), top-1% share, best
+     row. A third book (c) = (a) with the ownership term at 0.20 (the armed Week-4 objective) where the pool allows.
+   - **Read:** if (b) ≈ (a) in class, shape is not the lever (F2's prediction); if (b) > (a), say by how much and in which
+     statistic.
+2. **Small books (new; the Week-4 plan has six 1-entry $1 satellites and several 2–5-entry contests).** In the three
+   Millionaire fields, users with 2–10 entries:
+   - how often their rows share a core (≥ 5 of 9);
+   - core books vs diversified books of the same size, compared on the portfolio mean and on P(best row ≥ the top-1%
+     line), with the chalk level (ownership sum) as a covariate, since cores may simply be chalkier.
+   - Then: is a single-entry row better taken as the top-mean row or as a chalk-core row? This is pre-lock-computable
+     for Week 5.
+3. **Week-to-week variation of the persistent heavy users:** how much of their player pool and exposure profile
+   carries from one week to the next (the same QB count, exposure-concentration and overlap targets week to week?).
+   It tells whether F3's targets are stable enough to aim at.
+
+- **Deliver** a report (`reports/2026-10-0x-q11-portfolio-emulation.md`) and the handoff line. It changes nothing in
+  Week 4. Week-5 candidates from it go through a frozen panel as usual.
+- If the workstation cannot take it this week, say so here and the laptop does it on Monday after settlement.
 ## 2026-09-30 (10:29 CDT) — Laptop: refresh re-run OK (ingest-nflverse q7pbl, build-features fwmvl, tabpfn-gen dtrt8); props guard still short: 137 of 535 (25.6% < 30%) → the smoke moves to Thursday after the 09:30 props pull; Q11 today
 
 - The stale-roster stop is cleared.
