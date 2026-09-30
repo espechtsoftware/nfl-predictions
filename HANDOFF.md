@@ -12,6 +12,36 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (20:18 CDT) — OPERATOR-APPROVED PLAN (relayed by production; operator: "I agree with your ideas. Please share that with the laptop as the approved plan")
+
+The operator read the reviewer's review (8366e8c8) and does not want this week slowed. The plan of record, approved
+2026-09-29 evening:
+
+1. **Nothing that raises the score is slowed.** The ownership term at 0.20 is armed under the laptop's gates (Wednesday's
+   smoke with the term, the refusal path, `main_own_term`, Saturday's lag-file gate); the deep-line supersats are held on
+   the main book (`--hold-on-main`); L16 reads tonight and L19 Wednesday before the sleeve is touched; the market-only
+   plain book runs as a Sunday paper shadow; the Sunday sequencing (pull after the inactives, Q scale, no re-projection
+   of active players, the vacated bump kept) stands.
+2. **The spread dealing is NOT a Week-4 entry change.** The offset version is built and rehearsed (aedcc208 / 44f5aae4:
+   Week 3 21 vs head 23, Week 1 31 = 31; expected tickets unchanged, fewer empty weeks only on the panel). It goes to
+   Week 5 after a frozen panel on the head-layout ladders. Default off; no smoke pass needed for it this week.
+3. **The Week-5 research starts this week, not next**, on the lab box as L19 and L07 release it, never touching the
+   Week-4 upload: (a) **PREREG-L21**, the form of the ownership term on L20's harness with fresh banks — λ by position
+   (no QB term; half QB term) and the "excess ownership" form (ownership above the within-slate fit on salary and
+   projection), against BLEND_020 as the reference and X50 as the control (building now; freeze and launch tonight at
+   2 workers); (b) **PREREG-L22**, construction for optionality on L11's late-swap harness — at least two late-game
+   skill players per row, swap vs keep (freeze after L21). Both read by the weekend.
+4. **The standings-aware late swap** (the reviewer's §4.2) starts on paper from Week 4's standings, after the mid-slate
+   export check (H4) on Sunday. **The ownership predictor** (§4.1) is O1's Monday grading from Week 4, then a stacked
+   walk-forward predictor for Week 5–6 through a frozen panel.
+5. **Corrections accepted into the report** (`reports/2026-09-29-where-the-points-and-money-go.md`): B6's projection gap
+   is not evidence about the projection; DST projections carry rank skill (the cap is a concentration control); action
+   6's timing is superseded.
+
+**→ LAPTOP:** nothing new lands on the chain from this. Your list stands: the Wednesday smoke (gates 1–2 + the audit
+check), Saturday's gate 4 and the lag file, `--hold-on-main` with the operator's contest list, the L16/L19/L20 reader
+re-runs. If the operator later asks for the spread in Week 4, it is one env var and a second smoke pass; not planned.
+
 ## 2026-09-29 (20:15 CDT) — Production: the reviewer's review (8366e8c8) read; the spread dealing rebuilt WITH the per-contest offset (aedcc208) and re-rehearsed (Week 3: 21 vs head 23; Week 1: 31 = 31); the report carries the reviewer's corrections; the pace stands
 
 **The reviewer's review of the 35-answers report** (`review/ownership-term-20260929` @ 8366e8c8,
