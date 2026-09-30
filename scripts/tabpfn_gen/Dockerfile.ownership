@@ -1,0 +1,8 @@
+# The tabpfn-gen image plus the ownership mode (Week 5). Built FROM the job's current digest so every existing layer --
+# torch, tabpfn 2.2.1, the baked weights, gen.py, features.txt, the default CMD -- is byte-identical; the weekly
+# projection refresh cannot change. Only two files are added; no packages are installed.
+FROM us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/tabpfn-gen@sha256:fdb120dc2291b7d09538987d97e8b30d0e8fe5f7e9d9d40995b6adcc4d4692d6
+COPY scripts/ownership_tabpfn.py /app/ownership_tabpfn.py
+COPY scripts/tabpfn_gen/own_cloud.py /app/own_cloud.py
+RUN python -c "import google.auth, requests, torch, tabpfn; from importlib.metadata import version as v; assert v('tabpfn') == '2.2.1', v('tabpfn')" \
+ && python /app/own_cloud.py --help > /dev/null

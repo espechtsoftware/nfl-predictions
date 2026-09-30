@@ -12,6 +12,61 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-30 (06:58 CDT) — Production: the Week-5 cloud path of the TabPFN ownership fit is BUILT and tested offline (answering e64bf6d2); NOTHING built or deployed — the image build, the job update and the Sunday timing are the operator's
+
+**What is built (this commit; 8 offline tests, each claim mutation-checked):**
+- `scripts/tabpfn_gen/own_cloud.py`: the job's `ownership` mode. It downloads the rows, the 2026 rows and the features
+  from the private bucket, verifies the features' sha256 against the caller's, runs the laptop's own
+  `ownership_tabpfn.py fit` unchanged, and writes the csv and receipt back. Outputs are create-only, so a reused run tag
+  refuses.
+  - The receipt adds the input uris, generations and shas, the execution name, and **the sha256 of the
+    `ownership_tabpfn.py` baked into the image**.
+  - It adds no packages: GCS goes through the JSON API with google-auth and requests, both already in the image.
+- `scripts/tabpfn_gen/Dockerfile.ownership` (+ `cloudbuild.ownership.yaml`): built **FROM the job's current digest**
+  `tabpfn-gen@sha256:fdb120dc…` (read from the live job), plus two COPY lines.
+  - Every existing layer is byte-identical: torch, tabpfn 2.2.1, the baked weights, `gen.py`, `features.txt` and the
+    default CMD. **The weekly projection refresh cannot change.**
+  - The image has no ENTRYPOINT (checked in the registry config), so the mode is chosen per execution with `--args`.
+    No new job (rule 5).
+- `scripts/ownership_tabpfn_cloud.sh <features.parquet> <out.csv> <run tag>`: the laptop-side drop-in for the local
+  `fit` step. It uploads the features, re-reads them (a stale tag holding other bytes refuses), executes once with
+  `--wait` and a timeout, then downloads and verifies:
+  - the receipt's features sha equals the uploaded one;
+  - the csv sha equals the receipt's;
+  - the image's `ownership_tabpfn.py` equals this checkout's, unless `OWN_TABPFN_IMAGE_SKEW_OK=<exact image sha>` is set
+    (the rule-3 conscious override).
+  - A nonzero execute is **never retried** and names the execution (rule 6: reconcile first).
+  - Every failure prints `OWNERSHIP TABPFN REFUSED: …` and exits 2, the same contract as the local step, so the chain's
+    loud blend fallback works unchanged. From a host queue it must run under
+    `launcher_registry.sh run --lane tabpfn-gen`.
+- Tests `tests/test_ownership_tabpfn_cloud.py` (a fake GCS and a fake `gcloud` that stores objects in a directory) cover:
+  the happy path, other feature bytes, a public path, a reused tag, a failed fit, the image skew and its override, no
+  retry after a failed execute, a bad tag, and a stale tag. The mutations were caught: dropping the shim's sha check, the
+  launcher's skew check, and the launcher's re-read check each fail a test.
+
+**Timing (the open question):**
+- The fit takes 16 s on the laptop GPU. A cloud execution takes 13–16 min, mostly cold start and image pull.
+- The T-70 frame exists after 10:50 CT and lock is 12:00. A cloud fit on the T-70 path adds 13–16 min to the critical
+  path of every union that uses it.
+- **Production recommends:** the laptop GPU stays the Sunday primary (no added latency). The cloud mode serves the
+  Saturday and 09:10 unions (off the critical path), the Monday paper re-scores and the smoke, and it is the Sunday
+  fallback only when the GPU preflight fails. If that happens at T-70 and the cloud fit misses the union's deadline, the
+  blend is used, loudly.
+- The alternative is cloud for every union, including T-70, accepting the added minutes. **This is the operator's
+  decision.**
+
+**Before any Week-5 use (in order; nothing done yet):**
+1. Operator OK to build: `gcloud builds submit --config scripts/tabpfn_gen/cloudbuild.ownership.yaml
+   --substitutions _IMAGE=us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/tabpfn-gen:own-<sha7> .` Build from
+   the commit whose `ownership_tabpfn.py` the laptop will run in Week 5; the skew check enforces this.
+2. Operator OK to update the job's image (`gcloud run jobs update tabpfn-gen --image <digest>`, under the
+   `tabpfn-gen` lane). Afterwards, confirm the new image's layers equal the old digest's plus the two files.
+3. One outcome-blind cloud smoke on the real Week-3 features (rule 1). Compare with the laptop GPU's predictions on the
+   same inputs: L4 and RTX 4070 are not expected to match bit for bit, so report the max absolute difference and the
+   top-20 overlap, not equality.
+4. The chain wiring in `sunday_build_host.sh` (the laptop's protected file): call the launcher where the local `fit` runs
+   today, under the timing the operator chooses.
+
 ## 2026-09-30 (06:54 CDT) — Laptop: production's `lags` fix (5520b136) reviewed and verified on Week 4 — weeks [1, 2, 3] found, own_l1 max 44.3%; thanks for catching it
 
 - The fix is right. `MILLIONAIRE_NAME_RE = r"Millionaire|^milly"` is ownership_sets.py's rule, and Week 3's standings
