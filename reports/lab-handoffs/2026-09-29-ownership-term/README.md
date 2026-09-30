@@ -62,3 +62,11 @@ KROWS=100 WORKERS=14 LAB_WT=<lab checkout at fb397d9> TABPFN_PREDS=<preds_l23b.p
 KROWS=100 WORKERS=14 LAB_WT=<lab checkout at fb397d9> TABPFN_PREDS=<preds_l23b.parquet> $LAB_PY $H/11_panel_term_tabpfn.py 1321 tp100b base=0:,blend20=0.2:blendsets,tabpfn20=0.2:TABPFN_LS
 PLAN_FILE=<contests.json> ENTER_LAYOUT_PY=<enter_layout.py> PANEL_DIR=$PANEL_DIR $PY $H/12_read_tabpfn.py tp100a tp100b
 ```
+
+The dealing variants (`reports/2026-09-30-review-of-the-days-changes-and-the-overlap-limit-extensions.md`):
+
+```bash
+KROWS=105 WORKERS=14 LAB_WT=… TABPFN_PREDS=… $LAB_PY $H/11_panel_term_tabpfn.py 1320 tp105a base=0:,blend20=0.2:blendsets,tabpfn20=0.2:TABPFN_LS
+KROWS=105 WORKERS=14 LAB_WT=… TABPFN_PREDS=… $LAB_PY $H/11_panel_term_tabpfn.py 1321 tp105b base=0:,blend20=0.2:blendsets,tabpfn20=0.2:TABPFN_LS
+PLAN_FILE=<contests.json> ENTER_LAYOUT_PY=<enter_layout.py at 188cb07b+> PANEL_DIR=$PANEL_DIR $PY $H/13_read_dealing.py tp105a tp105b
+```
