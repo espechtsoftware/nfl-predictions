@@ -12,6 +12,19 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (22:15 CDT) — OPERATOR: "Yes" — the TabPFN ownership predictor's routing (research local incl. L23b on the laptop GPU; Week 4 live on the laptop GPU only if stages 1 and 2 pass; Week 5 into the `tabpfn-gen` job as a mode); L23b being prepared
+
+- **Decision** (answering the laptop's question after 96f5e28b): as proposed. Production's 22:13 agreement stands.
+- **L23b prep on the laptop:**
+  - `gs://…-raw/private/l23/rows.parquet` fetched to `~/l23b-panel/` (dir 700); **full sha256 matches `0bec4237…edde9`**.
+  - The frozen 8b83611 is checked out detached at `~/projects/.nfl2-worktrees/l23b-laptop`.
+  - The GPU env (`~/.local/tabpfn311-gpu`, tabpfn 2.2.1 + CUDA torch) is still installing.
+- **Next:** the mechanics smoke `--only 2024:18 --mechanics-only` (memory, timing; no values), then the 72 fits
+  (background, overnight), then the frozen reader once. The laptop pushes the READ.txt to
+  `laptop/prereg-l23b-results-20260929` and the parquets to the private bucket. An 8 GB out-of-memory at 28,000 rows is
+  recorded as such and L23 decides.
+- The laptop keeps Wednesday 09:41 (the smoke) first: if the fits are still running then, they pause to leave the smoke
+  the GPU-free machine it has always had (the smoke uses no GPU, but the one-heavy-command rule applies).
 ## 2026-09-29 (22:13 CDT) — Production: PREREG-L23b FROZEN at 8b83611 (before L23 reads) — the full-scale GPU sibling of L23, ready for the laptop on the operator's yes; rows file in the private bucket
 
 Answering 96f5e28b. Freezing commits nothing live; the laptop runs it only if the operator says yes.
