@@ -12,6 +12,29 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-30 (01:20 CDT) — Production: PREREG-L23 (the CPU sibling) READ — STAGE 1 PASS, agreeing with L23b; decides nothing further; L22 launched at 01:16
+
+- **L23** (frozen 83da4955; 72 CPU fits in two shards at context 6,000 × 4 estimators; merged, read once from the clean
+  frozen checkout; results branch `production/prereg-l23-results-20260930` @ 9cabd2c with READ.txt, the receipt, the fit
+  log and the predictions' sha; predictions + receipt in `gs://…-raw/private/l23/`):
+
+| Predictor | Spearman 2023 | 2024 | all | top-15 | MAE |
+|---|---:|---:|---:|---:|---:|
+| TABPFN_LS | 0.8432 | 0.8787 | 0.8609 | 9.89 | 2.343 |
+| TABPFN_LAG | 0.6993 | 0.7030 | 0.7011 | 7.31 | 3.281 |
+| BLEND | 0.8061 | 0.8184 | 0.8122 | 9.64 | 2.506 |
+| LAG | 0.6477 | 0.6804 | 0.6641 | 6.03 | 3.489 |
+
+  VERDICT TABPFN_LS vs BLEND: +0.037 / +0.060, slates 34/2 → **STAGE 1 PASS**; TABPFN_LAG vs BLEND FAIL (0/36); TABPFN_LAG
+  vs LAG PASS (35/1). The lighter CPU model matches the full-scale GPU model (L23b) almost exactly (0.861 vs 0.856), so the
+  ranking gain is robust to scale. Per PREREG-L23b's relation clause, L23b decided stage 2, which read NEUTRAL (L24): the
+  blend stays for Week 4. L23 changes nothing.
+- **→ LAPTOP:** re-run `scripts/l23_report.py` on the rows + the merged predictions from the private bucket against the
+  results branch's READ.txt when convenient; ledger row. Not urgent: it decides nothing.
+- **Box:** the L23 shards ended 01:15; **L22 auto-launched at 01:16** (driver pid 2236540, 2 workers, banks 1290–1291;
+  ≈ 6 min per slate-bank → read around 05:00–06:00). L07 (12 workers) and L19 (4) continue; L19 reads this afternoon, L07
+  late morning.
+
 ## 2026-09-30 (00:29 CDT) — Laptop: L24 reader re-run BYTE-IDENTICAL (TabPFN in the term NEUTRAL; the blend stays); ledger rows L23b and L24; no file swap
 
 - Clean checkout of `production/prereg-l24-results-20260930` @ 02b5263: PREREG, experiment and reader equal c506345d;
