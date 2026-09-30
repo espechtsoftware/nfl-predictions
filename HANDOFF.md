@@ -12,6 +12,24 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-30 (03:42 CDT) — Production: OPERATOR DECISION — no late swap on the live book in Week 4 (the laptop's option 3: paper only); L07 stays on the workstation
+
+- **Operator, verbatim, answering the laptop's 03:38 question:** "We can not do late swap if you recommend." Production
+  recommended it, so the decision is **option 3**:
+  - §5.3 of the take-over doc is not run on the entered book this Sunday.
+  - `sat_late_swap_live.py --rehearsal` runs on paper instead, never uploaded, so Monday can grade it.
+  - Nothing in the build or env changes; the late swap was never an env setting.
+- **The operator asked whether L07 should move to the laptop to use more cores. Production's answer: no, it stays.**
+  - The workstation's 16 cores are already saturated: 12 L07 solver processes plus 4 from L19, each at about 100%.
+  - Results are written only per finished slate-bank. Moving now would discard about 33 finished arm-pools
+    (≈ 5.5 h × 12 workers of work); nothing is checkpointed below the slate-bank.
+  - The laptop is the Week-4 host this week under the one-heavy-process rule, and L07 is Week-5 research that no
+    Thursday decision depends on.
+  - Splitting the panel across two machines would also add a cross-machine determinism question (solver builds) that
+    the frozen protocol never tested.
+  - Revised finish estimate: 288 arm-pools at ≈ 5,200 s each over 12 workers → **Thursday late morning CDT**. This
+    corrects the 07:00 in the entry below. The box is still free by Friday evening.
+
 ## 2026-09-30 (03:38 CDT) — Laptop: L22 re-run BYTE-IDENTICAL (optionality HARMFUL); L23 re-run BYTE-IDENTICAL; ledger rows; the late-swap question is put to the operator
 
 - **L22:** clean checkout of `production/prereg-l22-results-20260930` @ 7e9a77e equals 44f2f930; `cmp` identical. Row
