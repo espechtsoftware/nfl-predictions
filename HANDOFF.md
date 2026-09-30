@@ -12,6 +12,47 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-30 (18:29 CDT) — Production: PREREG-L26 read — the 10-entry extension is SUPPORTED (TabPFN book: 10-entry tickets 191 → 235, 1.23×; 2023 1.02, 2024 1.42; paired 24–19); the ceiling is MERGED into integration (unset = off); laptop: re-run, then the smoke with ENTER_SMALL_OVERLAP_MAX_ENTRIES=10
+
+**Read once** from a clean checkout of nfl2 `78d35755`, with the plan (sha `8e1325b3…`) and `enter_layout.py` @ `82a4b543`
+(sha `fb2bf404…`). Output sha256 **`5ee49be2…`**. The panel finished at 18:27: 72 of 72, no errors.
+
+| Book, arm (vs ARMED = M 5, ceiling 5) | 10-entry tickets | Ratio | 2023 / 2024 | Paired W–L–T | Any-ticket cells | Whole-book main tickets | Dealt rows: proj / pred-own / realized | Relaxations |
+|---|---|---:|---|---|---|---|---|---:|
+| **TABPFN_LS_020, CEIL10 M 5 (PRIMARY)** | 191 → 235 | **1.23** | 1.02 / 1.42 | **24–19–29** | 115 → 139 | 664 → 708 | 128.2 → 127.2 / 100.2 → 97.6 / 134.1 → 135.4 | 0 |
+| TABPFN_LS_020, CEIL10 M 4 | 191 → 239 | 1.25 | 1.03 / 1.45 | 24–19–29 | 115 → 136 | 664 → 750 | 128.2 → 126.9 / … / 134.1 → 135.4 | **228 of 288** |
+| BLEND_020, CEIL10 M 5 | 161 → 214 | 1.33 | 1.40 / 1.29 | 26–14–32 | 98 → 124 | 639 → 692 | 127.9 → 127.0 / 105.7 → 101.0 / 133.1 → 133.6 | 0 |
+| BLEND_020, CEIL10 M 4 | 161 → 209 | 1.30 | 1.57 / 1.12 | 26–15–31 | 98 → 123 | 639 → 709 | … | 230 |
+| (HEAD vs ARMED, whole book: L25 on fresh banks) | — | — | — | — | — | TabPFN 629 → 664; blend 604 → 639 | — | — |
+
+- **Primary verdict under L13's rule: SUPPORTED** (≥ 1.05×, ≥ in each season, more paired wins). **Honest size:** 2023
+  is barely ≥ (1.02) and the paired record is 24–19. The blend book is the clearer read (1.33×, both seasons, 26–14).
+- It costs about 1 projected point per dealt row and 3–5 points of predicted ownership; the realized mean of those rows
+  did not fall.
+- **At M = 4 the fallback fires in 228–230 of 288 cells** (the 10-entry contests cannot keep 10 rows sharing ≤ 4). That
+  is one more reason for M = 5, as the reviewer said.
+- **L25 replicates on fresh banks** at the whole-book level: head → armed is +35 main tickets on both books.
+- Results: nfl2 `production/prereg-l26-results-20260930` @ `a666064`, `results/l26/` (SHA256SUMS; the jsonl shas are
+  `d8f08915…` and `746e6c19…`).
+
+**Laptop re-run:** from a clean checkout of `78d35755`:
+`python scripts/l26_report.py --plan <the Rev1 plan> --enter-layout <git show 82a4b543:src/nfl_dfs/inference/enter_layout.py> --dir <results/l26> --banks 1340,1341`.
+Expect `5ee49be2…`.
+
+**Condition 2 (c8889e3c) — MERGED:** `82a4b543` cherry-picked onto integration (this push). Integration's
+`enter_layout.py` sha is now exactly **`fb2bf404…`**, the file L26 tested. `ENTER_SMALL_OVERLAP_MAX_ENTRIES` unset
+means ceiling 5, so nothing changes until it is set. `test_enter_layout` 89, `test_exposure_sheet` 3,
+`test_exposure_cap_book` 16, `test_week_env_defaults` 14, `test_arm_week_timers` 9 pass. Please re-run the full
+Sunday-path suite on this tip.
+
+**Condition 3 — the laptop's:** add `ENTER_SMALL_OVERLAP_MAX_ENTRIES` to `arm_week_timers.sh`'s pass-list and to
+`week_env.sh` (default 10 only after the smoke passes, per c8889e3c). Run Thursday's smoke with it set to 10 alongside
+`ENTER_SMALL_MAX_SHARED=5`.
+- The layout log's `small_overlap: {…}` record should now list the four 10-entry contests as well as the five 2–5s.
+- In L26 the 10s changed in every cell with no relaxation at M = 5. To exercise the banner once, run the forced drill
+  (M = 0 on a scratch plan), as planned.
+- Production runs `small_overlap_rehearsal.py` on the smoke bundle if it lands in private storage.
+
 ## 2026-09-30 (16:44 CDT) — OPERATOR DECISION (relayed by the reviewer, ~17:05 CDT): the overlap limit on the 10-entry contests (`ENTER_SMALL_OVERLAP_MAX_ENTRIES=10`, PREREG-L26) is a WEEK-4 candidate, armed only if L26 reads SUPPORTED and Thursday's smoke publishes and swaps through it
 
 **Conditions (all by the Thursday 18:00 CDT freeze; otherwise the ceiling stays 5, L25's form, and the extension is
