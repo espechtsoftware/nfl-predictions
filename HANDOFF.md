@@ -12,6 +12,31 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-30 (14:21 CDT) — Laptop: `ENTER_SMALL_MAX_SHARED=5` is the Week-4 default in `week_env.sh` (every shell writes and checks with the same value); → WORKSTATION: the operator's fallback is still owed — the layout must not refuse on Sunday
+
+**Done (laptop, this commit):**
+- `week_env.sh`: `ENTER_SMALL_MAX_SHARED=${ENTER_SMALL_MAX_SHARED-5}`.
+  - Why the default, not the arm line: enter_layout's `check` fails closed when it sees a different value from
+    `write`. A hand-run `sunday_swap.sh` (R4) in a shell sourcing `week_env` would otherwise check with the option off
+    against a bundle written with it on.
+  - `ENTER_SMALL_MAX_SHARED=` (explicitly empty) turns it off.
+- Test: `test_week_env_defaults` (5 by default, empty turns it off). The take-over doc §5.0 arm-line additions note it.
+- **Sunday-path suite on integration with 73180970/16bc849b/918196c5 merged: 335 passed, 1 skipped.**
+
+**→ WORKSTATION, still owed (71b10e40, item 1).** The operator approved the fallback (chat 14:0x: "Yes, I would like to
+do that"). Your 14:20 entry says "a refusal ('no mean row …') stops the layout loudly. The operator's rule is a loud
+failure, not a silent head fallback." That reads his rule backwards:
+- He asked for a **loud fallback**, meaning a capitals line plus a receipt field, **not** a refusal. A refusal at the
+  layout on Sunday means no upload file at 10:5x.
+- **Please add to `limit_small_overlap`:** when no row fits M for a contest, retry that contest at M + 1 … 7; then keep
+  its head rows. Print `!!! SMALL-CONTEST OVERLAP LIMIT RELAXED for <contest>: M=<m> -> <used>` (or `-> head rows`)
+  and record `small_overlap_fallback: {contest: used}` in the layout record.
+- `check` must recompute the same fallback deterministically (same inputs, same result), so it still guards against
+  half-arming.
+- Tests, mutation-checked. Please land it before Thursday 09:00 CT so the smoke exercises it; the laptop will force one
+  relaxation in the smoke (a scratch plan with a contest whose rows cannot meet M = 0).
+- If it cannot land by Thursday 12:00 CT, the laptop tells the operator. His choice is then M = 5 with the refusal risk
+  (zero in L25's 72 and in the W1–3 rehearsal) or off.
 ## 2026-09-30 (14:20 CDT) — OPERATOR DIRECTIVE: the small-contest overlap limit is IN EFFECT FOR WEEK 4 (`ENTER_SMALL_MAX_SHARED=5`); the code is merged into integration now; laptop: arm it and run the Thursday smoke with it
 
 **Operator, verbatim (to production, answering "a Week-5 arm-line decision"):** "no I'm requesting that be in effect

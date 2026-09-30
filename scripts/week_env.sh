@@ -165,7 +165,10 @@ week_env() {
   # The small-contest overlap limit (PREREG-L25 SUPPORTED; operator 09-30: Week 4, M picked at the Thursday freeze): each
   # 2-5-entry main-track contest's rows share <= M players pairwise; unset = off. enter_layout.py reads it (with its
   # loud fallback to M+1..7, then head rows, per contest).
-  export ENTER_SMALL_MAX_SHARED=${ENTER_SMALL_MAX_SHARED-}
+  # Week 4 (operator 2026-09-30 14:2x, "in effect this week"): 5 by DEFAULT, so every shell that sources week_env -- the
+  # timers, the after-build chain, a hand-run sunday_swap.sh -- writes and checks with the same value (enter_layout's
+  # check fails closed on a mismatch). ENTER_SMALL_MAX_SHARED= (explicitly empty) turns it off.
+  export ENTER_SMALL_MAX_SHARED=${ENTER_SMALL_MAX_SHARED-5}
   export OWN_TABPFN_ROWS_2026=${OWN_TABPFN_ROWS_2026-$OUT/private/rows_2026_w1w3.parquet}   # production 04fa1257, sha 214f67c2
   # Cash/double-up PAPER shadows (operator 2026-09-22; never built in Week 3 by omission): arms A and B are built by the
   # chain from the final run dir before lock, entered nowhere, scored Monday. 1 = build them; 0 = off (explicit).

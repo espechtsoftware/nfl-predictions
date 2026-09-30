@@ -356,7 +356,9 @@ Operator steps are marked **(operator, laptop)**. Everything else is the agent's
    **Additions (operator 09-29/09-30):** `UNION_MAIN_OWN_TILT=0.20 UNION_MAIN_OWN_PREDICTOR=tabpfn` (the ownership term
    with the TabPFN predictor on the laptop GPU, armed unconditionally by the operator 09-30 08:0x; the preflight refuses
    without a passing lag file, the lags file, the L23 rows file and a CUDA device; any Sunday failure falls back LOUDLY
-   to the blend for that union). Still open: `UNION_SLEEVE_CAP=0.5` (only if L19 is SUPPORTED).
+   to the blend for that union). `ENTER_SMALL_MAX_SHARED=5` (the small-contest overlap limit, PREREG-L25 SUPPORTED; operator 09-30 "in effect this week";
+   week_env's default is 5, so the arm line need not carry it and a hand-run `sunday_swap.sh` checks with the same value;
+   `ENTER_SMALL_MAX_SHARED=` turns it off). Still open: `UNION_SLEEVE_CAP=0.5` (only if L19 is SUPPORTED).
    **The union (operator-authorized 12:2x CDT 09-28; production `025ad2c5`, `57bdc8b7`, `c753be99`):**
    - Each Sunday build (09:10 and T-70) is followed by `union_reselect.py`: the build's pool plus every Saturday D12800
      candidate that survives the build's frame (no OUT/IR/Doubtful/inactive or below-MIN_PROJ player).

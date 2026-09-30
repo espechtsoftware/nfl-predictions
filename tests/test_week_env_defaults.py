@@ -147,3 +147,12 @@ def test_tabpfn_predictor_is_off_unless_armed_and_its_fallback_is_the_blend_loud
     assert "!!! OWNERSHIP TABPFN FAILED for t70x: fit step: OWNERSHIP TABPFN REFUSED: no CUDA device -- FALLING BACK TO THE BLEND (ownership_blend-t70x.csv)" in r.stdout
     marker = (tmp_path / "own_term_fallback-t70x.txt").read_text()
     assert "predictor tabpfn FAILED: fit step" in marker and "fallback: " + str(tmp_path) + "/ownership_blend-t70x.csv" in marker
+
+
+def test_week4_small_contest_overlap_limit_is_on_by_default_and_can_be_turned_off():
+    src = ENV_SCRIPT.read_text()
+    assert "export ENTER_SMALL_MAX_SHARED=${ENTER_SMALL_MAX_SHARED-5}" in src          # operator 2026-09-30: Week 4
+    env = {k: v for k, v in os.environ.items() if k != "ENTER_SMALL_MAX_SHARED"}
+    run = lambda e: subprocess.run(["bash", "-c", f"source {ENV_SCRIPT}; week_env 4 154078 >/dev/null 2>&1; echo [$ENTER_SMALL_MAX_SHARED]"],
+                                   capture_output=True, text=True, env=e).stdout.strip()
+    assert run(env) == "[5]" and run({**env, "ENTER_SMALL_MAX_SHARED": ""}) == "[]"
