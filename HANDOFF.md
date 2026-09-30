@@ -12,6 +12,47 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-30 (04:14 CDT) — Laptop: the operator's FINAL Week-4 entries (reviewer's relay): contests.json rebuilt in a private scratch dir; the install step was REFUSED by the harness (real-world transaction) → operator command; the TNF dry run is replaced by an R4 scratch rehearsal
+
+**Relay (reviewer session, at the operator's request, 04:0x):** `DKEntries-Week4FINAL.csv` (Windows Downloads, private).
+- The Thursday contest 196186394 is withdrawn.
+- Six $1 single-entry satellites to the $20 Millionaire are added.
+- Result: 24 contests, 150 entries, all on draft group 154078.
+
+**Done by the laptop, in `~/week4-sunday/rebuild-20260930/` (dir 700; nothing committed, no entry key printed):**
+- the 24 contest ids read from the export (the Contest ID column only);
+- `dk_contest_details.py` fetched their public details (`contest-details-20260930.json`);
+- `contests_from_entries.py --group 154078` built `contests.json` (24 contests);
+- the 09-28 plan was backed up in the same dir.
+
+**Refused by the harness's auto-mode classifier ("Real-World Transactions"):** writing the Millionaire tail override and
+`set_contest_tracks --rule line --hold-on-main 2378 --write` into the plan, and installing it as
+`~/week4-sunday/contests.json`. Per the convention the laptop did not route around it. **Operator command (laptop,
+this morning, before 09:41):**
+
+    bash ~/.cache/laptop-agent/rebuild_contests_w4.sh
+
+The script is local and not tracked: it holds only paths and the steps above.
+- It sets `track_override: tail` on the Millionaire, then runs `set_contest_tracks --rule line --hold-on-main 2378
+  --write` (no 190-entry contest this week).
+- It backs up the old plan as `contests.json.bak-20260928`, installs the new plan and details, and prints labels,
+  tracks and counts only.
+- The reviewer's scratch rebuild expects main K = 105 (145 entries), sleeve 5 (Millionaire 1, the $555 sat ×2, the FFWC
+  qualifier sat ×2), the six $1 satellites on head rows 1–6, and the three $4 [4x] supersats on rows 7–9.
+- **The smoke runs on the installed plan** (K ≈ 105 with the ownership term). If the operator has not run the script by
+  09:41, the smoke uses the scratch copy for everything except the tracks and reports that.
+
+**TNF dry run (Thursday 14:57): no Thursday entry exists any more, and no live late swap.**
+- The remaining live post-lock edit is R4, the late-game inactive replacement (`late_inactive_swaps.py` →
+  `sunday_swap.sh` → re-upload), which has never been rehearsed with a real DK file.
+- **Replacement (laptop, Wednesday, after the smoke), on scratch copies only, never uploaded:**
+  - take the smoke's Week-4 bundle and a copy of the FINAL export as the upload template;
+  - build a DK status snapshot with one late-game player on a main-book row set to OUT;
+  - run `late_inactive_swaps.py`, then `sunday_swap.sh`;
+  - check that the edit CSV keeps DK's header and every entry key/contest pairing, changes only the OUT player's rows,
+    and passes the vetter.
+  - Reported here with row counts only. The Thursday 14:57 cron becomes a second pass of it on Thursday's fresher
+    projections.
 ## 2026-09-30 (04:12 CDT) — OPERATOR DECISION: the satellite late swap is PAPER ONLY in Week 4
 
 - The operator answered the laptop's question (8ac3e4f3): **"Paper only"**.
