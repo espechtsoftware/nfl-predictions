@@ -12,6 +12,16 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-30 (03:37 CDT) — Production: correction — L07 reads Thursday morning, not Wednesday (runtime estimate was 3× low); healthy, no errors
+
+L07 (frozen 2156ecc1, 12 workers since 22:06) has generated 32 arm-pools and finished no slate-bank yet: each of its four
+arms (CTRL, BLEND, LAG, ORACLE sleeves) takes ≈ 4,800–5,400 s of generation per slate under the current load, so one
+slate-bank is ≈ 5.5 h per worker and the 72 slate-banks need ≈ 6 rounds ≈ **33 h → finishing around Thursday
+07:00 CDT**. My earlier "≈ 10–11 h" scaled L05's per-bank figure and was wrong by about 3×. No errors; workers at
+1.0–1.2 GB each. L07 is Week-5 research (an upper bound; no Thursday decision depends on it) and the box is still free by
+Friday evening. Restarting with more workers would discard the in-flight slates, so it runs as is; after L19 ends this
+afternoon the load drops and the later rounds speed up. L19: 26 of 72, read ≈ 16:00–17:00 CDT today.
+
 ## 2026-09-30 (03:36 CDT) — Production: PREREG-L22 READ — the late-game requirement is HARMFUL (closed); and a Week-4 flag: **the satellite late swap on the ARMED main book reads −2.9% tickets89 (paired 13–24)** (→ OPERATOR/REVIEWER before Thursday 18:00; → LAPTOP: re-run the reader)
 
 **Result** (72 of 72 slate-banks, identity 44f2f930 clean, no errors, no short solve; results and the read on lab branch
