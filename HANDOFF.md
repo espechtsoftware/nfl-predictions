@@ -12,6 +12,45 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-30 (14:20 CDT) — OPERATOR DIRECTIVE: the small-contest overlap limit is IN EFFECT FOR WEEK 4 (`ENTER_SMALL_MAX_SHARED=5`); the code is merged into integration now; laptop: arm it and run the Thursday smoke with it
+
+**Operator, verbatim (to production, answering "a Week-5 arm-line decision"):** "no I'm requesting that be in effect
+this week for week 4"
+
+**Merged into integration (this push):** `73180970` (the option), `16bc849b` (the rehearsal tool) and `918196c5` (new):
+`enter_layout.contest_rows_from_book` plus `scripts/exposure_sheet.py`, which now honours `ENTER_SMALL_MAX_SHARED`.
+**Without that last change the pre-upload exposure sheet would have shown the head rows while the bundle published the
+limited ones.**
+- `enter_layout.py` sha256 is now `c2d9b721…`. The only difference from L25's pinned `fc618b7b…` is the added helper;
+  `limit_small_overlap` and `final_ranks` are byte-identical to what L25 tested.
+- Tests on integration, one module at a time: `test_enter_layout` 85, `test_exposure_cap_book` 16,
+  `test_exposure_sheet` 3, `test_audit_build_levers` 12, `test_paper_arm_outcomes` 6, `test_week3_shadow_runner` 7 —
+  all pass. The new tests are mutation-checked.
+
+**→ LAPTOP (your protected files; production has not touched them):**
+1. **Arm line:** add `ENTER_SMALL_MAX_SHARED=5` to Week 4's (the take-over doc §2 and the Saturday arm line), and make
+   sure it is exported to every `enter_layout` / `relayout_enter.sh` / `sunday_live_relayout.sh` / `exposure_sheet.py`
+   invocation.
+   - `enter_layout` reads it as the default of `--small-max-shared`, so any process that inherits the env applies it.
+   - **`check` must see the same value as `write`, or it fails closed** (tested), which is the guard against half-arming.
+2. **Consumers:**
+   - Already consistent: `enter_layout write/check` (hence `relayout_enter.sh` and the live re-layout's write), the
+     frozen-bundle swap path (it keeps the published row map, `ENTER-rowmap.json`) and the exposure sheet (918196c5).
+   - **Not consistent (report-only):** `exposure_cap_book.py`'s per-contest caps use plain head ranks. They were already
+     "approximate" under fewest-low, and now also for the small contests. `week3_shadow_runner.py` (shadow) likewise.
+   - `rows_needed`, `sleeve_size` and `BOOK_ENTRIES` are unchanged: the limit never adds a row.
+3. **Thursday smoke:** run it with `ENTER_SMALL_MAX_SHARED=5`. The layout log line
+   `ENTER_SMALL_MAX_SHARED=5: N small-contest rank(s) replaced: …` shows which contests changed. Expect about 1–2 ranks
+   in most of the five small contests (2, 3, 3, 5, 5 entries) on the plain-mean main book; 0 would mean the book already
+   limits overlap. A refusal ("no mean row …") stops the layout loudly. The operator's rule is a loud failure, not a
+   silent head fallback.
+4. Production runs the same `write` on the smoke bundle if you put it in private storage, as a second pair of eyes
+   (outcome-blind: ranks replaced, projection and chalk given up).
+
+**What the evidence says, for the record:** L25 SUPPORTED (M = 5 on the TabPFN-term book: P(small contest cashes)
+1.36×, paired 29–9; tickets +13%, flat on the blend book). The rehearsal on Weeks 1–3 is mechanics-clean, with
+hindsight flat to −1 paid entry (noise).
+
 ## 2026-09-30 (14:08 CDT) — Production: L25 step 3, the rehearsal on Weeks 1–3 — the live option works on real artifacts; hindsight is flat to −1 paid entry (one-week noise); Week 4 on the real bundle Monday
 
 **What was run.** First, the live `enter_layout` from the Week-5 branch (`81394e96`) **without** the option on Week 3's
