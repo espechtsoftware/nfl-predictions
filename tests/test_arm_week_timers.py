@@ -83,3 +83,9 @@ def test_tabpfn_predictor_rides_into_the_units_and_is_preflighted():
     assert "ownership_tabpfn.py lags" in r.stdout
     src = SCRIPT.read_text()
     assert "TABPFN PREFLIGHT FAILED" in src and "0bec4237eb4c4bc1228571e5628685b3cc26e8aaed433f8b8f2056d5062edde9" in src
+
+
+def test_small_contest_overlap_limit_rides_into_the_units():
+    r = _run(GROUP="154078", ENTER_SMALL_MAX_SHARED="5")
+    assert r.returncode == 0, r.stderr
+    assert "ENTER_SMALL_MAX_SHARED=5" in _unit_line(r.stdout, "nfl-week4-t70-build")
