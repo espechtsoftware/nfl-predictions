@@ -93,7 +93,7 @@ def main() -> None:
                                                  "Millionaire unless --milly-contest-id says otherwise")
     ap.add_argument("--milly-contest-id", help="the Millionaire's warehouse contest id (Week 4: 196151357); default: the tail track's first contest")
     ap.add_argument("--sets", type=Path, required=True, help="the week's ownership sets file (dk_player_id, pred_own)")
-    ap.add_argument("--names-map", default="sat13=sat13mega", help="spec name=warehouse contest_name pairs")
+    ap.add_argument("--names-map", default="sat13=sat13mega", help="spec name=warehouse contest_name pairs; name=#<contest id> pins one contest")
     ap.add_argument("--tilt", type=float, default=0.0); ap.add_argument("--dst-cap", type=float, default=0.25)
     ap.add_argument("--min-proj", type=float, default=1.0); ap.add_argument("--tail-line", type=float, default=210.0)
     ap.add_argument("--line-q", type=float, default=90.0)
@@ -107,6 +107,9 @@ def main() -> None:
     ap.add_argument("--class-model", type=Path, help="with --tail-selector class: the fit_field_class_model.py JSON")
     ap.add_argument("--layout", choices=["head", "spread"], default="head",
                     help="the ENTER layout the contests are dealt under (spread = winners study 2026-09-29 s4.2; laptop W-C)")
+    ap.add_argument("--small-max-shared", default="",
+                    help="comma list of M: extra arms = the PLAN rows dealt with enter_layout's small-contest overlap limit "
+                         "(ENTER_SMALL_MAX_SHARED=M; PREREG-L25)")
     ap.add_argument("--allow-unidentified", action="store_true",
                     help="proceed when our entries cannot be found in the fields (e.g. a week entered through a vetting path); "
                          "fields then include our own entries and the ENTERED line is skipped (disclosed)")
@@ -190,10 +193,15 @@ def main() -> None:
     milly_label = None
     for ct in contests:
         lab = nmap.get(ct["name"], ct["name"])
-        cids = sorted(by_label.get(lab, []))
-        if used[lab] >= len(cids):
-            raise SystemExit(f"no warehouse contest left for {ct['name']} (label {lab})")
-        cid = cids[used[lab]]; used[lab] += 1
+        if lab.startswith("#"):                   # an explicit contest id (identically-named contests, e.g. Week 2's supersats)
+            cid = lab[1:]
+            if cid not in set(ent.contest_id.astype(str)):
+                raise SystemExit(f"contest id {cid} for {ct['name']} is not in the week's fields")
+        else:
+            cids = sorted(by_label.get(lab, []))
+            if used[lab] >= len(cids):
+                raise SystemExit(f"no warehouse contest left for {ct['name']} (label {lab})")
+            cid = cids[used[lab]]; used[lab] += 1
         g = ent[ent.contest_id == cid]
         if a.details and str(cid) not in ladders:
             raise SystemExit(f"--details has no payout ladder for contest {cid}")
@@ -250,10 +258,11 @@ def main() -> None:
         vals = np.array([f["pay"].get(int(r), 0.0) for r in rk])
         return int((vals > 0).sum()), float(vals.sum())
 
-    def score_arm(rows: list[int]) -> dict:
+    def score_arm(rows: list[int], rk_list: list[list[int]] | None = None) -> dict:
+        rk_list = ranks if rk_list is None else rk_list
         pts = act[rows]
         out = {"tickets": 0, "value": 0.0, "by_type": Counter(), "milly_best": None}
-        for ct, rk, f in zip(contests, ranks, fields):
+        for ct, rk, f in zip(contests, rk_list, fields):
             p = pts[rk]
             if f["pay"] is not None:
                 won, val = paid(p, f); out["value"] += val
@@ -267,7 +276,7 @@ def main() -> None:
                 out["milly_cash"] = int((p >= milly_cash).sum())
                 out["milly_best_finish"] = int((f["others"] > p.max()).sum()) + 1
             out["tickets"] += won; out["by_type"][ct["name"]] += won
-        out["mean_pts"] = round(float(np.mean(np.concatenate([pts[rk] for rk in ranks]))), 2)
+        out["mean_pts"] = round(float(np.mean(np.concatenate([pts[rk] for rk in rk_list]))), 2)
         out["by_type"] = dict(out["by_type"])
         return out
 
@@ -291,6 +300,18 @@ def main() -> None:
             "PLAN (mean + tilt + DST cap + sleeve)": score_arm(arm_rows(a.tilt, a.dst_cap)),
             "PLAN without tilt": score_arm(arm_rows(0.0, a.dst_cap)),
             "plain mean (no tilt, no DST cap) + sleeve": score_arm(arm_rows(0.0, None))}
+    if a.small_max_shared:
+        from nfl_dfs.inference.enter_layout import limit_small_overlap
+        plan_rows = arm_rows(a.tilt, a.dst_cap)
+        rp = [rosters[i] for i in plan_rows]
+        small = [k for k, ct in enumerate(contests) if ct["track"] == "mean" and "ranks" not in ct and 2 <= int(ct["entries"]) <= 5]
+        for M in [int(x) for x in a.small_max_shared.split(",") if x.strip()]:
+            rk2, ch = limit_small_overlap(contests, ranks, rp, M)
+            moved = sorted({x["from_rank"] for x in ch}); into = sorted({x["to_rank"] for x in ch})
+            dproj = (float(psum[[plan_rows[r] for r in into]].mean()) - float(psum[[plan_rows[r] for r in moved]].mean())) if ch else 0.0
+            print(f"small-contest overlap limit M={M}: {len(small)} small main-track contests, {sum(1 for k in small if rk2[k] != ranks[k])} "
+                  f"changed, {len(ch)} ranks replaced; projected points of rows swapped in minus out {dproj:+.2f}")
+            arms[f"PLAN + small-contest overlap limit M={M}"] = score_arm(plan_rows, rk2)
     for k, v in arms.items():
         print(f"\n{k}: paid entries {v['tickets']}; mean points per entry {v['mean_pts']}"
               + (f"; payout value {v['value']:.2f}" if a.show_value else "")
