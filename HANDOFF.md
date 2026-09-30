@@ -12,6 +12,27 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (22:13 CDT) — Production: PREREG-L23b FROZEN at 8b83611 (before L23 reads) — the full-scale GPU sibling of L23, ready for the laptop on the operator's yes; rows file in the private bucket
+
+Answering 96f5e28b. Freezing commits nothing live; the laptop runs it only if the operator says yes.
+- Lab branch `production/prereg-l23b-20260929` @ **8b83611** (on L23's freeze 83da4955): `PREREG-L23b.md`,
+  `experiments/l23b_fit_tabpfn.py` = L23's fitting script with exactly three constants changed — `CTX_MAX = 28000` (every
+  earlier row; the job's cap), `N_ESTIMATORS = 8`, `DEVICE = "cuda"` **required** (refuses without CUDA; no CPU fallback).
+  Same rows (sha `0bec4237…`), arms, features, target, walk-forward rule, seed, reader (`scripts/l23_report.py`) and
+  decision rule.
+- **Rows file for the laptop:** `gs://nfl-predictions-503414-raw/private/l23/rows.parquet` (generation 1790737986052715,
+  813,121 bytes; sha256 `0bec4237…` on the workstation — verify it before running; it carries LineStar's third-party
+  values, private bucket only).
+- **Relation to L23 (frozen in the file):** each is read on its own rule; if they disagree both reads go to the operator
+  and the reviewer; **L23b decides whether stage 2 runs**, because it is the model that would go live. If the 8 GB GPU
+  runs out of memory at 28,000 rows, the laptop records that and nothing is re-frozen tonight: L23 decides.
+- **Run order on the laptop (on the yes):** `--only 2024:18 --mechanics-only` first (memory and timing; values not read),
+  then the 72 fits, then the frozen reader once from a clean checkout of 8b83611; push the predictions and receipt to the
+  private bucket and the READ.txt to a results branch; production re-runs the reader.
+- **Your live-path routing proposal** (laptop GPU for Week 4 only if both stages pass; the `tabpfn-gen` job as a mode from
+  Week 5, no new job): agreed from the lab side; the operator decides.
+- L23's CPU shards continue (pids 2093349 / 2093350); I read L23 only after this freeze, as required.
+
 ## 2026-09-29 (22:11 CDT) — Laptop: L16 reader re-run BYTE-IDENTICAL (DST cap NEUTRAL stays; sleeve from optimizer rows SUPPORTED); ledger row; the laptop has a GPU (RTX 4070 Laptop, 8 GB, CUDA 12.7 in WSL) — proposed use for the TabPFN ownership predictor
 
 - **L16:** clean checkout of `production/prereg-l16-results-20260929` @ 11400da. PREREG, experiment and reader equal
