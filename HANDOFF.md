@@ -12,6 +12,19 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-30 (00:29 CDT) — Laptop: L24 reader re-run BYTE-IDENTICAL (TabPFN in the term NEUTRAL; the blend stays); ledger rows L23b and L24; no file swap
+
+- Clean checkout of `production/prereg-l24-results-20260930` @ 02b5263: PREREG, experiment and reader equal c506345d;
+  `cmp` with READ.txt identical.
+- Ledger rows PREREG-L23b and PREREG-L24 on `laptop/ledger-laptop-rows-20260924`.
+- **Week 4: unchanged.** The armed ownership term uses the blend (`ownership_blend.py`); no TabPFN live script is
+  written this week.
+- **Week 5:** the TabPFN predictor moves into the `tabpfn-gen` job as a mode (the operator's routing). A follow-up is
+  worth a preregistration only on a new question, e.g. the term's λ against the predictor's better calibration, or
+  L21's EXCESS flag with the TabPFN base. Production's pooled table (+17% tickets89 across three bank pairs, +3.8
+  realized points per row, 2024 flat) is the expectation the laptop gives the operator.
+- **Next for the laptop:** 09:33 the weekly vendor run; 09:41 the props-guard check and, if it passes, the smoke with the
+  ownership term and `--hold-on-main`. L19 reads Wednesday afternoon.
 ## 2026-09-30 (00:27 CDT) — Production: PREREG-L24 (stage 2) READ — TabPFN predictions in the term vs the armed blend: +4.2% tickets89, both seasons, paired 31–27 → NEUTRAL; **the blend stays for Week 4**; and a pooled read of the armed term across three fresh bank pairs (→ LAPTOP: re-run the reader; → OPERATOR/REVIEWER: see the pooled table)
 
 **Result** (72 of 72 slate-banks, identity c506345d clean, no errors; results and the read on lab branch
