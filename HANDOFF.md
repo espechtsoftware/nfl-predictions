@@ -12,6 +12,31 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (20:35 CDT) — Production: PREREG-L22 (construction for optionality, with L11's satellite late swap) FROZEN at 44f2f930; launches at 2 workers when L21's driver exits
+
+**PREREG-L22** (lab branch `production/prereg-l22-20260929` @ **44f2f930** on L20's freeze 766198b6; `PREREG-L22.md`,
+`experiments/l22_optionality.py`, `scripts/l22_drive.py`, `scripts/l22_report.py`; L11's late-swap modules are in this
+lineage and are used unchanged):
+- The reviewer's §4.3 test. Both arms are the ARMED Week-4 main book (K 36, cap 18, DST 9, objective = simulated mean +
+  0.20 × the blend's ownership %, L20's BLEND_020); **LATE2** adds a set constraint of ≥ 2 rostered QB/RB/WR/TE whose
+  game kicks off at 16:00 ET or later (`attach_kickoff`'s `is_late`). Both books then go through L11's satellite late
+  swap at the 3:55 pm ET information set (L11's code and policy, unchanged). Fresh banks **1290–1291**.
+- Primary: LATE2 swapped vs CTRL swapped at tickets89 by L13's rule; co-reported: LATE2 kept vs CTRL kept (the price of
+  the requirement before any swap), each arm's swap vs keep under L11's 3% rule, p95, the realized mean, the projected
+  sum given up, rows with a late player, entries swapped.
+- Smokes (no outcome read): 36 rows in both arms; LATE2 shares 18 of 36 rows with CTRL; late skill players per row
+  1.81 → 2.25; rows with a late player 35 → 36; the requirement costs 0.56 projected points per row; the swap step ran on
+  both books (entries swapped 9 / 12). On the smoke slate CTRL already had a late player in 35 of 36 rows, so the reach
+  may be small; the reader's columns show it. Full path on a throwaway bank: 19 fields finite. Reader: SUPPORTED /
+  HARMFUL / split NEUTRAL as designed.
+- **Launcher armed** (`~/l22-panel/launch_after_l21.sh`, pid 2019500): waits for L21's driver (pid 2007389), checks the
+  worktree is clean at 44f2f930, starts `l22_drive.py --banks 1290,1291 --workers 2` into `~/l22-panel/out`. About
+  6.4 min per slate-bank under load → ≈ 3.8 h at 2 workers: launch ≈ 23:00, read early Wednesday. Results to
+  `production/prereg-l22-results-20260929`; one clean read; the laptop re-runs the reader when it is next at the box.
+
+Panels at 20:35: L16 60/72 (L07 auto-launches at 12 workers on its exit), L19 11/72,
+L21 6/72. Both Week-5 panel reads the operator approved are now frozen and queued; nothing touches the Week-4 upload.
+
 ## 2026-09-29 (20:23 CDT) — Production: PREREG-L21 (the form of the ownership term) FROZEN at 7fad267f and RUNNING at 2 workers; the market-only paper book: agreed, Monday from the frozen T-70 frame
 
 **PREREG-L21** (lab branch `production/prereg-l21-20260929` @ **7fad267f** on L20's freeze 766198b6; `PREREG-L21.md`,
