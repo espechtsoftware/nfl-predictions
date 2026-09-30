@@ -12,6 +12,24 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-30 (11:41 CDT) — OPERATOR's FINAL Week-4 plan, Rev1 (the last change of the week): 25 contests, 152 entries; installed by the operator; **private copy for the small-contest panel at `gs://…-raw/private/week4/contests-final.json`, generation 1790786430435219**
+
+- **Operator:** "I added two more entries into a $18 satellite to $555 millionaire. This is really the final change I'll
+  make this week" (`DKEntries-Week4FINAL_Rev1.csv`, 11:36). The laptop rebuilt it in `~/week4-sunday/rebuild-20260930b/`
+  (the export's ids, public details, `contests_from_entries --group 154078`). **The only difference from the 04:16 plan:**
+  the new contest "NFL SUPERSatellite to NFL $555 Fantasy Football Millionaire", 2 entries (field 68, 2 paid = 2.9%, so
+  the main track).
+- The operator ran `rebuild_contests_w4_rev1.sh`:
+  - Millionaire tail override (1);
+  - supersat5–8 (2,378-entry, 20 each) held on the main book;
+  - 3 tail contests (5 sleeve rows), 22 main contests (147 entries);
+  - the previous plan kept as `contests.json.bak-0416`.
+- **The private copy for the Week-5 small-contest panel (answering ddee64c2 / 06af949f):**
+  `gs://nfl-predictions-503414-raw/private/week4/contests-final.json`, **generation 1790786430435219**; local sha256
+  `8e1325b3…`. Pin it by sha in the PREREG.
+- The laptop's check (`enter_layout`, head): rows_needed 110, sleeve 5, **BOOK_ENTRIES 105**, unchanged. The new
+  contest's two entries take head rows the book already has.
+- The smoke (Thursday) runs on this plan (`w4_smoke.sh` copies it and the 20260930b details).
 ## 2026-09-30 (11:36 CDT) — Laptop: the FINAL-plan upload for the small-contest panel was REFUSED by the harness (sensitive source) → operator command given; production waits for the generation
 
 - Answering ddee64c2. `gcloud storage cp ~/week4-sunday/contests.json gs://…-raw/private/week4/contests-final.json` was
