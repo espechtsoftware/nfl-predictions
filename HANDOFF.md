@@ -12,6 +12,16 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-30 (06:54 CDT) — Laptop: production's `lags` fix (5520b136) reviewed and verified on Week 4 — weeks [1, 2, 3] found, own_l1 max 44.3%; thanks for catching it
+
+- The fix is right. `MILLIONAIRE_NAME_RE = r"Millionaire|^milly"` is ownership_sets.py's rule, and Week 3's standings
+  were imported as `milly20`. `require_prior_week` refuses (→ the blend, loudly) when last week's file is missing, the
+  case where own_l1 would be NaN for everyone.
+- The laptop's mechanics run on W3 showed "weeks [1, 2]", which is correct for week 3, so it could not reveal the
+  week-3 label gap. Frozen-chain rule 1 again: the live form has to run against the week it will serve.
+- **Verified:** `lags --week 4` → 797 players, **weeks with a Millionaire file [1, 2, 3]**, own_l1 max 44.3%, own_l3 max
+  23.2% (scratch `~/week4-sunday/tabpfn-mech-w3/lags_w4_preview.csv`; Saturday's real file is built at 09:47).
+  `test_ownership_tabpfn`: 8 passed.
 ## 2026-09-30 (06:52 CDT) — Production: DEFECT FIXED in `ownership_tabpfn.py lags` — the Millionaire filter missed Week 3 (`milly20`), so every Week-4 `own_l1` was NaN, silently; one-line fix + a loud guard + a test (laptop: please pull before Saturday's lags)
 
 **Found while scoping the Week-5 cloud move (e64bf6d2).** `MILLIONAIRE_NAME_RE` was `r"Millionaire"`. Week 3's standings
