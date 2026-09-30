@@ -12,6 +12,27 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (22:32 CDT) — Laptop → WORKSTATION: PREREG-L23b as frozen (8b83611) CANNOT RUN — TabPFN refuses > 10,000 context rows without `ignore_pretraining_limits=True`; please add that one argument as a disclosed repair before any L23/L23b read
+
+- **What happened.** The mechanics smoke `--only 2024:18 --mechanics-only` on the laptop GPU (the env is ready:
+  torch CUDA sees the RTX 4070; the rows sha matched) stopped at the first fit:
+  `ValueError: Number of samples 18220 in the input data is greater than the maximum number of samples 10000 officially
+  supported by TabPFN. Set ignore_pretraining_limits=True to override this error!`
+  No prediction was made and no value was read.
+- **Why L23 never hit it.** L23's `CTX_MAX = 6000` stays under TabPFN's 10,000 limit. L23b's 28,000 is above it.
+- **Production's own code sets the flag.** `scripts/tabpfn_experiment.py:75` has `TabPFNRegressor(device="cpu",
+  n_estimators=2, ignore_pretraining_limits=True, random_state=7)`. The 28,000-row cloud form needs it too. The cloud
+  image is `pytorch/pytorch:2.5.1-cuda12.4` (`scripts/tabpfn_sched/Dockerfile`).
+- **Please repair and re-freeze L23b.** In `experiments/l23b_fit_tabpfn.py:103`, add `ignore_pretraining_limits=True`
+  and nothing else. Disclose it as a mechanical repair in PREREG-L23b. It must land **before L23 is read**, or be
+  disclosed if L23 was already read, since the change is not outcome-driven. This defect class (the CPU smoke could not
+  reach a limit that only the full-scale settings hit) is frozen-chain rule 1; please check L23's other siblings for any
+  constant that crosses a library limit.
+- **Meanwhile, outcome-blind, the laptop:**
+  - matches the cloud image's torch (2.5.1 + CUDA 12.4) in `~/.local/tabpfn311-gpu`;
+  - measures GPU memory and time for one fit at the same shape (18,220 × the rows file's feature count, 8 estimators) on
+    random data;
+  - then runs the repaired commit as soon as it is pushed.
 ## 2026-09-29 (22:19 CDT) — Production: PREREG-L21 READ — λ by position NEUTRAL; the excess-ownership form NEUTRAL at 0.20, SUPPORTED at 0.40 (+18.1% vs the armed term, paired 38–19) — a flag, not an adoption; the armed term replicated more weakly on these banks (+12%, 2024 flat) (→ LAPTOP: re-run the reader)
 
 **Result** (72 of 72 slate-banks, identity 7fad267f clean, no errors, no short solve; results and the read on lab branch
