@@ -584,18 +584,27 @@ def test_frozen_swap_uses_the_row_map_when_the_sleeve_repeats_a_mean_row(tmp_pat
 def test_spread_layout_keeps_the_head_book_size_and_spreads_each_contest():
     cs = week3_shaped()
     head = EL.assign_ranks(cs, "head"); spread = EL.assign_ranks(cs, "spread")
-    # the spread positions int((j + 0.5) * K / n) end at 141 of the head layout's K = 144: the book holds 141 mean rows
-    assert EL.rows_needed(cs, "head") == 144 and EL.rows_needed(cs, "spread") == 141
+    # the last spread position of the last equal-size contest is 143 of the head layout's K = 144
+    assert EL.rows_needed(cs, "head") == 144 and EL.rows_needed(cs, "spread") == 143
     assert sum(len(r) for r in spread) == 198
     K = 144
     for c, r in zip(cs, spread):
         assert len(r) == c["entries"] and len(set(r)) == len(r) and all(0 <= x < K for x in r)
     one = [[x + 1 for x in r] for r in spread]
     by = lambda name: [r for c, r in zip(cs, one) if c["name"] == name]
-    # a 20-entry contest sits K/20 = 7.2 rows apart along the sequence: ranks 4, 11, 18, ... 141
-    for r in by("supersat25lo"):
-        assert r == [int((j + 0.5) * K / 20) + 1 for j in range(20)] and r[0] == 4 and r[-1] == 141
+    # the three 20-entry contests sit K/20 = 7.2 rows apart along the sequence, offset from one another by a third of a
+    # step (reviewer 2026-09-29: equal-size contests must not take identical rows)
+    lo = by("supersat25lo")
+    for g, r in enumerate(lo):
+        assert r == [int((j + (g + 0.5) / 3) * K / 20) + 1 for j in range(20)]
         assert min(b - a for a, b in zip(r, r[1:])) >= 7
+    assert lo[0][0] == 2 and lo[1][0] == 4 and lo[2][0] == 7 and lo[2][-1] == 143
+    assert not (set(lo[0]) & set(lo[1])) and not (set(lo[1]) & set(lo[2])) and not (set(lo[0]) & set(lo[2]))
+    hi = by("supersat25hi")
+    assert not (set(hi[0]) & set(hi[1])) and not (set(hi[1]) & set(hi[2]))
+    # distinct lineups entered by the multi-entry contests: every row of every contest, no two equal-size contests alike
+    multi = [r for c, r in zip(cs, one) if c["entries"] > 2]
+    assert len({tuple(r) for r in multi}) == len(multi)
     # the nineteen single-entry satellites never share a lineup and are spread over the whole block, not rows 1-19
     singles = [r[0] for r in by("sat20")]
     assert len(set(singles)) == 19 and singles[0] == 4 and singles[-1] == 141 and max(singles) - min(singles) > 100
@@ -610,7 +619,7 @@ def test_spread_layout_two_tracks_pins_and_protection():
           {"name": "milly", "contest_id": "9", "entries": 2, "keep": 2, "track": "tail"}]
     head = EL.assign_ranks(cs, "head"); spread = EL.assign_ranks(cs, "spread")
     k = max(max(r) + 1 for r in head[:2])                              # the mean block the head layout reads (10 rows)
-    assert [x + 1 for x in spread[0]] == [x + 1 for x in spread[1]] == [2, 4, 6, 8, 10]   # two multi-entry contests may share rows
+    assert [x + 1 for x in spread[0]] == [1, 3, 5, 7, 9] and [x + 1 for x in spread[1]] == [2, 4, 6, 8, 10]   # offset by half a step
     assert spread[2] == head[2] == [k, k + 1]                          # the sleeve starts after the mean rows, as under head
     assert EL.sleeve_size(cs, "spread") == 2 and EL.rows_needed(cs, "spread") == EL.rows_needed(cs, "head") == 12
     pinned = [{"name": "q", "contest_id": "3", "entries": 2, "keep": 2, "ranks": [1, 5]}] + cs

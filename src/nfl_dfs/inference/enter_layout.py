@@ -32,11 +32,14 @@ Layouts (ENTER_LAYOUT):
   spread      (winners study 2026-09-29 §4.2; laptop W-C) the head layout's TWO TRACKS and book size, but every mean-track
               contest takes its rows SPREAD EVENLY over the mean rows 1..K (K = the head layout's row count for the same
               contests, so the builder's BOOK_ENTRIES is unchanged) instead of the shared head plus consecutive unique rows:
-                - a contest of n entries takes ranks floor((i + 0.5) * K / n) + 1, i = 0..n-1 (n <= K), in the book's order,
-                  so its rows sit K/n apart along the optimizer's sequence and hit or miss less together;
+                - the g-th of G contests with n entries takes ranks floor((i + (g + 0.5) / G) * K / n) + 1, i = 0..n-1
+                  (n <= K), in the book's order, so its rows sit K/n apart along the optimizer's sequence and hit or
+                  miss less together, and equal-size contests are OFFSET from one another (reviewer 2026-09-29
+                  addendum: without the offset equal-size contests took identical rows, 37 distinct lineups of 100);
                 - all-head contests (n <= 2), grouped by SIZE as the head does, take the group's G*n spread ranks in blocks
                   of n, so no two single-entry satellites share a lineup;
-                - two multi-entry contests MAY hold the same lineup (as the head rows already do); one contest never does;
+                - contests of DIFFERENT sizes may still hold the same lineup (as the head rows already do); one contest never
+                  repeats a row;
                 - pins ("ranks") and tail-track contests behave exactly as under head; protected ranks cover every rank an
                   all-head contest takes, which now reach across the whole mean block.
 
@@ -220,6 +223,7 @@ def _spread_ranks(contests: list[dict], sizes: list[int]) -> list[list[int]]:
     out = [[] for _ in contests]
     pinned: list[int] = []
     groups: dict[int, list[int]] = {}
+    multi: dict[int, list[int]] = {}                        # n -> the multi-entry contests of that size, in file order
     for i, (c, n) in enumerate(zip(contests, sizes)):
         if "ranks" in c:
             r = c["ranks"]
@@ -234,7 +238,11 @@ def _spread_ranks(contests: list[dict], sizes: list[int]) -> list[list[int]]:
         else:
             if n > K:
                 raise LayoutError(f"contests.json: {c.get('name')!r} has {n} entries but the layout holds {K} mean rows")
-            out[i] = [int((j + 0.5) * K / n) for j in range(n)]
+            multi.setdefault(n, []).append(i)
+    for n, members in multi.items():                        # the g-th of G equal-size contests is offset by (g + 0.5) / G of a step
+        G = len(members)
+        for g, i in enumerate(members):
+            out[i] = [int((j + (g + 0.5) / G) * K / n) for j in range(n)]
     for n, members in groups.items():                       # G contests of n entries: G*n spread ranks, dealt in blocks of n
         total = n * len(members)
         if total > K:

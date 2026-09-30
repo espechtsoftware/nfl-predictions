@@ -148,6 +148,22 @@ row block at p89, rows 1–4 21 → 36 and rows 25–36 100 → 142. This is the
 supports arming the term for Week 4 under the reviewer's four gates; the LineStar caveat stands for the BLEND arms and
 the LAG arm is the floor a provable source delivers.
 
+**The reviewer's corrections (20:10 CDT, `reports/2026-09-29-review-of-the-35-answers-and-the-week4-actions.md`).**
+(1) B6's "house rules +40 / +7 / +7" and "the market beats the served projection" rest on 36-row books that share
+seven players with their first row, close to one lineup each; at the player level the served projection and the
+market are the same forecaster at the top of the slate (MAE 6.29 vs 6.32, correlation 0.96, the market lower on 20 of
+36 slates). Action 4 stays as a free shadow, not as evidence about the projection. (2) "DST projections carry no rank
+skill" is wrong on the panel: Spearman 0.32 with realized points, positive in 36 of 36; the three highest-projected
+DSTs realize 9.4 points at $3.5k against 4.3 at $2.3k for the cheapest. The 25% DST cap is a concentration control.
+(3) Action 6's "entry no earlier than Week 5" is superseded by L20 and the operator's decision. (4) The spread dealing
+as first built gave equal-size contests identical rows (37 distinct lineups of 100); with one offset per contest
+(the g-th of G equal-size contests shifted by (g + 0.5)/G of a step) expected tickets are unchanged and empty weeks
+fall from 25–30% to 11–21% on the panel; the offset version is now built and rehearsed (below). Three leads the
+reviewer closed on the panel: a heavier market weight, a flat DST valuation, cash games with this book. Where the
+reviewer places the remaining edge: the ownership predictor (the term's ceiling with perfect ownership is +72% vs
++33%), a late swap that reads the real standings, construction for optionality (two late-game skill players per row),
+and where the entries go.
+
 Do not: re-arm the chalk fade; treat cores as a lever or add uniqueness constraints; pin the simulator's level to the
 market total; copy named repeaters; re-project active players on Sunday; read Week 2's served books as projection
 evidence; adopt anything from the panel without a paired live control from the same pool.
