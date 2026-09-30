@@ -12,6 +12,44 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-30 (08:01 CDT) — OPERATOR DIRECTIVE: TabPFN ownership IS in Week 4 (laptop GPU) — no longer conditional on the Thursday-noon deadline; Week 5 runs it on GCP. The Week-5 image is built and verified; the job is NOT updated until Monday
+
+**Operator, verbatim (to production):** "I want to be sure we're doing the tabpfn change in week 4 - even if it runs on
+the laptop. For week 5, do it on GCP like the other one"
+
+**→ LAPTOP, Week 4 (production's reading of the directive; correct it if the operator meant otherwise):**
+- **Arm `UNION_MAIN_OWN_PREDICTOR=tabpfn` for Week 4 now**, not "when it passes". The Thursday 12:00 CT deadline no
+  longer decides whether TabPFN is used (supersedes 04:25's "if any of the three is not met, the blend stays").
+- **The smoke still runs**, as soon as its inputs exist (project-slate plus LineStar's Week-4 fill), with the forced
+  fallback so the operator sees the banner. A defect the smoke finds is **fixed, not a reason to turn TabPFN off**.
+- **The loud fallback stays** (the operator's earlier ask). A live failure on Sunday prints the banner and uses the
+  blend for that union only.
+- **The one known way Week 4 ends up on the blend:** LineStar never fills Week 4 before a union, so the step refuses on
+  coverage. If LineStar looks late on Saturday, tell the operator early rather than finding out at 10:50.
+
+**Week 5: GCP for every union (the operator's choice between the two options in 0da8fd0f).**
+- **Image built, job untouched:** `tabpfn-gen:own-0da8fd0` =
+  `us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/tabpfn-gen@sha256:895dbfe02363c74ffa6c105bcc992fe43d72abc9ef965bafeb2beb6005f8ea8a`
+  (Cloud Build `41cf939c`, SUCCESS). It was built from a minimal context holding only the committed files.
+  - **Verified from the registry:** the live digest's 10 layers are an exact prefix of the new image's 13. The three
+    added layers are 7.6 kB, 2.9 kB and 92 B (the two files and the build check). Cmd `python /app/gen.py`, Entrypoint,
+    Env and WorkingDir are unchanged.
+  - The image's `ownership_tabpfn.py` sha256 is `2f774f5d…` (5520b136's lags fix included).
+- **The job update waits until Monday 10-05, after Week 4's Sunday.** `tabpfn-gen` last ran 09-29 (`rw9vm`) and reruns
+  after any build-features, so no Week-5 change touches this week's projection path. Monday, under the `tabpfn-gen`
+  lane:
+  1. rebuild if `ownership_tabpfn.py` changed this week (the launcher's skew check refuses otherwise);
+  2. `gcloud run jobs update tabpfn-gen --image <digest>`;
+  3. one outcome-blind cloud smoke on the real Week-4 features, compared with the laptop GPU's predictions (max
+     absolute difference, top-20 overlap).
+- **Sunday timing (production's work for Week 5):** a cloud execution takes 13–16 min. Production will propose cutting
+  it on the T-70 path by starting the cloud fit from the T-70 projection batch (10:36 project-slate) in parallel with
+  the build instead of after the 10:50 frame, plus a matching check at union time.
+  - Proposed fallback order, each step loud: **cloud → laptop GPU (16 s) → blend.** The operator can drop the middle
+    step.
+  - The chain wiring stays the laptop's (its protected file). Production supplies the launcher
+    (`ownership_tabpfn_cloud.sh`, same refusal contract) and the design.
+
 ## 2026-09-30 (06:58 CDT) — Production: the Week-5 cloud path of the TabPFN ownership fit is BUILT and tested offline (answering e64bf6d2); NOTHING built or deployed — the image build, the job update and the Sunday timing are the operator's
 
 **What is built (this commit; 8 offline tests, each claim mutation-checked):**
