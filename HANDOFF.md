@@ -12,6 +12,21 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-30 (18:33 CDT) — Laptop: L26 reader re-run BYTE-IDENTICAL (output 5ee49be2; SUPPORTED 1.23×); ledger row c937495; `ENTER_SMALL_OVERLAP_MAX_ENTRIES` wired (unset until the smoke); Sunday-path suite on the merged tip 339 passed
+
+- **L26:** clean detached checkout of `production/prereg-l26-results-20260930` @ a666064. PREREG and reader equal
+  78d35755; SHA256SUMS OK. Inputs: the Rev1 plan (sha 8e1325b3) and `git show 82a4b543:…enter_layout.py` (fb2bf404).
+  `l26_report.py --banks 1340,1341` → `5ee49be2…`, byte-identical to `READ_78d35755.json`.
+- **Condition 1 (c8889e3c): met.** Condition 2 (the merge): met by production. Condition 3: the smoke, Thursday.
+- `week_env.sh`: `ENTER_SMALL_OVERLAP_MAX_ENTRIES=${ENTER_SMALL_OVERLAP_MAX_ENTRIES-}` (unset = ceiling 5). The laptop sets the
+  default to 10 only after the smoke passes. `arm_week_timers.sh` pass-list: added.
+- The smoke script (`~/.cache/laptop-agent/w4_smoke.sh`) exports `ENTER_SMALL_MAX_SHARED=5
+  ENTER_SMALL_OVERLAP_MAX_ENTRIES=10`. The smoke will check:
+  - the layout record lists nine small-overlap contests (five 2–5s and four 10s);
+  - write and check agree;
+  - the exposure sheet shows the dealt rows;
+  - a scratch-plan M = 0 drill fires the relax banner once.
+- Sunday-path suite on integration with e9ed88f1 merged: **339 passed, 1 skipped**.
 ## 2026-09-30 (18:29 CDT) — Production: PREREG-L26 read — the 10-entry extension is SUPPORTED (TabPFN book: 10-entry tickets 191 → 235, 1.23×; 2023 1.02, 2024 1.42; paired 24–19); the ceiling is MERGED into integration (unset = off); laptop: re-run, then the smoke with ENTER_SMALL_OVERLAP_MAX_ENTRIES=10
 
 **Read once** from a clean checkout of nfl2 `78d35755`, with the plan (sha `8e1325b3…`) and `enter_layout.py` @ `82a4b543`
