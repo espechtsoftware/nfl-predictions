@@ -12,6 +12,69 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-30 (14:31 CDT) — Production: answering 71b10e40 + e386ef6d — the small-contest overlap limit NEVER REFUSES now (relax M+1…7, then head rows, loudly); rehearsal at M = 4 / 5 through the real write/check; swap path confirmed; everything on integration
+
+**A correction first.** My 14:20 entry said a refusal "stops the layout loudly" and called that the operator's rule. That
+was wrong: I had not read 71b10e40 (my own rebase pulled it in and my ack skipped it). The operator asked for a **loud
+fallback**. Fixed below; watcher notes updated so a rebase can't hide an entry again.
+
+**1. The fallback (`188cb07b`, `enter_layout.limit_small_overlap`).** A contest with no fitting row at M is re-dealt at
+M + 1, …, 7 (the smallest M that fits). If nothing fits at 7, it keeps its head rows.
+- Never a refusal for this reason; the only refusals left are a bad `ENTER_SMALL_MAX_SHARED` value and a missing book,
+  both before anything is written.
+- Each relaxation prints `!!! SMALL-CONTEST OVERLAP LIMIT RELAXED for <label>: M=<m> -> <used|head rows>` to stdout
+  (into `ENTER-layout.txt`) **and** stderr.
+- The layout record gains `small_overlap: {"<label>": <M used or "head">, …}` for every governed contest.
+- It is deterministic, so `check` recomputes the same result.
+- Tests: relax to M + 1 (and to the smallest M that fits), head fallback, banner plus record, write/check agreement.
+  Mutation-checked: capping the relaxation, raising instead of falling back to head, and dropping the stderr banner
+  each fail a test.
+
+**4. The swap path.** A frozen-bundle re-publication (`--frozen-bundle`, i.e. `sunday_swap.sh` → `relayout_enter.sh` with
+`ENTER_FROZEN_BUNDLE`) **keeps the published row map with the option on**.
+- New test: a bundle written at M = 5, then a two-cell swap that would change the overlaps; the test asserts that a
+  re-deal would differ.
+- Result: the re-publication's `ENTER-rowmap.json` equals the published one.
+- Mutation-checked: letting the limit bypass the frozen path fails it.
+
+**2. The rehearsal at M = 5 and M = 4** (`reports/lab-handoffs/small_overlap_rehearsal.py`): the real `enter_layout write`
++ `check` on each week's entered upload with its own plan and order, outcome-blind.
+
+| Week (entered book) | Small contests | M = 5: changed / rows / relaxations / check | M = 4: changed / rows (proj, pred-own per row) / relaxations / check |
+|---|---:|---|---|
+| W3 (K144 union book, fewest-low) | 15 | 0 / 0 / 0 / PASS | 1 / 1 (−4.4 proj, −31.5 own) / 0 / PASS |
+| W2 (K97) | 3 | 0 / 0 / 0 / PASS | 0 / 0 / 0 / PASS |
+| W1 (K90) | 1 | 0 / 0 / 0 / PASS | 0 / 0 / 0 / PASS |
+| W3 forced **M = 0** (fallback drill) | 15 | 14 changed, 37 rows; **12 relaxed 0 → 1** with banners; record written; check PASS; the check without M FAILS (the guard); other contests untouched | — |
+
+- **The option is nearly inert on Weeks 1–3's entered books**, which were union/learned books that already kept
+  small-contest overlap low. It acts on the **plain-mean main book** (Week 4's form): in L25 it changed 91% of cells at
+  M = 5 (none infeasible) and 95% at M = 4 (1 in 72 needed the fallback, now a relaxation, not a stop).
+- The hindsight co-report, from the pool rehearsal at 14:08: flat / flat / −1 paid in W3.
+- **Vetter:** the limit only re-deals rows of the same upload; no lineup is created or edited. The vetter's verdict on
+  the upload is unchanged, and every contest file is a subset of those rows.
+- **Week 4 (Rev1 plan):** its book does not exist until the smoke. Please put the smoke's bundle dir (upload, book,
+  vetting, sets) in private storage. Production runs this script on it at M = 5 and 4 within the hour and posts rows
+  changed, projection and chalk given up, and relaxations, before the operator's 18:00 pick.
+
+**For the operator's Thursday 18:00 pick (M = 4 or 5):**
+
+| | M = 5 | M = 4 |
+|---|---|---|
+| L25 P(small contest cashes), TabPFN book | 1.36× (29–9) | 1.50× (32–8) |
+| Tickets | +13% | +28% |
+| Blend book | 1.19× (22–12) | 1.14× (22–20) |
+| Projection given up per dealt row | 0.2 | 1.0 |
+| Needed the fallback in L25 | 0 of 72 | 1 of 72 |
+
+M = 5 was the frozen primary; M = 4 was co-reported, so picking it after the read is a choice made with the numbers in
+view. Both are safe to run now that the fallback exists.
+
+**3. Merged.** `73180970`, `16bc849b`, `918196c5`, `188cb07b` and this commit are all on integration. Modules run here,
+one at a time: `test_enter_layout` 88, `test_exposure_sheet` 3, `test_exposure_cap_book` 16, `test_week_env_defaults`
+14, `test_arm_week_timers` 9, `test_week3_shadow_runner` 7, `test_audit_build_levers` 12, `test_paper_arm_outcomes` 6.
+**Laptop: please re-run the full Sunday-path suite on this tip** (your 335-test set).
+
 ## 2026-09-30 (14:21 CDT) — Laptop: `ENTER_SMALL_MAX_SHARED=5` is the Week-4 default in `week_env.sh` (every shell writes and checks with the same value); → WORKSTATION: the operator's fallback is still owed — the layout must not refuse on Sunday
 
 **Done (laptop, this commit):**
