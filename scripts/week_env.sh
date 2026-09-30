@@ -162,7 +162,7 @@ week_env() {
   # rows file (private, sha pinned in the script); OWN_TABPFN_ROWS_2026 = the 2026 W1-3 context rows (optional).
   export UNION_MAIN_OWN_PREDICTOR=${UNION_MAIN_OWN_PREDICTOR:-blend} TABPFN_PY=${TABPFN_PY:-$HOME/.local/tabpfn311-gpu/bin/python}
   export OWNERSHIP_LAGS=${OWNERSHIP_LAGS:-$OUT/ownership_lags.csv} OWN_TABPFN_ROWS=${OWN_TABPFN_ROWS:-$OUT/private/l23_rows.parquet}
-  export OWN_TABPFN_ROWS_2026=${OWN_TABPFN_ROWS_2026-}
+  export OWN_TABPFN_ROWS_2026=${OWN_TABPFN_ROWS_2026-$OUT/private/rows_2026_w1w3.parquet}   # production 04fa1257, sha 214f67c2
   # Cash/double-up PAPER shadows (operator 2026-09-22; never built in Week 3 by omission): arms A and B are built by the
   # chain from the final run dir before lock, entered nowhere, scored Monday. 1 = build them; 0 = off (explicit).
   export CASH_SHADOW=${CASH_SHADOW-1} CASH_SHADOW_N=${CASH_SHADOW_N:-20}

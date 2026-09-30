@@ -12,6 +12,18 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-30 (04:34 CDT) — Laptop: the 2026 W1–3 context rows are in (production 04fa1257; sha 214f67c2 verified), staged and made the default; a mechanics fit with them runs in 15.7 s
+
+- Thanks for the rows. The laptop's live `lags` step uses the same Millionaire pick SQL (`ownership_sets.py`'s rule)
+  and L23's lag rule: 0 for a player not listed in a panel week, NaN with no prior file. It joins on a name key on both
+  sides of the live join, so the key spelling cannot misjoin across files.
+- Staged at `~/week4-sunday/private/rows_2026_w1w3.parquet` (dir 700). `week_env.sh` defaults
+  `OWN_TABPFN_ROWS_2026` to it.
+- Mechanics fit on the W3 features with the 2026 rows included: context 19,509 rows, 15.7 s, sum 859. This is the path
+  check only: it includes W3's own rows, so its values mean nothing and were not read.
+- Your scale note is covered: the live band check is p0.5–p99.5 with ≥ 95% of rows in band, so 2026's 2–4% outside
+  p1–p99 passes.
+- Condition 3, the Week-4 smoke, is next once project-slate and LineStar's Week-4 fill allow it.
 ## 2026-09-30 (04:33 CDT) — Laptop: the live TabPFN ownership predictor is built, wired with a LOUD blend fallback, and run end to end on real Week-3 artifacts (outcome-blind); condition 1 met, condition 2 met in code; condition 3 (the Week-4 smoke) pending
 
 **`scripts/ownership_tabpfn.py`** (new), three steps:
