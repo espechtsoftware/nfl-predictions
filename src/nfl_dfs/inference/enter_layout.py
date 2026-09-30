@@ -85,6 +85,11 @@ SMALL_MAX_ENTRIES = 5
 # two rows of the SAME 2..SMALL_MAX_ENTRIES-entry mean-track contest may share. Unset = off (the head/spread rows as
 # before). Not for Week 4: this branch merges only after Week 4's Sunday.
 SMALL_OVERLAP_ENV = "ENTER_SMALL_MAX_SHARED"
+# The largest contest the overlap limit governs (reviewer 2026-09-30 §2: the 10-entry contests gain as the 2-5s did).
+# Deliberately NOT SMALL_MAX_ENTRIES, which also sets the head layout's own split (head_size): raising that would re-deal
+# every 6..10-entry contest even with the limit off. Unset = 5 (L25's cells).
+SMALL_OVERLAP_CEILING_ENV = "ENTER_SMALL_OVERLAP_MAX_ENTRIES"
+SMALL_OVERLAP_MAX_ENTRIES = SMALL_MAX_ENTRIES
 PLAYER_SLOTS = ("QB", "RB", "WR", "TE", "FLEX", "DST")
 MIN_SETS_COVERAGE = 0.90  # share of the book's distinct skill ids the sets file must know
 INJURY_TAGS = ("DK", "report", "qb", "backup_qb")   # flag-tag prefixes that bar a row from the head (not practice/market)
@@ -478,6 +483,20 @@ def parse_max_shared(value: str | int | None) -> int | None:
     return m
 
 
+def overlap_ceiling(value: str | int | None = None) -> int:
+    """The largest contest (entries) the overlap limit governs: ENTER_SMALL_OVERLAP_MAX_ENTRIES, default 5; 2..20."""
+    v = os.environ.get(SMALL_OVERLAP_CEILING_ENV) if value is None else value
+    if v is None or (isinstance(v, str) and not v.strip()):
+        return SMALL_OVERLAP_MAX_ENTRIES
+    try:
+        n = int(str(v).strip())
+    except ValueError:
+        raise LayoutError(f"{SMALL_OVERLAP_CEILING_ENV}={v!r} must be an integer 2..20 or unset") from None
+    if not 2 <= n <= 20:
+        raise LayoutError(f"{SMALL_OVERLAP_CEILING_ENV}={n} must be 2..20 or unset")
+    return n
+
+
 def row_players(hdr: list[str], row: list[str]) -> frozenset:
     """The player cells of one upload row (the QB/RB/WR/TE/FLEX/DST columns)."""
     cols = [j for j, h in enumerate(hdr) if str(h).strip().upper() in PLAYER_SLOTS]
@@ -511,7 +530,7 @@ def _deal_small(first_ranks: list[int], rank_players: list[frozenset], K: int, m
 
 def limit_small_overlap(contests: list[dict], ranks: list[list[int]], rank_players: list[frozenset],
                         max_shared: int) -> tuple[list[list[int]], list[dict]]:
-    """The small-contest overlap limit over layout RANKS. For each mean-track contest of 2..SMALL_MAX_ENTRIES entries
+    """The small-contest overlap limit over layout RANKS. For each mean-track contest of 2..overlap_ceiling() entries
     without an explicit pin: its first rank is kept; each later rank is kept if that row shares <= M players with every
     row already chosen for the contest, otherwise it is replaced by the first rank after it in solve order (wrapping
     within the mean ranks 0..K-1) that does and is not already chosen. Rows may repeat across contests, as under head.
@@ -523,6 +542,7 @@ def limit_small_overlap(contests: list[dict], ranks: list[list[int]], rank_playe
     with relaxed_to an int M or "head"."""
     if not isinstance(max_shared, int) or isinstance(max_shared, bool) or not 0 <= max_shared <= 8:
         raise LayoutError(f"max_shared must be an integer 0..8 (got {max_shared!r})")
+    ceiling = overlap_ceiling()
     mean = [str(c.get("track", "mean")) == "mean" for c in contests]
     K = max((max(r) + 1 for r, m in zip(ranks, mean) if m and r), default=0)
     if len(rank_players) < K:
@@ -531,7 +551,7 @@ def limit_small_overlap(contests: list[dict], ranks: list[list[int]], rank_playe
     changes: list[dict] = []
     for i, c in enumerate(contests):
         n = len(ranks[i])
-        if not mean[i] or "ranks" in c or not 2 <= n <= SMALL_MAX_ENTRIES:
+        if not mean[i] or "ranks" in c or not 2 <= n <= ceiling:
             continue
         tag = {"contest": c.get("name"), "label": label(c)}
         for m in range(max_shared, 8):
@@ -552,7 +572,7 @@ def small_overlap_record(contests: list[dict], max_shared: int, changes: list[di
     rec = {}
     relaxed = {x["label"]: x["relaxed_to"] for x in changes if "relaxed_to" in x}
     for c in contests:
-        if str(c.get("track", "mean")) == "mean" and "ranks" not in c and 2 <= int(c.get("entries", 0)) <= SMALL_MAX_ENTRIES:
+        if str(c.get("track", "mean")) == "mean" and "ranks" not in c and 2 <= int(c.get("entries", 0)) <= overlap_ceiling():
             rec[label(c)] = relaxed.get(label(c), max_shared)
     return rec
 
@@ -776,6 +796,7 @@ def main(argv: list[str] | None = None) -> int:
                     help="the small-contest overlap limit (players two rows of one 2-5-entry contest may share); unset = off")
     a = ap.parse_args(argv)
     max_shared = parse_max_shared(a.small_max_shared)
+    overlap_ceiling()                                # validated up front: a bad value refuses before anything is written
     contests = _contests(a.contests)
     if a.cmd == "rows-needed":
         print(rows_needed(contests, a.layout))
