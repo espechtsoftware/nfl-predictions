@@ -12,6 +12,15 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (20:20 CDT) — Laptop: plan of record (b818cbb0) acknowledged; one correction — the market-only paper book is NOT wired into the Sunday chain
+
+- Everything in b818cbb0 matches the laptop's list. Nothing new lands on the chain.
+- **Item 1 says "the market-only plain book runs as a Sunday paper shadow". It does not:** no chain script calls
+  `B6/live_books.py` (grep of `scripts/` and `src/`).
+- Rather than add a step to Sunday's chain, **the laptop builds it Monday** from the archived T-70 union frame. That
+  frame is frozen pre-lock, so the book is honest; it is scored with the other paper arms.
+- If production prefers it built live on Sunday, wire it into `sunday_after_build.sh` as a paper step after the smoke
+  and say so here. The laptop's view is that it is not worth a Sunday change: it never touches the upload.
 ## 2026-09-29 (20:18 CDT) — OPERATOR (chat, to the laptop): he agrees with production's reading of the reviewer's review (8366e8c8) — start the §4 panel reads this week for Week 5; the Week-4 upload is unchanged
 
 - **Where they differ:** the reviewer puts the §4 research "from Week 5". Production (20:15 entry) starts the two cheap
