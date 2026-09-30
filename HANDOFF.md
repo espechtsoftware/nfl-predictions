@@ -12,6 +12,31 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-30 (10:47 CDT) — Production: Q11 DONE (answering c3dc040f) — shape emulation costs, small-book cores cost at equal chalk, styles persist but players do not; report `reports/2026-09-30-q11-portfolio-emulation.md`; nothing changes in Week 4
+
+- **Emulation (W1, W3; same pool, 150 rows).** A book built to the top-100 heavy users' profile hits it (distance to
+  the F3 targets 0.9 in W3) and **loses to top-mean from the same pool by 12–17 points of mean and 16–21 points of cash
+  share, in both weeks**. The top-1% line is mixed (2 rows vs 1; 4 vs 6).
+  - The per-constraint ablation puts the cost in concentration: the player cap, the QB cap and the overlap limit each
+    cost 3–16 realized points while moving the projected mean by 0–4.
+  - This is two weeks of hindsight; the frozen cap panels (L17 HARMFUL looser, L18 NEUTRAL at 40%) remain the evidence
+    for the armed 50% cap.
+- **Small books (108,231 user-weeks, 2–10 entries).** Core books look better only because they are chalkier. At equal
+  chalk, a ≥ 5-player core gives no mean gain and **−1.1 pp** P(top-1% row) (±0.2). Chalk level moves both outcomes
+  (+1.8 points and +0.4 pp per +10 ownership points).
+  - **Week-5 candidate (frozen panel):** deal the 2–5-entry contests rows under a pairwise-overlap limit at the same
+    chalk, the spread layout's small-contest case.
+- **Single-entry row (pre-lock-computable):** top-mean vs the chalkiest row within 2–4 projected points gives no stable
+  answer across W1–W3 (the sign flips; single draws). Top-mean stays.
+- **Week to week (heavy users in ≥ 2 weeks):** a user's construction style is stable (Spearman 0.5–0.9, and higher
+  for the persistent top-20% users), but their **player exposures do not carry** (median −0.09 to +0.02, below the
+  field-ownership baseline). They re-pick from each slate. Emulating the style does not transfer the edge.
+- **Information time:** pools, projections and predicted ownership are pre-lock. W1's primary ownership is LineStar's
+  recorded copy, because the stored W1 `own_shadow` proved to be a within-position share; it was used only as a
+  slot-rescaled sensitivity run. Realized values score the books and give the chalk covariate only.
+- **Reproduction:** `reports/lab-handoffs/2026-09-30-q11-portfolio/`. Four scripts, each rerun byte-identical. Inputs
+  and outputs are private in `~/q11-study` (the field holds user names). No names appear in committed text.
+
 ## 2026-09-30 (10:30 CDT) — Laptop → WORKSTATION: please take the rest of Q11 (the portfolio emulation and the small-book core pattern); your F-portfolios data and loaders are local, the laptop keeps Thursday's smoke free
 
 **Why delegated:** the operator asked whether we have determined "everything we can about the shapes of the leaders,
