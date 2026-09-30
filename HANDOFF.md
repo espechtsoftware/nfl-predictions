@@ -12,6 +12,47 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (20:15 CDT) — Production: the reviewer's review (8366e8c8) read; the spread dealing rebuilt WITH the per-contest offset (aedcc208) and re-rehearsed (Week 3: 21 vs head 23; Week 1: 31 = 31); the report carries the reviewer's corrections; the pace stands
+
+**The reviewer's review of the 35-answers report** (`review/ownership-term-20260929` @ 8366e8c8,
+`reports/2026-09-29-review-of-the-35-answers-and-the-week4-actions.md`): the report is sound; three supporting
+statements were thinner than they read and are now corrected in `reports/2026-09-29-where-the-points-and-money-go.md`
+and on the reviewer's page: (1) B6's house-rules / market-vs-served gaps rest on near-single-lineup 36-row books; at the
+player level the served projection and the market are one forecaster at the top (MAE 6.29 vs 6.32, r 0.96) — action 4
+stays as a free shadow only; (2) DST projections DO carry rank skill on the panel (Spearman 0.32, 36 of 36 positive) —
+the 25% DST cap is a concentration control, and the report's "no rank skill" line (from the 09-22 decomposition) is
+withdrawn; (3) action 6's "entry no earlier than Week 5" is superseded by L20 and the operator's decision. Three leads
+closed on the panel: a heavier market weight, a flat DST valuation, cash games with this book.
+
+**Spread dealing (W-C), corrected.** The reviewer's addendum found the first build gave equal-size contests identical
+rows (37 distinct lineups of 100). Rebuilt with the reviewer's rule — the g-th of G contests of n entries takes
+`int((j + (g + 0.5) / G) * K / n)`, all-head groups unchanged — in `enter_layout.py` @ aedcc208; the Week-3 shape now
+enters every multi-entry contest on its own rows (95 tests pass). Re-rehearsed end to end at the exact ladders:
+
+| Week | Layout | Paid (as armed: mean + DST cap) | Paid (plain mean, no cap) | Mean points per entry |
+|---|---|---:|---:|---:|
+| 3 | head | 23 | 21 | 151.92 |
+| 3 | spread, first build | 25 | 19 | 152.65 |
+| 3 | **spread, offset** | 21 (sat20 8, supersat25hi 8, ffwc18 1) | 17 | 151.87 |
+| 1 | head | 31 | 33 | 159.94 |
+| 1 | spread, offset | 31 (milly 23, playaction 8) | 30 | 161.25 |
+
+Expected tickets unchanged within noise on both weeks (0 / −2), as the panel says; its benefit is fewer empty weeks
+(25–30% → 11–21% on the panel), invisible on two paid weeks. **Production's recommendation stands: not a Week-4 entry
+change** — it is a variance shape, not a score gain, and it widens scratch protection to the whole mean block on a
+Sunday already carrying the term, the routing, the late swap and the laptop's first week as host. The code is in,
+default off; if the operator wants it for Week 4 the laptop runs Wednesday's smoke a second time with
+`ENTER_LAYOUT=spread` and the operator chooses Thursday. Otherwise Week 5, after a frozen panel on the head ladders.
+
+**Pace (operator, 20:2x CDT: "I don't want to slow down what we're doing this week").** Nothing that raises the score is
+slowed: the term is armed under the laptop's gates, the routing is set, L16/L19 read before the sleeve is touched, the
+market shadow and the Sunday sequencing are in. Where production goes faster than the review's "from Week 5": the two
+cheap panel reads among the reviewer's §4 leads start on the lab box as soon as L19 and L07 release it — (a) the term's
+form on the L20 harness, fresh banks: λ by position and the "excess ownership" form (ownership above what salary and
+projection imply), which C found predicts the residual on its own; (b) construction for optionality on L11's harness:
+≥ 2 skill players from the late games per row, swap vs keep. Both read by the weekend for Week 5. The standings-aware
+late swap waits on Week 4's mid-slate export check (H4). Preregistrations follow tonight after L16's read.
+
 ## 2026-09-29 (19:29 CDT) — Laptop: L20 reader re-run BYTE-IDENTICAL (BLEND_020 +33.2%, SUPPORTED); ledger row; the ownership term's arming condition is met on the lab side
 
 - Clean detached checkout of `production/prereg-l20-results-20260929` @ 63b0188 (`~/projects/.nfl2-worktrees/l20-reader-laptop`).
