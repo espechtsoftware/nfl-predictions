@@ -12,6 +12,40 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-30 (14:08 CDT) — Production: L25 step 3, the rehearsal on Weeks 1–3 — the live option works on real artifacts; hindsight is flat to −1 paid entry (one-week noise); Week 4 on the real bundle Monday
+
+**What was run.** First, the live `enter_layout` from the Week-5 branch (`81394e96`) **without** the option on Week 3's
+entered bundle, same inputs (the fewest-low order, vetting and sets named in the bundle's record): `check` reports
+**identical to the published bundle**, so the branch changes nothing when the option is off. **With**
+`ENTER_SMALL_MAX_SHARED=5` on that entered book: **0 ranks replaced**, and at M = 4 one. Week 3's entered book came from
+the union reselection, whose small-contest rows never shared more than 5 players. **The option is inert on a book that
+already limits overlap; it acts on the plain-mean main book** (Week 4's form, and L25's).
+
+Then `rehearsal_two_track.py --small-max-shared 5,4` (branch `production/week5-small-overlap-20260930` @ `36883ee9`): each week's real pool, with the
+Week-4 main-book form (top-mean ≤ 7 shared, ownership term 0.20, DST cap 0.25), each week's own plan with every contest
+on the main track, and the real fields. Hindsight; no payout values.
+
+| Week (lines) | Small main contests | Changed at M = 5 / 4 | Ranks replaced | Projection, rows in − out (M = 5) | Paid entries: PLAN → M = 5 → M = 4 | Mean points per entry |
+|---|---:|---|---:|---:|---|---|
+| W3 (exact ladders) | 15 | 11 / 12 | 17 / 22 | −0.40 | **17 → 16 → 16** (supersat2 2 → 1) | 146.1 → 144.7 → 144.2 |
+| W1 (exact ladders) | 1 (ffwc-q6, 3) | 1 / 1 | 2 / 2 | −1.53 | 28 → 28 → 28 (ffwc-q6 0 in all) | 157.3 → 156.7 → 156.6 |
+| W2 (field p90; no ladders kept) | 3 | 3 / 3 | 6 / 6 | +0.02 | 0 → 0 → 0 (the Week-2 availability-defect pool) | 86.2 → 86.7 → 86.1 |
+
+- **Mechanics:** it works on every real plan and pool, with no refusal and no infeasible contest. It moves about 1–2
+  rows per small contest at a cost of 0–1.5 projected points per swapped row, as in L25.
+- **Hindsight:** flat in W1 and W2; −1 paid entry in W3, a supersat2 row swapped out that would have cashed. That is
+  single-week noise against L25's 72 slate-banks (29–9 paired). **It does not overturn the SUPPORTED read, and it is
+  not evidence for it either.**
+- W1/W2 ownership for the term: LineStar's recorded archive (the stored W1 shadow is a within-position share; see Q11).
+  The tool's "ENTERED" lines misidentify our handle on these run dirs; ignore them.
+- **Week 4:** production runs `enter_layout write` with `ENTER_SMALL_MAX_SHARED=5` on the real Week-4 bundle (FINAL Rev1
+  plan, K = 105 plain-mean main book) on **Monday**, when the branch merges. It is outcome-blind: rows replaced and the
+  projection and chalk given up. Scores come after settlement. If the laptop's Thursday smoke bundle lands in private
+  storage, production can run the same check on it earlier.
+- **For the operator at Week 5's Thursday freeze:** L25 SUPPORTED (M = 5: any-ticket 1.36×, tickets +13% on the
+  TabPFN book, flat on the blend book) + this rehearsal (works; one-week hindsight flat to −1) →
+  `ENTER_SMALL_MAX_SHARED=5` on the Week-5 arm line after Monday's merge. Or keep it off.
+
 ## 2026-09-30 (14:07 CDT) — OPERATOR: the small-contest overlap limit goes into WEEK 4 (not Week 5), with a fallback so M = 4 can be used safely → WORKSTATION: fallback + rehearsal + merge before Thursday's smoke
 
 **Operator (chat).** Asked why the laptop featured M = 5 over M = 4 (1.50×). The laptop's answer:
