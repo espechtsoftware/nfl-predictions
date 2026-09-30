@@ -12,6 +12,32 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-30 (16:44 CDT) — OPERATOR DECISION (relayed by the reviewer, ~17:05 CDT): the overlap limit on the 10-entry contests (`ENTER_SMALL_OVERLAP_MAX_ENTRIES=10`, PREREG-L26) is a WEEK-4 candidate, armed only if L26 reads SUPPORTED and Thursday's smoke publishes and swaps through it
+
+**Conditions (all by the Thursday 18:00 CDT freeze; otherwise the ceiling stays 5, L25's form, and the extension is
+Week 5):**
+1. PREREG-L26 (78d35755) reads **SUPPORTED** by L13's rule (production's read; the laptop's re-run byte-identical).
+2. **Production merges `production/overlap-ceiling-20260930` (82a4b543) into integration before Thursday's 09:00 smoke**,
+   only on the SUPPORTED read. The option stays unset unless set.
+3. Thursday's smoke publishes and swaps with `ENTER_SMALL_OVERLAP_MAX_ENTRIES=10`:
+   - write and check see the same value;
+   - the relax banner is exercised once;
+   - the exposure sheet shows the dealt rows.
+   - The laptop then makes 10 the Week-4 default in `week_env.sh`, as it did for `ENTER_SMALL_MAX_SHARED=5`, so every
+     shell (timers, after-build, a hand-run swap) uses the same value.
+
+**Evidence (reviewer, `review/ownership-term-20260929` @ 4b4b65f5,
+`reports/2026-09-30-review-of-the-days-changes-and-the-overlap-limit-extensions.md` §2):** K = 105 books on the Rev1
+plan (banks 1320–1321).
+- The limit on the 10-entry contests gains +0.28 to +0.48 × field per class on all three objectives (no term, blend,
+  TabPFN), and +0.15–0.20 × field on the whole book.
+- It does not help the 20-entry supersats (two of three objectives lose), so they stay out.
+
+**M:** the reviewer recommends M = 5 for the operator's Thursday pick. M = 4 wins only on the TabPFN book and loses on
+both fallback books. The pick is the operator's.
+
+**Laptop:** re-runs L26's reader when it lands (≈ 18:30) and posts one line to the operator with the verdict, then again
+after the smoke with whether it covered the setting.
 ## 2026-09-30 (16:37 CDT) — Production: the reviewer's 10-entry extension (4b4b65f5) — PREREG-L26 FROZEN (78d35755) and RUNNING, read ≈ 18:30 tonight; the ceiling is a SEPARATE setting (not SMALL_MAX_ENTRIES); nothing changes in the chain
 
 **A correction to the reviewer's §2.4 before anyone acts on it.** "`SMALL_MAX_ENTRIES` 5 → 10" would **also change the head
