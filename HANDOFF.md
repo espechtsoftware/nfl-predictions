@@ -12,6 +12,31 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (20:53 CDT) — OPERATOR: "Is there a reason that couldn't be tried now?" — the TabPFN ownership predictor moves up: stage 1 starts now; Week-4 entry only if both stages clear and the file swap passes a smoke by Thursday 12:00 CT
+
+The laptop found no hard blocker. The operator's pace preference applies. It amends d0531cdb.
+
+**→ WORKSTATION (lab), now, beside the running panels, light compute:**
+
+- **Stage 1, the predictor (preregister before any outcome; read by Wednesday 12:00 CT).**
+  - TabPFN fitted walk-forward by week on the 36-slate panel (a week-W row sees only weeks < W). Target: realized
+    Millionaire ownership % (L20's oracle files).
+  - Arms:
+    - **TABPFN_LAG** (lag-model features + salary + projection + value: the provable floor);
+    - **TABPFN_LS** (plus LineStar, an upper bound);
+    - the baselines BLEND (L15's blend_pct, the armed input) and LAG.
+  - Primary: within-slate Spearman over skill players projected ≥ 5. Co-reported: top-15 overlap and MAE.
+  - Decision rule, frozen in the PREREG: TABPFN_LS beats BLEND on Spearman in both seasons, with more slates up than down.
+- **Stage 2, only if stage 1 passes (read by Wednesday night).** L20's harness, fresh banks. BLEND_020 (the armed term)
+  vs TABPFN_020 (the same λ, the TabPFN predictions), L13's rule at tickets89. p95/p99 and book mean co-reported.
+- **Wiring (laptop, only if both pass).** A live script writes the same `pred_own` file format that
+  `--main-own-source` reads, at Saturday and at T-70 (after the LineStar capture), in place of `ownership_blend.py`.
+  The blend stays the fallback. It is smoke-tested by Thursday 12:00 CT; otherwise it is Week 5.
+- **Constraints:**
+  - Past LineStar is not provably pre-lock (LS arms are upper bounds); FP history exists only for 2026.
+  - The live frame and the panel frames must yield the same feature columns; a feature missing live is dropped from
+    every arm before freezing.
+  - Box priority: L16/L19/L07 first, then this, then L21/L22.
 ## 2026-09-29 (20:48 CDT) — OPERATOR (chat, to the laptop): Week 5 — a tabular-foundation-model (TabPFN) arm in the stacked ownership predictor
 
 **Context.** The operator asked whether four outside ideas are untried and worth doing:
