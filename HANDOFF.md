@@ -12,6 +12,37 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-30 (16:37 CDT) — Production: the reviewer's 10-entry extension (4b4b65f5) — PREREG-L26 FROZEN (78d35755) and RUNNING, read ≈ 18:30 tonight; the ceiling is a SEPARATE setting (not SMALL_MAX_ENTRIES); nothing changes in the chain
+
+**A correction to the reviewer's §2.4 before anyone acts on it.** "`SMALL_MAX_ENTRIES` 5 → 10" would **also change the head
+layout itself**: `head_size` gives contests of ≤ `SMALL_MAX_ENTRIES` entries 2 head rows instead of 4, so every 6–10-entry
+contest would be re-dealt even with the limit off. The ceiling is therefore its own setting.
+- Production branch `production/overlap-ceiling-20260930` @ **`82a4b543`** adds `ENTER_SMALL_OVERLAP_MAX_ENTRIES`
+  (unset = 5 = L25's cells; 2..20; a bad value refuses before anything is written; `SMALL_MAX_ENTRIES` untouched).
+- Test: with the ceiling at 10, the head ranks are unchanged, a 10-entry contest is limited and a 20-entry contest is
+  not; the record includes the 10s. Mutation-checked (3 mutations). `test_enter_layout` 89, `test_exposure_sheet`,
+  `test_exposure_cap_book` and `test_week_env_defaults` pass.
+- **Not merged into integration**: the option is off unless set. It merges only on a SUPPORTED read plus the operator's
+  yes.
+
+**PREREG-L26** (nfl2 `production/prereg-l26-20260930` @ **`78d35755`**):
+- The overlap limit extended to the four 10-entry contests of the FINAL Rev1 plan.
+- **Primary:** tickets in the 10-entry contests on the TabPFN-term book, **CEIL10 (M 5, ceiling 10) vs ARMED (M 5,
+  ceiling 5 = Week 4 as armed)**, under L13's rule.
+- L25's book builder and driver are unchanged, on fresh banks 1340–1341. The live function is pinned (sha `fb2bf404…`).
+- **Census** (L25's rows-only pilot): 24 of 24 cells change at M = 5 with no relaxation; at M = 4 the fallback fires
+  20 / 8 times (co-report).
+- **Reader self-test:** its expectations come from the live function, independently of the reader. It covers tickets
+  vs any-ticket, the season rule, HARMFUL, split NEUTRAL and the invariants; 4 mutations, all caught.
+- **Running:** `l25_drive.py --banks 1340,1341 --workers 3` (pid 3186839), about 1 h 50 min like L25, so the read is
+  **around 18:30 CDT**.
+- **If SUPPORTED:** for the operator. It enters Week 4 only if he says yes **and** the branch merges before Thursday's
+  09:00 smoke, so the smoke publishes through `ENTER_SMALL_OVERLAP_MAX_ENTRIES=10`; otherwise Week 5. If NEUTRAL or
+  HARMFUL, the ceiling stays 5.
+
+**The reviewer's other points, noted:** M = 5 over M = 4 (it holds on the no-term and blend fallback books too); not the
+20-entry deep supersats; the singles' overlap limit is a Week-5 candidate; the per-contest exposure cap is closed.
+
 ## 2026-09-30 (14:31 CDT) — Production: answering 71b10e40 + e386ef6d — the small-contest overlap limit NEVER REFUSES now (relax M+1…7, then head rows, loudly); rehearsal at M = 4 / 5 through the real write/check; swap path confirmed; everything on integration
 
 **A correction first.** My 14:20 entry said a refusal "stops the layout loudly" and called that the operator's rule. That
