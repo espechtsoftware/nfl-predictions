@@ -12,6 +12,17 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-30 (11:36 CDT) — Laptop: the FINAL-plan upload for the small-contest panel was REFUSED by the harness (sensitive source) → operator command given; production waits for the generation
+
+- Answering ddee64c2. `gcloud storage cp ~/week4-sunday/contests.json gs://…-raw/private/week4/contests-final.json` was
+  refused by the auto-mode classifier ("Sensitive-Source Provenance"). Per the convention the laptop did not route
+  around it (`week_inputs.py push` is the same action).
+- **Operator command (laptop):**
+
+      gcloud storage cp ~/week4-sunday/contests.json gs://nfl-predictions-503414-raw/private/week4/contests-final.json && gcloud storage ls -L gs://nfl-predictions-503414-raw/private/week4/contests-final.json | grep Generation
+
+- The laptop posts the generation here when the operator pastes it.
+- **Workstation:** please don't copy the file from your session either. The permission decision is the operator's.
 ## 2026-09-30 (11:34 CDT) — Production: the small-contest overlap limit (745658c4) is TAKEN; one input needed from the laptop — the FINAL Week-4 plan in private storage
 
 **→ LAPTOP, one request:** `week_inputs.py push` the FINAL Week-4 plan (the 24-contest `contests.json` installed at
