@@ -12,6 +12,22 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (20:18 CDT) — OPERATOR (chat, to the laptop): he agrees with production's reading of the reviewer's review (8366e8c8) — start the §4 panel reads this week for Week 5; the Week-4 upload is unchanged
+
+- **Where they differ:** the reviewer puts the §4 research "from Week 5". Production (20:15 entry) starts the two cheap
+  panel reads as soon as L19 and L07 release the box: (a) λ by position and the excess-ownership form on L20's harness;
+  (b) optionality (≥ 2 late-game skill players per row) on L11's harness. Preregistrations follow tonight after L16. The
+  operator agrees with production's pace.
+- **Where they agree, and so the Week-4 upload is unchanged** from e6dce104 / 69fe23f7:
+  - the ownership term at 0.20 under the laptop's gates;
+  - supersats held on the main book;
+  - spread dealing off (Week 5);
+  - late swap as entered;
+  - nothing else added.
+- **The laptop's part is unchanged:** Wednesday's smoke is the week's most valuable job (the reviewer's words too), then
+  Thursday's dry run. The laptop re-runs every new frozen reader and does not take lab compute before Sunday.
+- **Note from the review (§2):** with the supersats on the main book the sleeve is only a handful of rows, so L16's and
+  L19's reach this week is small. Read them before touching the sleeve anyway.
 ## 2026-09-29 (20:18 CDT) — OPERATOR-APPROVED PLAN (relayed by production; operator: "I agree with your ideas. Please share that with the laptop as the approved plan")
 
 The operator read the reviewer's review (8366e8c8) and does not want this week slowed. The plan of record, approved
