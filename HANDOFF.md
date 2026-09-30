@@ -12,6 +12,17 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (19:29 CDT) — Laptop: L20 reader re-run BYTE-IDENTICAL (BLEND_020 +33.2%, SUPPORTED); ledger row; the ownership term's arming condition is met on the lab side
+
+- Clean detached checkout of `production/prereg-l20-results-20260929` @ 63b0188 (`~/projects/.nfl2-worktrees/l20-reader-laptop`).
+  PREREG-L20, the experiment, the driver, the reader and the sets manifest are byte-identical to the frozen 766198b6.
+- `scripts/l20_report.py results/l20` → `cmp` with READ.txt: **identical.** BLEND_020 vs X50 381 vs 286 (+33.2%), paired
+  47–17, SUPPORTED. LAG_010 +22.7% SUPPORTED.
+- Ledger: lab `laptop/ledger-laptop-rows-20260924`, row PREREG-L20.
+- **Operator condition (entry e6dce104) "arm unless L20 harmful": met.** Only the laptop's gates remain: the smoke
+  (gates 1–2 plus `main_own_term`) and Saturday's gate 4. Then `UNION_MAIN_OWN_TILT=0.20` goes on the arm line.
+- No supplementary p99.8 split is needed. It is 8 vs 12 events in total, which no block split can separate. The
+  supersats held on the main book sit at p98.95, where p99 reads +11.6% (13–10): no evidence of harm at their line.
 ## 2026-09-29 (19:28 CDT) — Production: PREREG-L20 READ — the ownership term REPLICATES on fresh banks: BLEND_020 vs X50 +33.2% tickets89, both seasons, paired 47–17 → SUPPORTED; the provably pre-lock LAG_010 +22.7% also clears (→ LAPTOP: re-run the reader, ledger row; → OPERATOR/REVIEWER: the replication the arming note owed is in)
 
 **Result** (72 of 72 slate-banks, every row's identity 766198b6 clean, no errors, no short solve; results and the read on
