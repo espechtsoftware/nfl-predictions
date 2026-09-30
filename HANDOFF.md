@@ -12,6 +12,33 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (21:49 CDT) — Production: the TabPFN ownership predictor, stage 1 — PREREG-L23 FROZEN at 83da4955 and RUNNING (two CPU shards); read targeted before Wednesday 12:00 CT; L22 now waits for it
+
+Answering d53d5545 (operator: "Is there a reason that couldn't be tried now?"). Lab branch `production/prereg-l23-20260929`
+@ **83da4955** on L20's freeze 766198b6: `PREREG-L23.md`, `experiments/l23_build_rows.py`, `experiments/l23_fit_tabpfn.py`,
+`experiments/l23_fetch_linestar_2022.py`, `scripts/l23_report.py`.
+- **Rows** (outside the repo, `~/l23-panel/rows.parquet`, sha `0bec4237…` pinned): one row per QB/RB/WR/TE with served
+  projection ≥ 1 on the 53 slates of 2022–24 in both the k1 panel and the Millionaire ownership panel; 18,564 rows; the
+  36 evaluation slates = L09's 2023–24 (5,050 players with projection ≥ 5). Features, all pre-lock: position, salary,
+  `mean_projection` (NOT `proj` — the historical snapshot carries the p90 punt valuation there, B6's finding), value,
+  implied team total, game total, spread, week-over-week salary change, `own_l1`, `own_l3` (the lag model's inputs from
+  the ownership panel); TABPFN_LS adds LineStar's recorded projected ownership (2022 fetched tonight into a separate
+  cache `~/.cache/linestar-l23/` with L15's endpoint and pacing; L15's pinned cache untouched; coverage 25 / 57 / 58%).
+  Target: realized Millionaire ownership %. Baselines BLEND and LAG from the pinned `results/l20_sets/`.
+- **Walk-forward fits:** TabPFN 2.2.1 (production's pinned version) in a new Python 3.11 CPU environment
+  `~/.local/tabpfn311` (built with uv; the system Python 3.14 cannot build tabpfn's pinned dependencies); context = every
+  earlier panel slate, capped at the 6,000 most recent rows; `n_estimators=4`, seed 0. The timing smoke at the first
+  settings (10,000 × 8) took **~20 min per CPU fit**, so the cap and estimators were lowered before any metric; production's
+  GPU job uses 28,000 — a PASS here is conservative, a FAIL leaves the GPU-scale question open (disclosed).
+- **Decision (frozen):** STAGE 1 PASSES iff TABPFN_LS's mean within-slate Spearman (players projected ≥ 5) beats BLEND's in
+  both 2023 and 2024 and on more slates than not; top-15 overlap, MAE, TABPFN_LAG vs BLEND and vs LAG co-reported. Reader
+  mutation-checked (PASS / FAIL / season split). A PASS triggers stage 2 (a separate preregistration: L20's harness, fresh
+  banks, BLEND_020 vs TABPFN_020 by L13's rule), read Wednesday night; the laptop's file-swap smoke by Thursday 12:00 CT.
+- **Running since 21:47 CDT:** shards pids 2093349 / 2093350 (4 threads each; `~/l23-panel/shard*.log`). Expected 3–5 h
+  beside L16 (67/72) and L19 (13/72); L21 is at 52/72 and finishes tonight.
+- **Box priority (d53d5545):** L22's launcher now waits for L21 AND both L23 shards (`~/l22-panel/launch_after_l21.sh`,
+  pid 2095318). L07 still launches on L16's exit.
+
 ## 2026-09-29 (20:53 CDT) — OPERATOR: "Is there a reason that couldn't be tried now?" — the TabPFN ownership predictor moves up: stage 1 starts now; Week-4 entry only if both stages clear and the file swap passes a smoke by Thursday 12:00 CT
 
 The laptop found no hard blocker. The operator's pace preference applies. It amends d0531cdb.
