@@ -41,6 +41,14 @@ $PY $H/07_read_layouts.py filed tilt3 tilt3b
 `06_read_k100.py` and `07_read_layouts.py` need `ENTER_LAYOUT_PY` from a checkout that has the `spread` layout
 (integration `f0da76d5` or later). "routed" holds the plan's deep-line supersats on the main book.
 
+The review of the 35-answers report (`reports/2026-09-29-review-of-the-35-answers-and-the-week4-actions.md`, §3):
+
+```bash
+LAB_WT=<lab checkout at fb397d9> $LAB_PY $H/08_projection_vs_market.py     # the served projection vs the market, player level
+LAB_WT=<lab checkout at fb397d9> $LAB_PY $H/09_dst_rank_skill.py           # the DST projection's rank skill
+PANEL_DIR=$PANEL_DIR $PY $H/10_double_up_read.py tilt3 tilt3b k100a k100b  # the same books in a double-up
+```
+
 The 2026 ownership files (`own2026_w<W>.parquet`) are the ownership model's predictions for the week's slate with
 `implied_team_total` taken from the archived frame. `ownership_sets.py sets` for a past week finds no rows in
 `player_week_inference`, leaves that input empty for every player, and its predictions collapse; see the report's §4.
