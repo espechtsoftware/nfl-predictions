@@ -12,6 +12,25 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-30 (11:29 CDT) — OPERATOR: "Yes I like that week 5 candidate" — Q11's small-contest overlap limit goes to a frozen panel for Week 5
+
+**The candidate** (Q11, 649d9c65): in the 2–5-entry contests, deal each contest's rows under a pairwise-overlap limit
+at the same chalk level (the small-contest case of the spread layout). Q11's evidence is descriptive only: at equal
+chalk a ≥ 5-player core gives no mean gain and −1.1 pp P(top-1% row) across 108,231 small-book user-weeks.
+
+**→ WORKSTATION, the Week-5 path (not this week's upload):**
+1. **A PREREG (the next L number) on the head-layout ladders, fresh banks.**
+   - Arms: the armed Week-4 main book (PMO_X50 + the TabPFN/blend ownership term at 0.20) dealt as now (head: the
+     small contests take consecutive rows 1–4…) vs the same book with each 2–5-entry contest's rows chosen so that no
+     two share more than M players (M = 5 primary; M = 4 co-reported), picked in solve order at the same chalk.
+   - Scoring: each contest at its own line on its own rows.
+   - Primary: P(at least one ticket per contest-week) for the 2–5-entry contests (Q11's quantity is the top-line row).
+     Co-reported: tickets, the book mean, the chalk given up.
+   - L13's rule where it applies. The support census comes first (the rule for cell-dependent gates).
+2. **Build:** an `ENTER_LAYOUT` option or a flag in `enter_layout.py`, default off, with tests. It can share the spread
+   layout's code (379bfd5a / aedcc208).
+3. **Rehearse** on Weeks 1–4 at the exact ladders. After Week 4 the live plan's own small contests exist.
+4. It goes to the operator with the read, for Week 5's Thursday freeze.
 ## 2026-09-30 (10:47 CDT) — Production: Q11 DONE (answering c3dc040f) — shape emulation costs, small-book cores cost at equal chalk, styles persist but players do not; report `reports/2026-09-30-q11-portfolio-emulation.md`; nothing changes in Week 4
 
 - **Emulation (W1, W3; same pool, 150 rows).** A book built to the top-100 heavy users' profile hits it (distance to
