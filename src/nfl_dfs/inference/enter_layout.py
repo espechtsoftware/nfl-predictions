@@ -81,6 +81,11 @@ ORDERS = ("greedy", "fewest-low")
 HEAD_TOP = 4             # the head rows every contest draws from
 HEAD_SMALL, HEAD_LARGE = 2, 4
 SMALL_MAX_ENTRIES = 5
+# Week-5 candidate (operator 2026-09-30, Q11 649d9c65; panel pending): ENTER_SMALL_MAX_SHARED=M limits how many players
+# two rows of the SAME 2..SMALL_MAX_ENTRIES-entry mean-track contest may share. Unset = off (the head/spread rows as
+# before). Not for Week 4: this branch merges only after Week 4's Sunday.
+SMALL_OVERLAP_ENV = "ENTER_SMALL_MAX_SHARED"
+PLAYER_SLOTS = ("QB", "RB", "WR", "TE", "FLEX", "DST")
 MIN_SETS_COVERAGE = 0.90  # share of the book's distinct skill ids the sets file must know
 INJURY_TAGS = ("DK", "report", "qb", "backup_qb")   # flag-tag prefixes that bar a row from the head (not practice/market)
 # Deliberately NOT "features:" (vet_book.py's designation read from player_week_inference, which can be Wednesday's and
@@ -460,9 +465,85 @@ def load_order(order: str, n_rows: int, *, book: Path | None, vetting: Path | No
                   "low_count_first_10": [counts[i] for i in perm[:10]]}
 
 
-def contest_rows(contests: list[dict], n_rows: int, layout: str, perm: list[int]) -> list[list[int]]:
-    """Per contest, the UPLOAD row indices its entries take (ranks mapped through the order)."""
+def parse_max_shared(value: str | int | None) -> int | None:
+    """ENTER_SMALL_MAX_SHARED: unset/empty = off; otherwise an integer 0..8 (players two rows may share)."""
+    if value is None or (isinstance(value, str) and not value.strip()):
+        return None
+    try:
+        m = int(str(value).strip())
+    except ValueError:
+        raise LayoutError(f"{SMALL_OVERLAP_ENV}={value!r} must be an integer 0..8 (players two rows may share) or unset") from None
+    if not 0 <= m <= 8:
+        raise LayoutError(f"{SMALL_OVERLAP_ENV}={m} must be 0..8 (players two rows may share) or unset")
+    return m
+
+
+def row_players(hdr: list[str], row: list[str]) -> frozenset:
+    """The player cells of one upload row (the QB/RB/WR/TE/FLEX/DST columns)."""
+    cols = [j for j, h in enumerate(hdr) if str(h).strip().upper() in PLAYER_SLOTS]
+    if len(cols) != 9:
+        raise LayoutError(f"upload header has {len(cols)} player columns (expected 9): {hdr!r}")
+    return frozenset(str(row[j]).strip() for j in cols)
+
+
+def limit_small_overlap(contests: list[dict], ranks: list[list[int]], rank_players: list[frozenset],
+                        max_shared: int) -> tuple[list[list[int]], list[dict]]:
+    """The small-contest overlap limit over layout RANKS. For each mean-track contest of 2..SMALL_MAX_ENTRIES entries
+    without an explicit pin: its first rank is kept; each later rank is kept if that row shares <= max_shared players
+    with every row already chosen for the contest, otherwise it is replaced by the first rank after it in solve order
+    (wrapping within the mean ranks 0..K-1) that does and is not already chosen. Rows may repeat across contests, as
+    under head. Other contests are untouched. Refuses when no mean row fits (never a silent fallback).
+    rank_players[r] = the player set of the row at rank r. Returns (ranks, changes)."""
+    if not isinstance(max_shared, int) or isinstance(max_shared, bool) or not 0 <= max_shared <= 8:
+        raise LayoutError(f"max_shared must be an integer 0..8 (got {max_shared!r})")
+    mean = [str(c.get("track", "mean")) == "mean" for c in contests]
+    K = max((max(r) + 1 for r, m in zip(ranks, mean) if m and r), default=0)
+    if len(rank_players) < K:
+        raise LayoutError(f"the overlap limit needs the players of all {K} mean ranks; got {len(rank_players)}")
+    out = [list(r) for r in ranks]
+    changes: list[dict] = []
+    for i, c in enumerate(contests):
+        n = len(ranks[i])
+        if not mean[i] or "ranks" in c or not 2 <= n <= SMALL_MAX_ENTRIES:
+            continue
+        chosen = [ranks[i][0]]
+
+        def fits(q: int) -> bool:
+            return q not in chosen and all(len(rank_players[q] & rank_players[x]) <= max_shared for x in chosen)
+
+        for r in ranks[i][1:]:
+            if fits(r):
+                chosen.append(r)
+                continue
+            for step in range(1, K):
+                q = (r + step) % K
+                if fits(q):
+                    chosen.append(q)
+                    changes.append({"contest": c.get("name"), "from_rank": r, "to_rank": q})
+                    break
+            else:
+                raise LayoutError(f"{SMALL_OVERLAP_ENV}={max_shared}: contest {c.get('name')!r} has no mean row (ranks 0..{K - 1}) "
+                                  f"sharing <= {max_shared} players with its {len(chosen)} rows already chosen")
+        out[i] = chosen
+    return out, changes
+
+
+def final_ranks(contests: list[dict], layout: str, rank_players: list[frozenset] | None = None,
+                max_shared: int | None = None) -> tuple[list[list[int]], list[dict]]:
+    """assign_ranks, then the small-contest overlap limit when max_shared is set."""
     ranks = assign_ranks(contests, layout)
+    if max_shared is None:
+        return ranks, []
+    if rank_players is None:
+        raise LayoutError(f"{SMALL_OVERLAP_ENV} is set but the book rows' players were not supplied")
+    return limit_small_overlap(contests, ranks, rank_players, max_shared)
+
+
+def contest_rows(contests: list[dict], n_rows: int, layout: str, perm: list[int],
+                 rank_players: list[frozenset] | None = None, max_shared: int | None = None) -> list[list[int]]:
+    """Per contest, the UPLOAD row indices its entries take (ranks mapped through the order; with max_shared set, after
+    the small-contest overlap limit -- rank_players[r] is the player set of upload row perm[r])."""
+    ranks, _ = final_ranks(contests, layout, rank_players, max_shared)
     need = max((max(r) + 1 for r in ranks if r), default=0)
     if need > n_rows:
         raise LayoutError(f"the {layout} layout needs {need} distinct lineups but the book holds {n_rows}")
@@ -564,17 +645,28 @@ def _ranges(xs: list[int]) -> str:
     return ",".join(out)
 
 
+def _rank_players(hdr: list[str], body: list[list[str]], perm: list[int]) -> list[frozenset]:
+    return [row_players(hdr, body[i]) for i in perm]
+
+
 def write(contests: list[dict], upload: Path, stage: Path, layout: str, perm_info: tuple[list[int], dict],
-          frozen: list[list[int]] | None = None) -> list[str]:
+          frozen: list[list[int]] | None = None, max_shared: int | None = None) -> list[str]:
     hdr, body = _read_rows(upload)
     perm, info = perm_info
-    per = frozen if frozen is not None else contest_rows(contests, len(body), layout, perm)
+    rp = _rank_players(hdr, body, perm) if max_shared is not None and frozen is None else None
+    per = frozen if frozen is not None else contest_rows(contests, len(body), layout, perm, rp, max_shared)
     stage.mkdir(parents=True, exist_ok=True)
     lines = [f"layout {layout}; order {info['order']}; {sum(len(r) for r in per)} entries from "
              f"{len(set(x for r in per for x in r))} distinct book rows of {len(body)}"]
     if info["order"] != "greedy":
         lines.append("order record: " + json.dumps(info, sort_keys=True))
-    ranks = assign_ranks(contests, layout) if frozen is None else [[] for _ in contests]
+    if frozen is None:
+        ranks, changes = final_ranks(contests, layout, rp, max_shared)
+        if max_shared is not None:
+            lines.append(f"{SMALL_OVERLAP_ENV}={max_shared}: {len(changes)} small-contest rank(s) replaced"
+                         + (": " + "; ".join(f"{x['contest']} {x['from_rank'] + 1}->{x['to_rank'] + 1}" for x in changes) if changes else ""))
+    else:
+        ranks = [[] for _ in contests]
     for c, rows, rk in zip(contests, per, ranks):
         with open(stage / enter_filename(c), "w", newline="") as f:
             w = csv.writer(f)
@@ -589,9 +681,10 @@ def write(contests: list[dict], upload: Path, stage: Path, layout: str, perm_inf
 
 
 def check(contests: list[dict], upload: Path, stage: Path, layout: str, perm_info: tuple[list[int], dict],
-          frozen: list[list[int]] | None = None) -> list[str]:
-    _, body = _read_rows(upload)
-    per = frozen if frozen is not None else contest_rows(contests, len(body), layout, perm_info[0])
+          frozen: list[list[int]] | None = None, max_shared: int | None = None) -> list[str]:
+    hdr, body = _read_rows(upload)
+    rp = _rank_players(hdr, body, perm_info[0]) if max_shared is not None and frozen is None else None
+    per = frozen if frozen is not None else contest_rows(contests, len(body), layout, perm_info[0], rp, max_shared)
     bad = []
     for c, rows in zip(contests, per):
         f = stage / enter_filename(c)
@@ -631,7 +724,10 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--live-status", type=Path,
                     default=Path(os.environ["ENTER_LIVE_STATUS"]) if os.environ.get("ENTER_LIVE_STATUS") else None,
                     help="refinement 1: a DK status snapshot (id,status); flags come from it instead of the report")
+    ap.add_argument("--small-max-shared", default=os.environ.get(SMALL_OVERLAP_ENV),
+                    help="the small-contest overlap limit (players two rows of one 2-5-entry contest may share); unset = off")
     a = ap.parse_args(argv)
+    max_shared = parse_max_shared(a.small_max_shared)
     contests = _contests(a.contests)
     if a.cmd == "rows-needed":
         print(rows_needed(contests, a.layout))
@@ -655,9 +751,9 @@ def main(argv: list[str] | None = None) -> int:
                            upload_rows=body, protect=protected_ranks(contests, a.layout), live_status=a.live_status,
                            fixed_tail=sleeve_size(contests, a.layout))
     if a.cmd == "write":
-        print("\n".join(write(contests, a.upload, a.stage, a.layout, perm_info)))
+        print("\n".join(write(contests, a.upload, a.stage, a.layout, perm_info, max_shared=max_shared)))
         return 0
-    bad = check(contests, a.upload, a.stage, a.layout, perm_info)
+    bad = check(contests, a.upload, a.stage, a.layout, perm_info, max_shared=max_shared)
     for b in bad:
         print(b)
     print(f"staged bundle == upload rows under the {a.layout} layout and {perm_info[1]['order']} order:", not bad)

@@ -632,3 +632,103 @@ def test_spread_layout_two_tracks_pins_and_protection():
     singles = [{"name": "s", "contest_id": str(i), "entries": 1, "keep": 1} for i in range(4)] + [cs[0]]
     assert EL.protected_ranks(singles, "spread") == max(r[0] for r in EL.assign_ranks(singles, "spread")[:4]) + 1
     assert EL.protected_ranks(singles, "spread") > EL.protected_ranks(singles, "head")
+
+
+# ---------------------------------------------------------------- the small-contest overlap limit (Week-5 candidate)
+
+HDR9 = ["QB", "RB", "RB", "WR", "WR", "WR", "TE", "FLEX", "DST"]
+
+
+def _players(rows_spec):
+    """rows_spec: per rank, a list of 9 player tokens -> frozensets."""
+    return [frozenset(r) for r in rows_spec]
+
+
+def _book(n, core_rows=(), core=("q", "r1", "r2", "w1", "w2", "w3", "t")):
+    """n rows; the ranks in core_rows share the 7-player core (+2 unique each); every other row is all-unique."""
+    out = []
+    for i in range(n):
+        if i in core_rows:
+            out.append(list(core) + [f"f{i}", f"d{i}"])
+        else:
+            out.append([f"p{i}_{j}" for j in range(9)])
+    return out
+
+
+def test_overlap_limit_replaces_only_the_violating_rank_and_keeps_the_rest():
+    cs = [{"name": "sat3", "contest_id": "1", "entries": 3, "keep": 3},
+          {"name": "big", "contest_id": "2", "entries": 10, "keep": 10},
+          {"name": "one", "contest_id": "3", "entries": 1, "keep": 1}]
+    head = EL.assign_ranks(cs, "head")
+    K = max(max(r) for r in head) + 1
+    rp = _players(_book(K, core_rows={0, 1}))            # ranks 0 and 1 share 7 players
+    got, changes = EL.limit_small_overlap(cs, head, rp, 5)
+    assert got[0][0] == head[0][0] == 0                   # the first rank is kept
+    assert 1 not in got[0] and len(set(got[0])) == 3
+    assert got[0][1] == 2 and got[0][2] == head[0][2]    # rank 1 -> the next fitting rank; the unique rank is kept
+    assert changes == [{"contest": "sat3", "from_rank": 1, "to_rank": 2}]
+    assert got[1] == head[1] and got[2] == head[2]       # a 10-entry and a 1-entry contest are untouched
+    for a in got[0]:
+        for b in got[0]:
+            if a != b:
+                assert len(rp[a] & rp[b]) <= 5
+
+
+def test_overlap_limit_is_a_no_op_when_rows_already_fit_and_off_by_default():
+    cs = [{"name": "sat2", "contest_id": "1", "entries": 2, "keep": 2}, {"name": "sat5", "contest_id": "2", "entries": 5, "keep": 5}]
+    head = EL.assign_ranks(cs, "head")
+    K = max(max(r) for r in head) + 1
+    got, changes = EL.limit_small_overlap(cs, head, _players(_book(K)), 5)
+    assert got == head and changes == []
+    assert EL.final_ranks(cs, "head") == (head, [])      # unset = off
+    assert EL.contest_rows(cs, K, "head", list(range(K))) == head
+
+
+def test_overlap_limit_leaves_pinned_and_tail_contests_alone_and_wraps():
+    cs = [{"name": "pin", "contest_id": "1", "entries": 2, "keep": 2, "ranks": [1, 2]},
+          {"name": "tail", "contest_id": "2", "entries": 2, "keep": 2, "track": "tail"},
+          {"name": "sat4", "contest_id": "3", "entries": 4, "keep": 4}]
+    head = EL.assign_ranks(cs, "head")
+    K = max(max(r) for r, c in zip(head, cs) if c.get("track", "mean") == "mean") + 1
+    last = head[2][-1]
+    rp = _players(_book(K + 2, core_rows={0, 1, *range(2, K)} - {0}))   # every mean rank but 0 shares the core with rank 1
+    rp[0] = frozenset(f"z{j}" for j in range(9))
+    with pytest.raises(EL.LayoutError, match="no mean row"):
+        EL.limit_small_overlap(cs, head, rp, 5)          # sat4 needs 4 mutually-fitting rows; only rank 0 is unique
+    rp2 = _players(_book(K + 2, core_rows={0, 1}))
+    got, _ = EL.limit_small_overlap(cs, head, rp2, 5)
+    assert got[0] == head[0] and got[1] == head[1]        # the pin and the tail contest keep their rows
+    assert len(got[2]) == 4 and all(r < K for r in got[2]) and last in got[2]
+
+
+def test_overlap_limit_env_parsing_fails_closed():
+    assert EL.parse_max_shared(None) is None and EL.parse_max_shared("") is None and EL.parse_max_shared(" 5 ") == 5
+    for bad in ("five", "9", "-1", "5.5"):
+        with pytest.raises(EL.LayoutError, match=EL.SMALL_OVERLAP_ENV):
+            EL.parse_max_shared(bad)
+    with pytest.raises(EL.LayoutError, match="were not supplied"):
+        EL.final_ranks([{"name": "a", "contest_id": "1", "entries": 3, "keep": 3}], "head", None, 5)
+    with pytest.raises(EL.LayoutError, match="player columns"):
+        EL.row_players(["QB", "RB"], ["1", "2"])
+
+
+def test_overlap_limit_write_check_round_trip_through_main(tmp_path, monkeypatch):
+    cs = [{"name": "sat3", "contest_id": "1", "entries": 3, "keep": 3}, {"name": "big", "contest_id": "2", "entries": 6, "keep": 6}]
+    (tmp_path / "contests.json").write_text(json.dumps(cs))
+    K = EL.rows_needed(cs, "head")
+    rows = _book(K, core_rows={0, 1})
+    up = tmp_path / "upload.csv"
+    with open(up, "w", newline="") as f:
+        w = csv.writer(f); w.writerow(HDR9); w.writerows(rows)
+    monkeypatch.setenv("ENTER_SMALL_MAX_SHARED", "5")
+    st = tmp_path / "stage"
+    assert EL.main(["write", str(tmp_path / "contests.json"), str(up), str(st), "--layout", "head"]) == 0
+    staged = list(csv.reader(open(st / EL.enter_filename(cs[0]))))[1:]
+    sets = [frozenset(r) for r in staged]
+    assert all(len(a & b) <= 5 for i, a in enumerate(sets) for b in sets[i + 1:])
+    assert EL.main(["check", str(tmp_path / "contests.json"), str(up), str(st), "--layout", "head"]) == 0
+    monkeypatch.delenv("ENTER_SMALL_MAX_SHARED")          # the head files differ: check without the limit must fail
+    assert EL.main(["check", str(tmp_path / "contests.json"), str(up), str(st), "--layout", "head"]) == 1
+    monkeypatch.setenv("ENTER_SMALL_MAX_SHARED", "nine")
+    with pytest.raises(EL.LayoutError):
+        EL.main(["write", str(tmp_path / "contests.json"), str(up), str(st), "--layout", "head"])
