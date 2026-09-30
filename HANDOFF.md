@@ -12,6 +12,48 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (22:52 CDT) — Laptop: PREREG-L23b READ — **STAGE 1 PASS**: the full-scale TabPFN ownership predictor beats the blend (Spearman +0.037 / +0.051, slates 34/2); L21 re-run byte-identical; → WORKSTATION: freeze stage 2
+
+**L23b** (repaired commit cbf0375, clean; 72/72 fits on the laptop RTX 4070, 4–24 s each; the mechanics smoke passed
+first; read once from the clean checkout):
+
+| Predictor | Spearman 2023 | 2024 | all | top-15 overlap | MAE |
+|---|---:|---:|---:|---:|---:|
+| **TABPFN_LS** | **0.8428** | **0.8695** | **0.8562** | **9.94** | **2.435** |
+| TABPFN_LAG | 0.6923 | 0.6997 | 0.6960 | 6.97 | 3.301 |
+| BLEND (armed input) | 0.8061 | 0.8184 | 0.8122 | 9.64 | 2.506 |
+| LAG | 0.6477 | 0.6804 | 0.6641 | 6.03 | 3.489 |
+
+- VERDICT (stage 1, TABPFN_LS vs BLEND): +0.0368 / +0.0511, slates up/down 34/2 → **STAGE 1 PASS**.
+- Co-reports:
+  - TABPFN_LAG vs BLEND FAIL (0/36): without LineStar, TabPFN does not reach the blend.
+  - TABPFN_LAG vs LAG PASS (33/3).
+  - TABPFN_LS vs LAG PASS (36/0).
+- **Reading.** A modest but consistent gain in rank (+0.04 to +0.05 Spearman), and it rests on LineStar. The LS arm is
+  an upper bound because LineStar's history is not provably pre-lock (L15/L20). Live, the Week-4 captures are provably
+  pre-lock.
+- Results: nfl2 `laptop/prereg-l23b-results-20260929` @ b53f244 (`results/l23b/READ.txt`, receipt, fit log, the
+  predictions' sha). Predictions: `gs://…-raw/private/l23b/preds_l23b.parquet` (144,085 bytes). **→ production:
+  re-run `scripts/l23_report.py` on those files, as usual.**
+- **L21:** the clean re-run is byte-identical; ledger row e6e361b. L23 (the CPU sibling) reads on its own rule after its
+  shards finish. If it disagrees, both reads go to the operator and the reviewer; L23b decides stage 2 per its PREREG.
+
+**→ WORKSTATION: stage 2, please freeze now for a Wednesday-night read.**
+- Harness: L20's (K 36, cap 18, DST 9), fresh banks. BLEND_020 (armed) vs **TABPFN_020** (λ 0.20 on the TABPFN_LS
+  `pred_own`, from `preds_l23b.parquet`, sha pinned), plus X50.
+- Rule: L13's at tickets89. p95/p99 and book mean co-reported.
+- It fits beside L07 and L19. L22 still waits for L23.
+
+**Laptop, Wednesday, in parallel with stage 2 (it touches no chain file until stage 2 passes):**
+- A live script `scripts/ownership_tabpfn.py` that writes the same `pred_own` file `--main-own-source` reads.
+  - Context: the rows file plus 2026 W1–3.
+  - Features: the eleven in the receipt, from the served frame, `own_l1/own_l3` (contest ownership), and the newest
+    LineStar capture.
+  - It fits and predicts on the laptop GPU in seconds.
+- It is run once on Week-4 data as soon as projections exist, then smoke-tested by Thursday 12:00 CT as the
+  replacement for `ownership_blend.py`, which stays the fallback.
+- **Transfer risk to check first:** the distribution of historical `linestar_own` (recorded) against a live capture (the
+  scale and the share of players covered), outcome-blind.
 ## 2026-09-29 (22:35 CDT) — Laptop: the GPU fits L23b's full scale easily — one fit+predict at 18,220 × 12 context, 8 estimators = 13.4 s, peak 1.33 GiB (random data, outcome-blind); waiting on the L23b repair
 
 - Measured with `ignore_pretraining_limits=True` on random data of L23b's largest shape (the 2024 W18 context), on the
