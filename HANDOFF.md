@@ -12,6 +12,53 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-30 (04:33 CDT) — Laptop: the live TabPFN ownership predictor is built, wired with a LOUD blend fallback, and run end to end on real Week-3 artifacts (outcome-blind); condition 1 met, condition 2 met in code; condition 3 (the Week-4 smoke) pending
+
+**`scripts/ownership_tabpfn.py`** (new), three steps:
+- `lags` (main venv, BigQuery, Saturday): L23's definition of `own_l1/own_l3` from the season's Millionaire ownership.
+- `features` (main venv, before each union): the build frame's skill players, L23's eleven features, the newest LineStar
+  capture (≤ 30 h, this week, csv sha = receipt).
+- `fit` (the GPU env): TabPFN 2.2.1, ctx 28,000, 8 estimators, seed 0, `ignore_pretraining_limits`, CUDA required; the
+  rows file's sha pinned. It writes the `pred_own` csv the union reads, plus a receipt.
+
+Every refusal prints `OWNERSHIP TABPFN REFUSED: …` and exits 2. **Transfer checks:**
+- the spread is rebuilt in L23's convention and asserted;
+- every frame feature must sit inside the history's p0.5–p99.5 band on ≥ 95% of rows;
+- LineStar must cover ≥ 50% of the skill players projected ≥ 5, with values in percentages;
+- **LineStar's scale is compared like for like:** the per-slate total and the top-20 mean within 2×.
+- The first version compared medians, and it refused on real W3 data at 0.20×. The cause was coverage, not scale: the
+  live capture covers 83% of the projection-1–5 players with values around 0.3%, where the history covers 33%.
+  Totals are 793 vs 786 and the top-20 mean 17.9 vs 19.9. **Disclosed residual:** TabPFN was fitted with fewer
+  low-end players carrying a LineStar value than it will see live.
+- Predictions must sum to 150–900 over the skill players.
+
+**Mechanics run on real W3 artifacts** (private `~/week4-sunday/tabpfn-mech-w3/`; LineStar's W3 period fetched now, so
+recorded, not pre-lock; no realized value read):
+- `lags --week 3`: 750 players, weeks 1–2.
+- `features` on the W3 T-70 frame: 316 skill players; every check passed; LineStar coverage 99.4% (projected ≥ 5).
+- `fit` on the laptop GPU: context 18,564 rows, **15.8 s**, pred_own sum 832.
+- `union_reselect.own_bonus` on that file: 316 of 316 matched by dk_player_id, coverage 100%.
+- **CUDA works from a systemd user unit** (`systemd-run --user --wait`: cuda True, RTX 4070), which is the context the
+  Sunday timers run in.
+
+**The chain** (`sunday_build_host.sh`, `week_env.sh`, `arm_week_timers.sh`):
+- `UNION_MAIN_OWN_PREDICTOR=blend|tabpfn` (default blend). The blend file is always built first.
+- With tabpfn: features, then fit (timeouts 120 / 300 s); a success replaces the file handed to the union.
+- **Any failure prints a capitals banner "!!! OWNERSHIP TABPFN FAILED for <run>: <reason> -- FALLING BACK TO THE BLEND
+  (<file>)"** and writes `own_term_fallback-<run>.txt`. The union dir gets a copy as `own_term_fallback.txt`, and the
+  receipt's `own_term.source` names the file used. No blend file (no valid capture) means no term, the same as today.
+- The arm preflight with tabpfn requires, before arming: the GPU env sees CUDA; `$OUT/private/l23_rows.parquet` has sha
+  0bec4237 (staged, dir 700); Saturday's `ownership_lags.csv` exists. The printed Saturday steps gain the `lags`
+  command.
+- Tests: `test_ownership_tabpfn.py` (7, a stub regressor, no GPU); `test_week_env_defaults` (the fallback banner and
+  marker run for real); `test_arm_week_timers`. **Sunday-path suite: 294 passed, 1 skipped.**
+
+**Still open for condition 3:**
+- the 2026 W1–3 context rows from the workstation (optional for the fit, requested at 50fe44c6);
+- the Week-4 smoke, which needs project-slate (props guard) and LineStar's Week-4 fill;
+- a forced fallback in the smoke, so the operator sees the banner.
+
+Arm line addition when it passes: `UNION_MAIN_OWN_PREDICTOR=tabpfn`.
 ## 2026-09-30 (04:32 CDT) — Production: the 2026 W1–W3 context rows for the live TabPFN step are DONE (answering 50fe44c6) — `private/l23/rows_2026_w1w3.parquet`, 945 rows, L23's exact columns, spread in the historical sign
 
 **File:** `gs://nfl-predictions-503414-raw/private/l23/rows_2026_w1w3.parquet`, generation 1790760740984832, 56,347 bytes,

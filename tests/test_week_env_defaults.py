@@ -115,7 +115,8 @@ def test_ownership_term_is_off_unless_armed_and_the_chain_falls_back_named():
     assert "export UNION_MAIN_OWN_TILT=${UNION_MAIN_OWN_TILT:-0}" in src                     # off until the arm line sets 0.20
     assert "OWNERSHIP_LAG=${OWNERSHIP_LAG:-$OUT/ownership_lag.csv}" in src
     host = (ROOT / "scripts" / "sunday_build_host.sh").read_text()
-    assert '--main-own-tilt "$UNION_MAIN_OWN_TILT" --main-own-source "$OUT/ownership_blend-$RUN_TAG.csv"' in host
+    assert 'OWN_SRC="$OUT/ownership_blend-$RUN_TAG.csv"' in host
+    assert '[[ -n "$OWN_SRC" ]] && UNION_ARGS+=(--main-own-tilt "$UNION_MAIN_OWN_TILT" --main-own-source "$OWN_SRC")' in host
     assert "grep -q 'OWN TERM REFUSED'" in host and "own_term_refused.txt" in host
     assert 'strip_own "${UNION_ARGS[@]}"; MEAN_ARGS_U=("${OUT_ARGS[@]}")' in host         # the mean fallback never carries the term
     assert "timeout 120" in host                                                           # a hung capture cannot stall the union
@@ -128,3 +129,21 @@ def test_strip_own_drops_exactly_the_terms_flags():
     script = fn + '\nstrip_own --main pmo_x50 --main-own-tilt 0.2 --entries 36 --main-own-source "/x y/b.csv" --tail-sleeve 85\nprintf "%s|" "${OUT_ARGS[@]}"'
     out = subprocess.run(["bash", "-c", script], capture_output=True, text=True).stdout
     assert out == "--main|pmo_x50|--entries|36|--tail-sleeve|85|"
+
+
+def test_tabpfn_predictor_is_off_unless_armed_and_its_fallback_is_the_blend_loudly(tmp_path):
+    src = ENV_SCRIPT.read_text()
+    assert "UNION_MAIN_OWN_PREDICTOR=${UNION_MAIN_OWN_PREDICTOR:-blend}" in src                  # the blend unless armed
+    host = (ROOT / "scripts" / "sunday_build_host.sh").read_text()
+    blend = host.index("scripts/ownership_blend.py"); tab = host.index('"${UNION_MAIN_OWN_PREDICTOR:-blend}" == "tabpfn"')
+    assert blend < tab                                                                   # the fallback file exists first
+    assert 'OWN_SRC="$OUT/ownership_tabpfn-$RUN_TAG.csv"' in host and "own_term_fallback.txt" in host
+    # the banner and the marker, run for real
+    start = host.index("      own_fallback() {"); end = host.index("\n      }\n", start) + len("\n      }\n")
+    fn = host[start:end]
+    script = (f'OUT={tmp_path}; RUN_TAG=t70x; OWN_SRC={tmp_path}/ownership_blend-t70x.csv\n' + fn +
+              'own_fallback "fit step: OWNERSHIP TABPFN REFUSED: no CUDA device"\n')
+    r = subprocess.run(["bash", "-c", script], capture_output=True, text=True)
+    assert "!!! OWNERSHIP TABPFN FAILED for t70x: fit step: OWNERSHIP TABPFN REFUSED: no CUDA device -- FALLING BACK TO THE BLEND (ownership_blend-t70x.csv)" in r.stdout
+    marker = (tmp_path / "own_term_fallback-t70x.txt").read_text()
+    assert "predictor tabpfn FAILED: fit step" in marker and "fallback: " + str(tmp_path) + "/ownership_blend-t70x.csv" in marker

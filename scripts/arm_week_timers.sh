@@ -78,7 +78,7 @@ BASE_ENV=(env "GCP_PROJECT=$GCP_PROJECT" "PATH=$PATH"
 [[ -n "${ENTER_ORDER:-}" ]] && BASE_ENV+=("ENTER_ORDER=$ENTER_ORDER")
 [[ -n "${LIVE_FLEX_LATEST:-}" ]] && BASE_ENV+=("LIVE_FLEX_LATEST=$LIVE_FLEX_LATEST")
 [[ -n "${OWNERSHIP_SETS:-}" ]] && BASE_ENV+=("OWNERSHIP_SETS=$OWNERSHIP_SETS")
-for v in ENTER_FLAG_LATE_Q_ONLY T70_ACTIVE_Q T70_VACATED_BUMP LIVE_SELECTOR TAIL_LINE LIVE_MIN_PROJ MEAN_OWN_TILT MEAN_OWN_SOURCE MEAN_DST_CAP TAIL_SLEEVE_SELECTOR CLASS_MODEL CLASS_SLEEVE_EVERY UNION_SATURDAY_RUN UNION_SAT_DOSE UNION_PMO UNION_PMO_CAP UNION_MAIN UNION_MAIN_CAP UNION_SLEEVE_CAP UNION_MAIN_OWN_TILT OWNERSHIP_LAG LINESTAR_DIR UNION_MAIN_DST_CAP UNION_SLEEVE_INCLUDES_MAIN UNION_DK_STATUS \
+for v in ENTER_FLAG_LATE_Q_ONLY T70_ACTIVE_Q T70_VACATED_BUMP LIVE_SELECTOR TAIL_LINE LIVE_MIN_PROJ MEAN_OWN_TILT MEAN_OWN_SOURCE MEAN_DST_CAP TAIL_SLEEVE_SELECTOR CLASS_MODEL CLASS_SLEEVE_EVERY UNION_SATURDAY_RUN UNION_SAT_DOSE UNION_PMO UNION_PMO_CAP UNION_MAIN UNION_MAIN_CAP UNION_SLEEVE_CAP UNION_MAIN_OWN_TILT OWNERSHIP_LAG LINESTAR_DIR UNION_MAIN_OWN_PREDICTOR TABPFN_PY OWNERSHIP_LAGS OWN_TABPFN_ROWS OWN_TABPFN_ROWS_2026 UNION_MAIN_DST_CAP UNION_SLEEVE_INCLUDES_MAIN UNION_DK_STATUS \
          ENTRIES_END_CT MAX_PER_GAME MIN_LINEUP_SALARY CASH_SHADOW CASH_SHADOW_N REQUIRE_AUDIT_PASSED; do
   [[ -n "${!v:-}" ]] && BASE_ENV+=("$v=${!v}")
 done
@@ -149,6 +149,8 @@ PYTHONPATH=\$PROD/src \$PROD_PY \$PROD/scripts/ownership_sets.py sets --week ${W
 PYTHONPATH=\$PROD/src \$PROD_PY \$PROD/scripts/ownership_sets.py sets --season ${SEASON:-2026} --week ${WEEK} --group \${GROUP} --lag-features --out ${OUT}/ownership_lag.csv
 \$PROD_PY \$PROD/scripts/check_ownership_lag.py ${OUT}/ownership_lag.csv
 \$PROD_PY \$PROD/scripts/linestar_ownership_capture.py --season ${SEASON:-2026} --week ${WEEK} --out ${OUT}/linestar --label saturday
+# with UNION_MAIN_OWN_PREDICTOR=tabpfn: Saturday's lags (BigQuery) -- the Sunday unions then fit on the laptop GPU:
+PYTHONPATH=\$PROD/src \$PROD_PY \$PROD/scripts/ownership_tabpfn.py lags --season ${SEASON:-2026} --week ${WEEK} --out ${OUT}/ownership_lags.csv
 #
 # Saturday $SATURDAY: D12800 at 10:30 CT, D6400 fallback at 10:35 CT; Sunday: D6400 05:30 CT, D3200 09:10 CT,
 # D800 T-70 at 10:50 CT, persistent watchers at 09:12 CT$( [[ "${T70_PROJECT:-0}" == 1 ]] && echo "; T-70 DK pull $T70_PULL_CT CT, T-70 project-slate $T70_PROJECT_CT CT")$( [[ -n "${T70_MIN_PROJ_CT:-}" ]] && echo "; the T-70 build needs projections generated after $T70_MIN_PROJ_CT CT").
@@ -164,6 +166,14 @@ if [[ "$RUN" == "--run" ]]; then
   if [[ "${UNION_MAIN_OWN_TILT:-0}" != "0" ]]; then
     # reviewer gate 4: never arm the term on a collapsed or missing lag file
     "$PROD_PY" "$PROD/scripts/check_ownership_lag.py" "${OWNERSHIP_LAG:-$OUT/ownership_lag.csv}" || exit 2
+  fi
+  if [[ "${UNION_MAIN_OWN_PREDICTOR:-blend}" == "tabpfn" ]]; then
+    # the TabPFN predictor: its env, a CUDA device, the pinned rows file and Saturday's lags must all be present at arming
+    TPY=${TABPFN_PY:-$HOME/.local/tabpfn311-gpu/bin/python}
+    "$TPY" -c "import torch, tabpfn; assert torch.cuda.is_available(), 'no CUDA'" || { echo "TABPFN PREFLIGHT FAILED: $TPY cannot see a CUDA device or tabpfn" >&2; exit 2; }
+    [[ "$(sha256sum "${OWN_TABPFN_ROWS:-$OUT/private/l23_rows.parquet}" 2>/dev/null | cut -d' ' -f1)" == 0bec4237eb4c4bc1228571e5628685b3cc26e8aaed433f8b8f2056d5062edde9 ]] \
+      || { echo "TABPFN PREFLIGHT FAILED: the L23 rows file is missing or not sha 0bec4237" >&2; exit 2; }
+    [[ -s "${OWNERSHIP_LAGS:-$OUT/ownership_lags.csv}" ]] || { echo "TABPFN PREFLIGHT FAILED: Saturday's lags file is missing (ownership_tabpfn.py lags)" >&2; exit 2; }
   fi
   if [[ "${T70_PROJECT:-0}" == "1" ]]; then
     [[ -x "$GCLOUD" ]] || { echo "gcloud not executable: $GCLOUD" >&2; exit 2; }
