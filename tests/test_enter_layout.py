@@ -817,3 +817,31 @@ def test_book_view_of_the_overlap_limit_matches_the_upload_view(tmp_path, monkey
     assert EL.contest_rows_from_book(cs, book, "head", perm, 5) == up_view
     assert EL.contest_rows_from_book(cs, book, "head", perm, None) == EL.contest_rows(cs, K, "head", perm)
     assert up_view != EL.contest_rows(cs, K, "head", perm)    # the limit moved something in this book
+
+
+def test_overlap_ceiling_extends_the_limit_to_larger_contests_without_touching_the_head_split(monkeypatch, tmp_path):
+    """Reviewer 2026-09-30 §2: the 10-entry contests. The ceiling is its own setting: SMALL_MAX_ENTRIES (the head split)
+    must not move, so with the ceiling raised and the limit off the head ranks are unchanged."""
+    cs = [{"name": "sat3", "contest_id": "1", "entries": 3, "keep": 3}, {"name": "ten", "contest_id": "2", "entries": 10, "keep": 10},
+          {"name": "twenty", "contest_id": "3", "entries": 20, "keep": 20}]
+    head = EL.assign_ranks(cs, "head")
+    K = max(max(r) for r in head) + 1
+    rp = _players(_book(K, core_rows={0, 1, 2, 3}))                 # the four head rows share 7
+    monkeypatch.delenv(EL.SMALL_OVERLAP_CEILING_ENV, raising=False)
+    got, ch = EL.limit_small_overlap(cs, head, rp, 5)
+    assert got[1] == head[1] and got[2] == head[2] and set(EL.small_overlap_record(cs, 5, ch)) == {"sat3-1"}
+    monkeypatch.setenv(EL.SMALL_OVERLAP_CEILING_ENV, "10")
+    assert EL.assign_ranks(cs, "head") == head                      # the head split is untouched by the ceiling
+    got, ch = EL.limit_small_overlap(cs, head, rp, 5)
+    assert got[1] != head[1] and got[2] == head[2]                  # the 10-entry contest is limited; the 20 is not
+    ten = [rp[r] for r in got[1]]
+    assert all(len(a & b) <= 5 for i, a in enumerate(ten) for b in ten[i + 1:])
+    assert set(EL.small_overlap_record(cs, 5, ch)) == {"sat3-1", "ten-2"}
+    for bad in ("1", "21", "ten"):
+        monkeypatch.setenv(EL.SMALL_OVERLAP_CEILING_ENV, bad)
+        with pytest.raises(EL.LayoutError, match=EL.SMALL_OVERLAP_CEILING_ENV):
+            EL.overlap_ceiling()
+    (tmp_path / "c.json").write_text(json.dumps(cs))
+    with pytest.raises(EL.LayoutError, match=EL.SMALL_OVERLAP_CEILING_ENV):     # refuses before anything is written
+        EL.main(["write", str(tmp_path / "c.json"), str(tmp_path / "u.csv"), str(tmp_path / "stage"), "--layout", "head"])
+    assert not (tmp_path / "stage").exists()
