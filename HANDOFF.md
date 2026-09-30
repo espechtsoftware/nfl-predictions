@@ -12,6 +12,40 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (22:19 CDT) — Production: PREREG-L21 READ — λ by position NEUTRAL; the excess-ownership form NEUTRAL at 0.20, SUPPORTED at 0.40 (+18.1% vs the armed term, paired 38–19) — a flag, not an adoption; the armed term replicated more weakly on these banks (+12%, 2024 flat) (→ LAPTOP: re-run the reader)
+
+**Result** (72 of 72 slate-banks, identity 7fad267f clean, no errors, no short solve; results and the read on lab branch
+`production/prereg-l21-results-20260929` @ da28d17, `results/l21/{…,READ.txt}`; read once from a clean checkout):
+
+| Arm (K 36, cap 18, DST 9) | tickets89 | p95 | p99 | p99.8 | realized mean | projected sum | realized own sum | rows shared with BLEND_020 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| X50 (control) | 365 | 180 | 44 | 10 | 129.60 | 128.05 | 104.8 | 3.3 |
+| **BLEND_020 (armed; reference)** | 409 | 215 | **63** | 11 | 133.41 | 126.58 | 126.7 | 36 |
+| NOQB_020 | 418 | 209 | 57 | 3 | 133.99 | 126.65 | 125.3 | 21.4 |
+| HALFQB_020 | 416 | 206 | 62 | 7 | 133.78 | 126.62 | 126.3 | 27.2 |
+| EXCESS_020 | 395 | 215 | 60 | 11 | 133.77 | 126.62 | 126.1 | 24.6 |
+| **EXCESS_040** | **483** | **241** | 57 | 9 | **135.57** | 125.10 | 131.6 | 12.2 |
+
+- **Verdicts vs BLEND_020 at tickets89 (L13's rule):** NOQB_020 +2.2% (25–25) NEUTRAL; HALFQB_020 +1.7% (21–19)
+  NEUTRAL; EXCESS_020 −3.4% (21–25) NEUTRAL; **EXCESS_040 +18.1%, 2023 256 vs 212, 2024 227 vs 197, paired 38–19 →
+  SUPPORTED**; its realized mean +2.16 per row (43–29, both seasons), p95 +12.1% (27–21), p99 −9.5% (10–13).
+- **Reading, as frozen:** four challengers, no multiplicity correction; a lone SUPPORTED is a flag for the operator and
+  the reviewer and adopts nothing; a change of form needs its own live paper week beside the armed term. Two cautions
+  I'd put on it: (1) EXCESS_040 pushes further toward chalk than the armed term (realized ownership 131.6 vs 126.7,
+  projected sum 125.1 vs 126.6), so part or all of its gain may be "more tilt", not "a better form" — the reviewer's
+  own curve had BLEND at 0.30–0.40 about equal to 0.20; the clean next arm is BLEND_030/040 on the same fresh banks;
+  (2) it loses at p99.
+- **λ by position: nothing to gain.** Dropping or halving the QB term moves 3–15 rows and ties the armed term at p89.
+- **The armed term on these fresh banks: BLEND_020 vs X50 +12.0% (409 vs 365), 2023 212 vs 166, 2024 197 vs 199, paired
+  40–24 → NEUTRAL** by the rule (2024 flat), against L20's +33.2% on banks 1270–1271 and the reviewer's +0.16/+0.19 sd on
+  1240–1241. The direction holds on a third bank pair (+3.8 points realized mean per row, p99 63 vs 44); the size is
+  bank-sensitive. This does not change the operator's arming decision (his condition was "arm unless L20 harmful"), but
+  it should temper expectations for Sunday: the term's measured gain ranges from about +12% to +33% of tickets at p89.
+- **Box:** L21 ended 22:18; L22 still waits for the L23 shards (by the laptop's priority). L07 (12 workers) and L19 run.
+- **→ LAPTOP:** re-run `scripts/l21_report.py results/l21` from a clean checkout of `production/prereg-l21-results-20260929`;
+  ledger row. If the operator wants the EXCESS_040 flag pursued, the clean follow-up is a paper book at T-70 beside the
+  armed term and BLEND_030/040 on fresh banks; neither is scheduled.
+
 ## 2026-09-29 (22:15 CDT) — OPERATOR: "Yes" — the TabPFN ownership predictor's routing (research local incl. L23b on the laptop GPU; Week 4 live on the laptop GPU only if stages 1 and 2 pass; Week 5 into the `tabpfn-gen` job as a mode); L23b being prepared
 
 - **Decision** (answering the laptop's question after 96f5e28b): as proposed. Production's 22:13 agreement stands.
