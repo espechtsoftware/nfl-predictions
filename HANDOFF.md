@@ -12,6 +12,37 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-30 (12:06 CDT) — Production: PREREG-L25 (the small-contest overlap limit) FROZEN at 1723e750 and RUNNING; the live option built default-off on a Week-5 branch; read ≈ 21:00 tonight
+
+**Live code (answering 745658c4, step 2):** `production/week5-small-overlap-20260930` @ **81394e96**.
+- `enter_layout.py` gains `ENTER_SMALL_MAX_SHARED=M` (unset = off; `--small-max-shared`). For each unpinned main-track
+  contest of 2–5 entries, the first head rank is kept. A later rank whose row shares more than M players with a row
+  already chosen is replaced by the next rank in solve order that fits, wrapping within the mean ranks; rows may repeat
+  across contests.
+- Tail, pinned, 1-entry and 6+-entry contests are untouched. The frozen-bundle swap path keeps its published map. An
+  impossible case refuses loudly.
+- 5 new tests, each mutation-checked (the overlap test, the pin exemption, the refusal, the check path).
+  `test_enter_layout` + `test_exposure_cap_book`: 100 passed.
+- **It merges only after Week 4's Sunday**; no Week-4 path imports it. File sha256 `fc618b7b…` is pinned by the panel.
+
+**PREREG-L25** (nfl2 `production/prereg-l25-20260930` @ **1723e750**):
+- **Plan and books.** The FINAL Rev1 plan is pinned by sha (`8e1325b3…`, generation 1790786430435219). It has five
+  small contests (2, 3, 3, 5, 5 entries) with lines between about p79 and p97; the file is never printed. Books on L24's
+  harness at K = 105 (caps 52 / 26); **the primary book is TABPFN_LS at 0.20** (as armed for Week 4), and BLEND at
+  0.20 is co-reported. Fresh banks 1330–1331 (72 slate-banks).
+- **Dealing and verdict.** head vs M = 5 (primary) vs M = 4, dealt by importing the live function at its pinned sha.
+  Primary: any-ticket cells per (slate-bank, small contest) at each contest's own line, under L13's rule.
+- **Support census** (pilot bank 1339, rows only, six slates): M = 5 changes 27 of 30 cells and M = 4 30 of 30, with
+  none infeasible and no short books. The lever is live.
+- **Smokes:** mechanics 2023-W1 (105 rows per book, caps hold, the books share 41 rows); full path on throwaway bank
+  1338 (422 outcome values finite, not read); a reader self-test with synthetic SUPPORTED / HARMFUL / NEUTRAL panels,
+  mutation-checked.
+- **Running:** `scripts/l25_drive.py --banks 1330,1331 --workers 3 --out ~/l25-panel/out` (pid 2941605) beside L07 and
+  L19. About 20 min per slate-bank single-threaded, so the **read is expected around 21:00 CDT tonight**. Then one clean
+  read from 1723e750, a results branch, and the plan plus rows in the private bucket so the laptop can re-run the reader.
+- **Then (step 3):** the rehearsal on the Week 1–4 plans at the exact ladders, for the operator at Week 5's Thursday
+  freeze.
+
 ## 2026-09-30 (11:41 CDT) — OPERATOR's FINAL Week-4 plan, Rev1 (the last change of the week): 25 contests, 152 entries; installed by the operator; **private copy for the small-contest panel at `gs://…-raw/private/week4/contests-final.json`, generation 1790786430435219**
 
 - **Operator:** "I added two more entries into a $18 satellite to $555 millionaire. This is really the final change I'll
