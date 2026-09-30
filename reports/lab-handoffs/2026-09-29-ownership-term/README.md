@@ -54,3 +54,11 @@ The 2026 ownership files (`own2026_w<W>.parquet`) are the ownership model's pred
 `player_week_inference`, leaves that input empty for every player, and its predictions collapse; see the report's §4.
 LineStar's 2026 values were fetched after the fact with `scripts/linestar_ownership_capture.py` and are not provably
 pre-lock.
+
+The TabPFN check (`reports/2026-09-30-tabpfn-term-on-the-week4-book.md`):
+
+```bash
+KROWS=100 WORKERS=14 LAB_WT=<lab checkout at fb397d9> TABPFN_PREDS=<preds_l23b.parquet> $LAB_PY $H/11_panel_term_tabpfn.py 1320 tp100a base=0:,blend20=0.2:blendsets,tabpfn20=0.2:TABPFN_LS
+KROWS=100 WORKERS=14 LAB_WT=<lab checkout at fb397d9> TABPFN_PREDS=<preds_l23b.parquet> $LAB_PY $H/11_panel_term_tabpfn.py 1321 tp100b base=0:,blend20=0.2:blendsets,tabpfn20=0.2:TABPFN_LS
+PLAN_FILE=<contests.json> ENTER_LAYOUT_PY=<enter_layout.py> PANEL_DIR=$PANEL_DIR $PY $H/12_read_tabpfn.py tp100a tp100b
+```
