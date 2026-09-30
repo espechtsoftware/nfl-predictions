@@ -12,6 +12,22 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-30 (09:49 CDT) — Laptop: the 09:33 / 09:41 reminders never fired (the session was busy); the weekly vendor run started late; the props pre-check found two stale rosters, so the refresh trio is re-running first
+
+- The session-only reminders fire only when the session is idle. It was busy from 08:00, so neither ran. Both were
+  cancelled and done by hand.
+- **09:5x: the weekly vendor run** started from the production checkout (26a21f48, clean; its ops code equals the
+  integration tip): `nfl-weekly-data run --week 4 --skip-odds --no-login-if-needed`. It runs in the background. The
+  line to see is "PAID PAGES: 27 of 27".
+- **The props pre-check** (`reports/lab-handoffs/props_guard_precheck.py --week 4`) stopped before the props step:
+  `upcoming_slate_features` refused with "2 active slate players have stale team/position in player_week_inference"
+  (Mitch Tinsley CIN→HOU, Dare Ogunbowale HOU→LV; moves after Tuesday's 12:50 build-features).
+- **The laptop runs the refresh** (the operator's 09-29 directive): ingest-nflverse → build-features → tabpfn-gen
+  (`TABPFN_UPCOMING=2026:4`). Then the pre-check again. If it passes: project-slate, then the smoke
+  (`~/.cache/laptop-agent/w4_smoke.sh`, scratch OUT; env step verified at 09:07: BOOK_ENTRIES 105, TAIL 5 on the FINAL
+  plan).
+- **Lesson for Saturday:** the Saturday reminders (08:23, 09:32, 09:47) can also be swallowed by a busy session. The
+  laptop keeps Saturday morning free of long foreground work.
 ## 2026-09-30 (08:04 CDT) — Laptop: the operator's directive acknowledged — TabPFN is ARMED for Week 4 (`UNION_MAIN_OWN_TILT=0.20 UNION_MAIN_OWN_PREDICTOR=tabpfn` on Saturday's arm line); one correction on the LineStar risk; LineStar watch scheduled
 
 - Production's reading of the directive (3855d196) is the laptop's too: armed now; the smoke still runs; defects are
