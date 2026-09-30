@@ -486,14 +486,41 @@ def row_players(hdr: list[str], row: list[str]) -> frozenset:
     return frozenset(str(row[j]).strip() for j in cols)
 
 
+def _deal_small(first_ranks: list[int], rank_players: list[frozenset], K: int, m: int):
+    """One contest at limit m: (chosen ranks, rank changes), or (None, None) when some entry has no fitting mean row."""
+    chosen = [first_ranks[0]]
+    changes = []
+
+    def fits(q: int) -> bool:
+        return q not in chosen and all(len(rank_players[q] & rank_players[x]) <= m for x in chosen)
+
+    for r in first_ranks[1:]:
+        if fits(r):
+            chosen.append(r)
+            continue
+        for step in range(1, K):
+            q = (r + step) % K
+            if fits(q):
+                chosen.append(q)
+                changes.append({"from_rank": r, "to_rank": q})
+                break
+        else:
+            return None, None
+    return chosen, changes
+
+
 def limit_small_overlap(contests: list[dict], ranks: list[list[int]], rank_players: list[frozenset],
                         max_shared: int) -> tuple[list[list[int]], list[dict]]:
     """The small-contest overlap limit over layout RANKS. For each mean-track contest of 2..SMALL_MAX_ENTRIES entries
-    without an explicit pin: its first rank is kept; each later rank is kept if that row shares <= max_shared players
-    with every row already chosen for the contest, otherwise it is replaced by the first rank after it in solve order
-    (wrapping within the mean ranks 0..K-1) that does and is not already chosen. Rows may repeat across contests, as
-    under head. Other contests are untouched. Refuses when no mean row fits (never a silent fallback).
-    rank_players[r] = the player set of the row at rank r. Returns (ranks, changes)."""
+    without an explicit pin: its first rank is kept; each later rank is kept if that row shares <= M players with every
+    row already chosen for the contest, otherwise it is replaced by the first rank after it in solve order (wrapping
+    within the mean ranks 0..K-1) that does and is not already chosen. Rows may repeat across contests, as under head.
+    Other contests are untouched.
+    NEVER REFUSES for want of a fitting row (operator 2026-09-30: a loud fallback, not a blocked upload): that contest
+    is re-dealt at M + 1, ..., 7, and if nothing fits even at 7 it keeps its head rows. Deterministic (check recomputes
+    the same result). rank_players[r] = the player set of the row at rank r. Returns (ranks, changes): rank swaps are
+    {"contest", "label", "from_rank", "to_rank"}; every relaxation is {"contest", "label", "relaxed_from", "relaxed_to"}
+    with relaxed_to an int M or "head"."""
     if not isinstance(max_shared, int) or isinstance(max_shared, bool) or not 0 <= max_shared <= 8:
         raise LayoutError(f"max_shared must be an integer 0..8 (got {max_shared!r})")
     mean = [str(c.get("track", "mean")) == "mean" for c in contests]
@@ -506,26 +533,33 @@ def limit_small_overlap(contests: list[dict], ranks: list[list[int]], rank_playe
         n = len(ranks[i])
         if not mean[i] or "ranks" in c or not 2 <= n <= SMALL_MAX_ENTRIES:
             continue
-        chosen = [ranks[i][0]]
-
-        def fits(q: int) -> bool:
-            return q not in chosen and all(len(rank_players[q] & rank_players[x]) <= max_shared for x in chosen)
-
-        for r in ranks[i][1:]:
-            if fits(r):
-                chosen.append(r)
-                continue
-            for step in range(1, K):
-                q = (r + step) % K
-                if fits(q):
-                    chosen.append(q)
-                    changes.append({"contest": c.get("name"), "from_rank": r, "to_rank": q})
-                    break
-            else:
-                raise LayoutError(f"{SMALL_OVERLAP_ENV}={max_shared}: contest {c.get('name')!r} has no mean row (ranks 0..{K - 1}) "
-                                  f"sharing <= {max_shared} players with its {len(chosen)} rows already chosen")
-        out[i] = chosen
+        tag = {"contest": c.get("name"), "label": label(c)}
+        for m in range(max_shared, 8):
+            got, ch = _deal_small(ranks[i], rank_players, K, m)
+            if got is not None:
+                out[i] = got
+                changes.extend({**tag, **x} for x in ch)
+                if m != max_shared:
+                    changes.append({**tag, "relaxed_from": max_shared, "relaxed_to": m})
+                break
+        else:
+            changes.append({**tag, "relaxed_from": max_shared, "relaxed_to": "head"})   # out[i] keeps the head ranks
     return out, changes
+
+
+def small_overlap_record(contests: list[dict], max_shared: int, changes: list[dict]) -> dict:
+    """{contest label: the M it was dealt at (an int) or "head"} for every contest the limit governs."""
+    rec = {}
+    relaxed = {x["label"]: x["relaxed_to"] for x in changes if "relaxed_to" in x}
+    for c in contests:
+        if str(c.get("track", "mean")) == "mean" and "ranks" not in c and 2 <= int(c.get("entries", 0)) <= SMALL_MAX_ENTRIES:
+            rec[label(c)] = relaxed.get(label(c), max_shared)
+    return rec
+
+
+def relaxation_banners(changes: list[dict]) -> list[str]:
+    return [f"!!! SMALL-CONTEST OVERLAP LIMIT RELAXED for {x['label']}: M={x['relaxed_from']} -> "
+            f"{'head rows' if x['relaxed_to'] == 'head' else x['relaxed_to']}" for x in changes if "relaxed_to" in x]
 
 
 def final_ranks(contests: list[dict], layout: str, rank_players: list[frozenset] | None = None,
@@ -672,8 +706,13 @@ def write(contests: list[dict], upload: Path, stage: Path, layout: str, perm_inf
     if frozen is None:
         ranks, changes = final_ranks(contests, layout, rp, max_shared)
         if max_shared is not None:
-            lines.append(f"{SMALL_OVERLAP_ENV}={max_shared}: {len(changes)} small-contest rank(s) replaced"
-                         + (": " + "; ".join(f"{x['contest']} {x['from_rank'] + 1}->{x['to_rank'] + 1}" for x in changes) if changes else ""))
+            swaps = [x for x in changes if "from_rank" in x]
+            lines.append(f"{SMALL_OVERLAP_ENV}={max_shared}: {len(swaps)} small-contest rank(s) replaced"
+                         + (": " + "; ".join(f"{x['contest']} {x['from_rank'] + 1}->{x['to_rank'] + 1}" for x in swaps) if swaps else ""))
+            for banner in relaxation_banners(changes):
+                lines.append(banner)
+                print(banner, file=sys.stderr)
+            lines.append("small_overlap: " + json.dumps(small_overlap_record(contests, max_shared, changes), sort_keys=True))
     else:
         ranks = [[] for _ in contests]
     for c, rows, rk in zip(contests, per, ranks):

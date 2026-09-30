@@ -666,7 +666,7 @@ def test_overlap_limit_replaces_only_the_violating_rank_and_keeps_the_rest():
     assert got[0][0] == head[0][0] == 0                   # the first rank is kept
     assert 1 not in got[0] and len(set(got[0])) == 3
     assert got[0][1] == 2 and got[0][2] == head[0][2]    # rank 1 -> the next fitting rank; the unique rank is kept
-    assert changes == [{"contest": "sat3", "from_rank": 1, "to_rank": 2}]
+    assert changes == [{"contest": "sat3", "label": "sat3-1", "from_rank": 1, "to_rank": 2}]
     assert got[1] == head[1] and got[2] == head[2]       # a 10-entry and a 1-entry contest are untouched
     for a in got[0]:
         for b in got[0]:
@@ -691,14 +691,85 @@ def test_overlap_limit_leaves_pinned_and_tail_contests_alone_and_wraps():
     head = EL.assign_ranks(cs, "head")
     K = max(max(r) for r, c in zip(head, cs) if c.get("track", "mean") == "mean") + 1
     last = head[2][-1]
-    rp = _players(_book(K + 2, core_rows={0, 1, *range(2, K)} - {0}))   # every mean rank but 0 shares the core with rank 1
-    rp[0] = frozenset(f"z{j}" for j in range(9))
-    with pytest.raises(EL.LayoutError, match="no mean row"):
-        EL.limit_small_overlap(cs, head, rp, 5)          # sat4 needs 4 mutually-fitting rows; only rank 0 is unique
     rp2 = _players(_book(K + 2, core_rows={0, 1}))
-    got, _ = EL.limit_small_overlap(cs, head, rp2, 5)
+    got, ch = EL.limit_small_overlap(cs, head, rp2, 5)
     assert got[0] == head[0] and got[1] == head[1]        # the pin and the tail contest keep their rows
     assert len(got[2]) == 4 and all(r < K for r in got[2]) and last in got[2]
+    assert not [x for x in ch if "relaxed_to" in x]
+
+
+def _core_book(n, core_size):
+    """n rows that all share the same core_size players (the rest unique per row)."""
+    core = [f"c{j}" for j in range(core_size)]
+    return [core + [f"u{i}_{j}" for j in range(9 - core_size)] for i in range(n)]
+
+
+def test_overlap_limit_relaxes_loudly_instead_of_refusing():
+    cs = [{"name": "sat3", "contest_id": "7", "entries": 3, "keep": 3}, {"name": "big", "contest_id": "8", "entries": 6, "keep": 6}]
+    head = EL.assign_ranks(cs, "head")
+    K = max(max(r) for r in head) + 1
+    got, ch = EL.limit_small_overlap(cs, head, _players(_core_book(K, 6)), 5)     # every pair shares 6: M=5 cannot fit
+    assert got[0] == head[0] and got[1] == head[1]        # dealt at M=6, where the head rows already fit
+    assert [x for x in ch if "relaxed_to" in x] == [{"contest": "sat3", "label": "sat3-7", "relaxed_from": 5, "relaxed_to": 6}]
+    assert EL.small_overlap_record(cs, 5, ch) == {"sat3-7": 6}
+    assert EL.relaxation_banners(ch) == ["!!! SMALL-CONTEST OVERLAP LIMIT RELAXED for sat3-7: M=5 -> 6"]
+    got, ch = EL.limit_small_overlap(cs, head, _players(_core_book(K, 8)), 5)     # every pair shares 8: nothing fits at 7
+    assert got == head and EL.small_overlap_record(cs, 5, ch) == {"sat3-7": "head"}
+    assert EL.relaxation_banners(ch) == ["!!! SMALL-CONTEST OVERLAP LIMIT RELAXED for sat3-7: M=5 -> head rows"]
+    # the relaxation is the smallest M that fits: shares 6 with one pair structure fits at 6, never jumps to 7
+    rows = _core_book(K, 6); rows[1] = rows[0][:7] + ["v1", "v2"]                  # rank 1 shares 7 with rank 0
+    got, ch = EL.limit_small_overlap(cs, head, _players(rows), 5)
+    assert EL.small_overlap_record(cs, 5, ch)["sat3-7"] == 6 and 1 not in got[0]
+
+
+def test_overlap_limit_write_records_the_fallback_and_check_agrees(tmp_path, monkeypatch, capsys):
+    cs = [{"name": "sat3", "contest_id": "7", "entries": 3, "keep": 3}, {"name": "big", "contest_id": "8", "entries": 6, "keep": 6}]
+    (tmp_path / "contests.json").write_text(json.dumps(cs))
+    K = EL.rows_needed(cs, "head")
+    rows = _core_book(K, 6); rows[1] = rows[0][:7] + ["v1", "v2"]                  # rank 1 shares 7 with rank 0
+    up = tmp_path / "upload.csv"
+    with open(up, "w", newline="") as f:
+        w = csv.writer(f); w.writerow(HDR9); w.writerows(rows)
+    monkeypatch.setenv("ENTER_SMALL_MAX_SHARED", "5")
+    st = tmp_path / "stage"
+    assert EL.main(["write", str(tmp_path / "contests.json"), str(up), st.as_posix(), "--layout", "head"]) == 0
+    out = capsys.readouterr()
+    assert "!!! SMALL-CONTEST OVERLAP LIMIT RELAXED for sat3-7: M=5 -> 6" in out.out and "!!! SMALL-CONTEST" in out.err
+    assert 'small_overlap: {"sat3-7": 6}' in out.out
+    assert EL.main(["check", str(tmp_path / "contests.json"), str(up), st.as_posix(), "--layout", "head"]) == 0
+    monkeypatch.delenv("ENTER_SMALL_MAX_SHARED")
+    assert EL.main(["check", str(tmp_path / "contests.json"), str(up), st.as_posix(), "--layout", "head"]) == 1
+
+
+def test_frozen_swap_keeps_the_published_map_with_the_limit_on(tmp_path, monkeypatch):
+    """A Sunday swap re-publication never re-deals: with ENTER_SMALL_MAX_SHARED set it keeps the bundle's row map."""
+    cs = [{"name": "sat3", "contest_id": "1", "entries": 3, "keep": 3}, {"name": "big", "contest_id": "2", "entries": 6, "keep": 6}]
+    (tmp_path / "contests.json").write_text(json.dumps(cs))
+    K = EL.rows_needed(cs, "head")
+    rows = _book(K, core_rows={0, 1})
+    up = tmp_path / "upload.csv"
+    with open(up, "w", newline="") as f:
+        w = csv.writer(f); w.writerow(HDR9); w.writerows(rows)
+    monkeypatch.setenv("ENTER_SMALL_MAX_SHARED", "5")
+    b = tmp_path / "bundle"
+    assert EL.main(["write", str(tmp_path / "contests.json"), str(up), b.as_posix(), "--layout", "head"]) == 0
+    (b / f"ENTER-all-rows-1-to-{K}-are-the-KEEPERS.csv").write_text(open(up).read())   # as publication copies it
+    published = json.loads((b / EL.ROWMAP_NAME).read_text())
+    assert published["sat3-1"] != EL.assign_ranks(cs, "head")[0]          # the limit moved sat3's rows
+    # swap two of row 1's shared players: rows 1 and 2 now share 5, so a RE-DEAL would put rank 2 back into sat3
+    new = [list(r) for r in rows]; new[0][3] = "SWAPPED_A"; new[0][4] = "SWAPPED_B"
+    sw = tmp_path / "swapped.csv"
+    with open(sw, "w", newline="") as f:
+        csv.writer(f).writerows([HDR9] + new)
+    (tmp_path / "swapped.csv.swap.json").write_text(json.dumps({"swaps": [
+        {"row": 1, "slot_index": 3, "out": {"dd": rows[0][3]}, "in": {"dd": "SWAPPED_A"}},
+        {"row": 1, "slot_index": 4, "out": {"dd": rows[0][4]}, "in": {"dd": "SWAPPED_B"}}]}))
+    redeal = EL.contest_rows(cs, K, "head", list(range(K)), [EL.row_players(HDR9, r) for r in new], 5)
+    assert redeal[0] != published["sat3-1"]                   # the test can tell a re-deal from the frozen map
+    out = tmp_path / "out"
+    assert EL.main(["write", str(tmp_path / "contests.json"), str(sw), out.as_posix(), "--layout", "head",
+                    "--frozen-bundle", b.as_posix()]) == 0
+    assert json.loads((out / EL.ROWMAP_NAME).read_text()) == published
 
 
 def test_overlap_limit_env_parsing_fails_closed():

@@ -307,10 +307,12 @@ def main() -> None:
         small = [k for k, ct in enumerate(contests) if ct["track"] == "mean" and "ranks" not in ct and 2 <= int(ct["entries"]) <= 5]
         for M in [int(x) for x in a.small_max_shared.split(",") if x.strip()]:
             rk2, ch = limit_small_overlap(contests, ranks, rp, M)
+            relaxed = [x for x in ch if "relaxed_to" in x]; ch = [x for x in ch if "from_rank" in x]
             moved = sorted({x["from_rank"] for x in ch}); into = sorted({x["to_rank"] for x in ch})
             dproj = (float(psum[[plan_rows[r] for r in into]].mean()) - float(psum[[plan_rows[r] for r in moved]].mean())) if ch else 0.0
             print(f"small-contest overlap limit M={M}: {len(small)} small main-track contests, {sum(1 for k in small if rk2[k] != ranks[k])} "
-                  f"changed, {len(ch)} ranks replaced; projected points of rows swapped in minus out {dproj:+.2f}")
+                  f"changed, {len(ch)} ranks replaced; projected points of rows swapped in minus out {dproj:+.2f}; "
+                  f"relaxed: {[(x['contest'], x['relaxed_to']) for x in relaxed] or 'none'}")
             arms[f"PLAN + small-contest overlap limit M={M}"] = score_arm(plan_rows, rk2)
     for k, v in arms.items():
         print(f"\n{k}: paid entries {v['tickets']}; mean points per entry {v['mean_pts']}"
