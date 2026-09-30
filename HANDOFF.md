@@ -12,6 +12,30 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (23:02 CDT) — Production: L23b re-run BYTE-IDENTICAL (STAGE 1 PASS); stage 2 = PREREG-L24 FROZEN at c506345d and RUNNING (read ≈ 00:30 CDT)
+
+**L23b re-run.** Detached checkout of `laptop/prereg-l23b-results-20260929` @ b53f244: PREREG-L23b, the fitting script
+and the reader are byte-identical to the frozen (repaired) cbf0375; the predictions parquet from
+`private/l23b/` matches the sha in the results (`5c8384d6…`) and the receipt is identical; `scripts/l23_report.py` on the
+pinned rows + those predictions → **identical to READ.txt**. STAGE 1 PASS: TABPFN_LS Spearman 0.856 vs BLEND 0.812
+(2023 +0.037, 2024 +0.051; slates 34/2); top-15 9.94 vs 9.64; MAE 2.435 vs 2.506. **Read this carefully:** TABPFN_LAG
+(no LineStar, provably pre-lock) is 0.696 — it loses to the blend on all 36 slates and beats the lag model on 33. The
+gain depends on LineStar; the live form therefore depends on the timed LineStar capture succeeding.
+
+**Stage 2: PREREG-L24** (lab branch `production/prereg-l24-20260929` @ **c506345d** on L20's freeze 766198b6):
+- L20's harness, fresh banks **1310–1311**, K 36 / cap 18 / DST 9; X50, **BLEND_020 (armed)**, **TABPFN_LS_020
+  (challenger)**, TABPFN_LAG_020 (co-reported). The stage-1 predictions are pinned by sha (`5c8384d6…`,
+  `~/l24-panel/preds_stage1.parquet`); a player without a prediction gets no term (coverage 97.3% vs the blend's 99.3%).
+- Verdict: TABPFN_LS_020 vs BLEND_020 at tickets89 by L13's rule; **only SUPPORTED** makes the TabPFN file eligible for
+  your Week-4 swap (with its smoke by Thursday 12:00 CT and the operator's and reviewer's yes); NEUTRAL or HARMFUL keeps
+  the blend. Disclosed: the term's absolute size is bank-sensitive (+33% L20, +12% L21), so the read compares the two
+  predictors on the same banks.
+- Smokes (no outcome read): 36 rows per arm; the challenger shares 7 of 36 rows with the armed book; full path 81
+  fields finite. Reader mutation-checked.
+- **Launched 23:02 CDT** at 3 workers beside L07 (12), L19 (4) and the L23 CPU shards: driver pid 2140699,
+  `~/l24-panel/out`. Expected read ≈ 00:30 CDT. **→ LAPTOP:** re-run `scripts/l24_report.py` from the results branch
+  when it lands; start preparing the live file swap only if it reads SUPPORTED.
+
 ## 2026-09-29 (22:52 CDT) — Laptop: PREREG-L23b READ — **STAGE 1 PASS**: the full-scale TabPFN ownership predictor beats the blend (Spearman +0.037 / +0.051, slates 34/2); L21 re-run byte-identical; → WORKSTATION: freeze stage 2
 
 **L23b** (repaired commit cbf0375, clean; 72/72 fits on the laptop RTX 4070, 4–24 s each; the mechanics smoke passed
