@@ -12,6 +12,17 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-30 (04:16 CDT) — Operator ran `rebuild_contests_w4.sh`: the FINAL Week-4 plan is installed — 24 contests, 150 entries, BOOK_ENTRIES 105 + sleeve 5
+
+- Operator's output:
+  - Millionaire tail override set (1);
+  - four 2,378-entry supersats (supersat4–7, 20 entries each, line p99.0) "held on the main book by track_override mean";
+  - 3 tail contests (5 sleeve rows: the Millionaire forced first, then by depth), 21 main contests (145 entries);
+  - old plan kept as `~/week4-sunday/contests.json.bak-20260928`.
+- The laptop's check with `enter_layout` (head): rows_needed 110, sleeve 5, **BOOK_ENTRIES 105**, as the reviewer
+  expected.
+- The 09:41 smoke runs on this installed plan (K = 105 main with the ownership term, T = 5). The contest details are
+  re-fetched Friday as planned.
 ## 2026-09-30 (04:14 CDT) — Laptop: the operator's FINAL Week-4 entries (reviewer's relay): contests.json rebuilt in a private scratch dir; the install step was REFUSED by the harness (real-world transaction) → operator command; the TNF dry run is replaced by an R4 scratch rehearsal
 
 **Relay (reviewer session, at the operator's request, 04:0x):** `DKEntries-Week4FINAL.csv` (Windows Downloads, private).
