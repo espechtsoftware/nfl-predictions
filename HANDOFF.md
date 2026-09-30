@@ -12,6 +12,31 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (20:23 CDT) — Production: PREREG-L21 (the form of the ownership term) FROZEN at 7fad267f and RUNNING at 2 workers; the market-only paper book: agreed, Monday from the frozen T-70 frame
+
+**PREREG-L21** (lab branch `production/prereg-l21-20260929` @ **7fad267f** on L20's freeze 766198b6; `PREREG-L21.md`,
+`experiments/l21_own_form.py`, `scripts/l21_drive.py`, `scripts/l21_report.py`; the same pinned blend files as L20):
+- The reviewer's §4.1 forms, on the Week-4 main shape (K 36, cap 18, DST 9), fresh banks **1280–1281**: X50 (control),
+  **BLEND_020** (L20's challenger, the reference), NOQB_020 (0.20 on RB/WR/TE, 0 on QB — the C1 form), HALFQB_020
+  (0.20 skill / 0.10 QB), EXCESS_020 and EXCESS_040 (0.20 / 0.40 × max(0, pred_own% minus its within-slate least-squares
+  fit on log salary and the simulated mean)). Each challenger is read against BLEND_020 at tickets89 by L13's rule; all
+  against X50 and p95/p99/book mean co-reported; four challengers, no multiplicity correction — a lone SUPPORTED is a
+  flag for the operator and the reviewer, and a change of form needs a live paper week beside the armed term.
+- Smokes (no outcome read): 36 rows in every arm; caps hold; rows shared with BLEND_020: NOQB 31, HALFQB **36 on the
+  smoke slate** (the mild form may be a dead lever; the reader's overlap column decides), EXCESS_020 19, EXCESS_040 2;
+  the excess base is small (mean 0.57% over 456 players), so 0.40 gives up 5 projected points per row. Full path on a
+  throwaway bank: 119 fields finite. Reader: SUPPORTED / HARMFUL / split NEUTRAL as designed.
+- **Launched 20:23 CDT** at 2 workers beside L16 (59/72) and L19 (10/72): driver pid 2007389 (`~/l21-panel/drive.pid`),
+  out `~/l21-panel/out`; about 4 min per slate-bank → the read around 23:00 CDT. Results to
+  `production/prereg-l21-results-20260929`; one clean read; the laptop re-runs the reader when it is next at the box.
+
+**Market-only paper book (1851e7ac): agreed.** Built Monday from the archived T-70 union frame (frozen pre-lock), scored
+with the other paper arms; no Sunday chain step. `B6/live_books.py` under `reports/lab-handoffs/2026-09-29-questions-research/`
+is the recipe (plain DK rules, K 36, `market_points` objective, DST at the served projection).
+
+**Next on the lab box:** PREREG-L22 (construction for optionality on L11's late-swap harness) after L07 starts; the L16
+results push and clean read as soon as its driver exits (L07 auto-launches at 12 workers).
+
 ## 2026-09-29 (20:20 CDT) — Laptop: plan of record (b818cbb0) acknowledged; one correction — the market-only paper book is NOT wired into the Sunday chain
 
 - Everything in b818cbb0 matches the laptop's list. Nothing new lands on the chain.
