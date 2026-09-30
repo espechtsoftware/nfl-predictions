@@ -12,6 +12,43 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-30 (00:27 CDT) — Production: PREREG-L24 (stage 2) READ — TabPFN predictions in the term vs the armed blend: +4.2% tickets89, both seasons, paired 31–27 → NEUTRAL; **the blend stays for Week 4**; and a pooled read of the armed term across three fresh bank pairs (→ LAPTOP: re-run the reader; → OPERATOR/REVIEWER: see the pooled table)
+
+**Result** (72 of 72 slate-banks, identity c506345d clean, no errors; results and the read on lab branch
+`production/prereg-l24-results-20260930` @ 02b5263, `results/l24/{…,READ.txt}`; read once from a clean checkout):
+
+| Arm (K 36, cap 18, DST 9) | tickets89 | p95 | p99 | p99.8 | realized mean | projected sum | realized own sum | rows shared with BLEND_020 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| X50 | 328 | 174 | 45 | 9 | 128.86 | 128.00 | 104.7 | 2.9 |
+| **BLEND_020 (armed)** | 356 | 187 | **50** | 8 | 132.30 | 126.52 | 126.9 | 36 |
+| **TABPFN_LS_020** | **371** | **199** | 43 | 10 | 132.20 | 126.65 | 127.2 | 11.8 |
+| TABPFN_LAG_020 | 360 | 197 | 47 | 9 | 131.12 | 127.56 | 111.1 | 3.9 |
+
+- **VERDICT (TABPFN_LS_020 vs BLEND_020, tickets89): 371 vs 356 (+4.2%); 2023 173 vs 168, 2024 198 vs 188; paired 31–27
+  → NEUTRAL** (under the 5% bar). p95 +6.4% (26–23); p99 −14.0% (11–11); p99.8 10 vs 8; realized mean −0.09 per row (39–33;
+  2023 −1.32, 2024 +1.13). By the frozen rule **NEUTRAL keeps the blend**: the TabPFN file is NOT swapped in for Week 4.
+  The better ranking in stage 1 (+0.04–0.05 Spearman) does not translate into a measurable book gain on this panel.
+- TABPFN_LAG_020 (provable, no LineStar) vs BLEND_020: +1.1%, paired 29–36, NEUTRAL; vs X50 +9.8%, SUPPORTED.
+- **The armed term across three fresh bank pairs** (all from frozen reads; X50 = no term, BLEND_020 = armed):
+
+| Panel (banks) | tickets89 X50 → BLEND_020 | 2023 | 2024 | realized mean per row |
+|---|---|---|---|---|
+| L20 (1270–1271) | 286 → 381 (+33.2%) | 125 → 188 | 161 → 193 | +4.11 |
+| L21 (1280–1281) | 365 → 409 (+12.0%) | 166 → 212 | 199 → 197 | +3.81 |
+| L24 (1310–1311) | 328 → 356 (+8.5%) | 123 → 168 | 205 → 188 | +3.44 |
+| **Pooled** | **979 → 1,146 (+17.1%)** | **414 → 568 (+37%)** | **565 → 578 (+2%)** | **+3.8** |
+
+  **Reading for the operator and the reviewer:** the term raises the book's realized mean by about 3.4–4.1 points per row
+  on every bank pair — that is steady — but its gain in tickets at the p89 line comes almost entirely from the 2023
+  slates; on 2024, the more recent season, it is flat (+2% pooled; one pair +20%, two pairs slightly negative). It is not
+  HARMFUL anywhere, and the operator's condition ("arm unless L20 harmful") is met. The honest expectation for Sunday is a
+  few points per row of average score, with the ticket gain uncertain. Whether that changes the arming is the
+  operator's call; production's view is that a steady +3.8 points per row on the satellite book is worth keeping.
+- **→ LAPTOP:** re-run `scripts/l24_report.py results/l24` from a clean checkout of `production/prereg-l24-results-20260930`
+  and confirm; ledger row PREREG-L24. No file swap is needed: the blend stays.
+- L23 (the CPU sibling) is still fitting and is read on its own rule when it finishes; with L23b and L24 in, it no longer
+  decides anything this week.
+
 ## 2026-09-29 (23:02 CDT) — Production: L23b re-run BYTE-IDENTICAL (STAGE 1 PASS); stage 2 = PREREG-L24 FROZEN at c506345d and RUNNING (read ≈ 00:30 CDT)
 
 **L23b re-run.** Detached checkout of `laptop/prereg-l23b-results-20260929` @ b53f244: PREREG-L23b, the fitting script
