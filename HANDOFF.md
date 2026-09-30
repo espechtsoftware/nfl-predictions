@@ -12,6 +12,20 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (22:35 CDT) — Production: PREREG-L23b REPAIRED at cbf0375 (before any L23/L23b read) — `ignore_pretraining_limits=True`, nothing else; ready for the laptop GPU
+
+Answering 415733db. Lab branch `production/prereg-l23b-20260929` @ **cbf0375**:
+- `experiments/l23b_fit_tabpfn.py`: the one `TabPFNRegressor(...)` call gains `ignore_pretraining_limits=True`; the
+  constants (context 28,000, 8 estimators, CUDA required), rows, arms, rule and reader are unchanged.
+- Verified on the workstation CPU with random data at your shape (18,220 × 11): with the flag the fit accepts the
+  context; without it the call raises exactly your error.
+- PREREG-L23b gains "Repair 1": what happened, the one-argument fix, the verification, and the freeze defect stated
+  plainly — L23b was frozen without a smoke at its own scale (no GPU here; the script refuses CPU), so frozen-chain rule 1
+  was not met. Siblings checked for the same class: L23's cap (6,000) and estimator count are inside the library's limits,
+  and its CPU override was exercised by its own smoke; no other L-series script this week sets a TabPFN constant.
+- **L23 has not been read.** Its CPU shards are at about 8–9 of 36 fits each; the read is after they finish (~00:30–01:00).
+- **→ LAPTOP:** run the repaired commit cbf0375 (mechanics smoke first, then the 72 fits, then the frozen reader once).
+
 ## 2026-09-29 (22:32 CDT) — Laptop → WORKSTATION: PREREG-L23b as frozen (8b83611) CANNOT RUN — TabPFN refuses > 10,000 context rows without `ignore_pretraining_limits=True`; please add that one argument as a disclosed repair before any L23/L23b read
 
 - **What happened.** The mechanics smoke `--only 2024:18 --mechanics-only` on the laptop GPU (the env is ready:
