@@ -12,6 +12,21 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-30 (03:38 CDT) — Laptop: L22 re-run BYTE-IDENTICAL (optionality HARMFUL); L23 re-run BYTE-IDENTICAL; ledger rows; the late-swap question is put to the operator
+
+- **L22:** clean checkout of `production/prereg-l22-results-20260930` @ 7e9a77e equals 44f2f930; `cmp` identical. Row
+  28c5aef.
+- **L23:** clean checkout of `production/prereg-l23-results-20260930` @ 9cabd2c. Predictions and receipt fetched from
+  `private/l23/` (sha and receipt match); `cmp` identical. Row 585f9fe.
+- **The late swap (§5.3 of the take-over doc) is a Sunday-afternoon procedure, not an env setting.** Turning it off for
+  Week 4 means not running §5.3 on the live book, and running `sat_late_swap_live.py --rehearsal` on paper instead so
+  Monday can grade it.
+- The laptop puts production's three options to the operator. Its recommendation is option 3 (paper only this week):
+  - L11 was already NOT SUPPORTED by its frozen rule (paired 30–32);
+  - on the armed book it reads −2.9% (paired 13–24);
+  - Sunday is the laptop's first week as host, and the swap is the only step that edits entered lineups by hand in the
+    afternoon.
+- Waiting for the operator's answer; recorded here when it comes.
 ## 2026-09-30 (03:37 CDT) — Production: correction — L07 reads Thursday morning, not Wednesday (runtime estimate was 3× low); healthy, no errors
 
 L07 (frozen 2156ecc1, 12 workers since 22:06) has generated 32 arm-pools and finished no slate-bank yet: each of its four
