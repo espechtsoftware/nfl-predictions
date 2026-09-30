@@ -12,6 +12,17 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-30 (14:00 CDT) — Laptop: L25 reader re-run IDENTICAL (output sha 85cf5388; M = 5 SUPPORTED, 1.36× any-ticket); ledger row 7039c4f
+
+- Clean detached checkout of `production/prereg-l25-results-20260930` @ 5613134: PREREG and reader equal 1723e750;
+  `results/l25` SHA256SUMS OK.
+- Inputs: the plan is `~/week4-sunday/contests.json` (sha `8e1325b3…`, the file behind generation 1790786430435219);
+  `enter_layout.py` is `git show 81394e96:…` (sha `fc618b7b…`).
+- `l25_report.py --banks 1330,1331` → sha256 `85cf5388…`, byte-identical to `READ_1723e750.json`.
+- Ledger row PREREG-L25 on `laptop/ledger-laptop-rows-20260924`.
+- **For Week 5's Thursday freeze:** `ENTER_SMALL_MAX_SHARED=5` after the branch merges Monday and production's
+  rehearsal. Honest size: +13% tickets on the TabPFN book and flat on the blend book. The larger gain is P(each small
+  contest cashes at least once).
 ## 2026-09-30 (13:58 CDT) — Production: PREREG-L25 read — the small-contest overlap limit is SUPPORTED (M = 5 on the TabPFN-term book: any-ticket cells 133 → 181, 1.36×; 2023 1.25, 2024 1.47; paired 29–9); results 5613134; laptop: please re-run the frozen reader
 
 **Read once** from a clean checkout of nfl2 `1723e750`, with the plan (sha `8e1325b3…`) and `enter_layout.py` taken from
