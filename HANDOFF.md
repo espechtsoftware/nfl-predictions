@@ -12,6 +12,40 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-30 (04:32 CDT) — Production: the 2026 W1–W3 context rows for the live TabPFN step are DONE (answering 50fe44c6) — `private/l23/rows_2026_w1w3.parquet`, 945 rows, L23's exact columns, spread in the historical sign
+
+**File:** `gs://nfl-predictions-503414-raw/private/l23/rows_2026_w1w3.parquet`, generation 1790760740984832, 56,347 bytes,
+**sha256 `214f67c23fdec9fa8cc011d397661fba77c64a3d1f20e2128bb83f2604982a0d`** (the bucket copy re-hashed). Built by
+`scripts/ownership_tabpfn_rows_2026.py` (this commit; 5 offline tests, each claim mutation-checked: flipping the
+spread formula, NaN for unlisted lag players, dropping the panel-week filter and NaN targets each fail a test).
+
+| Week | Frame (entered 15:50Z T-70, sha256 prefix) | Rows | Millionaire contest | Target coverage of non-DST ownership | LineStar coverage (all / target ≥ 1%) |
+|---|---|---:|---|---:|---|
+| 1 | `vetted-20260913t1550z-t70-e7255e9` (6ae2d82f) | 359 | 193028206 | 99.94% | 0.48 / 0.99 |
+| 2 | `vetted-20260920t1550z-d800-2dc116c` (e8f36e71) | 270 | 195648007 | 99.99% | 0.65 / 0.98 |
+| 3 | `vetted-20260927t1550z-d800-65305f5` (1d4cc13b) | 316 | 195905122 (`milly20`) | 100.0% | 0.92 / 1.00 |
+
+- **Columns and order are L23's** (the test pins the list): `is_eval` False, `base_blend`/`base_lag` NaN, `value` =
+  mean_projection per $1k, skill players with mean_projection ≥ 1, `id` = the frame's id.
+- **Spread:** rewritten as `game_total − 2 × implied_team_total`, or `−spread` on the 5–6 rows per week without an
+  implied total. Zero rows disagree with `−spread` by more than 1 point. corr(spread, implied) is −0.83 in 2026 against
+  −0.82 in the history, so favorites are negative as in training.
+- **Ownership:** `raw.contest_ownership`, the week's largest Sunday Millionaire (the `ownership_sets.py` rule),
+  summed per player over roster slots, keyed by `ownership_sets.norm`. Each week sums to ≈ 800% over the skill rows
+  (history median 779%). `own_l1/own_l3` use L23's rule: NaN in W1, 0 for a player not listed in a panel week. **For
+  Week 4 the live script needs the same rule and the same Millionaire pick**, or the context and the target rows
+  disagree.
+- **LineStar:** the public archive (periods 407/408/409), cached in `~/.cache/linestar-2026` (never committed), with
+  L23's name + position key on the Main mode-0 slate. It is **not provably pre-lock**. The Thursday 09-24 W3 capture
+  held only 48 players; on the 47 in common the archive differs by a median of 1.4 points (none identical), so the
+  archive is LineStar's later, final projection. Uncovered rows are mostly backup QBs, and coverage is at or above the
+  history's (2023–24: 0.57 all, 0.82 at projection ≥ 5).
+- **Scale against the history's p1–p99 band** (share of 2026 rows outside): mean_projection 2.1%, value 4.1%,
+  own_l3 2.4%, own_l1 1.2%, salary 0.2%, salary_delta_wow 0.2%, linestar_own 0.3%; totals, implied totals and spread
+  0%. **Set the live script's scale-check threshold with these in mind:** 2026's top projections run above the
+  history's (max 27.2 against a p99 of 21.4).
+- Counts and coverage only; no predictor was fitted or scored here.
+
 ## 2026-09-30 (04:25 CDT) — OPERATOR DECISION (confirmed to the laptop directly): TabPFN replaces the blend in the ownership term on the whole main book for Week 4 IF the three conditions pass by Thursday 12:00 CT; the fallback is the blend and must be LOUD. A transfer defect is found before building: the frame's `spread` sign is flipped between the history and the live frame
 
 **Decision.** The reviewer relayed it (review/ownership-term-20260929 @ 425a5ea4,
