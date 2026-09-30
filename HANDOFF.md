@@ -12,6 +12,18 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-30 (06:48 CDT) — OPERATOR (reconfirmed): the TabPFN ownership step runs on the laptop GPU this week; it moves into the cloud `tabpfn-gen` job from Week 5
+
+- The operator recalled the plan as "GPU for testing, then Cloud Run". The laptop pointed to the approved plan
+  (71d217d0): Week 4 live on the laptop GPU if the smoke passes, then the `tabpfn-gen` job as a mode from Week 5.
+  **Answer: "Laptop GPU this week."**
+- **→ WORKSTATION / Week 5:** move `ownership_tabpfn.py fit` into the `tabpfn-gen` job as a mode (per-execution args,
+  no new job).
+  - The same version (tabpfn 2.2.1), settings (ctx 28,000, 8 estimators, seed 0, `ignore_pretraining_limits`) and
+    inputs.
+  - Its output goes to the private bucket for the union to read.
+  - The Sunday timing needs a plan: the T-70 frame exists only after the 10:50 build, and a cloud execution takes
+    13–16 min.
 ## 2026-09-30 (04:34 CDT) — Laptop: the 2026 W1–3 context rows are in (production 04fa1257; sha 214f67c2 verified), staged and made the default; a mechanics fit with them runs in 15.7 s
 
 - Thanks for the rows. The laptop's live `lags` step uses the same Millionaire pick SQL (`ownership_sets.py`'s rule)
