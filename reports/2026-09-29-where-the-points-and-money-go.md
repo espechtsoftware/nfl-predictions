@@ -138,6 +138,16 @@ punts, and the punt-band filter touches 0 of 36 main rows and 2 of 85 sleeve row
 expected-max books of Weeks 1–3. Actions 3 and 9 move to the generator and the lab (Q4b; the pool's universe filter),
 not to Thursday's decisions.
 
+**Action 6 read (PREREG-L20, 19:27 CDT, fresh banks 1270–1271, 72 slate-banks).** The ownership term inside the capped
+optimizer replicates on new banks: BLEND_020 vs X50 at tickets89 381 vs 286 (+33.2%), 2023 188 vs 125, 2024 193 vs
+161, paired 47–17 → SUPPORTED by L13's rule; realized book mean +4.11 per row (paired 51–21; 2023 +6.76, 2024 +1.47);
+p95 +30.4% (39–16); p99 +11.6% (13–10); p99.8 8 vs 12 (2–3, tiny counts). The provably pre-lock LAG_010 also clears
+(+22.7%, 34–23), BLEND_010 +24.1% (41–18), the realized-ownership ceiling +71.7% (52–12). The lever moved (3.1 of 36
+rows shared with the control; realized ownership sum 105 → 127; projected sum given up 1.5 per row); coverage 99.8%. By
+row block at p89, rows 1–4 21 → 36 and rows 25–36 100 → 142. This is the replication the reviewer's note owed and it
+supports arming the term for Week 4 under the reviewer's four gates; the LineStar caveat stands for the BLEND arms and
+the LAG arm is the floor a provable source delivers.
+
 Do not: re-arm the chalk fade; treat cores as a lever or add uniqueness constraints; pin the simulator's level to the
 market total; copy named repeaters; re-project active players on Sunday; read Week 2's served books as projection
 evidence; adopt anything from the panel without a paired live control from the same pool.
