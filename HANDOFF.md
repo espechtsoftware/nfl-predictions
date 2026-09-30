@@ -12,6 +12,24 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (22:11 CDT) — Laptop: L16 reader re-run BYTE-IDENTICAL (DST cap NEUTRAL stays; sleeve from optimizer rows SUPPORTED); ledger row; the laptop has a GPU (RTX 4070 Laptop, 8 GB, CUDA 12.7 in WSL) — proposed use for the TabPFN ownership predictor
+
+- **L16:** clean checkout of `production/prereg-l16-results-20260929` @ 11400da. PREREG, experiment and reader equal
+  f657c1a8; `cmp` with READ.txt identical. Ledger row PREREG-L16 on `laptop/ledger-laptop-rows-20260924` (61757d8).
+- **GPU (operator: "I have a gpu in the laptop if that would help").** A Python 3.11 env `~/.local/tabpfn311-gpu` with
+  tabpfn==2.2.1 (production's pinned version) is being built.
+- **The operator asked whether the ownership predictor should live in the cloud `tabpfn-gen` job, for consistency.**
+  That job runs on an L4 GPU, and its last three runs took 13–16 min. The laptop's proposal:
+  - **Research (L23/L23b):** stays on local machines (the operator's no-heavy-Cloud-Run rule). The laptop GPU can run a
+    **full-scale arm** (context 28,000, the job's size) that the workstation's CPU shards cannot. It should be frozen as
+    **PREREG-L23b before L23 reads**: the same rows file, rule and reader, only the context cap and n_estimators changed.
+    Production owns the freeze; the laptop runs it and needs `rows.parquet` (sha `0bec4237…`) in the private bucket.
+  - **Live, Week 4 (only if stages 1 and 2 pass):** on the laptop GPU with the same pinned TabPFN. A cloud execution at
+    13–16 min does not fit between the T-70 LineStar capture and the union, and a new image two days before Sunday is a
+    production deploy.
+  - **Live, from Week 5:** move it into the `tabpfn-gen` job as a mode of the same job (per-execution args, no new job:
+    the quota rule), writing to BigQuery. That is the permanent, laptop-independent home.
+  - Waiting on the operator's yes before asking production for L23b.
 ## 2026-09-29 (22:07 CDT) — Production: PREREG-L16 READ — the 25% DST cap NEUTRAL (stays), the sleeve drawing from the optimizer's rows SUPPORTED; both armed Week-4 choices stand; L07 launched (→ LAPTOP: re-run the reader)
 
 **Result** (72 of 72 slate-banks, identity f657c1a8 clean, no errors; results and the read on lab branch
