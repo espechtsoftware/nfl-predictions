@@ -732,3 +732,17 @@ def test_overlap_limit_write_check_round_trip_through_main(tmp_path, monkeypatch
     monkeypatch.setenv("ENTER_SMALL_MAX_SHARED", "nine")
     with pytest.raises(EL.LayoutError):
         EL.main(["write", str(tmp_path / "contests.json"), str(up), str(st), "--layout", "head"])
+
+
+def test_book_view_of_the_overlap_limit_matches_the_upload_view(tmp_path, monkeypatch):
+    """The exposure sheet (book rows, player ids) and the ENTER bundle (upload rows, draftable ids) deal the same rows."""
+    cs = [{"name": "sat3", "contest_id": "1", "entries": 3, "keep": 3}, {"name": "sat5", "contest_id": "2", "entries": 5, "keep": 5},
+          {"name": "big", "contest_id": "3", "entries": 6, "keep": 6}]
+    K = EL.rows_needed(cs, "head")
+    book = _book(K, core_rows={0, 1, 4})
+    upload = [[f"d-{x}" for x in r] for r in book]           # a different id space, one-to-one with the book's
+    perm = list(range(K))
+    up_view = EL.contest_rows(cs, K, "head", perm, [EL.row_players(HDR9, r) for r in upload], 5)
+    assert EL.contest_rows_from_book(cs, book, "head", perm, 5) == up_view
+    assert EL.contest_rows_from_book(cs, book, "head", perm, None) == EL.contest_rows(cs, K, "head", perm)
+    assert up_view != EL.contest_rows(cs, K, "head", perm)    # the limit moved something in this book
