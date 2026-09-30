@@ -12,6 +12,62 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-30 (04:25 CDT) — OPERATOR DECISION (confirmed to the laptop directly): TabPFN replaces the blend in the ownership term on the whole main book for Week 4 IF the three conditions pass by Thursday 12:00 CT; the fallback is the blend and must be LOUD. A transfer defect is found before building: the frame's `spread` sign is flipped between the history and the live frame
+
+**Decision.** The reviewer relayed it (review/ownership-term-20260929 @ 425a5ea4,
+`reports/2026-09-30-tabpfn-term-on-the-week4-book.md`). The laptop put it to the operator, flagging that 80 of the 145
+main entries are the deep-line supersats, where TabPFN reads −22% (tickets, not dollars). **Answer: "Yes, TabPFN if
+conditions pass."** Added in chat: **"make sure it falls back loudly so we are aware of it during the rehearsal."**
+
+The conditions (reviewer's restatement):
+1. a live `scripts/ownership_tabpfn.py` writing the `pred_own` file;
+2. its fallback is the blend, never no term;
+3. a passing smoke by Thursday 12:00 CT.
+
+On Monday the TabPFN book is scored beside `book_main_control.csv` and a blend book, re-run on the archived T-70 frame.
+If any condition fails, the blend stays.
+
+**Transfer check done first (outcome-blind; features only):** L23's 2024 rows against the live W3 T-70 frame (skill,
+projection ≥ 1).
+- salary, mean_projection, implied_team_total, game_total and salary_delta_wow match in scale and range.
+- **`spread` has the opposite sign convention:**
+  - history: `implied_team_total ≈ (game_total − spread)/2`, corr 1.00 (a favorite is negative);
+  - live frame: `implied_team_total ≈ (game_total + spread)/2`, corr 1.00 (a favorite is positive).
+- Fed as is, TabPFN would read every favorite as an underdog.
+- **Fix in the live script:** spread is recomputed in the historical convention as `game_total − 2 × implied_team_total`.
+  The script refuses if that disagrees with `−spread` by more than 1 point on more than 5% of rows.
+- The 2026 context rows (below) must use the historical convention too.
+
+**Loud fallback (operator):** any refusal or failure of the TabPFN step:
+- prints a capitals banner ("OWNERSHIP TABPFN FAILED … FALLING BACK TO THE BLEND");
+- writes `own_term_fallback.txt` into the OUT dir and the union dir;
+- `own_term.source` in the receipt names the blend file.
+
+The smoke forces one fallback on purpose (LineStar capture removed) so the operator sees it.
+
+**→ WORKSTATION, now: the 2026 context rows (condition 1's "plus 2026 Weeks 1–3").** Please write
+`experiments/l23_build_rows_2026.py` (lab) or a production script, your choice. It produces a parquet with **exactly
+L23's columns and conventions**, for 2026 W1, W2, W3 (the Sunday main slates):
+- the frames: the archived run dirs' `frame.parquet`, **with `spread` converted to the historical sign** and the
+  conversion asserted;
+- `own_l1` / `own_l3` from 2026's realized Millionaire ownership (W1 has none, so NaN, as the rule for weeks before the
+  panel);
+- `linestar_own` from LineStar's recorded 2026 W1–3 projections (the L15/L23 fetch, name + position key; not provably
+  pre-lock, disclosed);
+- `target_own` = the realized Millionaire ownership %;
+- `is_eval = False`.
+Push it to `gs://…-raw/private/l23/rows_2026_w1w3.parquet` with its sha in a HANDOFF entry, by Wednesday 18:00 CT if
+possible. The live script concatenates it after `rows.parquet` (context ≤ 28,000 rows, newest kept).
+
+**Laptop, today:**
+- `scripts/ownership_tabpfn.py`: features from the build's frame, the newest LineStar capture (≤ 30 h, this week, with
+  its receipt), `own_l1/own_l3` from 2026 W1–3; the spread conversion; a scale check of every feature against the
+  history's p1–p99 band; a CUDA check; the rows sha; ≥ 90% coverage. It writes the same file `--main-own-source` reads,
+  plus a receipt. Its pure functions are tested offline without tabpfn.
+- The chain: the blend is always built first (the fallback file). With `UNION_MAIN_OWN_PREDICTOR=tabpfn` the TabPFN step
+  runs next under `timeout 300`, and a success replaces the file handed to the union; anything else falls back loudly.
+- The smoke (Wednesday after project-slate, or Thursday morning), which needs LineStar to have filled Week 4. **If
+  LineStar has not filled Week 4 by Thursday 12:00 CT, condition 3 cannot be met and the blend stays.**
 ## 2026-09-30 (04:16 CDT) — Operator ran `rebuild_contests_w4.sh`: the FINAL Week-4 plan is installed — 24 contests, 150 entries, BOOK_ENTRIES 105 + sleeve 5
 
 - Operator's output:
