@@ -12,6 +12,49 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (19:28 CDT) — Production: PREREG-L20 READ — the ownership term REPLICATES on fresh banks: BLEND_020 vs X50 +33.2% tickets89, both seasons, paired 47–17 → SUPPORTED; the provably pre-lock LAG_010 +22.7% also clears (→ LAPTOP: re-run the reader, ledger row; → OPERATOR/REVIEWER: the replication the arming note owed is in)
+
+**Result** (72 of 72 slate-banks, every row's identity 766198b6 clean, no errors, no short solve; results and the read on
+lab branch `production/prereg-l20-results-20260929` @ 63b0188, `results/l20/{results_bank1270.jsonl,
+results_bank1271.jsonl,READ.txt}`; read once from a clean checkout of the frozen commit):
+
+| Arm (K = 36, cap 18, DST 9) | tickets89 | p95 | p99 | p99.8 | realized mean | mean − field | projected sum | realized own sum | rows shared with X50 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| X50 (control, as entered) | 286 | 138 | 43 | **12** | 128.69 | +1.34 | 128.04 | 105.5 | 36 |
+| BLEND_010 | 355 | 171 | 49 | 11 | 131.69 | +4.33 | 127.45 | 120.7 | 7.6 |
+| **BLEND_020 (challenger)** | **381** | **180** | 48 | 8 | **132.81** | **+5.45** | 126.58 | 127.0 | 3.1 |
+| LAG_010 (provably pre-lock) | 351 | 186 | **59** | 11 | 130.05 | +2.69 | 127.69 | 108.3 | 10.7 |
+| ORACLE_020 (realized; diagnostic) | 491 | 233 | 49 | 3 | 136.49 | +9.13 | 125.26 | 144.9 | 1.0 |
+
+- **VERDICT BLEND_020 vs X50 at tickets89: 381 vs 286 (+33.2%), 2023 188 vs 125, 2024 193 vs 161, paired 47–17 →
+  SUPPORTED** by L13's rule. Realized book mean +4.11 per row (paired 51–21; 2023 +6.76, 2024 +1.47) — the reviewer's
+  primary, replicated: their two banks gave +0.19 / +0.16 sd; here +4.1 points on a field SD of about 24 is +0.17 sd.
+- Co-reports: BLEND_010 +24.1% (41–18, SUPPORTED); **LAG_010 +22.7% (34–23, SUPPORTED)** — the floor a provably pre-lock
+  source delivers; ORACLE_020 +71.7% (52–12). At p95 +30.4% (39–16); at p99 +11.6% (13–10); at p99.8 8 vs 12 (2–3; a
+  dozen events). The term buys the shallow and middle lines and is flat-to-negative at the deepest, as the winners study
+  said.
+- **Head-layout co-report (tickets by row block, solve order):** p89 rows 1–4 21 → 36, rows 5–12 68 → 83, rows 13–24
+  97 → 120, rows 25–36 100 → 142; p99 rows 1–4 2 → 1, rows 5–12 3 → 11, rows 13–24 14 → 13, rows 25–36 24 → 23. The
+  first four rows (the shared head) gain at p89 and not at p99 — the reviewer's §2.3 observation, reproduced.
+- Instrument checks: the lever moved (3.1 of 36 rows shared with X50; realized ownership sum 105.5 → 127.0; the book gives
+  up 1.5 projected points per row), not inverted, aimed at the gate functional; coverage 99.8% (blend and lag).
+- Disclosures stand: same 36 slates; tilt chosen on 1240–1241 (fresh banks change worlds and field draws, not slates);
+  LineStar's history not provably pre-lock (BLEND arms are upper bounds; LAG_010 is the provable floor, and it clears too);
+  the reviewer's three-week 2026 replay (−0.11 sd) is not decisive either way.
+- **Reading for Thursday:** the fresh-bank panel the arming note owed is in and it agrees with the note on every line
+  (level, cash line, p89, the deep-line flatness, the by-row shape). What remains between this and entry is the
+  reviewer's four gates on the laptop (smoke with the term, the refusal path, the `main_own_term` audit — W-A done — and
+  the Saturday lag-file gate). The lab has nothing further to run before Thursday for this lever.
+- **→ LAPTOP:** re-run `scripts/l20_report.py results/l20` from a clean checkout of `production/prereg-l20-results-20260929`
+  (the reader is byte-identical to the frozen 766198b6 file) and confirm; ledger row PREREG-L20. Your p99/p99.8-by-block
+  ask: p99 is in the frozen reader's block table above; p99.8 by block is a supplementary read on the same files
+  (`{arm}_block*_tickets99` fields are p99; p99.8 per block was not stored per row — the row-level `tickets99.8` sums are
+  8 vs 12, so a block split cannot separate a dozen events; say if you want it anyway and I add a supplementary script
+  outside the frozen reader).
+
+Wall: 72 minutes at 3 workers beside L16 (18:15–19:27 CDT). L16 continues (L07 auto-launches at 12 workers on its exit);
+L19 (4 workers) reads Wednesday.
+
 ## 2026-09-29 (18:45 CDT) — Production: W-C step 3 — Week-1 rehearsal head vs spread: 31 = 31 paid (rows move between contests); recommendation: spread is a Week-5 candidate, not a Thursday decision
 
 `rehearsal_two_track.py --layout head|spread` on the Week-1 K90 source run dir (`20260913T160405364118Z-e7255e9`, the
