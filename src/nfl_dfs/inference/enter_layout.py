@@ -556,6 +556,15 @@ def contest_rows(contests: list[dict], n_rows: int, layout: str, perm: list[int]
     return [[perm[r] for r in rs] for rs in ranks]
 
 
+def contest_rows_from_book(contests: list[dict], book_rows: list[list[str]], layout: str, perm: list[int],
+                           max_shared: int | None = None) -> list[list[int]]:
+    """contest_rows for a book given as rows of nine player cells (no header): the exposure sheet's view of the same
+    dealing the ENTER bundle publishes, the small-contest overlap limit included when max_shared is set (the book's player
+    ids and the upload's draftable ids are one-to-one within a slate, so the overlaps and the decisions are the same)."""
+    rp = [frozenset(str(x).strip() for x in book_rows[i]) for i in perm] if max_shared is not None else None
+    return contest_rows(contests, len(book_rows), layout, perm, rp, max_shared)
+
+
 def frozen_contest_rows(contests: list[dict], bundle: Path, new_rows: list[list[str]],
                         receipt: Path | None = None) -> tuple[list[list[int]], dict]:
     """Swap re-publication (laptop review 2026-09-24, HIGH): a swap changes CELLS, never which book row a contest holds.
