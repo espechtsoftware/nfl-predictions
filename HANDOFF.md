@@ -12,6 +12,45 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-30 (13:58 CDT) — Production: PREREG-L25 read — the small-contest overlap limit is SUPPORTED (M = 5 on the TabPFN-term book: any-ticket cells 133 → 181, 1.36×; 2023 1.25, 2024 1.47; paired 29–9); results 5613134; laptop: please re-run the frozen reader
+
+**Read once** from a clean checkout of nfl2 `1723e750`, with the plan (sha `8e1325b3…`) and `enter_layout.py` taken from
+production `81394e96` (sha `fc618b7b…`). Output sha256 `85cf5388…`. The panel finished at 13:56: 72 of 72, no errors,
+about 3–4 min per slate-bank.
+
+| Book, M | Any-ticket cells (head → limit) | Ratio | 2023 / 2024 | Paired W–L–T | Tickets (head → limit) | Dealt rows: realized / proj / pred-own (head → limit) | Cells changed | Infeasible |
+|---|---|---:|---|---|---|---|---:|---:|
+| **TABPFN_LS_020, M = 5 (PRIMARY)** | 133 → 181 | **1.36** | 1.25 / 1.47 | **29–9–34** | 236 → 266 | 133.2 → 134.0 / 128.8 → 128.6 / 101.5 → 100.4 | 328 of 360 | 0 |
+| TABPFN_LS_020, M = 4 | 133 → 200 | 1.50 | 1.51 / 1.50 | 32–8–32 | 236 → 301 | 133.2 → 135.4 / 128.8 → 127.8 / 101.5 → 99.2 | 342 | 1 |
+| BLEND_020, M = 5 | 136 → 162 | 1.19 | 1.13 / 1.27 | 22–12–38 | 233 → 230 | 132.5 → 132.2 / 128.5 → 128.3 / 108.2 → 107.0 | 328 | 0 |
+| BLEND_020, M = 4 | 136 → 155 | 1.14 | 1.10 / 1.19 | 22–20–30 | 233 → 235 | 132.5 → 132.9 / 128.5 → 127.6 / 108.2 → 104.2 | 345 | 1 |
+
+- **Primary verdict under L13's rule: SUPPORTED** (≥ 1.05×, ≥ in each season, more paired wins). All four
+  combinations read SUPPORTED under the same rule.
+- **What it buys:** the chance that a 2–5-entry contest cashes at least once, not more tickets per row. Tickets rise
+  13% (M = 5) and 28% (M = 4) on the TabPFN book but are flat on the blend book (−1% / +1%). **For flat-payout
+  satellites the money is tickets**, so the dollar gain is smaller than the any-ticket gain and depends on the book.
+- **What it costs:** about 0.2 projected points per dealt row at M = 5 (1.0 at M = 4), and 1–4 points of predicted
+  ownership, a little less chalk. The realized mean of the dealt rows did not fall (+0.8 at M = 5 on the primary book).
+- **Mechanism:** head rows 1–2 and the next unique rows of a plain-mean book share up to 7 players, so a small
+  contest's entries win or lose together. Replacing about two rows per contest (328 of 360 cells changed) decorrelates
+  them. That is Q11's small-book finding, reproduced in our own books.
+- **Infeasible:** one slate-bank at M = 4 in each book had a contest with no fitting row. The panel kept its head rows
+  (counted); **live, the option refuses**. M = 5 had none, which is one more reason M = 5 is the form to arm.
+
+**Laptop re-run (frozen reader):**
+- The rows: nfl2 `production/prereg-l25-results-20260930` @ `5613134`, `results/l25/` (SHA256SUMS inside; the jsonl
+  shas are `7e15a29f…` and `c07d78cb…`).
+- The plan: the private copy you posted (generation 1790786430435219).
+- `enter_layout.py`: `git show 81394e96:src/nfl_dfs/inference/enter_layout.py`.
+- Command: `python scripts/l25_report.py --plan <plan> --enter-layout <file> --dir <results/l25> --banks 1330,1331`
+  from a clean checkout of `1723e750`. Expect sha256 `85cf5388…`.
+
+**Next (production):** step 3, the rehearsal. `ENTER_SMALL_MAX_SHARED=5` through the real `enter_layout` write/check on
+the Week 1–4 entered books and their plans (outcome-blind: rows changed, projection and chalk given up; the Week 1–3
+hindsight scores as a co-report). Then the operator decides at Week 5's Thursday freeze: `ENTER_SMALL_MAX_SHARED=5`
+on the arm line, after the branch merges on Monday.
+
 ## 2026-09-30 (12:06 CDT) — Production: PREREG-L25 (the small-contest overlap limit) FROZEN at 1723e750 and RUNNING; the live option built default-off on a Week-5 branch; read ≈ 21:00 tonight
 
 **Live code (answering 745658c4, step 2):** `production/week5-small-overlap-20260930` @ **81394e96**.
