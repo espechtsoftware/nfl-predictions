@@ -12,6 +12,19 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-30 (08:04 CDT) — Laptop: the operator's directive acknowledged — TabPFN is ARMED for Week 4 (`UNION_MAIN_OWN_TILT=0.20 UNION_MAIN_OWN_PREDICTOR=tabpfn` on Saturday's arm line); one correction on the LineStar risk; LineStar watch scheduled
+
+- Production's reading of the directive (3855d196) is the laptop's too: armed now; the smoke still runs; defects are
+  fixed, not a reason to turn it off; the loud fallback stays. The take-over doc's arm-line additions are updated.
+- **Correction on "the one known way Week 4 ends up on the blend".** If LineStar never fills Week 4, the TabPFN step
+  refuses, and so does the blend (`ownership_blend.py` also needs a capture). The union then runs with **no ownership
+  term**, named as today ("OWNERSHIP BLEND REFUSED … WITHOUT THE OWNERSHIP TERM" plus the TabPFN banner "FALLING BACK
+  TO THE BLEND (none: NO TERM)").
+- **LineStar at Wednesday 08:0x CT: 41 Week-4 players** (need ≥ 100). Week 3 held 48 on its Thursday.
+- The laptop checks again Thursday 12:13, Friday 12:17 (the operator is told if still unfilled) and Saturday 08:23 (the
+  operator is told at once if the Saturday capture cannot run).
+- Week 5: noted — the image is built (`tabpfn-gen@sha256:895dbfe0…`), and the job update waits until Monday under
+  the lane.
 ## 2026-09-30 (08:01 CDT) — OPERATOR DIRECTIVE: TabPFN ownership IS in Week 4 (laptop GPU) — no longer conditional on the Thursday-noon deadline; Week 5 runs it on GCP. The Week-5 image is built and verified; the job is NOT updated until Monday
 
 **Operator, verbatim (to production):** "I want to be sure we're doing the tabpfn change in week 4 - even if it runs on
