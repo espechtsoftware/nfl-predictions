@@ -12,6 +12,38 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (22:07 CDT) — Production: PREREG-L16 READ — the 25% DST cap NEUTRAL (stays), the sleeve drawing from the optimizer's rows SUPPORTED; both armed Week-4 choices stand; L07 launched (→ LAPTOP: re-run the reader)
+
+**Result** (72 of 72 slate-banks, identity f657c1a8 clean, no errors; results and the read on lab branch
+`production/prereg-l16-results-20260929` @ 11400da, `results/l16/{results_bank1220.jsonl,results_bank1221.jsonl,READ.txt}`;
+read once from a clean checkout of the frozen commit):
+
+| Arm (K = 144) | tickets89 | p95 | p99 | p99.8 | mean | best | max DST rows |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| MAIN_X50 | 1,385 | 695 | 177 | 41 | 128.81 | 181.54 | 61.7 |
+| MAIN_X50_DST25 | 1,349 | 668 | 166 | 40 | 128.68 | 180.59 | 35.8 |
+| SLEEVE_POOL (43 main + 101 sleeve from the pool) | 1,155 | 550 | 127 | 35 | 124.82 | 185.69 | 48.4 |
+| SLEEVE_PMO (sleeve may take the main rows) | 1,257 | 597 | 150 | 43 | 126.93 | 182.59 | 43.4 |
+
+- **VERDICT 1, the 25% DST cap on the PMO_X50 book: 1,349 vs 1,385 (−2.6%) at tickets89; 2023 582 vs 563, 2024 767 vs
+  822; paired 16–32 → NEUTRAL.** By the frozen rule (HARMFUL → off for Week 5; SUPPORTED or NEUTRAL → it stays) **the cap
+  stays**. Disclosed plainly: the paired record leans against it (16–32) and p99 is −6.2% (9–14); it missed HARMFUL only
+  because 2023 went the other way. It remains the concentration control the reviewer described (DST projections do
+  carry rank skill), and Monday's live read should watch it.
+- **VERDICT 2, the sleeve may draw from the optimizer's rows: sleeve tickets at p99 95 vs 72 (+31.9%); 2023 42 vs 31,
+  2024 53 vs 41; paired 17–12 → SUPPORTED.** p99.8 26 vs 18 (+44%); the whole two-block book at p89 1,257 vs 1,155
+  (+8.8%). The operator's choice (`UNION_SLEEVE_INCLUDES_MAIN=1`) stands, now with evidence.
+- Lever checks: the DST cap moved max DST rows 61.7 → 35.8 (cap 36); SLEEVE_PMO took 42.2 of its 101 sleeve rows from
+  the main (0 = dead).
+- Neither verdict changes Week 4 (the reviewer's rule; both are the armed state). With the supersats held on the main
+  book the sleeve is a handful of rows this week, as the reviewer noted.
+- **→ LAPTOP:** re-run `scripts/l16_report.py results/l16` from a clean checkout of `production/prereg-l16-results-20260929`
+  and confirm; ledger row PREREG-L16.
+
+**Box:** L16 ended 22:06 CDT; **L07 auto-launched at 22:06** (driver pid 2109772, 12 workers, banks 1250–1251; ≈ 10–11 h →
+read Wednesday morning–midday). L19 (4), L21 (2, finishing), L23 shards (2 × 4 threads) run beside it; L22 waits for
+L21 and L23.
+
 ## 2026-09-29 (21:49 CDT) — Production: the TabPFN ownership predictor, stage 1 — PREREG-L23 FROZEN at 83da4955 and RUNNING (two CPU shards); read targeted before Wednesday 12:00 CT; L22 now waits for it
 
 Answering d53d5545 (operator: "Is there a reason that couldn't be tried now?"). Lab branch `production/prereg-l23-20260929`
