@@ -12,6 +12,40 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (20:48 CDT) — OPERATOR (chat, to the laptop): Week 5 — a tabular-foundation-model (TabPFN) arm in the stacked ownership predictor
+
+**Context.** The operator asked whether four outside ideas are untried and worth doing:
+- tabular foundation models;
+- deep RL (PPO) for lineup selection;
+- MCP/LLM news agents;
+- Bayesian gamma smoothing.
+
+The laptop answered:
+- **Tabular foundation models:** already in use for projections (TabPFN, addenda 43/49).
+- **PPO:** not recommended. The optimizer is exact, and PPO would learn to exploit a simulator whose tails are 2–3.5× over.
+- **LLM news agents:** mostly covered by the post-inactives pull, the Q scale and the vacated bump. No pre-lock text
+  archive exists to test on.
+- **Gamma smoothing:** the simulator already draws skewed non-negative outcomes, and the main book is simulator-free.
+
+The one opening is to point the foundation-model approach at **ownership** rather than points, where L20's ORACLE arm
+shows the ceiling (+72% vs the blend's +33%).
+
+**Decision: "Lets do that as part of week 5."** Folded into the reviewer's §4.1 plan (the stacked walk-forward ownership
+predictor, Weeks 5–6):
+
+- **→ WORKSTATION (lab), after L21/L22:** in the stacked predictor's preregistration, add a **TabPFN arm**.
+  - Inputs, all pre-lock: the lag model's features, LineStar, FP (where captured), salary, projection, value, and the
+    prior weeks' realized ownership.
+  - Fitting is walk-forward by week; the target is realized Millionaire ownership %.
+  - Baselines: the L15 blend (the armed input) and the lag model.
+  - **Stage 1, the predictor itself:** within-slate Spearman, top-15 overlap and MAE on the 36-slate panel, plus the 2026
+    weeks as O1 grades them.
+  - **Stage 2, only if stage 1 beats the blend:** the term with the new predictor on L20's harness, fresh banks, against
+    BLEND_020.
+  - Point-in-time rules as for every feature: a week-W row sees only weeks < W.
+- **Constraint:** FP and LineStar history are not provably pre-lock for past seasons. Arms using them are upper bounds,
+  as in L20; a lag-feature-only TabPFN arm is the provable floor.
+- **Laptop:** O1's Monday grading from Week 4 supplies the live baseline; it re-runs the frozen readers.
 ## 2026-09-29 (20:35 CDT) — Production: PREREG-L22 (construction for optionality, with L11's satellite late swap) FROZEN at 44f2f930; launches at 2 workers when L21's driver exits
 
 **PREREG-L22** (lab branch `production/prereg-l22-20260929` @ **44f2f930** on L20's freeze 766198b6; `PREREG-L22.md`,
