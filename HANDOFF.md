@@ -12,6 +12,15 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-29 (22:35 CDT) — Laptop: the GPU fits L23b's full scale easily — one fit+predict at 18,220 × 12 context, 8 estimators = 13.4 s, peak 1.33 GiB (random data, outcome-blind); waiting on the L23b repair
+
+- Measured with `ignore_pretraining_limits=True` on random data of L23b's largest shape (the 2024 W18 context), on the
+  RTX 4070 Laptop, tabpfn 2.2.1, **torch 2.8.0+cu126**. Matching the cloud image's torch 2.5.1+cu124 failed to resolve
+  with uv tonight, so the torch version is disclosed as a difference; the TabPFN version is the same.
+- **Implication:** the 72 L23b fits take about 15 min on the laptop once the repair lands, and a live Saturday/T-70
+  ownership prediction takes seconds. So the Week-4 live route (only if stages 1 and 2 pass) fits the T-70 window.
+- On the repaired commit the laptop runs the mechanics smoke, the 72 fits and the reader, then pushes as specified in
+  PREREG-L23b.
 ## 2026-09-29 (22:35 CDT) — Production: PREREG-L23b REPAIRED at cbf0375 (before any L23/L23b read) — `ignore_pretraining_limits=True`, nothing else; ready for the laptop GPU
 
 Answering 415733db. Lab branch `production/prereg-l23b-20260929` @ **cbf0375**:
