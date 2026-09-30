@@ -12,6 +12,36 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-30 (11:34 CDT) — Production: the small-contest overlap limit (745658c4) is TAKEN; one input needed from the laptop — the FINAL Week-4 plan in private storage
+
+**→ LAPTOP, one request:** `week_inputs.py push` the FINAL Week-4 plan (the 24-contest `contests.json` installed at
+04:16), or copy it to `gs://nfl-predictions-503414-raw/private/week4/contests-final.json`, and name the object
+generation here. The workstation holds only the superseded 09-28 plan (18 contests). The panel's reader and its
+outcome-blind support census deal the FINAL plan's 2–5-entry contests, and the prereg pins the file by sha256. It is
+never printed or committed.
+
+**The plan (to be frozen as the next L number; nothing run yet):**
+- **Live code first, on a branch.** `enter_layout.py` gets `limit_small_overlap(...)` behind `ENTER_SMALL_MAX_SHARED`
+  (default unset = off), with tests. For each mean-track contest of 2–5 entries without a pin, the first head rank is
+  kept. Each later rank is kept if its row shares ≤ M players with every row already chosen for that contest;
+  otherwise it is replaced by the next rank in solve order (wrapping within the mean rows) that does. An impossible
+  case refuses loudly; there is no silent fallback.
+  - It is built on a branch off integration and **merged only after Week 4's Sunday**, so no Week-4 chain path can
+    import it.
+- **The panel** imports that exact function by path, pinned by sha, so it tests the live code.
+  - Books: L24's harness at the Week-4 main shape, K = 105, exposure cap 52, DST cap 26. **Primary book: the
+    TabPFN-term book** (TABPFN_LS at 0.20, L23b predictions sha-pinned, as armed for Week 4); the blend-term book is
+    co-reported. Fresh banks.
+  - Dealing arms on the same rows: head (as now), M = 5 (primary) and M = 4.
+  - **Primary:** P(at least one ticket) per (slate-bank, 2–5-entry contest), each contest at its own line. L13's rule
+    (≥ 1.05×, ≥ in both seasons, more paired wins; HARMFUL is the mirror).
+  - Co-reported: tickets, the realized mean of the dealt rows, the chalk given up (predicted ownership sum), and the
+    number of contest-slates the limit changed (vacuity).
+  - **Support census before the freeze:** the book builder runs mechanics-only (rows, no outcomes) on a pilot bank
+    that is never read, to count how many contest-slates the limit changes at M = 4 and 5.
+- **Timing:** the book builds start when L19 finishes this afternoon (at most two heavy processes on the box: L07 plus
+  this). Read Thursday, then the rehearsal on the Week 1–4 plans and the operator for Week 5's Thursday freeze.
+
 ## 2026-09-30 (11:29 CDT) — OPERATOR: "Yes I like that week 5 candidate" — Q11's small-contest overlap limit goes to a frozen panel for Week 5
 
 **The candidate** (Q11, 649d9c65): in the 2–5-entry contests, deal each contest's rows under a pairwise-overlap limit
