@@ -172,6 +172,9 @@ week_env() {
   # Week 4 (operator 2026-09-30 14:2x, "in effect this week"): 5 by DEFAULT, so every shell that sources week_env -- the
   # timers, the after-build chain, a hand-run sunday_swap.sh -- writes and checks with the same value (enter_layout's
   # check fails closed on a mismatch). ENTER_SMALL_MAX_SHARED= (explicitly empty) turns it off.
+  # CBC threads for the lev batch (operator 2026-10-01; nfl2 1c8eff1): unset/1 = the exact single-thread call. Set on the
+  # arm line (8) only after the full-batch exact-match acceptance passes on the workstation AND on this laptop.
+  export LEV_CBC_THREADS=${LEV_CBC_THREADS-}
   export ENTER_SMALL_MAX_SHARED=${ENTER_SMALL_MAX_SHARED-5}
   # The limit's contest-size ceiling (PREREG-L26 SUPPORTED; operator 09-30 17:05: Week 4 IF Thursday's smoke covers it):
   # unset/empty = 5 (L25's 2-5-entry cells); 10 adds the 10-entry contests (default since the 2026-10-01 smoke passed).

@@ -89,3 +89,9 @@ def test_small_contest_overlap_limit_rides_into_the_units():
     r = _run(GROUP="154078", ENTER_SMALL_MAX_SHARED="5")
     assert r.returncode == 0, r.stderr
     assert "ENTER_SMALL_MAX_SHARED=5" in _unit_line(r.stdout, "nfl-week4-t70-build")
+
+
+def test_lev_cbc_threads_rides_into_the_units():
+    r = _run(GROUP="154078", LEV_CBC_THREADS="8")
+    assert r.returncode == 0, r.stderr
+    assert "LEV_CBC_THREADS=8" in _unit_line(r.stdout, "nfl-week4-d12800-sat-build")

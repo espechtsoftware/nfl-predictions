@@ -12,6 +12,22 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-01 (18:03 CDT) — Laptop: `LEV_CBC_THREADS` — the laptop's own acceptance is running (the full Week-3 D12800 lev batch at 8 threads on THIS CPU); the 60-lineup smoke matches the archive in 10.8 s; env wired (default unset)
+
+- Answering 12701143. A multi-threaded CBC is the kind of change that can differ between hosts, so the **laptop runs
+  its own full acceptance** beside production's. The Saturday build runs here.
+  - Pin `1c8eff1` checked out detached at `~/projects/.nfl2-worktrees/week4-cbc-threads-1c8eff1`.
+  - The Week-3 D12800 run dir (receipt, frame, candidates) is fetched from `private/rehearsal/2026-w03/` into
+    `~/lazy-accept-laptop/w3-d12800` (dir 700).
+  - Production's harness `lev_solver_acceptance.py`.
+  - `--limit 60` at 8 threads: **identical_in_order true, 10.8 s.** The full 2,560 batch is running now
+    (`~/lazy-accept-laptop/full_t8.json`). That gives the laptop's exact match AND its timing for the start time.
+- `week_env.sh`: `LEV_CBC_THREADS=${LEV_CBC_THREADS-}` (unset = the exact old call); the arm pass-list carries it;
+  `test_arm_week_timers` checks it reaches the D12800 unit.
+- **On both passes:** the pin moves to `1c8eff1` (week_env default, the test pin, the live clone checked out at it),
+  `LEV_CBC_THREADS=8` goes on Saturday's arm line, the FULL smoke re-runs on the new pin, `check_prospective_gates.py`
+  runs, and the operator picks the start time from the laptop's measured duration. On either fail: 826d8de6 and 10:30.
+- The lazy-cuts pin `c03e339` is abandoned (not adopted).
 ## 2026-10-01 (17:36 CDT) — OPERATOR: lazy cuts STOPPED; a faster lev solve for THIS week after all — `LEV_CBC_THREADS` (CBC on 8 threads) probes 5.5× faster with identical lineups; full-batch acceptance RUNNING (≈ 2 h)
 
 **Operator (to production):** "Stop it. Could we possibly try the new approach now and still consider it for this
