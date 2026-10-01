@@ -60,14 +60,15 @@ def main() -> int:
     rowp = [sum(proj.get(c.strip(), 0.0) for c in EL.row_players(hdr, r)) for r in body]
     rowo = [sum(own.get(c.strip(), 0.0) for c in EL.row_players(hdr, r)) for r in body]
     contests = EL._contests(a.contests)
-    small = [EL.label(c) for c in contests if str(c.get("track", "mean")) == "mean" and "ranks" not in c and 2 <= int(c["entries"]) <= 5]
+    ceiling = EL.overlap_ceiling() if hasattr(EL, "overlap_ceiling") else 5      # ENTER_SMALL_OVERLAP_MAX_ENTRIES (default 5)
+    small = [EL.label(c) for c in contests if str(c.get("track", "mean")) == "mean" and "ranks" not in c and 2 <= int(c["entries"]) <= ceiling]
     with tempfile.TemporaryDirectory() as tmp:
         base = Path(tmp) / "head"
         rc, _, _ = run("write", a.contests, a.upload, base, extra, None)
         if rc:
             raise SystemExit("the layout without the limit failed")
         head_map = json.loads((base / EL.ROWMAP_NAME).read_text())
-        print(f"{len(contests)} contests; small main-track (2-5, unpinned): {len(small)}; upload rows {len(body)}; missing projections "
+        print(f"{len(contests)} contests; governed main-track (2-{ceiling}, unpinned): {len(small)}; upload rows {len(body)}; missing projections "
               f"{sum(1 for r in body for c in EL.row_players(hdr, r) if c.strip() not in proj)}")
         for m in [int(x) for x in a.ms.split(",")]:
             st = Path(tmp) / f"m{m}"
