@@ -252,3 +252,18 @@ def test_pmo_rows_with_a_term_maximizes_projection_plus_the_term(monkeypatch):
     assert v["p0"] == pytest.approx(16.0) and v["p9"] == pytest.approx(10.5) and v["p1"] == pytest.approx(10.0)
     assert v["A_DST"] == pytest.approx(7.0) and "p7" not in v
     assert rows[0][0] == "p0"                                                   # the term moved the first pick
+
+
+def test_resolve_saturday_run_auto_returns_the_picked_dir_not_auto(tmp_path):
+    """Week-4 smoke 2026-10-01: an if/else mis-nesting overwrote the auto-picked dir with Path('auto') ('auto: missing'),
+    so every armed union (UNION_SATURDAY_RUN=auto) failed. Resolution is now one function, tested on all three paths."""
+    d = tmp_path / "20261003T153000Z-sat"; d.mkdir()
+    (d / "receipt.json").write_text(json.dumps({"built_utc": "2026-10-03 15:30:00+00:00", "config": {"lev": 2560, "boom": 10240}}))
+    for b in ur.BANKS:
+        (d / b).write_bytes(b"x")
+    t70 = {"built_utc": "2026-10-04 15:50:00+00:00", "config": {"lev": 0, "boom": 4800}}
+    got = ur.resolve_saturday_run("auto", "2560/10240", tmp_path, t70, "t70", None, None)
+    assert got == d and got.name != "auto"
+    assert ur.resolve_saturday_run(str(d), "2560/10240", tmp_path, t70, "t70", None, None) == d          # an explicit dir
+    with pytest.raises(SystemExit, match="IS a 2560/10240 build"):
+        ur.resolve_saturday_run("auto", "2560/10240", tmp_path, {**t70, "config": {"lev": 2560, "boom": 10240}}, "t70", None, None)

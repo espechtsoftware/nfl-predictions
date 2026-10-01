@@ -176,3 +176,13 @@ def test_build_host_layout_precheck_counts_the_tail_sleeve(tmp_path):
     assert run({**base, "TAIL_SLEEVE": str(tail)}).returncode == 0                       # mean + sleeve covers the plan
     r = run({**base, "TAIL_SLEEVE": "0"})
     assert r.returncode != 0 and "distinct lineups but the book holds" in r.stderr       # the guard still bites
+
+
+def test_exposure_cap_books_count_the_tail_sleeve():
+    """Week-4 smoke 2026-10-01: both exposure_cap_book calls passed --entries $BOOK_ENTRIES (mean rows) and failed on the
+    tail contests' ranks ("reads rank 106 but the book is 105"); the same defect class as the contests pre-check."""
+    host = (ROOT / "scripts" / "sunday_build_host.sh").read_text()
+    calls = [l for l in host.splitlines() if "--layout" in l and "exposure" not in l and "--entries" in l and "CONTESTS_JSON" in l]
+    cap_block = host[host.index("# 6. exposure caps"):host.index("# 6b.") + 2000]
+    assert cap_block.count('--entries "$((BOOK_ENTRIES + ${TAIL_SLEEVE:-0}))"') == 2
+    assert '--entries "$BOOK_ENTRIES" --layout' not in cap_block

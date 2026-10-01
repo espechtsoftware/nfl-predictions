@@ -12,6 +12,45 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-01 (13:58 CDT) — Laptop: THE SMOKE FOUND TWO MORE SUNDAY DEFECTS — (1) `UNION_SATURDAY_RUN=auto` never worked: an if/else mis-nesting overwrote the picked Saturday dir with `Path('auto')`, so EVERY armed union failed; (2) the exposure-cap sheet ignored the tail rows; both fixed and tested; the lazy-cuts pin is built
+
+**Smoke so far (scratch OUT; boom-only 0/3200 supply; armed T-70 form):**
+- **Supply build: 381 s, exit 0.** Three lines failed:
+  - `EXPOSURE CAPS FAILED` and `REFINEMENT-2 PAPER BOOK FAILED`: "head layout reads rank 106 but the book is 105"
+    (defect 2 below);
+  - `EMIT FAILED composite-all30`: "lineup 22 repeats an earlier roster within its block", the legacy composite reference
+    emit, never uploaded. Logged; not the money path.
+- **T-70 build: 451 s.** The loud ownership banners fired exactly as designed (no LineStar W4 yet): "OWNERSHIP BLEND
+  REFUSED … WITHOUT THE OWNERSHIP TERM" and "!!! OWNERSHIP TABPFN FAILED … (none: NO TERM)". Then **UNION FAILED: "auto:
+  missing ['frame.parquet', …]"**.
+
+**Defect 1 (critical), `union_reselect.py`.** The code was:
+
+    if a.saturday_run == "auto": sat_dir = pick_saturday_run(...)
+    if <T-70 is a Saturday-dose build>: raise
+    else: sat_dir = Path(a.saturday_run)
+
+The `else` belongs to the second `if`, so `auto` was always replaced by `Path('auto')`. It was introduced in 3be533e0's
+"no self-union" (09-29). The Week-3 union rehearsals named the Saturday dir explicitly, so `auto` had never run end to
+end. **Sunday consequence: no union in any build, so no PMO_X50 main, no supersat routing, no sleeve cap, no ownership
+term; each T-70 run dir would stand alone.**
+- Fix: `resolve_saturday_run()` (the self-union refusal first, then auto → `pick_saturday_run`, else the named dir).
+- Test: `test_resolve_saturday_run_auto_returns_the_picked_dir_not_auto` (auto, explicit, self-union).
+
+**Defect 2, the same class as this morning's pre-check.** Both `exposure_cap_book.py` calls passed
+`--entries $BOOK_ENTRIES` (mean rows only). Now `$((BOOK_ENTRIES + TAIL_SLEEVE))`. Test:
+`test_exposure_cap_books_count_the_tail_sleeve`. The sweep of the after-build chain found only floors
+(`entries -ge BOOK_ENTRIES`), which are correct.
+
+- **Sunday-path suite: 342 passed, 1 skipped.**
+- The smoke re-runs the T-70 build now, then publish and swap.
+
+**The lazy-cuts pin (operator's Week-4 request):** nfl2 `laptop/week4-lazy-cuts-20261001` @ **c03e339** = 826d8de6 +
+01a6c3e + 89708c9 (clean cherry-picks).
+- The lazy-cuts tests pass.
+- Over every lab test touching the solver, the failure set (8 + 20 in `test_ctxcore_d800`, 1 in
+  `test_tailregime_d800`) is **byte-identical on 826d8de6 and c03e339**: pre-existing, as production reported.
+- It goes live only on the workstation's acceptance pass plus Friday's re-smoke.
 ## 2026-10-01 (13:54 CDT) — Production: the LEV_LAZY_CUTS acceptance (60c66851) is RUNNING on the workstation — full-size, both windows, both builds; harness checked against the archive first
 
 - **Harness:** `reports/lab-handoffs/lev_lazy_acceptance.py` (this commit). It replays a Week-3 run dir's whole lev batch

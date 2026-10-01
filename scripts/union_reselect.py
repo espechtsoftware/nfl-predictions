@@ -107,6 +107,20 @@ def pick_saturday_run(live_dir: Path, lev: int, boom: int, before: str, group: s
     return hits[-1]
 
 
+def resolve_saturday_run(saturday_run: str, saturday_dose: str, live_dir: Path, t70_receipt: dict, t70_name: str,
+                         group: str | None, after: str | None) -> Path:
+    """The Saturday supply's run dir. A T-70 run that IS a Saturday-dose build gets no union. 'auto' picks the newest
+    qualifying run (pick_saturday_run); anything else is the named dir. (Week-4 smoke 2026-10-01: an if/else mis-nesting
+    overwrote the auto-picked dir with Path('auto'), so every armed union failed with "auto: missing [...]".)"""
+    c = t70_receipt.get("config", {})
+    if f"{c.get('lev')}/{c.get('boom')}" == saturday_dose:
+        raise SystemExit(f"the T-70 run {t70_name} IS a {saturday_dose} build (the Saturday supply itself); no union for it")
+    if saturday_run == "auto":
+        lev, boom = (int(x) for x in saturday_dose.split("/"))
+        return pick_saturday_run(live_dir, lev, boom, str(t70_receipt.get("built_utc", "")), group=group, after=after)
+    return Path(saturday_run)
+
+
 def game_cap_ok(ids: list[str], game_of: dict[str, str], cap: int | None) -> bool:
     if cap is None:
         return True
@@ -391,13 +405,7 @@ def main(argv: list[str] | None = None) -> int:
     cfg = t70["receipt"].get("config", {})
     if cfg.get("selector") != "mean" and not a.rehearsal:
         raise SystemExit(f"the union is defined for the mean selector; the T-70 receipt says {cfg.get('selector')!r}")
-    if a.saturday_run == "auto":
-        lev, boom = (int(x) for x in a.saturday_dose.split("/"))
-        sat_dir = pick_saturday_run(a.live_dir, lev, boom, str(t70["receipt"].get("built_utc", "")), group=a.group, after=a.saturday_after)
-    if str(t70["receipt"].get("config", {}).get("lev")) + "/" + str(t70["receipt"].get("config", {}).get("boom")) == a.saturday_dose:
-        raise SystemExit(f"the T-70 run {a.t70_run.name} IS a {a.saturday_dose} build (the Saturday supply itself); no union for it")
-    else:
-        sat_dir = Path(a.saturday_run)
+    sat_dir = resolve_saturday_run(a.saturday_run, a.saturday_dose, a.live_dir, t70["receipt"], a.t70_run.name, a.group, a.saturday_after)
     sat = load_run(sat_dir)
     if parse_utc(sat["receipt"].get("built_utc", "")) >= parse_utc(t70["receipt"].get("built_utc", "")):
         raise SystemExit(f"the Saturday run {sat_dir.name} was built at or after the T-70 run {a.t70_run.name}")
