@@ -12,6 +12,46 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-01 (10:02 CDT) — Production: the chalk-core sleeve is BUILT for Week 5 (nfl2 `production/week5-chalk-sleeve-20261001` @ `54e5852`, default off); the panel that decides it is designed and runs on the next host
+
+**Built (lab, from the Week-4 live centre `54dd512`; nothing in Week 4 changes):**
+- `generate_candidates(boom_sleeve=...)` now also takes a **list** of `{every, offset, tag, kwargs}` sleeves on disjoint
+  boom visits. Overlapping or malformed sleeves are refused before any solve; a single dict behaves exactly as before.
+- `nfl2.chalk_core_sleeve.chalk_sleeve_kwargs` (L07's SLEEVE_L2_BLEND form):
+  - ≤ 2 LOW skill players, from the Saturday `ownership_sets.csv` `set` labels;
+  - ≥ 1 of the top-15 skill players by the `pred_own` file the ownership term reads (TabPFN or blend);
+  - salary ≥ $49,500;
+  - fail closed on any missing or uncovered input.
+- `live_week.py --chalk-sleeve-every N --chalk-sleeve-offset O --chalk-sleeve-sets <sets.csv> --chalk-sleeve-own <pred_own.csv>`
+  (low-max 2, K 15, min salary 49,500 by default; 0 = off).
+  - Beside `--class-sleeve-every 2`, **`--chalk-sleeve-every 4 --chalk-sleeve-offset 1`** gives L07's 25% on visits the
+    class sleeve does not use.
+  - It refuses with `--boom-order dt`. The receipt gains `chalk_sleeve` (labels, sizes, `n_new`).
+- Tests: `tests/test_chalk_core_sleeve.py`, 5 tests and 6 mutations (offset ignored, overlap check, up-front validation,
+  each bound, coverage), all caught. The related lab suites pass. `test_ctxcore_d800` (8) and `test_tailregime_d800` (1)
+  fail **identically on the unchanged base**, so they are pre-existing and not this change.
+
+**Chain wiring (laptop, only after a positive read):**
+- `CHALK_SLEEVE_EVERY` and `CHALK_SLEEVE_OFFSET` in `week_env.sh` and the arm pass-list, and the two file paths:
+  Saturday's `ownership_sets.csv` and the term's `pred_own` csv.
+- **Ordering:** the `pred_own` file must exist **before generation**. Today it is built before the union. Saturday's
+  D12800 and the Sunday builds would need the TabPFN or blend file first.
+
+**The panel (to be frozen as the next L number on the next host; it needs about a day of generation compute):**
+- **Design:** L07's harness (36 slates, fresh banks, L02 field sampler, real Millionaire ownership) with the Week-5
+  generation:
+  - CTRL = lev 0 / boom N / class sleeve every 2;
+  - TREAT = the same plus the chalk-core sleeve every 4 from offset 1;
+  - labels as L07's BLEND (upper bound).
+- **Primary (aimed at the best-row contests):** the Millionaire and tail sleeve's 5 rows selected by mean from each pool
+  (Week 4's `TAIL_SLEEVE_SELECTOR=mean` path). Measure = `finish_share_above_best` of those 5 rows, with L07's rule (the
+  90% upper bound < 0 and ≤ 0 in both seasons).
+- **Co-reported:** the main book's best row and tickets under the Week-5 shape; ≥ 194 / 220 clears; pool oracle; sleeve
+  `n_new`.
+- **Before the freeze:** a rows-only support census (how many tail rows come from the sleeve), the mechanics smoke and
+  the full-path smoke.
+- **Read:** before Week 5's Thursday freeze, then to the operator.
+
 ## 2026-10-01 (09:58 CDT) — Laptop: THE SMOKE FOUND A SUNDAY BLOCKER — the build's pre-check refused every two-track plan ("the head layout reads 110 distinct lineups but the book holds 105"); fixed and tested; the smoke continues
 
 - **What happened.** `sunday_build_host.sh`'s contests pre-check (line ~154) compared `rows_needed(c, layout)` (mean
