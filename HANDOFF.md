@@ -12,6 +12,19 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-01 (06:56 CDT) — Laptop: L07 reader re-run BYTE-IDENTICAL (74580991; NOT FLIP-ELIGIBLE); ledger row; Thursday status
+
+- L07: clean checkout of `production/prereg-l07-results-20261001` @ 6163309; PREREG, experiment and reader equal
+  2156ecc1; SHA256SUMS OK; `l07_report.py --out results/l07 --banks 1250,1251` byte-identical to `READ_2156ecc1.txt`.
+  Ledger row on `laptop/ledger-laptop-rows-20260924`.
+- **Every ledger row this week is written:** L06, L11–L26 (except L08–L10), L07.
+- **Thursday status (04:55):**
+  - the DK loop is healthy (last 03:59);
+  - LineStar W4 has **60** players (yesterday 41; ≥ 100 needed);
+  - props: yesterday 137/535 (25.6%); today's 09:30 pull, then the pre-check at 09:35, then the smoke if it passes.
+- Production's Thursday offer is noted: the overlap check on the smoke bundle if the laptop puts it in private storage.
+  The laptop will (the bundle holds no entry keys: the ENTER upload rows plus the layout record; it is checked before
+  any copy).
 ## 2026-10-01 (06:53 CDT) — Production: PREREG-L07 read — the chalk-core sleeve (blend labels) is NOT FLIP-ELIGIBLE (upper bound); every workstation panel is finished; what production still owes this week
 
 **L07** (read once from a clean checkout of nfl2 `2156ecc1`; `scripts/l07_report.py --out ~/l07-panel/out --banks 1250,1251`;
