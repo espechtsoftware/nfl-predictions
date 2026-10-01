@@ -151,11 +151,13 @@ print(f"contests: {[(x['name'], x['contest_id'], x['entries'], x['keep']) for x 
 # 2026-09-18: under the default `top` layout every contest independently receives the vetted book's first N, so the
 # book only has to be as large as the WIDEST contest; the sum may exceed the book size (Week 2: 97 entries across 12
 # contests, widest 23).  Under `sequential` (the Week-1 unique-across-contests layout) the SUM is the binding limit.
-book = int(os.environ.get("BOOK_ENTRIES", "90"))
+# two tracks (2026-09-27): the book holds BOOK_ENTRIES mean rows PLUS TAIL_SLEEVE sleeve rows, and rows_needed counts both
+# (the Week-4 smoke, 2026-10-01: comparing against the mean rows alone refused every two-track build before it started)
+book = int(os.environ.get("BOOK_ENTRIES", "90")) + int(os.environ.get("TAIL_SLEEVE", "0") or 0)
 sys.path.insert(0, os.path.join(os.environ["PROD"], "src"))
 from nfl_dfs.inference.enter_layout import rows_needed   # the one layout rule (2026-09-24)
 need = rows_needed(c, layout)
-assert need <= book, f"the {layout} layout reads {need} distinct lineups but the book holds {book}"
+assert need <= book, f"the {layout} layout reads {need} distinct lineups but the book holds {book} (mean {os.environ.get('BOOK_ENTRIES')} + sleeve {os.environ.get('TAIL_SLEEVE', '0')})"
 PYEOF
 
 # 1. the governed pair (paid K80 / shadow) with receipt checks -- skipped with SKIP_PAIR=1 (the K90 below carries the

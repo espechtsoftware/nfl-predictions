@@ -156,3 +156,23 @@ def test_week4_small_contest_overlap_limit_is_on_by_default_and_can_be_turned_of
     run = lambda e: subprocess.run(["bash", "-c", f"source {ENV_SCRIPT}; week_env 4 154078 >/dev/null 2>&1; echo [$ENTER_SMALL_MAX_SHARED]"],
                                    capture_output=True, text=True, env=e).stdout.strip()
     assert run(env) == "[5]" and run({**env, "ENTER_SMALL_MAX_SHARED": ""}) == "[]"
+
+
+def test_build_host_layout_precheck_counts_the_tail_sleeve(tmp_path):
+    """Week-4 smoke 2026-10-01: the pre-build check compared rows_needed (mean + sleeve) with BOOK_ENTRIES (mean only)
+    and refused every two-track build. Run the check itself on a two-track plan: 6 main rows + 1 sleeve row."""
+    host = (ROOT / "scripts" / "sunday_build_host.sh").read_text()
+    start = host.index('"$PROD_PY" - "$CONTESTS_JSON" <<\'PYEOF\' || exit 2'); body = host.index("\n", start) + 1
+    code = host[body:host.index("\nPYEOF", body)]
+    plan = [{"name": "a", "contest_id": "1", "entries": 3, "keep": 3, "track": "mean"},
+            {"name": "b", "contest_id": "2", "entries": 3, "keep": 3, "track": "mean"},
+            {"name": "m", "contest_id": "3", "entries": 1, "keep": 1, "track": "tail", "priority": 1}]
+    cj = tmp_path / "contests.json"; cj.write_text(json.dumps(plan))
+    sys.path.insert(0, str(ROOT / "src"))
+    from nfl_dfs.inference.enter_layout import rows_needed, sleeve_size
+    need, tail = rows_needed(plan, "head"), sleeve_size(plan, "head")
+    base = {**os.environ, "PROD": str(ROOT), "ENTER_LAYOUT": "head", "BOOK_ENTRIES": str(need - tail)}
+    run = lambda env: subprocess.run([sys.executable, "-c", code, str(cj)], capture_output=True, text=True, env=env)
+    assert run({**base, "TAIL_SLEEVE": str(tail)}).returncode == 0                       # mean + sleeve covers the plan
+    r = run({**base, "TAIL_SLEEVE": "0"})
+    assert r.returncode != 0 and "distinct lineups but the book holds" in r.stderr       # the guard still bites

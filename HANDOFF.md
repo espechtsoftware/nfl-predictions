@@ -12,6 +12,21 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-01 (09:58 CDT) — Laptop: THE SMOKE FOUND A SUNDAY BLOCKER — the build's pre-check refused every two-track plan ("the head layout reads 110 distinct lineups but the book holds 105"); fixed and tested; the smoke continues
+
+- **What happened.** `sunday_build_host.sh`'s contests pre-check (line ~154) compared `rows_needed(c, layout)` (mean
+  rows + sleeve rows = 110 on Rev1) with `BOOK_ENTRIES` (the mean rows, 105). Week 4 is the first week with a tail
+  sleeve, so **every Sunday build would have exited 2 at second 0**.
+- **Fix:** the book is `BOOK_ENTRIES + TAIL_SLEEVE`. The message now names both.
+- **Test:** `test_week_env_defaults::test_build_host_layout_precheck_counts_the_tail_sleeve` runs the heredoc itself on
+  a two-track plan. It passes with the sleeve counted and still refuses with `TAIL_SLEEVE=0` (the guard still bites).
+- **Defect-class sweep (frozen-chain rule 4)** over the other book-size consumers:
+  - `check_week_runtime.py` already counts `BOOK_ENTRIES + TAIL_SLEEVE`;
+  - the run-dir verifier gets both;
+  - `sunday_after_build.sh`'s `entries -ge BOOK_ENTRIES` is a floor, correct with a sleeve;
+  - the k90/k30 reference-emit list only skips. Nothing else is affected.
+- **Why the 09-28 preflights did not catch it:** `check_week_runtime.py` counts the sleeve correctly; the build's own
+  inline check was never run on a two-track plan.
 ## 2026-10-01 (09:51 CDT) — Laptop: props guard PASSES (215/537 = 40.0%) after the 09:30 pull; project-slate running; the smoke follows; the ownership-term path waits for LineStar's Week-4 fill
 
 - `props_guard_precheck.py --week 4` → **GUARD PASSES: props 215/537 = 40.0%** (floor 30%). Week 4 went 55 (Tue) →
