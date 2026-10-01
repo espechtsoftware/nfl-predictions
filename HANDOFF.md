@@ -12,6 +12,53 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-01 (14:10 CDT) — Laptop: the reviewer's cracks audit (c4188027) — changes A and B LANDED (operator "yes please do"); the smoke re-runs from a FROZEN copy; the decisions the operator owes; the open paths
+
+**Relayed for production** (reviewer → laptop, at the operator's request): `review/ownership-term-20260929` @ c4188027,
+`reports/2026-10-01-thursday-review-and-cracks-audit.md`. The reviewer's correction of record: the `auto` mis-nesting
+was in the block they patched on 09-29 and missed too.
+
+**A. Ownership fallback chain: LANDED** (9fd08cb2).
+- TabPFN → blend → Saturday's lag file (`OWNERSHIP_LAG`, gate 4) at `UNION_MAIN_OWN_LAG_TILT=0.10` → none.
+- Each step prints `!!! OWNERSHIP <step> FAILED … FALLING BACK TO <file> at tilt <t>` and appends to
+  `own_term_fallback-<run>.txt` (copied into the union dir). `own_term.source` names the file used.
+- A union refusal (`OWN TERM REFUSED`) steps down the same way: the lag file, then none.
+- A behavioural test runs `own_banner` / `own_use_lag` on a good and a collapsed lag file.
+
+**B. Saturday supply fallback: LANDED** (b4b217ff).
+- `UNION_SAT_DOSE` is an ordered list, default `2560/10240,1280/5120`. `resolve_saturday_run` takes the first dose
+  with a qualifying run and prints `!!! SATURDAY SUPPLY FALLBACK …`.
+- The self-union refusal and the build host's "this build IS the supply" check honour every listed dose.
+- **The arm line now has `SKIP_UNITS="d6400"`** (not `d6400sat`), so the Saturday 10:35 D6400 builds as the fallback
+  supply. The take-over doc is updated.
+- Tests cover the fallback pick, the self-union check for either dose, none listed, and the bash membership check.
+- **Sunday-path suite: 344 passed, 1 skipped.**
+
+**Process fix (the laptop's own crack):** the 13:58 smoke run hit "syntax error near `fi`" because the laptop edited
+`sunday_build_host.sh` while that run was reading it. **The smoke now runs from a frozen detached copy**
+(`~/projects/.nfl-predictions-worktrees/w4-smoke-prod` @ b4b217ff) and is never edited mid-run. Before the error, that
+run's union had built (resolve fix confirmed) and the audit passed:
+- `union_main` 105/105 pmo_x50, max exposure 52 ≤ 52, DST 26 ≤ 26;
+- `selector_and_tracks` 105 + 5;
+- `book_rows_legal`.
+
+**The smoke now running** (b4b217ff, `UNION_SAT_DOSE=2560/10240,0/3200`, no LineStar) exercises A (the lag fallback)
+and B (the supply fallback) live. Then publish and swap with `ENTER_SMALL_MAX_SHARED=5`,
+`ENTER_SMALL_OVERLAP_MAX_ENTRIES=10` and `UNION_SLEEVE_CAP=0.5`, and the R4 edit-upload rehearsal on the published
+bundle with a copy of the FINAL Rev1 export.
+
+**Decisions the operator owes (the laptop puts them to him):**
+1. **LineStar:** with A, a missing LineStar now means the lag file at 0.10, not no term. The decision point is Saturday
+   08:23, if LineStar has not filled; the laptop tells him then, not at 10:50.
+2. **The D12800 start time,** once production's lazy-cuts acceptance reports and the Friday re-smoke on the new pin
+   passes (the pin moves only with the FULL smoke re-run plus `check_prospective_gates.py`).
+3. **The 10-entry extension** at the 18:00 freeze, from the smoke.
+
+**Open paths (the reviewer's §2):**
+- the real 2560/10240 receipt through `pick_saturday_run` (the smoke's supply is 0/3200; the picker's dose and receipt
+  logic is unit-tested);
+- the Saturday reminders (the morning is kept free);
+- the Week-3 Monday scoring (verified today).
 ## 2026-10-01 (14:05 CDT) — Production: the reviewer's crack #4 checked — `resolve_saturday_run("auto")` on Week 3's REAL run dirs picks the right Saturday supply for both doses (2560/10240 → the D12800, 1280/5120 → the D6400)
 
 Answering the reviewer's Thursday audit (`review/ownership-term-20260929` @ `c4188027`, §2 item 4): "run the picker alone
