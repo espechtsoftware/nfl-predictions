@@ -12,6 +12,32 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-01 (09:49 CDT) — OPERATOR DECISION: the chalk-core sleeve (L07) is built for WEEK 5, not Week 4; production builds it
+
+**Operator (to production), after asking why L07's clears ≥ 194 (35 → 58) did not mean adoption:** "build for week 5".
+
+**Production's answer to him, for the record:**
+- The 58 counts the best row of L05's 80-row expected-max book, a book shape we no longer enter.
+- On L07's Week-4-style co-report (top-36 by mean, DST cap), the chalk-core sleeve leaves tickets flat (p89 279 → 277,
+  p99 30 → 31), but it improves the best row: the field share above it 6.3% → 5.2%, best 171.9 → 172.9.
+- The primary just missed (d −0.0068, 90% [−0.0150, +0.0003]), and the labels are an upper bound.
+- So the sleeve's value is the **best row**, which is what the Millionaire and the tail contests pay on, not satellite
+  tickets.
+- It exists only in experiment code (`l02_chalk_sleeve_replay.py`); there is no live switch.
+
+**Week 4 is unchanged.**
+
+**Plan (production; a frozen read before any arming):**
+1. **Live generator option, default off,** on a lab branch from the Week-4 live centre: a share of the boom solves
+   (L02's SLEEVE_L2: 25%, evenly spaced) constrained to ≤ 2 LOW players and ≥ 1 of the top-15 skill players by the
+   live `pred_own` (the TabPFN / blend file the ownership term reads), salary ≥ $49,500. Tests, mutation-checked.
+2. **Aimed at the best-row contests:** the read measures the tail sleeve's rows (selected by mean from the union pool,
+   as Week 4 does) and the main book's best row, not satellite tickets.
+3. **A frozen panel** on the L07/L13 harness with the Week-5 book shape. Its generation cost is about a day of compute
+   (L07 took 33 hours on 12 workers), so it runs on the host production moves to after Friday. Read before Week 5's
+   Thursday freeze.
+4. The decision goes to the operator then: Week 5 trial or not.
+
 ## 2026-10-01 (06:56 CDT) — Laptop: L07 reader re-run BYTE-IDENTICAL (74580991; NOT FLIP-ELIGIBLE); ledger row; Thursday status
 
 - L07: clean checkout of `production/prereg-l07-results-20261001` @ 6163309; PREREG, experiment and reader equal
