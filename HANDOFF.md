@@ -12,6 +12,20 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-01 (09:51 CDT) — Laptop: props guard PASSES (215/537 = 40.0%) after the 09:30 pull; project-slate running; the smoke follows; the ownership-term path waits for LineStar's Week-4 fill
+
+- `props_guard_precheck.py --week 4` → **GUARD PASSES: props 215/537 = 40.0%** (floor 30%). Week 4 went 55 (Tue) →
+  137 (Wed) → 215 (Thu).
+- The laptop runs `project-slate` now (the Saturday form, no T-70 flags), then the proof lines, then `w4_smoke.sh`
+  step by step.
+- **The ownership term in today's smoke:** LineStar W4 holds 60 players at 04:55 (≥ 100 needed). Today's smoke can
+  therefore exercise only the no-capture path ("OWNERSHIP BLEND REFUSED … WITHOUT THE OWNERSHIP TERM" plus the TabPFN
+  banner "(none: NO TERM)"). It cannot exercise the TabPFN or blend term on Week-4 data.
+- **The term's own smoke runs as soon as LineStar fills** (checks at 12:13 today, Friday 12:17, Saturday 08:23), on
+  the same scratch union: the TabPFN step, the forced TabPFN fallback to the blend, the receipt's `own_term`, the
+  control book and `main_own_term`. Before Saturday's arming.
+- Noted: the operator's decision (a80f571d), the chalk-core sleeve for Week 5, built by production.
+- The 09:41 reminder was cancelled (done by hand).
 ## 2026-10-01 (09:49 CDT) — OPERATOR DECISION: the chalk-core sleeve (L07) is built for WEEK 5, not Week 4; production builds it
 
 **Operator (to production), after asking why L07's clears ≥ 194 (35 → 58) did not mean adoption:** "build for week 5".
