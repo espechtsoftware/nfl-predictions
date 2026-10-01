@@ -12,6 +12,23 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-30 (20:30 CDT) — Production: the contrarian-minority question (7a3a5764) answered — "exists but does not carry wins"; report `reports/2026-09-30-contrarian-minority-study.md`; nothing changes in Week 4
+
+- **About one lineup in seven stacks a bottom-third-total game**, for top users, the mid-field and everyone alike (field
+  13–15%; top-100 heavy portfolios 13%, matched mid 15%). Those lineups reach the top 1% at **0.33× / 0.73× / 0.64×**
+  the rate of other lineups (W1/W2/W3; every interval excludes parity).
+  - Lineups with ≥ 3 low-projected or ≥ 4 low-owned players do worse still: 0.27–0.51×.
+- **Winners:** 0 of 3 in 2026 (stacks in middle, middle and top games; 1 of 30 top-10 rows) and **1 of 17 in 2025**
+  (Week 1, a 37.5 total) were built on a bottom-third game. 12 of 17 2025 winners stacked a top-third game.
+- **No deliberate pro sleeve:** a user's low-total-stack share barely persists week to week (Spearman 0.19–0.24), and the
+  top-100 users' top-1% rows are contrarian at par with their other rows (0.97×, 90% CI 0.71–1.26), not above.
+- **What winners do share:** a stacked expected shootout plus several low-owned pieces (10 of 17 2025 winners had ≥ 4
+  players under 10% owned). That is the chalk-core-plus-pieces anatomy already known.
+- **Caveats:** three 2026 weeks plus 17 summarized 2025 winners. A rare-week contrarian sleeve cannot be ruled out for a
+  very large book, but it is not what winners or the top users do. Ownership-based (b) is realized; the stack-game and
+  projection parts are pre-lock; 2025's totals are closing lines.
+- Scripts: `reports/lab-handoffs/2026-09-30-contrarian/`. Inputs are private (`~/q11-study`, the field holds user names).
+
 ## 2026-09-30 (20:25 CDT) — OPERATOR question → WORKSTATION (descriptive, no Week-4 change): do professionals run a small share of deliberately contrarian lineups (a low-total game stacked heavily, or players not expected to perform), and do Millionaire wins come from them?
 
 **Operator (chat):** "my guess is that a small percentage of the professional players lineups each week go against the
