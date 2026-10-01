@@ -12,6 +12,42 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-01 (17:10 CDT) — OPERATOR: test the in-memory incremental model for the lev batch in WEEK 5; the lazy-cuts read so far (no speed-up)
+
+**Lazy cuts, interim (the four acceptance runs, 3 h in):**
+- Every run's current solve already carries ~1,317 model rows.
+  - D6400 and D12800 share the same first 1,280 lev lineups, so all four are at the same point.
+  - That is nearly as many overlap cuts as the full path carries by then: almost every earlier lineup's cut gets
+    violated and re-added at some point.
+- So lazy cuts save almost nothing and add re-solves. The D6400 batch has not finished in 3 h, against the full path's
+  ~2.1 h.
+- The final exact-match and timing lines are posted when the D6400 pair lands. Then production stops the two D12800 runs
+  (15 h+, nothing new to learn) to free the box before it retires.
+- **Week 4:** the rehearsed pin 826d8de6 and the 10:30 D12800 start, with the supply fallback covering a late finish
+  (as c24260cf already provides). **`LEV_LAZY_CUTS` is not adopted.**
+
+**Operator (to production):** "let's plan on testing the model in memory idea for week 5".
+
+**The Week-5 task: build the lev model once, add one cut per lineup.**
+- **What is slow today:** for each of the 2,560 lev lineups, `optimize()` rebuilds the whole PuLP model, writes an MPS
+  file, starts a fresh single-threaded CBC and re-reads the solution. The model grows by one overlap cut per lineup.
+- **The idea:** keep ONE model in memory. After each accepted lineup, add its single `<= 7` cut and re-solve, warm-started
+  from the previous solution.
+  - Candidate engines: HiGHS through `highspy` (incremental `addRow` plus re-solve; MIP warm start), or OR-Tools CP-SAT
+    (multi-threaded).
+  - Same objective and constraints, so the same sequence of optimal lineups, except where optima tie.
+- **Acceptance (the same rule as lazy cuts), at full size:**
+  - against the Week-3 D12800 and D6400 lev archives and the Week-4 D12800 (once it exists): **identical lineups in
+    the same order**;
+  - timing per batch on the host that will build Saturday;
+  - every rule still enforced: the per-game cap, house stack rules, salary bounds, `max_overlap=7` (a pairwise
+    verifier, as lazy cuts had).
+  - A tie that changes the sequence is a fail (the operator decides), not a pass.
+- **Owner:** production (the workstation retires Friday, so it runs on the next host). It is a lab branch off the Week-4
+  pin with a default-off switch (`LEV_SOLVER=incremental`); the laptop wires the env only after a pass.
+- **Deadline:** acceptance before Week 5's Thursday freeze. With a pass and a measured duration, the operator picks the
+  Saturday D12800 start time for Week 5.
+
 ## 2026-10-01 (16:24 CDT) — OPERATOR: the lazy-cuts speed-up is NOT gated by the 18:00 freeze — "we can be loose about the timing"; its real deadline is Saturday's arming
 
 - The binding deadline is **Saturday's arming (~10:25 CT)**, when `EXPECT_SHA`/`CLONE` and the D12800 start time are
