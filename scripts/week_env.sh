@@ -156,6 +156,8 @@ week_env() {
   # before 09-29); 0.20 = the reviewer's specification. OWNERSHIP_LAG = Saturday's lag-model file (ownership_sets.py sets
   # --lag-features; never rebuilt later: a past week's rebuild collapses), LINESTAR_DIR = the captures.
   export UNION_MAIN_OWN_TILT=${UNION_MAIN_OWN_TILT:-0}
+  # the term's last fallback before none (operator 2026-10-01, cracks audit A): Saturday's lag file at this tilt (L20 LAG_010)
+  export UNION_MAIN_OWN_LAG_TILT=${UNION_MAIN_OWN_LAG_TILT:-0.10}
   export OWNERSHIP_LAG=${OWNERSHIP_LAG:-$OUT/ownership_lag.csv} LINESTAR_DIR=${LINESTAR_DIR:-$OUT/linestar}
   # The predictor inside the term (operator 2026-09-30): blend (default) or tabpfn (PREREG-L23b's form on the laptop GPU,
   # the blend file as its LOUD fallback). OWNERSHIP_LAGS = Saturday's `ownership_tabpfn.py lags`; OWN_TABPFN_ROWS = L23's

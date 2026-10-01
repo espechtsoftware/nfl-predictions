@@ -115,8 +115,8 @@ def test_ownership_term_is_off_unless_armed_and_the_chain_falls_back_named():
     assert "export UNION_MAIN_OWN_TILT=${UNION_MAIN_OWN_TILT:-0}" in src                     # off until the arm line sets 0.20
     assert "OWNERSHIP_LAG=${OWNERSHIP_LAG:-$OUT/ownership_lag.csv}" in src
     host = (ROOT / "scripts" / "sunday_build_host.sh").read_text()
-    assert 'OWN_SRC="$OUT/ownership_blend-$RUN_TAG.csv"' in host
-    assert '[[ -n "$OWN_SRC" ]] && UNION_ARGS+=(--main-own-tilt "$UNION_MAIN_OWN_TILT" --main-own-source "$OWN_SRC")' in host
+    assert 'BLEND_SRC="$OUT/ownership_blend-$RUN_TAG.csv"' in host
+    assert '[[ -n "$OWN_SRC" ]] && UNION_ARGS+=(--main-own-tilt "$OWN_TILT" --main-own-source "$OWN_SRC")' in host
     assert "grep -q 'OWN TERM REFUSED'" in host and "own_term_refused.txt" in host
     assert 'strip_own "${UNION_ARGS[@]}"; MEAN_ARGS_U=("${OUT_ARGS[@]}")' in host         # the mean fallback never carries the term
     assert "timeout 120" in host                                                           # a hung capture cannot stall the union
@@ -131,23 +131,30 @@ def test_strip_own_drops_exactly_the_terms_flags():
     assert out == "--main|pmo_x50|--entries|36|--tail-sleeve|85|"
 
 
-def test_tabpfn_predictor_is_off_unless_armed_and_its_fallback_is_the_blend_loudly(tmp_path):
+def test_ownership_fallback_chain_tabpfn_blend_lag_none_is_loud(tmp_path):
+    """Operator 2026-09-30 ("falls back loudly") and 2026-10-01 (cracks audit A): TabPFN -> blend -> Saturday's lag file
+    at 0.10 -> no term. Run own_banner/own_use_lag for real: a passing lag file is used at the lag tilt; a collapsed one
+    leaves no term; every step writes the banner and the marker line."""
     src = ENV_SCRIPT.read_text()
-    assert "UNION_MAIN_OWN_PREDICTOR=${UNION_MAIN_OWN_PREDICTOR:-blend}" in src                  # the blend unless armed
+    assert "UNION_MAIN_OWN_PREDICTOR=${UNION_MAIN_OWN_PREDICTOR:-blend}" in src
+    assert "UNION_MAIN_OWN_LAG_TILT=${UNION_MAIN_OWN_LAG_TILT:-0.10}" in src
     host = (ROOT / "scripts" / "sunday_build_host.sh").read_text()
-    blend = host.index("scripts/ownership_blend.py"); tab = host.index('"${UNION_MAIN_OWN_PREDICTOR:-blend}" == "tabpfn"')
-    assert blend < tab                                                                   # the fallback file exists first
-    assert 'OWN_SRC="$OUT/ownership_tabpfn-$RUN_TAG.csv"' in host and "own_term_fallback.txt" in host
-    # the banner and the marker, run for real
-    start = host.index("      own_fallback() {"); end = host.index("\n      }\n", start) + len("\n      }\n")
-    fn = host[start:end]
-    script = (f'OUT={tmp_path}; RUN_TAG=t70x; OWN_SRC={tmp_path}/ownership_blend-t70x.csv\n' + fn +
-              'own_fallback "fit step: OWNERSHIP TABPFN REFUSED: no CUDA device"\n')
-    r = subprocess.run(["bash", "-c", script], capture_output=True, text=True)
-    assert "!!! OWNERSHIP TABPFN FAILED for t70x: fit step: OWNERSHIP TABPFN REFUSED: no CUDA device -- FALLING BACK TO THE BLEND (ownership_blend-t70x.csv)" in r.stdout
-    marker = (tmp_path / "own_term_fallback-t70x.txt").read_text()
-    assert "predictor tabpfn FAILED: fit step" in marker and "fallback: " + str(tmp_path) + "/ownership_blend-t70x.csv" in marker
-
+    assert host.index("scripts/ownership_blend.py") < host.index('"${UNION_MAIN_OWN_PREDICTOR:-blend}" == "tabpfn"')
+    start = host.index("  own_banner() {"); end = host.index("  if [[ \"${UNION_MAIN:-mean}\" == \"pmo_x50\"", start)
+    fns = host[start:end]
+    good = tmp_path / "lag_good.csv"; good.write_text("display_name,pred_own\n" + "".join(f"P{i},{20.0 if i < 10 else 2.0}\n" for i in range(150)))
+    bad = tmp_path / "lag_bad.csv"; bad.write_text("display_name,pred_own\n" + "".join(f"P{i},1.0\n" for i in range(150)))
+    def run(lag):
+        script = (f'OUT={tmp_path}; RUN_TAG=t70x; PROD={ROOT}; PROD_PY={sys.executable}; OWNERSHIP_LAG={lag}; '
+                  'OWN_SRC=""; OWN_TILT=0.20\n' + fns + 'own_use_lag; own_banner BLEND "no valid LineStar capture"; echo "[$OWN_SRC|$OWN_TILT]"\n')
+        return subprocess.run(["bash", "-c", script], capture_output=True, text=True)
+    r = run(good)
+    assert f"[{good}|0.10]" in r.stdout and "!!! OWNERSHIP BLEND FAILED for t70x: no valid LineStar capture -- FALLING BACK TO lag_good.csv at tilt 0.10" in r.stdout
+    r = run(bad)
+    assert "[|0]" in r.stdout and "FALLING BACK TO none: NO TERM" in r.stdout
+    marker = (tmp_path / "own_term_fallback-t70x.txt").read_text().splitlines()
+    assert len(marker) == 2 and "fallback lag_good.csv at tilt 0.10" in marker[0] and "fallback none: NO TERM" in marker[1]
+    assert "own_use_lag; else OWN_SRC=\"\"; OWN_TILT=\"0\"; fi" in host                              # union refusal: lag, then none
 
 def test_week4_small_contest_overlap_limit_is_on_by_default_and_can_be_turned_off():
     src = ENV_SCRIPT.read_text()

@@ -264,46 +264,61 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   [[ "${UNION_SLEEVE_INCLUDES_MAIN:-0}" == "1" ]] && UNION_ARGS+=(--sleeve-includes-main)
   [[ -n "${MEAN_DST_CAP:-}" ]] && UNION_ARGS+=(--mean-dst-cap "$MEAN_DST_CAP")
   [[ -n "${UNION_DK_STATUS:-}" ]] && UNION_ARGS+=(--dk-status "$UNION_DK_STATUS")
-  # The ownership term (operator 2026-09-29, reviewer 16c293b7 §1): a LineStar capture as late as possible, the blend with
-  # Saturday's lag file, then the two flags. A failed capture keeps the newest earlier capture (the blend picks it); a
-  # refused blend or a refused term builds the main WITHOUT the term, named (the book as armed before 09-29).
+  # The ownership term (operator 2026-09-29, reviewer 16c293b7 §1), with its fallback ORDER (operator 2026-10-01, the
+  # reviewer's cracks audit c4188027 A): TabPFN (UNION_MAIN_OWN_PREDICTOR=tabpfn) -> the blend -> Saturday's LAG file at
+  # UNION_MAIN_OWN_LAG_TILT (0.10; L20's LAG_010 SUPPORTED on its own, provably pre-lock) -> no term. Every step down is
+  # LOUD: a capitals banner, a line in $OUT/own_term_fallback-$RUN_TAG.txt (copied into the union dir), and the receipt's
+  # own_term.source names the file actually used.
+  OWN_SRC=""; OWN_TILT="${UNION_MAIN_OWN_TILT:-0}"
+  own_banner() {   # $1 = what failed, $2 = why; names what is used next
+    local next; if [[ -n "$OWN_SRC" ]]; then next="$(basename "$OWN_SRC") at tilt $OWN_TILT"; else next="none: NO TERM"; fi
+    printf '\n%s\n%s\n%s\n\n' "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" \
+      "!!! OWNERSHIP $1 FAILED for $RUN_TAG: $2 -- FALLING BACK TO $next" \
+      "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+    printf '%s run %s: %s FAILED: %s -> fallback %s\n' "$(date -u +%FT%TZ)" "$RUN_TAG" "$1" "$2" "$next" >> "$OUT/own_term_fallback-$RUN_TAG.txt"
+  }
+  own_use_lag() {  # the lag file at the lag tilt, if it passes gate 4; else no term
+    if [[ -s "${OWNERSHIP_LAG:-}" ]] && ( cd "$PROD" && "$PROD_PY" scripts/check_ownership_lag.py "$OWNERSHIP_LAG" >/dev/null ); then
+      OWN_SRC="$OWNERSHIP_LAG"; OWN_TILT="${UNION_MAIN_OWN_LAG_TILT:-0.10}"
+    else
+      OWN_SRC=""; OWN_TILT="0"
+    fi
+  }
   if [[ "${UNION_MAIN:-mean}" == "pmo_x50" && "${UNION_MAIN_OWN_TILT:-0}" != "0" ]]; then
     ( cd "$PROD" && PYTHONPATH="$PROD/src" timeout 120 "$PROD_PY" scripts/linestar_ownership_capture.py --season "$SEASON" --week "$WEEK" \
         --out "$LINESTAR_DIR" --label "$RUN_TAG" ) || echo "LINESTAR CAPTURE FAILED for $RUN_TAG; the newest earlier capture stands"
-    OWN_SRC=""
+    BLEND_SRC=""
     if ( cd "$PROD" && PYTHONPATH="$PROD/src" timeout 120 "$PROD_PY" scripts/ownership_blend.py --sets "$OWNERSHIP_LAG" --linestar-dir "$LINESTAR_DIR" \
            --season "$SEASON" --week "$WEEK" --out "$OUT/ownership_blend-$RUN_TAG.csv" ); then
-      OWN_SRC="$OUT/ownership_blend-$RUN_TAG.csv"
-    else
-      echo "OWNERSHIP BLEND REFUSED for $RUN_TAG; THE MAIN BOOK IS BUILT WITHOUT THE OWNERSHIP TERM"
+      BLEND_SRC="$OUT/ownership_blend-$RUN_TAG.csv"
     fi
-    # The TabPFN predictor (operator 2026-09-30: replaces the blend in Week 4 if the smoke passes; PREREG-L23b). The blend
-    # file above is its fallback -- never no term -- and every fallback is LOUD (operator: "make sure it falls back loudly").
     if [[ "${UNION_MAIN_OWN_PREDICTOR:-blend}" == "tabpfn" ]]; then
-      own_fallback() {
-        local why=$1
-        printf '\n%s\n%s\n%s\n\n' "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" \
-          "!!! OWNERSHIP TABPFN FAILED for $RUN_TAG: $why -- FALLING BACK TO THE BLEND ($( [[ -n "$OWN_SRC" ]] && basename "$OWN_SRC" || echo 'none: NO TERM'))" \
-          "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-        printf 'run %s at %s\npredictor tabpfn FAILED: %s\nfallback: %s\n' "$RUN_TAG" "$(date -u +%FT%TZ)" "$why" "${OWN_SRC:-none (no blend file either: no term)}" \
-          > "$OUT/own_term_fallback-$RUN_TAG.txt"
-      }
-      if [[ -z "$OWN_SRC" ]]; then
-        own_fallback "no blend file (no valid LineStar capture); TabPFN needs the same capture"
+      TAB_WHY=""
+      if [[ -z "$BLEND_SRC" ]]; then
+        TAB_WHY="no valid LineStar capture (TabPFN and the blend both need it)"
       elif ! ( cd "$PROD" && PYTHONPATH="$PROD/src" timeout 120 "$PROD_PY" scripts/ownership_tabpfn.py features --season "$SEASON" --week "$WEEK" \
                  --frame "$K90_DIR/frame.parquet" --lags "$OWNERSHIP_LAGS" --linestar-dir "$LINESTAR_DIR" --history "$OWN_TABPFN_ROWS" \
                  --out "$OUT/ownership_tabpfn_features-$RUN_TAG.parquet" ) 2>&1 | tee "$OUT/ownership_tabpfn-$RUN_TAG.txt"; then
-        own_fallback "features step: $(grep -h 'REFUSED' "$OUT/ownership_tabpfn-$RUN_TAG.txt" | tail -1)"
+        TAB_WHY="features step: $(grep -h 'REFUSED' "$OUT/ownership_tabpfn-$RUN_TAG.txt" | tail -1)"
       elif ! ( cd "$PROD" && timeout 300 "$TABPFN_PY" scripts/ownership_tabpfn.py fit --rows "$OWN_TABPFN_ROWS" \
                  ${OWN_TABPFN_ROWS_2026:+--rows-2026 "$OWN_TABPFN_ROWS_2026"} --features "$OUT/ownership_tabpfn_features-$RUN_TAG.parquet" \
                  --out "$OUT/ownership_tabpfn-$RUN_TAG.csv" ) 2>&1 | tee -a "$OUT/ownership_tabpfn-$RUN_TAG.txt"; then
-        own_fallback "fit step: $(grep -h 'REFUSED\|Error' "$OUT/ownership_tabpfn-$RUN_TAG.txt" | tail -1)"
-      else
-        OWN_SRC="$OUT/ownership_tabpfn-$RUN_TAG.csv"
-        echo "OWNERSHIP TERM SOURCE for $RUN_TAG: TABPFN ($(basename "$OWN_SRC")); the blend file stays beside it as the fallback"
+        TAB_WHY="fit step: $(grep -h 'REFUSED\|Error' "$OUT/ownership_tabpfn-$RUN_TAG.txt" | tail -1)"
       fi
+      if [[ -z "$TAB_WHY" ]]; then
+        OWN_SRC="$OUT/ownership_tabpfn-$RUN_TAG.csv"
+        echo "OWNERSHIP TERM SOURCE for $RUN_TAG: TABPFN ($(basename "$OWN_SRC")) at tilt $OWN_TILT; the blend stays beside it as the fallback"
+      else
+        if [[ -n "$BLEND_SRC" ]]; then OWN_SRC="$BLEND_SRC"; else own_use_lag; fi
+        own_banner TABPFN "$TAB_WHY"
+      fi
+    elif [[ -n "$BLEND_SRC" ]]; then
+      OWN_SRC="$BLEND_SRC"
+    else
+      own_use_lag
+      own_banner BLEND "no valid LineStar capture"
     fi
-    [[ -n "$OWN_SRC" ]] && UNION_ARGS+=(--main-own-tilt "$UNION_MAIN_OWN_TILT" --main-own-source "$OWN_SRC")
+    [[ -n "$OWN_SRC" ]] && UNION_ARGS+=(--main-own-tilt "$OWN_TILT" --main-own-source "$OWN_SRC")
   fi
   # drop the term's flags from an argument list (the refusal fallbacks below)
   strip_own() { OUT_ARGS=(); local skip=0; for x in "$@"; do
@@ -313,11 +328,21 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   run_union() { ( cd "$PROD" && LIVE_FLEX_LATEST="${LIVE_FLEX_LATEST:-1}" PYTHONPATH="$CLONE/src:$PROD/src" "$LAB_PY" scripts/union_reselect.py "$@" 2>&1 | tee "$OUT/union-$RUN_TAG.txt"; return "${PIPESTATUS[0]}" ); }
   UNION_RC=0; run_union "${UNION_ARGS[@]}" || UNION_RC=$?
   if (( UNION_RC != 0 )) && grep -q 'OWN TERM REFUSED' "$OUT/union-$RUN_TAG.txt"; then
-    # the term's file or solves refused (named, before any output): the main is built as armed without the term
-    echo "OWN TERM REFUSED -- $(grep 'OWN TERM REFUSED' "$OUT/union-$RUN_TAG.txt" | tail -1); BUILDING THE MAIN WITHOUT THE OWNERSHIP TERM"
-    cp "$OUT/union-$RUN_TAG.txt" "$OUT/union-$RUN_TAG-own-refused.txt"
-    strip_own "${UNION_ARGS[@]}"; UNION_ARGS=("${OUT_ARGS[@]}"); OWN_REFUSED=1
+    # the union refused the term's file or its solves (named, before any output): step down to the lag file at the lag
+    # tilt (unless that is what was refused), then to no term -- loudly each time
+    cp "$OUT/union-$RUN_TAG.txt" "$OUT/union-$RUN_TAG-own-refused.txt"; OWN_REFUSED=1
+    WHY=$(grep 'OWN TERM REFUSED' "$OUT/union-$RUN_TAG.txt" | tail -1)
+    strip_own "${UNION_ARGS[@]}"; UNION_ARGS=("${OUT_ARGS[@]}")
+    WAS_LAG=0; [[ "$OWN_SRC" == "${OWNERSHIP_LAG:-}" ]] && WAS_LAG=1
+    if (( ! WAS_LAG )); then own_use_lag; else OWN_SRC=""; OWN_TILT="0"; fi
+    own_banner "TERM ($(basename "${OWN_SRC:-none}"))" "the union refused it: $WHY"
+    [[ -n "$OWN_SRC" ]] && UNION_ARGS+=(--main-own-tilt "$OWN_TILT" --main-own-source "$OWN_SRC")
     UNION_RC=0; run_union "${UNION_ARGS[@]}" || UNION_RC=$?
+    if (( UNION_RC != 0 )) && grep -q 'OWN TERM REFUSED' "$OUT/union-$RUN_TAG.txt"; then
+      strip_own "${UNION_ARGS[@]}"; UNION_ARGS=("${OUT_ARGS[@]}"); OWN_SRC=""; OWN_TILT="0"
+      own_banner "LAG TERM" "the union refused it too: $(grep 'OWN TERM REFUSED' "$OUT/union-$RUN_TAG.txt" | tail -1)"
+      UNION_RC=0; run_union "${UNION_ARGS[@]}" || UNION_RC=$?
+    fi
   fi
   if (( UNION_RC != 0 )); then
     if [[ "${UNION_MAIN:-mean}" == "pmo_x50" ]] && grep -q 'PMO_X50 MAIN REFUSED' "$OUT/union-$RUN_TAG.txt"; then
@@ -337,7 +362,7 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   UNION_DIR=$(sed -n 's/^UNION -> //p' "$OUT/union-$RUN_TAG.txt" | tail -1)
   [[ -n "$UNION_DIR" && -n "${OWN_REFUSED:-}" && ! -f "$UNION_DIR/own_term_refused.txt" ]] && cp "$OUT/union-$RUN_TAG-own-refused.txt" "$UNION_DIR/own_term_refused.txt"
   [[ -n "$UNION_DIR" && -f "$OUT/own_term_fallback-$RUN_TAG.txt" ]] && cp "$OUT/own_term_fallback-$RUN_TAG.txt" "$UNION_DIR/own_term_fallback.txt" \
-    && echo "!!! OWNERSHIP TABPFN FELL BACK for this union: $UNION_DIR/own_term_fallback.txt"
+    && echo "!!! OWNERSHIP TERM FELL BACK for this union: $UNION_DIR/own_term_fallback.txt"
   [[ -n "$UNION_DIR" && -f "$UNION_DIR/receipt.json" ]] || { echo "union run dir not found in $OUT/union-$RUN_TAG.txt"; touch "$K90_DIR/union_failed"; exit 1; }
   verify_k90 "$UNION_DIR" || { echo "K90 receipt verification FAILED for the union $UNION_DIR"; touch "$K90_DIR/union_failed"; rm -rf "$UNION_DIR"; exit 1; }
   ( cd "$PROD" && PYTHONPATH="$PROD/src" "$PROD_PY" scripts/audit_build_levers.py "$UNION_DIR" --contests "$CONTESTS_JSON" \
