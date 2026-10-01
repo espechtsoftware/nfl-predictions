@@ -174,8 +174,8 @@ week_env() {
   # check fails closed on a mismatch). ENTER_SMALL_MAX_SHARED= (explicitly empty) turns it off.
   export ENTER_SMALL_MAX_SHARED=${ENTER_SMALL_MAX_SHARED-5}
   # The limit's contest-size ceiling (PREREG-L26 SUPPORTED; operator 09-30 17:05: Week 4 IF Thursday's smoke covers it):
-  # unset = 5 (L25's 2-5-entry cells); 10 adds the 10-entry contests. The laptop makes 10 the default only after the smoke.
-  export ENTER_SMALL_OVERLAP_MAX_ENTRIES=${ENTER_SMALL_OVERLAP_MAX_ENTRIES-}
+  # unset/empty = 5 (L25's 2-5-entry cells); 10 adds the 10-entry contests (default since the 2026-10-01 smoke passed).
+  export ENTER_SMALL_OVERLAP_MAX_ENTRIES=${ENTER_SMALL_OVERLAP_MAX_ENTRIES-10}   # Week 4: L26 SUPPORTED + the 10-01 smoke published/swapped through it; = (empty) -> 5
   export OWN_TABPFN_ROWS_2026=${OWN_TABPFN_ROWS_2026-$OUT/private/rows_2026_w1w3.parquet}   # production 04fa1257, sha 214f67c2
   # Cash/double-up PAPER shadows (operator 2026-09-22; never built in Week 3 by omission): arms A and B are built by the
   # chain from the final run dir before lock, entered nowhere, scored Monday. 1 = build them; 0 = off (explicit).

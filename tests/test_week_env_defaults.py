@@ -193,3 +193,7 @@ def test_exposure_cap_books_count_the_tail_sleeve():
     cap_block = host[host.index("# 6. exposure caps"):host.index("# 6b.") + 2000]
     assert cap_block.count('--entries "$((BOOK_ENTRIES + ${TAIL_SLEEVE:-0}))"') == 2
     assert '--entries "$BOOK_ENTRIES" --layout' not in cap_block
+
+
+def test_week4_overlap_ceiling_is_ten_by_default_after_the_smoke():
+    assert "export ENTER_SMALL_OVERLAP_MAX_ENTRIES=${ENTER_SMALL_OVERLAP_MAX_ENTRIES-10}" in ENV_SCRIPT.read_text()

@@ -12,6 +12,49 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-01 (14:23 CDT) — Laptop: THE WEEK-4 SMOKE PASSES end to end on the armed form (frozen copy b4b217ff) — build, union, audit, cash shadow, publish, R4 swap and the refill of the real export; the 10-entry extension's conditions are met → `ENTER_SMALL_OVERLAP_MAX_ENTRIES=10` is the Week-4 default
+
+**T-70 build** (lev 0 / boom 4800, `UNION_SAT_DOSE=2560/10240,0/3200`, TabPFN predictor, sleeve cap 0.5): **exit 0 in 563 s**.
+- **A live:** "!!! OWNERSHIP TABPFN FAILED … no valid LineStar capture … FALLING BACK TO ownership_lag.csv at tilt 0.10".
+  - The receipt's `own_term`: tilt 0.1, source the lag file (sha d90e1430), coverage 1.0, 285 players.
+  - The audit's `main_own_term` PASS: control present, 65 of 105 rows shared.
+- **B live:** "!!! SATURDAY SUPPLY FALLBACK: 2560/10240: no Saturday run dir … → using the 0/3200 supply".
+- **Union audit OK (13 checks):** `union_main` 105/105 pmo_x50, max exposure 52 ≤ 52, DST 26 ≤ 26; 105 + 5;
+  `book_rows_legal`.
+- **Sleeve cap:** share 0.5 → 2 rows of 5, max rows per player 2, no fallback.
+- **Cash shadow:** arms A and B built, plus both upload files. **Exposure sheet:** built (the 13:58 fix works).
+- Still failing, logged, not the money path: the legacy `composite-all30` emit ("lineup 22 repeats an earlier roster
+  within its block").
+
+**Publish** (`sunday_after_build.sh once`, `REQUIRE_AUDIT_PASSED=1`): **exit 0 in 35 s.**
+- `ENTER_SMALL_MAX_SHARED=5` with ceiling 10: 49 ranks replaced; `small_overlap` governs **9 contests** (five 2–5s and
+  four 10s), all at M = 5 with no relaxation. The check matched the write.
+
+**R4, the never-rehearsed path:**
+1. A live DK status snapshot (629 players), with a scratch copy marking **Kenneth Walker III OUT** (late game, in 54 of
+   110 rows).
+2. `late_inactive_swaps.py`: **54 swaps, 0 unrepaired**.
+3. `sunday_swap.sh`: the fresh DK feed checked; `upload-smoke-swap1.csv` written (110 rows, 54 changed); re-published as
+   `smoke-swap1`.
+4. **`fill_dk_entries.py` on a copy of the FINAL Rev1 export, before and after:** the header is identical and equals
+   DK's; the Entry ID ↔ Contest ID pairing is identical for all rows; every non-lineup cell is identical; **84 entries
+   changed, each in exactly one cell, the one that held Walker.**
+- Nothing was uploaded. The export copy and the filled files stay in the scratch OUT (dir 700).
+
+**Relax drill (the extension's condition):** `small_overlap_rehearsal.py --ms 0,5` on the smoke book.
+- M = 0: 8 relaxations, each with the "!!! SMALL-CONTEST OVERLAP LIMIT RELAXED" banner; the record written; check
+  with M PASS, without M FAIL (the guard).
+- "other contests unchanged: False" is the ceiling-10 contests by design. With the ceiling unset it reads True.
+
+**Decision recorded:** the operator's conditions (c8889e3c) are met: L26 SUPPORTED, published and swapped through,
+write = check, the banner exercised. `week_env.sh`: `ENTER_SMALL_OVERLAP_MAX_ENTRIES=${…-10}` (an explicit empty value
+→ 5). Test added.
+
+**Still not rehearsed:** the ownership term on real Week-4 LineStar data. It runs when LineStar fills (Thu 12:13 /
+Fri 12:17 / Sat 08:23 checks; at 04:55 it had 60 players).
+
+**Moot:** the Week-3 Monday scoring. The script scores the cash-shadow arms, Week 3 had none, and the paper-triple arms
+were retired by production's 09-29 sweep (A2). Week 3's settlement is production's post-mortem.
 ## 2026-10-01 (14:10 CDT) — Production: b4b217ff's supply fallback verified on Week 3's real run dirs (both branches)
 
 - `resolve_saturday_run("auto", "2560/10240,1280/5120", …)`, Week-3 T-70 receipt, group 153769:
