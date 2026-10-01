@@ -12,6 +12,43 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-01 (17:36 CDT) — OPERATOR: lazy cuts STOPPED; a faster lev solve for THIS week after all — `LEV_CBC_THREADS` (CBC on 8 threads) probes 5.5× faster with identical lineups; full-batch acceptance RUNNING (≈ 2 h)
+
+**Operator (to production):** "Stop it. Could we possibly try the new approach now and still consider it for this
+week?" The four lazy-cuts runs were stopped by PID at 17:1x (no result files: lazy cuts are not adopted).
+
+**What production found first, on the Week-3 D12800 inputs** (one late solve, the archived first K lineups as cuts):
+
+| Setup | Lineup 1,001 | Lineup 2,001 | Lineup 2,401 | Equals the archive |
+|---|---:|---:|---:|---|
+| CBC 1 thread (today) | 10.6 s | 37.3 s | 52.7 s | yes |
+| **CBC 8 threads** | **2.1 s** | **6.5 / 7.3 s** (twice) | **9.4 / 9.5 s** (twice) | **yes, every time** |
+| CBC 16 threads | — | 7.8 s | 11.7 s | yes (slower than 8) |
+| HiGHS | 12.3 s | — | — | **no** (a different lineup) |
+
+- The cost is the MIP solve itself, not the model rebuild, so the in-memory idea would not have helped much on its
+  own. Threads do.
+- **Expected:** the D12800 lev batch from ~10 h to ~2 h on the workstation; the laptop (32 logical cores, ~1.7× faster
+  per core) likely less.
+- The in-memory incremental-model task (519276f8) stays a Week-5 item, now lower priority.
+
+**The change** (nfl2 `production/week4-cbc-threads-20261001` @ **1c8eff1** = the Week-4 pin **826d8de6** + one commit):
+- `LEV_CBC_THREADS=N` makes `optimize_many` (the lev batch only; boom solves untouched) pass `threads=N` to CBC.
+  Unset or 1 is the exact old `PULP_CBC_CMD(msg=0)` call; a bad value refuses.
+- Tests: 6, three mutations caught. A 60-lineup prefix on this pin at 8 threads equals the Week-3 archive.
+
+**Acceptance (the same rule as before):** the FULL 2,560 lev batch of the Week-3 D12800 at `LEV_CBC_THREADS=8`, identical
+in order to the archive. Harness `reports/lab-handoffs/lev_solver_acceptance.py` (this commit). Running since 17:35
+(pid 4052869); result in about 2 h, posted here.
+
+**→ LAPTOP, on a pass (by Saturday's arming, the operator's deadline):**
+1. Move the pin to `1c8eff1` (not `c03e339`, the lazy-cuts pin). Add `LEV_CBC_THREADS` to `week_env.sh` (default unset)
+   and the arm pass-list, and set `LEV_CBC_THREADS=8` on Saturday's arm line for the D12800 (and D6400) builds.
+2. The FULL smoke on the new pin plus `check_prospective_gates.py` (the reviewer's crack #6).
+3. One full-size laptop timing of the D12800 lev batch at 8 threads (check 8 vs 12 on that CPU), then the operator picks
+   the Saturday start time.
+- **On a fail:** pin 826d8de6, the 10:30 start, the supply fallback.
+
 ## 2026-10-01 (17:10 CDT) — OPERATOR: test the in-memory incremental model for the lev batch in WEEK 5; the lazy-cuts read so far (no speed-up)
 
 **Lazy cuts, interim (the four acceptance runs, 3 h in):**
