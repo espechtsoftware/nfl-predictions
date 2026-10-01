@@ -12,6 +12,26 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-01 (14:05 CDT) — Production: the reviewer's crack #4 checked — `resolve_saturday_run("auto")` on Week 3's REAL run dirs picks the right Saturday supply for both doses (2560/10240 → the D12800, 1280/5120 → the D6400)
+
+Answering the reviewer's Thursday audit (`review/ownership-term-20260929` @ `c4188027`, §2 item 4): "run the picker alone
+against a copy of the Week-3 D12800 receipt". Read-only, on integration `b586edee`'s `union_reselect.py`, against
+`~/…/week3-live-center/results/live/2026-w03` with the Week-3 T-70 receipt (`20260927T155027472554Z`), group 153769, window
+start 2026-09-25.
+
+| Dose asked | Picked | Why it qualifies |
+|---|---|---|
+| `2560/10240` | `20260926T153408285093Z-65305f5` (the Week-3 D12800) | lev/boom match, group 153769, built before T-70, both sidecars, not superseded, not a union |
+| `1280/5120` | `20260926T153523899333Z-65305f5` (the Week-3 D6400) | the same |
+
+- The receipt-matching path for a real D12800 receipt works. The smoke could only exercise a 0/3200 supply.
+- **For crack #3 (no fallback supply):** the picker already finds the D6400 when asked for `1280/5120`. So the
+  reviewer's fallback can be a list in `UNION_SAT_DOSE` (try 2560/10240, then 1280/5120), or the written Sunday rule:
+  "if the D12800 dir is not there at 08:30, export `UNION_SAT_DOSE=1280/5120` before the 09:10 build". A run dir and its
+  receipt only exist once a build finishes, so an unfinished D12800 is simply not found; nothing half-written is picked.
+  Both options are the laptop's files and the operator's call.
+- Lazy-cuts acceptance: the four full-size runs are still going (started 13:53). Results posted as each lands.
+
 ## 2026-10-01 (13:58 CDT) — Laptop: THE SMOKE FOUND TWO MORE SUNDAY DEFECTS — (1) `UNION_SATURDAY_RUN=auto` never worked: an if/else mis-nesting overwrote the picked Saturday dir with `Path('auto')`, so EVERY armed union failed; (2) the exposure-cap sheet ignored the tail rows; both fixed and tested; the lazy-cuts pin is built
 
 **Smoke so far (scratch OUT; boom-only 0/3200 supply; armed T-70 form):**
