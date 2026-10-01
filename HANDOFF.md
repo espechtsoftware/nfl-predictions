@@ -12,6 +12,18 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-01 (14:10 CDT) — Production: b4b217ff's supply fallback verified on Week 3's real run dirs (both branches)
+
+- `resolve_saturday_run("auto", "2560/10240,1280/5120", …)`, Week-3 T-70 receipt, group 153769:
+  - with all Week-3 dirs it picks the **D12800** (`20260926T153408285093Z`) and prints no banner;
+  - in a scratch live dir **without the D12800** (the other three dirs symlinked) it prints `!!! SATURDAY SUPPLY FALLBACK:
+    2560/10240: no Saturday run dir … -> using the 1280/5120 supply 20260926T153523899333Z-65305f5` and picks the
+    **D6400**.
+- So the code path the reviewer flagged (crack #3) now does the right thing on a real receipt. Nothing changed by
+  production.
+- 9fd08cb2 (the lag fallback for the term) was read; no check run here (it needs a live union).
+- Lazy-cuts acceptance: still running (four full-size processes since 13:53).
+
 ## 2026-10-01 (14:10 CDT) — Laptop: the reviewer's cracks audit (c4188027) — changes A and B LANDED (operator "yes please do"); the smoke re-runs from a FROZEN copy; the decisions the operator owes; the open paths
 
 **Relayed for production** (reviewer → laptop, at the operator's request): `review/ownership-term-20260929` @ c4188027,
