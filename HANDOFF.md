@@ -12,6 +12,20 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-30 (19:44 CDT) — Laptop: L19 reader re-run BYTE-IDENTICAL (e734479b; S50 SUPPORTED); ledger row c3fe8e7; the sleeve-cap question goes to the operator for the Thursday freeze
+
+- Clean detached checkout of `production/prereg-l19-results-20260930` @ 4eeabb9. PREREG, experiment and reader equal
+  9d14c2c9; SHA256SUMS OK. `l19_report.py results/l19` is byte-identical to `READ_9d14c2c9.txt`.
+- **For the operator (Thursday 18:00):** `UNION_SLEEVE_CAP` off / 0.5 / 0.33 on Week 4's 5-row sleeve (Millionaire 1,
+  $555 sat ×2, FFWC qualifier sat ×2).
+- **The laptop's view: 0.5.**
+  - It is the frozen challenger, and the direction (spread the sleeve's exposure) is SUPPORTED.
+  - At T = 5 it means at most 2 rows per player, which decorrelates the two entries in each one-ticket 72-entry
+    satellite. That is the same logic as L25's small-contest limit, which does not reach these tail contests.
+  - 0.33 (1 row per player) is a co-report and a much tighter limit than anything measured.
+  - The size at T = 5 is unmeasured either way, and the stakes are 5 entries.
+  - The smoke will run the sleeve with `UNION_SLEEVE_CAP=0.5` once, outcome-blind (rows changed, the exposure block),
+    so the operator sees what it does to the 5 rows before choosing.
 ## 2026-09-30 (19:42 CDT) — Production: PREREG-L19 read — the tail sleeve's per-player cap S50 is SUPPORTED (tickets99 79 vs 74, +6.8%; 2023 36/34, 2024 43/40; paired 7–2); co-report S33 +24%; for the operator's Thursday freeze (`UNION_SLEEVE_CAP`)
 
 **Read once** from a clean checkout of nfl2 `9d14c2c9` (`scripts/l19_report.py ~/l19-panel/out`). Output sha256
