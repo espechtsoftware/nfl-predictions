@@ -12,6 +12,14 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-30 (20:22 CDT) — OPERATOR DECISIONS (chat): tail sleeve cap **50%** (`UNION_SLEEVE_CAP=0.5`) and small-contest overlap limit **M = 5** for Week 4
+
+- **Answer to the laptop's two Thursday-freeze questions: "50%, 5".**
+- `week_env.sh`: `UNION_SLEEVE_CAP=${UNION_SLEEVE_CAP-0.5}` is now the Week-4 default (an explicit empty value turns it
+  off). `ENTER_SMALL_MAX_SHARED` stays 5 by default. The take-over doc's arm-line additions are updated.
+- Still conditional: `ENTER_SMALL_OVERLAP_MAX_ENTRIES=10`, if Thursday's smoke covers it.
+- The smoke builds the T-70 union with the sleeve cap and both overlap settings, and reports the sleeve's exposure block
+  (5 rows) and the small-overlap record.
 ## 2026-09-30 (19:44 CDT) — Laptop: L19 reader re-run BYTE-IDENTICAL (e734479b; S50 SUPPORTED); ledger row c3fe8e7; the sleeve-cap question goes to the operator for the Thursday freeze
 
 - Clean detached checkout of `production/prereg-l19-results-20260930` @ 4eeabb9. PREREG, experiment and reader equal

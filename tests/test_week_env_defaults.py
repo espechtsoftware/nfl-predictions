@@ -99,7 +99,7 @@ def test_main_book_cap_is_a_setting_that_reaches_the_union_step():
 
 
 def test_sleeve_cap_is_off_unless_set():
-    assert "export UNION_SLEEVE_CAP=${UNION_SLEEVE_CAP-}" in ENV_SCRIPT.read_text()           # empty = none, as entered
+    assert "export UNION_SLEEVE_CAP=${UNION_SLEEVE_CAP-0.5}" in ENV_SCRIPT.read_text()        # operator 09-30 after L19; empty = off
     assert '--sleeve-cap-share "$UNION_SLEEVE_CAP"' in (ROOT / "scripts" / "sunday_build_host.sh").read_text()
 
 
