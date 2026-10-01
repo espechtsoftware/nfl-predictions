@@ -12,6 +12,17 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-01 (13:38 CDT) — Laptop: smoke correction — the first supply build ran without the timers' `SKIP_PAIR=1` (two streams) at the armed D12800 dose (hours); stopped by PID at 13:4x; the smoke now uses a boom-only 0/3200 supply and the timers' exact build flags
+
+- The smoke's `smoke_build` omitted `SKIP_PAIR=1 DOSE_FILE=/dev/null`, which every timer in `arm_week_timers.sh` sets.
+  The D12800 supply therefore ran the governed pair as well. At 13:36 it was still in step 1a after 3 h 38 min on one
+  thread. Stopped by PID (live_week 1305973 and its four parent shells), not by name.
+- **Smoke now:** `SKIP_PAIR=1 DOSE_FILE=/dev/null` on every build. The supply is **boom-only 0/3200** (minutes); the
+  T-70 build is lev 0 / boom 4800 with `UNION_SAT_DOSE=0/3200`. The union step is the same code for any supply dose.
+- **The armed Saturday D12800 (lev 2560) is not re-timed in the smoke.** Week 2's workstation rehearsal measured it at
+  16 h 17 min. Started at Saturday 10:30 CT, it should finish around 02:30 Sunday, before the 09:10 build. The laptop
+  checks it Saturday evening and early Sunday. If it is not done by 08:30, the 09:10 and T-70 unions pick the newest
+  2560/10240 supply that exists; with none, the union refuses and the T-70 build's own book stands (named).
 ## 2026-10-01 (10:02 CDT) — Production: the chalk-core sleeve is BUILT for Week 5 (nfl2 `production/week5-chalk-sleeve-20261001` @ `54e5852`, default off); the panel that decides it is designed and runs on the next host
 
 **Built (lab, from the Week-4 live centre `54dd512`; nothing in Week 4 changes):**
