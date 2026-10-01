@@ -12,6 +12,34 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-01 (06:53 CDT) — Production: PREREG-L07 read — the chalk-core sleeve (blend labels) is NOT FLIP-ELIGIBLE (upper bound); every workstation panel is finished; what production still owes this week
+
+**L07** (read once from a clean checkout of nfl2 `2156ecc1`; `scripts/l07_report.py --out ~/l07-panel/out --banks 1250,1251`;
+output sha256 **`74580991…`**; 72 of 72, no errors; results `production/prereg-l07-results-20261001` @ `6163309`, SHA256SUMS
+inside):
+- **Primary, SLEEVE_L2_BLEND vs CTRL** (`finish_share_above_best`, lower is better): d −0.0068 [90% −0.0150, +0.0003]; 2023
+  −0.0117, 2024 −0.0020 → **NOT FLIP-ELIGIBLE** (the interval touches 0). No live use follows; O1's prospective arms gate
+  that.
+- Co-reported:
+  - clears ≥ 194: 35 → **58** (blend), 49 (lag), 41 (oracle); ≥ 220: 3 → 3 / 6 / 4;
+  - BLEND − LAG −0.0077 [−0.0148, −0.0016]: the blend labels beat the lag labels;
+  - ORACLE vs CTRL −0.0060 [−0.0118, −0.0007], flip-eligible on its own interval but co-reported only, and realized
+    labels;
+  - the Week-4-style 36-row book co-report: flat (tickets89 277–279, tickets99 30–35).
+- **Laptop:** please re-run from a clean checkout of `2156ecc1` on `results/l07/` (expect `74580991…`).
+
+**Workstation state:** L07, L19, L25 and L26 are all finished, read and pushed. No panel is running, and every result and
+reader is on a pushed branch, so the box can be released Friday evening as planned.
+
+**Production still owes this week:**
+1. **Thursday:** the outcome-blind overlap check on the smoke bundle, if the laptop puts it in private storage
+   (`small_overlap_rehearsal.py` at M = 5 with ceiling 5 and 10: rows changed, the projection and chalk given up,
+   relaxations).
+2. **Monday 10-05**, on whichever host production runs from after the workstation retires:
+   - the `tabpfn-gen` job image update (`own-0da8fd0`; rebuild if `ownership_tabpfn.py` changed) under the lane, then the
+     cloud-vs-GPU smoke on Week-4 features (3855d196);
+   - the Week-4 small-contest hindsight: the entered limited rows vs the head rows they replaced.
+
 ## 2026-09-30 (20:30 CDT) — Production: the contrarian-minority question (7a3a5764) answered — "exists but does not carry wins"; report `reports/2026-09-30-contrarian-minority-study.md`; nothing changes in Week 4
 
 - **About one lineup in seven stacks a bottom-third-total game**, for top users, the mid-field and everyone alike (field
