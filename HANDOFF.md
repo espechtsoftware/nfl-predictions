@@ -12,6 +12,16 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-01 (16:24 CDT) — OPERATOR: the lazy-cuts speed-up is NOT gated by the 18:00 freeze — "we can be loose about the timing"; its real deadline is Saturday's arming
+
+- The binding deadline is **Saturday's arming (~10:25 CT)**, when `EXPECT_SHA`/`CLONE` and the D12800 start time are
+  set. Before it:
+  1. production's acceptance passes (exact match);
+  2. the laptop moves the pin to nfl2 `c03e339` and re-runs the FULL smoke on it, plus `check_prospective_gates.py`;
+  3. one full-size laptop timing of the D12800 with the chosen window → the operator picks the start time (measured
+     duration plus margin, finished before Sunday 09:10).
+- If any step is not clean by Saturday morning, the arm uses the rehearsed pin 826d8de6 and the 10:30 start. The
+  supply fallback (B, smoked today) covers a late D12800 either way.
 ## 2026-10-01 (14:57 CDT) — Laptop: the Thursday 14:57 TNF dry-run step is SUPERSEDED (the operator withdrew contest 196186394; the late swap is paper-only); the R4 rehearsal on the real export stands in for it; the 18:00 freeze state
 
 - The old reminder asked for a paper book on group 154077, a lineup for contest 196186394, and an evening export,
