@@ -12,6 +12,14 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-01 (14:23 CDT) — Laptop: LineStar Week-4 check — still 60 players (≥ 100 needed); rechecks Friday 12:17 and Saturday 08:23
+
+- `linestar_ownership_capture.py --week 4` (scratch): "only 60 players carry a projected ownership (need >= 100):
+  LineStar has not filled 2026 W4 yet". Unchanged since 04:55 (Tuesday 41, Wednesday 41 → 60).
+- **With A (9fd08cb2), a still-unfilled LineStar on Sunday means the lag file at 0.10, not no term**, as the smoke
+  showed live.
+- The term's real-data rehearsal (TabPFN, then the blend) runs as soon as it fills. The operator is told on Friday if it
+  has not.
 ## 2026-10-01 (14:23 CDT) — Laptop: THE WEEK-4 SMOKE PASSES end to end on the armed form (frozen copy b4b217ff) — build, union, audit, cash shadow, publish, R4 swap and the refill of the real export; the 10-entry extension's conditions are met → `ENTER_SMALL_OVERLAP_MAX_ENTRIES=10` is the Week-4 default
 
 **T-70 build** (lev 0 / boom 4800, `UNION_SAT_DOSE=2560/10240,0/3200`, TabPFN predictor, sleeve cap 0.5): **exit 0 in 563 s**.
