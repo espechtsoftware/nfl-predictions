@@ -248,7 +248,7 @@ cp "$OUT/lever-audit-$RUN_TAG.json" "$K90_DIR/lever_audit.json" && touch "$K90_D
 # 2a. The T-70 UNION (operator 2026-09-28): with UNION_SATURDAY_RUN set, the Saturday paid pool's survivors join the T-70
 # pool and the book is re-selected with the same mean selector; the union run dir is verified and audited like any build
 # and becomes the run dir the chain emits and the watcher promotes (newest, same lev/boom as the T-70 run).
-if [[ -n "${UNION_SATURDAY_RUN:-}" && "$PAID_LEV/$PAID_BOOM" == "${UNION_SAT_DOSE:-2560/10240}" ]]; then
+if [[ -n "${UNION_SATURDAY_RUN:-}" && ",${UNION_SAT_DOSE:-2560/10240}," == *",$PAID_LEV/$PAID_BOOM,"* ]]; then   # any listed supply dose
   echo "this build ($PAID_LEV/$PAID_BOOM) IS the Saturday supply (UNION_SAT_DOSE): no union for it (sweep item 7)"
   UNION_SATURDAY_RUN=""
 fi

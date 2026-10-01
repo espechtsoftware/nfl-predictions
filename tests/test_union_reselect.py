@@ -267,3 +267,37 @@ def test_resolve_saturday_run_auto_returns_the_picked_dir_not_auto(tmp_path):
     assert ur.resolve_saturday_run(str(d), "2560/10240", tmp_path, t70, "t70", None, None) == d          # an explicit dir
     with pytest.raises(SystemExit, match="IS a 2560/10240 build"):
         ur.resolve_saturday_run("auto", "2560/10240", tmp_path, {**t70, "config": {"lev": 2560, "boom": 10240}}, "t70", None, None)
+
+
+def test_resolve_saturday_run_takes_the_first_listed_dose_with_a_run_else_the_next(tmp_path, capsys):
+    """Operator 2026-10-01 (cracks audit B): UNION_SAT_DOSE is an ordered list; a missing D12800 falls back to the D6400,
+    loudly; a T-70 run equal to ANY listed dose gets no union; no listed dose at all refuses with every reason."""
+    def mk(name, lev, boom):
+        d = tmp_path / name; d.mkdir()
+        (d / "receipt.json").write_text(json.dumps({"built_utc": "2026-10-03 16:00:00+00:00", "config": {"lev": lev, "boom": boom}}))
+        for b in ur.BANKS:
+            (d / b).write_bytes(b"x")
+        return d
+    d6400 = mk("20261003T160000Z-d6400", 1280, 5120)
+    t70 = {"built_utc": "2026-10-04 15:50:00+00:00", "config": {"lev": 0, "boom": 4800}}
+    got = ur.resolve_saturday_run("auto", "2560/10240,1280/5120", tmp_path, t70, "t70", None, None)
+    assert got == d6400 and "!!! SATURDAY SUPPLY FALLBACK: 2560/10240" in capsys.readouterr().out
+    d12800 = mk("20261003T170000Z-d12800", 2560, 10240)
+    assert ur.resolve_saturday_run("auto", "2560/10240,1280/5120", tmp_path, t70, "t70", None, None) == d12800
+    assert "FALLBACK" not in capsys.readouterr().out
+    with pytest.raises(SystemExit, match="IS a 1280/5120 build"):
+        ur.resolve_saturday_run("auto", "2560/10240,1280/5120", tmp_path, {**t70, "config": {"lev": 1280, "boom": 5120}}, "t70", None, None)
+    with pytest.raises(SystemExit, match="no Saturday supply for any listed dose"):
+        ur.resolve_saturday_run("auto", "640/2560,160/640", tmp_path, t70, "t70", None, None)
+
+
+def test_build_host_skips_the_union_for_any_listed_supply_dose():
+    host = (Path(__file__).resolve().parents[1] / "scripts" / "sunday_build_host.sh").read_text()
+    line = next(l for l in host.splitlines() if "IS the Saturday supply" in l or "any listed supply dose" in l)
+    import subprocess
+    for dose, expect in (("1280/5120", "skip"), ("2560/10240", "skip"), ("0/4800", "union")):
+        lev, boom = dose.split("/")
+        script = (f'UNION_SATURDAY_RUN=auto; UNION_SAT_DOSE=2560/10240,1280/5120; PAID_LEV={lev}; PAID_BOOM={boom}\n'
+                  'if [[ -n "${UNION_SATURDAY_RUN:-}" && ",${UNION_SAT_DOSE:-2560/10240}," == *",$PAID_LEV/$PAID_BOOM,"* ]]; then echo skip; else echo union; fi')
+        assert subprocess.run(["bash", "-c", script], capture_output=True, text=True).stdout.strip() == expect
+    assert '",${UNION_SAT_DOSE:-2560/10240}," == *",$PAID_LEV/$PAID_BOOM,"*' in host

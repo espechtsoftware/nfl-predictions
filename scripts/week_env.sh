@@ -139,7 +139,9 @@ week_env() {
   # The T-70 union (operator 2026-09-28: authorized; repairs the lev-0 supply regression). UNION_SATURDAY_RUN = a Saturday
   # run dir, or auto (the newest UNION_SAT_DOSE run in LIVE_DIR built before the T-70 run); empty = no union. UNION_PMO = N
   # plain-mean-optimizer rows solved on the T-70 frame into the same union (0 = none; set only if L13 supports R5).
-  export UNION_SATURDAY_RUN=${UNION_SATURDAY_RUN-} UNION_SAT_DOSE=${UNION_SAT_DOSE:-2560/10240} UNION_PMO=${UNION_PMO-0} UNION_PMO_CAP=${UNION_PMO_CAP:-0.5}
+  # UNION_SAT_DOSE is an ORDERED list (operator 2026-10-01, cracks audit B): the Saturday D12800 supply, else the Saturday
+  # D6400 (which must therefore run: SKIP_UNITS must not hold d6400sat). The union says so loudly when it falls back.
+  export UNION_SATURDAY_RUN=${UNION_SATURDAY_RUN-} UNION_SAT_DOSE=${UNION_SAT_DOSE:-2560/10240,1280/5120} UNION_PMO=${UNION_PMO-0} UNION_PMO_CAP=${UNION_PMO_CAP:-0.5}
   # The main-track book's form (operator 2026-09-28 14:05, L13 R5): pmo_x50 = K capped plain-mean-optimizer rows solved on
   # the build's frame (ENTERS Week 4); mean = the union pool's top-K by projected sum (the Monday paper arm). The sleeve is
   # the union's mean selection either way. Needs UNION_SATURDAY_RUN (the union step runs the main).

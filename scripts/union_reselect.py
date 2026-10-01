@@ -109,17 +109,30 @@ def pick_saturday_run(live_dir: Path, lev: int, boom: int, before: str, group: s
 
 def resolve_saturday_run(saturday_run: str, saturday_dose: str, live_dir: Path, t70_receipt: dict, t70_name: str,
                          group: str | None, after: str | None) -> Path:
-    """The Saturday supply's run dir. A T-70 run that IS a Saturday-dose build gets no union. 'auto' picks the newest
-    qualifying run (pick_saturday_run); anything else is the named dir. (Week-4 smoke 2026-10-01: an if/else mis-nesting
-    overwrote the auto-picked dir with Path('auto'), so every armed union failed with "auto: missing [...]".)"""
+    """The Saturday supply's run dir. saturday_dose is one dose or an ORDERED list ("2560/10240,1280/5120"; operator
+    2026-10-01, cracks audit B): 'auto' takes the newest qualifying run of the first dose, else of the next, and says so
+    loudly. A T-70 run that IS any listed Saturday dose gets no union. Anything but 'auto' is the named dir. (Week-4
+    smoke 2026-10-01: an if/else mis-nesting overwrote the auto-picked dir with Path('auto').)"""
+    doses = [d.strip() for d in str(saturday_dose).split(",") if d.strip()]
+    if not doses:
+        raise SystemExit("--saturday-dose is empty")
     c = t70_receipt.get("config", {})
-    if f"{c.get('lev')}/{c.get('boom')}" == saturday_dose:
-        raise SystemExit(f"the T-70 run {t70_name} IS a {saturday_dose} build (the Saturday supply itself); no union for it")
-    if saturday_run == "auto":
-        lev, boom = (int(x) for x in saturday_dose.split("/"))
-        return pick_saturday_run(live_dir, lev, boom, str(t70_receipt.get("built_utc", "")), group=group, after=after)
-    return Path(saturday_run)
-
+    if f"{c.get('lev')}/{c.get('boom')}" in doses:
+        raise SystemExit(f"the T-70 run {t70_name} IS a {c.get('lev')}/{c.get('boom')} build (a Saturday supply dose); no union for it")
+    if saturday_run != "auto":
+        return Path(saturday_run)
+    misses = []
+    for k, dose in enumerate(doses):
+        lev, boom = (int(x) for x in dose.split("/"))
+        try:
+            d = pick_saturday_run(live_dir, lev, boom, str(t70_receipt.get("built_utc", "")), group=group, after=after)
+        except SystemExit as exc:
+            misses.append(f"{dose}: {exc}")
+            continue
+        if k:
+            print(f"!!! SATURDAY SUPPLY FALLBACK: {'; '.join(misses)} -> using the {dose} supply {d.name}", flush=True)
+        return d
+    raise SystemExit("no Saturday supply for any listed dose: " + " | ".join(misses))
 
 def game_cap_ok(ids: list[str], game_of: dict[str, str], cap: int | None) -> bool:
     if cap is None:
@@ -352,7 +365,7 @@ def main_exposure_cap(share: float, k: int) -> int:
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--saturday-run", required=True, help="a run dir, or 'auto' (newest --saturday-dose run in --live-dir built before the T-70 run)")
-    ap.add_argument("--saturday-dose", default="2560/10240")
+    ap.add_argument("--saturday-dose", default="2560/10240", help="one dose or an ordered list, e.g. 2560/10240,1280/5120 (the first with a qualifying run is the supply)")
     ap.add_argument("--group", help="with --saturday-run auto: this week's draft group (a run dir for another group is never the supply)")
     ap.add_argument("--saturday-after", help="with --saturday-run auto: ISO UTC window start (a smoke or an old build built before it is never the supply)")
     ap.add_argument("--t70-run", type=Path, required=True)

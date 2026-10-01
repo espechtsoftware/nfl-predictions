@@ -350,9 +350,12 @@ Operator steps are marked **(operator, laptop)**. Everything else is the agent's
    measured boom):
    ```
    GROUP=154078 EXPECT_SHA=826d8de6129eaeefe2235467212cc4cfccb57deb CLONE=$HOME/projects/.nfl2-worktrees/week4-live-center \
-   D3200_LEV=0 D3200_BOOM=4800 D800_LEV=0 D800_BOOM=4800 SKIP_UNITS="d6400sat d6400" \
+   D3200_LEV=0 D3200_BOOM=4800 D800_LEV=0 D800_BOOM=4800 SKIP_UNITS="d6400" \
    T70_MIN_PROJ_CT=10:30 T70_PROJECT=1 UNION_SATURDAY_RUN=auto UNION_PMO=0 scripts/arm_week_timers.sh 4 --run
    ```
+   **Saturday supply fallback (operator 10-01, cracks audit B):** `SKIP_UNITS="d6400"` (no longer `d6400sat`), so the
+   Saturday 10:35 D6400 also builds; `UNION_SAT_DOSE` defaults to `2560/10240,1280/5120`, so a D12800 that is not finished
+   when a Sunday union runs falls back to the D6400, with a `!!! SATURDAY SUPPLY FALLBACK` line.
    **Additions (operator 09-29/09-30):** `UNION_MAIN_OWN_TILT=0.20 UNION_MAIN_OWN_PREDICTOR=tabpfn` (the ownership term
    with the TabPFN predictor on the laptop GPU, armed unconditionally by the operator 09-30 08:0x; the preflight refuses
    without a passing lag file, the lags file, the L23 rows file and a CUDA device; any Sunday failure falls back LOUDLY
