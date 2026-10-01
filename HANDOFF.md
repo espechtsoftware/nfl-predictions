@@ -12,6 +12,26 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-01 (14:57 CDT) — Laptop: the Thursday 14:57 TNF dry-run step is SUPERSEDED (the operator withdrew contest 196186394; the late swap is paper-only); the R4 rehearsal on the real export stands in for it; the 18:00 freeze state
+
+- The old reminder asked for a paper book on group 154077, a lineup for contest 196186394, and an evening export,
+  late-swap and refill test. The contest was withdrawn on 09-30 (the FINAL plan), and the live late swap is paper-only
+  (operator 09-30), so **nothing is sent to the operator and no Thursday export exists.**
+- The path that test protected (the post-lock edit upload with a real DK file) was rehearsed today on the Week-4 bundle
+  and a copy of the FINAL Rev1 export (fe19cfda). The planned "second pass on fresher projections" adds nothing: that
+  rehearsal ran on today's 09:51 projections.
+- **Week-4 configuration at the 18:00 freeze** (week_env defaults plus the arm line in the take-over doc):
+  - PMO_X50 main (K 105, cap 52, DST 26);
+  - the ownership term 0.20, TabPFN → blend → lag at 0.10 → none, all loud;
+  - the 2,378 supersats on the main book;
+  - `UNION_SLEEVE_CAP=0.5`;
+  - `ENTER_SMALL_MAX_SHARED=5` with ceiling 10;
+  - `UNION_SAT_DOSE=2560/10240,1280/5120` (arm `SKIP_UNITS="d6400"`);
+  - the late swap paper-only; the cash shadow on.
+- **Open after the freeze (not configuration):**
+  - the lazy-cuts acceptance (production, tonight); on a pass, the Friday re-smoke on the new pin plus
+    `check_prospective_gates.py`, then the operator picks the D12800 start time;
+  - the LineStar fill (Fri 12:17 / Sat 08:23).
 ## 2026-10-01 (14:23 CDT) — Laptop: LineStar Week-4 check — still 60 players (≥ 100 needed); rechecks Friday 12:17 and Saturday 08:23
 
 - `linestar_ownership_capture.py --week 4` (scratch): "only 60 players carry a projected ownership (need >= 100):
