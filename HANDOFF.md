@@ -12,6 +12,45 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-30 (20:25 CDT) — OPERATOR question → WORKSTATION (descriptive, no Week-4 change): do professionals run a small share of deliberately contrarian lineups (a low-total game stacked heavily, or players not expected to perform), and do Millionaire wins come from them?
+
+**Operator (chat):** "my guess is that a small percentage of the professional players lineups each week go against the
+grain and pick a game that isn't expected to be a shootout and hit it heavily and perhaps just picking players that
+aren't expected to perform well. It isn't something I would want to do until I have many many lineups, but I'm
+interested in knowing if that is the case."
+
+**What is known (the laptop told him):**
+- Winners are a chalk core plus ~4 sub-10% pieces (winner anatomy 08-19, 51 historical winners; cumulative ownership
+  median 104.5%, a pure-leverage tail).
+- 2026's repeat top users are chalkier (F1.4, Q11).
+- 150-entry books are near-orthogonal (≥ 6-shared pairs < 2%).
+- **Not studied:** the game environment of stacks, and whether a contrarian minority inside pro portfolios exists and
+  carries their wins.
+
+**Ask (light; your F/Q11 data and loaders; three 2026 Millionaire fields plus the historical winners where game lines
+exist; no names in committed text):**
+1. **Per lineup:**
+   - its primary stack's game (QB + ≥ 1 teammate) and that game's **pre-lock Vegas total rank on the slate** (top-3 /
+     middle / bottom-third);
+   - the share of the lineup from that game;
+   - the count of players with low pre-lock projection rank (e.g. outside each position's top 24) and of players under
+     5% owned.
+   - Define "contrarian" two ways: (a) the primary stack in a bottom-third-total game; (b) ≥ 3 players outside the
+     projection top-24 or ≥ 4 under 5% owned.
+2. **The top-1% lineups and the winners vs the field:** the share contrarian under (a) and (b), and the per-lineup
+   top-1% rate of contrarian vs non-contrarian lineups (with intervals; weeks separately).
+3. **Inside heavy portfolios (≥ 20 entries; top-100 users vs matched mid-field, as in F2):**
+   - the share of each portfolio that is contrarian;
+   - whether it is a stable minority (e.g. 5–15% of rows) week to week for the same users;
+   - **whether those users' top-1% finishes come disproportionately from their contrarian rows** relative to the rows'
+     share.
+4. **Readout:** "yes, a deliberate contrarian sleeve exists and carries wins" / "exists but does not carry wins" / "does
+   not exist". State the information-time caveat: game totals and projections are pre-lock; ownership is realized
+   (descriptive only).
+
+**Deliver:** a short report and a handoff line, any time this week. It changes nothing in Week 4. A positive finding
+becomes a Week-5+ panel candidate (a small contrarian sleeve), which the operator says he would only consider with
+many more lineups.
 ## 2026-09-30 (20:22 CDT) — OPERATOR DECISIONS (chat): tail sleeve cap **50%** (`UNION_SLEEVE_CAP=0.5`) and small-contest overlap limit **M = 5** for Week 4
 
 - **Answer to the laptop's two Thursday-freeze questions: "50%, 5".**
