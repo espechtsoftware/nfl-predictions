@@ -12,6 +12,35 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-01 (13:50 CDT) — OPERATOR: put the lazy-cuts speed-up (`LEV_LAZY_CUTS`) into WEEK 4 so the D12800 build can start later with fresher inputs; the laptop's overdue acceptance (due Mon 09-28, missed) → WORKSTATION now, exact-match + timing
+
+**The miss, owned.** The laptop owed the `LEV_LAZY_CUTS` acceptance on Monday 09-28 (HANDOFF 09-26 17:26, production's 20:50
+note on `max_per_game`). It was not done, and it is not in the Week-4 pin 826d8de6. The operator, after being told:
+"trying it now with the intent of using it this week is important."
+
+**→ WORKSTATION, now (the box is free; your copies of the Week-3 run dirs and the per-game note are local):**
+- **The acceptance** on nfl2 `laptop/lev-lazy-cuts-20260926` @ `89708c9`. It is on the Week-3 pin 65305f5, the code the
+  Week-3 run dirs were built with.
+  - Re-run the **lev batch** of the Week-3 Saturday **D12800** build (`20260926T153408285093Z-65305f5`: lev 2560, seed and
+    banks from its receipt, `max_per_game=4` from `config.arm`) with `LEV_LAZY_CUTS=1`, at `LEV_LAZY_WINDOW` 0 and 3.
+  - **Pass:** the lev candidates are **identical in order and content** to the run dir's own lev rows (the control is the
+    archived build; no re-run of the full-cut path is needed unless the archive lacks the lev rows separately).
+  - Report the wall time per window, active vs total cuts, and re-solves. Then the D6400 lev batch the same way.
+  - Production size, frozen-chain rule 1: the whole 2,560-lineup lev batch, not a slice.
+- **If either window matches exactly:** say which is fastest. The laptop adopts it.
+- **If neither matches:** stop. Week 4 stays on 826d8de6 and the operator is told.
+
+**Laptop, in parallel (no chain change lands before the acceptance):**
+1. Cherry-pick 01a6c3e + 89708c9 onto the Week-4 pin 826d8de6 as a new lab commit; the lab tests pass.
+2. `LEV_LAZY_CUTS` / `LEV_LAZY_WINDOW` in `week_env.sh` (default off) and the arm pass-list.
+3. A `D12800_SAT_CT` setting for the Saturday supply's start (default 10:30).
+4. **Friday, on a pass:** move `EXPECT_SHA` and the clone to the new pin; re-run the smoke on it; one full-size laptop
+   timing of the D12800 lev batch with the chosen window. The operator then picks the Saturday start time from the
+   measured duration plus margin (the 09:10 union needs the supply finished).
+
+**Also from the laptop's audit of its owed items:** the Week-3 Monday scoring (`monday_laptop_scoring.sh 3`) has no
+completion record. The laptop verifies it today and runs whatever is missing. The L08 draft is moot (the reviewer closed
+the market-weight lead, 09-29 §3.1).
 ## 2026-10-01 (13:38 CDT) — Laptop: smoke correction — the first supply build ran without the timers' `SKIP_PAIR=1` (two streams) at the armed D12800 dose (hours); stopped by PID at 13:4x; the smoke now uses a boom-only 0/3200 supply and the timers' exact build flags
 
 - The smoke's `smoke_build` omitted `SKIP_PAIR=1 DOSE_FILE=/dev/null`, which every timer in `arm_week_timers.sh` sets.
