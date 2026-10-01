@@ -12,6 +12,39 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-09-30 (19:42 CDT) — Production: PREREG-L19 read — the tail sleeve's per-player cap S50 is SUPPORTED (tickets99 79 vs 74, +6.8%; 2023 36/34, 2024 43/40; paired 7–2); co-report S33 +24%; for the operator's Thursday freeze (`UNION_SLEEVE_CAP`)
+
+**Read once** from a clean checkout of nfl2 `9d14c2c9` (`scripts/l19_report.py ~/l19-panel/out`). Output sha256
+**`e734479b…`**. 72 of 72 slate-banks, no errors, vendored `union_reselect` `60f52d38…`, one code identity.
+
+| Arm (85-row sleeve) | tickets99 | 2023 / 2024 | Paired vs S_NONE | tickets98 | tickets99.8 | Mean | Max rows per player | Verdict |
+|---|---:|---|---:|---:|---:|---:|---:|---|
+| S_NONE (as entered) | 74 | 34 / 40 | — | 152 | 16 | 126.02 | 49.1 | — |
+| **S50 (challenger)** | **79 (+6.8%)** | 36 / 43 | **7–2** | 156 | 16 | 126.31 | 41.5 | **SUPPORTED** |
+| S33 (co-report) | 92 (+24.3%) | 36 / 56 | 17–7 | 166 | 18 | 125.47 | 28.0 | SUPPORTED (never decisive) |
+| S67 (co-report) | 73 (−1.4%) | 34 / 39 | 0–1 | 150 | 15 | 126.08 | 47.6 | NEUTRAL |
+
+- **Lever check:** S50 shares 77.1 of 85 rows with S_NONE. It moves about 8 rows per slate-bank, so the counts are small,
+  as the prereg warned. **S33 is stronger** (92 vs 74, 17–7), but it was co-reported, so choosing it after the read
+  is a choice made with the numbers in view.
+- **Transfer to Week 4, honestly:** the panel's sleeve is 85 rows. **Week 4's Rev1 sleeve is 5 rows** (the Millionaire
+  plus the $555 sat ×2 and the FFWC qualifier sat ×2). There, `UNION_SLEEVE_CAP=0.5` means no player in more than 2 of
+  the 5 rows (`int(0.5 × 5)`), and 0.33 means at most 1, which is a much tighter limit than anything L19 measured. The
+  direction (spread the sleeve's exposure) is supported; **the size at T = 5 is not measured**.
+- Results: nfl2 `production/prereg-l19-results-20260930` @ `4eeabb9`, `results/l19/` (SHA256SUMS).
+- **The live lever already exists:** `UNION_SLEEVE_CAP` in `union_reselect.py` (b0df56c1), passed by `week_env.sh`
+  (default unset = off). The decision is the operator's at the Thursday freeze (with the reviewer):
+  - **off**, as entered;
+  - **0.5** (the frozen challenger; at T = 5 at most 2 rows per player);
+  - **0.33** (the stronger co-report; at T = 5 at most 1 row per player, so the sleeve's five rows hold five different
+    sets of players).
+
+**Laptop:** please re-run the frozen reader from a clean checkout of `9d14c2c9` on `results/l19/` (expect `e734479b…`).
+
+**Still owed from production (earlier commitment):** the supersats' re-pricing under both routings. **Superseded:** the
+operator held the 2,378-entry supersats on the main book (Rev1: `track_override mean`), so the sleeve cap does not touch
+them. This week's sleeve is the 5 tail rows above.
+
 ## 2026-09-30 (18:33 CDT) — Laptop: L26 reader re-run BYTE-IDENTICAL (output 5ee49be2; SUPPORTED 1.23×); ledger row c937495; `ENTER_SMALL_OVERLAP_MAX_ENTRIES` wired (unset until the smoke); Sunday-path suite on the merged tip 339 passed
 
 - **L26:** clean detached checkout of `production/prereg-l26-results-20260930` @ a666064. PREREG and reader equal
