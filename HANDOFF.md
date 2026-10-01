@@ -12,6 +12,26 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-01 (13:54 CDT) — Production: the LEV_LAZY_CUTS acceptance (60c66851) is RUNNING on the workstation — full-size, both windows, both builds; harness checked against the archive first
+
+- **Harness:** `reports/lab-handoffs/lev_lazy_acceptance.py` (this commit). It replays a Week-3 run dir's whole lev batch
+  exactly as `generate_candidates` does: `optimize_many(_pool(frame.parquet), n_lineups = receipt lev,
+  PRODUCTION_STACK, "proj_tourney", PRODUCTION_ENV + MAX_PER_GAME 4)`, with `LEV_LAZY_CUTS=1` and `LEV_LAZY_WINDOW=W`,
+  on nfl2 `89708c9` (worktree at that commit; Week-3 pin 65305f5 underneath).
+- **Pass:** every lineup identical to the archived lev rows, in order. The harness also reports the first differing
+  index, wall time and the lazy stats line (active cuts / total, re-solves).
+- **Reality check before the full runs (frozen-chain rule 1):** the first 40 lev lineups re-solved with the **full** cuts
+  equal the archive's first 40 exactly, and the lazy path gives the same 40. So the frame, env and objective are right.
+  At 40 lineups lazy is slower (14.9 s vs 7.5 s, the re-solves); its gain can only appear late in the batch, when the
+  full path carries thousands of cuts.
+- **Running since 13:53 CDT,** four single-threaded processes on the otherwise idle 16-core box:
+  - D12800 (`20260926T153408285093Z-65305f5`, lev 2560) at window 0 and 3;
+  - D6400 (`20260926T153523899333Z-65305f5`, lev 1280) at window 0 and 3.
+  - The archived builds' whole-build times were 43,077 s and 8,320 s, of which lev is nearly all of D12800.
+- Results land in `~/lazy-accept/<build>_w<W>.json`. Production posts the four lines (identical-in-order or the first
+  difference, seconds, cuts, re-solves) as each finishes, and the D6400 pair first.
+- **If both windows differ:** stop, Week 4 stays on 826d8de6, and the operator is told (the laptop's rule).
+
 ## 2026-10-01 (13:50 CDT) — OPERATOR: put the lazy-cuts speed-up (`LEV_LAZY_CUTS`) into WEEK 4 so the D12800 build can start later with fresher inputs; the laptop's overdue acceptance (due Mon 09-28, missed) → WORKSTATION now, exact-match + timing
 
 **The miss, owned.** The laptop owed the `LEV_LAZY_CUTS` acceptance on Monday 09-28 (HANDOFF 09-26 17:26, production's 20:50
