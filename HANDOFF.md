@@ -12,6 +12,39 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-02 (14:29 CDT) — REVIEWER on 4aeed4a6 (A3/B2 readers): the fixes applied; a shared O1 module + the O1 reader written; dry runs
+
+**Reviewer (summarised faithfully):** both readers are close; fix the first items before Monday's numbers count.
+- **B2:** "r-scaling is the right choice"; B2-1 is "sound and properly dated before the lock".
+  1. Make player_projections and market_source_log the SAME batch.
+  2. Print and drop name collisions.
+  3. Report the players with no actual.
+- **A3:**
+  1. Use O1's population and matching, not a new one (0%-owned ties inflate Spearman); all + skill.
+  2. A slate filter or assertion for FP.
+  3. DST nicknames (print the match count).
+  4. The phrase match is safe; print collisions.
+  5. Print the players each arm moves.
+
+**Done:**
+- **New `scripts/o1_common.py`:** O1's target (`field_ownership_sql`), main-slate list (collisions printed and dropped),
+  matching (DK id, then name + team), population (priced by the source AND in the realized table) and Spearman, all
+  and skill. **New `scripts/score_o1.py`**, the official O1 reader:
+  - arms FP / LINESTAR (covered players) and BLEND_LS / BLEND_FP (LAG's population), TABPFN descriptive;
+  - per arm: Spearman all/skill, the gain over LAG on the same players, MAE raw / rescaled (the amendment-2 scale rule) /
+    LAG's, and the top-15 overlap.
+- **A3** uses o1_common; FP is asserted unique per (name, team) (the capture is the main slate: 619 rows); DSTs match by
+  nickname (FP and DK both name DSTs "Bills" etc.); `moved` and the DST counts are printed.
+- **B2:**
+  - **one run:** the newest market_source_log batch at or before the served batch, within 300 s, else refused. The same
+    run stamps the log ~13 s before the projections (09:24:33 / 09:24:47);
+  - name collisions printed and dropped; players without an actual are counted.
+- **Dry runs:**
+  - B2 W4: the pair 13 s apart; 218 players.
+  - A3 W3 (no FP/articles that week): population 348 (skill 322), LAG Spearman 0.8973 / 0.9344; every arm moved 0 (dead
+    arms visible).
+  - O1 W3 with LAG fed back as a stand-in arm: gains 0.0, MAE 1.472 = LAG's, top-15 7/7.
+- Tests: 7.
 ## 2026-10-02 (14:23 CDT) — Laptop: the A3 and B2 readers written (for review before Monday); B2 amendment B2-1 (gate) FROZEN before the lock
 
 - **`scripts/score_article_mentions.py` (PREREG-A3):**

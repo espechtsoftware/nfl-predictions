@@ -37,9 +37,14 @@ def test_arms_are_the_frozen_forms_and_lift_a_near_zero_player_only_additively()
     assert out["LAG_mult_M"]["b"] == 0.0 and out["LAG_add_M"]["b"] == 6.0 and out["LAG_mult_M"]["a"] == 20.0
 
 
-def test_spearman_counts_a_player_absent_from_the_field_as_zero():
-    pred = pd.Series({"a": 3.0, "b": 2.0, "c": 1.0}); real = pd.Series({"a": 30.0, "b": 10.0})
-    assert a3.spearman(pred, real) == pytest.approx(1.0)
+def test_o1_population_is_priced_by_the_source_and_in_the_realized_table():
+    import o1_common as O
+    src = pd.DataFrame({"key": ["a", "b", "c", "d"], "pos": ["WR", "RB", "QB", "DST"], "v": [3.0, 2.0, 1.0, 5.0]})
+    real = pd.Series({"a": 30.0, "b": 10.0, "d": 1.0, "z": 50.0})          # c undrafted; z not priced by the source
+    pop = O.population(src, real)
+    assert list(pop.key) == ["a", "b", "d"]
+    sc = O.score_both(pop, "v", real)
+    assert sc["n"] == 3 and sc["n_skill"] == 2 and sc["spearman_skill"] == pytest.approx(1.0)
 
 
 def test_blend_renormalises_over_the_sources_present():

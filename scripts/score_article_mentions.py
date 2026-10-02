@@ -8,12 +8,13 @@ Per week, from captures made BEFORE the lock only:
   C(player) = the number of distinct counted articles whose normalised text names the player (ownership_blend.norm, full
             name; a DST by nickname followed by D/ST, DST or defense)
 Arms per base (LAG, FP): base x (1 + 0.25 C) and base + 2.0 C points, for C in (M, M_DFS): 8 arms; constants FIXED.
-Target: PREREG-O1's (realized Millionaire ownership counted from contest_entries, book_vs_field_scoreboard's
-field_ownership_sql); a base player absent from the field counts 0%. Metric: Spearman of each arm against the target,
+Target, population and matching: PREREG-O1's, from o1_common (reviewer 10-02): players priced by the base AND in the
+realized table, matched to the slate by DK id then name + team; reported for all and skill-only. Each arm prints how
+many players its count moved (C >= 1 within the population), so a dead arm is visible. Metric: Spearman of each arm against the target,
 and its gain over its base. Prints per-arm gains and the coverage/match rates; decides nothing (the rule is applied
 after Week 7, with the one interim after Week 5).
 
-Usage: score_article_mentions.py --season 2026 --week 4 --contest <Millionaire id> --lock-utc 2026-10-04T17:00:00Z --lag f.csv
+Usage: score_article_mentions.py --season 2026 --week 4 --group 154078 --contest <Millionaire id> --lock-utc 2026-10-04T17:00:00Z --lag f.csv
 """
 from __future__ import annotations
 
@@ -66,48 +67,47 @@ def arms(base: pd.Series, counts: dict[str, pd.Series], label: str) -> dict[str,
     return out
 
 
-def spearman(pred: pd.Series, real: pd.Series) -> float:
-    r = real.reindex(pred.index).fillna(0.0)          # absent from the field = 0% owned (O1's population rule)
-    return float(pred.rank().corr(r.rank()))
-
-
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--season", type=int, required=True); ap.add_argument("--week", type=int, required=True)
     ap.add_argument("--contest", required=True); ap.add_argument("--lock-utc", required=True); ap.add_argument("--lag", required=True)
+    ap.add_argument("--group", type=int, required=True)
     a = ap.parse_args(argv)
     from google.cloud import bigquery
-
-    from book_vs_field_scoreboard import field_ownership_sql
+    import o1_common as O                       # O1's target, population and matching (reviewer 10-02)
     c = bigquery.Client(project=PROJECT); raw = f"{PROJECT}.nfl_raw"
-    real = c.query(field_ownership_sql(raw, a.season, a.week, a.contest)).to_dataframe()
-    real = pd.Series(real.own.to_numpy(float), index=real.display_name.map(norm)).groupby(level=0).max()
+    real = O.realized(c, a.season, a.week, a.contest)
+    sl = O.slate(c, a.group, a.lock_utc)
     arts = c.query(f"""SELECT title, slug, text FROM `{raw}.fantasy_points_articles`
         WHERE season={a.season} AND week={a.week} AND retrieved_at < TIMESTAMP('{a.lock_utc}')
         QUALIFY ROW_NUMBER() OVER (PARTITION BY slug ORDER BY retrieved_at DESC) = 1""").to_dataframe()
-    fp = c.query(f"""SELECT name, position, team, projected_ownership_pct FROM `{raw}.fantasy_points_projected_ownership`
+    fp = c.query(f"""SELECT name, team, projected_ownership_pct FROM `{raw}.fantasy_points_projected_ownership`
         WHERE season={a.season} AND week={a.week} AND operator='DraftKings' AND retrieved_at < TIMESTAMP('{a.lock_utc}')
         QUALIFY retrieved_at = MAX(retrieved_at) OVER ()""").to_dataframe()
-    lag = pd.read_csv(a.lag)
-    lag["key"] = lag.display_name.map(norm); fp["key"] = fp.name.map(norm)
-    players = pd.concat([lag[["key", "pos"]].assign(nickname=lag.display_name.where(lag.pos == "DST")),
-                         fp[["key", "position"]].rename(columns={"position": "pos"}).assign(nickname=fp.name.where(fp.position == "DST"))]
-                        ).drop_duplicates("key")
+    if len(fp):
+        assert not fp.duplicated(["name", "team"]).any(), "FP capture holds duplicate (name, team): more than one slate?"
+    bases = {"LAG": O.attach(pd.read_csv(a.lag), sl, "pred_own").rename(columns={"pred_own": "v"})}
+    if len(fp):
+        bases["FP"] = O.attach(fp, sl, "projected_ownership_pct").rename(columns={"projected_ownership_pct": "v"})
+    players = sl[["key", "pos"]].assign(nickname=sl.display_name.where(sl.pos == "DST"))
     C = {"M": mention_counts(arts, players, M_TITLES), "M_DFS": mention_counts(arts, players, M_DFS_TITLES)}
     print(f"articles before lock: {len(arts)}; counted M {sum(counted(t, M_TITLES) for t in arts.title)}, "
           f"M_DFS {sum(counted(t, M_DFS_TITLES) for t in arts.title)}")
-    top20 = set(real.sort_values(ascending=False).index[:20])
-    for k, s in C.items():
-        print(f"  {k}: players with C>=1 {int((s >= 1).sum())}; realized top-20 covered {sum(1 for p in top20 if s.get(p, 0) >= 1)}/20")
+    dst = set(sl.key[sl.pos == "DST"]); top20 = set(real.sort_values(ascending=False).index[:20])
+    for k, cs in C.items():
+        print(f"  {k}: players with C>=1 {int((cs >= 1).sum())} (DSTs {int((cs[cs.index.isin(dst)] >= 1).sum())}); "
+              f"realized top-20 covered {sum(1 for p in top20 if cs.get(p, 0) >= 1)}/20")
     rows = []
-    for label, base in (("LAG", pd.Series(lag.pred_own.to_numpy(float), index=lag.key).groupby(level=0).max()),
-                        ("FP", pd.Series(fp.projected_ownership_pct.to_numpy(float), index=fp.key).groupby(level=0).max())):
-        if base.empty:
-            print(f"{label}: no pre-lock data"); continue
-        b = spearman(base, real)
-        print(f"{label}: {len(base)} players, matched to the field {len(set(base.index) & set(real.index))}; Spearman {b:.4f}")
-        for name, arm in arms(base, C, label).items():
-            s = spearman(arm, real); rows.append({"arm": name, "spearman": round(s, 4), "gain_vs_base": round(s - b, 4)})
+    for label, base in bases.items():
+        pop = O.population(base, real)
+        b_all = O.score_both(pop, "v", real)
+        print(f"{label}: matched {len(base)}, population {b_all['n']} (skill {b_all['n_skill']}); Spearman all {b_all['spearman']}, skill {b_all['spearman_skill']}")
+        for name, arm in arms(pop.set_index("key")["v"].astype(float), C, label).items():
+            df = pop.assign(v=arm.reindex(pop.key).to_numpy())
+            sc = O.score_both(df, "v", real); cname = name.split("_", 2)[2]
+            moved = int((C[cname].reindex(pop.key).fillna(0) >= 1).sum())
+            rows.append({"arm": name, "moved": moved, "sp_all": sc["spearman"], "gain_all": round(sc["spearman"] - b_all["spearman"], 4),
+                         "sp_skill": sc["spearman_skill"], "gain_skill": round(sc["spearman_skill"] - b_all["spearman_skill"], 4)})
     print(pd.DataFrame(rows).to_string(index=False))
     return 0
 

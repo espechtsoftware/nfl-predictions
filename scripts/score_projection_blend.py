@@ -31,6 +31,7 @@ from ownership_blend import norm  # noqa: E402
 PROJECT = "nfl-predictions-503414"
 WEIGHTS = {"B2_EQ": (1 / 3, 1 / 3, 1 / 3), "B2_45": (0.45, 0.275, 0.275)}
 MIN_PROJ = 3.0
+SAME_RUN_SECONDS = 300          # the log and the projections of one project-slate run, stamped separately
 
 
 def blend(model: pd.Series, market: pd.Series, fp: pd.Series, w: tuple[float, float, float]) -> pd.Series:
@@ -70,9 +71,22 @@ def main(argv: list[str] | None = None) -> int:
     a = ap.parse_args(argv)
     from google.cloud import bigquery
     c = bigquery.Client(project=PROJECT); P = PROJECT
+    # ONE batch (reviewer 10-02): the served batch's generated_at, and market_source_log AT that generated_at -- otherwise
+    # r would carry projection UPDATES between two runs, not our gates
+    g = c.query(f"""SELECT MAX(generated_at) g FROM `{P}.nfl_predictions.player_projections`
+        WHERE season={a.season} AND week={a.week} AND generated_at < TIMESTAMP('{a.lock_utc}')""").to_dataframe().g.iloc[0]
+    if pd.isna(g):
+        raise SystemExit("no pre-lock projection batch")
+    # the same run stamps market_source_log a few seconds BEFORE player_projections (10-02: 09:24:33 vs 09:24:47), so the
+    # pair is the newest log batch at or before g and within SAME_RUN_SECONDS of it; anything else is refused
+    gl = c.query(f"""SELECT MAX(generated_at) g FROM `{P}.nfl_predictions.market_source_log`
+        WHERE season={a.season} AND week={a.week} AND generated_at <= TIMESTAMP('{g}')""").to_dataframe().g.iloc[0]
+    if pd.isna(gl) or (pd.Timestamp(g) - pd.Timestamp(gl)).total_seconds() > SAME_RUN_SECONDS:
+        raise SystemExit(f"no market_source_log batch within {SAME_RUN_SECONDS}s before the served batch {g} (newest {gl}): "
+                         "not one run; refused")
     ours = c.query(f"""SELECT display_name, position, proj_points, model_points_pre, market_points FROM `{P}.nfl_predictions.market_source_log`
-        WHERE season={a.season} AND week={a.week} AND generated_at < TIMESTAMP('{a.lock_utc}')
-        QUALIFY generated_at = MAX(generated_at) OVER ()""").to_dataframe()
+        WHERE season={a.season} AND week={a.week} AND generated_at = TIMESTAMP('{gl}')""").to_dataframe()
+    print(f"batch: player_projections {g} / market_source_log {gl} ({(pd.Timestamp(g) - pd.Timestamp(gl)).total_seconds():.0f}s apart: one run)")
     fp = c.query(f"""SELECT name, fantasy_points FROM `{P}.nfl_raw.fantasy_points_dfs_projections`
         WHERE season={a.season} AND week={a.week} AND slate_id='{a.slate}' AND operator='DraftKings'
           AND retrieved_at < TIMESTAMP('{a.lock_utc}')
@@ -84,14 +98,17 @@ def main(argv: list[str] | None = None) -> int:
     # DSTs are not in market_source_log: OURS from the projection batch, model = OURS, no market (renormalised)
     dst = c.query(f"""SELECT display_name, 'DST' AS position, proj_points, proj_points AS model_points_pre, CAST(NULL AS FLOAT64) market_points
         FROM `{P}.nfl_predictions.player_projections` WHERE season={a.season} AND week={a.week} AND position='DST'
-          AND generated_at < TIMESTAMP('{a.lock_utc}') QUALIFY generated_at = MAX(generated_at) OVER ()""").to_dataframe()
+          AND generated_at = TIMESTAMP('{g}')""").to_dataframe()
     act = c.query(f"""SELECT display_name, MAX(fpts) fpts FROM `{P}.nfl_raw.contest_ownership`
         WHERE season={a.season} AND week={a.week} AND contest_id='{a.contest}' GROUP BY 1""").to_dataframe()
     served = c.query(f"""SELECT display_name, proj_points AS served FROM `{P}.nfl_predictions.player_projections`
-        WHERE season={a.season} AND week={a.week} AND generated_at < TIMESTAMP('{a.lock_utc}')
-        QUALIFY generated_at = MAX(generated_at) OVER ()""").to_dataframe()
+        WHERE season={a.season} AND week={a.week} AND generated_at = TIMESTAMP('{g}')""").to_dataframe()
     ours = pd.concat([ours, dst], ignore_index=True)
-    ours["key"] = ours.display_name.map(norm); ours = ours.drop_duplicates("key").set_index("key")
+    ours["key"] = ours.display_name.map(norm)
+    coll = ours[ours.duplicated("key", keep=False) & ~ours.duplicated(["key", "display_name"], keep=False)]
+    if len(coll):
+        print(f"name collisions (dropped from the population): {sorted(set(coll.display_name))}")
+    ours = ours[~ours.key.isin(set(coll.key))].drop_duplicates("key").set_index("key")
     sv = pd.Series(served.served.to_numpy(float), index=served.display_name.map(norm)).groupby(level=0).max()
     ours = gate(ours, sv)
     on_slate = set(slate.display_name.map(norm))
@@ -102,7 +119,8 @@ def main(argv: list[str] | None = None) -> int:
     pop = ours[ours.proj_points >= MIN_PROJ]
     pos = pop.position.astype(str); actual = actual.reindex(pop.index)
     model, market, fpp = pop.model_points_pre.astype(float), pop.market_points.astype(float), fps.reindex(pop.index)
-    print(f"population: {len(pop)} projected >= {MIN_PROJ}; with an actual DK score {int(actual.notna().sum())}")
+    print(f"population: {len(pop)} projected >= {MIN_PROJ}; with an actual DK score {int(actual.notna().sum())}; "
+          f"without one (nobody drafted them) {int(actual.isna().sum())}")
     print("coverage by position (market / FP):",
           {p: (round(float(market[pos == p].notna().mean()), 2), round(float(fpp[pos == p].notna().mean()), 2)) for p in sorted(set(pos))})
     rows = [{"arm": "OURS", **score(pop.proj_points.astype(float), actual, pos)}]
