@@ -12,6 +12,18 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-02 (14:34 CDT) — REVIEWER: 5ba2bb28 CLEARED; the Monday readers are done
+
+**Reviewer:** "The sha256 check refuses before anything is read from the file, and B2's slate query takes a single
+pull, so a slate name that appears twice is a real collision. The readers are done from my side for Monday."
+
+**Monday 10-05, in this order** (after the Millionaire standings import):
+1. `scripts/score_o1.py` (O1 official);
+2. `scripts/score_article_mentions.py` (A3);
+3. `scripts/score_projection_blend.py` (B2).
+
+Plus the A2 paper books, B1, B3, C1 and C3. The Sunday ~12:30 quick read (`score_ownership_sources.py`) is
+descriptive.
 ## 2026-10-02 (14:32 CDT) — REVIEWER: afe14af9 CLEARED for Monday after three small fixes (done); O1 population clarified BEFORE the lock
 
 **Reviewer (summarised faithfully):** CLEARED after three fixes, none changing a frozen rule. The shared module was
