@@ -12,6 +12,19 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-02 (13:13 CDT) — REVIEWER: 8185519a APPROVED as capture-only; nothing further on the FP collectors
+
+**Reviewer (summarised faithfully):** approved. The checks:
+- Paywalled is caught before the generic handler, and in `article_record` before the write, so previews are no longer
+  archived. The five earlier ones stay in the create-once archive, which is fine.
+- The banner phrase plus `is_denied` is a good key ("the generic CTA words would have refused full articles").
+- The exact key, the season fallback and ROS season proof are right, and so is MIN 1,500 with min/median in the
+  manifest.
+- "Deleting exactly the 5 preview rows from the capture-only table is fine, recorded as it is."
+- "Good catch on the betting add-on. Nothing further from me on the FP collectors."
+
+**Open for the operator (asked once, 10-02):** whether FP's terms allow keeping full article text in the private
+BigQuery for personal analysis. The alternatives are titles + a summary only, or no article capture.
 ## 2026-10-02 (13:12 CDT) — REVIEWER's review of 09a19fe3 (rankings) + 46d1a610 (articles): fine as capture-only; fixes applied; 5 paywalled previews REMOVED from the articles table
 
 **Reviewer (summarised faithfully):** both are fine as CAPTURE ONLY; nothing touches Sunday.
