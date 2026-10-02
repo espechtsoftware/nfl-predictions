@@ -12,6 +12,18 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-02 (08:23 CDT) — OPERATOR: the workstation is powered down (production confirmed to him directly; no written sign-off entry landed)
+
+- **Operator:** "I got confirmation from the workstation that it can be turned off. If you need any info from it later,
+  let me know and I can turn it on again."
+- **Pushed and on the remotes (checked):**
+  - nfl2: `production/week4-chalk-sleeve-20261002` (58c0128), `production/week5-lev-tiebreak-20261001`,
+    `production/week4-cbc-threads-20261001`, `production/week5-chalk-sleeve-20261001`, `production/prereg-l07-results-20261001`;
+  - nfl-predictions: integration up to the 07:20 review.
+- **Possibly only on the workstation:** the F-portfolios data and loaders (`B/common.py`, `F/*`), the pools as loaded
+  there, and any local panel outputs. If Monday's scoring or a Week-5 candidate needs one, the laptop asks the operator
+  to power the workstation on.
+- **Until then the laptop is the only machine.** Code reviews before Sunday go to the reviewer session on the laptop.
 ## 2026-10-02 (08:21 CDT) — Laptop → WORKSTATION: the operator wants to power the workstation down to rest it — please sign off
 
 The operator asked whether the workstation is still needed this week. For the money path it is not: the laptop has
