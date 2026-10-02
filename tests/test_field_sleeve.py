@@ -143,7 +143,8 @@ def _verify_k90_script() -> str:
 
 
 @pytest.mark.parametrize("used,label,ok", [(True, "field_top", True), (True, "field_free", True), (False, "field_top", False),
-                                           (None, "mean", True), (True, "bogus", False)])
+                                           (None, "mean", True), (True, "bogus", False), (True, "field_top+mean", True),
+                                           (False, "field_top+mean", False), (True, "field_top+class", False)])
 def test_verify_k90_accepts_the_field_sleeve_only_when_it_was_used(tmp_path, used, label, ok):
     """The 10-02 field-sleeve smoke: verify_k90 accepted only class/emax/mean, so a used field sleeve refused the union."""
     d = tmp_path / "run"; d.mkdir()
@@ -159,3 +160,23 @@ def test_verify_k90_accepts_the_field_sleeve_only_when_it_was_used(tmp_path, use
     r = subprocess.run([sys.executable, str(tmp_path / "v.py"), str(d), "0", "4800", "2", "0", "abc", "L", "1", "1", "mean"],
                        capture_output=True, text=True)
     assert (r.returncode == 0) is ok, r.stdout + r.stderr
+
+
+def test_split_pick_counts_the_field_row_toward_the_cap_and_the_overlap():
+    import union_reselect as ur
+    R = [frozenset(x) for x in (["f1", "a", "b"], ["p1", "a", "c"], ["p2", "a", "d"], ["p3", "e", "f"], ["p4", "g", "h"])]
+    scores = np.array([-1e9, 9.0, 8.0, 7.0, 6.0])                       # row 0 is the field row (masked in the projection part)
+    got = ur.select_top_mean_player_cap(scores, R, 3, None, 2, pre=(0,))
+    assert got[0] == 0 and got == [0, 1, 3]                             # row 2 would put "a" in 3 rows: the cap counts the field row
+    assert ur.select_top_mean_player_cap(scores, R, 3, 0, 5, pre=(0,)) == [0, 3, 4]   # overlap <= 0 with the field row too
+    assert ur.select_top_mean_player_cap(scores, R, 2, None, 5) == [1, 2]              # no pre: unchanged
+    with pytest.raises(RuntimeError):
+        ur.select_top_mean_player_cap(scores, R, 5, None, 1, pre=(0,))
+
+
+def test_build_host_passes_the_split():
+    host = (Path(__file__).resolve().parents[1] / "scripts" / "sunday_build_host.sh").read_text()
+    a = host.index('  if [[ "${UNION_SLEEVE_SOURCE:-mean}" == "field" ]]; then'); b = host.index("\n  fi\n", a) + 5
+    out = subprocess.run(["bash", "-c", "UNION_SLEEVE_SOURCE=field; UNION_SLEEVE_FIELD_ROWS=1; OWN_SRC=/x.csv\nUNION_ARGS=(); RUN_TAG=t\n"
+                          + host[a:b] + '\nprintf "%s\\n" "${UNION_ARGS[@]}"'], capture_output=True, text=True).stdout.split("\n")
+    i = out.index("--sleeve-field-rows"); assert out[i + 1] == "1"

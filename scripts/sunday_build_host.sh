@@ -207,7 +207,8 @@ _ts = (r["config"].get("tail_sleeve") or {}); got_sleeve = int(_ts.get("rows", 0
 if got_sleeve != sleeve: problems.append(f"tail sleeve {got_sleeve} != configured {sleeve}")
 sleeve_used = (_ts.get("selector_used") if isinstance(_ts, dict) else None) or "none"
 _field = (_ts.get("field") or {}) if isinstance(_ts, dict) else {}
-_field_ok = sleeve_used in ("field_top", "field_band", "field_free") and _field.get("used") is True   # the field sleeve (operator 10-02)
+_field_ok = sleeve_used.split("+")[0] in ("field_top", "field_band", "field_free") and sleeve_used.split("+")[1:] in ([], ["mean"]) \
+    and _field.get("used") is True   # the field sleeve (operator 10-02); "+mean" = the split (field rows first, then the projection sleeve)
 if sleeve and sleeve_used not in ("class", "emax", "mean") and not _field_ok:
     problems.append(f"tail sleeve selector_used {sleeve_used!r} is none of class/emax/mean/field_* (field used: {_field.get('used')})")
 if sleeve and _field.get("requested") and not _field.get("used"):
@@ -331,6 +332,7 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   if [[ "${UNION_SLEEVE_SOURCE:-mean}" == "field" ]]; then
     SLV_SRC="${OWN_SRC:-${OWNERSHIP_LAG:-}}"
     UNION_ARGS+=(--sleeve-source field --sleeve-field-mode "${UNION_SLEEVE_FIELD_MODE:-top}" --sleeve-max-per-game "${UNION_SLEEVE_MAX_PER_GAME:-5}")
+    [[ -n "${UNION_SLEEVE_FIELD_ROWS:-}" ]] && UNION_ARGS+=(--sleeve-field-rows "$UNION_SLEEVE_FIELD_ROWS")
     [[ -n "$SLV_SRC" ]] && UNION_ARGS+=(--sleeve-own-source "$SLV_SRC")
     echo "TAIL SLEEVE SOURCE for $RUN_TAG: field sample (${UNION_SLEEVE_FIELD_MODE:-top}, <= ${UNION_SLEEVE_MAX_PER_GAME:-5} per game) from ${SLV_SRC:-NO OWNERSHIP FILE (will fall back)}"
   fi

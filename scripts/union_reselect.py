@@ -316,7 +316,7 @@ class _LU:                                                   # what dk_csv / val
 
 
 
-def select_top_mean_player_cap(scores, rosters, k: int, max_shared: int | None, player_cap: int) -> list[int]:
+def select_top_mean_player_cap(scores, rosters, k: int, max_shared: int | None, player_cap: int, pre: tuple = ()) -> list[int]:
     """The pinned lab's select_top_mean (greedy top-k by score, ties by index, a repeated roster skipped, pairwise overlap
     <= max_shared) plus a per-player exposure cap: a row is skipped when any of its players already sits in player_cap
     chosen rows. Used only when the tail sleeve's cap is set (UNION_SLEEVE_CAP); without it the lab's function runs as
@@ -328,10 +328,13 @@ def select_top_mean_player_cap(scores, rosters, k: int, max_shared: int | None, 
         raise ValueError("scores must be finite")
     if player_cap < 1:
         raise ValueError(f"player_cap must be >= 1 (got {player_cap})")
-    chosen: list[int] = []
-    taken: list[frozenset] = []
-    seen: set[frozenset] = set()
-    n_in: Counter = Counter()
+    # `pre` (the field sleeve's split, 10-02): rows already in the sleeve; they count toward k, the overlap and the cap
+    chosen: list[int] = list(pre)
+    taken: list[frozenset] = [rosters[i] for i in pre]
+    seen: set[frozenset] = set(taken)
+    n_in: Counter = Counter(p for r in taken for p in r)
+    if len(chosen) >= k:
+        return chosen[:k]
     for i in sorted(range(len(s)), key=lambda j: (-s[j], j)):
         r = rosters[i]
         if r in seen:
@@ -405,6 +408,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--sleeve-field-mode", choices=["top", "band", "free"], default="top",
                     help="free = no house-rule filter on the sampled rows (DK-legal only); see field_sleeve.py")
     ap.add_argument("--sleeve-field-keep", type=int, default=2000, help="field rows added to the pool, in pick order")
+    ap.add_argument("--sleeve-field-rows", type=int, default=None,
+                    help="with --sleeve-source field: only the first N sleeve rows from the field (the deal gives row 1 to the "
+                         "Millionaire); the rest from the projection sleeve, chosen with the field rows taken (default: all)")
     ap.add_argument("--sleeve-max-per-game", type=int, default=5, help="per-game limit for the field sleeve's rows (the main book keeps --max-per-game)")
     ap.add_argument("--dk-status", type=Path); ap.add_argument("--tail-line", type=float, default=None)
     ap.add_argument("--out", type=Path, help="explicit output dir (default: <live-dir>/<utc stamp>-union-<t70 sha7>)")
@@ -592,6 +598,21 @@ def main(argv: list[str] | None = None) -> int:
         book_tail = list(field_pick)
         field_meta["used"] = True
         sleeve_cap = {"share": a.sleeve_cap_share, "rows": field_meta.get("player_cap"), "fell_back": False}
+        k_f = a.sleeve_field_rows
+        if k_f is not None and 0 < k_f < a.tail_sleeve:
+            # the split (reviewer's suggestion A, 10-02): field rows for the first k_f sleeve rows, the projection sleeve for
+            # the rest, chosen with the field rows already taken; a shortfall keeps the all-field sleeve, LOUDLY
+            proj_scores = tail_scores.copy(); proj_scores[n_field_start:n_field_start + n_field] = -1e9
+            try:
+                book_tail = select_top_mean_player_cap(proj_scores, frozen, a.tail_sleeve, a.mean_max_shared,
+                                                       field_meta.get("player_cap") or a.tail_sleeve, pre=tuple(field_pick[:k_f]))
+                if any(n_field_start <= i < n_field_start + n_field for i in book_tail[k_f:]):
+                    raise RuntimeError("a field row was picked as a projection row")
+                field_meta["split"] = {"field_rows": k_f, "projection_rows": a.tail_sleeve - k_f}
+            except RuntimeError as e:
+                book_tail = list(field_pick)
+                field_meta["split"] = {"requested": k_f, "failed": str(e)}
+                print("!" * 80 + f"\n!!! FIELD SLEEVE SPLIT FAILED ({e}) -- ALL {a.tail_sleeve} SLEEVE ROWS ARE FIELD ROWS\n" + "!" * 80, flush=True)
     if a.tail_sleeve and not book_tail and a.sleeve_cap_share is not None:
         pcap = main_exposure_cap(a.sleeve_cap_share, a.tail_sleeve)
         sleeve_cap = {"share": a.sleeve_cap_share, "rows": pcap, "fell_back": False}
@@ -704,7 +725,8 @@ def main(argv: list[str] | None = None) -> int:
     if a.tail_sleeve:
         used_field = bool(field_meta.get("used"))
         conf["tail_sleeve"] = {"rows": a.tail_sleeve, "line": tail_line, "selector": "field" if a.sleeve_source == "field" else "mean",
-                               "selector_used": f"field_{a.sleeve_field_mode}" if used_field else "mean", "class": {}, "field": field_meta,
+                               "selector_used": (f"field_{a.sleeve_field_mode}" + ("+mean" if "field_rows" in field_meta.get("split", {}) else ""))
+                                                if used_field else "mean", "class": {}, "field": field_meta,
                                "worlds": "incumbent selection + corrected hsim", "book_rows": f"{a.entries + 1}..{a.entries + a.tail_sleeve}",
                                "repeats_of_main_rows": len({frozen[i] for i in book_tail} & {frozen[i] for i in book}),   # by roster (field rows may duplicate a pool roster)
                                "player_cap": sleeve_cap, "exposure": sleeve_exposure(book_tail, rosters, fr),

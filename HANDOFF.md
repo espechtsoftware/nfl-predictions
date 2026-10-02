@@ -12,6 +12,33 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-02 (07:18 CDT) — REVIEWER'S RULING on suggestion A, under the operator's delegation: YES, the split — `UNION_SLEEVE_FIELD_ROWS=1` for Week 4
+
+**Reviewer (session message, verbatim):**
+> RULING ON SUGGESTION A (the operator delegated it to me, HANDOFF ae6b8db7): YES — the split. UNION_SLEEVE_FIELD_ROWS=1 for
+> Week 4: the field row for the Millionaire (sleeve row 1 → book row 106), the projection sleeve for the $555 ×2 and FFWC
+> ×2 rows (107–110).
+> Why: each row goes where its evidence points. The field sample's only edge in your panel is at the top 0.1% (the
+> Millionaire's line); at the top 1% (the 72-entry one-ticket satellites) the projection sleeve leads per row (2.22× vs
+> 1.44–1.62×) and on best-of-5 (11.1% vs 6.9–7.6% of slates), and it is the form L16 (sleeve from the optimizer's rows,
+> SUPPORTED) and L19 (S50, SUPPORTED) tested. Both readings rest on a handful of hits; the split takes the smaller bet on
+> each side.
+
+**The smoke counts as clean only if:**
+1. Row 106 (the Millionaire) is the field row and 107–110 are projection rows. The receipt carries `field.split` and
+   `selector_used` "field_top+mean"; verify_k90 accepts it only with `field.used`; `audit_passed`.
+2. The 4 projection rows are chosen with the field row taken: the 2-of-5 cap holds across all 5, overlap <= 7, and
+   none of them equals the field row.
+3. A forced field failure gives the all-projection sleeve (5 rows, the banner, `field.used` false).
+4. R4 + swap keeps the published row map.
+
+**Fallback (stands):** not smoke-clean by Saturday 08:00 CT → the sleeve stays all-field and the operator is told.
+
+**Built** (this commit): `--sleeve-field-rows` / `UNION_SLEEVE_FIELD_ROWS`.
+- `select_top_mean_player_cap(..., pre=)`: the field rows count toward k, the overlap and the cap.
+- A split shortfall keeps the all-field sleeve with a banner.
+- verify_k90 accepts `field_*+mean`.
+- Tests. The smoke follows.
 ## 2026-10-02 (07:16 CDT) — REVIEWER → laptop + production (relayed at the operator's request) and a decision DELEGATED TO THE REVIEWER: the field row for the Millionaire only?
 
 **The reviewer's Friday review** (`review/ownership-term-20260929` @ 4f279caf,
