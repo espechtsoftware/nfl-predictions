@@ -24,16 +24,24 @@ plan (`reports/2026-10-02-experiment-plan-new-data.md`).
 - **Feature:** M(player) = the number of distinct counted articles whose text names the player.
   - Names are matched on `ownership_blend.norm` (Jr/Sr/II/III/IV/V dropped, punctuation removed), full name only.
   - DSTs are matched by team nickname followed by "D/ST", "DST" or "defense".
-- **Arms** (the ownership percent, then ranked):
-  - **LAG_M:** LAG × (1 + 0.25·M);
-  - **FP_M:** FP × (1 + 0.25·M), on FP's covered players.
-  - The 0.25 factor is fixed now and is never fitted.
+- **A second count, M_DFS** (the reviewer, 10-02): the matchup pieces (WR/CB, OL/DL, the Everything Report) name
+  nearly every starter, so M saturates for starters. M_DFS = the same count over the DFS articles only (`DFS Main Slate
+  Early Look`, `DFS Slate Breakdown`).
+- **Arms:** two forms × two counts, per base (LAG and FP), so **8 arms**:
+  - **multiplicative:** base × (1 + 0.25·C);
+  - **additive:** base + 2.0·C percentage points (the reviewer: the multiplicative form cannot lift a player the base
+    puts near zero, the article-hyped cheap breakout);
+  - **C** = M or M_DFS.
+  - The constants 0.25 and 2.0 are fixed now, blind, and never fitted.
+- **Multiplicity:** 8 arms against two baselines. A pass is reported and flagged to the operator; it adopts nothing by
+  itself.
 - **Baselines:** LAG for LAG_M; FP for FP_M. The same population, target and metric as PREREG-O1 (realized Millionaire
   ownership counted from `contest_entries`; Spearman).
 - **Rule:** an arm passes if its mean Spearman gain over its baseline across **Weeks 4–7** is **>= 0.03** and it is
   better in **>= 3 of 4** weeks.
   - **Interim (one look, after Week 5):** a gain >= 0.06 in both weeks, as O1 amendment 2.
-- **Co-reported:** M's coverage (the share of the realized top 20 with M >= 1) and the match rate.
+- **Co-reported:** the coverage of M and M_DFS (the share of the realized top 20 with C >= 1) and the match rate.
+  Full-name matching counts articles, not mentions, so a last-name-only mention after the first does not matter.
 
 ## PREREG-B2: Fantasy Points in the projection blend
 
@@ -47,9 +55,22 @@ plan (`reports/2026-10-02-experiment-plan-new-data.md`).
   - **Coverage:** where FP or the market is missing for a player, the weights renormalise over the sources present.
     Coverage is reported by position.
 - **Population:** main-slate skill players and DSTs projected >= 3 points by OURS, who played (DK points recorded).
+  This hides availability errors (a player who did not play); B3 (the disagreement report) covers those.
 - **Metric:** MAE of the projection against actual DK points, overall and by position (QB/RB/WR/TE/DST).
 - **Rule:** an arm passes if its overall MAE is **lower than OURS in >= 3 of Weeks 4–7** and on the 4-week mean.
   - **Interim (one look, after Week 5):** lower in both weeks by >= 0.10 points.
   - A pass makes the arm eligible for a paper-book test (the post-ensemble law: a projection gain must survive
     selection). It adopts nothing by itself.
+  - **On purpose, the final has no magnitude bar.** A no-better arm passes it ~25–30% of the time (the reviewer). That
+    is acceptable only because a pass is mere eligibility for the paper test, never an adoption.
 - **Co-reported:** bias by position; the correlation; the B3 disagreement cases.
+
+## Amendment (2026-10-02, the same day, BEFORE the Week-4 lock): the reviewer's review of 33aeb204
+
+The changes above, all made before any Week-4 outcome exists:
+- A3: the additive form, the M_DFS count, 8 arms and the multiplicity.
+- B2: why the final has no magnitude bar; what the population hides.
+- O1 amendment 2: the scale rule.
+
+The A3 matcher and the B2 blend code go to the reviewer as soon as they are written, before Monday's run. Their numbers
+count only after review.

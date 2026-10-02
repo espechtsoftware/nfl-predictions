@@ -12,6 +12,28 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-02 (14:18 CDT) — REVIEWER on 33aeb204: the interim bars are sound; A3's form, the O1 scale rule and the D3 timing changed BEFORE the Week-4 lock
+
+**Reviewer (summarised faithfully):**
+1. **O1 amendment 2:** "strict enough; if anything conservative".
+   - On W1–W3, the blend's gain over LAG was +0.03/+0.06/+0.07, and per-week Spearman SD ~0.03. A no-better arm clears
+     0.06 in both weeks well under 0.1% of the time; a true +0.06 source passes ~25%.
+   - **Gap:** the MAE and the trial depend on scale. → Freeze a per-slate rescaling to the blend's skill total (the
+     lag's if absent) before the term and the sleeve; report MAE raw and rescaled.
+2. **A3:** the multiplicative form cannot lift a near-zero player (the hyped cheap breakout). → Add an additive arm
+   (+2.0·M points). M saturates on the matchup pieces → add M_DFS (DFS articles only). Up to 4 arms per base; disclose
+   the multiplicity.
+3. **B2:** acceptable. Say that the final (no magnitude bar) passes a no-better arm ~25–30% of the time, acceptable
+   only as eligibility for the paper test. Note that the population hides availability errors (B3).
+4. **Calendar:** D3 after W6 contradicts the 4-week rule (FP has 3 weeks). The A3/B2 code goes to review BEFORE Monday's
+   run, not in Week 5. The B4 audit stays queries only, outside 09:30–10:45.
+
+**Done** (this commit, Friday, before the Week-4 lock): every point is applied.
+- O1 amendment 2 + the scale rule.
+- PREREG-A3: 8 arms (2 forms × M/M_DFS × LAG/FP), the constants fixed blind; multiplicity disclosed.
+- PREREG-B2: the notes.
+- The plan's calendar: D3 PRELIMINARY after W6, FINAL after W7; code review before Monday's run; the B4 audit's
+  window.
 ## 2026-10-02 (14:16 CDT) — OPERATOR: "I will want those timelines escalated" → O1 amendment 2 + PREREG-A3/B2 FROZEN before the Week-4 lock; the escalated calendar
 
 - **What cannot move:** real weeks come one at a time.

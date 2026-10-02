@@ -98,3 +98,10 @@ better source can start a reversible trial two weeks earlier.
   named with its rollback: revert to the incumbent source.
 - O1 continues weekly to Week 7. **If the Week-7 final rule fails, the trial is rolled back.**
 - A miss at the interim changes nothing; the final reads as written.
+- **Scale rule** (the reviewer, 10-02, before the Week-4 lock): ranks are scale-free, but the term (tilt × pred_own %)
+  and the MAE are not. Sources differ in total (LineStar ~900 %, the lag file ~400–600 %).
+  - A trialled source is **rescaled per slate to the blend's skill-player total** (the lag file's when the blend is
+    absent) before it enters the term or the sleeve's targets. The tilt then means what was tested (0.20 on the blend's
+    scale).
+  - **MAE is reported raw AND rescaled.** The interim's MAE condition uses the rescaled MAE, so a better ranker cannot
+    fail on scale alone.

@@ -199,13 +199,13 @@ The constraint that does not move: real weeks arrive one at a time. The levers:
 | When | What |
 |---|---|
 | **Fri 10-02** | FROZEN: O1 amendment 2 (interim after W5); PREREG-A3 and PREREG-B2 (grading from W4) |
-| **Sat 10-03** | FP captures 10:07 (feed A1/A3/B2); B3/E1 disagreement report; **B4 audit** (outcome-blind); **D1 overlap map** |
+| **Sat 10-03** | FP captures 10:07 (feed A1/A3/B2); B3/E1 disagreement report; **B4 audit** (outcome-blind, queries only, outside 09:30–10:45 and away from the build); **D1 overlap map** |
 | **Sun 10-04** | T-70 captures 10:38; A1 descriptive quick read ~12:30 |
 | **Mon 10-05** | Week-4 reads: A1 (official), A2, A3, B1, B2, B3, C1, C3. B4 preregistered; **the B4 panel starts on the laptop Monday night** (one process; never on a build day) |
-| **Week 5** | A3 matcher and B2 blend code reviewed (they run Monday 10-05 on Week 4's pre-lock captures; nothing about the rules changes) |
+| **Sat–Mon 10-03..05** | The A3 matcher and the B2 blend code are written and sent to the reviewer BEFORE Monday's run; their numbers count only after review |
 | **Mon 10-12** (after W5) | **The early checkpoint:** A1/A3/B2 interim. A clear winner → the operator may trial it from Week 6. B4 panel read. D2 marginal value starts |
-| **Mon 10-19** (after W6) | **D3 keep/cancel memo** (4 graded weeks for the ownership sources; 3 for the rest; disclosed) |
-| **Mon 10-26** (after W7) | **The finals:** A1/A3/B2. A trial that fails its final is rolled back |
+| **Mon 10-19** (after W6) | **D3 keep/cancel memo, PRELIMINARY** (3 graded FP weeks; disclosed). The plan's rule stands: no source is cancelled on fewer than 4 graded weeks unless it feeds nothing |
+| **Mon 10-26** (after W7) | **The finals:** A1/A3/B2. A trial that fails its final is rolled back. **D3 FINAL memo** (4 graded weeks) |
 
 ## 4. Governance
 
