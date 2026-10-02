@@ -12,6 +12,26 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-02 (12:26 CDT) — OPERATOR upgraded Fantasy Points (annual; the DFS package); the ownership page COLLECTS; plan for using the account
+
+- **Operator:** subscribed for a year to get the DFS tier, and wants to "take advantage of the account and try things".
+  The price stays out of tracked files.
+- **First capture, Week 4** (`fantasy-points-ownership collect --week 4`, 12:23 CT):
+  - 1,224 rows (DraftKings 619 = every player in group 154078; FanDuel 605).
+  - Archived hash-addressed under `gs://…-raw/licensed/fantasy-points/ownership/season=2026/week=04/`.
+  - Loaded to `nfl_raw.fantasy_points_projected_ownership`: two captures, both 10-02; FP `last_updated` 10-01 17:40Z.
+- **Sanity:** DK sums to 913% (QB 100.1, DST 100.1, RB 236, WR 331, TE 145): the field's shape.
+  - Correlation with Saturday's lag file 0.81 (400 matched players).
+  - Largest disagreements: Walker 17% FP vs 37% lag; McCaffrey and Chase Brown about 25% FP.
+- **Week 4: capture only; it is not used in any entry** (operator: paper first).
+  - Captures: Saturday at the refresh, Sunday ~10:35 after the inactives.
+  - Monday: recompute, offline from the archived T-70 frame, a PAPER main book with the FP ownership as the term's
+    source. No code change before Sunday.
+- **From Week 5 (the "try things" list; each starts on paper, the operator adopts):**
+  1. PREREG-O1: FP ownership vs the lag model (and LineStar), prospective.
+  2. A collector for FP's DFS projections. A candidate input next to the market blend; captured weekly.
+  3. Any other page the tier opens, captured per the every-paid-page order.
+  New collectors go to the reviewer before their rows feed anything.
 ## 2026-10-02 (11:18 CDT) — OPERATOR: college football collection RETIRED for the 2026 season
 
 - **Operator:** "retire it".
