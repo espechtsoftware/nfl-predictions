@@ -252,3 +252,24 @@ def test_main_own_term_check_reads_the_declared_term(tmp_path):
     assert "main_own_term" in _audit(make("short", control=ctrl[:4]), contests=tail, expect_selector="mean")["failed"]      # control not K rows
     assert "main_own_term" not in _audit(make("off", own_term={"tilt": 0.0}), contests=tail, expect_selector="mean")["failed"]
     assert "main_own_term" in _audit(make("undeclared", own_term={"tilt": 0.0}, control=ctrl), contests=tail, expect_selector="mean")["failed"]  # control without a term
+
+
+def test_field_sleeve_rows_are_held_to_their_declared_limits(tmp_path):
+    """union_reselect --sleeve-source field (operator 2026-10-02): its rows may carry 5 from one game (and, in `free` mode,
+    no house stack); every other candidate keeps the build's cap. Without this the union's audit refuses the Sunday book."""
+    five = _lineup("A", "B", "C"); five[4] = "BRB0"                        # 5 from game g1, stack and bring-back intact
+    six = list(five); six[5] = "BWR0"                                     # 6 from g1
+    nostack = _lineup("A", "B", "C"); nostack[2] = "DWR1"
+    base = [_lineup("A", "B", "C"), _lineup("C", "D", "E"), _lineup("E", "F", "G"), _lineup("G", "H", "A"), _lineup("B", "A", "D")]
+    def run(tmp, extra, src, field):
+        r = _run_dir(tmp, lineups=base + extra, book=base, receipt={"config": {"tail_sleeve": {"field": field}}})
+        c = pd.read_parquet(r / "candidates.parquet"); c["source_run"] = ["t70"] * len(base) + src; c.to_parquet(r / "candidates.parquet")
+        return _audit(r)["failed"]
+    top = {"used": True, "max_game": 5, "house_rules_applied": True}
+    assert "max_per_game" not in run(tmp_path / "a", [five], ["field"], top)
+    assert "max_per_game" in run(tmp_path / "b", [six], ["field"], top)               # over the field's own limit
+    assert "max_per_game" in run(tmp_path / "c", [five], ["saturday"], top)            # a supply row keeps the cap of 4
+    assert "max_per_game" in run(tmp_path / "d", [five], ["field"], {})                # no declared field sleeve: the cap
+    assert "stack_rules" in run(tmp_path / "e", [nostack], ["field"], top)             # top mode keeps the house stack
+    free = {"used": True, "max_game": 5, "house_rules_applied": False}
+    assert "stack_rules" not in run(tmp_path / "f", [nostack], ["field"], free)

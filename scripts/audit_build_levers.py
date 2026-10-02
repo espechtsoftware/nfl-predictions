@@ -145,18 +145,31 @@ def audit(run: Path, contests: list[dict], *, layout: str, expect_selector: str 
     sal = by_id["salary"].to_dict()
     cap = expect_max_per_game if expect_max_per_game is not None else (receipt.get("config", {}).get("arm", {}) or {}).get("max_per_game")
     over_cap = 0; max_seen = 0; bad_stack = 0; bad_salary = 0; stack_examples: list[str] = []
-    for cell in cands["players"]:
+    # The field sleeve's rows (operator 2026-10-02, union_reselect --sleeve-source field) are held to the limits the receipt
+    # declares FOR THEM: their own per-game limit (5), the house stack only when the field ran with the house rules, and
+    # the sampler's salary band in `free` mode. Every other candidate keeps the build's cap and rules, as before.
+    fmeta = ((receipt.get("config", {}).get("tail_sleeve") or {}).get("field") or {})
+    src_col = cands["source_run"].astype(str).tolist() if "source_run" in cands else [""] * len(cands)
+    field_rows = 0
+    for cell, src in zip(cands["players"], src_col):
         ps = _players_of(cell)
+        is_field = src == "field" and bool(fmeta)
+        field_rows += is_field
+        row_cap = fmeta.get("max_game", cap) if is_field else cap
+        house = (fmeta.get("house_rules_applied", True) is not False) if is_field else True
+        row_min_salary = min_salary if house else 48_500
         counts: dict[str, int] = {}
         for p in ps:
             counts[game.get(p, "?")] = counts.get(game.get(p, "?"), 0) + 1
         m = max(counts.values()) if counts else 0
         max_seen = max(max_seen, m)
-        if cap is not None and m > int(cap):
+        if row_cap is not None and m > int(row_cap):
             over_cap += 1
         qbs = [p for p in ps if pos.get(p) == "QB"]
         if len(qbs) != 1:
             bad_stack += 1
+        elif not house:
+            pass
         else:
             q = qbs[0]
             mates = sum(1 for p in ps if p != q and team.get(p) == team.get(q) and pos.get(p) in ("WR", "TE"))
@@ -166,11 +179,13 @@ def audit(run: Path, contests: list[dict], *, layout: str, expect_selector: str 
                 if len(stack_examples) < 3:
                     stack_examples.append(f"{by_id['name'].get(q, q)}: {mates} mates, {bring} bring-back")
         s = sum(sal.get(p, 0) for p in ps)
-        if not (min_salary <= s <= 50000):
+        if not (row_min_salary <= s <= 50000):
             bad_salary += 1
+    fnote = (f"; {field_rows} field-sleeve rows held to their declared limit {fmeta.get('max_game')} per game"
+             f"{'' if fmeta.get('house_rules_applied', True) is not False else ' without the house stack'}") if field_rows else ""
     record("max_per_game", (cap is None) or over_cap == 0,
-           f"cap {cap}: {over_cap} candidates over it; max players from one game seen {max_seen}",
-           cap=cap, over_cap=over_cap, max_seen=max_seen)
+           f"cap {cap}: {over_cap} candidates over it; max players from one game seen {max_seen}{fnote}",
+           cap=cap, over_cap=over_cap, max_seen=max_seen, field_rows=int(field_rows))
     record("stack_rules", bad_stack == 0, f"{bad_stack} candidates without QB + 2 same-team WR/TE + 1 bring-back; e.g. {stack_examples}",
            bad_stack=bad_stack)
     record("salary_bounds", bad_salary == 0, f"{bad_salary} candidates outside [{min_salary}, 50000]", bad_salary=bad_salary)
