@@ -397,6 +397,14 @@ def main(argv: list[str] | None = None) -> int:
                     help="with --main-own-tilt: refuse when the file names fewer than this share of the pool's skill players projected >= 5")
     ap.add_argument("--main", choices=["mean", "pmo_x50"], default="mean",
                     help="the main book: mean = the union pool's top-K by projected sum (paper arm); pmo_x50 = K capped plain-mean-optimizer rows solved on the T-70 frame (ENTERS Week 4)")
+    ap.add_argument("--sleeve-source", choices=["mean", "field"], default="mean",
+                    help="field: the tail sleeve's rows come from a field-like sample built from the pre-lock ownership predictor "
+                         "(scripts/field_sleeve.py; operator 2026-10-02); any failure falls back LOUDLY to the projection sleeve")
+    ap.add_argument("--sleeve-own-source", type=Path, default=None, help="the ownership file for --sleeve-source field (default: --main-own-source)")
+    ap.add_argument("--sleeve-field-n", type=int, default=200_000); ap.add_argument("--sleeve-field-seed", type=int, default=2026)
+    ap.add_argument("--sleeve-field-mode", choices=["top", "band"], default="top")
+    ap.add_argument("--sleeve-field-keep", type=int, default=2000, help="field rows added to the pool, in pick order")
+    ap.add_argument("--sleeve-max-per-game", type=int, default=5, help="per-game limit for the field sleeve's rows (the main book keeps --max-per-game)")
     ap.add_argument("--dk-status", type=Path); ap.add_argument("--tail-line", type=float, default=None)
     ap.add_argument("--out", type=Path, help="explicit output dir (default: <live-dir>/<utc stamp>-union-<t70 sha7>)")
     ap.add_argument("--rehearsal", action="store_true", help="paper: accept a T-70 run built with another selector (Week 3 was dual_emax); "
@@ -452,6 +460,29 @@ def main(argv: list[str] | None = None) -> int:
         xcap = max(1, int(a.pmo_cap_share * a.pmo)) if a.pmo_cap_share > 0 else None
         pm = pmo_rows(fr, excl, a.pmo, a.mean_max_shared, cap, a.min_salary, existing, exposure_cap=xcap)
         rosters += pm; source += ["pmo"] * len(pm); tags += ["pmo"] * len(pm); sat_cand += [None] * len(pm); n_pmo = len(pm)
+    # the winner-shaped sleeve's candidates (operator 2026-10-02): appended before any PMO row so every index stays put
+    field_meta: dict = {"requested": a.sleeve_source == "field"}
+    n_field_start = len(rosters)
+    if a.sleeve_source == "field" and a.tail_sleeve:
+        try:
+            import field_sleeve as FS
+            proj_f = dict(zip(fr.id.astype(str), pd.to_numeric(fr.mean_projection, errors="coerce")))
+            pos_f = dict(zip(fr.id.astype(str), fr.pos.astype(str)))
+            excl_f = set(unavailable_ids(fr, dk)) | {i for i in proj_f if pos_f[i] in SKILL and not (proj_f[i] >= a.min_proj)}
+            src = a.sleeve_own_source or a.main_own_source
+            if src is None or not Path(src).is_file():
+                raise ValueError(f"no ownership file ({src})")
+            targets, tmeta = FS.ownership_targets(Path(src), fr, excl_f)
+            f_rost, _f_ps, fmeta = FS.field_candidates(fr, targets, a.sleeve_field_n, a.sleeve_field_seed, a.sleeve_max_per_game,
+                                                       a.min_salary, a.sleeve_field_mode)
+            have = {frozenset(r) for r in rosters}
+            fresh = [r for r in f_rost if frozenset(r) not in have][: a.sleeve_field_keep]
+            rosters += fresh; source += ["field"] * len(fresh); tags += ["field"] * len(fresh); sat_cand += [None] * len(fresh)
+            field_meta.update({"targets": tmeta, **fmeta, "rows_added": len(fresh), "source_sha256": sha256_file(Path(src))})
+        except Exception as exc:                                   # noqa: BLE001 -- the fallback must catch everything
+            field_meta["failed"] = f"{type(exc).__name__}: {exc}"
+            print("!" * 80 + f"\n!!! FIELD SLEEVE FAILED ({field_meta['failed']}) -- THE PROJECTION SLEEVE IS USED\n" + "!" * 80, flush=True)
+    n_field = len(rosters) - n_field_start
     need = a.entries + a.tail_sleeve
     if len(rosters) < need:
         raise SystemExit(f"the union holds {len(rosters)} rosters; the book needs {need}")
@@ -530,12 +561,23 @@ def main(argv: list[str] | None = None) -> int:
                     "own_term": own_meta if bonus else {"tilt": 0.0}}
         dst_args = {}
     else:
-        book = select_top_mean(score, frozen, a.entries, max_shared=a.mean_max_shared, **dst_args)
+        is_field = (np.arange(len(rosters)) >= n_field_start) & (np.arange(len(rosters)) < n_field_start + n_field)
+        book = select_top_mean(np.where(is_field, -1e9, score), frozen, a.entries, max_shared=a.mean_max_shared, **dst_args)
         sleeve_score = score
     tail_scores = np.where(np.isfinite(sleeve_score), sleeve_score, -1e9)
     sleeve_cap: dict = {"share": None, "rows": None, "fell_back": False}
     book_tail = []
-    if a.tail_sleeve and a.sleeve_cap_share is not None:
+    if n_field:
+        fscore = np.full(len(rosters), -1e9); fscore[n_field_start:n_field_start + n_field] = np.arange(n_field, 0, -1, dtype=float)
+        pcap_f = main_exposure_cap(a.sleeve_cap_share, a.tail_sleeve) if a.sleeve_cap_share is not None else a.tail_sleeve
+        try:
+            book_tail = select_top_mean_player_cap(fscore, frozen, a.tail_sleeve, a.mean_max_shared, pcap_f)
+            field_meta["used"] = True
+            sleeve_cap = {"share": a.sleeve_cap_share, "rows": pcap_f, "fell_back": False}
+        except RuntimeError as e:
+            field_meta.update({"used": False, "failed": f"selection: {e}"})
+            print("!" * 80 + f"\n!!! FIELD SLEEVE FAILED (selection: {e}) -- THE PROJECTION SLEEVE IS USED\n" + "!" * 80, flush=True)
+    if a.tail_sleeve and not book_tail and a.sleeve_cap_share is not None:
         pcap = main_exposure_cap(a.sleeve_cap_share, a.tail_sleeve)
         sleeve_cap = {"share": a.sleeve_cap_share, "rows": pcap, "fell_back": False}
         try:
@@ -645,7 +687,9 @@ def main(argv: list[str] | None = None) -> int:
         conf["union"]["pmo_x50"] = pmo_main
     conf["main_selector_used"] = a.main
     if a.tail_sleeve:
-        conf["tail_sleeve"] = {"rows": a.tail_sleeve, "line": tail_line, "selector": "mean", "selector_used": "mean", "class": {},
+        used_field = bool(field_meta.get("used"))
+        conf["tail_sleeve"] = {"rows": a.tail_sleeve, "line": tail_line, "selector": "field" if a.sleeve_source == "field" else "mean",
+                               "selector_used": f"field_{a.sleeve_field_mode}" if used_field else "mean", "class": {}, "field": field_meta,
                                "worlds": "incumbent selection + corrected hsim", "book_rows": f"{a.entries + 1}..{a.entries + a.tail_sleeve}",
                                "repeats_of_main_rows": len(set(book_tail) & set(book)),
                                "player_cap": sleeve_cap, "exposure": sleeve_exposure(book_tail, rosters, fr),

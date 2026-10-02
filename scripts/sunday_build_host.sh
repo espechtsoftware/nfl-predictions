@@ -320,6 +320,15 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
     fi
     [[ -n "$OWN_SRC" ]] && UNION_ARGS+=(--main-own-tilt "$OWN_TILT" --main-own-source "$OWN_SRC")
   fi
+  # The winner-shaped tail sleeve (operator 2026-10-02, after the corpus audit): the Millionaire/FFWC/$555 rows come from a
+  # field-like sample built from the pre-lock ownership predictor -- the term's source when there is one, else Saturday's
+  # lag file. union_reselect.py falls back LOUDLY to the projection sleeve on any failure.
+  if [[ "${UNION_SLEEVE_SOURCE:-mean}" == "field" ]]; then
+    SLV_SRC="${OWN_SRC:-${OWNERSHIP_LAG:-}}"
+    UNION_ARGS+=(--sleeve-source field --sleeve-field-mode "${UNION_SLEEVE_FIELD_MODE:-top}" --sleeve-max-per-game "${UNION_SLEEVE_MAX_PER_GAME:-5}")
+    [[ -n "$SLV_SRC" ]] && UNION_ARGS+=(--sleeve-own-source "$SLV_SRC")
+    echo "TAIL SLEEVE SOURCE for $RUN_TAG: field sample (${UNION_SLEEVE_FIELD_MODE:-top}, <= ${UNION_SLEEVE_MAX_PER_GAME:-5} per game) from ${SLV_SRC:-NO OWNERSHIP FILE (will fall back)}"
+  fi
   # drop the term's flags from an argument list (the refusal fallbacks below)
   strip_own() { OUT_ARGS=(); local skip=0; for x in "$@"; do
       if (( skip )); then skip=0; continue; fi
