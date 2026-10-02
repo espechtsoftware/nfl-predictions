@@ -12,6 +12,59 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-02 (05:45 CDT) — OPERATOR: "Changes need to be made today" (after the corpus-win audit draft) → the chalk-core sleeve is READY FOR WEEK 4 on the threads pin, smoked THROUGH live_week.py; laptop: wire + full smoke if the operator says go
+
+**Why this lever.** The corpus-win audit (`review/corpus-win-audit-20261002` @ f1579f71, draft) finds the pool below the
+field at every line in W1 and W3 (W3 top-1% 0.39×, top-0.1% 0.08×), and the Week-4 union design changes nothing at the pool
+level. Winners and the top-1% are a chalk core plus pieces (Q11, the contrarian study). The only generation lever we have
+tested in that direction is L07's chalk-core sleeve: it is built, and nothing else is.
+
+**Built for Week 4:** nfl2 `production/week4-chalk-sleeve-20261002` @ **`58c0128`** = the threads pin **32cdb61** +
+`a30bbea` (the sleeve, cherry-picked from 54e5852; the `live_week` conflict resolved keeping the class-sleeve model
+receipt) + `58c0128` (hardening found by the smoke).
+
+**Smoked through `scripts/live_week.py`** on the workstation, the real Week-4 slate (group 154078):
+- **Inputs:** `--selector mean --lev 0 --boom 400 --tail-sleeve 5 --tail-sleeve-selector mean --mean-dst-cap 0.25
+  --max-per-game 4 --min-proj 1.0 --chalk-sleeve-every 4 --chalk-sleeve-offset 1`. Sets and lag files were built fresh
+  with `ownership_sets.py sets` (`--lag-features`) for Week 4.
+- **The first smoke found a Sunday-killer:** five long snappers (DePaola, Winchester, Fraboni, Deckers, Wagner) are
+  TE-eligible and projected 2.0 at $2,500, but the ownership model never labels them. The sleeve's coverage check
+  refused, which would have stopped the build.
+- **Fixed:** an unlabeled playable skill player counts as **LOW** and is named in the receipt (`unlabeled_as_low`). **Any
+  sleeve failure is loud but never stops the build:** `!!! CHALK-CORE SLEEVE FAILED … BUILDING WITHOUT IT` plus
+  `chalk_sleeve.failed` in the receipt. `live_week.py` also lacked `import sys`; added. Tests updated; the related lab
+  suites pass.
+- **Result:** exit 0; **100 of 400 boom solves are chalk-core (25%)**, every one with ≤ 2 LOW, ≥ 1 of the top-15 and
+  salary ≥ $49,500.
+- The sleeve rows against the plain boom rows (means):
+
+| Rows | LOW players | Top-15 chalk | Projection | Predicted ownership sum |
+|---|---:|---:|---:|---:|
+| plain boom | 4.43 | 1.82 | 115.05 | 48.0 |
+| chalk-core | 1.97 | 2.69 | 120.28 | 58.1 |
+
+- **The forced-failure smoke** (`--chalk-sleeve-k 5000`): the banner printed, exit 0, a 400-boom pool, and the
+  `chalk_sleeve.failed` receipt. **The no-stop path works.**
+- No long snapper appears in any pool lineup (0 of 400). The 2.0 projection looks like a floor and is harmless here,
+  but noted.
+
+**Evidence, honestly:**
+- L07 (blend labels): primary `finish_share_above_best` d −0.0068, 90% [−0.0150, +0.0003], a near miss. Clears ≥ 194
+  went 35 → 58. On a Week-4-style book: best-row share 6.3% → 5.2%, tickets flat.
+- **Without LineStar (60 of 100 players today) the labels are the lag model's.** L07's LAG co-report is weaker:
+  `finish_share` d +0.0008 (no gain), clears 35 → 49.
+- The sleeve's gain, where it exists, is the best row (the Millionaire and tail), not satellite tickets.
+
+**→ LAPTOP (wiring; your protected files), only on the operator's go:**
+1. `week_env.sh`: `CHALK_SLEEVE_EVERY` (default unset = off), `CHALK_SLEEVE_OFFSET=1`, and `CHALK_SLEEVE_SETS` /
+   `CHALK_SLEEVE_OWN` pointing at Saturday's `ownership_sets.csv` and `ownership_lag.csv`. Use the blend csv instead of
+   the lag file when LineStar has filled before the build. Add them to the arm pass-list.
+2. `sunday_build_host.sh` (and every supply build: Saturday D12800 / D6400, Sunday-early D12800, 09:10, T-70): pass
+   `--chalk-sleeve-every $CHALK_SLEEVE_EVERY --chalk-sleeve-offset … --chalk-sleeve-sets … --chalk-sleeve-own …` when
+   set. The class sleeve on every 2nd visit and the chalk sleeve on every 4th from 1 are disjoint, so 25%.
+3. Pin → `58c0128` (it contains 32cdb61). The FULL smoke on it, through the timers' real commands this time, plus
+   `check_prospective_gates.py`.
+
 ## 2026-10-02 (04:27 CDT) — Laptop: O-17 closed — the T-70 projection overrides work end to end in Cloud Run
 
 - The operator ran the two executions (~04:17 CDT). The rules-on run's spec carries `T70_ACTIVE_Q=1,T70_VACATED_BUMP=1`
