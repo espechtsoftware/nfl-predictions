@@ -32,7 +32,45 @@ ARCHIVE_PREFIX = "licensed/fantasy-points/articles"
 BQ_TABLE = "fantasy_points_articles"
 LIST_PAGES = ("https://www.fantasypoints.com/nfl/articles", "https://www.fantasypoints.com/nfl/dfs")
 ALWAYS = re.compile(r"injury-tracker", re.I)
-MIN_TEXT_CHARS = 300
+MIN_TEXT_CHARS = 1500          # reviewer 10-02: full Week-4 articles ran 7,538-102,523 chars; previews 1,495-4,548
+# The paywall's own words (Week 4: the five betting articles, behind the In-Season Betting add-on, carried this banner and
+# were stored as articles before this check existed). Generic words ("subscribe", "upgrade") appear in full articles too.
+PAYWALL = re.compile(r"subscribe for full access|gain access to this content", re.I)
+_DENY_KEYS = re.compile(r"^(has_?access|can_?view|is_?premium_?locked|is_?locked|locked|paywalled)$", re.I)
+
+
+class Paywalled(RuntimeError):
+    """The account cannot read this article (a preview); skipped, not an error."""
+
+
+def is_denied(article: dict[str, Any]) -> bool:
+    """A lock signalled in the payload: any `CtaLock*` value, or an access flag that denies access."""
+    if "CtaLock" in json.dumps(article):
+        return True
+    def walk(x: Any) -> bool:
+        if isinstance(x, dict):
+            for k, v in x.items():
+                if _DENY_KEYS.match(str(k)):
+                    deny_when_true = str(k).lower().replace("_", "") in ("ispremiumlocked", "islocked", "locked", "paywalled")
+                    if (v is True and deny_when_true) or (v is False and not deny_when_true):
+                        return True
+                if walk(v):
+                    return True
+        elif isinstance(x, list):
+            return any(walk(v) for v in x)
+        return False
+    return walk(article.get("access"))
+
+
+def article_season(a: dict[str, Any]) -> int | None:
+    """The listing's season; else the published date's NFL season (Jan-Feb belong to the previous year); else None."""
+    if a.get("season") is not None:
+        return int(a["season"])
+    m = re.match(r"(\d{4})-(\d{2})", str(a.get("publishedDate") or ""))
+    if not m:
+        return None
+    y, mo = int(m.group(1)), int(m.group(2))
+    return y - 1 if mo <= 2 else y
 
 
 def week_pattern(week: int) -> re.Pattern:
@@ -45,7 +83,7 @@ def select_articles(listing: list[dict[str, Any]], *, season: int, week: int) ->
     for a in listing:
         if not isinstance(a, dict) or not a.get("path"):
             continue
-        if a.get("season") is not None and int(a["season"]) != season:
+        if article_season(a) != season:                     # reviewer 10-02: a missing season no longer passes
             continue
         text = f"{a.get('title', '')} {a.get('slug', '')}"
         if (pat.search(text) or ALWAYS.search(a.get("slug", ""))) and a["path"] not in seen:
@@ -59,9 +97,8 @@ def article_record(article: dict[str, Any], text: str, *, season: int, week: int
     authors = author if isinstance(author, list) else [author]
     names = [x.get("name") if isinstance(x, dict) else x for x in authors if isinstance(x, (dict, str))]
     name = ", ".join(n for n in names if n) or None
-    access = article.get("access")
-    if isinstance(access, dict) and any(str(v).lower() in ("locked", "true") and "lock" in str(k).lower() for k, v in access.items()):
-        raise RuntimeError(f"article {article.get('slug')} is locked")
+    if is_denied(article) or PAYWALL.search(text or ""):
+        raise Paywalled(f"article {article.get('slug')} is a paywalled preview")
     if len(text or "") < MIN_TEXT_CHARS:
         raise RuntimeError(f"article {article.get('slug')}: only {len(text or '')} characters of text (a paywall preview?)")
     cats = article.get("categories")
@@ -100,7 +137,7 @@ def collect(profile_dir: Path, timeout_s: float, *, season: int, week: int, outp
         raise RuntimeError("Fantasy Points browser profile is missing; run `fantasy-points-ownership login --terminal-credentials`")
     retrieved_at = datetime.now(UTC); stamp = retrieved_at.strftime("%Y%m%dT%H%M%SZ")
     listing: list[dict[str, Any]] = []; bodies: dict[str, dict[str, Any]] = {}
-    rows, failures = [], {}
+    rows, failures, paywalled = [], {}, []
     out = output_root / f"season={season}" / f"week={week:02d}" / stamp
     out.mkdir(parents=True, exist_ok=True)
     with sync_playwright() as pw:
@@ -133,7 +170,7 @@ def collect(profile_dir: Path, timeout_s: float, *, season: int, week: int, outp
                 try:
                     page.goto(f"https://www.fantasypoints.com{a['path']}", wait_until="domcontentloaded"); page.wait_for_timeout(5_000)
                     text = page.inner_text("article") if page.locator("article").count() else page.inner_text("main")
-                    art = next((v for k, v in bodies.items() if k.endswith(a["slug"])), None)
+                    art = bodies.get("/content" + a["path"])          # the exact key (reviewer 10-02: no suffix match)
                     if art is None:
                         raise RuntimeError("no article payload observed")
                     rec = article_record(art, text, season=season, week=week)
@@ -144,12 +181,17 @@ def collect(profile_dir: Path, timeout_s: float, *, season: int, week: int, outp
                     rec["source_sha256"] = _sha_bytes(blob.encode())
                     rec["archive"] = _archive(path, season, week) if archive else None
                     rows.append(rec)
+                except Paywalled:
+                    paywalled.append(a.get("slug", "?"))
                 except Exception as exc:       # noqa: BLE001 -- one bad article must not lose the others
                     failures[a.get("slug", "?")] = f"{type(exc).__name__}: {exc}"
         finally:
             ctx.close()
     manifest = {"version": COLLECTOR_VERSION, "season": season, "week": week, "retrieved_at_utc": retrieved_at.isoformat(),
-                "listed": len(listing), "selected": len(rows) + len(failures), "captured": len(rows), "failures": failures,
+                "listed": len(listing), "selected": len(rows) + len(failures) + len(paywalled), "captured": len(rows),
+                "paywalled_skipped": paywalled, "failures": failures,
+                "text_chars": ({"min": min(r["text_chars"] for r in rows), "median": sorted(r["text_chars"] for r in rows)[len(rows) // 2]}
+                               if rows else None),
                 "articles": [{"slug": r["slug"], "title": r["title"], "author": r["author"], "chars": r["text_chars"]} for r in rows],
                 "bigquery": None}
     if load and rows:
@@ -183,8 +225,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         collect(a.profile_dir, a.timeout, season=a.season, week=a.week, output_root=a.output_root,
                 archive=not a.no_archive, load=not a.no_load)
         return 0
-    except (OSError, RuntimeError, ValueError) as exc:
-        print(f"ERROR: {exc}", file=sys.stderr)
+    except Exception as exc:                 # noqa: BLE001 -- incl. google.api_core errors on the load (reviewer 10-02, item 4)
+        print(f"ERROR: {type(exc).__name__}: {exc}", file=sys.stderr)
         return 2
 
 

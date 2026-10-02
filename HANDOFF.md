@@ -12,6 +12,40 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-02 (13:12 CDT) — REVIEWER's review of 09a19fe3 (rankings) + 46d1a610 (articles): fine as capture-only; fixes applied; 5 paywalled previews REMOVED from the articles table
+
+**Reviewer (summarised faithfully):** both are fine as CAPTURE ONLY; nothing touches Sunday.
+- **Rankings:** ROS also dropped SEASON evidence. Require >= 95% matching season.
+- **Articles:**
+  1. A listing row without a season skipped the season filter.
+  2. The lock heuristic was weak (refuse on CtaLock / access-denying flags; raise MIN_TEXT_CHARS to ~1,500; check the
+     Week-4 rows for previews).
+  3. The suffix match could pick the wrong article.
+  4. BigQuery errors escaped main's except.
+  5. **Licensed full text in BigQuery:** "acceptable under the project's existing posture, the same as the SIS/FP raw
+     tables (private bucket, private dataset, never in git). Conditions: no view, report or artifact republishes the
+     text, and reports quote at most short excerpts." Whether FP's terms allow it is **the operator's call**, to be
+     flagged once.
+  6. The blank-author rows are fine.
+
+**Found while checking item 2:** 5 of the 20 Week-4 rows were **paywalled previews** stored as articles. The betting
+articles (Guru's / Brolley's Best Bets, Kelly's Discrepancy Props, Same-Game Parlays, Staff Picks) sit behind the
+In-Season Betting add-on, and their text carries "SUBSCRIBE FOR FULL ACCESS TODAY! Gain access to this content …".
+Generic CTA words also appear in full articles (Heath's 26k-char piece has "subscribe"), so they cannot decide.
+
+**Fixed** (this commit):
+- Articles:
+  - the PAYWALL phrase and `is_denied()` (CtaLock*, hasAccess/canView false, is*Locked true) skip the article as
+    `paywalled_skipped`, not an error;
+  - MIN_TEXT_CHARS 1500, with min/median `text_chars` in the manifest;
+  - the exact payload key `/content` + path;
+  - `article_season()` falls back to the published date (Jan–Feb = the previous season), and no season = skipped;
+  - main catches every exception with a named ERROR.
+- Rankings ROS requires >= 95% of rows with the matching season.
+- Tests 15.
+- **The 5 preview rows were DELETED** from `nfl_raw.fantasy_points_articles` (exactly those 5, matched on the banner).
+  15 Week-4 rows remain. The GCS archive keeps the raw previews (create-once).
+- Live dry run: 15 captured, 5 `paywalled_skipped`, authors populated, text_chars min 7,538 / median 12,498.
 ## 2026-10-02 (13:07 CDT) — Laptop: Fantasy Points capture map COMPLETE for Week 4 (operator: "capture as much of it as possible … I could cancel another")
 
 **What the account serves, and where each piece lands (capture only; nothing feeds a build):**

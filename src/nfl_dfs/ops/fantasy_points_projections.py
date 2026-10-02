@@ -114,6 +114,9 @@ def normalize_whole(payload: dict[str, Any], what: str, *, season: int, week: in
     with_week = sum(1 for v in values if isinstance(v, dict) and v.get("season") is not None and v.get("week") is not None)
     if require_week and with_week < WEEK_EVIDENCE_MIN * len(values):
         raise RuntimeError(f"{what}: only {with_week} of {len(values)} rows carry season and week; the week cannot be verified")
+    with_season = sum(1 for v in values if isinstance(v, dict) and v.get("season") is not None and int(v["season"]) == season)
+    if not require_week and with_season < WEEK_EVIDENCE_MIN * len(values):     # reviewer 10-02: ROS still proves its SEASON
+        raise RuntimeError(f"{what}: only {with_season} of {len(values)} rows carry season {season}; a stale season cannot be ruled out")
     for v in values:
         if not isinstance(v, dict):
             raise RuntimeError(f"{what}: a value is not an object")

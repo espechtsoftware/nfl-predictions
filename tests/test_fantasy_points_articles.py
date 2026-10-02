@@ -25,14 +25,27 @@ def test_select_takes_the_week_and_the_injury_tracker_only():
 def test_record_keeps_the_author_name_only_and_refuses_previews():
     art = {"articleId": 7, "slug": "s", "path": "/p", "title": "T", "author": {"name": "Ryan Heath", "email": "x@y.com"},
            "categories": ["DFS"], "publishedDate": "2026-10-02T12:43:00Z", "topic": "dfs"}
-    rec = fpa.article_record(art, "x" * 500, season=2026, week=4)
-    assert rec["author"] == "Ryan Heath" and "email" not in str(rec) and rec["text_chars"] == 500
+    rec = fpa.article_record(art, "x" * 2000, season=2026, week=4)
+    assert rec["author"] == "Ryan Heath" and "email" not in str(rec) and rec["text_chars"] == 2000
     with pytest.raises(RuntimeError, match="paywall preview"):
         fpa.article_record(art, "short teaser", season=2026, week=4)
-    with pytest.raises(RuntimeError, match="locked"):
-        fpa.article_record({**art, "access": {"locked": True}}, "x" * 500, season=2026, week=4)
+    for access in ({"locked": True}, {"hasAccess": False}, {"canView": False}, {"level": "CtaLockValue"}):
+        with pytest.raises(fpa.Paywalled):
+            fpa.article_record({**art, "access": access}, "x" * 2000, season=2026, week=4)
+    with pytest.raises(fpa.Paywalled):                         # Week 4's betting previews: the banner, ~1.5-4.5k chars
+        fpa.article_record(art, "x" * 3000 + " Already a subscriber? Sign in SUBSCRIBE FOR FULL ACCESS TODAY! Gain access to this content",
+                           season=2026, week=4)
+    assert fpa.article_record({**art, "access": {"hasAccess": True}}, "x" * 2000 + " subscribe to the podcast", season=2026, week=4)
 
 
 def test_author_list_gives_the_names():
     art = {"articleId": 1, "slug": "s", "author": [{"name": "Tom Brolley", "authorId": "x", "title": "Owner"}, {"name": "Scott Barrett"}]}
-    assert fpa.article_record(art, "x" * 400, season=2026, week=4)["author"] == "Tom Brolley, Scott Barrett"
+    assert fpa.article_record(art, "x" * 2000, season=2026, week=4)["author"] == "Tom Brolley, Scott Barrett"
+
+
+def test_season_falls_back_to_the_published_date_and_a_missing_one_is_skipped():
+    rows = [{"title": "Week 4 a", "slug": "week-4-a", "path": "/a", "publishedDate": "2026-10-01T12:00:00Z"},
+            {"title": "Week 4 b", "slug": "week-4-b", "path": "/b", "publishedDate": "2025-10-01T12:00:00Z"},
+            {"title": "Week 4 c", "slug": "week-4-c", "path": "/c"}]
+    assert [a["path"] for a in fpa.select_articles(rows, season=2026, week=4)] == ["/a"]
+    assert fpa.article_season({"publishedDate": "2027-01-10T00:00:00Z"}) == 2026                 # January = last season
