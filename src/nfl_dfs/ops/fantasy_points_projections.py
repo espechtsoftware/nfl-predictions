@@ -40,8 +40,16 @@ TABLES = {
     "dfs": ("https://www.fantasypoints.com/nfl/projections/dfs", "/tables/nfl/projections/dfs", "fantasy_points_dfs_projections"),
     "weekly": ("https://www.fantasypoints.com/nfl/projections/weekly", "/tables/nfl/projections/weekly", "fantasy_points_weekly_projections"),
     "betting": ("https://www.fantasypoints.com/nfl/projections/betting", "/tables/nfl/projections/betting", "fantasy_points_betting_projections"),
+    # the expert rankings (operator 10-02: "capture as much of it as possible"); kept whole, like weekly
+    "rankings-weekly": ("https://www.fantasypoints.com/nfl/rankings/redraft/weekly", "/tables/nfl/rankings/redraft/weekly",
+                        "fantasy_points_rankings_weekly"),
+    "rankings-ros": ("https://www.fantasypoints.com/nfl/rankings/rest-of-season", "/tables/nfl/rankings/rest-of-season",
+                     "fantasy_points_rankings_ros"),
 }
-MIN_ROWS = {"dfs": 1, "weekly": 100, "betting": 10}
+# tables whose rows carry no week by design (rest-of-season): the capture is stamped with the requested week, and the
+# week-evidence rule does not apply; every other whole table must prove its week (WEEK_EVIDENCE_MIN)
+NO_WEEK_TABLES = {"rankings-ros"}
+MIN_ROWS = {"dfs": 1, "weekly": 100, "betting": 10, "rankings-weekly": 100, "rankings-ros": 100}
 WEEK_EVIDENCE_MIN = 0.95          # share of whole-table rows that must carry season AND week (reviewer 10-02, item 1)
 COERCE_FAIL_SHARE = 0.03          # DraftKings dfs rows losing salary or points to a parse failure (item 3)
 _EMAIL = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
@@ -96,21 +104,22 @@ def normalize_dfs(payload: dict[str, Any], *, season: int, week: int) -> list[di
     return rows
 
 
-def normalize_whole(payload: dict[str, Any], what: str, *, season: int, week: int) -> tuple[list[dict[str, Any]], dict[str, int]]:
+def normalize_whole(payload: dict[str, Any], what: str, *, season: int, week: int,
+                    require_week: bool = True) -> tuple[list[dict[str, Any]], dict[str, int]]:
     """Weekly / betting: key fields plus the whole row as JSON (no column is dropped). The table has no table-level week,
     so the rows are the only evidence: at least WEEK_EVIDENCE_MIN of them must carry season and week, all of those must
     match, and the rows without them are counted (reviewer 10-02, item 1)."""
     rows = []
     values = _table(payload, what)["values"]
     with_week = sum(1 for v in values if isinstance(v, dict) and v.get("season") is not None and v.get("week") is not None)
-    if with_week < WEEK_EVIDENCE_MIN * len(values):
+    if require_week and with_week < WEEK_EVIDENCE_MIN * len(values):
         raise RuntimeError(f"{what}: only {with_week} of {len(values)} rows carry season and week; the week cannot be verified")
     for v in values:
         if not isinstance(v, dict):
             raise RuntimeError(f"{what}: a value is not an object")
         if v.get("season") is not None and int(v["season"]) != season:
             raise RuntimeError(f"{what}: a row is for season {v['season']}, expected {season}")
-        if v.get("week") is not None and int(v["week"]) != week:
+        if v.get("week") is not None and int(v["week"]) != week and not (not require_week and int(v["week"]) == 0):   # ROS: week 0
             raise RuntimeError(f"{what}: a row is for week {v['week']}, expected {week}")
         rows.append({"season": season, "week": week, "player_id": v.get("playerId"), "name": v.get("name"),
                      "position": v.get("fantasyPosition") or v.get("position"), "team": v.get("team"),
@@ -202,7 +211,7 @@ def collect(profile_dir: Path, timeout_s: float, *, season: int, week: int, whic
             if k == "dfs":
                 rows = normalize_dfs(body, season=season, week=week)
             else:
-                rows, evidence = normalize_whole(body, k, season=season, week=week)
+                rows, evidence = normalize_whole(body, k, season=season, week=week, require_week=k not in NO_WEEK_TABLES)
             if len(rows) < MIN_ROWS[k]:
                 raise RuntimeError(f"{k}: only {len(rows)} rows")
             out = output_root / k / f"season={season}" / f"week={week:02d}" / stamp
@@ -266,7 +275,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     ap.add_argument("--timeout", type=float, default=120.0); ap.add_argument("--season", type=int, default=2026)
     sub = ap.add_subparsers(dest="command", required=True)
     c = sub.add_parser("collect"); c.add_argument("--week", type=int, required=True)
-    c.add_argument("--tables", default="dfs,weekly")   # betting: a 3-row preview on the 10-02 plan (In-Season Betting add-on)
+    c.add_argument("--tables", default="dfs,weekly,rankings-weekly,rankings-ros")   # betting: a 3-row preview on the 10-02 plan (In-Season Betting add-on)
     c.add_argument("--output-root", type=Path, default=default_profile_dir().parent / "fantasy-points-projections")
     c.add_argument("--no-archive", action="store_true"); c.add_argument("--no-load", action="store_true")
     a = ap.parse_args(argv)

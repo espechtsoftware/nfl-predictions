@@ -72,3 +72,17 @@ def test_coerced_nulls_counts_values_lost_on_parsing():
     frame = pd.DataFrame({"salary": pd.to_numeric(pd.Series([9100, "n/a"]), errors="coerce"),
                           "fantasy_points": pd.to_numeric(pd.Series(["21.1", None]), errors="coerce")})
     assert fpp.coerced_nulls(rows, frame) == {"salary": 1, "fantasy_points": 0}                 # None was never present
+
+
+def test_rest_of_season_rankings_need_no_week_but_a_wrong_week_still_refuses():
+    v = {"playerId": "C3", "name": "Some Ranked Player", "rank": 12}
+    body = {"session": SESSION, "content": {"table": {"values": [v] * 5}}}
+    rows, ev = fpp.normalize_whole(body, "rankings-ros", season=2026, week=4, require_week=False)
+    assert len(rows) == 5 and ev == {"rows_without_week": 5}
+    rows0, _ = fpp.normalize_whole({"session": SESSION, "content": {"table": {"values": [{**v, "season": 2026, "week": 0}]}}},
+                                   "rankings-ros", season=2026, week=4, require_week=False)          # season-long = week 0
+    assert len(rows0) == 1
+    with pytest.raises(RuntimeError, match="week 3"):
+        fpp.normalize_whole({"session": SESSION, "content": {"table": {"values": [{**v, "week": 3}]}}}, "rankings-ros",
+                            season=2026, week=4, require_week=False)
+    assert "rankings-ros" in fpp.NO_WEEK_TABLES and "rankings-weekly" not in fpp.NO_WEEK_TABLES
