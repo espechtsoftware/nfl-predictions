@@ -206,7 +206,12 @@ if r["config"].get("selector") != selector: problems.append(f"selector {r['confi
 _ts = (r["config"].get("tail_sleeve") or {}); got_sleeve = int(_ts.get("rows", 0)) if isinstance(_ts, dict) else int(_ts or 0)
 if got_sleeve != sleeve: problems.append(f"tail sleeve {got_sleeve} != configured {sleeve}")
 sleeve_used = (_ts.get("selector_used") if isinstance(_ts, dict) else None) or "none"
-if sleeve and sleeve_used not in ("class", "emax", "mean"): problems.append(f"tail sleeve selector_used {sleeve_used!r} is none of class/emax/mean")
+_field = (_ts.get("field") or {}) if isinstance(_ts, dict) else {}
+_field_ok = sleeve_used in ("field_top", "field_band", "field_free") and _field.get("used") is True   # the field sleeve (operator 10-02)
+if sleeve and sleeve_used not in ("class", "emax", "mean") and not _field_ok:
+    problems.append(f"tail sleeve selector_used {sleeve_used!r} is none of class/emax/mean/field_* (field used: {_field.get('used')})")
+if sleeve and _field.get("requested") and not _field.get("used"):
+    print(f"NOTE: the FIELD SLEEVE was requested and FELL BACK to the projection sleeve: {_field.get('failed')}")
 if sleeve and sleeve_used == "emax" and isinstance(_ts, dict) and isinstance(_ts.get("class"), dict) and _ts["class"].get("failure"):
     print(f"NOTE: the class selector FAILED and the sleeve fell back to EMAX: {_ts['class'].get('failure')}")
 total_rows = entries + sleeve

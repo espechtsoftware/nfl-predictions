@@ -1,6 +1,7 @@
 """field_sleeve (the winner-shaped tail sleeve, operator 2026-10-02): the house-rule filter, the ownership targets
 (position totals, DST rule, exclusions, coverage), the salary tilt, the chunked sampler, the pick orders, and the build
 host's flags. Synthetic frames; the real sampler on Week-4 data is the integration test (HANDOFF)."""
+import json
 import subprocess
 import sys
 from pathlib import Path
@@ -133,3 +134,28 @@ def test_build_host_passes_the_sleeve_flags_and_falls_back_to_the_lag_file():
     out = run('UNION_SLEEVE_SOURCE=field; OWN_SRC=; OWNERSHIP_LAG=/x/lag.csv')
     assert "/x/lag.csv" in out and "top" in out
     assert [x for x in run('UNION_SLEEVE_SOURCE=mean; OWNERSHIP_LAG=/x/lag.csv') if x] == []
+
+
+def _verify_k90_script() -> str:
+    host = (Path(__file__).resolve().parents[1] / "scripts" / "sunday_build_host.sh").read_text()
+    a = host.index("verify_k90() {"); a = host.index("<<'PYEOF'\n", a) + len("<<'PYEOF'\n"); b = host.index("\nPYEOF", a)
+    return host[a:b]
+
+
+@pytest.mark.parametrize("used,label,ok", [(True, "field_top", True), (True, "field_free", True), (False, "field_top", False),
+                                           (None, "mean", True), (True, "bogus", False)])
+def test_verify_k90_accepts_the_field_sleeve_only_when_it_was_used(tmp_path, used, label, ok):
+    """The 10-02 field-sleeve smoke: verify_k90 accepted only class/emax/mean, so a used field sleeve refused the union."""
+    d = tmp_path / "run"; d.mkdir()
+    rows = [["QB", "RB", "RB", "WR", "WR", "WR", "TE", "FLEX", "DST"]] + [[str(10 * k + j) for j in range(9)] for k in range(3)]
+    (d / "book.csv").write_text("\n".join(",".join(r) for r in rows) + "\n")
+    for n in ("book.json", "candidates.parquet", "frame.parquet", "exposure_ledger.json"):
+        (d / n).write_text("x")
+    field = {} if used is None else {"requested": True, "used": used}
+    (d / "receipt.json").write_text(json.dumps({"identity": {"sha": "abc", "dirty": False}, "written": 3, "lock_utc": "L", "draft_group": 1,
+        "book_k80_is_nested_prefix": True, "config": {"selector": "mean", "lev": 0, "boom": 4800, "operational_k": 2,
+        "tail_sleeve": {"rows": 1, "selector_used": label, "field": field}}}))
+    (tmp_path / "v.py").write_text(_verify_k90_script())
+    r = subprocess.run([sys.executable, str(tmp_path / "v.py"), str(d), "0", "4800", "2", "0", "abc", "L", "1", "1", "mean"],
+                       capture_output=True, text=True)
+    assert (r.returncode == 0) is ok, r.stdout + r.stderr
