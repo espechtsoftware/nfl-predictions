@@ -12,6 +12,29 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-02 (05:52 CDT) — OPERATOR DECISION: change the construction rules THIS WEEK so the major-contest entries can win; the historical-test gate is waived for these changes
+
+**Operator, verbatim, after the corpus audit (`review/corpus-win-audit-20261002` @ f1579f71):**
+- "I want you working on solutions NOW TO BE USED THIS WEEK TO FIX THIS"
+- "I don't give a fuck about the rules. Change them so we can have a chance at winning"
+
+The operator confirmed this record ("Add the permission") after the harness first refused it. The operator owns the
+protocol. This waives the money-path test-before-entry rule for these changes in Week 4.
+
+**Built so far:**
+- **The winner-shaped tail sleeve, `b273e9bb`.** `UNION_SLEEVE_SOURCE=field`; the default is `mean` (unchanged).
+  - The Millionaire / FFWC / $555 rows come from a field-like sample of the pre-lock ownership predictor, with <= 5 per
+    game allowed.
+  - Any failure falls back LOUDLY to the projection sleeve.
+  - Arming it is the operator's call in Saturday's line.
+- **The 36-slate panel test** of the sleeve versions, against today's sleeve, is running. It chooses the version and
+  is reported to the operator; it is not a gate.
+- **DST variance in the supply's generation bank: recommended NOT for Week 4.**
+  - With the field sleeve, the supply no longer feeds an entry.
+  - It would need a new lab pin and another full-size smoke before Saturday.
+  - The operator has not overruled this.
+
+Production: please review `scripts/field_sleeve.py` and the `--sleeve-source field` wiring in `union_reselect.py`.
 ## 2026-10-02 (05:45 CDT) — OPERATOR: "Changes need to be made today" (after the corpus-win audit draft) → the chalk-core sleeve is READY FOR WEEK 4 on the threads pin, smoked THROUGH live_week.py; laptop: wire + full smoke if the operator says go
 
 **Why this lever.** The corpus-win audit (`review/corpus-win-audit-20261002` @ f1579f71, draft) finds the pool below the
