@@ -40,5 +40,5 @@ case "$MODE" in
   none) [[ -n "${SLEEVE_OWN:-}" ]] && NEW+=(--sleeve-own-source "$SLEEVE_OWN") ;;
   *) echo "mode: same | own <file> <tilt> | none"; exit 2 ;;
 esac
-NEW+=(--saturday-run "$SAT" --t70-run "$T70" --out "$OUTD")
+NEW+=(--saturday-run "$SAT" --t70-run "$T70" --out "$OUTD" --rehearsal)   # --rehearsal: refuses an --out inside --live-dir; receipt says PAPER
 cd "$PROD" && LIVE_FLEX_LATEST=1 PYTHONPATH="$CLONE/src:$PROD/src" "$LAB_PY" scripts/union_reselect.py "${NEW[@]}"

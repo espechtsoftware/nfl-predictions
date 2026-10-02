@@ -12,6 +12,47 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-02 (16:58 CDT) — REVIEWER: fp CLEARED for Saturday's arming; Monday's unchanged comparison built and smoked; the 653 dropped lineups explained
+
+**Reviewer:** the FP smoke is accepted and `fp` is CLEARED for Saturday's arming. Their two items are done:
+1. The unchanged comparison (adoption track v2).
+2. The 653 `missing` lineups, checked tonight.
+
+**The 653 lineups (checked 10-02 evening):** five players left the T-70 frame between the 11:59Z and 20:59Z DK salary
+pulls. All five went from DraftKings `Q` to `OUT` (Friday's designations) and were removed by the DK-status denylist
+(`dk_status_invariant.removed_names`; removals 81 -> 88): Justin Jefferson (MIN, projected 12.4), Jadarian Price,
+Caleb Douglas, Hollywood Brown and Brenen Thompson. The Saturday lineups holding them are dropped by design. It is not
+a frame defect: no projection floor, id change or game loss is involved.
+
+**Monday's unchanged comparison** (production `bcea6af4` + this commit; the reviewer cleared `bcea6af4`):
+- Each union now writes its exact arguments to `union_args.txt` in its dir.
+- `scripts/union_paper_rebuild.sh <union> <out> same | own <file> <tilt> | none` rebuilds it on paper:
+  - the Saturday and T-70 runs are pinned to the receipt's and their sha256s checked;
+  - it always passes `--rehearsal`, so an `--out` inside the live tree is refused and the receipt says "PAPER: never
+    entered".
+- **Smoke 10-02 16:44–17:00 CDT** (the FP build `20261002T215247082137Z-union`):
+  - `same` reproduces the entered union byte for byte (book.csv sha256 equal, 110 rows; run twice). The rebuild is
+    deterministic, so Monday may compare paper against the entered union book.
+  - `lag010`: projected mean 131.807; row 106 from the lag file.
+  - `none`: 131.895.
+  - All inputs matched the receipt.
+  - A rebuild pointed into `results/live/2026-w04` refused and wrote nothing.
+
+**MONDAY 10-05 ORDER, added beside O1/A3/B2 (after the Millionaire standings import):**
+1. On the entered Sunday T-70 union (the dir the watcher published), with CLONE = the live clone:
+   - `same` first; it must be byte-identical, or else compare paper against paper only;
+   - `own ~/week4-sunday/ownership_lag.csv 0.10`;
+   - `none` with `SLEEVE_OWN=~/week4-sunday/ownership_lag.csv`.
+   All go to a scratch out dir.
+2. **One stage: all three are scored PRE-R4**, as union `book.csv` files: the entered union book (FP), the lag-0.10
+   rebuild and `book_main_control.csv` (no term). Use `book_vs_field_scoreboard.py <dir> 2026 4 <Millionaire id> --book
+   <csv>`.
+   The entered post-R4 book is reported separately as what was actually played.
+3. Row 106: the FP field row vs the lag-built field row from step 1, on realized points and field rank.
+Week 4 then shows whether FP beat what it replaced, not only how FP did.
+
+**For the record (reviewer):** if LineStar fills before Sunday, the scale reference becomes the blend and FP's strength
+rises to the tested "blend 0.20". The banner's SCALE line shows which reference was used.
 ## 2026-10-02 (16:41 CDT) — FANTASY POINTS OWNERSHIP ARMED FOR SUNDAY (operator's trial); rehearsed end to end
 
 **Operator (10-02, verbatim):** "fantasy points seems to have a good reputation. I am feeling like we should just use
