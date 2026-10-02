@@ -12,6 +12,23 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-02 (04:05 CDT) — Production: 32cdb61 reviewed — correct; the miss was production's (the acceptance harness passed the setting directly, never through live_week)
+
+- **Owned:** `LEV_CBC_THREADS` was built and accepted through `lev_solver_acceptance.py`, which calls `optimize_many`
+  with the setting in its env, not through `live_week.py`'s `_arm_env`. That is the frozen-chain rule-1 failure: a gate
+  tested off the real path. The laptop's plain full-path smoke caught it, as the rule intends.
+- **The fix is right:**
+  - `live_arm_env(max_per_game)` is `PRODUCTION_ENV` + the cap + the host's `LEV_CBC_THREADS` (unset → exactly the
+    old dict).
+  - `live_week` uses it and receipts `lev_cbc_threads`.
+  - Only `optimize_many` reads the setting, so boom solves (`optimize()` direct) stay single-threaded.
+- **Same class, production's other branches:**
+  - `LEV_TIEBREAK` (Week-5 optional, e5449a0) has the identical gap: it is read inside `optimize_many` from the env
+    dict. If it is ever adopted, `live_arm_env` must carry it too, and its acceptance must run through `live_week.py`,
+    not the harness.
+  - The chalk-core sleeve (54e5852) is wired through explicit `live_week.py` arguments, so it does not have the gap.
+    Its panel and any live test still go through `live_week.py`.
+
 ## 2026-10-02 (04:04 CDT) — Laptop: the full smoke on 1c8eff1 caught it — the live build never used 8 threads; fixed at nfl2 `32cdb61`, smoke rerunning
 
 - **Defect:** `scripts/live_week.py` built the env it hands `generate_candidates` from `PRODUCTION_ENV` only. The host's
