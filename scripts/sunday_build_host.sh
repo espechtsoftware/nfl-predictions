@@ -360,7 +360,9 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
       if (( skip )); then skip=0; continue; fi
       case "$x" in --main-own-tilt|--main-own-source) skip=1 ;; *) OUT_ARGS+=("$x") ;; esac; done; }
   T2=$(date +%s)
-  run_union() { ( cd "$PROD" && LIVE_FLEX_LATEST="${LIVE_FLEX_LATEST:-1}" PYTHONPATH="$CLONE/src:$PROD/src" "$LAB_PY" scripts/union_reselect.py "$@" 2>&1 | tee "$OUT/union-$RUN_TAG.txt"; return "${PIPESTATUS[0]}" ); }
+  # the exact arguments of the last union call, kept with the union dir so Monday can rebuild the incumbent's book on
+  # paper from the same inputs (scripts/union_paper_rebuild.sh; adoption track v2's unchanged comparison)
+  run_union() { printf '%q ' "$@" > "$OUT/union-args-$RUN_TAG.txt"; ( cd "$PROD" && LIVE_FLEX_LATEST="${LIVE_FLEX_LATEST:-1}" PYTHONPATH="$CLONE/src:$PROD/src" "$LAB_PY" scripts/union_reselect.py "$@" 2>&1 | tee "$OUT/union-$RUN_TAG.txt"; return "${PIPESTATUS[0]}" ); }
   UNION_RC=0; run_union "${UNION_ARGS[@]}" || UNION_RC=$?
   if (( UNION_RC != 0 )) && grep -q 'OWN TERM REFUSED' "$OUT/union-$RUN_TAG.txt"; then
     # the union refused the term's file or its solves (named, before any output): step down to the lag file at the lag
@@ -396,6 +398,7 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   fi
   UNION_DIR=$(sed -n 's/^UNION -> //p' "$OUT/union-$RUN_TAG.txt" | tail -1)
   [[ -n "$UNION_DIR" && -n "${OWN_REFUSED:-}" && ! -f "$UNION_DIR/own_term_refused.txt" ]] && cp "$OUT/union-$RUN_TAG-own-refused.txt" "$UNION_DIR/own_term_refused.txt"
+  [[ -n "$UNION_DIR" && -f "$OUT/union-args-$RUN_TAG.txt" ]] && cp "$OUT/union-args-$RUN_TAG.txt" "$UNION_DIR/union_args.txt"
   [[ -n "$UNION_DIR" && -f "$OUT/own_term_fallback-$RUN_TAG.txt" ]] && cp "$OUT/own_term_fallback-$RUN_TAG.txt" "$UNION_DIR/own_term_fallback.txt" \
     && echo "!!! OWNERSHIP TERM FELL BACK for this union: $UNION_DIR/own_term_fallback.txt"
   [[ -n "$UNION_DIR" && -f "$UNION_DIR/receipt.json" ]] || { echo "union run dir not found in $OUT/union-$RUN_TAG.txt"; touch "$K90_DIR/union_failed"; exit 1; }
