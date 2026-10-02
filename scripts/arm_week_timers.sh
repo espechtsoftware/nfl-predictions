@@ -187,6 +187,11 @@ if [[ "$RUN" == "--run" ]]; then
       || { echo "TABPFN PREFLIGHT FAILED: the L23 rows file is missing or not sha 0bec4237" >&2; exit 2; }
     [[ -s "${OWNERSHIP_LAGS:-$OUT/ownership_lags.csv}" ]] || { echo "TABPFN PREFLIGHT FAILED: Saturday's lags file is missing (ownership_tabpfn.py lags)" >&2; exit 2; }
   fi
+  if [[ "${UNION_MAIN_OWN_PREDICTOR:-blend}" == "fp" ]]; then
+    # Fantasy Points' ownership (operator 10-02): the saved FP session must verify at arming; Sunday falls back loudly if not
+    ( cd "$PROD" && PYTHONPATH="$PROD/src" "$PROD_PY" -m nfl_dfs.ops.fantasy_points_ownership verify-login >/dev/null 2>&1 ) \
+      || { echo "FP PREFLIGHT FAILED: the Fantasy Points session does not verify (fantasy-points-ownership login --terminal-credentials)" >&2; exit 2; }
+  fi
   if [[ -n "${EARLY_SUPPLY_CT:-}" ]]; then
     [[ -x "$GCLOUD" ]] || { echo "gcloud not executable: $GCLOUD (the Sunday-early refresh needs it)" >&2; exit 2; }
   fi

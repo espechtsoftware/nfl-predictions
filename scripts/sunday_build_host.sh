@@ -298,7 +298,25 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
            --season "$SEASON" --week "$WEEK" --out "$OUT/ownership_blend-$RUN_TAG.csv" ); then
       BLEND_SRC="$OUT/ownership_blend-$RUN_TAG.csv"
     fi
-    if [[ "${UNION_MAIN_OWN_PREDICTOR:-blend}" == "tabpfn" ]]; then
+    # Fantasy Points' ownership first (UNION_MAIN_OWN_PREDICTOR=fp; operator 10-02, a reversible Week-4 trial): capture
+    # it NOW (the T-70 numbers), export it matched to this frame and rescaled to the blend's (else the lag's) skill
+    # total; any failure falls back LOUDLY to the TabPFN -> blend -> lag chain below.
+    FP_WHY=""
+    if [[ "${UNION_MAIN_OWN_PREDICTOR:-blend}" == "fp" ]]; then
+      ( cd "$PROD" && PYTHONPATH="$PROD/src" timeout 240 "$PROD_PY" -m nfl_dfs.ops.fantasy_points_ownership collect --week "$WEEK" ) \
+          > "$OUT/ownership_fp-$RUN_TAG.txt" 2>&1 || echo "FP OWNERSHIP CAPTURE FAILED for $RUN_TAG (see $OUT/ownership_fp-$RUN_TAG.txt); the newest earlier capture is used if fresh"
+      if ( cd "$PROD" && PYTHONPATH="$PROD/src" timeout 120 "$PROD_PY" scripts/ownership_fp.py --season "$SEASON" --week "$WEEK" \
+             --frame "$K90_DIR/frame.parquet" --lag "$OWNERSHIP_LAG" ${BLEND_SRC:+--blend "$BLEND_SRC"} \
+             --out "$OUT/ownership_fp-$RUN_TAG.csv" ) 2>&1 | tee -a "$OUT/ownership_fp-$RUN_TAG.txt"; then
+        OWN_SRC="$OUT/ownership_fp-$RUN_TAG.csv"
+        echo "OWNERSHIP TERM SOURCE for $RUN_TAG: FANTASY POINTS ($(basename "$OWN_SRC")) at tilt $OWN_TILT"
+      else
+        FP_WHY="$(grep -h 'REFUSED' "$OUT/ownership_fp-$RUN_TAG.txt" | tail -1)"; FP_WHY=${FP_WHY:-the export failed}
+      fi
+    fi
+    if [[ -n "$OWN_SRC" ]]; then
+      :
+    elif [[ "${UNION_MAIN_OWN_PREDICTOR:-blend}" == "tabpfn" || "${UNION_MAIN_OWN_PREDICTOR:-blend}" == "fp" ]]; then
       TAB_WHY=""
       if [[ -z "$BLEND_SRC" ]]; then
         TAB_WHY="no valid LineStar capture (TabPFN and the blend both need it)"
@@ -324,6 +342,7 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
       own_use_lag
       own_banner BLEND "no valid LineStar capture"
     fi
+    [[ -n "$FP_WHY" ]] && own_banner "FANTASY POINTS" "$FP_WHY"
     [[ -n "$OWN_SRC" ]] && UNION_ARGS+=(--main-own-tilt "$OWN_TILT" --main-own-source "$OWN_SRC")
   fi
   # The winner-shaped tail sleeve (operator 2026-10-02, after the corpus audit): the Millionaire/FFWC/$555 rows come from a
