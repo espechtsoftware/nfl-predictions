@@ -94,3 +94,7 @@ writes market_source_log in the same run as player_projections. This was verifie
 execution with the T-70 rules on (`project-slate-fvzzj`): player_projections 09:20:08Z, market_source_log 09:19:52Z.
 The one-run pairing (<= 300 s) therefore holds. If it refuses on Monday, B2 is not graded for that week, and the miss is
 disclosed; no fallback run is substituted.
+
+**Known limit (reader, 10-02):** `market_source_log` carries no team. B2 therefore drops a name that occurs twice on the
+main slate's DraftKings list (any position), and a name whose log rows differ in position; both are printed. Two
+same-name players of whom only one is on the slate are matched by name to the slate's one.

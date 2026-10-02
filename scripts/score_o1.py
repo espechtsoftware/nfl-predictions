@@ -78,7 +78,10 @@ def main(argv: list[str] | None = None) -> int:
         rec = Path(str(a.linestar)[:-4] + ".receipt.json")
         if not rec.is_file():
             raise SystemExit(f"LineStar capture {a.linestar} has no receipt ({rec.name}); its capture time cannot be shown pre-lock")
-        cap = pd.Timestamp(json.loads(rec.read_text())["captured_at_utc"])
+        meta = json.loads(rec.read_text()); cap = pd.Timestamp(meta["captured_at_utc"])
+        import hashlib
+        if meta.get("csv_sha256") != hashlib.sha256(Path(a.linestar).read_bytes()).hexdigest():   # content identity (rule 2)
+            raise SystemExit(f"LineStar receipt {rec.name} does not vouch for {Path(a.linestar).name} (csv_sha256 differs); refused")
         if cap >= pd.Timestamp(a.lock_utc):
             raise SystemExit(f"LineStar capture at {cap} is not before the lock {a.lock_utc}; refused")
         print(f"LINESTAR capture used: {cap}")

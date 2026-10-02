@@ -113,7 +113,10 @@ def main(argv: list[str] | None = None) -> int:
     ours = ours[~ours.key.isin(set(coll.key))].drop_duplicates("key").set_index("key")
     sv = pd.Series(served.served.to_numpy(float), index=served.display_name.map(norm)).groupby(level=0).max()
     ours = gate(ours, sv)
-    on_slate = set(slate.display_name.map(norm))
+    sk = slate.display_name.map(norm); slate_dup = set(sk[sk.duplicated(keep=False)])
+    if slate_dup:                                   # two slate players with one name (any position, e.g. two WR "Mike Williams")
+        print(f"name collisions on the slate (dropped from the population): {sorted(slate_dup)}")
+    on_slate = set(sk) - slate_dup
     print(f"main slate {a.slate}: {len(on_slate)} DK players; projected players on it {int(ours.index.isin(on_slate).sum())}")
     ours = ours[ours.index.isin(on_slate)]
     fps = pd.Series(fp.fantasy_points.to_numpy(float), index=fp.name.map(norm)).groupby(level=0).max()
