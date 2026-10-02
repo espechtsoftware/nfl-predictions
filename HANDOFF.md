@@ -12,6 +12,44 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-02 (18:33 CDT) — PRODUCTION CHECKOUT UPDATED to b5a4e622 (operator approved); arm dry run OK; one accidental build start, quarantined
+
+**Found in the readiness sweep:** `~/projects/nfl-predictions` (the checkout the arm runs from) was at `26a21f48`, 211
+commits behind the tested code. No Saturday step updated it, and row 12 forbids changes after arming.
+- **Operator approved** ("Yes"). The checkout was clean; `git pull --ff-only` took it to `b5a4e622`.
+- The hourly DK ingest loop runs from this checkout; `host_ingest_dk_loop.sh` is unchanged across the 211 commits, and
+  the service is still active.
+- `pip install -e . --no-deps` in its venv registered the two new entry points (`fantasy-points-projections`,
+  `-articles`). No dependency changes.
+- The checkout is clean after all of it.
+
+**Checks, not arming:**
+- `arm_week_timers.sh 4` without `--run`, with the exact Saturday line: exit 0. Every build unit carries
+  `UNION_MAIN_OWN_PREDICTOR=fp`, tilt 0.20, `UNION_SLEEVE_SOURCE=field`, `UNION_SLEEVE_FIELD_ROWS=1`,
+  `LEV_CBC_THREADS=8`, `UNION_MAIN=pmo_x50`, `EXPECT_SHA=32cdb61` and `PROD=~/projects/nfl-predictions`.
+  - Units: Saturday D12800 10:30 and D6400 10:35; Sunday D12800 05:00, D3200 09:10, T-70 10:50, watchers 09:12, T-70
+    pull and project 10:33/10:36.
+  - The printed `systemd-run` lines are display only: PATH holds Windows folders with parentheses, so they cannot be
+    pasted. `--run` passes the environment as an array.
+- `run_week_build.sh --check` (the arm's own preflight): it stops only on the missing
+  `~/week4-sunday/ownership_sets.csv`, which is Saturday step 3, as expected.
+- `check_prospective_gates.py --week 4`: every gate that must be armed is armed. It warns about SIS pass-tail (first
+  graded week 5, schedulers PAUSED), a next-week question.
+- Also OK: gcloud ADC, CUDA for TabPFN, 900 GB free, the live clone at 32cdb61 and clean.
+
+**MY ERROR, contained:** I ran `sunday_build_host.sh --check`, believing `--check` was check-only. It is not (only the
+wrapper `run_week_build.sh` handles it), so a real D4800 build started against the live OUT and the live clone.
+`timeout 300` stopped it during step 1a.
+- Nothing was built, uploaded or entered, and no process survived.
+- It left five files: an empty run dir, `LATEST` and a warnings-only `.err` in the live clone's
+  `results/live/2026-w04`; a build log and a runbook in `~/week4-sunday`.
+- All five were MOVED (not deleted) to `~/.cache/laptop-agent/accidental-build-20261002T2326Z/`. Both live folders are
+  back to their prior state: `2026-w04` is empty again, as it was.
+- Lesson: never call `sunday_build_host.sh` for a check. The arm's preflight is `run_week_build.sh --check`.
+
+**Saturday, before step 5 (arm):** confirm `git -C ~/projects/nfl-predictions log -1`. It must be at or after
+`b5a4e622`, with only HANDOFF/report commits beyond it; `git pull --ff-only` if HANDOFF moved. It must be clean. No
+other change after arming.
 ## 2026-10-02 (16:58 CDT) — REVIEWER: fp CLEARED for Saturday's arming; Monday's unchanged comparison built and smoked; the 653 dropped lineups explained
 
 **Reviewer:** the FP smoke is accepted and `fp` is CLEARED for Saturday's arming. Their two items are done:

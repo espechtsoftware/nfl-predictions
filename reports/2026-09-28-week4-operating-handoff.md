@@ -346,6 +346,10 @@ Operator steps are marked **(operator, laptop)**. Everything else is the agent's
    - Sunday needs nothing by hand. Each union captures LineStar, blends, and solves the main with the term. A refused
      capture keeps Saturday's. A refused blend or term builds the main without it, named in capitals.
 4. The FP ownership capture: `fantasy-points-ownership collect --week 4`.
+4a. **The production checkout is at the tested code** (found missing 10-02): `git -C ~/projects/nfl-predictions log -1`
+   at or after `b5a4e622` (only HANDOFF/report commits beyond it), `git status` clean; `git pull --ff-only` if not.
+   Nothing changes there after arming. The arm's preflight is `run_week_build.sh --check`; never call
+   `sunday_build_host.sh --check`, because that starts a real build.
 5. **(operator, laptop) arm**, after `chosen-dose.env` holds `CHOSEN_LEV=0` / `CHOSEN_BOOM=4800` (or Wednesday's
    measured boom):
    ```
