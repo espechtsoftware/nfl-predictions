@@ -352,13 +352,16 @@ Operator steps are marked **(operator, laptop)**. Everything else is the agent's
    GROUP=154078 EXPECT_SHA=32cdb6112beb68ce5171423a8e12bf684256bbf2 CLONE=$HOME/projects/.nfl2-worktrees/week4-live-center \
    D3200_LEV=0 D3200_BOOM=4800 D800_LEV=0 D800_BOOM=4800 SKIP_UNITS="d6400" \
    LEV_CBC_THREADS=8 EARLY_PROPS_CT=04:30 EARLY_PROJECT_CT=04:45 EARLY_SUPPLY_CT=05:00 \
-   UNION_MAIN=pmo_x50 UNION_MAIN_OWN_TILT=0.20 UNION_MAIN_OWN_PREDICTOR=tabpfn UNION_SLEEVE_CAP=0.5 UNION_SLEEVE_SOURCE=field \
+   UNION_MAIN=pmo_x50 UNION_MAIN_OWN_TILT=0.20 UNION_MAIN_OWN_PREDICTOR=tabpfn UNION_SLEEVE_CAP=0.5 UNION_SLEEVE_SOURCE=field UNION_SLEEVE_FIELD_ROWS=1 \
    T70_MIN_PROJ_CT=10:30 T70_PROJECT=1 UNION_SATURDAY_RUN=auto UNION_PMO=0 scripts/arm_week_timers.sh 4 --run
    ```
    **10-02 (the FULL smoke on 32cdb61 passed):** the pin is the threads pin `32cdb61` (week_env default too);
    `LEV_CBC_THREADS=8` (the D12800 took 2 h 35 min at 8 threads); the Sunday-early D12800 at 05:00 (props 04:30, projections
    04:45; done ~07:35); `UNION_SLEEVE_SOURCE=field` (the operator's 06:10 choice, smoked end to end with publish, swap and
    R4). `UNION_MAIN`/`UNION_MAIN_OWN_*`/`UNION_SLEEVE_CAP` are written out so the line is complete on its own.
+   **`UNION_SLEEVE_FIELD_ROWS=1`** (the reviewer's ruling under the operator's delegation, 10-02 ~07:15): the field row
+   goes to the Millionaire (book row 106); the projection sleeve fills the $555 ×2 and FFWC ×2 rows (107–110) with the
+   field row taken. Smoked clean on all four of the reviewer's criteria (HANDOFF).
    **Saturday supply fallback (operator 10-01, cracks audit B):** `SKIP_UNITS="d6400"` (no longer `d6400sat`), so the
    Saturday 10:35 D6400 also builds; `UNION_SAT_DOSE` defaults to `2560/10240,1280/5120`, so a D12800 that is not finished
    when a Sunday union runs falls back to the D6400, with a `!!! SATURDAY SUPPLY FALLBACK` line.

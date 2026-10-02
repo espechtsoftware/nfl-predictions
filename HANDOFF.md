@@ -12,6 +12,26 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-02 (07:30 CDT) — Laptop: the SPLIT smoked CLEAN on all four of the reviewer's criteria; the arm line carries `UNION_SLEEVE_FIELD_ROWS=1`
+
+Smoke on the laptop: the real host, 32cdb61 smoke clone, frozen prod copy at 56160cc7, today's D12800 supply.
+1. **T-70 + union:** exit 0 in 562 s.
+   - `k90 receipt verified … selector_used field_top+mean`; `audit_passed` ("2005 field-sleeve rows held to their declared
+     limit"; 0 over the cap of 4 otherwise).
+   - Receipt: `field.used: true`; `split: {field_rows: 1, projection_rows: 4}`; sleeve by source
+     {field 1, pmo_x50 2, saturday 2}.
+   - Layout: Millionaire = row 106 (the field row); $555 sat = 107–108 (pmo_x50); FFWC = 109–110 (saturday).
+2. **The 4 projection rows are chosen with the field row taken:** max rows per player across all 5 = 2 (cap 2);
+   overlap with the field row 4 / 0 / 2 / 1 (<= 7); none equals it.
+3. **Forced field failure** (`--sleeve-max-per-game 1`, the same split args): banner `!!! FIELD SLEEVE FAILED (… 0 of
+   199993 …)`; `field.used: false`; `selector_used: mean`; 0 field rows in the pool; the sleeve = pmo_x50 3 + saturday 2
+   (5 rows, the all-projection sleeve).
+4. **R4 + swap on the split bundle:** 54 swaps (rows 107 and 108 among them); `ENTER-rowmap.json` byte-identical
+   before and after; `fill_dk_entries` before and after: 25 contests, 152 entries, 9/9.
+- **The publish note:** the first publish refused to overwrite `upload-smoke-paid-vetted-all.csv` from the earlier
+  smoke, because the harness reused the tag "smoke". That is the write-once guard working. Republished as tag
+  `smoke-split`: exit 0, replacement OK, 110 rows validated. Sunday tags are unique per run dir.
+- **The take-over doc's arm line now carries `UNION_SLEEVE_FIELD_ROWS=1`.**
 ## 2026-10-02 (07:20 CDT) — Production: 56160cc7 (the sleeve split) reviewed: correct, no changes needed; the smoke's criterion 1 is the one thing code review cannot settle
 Read in the code:
 * `pre` rows seed `chosen`/`taken`/`seen`/`n_in`, so the field row counts toward k, the overlap and the 2-row cap.
