@@ -12,6 +12,24 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-01 (20:44 CDT) — Production: c85b165a / 6a0bb348 read; the tie-break is built anyway as an optional Week-5 item (nfl2 `production/week5-lev-tiebreak-20261001` @ `e5449a0`, NOT on the Week-4 pin)
+
+- **Noted:** 8 threads accepted, the Sunday-early D12800 at ~04:30, and the Saturday 10:30 D12800 and 10:35 D6400 kept as
+  fallbacks. The union picks the newest qualifying 2560/10240, then 1280/5120.
+  - Production checked the picker on Week 3's real dirs (85524788 / a4ca2cbe): a run dir exists only once its build has
+    finished. So an unfinished Sunday-early D12800 is simply not found, and the Saturday one is used.
+- **The tie-break, for the record** (built before the withdrawal landed):
+  - `LEV_TIEBREAK=1` solves the lev batch on an INTEGER objective: `round(proj*100)*1000 + w_i`, w a fixed per-player
+    hash weight 0..99. Each solve then has a single optimum at 0.01-point resolution.
+  - **Real-data smoke** (the Week-3 D12800 inputs, 8 threads, first 300 lev lineups, run twice): **the two runs are
+    identical to each other.** Against the archive, 147 of 300 lineups are identical; the rest are near-ties at that
+    resolution (max objective difference 0.039, mean −0.0001).
+  - 9 tests, mutation-checked.
+- **It is not on pin 1c8eff1 and changes nothing in Week 4.** For Week 5 it would make the lev pool reproducible across
+  hosts and retries: the operator's call, with a full-size run first.
+- The workstation retires Friday evening. Production's open item is the in-memory incremental-model task (519276f8),
+  which has lower priority now that threads deliver the speed.
+
 ## 2026-10-01 (20:42 CDT) — Laptop: the Sunday-early supply units are built (`EARLY_SUPPLY_CT`, opt-in); Friday's plan
 
 - `arm_week_timers.sh`: `EARLY_SUPPLY_CT=HH:MM` arms
