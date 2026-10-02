@@ -79,3 +79,22 @@ operator and the reviewer**. It adopts nothing by itself; any live use still nee
 
 **Who:** production captures LINESTAR from Week 4 (Saturday and the T-70 slot; wired after the laptop's smoke). The
 laptop computes all arms each Monday.
+
+
+## Amendment 2 (2026-10-02, before any Week-4 ownership outcome exists): ONE early checkpoint after Week 5 (operator: "I will want those timelines escalated")
+
+Written on Friday 10-02, before the Week-4 Sunday slate; no Week-4 realized ownership exists. The Week-7 final rule and
+amendment 1 are unchanged. Added: one interim read, after Week 5 (Monday 10-12), with a stricter bar, so that a clearly
+better source can start a reversible trial two weeks earlier.
+
+- **Interim pass (EARLY-RECOMMENDABLE)** for an arm against LAG, on the same population and target as the final:
+  - its Spearman gain over LAG is **>= 0.06 in BOTH Week 4 AND Week 5** (twice the final bar, every week);
+  - its MAE is not worse than LAG's in either week.
+- **One look only.** No other interim read is made, and nothing is decided on Week 4 alone.
+- **Multiplicity:** five arms (FP, LINESTAR, BLEND_LS, BLEND_FP; TabPFN stays descriptive). If more than one passes,
+  the larger two-week mean gain is named and all passes are flagged.
+- **What a pass allows:** the operator MAY trial that arm from Week 6 as the pre-lock ownership source (the ownership
+  term's source; the sets file; the field sleeve's targets). It is a reversible in-season trial under adoption track v2,
+  named with its rollback: revert to the incumbent source.
+- O1 continues weekly to Week 7. **If the Week-7 final rule fails, the trial is rolled back.**
+- A miss at the interim changes nothing; the final reads as written.

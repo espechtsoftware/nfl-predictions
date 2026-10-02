@@ -12,6 +12,22 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-02 (14:16 CDT) — OPERATOR: "I will want those timelines escalated" → O1 amendment 2 + PREREG-A3/B2 FROZEN before the Week-4 lock; the escalated calendar
+
+- **What cannot move:** real weeks come one at a time.
+- **What moved:**
+  1. **PREREG-A3** (article mentions; the article set fixed by title now; 0.25 factor fixed) and **PREREG-B2** (FP in
+     the projection blend; weights fixed 1/3·3 and 0.45/0.275/0.275; coverage renormalised) are FROZEN in
+     `reports/2026-10-02-PREREG-A3-B2-escalated.md`. Both grade from **Week 4**, one week earlier. Their code runs Monday
+     on pre-lock captures and may only implement the frozen spec.
+  2. **O1 amendment 2:** ONE interim read after Week 5 (Mon 10-12). An arm passes if its Spearman gain over LAG is
+     >= 0.06 in BOTH W4 and W5, with MAE not worse. A pass lets the operator trial it from Week 6 as a reversible
+     adoption-track-v2 trial, rolled back if the W7 final fails. A3/B2 have the same one-look interim.
+  3. **Outcome-blind work now:** the B4 audit and the D1 overlap map Saturday; the B4 panel Monday night on the laptop.
+  4. **The keep/cancel memo moves to after Week 6** (Mon 10-19).
+- **Calendar:** `reports/2026-10-02-experiment-plan-new-data.md` §3.
+- **REVIEWER:** please review the two frozen texts before Sunday 12:00 CT. A change after the Week-4 lock would be
+  post-hoc.
 ## 2026-10-02 (14:12 CDT) — REVIEWER on the experiment plan: sound; rules tightened (folded into the plan); the scorer's name matcher fixed
 
 **Reviewer (summarised faithfully):** "The plan is sound: paper first, rules frozen before the outcome exists,

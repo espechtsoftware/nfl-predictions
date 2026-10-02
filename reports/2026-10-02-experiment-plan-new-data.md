@@ -186,20 +186,26 @@ exception: it can be back-tested now.
 
 **E2. = A3** (mention counts as an ownership input).
 
-## 3. Calendar
+## 3. Calendar (ESCALATED, operator 10-02: "I will want those timelines escalated")
+
+The constraint that does not move: real weeks arrive one at a time. The levers:
+- A3 and B2 grade from **Week 4** (rules frozen before the Week-4 lock: `reports/2026-10-02-PREREG-A3-B2-escalated.md`).
+- **One early checkpoint after Week 5** with a doubled bar (O1 amendment 2; the same for A3/B2). A clear winner can
+  start a reversible trial in Week 6.
+- The outcome-blind work happens now: the B4 audit and the D1 overlap map this weekend; the B4 panel right after
+  Monday's grading.
+- The keep/cancel memo after Week 6.
 
 | When | What |
 |---|---|
-| **Sat 10-03** 10:07 | FP captures (ownership, projections, rankings, articles); B3/E1 disagreement report |
-| **Sun 10-04** 10:38 | T-70 FP captures; B3 quick check |
-| **Sun 10-04** ~12:30 | A1 quick read (descriptive) once the operator's post-lock export is imported |
-| **Mon 10-05** | A1 official (O1) Week 4; A2 paper books; B1 accuracy; B3 who was right; C1 grade; C3 lines |
-| **Week 5** (by Sat 10-10) | Freeze: A2 rule, A3 rule + matcher (reviewed), B2 weight rule. Preregister B4. D1 overlap map |
-| **Weeks 5–7** | Weekly A1/A2/B1/B3/C1/C3 reads in HANDOFF (no action) |
-| **Mon 10-26** (after W7) | **A1/A2 decisions** (ownership source for the term and the sets) |
-| **Week 6–7** | B4 lab panel read |
-| **After W8** | **D3 memo** (keep/cancel); A3 read |
-| **After W9** | B2 decision (FP in the projection blend) |
+| **Fri 10-02** | FROZEN: O1 amendment 2 (interim after W5); PREREG-A3 and PREREG-B2 (grading from W4) |
+| **Sat 10-03** | FP captures 10:07 (feed A1/A3/B2); B3/E1 disagreement report; **B4 audit** (outcome-blind); **D1 overlap map** |
+| **Sun 10-04** | T-70 captures 10:38; A1 descriptive quick read ~12:30 |
+| **Mon 10-05** | Week-4 reads: A1 (official), A2, A3, B1, B2, B3, C1, C3. B4 preregistered; **the B4 panel starts on the laptop Monday night** (one process; never on a build day) |
+| **Week 5** | A3 matcher and B2 blend code reviewed (they run Monday 10-05 on Week 4's pre-lock captures; nothing about the rules changes) |
+| **Mon 10-12** (after W5) | **The early checkpoint:** A1/A3/B2 interim. A clear winner → the operator may trial it from Week 6. B4 panel read. D2 marginal value starts |
+| **Mon 10-19** (after W6) | **D3 keep/cancel memo** (4 graded weeks for the ownership sources; 3 for the rest; disclosed) |
+| **Mon 10-26** (after W7) | **The finals:** A1/A3/B2. A trial that fails its final is rolled back |
 
 ## 4. Governance
 
