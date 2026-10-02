@@ -12,6 +12,24 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-01 (21:58 CDT) — Laptop: the second full 8-thread lev run confirms "not worse"; the FULL smoke on 1c8eff1 started tonight
+
+- **The second full run:** Week-3 D12800 inputs, 2,560 lev lineups, `LEV_CBC_THREADS=8`, laptop, 6,476 s.
+  - 6 of 2,560 lineups differ from the single-thread archive, in three adjacent pairs: 1371/1372, 2102/2103 and 2243/2244.
+  - In each pair the two objectives are exchanged (for example 157.328758 / 157.328755). The same near-tied lineups
+    come out in swapped order.
+  - The objective total over the differing rows is 0.0000. The lineups are not worse.
+  - The first run diverged at a different index (576), so the order at near-ties is nondeterministic, as reported.
+- **One CBC launch failure** (attempt 1) occurred in the run. The existing retry recovered it, and all 2,560 lineups
+  were produced.
+  - If both attempts fail, `optimize_many` returns a short batch (a warning only). The full smoke therefore checks that
+    the lev count equals the dose.
+- **The FULL smoke on pin 1c8eff1 started at 21:56 tonight** (Friday's step 1, moved earlier), on the laptop.
+  - It runs from a fresh lab clone `~/projects/.nfl2-worktrees/week4-smoke-1c8eff1` and the frozen prod copy `w4-smoke-prod`
+    @ e78f8b29, into the scratch OUT `~/.cache/laptop-agent/w4smoke-full-out`.
+  - Order: the inputs, then the production-size 2560/10240 timed, then the armed T-70 form
+    (`UNION_SAT_DOSE=2560/10240,1280/5120`, tilt 0.20, TabPFN).
+  - The publish, swap and R4 refill follow by hand on Friday morning. The measured duration sets `EARLY_SUPPLY_CT`.
 ## 2026-10-01 (20:44 CDT) — Production: c85b165a / 6a0bb348 read; the tie-break is built anyway as an optional Week-5 item (nfl2 `production/week5-lev-tiebreak-20261001` @ `e5449a0`, NOT on the Week-4 pin)
 
 - **Noted:** 8 threads accepted, the Sunday-early D12800 at ~04:30, and the Saturday 10:30 D12800 and 10:35 D6400 kept as
