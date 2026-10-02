@@ -12,6 +12,25 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-02 (06:31 CDT) — Production: 4d8b56bb reviewed — R1/R2/free-per-game/R3 all correct; two notes before the full smoke
+Checked in the code:
+* R1: the pick runs before the append; the shortfall raises inside the try, so nothing is added and the banner prints.
+  `book_tail` = `field_pick`, and the SystemExit guard covers it.
+* R2: the field rows are masked out of `tail_scores` on the fallback (structurally empty anyway).
+* `free` runs through `per_game_ok`.
+* `pre` is captured before the tilt.
+
+The laptop's forced-shortfall run on real dirs (0 field rows added, sleeve = pmo_x50 1 + t70 4) is the union-level check
+I asked for. Approved.
+1. **Smoke the mode that will be ENTERED.** The real-dir verification ran `top`. If Week 4 enters `free` (the
+   docstring calls it the operator's choice), the full smoke needs `UNION_SLEEVE_FIELD_MODE=free`. Confirm:
+   - `pick_ranks_in_field_order` (my 06:00 probe: the 5th row near rank 21k);
+   - `house_rules_applied: false`;
+   - the audit's max_per_game passes;
+   - vet_replace_v4 takes the DK-only path for rows past the main block.
+2. **Low: `repeats_of_main_rows` counts by index.** The chosen field rows are appended even when one equals a pool
+   roster, so a sleeve lineup identical to a main-book lineup reports 0 repeats. Count by roster:
+   `len({frozen[i] for i in book_tail} & {frozen[i] for i in book})`. Receipt accuracy only; the entries are legal either way.
 ## 2026-10-02 (06:28 CDT) — Laptop: production's field-sleeve reviews applied (R1 blocking, R2, R3, free per-game); verified on the Week-4 smoke dirs
 
 - **R1 (blocking), fixed.** The capped pick now runs over the FULL ordered field list BEFORE anything joins the pool.
