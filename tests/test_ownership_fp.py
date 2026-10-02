@@ -35,3 +35,21 @@ def test_scale_matches_the_reference_skill_total_on_shared_players():
     assert of.scale_factor(m, ref) == pytest.approx(15.0 / 30.0)          # skill only, shared players only
     with pytest.raises(SystemExit, match="FP OWNERSHIP REFUSED: no scale reference"):
         of.scale_factor(m, pd.DataFrame({"display_name": ["Q"], "pred_own": [1.0]}))
+
+
+def test_one_fp_row_is_never_handed_to_a_second_player_of_the_same_name():
+    # reviewer 10-02: FP prices only the LAC Mike Williams; the NYJ one must stay unmatched, not inherit 4.0
+    fp = pd.DataFrame({"name": ["Mike Williams"], "team": ["LAC"], "projected_ownership_pct": [4.0]})
+    m = of.match_to_frame(fp, FRAME).set_index("id")
+    assert list(m.index) == ["g2"] and m.loc["g2", "fp_own"] == 4.0
+
+
+def test_unmatched_skill_players_get_the_lag_value_on_the_reference_scale():
+    miss = FRAME[FRAME.id.isin(["g3", "g4"])]
+    lag = pd.DataFrame({"dk_player_id": [13, 99, 98], "display_name": ["Mike Williams", "Jalen Coker", "X"],
+                        "pos": ["WR", "WR", "WR"], "pred_own": [3.0, 5.0, 2.0]})
+    assert of.fill_unmatched(miss, lag, lag).set_index("id").pred_own.to_dict() == {"g3": 3.0, "g4": 5.0}   # by dk id, then name
+    blend = lag.assign(pred_own=lag.pred_own * 2)                       # a reference on twice the lag's scale
+    f = of.fill_unmatched(miss, lag, blend).set_index("id")
+    assert f.pred_own.to_dict() == {"g3": 6.0, "g4": 10.0} and set(f.filled_from) == {"lag"}
+    assert of.fill_unmatched(miss.iloc[:0], lag, lag).empty

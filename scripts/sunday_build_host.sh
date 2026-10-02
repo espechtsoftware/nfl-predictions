@@ -309,7 +309,7 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
              --frame "$K90_DIR/frame.parquet" --lag "$OWNERSHIP_LAG" ${BLEND_SRC:+--blend "$BLEND_SRC"} --max-age-hours "${FP_MAX_AGE_HOURS:-30}" \
              --out "$OUT/ownership_fp-$RUN_TAG.csv" ) 2>&1 | tee -a "$OUT/ownership_fp-$RUN_TAG.txt"; then
         OWN_SRC="$OUT/ownership_fp-$RUN_TAG.csv"
-        echo "OWNERSHIP TERM SOURCE for $RUN_TAG: FANTASY POINTS ($(basename "$OWN_SRC")) at tilt $OWN_TILT"
+        echo "OWNERSHIP TERM SOURCE for $RUN_TAG: FANTASY POINTS ($(basename "$OWN_SRC")) at tilt $OWN_TILT; $(grep -h '^FP OWNERSHIP AGE' "$OUT/ownership_fp-$RUN_TAG.txt" | tail -1 | sed 's/^FP OWNERSHIP //')"
       else
         FP_WHY="$(grep -h 'REFUSED' "$OUT/ownership_fp-$RUN_TAG.txt" | tail -1)"; FP_WHY=${FP_WHY:-the export failed}
       fi
