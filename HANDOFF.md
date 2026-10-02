@@ -12,6 +12,18 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-02 (14:06 CDT) — OPERATOR: keep the FULL article text ("I have no concerns about storing it since it's for my personal use"); two uses planned
+
+- **Answered:** the open question of 14f0dce7 is closed. Full FP article text stays in the private
+  `nfl_raw.fantasy_points_articles`, under the reviewer's conditions: never republished; reports quote short excerpts only.
+- **Planned uses** (each on paper first):
+  1. **News cross-check:** the weekly disagreement report (FP vs our projections) reads the week's articles (Injury
+     Tracker, Game Hub, Everything Report) for the reason behind each large gap (the Bears-QB kind).
+  2. **Week-5 candidate, an ownership input:** per-player mention counts (and later a sentiment score) in the widely read
+     DFS articles (main-slate early look, Barfield's Slate Breakdown, Heath's Advanced Matchups) as a feature for the
+     ownership predictor. Graded beside O1 against the real ownership at lock, prospectively; there is no back-test,
+     because the archive starts 10-02.
+- **Not expected:** projection gains. The matchup content restates the Data Suite tables we already capture.
 ## 2026-10-02 (13:13 CDT) — REVIEWER: 8185519a APPROVED as capture-only; nothing further on the FP collectors
 
 **Reviewer (summarised faithfully):** approved. The checks:
