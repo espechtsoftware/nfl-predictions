@@ -138,11 +138,11 @@ def main(argv: list[str] | None = None) -> int:
     receipt = {"source": "fantasy_points_projected_ownership (DraftKings)", "retrieved_at": str(at), "age_hours": round(age, 2),
                "fp_last_updated": str(fp.last_updated.max()), "matched": int(len(m)), "fp_rows": int(len(fp)),
                "coverage_skill_proj5": round(cov, 4), "scale_reference": ref_path.name, "scale_factor": round(k, 4),
-               "reference_skill_total": round(ref_tot, 1), "unmatched_skill_proj5": int(len(miss)),
+               "scaled_fp_skill_total": round(ref_tot, 1), "unmatched_skill_proj5": int(len(miss)),
                "filled_from_lag": int(len(filled)), "csv_sha256": hashlib.sha256(a.out.read_bytes()).hexdigest()}
     Path(str(a.out) + ".receipt.json").write_text(json.dumps(receipt, indent=1) + "\n")
     print(f"FP OWNERSHIP OK: capture {at} ({age:.1f} h old), matched {len(m)} of {len(fp)}, coverage {cov:.1%}, "
-          f"scaled x{k:.3f} to {ref_path.name}'s skill total ({ref_tot:.1f} on the matched skill players) -> {a.out.name}")
+          f"scaled x{k:.3f} to {ref_path.name}'s skill total (scaled FP skill total {ref_tot:.1f}) -> {a.out.name}")
     print(f"FP OWNERSHIP AGE {age:.1f} h; SCALE {ref_path.name} x{k:.3f}")
     return 0
 

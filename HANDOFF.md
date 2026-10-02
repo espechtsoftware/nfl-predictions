@@ -12,6 +12,68 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-02 (16:41 CDT) — FANTASY POINTS OWNERSHIP ARMED FOR SUNDAY (operator's trial); rehearsed end to end
+
+**Operator (10-02, verbatim):** "fantasy points seems to have a good reputation. I am feeling like we should just use
+their ownership data this week. Can you please perform a test using it now? I know there is no historical data to back
+it up, but I want to try it. We can still do the study this week comparing the sources after the fact, but I would
+like to use it sunday". This is a reversible Week-4 trial under adoption track v2. There is no historical test (FP
+history starts this week). PREREG-O1 grades it after the fact (Monday 10-05, interim after W5).
+**Operator decision (10-02, relayed by the reviewer at his request):** FP's ownership also drives the Millionaire's
+field row (106): `SLV_SRC = OWN_SRC`, one file, one rollback. The reviewer agrees: the field sampler rescales each
+position to the slot totals, so only FP's within-position shape matters; DSTs stay on projection squared.
+
+**Code** (production `817afcb7`, `f5eb0921`, `ed3f57fc`, + this commit; reviewer CLEARED `ed3f57fc` as code):
+- `scripts/ownership_fp.py` reads the newest FP DK capture at or before now, no older than `FP_MAX_AGE_HOURS` (30). It
+  matches by name + team, else by a name unique in the whole frame and in FP. That fixes the reviewer's
+  two-Mike-Williams bug.
+- It refuses below 90% coverage of skill players projected >= 5. It rescales to the blend's skill total, else the lag
+  file's.
+- Unmatched skill players projected >= 5 are printed and filled from the lag file on the reference scale.
+- It writes a receipt (age, coverage, scale, sha256).
+- `sunday_build_host.sh`: with `UNION_MAIN_OWN_PREDICTOR=fp` each union captures FP and then exports. On refusal it falls
+  back LOUDLY to the TabPFN -> blend -> lag chain, with a `!!! OWNERSHIP FANTASY POINTS FAILED` banner. The source line
+  carries the capture age and the scale.
+- `arm_week_timers.sh`: the preflight requires a verified FP session (also verified from a systemd user unit, as the
+  timers run) and the TabPFN preflight (fp's first fallback).
+- Take-over doc §4 step 5: the arm line now reads `UNION_MAIN_OWN_PREDICTOR=fp`.
+
+**Rehearsal 10-02 16:19–16:39 CDT** (frozen copy at `f5eb0921`, smoke clone 32cdb61, scratch OUT; the real Week-4
+frame and a live FP capture):
+- **FP build:** `FP OWNERSHIP OK: capture 21:26:31Z (0.0 h old), matched 308 of 619, coverage 100.0%, scaled x0.633
+  to ownership_lag.csv's skill total`. Unmatched skill players projected >= 5: **0** (the fixed export on the same
+  frame gives identical values).
+- **Union:**
+  - `own_term`: tilt 0.20 on the FP file, 284 skill players matched by DK id, coverage 1.0.
+  - Projected mean with the term 131.862 vs plain 131.895.
+  - Predicted-ownership sum 81.6 vs 76.6.
+  - 30 of 105 rows are shared with the plain main.
+- **Audit:** `PASS main_own_term` (sha256, coverage, control main); build audit OK, 13 checks.
+- **Field row from the FP file:**
+  - field.source = the FP csv; 284 targets; coverage 1.0; 200,000 sampled, 3,232 legal, house rules, <= 5 per game.
+  - Top drawn shares track the tilted targets (McCaffrey 0.287/0.284, Chase Brown 0.257/0.255).
+  - Row 106 = `field` (projected 133.5, $49,700).
+- **Forced refusal** (`FP_MAX_AGE_HOURS=0`): `FP OWNERSHIP REFUSED`. Banners for FANTASY POINTS and TABPFN (no
+  LineStar), then the lag file at 0.10. The union and audit passed.
+- **Publish, R4, swap** on the FP union:
+  - publish: 110 rows validated; 25 contests / 152 entries, 9/9 cells;
+  - R4: exit 0, 43 swaps;
+  - swap: exit 0, row map IDENTICAL.
+- **Time:** the FP capture plus export adds about 25 s per union (591 s vs 562 s for the same build this morning).
+  The T-70 budget (10:50 -> 12:00) is unaffected.
+- **Book difference, same inputs:** the FP-term book vs today's no-LineStar fallback (lag at 0.10):
+  - 26 of 105 lineups identical; projected mean 131.86 vs 131.81.
+  - Exposure moves to FP's chalk: McCaffrey 52 vs 31 (cap 52), Chase Brown 52 vs 36, Hockenson 50 vs 37,
+    Skattebo 21 vs 11.
+  - Away from the lag's: Walker 41 vs 52, Love 27 vs 43, Mark Andrews 1 vs 13.
+- Unrelated, both builds: the Saturday pool dropped 653 lineups as `missing` (8 this morning). Players have left the
+  frame since this morning; this is the designed exclusion. Check Saturday whose status changed.
+
+**Reviewer's Week-5 suggestion (NOT an operator decision):** fill unmatched players from TabPFN instead of the lag
+file, when TabPFN ran with LineStar present. It is only worth it if smokes show more than a handful of players
+projected >= 5 being filled (this week: 0).
+**Rollback:** arm with `UNION_MAIN_OWN_PREDICTOR=tabpfn` (Saturday), or re-arm before 10:50 Sunday.
+**Next:** the Saturday crons as listed; send the operator the final arm line by ~10:25 Saturday.
 ## 2026-10-02 (14:34 CDT) — REVIEWER: 5ba2bb28 CLEARED; the Monday readers are done
 
 **Reviewer:** "The sha256 check refuses before anything is read from the file, and B2's slate query takes a single
