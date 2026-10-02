@@ -111,6 +111,10 @@ def test_field_candidates_orders_top_by_projection_and_drops_rule_breakers():
     rf, psf, rec_f = fs.field_candidates(fr, {}, 400, 1, 5, 0, "free", sampler=sampler)          # no filter, no minimum
     assert len(rf) == 4 and rec_f["legal"] == 3 and rec_f["house_rules_applied"] is False and list(psf) == sorted(psf, reverse=True)
     assert sorted(opts[3]) in [sorted(r) for r in rf]                                               # the stack-breaker stays
+    six = ["AQB0", "ARB0", "ARB1", "AWR0", "AWR1", "BWR0", "ATE0", "DWR0", "C_DST"]                 # 6 from g1
+    L6 = np.vstack([L, _idx(fr, [six])])
+    rf6, _, _ = fs.field_candidates(fr, {}, 500, 1, 5, 0, "free", sampler=lambda *a_: (np.vstack([L6] * 100)[: a_[2]], {}))
+    assert sorted(six) not in [sorted(r) for r in rf6] and len(rf6) == 4                             # free keeps the per-game limit
     with pytest.raises(ValueError, match="satisfy the house rules"):
         fs.field_candidates(fr, {}, 400, 1, 5, 0, "top", sampler=sampler)          # 3 legal < the default 50
     with pytest.raises(ValueError, match="mode"):

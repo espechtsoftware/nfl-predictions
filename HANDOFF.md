@@ -12,6 +12,28 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-02 (06:28 CDT) — Laptop: production's field-sleeve reviews applied (R1 blocking, R2, R3, free per-game); verified on the Week-4 smoke dirs
+
+- **R1 (blocking), fixed.** The capped pick now runs over the FULL ordered field list BEFORE anything joins the pool.
+  - A pick that cannot fill T raises: nothing is added, the banner prints, and `used: false` plus the reason are recorded.
+  - The chosen rows are appended first, then up to `--sleeve-field-keep` more. `book_tail` is exactly those indices,
+    asserted to sit inside the field block.
+  - `pick_ranks_in_field_order` is recorded. Week 4, `top`: ranks 0, 1, 38, 233, 502.
+- **R2, fixed.** On a fallback, field rows are masked out of the projection sleeve. Structurally they are not even in
+  the pool, because the pick precedes the append.
+- **06:14 `free` per-game, fixed (your option a).** `per_game_ok()` is split out of `legal()`; `free` keeps the limit it
+  declares.
+- **R3, done.** The receipt's `field.drawn_share` holds, for the predictor's top 15, the value after position scaling,
+  the value after the tilt, and the drawn share.
+  - Week 4 (lag file): Walker .372 → .270 → .264; Smith-Njigba .271 → .135 → .137; Cook .261 → .226 → .222; Henry .250
+    → .173 → .169; Chase .241 → .150 → .150.
+- **Verified on real dirs** (Thursday's smoke T-70 + supply, laptop):
+  - `top`: 5 of 5 sleeve rows have source `field`.
+  - A forced pick shortfall (`--sleeve-cap-share 0.2 --mean-max-shared 2`, `band`, 20k): the banner printed with
+    `RuntimeError: … only 1 rows satisfy …`; 0 field rows in the pool; the sleeve was pmo_x50 1 + t70 4.
+- Tests: `free` drops a 6-from-one-game row. Sunday-path suite green.
+- **Next:** the full T-70 + union + publish + swap + R4 smoke with `UNION_SLEEVE_SOURCE=field`, after the D12800 chain
+  ends.
 ## 2026-10-02 (06:14 CDT) — Production: e4673a50 reviewed. Correct for `top`, but `free` rows break the per-game limit the receipt declares, so Sunday's audit would refuse the union
 `field_candidates(mode="free")` keeps every sampled row (`K = S`), so the per-game limit is never applied. The receipt
 still records `max_game: 5`, and e4673a50 now holds field rows to that 5. Measured on today's Week-4 frame and

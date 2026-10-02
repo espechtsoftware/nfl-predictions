@@ -463,6 +463,7 @@ def main(argv: list[str] | None = None) -> int:
         rosters += pm; source += ["pmo"] * len(pm); tags += ["pmo"] * len(pm); sat_cand += [None] * len(pm); n_pmo = len(pm)
     # the winner-shaped sleeve's candidates (operator 2026-10-02): appended before any PMO row so every index stays put
     field_meta: dict = {"requested": a.sleeve_source == "field"}
+    field_pick: list[int] = []
     n_field_start = len(rosters)
     if a.sleeve_source == "field" and a.tail_sleeve:
         try:
@@ -475,13 +476,28 @@ def main(argv: list[str] | None = None) -> int:
                 raise ValueError(f"no ownership file ({src})")
             targets, tmeta = FS.ownership_targets(Path(src), fr, excl_f)
             f_rost, _f_ps, fmeta = FS.field_candidates(fr, targets, a.sleeve_field_n, a.sleeve_field_seed, a.sleeve_max_per_game,
-                                                       a.min_salary, a.sleeve_field_mode)
-            have = {frozenset(r) for r in rosters}
-            fresh = [r for r in f_rost if frozenset(r) not in have][: a.sleeve_field_keep]
-            rosters += fresh; source += ["field"] * len(fresh); tags += ["field"] * len(fresh); sat_cand += [None] * len(fresh)
-            field_meta.update({"targets": tmeta, **fmeta, "rows_added": len(fresh), "source_sha256": sha256_file(Path(src))})
+                                                       a.min_salary, a.sleeve_field_mode,
+                                                       report_ids=[r["id"] for r in tmeta.get("top15", [])])
+            # The capped pick runs over the FULL ordered field list BEFORE anything joins the pool (production review R1,
+            # 06:00): a pick that cannot fill T under the caps raises here, nothing is added, and the projection sleeve
+            # (as entered) runs with the banner; a pool row can never stand in for a field row.
+            pcap_f = main_exposure_cap(a.sleeve_cap_share, a.tail_sleeve) if a.sleeve_cap_share is not None else a.tail_sleeve
+            fsets = [frozenset(r) for r in f_rost]
+            pick = select_top_mean_player_cap(np.arange(len(f_rost), 0, -1, dtype=float), fsets, a.tail_sleeve, a.mean_max_shared, pcap_f)
+            chosen = [f_rost[i] for i in pick]                    # appended even when one equals a pool roster
+            have = {frozenset(r) for r in rosters} | {fsets[i] for i in pick}
+            picked = set(pick)
+            rest = [r for k, r in enumerate(f_rost) if k not in picked and fsets[k] not in have][: a.sleeve_field_keep]
+            field_pick = list(range(len(rosters), len(rosters) + len(chosen)))
+            rosters += chosen + rest; n_add = len(chosen) + len(rest)
+            source += ["field"] * n_add; tags += ["field"] * n_add; sat_cand += [None] * n_add
+            fmeta["drawn_share"] = {r["name"]: {"predicted": r["predicted"], "tilted": r["tilted"],
+                                                "drawn": fmeta.get("drawn_share", {}).get(r["id"])} for r in tmeta.pop("top15", [])}
+            field_meta.update({"targets": tmeta, **fmeta, "rows_added": n_add, "pick_ranks_in_field_order": [int(i) for i in pick],
+                               "player_cap": pcap_f, "source_sha256": sha256_file(Path(src))})
         except Exception as exc:                                   # noqa: BLE001 -- the fallback must catch everything
-            field_meta["failed"] = f"{type(exc).__name__}: {exc}"
+            field_pick = []
+            field_meta.update({"used": False, "failed": f"{type(exc).__name__}: {exc}"})
             print("!" * 80 + f"\n!!! FIELD SLEEVE FAILED ({field_meta['failed']}) -- THE PROJECTION SLEEVE IS USED\n" + "!" * 80, flush=True)
     n_field = len(rosters) - n_field_start
     need = a.entries + a.tail_sleeve
@@ -566,18 +582,16 @@ def main(argv: list[str] | None = None) -> int:
         book = select_top_mean(np.where(is_field, -1e9, score), frozen, a.entries, max_shared=a.mean_max_shared, **dst_args)
         sleeve_score = score
     tail_scores = np.where(np.isfinite(sleeve_score), sleeve_score, -1e9)
+    if n_field and not field_pick:                                 # production R2: the fallback is the sleeve as entered
+        tail_scores[n_field_start:n_field_start + n_field] = -1e9
     sleeve_cap: dict = {"share": None, "rows": None, "fell_back": False}
     book_tail = []
-    if n_field:
-        fscore = np.full(len(rosters), -1e9); fscore[n_field_start:n_field_start + n_field] = np.arange(n_field, 0, -1, dtype=float)
-        pcap_f = main_exposure_cap(a.sleeve_cap_share, a.tail_sleeve) if a.sleeve_cap_share is not None else a.tail_sleeve
-        try:
-            book_tail = select_top_mean_player_cap(fscore, frozen, a.tail_sleeve, a.mean_max_shared, pcap_f)
-            field_meta["used"] = True
-            sleeve_cap = {"share": a.sleeve_cap_share, "rows": pcap_f, "fell_back": False}
-        except RuntimeError as e:
-            field_meta.update({"used": False, "failed": f"selection: {e}"})
-            print("!" * 80 + f"\n!!! FIELD SLEEVE FAILED (selection: {e}) -- THE PROJECTION SLEEVE IS USED\n" + "!" * 80, flush=True)
+    if field_pick:
+        if not all(n_field_start <= i < n_field_start + n_field for i in field_pick) or len(field_pick) != a.tail_sleeve:
+            raise SystemExit(f"field sleeve pick {field_pick} is not {a.tail_sleeve} field rows")      # cannot happen; fail closed
+        book_tail = list(field_pick)
+        field_meta["used"] = True
+        sleeve_cap = {"share": a.sleeve_cap_share, "rows": field_meta.get("player_cap"), "fell_back": False}
     if a.tail_sleeve and not book_tail and a.sleeve_cap_share is not None:
         pcap = main_exposure_cap(a.sleeve_cap_share, a.tail_sleeve)
         sleeve_cap = {"share": a.sleeve_cap_share, "rows": pcap, "fell_back": False}

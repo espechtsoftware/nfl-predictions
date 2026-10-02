@@ -87,11 +87,24 @@ def ownership_targets(source: Path, fr: pd.DataFrame, exclude: set[str], min_cov
     w = np.clip(np.array([proj[i] for i in dst], float), 0.1, None) ** 2
     t.update({i: float(x) for i, x in zip(dst, w / w.sum())})
     sal = dict(zip(ids, pd.to_numeric(fr.salary, errors="coerce").fillna(0.0).astype(float)))
+    pre = dict(t)
     t, beta, before, after = salary_tilt(t, pos, sal)
-    return t, {"salary_tilt": {"beta_per_1000": round(beta, 4), "mean_lineup_salary_before": round(before), "after": round(after),
+    name = dict(zip(ids, fr.name.astype(str))) if "name" in fr.columns else {i: i for i in ids}
+    top15 = [{"id": i, "name": name.get(i, i), "predicted": round(pre[i], 4), "tilted": round(t[i], 4)}
+             for i in sorted((i for i in pre if pos[i] in SKILL), key=lambda i: -pre[i])[:15]]
+    return t, {"top15": top15, "salary_tilt": {"beta_per_1000": round(beta, 4), "mean_lineup_salary_before": round(before), "after": round(after),
                                "target": SALARY_TARGET}, "source": str(source), "skill_players_with_a_target": sum(1 for i in t if pos[i] in SKILL),
                "coverage_projected_5": round(coverage, 4), "dst_rule": "projection squared, one slot",
                "position_totals_before_scaling": raw, "position_totals_after": SLOT_TOTALS}
+
+
+def per_game_ok(L: np.ndarray, fr: pd.DataFrame, max_game: int) -> np.ndarray:
+    """At most max_game players from one game (QB and DST count)."""
+    game = pd.factorize(fr.game_id.astype(str))[0]; rows = np.arange(len(L))
+    gc = np.zeros((len(L), game.max() + 1), np.int16)
+    for j in range(L.shape[1]):
+        np.add.at(gc, (rows, game[L[:, j]]), 1)
+    return gc.max(1) <= max_game
 
 
 def legal(L: np.ndarray, fr: pd.DataFrame, max_game: int, min_salary: int) -> np.ndarray:
@@ -108,10 +121,7 @@ def legal(L: np.ndarray, fr: pd.DataFrame, max_game: int, min_salary: int) -> np
     ok &= ~((P == "RB") & (Tm == dsto[:, None])).any(1)
     rbteam = np.where(P == "RB", Tm, "")
     srt = np.sort(rbteam, axis=1); ok &= ~((srt[:, 1:] == srt[:, :-1]) & (srt[:, 1:] != "")).any(1)
-    gc = np.zeros((len(L), game.max() + 1), np.int16)
-    for j in range(L.shape[1]):
-        np.add.at(gc, (rows, game[L[:, j]]), 1)
-    return ok & (gc.max(1) <= max_game)
+    return ok & per_game_ok(L, fr, max_game)
 
 
 SALARY_TARGET = 49_500
@@ -174,7 +184,7 @@ def sample_chunks(fr: pd.DataFrame, targets: dict[str, float], n: int, seed: int
 
 
 def field_candidates(fr: pd.DataFrame, targets: dict[str, float], n: int, seed: int, max_game: int, min_salary: int,
-                     mode: str, sampler=None, min_legal: int = 50) -> tuple[list[list[str]], np.ndarray, dict]:
+                     mode: str, sampler=None, min_legal: int = 50, report_ids: list[str] | None = None) -> tuple[list[list[str]], np.ndarray, dict]:
     """(rosters as frame-id lists in pick order, their projected sums, receipt)."""
     if mode not in MODES:
         raise ValueError(f"mode {mode!r}")
@@ -182,7 +192,8 @@ def field_candidates(fr: pd.DataFrame, targets: dict[str, float], n: int, seed: 
     S = np.unique(np.sort(S, axis=1), axis=0)
     proj = pd.to_numeric(fr.mean_projection, errors="coerce").fillna(0.0).to_numpy(float)
     ok = legal(S, fr, max_game, min_salary)
-    K = S if mode == "free" else S[ok]; ps = proj[K].sum(1)
+    # `free` drops the house stack/salary filter but keeps the per-game limit it declares (production review 06:14)
+    K = S[per_game_ok(S, fr, max_game)] if mode == "free" else S[ok]; ps = proj[K].sum(1)
     if mode != "free" and len(K) < min_legal:
         raise ValueError(f"only {len(K)} of {len(S)} sampled lineups satisfy the house rules")
     if mode in ("top", "free"):
@@ -197,4 +208,8 @@ def field_candidates(fr: pd.DataFrame, targets: dict[str, float], n: int, seed: 
            "projected_sum": {"max": round(float(ps.max()), 2), "p99": round(float(np.quantile(ps, .99)), 2),
                              "median": round(float(np.median(ps)), 2)},
            "sampler": {k: srec[k] for k in ("final_abs_ownership_error_sum", "stack_rate", "mean_salary") if k in srec}}
+    if report_ids:                                   # the share of the sample holding each player (production review R3)
+        ids_all = fr.id.astype(str).to_numpy(); counts = np.bincount(S.ravel(), minlength=len(ids_all)) / len(S)
+        pos_of = {i: k for k, i in enumerate(ids_all)}
+        rec["drawn_share"] = {i: round(float(counts[pos_of[i]]), 4) for i in report_ids if i in pos_of}
     return [ids[K[i]].tolist() for i in order], ps[order], rec
