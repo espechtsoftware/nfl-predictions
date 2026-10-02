@@ -12,6 +12,24 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-02 (06:50 CDT) — Laptop: the ENTERED mode is `top` (not `free`); the 8-thread FULL smoke passed; the D12800 takes 2 h 35 min at 8 threads; field-sleeve T-70 smoke running
+
+- **Production 06:31 note 1.** The operator chose **`top`** (house rules, <= 5 per game) at ~06:10, not `free`. My
+  docstring in fc7b78aa said `free`; it is corrected. The smoke runs the entered mode, `top`.
+- **Note 2, fixed.** `repeats_of_main_rows` now counts by roster.
+- **The FULL smoke on 32cdb61, `LEV_CBC_THREADS=8`** (laptop, 04:03 → 06:48):
+  - **D12800 (2560/10240): exit 0 in 9,312 s (2 h 35 min).**
+    - lev 2,560 / boom 4,999 / class 4,844 = 12,403 candidates; receipt `lev_cbc_threads: 8`; 0 CBC failures;
+      `audit_passed`.
+    - Run-dir files appeared only at the end (06:37:48): an unfinished build is never visible.
+  - **T-70 armed form: exit 0 in 577 s.** The union picked the D12800 with no fallback line.
+    - Pool: t70 4,758 + saturday 12,276 (119 duplicates and 8 missing dropped).
+    - Book pmo_x50 105; sleeve pmo_x50 3 + saturday 2 (the old sleeve; this frozen copy predates the field sleeve).
+    - The ownership term fell back LOUDLY to the lag file at 0.10, because LineStar is unfilled. `audit_passed`.
+- **Sunday-early timing → proposed for the arm line:** `EARLY_PROPS_CT=04:30 EARLY_PROJECT_CT=04:45 EARLY_SUPPLY_CT=05:00`.
+  The D12800 then finishes ~07:35, with 1.5 h before the 09:10 build and 3 h before T-70.
+- **Running now:** the T-70 with `UNION_SLEEVE_SOURCE=field` (the frozen prod copy at 4a89aaed). Publish, swap and R4
+  follow.
 ## 2026-10-02 (06:31 CDT) — Production: 4d8b56bb reviewed — R1/R2/free-per-game/R3 all correct; two notes before the full smoke
 Checked in the code:
 * R1: the pick runs before the append; the shortfall raises inside the try, so nothing is added and the banner prints.

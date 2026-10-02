@@ -15,7 +15,8 @@ Here the sleeve's candidates are drawn the way the field builds lineups:
      97th and 99.5th percentile of the kept rows' projected sums; `free` = EVERY sampled lineup (DK-legal by the
      sampler: cap, salary band, no duplicate player), NO house-rule filter, by projected sum. On L13's 36 slates (blend
      ownership, 12 seeds) `free` led on the mean (+0.12 sd vs the projection sleeve's -0.03), the top 5% (1.48x vs 1.33x)
-     and the top 0.1% (1.39x vs 0), and trailed at the top 1% (1.99x vs 2.22x): the operator's Week-4 choice.
+     and the top 0.1% (1.39x vs 0), and trailed at the top 1% (1.99x vs 2.22x). The operator chose `top` for Week 4 (10-02 ~06:10): with the lag
+     ownership file `top` reached the top 0.1% at 3.24x and `free` at 1.39x.
 
 Pure functions; union_reselect.py wires them in behind --sleeve-source field and falls back loudly to the projection
 sleeve on any failure.

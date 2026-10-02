@@ -706,7 +706,7 @@ def main(argv: list[str] | None = None) -> int:
         conf["tail_sleeve"] = {"rows": a.tail_sleeve, "line": tail_line, "selector": "field" if a.sleeve_source == "field" else "mean",
                                "selector_used": f"field_{a.sleeve_field_mode}" if used_field else "mean", "class": {}, "field": field_meta,
                                "worlds": "incumbent selection + corrected hsim", "book_rows": f"{a.entries + 1}..{a.entries + a.tail_sleeve}",
-                               "repeats_of_main_rows": len(set(book_tail) & set(book)),
+                               "repeats_of_main_rows": len({frozen[i] for i in book_tail} & {frozen[i] for i in book}),   # by roster (field rows may duplicate a pool roster)
                                "player_cap": sleeve_cap, "exposure": sleeve_exposure(book_tail, rosters, fr),
                                "p_line_first": round(float(p_tail[book_tail[0]]), 5), "p_line_last": round(float(p_tail[book_tail[-1]]), 5)}
     else:
