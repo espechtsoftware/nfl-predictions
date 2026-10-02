@@ -74,3 +74,15 @@ The changes above, all made before any Week-4 outcome exists:
 
 The A3 matcher and the B2 blend code go to the reviewer as soon as they are written, before Monday's run. Their numbers
 count only after review.
+
+## Amendment B2-1 (2026-10-02 ~14:45 CDT, BEFORE the Week-4 lock): our components carry our own gates
+
+Found by the B2 reader's dry run on the Week-4 pre-lock data, before any outcome. `market_source_log` records the model
+and market components BEFORE the availability and backup-QB gates. For example, Caleb Williams (ruled out) is logged
+at 18.2, and backup QBs at 9–14; the served projection zeroes them. Blending the raw components would hand ruled-out
+players points our served projection does not.
+- **OURS is the SERVED projection:** `player_projections.proj_points`, the newest pre-lock batch.
+- **The model and market components are scaled** by r = served / logged `proj_points` (r = 0 when the served value is 0).
+  So our own gates apply to our components; FP's number stays FP's.
+- The weights, the population (now restricted to the main slate's DraftKings player list, and DSTs included from the
+  projection table), the metric and the rule are unchanged.

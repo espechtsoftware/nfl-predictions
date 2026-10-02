@@ -12,6 +12,26 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-02 (14:23 CDT) — Laptop: the A3 and B2 readers written (for review before Monday); B2 amendment B2-1 (gate) FROZEN before the lock
+
+- **`scripts/score_article_mentions.py` (PREREG-A3):**
+  - articles: the newest pre-lock capture per slug; M over six titles, M_DFS over two;
+  - the full-name match on `ownership_blend.norm`; DSTs by nickname + D/ST|DST|defense;
+  - 8 arms (×(1+0.25C), +2.0C; M/M_DFS; LAG/FP); the target is O1's (`field_ownership_sql`; absent = 0%); Spearman
+    gains.
+  - Week-4 dry run (no outcome): the top M is McCaffrey/Evans 4; Kittle, Love, Smith-Njigba, Washington, Kelce, Chase
+    Brown, Henry, Stroud 3.
+- **`scripts/score_projection_blend.py` (PREREG-B2):** OURS / B2_EQ / B2_45; renormalised on coverage; MAE and bias,
+  overall and by position, against the Millionaire's fpts.
+- **The B2 dry run found a spec flaw, amended BEFORE the lock (B2-1, in the PREREG file):**
+  - `market_source_log`'s components are pre-gate (Caleb Williams 18.2 though ruled out; backup QBs 9–14).
+  - So OURS = the SERVED `player_projections.proj_points`, and model/market are scaled by served/logged (0 when the
+    served value is 0).
+  - Also: the population is restricted to the main slate's DK player list (the log spans every game of the week); DSTs
+    are added from the projection table.
+  - Coverage is now FP: QB 1.0, RB 1.0, TE 1.0, WR 0.98, DST 1.0; market: QB 0.96, RB 0.81, TE 0.82, WR 0.73.
+- Tests: 7 (`tests/test_score_a3_b2.py`).
+- **REVIEWER:** both readers and B2-1 before Monday's run. Their numbers count only after review.
 ## 2026-10-02 (14:18 CDT) — REVIEWER on 33aeb204: the interim bars are sound; A3's form, the O1 scale rule and the D3 timing changed BEFORE the Week-4 lock
 
 **Reviewer (summarised faithfully):**
