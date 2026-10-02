@@ -116,9 +116,21 @@ UPULL="nfl-week${WEEK}-t70-pull"; UPROJ="nfl-week${WEEK}-t70-project"
 LPULL=(env "GCP_PROJECT=$GCP_PROJECT" "PYTHONPATH=$PROD/src" "$NFL_DFS_CLI" ingest-dk)
 LPROJ=("$GCLOUD" run jobs execute project-slate --project "$GCP_PROJECT" --region us-central1
        --update-env-vars T70_ACTIVE_Q=1,T70_VACATED_BUMP=1 --wait)
+# The Sunday-early supply (operator 2026-10-01: 8 threads make the D12800 ~2 h, so it can be built on Sunday's pre-dawn
+# information): EARLY_SUPPLY_CT=HH:MM arms a props pull (EARLY_PROPS_CT, default 03:45), a project-slate execution
+# (EARLY_PROJECT_CT, default 04:00; no T-70 flags) and a second D12800 (UNION's 2560/10240 dose) at EARLY_SUPPLY_CT. The
+# union takes the NEWEST qualifying supply (this one if it finished, else Saturday's D12800, else the D6400). No MIN_PROJ
+# gate: if the refresh fails it builds on the newest projections there are, and the build log says which.
+EARLY_PROPS_CT=${EARLY_PROPS_CT:-03:45}; EARLY_PROJECT_CT=${EARLY_PROJECT_CT:-04:00}
+UEPROPS="nfl-week${WEEK}-early-props"; UEPROJ="nfl-week${WEEK}-early-project"; U12800SUN="nfl-week${WEEK}-d12800-sun-build"
+LEPROPS=("$GCLOUD" run jobs execute ingest-props --project "$GCP_PROJECT" --region us-central1 --wait)
+LEPROJ=("$GCLOUD" run jobs execute project-slate --project "$GCP_PROJECT" --region us-central1 --wait)
+if [[ -n "${EARLY_SUPPLY_CT:-}" ]]; then
+  L12800SUN=("${BASE_ENV[@]}" "PAID_LEV=$D12800_LEV" "PAID_BOOM=$D12800_BOOM" SKIP_PAIR=1 DOSE_FILE=/dev/null "RUN_TAG=$(tag "$EARLY_SUPPLY_CT" d12800sun)" "$DRIVER")
+fi
 SKIP_UNITS=${SKIP_UNITS:-}
 for k in $SKIP_UNITS; do
-  [[ " d12800sat d6400sat d6400 d3200 t70 watchers " == *" $k "* ]] || { echo "SKIP_UNITS: unknown unit key $k" >&2; exit 2; }
+  [[ " d12800sat d6400sat d6400 d3200 t70 watchers d12800sun earlyrefresh " == *" $k "* ]] || { echo "SKIP_UNITS: unknown unit key $k" >&2; exit 2; }
 done
 # arm KEY "DATE HH:MM" UNIT ARRAY: print the systemd-run line (or a SKIPPED comment); with --run, also execute it.
 arm() {
@@ -175,6 +187,9 @@ if [[ "$RUN" == "--run" ]]; then
       || { echo "TABPFN PREFLIGHT FAILED: the L23 rows file is missing or not sha 0bec4237" >&2; exit 2; }
     [[ -s "${OWNERSHIP_LAGS:-$OUT/ownership_lags.csv}" ]] || { echo "TABPFN PREFLIGHT FAILED: Saturday's lags file is missing (ownership_tabpfn.py lags)" >&2; exit 2; }
   fi
+  if [[ -n "${EARLY_SUPPLY_CT:-}" ]]; then
+    [[ -x "$GCLOUD" ]] || { echo "gcloud not executable: $GCLOUD (the Sunday-early refresh needs it)" >&2; exit 2; }
+  fi
   if [[ "${T70_PROJECT:-0}" == "1" ]]; then
     [[ -x "$GCLOUD" ]] || { echo "gcloud not executable: $GCLOUD" >&2; exit 2; }
     [[ -x "$NFL_DFS_CLI" ]] || { echo "nfl-dfs CLI not executable: $NFL_DFS_CLI" >&2; exit 2; }
@@ -186,6 +201,11 @@ arm d6400 "$SUNDAY 05:30" "$U6400" L6400
 arm d3200 "$SUNDAY 09:10" "$U3200" L3200
 arm t70 "$SUNDAY 10:50" "$U800" L800
 arm watchers "$SUNDAY 09:12" "$UW" LW
+if [[ -n "${EARLY_SUPPLY_CT:-}" ]]; then
+  arm earlyrefresh "$SUNDAY $EARLY_PROPS_CT" "$UEPROPS" LEPROPS
+  arm earlyrefresh "$SUNDAY $EARLY_PROJECT_CT" "$UEPROJ" LEPROJ
+  arm d12800sun "$SUNDAY $EARLY_SUPPLY_CT" "$U12800SUN" L12800SUN
+fi
 if [[ "${T70_PROJECT:-0}" == "1" ]]; then
   arm t70pull "$SUNDAY $T70_PULL_CT" "$UPULL" LPULL
   arm t70project "$SUNDAY $T70_PROJECT_CT" "$UPROJ" LPROJ

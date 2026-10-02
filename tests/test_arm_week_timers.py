@@ -95,3 +95,20 @@ def test_lev_cbc_threads_rides_into_the_units():
     r = _run(GROUP="154078", LEV_CBC_THREADS="8")
     assert r.returncode == 0, r.stderr
     assert "LEV_CBC_THREADS=8" in _unit_line(r.stdout, "nfl-week4-d12800-sat-build")
+
+
+def test_sunday_early_supply_units():
+    """Operator 2026-10-01: with 8 threads the D12800 is ~2 h, so a second one runs on Sunday's pre-dawn information:
+    props 03:45, project-slate 04:00, the D12800 at EARLY_SUPPLY_CT; Saturday's D12800 and D6400 stay as fallbacks."""
+    r = _run(GROUP="154078", EARLY_SUPPLY_CT="04:30", LEV_CBC_THREADS="8", SKIP_UNITS="d6400")
+    assert r.returncode == 0, r.stderr
+    sun = _unit_line(r.stdout, "nfl-week4-d12800-sun-build")
+    assert "2026-10-04 04:30 America/Chicago" in sun and "PAID_LEV=2560 PAID_BOOM=10240" in sun and "LEV_CBC_THREADS=8" in sun
+    assert "d12800sun" in sun                                                   # its own run tag
+    assert "2026-10-04 03:45 America/Chicago" in _unit_line(r.stdout, "nfl-week4-early-props")
+    proj = _unit_line(r.stdout, "nfl-week4-early-project")
+    assert "2026-10-04 04:00 America/Chicago" in proj and "project-slate" in proj and "T70_ACTIVE_Q" not in proj
+    assert "2026-10-03 10:30 America/Chicago" in _unit_line(r.stdout, "nfl-week4-d12800-sat-build")   # kept as fallback
+    assert "2026-10-03 10:35 America/Chicago" in _unit_line(r.stdout, "nfl-week4-d6400-sat-build")
+    none = _run(GROUP="154078")
+    assert "d12800-sun-build" not in none.stdout and "early-props" not in none.stdout   # opt-in

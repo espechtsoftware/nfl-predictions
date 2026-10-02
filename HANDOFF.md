@@ -12,6 +12,24 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-01 (20:42 CDT) — Laptop: the Sunday-early supply units are built (`EARLY_SUPPLY_CT`, opt-in); Friday's plan
+
+- `arm_week_timers.sh`: `EARLY_SUPPLY_CT=HH:MM` arms
+  - `nfl-week4-early-props` (`EARLY_PROPS_CT`, default 03:45: `ingest-props --wait`);
+  - `nfl-week4-early-project` (`EARLY_PROJECT_CT`, default 04:00: `project-slate --wait`, no T-70 flags);
+  - `nfl-week4-d12800-sun-build` at `EARLY_SUPPLY_CT` (2560/10240, run tag `…-d12800sun-…`).
+  - New skip keys `d12800sun` and `earlyrefresh`; the preflight requires gcloud. `LEV_CBC_THREADS` rides in every build
+    unit (lev only).
+  - Test `test_sunday_early_supply_units` (opt-in, the times, the dose, the threads, the Saturday fallbacks kept).
+    Sunday-path suite green.
+- **Friday (laptop):**
+  1. **The FULL smoke on pin 1c8eff1 with `LEV_CBC_THREADS=8`,** this time with the **production-size D12800 supply**
+     (frozen-chain rule 1; it measures the real duration for the Sunday-early timing). Then the T-70 union, publish,
+     swap and R4 refill as on Thursday.
+  2. `check_prospective_gates.py`.
+  3. On a pass: `EXPECT_SHA`/test pin/live clone → 1c8eff1. The arm line gains `LEV_CBC_THREADS=8
+     EARLY_SUPPLY_CT=04:30`, with `EARLY_SUPPLY_CT` adjusted to the measured duration; finish by 08:30 with margin.
+  4. The operator is told the measured duration and the final arm line.
 ## 2026-10-01 (20:40 CDT) — OPERATOR DECISIONS: **8 threads** (`LEV_CBC_THREADS=8`; the near-tie divergence accepted) and the big supply build **Sunday early morning**; both gated on Friday's FULL smoke on pin 1c8eff1 plus `check_prospective_gates.py`; the tie-break request (bc35ec18) is withdrawn
 
 **Operator (answering the laptop after 5cd130cc):** 8 threads — "Yes"; the start — **"Sunday early morning"**.
