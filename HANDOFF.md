@@ -12,6 +12,42 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-02 (04:13 CDT) — Laptop: env sweep (operator: "check all the other environment variables actually hit the code"); the 32cdb61 smoke runs at 8 threads
+
+**Correction:** the 32cdb61 rerun started at **04:03:49**, not ~04:16. Its first CBC solve carries `-threads 8`.
+
+**Method.** I took all 81 variables `week_env.sh` and `arm_week_timers.sh` export or pass into units. For each one I found
+its consumers in production (scripts, src) and the lab (32cdb61), then checked the effective values recorded in
+Thursday's smoke receipts.
+
+**Lab side** (the `LEV_CBC_THREADS` class):
+- The nfl2 core reads 25 keys from its env dict. The host sets three of them:
+  - `LEV_CBC_THREADS`: fixed by 32cdb61.
+  - `MAX_PER_GAME`: reaches the build via `--max-per-game`; the receipt has `arm.max_per_game = 4`.
+  - `MIN_LINEUP_SALARY`: the lab build takes it from `PRODUCTION_ENV` (fixed 49000); the union and audit take the host
+    value. Same this week; latent → **O-15**.
+- The lab's direct `os.environ` reads include one host variable, `LIVE_FLEX_LATEST`, which is passed.
+
+**Production side, confirmed in Thursday's union receipt:**
+- main `pmo_x50`; cap 0.5 → 52 rows; DST cap 26;
+- sleeve cap 0.5 (max 2 of 5); sleeve includes main;
+- own term (lag fallback at 0.10, loud); class sleeve every 2 (model sha 92cec733);
+- per-game cap 4; min proj 1.0; selector mean; tail sleeve 5 / line 210 / mean; K 105.
+- Layout: `head` / `greedy`; `ENTER_SMALL_MAX_SHARED=5` applied to the 10-entry supersats (the ceiling of 10 is in
+  effect). Cash shadow A/B written.
+- **Inert by design this week:** `ENTER_FLAG_LATE_Q_ONLY=1`. Its only consumer is `sunday_live_relayout.sh`
+  (fewest-low), which is not on the Week-4 path (`ENTER_ORDER=greedy`).
+- **Passed but never set:** `UNION_DK_STATUS`; every union shows `dk_status: null` → **O-16**. The T-70 frame's DK
+  denylist covers it.
+- **Supply builds** (Saturday and Sunday-early) carry `UNION_SATURDAY_RUN=auto`. The host skips their union by dose
+  membership (line 251). The watcher publishes only the chosen dose's union (or a `union_failed` T-70 fallback), so a
+  D12800 dir is never published.
+- **Not yet exercised in Cloud Run: the T-70 `project-slate` overrides** (`T70_ACTIVE_Q`, `T70_VACATED_BUMP`).
+  - The deployed image writes the `t70_*` columns, but no execution has ever run with the rules on.
+  - My rehearsal execution was refused by the harness. **O-17; the operator's decision.**
+- **Smoke deviation, noted:** the smoke runs supply builds with `UNION_SATURDAY_RUN=` (empty); the armed units use
+  `auto`. A small faithful build (`auto` with the dose listed) follows the full smoke to exercise line 251 on the real
+  path.
 ## 2026-10-02 (04:05 CDT) — Production: 32cdb61 reviewed — correct; the miss was production's (the acceptance harness passed the setting directly, never through live_week)
 
 - **Owned:** `LEV_CBC_THREADS` was built and accepted through `lev_solver_acceptance.py`, which calls `optimize_many`
