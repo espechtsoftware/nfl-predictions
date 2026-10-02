@@ -12,6 +12,23 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-02 (12:31 CDT) — Laptop: the quick FP-ownership test runs SUNDAY ~12:30 (no FP history exists); `scripts/score_ownership_sources.py`
+
+- **Operator:** "accelerate … a quick test to see how that data performs"; "just the ownership today".
+- **No FP history:** the ownership page serves only the current week and season.
+  - `collect --week 1/2/3` → "rows are for season/week [2026]/[4]".
+  - `--season 2025` → the heading says 2026.
+  - The page has no week selector; there is no back-test.
+- **The fastest real test:** ownership accuracy needs no game outcome, because real ownership is known at lock.
+  - **Sunday ~12:30**, once the operator's post-lock Millionaire export is imported to `nfl_raw.contest_ownership`:
+    `scripts/score_ownership_sources.py --season 2026 --week 4 --contest <Millionaire id> --lock-utc 2026-10-04T17:00:00Z
+    --lag … [--blend …] [--tabpfn …]`.
+  - It scores FP (the newest capture BEFORE lock: Saturday 10:07 / Sunday 10:38), the lag file, the blend and TabPFN
+    (if the 10:50 build made them) against the real ownership: MAE, correlation, Spearman, real top-20 named.
+- **Mechanics checked on Week 3** (lag sets only): 348 players; MAE 1.47; corr 0.788; Spearman 0.896; 9 of the real
+  top 20. That is the bar FP has to beat.
+- **Monday:** the book effect: PMO_X50 with FP ownership as the term's source on the archived T-70 frame, scored on DK
+  points against the real field, beside the entered book.
 ## 2026-10-02 (12:26 CDT) — OPERATOR upgraded Fantasy Points (annual; the DFS package); the ownership page COLLECTS; plan for using the account
 
 - **Operator:** subscribed for a year to get the DFS tier, and wants to "take advantage of the account and try things".
