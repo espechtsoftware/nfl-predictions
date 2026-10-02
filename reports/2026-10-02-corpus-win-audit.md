@@ -25,7 +25,27 @@ lineups that can win major contests."
 
 ## 0. The answer
 
-<!-- filled after the Week-4 section -->
+**This audit is about the POOL. In Week 4 no entered row comes from the pool:** the 105 main rows are the capped
+optimizer's (PMO_X50) solved on the T-70 frame with the ownership term, and the 5 tail-sleeve rows come from the field
+sample (§2). So the pool's numbers below are not a forecast of Sunday.
+
+- **The pool, Weeks 1 and 3, was below the field at every line** (W3: 0.62× at the top 20%, 0.39× at the top 1%, 0.08×
+  at the top 0.1%). It never came within one player of a real top-0.1% lineup; an equally large slice of the field held
+  7% of them exactly. Inside our own model it holds a lineup within 17 points of a week's best in only 3–5% of weeks.
+- **The entered design is a different thing.** The reviewer rebuilt this week's entered design (K 105, cap 52, DST 26,
+  per-game 4, >= $49k, the lag term at 0.10) on each week's archived frame and scored it on DK points against the real
+  Millionaire field (`review/ownership-term-20260929` @ 4f279caf, `14_entered_design_2026.py`). The results, in
+  hindsight on three draws:
+
+  | | top 20% | top 10% | top 1% |
+  |---|---:|---:|---:|
+  | W1 | 2.43× | 4.00× | 8.57× |
+  | W2 | 1.67× | 2.10× | 1.90× |
+  | W3 | 1.48× | 1.52× | 2.86× |
+
+  The only cell below 1× is W3 at the top 5% (0.76×). That is consistent with L13/L20/L21/L24.
+- **What changed for the major contests:** the operator moved the Millionaire / FFWC / $555 rows (the sleeve) from the
+  pool to a field-like sample (§2), the one place this audit's finding reaches an entered row.
 
 ## 1. Weeks 1 and 3, in hindsight
 
@@ -132,11 +152,39 @@ many times. That is also what winning a Millionaire takes.)
 
 ## 2. Week 4 (outcome-blind, the 2026-10-02 full-size smoke on pin 32cdb61)
 
-<!-- filled from 03_ on the smoke's run dirs -->
+**The supply that fed the smoke's union** (8 threads, 2 h 35 min): 12,403 candidates (lev 2,560, boom 4,999, class
+4,844); 12,276 joined the T-70 pool's 4,758.
+
+**The sleeve, chosen by the operator on the 36-slate panel** (`06_`/`07_`; 5 rows per slate, 12 seeds, scored against a
+200k field from each slate's real ownership):
+
+| arm | own source | z | top 1% | top 0.1% |
+|---|---|---:|---:|---:|
+| projection sleeve (as built before) | n/a | −0.03 | 2.22× | 0 hits |
+| field, house rules, ≤ 5/game (`top`, ENTERED) | blend | +0.02 | 1.44× | 0.93× |
+| field, house rules, ≤ 5/game (`top`, ENTERED) | lag | 0.00 | 1.62× | 3.24× |
+| field, no house rules (`free`) | blend | +0.12 | 1.99× | 1.39× |
+| field, no house rules (`free`) | lag | +0.04 | 1.25× | 1.39× |
+
+- The field sleeve trades the top 1% for the top 0.1%. The top-0.1% figures rest on a handful of hits.
+- **The Week-4 smoke** (field sleeve, today's real slate, end to end):
+  - 2,817 rule-passing rows of 200k; pick ranks 0, 1, 14, 337, 364.
+  - The audit passed.
+  - Rows: Millionaire = 106; $555 sat = 107–108; FFWC = 109–110.
 
 ## 3. What this means for Sunday, and for Week 5
 
-<!-- filled last -->
+1. **Sunday:**
+   - The main book is the tested capped optimizer with the ownership term. It does not come from the pool.
+   - The major-contest rows come from the field sample. That gives a better chance at the top 0.1% (the Millionaire)
+     and a lower rate at the top 1%.
+   - The reviewer's open question is whether the $555 / FFWC rows (one ticket per ~72 entries, a top ~1.4% line) should
+     keep the projection sleeve. That is the operator's decision (HANDOFF).
+2. **Week 5, the pool itself:**
+   - DST variance in the generation bank. Selection was tested negative twice; the corpus composition was never tested.
+   - The per-game cap for boom solves (winners use 5+ at 1.8–4.3× the field's rate; the lab panel favoured the cap).
+   - Exposure drift from the field on the week-makers.
+   - Each needs a preregistered panel before entry.
 
 ## 4. Limits
 
