@@ -12,6 +12,16 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-02 (11:18 CDT) — OPERATOR: college football collection RETIRED for the 2026 season
+
+- **Operator:** "retire it".
+- **What it was:** the collection-only CFB scaffold (DK salaries/contests). It pulled 2026-09-02..09-15 (38 draft
+  groups), then got a DK 403 from Cloud Run from 09-19. `s-cfb` / `s-cfb-sat` have been paused since 09-21 and **stay
+  paused**. The pulled rows stay in `raw.cfb_dk_salaries`.
+- **Recorded:** `status.py` (feed note: RETIRED; alert=False stays) and README.
+- **Not deployed before Sunday.** The deployed check-freshness image predates the 09-21 non-alerting change, so it
+  still flags CFB daily until the image is rebuilt after Week 4 (O-18, with the weather race).
+- The `ingest-cfb` job is left in place: deleting a Cloud Run job erases its history and is the operator's call.
 ## 2026-10-02 (10:50 CDT) — Inbox triage (operator): the Cloud Run DK schedulers PAUSED by the operator; the freshness alert is a race; CI is red on research tests only → O-18
 
 - **`ingest-dk` / `ingest-contests` (Cloud Run): 403 Forbidden from api.draftkings.com on every run** (28/28 since 10-01).

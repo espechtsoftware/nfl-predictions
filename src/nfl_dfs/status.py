@@ -111,11 +111,11 @@ FEEDS: tuple[Feed, ...] = (
          #   gcloud scheduler jobs resume s-cfb     --project nfl-predictions-503414 --location us-central1
          #   gcloud scheduler jobs resume s-cfb-sat --project nfl-predictions-503414 --location us-central1
          # then set alert=True once one pull returns 200.
-         note="collection-only scaffold; DK 403 since 2026-09-19. Schedulers "
-              "s-cfb and s-cfb-sat PAUSED 2026-09-21 (deterministic 403, three "
-              "failed executions a day, zero NFL readers). Non-alerting because "
-              "nothing is collecting: resume both schedulers, confirm one 200, "
-              "then set alert=True (see 2026-09-21 deficiency-log row)"),
+         # RETIRED for the 2026 season by the operator, 2026-10-02 ("retire it"): no restore is planned, so this
+         # feed stays non-alerting; the re-arm steps above apply only if the operator reverses that decision.
+         note="RETIRED 2026-10-02 (operator) for the 2026 season. Collection-only scaffold; DK 403 since "
+              "2026-09-19; schedulers s-cfb and s-cfb-sat PAUSED 2026-09-21 and stay paused; the 2026-09-02..15 "
+              "pulls (38 draft groups) remain in raw.cfb_dk_salaries"),
     Feed("dk_contest_fills", "Contest fills (overlay scaffold)", "raw",
          "dk_contest_fills", 48, "nfl", alert=False,
          note="opt-in scaffold, not scheduled — informational only"),
