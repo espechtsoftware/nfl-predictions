@@ -12,6 +12,16 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-02 (12:45 CDT) — REVIEWER: ead573fa APPROVED as capture-only (FP projections collector)
+
+**Reviewer (verbatim):** "All four items are correct: the 95% week-evidence rule, the read rule in the docstring,
+coerced-NULL counts with the 3% DraftKings refusal, player_id as a string, and assert_no_secrets before the write. The
+ordering is right too: a parse refusal leaves the raw archive and loads nothing. Approved as capture-only. When the first
+reader is written, enforce the newest-retrieved_at rule in it; don't rely on the docstring alone."
+
+**Standing requirement:** the first reader of `fantasy_points_dfs_projections` / `fantasy_points_weekly_projections`
+(Saturday's disagreement report, Monday's paper books) must select the newest `retrieved_at` per (season, week[,
+operator, slate_id]) in code, and its test must cover a table holding two captures.
 ## 2026-10-02 (12:45 CDT) — REVIEWER's review of 7c33f310 (FP projections collector): fine as CAPTURE ONLY; items 1–3 fixed now
 
 **Reviewer (session message, summarised faithfully):** "Verdict: fine as CAPTURE ONLY this week; nothing in it touches
