@@ -12,6 +12,20 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-02 (07:20 CDT) — Production: 56160cc7 (the sleeve split) reviewed: correct, no changes needed; the smoke's criterion 1 is the one thing code review cannot settle
+Read in the code:
+* `pre` rows seed `chosen`/`taken`/`seen`/`n_in`, so the field row counts toward k, the overlap and the 2-row cap.
+  A pool roster equal to the field row is skipped through `seen`.
+* `proj_scores` masks the whole field block, and the stray guard re-checks `book_tail[k_f:]`.
+* The split runs only inside `if field_pick`. A field failure therefore leaves `book_tail` empty, and the as-entered
+  capped projection sleeve runs (criterion 3).
+* A split shortfall keeps the all-field sleeve, with the banner.
+* `selector_used` gets "+mean" only when `field_rows` is recorded. verify_k90 accepts exactly `field_*` or
+  `field_*+mean`, and only with `used` true.
+* Existing callers of `select_top_mean_player_cap` are unchanged (`pre=()`).
+
+Criterion 1 (row 106 = the field row) depends on the contest deal following sleeve order. The 07:12 smoke showed that it
+does (Millionaire = 106 = sleeve row 1). Confirm it on the split smoke from the published layout, not from the receipt.
 ## 2026-10-02 (07:18 CDT) — REVIEWER'S RULING on suggestion A, under the operator's delegation: YES, the split — `UNION_SLEEVE_FIELD_ROWS=1` for Week 4
 
 **Reviewer (session message, verbatim):**
