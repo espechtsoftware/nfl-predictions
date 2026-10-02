@@ -12,6 +12,18 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-02 (10:50 CDT) — Inbox triage (operator): the Cloud Run DK schedulers PAUSED by the operator; the freshness alert is a race; CI is red on research tests only → O-18
+
+- **`ingest-dk` / `ingest-contests` (Cloud Run): 403 Forbidden from api.draftkings.com on every run** (28/28 since 10-01).
+  DraftKings blocks Cloud Run; the laptop's host loop is the salary source (dk_salaries 14:59Z today).
+  - **The operator paused `s-dk`, `s-contests`, `s-contests-sun`** (verified PAUSED).
+  - `check_prospective_gates.py --week 4` still passes. Its only WARN is the existing sis-pass-tail Week-5 item.
+  - `s-props`, `s-project-su`, `s-weather`, `s-freshness` stay ENABLED.
+- **`check-freshness`:** the weather "stale" is a race with `s-weather` at the same 08:00 CT. The Week-4 forecasts for
+  16 games loaded at 13:02:25Z. The CFB salaries are the separate CFB pipeline.
+- **CI:** red on hash-pinned research-chain tests. The one Sunday-path failure is a host-dependent `week_env` test,
+  which passes on the laptop.
+- All three are recorded as **O-18**, to be fixed after Week 4.
 ## 2026-10-02 (10:38 CDT) — The Fantasy Points ownership page is NOT IN THE OPERATOR'S PLAN (not a collector defect); PREREG-O1 is blocked until an upgrade
 
 - **The operator's account page (screenshot, 10-02):** the active plan is "NFL Data Suite 2.0". The "Industry-leading
