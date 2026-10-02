@@ -105,7 +105,9 @@ def main(argv: list[str] | None = None) -> int:
         WHERE season={a.season} AND week={a.week} AND generated_at = TIMESTAMP('{g}')""").to_dataframe()
     ours = pd.concat([ours, dst], ignore_index=True)
     ours["key"] = ours.display_name.map(norm)
-    coll = ours[ours.duplicated("key", keep=False) & ~ours.duplicated(["key", "display_name"], keep=False)]
+    # a key whose rows differ in position is two players (e.g. two "Mike Williams"); an exact repeat of one player collapses
+    multi = ours.groupby("key").position.nunique()
+    coll = ours[ours.key.isin(set(multi[multi > 1].index))]
     if len(coll):
         print(f"name collisions (dropped from the population): {sorted(set(coll.display_name))}")
     ours = ours[~ours.key.isin(set(coll.key))].drop_duplicates("key").set_index("key")

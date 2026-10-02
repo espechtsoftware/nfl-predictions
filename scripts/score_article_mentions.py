@@ -101,7 +101,8 @@ def main(argv: list[str] | None = None) -> int:
     for label, base in bases.items():
         pop = O.population(base, real)
         b_all = O.score_both(pop, "v", real)
-        print(f"{label}: matched {len(base)}, population {b_all['n']} (skill {b_all['n_skill']}); Spearman all {b_all['spearman']}, skill {b_all['spearman_skill']}")
+        print(f"{label}: matched {len(base)}, population {b_all['n']} (skill {b_all['n_skill']}), priced but undrafted (excluded) "
+              f"{O.undrafted(base, real)}; Spearman all {b_all['spearman']}, skill {b_all['spearman_skill']}")
         for name, arm in arms(pop.set_index("key")["v"].astype(float), C, label).items():
             df = pop.assign(v=arm.reindex(pop.key).to_numpy())
             sc = O.score_both(df, "v", real); cname = name.split("_", 2)[2]

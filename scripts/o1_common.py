@@ -68,8 +68,13 @@ def attach(source: pd.DataFrame, sl: pd.DataFrame, value: str) -> pd.DataFrame:
 
 
 def population(src: pd.DataFrame, real: pd.Series) -> pd.DataFrame:
-    """Players priced by the source and in the realized table (O1)."""
+    """Players priced by the source and in the realized table (O1; the 10-02 clarification: undrafted are excluded)."""
     return src[src.key.isin(set(real.index))]
+
+
+def undrafted(src: pd.DataFrame, real: pd.Series) -> int:
+    """Players the source prices who were not drafted (excluded from the population; reported)."""
+    return int((~src.key.isin(set(real.index))).sum())
 
 
 def spearman(pred: pd.Series, real: pd.Series) -> float:

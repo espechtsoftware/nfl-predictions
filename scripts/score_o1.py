@@ -62,16 +62,30 @@ def main(argv: list[str] | None = None) -> int:
     c = bigquery.Client(project=O.PROJECT)
     real = O.realized(c, a.season, a.week, a.contest); sl = O.slate(c, a.group, a.lock_utc)
     lag = O.attach(pd.read_csv(a.lag), sl, "pred_own").rename(columns={"pred_own": "v"})
-    fp_raw = c.query(f"""SELECT name, team, projected_ownership_pct FROM `{O.PROJECT}.nfl_raw.fantasy_points_projected_ownership`
+    fp_raw = c.query(f"""SELECT name, team, projected_ownership_pct, retrieved_at FROM `{O.PROJECT}.nfl_raw.fantasy_points_projected_ownership`
         WHERE season={a.season} AND week={a.week} AND operator='DraftKings' AND retrieved_at < TIMESTAMP('{a.lock_utc}')
         QUALIFY retrieved_at = MAX(retrieved_at) OVER ()""").to_dataframe()
     arms = {}
     if len(fp_raw):
         assert not fp_raw.duplicated(["name", "team"]).any(), "FP capture holds duplicate (name, team): more than one slate?"
+        at = pd.Timestamp(fp_raw.retrieved_at.max()); lock = pd.Timestamp(a.lock_utc)
+        which = "T-70 (Sunday)" if at.tz_convert("America/Chicago").date() == lock.tz_convert("America/Chicago").date() else \
+            "SATURDAY or earlier (the T-70 capture is missing: disclosed)"
+        print(f"FP capture used: {at} = {which}")
         arms["FP"] = O.attach(fp_raw, sl, "projected_ownership_pct").rename(columns={"projected_ownership_pct": "v"})
     if a.linestar and Path(a.linestar).is_file():
-        ls = pd.read_csv(a.linestar); ls = ls.rename(columns={"own_proj": "v"}) if "own_proj" in ls else ls
-        arms["LINESTAR"] = O.attach(ls.rename(columns={"v": "v"}), sl, "v")
+        import json
+        rec = Path(str(a.linestar)[:-4] + ".receipt.json")
+        if not rec.is_file():
+            raise SystemExit(f"LineStar capture {a.linestar} has no receipt ({rec.name}); its capture time cannot be shown pre-lock")
+        cap = pd.Timestamp(json.loads(rec.read_text())["captured_at_utc"])
+        if cap >= pd.Timestamp(a.lock_utc):
+            raise SystemExit(f"LineStar capture at {cap} is not before the lock {a.lock_utc}; refused")
+        print(f"LINESTAR capture used: {cap}")
+        ls = pd.read_csv(a.linestar).rename(columns={"own_proj": "v"})
+        arms["LINESTAR"] = O.attach(ls, sl, "v")
+        unmatched = sorted(set(ls.name.map(O.norm)) - set(arms["LINESTAR"].key))
+        print(f"  LINESTAR rows {len(ls)}, matched to the slate {len(arms['LINESTAR'])}; unmatched ({len(unmatched)}): {unmatched[:15]}")
     if a.tabpfn and Path(a.tabpfn).is_file():
         arms["TABPFN (descriptive)"] = O.attach(pd.read_csv(a.tabpfn), sl, "pred_own").rename(columns={"pred_own": "v"})
     if "LINESTAR" in arms:
@@ -79,9 +93,10 @@ def main(argv: list[str] | None = None) -> int:
     if "FP" in arms:
         arms["BLEND_FP"] = blend(lag, arms["FP"])
     print(f"realized: {len(real)} players drafted; slate {a.group}: {len(sl)}; LAG matched {len(lag)}, in the population "
-          f"{int(lag.key.isin(set(real.index)).sum())}")
+          f"{int(lag.key.isin(set(real.index)).sum())}, priced but undrafted (excluded) {O.undrafted(lag, real)}")
     for k, v in arms.items():
-        print(f"  {k}: matched to the slate {len(v)}, in the population {int(v.key.isin(set(real.index)).sum())}")
+        print(f"  {k}: matched to the slate {len(v)}, in the population {int(v.key.isin(set(real.index)).sum())}, "
+              f"priced but undrafted (excluded) {O.undrafted(v, real)}")
     print(pd.DataFrame([compare(v, lag, real, k) for k, v in arms.items()]).to_string(index=False))
     print("gain = Spearman(arm) - Spearman(LAG) on the same players; the O1 rule uses gain_all (interim after W5; final after W7)")
     return 0

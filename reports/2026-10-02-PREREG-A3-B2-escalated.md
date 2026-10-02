@@ -86,3 +86,11 @@ players points our served projection does not.
   So our own gates apply to our components; FP's number stays FP's.
 - The weights, the population (now restricted to the main slate's DraftKings player list, and DSTs included from the
   projection table), the metric and the rule are unchanged.
+
+## Clarification B2 (2026-10-02 14:31 CDT, before the lock): which run B2 reads
+
+B2 reads the **newest pre-lock project-slate run**. For Week 4 that is the T-70 run (~10:36 CT Sunday). The T-70 path
+writes market_source_log in the same run as player_projections. This was verified on the operator's 10-02 rehearsal
+execution with the T-70 rules on (`project-slate-fvzzj`): player_projections 09:20:08Z, market_source_log 09:19:52Z.
+The one-run pairing (<= 300 s) therefore holds. If it refuses on Monday, B2 is not graded for that week, and the miss is
+disclosed; no fallback run is substituted.

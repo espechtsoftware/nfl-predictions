@@ -12,6 +12,32 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-02 (14:32 CDT) — REVIEWER: afe14af9 CLEARED for Monday after three small fixes (done); O1 population clarified BEFORE the lock
+
+**Reviewer (summarised faithfully):** CLEARED after three fixes, none changing a frozen rule. The shared module was
+"the right call".
+- On my question: yes, players not in the realized table are excluded and the parenthetical is void. Add a timestamped
+  clarification to the O1 file now, and print the priced-but-undrafted count.
+- Fixes:
+  1. The B2 collision check missed same-display-name players: use position.
+  2. score_o1: disclose FP's capture time (T-70 or Saturday); refuse a LineStar file captured at or after the lock.
+  3. Print the unmatched LineStar names.
+- Note the MAE-rescaled reference in the clarification.
+- Decide which run B2 reads for Week 4 (does T-70 write market_source_log?).
+
+**Done** (this commit):
+- **The O1 clarification** (timestamped, before any Week-4 outcome): the realized table = drafted players; the
+  parenthetical is void; the undrafted count is reported; the interim's MAE uses the arm rescaled to LAG's skill total.
+- **B2 clarification:** B2 reads the newest pre-lock run, the T-70 for Week 4. The T-70 path writes both tables in one
+  run, verified on the operator's `project-slate-fvzzj` (09:20:08 / 09:19:52). A refusal = not graded that week,
+  disclosed, no substitute run.
+- **The fixes:**
+  - B2: a key whose rows differ in position is a collision (printed, dropped);
+  - score_o1: prints FP's `retrieved_at` and "T-70 (Sunday)" vs "SATURDAY … (disclosed)"; LineStar needs its receipt,
+    whose `captured_at_utc` must be < the lock; unmatched LineStar names are printed;
+  - O1 and A3 print the priced-but-undrafted count.
+- **Dry runs:** W3 O1/A3: population 348, undrafted excluded 82, LAG Spearman 0.8973. W4 B2: one run, 13 s apart.
+- Tests 7.
 ## 2026-10-02 (14:29 CDT) — REVIEWER on 4aeed4a6 (A3/B2 readers): the fixes applied; a shared O1 module + the O1 reader written; dry runs
 
 **Reviewer (summarised faithfully):** both readers are close; fix the first items before Monday's numbers count.

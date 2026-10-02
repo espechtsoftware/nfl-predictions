@@ -105,3 +105,15 @@ better source can start a reversible trial two weeks earlier.
     scale).
   - **MAE is reported raw AND rescaled.** The interim's MAE condition uses the rescaled MAE, so a better ranker cannot
     fail on scale alone.
+
+
+## Clarification (2026-10-02 14:31 CDT, before any Week-4 ownership outcome exists; the reviewer's reading)
+
+- **Population:** "the realized table" is the DRAFTED players, counted from the contest's lineups. The parenthetical
+  "(players absent from the field count as 0% owned)" is **void**: players priced but undrafted are excluded, and
+  their count is reported. Amendment 1's "full slate" means every player in the realized table, the population the
+  +0.03 bar was set on. Reading it the other way would bring back the 0%-tie inflation.
+- **The interim's "MAE not worse than LAG"** compares the arm's MAE **rescaled to LAG's skill total on the same players**
+  with LAG's MAE. Amendment 2 names the blend's total for the term (the live tilt), a separate use.
+- **Disclosure:** each read prints FP's capture time and whether it is the T-70 or the Saturday capture.
+- The reader is `scripts/score_o1.py` on `scripts/o1_common.py`.
