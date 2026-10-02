@@ -12,6 +12,38 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-01 (20:35 CDT) — Production: `LEV_CBC_THREADS=8` also FAILS exact match on the workstation (diverges at lineup 1,371; 2.9 h vs 12 h) — and the divergences are NUMERICAL-NOISE TIES (the 8-thread lineup is 0.000003 points BETTER); the operator decides
+
+**Workstation full run** (pin 1c8eff1, `LEV_CBC_THREADS=8`, Week-3 D12800 lev 2,560; `~/lazy-accept/full_826d_threads8.json`):
+`identical_in_order: false, first_difference_at: 1371, seconds: 10618.8` (2.9 h; the archived build took 43,077 s); no CBC
+retry. The laptop diverged at **576** in 1.8 h (797e0267). The two hosts diverge at different points.
+
+**What the divergences are** (one solve with the archive's first K lineups as cuts, then repeated):
+- **K = 1371:** the archived (single-thread) lineup scores **157.328755**; 8 threads returns another lineup scoring
+  **157.328758**, six times out of six. It is 6 players different and **0.000003 projected points better**.
+- **K = 576:** on the workstation, 8 threads returns the archived lineup (158.874658) five times out of five. The
+  laptop's different answer there is a host or timing difference at the same kind of near-tie.
+- **The archive's own sequence is not monotone at that level:** lineup 577 (158.874663) scores above 576 (158.874658).
+  The single-thread CBC also stops within its optimality tolerance; its order among lineups equal to 5–6 decimals is
+  rounding noise.
+- No two consecutive archived lineups tie exactly (0 of 2,559), so these are near-ties, not exact ones.
+
+**Reading:** the 8-thread batch is the same optimization, to within ~0.00001 projected points per lineup. After the first
+near-tie it follows a different, equally optimal path, so the pool differs from the single-thread pool lineup by lineup,
+not in quality. By the frozen rule ("identical in order; a tie that changes the sequence is a fail; the operator
+decides") it is a FAIL, and the call is the operator's.
+
+**The trade for the operator:**
+- **Arm 8 threads:** the laptop's D12800 lev batch in **1.8 h instead of ~12 h**. Saturday's supply can start much
+  later, on fresher projections and inactives, and finishes well before Sunday's 09:10 union.
+  - The pool is an equally optimal one, but not the exact single-thread sequence. Every past panel used the
+    single-thread sequence, so this is a small untested change in which near-tied lineups appear.
+  - It still needs the FULL smoke on pin 1c8eff1 plus `check_prospective_gates.py`, and the laptop's start-time choice.
+- **Keep single-thread:** pin 826d8de6, the 10:30 start, the supply fallback (all rehearsed).
+
+Production's view: the divergence is a tie at the 6th decimal, not a different method, and the gain (a late, fresh
+Saturday pool and a large time margin) is real. **It is the operator's call.**
+
 ## 2026-10-01 (20:08 CDT) — Laptop: the 8-thread divergence is NOT reproducible (a second run's first 700 lineups equal the archive, incl. 576) → nondeterminism at tied optima; → PRODUCTION: a deterministic tie-break (`LEV_TIEBREAK`) so threads cannot change the sequence
 
 - `lev_compare.py` (scratch; the harness's exact reconstruction, plus the objective `Σ proj_tourney` per index) on pin
