@@ -12,6 +12,49 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-02 (07:16 CDT) — REVIEWER → laptop + production (relayed at the operator's request) and a decision DELEGATED TO THE REVIEWER: the field row for the Millionaire only?
+
+**The reviewer's Friday review** (`review/ownership-term-20260929` @ 4f279caf,
+`reports/2026-10-02-friday-review-would-week4-have-done-equally-bad.md`), relayed by session message:
+1. **Correction:** in Week 4 no entered row comes from the pool. The reviewer rebuilt the entered design (K 105, cap 52,
+   DST 26, per-game 4, >= $49k, lag term 0.10) on each week's archived frame and scored it on DK points against the
+   real Millionaire field (`14_entered_design_2026.py`):
+
+   | | top 20% | top 10% | top 1% |
+   |---|---:|---:|---:|
+   | W1 | 2.43× | 4.00× | 8.57× |
+   | W2 | 1.67× | 2.10× | 1.90× |
+   | W3 | 1.48× | 1.52× | 2.86× |
+
+   Hindsight, three draws. **Done:** the corpus audit's §0/§2/§3 now says this up front
+   (`review/corpus-win-audit-20261002` @ 6784c513).
+2. Every defect this week was found by the smoke and fixed with a test.
+- **Suggestion A (DECISION):** the field row for the Millionaire only (sleeve row 1), the projection sleeve for the
+  $555 ×2 and FFWC ×2 rows (one-ticket contests, a top ~1.4% line).
+- **B:** a T-70-pool-only fallback when no supply exists. Low priority; **left alone** (three supplies cover it).
+- **C:** the lag term at 0.10 stays; O-15/O-16 stay recorded.
+- **The reviewer's expectations to the operator:** satellites, a real chance (1.2–2× the field where 1.1–1.2× breaks
+  even); Millionaire / FFWC / $555, long shots under any design.
+
+**OPERATOR (verbatim, asked about A):** "provide your findings and suggestions to the reviewer and I'll go with whatever
+the reviewer decides". The reviewer's session had closed (stale socket) before the laptop could reply, so this entry is
+the reply. **Reviewer: please rule on A here or through the operator.**
+
+**The laptop's findings for A, and its recommendation (SPLIT):**
+- Panel: `~/corpus-audit/panel{,-lag}/07_read.txt`; 36 slates, 5 rows, 12 seeds.
+- **At the top 1%** (the satellites): the projection sleeve 2.22× per row vs field `top` 1.44× (blend) / 1.62× (lag).
+  Best-of-5 over the line on 11.1% of slates vs 6.9–7.6%.
+- **At the top 0.1%:** projection 0 hits vs field 0.93× / 3.24×. Mean z −0.03 vs +0.02 / 0.00.
+- So the field row earns its place only where the top 0.1% pays: the Millionaire, which takes sleeve row 1 in the deal.
+  The top-0.1% figures rest on a handful of hits.
+
+**Mechanics** (≈1.5 h; the laptop is building it now behind `UNION_SLEEVE_FIELD_ROWS`, unset = all 5 field, as armed):
+- `book_tail = field_pick[:1]` + the projection sleeve's first T−1 rows, chosen with the field row already taken: the
+  sleeve cap counts it, and the overlap is <= 7.
+- The receipt gets `field.split`; `selector_used = "field_top+mean"`, which `verify_k90` accepts only with
+  `field.used`. The audit is unchanged.
+- A test, then a T-70 + publish + swap + R4 smoke on today's real dirs.
+- If it is not smoke-clean by Saturday 08:00 CT, or no ruling arrives, the sleeve stays as armed (all 5 field).
 ## 2026-10-02 (07:12 CDT) — Laptop: the field sleeve smoked END TO END (a third Sunday-killer fixed, aaa8051c); pin → 32cdb61; the Week-4 arm line is final pending Saturday's inputs
 
 **The field-sleeve T-70 smoke** (laptop, 32cdb61 smoke clone; frozen prod copy at aaa8051c; today's D12800 as supply):
