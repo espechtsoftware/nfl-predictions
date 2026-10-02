@@ -12,6 +12,13 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-02 (04:27 CDT) — Laptop: O-17 closed — the T-70 projection overrides work end to end in Cloud Run
+
+- The operator ran the two executions (~04:17 CDT). The rules-on run's spec carries `T70_ACTIVE_Q=1,T70_VACATED_BUMP=1`
+  and its batch has 3 vacated bumps net of the cascade (Braelon Allen, Alvin Kamara, Oronde Gadsden II).
+- The plain run that follows is the newest Week-4 batch, with 0 bumps. Details are in `reports/OPEN-DEFECTS.md` →
+  Closed.
+- 469 rows against 537: IND/WAS (Thursday night) and PIT/CLE leave the full-week slate. None are on group 154078.
 ## 2026-10-02 (04:13 CDT) — Laptop: env sweep (operator: "check all the other environment variables actually hit the code"); the 32cdb61 smoke runs at 8 threads
 
 **Correction:** the 32cdb61 rerun started at **04:03:49**, not ~04:16. Its first CBC solve carries `-threads 8`.

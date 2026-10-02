@@ -34,7 +34,6 @@ can cost an entry.
 | O-10 | **Cloud Run us-central1 is AT the JobsPerProject=1000 quota** (counted exactly 1000 on 2026-09-18). | No new Cloud Run job can be created. Every fix must `deploy` an existing job. Freeing quota deletes execution history and is operator-only. | Standing constraint | Not a defect to fix; a constraint to respect. |
 | O-15 | **`MIN_LINEUP_SALARY` reaches the union, the audit and the cash shadow but NOT the lab build** (found 2026-10-02 in the env sweep that followed the `LEV_CBC_THREADS` miss). The host passes `--min-salary "${MIN_LINEUP_SALARY:-49000}"` to `union_reselect.py` and `audit_build_levers.py`; the lab's `live_arm_env` takes the floor from `PRODUCTION_ENV` (fixed 49000) and ignores the host env. | None in Week 4: nothing sets it, so both sides are 49000. If anyone sets it ≠ 49000, the build generates at 49000 while the union/audit use the new floor — a silent split. | Before any week that changes the salary floor. | `live_arm_env` carries it (or the host refuses a non-49000 value), with a test through `live_week.py`. |
 | O-16 | **`UNION_DK_STATUS` is passed through to the union (`--dk-status`) but nothing ever sets it** (2026-10-02 env sweep). Every union so far ran with `config.union.dk_status = null`. | Small: the T-70 frame already applies the DraftKings inactive denylist (OUT/IR/D removed), so a Saturday lineup holding such a player is dropped as `missing_from_t70`. The flag is a second check that is currently off. | Week 5 decision. | Either wire it to the T-70 DK status snapshot with a test, or remove the pass-through and say so. |
-| O-17 | **The Sunday T-70 `project-slate` execution with `--update-env-vars T70_ACTIVE_Q=1,T70_VACATED_BUMP=1` has never run in Cloud Run** (2026-10-02 env sweep: no `project-slate` execution in the last 40 carries a T70 variable; the deployed image `…7641feeb` does write the four `t70_*` columns — the 10-01 batch has them non-null, all off). | If the per-execution override did not reach the container, the T-70 batch would carry no trace and the 10:50 build's audit (`--t70 on`) would refuse it whenever there is an Out starter or an early-game Questionable to act on — the union would fall back. | Before Sunday 10:36 CT (Week 4). | One rehearsal execution with the override, its batch showing non-null `t70_*` columns and the execution spec listing both variables, followed by a plain execution. The laptop's attempt was refused by the harness (2026-10-02 ~04:30); **operator's decision**. |
 
 ## Loaded 2026-09-18: SIS Week-1 is in BigQuery, where the rest of the seasons live
 
@@ -91,6 +90,19 @@ allowance.
   history of what we chose to live with stays readable.
 
 ## Closed since this file was created
+
+- **O-17 (the Sunday T-70 `project-slate` overrides had never executed in Cloud Run), closed 2026-10-02 by the
+  operator's rehearsal.** Two executions, run by the operator on the laptop at ~04:17 CDT:
+  - `project-slate-fvzzj`, with `--update-env-vars T70_ACTIVE_Q=1,T70_VACATED_BUMP=1`. Its execution spec lists both
+    variables. Batch 09:20:08Z: 3 vacated bumps, each gross 1.6, net of the cascade:
+    - Braelon Allen RB, net 1.28;
+    - Alvin Kamara RB, net 0.37;
+    - Oronde Gadsden II TE, net 1.52.
+
+    0 active-Q, as expected (no game within 90 minutes on a Friday).
+  - `project-slate-q28sx`, plain. No T70 variables; batch 09:24:47Z with 0 bumps. It is the newest Week-4 batch.
+  - The batches have 469 rows (537 on 10-01). The rows missing are IND/WAS (Thursday night) and PIT/CLE (slate
+    154077 now holds only those four teams). None of them are in group 154078; all 24 of its teams are present.
 
 - **Review finding 6 (both halves), closed 2026-09-18 with tests.** The Sunday late-status watcher tracked a SET of
   flagged players, so a player already listed doubtful at startup could turn OUT with no alert and no break — the one
