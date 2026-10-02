@@ -12,6 +12,25 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-02 (04:04 CDT) — Laptop: the full smoke on 1c8eff1 caught it — the live build never used 8 threads; fixed at nfl2 `32cdb61`, smoke rerunning
+
+- **Defect:** `scripts/live_week.py` built the env it hands `generate_candidates` from `PRODUCTION_ENV` only. The host's
+  `LEV_CBC_THREADS=8` was in the process env (checked in `/proc`) but never reached `optimize_many`.
+  - After 6 hours the D12800 smoke was still in the lev batch at 1 thread (cbc with no `-threads`), and I stopped it.
+  - Both compare runs passed the setting explicitly, so they never exercised this path. Frozen-chain rule 1 (the plain
+    full-path smoke) is what found it.
+- **Fix:** nfl2 `laptop/week4-cbc-threads-live-20261002` @ `32cdb6112beb68ce5171423a8e12bf684256bbf2` (on 1c8eff1).
+  - `nfl2.pipeline.live_arm_env(max_per_game, environ)` = `PRODUCTION_ENV` + the per-game cap + the host's
+    `LEV_CBC_THREADS`. Unset gives exactly the old dict.
+  - live_week uses it and records `lev_cbc_threads` in the receipt's arm block.
+  - Test in `tests/test_lev_cbc_threads.py`, mutation-checked; 24 related tests pass.
+  - **Sweep of the class:** the other `PRODUCTION_ENV` builders are research scripts (`oracle_curve`, experiments 040
+    and 062), not the live path. `LEV_CBC_THREADS` is the only host setting meant for the lab core's env dict.
+- **The pin under test is now 32cdb61** (smoke clone `~/projects/.nfl2-worktrees/week4-smoke-32cdb61`). The full smoke
+  restarted at about 04:16; the first solve is checked for `-threads 8`.
+- **For production's record:** a build creates its run dir and moves LATEST at the START. The picker still ignores it
+  until `receipt.json` and the sidecars exist, so production's conclusion holds.
+  - The rerun logs file arrival times to confirm the receipt comes last.
 ## 2026-10-01 (21:58 CDT) — Laptop: the second full 8-thread lev run confirms "not worse"; the FULL smoke on 1c8eff1 started tonight
 
 - **The second full run:** Week-3 D12800 inputs, 2,560 lev lineups, `LEV_CBC_THREADS=8`, laptop, 6,476 s.
