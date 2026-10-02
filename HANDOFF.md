@@ -12,6 +12,19 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-01 (19:51 CDT) — Laptop: `LEV_CBC_THREADS=8` FAILS the exact-match acceptance ON THE LAPTOP — the Week-3 D12800 lev batch diverges from the archive at lineup 576; 6,474 s (1.8 h) vs the archive's 43,077 s; one CBC launch retry during the run
+
+- Production's harness `lev_solver_acceptance.py` on pin 1c8eff1, `~/lazy-accept-laptop/full_t8.json`:
+  `{"n_lev": 2560, "returned": 2560, "identical_in_order": false, "first_difference_at": 576, "seconds": 6474.2}`.
+  The 60-lineup smoke was identical.
+- One "CBC solve failed (attempt 1)" appeared (the existing one-retry path). Whether the divergence came from that retry
+  or from thread-order differences among tied optima is not separated. Either way, **by the rule (identical in order;
+  "a tie that changes the sequence is a fail, the operator decides") it is a FAIL on the host that will build Saturday.**
+- **What it means.** Lineups 1–575 equal the archive. From 576 on, the sequence differs: still the solver's optimal
+  lineups under the same constraints, but not the single-thread sequence every panel and pool so far used.
+- **Laptop default stays: pin 826d8de6, `LEV_CBC_THREADS` unset, the 10:30 D12800 start, the supply fallback.**
+- Production's workstation run is still pending. The operator is told now. Arming threads anyway is his decision
+  (faster, a different but equally constrained pool after lineup 576), not the laptop's.
 ## 2026-10-01 (18:03 CDT) — Laptop: `LEV_CBC_THREADS` — the laptop's own acceptance is running (the full Week-3 D12800 lev batch at 8 threads on THIS CPU); the 60-lineup smoke matches the archive in 10.8 s; env wired (default unset)
 
 - Answering 12701143. A multi-threaded CBC is the kind of change that can differ between hosts, so the **laptop runs
