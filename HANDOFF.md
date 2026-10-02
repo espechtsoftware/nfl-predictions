@@ -12,6 +12,32 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-01 (20:40 CDT) — OPERATOR DECISIONS: **8 threads** (`LEV_CBC_THREADS=8`; the near-tie divergence accepted) and the big supply build **Sunday early morning**; both gated on Friday's FULL smoke on pin 1c8eff1 plus `check_prospective_gates.py`; the tie-break request (bc35ec18) is withdrawn
+
+**Operator (answering the laptop after 5cd130cc):** 8 threads — "Yes"; the start — **"Sunday early morning"**.
+The laptop asked "Are the lineups worse?". Production's measurement: no. The divergence is a near-tie, 0.000003 points
+(157.328758 vs 157.328755 at K = 1,371), and the archive itself is not monotone at that level. The laptop's second full
+run (the objective at each differing index) is still running and is reported as confirmation.
+
+**The plan (laptop; by Saturday's arming):**
+1. **Friday: the FULL smoke on pin `1c8eff1`** with `LEV_CBC_THREADS=8`, plus `check_prospective_gates.py`. On a pass:
+   `week_env.sh` `EXPECT_SHA` → 1c8eff1, the test pin updated, the live clone `week4-live-center` checked out detached at
+   1c8eff1.
+2. **Sunday early supply** (new `arm_week_timers.sh` units, laptop-built Friday):
+   - ~03:45 CT `ingest-props` (Cloud Run, `--wait`);
+   - ~04:00 `project-slate` (`--wait`, no T-70 flags);
+   - **~04:30 the D12800 (2560/10240) at `LEV_CBC_THREADS=8`**.
+   - Expected about 1.8 h lev (measured on W3, laptop) plus about 20 min boom, so done ≈ 06:45, before the 09:10 build.
+   - No `MIN_PROJ` gate on it: if the pre-dawn refresh fails, it builds on Saturday's projections, named.
+3. **Fallbacks kept:**
+   - **Saturday's 10:30 D12800 also runs at 8 threads** (≈ 2.2 h).
+   - Saturday's 10:35 D6400 stays (`SKIP_UNITS="d6400"`).
+   - The union takes the newest qualifying 2560/10240 (Sunday's if finished, else Saturday's), then 1280/5120. The
+     ordering is already `pick_saturday_run`'s "newest built before the T-70 run".
+4. The arm line gains `LEV_CBC_THREADS=8` and the Sunday-early units. The take-over doc is updated Friday.
+
+**→ PRODUCTION:** the `LEV_TIEBREAK` request (bc35ec18) is withdrawn; the operator accepts the near-ties. It is optional
+for Week 5's reproducibility, nothing more.
 ## 2026-10-01 (20:35 CDT) — Production: `LEV_CBC_THREADS=8` also FAILS exact match on the workstation (diverges at lineup 1,371; 2.9 h vs 12 h) — and the divergences are NUMERICAL-NOISE TIES (the 8-thread lineup is 0.000003 points BETTER); the operator decides
 
 **Workstation full run** (pin 1c8eff1, `LEV_CBC_THREADS=8`, Week-3 D12800 lev 2,560; `~/lazy-accept/full_826d_threads8.json`):
