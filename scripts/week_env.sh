@@ -60,7 +60,7 @@ week_settings() {
   # selector and mean tail sleeve, the class sleeve, --min-proj, the DST cap, the late-swap policy (54dd512), plus the DK->
   # nflverse team alias (LAR->LA; Week 4's LA@PHI refused every build at 54dd512). Descends from 65305f5a and 2dc116ce
   # (merge-base --is-ancestor); the clone .nfl2-worktrees/week4-live-center is checked out at it.
-  export EXPECT_SHA=${EXPECT_SHA:-${NFL2_EXPECT_SHA:-826d8de6129eaeefe2235467212cc4cfccb57deb}}
+  export EXPECT_SHA=${EXPECT_SHA:-${NFL2_EXPECT_SHA:-32cdb6112beb68ce5171423a8e12bf684256bbf2}}
   # Week 3 on (operator, 2026-09-25): the FLEX slot holds the latest starter. LIVE_FLEX_LATEST=0 is the rollback.
   export LIVE_FLEX_LATEST=${LIVE_FLEX_LATEST:-1}
   # Week-3 construction cap (operator, 2026-09-22): max 4 players per game in every lev and boom

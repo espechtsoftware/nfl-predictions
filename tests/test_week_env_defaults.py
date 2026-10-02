@@ -14,7 +14,7 @@ LIVE_REPAIR_SHA = "2dc116ce95647a776ba9c36cf194f44d022d03a4"
 # 2026-09-25: advanced to 65305f5a (parent 9b341d77, one commit: LIVE_FLEX_LATEST, default off in nfl2).
 # 2026-09-29: advanced to 826d8de6 for Week 4 (the two-track branch + the DK->nflverse team alias); it descends from
 # 65305f5a and 2dc116ce.
-LIVE_PIN_SHA = "826d8de6129eaeefe2235467212cc4cfccb57deb"
+LIVE_PIN_SHA = "32cdb6112beb68ce5171423a8e12bf684256bbf2"
 
 
 def test_week3_default_keeps_the_reviewed_live_game_input_repair():

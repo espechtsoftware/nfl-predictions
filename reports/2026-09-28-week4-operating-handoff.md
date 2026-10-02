@@ -254,7 +254,7 @@ Operator steps are marked **(operator, laptop)**. Everything else is the agent's
    (build-features → tabpfn-gen `TABPFN_UPCOMING=2026:4` → project-slate) after the new image is live. The clone is a
    clean detached lab worktree at 54dd512 (created 09-28):
    ```
-   git -C ~/projects/.nfl2-worktrees/week4-live-center checkout --detach 826d8de6129eaeefe2235467212cc4cfccb57deb   # done 09-29 (the LAR->LA alias on top of 54dd512)
+   git -C ~/projects/.nfl2-worktrees/week4-live-center checkout --detach 32cdb6112beb68ce5171423a8e12bf684256bbf2   # 10-02: the threads pin, done by the laptop   # done 09-29 (the LAR->LA alias on top of 54dd512)
    ```
    - Measure the lev-0 / boom-4800 / class-sleeve build time; that confirms `chosen-dose.env`.
    - Check the receipt and the audit (`audit_build_levers.py`, `t70_rules_effect`).
@@ -349,10 +349,16 @@ Operator steps are marked **(operator, laptop)**. Everything else is the agent's
 5. **(operator, laptop) arm**, after `chosen-dose.env` holds `CHOSEN_LEV=0` / `CHOSEN_BOOM=4800` (or Wednesday's
    measured boom):
    ```
-   GROUP=154078 EXPECT_SHA=826d8de6129eaeefe2235467212cc4cfccb57deb CLONE=$HOME/projects/.nfl2-worktrees/week4-live-center \
+   GROUP=154078 EXPECT_SHA=32cdb6112beb68ce5171423a8e12bf684256bbf2 CLONE=$HOME/projects/.nfl2-worktrees/week4-live-center \
    D3200_LEV=0 D3200_BOOM=4800 D800_LEV=0 D800_BOOM=4800 SKIP_UNITS="d6400" \
+   LEV_CBC_THREADS=8 EARLY_PROPS_CT=04:30 EARLY_PROJECT_CT=04:45 EARLY_SUPPLY_CT=05:00 \
+   UNION_MAIN=pmo_x50 UNION_MAIN_OWN_TILT=0.20 UNION_MAIN_OWN_PREDICTOR=tabpfn UNION_SLEEVE_CAP=0.5 UNION_SLEEVE_SOURCE=field \
    T70_MIN_PROJ_CT=10:30 T70_PROJECT=1 UNION_SATURDAY_RUN=auto UNION_PMO=0 scripts/arm_week_timers.sh 4 --run
    ```
+   **10-02 (the FULL smoke on 32cdb61 passed):** the pin is the threads pin `32cdb61` (week_env default too);
+   `LEV_CBC_THREADS=8` (the D12800 took 2 h 35 min at 8 threads); the Sunday-early D12800 at 05:00 (props 04:30, projections
+   04:45; done ~07:35); `UNION_SLEEVE_SOURCE=field` (the operator's 06:10 choice, smoked end to end with publish, swap and
+   R4). `UNION_MAIN`/`UNION_MAIN_OWN_*`/`UNION_SLEEVE_CAP` are written out so the line is complete on its own.
    **Saturday supply fallback (operator 10-01, cracks audit B):** `SKIP_UNITS="d6400"` (no longer `d6400sat`), so the
    Saturday 10:35 D6400 also builds; `UNION_SAT_DOSE` defaults to `2560/10240,1280/5120`, so a D12800 that is not finished
    when a Sunday union runs falls back to the D6400, with a `!!! SATURDAY SUPPLY FALLBACK` line.

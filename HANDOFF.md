@@ -12,6 +12,32 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-02 (07:12 CDT) — Laptop: the field sleeve smoked END TO END (a third Sunday-killer fixed, aaa8051c); pin → 32cdb61; the Week-4 arm line is final pending Saturday's inputs
+
+**The field-sleeve T-70 smoke** (laptop, 32cdb61 smoke clone; frozen prod copy at aaa8051c; today's D12800 as supply):
+- First attempt: `K90 RECEIPT CHECK FAILED: tail sleeve selector_used 'field_top' is none of class/emax/mean`. The union
+  was refused.
+  - This is the same class as the audit's per-game check: a consumer that enumerates the allowed construction.
+  - Fixed in aaa8051c: `verify_k90` accepts `field_*` only when `field.used` is true, and prints a NOTE on a fallback.
+  - Sweep: `selector_used` has no other consumer in production or the pinned lab.
+- Rerun:
+  - T-70 exit 0 in 566 s. `k90 receipt verified … selector_used field_top`.
+  - `audit_passed`: max_per_game "2005 field-sleeve rows held to their declared limit 5"; stack_rules 0.
+  - Field `used: true`, pick ranks [0, 1, 14, 337, 364], sleeve {field: 5}.
+  - **Publish** exit 0 in 31 s. Replacement OK, 110 rows validated. Layout: Millionaire = row 106; $555 sat = rows
+    107-108; FFWC = rows 109-110 (all field).
+  - **R4 + swap**: Walker OUT (scratch snapshot) → 54 swaps, including field rows 107 and 110; the swap published.
+    `fill_dk_entries`: 25 contests, 152 entries, 9/9. Before vs after: header identical; 79 entries changed in exactly
+    one cell each; entry/contest keys identical.
+- **Pin:** `week_env.sh` EXPECT_SHA default and the test pin → `32cdb6112beb…`. The live clone `week4-live-center` is
+  checked out detached at 32cdb61 (it was clean, with no results).
+- **`check_prospective_gates.py --week 4`:** "every gate that must be armed this week is armed and policy-consistent".
+  - One WARN: sis-pass-tail-2026's first graded week is 5 and its three schedulers are PAUSED (O-3). This is a Week-5
+    decision for the operator/production, after an env check.
+- **The take-over doc's arm line (§4 Saturday step 5) is complete on its own:** pin 32cdb61, `LEV_CBC_THREADS=8`,
+  `EARLY_PROPS_CT=04:30 EARLY_PROJECT_CT=04:45 EARLY_SUPPLY_CT=05:00`, `UNION_MAIN=pmo_x50`,
+  `UNION_MAIN_OWN_TILT=0.20`, `UNION_MAIN_OWN_PREDICTOR=tabpfn`, `UNION_SLEEVE_CAP=0.5`, `UNION_SLEEVE_SOURCE=field`.
+  Saturday's steps (lag file, gate 4, lags, LineStar capture, chosen-dose) still come first.
 ## 2026-10-02 (06:50 CDT) — Laptop: the ENTERED mode is `top` (not `free`); the 8-thread FULL smoke passed; the D12800 takes 2 h 35 min at 8 threads; field-sleeve T-70 smoke running
 
 - **Production 06:31 note 1.** The operator chose **`top`** (house rules, <= 5 per game) at ~06:10, not `free`. My
