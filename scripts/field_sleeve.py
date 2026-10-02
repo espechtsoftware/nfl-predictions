@@ -12,7 +12,10 @@ Here the sleeve's candidates are drawn the way the field builds lineups:
   3. kept if they satisfy the house rules with a per-game limit of `max_game` (default 5; the main book keeps 4):
      salary >= the floor, QB + 2 WR/TE, 1 bring-back, no RB facing his own DST, no two RBs of one team;
   4. ordered for the sleeve's greedy pick: `top` = by projected sum; `band` = a seeded shuffle of the rows between the
-     97th and 99.5th percentile of the kept rows' projected sums.
+     97th and 99.5th percentile of the kept rows' projected sums; `free` = EVERY sampled lineup (DK-legal by the
+     sampler: cap, salary band, no duplicate player), NO house-rule filter, by projected sum. On L13's 36 slates (blend
+     ownership, 12 seeds) `free` led on the mean (+0.12 sd vs the projection sleeve's -0.03), the top 5% (1.48x vs 1.33x)
+     and the top 0.1% (1.39x vs 0), and trailed at the top 1% (1.99x vs 2.22x): the operator's Week-4 choice.
 
 Pure functions; union_reselect.py wires them in behind --sleeve-source field and falls back loudly to the projection
 sleeve on any failure.
@@ -28,6 +31,7 @@ from field_sampler import sample_field
 
 SKILL = ("QB", "RB", "WR", "TE")
 BAND = (0.97, 0.995)
+MODES = ("top", "band", "free")
 SLOT_TOTALS = {"QB": 1.0, "RB": 2.4, "WR": 3.45, "TE": 1.15}
 
 
@@ -172,22 +176,23 @@ def sample_chunks(fr: pd.DataFrame, targets: dict[str, float], n: int, seed: int
 def field_candidates(fr: pd.DataFrame, targets: dict[str, float], n: int, seed: int, max_game: int, min_salary: int,
                      mode: str, sampler=None, min_legal: int = 50) -> tuple[list[list[str]], np.ndarray, dict]:
     """(rosters as frame-id lists in pick order, their projected sums, receipt)."""
-    if mode not in ("top", "band"):
+    if mode not in MODES:
         raise ValueError(f"mode {mode!r}")
     S, srec = sample_chunks(fr, targets, n, seed, sampler=sampler or sample_field)
     S = np.unique(np.sort(S, axis=1), axis=0)
     proj = pd.to_numeric(fr.mean_projection, errors="coerce").fillna(0.0).to_numpy(float)
-    ok = legal(S, fr, max_game, min_salary); K = S[ok]; ps = proj[K].sum(1)
-    if len(K) < min_legal:
+    ok = legal(S, fr, max_game, min_salary)
+    K = S if mode == "free" else S[ok]; ps = proj[K].sum(1)
+    if mode != "free" and len(K) < min_legal:
         raise ValueError(f"only {len(K)} of {len(S)} sampled lineups satisfy the house rules")
-    if mode == "top":
+    if mode in ("top", "free"):
         order = np.argsort(-ps, kind="stable")
     else:
         lo, hi = np.quantile(ps, BAND)
         band = np.where((ps >= lo) & (ps <= hi))[0]
         order = np.random.default_rng(seed + 1).permutation(band)
     ids = fr.id.astype(str).to_numpy()
-    rec = {"n_sampled": int(n), "distinct": int(len(S)), "legal": int(len(K)), "max_game": max_game, "min_salary": min_salary,
+    rec = {"n_sampled": int(n), "distinct": int(len(S)), "legal": int(ok.sum()), "house_rules_applied": mode != "free", "max_game": max_game, "min_salary": min_salary,
            "mode": mode, "seed": seed, "band": list(BAND) if mode == "band" else None, "candidates_in_order": int(len(order)),
            "projected_sum": {"max": round(float(ps.max()), 2), "p99": round(float(np.quantile(ps, .99)), 2),
                              "median": round(float(np.median(ps)), 2)},

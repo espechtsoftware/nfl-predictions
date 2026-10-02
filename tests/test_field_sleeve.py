@@ -108,6 +108,9 @@ def test_field_candidates_orders_top_by_projection_and_drops_rule_breakers():
     assert sorted(opts[3]) not in [sorted(r) for r in rost]
     rb, _, rec_b = fs.field_candidates(fr, {}, 400, 1, 5, 0, "band", sampler=sampler, min_legal=1)
     assert rec_b["mode"] == "band" and len(rb) <= 3
+    rf, psf, rec_f = fs.field_candidates(fr, {}, 400, 1, 5, 0, "free", sampler=sampler)          # no filter, no minimum
+    assert len(rf) == 4 and rec_f["legal"] == 3 and rec_f["house_rules_applied"] is False and list(psf) == sorted(psf, reverse=True)
+    assert sorted(opts[3]) in [sorted(r) for r in rf]                                               # the stack-breaker stays
     with pytest.raises(ValueError, match="satisfy the house rules"):
         fs.field_candidates(fr, {}, 400, 1, 5, 0, "top", sampler=sampler)          # 3 legal < the default 50
     with pytest.raises(ValueError, match="mode"):

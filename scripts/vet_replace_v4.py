@@ -215,13 +215,20 @@ def main():
     problems = []
     if len(book) != n_book: problems.append(f"row count {len(book)} != {n_book}")
     _kb = int(src.get("config", {}).get("operational_k") or len(book)); _kb = min(max(_kb, 0), len(book))
+    _field = ((src.get("config", {}).get("tail_sleeve") or {}).get("field") or {})
+    _sleeve_free = bool(_field.get("used")) and _field.get("house_rules_applied") is False
     for _name, _blk in (("mean block", book[:_kb]), ("sleeve block", book[_kb:])):     # a sleeve row may repeat a mean row (2026-09-28)
         if len({frozenset(r) for r in _blk}) != len(_blk): problems.append(f"duplicate lineup within the {_name}")
     for p, r in enumerate(book):
         if len(set(r)) != 9: problems.append(f"row {p+1}: ids not distinct")
         if sum(sal_of[d] for d in r) > CAP: problems.append(f"row {p+1}: salary {sum(sal_of[d] for d in r)} > {CAP}")
         if not slot_legal(r, pos_of): problems.append(f"row {p+1}: slot order illegal")
-        v = validate_roster([dk_to_id[d] for d in r], *vr_args, salary_floor=49000, qb_stack_min=2, bring_back_min=1, forbid_rb_vs_dst=True, forbid_two_rb_same_team=True)
+        # the field sleeve's `free` rows (operator 2026-10-02) are built WITHOUT the house rules: past the main block they are
+        # held to DraftKings legality only; the main block and every replacement keep the house rules
+        if p >= _kb and _sleeve_free:
+            v = validate_roster([dk_to_id[d] for d in r], *vr_args)
+        else:
+            v = validate_roster([dk_to_id[d] for d in r], *vr_args, salary_floor=49000, qb_stack_min=2, bring_back_min=1, forbid_rb_vs_dst=True, forbid_two_rb_same_team=True)
         if v: problems.append(f"row {p+1}: {v}")
         still = [name_of[d] for d in r if d in E]
         if still: problems.append(f"row {p+1}: still contains excluded {still}")

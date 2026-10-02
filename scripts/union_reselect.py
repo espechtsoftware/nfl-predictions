@@ -402,7 +402,8 @@ def main(argv: list[str] | None = None) -> int:
                          "(scripts/field_sleeve.py; operator 2026-10-02); any failure falls back LOUDLY to the projection sleeve")
     ap.add_argument("--sleeve-own-source", type=Path, default=None, help="the ownership file for --sleeve-source field (default: --main-own-source)")
     ap.add_argument("--sleeve-field-n", type=int, default=200_000); ap.add_argument("--sleeve-field-seed", type=int, default=2026)
-    ap.add_argument("--sleeve-field-mode", choices=["top", "band"], default="top")
+    ap.add_argument("--sleeve-field-mode", choices=["top", "band", "free"], default="top",
+                    help="free = no house-rule filter on the sampled rows (DK-legal only); see field_sleeve.py")
     ap.add_argument("--sleeve-field-keep", type=int, default=2000, help="field rows added to the pool, in pick order")
     ap.add_argument("--sleeve-max-per-game", type=int, default=5, help="per-game limit for the field sleeve's rows (the main book keeps --max-per-game)")
     ap.add_argument("--dk-status", type=Path); ap.add_argument("--tail-line", type=float, default=None)
