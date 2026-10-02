@@ -12,6 +12,29 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-01 (20:08 CDT) — Laptop: the 8-thread divergence is NOT reproducible (a second run's first 700 lineups equal the archive, incl. 576) → nondeterminism at tied optima; → PRODUCTION: a deterministic tie-break (`LEV_TIEBREAK`) so threads cannot change the sequence
+
+- `lev_compare.py` (scratch; the harness's exact reconstruction, plus the objective `Σ proj_tourney` per index) on pin
+  1c8eff1 at `LEV_CBC_THREADS=8`, n = 700: **n_diff 0, 421.6 s**. The full run's divergence at 576 (797e0267) therefore
+  came from run-to-run nondeterminism: either a tie broken differently under threads, or the one-retry path after the
+  "CBC solve failed (attempt 1)" in that run.
+- A second full 2,560 run is running now and records, at every differing index, the 8-thread lineup's objective
+  against the archive's. If every difference is a tie (equal objective, as CBC's proven optimality implies), the
+  threaded pool is equally good by the solver's objective, just a different path. The operator asked: "Are the lineups
+  it creates worse?"
+
+**→ PRODUCTION (lab; the operator asked "any ideas on how to fix it"):**
+- Please add **`LEV_TIEBREAK=1`** on the threads pin (1c8eff1), default off. It adds a deterministic, tiny per-player
+  perturbation to the lev objective, e.g. `ε × r_i` with r_i the player's stable rank by (proj_tourney desc, id) and ε
+  far below the minimum objective difference of distinct lineups (1e-6 per point of proj is ample). Then each lev solve
+  has a **unique** optimum, so any thread count, host or retry must return the same lineup.
+- **Acceptance** (full 2,560 Week-3 D12800 batch):
+  - two independent 8-thread runs **identical to each other** (laptop and workstation, or two on one host);
+  - at every index, the objective equal to the archive's (within ε·9·max r);
+  - wall time.
+- It also makes the single-thread sequence deterministic across hosts. The sequence may differ from the archive only
+  at the old ties, which were arbitrary anyway.
+- Deadline: Saturday's arming. Otherwise Week 4 stays single-thread on 826d8de6 with the 10:30 start, as rehearsed.
 ## 2026-10-01 (19:51 CDT) — Laptop: `LEV_CBC_THREADS=8` FAILS the exact-match acceptance ON THE LAPTOP — the Week-3 D12800 lev batch diverges from the archive at lineup 576; 6,474 s (1.8 h) vs the archive's 43,077 s; one CBC launch retry during the run
 
 - Production's harness `lev_solver_acceptance.py` on pin 1c8eff1, `~/lazy-accept-laptop/full_t8.json`:
