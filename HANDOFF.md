@@ -12,6 +12,35 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-02 (12:42 CDT) — Laptop: FP DFS + weekly projections now CAPTURED (new collector, capture only); FP flagged the Bears' QB question
+
+- **Operator:** "Be sure we're grabbing the other data that is useful from that site this week".
+- **Discovery** (read-only, the saved FP session): the DFS tier serves, through `/api/proxy`:
+  - `/tables/nfl/projections/dfs`: 45 slates (DK/FD, Classic + Showdown), each with players (salary, DK points,
+    points per dollar, projected ownership, roster slots), keyed by DK draft-group id;
+  - `/tables/nfl/projections/weekly`: 563 players, every scoring system plus the stat projections;
+  - `/tables/nfl/projections/betting`: a 3-row preview only (In-Season Betting add-on; not collected by default);
+  - the ownership table already captured.
+- **New collector** `src/nfl_dfs/ops/fantasy_points_projections.py` (`fantasy-points-projections collect --week N`;
+  until the editable install picks up the entry point, `python -m nfl_dfs.ops.fantasy_points_projections`):
+  - The raw payloads (session redacted) are archived create-once, hash-addressed, under
+    `licensed/fantasy-points/projections/<table>/`.
+  - Appended to `nfl_raw.fantasy_points_dfs_projections` (one row per slate × player) and
+    `nfl_raw.fantasy_points_weekly_projections` (key fields + `row_json`).
+  - Fails closed on an anonymous session, locked values, an empty table or another week. Tests: 7.
+  - **Capture only; no build reads it.**
+- **Week 4 captured** (12:5x CT): dfs 7,926 rows (main 154078: 627 players; projected ownership on 1,224 = both
+  mains); weekly 563 rows.
+- **First cross-check** (main slate, 199 players over 3 pts): corr 0.931 with our projection; FP +0.85 pts on average.
+- **Biggest gap: the Bears' QB.**
+  - FP projects Tyson Bagent 16.6; we project Bagent 0 and Case Keenum 14.6 (Caleb Williams: DK D, ruled out with a
+    hamstring).
+  - Ben Johnson has not named a starter ("We'll find out on Sunday"); reports lean Bagent.
+  - Rehearsal book exposure: neither Bears QB in any of 110 rows; Kalif Raymond 4 rows, Bears DST 11.
+  - **No change**: the effect is small either way. Watch Sunday-morning reports.
+- **Routine from now on:** Saturday and Sunday captures of ownership + DFS + weekly; a disagreement report (FP vs our
+  projection) checked against the news before the build.
+- **REVIEWER:** please review `fantasy_points_projections.py` and its tests before any of its rows feed a build.
 ## 2026-10-02 (12:31 CDT) — Laptop: the quick FP-ownership test runs SUNDAY ~12:30 (no FP history exists); `scripts/score_ownership_sources.py`
 
 - **Operator:** "accelerate … a quick test to see how that data performs"; "just the ownership today".
