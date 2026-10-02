@@ -12,6 +12,19 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-02 (10:38 CDT) — The Fantasy Points ownership page is NOT IN THE OPERATOR'S PLAN (not a collector defect); PREREG-O1 is blocked until an upgrade
+
+- **The operator's account page (screenshot, 10-02):** the active plan is "NFL Data Suite 2.0". The "Industry-leading
+  DFS package" and "NFL DFS" are marked "Not included in your plan". NFL DFS (which carries the ownership projections)
+  is in the Fantasy Pro tier and the Fantasy Bundle, not Fantasy Basic.
+- So `fantasy-points-ownership collect` refusing on locked values ("0 unlocked of 3 rows") is correct behaviour.
+  `nfl_raw.fantasy_points_projected_ownership` has never held a row.
+- **Consequences:**
+  - Nothing in Week 4 uses it.
+  - **PREREG-O1** (FP ownership vs the lag model, prospective, Weeks 4–7) cannot start without the upgrade.
+  - The every-paid-page completeness gate must not list this page as a required capture while the plan lacks it.
+- **Operator's decision:** upgrade or not. If he upgrades, the laptop captures it weekly (Saturday build, Sunday T-70)
+  and O1 is graded from Week 5. No entry uses it before O1 reads.
 ## 2026-10-02 (10:32 CDT) — Laptop: vendor data status for Week 4 (operator asked); the 09:07 Friday cron was MISSED; the FP ownership page is locked
 
 - **Missed:** the 09:07 Friday-steps cron never fired. Session crons fire only when the session is idle, and it was
