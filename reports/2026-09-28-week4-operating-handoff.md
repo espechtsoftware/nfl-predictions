@@ -363,6 +363,14 @@ Operator steps are marked **(operator, laptop)**. Everything else is the agent's
    week_env's default is 5, so the arm line need not carry it and a hand-run `sunday_swap.sh` checks with the same value;
    `ENTER_SMALL_MAX_SHARED=` turns it off). `UNION_SLEEVE_CAP=0.5` (operator 09-30 20:0x after L19 SUPPORTED; at T = 5 at most 2 sleeve rows per player).
    Conditional: `ENTER_SMALL_OVERLAP_MAX_ENTRIES=10` (only if Thursday's smoke covers it; then the week_env default).
+   **`UNION_SLEEVE_SOURCE=field` (operator 10-02 ~06:10, after the corpus-win audit and the 36-slate sleeve panel):** the
+   5 tail-sleeve rows (Millionaire / FFWC / $555) come from a field-like sample of the pre-lock ownership predictor, under
+   the house rules with up to 5 per game (`UNION_SLEEVE_FIELD_MODE=top`, `UNION_SLEEVE_MAX_PER_GAME=5`, the week_env
+   defaults). Panel: top-0.1% 0.93x (blend) / 3.24x (lag) vs the projection sleeve's 0 hits; top-1% 1.44x / 1.62x vs 2.22x
+   (a trade the operator chose for a chance at the top). Any failure falls back LOUDLY to the projection sleeve
+   (`!!! FIELD SLEEVE FAILED`). Production `b273e9bb`, `fc7b78aa`, `e4673a50`.
+   **The arm line therefore carries `UNION_SLEEVE_SOURCE=field`**, plus `LEV_CBC_THREADS=8 EARLY_SUPPLY_CT=<from Friday's
+   timing>` and the pin once Friday's full smoke passes (HANDOFF).
    **The union (operator-authorized 12:2x CDT 09-28; production `025ad2c5`, `57bdc8b7`, `c753be99`):**
    - Each Sunday build (09:10 and T-70) is followed by `union_reselect.py`: the build's pool plus every Saturday D12800
      candidate that survives the build's frame (no OUT/IR/Doubtful/inactive or below-MIN_PROJ player).

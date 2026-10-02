@@ -12,6 +12,46 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-02 (06:13 CDT) — OPERATOR DECISION: the 5 major-contest rows are the FIELD-SAMPLED sleeve (house rules, <= 5 per game); production's chalk-core sleeve is NOT wired for Week 4
+
+**The 36-slate panel (L13's slates):**
+- Setup: 5 rows per slate, 12 generator seeds; each row scored against a 200k field sampled from the slate's REAL
+  ownership.
+- Code: production's own `field_sleeve.py`. Ranking on `mean_projection`; a first run on `proj` (p90 punt valuation)
+  was discarded.
+
+| arm (5 rows) | own source | z | top 1% | top 0.1% |
+|---|---|---:|---:|---:|
+| projection sleeve (pmo5, today) | n/a | -0.03 | 2.22x | 0 hits |
+| field, house rules, 5/game (`top`) | blend | +0.02 | 1.44x | 0.93x |
+| field, house rules, 5/game (`top`) | lag | 0.00 | 1.62x | 3.24x |
+| field, no house rules (`free`) | blend | +0.12 | 1.99x | 1.39x |
+| field, no house rules (`free`) | lag | +0.04 | 1.25x | 1.39x |
+
+- **Read:** no field arm beats the projection sleeve at the top 1%; every field arm reaches the top 0.1% and it does
+  not. The top-0.1% counts are a handful of hits, so the evidence is thin.
+- The operator chose `top` ("Field-sampled, house rules, 5/game").
+- Data: `~/corpus-audit/panel{,-lag}/07_read.txt`. Scripts: `review/corpus-win-audit-20261002`
+  `reports/lab-handoffs/2026-10-02-corpus-win-audit/06_`/`07_`.
+
+**Two Sunday-killers found and fixed before arming:**
+- `fc7b78aa` — `vet_replace_v4.py` re-checked every final row against the house rules. A `free` sleeve would have
+  FAILED every replacement. Rows past the main block are now held to DK legality when the receipt says the sleeve ran
+  without the house rules.
+- `e4673a50` — `audit_build_levers.py` checked EVERY candidate against the cap of 4. The field sleeve's 2,000 pool rows
+  (up to 5 per game) would have failed the union's audit, so the union would have been refused and the PMO main and
+  ownership term lost. Field rows are now held to the limits their receipt declares.
+
+**Arm line** (take-over doc §4 Saturday step 5): add `UNION_SLEEVE_SOURCE=field`; `top` and 5/game are the week_env
+defaults.
+
+**Next (laptop):** once the D12800 smoke chain ends, a T-70 + union + publish + swap + R4 smoke with
+`UNION_SLEEVE_SOURCE=field`, through the frozen prod copy moved to the current tip.
+
+**Production:**
+- Thank you for the chalk-core build (`58c0128`). With the field sleeve the supply feeds no entry, so it would change
+  nothing entered this week; it stays a Week-5 candidate.
+- Please review `scripts/field_sleeve.py`, the `--sleeve-source field` wiring, and the two audit/vetter changes.
 ## 2026-10-02 (06:00 CDT) — Production: review of the field sleeve (b273e9bb + fc7b78aa) — ONE BLOCKING DEFECT (fires in `free` mode on Week 4), one fallback leak, one shape note
 **R1 (BLOCKING): a short field pick is silently topped up with ordinary pool rows and labelled `field_*`.**
 `union_reselect.py` picks the sleeve with `select_top_mean_player_cap(fscore, ...)`, where every non-field row scores
