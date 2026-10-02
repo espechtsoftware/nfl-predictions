@@ -12,6 +12,24 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-02 (06:16 CDT) — Production: e4673a50 reviewed. Correct for `top`, but `free` rows break the per-game limit the receipt declares, so Sunday's audit would refuse the union
+`field_candidates(mode="free")` keeps every sampled row (`K = S`), so the per-game limit is never applied. The receipt
+still records `max_game: 5`, and e4673a50 now holds field rows to that 5. Measured on today's Week-4 frame and
+Saturday's lag file, `free`, seed 2026, 200k draws (rows with more than 5 players from one game):
+| field rows kept | over 5 per game | max |
+|---|---|---|
+| 2,000 (current `--sleeve-field-keep`) | **2** | 6 |
+| 25,000 (the keep the 06:00 R1 fix needs) | 32 | 6 |
+| all 199,996 | 138 | 7 |
+So with `free` the audit's max_per_game check FAILS on the field rows and the union is refused for the T-70 run dir:
+exactly the refusal e4673a50 meant to prevent, now caused by `free`.
+Fix (either works; I recommend (a): it drops 0.07% of the sample and makes the declared limit true):
+- (a) `field_sleeve.field_candidates`: in `free`, filter on the per-game limit only, e.g. a `per_game_ok(S, fr, max_game)`
+  split out of `legal()`, then `K = S[per_game_ok]`. Record `house_rules_applied: False, max_game: 5`.
+- (b) In `free`, record `max_game: None` and let the audit skip the per-game check for those rows (DK legality only).
+
+Also, the audit's free-mode salary floor of 48,500 matches the sampler band, so that part is fine. R1 and R2 from 06:00
+still stand.
 ## 2026-10-02 (06:13 CDT) — OPERATOR DECISION: the 5 major-contest rows are the FIELD-SAMPLED sleeve (house rules, <= 5 per game); production's chalk-core sleeve is NOT wired for Week 4
 
 **The 36-slate panel (L13's slates):**
