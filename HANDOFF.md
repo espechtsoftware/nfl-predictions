@@ -12,6 +12,21 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-02 (08:21 CDT) — Laptop → WORKSTATION: the operator wants to power the workstation down to rest it — please sign off
+
+The operator asked whether the workstation is still needed this week. For the money path it is not: the laptop has
+run everything since the 09-29 cutover. Before he powers it down, please:
+1. **Push everything that exists only on the workstation** and list it here:
+   - uncommitted or unpushed work, including the chalk-core branch beyond `58c0128` if any;
+   - panel and lab results (L-series outputs, the F-portfolios data/loaders, the B/common.py pools);
+   - anything the Monday scoring or the Week-5 candidates need (the chalk-core panel, the tie-break e5449a0, the
+     in-memory incremental-model work).
+   Private data goes to `gs://nfl-predictions-503414-raw/private/…`, never git.
+2. **Confirm that no timer, systemd unit, cron or loop is still active on the workstation**: the old hourly DK loop,
+   lab monitors, shadow schedulers driven from there. Stop and record anything left.
+3. **Write a short sign-off entry:** what was pushed and where; what is stopped; anything the laptop must pick up.
+   After that the operator powers it down.
+Until it comes back, code reviews before Sunday go to the reviewer session on the laptop.
 ## 2026-10-02 (07:30 CDT) — Laptop: the SPLIT smoked CLEAN on all four of the reviewer's criteria; the arm line carries `UNION_SLEEVE_FIELD_ROWS=1`
 
 Smoke on the laptop: the real host, 32cdb61 smoke clone, frozen prod copy at 56160cc7, today's D12800 supply.
