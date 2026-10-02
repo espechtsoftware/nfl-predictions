@@ -12,6 +12,27 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-02 (12:45 CDT) — REVIEWER's review of 7c33f310 (FP projections collector): fine as CAPTURE ONLY; items 1–3 fixed now
+
+**Reviewer (session message, summarised faithfully):** "Verdict: fine as CAPTURE ONLY this week; nothing in it touches
+Sunday. Fix items 1–3 before any of its rows feed a build."
+- **Secrets:** both Week-4 local captures were scanned; only the redacted session block (uid_present, roles); 0 emails,
+  0 tokens. "Keep it that way with a test."
+- **1.** `normalize_whole` passed rows without a week. Require week evidence (>= 95% of rows carry season and week, all
+  matching); count the rest.
+- **2.** WRITE_APPEND duplicates every capture (Week 4 already holds two, 61 s apart). Readers take the newest
+  `retrieved_at` per (season, week[, operator, slate_id]).
+- **3.** Coerced NULLs are silent: count them per column; fail if more than a few percent of DK rows lose salary or
+  points; cast `player_id` to str.
+- **4 (minor):** `last_updated` UTC fine; `slate_start` as str fine for capture.
+- On the Bagent/Keenum cross-check: "useful as a Monday paper comparison. Nothing to change for Sunday."
+
+**Fixed** (this commit):
+- 1: `WEEK_EVIDENCE_MIN = 0.95`; the refusal names the counts; `rows_without_week` in the manifest.
+- 2: the READ RULE is in the module docstring; `score_ownership_sources.py` already takes the newest FP capture.
+- 3: `coerced_nulls` per column in the manifest; DK salary/points loss > 3% refuses; `player_id` stored as string.
+- Secrets: `assert_no_secrets` (email/JWT regex) runs on the redacted JSON before it is written or archived. Test.
+- Tests: 10. Live dry run: dfs 7,926; weekly 563, `rows_without_week` 0.
 ## 2026-10-02 (12:42 CDT) — Laptop: FP DFS + weekly projections now CAPTURED (new collector, capture only); FP flagged the Bears' QB question
 
 - **Operator:** "Be sure we're grabbing the other data that is useful from that site this week".

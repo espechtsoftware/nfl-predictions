@@ -40,7 +40,35 @@ def test_whole_rows_keep_every_field_and_check_the_week():
     v = {"playerId": "B2", "season": 2026, "week": 4, "name": "Some Back", "fantasyPosition": "RB", "team": "DET",
          "opponent": "CAR", "fantasyPointsDraftKings": 27.0, "rushingYards": 88.5, "lastUpdated": "2026-10-02T14:58:26Z"}
     body = {"session": SESSION, "content": {"table": {"values": [v]}}}
-    rows = fpp.normalize_whole(body, "weekly", season=2026, week=4)
-    assert rows[0]["fantasy_points_draftkings"] == 27.0 and json.loads(rows[0]["row_json"])["rushingYards"] == 88.5
+    rows, ev = fpp.normalize_whole(body, "weekly", season=2026, week=4)
+    assert ev == {"rows_without_week": 0} and rows[0]["fantasy_points_draftkings"] == 27.0 and json.loads(rows[0]["row_json"])["rushingYards"] == 88.5
     with pytest.raises(RuntimeError, match="week 3"):
         fpp.normalize_whole({"session": SESSION, "content": {"table": {"values": [{**v, "week": 3}]}}}, "weekly", season=2026, week=4)
+
+
+def test_whole_refuses_without_week_evidence():
+    v = {"playerId": "B2", "name": "Some Back", "fantasyPointsDraftKings": 27.0}                 # no season / week
+    with pytest.raises(RuntimeError, match="cannot be verified"):
+        fpp.normalize_whole({"session": SESSION, "content": {"table": {"values": [v] * 10}}}, "weekly", season=2026, week=4)
+    ok = [{**v, "season": 2026, "week": 4}] * 99 + [v]                                         # 99% carry it: passes, counted
+    rows, ev = fpp.normalize_whole({"session": SESSION, "content": {"table": {"values": ok}}}, "weekly", season=2026, week=4)
+    assert len(rows) == 100 and ev == {"rows_without_week": 1}
+
+
+def test_redacted_archive_carries_no_email_or_token():
+    from nfl_dfs.ops.fantasy_points_ownership import _redacted
+    body = {**_dfs(), "session": {"uid": "u1", "email": "someone@example.com", "token": "eyJabcdefghij.klmnopqrstu.vwxyzABCDEF",
+                                  "roles": ["role_authenticated"]}}
+    fpp.assert_no_secrets(json.dumps(_redacted(body)))                                            # the session is reduced to roles
+    with pytest.raises(RuntimeError, match="email-like or token-like"):
+        fpp.assert_no_secrets(json.dumps({"x": "someone@example.com"}))
+    with pytest.raises(RuntimeError, match="email-like or token-like"):
+        fpp.assert_no_secrets(json.dumps({"x": "eyJabcdefghij.klmnopqrstu.vwxyzABCDEF"}))
+
+
+def test_coerced_nulls_counts_values_lost_on_parsing():
+    import pandas as pd
+    rows = [{"salary": 9100, "fantasy_points": "21.1"}, {"salary": "n/a", "fantasy_points": None}]
+    frame = pd.DataFrame({"salary": pd.to_numeric(pd.Series([9100, "n/a"]), errors="coerce"),
+                          "fantasy_points": pd.to_numeric(pd.Series(["21.1", None]), errors="coerce")})
+    assert fpp.coerced_nulls(rows, frame) == {"salary": 1, "fantasy_points": 0}                 # None was never present

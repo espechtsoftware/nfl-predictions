@@ -10,7 +10,10 @@ Three tables, each served through the site's /api/proxy as a JSON payload on its
                                             and the stat projections behind it
   betting  /tables/nfl/projections/betting  the betting projections (kept whole; shape recorded on first capture)
 
-Capture only: nothing in the build reads these tables until a paper test is adopted by the operator. Each capture is
+Capture only: nothing in the build reads these tables until a paper test is adopted by the operator.
+
+READ RULE (reviewer 10-02): every capture is APPENDED, so a table holds one copy per capture. A reader takes only the
+newest `retrieved_at` per (season, week) -- and for dfs per (season, week, operator, slate_id) -- never the union. Each capture is
 archived create-once and hash-addressed under licensed/fantasy-points/projections/<table>/ (licensed data: never in
 git), then appended to BigQuery with its retrieval time. Fails closed on an anonymous session, an offseason table,
 locked values (`CtaLockValue`), an empty table or another week's rows.
@@ -22,6 +25,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
@@ -38,6 +42,16 @@ TABLES = {
     "betting": ("https://www.fantasypoints.com/nfl/projections/betting", "/tables/nfl/projections/betting", "fantasy_points_betting_projections"),
 }
 MIN_ROWS = {"dfs": 1, "weekly": 100, "betting": 10}
+WEEK_EVIDENCE_MIN = 0.95          # share of whole-table rows that must carry season AND week (reviewer 10-02, item 1)
+COERCE_FAIL_SHARE = 0.03          # DraftKings dfs rows losing salary or points to a parse failure (item 3)
+_EMAIL = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
+_JWT = re.compile(r"eyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}")
+
+
+def assert_no_secrets(text: str) -> None:
+    """The archived JSON must carry no email address and no JWT-like token (the session is redacted to roles)."""
+    if _EMAIL.search(text) or _JWT.search(text):
+        raise RuntimeError("the redacted payload still contains an email-like or token-like string; not archived")
 
 
 def _table(payload: dict[str, Any], what: str) -> dict[str, Any]:
@@ -82,10 +96,16 @@ def normalize_dfs(payload: dict[str, Any], *, season: int, week: int) -> list[di
     return rows
 
 
-def normalize_whole(payload: dict[str, Any], what: str, *, season: int, week: int) -> list[dict[str, Any]]:
-    """Weekly / betting: key fields plus the whole row as JSON (no column is dropped)."""
+def normalize_whole(payload: dict[str, Any], what: str, *, season: int, week: int) -> tuple[list[dict[str, Any]], dict[str, int]]:
+    """Weekly / betting: key fields plus the whole row as JSON (no column is dropped). The table has no table-level week,
+    so the rows are the only evidence: at least WEEK_EVIDENCE_MIN of them must carry season and week, all of those must
+    match, and the rows without them are counted (reviewer 10-02, item 1)."""
     rows = []
-    for v in _table(payload, what)["values"]:
+    values = _table(payload, what)["values"]
+    with_week = sum(1 for v in values if isinstance(v, dict) and v.get("season") is not None and v.get("week") is not None)
+    if with_week < WEEK_EVIDENCE_MIN * len(values):
+        raise RuntimeError(f"{what}: only {with_week} of {len(values)} rows carry season and week; the week cannot be verified")
+    for v in values:
         if not isinstance(v, dict):
             raise RuntimeError(f"{what}: a value is not an object")
         if v.get("season") is not None and int(v["season"]) != season:
@@ -96,7 +116,17 @@ def normalize_whole(payload: dict[str, Any], what: str, *, season: int, week: in
                      "position": v.get("fantasyPosition") or v.get("position"), "team": v.get("team"),
                      "opponent": v.get("opponent"), "fantasy_points_draftkings": v.get("fantasyPointsDraftKings"),
                      "last_updated": v.get("lastUpdated"), "row_json": json.dumps(v, sort_keys=True)})
-    return rows
+    return rows, {"rows_without_week": len(values) - with_week}
+
+
+def coerced_nulls(rows: list[dict[str, Any]], frame: Any) -> dict[str, int]:
+    """Per numeric column: values present in the payload that became NULL on parsing (reviewer 10-02, item 3)."""
+    out = {}
+    for c in ("salary", "fantasy_points", "points_per_dollar", "projected_ownership_pct"):
+        if c in frame:
+            present = [r.get(c) is not None for r in rows]
+            out[c] = int(sum(1 for p, isna in zip(present, frame[c].isna()) if p and isna))
+    return out
 
 
 def _sha(path: Path) -> str:
@@ -168,14 +198,20 @@ def collect(profile_dir: Path, timeout_s: float, *, season: int, week: int, whic
             if not payloads[k]:
                 raise RuntimeError(f"{k}: no table payload was observed at {TABLES[k][0]}")
             body = payloads[k][-1]
-            rows = normalize_dfs(body, season=season, week=week) if k == "dfs" else normalize_whole(body, k, season=season, week=week)
+            evidence: dict[str, int] = {}
+            if k == "dfs":
+                rows = normalize_dfs(body, season=season, week=week)
+            else:
+                rows, evidence = normalize_whole(body, k, season=season, week=week)
             if len(rows) < MIN_ROWS[k]:
                 raise RuntimeError(f"{k}: only {len(rows)} rows")
             out = output_root / k / f"season={season}" / f"week={week:02d}" / stamp
             out.mkdir(parents=True, exist_ok=True)
             raw = out / f"{k}-raw.json"
-            raw.write_text(json.dumps(_redacted(body), indent=1, sort_keys=True) + "\n", encoding="utf-8")
-            entry: dict[str, Any] = {"rows": len(rows), "raw_sha256": _sha(raw), "archive": None, "bigquery": None}
+            text = json.dumps(_redacted(body), indent=1, sort_keys=True) + "\n"
+            assert_no_secrets(text)
+            raw.write_text(text, encoding="utf-8")
+            entry: dict[str, Any] = {"rows": len(rows), "raw_sha256": _sha(raw), "archive": None, "bigquery": None, **evidence}
             if k == "dfs":
                 slates = {}
                 for r in rows:
@@ -193,11 +229,18 @@ def collect(profile_dir: Path, timeout_s: float, *, season: int, week: int, whic
 
                 frame = pd.DataFrame(rows)
                 frame["last_updated"] = pd.to_datetime(frame["last_updated"], utc=True, errors="coerce")
+                frame["player_id"] = frame["player_id"].astype("string")      # item 3: the first load fixes the schema
                 if k == "dfs":
                     frame["slate_start"] = frame["slate_start"].astype(str)
                     frame["salary"] = pd.to_numeric(frame["salary"], errors="coerce").astype("Int64")
                     for c in ("fantasy_points", "points_per_dollar", "projected_ownership_pct"):
                         frame[c] = pd.to_numeric(frame[c], errors="coerce").astype(float)
+                    entry["coerced_nulls"] = coerced_nulls(rows, frame)
+                    dk = frame["operator"] == "DraftKings"
+                    for c in ("salary", "fantasy_points"):
+                        lost = int((frame.loc[dk, c].isna() & pd.Series([r[c] is not None for r in rows], index=frame.index)[dk]).sum())
+                        if dk.any() and lost > COERCE_FAIL_SHARE * int(dk.sum()):
+                            raise RuntimeError(f"dfs: {lost} DraftKings rows lost {c} to a parse failure (format change?)")
                     frame["n_games"] = pd.to_numeric(frame["n_games"], errors="coerce").astype("Int64")
                 else:
                     frame["fantasy_points_draftkings"] = pd.to_numeric(frame["fantasy_points_draftkings"], errors="coerce").astype(float)
