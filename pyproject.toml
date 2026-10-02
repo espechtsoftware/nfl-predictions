@@ -55,6 +55,7 @@ fantasy-points-download = "nfl_dfs.ops.fantasy_points_downloads:main"
 fantasy-points-matchups = "nfl_dfs.ops.fantasy_points_matchups:main"
 fantasy-points-ownership = "nfl_dfs.ops.fantasy_points_ownership:main"
 fantasy-points-projections = "nfl_dfs.ops.fantasy_points_projections:main"
+fantasy-points-articles = "nfl_dfs.ops.fantasy_points_articles:main"
 sis-download = "nfl_dfs.ops.sis_downloads:main"
 nfl-weekly-data = "nfl_dfs.ops.weekly_vendor_data:main"
 

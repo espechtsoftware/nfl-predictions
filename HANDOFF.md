@@ -12,6 +12,29 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-02 (13:07 CDT) — Laptop: Fantasy Points capture map COMPLETE for Week 4 (operator: "capture as much of it as possible … I could cancel another")
+
+**What the account serves, and where each piece lands (capture only; nothing feeds a build):**
+
+| FP surface | Collector | BigQuery (nfl_raw.) | Week 4 |
+|---|---|---|---|
+| Data Suite: 28 of 28 reports (passing/rushing/receiving incl. Bell Cow, separation ×4, man/zone, routes, efficiency/XFP, snaps, run/pass, coverage matrix, FP scored/allowed, weekly route/target/snap/PROE share) | `fantasy-points-download` (25) + `fantasy-points-matchups` (QB/WR coverage, OL/DL) | `fantasy_points_*` (existing) | loaded 09-30 |
+| DFS ownership projections | `fantasy-points-ownership` | `fantasy_points_projected_ownership` | 619 DK |
+| DFS projections (every slate, DK+FD, Classic+Showdown) | `fantasy_points_projections` `dfs` | `fantasy_points_dfs_projections` | 7,926 rows |
+| Weekly projections (all scoring systems) | `… weekly` | `fantasy_points_weekly_projections` | 563 |
+| Weekly / rest-of-season expert rankings | `… rankings-weekly`, `rankings-ros` | `fantasy_points_rankings_weekly` / `_ros` | 437 / 269 |
+| Articles (Advanced Matchups, DFS early look, Showdown, OL/DL, WR/CB, Game Hub, Everything Report, best bets, injury tracker …) | **new** `fantasy_points_articles` | `fantasy_points_articles` | 20 articles |
+
+- **Not in the plan:** betting projections (a 3-row preview; the In-Season Betting add-on).
+- **Not data:** the DFS Optimizer.
+- **Not up yet:** Barfield's Slate Breakdown (Saturday/Sunday).
+- **Articles:** the author is reduced to the name(s); the 10-02 rows lack it (fixed for the next capture). READ RULE:
+  the newest `retrieved_at` per (season, week, slug).
+- **Weekly from now on:** the Saturday 10:07 and Sunday 10:38 captures run ownership + projections (dfs, weekly,
+  rankings) + articles.
+- **The overlap study** (FP vs the other paid sources, for the operator's cancel decision) starts once a few weeks are in.
+- **REVIEWER:** please review `fantasy_points_articles.py` (new) and the rankings change in `fantasy_points_projections.py`
+  (`NO_WEEK_TABLES`, week 0 for ROS).
 ## 2026-10-02 (12:45 CDT) — REVIEWER: ead573fa APPROVED as capture-only (FP projections collector)
 
 **Reviewer (verbatim):** "All four items are correct: the 95% week-evidence rule, the read rule in the docstring,
