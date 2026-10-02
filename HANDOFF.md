@@ -12,6 +12,66 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-02 (06:00 CDT) — Production: review of the field sleeve (b273e9bb + fc7b78aa) — ONE BLOCKING DEFECT (fires in `free` mode on Week 4), one fallback leak, one shape note
+**R1 (BLOCKING): a short field pick is silently topped up with ordinary pool rows and labelled `field_*`.**
+`union_reselect.py` picks the sleeve with `select_top_mean_player_cap(fscore, ...)`, where every non-field row scores
+-1e9 but is NOT excluded. The greedy pick walks past the last field row into the pool in index order, and
+`field_meta["used"]=True` / `selector_used="field_<mode>"` are recorded anyway. That is a silent stand-in (operator rule:
+no silent fallbacks). Reproduced against the shipped function: 6 pool rows + 3 field rows sharing one player, cap 2, k 3
+-> `[6, 7, 0]` (pool row 0 entered as a "field" row).
+**It fires on the real Week-4 slate.** Probe on today's Week-4 frame (group 154078) + Saturday's lag file, seed 2026,
+200k draws, sleeve cap 2 of 5 (`int(0.5*5)`), overlap <= 7:
+| mode | ranks the capped pick needs | inside `--sleeve-field-keep 2000`? |
+|---|---|---|
+| top (b273e9bb) | 0, 1, 181, 708, 712 | yes |
+| band | 0, 1, 3, 13 -> only 4 rows exist | NO: 5th row = a pool row |
+| **free (fc7b78aa, the operator's choice)** | 0, 1, 741, 1725, **20901** | **NO: 5th row = a pool row** |
+(My probe excluded only sub-1.0 projections, not DK-unavailable players; the laptop's exclusion set differs slightly, so
+re-check on the real dirs. The mechanism does not depend on it: the top of the order concentrates on two cores
+(Brissett/Lawrence + Walker/Love/Hockenson), so a cap of 2 forces the pick deep.)
+Patch for the laptop (union_reselect.py is laptop-owned; production has not edited it):
+```python
+        try:
+            book_tail = select_top_mean_player_cap(fscore, frozen, a.tail_sleeve, a.mean_max_shared, pcap_f)
+            stray = [i for i in book_tail if not n_field_start <= i < n_field_start + n_field]
+            if stray:
+                raise RuntimeError(f"{a.tail_sleeve - len(stray)} of {a.tail_sleeve} sleeve rows fit the caps among the "
+                                   f"{n_field} field rows kept (raise --sleeve-field-keep)")
+            ...
+        except RuntimeError as e:
+            book_tail = []
+            ...
+```
+And give the pick room: for Week 4 `free`, `--sleeve-field-keep` must reach rank >= ~21k. Either set the keep to the
+full distinct sample, or (cheaper on the pool) run the capped pick over the full ordered field list inside the field
+block and append only the chosen rows plus the first `keep`. With the stray check in place a too-small keep fails LOUDLY
+instead of entering a pool row. Please add a union-level test: a field block whose rows cannot fill T under the cap must
+produce `used: False` plus the banner, never a non-field index in `book_tail`.
+**R2 (fallback leak, low): the "projection sleeve" fallback is not the as-entered sleeve once field rows were added.**
+When generation succeeded but selection failed, `tail_scores` still includes the field rows (with
+`UNION_SLEEVE_INCLUDES_MAIN=1` the sleeve reads every index below `base`, which includes them). Mask them on the fallback:
+`tail_scores = np.where(is_field, -1e9, tail_scores)` when `not field_meta.get("used")` (compute `is_field` before the
+`if a.main == "pmo_x50"` branch so both paths have it). In practice PMO rows outrank field rows on projection, so this
+rarely changes a row, but the receipt claims "projection sleeve" and should be exactly that.
+**R3 (shape note, for the operator, not a blocker): the salary tilt halves the studs relative to the predictor.**
+On Week 4 the lag file's raw targets spend $52.2k per drawn lineup, so the tilt pulls ownership off the expensive players
+(pred -> tilted -> drawn, %): Walker 37.6 -> 27.2 -> 26.9; Chase 27.4 -> 17.0 -> 17.6; Henry 25.2 -> 17.5 -> 17.0;
+Smith-Njigba 23.0 -> 11.5 -> 11.5; Love (cheap) 21.7 -> 26.6 -> 26.2. The sampler's error (0.228) is measured against the
+TILTED targets. So the sleeve samples a cheaper field than the predictor describes, while the Week-3 winners were
+stud-heavy and chalkier. Suggest the receipt record the untilted share next to the drawn share for the top 15 so Monday's
+read can tell which one the winners looked like.
+**Checked and fine:**
+* The sampler enforces the $50k cap and the roster shape, so `free` rows pass the DK contract. The union's fatal check
+  is DK-only, and strategy violations are counted, not fatal.
+* The vet_replace_v4 change keeps the house rules on the main block and on every replacement.
+* The main book never takes a field row: in the mean path they are masked, and in pmo_x50 the book is the PMO rows.
+* The host env passing works: OWN_SRC, else OWNERSHIP_LAG, and a missing file falls back loudly.
+* `audit_build_levers` reads only the top-level selector.
+* Promotion stays opt-in.
+
+Note that `free` also drops the per-game cap and the $49k floor; the sampler's band floor is $48.5k.
+**Next (laptop):** apply R1 (+R2), raise the keep, re-run the Week-4 smoke in `free` mode, and confirm that all 5
+`book_rank_tail` rows in candidates.csv have source `field`.
 ## 2026-10-02 (05:52 CDT) — OPERATOR DECISION: change the construction rules THIS WEEK so the major-contest entries can win; the historical-test gate is waived for these changes
 
 **Operator, verbatim, after the corpus audit (`review/corpus-win-audit-20261002` @ f1579f71):**
