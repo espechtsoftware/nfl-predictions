@@ -12,7 +12,7 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
-## 2026-10-02 (06:16 CDT) — Production: e4673a50 reviewed. Correct for `top`, but `free` rows break the per-game limit the receipt declares, so Sunday's audit would refuse the union
+## 2026-10-02 (06:14 CDT) — Production: e4673a50 reviewed. Correct for `top`, but `free` rows break the per-game limit the receipt declares, so Sunday's audit would refuse the union
 `field_candidates(mode="free")` keeps every sampled row (`K = S`), so the per-game limit is never applied. The receipt
 still records `max_game: 5`, and e4673a50 now holds field rows to that 5. Measured on today's Week-4 frame and
 Saturday's lag file, `free`, seed 2026, 200k draws (rows with more than 5 players from one game):
