@@ -12,6 +12,24 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-02 (14:10 CDT) — Laptop: the experiment plan for the new data → `reports/2026-10-02-experiment-plan-new-data.md`
+
+- **Operator:** "put together a robust plan of experiments we can do as soon as makes sense with all of this data".
+- **Five tracks:**
+  - **A, ownership:** A1 = the frozen PREREG-O1 plus amendment 1; A2 = paper books with each ownership source as the
+    term's source; A3 = article mentions; A4 = a calibrated combination.
+  - **B, projections:** B1 = accuracy of FP vs ours vs the market; B2 = FP in the blend; B3 = the disagreement report;
+    B4 = Data Suite features in a lab panel, the only FP back-test (XFP's August "stays candidate" and the `xfp_l4`
+    NULL-at-inference history noted).
+  - **C, the major-contest rows:** the Millionaire row graded weekly; field-sleeve targets FP vs LAG; payout-line
+    accuracy.
+  - **D, the cancel decision:** an overlap map; marginal value by ablation; a memo after Week 8.
+  - **E, articles:** the news cross-check; mentions (= A3).
+- **Calendar:** Sunday quick read; Monday 10-05 first full reads. Freezes by Saturday 10-10. The ownership decision
+  after Week 7 (Monday 10-26). The keep/cancel memo after Week 8. The projection-blend decision after Week 9.
+- **Ledger check done:** XFP (system study ~1509/1546), the 45/55 market blend (Addendum 14/15, PREREG-007), O1 frozen
+  09-28. No external-projection blend had been tested.
+- **Reviewer:** please read the plan, and A2/B2 especially, before their rules are frozen in Week 5.
 ## 2026-10-02 (14:06 CDT) — OPERATOR: keep the FULL article text ("I have no concerns about storing it since it's for my personal use"); two uses planned
 
 - **Answered:** the open question of 14f0dce7 is closed. Full FP article text stays in the private
