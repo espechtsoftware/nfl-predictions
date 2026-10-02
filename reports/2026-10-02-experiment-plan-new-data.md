@@ -54,8 +54,12 @@ exception: it can be back-tested now.
 - **Primary measure:** Spearman. MAE and top-15 overlap are co-reported.
 - **Rule** (frozen): an arm replaces LAG only if its mean Spearman gain over Weeks 4–7 is >= 0.03 **and** it is better in
   >= 3 of 4 weeks.
-- **Reads:** a descriptive quick read every Sunday ~12:30 (`score_ownership_sources.py`, on DK's `%Drafted`); the
-  official read every Monday (from the lineups). **Decision after Week 7** (Monday 10-26).
+- **Reads:**
+  - a DESCRIPTIVE quick read every Sunday ~12:30 (`score_ownership_sources.py`, on DK's `%Drafted`; it can differ
+    from Monday's, because `%Drafted` omits identical-share slot rows);
+  - the official read every Monday (counted from the lineups).
+  - Every read reports each source's name-match rate (the normaliser drops Jr/Sr/II/III).
+- **Decision after Week 7** (Monday 10-26).
 
 **A2. Does a better ownership source make a better book?** (paper, weekly from Week 4)
 - **Design:** on each week's archived T-70 frame, re-solve the main book (PMO_X50, cap 52, DST 26, the term at the
@@ -63,8 +67,14 @@ exception: it can be back-tested now.
 - **Grading:** DK points against the real Millionaire field: the mean z vs the field, rates over the top 20% / 10% / 1%
   lines, and tickets at the week's satellite lines. Same frame, same caps; only the source changes.
 - The reviewer's `14_entered_design_2026.py` is the template.
-- **Rule** (to freeze before Week 5's lock): a source is recommendable for the term when its book's mean z beats the
-  entered source's in >= 3 of 4 weeks and on the 4-week mean. Otherwise it stays paper.
+- **A2 is a no-harm GUARD, not the decider** (reviewer, 10-02):
+  - Each week is one book-level draw. "Beats in >= 3 of 4 weeks" passes a source that is no better about 30% of the
+    time. With three challengers, roughly 50–65% that one passes on noise. In the K = 105 replays, week-to-week source
+    differences were 0.1–0.4 sd: the size of the effect.
+  - **The ownership source is adopted on A1** (accuracy, thousands of player observations a week). A source that passes
+    A1 is recommendable unless its A2 4-week mean z falls below the entered source's by more than 0.10 sd.
+  - A2 adopts on its own only with a magnitude bar (a 4-week mean gain >= +0.10 sd **and** >= 3 of 4 weeks), the
+    challengers named in advance, and the multiplicity disclosed.
 - **Earliest read:** Monday 10-05 (one week); decision with A1 after Week 7.
 
 **A3. Article mentions as an ownership input** (Week-5 build; graded from Week 5)
@@ -73,7 +83,10 @@ exception: it can be back-tested now.
   capture.
 - **Test:** does adding it to LAG (and to FP) raise Spearman with the real ownership?
 - **Rule** (freeze before Week 5): the same +0.03 / 3-of-4 rule as O1, over Weeks 5–8.
-- **Build:** a player-name matcher on article text, reviewed before it runs.
+- **Frozen with the rule, before Week 5:** WHICH articles count, by category or title pattern. Otherwise the feature
+  can be tuned by choosing articles after the fact.
+- **Build:** a player-name matcher on article text, on the same normaliser as the ownership readers
+  (`ownership_blend.norm`: Jr/Sr/II/III dropped), reviewed before it runs.
 
 **A4. A calibrated combination** (after A1 has 3 weeks)
 - If two sources are close, a fixed weighted blend (weights fitted on Weeks 4–6 only, frozen, then graded on Weeks 7–9)
@@ -90,10 +103,15 @@ exception: it can be back-tested now.
 - **Earliest read:** Monday 10-05. Reported weekly; no adoption by itself.
 
 **B2. Does blending FP into our projection help?** (preregistered after 2 weeks of B1)
-- **Arms:** ours (45/55 model/market) vs ours + FP at a fixed weight. The weight is set by a frozen rule (e.g. 1/3 each
-  of model, market and FP), never fitted on graded weeks.
-- **Grading:** projection MAE, Weeks 6–9, then a paper book (as A2) because of the post-ensemble law: a projection gain
-  must survive selection.
+- **Arms** (weights FIXED, never fitted; reviewer, 10-02: two weeks cannot pin three weights):
+  - ours (0.45 model / 0.55 market);
+  - **the primary: 1/3 model, 1/3 market, 1/3 FP**, consistent with L04's ordering (more consensus weight did better);
+  - **co-reported: 0.45 model, 0.275 market, 0.275 FP** (keeps the model's tested share).
+- **Coverage rule** (frozen): when FP or the market is missing for a player, the weights renormalise over the sources
+  present, and the coverage is reported per position. Otherwise missing FP silently becomes a different blend for
+  backups.
+- **Grading:** projection MAE **by position** (FP may help at WR and not at DST), Weeks 6–9, then a paper book (as A2)
+  because of the post-ensemble law: a projection gain must survive selection.
 - **Prior:** the market blend (Addendum 14/15) is the precedent; a third opinion is the same mechanism.
 - **Earliest decision:** after Week 9.
 
@@ -112,13 +130,22 @@ exception: it can be back-tested now.
 - **Design:** walk-forward by season, six-season panel, co-run control on the same image, leave-one-season-out with at
   most one negative (the standing laws). The local panel follows the no-heavy-Cloud-Run rule.
 - **Point-in-time:** every feature for week W from weeks < W only; leakage checks must pass.
-- **Earliest:** preregister in Week 5; read in Week 6–7.
+- **First, an outcome-blind audit** (reviewer, 10-02), cheap:
+  1. **Coverage:** the share of skill players with a non-NULL `xfp_l4` (and each candidate) in
+     `player_week_inference` at the live build, 2026 W1–4, against the panel's historical rows. A live share far below
+     the panel's means the gain would not transfer (the August finding).
+  2. **Revisions:** re-download an old Data Suite week and compare it with its original capture. A revised history
+     makes the walk-forward optimistic.
+- **Then preregister.** The six-season panel is heavy and the workstation is off: on the laptop, after Monday's
+  grading, one process at a time, never on a build day.
+- **Earliest:** audit and preregister in Week 5; read in Week 6–7.
 
 ### Track C — The major-contest rows (the field sleeve armed 10-02)
 
 **C1. The Millionaire row, graded weekly.**
 - **Measured:** the field-sampled row's finish (percentile and z) against the projection sleeve's would-be row.
-- **Reported** every Monday. It rests on rare events; no decision before 8 weeks.
+- **Reported** every Monday. **Eight weeks will probably still not decide it.** Top-0.1% events are a handful a season,
+  so "no decision" is the likely outcome, and the row stays an operator choice.
 
 **C2. Field-sleeve targets: FP vs LAG** (paper)
 - Today the sleeve samples from the lag/TabPFN estimate. Re-draw it on the archived frame with FP's ownership as the
@@ -194,3 +221,13 @@ exception: it can be back-tested now.
 - **Too few weeks to separate the arms.** The decision becomes "not shown", and the incumbent stays.
 - **Any experiment that would touch an entered book before its paper read.** Not done (money-path rule; the operator's
   10-02 waiver was for the major-contest rows only).
+
+## Review
+
+The reviewer reviewed this plan on 2026-10-02 (HANDOFF entry of that time). Their changes are folded in above:
+- A2 is a guard, not the decider.
+- B2 keeps fixed weights, with a co-reported alternative, the coverage rule and grading by position.
+- B4 starts with an outcome-blind audit.
+- C1's likely "no decision".
+- A3's article set is frozen in advance, on the shared normaliser.
+- The quick read is labelled descriptive, and match rates are reported.

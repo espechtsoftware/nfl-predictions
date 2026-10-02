@@ -1,7 +1,9 @@
 """Score pre-lock ownership predictions against the real field's ownership for one week (operator 2026-10-02: "try a
 quick test to see how [the Fantasy Points ownership] data performs").
 
-Real ownership needs no game outcome: it is known at lock. So this runs Sunday afternoon, once the Millionaire's
+Real ownership needs no game outcome: it is known at lock. DESCRIPTIVE quick read: this uses DK's %Drafted (summed over
+the player's slot rows); PREREG-O1's official target is ownership counted from the contest's lineups (%Drafted omits
+identical-share slot rows), computed Monday, so the two can differ (reviewer 10-02). So this runs Sunday afternoon, once the Millionaire's
 ownership is imported to nfl_raw.contest_ownership (the operator's post-lock export).
 
 Sources (each optional; a missing one is reported, not invented):
@@ -28,11 +30,10 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from ownership_blend import norm  # noqa: E402  -- L15's key (suffixes Jr/Sr/II/III/IV/V dropped); reviewer 10-02
+
 PROJECT = "nfl-predictions-503414"
-
-
-def norm(s: object) -> str:
-    return " ".join(str(s).replace(".", "").replace("'", "").split()).lower()
 
 
 def real_ownership(client, season: int, week: int, contest: str) -> pd.Series:
@@ -86,7 +87,9 @@ def main(argv: list[str] | None = None) -> int:
             "blend": file_ownership(a.blend), "tabpfn": file_ownership(a.tabpfn)}
     have = {k: s for k, (s, _) in srcs.items() if len(s)}
     for k, (s, why) in srcs.items():
-        print(f"{k:7s} {len(s):4d} players  ({why})")
+        matched = len(set(s.index) & set(real.index))
+        rate = f"; matched to the real field {matched}/{len(s)} = {matched / len(s):.1%}" if len(s) else ""
+        print(f"{k:7s} {len(s):4d} players  ({why}{rate})")
     print(f"real   {len(real):4d} players drafted in contest {a.contest}")
     common = sorted(set(real.index).intersection(*[set(s.index) for s in have.values()])) if have else []
     rows = []

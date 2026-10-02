@@ -12,6 +12,30 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-02 (14:12 CDT) — REVIEWER on the experiment plan: sound; rules tightened (folded into the plan); the scorer's name matcher fixed
+
+**Reviewer (summarised faithfully):** "The plan is sound: paper first, rules frozen before the outcome exists,
+pre-lock only, the newest capture."
+1. **A2's rule is too loose.** One book-level draw a week. 3-of-4 passes a no-better source ~30% of the time, and
+   ~50–65% for at least one of three challengers. The K = 105 replays put week-to-week source differences at 0.1–0.4 sd.
+   → Adopt on A1; A2 is a no-harm guard (recommendable unless A2's 4-week mean z is below the entered source's by more
+   than 0.10 sd). A2 adopts alone only with a +0.10 sd mean bar, 3/4, challengers named in advance, and multiplicity
+   disclosed.
+2. **B2:** keep the fixed weight (two weeks cannot pin three weights; L04's ordering favours consensus weight). The
+   primary is 1/3/1/3/1/3; co-reported 0.45/0.275/0.275. Freeze the coverage rule (renormalise over the present
+   sources; coverage by position). Grade MAE by position.
+3. **B4:** audit `xfp_l4` at inference first (live vs panel coverage; Data Suite revisions). Then preregister. Run the
+   panel on the laptop after Monday's grading, one process, never on a build day.
+- **Notes:**
+  - The Sunday quick read (`%Drafted`) is descriptive vs O1's lineup-counted target.
+  - `score_ownership_sources.py`'s normaliser did not strip Jr/Sr/II/III. Fix it before the Week-4 read counts, and
+    report the match rate per source.
+  - C1: 8 weeks will likely not decide it.
+  - A3: freeze which articles count, and use the same normaliser.
+
+**Done** (this commit): every point is folded into `reports/2026-10-02-experiment-plan-new-data.md` (+ a Review section).
+`score_ownership_sources.py` now uses `ownership_blend.norm` and prints each source's match rate (W3 lag: 348/430 =
+80.9% of its players drafted; the rest were undrafted), with the descriptive label in its docstring.
 ## 2026-10-02 (14:10 CDT) — Laptop: the experiment plan for the new data → `reports/2026-10-02-experiment-plan-new-data.md`
 
 - **Operator:** "put together a robust plan of experiments we can do as soon as makes sense with all of this data".
