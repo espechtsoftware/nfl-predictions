@@ -12,6 +12,30 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-02 (10:32 CDT) — Laptop: vendor data status for Week 4 (operator asked); the 09:07 Friday cron was MISSED; the FP ownership page is locked
+
+- **Missed:** the 09:07 Friday-steps cron never fired. Session crons fire only when the session is idle, and it was
+  busy all morning.
+  - Steps 1–3 (contests, details, tracks, hold-on-main) were done Wed/Thu with the final Rev1.
+  - Step 4 ran late, at ~10:20 (below).
+  - Saturday's crons (08:23 LineStar, 09:32 props guard, 09:47 refresh) need an idle session: the laptop keeps
+    Saturday morning clear.
+- **Fantasy Points ownership page** (`fantasy-points-ownership collect --week 4`): `ERROR: ownership values are locked
+  or truncated: 0 unlocked of 3 rows (soft gate / entitlement); nothing collected`.
+  - `verify-login`: verified. `inspect`: authenticated; grid visible; headers #/NAME/Projection/SALARY/OWNERSHIP.
+  - Either the subscription tier lacks the numbers or Week 4 is not published yet.
+  - Retry with Saturday's capture. If it is still locked, the operator checks the page in a browser. O1 cannot start
+    until it collects.
+- **Current (last load, UTC today unless noted):**
+  - DK salaries 14:59Z (the hourly loop on the laptop);
+  - Odds API prop_lines / odds_snapshots 14:32Z / 14:02Z;
+  - nflverse (weekly_stats, rosters, depth charts, injuries, snaps, schedules) 10:02Z;
+  - Fantasy Points Data Suite, loaded 09-30 ~14:50Z: matchup tables through target_week 4, route share and cumulative
+    through week 3;
+  - SIS, loaded 09-30 ~15:01Z: team/receiver context through week 3, the 27/27 pages of 09-30.
+- **Not current, not used by projections:** `prop_lines_us_dfs` (10-01 15:34Z), the Odds API shadow behind its own
+  credit-reserve gate.
+- **Not available yet:** LineStar's Week-4 ownership, 60 players (needs 100). The 30-minute poller runs to 20:00.
 ## 2026-10-02 (08:23 CDT) — OPERATOR: the workstation is powered down (production confirmed to him directly; no written sign-off entry landed)
 
 - **Operator:** "I got confirmation from the workstation that it can be turned off. If you need any info from it later,
