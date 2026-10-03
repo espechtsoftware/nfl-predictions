@@ -76,13 +76,24 @@ def laptop(tmp_path):
         "random": {"rosters": [["unknown"] * 9]}}}))
     pd.DataFrame(_ids(fr, [L2], "dk_draftable_id"), columns=SLOTS).to_csv(
         wk / f"upload-{TAG}-k80-milly-123456789-ranks-1-1.csv", index=False)
-    # the played book: per-contest uploads labelled "vetted" (after R4/swap)
-    pd.DataFrame(_ids(fr, [L1], "dk_draftable_id"), columns=SLOTS).to_csv(
-        wk / f"upload-{TAG}-vetted-milly-123456789-ranks-1-1.csv", index=False)
-    pd.DataFrame(_ids(fr, [L2, L2], "dk_draftable_id"), columns=SLOTS).to_csv(
-        wk / f"upload-{TAG}-vetted-sat-222222222-ranks-1-2.csv", index=False)
     pd.DataFrame(_ids(fr, [L1, L2], "dk_draftable_id"), columns=SLOTS).to_csv(
-        wk / f"upload-{TAG}-vetted-all30-ranks-1-30.csv", index=False)      # not per-contest
+        wk / f"upload-{TAG}-vetted-all30-ranks-1-30.csv", index=False)
+    # published enter bundles: the original and its R4/swap successor; ENTER -> swap1
+    def bundle(name, milly_rows, sat_rows):
+        b = wk / "enter-bundles" / name
+        b.mkdir(parents=True)
+        pd.DataFrame(_ids(fr, milly_rows, "dk_draftable_id"), columns=SLOTS).to_csv(
+            b / "ENTER-milly-123456789-1-entries-KEEP-first-1.csv", index=False)
+        pd.DataFrame(_ids(fr, sat_rows, "dk_draftable_id"), columns=SLOTS).to_csv(
+            b / "ENTER-sat-222222222-2-entries-KEEP-first-2.csv", index=False)
+        pd.DataFrame(_ids(fr, milly_rows + sat_rows, "dk_draftable_id"), columns=SLOTS).to_csv(
+            b / "ENTER-all-rows-1-to-3-are-the-KEEPERS.csv", index=False)
+        (b / "ENTER-rowmap.json").write_text(json.dumps({"milly-123456789": [0]}))
+        (b / "ENTER-layout.txt").write_text("synthetic layout\n")
+        return b
+    bundle(TAG, [L2], [L2, L2])
+    swap1 = bundle(f"{TAG}-swap1", [L1, L2], [L1, L2])      # milly keeps the FIRST row only
+    (wk / "ENTER").symlink_to(swap1)
     # public DraftKings contest details (payout ladders), two files
     (wk / "contest-details-main-20261008.json").write_text(json.dumps({
         "123456789": {"name": "Synthetic Milly", "draftGroupId": 1, "entries": 10, "payoutSummary": [
@@ -122,9 +133,12 @@ def test_snapshot_copies_only_the_allow_list_atomically(laptop):
     assert {"run/frame.parquet", "run/candidates.parquet", "run/book.csv", "run/receipt.json"} <= rels
     assert f"week/upload-{TAG}-k80-milly-123456789-ranks-1-1.csv" in rels
     assert {"week/contest-details-main-20261008.json", "week/contest-details-20261010.json"} <= rels
-    for bad in ("contests.json", "chosen-dose.env", "private", "ENTER", "bundle", ".npy"):
+    assert man["enter_bundle"] == f"{TAG}-swap1" and man["enter_status"] == "ok"
+    enter = {r for r in rels if r.startswith("enter/")}
+    assert len(enter) == 5 and all(r.startswith(f"enter/{TAG}-swap1/") for r in enter)  # whole bundle, swap1 only
+    for bad in ("contests.json", "chosen-dose.env", "private", "bundle/", ".npy"):
         assert not any(bad in r for r in rels), bad
-    assert not list(s.rglob("contests.json")) and not list(s.rglob("*ENTER*"))
+    assert not list(s.rglob("contests.json")) and not list((s / "week").rglob("*ENTER*"))
     for f in man["files"]:
         assert f["sha256"] == P._sha256(s / f["rel"])
     assert not [p for p in s.parent.iterdir() if p.name.startswith(".tmp-")]
@@ -152,8 +166,10 @@ def test_parse_snapshot_every_format(laptop):
     book, played = arms["book"], arms["played"]
     assert book[0].kind == "book" and book[1].shape == (2, 9)
     assert book[0].rel == "run/book.csv [book: pre-R4 union book.csv]"
-    assert played[0].kind == "played" and played[1].tolist() == [L1, L2, L2]   # per-contest vetted uploads
-    assert "vetted-all30" not in played[0].rel and "[played: upload files after R4/swap" in played[0].rel
+    assert played[0].kind == "played" and played[1].tolist() == [L1, L1, L2]   # swap1, first N rows each
+    assert played[0].rel.startswith(f"enter/{TAG}-swap1/") and f"ENTER bundle {TAG}-swap1" in played[0].rel
+    assert arms["played:milly-123456789"][1].tolist() == [L1]
+    assert arms["played:sat-222222222"][0].contest_id == "222222222"
     assert p.book_source == played[0].rel                                     # --exposure-book played
     assert arms["vetted"][0].kind == "vetted"
     assert set(p.details) == {"123456789", "222222222"}
@@ -173,10 +189,34 @@ def test_exposure_book_is_never_substituted(laptop):
     s_ = snap(laptop)
     p = P.parse_snapshot(s_, exposure_book="book")
     assert p.book_source.startswith("run/book.csv") and p.book.shape == (2, 9)
+    (laptop["week"] / "ENTER").unlink()
+    (laptop["week"] / "ENTER").symlink_to(laptop["week"] / "enter-bundles" / "gone")      # dangling
+    s2 = P.make_snapshot(2026, 5, laptop["run"], laptop["week"], TAG, root=laptop["root"],
+                         now=datetime(2026, 10, 12, 10, 0, tzinfo=timezone.utc))
+    assert P.read_manifest(s2)["enter_status"] == "dangling"
     with pytest.raises(P.PublishError, match="'played' book is not in this snapshot"):
-        P.parse_snapshot(s_, played_label="nosuchlabel")
-    assert any("no played arm" in x for x in P.parse_snapshot(s_, played_label="nosuchlabel",
-                                                               exposure_book="book").skipped)
+        P.parse_snapshot(s2)
+    p2 = P.parse_snapshot(s2, exposure_book="book")
+    assert "played" not in {a.arm for a, _ in p2.arms}
+    assert any("ENTER dangling" in x and "no played arm" in x for x in p2.skipped)
+    (laptop["week"] / "ENTER").unlink()                                                   # missing
+    s3 = P.make_snapshot(2026, 5, laptop["run"], laptop["week"], TAG, root=laptop["root"],
+                         now=datetime(2026, 10, 12, 11, 0, tzinfo=timezone.utc))
+    assert P.read_manifest(s3)["enter_status"] == "missing"
+
+
+def test_snapshot_aborts_when_enter_is_repointed_mid_copy(laptop, monkeypatch):
+    real = shutil.copy2
+    wk = laptop["week"]
+
+    def copy_then_swap(src, dst):
+        real(src, dst)
+        if "ENTER-layout" in str(src):
+            (wk / "ENTER").unlink()
+            (wk / "ENTER").symlink_to(wk / "enter-bundles" / TAG)
+    monkeypatch.setattr(P.shutil, "copy2", copy_then_swap)
+    with pytest.raises(P.PublishError, match="changed from"):
+        snap(laptop)
 
 
 def test_pool_exposure_rows(laptop):
@@ -184,8 +224,8 @@ def test_pool_exposure_rows(laptop):
     rows = P.pool_exposure_rows(P.parse_snapshot(snap(laptop)), pub).set_index("player")
     qb0, qb9 = rows.loc["Synthetic Player 0"], rows.loc["Synthetic Player 9"]
     assert qb0.n_pool == 2 and qb0.pool_share == pytest.approx(2 / 3)
-    assert qb0.n_book == 1 and qb0.book_share == pytest.approx(1 / 3)   # played: L1, L2, L2
-    assert qb9.n_pool == 1 and qb9.n_book == 2
+    assert qb0.n_book == 2 and qb0.book_share == pytest.approx(2 / 3)   # played (swap1): L1, L1, L2
+    assert qb9.n_pool == 1 and qb9.n_book == 1
     assert (rows.published_utc == pub).all() and rows.book_source.str.contains("played").all()
     assert rows.loc["Synthetic Player 6"].team == "LA"        # LAR -> canonical LA
     assert set(rows.run_id) == {RUN_ID} and rows.dk_player_id.notna().all()

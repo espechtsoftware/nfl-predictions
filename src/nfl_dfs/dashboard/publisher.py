@@ -15,14 +15,20 @@ Safety (reviewer, 2026-10-03):
 * A week is not touched before its Sunday window closes (15:30 Central)
   unless the caller points ``--inputs`` at an existing snapshot.
 * Private files are never read: contests.json (stake plan), DraftKings entry
-  exports and bundles (entry keys), the private/ folder, env files and logs
-  are outside the allow-list. DraftKings' public contest details
+  exports (entry keys), paper-r2 bundles, the private/ folder, env files and
+  logs are outside the allow-list. The published enter bundle (player ids per
+  slot) is copied whole, from where ENTER points. DraftKings' public contest details
   (contest-details*.json: payout ladders) are snapshotted for the cash line.
 
 Two book arms, never substituted for each other (reviewer 2026-10-03):
   book    the lab run's book.csv, the pre-R4 union book;
-  played  the per-contest upload files (label prefix ``--played-label``,
-          default "vetted") written after R4 and any swap, one row per entry.
+  played  the published enter bundle that ``<week dir>/ENTER`` resolves to at
+          snapshot time (scripts/sunday_swap.sh re-points it at
+          enter-bundles/<tag>-swapN after each R4/swap and never edits the
+          upload files): per contest, the first N rows of
+          ENTER-<key>-<contest_id>-<N>-entries-KEEP-first-<N>.csv. The whole
+          resolved bundle is snapshotted; a missing or dangling ENTER leaves
+          the played arm absent, never substituted.
 The pool_exposure book share uses the one named by --exposure-book.
 """
 from __future__ import annotations
@@ -148,6 +154,20 @@ def _copy_stable(src: Path, dst: Path) -> dict:
     return {"bytes": dst.stat().st_size, "sha256": _sha256(dst)}
 
 
+def resolve_enter(week_dir: Path) -> tuple[Path | None, str]:
+    """The bundle directory ``week_dir/ENTER`` points at, and a status:
+    ok | missing | dangling | not-a-directory."""
+    link = week_dir / "ENTER"
+    if not link.is_symlink() and not link.exists():
+        return None, "missing"
+    target = Path(os.path.realpath(link))
+    if not target.exists():
+        return None, "dangling"
+    if not target.is_dir():
+        return None, "not-a-directory"
+    return target, "ok"
+
+
 def make_snapshot(season: int, week: int, run_dir: Path, week_dir: Path, tag: str,
                   root: Path = SNAPSHOT_ROOT, now: datetime | None = None) -> Path:
     """Copy the allow-listed inputs into a fresh snapshot directory
@@ -168,10 +188,21 @@ def make_snapshot(season: int, week: int, run_dir: Path, week_dir: Path, tag: st
             rel = str(src.relative_to(week_dir))
             files.append({"rel": f"week/{rel}", "source": str(src),
                           **_copy_stable(src, tmp / "week" / rel)})
+        bundle, enter_status = resolve_enter(week_dir)
+        if bundle is not None:
+            for src in sorted(p for p in bundle.iterdir() if p.is_file()):
+                files.append({"rel": f"enter/{bundle.name}/{src.name}", "source": str(src),
+                              **_copy_stable(src, tmp / "enter" / bundle.name / src.name)})
+            again, _ = resolve_enter(week_dir)
+            if again != bundle:   # a swap re-pointed ENTER mid-copy
+                raise PublishError(f"{week_dir / 'ENTER'} changed from {bundle.name} while it was copied; "
+                                   f"retry when the swap is done")
         if not any(f["rel"] == "run/frame.parquet" for f in files):
             raise PublishError(f"{run_dir} has no frame.parquet; nothing can be resolved")
         manifest = {"season": int(season), "week": int(week), "tag": tag,
-                    "run_id": run_dir.name, "created_utc": now.isoformat(), "files": files}
+                    "run_id": run_dir.name, "created_utc": now.isoformat(),
+                    "enter_bundle": bundle.name if bundle is not None else None,
+                    "enter_status": enter_status, "files": files}
         (tmp / MANIFEST).write_text(json.dumps(manifest, indent=1))
         if final.exists():
             raise PublishError(f"{final} already exists")
@@ -337,7 +368,30 @@ class Parsed:
     details: dict = field(default_factory=dict)
 
 
-def parse_snapshot(snap: Path, played_label: str = "vetted", exposure_book: str = "played") -> Parsed:
+ENTER_RE = re.compile(r"^ENTER-(.+)-(\d{6,})-(\d+)-entries-KEEP-first-(\d+)\.csv$")
+
+
+def read_enter_bundle(snap: Path, bundle: str, res: "Resolver") -> tuple[list, list[str]]:
+    """Per-contest played rosters from a snapshotted bundle: the first N rows
+    of each ENTER-<key>-<contest_id>-<N>-entries-KEEP-first-<N>.csv."""
+    out, problems = [], []
+    for path in sorted((snap / "enter" / bundle).glob("ENTER-*-entries-KEEP-first-*.csv")):
+        m = ENTER_RE.match(path.name)
+        if not m:
+            problems.append(f"enter/{bundle}/{path.name}: name not recognised")
+            continue
+        key, cid, keep = m.group(1), m.group(2), int(m.group(4))
+        rosters = read_rosters(path)[:keep]
+        if len(rosters) < keep:
+            problems.append(f"enter/{bundle}/{path.name}: {len(rosters)} rows, expected {keep}")
+        idx, bad = res.resolve(rosters)
+        if bad:
+            problems.append(f"enter/{bundle}/{path.name}: {bad} roster(s) unresolved")
+        out.append((key, cid, f"enter/{bundle}/{path.name}", idx))
+    return out, problems
+
+
+def parse_snapshot(snap: Path, exposure_book: str = "played") -> Parsed:
     """Every arm in the snapshot, plus the ``played`` union and the book
     named by ``exposure_book`` ("played" or "book") for pool_exposure; a
     missing choice is an error, never a silent substitution."""
@@ -378,18 +432,25 @@ def parse_snapshot(snap: Path, played_label: str = "vetted", exposure_book: str 
             arms.append((src, idx))
         else:
             skipped.append(f"{rel}: no resolvable rosters")
-    played = [(a, idx) for a, idx in arms
-              if a.kind == "upload" and a.contest_id and a.arm.startswith(f"upload:{played_label}-")]
-    if played:
-        rels = sorted(a.rel for a, _ in played)
-        combined = hashlib.sha256("".join(sha[r] for r in rels).encode()).hexdigest()
+    bundle = man.get("enter_bundle")
+    contests = []
+    if bundle:
+        contests, problems = read_enter_bundle(snap, bundle, res)
+        skipped += problems
+    contests = [c for c in contests if len(c[3])]
+    if contests:
+        for key, cid, rel, idx in contests:
+            arms.append((ArmSource(f"played:{key}-{cid}", "played_contest", rel, contest_id=cid), idx))
+        rels = sorted(rel for _, _, rel, _ in contests)
         src = ArmSource("played", "played",
-                        f"{';'.join(rels)} [played: upload files after R4/swap, label {played_label}]")
-        arms.append((src, np.vstack([idx for _, idx in played])))
-        sha[src.rel] = combined
+                        f"enter/{bundle}/ [played: ENTER bundle {bundle} as published after R4/swap; "
+                        f"{len(contests)} contests]")
+        arms.append((src, np.vstack([idx for _, _, _, idx in contests])))
+        sha[src.rel] = hashlib.sha256("".join(sha[r] for r in rels).encode()).hexdigest()
     else:
-        skipped.append(f"played: no per-contest upload-{tag}-{played_label}-*.csv files; "
-                       f"no played arm published")
+        skipped.append(f"played: ENTER {man.get('enter_status', 'missing')}"
+                       + (f" (bundle {bundle} has no KEEP-first files)" if bundle else "")
+                       + "; no played arm published")
     by_arm = {a.arm: (a, idx) for a, idx in arms}
     if "pool" not in by_arm:
         raise PublishError("the snapshot has no resolvable candidates.parquet")

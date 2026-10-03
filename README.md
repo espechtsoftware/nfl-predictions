@@ -286,15 +286,20 @@ It adds `nfl_dashboard.pool_exposure`, `nfl_dashboard.arms_weekly` and
 copies an allow-listed set of files from the lab live run directory and
 `~/weekN-sunday` into `~/.cache/laptop-agent/dashboard-snapshots/<season>-wNN/<utc>/`
 (temporary name, renamed when complete; aborted if a source changes during the
-copy), parses only the copy, and prints the rows. Add `--apply` to write them.
+copy, or if `ENTER` is re-pointed during it), parses only the copy, and
+prints the rows. Add `--apply` to write them.
 It refuses to touch a week before its Sunday 15:30 CT window closes unless
 `--inputs <snapshot dir>` names an existing snapshot. It never reads
-`contests.json`, entry bundles, `private/` or env files; it does snapshot
+`contests.json`, DraftKings entry exports, the paper bundles, `private/` or env files; it does snapshot
 DraftKings' public `contest-details*.json` payout ladders. Unparseable files
 are skipped and listed. Two book arms are published side by side and never
 substituted for each other: `book` (the lab run's pre-R4 union `book.csv`) and
-`played` (the per-contest upload files after R4/swap, label prefix
-`--played-label`, default `vetted`); `--exposure-book played|book` (default
+`played` (the published enter bundle `~/weekN-sunday/ENTER` resolves to at
+snapshot time, i.e. `enter-bundles/<tag>-swapN` after each R4/swap: per
+contest, the first N rows of `ENTER-<key>-<contest_id>-<N>-entries-KEEP-first-<N>.csv`;
+the whole resolved bundle is snapshotted and its name recorded in
+`source_file`; a missing or dangling `ENTER` leaves the arm absent);
+`--exposure-book played|book` (default
 `played`) names the one `pool_exposure` describes, and a missing one is an
 error. Cash lines (`contest_lines`): paid places from the contest-details
 ladder, the cash line = the points at the last paid rank in the imported

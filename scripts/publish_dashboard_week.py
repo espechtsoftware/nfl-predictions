@@ -15,8 +15,9 @@ appends to `${project}.nfl_dashboard.pool_exposure` / `.arms_weekly` /
 of the same run replaces that run's pool_exposure rows, and the readers of the
 other two take the newest publication per week.
 
-Arms "book" (the pre-R4 union book.csv) and "played" (the per-contest upload
-files after R4/swap) are published side by side, each labelled in source_file;
+Arms "book" (the pre-R4 union book.csv) and "played" (the enter bundle that
+<week dir>/ENTER resolves to at snapshot time, after R4/swap; the resolved
+bundle name is in source_file) are published side by side, each labelled;
 --exposure-book names which one pool_exposure describes. Cash lines come from
 the snapshotted contest-details payout ladders and the imported standings.
 
@@ -52,8 +53,6 @@ def _args(argv=None) -> argparse.Namespace:
     ap.add_argument("--lab-live", type=Path, default=pub.LAB_LIVE)
     ap.add_argument("--week-dir", type=Path, help="default ~/week<N>-sunday")
     ap.add_argument("--snapshot-root", type=Path, default=pub.SNAPSHOT_ROOT)
-    ap.add_argument("--played-label", default="vetted",
-                    help="upload-file label prefix of the played (post-R4/swap) book (default vetted)")
     ap.add_argument("--exposure-book", choices=("played", "book"), default="played",
                     help="which book pool_exposure.book_share describes; never substituted")
     ap.add_argument("--no-bq", action="store_true", help="skip scoring (counts only)")
@@ -126,12 +125,13 @@ def main(argv=None) -> int:
         return 3
     try:
         snap = resolve_snapshot(a, now)
-        parsed = pub.parse_snapshot(snap, played_label=a.played_label, exposure_book=a.exposure_book)
+        parsed = pub.parse_snapshot(snap, exposure_book=a.exposure_book)
     except pub.PublishError as exc:
         print(f"REFUSED: {exc}", file=sys.stderr)
         return 3
     for s in parsed.skipped:
         print(f"skipped: {s}")
+    print(f"ENTER: {parsed.manifest.get('enter_status')} -> bundle {parsed.manifest.get('enter_bundle')}")
     print(f"run {parsed.manifest['run_id']} tag {parsed.manifest['tag']}: pool {len(parsed.pool)} "
           f"lineups, book {len(parsed.book)} ({parsed.book_source})")
     outcomes, points = pub.Outcomes(None, None, None), {}
