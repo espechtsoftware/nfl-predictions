@@ -76,6 +76,22 @@ def laptop(tmp_path):
         "random": {"rosters": [["unknown"] * 9]}}}))
     pd.DataFrame(_ids(fr, [L2], "dk_draftable_id"), columns=SLOTS).to_csv(
         wk / f"upload-{TAG}-k80-milly-123456789-ranks-1-1.csv", index=False)
+    # the played book: per-contest uploads labelled "vetted" (after R4/swap)
+    pd.DataFrame(_ids(fr, [L1], "dk_draftable_id"), columns=SLOTS).to_csv(
+        wk / f"upload-{TAG}-vetted-milly-123456789-ranks-1-1.csv", index=False)
+    pd.DataFrame(_ids(fr, [L2, L2], "dk_draftable_id"), columns=SLOTS).to_csv(
+        wk / f"upload-{TAG}-vetted-sat-222222222-ranks-1-2.csv", index=False)
+    pd.DataFrame(_ids(fr, [L1, L2], "dk_draftable_id"), columns=SLOTS).to_csv(
+        wk / f"upload-{TAG}-vetted-all30-ranks-1-30.csv", index=False)      # not per-contest
+    # public DraftKings contest details (payout ladders), two files
+    (wk / "contest-details-main-20261008.json").write_text(json.dumps({
+        "123456789": {"name": "Synthetic Milly", "draftGroupId": 1, "entries": 10, "payoutSummary": [
+            {"minPosition": 1, "maxPosition": 1, "payoutDescriptions": [{"value": 1000}]},
+            {"minPosition": 2, "maxPosition": 3, "payoutDescriptions": [{"value": 5}]},
+            {"minPosition": 4, "maxPosition": 10, "payoutDescriptions": [{"value": 0}]}]}}))
+    (wk / "contest-details-20261010.json").write_text(json.dumps({
+        "222222222": {"name": "Synthetic Sat", "draftGroupId": 1, "entries": 4, "payoutSummary": [
+            {"minPosition": 1, "maxPosition": 2, "payoutDescriptions": [{"value": 20}]}]}}))
     (wk / "contests.json").write_text("private stake plan")
     (wk / "chosen-dose.env").write_text("CHOSEN_LEV=0\n")
     (wk / "private").mkdir()
@@ -105,6 +121,7 @@ def test_snapshot_copies_only_the_allow_list_atomically(laptop):
     rels = {f["rel"] for f in man["files"]}
     assert {"run/frame.parquet", "run/candidates.parquet", "run/book.csv", "run/receipt.json"} <= rels
     assert f"week/upload-{TAG}-k80-milly-123456789-ranks-1-1.csv" in rels
+    assert {"week/contest-details-main-20261008.json", "week/contest-details-20261010.json"} <= rels
     for bad in ("contests.json", "chosen-dose.env", "private", "ENTER", "bundle", ".npy"):
         assert not any(bad in r for r in rels), bad
     assert not list(s.rglob("contests.json")) and not list(s.rglob("*ENTER*"))
@@ -132,8 +149,14 @@ def test_parse_snapshot_every_format(laptop):
     p = P.parse_snapshot(snap(laptop))
     arms = {a.arm: (a, idx) for a, idx in p.arms}
     assert arms["pool"][1].shape == (3, 9)
-    assert arms["lab_book"][1].shape == (2, 9)
-    assert arms["vetted"][0].kind == "entered" and p.book_source.endswith(f"vetted-{TAG}/book.csv")
+    book, played = arms["book"], arms["played"]
+    assert book[0].kind == "book" and book[1].shape == (2, 9)
+    assert book[0].rel == "run/book.csv [book: pre-R4 union book.csv]"
+    assert played[0].kind == "played" and played[1].tolist() == [L1, L2, L2]   # per-contest vetted uploads
+    assert "vetted-all30" not in played[0].rel and "[played: upload files after R4/swap" in played[0].rel
+    assert p.book_source == played[0].rel                                     # --exposure-book played
+    assert arms["vetted"][0].kind == "vetted"
+    assert set(p.details) == {"123456789", "222222222"}
     assert arms["composite"][1].tolist() == [L2, L2]
     assert arms["cash_A"][0].kind == "cash_shadow"
     assert arms["exposure_caps"][1].tolist() == [L2]
@@ -146,12 +169,24 @@ def test_parse_snapshot_every_format(laptop):
     assert any("random" in s for s in p.skipped)
 
 
+def test_exposure_book_is_never_substituted(laptop):
+    s_ = snap(laptop)
+    p = P.parse_snapshot(s_, exposure_book="book")
+    assert p.book_source.startswith("run/book.csv") and p.book.shape == (2, 9)
+    with pytest.raises(P.PublishError, match="'played' book is not in this snapshot"):
+        P.parse_snapshot(s_, played_label="nosuchlabel")
+    assert any("no played arm" in x for x in P.parse_snapshot(s_, played_label="nosuchlabel",
+                                                               exposure_book="book").skipped)
+
+
 def test_pool_exposure_rows(laptop):
-    rows = P.pool_exposure_rows(P.parse_snapshot(snap(laptop))).set_index("player")
+    pub = datetime(2026, 10, 12, 9, tzinfo=timezone.utc)
+    rows = P.pool_exposure_rows(P.parse_snapshot(snap(laptop)), pub).set_index("player")
     qb0, qb9 = rows.loc["Synthetic Player 0"], rows.loc["Synthetic Player 9"]
     assert qb0.n_pool == 2 and qb0.pool_share == pytest.approx(2 / 3)
-    assert qb0.n_book == 1 and qb0.book_share == 1.0          # vetted book: L1 only
-    assert qb9.n_pool == 1 and qb9.n_book == 0
+    assert qb0.n_book == 1 and qb0.book_share == pytest.approx(1 / 3)   # played: L1, L2, L2
+    assert qb9.n_pool == 1 and qb9.n_book == 2
+    assert (rows.published_utc == pub).all() and rows.book_source.str.contains("played").all()
     assert rows.loc["Synthetic Player 6"].team == "LA"        # LAR -> canonical LA
     assert set(rows.run_id) == {RUN_ID} and rows.dk_player_id.notna().all()
 
@@ -159,11 +194,13 @@ def test_pool_exposure_rows(laptop):
 def test_arm_scoring_rank_and_cash():
     pts = np.arange(12, dtype=float)                   # player i scores i
     field = np.array([100.0, 50.0, 40.0, 30.0])
-    out = P.Outcomes(pts, field, cash_line=40.0)
+    out = P.Outcomes(pts, field, cash_line=40.0, cash_lines={"9": 70.0})
     m = P.arm_metrics(np.array([L1, L2]), out)
     assert m["best_points"] == float(sum(L2)) and m["mean_points"] == pytest.approx((sum(L1) + sum(L2)) / 2)
     assert m["best_rank"] == 1 + int((field > sum(L2)).sum())
     assert m["cash_rate"] == pytest.approx(np.mean([sum(L1) >= 40, sum(L2) >= 40]))
+    own_contest = P.arm_metrics(np.array([L1, L2]), out, contest_id="9")   # vs that contest's line
+    assert own_contest["cash_rate"] == pytest.approx(np.mean([sum(L1) >= 70, sum(L2) >= 70]))
     none = P.arm_metrics(np.array([L1]), P.Outcomes(None, None, None))
     assert none["n_lineups"] == 1 and none["mean_points"] is None
 
@@ -207,3 +244,59 @@ def test_script_parses_an_existing_snapshot_as_a_dry_run(laptop, capsys):
     out = capsys.readouterr().out
     assert "dry run: nothing written" in out and "pool_exposure:" in out and "arms_weekly:" in out
     assert mod.main(["--season", "2026", "--week", "6", "--inputs", str(s), "--no-bq"]) == 3
+
+
+def test_paid_places_and_cash_lines(laptop):
+    p = P.parse_snapshot(snap(laptop))
+    assert P.paid_places(p.details["123456789"]) == 3
+    assert P.paid_places(p.details["222222222"]) == 2
+    assert P.paid_places({"payoutSummary": []}) is None
+    assert P.cash_line_at(np.array([10.0, 50.0, 30.0, 40.0]), 3) == 30.0
+    assert P.cash_line_at(np.array([10.0]), 3) == 10.0 and P.cash_line_at(np.array([1.0]), None) is None
+    pts = {"123456789": np.array([90.0, 80.0, 70.0, 60.0, 50.0])}
+    lines = P.contest_lines_rows(p, pts).set_index("contest_id")
+    assert lines.loc["123456789"].cash_line == 70.0 and lines.loc["123456789"].paid_places == 3
+    assert lines.loc["123456789"].field_size == 5
+    assert pd.isna(lines.loc["222222222"].cash_line)          # standings not imported: NULL
+    assert lines.loc["222222222"].source_file == "week/contest-details-20261010.json"
+    assert lines.source_sha256.notna().all()
+
+
+class FakeBQ:
+    def __init__(self, frames):
+        self.frames = frames
+
+    def __call__(self, sql):
+        from nfl_dfs.dashboard.data import sql_name
+        return self.frames.get(sql_name(sql), pd.DataFrame()).copy()
+
+
+def test_fetch_outcomes_refuses_without_standings_and_scores_with_them(laptop):
+    p = P.parse_snapshot(snap(laptop))
+    with pytest.raises(P.PublishError, match="refusing to score"):
+        P.fetch_outcomes(FakeBQ({}), 2026, 5, p.frame, p.details)
+    frames = {
+        "milly_points": pd.DataFrame({"points": [90.0, 80.0, 70.0, 60.0], "payout": [None] * 4}),
+        "milly_contests": pd.DataFrame([{"season": 2026, "week": 5, "contest_id": "123456789",
+                                         "lobby_contest_id": "123456789"}]),
+        "week_player_points": pd.DataFrame({"display_name": ["Synthetic Player 1"], "fpts": [12.0]}),
+        "contest_points": pd.DataFrame({"contest_id": ["222222222"] * 3, "points": [50.0, 40.0, 30.0]}),
+    }
+    out, points = P.fetch_outcomes(FakeBQ(frames), 2026, 5, p.frame, p.details)
+    assert out.milly_contest == "123456789" and out.cash_line == 70.0
+    assert out.cash_lines == {"123456789": 70.0, "222222222": 40.0}
+    assert out.player_points[1] == 12.0 and set(points) == {"123456789", "222222222"}
+
+
+def test_player_points_skip_a_name_two_frame_players_share():
+    fr = frame()
+    fr.loc[3, "display_name"] = "Synthetic Player 4"           # two rows, one name
+    pts = P.player_points(fr, {"Synthetic Player 4": 99.0}, {"00-0000003": 7.0})
+    assert pts[3] == 7.0 and pts[4] == 0.0
+
+
+def test_script_refuses_apply_without_scoring(laptop, capsys):
+    mod = _script()
+    s_ = snap(laptop)
+    assert mod.main(["--season", "2026", "--week", "5", "--inputs", str(s_), "--no-bq", "--apply"]) == 3
+    assert "--apply with --no-bq" in capsys.readouterr().err

@@ -10,10 +10,15 @@
     python scripts/publish_dashboard_week.py ... --apply
 
 Dry run is the default: rows are printed, nothing is written. --apply
-appends to `${project}.nfl_dashboard.pool_exposure` / `.arms_weekly`
-(create them first with sql/dashboard/ddl.sql); a re-publish of the same run
-replaces that run's pool_exposure rows, and arms_weekly readers take the
-newest publication per week.
+appends to `${project}.nfl_dashboard.pool_exposure` / `.arms_weekly` /
+`.contest_lines` (create them first with sql/dashboard/ddl.sql); a re-publish
+of the same run replaces that run's pool_exposure rows, and the readers of the
+other two take the newest publication per week.
+
+Arms "book" (the pre-R4 union book.csv) and "played" (the per-contest upload
+files after R4/swap) are published side by side, each labelled in source_file;
+--exposure-book names which one pool_exposure describes. Cash lines come from
+the snapshotted contest-details payout ladders and the imported standings.
 
 Never parses the live week directories in place: --snapshot copies an
 allow-listed set of files first (see nfl_dfs.dashboard.publisher), and the
@@ -47,6 +52,10 @@ def _args(argv=None) -> argparse.Namespace:
     ap.add_argument("--lab-live", type=Path, default=pub.LAB_LIVE)
     ap.add_argument("--week-dir", type=Path, help="default ~/week<N>-sunday")
     ap.add_argument("--snapshot-root", type=Path, default=pub.SNAPSHOT_ROOT)
+    ap.add_argument("--played-label", default="vetted",
+                    help="upload-file label prefix of the played (post-R4/swap) book (default vetted)")
+    ap.add_argument("--exposure-book", choices=("played", "book"), default="played",
+                    help="which book pool_exposure.book_share describes; never substituted")
     ap.add_argument("--no-bq", action="store_true", help="skip scoring (counts only)")
     mode = ap.add_mutually_exclusive_group()
     mode.add_argument("--dry-run", action="store_true", default=True, help="print rows (default)")
@@ -86,7 +95,8 @@ def resolve_snapshot(a: argparse.Namespace, now: datetime) -> Path:
     return snap
 
 
-def write(pool: pd.DataFrame, arms: pd.DataFrame, run_id: str, season: int, week: int) -> None:
+def write(pool: pd.DataFrame, arms: pd.DataFrame, lines: pd.DataFrame, run_id: str,
+          season: int, week: int) -> None:
     from google.cloud import bigquery
 
     from nfl_dfs.bq import client
@@ -99,7 +109,9 @@ def write(pool: pd.DataFrame, arms: pd.DataFrame, run_id: str, season: int, week
                 bigquery.ScalarQueryParameter("s", "INT64", season),
                 bigquery.ScalarQueryParameter("w", "INT64", week),
                 bigquery.ScalarQueryParameter("r", "STRING", run_id)])).result()
-    for name, df in (("pool_exposure", pool), ("arms_weekly", arms)):
+    for name, df in (("pool_exposure", pool), ("arms_weekly", arms), ("contest_lines", lines)):
+        if df.empty:
+            continue
         table = c.get_table(f"{ds}.{name}")
         cfg = bigquery.LoadJobConfig(write_disposition="WRITE_APPEND", schema=table.schema)
         c.load_table_from_dataframe(df[[f.name for f in table.schema]], table, job_config=cfg).result()
@@ -109,9 +121,12 @@ def write(pool: pd.DataFrame, arms: pd.DataFrame, run_id: str, season: int, week
 def main(argv=None) -> int:
     a = _args(argv)
     now = datetime.now(timezone.utc)
+    if a.apply and a.no_bq:
+        print("REFUSED: --apply with --no-bq would publish unscored rows; score first", file=sys.stderr)
+        return 3
     try:
         snap = resolve_snapshot(a, now)
-        parsed = pub.parse_snapshot(snap)
+        parsed = pub.parse_snapshot(snap, played_label=a.played_label, exposure_book=a.exposure_book)
     except pub.PublishError as exc:
         print(f"REFUSED: {exc}", file=sys.stderr)
         return 3
@@ -119,21 +134,31 @@ def main(argv=None) -> int:
         print(f"skipped: {s}")
     print(f"run {parsed.manifest['run_id']} tag {parsed.manifest['tag']}: pool {len(parsed.pool)} "
           f"lineups, book {len(parsed.book)} ({parsed.book_source})")
-    outcomes = pub.Outcomes(None, None, None)
+    outcomes, points = pub.Outcomes(None, None, None), {}
     if not a.no_bq:
         from nfl_dfs.bq import query_df
 
-        outcomes = pub.fetch_outcomes(query_df, a.season, a.week, parsed.frame)
+        try:
+            outcomes, points = pub.fetch_outcomes(query_df, a.season, a.week, parsed.frame, parsed.details)
+        except pub.PublishError as exc:
+            print(f"REFUSED: {exc}", file=sys.stderr)
+            return 3
         print("scored" if outcomes.player_points is not None else "not scored yet (no points)")
-    pool = pub.pool_exposure_rows(parsed)
+    if not parsed.details:
+        print("no contest-details in the snapshot: cash lines and cash rates stay NULL")
+    pool = pub.pool_exposure_rows(parsed, now)
     arms = pub.arms_rows(parsed, outcomes, now)
+    lines = pub.contest_lines_rows(parsed, points, now)
     pd.set_option("display.width", 200)
     print(f"\npool_exposure: {len(pool)} rows (top 25)")
     print(pool.head(25).to_string(index=False))
     print(f"\narms_weekly: {len(arms)} rows")
-    print(arms.drop(columns=["source_sha256", "published_utc"]).to_string(index=False))
+    print(arms.drop(columns=["source_sha256", "published_utc", "source_file"]).to_string(index=False))
+    print(f"\ncontest_lines: {len(lines)} rows")
+    if len(lines):
+        print(lines[["contest_id", "field_size", "paid_places", "cash_line"]].to_string(index=False))
     if a.apply:
-        write(pool, arms, parsed.manifest["run_id"], a.season, a.week)
+        write(pool, arms, lines, parsed.manifest["run_id"], a.season, a.week)
     else:
         print("\ndry run: nothing written (pass --apply to write)")
     return 0

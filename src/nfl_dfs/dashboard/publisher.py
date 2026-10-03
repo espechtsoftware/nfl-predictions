@@ -14,9 +14,16 @@ Safety (reviewer, 2026-10-03):
   parsed.
 * A week is not touched before its Sunday window closes (15:30 Central)
   unless the caller points ``--inputs`` at an existing snapshot.
-* Private files are never read: contests.json (stake plan), contest
-  details, DraftKings entry exports and bundles (entry keys), the private/
-  folder, env files and logs are outside the allow-list.
+* Private files are never read: contests.json (stake plan), DraftKings entry
+  exports and bundles (entry keys), the private/ folder, env files and logs
+  are outside the allow-list. DraftKings' public contest details
+  (contest-details*.json: payout ladders) are snapshotted for the cash line.
+
+Two book arms, never substituted for each other (reviewer 2026-10-03):
+  book    the lab run's book.csv, the pre-R4 union book;
+  played  the per-contest upload files (label prefix ``--played-label``,
+          default "vetted") written after R4 and any swap, one row per entry.
+The pool_exposure book share uses the one named by --exposure-book.
 """
 from __future__ import annotations
 
@@ -55,9 +62,10 @@ WEEK_PATTERNS = (
     "paper-r2-{tag}/book/book.csv",
     "ordering_shadows-{tag}-k*.json",
     "upload-{tag}-*.csv",
+    "contest-details*.json",
 )
 # Never copied even if a pattern above would match.
-DENY = ("contests.json*", "contest-details*", "*ENTER*", "*entries*", "private/*",
+DENY = ("contests.json*", "*ENTER*", "*entries*", "private/*",
         "*bundle/*", "*.env", "*.log", "*DKEntries*")
 
 ID_COLUMNS = ("id", "dk_player_id", "dk_draftable_id", "display_name")
@@ -263,11 +271,11 @@ def classify(rel: str, tag: str) -> ArmSource | None:
     """Arm identity from a snapshot-relative path."""
     name = rel.removeprefix("week/")
     if rel == "run/book.csv":
-        return ArmSource("lab_book", "book", rel)
+        return ArmSource("book", "book", f"{rel} [book: pre-R4 union book.csv]")
     if rel == "run/candidates.parquet":
         return ArmSource("pool", "pool", rel)
     if name == f"vetted-{tag}/book.csv":
-        return ArmSource("vetted", "entered", rel)
+        return ArmSource("vetted", "vetted", rel)
     for prefix, arm, kind in (("composite", "composite", "shadow"),
                               ("hybrid15", "hybrid15", "shadow"),
                               ("exposure-caps-r2", "exposure_caps_r2", "shadow"),
@@ -289,6 +297,33 @@ def classify(rel: str, tag: str) -> ArmSource | None:
     return None
 
 
+def _rel_path(rel: str) -> str:
+    """The file part of an arm's source label ("run/book.csv [book: ...]")."""
+    return rel.split(" [", 1)[0]
+
+
+def paid_places(details: dict) -> int | None:
+    """Last paid rank in a DraftKings contest-details payout ladder (tiers
+    with a positive value; scripts/sat_late_swap_live.paid_places)."""
+    paid = 0
+    for t in details.get("payoutSummary") or []:
+        if any(float(x.get("value", 0) or 0) > 0 for x in t.get("payoutDescriptions") or []):
+            paid = max(paid, int(t["maxPosition"]))
+    return paid or None
+
+
+def read_details(snap: Path, rels: list[str]) -> dict[str, dict]:
+    """{contest_id: details} merged over the snapshotted contest-details
+    files in name order (a later file wins for a contest it repeats)."""
+    out: dict[str, dict] = {}
+    for rel in sorted(r for r in rels if Path(r).name.startswith("contest-details")):
+        d = json.loads((snap / rel).read_text())
+        for cid, v in (d.items() if isinstance(d, dict) else []):
+            if isinstance(v, dict):
+                out[str(cid)] = {**v, "_source": rel}
+    return out
+
+
 @dataclass
 class Parsed:
     manifest: dict
@@ -299,9 +334,13 @@ class Parsed:
     arms: list[tuple[ArmSource, np.ndarray]]
     skipped: list[str]
     built_utc: str | None
+    details: dict = field(default_factory=dict)
 
 
-def parse_snapshot(snap: Path) -> Parsed:
+def parse_snapshot(snap: Path, played_label: str = "vetted", exposure_book: str = "played") -> Parsed:
+    """Every arm in the snapshot, plus the ``played`` union and the book
+    named by ``exposure_book`` ("played" or "book") for pool_exposure; a
+    missing choice is an error, never a silent substitution."""
     man = read_manifest(snap)
     tag = man["tag"]
     frame = pd.read_parquet(snap / "run" / "frame.parquet")
@@ -309,11 +348,16 @@ def parse_snapshot(snap: Path) -> Parsed:
     sha = {f["rel"]: f["sha256"] for f in man["files"]}
     arms: list[tuple[ArmSource, np.ndarray]] = []
     skipped: list[str] = []
+    try:
+        details = read_details(snap, list(sha))
+    except Exception as exc:  # noqa: BLE001 -- reported; cash lines then stay NULL
+        skipped.append(f"contest-details: {type(exc).__name__}: {exc}")
+        details = {}
     for rel in sorted(sha):
         src = classify(rel, tag)
         if src is None:
             continue
-        path = snap / rel
+        path = snap / _rel_path(src.rel)
         try:
             if src.kind == "ordering":
                 for oname, rosters in read_orderings(path).items():
@@ -334,22 +378,39 @@ def parse_snapshot(snap: Path) -> Parsed:
             arms.append((src, idx))
         else:
             skipped.append(f"{rel}: no resolvable rosters")
-    by_arm = {a.arm: idx for a, idx in arms}
+    played = [(a, idx) for a, idx in arms
+              if a.kind == "upload" and a.contest_id and a.arm.startswith(f"upload:{played_label}-")]
+    if played:
+        rels = sorted(a.rel for a, _ in played)
+        combined = hashlib.sha256("".join(sha[r] for r in rels).encode()).hexdigest()
+        src = ArmSource("played", "played",
+                        f"{';'.join(rels)} [played: upload files after R4/swap, label {played_label}]")
+        arms.append((src, np.vstack([idx for _, idx in played])))
+        sha[src.rel] = combined
+    else:
+        skipped.append(f"played: no per-contest upload-{tag}-{played_label}-*.csv files; "
+                       f"no played arm published")
+    by_arm = {a.arm: (a, idx) for a, idx in arms}
     if "pool" not in by_arm:
         raise PublishError("the snapshot has no resolvable candidates.parquet")
-    book_arm = "vetted" if "vetted" in by_arm else "lab_book"
-    if book_arm not in by_arm:
-        raise PublishError("the snapshot has neither a vetted nor a lab book")
+    if exposure_book not in ("played", "book"):
+        raise PublishError(f"--exposure-book must be played or book, not {exposure_book!r}")
+    if exposure_book not in by_arm:
+        raise PublishError(f"the {exposure_book!r} book is not in this snapshot; pass "
+                           f"--exposure-book {'book' if exposure_book == 'played' else 'played'} explicitly "
+                           f"if that is the book you mean")
     built = None
     if (snap / "run" / "receipt.json").is_file():
         built = json.loads((snap / "run" / "receipt.json").read_text()).get("built_utc")
-    return Parsed(man, res.frame, by_arm["pool"], by_arm[book_arm],
-                  next(a.rel for a, _ in arms if a.arm == book_arm), arms, skipped, built)
+    man = {**man, "files": [*man["files"], *({"rel": r, "sha256": h} for r, h in sha.items()
+                                              if r not in {f["rel"] for f in man["files"]})]}
+    src, book = by_arm[exposure_book]
+    return Parsed(man, res.frame, by_arm["pool"][1], book, src.rel, arms, skipped, built, details)
 
 
 # ------------------------------------------------------------------ rows --
 
-def pool_exposure_rows(p: Parsed) -> pd.DataFrame:
+def pool_exposure_rows(p: Parsed, published: datetime | None = None) -> pd.DataFrame:
     fr = p.frame
     n_rows = len(fr)
     pool_n = np.bincount(p.pool.ravel(), minlength=n_rows)
@@ -368,6 +429,8 @@ def pool_exposure_rows(p: Parsed) -> pd.DataFrame:
         "pool_share": pool_n[keep] / max(len(p.pool), 1),
         "book_share": book_n[keep] / max(len(p.book), 1),
         "n_pool": pool_n[keep].astype(int), "n_book": book_n[keep].astype(int),
+        "book_source": p.book_source,
+        "published_utc": published or datetime.now(timezone.utc),
     })
     return out.sort_values("pool_share", ascending=False).reset_index(drop=True)
 
@@ -375,13 +438,24 @@ def pool_exposure_rows(p: Parsed) -> pd.DataFrame:
 @dataclass
 class Outcomes:
     """Realized inputs: per-frame-row DK points, the Millionaire field's
-    points, and its cash line when payouts are known."""
+    points, and cash lines per contest (the points of the last paid rank,
+    paid places from the snapshotted contest details)."""
     player_points: np.ndarray | None
     field_points: np.ndarray | None
-    cash_line: float | None
+    cash_line: float | None                       # the Millionaire's
+    cash_lines: dict = field(default_factory=dict)  # contest_id -> cash line
+    milly_contest: str | None = None
 
 
-def arm_metrics(idx: np.ndarray, out: Outcomes) -> dict:
+def cash_line_at(points: np.ndarray, paid: int | None) -> float | None:
+    """The score at the last paid rank (None without a ladder or standings)."""
+    if not paid or points is None or not len(points):
+        return None
+    srt = np.sort(np.asarray(points, float))[::-1]
+    return float(srt[min(paid, len(srt)) - 1])
+
+
+def arm_metrics(idx: np.ndarray, out: Outcomes, contest_id: str | None = None) -> dict:
     m = {"n_lineups": int(len(idx)), "mean_points": None, "best_points": None,
          "best_rank": None, "cash_rate": None}
     if out.player_points is None or not len(idx):
@@ -391,8 +465,9 @@ def arm_metrics(idx: np.ndarray, out: Outcomes) -> dict:
     m["best_points"] = float(pts.max())
     if out.field_points is not None and len(out.field_points):
         m["best_rank"] = int(1 + (out.field_points > pts.max() + 1e-9).sum())
-    if out.cash_line is not None and np.isfinite(out.cash_line):
-        m["cash_rate"] = float((pts >= out.cash_line - 1e-9).mean())
+    line = out.cash_lines.get(str(contest_id)) if contest_id else out.cash_line
+    if line is not None and np.isfinite(line):
+        m["cash_rate"] = float((pts >= line - 1e-9).mean())
     return m
 
 
@@ -403,9 +478,33 @@ def arms_rows(p: Parsed, out: Outcomes, published: datetime | None = None) -> pd
     for src, idx in p.arms:
         rows.append({"season": int(p.manifest["season"]), "week": int(p.manifest["week"]),
                      "arm": src.arm, "kind": src.kind, "contest_id": src.contest_id,
-                     **arm_metrics(idx, out), "source_file": src.rel,
-                     "source_sha256": sha.get(src.rel), "published_utc": published})
+                     **arm_metrics(idx, out, src.contest_id), "source_file": src.rel,
+                     "source_sha256": sha.get(src.rel) or sha.get(_rel_path(src.rel)),
+                     "published_utc": published})
     return pd.DataFrame(rows)
+
+
+def contest_lines_rows(p: Parsed, points: dict[str, np.ndarray],
+                       published: datetime | None = None) -> pd.DataFrame:
+    """One row per contest in the snapshotted details: paid places, field
+    size, and the cash line (NULL when the standings are not imported)."""
+    published = published or datetime.now(timezone.utc)
+    sha = {f["rel"]: f["sha256"] for f in p.manifest["files"]}
+    rows = []
+    for cid, d in sorted(p.details.items()):
+        paid = paid_places(d)
+        pts = points.get(cid)
+        rows.append({"season": int(p.manifest["season"]), "week": int(p.manifest["week"]),
+                     "contest_id": cid, "contest_name": d.get("name"),
+                     "draft_group_id": d.get("draftGroupId"),
+                     "field_size": int(len(pts)) if pts is not None and len(pts) else
+                     (d.get("entries") or d.get("maximumEntries") or d.get("max")),
+                     "paid_places": paid, "cash_line": cash_line_at(pts, paid),
+                     "source_file": d.get("_source"), "source_sha256": sha.get(d.get("_source")),
+                     "published_utc": published})
+    return pd.DataFrame(rows, columns=["season", "week", "contest_id", "contest_name", "draft_group_id",
+                                       "field_size", "paid_places", "cash_line", "source_file",
+                                       "source_sha256", "published_utc"])
 
 
 def player_points(frame: pd.DataFrame, by_name: dict[str, float],
@@ -415,9 +514,11 @@ def player_points(frame: pd.DataFrame, by_name: dict[str, float],
     (the week is not scored yet)."""
     if not by_name and not by_gsis:
         return None
+    names = frame.display_name.astype(str)
+    shared = set(names[names.duplicated(keep=False)])   # two frame players, one name
     pts = []
-    for name, gid in zip(frame.display_name.astype(str), frame.get("id", frame.get("gsis_id"))):
-        v = by_name.get(name)
+    for name, gid in zip(names, frame.get("id", frame.get("gsis_id"))):
+        v = None if name in shared else by_name.get(name)
         if v is None:
             v = by_gsis.get(_key(gid))
         pts.append(0.0 if v is None else float(v))
@@ -425,9 +526,11 @@ def player_points(frame: pd.DataFrame, by_name: dict[str, float],
 
 
 def fetch_outcomes(query: Callable[[str], pd.DataFrame], season: int, week: int,
-                   frame: pd.DataFrame) -> Outcomes:
-    """Read-only BigQuery reads for scoring (see sql/dashboard/milly_points.sql)."""
-    from .data import render
+                   frame: pd.DataFrame, details: dict | None = None
+                   ) -> tuple[Outcomes, dict[str, np.ndarray]]:
+    """Read-only BigQuery reads for scoring: player points, the Millionaire
+    field, and every detailed contest's standings points (for cash lines)."""
+    from .data import fetch_milly_contests, render
 
     names = query(render("week_player_points", season=int(season), week=int(week)))
     by_name = {str(r.display_name): float(r.fpts) for r in names.itertuples(index=False)
@@ -436,9 +539,30 @@ def fetch_outcomes(query: Callable[[str], pd.DataFrame], season: int, week: int,
     by_gsis = {str(r.gsis_id): float(r.dk_points) for r in acts.itertuples(index=False)
                if pd.notna(r.dk_points)}
     field = query(render("milly_points", season=int(season), week=int(week)))
-    fp = field.points.to_numpy(float) if len(field) else None
-    cash = None
-    if len(field) and "payout" in field and field.payout.notna().any():
-        paid = field[pd.to_numeric(field.payout, errors="coerce") > 0]
-        cash = float(paid.points.min()) if len(paid) else None
-    return Outcomes(player_points(frame, by_name, by_gsis), fp, cash)
+    if field.empty:
+        # Before the standings land, player_week_actuals already holds zeros:
+        # scoring now would publish zeros as results.
+        raise PublishError(f"no Millionaire standings imported for {season} week {week}; refusing to "
+                           f"score (import them first, or --no-bq for an unscored dry run)")
+    fp = field.points.to_numpy(float)
+    mc = fetch_milly_contests(query, season)
+    mc = mc[mc.week == int(week)] if not mc.empty else mc
+    milly = str(mc.contest_id.iloc[0]) if len(mc) else None
+    if len(mc) and "lobby_contest_id" in mc and pd.notna(mc.lobby_contest_id.iloc[0]) \
+            and str(mc.lobby_contest_id.iloc[0]) != milly:
+        print(f"MISMATCH: the lobby's Millionaire is {mc.lobby_contest_id.iloc[0]} but the imported "
+              f"standings are {milly}; using the standings")
+    details = details or {}
+    ids = sorted(c for c in details if c.isdigit())
+    points: dict[str, np.ndarray] = {}
+    if ids:
+        cp = query(render("contest_points", season=int(season), week=int(week),
+                          contest_ids=", ".join(f"'{c}'" for c in ids)))
+        for cid, g in cp.groupby(cp.contest_id.astype(str)) if len(cp) else []:
+            points[cid] = g.points.to_numpy(float)
+    if milly and fp is not None:
+        points.setdefault(milly, fp)
+    lines = {cid: cash_line_at(points.get(cid), paid_places(d)) for cid, d in details.items()}
+    lines = {k: v for k, v in lines.items() if v is not None}
+    return (Outcomes(player_points(frame, by_name, by_gsis), fp, lines.get(milly) if milly else None,
+                     lines, milly), points)

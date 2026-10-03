@@ -1,4 +1,5 @@
--- The newest published run's pool/book exposure per week.
+-- The newest published run's pool/book exposure per week (by publication
+-- time, so a run without a receipt -- built_utc NULL -- is still visible).
 SELECT * FROM `${dashboard}.pool_exposure`
 WHERE season = ${season} ${week_filter}
-QUALIFY built_utc = MAX(built_utc) OVER (PARTITION BY week)
+QUALIFY published_utc = MAX(published_utc) OVER (PARTITION BY week)
