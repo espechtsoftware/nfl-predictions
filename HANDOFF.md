@@ -12,6 +12,18 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-03 (13:44 CDT) — O-22: two PRODUCTION features leak through NULL presence (qb_cpoe_l6, neutral_pass_rate_l6); no change before Week 4's lock
+
+The class sweep the reviewer asked for under O-21 (read-only code audit plus presence-only counts) found the same
+defect in two production features (NUMERIC_FEATURES and TabPFN):
+- `qb_cpoe_l6`: training non-NULL implies the QB threw in week W (13% of active QB rows are NULL only for that
+  reason). Serve gives it to every QB with history.
+- `neutral_pass_rate_l6`: a missing row implies a blowout game script (4.9% of team-weeks). Serve is never NULL.
+- Also suspected: `top_cb_out` and `team_ol_out` without a lock filter on injuries; `game_weather` latest snapshot.
+
+Details in **O-22**. Recommendation to the operator: no model change before Sunday's lock (an untested rule on an
+entered book). Starters' features are consistent, and the backup-QB gate zeroes backups. The fix and a validated
+retrain come right after Week 4. Sent to the reviewer.
 ## 2026-10-03 (13:36 CDT) — B4 audit + D1 overlap map (outcome-blind; report committed); a train/serve skew in xfp_l4 (O-21)
 
 `reports/2026-10-03-b4-audit-d1-overlap-map.md` (read-only BigQuery work; aggregates only). Headlines:
