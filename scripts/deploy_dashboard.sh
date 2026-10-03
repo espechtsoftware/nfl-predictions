@@ -11,8 +11,11 @@
 # scaling and the IAP-only invoker policy are left exactly as they are
 # (`gcloud run services update` keeps what it is not told to change; this
 # script never passes --allow-unauthenticated). No Cloud Run job uses this
-# service. After the update it reads the IAM policy and the service and fails
-# loudly, printing the rollback, if anything is public.
+# service. Before the update it requires IAP to be enabled on the service.
+# After it, it sends 100% of traffic to the new revision (a rollback pins
+# traffic to a revision; `update-traffic --to-latest` releases the pin), then
+# reads the service and its IAM policy and fails loudly, printing the
+# rollback, unless IAP is on, nothing is public, and traffic is 100% latest.
 #
 # Refuses before Sunday 2026-10-04 15:30 CT (the Week-4 money path) unless FORCE=1.
 set -euo pipefail
@@ -55,6 +58,13 @@ else
 fi
 code_sha="${CODE_SHA:-${ref#dashboard-}}"
 
+tmp=$(mktemp -d)
+trap 'rm -rf "$tmp"' EXIT
+gcloud run services describe "$SERVICE" --region "$REGION" --project "$PROJECT" --format=json > "$tmp/before.json"
+if ! python3 "${HERE}/dashboard_iam_check.py" --service "$tmp/before.json"; then
+  echo "REFUSED: ${SERVICE} is not IAP-protected now; fix that before deploying anything." >&2
+  exit 2
+fi
 prev=$(gcloud run services describe "$SERVICE" --region "$REGION" --project "$PROJECT" \
          --format='value(status.latestReadyRevisionName)')
 rollback="gcloud run services update-traffic ${SERVICE} --region ${REGION} --project ${PROJECT} --to-revisions ${prev}=100"
@@ -80,13 +90,12 @@ else
   echo "neo4j:    no milly-neo4j-* secrets in Secret Manager; the graph page will say 'not configured'"
 fi
 gcloud "${args[@]}"
+gcloud run services update-traffic "$SERVICE" --region "$REGION" --project "$PROJECT" --to-latest
 
-tmp=$(mktemp -d)
-trap 'rm -rf "$tmp"' EXIT
 gcloud run services get-iam-policy "$SERVICE" --region "$REGION" --project "$PROJECT" --format=json > "$tmp/policy.json"
 gcloud run services describe "$SERVICE" --region "$REGION" --project "$PROJECT" --format=json > "$tmp/service.json"
-if ! python3 "${HERE}/dashboard_iam_check.py" "$tmp/policy.json" "$tmp/service.json"; then
-  echo "FAIL: ${SERVICE} is reachable without IAP after the update. Roll back now:" >&2
+if ! python3 "${HERE}/dashboard_iam_check.py" --service "$tmp/service.json" --policy "$tmp/policy.json" --traffic; then
+  echo "FAIL: ${SERVICE} is not IAP-only on its new revision with 100% of traffic. Roll back now:" >&2
   echo "  ${rollback}" >&2
   exit 1
 fi
