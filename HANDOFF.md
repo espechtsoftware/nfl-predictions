@@ -12,6 +12,16 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-03 (11:58 CDT) — Dashboard v2: DraftKings user names KEPT in BigQuery, Neo4j and the dashboard (operator)
+
+**Operator (10-03):** "Why no user names? I think thatd be handy". Asked where to keep them, he chose **"Everywhere,
+incl. Neo4j"**, then: "I don't care if they are in git, just want it in neo4j and bq".
+- This overrides the reviewer's dashboard constraint 2: names are kept in the BigQuery Milly derivations, the
+  IAP-protected dashboard and the Aura graph, so repeat winners can be followed by name.
+- The builder and the reviewer were told.
+- No user data is committed, because none is needed in code (tests use synthetic names). The reviewer's other
+  constraints are unchanged: IAP with the post-deploy assertion; no FP/SIS raw data in Aura; nothing from
+  contests.json; the publisher's snapshot/time guard.
 ## 2026-10-03 (11:50 CDT) — DASHBOARD V2 (operator request): replace nfl-dfs-app; Milly tracking in BigQuery AND Neo4j
 
 **Operator (10-03):**
