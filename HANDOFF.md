@@ -12,6 +12,27 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-03 (08:05 CDT) — LINESTAR REVISION CHECK set up (reviewer): do post-lock values equal the pre-lock ones?
+
+**Why it matters (reviewer):** every LineStar input in our evidence came from post-week payloads: the 2023–24 backfill
+behind L15/L20/L21 (the blend's +0.19 sd) and L23b (TabPFN stage 1), and 2026 W1–W3. If LineStar revises projected
+ownership after lock, those gains are inflated and a LineStar-vs-FP comparison is unfair.
+
+**The gap found:** we held NO pre-lock LineStar values. The capture refuses below 100 rows and writes nothing, so the
+60-row top-5-per-game lists were never saved.
+
+**Now saved** to `~/week4-sunday/linestar-prelock-top5/` (private; never the `linestar` dir the unions read), with
+`--min-rows 50`:
+- `sat-prelock` 2026-10-03 13:04:32Z, 60 players, with receipt (sha256, capture time);
+- Sunday 08:47 CT `sun-am-prelock` and 11:43 CT `sun-t17-prelock` (session reminders).
+
+**Tuesday 10-06 08:17 CT:**
+1. The post-lock capture.
+2. FIRST, the revision check: each pre-lock capture joined to the post-lock list. Report n matched, the share
+   identical to 0.1 pp, mean |diff|, the five largest diffs, and Saturday vs Sunday.
+3. If the values differ: a Data deficiency row, plus a ledger note against L15/L20/L21/L23b before those gains are
+   cited again, and the LineStar-vs-FP comparison declared unfair.
+4. Then the descriptive comparison.
 ## 2026-10-03 (08:03 CDT) — LINESTAR: post-lock capture for comparison only (operator decision)
 
 **Operator (10-03, verbatim):** "I would like to get the linestar free full data post lock for comparison purposes
