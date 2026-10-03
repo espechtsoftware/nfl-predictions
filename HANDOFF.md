@@ -12,6 +12,30 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-03 (11:50 CDT) — DASHBOARD V2 (operator request): replace nfl-dfs-app; Milly tracking in BigQuery AND Neo4j
+
+**Operator (10-03):**
+- "If it won't interfere with anything for production, id like the ui on google cloud to include: Implied totals for
+  each game; Our top projected players and how much they appear in our pool; Top offenses ranked over time like we
+  have for defenses; Other metrics you suggest; Comparison of the different arms/shadows each week. Also we had
+  started robust neo4j tracking of milly over time … Please implement that. However i do not want to risk breaking
+  anything so proceed with caution."
+- "I dont use the current dashboard so we can simply replace it."
+- Milly store: **"Both"** (BigQuery record + Neo4j Aura Free copy).
+
+**Findings** (read-only research):
+- `nfl-dfs-app` runs its own image (`sha256:3da77cb5…`, commit `0f30c925`, 09-02); no job shares it.
+- No Neo4j instance exists. The 09-01/02 graph was a localhost container for corpus research; Milly winners were
+  never loaded (`winner_nodes_included: False`). It was held 09-01 and last used 09-13 (PREREG-096 REVERT).
+- The pool and the arm/shadow results live only on the laptop, so a publisher is needed.
+
+**Build:** branch `production/dashboard-v2-20261003`, worktree `~/projects/.nfl-predictions-worktrees/dashboard-v2-20261003`.
+Safety rules: no cloud writes, no deploy, no touching the production checkout, `~/week*-sunday` read-only, one test
+module at a time while builds run.
+- **Deploy only after Sunday 15:30** and the reviewer's review.
+- The `nfl_dashboard` dataset DDL and the publisher's `--apply` wait for that point too.
+- Neo4j Aura Free needs the operator to create the instance; its credentials go to Secret Manager, never to a
+  tracked file.
 ## 2026-10-03 (10:23 CDT) — Saturday FP captures + disagreement report
 
 **Captures:**
