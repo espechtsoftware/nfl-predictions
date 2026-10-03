@@ -12,6 +12,33 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-03 (14:27 CDT) — O-22 quick test (operator asked "test now how it affects lineups and if it's better without it"): served projections indistinguishable
+
+A local, serve-path test (no writes; finished 14:26). Production's LightGBM training code (11 components, 400 rounds,
+`MODEL_ENSEMBLE=1`) was trained twice, A = the current 36 features and B = without `qb_cpoe_l6` and
+`neutral_pass_rate_l6`, with per-week training cuts matching the deployed models. It was scored on 2026 W1–3 from
+serve-path inference rows: W3 from time travel (exact), W1–2 from the 023 SQL as a SELECT (reproduces W3/W4 exactly).
+"Served" = 0.45 model + 0.55 market, zeroed where production zeroed.
+
+**Players who played (n=985, 101 QBs):**
+
+| Output | Group | MAE A | MAE B | Δ [95% CI] |
+|---|---|---|---|---|
+| Model | All | 4.666 | 4.596 | +0.070 [−0.021, 0.170] |
+| Model | QB | 7.586 | 6.869 | +0.716 [−0.105, 1.586] |
+| Served | All | 4.361 | 4.367 | −0.006 [−0.052, 0.039] |
+| Served | QB | 6.326 | 6.367 | −0.042 [−0.478, 0.363] |
+
+- The model's QB over-projection is +2.47 with the features vs +0.07 without, mostly from backups. The backup gate
+  zeroes those in the served projection.
+- Week 4, served: mean change 0.20 (seed noise 0.18). The largest: Bagent −2.3, Jalon Daniels +1.7 (no NGS history,
+  so the current model reads him as "did not throw"), Stroud +1.3, Lawrence −1.05, Murray −1.0.
+- Rehearsal book of 110 lineups: Spearman 0.86 between A and B sums, top-30 overlap 21/30. Two seed-only retrains of
+  A give 0.95 and 22–24/30, so the re-ranking is somewhat above retrain noise, driven by a few QBs.
+
+**Verdict:** no measurable served-accuracy difference on 3 weeks (wide CIs). The model is cleaner without the
+features. This does not justify a pre-lock change; the O-22 fix proceeds after Week 4. Artifacts are in the session
+scratchpad, `o22test/`, uncommitted (per-player data).
 ## 2026-10-03 (13:44 CDT) — O-22: two PRODUCTION features leak through NULL presence (qb_cpoe_l6, neutral_pass_rate_l6); no change before Week 4's lock
 
 The class sweep the reviewer asked for under O-21 (read-only code audit plus presence-only counts) found the same
