@@ -12,6 +12,22 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-03 (13:36 CDT) — B4 audit + D1 overlap map (outcome-blind; report committed); a train/serve skew in xfp_l4 (O-21)
+
+`reports/2026-10-03-b4-audit-d1-overlap-map.md` (read-only BigQuery work; aggregates only). Headlines:
+- **Only Route Share** in the model tables comes from FP. FP's XFP, Bell Cow, weighted opportunity and PROE have no
+  column yet, so B4 coverage for them is 0 by construction. FP XFP history starts at week 5–6.
+- **`xfp_l4` (a candidate feature) has a train/serve skew:** NULL live in W1–2; one game stale in W3–4 (mean gap
+  1.4–2.0 on ~7). The training NULLs may encode post-game information. Logged as **O-21**. Not on the money path. The
+  reviewer must see it before B4 is preregistered.
+- **Route Share:** coverage OK, but every live RB and QB value is a 2025 carry-over; the 2026 captures are WR/TE only.
+- **Revisions:** no real FP revision test is possible from what we store. 2026 W2 Route Share was an incomplete export
+  (already logged). SIS W1's value metrics changed in all 32 rows within 3 days.
+- **D1:** FP largely duplicates what we have. FP DK projection vs ours r=0.98 (n=335) and vs market 0.97; Route Share
+  vs free snap share 0.88–0.97; PROE ~0.91; XFP ~0.95; FP vs SIS pressure 0.60–0.83.
+- **Paid inputs on the money path:** only Odds API props (55% of every projection, an audit gate, a vetting flag) and
+  FP ownership (the W4 trial). LineStar reaches it only through the 2022–25 lag-model training data. SIS and the Data
+  Suite are shadow/research only.
 ## 2026-10-03 (12:56 CDT) — DASHBOARD V2 CLEARED by the reviewer (bb57be4e); deploy Sunday after 15:30
 
 **Branch:** `production/dashboard-v2-20261003`, `8c82389e..bb57be4e`. The reviewer's two passes found 14 items (5
