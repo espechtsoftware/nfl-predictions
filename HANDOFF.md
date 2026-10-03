@@ -12,6 +12,16 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-03 (09:32 CDT) — Saturday props-guard pre-check: PASS (deployed project-slate image unchanged)
+
+- `project-slate` image `sha256:7641feeb…f770f4` = `week4-t70-66ce2c86` (HANDOFF 09-29); no redeploy since.
+- `props_guard_precheck.py --season 2026 --week 4` in a temporary worktree at `66ce2c86` (removed afterwards; the
+  production checkout is untouched and clean): exit 0, **`GUARD PASSES: {'model_only_no_line': 264, 'props': 198}`**,
+  props coverage 198/462 = 42.9% (floor 30%).
+  - No MarketMatchError.
+  - 290 ambiguous spellings remain; only one ("devin neal") appears in the prop feed, which is not a failure.
+  - 1,802 player-weeks priced, 934 at >= 2 markets (88% of prop names matched).
+- Next: the 09:47 refresh (the agent runs it, operator 09-29), then the arm sequence.
 ## 2026-10-03 (08:23 CDT) — Saturday LineStar fill check: still 60 (the free feed's 5-per-game cap); no Saturday LineStar capture
 
 `linestar_ownership_capture.py --week 4` into scratch: "only 60 players carry a projected ownership (need >= 100)".
