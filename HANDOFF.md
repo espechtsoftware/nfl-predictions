@@ -12,6 +12,25 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-03 (10:23 CDT) — Saturday FP captures + disagreement report
+
+**Captures:**
+- Ownership: 619 DK rows (15:16Z).
+- Projections: dfs 7,926, weekly 565, rankings-weekly 437, rankings-ros 269.
+- Articles: 17, including Barfield/Tribbey's DFS Main Slate Breakdown.
+- **One failure:** `hansens-hints-2026-nfl-week-4-fantasy-breakdown` raised "RuntimeError: no article payload observed".
+
+**Disagreements:** FP DK slate 154078 (newest retrieved_at per season/week/operator/slate, selected in code) vs our
+newest player_projections batch (15:12Z); 397 matched. Six differ by >= 4; FP >= 8 with no row of ours: none.
+- FP higher, all role changes our Saturday batch underrates:
+  - Emanuel Wilson 12.9 vs 7.6 (lead back; Price OUT, Charbonnet ineligible);
+  - Jalon Daniels 15.8 vs 11.5 (named starter; Mayfield out 3+ weeks);
+  - Higbee 9.1 vs 4.7 (Ferguson OUT, Parkinson Q after three DNPs);
+  - Flowers 16.5 vs 11.8 (Q hamstring, likely plays; our Q haircut 0.80).
+- FP ~0, ours ~4: Nwangwu (cleared, 3-way split with Hall out) and Singletary (scratched recently).
+- The Bears QB is settled: Bagent starts (FP 16.8 / ours 13.3; Keenum and Williams 0 in both).
+- No action: the T-70 project-slate (10:36 Sunday, after inactives) applies the vacated-volume cascade. No untested
+  rule on the book.
 ## 2026-10-03 (10:17 CDT) — WEEK 4 ARMED by the agent at 10:16 CT (10 timers); refresh OK; one validator fix on the way
 
 **Refresh** (the agent, operator 09-29), after the 09:32 props pre-check PASS:
