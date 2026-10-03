@@ -1,0 +1,45 @@
+${inc:norm_fn}
+-- Insight 3: QB + pass-catcher stacks among the top 1%. Per week and pair:
+-- how many top-1% lineups carried it, its share, the pair's combined FP
+-- projected ownership, and the game it came from.
+WITH m AS (${milly_contests}),
+${inc:fp_latest},
+${inc:field_ranked},
+sl AS (
+  SELECT week, contest_id, display_name,
+         ANY_VALUE(team_abbr) AS team, ANY_VALUE(SPLIT(position, '/')[OFFSET(0)]) AS position
+  FROM (
+    SELECT m.week, m.contest_id, d.display_name, d.team_abbr, d.position
+    FROM `${raw}.dk_salaries` d
+    JOIN m ON d.draft_group_id = m.draft_group_id
+    WHERE m.season = ${season} AND m.week IN (SELECT week FROM fp_weeks) AND d.slate_type = 'classic'
+      AND (m.start_time IS NULL OR d.pulled_at < m.start_time)
+    QUALIFY d.pulled_at = MAX(d.pulled_at) OVER (PARTITION BY m.contest_id)
+  )
+  GROUP BY 1, 2, 3
+),
+t AS (
+  SELECT s.week, s.contest_id, s.entry_id, s.slot, s.player, sl.team, sl.position
+  FROM slots s
+  JOIN sl ON sl.contest_id = s.contest_id AND sl.display_name = s.player
+  WHERE s.top1
+),
+n1 AS (SELECT contest_id, COUNT(DISTINCT entry_id) AS n_top1 FROM t GROUP BY 1),
+pairs AS (
+  SELECT q.week, q.contest_id, q.player AS qb, c.player AS catcher, q.team,
+         COUNT(DISTINCT q.entry_id) AS lineups
+  FROM t q JOIN t c
+    ON c.entry_id = q.entry_id AND c.contest_id = q.contest_id AND c.team = q.team
+   AND c.position IN ('WR', 'TE')
+  WHERE q.slot = 'QB'
+  GROUP BY 1, 2, 3, 4, 5
+)
+SELECT p.week, p.qb, p.catcher, p.team, p.lineups,
+       100.0 * p.lineups / n1.n_top1 AS share_top1,
+       IFNULL(oq.fp_own, 0) + IFNULL(oc.fp_own, 0) AS pair_fp_own
+FROM pairs p
+JOIN n1 USING (contest_id)
+LEFT JOIN fpo oq ON oq.week = p.week AND oq.k = norm(p.qb)
+LEFT JOIN fpo oc ON oc.week = p.week AND oc.k = norm(p.catcher)
+QUALIFY ROW_NUMBER() OVER (PARTITION BY p.week ORDER BY p.lineups DESC) <= 15
+ORDER BY p.week, p.lineups DESC
