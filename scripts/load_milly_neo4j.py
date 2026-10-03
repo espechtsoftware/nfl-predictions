@@ -9,7 +9,10 @@ the top --top-n lineups (plus up to --cash-rows entries on the cash line
 when payouts are known), the draft group's salaries and the schedule.
 Writes only with --apply, and only to the graph named by MILLY_NEO4J_URI /
 MILLY_NEO4J_USERNAME / MILLY_NEO4J_PASSWORD / MILLY_NEO4J_DATABASE. Every
-write is a MERGE, so reloading a week is idempotent. Fantasy Points
+write is a MERGE, so reloading a week is idempotent. Before writing it counts
+the graph and refuses if this load could take it past 90% of the Aura Free
+limits (milly_graph.FREE_TIER_NODES / FREE_TIER_RELS); it prints the counts
+after the load. Fantasy Points
 projection/ownership is loaded only with --include-fp (opt-in).
 """
 from __future__ import annotations
@@ -25,13 +28,18 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
     ap.add_argument("--season", type=int, required=True)
     ap.add_argument("--week", type=int, action="append", help="repeatable; default every week")
-    ap.add_argument("--top-n", type=int, default=1000)
+    ap.add_argument("--top-n", type=int, default=1000,
+                    help=f"top lineups per contest-week (at most {mg.MAX_TOP_N})")
+    ap.add_argument("--node-limit", type=int, default=mg.FREE_TIER_NODES)
+    ap.add_argument("--rel-limit", type=int, default=mg.FREE_TIER_RELS)
     ap.add_argument("--cash-rows", type=int, default=50)
     ap.add_argument("--include-fp", action="store_true",
                     help="also load Fantasy Points pre-lock projection/ownership per player-week "
                          "(licensed data to the hosted graph; opt-in)")
     ap.add_argument("--apply", action="store_true", help="write to Neo4j (default: dry run)")
     a = ap.parse_args(argv)
+    if not 1 <= a.top_n <= mg.MAX_TOP_N:
+        ap.error(f"--top-n must be between 1 and {mg.MAX_TOP_N} (Aura Free sizing)")
 
     from nfl_dfs.bq import query_df
 
@@ -74,10 +82,14 @@ def main(argv=None) -> int:
         return 3
     driver = mg.connect(cfg)
     try:
-        sent = mg.apply_batches(driver, cfg.database, batches, fp_rows=fp_rows)
+        res = mg.guarded_load(driver, cfg.database, batches, fp_rows=fp_rows,
+                              node_limit=a.node_limit, rel_limit=a.rel_limit)
+    except mg.CapacityError as exc:
+        print(f"REFUSED: {exc}", file=sys.stderr)
+        return 4
     finally:
         driver.close()
-    print(f"loaded: {sent}")
+    print(f"loaded: {res['sent']}")
     return 0
 
 

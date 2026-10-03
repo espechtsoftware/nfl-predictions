@@ -139,3 +139,64 @@ def test_neo4j_is_imported_lazily():
     import importlib
     mod = importlib.reload(G)
     assert "neo4j" not in mod.__dict__
+
+
+class CountingDriver(FakeDriver):
+    def __init__(self, nodes: int, rels: int):
+        super().__init__()
+        self.nodes, self.rels = nodes, rels
+
+    def execute_query(self, query, parameters=None, database_=None, **kw):
+        self.calls.append((query, parameters, database_))
+        if query.startswith("MATCH (n) RETURN count(n)"):
+            return [{"n": self.nodes}], None, ["n"]
+        if query.startswith("MATCH ()-[r]->() RETURN count(r)"):
+            return [{"n": self.rels}], None, ["n"]
+        if parameters and "rows" in parameters:
+            self.rels += len(parameters["rows"])
+        return [], None, []
+
+
+def test_estimate_additions_is_an_upper_bound():
+    b = batches()
+    nodes, rels = G.estimate_additions(b)
+    assert nodes == 1 + 1 + 2 + 4 + len(b["players"]) + 3
+    assert rels >= len(b["contains"]) + len(b["lineups"]) + len(b["stacked_with"])
+
+
+def test_capacity_guard_refuses_past_90_percent_and_writes_nothing():
+    drv = CountingDriver(nodes=179_990, rels=1_000)
+    logs = []
+    with pytest.raises(G.CapacityError, match="nodes"):
+        G.guarded_load(drv, "neo4j", batches(), log=logs.append)
+    assert not any(p for _, p, _ in drv.calls)               # no write was sent
+    assert "graph before" in logs[0]
+    with pytest.raises(G.CapacityError, match="relationships"):
+        G.check_capacity((0, 359_990), (0, 100), rel_limit=400_000)
+    G.check_capacity((0, 0), (1000, 1000))                   # ample headroom: no error
+
+
+def test_guarded_load_counts_before_and_after():
+    drv = CountingDriver(nodes=10, rels=20)
+    logs = []
+    res = G.guarded_load(drv, "neo4j", batches(), log=logs.append)
+    assert res["before"] == (10, 20) and res["after"][1] > 20
+    assert any("graph after" in line for line in logs)
+
+
+def test_keepalive_reads_once_and_reports_failure():
+    import importlib.util
+    from pathlib import Path
+    path = Path(__file__).resolve().parents[1] / "scripts" / "neo4j_keepalive.py"
+    spec = importlib.util.spec_from_file_location("neo4j_keepalive", path)
+    ka = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(ka)
+    env = {G.URI_ENV: "neo4j+s://example.invalid", G.USERNAME_ENV: "u", G.PASSWORD_ENV: "p"}
+    drv = FakeDriver({"RETURN 1": ([{"ok": 1}], ["ok"])})
+    assert ka.main(env, connect=lambda cfg: drv) == 0
+    assert [q for q, _, _ in drv.calls] == ["RETURN 1 AS ok"] and drv.closed
+
+    def boom(cfg):
+        raise OSError("connection refused")
+    assert ka.main(env, connect=boom) == 1
+    assert ka.main({}, connect=boom) == 2

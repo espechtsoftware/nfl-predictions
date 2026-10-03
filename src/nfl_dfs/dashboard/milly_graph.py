@@ -311,6 +311,72 @@ def apply_batches(driver, database: str, batches: Mapping[str, list[dict]],
     return sent
 
 
+# --------------------------------------------------------- capacity guard --
+# Aura Free limits as of 2026-10-03. CHECK THESE against Neo4j's current Aura
+# Free terms before relying on them; override with --node-limit/--rel-limit.
+FREE_TIER_NODES = 200_000
+FREE_TIER_RELS = 400_000
+CAPACITY_SHARE = 0.90
+MAX_TOP_N = 1500
+
+
+class CapacityError(RuntimeError):
+    pass
+
+
+def count_graph(driver, database: str) -> tuple[int, int]:
+    """(nodes, relationships) currently in the database."""
+    n = driver.execute_query("MATCH (n) RETURN count(n) AS n", database_=database)[0]
+    r = driver.execute_query("MATCH ()-[r]->() RETURN count(r) AS n", database_=database)[0]
+    return int(n[0]["n"]) if n else 0, int(r[0]["n"]) if r else 0
+
+
+def estimate_additions(batches: Mapping[str, list[dict]], fp_rows: list[dict] | None = None) -> tuple[int, int]:
+    """An upper bound on what this load adds (MERGE of an existing identity
+    adds nothing, so a reload is over-counted, never under-counted)."""
+    b = {k: len(v) for k, v in batches.items()}
+    teams = len({g[side] for g in batches.get("games", []) for side in ("home", "away")})
+    nodes = b.get("weeks", 0) + b.get("contests", 0) + b.get("games", 0) + teams \
+        + b.get("players", 0) + b.get("lineups", 0)
+    rels = (b.get("contests", 0)                 # IN_WEEK
+            + 3 * b.get("games", 0)              # IN_WEEK + 2 IN_GAME
+            + b.get("plays_for", 0) + b.get("lineups", 0)   # ENTERED_IN
+            + b.get("contains", 0) + b.get("owned_in", 0) + b.get("stacked_with", 0)
+            + len(fp_rows or []))
+    return nodes, rels
+
+
+def check_capacity(current: tuple[int, int], adding: tuple[int, int],
+                   node_limit: int = FREE_TIER_NODES, rel_limit: int = FREE_TIER_RELS,
+                   share: float = CAPACITY_SHARE) -> None:
+    (n0, r0), (dn, dr) = current, adding
+    problems = []
+    if n0 + dn > share * node_limit:
+        problems.append(f"nodes {n0:,} + {dn:,} = {n0 + dn:,} > {share:.0%} of {node_limit:,}")
+    if r0 + dr > share * rel_limit:
+        problems.append(f"relationships {r0:,} + {dr:,} = {r0 + dr:,} > {share:.0%} of {rel_limit:,}")
+    if problems:
+        raise CapacityError("refusing to load: " + "; ".join(problems)
+                            + " (Aura Free limits; lower --top-n, load fewer weeks, or raise the limits "
+                              "after checking the current terms)")
+
+
+def guarded_load(driver, database: str, batches: Mapping[str, list[dict]],
+                 fp_rows: list[dict] | None = None, node_limit: int = FREE_TIER_NODES,
+                 rel_limit: int = FREE_TIER_RELS, log=print) -> dict:
+    """Count, check the free-tier headroom, load, count again."""
+    before = count_graph(driver, database)
+    adding = estimate_additions(batches, fp_rows)
+    log(f"graph before: {before[0]:,} nodes, {before[1]:,} relationships; "
+        f"this load adds at most {adding[0]:,} / {adding[1]:,}")
+    check_capacity(before, adding, node_limit, rel_limit)
+    sent = apply_batches(driver, database, batches, fp_rows=fp_rows)
+    after = count_graph(driver, database)
+    log(f"graph after:  {after[0]:,} nodes, {after[1]:,} relationships "
+        f"({after[0] / node_limit:.1%} / {after[1] / rel_limit:.1%} of the limits)")
+    return {"before": before, "adding": adding, "after": after, "sent": sent}
+
+
 # ----------------------------------------------------------- panel queries --
 
 PANEL_QUERIES: dict[str, str] = {
