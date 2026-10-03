@@ -12,6 +12,42 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-03 (10:17 CDT) — WEEK 4 ARMED by the agent at 10:16 CT (10 timers); refresh OK; one validator fix on the way
+
+**Refresh** (the agent, operator 09-29), after the 09:32 props pre-check PASS:
+- `rosters_weekly` 2026 week 4 present (2,576 rows), so no ingest-nflverse.
+- `build-features-bjntp` succeeded (09:47–09:53).
+- `tabpfn-gen-zhrkj` (TABPFN_UPCOMING=2026:4) succeeded (09:53–10:08).
+- `project-slate-9ptzr` succeeded (10:08–10:12; no T70 flags).
+- Proof lines (`week3_proof_lines.py`, default digest = the job's image `…f770f4`): **PASS**; market blend props 209/434.
+
+**Inputs** (`w4_arm_saturday.sh`):
+- `ownership_sets.csv` 397 players.
+- `ownership_lag.csv`: **OWNERSHIP LAG OK**, sum 506 (>= 280), max Walker 17.9%.
+- LineStar refused (the 5-per-game cap).
+- `ownership_lags.csv` 797 players.
+- `chosen-dose.env` 0/4800 (written).
+- FP ownership Saturday capture: 619 rows at 15:16:21Z.
+
+**First arm attempt STOPPED at 10:13:56:** `WEEK RUNTIME PREFLIGHT FAILED: UNION_SAT_DOSE='2560/10240,1280/5120' must
+be lev/boom`.
+- `check_week_runtime.py` still matched one dose with `\d+/\d+`, although week_env's default has been the ordered list
+  since 10-01 (operator, cracks audit B).
+- The host and union_reselect already accept the list (unit test, and the 10-02 smokes went through the host
+  directly, which is why no smoke reached this check).
+- **Fixed** (`4355ac65`): the pattern now accepts `lev/boom[,lev/boom...]` and still rejects `x`, `2560/10240,` and
+  `;`.
+- Sweep (rule 4): the other consumers (`sunday_build_host.sh` 257/263, `union_reselect.resolve_saturday_run`) already
+  take the list; nothing else validates it.
+- I chose the fix over arming `UNION_SAT_DOSE=2560/10240`, which would have silently dropped the operator's D6400
+  fallback. It goes to the reviewer after the fact (time: 10:14).
+- Production checkout fast-forwarded to `4355ac65`, clean.
+
+**ARMED at 10:16:00 CT**, `ARMED: 10 timers; checkout 4355ac65 clean`:
+- Saturday: d12800-sat-build 10:30, d6400-sat-build 10:35.
+- Sunday: early-props 04:30, early-project 04:45, d12800-sun-build 05:00, d3200-build 09:10, watchers 09:12, t70-pull
+  10:33, t70-project 10:36, t70-build 10:50.
+- From now until Sunday 15:30: no change to `~/projects/nfl-predictions` (row 12).
 ## 2026-10-03 (09:32 CDT) — Saturday props-guard pre-check: PASS (deployed project-slate image unchanged)
 
 - `project-slate` image `sha256:7641feeb…f770f4` = `week4-t70-66ce2c86` (HANDOFF 09-29); no redeploy since.
