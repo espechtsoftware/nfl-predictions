@@ -17,6 +17,7 @@ d AS (
   SELECT *,
          COUNT(*) OVER (PARTITION BY contest_id, players_key) AS dupes,
          ROW_NUMBER() OVER (PARTITION BY contest_id ORDER BY points DESC, rank, entry_id) AS pos,
+         RANK() OVER (PARTITION BY contest_id ORDER BY points DESC) AS rk,
          COUNT(*) OVER (PARTITION BY contest_id) AS n,
          MIN(IF(payout > 0, points, NULL)) OVER (PARTITION BY contest_id) AS cash_line
   FROM e
@@ -32,6 +33,7 @@ SELECT
   COALESCE(rank, pos) AS rank, points, lineup_slots_json, dupes, n AS n_entries,
   COALESCE(points = cash_line, FALSE) AS at_cash_line
 FROM c
-WHERE pos <= LEAST(${top_n}, GREATEST(10, CAST(CEIL(${top_share} * n) AS INT64)))
+-- RANK at the cut: entries tied with the last one inside are inside too.
+WHERE rk <= LEAST(${top_n}, GREATEST(10, CAST(CEIL(${top_share} * n) AS INT64)))
    OR (cash_line IS NOT NULL AND points = cash_line AND cash_pos <= ${cash_rows})
 ORDER BY season, week, pos

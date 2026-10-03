@@ -260,12 +260,26 @@ table is missing, empty or failing.
 The Millionaire for a week is resolved in `milly_contests.sql`: the largest
 "Fantasy Football Millionaire" in the lobby polls that is not a satellite,
 showdown, MEGA or split slate, dated by its Sunday start; falling back to the
-largest imported standings named like a Millionaire. The Millionaire SQL reads
-lineups, ranks and points only; no entry names are selected anywhere.
+largest imported standings named like a Millionaire. When the lobby's contest
+has no standings but an import does, the import wins and the overview prints
+the mismatch. The Millionaire SQL reads lineups, ranks and points only; no
+entry names are selected anywhere.
+
+**Player identity.** Standings lineups carry display names only. Every join
+resolves a name to the contest slate's DraftKings player id by normalised name
+(the `scripts/o1_common.py` rule, `milly.resolve_slate`); a normalised name two
+slate players share is a collision and is dropped, never merged (the loader
+prints them). Fantasy Points rows join on normalised name and team. Lineups
+with a player that did not resolve are excluded from the construction
+summaries, with the count shown; an unresolved QB is "unknown", never "QB+0".
+Top-of-field views state the share they cover (e.g. "top 8,311 lineups =
+1.00% of 831,028"); a cut includes every entry tied at it.
 
 **Tables.** Create the dataset once (the operator; not applied yet):
 `python -c "from nfl_dfs.dashboard.data import render; print(render('ddl'))" | bq query --use_legacy_sql=false`.
-It adds `nfl_dashboard.pool_exposure` and `nfl_dashboard.arms_weekly`.
+It adds `nfl_dashboard.pool_exposure`, `nfl_dashboard.arms_weekly` and
+`nfl_dashboard.contest_lines`; readers take the newest publication per week
+(`published_utc`), and for arms the newest *scored* one.
 
 **Publisher** (laptop agent, after the Sunday window and on Monday):
 `python scripts/publish_dashboard_week.py --season 2026 --week N --snapshot`
@@ -275,8 +289,19 @@ copies an allow-listed set of files from the lab live run directory and
 copy), parses only the copy, and prints the rows. Add `--apply` to write them.
 It refuses to touch a week before its Sunday 15:30 CT window closes unless
 `--inputs <snapshot dir>` names an existing snapshot. It never reads
-`contests.json`, contest details, entry bundles, `private/` or env files.
-Unparseable files are skipped and listed.
+`contests.json`, entry bundles, `private/` or env files; it does snapshot
+DraftKings' public `contest-details*.json` payout ladders. Unparseable files
+are skipped and listed. Two book arms are published side by side and never
+substituted for each other: `book` (the lab run's pre-R4 union `book.csv`) and
+`played` (the per-contest upload files after R4/swap, label prefix
+`--played-label`, default `vetted`); `--exposure-book played|book` (default
+`played`) names the one `pool_exposure` describes, and a missing one is an
+error. Cash lines (`contest_lines`): paid places from the contest-details
+ladder, the cash line = the points at the last paid rank in the imported
+standings, NULL when either is missing; an upload arm's cash rate is against
+its own contest, the others against the Millionaire. It refuses to score
+before the week's Millionaire standings are imported (scored zeros would
+publish as results), and refuses `--apply --no-bq`.
 
 **Neo4j (the Milly graph).** Configure the service and the loader with
 `MILLY_NEO4J_URI`, `MILLY_NEO4J_USERNAME`, `MILLY_NEO4J_PASSWORD` and
@@ -284,7 +309,12 @@ optionally `MILLY_NEO4J_DATABASE` (Secret Manager ids `milly-neo4j-uri`,
 `-username`, `-password`, `-database`; the deploy script attaches the ones that
 exist). Load with `python scripts/load_milly_neo4j.py --season 2026 [--week N]`
 (a dry run; `--apply` writes). It loads the top `--top-n` lineups per week
-(default 1000, at most 1500) plus cash-line rows. Add `--include-fp` to also
+(default 1000, at most 1500) plus cash-line rows, prints the share of the
+field that is, and records it on the Contest node (`loaded_lineups`,
+`loaded_share`). Players are keyed by `dk_player_id` (stable across weeks on
+DraftKings and present for DSTs, unlike the gsis id), with the name as a
+property; `cypher/milly_schema.cypher` holds a uniqueness constraint for every
+merged label and key and is applied before the first batch. Add `--include-fp` to also
 load Fantasy Points' projection and ownership per player-week. Before writing,
 the loader counts the graph. It refuses if the load could pass 90% of the Aura
 Free limits (`FREE_TIER_NODES`/`FREE_TIER_RELS` in `dashboard/milly_graph.py`,
@@ -310,8 +340,46 @@ The build runs only the dashboard tests and pushes
 only the `nfl-dfs-app` service, by digest. It changes the command to
 `nfl-dfs` with args `dashboard` and sets `CODE_SHA`. Every other env var,
 secret and the IAP-only invoker policy are kept. It refuses before Sunday
-2026-10-04 15:30 CT unless `FORCE=1`. Afterwards it fails loudly if anything
-is public. **Rollback:** the script prints
+2026-10-04 15:30 CT unless `FORCE=1`, and refuses if the service is not
+IAP-protected (`run.googleapis.com/iap-enabled` must be `"true"`). After the
+update it runs `update-traffic --to-latest` (a rollback pins traffic to a
+revision) and fails loudly, printing the rollback, unless IAP is still on,
+nothing is bound to `allUsers`/`allAuthenticatedUsers`, and 100% of traffic is
+on the new revision (`scripts/dashboard_iam_check.py` prints what it found).
+
+**One-time grants before the first deploy (operator; not run).** The service
+runs as the default compute service account, which has no Secret Manager
+access. Create the four secrets, then let the service account read them:
+
+```bash
+PROJECT=nfl-predictions-503414
+SA=$(gcloud run services describe nfl-dfs-app --region us-central1 --project $PROJECT \
+       --format='value(spec.template.spec.serviceAccountName)')
+[ -n "$SA" ] || SA="$(gcloud projects describe $PROJECT --format='value(projectNumber)')-compute@developer.gserviceaccount.com"
+for s in milly-neo4j-uri milly-neo4j-username milly-neo4j-password milly-neo4j-database; do
+  # once per secret: printf %s "<value>" | gcloud secrets create $s --project $PROJECT --data-file=-
+  gcloud secrets add-iam-policy-binding $s --project $PROJECT \
+    --member "serviceAccount:$SA" --role roles/secretmanager.secretAccessor
+done
+```
+
+The stake-plan section reads `gs://nfl-predictions-503414-raw/week-inputs/<season>/wNN/contests.json`.
+Check whether the service account can already read it (it can if it holds a
+project-wide role such as Editor or Storage Object Viewer):
+
+```bash
+gcloud projects get-iam-policy $PROJECT --flatten='bindings[].members' \
+  --filter="bindings.members:serviceAccount:$SA" --format='value(bindings.role)'
+```
+
+If not, grant read on the week-inputs prefix only (an IAM condition; needs
+uniform bucket-level access on the bucket):
+
+```bash
+gcloud storage buckets add-iam-policy-binding gs://nfl-predictions-503414-raw \
+  --member "serviceAccount:$SA" --role roles/storage.objectViewer \
+  --condition='expression=resource.name.startsWith("projects/_/buckets/nfl-predictions-503414-raw/objects/week-inputs/"),title=dashboard-week-inputs-read'
+``` **Rollback:** the script prints
 `gcloud run services update-traffic nfl-dfs-app --region us-central1 --to-revisions <previous>=100`,
 which returns traffic to the old app's revision (command and image included).
 

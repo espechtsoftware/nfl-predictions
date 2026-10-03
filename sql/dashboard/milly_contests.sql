@@ -42,19 +42,25 @@ entries_week AS (
   QUALIFY ROW_NUMBER() OVER (PARTITION BY season, week
                              ORDER BY n_entries DESC, contest_id) = 1
 )
+-- When the lobby's contest has no imported standings but a Millionaire-named
+-- import exists for the week, the import wins (its contest_id is the one the
+-- standings carry); lobby_contest_id / standings_contest_id keep both so the
+-- callers can print the mismatch.
 SELECT
   COALESCE(f.season, e.season) AS season,
   COALESCE(f.week, e.week) AS week,
-  COALESCE(f.contest_id, e.contest_id) AS contest_id,
-  COALESCE(f.contest_name, e.contest_name) AS contest_name,
+  CASE WHEN nf.n_entries IS NOT NULL THEN f.contest_id
+       ELSE COALESCE(e.contest_id, f.contest_id) END AS contest_id,
+  CASE WHEN nf.n_entries IS NOT NULL THEN f.contest_name
+       ELSE COALESCE(e.contest_name, f.contest_name) END AS contest_name,
   f.draft_group_id,
   f.start_time,
   f.field_size,
-  n.n_entries
+  CASE WHEN nf.n_entries IS NOT NULL THEN nf.n_entries ELSE e.n_entries END AS n_entries,
+  f.contest_id AS lobby_contest_id,
+  e.contest_id AS standings_contest_id
 FROM fills_week f
 FULL OUTER JOIN entries_week e
   ON e.season = f.season AND e.week = f.week
-LEFT JOIN entries n
-  ON n.season = COALESCE(f.season, e.season)
- AND n.week = COALESCE(f.week, e.week)
- AND n.contest_id = COALESCE(f.contest_id, e.contest_id)
+LEFT JOIN entries nf
+  ON nf.season = f.season AND nf.week = f.week AND nf.contest_id = f.contest_id

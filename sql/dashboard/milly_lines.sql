@@ -12,7 +12,8 @@ e AS (
 ),
 r AS (
   SELECT *,
-         ROW_NUMBER() OVER (PARTITION BY contest_id ORDER BY points DESC, entry_id) AS pos,
+         -- RANK, not ROW_NUMBER: the line is the score at that rank, ties included.
+         RANK() OVER (PARTITION BY contest_id ORDER BY points DESC) AS pos,
          COUNT(*) OVER (PARTITION BY contest_id) AS n
   FROM e
 )

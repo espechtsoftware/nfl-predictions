@@ -32,6 +32,11 @@ from .teams import canon_team, display_team
 log = logging.getLogger(__name__)
 
 
+# The Millionaire week view loads max(1% of the field, 10 lineups) up to this
+# many lineups (Week 1 2026: 832k entries -> 8,320); the page states the share.
+TOP_CAP = 10_000
+
+
 class TTLCache:
     def __init__(self, ttl: float):
         self.ttl = ttl
@@ -138,7 +143,12 @@ def create_app(query: D.Query | None = None,
                      ("Main-slate lock (UTC)", lk.strftime("%a %H:%M") if lk else "–"),
                      ("Millionaire", f"{m.contest_id} · {int(m.field_size):,} max" if m is not None
                       and pd.notna(m.get("field_size")) else (str(m.contest_id) if m is not None else "not resolved"))]
-            return "<div class='grid'>" + "".join(
+            warn = ""
+            if m is not None and pd.notna(m.get("lobby_contest_id")) \
+                    and str(m.get("lobby_contest_id")) != str(m.contest_id):
+                warn = note(f"The lobby's Millionaire is {m.get('lobby_contest_id')} but the imported "
+                            f"standings are {m.contest_id}; the dashboard uses the standings.")
+            return warn + "<div class='grid'>" + "".join(
                 f"<div class='card stat'><div class='k'>{esc(k)}</div><div class='v'>{esc(v)}</div></div>"
                 for k, v in items) + "</div>"
 
@@ -251,7 +261,8 @@ def create_app(query: D.Query | None = None,
                 notes.append("Pool/book exposure not published for this week yet "
                              "(scripts/publish_dashboard_week.py).")
             else:
-                notes.append(f"Exposure from run {esc(exp.run_id.iloc[0])}.")
+                src = exp.book_source.iloc[0] if "book_source" in exp else "unlabelled"
+                notes.append(f"Exposure from run {esc(exp.run_id.iloc[0])}; 'In book' = {esc(src)}.")
             pct = fmt_num(1, pct=True)
             share = lambda v: pct(100 * float(v)) if v is not None and pd.notna(v) else pct(np.nan)  # noqa: E731
             tbl = table(b, [
@@ -436,7 +447,7 @@ def create_app(query: D.Query | None = None,
     @app.get("/arms", response_class=HTMLResponse)
     def arms_page(season: int | None = None, week: int | None = None, kinds: str = "core") -> str:
         season, week, sch = resolve(season, week)
-        core = ["pool", "book", "entered", "shadow", "cash_shadow", "paper"]
+        core = ["pool", "book", "played", "vetted", "shadow", "cash_shadow", "paper"]
 
         def build() -> str:
             arms = D.fetch_arms(q, season)
@@ -499,6 +510,15 @@ def create_app(query: D.Query | None = None,
                 arms = D.fetch_arms(q, season)
             except Exception:  # noqa: BLE001 -- the published table is optional
                 arms = pd.DataFrame()
+            try:
+                cl = D.fetch_contest_lines(q, season)
+            except Exception:  # noqa: BLE001 -- the published table is optional
+                cl = pd.DataFrame()
+            if not cl.empty:
+                pub_lines = cl.assign(contest_id=cl.contest_id.astype(str))[["contest_id", "cash_line"]]
+                lines = lines.assign(contest_id=lines.contest_id.astype(str)).merge(
+                    pub_lines.rename(columns={"cash_line": "published_cash"}), on="contest_id", how="left")
+                lines["cash_line"] = lines.cash_line.fillna(lines.published_cash)
             ovw = M.ours_vs_winner(lines, arms)
             top = D.fetch_milly_top(q, season, None, top_n=1, top_share=0.0)
             slate = D.fetch_milly_slate(q, season, None)
@@ -510,14 +530,15 @@ def create_app(query: D.Query | None = None,
                 ("top_01pct_line", "Top 0.1%", fmt_num(2)), ("top_1pct_line", "Top 1%", fmt_num(2)),
                 ("cash_line", "Cash line", fmt_num(2)), ("qb", "Winner QB", None, "l"),
                 ("stack_label", "Winner stack", None, "l"), ("salary", "Winner salary", fmt_num(0)),
-                ("dupes", "Winner dupes", fmt_num(0)), ("our_arm", "Our best arm", None, "l"),
-                ("our_best_points", "Our best", fmt_num(2)), ("our_best_rank", "Our rank", fmt_num(0)),
-                ("gap_to_winner", "Gap", fmt_num(2))])
+                ("dupes", "Winner dupes", fmt_num(0)),
+                ("our_best", "Our best", fmt_num(2)), ("our_rank", "Our rank", fmt_num(0)),
+                ("our_source", "From", None, "l"), ("gap", "Gap to winner", fmt_num(2)),
+                ("book_best", "Book best", fmt_num(2)), ("book_rank", "Book rank", fmt_num(0))])
 
         def week_view() -> str:
             if week is None:
                 return note("No week selected.")
-            top = D.fetch_milly_top(q, season, week, top_n=5000, top_share=0.01)
+            top = D.fetch_milly_top(q, season, week, top_n=TOP_CAP, top_share=0.01)
             if top.empty:
                 return note(f"Week {week}'s Millionaire standings are not imported yet.")
             slate = D.fetch_milly_slate(q, season, week)
@@ -529,15 +550,28 @@ def create_app(query: D.Query | None = None,
             if len(win):
                 w = win.iloc[0]
                 players = M.lineup_players(top, w.lineup_key)
+                shape = (esc(w.stack_label) if isinstance(w.stack_label, str)
+                         else f"stack unknown ({int(w.matched)} of 9 players resolved to the slate)")
+                sal = f"salary {w.salary:,.0f}" if pd.notna(w.salary) else "salary unknown"
+                own_s = f"ownership sum {w.own_sum:.0f}%" if pd.notna(w.own_sum) else "ownership unknown"
                 out += ("<div class='card'><b>Winning lineup</b> · "
-                        f"{w.points:.2f} pts · {esc(w.stack_label)} · salary {w.salary:,.0f} · "
-                        f"ownership sum {w.own_sum:.0f}% · {int(w.dupes or 1)} identical in the field"
+                        f"{w.points:.2f} pts · {shape} · {sal} · {own_s} · "
+                        f"{int(w.dupes or 1)} identical in the field"
                         "<div class='scroll'><table>" + "".join(
                             f"<tr><td class='l'>{esc(s)}</td><td class='l'>{esc(p)}</td></tr>"
                             for s, p in players) + "</table></div></div>")
-            if len(summ):
+            n_entries = int(pd.to_numeric(top.n_entries, errors="coerce").max())
+            shown = len(top)
+            share = (f"top {shown:,} lineups = {100 * shown / n_entries:.2f}% of {n_entries:,}"
+                     if n_entries else f"top {shown:,} lineups")
+            if len(summ) and int(summ.iloc[0].n) == 0:
+                out += (f"<h2>Top construction ({esc(share)})</h2>"
+                        + note(f"No lineup resolved fully to the slate ({int(summ.iloc[0].n_excluded)} "
+                               f"excluded): the week's Millionaire has no draft group / salary pull."))
+            elif len(summ):
                 s = summ.iloc[0]
-                out += (f"<h2>Top 1% construction ({int(s.n)} lineups)</h2><div class='grid'>" + "".join(
+                out += (f"<h2>Top construction ({esc(share)}; {int(s.n):,} fully resolved, "
+                        f"{int(s.n_excluded):,} excluded)</h2><div class='grid'>" + "".join(
                     f"<div class='card stat'><div class='k'>{esc(k)}</div><div class='v'>{v}</div></div>"
                     for k, v in (("QB + 2 or more", f"{100 * s.share_qb_stack2:.0f}%"),
                                  ("With a bring-back", f"{100 * s.share_bring_back:.0f}%"),
@@ -557,7 +591,9 @@ def create_app(query: D.Query | None = None,
             return out
 
         body = (header(f"Millionaire · {season}", "The main-slate Millionaire each week: lines, winners "
-                       "and how the top of the field was built (lineups and points only)")
+                       "and how the top of the field was built (lineups and points only). 'Played' = the "
+                       "upload files after R4/swap; 'Book' = the pre-R4 union book.csv. Cash line: "
+                       "standings payouts, else the published contest_lines (contest-details ladder)")
                 + week_picker(season, week, sch, "/milly")
                 + "<h2>Season</h2>" + guarded(season_view)
                 + f"<h2>Week {week}</h2>" + guarded(week_view))

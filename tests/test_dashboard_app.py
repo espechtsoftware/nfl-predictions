@@ -49,7 +49,8 @@ def fixtures() -> dict[str, pd.DataFrame]:
                           "mean_points": 150.0, "best_points": b, "best_rank": r, "cash_rate": None,
                           "source_file": "week/x", "source_sha256": "0" * 64,
                           "published_utc": "2026-10-12T09:00Z"}
-                         for a, k, n, b, r in (("vetted", "entered", 30, 210.0, 40), ("pool", "pool", 6000, 249.0, 2),
+                         for a, k, n, b, r in (("played", "played", 30, 210.0, 40), ("pool", "pool", 6000, 249.0, 2),
+                                               ("book", "book", 110, 215.0, 33),
                                                ("composite", "shadow", 30, 220.0, 25))])
     lines = pd.DataFrame([{"season": 2026, "week": 5, "contest_id": "c1", "contest_name": "Synthetic Milly",
                            "n_entries": 300, "winning_score": 250.0, "top_01pct_line": 250.0,
@@ -82,7 +83,8 @@ def fixtures() -> dict[str, pd.DataFrame]:
         "pool_exposure": pd.DataFrame([{"season": 2026, "week": 5, "run_id": "run-synthetic",
                                         "built_utc": "2026-10-10T15:35Z", "player": "qa", "dk_player_id": 1,
                                         "position": "QB", "team": "BUF", "pool_share": 0.4, "book_share": 0.6,
-                                        "n_pool": 40, "n_book": 18}]),
+                                        "n_pool": 40, "n_book": 18, "book_source": "played-synthetic",
+                                        "published_utc": "2026-10-12T09:00Z"}]),
         "offense_weekly": off, "defense_weekly": dpa, "arms_weekly": arms, "milly_lines": lines,
         "milly_top_lineups": top_rows(), "milly_slate": SLATE, "milly_field_ownership": OWN,
         "accuracy_ours": ours, "fp_projections_season": fp_season, "fp_ownership_season": fp_own_season,
@@ -156,13 +158,15 @@ def test_pages_show_synthetic_content():
     assert "nflverse" in games                                               # KC-LV fallback
     players = c.get("/players" + Q).text
     assert "qa" in players and "20.5" in players and "25.0%" in players and "60.0%" in players
+    assert "played-synthetic" in players
     assert "<svg" in c.get("/offense" + Q).text and "<svg" in c.get("/defense?season=2026&pos=WR").text
     arms = c.get("/arms" + Q).text
     assert "composite" in arms and "W5 best" in arms
     assert "Synthetic Satellite" in arms and "$61.00" in arms                # 3x20 + 4x0.25
     milly = c.get("/milly" + Q).text
-    assert "Winning lineup" in milly and "QB+2+2" in milly and "Top 1% construction" in milly
-    assert "vetted" in milly and "210.00" in milly                        # our best entered arm
+    assert "Winning lineup" in milly and "QB+2+2" in milly and "Top construction" in milly
+    assert "210.00" in milly and ">played<" in milly and "215.00" in milly  # played, book beside it
+    assert "3 lineups = 1.00% of 300" in milly and "3 fully resolved, 0 excluded" in milly
     ins = c.get("/insights" + Q).text
     assert "leverage that paid" in ins and "our book" in ins and "wa1" in ins
     assert "permission policy" in ins                                        # item 4 not built
@@ -221,3 +225,21 @@ def test_stake_rows():
     assert plan.stake.tolist() == [60.0, 1.0] and plan.keep.tolist() == [3, 2]
     assert stake_rows(None).empty
     assert object_name(2026, 5) == "week-inputs/2026/w05/contests.json"
+
+
+def test_milly_week_without_a_slate_says_so():
+    f = fixtures()
+    f["milly_slate"] = f["milly_slate"].iloc[0:0]
+    milly = client(Warehouse(f)).get("/milly" + Q).text
+    assert "stack unknown (0 of 9" in milly and "No lineup resolved fully" in milly
+    assert "QB+0" not in milly
+
+
+def test_contest_mismatch_and_published_cash_line_are_shown():
+    f = fixtures()
+    f["milly_contests"] = f["milly_contests"].assign(lobby_contest_id="c9", standings_contest_id="c1")
+    f["contest_lines"] = pd.DataFrame([{"season": 2026, "week": 5, "contest_id": "c1", "cash_line": 155.5,
+                                        "published_utc": "2026-10-12T09:00Z"}])
+    c = client(Warehouse(f))
+    assert "lobby&#x27;s Millionaire is c9" in c.get("/" + Q).text
+    assert "155.50" in c.get("/milly" + Q).text
