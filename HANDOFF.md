@@ -12,6 +12,34 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-03 (05:27 CDT) — THE AGENT ARMS WEEK 4 ITSELF TODAY (operator); the scripted sequence is ready and its check passed
+
+**Operator (10-03, verbatim):** "Can you plan to arm yourself without me having to do anything and only ask me if you
+cant". The laptop agent arms Week 4 today and asks the operator only when a step stops.
+
+**The sequence** (`~/.cache/laptop-agent/w4_arm_saturday.sh`, fail-stop; untracked because it is host-local; mirrors take-over doc §4
+Saturday steps 3-5 and 4a):
+0. Step 4a: the checkout must be clean and at or after `b5a4e622`. It fast-forwards only if just HANDOFF/reports moved
+   and refuses any code change.
+1. The inputs: `ownership_sets.csv`, then `ownership_lag.csv` and its gate (sum >= 280). A gate failure STOPS: tilt 0
+   is an operator decision.
+2. The Saturday LineStar capture (a refusal is non-fatal) and `ownership_lags.csv`.
+3. `chosen-dose.env` = 0/4800: it is written if absent, and the sequence STOPS if it holds other values.
+4. A time guard: it STOPS at or after 10:28, because the 10:30 Saturday D12800 would be in the past.
+5. `arm_week_timers.sh 4 --run` with the fp arm line (take-over doc step 5), then a check that exactly 10
+   `nfl-week4-*` timers exist and the checkout is still clean.
+
+`--check` at 05:27 CDT: step 4a OK (`e74b3bd7`, clean).
+
+**Timing:**
+- 09:32 props pre-check;
+- 09:47 the refresh (build-features -> tabpfn-gen -> project-slate), with the arm run immediately after it, in the
+  same session turn;
+- a backstop reminder at 10:14;
+- the 10:07 FP captures run when the session is free.
+
+**If it stops or the harness refuses `--run`:** the agent tells the operator at once, with the reason and the one
+command (machine: the laptop; before 10:30 today), and does not route around it.
 ## 2026-10-02 (18:33 CDT) — PRODUCTION CHECKOUT UPDATED to b5a4e622 (operator approved); arm dry run OK; one accidental build start, quarantined
 
 **Found in the readiness sweep:** `~/projects/nfl-predictions` (the checkout the arm runs from) was at `26a21f48`, 211
