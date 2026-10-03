@@ -12,6 +12,27 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-03 (08:01 CDT) — LINESTAR WILL NOT FILL BEFORE LOCK: its public feed caps projected ownership at 5 players per game
+
+Investigated at the operator's request ("Has more linestar data appeared", then "Yes" to looking into why). One read
+of the Week-4 period (410) at about 08:05 CT, two requests:
+- Every slate shows exactly 5 projected players per game: Main (12 games) 60; Early Only (8) 40; Afternoon (4) 20;
+  Primetime (2) 10; each showdown 5; Thu-Mon (16) 79.
+- `SalaryContainerJson` holds 80 rows; the main slate has 619 players.
+- Our only full capture (Week 3: 352 projected, 854 salary rows) was taken 09-30, after the week.
+So the 60 is a cap on the free feed, not a slow fill. The full pre-lock list presumably needs a LineStar login or paid
+tier (not verified).
+
+**Consequences:**
+- The Week-4 money path is unaffected: the term's source is Fantasy Points.
+- With no LineStar, FP's fallback is the lag file at 0.10 (smoked 10-02). The blend and TabPFN cannot run live while
+  this holds.
+- PREREG-O1's LINESTAR and BLEND_LS arms will have no pre-lock capture.
+
+The README Data deficiency log has a row.
+
+**For the operator:** does LineStar's paid tier expose the full pre-lock list, and is it worth it? The Saturday 08:23
+check and each Sunday union keep trying; nothing else changes.
 ## 2026-10-03 (05:27 CDT) — THE AGENT ARMS WEEK 4 ITSELF TODAY (operator); the scripted sequence is ready and its check passed
 
 **Operator (10-03, verbatim):** "Can you plan to arm yourself without me having to do anything and only ask me if you
