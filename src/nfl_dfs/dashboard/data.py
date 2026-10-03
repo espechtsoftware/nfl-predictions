@@ -465,8 +465,13 @@ def book_leverage(exposure: pd.DataFrame, field_own: pd.DataFrame) -> tuple[pd.D
 # ---------------------------------------------------------------- fetchers --
 # Each returns a DataFrame; callers wrap them in the app's TTL cache.
 
+SCHEDULE_COLUMNS = ["season", "week", "game_id", "gameday", "gametime", "weekday", "home_team",
+                    "away_team", "home_score", "away_score", "total_line", "spread_line"]
+
+
 def fetch_schedule(query: Query, season: int) -> pd.DataFrame:
-    return query(render("schedules_season", season=int(season)))
+    df = query(render("schedules_season", season=int(season)))
+    return df if not df.empty else pd.DataFrame(columns=SCHEDULE_COLUMNS)
 
 
 def fetch_milly_contests(query: Query, season: int) -> pd.DataFrame:

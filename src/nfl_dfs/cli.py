@@ -877,6 +877,10 @@ def main(argv: list[str] | None = None) -> None:
     p = sub.add_parser("serve", help="Run the FastAPI app")
     p.add_argument("--port", type=int, default=8080)
 
+    p = sub.add_parser("dashboard",
+                       help="Run the read-only dashboard v2 (nfl_dfs.dashboard)")
+    p.add_argument("--port", type=int, default=8080)
+
     args = parser.parse_args(argv)
 
     if args.command == "ingest-nflverse":
@@ -1441,6 +1445,11 @@ def main(argv: list[str] | None = None) -> None:
         import uvicorn
 
         uvicorn.run("nfl_dfs.app.main:app", host="0.0.0.0", port=args.port)
+    elif args.command == "dashboard":
+        import uvicorn
+
+        uvicorn.run("nfl_dfs.dashboard.app:create_app", factory=True,
+                    host="0.0.0.0", port=args.port)
 
 
 if __name__ == "__main__":
