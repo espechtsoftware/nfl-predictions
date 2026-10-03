@@ -12,6 +12,20 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-03 (08:03 CDT) — LINESTAR: post-lock capture for comparison only (operator decision)
+
+**Operator (10-03, verbatim):** "I would like to get the linestar free full data post lock for comparison purposes
+only. I dont plan to purchase it unless it is dramatically better than fantasy points".
+
+**Plan:**
+- Each Tuesday, capture LineStar's full free list after the week:
+  `linestar_ownership_capture.py --season 2026 --week W --out ~/weekW-sunday/linestar-postlock --label postlock`.
+  This is a private dir, never the live `linestar` dir the unions read, and never committed.
+- Week 4: Tuesday 10-06 08:17 CT (session reminder). If the free feed has not opened yet, retry Wednesday.
+- Compare it DESCRIPTIVELY to FP and LAG against the Millionaire's realized ownership, on O1's population.
+- Label: "retrieved after lock, not provably pre-lock". It is never an O1 arm; `score_o1.py` refuses a post-lock file,
+  correctly, and is not bypassed.
+- Purchase is raised only if LineStar is dramatically better than FP over several weeks. One week is noise.
 ## 2026-10-03 (08:01 CDT) — LINESTAR WILL NOT FILL BEFORE LOCK: its public feed caps projected ownership at 5 players per game
 
 Investigated at the operator's request ("Has more linestar data appeared", then "Yes" to looking into why). One read
