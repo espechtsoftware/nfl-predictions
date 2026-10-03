@@ -789,7 +789,7 @@ best recorded values on every tail metric (week began at 184.2 / 6-17).
 Exact A/B ledger this cycle (comparator 189.5/8-17 unless noted):
 | lever | result | verdict |
 |---|---|---|
-| refs + neutral pass rate | +0.1 mean, median 16.4->13.6 (vs delta base) | adopted |
+| refs + neutral pass rate | +0.1 mean, median 16.4->13.6 (vs delta base) | adopted — **UNDER AUDIT (O-22, 2026-10-03): `neutral_pass_rate_l6`'s training NULL encodes a week-W blowout** |
 | depth_rank_delta | -4.6 mean (proven by determinism) | removed |
 | team_ol_out | 180.8 / 4-17 (-8.7, -4 weeks) | removed same day |
 | DST_CORR_DRAWS (anti-corr DST draws) | 188.5 / 8-17 / 16.1% | null at first calibration; gate kept — refit magnitude from data in-season |
@@ -932,6 +932,8 @@ calibration, further features: refused with reasons on record. The
 fitting layer is sound as configured.
 
 ## Addendum 32 (2026-08-01): qb_cpoe_l6 — the first feature to pass, adopted
+
+> **UNDER AUDIT (O-22, 2026-10-03):** `qb_cpoe_l6` is joined by exact week from an event-only table (a QB has a row only if he threw about 15+ times that week), so its NULL encodes week-W information in training rows. If the six-season panel scored test weeks from training-table rows, this adoption's gain (tail weeks 18 -> 23) may come from an inactive/benched-QB oracle. The verdict stands provisionally until it is re-run on the fixed feature with a co-run control. See OPEN-DEFECTS O-22 and Addendum 121.
 
 Six-season panel, EXTRA_FEATURES=qb_cpoe_l6 vs the Addendum-30 baseline:
 tail weeks 18 -> 23 of 101 (+28% on the paying metric; up in 4 seasons,
