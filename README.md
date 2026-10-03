@@ -213,7 +213,7 @@ nfl-dfs --help                 # every subcommand
 nfl-dfs build-features --help  # flags for one subcommand
 ```
 
-There are 116 subcommands. They fall into families:
+There are 117 subcommands. They fall into families:
 
 | Family | Examples | What they do |
 |---|---|---|
@@ -225,11 +225,95 @@ There are 116 subcommands. They fall into families:
 | **Backtest** | `replay`, `replay-showdown` | Walk-forward replay over historical seasons |
 | **Diagnostics** | `*-diagnostic`, `*-audit`, `leaderboard-analysis`, `missed-player-analysis` | Read-only measurement; adopt nothing by themselves |
 | **Ops** | `check-freshness`, `backup-tables`, `check-odds-quota`, `trends` | Health, backups, quota, alerting |
-| **Serve** | `serve` | FastAPI app (slate views, lineups, market/defense pages, DK CSV export) |
+| **Serve** | `serve`, `dashboard` | `serve`: the original FastAPI app (slate views, lineups, market/defense pages, DK CSV export). `dashboard`: the read-only dashboard v2 (below) |
 
 Separate console scripts exist for operator-side vendor downloads:
 `fantasy-points-download`, `fantasy-points-matchups`,
 `fantasy-points-ownership`, `sis-download`, `nfl-weekly-data`.
+
+---
+
+## Dashboard v2
+
+A read-only replacement for the old app's pages (`src/nfl_dfs/dashboard/`,
+served by `nfl-dfs dashboard`; the old app and `nfl-dfs serve` are untouched).
+Server-rendered HTML with inline SVG charts, one page per section. Every query
+is a template in `sql/dashboard/` run through pure functions in
+`dashboard/data.py` that take a `query(sql) -> DataFrame` callable, so the
+tests run offline. Results are cached in-process for `DASHBOARD_CACHE_TTL`
+seconds (default 600). Every section renders an explanatory note when its
+table is missing, empty or failing.
+
+| Page | Shows | Sources |
+|---|---|---|
+| `/` | Week, main-slate lock, the week's Millionaire, freshness | `schedules`, `dk_contest_fills_nfl`, `contest_entries` |
+| `/games` | Total, home spread, implied team totals (total/2 ∓ spread/2), movement since the first pull within 7 days of kickoff, main-slate flag | newest pre-kickoff `odds_snapshots`; fallback `team_week_context`; main slate = teams on the Millionaire's draft group (`dk_salaries`) |
+| `/players` | Our projection vs Fantasy Points' projection and projected ownership, share of our pool and book | newest pre-lock `player_projections` batch, `fantasy_points_dfs_projections`, `fantasy_points_projected_ownership`, `nfl_dashboard.pool_exposure` |
+| `/offense` | Weekly rank time series (DK points, points, yards or plays), season / L3 / trend | `player_week_actuals`, `schedules`, `weekly_stats`, `pbp` |
+| `/defense` | The same for DK points allowed, all or one position | `defense_points_against` |
+| `/accuracy` | MAE by week and position (ours vs FP on the players both priced), FP ownership calibration against the Millionaire, our book's leverage | the above + Millionaire ownership counted from `contest_entries` |
+| `/arms` | Every arm and shadow per week and across the season: lineups, mean/best DK points, best rank in the Millionaire field, cash rate; the week's stake plan | `nfl_dashboard.arms_weekly`; `contests.json` read at request time from `gs://<bucket>/week-inputs/<season>/wNN/` |
+| `/milly` | Winning score, top-0.1%/1% lines, cash line (when payouts are imported), the winner's and the top 1%'s construction (QB+n, bring-back, salary, ownership sum, dupes), most-owned players, our best arm vs the winner | `contest_entries`, `contest_ownership`, `dk_salaries`, `arms_weekly` |
+| `/insights` | Winners vs FP's projected field, leverage that paid / chalk that busted, QB + pass-catcher stacks in the top 1%, where we and FP disagreed by 4+ points, our book vs the top 0.1% | `insight_*.sql` |
+| `/milly/graph` | Stack pairs, bring-backs and players in top-1% lineups across weeks; the same insight questions in Cypher | Neo4j (below) |
+
+The Millionaire for a week is resolved in `milly_contests.sql`: the largest
+"Fantasy Football Millionaire" in the lobby polls that is not a satellite,
+showdown, MEGA or split slate, dated by its Sunday start; falling back to the
+largest imported standings named like a Millionaire. The Millionaire SQL reads
+lineups, ranks and points only; no entry names are selected anywhere.
+
+**Tables.** Create the dataset once (the operator; not applied yet):
+`python -c "from nfl_dfs.dashboard.data import render; print(render('ddl'))" | bq query --use_legacy_sql=false`.
+It adds `nfl_dashboard.pool_exposure` and `nfl_dashboard.arms_weekly`.
+
+**Publisher** (laptop agent, after the Sunday window and on Monday):
+`python scripts/publish_dashboard_week.py --season 2026 --week N --snapshot`
+copies an allow-listed set of files from the lab live run directory and
+`~/weekN-sunday` into `~/.cache/laptop-agent/dashboard-snapshots/<season>-wNN/<utc>/`
+(temporary name, renamed when complete; aborted if a source changes during the
+copy), parses only the copy, and prints the rows. Add `--apply` to write them.
+It refuses to touch a week before its Sunday 15:30 CT window closes unless
+`--inputs <snapshot dir>` names an existing snapshot. It never reads
+`contests.json`, contest details, entry bundles, `private/` or env files.
+Unparseable files are skipped and listed.
+
+**Neo4j (the Milly graph).** Configure the service and the loader with
+`MILLY_NEO4J_URI`, `MILLY_NEO4J_USERNAME`, `MILLY_NEO4J_PASSWORD` and
+optionally `MILLY_NEO4J_DATABASE` (Secret Manager ids `milly-neo4j-uri`,
+`-username`, `-password`, `-database`; the deploy script attaches the ones that
+exist). Load with `python scripts/load_milly_neo4j.py --season 2026 [--week N]`
+(a dry run; `--apply` writes). It loads the top `--top-n` lineups per week
+(default 1000, at most 1500) plus cash-line rows. Add `--include-fp` to also
+load Fantasy Points' projection and ownership per player-week. Before writing,
+the loader counts the graph. It refuses if the load could pass 90% of the Aura
+Free limits (`FREE_TIER_NODES`/`FREE_TIER_RELS` in `dashboard/milly_graph.py`,
+200k/400k: check them against Neo4j's current terms), and it prints the counts
+afterwards. Saved queries: `cypher/milly_insights.cypher`. **Keep-alive:** Aura
+Free pauses an idle instance, so run `python scripts/neo4j_keepalive.py` daily
+(one read, exit 1 with a resume hint if the instance is paused). Planned as a
+laptop user timer, to be installed after Sunday 2026-10-04 and not installed
+yet:
+`systemd-run --user --on-calendar='*-*-* 07:00' --unit milly-neo4j-keepalive <venv>/bin/python <repo>/scripts/neo4j_keepalive.py`
+(with the `MILLY_NEO4J_*` variables in the unit's environment).
+
+**Build and deploy** (not run yet):
+
+```bash
+gcloud builds submit --project nfl-predictions-503414 --config cloudbuild.dashboard.yaml \
+  --substitutions _SHORT_SHA=$(git rev-parse --short HEAD),_CODE_SHA=$(git rev-parse HEAD)
+scripts/deploy_dashboard.sh dashboard-$(git rev-parse --short HEAD)
+```
+
+The build runs only the dashboard tests and pushes
+`nfl-dfs:dashboard-<short sha>`, never `:latest`. The deploy script updates
+only the `nfl-dfs-app` service, by digest. It changes the command to
+`nfl-dfs` with args `dashboard` and sets `CODE_SHA`. Every other env var,
+secret and the IAP-only invoker policy are kept. It refuses before Sunday
+2026-10-04 15:30 CT unless `FORCE=1`. Afterwards it fails loudly if anything
+is public. **Rollback:** the script prints
+`gcloud run services update-traffic nfl-dfs-app --region us-central1 --to-revisions <previous>=100`,
+which returns traffic to the old app's revision (command and image included).
 
 ---
 
