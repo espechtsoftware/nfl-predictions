@@ -1542,8 +1542,8 @@ Post-rebuild, post-QF-adoption build (CONTROL 18/107 on the new tables
 | CONTROL | 18 | 176.0 | 15.1 | — |
 | **SCHED** (net_rest_diff + body_clock_hour) | **24 (+6)** | 178.4 | 14.4 | **ADOPTED** |
 | **TABPFN** (TabPFN marginals) | **24 (+6)** | 178.4 | **14.7** | validated; combo pending |
-| XSCHED (XFP + SCHED) | 24 (+6) | 178.5 | 15.2 | = SCHED alone; XFP doesn't stack |
-| XFP | 20 (+2) | 179.4 | 14.8 | positive alone; stays candidate |
+| XSCHED (XFP + SCHED) | 24 (+6) | 178.5 | 15.2 | = SCHED alone; XFP doesn't stack — **XFP part VOID, Addendum 121** |
+| XFP | 20 (+2) | 179.4 | 14.8 | positive alone; stays candidate — **VOID: leaked feature, see Addendum 121 (2026-10-03)** |
 | QD2 (MAP-Elites archive) | 18 (0) | 175.7 | 14.8 | validated-neutral |
 | VACC (causal vacated capture) | 13 (−5) | 177.4 | 14.8 | REJECTED |
 | MPG3 | vacuous | — | — | cap 3 < mandatory stack shape; MPG4 running |
@@ -3780,3 +3780,26 @@ Milly ownership and use the immutable accepted K=1 Sunday-main snapshots.
 Only a preregistered held-out ownership-calibration pass can earn one fixed
 K=1 lineup arm; otherwise the path closes without querying lineup outcomes.
 Exact protocol: `reports/2026-08-09-milly-ownership-alternative.md`.
+
+## Addendum 121 (2026-10-03): CORRECTION — `xfp_l4` leaked week-W information in training; every XFP verdict is VOID
+
+Found by the B4 outcome-blind audit (`reports/2026-10-03-b4-audit-d1-overlap-map.md`) and CONFIRMED by the reviewer's
+code audit.
+- **The mechanism:**
+  - `sql/features/017j_xfp_schedule.sql` writes one `player_week_xfp` row per (player, week) ONLY when the player had
+    at least 1 target (with air yards) or 1 carry THAT week. `xfp_l4` is the mean of the previous four such rows,
+    so the value itself is prior-only.
+  - `021_player_week_training.sql` joins it by the EXACT week (`xf.week = u.week`). A training row therefore has a
+    non-NULL `xfp_l4` only if the player got an opportunity in the very game being predicted. NULL encodes "zero
+    targets or carries in week W", which is post-game information a tree model learns.
+- **Train and serve differ:** `023_player_week_inference.sql` takes the latest row instead, so live NULL means "no
+  prior opportunity" and live values are one game stale (W3/W4: 211/222 and 267/281 values differ).
+- **Consequence:** the XFP arm ("positive alone; stays candidate", the August candidate panel) and the XFP component
+  of XSCHED measured a leaked feature. Those verdicts are **VOID until re-run on a fixed feature**. SCHED's adoption
+  is unaffected (SCHED alone = XSCHED).
+- **Production:** none. `xfp_l4` is in `CANDIDATE_FEATURES` only, and no live job sets `EXTRA_FEATURES`.
+- **Fix design** (reviewer): build xfp on a player-week spine (xfp = 0 for active zero-opportunity weeks), with
+  windows over weeks ending `1 PRECEDING`. Live uses the same window ending at the latest played week. Add `xfp_l4`
+  to the leakage suite with `require_null_parity=True`. Sweep the other exact-week joins for the same class. The
+  register entry is OPEN-DEFECTS O-21.
+
