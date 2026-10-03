@@ -12,6 +12,32 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-03 (12:56 CDT) — DASHBOARD V2 CLEARED by the reviewer (bb57be4e); deploy Sunday after 15:30
+
+**Branch:** `production/dashboard-v2-20261003`, `8c82389e..bb57be4e`. The reviewer's two passes found 14 items (5
+deploy/graph, 9 correctness), all fixed with tests. Test results: data 45, milly 8, graph 15, publisher 16, app 28,
+deploy 15, all passed.
+- "played" = the bundle `$OUT/ENTER` resolves to after R4/swap. "book" = the pre-R4 union `book.csv`. No fallback
+  between them.
+
+**Deploy:** Sunday 10-04 15:47 CT (session reminder), via `cloudbuild.dashboard.yaml` then
+`scripts/deploy_dashboard.sh`.
+- It updates only `nfl-dfs-app` (command `nfl-dfs dashboard`), keeps IAP, moves traffic to the latest revision and
+  runs the IAM/IAP check.
+- Rollback: `gcloud run services update-traffic nfl-dfs-app --to-revisions <previous>=100`.
+
+**Reviewer's conditions for the first real runs:**
+1. Deploy before any table write; every page must show "not published / not imported", not zeros.
+2. Monday: the first publisher run on the Week-4 snapshot is a DRY RUN, and its printout goes to the reviewer before
+   `--apply`.
+3. Neo4j: the first load is Week 4 only, with before/after counts and the share-of-limit line sent to the reviewer
+   before W1–W3.
+4. User names stay out until the operator approves them directly (the builder's permission system refused them when
+   the approval came relayed).
+
+**Operator to-dos (not urgent):**
+- Create the Aura Free instance and save its credentials to `~/.config/neo4j-aura-milly.txt`.
+- Run the README's secretAccessor / bucket-read grants at deploy time.
 ## 2026-10-03 (12:19 CDT) — Dashboard v2: licensed data and the stake plan used liberally (operator)
 
 **Operator (10-03):** "Im not concerned about raw unlicensed data. This is for my own use so lets use it liberally."
