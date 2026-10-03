@@ -12,6 +12,15 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-03 (12:19 CDT) — Dashboard v2: licensed data and the stake plan used liberally (operator)
+
+**Operator (10-03):** "Im not concerned about raw unlicensed data. This is for my own use so lets use it liberally."
+(Read as licensed data, and confirmed in the reply.)
+- FP and SIS data, raw or derived, may be used in BigQuery, on the IAP dashboard and in his private Aura graph.
+- The stake plan may be shown on the IAP dashboard, read at runtime from its private location.
+- Still: no data of any kind in tracked files, fixtures, tests or commits (the public repo would be republication);
+  Aura credentials only in Secret Manager; the reviewer's constraints 1 (IAP) and 4 (publisher guard).
+- The builder and the reviewer were told.
 ## 2026-10-03 (11:58 CDT) — Dashboard v2: DraftKings user names KEPT in BigQuery, Neo4j and the dashboard (operator)
 
 **Operator (10-03):** "Why no user names? I think thatd be handy". Asked where to keep them, he chose **"Everywhere,
