@@ -128,8 +128,8 @@ def main():
             if os.environ.get("UNION_MAIN", "mean") not in ("mean", "pmo_x50"):
                 fail(f"UNION_MAIN={os.environ.get('UNION_MAIN')!r} must be mean or pmo_x50")
             dose = os.environ.get("UNION_SAT_DOSE", "2560/10240")
-            if not re.fullmatch(r"\d+/\d+", dose):
-                fail(f"UNION_SAT_DOSE={dose!r} must be lev/boom")
+            if not re.fullmatch(r"\d+/\d+(,\d+/\d+)*", dose):     # an ordered list since 10-01 (week_env; cracks audit B)
+                fail(f"UNION_SAT_DOSE={dose!r} must be lev/boom[,lev/boom...]")
         if os.environ.get("CLASS_SLEEVE_EVERY", "0") not in ("", "0"):
             wanted += ["--class-sleeve-every", "--class-model"]
             cm = os.environ.get("CLASS_MODEL", "")
