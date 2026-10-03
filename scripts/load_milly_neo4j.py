@@ -1,0 +1,85 @@
+#!/usr/bin/env python3
+"""Load the season's Millionaire lineups into the Milly Neo4j graph.
+
+    python scripts/load_milly_neo4j.py --season 2026            # dry run: counts only
+    python scripts/load_milly_neo4j.py --season 2026 --week 4 --apply
+
+Reads BigQuery (read-only): the resolved Millionaire per week, its lines,
+the top --top-n lineups (plus up to --cash-rows entries on the cash line
+when payouts are known), the draft group's salaries and the schedule.
+Writes only with --apply, and only to the graph named by MILLY_NEO4J_URI /
+MILLY_NEO4J_USERNAME / MILLY_NEO4J_PASSWORD / MILLY_NEO4J_DATABASE. Every
+write is a MERGE, so reloading a week is idempotent. Fantasy Points
+projection/ownership is loaded only with --include-fp (opt-in).
+"""
+from __future__ import annotations
+
+import argparse
+import sys
+
+from nfl_dfs.dashboard import data
+from nfl_dfs.dashboard import milly_graph as mg
+
+
+def main(argv=None) -> int:
+    ap = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
+    ap.add_argument("--season", type=int, required=True)
+    ap.add_argument("--week", type=int, action="append", help="repeatable; default every week")
+    ap.add_argument("--top-n", type=int, default=1000)
+    ap.add_argument("--cash-rows", type=int, default=50)
+    ap.add_argument("--include-fp", action="store_true",
+                    help="also load Fantasy Points pre-lock projection/ownership per player-week "
+                         "(licensed data to the hosted graph; opt-in)")
+    ap.add_argument("--apply", action="store_true", help="write to Neo4j (default: dry run)")
+    a = ap.parse_args(argv)
+
+    from nfl_dfs.bq import query_df
+
+    contests = data.fetch_milly_contests(query_df, a.season)
+    if a.week:
+        contests = contests[contests.week.isin(a.week)]
+    if contests.empty:
+        print("no Millionaire contests resolved for that selection")
+        return 1
+    lines = data.fetch_milly_lines(query_df, a.season)
+    games = data.fetch_schedule(query_df, a.season)
+    weeks = sorted(int(w) for w in contests.week)
+    tops, slates, owns = [], [], []
+    import pandas as pd
+
+    for w in weeks:
+        tops.append(data.fetch_milly_top(query_df, a.season, w, top_n=a.top_n, top_share=1.0,
+                                         cash_rows=a.cash_rows))
+        slates.append(data.fetch_milly_slate(query_df, a.season, w))
+        owns.append(data.fetch_field_ownership(query_df, a.season, w))
+    top = pd.concat(tops, ignore_index=True)
+    slate = pd.concat(slates, ignore_index=True)
+    own = pd.concat(owns, ignore_index=True)
+    batches = mg.build_graph_batches(contests, lines, top, slate, games, own)
+    fp_rows = None
+    if a.include_fp:
+        fp_proj = query_df(data.render("fp_projections_season", season=a.season))
+        fp_own = query_df(data.render("fp_ownership_season", season=a.season))
+        fp_rows = mg.fp_batch(batches["players"], fp_proj, fp_own, a.season)
+        print(f"{'fp_projected':14s} {len(fp_rows):7d} rows (opt-in)")
+    for name, rows in batches.items():
+        print(f"{name:14s} {len(rows):7d} rows")
+    if not a.apply:
+        print("dry run: nothing written (pass --apply)")
+        return 0
+    cfg = mg.GraphConfig.from_env()
+    if cfg is None:
+        print(f"REFUSED: set {mg.URI_ENV}, {mg.USERNAME_ENV}, {mg.PASSWORD_ENV} "
+              f"(and optionally {mg.DATABASE_ENV})", file=sys.stderr)
+        return 3
+    driver = mg.connect(cfg)
+    try:
+        sent = mg.apply_batches(driver, cfg.database, batches, fp_rows=fp_rows)
+    finally:
+        driver.close()
+    print(f"loaded: {sent}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
