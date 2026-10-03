@@ -12,6 +12,14 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-03 (08:23 CDT) — Saturday LineStar fill check: still 60 (the free feed's 5-per-game cap); no Saturday LineStar capture
+
+`linestar_ownership_capture.py --week 4` into scratch: "only 60 players carry a projected ownership (need >= 100)".
+This is the free feed's cap (entry 08:0x), so no Saturday capture goes into `~/week4-sunday/linestar`.
+- The Saturday lags and the lag file + gate run in the arm sequence after the refresh (they do not need LineStar).
+- **Sunday with `UNION_MAIN_OWN_PREDICTOR=fp`:** the term uses Fantasy Points, rescaled to the lag file's skill total
+  (no blend exists). If FP refuses, the fallback is TabPFN (needs LineStar: refuses), then the blend (refuses), then
+  the lag file at 0.10, loudly. That path was smoked 10-02.
 ## 2026-10-03 (08:05 CDT) — LINESTAR REVISION CHECK set up (reviewer): do post-lock values equal the pre-lock ones?
 
 **Why it matters (reviewer):** every LineStar input in our evidence came from post-week payloads: the 2023–24 backfill
