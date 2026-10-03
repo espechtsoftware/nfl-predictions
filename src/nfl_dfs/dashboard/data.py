@@ -415,8 +415,22 @@ def ownership_calibration(pred: pd.DataFrame, real: pd.DataFrame,
     projected vs realized, per-week n/Spearman/MAE/undrafted)."""
     if pred.empty or real.empty:
         return pd.DataFrame(), pd.DataFrame()
-    p = pred.assign(key=pred.name.map(norm_name)).groupby(["week", "key"], as_index=False).own.max()
-    r = real.assign(key=real.display_name.map(norm_name)).groupby(["week", "key"], as_index=False).own.max()
+    # Join on normalised name AND team when the realized rows carry the
+    # slate-resolved team (milly_field_ownership.sql); a name that collides
+    # within a side is dropped, never merged.
+    with_team = "team" in real and "team" in pred and real.team.notna().any()
+
+    def keyed(df: pd.DataFrame, name: str) -> pd.DataFrame:
+        k = df[name].map(norm_name)
+        if with_team:
+            k = k + ":" + df.team.map(lambda t: canon_team(t) or "")
+            df = df[df.team.notna()]
+            k = k.loc[df.index]
+        out = df.assign(key=k)
+        n = out.groupby(["week", "key"]).key.transform("size")
+        return out[n == 1][["week", "key", "own"]]
+
+    p, r = keyed(pred, "name"), keyed(real, "display_name")
     j = p.merge(r, on=["week", "key"], suffixes=("_pred", "_real"))
     undrafted = p.merge(r[["week", "key"]], on=["week", "key"], how="left", indicator=True)
     und = undrafted[undrafted._merge == "left_only"].groupby("week").size()
@@ -441,11 +455,21 @@ def book_leverage(exposure: pd.DataFrame, field_own: pd.DataFrame) -> tuple[pd.D
     1 = disjoint), as in scripts/book_vs_field_scoreboard.information_lines."""
     if exposure.empty or field_own.empty:
         return pd.DataFrame(), {}
-    e = exposure.assign(key=exposure.player.map(norm_name))
+    # Join on the DraftKings player id when the field rows carry the
+    # slate-resolved id; otherwise on normalised name (the rows of one
+    # contest's standings, where names are the identity DraftKings prints).
+    by_id = ("dk_player_id" in field_own and "dk_player_id" in exposure
+             and field_own.dk_player_id.notna().any())
+    if by_id:
+        e = exposure.assign(key=_num(exposure.dk_player_id).astype("Int64").astype("string"))
+        f = field_own.dropna(subset=["dk_player_id"])
+        f = f.assign(key=_num(f.dk_player_id).astype("Int64").astype("string"))
+    else:
+        e = exposure.assign(key=exposure.player.map(norm_name))
+        f = field_own.assign(key=field_own.display_name.map(norm_name))
     e = e.groupby("key", as_index=False).agg(player=("player", "first"),
                                              position=("position", "first"),
                                              book_share=("book_share", "max"))
-    f = field_own.assign(key=field_own.display_name.map(norm_name))
     f = f.groupby("key", as_index=False).agg(field_own=("own", "max"), fpts=("fpts", "max"),
                                              display_name=("display_name", "first"))
     j = e.merge(f, on="key", how="outer")
@@ -518,6 +542,10 @@ def fetch_arms(query: Query, season: int) -> pd.DataFrame:
     return query(render("arms_weekly", season=int(season)))
 
 
+def fetch_contest_lines(query: Query, season: int) -> pd.DataFrame:
+    return query(render("contest_lines", season=int(season)))
+
+
 def fetch_offense(query: Query, season: int) -> pd.DataFrame:
     return query(render("offense_weekly", season=int(season)))
 
@@ -548,7 +576,8 @@ def fetch_milly_slate(query: Query, season: int, week: int | None) -> pd.DataFra
 
 
 def fetch_field_ownership(query: Query, season: int, week: int | None) -> pd.DataFrame:
-    return query(render("milly_field_ownership", season=int(season), week_filter=_week_filter(week)))
+    return query(render("milly_field_ownership", season=int(season), week_filter=_week_filter(week),
+                        week_filter_m=_week_filter(week, "m")))
 
 
 def fetch_freshness(query: Query, season: int) -> pd.DataFrame:

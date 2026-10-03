@@ -10,11 +10,11 @@ ${inc:fp_latest},
 ${inc:field_ranked},
 tops AS (SELECT contest_id, COUNT(DISTINCT entry_id) AS n_top1 FROM slots WHERE top1 GROUP BY 1),
 own AS (
-  SELECT s.week, s.contest_id, s.player,
+  SELECT s.week, s.contest_id, s.player, s.k, s.team,
          100.0 * COUNT(DISTINCT s.entry_id) / ANY_VALUE(s.n) AS realized,
          100.0 * COUNT(DISTINCT IF(s.top1, s.entry_id, NULL)) / ANY_VALUE(t.n_top1) AS top1_rate
   FROM slots s JOIN tops t USING (contest_id)
-  GROUP BY 1, 2, 3
+  GROUP BY 1, 2, 3, 4, 5
 ),
 pts AS (
   SELECT contest_id, display_name, MAX(fpts) AS fpts
@@ -23,7 +23,7 @@ pts AS (
 j AS (
   SELECT own.week, own.player, fpo.fp_own, own.realized, own.top1_rate, pts.fpts
   FROM own
-  JOIN fpo ON fpo.week = own.week AND fpo.k = norm(own.player)
+  JOIN fpo ON fpo.week = own.week AND fpo.k = own.k AND fpo.team = own.team
   LEFT JOIN pts ON pts.contest_id = own.contest_id AND pts.display_name = own.player
 )
 SELECT *,

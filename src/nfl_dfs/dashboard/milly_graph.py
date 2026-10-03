@@ -8,7 +8,7 @@ A separate, small analytical graph -- not the corpus-retrieval graph:
              top_01pct_line, cash_line})-[:IN_WEEK]->(:Week)
   (:Game {game_id, season, week, home, away})-[:IN_WEEK]->(:Week)
   (:Team {code})-[:IN_GAME]->(:Game)
-  (:Player {name, position})-[:PLAYS_FOR {season, weeks}]->(:Team)
+  (:Player {dk_player_id, name, position, team})-[:PLAYS_FOR {season, weeks}]->(:Team)
   (:Lineup {key, rank, points, dupes, stack_label, stack, bring_back,
             salary, own_sum, top_1pct, at_cash_line})-[:ENTERED_IN]->(:Contest)
   (:Lineup)-[:CONTAINS {slot}]->(:Player)
@@ -17,8 +17,16 @@ A separate, small analytical graph -- not the corpus-retrieval graph:
       same-game pairs inside the loaded lineups (kind teammate|opponent),
       counted per week; the pair is stored once (names in sorted order).
 
-Every write is a MERGE keyed on the node identity, so a reload is
-idempotent. What is loaded comes from DraftKings standings and salaries
+Player identity is the DraftKings player id (``dk_player_id``): stable
+across weeks on DraftKings and present for DSTs, which have no gsis id. The
+name is a property. Standings lineups carry names only; each is resolved to
+the contest slate's id by normalised name (milly.resolve_slate, the
+scripts/o1_common.py rule), and a name two slate players share is a collision:
+counted, printed by the loader, and never merged (its slots are not loaded).
+
+Every write is a MERGE keyed on the node identity, backed by a uniqueness
+constraint per merged label (cypher/milly_schema.cypher, applied before the
+first batch), so a reload is idempotent. What is loaded comes from DraftKings standings and salaries
 only, unless the loader is run with --include-fp (opt-in, operator decision
 2026-10-03), which adds (:Player)-[:FP_PROJECTED {fp_proj, fp_own}]->(:Week).
 The lineup key is a SHA-256 of contest and entry id (no entry names).
@@ -36,8 +44,11 @@ from typing import Any, Mapping
 import numpy as np
 import pandas as pd
 
-from .milly import explode_lineups, lineup_construction, opponent_map
-from .teams import canon_team
+from pathlib import Path
+
+from .milly import (explode_lineups, lineup_construction, opponent_map, resolve_names,
+                    slate_collisions)
+from .teams import canon_team, norm_name
 
 URI_ENV = "MILLY_NEO4J_URI"
 USERNAME_ENV = "MILLY_NEO4J_USERNAME"
@@ -74,14 +85,28 @@ def connect(cfg: GraphConfig):
     return GraphDatabase.driver(cfg.uri, auth=(cfg.username, cfg.password))
 
 
-SCHEMA = (
-    "CREATE CONSTRAINT milly_week IF NOT EXISTS FOR (n:Week) REQUIRE n.key IS UNIQUE",
-    "CREATE CONSTRAINT milly_contest IF NOT EXISTS FOR (n:Contest) REQUIRE n.contest_id IS UNIQUE",
-    "CREATE CONSTRAINT milly_game IF NOT EXISTS FOR (n:Game) REQUIRE n.game_id IS UNIQUE",
-    "CREATE CONSTRAINT milly_team IF NOT EXISTS FOR (n:Team) REQUIRE n.code IS UNIQUE",
-    "CREATE CONSTRAINT milly_player IF NOT EXISTS FOR (n:Player) REQUIRE n.name IS UNIQUE",
-    "CREATE CONSTRAINT milly_lineup IF NOT EXISTS FOR (n:Lineup) REQUIRE n.key IS UNIQUE",
-)
+def _schema_path() -> Path:
+    for c in (Path(__file__).resolve().parents[3] / "cypher" / "milly_schema.cypher",
+              Path.cwd() / "cypher" / "milly_schema.cypher"):
+        if c.is_file():
+            return c
+    return Path(__file__).resolve().parents[3] / "cypher" / "milly_schema.cypher"
+
+
+def load_schema(path: Path | None = None) -> tuple[str, ...]:
+    """The uniqueness constraints in cypher/milly_schema.cypher, one per
+    merged label and key (comments stripped, split on ';')."""
+    text = (path or _schema_path()).read_text()
+    body = "\n".join(line for line in text.splitlines() if not line.strip().startswith("//"))
+    return tuple(" ".join(st.split()) for st in body.split(";") if st.strip())
+
+
+# Every label a statement MERGEs, with its identity property.
+MERGED_KEYS = {"Week": "key", "Contest": "contest_id", "Game": "game_id", "Team": "code",
+               "Player": "dk_player_id", "Lineup": "key"}
+
+# Loaded on use, not at import: the app image does not carry cypher/, and only
+# the loader (run from a checkout) applies the schema.
 
 # Order matters: nodes before the relationships that MATCH them.
 STATEMENTS: dict[str, str] = {
@@ -93,7 +118,8 @@ UNWIND $rows AS row
 MERGE (c:Contest {contest_id: row.contest_id})
 SET c.name = row.name, c.n_entries = row.n_entries, c.winning_score = row.winning_score,
     c.top_1pct_line = row.top_1pct_line, c.top_01pct_line = row.top_01pct_line,
-    c.cash_line = row.cash_line
+    c.cash_line = row.cash_line, c.loaded_lineups = row.loaded_lineups,
+    c.loaded_share = row.loaded_share
 WITH c, row MATCH (w:Week {key: row.week_key}) MERGE (c)-[:IN_WEEK]->(w)""",
     "games": """
 UNWIND $rows AS row
@@ -105,10 +131,11 @@ MERGE (h:Team {code: row.home}) MERGE (h)-[:IN_GAME]->(g)
 MERGE (a:Team {code: row.away}) MERGE (a)-[:IN_GAME]->(g)""",
     "players": """
 UNWIND $rows AS row
-MERGE (p:Player {name: row.name}) SET p.position = row.position""",
+MERGE (p:Player {dk_player_id: row.dk_player_id})
+SET p.name = row.name, p.position = row.position, p.team = row.team""",
     "plays_for": """
 UNWIND $rows AS row
-MATCH (p:Player {name: row.name})
+MATCH (p:Player {dk_player_id: row.dk_player_id})
 MERGE (t:Team {code: row.team})
 MERGE (p)-[r:PLAYS_FOR {season: row.season}]->(t)
 ON CREATE SET r.weeks = [row.week]
@@ -123,16 +150,16 @@ SET l.rank = row.rank, l.points = row.points, l.dupes = row.dupes,
 WITH l, row MATCH (c:Contest {contest_id: row.contest_id}) MERGE (l)-[:ENTERED_IN]->(c)""",
     "contains": """
 UNWIND $rows AS row
-MATCH (l:Lineup {key: row.lineup_key}) MATCH (p:Player {name: row.player})
+MATCH (l:Lineup {key: row.lineup_key}) MATCH (p:Player {dk_player_id: row.dk_player_id})
 MERGE (l)-[r:CONTAINS {slot: row.slot}]->(p)""",
     "owned_in": """
 UNWIND $rows AS row
-MATCH (p:Player {name: row.name}) MATCH (c:Contest {contest_id: row.contest_id})
+MATCH (p:Player {dk_player_id: row.dk_player_id}) MATCH (c:Contest {contest_id: row.contest_id})
 MERGE (p)-[r:OWNED_IN]->(c)
 SET r.own = row.own, r.fpts = row.fpts""",
     "stacked_with": """
 UNWIND $rows AS row
-MATCH (a:Player {name: row.a}) MATCH (b:Player {name: row.b})
+MATCH (a:Player {dk_player_id: row.a}) MATCH (b:Player {dk_player_id: row.b})
 MERGE (a)-[r:STACKED_WITH {week_key: row.week_key, contest_id: row.contest_id}]->(b)
 SET r.kind = row.kind, r.count = row.count, r.top_1pct_count = row.top_1pct_count""",
 }
@@ -174,11 +201,14 @@ def build_graph_batches(contests: pd.DataFrame, lines: pd.DataFrame, top: pd.Dat
     for col in ("winning_score", "top_1pct_line", "top_01pct_line", "cash_line"):
         if col not in c:
             c[col] = np.nan
+    share = loaded_share(top)
     out["contests"] = _records(pd.DataFrame({
         "contest_id": c.contest_id.astype(str), "name": c.contest_name,
         "n_entries": c.n_entries, "winning_score": c.winning_score,
         "top_1pct_line": c.top_1pct_line, "top_01pct_line": c.top_01pct_line,
-        "cash_line": c.cash_line, "week_key": [wk(s, w) for s, w in zip(c.season, c.week)]}))
+        "cash_line": c.cash_line, "week_key": [wk(s, w) for s, w in zip(c.season, c.week)],
+        "loaded_lineups": [share.get(str(x), (0, None))[0] for x in c.contest_id],
+        "loaded_share": [share.get(str(x), (0, None))[1] for x in c.contest_id]}))
 
     wanted = set(map(int, seasons_weeks.week))
     g = games[games.week.isin(wanted)] if not games.empty else games
@@ -189,19 +219,21 @@ def build_graph_batches(contests: pd.DataFrame, lines: pd.DataFrame, top: pd.Dat
         return out
 
     cons = lineup_construction(top, slate, games, own)
-    long = explode_lineups(top)
-    sl = slate.copy()
-    sl["team_c"] = sl.team.map(canon_team)
-    sl = sl.drop_duplicates(["contest_id", "display_name"])
-    long = long.merge(sl[["contest_id", "display_name", "team_c", "position"]]
-                      .rename(columns={"display_name": "player"}),
-                      on=["contest_id", "player"], how="left")
-    pos = long.position.fillna(long.slot.where(long.slot != "FLEX"))
-    players = (pd.DataFrame({"name": long.player, "position": pos})
-               .sort_values("position", na_position="last").drop_duplicates("name"))
-    out["players"] = _records(players)
-    pf = long.dropna(subset=["team_c"])[["player", "team_c", "season", "week"]].drop_duplicates()
-    out["plays_for"] = [{"name": r.player, "team": r.team_c, "season": int(r.season),
+    # Resolve every slot to the slate's DraftKings id; collisions and unknown
+    # names stay unresolved and are not loaded (resolution_report counts them).
+    long = resolve_names(explode_lineups(top), slate)
+    long = long.dropna(subset=["dk_player_id"]).copy()
+    long["dk_player_id"] = pd.to_numeric(long.dk_player_id).astype(int)
+    names = slate.assign(dk_player_id=pd.to_numeric(slate.get("dk_player_id"), errors="coerce"))
+    names = names.dropna(subset=["dk_player_id"]).drop_duplicates("dk_player_id").set_index(
+        "dk_player_id").display_name.to_dict()
+    players = (long.sort_values("position", na_position="last")
+               .drop_duplicates("dk_player_id")[["dk_player_id", "position", "team_c"]])
+    out["players"] = [{"dk_player_id": int(r.dk_player_id), "name": names.get(r.dk_player_id),
+                       "position": _clean(r.position), "team": _clean(r.team_c)}
+                      for r in players.itertuples(index=False)]
+    pf = long.dropna(subset=["team_c"])[["dk_player_id", "team_c", "season", "week"]].drop_duplicates()
+    out["plays_for"] = [{"dk_player_id": int(r.dk_player_id), "team": r.team_c, "season": int(r.season),
                          "week": int(r.week)} for r in pf.itertuples(index=False)]
 
     n_by_contest = top.groupby("contest_id").n_entries.max().to_dict()
@@ -217,12 +249,14 @@ def build_graph_batches(contests: pd.DataFrame, lines: pd.DataFrame, top: pd.Dat
                       "at_cash_line": bool(cash.get(r.lineup_key, False)),
                       "week_key": wk(r.season, r.week)})
     out["lineups"] = [{k: _clean(v) for k, v in d.items()} for d in lrows]
-    out["contains"] = [{"lineup_key": r.lineup_key, "player": r.player, "slot": r.slot}
+    out["contains"] = [{"lineup_key": r.lineup_key, "dk_player_id": int(r.dk_player_id), "slot": r.slot}
                        for r in long.itertuples(index=False)]
     if own is not None and not own.empty:
-        known = set(players.name)
-        o = own[own.display_name.isin(known)]
-        out["owned_in"] = [{"name": r.display_name, "contest_id": str(r.contest_id),
+        known = {d["dk_player_id"] for d in out["players"]}
+        o = resolve_names(own.drop(columns=[c for c in ("dk_player_id", "team") if c in own]),
+                          slate, name_col="display_name").dropna(subset=["dk_player_id"])
+        o = o[pd.to_numeric(o.dk_player_id).astype(int).isin(known)]
+        out["owned_in"] = [{"dk_player_id": int(r.dk_player_id), "contest_id": str(r.contest_id),
                             "own": _clean(r.own), "fpts": _clean(getattr(r, "fpts", None))}
                            for r in o.itertuples(index=False)]
 
@@ -231,7 +265,7 @@ def build_graph_batches(contests: pd.DataFrame, lines: pd.DataFrame, top: pd.Dat
     pairs: dict[tuple, list[int]] = {}
     for key, gl in long.groupby("lineup_key", sort=False):
         f = gl.iloc[0]
-        members = [(p, t) for p, t in zip(gl.player, gl.team_c) if isinstance(t, str)]
+        members = [(int(p), t) for p, t in zip(gl.dk_player_id, gl.team_c) if isinstance(t, str)]
         for (p1, t1), (p2, t2) in combinations(sorted(set(members)), 2):
             if t1 == t2:
                 kind = "teammate"
@@ -255,29 +289,62 @@ def build_graph_batches(contests: pd.DataFrame, lines: pd.DataFrame, top: pd.Dat
 # so the graph can relate them to Millionaire outcomes.
 FP_STATEMENT = """
 UNWIND $rows AS row
-MATCH (p:Player {name: row.name}) MATCH (w:Week {key: row.week_key})
+MATCH (p:Player {dk_player_id: row.dk_player_id}) MATCH (w:Week {key: row.week_key})
 MERGE (p)-[r:FP_PROJECTED]->(w)
 SET r.fp_proj = row.fp_proj, r.fp_own = row.fp_own"""
 
 
 def fp_batch(players: list[dict], fp_proj: pd.DataFrame, fp_own: pd.DataFrame,
              season: int) -> list[dict]:
-    """FP projection/ownership rows for the graph's players, matched by
-    normalised name (graph players are DraftKings display names)."""
-    from .teams import norm_name  # noqa: PLC0415
+    """FP projection/ownership rows for the graph's players, matched on
+    (normalised name, team) to the player's DraftKings id. A key two graph
+    players or two FP rows share is dropped, never merged."""
+    def key(name, team):
+        return f"{norm_name(name)}:{canon_team(team) or ''}"
 
-    names = {norm_name(p["name"]): p["name"] for p in players}
-    proj = (fp_proj.assign(key=fp_proj.name.map(norm_name))
-            .groupby(["week", "key"]).fantasy_points.mean() if not fp_proj.empty else pd.Series(dtype=float))
-    own = (fp_own.assign(key=fp_own.name.map(norm_name))
-           .groupby(["week", "key"]).projected_ownership_pct.max() if not fp_own.empty else pd.Series(dtype=float))
+    graph: dict[str, int | None] = {}
+    for p in players:
+        k = key(p.get("name"), p.get("team"))
+        graph[k] = None if k in graph else p["dk_player_id"]
+
+    def series(df: pd.DataFrame, col: str) -> pd.Series:
+        if df.empty:
+            return pd.Series(dtype=float)
+        d = df.assign(key=[key(n, t) for n, t in zip(df.name, df.get("team", [None] * len(df)))])
+        n = d.groupby(["week", "key"])[col].transform("size")
+        return d[n == 1].set_index(["week", "key"])[col]
+
+    proj, own = series(fp_proj, "fantasy_points"), series(fp_own, "projected_ownership_pct")
     rows = []
-    for (week, key) in sorted(set(proj.index) | set(own.index)):
-        if key in names:
-            rows.append({"name": names[key], "week_key": f"{int(season)}-{int(week):02d}",
-                         "fp_proj": _clean(proj.get((week, key))),
-                         "fp_own": _clean(own.get((week, key)))})
+    for (week, k) in sorted(set(proj.index) | set(own.index)):
+        pid = graph.get(k)
+        if pid is not None:
+            rows.append({"dk_player_id": pid, "week_key": f"{int(season)}-{int(week):02d}",
+                         "fp_proj": _clean(proj.get((week, k))), "fp_own": _clean(own.get((week, k)))})
     return rows
+
+
+def loaded_share(top: pd.DataFrame) -> dict[str, tuple[int, float | None]]:
+    """contest_id -> (lineups loaded, their share of the field)."""
+    if top.empty:
+        return {}
+    out = {}
+    for cid, g in top.groupby(top.contest_id.astype(str)):
+        n = pd.to_numeric(g.n_entries, errors="coerce").max()
+        out[cid] = (len(g), float(len(g) / n) if n and n > 0 else None)
+    return out
+
+
+def resolution_report(top: pd.DataFrame, slate: pd.DataFrame) -> dict:
+    """What name resolution left out: slate collisions (never merged) and
+    the lineup slots whose name did not resolve to one slate player."""
+    coll = slate_collisions(slate)
+    if top.empty:
+        return {"collisions": coll, "slots": 0, "unresolved_slots": 0, "unresolved_names": []}
+    long = resolve_names(explode_lineups(top), slate)
+    bad = long[long.dk_player_id.isna()]
+    return {"collisions": coll, "slots": len(long), "unresolved_slots": len(bad),
+            "unresolved_names": sorted(set(bad.player))}
 
 
 def assert_no_vendor_fields(batches: Mapping[str, list[dict]]) -> None:
@@ -295,8 +362,8 @@ def apply_batches(driver, database: str, batches: Mapping[str, list[dict]],
     """MERGE every batch (idempotent). Returns rows sent per statement.
     ``fp_rows`` (opt-in) adds the FP_PROJECTED relationships."""
     assert_no_vendor_fields(batches)
-    if schema:
-        for stmt in SCHEMA:
+    if schema:  # constraints first: every MERGE below is backed by one
+        for stmt in load_schema():
             driver.execute_query(stmt, database_=database)
     sent: dict[str, int] = {}
     for name, cypher in STATEMENTS.items():

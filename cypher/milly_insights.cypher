@@ -1,12 +1,6 @@
 // Milly graph (scripts/load_milly_neo4j.py): saved queries for the Aura console.
 // Generated from nfl_dfs.dashboard.milly_graph; keep the two in step.
-
-CREATE CONSTRAINT milly_week IF NOT EXISTS FOR (n:Week) REQUIRE n.key IS UNIQUE;
-CREATE CONSTRAINT milly_contest IF NOT EXISTS FOR (n:Contest) REQUIRE n.contest_id IS UNIQUE;
-CREATE CONSTRAINT milly_game IF NOT EXISTS FOR (n:Game) REQUIRE n.game_id IS UNIQUE;
-CREATE CONSTRAINT milly_team IF NOT EXISTS FOR (n:Team) REQUIRE n.code IS UNIQUE;
-CREATE CONSTRAINT milly_player IF NOT EXISTS FOR (n:Player) REQUIRE n.name IS UNIQUE;
-CREATE CONSTRAINT milly_lineup IF NOT EXISTS FOR (n:Lineup) REQUIRE n.key IS UNIQUE;
+// The uniqueness constraints are in cypher/milly_schema.cypher.
 
 // Panel: stack_pairs
 MATCH (a:Player)-[r:STACKED_WITH]->(b:Player)

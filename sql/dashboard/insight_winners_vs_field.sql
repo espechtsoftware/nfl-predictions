@@ -11,8 +11,8 @@ lineup AS (
          SUM(fpo.fp_own) AS own_sum, SUM(fpp.fp_proj) AS proj_sum,
          COUNTIF(fpo.fp_own IS NULL) AS unmatched
   FROM slots s
-  LEFT JOIN fpo ON fpo.week = s.week AND fpo.k = norm(s.player)
-  LEFT JOIN fpp ON fpp.week = s.week AND fpp.k = norm(s.player)
+  LEFT JOIN fpo ON fpo.week = s.week AND fpo.k = s.k AND fpo.team = s.team
+  LEFT JOIN fpp ON fpp.week = s.week AND fpp.k = s.k AND fpp.team = s.team
   GROUP BY 1, 2, 3, 4
 )
 SELECT week, 'top 0.1%' AS grp, COUNT(*) AS n, AVG(own_sum) AS own_sum,

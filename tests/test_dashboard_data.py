@@ -285,3 +285,83 @@ def test_guards_week_window():
     assert guards.week_is_live(2026, 4, datetime(2026, 10, 4, 20, 29, tzinfo=timezone.utc))
     assert not guards.week_is_live(2026, 4, datetime(2026, 10, 4, 20, 30, tzinfo=timezone.utc))
     assert not guards.week_is_live(2026, 1, datetime(2026, 10, 3, tzinfo=timezone.utc))
+
+
+def test_ownership_calibration_joins_on_name_and_team():
+    """Two players share a name on different teams: with teams on both sides
+    each is scored against his own realized ownership, never merged."""
+    pred = pd.DataFrame({"week": 1, "name": ["Twin", "Twin", "Solo"], "team": ["BUF", "LAR", "KC"],
+                         "own": [20.0, 2.0, 10.0]})
+    real = pd.DataFrame({"week": 1, "display_name": ["Twin", "Twin", "Solo"], "team": ["BUF", "LA", None],
+                         "own": [18.0, 3.0, 9.0]})
+    cal, weeks = D.ownership_calibration(pred, real)
+    w = weeks.iloc[0]
+    assert w.n == 2 and w.mae == pytest.approx((2 + 1) / 2)    # Solo: unresolved team, left out
+
+
+def test_book_leverage_joins_on_dk_id_when_resolved():
+    exp = pd.DataFrame({"player": ["Twin", "Twin"], "dk_player_id": [11, 12], "position": ["WR", "WR"],
+                        "book_share": [0.5, 0.0]})
+    own = pd.DataFrame({"display_name": ["Twin", "Twin"], "dk_player_id": [11, 12], "own": [5.0, 30.0],
+                        "fpts": [20.0, 2.0]})
+    lev, _ = D.book_leverage(exp, own)
+    assert sorted(lev.leverage.round(1)) == [-30.0, 45.0]
+
+
+# --------------------------------------------- SQL contracts (reviewer fixes) --
+# BigQuery cannot run offline; these pin the rendered text of each fix (every
+# template was also dry-run against BigQuery when it was written).
+
+def _sql(name, **kw):
+    return " ".join(D.render(name, **{"season": 2026, **kw}).split())
+
+
+def test_unplayed_weeks_are_not_scored_as_zeros():
+    for name in ("accuracy_ours", "defense_weekly"):
+        sql = _sql(name)
+        assert "HAVING LOGICAL_OR(has_stat_line)" in sql, name
+    assert "JOIN played t ON t.season = a.season AND t.week = a.week AND t.team = a.team" in _sql("accuracy_ours")
+    assert "JOIN faced f ON f.season = d.season AND f.week = d.week AND f.defense = d.team" in _sql("defense_weekly")
+
+
+def test_cuts_use_rank_so_ties_are_inside():
+    assert "RANK() OVER (PARTITION BY contest_id ORDER BY points DESC) AS pos" in _sql("milly_lines")
+    assert "RANK() OVER (PARTITION BY contest_id ORDER BY points DESC) AS pos" in _sql(
+        "insight_leverage_paid")                                       # via field_ranked
+    top = _sql("milly_top_lineups", top_n=10, top_share=0.01, cash_rows=0)
+    assert "WHERE rk <= LEAST(10," in top
+
+
+def test_book_vs_top_only_weeks_with_standings():
+    assert "COALESCE(own.week, pe.week) IN (SELECT DISTINCT week FROM r)" in _sql("insight_book_vs_top")
+
+
+def test_week_points_come_from_the_millionaire_only():
+    sql = _sql("week_player_points", week=5)
+    assert "JOIN m ON m.season = o.season AND m.week = o.week AND m.contest_id = o.contest_id" in sql
+
+
+def test_publications_are_chosen_scored_first_and_by_published_utc():
+    arms = _sql("arms_weekly")
+    assert "LOGICAL_OR(mean_points IS NOT NULL)" in arms and "ORDER BY scored DESC, published_utc DESC" in arms
+    for name in ("pool_exposure", "insight_book_fp", "insight_book_vs_top"):
+        assert "QUALIFY published_utc = MAX(published_utc) OVER (PARTITION BY week)" in _sql(name), name
+        assert "built_utc = MAX" not in _sql(name)
+    ddl = _sql("ddl")
+    assert "published_utc TIMESTAMP ) CLUSTER BY" in ddl and "contest_lines" in ddl
+
+
+def test_millionaire_prefers_the_contest_with_standings():
+    sql = _sql("milly_contests")
+    assert "CASE WHEN nf.n_entries IS NOT NULL THEN f.contest_id ELSE COALESCE(e.contest_id, f.contest_id) END" in sql
+    assert "f.contest_id AS lobby_contest_id" in sql and "e.contest_id AS standings_contest_id" in sql
+
+
+def test_name_joins_resolve_through_the_slate_and_drop_collisions():
+    for name in ("insight_winners_vs_field", "insight_leverage_paid", "insight_stacks", "insight_book_vs_top",
+                 "milly_field_ownership"):
+        sql = _sql(name)
+        assert "HAVING COUNT(DISTINCT s.dk_player_id) = 1" in sql, name
+    assert "pe.dk_player_id = own.dk_player_id" in _sql("insight_book_vs_top")
+    fp = _sql("insight_winners_vs_field")
+    assert "fpo.k = s.k AND fpo.team = s.team" in fp and "GROUP BY 1, 2, 3 HAVING COUNT(*) = 1" in fp

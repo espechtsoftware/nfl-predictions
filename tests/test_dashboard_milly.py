@@ -24,6 +24,7 @@ SLATE = pd.DataFrame([
     ("wc1", "KC", "WR", 5000), ("rc", "KC", "RB", 5500), ("wd1", "LV", "WR", 4500),
     ("Dees", "LV", "DST", 3000),
 ], columns=["display_name", "team", "position", "salary"]).assign(season=2026, week=5, contest_id="c1")
+SLATE["dk_player_id"] = range(1001, 1001 + len(SLATE))
 
 GAMES = pd.DataFrame([
     {"season": 2026, "week": 5, "game_id": "g1", "home_team": "BUF", "away_team": "MIA"},
@@ -72,7 +73,7 @@ def test_lineup_construction_stack_bring_back_salary_ownership():
 def test_construction_summary_and_winner():
     cons = M.lineup_construction(top_rows(), SLATE, GAMES, OWN)
     s = M.construction_summary(cons).iloc[0]
-    assert s.n == 3
+    assert s.n == 3 and s.n_excluded == 0
     assert s.share_qb_stack2 == pytest.approx(2 / 3)
     assert s.median_dupes == 1
     win = M.winners(cons)
@@ -81,9 +82,22 @@ def test_construction_summary_and_winner():
     assert M.lineup_players(top_rows(), "k1")[-1] == ("DST", "Dees")
 
 
-def test_unknown_players_get_no_stack_credit():
+def test_unknown_qb_team_is_unknown_never_qb_plus_zero():
+    """A week without a slate (the entries-fallback week has no draft group)."""
     cons = M.lineup_construction(top_rows(), SLATE.iloc[0:0], GAMES)
-    assert (cons["stack"] == 0).all() and cons.salary.isna().all() and (cons.matched == 0).all()
+    assert cons["stack"].isna().all() and cons.bring_back.isna().all()
+    assert cons.stack_label.isna().all() and cons.salary.isna().all() and (cons.matched == 0).all()
+    s = M.construction_summary(cons).iloc[0]
+    assert s.n == 0 and s.n_excluded == 3
+
+
+def test_partially_resolved_lineups_are_excluded_from_the_summary():
+    slate = SLATE[SLATE.display_name != "wc1"]          # k1, k2 and k3 all carry wc1 ...
+    top = top_rows()
+    top.loc[2, "lineup_slots_json"] = top.loc[2, "lineup_slots_json"].replace('"wc1"', '"wd1"')
+    cons = M.lineup_construction(top, slate, GAMES, OWN)
+    s = M.construction_summary(cons).iloc[0]
+    assert (s.n, s.n_excluded) == (1, 2)                # ... except the edited k3
 
 
 def test_most_owned_and_ours_vs_winner():
@@ -92,10 +106,39 @@ def test_most_owned_and_ours_vs_winner():
     lines = pd.DataFrame([{"week": 5, "n_entries": 300, "winning_score": 250.0, "top_01pct_line": 250.0,
                            "top_1pct_line": 240.0, "cash_line": np.nan}])
     arms = pd.DataFrame([
-        {"week": 5, "arm": "vetted", "kind": "entered", "best_points": 200.0, "best_rank": 40},
+        {"week": 5, "arm": "played", "kind": "played", "best_points": 200.0, "best_rank": 40},
         {"week": 5, "arm": "composite", "kind": "shadow", "best_points": 245.0, "best_rank": 2},
-        {"week": 5, "arm": "lab_book", "kind": "book", "best_points": 210.0, "best_rank": 30}])
+        {"week": 5, "arm": "book", "kind": "book", "best_points": 210.0, "best_rank": 30}])
     o = M.ours_vs_winner(lines, arms).iloc[0]
-    assert o.our_arm == "lab_book" and o.our_best_points == 210.0 and o.gap_to_winner == 40.0
+    assert (o.our_best, o.our_rank, o.our_source, o.gap) == (200.0, 40, "played", 50.0)
+    assert (o.book_best, o.book_rank) == (210.0, 30)            # shown beside, never substituted
+    fb = M.ours_vs_winner(lines, arms[arms.kind != "played"]).iloc[0]
+    assert fb.our_best == 210.0 and fb.our_source == "book (no played arm published)"
     empty = M.ours_vs_winner(lines, pd.DataFrame()).iloc[0]
-    assert np.isnan(empty.our_best_points)
+    assert np.isnan(empty.our_best) and empty.our_source is None
+
+
+def test_same_named_players_on_two_teams_are_never_merged():
+    """Two slate players normalise to one name (different teams): the name is
+    a collision, reported, and resolves to neither player."""
+    slate = pd.concat([SLATE, pd.DataFrame([
+        {"display_name": "Twin Name", "team": "BUF", "position": "WR", "salary": 4000,
+         "season": 2026, "week": 5, "contest_id": "c1", "dk_player_id": 2001},
+        {"display_name": "Twin Name Jr.", "team": "KC", "position": "WR", "salary": 3900,
+         "season": 2026, "week": 5, "contest_id": "c1", "dk_player_id": 2002}])], ignore_index=True)
+    coll = M.slate_collisions(slate)
+    assert sorted(coll.dk_player_id) == [2001, 2002] and coll.k.nunique() == 1
+    res = M.resolve_slate(slate)
+    assert "TWINNAME" not in set(res.k) and len(res) == len(SLATE)
+    long = pd.DataFrame({"contest_id": ["c1", "c1"], "player": ["Twin Name", "qa"]})
+    r = M.resolve_names(long, slate)
+    assert pd.isna(r.dk_player_id.iloc[0]) and r.dk_player_id.iloc[1] == 1001
+    top = top_rows()
+    top.loc[0, "lineup_slots_json"] = lineup("qa", "rb_b", "rc", "wa1", "wa2", "Twin Name", "wc1", "wd1", "Dees")
+    cons = M.lineup_construction(top, slate, GAMES, OWN).set_index("lineup_key")
+    assert cons.loc["k1"].matched == 8                    # the twin slot stays unresolved
+
+
+def test_one_player_listed_twice_is_not_a_collision():
+    dup = pd.concat([SLATE, SLATE.iloc[[0]]], ignore_index=True)
+    assert M.slate_collisions(dup).empty and len(M.resolve_slate(dup)) == len(SLATE)

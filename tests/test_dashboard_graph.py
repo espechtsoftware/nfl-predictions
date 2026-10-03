@@ -58,11 +58,15 @@ def test_build_graph_batches_shapes():
     assert len(b["lineups"]) == 3 and len(b["contains"]) == 27
     win = next(r for r in b["lineups"] if r["rank"] == 1)
     assert win["stack_label"] == "QB+2+2" and win["top_1pct"] is True
-    assert {p["name"] for p in b["players"]} == {r["player"] for r in b["contains"]}
-    assert len(b["owned_in"]) == len({r["player"] for r in b["contains"]})
+    ids = SLATE.set_index("display_name").dk_player_id
+    assert {p["dk_player_id"] for p in b["players"]} == {r["dk_player_id"] for r in b["contains"]}
+    assert all(isinstance(p["dk_player_id"], int) and p["name"] for p in b["players"])
+    qa = next(p for p in b["players"] if p["dk_player_id"] == ids["qa"])
+    assert (qa["name"], qa["team"], qa["position"]) == ("qa", "BUF", "QB")
+    assert len(b["owned_in"]) == len({r["dk_player_id"] for r in b["contains"]})
     kinds = {r["kind"] for r in b["stacked_with"]}
     assert kinds == {"teammate", "opponent"}
-    pair = next(r for r in b["stacked_with"] if (r["a"], r["b"]) == ("qa", "wa1"))
+    pair = next(r for r in b["stacked_with"] if (r["a"], r["b"]) == (ids["qa"], ids["wa1"]))
     assert pair["count"] == 2 and pair["kind"] == "teammate"
     for r in b["stacked_with"]:
         assert r["a"] < r["b"]                       # each pair stored once
@@ -90,7 +94,10 @@ def test_apply_batches_merges_in_order_and_chunks():
     assert sent["contains"] == 27
     assert all(db == "milly" for _, _, db in drv.calls)
     schema = [q for q, _, _ in drv.calls if q.startswith("CREATE CONSTRAINT")]
-    assert len(schema) == len(G.SCHEMA)
+    assert schema == list(G.load_schema())
+    first_write = next(i for i, (_, p, _) in enumerate(drv.calls) if p)
+    assert all(q.startswith("CREATE CONSTRAINT") for q, _, _ in drv.calls[:len(schema)])
+    assert first_write == len(schema)                  # constraints before the first batch
     writes = [(q, p) for q, p, _ in drv.calls if p]
     assert sum(len(p["rows"]) for q, p in writes if "CONTAINS {slot" in q) == 27
     assert max(len(p["rows"]) for _, p in writes) <= 10
@@ -102,10 +109,11 @@ def test_apply_batches_merges_in_order_and_chunks():
 
 def test_fp_rows_are_opt_in():
     b = batches()
-    fp_proj = pd.DataFrame({"week": [5], "name": ["qa"], "fantasy_points": [21.0]})
-    fp_own = pd.DataFrame({"week": [5], "name": ["qa"], "projected_ownership_pct": [18.0]})
+    fp_proj = pd.DataFrame({"week": [5, 5], "name": ["qa", "qa"], "team": ["BUF", "KC"],
+                            "fantasy_points": [21.0, 9.0]})
+    fp_own = pd.DataFrame({"week": [5], "name": ["qa"], "team": ["BUF"], "projected_ownership_pct": [18.0]})
     rows = G.fp_batch(b["players"], fp_proj, fp_own, 2026)
-    assert rows == [{"name": "qa", "week_key": "2026-05", "fp_proj": 21.0, "fp_own": 18.0}]
+    assert rows == [{"dk_player_id": 1001, "week_key": "2026-05", "fp_proj": 21.0, "fp_own": 18.0}]
     drv = FakeDriver()
     sent = G.apply_batches(drv, "neo4j", b, fp_rows=rows)
     assert sent["fp_projected"] == 1
@@ -200,3 +208,38 @@ def test_keepalive_reads_once_and_reports_failure():
         raise OSError("connection refused")
     assert ka.main(env, connect=boom) == 1
     assert ka.main({}, connect=boom) == 2
+
+
+def test_schema_covers_every_merged_label_and_key():
+    schema = G.load_schema()
+    for label, key in G.MERGED_KEYS.items():
+        assert any(f"FOR (n:{label}) REQUIRE n.{key} IS UNIQUE" in st for st in schema), label
+    merged = set()
+    for q in G.STATEMENTS.values():
+        merged |= set(re.findall(r"MERGE \((?:\w+):(\w+) \{(\w+):", q))
+    assert merged <= set(G.MERGED_KEYS.items())
+    assert ("Player", "dk_player_id") in merged          # never the display name
+
+
+def test_collisions_are_reported_and_not_loaded():
+    slate = pd.concat([SLATE, pd.DataFrame([
+        {"display_name": "Twin Name", "team": "BUF", "position": "WR", "salary": 4000, "season": 2026,
+         "week": 5, "contest_id": "c1", "dk_player_id": 2001},
+        {"display_name": "Twin Name", "team": "KC", "position": "WR", "salary": 3900, "season": 2026,
+         "week": 5, "contest_id": "c1", "dk_player_id": 2002}])], ignore_index=True)
+    top = top_rows()
+    top.loc[0, "lineup_slots_json"] = top.loc[0, "lineup_slots_json"].replace('"wb1"', '"Twin Name"')
+    rep = G.resolution_report(top, slate)
+    assert rep["unresolved_slots"] == 1 and rep["unresolved_names"] == ["Twin Name"]
+    assert sorted(rep["collisions"].dk_player_id) == [2001, 2002]
+    b = G.build_graph_batches(contests(), lines(), top, slate, GAMES, OWN)
+    ids = {p["dk_player_id"] for p in b["players"]}
+    assert 2001 not in ids and 2002 not in ids and len(b["contains"]) == 26
+
+
+def test_loaded_share_is_recorded_on_the_contest():
+    b = batches()
+    c = b["contests"][0]
+    assert c["loaded_lineups"] == 3 and c["loaded_share"] == pytest.approx(3 / 300)
+    assert G.loaded_share(top_rows()) == {"c1": (3, pytest.approx(0.01))}
+    assert "c.loaded_share = row.loaded_share" in G.STATEMENTS["contests"]

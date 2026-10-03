@@ -20,6 +20,8 @@ from __future__ import annotations
 import argparse
 import sys
 
+import pandas as pd
+
 from nfl_dfs.dashboard import data
 from nfl_dfs.dashboard import milly_graph as mg
 
@@ -53,8 +55,6 @@ def main(argv=None) -> int:
     games = data.fetch_schedule(query_df, a.season)
     weeks = sorted(int(w) for w in contests.week)
     tops, slates, owns = [], [], []
-    import pandas as pd
-
     for w in weeks:
         tops.append(data.fetch_milly_top(query_df, a.season, w, top_n=a.top_n, top_share=1.0,
                                          cash_rows=a.cash_rows))
@@ -64,6 +64,23 @@ def main(argv=None) -> int:
     slate = pd.concat(slates, ignore_index=True)
     own = pd.concat(owns, ignore_index=True)
     batches = mg.build_graph_batches(contests, lines, top, slate, games, own)
+    for _, c in contests.iterrows():
+        if pd.notna(c.get("lobby_contest_id")) and str(c.lobby_contest_id) != str(c.contest_id):
+            print(f"MISMATCH week {c.week}: lobby Millionaire {c.lobby_contest_id}, standings "
+                  f"{c.contest_id}; loading the standings")
+    for cid, (n, share) in sorted(mg.loaded_share(top).items()):
+        wk_ = contests[contests.contest_id.astype(str) == cid].week
+        label = f"{share:.2%} of the field" if share is not None else "share unknown"
+        print(f"week {int(wk_.iloc[0]) if len(wk_) else '?'} contest {cid}: top {n:,} lineups loaded = {label}")
+    rep = mg.resolution_report(top, slate)
+    coll = rep["collisions"]
+    print(f"name resolution: {rep['slots'] - rep['unresolved_slots']}/{rep['slots']} lineup slots resolved "
+          f"to a DraftKings id; {rep['unresolved_slots']} not loaded")
+    if len(coll):
+        print(f"COLLISIONS (never merged; {coll.k.nunique()} name(s), {len(coll)} slate rows):")
+        print(coll.to_string(index=False))
+    if rep["unresolved_names"]:
+        print(f"unresolved names: {rep['unresolved_names'][:30]}")
     fp_rows = None
     if a.include_fp:
         fp_proj = query_df(data.render("fp_projections_season", season=a.season))
