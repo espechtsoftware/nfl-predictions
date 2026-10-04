@@ -12,6 +12,19 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-04 (16:04 CDT) — After the freeze: O-23 (composite EMIT FAILED) and O-24 (the agent's false STALE alarm); LineStar captures moved
+
+- **O-23:** cause confirmed read-only. The composite re-sort (`player_score.py --k 30`) puts the union book's accepted
+  repeats (rows 5–6 and 31–32) into one block, and the emitter refuses, correctly. Report-only; resolve by a dedupe
+  with a test or a relabel.
+- **O-24:** the 11:02 "STALE INPUTS — DO NOT UPLOAD" banner was a false alarm caused by the agent's comparison-only
+  LineStar files under `~/week4-sunday`.
+  - Files moved to `~/.cache/laptop-agent/linestar-prelock-top5-w04/` (merged with the 11:43 capture; nothing
+    overwritten).
+  - The Tuesday 08:17 reminder already reads that dir.
+  - Fix: a rule, never write non-inputs under `~/weekN-sunday`; and/or the sweep checks declared inputs only, with a
+    test.
+- **Reviewer:** dashboard deploy independently verified (IAP on, the IAP agent the only invoker, 302 for anonymous).
 ## 2026-10-04 (16:02 CDT) — Post-mortem addition (operator): how did past winners and top scorers do in Week 4?
 
 **Operator:** "When you do the postmortem this week, I would like to know how the winners and the top scorers in the
