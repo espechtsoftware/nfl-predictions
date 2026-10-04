@@ -12,6 +12,22 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-04 (11:30 CDT) — Week 4 entries VERIFIED: the 152 planned entries uploaded exactly; the operator added 2 hand lineups
+
+**Operator:** "I've saved the export spreadsheet to the windows downloads folder as DKEntries_PreLockWeek4. I added two
+lineups - one each in a milly and a 4444 qualifier."
+- The export was copied privately to `~/week4-sunday/private/` (mode 600; never committed; entry keys not printed).
+- **All 152 planned entries match the 11:02 filled file player for player** (DK reorders WR/RB slots, so 0
+  slot-identical and 152/152 identical as player sets). No planned entry is missing.
+- **Hand additions (outside the system's book; score them separately Monday):**
+  1. Millionaire 196151357, second seat: the agent's option C (Lamar, A. Jones, Walker, Addison, Flowers, Tate,
+     Andrews, Hockenson, Vikings).
+  2. $13 "Satellite to NFL 10-12 $4444 Showdown MEGA Millionaire" 196305080, NOT in contests.json: option A (Brissett,
+     B. Allen, Walker, Addison, Chase, Flowers, Hockenson, Sadiq, Vikings).
+- **Watcher:** the entries watcher picked up the new export and REFUSED to republish ("contest 196151357: only 1
+  lineups for 2 entries"). That is correct and fail-closed; DK is unchanged.
+  - Consequence: an automatic late-game R4 swap would hit the same refusal.
+  - If a late inactive hits an entered player, the agent handles the swap by hand with the operator.
 ## 2026-10-04 (11:23 CDT) — Sunday 11:23 checkpoint: the T-70 book is live for the 12:00 lock (FP term, field row 106); no swaps needed
 
 **Chain:** t70-pull 10:33 OK; t70-project `project-slate-hztt9` OK (batch 15:40:30Z); t70-build exit 0. Union
