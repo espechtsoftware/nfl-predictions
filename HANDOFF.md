@@ -12,6 +12,16 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-04 (14:35 CDT) — Study 8 added (operator): DraftKings opponent rank (OPRK)
+
+**Operator:** "let's look at DraftKings opposing rankings and how well those predict the outcome of the game. It seems
+we go contrary to that sometimes."
+- **Fact:** OPRK is not ingested (Week-3 post-mortem: the DK client drops it). Its one-slate correlation with our
+  residual was −0.05 to −0.14.
+- **Plan:** capture it pre-lock weekly from now on. Then measure OPRK vs realized, OPRK vs our residual, and our
+  contradictions (who was right).
+- A feature only after a census and a preregistered test.
+- In `reports/2026-10-04-post-week4-study-list.md`.
 ## 2026-10-04 (14:35 CDT) — Study list consolidated; DST study added; standing rule: the operator's study ideas go straight on the list
 
 **Operator:** "It appears the Bears' defense is once again doing quite well. I think we need to look into why we
