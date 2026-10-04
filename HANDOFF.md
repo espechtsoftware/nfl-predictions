@@ -12,6 +12,18 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-04 (16:52 CDT) — Neo4j: LOCAL ONLY, not part of the dashboard (operator); Aura dropped
+
+**Operator:** "I mostly just want to be able to learn from it so locally is fine (and not part of the UI)."
+- **No Aura instance:** the operator need not create one, and no milly-neo4j-* secrets or secretAccessor grant are
+  needed.
+- **Graph = the local Neo4j Community** (reviewer settings: localhost-only, auth, memory caps, the arm-preflight check),
+  with the full Milly fields.
+- **Dashboard:** remove the `/milly/graph` page and nav item, together with the user-name change, in ONE reviewed
+  redeploy.
+- **The loader** (`scripts/load_milly_neo4j.py`) points at the local instance. The Aura capacity guard stays as a
+  configurable limit, set high locally, with the memory caps as the real bound.
+- Milly tracking in BigQuery (the dashboard's Milly and Insights pages) is unchanged.
 ## 2026-10-04 (16:38 CDT) — Local graph + analytics planned (operator interest): Neo4j Community + DuckDB on the laptop
 
 **Operator:** "If you feel that Neo4j running locally or any other technology would help us to be able to see these
