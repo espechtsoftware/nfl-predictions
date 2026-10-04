@@ -12,6 +12,18 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-04 (10:41 CDT) — Sunday 10:38 FP T-70 captures + disagreement check; Parkinson inactive by news while DK still shows Q
+
+- **FP ownership** 1,224 rows (all operators) and **FP projections** captured 10:38–10:39. The articles capture is
+  deferred until after the 10:50 build (it runs a browser).
+- **T-70 projections OK:** `project-slate-hztt9`, batch 15:40:30Z, 474 rows. The 10:50 build's ≥10:30 gate is met.
+- **Flowers** active-Q: 11.6 → 14.5 (the Q haircut is lifted at T-70). Sadiq +2.2, Braelon Allen +1.6.
+- **Bears QB:** Bagent starts (FP 16.7 / ours 13.4).
+- **Remaining FP gaps** (FP higher): Daniels 15.8 vs 11.5, E. Wilson 11.9 vs 7.6.
+- **Colby Parkinson** (LAR TE): INACTIVE per the news (DraftSharks), but DK's 15:33Z pull still shows Q, so he stays
+  eligible in the T-70 frame (the denylist is DK OUT/IR only).
+  - The 09:10 book holds 0 Parkinson, Flowers, Bagent, Keenum, Daniels, Wilson or Higbee.
+  - If the T-70 book takes Parkinson, R4 (official inactives) swaps him. The 11:23 check verifies this.
 ## 2026-10-04 (09:41 CDT) — Sunday 09:41 checkpoint: the 09:10 fallback book is published, on FP ownership with the field row; no unexpected fallbacks
 
 - `nfl-week4-d3200-build` exit 0.
