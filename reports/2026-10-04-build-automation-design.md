@@ -1,7 +1,7 @@
 # Build automation design: from an armed week to an orchestrated week (2026-10-04)
 
 **For:** the operator (decisions) and the reviewer (design review).
-**Status:** a proposal. Nothing changes before Week 6 (operator, 10-04: "I don't want to change anything in the next
+**Status:** a proposal, revised (v2) after the reviewer's design review, 10-04 (§10 is binding on the design). Nothing changes before Week 6 (operator, 10-04: "I don't want to change anything in the next
 week or two, but eventually it would be nice if the entire build process could be automated so it doesn't need to be
 manually done by you. I'll still want you to monitor it however.").
 
@@ -148,11 +148,11 @@ Alerts name the branch taken. The run page shows which path was used.
 | FP captures at agent times | A capture schedule plus a freshness check on the asset |
 | Monday readers by reminder | The standings import landing |
 
-Fixed deadlines stay as guards: the lock, the 15:20 entries end, the 15:30 freeze.
+Fixed deadlines stay as guards: the lock, the 15:20 entries end, the 15:30 freeze. A guard **refuses**; it never falls back to a fixed-time build on stale inputs (§10 A).
 
 ### 5.5 Releases
 
-- Each week runs from a tagged release (`v<date>-<n>`), installed into its own virtualenv on the laptop. The lab clone
+- Each week runs from a tagged release (`v<date>-<n>`): a **read-only git worktree at the tag** plus its own virtualenv. Not a wheel, because the build needs `scripts/` and `sql/` (§10 B6). The lab clone
   stays pinned by SHA.
 - No working checkout is involved, so "don't touch the production folder" stops being a manual rule.
 - A release is cut after the Wednesday rehearsal passes on it.
@@ -167,7 +167,7 @@ Fixed deadlines stay as guards: the lock, the 15:20 entries end, the 15:30 freez
 
 ### 5.7 Approvals and the upload
 
-- The contest plan, the dose and any new rule need operator approval, recorded in the manifest. An approval step in
+- The contest plan, the dose and any new rule need operator approval, recorded in the manifest. The approval must be given **by the operator himself** (his commit, or a button with his identity), never written by an agent on his behalf (§10 D2). An approval step in
   the graph blocks Saturday materialisation until it is given.
 - The DraftKings upload stays manual. The orchestrator produces the bundle and the R4/swap re-publications as today.
 
@@ -177,6 +177,7 @@ Fixed deadlines stay as guards: the lock, the 15:20 entries end, the 15:30 freez
 - **The remaining single point of failure is WSL on the laptop** (reboots, sleep, Windows updates). Mitigations:
   - Windows power settings that never sleep on AC;
   - a watchdog alert if the service is down;
+  - an **external dead-man's switch** (§10 D1): the laptop pings an outside heartbeat service every few minutes from Saturday arming to Sunday 15:30, and a missed ping alerts the operator. This is the alert Dagster cannot send;
   - longer term, the workstation or a small always-on machine as the build worker, with the laptop as a standby
     (same release, same manifest).
 - Secrets stay in Secret Manager and private files (as today), never in the manifest repository.
@@ -203,7 +204,7 @@ rules (rehearsed before an entered book).
 | 2 Dagster install + wrapping assets/checks (watch-only) | 2–3 days |
 | 3 Rehearsal partitions | 1 day |
 | 4–5 Triggering, event sensors, alerts, status panel | 2–3 days |
-| Total | about 6–9 working days, spread over Weeks 6–10 |
+| Total | about 6–9 working days before review; about 8–11 with §10's requirements, spread over Weeks 6–10 |
 
 ## 8. Risks
 
@@ -211,7 +212,7 @@ rules (rehearsed before an entered book).
 |---|---|
 | The orchestrator is a new failure mode on Sunday | Watch-only and rehearsal phases first; the systemd fallback stays for 3 weeks |
 | Wrapping scripts hides their behaviour | Wrap unchanged; one asset per existing script; logs kept verbatim |
-| Event triggers fire late or not at all (inactives feed down) | The deadline guards fire the fixed-time path if the event has not arrived by T−X |
+| Event triggers fire late or not at all (inactives feed down) | At the guard time the T-70 is **refused**, the 09:10 book stands, and a loud alert goes out. Never a build on pre-inactives inputs (§10 A1) |
 | WSL outage | Watchdog alert; future standby worker |
 | Config migration error | Phase 1 diffs generated environments against today's arm line byte for byte |
 
@@ -222,3 +223,61 @@ rules (rehearsed before an entered book).
 3. Whether to plan a dedicated always-on build worker (the workstation or a small machine) for the WSL single point of
    failure.
 4. Start date: proposed Week 6, after Week 5's results.
+
+## 10. Reviewer requirements (design review 10-04; binding)
+
+### A. The T-70 event chain
+1. **Guards refuse, never fall back to the fixed-time path.** If the inactives event has not arrived by the guard time,
+   the T-70 is refused, the 09:10 book stands, and a loud alert goes out. The fixed-time 10:33 pull is pre-inactives,
+   which is exactly the money-path violation.
+2. **"Inactives posted" is a completeness predicate:** every 12:00-window game on the slate has its list, checked
+   against the schedule. The first list does not count. Late-window lists arrive after lock and stay with R4. Cover the
+   case where the feed is up but one game's list never appears.
+3. **DK must have caught up:** every posted-inactive skill player on the slate shows OUT/IR in the salary pull, or the
+   pull is retried until the guard.
+4. **The guard time comes from measured durations:** latest start = lock − (p95 of T-70 build + union + audit + vet,
+   from the receipts) − the operator's upload margin. It is printed in the manifest render.
+5. **Run keys and concurrency:** one run per (week, asset); a tag-level limit of one heavy build at a time on the
+   laptop (the 05:00 D12800 and the 09:10 D3200 must never overlap if an event shifts one of them); a duplicate trigger
+   is a no-op.
+
+### B. Wrapping scripts unchanged keeps fail-closed only if
+1. **There is an exit-code contract per script.** Fallbacks exit 0 (the ownership, field-sleeve and own-term
+   step-downs) and a T-70 refusal is a correct outcome. Each wrapped script writes a small structured status beside
+   its receipt (branch taken, ok/refused, evidence paths) and the asset reads it, never grepping logs. The table
+   (script, exit codes, meaning) is written before phase 2.
+2. **Environment:** every subprocess gets an explicit environment rendered from the manifest (as BASE_ENV does today),
+   never the daemon's inherited one. Phase-2 test: the subprocess env equals the systemd unit's env
+   (`systemctl --user show -p Environment`), byte for byte.
+3. **Cancellation and partial outputs:** a cancel or timeout kills the whole process group, or CBC workers survive.
+   Every "newest" picker (LATEST, `UNION_SATURDAY_RUN=auto`, the watcher's promotion, the publisher's tags) must ignore
+   incomplete run dirs. The pickers are listed and each is tested against a killed run.
+4. **Retries OFF for every money-path op** (builds, unions, publish, swaps); they are not idempotent. Retries are for
+   read-only steps only.
+5. **Cloud Run jobs launched by Dagster still go through `launcher_registry.sh` lanes** (rule 6), and
+   `check_prospective_gates.py` is a weekly check asset.
+6. **Releases are a read-only git worktree at the tag** plus its venv, not a wheel (`scripts/` and `sql/` are needed).
+
+### C. Exit criteria, tightened
+- **Phase 1:** the rendered arm line is byte-identical to the take-over document's line, AND the armed units'
+  environments are identical (diffed), for two weeks.
+- **Phase 2:** every asset's sha256 equals the real artifact's; every fallback branch Dagster reports equals the banner
+  that ran; zero writes by Dagster (a file-system audit of the week dirs and the clone); alert delivery tested end to
+  end.
+- **Phase 3:** forced-failure drills, not only the happy path. The drills: an FP refusal, a supply fallback, a T-70
+  refusal (late inactives), a field-sleeve failure, the inactives feed down until the guard, and the Dagster daemon
+  killed mid-run and restarted. Exit only when each branch has run once and alerted correctly.
+- **Phase 5:** prove equivalence offline first. Rebuild the previous Sunday through Dagster from the same pinned inputs
+  and require byte-identical books (the union is deterministic at 8 threads; paper rebuild 10-02). A parallel live
+  shadow is not possible on one laptop. Run one rollback drill (re-arm systemd from the manifest) during phase 5.
+
+### D. Gaps closed
+1. **External dead-man's switch** (§5.8): an outside heartbeat check, alerting on a missed ping, from Saturday arming
+   to Sunday 15:30.
+2. **Approvals are given by the operator himself** (§5.7), never relayed.
+3. **The manifest holds private items as pointers only;** a schema test rejects inline private values (stakes, entry
+   keys, contest lines).
+
+**Effort impact:** about +2 days (the status contract, drills, picker tests, dead-man's switch), so roughly 8–11
+agent days over Weeks 6–10.
+
