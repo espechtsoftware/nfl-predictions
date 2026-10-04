@@ -12,6 +12,16 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-04 (18:41 CDT) — Study 12 added (operator): where did the points go (teammate redistribution, matchups)
+
+**Operator:** "I may have been more critical than I needed to be. The late games bailed me out a little bit… during
+your analysis… also look at which other players on the teams of players I took got the points. If… my guy didn't get
+the points, where did the points go? … does the team spread their points around consistently? … look at the matchups
+and does that indicate why that person got the points?"
+- **Monday, in the W4 post-mortem:** a descriptive redistribution for heavily used underperformers.
+- **Panel study:** team point-distribution consistency, and whether pre-game matchup signals predict which teammate
+  gains, beyond props, with study 9's guard.
+- In `reports/2026-10-04-post-week4-study-list.md`.
 ## 2026-10-04 (17:38 CDT) — OPERATOR GATE for Week 5 money: replay the improved system over Weeks 1–4 and show whether it would have made money
 
 **Operator, verbatim:** "This week once we feel all improvements have been made, I would like you to test it selecting
