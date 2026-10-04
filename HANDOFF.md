@@ -12,6 +12,30 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-04 (11:23 CDT) — Sunday 11:23 checkpoint: the T-70 book is live for the 12:00 lock (FP term, field row 106); no swaps needed
+
+**Chain:** t70-pull 10:33 OK; t70-project `project-slate-hztt9` OK (batch 15:40:30Z); t70-build exit 0. Union
+`20261004T155904961082Z-union-32cdb61`: `audit_passed`, not superseded.
+- **Term:** "OWNERSHIP TERM SOURCE … FANTASY POINTS … at tilt 0.20; AGE 0.0 h; SCALE ownership_lag.csv x0.623"; no
+  fallback banner.
+- **Supply:** the Sunday D12800 `20261004T100027765133Z`.
+- **Field row 106** from the FP file (136.5).
+
+**Published:** `ENTER -> enter-bundles/K110-20261004T155904961082Z` at 11:02. The upload file is
+`DKEntries-FILLED-keepers-first.csv`: 152 entries, every contest filled, 0 to withdraw. Replacement step: 0 unavailable
+(exclusion set 11).
+- Bagent 0, Keenum 0, Parkinson (OUT) 0.
+- R4: no late swaps (no entered player is out). The watchers are active.
+
+**Lines on the sheet:**
+- "SMALL-CONTEST OVERLAP LIMIT RELAXED for supersat9 M=5 -> 6" (the rule's own fallback).
+- "STALE INPUTS DETECTED" is a FALSE ALARM: all 20 flags come from the agent's comparison-only
+  `~/week4-sunday/linestar-prelock-top5` captures (LineStar's period history). The operator was told to upload. The
+  files move out at 16:02, with a defect row.
+
+**Operator request ~11:15:** an extra hand-entered Millionaire lineup with Zay Flowers (active Q, 14.5). The agent
+suggested a Ravens stack plus Titans bring-back (Lamar, Flowers, Andrews, Tate; MIN core; Walker), plus alternatives.
+It is outside the system's book (operator's call); include it in Monday's results if entered.
 ## 2026-10-04 (10:46 CDT) — Sunday 10:46 checkpoint: T-70 pull and project OK
 
 `nfl-week4-t70-pull` exit 0 (DK pull 15:33Z, 3,008 rows). `nfl-week4-t70-project`: `project-slate-hztt9` succeeded
