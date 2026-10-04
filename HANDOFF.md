@@ -12,6 +12,28 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-04 (17:31 CDT) — OPERATOR (in-game, Week 4 going badly): "take a hard look at how you are picking players"; study 11 added
+
+**Operator, verbatim:** "Once i have the spreadsheets tonight, you need to take a hard look at how you are picking
+players. It seems like you aren't considering the difficulty of the matchups at all. Why mccaffery against a good
+defense like Denver? And why that game at all? It is very low scoring so far. Most of my lineups wont break 100. I keep
+being told there isnt an issue with the way players are selected because we have all of the winning players in the
+book. That doesn't help if you don't know how to put them together in a manner that at least can beat the field. I
+think a monkey could have chosen better this week."
+
+**Agent's acknowledgement:** "all winning players are in the pool" is evidence that SELECTION fails, not a defence.
+
+**Facts:**
+- No explicit defence-vs-position feature exists; matchup enters only through props and implied totals.
+- SF–DEN was 47.5 pregame (4th of 12). McCaffrey: ours 19.5, market 20.4; in ~62% of entries.
+
+**Monday (after the standings import):**
+1. A selection post-mortem.
+2. The MONKEY BENCHMARK (random from our pool, and random legal lineups, vs the entered book, at each contest's line;
+   W1–4) as a permanent weekly arm.
+3. Study 11, matchup strength as a residual beyond props.
+
+The P3 baselines and study 1 (concentration) are directly relevant.
 ## 2026-10-04 (16:57 CDT) — X4 dropped (operator does not want to supply picks); a "recent form vs baseline" input added to study 9
 
 **Operator:** "I don't really want to be putting in any work myself because I don't really know the game all that
