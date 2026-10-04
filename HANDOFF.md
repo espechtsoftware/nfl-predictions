@@ -36,6 +36,16 @@ over weeks 1-4 and determine if it would have made any money before I decide if 
 **Dependencies:** W4 standings (Mon), payout ladders P1 (Wed), the O-22 retrain if ready (Thu–Fri), the list of
 improvements actually in the frozen version. The bigger studies (1, 2, 3, 9, 10) land in Weeks 5–8, so the replay states
 exactly which changes it includes. The operator decides Week 5 stakes from it.
+
+**Reviewer's integrity requirements (binding):**
+1. Models walk-forward: W is projected only by models trained before W (the deployed cuts), never the Friday retrain.
+2. Projections from the ARCHIVED pre-lock batches and saved frames (or a rebuild proven byte-equal), never today's
+   feature tables.
+3. Dollars private, multiples public, with the MONKEY PERCENTILE beside every P&L line (it answers "better than
+   chance?").
+4. A written list of changes plus its commit, frozen BEFORE any scoring; later additions are a new, disclosed replay.
+
+The 2022–25 check is field-relative if no fields were captured, and stated as a different yardstick.
 ## 2026-10-04 (17:31 CDT) — OPERATOR (in-game, Week 4 going badly): "take a hard look at how you are picking players"; study 11 added
 
 **Operator, verbatim:** "Once i have the spreadsheets tonight, you need to take a hard look at how you are picking
