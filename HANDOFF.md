@@ -12,6 +12,17 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-04 (15:16 CDT) — The agent's own study proposals (operator asked for research and deep thinking)
+
+**Operator:** "I would like you to do some research and some deep thinking and come up with your own set of questions
+of things that we should do studies on."
+- Basis: two read-only research passes (what was tested; weaknesses and unused data).
+- `reports/2026-10-04-agent-proposed-studies.md`: P1–P9 plus audits A1–A4, ranked.
+- **Headline:** the loss is in selection and contest choice, not pool coverage (81/81 winning players were in our
+  pool). Lifetime ROI is −83.5%; the qualifier class is more than half the volume at −96%.
+- **Prelim:** the market alone beats our served blend on prop-priced players every week (MAE 5.28 vs 5.43, W1–3).
+- **This week:** P1 (contest edge), P3 (a weekly simple-baseline benchmark, which needs the paper toggles) and audits
+  A2–A4. Sent to the reviewer.
 ## 2026-10-04 (14:39 CDT) — Study 9 added (operator): what predicted booms and busts (residual attribution)
 
 **Operator:** "let's do some analysis of when a player does well, what data points predicted it, and when they didn't
