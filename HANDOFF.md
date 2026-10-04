@@ -12,6 +12,27 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-04 (18:57 CDT) — AGENT SCHEDULE (session reminders are lost on reboot; recreate from this list)
+
+The operator is rebooting the laptop (Week 4 is done; no nfl-week4 timers remain). Session-only reminders die with the
+session. Recreate these after the reboot; each refers to the HANDOFF entries it implements:
+
+| When (CT) | Task | Source |
+|---|---|---|
+| Mon 10-05 09:13 | MONDAY ORDER: standings import (the operator's manual exports; capture-dk-standings, validate then --apply, `--contest-name` = contests.json labels), then the O1/A3/B2 readers, A2 paper books, B1/B3/C1/C3, the unchanged comparison (union_paper_rebuild same/lag010/none, pre-R4, plus row 106), the dashboard publisher DRY RUN to the reviewer before --apply, the B4 panel at night | 10-02 14:34 and 16:58; 10-03 dashboard entries |
+| Mon 10-05 12:43 | Selection post-mortem plus the MONKEY benchmark (M1 pool random, M2 under caps and dealing, M3 random legal; ~1,000 books; percentile at each contest's line; W1–4) | 933e3c08, 05dbca45 |
+| Mon 10-05 13:47 | The Chase-injury study (exact damage; hindsight-labelled paper rebuilds) | 580300f6 |
+| Mon 10-05 14:17 | Study 12, the W4 descriptive part: where the points went for heavily used underperformers | 46107f71 |
+| Mon 10-05 15:17 | Past winners' and top finishers' Week 4 (by name; persistence) | 1b4a2164 |
+| Tue 10-06 08:17 | The one-time LineStar revision check (pre-lock captures in `~/.cache/laptop-agent/linestar-prelock-top5-w04/` vs post-lock), the descriptive LineStar vs FP read, then LineStar retired | 03a8c2b4 |
+| Tue 10-06 10:37 | A2 OPEN-DEFECTS review (verify, close or re-date; last reviewed 09-18) and A4 Week-5 deadlines (O-3 checker at Week 5, the O-22 retrain plan) | df9a5bde |
+| Tue–Wed | Local Neo4j Community + DuckDB (localhost only, auth, memory caps, the arm-preflight check), full Milly fields | d4b3337f, 0163592d, e6a9c66f |
+| Wed 10-07 09:13 | P1 (payout ladders, then the power analysis, edge vs break-even) and P3 (simple-baseline paper toggles, scored on tickets and line hits) | df811723 |
+| Thu–Fri | The O-22 fix (lock-filter item first), leakage checks, retrain, six-season co-run; A1 (DST 11-01) and A3 (ownership grading storage) | df9a5bde |
+| Fri 10-09 09:13 | THE WEEK-5 MONEY GATE: the improved-system replay over W1–4 under the reviewer's four integrity rules, plus the 2022–25 check; results to the operator by Friday evening | 75be36fb, 7fea3a9a |
+
+Also pending: the dashboard user-name commit plus removal of the graph page (one reviewed redeploy); the R14 LLM fact
+log start; O-19/O-20/O-23/O-24 fixes before Week 5's Saturday.
 ## 2026-10-04 (18:41 CDT) — Study 12 added (operator): where did the points go (teammate redistribution, matchups)
 
 **Operator:** "I may have been more critical than I needed to be. The late games bailed me out a little bit… during
