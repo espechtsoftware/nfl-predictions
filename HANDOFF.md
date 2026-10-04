@@ -12,6 +12,16 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-04 (13:44 CDT) — In-game: Ja'Marr Chase OUT with a concussion (operator); 75 of 154 entries carry him
+
+**Operator:** "Chase is out w concussion."
+- Exposure by contest type: SUPERSats to the $20 Milly 67/139, $20 Milly satellites 4/6, $555 sat/supersat 2/4,
+  Millionaire 1/2 (the book's field seat; not the operator's Ravens lineup), the operator's $4444 showdown-satellite
+  hand lineup 1/1, FFWC 0/2.
+- **Nothing can be done:** he played in a 12:00 game, so those slots are locked. A late swap of unlocked players
+  cannot replace him; the R4 watcher handles pre-game inactives only.
+- This is the "one player busts" case for the entry-exposure study (reviewer's note 2). Monday's results will show its
+  cost.
 ## 2026-10-04 (13:42 CDT) — Two more planned studies (operator): "ideal uses" of capped exposure; the questionable haircut in supply pools
 
 **1. Use-quality allocation (operator):** "I would also like to do a study of how we select our lineups. I know we have
