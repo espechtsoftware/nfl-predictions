@@ -12,6 +12,10 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-04 (10:46 CDT) — Sunday 10:46 checkpoint: T-70 pull and project OK
+
+`nfl-week4-t70-pull` exit 0 (DK pull 15:33Z, 3,008 rows). `nfl-week4-t70-project`: `project-slate-hztt9` succeeded
+15:40:39Z; `player_projections` batch 15:40:30Z (474 rows, after 15:30Z). The 10:50 build's gate is met.
 ## 2026-10-04 (10:41 CDT) — Sunday 10:38 FP T-70 captures + disagreement check; Parkinson inactive by news while DK still shows Q
 
 - **FP ownership** 1,224 rows (all operators) and **FP projections** captured 10:38–10:39. The articles capture is
