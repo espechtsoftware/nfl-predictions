@@ -12,6 +12,16 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-04 (14:39 CDT) — Study 9 added (operator): what predicted booms and busts (residual attribution)
+
+**Operator:** "let's do some analysis of when a player does well, what data points predicted it, and when they didn't
+do well, which data points predicted it. So we begin to put together the correlations that are more important."
+- **It builds on** the Week-3 vendor-signals audit (one slate: marginal vs a permutation null; the WR/TE per-route
+  efficiency cluster).
+- **Scope:** all weeks and the panel; residual and boom/bust targets; point-in-time inputs without the O-21/O-22
+  leaky features; a permutation null, walk-forward and hold-out.
+- The survivors become preregistered candidates.
+- In `reports/2026-10-04-post-week4-study-list.md`.
 ## 2026-10-04 (14:35 CDT) — Study 8 added (operator): DraftKings opponent rank (OPRK)
 
 **Operator:** "let's look at DraftKings opposing rankings and how well those predict the outcome of the game. It seems
