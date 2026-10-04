@@ -12,6 +12,28 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-04 (13:42 CDT) — Two more planned studies (operator): "ideal uses" of capped exposure; the questionable haircut in supply pools
+
+**1. Use-quality allocation (operator):** "I would also like to do a study of how we select our lineups. I know we have
+rules of how often somebody can be used. I think we need to have a preference of the way that they're used so that
+ideal uses are, are taken over just any random use."
+- **Today:** the PMO_X50 main is chosen sequentially (best projected first) with a per-player cap, so a capped
+  player's uses go to whichever rows come first, not to his best-fitting rows.
+- **Study:** score each player-in-lineup use (QB stack / bring-back membership, game environment, lineup correlation,
+  contextual upside). Compare, under the SAME caps, today's sequential fill against a joint selection that gives each
+  player's capped uses to his highest-quality uses.
+- **Measure** on the historical books: mean/best, satellites cashed, and top-line hit rates in large fields.
+- It interacts with the entry-level cap study (same harness; preregister them together or keep the arms separate).
+
+**2. The questionable haircut in the supply pools** (Flowers, W4):
+- Active-Q players are lifted only at T-70 (`t70_active_q`; Flowers 11.6 → 14.5). The ~24k-lineup Saturday and
+  Sunday-early pools were built with the 0.8 haircut, so Flowers was in 0 of 12,330 / 12,324 / 4,745 / 4,739 pool
+  lineups and 0 of 110 book rows. Even at 14.5 for $6,900 he ranked only 29th in WR value.
+- FP had 17.0; he scored 25 in the first half (n=1).
+- **Study:** build the big pools without the haircut, or with a smaller haircut for "likely to play" Q players, and
+  let T-70 decide. B2 (FP in the projection blend, Monday) addresses the FP-higher cases separately.
+
+All after Week 4, preregistered, and tested before any entered book (money-path rule).
 ## 2026-10-04 (13:18 CDT) — Planned study (operator): an ENTRY-level player exposure cap
 
 **Operator:** "Something I would like to do a study of after this week is the percentage of lineups we have for a
