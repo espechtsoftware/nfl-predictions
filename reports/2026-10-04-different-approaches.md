@@ -105,7 +105,7 @@ my recommendation for each:
     prior toward the incumbent and grade on line hits by contest class;
   - under adoption track v2 the rule only RECOMMENDS an allocation; the operator decides.
 
-### X4. The operator's own signal, logged and graded
+### X4. The operator's own signal, logged and graded: DROPPED (operator 10-04: "I don't really want to be putting in any work myself… I would rather you take care of that")
 - **Idea.** The operator flagged Flowers (scored), Skattebo and Wicks (doubted) and the Bears DST in real time.
   - Log his pre-lock reads in a small form: "like", "fade", "worried about"; timestamped before lock.
   - Grade them weekly against our projection residuals.
@@ -174,7 +174,7 @@ my recommendation for each:
 
 ## 5. Recommended picks
 1. **Start now (logging, no money-path change):** the R14 LLM fact log (append-only, timestamped, no field used until
-   graded) and the X4 operator-signal log. X6 waits for A3's interim read after Week 5.
+   graded). X4 is dropped (operator). X6 waits for A3's interim read after Week 5.
 2. **Build with study 10** (one workstream with P8 and the field sampler): R17 inverse-optimisation field model, and X2
    field softness. X1's mispricing check comes after study 5's calibration and study 10.
 3. **Wire with P3:** X3, paper only.

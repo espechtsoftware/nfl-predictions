@@ -12,6 +12,16 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-04 (16:57 CDT) — X4 dropped (operator does not want to supply picks); a "recent form vs baseline" input added to study 9
+
+**Operator:** "I don't really want to be putting in any work myself because I don't really know the game all that
+well. I would rather you take care of that… I only suggested Zay Flowers today because he is consistently a high
+performer."
+- X4 (the operator-signal log) is dropped.
+- The facts: Flowers is explosive, not consistent (mean 13.2/15.0, median 11–13, 2–6 games under 8 per season), with a
+  strong 2026 start (29.0, 15.4).
+- Study 9 gains the candidate input "recent-season form vs multi-season baseline" (how fast to react to role change;
+  links to R9).
 ## 2026-10-04 (16:52 CDT) — Neo4j: LOCAL ONLY, not part of the dashboard (operator); Aura dropped
 
 **Operator:** "I mostly just want to be able to learn from it so locally is fine (and not part of the UI)."
