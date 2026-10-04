@@ -12,6 +12,43 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-04 (16:02 CDT) — Post-mortem addition (operator): how did past winners and top scorers do in Week 4?
+
+**Operator:** "When you do the postmortem this week, I would like to know how the winners and the top scorers in the
+past few weeks did this week to see if they all did as horribly as I did."
+- **Monday, after the standings import:** identify the W1–3 Millionaire winners and repeat top finishers by user name
+  (allowed by the operator). Report their Week-4 results: best finish, percentile, cash rate, entries, and how many
+  were hurt by Chase.
+- Compare with our Week-4 percentile, and with the field's typical week-to-week persistence (winners study: "winners
+  lose 83% of other weeks").
+## 2026-10-04 (16:02 CDT) — DASHBOARD V2 DEPLOYED (bb57be4e) to nfl-dfs-app; IAP intact; empty states verified
+
+**Preconditions:** 15:47 CT; watchers inactive; ENTER unchanged since 11:27; the production checkout untouched. Built
+from a CLEAN worktree at `bb57be4e`; the dashboard worktree's uncommitted user-name WIP was not shipped.
+- **Cloud Build `7be56d9d-3fbf-4302-a31f-e32f0a242c31`:** 127 dashboard tests passed. Image
+  `nfl-dfs:dashboard-bb57be4e` = `sha256:a07b093d20506097f2cc4f7da3f496d4585b8672c245165e70117a41f29a97ae`.
+- **`scripts/deploy_dashboard.sh`:** revision **`nfl-dfs-app-00077-mrp`**, 100% traffic (latest). The IAM check found
+  iap-enabled='true', 1 binding, public: none; traffic 100% on the latest ready revision.
+- No milly-neo4j-* secrets yet, so the graph page says "not configured".
+- **Rollback:** `gcloud run services update-traffic nfl-dfs-app --region us-central1 --project nfl-predictions-503414
+  --to-revisions nfl-dfs-app-e0-0f30c925=100`.
+
+**Reviewer condition 1** (empty states before any table write):
+- Via the authenticated proxy every route returns 302 to IAP sign-in, as expected, so a CLI check is impossible.
+- So the deployed code (`bb57be4e`) was run locally against the same BigQuery (read-only): all 11 routes 200, no
+  tracebacks.
+- The messages: Arms "arms_weekly is empty or not created yet"; Players "not published"; Milly "Week 4's Millionaire
+  standings are not imported yet"; Graph "Neo4j not configured"; Insights/Accuracy explanatory notes. No zeros posed
+  as data.
+
+**Follow-ups:**
+- The Arms page says "No reviewed week inputs (contests.json) for 2026 week 4 in private storage", so the stake plan
+  needs `week_inputs.py push` plus the service account's read grant (README).
+- Insight 4 still shows the old "user names refused" note. The operator approved user names DIRECTLY (10-04 "yes add
+  the user names"); the WIP (SQL username column, User node, ENTERED, schema, repeat-finishers panel) is uncommitted
+  in the dashboard worktree. Finish, test, review, then redeploy.
+- **Monday:** the publisher DRY RUN printout to the reviewer before `--apply`. The first Neo4j load is Week 4 only,
+  once the operator creates Aura.
 ## 2026-10-04 (15:35 CDT) — Study 10 (field-behaviour model) added; "completely different approaches" written (operator)
 
 **Operator:** "Yes" (to the field-behaviour model), then: "think completely outside of the box and for the process of
