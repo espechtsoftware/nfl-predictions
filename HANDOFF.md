@@ -12,6 +12,40 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-04 (14:21 CDT) — Planned studies (operator): RB selection by game environment and ceiling; whether "shootouts" are real; trust in the odds feed
+
+**Operator** (on Cam Skattebo, 28/110 book rows, 30/154 entries): "Let's look into how we're choosing running backs
+when we're you know, choosing a game that we expect to be a shootout. I see we have Scataboo, who never really puts up
+points." Then: "Yes. And let's also be critical of the games that we're calling a shootout, whether they actually turn
+out to be shootouts and whether we can trust the odds data that we're being provided."
+
+**The facts:**
+- Skattebo: projections 14.7/11.6/11.7/14.2 vs actuals 14.1/9.5/13.0 (accurate, low ceiling, p90 ~28).
+- FP 17.1, ~16% owned; the FP ownership term nudges toward such chalk.
+- ARI@NYG is a 44.5 total, not a shootout.
+
+**1. RB use quality (added to the use-quality study, 6121d759 / a3792215):** game environment (total, spread, pace)
+and ceiling (p90 / receiving role) enter the frozen-weights second arm. Main-book selection today is mean + term,
+which does not distinguish steady from spiky backs. Monday's unchanged comparison (FP term vs lag vs none) shows
+whether the term mainly adds low-ceiling chalk.
+
+**2. Shootout calibration:**
+- Do games our odds call high-total / close actually produce high combined and DK scoring?
+- Calibrate the posted total and spread against realized points on nflverse history (many seasons) and on our 2026
+  snapshots.
+- Measure the hit rate of "shootout" calls (e.g. total ≥ 48 and |spread| ≤ 3) vs realized top-quartile games, and how
+  much fantasy scoring concentrates in them.
+
+**3. Odds-feed trust:**
+- Compare `nfl_raw.odds_snapshots` (The Odds API) with an independent source (nflverse schedules' lines), the
+  movement over the week, and snapshot freshness at each build.
+- Check team-name mapping (the LA/LAR alias), missing games, and book coverage, plus any game where our build used a
+  stale or wrong line.
+- The D1 overlap map already shows the Odds API reaches the money path (props are 55% of every projection), so it
+  is high priority.
+
+All after Week 4, preregistered where a rule change could follow (descriptive calibration needs no preregistration;
+any rule that uses it does).
 ## 2026-10-04 (14:09 CDT) — Planned study (operator): injury risk, i.e. injury-prone players and questionable players who play; merged with the Q-haircut study
 
 **Operator:** "Let's also do a study on looking for if a player is injury prone and if they're if they get injured if
