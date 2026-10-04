@@ -12,6 +12,11 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-04 (05:41 CDT) — Automation design: alerts by phone app (operator)
+
+**Operator:** "I prefer a phone app for alerts." Recorded in the design's §9 (Pushover recommended for its emergency
+priority; ntfy the free alternative; chosen at phase 4). The reviewer accepted design v2 (`5763f7f1`, plus the release
+wording fix `80d03cb5`); phase 0 is done.
 ## 2026-10-04 (05:35 CDT) — Build automation design proposed (operator asked; no change for 1–2 weeks)
 
 **Operator (10-04):** "I don't want to change anything in the next week or two, but eventually it would be nice if

@@ -219,7 +219,7 @@ rules (rehearsed before an entered book).
 ## 9. Decisions for the operator (when ready, not now)
 
 1. Dagster (recommended) or Prefect Cloud (hosted status page, a SaaS dependency).
-2. Push alert channel: Pushover (about $5 once per device), email, or both.
+2. Push alert channel: **DECIDED 10-04: a phone app** (operator: "I prefer a phone app for alerts"). Recommended: Pushover (one-time ~$5; an emergency priority that can get through Do Not Disturb and repeats until acknowledged, for the dead-man's switch and "no book before lock"); ntfy is the free alternative. The app is picked when phase 4 starts.
 3. Whether to plan a dedicated always-on build worker (the workstation or a small machine) for the WSL single point of
    failure.
 4. Start date: proposed Week 6, after Week 5's results.
