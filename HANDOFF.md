@@ -12,6 +12,18 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-04 (11:46 CDT) — LineStar RETIRED after the one-time Tuesday revision check (operator)
+
+**Operator:** "it seems to me we should just forget about line star since we can't get more players and fantasy
+points is going to serve our needs." On the revision check: "No, I agree with you. Let's still do the Tuesday check."
+- **Tuesday 10-06 08:17:** the post-lock capture and the revision check against today's pre-lock top-5 captures
+  (08:04 Sat, 08:47 and 11:43 Sun). This decides whether the post-week LineStar history behind L15/L20/L21 (blend
+  +0.19 sd) and L23b (TabPFN stage 1) is honest. The descriptive LineStar-vs-FP read runs once alongside it.
+- **After that, no more LineStar captures or comparisons.** PREREG-O1 reports LINESTAR / BLEND_LS as not captured.
+- **After Week 4** (a reviewed code change): remove the per-union LineStar capture from `sunday_build_host.sh`, so the
+  ownership chain is FP → lag. TabPFN and the blend depend on LineStar and become unreachable; decide whether to
+  remove them or keep them dormant.
+- LineStar is free, so there is no subscription to cancel.
 ## 2026-10-04 (11:30 CDT) — Week 4 entries VERIFIED: the 152 planned entries uploaded exactly; the operator added 2 hand lineups
 
 **Operator:** "I've saved the export spreadsheet to the windows downloads folder as DKEntries_PreLockWeek4. I added two
