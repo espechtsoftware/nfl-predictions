@@ -46,6 +46,13 @@ whether the term mainly adds low-ceiling chalk.
 
 All after Week 4, preregistered where a rule change could follow (descriptive calibration needs no preregistration;
 any rule that uses it does).
+
+**Reviewer's note on item 3 (10-04):**
+- The money path's Odds API exposure is the PLAYER PROPS (55% of every projection), not the game lines, so check
+  props FIRST: coverage by position and slate, the source book and line type (main vs alternate), staleness at each
+  build, props for players later ruled out, and name/id mapping misses.
+- Game lines come second. nflverse schedules carry CLOSING lines, so compare against our snapshot nearest the same
+  time, or the "disagreement" is mostly line movement.
 ## 2026-10-04 (14:09 CDT) — Planned study (operator): injury risk, i.e. injury-prone players and questionable players who play; merged with the Q-haircut study
 
 **Operator:** "Let's also do a study on looking for if a player is injury prone and if they're if they get injured if
