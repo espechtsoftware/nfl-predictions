@@ -12,6 +12,10 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-04 (04:52 CDT) — Sunday 04:52 checkpoint: early props and projections OK
+
+`nfl-week4-early-props` exit 0, `ingest-props-xnwhw` succeeded (04:30–04:33). `nfl-week4-early-project` exit 0,
+`project-slate-btpqr` succeeded (04:45–04:48; succeededCount 1). The 05:00 D12800 runs on fresh projections.
 ## 2026-10-03 (14:27 CDT) — O-22 quick test (operator asked "test now how it affects lineups and if it's better without it"): served projections indistinguishable
 
 A local, serve-path test (no writes; finished 14:26). Production's LightGBM training code (11 components, 400 rounds,
