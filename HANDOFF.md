@@ -12,6 +12,26 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-04 (13:18 CDT) — Planned study (operator): an ENTRY-level player exposure cap
+
+**Operator:** "Something I would like to do a study of after this week is the percentage of lineups we have for a
+player. We had capped that, I believe, at 30%. However, since we're using the same lineups in many contests, I end up
+having people like Chase in 50% of my lineups, and it appears that he's hurt. I think we should consider restricting
+that further."
+
+**The facts:**
+- The enforced cap is 50% of the 105 main book rows (52 rows, `UNION_MAIN_CAP`). The 30% is only the exposure sheet's
+  review flag.
+- The head layout repeats the top rows across the supersats, so entry exposure exceeds the cap: Chase 74/152 (48.7%);
+  Lawrence, P. Washington and Strange about 61%; McCaffrey 62.5%.
+
+**The study (after Week 4; no change for Week 5):** add an entry-level cap (for example 25%, 30%, 35%) to the layout's
+contest assignment and rerun the head-layout replay (107 historical books, the same contest structure). Measure:
+- the EV cost (mean and best per contest, and satellites cashed);
+- the downside (the worst-decile week, the variance of weekly return).
+
+The decision rule is preregistered before any outcome is read. A cap trades mean for variance, so the chosen level is
+the operator's risk preference. It would be usable in Week 6 at the earliest, after a test (money-path rule).
 ## 2026-10-04 (11:46 CDT) — LineStar RETIRED after the one-time Tuesday revision check (operator)
 
 **Operator:** "it seems to me we should just forget about line star since we can't get more players and fantasy
