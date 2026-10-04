@@ -3,6 +3,8 @@
 **For:** the operator (priorities and decisions) and the reviewer (designs).
 **Asked:** "I would like you to do some research and some deep thinking and come up with your own set of questions of
 things that we should do studies on."
+**Revised 10-04 after the reviewer's review** (the ⚠ notes below are binding: closures the first draft missed).
+
 **Basis:** two read-only research passes on 10-04:
 - what has been tested: system study Addenda 91–121, the whole lab LEDGER (000–097), the week-3 post-mortem, the
   09-16 synthesis, the 09-29 reviews;
@@ -41,6 +43,7 @@ The top three proposals follow from that.
   3. Run a power analysis: how many weeks to tell 1.0× from 1.15×?
   4. Output a stake rule candidate, e.g. stake proportional to the lower confidence bound of the edge.
 - **Cost:** about 1–2 days. **It informs:** the weekly contest plan.
+- ⚠ **Reviewer:** this is Add. 95's item (5), "entry-volume analysis with REAL payout curves (blocked: payout.py stylized)". Lead with the power analysis. If separating 1.0× from 1.15× takes more weeks than a season has, say so, and make the stake rule a lower-confidence-bound rule.
 
 ### P2. Is the market better than our model, and should the blend lean further toward it?
 - **Prelim fact** (`div_shadow` × actuals, W1–3, n=600 prop-priced players who played): MAE market 5.28 < served
@@ -58,6 +61,16 @@ The top three proposals follow from that.
 - **Method:** a walk-forward panel on both targets, MAE and the L04 lineup harness, with the decision rule frozen
   first. Pick'em coverage and calibration come first, as a descriptive step.
 - **Cost:** about 2 days. **It informs:** the projection blend (props are 55% of every projection).
+- ⚠ **Reviewer: THREE priors constrain this.**
+  - L04, on lineup outcomes.
+  - The 2025 blend audit (system study ~line 575: MAE flat over w 0.30–0.50, "difference is noise").
+  - The 09-29 review §3, which CLOSED "a heavier market weight": at the TOP of the slate, the players a book is made
+    of, served vs market MAE is 6.29 vs 6.32.
+
+  So a uniform heavier weight is **not** re-proposed. The conditional form is really a BIAS correction, partly O-22's
+  measured QB starter bias. **Order:** the O-22 retrain first, then re-run the prelim on the retrained model. Only if
+  the asymmetry survives, preregister the conditional blend, scored on the top of the slate and on lineup tickets, not
+  all-player MAE. The pick'em coverage step is unaffected.
 
 ### P3. A standing "simple baseline" benchmark: does each layer earn its place?
 - **Prelim fact:** a plain props-only optimizer beat the entered book in 4 of 4 frames (+12.5 to +32.1 per row).
@@ -72,11 +85,19 @@ The top three proposals follow from that.
   of per-layer deltas, with a preregistered review point (e.g. after Week 8).
 - **Cost:** about 1 day to wire, then minutes each Monday. **It informs:** keeping or removing layers. This is the
   in-season evidence adoption track v2 asks for.
+- ⚠ **Reviewer:** score the benchmarks on the book's objective: tickets and line hits by contest class at each
+  contest's own line (the 10-02 Friday review's method). Not points per row. The "+12.5 to +32.1 per row" fact is a
+  mean-points statement, the entered book does not maximise mean points per row, and read that way it misleads.
 
-### P4. Ready to evaluate now: spread dealing (a candidate, not a new study)
-- Built and default-off. The winners study (§0.6) found it **cut empty weeks at no expected cost in all three
-  seasons**, which is exactly the operator's concentration concern (Chase, W2's six busts).
-- It belongs inside study 1 (entry-exposure cap) as the third arm, or as a fast adoption package for Week 6.
+### P4. Spread dealing, corrected: ONLY the one-offset-per-contest variant, which is not built
+- ⚠ **Correction:** the first draft repeated the winners study's claim ("cut empty weeks at no expected cost"). The
+  reviewer's 09-29 addendum CORRECTED it (`reports/2026-09-29-ownership-term-addendum-routing-and-dealing.md` §3;
+  `07_read_layouts.py`). That claim was for ONE contest's rows and never dealt several contests at once.
+  - `ENTER_LAYOUT=spread` AS BUILT (f0da76d5) gives equal-size contests identical rows: 37 distinct rows of 100. Deep-line
+    empty weeks ROSE from 66% to 76%.
+  - Only a variant with **one offset per contest** cut empty weeks: from 25–30% to 11–21%.
+- So study 1's dealing arm is the **offset** version. It must be built first and cite these numbers. It is **not**
+  ready to adopt.
 
 ## Priority 2: the foundation of the tail and the supply
 
@@ -100,8 +121,23 @@ The top three proposals follow from that.
 - **Already known:** a direct ceiling classifier failed (0/8); the breakout classifier is calibrated (AUC 0.85). This
   is calibration of the served distribution, not a new classifier.
 - **Cost:** about 2 days. **It informs:** projection tails, punt valuation, supply.
+- ⚠ **Reviewer:** fine. The QB correlations (.50/.22/.06) come from 3 slates; the panel number decides.
 
-### P6. Simulator correlation repair (named in the record, never run)
+### P6. Simulator correlation repair: CLOSED as proposed (reviewer's ruling)
+- ⚠ **Ruling: Add. 95's reopening condition is NOT met.** The coupling repair has been tried in three forms:
+  - the analog copula (LEDGER 010–012: null);
+  - the similarity-conditioned Schaake shuffle (Add. 99: NEGATIVE on both preregistered held-out measures);
+  - the hierarchical simulator with explicit game- and team-level coupling (PREREG-021/022/027; 049b/c gates; 050 "no
+    arm passes"; 057).
+- `GAME_SIM_PACE=vegas` is a closed null (the system study's simulator table: 185.6 / 5-17, "gate stays off").
+- An empirical copula on 2016–2025 falls inside the first two families.
+- To reopen, a proposal must name what is materially different from all three (e.g. a coupling estimated with
+  point-in-time inputs those laws lacked), state 057's verdict and why it does not cover the new idea, and freeze the
+  evaluation first.
+- The facts below are recorded as ALREADY MEASURED, not as new leads. Note LEDGER 003's recalibration: WR1–WR2
+  realized +.041 under salary roles.
+
+The original text, kept for the record:
 - **Facts:**
   - Within-team coupling is overstated: WR1–WR2 +0.27 in the bank vs +0.016 realized.
   - Cross-team coupling is about 0 simulated vs +0.21 realized.
@@ -124,6 +160,7 @@ The top three proposals follow from that.
 - **Proposal:** fold into study 3 as its market-anchored arm. For active-Q players at T-70, use the market (which
   already prices the Q risk) instead of our haircut. The Flowers case is consistent but n=1.
 - **Cost:** inside study 3.
+- ⚠ **Reviewer:** fine. The market number comes from one week; the calibration-first rule applies.
 
 ## Priority 3: larger builds, worth scoping
 
@@ -136,6 +173,7 @@ The top three proposals follow from that.
   shape have never been modelled. The deep tail (≥220) cannot be powered by the panel (057), so it is prospective
   grading only.
 - **Cost:** about 4–5 days.
+- ⚠ **Reviewer:** scope later. Price the duplication model on the 1.49M field rows outcome-blind first.
 
 ### P9. E0: how much of the gap to the oracle is recoverable?
 - Named in the record as "the next lab study" (09-16/17), never run.
@@ -156,10 +194,13 @@ The top three proposals follow from that.
   is due before Week 5's Saturday.
 
 ## Suggested order
-1. **This week:** P1 (contest edge), P3 (baseline benchmark, wired for Monday) and the audits A2–A4.
-2. **Next:** P2 (market weight) and study 1 + P4 (exposure and spread dealing).
-3. **Then:** P5 (calibration), P6 (simulator coupling), study 3 + P7 (injury/Q), P9 (E0).
+1. **This week:** P1 (contest edge, power analysis first), P3 (baseline benchmark, scored on tickets and line hits)
+   and audits A2 and A4 first, then A1 and A3.
+2. **Next:** the O-22 retrain, then P2's prelim re-run (the conditional bias correction only if the asymmetry
+   survives); study 1 with P4's offset-dealing arm (build it first).
+3. **Then:** P5 (calibration), study 3 + P7 (injury/Q), P9 (E0).
 4. **Scope later:** P8.
+5. **Closed:** P6 (recorded as measured facts).
 
 Each item is preregistered before any outcome is read and goes to the reviewer first. Nothing changes the money path
 without a test and the operator's adoption.
