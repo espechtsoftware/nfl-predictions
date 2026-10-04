@@ -12,6 +12,14 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-04 (16:36 CDT) — Study 9b added (operator): each player's bad-game signature
+
+**Operator:** "We should try to identify trends of when a player is not doing well, what was in common with other games
+where that player didn't do well."
+- Within-player extension of study 9.
+- Hierarchical shrinkage toward position-level effects (small samples per player).
+- It counts only if it predicts the player's future games (walk-forward); study 9's multiple-testing guard applies.
+- In `reports/2026-10-04-post-week4-study-list.md`.
 ## 2026-10-04 (16:04 CDT) — After the freeze: O-23 (composite EMIT FAILED) and O-24 (the agent's false STALE alarm); LineStar captures moved
 
 - **O-23:** cause confirmed read-only. The composite re-sort (`player_score.py --k 30`) puts the union book's accepted
