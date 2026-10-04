@@ -63,6 +63,7 @@ without a test and the operator's adoption.
 | Week 5 Mon 10-12 | O1 interim; first P3 weekly read; Week 5 shadow B (no-cpoe/neutral-pass paper) |
 | Week 5–6 | Preregister: study 1 (+ the P4 offset-dealing arm, built first) with study 2 (≤ 2×2); study 3 + P7; the P2 prelim re-run on the retrained model (a conditional bias correction only if the asymmetry survives); studies 5–6 (shootout calibration; odds trust, props first) |
 | Week 6–8 | Studies 7 (DST inputs vs the 0.32 baseline), 8 (OPRK capture, after review), 9 (boom/bust attribution with the BH guard), P5 (quantile calibration), P9 (E0); automation phase 1 (week manifest) |
+| Tue–Wed 10-06/07 | **Local graph + analytics (operator 10-04: "If you feel that Neo4j running locally or any other technology would help us to be able to see these connections… I'm very interested")**: Neo4j Community + a user-space JDK in `~/.local` (no admin rights needed; started only when used, never during build windows), loaded with the FULL Milly fields (~1.5M lineups, ~15M relationships), players/teams/games/stacks, our books and entries, injuries/depth/weather and FP/SIS facts; explored in the Windows browser at localhost:7474. DuckDB in a separate venv for the statistics behind studies 9/9b/10. The Aura Free top slice stays optional (the dashboard panel only) |
 | Later | P8 (field/duplication-aware EV, priced outcome-blind first) |
 | Closed | P6 (simulator coupling: three prior families null/negative; facts recorded) |
 

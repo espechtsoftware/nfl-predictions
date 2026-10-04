@@ -12,6 +12,22 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-04 (16:38 CDT) — Local graph + analytics planned (operator interest): Neo4j Community + DuckDB on the laptop
+
+**Operator:** "If you feel that Neo4j running locally or any other technology would help us to be able to see these
+connections between things, I'm very interested in doing that."
+
+**Plan (Tue–Wed 10-06/07):**
+- **Neo4j Community + a user-space JDK** under `~/.local`. The laptop has 54 GB RAM and 900 GB free, no Java and no
+  sudo; neither is needed.
+- **The full Milly fields:** ~1.5M lineups and ~15M relationships, plus our books, injuries and FP/SIS. Browsed at
+  localhost:7474 from Windows.
+- **DuckDB** in a separate venv (not the production venv) for the study statistics.
+- **Neo4j runs only on demand,** never during Saturday/Sunday build windows.
+- Aura Free stays optional, for the dashboard panel only. Neo4j Desktop/Bloom is optional and would need the operator's
+  Windows install.
+
+Usernames are allowed (operator); the data stays local and untracked.
 ## 2026-10-04 (16:36 CDT) — Study 9b added (operator): each player's bad-game signature
 
 **Operator:** "We should try to identify trends of when a player is not doing well, what was in common with other games
