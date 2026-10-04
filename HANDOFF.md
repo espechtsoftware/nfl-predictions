@@ -34,6 +34,23 @@ ideal uses are, are taken over just any random use."
   let T-70 decide. B2 (FP in the projection blend, Monday) addresses the FP-higher cases separately.
 
 All after Week 4, preregistered, and tested before any entered book (money-path rule).
+
+**Reviewer's notes (10-04, binding for the preregistrations):**
+- **Use-quality allocation:**
+  - The FIRST arm is the joint selection with NO new scoring: one MILP choosing the K main rows to maximise the SAME
+    objective (mean + term) under the same player caps, against today's sequential best-first fill. This is the
+    "plain-mean MILP" item from the Week-3 review.
+  - A hand-built use-quality score is a second arm only, with its weights frozen BEFORE any book is scored (tuning on
+    the 107 books is panel mining).
+  - It stays separate from the entry-cap arms, a 2×2 at most, so the effects can be attributed.
+- **The Q haircut:**
+  - The motivating case is n=1 and outcome-chosen, so the study is never "would Flowers have been in". At T-70 he still
+    ranked 29th in WR value.
+  - Preregister on ALL historical active-Q players. First the calibration question: after the T-70 lift, are
+    active-Q projections biased against realized points, by position?
+  - Then the pool arm (no haircut, or a smaller "likely to play" haircut, in the supply builds; T-70 unchanged), scored
+    on the historical books.
+  - Only a calibration bias justifies changing the haircut; the pool arm measures what it buys.
 ## 2026-10-04 (13:18 CDT) — Planned study (operator): an ENTRY-level player exposure cap
 
 **Operator:** "Something I would like to do a study of after this week is the percentage of lineups we have for a
