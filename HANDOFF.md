@@ -12,6 +12,14 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-04 (07:52 CDT) — Sunday 07:52 checkpoint: the early chain is complete; the Sunday D12800 is the supply
+
+- Early props (04:30–04:33) and project (04:45–04:48) succeeded.
+- `nfl-week4-d12800-sun-build` exited 0 at 07:24 (2 h 24 min). Run `20261004T100027765133Z-32cdb61` (2560/10240) has
+  its receipt, `audit_passed`, candidates (12,324) and sidecars.
+- `resolve_saturday_run` (read-only, the live dir, as of now) picks it ahead of Saturday's D12800, so the 09:10 and
+  T-70 unions use the Sunday pool.
+- The production checkout is clean at `4355ac65`.
 ## 2026-10-04 (05:41 CDT) — Automation design: alerts by phone app (operator)
 
 **Operator:** "I prefer a phone app for alerts." Recorded in the design's §9 (Pushover recommended for its emergency
