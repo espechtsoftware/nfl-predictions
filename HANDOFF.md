@@ -12,6 +12,23 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-04 (13:45 CDT) — Planned for Monday 13:47 (operator): the Chase-injury study
+
+**Operator:** "let's do a study about that, of how badly that is hurting me, and if we should have been smarter about
+how we used him."
+
+**Part 1: the exact damage** (from the settled standings).
+- Recompute each Chase entry with his projection (20.6) or a p50–p75 band in place of his realized points.
+- Report the cashes lost, the points short, and the change in return (dollars only in a private file; multiples in
+  public records), plus the injury's share of the week's result.
+
+**Part 2: hindsight-labelled paper rebuilds** of the entered T-70 union.
+- Chase capped at 20% / 30% of entries (layout cap, and an entry-weighted book constraint if feasible), and his uses
+  steered to stacked spots, scored on the realized outcomes.
+- Any less-Chase arm wins by construction this week, so the decision basis remains the preregistered 107-book
+  entry-cap / use-quality replay.
+
+**Report:** `reports/2026-10-05-chase-injury-study.md` (aggregates only).
 ## 2026-10-04 (13:44 CDT) — In-game: Ja'Marr Chase OUT with a concussion (operator); 75 of 154 entries carry him
 
 **Operator:** "Chase is out w concussion."
