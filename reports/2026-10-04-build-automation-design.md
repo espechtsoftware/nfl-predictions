@@ -103,7 +103,7 @@ One YAML file per week, private parts referenced by location, never inlined:
 season: 2026
 week: 5
 group: 154xxx
-release: v2026.10.11-1          # pinned production release (tag or wheel)
+release: v2026.10.11-1          # pinned production release: a tag, run as a read-only worktree (§5.5)
 lab_clone_sha: 32cdb61...
 doses: {saturday: [2560/10240, 1280/5120], sunday_early: 2560/10240, d3200: 0/4800, t70: 0/4800}
 threads: 8
