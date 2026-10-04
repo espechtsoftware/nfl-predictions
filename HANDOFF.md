@@ -12,6 +12,29 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-04 (14:09 CDT) — Planned study (operator): injury risk, i.e. injury-prone players and questionable players who play; merged with the Q-haircut study
+
+**Operator:** "Let's also do a study on looking for if a player is injury prone and if they're if they get injured if
+they're listed as questionable during games in the past that we discount them somewhat."
+
+**One combined injury-risk study** (with 6121d759 item 2 and the reviewer's calibration-first rule, a3792215):
+1. **Calibration:** do active-Q players under-score their (post-T-70) projections or leave early more often, by
+   position? This tests whether the flat 0.8 haircut is too strong (Flowers) or too weak.
+2. **Injury-prone:** does point-in-time injury history predict an in-game early exit? Candidates: prior in-game exits,
+   missed games, injury type (soft-tissue, concussion), age, position. Windows end 1 PRECEDING, so history comes only
+   from prior weeks.
+3. **Action candidates:** a projection discount vs a lower exposure cap for high-risk players (ties to the entry-cap
+   study).
+
+**Method:**
+- Label every historical player-game "early exit" (a snap share far below his usual) and "inactive/out", from nflverse
+  snap counts, injury reports and pbp.
+- Measure the base rates, then preregister a fixed discount or cap rule and test it on projection accuracy and the
+  historical books.
+- Report predictable vs random injury risk; contact injuries such as Chase's concussion are mostly random.
+
+**Before preregistration:** a support census (counts of active-Q and early-exit events per cell). The leakage rules
+apply in full: the O-22 class sweep shows how event-only joins leak.
 ## 2026-10-04 (13:45 CDT) — Planned for Monday 13:47 (operator): the Chase-injury study
 
 **Operator:** "let's do a study about that, of how badly that is hurting me, and if we should have been smarter about
