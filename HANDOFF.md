@@ -51,6 +51,20 @@ All after Week 4, preregistered, and tested before any entered book (money-path 
   - Then the pool arm (no haircut, or a smaller "likely to play" haircut, in the supply builds; T-70 unchanged), scored
     on the historical books.
   - Only a calibration bias justifies changing the haircut; the pool arm measures what it buys.
+
+**Operator addition (10-04):** "Yes, and let's also look at how those players are selected by the winners or the, the
+leaders in the major contests."
+- A DESCRIPTIVE first step for the use-quality study, on the 2026 Millionaire fields (W1–3 in BigQuery; W4 after
+  Monday's import): when the top 0.1% / 1% (and repeat top finishers by name) play a heavily owned player, how do they
+  use him vs the field?
+  - stack membership: with his QB, a bring-back, or alone;
+  - the game environment;
+  - who he is paired with;
+  - the fade rate.
+- **Guardrail:** this only GENERATES the use-quality score's definition. Its weights are frozen before any book is
+  scored and tested on separate historical books, never fitted and tested on the same weeks (the reviewer's
+  panel-mining rule).
+- It overlaps the dashboard's insights 1/3/4.
 ## 2026-10-04 (13:18 CDT) — Planned study (operator): an ENTRY-level player exposure cap
 
 **Operator:** "Something I would like to do a study of after this week is the percentage of lineups we have for a
