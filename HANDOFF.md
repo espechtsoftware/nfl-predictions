@@ -12,6 +12,10 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-04 (05:08 CDT) — Sunday 05:08 checkpoint: the Sunday D12800 is running
+
+`nfl-week4-d12800-sun-build` is active. Runtime preflight OK at 05:00:13 (group 154078, book_entries 105, layout
+head, order greedy, clone 32cdb61); no REFUSED/FAILED lines. Expected done around 07:35.
 ## 2026-10-04 (04:52 CDT) — Sunday 04:52 checkpoint: early props and projections OK
 
 `nfl-week4-early-props` exit 0, `ingest-props-xnwhw` succeeded (04:30–04:33). `nfl-week4-early-project` exit 0,
