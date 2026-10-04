@@ -33,6 +33,21 @@ Detail and the reviewer's binding design notes live in the HANDOFF entries cited
 - **Audits:** A1–A4.
 
 
+**Completely different approaches (operator 10-04: "think completely outside of the box…"):** see
+`reports/2026-10-04-different-approaches.md`.
+- It builds on the 09-25 round (R1–R19): sponsor R17 as study 10; start the R14 LLM fact log; keep R6/R7/R12.
+- **New:**
+  - X1 scenario arbitrage;
+  - X2 field-softness index;
+  - X3 a method portfolio with online allocation;
+  - X4 the operator-signal log;
+  - X5 frequent-pattern mining of winning combinations;
+  - X6 a public-attention ownership signal;
+  - X7 an LLM lineup critic (long shot);
+  - X8 a GNN (long shot);
+  - X9 a scenario-spanning corpus (conditional on X1).
+
+
 ## Approved plan (operator 10-04: "Lets plan on all of that")
 This covers the operator's studies 1–9 and the agent's revised proposals (`reports/2026-10-04-agent-proposed-studies.md`
 @ df811723). Every item is preregistered with the reviewer before outcomes are read, and nothing touches the money path

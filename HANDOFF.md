@@ -12,6 +12,21 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-04 (15:35 CDT) — Study 10 (field-behaviour model) added; "completely different approaches" written (operator)
+
+**Operator:** "Yes" (to the field-behaviour model), then: "think completely outside of the box and for the process of
+adding lineups to the corpus, consider completely different technologies, completely different approaches, and the
+same for every aspect…"
+- **Study 10:** a field-behaviour model on the ~1.49M captured contest lineups (= the 09-25 round's R17).
+- `reports/2026-10-04-different-approaches.md`:
+  - **Framing:** generation is not the bottleneck (81/81 winning players were in our pool), so the new ideas target
+    selection, information and contest choice.
+  - **The 09-25 round:** its status is mapped. Alternate ladders, SGP, Kalshi and simulator coupling are closed or
+    blocked.
+  - **New:** X1–X9.
+  - **Recommended now (logging only):** the R14 LLM fact log, the X4 operator-signal log, X6 attention capture. Then
+    R17/study 10 with X1/X2, and X3 wired with P3.
+- Sent to the reviewer.
 ## 2026-10-04 (15:25 CDT) — OPERATOR APPROVED the study plan: his studies 1–9 plus the agent's revised proposals
 
 **Operator:** "Lets plan on all of that."
