@@ -12,6 +12,18 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-04 (09:41 CDT) — Sunday 09:41 checkpoint: the 09:10 fallback book is published, on FP ownership with the field row; no unexpected fallbacks
+
+- `nfl-week4-d3200-build` exit 0.
+- T-70-style run `20261004T141026701791Z`, then union `20261004T141856106861Z-union-32cdb61`: `audit_passed`, 13
+  checks OK, verify_k90 governed.
+- **Ownership term = FANTASY POINTS:** capture 14:17:46Z (0.0 h old), matched 315/619, coverage 100%, scaled ×0.617
+  to the lag skill total, tilt 0.20.
+- **Supply = the Sunday D12800** (`20261004T100027765133Z`): 12,169 of 12,324 survive (0 missing, 0 unavailable).
+- Book: projected first/last/mean 137.3/130.6/134.2.
+- Row 106 = `field` (134.6, built from the FP file).
+- **Published:** `ENTER -> enter-bundles/K110-20261004T141856106861Z`; TODAY-30-LATEST.md 09:22. Watchers active.
+- **Only expected lines:** LineStar capture failed (the 5-per-game cap); the legacy composite emit failed (known).
 ## 2026-10-04 (07:52 CDT) — Sunday 07:52 checkpoint: the early chain is complete; the Sunday D12800 is the supply
 
 - Early props (04:30–04:33) and project (04:45–04:48) succeeded.
