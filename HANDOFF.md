@@ -24,6 +24,14 @@ out to be shootouts and whether we can trust the odds data that we're being prov
 - FP 17.1, ~16% owned; the FP ownership term nudges toward such chalk.
 - ARI@NYG is a 44.5 total, not a shootout.
 
+**Operator (Wicks, 34/110 book rows, 32/154 entries):** "Dontavian Wicks looks like another mediocre player that we
+take a bit. I think we need to be pickier about which players we're choosing if we think that a game is going to be a
+shootout."
+- Wicks: $4,300 PHI WR; projections 8.1/8.9/9.3/11.1, actuals 15.3/12.4/5.2; LAR@PHI is a 42.5 total, not a shootout.
+- He is chosen as a cheap salary enabler (with the FP term adding mildly; FP ~14% owned).
+- The use-quality arm therefore covers ALL positions, not only RBs, including the cheap "enabler" slots: prefer cheap
+  players from high-environment games and with ceiling over flat mid-floor fills.
+
 **1. RB use quality (added to the use-quality study, 6121d759 / a3792215):** game environment (total, spread, pace)
 and ceiling (p90 / receiving role) enter the frozen-weights second arm. Main-book selection today is mean + term,
 which does not distinguish steady from spiky backs. Monday's unchanged comparison (FP term vs lag vs none) shows
