@@ -12,6 +12,20 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-04 (05:35 CDT) — Build automation design proposed (operator asked; no change for 1–2 weeks)
+
+**Operator (10-04):** "I don't want to change anything in the next week or two, but eventually it would be nice if
+the entire build process could be automated so it doesn't need to be manually done by you. I'll still want you to
+monitor it however." He asked for a design document.
+
+`reports/2026-10-04-build-automation-design.md`:
+- **Proposal:** a reviewed week manifest (one source of truth) plus Dagster on the laptop. Assets are the weekly
+  artifacts; asset checks are today's gates; fallbacks become explicit branches; event sensors replace guessed times;
+  releases are pinned instead of a frozen checkout; push alerts and a dashboard status panel.
+- **Migration:** five reversible phases from Week 6, watch-only before any trigger, with the systemd fallback kept.
+  About 6–9 agent days.
+- **Decisions for the operator later:** Dagster vs Prefect Cloud, the alert channel, a standby worker, the start week.
+- For the reviewer's design review.
 ## 2026-10-04 (05:08 CDT) — Sunday 05:08 checkpoint: the Sunday D12800 is running
 
 `nfl-week4-d12800-sun-build` is active. Runtime preflight OK at 05:00:13 (group 154078, book_entries 105, layout
