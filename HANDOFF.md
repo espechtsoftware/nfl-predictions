@@ -12,6 +12,17 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-04 (15:25 CDT) — OPERATOR APPROVED the study plan: his studies 1–9 plus the agent's revised proposals
+
+**Operator:** "Lets plan on all of that."
+- The schedule is in `reports/2026-10-04-post-week4-study-list.md` → "Approved plan".
+- **Next three days:**
+  - Tue: A2 (OPEN-DEFECTS review) and A4 (Week-5 deadlines), after the LineStar check.
+  - Wed: P1 (payout ladders, then the power analysis) and P3 (simple-baseline paper toggles, scored on tickets and
+    line hits).
+  - Thu–Fri: the O-22 fix and retrain, after the lock-filter item.
+- Preregistrations go to the reviewer before any outcome is read.
+- P6 is closed. Spread dealing enters study 1 only as the offset variant, built first.
 ## 2026-10-04 (15:16 CDT) — The agent's own study proposals (operator asked for research and deep thinking)
 
 **Operator:** "I would like you to do some research and some deep thinking and come up with your own set of questions

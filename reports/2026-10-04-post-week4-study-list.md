@@ -32,6 +32,24 @@ Detail and the reviewer's binding design notes live in the HANDOFF entries cited
 - **P9:** E0 recoverable regret.
 - **Audits:** A1–A4.
 
+
+## Approved plan (operator 10-04: "Lets plan on all of that")
+This covers the operator's studies 1–9 and the agent's revised proposals (`reports/2026-10-04-agent-proposed-studies.md`
+@ df811723). Every item is preregistered with the reviewer before outcomes are read, and nothing touches the money path
+without a test and the operator's adoption.
+
+| When | Work |
+|---|---|
+| Mon 10-05 | The Monday order (O1/A3/B2 readers, the unchanged comparison, the dashboard publisher dry run); the Chase study (4) |
+| Tue 10-06 | LineStar revision check (then retired). **A2** OPEN-DEFECTS register review (close or re-date with evidence). **A4** Week-5 deadlines (O-3 pass-tail schedulers; plan for the O-22 retrain) |
+| Wed 10-07 | **P1** contest-type edge: payout-ladder table, then the power analysis first (Add. 95 item 5). **P3** simple-baseline benchmark: paper toggles on `union_paper_rebuild.sh`, scored on tickets and line hits by contest class |
+| Thu–Fri 10-08/09 | The O-22 feature fix (as-of), the leakage checks, the retrain, the six-season co-run; the lock-filter item first (top_cb_out, team_ol_out). **A1** DST/11-01 audit. **A3** weekly ownership grading storage |
+| Week 5 Mon 10-12 | O1 interim; first P3 weekly read; Week 5 shadow B (no-cpoe/neutral-pass paper) |
+| Week 5–6 | Preregister: study 1 (+ the P4 offset-dealing arm, built first) with study 2 (≤ 2×2); study 3 + P7; the P2 prelim re-run on the retrained model (a conditional bias correction only if the asymmetry survives); studies 5–6 (shootout calibration; odds trust, props first) |
+| Week 6–8 | Studies 7 (DST inputs vs the 0.32 baseline), 8 (OPRK capture, after review), 9 (boom/bust attribution with the BH guard), P5 (quantile calibration), P9 (E0); automation phase 1 (week manifest) |
+| Later | P8 (field/duplication-aware EV, priced outcome-blind first) |
+| Closed | P6 (simulator coupling: three prior families null/negative; facts recorded) |
+
 **Already scheduled (not studies):** Monday 10-05 (O1/A3/B2 readers, the unchanged comparison, the dashboard publisher
 dry run); Tuesday 10-06 (LineStar revision check, then LineStar retired); O-21/O-22 fixes (features, leakage checks,
 Addendum-32 re-run); the build automation design (phases from Week 6).
