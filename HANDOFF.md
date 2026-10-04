@@ -32,6 +32,20 @@ contest assignment and rerun the head-layout replay (107 historical books, the s
 
 The decision rule is preregistered before any outcome is read. A cap trades mean for variance, so the chosen level is
 the operator's risk preference. It would be usable in Week 6 at the earliest, after a test (money-path rule).
+
+**Reviewer's design notes (10-04, for the preregistration):**
+1. Enforce the cap where exposure is created. Test two arms: (a) an assignment-level cap; (b) an ENTRY-WEIGHTED
+   exposure constraint in main-book selection, where each row is weighted by the entries it will receive under the
+   plan's dealing. A cap in assignment alone cannot push a player below his share of the top rows.
+2. Measure risk, not only mean EV:
+   - the weekly return distribution, the worst-decile week, and P(zero-cash week);
+   - the "one player busts" scenario: the top-exposed player scores below his p20.
+
+   Concentration on chalk was +EV at the satellite lines (winners study), so the EV cost may be real and the choice is
+   a risk preference.
+3. Hold the ownership term fixed across arms (FP at 0.20 as entered); the term and a cap interact.
+4. Reuse L25/L26's harness and the 107 historical books with the same contest structure, with fresh banks. Freeze the
+   decision rule (metric and tolerance) before any outcome is read.
 ## 2026-10-04 (11:46 CDT) — LineStar RETIRED after the one-time Tuesday revision check (operator)
 
 **Operator:** "it seems to me we should just forget about line star since we can't get more players and fantasy
