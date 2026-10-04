@@ -1,0 +1,22 @@
+# Post-Week-4 study list (operator requests, 2026-10-04)
+
+**For:** the operator (priorities) and the reviewer (designs). **Standing rule (operator 10-04):** "anything that I say I
+want added to the list" goes here without confirmation. Nothing on this list changes the money path until it is
+preregistered, run, and the operator adopts it (adoption track v2; money-path rule: tested before an entered book).
+Detail and the reviewer's binding design notes live in the HANDOFF entries cited.
+
+| # | Study | Operator's words (abridged) | Key facts so far | Design notes | HANDOFF |
+|---|---|---|---|---|---|
+| 1 | **Entry-level player exposure cap** | "the percentage of lineups we have for a player… consider restricting that further" | Cap is 50% of 105 book rows; the head layout's repeats push entries higher (Chase 74/152, JAX stack ~61%) | Two arms: assignment cap vs entry-weighted book constraint; measure the downside (worst decile, zero-cash week, one-player-bust), not only EV; term fixed; L25/L26 harness, 107 books | abae10d8, db12a754 |
+| 2 | **Use quality: spend capped exposure on a player's best uses** | "a preference of the way that they're used so that ideal uses are taken over just any random use" | Today: a sequential best-first fill | Arm 1 = joint MILP with the same objective (no new scoring); arm 2 = frozen-weight use score; ≤ 2×2 with study 1 | 6121d759, a3792215 |
+| 2a | — how Millionaire leaders use popular players | "how those players are selected by the winners or the leaders in the major contests" | 2026 Milly fields in BigQuery (with user names) | Descriptive; defines arm 2's score only; never fitted and tested on the same weeks | 27c8ef65 |
+| 2b | — position/environment/ceiling selection (RBs, cheap enablers) | Skattebo "never really puts up points"; Wicks "another mediocre player… be pickier… if a game is going to be a shootout" | Skattebo 28/110 rows (steady ~12, p90 ~28); Wicks 34/110 (a $4,300 enabler); neither from a shootout | Environment and ceiling inside arm 2, all positions | d5dec828, 4d7b5f98 |
+| 3 | **Injury risk** (active-Q players; injury-prone players) | "if a player is injury prone… listed as questionable… we discount them somewhat" | Flowers: Q haircut kept him out of every large pool (0 of ~24k), 14.5 at T-70; FP 17.0 | Calibration first; DIFFERENTIAL risk only (average risk is already in the projections); the injury lock-filter (O-22) fixed before the feature SQL | 6121d759, a3792215, 37ce0842, 9bbcb766 |
+| 4 | **Chase-injury study** (this week only) | "how badly that is hurting me, and if we should have been smarter about how we used him" | 75/154 entries carry Chase (concussion, in-game) | Exact damage plus hindsight-labelled paper rebuilds; the decision basis stays study 1/2 | b6962b19, 580300f6 (Mon 13:47) |
+| 5 | **Shootout calibration** | "be critical of the games that we're calling a shootout, whether they actually turn out to be shootouts" | — | Totals and spreads vs realized points (nflverse history + 2026); the hit rate of "shootout" calls | d5dec828 |
+| 6 | **Odds-feed trust** | "whether we can trust the odds data that we're being provided" | Props are 55% of every projection | PROPS FIRST (coverage, book/line type, staleness, ruled-out players, mapping); game lines vs our snapshot at matched times | d5dec828, c00ab62d |
+| 7 | **Defense (DST) projections and exposure** | "the Bears' defense is once again doing quite well… why we weren't considering them" | DST projections 2026 W1–3: corr 0.27, MAE 4.3, bias −0.5; MIN under by 7/wk, LV 5.3, CIN 3.8; Bears 6.8/6.7/6.2 vs 6/7/12 (7th this week, 6 rows) | Candidate inputs (pressure, opp QB turnover rate, opp OL injuries, opp implied total, weather), scored the usual way; DST exposure spread vs concentration (ties to study 1) | this commit |
+
+**Already scheduled (not studies):** Monday 10-05 (O1/A3/B2 readers, the unchanged comparison, the dashboard publisher
+dry run); Tuesday 10-06 (LineStar revision check, then LineStar retired); O-21/O-22 fixes (features, leakage checks,
+Addendum-32 re-run); the build automation design (phases from Week 6).

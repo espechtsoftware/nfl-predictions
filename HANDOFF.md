@@ -12,6 +12,15 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-04 (14:35 CDT) — Study list consolidated; DST study added; standing rule: the operator's study ideas go straight on the list
+
+**Operator:** "It appears the Bears' defense is once again doing quite well. I think we need to look into why we
+weren't considering them so much." Then: "Yes, anything that I say I want added to the list."
+- **Standing rule:** every study idea the operator raises is added without confirmation.
+- The list is consolidated in `reports/2026-10-04-post-week4-study-list.md` (one table: words, facts, design notes,
+  HANDOFF refs).
+- **Study 7, DST projections and exposure:** 2026 W1–3 DST projections correlate 0.27 with the actuals (MAE 4.3, bias
+  −0.5). MIN is under-projected by 7/wk, LV 5.3, CIN 3.8. The Bears were 6.8/6.7/6.2 vs 6/7/12, 7th this week, 6 rows.
 ## 2026-10-04 (14:21 CDT) — Planned studies (operator): RB selection by game environment and ceiling; whether "shootouts" are real; trust in the odds feed
 
 **Operator** (on Cam Skattebo, 28/110 book rows, 30/154 entries): "Let's look into how we're choosing running backs
