@@ -12,6 +12,30 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-04 (17:38 CDT) — OPERATOR GATE for Week 5 money: replay the improved system over Weeks 1–4 and show whether it would have made money
+
+**Operator, verbatim:** "This week once we feel all improvements have been made, I would like you to test it selecting
+over weeks 1-4 and determine if it would have made any money before I decide if im putting any money in."
+
+**The test (Friday 10-09):** the IMPROVED system, FROZEN before scoring.
+- Rebuild each of W1–4 from point-in-time inputs only (that week's pre-lock projection batch, salaries, injuries, news).
+- Place the lineups into the REAL captured fields (`contest_entries`) and pay them by the REAL payout ladders (P1's
+  table).
+- Report per week and per contest class: paper P&L for the improved book vs the actually entered book vs the monkeys
+  (M1–M3).
+- Give a bootstrap or range, not a point estimate.
+
+**Honest limits, stated to the operator:**
+1. Four weeks of top-heavy contests cannot separate skill from luck; a range is reported, plus an explicit "cannot
+   tell" if so.
+2. Improvements prompted by W1–4 flatter themselves on W1–4. So the configuration is frozen before scoring, and the
+   same replay runs on 2022–25 where pools and fields exist, as an untainted check.
+3. FP ownership exists only from W4, so W1–3 use the lag term. The W3 pool is on the powered-off workstation; rebuild
+   it point in time or ask the operator to power it on.
+
+**Dependencies:** W4 standings (Mon), payout ladders P1 (Wed), the O-22 retrain if ready (Thu–Fri), the list of
+improvements actually in the frozen version. The bigger studies (1, 2, 3, 9, 10) land in Weeks 5–8, so the replay states
+exactly which changes it includes. The operator decides Week 5 stakes from it.
 ## 2026-10-04 (17:31 CDT) — OPERATOR (in-game, Week 4 going badly): "take a hard look at how you are picking players"; study 11 added
 
 **Operator, verbatim:** "Once i have the spreadsheets tonight, you need to take a hard look at how you are picking
