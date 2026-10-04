@@ -35,6 +35,15 @@ they're listed as questionable during games in the past that we discount them so
 
 **Before preregistration:** a support census (counts of active-Q and early-exit events per cell). The leakage rules
 apply in full: the O-22 class sweep shows how event-only joins leak.
+
+**Reviewer's notes (10-04, binding):**
+1. The training targets already include early-exit games, so AVERAGE injury risk is in every projection (except where
+   O-22's QB non-NULL branch removed it). The question is only DIFFERENTIAL risk: does point-in-time history identify
+   players whose exit rate exceeds their position's base rate? Any discount is "excess risk above base", or it
+   double-counts. The O-22 fix belongs in the calibration baseline.
+2. Injury-report history features must apply `date_modified <= slate_lock`. Post-lock report edits would leak the
+   early exit being predicted. Run O-22's lock-filter item (top_cb_out, team_ol_out) down BEFORE writing this study's
+   feature SQL.
 ## 2026-10-04 (13:45 CDT) — Planned for Monday 13:47 (operator): the Chase-injury study
 
 **Operator:** "let's do a study about that, of how badly that is hurting me, and if we should have been smarter about
