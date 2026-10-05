@@ -12,6 +12,24 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-04 (19:11 CDT) — Post-mortem and the work list STARTED Sunday night (operator: "Please begin the postmortem and the large list of items to tackle")
+
+Five parallel background jobs, each with disjoint files (scratch outputs or its own worktree/branch):
+1. **Selection post-mortem + the MONKEY benchmark** (M1/M2/M3, ~1,000 books, W1–4 where pools exist), from the
+   26 standings files → `scratchpad/pm-selection/`.
+2. **Chase damage, where the points went (DK-points level), past winners' Week 4** → `scratchpad/pm-players/`.
+   Chase dollars only go to `~/week4-sunday/private/`.
+3. **O-19/O-20/O-23/O-24 fixes, with tests,** on branch `production/week5-defect-fixes-20261004`.
+4. **Dashboard:** user names plus insight 4, the /milly/graph page removed, on `production/dashboard-v2-20261003`
+   (completes the WIP).
+5. **A2 OPEN-DEFECTS evidence review** → `scratchpad/defects-review/PROPOSED.md`.
+
+**Constraint:** DK has not settled the contests, so the official `capture-dk-standings --confirm-settled` import stays
+Monday 09:13. Tonight's analysis reads the saved final standings files directly.
+
+**Monday reminders updated:** 12:43/13:47/14:17/15:17 were replaced by one 11:13 follow-up (the settled-data check,
+study 12 with targets/carries once nflverse W4 lands, merging into `reports/2026-10-05-week4-post-mortem.md`). 09:13
+(import + readers) and later days are unchanged.
 ## 2026-10-04 (19:05 CDT) — Week-4 standings received (26/26), verified complete; copied privately; import Monday 09:13
 
 - The operator saved 26 DK full-standings exports to `C:\Users\erich\Downloads\week4-results`. They were copied to
