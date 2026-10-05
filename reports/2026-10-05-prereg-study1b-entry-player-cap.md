@@ -227,3 +227,33 @@ fixed-point rebuild was rejected: it has no convergence guarantee and costs 3× 
    a cap it does not deliver.
 
 The decision rule, the margin (0.015) and everything else are unchanged.
+
+## Deviation note 3 (2026-10-05, before any scored bank): the reader is frozen and the census is in
+
+**Code:** nfl2 `production/s1b-entry-cap-20261005` @ 635ab60.
+- Reader `scripts/s1b_report.py`, sha256 `f7e40cddeff14dcfbb0eea0ed9782d6a1bd41d30712a3adb18f127de7cb1322c`.
+- Experiment `experiments/s1b_entry_cap.py`, sha256 `c3c3190239258f32ded5d4ea9b274a1591a7f01e3cdcd7aac625a496a4dd1867`.
+- Driver `scripts/s1b_drive.py`; census `scripts/s1b_census.py`; tests `tests/test_s1b_entry_cap.py` (11 pass, and a
+  mutation of the cap check is caught).
+- The overlap ceiling of 10 is hard-set and asserted.
+- The full-path smoke on throwaway bank 1406 passed: build and reader rc 0, output deleted unread.
+- Banks 1404 and 1405 were verified unused by the all-branch bank-label scan. The labels found at 1340 and above are
+  1340, 1341 and 1400–1403.
+
+**The outcome-blind census:** banks 1404/1405, mechanics only, 72 slate-banks, no errors. Verbatim in the lab at
+`results/s1b/CENSUS_s1b.txt`.
+
+| arm | dealt entries changed vs C | miss rate (mean / max) | realized max exposure (mean / max) | slate-banks over the cap |
+|---|---|---|---|---|
+| C | – | – | 0.611 / 0.660 | – |
+| EA (30%) | 0.063 | 0.382 / 0.435 (72 of 72 above 10%) | 0.589 / 0.660 | 72 |
+| EW (30%) | 0.827 | 0.024 / 0.088 | 0.318 / 0.367 | 49 (mean +2.8 entries) |
+| EW25 | 0.869 | 0.025 / 0.095 | 0.263 / 0.306 | 60 |
+| EW35 | 0.748 | 0.027 / 0.116 | 0.368 / 0.435 | 54 |
+
+**Read before any outcome:**
+- EA's frozen rule will report "the cap cannot be achieved by assignment alone" on every slate-bank. That is now
+  known from mechanics.
+- EW delivers the cap to within about 3 entries. The reader's "WSB improvement partial" flag will fire, because the
+  realized maximum exceeds the cap on 49 of 72 slate-banks.
+- No arm is vacuous, and no book is short.
