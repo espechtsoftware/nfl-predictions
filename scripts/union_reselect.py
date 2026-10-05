@@ -189,6 +189,31 @@ def frame_players(t70: pd.DataFrame) -> dict[str, dict]:
     return {r["id"]: r for r in df.to_dict("records")}
 
 
+# Study 1 (production reports/2026-10-05-prereg-study1-deconcentration.md): P(a game at pre-lock total rank r is among the
+# week's 3 highest-scoring games), 2014-2021 OUTCOMES only; rank 15+ = 0.08. --main-game-cap p3 (default off) caps the
+# share of main rows holding >= 3 players from game g at min(0.5, P3[rank_g]); then later solves take <= 2 from g.
+GAME_CAP_P3 = {1: 0.409, 2: 0.336, 3: 0.234, 4: 0.241, 5: 0.255, 6: 0.255, 7: 0.153, 8: 0.197, 9: 0.182, 10: 0.182,
+               11: 0.095, 12: 0.124, 13: 0.161, 14: 0.080}
+GAME_CAP_P3_TAIL = 0.08
+
+
+def game_row_caps(t70: pd.DataFrame, n: int) -> dict[str, int]:
+    """Per game: the most main rows that may hold >= 3 of its players, floor(min(0.5, P3[rank]) * n). Rank = the
+    frame's pre-lock game total, highest first, ties by game id."""
+    import math
+    tot = "game_total" if "game_total" in t70.columns else "total_line"
+    g = t70[["game_id", tot]].dropna().drop_duplicates("game_id").copy()
+    g["game_id"] = g.game_id.astype(str)
+    g = g.sort_values([tot, "game_id"], ascending=[False, True]).reset_index(drop=True)
+    return {gid: int(math.floor(min(0.5, GAME_CAP_P3.get(i + 1, GAME_CAP_P3_TAIL)) * n)) for i, gid in enumerate(g.game_id)}
+
+
+def heavy_games(players) -> set[str]:
+    """Study 1: the games a row holds >= 3 players from (QB and DST count, as MAX_PER_GAME counts them)."""
+    c = Counter(str(p["game_id"]) for p in players)
+    return {g for g, k in c.items() if k >= 3}
+
+
 OWN_FLOOR_PROJ = 5.0          # coverage of the ownership file is counted over the pool's skill players projected at least this
 OWN_TILT_MAX = 0.5            # the tested range is 0.05-0.40 points per ownership point; anything above is a typo
 
@@ -266,7 +291,7 @@ def own_bonus(source: Path, t70: pd.DataFrame, exclude: set[str], tilt: float, m
 
 def pmo_rows(t70: pd.DataFrame, exclude: set[str], n: int, max_shared: int, cap: int | None, min_salary: int,
              existing: set[frozenset], exposure_cap: int | None = None, dst_cap: int | None = None,
-             bonus: dict[str, float] | None = None) -> list[list[str]]:
+             bonus: dict[str, float] | None = None, game_caps: dict[str, int] | None = None) -> list[list[str]]:
     """Plain-mean-optimizer rows on the T-70 frame (L13's R5 form), skipping rosters already in the pool. With
     exposure_cap (L13's PMO_X50: max(1, N // 2)), a player already in that many PMO rows is banned from later solves --
     the form L13 SUPPORTED at p89 (+27.7% tickets vs MEAN, both seasons); the uncapped form was NOT SUPPORTED. With
@@ -286,6 +311,10 @@ def pmo_rows(t70: pd.DataFrame, exclude: set[str], n: int, max_shared: int, cap:
     prev: list[frozenset] = [frozenset(r) for r in existing]
     rows: list[list[str]] = []
     count: Counter = Counter()
+    heavy: Counter = Counter()                                  # study 1: rows holding >= 3 players from a game
+    by_game: dict[str, list] = {}
+    for p in pool:
+        by_game.setdefault(str(p["game_id"]), []).append(p["id"])
     tries = 0
     while len(rows) < n and tries < 3 * n:
         tries += 1
@@ -293,7 +322,12 @@ def pmo_rows(t70: pd.DataFrame, exclude: set[str], n: int, max_shared: int, cap:
         if dst_cap is not None:
             bans |= {p for p, c in count.items() if p in dst_ids and c >= dst_cap}
         bans = bans or None
-        lu = optimize(pool, stack=PRODUCTION_STACK, objective_col=objective, banned_lineups=prev, max_overlap=max_shared, bans=bans, env=env)
+        sets = None
+        if game_caps is not None:
+            full = sorted(g for g, c in heavy.items() if c >= game_caps.get(g, 0))
+            sets = [(by_game[g], "<=", 2) for g in full if g in by_game] or None
+        lu = optimize(pool, stack=PRODUCTION_STACK, objective_col=objective, banned_lineups=prev, max_overlap=max_shared, bans=bans, env=env,
+                      **({"set_constraints": sets} if sets else {}))
         if lu is None:
             break
         ids = [str(p["id"]) for p in lu.players]
@@ -301,6 +335,7 @@ def pmo_rows(t70: pd.DataFrame, exclude: set[str], n: int, max_shared: int, cap:
         if frozenset(ids) in existing:
             continue
         rows.append(ids); existing.add(frozenset(ids)); count.update(ids)
+        heavy.update(heavy_games(lu.players))
     if len(rows) < n:
         print(f"PMO: {len(rows)} of {n} rows solved (the frame ran out of distinct legal rows under the caps)", file=sys.stderr)
     return rows
@@ -391,6 +426,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--sleeve-includes-main", action="store_true",
                     help="with --main pmo_x50: let the tail sleeve also pick from the optimizer's rows (they project highest, so they would take "
                          "most of it). Default off: the sleeve is the union pool's mean selection, the form rehearsed at 23/40 paid.")
+    ap.add_argument("--main-game-cap", choices=["off", "p3"], default="off",
+                    help="study 1 (default off): with --main pmo_x50, cap the share of main rows holding >= 3 players from game g at "
+                         "min(0.5, P3[total rank of g]) (2014-21 outcomes); the plain control rows stay uncapped")
     ap.add_argument("--main-own-tilt", type=float, default=0.0,
                     help="with --main pmo_x50: projection points added to a skill player's objective per point of predicted ownership %% "
                          "(reviewer 2026-09-29: 0.20 with the blended file). Default 0 = the plain-mean optimizer, as entered in Week 4")
@@ -538,9 +576,15 @@ def main(argv: list[str] | None = None) -> int:
             raise SystemExit(f"PMO_X50 MAIN REFUSED: {len(plain_rows)} of {a.entries} rows solved on the T-70 frame under the caps "
                              f"(exposure cap {xcap}, overlap {a.mean_max_shared}, per-game {cap}, salary floor {a.min_salary}); the union's mean main stands")
         main_rows = plain_rows
+        gcaps = game_row_caps(fr, a.entries) if a.main_game_cap == "p3" else None
+        if gcaps is not None and not bonus:
+            main_rows = pmo_rows(fr, excl, a.entries, a.mean_max_shared, cap, a.min_salary, set(), exposure_cap=xcap, dst_cap=dcap, game_caps=gcaps)
+            if len(main_rows) < a.entries:
+                raise SystemExit(f"GAME CAP REFUSED: {len(main_rows)} of {a.entries} rows solved under the per-game cap")
         if bonus:
             t_own = _time.time()
-            main_rows = pmo_rows(fr, excl, a.entries, a.mean_max_shared, cap, a.min_salary, set(), exposure_cap=xcap, dst_cap=dcap, bonus=bonus)
+            main_rows = pmo_rows(fr, excl, a.entries, a.mean_max_shared, cap, a.min_salary, set(), exposure_cap=xcap, dst_cap=dcap, bonus=bonus,
+                                 game_caps=gcaps)
             own_meta["secs"] = round(_time.time() - t_own, 1)
             if len(main_rows) < a.entries:
                 raise SystemExit(f"OWN TERM REFUSED: {len(main_rows)} of {a.entries} rows solved with the ownership term under the caps; "
@@ -707,7 +751,7 @@ def main(argv: list[str] | None = None) -> int:
                                    if a.main == "pmo_x50" else
                                    "union_reselect.py --main mean: top-K by sum of the T-70 mean_projection under the overlap cap and the DST cap; ")
                                   + "the tail sleeve top-T of the union pool by the same score (may repeat main rows)",
-                     "min_proj": a.min_proj, "max_per_game": cap, "tool": {"path": str(tool), "sha256": sha256_file(tool), "production_sha": prod_sha}}
+                     "min_proj": a.min_proj, "max_per_game": cap, "main_game_cap": a.main_game_cap, "tool": {"path": str(tool), "sha256": sha256_file(tool), "production_sha": prod_sha}}
     conf["operational_k"] = a.entries
     conf["selector"] = "mean"                       # LIVE_SELECTOR; the main's own form is config.union.main / main_selector_used
     if a.rehearsal:
