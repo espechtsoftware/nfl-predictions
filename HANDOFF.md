@@ -12,6 +12,34 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-05 (08:00 CDT) — Study 1b (entry-level player cap) preregistration FROZEN at 3da5d1d1
+
+- **What:** the operator's 10-04 request, a cap on any one player's share of ENTRIES (the Chase problem).
+  - Frozen text: `reports/2026-10-05-prereg-study1b-entry-player-cap.md`, sha256 `e5b0643637ee46245247f6dc04cfaa91660f15607420a36148d22fb35aa98dbd`.
+  - It was frozen BEFORE any experiment, driver or reader exists (reviewer order). Build findings become dated
+    deviation notes.
+- **Arms:**
+  - C, the live book and head layout;
+  - EA, an assignment cap at 30% (the overlap rule is never relaxed; a miss keeps its row and is counted; a miss rate
+    above 10% means "the cap cannot be achieved by assignment alone");
+  - EW, an entry-weighted cap at 30% in selection;
+  - EW at 25% and 35%, exploratory.
+  - Fixed across arms: LAG 0.10, K 105, the Week-4 plan, fresh banks 1404/1405 (scanned before use).
+- **Decision:**
+  - Co-primary 1 is WSB, the worst single-bust swing (median → p20, field rescored). It is a manipulation check, and
+    the text says so.
+  - Co-primary 2, the DECISION, is mean entry finish non-inferiority at m = 0.020. The operator chose that margin on
+    10-05 from the power table, which comes from study 1's already-read banks: EA about 0.96, EW about 0.82 at Δ 0.
+  - Secondaries: EBL, the top-3 swing sum, zero-ticket slates.
+- **Reviewer:** accepted the design 10-05, after the circular bust measure was replaced first by EBL and then by WSB.
+- **Next:**
+  1. Lab branch from s1-deconcentration: the experiment, driver and reader.
+  2. A full-path smoke on a throwaway bank, discarded unread.
+  3. The support census.
+  4. Freeze the reader sha.
+  5. The bank scan.
+  6. Code to the reviewer BEFORE any scored run.
+
 ## 2026-10-05 (07:51 CDT) — Morning 10-05: post-mortem done; money gate scored (0.48×); P1; overlays; X1 1–2; study 1 NO DIFFERENCE; briefings/; lab-API guard
 
 **Operator directives (verbatim):**
