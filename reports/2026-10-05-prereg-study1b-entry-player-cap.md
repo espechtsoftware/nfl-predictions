@@ -257,3 +257,16 @@ The decision rule, the margin (0.015) and everything else are unchanged.
 - EW delivers the cap to within about 3 entries. The reader's "WSB improvement partial" flag will fire, because the
   realized maximum exceeds the cap on 49 of 72 slate-banks.
 - No arm is vacuous, and no book is short.
+
+## Deviation note 4 (2026-10-05, before any scored bank): the reader is re-frozen with PARTIAL carrying its numbers
+
+At the reviewer's request, the PARTIAL flag now reads "PARTIAL (over the cap on n/N slate-banks; mean excess +x
+entries; worst +w)". It stays a FLAG and never fails an arm; only the frozen miss rule fails an arm. A bare "PARTIAL"
+would have made an arm at 0.32 against a 0.30 cap read like a failure.
+
+**The reader is re-frozen:** nfl2 `production/s1b-entry-cap-20261005` @ acea6b9.
+- `scripts/s1b_report.py`, sha256 `384e62f77acedb71a0d73baf46e0f7ee79c466f5fb9bb0dc8817baf00f465629`. This supersedes
+  note 3's f7e40cdd.
+- The experiment is unchanged: `c3c3190239258f32ded5d4ea9b274a1591a7f01e3cdcd7aac625a496a4dd1867`.
+- Checks: 11 tests pass, and the full-path smoke on throwaway bank 1406 (2023 W5) passed with build and reader rc 0.
+  Its output was deleted unread.
