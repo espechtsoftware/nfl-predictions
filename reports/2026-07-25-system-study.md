@@ -3865,8 +3865,9 @@ contests AG above / below A1 (W1-4, contest-level, anti-conservative): 5 / 9
   - a slightly lower ceiling (best ≥ 194 0.292 → 0.250);
   - one-player-bust exposure is NOT reduced (0.072 → 0.080).
 - On the real 2026 contests the cap does not bind in W1–2. In W3–4 money is unchanged and mean entry finish is lower
-  (−5.0, −1.3), with no fewer cashless contests. The direction agrees with the panel's slight negative point estimate;
-  the empty-week benefit does not transfer.
+  (−5.0, −1.3). The empty-week reduction seen in the panel's secondaries could NOT be tested on the real contests: too
+  few cashes (W3 0 of 45 in both arms; W4 the same 2 cashes). The primary finish measure is slightly worse in both the
+  panel and the transfer check, so G is not offered.
 - **G is not offered, not even as a risk preference.** The Chase-type single-player risk needs the entry-level player
   cap (study 1's original scope), not a game cap.
 - **Process lessons** (recorded in HANDOFF):
