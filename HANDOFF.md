@@ -12,6 +12,38 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-05 (09:42 CDT) — MONDAY ORDER done (Week 4): standings imported; O1/A3/B2/B1/B3; unchanged comparison; dashboard dry run OK, the DDL is the operator's; studies 15/16 frozen
+
+The report is `reports/2026-10-05-week4-monday-reads.md`; the raw printouts are private in `~/private/week4-monday/`.
+- **Standings:** 26 contests, 174,767 entries (validate → `--apply`).
+  - The extra contest 196305080 is labelled `extra-showdown-sat`.
+  - The Millionaire's 248 missing rows are empty lineups, not a data gap.
+- **O1:** FP Spearman 0.940 vs LAG 0.919 (+0.021); the blend +0.036. Below the +0.06 interim bar; decided after W5.
+- **A3:** article mentions add nothing.
+- **B2:** blending FP improves projection error 5.30 → 5.24.
+- **B1:** the sources are tied.
+- **B3:** 4 disagreements, FP closer on 3.
+- **Unchanged comparison:**
+  - `same` reproduced the entered book byte-identically (`010df6c0`).
+  - Pre-R4 mean points: FP 115.68, lag 0.10 114.97, no term 113.76. The field averaged 118.65.
+  - Row 106: FP 96.98 vs lag 132.28 (one lineup).
+- **Not done:**
+  - C3 (Tuesday);
+  - the A2 TabPFN and BLEND_LS arms (no inputs);
+  - the B4 panel (not preregistered; O-21 first).
+- **Dashboard:** the dry run was reviewer-approved, but `--apply` stopped before writing: the `nfl_dashboard` dataset does
+  not exist, and `ddl.sql` says the operator creates it once. **OPERATOR COMMAND (one line):**
+  `cd ~/projects/.nfl-predictions-worktrees/dashboard-deploy-guard-20261004 && PYTHONPATH=src ~/projects/nfl-predictions/.venv/bin/python -c "from nfl_dfs.dashboard.data import render; print(render('ddl'))" | bq query --use_legacy_sql=false`
+  Then the agent re-runs `publish_dashboard_week.py --season 2026 --week 4 --inputs
+  ~/.cache/laptop-agent/dashboard-snapshots/2026-w04/20261005T143149Z --apply`.
+  - Follow-up (reviewer): label the non-contest arms' `cash_rate` as "≥ Millionaire cash line".
+- **Operator requests today:**
+  - Study 15 (QB + 1 + bring-back): FROZEN `78ab9a95`. Lab `production/s15-qb-stack-20261005`: `TeamStackRules`, with
+    an MILP boundary test and a mutation check. The smokes pass; the census on 1407/1408 is running.
+  - Study 16 (the thesis portfolio): FROZEN `fa38a7f8`, margin 0.015 confirmed by the operator. Lab
+    `production/s16-thesis-portfolio-20261005`: 7 tests and a mutation check. Needs deviation note 1 (D'Hondt rank order;
+    the blowout share split across qualifying teams) before its smoke.
+
 ## 2026-10-05 (09:06 CDT) — Study 1b READ: EA FAIL (cap not achieved by assignment), EW FAIL (cost); reproduced by the reviewer; no adoption
 
 - **Scored run:** banks 1404/1405, 72 of 72 slate-banks, no errors. The reader (sha 384e62f7, note 4) printed its sha.
