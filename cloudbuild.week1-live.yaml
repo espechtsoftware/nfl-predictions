@@ -55,6 +55,7 @@ steps:
           tests/test_live_shadow_portfolios.py \
           tests/test_own_shadow.py \
           tests/test_sql_dir.py \
+          tests/test_check_lab_api.py \
           tests/test_prospective_sis_pass_tail_shadow.py
         python -Werror::SyntaxWarning -m compileall -q src
 

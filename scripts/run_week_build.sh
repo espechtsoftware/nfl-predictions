@@ -11,6 +11,9 @@ fi
 source "$SCRIPT_DIR/week_env.sh"
 week_env "$WEEK" "${GROUP:-}"
 "$PROD_PY" "$SCRIPT_DIR/check_week_runtime.py" --role build
+# Every money-path call into the pinned lab clone must match its signatures (reviewer 2026-10-05: a mocked unit test
+# could not catch union_reselect passing a keyword the pinned optimize lacks). Hard: a mismatch or a missing clone stops.
+"$PROD_PY" "$SCRIPT_DIR/check_lab_api.py" --clone "$CLONE"
 if [[ "${1:-}" == '--check' ]]; then exit 0; fi
 # A runtime-valid checkout can still have missing or stale warehouse inputs.
 # Keep a distinct receipt per invocation, including failed preflights.
