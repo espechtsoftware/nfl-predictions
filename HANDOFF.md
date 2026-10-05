@@ -12,6 +12,20 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-05 (14:19 CDT) — Study 12 (Week 4, descriptive) done: post-mortem §14; JAX passing question answered in §13
+
+- **Underperformers in ≥ 30% of entries:** McCaffrey, P. Washington, Lawrence, Addison, G. Wilson, Chase, McBride,
+  each with who absorbed his points and the opposing defense's W1–3 profile.
+- **The matchups mostly favored us:**
+  - DEN had the worst run defense in the league (so McCaffrey's matchup was the best possible);
+  - MIA and NYG were 32nd and 28th against the pass.
+  - The losses were distribution (Hockenson took Jefferson's targets; SF spread its points) and game script (JAX).
+- **The one pre-game warning:** G. Wilson vs CHI (pass D 5th, run D 25th).
+- **§13:** JAX's low passing was not foreseeable. The market (51.5 total, JAX +2.5, Lawrence 257.5 yards) and CIN's
+  pass-funnel profile pointed the other way; JAX led and ran.
+- **The panel study** (team point-spread consistency; whether a pass-tough/run-weak opponent predicts WR busts beyond the
+  props) stays on the list as 12b.
+
 ## 2026-10-05 (13:49 CDT) — The Chase-injury study: `reports/2026-10-05-chase-injury-study.md`
 
 - **Part 1, the exact damage** (settled data = Sunday's): Chase was in 75 of 154 entries (2.5× the field) and scored
