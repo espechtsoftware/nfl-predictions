@@ -531,3 +531,38 @@ target share in brackets):
   - The one mild pre-lock flag: the market had Lawrence 2.1 points BELOW our projection (§1).
 - **The lesson** is not a missed signal. A stack's volume rides on a game script nobody can call before lock. The
   avoidable part was putting about 60% of the entries on one stack (concentration; study 17).
+
+## 14. Study 12 (Week 4, descriptive): where the points went, player by player, and what the matchups said
+
+**Method:**
+- Every non-DST player in ≥ 30% of our 154 entries; the underperformers are those who scored below the pre-lock
+  projection (the T-70 batch before 17:00Z).
+- For each: his teammates' projection against their DK points, usage (nflverse `weekly_stats`), our own exposure to
+  them, and the opposing defense's Weeks 1–3 profile (play-by-play EPA ranks, 1 = best).
+- Private script: `~/private/week4-monday/study12_teammates.py`.
+
+**Who beat their projection** (in ≥ 30% of entries): Hockenson 27.9 (10.6), K. Walker 33.9 (21.6), Strange 16.5 (9.2),
+Aaron Jones 16.8 (15.3), M. Wilson 16.5 (13.8), Chase Brown 19.1 (14.8).
+
+**Who fell short, and where their points went:**
+
+| Player (our entries) | Proj → DK | Who absorbed it (proj → DK) | Opposing defense, Weeks 1–3 | Cause; knowable before the game? |
+|---|---|---|---|---|
+| McCaffrey (62%) | 19.5 → 16.0 | Deebo 9.2 → 18.0; Kittle 12.4 → 17.0; Evans 11.1 → 12.6 | DEN: run D 32nd of 32 (5.0 yds/carry); pass D 10th | Normal usage (15 carries, 5 targets, 1 TD); the 49ers spread the ball. **The matchup was the BEST possible for him**: the "good defense like Denver" was the league's worst run defense. Not foreseeable |
+| P. Washington (62%) | 16.0 → 2.0 | Strange 9.2 → 16.5; C. Rodriguez 3.9 → 9.5 (TD) | CIN: pass D 9th, run D 12th; opponents passed 73% (most in the league) | Volume collapse (23 Lawrence attempts) from the game script: JAX led all game (§13). Not foreseeable; the market expected a big passing day |
+| Lawrence (60%) | 21.2 → 13.1 | – | same | Same. The market had him 2.1 below our projection (a mild flag) |
+| Addison (55%) | 13.5 → 9.1 | **Hockenson 10.6 → 27.9** (13 targets) | MIA: pass D **32nd** (worst) | A good matchup; Jefferson's vacated targets went to the TE, not Addison. Which teammate absorbs vacated targets was a coin flip pre-game (we projected Addison above Hockenson). Not foreseeable as such |
+| G. Wilson (54%) | 18.0 → 5.7 | I. Williams 8.9 → 15.3 (TD) | **CHI: pass D 5th, run D 25th** | **The one real pre-game warning**: a pass-tough, run-weak defense, which is exactly the operator's pattern. NYJ lost 23–12 on 15 Geno attempts. Knowable in the data, though it is one factor among several |
+| Chase (49%) | 20.6 → 5.7 | Higgins 14.5 → 29.7; D. Meyers 4.9 → 15.2; Burrow 21.4 → 28.7 | JAX: pass D 3rd | An in-game concussion. Not foreseeable; CIN's passing game still produced, through his teammates |
+| McBride (31%) | 16.8 → 10.1 | Allgeier 5.6 → 12.9 (TD); M. Wilson 13.8 → 16.5 | NYG: pass D 28th | A good matchup; 12 targets but low efficiency. Not foreseeable |
+
+**What it says, in plain words:**
+1. The matchups mostly FAVORED our players (DEN's run D, MIA's and NYG's pass D were among the league's worst). The
+   losses came from distribution inside teams (targets went to the TE, or were spread) and from game script, not from
+   tough matchups.
+2. **One matchup warning was in the data:** Garrett Wilson against Chicago's top-5 pass defense and weak run defense.
+   Whether a "pass-tough, run-weak" opponent predicts WR busts beyond what the props already price is the panel study
+   (study 12b, on the list). One week cannot answer it.
+3. **Does a team spread its points consistently?** That is also the panel study; one week cannot answer it. Week 4's
+   examples (SF, CIN, MIN) all spread their points away from our player.
+4. The common thread is concentration again. Each of these misses hit 50–62% of our entries at once.
