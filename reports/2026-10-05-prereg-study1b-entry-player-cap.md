@@ -198,3 +198,32 @@ points?"
 - A cap that truly costs half a point now passes only 25–40% of the time. EW's test is close to a coin flip even when
   the cap is harmless.
 - Everything else in the frozen text is unchanged.
+
+## Deviation note 2 (2026-10-05, after an outcome-blind mechanics smoke, before any scored bank): EW is enforced at entry level
+
+**What the smoke showed:** throwaway bank 1406, 2023 W1, the Week-4 plan (147 entries), mechanics only.
+- EW as frozen does not hold its cap. The realized maximum player exposure is:
+  - EW: 50 entries against a cap of 44;
+  - EW25: 42 against 36;
+  - EW35: 64 against 51.
+- The cause: the frozen w_k come from assign_ranks BEFORE the small-contest overlap limit. limit_small_overlap then
+  re-deals the 2–10-entry contests onto later ranks, whose players gain entries the w_k never counted.
+- On the same slate, EA missed 58 of 147 entries (39%), and its maximum stayed at 81 entries against C's 82.
+
+**The change (reviewer-accepted):** EW, EW25 and EW35 are each built as their own capped book (unchanged), dealt as C,
+THEN passed through EA's frozen re-deal at the same level. Misses are counted and reported per arm exactly as for EA. A
+fixed-point rebuild was rejected: it has no convergence guarantee and costs 3× the solves.
+
+**What the arms now mean:**
+- EA is the cap by assignment alone.
+- EW is selection diversification PLUS assignment enforcement.
+- So EW vs EA isolates what selection adds.
+
+**Reader additions (before its sha is frozen):**
+1. The reader reports each arm's REALIZED maximum player exposure, in entries and as a share, per slate and pooled,
+   beside its miss rate. It is the honest manipulation check behind WSB. If an arm's realized maximum stays above its
+   cap, the reader says that WSB's improvement is partial.
+2. The frozen "> 10% misses → the cap cannot be achieved" rule applies to EW as well as EA. A leaky arm cannot pass on
+   a cap it does not deliver.
+
+The decision rule, the margin (0.015) and everything else are unchanged.
