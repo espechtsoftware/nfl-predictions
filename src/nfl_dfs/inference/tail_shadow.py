@@ -10,9 +10,13 @@ grading.
 
 from __future__ import annotations
 
+import json
 import logging
 import os
 from datetime import date, datetime, timezone
+from hashlib import sha256
+from types import MappingProxyType
+from typing import Mapping
 
 import pandas as pd
 
@@ -57,6 +61,153 @@ POLICY_SPEC = {
 }
 SHADOW_ENTRIES = 80
 SHADOW_TAIL_LINE = 194.0
+
+# --- Route Share gate contracts (O-2 / O-25, 2026-10-05) --------------------
+# The paired role-union shadows run under exactly ONE declared contract. There
+# is no default: a job that does not say which contract it is producing books
+# for is refused, because a book built under an undeclared mixture of the two
+# (Weeks 3-4: N_BOOM=160 beside the frozen N_CE=12/GEN_TOTAL_BUDGET=52) is an
+# invalid week that looks complete.
+ROUTE_SHARE_CONTRACT_ENV = "ROUTE_SHARE_CONTRACT"
+ROUTE_SHARE_FROZEN_2026_08 = "frozen-2026-08"
+ROUTE_SHARE_COMPANION_V1 = "companion-v1"
+ROUTE_SHARE_CONTRACTS = (ROUTE_SHARE_FROZEN_2026_08, ROUTE_SHARE_COMPANION_V1)
+# The 2026-08-11 frozen gate contract (12 CE / 12 role / 28 boom,
+# reports/2026-08-11-route-share-2026-shadow-gate.md). Never edited in place.
+FROZEN_2026_08_SETTINGS = MappingProxyType({
+    "GEN_TOTAL_BUDGET": "52",
+    "N_CE": "12", "N_EPISTEMIC": "12", "N_BOOM": "28",
+    "N_GUMBEL": "0", "REPLACEMENT_SLOTS": "12",
+    "EPISTEMIC_FAMILY": "role_draws",
+    "ROLE_BELIEF_FEATURES": ROLE_FEATURES,
+    "ROLE_BELIEF_SEED": "7331", "CE_SEED": "1701",
+})
+# Companion v1 (reports/2026-09-19-route-share-current-policy-companion.md):
+# the same pair under the adopted money-path generation. Only the KEYS are
+# listed here; every VALUE is read from ClassicProductionPolicy's
+# engine_environment(), so the contract cannot drift from production_policy.
+COMPANION_V1_KEYS = (
+    "GEN_TOTAL_BUDGET", "N_LEV", "N_CE", "N_EPISTEMIC", "N_BOOM",
+    "N_GUMBEL", "REPLACEMENT_SLOTS", "BOOM_UNIQUE_FILL",
+    "EPISTEMIC_FAMILY", "ROLE_BELIEF_FEATURES", "ROLE_BELIEF_SEED",
+    "CE_SEED", "BLEND_MODEL_WEIGHT", "LIVE_SIMS", "GAME_SIM_MODE",
+    "SERVED_POSITION_SCALES", "MODEL_ENSEMBLE", "MIN_LINEUP_SALARY",
+)
+# The gate freezes one single-seed player-distribution artifact per arm, which
+# the five-seed CBWU build cannot capture (live_lineups refuses the pair), so
+# the companion is the money-path generation on ONE seed. These stay unset.
+COMPANION_V1_SINGLE_SEED_KEYS = (
+    "MULTISEED_PORTFOLIO", "MULTISEED_SEED_PAIRS",
+    "MULTISEED_WORLDS_PER_BLOCK", "MULTISEED_CANDIDATE_ENTRY_BASIS",
+)
+# Recorded in every candidate row's lever_env (a registered lever key), so a
+# weekly reader can tell a companion book from a frozen-contract book.
+COMPANION_V1_SHADOW_ID = "2026-route-share-companion-v1"
+# An execution-scoped override (gcloud run jobs execute --update-env-vars
+# SHADOW_DRY_RUN=1): the full path runs and persists, but under a panel id and
+# run type no graded reader selects.
+SHADOW_DRY_RUN_ENV = "SHADOW_DRY_RUN"
+DRY_RUN_PANEL_PREFIX = "dryrun-"
+DRY_RUN_CANDIDATE_RUN_TYPE = "live_shadow_dryrun"
+
+
+def _adopted_policy():
+    from .production_policy import ADOPTED_CLASSIC_POLICY
+
+    return ADOPTED_CLASSIC_POLICY
+
+
+def companion_v1_settings(policy=None) -> dict[str, str]:
+    """The companion-v1 settings, derived from the adopted money path."""
+    engine = (policy or _adopted_policy()).engine_environment()
+    return {key: engine[key] for key in COMPANION_V1_KEYS}
+
+
+def route_share_contract_settings(contract: str) -> dict[str, str]:
+    """Exact environment one declared contract requires."""
+    if contract == ROUTE_SHARE_FROZEN_2026_08:
+        return dict(FROZEN_2026_08_SETTINGS)
+    if contract == ROUTE_SHARE_COMPANION_V1:
+        return companion_v1_settings()
+    raise RuntimeError(
+        f"{ROUTE_SHARE_CONTRACT_ENV} must be one of "
+        f"{list(ROUTE_SHARE_CONTRACTS)}, got {contract!r}")
+
+
+def route_share_job_environment(contract: str) -> dict[str, str]:
+    """What a paired job must declare: the contract name plus its settings."""
+    return {ROUTE_SHARE_CONTRACT_ENV: contract,
+            **route_share_contract_settings(contract)}
+
+
+def check_route_share_contract(environ: Mapping[str, str]) -> dict:
+    """Refuse anything but one declared contract's exact settings.
+
+    Returns the receipt recorded with the book: the contract name, every
+    checked setting and the settings' canonical sha256.
+    """
+    contract = environ.get(ROUTE_SHARE_CONTRACT_ENV)
+    if contract in (None, ""):
+        raise RuntimeError(
+            f"role-union shadow requires {ROUTE_SHARE_CONTRACT_ENV} in "
+            f"{list(ROUTE_SHARE_CONTRACTS)}; there is no default")
+    expected = route_share_contract_settings(contract)
+    wrong = {
+        key: (environ.get(key), value)
+        for key, value in expected.items()
+        if environ.get(key) != value
+    }
+    if wrong:
+        raise RuntimeError(
+            f"role-union shadow has incorrect frozen settings for "
+            f"{ROUTE_SHARE_CONTRACT_ENV}={contract}: {wrong}")
+    if contract == ROUTE_SHARE_COMPANION_V1:
+        policy = _adopted_policy()
+        multiseed = {
+            key: environ[key] for key in COMPANION_V1_SINGLE_SEED_KEYS
+            if environ.get(key) not in (None, "")
+        }
+        if multiseed:
+            raise RuntimeError(
+                f"companion-v1 is single-seed; unset {multiseed}")
+        engine = policy.engine_environment()
+        ignored = (
+            set(COMPANION_V1_KEYS) | set(COMPANION_V1_SINGLE_SEED_KEYS)
+            | {"MODEL_REGISTRY_VARIANT"}
+            # Construction is resolved by the named preset and compared as a
+            # whole in run(); infrastructure keys pass through untouched.
+            | set(policy.construction_preset().optimizer_environment())
+        )
+        drift = {
+            key: (environ[key], engine[key])
+            for key in sorted(set(engine) - ignored)
+            if key in environ and environ[key] != engine[key]
+        }
+        shadow_id = environ.get("PROSPECTIVE_SHADOW_ID")
+        if shadow_id not in (None, "", COMPANION_V1_SHADOW_ID):
+            drift["PROSPECTIVE_SHADOW_ID"] = (
+                shadow_id, COMPANION_V1_SHADOW_ID)
+        if drift:
+            raise RuntimeError(
+                f"companion-v1 job env contradicts the adopted money path "
+                f"(found, adopted): {drift}")
+    settings_ = dict(sorted(expected.items()))
+    return {
+        "contract": contract,
+        "settings": settings_,
+        "settings_sha256": sha256(json.dumps(
+            settings_, sort_keys=True, separators=(",", ":"),
+        ).encode()).hexdigest(),
+    }
+
+
+def shadow_dry_run(environ: Mapping[str, str]) -> bool:
+    raw = environ.get(SHADOW_DRY_RUN_ENV)
+    if raw in (None, ""):
+        return False
+    if raw == "1":
+        return True
+    raise RuntimeError(f"{SHADOW_DRY_RUN_ENV} must be unset or 1, got {raw!r}")
 
 
 def upcoming_season_week() -> tuple[int, int, date]:
@@ -145,23 +296,14 @@ def run(*, expected_variant: str = K1_VARIANT,
         raise RuntimeError(
             f"shadow policy {label} requires MIN_LINEUP_SALARY="
             f"{expected_floor}, got {actual_floor}")
+    contract_receipt = None
     if label in {K1_ROLE_UNION_LABEL, K1_ROUTE_ROLE_UNION_LABEL}:
-        exact = {
-            "GEN_TOTAL_BUDGET": "52",
-            "N_CE": "12", "N_EPISTEMIC": "12", "N_BOOM": "28",
-            "N_GUMBEL": "0", "REPLACEMENT_SLOTS": "12",
-            "EPISTEMIC_FAMILY": "role_draws",
-            "ROLE_BELIEF_FEATURES": ROLE_FEATURES,
-            "ROLE_BELIEF_SEED": "7331", "CE_SEED": "1701",
-        }
-        wrong = {
-            key: (os.environ.get(key), value)
-            for key, value in exact.items()
-            if os.environ.get(key) != value
-        }
-        if wrong:
-            raise RuntimeError(
-                f"role-union shadow has incorrect frozen settings: {wrong}")
+        contract_receipt = check_route_share_contract(os.environ)
+    elif os.environ.get(ROUTE_SHARE_CONTRACT_ENV, ""):
+        raise RuntimeError(
+            f"{ROUTE_SHARE_CONTRACT_ENV} applies only to the Route Share "
+            f"role-union pair, not {label}")
+    dry_run = shadow_dry_run(os.environ)
     if not os.environ.get("CAND_ARTIFACT_BUCKET", "").strip():
         raise RuntimeError(
             "tail shadow requires CAND_ARTIFACT_BUCKET so the full "
@@ -188,8 +330,11 @@ def run(*, expected_variant: str = K1_VARIANT,
         stamp = stamp.replace(tzinfo=timezone.utc)
     stamp = stamp.astimezone(timezone.utc)
     panel_run_id = (
+        f"{DRY_RUN_PANEL_PREFIX if dry_run else ''}"
         f"live-shadow-{label}-{season}w{week:02d}-"
         f"{stamp.strftime('%Y%m%dT%H%M%SZ')}")
+    candidate_run_type = (
+        DRY_RUN_CANDIDATE_RUN_TYPE if dry_run else "live_shadow")
 
     from .live_lineups import build_sim_lineups
 
@@ -241,6 +386,18 @@ def run(*, expected_variant: str = K1_VARIANT,
     )
     policy_env = dict(os.environ)
     policy_env.update(construction.optimizer_environment())
+    if (contract_receipt or {}).get("contract") == ROUTE_SHARE_COMPANION_V1:
+        adopted = _adopted_policy().construction_preset()
+        if (
+            construction.optimizer_environment()
+            != adopted.optimizer_environment()
+            or construction.stack != adopted.stack
+        ):
+            raise RuntimeError(
+                "companion-v1 construction differs from the adopted money "
+                f"path: {construction.receipt()} vs {adopted.receipt()}")
+        policy_env["PROSPECTIVE_SHADOW_ID"] = COMPANION_V1_SHADOW_ID
+    extra = {"_log_ownership_shadow": False} if dry_run else {}
     lineups = build_sim_lineups(
         season, week, n_entries=SHADOW_ENTRIES,
         stack=construction.stack,
@@ -250,7 +407,7 @@ def run(*, expected_variant: str = K1_VARIANT,
         cand_log_table=f"{settings.predictions}.live_candidates_shadow",
         cand_log_async=False, cand_log_required=True,
         panel_run_id=panel_run_id,
-        candidate_run_type="live_shadow",
+        candidate_run_type=candidate_run_type,
         policy_env=policy_env,
         construction_preset_receipt=construction.receipt(),
         belief_model_variant=role_model_variant,
@@ -260,6 +417,7 @@ def run(*, expected_variant: str = K1_VARIANT,
         belief_forbidden_features=belief_forbidden_features,
         route_source_policy=is_route_pair,
         distribution_artifact_spec=artifact_spec,
+        **extra,
     )
     if len(lineups) != SHADOW_ENTRIES:
         raise RuntimeError(
@@ -268,7 +426,7 @@ def run(*, expected_variant: str = K1_VARIANT,
     log.info("froze %s shadow %s: draft_group=%s lineups=%d tail=%.1f",
              label, panel_run_id, gid, len(lineups),
              SHADOW_TAIL_LINE)
-    return {
+    receipt = {
         "panel_run_id": panel_run_id,
         "season": season,
         "week": week,
@@ -280,4 +438,14 @@ def run(*, expected_variant: str = K1_VARIANT,
             role_model_variant),
         "shadow_label": label,
         "minimum_lineup_salary": actual_floor,
+        "candidate_run_type": candidate_run_type,
+        "dry_run": dry_run,
+        "route_share_contract": (
+            contract_receipt["contract"] if contract_receipt else None),
+        "route_share_contract_settings": (
+            contract_receipt["settings"] if contract_receipt else None),
+        "route_share_contract_settings_sha256": (
+            contract_receipt["settings_sha256"] if contract_receipt else None),
     }
+    log.info("shadow receipt %s", json.dumps(receipt, sort_keys=True))
+    return receipt
