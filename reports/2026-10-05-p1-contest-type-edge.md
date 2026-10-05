@@ -145,3 +145,39 @@ rate.
 - Ties and self-competition are ignored.
 - The week correlation comes from 4 weeks; the conclusion holds even if weeks are independent.
 - Contest 196305080's ladder was rebuilt from the entry history.
+
+## Robustness (reviewer's request, run 2026-10-05 early)
+
+The question: does "below break-even" survive a larger week effect or a larger variance? The realized-row p-values were
+re-run for week correlations (ICC) of 0.062 (measured), 0.15 and 0.25, each with total sd ×0.8, ×1.0 and ×1.2. The
+test's size was also checked by simulating seasons at a true 1.0× (4,000 each).
+
+| Row | Observed | p at ICC 0.062 (sd ×0.8 / 1.0 / 1.2) | p at ICC 0.15 | p at ICC 0.25 | Verdict |
+|---|---|---|---|---|---|
+| Satellites + supersats, W2–4 | 0.12× | 0.002 / 0.007 / 0.011 | 0.014 / 0.030 / 0.047 | 0.041 / 0.076 / 0.107 | **Below break-even up to ICC 0.15; borderline at 0.25** |
+| The 594-entry supersats | 0× | 0.017 / 0.017 / 0.016 | about 0.038 | about 0.073 | Below up to ICC 0.15; borderline at 0.25 |
+| All 2026 | 0.26× | 0.00004 / 0.006 / 0.20 | 0.003 / 0.037 / 0.28 | 0.013 / 0.088 / 0.35 | **Not robust** (fails at sd ×1.2 and at ICC 0.25) |
+| Large GPPs, W1–2 | 0.25× | 0.0007 / 0.032 / 0.28 | 0.008 / 0.081 / … | … | **Not robust** |
+| W4 satellites alone | 0.18× | — | 0.22 | 0.31 | Not distinguishable from break-even |
+
+**Size check** (rejection rate at a true 1.0×, 5% level):
+
+| Case | Rejection rate | Reading |
+|---|---|---|
+| Model correctly specified | 3–5% | Correct |
+| True ICC 0.25, test assumes 0.062 | 13–20% | Over-rejects |
+| All-2026 row with 20% more variance | 36–48% | Badly over-rejects (Millionaire/GPP skew) |
+
+So the all-2026 and GPP p-values are not trustworthy beyond the measured parameters.
+
+**Ticket discount, sensitivity only** (the primary keeps tickets at face): valuing satellite tickets at our measured
+Millionaire multiple (0.53×) moves the W2–4 satellite multiple from 0.12× to 0.07×, and the break-even rate from 1.17×
+to 2.2× the field's.
+
+**The three sentences for the operator** (reviewer's framing):
+1. "We cannot show an edge in any contest type, and within a season we never could have: a true 15% edge would take
+   hundreds of weeks to see in money."
+2. "What we CAN see is that the 2026 satellite books ran below break-even (0.12×). That holds unless the week-to-week
+   effect is much larger than measured. The all-2026 figure (0.26×) is not robust to a larger week effect."
+3. "The finish-level measure, which is far more powerful, puts our rows about 0.15 sd below the Millionaire field, when
+   break-even needs about +0.12 to +0.22. That gap, not luck, is the main story."
