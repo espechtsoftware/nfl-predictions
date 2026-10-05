@@ -128,3 +128,25 @@ Also fixed in the code, consistent with the frozen text:
   200,000 sampled field lineups, in chunks of 100 worlds.
 - Code: nfl2 `production/s16-thesis-portfolio-20261005`. Tests: 7 pass; a mutation that drops the cell constraints is
   caught.
+
+## Deviation note 2 (2026-10-05, after an outcome-blind mechanics smoke, before any census or scored bank): cells (b) and (c) redefined (reviewer-accepted)
+**Evidence** (throwaway bank 1406, 2023 W9, mechanics only):
+- MAX_PER_GAME 4 is a house rule fixed across arms. It counts every player whose `game_id` is the game. DSTs carry
+  side ids, so a DST is NEVER counted.
+- **(c) as frozen was INFEASIBLE.** A row needs the favoured QB, 2 WR/TE (the stack rule), the lead RB and 1
+  bring-back: 5 players from one game.
+  - Three teams qualified (BAL, CLE, NO; spread ≤ −6). All three cells filled 0 rows, and 8 rows passed to the core.
+- **(b) as frozen was perverse.** "≥ 5 players from that game" could be met ONLY through that game's DST, because the
+  stack's QB + 2 + 1 = 4 is the per-game maximum. So every mid row carried a DST from the game it bet would shoot out.
+- **The smoke allocation:** rows core/mid/blow 0.924 / 0.076 / 0.000, against the target 0.85 / 0.075 / 0.075.
+
+**The change** (made outcome-blind, before any census):
+- **(b) mid-total shootout:** the QB's game at total rank 5–8, with the full stack (QB + 2 WR/TE + bring-back = 4, the
+  per-game maximum). "≥ 5 players" is dropped.
+- **(c) favourite blowout, RB-led** (the reviewer's original brief): the favoured team's (spread ≤ −6) lead RB
+  (depth_rank 1, ties by projected carries) AND that team's DST, with at most 1 opponent player.
+  - The QB stack goes wherever the optimizer puts it, under the usual rule.
+  - It is legal: MAX_PER_GAME never counts a DST (side ids), and the RB-vs-DST rule bars only the OPPOSING DST.
+- MAX_PER_GAME is NOT lifted for any arm. That would change a house rule inside one arm and confound it.
+- The census reports, per arm and per cell type, the TARGET share against the REALIZED share and the pass-to-core
+  count, so a cell that rarely fills is visible before scoring.
