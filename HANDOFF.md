@@ -12,6 +12,59 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-04 (19:31 CDT) — Sunday-night results: dashboard update deployed; defect fixes for review; player post-mortem; register review (decisions needed)
+
+**Dashboard update:** `bcd7fc22` (user names + insight 4; /milly/graph removed), cleared by the reviewer.
+- Cloud Build `7f0179dd`: 134 tests passed.
+- Revision **`nfl-dfs-app-00078-k7x`**, 100%; IAM OK (iap on, public none).
+- Rollback: `--to-revisions nfl-dfs-app-00077-mrp=100`.
+- Reviewer follow-up before next Sunday: replace the deploy script's hard-coded NOT_BEFORE with the `week_is_live`
+  guard, plus a test.
+
+**Defect fixes** (`production/week5-defect-fixes-20261004`, pushed, NOT merged, sent to the reviewer): O-19
+`1a4deb30`, O-20 `7852a8b0`, O-23 `5c46d117`, O-24 `b77937ca`. Tests are listed in the reviewer message.
+- O-23 touches `dk_upload_csv_v1.py` (a shared K rule), so the money-lane tests run before merging.
+- The composite top 30 changes by 2 rows.
+
+**Player post-mortem** (`scratchpad/pm-players/REPORT.md`; aggregates; dollars only in `~/week4-sunday/private/`):
+- **The book:** 154 entries, projected 135.4 vs realized 115.6. 3 cashes (the Millionaire seat at 182.58, 99.0th
+  percentile, 0.2 short of the top-1% cut; two $5 25x supersats). About 0.42× fees returned.
+- **Chase:** 48.7% of entries vs 19.5% of the field (2.5×). Not foreseeable (no designation). At projection he
+  recovers only +1 cash (about 0.08× fees): the injury was bad luck, not the main cause. 12.8% of the points-short.
+- **The controllable causes:**
+  - concentration in three games (2.76 / 1.71 / 1.49 slots per entry in CIN@JAX / MIA@MIN / ARI@NYG);
+  - ZERO exposure to DAL@HOU, which decided the week (top-1% lineups: Lamb 70.8%, Collins 68%);
+  - the four games that beat projection held 0.43 of our slots per entry vs 2.10 for the field;
+  - the wrong side of CIN@JAX (CIN +21.6 vs JAX −16.5);
+  - NYJ heavy (G. Wilson 53.9% vs a 12.6% field) despite the lowest implied total of our heavy plays.
+- **Biggest drags per entry:** P. Washington −8.7, Chase −7.3, G. Wilson −6.7, Lawrence −4.9.
+- **Past winners:** they performed exactly as their entry volume predicts. Users with any W1–3 top-1% finish: 377
+  top-1% users in W4 vs 370 expected. "Not all horrible"; there is no persistence beyond volume (the winners study).
+- Monday (needs nflverse): targets, carries and snaps for the "where did the points go" causes.
+
+**A2 register review** (`scratchpad/defects-review/PROPOSED.md`; evidence-based; not yet applied):
+- Close 7 (O-1, O-3a, O-3c, O-3e, O-7, O-12, O-13). Re-date 12. Keep 5. Fix in progress 4.
+- **NEW:**
+  - **O-25:** every Route Share shadow run W3–W4 FAILED (8/8). The jobs carry N_BOOM=160 but the image guard still
+    requires 28, and the checker never looks at run success.
+  - **O-26:** the O-12 salary-week repair exists only in the 09-18 build-features image; the integration/main/week5
+    branches carry the unrepaired SQL, so the next image (e.g. the O-22 retrain) would silently drop 2026 usage
+    history.
+  - **O-27:** shadow-cbwu-oi-paired has failed every run since 09-13, while the checker calls it dormant and running.
+- `check_prospective_gates.py --week 5`: exit 1, FAIL sis-pass-tail-2026 (its three schedulers are PAUSED and the jobs
+  never ran).
+
+**OPERATOR DECISIONS NEEDED:**
+1. Route Share (O-2/O-25) before Sun 10-11 10:20 CT: (a) fix the image guard + one dry run, (b) revert to N_BOOM=28, or
+   (c) pause and stop the reads.
+2. SIS pass-tail (O-3) by Wed 10-07: run it (acquire, dry-run, resume) or move it to dormant with a reason. Verify the
+   SIS session Tuesday.
+3. O-22 retrain: realistic for Week 6, not Week 5. Week 5 runs the current model plus the paper shadow B.
+4. O-26: approve merging the salary-week repair before ANY new build-features image.
+5. Smaller: O-16 (wire or remove UNION_DK_STATUS); O-27 (pause or fix); O-11 (lab fix `aa32ed9` in Week 5 or 6);
+   O-6 (W3–4 lost).
+
+The monkey/selection job is still running.
 ## 2026-10-04 (19:11 CDT) — Post-mortem and the work list STARTED Sunday night (operator: "Please begin the postmortem and the large list of items to tackle")
 
 Five parallel background jobs, each with disjoint files (scratch outputs or its own worktree/branch):
