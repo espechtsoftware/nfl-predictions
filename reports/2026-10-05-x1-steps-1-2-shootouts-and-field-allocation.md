@@ -21,37 +21,42 @@ outcome and no PREREG-098 result was used. Scratch files: `curse/games.csv`, `cu
 
   The top-total game finished in the week's top 3 by scoring only 36% of the time.
 
-## Step 2: does the Millionaire field over-concentrate on top totals? (54 weeks, 2022–2025)
+## Step 2: does the Millionaire field over-concentrate on top totals? (all 72 weeks, 2022–2025)
+
+**Join (fixed per the reviewer):** players are mapped to games through each week's schedule, with canonical team codes
+(`nfl_dfs.dashboard.teams.canon_team`). The first pass took opponents from the salary file; 2025 has none, and it
+covered about 70%. After the fix, 99.99% of player rows and at least 99.9% of each week's ownership mass are joined.
 
 The field's ownership share per game (skill players), by the game's total rank, against how often a game at that
-rank was the week's top scorer in 2014–2021 (out of sample):
+rank was the week's top scorer in 2014–2021 (out of sample). Leverage = P(top game) ÷ field share.
 
-| Total rank | Field share | P(week's top game), 2014–21 | P(top 3), 2014–21 |
-|---|---|---|---|
-| 1 | 14.4% | 19.0% | 40.9% |
-| 2 | 13.1% | 13.9% | 33.6% |
-| 3 | 11.2% | 3.6% | 23.4% |
-| 4 | 10.3% | 7.3% | 24.1% |
-| 5 | 10.5% | 8.8% | 25.5% |
-| 6 | 9.6% | 8.0% | 25.5% |
-| 7–9 | 7.8–8.8% | 5.8–6.6% | 15–20% |
-| 10–12 | 6.7–7.0% | 2.2–8.0% | 10–18% |
+| Total rank | Field share | P(week's top game), 2014–21 | P(top 3), 2014–21 | Leverage |
+|---|---|---|---|---|
+| 1 | 14.5% | 19.0% | 40.9% | **1.31** |
+| 2 | 13.9% | 13.9% | 33.6% | 1.00 |
+| 3 | 12.6% | 3.6% | 23.4% | 0.29 |
+| 4 | 10.8% | 7.3% | 24.1% | 0.68 |
+| 5 | 11.1% | 8.8% | 25.5% | 0.79 |
+| 6 | 9.7% | 8.0% | 25.5% | 0.82 |
+| 7–10 | 7.4–9.1% | 5.8–8.0% | 15–20% | 0.64–1.08 |
+| 11–14 | 5.2–7.2% | 2.2–5.1% | 8–16% | 0.31–0.74 |
+
+**Rank 3's 3.6% is noise, not a join artifact.** It is about 5 events in 137 weeks, and it holds under every tie
+convention (3.9% with min-rank).
 
 ## Reading
 
-1. **The field spreads across games roughly in proportion to the real odds.** If anything it slightly under-owns the
-   top-total game. On base rates there is no systematic game-level mispricing for a contrarian sleeve to exploit.
-2. **The concentration problem is ours, not the field's.** Week 4: 61% of our entries held 3+ players from JAX–CIN
-   (the top total). The field spread out. A game that is the week's top scorer only about 16–20% of the time cannot
-   carry 61% of a book.
+1. **The field is FLATTER than the odds, not more concentrated.** It under-owns the top-total game (leverage 1.31) and
+   over-owns low-total games (leverage 0.3–0.7). On base rates, the leverage sits in the top-total game, not in
+   contrarian low-total games. Week 4's DAL–HOU (rank 3) was the 16%-of-the-time exception, not a pattern.
+2. **Our error is SIZE, not direction.** Leaning on the top-total game is supported. Putting 61% of the book there
+   (Week 4) is not: that game is the week's top scorer about one week in five, and in the top 3 about two in five.
 3. **Consequences:**
-   - X1's remaining step (per-slate mispricing: the market scenario probability vs the field's allocation, slate by
-     slate) can still be preregistered. The aggregate gives it no tailwind.
-   - The stronger, evidence-backed lever is de-concentrating our own book toward the odds-proportional spread the
-     field already has: study 1 + P4. That is now the first study to preregister.
+   - Study 1 + P4 first. The arms set the per-game exposure in proportion to P(top-3 game | total rank) from 2014–21
+     ONLY.
+   - X1's per-slate mispricing step remains possible, but its contrarian form (under-owned low totals) has negative
+     base-rate leverage. Any X1 sleeve would lean toward the top totals the field under-owns.
 
 **Caveats:**
-- About 70% of game-weeks joined between the ownership and schedule data (team-code matching). Unjoined games are
-  missing at random with respect to rank, as far as checked.
 - Field share counts skill players only (no DST).
 - The 2014–21 base rates use 8 seasons.
