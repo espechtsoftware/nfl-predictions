@@ -17,9 +17,9 @@ the laptop.
 | [Path to winning](2026-week-04/2026-10-05-path-to-winning-plan.md) | A ranked plan from the evidence |
 | [Contrarian games (X1, steps 1–2)](2026-week-04/2026-10-05-x1-steps-1-2-shootouts-and-field-allocation.md) | Shootouts are hard to call; the field is flatter than the odds; our error is concentration |
 | [Overlay back-test](2026-week-04/2026-10-05-overlay-backtest-week4.md) | No usable overlays on the classic slate |
+| [Study 1: de-concentration](2026-week-04/2026-10-05-study1-deconcentration-result.md) | Does capping how much of the book one game takes help? (No: steadier on paper, not more money; not offered) |
 
-**In progress:** study 1, de-concentrating the book (frozen preregistration:
-`reports/2026-10-05-prereg-study1-deconcentration.md`).
+**Next de-concentration test:** an entry-level player cap (the Chase problem).
 
 ## Earlier weeks (in `reports/`)
 - Week 3: `reports/2026-09-27-week3-post-mortem.md`
