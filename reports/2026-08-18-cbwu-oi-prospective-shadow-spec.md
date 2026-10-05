@@ -100,3 +100,58 @@ only new artifact is an entry-export step that reads the already-frozen
 20-membership (canonical DK draftable ids) into the DK upload. Live results
 of the entered 20 are settlement facts, not grading inputs; the shadow is
 graded on the frozen books alone.
+
+## Amendment 1 (2026-10-04): the shadow moves to the current money-path policy from Week 5; the frozen 160/40 comparison ends
+
+Recorded before any Week-5 outcome exists (the Week-5 Sunday main locks 2026-10-11).
+
+**Operator decision (2026-10-04), verbatim:** "we absolutely can change things mid-season because if we don't get
+things working in the next week or two, there's going to be not another week."
+
+**1. The frozen 160/40 comparison ends and is not adjudicated.** Collection under this spec's 160-leverage / 40-boom
+population (contract `2026-cbwu-oi-v1`, settings sha256
+`6d68946b27ca35ace348e7ce08340b22566d806a7caebc3815ea0f989feb425e`) stops after Week 4. No verdict, pass or fail, will
+be read from it.
+- **Week 1: one valid panel**, `prospective-cbwu-oi-2026w01-20260906T162624Z`, frozen 09-06 before lock and without
+  outcomes. The slate check (2026-10-04) PASSED:
+  - its draft group 151307 is the Week-1 Sunday main slate (13:00–16:25 ET, 24 teams), the group the fixed
+    Sunday-main rule selects;
+  - its universe of 398 players, 249 candidate players and 172 selected players all come from that group;
+  - none comes from the Wednesday (NE, SEA), Thursday (SF, LA), Monday (DEN, KC) or Sunday-night (DAL, NYG) teams.
+- **Weeks 2–4 are lost.** Every scheduled run failed: the job was pinned to the 09-06 image (`918f5574`), which
+  predates `193e1b44`. On Sundays after a Thursday game it read the stale full-week draft group and stopped at the
+  inference-row guard (OPEN-DEFECTS O-27).
+- **Records.** The frozen settings remain in code and may be used only for labelled dry runs and replays. A live panel
+  under them is refused from 2026 Week 5.
+
+**2. Companion v1 from Week 5.** From 2026 Week 5 the shadow runs under
+`CBWU_OI_CONTRACT=2026-cbwu-oi-companion-v1`.
+- **Generation and selection:** the adopted money path's, derived from `ClassicProductionPolicy.engine_environment()`:
+  - boom-first role 12 / leverage 40 / boom 160, generation budget 172, CE 0;
+  - served position scales;
+  - the registered seeds R0–R4 at 10,000 worlds per block, entry basis 80;
+  - SELECT_LSE 0, 80 entries, tail line 194.
+- **The only difference between arms:** the treatment combines the five identical books with the CBWU-OI-v1 complete
+  union; the control uses the money path's CBWU combine.
+- **Settings sha256:** `9849d07f0ff22a57f75d10a1e4dc909647ca86563eadc134ed6eaf2d5eff4081`.
+- **Enforcement.** The runner refuses a job that does not declare and carry exactly this set.
+- **Future changes.** If production_policy changes any of these settings, the published sha changes and the change is
+  recorded in a dated amendment before the first affected week.
+
+**3. How it is read.** Each scored companion week is read under the in-season adoption track v2
+(`reports/2026-09-19-in-season-adoption-track.md`). Any adoption is the operator's reversible-trial decision, and a
+trial's package needs graded companion weeks as its evidence.
+- **Pooling.** Companion weeks are never pooled with the 160/40 panel. They carry their own panel prefix
+  (`companion-cbwu-oi-v1-`) and run type (`companion_cbwu_oi_v1_shadow`).
+- **Non-transfer.** The money path runs boom-first 40/160; under the post-selection law, the frozen 160/40 verdict
+  does not transfer to it. A verdict about the policy we run therefore comes only from the companion. Any further
+  companion — a different population, law, or downstream stage such as the lab union or head layout — is a NEW
+  companion with its own preregistration and compute decision, not an amendment.
+
+**4. Dry runs are never canonical.** A panel with the `dryrun-` prefix, under `recourse_worlds/dryrun/`, or with a
+`*_dryrun` run type is never canonical and never read. A companion week's canonical panel is the earliest successfully
+frozen panel named `companion-cbwu-oi-v1-{season}w{WW}-*` under `recourse_worlds/{season}/week-{WW}/`. A missed week is
+missing: it is not imputed, and no replay substitutes for it.
+
+**5. Ownership records.** Paired and tail shadows no longer append to `nfl_predictions.own_shadow` (O-27; the reviewer
+2026-10-04). The table gains a writer column so that any future reader selects by writer.
