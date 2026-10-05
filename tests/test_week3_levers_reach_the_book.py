@@ -165,7 +165,9 @@ def test_C_max_per_game_flows_from_week_env_to_the_solver():
     a5 = _git_show(NFL2_REPO, pin, "src/nfl2/live_a5.py")
     assert "def check_paid_path_flags" in a5
     assert "optimize_many(pool, n_lineups=n_lev, stack=stack, objective_col=\"proj_tourney\", env=env)" in pipe
-    assert "env=env), tag, world=k)" in pipe, "boom solves must receive the env carrying MAX_PER_GAME"
+    # the boom call gained the class-sleeve kwargs (09-28); what matters is that every boom solve gets env=env
+    assert re.search(r"_add\(optimize\(sp,[^\n]*env=env[^\n]*world=k\)", pipe) or "env=env), tag, world=k)" in pipe, \
+        "boom solves must receive the env carrying MAX_PER_GAME"
     lineup = _git_show(NFL2_REPO, pin, "src/nfl2/core/lineup.py")
     assert '_env.get("MAX_PER_GAME", "0")' in lineup and "<= max_pg" in lineup
 
