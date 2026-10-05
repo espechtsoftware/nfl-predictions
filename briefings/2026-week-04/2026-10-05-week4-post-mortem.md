@@ -481,3 +481,33 @@ Groups come from the Weeks 1–3 Millionaires:
 | Overlays? | None usable on the classic slate in Week 4. The overlays that held were single-game Showdown copies at 1.10–1.36 | `briefings/2026-week-04/2026-10-05-overlay-backtest-week4.md` |
 | Contrarian games? | The top-total game is the week's top scorer only 16–19% of the time, but the field is FLATTER than the odds, so the leverage sits in the top total. Our error was size: 61% of entries on one game | `briefings/2026-week-04/2026-10-05-x1-steps-1-2-shootouts-and-field-allocation.md` |
 | What would let us win? | A ranked plan: de-concentration first (study 1 + P4, frozen), then the contrarian-game step, projection hygiene (O-22) and stake evidence | `briefings/2026-week-04/2026-10-05-path-to-winning-plan.md`, `reports/2026-10-05-prereg-study1-deconcentration.md` |
+
+## 12. Monday additions (2026-10-05, after the settled imports and the nflverse Week-4 stats)
+
+**The settled data matches Sunday's analysis exactly.**
+- All 26 standings files used on Sunday night (9 CSVs, plus 17 zips compared by their contents) are byte-identical to
+  the files imported into `nfl_raw.contest_entries` / `contest_ownership` today. So nothing in §§0–11 changes.
+- The limit: the files were downloaded Sunday from 19:01 CT, so a DraftKings stat correction issued later is in neither.
+
+**Where the points went, now with usage** (`nfl_raw.weekly_stats`, Week 4 against each player's Weeks 1–3 average;
+target share in brackets):
+
+| Team | What happened to our players | Where the volume went |
+|---|---|---|
+| CIN | Chase: 3 targets (8.3), then left with a concussion | Burrow threw 54 times (34); Higgins 16 targets (7.7) for 26.7 PPR; D. Meyers 9 (2.3); Chase Brown 11 (4.3). The points stayed in the CIN passing game, not with our player |
+| JAX | A VOLUME collapse: Lawrence 23 attempts (27), 162 air yards (241); P. Washington 3 targets [0.13] (7.7 [0.30]) | Strange 8 targets [0.35] (3.3 [0.13]), 16.5 PPR; Tuten 17 carries |
+| NYJ | G. Wilson 4 targets (9.0) | Pass volume collapsed: Geno Smith 15 attempts (34); Braelon Allen 14 carries (6.3) |
+| SF | McCaffrey's usage was normal or up: 15 carries (11.7), 5 targets; 16.0 PPR | Spread across Deebo 18.0, Kittle 17.0, Evans 12.6; Purdy ran 10 times |
+| MIN | Addison 6 targets [0.18] (5.3 [0.24]), 9.1 PPR | With Jefferson out, Hockenson took 13 targets [0.39] (4.3 [0.20]) for 24.9, and Aaron Jones 8 targets plus 20 carries |
+| ARI | Love 14 carries but 1 target, 6.5 PPR | Allgeier 8 carries and a TD (12.9); M. Wilson 13 targets [0.37] |
+| CHI | – | A role change: Monangai 30 carries (10.0), 28.0 PPR; Swift 15 (18.0) |
+| DAL/HOU | The game we did not hold | Lamb's spike was a ROLE change: 21 targets [0.49] (8.3 [0.25]) while Pickens fell to 3 (8.3). Collins' day was 2 TDs on 8 targets. Javonte Williams had 19 carries and 3 TDs. Stroud threw only 31 times (40) but for 385 air yards |
+
+**What it says, in plain words:**
+- Two of our biggest stacks (JAX, NYJ) lost on VOLUME: the passing games were smaller than in their first three weeks.
+- Chase's points went to his teammates.
+- McCaffrey was used as expected and simply had a modest day.
+- The week's winners came from two role changes (Lamb's target share doubled; Monangai's carries tripled) and from
+  touchdowns (Collins, J. Williams).
+- None of this was knowable as such before lock. What was knowable was how much of the book sat on the same few
+  players (§4). That is the selection-redundancy study now running (study 17; `reports/2026-10-05-prereg-study17-selection-redundancy.md`).
