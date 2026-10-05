@@ -6,16 +6,23 @@
 -- observation time is at or before the common Sunday-main lock (018). The
 -- raw nflverse injuries table is never read here.
 --
--- Semantics kept from the original 017a: NULL when the team has no
--- prior-snaps corner (week 1; the first-row-null leakage invariant); FALSE
--- when the corner has no crosswalk match or no admissible Out designation;
--- TRUE when any crosswalk match is Out on the point-in-time report.
+-- Semantics: NULL when the team has no prior-snaps corner (week 1; the
+-- first-row-null leakage invariant) AND NULL when the point-in-time injury
+-- table has no rows at all for that season-week (no admissible report: all of
+-- 2025, whose nflverse rows carry NULL date_modified, see the Data deficiency
+-- log; or a serving week before its first collector snapshot), so "no source"
+-- is never read as "the corner played"; FALSE when the week is covered and the
+-- corner has no crosswalk match or no admissible Out designation; TRUE when any
+-- crosswalk match is Out on the point-in-time report.
 CREATE OR REPLACE TABLE `${features}.defense_week_coverage` AS
-WITH outs AS (
+WITH pit_weeks AS (
+  SELECT DISTINCT season, week FROM `${features}.player_week_injury`
+), outs AS (
   SELECT
     c.team, c.season, c.week,
     IFNULL(LOGICAL_OR(inj.injury_status = 'Out'), FALSE) AS top_cb_out
   FROM `${features}.defense_week_coverage` c
+  JOIN pit_weeks pw ON pw.season = c.season AND pw.week = c.week
   LEFT JOIN `${raw}.player_ids` x ON x.pfr_id = c.top_cb_pfr_id
   LEFT JOIN `${features}.player_week_injury` inj
     ON inj.gsis_id = x.gsis_id

@@ -57,6 +57,12 @@ def test_top_cb_out_reads_the_point_in_time_injury_table_only():
     assert "${features}.player_week_injury" in out
     assert "WHERE c.top_cb_pfr_id IS NOT NULL" in out            # week-1 rows stay NULL
     assert "IFNULL(LOGICAL_OR(inj.injury_status = 'Out'), FALSE)" in out
+    # A season-week the point-in-time table does not cover (all of 2025: NULL
+    # date_modified) stays NULL: the FALSE default applies only inside covered
+    # weeks, so "no source" never reads as "the corner played".
+    assert "SELECT DISTINCT season, week FROM `${features}.player_week_injury`" in out
+    assert "JOIN pit_weeks pw ON pw.season = c.season AND pw.week = c.week" in out
+    assert "LEFT JOIN pit_weeks" not in out
 
 
 def test_route_shadow_table_is_strict_prior_and_joined_symmetrically():
