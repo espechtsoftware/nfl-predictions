@@ -59,7 +59,7 @@ SELECT
   -- schematic identity, l6 strictly prior).
   IF(rt.ref_prior_games >= 5, rt.ref_flags_prior, NULL) AS ref_flags_prior,
   np.neutral_pass_rate_l6,
-  COALESCE(ol.team_ol_out, 0) AS team_ol_out,
+  ol.team_ol_out,
   -- Candidate features (EXTRA_FEATURES gate in featureset.py)
   pc.off_plays_l6 + pcd.def_plays_faced_l6 AS pace_env_l6,
   bl.blitz_rate_l6 AS opp_blitz_rate_l6,

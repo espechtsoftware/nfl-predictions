@@ -32,6 +32,26 @@ def test_coverage_table_present_and_ordered_before_training():
     assert cov < names.index("023_player_week_inference.sql")
 
 
+def test_team_ol_out_is_point_in_time_and_null_where_uncovered():
+    # O-22 (d): 017d counted raw injuries with no lock filter and 021/023
+    # COALESCEd a missing row to 0, so 2025 (no admissible report) read as
+    # "no lineman out". 018b reads the lock-filtered injury table after 018,
+    # carries 0 only inside covered season-weeks, and the joins keep NULL.
+    names = [p.name for p in FEATURE_SQL]
+    assert "017d_team_ol_out.sql" not in names
+    ol = (SQL_DIR / "features" / "018b_team_ol_out.sql").read_text()
+    assert names.index("018_player_week_injury.sql") < names.index("018b_team_ol_out.sql")
+    assert names.index("018b_team_ol_out.sql") < names.index("021_player_week_training.sql")
+    assert "${raw}.injuries" not in ol
+    assert "FROM `${features}.player_week_injury` i" in ol
+    assert "IF(pw.season IS NULL, NULL, IFNULL(o.n, 0)) AS team_ol_out" in ol
+    assert "r.week <= o.week" in ol
+    for consumer in ("021_player_week_training.sql", "023_player_week_inference.sql"):
+        sql = (SQL_DIR / "features" / consumer).read_text()
+        assert "  ol.team_ol_out,\n" in sql
+        assert "COALESCE(ol.team_ol_out" not in sql
+
+
 def test_game_weather_uses_only_snapshots_pulled_before_lock():
     # O-22 (d): a completed game's weather must be what serving could see:
     # the latest snapshot at/before the earlier of kickoff and the slate lock.
