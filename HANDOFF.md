@@ -12,6 +12,25 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-04 (19:49 CDT) — O-26 merged, plus a build-time salary-spine assert with a narrow recorded exception
+
+- **O-26 merged** into integration at `9159e147` (reviewer cleared `eb031477`). The line's `001a` sha256 `d9ce2172…`
+  equals the deployed image's file. Nothing that runs changes.
+- **Build-time assert merged** at `0f0a07c9` (reviewer cleared `ff71142c` and `3df407a9`; `a66ed2f0` per the reviewer's
+  instruction):
+  - `assert_salary_spine_covers_completed_weeks` in `run_leakage_checks`: every week with a completed REG game in a
+    season with own DK snapshots must have `dk_salary_week` rows.
+  - Live: 2026 W1–4 = 868/772/779/789, PASS. Mutation (spine without 2026): caught.
+- **Exception:** `SALARY_SPINE_ALLOW_GAPS` takes an exact `season:week` list and excuses only those weeks, only from
+  this assert.
+  - It refuses stale entries.
+  - It prints loudly in the build log.
+  - It requires a README Data deficiency log row naming the variable and each week.
+  - Never use `--skip-leakage` for a lost DK week.
+- **Tests:** `test_leakage` 31 passed; `test_feature_sql` 78 passed 1 skipped. All mutations caught.
+- **The next build-features image must be built from integration at or after `0f0a07c9`.** The O-25 Route Share draft
+  will be rebased onto it.
+
 ## 2026-10-04 (19:44 CDT) — Operator decisions: Route Share option (a); O-26 merge approved. Monkey headline corrected; row map is NOT a defect
 
 **Operator decisions (10-04 evening):**
