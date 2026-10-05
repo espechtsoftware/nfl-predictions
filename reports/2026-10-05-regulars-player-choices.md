@@ -41,25 +41,55 @@ share among the regulars minus his share in the rest of the field, times his rea
 | Regulars vs the rest of the field (points per lineup) | +4.9 | +8.4 | +6.4 | +4.7 | **+6.1** |
 | Our book vs the rest of the field | +2.9 | −9.7 | −6.2 | −2.4 | **−3.8** |
 
-- **By person.** 92% of the 117 regulars individually have a positive realized tilt.
-- **By position** (mean per week):
+The baseline is the rest of the Millionaire field, so this answers "do they pick better than the field". It does
+not answer "better than an optimizer".
 
-  | | QB | RB | WR | TE | DST |
-  |---|---|---|---|---|---|
-  | Regulars | +0.4 | +2.3 | +0.4 | +3.0 | 0.0 |
-  | Ours | −1.2 | −0.5 | **−6.7** | +3.1 | +1.5 |
+**Is it more than luck? Their edge is; our loss is not distinguishable from it** (reviewer's null, 2026-10-05). The
+null shuffles realized points among players of the same position and $1,000 salary band within each week, recomputes the
+measure, and repeats 1,000 times (`regulars_players_null.py`). It separates "they pick better at the same price" from
+"their price and position tilts happened to pay".
+
+| | Observed, 4 weeks | Null mean | Null sd | One-sided p |
+|---|---|---|---|---|
+| Regulars | +24.3 | +7.2 | 5.4 | **0.002** (better) |
+| Ours | −15.3 | −0.2 | 14.5 | 0.14 (worse) |
+
+- About 7 of the regulars' 24 points come from where they spend salary by position. The other 17, about 4 per week,
+  come from picking better players within the same price band.
+- Week by week, the regulars' p is 0.04, 0.02, 0.10 and 0.07.
+- **How much evidence this is.** The real evidence is 4 of 4 weeks positive (a sign test alone gives p of about 0.06)
+  together with the size of the edge. The 117 users share the same tilts (cheap TEs, players whose salary fell), so one
+  boom moves them all together. That 92% of them come out positive individually describes how common the habit is; it
+  is not 117 separate pieces of evidence.
+- **Ours.** Our book puts 50–60% on single players, so our measure is dominated by two or three players a week and its
+  null spread is almost three times the regulars'.
+
+**By position**, the four-week sum, with points measured relative to that position's field-average score that week:
+
+| | QB | RB | WR | TE | DST |
+|---|---|---|---|---|---|
+| Regulars | +1.5 | +10.7 | +6.8 | +6.7 | −0.1 |
+| Ours | −5.1 | +2.1 | **−27.4** | +8.3 | +6.0 |
 
 - **It explains their results.** Scaled against each week's lineup-score spread (sd 24–29) and its top-1% line, an edge
   of +4.7 to +8.4 points predicts a top-1% rate of 1.6–2.4%. They achieved 1.3–2.0%. Their edge is mostly in which
   players they pick, not in having a secret shape.
-- **Where we lose.** Our loss is almost entirely at WR, through a few heavy exposures that did not score. For example:
-  W2 Justin Jefferson 57% of our entries vs 19% of the field (8.5 points); W4 Garrett Wilson 54% vs 12% (5.7) and
-  Jordan Addison 55% vs 23% (9.1).
+- **Where we lose.** Our loss is at WR, and it comes from both directions, measured against the WR average:
+  - heavy WR picks that busted:
+    - W4 Parker Washington, 62% of our entries vs 25% of the field (2.0 points);
+    - W4 Garrett Wilson, 54% vs 12% (5.7);
+    - W2 Ladd McConkey, 29% vs 1% (6.5);
+    - W2 Justin Jefferson, 57% vs 19% (8.5);
+  - WR booms we had almost none of:
+    - W3 Jaxon Smith-Njigba, 4% vs 20% (38.4);
+    - W4 CeeDee Lamb, 0% vs 11% (44.3);
+    - W4 Nico Collins, 0% vs 12% (33.8);
+    - W2 CeeDee Lamb, 9% vs 19% (38.3).
 
 ## 2. What they lean toward, before kickoff
 
-Tilts are pooled over weeks and positions. The share of users column is the share of the 117 whose own tilt has the
-same sign: the higher it is, the more this is a shared habit rather than a few people.
+Tilts are pooled over weeks and positions. The share-of-users column is the share of the 117 whose own tilt has the
+same sign. It describes how widespread a habit is, not how strong the evidence is, because the users share tilts.
 
 | Feature (pre-lock) | Regulars' tilt | Share of users, same sign | Ours |
 |---|---|---|---|
@@ -128,37 +158,45 @@ and against high game totals (−0.10). They follow the shared anti-recency habi
 
 ## 3. Do those habits point at real misses in our projection?
 
-The test is our pre-lock projection's miss (realized DK minus our projection) for players at least 0.5% owned, W2–4,
-386–390 player-weeks. It is Spearman with each feature: + means players high on the feature beat our projection.
+**None of this is confirmed.** It is a list of hypotheses.
 
-| Feature | All (position-standardised) | QB | RB | WR | TE |
-|---|---|---|---|---|---|
-| Opponent's DK points allowed, **2025** | **+0.12** | +0.15 | +0.02 | +0.12 | +0.28 |
-| FP O-line grade | +0.07 | +0.14 | +0.02 | 0.00 | +0.27 |
-| Opponent's DK points allowed, **2026 to date** | −0.06 | −0.18 | −0.13 | 0.00 | −0.08 |
-| Opponent's EPA allowed, 2026 to date | −0.08 | −0.13 | −0.24 | +0.04 | −0.14 |
-| DK points last week | −0.09 | −0.08 | −0.01 | −0.10 | −0.20 |
-| Target or carry share last week | −0.12 | −0.08 | −0.11 | −0.12 | −0.08 |
-| Points per $1k (ours) | −0.15 | −0.13 | −0.17 | −0.18 | −0.15 |
-| Field ownership | −0.10 | −0.03 | −0.11 | −0.15 | −0.09 |
+The test is our pre-lock projection's miss (realized DK minus our projection) for players at least 0.5% owned, W2–4:
+390 player-weeks in 38 games. It is Spearman with each feature: + means players high on the feature beat our
+projection.
+- Fourteen features were examined; the table shows eight.
+- The SE resamples whole games 1,000 times, because players in the same game miss together.
+- A Bonferroni correction over 14 features needs |z| ≥ 2.9. **None reaches it.**
+
+| Feature | All (position-standardised) | Game-clustered SE | z | QB | RB | WR | TE |
+|---|---|---|---|---|---|---|---|
+| Opponent's DK points allowed, **2025** | +0.12 | 0.04 | +2.8 | +0.15 | +0.02 | +0.12 | +0.28 |
+| FP O-line grade | +0.07 | 0.07 | +1.0 | +0.14 | +0.02 | 0.00 | +0.27 |
+| Opponent's DK points allowed, **2026 to date** | −0.06 | 0.06 | −1.0 | −0.18 | −0.13 | 0.00 | −0.08 |
+| Opponent's EPA allowed, 2026 to date | −0.08 | 0.06 | −1.4 | −0.13 | −0.24 | +0.04 | −0.14 |
+| DK points last week | −0.09 | 0.05 | −1.8 | −0.08 | −0.01 | −0.10 | −0.20 |
+| Target or carry share last week | −0.12 | 0.06 | −2.1 | −0.08 | −0.11 | −0.12 | −0.08 |
+| Points per $1k (ours) | −0.15 | 0.05 | −2.7 | −0.13 | −0.17 | −0.18 | −0.15 |
+| Field ownership | −0.10 | 0.06 | −1.8 | −0.03 | −0.11 | −0.15 | −0.09 |
+
+The six not shown are all within |z| 1.3: last week's points above our projection, salary change, the coverage grade,
+the Questionable tag, the team total and the spread. The position columns rest on 76–209 player-weeks each and carry
+wider SEs.
 
 Week 4 only: FP's projection ranked realized points slightly better than ours (0.40 vs 0.38, n 125). FP's disagreement
 with us pointed the right way (FP minus ours vs realized minus ours, 0.12).
 
-**What this says.** Our projection under-rates last season's defence quality and FP's line grades. It over-rates this
-season's soft-looking matchups, last week's scorers and our own best "value" plays. On four of these the regulars lean
-the right way:
-- last season's defence;
-- the line grade;
-- distrust of the 2026 samples;
-- selling last week's scorers.
+**What it might say, if it holds on history.** Our projection may under-rate last season's defence quality. It may
+over-rate this season's soft-looking matchups and last week's scorers. On those, the regulars lean the way that would
+have paid. Only the first is near 3 SE.
 
-On value we lean the same way they do, but about 2.5 times harder (+0.32 vs +0.13). Our value calls are exactly where
-our projection is most optimistic. This is consistent with the earlier finding that the book concentrates on our own
+**Value is a special case, and largely mechanical** (reviewer). Value is our projection divided by salary. The players
+we rate highest relative to the market's price are exactly where our error is most likely positive: the winner's curse,
+or regression toward the market. So it isn't a new feature. It is a calibration question: should our projection lean
+further toward the market in the top value decile? That fits Week 4, where FP ranked realized points 0.40 against our
+0.38. We lean on value about 2.5 times harder than the regulars (+0.32 vs +0.13), and the book concentrates on our own
 top-ranked rows.
 
-**How much weight this bears.** Three weeks, about 390 player-weeks, and the features were chosen after looking. The
-standard error of each correlation is about 0.05. This is a hypothesis list, not evidence for a change. A July addendum
+**How much weight this bears.** Three weeks, and the features were chosen after looking. A July addendum
 (system study Addendum 6) already named "the field's recency bias" as exploitable. That finding came from winners'
 lineups, which are selected on outcomes; it was never tested as a projection or selection lever. It has not been
 re-verified since the July audits.
@@ -172,23 +210,28 @@ The top overweights and underweights each week, with their pre-lock features, ar
 
 These are recorded as study-list item 22. All are on history or in shadow, under the in-season adoption track.
 
-1. **Projection calibration (class C), on history, the cheapest and first.** On 2022–25 out-of-sample predictions:
-   does our projection's miss depend on the following? If it does, add the term as a calibration or feature.
-   - last season's defence-vs-position;
+1. **A separate class-C calibration preregistration, frozen before Thursday's co-run outcomes** (reviewer's design).
+   It consumes the co-run's walk-forward out-of-sample predictions for 2022–25, at no extra compute, and tests five
+   residual predictors with exact point-in-time definitions:
+   - last season's defence vs the position;
    - early-season (one to three games) defence stats;
-   - last week's points and the salary change;
-   - the value rank.
+   - last week's points;
+   - the salary change;
+   - the value calibration: shrink toward the market in the top value decile.
 
-   The endpoints must be written down before Thursday's six-season co-run, as part of the defence re-test arm
-   already planned there, before its outcomes are seen.
-2. **An FP blend (class C).** FP beat us in the one week we have. The DFS projections page was captured for Week 4 only. Make
-   it a weekly capture first; that is not yet verified. After four captured weeks, test a fixed pre-declared blend weight on those weeks. Also check whether FP
-   offers archived projections for a back-test.
+   Endpoints are Spearman and isotonic calibration, by position, Bonferroni over five. 2026 W2–4 are excluded, because
+   those weeks generated the hypotheses. It is not part of the defence re-test arm: that arm is a feature test with its
+   own frozen adoption rule, and extra endpoints would muddy its verdict.
+2. **An FP blend (class C).** FP beat us in the one week we have. The FP projections collector exists, but no
+   scheduled job calls it, so only three hand captures of Week 4 exist. It is now being wired into the weekly capture
+   chain. Weeks 1–3 cannot be recovered, because FP serves the current week only, and that gap goes in the Data
+   deficiency log. After four captured weeks, test a fixed, pre-declared blend weight.
 3. **A Monday player-choice panel (part of scorecard item 20).** Every week, the points per lineup from player choice
    for us and for the regulars, by position, plus the anti-recency and value tilts. It is cheap, and it would have
    flagged the WR loss in Week 2.
 4. **A sharp-tilt shadow (class S, later).** Fit the regulars' Weeks 1–4 tilts on pre-lock features, freeze the fit,
    and from Week 6 run a paired shadow book whose player exposures are nudged by it. The grade is the player-choice
    points per lineup. This only makes sense if test 1 does not already capture the same signal.
-5. **WR concentration.** The −6.7 points per lineup at WR come from a few 54–57% exposures. That is the territory of
+5. **WR concentration.** The −27 WR points over four weeks come from 54–62% exposures that busted and from booms
+   we held at 0–9%. That is the territory of
    studies 1b and 17 (exposure and selection redundancy); their reads come first.
