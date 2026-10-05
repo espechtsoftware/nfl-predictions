@@ -118,3 +118,15 @@ the entered rows, without hurting tickets and line hits?
    code. Direction: `pct` = the share of the field a row BEATS (higher = better), and every contrast is ARM − C
    (positive favours the arm). A full-path smoke on the throwaway bank 1398 (2 slates) follows; its numbers are
    discarded, and the reader sha must not change after it.
+
+5. **DST counting fix, stopped run, bank change (2026-10-05, before any result was read; reviewer ruling).**
+   - **The deviation found.** The panel frame gives each DST a side id ('ARI@WAS') with no total. So in the first
+     builder a DST never counted toward its game's ≥ 3, contrary to this preregistration's "QB and DST count".
+     Skill rows carry one id per game with a total. No real game was ever ranked wrong or capped wrongly.
+   - **The fix** (lab `3b52858`, test plus mutation): `game_key_map` maps a DST to the game its team plays in, for
+     the CAP ONLY. The optimizer's `game_id` is untouched, so C is still exactly L25's builder. Production frames
+     are unaffected: the W4 T-70 frame's DSTs carry the real game id, with 0 null totals.
+   - **The stopped run.** The scored run on banks 1400/1401 was stopped after 2 slate-banks; those 2 result rows
+     were DELETED UNREAD. **Banks change to FRESH 1402/1403** (verified unused by the same all-branch bank-label
+     scan as item 2). The mechanics census on 1400 is re-run with the fixed builder.
+   - **The reader is unchanged:** sha256 `21f364d36fb21989ce8e2ff7f7aa7c5e06fd2d591c7fd5e1ebbc16b2257bcc59`.
