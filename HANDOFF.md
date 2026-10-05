@@ -12,6 +12,34 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-05 (16:33 CDT) — Step 4a done (operator-approved 10-05): production checkout at 551f29af; Week-5 preflight; study 22a reader for review
+
+**Step 4a.** The operator approved ("update code as necessary", relayed by the reviewer). The reviewer fast-forwarded
+`~/projects/nfl-predictions` from `4355ac65` to `551f29af` (213 commits, ff-only). It is clean, at or after
+`a68568d1`, `nfl-dfs --help` runs, and there was no dependency change.
+- `host_ingest_dk_loop.sh` (PID 365) is byte-unchanged; its next cycle uses the new `cli.py`.
+- **Rule 12 applies from Saturday's arming:** no further changes to that checkout.
+
+**Week-5 preflight on that checkout (laptop, `WEEK=5`, GROUP auto-detected 154468):**
+- `run_week_build.sh --check` stops first at the missing `~/week5-sunday/contests.json`. That is expected: the
+  reviewed Week-5 plan is not written yet.
+- With Week 4's plan pointed at read-only (code check only), `check_week_runtime` fails on exactly two missing
+  Saturday-made inputs: `class_model.json` (CLASS_SLEEVE_EVERY=2) and `ownership_sets.csv` (MEAN_OWN_SOURCE). Neither
+  is a code fault.
+- `check_lab_api.py`: 14 calls in 4 money-path scripts match the pinned clone `week4-live-center`.
+- `week_env` created the empty input directory `~/week5-sunday` (nothing written in it).
+- **Timer count**, `arm_week_timers.sh 5` in print mode with Week 4's arm line: **11 timers** with `SKIP_UNITS=d6400`
+  (Week 4 had 10; the new unit is `nfl-week5-fp-projections` at 2026-10-11 10:40 CT) and **9** with the late-arm skip
+  set (Week 4 had 8). The Week-5 copy of `~/.cache/laptop-agent/w4_arm_saturday.sh` must use `EXPECT_N=11` / `9`.
+
+**Study 22a reader for review:** `production/study22a-reader-20261005` @ `868a2f62`, `scripts/study22a_report.py`
+(sha256 `38ebcb0f`).
+- Six synthetic tests pass: planted effects recovered; a null not confirmed; OPPOSITE; UNSUPPORTED; point-in-time
+  predictors; top-N with a fail-closed duplicate check; the printed level equals the prereg's.
+- Census smoke on the real promoted panel `20260811-pitclean-e80-k1-a12ab31` (outcome-blind): all five hypotheses
+  supported, H2 672 rows per season.
+- The read mode was NOT run on any existing panel: those seasons' outcomes stay unseen until the co-run panel exists.
+
 ## 2026-10-05 (16:26 CDT) — Regulars' player choices; FP projections captured every week (merged); study 22a prereg DRAFT; usernames merge
 
 **Done (integration `production/week3-integration-20260921`):**
