@@ -69,3 +69,15 @@ branch scans, reserved with the laptop 10-05); smokes on throwaway bank 1406.
 - **Next, in order:** the outcome-blind census on 1411/1412 (realized core share, passes, entries changed vs C, short
   books), recorded as deviation note 1; then the scored run; then the reviewer's read; then the laptop's byte-identical
   re-run; then the LEDGER row and an Addendum.
+
+---
+
+## Deviation note 1 (2026-10-05, before any scored bank): the outcome-blind census is in
+- **Census** (banks 1411/1412, mechanics only, 72 slate-banks, no errors; nfl2 `production/s16c-core-only-20261005`
+  `results/s16c/CENSUS_s16c.txt`, script `scripts/s16c_census.py` = study 16's with the arm set (TP0,)):
+  - TP0 target and realized share core/mid/blow 1.000 / 0.000 / 0.000, in rows and in dealt entries;
+  - shortfall passes 0 (max 0); short books 0;
+  - **entries changed vs C 0.965**: not a dead lever.
+- "Slate-banks with a blowout cell 70/72" in the census counts cells that exist with a ZERO share (study 16's `cells()`
+  still lists them); none receives a row. Nothing changes in the design.
+- Next: the scored run on 1411/1412, then the reviewer's read with the frozen reader (sha `ceb90a64…`).
