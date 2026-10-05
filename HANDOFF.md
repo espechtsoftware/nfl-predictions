@@ -351,7 +351,7 @@ Five parallel background jobs, each with disjoint files (scratch outputs or its 
 Monday 09:13. Tonight's analysis reads the saved final standings files directly.
 
 **Monday reminders updated:** 12:43/13:47/14:17/15:17 were replaced by one 11:13 follow-up (the settled-data check,
-study 12 with targets/carries once nflverse W4 lands, merging into `reports/2026-10-05-week4-post-mortem.md`). 09:13
+study 12 with targets/carries once nflverse W4 lands, merging into `briefings/2026-week-04/2026-10-05-week4-post-mortem.md`). 09:13
 (import + readers) and later days are unchanged.
 ## 2026-10-04 (19:05 CDT) — Week-4 standings received (26/26), verified complete; copied privately; import Monday 09:13
 

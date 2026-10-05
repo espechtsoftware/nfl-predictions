@@ -146,3 +146,45 @@ Week-4 concentration (Chase in 49% of the book), so the same caveat applies to i
 Answers to the design's questions (reviewer):
 - p < 0.20 stands only together with points 1–5.
 - Week 2 runs without the ownership term, disclosed.
+
+## Addendum 2 (2026-10-05 early, reviewer ruling on a flaw found outcome-blind by the harness; committed BEFORE any arm is scored)
+
+**The flaw.** The harness (`production/moneygate-harness-20261005` @ `1ee3ba8a`) found it from the layout alone,
+before any arm was scored.
+- Under the head layout, Weeks 1 and 2 are each ONE cluster for every comparison. Week 3 has 2–14 clusters and Week 4
+  2–6, each dominated by one large cluster.
+- By Addendum 1.3, condition (c) therefore fell back to weeks as units, and it failed for every arm whatever the
+  outcomes.
+- Addendum 1's premise was also wrong: 4 of 4 week-units gives an exact two-sided p of 0.125.
+
+**The rule, replaced:**
+1. **Condition (c) uses weeks as the units, with the exact sign test.** **No arm can be licensed statistically from
+   these weeks:**
+   - A2 and A3 have 3 units (Weeks 1–3; minimum p 0.25);
+   - A4 has 2 units (Weeks 3–4).
+
+   The replay answers **Q1** (would the current system have made money?) and **Q2** (does it beat chance, A1 vs M2).
+   The alternative arms are shown **descriptively**, for the operator's judgment.
+2. **A4's condition (b) is read on Weeks 3–4** ("2 of 2"), because A4 equals A1 in Weeks 1–2.
+3. **A descriptive line per arm, never a pass or fail.**
+   - Each distinct book row is scored by its finish percentile in that week's Millionaire field.
+   - The statistic is the mean, X − A1, over the symmetric difference of the two books' rows.
+   - Its significance comes from a permutation of arm labels within week. The effective n is shown, and the result is
+     labelled anti-conservative (rows share players).
+4. **No default arm.** A1 has not been shown to beat chance either. The honest default: **no arm is statistically
+   preferred; the operator chooses; any switch is a reversible trial with the written rollback trigger (Addendum 1.5).**
+
+**Disclosed deviations (accepted by the reviewer):**
+- **Lab source.** One lab source (32cdb61) for all weeks. The older pins lack `nfl2/two_track.py`, so this tests
+  today's selection on each week's archived pool.
+- **W1 supply.** A single Saturday run: `20260912T132523949270Z`, the one with banks.
+- **W2 T-70 pool.** The D800 T-70-slot run (`20260920T155005557498Z`). W2's A0 entered the Saturday K97, so A0 and A1
+  are not like-for-like in Week 2.
+- **Ownership term.** A1 = A4 in Weeks 1–2 (no point-in-time ownership file).
+- **Routing.** Today's routing rule for W1–3; it reproduces Week 4's routing exactly.
+- **No vetting in any arm.** Every arm EXCLUDES vetting (point-in-time vetting inputs do not exist for all weeks), so A1
+  is "the current selection and layout, before vetting". Week 4 is dealt in union order; the entered bundle was
+  re-ordered at vetting, so 8 of 25 contests differ.
+- **M2 scope.** The M2 comparisons exclude the W4 Millionaire (its entry count differs from the arms').
+- **Scorer validated:** the A0 known-answer gate passed exactly. All 534 entries match rank, fee and tickets, and each
+  week's total equals the settled entry history. A 0.01-point mutation fails the gate.
