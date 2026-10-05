@@ -16,6 +16,8 @@ from nfl_dfs.features.leakage import (
     assert_recomputed_features_match,
     assert_route_source_strict_prior,
     assert_salary_universe_reconciled,
+    assert_salary_spine_covers_completed_weeks,
+    SALARY_SPINE_COVERAGE_SQL,
     trailing_mean_excluding_current,
     trailing_std_excluding_current,
     team_qb_cpoe_strict_prior,
@@ -394,3 +396,28 @@ def test_historical_source_gate_independently_requires_weekly_roster():
     assert "('PHILLY BROWN', 'COREY BROWN')" in HISTORICAL_ROSTER_GAP_SQL
     assert "LEFT JOIN `{features}.dk_salary_week`" in HISTORICAL_ROSTER_GAP_SQL
     assert "season <= 2021" not in HISTORICAL_ROSTER_GAP_SQL
+
+
+def test_salary_spine_must_cover_completed_own_snapshot_weeks():
+    ok = pd.DataFrame([
+        {"season": 2026, "week": 1, "completed_games": 16, "spine_rows": 868},
+        {"season": 2026, "week": 2, "completed_games": 16, "spine_rows": 772},
+    ])
+    assert_salary_spine_covers_completed_weeks(ok)
+    assert_salary_spine_covers_completed_weeks(ok.iloc[0:0])
+    emptied = ok.assign(spine_rows=[868, 0])
+    with pytest.raises(LeakageError, match="no dk_salary_week rows"):
+        assert_salary_spine_covers_completed_weeks(emptied)
+    with pytest.raises(LeakageError, match="no dk_salary_week rows"):
+        assert_salary_spine_covers_completed_weeks(
+            ok.assign(spine_rows=[None, None]))
+    with pytest.raises(LeakageError, match="lacks columns"):
+        assert_salary_spine_covers_completed_weeks(ok.drop(columns="spine_rows"))
+
+
+def test_salary_spine_coverage_sql_reads_own_snapshots_and_played_games():
+    sql = SALARY_SPINE_COVERAGE_SQL
+    assert "FROM `{raw}.dk_salaries`" in sql
+    assert "game_type = 'REG' AND home_score IS NOT NULL" in sql
+    assert "LEFT JOIN spine s USING (season, week)" in sql
+    assert "IFNULL(s.spine_rows, 0)" in sql

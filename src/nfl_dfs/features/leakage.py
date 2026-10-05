@@ -69,6 +69,29 @@ def assert_historical_salary_source_reconciled(gaps: pd.DataFrame) -> None:
         )
 
 
+def assert_salary_spine_covers_completed_weeks(coverage: pd.DataFrame) -> None:
+    """Every completed week of an own-snapshot season has salary-spine rows.
+
+    O-12/O-26: the DK ingest leaves raw week NULL by design, and the spine
+    once dropped those rows before resolving them, which silently emptied the
+    2026 salary spine and every prior-usage feature built on it. The
+    downstream universe checks start FROM the spine, so an empty week passes
+    them vacuously. This stops the build instead of finding it afterwards.
+    """
+    required = {"season", "week", "completed_games", "spine_rows"}
+    if missing := required - set(coverage.columns):
+        raise LeakageError(
+            f"salary spine coverage lacks columns {sorted(missing)}")
+    empty = coverage[coverage.completed_games.gt(0)
+                     & coverage.spine_rows.fillna(0).eq(0)]
+    if not empty.empty:
+        raise LeakageError(
+            f"{len(empty)} completed week(s) of an own-snapshot DK season "
+            f"have no dk_salary_week rows (raw salary weeks unresolved?). "
+            f"Sample:\n{empty.head(25).to_string(index=False)}"
+        )
+
+
 def assert_dst_actual_universe_reconciled(gaps: pd.DataFrame) -> None:
     """Every completed regular-season team-game has a canonical DST label."""
     if not gaps.empty:
@@ -1078,6 +1101,34 @@ SELECT * FROM expected
 """
 
 
+# Own-snapshot seasons (raw dk_salaries, week NULL by design) must reach the
+# spine for every week with a completed regular-season game.
+SALARY_SPINE_COVERAGE_SQL = """
+WITH own AS (
+  SELECT DISTINCT CAST(season AS INT64) AS season
+  FROM `{raw}.dk_salaries`
+  WHERE slate_type = 'classic' AND salary > 0
+),
+completed AS (
+  SELECT CAST(season AS INT64) AS season, CAST(week AS INT64) AS week,
+         COUNT(*) AS completed_games
+  FROM `{raw}.schedules`
+  WHERE game_type = 'REG' AND home_score IS NOT NULL
+  GROUP BY 1, 2
+),
+spine AS (
+  SELECT season, week, COUNT(*) AS spine_rows
+  FROM `{features}.dk_salary_week`
+  GROUP BY 1, 2
+)
+SELECT c.season, c.week, c.completed_games, IFNULL(s.spine_rows, 0) AS spine_rows
+FROM completed c
+JOIN own USING (season)
+LEFT JOIN spine s USING (season, week)
+ORDER BY c.season, c.week
+"""
+
+
 UNIVERSE_GAP_SQL = """
 SELECT s.gsis_id, s.display_name, s.season, s.week, s.position, s.team, s.salary
 FROM `{features}.dk_salary_week` s
@@ -1480,6 +1531,9 @@ def run_leakage_checks() -> None:
     # Exact replay-universe contract. This catches identity, source-spine,
     # actual-label, and cold-start filtering regressions before a new build can
     # be used by replay or training.
+    spine_coverage = query_df(SALARY_SPINE_COVERAGE_SQL.format(
+        features=settings.features, raw=settings.raw))
+    assert_salary_spine_covers_completed_weeks(spine_coverage)
     gaps = query_df(UNIVERSE_GAP_SQL.format(features=settings.features))
     assert_salary_universe_reconciled(gaps)
     source_gaps = query_df(HISTORICAL_ROSTER_GAP_SQL.format(
