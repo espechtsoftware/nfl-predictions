@@ -1,7 +1,7 @@
 # Open defects and deliberate non-fixes
 
 **This file is the authoritative list of what is known-broken and NOT being fixed right now, and why.**
-Last reviewed 2026-10-04 (laptop agent, reviewer to confirm). Every entry states the impact, the deadline by which it must be resolved, and what
+Last reviewed 2026-10-04 (laptop agent; reviewer confirmed 2026-10-05). Every entry states the impact, the deadline by which it must be resolved, and what
 "resolved" means. An item leaves this file only by being fixed and tested, or by an explicit recorded decision to
 accept it — never by being forgotten.
 
