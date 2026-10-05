@@ -235,3 +235,47 @@ These are recorded as study-list item 22. All are on history or in shadow, under
 5. **WR concentration.** The −27 WR points over four weeks come from 54–62% exposures that busted and from booms
    we held at 0–9%. That is the territory of
    studies 1b and 17 (exposure and selection redundancy); their reads come first.
+
+## 6. Can we copy the player habits? (added 10-05 evening, after the operator asked to use their strategies in Week 5)
+
+**No, not by copying the habits we can see.** Two tests, all on pre-lock inputs. The scripts are private
+(`~/private/week5-regulars/`) because they read the per-user panel; only pooled shares are used.
+
+**Test 1: copy the habits, leave one week out.**
+- **The model.** A per-position model of the regulars' tilt, log(regulars' share / the rest's share). It is fit on two
+  of Weeks 2–4 on the §2 pre-lock features (ownership, value, projection, team total, spread, last game's points and
+  surprise, last week's ownership and usage, 2026 matchup stats, FP line grade, salary change; FP projection excluded,
+  since only Week 4 has it). It is then applied to the third week.
+- **It predicts what they pick.** The rank correlation of predicted vs actual tilt in the held-out week is 0.58, 0.57
+  and 0.51.
+- **But the predicted picks don't carry the edge.** Points per lineup vs the rest of the field (actual field ownership
+  as the base):
+
+  | Held-out week | Predicted picks gain | Regulars' actual gain | Null (same tilts shuffled within position × salary band) | p |
+  |---|---|---|---|---|
+  | 2 | +4.0 | +8.1 | +4.3 ± 2.9 | 0.55 |
+  | 3 | +7.5 | +6.1 | +6.9 ± 3.3 | 0.44 |
+  | 4 | −2.9 | +4.7 | +0.5 ± 2.3 | 0.93 |
+
+  The same holds at every ridge penalty tried (0.1 to 100; p 0.16–0.98). The visible habits reproduce how they spend
+  salary across positions, which the null already contains, but not their picking within a price band.
+
+**Test 2: where the edge is.** The kickoff split, with the same within-band null over the four weeks:
+
+| Window | Regulars | Null | p | Ours | Null | p |
+|---|---|---|---|---|---|---|
+| Early games (1 pm ET; about 6 roster slots) | +10.2 | −0.8 ± 4.5 | **0.009** | −19.0 | −1.9 ± 11.5 | 0.93 |
+| Late games (about 3 slots) | +14.1 | +11.0 ± 2.6 | 0.12 | +3.7 | +2.0 ± 6.7 | 0.39 |
+
+Their real picking skill is in the EARLY games, decided before any kickoff, and it is NOT late swap. Our own loss is
+also in the early games.
+
+**What this means.**
+- Their edge is pre-lock knowledge that our features do not contain, most likely better player projections. In
+  Week 4, the only week with FP's projections saved, they sided with FP wherever FP disagreed with us (+0.13 tilt; RB
+  +0.38; 92% of users), and FP ranked realized points better than ours (0.40 vs 0.38).
+- A regulars-style sleeve built from the visible habits is NOT recommended for Week 5: it would copy their salary
+  allocation, not their skill.
+- The player-side route is a better projection. FP projections are now captured every week (from Week 5); a blend is
+  tested as soon as weeks accumulate, and in a paired shadow meanwhile.
+- The SHAPE portfolio (study 18) remains the Week-5 lever.
