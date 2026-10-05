@@ -12,6 +12,24 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-05 (10:16 CDT) — Dashboard fix DEPLOYED: /players and /accuracy (revision nfl-dfs-app-00079-5lp)
+
+- **What the operator saw:** "Unrecognized name: pool_exposure" on /players. Testing every page by serving the deployed
+  code locally against the real tables showed that only /players and /accuracy failed.
+- **Cause:** `pool_exposure.sql` filtered on an undeclared alias. It was hidden until today because the tables did
+  not exist.
+- **Fix:** `production/dashboard-players-fix-20261005` @ `f9c67f83` (from the guard branch `3e2f76a2`): the alias is
+  declared, plus a parametrized test over every aliased week filter that fails on the old SQL. Reviewer CLEARED.
+- **Image:** Cloud Build `f3197d89` SUCCESS (148 dashboard tests passed), `nfl-dfs@sha256:d2611956…` (tag
+  `dashboard-f9c67f83`).
+- **Deploy:** `scripts/deploy_dashboard.sh` by digest gives revision `nfl-dfs-app-00079-5lp` at 100%. IAP is on, the
+  invoker binding is not public, and the check printed `ok`.
+  - Rollback: `gcloud run services update-traffic nfl-dfs-app --region us-central1 --project nfl-predictions-503414
+    --to-revisions nfl-dfs-app-00078-k7x=100`.
+- **Verification:** the agent cannot see the live pages through IAP (302 to Google sign-in), so the operator confirms
+  in his browser.
+- **Merge:** the guard branch and this fix still need merging into integration and main (operator / reviewer).
+
 ## 2026-10-05 (09:47 CDT) — Dashboard: Week 4 PUBLISHED (the operator created nfl_dashboard; --apply from the reviewed snapshot)
 
 - **The operator ran the DDL** with `GCP_PROJECT=nfl-predictions-503414`. His first attempt failed closed on the
