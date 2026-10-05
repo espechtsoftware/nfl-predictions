@@ -3874,3 +3874,136 @@ contests AG above / below A1 (W1-4, contest-level, anti-conservative): 5 / 9
   - the API mismatch between mocked tests and the pinned lab (`set_constraints` vs `member_bounds`) was caught by
     the transfer build, and now has an AST guard;
   - a frame quirk (DST side ids) was caught by reviewing the NULL-total question before reading any result.
+
+## Addendum 123 (2026-10-05): study 1b (entry-level player cap): EA and EW both FAIL; the cap halves the single-bust swing at a cost of 2.4–4.3 points of mean finish
+
+**Setup.**
+- Preregistration: `reports/2026-10-05-prereg-study1b-entry-player-cap.md`, frozen at `3da5d1d1`, with four deviation
+  notes:
+  1. The operator re-chose the margin at m = 0.015, after seeing the corrected scale.
+  2. The EW arms get EA's re-deal pass. The outcome-blind smoke showed that the pre-limit w_k leaked the cap.
+  3. The reader was frozen, and the census came in.
+  4. The reader was re-frozen, sha `384e62f7…`, with PARTIAL as a flag that carries its numbers.
+- Panel: L13's 36 slates, fresh banks 1404/1405, the L-series builder at K 105, the LAG-only term at 0.10, and the
+  Week-4 mean-track plan (147 entries).
+- Lab code: nfl2 `production/s1b-entry-cap-20261005` (code acea6b9; results 54c3d8d; LEDGER f88f0c6).
+- **Reproduced byte-identically by the reviewer:** stdout sha256 `968c4bdf…`.
+
+**Reader output (verbatim):**
+```
+STUDY 1b READER  sha256 384e62f77acedb71a0d73baf46e0f7ee79c466f5fb9bb0dc8817baf00f465629
+DIRECTION: pct = share of the sampled field a row BEATS (higher = better). d2 = ARM - C, POSITIVE favours the arm; d1 = WSB(ARM) - WSB(C), NEGATIVE favours the arm (less single-bust loss).
+slates 36  banks [1404, 1405]  B 20000  seed 20261005  one-sided level 0.9875 (family 0.975)  margin 0.015  plan 22 mean-track contests, 147 entries
+
+== EA vs C  [DECISION]
+  co-primary 1 WSB  d1 -0.00182  upper -0.00099  seasons 2023 -0.00180, 2024 -0.00184
+  co-primary 2 pct  d2 +0.00170  lower -0.00148  (margin -0.015)  seasons 2023 +0.00247, 2024 +0.00092
+  dealt identical to C: 0.000 of slate-banks   miss rate 0.3822   realized max above the cap on 72/72 slate-banks (mean excess +42.6, worst +53)
+  ->  FAIL  |  THE CAP IS NOT ACHIEVED BY ASSIGNMENT ALONE (miss rate 0.382 > 0.1)  |  PARTIAL (over the cap on 72/72 slate-banks; mean excess +42.6 entries; worst +53)
+
+== EW vs C  [DECISION]
+  co-primary 1 WSB  d1 -0.02054  upper -0.01740  seasons 2023 -0.01991, 2024 -0.02117
+  co-primary 2 pct  d2 -0.03543  lower -0.07302  (margin -0.015)  seasons 2023 -0.02558, 2024 -0.04527
+  dealt identical to C: 0.000 of slate-banks   miss rate 0.0236   realized max above the cap on 49/72 slate-banks (mean excess +2.8, worst +10)
+  ->  FAIL (cost: the non-inferiority bound fails)  |  PARTIAL (over the cap on 49/72 slate-banks; mean excess +2.8 entries; worst +10)
+
+== EW25 vs C  [EXPLORATORY (never decision-bearing)]
+  co-primary 1 WSB  d1 -0.02444  upper -0.02110  seasons 2023 -0.02370, 2024 -0.02517
+  co-primary 2 pct  d2 -0.04308  lower -0.08175  (margin -0.015)  seasons 2023 -0.03660, 2024 -0.04956
+  dealt identical to C: 0.000 of slate-banks   miss rate 0.0254   realized max above the cap on 60/72 slate-banks (mean excess +2.7, worst +9)
+
+== EW35 vs C  [EXPLORATORY (never decision-bearing)]
+  co-primary 1 WSB  d1 -0.01776  upper -0.01440  seasons 2023 -0.01828, 2024 -0.01723
+  co-primary 2 pct  d2 -0.02442  lower -0.05684  (margin -0.015)  seasons 2023 -0.01655, 2024 -0.03228
+  dealt identical to C: 0.000 of slate-banks   miss rate 0.0275   realized max above the cap on 54/72 slate-banks (mean excess +3.1, worst +13)
+
+secondaries (slate means; EBL = 0.20 x sum of swings over the slate's swing set, same players for every arm):
+  C     entry pct 0.53321  worst-decile slate 0.35343  WSB 0.04452  top-3 0.11311  EBL 0.04170  tickets 314.5  zero-ticket slates 0.319  best>=194 0.264  best>=200 0.167  bust exposure 0.0713  max entry exposure 0.611
+  EA    entry pct 0.53491  worst-decile slate 0.34955  WSB 0.04270  top-3 0.10954  EBL 0.04168  tickets 327.0  zero-ticket slates 0.319  best>=194 0.264  best>=200 0.167  bust exposure 0.0716  max entry exposure 0.589
+  EW    entry pct 0.49778  worst-decile slate 0.33449  WSB 0.02398  top-3 0.06366  EBL 0.03686  tickets 332.5  zero-ticket slates 0.181  best>=194 0.264  best>=200 0.208  bust exposure 0.0685  max entry exposure 0.318
+  EW25  entry pct 0.49013  worst-decile slate 0.32783  WSB 0.02009  top-3 0.05305  EBL 0.03584  tickets 323.0  zero-ticket slates 0.139  best>=194 0.264  best>=200 0.194  bust exposure 0.0662  max entry exposure 0.263
+  EW35  entry pct 0.50879  worst-decile slate 0.33370  WSB 0.02677  top-3 0.07145  EBL 0.03769  tickets 344.0  zero-ticket slates 0.125  best>=194 0.250  best>=200 0.222  bust exposure 0.0655  max entry exposure 0.368
+
+realized max player exposure in dealt entries (slate mean over banks; caps EA 44, EW 44, EW25 36, EW35 51):
+  slate           C      EA      EW    EW25    EW35
+  2023-W01     85.0    82.5    47.5    39.5    54.5
+  2023-W02     92.0    88.0    52.5    38.0    51.0
+  2023-W03     88.5    85.0    47.5    37.0    53.0
+  2023-W04     95.5    91.0    45.0    36.5    52.5
+  2023-W05     87.0    86.5    44.5    41.0    51.5
+  2023-W06     88.5    85.5    49.5    38.0    53.5
+  2023-W07     91.0    75.5    45.0    38.0    54.0
+  2023-W08     90.5    88.5    44.5    38.0    52.5
+  2023-W09     93.0    85.5    44.5    39.0    55.0
+  2023-W10     88.0    83.5    51.5    36.5    57.5
+  2023-W11     93.5    85.5    47.0    41.0    59.0
+  2023-W12     91.0    92.5    49.0    38.0    53.0
+  2023-W13     94.5    90.5    44.0    37.0    52.5
+  2023-W14     92.0    90.0    46.0    41.5    53.0
+  2023-W15     92.5    93.5    46.0    37.0    51.5
+  2023-W16     92.5    89.5    46.0    38.0    51.5
+  2023-W17     83.5    81.5    46.0    37.0    52.0
+  2023-W18     94.0    95.0    45.0    36.0    51.5
+  2024-W01     91.5    84.0    46.0    38.0    55.5
+  2024-W02     85.5    79.0    45.5    41.5    54.5
+  2024-W03     92.5    90.0    50.0    40.0    58.0
+  2024-W04     84.5    82.5    45.5    39.0    57.5
+  2024-W05     90.0    90.0    49.0    39.5    55.0
+  2024-W06     85.5    84.5    45.5    37.5    51.5
+  2024-W07     88.0    85.0    45.5    37.0    57.0
+  2024-W08     94.0    92.0    44.0    37.0    51.5
+  2024-W09     90.5    85.5    44.0    37.5    53.0
+  2024-W10     91.5    86.5    44.0    37.5    54.0
+  2024-W11     91.0    90.5    49.5    40.0    57.5
+  2024-W12     91.5    89.5    49.0    40.5    53.0
+  2024-W13     79.0    77.5    49.5    42.5    61.0
+  2024-W14     89.0    90.0    44.5    41.5    55.0
+  2024-W15     92.0    88.5    47.5    40.0    54.0
+  2024-W16     82.0    82.0    49.5    39.5    51.0
+  2024-W17     87.0    88.0    49.5    37.5    55.5
+  2024-W18     93.5    84.0    46.5    40.0    55.0
+  pooled      0.611   0.589   0.318   0.263   0.368   (share of entries)
+
+SENSITIVITY plan (Week 3 routed): UNAVAILABLE by design -- the deal and the caps are computed in the run with the primary plan only (and study 1 found the Week-3 plan needs 106 rows against K 105).
+```
+
+**Transfer check** (descriptive; EA only):
+- A1's real books, re-dealt by the lab's frozen assignment cap and scored by the money-gate harness's validated scorer.
+  The script is `scripts/moneygate_transfer_s1b.py` @ 93859a19 on `production/moneygate-harness-20261005`.
+- EW was not built. It needs an entry-weighted ban mode in `union_reselect`, and it is not an adoption candidate.
+```
+STUDY-1b TRANSFER CHECK (descriptive): EA - A1 on the real 2026 W1-4 contests; higher pct = better; W4 motivated the study; EW not built (no adoption candidate)
+lab rule: /home/erich/projects/.nfl2-worktrees/s1b-entry-cap-20261005  A1 book sha: {1: '6debe475', 2: 'bf1a5438', 3: 'f08e6bad', 4: '010df6c0'}
+W1: mean-track entries 23 cap 6 | misses 8 (0.348) | entries changed 11 | max player entries A1 12 EA 11 | multiple A1 0.850 EA 0.850 | ex-largest 0.799 vs 0.799 | cashes 40 vs 39 | mean entry pct 67.6587 vs 67.2668 | contests with no cash 0 vs 0 of 3 | contests EA above/below A1 0/1
+W2: mean-track entries 96 cap 28 | misses 38 (0.396) | entries changed 14 | max player entries A1 56 EA 50 | multiple A1 0.650 EA 0.650 | ex-largest 0.549 vs 0.549 | cashes 9 vs 9 | mean entry pct 36.0494 vs 38.1491 | contests with no cash 7 vs 7 of 12 | contests EA above/below A1 4/0
+W3: mean-track entries 132 cap 39 | misses 48 (0.364) | entries changed 15 | max player entries A1 79 EA 72 | multiple A1 0.000 EA 0.000 | ex-largest 0.000 vs 0.000 | cashes 0 vs 0 | mean entry pct 52.7828 vs 53.2802 | contests with no cash 45 vs 45 of 45 | contests EA above/below A1 2/0
+W4 (motivating): mean-track entries 147 cap 44 | misses 59 (0.401) | entries changed 5 | max player entries A1 93 EA 89 | multiple A1 0.174 EA 0.174 | ex-largest 0.087 vs 0.087 | cashes 2 vs 2 | mean entry pct 44.7242 vs 44.7636 | contests with no cash 23 vs 23 of 25 | contests EA above/below A1 1/0
+W1-4: multiple A1 0.484 EA 0.484; ex-largest 0.462 vs 0.462; mean entry pct 49.6721 vs 50.1970; misses 153/398
+W1-3 (excl. motivating W4): multiple A1 0.565 EA 0.565; ex-largest 0.537 vs 0.537; mean entry pct 51.6461 vs 52.3647; misses 94/251
+contests EA above / below A1 (W1-4, contest-level, anti-conservative): 7 / 1
+```
+
+**Verdicts (frozen rule):**
+- **EA FAILS: the cap cannot be achieved by assignment alone.**
+  - It misses 38% of entries on every slate-bank, and 153 of 398 on the real 2026 weeks.
+  - The most-used player barely moves: from 61% to 59% of entries on the panel, and from 93 to 89 entries in real W4.
+- **EW FAILS on cost.**
+  - It does what a cap is meant to do. It holds the most-used player at 0.318 of entries against C's 0.611, and it
+    roughly halves the worst single-bust swing (WSB 0.0445 → 0.0240; d1 upper −0.0174, both seasons).
+  - But it costs 3.5 points of mean entry finish: lower bound −7.3, against the operator's margin of −1.5.
+  - Neither the 25% nor the 35% level comes close: d2 is −4.3 and −2.4.
+
+**What the secondaries suggest (NOT evidence):**
+- De-concentration LOWERED mean entry finish but RAISED line-crossings:
+  - tickets: 314.5 for C against 332.5 for EW and 344.0 for EW35;
+  - zero-ticket slates: 0.319 against 0.181 and 0.125;
+  - best ≥ 200: 0.167 against 0.208 and 0.222.
+- Study 1's G moved the same way (zero-ticket slates 0.319 → 0.236).
+- That is the correlation trade: less correlated entries cross high lines more often, at a lower average.
+- These numbers come from 5 arms with no intervals. They motivate a NEW preregistration (study list item 14), with
+  tickets and line-crossings by contest class as the primary and mean finish as the guard. They support no adoption.
+- The winners study found concentration +EV at the satellite lines, so the new test must be able to come out either way.
+
+**No adoption.** The per-contest row cap stays as it is. The operator's question, whether we should hold any one player
+under about a third of entries, is answered: not at the cost the panel measures on mean finish. Whether it pays at the
+lines is the next study.
