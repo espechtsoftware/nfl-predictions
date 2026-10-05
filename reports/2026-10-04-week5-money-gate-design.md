@@ -104,3 +104,45 @@ Week-4 concentration (Chase in 49% of the book), so the same caveat applies to i
   multi-hour build per week. Proposed as the next replay after Friday if the operator wants it.
 - **A minimum exposure to every high-total game:** needs new selection code. Proposed, not built.
 - **The 2022–25 field-relative check:** no fields exist for those seasons, so it is a different yardstick; later.
+
+## Addendum 1 (2026-10-04, reviewer's review of 838b3c46): committed BEFORE any arm is scored
+
+1. **Contamination changes the rule.**
+   - A2 and A3 were motivated by Week-4 outcomes, so their Week 4 cannot count toward switching.
+   - Their conditions (a)–(d) are evaluated on **Weeks 1–3 only**, with (b) becoming "at least 2 of 3 weeks". Week 4
+     is shown beside them, labelled "not independent".
+   - A1 and A4 keep Weeks 1–4.
+   - A1 = A4 in Weeks 1 and 2 (no point-in-time ownership input), so **the ownership tilt is evaluated on Weeks 3–4
+     only**.
+   - Week 2 runs without the term, disclosed. No lag file is rebuilt: past-week ownership sets collapse without the
+     implied team total (the 09-29 finding).
+2. **One payout must not decide it.**
+   - Every return multiple is reported twice: as is, and **excluding that arm's single largest payout**.
+   - Condition (a) must hold on BOTH.
+   - Cashes and ticket value are also shown by contest class.
+3. **Contests are not independent.** With the head layout the same rows are dealt into many contests.
+   - **The resampling unit becomes the cluster:** within each week, the connected component of contests linked by any
+     shared book row, taken over the union of A1 and the arm compared.
+   - The bootstrap resamples clusters, and condition (c)'s sign test runs over clusters (cluster statistic = the sum
+     over its contests of the arm-minus-A1 difference in mean entry finish percentile).
+   - The effective number of independent units (clusters) is reported for every comparison.
+   - If a week collapses into a single cluster, (c) is evaluated with weeks as the units. With four (or three) units
+     that cannot reach p < 0.20, so (c) then fails rather than being waived.
+   - The contest-level sign test is still printed, labelled **anti-conservative**.
+4. **Multiplicity.**
+   - Three alternatives are tested against A1. Under a null of no difference, (c) alone passes about 10% of the time
+     per arm in the favourable direction; (a), (b) and (d) are positively correlated with it and cut that roughly in
+     half.
+   - So the **expected false-qualifier rate is about 5% per arm and about 10–15% for "any of the three"**.
+   - The harness also estimates it by permuting arm labels within clusters, and the estimate is printed beside the
+     result.
+5. **A pre-written rollback trigger for any Week-5 trial.** If an alternative arm X is adopted for Week 5:
+   - A1 is still built every week as a paper book.
+   - **Trial ends and Week 6 returns to A1 if, in Week 5:** (i) X's book is below the M2 median (book percentile
+     < 50), OR (ii) X's mean entry finish percentile is more than 5 points below A1's paper book on the same contests.
+   - Either test is computed Monday from the settled standings and recorded in the weekly scorecard.
+   - **Otherwise the trial continues week by week** under the same two tests.
+
+Answers to the design's questions (reviewer):
+- p < 0.20 stands only together with points 1–5.
+- Week 2 runs without the ownership term, disclosed.
