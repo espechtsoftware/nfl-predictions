@@ -6,9 +6,10 @@
 #
 # What it changes, and nothing else: ONLY the nfl-dfs-app service gets the
 # image digest (never a mutable tag, never :latest), command `nfl-dfs`,
-# args `dashboard`, CODE_SHA, and -- when the secrets exist in Secret Manager
-# -- the Milly Neo4j env vars. Every other env var, secret, service account,
-# scaling and the IAP-only invoker policy are left exactly as they are
+# args `dashboard` and CODE_SHA. No Neo4j secrets: the Milly graph is local
+# only and not part of the UI (operator 2026-10-04). Every other env var,
+# secret, service account, scaling and the IAP-only invoker policy are left
+# exactly as they are
 # (`gcloud run services update` keeps what it is not told to change; this
 # script never passes --allow-unauthenticated). No Cloud Run job uses this
 # service. Before the update it requires IAP to be enabled on the service.
@@ -25,13 +26,6 @@ REGION=us-central1
 SERVICE=nfl-dfs-app
 REPO="us-central1-docker.pkg.dev/${PROJECT}/nfl-dfs/nfl-dfs"
 NOT_BEFORE_UTC="2026-10-04T20:30:00Z"   # Sunday 2026-10-04 15:30 CDT
-# env var name -> Secret Manager secret id
-NEO4J_SECRETS=(
-  "MILLY_NEO4J_URI=milly-neo4j-uri"
-  "MILLY_NEO4J_USERNAME=milly-neo4j-username"
-  "MILLY_NEO4J_PASSWORD=milly-neo4j-password"
-  "MILLY_NEO4J_DATABASE=milly-neo4j-database"
-)
 HERE="$(cd "$(dirname "$0")" && pwd)"
 
 ref="${1:?usage: $0 <dashboard-SHORT_SHA tag | image@sha256:digest>}"
@@ -72,23 +66,9 @@ echo "image:    ${image}"
 echo "previous: ${prev}"
 echo "rollback: ${rollback}"
 
-secrets=()
-for pair in "${NEO4J_SECRETS[@]}"; do
-  env_name="${pair%%=*}"; secret_id="${pair#*=}"
-  if gcloud secrets describe "$secret_id" --project "$PROJECT" >/dev/null 2>&1; then
-    secrets+=("${env_name}=${secret_id}:latest")
-  fi
-done
-
 args=(run services update "$SERVICE" --region "$REGION" --project "$PROJECT"
       --image "$image" --command nfl-dfs --args dashboard
       --update-env-vars "CODE_SHA=${code_sha}")
-if (( ${#secrets[@]} )); then
-  args+=(--update-secrets "$(IFS=,; echo "${secrets[*]}")")
-  echo "neo4j:    ${#secrets[@]} secret env var(s) attached"
-else
-  echo "neo4j:    no milly-neo4j-* secrets in Secret Manager; the graph page will say 'not configured'"
-fi
 gcloud "${args[@]}"
 gcloud run services update-traffic "$SERVICE" --region "$REGION" --project "$PROJECT" --to-latest
 

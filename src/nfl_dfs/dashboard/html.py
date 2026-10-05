@@ -17,7 +17,6 @@ NAV = (
     ("/", "Overview"), ("/games", "Games"), ("/players", "Players"),
     ("/offense", "Offense"), ("/defense", "Defense"), ("/accuracy", "Accuracy"),
     ("/arms", "Arms"), ("/milly", "Milly"), ("/insights", "Insights"),
-    ("/milly/graph", "Milly graph"),
 )
 
 CSS = """

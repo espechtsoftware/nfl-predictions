@@ -254,16 +254,25 @@ table is missing, empty or failing.
 | `/accuracy` | MAE by week and position (ours vs FP on the players both priced), FP ownership calibration against the Millionaire, our book's leverage | the above + Millionaire ownership counted from `contest_entries` |
 | `/arms` | Every arm and shadow per week and across the season: lineups, mean/best DK points, best rank in the Millionaire field, cash rate; the week's stake plan | `nfl_dashboard.arms_weekly`; `contests.json` read at request time from `gs://<bucket>/week-inputs/<season>/wNN/` |
 | `/milly` | Winning score, top-0.1%/1% lines, cash line (when payouts are imported), the winner's and the top 1%'s construction (QB+n, bring-back, salary, ownership sum, dupes), most-owned players, our best arm vs the winner | `contest_entries`, `contest_ownership`, `dk_salaries`, `arms_weekly` |
-| `/insights` | Winners vs FP's projected field, leverage that paid / chalk that busted, QB + pass-catcher stacks in the top 1%, where we and FP disagreed by 4+ points, our book vs the top 0.1% | `insight_*.sql` |
-| `/milly/graph` | Stack pairs, bring-backs and players in top-1% lineups across weeks; the same insight questions in Cypher | Neo4j (below) |
+| `/insights` | Winners vs FP's projected field, leverage that paid / chalk that busted, QB + pass-catcher stacks in the top 1%, repeat top finishers by DraftKings user name (season-wide), where we and FP disagreed by 4+ points, our book vs the top 0.1% | `insight_*.sql` |
 
 The Millionaire for a week is resolved in `milly_contests.sql`: the largest
 "Fantasy Football Millionaire" in the lobby polls that is not a satellite,
 showdown, MEGA or split slate, dated by its Sunday start; falling back to the
 largest imported standings named like a Millionaire. When the lobby's contest
 has no standings but an import does, the import wins and the overview prints
-the mismatch. The Millionaire SQL reads lineups, ranks and points only; no
-entry names are selected anywhere.
+the mismatch.
+
+**User names** (operator 2026-10-03/04). The DraftKings user name is the
+standings entry name without its "(k/n)" entry counter. It is selected by
+`milly_top_lineups.sql` and `insight_repeat_finishers.sql`, shown on
+`/insights` (behind IAP) and loaded into the local graph. It never goes into
+tracked files, fixtures, tests or commit messages: tests use synthetic
+`user_<x>` names, and `test_fixtures_use_only_synthetic_user_names` checks
+the dashboard tests. Insight 4 is season-wide over the Millionaires: per user,
+entries, weeks, top-1% lineups and weeks, top-0.1% lineups, best rank, top-1%
+rate and the QB used most in the user's top-1% lineups (entries de-duplicated
+by newest import; RANK over the whole field, ties inside the cut; top 50).
 
 **Player identity.** Standings lineups carry display names only. Every join
 resolves a name to the contest slate's DraftKings player id by normalised name
@@ -308,29 +317,29 @@ its own contest, the others against the Millionaire. It refuses to score
 before the week's Millionaire standings are imported (scored zeros would
 publish as results), and refuses `--apply --no-bq`.
 
-**Neo4j (the Milly graph).** Configure the service and the loader with
-`MILLY_NEO4J_URI`, `MILLY_NEO4J_USERNAME`, `MILLY_NEO4J_PASSWORD` and
-optionally `MILLY_NEO4J_DATABASE` (Secret Manager ids `milly-neo4j-uri`,
-`-username`, `-password`, `-database`; the deploy script attaches the ones that
-exist). Load with `python scripts/load_milly_neo4j.py --season 2026 [--week N]`
+**Neo4j (the Milly graph) -- local only, not part of the UI** (operator
+2026-10-04: "I mostly just want to be able to learn from it so locally is
+fine"). There is no graph page and the service gets no Neo4j secrets. Point
+the loader at a local instance with `MILLY_NEO4J_URI` (e.g.
+`bolt://localhost:7687`), `MILLY_NEO4J_USERNAME`, `MILLY_NEO4J_PASSWORD` and
+optionally `MILLY_NEO4J_DATABASE`, in the shell, never in a tracked file. Load with `python scripts/load_milly_neo4j.py --season 2026 [--week N]`
 (a dry run; `--apply` writes). It loads the top `--top-n` lineups per week
 (default 1000, at most 1500) plus cash-line rows, prints the share of the
 field that is, and records it on the Contest node (`loaded_lineups`,
 `loaded_share`). Players are keyed by `dk_player_id` (stable across weeks on
 DraftKings and present for DSTs, unlike the gsis id), with the name as a
-property; `cypher/milly_schema.cypher` holds a uniqueness constraint for every
+property. DraftKings user names are `(:User {name})-[:ENTERED]->(:Lineup)`.
+`cypher/milly_schema.cypher` holds a uniqueness constraint for every
 merged label and key and is applied before the first batch. Add `--include-fp` to also
 load Fantasy Points' projection and ownership per player-week. Before writing,
-the loader counts the graph. It refuses if the load could pass 90% of the Aura
-Free limits (`FREE_TIER_NODES`/`FREE_TIER_RELS` in `dashboard/milly_graph.py`,
-200k/400k: check them against Neo4j's current terms), and it prints the counts
-afterwards. Saved queries: `cypher/milly_insights.cypher`. **Keep-alive:** Aura
-Free pauses an idle instance, so run `python scripts/neo4j_keepalive.py` daily
-(one read, exit 1 with a resume hint if the instance is paused). Planned as a
-laptop user timer, to be installed after Sunday 2026-10-04 and not installed
-yet:
-`systemd-run --user --on-calendar='*-*-* 07:00' --unit milly-neo4j-keepalive <venv>/bin/python <repo>/scripts/neo4j_keepalive.py`
-(with the `MILLY_NEO4J_*` variables in the unit's environment).
+the loader counts the graph. It refuses if the load could pass 90% of the
+sizing limits (`FREE_TIER_NODES`/`FREE_TIER_RELS` in `dashboard/milly_graph.py`,
+200k/400k, the Aura Free numbers; raise them with `--node-limit`/`--rel-limit`
+on a local instance), and it prints the counts afterwards. Saved queries for
+the Neo4j Browser, including `repeat_finishers` by user name:
+`cypher/milly_insights.cypher` (a test keeps it in step with the module).
+`scripts/neo4j_keepalive.py` (one read) is only needed against an Aura Free
+instance, which pauses when idle; a local instance does not need it.
 
 **Build and deploy** (not run yet):
 
@@ -352,20 +361,15 @@ revision) and fails loudly, printing the rollback, unless IAP is still on,
 nothing is bound to `allUsers`/`allAuthenticatedUsers`, and 100% of traffic is
 on the new revision (`scripts/dashboard_iam_check.py` prints what it found).
 
-**One-time grants before the first deploy (operator; not run).** The service
-runs as the default compute service account, which has no Secret Manager
-access. Create the four secrets, then let the service account read them:
+**One-time grants before the first deploy (operator; not run).** No Neo4j
+secrets are needed (the graph is local only). The service runs as the default
+compute service account:
 
 ```bash
 PROJECT=nfl-predictions-503414
 SA=$(gcloud run services describe nfl-dfs-app --region us-central1 --project $PROJECT \
        --format='value(spec.template.spec.serviceAccountName)')
 [ -n "$SA" ] || SA="$(gcloud projects describe $PROJECT --format='value(projectNumber)')-compute@developer.gserviceaccount.com"
-for s in milly-neo4j-uri milly-neo4j-username milly-neo4j-password milly-neo4j-database; do
-  # once per secret: printf %s "<value>" | gcloud secrets create $s --project $PROJECT --data-file=-
-  gcloud secrets add-iam-policy-binding $s --project $PROJECT \
-    --member "serviceAccount:$SA" --role roles/secretmanager.secretAccessor
-done
 ```
 
 The stake-plan section reads `gs://nfl-predictions-503414-raw/week-inputs/<season>/wNN/contests.json`.

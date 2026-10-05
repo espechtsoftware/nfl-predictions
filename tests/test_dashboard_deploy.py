@@ -152,7 +152,8 @@ def test_deploy_updates_only_the_service_by_digest_and_keeps_iap(tmp_path):
     image = u.split("--image ", 1)[1].split()[0]
     assert "nfl-dfs-app" in u and "@sha256:" in image and not image.endswith(":latest")
     assert "--command nfl-dfs --args dashboard" in u and "CODE_SHA=abc1234" in u
-    assert "MILLY_NEO4J_URI=milly-neo4j-uri:latest" in u
+    assert "MILLY_NEO4J" not in u and "--update-secrets" not in u      # graph is local only (10-04)
+    assert not any(c.startswith("secrets") for c in calls)
     assert not any("allow-unauthenticated" in c for c in calls)
     assert not any(c.startswith(("run jobs", "run deploy", "builds")) for c in calls)
     assert "update-traffic nfl-dfs-app" in p.stdout and "nfl-dfs-app-00099-old=100" in p.stdout

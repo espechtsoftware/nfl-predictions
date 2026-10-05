@@ -4,8 +4,9 @@ Serve:  nfl-dfs dashboard [--port 8080]
         (uvicorn nfl_dfs.dashboard.app:create_app --factory)
 
 Every page renders, with an explanatory note, when its table is missing or
-empty, when a query fails, or when Neo4j is not configured. BigQuery results
-are cached in-process for DASHBOARD_CACHE_TTL seconds (default 600).
+empty or when a query fails. BigQuery results are cached in-process for
+DASHBOARD_CACHE_TTL seconds (default 600). The Milly Neo4j graph is local
+only and not part of the UI (operator 2026-10-04; scripts/load_milly_neo4j.py).
 """
 from __future__ import annotations
 
@@ -23,7 +24,6 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from ..config import current_season
 from . import data as D
 from . import milly as M
-from . import milly_graph as G
 from .html import (fmt_num, filters, line_chart, note, page, select, table,
                    text_input, esc)
 from .stakes import Reader, gcs_reader, stake_rows
@@ -56,7 +56,6 @@ class TTLCache:
 
 
 def create_app(query: D.Query | None = None,
-               graph_driver: Callable[[G.GraphConfig], object] | None = None,
                env: dict | None = None,
                stake_reader: Reader | None = None) -> FastAPI:
     """``query`` defaults to nfl_dfs.bq.query_df, ``stake_reader`` to the
@@ -65,7 +64,6 @@ def create_app(query: D.Query | None = None,
         from ..bq import query_df as query  # noqa: PLC0415
     env = dict(os.environ if env is None else env)
     cache = TTLCache(float(env.get("DASHBOARD_CACHE_TTL", "600")))
-    graph_driver = graph_driver or G.connect
     stake_reader = stake_reader or gcs_reader
     app = FastAPI(title="DFS dashboard", version="2", docs_url=None, redoc_url=None)
 
@@ -166,7 +164,7 @@ def create_app(query: D.Query | None = None,
                 ("/accuracy", "Accuracy", "Projection MAE, ownership calibration, book leverage"),
                 ("/arms", "Arms", "Every arm and shadow per week vs the Millionaire field"),
                 ("/milly", "Milly", "Winning scores, lines and winners' construction"),
-                ("/milly/graph", "Milly graph", "Stack pairs and players across weeks (Neo4j)")))
+                ("/insights", "Insights", "What won vs Fantasy Points and us; repeat top finishers")))
         body = (header("Overview", "Read-only views over the warehouse and the published week tables.")
                 + guarded(cards) + f"<div class='grid'>{pages}</div>"
                 + "<h2>Freshness</h2>" + guarded(fresh))
@@ -693,67 +691,5 @@ def create_app(query: D.Query | None = None,
                 + guarded(disagreements)
                 + "<h2>6 · Our book against the top 0.1%</h2>" + guarded(book_vs_top))
         return page("Insights", body, "/insights")
-
-    @app.get("/milly/graph", response_class=HTMLResponse)
-    def milly_graph_page() -> str:
-        cfg = G.GraphConfig.from_env(env)
-
-        def build() -> str:
-            if cfg is None:
-                return note(f"Neo4j not configured: set {G.URI_ENV}, {G.USERNAME_ENV} and "
-                            f"{G.PASSWORD_ENV} (optionally {G.DATABASE_ENV}) on the service, then load "
-                            f"it with scripts/load_milly_neo4j.py --apply.")
-
-            def run() -> dict:
-                drv = graph_driver(cfg)
-                try:
-                    return G.run_panel(drv, cfg.database)
-                finally:
-                    close = getattr(drv, "close", None)
-                    if close:
-                        close()
-            res = cache.get(f"neo4j-panel:{cfg.uri}:{cfg.database}", run)
-            pairs, bb, players, shapes = (res.get(k, pd.DataFrame()) for k in
-                                          ("stack_pairs", "bring_backs", "players_over_time", "winning_shapes"))
-            if all(x.empty for x in (pairs, bb, players, shapes)):
-                return note("The Milly graph is configured but empty: run scripts/load_milly_neo4j.py --apply.")
-            if not players.empty and "weeks" in players:
-                players = players.copy()
-                players["weeks"] = players.weeks.map(lambda w: ", ".join(w) if isinstance(w, list) else w)
-            return ("<h2>Winning lineups by week</h2>" + table(shapes, [
-                        ("week", "Week", None, "l"), ("points", "Pts", fmt_num(2)), ("stack", "Stack", None, "l"),
-                        ("salary", "Salary", fmt_num(0)), ("own_sum", "Own sum", fmt_num(0, pct=True)),
-                        ("dupes", "Dupes", fmt_num(0))])
-                    + "<h2>Most frequent stack pairs in top-1% lineups</h2>" + table(pairs, [
-                        ("player_a", "Player", None, "l"), ("player_b", "Teammate", None, "l"),
-                        ("top_1pct_lineups", "Top-1% lineups"), ("lineups", "Loaded lineups"),
-                        ("weeks", "Weeks")])
-                    + "<h2>Most frequent bring-backs in top-1% lineups</h2>" + table(bb, [
-                        ("player_a", "Player", None, "l"), ("player_b", "Opponent", None, "l"),
-                        ("top_1pct_lineups", "Top-1% lineups"), ("weeks", "Weeks")])
-                    + "<h2>Winners vs projected (needs --include-fp)</h2>" + table(
-                        res.get("winners_vs_projected", pd.DataFrame()), [
-                            ("week", "Week", None, "l"), ("grp", "Group", None, "l"),
-                            ("lineups", "Lineups"), ("fp_own_sum", "FP own sum", fmt_num(1, pct=True)),
-                            ("fp_proj_sum", "FP proj sum", fmt_num(1))])
-                    + "<h2>Leverage that paid / chalk that busted (needs --include-fp)</h2>" + table(
-                        res.get("leverage_paid", pd.DataFrame()), [
-                            ("week", "Week", None, "l"), ("category", "", None, "l"),
-                            ("player", "Player", None, "l"), ("fp_own", "FP own", fmt_num(1, pct=True)),
-                            ("realized", "Realized", fmt_num(1, pct=True)),
-                            ("top1_lineups", "Top-1% lineups"), ("fpts", "DK pts", fmt_num(1))], max_rows=40)
-                    + "<h2>QB stacks in top-1% lineups with FP ownership</h2>" + table(
-                        res.get("stack_outcomes", pd.DataFrame()), [
-                            ("week", "Week", None, "l"), ("player_a", "Player", None, "l"),
-                            ("player_b", "Teammate", None, "l"), ("top_1pct_lineups", "Top-1% lineups"),
-                            ("pair_fp_own", "Pair FP own", fmt_num(1, pct=True))], max_rows=40)
-                    + "<h2>Players in top-1% lineups over time</h2>" + table(players, [
-                        ("player", "Player", None, "l"), ("position", "Pos", None, "l"),
-                        ("n_weeks", "Weeks"), ("top_1pct_lineups", "Lineups"),
-                        ("weeks", "Week:lineups", None, "l")]))
-
-        body = (header("Millionaire graph", "Neo4j view of the loaded top Millionaire lineups across weeks")
-                + guarded(build))
-        return page("Milly graph", body, "/milly/graph")
 
     return app

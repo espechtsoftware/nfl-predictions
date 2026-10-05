@@ -10,14 +10,13 @@ import pytest
 from fastapi.testclient import TestClient
 
 from nfl_dfs.dashboard import data as D
-from nfl_dfs.dashboard import milly_graph as G
 from nfl_dfs.dashboard.app import create_app
 
 sys.path.insert(0, __file__.rsplit("/", 1)[0])
 from test_dashboard_milly import OWN, SLATE, top_rows  # noqa: E402
 
 ROUTES = ["/", "/games", "/players", "/offense", "/defense", "/accuracy", "/arms",
-          "/milly", "/insights", "/milly/graph"]
+          "/milly", "/insights"]
 Q = "?season=2026&week=5"
 
 
@@ -129,9 +128,9 @@ CONTESTS = json.dumps([{"name": "milly", "dk_name": "Synthetic Milly", "contest_
                         "keep": 2, "fee": 0.25}])
 
 
-def client(wh, env=None, stakes=None, graph_driver=None):
+def client(wh, env=None, stakes=None):
     return TestClient(create_app(query=wh, env=env or {"DASHBOARD_SEASON": "2026"},
-                                 stake_reader=stakes or (lambda s, w: None), graph_driver=graph_driver))
+                                 stake_reader=stakes or (lambda s, w: None)))
 
 
 @pytest.mark.parametrize("route", ROUTES)
@@ -189,35 +188,15 @@ def test_results_are_cached_between_requests():
     assert wh.calls.count("offense_weekly") == n == 1
 
 
-def test_graph_page_not_configured_and_configured():
-    r = client(Warehouse()).get("/milly/graph")
-    assert "Neo4j not configured" in r.text and G.URI_ENV in r.text
-
-    class Rec(dict):
-        def data(self):
-            return dict(self)
-
-    class Drv:
-        closed = False
-
-        def execute_query(self, q, parameters=None, database_=None, **kw):
-            if "l.rank = 1" in q:
-                return [Rec(week="2026-05", points=250.0, stack="QB+2+2", salary=50000, own_sum=120.0,
-                            dupes=1)], None, ["week", "points", "stack", "salary", "own_sum", "dupes"]
-            return [], None, []
-
-        def close(self):
-            Drv.closed = True
-
-    env = {"DASHBOARD_SEASON": "2026", G.URI_ENV: "neo4j+s://example.invalid", G.USERNAME_ENV: "u",
-           G.PASSWORD_ENV: "p"}
-    r = client(Warehouse(), env=env, graph_driver=lambda cfg: Drv()).get("/milly/graph")
-    assert r.status_code == 200 and "QB+2+2" in r.text and Drv.closed
-
-    def broken(cfg):
-        raise OSError("unreachable")
-    r = client(Warehouse(), env=env, graph_driver=broken).get("/milly/graph")
-    assert r.status_code == 200 and "unavailable: OSError" in r.text
+def test_the_graph_is_not_part_of_the_ui():
+    """Operator 2026-10-04: the Milly Neo4j graph is local only, not a page."""
+    c = client(Warehouse(fixtures()))
+    assert c.get("/milly/graph").status_code == 404
+    for route in ROUTES:
+        text = c.get(route + Q).text
+        assert "/milly/graph" not in text and "Neo4j" not in text, route
+    import nfl_dfs.dashboard.app as A
+    assert "milly_graph" not in A.__dict__ and "G" not in A.__dict__
 
 
 def test_repeat_finishers_is_season_wide_and_escaped():
