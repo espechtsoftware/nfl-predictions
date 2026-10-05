@@ -780,6 +780,41 @@ _V15_SOURCE_SET = _SourceSetContract(
     frozen_source_sha256=tuple(sorted(V15_FROZEN_SOURCE_SHA256.items())),
 )
 
+# Source-set v16 (2026-10-05): own_shadow rows name their writer (O-27 follow-up). app/main.py
+# passes own_shadow_writer=WRITER_APP on both _build_classic build calls; live_lineups threads
+# own_shadow_writer / own_shadow_run_type to _log_ownership_shadow, whose rows now come from
+# own_shadow.ownership_shadow_frame with writer/run_type columns. Telemetry only: no roster
+# input, no environment read is added or removed. Measured before pinning (200c09d7 text against
+# the current files, whole frozen tree): 278 direct read sites in both, position-free identical.
+# V5-v15 remain immutable; never rewrite them.
+V16_SOURCE_SET_ID = (
+    "adopted-classic-policy-20261005-week5-own-shadow-writer-v16"
+)
+V16_CLASSIFIED_INPUT_PROJECTION_SHA256 = (
+    "c8ae779af9c96bfbaf1a8c10483e2ffc64c555daae906686afc5e8abd23c7aec"
+)
+V16_FROZEN_SOURCE_SHA256: Mapping[str, str] = {
+    **V15_FROZEN_SOURCE_SHA256,
+    "src/nfl_dfs/app/main.py": (
+        "9ec4dadc3f8e63d3aa62b2b217341db8c5cd9c1fbce0ecf705b45003912679d3"
+    ),
+    "src/nfl_dfs/inference/live_lineups.py": (
+        "9aa6680f7011bf9faed77137601be55582d6b6f940e5a0c15085c762e7c8614d"
+    ),
+}
+
+_V16_SOURCE_SET = _SourceSetContract(
+    schema=SCHEMA,
+    source_set_id=V16_SOURCE_SET_ID,
+    policy_env_sha256=POLICY_ENV_SHA256,
+    classified_input_projection_sha256=(
+        V16_CLASSIFIED_INPUT_PROJECTION_SHA256
+    ),
+    classified_input_key_count=CLASSIFIED_INPUT_KEY_COUNT,
+    direct_input_read_site_count=DIRECT_INPUT_READ_SITE_COUNT,
+    frozen_source_sha256=tuple(sorted(V16_FROZEN_SOURCE_SHA256.items())),
+)
+
 @dataclass(frozen=True)
 class _Locator:
     path: str
@@ -2453,6 +2488,15 @@ def generate_effective_policy_rule_inventory_v15(
     )
 
 
+def generate_effective_policy_rule_inventory_v16(
+    root: Path,
+) -> dict[str, Any]:
+    """Generate the explicit current Week-5 source-set v16 inventory."""
+    return _generate_effective_policy_rule_inventory(
+        root, source_set=_V16_SOURCE_SET
+    )
+
+
 def _source_set_for_inventory(
     inventory: Mapping[str, Any],
 ) -> _SourceSetContract:
@@ -2479,6 +2523,8 @@ def _source_set_for_inventory(
         return _V14_SOURCE_SET
     if source_set_id == V15_SOURCE_SET_ID:
         return _V15_SOURCE_SET
+    if source_set_id == V16_SOURCE_SET_ID:
+        return _V16_SOURCE_SET
     raise EffectivePolicyInventoryError(
         "effective-policy inventory source-set id is not registered"
     )

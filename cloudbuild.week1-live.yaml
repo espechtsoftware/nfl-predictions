@@ -51,7 +51,9 @@ steps:
           tests/test_effective_policy_rule_inventory.py \
           tests/test_tail_shadow.py \
           tests/test_route_share_shadow.py \
-          tests/test_live_shadow_portfolios.py
+          tests/test_live_shadow_portfolios.py \
+          tests/test_own_shadow.py \
+          tests/test_sql_dir.py
         python -Werror::SyntaxWarning -m compileall -q src
 
   - name: gcr.io/cloud-builders/docker

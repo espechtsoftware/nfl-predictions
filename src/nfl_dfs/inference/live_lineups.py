@@ -175,8 +175,14 @@ def _log_ownership_shadow(
     own_source: str,
     season: int,
     week: int,
+    *,
+    writer: str,
+    run_type: str | None = None,
 ) -> None:
-    """Best-effort asynchronous capture of the irrecoverable live own vector."""
+    """Best-effort asynchronous capture of the irrecoverable live own vector.
+
+    Every row names its ``writer`` (and ``run_type``); see ``own_shadow.py``.
+    """
     try:
         from datetime import datetime, timezone
 
@@ -196,16 +202,14 @@ def _log_ownership_shadow(
                     booster_own = _model_ownership(booster, frame)
             except Exception:
                 log.info("own-shadow: booster unavailable, logging naive only")
-        shadow = pd.DataFrame({
-            "generated_at": datetime.now(timezone.utc),
-            "season": int(season), "week": int(week),
-            "gsis_id": frame.get("gsis_id"),
-            "name": frame.get("name"),
-            "pos": frame.pos, "salary": frame.salary,
-            "n_pool": len(frame),
-            "pred_own": own, "source": own_source,
-            "booster_own": (own if own_source == "booster" else booster_own),
-        })
+        from .own_shadow import ownership_shadow_frame
+
+        shadow = ownership_shadow_frame(
+            frame, own, own_source, season, week,
+            booster_own=(own if own_source == "booster" else booster_own),
+            writer=writer, run_type=run_type,
+            generated_at=datetime.now(timezone.utc),
+        )
 
         def _write_shadow(df=shadow, src=own_source):
             try:
@@ -234,6 +238,8 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
                            forbidden_model_features: tuple[str, ...] = (),
                            route_source_policy: bool = False,
                            log_ownership_shadow: bool = True,
+                           own_shadow_writer: str | None = None,
+                           own_shadow_run_type: str | None = None,
                            ) -> tuple[pd.DataFrame, np.ndarray]:
     """Engine-ready slate frame + aligned draw matrix for the live week."""
     from ..backtest.field import naive_ownership
@@ -503,7 +509,12 @@ def build_slate_with_draws(season: int, week: int, n_sims: int | None = None,
     # grades against imported real ownership — and it is irrecoverable
     # after the build (late scratches shift the pool). Best-effort.
     if log_ownership_shadow:
-        _log_ownership_shadow(frame, own, _own_src, season, week)
+        from .own_shadow import default_writer
+
+        _log_ownership_shadow(
+            frame, own, _own_src, season, week,
+            writer=own_shadow_writer or default_writer(own_shadow_run_type),
+            run_type=own_shadow_run_type)
     frame["proj_tourney"] = frame.proj - LEVERAGE_PENALTY * lev_scale * own
     # PUNT_BOOM default 0 ADOPTED 2026-08-05 (Addendum 77/79b — mirror
     # of the replay default): the archetype boost is deleted; env
@@ -558,7 +569,8 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
                       _latent_scenario_receipt=None,
                       _latent_scenario_factory=None,
                       _multiseed_inner: bool = False,
-                      _log_ownership_shadow: bool = True) -> list:
+                      _log_ownership_shadow: bool = True,
+                      own_shadow_writer: str | None = None) -> list:
     """Full validated pipeline on the live slate -> selected entries in
     coverage order (first = broadest boom coverage).
 
@@ -719,6 +731,7 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
                 _latent_scenario_factory=_latent_scenario_factory,
                 _multiseed_inner=True,
                 _log_ownership_shadow=(persist and _log_ownership_shadow),
+                own_shadow_writer=own_shadow_writer,
             )
             if effective_transform is None:
                 if len(holder) != 1:
@@ -880,7 +893,9 @@ def build_sim_lineups(season: int, week: int, n_entries: int,
         required_model_features=model_required_features,
         forbidden_model_features=model_forbidden_features,
         route_source_policy=route_source_policy,
-        log_ownership_shadow=_log_ownership_shadow)
+        log_ownership_shadow=_log_ownership_shadow,
+        own_shadow_writer=own_shadow_writer,
+        own_shadow_run_type=candidate_run_type)
     model_version = slate.attrs.get("model_version")
     wants_role = (
         int(runtime_env.get("N_EPISTEMIC", "0") or 0) > 0
