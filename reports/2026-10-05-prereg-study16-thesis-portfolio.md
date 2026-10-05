@@ -109,3 +109,22 @@ operator was told this before freezing (10-05). Of the options considered:
 - Power: (ii) if 2022 has frames AND a pre-lock LAG file. It has the frames but not the LAG file, so the study runs as
   (i), with (iii) as a secondary.
 - The margin is confirmed by the operator for this study.
+
+---
+
+## Deviation note 1 (2026-10-05, before any smoke, census or scored bank): two build mechanics the frozen text left open
+1. **The book's RANK ORDER.**
+   - The head layout deals the top ranks into most contests, so the order of TP's rows decides the entry allocation.
+   - TP's ranks interleave the cells by D'Hondt: at each rank, the cell with the largest rows / (taken + 1); ties go
+     to the earlier cell (core by game rank, then mid, then blow). Each cell's rows are in its own solve order.
+   - So every prefix of ranks carries the target shares. C keeps its solve order.
+2. **Several blowout teams on one slate.** When more than one team is favoured by ≥ 6, the blowout share is split
+   EVENLY across them, largest-remainder.
+
+Also fixed in the code, consistent with the frozen text:
+- The opponent's "at most 1 player" counts the opponent's DST.
+- Cell (b)'s "≥ 5 players from that game" counts a DST toward its real game (study 1's `game_key_map`).
+- The simulated line-crossing secondary uses 1,000 of the run's 20,000 worlds (every 20th) and the first 20,000 of the
+  200,000 sampled field lineups, in chunks of 100 worlds.
+- Code: nfl2 `production/s16-thesis-portfolio-20261005`. Tests: 7 pass; a mutation that drops the cell constraints is
+  caught.
