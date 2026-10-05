@@ -72,11 +72,62 @@ def test_build_graph_batches_shapes():
         assert r["a"] < r["b"]                       # each pair stored once
 
 
-def test_loaded_rows_carry_no_licensed_fields_and_no_entry_names():
+def test_loaded_rows_carry_no_licensed_fields_and_names_only_on_users():
+    users = set(top_rows().username)
     for name, rows in batches().items():
         for row in rows:
             assert not any(m in k.lower() for k in row for m in G.FORBIDDEN_FIELD_MARKERS), name
             assert "entry_name" not in row and "username" not in row
+            if name not in ("users", "entered"):         # a user name is never a property elsewhere
+                assert not users & {v for v in row.values() if isinstance(v, str)}, name
+
+
+def test_user_names_survive_the_loader():
+    b = batches()
+    assert b["users"] == [{"name": "user_a"}, {"name": "user_b"}]
+    assert sorted((r["lineup_key"], r["name"]) for r in b["entered"]) == [
+        ("k1", "user_a"), ("k2", "user_b"), ("k3", "user_a")]
+    drv = FakeDriver()
+    sent = G.apply_batches(drv, "neo4j", b)
+    assert sent["users"] == 2 and sent["entered"] == 3
+    writes = [(q, p) for q, p, _ in drv.calls if p]
+    order = [next(k for k, s in G.STATEMENTS.items() if s == q) for q, _ in writes]
+    assert order.index("users") < order.index("entered") and order.index("lineups") < order.index("entered")
+    entered = next(p["rows"] for q, p in writes if q == G.STATEMENTS["entered"])
+    assert {r["name"] for r in entered} == {"user_a", "user_b"}
+    assert "MERGE (u:User {name: row.name})" in G.STATEMENTS["users"]
+    assert "MERGE (u)-[:ENTERED]->(l)" in G.STATEMENTS["entered"]
+
+
+def test_blank_or_missing_user_names_are_not_loaded():
+    top = top_rows()
+    top.loc[0, "username"] = None
+    top.loc[1, "username"] = "  "
+    b = G.build_graph_batches(contests(), lines(), top, SLATE, GAMES, OWN)
+    assert b["users"] == [{"name": "user_a"}] and [r["lineup_key"] for r in b["entered"]] == ["k3"]
+    b = G.build_graph_batches(contests(), lines(), top_rows().drop(columns="username"), SLATE, GAMES, OWN)
+    assert b["users"] == [] and b["entered"] == [] and len(b["lineups"]) == 3
+
+
+def test_repeat_finishers_panel():
+    class Rec(dict):
+        def data(self):
+            return dict(self)
+    keys = ["user", "top_1pct_weeks", "top_1pct_lineups", "best_rank", "loaded"]
+    drv = FakeDriver({"MATCH (u:User)-[:ENTERED]->(l:Lineup)": (
+        [Rec(user="user_a", top_1pct_weeks=1, top_1pct_lineups=2, best_rank=1, loaded=2)], keys)})
+    out = G.run_panel(drv, "neo4j")
+    assert out["repeat_finishers"].iloc[0].user == "user_a"
+    assert list(out["repeat_finishers"].columns) == keys
+
+
+def test_saved_cypher_file_is_in_step_with_the_module():
+    from pathlib import Path
+    text = (Path(__file__).resolve().parents[1] / "cypher" / "milly_insights.cypher").read_text()
+    norm = lambda q: " ".join(q.split())  # noqa: E731
+    saved = norm(text)
+    for name, q in {**G.PANEL_QUERIES, **G.INSIGHT_QUERIES}.items():
+        assert norm(q) + ";" in saved, name
 
 
 def test_vendor_fields_are_refused():
@@ -168,8 +219,9 @@ class CountingDriver(FakeDriver):
 def test_estimate_additions_is_an_upper_bound():
     b = batches()
     nodes, rels = G.estimate_additions(b)
-    assert nodes == 1 + 1 + 2 + 4 + len(b["players"]) + 3
-    assert rels >= len(b["contains"]) + len(b["lineups"]) + len(b["stacked_with"])
+    assert nodes == 1 + 1 + 2 + 4 + len(b["players"]) + 3 + 2          # + 2 users
+    assert rels >= len(b["contains"]) + len(b["lineups"]) + len(b["stacked_with"]) + len(b["entered"])
+    assert G.estimate_additions({**b, "entered": []})[1] == rels - 3
 
 
 def test_capacity_guard_refuses_past_90_percent_and_writes_nothing():

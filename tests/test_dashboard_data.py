@@ -365,3 +365,14 @@ def test_name_joins_resolve_through_the_slate_and_drop_collisions():
     assert "pe.dk_player_id = own.dk_player_id" in _sql("insight_book_vs_top")
     fp = _sql("insight_winners_vs_field")
     assert "fpo.k = s.k AND fpo.team = s.team" in fp and "GROUP BY 1, 2, 3 HAVING COUNT(*) = 1" in fp
+
+
+def test_user_name_is_the_entry_name_without_its_counter():
+    """Operator 2026-10-03: DraftKings user names are kept in the Milly
+    derivations (the entry name minus its "(k/n)" counter)."""
+    rx = r"REGEXP_REPLACE(TRIM(x.entry_name), r'\s*\(\d+/\d+\)$', '') AS username"
+    assert rx in _sql("milly_top_lineups", top_n=10, top_share=0.01, cash_rows=0)
+    import re
+    pattern = r"\s*\(\d+/\d+\)$"                    # the same rule, applied in Python
+    assert re.sub(pattern, "", "user_a (3/150)") == "user_a"
+    assert re.sub(pattern, "", "user_b") == "user_b"

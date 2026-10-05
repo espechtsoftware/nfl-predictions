@@ -32,18 +32,23 @@ GAMES = pd.DataFrame([
 ])
 
 
+# DraftKings user names in fixtures are synthetic, always user_<letters>
+# (operator 2026-10-03: real names never appear in tracked files or tests).
+SYNTHETIC_USER = r"user_[a-z]+"
+
+
 def top_rows():
     rows = [
         # winner: QB qa + wa1, wa2 (stack 2) + bring-back rb_b and wb1 (2)
-        ("k1", 1, 250.0, lineup("qa", "rb_b", "rc", "wa1", "wa2", "wb1", "wc1", "wd1", "Dees"), 1),
+        ("k1", 1, 250.0, lineup("qa", "rb_b", "rc", "wa1", "wa2", "wb1", "wc1", "wd1", "Dees"), 1, "user_a"),
         # QB qa + ra, wa1, ta (stack 3) + bring-back rb_b (1)
-        ("k2", 2, 240.0, lineup("qa", "ra", "rc", "wc1", "wd1", "wa1", "ta", "rb_b", "Dees"), 3),
+        ("k2", 2, 240.0, lineup("qa", "ra", "rc", "wc1", "wd1", "wa1", "ta", "rb_b", "Dees"), 3, "user_b"),
         # QB qb_b + wb1 (stack 1) + bring-back ra, wa1, ta (3)
-        ("k3", 3, 230.0, lineup("qb_b", "rc", "ra", "wb1", "wa1", "wc1", "ta", "wd1", "Dees"), 1),
+        ("k3", 3, 230.0, lineup("qb_b", "rc", "ra", "wb1", "wa1", "wc1", "ta", "wd1", "Dees"), 1, "user_a"),
     ]
     return pd.DataFrame([{"season": 2026, "week": 5, "contest_id": "c1", "lineup_key": k, "rank": r,
                           "points": p, "lineup_slots_json": j, "dupes": d, "n_entries": 300,
-                          "at_cash_line": False} for k, r, p, j, d in rows])
+                          "username": u, "at_cash_line": False} for k, r, p, j, d, u in rows])
 
 
 OWN = pd.DataFrame({"season": 2026, "week": 5, "contest_id": "c1",

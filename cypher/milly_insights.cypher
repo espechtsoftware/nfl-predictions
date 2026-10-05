@@ -1,4 +1,4 @@
-// Milly graph (scripts/load_milly_neo4j.py): saved queries for the Aura console.
+// Milly graph (scripts/load_milly_neo4j.py; a local instance): saved queries for the Neo4j Browser.
 // Generated from nfl_dfs.dashboard.milly_graph; keep the two in step.
 // The uniqueness constraints are in cypher/milly_schema.cypher.
 
@@ -25,6 +25,14 @@ ORDER BY wk
 RETURN p.name AS player, p.position AS position, collect(wk + ':' + toString(n)) AS weeks,
        count(wk) AS n_weeks, sum(n) AS top_1pct_lineups
 ORDER BY n_weeks DESC, top_1pct_lineups DESC LIMIT 25;
+
+// Panel: repeat_finishers (DraftKings user names; the graph is local only)
+MATCH (u:User)-[:ENTERED]->(l:Lineup)
+WITH u, count(l) AS loaded, sum(CASE WHEN l.top_1pct THEN 1 ELSE 0 END) AS top_1pct_lineups,
+     count(DISTINCT CASE WHEN l.top_1pct THEN l.week_key END) AS top_1pct_weeks, min(l.rank) AS best_rank
+WHERE top_1pct_lineups > 0
+RETURN u.name AS user, top_1pct_weeks, top_1pct_lineups, best_rank, loaded
+ORDER BY top_1pct_weeks DESC, top_1pct_lineups DESC, best_rank LIMIT 25;
 
 // Panel: winning_shapes
 MATCH (l:Lineup)-[:ENTERED_IN]->(c:Contest)-[:IN_WEEK]->(w:Week)

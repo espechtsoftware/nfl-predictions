@@ -8,12 +8,15 @@ Reads BigQuery (read-only): the resolved Millionaire per week, its lines,
 the top --top-n lineups (plus up to --cash-rows entries on the cash line
 when payouts are known), the draft group's salaries and the schedule.
 Writes only with --apply, and only to the graph named by MILLY_NEO4J_URI /
-MILLY_NEO4J_USERNAME / MILLY_NEO4J_PASSWORD / MILLY_NEO4J_DATABASE. Every
-write is a MERGE, so reloading a week is idempotent. Before writing it counts
-the graph and refuses if this load could take it past 90% of the Aura Free
-limits (milly_graph.FREE_TIER_NODES / FREE_TIER_RELS); it prints the counts
-after the load. Fantasy Points
-projection/ownership is loaded only with --include-fp (opt-in).
+MILLY_NEO4J_USERNAME / MILLY_NEO4J_PASSWORD / MILLY_NEO4J_DATABASE -- a local
+Neo4j instance (operator 2026-10-04: the graph is local only, not part of the
+dashboard UI). DraftKings user names are loaded as (:User)-[:ENTERED]->(:Lineup).
+Every write is a MERGE, so reloading a week is idempotent. Before writing it
+counts the graph and refuses if this load could take it past 90% of the sizing
+limits (milly_graph.FREE_TIER_NODES / FREE_TIER_RELS, the Aura Free numbers;
+raise them with --node-limit / --rel-limit on a local instance); it prints the
+counts after the load. Fantasy Points projection/ownership is loaded only with
+--include-fp (opt-in).
 """
 from __future__ import annotations
 
@@ -37,11 +40,11 @@ def main(argv=None) -> int:
     ap.add_argument("--cash-rows", type=int, default=50)
     ap.add_argument("--include-fp", action="store_true",
                     help="also load Fantasy Points pre-lock projection/ownership per player-week "
-                         "(licensed data to the hosted graph; opt-in)")
+                         "(licensed data; local graph only; opt-in)")
     ap.add_argument("--apply", action="store_true", help="write to Neo4j (default: dry run)")
     a = ap.parse_args(argv)
     if not 1 <= a.top_n <= mg.MAX_TOP_N:
-        ap.error(f"--top-n must be between 1 and {mg.MAX_TOP_N} (Aura Free sizing)")
+        ap.error(f"--top-n must be between 1 and {mg.MAX_TOP_N} (graph sizing)")
 
     from nfl_dfs.bq import query_df
 

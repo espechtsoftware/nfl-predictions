@@ -1,5 +1,7 @@
 """The Millionaire graph in Neo4j (operator decision 2026-10-03: BigQuery
-and Neo4j both).
+and Neo4j both). A LOCAL instance only, for learning from the data; it is not
+part of the dashboard UI (operator 2026-10-04). The loader targets whatever
+MILLY_NEO4J_* names (e.g. bolt://localhost:7687).
 
 A separate, small analytical graph -- not the corpus-retrieval graph:
 
@@ -12,6 +14,10 @@ A separate, small analytical graph -- not the corpus-retrieval graph:
   (:Lineup {key, rank, points, dupes, stack_label, stack, bring_back,
             salary, own_sum, top_1pct, at_cash_line})-[:ENTERED_IN]->(:Contest)
   (:Lineup)-[:CONTAINS {slot}]->(:Player)
+  (:User {name})-[:ENTERED]->(:Lineup)            DraftKings user name: the entry
+      name without its "(k/n)" counter (operator 2026-10-03/04: user names are
+      kept in BigQuery derivations, the IAP dashboard and the graph; never in
+      tracked files, fixtures or tests -- those use synthetic names)
   (:Player)-[:OWNED_IN {own, fpts}]->(:Contest)   realized field ownership
   (:Player)-[:STACKED_WITH {week_key, contest_id, kind, count}]->(:Player)
       same-game pairs inside the loaded lineups (kind teammate|opponent),
@@ -29,7 +35,8 @@ constraint per merged label (cypher/milly_schema.cypher, applied before the
 first batch), so a reload is idempotent. What is loaded comes from DraftKings standings and salaries
 only, unless the loader is run with --include-fp (opt-in, operator decision
 2026-10-03), which adds (:Player)-[:FP_PROJECTED {fp_proj, fp_own}]->(:Week).
-The lineup key is a SHA-256 of contest and entry id (no entry names).
+The lineup key is a SHA-256 of contest and entry id; the user name is a
+separate User node, never part of a key.
 
 ``neo4j`` is imported lazily: the production venv does not carry it (the
 image installs the ``graph`` extra).
@@ -103,7 +110,7 @@ def load_schema(path: Path | None = None) -> tuple[str, ...]:
 
 # Every label a statement MERGEs, with its identity property.
 MERGED_KEYS = {"Week": "key", "Contest": "contest_id", "Game": "game_id", "Team": "code",
-               "Player": "dk_player_id", "Lineup": "key"}
+               "Player": "dk_player_id", "Lineup": "key", "User": "name"}
 
 # Loaded on use, not at import: the app image does not carry cypher/, and only
 # the loader (run from a checkout) applies the schema.
@@ -140,6 +147,9 @@ MERGE (t:Team {code: row.team})
 MERGE (p)-[r:PLAYS_FOR {season: row.season}]->(t)
 ON CREATE SET r.weeks = [row.week]
 ON MATCH SET r.weeks = CASE WHEN row.week IN r.weeks THEN r.weeks ELSE r.weeks + row.week END""",
+    "users": """
+UNWIND $rows AS row
+MERGE (u:User {name: row.name})""",
     "lineups": """
 UNWIND $rows AS row
 MERGE (l:Lineup {key: row.key})
@@ -148,6 +158,10 @@ SET l.rank = row.rank, l.points = row.points, l.dupes = row.dupes,
     l.salary = row.salary, l.own_sum = row.own_sum, l.top_1pct = row.top_1pct,
     l.at_cash_line = row.at_cash_line, l.week_key = row.week_key
 WITH l, row MATCH (c:Contest {contest_id: row.contest_id}) MERGE (l)-[:ENTERED_IN]->(c)""",
+    "entered": """
+UNWIND $rows AS row
+MATCH (u:User {name: row.name}) MATCH (l:Lineup {key: row.lineup_key})
+MERGE (u)-[:ENTERED]->(l)""",
     "contains": """
 UNWIND $rows AS row
 MATCH (l:Lineup {key: row.lineup_key}) MATCH (p:Player {dk_player_id: row.dk_player_id})
@@ -249,6 +263,13 @@ def build_graph_batches(contests: pd.DataFrame, lines: pd.DataFrame, top: pd.Dat
                       "at_cash_line": bool(cash.get(r.lineup_key, False)),
                       "week_key": wk(r.season, r.week)})
     out["lineups"] = [{k: _clean(v) for k, v in d.items()} for d in lrows]
+    # DraftKings user names (operator 10-03): one User per name, ENTERED each
+    # loaded lineup. Names are data at runtime only, never in the repository.
+    if "username" in top:
+        loaded = {d["key"] for d in lrows}
+        u = top[top.lineup_key.isin(loaded) & top.username.notna() & (top.username.astype(str).str.strip() != "")]
+        out["users"] = [{"name": n} for n in sorted(set(u.username.astype(str)))]
+        out["entered"] = [{"name": str(r.username), "lineup_key": r.lineup_key} for r in u.itertuples(index=False)]
     out["contains"] = [{"lineup_key": r.lineup_key, "dk_player_id": int(r.dk_player_id), "slot": r.slot}
                        for r in long.itertuples(index=False)]
     if own is not None and not own.empty:
@@ -348,7 +369,8 @@ def resolution_report(top: pd.DataFrame, slate: pd.DataFrame) -> dict:
 
 
 def assert_no_vendor_fields(batches: Mapping[str, list[dict]]) -> None:
-    """Refuse to ship any licensed-vendor field to the hosted graph."""
+    """Refuse any licensed-vendor field in the base batches (FP rows are
+    loaded only through the opt-in fp_batch)."""
     for name, rows in batches.items():
         for row in rows[:1]:
             bad = [k for k in row if any(m in k.lower() for m in FORBIDDEN_FIELD_MARKERS)]
@@ -404,11 +426,12 @@ def estimate_additions(batches: Mapping[str, list[dict]], fp_rows: list[dict] | 
     b = {k: len(v) for k, v in batches.items()}
     teams = len({g[side] for g in batches.get("games", []) for side in ("home", "away")})
     nodes = b.get("weeks", 0) + b.get("contests", 0) + b.get("games", 0) + teams \
-        + b.get("players", 0) + b.get("lineups", 0)
+        + b.get("players", 0) + b.get("lineups", 0) + b.get("users", 0)
     rels = (b.get("contests", 0)                 # IN_WEEK
             + 3 * b.get("games", 0)              # IN_WEEK + 2 IN_GAME
             + b.get("plays_for", 0) + b.get("lineups", 0)   # ENTERED_IN
             + b.get("contains", 0) + b.get("owned_in", 0) + b.get("stacked_with", 0)
+            + b.get("entered", 0)
             + len(fp_rows or []))
     return nodes, rels
 
@@ -468,6 +491,13 @@ ORDER BY wk
 RETURN p.name AS player, p.position AS position, collect(wk + ':' + toString(n)) AS weeks,
        count(wk) AS n_weeks, sum(n) AS top_1pct_lineups
 ORDER BY n_weeks DESC, top_1pct_lineups DESC LIMIT 25""",
+    "repeat_finishers": """
+MATCH (u:User)-[:ENTERED]->(l:Lineup)
+WITH u, count(l) AS loaded, sum(CASE WHEN l.top_1pct THEN 1 ELSE 0 END) AS top_1pct_lineups,
+     count(DISTINCT CASE WHEN l.top_1pct THEN l.week_key END) AS top_1pct_weeks, min(l.rank) AS best_rank
+WHERE top_1pct_lineups > 0
+RETURN u.name AS user, top_1pct_weeks, top_1pct_lineups, best_rank, loaded
+ORDER BY top_1pct_weeks DESC, top_1pct_lineups DESC, best_rank LIMIT 25""",
     "winning_shapes": """
 MATCH (l:Lineup)-[:ENTERED_IN]->(c:Contest)-[:IN_WEEK]->(w:Week)
 WHERE l.rank = 1
@@ -478,7 +508,7 @@ ORDER BY week""",
 
 
 # The dashboard's insight questions as saved Cypher (cypher/milly_insights.cypher
-# carries the same text for the Aura console). 1-3 need --include-fp loads;
+# carries the same text for the Neo4j Browser). 1-3 need --include-fp loads;
 # 5 and 6 compare against our projections/book, which are not in the graph.
 INSIGHT_QUERIES: dict[str, str] = {
     "winners_vs_projected": """
