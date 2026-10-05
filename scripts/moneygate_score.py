@@ -59,17 +59,18 @@ ARMS = ("A1", "A2", "A3", "A4")
 ALTERNATIVES = ("A2", "A3", "A4")          # simplest first (§5.3: A2 before A3 before A4)
 WEEK_DATES = {1: "2026-09-13", 2: "2026-09-20", 3: "2026-09-27", 4: "2026-10-04"}
 
-# ---- the frozen rule (design §5 + Addendum 1). Changing any value here is a NEW, disclosed replay. ---------------
+# ---- the frozen rule (design §5 + Addendum 1 + Addendum 2). Changing any value here is a NEW, disclosed replay. ---
 RULE = {
     "A1_weeks": (1, 2, 3, 4),
     "arms": {
         "A2": {"weeks": (1, 2, 3), "b_min": 2, "shown_not_independent": (4,)},   # Addendum 1.1: W4 contaminated
         "A3": {"weeks": (1, 2, 3), "b_min": 2, "shown_not_independent": (4,)},
-        "A4": {"weeks": (1, 2, 3, 4), "b_min": 3, "shown_not_independent": ()},   # Addendum 1.1: A1 and A4 keep W1-4
+        "A4": {"weeks": (1, 2, 3, 4), "b_min": 2, "b_weeks": (3, 4), "shown_not_independent": ()},   # A2.2: (b) on W3-4 (A4 = A1 in W1-2)
     },
     "sign_p": 0.20,                 # (c): two-sided, favouring X
     "m2_min": 50.0,                 # (d)
-    "weeks_as_units_max_fail": 4,   # Addendum 1.3: a single-cluster week -> weeks as units; <= 4 units -> (c) FAILS
+    # Addendum 2.1: (c) uses WEEKS as units with the exact sign test (no forced fail; with 3 or 2 units no arm can reach
+    # p < 0.20 -- stated, not hidden). Clusters are reported, not used.
     "ci": (2.5, 97.5),              # the bootstrap range reported (95%)
     "rollback_m2": 50.0, "rollback_pct_gap": 5.0,   # Addendum 1.5
 }
@@ -479,34 +480,64 @@ def week_clusters(Rs: list[dict[str, ContestResult]]) -> list[list[str]]:
 
 
 def condition_c(X: dict[int, dict], A: dict[int, dict], weeks: tuple) -> dict:
-    """Addendum 1.3: the sign test of X vs A1 over clusters (stat = sum over the cluster's contests of the difference in
-    mean entry finish percentile), weeks as units if any week is one cluster (then <= 4 units FAIL)."""
-    stats, n_cl, single = [], {}, []
+    """Addendum 2.1: the exact sign test of X vs A1 with WEEKS as units (week stat = sum over its contests of the
+    difference in mean entry finish percentile). Clusters per week are reported for information only."""
+    units, n_cl = [], {}
     for w in weeks:
-        cl = week_clusters([X[w], A[w]])
-        n_cl[w] = len(cl)
-        if len(cl) == 1:
-            single.append(w)
-        stats.append([sum(X[w][c].pct.mean() - A[w][c].pct.mean() for c in k) for k in cl])
-    if single:
-        units = [sum(s) for s in stats]
-        unit = "weeks"
-    else:
-        units = [x for s in stats for x in s]
-        unit = "clusters"
+        n_cl[w] = len(week_clusters([X[w], A[w]]))
+        units.append(sum(X[w][c].pct.mean() - A[w][c].pct.mean() for c in X[w]))
     pos = sum(u > 1e-12 for u in units); neg = sum(u < -1e-12 for u in units)
     p = binom_two_sided(pos, pos + neg)
-    forced_fail = unit == "weeks" and len(units) <= RULE["weeks_as_units_max_fail"]
-    ok = (not forced_fail) and pos > neg and p < RULE["sign_p"]
-    # the contest-level test, printed and labelled anti-conservative
+    ok = pos > neg and p < RULE["sign_p"]
+    min_p = binom_two_sided(len(units), len(units))
     cpos = sum(X[w][c].pct.mean() > A[w][c].pct.mean() for w in weeks for c in X[w])
     cneg = sum(X[w][c].pct.mean() < A[w][c].pct.mean() for w in weeks for c in X[w])
-    return {"unit": unit, "units": len(units), "favour_X": int(pos), "favour_A1": int(neg), "p_two_sided": p,
-            "single_cluster_weeks": single, "clusters_per_week": n_cl, "forced_fail_weeks_as_units": forced_fail, "pass": bool(ok),
-            "note": ("Addendum 1.3 says <= 4 week units cannot reach p < 0.20; at 4 of 4 units the exact two-sided p is 0.125. "
-                     "The frozen text (FAIL) is applied; the computed p is shown.") if forced_fail else "",
+    return {"unit": "weeks", "units": len(units), "favour_X": int(pos), "favour_A1": int(neg), "p_two_sided": p,
+            "min_attainable_p": min_p, "can_license": bool(min_p < RULE["sign_p"]), "clusters_per_week": n_cl, "pass": bool(ok),
             "contest_level": {"favour_X": int(cpos), "favour_A1": int(cneg), "p_two_sided": binom_two_sided(int(cpos), int(cpos + cneg)),
                               "label": "ANTI-CONSERVATIVE (contests share rows)"}}
+
+
+def milly_cid(W: "Week") -> str | None:
+    c = [str(x["contest_id"]) for x in W.contests if contest_class(W.details[str(x["contest_id"])]["name"]) == "Millionaire"]
+    return c[0] if c else None
+
+
+def row_level_line(weeks_data: dict, X: dict[int, dict], A: dict[int, dict], weeks: tuple, perms: int, seed: int) -> dict:
+    """Addendum 2.3, DESCRIPTIVE ONLY (never a pass/fail): each distinct book row's finish percentile in that week's
+    Millionaire field; mean over the symmetric difference of rows, X - A1; permutation of arm labels within week."""
+    rng = np.random.default_rng(seed)
+    per_w, pools = {}, []
+    for w in weeks:
+        W = weeks_data[w]; mc = milly_cid(W)
+        if mc is None:
+            continue
+        field = W.others_sorted(mc)
+        rx = set().union(*(r.rows for r in X[w].values())); ra = set().union(*(r.rows for r in A[w].values()))
+        only_x, only_a = sorted(rx - ra, key=sorted), sorted(ra - rx, key=sorted)
+        def pct(rows):
+            pts = np.array([lineup_points([W.name_of[i] for i in r], W.fpts, True)[0] for r in rows], dtype=np.int64)
+            lo, hi = np.searchsorted(field, pts, "left"), np.searchsorted(field, pts, "right")
+            return 100.0 * (lo + 0.5 * (hi - lo)) / max(len(field), 1)
+        px, pa = pct(only_x), pct(only_a)
+        per_w[w] = {"rows_only_X": len(px), "rows_only_A1": len(pa), "shared_rows": len(rx & ra),
+                    "mean_pct_X": float(px.mean()) if len(px) else None, "mean_pct_A1": float(pa.mean()) if len(pa) else None,
+                    "diff": float(px.mean() - pa.mean()) if len(px) and len(pa) else None}
+        if len(px) and len(pa):
+            pools.append((px, pa))
+    if not pools:
+        return {"per_week": per_w, "diff": None, "label": "DESCRIPTIVE; no differing rows"}
+    def stat(ps):
+        return float(np.mean([a.mean() - b.mean() for a, b in ps]))
+    obs = stat(pools); cnt = 0
+    for _ in range(perms):
+        sh = []
+        for px, pa in pools:
+            z = rng.permutation(np.concatenate([px, pa])); sh.append((z[:len(px)], z[len(px):]))
+        cnt += abs(stat(sh)) >= abs(obs) - 1e-12
+    return {"per_week": per_w, "diff_mean_over_weeks": obs, "perm_p_two_sided": (cnt + 1) / (perms + 1) if perms else None,
+            "effective_n_rows": int(sum(len(a) + len(b) for a, b in pools)),
+            "label": "DESCRIPTIVE ONLY (Addendum 2.3), not a pass/fail; ANTI-CONSERVATIVE (rows share players)"}
 
 
 def evaluate_rule(res: dict[str, dict[int, dict]], m2: dict[int, tuple]) -> dict:
@@ -518,7 +549,8 @@ def evaluate_rule(res: dict[str, dict[int, dict]], m2: dict[int, tuple]) -> dict
         X = res[x]
         a_as = multiple([X[w] for w in ws]) > multiple([A[w] for w in ws])
         a_ex = multiple([X[w] for w in ws], True) > multiple([A[w] for w in ws], True)
-        wins = [w for w in ws if mean_pct(X[w]) > mean_pct(A[w])]
+        bws = rx.get("b_weeks", ws)
+        wins = [w for w in bws if mean_pct(X[w]) > mean_pct(A[w])]
         b = len(wins) >= rx["b_min"]
         c = condition_c(X, A, ws)
         mx = [m2_book_stat(X[w], *m2[w]) for w in ws]
@@ -529,7 +561,7 @@ def evaluate_rule(res: dict[str, dict[int, dict]], m2: dict[int, tuple]) -> dict
                           "qualifies": bool(a_as and a_ex and b and c["pass"] and d)}
     q = [x for x in ALTERNATIVES if out["arms"][x]["qualifies"]]
     out["qualifiers"] = q
-    out["recommend"] = q[0] if q else "A1"
+    out["recommend"] = q[0] if q else None   # Addendum 2.4: no default arm
     return out
 
 
@@ -726,8 +758,12 @@ def run_scoring(weeks_data: dict[int, Week], layouts: dict[str, dict[int, dict]]
                                        "sign_vs_m2_pooled": {"above": up, "below": dn, "p_two_sided": binom_two_sided(up, up + dn),
                                                              "label": "per-contest, anti-conservative (contests share rows)"}},
                        "q3": ev, "false_qualifier_rate": false_qualifier_rate(res, m2, perms, seed + 1) if perms else None,
-                       "q3_answer": (f"Recommend a reversible Week-5 trial of {ev['recommend']} (rollback: Addendum 1.5)" if ev["qualifiers"]
-                                     else "Keep A1 (no alternative meets (a)-(d))")}
+                       "q3_answer": (f"{ev['recommend']} meets (a)-(d): a reversible Week-5 trial is possible (rollback: Addendum 1.5); the operator chooses"
+                                     if ev["qualifiers"] else
+                                     "No arm is statistically preferred (four weeks cannot license any arm: Addendum 2.1); the operator chooses, "
+                                     "and any switch is a reversible trial with the written rollback trigger (Addendum 1.5)."),
+                       "row_level_descriptive": {x: row_level_line(weeks_data, res[x], res["A1"], RULE["arms"][x]["weeks"], perms, seed + 7)
+                                                 for x in ALTERNATIVES}}
     if cfg is not None:
         pub["pool_skill_spearman"] = {w: pool_skill(cfg, W) for w, W in weeks_data.items()}
     return pub, priv

@@ -102,17 +102,29 @@ def week_res(diff: float, n_contests: int = 6, shared: bool = False, base_pct: f
     return A, X
 
 
-def test_condition_c_clusters_pass_and_single_cluster_week_fails():
+def test_condition_c_uses_weeks_as_units_with_the_exact_sign_test():
+    """Addendum 2.1: weeks are the units whatever the clusters; 3 units can never reach p < 0.20 (min p 0.25), and 4 of 4
+    favouring X gives 0.125 (passes); clusters are reported only."""
     A, X = {}, {}
     for w in (1, 2, 3):
         A[w], X[w] = week_res(+3.0, n_contests=4)
     c = MS.condition_c(X, A, (1, 2, 3))
-    assert c["unit"] == "clusters" and c["units"] == 12 and c["favour_X"] == 12 and c["pass"]
+    assert c["unit"] == "weeks" and c["units"] == 3 and c["favour_X"] == 3
+    assert c["p_two_sided"] == 0.25 and c["min_attainable_p"] == 0.25 and not c["can_license"] and not c["pass"]
+    assert c["clusters_per_week"] == {1: 4, 2: 4, 3: 4}
     assert c["contest_level"]["label"].startswith("ANTI-CONSERVATIVE")
-    for w in (1, 2, 3):
-        A[w], X[w] = week_res(+3.0, n_contests=4, shared=True)         # every contest shares a row: one cluster per week
-    c = MS.condition_c(X, A, (1, 2, 3))
-    assert c["unit"] == "weeks" and c["single_cluster_weeks"] == [1, 2, 3] and c["forced_fail_weeks_as_units"] and not c["pass"]
+    for w in (1, 2, 3, 4):
+        A[w], X[w] = week_res(+3.0, n_contests=4, shared=True)
+    c = MS.condition_c(X, A, (1, 2, 3, 4))
+    assert c["units"] == 4 and abs(c["p_two_sided"] - 0.125) < 1e-12 and c["can_license"] and c["pass"]
+    A[4], X[4] = week_res(-3.0, n_contests=4)
+    c = MS.condition_c(X, A, (1, 2, 3, 4))
+    assert c["favour_X"] == 3 and c["favour_A1"] == 1 and not c["pass"]
+
+
+def test_a4_condition_b_is_read_on_weeks_3_and_4_only():
+    assert MS.RULE["arms"]["A4"]["b_weeks"] == (3, 4) and MS.RULE["arms"]["A4"]["b_min"] == 2
+    assert "b_weeks" not in MS.RULE["arms"]["A2"] and MS.RULE["arms"]["A2"]["b_min"] == 2
 
 
 def make_res(diffs: dict[str, float], weeks=(1, 2, 3, 4), big: dict | None = None):
@@ -141,8 +153,13 @@ def test_rule_recommends_simplest_qualifier_and_respects_weeks():
     res = make_res({"A2": 4.0, "A3": 4.0, "A4": -4.0})
     ev = MS.evaluate_rule(res, fake_m2())
     assert ev["arms"]["A2"]["weeks"] == [1, 2, 3] and ev["arms"]["A4"]["weeks"] == [1, 2, 3, 4]
-    assert ev["arms"]["A2"]["qualifies"] and ev["arms"]["A3"]["qualifies"] and not ev["arms"]["A4"]["qualifies"]
-    assert ev["recommend"] == "A2"                                     # A2 before A3
+    # Addendum 2.1: A2/A3 have 3 week-units (min p 0.25) -> can never qualify, however good; A4 is worse here
+    assert not ev["arms"]["A2"]["qualifies"] and not ev["arms"]["A2"]["c"]["can_license"]
+    assert not ev["arms"]["A3"]["qualifies"] and not ev["arms"]["A4"]["qualifies"]
+    assert ev["recommend"] is None                                    # Addendum 2.4: no default arm
+    res = make_res({"A2": 4.0, "A3": 4.0, "A4": 4.0})               # an A4 better in all 4 weeks: 4/4, p = 0.125
+    ev = MS.evaluate_rule(res, fake_m2())
+    assert ev["arms"]["A4"]["qualifies"] and ev["recommend"] == "A4"
 
 
 def test_rule_ex_largest_payout_guard():
