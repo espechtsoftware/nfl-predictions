@@ -196,7 +196,7 @@ def test_replay_player_name_join_cannot_duplicate_training_rows(monkeypatch):
     panel_sql = queries[0]
     assert "ARRAY_AGG(name IGNORE NULLS ORDER BY name LIMIT 1)" in panel_sql
     assert "GROUP BY gsis_id" in panel_sql
-    assert "LEFT JOIN `nfl-dfs-prod.nfl_raw.player_ids` i USING" not in panel_sql
+    assert "nfl_raw.player_ids` i USING" not in panel_sql   # any project (O-31: the default project changed)
 
 
 def test_dst_salary_query_normalizes_all_historical_team_aliases(monkeypatch):
