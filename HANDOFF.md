@@ -12,6 +12,29 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-05 (08:32 CDT) — Study 1b build: smokes pass; deviation note 2 (EW enforced at entry level); census running
+
+- **Lab code:** nfl2 worktree `~/projects/.nfl2-worktrees/s1b-entry-cap-20261005`, branch
+  `production/s1b-entry-cap-20261005`, uncommitted while the census runs. Files:
+  - experiments/s1b_entry_cap.py and scripts/s1b_drive.py;
+  - s1b_report.py (the reader, not yet frozen);
+  - s1b_census.py and tests/test_s1b_entry_cap.py (11 pass; a mutation of the cap check is caught).
+- **Overlap settings:** the ceiling of 10 is hard-set and asserted in the experiment, never inherited.
+- **Retracted alarm:** I claimed study 1's reader dealt at ceiling 5. It did not: s1_report.py:45 setdefaults 10. The
+  money gate hard-sets 10 too (moneygate_build:232). Nothing to correct; the reviewer verified it independently.
+- **The mechanics smoke** (throwaway bank 1406, outcome-blind) found that EW as frozen leaked its cap (50 vs 44). The
+  w_k come from before the overlap limit.
+  - **Deviation note 2** (1c7e8060, reviewer-accepted): EW arms now pass through EA's re-deal; the miss rule applies to
+    EW; the reader reports the realized maximum exposure.
+  - On the 2024 W9 smoke slate, EW now realizes 45 against 44 (one miss, 0.7%). EA misses 39% (58/147): assignment
+    alone cannot carry the cap there.
+- **The full-path smoke** passes (build and reader rc 0; output deleted unread).
+- **Next:**
+  1. The census on 1404/1405 (mechanics only, 14 workers).
+  2. Commit the lab code and freeze the reader sha (deviation note 3).
+  3. Send the code to the reviewer.
+  4. The scored run only after the reviewer's OK.
+
 ## 2026-10-05 (08:13 CDT) — Study 1b: the operator re-chose the margin, m = 0.015 (deviation note 1)
 
 - **Why it was re-asked:** the reviewer flagged that m = 0.020 had been chosen without the scale. The operator was
