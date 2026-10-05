@@ -30,7 +30,7 @@ deploy_arm() {
   local table="tabpfn_sis_pass_tail_live_${arm}_v1"
   gcloud run jobs deploy "$job" --project "$PROJECT" --region "$REGION" \
     --image "$IMMUTABLE_IMAGE" \
-    --set-env-vars "GCP_PROJECT=${PROJECT},TABPFN_SIS_PASS_TAIL_LIVE_ARM=${arm},TABPFN_OUTPUT_TABLE=${table},TABPFN_UPCOMING=auto,CODE_SHA=${CODE_SHA}" \
+    --set-env-vars "GCP_PROJECT=${PROJECT},SIS_PASS_TAIL_CONTRACT=pass-tail-v1-a1,TABPFN_SIS_PASS_TAIL_LIVE_ARM=${arm},TABPFN_OUTPUT_TABLE=${table},TABPFN_UPCOMING=auto,CODE_SHA=${CODE_SHA}" \
     --memory 16Gi --cpu 4 --gpu 1 --gpu-type nvidia-l4 \
     --no-gpu-zonal-redundancy --max-retries 0 --task-timeout 3600 \
     --service-account "$SA"

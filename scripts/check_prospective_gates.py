@@ -67,6 +67,13 @@ POOL_FIX_193E1B44 = {
     "193e1b44d2b43eed70cc9b5688b3700d2054046d":
         "projection pool: a DK draft group is enterable only until its FIRST game starts",
 }
+# O-3: the SIS pass-tail paired job's live ASOE reads the FP team alignment window; the
+# table has no source_week_start/end columns, so the read must derive them (absent from
+# the registered 15de4020 build, which therefore failed every Week 5+ run).
+SIS_ASOE_TEAM_WINDOW_72261A27 = {
+    "72261a27f44bc8e9a876dfc5c394517fa2847f32":
+        "live ASOE derives the team alignment window (the table has no source_week_*)",
+}
 
 # --- The registry.  One entry per frozen prospective gate. ------------------------
 # first_week/last_week are the Sunday-main weeks the gate GRADES (inclusive).
@@ -79,6 +86,10 @@ POOL_FIX_193E1B44 = {
 # floor_weeks is the minimum complete paired weeks the gate needs, if it states one.
 # require_env asserts what the target Cloud Run job must declare for the comparison to
 # be the current policy.  None means "not yet ruled on" and is reported, never assumed.
+# require_env_by_scheduler (2026-10-05, O-3) overrides require_env per scheduler when the
+# gate's jobs legitimately differ (two cache arms and a paired job); same_env_across_jobs
+# names keys every target job must carry with ONE identical value (e.g. CODE_SHA, so the
+# three jobs of one pair cannot run different builds).
 GATES = {
     "fp-route-share-2026": {
         "doc": "reports/2026-08-11-route-share-2026-shadow-gate.md",
@@ -257,21 +268,95 @@ GATES = {
     },
     # 2026-09-22 (operator): the pass bar was frozen before the pair ever ran and grades only
     # unplayed weeks 5-18, so it is not the retrospective design the earlier DORMANT ruling
-    # guarded against. The pair runs its own frozen August policy (no N_BOOM/N_LEV env), so
-    # the contract pins the frozen code identity instead.
+    # guarded against.
+    # 2026-10-05 (O-3, Amendment 1; operator 2026-10-04: "we absolutely can change things
+    # mid-season because if we don't get things working in the next week or two, there's
+    # going to be not another week."). The registered build CODE_SHA 15de4020 could not run
+    # (cache: no `salary` in the inference table; paired: no source_week_* in the team
+    # alignment table; and it predates 193e1b44). The contract is SPLIT:
+    #   * this key -- the two TabPFN DISTRIBUTION caches, exactly as frozen plus two repairs
+    #     (contract pass-tail-v1-a1). The frozen pass bar's decision rules are all book-level
+    #     and end unadjudicated; the caches are read by the distribution rule of Amendment 1.
+    #   * sis-pass-tail-2026-companion-v1 -- the paired BOOKS on the current money path.
+    # require_env_by_scheduler == sis_pass_tail_shadow.job_environment(role) (test-pinned).
     "sis-pass-tail-2026": {
         "doc": "reports/2026-09-22-sis-pass-tail-2026-pass-bar.md",
+        "amendment_doc": "reports/2026-10-05-sis-pass-tail-2026-amendment-1.md",
         "first_week": 5,
         "last_week": 18,
         "floor_weeks": 10,
-        "schedulers": ["s-tabpfn-sis-pass-tail-control", "s-tabpfn-sis-pass-tail-treatment",
-                       "s-shadow-sis-pass-tail-paired"],
-        "require_env": {"CODE_SHA": "15de40206963b5db9e6a4acff0f865833678d44d"},
-        "adjudicates": "once, after Week 18 is scored; interim reads at Weeks 8 and 13 are "
-                       "descriptive only. It can decide the SIS renewal, not 2026 lineups.",
+        "schedulers": ["s-tabpfn-sis-pass-tail-control", "s-tabpfn-sis-pass-tail-treatment"],
+        "require_env": {"SIS_PASS_TAIL_CONTRACT": "pass-tail-v1-a1"},
+        "require_env_by_scheduler": {
+            "s-tabpfn-sis-pass-tail-control": {
+                "SIS_PASS_TAIL_CONTRACT": "pass-tail-v1-a1",
+                "TABPFN_SIS_PASS_TAIL_LIVE_ARM": "control",
+                "TABPFN_OUTPUT_TABLE": "tabpfn_sis_pass_tail_live_control_v1",
+                "TABPFN_UPCOMING": "auto",
+            },
+            "s-tabpfn-sis-pass-tail-treatment": {
+                "SIS_PASS_TAIL_CONTRACT": "pass-tail-v1-a1",
+                "TABPFN_SIS_PASS_TAIL_LIVE_ARM": "treatment",
+                "TABPFN_OUTPUT_TABLE": "tabpfn_sis_pass_tail_live_treatment_v1",
+                "TABPFN_UPCOMING": "auto",
+            },
+        },
+        "same_env_across_jobs": ["CODE_SHA"],
+        "require_code_ancestors": {**POOL_FIX_193E1B44, **SIS_ASOE_TEAM_WINDOW_72261A27},
+        "superseded_require_env": {"CODE_SHA": "15de40206963b5db9e6a4acff0f865833678d44d"},
+        "adjudicates": "distribution rule of Amendment 1 (paired quantile score, QB/WR/TE, "
+                       "week-clustered): one interim look after Week 11, final after Week 18. "
+                       "The frozen pass bar's book criteria end unadjudicated.",
         "in_season_value": False,
         "note": "Protocol reports/2026-08-15-prospective-sis-pass-tail-finite-k-protocol.md; needs "
-                "the operator's Wednesday SIS acquisition from Week 5.",
+                "the operator's Wednesday SIS acquisition from Week 5 (W1-4 backfill at W5). "
+                "A missing W-1 SIS week is an explicit, recorded no-run.",
+    },
+    # 2026-10-05 (O-3, Amendment 1): the paired BOOKS under the adopted money-path generation
+    # (single-seed books on the five registered seed pairs; the arms differ ONLY in the SIS
+    # TabPFN cache). require_env == sis_pass_tail_portfolio.paired_job_environment(companion),
+    # every value derived from ClassicProductionPolicy.engine_environment() (test-pinned).
+    # Its weeks are never pooled with any August-generation book.
+    "sis-pass-tail-2026-companion-v1": {
+        "doc": "reports/2026-09-22-sis-pass-tail-2026-pass-bar.md",
+        "amendment_doc": "reports/2026-10-05-sis-pass-tail-2026-amendment-1.md",
+        "policy_doc": "reports/2026-09-19-in-season-adoption-track.md",
+        "first_week": 5,
+        "last_week": 18,
+        "floor_weeks": 10,
+        "schedulers": ["s-shadow-sis-pass-tail-paired"],
+        "input_schedulers": ["s-tabpfn-sis-pass-tail-control",
+                             "s-tabpfn-sis-pass-tail-treatment"],
+        "require_env": {
+            "SIS_PASS_TAIL_CONTRACT": "pass-tail-v1-a1-companion",
+            "GEN_TOTAL_BUDGET": "172",
+            "N_LEV": "40",
+            "N_CE": "0",
+            "N_EPISTEMIC": "12",
+            "N_BOOM": "160",
+            "N_GUMBEL": "0",
+            "REPLACEMENT_SLOTS": "12",
+            "BOOM_UNIQUE_FILL": "0",
+            "EPISTEMIC_FAMILY": "role_draws",
+            "ROLE_BELIEF_FEATURES": "target_share_last,carry_share_last,snap_share_last,"
+                                    "target_share_jump,carry_share_jump,snap_share_jump",
+            "CE_SEED": "1701",
+            "BLEND_MODEL_WEIGHT": "0.45",
+            "LIVE_SIMS": "30000",
+            "GAME_SIM_MODE": "possession",
+            "SERVED_POSITION_SCALES": "QB:0.970,RB:1.005,TE:0.940,WR:1.070",
+            "MODEL_ENSEMBLE": "1",
+            "MIN_LINEUP_SALARY": "49000",
+        },
+        "same_env_across_jobs": ["CODE_SHA"],
+        # The paired job and the two cache jobs it reads must be ONE build.
+        "same_env_include_inputs": True,
+        "require_code_ancestors": {**POOL_FIX_193E1B44, **SIS_ASOE_TEAM_WINDOW_72261A27},
+        "adjudicates": "weekly in-season decision record (adoption track v2) with the book rule "
+                       "of Amendment 1: one interim look after Week 11, final after Week 18.",
+        "in_season_value": True,
+        "note": "Companion of the SIS pass-tail pair on the current money path; reads the "
+                "distribution caches of sis-pass-tail-2026.",
     },
 }
 
@@ -469,10 +554,17 @@ def audit(week: int, now: datetime | None = None) -> tuple[list[str], list[str],
                    + ", ".join(f"{s}({live.get(s, {}).get('state', 'MISSING')})" for s in paused)
                    + f"  [gate: {spec['doc']}]")
             (errors if active else warnings).append(msg)
-        want = spec["require_env"]
-        targets = {scheduler_target(s) for s in spec["schedulers"]}
-        for job in sorted(t for t in targets if t):
-            env = job_env(job)
+        by_scheduler = spec.get("require_env_by_scheduler") or {}
+        wants: dict[str, dict | None] = {}
+        for s in spec["schedulers"]:
+            job = scheduler_target(s)
+            if job:
+                wants[job] = by_scheduler.get(s, spec["require_env"])
+        targets = set(wants)
+        envs: dict[str, dict[str, str]] = {}
+        for job in sorted(targets):
+            want = wants[job]
+            env = envs[job] = job_env(job)
             if want is None:
                 warnings.append(f"{gate}: job {job} has NO declared policy contract in this "
                                 f"registry; rule on it before week {first}. Current env of "
@@ -484,11 +576,21 @@ def audit(week: int, now: datetime | None = None) -> tuple[list[str], list[str],
                 errors.append(f"{gate}: job {job} contradicts the declared policy "
                               f"({len(bad)} of {len(want)} keys) -- {diff}. Resuming it would "
                               f"burn a graded week on a policy we do not run.")
+        if spec.get("same_env_include_inputs"):
+            for s in spec.get("input_schedulers", []):
+                job = scheduler_target(s)
+                if job and job not in envs:
+                    envs[job] = job_env(job)
+        for key in spec.get("same_env_across_jobs") or ():
+            seen = {job: envs[job].get(key, "<unset>") for job in sorted(envs)}
+            if len(set(seen.values())) > 1 or "<unset>" in seen.values():
+                errors.append(f"{gate}: its jobs must carry ONE {key}, found {seen}. A pair "
+                              f"built from two images is not one identity.")
         required_code = spec.get("require_code_ancestors") or {}
         if required_code:
-            for job in sorted(t for t in targets if t):
+            for job in sorted(targets):
                 (errors if active else warnings).extend(
-                    f"{gate}: {p}" for p in code_problems(job, job_env(job), required_code))
+                    f"{gate}: {p}" for p in code_problems(job, envs[job], required_code))
         for lost, why in sorted((spec.get("lost_weeks") or {}).items()):
             notes.append(f"{gate}: week {lost} has no frozen panel -- {why}")
         graded_last_week = first <= week - 1 <= last
