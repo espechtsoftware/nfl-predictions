@@ -78,3 +78,30 @@ No adopted production lever rests on an in-class measure:
 - The command is `nfl-dfs <analysis subcommand> --game-day-active`, with output captured under the run directory.
 - The helper is unit-tested offline: ACT kept, non-ACT and no-roster-row dropped, the audit counts, and the switch's
   default leaving the rows byte-identical.
+
+## Amendment 1 (2026-10-05, before any re-run): the reproduction leg (reviewer's condition for local runs)
+
+The repair is approved and merged at `1b1d50d4`. The originals ran on immutable Cloud Run images; the corrections run
+locally (no heavy Cloud Run). The image's immutability is therefore replaced by a measured reproduction.
+
+- **Two local legs per study,** from the same reviewed commit, by `scripts/o32_correction_run.sh <study>`:
+  `game_day_active` OFF (**uncorrected**) and ON (**corrected**).
+- **The runner records** the commit, the panel id and the environment (python, pandas, numpy, scikit-learn, scipy,
+  lightgbm, google-cloud-bigquery, nflreadpy) in `reports/o32-correction-runs/<study>/environment.txt`. It refuses a
+  dirty `src/` or `scripts/`, and refuses a second correction of the same study.
+- **Three columns are reported:** original (Cloud image) | local uncorrected | local corrected. The correction's
+  effect is local-uncorrected against local-corrected, so code or environment drift since August cancels out.
+- **The reproduction gate.** If the local uncorrected leg does not reproduce the original disposition and key numbers
+  (within float tolerance), that study's correction STOPS. The drift is disclosed and the study is recorded as
+  "environment changed since the verdict" before anything is said about the filter.
+
+**Implications of filtering right after load, named per module** (the reviewer's request). No module derives a
+history from the panel's own `actual`: the priors come from box-score weekly (defence PROE), the FP shell table (QB
+shell), prop lines (market tail), NGS (NGS receiver) and pbp participation (pass participation). The filter does,
+however, change each fitted model's TRAINING rows, as well as the evaluation rows:
+- market tail trains on season 2024 rows;
+- NGS receiver and pass participation train on walk-forward folds;
+- defence PROE and QB shell fit nothing: they correlate and score.
+
+Fewer rows can also bind a gate's support condition (for example NGS "≥ 1,000 rows each fold", defence PROE "≥ 90%
+coverage each fold"). A gate that fails on support after the filter is reported as such, never as a signal verdict.
