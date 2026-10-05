@@ -1,0 +1,15 @@
+{
+  "build_id": "c77d522d-50fc-416c-96eb-cbc4db59b98e",
+  "build_status": "SUCCESS",
+  "image_digest": "sha256:8d9b3cb55865edc66c99e01b28a7a6ba0d588458ac921c1485069fac32814e03",
+  "base_image": "sha256:cdbf96ad190925b2c96a94568f173c4bded328442441838427fa473d2fd450b2",
+  "sql_source": "99440a23",
+  "build_source": "c60451e6",
+  "new_files": {
+    "app/sql/features/001a_dk_salary_week.sql": "d9ce21722065b65dc7ac03f6bf7d3dcb517b60902a215e1fb29d73d5e7d8f5a8"
+  },
+  "all_base_layers_preserved": true,
+  "config_equal_except_docker_Image": true,
+  "installed_package_sql_resolution_assertion_passed": true,
+  "deployed": false
+}

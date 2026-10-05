@@ -1,0 +1,7 @@
+{
+  "source": "a7cc4213",
+  "query_job": "069a80e1-a3cd-4c20-a6ca-485167ebc5ee",
+  "error": "Aggregations of aggregations are not allowed at [115:57]",
+  "cause": "HAVING COUNT(DISTINCT week) resolved the SELECT MIN(week) AS week aggregate alias; source-qualified g.week fixes the intended ambiguity check.",
+  "source_test": "actual SQL on literal fixtures, no warehouse reads or writes"
+}

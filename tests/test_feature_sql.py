@@ -272,3 +272,25 @@ def test_model_input_windows_exclude_current_row(path):
         assert clause.rstrip().endswith("1 PRECEDING"), (
             f"{path.name}: rolling window does not end at 1 PRECEDING: {clause!r}"
         )
+
+
+def test_own_salary_null_weeks_resolved_before_week_filter():
+    """O-12/O-26: dk_job leaves raw salary week NULL on purpose (1.4M 2026 rows).
+
+    The unrepaired SQL filtered ``s.week IS NOT NULL`` straight off the raw
+    table, which silently emptied the 2026 salary spine and every prior-usage
+    feature downstream. The week must be resolved from the schedule first, and
+    the only NULL-week filter must read the resolved relation.
+    """
+    salary = (SQL_DIR / "features" / "001a_dk_salary_week.sql").read_text()
+    source = salary.split("own_source AS (", 1)[1].split("own_resolved AS (", 1)[0]
+    resolved = salary.split("own_resolved AS (", 1)[1].split("own_log AS (", 1)[0]
+    log = salary.split("own_log AS (", 1)[1].split("norm_ids AS (", 1)[0]
+    assert "week IS NOT NULL" not in source
+    assert "COALESCE(CAST(s.week AS INT64), g.week) AS week" in resolved
+    assert "ON s.week IS NULL" in resolved
+    assert "DATE(s.game_start, 'America/New_York')" in resolved
+    assert "FROM own_resolved s" in log
+    assert "FROM `${raw}.dk_salaries`" not in log
+    # A team-date that maps to more than one game or week stays unresolved.
+    assert "HAVING COUNT(DISTINCT g.game_id) = 1 AND COUNT(DISTINCT g.week) = 1" in salary
