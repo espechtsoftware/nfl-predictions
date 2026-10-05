@@ -148,3 +148,70 @@ changed in place: a versioned current-policy companion (O-2) states every
 generation / env / registry / K / selector setting under which the paired
 weeks are actually produced. The checker's `adjudicates` / `in_season_value`
 fields for this gate are updated to cite this amendment, with a test (O-13).
+
+## Amendment 2 (2026-10-04, operator decision (a) on O-2/O-25) — companion-v1 contract, graded Weeks 5–18
+
+Recorded before any Week-5 outcome exists: the Week-5 Sunday main locks 2026-10-11. No paired week of this gate has
+produced a book or a distribution under any contract since Week 2.
+
+**What happened.**
+- **Week 2** was forfeited under the original contract (Amendment 1).
+- **Weeks 3 and 4 were lost to failure.** On 09-21 the two jobs' env moved to the current money-path generation
+  (N_BOOM=160, N_LEV=40). The image's frozen-settings guard still demanded N_BOOM=28, so all eight executions in
+  Weeks 3–4 failed before building anything (`RuntimeError: role-union shadow has incorrect frozen settings`;
+  OPEN-DEFECTS O-25). The checker saw scheduler state and env, not run outcomes, so the loss went unnoticed for two
+  weeks.
+- **The operator chose (a) on 2026-10-04:** run the pair under one declared current-policy contract from Week 5, rather
+  than reverting to the August generation (b) or stopping the reads (c).
+
+**Changed (this amendment):**
+1. **Contract.** Executions must declare `ROUTE_SHARE_CONTRACT`. Live 2026 runs from Week 5 must declare
+   `companion-v1`. Its settings are derived from `ClassicProductionPolicy.engine_environment()` and pinned by tests:
+   - GEN_TOTAL_BUDGET=172, N_LEV=40, N_CE=0, N_EPISTEMIC=12, N_BOOM=160, N_GUMBEL=0, REPLACEMENT_SLOTS=12,
+     BOOM_UNIQUE_FILL=0;
+   - EPISTEMIC_FAMILY=role_draws, with ROLE_BELIEF_FEATURES = the six role features (target/carry/snap share last and
+     jump);
+   - ROLE_BELIEF_SEED=7331, CE_SEED=1701, BLEND_MODEL_WEIGHT=0.45, LIVE_SIMS=30000, GAME_SIM_MODE=possession;
+   - SERVED_POSITION_SCALES=QB:0.970,RB:1.005,TE:0.940,WR:1.070, MODEL_ENSEMBLE=1, MIN_LINEUP_SALARY=49000;
+   - a single seed (MULTISEED_* unset), the adopted construction preset, and an exact-80 book.
+
+   Settings identity, sha256 over the canonical serialization in `src/nfl_dfs/inference/tail_shadow.py::check_route_share_contract()` (`sha256(json.dumps(dict(sorted(settings.items())), sort_keys=True, separators=(",", ":")))`, all values strings, contract name not hashed; branch `production/o25-route-share-companion-20261005` @ `4572d6ad`; pinned by `test_contract_settings_sha256_is_the_published_identity`; every receipt carries it as `route_share_contract_settings_sha256`): companion-v1 `76c3994a0d9d4bb4bc852a60569c535a8306458b5be7a2a9c254a7d851f96ee8` (18 keys);
+   frozen-2026-08 `345d3ca925564663490f20c5809be104c8171d86cd2c85990681cc874888fd91` (10 keys). The two arms differ only in MODEL_REGISTRY_VARIANT (`tail_k1` vs `tail_k1_route`).
+   The image guard refuses any one-key deviation, and the checker's `fp-route-share-2026-companion-v1` registry entry
+   requires the same set. `frozen-2026-08` is refused for live runs from Week 5; it remains available only for dry
+   runs and replays, flagged as such.
+2. **Position scales.** The companion serves position-scaled distributions in both arms, as production does. Every
+   earlier pair, and this gate's original contract, used UNSCALED draws (SERVED_POSITION_SCALES was never set on the
+   shadow jobs). Weeks 5+ are therefore not comparable to any earlier pair and are never pooled with them.
+3. **Graded weeks and floor.**
+   - The graded sample is the Sunday-main Weeks 5–18: 14 possible weeks. The 12-week floor is unchanged, so two
+     misses are allowed.
+   - A third missed week ends the 2026 read as **insufficient**, which is not a pass or a fail. Per §"Minimum evidence"
+     the shadow is then retained into 2027.
+   - The 2,500 covered player-week and 40 thirty-point-event floors are unchanged.
+
+**Unchanged:**
+- the player-distribution gate (criteria 1–5);
+- the exact-80 scoring gate (lexicographic 240/230/220/210/200, at least one 200+ improvement);
+- the order (the distribution gate first, then the exact-80 gate);
+- "failure keeps the incumbent and does not license a retry";
+- the no-selection-from-2026-outcomes rule;
+- Amendment 1's weekly in-season decision record.
+
+**What the weekly record grades (reviewer, 2026-10-04):** player DISTRIBUTIONS under the companion-v1 generation (the
+CRPS of draws, Route Share vs not). Its result informs the projection layer that every consumer reads: the K80
+generation, the lab K110 union and the five-seed CBWU book. It is not a claim about any entered book.
+
+**The weekly pair reader:** `nfl-dfs freeze-route-share-pair --slot early|late` freezes both arms' books under one policy version naming the contract (`route-share-pair-companion-v1-v1`). It refuses arms built under different contracts, or arms that differ in anything except the registry variant. It is not scheduled; the weekly record runs it by hand after each freeze.
+
+**Retired:** the checker key `fp-route-share-2026` is marked SUPERSEDED from Week 5 (with this reason) and keeps its
+W2–W4 history; the companion key alone audits the four schedulers from Week 5.
+
+**Operational proof required before the Week-5 freeze** (Sun 2026-10-11 10:20 CT):
+1. One outcome-blind dry-run execution of each job under companion-v1. It runs in the separate `dryrun-live-shadow-…`
+   namespace, with `run_type=live_shadow_dryrun`, so graded readers never see it.
+2. Both dry runs complete within the job timeout.
+3. `check_prospective_gates.py --week 5` passes, including the new last-execution-success check.
+
+If the dry run cannot finish within the job's timeout, the remedy is a longer timeout or more CPU on the EXISTING job
+(the operator decides; Cloud Run cost). Fewer sims or booms would change this contract.
