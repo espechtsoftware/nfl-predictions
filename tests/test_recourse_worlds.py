@@ -313,7 +313,8 @@ def test_paired_shadow_runner_persists_both_arms_and_manifest(monkeypatch):
     assert result["draft_group_id"] == 9001
 
 
-def _run_cbwu_oi(monkeypatch, *, dry_run: bool):
+def _run_cbwu_oi(monkeypatch, *, dry_run: bool, contract: str = "2026-cbwu-oi-companion-v1",
+                 week: int = 5):
     """Drive the cbwu_oi variant end to end with the cloud edges faked."""
     batch, _, _, _, _ = _fixture()
     salaries = pd.DataFrame([{
@@ -336,12 +337,15 @@ def _run_cbwu_oi(monkeypatch, *, dry_run: bool):
 
     monkeypatch.setattr(
         "nfl_dfs.inference.live_lineups.build_sim_lineups", fake_build)
-    monkeypatch.setattr(
-        prospective_shadow, "paired_shadow_receipt",
-        lambda *args, **kwargs: (list(batch.candidates[:2]), {
+
+    def fake_receipt(*args, **kwargs):
+        seen["control_selector_env"] = kwargs["control_selector_env"]
+        return list(batch.candidates[:2]), {
             "memberships": {"80": {"control": [], "treatment": []}},
             "uses_post_lock_outcomes": False, "production_enabled": False,
-        }))
+        }
+
+    monkeypatch.setattr(prospective_shadow, "paired_shadow_receipt", fake_receipt)
     persisted = []
 
     def persist(*args, object_name, context, **kwargs):
@@ -364,14 +368,16 @@ def _run_cbwu_oi(monkeypatch, *, dry_run: bool):
         def bucket(self, name):
             return type("B", (), {"blob": lambda _self, n: Blob(n)})()
 
+    for key in list(prospective_shadow.CBWU_OI_COMPANION_V1_KEYS) + [
+            "MULTISEED_PORTFOLIO", "CBWU_OI_CONTRACT", "SHADOW_DRY_RUN"]:
+        monkeypatch.delenv(key, raising=False)
+    for key, value in prospective_shadow.cbwu_oi_job_environment(contract).items():
+        monkeypatch.setenv(key, value)
     monkeypatch.setenv("CODE_SHA", "abcdef123456")
-    monkeypatch.setenv("CBWU_OI_CONTRACT", "2026-cbwu-oi-v1")
     if dry_run:
         monkeypatch.setenv("SHADOW_DRY_RUN", "1")
-    else:
-        monkeypatch.delenv("SHADOW_DRY_RUN", raising=False)
     result = prospective_shadow.run_paired_prospective_shadow(
-        variant="cbwu_oi", store=Store(), season=2026, week=5,
+        variant="cbwu_oi", store=Store(), season=2026, week=week,
         draft_group_id=9001,
         generated_at=pd.Timestamp("2026-10-08T15:00:00Z").to_pydatetime(),
         storage_client=Client(), bucket_name="raw",
@@ -379,34 +385,44 @@ def _run_cbwu_oi(monkeypatch, *, dry_run: bool):
     return result, seen, persisted, uploaded
 
 
-def test_cbwu_oi_live_run_freezes_the_canonical_panel_under_its_contract(
-        monkeypatch):
+def test_cbwu_oi_companion_live_run_freezes_its_own_panel_tree(monkeypatch):
+    from nfl_dfs.inference.production_policy import ADOPTED_CLASSIC_POLICY
+
     result, seen, persisted, uploaded = _run_cbwu_oi(monkeypatch, dry_run=False)
-    panel = "prospective-cbwu-oi-2026w05-20261008T150000Z"
+    panel = "companion-cbwu-oi-v1-2026w05-20261008T150000Z"
     assert result["panel_run_id"] == panel
+    assert not panel.startswith("prospective-cbwu-oi")  # never pooled with 160/40
     assert seen["panel_run_id"] == panel
-    assert seen["candidate_run_type"] == "prospective_cbwu_oi_shadow"
-    assert seen["_log_ownership_shadow"] is True
+    assert seen["candidate_run_type"] == "companion_cbwu_oi_v1_shadow"
+    # Live runs do not append own_shadow either: its readers take the latest
+    # generation of a week, so a Sunday shadow row would become "the" prediction.
+    assert seen["_log_ownership_shadow"] is False
     assert seen["n_entries"] == 80 and seen["tail_line"] == 194.0
-    assert seen["policy_env"]["MULTISEED_PORTFOLIO"] == "CBWU_OI_SHADOW"
+    env = seen["policy_env"]
+    assert env["MULTISEED_PORTFOLIO"] == "CBWU_OI_SHADOW"
+    assert (env["N_LEV"], env["N_BOOM"], env["GEN_TOTAL_BUDGET"]) == ("40", "160", "172")
+    # The control selector is the money path's, not the 160/40 incumbent's.
+    assert seen["control_selector_env"] == ADOPTED_CLASSIC_POLICY.engine_environment(
+        dict(__import__("os").environ))
     assert [name for name, _ in persisted] == [
         f"recourse_worlds/2026/week-05/{panel}/control.npz",
         f"recourse_worlds/2026/week-05/{panel}/treatment.npz",
     ]
     assert uploaded == [f"recourse_worlds/2026/week-05/{panel}/manifest.json"]
     assert result["dry_run"] is False and result["live"] is True
-    assert result["contract"]["contract"] == "2026-cbwu-oi-v1"
+    assert result["contract"]["contract"] == "2026-cbwu-oi-companion-v1"
+    assert result["contract"]["settings_sha256"] == (
+        "9849d07f0ff22a57f75d10a1e4dc909647ca86563eadc134ed6eaf2d5eff4081")
     assert result["contract"] == persisted[0][1]["contract"]
 
 
 def test_cbwu_oi_dry_run_is_invisible_to_the_graded_panel_tree(monkeypatch):
-    """The spec grades the EARLIEST frozen panel per week: a mid-week smoke
+    """A canonical panel is the EARLIEST frozen one per week: a mid-week smoke
     must never be a candidate for it, in GCS, in BigQuery or in own_shadow."""
     result, seen, persisted, uploaded = _run_cbwu_oi(monkeypatch, dry_run=True)
-    panel = "dryrun-prospective-cbwu-oi-2026w05-20261008T150000Z"
+    panel = "dryrun-companion-cbwu-oi-v1-2026w05-20261008T150000Z"
     assert result["panel_run_id"] == panel
-    assert not panel.startswith("prospective-cbwu-oi-")
-    assert seen["candidate_run_type"] == "prospective_cbwu_oi_shadow_dryrun"
+    assert seen["candidate_run_type"] == "companion_cbwu_oi_v1_shadow_dryrun"
     assert seen["policy_env"]["PROSPECTIVE_SHADOW_ID"] == panel
     assert seen["_log_ownership_shadow"] is False
     for name in [name for name, _ in persisted] + uploaded:
@@ -414,8 +430,21 @@ def test_cbwu_oi_dry_run_is_invisible_to_the_graded_panel_tree(monkeypatch):
         assert not name.startswith("recourse_worlds/2026/")
     assert result["dry_run"] is True and result["live"] is False
     assert all(context["dry_run"] is True for _, context in persisted)
-    # The dry run still proves the declared contract.
-    assert result["contract"]["contract"] == "2026-cbwu-oi-v1"
+    assert result["contract"]["contract"] == "2026-cbwu-oi-companion-v1"
+
+
+def test_frozen_contract_runs_only_as_a_labelled_dry_run_from_week_5(monkeypatch):
+    with pytest.raises(RuntimeError, match="may not freeze a live panel"):
+        _run_cbwu_oi(monkeypatch, dry_run=False, contract="2026-cbwu-oi-v1")
+    result, seen, persisted, _ = _run_cbwu_oi(
+        monkeypatch, dry_run=True, contract="2026-cbwu-oi-v1")
+    assert result["panel_run_id"].startswith("dryrun-prospective-cbwu-oi-2026w05-")
+    assert seen["candidate_run_type"] == "prospective_cbwu_oi_shadow_dryrun"
+    env = seen["policy_env"]
+    assert (env["N_LEV"], env["N_BOOM"], env["GEN_TOTAL_BUDGET"]) == ("160", "40", "52")
+    assert seen["control_selector_env"]["N_LEV"] == "160"
+    assert result["contract"]["settings_sha256"] == (
+        "6d68946b27ca35ace348e7ce08340b22566d806a7caebc3815ea0f989feb425e")
 
 
 def test_cbwu_oi_without_its_declared_contract_fails_before_any_read(
@@ -438,12 +467,15 @@ def test_paired_shadow_refuses_an_ambiguous_dry_run_flag(monkeypatch):
             draft_group_id=9001, bucket_name="raw")
 
 
-def test_cbwu_oi_job_declares_its_contract_in_the_deploy_script():
+def test_cbwu_oi_job_declares_the_companion_in_the_deploy_script():
     deploy = (ROOT / "deploy/deploy_jobs.sh").read_text(encoding="utf-8")
     line = next(row for row in deploy.splitlines()
                 if row.startswith("job shadow-cbwu-oi-paired "))
-    assert "CBWU_OI_CONTRACT=2026-cbwu-oi-v1" in line
-    assert "CODE_SHA=${CODE_SHA}" in line
+    extra = line.split('"')[1]
+    declared = dict(item.split("=", 1) for item in extra.split("|"))
+    assert declared.pop("CODE_SHA") == "${CODE_SHA}"
+    assert declared == prospective_shadow.cbwu_oi_job_environment(
+        prospective_shadow.CBWU_OI_COMPANION_V1)
 
 
 def test_paired_shadow_runner_rejects_missing_code_sha(monkeypatch):

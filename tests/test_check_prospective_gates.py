@@ -50,11 +50,23 @@ def world(monkeypatch):
     envs: dict[str, dict[str, str]] = {}
     for gate in cpg.GATES.values():
         for s in gate["schedulers"]:
-            # Two registry keys may audit one job (the frozen Route Share key and its
-            # companion): a healthy job satisfies both, so merge their contracts.
+            # Two registry keys may audit one job (a frozen key and its companion). Where
+            # their contracts agree a healthy job satisfies both; where they conflict
+            # (CBWU_OI_CONTRACT) the current, non-superseded contract wins -- see _as_of
+            # for a world audited before the companion's first week.
+            if gate.get("superseded_from_week") is not None:
+                continue
             envs.setdefault(f"job-for-{s}", {}).update(gate["require_env"] or {})
-            if gate.get("require_code_ancestors"):
-                envs[f"job-for-{s}"].setdefault("CODE_SHA", "c0ffee0c0ffee0")
+    for gate in cpg.GATES.values():
+        if gate.get("superseded_from_week") is None:
+            continue
+        for s in gate["schedulers"]:
+            for key, value in (gate["require_env"] or {}).items():
+                envs.setdefault(f"job-for-{s}", {}).setdefault(key, value)
+    for gate in cpg.GATES.values():
+        if gate.get("require_code_ancestors"):
+            for s in gate["schedulers"]:
+                envs.setdefault(f"job-for-{s}", {}).setdefault("CODE_SHA", "c0ffee0c0ffee0")
     # Every image contains every required fix unless a test says otherwise (offline).
     monkeypatch.setattr(cpg, "code_contains", lambda code_sha, commit: True)
     monkeypatch.setattr(cpg, "schedulers", lambda: state)
@@ -67,7 +79,20 @@ def world(monkeypatch):
     return state, envs
 
 
+def _as_of(envs, week):
+    """A healthy job before a companion took over carries the then-live contract."""
+    for gate in cpg.GATES.values():
+        until = gate.get("superseded_from_week")
+        if until is not None and week < until:
+            for s in gate["schedulers"]:
+                envs[f"job-for-{s}"].update(gate["require_env"] or {})
+
+
 def test_healthy_world_passes(world):
+    _, envs = world
+    errors, _, _ = cpg.audit(week=5)
+    assert errors == [], errors
+    _as_of(envs, 2)
     errors, _, _ = cpg.audit(week=2)
     assert errors == [], errors
 
@@ -116,6 +141,7 @@ def test_gate_outside_its_window_is_not_an_error(world, monkeypatch):
             "adjudicates": "synthetic", "in_season_value": None, "note": "test fixture"}
     monkeypatch.setitem(cpg.GATES, "synthetic-faroff-2026", gate)
     state["s-synthetic-faroff"] = {"state": "PAUSED", "schedule": "0 0 * * 7"}
+    _as_of(world[1], 1)
     errors, _, notes = cpg.audit(week=1)
     assert errors == [], errors
     assert any("dormant this week" in n for n in notes), notes
@@ -341,26 +367,56 @@ def test_enabled_scheduler_may_not_be_dormant_even_when_its_runs_succeed(world):
                for e in errors), errors
 
 
-# --- O-27: the CBWU-OI pair is a frozen gate, not a dormant job ----------------------
+# --- O-27: the CBWU-OI pair is a gate, not a dormant job -----------------------------
 
-CBWU = "cbwu-oi-2026"
+CBWU = "cbwu-oi-2026-companion-v1"
+FROZEN = "cbwu-oi-2026"
 CBWU_JOBS = ("job-for-s-shadow-cbwu-oi-paired-early", "job-for-s-shadow-cbwu-oi-paired-late")
 
 
 def test_cbwu_oi_schedulers_are_a_gate_not_dormant():
-    spec = cpg.GATES[CBWU]
-    assert spec["schedulers"] == ["s-shadow-cbwu-oi-paired-early",
-                                  "s-shadow-cbwu-oi-paired-late"]
-    assert not set(spec["schedulers"]) & set(cpg.DORMANT)
-    assert (spec["first_week"], spec["last_week"]) == (1, 18)
-    assert spec["doc"] == "reports/2026-08-18-cbwu-oi-prospective-shadow-spec.md"
+    for key in (CBWU, FROZEN):
+        spec = cpg.GATES[key]
+        assert spec["schedulers"] == ["s-shadow-cbwu-oi-paired-early",
+                                      "s-shadow-cbwu-oi-paired-late"]
+        assert not set(spec["schedulers"]) & set(cpg.DORMANT)
+        assert spec["require_code_ancestors"] == cpg.POOL_FIX_193E1B44
+    companion = cpg.GATES[CBWU]
+    assert (companion["first_week"], companion["last_week"]) == (5, 18)
+    assert companion["in_season_value"] is True
+    assert companion["policy_doc"] == "reports/2026-09-19-in-season-adoption-track.md"
+
+
+def test_frozen_cbwu_oi_key_is_superseded_from_week_5_and_says_why(world):
+    spec = cpg.GATES[FROZEN]
+    assert spec["superseded_from_week"] == 5 and spec["superseded_by"] == CBWU
+    assert spec["superseded_reason"] == (
+        "operator 2026-10-04: moved to the current policy; the frozen 160/40 comparison "
+        "ends (W1 only), not adjudicated")
+    assert spec["require_env"] == {"CBWU_OI_CONTRACT": "2026-cbwu-oi-v1"}
+    errors, _, notes = cpg.audit(week=5, now=NOW)
+    assert not any(e.startswith(f"{FROZEN}:") for e in errors), errors
+    assert any(n.startswith(f"{FROZEN}: SUPERSEDED from week 5") for n in notes), notes
 
 
 def test_cbwu_oi_registry_equals_the_runner_contract():
-    """The checker, verify_deployment and the runner name ONE contract."""
+    """The checker, verify_deployment and the runner name ONE derived contract."""
     from nfl_dfs.inference import prospective_shadow as ps
 
-    assert cpg.GATES[CBWU]["require_env"] == {ps.CBWU_OI_CONTRACT_ENV: ps.CBWU_OI_CONTRACT}
+    assert cpg.GATES[CBWU]["require_env"] == ps.cbwu_oi_job_environment(
+        ps.CBWU_OI_COMPANION_V1)
+    assert cpg.GATES[FROZEN]["require_env"] == ps.cbwu_oi_job_environment(
+        ps.CBWU_OI_FROZEN_V1)
+
+
+def test_cbwu_oi_job_on_the_frozen_contract_is_an_error_from_week_5(world):
+    _, envs = world
+    for job in CBWU_JOBS:
+        envs[job]["CBWU_OI_CONTRACT"] = "2026-cbwu-oi-v1"
+        envs[job]["N_BOOM"] = "40"
+    errors, _, _ = cpg.audit(week=5, now=NOW)
+    assert any(e.startswith(f"{CBWU}:") and "contradicts the declared policy" in e
+               for e in errors), errors
 
 
 def test_cbwu_oi_job_without_its_contract_is_an_error(world):
@@ -402,9 +458,11 @@ def test_companion_pair_also_requires_the_pool_fix(world, monkeypatch):
                for e in errors), errors
 
 
-def test_cbwu_oi_lost_weeks_are_reported(world):
-    _, _, notes = cpg.audit(week=5, now=NOW)
-    assert sum(n.startswith(f"{CBWU}: week ") and "no frozen panel" in n
+def test_frozen_cbwu_oi_lost_weeks_are_reported_while_it_audits(world):
+    _, envs = world
+    _as_of(envs, 4)
+    _, _, notes = cpg.audit(week=4, now=NOW)
+    assert sum(n.startswith(f"{FROZEN}: week ") and "no frozen panel" in n
                for n in notes) == 3, notes
 
 

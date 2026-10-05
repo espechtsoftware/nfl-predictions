@@ -176,10 +176,10 @@ GATES = {
     # 2026-10-05 (operator: fix O-27, do not pause). Listed in DORMANT until today with the
     # reason "ENABLED and running" while every Sunday run from 09-13 failed on its stale
     # 09-06 image. It IS a frozen prospective gate: the 2026-08-18 spec grades every 2026
-    # regular-season Sunday-main week once after Week 18 (earliest successfully frozen panel
-    # per week). Its policy is built in code (incumbent 160/40 population + the CBWU-OI law,
-    # pinned as literals in prospective_shadow.CBWU_OI_FROZEN_SETTINGS); the job only
-    # declares the contract, and the runner refuses without it.
+    # regular-season Sunday-main week once after Week 18 (earliest frozen panel per week), on
+    # the incumbent 160/40 population. Operator 2026-10-04: from Week 5 the pair runs the
+    # CURRENT money path (companion v1, below); this frozen comparison ends with its one
+    # panel (Week 1) and is not adjudicated. Kept as the record.
     "cbwu-oi-2026": {
         "doc": "reports/2026-08-18-cbwu-oi-prospective-shadow-spec.md",
         "first_week": 1,
@@ -193,13 +193,67 @@ GATES = {
         "schedulers": ["s-shadow-cbwu-oi-paired-early", "s-shadow-cbwu-oi-paired-late"],
         "require_env": {"CBWU_OI_CONTRACT": "2026-cbwu-oi-v1"},
         "require_code_ancestors": POOL_FIX_193E1B44,
-        "adjudicates": "once, after Week 18, on the frozen panels (spec); an interim read "
-                       "at >=12 collected weeks is descriptive and licenses nothing. A pass "
-                       "licenses a promotion PROPOSAL to the operator, not adoption.",
+        "adjudicates": "was: once, after Week 18, on the frozen panels (spec). Superseded "
+                       "from Week 5; not adjudicated.",
         "in_season_value": False,
         "note": "Control = adopted CBWU combine, treatment = frozen CBWU-OI-v1 union, on the "
-                "identical five R0-R4 books of the incumbent 160/40 population; outcome-blind; "
-                "production_enabled=false.",
+                "identical five R0-R4 books of the incumbent 160/40 population.",
+        "superseded_from_week": 5,
+        "superseded_by": "cbwu-oi-2026-companion-v1",
+        "superseded_reason": "operator 2026-10-04: moved to the current policy; the frozen "
+                             "160/40 comparison ends (W1 only), not adjudicated",
+    },
+    # 2026-10-05 (operator 2026-10-04): the same pair under companion v1 -- the adopted
+    # money-path generation and selector, treatment differing only by the CBWU-OI combine
+    # law -- from Week 5, read weekly under the in-season adoption track v2. require_env is
+    # EXACTLY what the job must carry and equals
+    # nfl_dfs.inference.prospective_shadow.cbwu_oi_job_environment("2026-cbwu-oi-companion-v1")
+    # -- every value derived from ClassicProductionPolicy.engine_environment(); a test pins
+    # the equality, so this registry, the runner and verify_deployment cannot diverge.
+    "cbwu-oi-2026-companion-v1": {
+        "doc": "reports/2026-08-18-cbwu-oi-prospective-shadow-spec.md",
+        "policy_doc": "reports/2026-09-19-in-season-adoption-track.md",
+        "first_week": 5,
+        "last_week": 18,
+        "floor_weeks": None,
+        "schedulers": ["s-shadow-cbwu-oi-paired-early", "s-shadow-cbwu-oi-paired-late"],
+        "require_env": {
+            "CBWU_OI_CONTRACT": "2026-cbwu-oi-companion-v1",
+            "GEN_TOTAL_BUDGET": "172",
+            "N_LEV": "40",
+            "N_CE": "0",
+            "N_EPISTEMIC": "12",
+            "N_BOOM": "160",
+            "N_GUMBEL": "0",
+            "REPLACEMENT_SLOTS": "12",
+            "BOOM_UNIQUE_FILL": "0",
+            "EPISTEMIC_FAMILY": "role_draws",
+            "ROLE_BELIEF_FEATURES": "target_share_last,carry_share_last,snap_share_last,"
+                                    "target_share_jump,carry_share_jump,snap_share_jump",
+            "ROLE_BELIEF_SEED": "7331",
+            "CE_SEED": "1701",
+            "BLEND_MODEL_WEIGHT": "0.45",
+            "LIVE_SIMS": "30000",
+            "GAME_SIM_MODE": "possession",
+            "SERVED_POSITION_SCALES": "QB:0.970,RB:1.005,TE:0.940,WR:1.070",
+            "MODEL_ENSEMBLE": "1",
+            "MIN_LINEUP_SALARY": "49000",
+            "MULTISEED_SEED_PAIRS": "R0=0:7331;R1=1137260708:2690847602;"
+                                    "R2=2875959182:1630284992;R3=253722715:3374646876;"
+                                    "R4=1643280042:3977633467",
+            "MULTISEED_WORLDS_PER_BLOCK": "10000",
+            "MULTISEED_CANDIDATE_ENTRY_BASIS": "80",
+            "SELECT_LSE": "0",
+            "MULTISEED_PORTFOLIO": "CBWU_OI_SHADOW",
+        },
+        "require_code_ancestors": POOL_FIX_193E1B44,
+        "adjudicates": "each scored paired week is read under the in-season adoption track v2 "
+                       "(reports/2026-09-19-in-season-adoption-track.md); never pooled with "
+                       "the frozen 160/40 panel.",
+        "in_season_value": True,
+        "note": "Control = the money path's CBWU combine, treatment = CBWU-OI-v1 union, on the "
+                "identical five R0-R4 books of the adopted boom-first 40/160 generation; "
+                "exact-80, tail 194, outcome-blind, production_enabled=false.",
     },
     # 2026-09-22 (operator): the pass bar was frozen before the pair ever ran and grades only
     # unplayed weeks 5-18, so it is not the retrospective design the earlier DORMANT ruling

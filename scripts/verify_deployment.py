@@ -26,8 +26,8 @@ from nfl_dfs.inference.route_share_shadow import (  # noqa: E402
     ROUTE_FEATURES as ROUTE_FEATURE_NAMES,
 )
 from nfl_dfs.inference.prospective_shadow import (  # noqa: E402
-    CBWU_OI_CONTRACT,
-    CBWU_OI_CONTRACT_ENV,
+    CBWU_OI_COMPANION_V1,
+    cbwu_oi_job_environment,
 )
 from nfl_dfs.inference.tail_shadow import (  # noqa: E402
     ROUTE_SHARE_COMPANION_V1,
@@ -81,12 +81,10 @@ TARGETS = (
         "MODEL_REGISTRY_VARIANT": "tail_k1_route",
         **route_share_job_environment(ROUTE_SHARE_COMPANION_V1),
     }),
-    # 2026-10-05 (O-27): the CBWU-OI paired shadow builds its environment in
-    # code (prospective_shadow.check_cbwu_oi_contract pins the frozen
-    # settings); the job must only declare which contract it collects for.
-    ("job", "shadow-cbwu-oi-paired", {
-        CBWU_OI_CONTRACT_ENV: CBWU_OI_CONTRACT,
-    }),
+    # 2026-10-05 (O-27, operator): the CBWU-OI pair runs companion v1 from
+    # Week 5, derived from production_policy by prospective_shadow.
+    ("job", "shadow-cbwu-oi-paired",
+     cbwu_oi_job_environment(CBWU_OI_COMPANION_V1)),
 )
 
 

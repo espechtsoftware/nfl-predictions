@@ -98,9 +98,11 @@ job shadow-archetype-paired shadow-archetype-paired 16Gi 4 "CODE_SHA=${CODE_SHA}
 # Paired CBWU-OI union shadow (2026-08-18): control CBWU vs frozen
 # order-invariant union on identical worlds; grading bar frozen at
 # reports/2026-08-18-cbwu-oi-prospective-shadow-spec.md.
-# O-27 (2026-10-05): the job declares the contract it collects for; the
-# runner refuses without it (prospective_shadow.check_cbwu_oi_contract).
-job shadow-cbwu-oi-paired shadow-cbwu-oi-paired 16Gi 4 "CBWU_OI_CONTRACT=2026-cbwu-oi-v1|CODE_SHA=${CODE_SHA}" "" 7200
+# O-27 (2026-10-05, operator): from Week 5 the pair runs companion v1 -- the
+# adopted money path with only the combine law swapped in the treatment --
+# = prospective_shadow.cbwu_oi_job_environment("2026-cbwu-oi-companion-v1");
+# a test pins equality. The runner refuses an undeclared contract.
+job shadow-cbwu-oi-paired shadow-cbwu-oi-paired 16Gi 4 "CBWU_OI_CONTRACT=2026-cbwu-oi-companion-v1|GEN_TOTAL_BUDGET=172|N_LEV=40|N_CE=0|N_EPISTEMIC=12|N_BOOM=160|N_GUMBEL=0|REPLACEMENT_SLOTS=12|BOOM_UNIQUE_FILL=0|EPISTEMIC_FAMILY=role_draws|ROLE_BELIEF_FEATURES=target_share_last,carry_share_last,snap_share_last,target_share_jump,carry_share_jump,snap_share_jump|ROLE_BELIEF_SEED=7331|CE_SEED=1701|BLEND_MODEL_WEIGHT=0.45|LIVE_SIMS=30000|GAME_SIM_MODE=possession|SERVED_POSITION_SCALES=QB:0.970,RB:1.005,TE:0.940,WR:1.070|MODEL_ENSEMBLE=1|MIN_LINEUP_SALARY=49000|MULTISEED_SEED_PAIRS=R0=0:7331;R1=1137260708:2690847602;R2=2875959182:1630284992;R3=253722715:3374646876;R4=1643280042:3977633467|MULTISEED_WORLDS_PER_BLOCK=10000|MULTISEED_CANDIDATE_ENTRY_BASIS=80|SELECT_LSE=0|MULTISEED_PORTFOLIO=CBWU_OI_SHADOW|CODE_SHA=${CODE_SHA}" "" 7200
 # B1 volume shadow: builds TWENTY seed books instead of five, so it gets a
 # 4h task timeout and starts earliest of the Sunday shadows.
 job shadow-cbwu-volume shadow-cbwu-volume 16Gi 4 "CODE_SHA=${CODE_SHA}" "" 14400
