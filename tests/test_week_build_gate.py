@@ -15,7 +15,7 @@ def test_gate_precedes_driver_and_propagates_failure(tmp_path, gate_code):
     shutil.copy2(root / "scripts/run_week_build.sh", scripts)
     (scripts / "week_env.sh").write_text('''week_env() {
       export WEEK="$1" SEASON=2026 GROUP=153769 OUT="$TEST_ROOT" PROD="$TEST_ROOT"
-      export PROD_PY="$TEST_ROOT/fake-python"
+      export PROD_PY="$TEST_ROOT/fake-python" CLONE="$TEST_ROOT/clone"
       export CHOSEN_FILE="$TEST_ROOT/dose file.env" CONTESTS_JSON="$TEST_ROOT/contests file.json"
     }
 ''')
@@ -24,6 +24,7 @@ def test_gate_precedes_driver_and_propagates_failure(tmp_path, gate_code):
 set -eu
 case "$1" in
   */check_week_runtime.py) exit 0;;
+  */check_lab_api.py) [ "$2" = "--clone" ] && [ "$3" = "$TEST_ROOT/clone" ] && exit 0; exit 98;;
   */check_build_inputs.py)
     printf '%s\\n' "$@" > "$TEST_ROOT/gate-args"
     exit "$GATE_CODE";;
