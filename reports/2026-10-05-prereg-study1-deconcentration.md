@@ -112,3 +112,9 @@ the entered rows, without hurting tickets and line hits?
 3. **Builder:** nfl2 `production/s1-deconcentration-20261005` (experiments/s1_deconcentration.py; driver
    scripts/s1_drive.py). Mechanics smoke 2023 W1 on throwaway bank 1398: caps bind, the arms differ from C, about 100
    seconds per slate.
+
+4. **Reader frozen 2026-10-05, before any scored bank:** nfl2 `production/s1-deconcentration-20261005` @ `7bb4c5e`,
+   `scripts/s1_report.py` sha256 `21f364d36fb21989ce8e2ff7f7aa7c5e06fd2d591c7fd5e1ebbc16b2257bcc59`. The bootstrap seed (20261005) and resample count (20,000) are fixed in the
+   code. Direction: `pct` = the share of the field a row BEATS (higher = better), and every contrast is ARM − C
+   (positive favours the arm). A full-path smoke on the throwaway bank 1398 (2 slates) follows; its numbers are
+   discarded, and the reader sha must not change after it.
