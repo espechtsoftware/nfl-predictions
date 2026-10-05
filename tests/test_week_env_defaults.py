@@ -156,10 +156,14 @@ def test_ownership_fallback_chain_tabpfn_blend_lag_none_is_loud(tmp_path):
     assert len(marker) == 2 and "fallback lag_good.csv at tilt 0.10" in marker[0] and "fallback none: NO TERM" in marker[1]
     assert "own_use_lag; else OWN_SRC=\"\"; OWN_TILT=\"0\"; fi" in host                              # union refusal: lag, then none
 
-def test_week4_small_contest_overlap_limit_is_on_by_default_and_can_be_turned_off():
+def test_week4_small_contest_overlap_limit_is_on_by_default_and_can_be_turned_off(tmp_path):
     src = ENV_SCRIPT.read_text()
     assert "export ENTER_SMALL_MAX_SHARED=${ENTER_SMALL_MAX_SHARED-5}" in src          # operator 2026-09-30: Week 4
     env = {k: v for k, v in os.environ.items() if k != "ENTER_SMALL_MAX_SHARED"}
+    # Hermetic (2026-10-04): book sizes given, so week_env never needs the host's Week-4 contests.json. Without this the
+    # test passed only on the laptop and failed in the Cloud Build live lane (week_env returned before the export).
+    env.update({"BOOK_ENTRIES": "90", "TAIL_SLEEVE": "0", "PROD": str(ROOT), "PROD_PY": sys.executable,
+                "OUT": str(tmp_path / "out"), "CONTESTS_JSON": str(tmp_path / "absent-contests.json")})
     run = lambda e: subprocess.run(["bash", "-c", f"source {ENV_SCRIPT}; week_env 4 154078 >/dev/null 2>&1; echo [$ENTER_SMALL_MAX_SHARED]"],
                                    capture_output=True, text=True, env=e).stdout.strip()
     assert run(env) == "[5]" and run({**env, "ENTER_SMALL_MAX_SHARED": ""}) == "[]"
