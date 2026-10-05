@@ -464,7 +464,7 @@ def evaluate_disagreement(rows: pd.DataFrame, source_audit: dict) -> dict:
     }
 
 
-def run(panel_id: str = PANEL_ID) -> dict:
+def run(panel_id: str = PANEL_ID, *, game_day_active: bool = False) -> dict:
     """Load frozen warehouse inputs, run once, and print machine JSON."""
 
     if panel_id != PANEL_ID:
@@ -496,8 +496,14 @@ def run(panel_id: str = PANEL_ID) -> dict:
             "seasons": list(SEASONS),
             "markets": list(ALT_MARKETS),
         })
+    active_audit = None
+    if game_day_active:                    # O-32 correction protocol: the one shared repair, off by default
+        from .game_day_active import apply as _active
+        features, active_audit = _active(features)
     joined, audit = attach_market_tail_edges(features, props)
     report = evaluate_disagreement(joined, audit)
+    if active_audit is not None:
+        report["game_day_active"] = active_audit
     print("MARKET_TAIL_DIAGNOSTIC_JSON=" + json.dumps(report, sort_keys=True))
     return report
 

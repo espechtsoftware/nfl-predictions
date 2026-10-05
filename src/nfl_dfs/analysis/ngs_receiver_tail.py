@@ -324,7 +324,7 @@ def _calibration_deciles(frame: pd.DataFrame) -> list[dict]:
     ).reset_index().to_dict("records")
 
 
-def run(panel_id: str = PANEL_ID) -> dict:
+def run(panel_id: str = PANEL_ID, *, game_day_active: bool = False) -> dict:
     if panel_id != PANEL_ID:
         raise ValueError(f"NGS protocol is frozen to panel {PANEL_ID}")
     import nflreadpy as nfl
@@ -376,6 +376,10 @@ def run(panel_id: str = PANEL_ID) -> dict:
     ngs = nfl.load_nextgen_stats(
         seasons=list(HISTORY_SEASONS), stat_type="receiving",
     ).to_pandas()
+    active_audit = None
+    if game_day_active:                    # O-32 correction protocol: the one shared repair, off by default
+        from .game_day_active import apply as _active
+        snapshots, active_audit = _active(snapshots)
     joined = attach_strict_prior_ngs(snapshots, ngs)
     weighted_coverage: dict[int, float] = {}
     for season in HELD_OUT_SEASONS:
@@ -396,5 +400,7 @@ def run(panel_id: str = PANEL_ID) -> dict:
         feature: float(joined[feature].isna().mean())
         for feature in NGS_FEATURES
     }
+    if active_audit is not None:
+        report["game_day_active"] = active_audit
     print("NGS_RECEIVER_TAIL_JSON=" + json.dumps(report, sort_keys=True))
     return report

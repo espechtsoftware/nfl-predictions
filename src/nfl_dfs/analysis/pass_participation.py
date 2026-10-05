@@ -389,7 +389,7 @@ def _calibration_deciles(frame: pd.DataFrame) -> list[dict]:
     return summary.to_dict("records")
 
 
-def run(panel_id: str = PANEL_ID) -> dict:
+def run(panel_id: str = PANEL_ID, *, game_day_active: bool = False) -> dict:
     """Load the frozen sources, execute the diagnostic, and print JSON."""
 
     if panel_id != PANEL_ID:
@@ -422,6 +422,10 @@ def run(panel_id: str = PANEL_ID) -> dict:
           PARTITION BY season, week, gsis_id ORDER BY generated_at DESC
         ) = 1
         """, params={"panel_id": panel_id, "seasons": list(SEASONS)})
+    active_audit = None
+    if game_day_active:                    # O-32 correction protocol: the one shared repair, off by default
+        from .game_day_active import apply as _active
+        snapshots, active_audit = _active(snapshots)
     weekly, audit = build_weekly_participation(participation, pbp)
     joined = attach_strict_prior(snapshots, weekly)
     report = evaluate_proxy(joined)
@@ -430,6 +434,8 @@ def run(panel_id: str = PANEL_ID) -> dict:
     report["rows_with_prior_participation"] = int(
         joined.pass_play_share_last.notna().sum()
     )
+    if active_audit is not None:
+        report["game_day_active"] = active_audit
     print("PASS_PARTICIPATION_JSON=" + json.dumps(report, sort_keys=True))
     return report
 

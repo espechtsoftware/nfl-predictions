@@ -105,7 +105,7 @@ def evaluate(rows: pd.DataFrame) -> dict:
     }
 
 
-def run(panel_id: str = PANEL_ID) -> dict:
+def run(panel_id: str = PANEL_ID, *, game_day_active: bool = False) -> dict:
     if panel_id != PANEL_ID:
         raise ValueError(f"Defense PROE protocol is frozen to {PANEL_ID}")
     from ..bq import query_df
@@ -131,7 +131,13 @@ def run(panel_id: str = PANEL_ID) -> dict:
           PARTITION BY season, week, gsis_id ORDER BY generated_at DESC
         ) = 1
         """, params={"panel_id": panel_id})
+    active_audit = None
+    if game_day_active:                    # O-32 correction protocol: the one shared repair, off by default
+        from .game_day_active import apply as _active
+        targets, active_audit = _active(targets)
     report = evaluate(attach_prior_l4(targets, weekly))
+    if active_audit is not None:
+        report["game_day_active"] = active_audit
     report["panel"] = panel_id
     report["source_run_id"] = next(iter(run_ids))
     print("FP_DEFENSE_PROE_JSON=" + json.dumps(report, sort_keys=True))

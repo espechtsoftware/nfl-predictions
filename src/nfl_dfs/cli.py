@@ -883,6 +883,12 @@ def main(argv: list[str] | None = None) -> None:
     p = sub.add_parser("serve", help="Run the FastAPI app")
     p.add_argument("--port", type=int, default=8080)
 
+    # O-32 correction protocol (reports/2026-10-05-o32-correction-protocol.md): the one shared repair, off by default
+    for _cmd in ("pass-participation-proxy", "market-tail-diagnostic", "ngs-receiver-tail-diagnostic",
+                 "fantasy-points-qb-shell-diagnostic", "fantasy-points-defense-proe-diagnostic"):
+        sub.choices[_cmd].add_argument(
+            "--game-day-active", action="store_true",
+            help="O-32: keep only players with game-day roster status ACT (replay panels store inactives as 0)")
     args = parser.parse_args(argv)
 
     if args.command == "ingest-nflverse":
@@ -1150,15 +1156,15 @@ def main(argv: list[str] | None = None) -> None:
     elif args.command == "pass-participation-proxy":
         from .analysis import pass_participation
 
-        pass_participation.run(args.panel)
+        pass_participation.run(args.panel, game_day_active=args.game_day_active)
     elif args.command == "market-tail-diagnostic":
         from .analysis import market_tail_disagreement
 
-        market_tail_disagreement.run(args.panel)
+        market_tail_disagreement.run(args.panel, game_day_active=args.game_day_active)
     elif args.command == "ngs-receiver-tail-diagnostic":
         from .analysis import ngs_receiver_tail
 
-        ngs_receiver_tail.run(args.panel)
+        ngs_receiver_tail.run(args.panel, game_day_active=args.game_day_active)
     elif args.command == "import-fantasy-points-route":
         from .ingest import fantasy_points_route
 
@@ -1390,7 +1396,7 @@ def main(argv: list[str] | None = None) -> None:
     elif args.command == "fantasy-points-qb-shell-diagnostic":
         from .analysis import fantasy_points_qb_shell
 
-        fantasy_points_qb_shell.run(args.panel)
+        fantasy_points_qb_shell.run(args.panel, game_day_active=args.game_day_active)
     elif args.command == "import-fantasy-points-same-season-route-shape":
         from .ingest import fantasy_points_same_season_route_shape
 
@@ -1416,7 +1422,7 @@ def main(argv: list[str] | None = None) -> None:
     elif args.command == "fantasy-points-defense-proe-diagnostic":
         from .analysis import fantasy_points_defense_proe
 
-        fantasy_points_defense_proe.run(args.panel)
+        fantasy_points_defense_proe.run(args.panel, game_day_active=args.game_day_active)
     elif args.command == "corrected-extreme-selector":
         from .research import extreme_selector_confirmation
 

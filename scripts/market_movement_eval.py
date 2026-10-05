@@ -69,6 +69,10 @@ def main():
       FROM `nfl_predictions.slate_player_features`
       WHERE panel_run_id = '20260805-hf5' AND season BETWEEN 2023 AND 2025
         AND actual IS NOT NULL""")
+    if "--game-day-active" in sys.argv[1:]:   # O-32 correction protocol: the one shared repair, off by default
+        from nfl_dfs.analysis.game_day_active import apply as _active
+        proj, active_audit = _active(proj)
+        print(f"O-32 game-day ACT filter: {active_audit}")
     if proj.empty:
         print("no stored projections for 2023-2025 — falling back to the "
               "market's own predictive check (movement vs realized yards)")
