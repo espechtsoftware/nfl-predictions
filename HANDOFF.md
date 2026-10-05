@@ -12,6 +12,16 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-05 (08:13 CDT) — Study 1b: the operator re-chose the margin, m = 0.015 (deviation note 1)
+
+- **Why it was re-asked:** the reviewer flagged that m = 0.020 had been chosen without the scale. The operator was
+  then re-asked with the corrected scale: C sits about 3.4 points above the field median, so 2 points would allow
+  losing more than half of that edge.
+- **His answer, verbatim:** "Change to 1.5 points".
+- **Recorded as deviation note 1** under the frozen text. The file's sha256 is now `4363ca5a…`; the frozen body above
+  the note is unchanged.
+- **Power at Δ 0:** EA 0.77, EW 0.55.
+
 ## 2026-10-05 (08:00 CDT) — Study 1b (entry-level player cap) preregistration FROZEN at 3da5d1d1
 
 - **What:** the operator's 10-04 request, a cap on any one player's share of ENTRIES (the Chase problem).

@@ -174,3 +174,27 @@ for key in ("P4","G","GP4"):
         line += f" m{m:.3f}: P(pass|d=0) {NormalDist().cdf(m/se - z):.2f} P(pass|d=-0.005) {NormalDist().cdf((m-0.005)/se - z):.2f};"
     print(line)
 ```
+
+---
+
+## Deviation note 1 (2026-10-05, before any experiment code, bank or outcome): the operator re-chose m = 0.015
+
+**What prompted it:** the reviewer flagged that the operator chose m = 0.020 without the scale. The wrong draft
+sentence ("1 point is about 2% of the edge") was never shown to him: it was only in the draft file. But neither was
+the correct scale.
+
+**What he was shown:** "in the test data our entries average about 3.4 points above the median of the field (53.4th
+percentile). A 2-point allowance means the cap can pass even if it gives up more than half of that edge. A 1.5-point
+allowance gives up less, but a harmless cap passes only 77% / 55% of the time (vs 96% / 82% at 2 points). Keep 2
+points?"
+
+**His answer, verbatim:** "Change to 1.5 points".
+
+**Effective from this note: m = 0.015.** It replaces the m = 0.020 in co-primary 2.
+- Power at a true Δ of 0 / −0.005, from the table above:
+  - EA (P4-like): 0.77 / 0.40;
+  - EW (G-like): 0.55 / 0.25;
+  - EW, if it is as noisy as G+P4: 0.25 at Δ 0.
+- A cap that truly costs half a point now passes only 25–40% of the time. EW's test is close to a coin flip even when
+  the cap is harmless.
+- Everything else in the frozen text is unchanged.
