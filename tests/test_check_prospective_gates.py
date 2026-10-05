@@ -56,7 +56,8 @@ def world(monkeypatch):
             # for a world audited before the companion's first week.
             if gate.get("superseded_from_week") is not None:
                 continue
-            envs.setdefault(f"job-for-{s}", {}).update(gate["require_env"] or {})
+            want = (gate.get("require_env_by_scheduler") or {}).get(s, gate["require_env"])
+            envs.setdefault(f"job-for-{s}", {}).update(want or {})
     for gate in cpg.GATES.values():
         if gate.get("superseded_from_week") is None:
             continue
@@ -66,6 +67,8 @@ def world(monkeypatch):
     for gate in cpg.GATES.values():
         if gate.get("require_code_ancestors"):
             for s in gate["schedulers"]:
+                envs.setdefault(f"job-for-{s}", {}).setdefault("CODE_SHA", "c0ffee0c0ffee0")
+            for s in gate.get("input_schedulers", []) if gate.get("same_env_include_inputs") else ():
                 envs.setdefault(f"job-for-{s}", {}).setdefault("CODE_SHA", "c0ffee0c0ffee0")
     # Every image contains every required fix unless a test says otherwise (offline).
     monkeypatch.setattr(cpg, "code_contains", lambda code_sha, commit: True)
@@ -185,14 +188,97 @@ def test_sis_pass_tail_gate_warns_before_week_5_and_fails_from_week_5(world):
     assert any("sis-pass-tail-2026" in e and "not ENABLED" in e for e in errors), errors
 
 
-def test_sis_pass_tail_gate_pins_the_frozen_code_identity(world):
-    """Its policy is frozen in code, not env, so the contract is the protocol's CODE_SHA."""
+SIS_JOBS = ("job-for-s-tabpfn-sis-pass-tail-control",
+            "job-for-s-tabpfn-sis-pass-tail-treatment",
+            "job-for-s-shadow-sis-pass-tail-paired")
+SIS_KEYS = ("sis-pass-tail-2026", "sis-pass-tail-2026-companion-v1")
+
+
+def test_sis_pass_tail_contract_is_split(world):
+    """O-3 Amendment 1: the unrunnable 15de4020 pin became two declared contracts."""
     _, envs = world
-    spec = cpg.GATES["sis-pass-tail-2026"]
-    assert spec["require_env"] == {"CODE_SHA": "15de40206963b5db9e6a4acff0f865833678d44d"}
-    envs["job-for-s-shadow-sis-pass-tail-paired"] = {"CODE_SHA": "deadbeef"}
-    errors, _, _ = cpg.audit(week=5)
-    assert any("contradicts the declared policy" in e for e in errors), errors
+    dist = cpg.GATES["sis-pass-tail-2026"]
+    comp = cpg.GATES["sis-pass-tail-2026-companion-v1"]
+    assert dist["superseded_require_env"] == {
+        "CODE_SHA": "15de40206963b5db9e6a4acff0f865833678d44d"}
+    assert dist["require_env"] == {"SIS_PASS_TAIL_CONTRACT": "pass-tail-v1-a1"}
+    assert comp["require_env"]["SIS_PASS_TAIL_CONTRACT"] == "pass-tail-v1-a1-companion"
+    assert (comp["require_env"]["N_BOOM"], comp["require_env"]["N_LEV"]) == ("160", "40")
+    assert dist["in_season_value"] is False and comp["in_season_value"] is True
+    errors, _, _ = cpg.audit(week=5, now=NOW)
+    assert not any(e.startswith(SIS_KEYS) for e in errors), errors
+    # Today's deployed env (the 15de4020 jobs: no contract) contradicts both, per job.
+    for job in SIS_JOBS:
+        envs[job].pop("SIS_PASS_TAIL_CONTRACT")
+    errors, _, _ = cpg.audit(week=5, now=NOW)
+    hits = [e for e in errors if e.startswith(SIS_KEYS)
+            and "contradicts the declared policy" in e]
+    assert len(hits) == 3, errors
+
+
+def test_sis_paired_job_on_the_august_generation_is_an_error(world):
+    _, envs = world
+    envs[SIS_JOBS[2]].update({"N_BOOM": "40", "N_LEV": ""})
+    errors, _, _ = cpg.audit(week=5, now=NOW)
+    assert any(e.startswith("sis-pass-tail-2026-companion-v1:") and "N_BOOM" in e
+               for e in errors), errors
+
+
+def test_sis_cache_job_with_the_other_arms_env_is_an_error(world):
+    _, envs = world
+    envs[SIS_JOBS[0]]["TABPFN_SIS_PASS_TAIL_LIVE_ARM"] = "treatment"
+    errors, _, _ = cpg.audit(week=5, now=NOW)
+    assert any(SIS_JOBS[0] in e and "TABPFN_SIS_PASS_TAIL_LIVE_ARM" in e
+               for e in errors), errors
+
+
+def test_sis_jobs_must_share_one_code_sha(world):
+    """The paired job reads the caches: the three jobs are ONE build or nothing."""
+    _, envs = world
+    envs[SIS_JOBS[2]]["CODE_SHA"] = "beef" * 10
+    errors, _, _ = cpg.audit(week=5, now=NOW)
+    assert any(e.startswith("sis-pass-tail-2026-companion-v1:")
+               and "must carry ONE CODE_SHA" in e for e in errors), errors
+    envs[SIS_JOBS[2]]["CODE_SHA"] = envs[SIS_JOBS[0]]["CODE_SHA"]
+    envs[SIS_JOBS[1]]["CODE_SHA"] = "beef" * 10
+    errors, _, _ = cpg.audit(week=5, now=NOW)
+    assert any(e.startswith("sis-pass-tail-2026:") and "must carry ONE CODE_SHA" in e
+               for e in errors), errors
+    envs[SIS_JOBS[1]].pop("CODE_SHA")
+    errors, _, _ = cpg.audit(week=5, now=NOW)
+    assert any("must carry ONE CODE_SHA" in e and "<unset>" in e for e in errors), errors
+
+
+def test_sis_paused_cache_input_fails_the_companion(world):
+    state, _ = world
+    state["s-tabpfn-sis-pass-tail-treatment"]["state"] = "PAUSED"
+    errors, _, _ = cpg.audit(week=5, now=NOW)
+    assert any(e.startswith("sis-pass-tail-2026-companion-v1:") and "not ENABLED" in e
+               for e in errors), errors
+
+
+def test_sis_job_on_an_image_without_the_pool_fix_is_an_error(world, monkeypatch):
+    """O-27 class: 15de4020 predates 193e1b44, so a Sunday run would read the stale
+    full-week draft group after a Thursday game -- an invalid week that looks complete."""
+    monkeypatch.setattr(cpg, "code_contains",
+                        lambda code_sha, commit: not commit.startswith("193e1b44"))
+    errors, _, _ = cpg.audit(week=5, now=NOW)
+    hits = [e for e in errors if e.startswith(SIS_KEYS) and "193e1b44" in e]
+    assert len(hits) == 3, errors
+    errors, warnings, _ = cpg.audit(week=3, now=NOW)
+    assert not any(e.startswith(SIS_KEYS) and "193e1b44" in e for e in errors)
+    assert any(w.startswith(SIS_KEYS) and "193e1b44" in w for w in warnings)
+
+
+def test_code_contains_reads_real_git_history():
+    """15de4020 (the registered build) lacks both required fixes; the line has them."""
+    spec = cpg.GATES["sis-pass-tail-2026-companion-v1"]["require_code_ancestors"]
+    old = "15de40206963b5db9e6a4acff0f865833678d44d"
+    if cpg.code_contains(old, old) is None:
+        pytest.skip("git history unavailable")
+    for commit in spec:
+        assert cpg.code_contains(old, commit) is False, commit
+        assert cpg.code_contains("HEAD", commit) is True, commit
 
 
 def test_every_dormant_entry_carries_a_reason():

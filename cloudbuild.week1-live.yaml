@@ -7,7 +7,8 @@
 # so the props-or-nothing contract and the frozen inventory hashes are verified inside
 # the build that produces the image carrying them. 2026-10-05 (O-25): the Route Share
 # pair's contract guard (tail_shadow) and its artifact contract are verified here too,
-# because the shadow jobs run this image.
+# because the shadow jobs run this image. 2026-10-05 (O-3): the SIS pass-tail paired job
+# runs this image too, so its contract guard is verified here.
 steps:
   - name: python:3.11-slim
     id: live-boundary-tests
@@ -53,7 +54,8 @@ steps:
           tests/test_route_share_shadow.py \
           tests/test_live_shadow_portfolios.py \
           tests/test_own_shadow.py \
-          tests/test_sql_dir.py
+          tests/test_sql_dir.py \
+          tests/test_prospective_sis_pass_tail_shadow.py
         python -Werror::SyntaxWarning -m compileall -q src
 
   - name: gcr.io/cloud-builders/docker

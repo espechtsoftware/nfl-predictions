@@ -182,7 +182,7 @@ def test_week5_backfill_accepts_team_context_rows_identical_by_content():
         rows, existing, keys=keys, hash_columns=hashes,
         content_columns=content, audit=audit)
     assert novel[keys].to_dict("records") == [{"season": 2026, "week": 4, "team": "ARI"}]
-    assert audit == {"content_identical_rows": 1, "differing_columns": {}}
+    assert audit == {"content_identical_rows": 1, "differing_columns": {}, "revisions": []}
     # A vendor revision of any value still fails closed, naming the column.
     revised = existing.copy()
     revised["pdef_boom_rate"] = 0.126
@@ -213,7 +213,7 @@ def test_run_compares_team_context_by_content(monkeypatch, tmp_path):
     }])
     attempts = pd.DataFrame([{
         "season": 2026, "week": 1, "defense": "ARI", "alignment": "wide",
-        "source_sha256": "w", "attempts": 10,
+        "source_sha256": "w", "attempts": 10, "offense": "LA", "team_id": 1,
     }])
     manifest = {"source_week_start": 1, "source_week_end": 4,
                 "acquisition_identity": "id"}
@@ -229,7 +229,7 @@ def test_run_compares_team_context_by_content(monkeypatch, tmp_path):
             old["source_sha256_pass_defense_totals"] = "old-file"
             return old.drop(columns=["source_run_id"])
         return pd.DataFrame(columns=["season", "week", "defense", "alignment",
-                                     "source_sha256"])
+                                     "source_sha256", "offense", "team_id", "attempts"])
 
     from nfl_dfs import bq
     monkeypatch.setattr(bq, "query_df", query_df)
@@ -238,3 +238,66 @@ def test_run_compares_team_context_by_content(monkeypatch, tmp_path):
     assert "source_run_id" not in audit["context_content_columns"]
     assert audit["append_context_rows"] == 0
     assert audit["context_rows_identical_by_content"] == 1
+
+
+def test_vendor_revision_keeps_first_seen_and_is_reported():
+    """Reviewer ruling (d): first seen wins, never fail-closed, every value logged."""
+    keys = ["season", "week", "team"]
+    rows = pd.DataFrame([
+        {"season": 2026, "week": 1, "team": "ARI", "pdef_boom_rate": 0.126,
+         "pdef_attempts": 31, "h": "new"},
+        {"season": 2026, "week": 4, "team": "ARI", "pdef_boom_rate": 0.2,
+         "pdef_attempts": 28, "h": "new"},
+    ])
+    existing = rows.iloc[[0]].assign(pdef_boom_rate=0.125, h="old")
+    audit: dict = {}
+    novel = intake._novel_or_identical(
+        rows, existing, keys=keys, hash_columns=["h"],
+        content_columns=["pdef_boom_rate", "pdef_attempts"], audit=audit,
+        keep_first_seen=True)
+    # The revised W1 row is NOT appended (the first-seen row stays); W4 is new.
+    assert novel.week.tolist() == [4]
+    assert audit["revisions"] == [{
+        "season": 2026, "week": 1, "team": "ARI", "column": "pdef_boom_rate",
+        "first_seen_value": "0.125", "refetched_value": "0.126"}]
+
+
+def test_run_logs_revisions_and_appends_only_new_keys(monkeypatch, tmp_path):
+    context = pd.DataFrame([
+        {"season": 2026, "week": w, "team": "ARI", "pdef_attempts": 31.0 + w,
+         "source_sha256_pass_defense_totals": "a",
+         "source_sha256_pass_defense_value": "b",
+         "source_sha256_pass_rush_totals": "c", "source_run_id": "new"}
+        for w in (1, 4)])
+    attempts = pd.DataFrame([{
+        "season": 2026, "week": 1, "defense": "ARI", "alignment": "wide",
+        "source_sha256": "w", "attempts": 10, "offense": "LA", "team_id": 1}])
+    manifest = {"source_week_start": 1, "source_week_end": 4,
+                "acquisition_identity": "refetch-run"}
+    monkeypatch.setattr(intake, "_load_manifest", lambda d, target_week: (tmp_path, manifest))
+    monkeypatch.setattr(intake, "_read_team_context", lambda root, m: context)
+    monkeypatch.setattr(intake, "_read_alignment_attempts", lambda root, m: attempts)
+    monkeypatch.setattr(intake, "_archive", lambda root, m, bucket: [])
+
+    def query_df(sql, params=None):
+        if "sis_team_context_game" in sql:
+            old = context.iloc[[0]].copy()
+            old["pdef_attempts"] = 30.0          # a revised first-seen W1 value
+            old["source_sha256_pass_defense_totals"] = "team-context-file"
+            return old.drop(columns=["source_run_id"])
+        return attempts.assign(attempts=9, source_sha256="old")  # revised attempts
+
+    loads = []
+    from nfl_dfs import bq
+    monkeypatch.setattr(bq, "query_df", query_df)
+    monkeypatch.setattr(bq, "load_dataframe",
+                        lambda frame, table, write_disposition: loads.append((table, frame)))
+    audit = intake.run(tmp_path, target_week=5, write=True)
+    assert audit["append_context_rows"] == 1 and audit["append_attempt_rows"] == 0
+    assert audit["deficiency_row_required"] is True and audit["first_seen_kept"] is True
+    tables = [t for t, _ in loads]
+    assert any(t.endswith(".sis_vendor_revision_log") for t in tables)
+    log = next(f for t, f in loads if t.endswith(".sis_vendor_revision_log"))
+    assert sorted(log.column_name) == ["attempts", "pdef_attempts"]
+    appended = next(f for t, f in loads if t.endswith(".sis_team_context_game"))
+    assert appended.week.tolist() == [4]

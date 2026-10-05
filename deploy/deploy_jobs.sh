@@ -113,7 +113,9 @@ job shadow-cbwu-volume shadow-cbwu-volume 16Gi 4 "CODE_SHA=${CODE_SHA}" "" 14400
 # scheduler or a new Cloud Run Job at project quota.
 # Independent finite-usage SIS pass-tail evidence. The job is a ten-book
 # five-seed pair and deliberately never changes the K=1/CBWU money path.
-job shadow-sis-pass-tail-paired shadow-sis-pass-tail-paired 16Gi 4 "CODE_SHA=${CODE_SHA}" "" 14400
+# O-3 Amendment 1 (2026-10-05): the books run the CURRENT money path (companion), =
+# sis_pass_tail_portfolio.paired_job_environment("pass-tail-v1-a1-companion"); a test pins it.
+job shadow-sis-pass-tail-paired shadow-sis-pass-tail-paired 16Gi 4 "SIS_PASS_TAIL_CONTRACT=pass-tail-v1-a1-companion|GEN_TOTAL_BUDGET=172|N_LEV=40|N_CE=0|N_EPISTEMIC=12|N_BOOM=160|N_GUMBEL=0|REPLACEMENT_SLOTS=12|BOOM_UNIQUE_FILL=0|EPISTEMIC_FAMILY=role_draws|ROLE_BELIEF_FEATURES=target_share_last,carry_share_last,snap_share_last,target_share_jump,carry_share_jump,snap_share_jump|CE_SEED=1701|BLEND_MODEL_WEIGHT=0.45|LIVE_SIMS=30000|GAME_SIM_MODE=possession|SERVED_POSITION_SCALES=QB:0.970,RB:1.005,TE:0.940,WR:1.070|MODEL_ENSEMBLE=1|MIN_LINEUP_SALARY=49000|CODE_SHA=${CODE_SHA}" "" 14400
 # Cheap post-processing only: read the four complete pre-lock pools, freeze
 # control/top-p/no-floor/mixed memberships, and never regenerate candidates.
 job freeze-tail-early "freeze-tail-portfolios,--slot,early" 1Gi 1

@@ -17,11 +17,18 @@ from google.cloud import bigquery
 from tabpfn import TabPFNRegressor
 
 from live_shadow import (
-    FEATURES as ARM_FEATURES,
+    BASE_FEATURES_SHA256,
+    CACHE_SETTINGS,
+    CONTRACT,
     PROTOCOL_VERSION,
     TABLES,
     attach_target_context,
+    attach_target_salary,
     build_target_context,
+    cache_table,
+    check_job_contract,
+    require_complete_source_window,
+    resolve_auto_target,
 )
 from sis_pass_tail import (
     attach_sis_pass_tail,
@@ -36,39 +43,45 @@ OUTPUT_TABLE = os.environ["TABPFN_OUTPUT_TABLE"].strip()
 TARGET = os.environ.get("TABPFN_UPCOMING", "auto").strip().lower() or "auto"
 CODE_SHA = os.environ.get("CODE_SHA", "").strip().lower()
 OUTPUT_PREFIX = "TABPFN_SIS_PASS_TAIL_LIVE_JSON="
-POSITIONS = ("QB", "RB", "WR", "TE")
-QUANTILES = (0.01, 0.05, 0.10, 0.20, 0.30, 0.40, 0.50,
-             0.60, 0.70, 0.80, 0.90, 0.95, 0.99)
+# Settings come from the declared contract (live_shadow.CACHE_SETTINGS).
+POSITIONS = tuple(CACHE_SETTINGS["positions"])
+QUANTILES = tuple(CACHE_SETTINGS["quantiles"])
 QUANTILE_COLUMNS = tuple(f"q{int(value * 100):02d}" for value in QUANTILES)
-CONTEXT_MAX = 28_000
-RANDOM_SEED = 7
-N_ESTIMATORS = 4
+CONTEXT_MAX = int(CACHE_SETTINGS["context_max"])
+RANDOM_SEED = int(CACHE_SETTINGS["random_seed"])
+N_ESTIMATORS = int(CACHE_SETTINGS["n_estimators"])
 
 
-def _validate_environment() -> tuple[int, int]:
+def _validate_environment() -> tuple[dict, int, int]:
     if ARM not in TABLES:
         raise ValueError(f"unknown live SIS pass-tail arm {ARM!r}")
+    # The declared contract first: arm, live table name, target rule, no default.
+    receipt = check_job_contract(os.environ, f"cache-{ARM}")
     if OUTPUT_TABLE != TABLES[ARM]:
         raise ValueError(
             f"arm {ARM} requires TABPFN_OUTPUT_TABLE={TABLES[ARM]}"
         )
     if not re.fullmatch(r"[0-9a-f]{7,40}", CODE_SHA):
         raise ValueError("CODE_SHA must be an immutable Git commit identity")
-    if TARGET == "auto":
-        season, week = -1, -1
-    else:
-        if not re.fullmatch(r"\d{4}:\d{1,2}", TARGET):
-            raise ValueError("TABPFN_UPCOMING must be season:week")
-        season, week = (int(value) for value in TARGET.split(":"))
-        if season != 2026 or not 1 <= week <= 18:
-            raise ValueError("live SIS pass-tail v1 is frozen to 2026 Weeks 1-18")
+    if TARGET != "auto":
+        raise ValueError(f"contract {CONTRACT} requires TABPFN_UPCOMING=auto")
     forbidden = (
         "EXTRA_FEATURES", "DROP_FEATURES", "TABPFN_COMPONENTS",
         "TABPFN_SEASONS", "TABPFN_WRITE",
     )
     if active := [name for name in forbidden if os.environ.get(name, "").strip()]:
         raise ValueError(f"live SIS pass-tail cache has forbidden envs: {active}")
-    return season, week
+    return receipt, -1, -1
+
+
+def _schedule(client: bigquery.Client, season: int) -> pd.DataFrame:
+    return client.query(f"""
+        SELECT season, week, game_type, gameday, home_team, away_team
+        FROM `{PROJECT}.nfl_raw.schedules`
+        WHERE season=@season AND game_type='REG'
+    """, job_config=bigquery.QueryJobConfig(query_parameters=[
+        bigquery.ScalarQueryParameter("season", "INT64", season),
+    ])).to_dataframe()
 
 
 def _resolve_auto_target(client: bigquery.Client) -> tuple[int, int]:
@@ -77,15 +90,17 @@ def _resolve_auto_target(client: bigquery.Client) -> tuple[int, int]:
         FROM `{PROJECT}.nfl_features.player_week_inference`
         WHERE season=2026
     """).to_dataframe()
-    if len(rows) != 1:
-        raise ValueError(
-            "automatic live SIS pass-tail target requires exactly one 2026 "
-            "inference season/week"
-        )
-    season, week = (int(value) for value in rows.iloc[0])
-    if not 1 <= week <= 18:
-        raise ValueError("automatic live SIS pass-tail target week is invalid")
-    return season, week
+    # The paired job resolves its target from the schedule (tail_shadow's
+    # upcoming_season_week); the cache must name the same week.
+    upcoming = client.query(f"""
+        SELECT MIN(week) AS week FROM `{PROJECT}.nfl_raw.schedules`
+        WHERE season=2026 AND game_type='REG'
+          AND gameday >= CAST(CURRENT_DATE() AS STRING)
+    """).to_dataframe().iloc[0].week
+    if pd.isna(upcoming):
+        raise ValueError("no upcoming 2026 regular-season week in schedules")
+    return resolve_auto_target(
+        zip(rows.season, rows.week), (2026, int(upcoming)))
 
 
 def _checksum(client: bigquery.Client, table: str, where: str = "") -> int:
@@ -150,15 +165,20 @@ def _predict(
 
 
 def main() -> None:
-    season, week = _validate_environment()
+    contract, season, week = _validate_environment()
+    dry_run = bool(contract["dry_run"])
     client = bigquery.Client(project=PROJECT)
     if (season, week) == (-1, -1):
         season, week = _resolve_auto_target(client)
     training_table = f"{PROJECT}.nfl_features.player_week_training"
     inference_table = f"{PROJECT}.nfl_features.player_week_inference"
+    salary_table = f"{PROJECT}.nfl_features.dk_salary_week"
     sis_table = f"{PROJECT}.nfl_raw.sis_team_context_game"
-    destination = f"{PROJECT}.nfl_features.{OUTPUT_TABLE}"
+    # A dry run writes only its own namespace, which no graded reader selects.
+    destination = f"{PROJECT}.nfl_features.{cache_table(ARM, dry_run=dry_run)}"
     base_bytes = Path("/app/features_control.txt").read_bytes()
+    if hashlib.sha256(base_bytes).hexdigest() != BASE_FEATURES_SHA256:
+        raise ValueError("baseline feature contract differs from the declared contract")
     features = feature_contract(base_bytes.decode("utf-8").split(), ARM)
     feature_text = "\n".join(features) + "\n"
     feature_sha = hashlib.sha256(feature_text.encode()).hexdigest()
@@ -177,6 +197,18 @@ def main() -> None:
         raise ValueError(f"live inference table has no {season} Week {week} rows")
     if target.duplicated(["season", "week", "gsis_id"]).any():
         raise ValueError("live inference target repeats player keys")
+    source_window = require_complete_source_window(
+        sis, _schedule(client, season), season=season, week=week,
+        dry_run=dry_run,
+    )
+    salaries = client.query(f"""
+        SELECT gsis_id, season, week, salary FROM `{salary_table}`
+        WHERE season=@season AND week=@week
+    """, job_config=bigquery.QueryJobConfig(query_parameters=[
+        bigquery.ScalarQueryParameter("season", "INT64", season),
+        bigquery.ScalarQueryParameter("week", "INT64", week),
+    ])).to_dataframe()
+    target, salary_audit = attach_target_salary(target, salaries)
 
     historical = build_strict_prior_sis_pass_tail(
         sis[pd.to_numeric(sis.season, errors="coerce").lt(season)].copy()
@@ -210,11 +242,12 @@ def main() -> None:
     if predicted.duplicated(["season", "week", "gsis_id"]).any():
         raise ValueError("live SIS pass-tail output repeats target keys")
 
+    exists = True
     try:
         client.get_table(destination)
     except NotFound:
-        pass
-    else:
+        exists = False
+    if exists and not dry_run:
         count = int(client.query(f"""
             SELECT COUNT(*) AS n FROM `{destination}`
             WHERE season=@season AND week=@week
@@ -252,11 +285,19 @@ def main() -> None:
     predicted["inference_source_checksum"] = inference_checksum
     predicted["sis_source_checksum"] = sis_checksum
     predicted["sis_source_run_ids"] = source_run_ids
+    predicted["contract"] = CONTRACT
+    predicted["contract_settings_sha256"] = contract["settings_sha256"]
+    predicted["dry_run"] = dry_run
+    # Live: append-only, one previously absent week. Dry run: its own table,
+    # replaced on every dry run (it holds only the latest one).
     client.load_table_from_dataframe(
         predicted,
         destination,
         job_config=bigquery.LoadJobConfig(
-            write_disposition=bigquery.WriteDisposition.WRITE_APPEND,
+            write_disposition=(
+                bigquery.WriteDisposition.WRITE_TRUNCATE if dry_run
+                else bigquery.WriteDisposition.WRITE_APPEND
+            ),
         ),
     ).result()
     report = {
@@ -286,6 +327,12 @@ def main() -> None:
         ),
         "generated_at": generated_at.isoformat(),
         "target_resolution": TARGET,
+        "contract": CONTRACT,
+        "contract_settings_sha256": contract["settings_sha256"],
+        "dry_run": dry_run,
+        "live": not dry_run,
+        "source_window": source_window,
+        "target_salary": salary_audit,
     }
     print(OUTPUT_PREFIX + json.dumps(report, sort_keys=True), flush=True)
 
