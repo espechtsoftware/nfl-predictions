@@ -34,14 +34,16 @@ contests where the guarantee exceeds the fees, so that an average lineup is +EV?
     line about 85% as often as an average entry, so an overlay helps us only above a pool ratio of about 1.18. In
     satellites our measured rate is far lower, so the bar is higher still.
   - **No classic main-slate contest held an overlay above 1.18.** The held Showdown overlays (1.10–1.36) are a
-    different game format that the system does not build, and our skill there is unmeasured.
+    different game format. Its builder exists (the system study adopted a Showdown simulation mode, the old app's
+    /showdown/lineups) but is not deployed, and our money skill there is unmeasured. At a median of about 1.11 they
+    sit below a 1.18-type bar for a player at our measured skill.
 
 ## Reading
 
 - **Overlay hunting gives no edge on the classic main slate** in Week 4. Early overlays are an artefact of hourly
   snapshots taken before contests fill.
-- **Showdown copies do hold small overlays.** Using them would need a Showdown (captain-format) builder and a measured
-  skill estimate in that format. That is a separate idea, recorded here and not proposed.
+- **Showdown copies do hold small overlays.** Using them would need the existing Showdown builder redeployed and a
+  measured skill estimate in that format. That is a separate idea, recorded here and not proposed.
 - **The monitor stays as a cheap weekly log:** run `flag` about T−45 and `finalize` after lock. Over the coming weeks
   that tells us whether Week 4 is typical.
 
