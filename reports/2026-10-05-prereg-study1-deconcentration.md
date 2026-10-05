@@ -95,3 +95,20 @@ the entered rows, without hurting tickets and line hits?
   added. Pools are regenerated only on a material dose difference AND a disagreeing transfer check.
 - **(b)** One primary cap form, min(0.5, p3). The 0.75 × p3 arm is exploratory only.
 - **(c)** Week 4's contest mix is the fixed plan, with Week 3's plan as a sensitivity.
+
+## Deviation note (2026-10-05, before any bank runs; reviewer ruling)
+
+1. **The ownership term is the LAG-only predictor at λ = 0.10** (L20's LAG_010, SUPPORTED, provably pre-lock;
+   `results/l20_sets/lag`, manifest-checked), identical across arms. Two alternatives were set aside:
+   - **L25's primary (TABPFN_LS):** its pinned predictions file is not on this host, and it depends on LineStar.
+   - **The LAG + LineStar blend:** every LineStar value we hold was fetched AFTER lock. Until Tuesday's revision check,
+     a blend built on it may carry post-lock information.
+
+   A first census launched with the blend term was stopped before it wrote any result (its directory was renamed
+   `census-VOID-blend-term`).
+2. **Banks 1400 and 1401: verified unused.** Every bank-labelled number in every lab branch's PREREG*, LEDGER and
+   launch scripts was collected (291 distinct numbers). In the 1300–1999 range the highest used is 1341, and no 14xx
+   number is labelled as a bank. Earlier plain-number matches for 1400/1401 were data values, not banks.
+3. **Builder:** nfl2 `production/s1-deconcentration-20261005` (experiments/s1_deconcentration.py; driver
+   scripts/s1_drive.py). Mechanics smoke 2023 W1 on throwaway bank 1398: caps bind, the arms differ from C, about 100
+   seconds per slate.
