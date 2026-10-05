@@ -16,6 +16,10 @@
 # 6,400 / 09:10 CT 3,200 / 10:50 CT 800):
 # each build's run dir is identified by its own receipt (lev/boom and build window), never by LATEST.
 set -uo pipefail
+# O-19 (2026-10-02): this driver takes NO arguments. It used to accept and ignore them, so `sunday_build_host.sh --check`
+# started a real build in the live OUT and clone. Refuse any argument before the first side effect (mkdir, log, build);
+# the check entrypoint is run_week_build.sh --check (the timers call run_week_build.sh, which passes none here).
+(( $# == 0 )) || { echo "sunday_build_host.sh takes no arguments (use run_week_build.sh --check)"; exit 2; }
 : "${WEEK:?source scripts/week_env.sh and call week_env WEEK first}"
 # Week-3 per-game cap (week_env.sh MAX_PER_GAME, default 4; 0 = flag omitted). Applied to EVERY
 # live_week.py build here and in sunday_runbook.sh, so the K90 book still nests the paid K80 book.
