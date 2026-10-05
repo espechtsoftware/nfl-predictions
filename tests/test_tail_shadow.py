@@ -529,7 +529,9 @@ def test_each_contract_accepts_its_exact_set_and_records_it(
     else:
         # The frozen contract's recorded environment is left exactly as it was.
         assert shadow_id is None
-    assert "_log_ownership_shadow" not in captured
+    # Live runs do not append own_shadow either (O-27 follow-up): its readers
+    # take a week's latest generation, so a shadow row would become "the" one.
+    assert captured["_log_ownership_shadow"] is False
 
 
 def _one_key_deviations():

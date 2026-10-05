@@ -423,7 +423,11 @@ def run(*, expected_variant: str = K1_VARIANT,
                 "companion-v1 construction differs from the adopted money "
                 f"path: {construction.receipt()} vs {adopted.receipt()}")
         policy_env["PROSPECTIVE_SHADOW_ID"] = COMPANION_V1_SHADOW_ID
-    extra = {"_log_ownership_shadow": False} if dry_run else {}
+    # 2026-10-05 (O-27 follow-up): a shadow never appends own_shadow, live or
+    # dry. Its readers take a week's latest generation, so a Sunday shadow
+    # row would silently become "the" pre-lock ownership prediction; ownership
+    # is not part of either Route Share contract.
+    extra = {"_log_ownership_shadow": False}
     lineups = build_sim_lineups(
         season, week, n_entries=SHADOW_ENTRIES,
         stack=construction.stack,

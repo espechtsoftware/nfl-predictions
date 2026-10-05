@@ -53,6 +53,9 @@ from nfl_dfs.research.effective_policy_rule_inventory import (
     V15_CLASSIFIED_INPUT_PROJECTION_SHA256,
     V15_FROZEN_SOURCE_SHA256,
     V15_SOURCE_SET_ID,
+    V16_CLASSIFIED_INPUT_PROJECTION_SHA256,
+    V16_FROZEN_SOURCE_SHA256,
+    V16_SOURCE_SET_ID,
     canonical_json_bytes,
     canonical_sha256,
     generate_effective_policy_rule_inventory,
@@ -62,7 +65,7 @@ from nfl_dfs.research.effective_policy_rule_inventory import (
     generate_effective_policy_rule_inventory_v10,
     generate_effective_policy_rule_inventory_v12,
     generate_effective_policy_rule_inventory_v13,
-    generate_effective_policy_rule_inventory_v15,
+    generate_effective_policy_rule_inventory_v16,
     validate_effective_policy_rule_inventory,
 )
 
@@ -102,10 +105,10 @@ def test_cloudbuild_full_suite_imports_the_pinned_source_tree():
 
 @pytest.fixture(scope="module")
 def inventory() -> dict[str, object]:
-    return generate_effective_policy_rule_inventory_v15(ROOT)
+    return generate_effective_policy_rule_inventory_v16(ROOT)
 
 
-def test_v15_is_explicit_and_v5_to_v14_literals_remain_frozen(inventory) -> None:
+def test_v16_is_explicit_and_v5_to_v15_literals_remain_frozen(inventory) -> None:
     assert SOURCE_SET_ID == (
         "adopted-classic-policy-20260830-week1-boom-first-v5"
     )
@@ -199,9 +202,20 @@ def test_v15_is_explicit_and_v5_to_v14_literals_remain_frozen(inventory) -> None
     assert V15_FROZEN_SOURCE_SHA256["src/nfl_dfs/inference/run_projections.py"] == (
         "33f09ebbd2be7e3339d0e6427a5f055f6b3985a063b4ce64c9e34ed7ac743612"
     )
-    assert inventory["source_set_id"] == V15_SOURCE_SET_ID
+    assert V16_SOURCE_SET_ID == (
+        "adopted-classic-policy-20261005-week5-own-shadow-writer-v16"
+    )
+    assert V16_CLASSIFIED_INPUT_PROJECTION_SHA256 == (
+        "c8ae779af9c96bfbaf1a8c10483e2ffc64c555daae906686afc5e8abd23c7aec"
+    )
+    assert V15_FROZEN_SOURCE_SHA256["src/nfl_dfs/app/main.py"] != (
+        V16_FROZEN_SOURCE_SHA256["src/nfl_dfs/app/main.py"])
+    assert V16_FROZEN_SOURCE_SHA256["src/nfl_dfs/inference/live_lineups.py"] == (
+        "9aa6680f7011bf9faed77137601be55582d6b6f940e5a0c15085c762e7c8614d"
+    )
+    assert inventory["source_set_id"] == V16_SOURCE_SET_ID
     assert inventory["classified_input_projection_sha256"] == (
-        V15_CLASSIFIED_INPUT_PROJECTION_SHA256
+        V16_CLASSIFIED_INPUT_PROJECTION_SHA256
     )
     with pytest.raises(
         EffectivePolicyInventoryError,
@@ -276,7 +290,7 @@ print(json.dumps({
     }
 
 
-def test_cross_label_rehash_cannot_turn_v15_into_v5(inventory) -> None:
+def test_cross_label_rehash_cannot_turn_v16_into_v5(inventory) -> None:
     relabeled = deepcopy(inventory)
     relabeled["source_set_id"] = SOURCE_SET_ID
     relabeled["inventory_sha256"] = canonical_sha256({
@@ -339,7 +353,7 @@ def test_every_rule_has_a_separate_typed_dose_path_and_source(inventory):
         assert row["source_locator_sha256"] == canonical_sha256(
             row["source_locators"]
         )
-        assert all(locator["path"] in V15_FROZEN_SOURCE_SHA256
+        assert all(locator["path"] in V16_FROZEN_SOURCE_SHA256
                    for locator in row["source_locators"])
 
 
@@ -492,7 +506,7 @@ def test_runtime_input_projection_is_an_exact_classified_partition(inventory):
         DIRECT_INPUT_READ_SITE_COUNT
     )
     assert inventory["classified_input_projection_sha256"] == (
-        V15_CLASSIFIED_INPUT_PROJECTION_SHA256
+        V16_CLASSIFIED_INPUT_PROJECTION_SHA256
     )
     assert inventory["classified_input_projection_sha256"] == canonical_sha256(
         projection
@@ -514,7 +528,7 @@ def test_runtime_input_projection_is_an_exact_classified_partition(inventory):
                    for site in row["direct_read_sites"])
         assert all(
             site["source_sha256"]
-            == V15_FROZEN_SOURCE_SHA256[site["path"]]
+            == V16_FROZEN_SOURCE_SHA256[site["path"]]
                    for site in row["direct_read_sites"])
         if row["ambient_process_requirement"] == "absent":
             assert key in projection["ambient_process_keys_requiring_absence"]
@@ -630,7 +644,7 @@ def test_active_role_and_multiseed_doses_are_not_hidden_in_policy_hash(inventory
 
 
 def test_source_hash_drift_fails_before_policy_import(tmp_path: Path):
-    for relative in V15_FROZEN_SOURCE_SHA256:
+    for relative in V16_FROZEN_SOURCE_SHA256:
         source = ROOT / relative
         target = tmp_path / relative
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -642,7 +656,7 @@ def test_source_hash_drift_fails_before_policy_import(tmp_path: Path):
         EffectivePolicyInventoryError,
         match=r"frozen source SHA-256 differs: src/nfl_dfs/optimizer/lineup.py",
     ):
-        generate_effective_policy_rule_inventory_v15(tmp_path)
+        generate_effective_policy_rule_inventory_v16(tmp_path)
 
 
 def test_retained_inventory_value_and_type_poison_fail_closed(inventory):
@@ -702,7 +716,7 @@ def test_source_classifier_omission_and_reclassification_fail_closed(monkeypatch
         EffectivePolicyInventoryError,
         match=r"input classification partition differs; unclassified=.*ROLE_BELIEF_SEED",
     ):
-        generate_effective_policy_rule_inventory_v15(ROOT)
+        generate_effective_policy_rule_inventory_v16(ROOT)
 
     monkeypatch.setattr(
         inventory_module,
@@ -713,7 +727,7 @@ def test_source_classifier_omission_and_reclassification_fail_closed(monkeypatch
         EffectivePolicyInventoryError,
         match="classified runtime-input projection SHA-256 differs",
     ):
-        generate_effective_policy_rule_inventory_v15(ROOT)
+        generate_effective_policy_rule_inventory_v16(ROOT)
 
 
 def test_inventory_source_has_no_graph_bootstrap_dependency():

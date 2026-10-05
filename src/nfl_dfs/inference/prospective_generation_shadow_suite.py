@@ -21,6 +21,7 @@ from typing import Final
 import numpy as np
 import pandas as pd
 
+from .own_shadow import WRITER_GENERATION_SUITE
 from ..backtest.engine import CandidateBatch, _validate_candidate_batch
 from ..config import settings
 from ..optimizer.lineup import Lineup, select_tail_entries
@@ -383,6 +384,7 @@ def _freeze_suite_slate_draw_inputs(
             expected_model_k=expected_model_k,
             route_source_policy=False,
             log_ownership_shadow=log_ownership_shadow,
+            own_shadow_writer=WRITER_GENERATION_SUITE,
         )
 
     # Main-model R0--R4, the independent audit seed, and role R0--R4 are

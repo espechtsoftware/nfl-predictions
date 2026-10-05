@@ -2523,6 +2523,7 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
                     if req.draft_group_id is not None else None)
         from ..inference.live_lineups import (
             RoleBeliefUnavailable, build_sim_lineups)
+        from ..inference.own_shadow import WRITER_APP
         try:
             lineups = build_sim_lineups(
                 req.season, req.week, n_entries=req.n_lineups,
@@ -2536,7 +2537,8 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
                 belief_model_variant=policy.role_model_variant,
                 expected_model_k=policy.model_ensemble,
                 policy_env=policy_env,
-                construction_preset_receipt=construction.receipt())
+                construction_preset_receipt=construction.receipt(),
+                own_shadow_writer=WRITER_APP)
         except RoleBeliefUnavailable as exc:
             if not policy.role_outage_fallback_allowed:
                 log.exception(
@@ -2564,7 +2566,8 @@ def _build_classic(req: LineupRequest, store: ProjectionStore) -> tuple:
                     model_variant=policy.model_variant,
                     expected_model_k=policy.model_ensemble,
                     policy_env=fallback_env,
-                    construction_preset_receipt=construction.receipt())
+                    construction_preset_receipt=construction.receipt(),
+                    own_shadow_writer=WRITER_APP)
             except Exception as fallback_exc:
                 log.exception("CE fallback lineup build also failed")
                 raise HTTPException(
