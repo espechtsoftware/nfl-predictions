@@ -7,7 +7,9 @@
 # Saturday's arming (arm_week_timers.sh --run) and the Sunday unit before the T-70 build, so a pre-lock snapshot exists.
 #
 # Every Fantasy Points browser use on the host takes FP_PROFILE_LOCK: Chromium allows one process per profile, and the
-# T-70 build's ownership capture (sunday_build_host.sh) takes the same lock, so neither can break the other.
+# T-70 build's ownership capture (sunday_build_host.sh) takes the same lock, so neither can break the other. This job has
+# the SHORT leash (reviewer 10-05): it waits at most FP_PROJ_LOCK_WAIT_S (60 s) and runs at most FP_PROJ_TIMEOUT_S (240 s),
+# so the 10:40 capture is done or dead long before the 10:50 T-70 build, whose ownership capture waits up to 300 s.
 #
 #   WEEK=5 PROD=... PROD_PY=... scripts/fp_projections_capture.sh LABEL
 set -uo pipefail
@@ -18,8 +20,8 @@ LOCK=${FP_PROFILE_LOCK:-$HOME/.cache/nfl-dfs/fantasy-points-profile.lock}
 LOGDIR=${FP_PROJ_LOG_DIR:-$HOME/.cache/nfl-dfs/fp-projections}
 mkdir -p "$(dirname "$LOCK")" "$LOGDIR"
 LOG="$LOGDIR/week${WEEK}-${LABEL}-$(date -u +%Y%m%dT%H%M%SZ).log"
-if ( cd "$PROD" && PYTHONPATH="$PROD/src" flock -w "${FP_LOCK_WAIT_S:-600}" "$LOCK" \
-       timeout "${FP_PROJ_TIMEOUT_S:-600}" "$PROD_PY" -m nfl_dfs.ops.fantasy_points_projections collect --week "$WEEK" ) \
+if ( cd "$PROD" && PYTHONPATH="$PROD/src" flock -w "${FP_PROJ_LOCK_WAIT_S:-60}" "$LOCK" \
+       timeout "${FP_PROJ_TIMEOUT_S:-240}" "$PROD_PY" -m nfl_dfs.ops.fantasy_points_projections collect --week "$WEEK" ) \
      > "$LOG" 2>&1; then
   echo "FP PROJECTIONS CAPTURED for Week $WEEK ($LABEL); log $LOG"
 else

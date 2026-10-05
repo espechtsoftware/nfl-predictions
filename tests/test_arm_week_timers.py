@@ -124,5 +124,23 @@ def test_fp_projections_unit_is_armed_before_t70_and_skippable():
     assert "FP projections capture at 10:40 CT" in r.stdout
     r = _run(GROUP="154078", SKIP_UNITS="fpproj", FP_PROJ_CT="10:41")
     assert r.returncode == 0 and "# SKIPPED (fpproj): nfl-week4-fp-projections" in r.stdout
-    text = SCRIPT.read_text()                       # the Saturday capture at arming never stops the arming
-    assert '"$FP_PROJ_CAPTURE" saturday-arm \\\n      || echo "FP PROJECTIONS: the Saturday capture FAILED' in text
+    text = SCRIPT.read_text()                       # the Saturday capture at arming never stops the arming ...
+    assert '"$FP_PROJ_CAPTURE" saturday-arm \\\n    || echo "FP PROJECTIONS: the Saturday capture FAILED' in text
+    # ... and never delays it (reviewer 10-05): it runs only after the last timer is armed
+    assert text.index('"$FP_PROJ_CAPTURE" saturday-arm') > text.rindex("\n  arm t70project ")
+    assert text.index('"$FP_PROJ_CAPTURE" saturday-arm') > text.rindex("\narm fpproj ")
+
+
+def test_the_capture_only_job_cannot_wait_ahead_of_the_t70_money_path():
+    """Reviewer 10-05: lock wait + timeout of the projections wrapper (defaults) end before the T-70 build starts, and
+    its lock wait is shorter than the T-70 ownership capture's, so a hung capture never degrades the money-path input."""
+    import re
+    wrapper = (SCRIPT.parent / "fp_projections_capture.sh").read_text()
+    wait = int(re.search(r'flock -w "\$\{FP_PROJ_LOCK_WAIT_S:-(\d+)\}"', wrapper).group(1))
+    run = int(re.search(r'timeout "\$\{FP_PROJ_TIMEOUT_S:-(\d+)\}"', wrapper).group(1))
+    text = SCRIPT.read_text()
+    hh, mm = map(int, re.search(r"FP_PROJ_CT=\$\{FP_PROJ_CT:-(\d\d):(\d\d)\}", text).groups())
+    th, tm = map(int, re.search(r"T70_BUILD_CT:-(\d\d):(\d\d)\}", text).groups())
+    assert wait + run < ((th * 60 + tm) - (hh * 60 + mm)) * 60
+    host = (SCRIPT.parent / "sunday_build_host.sh").read_text()
+    assert wait < int(re.search(r'flock -w "\$\{FP_OWN_LOCK_WAIT_S:-(\d+)\}" "\$FP_PROFILE_LOCK"', host).group(1))

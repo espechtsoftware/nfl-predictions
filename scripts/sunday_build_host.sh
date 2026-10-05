@@ -308,9 +308,9 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
     FP_WHY=""
     if [[ "${UNION_MAIN_OWN_PREDICTOR:-blend}" == "fp" ]]; then
       # the shared FP browser-profile lock (Chromium: one process per profile; scripts/fp_projections_capture.sh holds it
-      # too, and so does a concurrent build's capture): wait up to FP_LOCK_WAIT_S, else the loud fallback below
+      # too, and so does a concurrent build's capture): wait up to FP_OWN_LOCK_WAIT_S, else the loud fallback below
       FP_PROFILE_LOCK=${FP_PROFILE_LOCK:-$HOME/.cache/nfl-dfs/fantasy-points-profile.lock}; mkdir -p "$(dirname "$FP_PROFILE_LOCK")"
-      ( cd "$PROD" && PYTHONPATH="$PROD/src" flock -w "${FP_LOCK_WAIT_S:-300}" "$FP_PROFILE_LOCK" timeout 240 "$PROD_PY" -m nfl_dfs.ops.fantasy_points_ownership collect --week "$WEEK" ) \
+      ( cd "$PROD" && PYTHONPATH="$PROD/src" flock -w "${FP_OWN_LOCK_WAIT_S:-300}" "$FP_PROFILE_LOCK" timeout 240 "$PROD_PY" -m nfl_dfs.ops.fantasy_points_ownership collect --week "$WEEK" ) \
           > "$OUT/ownership_fp-$RUN_TAG.txt" 2>&1 || echo "FP OWNERSHIP CAPTURE FAILED for $RUN_TAG (see $OUT/ownership_fp-$RUN_TAG.txt); the newest earlier capture is used if fresh"
       if ( cd "$PROD" && PYTHONPATH="$PROD/src" timeout 120 "$PROD_PY" scripts/ownership_fp.py --season "$SEASON" --week "$WEEK" \
              --frame "$K90_DIR/frame.parquet" --lag "$OWNERSHIP_LAG" ${BLEND_SRC:+--blend "$BLEND_SRC"} --max-age-hours "${FP_MAX_AGE_HOURS:-30}" \

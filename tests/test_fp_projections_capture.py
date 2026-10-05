@@ -43,7 +43,7 @@ def test_a_held_profile_lock_times_out_loudly_instead_of_colliding(tmp_path):
     try:
         import time
         time.sleep(0.5)
-        r = _run(tmp_path, py, FP_LOCK_WAIT_S="1")
+        r = _run(tmp_path, py, FP_PROJ_LOCK_WAIT_S="1")
     finally:
         holder.kill(); holder.wait()
     assert r.returncode == 1 and "FP PROJECTIONS CAPTURE FAILED" in r.stderr
@@ -53,7 +53,7 @@ def test_a_held_profile_lock_times_out_loudly_instead_of_colliding(tmp_path):
 
 def test_the_builds_ownership_capture_takes_the_same_lock():
     text = (ROOT / "scripts" / "sunday_build_host.sh").read_text()
-    assert ('flock -w "${FP_LOCK_WAIT_S:-300}" "$FP_PROFILE_LOCK" timeout 240 "$PROD_PY" -m '
+    assert ('flock -w "${FP_OWN_LOCK_WAIT_S:-300}" "$FP_PROFILE_LOCK" timeout 240 "$PROD_PY" -m '
             'nfl_dfs.ops.fantasy_points_ownership collect') in text
     assert "FP_PROFILE_LOCK=${FP_PROFILE_LOCK:-$HOME/.cache/nfl-dfs/fantasy-points-profile.lock}" in text
     assert "FP_PROFILE_LOCK:-$HOME/.cache/nfl-dfs/fantasy-points-profile.lock" in SCRIPT.read_text()

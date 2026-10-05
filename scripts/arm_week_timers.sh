@@ -17,8 +17,8 @@
 #                                 with the T-70 rules (T70_PROJECT_CT, default 10:36; ~3 min) -- operator-armed like the rest
 #
 # 2026-10-05 (reviewer; every paid page, every week): the Fantasy Points projection tables are captured pre-lock by
-# scripts/fp_projections_capture.sh -- once at arming (--run, after the preflights; a failure is loud and does not stop
-# the arming) and by the unit nfl-week<W>-fp-projections at FP_PROJ_CT (default 10:40 CT: after the 10:30 inactives,
+# scripts/fp_projections_capture.sh -- once at arming (--run, after every timer is armed; a failure is loud and does not
+# stop the arming) and by the unit nfl-week<W>-fp-projections at FP_PROJ_CT (default 10:40 CT: after the 10:30 inactives,
 # before the 10:50 T-70 build). SKIP_UNITS key: fpproj (skips both). Capture only; no build reads them.
 set -Eeuo pipefail
 
@@ -208,11 +208,6 @@ if [[ "$RUN" == "--run" ]]; then
     [[ -x "$GCLOUD" ]] || { echo "gcloud not executable: $GCLOUD" >&2; exit 2; }
     [[ -x "$NFL_DFS_CLI" ]] || { echo "nfl-dfs CLI not executable: $NFL_DFS_CLI" >&2; exit 2; }
   fi
-  if [[ " $SKIP_UNITS " != *" fpproj "* ]]; then
-    # the Saturday pre-lock snapshot of the FP projection pages: loud on failure, never a reason to stop arming
-    "${BASE_ENV[@]}" "$FP_PROJ_CAPTURE" saturday-arm \
-      || echo "FP PROJECTIONS: the Saturday capture FAILED (line above); arming continues -- re-run $FP_PROJ_CAPTURE before lock"
-  fi
 fi
 arm d12800sat "$SATURDAY 10:30" "$U12800" L12800
 arm d6400sat "$SATURDAY 10:35" "$U6400SAT" L6400SAT
@@ -229,6 +224,12 @@ fi
 if [[ "${T70_PROJECT:-0}" == "1" ]]; then
   arm t70pull "$SUNDAY $T70_PULL_CT" "$UPULL" LPULL
   arm t70project "$SUNDAY $T70_PROJECT_CT" "$UPROJ" LPROJ
+fi
+# The Saturday pre-lock snapshot of the FP projection pages, AFTER every arm() call (reviewer 10-05: a slow FP site must
+# never delay arming a build whose time is near): loud on failure, never a reason to stop.
+if [[ "$RUN" == "--run" && " $SKIP_UNITS " != *" fpproj "* ]]; then
+  "${BASE_ENV[@]}" "$FP_PROJ_CAPTURE" saturday-arm \
+    || echo "FP PROJECTIONS: the Saturday capture FAILED (line above); the timers are armed -- re-run $FP_PROJ_CAPTURE before lock"
 fi
 # DraftKings host fallback (provider calls; opt in explicitly with HOST_INGEST=1 after the --check):
 echo "$HOST_LINE"
