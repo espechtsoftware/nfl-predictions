@@ -125,6 +125,18 @@ def rows_from_book_entries(
     return check_rows(ordered, position_by_draftable_id=position_by_draftable_id)
 
 
+def mean_rows_from_receipt(receipt: Mapping[str, object]) -> int | None:
+    """The two-track block boundary K a run receipt declares: ``config.operational_k`` when the run has a tail sleeve,
+    else None (a one-track book, one block). The emitter and every re-sort of a run's book (``scripts/player_score.py``)
+    read the boundary through this one rule, so a re-sorted book keeps the blocks the emitter checks (O-23)."""
+    cfg = (receipt.get("config") if isinstance(receipt, Mapping) else None) or {}
+    if not isinstance(cfg, Mapping):
+        return None
+    if cfg.get("tail_sleeve") and cfg.get("operational_k"):
+        return int(cfg["operational_k"])
+    return None
+
+
 def rows_from_live_week_run(run_dir: Path) -> tuple[list[list[int]], dict]:
     """Rows from a lab ``live_week.py`` run: ``book.csv`` player ids mapped to
     draftable ids through that run's own ``frame.parquet``."""
@@ -179,9 +191,7 @@ def rows_from_live_week_run(run_dir: Path) -> tuple[list[list[int]], dict]:
         rp = run_dir / name
         if rp.is_file():
             try:
-                cfg = json.loads(rp.read_text()).get("config", {}) or {}
-                if cfg.get("tail_sleeve") and cfg.get("operational_k"):
-                    mean_rows = int(cfg["operational_k"])
+                mean_rows = mean_rows_from_receipt(json.loads(rp.read_text()))
             except (OSError, ValueError):
                 _fail(f"{rp} is not readable JSON")
             break

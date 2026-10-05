@@ -16,6 +16,7 @@ from datetime import UTC, datetime
 import numpy as np, pandas as pd
 from google.cloud import bigquery
 from nfl_dfs.names import norm_name
+from nfl_dfs.inference.dk_upload_csv_v1 import mean_rows_from_receipt
 
 SLOTS = ("QB", "RB", "RB", "WR", "WR", "WR", "TE", "FLEX", "DST")
 W = {"player_reception_yds": 0.1, "player_rush_yds": 0.1, "player_pass_yds": 0.04, "player_receptions": 1.0, "player_pass_tds": 4.0}
@@ -104,6 +105,21 @@ def resolve_season_week(run, season_flag=None, week_flag=None):
     return scope["season"], scope["week"]
 
 
+def composite_order(lineup_scores, lineup_hard, mean_rows=None):
+    """Source indices of the re-sorted book: hard rows last, then composite score descending, then source rank.
+
+    O-23 (2026-10-04): a two-track book is two BLOCKS, the mean rows [0, K) and the tail sleeve [K, n), and the union
+    book deliberately repeats some mean rows as sleeve rows. A single global sort pulled both copies of such a roster
+    into one block, which the DK upload emitter refuses ("repeats an earlier roster within its block"). Each block is
+    therefore sorted on its own and the blocks keep their places: the re-sorted book has the same rows in the same blocks
+    as the book it re-sorts (comparable row for row), and the emitter's within-block rule holds by construction.
+    ``mean_rows`` None (a one-track book) or >= n is one block, the previous behaviour."""
+    n = len(lineup_scores)
+    k = n if mean_rows is None else max(0, min(int(mean_rows), n))
+    key = lambda i: (lineup_hard[i], -lineup_scores[i], i)
+    return sorted(range(k), key=key) + sorted(range(k, n), key=key)
+
+
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("run"); ap.add_argument("--k", type=int, default=30); ap.add_argument("--output-dir"); ap.add_argument("--vetting"); ap.add_argument("--season", type=int, default=None); ap.add_argument("--week", type=int, default=None); a = ap.parse_args()
     run = pathlib.Path(a.run); scope = resolve_scope(run, a.season, a.week)
@@ -161,7 +177,8 @@ def main():
     P["hard"] = P.avail_penalty >= 100
     score = dict(zip(P.dk, P.composite)); hard = dict(zip(P.dk, P.hard))
     lineup_scores = [sum(score[d] for d in r) for r in book]; lineup_hard = [any(hard[d] for d in r) for r in book]
-    order = sorted(range(n), key=lambda i: (lineup_hard[i], -lineup_scores[i], i))
+    mean_rows = mean_rows_from_receipt(json.loads((run / "receipt.json").read_text()))   # the emitter's block boundary
+    order = composite_order(lineup_scores, lineup_hard, mean_rows)
     with (out / "book.csv").open("w", newline="") as h:
         wr = csv.writer(h); wr.writerow(SLOTS); [wr.writerow(book[i]) for i in order]
     shutil.copy(run / "frame.parquet", out / "frame.parquet"); shutil.copy(run / "receipt.json", out / "source_receipt.json")
@@ -174,6 +191,7 @@ def main():
            "target_identity": {"season": season, "week": week, "run": str(run), "run_id": run_id},
            "projection_batch": {"generated_at": str(prod.generated_at.max()), "rows": int(len(prod))},
            "prop_batch": {"days": [str(d) for d in days], "rows": int(len(L))}, "projection_generated_at": str(prod.generated_at.max()) if "generated_at" in prod.columns else None, "players": len(P), "coverage": {c_: int(P[c_].notna().sum()) for c_ in WEIGHTS},
+           "blocks": {"mean_rows": mean_rows, "rows": n, "rule": "each block sorted on its own (O-23); sleeve rows stay after the mean rows"},
            "order_source_ranks": [i + 1 for i in order], "demoted_out_of_top_k": sorted(i + 1 for i in top_before - top_after), "promoted_into_top_k": sorted(i + 1 for i in top_after - top_before),
            "overlap_top_k_with_greedy": len(top_before & top_after), "built_utc": datetime.now(UTC).isoformat()}
     (out / "composite_receipt.json").write_text(json.dumps(rec, indent=1) + "\n")
