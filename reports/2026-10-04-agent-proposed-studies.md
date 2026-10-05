@@ -89,19 +89,14 @@ The top three proposals follow from that.
   contest's own line (the 10-02 Friday review's method). Not points per row. The "+12.5 to +32.1 per row" fact is a
   mean-points statement, the entered book does not maximise mean points per row, and read that way it misleads.
 
-### P4. Spread dealing, corrected: ONLY the one-offset-per-contest variant, which is not built
+### P4. Spread dealing, corrected: ONLY the one-offset-per-contest variant (built in 44f5aae4, 09-29; default-off)
 - ⚠ **Correction:** the first draft repeated the winners study's claim ("cut empty weeks at no expected cost"). The
   reviewer's 09-29 addendum CORRECTED it (`reports/2026-09-29-ownership-term-addendum-routing-and-dealing.md` §3;
   `07_read_layouts.py`). That claim was for ONE contest's rows and never dealt several contests at once.
   - `ENTER_LAYOUT=spread` AS BUILT (f0da76d5) gives equal-size contests identical rows: 37 distinct rows of 100. Deep-line
     empty weeks ROSE from 66% to 76%.
   - Only a variant with **one offset per contest** cut empty weeks: from 25–30% to 11–21%.
-- So study 1's dealing arm is the **offset** version. It must be built first and cite these numbers. It is **not**
-  ready to adopt.
-
-## Priority 2: the foundation of the tail and the supply
-
-### P5. Distribution calibration by position and salary tier
+- So study 1's dealing arm is the **offset** version, citing these numbers. **Correction 2026-10-05:** it is BUILT, in 44f5aae4 (09-29), as production `_spread_ranks` (ENTER_LAYOUT=spread; default-off), and tested. The earlier "not built" was wrong (reviewer). It is **not** adopted; study 1 (prereg e7f5a36a) tests it.
 - **Prelim facts** (W1–3, players who played; share above p90, nominal 10%):
 
   | Position | Above p90 |
