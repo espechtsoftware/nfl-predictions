@@ -200,28 +200,67 @@ def read_exports(
     }
 
 
+def _values_equal(left: pd.Series, right: pd.Series) -> pd.Series:
+    both_missing = left.isna() & right.isna()
+    numeric_left = pd.to_numeric(left, errors="coerce")
+    numeric_right = pd.to_numeric(right, errors="coerce")
+    numeric = numeric_left.notna() & numeric_right.notna()
+    equal = left.astype(str).eq(right.astype(str))
+    equal |= numeric & numeric_left.eq(numeric_right)
+    return both_missing | (equal & left.notna() & right.notna())
+
+
 def _novel_or_identical(
     rows: pd.DataFrame,
     existing: pd.DataFrame,
     *,
     keys: list[str],
     hash_columns: list[str],
+    content_columns: list[str] | tuple[str, ...] = (),
+    audit: dict | None = None,
 ) -> pd.DataFrame:
+    """Rows whose logical key is new; an existing key must be identical.
+
+    Identical means the same source file hashes, or -- when
+    ``content_columns`` is given (2026-10-05, O-3) -- the same VALUES in every
+    content column (CLAUDE.md rule 2: content identity, not representation).
+    The Week-5 pass-tail backfill re-fetches source weeks 1-4 in one file per
+    view, while weeks 1-3 were first loaded by the weekly team-context pull
+    (adopted 2026-09-18) from different files: same values, different hashes.
+    Any differing value (a vendor revision) still fails closed.
+    """
     if existing.empty:
         return rows.copy()
-    required = set([*keys, *hash_columns])
+    required = set([*keys, *hash_columns, *content_columns])
     if missing := required - set(existing):
         raise ValueError(f"existing SIS weekly rows lack {sorted(missing)}")
     if existing.duplicated(keys).any():
         raise RuntimeError("existing SIS weekly rows repeat logical keys")
     joined = rows.merge(
-        existing[[*keys, *hash_columns]], on=keys, how="left",
+        existing[[*keys, *hash_columns, *content_columns]], on=keys, how="left",
         suffixes=("", "_existing"), indicator=True,
     )
     overlap = joined._merge.eq("both")
     same = pd.Series(True, index=joined.index)
     for column in hash_columns:
         same &= joined[column].eq(joined[f"{column}_existing"])
+    if content_columns:
+        same_values = pd.Series(True, index=joined.index)
+        differing: dict[str, int] = {}
+        for column in content_columns:
+            equal = _values_equal(joined[column], joined[f"{column}_existing"])
+            if (overlap & ~equal).any():
+                differing[column] = int((overlap & ~equal).sum())
+            same_values &= equal
+        content_identical = overlap & ~same & same_values
+        if audit is not None:
+            audit["content_identical_rows"] = int(content_identical.sum())
+            audit["differing_columns"] = differing
+        if (overlap & ~same & ~same_values).any():
+            bad = joined.loc[overlap & ~same & ~same_values, keys].to_dict("records")[:5]
+            raise RuntimeError(
+                f"SIS weekly append conflicts (vendor values differ in {differing}): {bad}")
+        same |= same_values
     if (overlap & ~same).any():
         bad = joined.loc[overlap & ~same, keys].to_dict("records")[:5]
         raise RuntimeError(f"SIS weekly append conflicts: {bad}")
@@ -289,8 +328,12 @@ def run(
         "source_sha256_pass_rush_totals",
     ]
     attempt_keys = ["season", "week", "defense", "alignment"]
+    # Every value column the pass-tail rows carry, minus provenance: compared by
+    # content against rows first loaded by the weekly team-context pull.
+    provenance = {*team_keys, *team_hashes, "source_run_id", "ingested_at"}
+    content_columns = sorted(set(context.columns) - provenance)
     existing_context = query_df(f"""
-        SELECT {', '.join([*team_keys, *team_hashes])}
+        SELECT {', '.join([*team_keys, *team_hashes, *content_columns])}
         FROM `{team_ref}`
         WHERE season=@season AND week BETWEEN @start_week AND @end_week
         """, params={
@@ -307,8 +350,10 @@ def run(
             "start_week": int(manifest["source_week_start"]),
             "end_week": int(manifest["source_week_end"]),
         })
+    context_identity: dict = {}
     novel_context = _novel_or_identical(
-        context, existing_context, keys=team_keys, hash_columns=team_hashes)
+        context, existing_context, keys=team_keys, hash_columns=team_hashes,
+        content_columns=content_columns, audit=context_identity)
     novel_attempts = _novel_or_identical(
         attempts, existing_attempts, keys=attempt_keys,
         hash_columns=["source_sha256"],
@@ -326,6 +371,9 @@ def run(
         "attempt_rows": int(len(attempts)),
         "append_context_rows": int(len(novel_context)),
         "append_attempt_rows": int(len(novel_attempts)),
+        "context_content_columns": content_columns,
+        "context_rows_identical_by_content": int(
+            context_identity.get("content_identical_rows", 0)),
         "write_requested": bool(write),
         "point_in_time_contract": "only completed source weeks strictly below W",
     }
