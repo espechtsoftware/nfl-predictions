@@ -20,7 +20,7 @@ context="$(mktemp -d -p "$context_parent" week1-live-build-XXXXXXXX)"
 trap 'rm -rf -- "$context"' EXIT
 
 for path in \
-  pyproject.toml README.md CLAUDE.md \
+  pyproject.toml README.md CLAUDE.md cloudbuild.yaml \
   Dockerfile.week1-live cloudbuild.week1-live.yaml \
   src sql scripts tests deploy; do
   cp -a "$root/$path" "$context/$path"
