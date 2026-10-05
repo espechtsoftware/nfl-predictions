@@ -60,7 +60,7 @@ LAYOUT = "head"
 SMALL_MAX_SHARED = 5
 OVERLAP_CEILING = 10
 SAT_DOSE = "2560/10240,1280/5120"
-ARMS = ("A1", "A2", "A3", "A4")
+ARMS = ("A1", "A2", "A3", "A4", "AG")   # AG: study-1 TRANSFER CHECK (descriptive; not a money-gate arm)
 SLOTS = ("QB", "RB", "RB", "WR", "WR", "WR", "TE", "FLEX", "DST")
 SALARY_CAP = 50_000
 
@@ -84,8 +84,10 @@ def arm_flags(arm: str, own_file: str | None) -> list[str]:
     f = ["--saturday-dose", SAT_DOSE, "--mean-max-shared", "7", "--min-proj", "1.0", "--max-per-game", "4",
          "--min-salary", "49000", "--pmo", "0", "--pmo-cap-share", "0.5", "--main", main, "--main-cap-share", cap,
          "--sleeve-cap-share", "0.5", "--main-dst-cap", "0.25", "--sleeve-includes-main", "--mean-dst-cap", "0.25"]
-    if own_file and arm in ("A1", "A3"):
+    if own_file and arm in ("A1", "A3", "AG"):
         f += ["--main-own-tilt", "0.20", "--main-own-source", own_file]
+    if arm == "AG":                       # A1 + study 1's per-game cap (production union_reselect --main-game-cap p3)
+        f += ["--main-game-cap", "p3"]
     if own_file:
         f += ["--sleeve-source", "field", "--sleeve-field-mode", "top", "--sleeve-max-per-game", "5",
               "--sleeve-field-rows", "1", "--sleeve-own-source", own_file]
