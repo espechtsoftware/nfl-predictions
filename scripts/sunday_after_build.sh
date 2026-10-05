@@ -174,11 +174,14 @@ PYF
   # Reported, not fatal: it is a date heuristic, and blocking an entered book at
   # 11:15 CT on a heuristic is worse than a loud line the operator reads. A hit
   # means STOP and check which slice the tool selected.
+  # O-24 (2026-10-04): the sweep reads DECLARED chain inputs only (DECLARED_INPUTS in the
+  # script; never --all here). A comparison-only LineStar capture saved under $OUT once
+  # printed a false STALE alarm on this sheet at 11:02, minutes before lock.
   local WINDOW_START; WINDOW_START=$(date -u -d "$SUNDAY - 5 days" +%F 2>/dev/null || echo "")
   if [ -n "$WINDOW_START" ] && [ -f "$PROD/scripts/receipt_freshness_sweep.py" ]; then
     if $PY "$PROD/scripts/receipt_freshness_sweep.py" --dir "$OUT" --after "$WINDOW_START" \
          > "$OUT/input-freshness-$tag.txt" 2>&1; then
-      echo "INPUT FRESHNESS: OK (no artifact read data from before $WINDOW_START)" >> "$OUT/TODAY-30-LATEST.md"
+      echo "INPUT FRESHNESS: OK (no declared chain input read data from before $WINDOW_START)" >> "$OUT/TODAY-30-LATEST.md"
     else
       log "STALE INPUTS DETECTED -- see $OUT/input-freshness-$tag.txt"
       { echo

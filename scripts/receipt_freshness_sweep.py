@@ -21,6 +21,15 @@ Set --after to the start of the week's own data window, normally the Monday
 before that week's games. Fields that legitimately look backwards -- prior-season
 points per game, trailing-window features, backup history -- are skipped by name;
 extend --benign if a new one appears.
+
+Only DECLARED inputs are scanned (O-24, 2026-10-04): the receipts the Sunday chain
+itself writes or reads, listed in DECLARED_INPUTS below. The sweep used to read every
+JSON file under the week directory, so comparison-only captures saved there (a
+LineStar payload carrying 2025 period history) printed "STALE INPUTS DETECTED -- DO
+NOT UPLOAD" on the live sheet minutes before lock. Undeclared files are counted on
+one informational line, never reported as stale. A new artifact family the chain
+starts writing must be added to DECLARED_INPUTS (or passed with --declared);
+--all restores the scan-everything audit for a manual look.
 """
 
 from __future__ import annotations
@@ -36,6 +45,19 @@ DATE_RE = re.compile(r"(20\d{2})-(\d{2})-(\d{2})")
 DEFAULT_BENIGN = ("dk_ppg", "prior", "_l4", "_l6", "_l8", "last_season", "backup", "history",
                   "season_to_date", "career")
 LIST_SCAN_LIMIT = 200
+# The Sunday chain's inputs and artifacts, as paths relative to the week directory (one pattern per path component; a
+# pattern matches only paths of its own depth). Writers: run_week_build.sh (build-inputs), sunday_build_host.sh (per
+# RUN_TAG: lever audits, ordering shadows, upload receipts, ownership receipts, cash/week-3 shadows, vetted, composite,
+# hybrid15, exposure caps, refinement-2 paper bundle), sunday_after_build.sh (after-<tag>, ENTER), and the operator's
+# contests.json, which every build reads.
+DECLARED_INPUTS = (
+    "build-inputs-*.json",
+    "lever-audit-*.json", "ordering_shadows-*.json", "upload-*.receipt.json", "ownership_*.receipt.json",
+    "cash-shadow-*/*.json", "shadow-*/*.json", "vetted-*/*.json", "composite-*/*.json", "hybrid15-*/*.json",
+    "exposure-caps-*/*.json", "paper-r2-*/*.json",
+    "after-*/*.json", "ENTER/*.json",
+    "contests.json",
+)
 
 
 def walk(obj, path=""):
@@ -73,11 +95,32 @@ def scan_document(data, after, benign=DEFAULT_BENIGN):
     return out
 
 
-def sweep(root, after, benign=DEFAULT_BENIGN):
-    """Scan every JSON receipt under `root`. Returns (findings, files_scanned)."""
+def candidates(root):
+    """Every JSON file the sweep can see: the week directory and one level below it."""
+    root = pathlib.Path(root)
+    return sorted(set(list(root.glob("*.json")) + list(root.glob("*/*.json"))))
+
+
+def is_declared(root, path, declared):
+    """True when `path` (under `root`) matches one of the declared patterns at the pattern's own depth."""
+    rel = pathlib.PurePosixPath(pathlib.Path(path).relative_to(root).as_posix())
+    return any(len(rel.parts) == len(pathlib.PurePosixPath(p).parts) and rel.match(p) for p in declared)
+
+
+def undeclared(root, declared=DECLARED_INPUTS):
+    """JSON files under `root` that are not declared inputs (reported for information, never swept)."""
+    root = pathlib.Path(root)
+    return [f for f in candidates(root) if not is_declared(root, f, declared)]
+
+
+def sweep(root, after, benign=DEFAULT_BENIGN, declared=None):
+    """Scan the JSON receipts under `root`: only those matching `declared` patterns, or every one when `declared` is
+    None (the manual --all audit). Returns (findings, files_scanned)."""
     root = pathlib.Path(root)
     findings, scanned = [], 0
-    for f in sorted(set(list(root.glob("*.json")) + list(root.glob("*/*.json")))):
+    for f in candidates(root):
+        if declared is not None and not is_declared(root, f, declared):
+            continue
         if f.name.startswith("class_model"):
             # a fitted MODEL, not a data input: its weeks[].lock are the training weeks and fitted_utc is the Monday
             # refit, both legitimately before the week's window (2026-09-29 sweep item 8). The build audit checks the
@@ -101,6 +144,10 @@ def main(argv=None):
     ap.add_argument("--after", required=True, help="ISO date starting the week's data window")
     ap.add_argument("--benign", action="append", default=[],
                     help="extra path substring to skip; repeatable")
+    ap.add_argument("--declared", action="append", default=[],
+                    help="extra declared input pattern relative to --dir (e.g. 'newtool-*/*.json'); repeatable")
+    ap.add_argument("--all", dest="scan_all", action="store_true",
+                    help="scan EVERY JSON file under --dir, declared or not (a manual audit; never the Sunday chain)")
     ap.add_argument("--json", dest="as_json", action="store_true")
     a = ap.parse_args(argv)
 
@@ -112,12 +159,22 @@ def main(argv=None):
     if not root.is_dir():
         ap.error(f"--dir {root} is not a directory")
 
-    findings, scanned = sweep(root, after, DEFAULT_BENIGN + tuple(a.benign))
+    declared = None if a.scan_all else DECLARED_INPUTS + tuple(a.declared)
+    findings, scanned = sweep(root, after, DEFAULT_BENIGN + tuple(a.benign), declared)
+    ignored = [] if declared is None else undeclared(root, declared)
     if a.as_json:
         print(json.dumps({"dir": str(root), "after": a.after, "scanned": scanned,
+                          "scope": "all" if declared is None else "declared",
+                          "ignored_undeclared": [str(f) for f in ignored],
                           "findings": findings}, indent=2))
     else:
-        print(f"scanned {scanned} receipts under {root}, window starts {after}\n")
+        scope = "every JSON file (--all)" if declared is None else "declared inputs"
+        print(f"scanned {scanned} receipts ({scope}) under {root}, window starts {after}")
+        if ignored:
+            names = sorted({f.relative_to(root).parts[0] for f in ignored})
+            print(f"  not scanned: {len(ignored)} undeclared JSON file(s), not inputs of the chain: "
+                  f"{', '.join(names[:6])}{' ...' if len(names) > 6 else ''}")
+        print()
         if not findings:
             print("  OK: every recorded input is at or after the window start")
         else:
