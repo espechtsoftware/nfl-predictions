@@ -132,6 +132,27 @@ def test_deploy_refuses_before_sunday_window_unless_forced(tmp_path):
 
 
 @pytest.mark.skipif(not Path("/usr/bin/date").exists(), reason="needs coreutils date")
+@pytest.mark.parametrize("now,refused", [
+    ("2026-10-10T04:59:00Z", False),  # Fri 23:59 CDT
+    ("2026-10-10T05:00:00Z", True),   # Sat 00:00 CDT
+    ("2026-10-10T18:00:00Z", True),   # Sat 13:00 CDT
+    ("2026-10-11T20:29:00Z", True),   # Sun 15:29 CDT
+    ("2026-10-11T20:30:00Z", False),  # Sun 15:30 CDT: window closed
+    ("2026-10-12T14:00:00Z", False),  # Mon
+    ("2026-11-07T05:59:00Z", False),  # Fri 23:59 CST (after the DST change)
+    ("2026-11-07T06:00:00Z", True),   # Sat 00:00 CST
+    ("2026-11-08T21:29:00Z", True),   # Sun 15:29 CST
+    ("2026-11-08T21:30:00Z", False),  # Sun 15:30 CST
+])
+def test_deploy_refuses_every_weekend_money_window(tmp_path, now, refused):
+    p, calls = run(tmp_path, "dashboard-abc1234", now=now)
+    if refused:
+        assert p.returncode == 2 and "weekend money window" in p.stderr and calls == []
+    else:
+        assert p.returncode == 0, p.stderr
+
+
+@pytest.mark.skipif(not Path("/usr/bin/date").exists(), reason="needs coreutils date")
 @pytest.mark.parametrize("ref", ["latest", "nfl-dfs:latest", "some-other-tag"])
 def test_deploy_refuses_mutable_or_foreign_tags(tmp_path, ref):
     p, calls = run(tmp_path, ref)

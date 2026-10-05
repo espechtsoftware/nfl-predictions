@@ -25,15 +25,18 @@ PROJECT=nfl-predictions-503414
 REGION=us-central1
 SERVICE=nfl-dfs-app
 REPO="us-central1-docker.pkg.dev/${PROJECT}/nfl-dfs/nfl-dfs"
-NOT_BEFORE_UTC="2026-10-04T20:30:00Z"   # Sunday 2026-10-04 15:30 CDT
 HERE="$(cd "$(dirname "$0")" && pwd)"
 
 ref="${1:?usage: $0 <dashboard-SHORT_SHA tag | image@sha256:digest>}"
 
+# Every weekend, Saturday 00:00 to Sunday 15:30 Central (DST-aware), the money
+# path builds, vets and late-swaps the week's books on this host: never replace
+# the app then. Was a one-off NOT_BEFORE date until 2026-10-04.
 now=$(date -u +%s)
-nb=$(date -u -d "$NOT_BEFORE_UTC" +%s)
-if (( now < nb )) && [[ "${FORCE:-0}" != "1" ]]; then
-  echo "REFUSED: before ${NOT_BEFORE_UTC} (Sunday 15:30 CT) the money path is live; set FORCE=1 to override." >&2
+dow=$(TZ=America/Chicago date -d "@$now" +%u)     # 6 = Saturday, 7 = Sunday
+hm=$(TZ=America/Chicago date -d "@$now" +%H%M)
+if { (( dow == 6 )) || { (( dow == 7 )) && (( 10#$hm < 1530 )); }; } && [[ "${FORCE:-0}" != "1" ]]; then
+  echo "REFUSED: Saturday 00:00 to Sunday 15:30 CT is the weekend money window (now $(TZ=America/Chicago date -d "@$now" '+%a %H:%M %Z')); set FORCE=1 to override." >&2
   exit 2
 fi
 
