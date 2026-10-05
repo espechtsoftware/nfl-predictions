@@ -12,6 +12,51 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-04 (19:44 CDT) — Operator decisions: Route Share option (a); O-26 merge approved. Monkey headline corrected; row map is NOT a defect
+
+**Operator decisions (10-04 evening):**
+1. **Route Share (O-2/O-25): option (a).** Implement companion v1 so Week 5 is a valid paired week. A background agent is
+   drafting branch `production/o25-route-share-companion-20261005`: a guard keyed by a declared `ROUTE_SHARE_CONTRACT`
+   (`frozen-2026-08` | `companion-v1`), the registry key `fp-route-share-2026-companion-v1`, and a last-execution-success
+   check in `check_prospective_gates.py`. It makes no cloud changes. Then: the reviewer's review, the image build (from
+   a line holding O-26 AND the O-25 fix), the job env update, and one outcome-blind dry run per job under the launcher
+   lane. **The dry run must pass by Sat 10-10 12:00, else option (c).**
+   - The live job env is itself inconsistent: `N_CE=12` and `GEN_TOTAL_BUDGET=52` beside `N_BOOM=160`, while the
+     companion doc says `N_CE=0`. The draft must reconcile this with `production_policy.py`.
+   - **Weeks 3–4 cannot be graded:** the gate requires books frozen before lock. The inputs are archived (Route Share
+     source weeks 01–03 in GCS under content hashes), so a W3/W4 replay labelled as a replay is possible later as
+     supporting evidence.
+   - **Week 5 needs FP's Week-4 Route Share** (source_week=04, not yet captured). The treatment refuses without it
+     (`require_prior_week_source`). Capture it with Tuesday's FP pages.
+2. **O-26: merge approved.** Branch `production/o26-salary-week-merge-20261005` @ `3b89039b`, sent to the reviewer.
+   - It takes the DEPLOYED `001a` (sha256 `d9ce2172…f5a8`, equal to the image's), the verify/preview scripts, the
+     validation report and the evidence from `fix/2026-09-salary-week-resolution`. A plain cherry-pick of `a7cc4213`
+     gives an older SQL (`e741f171`), so it was not used.
+   - New test `test_feature_sql.py::test_own_salary_null_weeks_resolved_before_week_filter` fails on the unrepaired SQL
+     (mutation-checked). `test_feature_sql` 78 passed 1 skipped; `test_leakage` 24 passed.
+   - Merge into integration after the reviewer clears it.
+3. **O-22 timing:** the operator asked whether a multi-core co-run makes Week 5 possible. Answer given:
+   - The co-run splits into 12 independent fits; the laptop has 32 cores and 54 GB.
+   - The serial chain is the limit: the suspected lock-filter items, the fix, the NULL-support leakage check, the feature
+     build (needs O-26), the co-run, the audit, the review, the image.
+   - Attempted Week-5 plan: fix and checks Tue–Wed; co-run Wed night on ~12 workers (time it); read and review Thu; the
+     operator decides Fri on a reversible trial. Fallback: Week 6.
+
+**Corrections to the 19:35 entry:**
+- **"Worse than random" was overstated.** The comparator that counts is M2 (random pool rows under our caps and dealing):
+  W4 22.9th pct, W3 34.0th, W1 98.6th, 1+3+4 combined 66.0. "Selection subtracts value" is a 2-of-3-weeks hypothesis
+  for Friday's money gate.
+- **The ownership term helped** vs the plain optimizer (+4.1: 115.8 vs 111.7). The gap to random pool rows (119.7) is the
+  capped sequential optimizer plus concentration.
+- **Percentiles are mid-rank.** Multi-week = book i summed across weeks, so weeks are weighted by entries. A per-contest
+  paired statistic is to be added before Friday.
+- **Row map: NOT a defect (no O-28).** `ENTER-rowmap.json` is 0-based and the contest files 1-based; they agree in all 24
+  bundle contests. The DK export's entered lineups match per Contest ID; the only differences are the operator's 2 hand
+  entries. The swap path keys bundle rows, and the fill keys Contest ID with a count check.
+
+**Next:** the reviewer on O-26; the O-25 draft (then the reviewer, image, dry run); Monday's order per the 19:31 entry.
+
+
 ## 2026-10-04 (19:35 CDT) — MONKEY VERDICT, Week 4: our selection was WORSE THAN RANDOM from our own pool (operator was right)
 
 `scratchpad/pm-selection/REPORT.md` (aggregates; seeds recorded).
