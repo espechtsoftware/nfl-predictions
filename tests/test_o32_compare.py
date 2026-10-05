@@ -52,4 +52,5 @@ def test_leg_identity_mismatch_concludes_nothing(tmp_path, capsys):
 
 def test_every_study_has_a_whitelist_with_the_disposition_and_market_movement_is_out_of_class():
     assert set(C.WHITELIST) == set(C.ORIGINAL) and all("disposition" in w for w in C.WHITELIST.values())
-    assert "market-movement" not in C.ORIGINAL and "0\nnon-ACT rows" not in (ROOT / "scripts" / "o32_compare.py").read_text()
+    assert "market-movement" not in C.ORIGINAL
+    assert "panel 20260805-hf5 predates the 08-08 salary spine" in (ROOT / "scripts" / "o32_compare.py").read_text()
