@@ -150,3 +150,33 @@ Also fixed in the code, consistent with the frozen text:
 - MAX_PER_GAME is NOT lifted for any arm. That would change a house rule inside one arm and confound it.
 - The census reports, per arm and per cell type, the TARGET share against the REALIZED share and the pass-to-core
   count, so a cell that rarely fills is visible before scoring.
+
+## Deviation note 3 (2026-10-05, before any scored bank): the reader is frozen and the census is in
+**Code:** nfl2 `production/s16-thesis-portfolio-20261005` @ e9b329e.
+- Reader `scripts/s16_report.py`, sha256 `04ed4fda8d67ccc194bd90165843aeced115aae025edfa22e205996bb0b40b9f`.
+- Experiment `experiments/s16_thesis_portfolio.py`, sha256
+  `8d3414a3b7fd77f41d049638cb881133075e9fe41cc12ebe8555db450f186930`.
+- **Tests (8):**
+  - allocation, D'Hondt, the cells (note 2), shortfall passes, the cell constraints reaching every solve (a mutation
+    dropping them is caught), and the verdicts;
+  - the reader's printed and used LEVELS asserted against this text: primary two-sided 0.975, guard one-sided 0.975.
+- **The re-smoke on throwaway 1406 (2023 W9 mechanics; 2024 W6 full path) passed:** build and reader rc 0, output
+  deleted unread.
+- **Banks 1409/1410:** unused in the all-branch scan; since then the only bank labels committed are 1404–1408 (this
+  session).
+
+**The outcome-blind census** (banks 1409/1410, mechanics only, 72 slate-banks, no errors, no short books; verbatim in
+the lab at `results/s16/CENSUS_s16.txt`). Shares are core / mid / blow.
+
+| arm | TARGET share | REALIZED rows | REALIZED dealt entries | shortfall passes (mean, max) | entries changed vs C |
+|---|---|---|---|---|---|
+| TP | 0.852 / 0.075 / 0.073 | 0.873 / 0.076 / 0.050 | 0.891 / 0.068 / 0.041 | 2.18, 8 | 0.959 |
+| TP10 | 0.901 / 0.050 / 0.049 | 0.921 / 0.044 / 0.035 | 0.934 / 0.037 / 0.029 | 1.57, 6 | 0.958 |
+| TP20 | 0.803 / 0.100 / 0.097 | 0.822 / 0.113 / 0.065 | 0.838 / 0.109 / 0.054 | 2.69, 10 | 0.957 |
+
+**Read before any outcome:**
+- A blowout team (spread ≤ −6) exists on 70 of 72 slate-banks.
+- The RB-led blowout cell fills about 2/3 of its target, and its shortfall passes to the core. So TP realizes about
+  89% core / 7% mid / 4% blow in dealt entries.
+- The mid cell fills fully.
+- TP changes about 96% of dealt entries, so it is not a dead lever.
