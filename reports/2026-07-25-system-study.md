@@ -4159,3 +4159,8 @@ tickets add up per entry.
 
 **Today's pattern across studies 1, 1b and 16:** every form of spreading the book (by game, by player entry cap, by
 scenario) lowered mean entry finish. Several cut zero-ticket slates. None raised expected tickets measurably.
+
+**Addendum 125, note (2026-10-05, later the same day):** the operator-picks paper-sleeve option above is WITHDRAWN. The
+operator, verbatim: "I don't want to have to study football, so I don't want to be providing my picks." 16b is TABLED,
+pending his reply to the reviewer, for the reason stated above: thesis rows are worse per entry, and tickets add up per
+entry.

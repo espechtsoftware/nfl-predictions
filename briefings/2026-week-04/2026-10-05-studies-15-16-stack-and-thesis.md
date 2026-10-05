@@ -43,14 +43,10 @@ output.
 - **The bright spot:** fewer slates with no cash at all (31% → 17%), the same pattern as the capping studies. But it
   came with fewer cashes overall and a lower average finish.
 
-## The honest limit, and an option
-- What was tested is the *betting-market* version of your thesis: games A–D = the four highest totals.
-- Your OWN picks of games A–D cannot be tested on history, because no record of them exists.
-- If you want to try that, the only way is going forward and on paper:
-  - before each Saturday build you name 4 games;
-  - we build a sleeve of thesis lineups on them without entering anything;
-  - Monday's comparison scores it beside the real book.
-- It is cheap, but a few weeks of it are anecdote, not proof. It is your option; it is not my recommendation.
+## The honest limit
+What was tested is the *betting-market* version of the thesis: games A–D = the four highest totals. Your own picks
+cannot be tested on history, and you have said you do not want to supply picks, so that version is not pursued. The
+sleeve follow-up (16b) is tabled: thesis lineups built this way are worse per entry, and cashes add up per entry.
 
 ## The pattern from today's four studies
 - **Spreading the book out** (by game, by player entry cap, or by scenario) lowered the average finish every time.

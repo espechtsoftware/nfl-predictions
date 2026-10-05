@@ -17,7 +17,7 @@ the laptop.
 | [Path to winning](2026-week-04/2026-10-05-path-to-winning-plan.md) | A ranked plan from the evidence |
 | [Contrarian games (X1, steps 1–2)](2026-week-04/2026-10-05-x1-steps-1-2-shootouts-and-field-allocation.md) | Shootouts are hard to call; the field is flatter than the odds; our error is concentration |
 | [Overlay back-test](2026-week-04/2026-10-05-overlay-backtest-week4.md) | No usable overlays on the classic slate |
-| [Studies 15 & 16: stack rule and thesis portfolio](2026-week-04/2026-10-05-studies-15-16-stack-and-thesis.md) | Should a lineup need only QB + 1 + bring-back? (No measurable difference; your call.) Does the thesis portfolio do better, whole or as a sleeve? (No; it is a heavier bet on the expected shootouts; a paper-sleeve option on your own picks) |
+| [Studies 15 & 16: stack rule and thesis portfolio](2026-week-04/2026-10-05-studies-15-16-stack-and-thesis.md) | Should a lineup need only QB + 1 + bring-back? (No measurable difference; your call.) Does the thesis portfolio do better, whole or as a sleeve? (No; it is a heavier bet on the expected shootouts; the sleeve follow-up is tabled) |
 | [Study 1b: player cap](2026-week-04/2026-10-05-study1b-player-cap-result.md) | Should any one player be held under about 30% of entries? (Not at the cost: it halves the bust damage but costs about 3.5 points of average finish; a lead on more cashes, to be tested) |
 | [Study 1: de-concentration](2026-week-04/2026-10-05-study1-deconcentration-result.md) | Does capping how much of the book one game takes help? (No: steadier on paper, not more money; not offered) |
 
