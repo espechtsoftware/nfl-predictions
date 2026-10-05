@@ -133,6 +133,42 @@ def assert_salary_spine_covers_completed_weeks(
     return sorted(empty_keys & set(allowed_gaps))
 
 
+def assert_allowed_gaps_recorded(
+    excused: list[tuple[int, int]], readme_text: str | None,
+) -> None:
+    """Each excused salary-spine week needs its Data deficiency log row.
+
+    The row must sit inside README's DATA-DEFICIENCY-LOG markers and mention
+    both ``SALARY_SPINE_ALLOW_GAPS`` and that exact ``season:week`` (so
+    ``2026:1`` is not satisfied by a ``2026:12`` row). The image ships
+    README.md beside ``sql/``.
+    """
+    import re
+
+    if not excused:
+        return
+    start, end = "<!-- DATA-DEFICIENCY-LOG:START -->", "<!-- DATA-DEFICIENCY-LOG:END -->"
+    if not readme_text or start not in readme_text or end not in readme_text:
+        raise LeakageError(
+            "SALARY_SPINE_ALLOW_GAPS excuses weeks but README.md's Data "
+            "deficiency log could not be read")
+    log_rows = [
+        line for line in
+        readme_text.split(start, 1)[1].split(end, 1)[0].splitlines()
+        if line.startswith("|") and "SALARY_SPINE_ALLOW_GAPS" in line
+    ]
+    missing = [
+        f"{season}:{week}" for season, week in excused
+        if not any(re.search(rf"(?<!\d){season}:{week}(?!\d)", row)
+                   for row in log_rows)
+    ]
+    if missing:
+        raise LeakageError(
+            f"SALARY_SPINE_ALLOW_GAPS excuses {missing} but README.md's Data "
+            f"deficiency log has no row mentioning SALARY_SPINE_ALLOW_GAPS "
+            f"and each of them; add the row before excusing the week")
+
+
 def assert_dst_actual_universe_reconciled(gaps: pd.DataFrame) -> None:
     """Every completed regular-season team-game has a canonical DST label."""
     if not gaps.empty:
@@ -1463,7 +1499,7 @@ def run_team_qb_quality_checks() -> None:
 
 
 def run_leakage_checks() -> None:
-    from ..bq import query_df
+    from ..bq import SQL_DIR, query_df
     from ..config import settings
 
     built_cols = sorted({f for f, *_ in CHECKED_FEATURES} | {"games_played_prior"})
@@ -1577,6 +1613,9 @@ def run_leakage_checks() -> None:
     excused = assert_salary_spine_covers_completed_weeks(
         spine_coverage,
         parse_salary_spine_allowed_gaps(settings.salary_spine_allow_gaps))
+    readme = SQL_DIR.parent / "README.md"
+    assert_allowed_gaps_recorded(
+        excused, readme.read_text() if excused and readme.is_file() else None)
     if excused:
         msg = ("SALARY SPINE GAPS EXCUSED by SALARY_SPINE_ALLOW_GAPS "
                f"(source-lost weeks; Data deficiency log row required): {excused}")

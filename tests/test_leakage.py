@@ -471,3 +471,41 @@ def test_salary_spine_allowed_gap_is_season_specific():
         assert_salary_spine_covers_completed_weeks(
             cov, parse_salary_spine_allowed_gaps("2026:7"))
     assert "2025" in str(err.value)
+
+
+def test_excused_salary_gaps_need_their_deficiency_log_row():
+    from nfl_dfs.features.leakage import assert_allowed_gaps_recorded
+
+    def readme(*rows):
+        return ("# x\n<!-- DATA-DEFICIENCY-LOG:START -->\n| Found | D | I | S |\n|---|---|---|---|\n"
+                + "".join(r + "\n" for r in rows) + "<!-- DATA-DEFICIENCY-LOG:END -->\n")
+
+    good = "| 2026-10-20 | DK pull lost 2026:7 | spine empty | SALARY_SPINE_ALLOW_GAPS=2026:7 |"
+    assert_allowed_gaps_recorded([], None)  # nothing excused: README not needed
+    assert_allowed_gaps_recorded([(2026, 7)], readme(good))
+    with pytest.raises(LeakageError, match=r"excuses \['2026:8'\]"):
+        assert_allowed_gaps_recorded([(2026, 7), (2026, 8)], readme(good))
+    # The week alone, without the variable name, does not count.
+    with pytest.raises(LeakageError, match="no row mentioning"):
+        assert_allowed_gaps_recorded(
+            [(2026, 7)], readme("| 2026-10-20 | DK pull lost 2026:7 | x | y |"))
+    # 2026:1 is not satisfied by a 2026:12 row.
+    with pytest.raises(LeakageError, match=r"excuses \['2026:1'\]"):
+        assert_allowed_gaps_recorded(
+            [(2026, 1)], readme("| d | SALARY_SPINE_ALLOW_GAPS=2026:12 | x | y |"))
+    # A mention outside the log markers does not count.
+    outside = "SALARY_SPINE_ALLOW_GAPS=2026:7\n| SALARY_SPINE_ALLOW_GAPS 2026:7 |\n" + readme()
+    with pytest.raises(LeakageError, match="no row mentioning"):
+        assert_allowed_gaps_recorded([(2026, 7)], outside)
+    with pytest.raises(LeakageError, match="could not be read"):
+        assert_allowed_gaps_recorded([(2026, 7)], None)
+    with pytest.raises(LeakageError, match="could not be read"):
+        assert_allowed_gaps_recorded([(2026, 7)], "| SALARY_SPINE_ALLOW_GAPS 2026:7 |")
+
+
+def test_repository_readme_has_the_deficiency_log_markers():
+    from nfl_dfs.bq import SQL_DIR
+
+    text = (SQL_DIR.parent / "README.md").read_text()
+    assert "<!-- DATA-DEFICIENCY-LOG:START -->" in text
+    assert "<!-- DATA-DEFICIENCY-LOG:END -->" in text
