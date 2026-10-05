@@ -6,8 +6,9 @@ Preregistration: reports/2026-10-05-prereg-study22a-residual-calibration.md (des
     python scripts/study22a_report.py --panel-run-id ID              # the read (B 20,000, seed 20261005)
 
 Input: nfl_predictions.slate_player_features rows WHERE panel_run_id = ID AND research_eligible, seasons 2022-2025,
-QB/RB/WR/TE. The census reads identities, salaries, projections and the PRESENCE of `actual` (never its value); the
-read prints an input fingerprint (sha256 over the sorted analysis rows) so the cross-party re-run proves it read the
+QB/RB/WR/TE. Eligibility (deviation note 1): a salary, a projection, and game-day roster status ACT in
+nfl_raw.rosters_weekly -- the replay panels keep inactive players, stored as 0 points. The census never reads `actual`;
+the read prints an input fingerprint (sha256 over the sorted analysis rows) so the cross-party re-run proves it read the
 same rows. The reader validates no hash of itself, so no repair override is needed (frozen-chain rule 3).
 """
 from __future__ import annotations
@@ -49,8 +50,8 @@ def load(panel_run_id: str, *, outcomes: bool):
         raise SystemExit("set GCP_PROJECT (the warehouse project) before reading")
     c = bigquery.Client(project=settings.project)
     cfg = bigquery.QueryJobConfig(query_parameters=[bigquery.ScalarQueryParameter("p", "STRING", panel_run_id)])
-    actual = "actual" if outcomes else "actual IS NOT NULL AS has_actual"
-    panel = c.query(f"""SELECT season, week, gsis_id, pos, team, opp, salary, mean_projection, model_points_pre, {actual}
+    actual = ", actual" if outcomes else ""
+    panel = c.query(f"""SELECT season, week, gsis_id, pos, team, opp, salary, mean_projection, model_points_pre{actual}
         FROM `{settings.predictions}.slate_player_features`
         WHERE panel_run_id = @p AND research_eligible AND season BETWEEN 2022 AND 2025
           AND pos IN ('QB','RB','WR','TE')""", job_config=cfg).to_dataframe()
@@ -58,22 +59,34 @@ def load(panel_run_id: str, *, outcomes: bool):
         FROM `{settings.raw}.weekly_stats` WHERE season BETWEEN 2021 AND 2025 AND season_type='REG'""").to_dataframe()
     sal = c.query(f"""SELECT season, week, gsis_id, ANY_VALUE(salary_delta_wow) salary_delta_wow
         FROM `{settings.features}.dk_salary_week` WHERE season BETWEEN 2022 AND 2025 GROUP BY 1,2,3""").to_dataframe()
-    return panel, ws, sal
+    # game-day status (announced ~90 minutes before kickoff, pre-lock for the T-70 build): ACT if any REG row says so
+    # (a player traded that week can carry two rows)
+    ros = c.query(f"""SELECT season, week, gsis_id, LOGICAL_OR(status = 'ACT') act
+        FROM `{settings.raw}.rosters_weekly` WHERE season BETWEEN 2022 AND 2025 AND game_type = 'REG' AND gsis_id IS NOT NULL
+        GROUP BY 1,2,3""").to_dataframe()
+    return panel, ws, sal, ros
 
 
 # ---------------------------------------------------------------- pure logic (tested offline)
-def eligible(panel: pd.DataFrame) -> pd.DataFrame:
+def eligible(panel: pd.DataFrame, ros: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Top N by projection per (season, week, position) among players with a salary, a projection and game-day status
+    ACT (deviation note 1). Returns (eligible rows, the non-ACT drop counts by season x position)."""
     d = panel[panel.season.isin(SEASONS) & panel.pos.isin(list(TOP_N))].copy()
     dup = d.duplicated(["season", "week", "gsis_id"], keep=False)
     if dup.any():
         raise SystemExit(f"FAIL-CLOSED: {int(dup.sum())} rows share a (season, week, gsis_id) identity in the panel")
-    has_actual = d["actual"].notna() if "actual" in d else d["has_actual"].astype(bool)
-    d = d[(pd.to_numeric(d.salary, errors="coerce") > 0) & d.mean_projection.notna() & has_actual].copy()
+    d = d[(pd.to_numeric(d.salary, errors="coerce") > 0) & d.mean_projection.notna()].copy()
+    act = ros.set_index(["season", "week", "gsis_id"]).act
+    d["act"] = [bool(act.get((s, w, g), False)) for s, w, g in zip(d.season, d.week, d.gsis_id)]
+    # the drop count is reported where it matters: among the rows that would be top N without the ACT rule
+    pre = d.groupby(["season", "week", "pos"]).mean_projection.rank(ascending=False, method="first") <= d.pos.map(TOP_N)
+    dropped = d[pre & ~d.act].groupby(["season", "pos"]).size().unstack(fill_value=0)
+    d = d[d.act].drop(columns="act")
     d["rank"] = d.groupby(["season", "week", "pos"]).mean_projection.rank(ascending=False, method="first")
     d = d[d["rank"] <= d.pos.map(TOP_N)].drop(columns="rank")
     for col in ("team", "opp"):
         d[col] = d[col].replace(FIX)
-    return d.reset_index(drop=True)
+    return d.reset_index(drop=True), dropped
 
 
 def add_predictors(d: pd.DataFrame, ws: pd.DataFrame, sal: pd.DataFrame) -> pd.DataFrame:
@@ -111,10 +124,15 @@ def add_predictors(d: pd.DataFrame, ws: pd.DataFrame, sal: pd.DataFrame) -> pd.D
     return d
 
 
-def census(d: pd.DataFrame) -> tuple[str, dict]:
-    lines = ["STUDY 22a SUPPORT CENSUS (outcome-blind: identities, predictors, eligibility; never the value of actual)"]
+def census(d: pd.DataFrame, dropped: pd.DataFrame | None = None) -> tuple[str, dict]:
+    lines = ["STUDY 22a SUPPORT CENSUS (outcome-blind: identities, predictors, eligibility; never reads actual)"]
     t = d.groupby(["season", "pos"]).size().unstack(fill_value=0)
     lines.append("eligible rows by season x position:\n" + t.to_string())
+    if dropped is not None:
+        lines.append("top-N rows dropped as not ACT on game day (deviation note 1), by season x position:\n"
+                     + (dropped.to_string() if len(dropped) else "none"))
+    share = d.h5.mean() if "h5" in d and d.h5.notna().any() else float("nan")
+    lines.append(f"H5 realized top-decile share of eligible rows: {share:.4f} (ties at the 90th percentile included)")
     support = {}
     for h in ("h1", "h2", "h3", "h4", "h5"):
         n = d[d[h].notna()].groupby("season").size().reindex(SEASONS, fill_value=0)
@@ -198,9 +216,10 @@ def main(argv=None) -> int:
     ap.add_argument("--panel-run-id", required=True)
     ap.add_argument("--census", action="store_true", help="outcome-blind support census only")
     a = ap.parse_args(argv)
-    panel, ws, sal = load(a.panel_run_id, outcomes=not a.census)
-    d = add_predictors(eligible(panel), ws, sal)
-    text, support = census(d)
+    panel, ws, sal, ros = load(a.panel_run_id, outcomes=not a.census)
+    elig, dropped = eligible(panel, ros)
+    d = add_predictors(elig, ws, sal)
+    text, support = census(d, dropped)
     print(text)
     if not a.census:
         print(analyse(d, support))

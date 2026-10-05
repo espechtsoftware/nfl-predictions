@@ -71,14 +71,30 @@ def test_fingerprint_is_deterministic_and_the_read_is_reproducible():
     assert R.analyse(d, s, B=100, seed=7) == R.analyse(d.sample(frac=1, random_state=1), s, B=100, seed=7)
 
 
-def test_eligibility_takes_top_n_by_projection_and_fails_closed_on_duplicates():
-    rows = [(2023, 3, f"q{i}", "QB", "KC", "LAR", 6000, 30 - i, 25.0, True) for i in range(30)]
+def test_eligibility_takes_top_n_active_players_by_projection_and_fails_closed_on_duplicates():
+    """Deviation note 1: players not ACT on game day (stored as 0 points in the replay panels) are not eligible; the
+    next active player by projection takes the slot, and the drop is counted."""
+    rows = [(2023, 3, f"q{i}", "QB", "KC", "LAR", 6000, 30 - i, 25.0) for i in range(30)]
     panel = pd.DataFrame(rows, columns=["season", "week", "gsis_id", "pos", "team", "opp", "salary",
-                                        "mean_projection", "model_points_pre", "has_actual"])
-    d = R.eligible(panel)
-    assert len(d) == 24 and set(d.gsis_id) == {f"q{i}" for i in range(24)} and set(d.opp) == {"LA"}
+                                        "mean_projection", "model_points_pre"])
+    ros = pd.DataFrame({"season": 2023, "week": 3, "gsis_id": [f"q{i}" for i in range(30)],
+                        "act": [i not in (0, 5) for i in range(30)]})            # q0 and q5 inactive
+    d, dropped = R.eligible(panel, ros)
+    assert len(d) == 24 and set(d.gsis_id) == {f"q{i}" for i in range(26)} - {"q0", "q5"} and set(d.opp) == {"LA"}
+    assert int(dropped.loc[2023, "QB"]) == 2
+    assert "actual" not in panel                                   # the census path never needs the outcome
+    d2, _ = R.eligible(panel, ros[ros.gsis_id != "q1"])            # no roster row -> not eligible
+    assert "q1" not in set(d2.gsis_id)
     with pytest.raises(SystemExit, match="FAIL-CLOSED"):
-        R.eligible(pd.concat([panel, panel.iloc[:1]]))
+        R.eligible(pd.concat([panel, panel.iloc[:1]]), ros)
+
+
+def test_census_counts_the_inactive_drop_and_the_realized_decile_share():
+    d = _panel(np.random.default_rng(5)).drop(columns="actual")
+    dropped = pd.DataFrame({"QB": [3]}, index=pd.Index([2023], name="season"))
+    text, support = R.census(d, dropped)
+    assert "dropped as not ACT on game day" in text and "H5 realized top-decile share of eligible rows: 0.1" in text
+    assert all(support.values())
 
 
 def test_predictors_are_point_in_time():
