@@ -105,3 +105,17 @@ however, change each fitted model's TRAINING rows, as well as the evaluation row
 
 Fewer rows can also bind a gate's support condition (for example NGS "≥ 1,000 rows each fold", defence PROE "≥ 90%
 coverage each fold"). A gate that fails on support after the filter is reported as such, never as a signal verdict.
+
+## Amendment 2 (2026-10-05, before any re-run): the comparison gate; market movement is out of class
+
+- **The reproduction decision reads a WHITELIST per study** (`scripts/o32_compare.py`, reviewer): the disposition, the
+  gate booleans and the gate's numeric statistics (control and treatment Brier and MAE, and rows; for market tail, the
+  held-out overall statistics and the train/held-out row counts). Every other field (source audits, retrieval times,
+  run ids) is printed as context and never decides.
+- **Leg identity.** The corrected leg must carry `game_day_active` (the rule string, rows_kept > 0) and the uncorrected
+  leg must not. Otherwise the comparison exits 4 and nothing is concluded.
+- **`scripts/market_movement_eval.py` (Addendum 96) is OUT of class.** Its panel `20260805-hf5` predates the 08-08
+  salary spine: of its 13,968 player-weeks for 2023–25, 0 are non-ACT on game day; 54 have no roster row.
+  - The evidence is a count of non-ACT rows by roster status, the same mechanical check as deviation note 1. No
+    correlation was computed.
+  - It has no correction leg, and O-32's in-class list is five.
