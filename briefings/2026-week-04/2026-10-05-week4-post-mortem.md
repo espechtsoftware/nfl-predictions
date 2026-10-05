@@ -423,6 +423,18 @@ Groups come from the Weeks 1–3 Millionaires:
 - **Past winners performed exactly as their volume predicts.** They did not "all do horribly", and they did not repeat
   either. This matches the winners study (winners lose 83% of other weeks).
 - **Chase:** the past winners held him in 23.4% of entries, above the field's 19.5% and far below our 48.7%.
+- **The three past winners individually** (Monday 10-05, settled data; anonymised; the cash line is 136.22, the top-1% line 182.80):
+
+  | Past winner | Week-4 entries | Best finish | Mean percentile | Top-1% | Cashed | Lineups with Chase |
+  |---|---|---|---|---|---|---|
+  | Week-1 winner | 1 | 98.6 (bottom quarter) | 22.3 | 0 | 0 | 0 |
+  | Week-2 winner | 150 | 195.2 (top 0.32%) | 53.6 | 1 | 45 | 24 |
+  | Week-3 winner | 7 | 146.2 (top 13.7%) | 60.6 | 0 | 1 | 1 |
+
+- **Ours:** the Millionaire best was 182.58 (99.0th percentile, 0.2 short of the top 1%), better than two of the three
+  past winners' bests this week. Our satellite entries' mean percentile was 45.7 (§0).
+- **So the field's best did not all have a bad week, and did not repeat either.** One had a good week with 150 entries;
+  the other two were ordinary. That is the usual week-to-week churn: winners lose 83% of other weeks.
 
 ## 8. Corrections to what was said on Sunday night
 

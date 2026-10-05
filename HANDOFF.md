@@ -12,6 +12,17 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-05 (15:18 CDT) — Past winners' Week 4 (the operator's 10-04 question): post-mortem §7 completed
+
+- **Group level** (from Sunday night): past winners and repeat top-1% users did as their entry volume predicts (top 1%
+  1.29% vs 1.31% matched; 377 repeats vs 370 expected).
+- **Added today, individually** (anonymised in the report; names in chat only):
+  - W1 winner: 1 entry, bottom quarter;
+  - W2 winner: 150 entries, best top 0.32%, 45 cashes;
+  - W3 winner: 7 entries, best top 13.7%.
+- **Our Millionaire best, 182.58** (99.0th percentile), beat two of the three.
+- **Plain answer:** they did not all do horribly, and did not repeat. That is the normal churn.
+
 ## 2026-10-05 (14:19 CDT) — Study 12 (Week 4, descriptive) done: post-mortem §14; JAX passing question answered in §13
 
 - **Underperformers in ≥ 30% of entries:** McCaffrey, P. Washington, Lawrence, Addison, G. Wilson, Chase, McBride,
