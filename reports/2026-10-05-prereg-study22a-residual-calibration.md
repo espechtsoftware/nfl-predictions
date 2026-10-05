@@ -47,8 +47,8 @@ directions.
   2026-09-23), that is disclosed and the study runs on whatever the co-run serves.
 - **Excluded:** every 2026 week, because Weeks 2–4 generated the hypotheses.
 - **Eligible rows.** Within each (season, week, position), the top N by `mean_projection` (QB 24, RB 48, WR 72, TE 24),
-  with a salary and a non-null `actual`. DST is out. This is the DFS-relevant pool. It is fixed by projection rank,
-  never by outcome.
+  with a salary, a projection and game-day roster status ACT (deviation note 1). DST is out. This is the DFS-relevant
+  pool. It is fixed by projection rank and pre-lock status, never by outcome.
 
 ## 3. Hypotheses and predictors
 
@@ -120,3 +120,56 @@ rows in each season; a hypothesis below that is reported UNSUPPORTED, never test
   none reached it.
 - A July addendum (system study Addendum 6) named "the field's recency bias" from outcome-selected winner lineups. It
   was never tested this way, and has not been re-verified since the July audits.
+
+## Deviation note 1 (2026-10-05, before any read): eligibility requires game-day status ACT
+
+**Defect.** The reviewer found it in the reader review. The replay panels keep players who did not play, and store them
+as 0 points: `actual` is never null, so the "non-null `actual`" condition filtered nothing. On the smoke panel
+`20260811-pitclean-e80-k1-a12ab31`, 1,141 of 12,024 top-N rows (9.5%) are not ACT on game day in
+`nfl_raw.rosters_weekly`:
+
+| Status | Rows | Of which 0 points |
+|---|---|---|
+| INA | 531 | all |
+| RES | 521 | all |
+| DEV | 77 | all |
+| CUT, RET, TRC, EXE | 12 | all |
+
+Those rows were projected at 4–9 points on average. Each is a fabricated miss of about −projection, and they correlate
+with exactly H3 (a bad last game is often an injury), H4 (salary drops follow injuries) and H5 (cheap backups). The
+live T-70 build removes inactives (the post-inactives salary pull, OUT/IR removal); the historical replay never did.
+
+**Change.**
+- Eligibility now requires `status = 'ACT'` for (gsis_id, season, week): any REG row of `rosters_weekly`, since a
+  player traded that week can carry two rows. A player with no roster row is not eligible.
+- Game-day status is announced about 90 minutes before kickoff, so it is pre-lock for the T-70 build; that makes it
+  point-in-time.
+- The next active player by projection takes the slot.
+- The census never reads `actual`. It prints the non-ACT drop per season × position, and the realized H5 top-decile
+  share (0.113 on the smoke panel; ties at the 90th percentile).
+
+**Disclosure.** The evidence was a count of zero-point rows by roster status. That is a mechanical fact (inactive
+players score 0), not a look at any hypothesis statistic. No hypothesis statistic has been computed on any real
+panel.
+
+**Census after the change, smoke panel, outcome-blind.** All five hypotheses are supported in every season (H1
+2,912–3,024; H2 672; H3 2,713–2,838; H4 2,744–2,856; H5 2,912–3,024). The non-ACT drops by season (QB/RB/TE/WR):
+
+| Season | QB | RB | TE | WR |
+|---|---|---|---|---|
+| 2022 | 26 | 101 | 34 | 129 |
+| 2023 | 19 | 92 | 18 | 74 |
+| 2024 | 12 | 84 | 26 | 112 |
+| 2025 | 28 | 143 | 39 | 204 |
+
+**Reader frozen.** `scripts/study22a_report.py` at `39ba8172`, sha256
+`cf2b63fe3a74f32d399e961e5eb071fe850455fbb1518a350207c6a910e31b62`. Its tests are `tests/test_study22a_report.py`
+(7). The reviewer approved the code apart from this fix, which is the change above.
+
+**Runtime.** The read's bootstrap is a Python loop of 20,000 × 5 statistics: about 7 minutes on a synthetic panel of
+real size (12,096 rows), and possibly up to 30 on the laptop under load. Do not kill it before 45 minutes.
+
+**Co-run launch requirement.** The laptop launches the Thursday–Friday co-run. Its CONTROL arm's launch line carries
+`CAND_LOG_TABLE` and `cand_log_required=True`, and the co-run manifest records both and the control's `panel_run_id`.
+If the rows are not persisted or not promoted (`harvest_accept.py`), the §2 no-run rule applies.
+
