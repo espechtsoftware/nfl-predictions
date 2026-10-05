@@ -12,6 +12,67 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-04 (20:24 CDT) — O-25 deployed: Route Share jobs on companion-v1 (image bb810ba9); dry runs Thursday; W4 settled; monkeys W1–4
+
+**O-25 / Route Share (operator (a); reviewer cleared each step):**
+- **Merges into integration:**
+  - O-25 `616fed99` (branch @ `4572d6ad`);
+  - Amendment 2 to the gate document `570942b2`, committed BEFORE the image, with companion-v1 settings sha256
+    `76c3994a…f96ee8`;
+  - the live-lane hermetic test fix `bb810ba9` (branch @ `9a2518ea`).
+- **The first build failed** (Cloud Build `3f81dd84`): 2 of 636 lane tests were host-dependent (week_env needed the
+  laptop's contests.json; `cloudbuild.yaml` was not in the build context). Fixed and proven in a clean context (env -i,
+  empty HOME): old versions fail exactly those 2; the fix gives 636 passed.
+- **The rebuild passed:** Cloud Build `89a9859f` → `nfl-dfs@sha256:88e9c5443059f08bfb9dd54663f21f6253f8829352c27d995c0e1459d1363411`
+  (`week1-live-bb810ba96485`).
+- **Both jobs were updated:** image and the companion-v1 env together, `ROUTE_SHARE_CONTRACT=companion-v1`,
+  CODE_SHA `bb810ba96485`.
+  - Before and after env: `reports/reviews/evidence/2026-10-04-shadow-k1-{roleunion,route-roleunion}-{before,after}.yaml`.
+  - The two jobs differ only in name and MODEL_REGISTRY_VARIANT.
+- **`verify_deployment.py`:** "Deployment contract OK", all 8 jobs OK.
+- **`check_prospective_gates.py --week 5`:** the env contradictions are gone. Five FAILs remain:
+  1. Route Share control: newest execution is a W3–W4 failure. Cleared by the dry run.
+  2. Route Share treatment: the same. Cleared by the dry run.
+  3. sis-pass-tail: schedulers PAUSED (O-3, operator by Wed 10-07).
+  4. cbwu-oi early: DORMANT-but-ENABLED and failing (O-27, operator: pause or fix).
+  5. cbwu-oi late: the same.
+- **NEXT (by Sat 10-10 12:00):** one dry run per job through the launcher lanes (`SHADOW_DRY_RUN=1`). They run Thu 10-08,
+  after:
+  - FP's Week-4 Route Share is captured and imported (Tue). The treatment refuses without source_week=04.
+  - The Week-5 salaries are in.
+
+  Send the reviewer the receipts: runtime vs 3600 s, `run_type=live_shadow_dryrun`, the dryrun prefix, and the
+  contract sha. Then the checker output.
+
+**Dashboard:** deploy guard `3e2f76a2` (weekly Sat 00:00–Sun 15:30 CT refusal) cleared and merged into
+`production/dashboard-v2-20261003`.
+
+**Week 4 settled** (entry history 10-04 20:18; the pre-settlement copy was kept beside it): 154 entries, 26 contests;
+0.42× fees with the two tickets at face, 0.27× in cash.
+
+**Monkeys, all four weeks** (reviewer asked; the W2 pool was found archived, and its ladders were fetched 10-04 from
+the public API, all 12 Completed):
+- **W2:** M1 84.0, M2 81.3, M3 65.3 on cashes. Average score at the 100th pct vs M1/M2. W2 actuals: DK side table 343,
+  warehouse 83 (exact agreement on 317 overlaps), 3 no row.
+- **By week, M2:** W1 98.6, W2 81.3, W3 34.0, W4 22.9.
+- **W1–4 combined:** M2 72.2 (25 cashes vs a median of 21.5), M1 58.9, M3 100.
+- **Per contest:** above the M2 median in 50 of 86 (p 0.16).
+- **Reading:** indistinguishable from random pool rows over four weeks. W1–2 above, W3–4 below, which coincides with
+  the selection/construction changes; a hypothesis for Friday's gate, not a finding.
+- **Caveat:** W3's M3 has 29% of lineups touching undrafted (zero-scored) players, which flatters us vs M3 there.
+
+**Corrections for the record:**
+- McCaffrey's served market number was 20.36 (market_source_log, T-70); the "20.15" correction was wrong.
+- The W2 pool does survive.
+
+**Workstation (operator powered it on 10-04 ~21:00):** asked to copy the W1–3 workstation-only run artifacts to
+`gs://…-raw/private/rehearsal/2026-w0N/workstation-20261004/` (create-once, MANIFEST): W1 Saturday runs, W2 T-70 and
+the promoted book (77eaf797…), W3 T-70 candidates (5e80d6b1…). Verify the hashes when it reports.
+
+**Matchup study (descriptive):** the market prices matchup difficulty; the residual beyond the served projection is
+≈ 0. DEN was the #1 RB defence in 2025 but 27th in 2026 W1–3. Details are in the post-mortem draft, to be committed
+Monday with study 12a.
+
 ## 2026-10-04 (19:49 CDT) — O-26 merged, plus a build-time salary-spine assert with a narrow recorded exception
 
 - **O-26 merged** into integration at `9159e147` (reviewer cleared `eb031477`). The line's `001a` sha256 `d9ce2172…`
