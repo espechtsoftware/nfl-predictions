@@ -395,3 +395,20 @@ def test_repeat_finishers_sql_contract():
     for col in ("entries", "weeks", "top1_lineups", "top1_weeks", "top01_lineups", "best_rank",
                 "top1_rate", "top_qb", "top_qb_lineups"):
         assert f" AS {col}" in sql or f"u.{col}" in sql, col
+
+
+
+@pytest.mark.parametrize("fetch", [D.fetch_exposure, D.fetch_milly_slate, D.fetch_field_ownership, D.fetch_milly_top])
+def test_every_week_filter_alias_is_declared_in_its_sql(fetch):
+    """2026-10-05: /players and /accuracy failed live ("Unrecognized name: pool_exposure"): the week filter named an
+    alias the SQL never declared. The app tests stub every query, so capture each fetch's SQL for one week and require
+    every `<alias>.week = 4` filter to use an alias the SQL declares (`... AS alias`, `` `table` alias`` or a CTE)."""
+    import re
+    seen = []
+    fetch(lambda sql: seen.append(sql) or pd.DataFrame(), 2026, 4)
+    sql = seen[0]
+    aliases = set(re.findall(r"\b(\w+)\.week = 4\b", sql))
+    assert aliases, "no week filter rendered"
+    for a in aliases:
+        declared = rf"(\bAS\s+{a}\b(?!\s*\()|`\s+{a}\b|\b(?:WITH|,)\s*{a}\s+AS\s*\()"   # table alias or a CTE named a
+        assert re.search(declared, sql), f"{fetch.__name__}: filters on {a}.week but never declares {a}"
