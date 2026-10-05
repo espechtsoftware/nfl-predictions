@@ -4,6 +4,12 @@
 This check is intentionally outcome-blind. It verifies identities, paths, tools, contest metadata and the chosen-dose
 contract before a timer can launch a build or watcher. It does not query BigQuery or DraftKings; the build's own
 provider checks remain responsible for fresh data.
+
+O-20 (2026-10-03): the preflight used to stop at its FIRST failure, so every check after it stayed unexercised until
+the morning it mattered (the 10-02 dry run stopped on the missing sets file and never reached the stale UNION_SAT_DOSE
+check, which then stopped Saturday's arm 14 minutes before the D12800). It now runs every check whose prerequisites
+hold, prints each failure as it is found ("WEEK RUNTIME PREFLIGHT FAILED: ..."), and exits 2 ONCE at the end. A check
+that needs an input which itself failed (a missing variable, directory or contest file) is skipped, not crashed.
 """
 import argparse
 import json
@@ -19,17 +25,112 @@ HELPERS = (
     "fill_dk_entries.py", "qb_classify.py", "qb_flags.py", "vet_replace_v4.py", "verify_enter_bundle.py",
 )
 
+FAILURES = []
+
 
 def fail(message):
+    """Record a failure and keep checking; main() exits 2 once, after every check has run."""
+    FAILURES.append(message)
     print(f"WEEK RUNTIME PREFLIGHT FAILED: {message}", file=sys.stderr)
-    raise SystemExit(2)
 
 
 def git(root, *args):
+    """stdout of a git command, or None (recorded as a failure) when git fails."""
     p = subprocess.run(["git", "-C", str(root), *args], text=True, capture_output=True)
     if p.returncode:
         fail(f"git {' '.join(args)} failed in {root}: {p.stderr.strip()}")
+        return None
     return p.stdout.strip()
+
+
+def _int_env(name, default=None):
+    raw = os.environ.get(name)
+    if raw in (None, ""):
+        return default
+    try:
+        return int(raw)
+    except ValueError:
+        fail(f"{name} must be an integer: {raw!r}")
+        return None
+
+
+def check_contests(contests_path):
+    """The parsed contest list when it is valid, else None (each problem recorded)."""
+    if not contests_path.is_file():
+        fail(f"contest file missing: {contests_path}")
+        return None
+    try:
+        contests = json.loads(contests_path.read_text())
+    except Exception as exc:
+        fail(f"contest file is not JSON: {exc}")
+        return None
+    if not isinstance(contests, list) or not contests:
+        fail("contests.json must be a non-empty list")
+        return None
+    ok = True
+    for contest in contests:
+        if not isinstance(contest, dict) or not {"name", "contest_id", "entries", "keep"}.issubset(contest):
+            fail(f"contest entry lacks name/id/entries/keep: {contest!r}"); ok = False; continue
+        if "REPLACE" in json.dumps(contest): fail(f"contest template marker remains: {contest!r}"); ok = False
+        if not str(contest["contest_id"]).isdigit(): fail(f"contest id is not numeric: {contest!r}"); ok = False
+        try:
+            if int(contest["entries"]) < int(contest["keep"]): fail(f"keep exceeds entries: {contest!r}"); ok = False
+        except (TypeError, ValueError):
+            fail(f"contest entries/keep are not integers: {contest!r}"); ok = False
+    return contests if ok else None
+
+
+def check_clone_levers(clone, tail_sleeve):
+    """Every lever the chain will send as a flag must be one the pinned lab clone accepts (operator 2026-09-27: fail
+    here, at arming, never at Saturday's argument parsing). The clone's live_week.py is the authority."""
+    live_week = clone / "scripts" / "live_week.py"
+    if not live_week.is_file():
+        return
+    text = live_week.read_text()
+    wanted = []
+    if os.environ.get("LIVE_MIN_PROJ"): wanted.append("--min-proj")
+    if tail_sleeve:
+        wanted += ["--tail-sleeve", "--tail-line", "--tail-sleeve-selector"]
+        if os.environ.get("TAIL_SLEEVE_SELECTOR", "emax") == "mean":
+            if not re.search(r'"--tail-sleeve-selector"[^\n]*\n?[^\n]*"mean"', text):
+                fail(f"the pinned lab clone {clone} has no --tail-sleeve-selector mean (lab 54dd512+); move the pin or declare no tail contests")
+        if os.environ.get("TAIL_SLEEVE_SELECTOR", "emax") == "class":
+            wanted.append("--class-model")
+            cm = os.environ.get("CLASS_MODEL", "")
+            if not (cm and Path(cm).is_file() and Path(cm + ".sha256").is_file()):
+                fail(f"TAIL_SLEEVE_SELECTOR=class needs CLASS_MODEL (json + .sha256); got {cm!r}")
+    if os.environ.get("LIVE_SELECTOR", "dual_emax") == "class":
+        wanted += ['"class"', "--class-model"]
+        cm = os.environ.get("CLASS_MODEL", "")
+        if not (cm and Path(cm).is_file() and Path(cm + ".sha256").is_file()):
+            fail(f"LIVE_SELECTOR=class needs CLASS_MODEL (json + .sha256); got {cm!r}")
+    if os.environ.get("UNION_SATURDAY_RUN"):
+        if os.environ.get("LIVE_SELECTOR", "dual_emax") != "mean":
+            fail(f"UNION_SATURDAY_RUN needs LIVE_SELECTOR=mean; got {os.environ.get('LIVE_SELECTOR')!r}")
+        if not (clone / "src" / "nfl2" / "two_track.py").is_file() or "dst_of" not in (clone / "src" / "nfl2" / "two_track.py").read_text():
+            fail(f"the pinned lab clone {clone} has no DST-capped select_top_mean (union_reselect.py needs it)")
+        u = os.environ["UNION_SATURDAY_RUN"]
+        if u != "auto" and not Path(u, "receipt.json").is_file():
+            fail(f"UNION_SATURDAY_RUN={u!r} is neither 'auto' nor a run dir with a receipt")
+        if os.environ.get("UNION_MAIN", "mean") not in ("mean", "pmo_x50"):
+            fail(f"UNION_MAIN={os.environ.get('UNION_MAIN')!r} must be mean or pmo_x50")
+        dose = os.environ.get("UNION_SAT_DOSE", "2560/10240")
+        if not re.fullmatch(r"\d+/\d+(,\d+/\d+)*", dose):     # an ordered list since 10-01 (week_env; cracks audit B)
+            fail(f"UNION_SAT_DOSE={dose!r} must be lev/boom[,lev/boom...]")
+    if os.environ.get("CLASS_SLEEVE_EVERY", "0") not in ("", "0"):
+        wanted += ["--class-sleeve-every", "--class-model"]
+        cm = os.environ.get("CLASS_MODEL", "")
+        if not (cm and Path(cm).is_file() and Path(cm + ".sha256").is_file()):
+            fail(f"CLASS_SLEEVE_EVERY={os.environ['CLASS_SLEEVE_EVERY']} needs CLASS_MODEL (json + .sha256); got {cm!r}")
+    if os.environ.get("LIVE_SELECTOR", "dual_emax") in ("mean", "class"):
+        wanted.append('"mean"')
+        if os.environ.get("MEAN_OWN_TILT"): wanted += ["--mean-own-tilt", "--mean-own-source"]
+        if os.environ.get("MEAN_DST_CAP"): wanted.append("--mean-dst-cap")
+        if os.environ.get("MEAN_OWN_TILT") and not Path(os.environ.get("MEAN_OWN_SOURCE", "")).is_file():
+            fail(f"MEAN_OWN_TILT={os.environ['MEAN_OWN_TILT']} needs MEAN_OWN_SOURCE (the ownership sets file); got {os.environ.get('MEAN_OWN_SOURCE')!r}")
+    missing = [w for w in wanted if w not in text]
+    if missing:
+        fail(f"the pinned lab clone {clone} does not accept {missing}; move EXPECT_SHA to a commit that does, or unset the lever")
 
 
 def main():
@@ -41,129 +142,97 @@ def main():
     missing = [name for name in required if not os.environ.get(name)]
     if missing:
         fail("missing environment: " + ", ".join(missing))
-    prod = Path(os.environ["PROD"]); clone = Path(os.environ["CLONE"]); tools = Path(os.environ["TOOLS"])
-    if not prod.is_dir(): fail(f"production checkout missing: {prod}")
-    if not clone.is_dir(): fail(f"live clone missing: {clone}")
-    if not tools.is_dir(): fail(f"tools directory missing: {tools}")
+    env = os.environ.get
+
+    # Paths and interpreters. A directory that is missing (or unset) disables the checks that read inside it.
+    prod = Path(env("PROD")) if env("PROD") else None
+    clone = Path(env("CLONE")) if env("CLONE") else None
+    tools = Path(env("TOOLS")) if env("TOOLS") else None
+    if prod is not None and not prod.is_dir(): fail(f"production checkout missing: {prod}"); prod = None
+    if clone is not None and not clone.is_dir(): fail(f"live clone missing: {clone}"); clone = None
+    if tools is not None and not tools.is_dir(): fail(f"tools directory missing: {tools}"); tools = None
     for name in ("PROD_PY", "LAB_PY"):
-        p = Path(os.environ[name])
-        if not p.is_file() or not os.access(p, os.X_OK): fail(f"{name} is not executable: {p}")
-    sha = os.environ["EXPECT_SHA"]
-    if not re.fullmatch(r"[0-9a-f]{40}", sha): fail(f"EXPECT_SHA must be a full 40-character commit: {sha!r}")
-    fixture_sha = "e7255e98bf87297452befb61fb508ad4b368b59f"
-    if sha == fixture_sha and os.environ.get("ALLOW_FIXTURE_PIN") != "1":
-        fail("EXPECT_SHA is the compatibility fixture e7255e98...; export the approved Week-3 pin (or set ALLOW_FIXTURE_PIN=1 only for a deliberate rehearsal)")
-    actual = git(clone, "rev-parse", "HEAD")
-    if actual != sha: fail(f"live clone identity {actual} != EXPECT_SHA {sha}")
-    if git(clone, "status", "--porcelain"): fail(f"live clone is dirty: {clone}")
-    if git(prod, "status", "--porcelain"): fail(f"production checkout is dirty: {prod}")
-    if not (clone / "scripts/live_week.py").is_file(): fail("live clone has no scripts/live_week.py")
-    if not (prod / "scripts/sunday_build_host.sh").is_file(): fail("production checkout has no sunday_build_host.sh")
-    missing_tools = [name for name in HELPERS if not (tools / name).is_file()]
-    if missing_tools: fail("missing tracked/helper tools: " + ", ".join(missing_tools))
-    contests_path = Path(os.environ["CONTESTS_JSON"])
-    if not contests_path.is_file(): fail(f"contest file missing: {contests_path}")
-    try:
-        contests = json.loads(contests_path.read_text())
-    except Exception as exc:
-        fail(f"contest file is not JSON: {exc}")
-    if not isinstance(contests, list) or not contests: fail("contests.json must be a non-empty list")
-    total = 0
-    for contest in contests:
-        if not isinstance(contest, dict) or not {"name", "contest_id", "entries", "keep"}.issubset(contest):
-            fail(f"contest entry lacks name/id/entries/keep: {contest!r}")
-        if "REPLACE" in json.dumps(contest): fail(f"contest template marker remains: {contest!r}")
-        if not str(contest["contest_id"]).isdigit(): fail(f"contest id is not numeric: {contest!r}")
-        if int(contest["entries"]) < int(contest["keep"]): fail(f"keep exceeds entries: {contest!r}")
-        total += int(contest["entries"])
-    book_entries = int(os.environ["BOOK_ENTRIES"])
-    layout = os.environ.get("ENTER_LAYOUT") or "sequential"
-    sys.path.insert(0, str(prod / "src"))
-    from nfl_dfs.inference import enter_layout   # the one layout rule (2026-09-24)
-    try:
-        required_entries = enter_layout.rows_needed(contests, layout)
-    except enter_layout.LayoutError as exc:
-        fail(str(exc))
-    tail_sleeve = int(os.environ.get("TAIL_SLEEVE", "0") or 0)
-    if tail_sleeve != enter_layout.sleeve_size(contests, layout):
-        fail(f"TAIL_SLEEVE={tail_sleeve} but the contests declare {enter_layout.sleeve_size(contests, layout)} tail-track rows")
-    if book_entries + tail_sleeve < required_entries:
-        fail(f"BOOK_ENTRIES={book_entries} + TAIL_SLEEVE={tail_sleeve} cannot satisfy {layout} contest layout (needs {required_entries})")
-    if book_entries < enter_layout.MEAN_ROWS_FLOOR:
+        if env(name):
+            p = Path(env(name))
+            if not p.is_file() or not os.access(p, os.X_OK): fail(f"{name} is not executable: {p}")
+
+    # Identities.
+    sha = env("EXPECT_SHA")
+    if sha:
+        if not re.fullmatch(r"[0-9a-f]{40}", sha): fail(f"EXPECT_SHA must be a full 40-character commit: {sha!r}")
+        fixture_sha = "e7255e98bf87297452befb61fb508ad4b368b59f"
+        if sha == fixture_sha and env("ALLOW_FIXTURE_PIN") != "1":
+            fail("EXPECT_SHA is the compatibility fixture e7255e98...; export the approved Week-3 pin (or set ALLOW_FIXTURE_PIN=1 only for a deliberate rehearsal)")
+    actual = None
+    if clone is not None:
+        actual = git(clone, "rev-parse", "HEAD")
+        if actual is not None and sha and actual != sha: fail(f"live clone identity {actual} != EXPECT_SHA {sha}")
+        if git(clone, "status", "--porcelain"): fail(f"live clone is dirty: {clone}")
+        if not (clone / "scripts/live_week.py").is_file(): fail("live clone has no scripts/live_week.py")
+    if prod is not None:
+        if git(prod, "status", "--porcelain"): fail(f"production checkout is dirty: {prod}")
+        if not (prod / "scripts/sunday_build_host.sh").is_file(): fail("production checkout has no sunday_build_host.sh")
+    if tools is not None:
+        missing_tools = [name for name in HELPERS if not (tools / name).is_file()]
+        if missing_tools: fail("missing tracked/helper tools: " + ", ".join(missing_tools))
+
+    # Contests and the layout they need.
+    contests = check_contests(Path(env("CONTESTS_JSON"))) if env("CONTESTS_JSON") else None
+    book_entries = _int_env("BOOK_ENTRIES")
+    tail_sleeve = _int_env("TAIL_SLEEVE", 0)
+    layout = env("ENTER_LAYOUT") or "sequential"
+    enter_layout = None
+    if prod is not None:
+        sys.path.insert(0, str(prod / "src"))
+        try:
+            from nfl_dfs.inference import enter_layout   # the one layout rule (2026-09-24)
+        except Exception as exc:
+            fail(f"cannot import nfl_dfs.inference.enter_layout from {prod / 'src'}: {exc}")
+    required_entries = None
+    if enter_layout is not None and contests is not None:
+        try:
+            required_entries = enter_layout.rows_needed(contests, layout)
+        except enter_layout.LayoutError as exc:
+            fail(str(exc))
+        if required_entries is not None and tail_sleeve is not None:
+            declared_sleeve = enter_layout.sleeve_size(contests, layout)
+            if tail_sleeve != declared_sleeve:
+                fail(f"TAIL_SLEEVE={tail_sleeve} but the contests declare {declared_sleeve} tail-track rows")
+            if book_entries is not None and book_entries + tail_sleeve < required_entries:
+                fail(f"BOOK_ENTRIES={book_entries} + TAIL_SLEEVE={tail_sleeve} cannot satisfy {layout} contest layout (needs {required_entries})")
+    if enter_layout is not None and book_entries is not None and book_entries < enter_layout.MEAN_ROWS_FLOOR:
         fail(f"BOOK_ENTRIES={book_entries} is below the mean-track floor {enter_layout.MEAN_ROWS_FLOOR}")
-    if tail_sleeve and os.environ.get("LIVE_SELECTOR", "dual_emax") not in ("mean", "class"):
-        fail(f"tail-track contests need LIVE_SELECTOR=mean or class (the two-track builder); got {os.environ.get('LIVE_SELECTOR')!r}")
-    # Every lever the chain will send as a flag must be one the pinned lab clone accepts (operator 2026-09-27: fail here,
-    # at arming, never at Saturday's argument parsing). The clone's live_week.py is the authority.
-    clone = Path(os.environ["CLONE"]) if os.environ.get("CLONE") else None
-    live_week = (clone / "scripts" / "live_week.py") if clone else None
-    if live_week is not None and live_week.is_file():
-        text = live_week.read_text()
-        wanted = []
-        if os.environ.get("LIVE_MIN_PROJ"): wanted.append("--min-proj")
-        if tail_sleeve:
-            wanted += ["--tail-sleeve", "--tail-line", "--tail-sleeve-selector"]
-            if os.environ.get("TAIL_SLEEVE_SELECTOR", "emax") == "mean":
-                import re as _re
-                if not _re.search(r'"--tail-sleeve-selector"[^\n]*\n?[^\n]*"mean"', text):
-                    fail(f"the pinned lab clone {clone} has no --tail-sleeve-selector mean (lab 54dd512+); move the pin or declare no tail contests")
-            if os.environ.get("TAIL_SLEEVE_SELECTOR", "emax") == "class":
-                wanted.append("--class-model")
-                cm = os.environ.get("CLASS_MODEL", "")
-                if not (cm and Path(cm).is_file() and Path(cm + ".sha256").is_file()):
-                    fail(f"TAIL_SLEEVE_SELECTOR=class needs CLASS_MODEL (json + .sha256); got {cm!r}")
-        if os.environ.get("LIVE_SELECTOR", "dual_emax") == "class":
-            wanted += ['"class"', "--class-model"]
-            cm = os.environ.get("CLASS_MODEL", "")
-            if not (cm and Path(cm).is_file() and Path(cm + ".sha256").is_file()):
-                fail(f"LIVE_SELECTOR=class needs CLASS_MODEL (json + .sha256); got {cm!r}")
-        if os.environ.get("UNION_SATURDAY_RUN"):
-            if os.environ.get("LIVE_SELECTOR", "dual_emax") != "mean":
-                fail(f"UNION_SATURDAY_RUN needs LIVE_SELECTOR=mean; got {os.environ.get('LIVE_SELECTOR')!r}")
-            if not (clone / "src" / "nfl2" / "two_track.py").is_file() or "dst_of" not in (clone / "src" / "nfl2" / "two_track.py").read_text():
-                fail(f"the pinned lab clone {clone} has no DST-capped select_top_mean (union_reselect.py needs it)")
-            u = os.environ["UNION_SATURDAY_RUN"]
-            if u != "auto" and not Path(u, "receipt.json").is_file():
-                fail(f"UNION_SATURDAY_RUN={u!r} is neither 'auto' nor a run dir with a receipt")
-            if os.environ.get("UNION_MAIN", "mean") not in ("mean", "pmo_x50"):
-                fail(f"UNION_MAIN={os.environ.get('UNION_MAIN')!r} must be mean or pmo_x50")
-            dose = os.environ.get("UNION_SAT_DOSE", "2560/10240")
-            if not re.fullmatch(r"\d+/\d+(,\d+/\d+)*", dose):     # an ordered list since 10-01 (week_env; cracks audit B)
-                fail(f"UNION_SAT_DOSE={dose!r} must be lev/boom[,lev/boom...]")
-        if os.environ.get("CLASS_SLEEVE_EVERY", "0") not in ("", "0"):
-            wanted += ["--class-sleeve-every", "--class-model"]
-            cm = os.environ.get("CLASS_MODEL", "")
-            if not (cm and Path(cm).is_file() and Path(cm + ".sha256").is_file()):
-                fail(f"CLASS_SLEEVE_EVERY={os.environ['CLASS_SLEEVE_EVERY']} needs CLASS_MODEL (json + .sha256); got {cm!r}")
-        if os.environ.get("LIVE_SELECTOR", "dual_emax") in ("mean", "class"):
-            wanted.append('"mean"')
-            if os.environ.get("MEAN_OWN_TILT"): wanted += ["--mean-own-tilt", "--mean-own-source"]
-            if os.environ.get("MEAN_DST_CAP"): wanted.append("--mean-dst-cap")
-            if os.environ.get("MEAN_OWN_TILT") and not Path(os.environ.get("MEAN_OWN_SOURCE", "")).is_file():
-                fail(f"MEAN_OWN_TILT={os.environ['MEAN_OWN_TILT']} needs MEAN_OWN_SOURCE (the ownership sets file); got {os.environ.get('MEAN_OWN_SOURCE')!r}")
-        missing = [w for w in wanted if w not in text]
-        if missing:
-            fail(f"the pinned lab clone {clone} does not accept {missing}; move EXPECT_SHA to a commit that does, or unset the lever")
-    if layout != "sequential":                  # laptop review F2: show every contest's ranks at arming time
+    if tail_sleeve and env("LIVE_SELECTOR", "dual_emax") not in ("mean", "class"):
+        fail(f"tail-track contests need LIVE_SELECTOR=mean or class (the two-track builder); got {env('LIVE_SELECTOR')!r}")
+    if clone is not None:
+        check_clone_levers(clone, tail_sleeve)
+    if layout != "sequential" and required_entries is not None:   # laptop review F2: show every contest's ranks at arming
         print(f"{layout} layout, {required_entries} distinct lineups:")
         for line in enter_layout.rank_summary(contests, layout):
             print("  " + line)
-    order = os.environ.get("ENTER_ORDER") or "greedy"
-    if order not in enter_layout.ORDERS: fail(f"unknown ENTER_ORDER {order!r}; expected one of {enter_layout.ORDERS}")
+    order = env("ENTER_ORDER") or "greedy"
+    if enter_layout is not None and order not in enter_layout.ORDERS:
+        fail(f"unknown ENTER_ORDER {order!r}; expected one of {enter_layout.ORDERS}")
     if order == "fewest-low":
-        sets = Path(os.environ.get("OWNERSHIP_SETS", ""))
+        sets = Path(env("OWNERSHIP_SETS", ""))
         if not sets.is_file():
             fail(f"ENTER_ORDER=fewest-low needs the Saturday sets file OWNERSHIP_SETS={sets} (scripts/ownership_sets.py sets "
-                 f"--week {os.environ['WEEK']} --group {os.environ['GROUP']} --out {sets}); write it before arming")
+                 f"--week {env('WEEK')} --group {env('GROUP')} --out {sets}); write it before arming")
     if args.role == "watchers":
-        chosen = Path(os.environ.get("CHOSEN_FILE", ""))
-        if not chosen.is_file(): fail(f"chosen dose file missing: {chosen}; write CHOSEN_LEV/CHOSEN_BOOM before arming watchers")
-        text = chosen.read_text()
-        for name in ("CHOSEN_LEV", "CHOSEN_BOOM"):
-            if not re.search(rf"^\s*{name}\s*=\s*[0-9]+\s*$", text, re.MULTILINE):
-                fail(f"chosen dose file lacks {name}=integer: {chosen}")
-    print(f"week runtime preflight ok: role={args.role} season={os.environ['SEASON']} week={os.environ['WEEK']} "
-          f"group={os.environ['GROUP']} book_entries={book_entries} layout={layout} order={order} clone={actual} tools={tools}")
+        chosen = Path(env("CHOSEN_FILE", ""))
+        if not chosen.is_file():
+            fail(f"chosen dose file missing: {chosen}; write CHOSEN_LEV/CHOSEN_BOOM before arming watchers")
+        else:
+            text = chosen.read_text()
+            for name in ("CHOSEN_LEV", "CHOSEN_BOOM"):
+                if not re.search(rf"^\s*{name}\s*=\s*[0-9]+\s*$", text, re.MULTILINE):
+                    fail(f"chosen dose file lacks {name}=integer: {chosen}")
+    if FAILURES:
+        print(f"WEEK RUNTIME PREFLIGHT FAILED: {len(FAILURES)} check(s) failed (each listed above)",
+              file=sys.stderr)
+        raise SystemExit(2)
+    print(f"week runtime preflight ok: role={args.role} season={env('SEASON')} week={env('WEEK')} "
+          f"group={env('GROUP')} book_entries={book_entries} layout={layout} order={order} clone={actual} tools={tools}")
 
 
 if __name__ == "__main__":
