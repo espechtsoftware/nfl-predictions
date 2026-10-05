@@ -12,6 +12,27 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-05 (10:38 CDT) — Studies 15 and 16 READ (reproduced by the reviewer); O-22 code reviewed and APPROVED; dashboard fixed
+
+- **Study 15 (QB + 1 stack):** S1 and S1HT NO DIFFERENCE.
+  - Disclosed reader defect: the intervals were 0.975, not 0.9875; same verdicts at 0.9875.
+  - Addendum 124; lab LEDGER `1e3e07e`.
+  - Any offer needs a new lab pin with `TeamStackRules` plus check_lab_api.
+- **Study 16 (the operator's thesis):**
+  - NO DIFFERENCE on tickets (frozen). The mean-finish guard is far below its margin (descriptive: −4.3 points).
+  - The exploratory sleeve SL25 was negative.
+  - The thesis as tested was a heavier bet on the Vegas top totals (C 75% → TP 89% core).
+  - 16b NOT pursued. A paper-sleeve option on the operator's own game picks is offered, not recommended.
+  - Addendum 125; lab LEDGER `e153b5d`.
+- **Briefing:** `briefings/2026-week-04/2026-10-05-studies-15-16-stack-and-thesis.md`.
+- **O-22/O-21 code** (the reviewer's branch `production/o22-leak-fixes-20261005`, up to `c4721f9e`): reviewed and
+  APPROVED by the laptop.
+  - The blocking item (top_cb_out FALSE for all 2025) was fixed in `6d0353b1`.
+  - team_ol_out was made point in time in `c4721f9e`.
+  - **Thu–Fri (laptop):** build-features from integration ≥ `0f0a07c9` merged with this branch; the leakage suite on
+    the real tables; the retrain; the six-season co-run.
+- **Dashboard:** the /players and /accuracy fix is deployed (`00079-5lp`). The operator confirms in his browser.
+
 ## 2026-10-05 (10:16 CDT) — Dashboard fix DEPLOYED: /players and /accuracy (revision nfl-dfs-app-00079-5lp)
 
 - **What the operator saw:** "Unrecognized name: pool_exposure" on /players. Testing every page by serving the deployed
