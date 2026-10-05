@@ -69,6 +69,106 @@ def assert_historical_salary_source_reconciled(gaps: pd.DataFrame) -> None:
         )
 
 
+def parse_salary_spine_allowed_gaps(text: str) -> frozenset[tuple[int, int]]:
+    """Parse ``SALARY_SPINE_ALLOW_GAPS``: an exact ``season:week`` list.
+
+    Anything other than comma-separated ``YYYY:W`` pairs is refused, so a typo
+    cannot widen the exception.
+    """
+    import re
+
+    text = (text or "").strip()
+    if not text:
+        return frozenset()
+    gaps = set()
+    for item in text.split(","):
+        m = re.fullmatch(r"\s*(\d{4}):(\d{1,2})\s*", item)
+        if not m:
+            raise LeakageError(
+                f"SALARY_SPINE_ALLOW_GAPS entry {item!r} is not season:week")
+        gaps.add((int(m.group(1)), int(m.group(2))))
+    return frozenset(gaps)
+
+
+def assert_salary_spine_covers_completed_weeks(
+    coverage: pd.DataFrame,
+    allowed_gaps: frozenset[tuple[int, int]] = frozenset(),
+) -> list[tuple[int, int]]:
+    """Every completed week of an own-snapshot season has salary-spine rows.
+
+    O-12/O-26: the DK ingest leaves raw week NULL by design, and the spine
+    once dropped those rows before resolving them, which silently emptied the
+    2026 salary spine and every prior-usage feature built on it. The
+    downstream universe checks start FROM the spine, so an empty week passes
+    them vacuously. This stops the build instead of finding it afterwards.
+
+    ``allowed_gaps`` is the narrow, recorded exception for a week genuinely
+    lost at the source (``SALARY_SPINE_ALLOW_GAPS``): exactly those empty
+    weeks are excluded from this one assert, never from any other check, and
+    their use needs a Data deficiency log row. A listed week that is not
+    actually an empty completed week is refused, so a stale exception cannot
+    linger. Returns the weeks excused, for the build log.
+    """
+    required = {"season", "week", "completed_games", "spine_rows"}
+    if missing := required - set(coverage.columns):
+        raise LeakageError(
+            f"salary spine coverage lacks columns {sorted(missing)}")
+    empty = coverage[coverage.completed_games.gt(0)
+                     & coverage.spine_rows.fillna(0).eq(0)]
+    empty_keys = {(int(r.season), int(r.week)) for r in empty.itertuples()}
+    if stale := sorted(set(allowed_gaps) - empty_keys):
+        raise LeakageError(
+            f"SALARY_SPINE_ALLOW_GAPS lists {stale}, which are not empty "
+            f"completed own-snapshot weeks; remove them from the exception")
+    unexcused = empty[[
+        (int(r.season), int(r.week)) not in allowed_gaps
+        for r in empty.itertuples()
+    ]] if not empty.empty else empty
+    if not unexcused.empty:
+        raise LeakageError(
+            f"{len(unexcused)} completed week(s) of an own-snapshot DK season "
+            f"have no dk_salary_week rows (raw salary weeks unresolved?). "
+            f"Sample:\n{unexcused.head(25).to_string(index=False)}"
+        )
+    return sorted(empty_keys & set(allowed_gaps))
+
+
+def assert_allowed_gaps_recorded(
+    excused: list[tuple[int, int]], readme_text: str | None,
+) -> None:
+    """Each excused salary-spine week needs its Data deficiency log row.
+
+    The row must sit inside README's DATA-DEFICIENCY-LOG markers and mention
+    both ``SALARY_SPINE_ALLOW_GAPS`` and that exact ``season:week`` (so
+    ``2026:1`` is not satisfied by a ``2026:12`` row). The image ships
+    README.md beside ``sql/``.
+    """
+    import re
+
+    if not excused:
+        return
+    start, end = "<!-- DATA-DEFICIENCY-LOG:START -->", "<!-- DATA-DEFICIENCY-LOG:END -->"
+    if not readme_text or start not in readme_text or end not in readme_text:
+        raise LeakageError(
+            "SALARY_SPINE_ALLOW_GAPS excuses weeks but README.md's Data "
+            "deficiency log could not be read")
+    log_rows = [
+        line for line in
+        readme_text.split(start, 1)[1].split(end, 1)[0].splitlines()
+        if line.startswith("|") and "SALARY_SPINE_ALLOW_GAPS" in line
+    ]
+    missing = [
+        f"{season}:{week}" for season, week in excused
+        if not any(re.search(rf"(?<!\d){season}:{week}(?!\d)", row)
+                   for row in log_rows)
+    ]
+    if missing:
+        raise LeakageError(
+            f"SALARY_SPINE_ALLOW_GAPS excuses {missing} but README.md's Data "
+            f"deficiency log has no row mentioning SALARY_SPINE_ALLOW_GAPS "
+            f"and each of them; add the row before excusing the week")
+
+
 def assert_dst_actual_universe_reconciled(gaps: pd.DataFrame) -> None:
     """Every completed regular-season team-game has a canonical DST label."""
     if not gaps.empty:
@@ -1078,6 +1178,34 @@ SELECT * FROM expected
 """
 
 
+# Own-snapshot seasons (raw dk_salaries, week NULL by design) must reach the
+# spine for every week with a completed regular-season game.
+SALARY_SPINE_COVERAGE_SQL = """
+WITH own AS (
+  SELECT DISTINCT CAST(season AS INT64) AS season
+  FROM `{raw}.dk_salaries`
+  WHERE slate_type = 'classic' AND salary > 0
+),
+completed AS (
+  SELECT CAST(season AS INT64) AS season, CAST(week AS INT64) AS week,
+         COUNT(*) AS completed_games
+  FROM `{raw}.schedules`
+  WHERE game_type = 'REG' AND home_score IS NOT NULL
+  GROUP BY 1, 2
+),
+spine AS (
+  SELECT season, week, COUNT(*) AS spine_rows
+  FROM `{features}.dk_salary_week`
+  GROUP BY 1, 2
+)
+SELECT c.season, c.week, c.completed_games, IFNULL(s.spine_rows, 0) AS spine_rows
+FROM completed c
+JOIN own USING (season)
+LEFT JOIN spine s USING (season, week)
+ORDER BY c.season, c.week
+"""
+
+
 UNIVERSE_GAP_SQL = """
 SELECT s.gsis_id, s.display_name, s.season, s.week, s.position, s.team, s.salary
 FROM `{features}.dk_salary_week` s
@@ -1371,7 +1499,7 @@ def run_team_qb_quality_checks() -> None:
 
 
 def run_leakage_checks() -> None:
-    from ..bq import query_df
+    from ..bq import SQL_DIR, query_df
     from ..config import settings
 
     built_cols = sorted({f for f, *_ in CHECKED_FEATURES} | {"games_played_prior"})
@@ -1480,6 +1608,19 @@ def run_leakage_checks() -> None:
     # Exact replay-universe contract. This catches identity, source-spine,
     # actual-label, and cold-start filtering regressions before a new build can
     # be used by replay or training.
+    spine_coverage = query_df(SALARY_SPINE_COVERAGE_SQL.format(
+        features=settings.features, raw=settings.raw))
+    excused = assert_salary_spine_covers_completed_weeks(
+        spine_coverage,
+        parse_salary_spine_allowed_gaps(settings.salary_spine_allow_gaps))
+    readme = SQL_DIR.parent / "README.md"
+    assert_allowed_gaps_recorded(
+        excused, readme.read_text() if excused and readme.is_file() else None)
+    if excused:
+        msg = ("SALARY SPINE GAPS EXCUSED by SALARY_SPINE_ALLOW_GAPS "
+               f"(source-lost weeks; Data deficiency log row required): {excused}")
+        log.warning(msg)
+        print(msg, flush=True)
     gaps = query_df(UNIVERSE_GAP_SQL.format(features=settings.features))
     assert_salary_universe_reconciled(gaps)
     source_gaps = query_df(HISTORICAL_ROSTER_GAP_SQL.format(
