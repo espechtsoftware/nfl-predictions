@@ -476,8 +476,8 @@ Groups come from the Weeks 1–3 Millionaires:
 
 | Question | Answer | Report |
 |---|---|---|
-| Would today's system have made money over Weeks 1–4? | No: 0.48× fees (0.36–0.67). Better than random picks from its own pools overall (W1–2 well above, W3–4 below). No tested change does better | `reports/2026-10-05-week5-money-gate-result.md` |
-| In which contest types do we have an edge, and how long would it take to see one? | None can be shown. A 15% edge needs hundreds of weeks of money results. Satellites ran below break-even (0.12×), robustly. Our rows sit about 0.15 sd under the Millionaire field | `reports/2026-10-05-p1-contest-type-edge.md` |
-| Overlays? | None usable on the classic slate in Week 4. The overlays that held were single-game Showdown copies at 1.10–1.36 | `reports/2026-10-05-overlay-backtest-week4.md` |
-| Contrarian games? | The top-total game is the week's top scorer only 16–19% of the time, but the field is FLATTER than the odds, so the leverage sits in the top total. Our error was size: 61% of entries on one game | `reports/2026-10-05-x1-steps-1-2-shootouts-and-field-allocation.md` |
-| What would let us win? | A ranked plan: de-concentration first (study 1 + P4, frozen), then the contrarian-game step, projection hygiene (O-22) and stake evidence | `reports/2026-10-05-path-to-winning-plan.md`, `reports/2026-10-05-prereg-study1-deconcentration.md` |
+| Would today's system have made money over Weeks 1–4? | No: 0.48× fees (0.36–0.67). Better than random picks from its own pools overall (W1–2 well above, W3–4 below). No tested change does better | `briefings/2026-week-04/2026-10-05-week5-money-gate-result.md` |
+| In which contest types do we have an edge, and how long would it take to see one? | None can be shown. A 15% edge needs hundreds of weeks of money results. Satellites ran below break-even (0.12×), robustly. Our rows sit about 0.15 sd under the Millionaire field | `briefings/2026-week-04/2026-10-05-p1-contest-type-edge.md` |
+| Overlays? | None usable on the classic slate in Week 4. The overlays that held were single-game Showdown copies at 1.10–1.36 | `briefings/2026-week-04/2026-10-05-overlay-backtest-week4.md` |
+| Contrarian games? | The top-total game is the week's top scorer only 16–19% of the time, but the field is FLATTER than the odds, so the leverage sits in the top total. Our error was size: 61% of entries on one game | `briefings/2026-week-04/2026-10-05-x1-steps-1-2-shootouts-and-field-allocation.md` |
+| What would let us win? | A ranked plan: de-concentration first (study 1 + P4, frozen), then the contrarian-game step, projection hygiene (O-22) and stake evidence | `briefings/2026-week-04/2026-10-05-path-to-winning-plan.md`, `reports/2026-10-05-prereg-study1-deconcentration.md` |

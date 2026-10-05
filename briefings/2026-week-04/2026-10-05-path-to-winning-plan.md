@@ -6,9 +6,9 @@ before any item becomes a study or a change. Every claim cites its source.
 ## Where we are (measured)
 
 1. **The current system, replayed on Weeks 1–4 against the real fields and payouts, returns about 0.48× of fees.**
-   Range 0.36–0.67 (`reports/2026-10-05-week5-money-gate-result.md`). None of the selection changes tested beats it.
+   Range 0.36–0.67 (`briefings/2026-week-04/2026-10-05-week5-money-gate-result.md`). None of the selection changes tested beats it.
 2. **Money results can never prove an edge within a season.** A real 15% edge needs hundreds of weeks to show
-   (`reports/2026-10-05-p1-contest-type-edge.md`). The satellites ran below break-even (0.12×), robustly.
+   (`briefings/2026-week-04/2026-10-05-p1-contest-type-edge.md`). The satellites ran below break-even (0.12×), robustly.
 3. **Our lineups score about the same as the crowd's, not better.**
    - Over W1–4 they averaged −0.15 sd against the Millionaire field (−0.55 to +0.25); break-even needs +0.12 to
      +0.22.

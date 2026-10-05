@@ -20,7 +20,7 @@ Contest 196305080 (a hand entry with no ladder captured) is excluded from every 
 **On Weeks 1–4 the current system would have returned about 0.48× of fees (range 0.36–0.67): it would have lost
 money.** None of the tested selection changes does better in a way the data can support, and the current selection is
 the best of them. **So the Week-5 question is how much to stake, not which version to run.** The staking evidence is P1
-(`reports/2026-10-05-p1-contest-type-edge.md`, robustness section verified 10-05).
+(`briefings/2026-week-04/2026-10-05-p1-contest-type-edge.md`, robustness section verified 10-05).
 
 ## The answers
 

@@ -4,12 +4,12 @@ Written for the reviewer and the operator. Frozen before any arm is built or sco
 actually can win."
 
 ## Why this study, and why first
-- **Week-4 diagnosis (`reports/2026-10-05-path-to-winning-plan.md`):** our picks were no more over-projected relative
+- **Week-4 diagnosis (`briefings/2026-week-04/2026-10-05-path-to-winning-plan.md`):** our picks were no more over-projected relative
   to the market than the field's picks. The losses were correlated busts in a concentrated book:
   - 61% of entries held 3+ players from the top-total game;
   - one triple sat in 58% of entries;
   - Chase was in 49% of entries.
-- **X1 steps 1–2 (`reports/2026-10-05-x1-steps-1-2-shootouts-and-field-allocation.md`):**
+- **X1 steps 1–2 (`briefings/2026-week-04/2026-10-05-x1-steps-1-2-shootouts-and-field-allocation.md`):**
   - The top-total game is the week's top scorer about 19% of the time, and in the top 3 about 41% (2014–21).
   - The field is flatter than the odds.
   - So leaning toward the top total is supported, but not 61% of the book.
