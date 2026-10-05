@@ -12,6 +12,29 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-04 (19:34 CDT) — Defect fixes: money-lane list run (a stale test repaired); the reviewer's views on the operator decisions
+
+**The reviewer CLEARED `production/week5-defect-fixes-20261004`** (O-19/O-20/O-23/O-24) to merge once its money-lane
+list passed.
+- Run one module at a time: 21/22 passed as-is.
+- `test_week3_levers_reach_the_book` failed identically on the integration tip: a STALE test (nfl2 32cdb61 moved the
+  cap into `live_arm_env`; the boom call gained the sleeve kwargs on 09-28). Fixed test-only in `d129439f` +
+  `e0dcdced`: 8 passed, 1 skipped.
+- Process note: `d129439f` was committed before its result was gated.
+- Sent to the reviewer for confirmation, then merge to integration.
+- Reviewer follow-up added to Wednesday's smoke: after a full rehearsal OUT, `undeclared()` lists no file the chain
+  itself wrote (O-24's fail-open guard).
+
+**The reviewer's views on the open decisions** (the operator decides):
+1. **Route Share (O-2/O-25):** NEVER (b), the revert to N_BOOM=28 (it grades a policy we don't run, the 09-18 trap).
+   Prefer (a), with the dry run passing by Sat 12:00; else (c), with W3–W5 disclosed as lost.
+2. **SIS pass-tail (O-3):** run it if Tuesday's session check passes (the operator pays and wants every page
+   captured). DORMANT only with a written reason.
+3. **O-22:** Week 6 (agreed). Week 5 runs the current model plus paper shadow B.
+4. **O-26:** yes, BEFORE any other image build, plus a test that 2026 usage rows exist after build-features.
+5. **The class behind O-25/O-27** (rule 4): `check_prospective_gates.py` checks scheduler state and env but NOT that
+   runs SUCCEED. Add a check that each live gate's job has a successful execution within its cadence (e.g. the last 2
+   scheduled runs). That would have caught both within a week.
 ## 2026-10-04 (19:31 CDT) — Sunday-night results: dashboard update deployed; defect fixes for review; player post-mortem; register review (decisions needed)
 
 **Dashboard update:** `bcd7fc22` (user names + insight 4; /milly/graph removed), cleared by the reviewer.
