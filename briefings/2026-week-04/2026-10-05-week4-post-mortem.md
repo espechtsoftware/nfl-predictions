@@ -457,7 +457,9 @@ Groups come from the Weeks 1–3 Millionaires:
 
 ## 10. Files
 
-**Analysis code and outputs** (scratch, not tracked):
+**Analysis code and outputs** (not tracked; preserved 10-05 from the nondurable scratch to `~/private/pm-week4/` on the laptop,
+private because some of it handles DK user names). The monkey benchmark is now the permanent `scripts/moneygate_monkeys.py`
+(money-gate harness branch):
 - `pm-selection/`: monkey code, seeds, per-contest CSVs, `per_contest_paired.csv`, `per_contest_sign_summary.csv`;
 - `pm-players/`: the Chase, points-flow and past-winners work;
 - `pm-matchup/`;
