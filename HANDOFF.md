@@ -12,6 +12,25 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-05 (13:49 CDT) — The Chase-injury study: `reports/2026-10-05-chase-injury-study.md`
+
+- **Part 1, the exact damage** (settled data = Sunday's): Chase was in 75 of 154 entries (2.5× the field) and scored
+  5.7, below his p10. At his projection the book gains about one cash (about 0.08× of fees; p90 about 0.38×). He was
+  37% of the net miss and the second-largest drag after P. Washington.
+- **Part 2, HINDSIGHT re-deals of the entered book** (`scripts/moneygate_chase_hindsight.py` @ `3680c054`, harness):
+
+  | Arm | Return | Cashes |
+  |---|---|---|
+  | as entered | 0.17× | 2 |
+  | capped at 30% | 0.35× | 4 |
+  | capped at 20% | 0.35× | 4 |
+  | Burrow stacks only | 0.43× | 5 |
+
+  These win by construction. The decision basis is study 1b (no adoption).
+- **In our control:** concentration (created at selection; study 17 now) and his use as a bring-back (2 of 54 lineups
+  with Burrow).
+- **O-24:** dollars are NOT written under `~/week4-sunday/`, against the cron text, which asked for a private file there.
+
 ## 2026-10-05 (12:48 CDT) — Monday post-mortem items and the selection challenge: done; the monkey benchmark is now a PERMANENT weekly arm
 
 - **Settled data:** the 26 standings files Sunday's post-mortem used are byte-identical to today's imports (9 CSVs; 17
