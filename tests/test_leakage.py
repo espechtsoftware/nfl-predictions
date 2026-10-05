@@ -17,6 +17,7 @@ from nfl_dfs.features.leakage import (
     assert_route_source_strict_prior,
     assert_salary_universe_reconciled,
     assert_salary_spine_covers_completed_weeks,
+    parse_salary_spine_allowed_gaps,
     SALARY_SPINE_COVERAGE_SQL,
     trailing_mean_excluding_current,
     trailing_std_excluding_current,
@@ -421,3 +422,52 @@ def test_salary_spine_coverage_sql_reads_own_snapshots_and_played_games():
     assert "game_type = 'REG' AND home_score IS NOT NULL" in sql
     assert "LEFT JOIN spine s USING (season, week)" in sql
     assert "IFNULL(s.spine_rows, 0)" in sql
+
+
+def test_salary_spine_allowed_gaps_excuse_exactly_the_listed_weeks():
+    cov = pd.DataFrame([
+        {"season": 2026, "week": 6, "completed_games": 14, "spine_rows": 801},
+        {"season": 2026, "week": 7, "completed_games": 15, "spine_rows": 0},
+        {"season": 2026, "week": 8, "completed_games": 13, "spine_rows": 0},
+    ])
+    with pytest.raises(LeakageError, match="2 completed week"):
+        assert_salary_spine_covers_completed_weeks(cov)
+    # Listing week 7 excuses week 7 only; week 8 still stops the build.
+    with pytest.raises(LeakageError, match="1 completed week") as err:
+        assert_salary_spine_covers_completed_weeks(
+            cov, parse_salary_spine_allowed_gaps("2026:7"))
+    import re
+    assert re.search(r"2026\s+8\s+13\s+0", str(err.value))
+    assert not re.search(r"2026\s+7\s+15", str(err.value))
+    assert assert_salary_spine_covers_completed_weeks(
+        cov, parse_salary_spine_allowed_gaps("2026:7, 2026:8")) == [
+            (2026, 7), (2026, 8)]
+    # The same week number in another season is not excused.
+    with pytest.raises(LeakageError, match="not empty completed"):
+        assert_salary_spine_covers_completed_weeks(
+            cov, parse_salary_spine_allowed_gaps("2025:7,2026:7,2026:8"))
+    # A listed week that has rows (stale exception) is refused.
+    with pytest.raises(LeakageError, match="not empty completed"):
+        assert_salary_spine_covers_completed_weeks(
+            cov, parse_salary_spine_allowed_gaps("2026:6,2026:7,2026:8"))
+
+
+def test_salary_spine_allowed_gaps_parse_is_exact():
+    assert parse_salary_spine_allowed_gaps("") == frozenset()
+    assert parse_salary_spine_allowed_gaps("  ") == frozenset()
+    assert parse_salary_spine_allowed_gaps("2026:7,2026:12") == {
+        (2026, 7), (2026, 12)}
+    for bad in ("2026", "2026:*", "26:7", "2026:7-9", "all", "2026:7;2026:8"):
+        with pytest.raises(LeakageError, match="not season:week"):
+            parse_salary_spine_allowed_gaps(bad)
+
+
+def test_salary_spine_allowed_gap_is_season_specific():
+    cov = pd.DataFrame([
+        {"season": 2025, "week": 7, "completed_games": 15, "spine_rows": 0},
+        {"season": 2026, "week": 7, "completed_games": 15, "spine_rows": 0},
+    ])
+    with pytest.raises(LeakageError, match="1 completed week") as err:
+        assert_salary_spine_covers_completed_weeks(
+            cov, parse_salary_spine_allowed_gaps("2026:7"))
+    assert "2025" in str(err.value)

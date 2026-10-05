@@ -69,7 +69,31 @@ def assert_historical_salary_source_reconciled(gaps: pd.DataFrame) -> None:
         )
 
 
-def assert_salary_spine_covers_completed_weeks(coverage: pd.DataFrame) -> None:
+def parse_salary_spine_allowed_gaps(text: str) -> frozenset[tuple[int, int]]:
+    """Parse ``SALARY_SPINE_ALLOW_GAPS``: an exact ``season:week`` list.
+
+    Anything other than comma-separated ``YYYY:W`` pairs is refused, so a typo
+    cannot widen the exception.
+    """
+    import re
+
+    text = (text or "").strip()
+    if not text:
+        return frozenset()
+    gaps = set()
+    for item in text.split(","):
+        m = re.fullmatch(r"\s*(\d{4}):(\d{1,2})\s*", item)
+        if not m:
+            raise LeakageError(
+                f"SALARY_SPINE_ALLOW_GAPS entry {item!r} is not season:week")
+        gaps.add((int(m.group(1)), int(m.group(2))))
+    return frozenset(gaps)
+
+
+def assert_salary_spine_covers_completed_weeks(
+    coverage: pd.DataFrame,
+    allowed_gaps: frozenset[tuple[int, int]] = frozenset(),
+) -> list[tuple[int, int]]:
     """Every completed week of an own-snapshot season has salary-spine rows.
 
     O-12/O-26: the DK ingest leaves raw week NULL by design, and the spine
@@ -77,6 +101,13 @@ def assert_salary_spine_covers_completed_weeks(coverage: pd.DataFrame) -> None:
     2026 salary spine and every prior-usage feature built on it. The
     downstream universe checks start FROM the spine, so an empty week passes
     them vacuously. This stops the build instead of finding it afterwards.
+
+    ``allowed_gaps`` is the narrow, recorded exception for a week genuinely
+    lost at the source (``SALARY_SPINE_ALLOW_GAPS``): exactly those empty
+    weeks are excluded from this one assert, never from any other check, and
+    their use needs a Data deficiency log row. A listed week that is not
+    actually an empty completed week is refused, so a stale exception cannot
+    linger. Returns the weeks excused, for the build log.
     """
     required = {"season", "week", "completed_games", "spine_rows"}
     if missing := required - set(coverage.columns):
@@ -84,12 +115,22 @@ def assert_salary_spine_covers_completed_weeks(coverage: pd.DataFrame) -> None:
             f"salary spine coverage lacks columns {sorted(missing)}")
     empty = coverage[coverage.completed_games.gt(0)
                      & coverage.spine_rows.fillna(0).eq(0)]
-    if not empty.empty:
+    empty_keys = {(int(r.season), int(r.week)) for r in empty.itertuples()}
+    if stale := sorted(set(allowed_gaps) - empty_keys):
         raise LeakageError(
-            f"{len(empty)} completed week(s) of an own-snapshot DK season "
+            f"SALARY_SPINE_ALLOW_GAPS lists {stale}, which are not empty "
+            f"completed own-snapshot weeks; remove them from the exception")
+    unexcused = empty[[
+        (int(r.season), int(r.week)) not in allowed_gaps
+        for r in empty.itertuples()
+    ]] if not empty.empty else empty
+    if not unexcused.empty:
+        raise LeakageError(
+            f"{len(unexcused)} completed week(s) of an own-snapshot DK season "
             f"have no dk_salary_week rows (raw salary weeks unresolved?). "
-            f"Sample:\n{empty.head(25).to_string(index=False)}"
+            f"Sample:\n{unexcused.head(25).to_string(index=False)}"
         )
+    return sorted(empty_keys & set(allowed_gaps))
 
 
 def assert_dst_actual_universe_reconciled(gaps: pd.DataFrame) -> None:
@@ -1533,7 +1574,14 @@ def run_leakage_checks() -> None:
     # be used by replay or training.
     spine_coverage = query_df(SALARY_SPINE_COVERAGE_SQL.format(
         features=settings.features, raw=settings.raw))
-    assert_salary_spine_covers_completed_weeks(spine_coverage)
+    excused = assert_salary_spine_covers_completed_weeks(
+        spine_coverage,
+        parse_salary_spine_allowed_gaps(settings.salary_spine_allow_gaps))
+    if excused:
+        msg = ("SALARY SPINE GAPS EXCUSED by SALARY_SPINE_ALLOW_GAPS "
+               f"(source-lost weeks; Data deficiency log row required): {excused}")
+        log.warning(msg)
+        print(msg, flush=True)
     gaps = query_df(UNIVERSE_GAP_SQL.format(features=settings.features))
     assert_salary_universe_reconciled(gaps)
     source_gaps = query_df(HISTORICAL_ROSTER_GAP_SQL.format(
