@@ -32,6 +32,25 @@ def test_coverage_table_present_and_ordered_before_training():
     assert cov < names.index("023_player_week_inference.sql")
 
 
+def test_top_cb_out_reads_the_point_in_time_injury_table_only():
+    """O-22 (2026-10-05): 017a runs before 018, so it must not read raw injuries
+    (that bypassed 018's common Sunday-main lock). 018a fills top_cb_out from
+    player_week_injury after 018 and before the training/inference joins."""
+    names = [p.name for p in FEATURE_SQL]
+    fill = names.index("018a_defense_week_cb_out.sql")
+    assert names.index("017a_defense_week_coverage.sql") < names.index("018_player_week_injury.sql") < fill
+    assert fill < names.index("021_player_week_training.sql")
+    assert fill < names.index("023_player_week_inference.sql")
+    cov = (SQL_DIR / "features" / "017a_defense_week_coverage.sql").read_text()
+    out = (SQL_DIR / "features" / "018a_defense_week_cb_out.sql").read_text()
+    assert "${raw}.injuries" not in cov and "${features}.player_week_injury" not in cov
+    assert "top_cb_pfr_id" in cov and "CAST(NULL AS BOOL) AS top_cb_out" in cov
+    assert "${raw}.injuries" not in out
+    assert "${features}.player_week_injury" in out
+    assert "WHERE c.top_cb_pfr_id IS NOT NULL" in out            # week-1 rows stay NULL
+    assert "IFNULL(LOGICAL_OR(inj.injury_status = 'Out'), FALSE)" in out
+
+
 def test_route_shadow_table_is_strict_prior_and_joined_symmetrically():
     names = [p.name for p in FEATURE_SQL]
     route_path = SQL_DIR / "features" / "017k_fantasy_points_route.sql"
