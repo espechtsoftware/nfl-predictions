@@ -12,6 +12,28 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-05 (09:06 CDT) — Study 1b READ: EA FAIL (cap not achieved by assignment), EW FAIL (cost); reproduced by the reviewer; no adoption
+
+- **Scored run:** banks 1404/1405, 72 of 72 slate-banks, no errors. The reader (sha 384e62f7, note 4) printed its sha.
+  The reviewer re-ran it independently: stdout sha 968c4bdf, BYTE-IDENTICAL.
+- **EA:** misses 38% of entries, so the cap cannot be achieved by assignment alone.
+- **EW:**
+  - It holds the top player at 0.318 of entries (C 0.611) and halves WSB (0.0445 → 0.0240).
+  - But mean entry pct d2 is −0.0354, lower bound −0.073, against m −0.015: FAIL on cost.
+  - EW25 and EW35 also fail on cost (−4.3 and −2.4 points).
+- **Secondaries** (5 arms, no intervals; NOT evidence): tickets +6 to +9%, and zero-ticket slates 0.32 → 0.13–0.18.
+  Study 1's G moved the same way. They become study list item 14, a NEW preregistration with line-crossings as the
+  primary (the reviewer's framing and cautions are recorded there).
+- **Transfer** (EA only; EW not built because it is not a candidate): on the real 2026 W1–4, misses 153/398, top
+  player 93 → 89 in W4, and the multiple unchanged at 0.484.
+- **Where it is recorded:**
+  - lab LEDGER row (nfl2 f88f0c6), with results/s1b/ holding READ, CENSUS, TRANSFER and SHA256SUMS;
+  - production Addendum 123 (f4268c92) and study list item 14;
+  - briefing `briefings/2026-week-04/2026-10-05-study1b-player-cap-result.md`;
+  - harness transfer script 93859a19.
+- **No adoption.** The live row cap is unchanged.
+- **Next:** the Monday order (09:13 cron) and the O-22 fix. Item 14 is a preregistration for Week 5–6.
+
 ## 2026-10-05 (08:32 CDT) — Study 1b build: smokes pass; deviation note 2 (EW enforced at entry level); census running
 
 - **Lab code:** nfl2 worktree `~/projects/.nfl2-worktrees/s1b-entry-cap-20261005`, branch
