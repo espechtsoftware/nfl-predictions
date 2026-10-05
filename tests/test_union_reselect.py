@@ -343,3 +343,20 @@ def test_heavy_games_counts_three_or_more_from_one_game():
     row = [{"game_id": "a"}] * 3 + [{"game_id": "b"}] * 2 + [{"game_id": "c"}] * 4
     assert ur.heavy_games(row) == {"a", "c"}
     assert ur.heavy_games([{"game_id": "a"}] * 2) == set()
+
+
+def test_game_row_caps_gives_a_game_without_a_total_the_tail_cap(capsys):
+    fr = pd.DataFrame({"game_id": ["g1", "g2", "g3"], "game_total": [44.5, None, 51.5]})
+    caps = ur.game_row_caps(fr, 105)
+    assert caps == {"g3": 42, "g1": 35, "g2": 8}                    # g2 ranked last: floor(0.08 x 105)
+    assert "GAME CAP WARNING" in capsys.readouterr().err and "g2" in caps
+
+
+def test_main_rows_refusal_is_named_for_the_cap_with_or_without_the_term():
+    ur.check_main_rows([1] * 5, 5, {"g": 1}, {"p": 1.0})             # enough rows: no refusal
+    with pytest.raises(SystemExit, match=r"GAME CAP REFUSED: 4 of 5 .*\(with the ownership term\)"):
+        ur.check_main_rows([1] * 4, 5, {"g": 1}, {"p": 1.0})
+    with pytest.raises(SystemExit, match="GAME CAP REFUSED: 4 of 5 rows solved under the per-game cap$"):
+        ur.check_main_rows([1] * 4, 5, {"g": 1}, None)
+    with pytest.raises(SystemExit, match="OWN TERM REFUSED: 4 of 5"):
+        ur.check_main_rows([1] * 4, 5, None, {"p": 1.0})

@@ -202,10 +202,29 @@ def game_row_caps(t70: pd.DataFrame, n: int) -> dict[str, int]:
     frame's pre-lock game total, highest first, ties by game id."""
     import math
     tot = "game_total" if "game_total" in t70.columns else "total_line"
-    g = t70[["game_id", tot]].dropna().drop_duplicates("game_id").copy()
+    g = t70[["game_id", tot]].copy()
     g["game_id"] = g.game_id.astype(str)
-    g = g.sort_values([tot, "game_id"], ascending=[False, True]).reset_index(drop=True)
-    return {gid: int(math.floor(min(0.5, GAME_CAP_P3.get(i + 1, GAME_CAP_P3_TAIL)) * n)) for i, gid in enumerate(g.game_id)}
+    g[tot] = pd.to_numeric(g[tot], errors="coerce")
+    g = g.groupby("game_id", as_index=False)[tot].max()
+    known = g[g[tot].notna()].sort_values([tot, "game_id"], ascending=[False, True]).reset_index(drop=True)
+    caps = {gid: int(math.floor(min(0.5, GAME_CAP_P3.get(i + 1, GAME_CAP_P3_TAIL)) * n)) for i, gid in enumerate(known.game_id)}
+    missing = sorted(set(g.game_id) - set(known.game_id))
+    if missing:                                                  # no pre-lock total: ranked last, the tail cap (reviewer 10-05)
+        print(f"GAME CAP WARNING: no pre-lock total for {missing}; they get the tail cap", file=sys.stderr)
+        caps.update({gid: int(math.floor(GAME_CAP_P3_TAIL * n)) for gid in missing})
+    return caps
+
+
+def check_main_rows(rows: list, entries: int, gcaps: dict | None, bonus: dict | None) -> None:
+    """The main book must hold `entries` rows. A short solve is refused and named for its cause: the per-game cap when it
+    is on (with or without the term), else the ownership term (reviewer 10-05: the refusal is symmetric)."""
+    if len(rows) >= entries:
+        return
+    if gcaps is not None:
+        raise SystemExit(f"GAME CAP REFUSED: {len(rows)} of {entries} rows solved under the per-game cap"
+                         + (" (with the ownership term)" if bonus else ""))
+    raise SystemExit(f"OWN TERM REFUSED: {len(rows)} of {entries} rows solved with the ownership term under the caps; "
+                     "the plain-mean main (as entered) stands")
 
 
 def heavy_games(players) -> set[str]:
@@ -324,7 +343,7 @@ def pmo_rows(t70: pd.DataFrame, exclude: set[str], n: int, max_shared: int, cap:
         bans = bans or None
         sets = None
         if game_caps is not None:
-            full = sorted(g for g, c in heavy.items() if c >= game_caps.get(g, 0))
+            full = sorted(g for g, c in heavy.items() if c >= game_caps.get(g, n))
             sets = [(by_game[g], "<=", 2) for g in full if g in by_game] or None
         lu = optimize(pool, stack=PRODUCTION_STACK, objective_col=objective, banned_lineups=prev, max_overlap=max_shared, bans=bans, env=env,
                       **({"set_constraints": sets} if sets else {}))
@@ -579,16 +598,13 @@ def main(argv: list[str] | None = None) -> int:
         gcaps = game_row_caps(fr, a.entries) if a.main_game_cap == "p3" else None
         if gcaps is not None and not bonus:
             main_rows = pmo_rows(fr, excl, a.entries, a.mean_max_shared, cap, a.min_salary, set(), exposure_cap=xcap, dst_cap=dcap, game_caps=gcaps)
-            if len(main_rows) < a.entries:
-                raise SystemExit(f"GAME CAP REFUSED: {len(main_rows)} of {a.entries} rows solved under the per-game cap")
+            check_main_rows(main_rows, a.entries, gcaps, bonus)
         if bonus:
             t_own = _time.time()
             main_rows = pmo_rows(fr, excl, a.entries, a.mean_max_shared, cap, a.min_salary, set(), exposure_cap=xcap, dst_cap=dcap, bonus=bonus,
                                  game_caps=gcaps)
             own_meta["secs"] = round(_time.time() - t_own, 1)
-            if len(main_rows) < a.entries:
-                raise SystemExit(f"OWN TERM REFUSED: {len(main_rows)} of {a.entries} rows solved with the ownership term under the caps; "
-                                 "the plain-mean main (as entered) stands")
+            check_main_rows(main_rows, a.entries, gcaps, bonus)
         # the PMO rows join the corpus (source pmo_x50) and ARE the main book, in solve order; a PMO row that duplicates a pool
         # roster is still the PMO row (the corpus keeps both; the book is unique by construction). With the ownership term
         # the plain-mean rows keep these places (source pmo_x50_control: the sleeve's supply, as entered) and the term's
