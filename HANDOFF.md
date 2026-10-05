@@ -12,6 +12,34 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-04 (19:35 CDT) — MONKEY VERDICT, Week 4: our selection was WORSE THAN RANDOM from our own pool (operator was right)
+
+`scratchpad/pm-selection/REPORT.md` (aggregates; seeds recorded).
+- **Week 4:** 3 cashes vs M1 (random rows from our pool) median 6, at the **8.7th percentile**; M2 (the same under
+  our caps and layout) **22.9th**; M3 (random legal lineups) 57.4th, a tie on cashes, though our average score is at
+  the 100th.
+- **Weeks 3+4 combined:** M1 5.1th, M2 16.8th. Week 1: we beat every monkey (86 / 99 / 100). Week 2: M3 only.
+- **The damage came from the rows we CHOSE.** Our caps and layout make a random book better (M2 120.1 vs M1 118.8).
+  - Main rows (the PMO_X50 optimizer, projection + 0.20 × predicted ownership): 115.8 realized.
+  - Random Sunday-pool rows: 119.7.
+  - The pool's top 105 by projected MEAN: **121.9**.
+  - Book rank vs realized: +0.15, so the top rows did worse.
+- **The book was chalkier than the field:** an ownership sum of 152% (final, post-lock) vs the field's 110% and the
+  top 100's 99%. Eight players at the 52-row cap; 97% of entries on three QBs.
+- **Zero exposure to DAL–HOU** (48.5 pre-lock, tied 3rd; it scored the most, and 70 of the Millionaire's top 100
+  were built on it). It was in 31–35% of pool rows.
+- **Four busts** (Washington, Chase, G. Wilson, Lawrence) cost −4,228 points, 139% of the net shortfall. Our
+  projection sat ABOVE the market on Chase/Lawrence/Wilson. McCaffrey is NOT a main cause (−335).
+- **Corrections to earlier statements:** SF–DEN was 48.5 pre-lock (not 47.5); McCaffrey's market number was 20.15
+  (not 20.4).
+- **⚠ NEW, to investigate:** `ENTER-rowmap.json` disagrees with the entered rows in the ten largest supersats (e.g.
+  48–49 became 50–51). The swap path uses the row map: a candidate defect.
+
+**Implications** (for the operator and the reviewer; nothing changes without a test):
+- Monday's unchanged comparison (the FP term vs lag 0.10 vs no term) and P3's baselines (props-only / plain mean)
+  directly test whether the ownership term and the PMO selection are subtracting value.
+- Friday's money gate must include a "simple selection" arm: the top-by-projected-mean with caps, plus the monkeys.
+- Studies 1, 2 and 11 move up.
 ## 2026-10-04 (19:34 CDT) — Defect fixes: money-lane list run (a stale test repaired); the reviewer's views on the operator decisions
 
 **The reviewer CLEARED `production/week5-defect-fixes-20261004`** (O-19/O-20/O-23/O-24) to merge once its money-lane
