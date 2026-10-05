@@ -67,14 +67,14 @@ Ours across 144 rows: Goff 12, Shough 12, Allen 12, Prescott 10, Lawrence 9, Dan
 Taylor was ruled out — news that existed Sunday morning, not Saturday. We had Sadiq in 4 rows, all from Sunday's
 scratch swap (§4).
 
-**The 150-entry winners** (hishboo #3, adam2761 #4, Dpac2/monkeyhuesser #5, matgic11 #9) are not diversified: they put
+**The 150-entry winners** (User18 #3, User03 #4, User34/User26 #5, User24 #9) are not diversified: they put
 60–73% of their 150 lineups on the same three or four players (Gibbs, Garrett Wilson, Jaylen Warren, Titans DST) and
 varied the rest. Their portfolios averaged 138–152 points with 32–47% of lineups above the cash line; ours averaged
 120.5 with 10%. That gap is not variance; it is which players and which shapes.
 
-**The small-entry winners** did exactly what you proposed: eafern (2nd and 8th) entered 4 lineups that shared Kittle,
+**The small-entry winners** did exactly what you proposed: User14 (2nd and 8th) entered 4 lineups that shared Kittle,
 Jeremiyah Love and Garrett Wilson, with 3 of 4 also sharing Geno + Sadiq + Chase, varying only two or three slots; the
-four averaged 214.7. 180DegreesMiami (the winner, 10 entries) had Gibbs in 9 of 10 and Wilson in 8 of 10.
+four averaged 214.7. User01 (the winner, 10 entries) had Gibbs in 9 of 10 and Wilson in 8 of 10.
 
 ## 2. Every lineup, one at a time
 

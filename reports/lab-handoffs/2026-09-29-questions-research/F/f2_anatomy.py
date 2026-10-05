@@ -1,5 +1,6 @@
 """F2 (PRELIMINARY): portfolio anatomy of top-100 user-weeks with >=20 Millionaire entries vs matched mid-field user-weeks.
 Cores = greedy clusters: a row joins the first existing core whose SEED row shares >=6 of 9 players; else it seeds a new core."""
+import os
 import pandas as pd, numpy as np, itertools
 pd.set_option('display.width', 250); pd.set_option('display.max_columns', 60); pd.set_option('display.max_rows', 300)
 N = {1: 831028, 2: 172692, 3: 161682}
@@ -61,7 +62,9 @@ for lab, lo, hi in [('20-49', 20, 49), ('50-149', 50, 149), ('150', 150, 150)]:
     print(f'\n-- bucket {lab}: top100 n={len(t)} mid n={len(m)}')
     print(pd.DataFrame({'top100': t[cols].mean(), 'mid': m[cols].mean()}).T.round(3).to_string())
 print('\n== the named 150-entry top-10 users (W2/W3) and the top-100 repeaters')
-names = ['elidkatz1', 'Hebrewcheetah', 'BobbyFi', 'xmalachi', 'CactusJack2', 'ikeyser21', 'driverseati', 'mrgoodseats', 'hishboo', 'adam2761', 'Dpac2', 'monkeyhuesser', 'matgic11', 'KBader0101', '3rd_and_schlong', 'DayByDay', 'mknowles82', 'needlunchmoney', 'c_hart10', 'tkoblow', 'HuskaLuva']
+# The DK usernames analysed here are PRIVATE (operator policy 2026-10-03): never commit them. They are read from a
+# private file (one per line); the labels used in F-portfolios.md map to them in ~/private/dk-handle-labels-20261005.csv.
+names = [n.strip() for n in open(os.path.expanduser(os.environ.get('DK_HANDLES_FILE', '~/private/dk_handles_f2.txt'))) if n.strip()]
 T = A[A.user.isin(names)].sort_values(['user', 'week'])
 print(T[['week', 'grp', 'user'] + cols].round(3).to_string(index=False))
 print(T[['week', 'user'] + scols].round(2).to_string(index=False))

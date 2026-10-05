@@ -3,7 +3,7 @@ WITH own AS (
   WHERE season=2026 AND contest_id IN ('193028206','195648007','195905122') GROUP BY 1,2),
 e AS (
   SELECT week, contest_id, duplicate_key, COUNT(*) copies, MIN(rank) best_rank, ANY_VALUE(points) points,
-         LOGICAL_OR(entry_name LIKE 'fingerblasters%') ours, ANY_VALUE(n) n
+         LOGICAL_OR(entry_name LIKE CONCAT(@our_handle, '%')  -- @our_handle: the operator's DK username, a query parameter from the private config; never committed) ours, ANY_VALUE(n) n
   FROM (SELECT *, COUNT(*) OVER (PARTITION BY contest_id) n FROM nfl_raw.contest_entries WHERE contest_id IN ('193028206','195648007','195905122'))
   GROUP BY 1,2,3),
 x AS (

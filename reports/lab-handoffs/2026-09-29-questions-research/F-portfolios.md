@@ -42,37 +42,37 @@ no optimizer, read-only.
 
 ### F1.2 The top 10 of each week, by name (user, entries, best rank; then the other weeks)
 
-W1 top 10 (10 users): jwussow28 #1 (3 entries) → W2 rank 148,405 / 85.9th pct (1 entry), W3 rank 31,133 / 19.3rd pct
-(1 entry). jmurray67 #2 (8) → W2 #8,311 (3 entries), no W3. **KBader0101 #3 (120 entries) → W2 #580 (100 entries),
-W3 #3,243 (8 entries)** — the only W1 top-10 user in the top 1% of both later weeks. Dwall1711 #4 (12) → 60th / 67th
-pct. BTXJ #5 (50) → #4,385 (5), #9,221 (6). popice #5 (30) → #6,611 (6), #25,585 (9). tkoblow #7 (150) and
-HuskaLuva #8 (150): did not play W2 or W3 Millionaires. tigolebitties91 #9 (20) → 36th / 42nd pct. Bugsygmz #10 (15)
+W1 top 10 (10 users): User22 #1 (3 entries) → W2 rank 148,405 / 85.9th pct (1 entry), W3 rank 31,133 / 19.3rd pct
+(1 entry). User21 #2 (8) → W2 #8,311 (3 entries), no W3. **User23 #3 (120 entries) → W2 #580 (100 entries),
+W3 #3,243 (8 entries)** — the only W1 top-10 user in the top 1% of both later weeks. User13 #4 (12) → 60th / 67th
+pct. User35 #5 (50) → #4,385 (5), #9,221 (6). User29 #5 (30) → #6,611 (6), #25,585 (9). User32 #7 (150) and
+User19 #8 (150): did not play W2 or W3 Millionaires. User31 #9 (20) → 36th / 42nd pct. User08 #10 (15)
 → 72nd / 73rd pct.
 
-W2 top 10 (10 users, **eight with 150 entries**): elidkatz1 #1 (150) → W1 #13,479 (150), W3 #1,691 (150), mean pct
+W2 top 10 (10 users, **eight with 150 entries**): User15 #1 (150) → W1 #13,479 (150), W3 #1,691 (150), mean pct
 47.8 / 49.0 / 43.0 — his three portfolio means were 143.6 / 116.8 / 134.0 against field means 142.1 / 115.5 / 128.5:
-**the $1M winner's portfolio was at or barely above the field average every week.** Hebrewcheetah #2 → W1 #2,058,
-W3 #443. BobbyFi #3 → #5,009 / #882. xmalachi #4 → #5,044 / #1,298. CactusJack2 #5 → no W1, W3 #4,074. ikeyser21
-#6 → #1,816 / #845. BrandonTigers #6 (13 entries) → W1 64th pct (69 entries), W3 67th pct (20). driverseati #8 →
-#2,468 / #2,679. tennis69 #9 (3 entries) → 50th / 50th pct. mrgoodseats #10 → W1 #5,927, W3 #5,378 (mean pct 17.9 in
+**the $1M winner's portfolio was at or barely above the field average every week.** User17 #2 → W1 #2,058,
+W3 #443. User06 #3 → #5,009 / #882. User33 #4 → #5,044 / #1,298. User10 #5 → no W1, W3 #4,074. User20
+#6 → #1,816 / #845. User07 #6 (13 entries) → W1 64th pct (69 entries), W3 67th pct (20). User12 #8 →
+#2,468 / #2,679. User30 #9 (3 entries) → 50th / 50th pct. User27 #10 → W1 #5,927, W3 #5,378 (mean pct 17.9 in
 W2, 59.2 in W3). **All eight 150-entry W2 top-10 users were in the top 1% of W3 and seven in the top 1% of W1** — with
 150 entries at a ~1% per-entry rate the chance of at least one top-1% row is ~78% by volume alone, so this is
 mostly volume; their *mean* percentile (37–50) is where the skill shows, and it is modest.
 
-W3 top 10 (10 rows, 9 users): 180DegreesMiami #1 (10 entries) → W1 68th pct (1 entry), W2 #1,663 (8 entries).
-eafern #2 and #8 (4 entries, mean 214.7) → W1 61st pct (10 entries), W2 39th pct (2). hishboo #3 (150) → **W2 #12,
-W1 #4,137**; mean pct 39 / 40 / 30. adam2761 #4 (150) → W1 #5,901 (150), W2 62nd pct (1 entry). Dpac2 #5 (150) →
-W1 #18,862, no W2. monkeyhuesser #5 (150; identical lineup to Dpac2) → no W1/W2. bkuhse #7 (1 entry) → W1 #17,040
-(126 entries), W2 49th pct (1). matgic11 #9 (150) → **W2 #27**, no W1. wlw67 #10 (5) → W1 #16,127 (11), W2 63rd pct.
+W3 top 10 (10 rows, 9 users): User01 #1 (10 entries) → W1 68th pct (1 entry), W2 #1,663 (8 entries).
+User14 #2 and #8 (4 entries, mean 214.7) → W1 61st pct (10 entries), W2 39th pct (2). User18 #3 (150) → **W2 #12,
+W1 #4,137**; mean pct 39 / 40 / 30. User03 #4 (150) → W1 #5,901 (150), W2 62nd pct (1 entry). User34 #5 (150) →
+W1 #18,862, no W2. User26 #5 (150; identical lineup to User34) → no W1/W2. User05 #7 (1 entry) → W1 #17,040
+(126 entries), W2 49th pct (1). User24 #9 (150) → **W2 #27**, no W1. User36 #10 (5) → W1 #16,127 (11), W2 63rd pct.
 
 ### F1.3 The top 100, by name where it matters
 
-- **Users in the top 100 of two different weeks (9):** 3rd_and_schlong (W2 #24, W3 #11; 150/150; W1 #13,564),
-  hishboo (W2 #12, W3 #3), matgic11 (W2 #27, W3 #9), mknowles82 (W2 #25, W3 #14; W1 #4,690), needlunchmoney (W2 #29,
-  W3 #73; W1 #18,363), DayByDay (W1 #20, W3 #33; W2 #209; 150/81/84 entries), c_hart10 (W1 #73, W3 #74 with 150 then
-  4 entries; W2 #20,079 with 6), Bigc7084 (W1 #87, W2 #89 with 25/10 entries; W3 #10,251 with 5), gascardmike (W2 #50,
+- **Users in the top 100 of two different weeks (9):** User02 (W2 #24, W3 #11; 150/150; W1 #13,564),
+  User18 (W2 #12, W3 #3), User24 (W2 #27, W3 #9), User25 (W2 #25, W3 #14; W1 #4,690), User28 (W2 #29,
+  W3 #73; W1 #18,363), User11 (W1 #20, W3 #33; W2 #209; 150/81/84 entries), User09 (W1 #73, W3 #74 with 150 then
+  4 entries; W2 #20,079 with 6), User04 (W1 #87, W2 #89 with 25/10 entries; W3 #10,251 with 5), User16 (W2 #50,
   W3 #99; 7/30). Expected under independence: 0.12 (W1&W2), 0.17 (W2&W3), 0.12 (W1&W3); observed 1 / **6** / 2.
-  The W2↔W3 pair is 35× chance and is entirely 150-entry users except gascardmike.
+  The W2↔W3 pair is 35× chance and is entirely 150-entry users except User16.
 - Top-100 users' other weeks (all users, not only heavy): W2 top-100 → W3: top-1% again **41%** (base 2.0%), top-1,000
   again 32% (base 1.3%), top-100 again 7% (base 0.16%), mean percentile below 50 in 71% (base 44%); median entry count
   41. W3 top-100 → W2: 27% / 23% / 8% / 71%. W1 top-100 → W2: 18% / 15% / 2% / 46% (median 6 entries). The study's
@@ -146,13 +146,13 @@ per 27 rows in both); 150 entries 137.4 vs 126.2 (0.53 vs 0.55; 123 vs 111 cores
    share 6+, and a ≥6-shared clustering yields ~120 clusters per 150 rows. That is the signature of an optimizer with
    exposure targets and a minimum-uniqueness constraint, i.e. exactly what our own builds look like (our W1 57
    Millionaire rows: top-1 exposure 0.77 [Jaguars DST], top-3 0.45, overlap 1.51; our W3 144-row book: 0.35 / 0.34 /
-   1.16). **Core+variation is a small-book pattern:** eafern's 4 rows (mean 214.7) and 180DegreesMiami's 10 (Gibbs 9/10,
+   1.16). **Core+variation is a small-book pattern:** User14's 4 rows (mean 214.7) and User01's 10 (Gibbs 9/10,
    Wilson 8/10) — see W3 post-mortem §1; not in this ≥20-entry sample.
-3. **The exceptions are informative.** mrgoodseats W2 (#10, 150 entries) is the one true core builder in the named
+3. **The exceptions are informative.** User27 W2 (#10, 150 entries) is the one true core builder in the named
    set: 29 clusters, top-1 exposure 0.87, top-3 0.78, overlap 3.7, mean 147.3, **67% cash**; in W3 the same user built
-   131 clusters (overlap 1.7) and posted mean 120.3, 7% cash. hishboo (top 1% all three weeks, W2 #12, W3 #3) runs
-   exposure 0.82 / 0.73 on the top player with 24–25 QBs. adam2761 (W3 #4): top-1 0.71, 11 QBs, mean 151.6, 47% cash.
-   elidkatz1 (W2 $1M winner): 164 distinct players, top-1 0.33, 149 clusters — the most diversified in the set — mean
+   131 clusters (overlap 1.7) and posted mean 120.3, 7% cash. User18 (top 1% all three weeks, W2 #12, W3 #3) runs
+   exposure 0.82 / 0.73 on the top player with 24–25 QBs. User03 (W3 #4): top-1 0.71, 11 QBs, mean 151.6, 47% cash.
+   User15 (W2 $1M winner): 164 distinct players, top-1 0.33, 149 clusters — the most diversified in the set — mean
    116.8 vs field 115.5, cash 17%: **the $1M came from one row of a field-average book.**
 4. Within the pulled (selected) sample, the only construction statistic consistently correlated with the portfolio
    mean is **uniqueness, negatively** (Spearman −0.31 / −0.16 / −0.22 by week): users whose rows are duplicated in the
@@ -165,7 +165,7 @@ Targets, from the top-100 heavy users and the persistent users above (all measur
 only pre-lock inputs to hit them):
 - **Exposure profile (150 rows):** top player 0.50–0.60 of rows, top-3 mean 0.45–0.50, top-5 ~0.42, ~8 players at
   ≥25%, 1–1.5 at ≥50%, 90–115 distinct players; 14–17 distinct QBs for the median top-100 user but **9–11 for the
-  highest-mean portfolios** (adam2761 11, mrgoodseats 9, ikeyser21 9).
+  highest-mean portfolios** (User03 11, User27 9, User20 9).
 - **Chalk level:** ownership sum 130–140 (field 105–117; our W3 book 86), ≤1.8 sub-5% players, 2.2–2.4 pieces at
   ≥20%; QB stack ~1.5 (2-deep in ~half the rows), bring-back ~50% (we force 100%), 5.6–5.8 games per row (we 3.7–4).
 - **Core count is not a target for a 150-row book:** target mean pairwise overlap 1.8–2.4 and ≥6-shared pairs ≤3%. For
@@ -183,17 +183,17 @@ only pre-lock inputs to hit them):
 
 | week / rank | user (entries) | total | best player | top-3 (share) | ≥25 / ≥30 / ≥40 | own. sum | in our universe | in our pool (mean share per player, min) | in our entered Millionaire rows |
 |---|---|---:|---|---:|---|---:|---:|---|---|
-| W1 #1 | jwussow28 (3) | 274.0 | D. Henry 38.3 | 112.7 (41%) | 5 / **5** / 0 | 101 | 9/9 | **9/9** (9.2%, Steelers 0.26%) | 7/9 of 57 rows: Gibbs 14, Swift 7, Moore 6, Henry 5, Goedert 4, Watson 3, Love 3; **Coker 0, Steelers 0** |
-| W2 #1 | elidkatz1 (150) | 232.4 | JSN 45.5 | 112.8 (49%) | 5 / 2 / 1 | 97 | 9/9 | **9/9** (6.8%, Kittle 1.4%) | 1/9 (Schultz) in our one seat |
-| W3 #1 | 180DegreesMiami (10) | 239.8 | Gibbs 41.4 | 109.8 (46%) | 5 / 3 / 1 | 122 | 9/9 | **9/9** (9.2%, Vikings 2.4%) | seat: Gibbs; 144-row book: 8/9 (Vikings 0) |
-| W3 #2 | eafern (4) | 233.1 | JSN 38.4 | 98.1 (42%) | 5 / 2 / 0 | 91 | 9/9 | 9/9 (5.5%, Raiders 0.28%) | seat: none; book 8/9 (Raiders 0) |
-| W3 #3 | hishboo (150) | 225.9 | Gibbs 41.4 | 109.8 (49%) | 5 / 3 / 1 | 149 | 9/9 | 9/9 (9.6%) | seat: Gibbs; book 9/9 |
-| W3 #4 | adam2761 (150) | 225.4 | Gibbs 41.4 | 101.1 (45%) | 4 / 2 / 1 | 112 | 9/9 | 9/9 (9.9%) | seat: Gibbs, St. Brown; book 8/9 |
-| W3 #5 | Dpac2 / monkeyhuesser (150, same lineup) | 223.6 | Gibbs 41.4 | 109.8 (49%) | 6 / 3 / 1 | 173 | 9/9 | 9/9 (11.0%) | seat: Gibbs, Walker; book 9/9 |
-| W3 #7 | bkuhse (1) | 222.6 | Gibbs 41.4 | 109.8 (49%) | 6 / 3 / 1 | 167 | 9/9 | 9/9 (10.7%, Ayomanor 0.6%) | seat: Gibbs, Walker; book 8/9 |
-| W3 #8 | eafern (4) | 221.4 | Gibbs 41.4 | 101.1 (46%) | 5 / 2 / 1 | 95 | 9/9 | 9/9 (8.9%) | seat: Gibbs; book 8/9 |
-| W3 #9 | matgic11 (150) | 220.8 | Gibbs 41.4 | 101.1 (46%) | 6 / 2 / 1 | 129 | 9/9 | 9/9 (9.5%, Colts 0.06%) | seat: Gibbs, Walker; book 8/9 (Colts 0) |
-| W3 #10 | wlw67 (5) | 219.9 | Gibbs 41.4 | 109.8 (50%) | 6 / 3 / 1 | 159 | 9/9 | 9/9 (9.8%) | seat: Gibbs; book 9/9 |
+| W1 #1 | User22 (3) | 274.0 | D. Henry 38.3 | 112.7 (41%) | 5 / **5** / 0 | 101 | 9/9 | **9/9** (9.2%, Steelers 0.26%) | 7/9 of 57 rows: Gibbs 14, Swift 7, Moore 6, Henry 5, Goedert 4, Watson 3, Love 3; **Coker 0, Steelers 0** |
+| W2 #1 | User15 (150) | 232.4 | JSN 45.5 | 112.8 (49%) | 5 / 2 / 1 | 97 | 9/9 | **9/9** (6.8%, Kittle 1.4%) | 1/9 (Schultz) in our one seat |
+| W3 #1 | User01 (10) | 239.8 | Gibbs 41.4 | 109.8 (46%) | 5 / 3 / 1 | 122 | 9/9 | **9/9** (9.2%, Vikings 2.4%) | seat: Gibbs; 144-row book: 8/9 (Vikings 0) |
+| W3 #2 | User14 (4) | 233.1 | JSN 38.4 | 98.1 (42%) | 5 / 2 / 0 | 91 | 9/9 | 9/9 (5.5%, Raiders 0.28%) | seat: none; book 8/9 (Raiders 0) |
+| W3 #3 | User18 (150) | 225.9 | Gibbs 41.4 | 109.8 (49%) | 5 / 3 / 1 | 149 | 9/9 | 9/9 (9.6%) | seat: Gibbs; book 9/9 |
+| W3 #4 | User03 (150) | 225.4 | Gibbs 41.4 | 101.1 (45%) | 4 / 2 / 1 | 112 | 9/9 | 9/9 (9.9%) | seat: Gibbs, St. Brown; book 8/9 |
+| W3 #5 | User34 / User26 (150, same lineup) | 223.6 | Gibbs 41.4 | 109.8 (49%) | 6 / 3 / 1 | 173 | 9/9 | 9/9 (11.0%) | seat: Gibbs, Walker; book 9/9 |
+| W3 #7 | User05 (1) | 222.6 | Gibbs 41.4 | 109.8 (49%) | 6 / 3 / 1 | 167 | 9/9 | 9/9 (10.7%, Ayomanor 0.6%) | seat: Gibbs, Walker; book 8/9 |
+| W3 #8 | User14 (4) | 221.4 | Gibbs 41.4 | 101.1 (46%) | 5 / 2 / 1 | 95 | 9/9 | 9/9 (8.9%) | seat: Gibbs; book 8/9 |
+| W3 #9 | User24 (150) | 220.8 | Gibbs 41.4 | 101.1 (46%) | 6 / 2 / 1 | 129 | 9/9 | 9/9 (9.5%, Colts 0.06%) | seat: Gibbs, Walker; book 8/9 (Colts 0) |
+| W3 #10 | User36 (5) | 219.9 | Gibbs 41.4 | 109.8 (50%) | 6 / 3 / 1 | 159 | 9/9 | 9/9 (9.8%) | seat: Gibbs; book 9/9 |
 
 Our W3 144-row book's exposure to the deciding players (rows of 144): Gibbs 45 (31%), Walker 47 (33%, he scored 21.3
 at 44% owned), G. Wilson 19 (13%), JSN 9 (6%), Kittle 8 (6%), **Geno Smith 7 (5%)**, **Sadiq 4 (3%, all from Sunday's
@@ -219,7 +219,7 @@ scratch swap)**, Warren 3 (2%), J. Love 2; Titans DST 51 (35%, scored 7), Bengal
 ## Agreement / disagreement with the 09-29 study
 
 - Agree: persistence magnitude (+0.12 to +0.27); edge is player choice, not construction; heavy users' per-entry
-  edge is 2–3× at the top 1%; the $1M winners' portfolios were field-average (elidkatz1's three means 143.6 / 116.8 /
+  edge is 2–3× at the top 1%; the $1M winners' portfolios were field-average (User15's three means 143.6 / 116.8 /
   134.0 vs field 142.1 / 115.5 / 128.5).
 - Refinement, not disagreement: the 09-22 review's "identical stacking" holds for bring-back and game concentration but
   the persistent users run 2-deep stacks ~10–15 points more often and 3–4 fewer QBs; the study's own trait table shows
@@ -265,7 +265,7 @@ scratch swap)**, Warren 3 (2%), J. Love 2; Titans DST 51 (35%, scored 7), Bengal
    top-mean selection. Confidence: moderate; it is the one trait that repeats in the 09-22 review, this note and
    the study.
 4. **For any 4–10-entry contest, build core+variation on purpose** (5–6 shared players, vary WR3/FLEX/DST) — that is
-   what the small-entry W3 winners did (eafern 4/4 rows ≥ 214). Confidence: low-moderate (two users, one week); cheap
+   what the small-entry W3 winners did (User14 4/4 rows ≥ 214). Confidence: low-moderate (two users, one week); cheap
    to do and reversible.
 5. **Do not chase the named repeaters' lineups.** Their edge per entry is 2–3× at the top 1% and their mean is +6–12
    over the field; the study finds no information in their player weights beyond ownership (+0.05 partial). Track the
