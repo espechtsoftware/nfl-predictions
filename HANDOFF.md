@@ -12,6 +12,28 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-04 (20:27 CDT) — Operator decisions: RUN the SIS pass-tail shadow (O-3) and FIX the cbwu-oi shadow (O-27); reviewer's Friday-gate notes
+
+**Operator, verbatim (10-04 evening):** "I want both 1 and 2. Fix them."
+1. **O-3 SIS pass-tail:** run it, not dormant. Deadline Wed 10-07; the first scheduled run is Thu 10-08 09:15 CT.
+   - Steps: Tuesday's SIS session check and the Week-5 acquisition; an env check against the CURRENT policy before
+     anything resumes (the 09-18 trap); one outcome-blind dry run per job (the O-25 lesson: these jobs have never
+     run); then resume the three schedulers.
+   - A background agent is drafting this on `production/o3-sis-pass-tail-arm-20261005` (no cloud changes; to the
+     reviewer).
+2. **O-27 cbwu-oi paired shadow:** fix it, not pause it. It has failed every run since 09-13 while classified DORMANT.
+   - Steps: the root cause from the logs, a class sweep across sibling shadows (rule 4), a fix with tests, the
+     checker's classification corrected, and a dry run.
+   - A background agent is drafting on `production/o27-cbwu-oi-fix-20261005`.
+
+**Reviewer's notes for Friday's money gate** (binding on its design):
+1. **Report the pool's projection-vs-realized rank correlation beside each week's monkey percentile:** W1 0.33, W2 −0.49
+   (player level 0.58), W3 0.32, W4 0.06. Verified the same across sel/aud/gen means and frame sums. Otherwise a
+   construction effect is confused with a low-signal week.
+2. **The gate's primary comparison is the frozen CURRENT system vs M2 on W1–4, with the per-contest sign test.** Any
+   "revert to the W1–2 construction" needs its own preregistered arm; choosing it because W1–2 looked better would be
+   choosing on the scored weeks.
+
 ## 2026-10-04 (20:24 CDT) — O-25 deployed: Route Share jobs on companion-v1 (image bb810ba9); dry runs Thursday; W4 settled; monkeys W1–4
 
 **O-25 / Route Share (operator (a); reviewer cleared each step):**
