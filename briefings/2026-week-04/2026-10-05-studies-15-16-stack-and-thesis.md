@@ -43,6 +43,20 @@ output.
 - **The bright spot:** fewer slates with no cash at all (31% → 17%), the same pattern as the capping studies. But it
   came with fewer cashes overall and a lower average finish.
 
+## Study 16c: the same thesis with NO contrarian element (your follow-up question)
+You asked whether it included contrarian plays, and to try again without them. It had no contrarian *players*, but it did
+have a contrarian *game* element: 15% of lineups bet on a game going differently than expected. Study 16c removed that
+part, so every lineup went to the four highest-total games.
+
+| version | cashes on 36 slates | average finish vs today |
+|---|---|---|
+| today's book | 299 | – |
+| thesis, core only (no contrarian part) | 277 (about 7% fewer; not significant) | 3.3 points worse |
+
+Removing the contrarian part did not fix it. The loss comes from piling more lineups onto the betting market's
+highest-total games, which our book already favours, not from the contrarian slice. **The thesis portfolio is closed in
+both forms.**
+
 ## The honest limit
 What was tested is the *betting-market* version of the thesis: games A–D = the four highest totals. Your own picks
 cannot be tested on history, and you have said you do not want to supply picks, so that version is not pursued. The

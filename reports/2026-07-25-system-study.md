@@ -4164,3 +4164,50 @@ scenario) lowered mean entry finish. Several cut zero-ticket slates. None raised
 operator, verbatim: "I don't want to have to study football, so I don't want to be providing my picks." 16b is TABLED,
 pending his reply to the reviewer, for the reason stated above: thesis rows are worse per entry, and tickets add up per
 entry.
+
+## Addendum 126 (2026-10-05): study 16c (the thesis with NO contrarian element): NO DIFFERENCE on tickets; the thesis portfolio is closed in both forms
+
+**Setup.**
+- The operator asked: "did it include contrarian players? if so, try again without any contrarian element".
+  - Player-level contrarian was never an arm.
+  - Study 16's 15% mid/blow cells were the game-level contrarian element.
+- So TP0 is core only: 100% of rows with the QB's game at total rank ≤ 4, ∝ P3, with the same optimizer, caps, LAG 0.10
+  and D'Hondt order, against C.
+- Preregistration: `reports/2026-10-05-prereg-study16c-core-only.md`, frozen at `b1e7a0b3` before the census and the
+  scored banks (reader sha `ceb90a64`), with deviation note 1 `d0e88cc1` (the census: all core, 0 passes, 0.965 entries
+  changed).
+- Panel: L13's 36 slates, banks 1411/1412.
+- Frozen and read by the reviewer. **Reproduced byte-identically by the laptop**: reader `ceb90a64`; raw banks 1411
+  `8162e744`, 1412 `ee2657a2`; READ sha `03dc374b`. Lab: nfl2 `production/s16c-core-only-20261005` (results `c901116`,
+  LEDGER `fb57921`).
+
+**Reader output (verbatim):**
+```
+STUDY 16c READER  sha256 ceb90a64af6179bb0dbe30c285fbdd47c3729125c507cdf7664971385468c766
+DIRECTION: tickets = dealt entries at or above their contest's line (higher = better); pct = share of the sampled field a row BEATS; every difference is ARM - C; POSITIVE favours the arm.
+slates 36  banks [1411, 1412]  B 20000  seed 20261005  primary two-sided 0.975, guard one-sided 0.975 at -0.015  plan 22 mean-track contests, 147 entries
+
+== TP0 vs C  [DECISION]
+  PRIMARY tickets per slate -0.611  [-3.056, +1.653]  seasons 2023 -0.639, 2024 -0.583
+  GUARD mean entry pct -0.03330  one-sided lower -0.06775  (must exceed -0.015)
+  simulated line-crossing share -0.01293  [-0.01585, -0.01002]  (secondary)
+  dealt identical to C: 0.000 of slate-banks
+  ->  NO DIFFERENCE (a tickets effect smaller than about +40% reads NO DIFFERENCE on 36 slates)
+
+secondaries (slate means):
+  C     tickets 299.0  zero-ticket slates 0.319  best>=200 0.167  entry pct 0.53101  worst-decile slate 0.36265  max entry exposure 0.616  simulated crossing 0.11846
+  TP0   tickets 277.0  zero-ticket slates 0.292  best>=200 0.125  entry pct 0.49772  worst-decile slate 0.29650  max entry exposure 0.577  simulated crossing 0.10554  entries core/mid/blow 1.000/0.000/0.000
+```
+
+**Verdict.**
+- **NO DIFFERENCE on tickets (the frozen verdict):** −0.611 per slate [−3.056, +1.653]; tickets 299 → 277.
+- **The mean-finish guard, DESCRIPTIVE** (as in Addendum 125), is far below its margin: −0.0333, one-sided lower −0.0678
+  against −0.015.
+- **The simulated crossing** is lower again: −0.0129 [−0.0159, −0.0100], in-sample, biased against TP0.
+
+**Reading.**
+- Removing the game-level contrarian share did NOT fix the thesis. TP0's finish loss (−3.3 points) is close to TP's
+  (−4.3, on other banks), and its ticket estimate is smaller but still negative.
+- The loss sits in the concentration on the Vegas top-4 totals, not in the contrarian slice. That is consistent with
+  study 16's exploratory TP10/TP20 trend, stated as the prior in the preregistration.
+- **The thesis portfolio is CLOSED in both forms.** 16b stays tabled, and no further thesis variant is planned.

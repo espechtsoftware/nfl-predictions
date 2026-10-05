@@ -12,6 +12,16 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-05 (11:05 CDT) — Study 16c (the thesis without the contrarian element) READ by the reviewer, REPRODUCED by the laptop; the thesis closed
+
+- **Result:** TP0 (core only) NO DIFFERENCE on tickets (−0.61 per slate; 299 → 277). The mean-finish guard is far below
+  its margin (descriptive: −3.3 points).
+- **The laptop re-ran the frozen reader** `ceb90a64` byte-identically (raw 1411 `8162e744`, 1412 `ee2657a2`).
+- **Records:** Addendum 126; lab LEDGER `fb57921`; the 15/16 briefing updated.
+- **Decision:** the thesis portfolio is CLOSED in both forms; 16b stays tabled.
+- **O-31 fix:** reviewer-approved (`8148849b` + the register entry `64689ff4`); the full suite is running without
+  `GCP_PROJECT`, and the merge follows if it is green.
+
 ## 2026-10-05 (10:38 CDT) — Studies 15 and 16 READ (reproduced by the reviewer); O-22 code reviewed and APPROVED; dashboard fixed
 
 - **Study 15 (QB + 1 stack):** S1 and S1HT NO DIFFERENCE.
