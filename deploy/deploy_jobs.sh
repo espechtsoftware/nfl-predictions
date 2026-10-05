@@ -98,7 +98,9 @@ job shadow-archetype-paired shadow-archetype-paired 16Gi 4 "CODE_SHA=${CODE_SHA}
 # Paired CBWU-OI union shadow (2026-08-18): control CBWU vs frozen
 # order-invariant union on identical worlds; grading bar frozen at
 # reports/2026-08-18-cbwu-oi-prospective-shadow-spec.md.
-job shadow-cbwu-oi-paired shadow-cbwu-oi-paired 16Gi 4 "CODE_SHA=${CODE_SHA}" "" 7200
+# O-27 (2026-10-05): the job declares the contract it collects for; the
+# runner refuses without it (prospective_shadow.check_cbwu_oi_contract).
+job shadow-cbwu-oi-paired shadow-cbwu-oi-paired 16Gi 4 "CBWU_OI_CONTRACT=2026-cbwu-oi-v1|CODE_SHA=${CODE_SHA}" "" 7200
 # B1 volume shadow: builds TWENTY seed books instead of five, so it gets a
 # 4h task timeout and starts earliest of the Sunday shadows.
 job shadow-cbwu-volume shadow-cbwu-volume 16Gi 4 "CODE_SHA=${CODE_SHA}" "" 14400

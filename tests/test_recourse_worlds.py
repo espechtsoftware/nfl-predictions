@@ -313,6 +313,139 @@ def test_paired_shadow_runner_persists_both_arms_and_manifest(monkeypatch):
     assert result["draft_group_id"] == 9001
 
 
+def _run_cbwu_oi(monkeypatch, *, dry_run: bool):
+    """Drive the cbwu_oi variant end to end with the cloud edges faked."""
+    batch, _, _, _, _ = _fixture()
+    salaries = pd.DataFrame([{
+        "dk_player_id": player_id,
+        "dk_draftable_id": int(10_000 + player_id),
+        "salary": 5_000,
+    } for player_id in batch.player_ids])
+
+    class Store:
+        def classic_salaries(self, draft_group_id):
+            return salaries
+
+    seen = {}
+
+    def fake_build(*args, **kwargs):
+        seen.update(kwargs)
+        kwargs["_control_candidate_capture"](batch)
+        kwargs["_candidate_capture"](batch)
+        return list(batch.candidates[:2])
+
+    monkeypatch.setattr(
+        "nfl_dfs.inference.live_lineups.build_sim_lineups", fake_build)
+    monkeypatch.setattr(
+        prospective_shadow, "paired_shadow_receipt",
+        lambda *args, **kwargs: (list(batch.candidates[:2]), {
+            "memberships": {"80": {"control": [], "treatment": []}},
+            "uses_post_lock_outcomes": False, "production_enabled": False,
+        }))
+    persisted = []
+
+    def persist(*args, object_name, context, **kwargs):
+        persisted.append((object_name, context))
+        return {"uri": f"gs://raw/{object_name}", "sha256": "0" * 64}
+
+    monkeypatch.setattr(
+        prospective_shadow, "persist_recourse_world_artifact", persist)
+    uploaded = []
+
+    class Blob:
+        def __init__(self, name):
+            self.name = name
+
+        def upload_from_string(self, payload, **kwargs):
+            assert kwargs["if_generation_match"] == 0
+            uploaded.append(self.name)
+
+    class Client:
+        def bucket(self, name):
+            return type("B", (), {"blob": lambda _self, n: Blob(n)})()
+
+    monkeypatch.setenv("CODE_SHA", "abcdef123456")
+    monkeypatch.setenv("CBWU_OI_CONTRACT", "2026-cbwu-oi-v1")
+    if dry_run:
+        monkeypatch.setenv("SHADOW_DRY_RUN", "1")
+    else:
+        monkeypatch.delenv("SHADOW_DRY_RUN", raising=False)
+    result = prospective_shadow.run_paired_prospective_shadow(
+        variant="cbwu_oi", store=Store(), season=2026, week=5,
+        draft_group_id=9001,
+        generated_at=pd.Timestamp("2026-10-08T15:00:00Z").to_pydatetime(),
+        storage_client=Client(), bucket_name="raw",
+    )
+    return result, seen, persisted, uploaded
+
+
+def test_cbwu_oi_live_run_freezes_the_canonical_panel_under_its_contract(
+        monkeypatch):
+    result, seen, persisted, uploaded = _run_cbwu_oi(monkeypatch, dry_run=False)
+    panel = "prospective-cbwu-oi-2026w05-20261008T150000Z"
+    assert result["panel_run_id"] == panel
+    assert seen["panel_run_id"] == panel
+    assert seen["candidate_run_type"] == "prospective_cbwu_oi_shadow"
+    assert seen["_log_ownership_shadow"] is True
+    assert seen["n_entries"] == 80 and seen["tail_line"] == 194.0
+    assert seen["policy_env"]["MULTISEED_PORTFOLIO"] == "CBWU_OI_SHADOW"
+    assert [name for name, _ in persisted] == [
+        f"recourse_worlds/2026/week-05/{panel}/control.npz",
+        f"recourse_worlds/2026/week-05/{panel}/treatment.npz",
+    ]
+    assert uploaded == [f"recourse_worlds/2026/week-05/{panel}/manifest.json"]
+    assert result["dry_run"] is False and result["live"] is True
+    assert result["contract"]["contract"] == "2026-cbwu-oi-v1"
+    assert result["contract"] == persisted[0][1]["contract"]
+
+
+def test_cbwu_oi_dry_run_is_invisible_to_the_graded_panel_tree(monkeypatch):
+    """The spec grades the EARLIEST frozen panel per week: a mid-week smoke
+    must never be a candidate for it, in GCS, in BigQuery or in own_shadow."""
+    result, seen, persisted, uploaded = _run_cbwu_oi(monkeypatch, dry_run=True)
+    panel = "dryrun-prospective-cbwu-oi-2026w05-20261008T150000Z"
+    assert result["panel_run_id"] == panel
+    assert not panel.startswith("prospective-cbwu-oi-")
+    assert seen["candidate_run_type"] == "prospective_cbwu_oi_shadow_dryrun"
+    assert seen["policy_env"]["PROSPECTIVE_SHADOW_ID"] == panel
+    assert seen["_log_ownership_shadow"] is False
+    for name in [name for name, _ in persisted] + uploaded:
+        assert name.startswith(f"recourse_worlds/dryrun/2026/week-05/{panel}/")
+        assert not name.startswith("recourse_worlds/2026/")
+    assert result["dry_run"] is True and result["live"] is False
+    assert all(context["dry_run"] is True for _, context in persisted)
+    # The dry run still proves the declared contract.
+    assert result["contract"]["contract"] == "2026-cbwu-oi-v1"
+
+
+def test_cbwu_oi_without_its_declared_contract_fails_before_any_read(
+        monkeypatch):
+    monkeypatch.setenv("CODE_SHA", "abcdef123456")
+    monkeypatch.delenv("CBWU_OI_CONTRACT", raising=False)
+    monkeypatch.delenv("SHADOW_DRY_RUN", raising=False)
+    with pytest.raises(RuntimeError, match="requires CBWU_OI_CONTRACT"):
+        prospective_shadow.run_paired_prospective_shadow(
+            variant="cbwu_oi", store=object(), season=2026, week=5,
+            draft_group_id=9001, bucket_name="raw")
+
+
+def test_paired_shadow_refuses_an_ambiguous_dry_run_flag(monkeypatch):
+    monkeypatch.setenv("CODE_SHA", "abcdef123456")
+    monkeypatch.setenv("SHADOW_DRY_RUN", "true")
+    with pytest.raises(RuntimeError, match="SHADOW_DRY_RUN must be unset or 1"):
+        prospective_shadow.run_paired_prospective_shadow(
+            variant="cbwu_oi", store=object(), season=2026, week=5,
+            draft_group_id=9001, bucket_name="raw")
+
+
+def test_cbwu_oi_job_declares_its_contract_in_the_deploy_script():
+    deploy = (ROOT / "deploy/deploy_jobs.sh").read_text(encoding="utf-8")
+    line = next(row for row in deploy.splitlines()
+                if row.startswith("job shadow-cbwu-oi-paired "))
+    assert "CBWU_OI_CONTRACT=2026-cbwu-oi-v1" in line
+    assert "CODE_SHA=${CODE_SHA}" in line
+
+
 def test_paired_shadow_runner_rejects_missing_code_sha(monkeypatch):
     monkeypatch.delenv("CODE_SHA", raising=False)
     with pytest.raises(ValueError, match="requires CODE_SHA"):

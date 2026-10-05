@@ -24,6 +24,15 @@ It is deliberately fail-closed in three directions:
      graded (or upcoming) gate's target jobs, and for any DORMANT scheduler that is in
      fact ENABLED, the newest finished execution must have SUCCEEDED, and a gate graded
      last week must have finished an execution within its cadence.
+  5. (2026-10-05, O-27) A target job whose IMAGE predates a fix the gate requires.  The
+     CBWU-OI pair failed 8/8 Sunday runs because its job was still pinned to a 09-06 image
+     that predates 193e1b44 (a DK draft group is enterable only until its first game
+     starts): every Sunday after a Thursday game it read the stale full-week group and
+     died at the inference-row guard.  A gate may list require_code_ancestors; the job's
+     CODE_SHA must contain each one (git merge-base --is-ancestor), else it is an error.
+  6. (2026-10-05, O-9/O-27) An ENABLED scheduler in DORMANT.  A dormant entry stops a job
+     being audited, so a job that fires every week may not sit there; classify it as a
+     gate (with its contract) or pause it.
 
 Usage:
     python scripts/check_prospective_gates.py            # audit the current week
@@ -39,6 +48,7 @@ import json
 import subprocess
 import sys
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
 PROJECT = "nfl-predictions-503414"
 LOCATION = "us-central1"
@@ -48,6 +58,15 @@ EXECUTION_LIMIT = 10 # newest executions read per job (read-only)
 
 # Every scheduler whose name matches this is either a classified gate below or an error.
 SHADOW_PATTERN = ("shadow", "freeze", "tail")
+REPO_ROOT = Path(__file__).resolve().parents[1]
+
+# A live-path fix every Sunday-main shadow image must contain (O-27 class). Before it, the
+# projection pool kept a DK draft group while its LAST game was ahead, so after a Thursday
+# game a Sunday run read the stale full-week group (already-played teams).
+POOL_FIX_193E1B44 = {
+    "193e1b44d2b43eed70cc9b5688b3700d2054046d":
+        "projection pool: a DK draft group is enterable only until its FIRST game starts",
+}
 
 # --- The registry.  One entry per frozen prospective gate. ------------------------
 # first_week/last_week are the Sunday-main weeks the gate GRADES (inclusive).
@@ -143,6 +162,8 @@ GATES = {
             "MODEL_ENSEMBLE": "1",
             "MIN_LINEUP_SALARY": "49000",
         },
+        # 2026-10-05 (O-27 class sweep): the pair builds from the same live pool query.
+        "require_code_ancestors": POOL_FIX_193E1B44,
         "adjudicates": "final scientific read after Week 18 per the gate document; weekly "
                        "in-season decision record per Amendment 1 v2.",
         "in_season_value": True,
@@ -151,6 +172,34 @@ GATES = {
                 "(role 12 / boom 160 / lev 40 / CE 0, served position scales), single seed, "
                 "exact-80. Its rows are NOT frozen-contract rows; the weekly record states "
                 "which consumer it describes (production K80, not the lab union K).",
+    },
+    # 2026-10-05 (operator: fix O-27, do not pause). Listed in DORMANT until today with the
+    # reason "ENABLED and running" while every Sunday run from 09-13 failed on its stale
+    # 09-06 image. It IS a frozen prospective gate: the 2026-08-18 spec grades every 2026
+    # regular-season Sunday-main week once after Week 18 (earliest successfully frozen panel
+    # per week). Its policy is built in code (incumbent 160/40 population + the CBWU-OI law,
+    # pinned as literals in prospective_shadow.CBWU_OI_FROZEN_SETTINGS); the job only
+    # declares the contract, and the runner refuses without it.
+    "cbwu-oi-2026": {
+        "doc": "reports/2026-08-18-cbwu-oi-prospective-shadow-spec.md",
+        "first_week": 1,
+        "last_week": 18,
+        "floor_weeks": None,  # the spec states none; interim read only at >=12 weeks
+        "lost_weeks": {
+            2: "every run failed (stale 09-06 image; O-27)",
+            3: "every run failed (stale 09-06 image; O-27)",
+            4: "every run failed (stale 09-06 image; O-27)",
+        },
+        "schedulers": ["s-shadow-cbwu-oi-paired-early", "s-shadow-cbwu-oi-paired-late"],
+        "require_env": {"CBWU_OI_CONTRACT": "2026-cbwu-oi-v1"},
+        "require_code_ancestors": POOL_FIX_193E1B44,
+        "adjudicates": "once, after Week 18, on the frozen panels (spec); an interim read "
+                       "at >=12 collected weeks is descriptive and licenses nothing. A pass "
+                       "licenses a promotion PROPOSAL to the operator, not adoption.",
+        "in_season_value": False,
+        "note": "Control = adopted CBWU combine, treatment = frozen CBWU-OI-v1 union, on the "
+                "identical five R0-R4 books of the incumbent 160/40 population; outcome-blind; "
+                "production_enabled=false.",
     },
     # 2026-09-22 (operator): the pass bar was frozen before the pair ever ran and grades only
     # unplayed weeks 5-18, so it is not the retrospective design the earlier DORMANT ruling
@@ -186,8 +235,9 @@ DORMANT = {
     "s-freeze-tail-early": "Tail-freeze capture; superseded by the live enter-bundle path.",
     "s-freeze-tail-late": "Tail-freeze capture; superseded by the live enter-bundle path.",
     "s-shadow-cbwu-volume": "Route-tail union volume probe; research intake, not a graded gate.",
-    "s-shadow-cbwu-oi-paired-early": "ENABLED and running; ownership-inclusive paired shadow.",
-    "s-shadow-cbwu-oi-paired-late": "ENABLED and running; ownership-inclusive paired shadow.",
+    # 2026-10-05 (O-27): s-shadow-cbwu-oi-paired-early/-late LEFT this list. Their reason
+    # read "ENABLED and running; ownership-inclusive paired shadow" -- every run since 09-13
+    # had failed, and OI is "order-invariant". They are GATES["cbwu-oi-2026"].
     # 2026-09-22: the SIS pass-tail pair was ruled dormant earlier today and re-opened the same
     # day with a pass bar frozen before it ever ran (GATES["sis-pass-tail-2026"]).
 }
@@ -219,6 +269,35 @@ def job_env(job: str) -> dict[str, str]:
     except Exception:
         return {}
     return {e["name"]: e.get("value", "") for e in c.get("env", [])}
+
+
+def code_contains(code_sha: str, commit: str) -> bool | None:
+    """Does the image commit CODE_SHA contain `commit`? None = cannot tell locally."""
+    proc = subprocess.run(
+        ["git", "-C", str(REPO_ROOT), "merge-base", "--is-ancestor", commit, code_sha],
+        capture_output=True, text=True, check=False)
+    if proc.returncode == 0:
+        return True
+    if proc.returncode == 1:
+        return False
+    return None
+
+
+def code_problems(job: str, env: dict[str, str], required: dict[str, str]) -> list[str]:
+    code_sha = (env.get("CODE_SHA") or "").strip()
+    if not code_sha:
+        return [f"job {job} declares no CODE_SHA, so its image cannot be checked for "
+                f"required fixes {sorted(c[:8] for c in required)}"]
+    problems = []
+    for commit, why in required.items():
+        contained = code_contains(code_sha, commit)
+        if contained is False:
+            problems.append(f"job {job} runs CODE_SHA {code_sha[:12]}, which predates required "
+                            f"fix {commit[:8]} ({why}). Rebuild the image and update the job.")
+        elif contained is None:
+            problems.append(f"job {job}: cannot tell whether CODE_SHA {code_sha[:12]} contains "
+                            f"fix {commit[:8]} (git fetch, then re-run)")
+    return problems
 
 
 def job_executions(job: str) -> list[dict] | None:
@@ -351,6 +430,13 @@ def audit(week: int, now: datetime | None = None) -> tuple[list[str], list[str],
                 errors.append(f"{gate}: job {job} contradicts the declared policy "
                               f"({len(bad)} of {len(want)} keys) -- {diff}. Resuming it would "
                               f"burn a graded week on a policy we do not run.")
+        required_code = spec.get("require_code_ancestors") or {}
+        if required_code:
+            for job in sorted(t for t in targets if t):
+                (errors if active else warnings).extend(
+                    f"{gate}: {p}" for p in code_problems(job, job_env(job), required_code))
+        for lost, why in sorted((spec.get("lost_weeks") or {}).items()):
+            notes.append(f"{gate}: week {lost} has no frozen panel -- {why}")
         graded_last_week = first <= week - 1 <= last
         for job in sorted(t for t in targets if t):
             problems, seen = execution_problems(
@@ -364,9 +450,15 @@ def audit(week: int, now: datetime | None = None) -> tuple[list[str], list[str],
     # A DORMANT scheduler is exempt from the window checks, not from running honestly: if it
     # is ENABLED its job runs every week, and a job that fails every run (O-27) is either to
     # be fixed or paused -- never left firing under a reason that says "running".
+    #
+    # 2026-10-05 (O-9/O-27): and an ENABLED scheduler may not be DORMANT at all, failing or
+    # not -- "dormant" exempts it from every gate check while it fires every week.
     for name in sorted(DORMANT):
         if live.get(name, {}).get("state") != "ENABLED":
             continue
+        errors.append(f"DORMANT-but-ENABLED {name}: a dormant scheduler is exempt from every "
+                      f"gate check, so it may not fire. Classify it in GATES with its "
+                      f"contract, or pause it.")
         job = scheduler_target(name)
         if not job:
             continue

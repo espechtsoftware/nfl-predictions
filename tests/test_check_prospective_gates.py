@@ -53,6 +53,10 @@ def world(monkeypatch):
             # Two registry keys may audit one job (the frozen Route Share key and its
             # companion): a healthy job satisfies both, so merge their contracts.
             envs.setdefault(f"job-for-{s}", {}).update(gate["require_env"] or {})
+            if gate.get("require_code_ancestors"):
+                envs[f"job-for-{s}"].setdefault("CODE_SHA", "c0ffee0c0ffee0")
+    # Every image contains every required fix unless a test says otherwise (offline).
+    monkeypatch.setattr(cpg, "code_contains", lambda code_sha, commit: True)
     monkeypatch.setattr(cpg, "schedulers", lambda: state)
     monkeypatch.setattr(cpg, "scheduler_target", lambda s: f"job-for-{s}")
     monkeypatch.setattr(cpg, "job_env", lambda j: envs.get(j, {}))
@@ -311,18 +315,126 @@ def test_unreadable_execution_history_is_an_error(world, monkeypatch):
 def test_dormant_but_enabled_failing_job_is_an_error(world, monkeypatch):
     """O-27: DORMANT said 'ENABLED and running' while every run failed."""
     state, _ = world
-    state["s-shadow-cbwu-oi-paired-early"]["state"] = "ENABLED"
+    name = "s-shadow-archetype-paired-early"
+    assert name in cpg.DORMANT
+    state[name]["state"] = "ENABLED"
     monkeypatch.setattr(
         cpg, "job_executions",
-        lambda j: ([_execution("oi-dead", "False", NOW_MINUS(6))]
-                   if j == "job-for-s-shadow-cbwu-oi-paired-early"
+        lambda j: ([_execution("dead", "False", NOW_MINUS(6))]
+                   if j == f"job-for-{name}"
                    else [_execution("ok", "True", NOW_MINUS(1))]))
     errors, _, _ = cpg.audit(week=5, now=NOW)
-    assert any("DORMANT-but-ENABLED s-shadow-cbwu-oi-paired-early" in e for e in errors), errors
+    assert any(f"DORMANT-but-ENABLED {name}" in e and "FAILED" in e for e in errors), errors
     # Paused, the same failing history is not this check's business.
-    state["s-shadow-cbwu-oi-paired-early"]["state"] = "PAUSED"
+    state[name]["state"] = "PAUSED"
     errors, _, _ = cpg.audit(week=5, now=NOW)
     assert not any("DORMANT-but-ENABLED" in e for e in errors), errors
+
+
+def test_enabled_scheduler_may_not_be_dormant_even_when_its_runs_succeed(world):
+    """O-9/O-27: 'dormant' exempts a job from every gate check, so it may not fire."""
+    state, _ = world
+    name = "s-shadow-k1-early"
+    state[name]["state"] = "ENABLED"
+    errors, _, _ = cpg.audit(week=5, now=NOW)
+    assert any(f"DORMANT-but-ENABLED {name}" in e and "may not fire" in e
+               for e in errors), errors
+
+
+# --- O-27: the CBWU-OI pair is a frozen gate, not a dormant job ----------------------
+
+CBWU = "cbwu-oi-2026"
+CBWU_JOBS = ("job-for-s-shadow-cbwu-oi-paired-early", "job-for-s-shadow-cbwu-oi-paired-late")
+
+
+def test_cbwu_oi_schedulers_are_a_gate_not_dormant():
+    spec = cpg.GATES[CBWU]
+    assert spec["schedulers"] == ["s-shadow-cbwu-oi-paired-early",
+                                  "s-shadow-cbwu-oi-paired-late"]
+    assert not set(spec["schedulers"]) & set(cpg.DORMANT)
+    assert (spec["first_week"], spec["last_week"]) == (1, 18)
+    assert spec["doc"] == "reports/2026-08-18-cbwu-oi-prospective-shadow-spec.md"
+
+
+def test_cbwu_oi_registry_equals_the_runner_contract():
+    """The checker, verify_deployment and the runner name ONE contract."""
+    from nfl_dfs.inference import prospective_shadow as ps
+
+    assert cpg.GATES[CBWU]["require_env"] == {ps.CBWU_OI_CONTRACT_ENV: ps.CBWU_OI_CONTRACT}
+
+
+def test_cbwu_oi_job_without_its_contract_is_an_error(world):
+    _, envs = world
+    for job in CBWU_JOBS:
+        envs[job].pop("CBWU_OI_CONTRACT")
+    errors, _, _ = cpg.audit(week=5, now=NOW)
+    assert any(e.startswith(f"{CBWU}:") and "contradicts the declared policy" in e
+               for e in errors), errors
+
+
+def test_stale_image_is_an_error(world, monkeypatch):
+    """The O-27 root cause: a job pinned to an image that predates the pool fix."""
+    monkeypatch.setattr(cpg, "code_contains",
+                        lambda code_sha, commit: code_sha != "918f5574ee9f")
+    _, envs = world
+    envs[CBWU_JOBS[0]]["CODE_SHA"] = "918f5574ee9f"
+    errors, _, _ = cpg.audit(week=5, now=NOW)
+    assert any(e.startswith(f"{CBWU}:") and "predates required fix 193e1b44" in e
+               for e in errors), errors
+    # Only the stale job is named; the up-to-date sibling is not.
+    assert all(CBWU_JOBS[1] not in e for e in errors if "predates" in e), errors
+
+
+def test_unverifiable_or_missing_code_sha_is_an_error(world, monkeypatch):
+    _, envs = world
+    envs[CBWU_JOBS[0]].pop("CODE_SHA")
+    monkeypatch.setattr(cpg, "code_contains", lambda code_sha, commit: None)
+    errors, _, _ = cpg.audit(week=5, now=NOW)
+    assert any("declares no CODE_SHA" in e for e in errors), errors
+    assert any("cannot tell whether CODE_SHA" in e for e in errors), errors
+
+
+def test_companion_pair_also_requires_the_pool_fix(world, monkeypatch):
+    """Rule 4 sweep: the Route Share pair builds from the same live pool query."""
+    monkeypatch.setattr(cpg, "code_contains", lambda code_sha, commit: False)
+    errors, _, _ = cpg.audit(week=5, now=NOW)
+    assert any(e.startswith("fp-route-share-2026-companion-v1:") and "predates" in e
+               for e in errors), errors
+
+
+def test_cbwu_oi_lost_weeks_are_reported(world):
+    _, _, notes = cpg.audit(week=5, now=NOW)
+    assert sum(n.startswith(f"{CBWU}: week ") and "no frozen panel" in n
+               for n in notes) == 3, notes
+
+
+def test_todays_cbwu_oi_job_fails_three_ways(world, monkeypatch):
+    """Reproduce the live 10-04 state: old image, no contract, every run failed."""
+    monkeypatch.setattr(cpg, "code_contains",
+                        lambda code_sha, commit: not code_sha.startswith("918f5574"))
+    _, envs = world
+    for job in CBWU_JOBS:
+        envs[job] = {"GCP_PROJECT": "nfl-predictions-503414",
+                     "CODE_SHA": "918f5574ee9f8f9be68b194994cf897c06706c8d"}
+    monkeypatch.setattr(
+        cpg, "job_executions",
+        lambda j: ([_execution("shadow-cbwu-oi-paired-xjrm9", "False", NOW_MINUS(6))]
+                   if j in CBWU_JOBS else [_execution("ok", "True", NOW_MINUS(1))]))
+    errors, _, _ = cpg.audit(week=5, now=NOW)
+    mine = [e for e in errors if e.startswith(f"{CBWU}:")]
+    assert any("contradicts the declared policy" in e for e in mine), mine
+    assert any("predates required fix" in e for e in mine), mine
+    assert any("FAILED (shadow-cbwu-oi-paired-xjrm9)" in e for e in mine), mine
+
+
+def test_code_contains_reads_real_ancestry():
+    """Against this repository: the 09-06 image lacks the fix, the fix contains itself."""
+    fix = next(iter(cpg.POOL_FIX_193E1B44))
+    stale = cpg.code_contains("918f5574ee9f8f9be68b194994cf897c06706c8d", fix)
+    if stale is None:
+        pytest.skip("shallow clone: the 2026-09 history is not available")
+    assert stale is False
+    assert cpg.code_contains(fix, fix) is True
 
 
 def test_execution_outcome_reads_the_provider_shape():
