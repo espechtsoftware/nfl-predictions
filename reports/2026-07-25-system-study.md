@@ -4007,3 +4007,64 @@ contests EA above / below A1 (W1-4, contest-level, anti-conservative): 7 / 1
 **No adoption.** The per-contest row cap stays as it is. The operator's question, whether we should hold any one player
 under about a third of entries, is answered: not at the cost the panel measures on mean finish. Whether it pays at the
 lines is the next study.
+
+## Addendum 124 (2026-10-05): study 15 (a looser QB stack): S1 and S1HT both NO DIFFERENCE
+
+**Setup.**
+- Preregistration: `reports/2026-10-05-prereg-study15-qb-stack.md`, frozen at `78ab9a95`, with deviation note 1 (the
+  reader frozen at sha `817574f7…`, plus the census).
+- The operator's request: "only a QB, 1 WR and a bring back is sufficient for a game we expect to be a shootout".
+- Arms:
+  - C, the live QB + 2 WR/TE + bring-back;
+  - S1, QB + 1 everywhere;
+  - S1HT, QB + 1 only for teams in the slate's top-2-total games, through the lab's new `TeamStackRules`.
+- Panel: L13's 36 slates, banks 1407/1408, K 105, LAG 0.10, the Week-4 plan.
+- Lab: nfl2 `production/s15-qb-stack-20261005` (code `7d2bd02`, results `044799f`, LEDGER `1e3e07e`).
+- **Reproduced byte-identically by the reviewer:** stdout sha256 `732525c9…`.
+
+**Reader output (verbatim):**
+```
+STUDY 15 READER  sha256 817574f7961e0154a0619d208ea021338b283320812a1c431df644047d18c0be
+DIRECTION: pct = share of the sampled field a row BEATS (higher = better); every difference is ARM - C; POSITIVE favours the arm.
+slates 36  banks [1407, 1408]  B 20000  seed 20261005  each interval 0.9750 two-sided (family 0.975)  plan 22 mean-track contests, 147 entries
+
+== S1 vs C
+  PRIMARY mean entry pct  +0.00744  [-0.01317, +0.02822]  seasons 2023 -0.01491, 2024 +0.02978
+  GUARD tickets per slate -1.181  [-3.472, +1.070]   best>=200 -0.0139  [-0.1111, +0.0833]
+  dealt identical to C: 0.000 of slate-banks
+  ->  NO DIFFERENCE -- to the operator: no measurable effect; switching is your preference, reversible, with the rollback
+
+== S1HT vs C
+  PRIMARY mean entry pct  -0.00367  [-0.02656, +0.01977]  seasons 2023 -0.01595, 2024 +0.00862
+  GUARD tickets per slate +0.042  [-2.056, +2.097]   best>=200 +0.0139  [-0.0694, +0.0972]
+  dealt identical to C: 0.000 of slate-banks
+  ->  NO DIFFERENCE -- to the operator: no measurable effect; switching is your preference, reversible, with the rollback
+
+secondaries (slate means):
+  C     entry pct 0.53490  worst-decile slate 0.34047  tickets 325.5  zero-ticket slates 0.264  best>=194 0.319  best>=200 0.139  pred-own sum 62.19  max entry exposure 0.606
+        stack shape: rows with 1 / 2 / 3+ same-team catchers 0.000 / 1.000 / 0.000; dealt entries with 1 catcher 0.000; bring-backs per row 1.00
+  S1    entry pct 0.54234  worst-decile slate 0.35805  tickets 283.0  zero-ticket slates 0.236  best>=194 0.181  best>=200 0.125  pred-own sum 63.45  max entry exposure 0.618
+        stack shape: rows with 1 / 2 / 3+ same-team catchers 0.927 / 0.073 / 0.000; dealt entries with 1 catcher 0.934; bring-backs per row 1.08
+  S1HT  entry pct 0.53123  worst-decile slate 0.30963  tickets 327.0  zero-ticket slates 0.292  best>=194 0.250  best>=200 0.153  pred-own sum 63.25  max entry exposure 0.611
+        stack shape: rows with 1 / 2 / 3+ same-team catchers 0.654 / 0.346 / 0.000; dealt entries with 1 catcher 0.657; bring-backs per row 1.07
+```
+
+**Disclosed reader defect:**
+- The frozen text specifies two-sided 0.9875 intervals per arm. The reader used two-sided 0.975: quantiles
+  [0.0125, 0.9875]. Its header prints "0.9750".
+- A labelled sensitivity copy at 0.9875 (sha `50dce991`, in `results/s15/`) gives the SAME verdicts:
+  - S1: primary [−0.01559, +0.03044], tickets [−3.708, +1.347];
+  - S1HT: primary [−0.02890, +0.02254], tickets [−2.292, +2.306].
+- Widening an interval cannot turn NO DIFFERENCE into PASS, WORSE or NOT OFFERED.
+- The frozen reader is not patched. The defect class was swept: s1b and s16 match their texts.
+- **Lesson** (for every reader from now on): the tests assert the PRINTED LEVEL against the preregistration's stated
+  level, not the constant the code uses.
+
+**Verdicts:**
+- **S1, NO DIFFERENCE.** Mean entry finish +0.7 points, inside an interval that straddles 0.
+  - It cashed about 13% fewer tickets: 283 against 325.5, n.s.
+  - It lost ceiling: best ≥ 194 on 18% of slates against 32%.
+- **S1HT, NO DIFFERENCE.** Indistinguishable from today on every measure: tickets 327 against 325.5.
+- **To the operator:** "no measurable effect; switching is your preference, reversible, with the rollback".
+- **Any offer** needs a NEW lab pin carrying `TeamStackRules`, because the production pin `32cdb61` lacks it, plus a
+  `check_lab_api` run before any entry.
