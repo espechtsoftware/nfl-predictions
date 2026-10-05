@@ -2,7 +2,7 @@
 # One-time GCP project setup. Idempotent.
 set -euo pipefail
 
-PROJECT="${GCP_PROJECT:-nfl-dfs-prod}"
+PROJECT="${GCP_PROJECT:-nfl-predictions-503414}"
 LOCATION="${BQ_LOCATION:-US}"
 BUCKET="${GCS_BUCKET:-${PROJECT}-raw}"
 
