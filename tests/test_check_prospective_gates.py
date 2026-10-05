@@ -50,9 +50,25 @@ def world(monkeypatch):
     envs: dict[str, dict[str, str]] = {}
     for gate in cpg.GATES.values():
         for s in gate["schedulers"]:
-            # Two registry keys may audit one job (the frozen Route Share key and its
-            # companion): a healthy job satisfies both, so merge their contracts.
+            # Two registry keys may audit one job (a frozen key and its companion). Where
+            # their contracts agree a healthy job satisfies both; where they conflict
+            # (CBWU_OI_CONTRACT) the current, non-superseded contract wins -- see _as_of
+            # for a world audited before the companion's first week.
+            if gate.get("superseded_from_week") is not None:
+                continue
             envs.setdefault(f"job-for-{s}", {}).update(gate["require_env"] or {})
+    for gate in cpg.GATES.values():
+        if gate.get("superseded_from_week") is None:
+            continue
+        for s in gate["schedulers"]:
+            for key, value in (gate["require_env"] or {}).items():
+                envs.setdefault(f"job-for-{s}", {}).setdefault(key, value)
+    for gate in cpg.GATES.values():
+        if gate.get("require_code_ancestors"):
+            for s in gate["schedulers"]:
+                envs.setdefault(f"job-for-{s}", {}).setdefault("CODE_SHA", "c0ffee0c0ffee0")
+    # Every image contains every required fix unless a test says otherwise (offline).
+    monkeypatch.setattr(cpg, "code_contains", lambda code_sha, commit: True)
     monkeypatch.setattr(cpg, "schedulers", lambda: state)
     monkeypatch.setattr(cpg, "scheduler_target", lambda s: f"job-for-{s}")
     monkeypatch.setattr(cpg, "job_env", lambda j: envs.get(j, {}))
@@ -63,7 +79,20 @@ def world(monkeypatch):
     return state, envs
 
 
+def _as_of(envs, week):
+    """A healthy job before a companion took over carries the then-live contract."""
+    for gate in cpg.GATES.values():
+        until = gate.get("superseded_from_week")
+        if until is not None and week < until:
+            for s in gate["schedulers"]:
+                envs[f"job-for-{s}"].update(gate["require_env"] or {})
+
+
 def test_healthy_world_passes(world):
+    _, envs = world
+    errors, _, _ = cpg.audit(week=5)
+    assert errors == [], errors
+    _as_of(envs, 2)
     errors, _, _ = cpg.audit(week=2)
     assert errors == [], errors
 
@@ -112,6 +141,7 @@ def test_gate_outside_its_window_is_not_an_error(world, monkeypatch):
             "adjudicates": "synthetic", "in_season_value": None, "note": "test fixture"}
     monkeypatch.setitem(cpg.GATES, "synthetic-faroff-2026", gate)
     state["s-synthetic-faroff"] = {"state": "PAUSED", "schedule": "0 0 * * 7"}
+    _as_of(world[1], 1)
     errors, _, notes = cpg.audit(week=1)
     assert errors == [], errors
     assert any("dormant this week" in n for n in notes), notes
@@ -311,18 +341,158 @@ def test_unreadable_execution_history_is_an_error(world, monkeypatch):
 def test_dormant_but_enabled_failing_job_is_an_error(world, monkeypatch):
     """O-27: DORMANT said 'ENABLED and running' while every run failed."""
     state, _ = world
-    state["s-shadow-cbwu-oi-paired-early"]["state"] = "ENABLED"
+    name = "s-shadow-archetype-paired-early"
+    assert name in cpg.DORMANT
+    state[name]["state"] = "ENABLED"
     monkeypatch.setattr(
         cpg, "job_executions",
-        lambda j: ([_execution("oi-dead", "False", NOW_MINUS(6))]
-                   if j == "job-for-s-shadow-cbwu-oi-paired-early"
+        lambda j: ([_execution("dead", "False", NOW_MINUS(6))]
+                   if j == f"job-for-{name}"
                    else [_execution("ok", "True", NOW_MINUS(1))]))
     errors, _, _ = cpg.audit(week=5, now=NOW)
-    assert any("DORMANT-but-ENABLED s-shadow-cbwu-oi-paired-early" in e for e in errors), errors
+    assert any(f"DORMANT-but-ENABLED {name}" in e and "FAILED" in e for e in errors), errors
     # Paused, the same failing history is not this check's business.
-    state["s-shadow-cbwu-oi-paired-early"]["state"] = "PAUSED"
+    state[name]["state"] = "PAUSED"
     errors, _, _ = cpg.audit(week=5, now=NOW)
     assert not any("DORMANT-but-ENABLED" in e for e in errors), errors
+
+
+def test_enabled_scheduler_may_not_be_dormant_even_when_its_runs_succeed(world):
+    """O-9/O-27: 'dormant' exempts a job from every gate check, so it may not fire."""
+    state, _ = world
+    name = "s-shadow-k1-early"
+    state[name]["state"] = "ENABLED"
+    errors, _, _ = cpg.audit(week=5, now=NOW)
+    assert any(f"DORMANT-but-ENABLED {name}" in e and "may not fire" in e
+               for e in errors), errors
+
+
+# --- O-27: the CBWU-OI pair is a gate, not a dormant job -----------------------------
+
+CBWU = "cbwu-oi-2026-companion-v1"
+FROZEN = "cbwu-oi-2026"
+CBWU_JOBS = ("job-for-s-shadow-cbwu-oi-paired-early", "job-for-s-shadow-cbwu-oi-paired-late")
+
+
+def test_cbwu_oi_schedulers_are_a_gate_not_dormant():
+    for key in (CBWU, FROZEN):
+        spec = cpg.GATES[key]
+        assert spec["schedulers"] == ["s-shadow-cbwu-oi-paired-early",
+                                      "s-shadow-cbwu-oi-paired-late"]
+        assert not set(spec["schedulers"]) & set(cpg.DORMANT)
+        assert spec["require_code_ancestors"] == cpg.POOL_FIX_193E1B44
+    companion = cpg.GATES[CBWU]
+    assert (companion["first_week"], companion["last_week"]) == (5, 18)
+    assert companion["in_season_value"] is True
+    assert companion["policy_doc"] == "reports/2026-09-19-in-season-adoption-track.md"
+
+
+def test_frozen_cbwu_oi_key_is_superseded_from_week_5_and_says_why(world):
+    spec = cpg.GATES[FROZEN]
+    assert spec["superseded_from_week"] == 5 and spec["superseded_by"] == CBWU
+    assert spec["superseded_reason"] == (
+        "operator 2026-10-04: moved to the current policy; the frozen 160/40 comparison "
+        "ends (W1 only), not adjudicated")
+    assert spec["require_env"] == {"CBWU_OI_CONTRACT": "2026-cbwu-oi-v1"}
+    errors, _, notes = cpg.audit(week=5, now=NOW)
+    assert not any(e.startswith(f"{FROZEN}:") for e in errors), errors
+    assert any(n.startswith(f"{FROZEN}: SUPERSEDED from week 5") for n in notes), notes
+
+
+def test_cbwu_oi_registry_equals_the_runner_contract():
+    """The checker, verify_deployment and the runner name ONE derived contract."""
+    from nfl_dfs.inference import prospective_shadow as ps
+
+    assert cpg.GATES[CBWU]["require_env"] == ps.cbwu_oi_job_environment(
+        ps.CBWU_OI_COMPANION_V1)
+    assert cpg.GATES[FROZEN]["require_env"] == ps.cbwu_oi_job_environment(
+        ps.CBWU_OI_FROZEN_V1)
+
+
+def test_cbwu_oi_job_on_the_frozen_contract_is_an_error_from_week_5(world):
+    _, envs = world
+    for job in CBWU_JOBS:
+        envs[job]["CBWU_OI_CONTRACT"] = "2026-cbwu-oi-v1"
+        envs[job]["N_BOOM"] = "40"
+    errors, _, _ = cpg.audit(week=5, now=NOW)
+    assert any(e.startswith(f"{CBWU}:") and "contradicts the declared policy" in e
+               for e in errors), errors
+
+
+def test_cbwu_oi_job_without_its_contract_is_an_error(world):
+    _, envs = world
+    for job in CBWU_JOBS:
+        envs[job].pop("CBWU_OI_CONTRACT")
+    errors, _, _ = cpg.audit(week=5, now=NOW)
+    assert any(e.startswith(f"{CBWU}:") and "contradicts the declared policy" in e
+               for e in errors), errors
+
+
+def test_stale_image_is_an_error(world, monkeypatch):
+    """The O-27 root cause: a job pinned to an image that predates the pool fix."""
+    monkeypatch.setattr(cpg, "code_contains",
+                        lambda code_sha, commit: code_sha != "918f5574ee9f")
+    _, envs = world
+    envs[CBWU_JOBS[0]]["CODE_SHA"] = "918f5574ee9f"
+    errors, _, _ = cpg.audit(week=5, now=NOW)
+    assert any(e.startswith(f"{CBWU}:") and "predates required fix 193e1b44" in e
+               for e in errors), errors
+    # Only the stale job is named; the up-to-date sibling is not.
+    assert all(CBWU_JOBS[1] not in e for e in errors if "predates" in e), errors
+
+
+def test_unverifiable_or_missing_code_sha_is_an_error(world, monkeypatch):
+    _, envs = world
+    envs[CBWU_JOBS[0]].pop("CODE_SHA")
+    monkeypatch.setattr(cpg, "code_contains", lambda code_sha, commit: None)
+    errors, _, _ = cpg.audit(week=5, now=NOW)
+    assert any("declares no CODE_SHA" in e for e in errors), errors
+    assert any("cannot tell whether CODE_SHA" in e for e in errors), errors
+
+
+def test_companion_pair_also_requires_the_pool_fix(world, monkeypatch):
+    """Rule 4 sweep: the Route Share pair builds from the same live pool query."""
+    monkeypatch.setattr(cpg, "code_contains", lambda code_sha, commit: False)
+    errors, _, _ = cpg.audit(week=5, now=NOW)
+    assert any(e.startswith("fp-route-share-2026-companion-v1:") and "predates" in e
+               for e in errors), errors
+
+
+def test_frozen_cbwu_oi_lost_weeks_are_reported_while_it_audits(world):
+    _, envs = world
+    _as_of(envs, 4)
+    _, _, notes = cpg.audit(week=4, now=NOW)
+    assert sum(n.startswith(f"{FROZEN}: week ") and "no frozen panel" in n
+               for n in notes) == 3, notes
+
+
+def test_todays_cbwu_oi_job_fails_three_ways(world, monkeypatch):
+    """Reproduce the live 10-04 state: old image, no contract, every run failed."""
+    monkeypatch.setattr(cpg, "code_contains",
+                        lambda code_sha, commit: not code_sha.startswith("918f5574"))
+    _, envs = world
+    for job in CBWU_JOBS:
+        envs[job] = {"GCP_PROJECT": "nfl-predictions-503414",
+                     "CODE_SHA": "918f5574ee9f8f9be68b194994cf897c06706c8d"}
+    monkeypatch.setattr(
+        cpg, "job_executions",
+        lambda j: ([_execution("shadow-cbwu-oi-paired-xjrm9", "False", NOW_MINUS(6))]
+                   if j in CBWU_JOBS else [_execution("ok", "True", NOW_MINUS(1))]))
+    errors, _, _ = cpg.audit(week=5, now=NOW)
+    mine = [e for e in errors if e.startswith(f"{CBWU}:")]
+    assert any("contradicts the declared policy" in e for e in mine), mine
+    assert any("predates required fix" in e for e in mine), mine
+    assert any("FAILED (shadow-cbwu-oi-paired-xjrm9)" in e for e in mine), mine
+
+
+def test_code_contains_reads_real_ancestry():
+    """Against this repository: the 09-06 image lacks the fix, the fix contains itself."""
+    fix = next(iter(cpg.POOL_FIX_193E1B44))
+    stale = cpg.code_contains("918f5574ee9f8f9be68b194994cf897c06706c8d", fix)
+    if stale is None:
+        pytest.skip("shallow clone: the 2026-09 history is not available")
+    assert stale is False
+    assert cpg.code_contains(fix, fix) is True
 
 
 def test_execution_outcome_reads_the_provider_shape():

@@ -25,6 +25,10 @@ from nfl_dfs.inference.production_policy import (  # noqa: E402
 from nfl_dfs.inference.route_share_shadow import (  # noqa: E402
     ROUTE_FEATURES as ROUTE_FEATURE_NAMES,
 )
+from nfl_dfs.inference.prospective_shadow import (  # noqa: E402
+    CBWU_OI_COMPANION_V1,
+    cbwu_oi_job_environment,
+)
 from nfl_dfs.inference.tail_shadow import (  # noqa: E402
     ROUTE_SHARE_COMPANION_V1,
     route_share_job_environment,
@@ -77,6 +81,10 @@ TARGETS = (
         "MODEL_REGISTRY_VARIANT": "tail_k1_route",
         **route_share_job_environment(ROUTE_SHARE_COMPANION_V1),
     }),
+    # 2026-10-05 (O-27, operator): the CBWU-OI pair runs companion v1 from
+    # Week 5, derived from production_policy by prospective_shadow.
+    ("job", "shadow-cbwu-oi-paired",
+     cbwu_oi_job_environment(CBWU_OI_COMPANION_V1)),
 )
 
 
