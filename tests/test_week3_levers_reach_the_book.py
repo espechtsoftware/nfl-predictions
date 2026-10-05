@@ -154,11 +154,16 @@ def test_C_max_per_game_flows_from_week_env_to_the_solver():
     assert host.count('"${MPG_ARGS[@]}"') >= 2, "both host live_week builds must carry the cap"
     assert "check_cap" in host and "exit 1" in host, "the host must fail closed when the receipt lacks the cap"
     lw = _git_show(NFL2_REPO, pin, "scripts/live_week.py")
-    assert '"MAX_PER_GAME": str(a.max_per_game)' in lw and "env=_arm_env" in lw
+    pipe = _git_show(NFL2_REPO, pin, "src/nfl2/pipeline.py")
+    # nfl2 32cdb61 (2026-10-02) moved the cap into pipeline.live_arm_env, which also carries LEV_CBC_THREADS;
+    # older pins build the dict inline in live_week.py. Either form must hand the cap to generate_candidates.
+    inline = '"MAX_PER_GAME": str(a.max_per_game)' in lw
+    helper = ("live_arm_env(a.max_per_game)" in lw
+              and '{"MAX_PER_GAME": str(max_per_game)}' in pipe and "def live_arm_env" in pipe)
+    assert (inline or helper) and "env=_arm_env" in lw, "the per-game cap must reach generate_candidates"
     assert "check_paid_path_flags(" in lw, "the paid path must use the cap-permitting guard"
     a5 = _git_show(NFL2_REPO, pin, "src/nfl2/live_a5.py")
     assert "def check_paid_path_flags" in a5
-    pipe = _git_show(NFL2_REPO, pin, "src/nfl2/pipeline.py")
     assert "optimize_many(pool, n_lineups=n_lev, stack=stack, objective_col=\"proj_tourney\", env=env)" in pipe
     assert "env=env), tag, world=k)" in pipe, "boom solves must receive the env carrying MAX_PER_GAME"
     lineup = _git_show(NFL2_REPO, pin, "src/nfl2/core/lineup.py")
