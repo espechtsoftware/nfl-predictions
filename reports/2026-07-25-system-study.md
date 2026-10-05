@@ -3805,3 +3805,72 @@ code audit.
   to the leakage suite with `require_null_parity=True`. Sweep the other exact-week joins for the same class. The
   register entry is OPEN-DEFECTS O-21.
 
+
+## Addendum 122 (2026-10-05): study 1 (de-concentration) — NO DIFFERENCE; the transfer check shows no benefit on the real 2026 contests
+
+**Setup.**
+- Preregistration: `reports/2026-10-05-prereg-study1-deconcentration.md`, frozen at `e7f5a36a`, with deviation notes
+  1–5: the LAG-only term at 0.10; banks 1402/1403; the DST counting fix; the stopped run with 2 rows deleted unread.
+- Panel: L13's 36 slates (2023–24), fresh banks 1402/1403, the L-series builder at K = 105.
+- Arms:
+  - C, the current capped sequential optimizer;
+  - G, a per-game budget: the share of rows with ≥ 3 players from game g ≤ min(0.5, P(top-3 game | total rank)),
+    from 2014–21 outcomes;
+  - P4, offset dealing (`ENTER_LAYOUT=spread`);
+  - G+P4.
+- Reader frozen before any scored bank: sha256 `21f364d3…bcc59`.
+
+**Reader output (verbatim):**
+```
+STUDY 1 READER  sha256 21f364d36fb21989ce8e2ff7f7aa7c5e06fd2d591c7fd5e1ebbc16b2257bcc59
+DIRECTION: pct = share of the sampled field a row BEATS (higher = better); every difference is ARM - C; POSITIVE favours the arm.
+slates 36  banks [1402, 1403]  B 20000  seed 20261005  each interval 0.99167 (family 0.975)
+
+== PRIMARY plan: contests.json  (22 mean-track contests, 147 entries)
+G vs C (row level): -0.00345  [-0.02428, +0.01741]  seasons 2023 -0.01925, 2024 +0.01236  tickets 328.0 vs 314.0 (+4.5%)  zero-ticket slates 0.236 vs 0.319  ->  NO DIFFERENCE
+P4 vs C (entry level): -0.00553  [-0.01815, +0.00764]  seasons 2023 -0.00436, 2024 -0.00670  tickets 288.0 vs 314.0 (-8.3%)  zero-ticket slates 0.194 vs 0.319  ->  NO DIFFERENCE (a secondary tolerance fails)
+G+P4 vs C (entry level): -0.00920  [-0.03485, +0.01555]  seasons 2023 -0.02491, 2024 +0.00650  tickets 306.0 vs 314.0 (-2.5%)  zero-ticket slates 0.167 vs 0.319  ->  NO DIFFERENCE
+secondaries:
+  C    entry pct mean 0.53350  worst-decile slate 0.34684  bust exposure 0.0719
+  G    entry pct mean 0.53527  worst-decile slate 0.37481  bust exposure 0.0803
+  P4   entry pct mean 0.52797  worst-decile slate 0.33528  bust exposure 0.0712
+  GP4  entry pct mean 0.52430  worst-decile slate 0.34846  bust exposure 0.0785
+  G75  entry pct mean 0.53088  worst-decile slate 0.35435  bust exposure 0.0787
+  C    row pct mean 0.52948  best>=194 0.292  best>=200 0.153
+  G    row pct mean 0.52603  best>=194 0.250  best>=200 0.153
+  G75  row pct mean 0.52065  best>=194 0.278  best>=200 0.139   (EXPLORATORY, not decision-bearing)
+[then rc 1 on the sensitivity plan: "head: the plan needs rank 105 but the book has 105 rows" — the routed W3 plan
+ needs K 106 against the panel's 105; the sensitivity is UNAVAILABLE AS FROZEN and was not patched]
+```
+
+**Transfer check** (descriptive; the current system A1 vs A1 + `--main-game-cap p3` on the real 2026 W1–4 pools, scored
+by the money-gate harness's validated scorer):
+```
+STUDY-1 TRANSFER CHECK (descriptive): AG - A1 on the real 2026 W1-4 contests; higher pct = better; W4 motivated the study
+book sha: {'A1': {1: '6debe475', 2: 'bf1a5438', 3: 'f08e6bad', 4: '010df6c0'}, 'AG': {1: '6debe475', 2: 'bf1a5438', 3: '6e2dadd3', 4: 'a7ce049f'}}
+W1: multiple A1 0.850 AG 0.850 | ex-largest A1 0.799 AG 0.799 | cashes 40 vs 40 | mean entry pct 67.6587 vs 67.6587 | contests with no cash 0 vs 0 of 3 | contests AG above/below A1 0/0 | identical book True
+W2: multiple A1 0.650 AG 0.650 | ex-largest A1 0.549 AG 0.549 | cashes 9 vs 9 | mean entry pct 36.0494 vs 36.0494 | contests with no cash 7 vs 7 of 12 | contests AG above/below A1 0/0 | identical book True
+W3: multiple A1 0.000 AG 0.000 | ex-largest A1 0.000 AG 0.000 | cashes 0 vs 0 | mean entry pct 52.7828 vs 47.7962 | contests with no cash 45 vs 45 of 45 | contests AG above/below A1 0/6 | identical book False
+W4 (motivating): multiple A1 0.174 AG 0.174 | ex-largest A1 0.087 AG 0.087 | cashes 2 vs 2 | mean entry pct 44.7242 vs 43.4113 | contests with no cash 23 vs 23 of 25 | contests AG above/below A1 5/3 | identical book False
+W1-4: multiple A1 0.484 AG 0.484; ex-largest 0.462 vs 0.462; mean entry pct 49.6721 vs 47.3892
+W1-3 (excl. motivating W4): multiple A1 0.565 AG 0.565; ex-largest 0.537 vs 0.537; mean entry pct 51.6461 vs 48.9761
+contests AG above / below A1 (W1-4, contest-level, anti-conservative): 5 / 9
+```
+
+**Verdict.**
+- Every primary is NO DIFFERENCE; P4 also fails the ticket tolerance (−8.3%). Nothing is adopted.
+- In the panel the game cap acts as VARIANCE SHAPING:
+  - fewer zero-ticket slates (0.319 → 0.236 for G, 0.167 for G+P4);
+  - a better worst decile;
+  - a slightly lower ceiling (best ≥ 194 0.292 → 0.250);
+  - one-player-bust exposure is NOT reduced (0.072 → 0.080).
+- On the real 2026 contests the cap does not bind in W1–2. In W3–4 money is unchanged and mean entry finish is lower
+  (−5.0, −1.3). The empty-week reduction seen in the panel's secondaries could NOT be tested on the real contests: too
+  few cashes (W3 0 of 45 in both arms; W4 the same 2 cashes). The primary finish measure is slightly worse in both the
+  panel and the transfer check, so G is not offered.
+- **G is not offered, not even as a risk preference.** The Chase-type single-player risk needs the entry-level player
+  cap (study 1's original scope), not a game cap.
+- **Process lessons** (recorded in HANDOFF):
+  - the API mismatch between mocked tests and the pinned lab (`set_constraints` vs `member_bounds`) was caught by
+    the transfer build, and now has an AST guard;
+  - a frame quirk (DST side ids) was caught by reviewing the NULL-total question before reading any result.
