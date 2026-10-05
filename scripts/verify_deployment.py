@@ -25,6 +25,10 @@ from nfl_dfs.inference.production_policy import (  # noqa: E402
 from nfl_dfs.inference.route_share_shadow import (  # noqa: E402
     ROUTE_FEATURES as ROUTE_FEATURE_NAMES,
 )
+from nfl_dfs.inference.tail_shadow import (  # noqa: E402
+    ROUTE_SHARE_COMPANION_V1,
+    route_share_job_environment,
+)
 
 REGION = "us-central1"
 ROLE_FEATURES = ADOPTED_CLASSIC_POLICY.role_features
@@ -62,26 +66,16 @@ TARGETS = (
         "MODEL_REGISTRY_VARIANT": "tail_k1_route_role",
         "EXTRA_FEATURES": f"{ROLE_FEATURES},{ROUTE_FEATURES}",
     }),
+    # 2026-10-05 (O-25): the Route Share pair runs under ONE declared contract,
+    # companion v1, derived from production_policy by tail_shadow. This list
+    # used to pin the frozen August N_BOOM=28 set beside jobs carrying 160.
     ("job", "shadow-k1-roleunion", {
-        "MODEL_ENSEMBLE": "1", "MODEL_REGISTRY_VARIANT": "tail_k1",
-        "GAME_SIM_MODE": "possession", "GEN_TOTAL_BUDGET": "52",
-        "N_CE": "12", "CE_SEED": "1701", "N_EPISTEMIC": "12",
-        "EPISTEMIC_FAMILY": "role_draws",
-        "ROLE_BELIEF_FEATURES": ROLE_FEATURES,
-        "ROLE_BELIEF_SEED": "7331", "N_GUMBEL": "0", "N_BOOM": "28",
-        "REPLACEMENT_SLOTS": "12", "MIN_LINEUP_SALARY": "49000",
-        "BLEND_MODEL_WEIGHT": "0.45", "LIVE_SIMS": "30000",
+        "MODEL_REGISTRY_VARIANT": "tail_k1",
+        **route_share_job_environment(ROUTE_SHARE_COMPANION_V1),
     }),
     ("job", "shadow-k1-route-roleunion", {
-        "MODEL_ENSEMBLE": "1",
         "MODEL_REGISTRY_VARIANT": "tail_k1_route",
-        "GAME_SIM_MODE": "possession", "GEN_TOTAL_BUDGET": "52",
-        "N_CE": "12", "CE_SEED": "1701", "N_EPISTEMIC": "12",
-        "EPISTEMIC_FAMILY": "role_draws",
-        "ROLE_BELIEF_FEATURES": ROLE_FEATURES,
-        "ROLE_BELIEF_SEED": "7331", "N_GUMBEL": "0", "N_BOOM": "28",
-        "REPLACEMENT_SLOTS": "12", "MIN_LINEUP_SALARY": "49000",
-        "BLEND_MODEL_WEIGHT": "0.45", "LIVE_SIMS": "30000",
+        **route_share_job_environment(ROUTE_SHARE_COMPANION_V1),
     }),
 )
 

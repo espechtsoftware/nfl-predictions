@@ -17,6 +17,13 @@ It is deliberately fail-closed in three directions:
   3. ANY shadow/freeze scheduler not classified in GATES below.  Silence was the
      original failure, so an unrecognised job is an error, not a shrug.  Classify it
      here -- as a real gate or as deliberately dormant, with a reason -- or it fails.
+  4. (2026-10-05, O-25/O-27) A target job whose runs FAIL.  ENABLED and on-policy is not
+     armed if every execution dies: the Route Share pair failed 8/8 runs in Weeks 3-4 at
+     its image guard, and shadow-cbwu-oi-paired failed every run from 09-13 while this
+     list called it "ENABLED and running" -- both invisible to checks 1-3.  For each
+     graded (or upcoming) gate's target jobs, and for any DORMANT scheduler that is in
+     fact ENABLED, the newest finished execution must have SUCCEEDED, and a gate graded
+     last week must have finished an execution within its cadence.
 
 Usage:
     python scripts/check_prospective_gates.py            # audit the current week
@@ -31,10 +38,13 @@ import argparse
 import json
 import subprocess
 import sys
+from datetime import datetime, timedelta, timezone
 
 PROJECT = "nfl-predictions-503414"
 LOCATION = "us-central1"
 LOOKAHEAD_WEEKS = 2  # warn this far before a gate's first graded week
+CADENCE_DAYS = 7     # the Sunday shadows run weekly; a gate may override with cadence_days
+EXECUTION_LIMIT = 10 # newest executions read per job (read-only)
 
 # Every scheduler whose name matches this is either a classified gate below or an error.
 SHADOW_PATTERN = ("shadow", "freeze", "tail")
@@ -78,6 +88,69 @@ GATES = {
                 "treatment must differ ONLY by the four Fantasy Points route features. "
                 "Weekly paired reads feed 2026 decisions; the full-season verdict feeds the "
                 "Fantasy Points renewal.",
+        # 2026-10-05 (reviewer, O-25): from Week 5 the companion key alone audits the four
+        # schedulers, so the same failure is not printed twice under two contracts. This
+        # entry's contract and verdict text above are kept as the record.
+        "superseded_from_week": 5,
+        "superseded_by": "fp-route-share-2026-companion-v1",
+        "superseded_reason": "superseded by fp-route-share-2026-companion-v1 from W5; W2 under "
+                             "the old contract, W3-W4 failed (O-25); history kept",
+    },
+    # 2026-10-05 (operator chose option (a) for O-2/O-25): the same pair, under companion v1
+    # -- the adopted money-path generation stated in full -- from Week 5 (Weeks 3-4 failed
+    # 8/8 at the image guard and produced no books). The frozen contract above is unchanged.
+    # require_env is EXACTLY what the jobs must carry, and equals
+    # nfl_dfs.inference.tail_shadow.route_share_job_environment("companion-v1") -- every
+    # value derived from ClassicProductionPolicy.engine_environment(); a test pins the
+    # equality, so this registry, the image guard and the update command cannot diverge.
+    "fp-route-share-2026-companion-v1": {
+        "doc": "reports/2026-08-11-route-share-2026-shadow-gate.md",
+        "policy_doc": "reports/2026-09-19-route-share-current-policy-companion.md",
+        "first_week": 5,
+        "last_week": 18,
+        "floor_weeks": 12,
+        # Weeks 5-18 offer 14 paired weeks against the gate document's 12-week floor, so at
+        # most two may be lost. A third missed week makes the floor unreachable in 2026: the
+        # gate then ends "insufficient" (retained per the gate document) -- not pass or fail.
+        "max_missed_weeks": 2,
+        "insufficient_rule": "a third missed paired week (of 14, W5-W18) leaves fewer than the "
+                             "12-week floor: the 2026 read ends INSUFFICIENT, not pass/fail.",
+        "schedulers": [
+            "s-shadow-k1-roleunion-early", "s-shadow-k1-roleunion-late",
+            "s-shadow-k1-route-roleunion-early", "s-shadow-k1-route-roleunion-late",
+        ],
+        "input_schedulers": ["s-train-k1", "s-train-k1-role", "s-features-route",
+                             "s-train-k1-route", "s-train-k1-route-role"],
+        "require_env": {
+            "ROUTE_SHARE_CONTRACT": "companion-v1",
+            "GEN_TOTAL_BUDGET": "172",
+            "N_LEV": "40",
+            "N_CE": "0",
+            "N_EPISTEMIC": "12",
+            "N_BOOM": "160",
+            "N_GUMBEL": "0",
+            "REPLACEMENT_SLOTS": "12",
+            "BOOM_UNIQUE_FILL": "0",
+            "EPISTEMIC_FAMILY": "role_draws",
+            "ROLE_BELIEF_FEATURES": "target_share_last,carry_share_last,snap_share_last,"
+                                    "target_share_jump,carry_share_jump,snap_share_jump",
+            "ROLE_BELIEF_SEED": "7331",
+            "CE_SEED": "1701",
+            "BLEND_MODEL_WEIGHT": "0.45",
+            "LIVE_SIMS": "30000",
+            "GAME_SIM_MODE": "possession",
+            "SERVED_POSITION_SCALES": "QB:0.970,RB:1.005,TE:0.940,WR:1.070",
+            "MODEL_ENSEMBLE": "1",
+            "MIN_LINEUP_SALARY": "49000",
+        },
+        "adjudicates": "final scientific read after Week 18 per the gate document; weekly "
+                       "in-season decision record per Amendment 1 v2.",
+        "in_season_value": True,
+        "note": "Companion v1 of the frozen Route Share contract: control shadow-k1-roleunion vs "
+                "treatment shadow-k1-route-roleunion under the adopted money-path generation "
+                "(role 12 / boom 160 / lev 40 / CE 0, served position scales), single seed, "
+                "exact-80. Its rows are NOT frozen-contract rows; the weekly record states "
+                "which consumer it describes (production K80, not the lab union K).",
     },
     # 2026-09-22 (operator): the pass bar was frozen before the pair ever ran and grades only
     # unplayed weeks 5-18, so it is not the retrospective design the earlier DORMANT ruling
@@ -148,26 +221,111 @@ def job_env(job: str) -> dict[str, str]:
     return {e["name"]: e.get("value", "") for e in c.get("env", [])}
 
 
+def job_executions(job: str) -> list[dict] | None:
+    """Newest executions of one Cloud Run job (read-only). None = could not read."""
+    proc = subprocess.run(
+        ["gcloud", "run", "jobs", "executions", "list", "--job", job, "--project", PROJECT,
+         "--region", LOCATION, "--limit", str(EXECUTION_LIMIT), "--format", "json"],
+        capture_output=True, text=True, check=False)
+    if proc.returncode != 0:
+        return None
+    try:
+        rows = json.loads(proc.stdout or "[]")
+    except ValueError:
+        return None
+    return rows if isinstance(rows, list) else None
+
+
+def _parse_time(value) -> datetime | None:
+    if not value:
+        return None
+    try:
+        stamp = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    return stamp if stamp.tzinfo else stamp.replace(tzinfo=timezone.utc)
+
+
+def execution_outcome(row: dict) -> tuple[str, str, datetime | None]:
+    """-> (name, SUCCEEDED|FAILED|RUNNING, finished-or-created time)."""
+    meta = row.get("metadata") or {}
+    status = row.get("status") or {}
+    name = str(meta.get("name", "?"))
+    completed = next((c for c in status.get("conditions") or []
+                      if c.get("type") == "Completed"), None)
+    when = _parse_time(status.get("completionTime")) or _parse_time(
+        meta.get("creationTimestamp"))
+    if completed and completed.get("status") == "True":
+        return name, "SUCCEEDED", when
+    if completed and completed.get("status") == "False":
+        return name, "FAILED", when
+    if status.get("completionTime"):
+        failed = int(status.get("failedCount") or 0) or int(status.get("cancelledCount") or 0)
+        return name, ("FAILED" if failed else "SUCCEEDED"), when
+    return name, "RUNNING", when
+
+
+def execution_problems(job: str, *, cadence_days: int, expect_recent: bool,
+                       now: datetime) -> tuple[list[str], list[str]]:
+    """(problems, notes) for one job's recent runs. A problem is a failed newest finished
+    execution, an unreadable history, or -- when the gate graded last week -- no finished
+    execution within the cadence. Earlier failures inside the cadence that a later success
+    superseded are notes: that freeze was still lost, and the operator should see it."""
+    rows = job_executions(job)
+    if rows is None:
+        return [f"job {job}: could not read its executions"], []
+    outcomes = sorted((execution_outcome(r) for r in rows),
+                      key=lambda o: o[2] or datetime.min.replace(tzinfo=timezone.utc),
+                      reverse=True)
+    finished = [o for o in outcomes if o[1] != "RUNNING"]
+    window = now - timedelta(days=cadence_days + 1)
+    recent = [o for o in finished if o[2] is not None and o[2] >= window]
+    problems: list[str] = []
+    notes: list[str] = []
+    if finished and finished[0][1] == "FAILED":
+        failed = [o[0] for o in recent if o[1] == "FAILED"] or [finished[0][0]]
+        problems.append(f"job {job}: its newest finished execution FAILED ({finished[0][0]}); "
+                        f"failed within {cadence_days + 1} days: {', '.join(failed)}")
+    elif expect_recent and not recent:
+        problems.append(f"job {job}: no finished execution within {cadence_days + 1} days, "
+                        f"but the gate graded last week")
+    else:
+        lost = [o[0] for o in recent[1:] if o[1] == "FAILED"]
+        if lost:
+            notes.append(f"job {job}: newest run succeeded, but these runs within "
+                         f"{cadence_days + 1} days FAILED: {', '.join(lost)}")
+    return problems, notes
+
+
 def scheduler_target(name: str) -> str:
     uri = sh(["gcloud", "scheduler", "jobs", "describe", name, "--project", PROJECT,
               "--location", LOCATION, "--format", "value(httpTarget.uri)"])
     return uri.split("/jobs/")[-1].replace(":run", "") if "/jobs/" in uri else ""
 
 
-def audit(week: int) -> tuple[list[str], list[str], list[str]]:
+def audit(week: int, now: datetime | None = None) -> tuple[list[str], list[str], list[str]]:
     errors: list[str] = []
     warnings: list[str] = []
     notes: list[str] = []
     live = schedulers()
+    now = now or datetime.now(timezone.utc)
 
     for gate, spec in GATES.items():
         first, last = spec["first_week"], spec["last_week"]
+        superseded = spec.get("superseded_from_week")
+        if superseded is not None and week >= superseded:
+            notes.append(f"{gate}: SUPERSEDED from week {superseded} -- "
+                         f"{spec['superseded_reason']}")
+            continue
         active = first <= week <= last
         upcoming = first - LOOKAHEAD_WEEKS <= week < first
         if not (active or upcoming):
             notes.append(f"{gate}: dormant this week (grades weeks {first}-{last}).")
             continue
         when = "GRADED THIS WEEK" if active else f"first graded week is {first}"
+        if spec.get("insufficient_rule"):
+            notes.append(f"{gate}: may lose at most {spec['max_missed_weeks']} paired weeks -- "
+                         f"{spec['insufficient_rule']}")
         if spec.get("in_season_value") is False:
             notes.append(f"{gate}: NOT a current-season lever -- {spec.get('adjudicates', '')} "
                          f"A lost week here costs the multi-season instrument, not this season.")
@@ -189,9 +347,33 @@ def audit(week: int) -> tuple[list[str], list[str], list[str]]:
                 continue
             bad = {k: env.get(k, "<unset>") for k, v in want.items() if env.get(k) != v}
             if bad:
+                diff = {k: f"found {bad[k]!r}, want {want[k]!r}" for k in bad}
                 errors.append(f"{gate}: job {job} contradicts the declared policy "
-                              f"{want} -- found {bad}. Resuming it would burn a graded week "
-                              f"on a policy we do not run.")
+                              f"({len(bad)} of {len(want)} keys) -- {diff}. Resuming it would "
+                              f"burn a graded week on a policy we do not run.")
+        graded_last_week = first <= week - 1 <= last
+        for job in sorted(t for t in targets if t):
+            problems, seen = execution_problems(
+                job, cadence_days=int(spec.get("cadence_days", CADENCE_DAYS)),
+                expect_recent=graded_last_week, now=now)
+            (errors if active else warnings).extend(
+                f"{gate}: {p}  [an armed job that fails every run freezes nothing]"
+                for p in problems)
+            notes.extend(f"{gate}: {n}" for n in seen)
+
+    # A DORMANT scheduler is exempt from the window checks, not from running honestly: if it
+    # is ENABLED its job runs every week, and a job that fails every run (O-27) is either to
+    # be fixed or paused -- never left firing under a reason that says "running".
+    for name in sorted(DORMANT):
+        if live.get(name, {}).get("state") != "ENABLED":
+            continue
+        job = scheduler_target(name)
+        if not job:
+            continue
+        problems, _ = execution_problems(job, cadence_days=CADENCE_DAYS,
+                                         expect_recent=False, now=now)
+        errors.extend(f"DORMANT-but-ENABLED {name}: {p}. Pause it or fix it; a dormant "
+                      f"entry may not hide a failing job." for p in problems)
 
     classified = set(DORMANT) | {s for g in GATES.values() for s in g["schedulers"]}
     for name, info in sorted(live.items()):

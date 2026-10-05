@@ -5,7 +5,9 @@
 # Running it is a disclosed deviation from "image only after the complete suite":
 # record the build id in HANDOFF. 2026-09-21: the six market-repair modules were added
 # so the props-or-nothing contract and the frozen inventory hashes are verified inside
-# the build that produces the image carrying them.
+# the build that produces the image carrying them. 2026-10-05 (O-25): the Route Share
+# pair's contract guard (tail_shadow) and its artifact contract are verified here too,
+# because the shadow jobs run this image.
 steps:
   - name: python:3.11-slim
     id: live-boundary-tests
@@ -46,7 +48,10 @@ steps:
           tests/test_receipt_freshness_sweep.py \
           tests/test_sis_inseason_loader.py \
           tests/test_exposure_sheet.py \
-          tests/test_effective_policy_rule_inventory.py
+          tests/test_effective_policy_rule_inventory.py \
+          tests/test_tail_shadow.py \
+          tests/test_route_share_shadow.py \
+          tests/test_live_shadow_portfolios.py
         python -Werror::SyntaxWarning -m compileall -q src
 
   - name: gcr.io/cloud-builders/docker
