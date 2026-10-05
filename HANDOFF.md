@@ -12,6 +12,20 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-04 (19:05 CDT) — Week-4 standings received (26/26), verified complete; copied privately; import Monday 09:13
+
+- The operator saved 26 DK full-standings exports to `C:\Users\erich\Downloads\week4-results`. They were copied to
+  `~/week4-sunday/ENTERED/standings/` (dir mode 700, files 600; never committed).
+- All 26 expected contest IDs are present, including the operator's $4444 showdown-satellite 196305080.
+- Every zip tests OK, and no entry shows time remaining (all games final). Entries per file:
+  - Millionaire 161,764;
+  - $555 satellite 72 and supersat 66;
+  - $20-Milly satellites/4x supersats 23 each;
+  - 25x supersats 2,378 / 594 / 198 / 118;
+  - FFWC 72;
+  - the $4444 satellite 380.
+- Next: Monday 09:13 import (`capture-dk-standings`, validate then --apply, `--expected-entries` checked against each
+  contest page / lobby fills). The entry-history export (winnings per entry) is still requested from the operator.
 ## 2026-10-04 (18:57 CDT) — AGENT SCHEDULE (session reminders are lost on reboot; recreate from this list)
 
 The operator is rebooting the laptop (Week 4 is done; no nfl-week4 timers remain). Session-only reminders die with the
