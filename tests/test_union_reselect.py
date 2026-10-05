@@ -311,7 +311,7 @@ def test_game_row_caps_rank_by_total_with_the_frozen_p3():
 
 
 def test_pmo_rows_game_cap_limits_a_used_up_game_to_two_players(monkeypatch):
-    """Study 1: once game g has its budget of rows with >= 3 of its players, later solves get (g's ids, '<=', 2)."""
+    """Study 1: once game g has its budget of rows with >= 3 of its players, later solves get member_bounds (g's ids, 0, 2)."""
     import types
     seen = []
 
@@ -319,8 +319,8 @@ def test_pmo_rows_game_cap_limits_a_used_up_game_to_two_players(monkeypatch):
         def __init__(self, players):
             self.players = players
 
-    def optimize(pool, stack, objective_col, banned_lineups, max_overlap, bans, env, set_constraints=None):
-        seen.append(set_constraints)
+    def optimize(pool, stack, objective_col, banned_lineups, max_overlap, bans, env, member_bounds=None):
+        seen.append(member_bounds)
         avail = [p for p in pool if frozenset([p["id"]]) and (not bans or p["id"] not in bans)]
         pick = sorted(avail, key=lambda p: p["id"])[len(seen) - 1:len(seen) + 8]
         return LU(pick) if len(pick) == 9 else None
@@ -333,7 +333,7 @@ def test_pmo_rows_game_cap_limits_a_used_up_game_to_two_players(monkeypatch):
     assert len(rows) >= 2
     assert seen[0] is None                                          # nothing used up before the first row
     g1_ids = sorted(seen[1][0][0])
-    assert seen[1][0][1:] == ("<=", 2) and "A_DST" in g1_ids and "p0" in g1_ids and "p8" not in g1_ids
+    assert seen[1][0][1:] == (0, 2) and "A_DST" in g1_ids and "p0" in g1_ids and "p8" not in g1_ids
     seen.clear()
     ur.pmo_rows(_frame(), {"p7"}, 2, 7, 4, 49_000, set())             # no game_caps: never a set constraint
     assert all(s is None for s in seen)
