@@ -636,6 +636,18 @@ def create_app(query: D.Query | None = None,
                               ("share_top1", "Share of top 1%", pct),
                               ("pair_fp_own", "Pair FP own", pct)])
 
+        def repeat_finishers() -> str:
+            df = D.fetch_insight(q, "repeat_finishers", season)   # season-wide, no week filter
+            if df.empty:
+                return note("No Millionaire standings with user names imported this season yet.")
+            return table(df, [("username", "User", None, "l"), ("entries", "Entries", fmt_num(0)),
+                              ("weeks", "Weeks"), ("top1_weeks", "Top-1% weeks"),
+                              ("top1_lineups", "Top-1% lineups", fmt_num(0)),
+                              ("top01_lineups", "Top-0.1% lineups", fmt_num(0)),
+                              ("best_rank", "Best rank", fmt_num(0)), ("top1_rate", "Top-1% rate", pct),
+                              ("top_qb", "Most-used QB in top 1%", None, "l"),
+                              ("top_qb_lineups", "QB lineups", fmt_num(0))])
+
         def disagreements() -> str:
             ours, fp, _ = D.fetch_accuracy_inputs(q, season)
             summ, players = D.projection_disagreements(ours, fp)
@@ -672,9 +684,11 @@ def create_app(query: D.Query | None = None,
                   "rate); or FP ≥ 15% and at most half the field rate in the top 1%.</p>"
                 + guarded(leverage_paid)
                 + "<h2>3 · QB + pass-catcher stacks in the top 1%</h2>" + guarded(stacks)
-                + "<h2>4 · Repeat top finishers by user name</h2>"
-                + note("Not built: showing DraftKings user names was refused by this session's "
-                       "permission policy and needs the operator's direct approval.")
+                + f"<h2>4 · Repeat top finishers by user name · {season}</h2><p class='sub'>Season-wide "
+                  "over the Millionaires: DraftKings user names (entry name without its (k/n) "
+                  "counter) with a top-1% lineup, most top-1% weeks first; cuts by rank over the "
+                  "whole field, ties inside; top 50.</p>"
+                + guarded(repeat_finishers)
                 + "<h2>5 · Ours vs FP vs actual where we disagreed by 4+ points</h2>"
                 + guarded(disagreements)
                 + "<h2>6 · Our book against the top 0.1%</h2>" + guarded(book_vs_top))

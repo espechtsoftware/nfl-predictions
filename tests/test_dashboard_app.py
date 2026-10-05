@@ -98,6 +98,11 @@ def fixtures() -> dict[str, pd.DataFrame]:
                                                 "category": "leverage that paid"}]),
         "insight_stacks": pd.DataFrame([{"week": 5, "qb": "qa", "catcher": "wa1", "team": "BUF", "lineups": 2,
                                          "share_top1": 66.7, "pair_fp_own": 37.0}]),
+        "insight_repeat_finishers": pd.DataFrame([
+            {"username": "user_a", "entries": 150, "weeks": 4, "top1_lineups": 9, "top1_weeks": 3,
+             "top01_lineups": 2, "best_rank": 4, "top1_rate": 6.0, "top_qb": "qa", "top_qb_lineups": 5},
+            {"username": "user_b", "entries": 20, "weeks": 2, "top1_lineups": 1, "top1_weeks": 1,
+             "top01_lineups": 0, "best_rank": 77, "top1_rate": 5.0, "top_qb": "qb_b", "top_qb_lineups": 1}]),
         "insight_book_vs_top": pd.DataFrame([{"week": 5, "player": "qa", "position": "QB", "book_pct": 60.0,
                                               "top01_pct": 100.0, "field_pct": 30.0, "fp_own": 25.0,
                                               "divergence": -40.0}]),
@@ -169,7 +174,8 @@ def test_pages_show_synthetic_content():
     assert "3 lineups = 1.00% of 300" in milly and "3 fully resolved, 0 excluded" in milly
     ins = c.get("/insights" + Q).text
     assert "leverage that paid" in ins and "our book" in ins and "wa1" in ins
-    assert "permission policy" in ins                                        # item 4 not built
+    assert "Repeat top finishers by user name" in ins and "permission policy" not in ins
+    assert "user_a" in ins and "user_b" in ins and "Most-used QB in top 1%" in ins and "6.0%" in ins
     acc = c.get("/accuracy" + Q).text
     assert "MAE ours" in acc and "Active share" in acc
 
@@ -212,6 +218,45 @@ def test_graph_page_not_configured_and_configured():
         raise OSError("unreachable")
     r = client(Warehouse(), env=env, graph_driver=broken).get("/milly/graph")
     assert r.status_code == 200 and "unavailable: OSError" in r.text
+
+
+def test_repeat_finishers_is_season_wide_and_escaped():
+    f = fixtures()
+    f["insight_repeat_finishers"] = f["insight_repeat_finishers"].assign(
+        username=["user_a", "<b>user_x</b>"])
+    ins = client(Warehouse(f)).get("/insights?season=2026&week=1").text   # not a week filter
+    assert "user_a" in ins and "&lt;b&gt;user_x&lt;/b&gt;" in ins and "<b>user_x" not in ins
+    assert "No Millionaire standings with user names" in client(Warehouse()).get("/insights" + Q).text
+
+
+def test_user_names_survive_into_the_insight_payload():
+    wh = Warehouse(fixtures())
+    df = D.fetch_insight(wh, "repeat_finishers", 2026)
+    assert wh.calls == ["insight_repeat_finishers"]
+    assert df.username.tolist() == ["user_a", "user_b"]
+
+
+def test_fixtures_use_only_synthetic_user_names():
+    """Real DraftKings user names never appear in tracked tests (operator
+    2026-10-03): every user-name value in the dashboard fixtures is user_<x>,
+    and no dashboard test file spells a user name outside that form."""
+    import re
+    from pathlib import Path
+
+    from test_dashboard_milly import SYNTHETIC_USER
+    names = list(top_rows().username) + list(fixtures()["insight_repeat_finishers"].username)
+    assert names and all(re.fullmatch(SYNTHETIC_USER, n) for n in names), names
+    here = Path(__file__).resolve().parent
+    seen = 0
+    for path in sorted(here.glob("test_dashboard_*.py")):
+        text = path.read_text()
+        for m in re.finditer(r"""["'](?:username|user)["']\s*[:=]\s*["']([^"']*)["']""", text):
+            assert re.fullmatch(SYNTHETIC_USER, m.group(1)), (path.name, m.group(1))
+            seen += 1
+        for m in re.finditer(r"""(?:username|user)=["']([^"']*)["']""", text):
+            assert re.fullmatch(SYNTHETIC_USER, m.group(1)) or "<" in m.group(1), (path.name, m.group(1))
+            seen += 1
+    assert seen >= 3                                   # the scan is not vacuous
 
 
 def test_health():

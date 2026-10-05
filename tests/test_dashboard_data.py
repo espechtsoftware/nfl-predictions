@@ -376,3 +376,22 @@ def test_user_name_is_the_entry_name_without_its_counter():
     pattern = r"\s*\(\d+/\d+\)$"                    # the same rule, applied in Python
     assert re.sub(pattern, "", "user_a (3/150)") == "user_a"
     assert re.sub(pattern, "", "user_b") == "user_b"
+
+
+def test_repeat_finishers_sql_contract():
+    sql = _sql("insight_repeat_finishers")
+    assert D.sql_name(D.render("insight_repeat_finishers", season=2026)) == "insight_repeat_finishers"
+    assert "${" not in sql and "dk_contest_fills_nfl" in sql                 # one Millionaire per week
+    assert "REGEXP_REPLACE(TRIM(x.entry_name), r'\\s*\\(\\d+/\\d+\\)$', '') AS username" in sql
+    assert ("QUALIFY ROW_NUMBER() OVER (PARTITION BY x.contest_id, x.entry_id "
+            "ORDER BY x.imported_at DESC) = 1") in sql                        # newest import wins
+    assert "RANK() OVER (PARTITION BY contest_id ORDER BY points DESC) AS pos" in sql
+    # names are filtered AFTER ranking: blank-name entries still count toward the field
+    assert sql.index("RANK() OVER") < sql.index("WHERE username IS NOT NULL AND username != ''")
+    assert "pos <= GREATEST(1, CAST(CEIL(0.01 * n) AS INT64)) AS top1" in sql
+    assert "pos <= GREATEST(1, CAST(CEIL(0.001 * n) AS INT64)) AS top01" in sql
+    assert "WHERE x.season = 2026 QUALIFY" in sql and not __import__("re").search(r"\.week = \d", sql)  # season-wide
+    assert sql.rstrip().endswith("LIMIT 50")
+    for col in ("entries", "weeks", "top1_lineups", "top1_weeks", "top01_lineups", "best_rank",
+                "top1_rate", "top_qb", "top_qb_lineups"):
+        assert f" AS {col}" in sql or f"u.{col}" in sql, col
