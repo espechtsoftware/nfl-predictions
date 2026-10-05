@@ -70,11 +70,35 @@ weekly AS (
          COALESCE(t.xfp_rec, 0) + COALESCE(c.xfp_rush, 0) AS xfp
   FROM tgt_xfp t
   FULL OUTER JOIN carry_xfp c USING (gsis_id, season, week)
+),
+-- O-21 / O-22 (2026-10-05): AS-OF over the row spine. The old table had a row
+-- only for player-weeks with at least one target or carry, joined by exact week
+-- in 021, so a training row was non-NULL only when the player got an opportunity
+-- in the game being predicted (post-game information); inference took the
+-- latest row's value, which ends 1 PRECEDING that row and so was one game stale.
+-- Now every player_week_usage row of a player who ever has an opportunity row
+-- carries the mean xfp of his 4 most recent opportunity weeks strictly before it,
+-- within the season (as before). Where the old table had a row its value is
+-- unchanged; the upcoming week's row includes the latest played week; NULL now
+-- means only "no prior opportunity this season", in training and serving alike.
+spine AS (
+  SELECT DISTINCT u.gsis_id, u.season, u.week
+  FROM `${features}.player_week_usage` u
+  WHERE u.gsis_id IN (SELECT gsis_id FROM weekly)
+),
+prior AS (
+  SELECT s.gsis_id, s.season, s.week, w.xfp,
+         ROW_NUMBER() OVER (
+           PARTITION BY s.gsis_id, s.season, s.week ORDER BY w.week DESC) AS k
+  FROM spine s
+  JOIN weekly w
+    ON w.gsis_id = s.gsis_id AND w.season = s.season AND w.week < s.week
 )
-SELECT gsis_id, season, week,
-       AVG(xfp) OVER (PARTITION BY gsis_id, season ORDER BY week
-                      ROWS BETWEEN 4 PRECEDING AND 1 PRECEDING) AS xfp_l4
-FROM weekly;
+SELECT s.gsis_id, s.season, s.week, AVG(pr.xfp) AS xfp_l4
+FROM spine s
+LEFT JOIN prior pr
+  ON pr.gsis_id = s.gsis_id AND pr.season = s.season AND pr.week = s.week AND pr.k <= 4
+GROUP BY 1, 2, 3;
 
 CREATE OR REPLACE TABLE `${features}.team_week_schedule_ctx` AS
 WITH tz AS (

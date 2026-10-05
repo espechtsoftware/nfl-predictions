@@ -28,6 +28,13 @@ from nfl_dfs.features.leakage import (
     INJURY_EXPECTED_SQL,
     INJURY_LOCK_COVERAGE_SQL,
     VACATED_EXPECTED_SQL,
+    ASOF_PRESENCE_FEATURES,
+    ASOF_PRESENCE_SQL,
+    NEUTRAL_PASS_EXPECTED_SQL,
+    QB_NGS_EXPECTED_SQL,
+    XFP_EXPECTED_SQL,
+    assert_asof_features_present,
+    assert_train_serve_null_rates,
 )
 
 
@@ -217,6 +224,62 @@ def test_independent_recomputation_requires_keys_nulls_and_values():
             exact_wrong, exact_expected, ["neutral_pass_rate_l6"],
             ("team", "season", "week"), exact_cols=("status",),
         )
+
+
+def test_asof_references_run_over_the_usage_spine_strictly_prior():
+    # O-21/O-22: each reference rebuilds on player_week_usage (not the event
+    # rows), spine rows sort before a same-week observation, and the window
+    # counts observations, so NULL means only "no earlier observation".
+    for sql, window, partition in (
+        (NEUTRAL_PASS_EXPECTED_SQL, "s.c - 5", "PARTITION BY team ORDER BY season, week, is_obs"),
+        (QB_NGS_EXPECTED_SQL, "s.c - 5", "PARTITION BY gsis_id ORDER BY season, week, is_obs"),
+        (XFP_EXPECTED_SQL, "s.c - 3", "PARTITION BY gsis_id, season ORDER BY week, is_obs"),
+    ):
+        assert "FROM `{features}.player_week_usage`" in sql
+        assert partition in sql
+        assert f"o.c BETWEEN {window} AND s.c" in sql
+        assert "WHERE s.is_obs = 0" in sql
+
+
+def test_asof_presence_runs_on_both_joined_tables():
+    assert "FROM `{features}.player_week_training`" in ASOF_PRESENCE_SQL
+    assert "FROM `{features}.player_week_inference`" in ASOF_PRESENCE_SQL
+    for feature in ASOF_PRESENCE_FEATURES:
+        assert f"IFNULL({feature}, FALSE)" in ASOF_PRESENCE_SQL
+
+
+def test_asof_presence_fails_on_any_flagged_row():
+    assert_asof_features_present(pd.DataFrame(
+        columns=["tbl", "gsis_id", "team", "season", "week", *ASOF_PRESENCE_FEATURES]))
+    flagged = pd.DataFrame([{
+        "tbl": "training", "gsis_id": "00-0000001", "team": "DET",
+        "season": 2025, "week": 7, "neutral_pass_rate_l6": False,
+        "qb_cpoe_l6": True, "qb_time_to_throw_l6": True, "xfp_l4": None,
+    }])
+    with pytest.raises(LeakageError, match="training.qb_cpoe_l6=1"):
+        assert_asof_features_present(flagged)
+
+
+def _null_rates(serve_cpoe, train_cpoe, serve_vol=0.2, train_vol=0.2):
+    return pd.DataFrame([
+        {"src": "serve", "position": "QB", "n": 50,
+         "qb_cpoe_l6": serve_cpoe, "dk_points_vol": serve_vol},
+        {"src": "train", "position": "QB", "n": 45,
+         "qb_cpoe_l6": train_cpoe, "dk_points_vol": train_vol},
+    ])
+
+
+def test_train_serve_null_rate_monitor_fails_on_as_of_features_only():
+    assert assert_train_serve_null_rates(_null_rates(0.10, 0.12)).empty
+    # The pre-fix live gap (serve 0.038 vs train 0.333 on 2026-10-05) fails.
+    with pytest.raises(LeakageError, match="qb_cpoe_l6"):
+        assert_train_serve_null_rates(_null_rates(0.038, 0.333))
+    # A within-season window filling between adjacent weeks is reported, not fatal.
+    over = assert_train_serve_null_rates(
+        _null_rates(0.10, 0.12, serve_vol=0.19, train_vol=0.34))
+    assert list(over["feature"]) == ["dk_points_vol"]
+    with pytest.raises(LeakageError, match="no rows"):
+        assert_train_serve_null_rates(_null_rates(0.1, 0.1).iloc[:1])
 
 
 def test_smoothed_usage_reference_has_two_strictly_prior_levels():

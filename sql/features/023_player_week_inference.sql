@@ -15,18 +15,11 @@ CREATE OR REPLACE TABLE `${features}.player_week_inference` AS
 WITH def_asof AS (
   SELECT * FROM `${features}.defense_week_allowed`
   QUALIFY ROW_NUMBER() OVER (PARTITION BY team, season ORDER BY week DESC) = 1
-),
--- xfp as-of (2026-08-04 audit): player_week_xfp is built from pbp, so
--- an UPCOMING week has no row and an exact-week join would leave
--- xfp_l4 NULL on every live slate while replays saw real values — the
--- train/serve-skew class this file's header warns about. Latest
--- available row per player-season instead (window ends 1 PRECEDING,
--- so it is the same information a played-week row would carry).
-xfp_asof AS (
-  SELECT * FROM `${features}.player_week_xfp`
-  QUALIFY ROW_NUMBER() OVER (
-    PARTITION BY gsis_id, season ORDER BY week DESC) = 1
 )
+-- xfp (O-21, 2026-10-05): player_week_xfp now carries a row for every
+-- player_week_usage row, upcoming week included, built as-of over prior
+-- opportunity weeks (017j). The exact-week join below is therefore the same
+-- information training sees. The old latest-row lookup here was one game stale.
 SELECT
   -- Keys
   u.gsis_id, u.season, u.week, u.team, s.opponent,
@@ -192,8 +185,8 @@ LEFT JOIN `${features}.defense_week_blitz` bl
   ON bl.team = s.opponent AND bl.season = u.season AND bl.week = u.week
 LEFT JOIN `${features}.team_week_ftn_offense` fo
   ON fo.team = u.team AND fo.season = u.season AND fo.week = u.week
-LEFT JOIN xfp_asof xf
-  ON xf.gsis_id = u.gsis_id AND xf.season = u.season
+LEFT JOIN `${features}.player_week_xfp` xf
+  ON xf.gsis_id = u.gsis_id AND xf.season = u.season AND xf.week = u.week
 LEFT JOIN `${features}.team_week_schedule_ctx` sx
   ON sx.team = u.team AND sx.season = u.season AND sx.week = u.week
 LEFT JOIN `${features}.team_week_ftn_offense` fd

@@ -13,34 +13,34 @@ WITH observations AS (
   FROM `${raw}.ngs_passing`
   WHERE week > 0
 ),
--- Append only the live target row. Using the entire roster-week spine would
--- change ROWS-window semantics for historical backups; a single null row
--- preserves every replay value and carries the last six qualifying NGS games
--- into the upcoming inference week.
-with_upcoming AS (
-  SELECT gsis_id, season, week, cpoe, time_to_throw
-  FROM observations
-  UNION ALL
-  SELECT DISTINCT
-    ro.gsis_id, ro.season, ro.week,
-    CAST(NULL AS FLOAT64) AS cpoe,
-    CAST(NULL AS FLOAT64) AS time_to_throw
-  FROM `${features}.player_week_role` ro
-  WHERE ro.is_upcoming
-    AND ro.position = 'QB'
-    AND NOT EXISTS (
-      SELECT 1 FROM observations prior
-      WHERE prior.gsis_id = ro.gsis_id
-        AND prior.season = ro.season
-        AND prior.week = ro.week
-    )
+-- O-22 (2026-10-05): AS-OF over the row spine. The old table had a row only for
+-- QB-weeks with a qualifying NGS line (about 15+ attempts), joined by exact
+-- week in 021, so a training row was non-NULL only when the QB actually threw
+-- in the game being predicted (post-game information); serving used a synthetic
+-- upcoming row, non-NULL for every QB with history. Now every player_week_usage
+-- row of a player who ever has an NGS line gets the mean of his 6 most recent
+-- NGS games strictly before it (across seasons, as before). Where the old table
+-- had a row its values are unchanged; NULL now means only "no prior qualifying
+-- game", in training and serving alike.
+spine AS (
+  SELECT DISTINCT u.gsis_id, u.season, u.week
+  FROM `${features}.player_week_usage` u
+  WHERE u.gsis_id IN (SELECT gsis_id FROM observations)
+),
+prior AS (
+  SELECT s.gsis_id, s.season, s.week, o.cpoe, o.time_to_throw,
+         ROW_NUMBER() OVER (
+           PARTITION BY s.gsis_id, s.season, s.week
+           ORDER BY o.season DESC, o.week DESC) AS k
+  FROM spine s
+  JOIN observations o
+    ON o.gsis_id = s.gsis_id
+   AND (o.season < s.season OR (o.season = s.season AND o.week < s.week))
 )
-SELECT
-  gsis_id, season, week,
-  AVG(cpoe) OVER w AS qb_cpoe_l6,
-  AVG(time_to_throw) OVER w AS qb_time_to_throw_l6
-FROM with_upcoming
-WINDOW w AS (
-  PARTITION BY gsis_id ORDER BY season, week
-  ROWS BETWEEN 6 PRECEDING AND 1 PRECEDING
-);
+SELECT s.gsis_id, s.season, s.week,
+       AVG(pr.cpoe) AS qb_cpoe_l6,
+       AVG(pr.time_to_throw) AS qb_time_to_throw_l6
+FROM spine s
+LEFT JOIN prior pr
+  ON pr.gsis_id = s.gsis_id AND pr.season = s.season AND pr.week = s.week AND pr.k <= 6
+GROUP BY 1, 2, 3;
