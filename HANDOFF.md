@@ -12,6 +12,45 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-05 (16:26 CDT) — Regulars' player choices; FP projections captured every week (merged); study 22a prereg DRAFT; usernames merge
+
+**Done (integration `production/week3-integration-20260921`):**
+- **Usernames.** The reviewer's anonymising branch was merged after my independent scan (22,850 warehouse handles, 0
+  left) and one SQL fix (`745a3a14`). The operator said afterwards that he is NOT concerned about usernames; no further
+  anonymising work. Main and history are untouched.
+- **`reports/2026-10-05-regulars-player-choices.md`** (`658e63bc`, the reviewer's corrections in `27190fc2`):
+  - The 117 regulars' player choices beat the rest of the field by +24.3 DK points per lineup over Weeks 1–4, against a
+    permutation null of 7.2 ± 5.4 (p 0.002), positive in 4 of 4 weeks.
+  - Ours: −15.3, inside the null spread of 14.5 (p 0.14). The WR loss came from busted 54–62% exposures plus booms held
+    at 0–9%.
+  - The shared habits: sell last week's big game and salary rise, distrust 2026 small-sample matchups, volume and value,
+    cheap TEs.
+  - Our projection's misses on W2–4: nothing passes a 14-feature correction.
+  - Study list item 22 records the tests.
+- **FP projection pages every week** (reviewer approved; `6a6fae85` and `a68568d1`, fast-forwarded):
+  - Four paid pages in `nfl-weekly-data run` (dfs, weekly, rankings-weekly, rankings-ros).
+  - `scripts/fp_projections_capture.sh`, run at Saturday's arming after every timer is armed, and the unit
+    `nfl-week<W>-fp-projections` at 10:40 CT Sunday. Its leash is a 60 s lock wait and a 240 s timeout; a live capture
+    took 42 s.
+  - One shared FP browser-profile lock (`~/.cache/nfl-dfs/fantasy-points-profile.lock`). The T-70 ownership capture in
+    `sunday_build_host.sh` takes it too (`FP_OWN_LOCK_WAIT_S`, 300 s).
+  - Data deficiency log row: Weeks 1–3 are unrecoverable.
+  - Tests: weekly_vendor_data 24, arm_week_timers 13, fp_projections_capture 4, sunday_build_host_args 4, plus 9
+    related modules green.
+- **Study 22a preregistration DRAFT** (`reports/2026-10-05-prereg-study22a-residual-calibration.md`): five residual
+  hypotheses on the co-run control's 2022–25 served projection, 99% interval, LOSO. It must be frozen before Thursday's
+  co-run outcomes; the panel id and the census are filled at freezing. Next: reviewer review, then the reader
+  (`scripts/study22a_report.py`) with synthetic smokes.
+
+**Week-5 arming impact (act on it):**
+- The Week-5 arm creates ONE MORE timer (`nfl-week5-fp-projections`). The host-local Saturday sequence (the Week-4 one
+  was `~/.cache/laptop-agent/w4_arm_saturday.sh`) checked "exactly 10 timers"; its Week-5 copy must expect 11, or pass
+  `SKIP_UNITS=fpproj`.
+- The production checkout must fast-forward (step 4a) to at least `a68568d1` before the arm. This is a code change,
+  which step 4a refuses by design, so it needs the operator's approval as on 10-02.
+- Wednesday's `nfl-weekly-data run --week 5` is the first scheduled projections capture. Expect `PAID PAGES: N of N`
+  to include the four new pages.
+
 ## 2026-10-05 (15:18 CDT) — Past winners' Week 4 (the operator's 10-04 question): post-mortem §7 completed
 
 - **Group level** (from Sunday night): past winners and repeat top-1% users did as their entry volume predicts (top 1%
