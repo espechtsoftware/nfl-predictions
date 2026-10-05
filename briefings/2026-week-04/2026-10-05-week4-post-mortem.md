@@ -513,3 +513,21 @@ target share in brackets):
   touchdowns (Collins, J. Williams).
 - None of this was knowable as such before lock. What was knowable was how much of the book sat on the same few
   players (§4). That is the selection-redundancy study now running (study 17; `reports/2026-10-05-prereg-study17-selection-redundancy.md`).
+
+## 13. Was Jacksonville's low passing foreseeable? (the operator's question, 10-05)
+
+**No. Every pre-lock signal pointed the other way.**
+- **The market** (the last odds pull, 10-04 14:02Z; the median player props across books):
+  - JAX–CIN was the slate's highest total (51.5), with JAX a 2.5-point underdog: a trailing-team, pass-friendly script.
+  - Lawrence's pass-yards line was 257.5; P. Washington's was 75.5 receiving yards on 5.5 receptions.
+- **CIN's defense, Weeks 1–3** (play-by-play):
+  - 9th of 32 against the pass (EPA per dropback −0.035) and 12th against the run (4.2 yards per carry).
+  - Opponents passed on 73.2% of plays against CIN, the league's HIGHEST rate, about 47 dropbacks a game.
+  - Fantasy Points' defensive pass-rate-over-expected agrees: CIN +3.7, +13.1 and +4.4 points in Weeks 1–3.
+  - The data showed CIN as a pass FUNNEL, not a pass-tough, run-weak defense.
+- **What actually happened was the game script.** JAX led throughout and won 22–17 (an upset). In the 4th quarter JAX
+  ran 10 times and passed 9, while CIN passed 22 times chasing. JAX had 58 offensive plays to CIN's 76.
+  - JAX was already run-leaning: a 53% pass rate in Weeks 1–3.
+  - The one mild pre-lock flag: the market had Lawrence 2.1 points BELOW our projection (§1).
+- **The lesson** is not a missed signal. A stack's volume rides on a game script nobody can call before lock. The
+  avoidable part was putting about 60% of the entries on one stack (concentration; study 17).
