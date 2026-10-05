@@ -12,6 +12,45 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-05 (18:18 CDT) — OPERATOR: the regulars' strategies in Week 5 (tested first); priorities moved; Week-5 plan draft
+
+**Operator decisions (10-05):**
+- "I want to utilize similar strategies this week", then "Yes, let's plan on the new strategies this week and as long
+  as we can do some testing (not necessarily 6 seasons) in advance, I'm good with it."
+- Sleeve size: "Decide after the test".
+- Contest mix (relayed by the reviewer): "I would like to do 555 qualifiers, 333 qualifiers, and some milly qualifiers
+  mainly."
+- **The six-season co-run (O-22 retrain) and study 22a's read MOVE to Mon–Tue 10-12/13.**
+
+**Done:**
+- **The regulars-style player sleeve FAILED its pre-test and is withdrawn** (report §6, `524c8251`). Fit leave one
+  week out, the habit model predicts the regulars' picks (ρ 0.51–0.58) but not their edge: p 0.44–0.93 against a
+  within-band null, at every ridge penalty and with the stable-5 feature set.
+- **Their skill is in the EARLY games before kickoff:** +10.2 vs a null of −0.8, p 0.009. In the late games, +14.1 vs a
+  null of +11.0 (p 0.12). So it is not late swap. The player route is better projections: FP is captured weekly, and a
+  paired shadow is proposed.
+- **Contest-class table** (private, `~/private/week5-regulars/contest_classes.txt`). Our W1–4 pooled finish median is
+  p59.7. Our share in the top 1 / 5 / 10 / 20% is 0.18 / 0.15 / 0.39 / 0.55× chance. Regulars' share of entries: Milly
+  sats 1.2%, $555 10.7%, $333 12.7%, $4,444 27.8%, FFWC 53.8%.
+- **Week-5 plan DRAFT A** (private, `~/private/week5-plan/contests.draft-A.json`, sha256 `8d97f5eb`, and the
+  `…-PRIVATE.md` sent to the operator): 15 contests, 21 entries, $229, shallow lines p78.8–p90.9, expected return
+  about 0.40 per $ at our level vs about 0.15–0.20 for a W4-style deep-line plan. **The operator decides the counts;**
+  the final `contests.json` comes from his entries export.
+
+**This week (agreed with the reviewer):**
+- **Study 18 (MIX shapes):** the prereg after 17's read tonight; a census on bank 1406 Tuesday morning; frozen about
+  12:00 on draft A; scored run Tuesday 12:00–19:00; read Tuesday night. **No heavy laptop jobs on Tuesday.**
+- **Production path (laptop builds, reviewer reviews):**
+  - re-pin = a cherry-pick of lab `8c95c0e` (lineup.py + test only) onto `32cdb61`, as
+    `production/live-pin-w5-20261006`;
+  - `union_reselect --main mix`: per-cell `pmo_rows` with the cell's StackRules, qb_game_max and second_game_pair;
+    shared caps; an entry-quota interleave;
+  - `--main-lambda` if 17 passes DR;
+  - everything OFF by default and byte-identical; validators; tests; a paper rehearsal on the W4 T-70 inputs.
+  - Code Wednesday night, review and rehearsal Thursday, the operator's decision Friday.
+- **Study 18 also carries an exploratory line-aware deal** (C-LA, MIX-LA).
+- **The O-32 defence-PROE correction** runs tonight after study 17 (queued).
+
 ## 2026-10-05 (16:33 CDT) — Step 4a done (operator-approved 10-05): production checkout at 551f29af; Week-5 preflight; study 22a reader for review
 
 **Step 4a.** The operator approved ("update code as necessary", relayed by the reviewer). The reviewer fast-forwarded
