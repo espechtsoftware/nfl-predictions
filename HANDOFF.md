@@ -12,6 +12,50 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-05 (07:51 CDT) — Morning 10-05: post-mortem done; money gate scored (0.48×); P1; overlays; X1 1–2; study 1 NO DIFFERENCE; briefings/; lab-API guard
+
+**Operator directives (verbatim):**
+- "Keep going so the system can be improved so it actually can win."
+- "Lets also consider a small percentage of contrarian plays…" (study 13).
+- "Please put important documents like the post mortems each week in an easily located folder in the main repo"
+  (→ `briefings/`).
+
+**Done** (each item reviewer-checked; all reports for the operator in `briefings/2026-week-04/`):
+- **Money gate:** design + Addenda 1–2, frozen before scoring.
+  - The harness's A0 known-answer gate reproduced all 534 entries and every week total exactly.
+  - A1 = 0.48× fees on W1–4 (0.36–0.67): it would have lost money. No arm is statistically preferred. The current
+    selection is the best of those tested (A2 and A4 are worse at row level; A3 is one lucky cash).
+- **P1, contest-type edge:** no type can be shown +EV; power needs hundreds of weeks. Satellites ran 0.12×, below
+  break-even, robust up to ICC 0.15.
+- **Overlay monitor:** `scripts/overlay_monitor.py`, read-only, to run weekly (flag ~T−45, finalize after lock). The
+  W4 back-test found NO usable classic-slate overlay.
+- **X1 steps 1–2:** the top-total game is the week's top scorer 16–19% of the time; the field is flatter than the odds
+  (leverage sits in the top total); our error is concentration size.
+- **Study 1, de-concentration:** preregistered `e7f5a36a` + deviation notes 1–5; reader frozen (sha 21f364d3).
+  - Panel on banks 1402/1403: NO DIFFERENCE on every primary.
+  - The transfer check on the real W1–4 pools agrees (no money change, slightly worse finish).
+  - G is not offered. Addendum 122; lab LEDGER row `d909fa5`.
+  - Caught and fixed before any read: the DST side-id quirk in the lab frame (fix `3b52858`), and the pinned API
+    mismatch (`set_constraints` → `member_bounds`, `16d6a931`).
+- **Merged into integration:**
+  - O-26 + the build-time salary-spine assert;
+  - O-25, O-27 and O-3 deployed at `7bbfd10a` (dry runs Tue–Thu);
+  - the own_shadow writer column;
+  - `--main-game-cap p3` (default off; member_bounds);
+  - the OPEN-DEFECTS review (reviewer confirmed);
+  - `briefings/`.
+- **In review:** `scripts/check_lab_api.py`, a hard step in `run_week_build.sh` (`production/s1-transfer-gamecap-20261005`
+  @ `59263047`). Merge it before Saturday's arm (step 4a).
+
+**Process notes:**
+- The OAuth expiry overnight stopped the background agents. Work was redone in-session; nothing was lost.
+- Phone alerts over Remote Control did not reach the operator. Pushover was offered; awaiting his answer.
+
+**Next:**
+- The Monday order (09:13).
+- The study-13 per-slate step, and the entry-level player cap (Chase-type risk), the next de-concentration test.
+- O-22 Tue–Wed.
+
 ## 2026-10-04 (22:06 CDT) — Six shadow jobs deployed at 7bbfd10a (Route Share, cbwu-oi companion, SIS split); own_shadow ALTER; workstation copy verified
 
 **Merged into integration tonight (all reviewer-cleared):**
