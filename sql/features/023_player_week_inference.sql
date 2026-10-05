@@ -8,14 +8,11 @@
 --   * no labels and no games_played_prior filter — debut players belong
 --     here (they're the next-man-up rows this table exists to price);
 --   * position falls back to the roster when there's no usage history;
---   * opponent defense joins as-of its latest built week (the defense
---     table has no upcoming-week rows; one-week-stale l6 windows are fine
---     for features the models treat as optional).
+--   * (none for the opponent defense since O-22, 2026-10-05: defense_week_allowed
+--     now carries an as-of row for every scheduled week, upcoming included, and
+--     joins by exact week like training; the old latest-row lookup was one game
+--     stale).
 CREATE OR REPLACE TABLE `${features}.player_week_inference` AS
-WITH def_asof AS (
-  SELECT * FROM `${features}.defense_week_allowed`
-  QUALIFY ROW_NUMBER() OVER (PARTITION BY team, season ORDER BY week DESC) = 1
-)
 -- xfp (O-21, 2026-10-05): player_week_xfp now carries a row for every
 -- player_week_usage row, upcoming week included, built as-of over prior
 -- opportunity weeks (017j). The exact-week join below is therefore the same
@@ -157,8 +154,8 @@ LEFT JOIN `${features}.player_week_efficiency` e
   ON e.gsis_id = u.gsis_id AND e.season = u.season AND e.week = u.week
 LEFT JOIN `${features}.team_week_context` t
   ON t.team = u.team AND t.season = u.season AND t.week = u.week
-LEFT JOIN def_asof d
-  ON d.team = s.opponent AND d.season = u.season
+LEFT JOIN `${features}.defense_week_allowed` d
+  ON d.team = s.opponent AND d.season = u.season AND d.week = u.week
 LEFT JOIN `${features}.defense_week_coverage` cv
   ON cv.team = s.opponent AND cv.season = u.season AND cv.week = u.week
 LEFT JOIN `${features}.player_week_injury` i

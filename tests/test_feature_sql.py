@@ -32,6 +32,20 @@ def test_coverage_table_present_and_ordered_before_training():
     assert cov < names.index("023_player_week_inference.sql")
 
 
+def test_defense_allowed_is_as_of_over_the_schedule_and_served_by_exact_week():
+    # O-22 (2026-10-05): the opponent-defense l6 table had rows only for played
+    # games and 023 took the latest one (one game stale at serve). It is now
+    # as-of over every scheduled defense-week, and 023 joins by exact week.
+    dw = (SQL_DIR / "features" / "017_defense_week_allowed.sql").read_text()
+    assert "SELECT DISTINCT team, season, week FROM `${features}.schedule_long`" in dw
+    assert "ON g.team = s.team AND g.season = s.season AND g.week < s.week" in dw
+    assert "pr.k <= 6" in dw and "OVER w6" not in dw
+    infer = (SQL_DIR / "features" / "023_player_week_inference.sql").read_text()
+    assert "def_asof" not in infer
+    assert ("LEFT JOIN `${features}.defense_week_allowed` d\n  ON d.team = s.opponent AND d.season = u.season "
+            "AND d.week = u.week") in infer
+
+
 def test_team_ol_out_is_point_in_time_and_null_where_uncovered():
     # O-22 (d): 017d counted raw injuries with no lock filter and 021/023
     # COALESCEd a missing row to 0, so 2025 (no admissible report) read as

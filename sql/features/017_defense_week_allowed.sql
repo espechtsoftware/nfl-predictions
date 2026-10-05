@@ -78,24 +78,46 @@ adjusted AS (
   LEFT JOIN off_strength o
     ON o.team = s.opponent AND o.season = p.season
    AND o.week = p.week AND o.position = p.position
+),
+-- O-22 (2026-10-05): AS-OF over the schedule spine. The old final SELECT had a
+-- row only for each played game (a ROWS window over def_games), so serving
+-- (023) took a defense's LATEST played row, whose window ends one game before
+-- it: one game stale against training, the O-21 class. Every scheduled
+-- defense-week (upcoming included) now averages the defense's 6 most recent
+-- played games strictly before it within the season; played weeks carry the
+-- same values as the old window, and 023 joins by exact week.
+per_game AS (
+  SELECT d.team, d.season, d.week,
+         d.epa_per_dropback_allowed, d.epa_per_rush_allowed, d.rz_td_rate_allowed,
+         qb.pos_dk_points_allowed_adj AS qb_adj, rb.pos_dk_points_allowed_adj AS rb_adj,
+         wr.pos_dk_points_allowed_adj AS wr_adj, te.pos_dk_points_allowed_adj AS te_adj
+  FROM def_games d
+  LEFT JOIN (SELECT * FROM adjusted WHERE position = 'QB') qb USING (team, season, week)
+  LEFT JOIN (SELECT * FROM adjusted WHERE position = 'RB') rb USING (team, season, week)
+  LEFT JOIN (SELECT * FROM adjusted WHERE position = 'WR') wr USING (team, season, week)
+  LEFT JOIN (SELECT * FROM adjusted WHERE position = 'TE') te USING (team, season, week)
+),
+spine AS (                 -- seasons the play-by-play covers (older schedule rows would be all NULL)
+  SELECT DISTINCT team, season, week FROM `${features}.schedule_long`
+  WHERE season >= (SELECT MIN(season) FROM def_games)
+),
+prior AS (
+  SELECT s.team, s.season, s.week, g.* EXCEPT (team, season, week),
+         ROW_NUMBER() OVER (PARTITION BY s.team, s.season, s.week ORDER BY g.week DESC) AS k
+  FROM spine s
+  JOIN per_game g
+    ON g.team = s.team AND g.season = s.season AND g.week < s.week
 )
 SELECT
-  d.team, d.season, d.week,
-  AVG(d.epa_per_dropback_allowed) OVER w6 AS epa_per_dropback_allowed_l6,
-  AVG(d.epa_per_rush_allowed)     OVER w6 AS epa_per_rush_allowed_l6,
-  AVG(d.rz_td_rate_allowed)       OVER w6 AS rz_td_rate_allowed_l6,
-  AVG(qb.pos_dk_points_allowed_adj) OVER w6 AS qb_fp_allowed_adj_l6,
-  AVG(rb.pos_dk_points_allowed_adj) OVER w6 AS rb_fp_allowed_adj_l6,
-  AVG(wr.pos_dk_points_allowed_adj) OVER w6 AS wr_fp_allowed_adj_l6,
-  AVG(te.pos_dk_points_allowed_adj) OVER w6 AS te_fp_allowed_adj_l6
-FROM def_games d
-LEFT JOIN (SELECT * FROM adjusted WHERE position = 'QB') qb
-  USING (team, season, week)
-LEFT JOIN (SELECT * FROM adjusted WHERE position = 'RB') rb
-  USING (team, season, week)
-LEFT JOIN (SELECT * FROM adjusted WHERE position = 'WR') wr
-  USING (team, season, week)
-LEFT JOIN (SELECT * FROM adjusted WHERE position = 'TE') te
-  USING (team, season, week)
-WINDOW w6 AS (PARTITION BY d.team, d.season ORDER BY d.week
-              ROWS BETWEEN 6 PRECEDING AND 1 PRECEDING);
+  s.team, s.season, s.week,
+  AVG(pr.epa_per_dropback_allowed) AS epa_per_dropback_allowed_l6,
+  AVG(pr.epa_per_rush_allowed)     AS epa_per_rush_allowed_l6,
+  AVG(pr.rz_td_rate_allowed)       AS rz_td_rate_allowed_l6,
+  AVG(pr.qb_adj) AS qb_fp_allowed_adj_l6,
+  AVG(pr.rb_adj) AS rb_fp_allowed_adj_l6,
+  AVG(pr.wr_adj) AS wr_fp_allowed_adj_l6,
+  AVG(pr.te_adj) AS te_fp_allowed_adj_l6
+FROM spine s
+LEFT JOIN prior pr
+  ON pr.team = s.team AND pr.season = s.season AND pr.week = s.week AND pr.k <= 6
+GROUP BY 1, 2, 3;
