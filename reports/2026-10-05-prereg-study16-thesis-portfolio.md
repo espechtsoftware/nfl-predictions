@@ -180,3 +180,46 @@ the lab at `results/s16/CENSUS_s16.txt`). Shares are core / mid / blow.
   89% core / 7% mid / 4% blow in dealt entries.
 - The mid cell fills fully.
 - TP changes about 96% of dealt entries, so it is not a dead lever.
+
+## Deviation note 4 (2026-10-05, BEFORE study 16's read): an EXPLORATORY thesis sleeve, SL25 (reviewer-accepted)
+**Why:** the operator clarified (verbatim): "I wasn't saying that we should do my thesis idea on 100% of our lineups.  It
+should be one of the strategies.  If it has a positive result, we should consider it for some". TP's frozen whole-book
+verdict stands as written. One exploratory arm is added, computed ONLY from the stored rows, pct and score of C and TP
+(no new bank). The study 16 scored run was still in progress, and no output had been opened.
+
+**SL25:**
+- **The book:** C's first 79 rows plus TP's first 26 in TP's D'Hondt order. A TP row identical to an included C row is
+  skipped and TP's next row taken, so the sleeve stays at 26.
+- **The rank order:** an ENTRY-WEIGHTED interleave. Rank k carries w_k plan entries (the head layout's multiplicities);
+  each rank goes to the source that keeps the sleeve's running entry share closest to the plan share.
+  - A plain row D'Hondt put a sleeve row inside the head that every contest draws: 34% of entries on a SYNTHETIC smoke.
+  - The overlap limit then re-deals onto later ranks, where the sleeve's rows take more entries.
+  - So the plan share is calibrated per slate-bank, outcome-blind (dealing reads rows only): the plan share in 0.25,
+    0.24, …, 0.05 whose dealt sleeve share is closest to 0.25.
+  - On the synthetic smoke the realized share was 0.270 (min 0.248, max 0.344). It is reported per run.
+- **Dealing:** study 1b's deal() (M 5, ceiling 10).
+- **Caps:** NOT re-imposed. The maximum entry exposure is reported.
+
+**Endpoints, all EXPLORATORY:**
+- SL25 − C tickets per slate (two-sided 0.975) and mean entry pct (one-sided 0.975 against −0.015);
+- zero-ticket slates, the per-slate ticket SD, best ≥ 200, the maximum entry exposure, and the realized sleeve share.
+
+**The reading, pre-stated (the reviewer):**
+- SL25 − C tickets are expected to be about s × (TP − C), with s the realized sleeve share. Read them as a consistency
+  check on TP, NOT as evidence: at roughly a quarter of the power, they will almost surely read NO DIFFERENCE whatever
+  the truth.
+- The sleeve's own content is the NON-linear profile against C: zero-ticket slates, the per-slate ticket SD, best ≥ 200
+  and the maximum exposure.
+
+**The route to 16b (a confirmatory sleeve study on fresh banks), pre-stated:**
+- TP WORSE: no 16b. A sleeve of rows that are worse per entry cannot raise expected tickets; any variance argument needs
+  its own case to the operator.
+- TP NO DIFFERENCE or PASS: 16b may be designed, sized for a sleeve effect, with its power stated honestly.
+
+SL15 was dropped (the reviewer): one sleeve keeps the forks down.
+
+**Script:** nfl2 `production/s16-thesis-portfolio-20261005` `scripts/s16_sleeve.py`, sha256
+`758036ebbd1942458cb476b38a34ffa7d7b9594277d41301fcfb39b6813273c4`, frozen here before any read.
+- Its tests: the entry-share interleave, the duplicate skip, and the dealt share. 10 tests pass in total.
+- It is committed to the lab branch only after the scored run ends (the runner stamps HEAD per slate). Its sha is
+  verified then against this note.
