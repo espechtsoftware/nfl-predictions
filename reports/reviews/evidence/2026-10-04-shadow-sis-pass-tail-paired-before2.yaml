@@ -1,0 +1,56 @@
+apiVersion: run.googleapis.com/v1
+kind: Job
+metadata:
+  annotations:
+    run.googleapis.com/client-name: gcloud
+    run.googleapis.com/client-version: 579.0.0
+    run.googleapis.com/creator: espechtsoftware@gmail.com
+    run.googleapis.com/lastModifier: espechtsoftware@gmail.com
+    run.googleapis.com/operation-id: 2f449ef4-821a-4198-9a2e-2a129cc33f69
+  creationTimestamp: '2026-08-15T07:30:54.991569Z'
+  generation: 1
+  labels:
+    cloud.googleapis.com/location: us-central1
+    run.googleapis.com/lastUpdatedTime: '2026-08-15T07:30:54.991569Z'
+  name: shadow-sis-pass-tail-paired
+  namespace: '817589974517'
+  resourceVersion: AAZZEOrjk3Q
+  selfLink: /apis/run.googleapis.com/v1/namespaces/817589974517/jobs/shadow-sis-pass-tail-paired
+  uid: 5b0a7a75-0d75-47a8-8647-bd911a028351
+spec:
+  template:
+    metadata:
+      annotations:
+        run.googleapis.com/client-name: gcloud
+        run.googleapis.com/client-version: 579.0.0
+        run.googleapis.com/execution-environment: gen2
+      labels:
+        client.knative.dev/nonce: woc_rox_cuq
+    spec:
+      taskCount: 1
+      template:
+        spec:
+          containers:
+          - args:
+            - shadow-sis-pass-tail-paired
+            command:
+            - nfl-dfs
+            env:
+            - name: GCP_PROJECT
+              value: nfl-predictions-503414
+            - name: CODE_SHA
+              value: 15de40206963b5db9e6a4acff0f865833678d44d
+            image: us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:9cec80d9fc603b75456663049757e027e76d8ceb7c1d95c18bf22ab96cd21411
+            resources:
+              limits:
+                cpu: '4'
+                memory: 16Gi
+          maxRetries: 1
+          serviceAccountName: 817589974517-compute@developer.gserviceaccount.com
+          timeoutSeconds: '14400'
+status:
+  conditions:
+  - lastTransitionTime: '2026-08-15T07:30:55.382461Z'
+    status: 'True'
+    type: Ready
+  observedGeneration: 1

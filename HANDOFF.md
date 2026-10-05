@@ -12,6 +12,71 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-04 (22:06 CDT) — Six shadow jobs deployed at 7bbfd10a (Route Share, cbwu-oi companion, SIS split); own_shadow ALTER; workstation copy verified
+
+**Merged into integration tonight (all reviewer-cleared):**
+- O-27 `200c09d7`; cbwu-oi spec Amendment 1 `13e6d583`, committed before the build.
+- own_shadow writer column `37c00a77`.
+- SIS Amendment 1 `883ad520`: `reports/2026-10-05-sis-pass-tail-2026-amendment-1.md` plus dated pointers in the pass bar and the prospective gate, committed before the build.
+- O-3 `7e76966e`.
+- Live-lane hermetic fix 2 + `scripts/live_lane_local.sh` `7bbfd10a`.
+
+**Images, all built from `7bbfd10a7fc5716f492466a3e6ecf91076e03492`:**
+- nfl-dfs: Cloud Build `d29d2429` → `sha256:04cd5e062117f0d1e4a8d1d31de1b99bb884131c5a4b6c3e78cda654d4496c08`.
+- SIS GPU: Cloud Build `eca8cba3` → `tabpfn-sis-pass-tail-live@sha256:ac07a31ea103f0bb0e444294f2dc2214ab7ee0a58f8d241c20c76c5a412c253f`.
+  Built from a minimal context equal to the Dockerfile's COPY list.
+- The earlier builds `a186c607` (lane FAILURE, 2 host-dependent tests) and `9ef5d8ab` (GPU from 7e76966e) were NOT
+  deployed. The GPU image was rebuilt so the CODE_SHA label is literally true (reviewer, rule 2).
+- `scripts/live_lane_local.sh` (737 passed, 3 skipped) now runs before every live build.
+
+**Job updates** (each through its single-writer lane, `scripts/launcher_registry.sh run --root ~/projects/nfl-predictions`;
+completion receipts in `.tmp/launcher-completions/`; all CODE_SHA = 7bbfd10a…):
+
+| Job | Image | Env change |
+|---|---|---|
+| shadow-k1-roleunion, shadow-k1-route-roleunion | nfl-dfs 04cd5e06 | CODE_SHA only; companion-v1 env unchanged, sha 76c3994a (Amendment 2 holds) |
+| shadow-cbwu-oi-paired | nfl-dfs 04cd5e06 | the full companion env from `deploy/deploy_jobs.sh` (25 keys, `CBWU_OI_CONTRACT=2026-cbwu-oi-companion-v1`, sha 9849d07f) |
+| shadow-sis-pass-tail-paired | nfl-dfs 04cd5e06 | the companion env (19 keys, `pass-tail-v1-a1-companion`, sha 51338794) |
+| tabpfn-sis-pass-tail-live-control, -treatment | GPU ac07a31e | + `SIS_PASS_TAIL_CONTRACT=pass-tail-v1-a1` (sha 7693d370) |
+
+Evidence: `reports/reviews/evidence/2026-10-04-<job>-{before2,after2}.yaml`.
+
+**Checks:**
+- `verify_deployment.py`: "Deployment contract OK", 9/9 including cbwu-oi.
+- `check_prospective_gates.py --week 5`:
+  - No env contradictions, no missing required ancestors.
+  - Remaining FAILs are expected: Route Share ×2 and cbwu-oi (newest execution = the old failures; the dry runs clear
+    them); SIS ×2 (schedulers PAUSED by design until their dry runs pass).
+
+**own_shadow:**
+- The ALTER was applied: `writer` and `run_type` NULLABLE; the 2,370 rows are all legacy.
+- The scratch rehearsal PASSED (one NULL row + one rehearsal_scratch row); the scratch table was removed. It reruns
+  in Wednesday's rehearsal.
+
+**DRY RUNS (next):**
+- **SIS caches** (`scripts/sis_pass_tail_dry_run.sh tabpfn-sis-pass-tail-live-{control,treatment}`, which registers its
+  own lane): Tue after the features build, and again Wed after the acquisition.
+- **SIS paired:** Wed after the acquisition (W4 team-context, 32 team-games; needs `da594b4d` in the checkout running
+  `nfl-weekly-data run --week 5`) and a fresh build-features. Then RESUME the three SIS schedulers by Wed 10-07.
+- **cbwu-oi companion** (SHADOW_DRY_RUN=1 via its lane): Wed after the W5 roster pull + build-features, or Thu.
+- **Route Share ×2:** Thu 13:17 (cron), after FP's W4 Route Share import (Tue).
+- **Receipts to the reviewer:** draft_group_id / selectable groups, runtime vs timeout, the dryrun namespace, the
+  contract sha.
+
+**Workstation copy VERIFIED** (operator uploaded 10-04 night): `gs://…-raw/private/rehearsal/2026-w0{1,2,3}/workstation-20261004/`,
+with 2,296 / 978 / 11,035 files.
+- Every file's size equals its MANIFEST entry, with 0 mismatches.
+- 14 key files were re-hashed from the bucket, all equal to the manifest:
+  - the W2 promoted book `77eaf797…`;
+  - the W3 T-70 candidates `5e80d6b1…`;
+  - the W1 fa5d035 runs (09-10 and the Saturday 09-12 runs `20260912T132523949270Z` / `20260912T133100344084Z`),
+    candidates, frame and receipt.
+- Two .env files were excluded (the PREREG-096 verdict and chosen-dose; no secrets). Two symlinks are recorded in the
+  manifests.
+- Private: 19 filled DKEntries files sit under private/. Never copy them anywhere tracked.
+- **The money-gate blockers from the inventory are closed** (W1 Saturday pools, W2 T-70 runs + the promoted book, W3
+  T-70 candidates).
+
 ## 2026-10-04 (20:27 CDT) — Operator decisions: RUN the SIS pass-tail shadow (O-3) and FIX the cbwu-oi shadow (O-27); reviewer's Friday-gate notes
 
 **Operator, verbatim (10-04 evening):** "I want both 1 and 2. Fix them."

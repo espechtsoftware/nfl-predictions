@@ -1,0 +1,62 @@
+apiVersion: run.googleapis.com/v1
+kind: Job
+metadata:
+  annotations:
+    run.googleapis.com/client-name: gcloud
+    run.googleapis.com/client-version: 579.0.0
+    run.googleapis.com/creator: espechtsoftware@gmail.com
+    run.googleapis.com/lastModifier: espechtsoftware@gmail.com
+    run.googleapis.com/operation-id: cac25ed5-2c04-4287-9f4c-b1e632b8b216
+  creationTimestamp: '2026-08-15T07:36:14.822857Z'
+  generation: 2
+  labels:
+    cloud.googleapis.com/location: us-central1
+    run.googleapis.com/lastUpdatedTime: '2026-08-15T07:38:53.862106Z'
+  name: tabpfn-sis-pass-tail-live-control
+  namespace: '817589974517'
+  resourceVersion: AAZZEQdu9VE
+  selfLink: /apis/run.googleapis.com/v1/namespaces/817589974517/jobs/tabpfn-sis-pass-tail-live-control
+  uid: 1ca84c49-8f1c-4e2d-980f-a90fd9f583c5
+spec:
+  template:
+    metadata:
+      annotations:
+        run.googleapis.com/client-name: gcloud
+        run.googleapis.com/client-version: 579.0.0
+        run.googleapis.com/execution-environment: gen2
+        run.googleapis.com/gpu-zonal-redundancy-disabled: 'true'
+      labels:
+        client.knative.dev/nonce: qol_zoz_yeq
+    spec:
+      taskCount: 1
+      template:
+        spec:
+          containers:
+          - env:
+            - name: GCP_PROJECT
+              value: nfl-predictions-503414
+            - name: TABPFN_SIS_PASS_TAIL_LIVE_ARM
+              value: control
+            - name: TABPFN_OUTPUT_TABLE
+              value: tabpfn_sis_pass_tail_live_control_v1
+            - name: TABPFN_UPCOMING
+              value: auto
+            - name: CODE_SHA
+              value: 15de40206963b5db9e6a4acff0f865833678d44d
+            image: us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/tabpfn-sis-pass-tail-live@sha256:4e809f0cbb23aef27e9219cd5bfaa832fd1b75ff0750000b7fa3ca495bb4e719
+            resources:
+              limits:
+                cpu: '4'
+                memory: 16Gi
+                nvidia.com/gpu: '1'
+          maxRetries: 0
+          nodeSelector:
+            run.googleapis.com/accelerator: nvidia-l4
+          serviceAccountName: 817589974517-compute@developer.gserviceaccount.com
+          timeoutSeconds: '3600'
+status:
+  conditions:
+  - lastTransitionTime: '2026-08-15T07:36:15.169870Z'
+    status: 'True'
+    type: Ready
+  observedGeneration: 2
