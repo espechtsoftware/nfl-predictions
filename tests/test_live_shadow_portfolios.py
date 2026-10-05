@@ -258,3 +258,162 @@ def test_scores_frozen_memberships_and_fails_on_missing_actual():
     assert summary.mean_weekly_max.eq(9.0).all()
     with pytest.raises(ValueError, match="missing actuals"):
         score_portfolios(memberships, actuals.iloc[1:])
+
+
+# --- Route Share pair reader (O-25, 2026-10-05) ---------------------------------------
+
+def _companion_lever(variant: str) -> str:
+    """The lever record the engine writes for a companion-v1 arm."""
+    from nfl_dfs.backtest.engine import _lever_keys
+    from nfl_dfs.inference import tail_shadow
+    from nfl_dfs.inference.production_policy import ADOPTED_CLASSIC_POLICY
+
+    env = {
+        **tail_shadow.route_share_job_environment("companion-v1"),
+        **ADOPTED_CLASSIC_POLICY.construction_preset().optimizer_environment(),
+        "MODEL_REGISTRY_VARIANT": variant,
+        "PROSPECTIVE_SHADOW_ID": tail_shadow.COMPANION_V1_SHADOW_ID,
+    }
+    return ",".join(sorted(f"{k}={v}" for k, v in env.items() if k in _lever_keys))
+
+
+def _route_panel(model: str, contract: str, *,
+                 stamp: str = "2026-09-13T15:30:00Z") -> pd.DataFrame:
+    """A role-union arm (control tail_k1_roleunion or treatment tail_k1_route_roleunion)."""
+    base = _panel("tail_k1_roleunion", stamp=stamp)
+    panel_stamp = pd.Timestamp(stamp).strftime("%Y%m%dT%H%M%SZ")
+    panel = f"live-shadow-{model}-2026w01-{panel_stamp}"
+    variant = "tail_k1" if model == "tail_k1_roleunion" else "tail_k1_route"
+    out = base.copy()
+    out["panel_run_id"] = panel
+    out["slate_run_id"] = f"slate-{model}-{panel_stamp}"
+    out["score_artifact_uri"] = f"gs://bucket/{panel}.npz"
+    out["players"] = [_roster(model, ix) for ix in out.cand_ix]
+    if contract == "companion-v1":
+        out["lever_env"] = _companion_lever(variant)
+        n_worlds = 30_000
+        out["n_worlds"] = n_worlds
+        for column in ("clear_bits_187", "clear_bits_194", "clear_bits_200",
+                       "clear_bits_210", "clear_bits_220"):
+            out[column] = [_mask(100 - ix, n_worlds) for ix in out.cand_ix]
+        out["p_line"] = [(100 - ix) / n_worlds for ix in out.cand_ix]
+    else:
+        out["lever_env"] = out.lever_env.str.replace(
+            "MODEL_REGISTRY_VARIANT=tail_k1|", f"MODEL_REGISTRY_VARIANT={variant}|")
+    return out
+
+
+def _old_freeze_world(monkeypatch, rows: pd.DataFrame):
+    """Offline BigQuery for freeze(): candidates in, memberships captured."""
+    import nfl_dfs.bq as bq
+    from nfl_dfs.inference import tail_shadow
+
+    monkeypatch.setattr(tail_shadow, "upcoming_season_week",
+                        lambda: (2026, 1, date(2026, 9, 13)))
+    written: list[pd.DataFrame] = []
+
+    def query_df(sql, params=None):
+        if "live_candidates_shadow" in sql:
+            assert "run_type = 'live_shadow'" in sql
+            return rows.copy()
+        return pd.DataFrame()  # no portfolio run frozen yet
+
+    monkeypatch.setattr(bq, "query_df", query_df)
+    monkeypatch.setattr(bq, "load_dataframe",
+                        lambda df, table, write_disposition=None: written.append(df))
+    return written
+
+
+def test_panel_id_recognises_the_route_treatment():
+    from nfl_dfs.research.live_shadow_portfolios import _panel_started_at
+
+    stamp = _panel_started_at(
+        "live-shadow-tail_k1_route_roleunion-2026w05-20261011T152000Z")
+    assert stamp == pd.Timestamp("2026-10-11T15:20:00Z")
+    with pytest.raises(ValueError):
+        _panel_started_at("dryrun-live-shadow-tail_k1_roleunion-2026w05-20261011T152000Z")
+
+
+def test_freeze_works_with_route_rows_present(monkeypatch):
+    """Before 2026-10-05 a single treatment row made freeze() raise on its panel id."""
+    from nfl_dfs.research import live_shadow_portfolios as lsp
+
+    rows = pd.concat([
+        _panel("tail_k1"), _panel("tail_k1_nofloor"), _panel("tail_k1_roleunion"),
+        _panel("tail_k3"),
+        _route_panel("tail_k1_route_roleunion", "frozen-2026-08"),
+    ], ignore_index=True)
+    written = _old_freeze_world(monkeypatch, rows)
+    result = lsp.freeze("early")
+    assert result["idempotent"] is False
+    assert len(written) == 1
+    assert set(written[0].source_model) == {
+        "tail_k1", "tail_k1_nofloor", "tail_k1_roleunion", "tail_k3"}
+
+
+@pytest.mark.parametrize("contract", ["companion-v1", "frozen-2026-08"])
+def test_freeze_route_share_pair_books_both_arms(monkeypatch, contract):
+    from nfl_dfs.research import live_shadow_portfolios as lsp
+
+    rows = pd.concat([
+        _panel("tail_k1"), _panel("tail_k3"),
+        _route_panel("tail_k1_roleunion", contract),
+        _route_panel("tail_k1_route_roleunion", contract),
+        # an older treatment run in the same slot loses to the latest
+        _route_panel("tail_k1_route_roleunion", contract, stamp="2026-09-13T15:21:00Z"),
+    ], ignore_index=True)
+    written = _old_freeze_world(monkeypatch, rows)
+    result = lsp.freeze_route_share_pair("early")
+    assert result == {"portfolio_run_id": "live-route-share-pair-2026w01-early",
+                      "rows": 160, "route_share_contract": contract,
+                      "idempotent": False}
+    books = written[0]
+    assert set(books.policy_version) == {lsp.ROUTE_PAIR_POLICY_VERSION[contract]}
+    assert books.groupby("portfolio_id").size().to_dict() == {
+        lsp.ROUTE_CONTROL_COVERAGE: 80, lsp.ROUTE_TREATMENT_COVERAGE: 80}
+    treatment = books[books.portfolio_id.eq(lsp.ROUTE_TREATMENT_COVERAGE)]
+    assert set(treatment.source_model) == {"tail_k1_route_roleunion"}
+    assert set(treatment.source_panel_run_id) == {
+        "live-shadow-tail_k1_route_roleunion-2026w01-20260913T153000Z"}
+
+
+def test_route_pair_refuses_mixed_contracts():
+    from nfl_dfs.research.live_shadow_portfolios import build_route_share_books
+
+    with pytest.raises(ValueError, match="different contracts"):
+        build_route_share_books(
+            _route_panel("tail_k1_roleunion", "companion-v1"),
+            _route_panel("tail_k1_route_roleunion", "frozen-2026-08"),
+            portfolio_run_id="x", snapshot_slot="early")
+
+
+def test_route_pair_refuses_arms_that_differ_outside_the_variant():
+    from nfl_dfs.research.live_shadow_portfolios import build_route_share_books
+
+    treatment = _route_panel("tail_k1_route_roleunion", "companion-v1")
+    treatment["lever_env"] = treatment.lever_env + ",OWN_MODEL=x"
+    with pytest.raises(ValueError, match="outside MODEL_REGISTRY_VARIANT"):
+        build_route_share_books(
+            _route_panel("tail_k1_roleunion", "companion-v1"), treatment,
+            portfolio_run_id="x", snapshot_slot="early")
+
+
+@pytest.mark.parametrize("old,new", [
+    ("N_CE=0", "N_CE=12"),
+    ("GEN_TOTAL_BUDGET=172", "GEN_TOTAL_BUDGET=52"),
+    ("SERVED_POSITION_SCALES=QB:0.970,RB:1.005,TE:0.940,WR:1.070",
+     "SERVED_POSITION_SCALES=QB:0.970,RB:1.005,TE:0.940"),
+])
+def test_companion_panel_with_wrong_settings_is_refused(old, new):
+    panel = _route_panel("tail_k1_route_roleunion", "companion-v1")
+    assert panel.lever_env.str.contains(old, regex=False).all()
+    panel["lever_env"] = panel.lever_env.str.replace(old, new, regex=False)
+    with pytest.raises(ValueError, match="wrong role provenance for companion-v1"):
+        validate_shadow_panel(panel, "tail_k1_route_roleunion")
+
+
+def test_companion_panel_with_too_few_worlds_is_refused():
+    panel = _route_panel("tail_k1_roleunion", "companion-v1")
+    panel["n_worlds"] = 10_000
+    with pytest.raises(ValueError, match="30000 worlds"):
+        validate_shadow_panel(panel, "tail_k1_roleunion")

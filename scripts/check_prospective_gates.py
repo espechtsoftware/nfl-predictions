@@ -88,6 +88,13 @@ GATES = {
                 "treatment must differ ONLY by the four Fantasy Points route features. "
                 "Weekly paired reads feed 2026 decisions; the full-season verdict feeds the "
                 "Fantasy Points renewal.",
+        # 2026-10-05 (reviewer, O-25): from Week 5 the companion key alone audits the four
+        # schedulers, so the same failure is not printed twice under two contracts. This
+        # entry's contract and verdict text above are kept as the record.
+        "superseded_from_week": 5,
+        "superseded_by": "fp-route-share-2026-companion-v1",
+        "superseded_reason": "superseded by fp-route-share-2026-companion-v1 from W5; W2 under "
+                             "the old contract, W3-W4 failed (O-25); history kept",
     },
     # 2026-10-05 (operator chose option (a) for O-2/O-25): the same pair, under companion v1
     # -- the adopted money-path generation stated in full -- from Week 5 (Weeks 3-4 failed
@@ -102,6 +109,12 @@ GATES = {
         "first_week": 5,
         "last_week": 18,
         "floor_weeks": 12,
+        # Weeks 5-18 offer 14 paired weeks against the gate document's 12-week floor, so at
+        # most two may be lost. A third missed week makes the floor unreachable in 2026: the
+        # gate then ends "insufficient" (retained per the gate document) -- not pass or fail.
+        "max_missed_weeks": 2,
+        "insufficient_rule": "a third missed paired week (of 14, W5-W18) leaves fewer than the "
+                             "12-week floor: the 2026 read ends INSUFFICIENT, not pass/fail.",
         "schedulers": [
             "s-shadow-k1-roleunion-early", "s-shadow-k1-roleunion-late",
             "s-shadow-k1-route-roleunion-early", "s-shadow-k1-route-roleunion-late",
@@ -299,12 +312,20 @@ def audit(week: int, now: datetime | None = None) -> tuple[list[str], list[str],
 
     for gate, spec in GATES.items():
         first, last = spec["first_week"], spec["last_week"]
+        superseded = spec.get("superseded_from_week")
+        if superseded is not None and week >= superseded:
+            notes.append(f"{gate}: SUPERSEDED from week {superseded} -- "
+                         f"{spec['superseded_reason']}")
+            continue
         active = first <= week <= last
         upcoming = first - LOOKAHEAD_WEEKS <= week < first
         if not (active or upcoming):
             notes.append(f"{gate}: dormant this week (grades weeks {first}-{last}).")
             continue
         when = "GRADED THIS WEEK" if active else f"first graded week is {first}"
+        if spec.get("insufficient_rule"):
+            notes.append(f"{gate}: may lose at most {spec['max_missed_weeks']} paired weeks -- "
+                         f"{spec['insufficient_rule']}")
         if spec.get("in_season_value") is False:
             notes.append(f"{gate}: NOT a current-season lever -- {spec.get('adjudicates', '')} "
                          f"A lost week here costs the multi-season instrument, not this season.")

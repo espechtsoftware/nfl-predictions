@@ -163,6 +163,12 @@ def main(argv: list[str] | None = None) -> None:
     )
     p.add_argument("--slot", choices=("early", "late"), required=True)
     p = sub.add_parser(
+        "freeze-route-share-pair",
+        help=("Freeze the Route Share control/treatment exact-80 books for "
+              "one Sunday slot (live rows only; contract-labelled)"),
+    )
+    p.add_argument("--slot", choices=("early", "late"), required=True)
+    p = sub.add_parser(
         "grade-tail-portfolios",
         help="Grade frozen prospective tail books after actuals land",
     )
@@ -1005,6 +1011,14 @@ def main(argv: list[str] | None = None) -> None:
         from .research import live_shadow_portfolios
 
         live_shadow_portfolios.freeze(args.slot)
+    elif args.command == "freeze-route-share-pair":
+        import json as _json
+
+        from .research import live_shadow_portfolios
+
+        print(_json.dumps(
+            live_shadow_portfolios.freeze_route_share_pair(args.slot),
+            sort_keys=True))
     elif args.command == "grade-tail-portfolios":
         from .research import live_shadow_portfolios
 

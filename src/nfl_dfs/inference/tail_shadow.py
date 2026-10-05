@@ -201,6 +201,29 @@ def check_route_share_contract(environ: Mapping[str, str]) -> dict:
     }
 
 
+# From this target week the gate's graded pair is produced ONLY under companion
+# v1 (fp-route-share-2026-companion-v1 supersedes fp-route-share-2026 from W5).
+# A frozen-contract book may still be built as a labelled dry run, never live.
+COMPANION_V1_FIRST_LIVE = (2026, 5)
+
+
+def require_live_contract(contract: str | None, season: int, week: int,
+                          *, dry_run: bool) -> None:
+    """Refuse a live frozen-2026-08 freeze once companion v1 owns the weeks."""
+    if (
+        contract == ROUTE_SHARE_FROZEN_2026_08
+        and not dry_run
+        and (int(season), int(week)) >= COMPANION_V1_FIRST_LIVE
+    ):
+        first_season, first_week = COMPANION_V1_FIRST_LIVE
+        raise RuntimeError(
+            f"{ROUTE_SHARE_CONTRACT_ENV}={ROUTE_SHARE_FROZEN_2026_08} may not "
+            f"produce a live run for {season} Week {week}: from "
+            f"{first_season} Week {first_week} the graded pair runs under "
+            f"{ROUTE_SHARE_COMPANION_V1}. Use {SHADOW_DRY_RUN_ENV}=1 for a "
+            f"labelled non-live book.")
+
+
 def shadow_dry_run(environ: Mapping[str, str]) -> bool:
     raw = environ.get(SHADOW_DRY_RUN_ENV)
     if raw in (None, ""):
@@ -314,6 +337,9 @@ def run(*, expected_variant: str = K1_VARIANT,
 
         store = BigQueryStore()
     season, week, target_sunday = upcoming_season_week()
+    require_live_contract(
+        contract_receipt["contract"] if contract_receipt else None,
+        season, week, dry_run=dry_run)
     gid = sunday_main_group(store.classic_slates(), target_sunday)
     salary_frame = store.classic_salaries(gid)
     if salary_frame.empty:
@@ -440,6 +466,9 @@ def run(*, expected_variant: str = K1_VARIANT,
         "minimum_lineup_salary": actual_floor,
         "candidate_run_type": candidate_run_type,
         "dry_run": dry_run,
+        # Only a live run is a candidate for the gate's graded freeze; a dry
+        # run (including any frozen-2026-08 book from W5) is flagged non-live.
+        "live": not dry_run,
         "route_share_contract": (
             contract_receipt["contract"] if contract_receipt else None),
         "route_share_contract_settings": (

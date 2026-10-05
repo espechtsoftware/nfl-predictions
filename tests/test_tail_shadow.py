@@ -407,8 +407,12 @@ class _MainSlateStore:
             "dk_player_id": range(100, 200), "salary": [5000] * 100})
 
 
-def _arm(monkeypatch, contract: str, variant: str, **overrides):
-    """Set exactly one arm's job env (+ overrides; None deletes a key)."""
+def _arm(monkeypatch, contract: str, variant: str, week: int | None = None,
+         **overrides):
+    """Set exactly one arm's job env (+ overrides; None deletes a key).
+
+    The frozen contract may run live only before 2026 Week 5, so its default
+    target week is 4; companion v1 defaults to Week 5."""
     from nfl_dfs.inference import tail_shadow
 
     for key in _CONTRACT_KEYS_TO_CLEAR:
@@ -423,9 +427,11 @@ def _arm(monkeypatch, contract: str, variant: str, **overrides):
             monkeypatch.delenv(key, raising=False)
         else:
             monkeypatch.setenv(key, value)
+    if week is None:
+        week = 4 if contract == "frozen-2026-08" else 5
     monkeypatch.setattr(
         tail_shadow, "upcoming_season_week",
-        lambda: (2026, 5, date(2026, 10, 11)))
+        lambda: (2026, week, date(2026, 10, 11)))
     monkeypatch.setattr(
         "nfl_dfs.inference.route_share_shadow.require_prior_week_source",
         lambda season, week: None)
@@ -451,6 +457,13 @@ def _run_arm(monkeypatch, arm: str, dry: bool = False):
 
 
 ARM_VARIANT = {"control": "tail_k1", "treatment": "tail_k1_route"}
+# Published in the gate amendment; a change to either contract changes these.
+CONTRACT_SHA256 = {
+    "frozen-2026-08":
+        "345d3ca925564663490f20c5809be104c8171d86cd2c85990681cc874888fd91",
+    "companion-v1":
+        "76c3994a0d9d4bb4bc852a60569c535a8306458b5be7a2a9c254a7d851f96ee8",
+}
 
 
 def test_frozen_august_contract_is_kept_byte_for_byte():
@@ -504,7 +517,7 @@ def test_each_contract_accepts_its_exact_set_and_records_it(
     assert result["route_share_contract"] == contract
     assert result["route_share_contract_settings"] == expected
     assert len(result["route_share_contract_settings_sha256"]) == 64
-    assert result["dry_run"] is False
+    assert result["dry_run"] is False and result["live"] is True
     assert result["candidate_run_type"] == "live_shadow"
     assert captured["candidate_run_type"] == "live_shadow"
     assert result["panel_run_id"].startswith("live-shadow-")
@@ -591,7 +604,7 @@ def test_control_and_treatment_differ_only_by_the_route_variant(
 def test_dry_run_is_isolated_from_the_graded_freeze(monkeypatch):
     _arm(monkeypatch, "companion-v1", "tail_k1_route", SHADOW_DRY_RUN="1")
     result, captured = _run_arm(monkeypatch, "treatment")
-    assert result["dry_run"] is True
+    assert result["dry_run"] is True and result["live"] is False
     assert result["panel_run_id"] == (
         "dryrun-live-shadow-tail_k1_route_roleunion-2026w05-"
         "20261011T152000Z")
@@ -645,3 +658,67 @@ def test_deploy_script_and_verifier_declare_the_companion_contract():
         assert env.pop("CAND_ARTIFACT_BUCKET") == "${PROJECT}-raw"
         assert env.pop("CODE_SHA") == "${CODE_SHA}"
         assert env == want, job
+
+
+@pytest.mark.parametrize("arm", ["control", "treatment"])
+@pytest.mark.parametrize("week", [5, 6, 18])
+def test_frozen_contract_may_not_run_live_from_week_5(monkeypatch, arm, week):
+    """Companion v1 owns the graded weeks from W5; a live frozen book is refused."""
+    _arm(monkeypatch, "frozen-2026-08", ARM_VARIANT[arm], week=week)
+    built = []
+    monkeypatch.setattr(
+        "nfl_dfs.inference.live_lineups.build_sim_lineups",
+        lambda *a, **k: built.append(k) or [object()] * 80)
+    from nfl_dfs.inference import tail_shadow
+
+    kwargs = (
+        {"shadow_label": tail_shadow.K1_ROLE_UNION_LABEL}
+        if arm == "control" else
+        {"expected_variant": tail_shadow.K1_ROUTE_VARIANT,
+         "shadow_label": tail_shadow.K1_ROUTE_ROLE_UNION_LABEL})
+    with pytest.raises(RuntimeError, match="may not produce a live run"):
+        tail_shadow.run(store=_MainSlateStore(), **kwargs)
+    assert built == []  # refused before any candidate work or persistence
+
+
+@pytest.mark.parametrize("arm", ["control", "treatment"])
+def test_frozen_contract_from_week_5_only_as_a_flagged_dry_run(monkeypatch, arm):
+    _arm(monkeypatch, "frozen-2026-08", ARM_VARIANT[arm], week=5,
+         SHADOW_DRY_RUN="1")
+    result, captured = _run_arm(monkeypatch, arm)
+    assert result["route_share_contract"] == "frozen-2026-08"
+    assert result["live"] is False and result["dry_run"] is True
+    assert result["candidate_run_type"] == "live_shadow_dryrun"
+    assert result["panel_run_id"].startswith("dryrun-live-shadow-")
+    assert captured["candidate_run_type"] == "live_shadow_dryrun"
+
+
+def test_frozen_contract_still_runs_live_before_week_5(monkeypatch):
+    _arm(monkeypatch, "frozen-2026-08", "tail_k1", week=4)
+    result, _ = _run_arm(monkeypatch, "control")
+    assert result["live"] is True and result["week"] == 4
+
+
+def test_companion_runs_live_from_week_5(monkeypatch):
+    _arm(monkeypatch, "companion-v1", "tail_k1_route", week=5)
+    result, _ = _run_arm(monkeypatch, "treatment")
+    assert result["live"] is True
+    assert result["route_share_contract"] == "companion-v1"
+
+
+def test_contract_settings_sha256_is_the_published_identity():
+    """Pinned for the gate amendment: canonical JSON (sorted keys, ',' ':')."""
+    import hashlib
+    import json
+
+    from nfl_dfs.inference import tail_shadow
+
+    for contract in ("frozen-2026-08", "companion-v1"):
+        settings = dict(sorted(
+            tail_shadow.route_share_contract_settings(contract).items()))
+        digest = hashlib.sha256(json.dumps(
+            settings, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+        receipt = tail_shadow.check_route_share_contract({
+            **tail_shadow.route_share_job_environment(contract)})
+        assert receipt["settings_sha256"] == digest
+        assert receipt["settings_sha256"] == CONTRACT_SHA256[contract]

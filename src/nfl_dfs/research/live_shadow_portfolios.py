@@ -58,8 +58,21 @@ _MEMBERSHIP_ID_COLUMNS = [
     "source_model", "source_panel_run_id", "source_slate_run_id",
     "cand_ix", "roster_key", "selection_method", "policy_version",
 ]
+# Route Share pair books (O-25, 2026-10-05). The control/treatment pair is
+# frozen by its own reader below; its contract is part of the policy version
+# so a companion book can never be graded as a frozen-contract book.
+ROUTE_CONTROL_COVERAGE = "route_share_control_coverage194"
+ROUTE_TREATMENT_COVERAGE = "route_share_treatment_coverage194"
+ROUTE_PAIR_POLICY_VERSION = {
+    "frozen-2026-08": "route-share-pair-frozen-2026-08-v1",
+    "companion-v1": "route-share-pair-companion-v1-v1",
+}
+ROUTE_PAIR_MODELS = ("tail_k1_roleunion", "tail_k1_route_roleunion")
+_ROLE_UNION_MODELS = frozenset(ROUTE_PAIR_MODELS)
+
 _PANEL_ID = re.compile(
-    r"^live-shadow-(tail_k1|tail_k1_nofloor|tail_k1_roleunion|tail_k3)-"
+    r"^live-shadow-(tail_k1|tail_k1_nofloor|tail_k1_roleunion|"
+    r"tail_k1_route_roleunion|tail_k3)-"
     r"\d{4}w\d{2}-"
     r"(\d{8}T\d{6}Z)$")
 
@@ -232,12 +245,67 @@ def extreme_lexicographic_order(
     return ordered, np.asarray(selected, dtype=int)
 
 
+def _lever_has(lever: str, key: str, value: str) -> bool:
+    """Exact ``KEY=value`` token in a lever record.
+
+    Values may themselves contain commas (feature lists, position scales), so
+    a token ends only where the next ``KEY=`` begins or the record ends.
+    """
+    pattern = (
+        rf"(?:^|[,|]){re.escape(key)}={re.escape(value)}"
+        r"(?=$|[,|][A-Z][A-Z0-9_]*=)")
+    return re.search(pattern, lever) is not None
+
+
+def role_union_contract(lever: str) -> str:
+    """Which Route Share contract a role-union panel was built under."""
+    from ..inference.tail_shadow import COMPANION_V1_SHADOW_ID
+
+    if _lever_has(lever, "PROSPECTIVE_SHADOW_ID", COMPANION_V1_SHADOW_ID):
+        return "companion-v1"
+    if "PROSPECTIVE_SHADOW_ID=" in lever:
+        raise ValueError("role-union panel carries a foreign shadow id")
+    return "frozen-2026-08"
+
+
+def _validate_role_union_provenance(
+    rows: pd.DataFrame, model: str, lever: str,
+) -> str:
+    from ..inference.tail_shadow import route_share_contract_settings
+
+    contract = role_union_contract(lever)
+    expected = route_share_contract_settings(contract)
+    if contract == "frozen-2026-08":
+        # The historical check, unchanged: the frozen rows predate the
+        # explicit contract and record only these generation levers.
+        keys = ("N_CE", "N_EPISTEMIC", "N_BOOM", "EPISTEMIC_FAMILY",
+                "ROLE_BELIEF_SEED", "ROLE_BELIEF_FEATURES")
+    else:
+        from ..backtest.engine import _lever_keys
+
+        keys = tuple(key for key in expected if key in _lever_keys)
+        worlds = pd.to_numeric(rows.n_worlds, errors="raise")
+        if not worlds.eq(int(expected["LIVE_SIMS"])).all():
+            raise ValueError(
+                f"{model} companion-v1 shadow is not {expected['LIVE_SIMS']} "
+                "worlds")
+    missing_role = [
+        f"{key}={expected[key]}" for key in keys
+        if not _lever_has(lever, key, expected[key])]
+    if missing_role:
+        raise ValueError(
+            f"{model} shadow has wrong role provenance for {contract}: "
+            f"{missing_role}")
+    return contract
+
+
 def validate_shadow_panel(rows: pd.DataFrame, model: str) -> pd.DataFrame:
     """Fail closed unless a live shadow is complete and reproducible."""
     specs = {
         "tail_k1": ("tail_k1", 1, 49_000),
         "tail_k1_nofloor": ("tail_k1", 1, 0),
         "tail_k1_roleunion": ("tail_k1", 1, 49_000),
+        "tail_k1_route_roleunion": ("tail_k1_route", 1, 49_000),
         "tail_k3": ("canonical", 3, 49_000),
     }
     if model not in specs:
@@ -285,25 +353,14 @@ def validate_shadow_panel(rows: pd.DataFrame, model: str) -> pd.DataFrame:
         raise ValueError(f"{model} shadow has unknown code provenance")
     lever = str(rows.lever_env.iloc[0])
     seeds = str(rows.seeds.iloc[0])
-    if f"MODEL_REGISTRY_VARIANT={expected_variant}" not in lever:
+    if not _lever_has(lever, "MODEL_REGISTRY_VARIANT", expected_variant):
         raise ValueError(f"{model} shadow has the wrong registry variant")
-    if f"MIN_LINEUP_SALARY={expected_floor}" not in lever:
+    if not _lever_has(lever, "MIN_LINEUP_SALARY", str(expected_floor)):
         raise ValueError(f"{model} shadow has the wrong salary floor")
     if f"MODEL_ENSEMBLE_SIZE={expected_k}" not in seeds:
         raise ValueError(f"{model} shadow has the wrong ensemble size")
-    if model == "tail_k1_roleunion":
-        exact = (
-            "N_CE=12", "N_EPISTEMIC=12", "N_BOOM=28",
-            "EPISTEMIC_FAMILY=role_draws", "ROLE_BELIEF_SEED=7331",
-            "ROLE_BELIEF_FEATURES=target_share_last,carry_share_last,"
-            "snap_share_last,target_share_jump,carry_share_jump,"
-            "snap_share_jump",
-        )
-        missing_role = [value for value in exact if value not in lever]
-        if missing_role:
-            raise ValueError(
-                "tail_k1_roleunion shadow has wrong role provenance: "
-                f"{missing_role}")
+    if model in _ROLE_UNION_MODELS:
+        _validate_role_union_provenance(rows, model, lever)
     if (rows.score_artifact_uri.fillna("").astype(str).str.strip().eq("").any()
             or rows.score_artifact_sha256.fillna("").astype(str)
             .str.strip().eq("").any()):
@@ -328,6 +385,7 @@ def _portfolio_rows(
     snapshot_slot: str,
     frozen_at: datetime,
     duplicate_backfills: int = 0,
+    policy_version: str = POLICY_VERSION,
 ) -> pd.DataFrame:
     positions = np.asarray(positions, dtype=int)
     if len(positions) != source_quota or len(set(positions.tolist())) != len(positions):
@@ -338,7 +396,7 @@ def _portfolio_rows(
         "frozen_at": frozen_at,
         "portfolio_run_id": portfolio_run_id,
         "portfolio_id": portfolio_id,
-        "policy_version": POLICY_VERSION,
+        "policy_version": policy_version,
         "snapshot_slot": snapshot_slot,
         "season": int(first.season),
         "week": int(first.week),
@@ -516,15 +574,11 @@ def build_portfolios(
     return out
 
 
-def choose_latest_panels(
-    rows: pd.DataFrame,
-    *,
-    season: int,
-    week: int,
-    target_sunday: date,
+def _slot_rows(
+    rows: pd.DataFrame, *, season: int, week: int, target_sunday: date,
     snapshot_slot: str,
-) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    """Choose the latest complete-looking policy runs in one CT slot."""
+) -> pd.DataFrame:
+    """Rows of one season/week whose panel started in one CT Sunday slot."""
     if snapshot_slot not in SLOT_HOURS:
         raise ValueError(f"unknown shadow snapshot slot {snapshot_slot!r}")
     required = {"generated_at", "panel_run_id", "season", "week"}
@@ -546,24 +600,114 @@ def choose_latest_panels(
         & local.dt.hour.eq(SLOT_HOURS[snapshot_slot])
     )
     work = work.loc[mask].copy()
+    work["_panel_started_at"] = panel_starts.loc[mask].to_numpy()
+    return work
+
+
+def _latest_panel(work: pd.DataFrame, model: str, snapshot_slot: str,
+                  ) -> pd.DataFrame:
+    prefix = f"live-shadow-{model}-"
+    arm = work[work.panel_run_id.astype(str).str.startswith(prefix)]
+    if arm.empty:
+        raise ValueError(f"no {model} {snapshot_slot} shadow is available")
+    latest = (arm.groupby("panel_run_id")["_panel_started_at"].max()
+              .sort_values().index[-1])
+    return arm[arm.panel_run_id.eq(latest)].drop(columns="_panel_started_at")
+
+
+def choose_route_share_pair(
+    rows: pd.DataFrame, *, season: int, week: int, target_sunday: date,
+    snapshot_slot: str,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Latest Route Share control and treatment panels in one CT slot."""
+    work = _slot_rows(rows, season=season, week=week,
+                      target_sunday=target_sunday, snapshot_slot=snapshot_slot)
     if work.empty:
         raise ValueError(f"no {snapshot_slot} shadow candidates are available")
-    work["_panel_started_at"] = panel_starts.loc[mask].to_numpy()
+    control, treatment = (
+        _latest_panel(work, model, snapshot_slot)
+        for model in ROUTE_PAIR_MODELS)
+    return control, treatment
 
-    selected: list[pd.DataFrame] = []
-    for model, prefix in (
-            ("tail_k1", "live-shadow-tail_k1-"),
-            ("tail_k1_nofloor", "live-shadow-tail_k1_nofloor-"),
-            ("tail_k1_roleunion", "live-shadow-tail_k1_roleunion-"),
-            ("tail_k3", "live-shadow-tail_k3-")):
-        arm = work[work.panel_run_id.astype(str).str.startswith(prefix)]
-        if arm.empty:
-            raise ValueError(f"no {model} {snapshot_slot} shadow is available")
-        latest = (arm.groupby("panel_run_id")["_panel_started_at"].max()
-                  .sort_values().index[-1])
-        panel = arm[arm.panel_run_id.eq(latest)].drop(
-            columns="_panel_started_at")
-        selected.append(panel)
+
+def build_route_share_books(
+    control_rows: pd.DataFrame,
+    treatment_rows: pd.DataFrame,
+    *,
+    portfolio_run_id: str,
+    snapshot_slot: str,
+    frozen_at: datetime | None = None,
+) -> tuple[str, pd.DataFrame]:
+    """The paired exact-80 coverage-194 books under ONE declared contract."""
+    if snapshot_slot not in SLOT_HOURS:
+        raise ValueError(f"unknown shadow snapshot slot {snapshot_slot!r}")
+    control = validate_shadow_panel(control_rows, "tail_k1_roleunion")
+    treatment = validate_shadow_panel(
+        treatment_rows, "tail_k1_route_roleunion")
+    contracts = {
+        role_union_contract(str(frame.lever_env.iloc[0]))
+        for frame in (control, treatment)}
+    if len(contracts) != 1:
+        raise ValueError(
+            f"Route Share arms were built under different contracts: "
+            f"{sorted(contracts)}")
+    contract = contracts.pop()
+    keys = [set(map(tuple, frame[["season", "week"]].drop_duplicates().values))
+            for frame in (control, treatment)]
+    if keys[0] != keys[1]:
+        raise ValueError("Route Share arms do not cover the same slate")
+    for column in ("code_sha", "config_hash", "seeds", "n_worlds"):
+        if (str(control[column].iloc[0])
+                != str(treatment[column].iloc[0])):
+            raise ValueError(f"Route Share arms differ in {column}")
+    control_lever = re.sub(
+        r"MODEL_REGISTRY_VARIANT=[a-z0-9_]+", "MODEL_REGISTRY_VARIANT=*",
+        str(control.lever_env.iloc[0]))
+    treatment_lever = re.sub(
+        r"MODEL_REGISTRY_VARIANT=[a-z0-9_]+", "MODEL_REGISTRY_VARIANT=*",
+        str(treatment.lever_env.iloc[0]))
+    if control_lever != treatment_lever:
+        raise ValueError(
+            "Route Share arms differ outside MODEL_REGISTRY_VARIANT")
+    stamp = frozen_at or datetime.now(timezone.utc)
+    if stamp.tzinfo is None:
+        stamp = stamp.replace(tzinfo=timezone.utc)
+    stamp = stamp.astimezone(timezone.utc)
+    policy_version = ROUTE_PAIR_POLICY_VERSION[contract]
+    frames = []
+    for ordered, model, portfolio_id in (
+            (control, "tail_k1_roleunion", ROUTE_CONTROL_COVERAGE),
+            (treatment, "tail_k1_route_roleunion", ROUTE_TREATMENT_COVERAGE)):
+        _, order = coverage_order(ordered)
+        frames.append(_portfolio_rows(
+            ordered, order[:EXPECTED_ENTRIES],
+            portfolio_run_id=portfolio_run_id, portfolio_id=portfolio_id,
+            source_model=model, selection_method="coverage194",
+            source_quota=EXPECTED_ENTRIES, snapshot_slot=snapshot_slot,
+            frozen_at=stamp, policy_version=policy_version))
+    return contract, pd.concat(frames, ignore_index=True)
+
+
+def choose_latest_panels(
+    rows: pd.DataFrame,
+    *,
+    season: int,
+    week: int,
+    target_sunday: date,
+    snapshot_slot: str,
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Choose the latest complete-looking policy runs in one CT slot.
+
+    Route Share treatment rows may share the slot (2026-10-05); they are
+    recognised and left to ``choose_route_share_pair``."""
+    work = _slot_rows(rows, season=season, week=week,
+                      target_sunday=target_sunday, snapshot_slot=snapshot_slot)
+    if work.empty:
+        raise ValueError(f"no {snapshot_slot} shadow candidates are available")
+    selected = [
+        _latest_panel(work, model, snapshot_slot)
+        for model in ("tail_k1", "tail_k1_nofloor", "tail_k1_roleunion",
+                      "tail_k3")]
     return selected[0], selected[1], selected[2], selected[3]
 
 
@@ -723,6 +867,62 @@ def freeze(snapshot_slot: str) -> dict:
     log.info("froze %s: %d membership rows", run_id, len(memberships))
     return {"portfolio_run_id": run_id, "rows": int(len(memberships)),
             "idempotent": False}
+
+
+def _shadow_candidates(season: int, week: int) -> pd.DataFrame:
+    from ..bq import query_df
+
+    return query_df(f"""
+        SELECT generated_at, panel_run_id, slate_run_id, run_type, code_sha,
+               config_hash, lever_env, seeds, labels_complete,
+               research_eligible, season, week, cand_ix, players, selected,
+               selected_rank, p_line, sim_mean, actual_score, tail_line,
+               n_entries, n_worlds, clear_bits_187, clear_bits_194,
+               clear_bits_200, clear_bits_210, clear_bits_220,
+               score_artifact_uri, score_artifact_sha256
+        FROM `{settings.predictions}.live_candidates_shadow`
+        WHERE season = @season AND week = @week AND run_type = 'live_shadow'
+        """, params={"season": season, "week": week})
+
+
+def freeze_route_share_pair(snapshot_slot: str) -> dict:
+    """Freeze the Route Share control/treatment books for one CT slot.
+
+    Reads only ``run_type = 'live_shadow'`` rows (dry runs are excluded) and
+    is idempotent by season/week/slot, exactly like ``freeze``.
+    """
+    from ..bq import load_dataframe
+    from ..inference.tail_shadow import upcoming_season_week
+
+    if snapshot_slot not in SLOT_HOURS:
+        raise ValueError(f"unknown shadow snapshot slot {snapshot_slot!r}")
+    season, week, sunday = upcoming_season_week()
+    control, treatment = choose_route_share_pair(
+        _shadow_candidates(season, week), season=season, week=week,
+        target_sunday=sunday, snapshot_slot=snapshot_slot)
+    run_id = f"live-route-share-pair-{season}w{week:02d}-{snapshot_slot}"
+    contract, memberships = build_route_share_books(
+        control, treatment, portfolio_run_id=run_id,
+        snapshot_slot=snapshot_slot)
+    existing = _load_existing(run_id)
+    if not existing.empty:
+        left = existing[_MEMBERSHIP_ID_COLUMNS].sort_values(
+            _MEMBERSHIP_ID_COLUMNS).reset_index(drop=True).astype(str)
+        right = memberships[_MEMBERSHIP_ID_COLUMNS].sort_values(
+            _MEMBERSHIP_ID_COLUMNS).reset_index(drop=True).astype(str)
+        if not left.equals(right):
+            raise RuntimeError(
+                f"immutable portfolio run {run_id} already exists with "
+                "different membership")
+        return {"portfolio_run_id": run_id, "rows": int(len(existing)),
+                "route_share_contract": contract, "idempotent": True}
+    load_dataframe(
+        memberships, f"{settings.predictions}.{PORTFOLIO_TABLE}",
+        write_disposition="WRITE_APPEND")
+    log.info("froze %s (%s): %d membership rows", run_id, contract,
+             len(memberships))
+    return {"portfolio_run_id": run_id, "rows": int(len(memberships)),
+            "route_share_contract": contract, "idempotent": False}
 
 
 def grade(*, write: bool = False) -> pd.DataFrame:
