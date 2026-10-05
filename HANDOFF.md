@@ -63,6 +63,13 @@ Evidence: `reports/reviews/evidence/2026-10-04-<job>-{before2,after2}.yaml`.
 - **Receipts to the reviewer:** draft_group_id / selectable groups, runtime vs timeout, the dryrun namespace, the
   contract sha.
 
+**Reviewer's receipt checklist for EVERY dry run this week** (Route Share ×2, cbwu-oi, SIS ×3; verified independently 10-04: the four nfl-dfs jobs run 04cd5e06…, the SIS caches ac07a31e…):
+1. the image digest it ran on;
+2. the contract settings sha;
+3. the run_type and the dry-run namespace (tables or prefixes);
+4. the runtime against the job timeout;
+5. for the SIS paired and cbwu-oi runs, the draft_group_ids read: the W5 Sunday main only.
+
 **Workstation copy VERIFIED** (operator uploaded 10-04 night): `gs://…-raw/private/rehearsal/2026-w0{1,2,3}/workstation-20261004/`,
 with 2,296 / 978 / 11,035 files.
 - Every file's size equals its MANIFEST entry, with 0 mismatches.
