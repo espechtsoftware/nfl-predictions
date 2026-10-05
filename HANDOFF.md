@@ -12,6 +12,17 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-05 (09:47 CDT) — Dashboard: Week 4 PUBLISHED (the operator created nfl_dashboard; --apply from the reviewed snapshot)
+
+- **The operator ran the DDL** with `GCP_PROJECT=nfl-predictions-503414`. His first attempt failed closed on the
+  `nfl-dfs-prod` default (O-31). Created: `nfl_dashboard.pool_exposure`, `arms_weekly` and `contest_lines`.
+- **`publish_dashboard_week.py --apply`**, from the reviewer-approved dry-run snapshot
+  `~/.cache/laptop-agent/dashboard-snapshots/2026-w04/20261005T143149Z` (publisher @ `3e2f76a2`), wrote 297
+  pool_exposure, 112 arms_weekly and 25 contest_lines rows. That is identical to the dry run, and verified by count
+  queries.
+- **Follow-up before Week 5 (reviewer):** label the non-contest arms' `cash_rate` as "≥ Millionaire cash line".
+- **Every future command for the operator** carries `GCP_PROJECT=nfl-predictions-503414` until O-31 is fixed.
+
 ## 2026-10-05 (09:42 CDT) — MONDAY ORDER done (Week 4): standings imported; O1/A3/B2/B1/B3; unchanged comparison; dashboard dry run OK, the DDL is the operator's; studies 15/16 frozen
 
 The report is `reports/2026-10-05-week4-monday-reads.md`; the raw printouts are private in `~/private/week4-monday/`.
