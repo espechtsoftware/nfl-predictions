@@ -4068,3 +4068,94 @@ secondaries (slate means):
 - **To the operator:** "no measurable effect; switching is your preference, reversible, with the rollback".
 - **Any offer** needs a NEW lab pin carrying `TeamStackRules`, because the production pin `32cdb61` lacks it, plus a
   `check_lab_api` run before any entry.
+
+## Addendum 125 (2026-10-05): study 16 (the operator's thesis portfolio): NO DIFFERENCE on tickets; the mean-finish guard far below its margin; 16b not pursued
+
+**Setup.**
+- Preregistration: `reports/2026-10-05-prereg-study16-thesis-portfolio.md`, frozen at `fa38a7f8`, with four deviation
+  notes:
+  1. the D'Hondt rank order;
+  2. cells (b) and (c) redefined after an outcome-blind smoke showed them infeasible under MAX_PER_GAME 4;
+  3. the reader frozen (`04ed4fda`), plus the census;
+  4. the EXPLORATORY sleeve SL25, frozen before the read (`758036eb`), after the operator's clarification that the
+     thesis is meant as one strategy among several.
+- Panel: L13's 36 slates, banks 1409/1410, K 105, LAG 0.10, the Week-4 plan.
+- Lab: nfl2 `production/s16-thesis-portfolio-20261005` (results `18433ae`, LEDGER `e153b5d`).
+- **Reproduced byte-identically by the reviewer**, both the reader and the sleeve.
+
+**Reader output (verbatim):**
+```
+STUDY 16 READER  sha256 04ed4fda8d67ccc194bd90165843aeced115aae025edfa22e205996bb0b40b9f
+DIRECTION: tickets = dealt entries at or above their contest's line (higher = better); pct = share of the sampled field a row BEATS; every difference is ARM - C; POSITIVE favours the arm.
+slates 36  banks [1409, 1410]  B 20000  seed 20261005  primary two-sided 0.975, guard one-sided 0.975 at -0.015  plan 22 mean-track contests, 147 entries
+
+== TP vs C  [DECISION]
+  PRIMARY tickets per slate -1.833  [-5.347, +1.431]  seasons 2023 -1.722, 2024 -1.944
+  GUARD mean entry pct -0.04316  one-sided lower -0.07687  (must exceed -0.015)
+  simulated line-crossing share -0.01083  [-0.01328, -0.00846]  (secondary)
+  dealt identical to C: 0.000 of slate-banks
+  ->  NO DIFFERENCE (a tickets effect smaller than about +40% reads NO DIFFERENCE on 36 slates)
+
+== TP10 vs C  [EXPLORATORY (never decision-bearing)]
+  PRIMARY tickets per slate -1.694  [-5.195, +1.625]  seasons 2023 -1.583, 2024 -1.806
+  GUARD mean entry pct -0.04467  one-sided lower -0.07727  (must exceed -0.015)
+  simulated line-crossing share -0.01108  [-0.01359, -0.00865]  (secondary)
+  dealt identical to C: 0.000 of slate-banks
+
+== TP20 vs C  [EXPLORATORY (never decision-bearing)]
+  PRIMARY tickets per slate -1.472  [-4.708, +1.597]  seasons 2023 -1.417, 2024 -1.528
+  GUARD mean entry pct -0.03800  one-sided lower -0.06938  (must exceed -0.015)
+  simulated line-crossing share -0.01050  [-0.01285, -0.00818]  (secondary)
+  dealt identical to C: 0.000 of slate-banks
+
+secondaries (slate means):
+  C     tickets 326.0  zero-ticket slates 0.306  best>=200 0.181  entry pct 0.53258  worst-decile slate 0.36281  max entry exposure 0.608  simulated crossing 0.11670
+  TP    tickets 260.0  zero-ticket slates 0.167  best>=200 0.153  entry pct 0.48942  worst-decile slate 0.29666  max entry exposure 0.594  simulated crossing 0.10587  entries core/mid/blow 0.891/0.068/0.041
+  TP10  tickets 265.0  zero-ticket slates 0.236  best>=200 0.139  entry pct 0.48792  worst-decile slate 0.28288  max entry exposure 0.589  simulated crossing 0.10562  entries core/mid/blow 0.934/0.037/0.029
+  TP20  tickets 273.0  zero-ticket slates 0.250  best>=200 0.181  entry pct 0.49458  worst-decile slate 0.29608  max entry exposure 0.594  simulated crossing 0.10620  entries core/mid/blow 0.838/0.109/0.054
+```
+
+**Sleeve output (verbatim; EXPLORATORY):**
+```
+STUDY 16 SLEEVE (EXPLORATORY; deviation note 4)  sha256 758036ebbd1942458cb476b38a34ffa7d7b9594277d41301fcfb39b6813273c4
+SL25 - C tickets are expected to be about 0.25 x (TP - C): a consistency check on TP, NOT evidence. The sleeve's own content: zero-ticket slates, the per-slate ticket SD, best >= 200, max entry exposure.
+
+slates 36  banks [1409, 1410]  B 20000  seed 20261005  tickets two-sided 0.975; guard one-sided 0.975 at -0.015
+SL25 - C tickets per slate -1.208  [-2.472, -0.069]   (consistency check: ~0.25 x TP - C)
+SL25 - C mean entry pct -0.01253  one-sided lower -0.03108
+  C     tickets 326.0  per-slate ticket SD 12.195  zero-ticket slates 0.306  best>=200 0.181  max entry exposure 0.608  entry pct 0.53258
+  SL25  tickets 282.5  per-slate ticket SD 10.957  zero-ticket slates 0.292  best>=200 0.139  max entry exposure 0.717  entry pct 0.52006  sleeve share of entries 0.270 (min 0.248, max 0.344; plan share mean 0.100)
+```
+
+**Verdict.**
+- **NO DIFFERENCE on tickets (the frozen verdict):** −1.83 per slate [−5.35, +1.43]; tickets 326 → 260.
+- **The mean-finish guard, DESCRIPTIVE here** (the frozen reader reaches it only on a tickets PASS), is far below its
+  margin: −0.043, one-sided lower −0.077 against −0.015. This clause is not the frozen verdict.
+- **The simulated crossing secondary:** −0.011 [−0.013, −0.008], C 0.117 → TP 0.106, about −9% relative against −20% in
+  realized tickets. It is in-sample on the books' own worlds, so biased AGAINST TP.
+- **Zero-ticket slates fell:** 0.306 → 0.167, the same pattern as studies 1 and 1b.
+
+**Mechanism** (outcome-blind):
+- C already deals 75% of entries to QBs from the top-4 totals and 24% to ranks 5–8. TP deals 89% / 7%, plus 4% RB-led
+  blowouts.
+- TP chose games by the pre-lock Vegas TOTAL rank, the same signal the optimizer already weights. So the thesis as tested
+  is a heavier bet on the market's expected shootouts, i.e. MORE chalk-game concentration, not an independent view.
+- It cost about 4 points of mean finish per entry.
+
+**SL25** (exploratory; a consistency check, not evidence):
+- Tickets −1.21 [−2.47, −0.07], against the pre-stated ≈ s × (TP − C) ≈ 0.27 × −1.83 = −0.49.
+- The sleeve replaced C's LAST 26 rows with TP's head rows (89% core). With the caps not re-imposed (as pre-stated), the
+  maximum entry exposure rose from 0.608 to 0.717. So the sleeve added correlated exposure to C's core players rather
+  than diversifying. Deal re-assignment is a second candidate.
+- The run cannot separate the two without a post-hoc decomposition, which was not done.
+
+**No adoption; 16b NOT pursued now.** The per-entry evidence says thesis rows built this way are worse per entry, and
+tickets add up per entry.
+- **The caveat for the operator:** what was tested is the VEGAS thesis (games A–D = the top-4 totals). His own pick of
+  games cannot be tested historically, because no record of his picks exists.
+- **The only route, offered as his option and not as a recommendation:** before each Saturday build he names 4 games; a
+  PAPER sleeve of thesis rows is built on them (nothing entered); and Monday's unchanged comparison scores it beside the
+  book. Several weeks of that are anecdote, not evidence.
+
+**Today's pattern across studies 1, 1b and 16:** every form of spreading the book (by game, by player entry cap, by
+scenario) lowered mean entry finish. Several cut zero-ticket slates. None raised expected tickets measurably.
