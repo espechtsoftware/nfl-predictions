@@ -15,7 +15,8 @@ book's PERCENTILE (mid-rank, ties half) among the monkey books on cashes, mean p
 with the plain-words reading: above the median = "beats the monkey"; below the 25th percentile = "worse than random".
 
     python scripts/moneygate_monkeys.py --week 4 --pool <entered run's candidates.parquet> [--frame <T-70 frame.parquet>]
-Writes the per-book results privately (PRIVATE/monkeys/w<W>.pkl) and the aggregate summary publicly
+The summary names the pool's kind and tag mix (Week 4: the entered UNION, including its field and pmo rows; Weeks 1-3:
+the run's candidates) and records the pool's and the frame's sha256. Writes the per-book results privately (PRIVATE/monkeys/w<W>.pkl) and the aggregate summary publicly
 (PUBLIC/monkeys_w<W>.json); prints the summary. Pool and frame default to weeks.json (entered_union, else t70_run).
 """
 from __future__ import annotations
@@ -131,6 +132,7 @@ def main(argv=None) -> int:
     entered = score({c: ours[ours.contest_id == c].points.to_numpy(np.int64) for c in cids})
     cand = pd.read_parquet(pool_path)
     pool = [str(x).split("|") for x in cand.names]
+    tag_mix = {str(k): int(v) for k, v in cand.tag.value_counts().items()} if "tag" in cand.columns else {}
     pool_pts = np.array([pts(L) for L in pool], np.int64)
     rng = np.random.default_rng(seed)
     M1 = pd.DataFrame([score({c: pool_pts[rng.choice(len(pool), n_c[c], replace=False)] for c in cids}) for _ in range(a.books)])
@@ -160,6 +162,9 @@ def main(argv=None) -> int:
     M3 = pd.DataFrame(M3)
     summary = {"week": a.week, "seed": seed, "books": a.books, "entries": total, "contests": len(cids), "distinct_lineups": len(uniq),
                "pool": str(pool_path), "pool_rows": len(pool), "pool_sha256": hashlib.sha256(pool_path.read_bytes()).hexdigest(),
+               "pool_kind": "the entered UNION's pool (every row the selection could pick)" if wc.get("entered_union") and not a.pool
+                            else "the run's candidates", "pool_tag_mix": tag_mix,
+               "frame": str(frame_path), "frame_sha256": hashlib.sha256(frame_path.read_bytes()).hexdigest(),
                "m2_caps": caps, "excluded_contests_outside_plan": excluded, "entered": entered, "monkeys": {}}
     for nm, D in (("M1", M1), ("M2", M2), ("M3", M3)):
         summary["monkeys"][nm] = {
@@ -172,7 +177,7 @@ def main(argv=None) -> int:
     MS.PUBLIC.mkdir(parents=True, exist_ok=True)
     (MS.PUBLIC / f"monkeys_w{a.week}.json").write_text(json.dumps(summary, indent=1) + "\n")
     print(f"MONKEY BENCHMARK W{a.week}  seed {seed}  books {a.books}  entries {total} in {len(cids)} contests; "
-          f"pool {len(pool)} rows; M2 caps {caps}; excluded (outside the plan) {excluded}")
+          f"pool {len(pool)} rows ({summary['pool_kind']}; tags {tag_mix}); M2 caps {caps}; excluded (outside the plan) {excluded}")
     print(f"  entered: cashes {entered['cashes']}  mean {entered['mean']:.2f}  share >= 100 {entered['ge100']:.3f}")
     for nm, s in summary["monkeys"].items():
         p = s["entered_percentile"]
