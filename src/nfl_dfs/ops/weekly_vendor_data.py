@@ -29,6 +29,7 @@ from ..ingest import (
 )
 from . import fantasy_points_downloads as fp
 from . import fantasy_points_matchups as fp_matchups
+from . import fantasy_points_projections as fp_projections
 from . import sis_downloads as sis
 
 
@@ -80,6 +81,9 @@ SIS_PASS_TAIL_VIEWS = (
 # 1-2) are one-time backfills with `sis-download receiver-copula-weekly`, not runner pages.
 SIS_RECEIVER_COPULA_FIRST_WEEK = 4
 PAID_PAGE_GATE = "paid-page-completeness"
+# The Fantasy Points projection tables captured every week (fantasy_points_projections' CLI default). `betting` is left
+# out: on the operator's plan it is a 3-row preview without the In-Season Betting add-on, below its 10-row floor.
+FP_PROJECTION_TABLES = ("dfs", "weekly", "rankings-weekly", "rankings-ros")
 
 
 SIS_PLANS_DIR = PROJECT_ROOT / "automation" / "sis" / "plans"
@@ -121,6 +125,12 @@ def paid_pages(week: int, *, sis_plan: Path | None, stage_matchups: bool = True)
         add("alignment", [f"fantasy-points alignment: receiving-separation-by-alignment/Player "
                           f"{_weeks(week - 4, week - 1)}"],
             ("fantasy-points-alignment-download", "fantasy-points-alignment-import"))
+    # 2026-10-05 (reviewer; operator's every-paid-page rule): the DFS-tier projection pages (since 10-02) were captured by
+    # hand for Week 4 only. Each table is its own page and its own step; FP serves the current week only, so a week the
+    # run misses is lost for good.
+    for table in FP_PROJECTION_TABLES:
+        add("fp-projections", [f"fantasy-points projections/{table} (live, Week {week})"],
+            (f"fantasy-points-projections-{table}",))
     for group, keys in (("fp-families", FP_FAMILY_ORDER if week >= 5 else ()), ("fp-cumulative", FP_CUMULATIVE_ORDER)):
         for key in keys:
             add(group, [f"fantasy-points {key}: {w.report}/{w.context} "
@@ -228,6 +238,7 @@ def run_week(
     collect_fp_families: bool = True,
     write_fp_families: bool = True,
     capture_matchups: bool = True,
+    capture_fp_projections: bool = True,
     stage_matchups: bool = True,
     write_matchups: bool = True,
     capture_sis_pass_tail: bool = True,
@@ -336,6 +347,7 @@ def run_week(
     skip_flags = {
         "route-share": fp_skip, "alignment": fp_skip, "defense-proe": families_skip,
         "fp-families": families_skip, "fp-cumulative": families_skip,
+        "fp-projections": fp_skip or (None if capture_fp_projections else "--skip-fp-projections"),
         "matchups": fp_skip or (None if capture_matchups else "--skip-matchups"),
         "sis-team-context": None if sis_plan is not None or sis_team_context else "--skip-sis-team-context",
         "sis-plan": None, "sis-pass-tail": None if capture_sis_pass_tail else "--skip-sis-pass-tail",
@@ -630,6 +642,17 @@ def run_week(
                     ),
                     fatal=False,
                 )
+    if fp_on and capture_fp_projections:
+        # not fatal, like the cumulative pages: a failure is recorded and the paid-page gate names the table's page
+        for table in FP_PROJECTION_TABLES:
+            step(
+                f"fantasy-points-projections-{table}",
+                lambda table=table: fp_projections.collect(
+                    fp_profile_dir, timeout_seconds, season=2026, week=week, which=[table],
+                    output_root=fp_profile_dir.parent / "fantasy-points-projections",
+                ),
+                fatal=False,
+            )
     if sis_steps and not login_if_needed:
         step("sis-session", _require_sis_session)
     if sis_team_context_missing is not None:
@@ -780,6 +803,11 @@ def _parser() -> argparse.ArgumentParser:
     run.add_argument("--include-props", action="store_true")
     run.add_argument("--skip-odds", action="store_true")
     run.add_argument("--skip-matchups", action="store_true")
+    run.add_argument(
+        "--skip-fp-projections",
+        action="store_true",
+        help="do not capture the Fantasy Points projection tables (dfs, weekly, rankings) of the current week",
+    )
     run.add_argument("--skip-sis-pass-tail", action="store_true")
     run.add_argument(
         "--skip-sis-receiver-copula",
@@ -833,6 +861,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         collect_fp_families=not args.skip_fp_families,
         write_fp_families=not args.audit_only_fp_families,
         capture_matchups=not args.skip_matchups,
+        capture_fp_projections=not args.skip_fp_projections,
         stage_matchups=not args.skip_matchup_stage,
         write_matchups=not args.audit_only_matchups,
         sis_team_context=not args.skip_sis_team_context,

@@ -15,6 +15,11 @@
 #                                 (check_build_inputs --min-generated-at): the hourly 10:03 batch is fresh and pre-inactives
 #   T70_PROJECT=1                 also arm the T-70 DK pull (T70_PULL_CT, default 10:33) and the project-slate execution
 #                                 with the T-70 rules (T70_PROJECT_CT, default 10:36; ~3 min) -- operator-armed like the rest
+#
+# 2026-10-05 (reviewer; every paid page, every week): the Fantasy Points projection tables are captured pre-lock by
+# scripts/fp_projections_capture.sh -- once at arming (--run, after the preflights; a failure is loud and does not stop
+# the arming) and by the unit nfl-week<W>-fp-projections at FP_PROJ_CT (default 10:40 CT: after the 10:30 inactives,
+# before the 10:50 T-70 build). SKIP_UNITS key: fpproj (skips both). Capture only; no build reads them.
 set -Eeuo pipefail
 
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
@@ -32,6 +37,7 @@ CONTESTS_JSON=${CONTESTS_JSON:-$OUT/contests.json}
 DRIVER=${DRIVER:-$SCRIPT_DIR/run_week_build.sh}
 WATCHER=${WATCHER:-$SCRIPT_DIR/run_week_watchers.sh}
 INGEST_LOOP=${INGEST_LOOP:-$SCRIPT_DIR/host_ingest_dk_loop.sh}
+FP_PROJ_CAPTURE=${FP_PROJ_CAPTURE:-$SCRIPT_DIR/fp_projections_capture.sh}
 CODE_TAG=${RUN_SUFFIX:-${EXPECT_SHA:0:7}}
 FIXTURE_SHA=e7255e98bf87297452befb61fb508ad4b368b59f
 if [[ "$RUN" == "--run" && "$EXPECT_SHA" == "$FIXTURE_SHA" && "${ALLOW_FIXTURE_PIN:-0}" != "1" ]]; then
@@ -63,6 +69,7 @@ U3200="nfl-week${WEEK}-d3200-build"
 U800="nfl-week${WEEK}-t70-build"
 UW="nfl-week${WEEK}-watchers"
 UI="nfl-week${WEEK}-host-dk-ingest"
+UFPPROJ="nfl-week${WEEK}-fp-projections"
 
 GCP_PROJECT=${GCP_PROJECT:-nfl-predictions-503414}
 # GCP_PROJECT rides every unit: the Week-3 D12800 died in 5 s without it (systemd-run does not inherit the shell's env).
@@ -109,6 +116,8 @@ fi
 L800=("${BASE_ENV[@]}" "${T70_GATE[@]}" "PAID_LEV=$D800_LEV" "PAID_BOOM=$D800_BOOM" SKIP_PAIR=1 DOSE_FILE=/dev/null "RUN_TAG=$(tag 10:50 d800)" "$DRIVER")
 LW=("${BASE_ENV[@]}" "${WATCH_FLAGS[@]}" "$WATCHER")
 HI=("${BASE_ENV[@]}" "$INGEST_LOOP")
+FP_PROJ_CT=${FP_PROJ_CT:-10:40}
+LFPPROJ=("${BASE_ENV[@]}" "$FP_PROJ_CAPTURE" sunday-prelock)
 GCLOUD=${GCLOUD:-$(command -v gcloud || echo "$HOME/google-cloud-sdk/bin/gcloud")}
 NFL_DFS_CLI=${NFL_DFS_CLI:-$PROD/.venv/bin/nfl-dfs}
 T70_PULL_CT=${T70_PULL_CT:-10:33}; T70_PROJECT_CT=${T70_PROJECT_CT:-10:36}
@@ -130,7 +139,7 @@ if [[ -n "${EARLY_SUPPLY_CT:-}" ]]; then
 fi
 SKIP_UNITS=${SKIP_UNITS:-}
 for k in $SKIP_UNITS; do
-  [[ " d12800sat d6400sat d6400 d3200 t70 watchers d12800sun earlyrefresh " == *" $k "* ]] || { echo "SKIP_UNITS: unknown unit key $k" >&2; exit 2; }
+  [[ " d12800sat d6400sat d6400 d3200 t70 watchers d12800sun earlyrefresh fpproj " == *" $k "* ]] || { echo "SKIP_UNITS: unknown unit key $k" >&2; exit 2; }
 done
 # arm KEY "DATE HH:MM" UNIT ARRAY: print the systemd-run line (or a SKIPPED comment); with --run, also execute it.
 arm() {
@@ -165,7 +174,7 @@ PYTHONPATH=\$PROD/src \$PROD_PY \$PROD/scripts/ownership_sets.py sets --season $
 PYTHONPATH=\$PROD/src \$PROD_PY \$PROD/scripts/ownership_tabpfn.py lags --season ${SEASON:-2026} --week ${WEEK} --out ${OUT}/ownership_lags.csv
 #
 # Saturday $SATURDAY: D12800 at 10:30 CT, D6400 fallback at 10:35 CT; Sunday: D6400 05:30 CT, D3200 09:10 CT,
-# D800 T-70 at 10:50 CT, persistent watchers at 09:12 CT$( [[ "${T70_PROJECT:-0}" == 1 ]] && echo "; T-70 DK pull $T70_PULL_CT CT, T-70 project-slate $T70_PROJECT_CT CT")$( [[ -n "${T70_MIN_PROJ_CT:-}" ]] && echo "; the T-70 build needs projections generated after $T70_MIN_PROJ_CT CT").
+# D800 T-70 at 10:50 CT, persistent watchers at 09:12 CT, FP projections capture at $FP_PROJ_CT CT$( [[ "${T70_PROJECT:-0}" == 1 ]] && echo "; T-70 DK pull $T70_PULL_CT CT, T-70 project-slate $T70_PROJECT_CT CT")$( [[ -n "${T70_MIN_PROJ_CT:-}" ]] && echo "; the T-70 build needs projections generated after $T70_MIN_PROJ_CT CT").
 EOT
 
 if [[ "$RUN" == "--run" ]]; then
@@ -199,6 +208,11 @@ if [[ "$RUN" == "--run" ]]; then
     [[ -x "$GCLOUD" ]] || { echo "gcloud not executable: $GCLOUD" >&2; exit 2; }
     [[ -x "$NFL_DFS_CLI" ]] || { echo "nfl-dfs CLI not executable: $NFL_DFS_CLI" >&2; exit 2; }
   fi
+  if [[ " $SKIP_UNITS " != *" fpproj "* ]]; then
+    # the Saturday pre-lock snapshot of the FP projection pages: loud on failure, never a reason to stop arming
+    "${BASE_ENV[@]}" "$FP_PROJ_CAPTURE" saturday-arm \
+      || echo "FP PROJECTIONS: the Saturday capture FAILED (line above); arming continues -- re-run $FP_PROJ_CAPTURE before lock"
+  fi
 fi
 arm d12800sat "$SATURDAY 10:30" "$U12800" L12800
 arm d6400sat "$SATURDAY 10:35" "$U6400SAT" L6400SAT
@@ -206,6 +220,7 @@ arm d6400 "$SUNDAY 05:30" "$U6400" L6400
 arm d3200 "$SUNDAY 09:10" "$U3200" L3200
 arm t70 "$SUNDAY 10:50" "$U800" L800
 arm watchers "$SUNDAY 09:12" "$UW" LW
+arm fpproj "$SUNDAY $FP_PROJ_CT" "$UFPPROJ" LFPPROJ
 if [[ -n "${EARLY_SUPPLY_CT:-}" ]]; then
   arm earlyrefresh "$SUNDAY $EARLY_PROPS_CT" "$UEPROPS" LEPROPS
   arm earlyrefresh "$SUNDAY $EARLY_PROJECT_CT" "$UEPROJ" LEPROJ

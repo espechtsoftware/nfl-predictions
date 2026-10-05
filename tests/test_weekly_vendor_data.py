@@ -8,6 +8,21 @@ from types import SimpleNamespace
 from nfl_dfs.ops import weekly_vendor_data as weekly
 
 
+PROJECTION_CALLS: list = []
+
+
+@pytest.fixture(autouse=True)
+def _stub_fp_projections(monkeypatch):
+    """The projection pages drive a real browser; every test stubs the collector and records the tables it asked for."""
+    PROJECTION_CALLS.clear()
+
+    def fake_collect(profile_dir, timeout_s, *, season, week, which, output_root):
+        PROJECTION_CALLS.append((season, week, tuple(which)))
+        return {"tables": {k: {"rows": 1} for k in which}, "failures": {}}
+
+    monkeypatch.setattr(weekly.fp_projections, "collect", fake_collect)
+
+
 def test_cloud_job_uses_deployed_secret_backed_job(monkeypatch):
     observed = {}
 
@@ -109,9 +124,9 @@ def test_run_week_preflights_sessions_then_runs_all_selected_steps(
     manifest = json.loads(manifest_path.read_text())
     assert manifest["status"] == "complete"
     assert manifest["target_week"] == 2
-    assert [step["status"] for step in manifest["steps"]] == ["complete"] * 12
+    assert [step["status"] for step in manifest["steps"]] == ["complete"] * 16
     assert manifest["steps"][-1]["name"] == "paid-page-completeness"
-    assert manifest["paid_pages"]["line"] == "PAID PAGES: 5 of 5 paid pages captured for Week 2"
+    assert manifest["paid_pages"]["line"] == "PAID PAGES: 9 of 9 paid pages captured for Week 2"
 
 
 def test_run_week_forces_fresh_sis_login(monkeypatch, tmp_path):
@@ -488,10 +503,10 @@ def test_week_four_declares_every_paid_page():
     """Production's order D (2026-09-28): the declared list for Wednesday 09-30 (target Week 4, completed Week 3)."""
     pages = weekly.paid_pages(4, sis_plan=None)
     labels = [page["page"] for page in pages]
-    assert len(labels) == len(set(labels)) == 27
+    assert len(labels) == len(set(labels)) == 31
     groups = [page["group"] for page in pages]
     assert {g: groups.count(g) for g in groups} == {
-        "route-share": 1, "defense-proe": 1, "matchups": 3, "fp-cumulative": 9, "sis-team-context": 11,
+        "route-share": 1, "defense-proe": 1, "matchups": 3, "fp-projections": 4, "fp-cumulative": 9, "sis-team-context": 11,
         "sis-receiver-copula": 2,
     }
     assert "sis receiver-copula wr-cb pass-defense-totals/wide week 03" in labels
@@ -553,15 +568,15 @@ def test_wednesday_week_four_run_captures_every_paid_page(monkeypatch, tmp_path,
                       "matchups", "matchups-stage", *cumulative, "sis-capture", "sis-import",
                       "sis-receiver-copula-download", "sis-receiver-copula-import-True"]
     manifest = json.loads(manifest_path.read_text())
-    assert manifest["status"] == "complete" and manifest["steps"][-1]["result"] == {"expected": 27, "captured": 27}
+    assert manifest["status"] == "complete" and manifest["steps"][-1]["result"] == {"expected": 31, "captured": 31}
     assert {page["status"] for page in manifest["paid_pages"]["pages"]} == {"captured"}
-    assert "PAID PAGES: 27 of 27 paid pages captured for Week 4\n" in capsys.readouterr().out
+    assert "PAID PAGES: 31 of 31 paid pages captured for Week 4\n" in capsys.readouterr().out
     assert manifest["configuration"]["fantasy_points_cumulative_plans"].keys() == set(weekly.FP_CUMULATIVE_ORDER)
 
 
 def test_a_failed_cumulative_page_is_named_and_fails_the_run_after_sis_is_captured(monkeypatch, tmp_path, capsys):
     events = []
-    with pytest.raises(RuntimeError, match=r"PAID PAGES: 26 of 27 .*NOT CAPTURED: fantasy-points "
+    with pytest.raises(RuntimeError, match=r"PAID PAGES: 30 of 31 .*NOT CAPTURED: fantasy-points "
                                            r"advanced-rushing-cumulative: advanced-rushing/Player weeks 01-03"):
         weekly.run_week(**_wednesday(monkeypatch, tmp_path, events, fail="advanced-rushing-cumulative-import-True"))
     assert events[-4:] == ["sis-capture", "sis-import", "sis-receiver-copula-download",
@@ -585,13 +600,13 @@ def test_a_fatal_failure_still_names_every_page_it_leaves_uncaptured(monkeypatch
     assert status["fantasy-points offense-proe/Defense week 03"]["reason"].startswith(
         "fantasy-points-defense-proe-import failed")
     assert status["sis pass-defense-totals week 03"]["reason"] == "sis-approved-plan never ran"
-    assert "PAID PAGES: 1 of 27 paid pages captured for Week 4; NOT CAPTURED:" in capsys.readouterr().out
+    assert "PAID PAGES: 1 of 31 paid pages captured for Week 4; NOT CAPTURED:" in capsys.readouterr().out
 
 
 def test_a_failed_matchups_capture_is_named_and_the_run_goes_on(monkeypatch, tmp_path, capsys):
     """2026-09-29 sweep: the matchups steps are not fatal (Week 4 is their first current-season week)."""
     events = []
-    with pytest.raises(RuntimeError, match=r"PAID PAGES: 24 of 27 .*NOT CAPTURED: fantasy-points qb-coverage-matchup"):
+    with pytest.raises(RuntimeError, match=r"PAID PAGES: 28 of 31 .*NOT CAPTURED: fantasy-points qb-coverage-matchup"):
         weekly.run_week(**_wednesday(monkeypatch, tmp_path, events, fail="matchups"))
     assert "matchups-stage" not in events and "sis-capture" in events                  # no stage; SIS still ran
 
@@ -602,14 +617,14 @@ def test_skipped_pages_are_named_not_failed(monkeypatch, tmp_path, capsys):
     kwargs = _wednesday(monkeypatch, tmp_path, events)
     weekly.run_week(**{**kwargs, "skip_fantasy_points": True, "capture_matchups": False})
     assert events == ["sis-capture", "sis-import", "sis-receiver-copula-download", "sis-receiver-copula-import-True"]
-    assert ("PAID PAGES: 13 of 13 paid pages captured for Week 4 (14 skipped by --skip-fantasy-points)\n"
+    assert ("PAID PAGES: 13 of 13 paid pages captured for Week 4 (18 skipped by --skip-fantasy-points)\n"
             in capsys.readouterr().out)
 
 
 def test_a_failed_receiver_copula_download_is_named_and_the_run_goes_on(monkeypatch, tmp_path, capsys):
     """Vendor item B: the copula steps are not fatal; the gate names both pages of week W-1 and fails the run."""
     events = []
-    with pytest.raises(RuntimeError, match=r"PAID PAGES: 25 of 27 .*NOT CAPTURED: sis receiver-copula wr-cb "
+    with pytest.raises(RuntimeError, match=r"PAID PAGES: 29 of 31 .*NOT CAPTURED: sis receiver-copula wr-cb "
                                            r"pass-defense-totals/wide week 03"):
         weekly.run_week(**_wednesday(monkeypatch, tmp_path, events, fail="sis-receiver-copula-download"))
     assert events[-1] == "sis-receiver-copula-download"                 # no import of a failed acquisition
@@ -624,12 +639,12 @@ def test_receiver_copula_skip_and_audit_only_flags(monkeypatch, tmp_path, capsys
     kwargs = _wednesday(monkeypatch, tmp_path, events)
     weekly.run_week(**{**kwargs, "capture_sis_receiver_copula": False})
     assert "sis-receiver-copula-download" not in events
-    assert ("PAID PAGES: 25 of 25 paid pages captured for Week 4 (2 skipped by --skip-sis-receiver-copula)\n"
+    assert ("PAID PAGES: 29 of 29 paid pages captured for Week 4 (2 skipped by --skip-sis-receiver-copula)\n"
             in capsys.readouterr().out)
     events.clear()
     weekly.run_week(**{**kwargs, "write_sis_receiver_copula": False, "output_root": tmp_path / "runs-2"})
     assert events[-1] == "sis-receiver-copula-import-False"
-    assert ("PAID PAGES: 27 of 27 paid pages captured for Week 4 (audit-only, not archived or appended: "
+    assert ("PAID PAGES: 31 of 31 paid pages captured for Week 4 (audit-only, not archived or appended: "
             "sis-receiver-copula)\n" in capsys.readouterr().out)
 
 
@@ -640,3 +655,40 @@ def test_receiver_copula_cli_flags_reach_the_run(monkeypatch):
     assert seen["capture_sis_receiver_copula"] is False and seen["write_sis_receiver_copula"] is False
     weekly.main(["run", "--week", "4"])
     assert seen["capture_sis_receiver_copula"] is True and seen["write_sis_receiver_copula"] is True
+
+
+def test_fp_projection_pages_are_captured_one_table_per_step_and_a_failure_is_named(monkeypatch, tmp_path, capsys):
+    """2026-10-05 (reviewer): the DFS-tier projection tables are paid pages of every week. Each table is its own page and
+    its own non-fatal step; a failed table is named by the gate after SIS was captured, and the flag skips all four."""
+    events = []
+    kwargs = _wednesday(monkeypatch, tmp_path, events)
+    weekly.run_week(**kwargs)
+    assert PROJECTION_CALLS == [(2026, 4, (t,)) for t in weekly.FP_PROJECTION_TABLES]
+    assert "betting" not in weekly.FP_PROJECTION_TABLES        # a 3-row preview on the operator's plan
+    capsys.readouterr()
+
+    def broken(profile_dir, timeout_s, *, season, week, which, output_root):
+        if which == ["dfs"]:
+            raise RuntimeError("dfs: no table payload was observed")
+        return {"tables": {}, "failures": {}}
+
+    monkeypatch.setattr(weekly.fp_projections, "collect", broken)
+    events.clear()
+    with pytest.raises(RuntimeError, match=r"PAID PAGES: 30 of 31 .*NOT CAPTURED: fantasy-points projections/dfs "
+                                           r"\(live, Week 4\) \[fantasy-points-projections-dfs failed: dfs: no table"):
+        weekly.run_week(**{**kwargs, "output_root": tmp_path / "runs-2"})
+    assert "sis-capture" in events                                  # the vendor page never costs the SIS capture
+    events.clear(); PROJECTION_CALLS.clear()
+    monkeypatch.setattr(weekly.fp_projections, "collect", lambda *a, **k: PROJECTION_CALLS.append(k))
+    weekly.run_week(**{**kwargs, "capture_fp_projections": False, "output_root": tmp_path / "runs-3"})
+    assert PROJECTION_CALLS == []
+    assert "PAID PAGES: 27 of 27 paid pages captured for Week 4 (4 skipped by --skip-fp-projections)\n" in capsys.readouterr().out
+
+
+def test_cli_skip_fp_projections_flag(monkeypatch, tmp_path):
+    seen = {}
+    monkeypatch.setattr(weekly, "run_week", lambda **k: seen.update(k) or tmp_path / "m.json")
+    weekly.main(["run", "--week", "5", "--skip-fp-projections", "--no-login-if-needed"])
+    assert seen["capture_fp_projections"] is False
+    weekly.main(["run", "--week", "5", "--no-login-if-needed"])
+    assert seen["capture_fp_projections"] is True

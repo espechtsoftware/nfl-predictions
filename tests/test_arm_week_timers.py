@@ -112,3 +112,17 @@ def test_sunday_early_supply_units():
     assert "2026-10-03 10:35 America/Chicago" in _unit_line(r.stdout, "nfl-week4-d6400-sat-build")
     none = _run(GROUP="154078")
     assert "d12800-sun-build" not in none.stdout and "early-props" not in none.stdout   # opt-in
+
+
+def test_fp_projections_unit_is_armed_before_t70_and_skippable():
+    """2026-10-05 (reviewer): the FP projection pages are captured pre-lock on Sunday, after the inactives and before T-70."""
+    r = _run(GROUP="154078")
+    assert r.returncode == 0, r.stderr
+    line = _unit_line(r.stdout, "nfl-week4-fp-projections")
+    assert "2026-10-04 10:40 America/Chicago" in line and line.endswith("fp_projections_capture.sh sunday-prelock")
+    assert "GCP_PROJECT=nfl-predictions-503414" in line and "WEEK=4" in line and "PROD_PY=" in line
+    assert "FP projections capture at 10:40 CT" in r.stdout
+    r = _run(GROUP="154078", SKIP_UNITS="fpproj", FP_PROJ_CT="10:41")
+    assert r.returncode == 0 and "# SKIPPED (fpproj): nfl-week4-fp-projections" in r.stdout
+    text = SCRIPT.read_text()                       # the Saturday capture at arming never stops the arming
+    assert '"$FP_PROJ_CAPTURE" saturday-arm \\\n      || echo "FP PROJECTIONS: the Saturday capture FAILED' in text
