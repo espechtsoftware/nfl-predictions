@@ -45,3 +45,5 @@ this document does not alter; it only declares the gate, window, policy contract
    must be built; if the caches cannot be backfilled for the context window, the lab states the earliest target week.
 3. If not accepted before Week 5: move the three schedulers to DORMANT in the checker with the reason "no accepted gate
    before the first target week", never park a live gate silently.
+
+> **2026-10-04 (CT): amended by `reports/2026-10-05-sis-pass-tail-2026-amendment-1.md`** (split contract; the book criteria end unadjudicated; both parts are graded by that file's weekly decision record). This document's sha256 before this line: `fbf2a56b06c0c42ab68498913a2407466bdc720590ebaa2210d2d3281c6034fd`.

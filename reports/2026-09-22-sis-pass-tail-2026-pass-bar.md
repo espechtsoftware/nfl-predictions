@@ -60,3 +60,5 @@ Week 5, then W−1), then `s-tabpfn-sis-pass-tail-control` / `-treatment` (Thurs
 `s-shadow-sis-pass-tail-paired` (Sunday 06:00 CT). The three schedulers are resumed on or before
 **Wednesday 2026-10-07**. `scripts/check_prospective_gates.py` now carries this gate: it warns in Weeks 3–4
 if they are paused and fails from Week 5.
+
+> **2026-10-04 (CT): amended by `reports/2026-10-05-sis-pass-tail-2026-amendment-1.md`** (split contract; the book criteria end unadjudicated; both parts are graded by that file's weekly decision record). This document's sha256 before this line: `58597b2b11e4cb68eadf9339a1de906c3d5c496bdb1a0336e7f6c04fdb80fab8`.
