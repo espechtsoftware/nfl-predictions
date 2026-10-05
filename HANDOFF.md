@@ -12,6 +12,27 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-05 (12:48 CDT) — Monday post-mortem items and the selection challenge: done; the monkey benchmark is now a PERMANENT weekly arm
+
+- **Settled data:** the 26 standings files Sunday's post-mortem used are byte-identical to today's imports (9 CSVs; 17
+  zips by content), so the post-mortem stands. DK stat corrections after Sunday 19:01 CT are in neither.
+- **Study 12 with nflverse usage:** post-mortem §12 (commit `791d36b3`).
+  - JAX and NYJ lost on pass VOLUME (Lawrence 23 attempts, Geno 15).
+  - Chase's points went to Higgins, D. Meyers and Chase Brown.
+  - McCaffrey's usage was normal.
+  - Lamb's role spike (target share 0.49 against 0.25); Monangai had 30 carries.
+- **The monkey benchmark, permanent:**
+  - `scripts/moneygate_monkeys.py --week W` on `production/moneygate-harness-20261005` (with tests). It scores the
+    entered book and 1,000 books each of M1/M2/M3 through moneygate_score's validated path: real fields and ladders.
+  - M2 uses the entered book's empirical caps and its sharing pattern.
+  - It writes the public aggregate to `~/moneygate/results/monkeys_wW.json` and the per-book data privately.
+  - **Every Monday from Week 5,** after the standings import (append weeks.json first): run it beside P3, report the
+    entered book's percentile per monkey, and say "worse than random" plainly below the 25th.
+  - The W4 trial at 50 books: M1/M2 9–14th percentile on cashes (WORSE THAN RANDOM); M3 55th. The full 1,000-book W4
+    run waits for the machine (the reviewer's study-17 calibration first).
+- **Preserved:** the overnight analysis code (scratchpad pm-*) is copied to `~/private/pm-week4/`. It is private because
+  some of it handles DK user names; `/tmp` is not durable.
+
 ## 2026-10-05 (11:05 CDT) — Study 16c (the thesis without the contrarian element) READ by the reviewer, REPRODUCED by the laptop; the thesis closed
 
 - **Result:** TP0 (core only) NO DIFFERENCE on tickets (−0.61 per slate; 299 → 277). The mean-finish guard is far below
