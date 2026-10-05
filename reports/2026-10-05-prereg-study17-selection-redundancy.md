@@ -137,3 +137,36 @@ guard intact) is itself information for the operator's decision, reported as suc
   the live book applies the FP term (tilt 0.20) upstream of selection. A panel verdict transfers to "arm + term" only
   through the transfer check, which runs the passing arm(s) both with and without the live term on the real 2026 W1–W4
   inputs (descriptive). Any trial offered is "arm + term", stated as such.
+
+---
+
+## Deviation note 1 (2026-10-05, after the binding calibration census, before any scored bank; reviewed by both parties)
+**The calibration** (throwaway bank 1406, all 53 panel slates, mechanics only, 0 errors; nfl2
+`results/s17/CALIBRATION_s17.txt`) applied the frozen rule:
+
+| arm (setting) | top non-DST row share | dealt-ENTRY share (mean) | entry min / median / p90 / max | shared players per pair | QBs | changed vs C |
+|---|---|---|---|---|---|---|
+| C | 0.495 | 0.606 | 0.537 / 0.605 / 0.639 / 0.667 | 3.24 | 5.4 | – |
+| **DR λ 0.2** | 0.242 | 0.434 | 0.333 / 0.435 / 0.490 / 0.605 | 1.44 | 15.2 | 0.842 |
+| **DR35 λ 0.75** | 0.149 | 0.315 | 0.225 / 0.320 / 0.381 / 0.408 | 0.92 | 20.1 | 0.897 |
+| **PG s 3** | 0.275 | 0.407 | 0.279 / 0.415 / 0.488 / 0.558 | 1.36 | 19.8 | 1.000 |
+| EM | 0.261 | 0.333 | 0.204 / 0.320 / 0.435 / 0.714 | 1.37 | 19.6 | 1.000 |
+| RND | 0.271 | 0.303 | 0.191 / 0.292 / 0.386 / 0.456 | 1.08 | 22.7 | 1.000 |
+
+Short books 0 and dealt-identical-to-C 0 for every arm and setting. No grid end was used (PG s 2 needed fills: mean
+16, max 57; not chosen). PG lands about 3 points below DR's entry share because of the grid's step: accepted as matched.
+
+**Disclosures:** (a) C's p90 is above 0.55, the control's concentration; (b) DR's and PG's single worst slates are 0.605
+and 0.558, but their p90 falls from C's 0.639 to about 0.49 (the bad-week concern); (c) EM has the widest spread (one
+slate 0.714); (d) λ ≤ 0.03 changes 65–74% of entries while the top player stays at the 52-row cap: diversity enters
+through the QBs first.
+
+**Settings recorded:** `SETTINGS = {"DR": 0.2, "DR35": 0.75, "PG": 3}`. The experiment's sha256 becomes
+`db23e754818b7a6488214938949ef158523687068e9b4a2f9a45c2e0d76e6585` (nfl2 `production/s17-diminishing-returns-20261005`);
+nothing else in it changed. The reader (`f5c6c493…`) and census (`477d4ea3…`) are unchanged.
+
+**The scored full-path smoke** (2023 W9, bank 1406, placeholder settings): rc 0, every arm 105 rows, PG fills 0,
+`sim_cross` present for every arm, output deleted unread. It ran just before the pre-freeze amendment, under the old
+`DR25` name and targets; the scored code path is otherwise identical.
+
+**Next:** the scored run on 1413/1414; nothing in the design changes after it starts.
