@@ -52,7 +52,9 @@ def lineup_features(L: list[str], team: dict, pos: dict, sal: dict, opp: dict, o
             "in_qb_game": g.get(qg, 0), "max_game": max(g.values()), "dual": dual, "games": len(g),
             "rb_with_qb": any(T[r] == q for r in rbs), "rb_bb": any(T[r] == o for r in rbs),
             "rb_dst": dst is not None and any(T[r] == T.get(dst) for r in rbs),
-            "salary_left": 50000 - sum(sal.get(p, 0) for p in L), "sub4k": sum(1 for p in L if 0 < sal.get(p, 0) < 4000),
+            # a player outside the T-70 frame (ruled out pre-build) has no salary there: salary-based features are unknown
+            "salary_left": (50000 - sum(sal[p] for p in L)) if all(sal.get(p, 0) > 0 for p in L) else np.nan,
+            "sub4k": sum(1 for p in L if 0 < sal.get(p, 0) < 4000) if all(sal.get(p, 0) > 0 for p in L) else np.nan,
             "own_sum": sum(own.get(p, 0.0) for p in L), "dup": frozenset(L) in dupset}
 
 
@@ -64,11 +66,17 @@ def main(argv=None) -> int:
     from google.cloud import bigquery
     c = bigquery.Client(project=cfg.get("bq_project", "nfl-predictions-503414")); P = c.project
     hist = pd.read_csv(cfg["entry_history"], dtype=str); ours_ids = set(hist.Entry_Key.astype(str))
-    per = []
+    per, drops = [], []
     for w in weeks:
         wc = cfg["weeks"][str(w)]; milly = str(wc["millionaire_contest"])
         fr = pd.read_parquet(Path(wc["t70_run"]) / "frame.parquet").drop_duplicates("display_name")
         team, pos = dict(zip(fr.display_name, fr.team)), dict(zip(fr.display_name, fr.pos))
+        # players the T-70 frame dropped (ruled out before the build, yet still in field lineups): team and position from
+        # that week's roster, so their lineups are not silently lost (the reviewer's check found 150 of 20,000 in W4)
+        ro = c.query(f"SELECT full_name, ANY_VALUE(team) team, ANY_VALUE(position) pos FROM `{P}.nfl_raw.rosters_weekly` "
+                     f"WHERE season=2026 AND week={w} GROUP BY 1").to_dataframe()
+        for n_, t_, p_ in zip(ro.full_name, ro.team, ro.pos):
+            team.setdefault(n_, t_); pos.setdefault(n_, p_)
         sal = dict(zip(fr.display_name, pd.to_numeric(fr.salary, errors="coerce").fillna(0)))
         sch = c.query(f"SELECT home_team h, away_team a FROM `{P}.nfl_raw.schedules` WHERE season=2026 AND week={w}").to_dataframe()
         opp = {}
@@ -88,7 +96,10 @@ def main(argv=None) -> int:
                   "field": e.sample(min(20000, n), random_state=w).L.tolist(),
                   "top 1%": e.iloc[: n // 100].L.tolist(), "top 0.1%": e.iloc[: max(1, n // 1000)].L.tolist()}
         for gname, Ls in groups.items():
-            d = pd.DataFrame([f for f in (lineup_features(L, team, pos, sal, opp, own, dupset) for L in Ls) if f])
+            feats = [lineup_features(L, team, pos, sal, opp, own, dupset) for L in Ls]
+            dropped = sum(f is None for f in feats)
+            d = pd.DataFrame([f for f in feats if f])
+            drops.append({"week": w, "group": gname, "lineups": len(Ls), "dropped_no_qb_team": dropped})
             for k in FEATURES:
                 per.append({"week": w, "group": gname, "feature": k, "mean": float(d[k].mean()), "sd": float(d[k].astype(float).std())})
     D = pd.DataFrame(per)
@@ -114,7 +125,10 @@ def main(argv=None) -> int:
               f"{f(r.top1, r.binary):>7} ({f(lo, r.binary).strip()}–{f(hi, r.binary).strip()})")
     MS.PUBLIC.mkdir(parents=True, exist_ok=True)
     out = MS.PUBLIC / f"scorecard_w{''.join(map(str, weeks))}.json"
-    out.write_text(json.dumps({"weeks": weeks, "ranked": R.to_dict("records")}, indent=1, default=float) + "\n")
+    out.write_text(json.dumps({"weeks": weeks, "ranked": R.to_dict("records"), "dropped": drops}, indent=1, default=float) + "\n")
+    dd = pd.DataFrame(drops)
+    print("\nlineups dropped because the QB's team was unknown (a name-map gap; must stay ~0):")
+    print(dd.pivot_table(index="week", columns="group", values="dropped_no_qb_team").to_string())
     print(f"\nwritten {out}")
     return 0
 
