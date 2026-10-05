@@ -191,7 +191,7 @@ def frame_players(t70: pd.DataFrame) -> dict[str, dict]:
 
 # Study 1 (production reports/2026-10-05-prereg-study1-deconcentration.md): P(a game at pre-lock total rank r is among the
 # week's 3 highest-scoring games), 2014-2021 OUTCOMES only; rank 15+ = 0.08. --main-game-cap p3 (default off) caps the
-# share of main rows holding >= 3 players from game g at min(0.5, P3[rank_g]); then later solves take <= 2 from g.
+# share of main rows holding >= 3 players from game g at min(0.5, P3[rank_g]); then later solves take <= 2 from g (member_bounds (ids, 0, 2), the pinned lab 32cdb61's form).
 GAME_CAP_P3 = {1: 0.409, 2: 0.336, 3: 0.234, 4: 0.241, 5: 0.255, 6: 0.255, 7: 0.153, 8: 0.197, 9: 0.182, 10: 0.182,
                11: 0.095, 12: 0.124, 13: 0.161, 14: 0.080}
 GAME_CAP_P3_TAIL = 0.08
@@ -344,9 +344,9 @@ def pmo_rows(t70: pd.DataFrame, exclude: set[str], n: int, max_shared: int, cap:
         sets = None
         if game_caps is not None:
             full = sorted(g for g, c in heavy.items() if c >= game_caps.get(g, n))
-            sets = [(by_game[g], "<=", 2) for g in full if g in by_game] or None
+            sets = [(by_game[g], 0, 2) for g in full if g in by_game] or None    # the pinned lab's member_bounds: (ids, lo, hi)
         lu = optimize(pool, stack=PRODUCTION_STACK, objective_col=objective, banned_lineups=prev, max_overlap=max_shared, bans=bans, env=env,
-                      **({"set_constraints": sets} if sets else {}))
+                      **({"member_bounds": sets} if sets else {}))
         if lu is None:
             break
         ids = [str(p["id"]) for p in lu.players]
