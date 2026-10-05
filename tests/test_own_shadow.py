@@ -201,10 +201,13 @@ def test_rehearsal_writes_one_legacy_and_one_new_row_to_the_scratch_copy():
                   load=lambda df, table, write_disposition: loads.append((df, table, write_disposition)),
                   query=query, now=STAMP.to_pydatetime())
     assert out["ok"] is True
-    assert ("CREATE TABLE `nfl-predictions-503414.nfl_predictions.own_shadow_rehearsal_20261007` "
-            "LIKE `nfl-predictions-503414.nfl_predictions.own_shadow`") in sqls
+    # Hermetic (2026-10-04): the project comes from config (GCP_PROJECT), which the Cloud Build lane does not set.
+    from nfl_dfs.config import settings
+    ds = settings.predictions
+    assert (f"CREATE TABLE `{ds}.own_shadow_rehearsal_20261007` "
+            f"LIKE `{ds}.own_shadow`") in sqls
     (legacy, t1, d1), (new, t2, d2) = loads
-    assert t1 == t2 == "nfl-predictions-503414.nfl_predictions.own_shadow_rehearsal_20261007"
+    assert t1 == t2 == f"{ds}.own_shadow_rehearsal_20261007"
     assert d1 == d2 == "WRITE_APPEND"
     assert list(legacy.columns) == LEGACY_COLUMNS
     assert new.writer.tolist() == ["rehearsal_scratch"]

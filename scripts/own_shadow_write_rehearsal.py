@@ -77,7 +77,8 @@ def main() -> int:
               f"{WRITER}/rehearsal row")
         return 0 if out["ok"] else 1
     finally:
-        print(f"cleanup: bq rm -f -t nfl-predictions-503414:nfl_predictions.{a.scratch}")
+        from nfl_dfs.config import settings
+        print(f"cleanup: bq rm -f -t {settings.predictions.replace('.', ':', 1)}.{a.scratch}")
 
 
 if __name__ == "__main__":

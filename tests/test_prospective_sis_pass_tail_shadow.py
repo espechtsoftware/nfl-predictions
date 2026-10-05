@@ -303,7 +303,8 @@ def test_registry_equals_the_guards_for_every_job():
     assert comp["schedulers"] == ["s-shadow-sis-pass-tail-paired"]
     assert comp["input_schedulers"] == dist["schedulers"]
     assert comp["in_season_value"] is True and comp["same_env_include_inputs"] is True
-    assert (ROOT / comp["policy_doc"]).is_file()
+    if (ROOT / "reports").is_dir():   # the Cloud Build live lane copies no reports/ (2026-10-04); the repo and CI check it
+        assert (ROOT / comp["policy_doc"]).is_file()
     for spec in (dist, comp):
         assert spec["same_env_across_jobs"] == ["CODE_SHA"]
         assert "193e1b44d2b43eed70cc9b5688b3700d2054046d" in spec["require_code_ancestors"]
