@@ -301,3 +301,62 @@ def test_build_host_skips_the_union_for_any_listed_supply_dose():
                   'if [[ -n "${UNION_SATURDAY_RUN:-}" && ",${UNION_SAT_DOSE:-2560/10240}," == *",$PAID_LEV/$PAID_BOOM,"* ]]; then echo skip; else echo union; fi')
         assert subprocess.run(["bash", "-c", script], capture_output=True, text=True).stdout.strip() == expect
     assert '",${UNION_SAT_DOSE:-2560/10240}," == *",$PAID_LEV/$PAID_BOOM,"*' in host
+
+
+def test_game_row_caps_rank_by_total_with_the_frozen_p3():
+    fr = pd.DataFrame({"game_id": ["g1", "g2", "g3", "g1"], "game_total": [44.5, 51.5, 48.5, 44.5]})
+    caps = ur.game_row_caps(fr, 105)
+    assert caps == {"g2": 42, "g3": 35, "g1": 24}                   # ranks 1,2,3: floor(.409/.336/.234 x 105)
+    assert ur.GAME_CAP_P3[1] == 0.409 and ur.GAME_CAP_P3[14] == 0.080 and ur.GAME_CAP_P3_TAIL == 0.08
+
+
+def test_pmo_rows_game_cap_limits_a_used_up_game_to_two_players(monkeypatch):
+    """Study 1: once game g has its budget of rows with >= 3 of its players, later solves get (g's ids, '<=', 2)."""
+    import types
+    seen = []
+
+    class LU:
+        def __init__(self, players):
+            self.players = players
+
+    def optimize(pool, stack, objective_col, banned_lineups, max_overlap, bans, env, set_constraints=None):
+        seen.append(set_constraints)
+        avail = [p for p in pool if frozenset([p["id"]]) and (not bans or p["id"] not in bans)]
+        pick = sorted(avail, key=lambda p: p["id"])[len(seen) - 1:len(seen) + 8]
+        return LU(pick) if len(pick) == 9 else None
+    lineup = types.ModuleType("nfl2.core.lineup"); lineup.optimize = optimize
+    pipeline = types.ModuleType("nfl2.pipeline"); pipeline.PRODUCTION_STACK = "stack"
+    for name, mod in (("nfl2", types.ModuleType("nfl2")), ("nfl2.core", types.ModuleType("nfl2.core")),
+                      ("nfl2.core.lineup", lineup), ("nfl2.pipeline", pipeline)):
+        monkeypatch.setitem(sys.modules, name, mod)
+    rows = ur.pmo_rows(_frame(), {"p7"}, 3, 7, 4, 49_000, set(), game_caps={"g1": 1, "g2": 5})
+    assert len(rows) >= 2
+    assert seen[0] is None                                          # nothing used up before the first row
+    g1_ids = sorted(seen[1][0][0])
+    assert seen[1][0][1:] == ("<=", 2) and "A_DST" in g1_ids and "p0" in g1_ids and "p8" not in g1_ids
+    seen.clear()
+    ur.pmo_rows(_frame(), {"p7"}, 2, 7, 4, 49_000, set())             # no game_caps: never a set constraint
+    assert all(s is None for s in seen)
+
+
+def test_heavy_games_counts_three_or_more_from_one_game():
+    row = [{"game_id": "a"}] * 3 + [{"game_id": "b"}] * 2 + [{"game_id": "c"}] * 4
+    assert ur.heavy_games(row) == {"a", "c"}
+    assert ur.heavy_games([{"game_id": "a"}] * 2) == set()
+
+
+def test_game_row_caps_gives_a_game_without_a_total_the_tail_cap(capsys):
+    fr = pd.DataFrame({"game_id": ["g1", "g2", "g3"], "game_total": [44.5, None, 51.5]})
+    caps = ur.game_row_caps(fr, 105)
+    assert caps == {"g3": 42, "g1": 35, "g2": 8}                    # g2 ranked last: floor(0.08 x 105)
+    assert "GAME CAP WARNING" in capsys.readouterr().err and "g2" in caps
+
+
+def test_main_rows_refusal_is_named_for_the_cap_with_or_without_the_term():
+    ur.check_main_rows([1] * 5, 5, {"g": 1}, {"p": 1.0})             # enough rows: no refusal
+    with pytest.raises(SystemExit, match=r"GAME CAP REFUSED: 4 of 5 .*\(with the ownership term\)"):
+        ur.check_main_rows([1] * 4, 5, {"g": 1}, {"p": 1.0})
+    with pytest.raises(SystemExit, match="GAME CAP REFUSED: 4 of 5 rows solved under the per-game cap$"):
+        ur.check_main_rows([1] * 4, 5, {"g": 1}, None)
+    with pytest.raises(SystemExit, match="OWN TERM REFUSED: 4 of 5"):
+        ur.check_main_rows([1] * 4, 5, None, {"p": 1.0})
