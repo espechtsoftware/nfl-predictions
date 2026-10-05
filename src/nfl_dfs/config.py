@@ -98,6 +98,13 @@ class Settings:
     # (below), so default to one season of feature run-up before that; set
     # FIRST_SEASON=1999 if you want deep history for exploration.
     first_season: int = field(default_factory=lambda: int(os.environ.get("FIRST_SEASON", "2014")))
+    # Exact "season:week" list of salary-spine weeks known to be lost at the
+    # source (an ingest outage). Excludes only those weeks from the one
+    # spine-coverage assert in features/leakage.py; every use needs a README
+    # Data deficiency log row. Empty by default.
+    salary_spine_allow_gaps: str = field(
+        default_factory=lambda: os.environ.get("SALARY_SPINE_ALLOW_GAPS", "")
+    )
     # Seasons used for model training; PBP exists to 1999 but DK salaries only to 2014.
     train_first_season: int = field(
         default_factory=lambda: int(os.environ.get("TRAIN_FIRST_SEASON", "2015"))

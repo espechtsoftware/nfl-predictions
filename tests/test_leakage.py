@@ -16,6 +16,9 @@ from nfl_dfs.features.leakage import (
     assert_recomputed_features_match,
     assert_route_source_strict_prior,
     assert_salary_universe_reconciled,
+    assert_salary_spine_covers_completed_weeks,
+    parse_salary_spine_allowed_gaps,
+    SALARY_SPINE_COVERAGE_SQL,
     trailing_mean_excluding_current,
     trailing_std_excluding_current,
     team_qb_cpoe_strict_prior,
@@ -394,3 +397,115 @@ def test_historical_source_gate_independently_requires_weekly_roster():
     assert "('PHILLY BROWN', 'COREY BROWN')" in HISTORICAL_ROSTER_GAP_SQL
     assert "LEFT JOIN `{features}.dk_salary_week`" in HISTORICAL_ROSTER_GAP_SQL
     assert "season <= 2021" not in HISTORICAL_ROSTER_GAP_SQL
+
+
+def test_salary_spine_must_cover_completed_own_snapshot_weeks():
+    ok = pd.DataFrame([
+        {"season": 2026, "week": 1, "completed_games": 16, "spine_rows": 868},
+        {"season": 2026, "week": 2, "completed_games": 16, "spine_rows": 772},
+    ])
+    assert_salary_spine_covers_completed_weeks(ok)
+    assert_salary_spine_covers_completed_weeks(ok.iloc[0:0])
+    emptied = ok.assign(spine_rows=[868, 0])
+    with pytest.raises(LeakageError, match="no dk_salary_week rows"):
+        assert_salary_spine_covers_completed_weeks(emptied)
+    with pytest.raises(LeakageError, match="no dk_salary_week rows"):
+        assert_salary_spine_covers_completed_weeks(
+            ok.assign(spine_rows=[None, None]))
+    with pytest.raises(LeakageError, match="lacks columns"):
+        assert_salary_spine_covers_completed_weeks(ok.drop(columns="spine_rows"))
+
+
+def test_salary_spine_coverage_sql_reads_own_snapshots_and_played_games():
+    sql = SALARY_SPINE_COVERAGE_SQL
+    assert "FROM `{raw}.dk_salaries`" in sql
+    assert "game_type = 'REG' AND home_score IS NOT NULL" in sql
+    assert "LEFT JOIN spine s USING (season, week)" in sql
+    assert "IFNULL(s.spine_rows, 0)" in sql
+
+
+def test_salary_spine_allowed_gaps_excuse_exactly_the_listed_weeks():
+    cov = pd.DataFrame([
+        {"season": 2026, "week": 6, "completed_games": 14, "spine_rows": 801},
+        {"season": 2026, "week": 7, "completed_games": 15, "spine_rows": 0},
+        {"season": 2026, "week": 8, "completed_games": 13, "spine_rows": 0},
+    ])
+    with pytest.raises(LeakageError, match="2 completed week"):
+        assert_salary_spine_covers_completed_weeks(cov)
+    # Listing week 7 excuses week 7 only; week 8 still stops the build.
+    with pytest.raises(LeakageError, match="1 completed week") as err:
+        assert_salary_spine_covers_completed_weeks(
+            cov, parse_salary_spine_allowed_gaps("2026:7"))
+    import re
+    assert re.search(r"2026\s+8\s+13\s+0", str(err.value))
+    assert not re.search(r"2026\s+7\s+15", str(err.value))
+    assert assert_salary_spine_covers_completed_weeks(
+        cov, parse_salary_spine_allowed_gaps("2026:7, 2026:8")) == [
+            (2026, 7), (2026, 8)]
+    # The same week number in another season is not excused.
+    with pytest.raises(LeakageError, match="not empty completed"):
+        assert_salary_spine_covers_completed_weeks(
+            cov, parse_salary_spine_allowed_gaps("2025:7,2026:7,2026:8"))
+    # A listed week that has rows (stale exception) is refused.
+    with pytest.raises(LeakageError, match="not empty completed"):
+        assert_salary_spine_covers_completed_weeks(
+            cov, parse_salary_spine_allowed_gaps("2026:6,2026:7,2026:8"))
+
+
+def test_salary_spine_allowed_gaps_parse_is_exact():
+    assert parse_salary_spine_allowed_gaps("") == frozenset()
+    assert parse_salary_spine_allowed_gaps("  ") == frozenset()
+    assert parse_salary_spine_allowed_gaps("2026:7,2026:12") == {
+        (2026, 7), (2026, 12)}
+    for bad in ("2026", "2026:*", "26:7", "2026:7-9", "all", "2026:7;2026:8"):
+        with pytest.raises(LeakageError, match="not season:week"):
+            parse_salary_spine_allowed_gaps(bad)
+
+
+def test_salary_spine_allowed_gap_is_season_specific():
+    cov = pd.DataFrame([
+        {"season": 2025, "week": 7, "completed_games": 15, "spine_rows": 0},
+        {"season": 2026, "week": 7, "completed_games": 15, "spine_rows": 0},
+    ])
+    with pytest.raises(LeakageError, match="1 completed week") as err:
+        assert_salary_spine_covers_completed_weeks(
+            cov, parse_salary_spine_allowed_gaps("2026:7"))
+    assert "2025" in str(err.value)
+
+
+def test_excused_salary_gaps_need_their_deficiency_log_row():
+    from nfl_dfs.features.leakage import assert_allowed_gaps_recorded
+
+    def readme(*rows):
+        return ("# x\n<!-- DATA-DEFICIENCY-LOG:START -->\n| Found | D | I | S |\n|---|---|---|---|\n"
+                + "".join(r + "\n" for r in rows) + "<!-- DATA-DEFICIENCY-LOG:END -->\n")
+
+    good = "| 2026-10-20 | DK pull lost 2026:7 | spine empty | SALARY_SPINE_ALLOW_GAPS=2026:7 |"
+    assert_allowed_gaps_recorded([], None)  # nothing excused: README not needed
+    assert_allowed_gaps_recorded([(2026, 7)], readme(good))
+    with pytest.raises(LeakageError, match=r"excuses \['2026:8'\]"):
+        assert_allowed_gaps_recorded([(2026, 7), (2026, 8)], readme(good))
+    # The week alone, without the variable name, does not count.
+    with pytest.raises(LeakageError, match="no row mentioning"):
+        assert_allowed_gaps_recorded(
+            [(2026, 7)], readme("| 2026-10-20 | DK pull lost 2026:7 | x | y |"))
+    # 2026:1 is not satisfied by a 2026:12 row.
+    with pytest.raises(LeakageError, match=r"excuses \['2026:1'\]"):
+        assert_allowed_gaps_recorded(
+            [(2026, 1)], readme("| d | SALARY_SPINE_ALLOW_GAPS=2026:12 | x | y |"))
+    # A mention outside the log markers does not count.
+    outside = "SALARY_SPINE_ALLOW_GAPS=2026:7\n| SALARY_SPINE_ALLOW_GAPS 2026:7 |\n" + readme()
+    with pytest.raises(LeakageError, match="no row mentioning"):
+        assert_allowed_gaps_recorded([(2026, 7)], outside)
+    with pytest.raises(LeakageError, match="could not be read"):
+        assert_allowed_gaps_recorded([(2026, 7)], None)
+    with pytest.raises(LeakageError, match="could not be read"):
+        assert_allowed_gaps_recorded([(2026, 7)], "| SALARY_SPINE_ALLOW_GAPS 2026:7 |")
+
+
+def test_repository_readme_has_the_deficiency_log_markers():
+    from nfl_dfs.bq import SQL_DIR
+
+    text = (SQL_DIR.parent / "README.md").read_text()
+    assert "<!-- DATA-DEFICIENCY-LOG:START -->" in text
+    assert "<!-- DATA-DEFICIENCY-LOG:END -->" in text
