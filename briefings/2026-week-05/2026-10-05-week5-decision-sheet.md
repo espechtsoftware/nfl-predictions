@@ -16,7 +16,7 @@ second.
 
 | # | Decision | My recommendation |
 |---|---|---|
-| 1 | The lineup shape: WS, the shape-mix portfolio (MIX), or today's | **Your preference, not a tested gain:** on your plan and goal WS and today's shape tied (study 18b). Doing nothing keeps today's |
+| 1 | The lineup shape: the winners' mix (MIX), WS, or today's | **MIX**, your stated preference ("mirroring how the winners play"), backed by this week's closest result (study 28): better in every season, not yet a proven gain. WS tied today's shape; the shootout is off |
 | 2 | Fantasy Points' projections instead of ours | **Yes** (you decided this in principle; the Week-4 check worked) |
 | 3 | The lab-code update both of these need | **Yes**: it changes nothing when they're off (proven below) |
 | 4 | The Week-5 contest plan | **Done: your final entries (Rev2)**: 29 contests, 53 entries; the super-satellites reuse your top lineups |
@@ -25,7 +25,34 @@ second.
 
 ## 1. The lineup shape
 
-**The test that answers your question (study 18b, 10-06): a tie.** It rebuilt your exact plan on 53 practice weeks
+**The winners' mix (MIX), study 28 (10-06): the closest result of the week.** Your question was "Is there a reason
+that we aren't trying to play the way the winners play?" Study 28 tested exactly that on your final entries (Rev2) and
+your goal, with four shapes dealt by entries: 30% QB + 2 and a bring-back (today's shape), 14% QB + 2 without a
+bring-back, 28% QB + 1 with a bring-back and a second-game pair, and 28% QB + 1 without a bring-back (the last two at
+most 3 players from the QB's game). It was written before any results and re-run by both of us
+with identical output.
+
+| Today's shape vs MIX, on your plan | Today's | MIX |
+|---|---|---|
+| Chance of at least one big win in a week* | about 1 in 4 | **+6 points** (range −1 to +14): better in each of the three seasons |
+| Expected big seats | — | 12% more |
+| Average finish (share of the field beaten) | 50.1% | 51.4% |
+| Weeks with almost no chance of a big win | 48% | 42% |
+| The worst tenth of weeks (average finish) | 24% | 29% |
+| Weeks where the best lineup reached 200 points | 7.5% | 7.5% |
+
+\* Practice weeks with an easier, Millionaire-style field; lower in practice.
+
+- **Not yet a proven gain:** the range still includes zero, so the frozen rule calls it "no difference". But it is the
+  only version this week that improved your chance of a big win, the average finish and the worst weeks together, in
+  every season. Its lineups look like the winners': QB + 1 in 55% of entries, a bring-back in 54%, a second-game pair
+  in 48% (this season's top 1%: 48% / 59% / 46%).
+- **My recommendation: MIX**, as your stated preference, said plainly: backed by the closest result, not a proven gain.
+- **What it needs:** the build branch (approved, merging Friday), the fix that counts your pinned super-satellite
+  entries in the mix (approved), and the spare-lineup supply for Sunday replacements (on by default).
+- **Doing nothing keeps today's shape.** Undo is one setting.
+
+**WS on your plan (study 18b): a tie.** It rebuilt your exact plan on 53 practice weeks
 under the live build's limits and compared WS with today's shape by your goal. It was written before any results and
 re-run by both of us with identical output.
 
