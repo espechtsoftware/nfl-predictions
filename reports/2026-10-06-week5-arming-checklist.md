@@ -6,8 +6,9 @@ chat. Private paths stay private (no dollars, no entries here).
 ## Before Friday (laptop)
 | when | item | source |
 |---|---|---|
-| **Wed 10-07, with the SIS acquisition** (never before Tue 13:00 CT) | the weekly vendor run `nfl-weekly-data run --week 5`: every paid page, SIS included. **Schedule rule (route-guards, the reviewer 10-06): the run is agent-started (no timer) on WEDNESDAY with the SIS acquisition, or on Tuesday no earlier than 13:00 CT. The Route importer refuses a source week retrieved before noon CT the day after its last kickoff, so an earlier run would fail the Route page (a true FAIL, never ignored).** Thursday's s-features-route rebuild (the O-25 gate's input) then reads the week imported Wednesday. W4 Route is already imported (repaired 10-06). PROE: if FP still lacks ATL/NO on Wednesday, run with `--skip-fp-families`, add a deficiency row, and pull PROE (+ the last-four families) alone when FP posts it. | HANDOFF 10-06 |
+| **Wed 10-07, with the SIS acquisition** (never before Tue 13:00 CT) | the weekly vendor run `nfl-weekly-data run --week 5`: every paid page, SIS included. **Schedule rule (route-guards, the reviewer 10-06): the run is agent-started (no timer) on WEDNESDAY with the SIS acquisition, or on Tuesday no earlier than 13:00 CT. The Route importer refuses a source week retrieved before noon CT the day after its last kickoff, so an earlier run would fail the Route page (a true FAIL, never ignored).** Thursday's s-features-route rebuild (the O-25 gate's input) then reads the week imported Wednesday. W4 Route is already imported (repaired 10-06). **PROE POSTED (FP added ATL/NO by 11:20 Tue 10-06: 32 teams); the 11:20 audit-only probe captured 19 of 19 paid pages.** The production checkout was fast-forwarded to integration on 10-06 (c83fc641) so the run uses the route guards; re-check it is clean and current before Wednesday's run. | HANDOFF 10-06 |
 | Wed 10-07 | O-3 SIS pass-tail: SIS session check, env check against the CURRENT policy, one outcome-blind dry run per job, then resume the three schedulers (first scheduled run Thu 09:15) | OPEN-DEFECTS O-3 |
+| Wed 10-07 (afternoon, outside any build window) | **The host-level rehearsal on the merged integration code** (10-04 plan; retires O-19 / O-20 / O-23 / O-24): `sunday_build_host.sh` with `REUSE_K90_DIR=<W4 T-70 run>` and `SKIP_PAIR=1` in a scratch OUT (never `~/week5-sunday`, O-24), exercising the union, vetting, replacement, ENTER layout, the composite emit (O-23), the freshness sweep (O-24), the arguments guard (O-19) and the preflight's collected failures (O-20); plus the own_shadow scratch row. Then those four leave the register. | OPEN-DEFECTS O-19/20/23/24, HANDOFF 10-04 |
 | Thu 10-08 | O-25 Route Share companion-v1: one dry run per job (`SHADOW_DRY_RUN=1`) through the launcher lanes; deadline Sat 12:00 | OPEN-DEFECTS O-2 / O-25 |
 | Thu | O-27 cbwu-oi: the fix's dry run | OPEN-DEFECTS O-27 |
 | Thu | `check_prospective_gates.py --week 5` must pass (no paused graded gate; env = policy) | CLAUDE.md |
@@ -29,6 +30,9 @@ chat. Private paths stay private (no dollars, no entries here).
    4. `production/fp-gap-flag-20261006` @ `645bddc0` (the O-22 guard: book players without an FP projection are
       printed, recorded and tagged in vetting, `2d84b96e` approved; plus each week's replacement sources counted, with
       the no-term control rows named, `645bddc0`, for re-approval);
+   4b. **Only if study 35 PASSES and he says yes:** `production/qb-cap-20261006` @ `b5514472` (the per-QB cap in ROWS,
+      off by default; under review). Arming then adds `UNION_MAIN_QB_CAP_ROWS=<study 35's frozen cap>` to the arm
+      script's env WITH `UNION_MAIN_QB_CAP_K=26` (the runtime check refuses a mismatch with BOOK_ENTRIES), and the Friday rehearsal runs with it;
    5. `production/pins-extend-book-20261006` @ `da399bdb` (a pin may add rows without gaps): needed for his Rev3
       plan (super-satellites on rows 1–26; K 22 → 26, caps 13 / 6; approved);
    6. `production/linestar-retire-20261006` @ `b20628fc` (no LineStar capture in the build or at arming).
