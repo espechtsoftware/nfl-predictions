@@ -5932,3 +5932,68 @@ secondaries (slate means):
    parity refuses a nonzero cover (amendment 3).
 6. **Transfer:** our projections (the live book uses FP's), realized 2023–24 outcomes against a sampled field whose top
    end is a little easier than the real one (the field audit).
+
+## Addendum 148 (2026-10-06): study 45 (a contrarian insurance row): WORSE — the low-owned row is about a quarter as likely to win its single-seat satellite as the live row it replaces; not recommended
+
+**Setup.**
+- **The operator (10-06):** "This last week, I believe a contrarian play is what won ... let's consider you know, a one-off
+  lineup a week or two where we do something like that." On the laptop's rule: "Yes, let's try what you described."
+- **The descriptive read** (the laptop, the real W1–4 Millionaires): the winning lineup was less owned than the field in 3
+  of 4 weeks; but the broad top 1% and top 100 were CHALKIER than the field in W1–3.
+- **Arms** (study 43's harness; his live Week-5 book built once per slate-bank: the winners' mix, the limit 4, the
+  round-robin fill, the QB cap of 5 rows, no ownership term):
+  - MIXT_LIVE, the reference;
+  - **MIXT_CON1 (DECISION):** rank 22 (its big entry: ONE single-seat satellite of 89; ranks 23–26 carry only $20
+    supersats) holds a contrarian row: the best-projected A1 / B lineup whose QB is outside the slate's 8 most-owned QBs,
+    with at least 3 skill players outside the 40 most-owned and the skill ownership summing to at most 0.70 × the live
+    book's mean, within the caps and the limit 4;
+  - MIXT_CON2 (ranks 21–22) and MIXT_CON1_R3 (rank 3), exploratory.
+  - The rule is by rank and ratio: the harness's pre-lock ownership prediction (TABPFN_LS) ranks like the real
+    ownership (r .82–.91) but is compressed; live the rule reads FP's projected ownership. Disclosed: the first,
+    absolute-percent rule did not bind on the compressed predictions and was restated before the census.
+- **Preregistration:** `reports/2026-10-06-prereg-study45-contrarian.md` (frozen `52b0f9a3`). The primary is the replaced
+  position's big-seat chance (one row moves the book's P(≥ 1 big) by about that much); the book's P(≥ 1 big) beside it.
+- **Panel:** banks 1503–1508, B 20,000, seed 20261025. The confirmatory census holds: contrarian rows feasible 99.5%;
+  −1.17 projected points at rank 22; predicted skill ownership 51.7% against 72.7%; the QB about the 13th most-owned.
+- **Read and reproduced:** read by the reviewer; **reproduced byte-identically by the laptop** (diff empty, at lab
+  `e2d73a2`; raw files equal to the RAW_MANIFEST). Reader `ca403fb0`; READ `376d396d`. The confirmatory census (`6d4f422`)
+  was committed before the READ (`e2d73a2`). Lab: nfl2 `production/s45-contrarian-20261006`.
+
+**Reader output (verbatim):**
+```
+STUDY 45 READER  sha256 ca403fb000b272352e6a23cf04eb505f49cacdc5f6ee730b07ac9e75bee43994
+DIRECTION: every difference is ARM - REFERENCE per slate (the mean over its banks); POSITIVE favours the first arm.
+slates 36  banks [1503, 1504, 1505, 1506, 1507, 1508]  B 20000  seed 20261025  primary the replaced position's big-seat chance, MIXT_CON1 - MIXT_LIVE, two-sided 0.95, guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only
+arms (ranks replaced, live settings, contrarian rule, QB cap, objective): [{"MIXT_CON1": [21], "MIXT_CON1_R3": [2], "MIXT_CON2": [20, 21], "MIXT_LIVE": []}, {"fill": "rr", "max_shared": 4}, {"n_low": 3, "own_source": "TABPFN_LS", "qb_top_banned": 8, "skill_top_low": 40, "sum_ratio": 0.7}, 5, "player_mean (no ownership term)"]
+
+== MIXT_CON1 vs MIXT_LIVE  [DECISION: a contrarian row at rank 22]
+  PRIMARY the position's big-seat chance -0.01009  [-0.02178, -0.00205]  seasons 2023 -0.00228, 2024 -0.01790   (levels: contrarian 0.00278 vs live 0.01287)
+  BOOK P(>= 1 big seat) per slate -0.00218  [-0.00481, -0.00019]  seasons 2023 +0.00002, 2024 -0.00438
+  GUARD 1 mean entry pct -0.00313  one-sided lower -0.00505  (must exceed -0.015)
+  GUARD 2 expected big seats 0.59028 vs 0.60037  ratio 0.983  (must be >= 0.80)
+  MIXT_CON1 dealt identical to MIXT_LIVE: 0.005 of slate-banks
+  ->  WORSE
+
+== EXPLORATORY (never decision-bearing)
+  MIXT_CON2 - MIXT_LIVE (two contrarian rows, ranks 21-22): positions' chance -0.02348  [-0.04798, -0.00147]  seasons 2023 -0.02033, 2024 -0.02664;  book P(>= 1 big) -0.00603  [-0.01740, +0.00517]
+  MIXT_CON1_R3 - MIXT_LIVE (the contrarian row at rank 3): positions' chance -0.04463  [-0.10195, +0.00884]  seasons 2023 -0.04884, 2024 -0.04042;  book P(>= 1 big) -0.00835  [-0.02384, +0.00872]
+
+secondaries (slate means):
+  MIXT_LIVE    P(>=1 big) 0.35308  expected big seats 0.60037  P(>=2) 0.14020  entry pct 0.52602  dealt projection 128.58
+  MIXT_CON1    P(>=1 big) 0.35090  expected big seats 0.59028  P(>=2) 0.13717  entry pct 0.52289  dealt projection 128.54
+  MIXT_CON2    P(>=1 big) 0.34705  expected big seats 0.57689  P(>=2) 0.13139  entry pct 0.51909  dealt projection 128.50
+  MIXT_CON1_R3 P(>=1 big) 0.34472  expected big seats 0.54471  P(>=2) 0.13004  entry pct 0.51393  dealt projection 128.33
+```
+
+**Reading.**
+1. **At the frozen rule: WORSE.** The rank-22 position's chance of winning its satellite falls from 1.29% to 0.28% per
+   slate (−0.0101 [−0.0218, −0.0021]); the book's P(≥ 1 big) −0.0022 [−0.0048, −0.0002].
+2. **The exploratory placements agree:** two contrarian rows cost −0.023 on their positions; at rank 3 −0.045.
+3. **Why.** A single-seat contest is won by the single top score. The contrarian row gives up projection (about 1.2
+   points) without enough extra upside to top the field more often. This matches the real-field read: the top 1% runs
+   chalkier than the field; the winners who were contrarian are the rarer route.
+4. **By frozen §5 (WORSE):** the live row stays; no contrarian row for Week 5.
+5. **Transfer, stated first:** the harness's field is sampled from the real ownership with 70% one-slot stacks; its
+   top-end chalk is not calibrated to the real top 1% and its top line is 3–6 points easier (the field audit). A
+   contrarian row's value depends on exactly that; the field calibration (study list item 40) is the check, and a
+   reversal there would be reported. The gap here (about four to one) is large.
