@@ -1,10 +1,9 @@
-# Preregistration: study 24, a per-game QB cap (no game in more than a quarter of the entries) and the sequential deal, on the operator's real Week-5 plan (DRAFT 2026-10-06)
+# Preregistration: study 24, a per-game QB cap (no game in more than a quarter of the entries) and an all-distinct deal, on the operator's real Week-5 plan (DRAFT 2026-10-06)
 
 **Status: DRAFT.** It is frozen, with the reader's sha256 recorded here, after three things:
 - the one-slate smoke (§2a);
 - the operator's answer on the expected-seat tolerance (§5, GUARD 2);
-- his revised Week-5 entries (the MLB satellites withdrawn, 10-05) and whether the Showdown satellite counts as a big
-  seat (§4).
+- whether the Showdown satellite counts as a big seat (§4). His revised Week-5 entries arrived 10-05 21:23 (§4).
 
 Both answers come before the binding census and before any scored bank. Later changes are dated deviation notes at the
 end. The reviewer freezes it and reads first. The laptop reviews the design and re-runs the frozen reader before the
@@ -67,13 +66,21 @@ N = the plan's 24 mean-track entries, so the cap is floor(0.25 × 24) = **6 entr
     contest's second entry to a row whose game is already at the cap, so the realized busiest game can exceed 6 by
     the number of such moves (at most 4 in this plan). The census reports it. This keeps parity with how a production
     build would deliver the cap.
-- **SEQ (DECISION):** WS's same book, dealt by `ENTER_LAYOUT=sequential`. Every entry gets its own RANK. The overlap
-  limit may then reuse a row across contests, as production does, so distinct lineups are about 21–24 rather than
-  exactly 24. It is an existing production layout; no code change.
+- **SEQD (DECISION): all distinct.** WS's same book, with every one of the 24 entries holding its own lineup. This is the
+  operator's choice (10-05, the laptop's question "A 'sequential' layout makes all 24 entries different lineups. Which
+  do you want?"; his answer, verbatim: "All distinct (Recommended)").
+  - It deals the sequential layout's ranks, then applies the small-contest overlap limit (M 5).
+  - Each replacement is drawn from rows BEYOND the layout's ranks, in solve order, unused anywhere in the plan, each
+    used once.
+  - A contest with no fitting unused row falls back to production's limit (counted by the census).
+  - Production's sequential deal cannot do this: its limit replaces within the layout's own ranks (0..23), so a row
+    can repeat across contests. Adopting SEQD therefore needs a small, reviewed enter_layout change with a parity test.
+- **SEQ (EXPLORATORY):** WS's same book, dealt by production's `ENTER_LAYOUT=sequential` as it stands (21 distinct
+  lineups on the smoke slate). It is the no-code fallback for this week.
 - **G1 (EXPLORATORY):** the same 6-entry budget for the #1-total game's QBs only. The game is ranked by pre-lock
   `game_total`, using study 1's `game_ranks`. This was the first draft's decision arm; see §2a for why it moved.
-- **G25S (EXPLORATORY):** G25's budget computed on the sequential deal's weights, dealt sequentially (the cap and the
-  deal together).
+- **G25S (EXPLORATORY):** G25's budget computed on the sequential layout's weights, dealt all-distinct (the cap and
+  the deal together, as he would use them).
 
 ## 2a. Smoke observations before the freeze (mechanics only; one slate, 2023 W9, throwaway bank 1406)
 Both paths ran: mechanics only, then the full outcome path. Each took about 95 s, and the rows and deals were identical
@@ -99,6 +106,7 @@ Outcomes were not read.
 - **Build time:** about 95 s per slate-bank, so the 106 scored slate-banks take about 10 minutes on 24 workers.
 - **Binding-census checks before the scored run** (a failure is a design question at that review, not after scoring):
   - G25's busiest QB game ≤ 8 of 24 on every slate-bank;
+  - SEQD: 24 distinct lineups dealt, with distinct-deal fallbacks on ≤ 5% of slate-bank contests;
   - G25 dealt identically to WS on ≤ 80% of slate-banks;
   - no short books.
 
@@ -120,18 +128,21 @@ ACROSS slates. Ties count as losses.
   - **fresh banks 1417/1418**: no bank-label use in either repository's branch scan, 10-06; the same scan finds 1415 and
     1406;
   - the smoke and the binding census on throwaway bank 1406.
-- **The plan is the operator's REAL Week-5 plan.** It is being revised: he is withdrawing the MLB satellites (10-05,
-  verbatim: "I didnt mean to do an mlb one.  Im withdrawing.  Will share what i replace it with shortly"). The plan, its
-  sha, the table below and the cap are rebuilt from his revised export before the freeze. The text below describes the
-  first export.
-  - Source: built from his DraftKings entries export (`DKEntries-Week5.csv`, 10-05 21:03) by production's own
-    `contests_from_entries.py` and `dk_contest_details.py`, at the integration head. Only public contest details were
-    fetched, and only the export's four header columns were read.
-  - Study copy: `~/s24-panel/plan-week5-s24.json` (private), sha256
-    `ab6da4963245779c154ba525c668e154c63939638eda3db91322b23f6fc3713c`; 20 contests, 24 entries, 20 head rows.
-  - Production's own contests.json (the laptop, `~/week5-sunday/contests.json`, sha256 `2ffbcfe8b6ade499…`) has the same
-    20 contest ids in the same order, with the same entries and tracks. Only the Milly's line differs: production uses
-    the cash line (76.86); the study uses the $500+ line, the top 95 of 161,764 (p99.9413).
+- **The plan is the operator's REAL, REVISED Week-5 plan.**
+  - History: he withdrew the two MLB satellites (10-05, verbatim: "I didnt mean to do an mlb one.  Im withdrawing.")
+    and added two entries to a $19 SUPERSatellite to the $555 ("added 2 entries into a $19 super satellite to the 555,
+    which seems like a good way to go").
+  - Source: built from his revised DraftKings entries export (`DKEntries-Week5-Rev1.csv`, 10-05 21:23) by production's
+    own `contests_from_entries.py` and `dk_contest_details.py`, at the integration head. Only public contest details
+    were fetched, and only the export's four header columns were read.
+  - Study copy: `~/s24-panel/plan-week5-rev1-s24.json` (private), sha256
+    `f34f3a0023a649f2270a4c7c0d592ced54ed03d73ec3458cae6d04a3d32982bc`; 19 contests, 24 entries, $256; head layout 20
+    rows (rows 0–3 in two contests each), sequential 24 ranks; cap floor(0.25 × 24) = 6.
+  - Production's own contests.json is rebuilt by the laptop from the same export, and the ids, order and entries are
+    checked against this copy before the freeze. The Milly line differs deliberately: production uses its cash line;
+    the study uses the $500+ line, the top 95 of 161,764 (p99.9413).
+  - The first export's copy (`plan-week5-s24.json`, sha `ab6da496…`) was used only by the one-slate smoke (§2a), which
+    reads mechanics only.
 - **Contests (size, seats, his entries):**
 
   | contests | fee | size | seats | entries each | big |
@@ -141,10 +152,10 @@ ACROSS slates. Ties count as losses.
   | 1 $4,444 Showdown (10-12) sat | $13 | 402 | 1 | 1 | yes (operator to confirm) |
   | 3 $555 sats | $9 | 72 | 1 | 1 | yes |
   | 3 $555 sats | $6 | 108 | 1 | 1 | yes |
+  | 1 $555 SUPERSatellite [2x] | $19 | 68 | 2 | 2 | yes |
   | 1 FFWC $490 qualifier sat | $8 | 72 | 1 | 1 | yes |
   | 3 $333 Wildcat sats | $5 | 79 | 1 | 2 | yes |
   | 3 $333 Wildcat sats | $17 | 23 | 1 | 1 | yes |
-  | 2 MLB $333 Perfect Game sats (WITHDRAWN by the operator, 10-05) | $5 / $17 | 79 / 23 | 1 | 1 | — |
   | 1 SUPERSat to the $20 Milly [25x] | $5 | 118 | 25 | 1 | **no** |
 
   "Big" = a prize worth $333 or more: his list ($333, $555, $4,444, $500+ in the Milly), plus the $490 qualifier. If he
@@ -156,7 +167,7 @@ ACROSS slates. Ties count as losses.
 
 ## 5. Endpoints and decision rule (each decision arm against WS)
 - **PRIMARY = P(≥ 1 big seat) per slate**, ARM − WS, paired. Season-clustered bootstrap (slates resampled within
-  season), B 20,000, seed 20261006. **Two-sided 0.975 per decision arm** (0.95 split over G1 and SEQ).
+  season), B 20,000, seed 20261006. **Two-sided 0.975 per decision arm** (0.95 split over G25 and SEQD).
 - **GUARD 1:** mean dealt-entry finish (the share of the field each entry beats), ARM − WS. The one-sided 0.975 lower
   bound must exceed −0.015, study 18's margin.
 - **GUARD 2, the operator's tolerance:** expected big seats, the ARM / WS ratio of slate means, as a point estimate, must
@@ -191,7 +202,9 @@ ACROSS slates. Ties count as losses.
   - The laptop builds the same budget in production's `mix_rows`, with a parity test against this module, call for call
     on a frozen frame. The reviewer reviews it before Friday.
   - The operator decides. Rollback = the budget off: the WS book is byte-identical when off.
-- **SEQ PASS:** a reason to offer `ENTER_LAYOUT=sequential` for the week's deal (an existing layout; no code). The
+- **SEQD PASS:** a reason to offer the all-distinct deal. The laptop builds it in production's enter_layout with a
+  parity test against `distinct_deal`, call for call; the reviewer reviews it. If it is not ready and reviewed by
+  Saturday's arming, SEQ (exploratory, no code) is the nearest available deal, offered with its own read stated. The
   operator decides.
 - **Both pass:** G25S (exploratory) informs whether to combine them. A combination is not a verdict.
 - **NO DIFFERENCE with both guards intact:** a legitimate reason to choose either as a risk preference, stated as such.
