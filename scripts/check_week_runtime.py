@@ -234,7 +234,9 @@ def main():
             fail(f"UNION_MAIN_QB_CAP_ROWS needs UNION_MAIN=pmo_x50 or mix; got {os.environ.get('UNION_MAIN')!r}")
         elif not _qk.isdigit():
             fail("UNION_MAIN_QB_CAP_ROWS needs UNION_MAIN_QB_CAP_K (the book size the cap was calibrated at, study 35: 26)")
-        elif book_entries is not None and int(_qk) != book_entries:
+        elif book_entries is None:                     # never skip the K check (the reviewer 10-06)
+            fail("UNION_MAIN_QB_CAP_ROWS needs BOOK_ENTRIES (the week's book size) to check its calibration K")
+        elif int(_qk) != book_entries:
             fail(f"UNION_MAIN_QB_CAP_ROWS={_qcap} was calibrated at K {_qk}, but BOOK_ENTRIES={book_entries}: "
                  f"{_qcap} rows is not the studied share at this K; re-calibrate before arming it")
     elif _qk:

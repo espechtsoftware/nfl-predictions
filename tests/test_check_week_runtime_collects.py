@@ -163,3 +163,10 @@ def test_the_qb_cap_is_armed_only_at_the_k_it_was_calibrated_at(tmp_path):
     assert not any("QB_CAP" in f for f in _failures(_run(env)))
     env.pop("UNION_MAIN_QB_CAP_ROWS")
     assert any("UNION_MAIN_QB_CAP_K is set without" in f for f in _failures(_run(env)))
+
+
+
+def test_the_qb_cap_check_never_skips_a_missing_book_size(tmp_path):
+    env = _healthy(tmp_path); env["UNION_MAIN"] = "pmo_x50"
+    env["UNION_MAIN_QB_CAP_ROWS"] = "7"; env["UNION_MAIN_QB_CAP_K"] = "26"; env.pop("BOOK_ENTRIES", None)
+    assert any("needs BOOK_ENTRIES" in f for f in _failures(_run(env)))
