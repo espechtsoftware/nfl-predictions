@@ -1,4 +1,4 @@
-# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06, amendments 1 and 1b, before Week 5's lock)
+# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06, amendments 1, 1b and 2, before Week 5's lock)
 
 **Status: FROZEN 2026-10-06** by the reviewer, BEFORE any week of the decision arm (MIXT_RS0) or of the exploratory arms
 QBB0 / NQC0 / QAL / RBC0 was read on any slate. Disclosed: before the freeze, the reference MIXT_QA0 was scored on
@@ -62,6 +62,38 @@ score. Nothing here enters a contest: the money path, its checkout and its files
   equal to amendment 1's smoke. Code: lab `d36d07d`; `scripts/s38_build.py` `64fe91c6c9e361788a17644549de28a3e7afbf224a7db177cc8b3bc00618bfcf`;
   `tests/test_s38_paper_corun.py` `a177af0bffc253b29e284ace41ced8d414376d3b283d1074230680334c13bbec` (14 tests). Every other sha of amendment 1 stands (the
   reader `b4b7d7b7…` unchanged).
+
+- **Amendment 2 (same day, before Week 5's lock; no Week-5 outcome exists).**
+  - **Why.** The union now takes a fill order (`--mix-fill group | value | rr`, production `99fdd285`; study 42) and the
+    overlap limit 4 is a candidate (study 41's PASS, Addendum 145). Amendment 1's parity did not look at the fill, so a
+    live `value` or `rr` would have passed parity while the paper arms were still built with the group fill: a silent
+    break of "his live book". And a live 4 would have been refused.
+  - **What changes:** every paper arm is built with THE LIVE UNION'S `--mix-fill` (absent = group, production's default)
+    through study 42's frozen `experiments/mix_fill.py` (copied byte-identical, `dcf6a299…`; its "group" IS study 28's
+    `mix_book`); an unknown fill is a parity mismatch (an invalid week). The limits accepted are 4 / 5 / 6 / 7. A new
+    exploratory arm, **MIXT_QA0_GROUP**: his live book with the group fill (identical to MIXT_QA0 while the live fill is
+    group), tracking a fill switch on the real field. The build's content identity carries the fill. Under the value
+    fill a peek that was not committed can record a tier fallback, so fallbacks are now counted by row.
+  - **What does not change:** the rule (§5), the decision arm, the objective, the provenance, the scoring.
+  - **The smoke (dry run, Week 4's frozen copies):**
+    - **Regression at 5 with the group fill** (the rehearsal arguments at 5): every one of the eight amendment-1 arms is
+      byte-identical to amendment 1b's build (rows and ranks); MIXT_QA0_GROUP equals MIXT_QA0; parity mismatches none.
+    - **At 4 with the round-robin** (the operator's Week-5 settings, 10-06: "Use 4", "Use round-robin"): exit 0; parity
+      none; every arm builds its 26-row book (the tiered arms' spare tails as at 5: RS0 28 rows, NQC0 28, RBC0 37), each
+      book's largest overlap equal to its limit (4; MS7 at 7), no fallback rows; MIXT_QA0_GROUP built with the group
+      fill. His book at 4 + rr: 9 QBs, 33 distinct non-QB players, 144.61 FP points per dealt lineup (MS7: 144.94; group
+      fill at 4: 144.04).
+    - **At 4 with the value fill:** exit 0, parity none, every arm's book full, no fallback rows.
+    - Construction only; no outcome was read. `~/private/paper-corun/smoke-w4-amend2/` (books `47b701ee` / `d1348d29` /
+      `79b69c17`).
+  - **Code:** lab `d15fb97`:
+    - `experiments/s38_paper_corun.py`, sha256 `aa152647aab7bf5c8e89e5e35aa606341e422cda9d2648fb3fd09b9387926823`;
+    - `scripts/s38_build.py`, `848d5a806e6efdbdb07281bd66e9e316e9b3d7d8525f2c5dee95c014bc51e437`;
+    - `scripts/s38_score.py`, `38445723df3391d0d1a234863592a23ada6426df6e9c74d399be526ec3b93dfd`;
+    - **`scripts/s38_report.py` (the reader), sha256 `33d350b53a917109cb33b00c4bb4b29d38eb3304c6292784fdb718dbc2dfde28`**;
+    - `tests/test_s38_paper_corun.py`, `57dcb8815b1cd89f2a4fdf4529a943a310089d46dd9e77ad6a4c74d436d23119` (15 tests);
+    - `experiments/mix_fill.py` (study 42's, byte-identical), `dcf6a29997d97369f467377ceb5a69a0ba3bc0edc51fe0c8ec495610a8436fd7`.
+    - Every other amendment-1 / 1b sha stands; `scripts/s38_plan.py` `9af5f805…` unchanged.
 
 ## 1. Why
 - **The operator (10-06), on the proposal:** "yes, please try it, I want to exhaust all reasonable options."
