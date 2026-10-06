@@ -121,4 +121,11 @@ Outcomes were not read.
   5. the reviewer's read;
   6. the laptop's byte-identical re-run;
   7. the LEDGER row and Addendum 131.
+- **C is production's own constant.** C's stack IS `nfl2.pipeline.PRODUCTION_STACK` (an identity, tested), equal to
+  study 18's HOUSE. The live pin `f69598b` defines it identically. The laptop confirmed (10-05) that today's house main
+  = PRODUCTION_STACK + head + int(0.5K) / int(0.25K) + MAX_PER_GAME 4 + $49k + max shared 7 + min proj 1.0. There is
+  no sleeve on Rev1 (every contest is main track), and the study-1 game cap is off.
+- **Transfer caveat.** Production applies the ownership term (tilt 0.20, the FP predictor) to BOTH mains, and with
+  `UNION_PROJ_SOURCE=fp` both shapes optimize FP's means. The panel has neither (no FP history for 2022–24), so both
+  arms leave them out, symmetrically, as studies 18 and 24 did.
 - **Schedule:** freeze and census Tuesday 10-06 morning; read Tuesday; the operator decides Friday 10-09.
