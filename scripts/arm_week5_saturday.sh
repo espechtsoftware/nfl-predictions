@@ -8,13 +8,15 @@
 # Week-5 changes vs Week 4 (reports/2026-10-06-week5-arming-checklist.md):
 #   GROUP 154468; no LineStar step (retired 10-06); Rev3 plan (supersats on rows 1-26, K 26, caps 13/6; all mean-track,
 #   so no tail-sleeve settings); FP projections (UNION_PROJ_SOURCE=fp); the ownership term ON at 0.20 on FP ownership
-#   (study 31); the shape per his Friday choice: mixt (the winners' mix + term) or ct (Week 4's shape + term), both on
+#   (study 31); the shape: mixt (the winners' mix + term; his formal yes 10-06, with study 35's QB cap A) -- ct (Week 4's
+#   shape + term) stays selectable; both on
 #   ONE pin f69598b (the reviewer 10-06); 11 timers (the FP projections capture included), 9 when armed late.
 set -uo pipefail
-SHAPE=""                 # FRIDAY: "mixt" or "ct" (his choice; decision sheet row 1)
-FRIDAY_HEAD=""           # FRIDAY: the integration commit after the six merges (checklist step 1)
+SHAPE="mixt"             # his formal yes 2026-10-06: "yes to the winners' mix with the tilt and the quarterback cap"
+FRIDAY_HEAD=""           # FRIDAY: the final integration head after Friday's host rehearsal (the merges landed 10-06, 231b1ea0)
 PLAN_SHA=8625de0ec37d491ce7b5cf10f7e6eef7719e3198fc118df890f1b82235fe766f     # Rev3, installed Friday
 CHOSEN_LEV=0; CHOSEN_BOOM=4800                                                # FRIDAY: confirm the Week-5 dose
+QB_CAP_ROWS=5; QB_CAP_K=26          # study 35's cap A (his yes 10-06): no QB in more than 5 of the 26 book rows
 P=$HOME/projects/nfl-predictions; W=$HOME/week5-sunday; PY=$P/.venv/bin/python; CHECK=${1:-}
 say() { printf '%s %s\n' "$(date +%H:%M:%S)" "$*"; }
 stop() { say "ARM STOPPED: $*"; exit 1; }
@@ -33,6 +35,7 @@ git merge-base --is-ancestor "$FRIDAY_HEAD" HEAD || stop "HEAD $(git rev-parse -
 [[ "$(sha256sum $W/contests.json | cut -d' ' -f1)" == "$PLAN_SHA" ]] || stop "$W/contests.json is not Rev3 ($PLAN_SHA)"
 K=$(PYTHONPATH=src $PY -m nfl_dfs.inference.enter_layout rows-needed $W/contests.json --layout head) || stop "rows-needed failed on the plan"
 [[ "$K" == 26 ]] || stop "rows-needed on the installed plan is $K, not 26 (Rev3 under head)"
+[[ "$K" == "$QB_CAP_K" ]] || stop "the QB cap was calibrated at K $QB_CAP_K, but the plan needs $K rows (study 35: re-calibrate)"
 # the local Milly graph must not run through the build windows (reviewer 10-04, binding: a CHECK, not a habit -- the O-24
 # lesson): its heap and page cache (up to 18 GB) could starve the Sunday builds. ss/ps only, never pgrep -f.
 NEO_PID=$HOME/.local/share/neo4j-milly/run/neo4j.pid
@@ -66,6 +69,7 @@ arm_env() {
     D3200_LEV=$CHOSEN_LEV D3200_BOOM=$CHOSEN_BOOM D800_LEV=$CHOSEN_LEV D800_BOOM=$CHOSEN_BOOM SKIP_UNITS="$skip" \
     LEV_CBC_THREADS=8 EARLY_PROPS_CT=04:30 EARLY_PROJECT_CT=04:45 EARLY_SUPPLY_CT=05:00 \
     UNION_PROJ_SOURCE=fp UNION_MAIN_OWN_TILT=0.20 UNION_MAIN_OWN_PREDICTOR=fp \
+    UNION_MAIN_QB_CAP_ROWS=$QB_CAP_ROWS UNION_MAIN_QB_CAP_K=$QB_CAP_K \
     T70_MIN_PROJ_CT=10:30 T70_PROJECT=1 UNION_SATURDAY_RUN=auto UNION_PMO=0 "$@"
 }
 # 6. not too late: the Saturday D12800 is 10:30
@@ -73,7 +77,7 @@ SKIP="d6400"; EXPECT_N=11
 if [[ "${ARM_LATE:-0}" == 1 ]]; then SKIP="d6400 d12800sat d6400sat"; EXPECT_N=9; say "ARM_LATE=1: Saturday supply units skipped (operator decision)"; fi
 [[ "${ARM_LATE:-0}" == 1 ]] || (( 10#$(date +%H%M) < 1028 )) || stop "it is $(date +%H:%M); the 10:30 Saturday D12800 would be in the past. Operator decision: ARM_LATE=1 (no Saturday supply builds, $((EXPECT_N - 2)) timers)"
 if [[ "$CHECK" == --check ]]; then
-  say "the timers' dose: D3200 and D800 LEV $CHOSEN_LEV / BOOM $CHOSEN_BOOM (chosen-dose.env must say the same)"
+  say "the timers' dose: D3200 and D800 LEV $CHOSEN_LEV / BOOM $CHOSEN_BOOM (chosen-dose.env must say the same); QB cap $QB_CAP_ROWS rows at K $QB_CAP_K"
   UNITS=$(arm_env "$SKIP" bash scripts/arm_week_timers.sh 5 2>&1 | grep -oE 'nfl-week5-[a-z0-9-]+' | sort -u)
   for s in $SKIP; do UNITS=$(echo "$UNITS" | grep -vx "nfl-week5-$(echo $s | sed -E 's/^(d[0-9]+)sat$/\1-sat/')-build"); done
   echo "$UNITS" | sed 's/^/  planned: /'
