@@ -40,6 +40,13 @@ decides; this decides nothing by itself.
 Re-freeze note 2026-10-06 (before any Week-5 outcome; the reviewer's O-31 follow-up): the project guard now tests the
 GCP_PROJECT environment variable itself (O-31 made the config default the real project, so the old default-name test
 could no longer trigger). No population, metric or rule changed; W4's rows sha is unchanged.
+Addition 2026-10-06 (before any Week-5 outcome; the outside review via the reviewer): DESCRIPTIVE tail lines after each
+report, labelled as such and never part of THE REVISIT CHECK, which is unchanged: the TOP-DECILE HIT rate (within each
+week and position, the share of a source's top 10% projected players who finished in the actual top 10%) and the
+OWNERSHIP-WEIGHTED MAE (errors weighted by the Millionaire's realized ownership; week mode writes it beside the rows as
+ownership-<season>-w<NN>.csv, PRIVATE, and pool uses it when every week has one). Pinball loss at 0.9 is NOT computable:
+FP and the blend publish no quantile, and the T-70 frame carries no p90 of ours. The player rows and their sha are
+unchanged.
 """
 from __future__ import annotations
 
@@ -144,6 +151,35 @@ def bootstrap(d: pd.DataFrame, b: int = B, seed: int = SEED) -> dict:
     return out
 
 
+TAIL_LABEL = "TAIL (descriptive only; never part of the revisit check)"
+
+
+def tail_metrics(d: pd.DataFrame, own: pd.DataFrame | None = None) -> dict:
+    """DESCRIPTIVE ONLY. Per source: the top-decile hit rate (within each season/week/position, the source's top
+    ceil(10%) by projection vs the actual top ceil(10%); ties broken by id, so it is deterministic) and, when `own`
+    (season, week, nkey, own) is given, the ownership-weighted MAE over players with ownership > 0."""
+    out = {}
+    w = None
+    if own is not None and len(own):
+        k = d.assign(nkey=d.name.map(norm))[["season", "week", "nkey"]].astype({"season": int, "week": int})
+        o = own.astype({"season": int, "week": int}).drop_duplicates(["season", "week", "nkey"], keep=False)  # a shared name: no weight
+        w = k.merge(o, on=["season", "week", "nkey"], how="left").own.to_numpy(float)
+        assert len(w) == len(d), f"ownership join misaligned ({len(w)} weights for {len(d)} players)"
+    for s in SOURCES:
+        hits = tot = 0
+        for _, g in d.groupby(["season", "week", "pos"], sort=True):
+            k = max(1, int(np.ceil(0.1 * len(g))))
+            top = lambda col: set(g.sort_values([col, "id"], ascending=[False, True]).id.head(k))  # noqa: E731
+            hits += len(top(s) & top("actual")); tot += k
+        r = {"top_decile_hit": hits / tot if tot else float("nan")}
+        if w is not None:
+            m = np.isfinite(w) & (w > 0)
+            e = (d[s] - d.actual).abs().to_numpy(float)
+            r["own_weighted_MAE"] = float((e[m] * w[m]).sum() / w[m].sum()) if m.any() else float("nan")
+        out[s] = r
+    return out
+
+
 def revisit(pooled: pd.DataFrame, boot: dict) -> list[str]:
     m = metrics(pooled)
     msgs = []
@@ -155,7 +191,7 @@ def revisit(pooled: pd.DataFrame, boot: dict) -> list[str]:
     return msgs or [f"no source beats FP at the frozen check (MAE lower AND >= {REVISIT_SHARE} of pooled resamples better)"]
 
 
-def report(d: pd.DataFrame, title: str) -> None:
+def report(d: pd.DataFrame, title: str, own: pd.DataFrame | None = None) -> None:
     m, bs = metrics(d), bootstrap(d)
     weeks = sorted({f"{int(s)} W{int(w)}" for s, w in zip(d.season, d.week)})
     print(f"{title}: players {len(d)}, games {d.groupby(['season', 'week', 'game']).ngroups}, weeks {weeks}")
@@ -166,6 +202,10 @@ def report(d: pd.DataFrame, title: str) -> None:
     for k, v in bs.items():
         print(f"  {k:14s} MAE improvement {v['mean']:+.3f} (5-95% {v['p05']:+.3f} to {v['p95']:+.3f}); "
               f"share of resamples better {v['share_better']:.3f}")
+    t = tail_metrics(d, own)
+    print(f"  {TAIL_LABEL}: " + "; ".join(
+        f"{s} top-decile hit {t[s]['top_decile_hit']:.3f}" + (f", own-weighted MAE {t[s]['own_weighted_MAE']:.3f}"
+                                                          if "own_weighted_MAE" in t[s] else "") for s in SOURCES))
 
 
 def load_fp(season: int, week: int, lock_utc: str) -> tuple[pd.DataFrame, dict]:
@@ -213,12 +253,15 @@ def load_week(a) -> tuple[pd.DataFrame, dict]:
         raise SystemExit(f"the frame is not {a.season} W{a.week}")
     cutoff, cutoff_src = resolve_cutoff(a.frame, a.capture_before, a.lock_utc)
     fp, cap = load_fp(a.season, a.week, cutoff)
-    act = query_df(f"""SELECT display_name, MAX(CAST(fpts AS FLOAT64)) fpts FROM `{settings.raw}.contest_ownership`
+    act = query_df(f"""SELECT display_name, MAX(CAST(fpts AS FLOAT64)) fpts, MAX(SAFE_CAST(pct_drafted AS FLOAT64)) own
+        FROM `{settings.raw}.contest_ownership`
         WHERE season = @s AND week = @w AND contest_id = @c GROUP BY 1""", params={"s": a.season, "w": a.week, "c": str(a.contest)})
     if act.empty:
         raise SystemExit(f"no contest_ownership rows for contest {a.contest}")
     actual = pd.Series(act.fpts.to_numpy(float), index=act.display_name.map(norm))
     d, audit = population(fr, fp, actual, load_active([a.season]))
+    audit["_own"] = pd.DataFrame({"season": a.season, "week": a.week, "nkey": act.display_name.map(norm).to_numpy(),
+                                  "own": pd.to_numeric(act.get("own"), errors="coerce").to_numpy(float)})
     audit.update({"capture": cap, "capture_before": cutoff, "capture_before_source": cutoff_src, "frame": str(a.frame),
                   "lock_utc": a.lock_utc, "contest": str(a.contest),
                   "written_utc": datetime.now(timezone.utc).isoformat()})
@@ -236,6 +279,7 @@ def main(argv=None) -> int:
     a = ap.parse_args(argv)
     if a.cmd == "week":
         d, audit = load_week(a)
+        own = audit.pop("_own")
         a.out_dir.mkdir(parents=True, exist_ok=True)
         stem = a.out_dir / f"accuracy-{a.season}-w{a.week:02d}"
         d.to_csv(f"{stem}.csv", index=False)
@@ -245,7 +289,8 @@ def main(argv=None) -> int:
         print(f"player rows: {stem}.csv  n {len(d)}  sha256 {audit['rows_sha256']}")
         print(f"FP capture {audit['capture']['retrieved_at']} (slate {audit['capture']['slate_id']}); cutoff "
               f"{audit['capture_before']} ({audit['capture_before_source']}); lock {audit['lock_utc']}")
-        report(d, f"{a.season} W{a.week}")
+        own.to_csv(a.out_dir / f"ownership-{a.season}-w{a.week:02d}.csv", index=False)   # PRIVATE, beside the rows
+        report(d, f"{a.season} W{a.week}", own)
         return 0
     files = sorted(a.out_dir.glob("accuracy-*-w*.csv"))
     if not files:
@@ -253,9 +298,11 @@ def main(argv=None) -> int:
     pooled = pd.concat([pd.read_csv(f, dtype={"game": str, "gsis_id": str, "id": str}) for f in files], ignore_index=True)
     for f in files:
         print(f"player rows: {f.name}  sha256 {hashlib.sha256(f.read_bytes()).hexdigest()}")
+    own_files = sorted(a.out_dir.glob("ownership-*-w*.csv"))
+    own = pd.concat([pd.read_csv(f) for f in own_files], ignore_index=True) if len(own_files) == len(files) else None
     for (s, wk), g in pooled.groupby(["season", "week"]):
-        report(g, f"{s} W{wk}")
-    report(pooled, "POOLED")
+        report(g, f"{s} W{wk}", own)
+    report(pooled, "POOLED", own)
     print(RULE)
     for line in revisit(pooled, bootstrap(pooled)):
         print("REVISIT CHECK:", line)
