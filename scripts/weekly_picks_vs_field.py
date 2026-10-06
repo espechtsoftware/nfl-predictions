@@ -45,9 +45,14 @@ def edge(d: pd.DataFrame, col: str) -> float:
     return float(((d[col] - d.rest_share) * d.dk).sum())
 
 
+def priced(d: pd.DataFrame) -> pd.DataFrame:
+    """The players the null can shuffle: known realized points AND a salary (a position x $1k band)."""
+    return d[d.dk.notna() & d.salary.notna()]
+
+
 def null_draws(d: pd.DataFrame, col: str, b: int = B, seed: int = SEED_BASE) -> np.ndarray:
-    """The edge with realized points shuffled within position x $1k salary band (players with known points and salary)."""
-    d = d[d.dk.notna() & d.salary.notna()]
+    """The edge with realized points shuffled within position x $1k salary band (priced players only)."""
+    d = priced(d)
     diff = (d[col] - d.rest_share).to_numpy(float); dk = d.dk.to_numpy(float)
     idx = list(d.assign(band=(d.salary // 1000).astype(int)).groupby(["pos", "band"]).indices.values())
     rng = np.random.default_rng(seed); out = np.empty(b)
@@ -118,13 +123,17 @@ def main(argv=None) -> int:
         d, meta = load_week(a)
         recs = []
         for g, col in GROUPS.items():
-            obs = edge(d[d.dk.notna()], col); nul = null_draws(d, col, seed=SEED_BASE + a.week)
-            rec = {"season": a.season, "week": a.week, "group": g, "edge": round(obs, 3), "null_mean": round(float(nul.mean()), 3),
-                   "null_sd": round(float(nul.std()), 3), "p_better": float((nul >= obs).mean()), "p_worse": float((nul <= obs).mean()),
+            # the reviewer (10-06): the p-values compare the null with the edge on the SAME players (points AND a salary
+            # band); the all-player edge (incl. unpriced players: DSTs, name-suffix misses) is the report's comparable
+            obs = edge(priced(d), col); obs_all = edge(d[d.dk.notna()], col); nul = null_draws(d, col, seed=SEED_BASE + a.week)
+            rec = {"season": a.season, "week": a.week, "group": g, "edge": round(obs, 3), "edge_all": round(obs_all, 3),
+                   "null_mean": round(float(nul.mean()), 3), "null_sd": round(float(nul.std()), 3),
+                   "p_better": float((nul >= obs).mean()), "p_worse": float((nul <= obs).mean()),
                    "lineups": meta["lineups"]["reg" if g == "regulars" else "ours"], "unpriced_share": round(meta["unpriced_share"][g], 4)}
             recs.append(rec)
-            print(f"W{a.week} {g:<9} picks vs the rest of the field {obs:+.1f} pts/lineup | null {rec['null_mean']:+.1f} "
-                  f"(sd {rec['null_sd']:.1f}) | p(better) {rec['p_better']:.3f}, p(worse) {rec['p_worse']:.3f} | {rec['lineups']} lineups")
+            print(f"W{a.week} {g:<9} picks vs the rest of the field {obs:+.1f} pts/lineup (priced players) | null {rec['null_mean']:+.1f} "
+                  f"(sd {rec['null_sd']:.1f}) | p(better) {rec['p_better']:.3f}, p(worse) {rec['p_worse']:.3f} | edge incl. unpriced "
+                  f"{obs_all:+.1f} | {rec['lineups']} lineups")
         if not a.no_append:
             prev = [json.loads(x) for x in log.read_text().splitlines()] if log.exists() else []
             if any(r["season"] == a.season and r["week"] == a.week for r in prev):
@@ -136,7 +145,7 @@ def main(argv=None) -> int:
     rows = [json.loads(x) for x in log.read_text().splitlines()] if log.exists() else []
     rows = [r for r in rows if r["week"] >= FIRST_WEEK]
     for g in GROUPS:
-        e = [r["edge"] for r in rows if r["group"] == g]
+        e = [r.get("edge_all", r["edge"]) for r in rows if r["group"] == g]   # the report's comparable: incl. unpriced
         mean = f"{np.mean(e):+.1f}" if e else "n/a"
         print(f"{g:<9} weeks >= {FIRST_WEEK}: {len(e)} | mean {mean} pts/lineup | before FP (2026 W1-4): {BASELINE[g]:+.1f}"
               f" | by week {[round(x, 1) for x in e]}")

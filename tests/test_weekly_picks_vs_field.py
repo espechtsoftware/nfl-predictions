@@ -41,3 +41,15 @@ def test_pool_reports_weeks_from_5_beside_the_baseline(tmp_path, capsys):
     out = capsys.readouterr().out
     assert "ours      weeks >= 5: 2 | mean +2.0 pts/lineup | before FP (2026 W1-4): -3.8" in out
     assert "regulars  weeks >= 5: 1 | mean +5.0 pts/lineup | before FP (2026 W1-4): +6.1" in out
+
+
+def test_the_p_value_edge_and_the_null_use_the_same_priced_players():
+    # D is picked (a share) and scored but has no salary match: it counts in the all-player edge, never in the priced one
+    counts = pd.DataFrame({"player": ["A", "B", "D", "A", "B", "D", "A", "B"], "grp": ["reg", "reg", "reg", "rest", "rest", "rest", "ours", "ours"],
+                           "k": [6, 2, 2, 3, 5, 0, 1, 1]})
+    frame = pd.DataFrame({"display_name": ["A", "B"], "pos": ["WR", "WR"], "salary": [6100, 6800]})
+    d = PV.panel(counts, {"reg": 10, "rest": 10, "ours": 2}, frame, pd.Series({"A": 20.0, "B": 5.0, "D": 30.0}))
+    assert PV.edge(PV.priced(d), "reg_share") == 4.5                     # A and B only
+    assert PV.edge(d[d.dk.notna()], "reg_share") == 4.5 + 0.2 * 30       # + D's (0.2 - 0) x 30 = +6
+    nul = PV.null_draws(d, "reg_share", b=100, seed=3)
+    assert set(np.round(nul, 6)) <= {4.5, -4.5}                          # the null never sees D
