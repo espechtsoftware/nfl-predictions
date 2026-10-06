@@ -12,6 +12,29 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-05 (20:17 CDT) — STUDY 18 READ: WS PASSES (Addendum 129); FP projections decision; the Week-5 build in progress
+
+**Study 18.**
+- WS (QB + 1, a second-game pair, ≤ 3 from the QB's game, bring-back optional) PASSES: tickets +5.849 per slate
+  [+1.613, +10.481], every season positive, mean finish up.
+- MIX is NO DIFFERENCE (+2.245); DS is exploratory (+2.189); the line-aware deals are closed.
+- Reproduced byte-identically by the laptop (READ `9b2649bc`). LEDGER `0738a41`; Addendum 129.
+- The result is plan-specific (draft A's shallow lines). The composite with the FP term and FP projections is untested
+  as such.
+
+**Operator decisions (10-05):**
+- Fantasy Points' projections REPLACE ours (not a blend), if the W4 replay holds. His stated condition for revisiting:
+  ours or a blend beating FP, measured weekly.
+
+**Build:** `production/main-mix-20261006` (reviewer-approved through part 3a; the FP source `cfb02816` is for review).
+- `--main mix` and `--proj-source` exist; WS (`--mix-portfolio ws`) is next.
+- The new live clone `~/projects/.nfl2-worktrees/week5-live-center` @ `f69598b` exists. The week_env defaults stay on
+  `32cdb61` until the operator's yes.
+- Running: the W4 paper replay. A0 first (the house main on the new clone must reproduce the entered W4 book byte for
+  byte), then FP and mix, scored on the real W4 contests.
+
+**Friday:** the operator's decisions on WS (or MIX), FP projections, the pin switch, and the Week-5 contest plan (draft A).
+
 ## 2026-10-05 (19:36 CDT) — Study 17 read and reproduced byte-identically (Addendum 127); O-32 corrections 2 of 5 done
 
 **Study 17.**

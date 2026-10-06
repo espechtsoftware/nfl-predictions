@@ -4346,3 +4346,96 @@ level with those rows included. The reviewer dates the class from the 08-08 sala
 - **Standing rule:** a player-level projection-vs-outcome measure on replay panels joins game-day ACT (or
   `was_active`) first.
 - O-32 is closed. Results: `reports/o32-correction-runs/`.
+
+## Addendum 129 (2026-10-05): study 18 (stacking shapes): WS PASSES (+42% tickets, every season positive, mean finish up); MIX NO DIFFERENCE; the line-aware deal closed
+
+**Setup.**
+- **The operator's ask:** "I think we should be doing more like what the winners do … dual stacks", and "not one
+  strategy across the entire book".
+- **Base:** the plain-mean C (study 17, Addendum 127). No ownership term in any arm; our simulated means.
+- **Arms:**
+  - MIX (DECISION): a shape portfolio by dealt entries. A1 30% QB+2+ with a bring-back; A2 14% QB+2+ without; B 28%
+    QB + exactly 1 + bring-back + a second-game pair, ≤ 3 from the QB's game; C 28% QB + exactly 1, no bring-back, ≤ 3.
+  - WS (DECISION): the field-normal shape on every row. QB + ≥ 1, bring-back optional, ≤ 3 from the QB's game, and a
+    second-game pair from any game.
+  - DS (exploratory): QB + 1 + bring-back + a pair from a top-4-total game.
+  - C_LA and MIX_LA (exploratory): line-aware deals.
+- **Preregistration:** `reports/2026-10-06-prereg-study18-stack-shapes.md` (`ff205145`), with deviation notes 1
+  (`024bbe3f`: the binding census and the §4 path) and 2 (`13575f25`: the confirmatory census, before the reader).
+- **Panel:** 53 slates (2022–24), banks 1415/1416. The plan is production's Week-5 draft A (shallow lines p78.8–p90.9),
+  repeated 5×: 75 contests, 105 entries. B 20,000, seed 20261005; two-sided 0.9875 per decision arm.
+- **Read and reproduced.** Frozen and read by the reviewer. **Reproduced byte-identically by the laptop:** reader
+  `1dbef254`; raw banks 1415 `b9cbb0f7`, 1416 `745b151e`; READ sha `9b2649bc`. Lab: nfl2
+  `production/s18-stack-shapes-20261005` (results `9c6a6a3`, LEDGER `0738a41`).
+
+**Reader output (verbatim):**
+```
+STUDY 18 READER  sha256 1dbef2544094a7b6e15ad9487ad33ad92da8536462dfce970e40888ccc8fddda
+DIRECTION: tickets = dealt entries at or above their contest's line (higher = better); pct = share of the sampled field a row BEATS; every difference is ARM - its reference (C; for the LA deals, their own book); POSITIVE favours the arm.
+slates 53  banks [1415, 1416]  B 20000  seed 20261005  primary two-sided 0.9875 per decision arm, guard one-sided 0.9875 at -0.015  plan 75 mean-track contests, 105 entries  BASE {"lam": 0.0}
+
+== MIX vs C  [DECISION]
+  PRIMARY tickets per slate +2.245  [-0.547, +5.349]  seasons 2022 +0.588, 2023 +2.278, 2024 +3.778
+  GUARD mean entry pct +0.01097  one-sided lower -0.01249  (must exceed -0.015)
+  simulated line-crossing share -0.00536  [-0.00823, -0.00255]  (secondary; in-sample)
+  dealt identical to C: 0.000 of slate-banks
+  ->  NO DIFFERENCE (a tickets effect smaller than about +38% reads NO DIFFERENCE on 53 slates)
+
+== WS vs C  [DECISION]
+  PRIMARY tickets per slate +5.849  [+1.613, +10.481]  seasons 2022 +4.471, 2023 +5.167, 2024 +7.833
+  GUARD mean entry pct +0.03251  one-sided lower -0.00027  (must exceed -0.015)
+  simulated line-crossing share +0.01061  [+0.00763, +0.01390]  (secondary; in-sample)
+  dealt identical to C: 0.000 of slate-banks
+  ->  PASS
+
+== DS vs C  [EXPLORATORY (never decision-bearing)]
+  PRIMARY tickets per slate +2.189  [-0.679, +5.189]  seasons 2022 +2.294, 2023 +1.833, 2024 +2.444
+  GUARD mean entry pct +0.02899  one-sided lower +0.00242  (must exceed -0.015)
+  simulated line-crossing share -0.00699  [-0.00960, -0.00408]  (secondary; in-sample)
+  dealt identical to C: 0.000 of slate-banks
+
+== C_LA vs C  [EXPLORATORY (never decision-bearing)]
+  PRIMARY tickets per slate -1.198  [-4.038, +2.547]  seasons 2022 -0.029, 2023 -3.972, 2024 +0.472
+  GUARD mean entry pct -0.00735  one-sided lower -0.03105  (must exceed -0.015)
+  simulated line-crossing share +0.03272  [+0.03039, +0.03515]  (secondary; in-sample)
+  dealt identical to C: 0.000 of slate-banks
+
+== MIX_LA vs MIX  [EXPLORATORY (never decision-bearing)]
+  PRIMARY tickets per slate +0.085  [-3.566, +4.226]  seasons 2022 +4.147, 2023 -3.861, 2024 +0.194
+  GUARD mean entry pct +0.01252  one-sided lower -0.01978  (must exceed -0.015)
+  simulated line-crossing share +0.04259  [+0.03880, +0.04679]  (secondary; in-sample)
+  dealt identical to C: 0.000 of slate-banks
+
+secondaries (slate means):
+  C     tickets 737.0  zero-ticket slates 0.104  contests with a ticket 0.160  best>=200 0.113  entry pct 0.49517  worst-decile slate 0.28121  simulated crossing 0.31701
+        shape of dealt entries: qb_plus1 0.000  qb_plus2 1.000  bringback 1.000  dual 0.213  in_qb_game 4.000  games 4.294  rb_with_qb 0.000  rb_bb 0.409  max_entry_share 0.695
+  MIX   tickets 856.0  zero-ticket slates 0.151  contests with a ticket 0.186  best>=200 0.179  entry pct 0.50613  worst-decile slate 0.26601  simulated crossing 0.31165
+        shape of dealt entries: qb_plus1 0.576  qb_plus2 0.424  bringback 0.493  dual 0.480  in_qb_game 3.032  games 4.764  rb_with_qb 0.114  rb_bb 0.180  max_entry_share 0.575
+  WS    tickets 1047.0  zero-ticket slates 0.151  contests with a ticket 0.216  best>=200 0.189  entry pct 0.52768  worst-decile slate 0.21621  simulated crossing 0.32762
+        shape of dealt entries: qb_plus1 0.921  qb_plus2 0.079  bringback 0.129  dual 1.000  in_qb_game 2.360  games 4.829  rb_with_qb 0.152  rb_bb 0.051  max_entry_share 0.694
+  DS    tickets 853.0  zero-ticket slates 0.094  contests with a ticket 0.184  best>=200 0.123  entry pct 0.52416  worst-decile slate 0.33710  simulated crossing 0.31001
+        shape of dealt entries: qb_plus1 1.000  qb_plus2 0.000  bringback 1.000  dual 1.000  in_qb_game 3.000  games 4.375  rb_with_qb 0.000  rb_bb 0.347  max_entry_share 0.692
+  C_LA  tickets 673.5  zero-ticket slates 0.434  contests with a ticket 0.139  best>=200 0.057  entry pct 0.48781  worst-decile slate 0.24998  simulated crossing 0.34972
+        shape of dealt entries: qb_plus1 0.000  qb_plus2 1.000  bringback 1.000  dual 0.199  in_qb_game 4.000  games 4.176  rb_with_qb 0.000  rb_bb 0.424  max_entry_share 0.974
+  MIX_LA tickets 860.5  zero-ticket slates 0.377  contests with a ticket 0.175  best>=200 0.057  entry pct 0.51865  worst-decile slate 0.23753  simulated crossing 0.35424
+        shape of dealt entries: qb_plus1 0.461  qb_plus2 0.539  bringback 0.863  dual 0.456  in_qb_game 3.458  games 4.312  rb_with_qb 0.056  rb_bb 0.340  max_entry_share 0.963
+```
+
+**Reading.**
+1. **WS PASSES the frozen rule.** Tickets rise from 737 to 1,047 (+42%), every season is positive, and the mean finish
+   is up 3.3 points.
+   - In practice WS is QB + 1 (92%), a second-game pair (100%), ≤ 3 from the QB's game, rarely a bring-back (13%), 4.8
+     games.
+   - Its cost is a wider spread: the worst-decile slate falls from 0.281 to 0.216, and zero-ticket slates rise from
+     10% to 15%.
+2. **MIX is NO DIFFERENCE.** Its point estimate is positive and its guard holds, but it is not significant.
+   - DS reaches about half WS's gain with the best tail.
+   - The common factor in the gainers is the second-game pair with ≤ 3 from the QB's game; the bring-back looks costly
+     at these lines.
+3. **The result is plan-specific.** It was measured at draft A's shallow lines (p79–p91), with tickets counted per entry.
+4. **Transfer caveat.** There is no ownership term in any arm, and the projections are ours. "WS + FP term + FP
+   projections" is a composite, untested as such; there is no FP history for 2022–24.
+5. **The line-aware deal is CLOSED:** no gain, and it concentrates the top player in 96–97% of entries.
+
+**What it can do** (§6). The PASS is a reason to offer a reversible Week-5 trial of WS, built through production's
+`--main mix` machinery as a whole-book portfolio (`--mix-portfolio ws`, the laptop's build). The operator decides.
