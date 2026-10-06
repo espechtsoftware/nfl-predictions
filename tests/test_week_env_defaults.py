@@ -140,7 +140,7 @@ def test_ownership_fallback_chain_tabpfn_blend_lag_none_is_loud(tmp_path):
     assert "UNION_MAIN_OWN_LAG_TILT=${UNION_MAIN_OWN_LAG_TILT:-0.10}" in src
     host = (ROOT / "scripts" / "sunday_build_host.sh").read_text()
     assert host.index("scripts/ownership_blend.py") < host.index('"${UNION_MAIN_OWN_PREDICTOR:-blend}" == "tabpfn"')
-    start = host.index("  own_banner() {"); end = host.index("  if [[ \"${UNION_MAIN:-mean}\" == \"pmo_x50\"", start)
+    start = host.index("  own_banner() {"); end = host.index("  if [[ ( \"${UNION_MAIN:-mean}\" == \"pmo_x50\"", start)   # the term block (pmo_x50 or mix)
     fns = host[start:end]
     good = tmp_path / "lag_good.csv"; good.write_text("display_name,pred_own\n" + "".join(f"P{i},{20.0 if i < 10 else 2.0}\n" for i in range(150)))
     bad = tmp_path / "lag_bad.csv"; bad.write_text("display_name,pred_own\n" + "".join(f"P{i},1.0\n" for i in range(150)))

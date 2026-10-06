@@ -358,6 +358,25 @@ def audit(run: Path, contests: list[dict], *, layout: str, expect_selector: str 
                    "no ownership term declared: " + ("book_main_control.csv is present (an undeclared term?)" if control.is_file() else "no control book, as expected"),
                    tilt=0.0)
 
+    # ---- proj_source (operator 2026-10-05, FP projections): a declared projection override must travel with the book
+    # (proj_source.csv in the run dir, its sha256 as the receipt says) and its gates must hold. No check when undeclared.
+    ps = (cfg.get("union") or {}).get("proj_source") or {}
+    if ps:
+        problems = []
+        f = run / "proj_source.csv"
+        if not f.is_file():
+            problems.append("proj_source.csv missing from the run dir")
+        elif hashlib.sha256(f.read_bytes()).hexdigest() != ps.get("sha256"):
+            problems.append("proj_source.csv sha256 differs from the receipt")
+        g = ps.get("gates") or {}
+        if float(g.get("coverage_skill_ge5", 0)) < 0.95:
+            problems.append(f"coverage {g.get('coverage_skill_ge5')} < 0.95")
+        if not float(g.get("pearson_r", 0)) >= 0.7:
+            problems.append(f"r(FP, ours) {g.get('pearson_r')} < 0.7")
+        record("proj_source", not problems, f"FP projections for {ps.get('replaced')} players (ours for {ps.get('kept_ours')}); capture "
+               f"{(ps.get('capture') or {}).get('retrieved_at')}{'; BEFORE THE INACTIVES' if ps.get('before_inactives') else ''}"
+               + (f"; problems: {problems}" if problems else ""), replaced=ps.get("replaced"))
+
     # ---- book_rows_legal
     frame_ids = set(fr["id"].astype(str)) | set(fr["dk_player_id"].astype(str)) if "dk_player_id" in fr else set(fr["id"].astype(str))
     # The mean rows (the first k_mean) must be distinct and so must the sleeve rows among themselves; a sleeve row MAY repeat

@@ -422,6 +422,35 @@ def main_exposure_cap(share: float, k: int) -> int:
     return max(1, int(share * k))
 
 
+def apply_proj_source(fr: pd.DataFrame, csv_path: Path, frame_path: Path) -> tuple[pd.DataFrame, dict]:
+    """--proj-source (operator 2026-10-05: Fantasy Points' projections replace ours): the override file written by
+    scripts/fp_projection_override.py FOR THIS FRAME (its sidecar names the frame's sha256; any other frame REFUSES). The
+    frame's mean_projection is replaced for every player the file holds; the rest keep ours; ours stays beside it as
+    mean_projection_ours. Everything downstream (the pool's projection floor, the main or mix solves, the sleeve's
+    projected sums) reads the replaced column. The simulations (banks) stay ours: FP gives a mean only."""
+    meta_path = Path(str(csv_path) + ".json")
+    if not (Path(csv_path).is_file() and meta_path.is_file()):
+        raise SystemExit(f"PROJ SOURCE REFUSED: {csv_path} or its .json sidecar is missing")
+    meta = json.loads(meta_path.read_text())
+    if meta.get("frame_sha256") != sha256_file(frame_path):
+        raise SystemExit(f"PROJ SOURCE REFUSED: {csv_path} was built for another frame ({str(meta.get('frame_sha256'))[:12]})")
+    if meta.get("csv_sha256") != sha256_file(Path(csv_path)):
+        raise SystemExit(f"PROJ SOURCE REFUSED: {csv_path} does not match its sidecar's sha256")
+    ov = pd.read_csv(csv_path, dtype={"id": str})
+    fp = dict(zip(ov["id"].astype(str), pd.to_numeric(ov["fp"], errors="coerce")))
+    if any(not np.isfinite(v) for v in fp.values()):
+        raise SystemExit(f"PROJ SOURCE REFUSED: {csv_path} holds a non-number")
+    out = fr.copy()
+    out["mean_projection_ours"] = out["mean_projection"]
+    ids = out["id"].astype(str)
+    hit = ids.isin(set(fp))
+    out.loc[hit, "mean_projection"] = ids[hit].map(fp).astype(float)
+    return out, {"file": str(csv_path), "sha256": sha256_file(Path(csv_path)), "capture": meta.get("capture"),
+                 "gates": {k: v for k, v in (meta.get("gates") or {}).items() if k != "top15_abs_diff"},
+                 "before_inactives": meta.get("before_inactives"), "replaced": int(hit.sum()), "kept_ours": int((~hit).sum()),
+                 "note": "FP's mean replaces ours in selection; the simulations (banks) stay ours"}
+
+
 def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap: int | None, min_salary: int,
              weights: list[int], exposure_cap: int | None = None, dst_cap: int | None = None,
              bonus: dict[str, float] | None = None) -> tuple[list[list[str]], list[str], dict]:
@@ -528,6 +557,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--main", choices=["mean", "pmo_x50", "mix"], default="mean",
                     help="the main book: mean = the union pool's top-K by projected sum (paper arm); pmo_x50 = K capped plain-mean-optimizer rows solved on the T-70 frame (ENTERS Week 4); "
                          "mix = study 18's shape portfolio: the same capped solves by cell (nfl_dfs.inference.mix_shapes), ordered by the plan's entry-weighted interleave")
+    ap.add_argument("--proj-source", type=Path, default=None,
+                    help="an override file from scripts/fp_projection_override.py built for THIS T-70 frame: its projections replace "
+                         "the frame's mean_projection for the players it holds (operator 10-05: Fantasy Points)")
     ap.add_argument("--mix-plan", type=Path, default=None, help="with --main mix: the week's contests.json (the interleave's entry weights)")
     ap.add_argument("--mix-layout", choices=["sequential", "top", "head", "spread"], default="head",
                     help="with --main mix: the layout enter_layout deals with (ENTER_LAYOUT)")
@@ -573,6 +605,10 @@ def main(argv: list[str] | None = None) -> int:
     if parse_utc(sat["receipt"].get("built_utc", "")) >= parse_utc(t70["receipt"].get("built_utc", "")):
         raise SystemExit(f"the Saturday run {sat_dir.name} was built at or after the T-70 run {a.t70_run.name}")
     fr = t70["frame"]
+    proj_meta: dict = {}
+    if a.proj_source is not None:                        # FP's projections replace ours (operator 10-05); off by default
+        fr, proj_meta = apply_proj_source(fr, a.proj_source, a.t70_run / "frame.parquet")
+        print(f"PROJECTION SOURCE: {a.proj_source} -- FP for {proj_meta['replaced']} frame players, ours for {proj_meta['kept_ours']}")
     inc, hs = (np.load(a.t70_run / b) for b in BANKS)
     if inc.shape[0] != len(fr) or hs.shape[0] != len(fr):
         raise SystemExit("T-70 banks do not match the T-70 frame's rows")
@@ -817,6 +853,8 @@ def main(argv: list[str] | None = None) -> int:
     for f in COPY:
         if (a.t70_run / f).is_file():
             shutil.copyfile(a.t70_run / f, out / f)
+    if proj_meta:                                        # the projections this book was selected on travel with it
+        shutil.copyfile(a.proj_source, out / "proj_source.csv"); shutil.copyfile(str(a.proj_source) + ".json", out / "proj_source.csv.json")
     players_by_id = frame_players(fr)
     lus = [_LU([players_by_id[i] for i in rosters[k]], tags[k]) for k in range(len(rosters))]
     n_written = dk_csv([lus[i] for i in book + book_tail], fr, out / "book.csv")
@@ -891,6 +929,8 @@ def main(argv: list[str] | None = None) -> int:
     else:
         conf.pop("mean_dst_cap", None)
     conf["union"]["main"] = a.main
+    if proj_meta:
+        conf["union"]["proj_source"] = proj_meta
     if pmo_main:
         conf["union"]["pmo_x50" if a.main == "pmo_x50" else a.main] = pmo_main
     conf["main_selector_used"] = a.main

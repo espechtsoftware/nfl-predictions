@@ -146,6 +146,9 @@ week_env() {
   # the build's frame (ENTERS Week 4); mean = the union pool's top-K by projected sum (the Monday paper arm). The sleeve is
   # the union's mean selection either way. Needs UNION_SATURDAY_RUN (the union step runs the main).
   export UNION_MAIN=${UNION_MAIN:-pmo_x50}   # Week 4 arms UNION_SATURDAY_RUN=auto; UNION_PMO > 0 only if L13's R5 supports it
+  # Fantasy Points' projections in the union's selection (operator 2026-10-05); empty = ours. `fp` needs the union
+  # (UNION_SATURDAY_RUN). Armed only with the operator's yes.
+  export UNION_PROJ_SOURCE=${UNION_PROJ_SOURCE:-}
   # Operator 2026-09-28 14:3x: the 25% DST cap on the pmo_x50 main book, and the deep-line sleeve may draw from its rows.
   export UNION_MAIN_DST_CAP=${UNION_MAIN_DST_CAP-0.25} UNION_SLEEVE_INCLUDES_MAIN=${UNION_SLEEVE_INCLUDES_MAIN-1}
   # The main book's per-player exposure cap as a share of K (0.5 = L13's PMO_X50, as entered; L17 09-29: looser is HARMFUL).

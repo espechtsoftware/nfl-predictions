@@ -316,3 +316,25 @@ def test_union_main_check_reads_a_declared_mix_main(tmp_path):
     assert "union_main" in run(tmp_path / "b", {"main": "mix", "mix": mix_meta}, ["pmo_x50"] + good_tags[1:], good_src)   # untagged row
     assert "union_main" in run(tmp_path / "c", {"main": "mix", "mix": {k: v for k, v in mix_meta.items() if k != "mix"}}, good_tags, good_src)
     assert "union_main" in run(tmp_path / "d", {"main": "mean"}, good_tags, good_src)                                    # mean main holding mix rows
+
+
+def test_a_declared_fp_projection_source_must_travel_with_the_book(tmp_path):
+    """FP projections (operator 10-05): the override file and its sha in the run dir, the gates held; none when undeclared."""
+    import hashlib
+    run = _run_dir(tmp_path / "a")
+    assert "proj_source" not in [c["check"] for c in _audit(run)["checks"]]               # undeclared: no check
+    (run / "proj_source.csv").write_text("id,fp\nAQB,20.0\n")
+    sha = hashlib.sha256((run / "proj_source.csv").read_bytes()).hexdigest()
+    rec = json.loads((run / "receipt.json").read_text())
+    rec["config"]["union"] = {"main": "pmo_x50", "proj_source": {"sha256": sha, "replaced": 1, "kept_ours": 0,
+                                                                 "gates": {"coverage_skill_ge5": 1.0, "pearson_r": 0.97}}}
+    (run / "receipt.json").write_text(json.dumps(rec))
+    res = _audit(run)
+    assert "proj_source" not in res["failed"] and "proj_source" in [c["check"] for c in res["checks"]]
+    rec["config"]["union"]["proj_source"]["gates"]["pearson_r"] = 0.5
+    (run / "receipt.json").write_text(json.dumps(rec))
+    assert "proj_source" in _audit(run)["failed"]
+    (run / "proj_source.csv").write_text("id,fp\nAQB,21.0\n")
+    rec["config"]["union"]["proj_source"]["gates"]["pearson_r"] = 0.97
+    (run / "receipt.json").write_text(json.dumps(rec))
+    assert "proj_source" in _audit(run)["failed"]                                          # the file changed after the build
