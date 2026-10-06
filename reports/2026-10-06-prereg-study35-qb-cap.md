@@ -1,7 +1,6 @@
-# Preregistration: study 35, QB diversity on the winners' mix (a per-QB cap at the regulars' level) (DRAFT 2026-10-06)
+# Preregistration: study 35, QB diversity on the winners' mix (a per-QB cap at the regulars' level) (FROZEN 2026-10-06)
 
-**Status: DRAFT 2026-10-06.** The reviewer drafts it and freezes it after the calibration census and the smoke. The
-laptop comments, acks the binding census and re-runs the frozen reader.
+**Status: FROZEN 2026-10-06** by the reviewer, after the calibration census and the smoke (§5), before any scored bank. The laptop acks the binding census and re-runs the frozen reader. Production's matching lever is built and OFF (`production/qb-cap-20261006` @ `b5514472`; parity with this harness confirmed: the ban at count ≥ cap, one running state across all cells, spares counted).
 
 ## 1. Why
 - **The operator (10-06):** "I'm more interested in the winner's mix than our way we've been doing it. However, it
@@ -66,18 +65,39 @@ laptop comments, acks the binding census and re-runs the frozen reader.
   the cap as a preference (the bust-risk view), told plainly.
 - **WORSE or FAIL:** no cap. The concentration is the price of the projection-driven book, as for studies 24 and 1b.
 
-## 5. Integrity (filled at the freeze)
-Code (nfl2 `production/s35-qb-cap-20261006`), the reader sha, the caps and the calibration census, the binding census.
-Order:
-1. this draft;
-2. the laptop's comments;
-3. the calibration census;
-4. the smoke;
-5. the freeze;
-6. the binding census;
-7. the laptop's ack;
-8. the scored run;
-9. the confirmatory census;
-10. the read;
-11. the laptop's re-run;
-12. the LEDGER row and an Addendum.
+## 5. Calibration, smoke and integrity
+- **The calibration census** (bank 1406, outcome-blind; `results/s35/CALIB_s35.txt`).
+  - Uncapped MIXT: the dealt entries' most-used QB is at 0.477, with 4.1 distinct QBs (effective number 2.8).
+
+    | row cap (of 26) | most-used QB | distinct QBs | projection given up per lineup |
+    |---|---|---|---|
+    | 4 | 0.187 | 7.9 | −0.50 |
+    | **5** | **0.223** | **6.7** | **−0.31** |
+    | 6 | 0.261 | 5.9 | −0.22 |
+    | 7 | 0.287 | 5.5 | −0.18 |
+    | **8** | **0.323** | **5.3** | **−0.12** |
+    | 9 | 0.363 | 4.9 | −0.10 |
+    | 10 | 0.392 | 4.8 | −0.06 |
+
+  - At every level: no passes to A1, no short books, and the cells stay within 3 points of their quotas.
+  - **A = 5 rows**, the loosest at or under 0.25. **B = 8 rows**, the loosest at or under 0.35.
+- **The binding census at the frozen caps** (1406, 36/36, code `25991ee`; `CENSUS_s35_binding.txt` `79f502b7…`, raw
+  `621354ba…`): it reproduces the calibration exactly. Neither capped arm is identical to MIXT on any slate-bank.
+- **The smoke** (2023 W1, 1406, the full path): the census and reader exited 0; the reader printed its 2 headers and
+  REFUSED mechanics-only rows. No outcome line was read.
+- **Code:** nfl2 `production/s35-qb-cap-20261006` @ `a90dc3a`:
+  - `experiments/s35_qb_cap.py`, sha256 `afbb85d26063d135423c5f92b3a107749d45c0ee04bfee6631cde0b620b9d82a` (the caps are
+    frozen in code, with no environment override);
+  - `scripts/s35_drive.py`, `2d0f49578fd5b0c611fcb699497f3d9d86fe305a1e0425159c83536532d19683`;
+  - **`scripts/s35_report.py` (the reader), sha256 `bf55070e56439a5f4a6bba23198ead737d6f05e989737674b6374c347bbbf69a`**;
+  - `scripts/s35_census.py`, `ecc1354be7e435c60a2c571b9dbce91d93ca5445db0846ccbe2bd4459b5ed7ce`;
+  - `tests/test_s35_qb_cap.py`, `ea573a8575e78fd6c97d156f0807c7c5334d5e06c841b5b2f327994785b61a5b` (5 tests).
+- **Production `enter_layout`:** `3cb051ac…`. **Banks:** 1455–1460 (scanned clean by the laptop). **Seed:** 20261017.
+- **Order:**
+  1. this freeze;
+  2. the laptop's ack;
+  3. the scored run;
+  4. the confirmatory census;
+  5. the read;
+  6. the laptop's re-run;
+  7. the LEDGER row and an Addendum.
