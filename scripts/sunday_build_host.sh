@@ -100,6 +100,20 @@ for f in "${need_flags[@]}"; do
 done
 LIVE="$CLONE/results/live/$WEEKDIR"; mkdir -p "$LIVE"
 echo "== $(date -u) week $WEEK group $GROUP run tag $RUN_TAG dose lev $PAID_LEV / boom $PAID_BOOM (D$((PAID_LEV + PAID_BOOM))) skip_pair ${SKIP_PAIR:-0}"
+# The local Milly graph never runs through a build window (reviewer 10-04, binding; the arm refuses while it runs, but it
+# could be started after arming). Its heap + page cache (up to 18 GB) could starve the builds, so the build STOPS it
+# (it is on-demand only) rather than refusing: a refusal here would cost the money path. Two signals, as at arming:
+# the pid file (ps -p) and any listener on 7474/7687 (ss). A failed stop is a loud WARN, never a refusal.
+NEO_PID=$HOME/.local/share/neo4j-milly/run/neo4j.pid
+if { [[ -s $NEO_PID ]] && ps -p "$(cat "$NEO_PID")" >/dev/null 2>&1; } || [[ -n "$(ss -ltnH '( sport = :7474 or sport = :7687 )' 2>/dev/null)" ]]; then
+  echo "NEO4J RUNNING during a build window: stopping it (neo4j-milly stop)"
+  [[ -x $HOME/.local/bin/neo4j-milly ]] && timeout 120 "$HOME/.local/bin/neo4j-milly" stop || true
+  if { [[ -s $NEO_PID ]] && ps -p "$(cat "$NEO_PID")" >/dev/null 2>&1; } || [[ -n "$(ss -ltnH '( sport = :7474 or sport = :7687 )' 2>/dev/null)" ]]; then
+    echo "WARN: NEO4J STILL RUNNING (or another listener on 7474/7687); the build continues -- stop it by hand"
+  else
+    echo "neo4j stopped"
+  fi
+fi
 # the run dir this build creates: newest receipt with our lev/boom whose built_utc falls inside our window (concurrent
 # builds at other doses may write LATEST meanwhile)
 find_run_dir() {  # $1 lev, $2 boom, $3 start epoch -> the run dir THIS invocation produced, or empty
