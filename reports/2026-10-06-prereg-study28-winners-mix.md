@@ -1,8 +1,7 @@
-# Preregistration: study 28, the winners' shape mix against the house shape, on the operator's goal and final plan (DRAFT 2026-10-06)
+# Preregistration: study 28, the winners' shape mix against the house shape, on the operator's goal and final plan (FROZEN 2026-10-06)
 
-**Status: DRAFT.** It is frozen, with the reader's sha256 recorded here, after the one-slate smoke (§2a) and before the
-binding census and any scored bank. The reviewer freezes it and reads first. The laptop acks the census and re-runs the
-frozen reader before the LEDGER row.
+**Status: FROZEN 2026-10-06** (morning CDT), after the smokes (§2a), before the binding census and any scored bank. The
+reviewer froze it and reads first. The laptop acks the census and re-runs the frozen reader before the LEDGER row.
 
 **The operator (10-06, verbatim):** "In my opinion, that is too big of a stack and it doesn't match what the winners
 do.  However, it's alternative is the same shape for every lineup.  I like what we discussed previously of mirroring how
@@ -45,12 +44,24 @@ The arms:
   - then the entry-weighted interleave. Its weights come from enter_layout's head deal of the plan WITH his pins
     (rank 1 = 10 entries, then 8, 7, 6, 5; ranks 6–22 one each), so the quotas hold by entries as dealt;
   - spares by quota after the book, to depth 40.
-- **MIXNP (EXPLORATORY, vs C):** the same, with production's CURRENT `mix_shapes.plan_weights`, which strips the pins
-  (O-35). It shows what MIX would deal if armed before O-35 is fixed.
+- **MIXNP (EXPLORATORY, vs MIX):** the same, with production's CURRENT `mix_shapes.plan_weights`, which strips the
+  pins (O-35). Read against MIX, it gives O-35's effect directly. The laptop's fix (`ce7ba02b`) makes production equal
+  to MIX.
 
-## 2a. Smoke observations before the freeze
-(To be filled from `~/s28-panel/smoke/`: 2023 W9, throwaway bank 1406, mechanics only; the reader checked by its exit
-code and its count of "== " headers only.)
+## 2a. Smoke observations before the freeze (2023 W9, throwaway bank 1406; mechanics; the reader checked by exit code and header count only)
+- **Smoke 1 caught a bug before any freeze:** `mix_book`'s meta carried a key `rows` that overwrote the arm record's rows.
+  It is renamed `cell_rows`, and a test guards against key collisions (`669f92b`).
+- **Smoke 2 is clean:**
+  - caps 11 / 5; k_book 22;
+  - the weights with pins are [10, 8, 7, 6, 5, then 1 × 17]; production's pin-stripping weights are [7, 7, 2, 2, 1, …];
+  - MIX's DEALT-entry cell shares: A1 .302 / A2 .151 / B .245 / C .302, on quota, with 0 passes to A1;
+  - MIX: QB + 1 .55, bring-back .55, dual .51;
+  - on this slate MIXNP's dealt shares equalled MIX's;
+  - the reader exited 0 with 2 comparison blocks.
+- **Design change on mechanics only:** MIXNP's reference was changed from C to MIX, so that it reads O-35's effect
+  directly.
+- **Binding-census checks (§4)** are unchanged, plus MIXNP's identical-to-MIX rate. Above 80% it is a dead lever, which
+  would mean O-35 doesn't matter on this plan.
 
 ## 3. Panel and plan
 - **Slates:** the 53 `k1` slates of 2022–24 with Millionaire ownership.
@@ -81,14 +92,13 @@ code and its count of "== " headers only.)
 - **WORSE / FAIL (guard):** not offered.
 
 ## 6. Integrity
-- **Code:** nfl2 `production/s28-winners-mix-20261006`:
-  - `experiments/s28_winners_mix.py`;
-  - `scripts/s28_drive.py`;
-  - **`scripts/s28_report.py` (the reader)**;
-  - `scripts/s28_census.py`;
-  - `tests/test_s28_winners_mix.py` (6 tests).
-
-  The shas are recorded at the freeze.
+- **Code:** nfl2 `production/s28-winners-mix-20261006` @ `5da5a31`:
+  - `experiments/s28_winners_mix.py`, sha256 `9a3118e3ec8ba6e3c0c4bdfdca506ebfeeaabe01f5a154a23cafdeeb98602b22`;
+  - `scripts/s28_drive.py`, `be4dc1c63cb7c6f121ed6ba88250909481a8a5da4a9dfa028644089080fb7d1b`;
+  - **`scripts/s28_report.py` (the reader), sha256
+    `d320a3689d108b07b2f723977896512c9fa50ab1a1ae26f9288b72d758442f4e`**;
+  - `scripts/s28_census.py`, `6773bd7bc782adafd04b4bcb588b11bfcff11837d52146de153fc334a9a3c393`;
+  - `tests/test_s28_winners_mix.py`, `d7b7bdb0fabec7d7c2848f10823b1f0b0a6288381cc31e9f84aa2026ce9ee502` (7 tests).
 - **Order:** this freeze → the binding census on 1406 (the laptop's ack) → the scored run on 1425/1426 → a confirmatory
   census → the reviewer's read → the laptop's byte-identical re-run → LEDGER and Addendum 133.
 - **Transfer:** our projections; no ownership term; no FP.
