@@ -312,7 +312,8 @@ def own_bonus(source: Path, t70: pd.DataFrame, exclude: set[str], tilt: float, m
 
 def pmo_rows(t70: pd.DataFrame, exclude: set[str], n: int, max_shared: int, cap: int | None, min_salary: int,
              existing: set[frozenset], exposure_cap: int | None = None, dst_cap: int | None = None,
-             bonus: dict[str, float] | None = None, game_caps: dict[str, int] | None = None) -> list[list[str]]:
+             bonus: dict[str, float] | None = None, game_caps: dict[str, int] | None = None,
+             qb_cap: int | None = None) -> list[list[str]]:
     """Plain-mean-optimizer rows on the T-70 frame (L13's R5 form), skipping rosters already in the pool. With
     exposure_cap (L13's PMO_X50: max(1, N // 2)), a player already in that many PMO rows is banned from later solves --
     the form L13 SUPPORTED at p89 (+27.7% tickets vs MEAN, both seasons); the uncapped form was NOT SUPPORTED. With
@@ -326,6 +327,7 @@ def pmo_rows(t70: pd.DataFrame, exclude: set[str], n: int, max_shared: int, cap:
         pool = [dict(p, obj=p["proj"] + float(bonus.get(p["id"], 0.0))) for p in pool]
         objective = "obj"
     dst_ids = {p["id"] for p in pool if p["pos"] == "DST"}
+    qb_ids = {p["id"] for p in pool if p["pos"] == "QB"}
     env = {"MIN_LINEUP_SALARY": str(min_salary)}
     if cap is not None:
         env["MAX_PER_GAME"] = str(cap)
@@ -342,6 +344,8 @@ def pmo_rows(t70: pd.DataFrame, exclude: set[str], n: int, max_shared: int, cap:
         bans = {p for p, c in count.items() if exposure_cap is not None and c >= exposure_cap}
         if dst_cap is not None:
             bans |= {p for p, c in count.items() if p in dst_ids and c >= dst_cap}
+        if qb_cap is not None:                                  # study 35's per-QB cap (10-06; default off)
+            bans |= {p for p, c in count.items() if p in qb_ids and c >= qb_cap}
         bans = bans or None
         sets = None
         if game_caps is not None:
@@ -454,7 +458,7 @@ def apply_proj_source(fr: pd.DataFrame, csv_path: Path, frame_path: Path) -> tup
 def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap: int | None, min_salary: int,
              weights: list[int], exposure_cap: int | None = None, dst_cap: int | None = None,
              bonus: dict[str, float] | None = None, portfolio: str = "mix",
-             spares: int = 0) -> tuple[list[list[str]], list[str], dict, list[tuple[list[str], str]]]:
+             spares: int = 0, qb_cap: int | None = None) -> tuple[list[list[str]], list[str], dict, list[tuple[list[str], str]]]:
     """study 18's MIX book on the T-70 frame: cells solved largest first (ties: the earlier cell) through ONE shared state
     (banned lineups, the per-player exposure cap, the DST cap, <= max_shared with every earlier row); a cell row that cannot
     be solved passes to A1 (counted); then the rows are ordered by the entry-weighted interleave of the plan's weights.
@@ -473,6 +477,7 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
         pool = [dict(p, obj=p["proj"] + float(bonus.get(p["id"], 0.0))) for p in pool]
         objective = "obj"
     dst_ids = {p["id"] for p in pool if p["pos"] == "DST"}
+    qb_ids = {p["id"] for p in pool if p["pos"] == "QB"}
     games = sorted({str(p["game_id"]) for p in pool if p["pos"] in SKILL})    # the REAL game ids (skill rows)
     env = {"MIN_LINEUP_SALARY": str(min_salary)}
     if cap is not None:
@@ -491,6 +496,8 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
         bans = {p for p, c in count.items() if exposure_cap is not None and c >= exposure_cap}
         if dst_cap is not None:
             bans |= {p for p, c in count.items() if p in dst_ids and c >= dst_cap}
+        if qb_cap is not None:                                  # study 35's per-QB cap (10-06; default off)
+            bans |= {p for p, c in count.items() if p in qb_ids and c >= qb_cap}
         lu = optimize(pool, stack=StackRules(**rules), objective_col=objective, banned_lineups=prev, max_overlap=max_shared,
                       bans=bans or None, env=env, second_game_pair=games if which == "all" else None, qb_game_max=qmax)
         if lu is None:
@@ -561,6 +568,10 @@ def main(argv: list[str] | None = None) -> int:
                     help="the tail sleeve's per-player exposure cap as a share of T: a row is skipped when a player in it already "
                          "sits in int(share*T) sleeve rows. Default none (as entered). A short capped sleeve falls back, named, "
                          "to the uncapped sleeve. UNTESTED until PREREG-L19 reads")
+    ap.add_argument("--main-qb-cap-rows", type=int, default=None,
+                    help="with --main pmo_x50 or mix: a QB already in this many book rows is banned from later solves (study 35's "
+                         "per-QB cap in ROWS, the unit the study calibrates; operator 10-06: QB diversity). Default none (off): "
+                         "UNTESTED until study 35 reads.")
     ap.add_argument("--main-dst-cap", type=float, default=None,
                     help="with --main pmo_x50: a DST in >= floor(share*K) rows is banned from later solves (operator's open question; "
                          "the tested arm had none -- Week 3 put two busting DSTs in 25 and 22 of 58 rows). Default none.")
@@ -609,6 +620,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--rehearsal", action="store_true", help="paper: accept a T-70 run built with another selector (Week 3 was dual_emax); "
                                                             "the receipt records rehearsal=true; never point --out into the live tree")
     a = ap.parse_args(argv)
+    if a.main_qb_cap_rows is not None and not (1 <= a.main_qb_cap_rows <= a.entries and a.main in ("pmo_x50", "mix")):
+        raise SystemExit(f"--main-qb-cap-rows must be 1..entries with --main pmo_x50 or mix (got {a.main_qb_cap_rows}, main {a.main})")
     if not 0 < a.main_cap_share <= 1:
         raise SystemExit(f"--main-cap-share must be in (0, 1] (got {a.main_cap_share})")
     if a.sleeve_cap_share is not None and not 0 < a.sleeve_cap_share <= 1:
@@ -737,6 +750,7 @@ def main(argv: list[str] | None = None) -> int:
         excl = gone | {i for i in proj_all if pos_all[i] in SKILL and not (proj_all[i] >= a.min_proj)}
         xcap = main_exposure_cap(a.main_cap_share, a.entries)
         dcap = max(1, int(a.main_dst_cap * a.entries)) if a.main_dst_cap else None
+        qcap = a.main_qb_cap_rows
         bonus, own_meta = own_bonus(a.main_own_source, fr, excl, a.main_own_tilt, a.main_own_min_coverage) if a.main_own_tilt else ({}, {})
         t_pmo = _time.time()
         plain_tags = main_tags = None
@@ -744,7 +758,7 @@ def main(argv: list[str] | None = None) -> int:
         if a.main == "mix":
             weights = mix_weights(a.mix_plan, a.entries, a.mix_layout)
             plain_rows, plain_cells, mix_meta, plain_spares = mix_rows(fr, excl, a.entries, a.mean_max_shared, cap, a.min_salary,
-                                                                       weights, exposure_cap=xcap, dst_cap=dcap,
+                                                                       weights, exposure_cap=xcap, dst_cap=dcap, qb_cap=qcap,
                                                                        portfolio=a.mix_portfolio,
                                                                        spares=0 if bonus else a.mix_spares)
             spare_rows = plain_spares
@@ -752,7 +766,7 @@ def main(argv: list[str] | None = None) -> int:
             mix_meta.update({"plan": str(a.mix_plan), "plan_sha256": sha256_file(a.mix_plan), "layout": a.mix_layout,
                              "weights_nonzero_ranks": sum(1 for w in weights if w), "weights_entries": sum(weights)})
         else:
-            plain_rows = pmo_rows(fr, excl, a.entries, a.mean_max_shared, cap, a.min_salary, set(), exposure_cap=xcap, dst_cap=dcap)
+            plain_rows = pmo_rows(fr, excl, a.entries, a.mean_max_shared, cap, a.min_salary, set(), exposure_cap=xcap, dst_cap=dcap, qb_cap=qcap)
         secs_pmo = round(_time.time() - t_pmo, 1)
         if len(plain_rows) < a.entries:
             label = "MIX MAIN REFUSED" if a.main == "mix" else "PMO_X50 MAIN REFUSED"
@@ -762,17 +776,17 @@ def main(argv: list[str] | None = None) -> int:
         main_rows = plain_rows
         gcaps = game_row_caps(fr, a.entries) if a.main_game_cap == "p3" else None
         if gcaps is not None and not bonus:
-            main_rows = pmo_rows(fr, excl, a.entries, a.mean_max_shared, cap, a.min_salary, set(), exposure_cap=xcap, dst_cap=dcap, game_caps=gcaps)
+            main_rows = pmo_rows(fr, excl, a.entries, a.mean_max_shared, cap, a.min_salary, set(), exposure_cap=xcap, dst_cap=dcap, qb_cap=qcap, game_caps=gcaps)
             check_main_rows(main_rows, a.entries, gcaps, bonus)
         if bonus:
             t_own = _time.time()
             if a.main == "mix":
                 main_rows, main_cells, own_mix, spare_rows = mix_rows(fr, excl, a.entries, a.mean_max_shared, cap, a.min_salary,
-                                                                      weights, exposure_cap=xcap, dst_cap=dcap, bonus=bonus,
+                                                                      weights, exposure_cap=xcap, dst_cap=dcap, qb_cap=qcap, bonus=bonus,
                                                                       portfolio=a.mix_portfolio, spares=a.mix_spares)
                 main_tags = [TAG_PREFIX + c for c in main_cells]; mix_meta["with_term"] = own_mix
             else:
-                main_rows = pmo_rows(fr, excl, a.entries, a.mean_max_shared, cap, a.min_salary, set(), exposure_cap=xcap, dst_cap=dcap, bonus=bonus,
+                main_rows = pmo_rows(fr, excl, a.entries, a.mean_max_shared, cap, a.min_salary, set(), exposure_cap=xcap, dst_cap=dcap, qb_cap=qcap, bonus=bonus,
                                      game_caps=gcaps)
             own_meta["secs"] = round(_time.time() - t_own, 1)
             check_main_rows(main_rows, a.entries, gcaps, bonus)
@@ -837,6 +851,8 @@ def main(argv: list[str] | None = None) -> int:
                     "sleeve_includes_main": bool(a.sleeve_includes_main),
                     "distinct_players": len(expo), "dst_cap": dcap if dcap else "none (the tested arm had none)",
                     "max_dst_rows_used": max(dst_expo.values()), "dst_rows": dict(dst_expo.most_common(3)),
+                    "qb_cap_rows": qcap if qcap else "none (off)",
+                    "max_qb_rows_used": max(Counter(p for i in book for p in rosters[i] if pos[p] == "QB").values()),
                     "own_term": own_meta if bonus else {"tilt": 0.0}}
         if a.main == "mix":
             pmo_main["mix"] = mix_meta
