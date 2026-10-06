@@ -20,12 +20,12 @@ PLAN_SHA=8625de0ec37d491ce7b5cf10f7e6eef7719e3198fc118df890f1b82235fe766f     # 
 CHOSEN_LEV=0; CHOSEN_BOOM=4800                                                # FRIDAY: confirm the Week-5 dose
 QB_CAP_ROWS=5; QB_CAP_K=26          # study 35's cap A (his yes 10-06): no QB in more than 5 of the 26 book rows
 OWN_TILT=0                          # the ownership term (his 10-06 yes: "remove the tilt"); 0 = no term, no FP ownership on the money path
-MAX_SHARED=5                        # a union row shares at most 5 players with every earlier row (his 10-06 yes; the outside
-                                    # review's W2-4 replay, reproduced by the laptop; production default 7)
-MIX_FILL=group                      # the MIX fill order (study 42; operator 10-06 "best strategy first for a given QB?"):
-                                    # group = today's book; value = each step commits the best next row across the cells;
-                                    # rr = the cells in turn (a row per shape for the top QBs). Not group only after
-                                    # study 42's READ, the W2-4 check and HIS yes
+MAX_SHARED=4                        # a union row shares at most 4 players with every earlier row (his 10-06 evening yes,
+                                    # "Use 4": study 41 PASS, replicated by study 42's GROUP4-GROUP5 on fresh banks, the
+                                    # field audit clean; 5 was his afternoon choice; production default 7)
+MIX_FILL=rr                         # the MIX fill order (study 42; his 10-06 evening yes, "Use round-robin"): the cells in
+                                    # turn, a row per shape for the top QBs (the outside reviewer's arm; NO DIFFERENCE on
+                                    # P(>=1 big), +9% expected seats). group = the earlier book; value is NOT to be armed
 P=$HOME/projects/nfl-predictions; W=$HOME/week5-sunday; PY=$P/.venv/bin/python; CHECK=${1:-}
 say() { printf '%s %s\n' "$(date +%H:%M:%S)" "$*"; }
 stop() { say "ARM STOPPED: $*"; exit 1; }

@@ -12,6 +12,19 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (17:27 CDT) — Operator: overlap limit 4 and round-robin fill for Week 5 (study 42 reproduced; field audit clean)
+
+- **Study 42 READ** (reviewer 9462d8a, READ_s42 e14276fb) reproduced byte-identically. Bank shas = RAW_MANIFEST.
+  - Both decisions NO DIFFERENCE: VALUE − GROUP −0.01493 [−0.06396, +0.03486]; RR − GROUP +0.00774 [−0.04024, +0.05611] (0.975 intervals).
+  - GROUP4 − GROUP5 = +0.04845 [+0.01796, +0.07916], replicating study 41 on fresh banks.
+- **§6.1 field audit (reviewer):** the harness's sampled fields rank the arms as the real fields do (18/18 contrast-weeks agree in sign). They are 3–6 points easier at the top, so its absolute chances run high. So the W2–4 ms4 shortfall is single-row noise, not a field-model artifact.
+- **The operator, 10-06 evening (AskUserQuestion):**
+  - "Use round-robin" (the laptop had recommended keeping the earlier order; he chose rr);
+  - "Use 4" (recommended);
+  - study 44 "Drop it" (recommended).
+- **Applied:** `scripts/arm_week5_saturday.sh` sets MAX_SHARED=4 and MIX_FILL=rr; the host copy is synced and still refuses on FRIDAY_HEAD. The host-local `a2_armed_k26.sh` now runs `--mean-max-shared 4 --mix-fill rr`. The decision sheet (rows 14, 15) and checklist (items 8, 9) are updated.
+- **Best-first (value) is NOT to be armed** (study 42 leaning negative; worse on W2–4).
+- **Next:** study 38 amendment 2 (the paper arms follow the live fill and limit, 4 + rr) is the reviewer's smoke tonight. A1–A3 Wednesday, then Friday's rehearsal at 4 + rr.
 ## 2026-10-06 (17:19 CDT) — Dashboard redeployed (e5eddb14); the W2–4 package money arms built for review
 
 - **Dashboard:** Cloud Build `f3688ff5` built `nfl-dfs:dashboard-e5eddb14` from the clean worktree `dashboard-build-e5eddb14`. The dashboard tests ran in the build. Digest `sha256:e417e0ca…`.
