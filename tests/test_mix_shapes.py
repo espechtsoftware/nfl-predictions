@@ -476,3 +476,29 @@ def test_value_fill_keeps_the_caps_and_the_qb_cap(monkeypatch):
     assert len(rows) == k and max(used[q] for q in qbs if q in used) <= 3 and max(used.values()) <= 10
     with pytest.raises(ValueError, match="fill must be"):
         ur.mix_rows(fr, set(), k, 7, 4, 49_000, weights, exposure_cap=10, dst_cap=5, fill="best")
+
+
+def test_value_fill_commits_in_study_42s_scripted_order(monkeypatch):
+    """Parity with the lab's study 42 harness (nfl2 production/s42-fill-order-20261006 @ 4541886,
+    test_value_fill_commits_the_best_next_row_and_rolls_every_peek_back): cell c's k-th committed row is worth VALUES[c][k];
+    at k 10 (A1 3, A2 1, B 3, C 3) the value fill commits exactly the lab's order, B:1 beating A2:0 at the tie of 9."""
+    values = {"A1": [8, 7, 6, 5, 4, 3], "B": [10, 9, 4, 3, 2, 1], "C": [5, 5, 5, 5, 5, 5], "A2": [9, 1, 1, 1, 1, 1]}
+    fail: tuple = ()
+
+    def optimize(pool, stack, objective_col, banned_lineups, max_overlap, bans, env, second_game_pair=None, qb_game_max=None):
+        name = next(n for n, (_, r, _, _) in M.MIX_CELLS.items() if dataclasses.asdict(StackRules(**r)) == dataclasses.asdict(stack))
+        if name in fail:
+            return None
+        j = sum(1 for ids in banned_lineups if any(i.startswith(f"{name}:") for i in ids))     # the cell's committed rows
+        return LU([{"id": f"{name}:{j}:{s}", objective_col: (values[name][j] if s == 0 else 0.0)} for s in range(9)])
+
+    lineup = _install(monkeypatch, [])
+    lineup.optimize = optimize
+    rows, cells, meta, _ = ur.mix_rows(_frame(), set(), 10, 7, 4, 49_000, [1] * 10, exposure_cap=10, dst_cap=5, fill="value")
+    assert meta["commit_order"] == ["B", "B", "A2", "A1", "A1", "A1", "C", "C", "C", "B"]
+    assert sorted(r[0].rsplit(":", 1)[0] for r in rows) == sorted(["B:0", "B:1", "A2:0", "A1:0", "A1:1", "A1:2", "C:0", "C:1",
+                                                                  "C:2", "B:2"])
+    assert meta["passes_to_A1"] == 0 and [meta["cells"][n]["target_rows"] for n in ("A1", "A2", "B", "C")] == [3, 1, 3, 3]
+    fail = ("A2",)                                                        # the lab's test_a_failing_cell_passes_its_quota_to_a1
+    _, _, meta, _ = ur.mix_rows(_frame(), set(), 10, 7, 4, 49_000, [1] * 10, exposure_cap=10, dst_cap=5, fill="value")
+    assert meta["passes_to_A1"] == 1 and {n: meta["cells"][n]["rows"] for n in meta["cells"]} == {"A1": 4, "A2": 0, "B": 3, "C": 3}
