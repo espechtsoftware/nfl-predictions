@@ -5016,3 +5016,130 @@ the operator's super-satellite question ($20-Milly-ticket super-satellites; desc
    - His 1–26 instinct is supported on what he asked for: more chances of at least one ticket.
 6. **Transfer:** our projections (the live build takes FP's), the term's predictor is a stand-in, and the fields are
    sampled from the Millionaire's ownership.
+
+## Addendum 137 (2026-10-06): study 32 (choosing the best few lineups for a big contest): OFFER R4 at the frozen rule, marginal — with one entry no rule beats a random pick; with 2–3 entries choosing them TOGETHER (joint coverage) beats random, about +7 points at three entries; every one-row ranking rule trails random again
+
+**Setup.**
+- **Why:** the operator (10-06): "we NEED to have a way to sort lineups … i will have a limited number of entries to
+  big contests next week, so we need to figure out how to choose the best ones." Every past ranking attempt failed (A13,
+  A62, A93, A114, study 18).
+- **The choice:** m of the K-26 book's entered rows (study 31's harness; Rev3, caps 13 / 6, `enter_layout`
+  `3cb051ac`), for this week's lobby targets:
+  - the $4,444 MEGA (N 634; S_big 119, every paid place; S_top 54);
+  - the $333 Wildcat (N 4,170; S_big 1,000; S_top 270);
+  - m = 1, 2, 3.
+- **Books:** CT and MIX.
+- **Rules:**
+  - R0: book order;
+  - R1: projected mean;
+  - R2: simulated P(top S) one row at a time;
+  - R3: simulated q99;
+  - R4: JOINT coverage, the exhaustive m-subset maximizing simulated P(at least one in the top S), on 1,000 worlds
+    against a PRE-LOCK field (TABPFN_LS ownership);
+  - R5: breadth (distinct QBs / games);
+  - RND: exact uniform-random, the control.
+- **The operator's line:** his "big" inside next week's targets is "$500 or more", so S_big is the primary.
+- **Preregistration:** `reports/2026-10-06-prereg-study32-sorting.md` (frozen `ec8c64ff`; the laptop's amendment: OFFER
+  also needs R4 − R0 ≥ 0).
+  - Deviation note 1 at the binding census, before any scored bank: when the pre-lock field cannot be sampled (the
+    predicted ownership overflows the cap), 10,000 direct draws. It fired on 1 of 36 census slate-banks and 6 of 216
+    scored, all six banks of 2023 W11.
+- **Panel:** 36 slates, banks 1437–1442, B 20,000, seed 20261014, two-sided 0.95.
+- **Read and reproduced:**
+  - Read by the reviewer.
+  - **Reproduced byte-identically by the laptop:** reader `c7abb741`; READ `f8a87773`; raw 1437 `c224631a` … 1442
+    `b69a07c6`.
+  - The descriptive output's body matched exactly. Its first header printed the reader's host path; it now prints the
+    reader's sha256 (rule 2).
+
+**Reader output (verbatim):**
+```
+STUDY 32 READER  sha256 c7abb741e0a620a8dd2abd57e5114636e6150ab1c858f24410d042ae5eef0f27
+DIRECTION: realized P(the best chosen row is in the top S) per slate (the mean over its banks); every difference is RULE - REFERENCE; POSITIVE favours the rule.
+slates 36  banks [1437, 1438, 1439, 1440, 1441, 1442]  B 20000  seed 20261014  primary R4 - RND over the 12 S_big cells, two-sided 0.95  targets {'MEGA': {'N': 634, 'S': {'big': 119, 'top': 54}}, 'WILD': {'N': 4170, 'S': {'big': 1000, 'top': 270}}}  m (1, 2, 3)
+
+== R4 vs RND  [DECISION: joint coverage vs a uniformly random choice; S_big]
+  PRIMARY realized P(best in the top S), pooled over 12 cells +0.02978  [+0.00081, +0.05986]  seasons 2023 +0.03444, 2024 +0.02511   (RND's level 0.41075)
+  R4 - R0 (his default), pooled point estimate +0.04257  (OFFER needs >= 0)
+  R4 picks exactly R0's rows in 0.057 of slate-bank-cells
+  ->  OFFER R4
+
+== EXPLORATORY (never decision-bearing)
+  S_big R0 - RND: realized -0.01279  [-0.06679, +0.04052]  seasons 2023 +0.01467, 2024 -0.04025   simulated (in-sample) -0.00508
+  S_big R1 - RND: realized -0.04765  [-0.09810, +0.00633]  seasons 2023 -0.06616, 2024 -0.02913   simulated (in-sample) -0.00927
+  S_big R2 - RND: realized -0.04184  [-0.09365, +0.01122]  seasons 2023 -0.04902, 2024 -0.03467   simulated (in-sample) +0.00239
+  S_big R3 - RND: realized -0.06550  [-0.13060, +0.00019]  seasons 2023 -0.06801, 2024 -0.06299   simulated (in-sample) -0.02048
+  S_big R4 - RND: realized +0.02978  [+0.00081, +0.05986]  seasons 2023 +0.03444, 2024 +0.02511   simulated (in-sample) +0.08425
+  S_big R5 - RND: realized -0.01521  [-0.07098, +0.04297]  seasons 2023 +0.01299, 2024 -0.04340   simulated (in-sample) +0.04014
+  S_big R1 - R0 : realized -0.03486  [-0.07902, +0.00722]  seasons 2023 -0.08083, 2024 +0.01112   simulated (in-sample) -0.00419
+  S_big R2 - R0 : realized -0.02905  [-0.07283, +0.01267]  seasons 2023 -0.06368, 2024 +0.00558   simulated (in-sample) +0.00747
+  S_big R3 - R0 : realized -0.05271  [-0.10673, +0.00059]  seasons 2023 -0.08268, 2024 -0.02274   simulated (in-sample) -0.01540
+  S_big R4 - R0 : realized +0.04257  [-0.00642, +0.09325]  seasons 2023 +0.01977, 2024 +0.06536   simulated (in-sample) +0.08933
+  S_big R5 - R0 : realized -0.00242  [-0.06175, +0.05655]  seasons 2023 -0.00168, 2024 -0.00316   simulated (in-sample) +0.04522
+  S_top R0 - RND: realized -0.01773  [-0.07167, +0.03733]  seasons 2023 -0.02269, 2024 -0.01276   simulated (in-sample) +0.00416
+  S_top R1 - RND: realized -0.04108  [-0.08569, +0.00503]  seasons 2023 -0.05336, 2024 -0.02881   simulated (in-sample) +0.00164
+  S_top R2 - RND: realized -0.04428  [-0.09537, +0.00880]  seasons 2023 -0.03440, 2024 -0.05415   simulated (in-sample) +0.01372
+  S_top R3 - RND: realized -0.04453  [-0.09802, +0.01237]  seasons 2023 -0.03524, 2024 -0.05381   simulated (in-sample) -0.00251
+  S_top R4 - RND: realized +0.00935  [-0.02286, +0.04631]  seasons 2023 +0.01493, 2024 +0.00377   simulated (in-sample) +0.07026
+  S_top R5 - RND: realized +0.00249  [-0.03731, +0.04396]  seasons 2023 -0.01265, 2024 +0.01763   simulated (in-sample) +0.03803
+  S_top R1 - R0 : realized -0.02336  [-0.06530, +0.01238]  seasons 2023 -0.03066, 2024 -0.01605   simulated (in-sample) -0.00251
+  S_top R2 - R0 : realized -0.02655  [-0.07356, +0.01585]  seasons 2023 -0.01171, 2024 -0.04139   simulated (in-sample) +0.00957
+  S_top R3 - R0 : realized -0.02680  [-0.07920, +0.02288]  seasons 2023 -0.01255, 2024 -0.04105   simulated (in-sample) -0.00666
+  S_top R4 - R0 : realized +0.02707  [-0.03493, +0.09019]  seasons 2023 +0.03762, 2024 +0.01653   simulated (in-sample) +0.06610
+  S_top R5 - R0 : realized +0.02022  [-0.03512, +0.07432]  seasons 2023 +0.01004, 2024 +0.03039   simulated (in-sample) +0.03388
+  R4 - RND at S_big, by cell group:
+    book CT      +0.04383  [+0.00446, +0.08478]
+    book MIX     +0.01572  [-0.01163, +0.04428]
+    target MEGA  +0.02712  [-0.00490, +0.06004]
+    target WILD  +0.03243  [-0.00346, +0.06836]
+    m 1          -0.00546  [-0.06165, +0.05322]
+    m 2          +0.02556  [-0.01113, +0.06320]
+    m 3          +0.06923  [+0.03233, +0.10500]
+
+secondaries (slate means; realized level per rule at S_big, pooled over books, targets and m):
+  R0  0.39796
+  R1  0.36310
+  R2  0.36891
+  R3  0.34525
+  R4  0.44052
+  R5  0.39554
+  RND 0.41075
+  CT: Spearman(projected mean, realized percentile) within the book, slate mean +0.0467  (A62: +0.086)
+  MIX: Spearman(projected mean, realized percentile) within the book, slate mean +0.0746  (A62: +0.086)
+```
+
+**Pre-stated descriptive lines (post-read, never decision-bearing; verbatim):**
+```
+STUDY 32 DESCRIPTIVE (post-read; pre-stated in §2b; never decision-bearing)  reader sha256 c7abb741e0a620a8dd2abd57e5114636e6150ab1c858f24410d042ae5eef0f27
+  (1) R4 - R5 at S_big, 12 cells: +0.04498  [-0.00203, +0.09184]  seasons 2023 +0.02145, 2024 +0.06852
+  (2) R4 - RND at S_big excluding fallback slate-banks (6 of 216; 35 slates kept): +0.03044  [+0.00097, +0.06134]  seasons 2023 +0.03607, 2024 +0.02511
+```
+
+**Reading.**
+1. **At the frozen rule: OFFER R4.**
+   - R4 − RND +0.030 [+0.001, +0.060], both seasons positive, R4 − R0 +0.043.
+   - The lower bound only just clears 0: a marginal pass.
+2. **The effect is entirely at m 2–3.**
+   - m 1: −0.005 (R4 = R2 there).
+   - m 2: +0.026 (not shown on its own).
+   - m 3: +0.069 [+0.032, +0.105].
+   - **With one entry, no rule beats a random pick.**
+3. **One-row ranking fails again** (A62 holds).
+   - R1 −0.048, R2 −0.042, R3 −0.066, R0 −0.013, R5 −0.015 against random.
+   - The within-book Spearman is +0.047 (CT) / +0.075 (MIX).
+   - Only choosing the SET for joint coverage gains, and R4 − R5 (+0.045 [−0.002, +0.092]) says the simulator adds
+     something beyond "different QBs", not decisively.
+4. **The simulator over-sells about 3×:** simulated +0.084, realized +0.030. The weekly R0-vs-R4 paired shadow is where
+   this is watched.
+5. **By book:** significant on CT (+0.044 [+0.004, +0.085]), not on MIX (+0.016 [−0.012, +0.044]).
+   - **MIXT (the mix + term), the book he is most likely to arm, was not in study 32.** Its R4 edge is unmeasured,
+     plausibly between the two.
+   - §5's "the book he picks Friday" is therefore met only approximately.
+6. **What it changes (frozen §5):** R4 becomes a reversible class-S selection step for next week's 1–3 entries in a big
+   contest.
+   - The laptop builds `choose_entries` (R4's rows beside R0 and RND; a parity test against the frozen `choose()`) and
+     records a paired R0-vs-R4 shadow each week.
+   - **No Week-5 change:** this week's multi-entry contests are FIRST-PLACE satellites, a line study 32 did not test.
+     Its deepest line (S_top) showed nothing: R4 − RND +0.009 [−0.023, +0.046].
+7. **His plain answer:** "With 3 entries in the same big contest, choose them together by the simulator: about +7
+   points of cash chance. With 2, about +3, not proven on its own. With 1, nothing beats a random pick."
