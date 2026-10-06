@@ -12,6 +12,23 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (13:50 CDT) — Study 38 plumbing: the laptop's snapshot tool; the reviewer's build reads the union's own inputs; outside-agent report
+
+- **Snapshot tool (host-local, tested):** `~/.cache/laptop-agent/rehearsal/s38_snapshot.sh <union dir> <OUT> <RUN_TAG>
+  <contest-details> <plan-overrides | -> <dest>`.
+  - It copies exactly the files the union's own args name: `--proj-source` must be byte-identical to OUT's
+    `proj_fp-<TAG>.csv`, else REFUSED; no `--proj-source` means not an FP week, REFUSED. It also copies the ownership
+    source as named, dk-status only if named, ONE `union-args-<TAG>.txt`, contests.json, contest-details.json and
+    plan-overrides.json.
+  - It writes MANIFEST.txt (sha256, bytes, name, source, mtime; union built_utc; snapshot time). Create-once; never
+    under `~/weekN-sunday`.
+  - Used Wednesday after A3 (`~/private/paper-corun/rehearsal-w05`) and Sundays before 12:00 CT (`…/2026-wNN`).
+- **The laptop's finding:** production passes NO `--dk-status` (O-16), so the paper build must use dk = None unless the
+  union args name one. Fixed by the reviewer: lab `production/s38-paper-corun-20261006` @ `ebfe2f8`; prereg draft
+  `77096ef6`; the plan converter `scripts/s38_plan.py` reproduces the W5 plan `3dd19d6c` byte for byte.
+- **Outside-agent report** for the operator: `reports/2026-10-06-project-status-challenges-and-attempts.md` (`fc1e72d7`,
+  sent; public, no private data).
+
 ## 2026-10-06 (13:34 CDT) — Study 37 READ and reproduced (keep the yes-book); the operator approves the FP paper co-run (study 38)
 
 - **Study 37** (the regulars' structure): READ by the reviewer, reproduced BYTE-IDENTICALLY by the laptop (`73d77944`).
