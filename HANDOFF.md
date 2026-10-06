@@ -12,6 +12,58 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (06:54 CDT) — Full Week-5 rehearsal found O-36 (vet_book undid the MIX cell placement), fixed and approved; study 30 leans to the status quo; study 29 merged; the operator's super-satellite question
+
+**The full Week-5 rehearsal** (reviewer's request; local Friday-merge preview; W4 T-70 frame; Rev2 pins; MIX + FP; no
+ownership term; K 22; spares 15; test-exclude of the most-entered non-QB, Aaron Jones Sr., in 37 of 53 entries):
+- First run (preview 933a1e72): checks 2–5 PASS; **check (1) FAIL by entries**: A1 .321 / A2 .057 / B .396 / C .226.
+- **Cause (O-36):** `vet_book.block_order` sank two flagged head rows (C at weight 7, A2 at weight 6; Limited /
+  Questionable) to the back. O-35's pin-aware weights place cells BY POSITION, so the reorder moved the entered mix.
+  A companion reporting defect: `mix_dealt_shares` printed "house 14" because in-cell replacements from the Saturday /
+  T-70 corpus carry no mix tag.
+- **Fix:** `production/vet-cell-order-20261006` @ `030db347`, off O-35.
+  - `vet_book.cell_block_order`: each cell's rows reorder only within that cell's positions, ONLY for a mix main (the
+    house book's order is unchanged, tested). A flagged row alone in its cell stays and is printed.
+  - `mix_dealt_shares`: untagged main-block rows count by shape ("fits A1/A2" if several).
+  - **APPROVED by the reviewer.**
+- Re-run (preview a2cdd197): **5/5 PASS by entries**: A1 .321 / A2 .151 / B .226 / C .302, worst gap 5.4 points.
+  Money-path modules: 299 passed, 3 skipped.
+- **Friday merge order:** main-mix `ddd470ed` → O-35 `ce7ba02b` → vet-cell-order `030db347` → linestar-retire
+  `b20628fc`. O-36 is registered in OPEN-DEFECTS; the checklist is updated (`5744650a`).
+
+**Studies:**
+- **Study 29 merged** into integration (`19d1c05e`). The LEDGER row (nfl2 `4188510`; stays on its lab branch per the
+  reviewer) and Addendum 134 were verified figure by figure against my byte-identical READ (`fc5f6d23`).
+- **Study 30 census:** acked; my re-run was byte-identical (`773ff77d`).
+- **Study 30 READ:** reproduced byte-identically (`8dbdce26`; reader `24108528`; raw 1429 `767846fe`, 1430 `09ec0394`).
+  - PKG (MIX, no term) vs SQ (house + 0.20 term): **NO DIFFERENCE, both seasons negative**: −0.07113 [−0.18760,
+    +0.05327]. Guard 1 −0.051 (fails descriptively); guard 2 0.982.
+  - It conflicts with 28 + 29. The same MIX build read .362 (s29 banks) vs .294 (s30 banks), so between-bank noise is
+    about 7 points.
+  - **Study 31** (the reviewer is drafting it): a 2×2 co-run, shape (house, MIX) × term (off, 0.20), on 6 fresh banks.
+    The primary is MIX vs CT. The rule: MIX stays his option unless shown worse.
+- **Decision sheet** (`5744650a`): row 1 is open until 31 reads; row 7 is "OFF on MIX", with 30's complication noted;
+  study 30's table is in section 1; new section 4a on the satellites.
+
+**The operator's question (10-06 ~06:50):** "Do we feel strongly that we know lineups 1-5 are our best? … i suggest we
+do 1-26 for the $20 satellites."
+- **Answered: not strongly.** Under MIX the order is mostly cell placement, the gaps are small, and s24's all-distinct
+  deal was NO DIFFERENCE.
+- **1–26 is impossible as it stands:** `_head_ranks` refuses a pin that adds rows (the limit is 22).
+- **Candidate "Rev3-spread":** `~/private/week5-plan/rev3-spread/contests.json` (sha `db6237aa`; NOT installed; Rev2
+  stays at `~/week5-sunday/contests.json`).
+  - Pins: 1–5 / 6–10 / 11–15 / 16–20 / 21–22 for the p95.8 and p87 satellites; supersat7 1–3, supersat8 1, ffwc 1.
+  - Rehearsal: 5/5 PASS (worst cell gap 7.7 points; 2 flagged rows kept ahead, printed).
+  - Satellites on 22 lineups instead of 5; the most-used player in 29 of 53 entries instead of 37.
+- **Waiting on:** his choice (keep the pins or spread), and the reviewer adding the satellite outcome (P(≥ 1 ticket),
+  expected tickets) to study 31.
+
+**Next:**
+- Ack study 31's census.
+- Re-read 31.
+- His spread-or-pins choice.
+- Install the chosen plan before Saturday's arming; re-run `check_week_runtime` on it.
+
 ## 2026-10-06 (06:23 CDT) — STUDY 28: the winners' mix (MIX) is the closest result of the week, recommended as his preference; props report; LineStar retired
 
 **Study 28** (the reviewer's; MIX A1 30 / A2 14 / B 28 / C 28 by dealt entries vs the house shape; Rev2 with pin-aware
