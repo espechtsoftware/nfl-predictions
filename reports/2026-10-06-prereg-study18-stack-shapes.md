@@ -130,3 +130,20 @@ points). No arm passed, so C stands and every study-18 arm is built on it.
   (nothing changes after it starts) → a confirmatory mechanics-only census from the scored rows, committed before the
   reader → the reviewer's read → the laptop's byte-identical re-run → the LEDGER row and an Addendum.
 - **Transfer caveat:** no ownership term in any arm; the live book adds the FP term upstream. Any trial is "arm + term".
+
+---
+
+## Deviation note 1 (2026-10-05, after the binding census, BEFORE any scored bank; reviewed by both parties)
+**(i) The binding census** (bank 1406, all 53 panel slates, mechanics only, 0 errors; nfl2 `results/s18/CENSUS_s18_binding.txt`
+@ `fd23850`):
+- MIX cells: realized ROWS A1 .305 / A2 .143 / B .276 / C .276; realized DEALT ENTRIES A1 .269 / A2 .159 / B .224 / C .349
+  (quotas .30 / .14 / .28 / .28: within 10 points each, so no design change; the shifts come from the small-contest overlap
+  limit and are accepted as the arm, stated). Passes to A1: 0. Short books: 0 in every arm.
+- Shape of dealt entries (MIX | C | WS | DS; top 1% | field): QB+1 only .572 | .000 | .923 | 1.00; .48 | .53. QB+2+ .428 |
+  1.00 | .077 | 0; .44 | .30. Bring-back .493 | 1.00 | .123 | 1.00; .59 (41–66%) | .43. Second-game pair .477 | .224 | 1.00 |
+  1.00; .46 | .46. Players in the QB's game 3.04 | 4.00 | 2.35 | 3.00; 3.2 | 2.8. Games used 4.78 | 4.28 | 4.84 | 4.36; 4.9 |
+  5.3. Top player's entry share .580 | .695 | .693 | .690.
+- MIX sits at or between the top-1% and the regulars' references on every marginal. WS rarely takes a bring-back (.12).
+**(ii) A path typo in §4:** the draft plan's path is `~/private/week5-plan/contests.draft-A.json` (its sha256 `8d97f5eb…e1f6` as
+written is correct).
+**Next:** the scored run on 1415/1416; nothing in the design changes after it starts.
