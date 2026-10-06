@@ -1,0 +1,45 @@
+# Dashboard v2 image (2026-10-03). Runs only the dashboard tests, then builds
+# and pushes nfl-dfs:dashboard-<short sha>. Never pushes :latest; no job or
+# service is deployed here (scripts/deploy_dashboard.sh does that, by digest).
+#
+#   gcloud builds submit --project nfl-predictions-503414 \
+#     --config cloudbuild.dashboard.yaml \
+#     --substitutions _SHORT_SHA=$(git rev-parse --short HEAD),_CODE_SHA=$(git rev-parse HEAD)
+substitutions:
+  _SHORT_SHA: ''
+  _CODE_SHA: ''
+  _IMAGE: 'us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs:dashboard-${_SHORT_SHA}'
+options:
+  dynamicSubstitutions: true
+steps:
+  - name: python:3.11-slim
+    id: dashboard-tests
+    entrypoint: bash
+    env:
+      - 'SHORT=${_SHORT_SHA}'
+      - 'FULL=${_CODE_SHA}'
+    args:
+      - -ceu
+      - |
+        test -n "$$SHORT" && test -n "$$FULL" || { echo "pass _SHORT_SHA and _CODE_SHA"; exit 1; }
+        case "$$FULL" in "$$SHORT"*) ;; *) echo "_SHORT_SHA is not a prefix of _CODE_SHA"; exit 1;; esac
+        pip install --no-cache-dir '.[gcp,app,dev]'
+        PYTHONPATH=src pytest tests/test_dashboard_data.py tests/test_dashboard_milly.py \
+          tests/test_dashboard_graph.py tests/test_dashboard_publisher.py tests/test_dashboard_app.py \
+          tests/test_dashboard_deploy.py
+  - name: gcr.io/cloud-builders/docker
+    id: build-image
+    args: [build, --build-arg, 'SOURCE_COMMIT_SHA=${_CODE_SHA}', -t, '${_IMAGE}', .]
+  - name: gcr.io/cloud-builders/docker
+    id: smoke-dashboard
+    entrypoint: bash
+    env:
+      - 'IMG=${_IMAGE}'
+    args:
+      - -ceu
+      - |
+        docker run --rm "$$IMG" nfl-dfs dashboard --help >/dev/null
+        docker run --rm "$$IMG" python -c "import neo4j, nfl_dfs.dashboard.app, nfl_dfs.dashboard.milly_graph"
+        docker run --rm "$$IMG" test -f sql/dashboard/milly_contests.sql
+images:
+  - '${_IMAGE}'

@@ -883,6 +883,10 @@ def main(argv: list[str] | None = None) -> None:
     p = sub.add_parser("serve", help="Run the FastAPI app")
     p.add_argument("--port", type=int, default=8080)
 
+    p = sub.add_parser("dashboard",
+                       help="Run the read-only dashboard v2 (nfl_dfs.dashboard)")
+    p.add_argument("--port", type=int, default=8080)
+
     # O-32 correction protocol (reports/2026-10-05-o32-correction-protocol.md): the one shared repair, off by default
     for _cmd in ("pass-participation-proxy", "market-tail-diagnostic", "ngs-receiver-tail-diagnostic",
                  "fantasy-points-qb-shell-diagnostic", "fantasy-points-defense-proe-diagnostic"):
@@ -1461,6 +1465,11 @@ def main(argv: list[str] | None = None) -> None:
         import uvicorn
 
         uvicorn.run("nfl_dfs.app.main:app", host="0.0.0.0", port=args.port)
+    elif args.command == "dashboard":
+        import uvicorn
+
+        uvicorn.run("nfl_dfs.dashboard.app:create_app", factory=True,
+                    host="0.0.0.0", port=args.port)
 
 
 if __name__ == "__main__":
