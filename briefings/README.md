@@ -11,7 +11,7 @@ the laptop.
 
 | Read | What it answers |
 |---|---|
-| [Week-5 decision sheet (draft for Friday)](2026-week-05/2026-10-05-week5-decision-sheet.md) | The lineup shape (WS passed: +42% tickets on 53 slates), Fantasy Points' projections, the lab-code update, the contest plan; the Week-4 replay; what is untested; how to undo |
+| [Week-5 decision sheet (draft for Friday)](2026-week-05/2026-10-05-week5-decision-sheet.md) | Judged by your goal (one big win): the lineup shape (WS passed: +42% tickets on 53 slates, at shallower lines than yours), Fantasy Points' projections, the lab-code update, your revised plan (19 contests, 24 entries), all-distinct dealing and a cap on any one game (study 24, Wednesday); the Week-4 replay; what is untested; how to undo |
 
 ## 2026 Week 4 (Sunday 10-04): post-mortem and the Week-5 decision → `2026-week-04/`
 

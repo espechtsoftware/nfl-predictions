@@ -1,7 +1,13 @@
 # Week 5: your decisions (draft for Friday)
 
-2026-10-05, written for you. Four decisions. Each is reversible, and none is armed without your yes. The contest
-plan's dollars are in your private draft, not here (this repository is public).
+2026-10-05, written for you; revised 10-06 for your revised entries and your goal. Each decision is reversible, and
+none is armed without your yes. The contest plan's dollars are in your private files, not here (this repository is
+public).
+
+**Your goal, in your words (10-05):** "If i could win one 333, 555 or 4444 or $500 in the milly, the week is a success
+and i wouldnt care if i lost all the $20 milly tickets." So from now on the number that matters is **the chance of at
+least one big win in the week**: a $333 or bigger seat, or a $500+ finish in the Millionaire. Average tickets come
+second.
 
 ## The short version
 
@@ -10,12 +16,14 @@ plan's dollars are in your private draft, not here (this repository is public).
 | 1 | The lineup shape: WS, the shape-mix portfolio (MIX), or today's | **WS**: the only change that passed its test |
 | 2 | Fantasy Points' projections instead of ours | **Yes** (you decided this in principle; the Week-4 check worked) |
 | 3 | The lab-code update both of these need | **Yes**: it changes nothing when they're off (proven below) |
-| 4 | The Week-5 contest plan (draft A: 21 entries in shallow-line qualifiers) | **Yes, or your edits** |
+| 4 | The Week-5 contest plan | **Done: your revised entries** (19 contests, 24 entries) |
+| 5 | Every entry a different lineup | **You chose this.** Study 24 checks it against your goal; result Wednesday |
+| 6 | A cap: no game's quarterbacks in more than 6 of your 24 entries, on top of 5 | **Decide after study 24** (Wednesday) |
 
 ## 1. The lineup shape
 
-**What we tested.** Study 18 rebuilt the book on 53 practice slates (2022–24), against your Week-5 draft plan's cash
-lines, in three ways:
+**What we tested.** Study 18 rebuilt the book on 53 practice slates (2022–24) in three ways. It used the cash lines of
+my first draft plan (9–22% of the field paid):
 
 | Version | What every lineup looks like | Tickets vs today's | Average finish | Slates with no ticket |
 |---|---|---|---|---|
@@ -26,6 +34,10 @@ lines, in three ways:
 - **WS passed** the frozen test, which was written before any results were seen. That is the bar we use.
 - **The cost:** a noticeably wider swing. Slates where the whole book wins nothing rise from 10% to 15%, and on the
   worst tenth of slates the average entry beats 22% of the field instead of 28%. More tickets on average, bigger swings.
+- **Your plan's lines are deeper than the ones tested.** Your revised plan's seats sit at the top 1–4% of each contest
+  (one seat in 23 to 402), not at 9–22%. WS's better average finish should help there too, but the +42% is a number for
+  shallow lines, not for your plan. Study 24 runs on your actual plan and reports WS's own chance of at least one big
+  win (Wednesday).
 - **MIX** is the "mix of shapes like the winners" you asked for. It moved the right way but was not conclusive.
 - **Your literal dual stack** (QB + 1 + bring-back + a second-game pair, on every lineup) was tested as EXPLORATORY.
   - It got about half WS's gain (+2.2 tickets per slate) with the steadiest results of any version: no ticket on 9% of
@@ -37,22 +49,6 @@ lines, in three ways:
 - **On your "not one strategy everywhere":** WS is one shape, but a much looser one than today's: about 4.8 games
   per lineup, against 4.3. A further idea, by contest type (WS for qualifiers, today's tighter stack for any
   Millionaire entries), is on the study list as item 23.
-- **One risk WS does not fix: leaning on one game.** The share of entries whose QB came from the slate's
-  highest-total game, rebuilt on Week 4:
-
-  | Book (Week 4) | Entries whose QB is from the highest-total game |
-  |---|---|
-  | What we entered | 62% |
-  | WS | 34% |
-  | WS + FP | 53% (52% on draft A) |
-  | MIX + FP | 77% (81% on draft A) |
-  | The field | about 20% |
-
-  So WS + FP still leans on one game about 2½ times as much as the field. That game was Jacksonville–Cincinnati, the
-  Chase game in Week 4.
-- **A cap on that share** (item 24) is relevant. Study 1 found a per-game budget did not cost tickets. But it is not
-  yet built for the new shapes, and it would be a third change this week. **Your call:** I would add it next week,
-  after a check, rather than this week. It's one week of data on this point.
 
 ## 2. Fantasy Points' projections
 
@@ -72,13 +68,58 @@ lines, in three ways:
 - **Proof it is safe when off:** I rebuilt Week 4's actual book on the new code with the new options off. It matched
   what we entered, byte for byte.
 
-## 4. The Week-5 contest plan
+## 4. The Week-5 contest plan: your revised entries
 
-- **Draft A** (sent to you privately) follows your mix: $555, $333 and Millionaire qualifiers, at last week's budget.
-- **It uses the shallow-line versions:** 9–22% of the field paid. At our Weeks 1–4 finishing level they lose about
-  half as much per dollar as the 1%-line ones. WS and FP are meant to change that level.
-- **All the testing above used this plan's cash lines.**
-- **The counts are yours.**
+- **19 contests, 24 entries**, built from your revised entries file. The baseball satellites are gone, and your two
+  entries in the $555 super-satellite are in.
+- **Almost all of it chases big seats:** the $333 Wildcat, $555 and $4,444 satellites and the World Championship
+  qualifier, one entry each except the cheapest Wildcats (two each); two Millionaire entries; one entry in the $20-ticket
+  super-satellite, the only contest that does not pay a big seat.
+- **One of the $4,444 satellites seats the October 12 Showdown** (a single-game contest), not the main-slate $4,444.
+  It counts as a big win: your words to the reviewer, "any one except a $20 milly ticket count as big wins to me".
+- **Everything in study 24 uses this exact plan**, with the Millionaire judged at the $500+ line (the top 95 of
+  161,764).
+
+## 5. Every entry a different lineup
+
+- **Your choice (10-05):** "All distinct." The build then makes 24 lineups, one per entry, instead of putting the best
+  four lineups in two contests each.
+- **One wrinkle:** a rule that stops two entries in the same small contest from sharing more than 5 players can still
+  reuse a lineup. In the reviewer's trial run, 21 of 24 entries were distinct, not 24.
+- **Study 24 decides on strictly distinct (24 of 24) against today's dealing,** judged by your goal. Strictly distinct
+  needs a small, reviewed change to the build before Saturday: it builds a few spare lineups to swap in.
+- **The build's sequential dealing as it stands** (no code change; 21–24 distinct) is measured too, as the fallback
+  if the change isn't ready.
+
+## 6. A cap on any one game
+
+- **Why:** concentration. When one game carries most of the book and disappoints, most entries lose together. That
+  hurts your goal (one big win) more than it hurts average tickets.
+- **How often it happens,** rebuilt on Week 4: the share of entries whose quarterback came from the slate's
+  highest-total game.
+
+  | Book (Week 4) | Entries whose QB is from the highest-total game |
+  |---|---|
+  | What we entered | 62% |
+  | WS | 34% |
+  | WS + FP | 53% |
+  | MIX + FP | 77% |
+  | The field | about 20% |
+
+- **It is not only the top game.** In the reviewer's trial run, WS put 21 of 24 entries on ONE game's quarterbacks,
+  and that game was not the highest-total one.
+- **So study 24 tests a cap on every game:** no game's quarterbacks in more than 6 of your 24 entries. Other players
+  from that game can still appear as bring-backs and second-game pairs.
+- **It is tested on top of all-distinct dealing,** the package you would run. With the old dealing (the best lineups in
+  two contests each), a lineup in two contests counts twice and the cap leaked to 8 of 24 in the trial run; all-distinct
+  held it at exactly 6.
+- **Judged by your rule:** the cap passes only if it raises the chance of at least one big win, keeps the average
+  finish, and costs at most about 20% of expected big seats. Your words: "judge the entry cap by chance of at least one
+  big win (seats of $333+ or $500+ Milly), not average tickets, accepting up to ~20% fewer expected big seats if
+  average finish holds."
+- **If it passes and you say yes:** I build it into the live build with a check that it matches the study, call for
+  call; the reviewer reviews it before Saturday. If it fails or reads "no difference," it is not offered as a passed
+  test.
 
 ## The Week-4 replay: one week, a check that it all works, not evidence
 
@@ -100,21 +141,26 @@ section 1 is the evidence.
 
 ## What we have not tested, said plainly
 
-- **The combination is untested as a whole.** Studies 17 and 18 ran on OUR simulated projections, without the
-  ownership adjustment. "WS (or MIX) + the ownership adjustment + FP projections" as a combination is untested except
-  by the one-week Week-4 replay. There is no FP data for 2022–24, so a full test of the combination is not possible.
-- **Book size differs.** With 21 entries the build makes a 17-row book; the study dealt from 105 rows. The caps are
-  the same shares, so it should carry over, but it is not identical.
+- **The combination is untested as a whole.** Studies 17, 18 and 24 run on OUR simulated projections, without the
+  ownership adjustment. "WS + the ownership adjustment + FP projections" as a combination is untested except by the
+  one-week Week-4 replay. There is no FP data for 2022–24, so a full test of the combination is not possible.
+- **Book size differs.** Your 24 entries need 24 lineups dealt all-distinct (20 with the old dealing); the studies dealt
+  from 105. The caps are the same shares, so it should carry over, but it is not identical.
+- **The fields are modelled, not real.** Study 24 models every contest's opponents as Millionaire-style entries.
+  Real satellite fields are smaller and sharper (the regulars are a much bigger share of them), so its absolute
+  chances are optimistic. The comparisons between versions are what it decides on.
 
 ## If you say yes: how it runs and how we undo it
 
 - **Arming:** the Saturday arming line adds
-  `UNION_MAIN=mix UNION_MIX_PORTFOLIO=ws UNION_PROJ_SOURCE=fp`, with the lab pin moved to the new code. The arming
-  banner prints the choice, so a missed line can't silently pick the wrong arm.
+  `UNION_MAIN=mix UNION_MIX_PORTFOLIO=ws UNION_PROJ_SOURCE=fp`, with the lab pin moved to the new code, plus the
+  dealing setting and, if adopted, the game cap. The arming banner prints the choice, so a missed line can't silently
+  pick the wrong arm.
 - **Safety nets:**
   - if WS can't fill the book, the build falls back loudly to today's shape;
   - if FP's capture fails a check, it falls back loudly to our projections;
   - every audit and Sunday's replacement of ruled-out players already understand the new shapes.
-- **Undo:** remove those three settings and move the pin back. Today's build is unchanged.
+- **Undo:** remove those settings and move the pin back. Today's build is unchanged.
 - **Monday:** the entered book against a paper rebuild of today's book on the same slate, plus the shape you actually
-  entered and the ours / FP / blend accuracy.
+  entered, the ours / FP / blend accuracy, and the week judged by your goal (any big win, and how close the best
+  entries came).
