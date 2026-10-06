@@ -12,6 +12,49 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (11:42 CDT) — A2 register re-check; study 35 READ and reproduced (QB cap: NO DIFFERENCE, leaning positive); local Neo4j + DuckDB installed; the arm-check branch
+
+**A2 (the 10:37 scheduled task), `1e8adcca`.** The register is re-reviewed 10-06.
+- O-14 closed; O-36 new; O-3, O-3d, O-22 and O-35 progressed.
+- O-19 / O-20 / O-23 / O-24 stay open: their exit is a rehearsal on the merged code, and today's rehearsals were script-level.
+- The reviewer agreed:
+  - **Wed 10-07 afternoon:** a host-level `sunday_build_host.sh` rehearsal on today's integration (REUSE_K90_DIR = the W4 T-70 run, SKIP_PAIR=1, scratch OUT). It may close the four; record the commit and the OUT dir.
+  - **Fri:** ONE host rehearsal on the merged head under the exact `arm_env` of his chosen shape. It is also the shape rehearsal on f69598b. Any failed check reopens its item.
+  - Both rows are in the arming checklist.
+
+**Study 35 (the per-QB cap on MIXT), READ by the reviewer, reproduced BYTE-IDENTICALLY by the laptop.**
+- Lab `production/s35-qb-cap-20261006` @ `1e995eb`; READ_s35.txt `7edbf566…`.
+- Pins and order:
+  - reader `bf55070e` = the prereg pin (`c4fb005b`, frozen 11:21:44, after the binding census at a90dc3a);
+  - experiment `afbb85d2`;
+  - raw banks 1455–1460 and plan `3dd19d6c` = RAW_MANIFEST;
+  - confirmatory census `09ee606` committed before the READ.
+- Bank scan: 0 production hits. 1 lab hit = the known "rho 0.1460" prose (false positive).
+- Result:
+  - MIXT_QA − MIXT +0.02563 [−0.02728, +0.08309]; seasons +0.022 / +0.030.
+  - Guard 1 +0.005 (lower −0.008); guard 2 1.048; vacuity 0.000.
+  - **NO DIFFERENCE**, leaning positive on every endpoint.
+  - The top QB of dealt entries goes .474 → .224; distinct QBs 4.2 → 6.8.
+- Cosmetic defect: the reader prints "STUDY 34 READER". It is identified by its sha; it goes in the records.
+- By the frozen §4, he may choose the cap as a preference. The reviewer and the laptop recommend it: decision-sheet row 10, checklist decision 6.
+- The production branch `qb-cap-20261006` @ `b5514472` implements the harness's rule (a QB with count ≥ cap is banned, in the same running state as the player and DST caps; book rows solved before spares).
+- If he says yes: arm `UNION_MAIN_QB_CAP_ROWS=5 UNION_MAIN_QB_CAP_K=26`.
+- Next: the reviewer drafts the LEDGER row and Addendum 140; the laptop verifies and merges.
+
+**Local Neo4j + DuckDB (plan d4b3337f / 0163592d / e6a9c66f; installed 10-06, nothing loaded yet).**
+- Install:
+  - Neo4j Community 5.26.30 (LTS, sha256 verified) and Temurin JDK 21.0.12.1 (sha256 verified), under `~/.local/opt`;
+  - data, logs and run under `~/.local/share/neo4j-milly`;
+  - on demand only, via `~/.local/bin/neo4j-milly start|stop|status`.
+- The reviewer's settings, verified on a smoke start:
+  - bound to 127.0.0.1:7474/7687 only. `java.net.preferIPv4Stack=true` is needed: WSL forwards Windows localhost only to a plain IPv4 loopback socket. Windows `localhost:7474` → 200; the WSL LAN address is refused.
+  - Auth is on: 401 without credentials and with the default password. The password is in `~/.config/neo4j-local-milly.txt` (0600, untracked).
+  - Heap 1–8 GB, page cache 10 GB, transactions 4 GB.
+  - It is STOPPED now.
+- DuckDB 1.5.6 + the neo4j driver + bigquery are in their own venv, `~/.local/share/milly-analytics/.venv` (not the production venv).
+- The loader `scripts/load_milly_neo4j.py` lives on the dashboard branches (`production/dashboard-v2-20261003` and later). The first load is Wednesday, outside the build windows, after the host rehearsal.
+- **The arm-preflight check:** `production/neo4j-arm-check-20261006` @ `11ed00d4` (for the reviewer). `arm_week5_saturday.sh` stops while the Neo4j pid is alive or anything listens on 7474/7687, in `--check` too. Tested three ways (stopped OK / running STOP / bare listener STOP). It is item 7 of Friday's merge order.
+
 ## 2026-10-06 (11:28 CDT) — PROE posted; the production checkout fast-forwarded; study 35 frozen (QB cap A 5 / B 8) and launched; the QB cap lever approved (off)
 
 - **PROE:** FP added the ATL / NO Monday-night game by 11:20 CT.

@@ -19,6 +19,9 @@ chat. Private paths stay private (no dollars, no entries here).
 3. FP + props: the paired paper check (recommended) or a trial now.
 4. The ownership term: ON at 0.20 on either shape (study 31 reversed study 29; his choice).
 5. Dealing stays head (his pins require it; Rev3 = super-satellites on rows 1–26).
+6. The per-QB cap (decision sheet row 10): study 35 read NO DIFFERENCE, leaning positive on every endpoint (+0.026
+   [−0.027, +0.083]; both seasons positive; guards 1.048 / +0.005). By its frozen §4 he may choose it as a preference;
+   the reviewer and the laptop recommend it. Cap A = 5 rows at K 26.
 
 ## Friday after his yes (laptop; the reviewer has approved each branch)
 1. Merge into integration, in this order:
@@ -30,19 +33,29 @@ chat. Private paths stay private (no dollars, no entries here).
    4. `production/fp-gap-flag-20261006` @ `645bddc0` (the O-22 guard: book players without an FP projection are
       printed, recorded and tagged in vetting, `2d84b96e` approved; plus each week's replacement sources counted, with
       the no-term control rows named, `645bddc0`, for re-approval);
-   4b. **Only if study 35 PASSES and he says yes:** `production/qb-cap-20261006` @ `b5514472` (the per-QB cap in ROWS,
-      off by default; under review). Arming then adds `UNION_MAIN_QB_CAP_ROWS=<study 35's frozen cap>` to the arm
+   4b. **Only on his yes to decision 6** (study 35 read NO DIFFERENCE, a preference by its §4; the laptop checked the
+      branch's rule = the harness's, 10-06): `production/qb-cap-20261006` @ `b5514472` (the per-QB cap in ROWS,
+      off by default). Arming then adds `UNION_MAIN_QB_CAP_ROWS=5` to the arm
       script's env WITH `UNION_MAIN_QB_CAP_K=26` (the runtime check refuses a mismatch with BOOK_ENTRIES), and the Friday rehearsal runs with it;
    5. `production/pins-extend-book-20261006` @ `da399bdb` (a pin may add rows without gaps): needed for his Rev3
       plan (super-satellites on rows 1–26; K 22 → 26, caps 13 / 6; approved);
    6. `production/linestar-retire-20261006` @ `b20628fc` (no LineStar capture in the build or at arming).
+   7. `production/neo4j-arm-check-20261006` @ `11ed00d4` (the arm script refuses while the local Neo4j runs; the
+      reviewer's binding setting 3, 10-04; for review).
    Then install Rev3 (`~/private/week5-plan/rev3-26/contests.json`, sha `8625de0e…`) as `~/week5-sunday/contests.json`,
    keeping Rev2 beside it as `contests.json.rev2-94cc61a8` (unmerged production code refuses Rev3's pins, fail-closed).
 2. A follow-up for review: the arming banner prints `ENTER_LAYOUT`.
 3. The money-path test modules green with `GCP_PROJECT` unset; `check_week_runtime` in the armed env: head / the plan's rows
    / no LayoutError on the installed plan (Rev3: head / 26 rows / caps 13 / 6; Rev2 would be 22).
 4. The production checkout `~/projects/nfl-predictions` fast-forwarded to the merged head, clean.
-5. **A FULL REHEARSAL at Week-5 size, archive mode (the reviewer, the K-dependence lesson):** the union on the W4 T-70
+5. **ONE host-level rehearsal on the merged head (the reviewer 10-06: the post-change law applied to ops; it IS the
+   shape rehearsal on f69598b, not a second one):** `sunday_build_host.sh` with `REUSE_K90_DIR=<W4 T-70 run>`,
+   `SKIP_PAIR=1`, a scratch OUT (never `~/week5-sunday`; no timer touched), under the EXACT `arm_env` of his chosen
+   shape (pin f69598b, FP source, the term at 0.20, Rev3, K 26, plus `UNION_MAIN_QB_CAP_ROWS=5 _K=26` only on his yes).
+   It re-runs Wednesday's O-19 / O-20 / O-23 / O-24 checks: any failure REOPENS that item, and the register names both
+   runs ("closed on <Wed commit>, re-verified on <Fri head>"). With the cap on, the dealt top-QB share should sit near
+   study 35's census (0.224 mean, 0.245 max; outcome-free). Then `arm_week5_saturday.sh --check`.
+   Inside it, **the FULL REHEARSAL at Week-5 size, archive mode (the reviewer, the K-dependence lesson):** the union on the W4 T-70
    frame with the installed contests (Rev3) and his chosen arm line (e.g. MIXT: MIX + FP + the term at 0.20), `--mix-spares 15`; then vet_book
    and vet_replace with `--test-exclude-dk` of a player in >= 8 entries; then `enter_layout write`. Print and check: (1)
    the dealt cell shares by ENTRIES near A1 .30 / A2 .14 / B .28 / C .28 (pins weighted, O-35 live); (2) the 8 pinned
