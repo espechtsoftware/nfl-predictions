@@ -12,6 +12,34 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (10:53 CDT) — FP Route Share W4 repaired (operator-approved) + import guards merged; pre-mortem merged; the arm script merged; studies 31–34 all recorded
+
+- **The FP Route Share W4 revision.** FP's first Tuesday export (06:26, `07aed99f`, 262 rows) had PRELIMINARY
+  Monday-night ATL / NO numbers. At 10:23 it changed (`8721038b`, 264 rows): 14 ATL / NO revised, 2 added.
+  - **REPAIRED (operator-approved, as Week 2's):** the 262 rows were backed up privately
+    (`~/private/fp-route-repair/…`, sha `16128b95`) and deleted; the revised export was re-imported and archived by sha.
+  - Verified: exactly 14 changed, 2 added, 0 removed; the 1 unresolved row unchanged.
+  - README deficiency row: `50c1ff9b`.
+- **Route import guards MERGED** (route-guards, reviewer-approved):
+  - a settle-time gate: no import of source week W before noon CT the day after its last kickoff;
+    `--route-operator-early` is recorded;
+  - a content-revision check: RouteRevisionError, stored rows kept, a loud banner plus a deficiency draft, never a
+    delete; a hash-only difference is not a revision;
+  - the weekly run's route import is non-fatal, so PROE / families / SIS are still captured.
+  - **Schedule rule:** the weekly vendor run is agent-started on WEDNESDAY with the SIS acquisition, never before
+    Tuesday 13:00 CT (the checklist and the weekly_vendor_data docstring). It depends on the agent reading it until
+    the Dagster / YAML build turns it into a scheduled unit at the right time (the reviewer).
+  - **Wednesday:** fast-forward the production checkout (`~/projects/nfl-predictions`, clean) to integration BEFORE
+    the weekly run, so it runs the guards.
+- **The Week-5 pre-mortem MERGED** (`6c68ce82`; the reviewer's "what you would enter", verified number by number):
+  - MIXT builds like the regulars; CT builds like our W1–4 book;
+  - both are far more concentrated (top QB 51% / 59% vs their 23%; on W4's slate MIXT had 91% of its QBs in
+    JAX–CIN).
+  - The decision sheet links it. **The Saturday arming message names the one-game risk if W5 concentrates again.**
+- **The arm script MERGED** (`7d00fec7`: `scripts/arm_week5_saturday.sh`; one pin f69598b; the dose from CHOSEN_*;
+  `--check` lists the units).
+- **The PROE probes continue.** Probe 10 failed at Route (now resolved), so the next probe tests PROE itself.
+
 ## 2026-10-06 (10:30 CDT) — O-3: both SIS cache dry runs PASSED (through their lanes); study 34 read and reproduced (NO DIFFERENCE); MIXT vs CT tied over three co-runs
 
 - **SIS cache dry runs** (O-3, the "Tue after the features build" step; `scripts/sis_pass_tail_dry_run.sh`, each
