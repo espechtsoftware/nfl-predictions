@@ -270,3 +270,44 @@ def test_vet_replace_refuses_an_unresolved_mix_book_before_vetting():
     text = (Path(__file__).resolve().parents[1] / "scripts" / "vet_replace_v4.py").read_text()
     assert "cell_at = dict(enumerate(book_cells([frozenset(r) for r in book], _tagged, _k_main)))" in text
     assert 'print(f"REPLACEMENT FAILED: {e}", file=sys.stderr); sys.exit(2)' in text
+
+
+# ---------------------------------------------------------------- WS (study 18's arm that PASSED, Addendum 129)
+def _s18_whole_book(fr, base, lam, shape, k, optimize, MAIN_CAP, DST_CAP, MAX_SHARED):
+    """study 18's whole_book with its Builder, VERBATIM apart from the imports (nfl2 experiments/s18_stack_shapes.py @ 5869a1b)."""
+    recs = fr.assign(obj=base).to_dict("records"); dst = {p["id"] for p in recs if str(p["pos"]) == "DST"}
+    prev, count, out = [], Counter(), []
+    stack, qmax, which = shape
+    pair = None if which is None else sorted(fr[fr.pos != "DST"].game_id.astype(str).unique())
+    for _ in range(k):
+        bans = {p for p, c in count.items() if c >= MAIN_CAP} | {p for p, c in count.items() if p in dst and c >= DST_CAP}
+        lu = optimize(recs, stack=stack, objective_col="obj", banned_lineups=prev, max_overlap=MAX_SHARED, bans=bans or None,
+                      env={"MAX_PER_GAME": "4", "MIN_LINEUP_SALARY": "49000"}, second_game_pair=pair, qb_game_max=qmax)
+        if lu is None:
+            break
+        prev.append(lu.ids); count.update(lu.ids); out.append(lu)
+    return out
+
+
+def test_ws_portfolio_equals_study_18s_whole_book_ws(monkeypatch):
+    assert M.PORTFOLIOS["ws"] == {"WS": (1.0, {"qb_stack_min": 1, "bring_back_min": 0}, 3, "all")}
+    fr = _frame(); k = 21; weights = W_DRAFT_A[:k]
+    prod_calls, s18_calls = [], []
+    _install(monkeypatch, prod_calls)
+    rows, cells, meta = ur.mix_rows(fr, set(), k, 7, 4, 49_000, weights, exposure_cap=10, dst_cap=5, portfolio="ws")
+    WS = (StackRules(qb_stack_min=1, bring_back_min=0), 3, "all")                          # s18's WS constant
+    book = _s18_whole_book(fr, fr.mean_projection.to_numpy(), 0.0, WS, k, _stand_in(s18_calls), 10, 5, 7)
+    assert [frozenset(r) for r in rows] == [lu.ids for lu in book] and set(cells) == {"WS"}
+    strip = lambda cs: [{x: c[x] for x in ("stack", "pair", "qmax", "bans", "n_prev", "env", "max_overlap")} for c in cs]  # noqa: E731
+    assert strip(prod_calls) == strip(s18_calls) and meta["passes_to_A1"] == 0 and meta["portfolio"] == "ws"
+
+
+def test_ws_tags_and_shape():
+    pos, team, opp, game = _maps()
+    assert M.cell_of_tag("mix_WS") == "WS"
+    b_row = ["a_qb", "a_wr1", "b_wr", "c_wr", "d_te", "e_rb", "c_rb", "f_wr", "c_dst"]     # QB+1, a pair in g2, 3 from g1
+    assert M.shape_violations(b_row, "WS", pos, team, opp, game) == []
+    no_pair = ["a_qb", "a_wr1", "b_wr", "c_wr", "c_rb", "e_rb", "e_wr", "a_rb", "c_dst"]
+    assert "no second-game pair" in M.shape_violations(no_pair, "WS", pos, team, opp, game)
+    four = ["a_qb", "a_wr1", "a_wr2", "b_wr", "c_wr", "d_te", "e_rb", "f_wr", "c_dst"]       # 4 from the QB's game
+    assert "4 players from the QB's game > 3" in M.shape_violations(four, "WS", pos, team, opp, game)

@@ -53,7 +53,7 @@ def test_no_fallback_when_the_main_was_not_mix_or_the_refusal_is_another(tmp_pat
 
 
 def test_mix_to_house_args_only_rewrites_the_main_value():
-    script = f'source "{LIB}"; mix_to_house_args --main mix --mix-plan p --x mix --mix-layout head --y; printf "%s|" "${{OUT_ARGS[@]}}"'
+    script = f'source "{LIB}"; mix_to_house_args --main mix --mix-plan p --x mix --mix-layout head --mix-portfolio ws --y; printf "%s|" "${{OUT_ARGS[@]}}"'
     r = subprocess.run(["bash", "-c", script], capture_output=True, text=True, timeout=30)
     assert r.stdout == "--main|pmo_x50|--x|mix|--y|"
 
@@ -63,5 +63,5 @@ def test_the_host_sources_the_fallback_before_the_pmo_block():
     i_src, i_call = host.index('source "$PROD/scripts/union_fallbacks.sh"'), host.index("\n  mix_fallback ")
     i_pmo = host.index("'PMO_X50 MAIN REFUSED' \"$OUT/union-$RUN_TAG.txt\"")
     assert i_src < i_call < i_pmo
-    assert '[[ "${UNION_MAIN:-mean}" == "mix" ]] && UNION_ARGS+=(--mix-plan "$CONTESTS_JSON" --mix-layout "${ENTER_LAYOUT:-head}")' in host
+    assert '[[ "${UNION_MAIN:-mean}" == "mix" ]] && UNION_ARGS+=(--mix-plan "$CONTESTS_JSON" --mix-layout "${ENTER_LAYOUT:-head}" --mix-portfolio "${UNION_MIX_PORTFOLIO:-mix}")' in host
     assert '( "${UNION_MAIN:-mean}" == "pmo_x50" || "${UNION_MAIN:-mean}" == "mix" ) && "${UNION_MAIN_OWN_TILT:-0}" != "0"' in host

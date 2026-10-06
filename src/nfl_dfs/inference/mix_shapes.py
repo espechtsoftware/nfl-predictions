@@ -24,6 +24,14 @@ MIX_CELLS: dict[str, tuple[float, dict, int | None, str | None]] = {
     "B": (0.28, {"qb_stack_min": 1, "qb_stack_max": 1, "bring_back_min": 1}, 3, "all"),
     "C": (0.28, {"qb_stack_min": 1, "qb_stack_max": 1, "bring_back_min": 0, "bring_back_max": 0}, 3, None),
 }
+# Named portfolios (`union_reselect --mix-portfolio`). `ws` is study 18's WS arm, the one that PASSED (Addendum 129):
+# the whole book in ONE cell -- QB + >= 1 WR/TE, bring-back optional, <= 3 from the QB's game, a second-game pair from
+# any game -- solved row after row like s18's whole_book(WS) (no pass to another cell).
+PORTFOLIOS: dict[str, dict[str, tuple[float, dict, int | None, str | None]]] = {
+    "mix": MIX_CELLS,
+    "ws": {"WS": (1.0, {"qb_stack_min": 1, "bring_back_min": 0}, 3, "all")},
+}
+ALL_CELLS = {name: cell for cells in PORTFOLIOS.values() for name, cell in cells.items()}
 HOUSE_CELL = "A1"
 TAG_PREFIX = "mix_"
 LIVE_PIN = "f69598ba559202969cc91d9fbdee7f64996e97af"   # the lab re-pin whose optimize() holds second_game_pair / qb_game_max
@@ -74,7 +82,7 @@ def cell_of_tag(tag: object) -> str | None:
     if not t.startswith(TAG_PREFIX):
         return None
     cell = t[len(TAG_PREFIX):]
-    if cell not in MIX_CELLS:
+    if cell not in ALL_CELLS:
         raise ValueError(f"unknown mix cell in tag {t!r}")
     return cell
 
@@ -82,9 +90,9 @@ def cell_of_tag(tag: object) -> str | None:
 def shape_violations(ids, cell: str | None, pos: dict, team: dict, opp: dict, game: dict) -> list[str]:
     """What a roster breaks of its cell's shape (cell None = the house shape, A1's rules). Empty list = conforms."""
     rules_cell = cell or HOUSE_CELL
-    if rules_cell not in MIX_CELLS:
+    if rules_cell not in ALL_CELLS:
         return [f"unknown cell {cell!r}"]
-    _, r, qmax, pair = MIX_CELLS[rules_cell]
+    _, r, qmax, pair = ALL_CELLS[rules_cell]
     ids = list(ids)
     qbs = [i for i in ids if pos.get(i) == "QB"]
     if len(qbs) != 1:

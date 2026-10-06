@@ -23,16 +23,16 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from nfl_dfs.inference.enter_layout import ROWMAP_NAME  # noqa: E402
-from nfl_dfs.inference.mix_shapes import MIX_CELLS, cell_of_tag  # noqa: E402
+from nfl_dfs.inference.mix_shapes import MIX_CELLS, PORTFOLIOS, cell_of_tag  # noqa: E402
 
 
 def dealt_shares(rowmap: dict[str, list[int]], upload_rows: list[list[str]], cell_of_set: dict[frozenset, str],
-                 pos: dict, team: dict, opp: dict, game: dict) -> dict:
-    cells: Counter = Counter(); shape: Counter = Counter(); n = 0
+                 pos: dict, team: dict, opp: dict, game: dict, cells: dict = MIX_CELLS) -> dict:
+    counts: Counter = Counter(); shape: Counter = Counter(); n = 0
     for rows in rowmap.values():
         for r in rows:
             ids = upload_rows[r]
-            cells[cell_of_set.get(frozenset(ids), "house")] += 1; n += 1
+            counts[cell_of_set.get(frozenset(ids), "house")] += 1; n += 1
             qb = next((i for i in ids if pos.get(i) == "QB"), None)
             if qb is None:
                 continue
@@ -47,9 +47,9 @@ def dealt_shares(rowmap: dict[str, list[int]], upload_rows: list[list[str]], cel
                 if pos.get(i) != "DST" and game.get(i) != game.get(qb):
                     teams_by_game.setdefault(game.get(i), set()).add(team.get(i))
             shape["dual"] += any(len(t) == 2 for t in teams_by_game.values())
-    return {"entries": n, "cells": {c: cells.get(c, 0) for c in [*MIX_CELLS, "house"]},
-            "shares": {c: round(cells.get(c, 0) / n, 3) if n else None for c in [*MIX_CELLS, "house"]},
-            "quotas": {c: MIX_CELLS[c][0] for c in MIX_CELLS},
+    return {"entries": n, "cells": {c: counts.get(c, 0) for c in [*cells, "house"]},
+            "shares": {c: round(counts.get(c, 0) / n, 3) if n else None for c in [*cells, "house"]},
+            "quotas": {c: cells[c][0] for c in cells},
             "shape": {k: round(v / n, 3) if n else None for k, v in shape.items()}}
 
 
@@ -74,7 +74,9 @@ def main(argv=None) -> int:
             cell_of_set.setdefault(frozenset(dk_of.get(p.strip(), "?") for p in players.split(",")), cell)
     by_dk = fr.assign(dk=fr["dk_player_id"].astype("Int64").astype(str))
     pos, team, opp, game = (dict(zip(by_dk.dk, by_dk[c].astype(str))) for c in ("pos", "team", "opp", "game_id"))
-    out = dealt_shares(rowmap, upload_rows, cell_of_set, pos, team, opp, game)
+    portfolio = (((rec.get("config", {}).get("union") or {}).get("mix") or {}).get("mix") or {}).get("portfolio", "mix")
+    out = dealt_shares(rowmap, upload_rows, cell_of_set, pos, team, opp, game, PORTFOLIOS[portfolio])
+    out["portfolio"] = portfolio
     print("MIX DEALT (the entries as staged, after the small-contest overlap limit): "
           + " / ".join(f"{c} {out['cells'][c]} ({out['shares'][c]}; quota {out['quotas'].get(c, '-')})" for c in out["cells"])
           + f" of {out['entries']} entries; shape {json.dumps(out['shape'], sort_keys=True)}")

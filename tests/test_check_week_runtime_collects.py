@@ -132,3 +132,10 @@ def test_union_main_mix_needs_a_clone_whose_optimize_takes_the_shape_options(tmp
     assert not any("UNION_MAIN" in f for f in _failures(_run(env)))
     env["UNION_MAIN"] = "bogus"
     assert any("must be mean, pmo_x50 or mix" in f for f in _failures(_run(env)))
+
+
+def test_union_mix_portfolio_must_be_mix_or_ws(tmp_path):
+    env = _healthy(tmp_path); env["UNION_MIX_PORTFOLIO"] = "ws"
+    assert not any("UNION_MIX_PORTFOLIO" in f for f in _failures(_run(env)))
+    env["UNION_MIX_PORTFOLIO"] = "thesis"
+    assert any("UNION_MIX_PORTFOLIO='thesis' must be mix or ws" in f for f in _failures(_run(env)))

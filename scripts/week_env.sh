@@ -149,6 +149,8 @@ week_env() {
   # Fantasy Points' projections in the union's selection (operator 2026-10-05); empty = ours. `fp` needs the union
   # (UNION_SATURDAY_RUN). Armed only with the operator's yes.
   export UNION_PROJ_SOURCE=${UNION_PROJ_SOURCE:-}
+  # With UNION_MAIN=mix, which study-18 portfolio: mix (four cells) or ws (the whole-book WS shape that PASSED)
+  export UNION_MIX_PORTFOLIO=${UNION_MIX_PORTFOLIO:-mix}
   # Operator 2026-09-28 14:3x: the 25% DST cap on the pmo_x50 main book, and the deep-line sleeve may draw from its rows.
   export UNION_MAIN_DST_CAP=${UNION_MAIN_DST_CAP-0.25} UNION_SLEEVE_INCLUDES_MAIN=${UNION_SLEEVE_INCLUDES_MAIN-1}
   # The main book's per-player exposure cap as a share of K (0.5 = L13's PMO_X50, as entered; L17 09-29: looser is HARMFUL).

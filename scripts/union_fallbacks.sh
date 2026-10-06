@@ -8,12 +8,12 @@
 #
 # Needs from the caller: UNION_ARGS (array), UNION_RC, OUT, RUN_TAG, and a run_union function.
 
-# mix_to_house_args ARGS... -> OUT_ARGS: --main mix becomes --main pmo_x50; --mix-plan / --mix-layout and their values dropped
+# mix_to_house_args ARGS... -> OUT_ARGS: --main mix becomes --main pmo_x50; --mix-plan / --mix-layout / --mix-portfolio and their values dropped
 mix_to_house_args() {
   OUT_ARGS=(); local skip=0 x i
   for x in "$@"; do
     if (( skip )); then skip=0; continue; fi
-    case "$x" in --mix-plan|--mix-layout) skip=1 ;; *) OUT_ARGS+=("$x") ;; esac
+    case "$x" in --mix-plan|--mix-layout|--mix-portfolio) skip=1 ;; *) OUT_ARGS+=("$x") ;; esac
   done
   for i in "${!OUT_ARGS[@]}"; do
     if [[ "${OUT_ARGS[$i]}" == "--main" && "${OUT_ARGS[$((i+1))]:-}" == "mix" ]]; then OUT_ARGS[$((i+1))]=pmo_x50; fi

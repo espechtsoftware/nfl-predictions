@@ -104,7 +104,7 @@ def main():
     _mix = ((src.get("config", {}).get("union") or {}).get("main") == "mix")
     cell_at: dict[int, str | None] = {}
     if _mix:
-        from nfl_dfs.inference.mix_shapes import MIX_CELLS, book_cells, shape_violations
+        from nfl_dfs.inference.mix_shapes import ALL_CELLS, book_cells, shape_violations
         _game_of_id = f.set_index("id")["game_id"].astype(str).to_dict()
         _cc = pd.read_parquet(run / "candidates.parquet")
         _tagged = [(frozenset(id_to_dk.get(t.strip()) for t in _pl.split(",")), _tg)
@@ -210,7 +210,7 @@ def main():
             if not a.admit_risky and any(d in risky for d in dks): rejected["risky"] += 1; continue
             if _mix:
                 if validate_roster(toks, *vr_args, salary_floor=49000, forbid_rb_vs_dst=True, forbid_two_rb_same_team=True): rejected["illegal"] += 1; continue
-                fits = {c for c in MIX_CELLS if not mix_violations(toks, c)}
+                fits = {c for c in ALL_CELLS if not mix_violations(toks, c)}
                 if not fits: rejected["illegal"] += 1; continue
                 pool_cells.append(fits)
             elif validate_roster(toks, *vr_args, salary_floor=49000, qb_stack_min=2, bring_back_min=1, forbid_rb_vs_dst=True, forbid_two_rb_same_team=True): rejected["illegal"] += 1; continue

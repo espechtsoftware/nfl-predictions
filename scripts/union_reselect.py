@@ -62,7 +62,7 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from r1c_sunday_reselect import BANKS, OUT_STATUSES, unavailable_ids  # noqa: E402
 from run_dir_publishable import parse_utc  # noqa: E402
-from nfl_dfs.inference.mix_shapes import (MIX_CELLS, TAG_PREFIX, allocate as mix_allocate, interleave as mix_interleave,  # noqa: E402
+from nfl_dfs.inference.mix_shapes import (MIX_CELLS, PORTFOLIOS, TAG_PREFIX, allocate as mix_allocate, interleave as mix_interleave,  # noqa: E402
                                            plan_weights as mix_weights, shape_violations, cell_of_tag)
 
 SKILL = ("QB", "RB", "WR", "TE")
@@ -453,7 +453,7 @@ def apply_proj_source(fr: pd.DataFrame, csv_path: Path, frame_path: Path) -> tup
 
 def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap: int | None, min_salary: int,
              weights: list[int], exposure_cap: int | None = None, dst_cap: int | None = None,
-             bonus: dict[str, float] | None = None) -> tuple[list[list[str]], list[str], dict]:
+             bonus: dict[str, float] | None = None, portfolio: str = "mix") -> tuple[list[list[str]], list[str], dict]:
     """study 18's MIX book on the T-70 frame: cells solved largest first (ties: the earlier cell) through ONE shared state
     (banned lineups, the per-player exposure cap, the DST cap, <= max_shared with every earlier row); a cell row that cannot
     be solved passes to A1 (counted); then the rows are ordered by the entry-weighted interleave of the plan's weights.
@@ -470,8 +470,9 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
     env = {"MIN_LINEUP_SALARY": str(min_salary)}
     if cap is not None:
         env["MAX_PER_GAME"] = str(cap)
-    names = list(MIX_CELLS)
-    quotas = [MIX_CELLS[n][0] for n in names]
+    cells = PORTFOLIOS[portfolio]                              # mix: study 18's MIX cells; ws: one whole-book cell
+    names = list(cells)
+    quotas = [cells[n][0] for n in names]
     target = mix_allocate(quotas, k)
     prev: list[frozenset] = []
     count: Counter = Counter()
@@ -479,7 +480,7 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
     passes = 0
 
     def solve(name: str):
-        _, rules, qmax, which = MIX_CELLS[name]
+        _, rules, qmax, which = cells[name]
         bans = {p for p, c in count.items() if exposure_cap is not None and c >= exposure_cap}
         if dst_cap is not None:
             bans |= {p for p, c in count.items() if p in dst_ids and c >= dst_cap}
@@ -494,7 +495,7 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
     for i in sorted(range(len(names)), key=lambda i: (-target[i], i)):
         for _ in range(target[i]):
             cell, ids = names[i], solve(names[i])
-            if ids is None:
+            if ids is None and "A1" in cells:                  # MIX: a cell row that cannot be solved passes to A1
                 passes += 1; cell = "A1"
                 ids = solve("A1")
             if ids is None:
@@ -512,9 +513,10 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
     meta = {"cells": {n: {"quota": q, "target_rows": t, "rows": g} for n, q, t, g in zip(names, quotas, target, got)},
             "passes_to_A1": passes, "rows_solved": len(book), "pair_games": len(games),
             "entry_shares_before_overlap_limit": {n: round(dealt[n] / tot, 4) if tot else None for n in names},
-            "rules": {n: {"quota": MIX_CELLS[n][0], "stack": MIX_CELLS[n][1], "qb_game_max": MIX_CELLS[n][2],
-                          "second_game_pair": MIX_CELLS[n][3]} for n in names},
-            "source": "nfl2 experiments/s18_stack_shapes.py @ 5869a1b (CELLS, allocate, interleave, mix_book)"}
+            "rules": {n: {"quota": cells[n][0], "stack": cells[n][1], "qb_game_max": cells[n][2],
+                          "second_game_pair": cells[n][3]} for n in names}, "portfolio": portfolio,
+            "source": ("nfl2 experiments/s18_stack_shapes.py @ 5869a1b (CELLS, allocate, interleave, mix_book)" if portfolio == "mix"
+                       else "nfl2 experiments/s18_stack_shapes.py @ 5869a1b (WS, whole_book; PASSED, Addendum 129)")}
     return book, cell_of, meta
 
 
@@ -560,6 +562,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--proj-source", type=Path, default=None,
                     help="an override file from scripts/fp_projection_override.py built for THIS T-70 frame: its projections replace "
                          "the frame's mean_projection for the players it holds (operator 10-05: Fantasy Points)")
+    ap.add_argument("--mix-portfolio", choices=sorted(PORTFOLIOS), default="mix",
+                    help="with --main mix: mix = study 18's four-cell MIX; ws = study 18's WS (one whole-book cell; PASSED)")
     ap.add_argument("--mix-plan", type=Path, default=None, help="with --main mix: the week's contests.json (the interleave's entry weights)")
     ap.add_argument("--mix-layout", choices=["sequential", "top", "head", "spread"], default="head",
                     help="with --main mix: the layout enter_layout deals with (ENTER_LAYOUT)")
@@ -708,7 +712,7 @@ def main(argv: list[str] | None = None) -> int:
         if a.main == "mix":
             weights = mix_weights(a.mix_plan, a.entries, a.mix_layout)
             plain_rows, plain_cells, mix_meta = mix_rows(fr, excl, a.entries, a.mean_max_shared, cap, a.min_salary, weights,
-                                                         exposure_cap=xcap, dst_cap=dcap)
+                                                         exposure_cap=xcap, dst_cap=dcap, portfolio=a.mix_portfolio)
             plain_tags = [TAG_PREFIX + c for c in plain_cells]; main_tags = plain_tags
             mix_meta.update({"plan": str(a.mix_plan), "plan_sha256": sha256_file(a.mix_plan), "layout": a.mix_layout,
                              "weights_nonzero_ranks": sum(1 for w in weights if w), "weights_entries": sum(weights)})
@@ -729,7 +733,7 @@ def main(argv: list[str] | None = None) -> int:
             t_own = _time.time()
             if a.main == "mix":
                 main_rows, main_cells, own_mix = mix_rows(fr, excl, a.entries, a.mean_max_shared, cap, a.min_salary, weights,
-                                                          exposure_cap=xcap, dst_cap=dcap, bonus=bonus)
+                                                          exposure_cap=xcap, dst_cap=dcap, bonus=bonus, portfolio=a.mix_portfolio)
                 main_tags = [TAG_PREFIX + c for c in main_cells]; mix_meta["with_term"] = own_mix
             else:
                 main_rows = pmo_rows(fr, excl, a.entries, a.mean_max_shared, cap, a.min_salary, set(), exposure_cap=xcap, dst_cap=dcap, bonus=bonus,
@@ -911,8 +915,9 @@ def main(argv: list[str] | None = None) -> int:
                      "selection": ("union_reselect.py --main pmo_x50: K capped plain-mean-optimizer rows on the T-70 frame in solve order (L13 PMO_X50)"
                                    + (f", objective = mean + {a.main_own_tilt} x predicted ownership % (skill players)" if a.main_own_tilt else "") + "; "
                                    if a.main == "pmo_x50" else
-                                   "union_reselect.py --main mix: study 18's shape portfolio, K capped plain-mean-optimizer rows on the T-70 frame by cell "
-                                   "(A1 30 / A2 14 / B 28 / C 28 % of entries), in the plan's entry-weighted interleave order"
+                                   (f"union_reselect.py --main mix --mix-portfolio {a.mix_portfolio}: study 18's shape portfolio, K capped plain-mean-optimizer rows "
+                                    "on the T-70 frame by cell " + ("(A1 30 / A2 14 / B 28 / C 28 % of entries), in the plan's entry-weighted interleave order"
+                                                                    if a.mix_portfolio == "mix" else "(WS: QB + >= 1, bring-back optional, <= 3 from the QB's game, a second-game pair; one cell)"))
                                    + (f", objective = mean + {a.main_own_tilt} x predicted ownership % (skill players)" if a.main_own_tilt else "") + "; "
                                    if a.main == "mix" else
                                    "union_reselect.py --main mean: top-K by sum of the T-70 mean_projection under the overlap cap and the DST cap; ")
