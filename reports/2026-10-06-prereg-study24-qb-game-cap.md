@@ -291,3 +291,31 @@ Descriptive (mechanics only):
 - **Not this study's lever:** the top player's entry share is about 0.98 in every arm, so one non-DST player sits in
   nearly all 24 entries. The game cap does not address it; study 1b's entry-level player cap FAILED on cost
   (Addendum 123).
+
+## Deviation note 1 (2026-10-05, at the joint review of the binding census, BEFORE any scored bank)
+**The laptop's objection, accepted: the study's player caps did not match production's.**
+- **The mismatch.** The study banned a player at 52 of 105 rows and a DST at 26 (study 18's constants). Production's
+  main book bans a player at `main_exposure_cap(0.5, K)` rows and a DST at `int(0.25 × K)` rows, with K = the rows the
+  week's layout needs (`BOOK_ENTRIES`). Inside the 24 dealt rows the study's caps never bound, which is why the census
+  showed the top player in about 98% of entries in every arm. Production could not build that book.
+- **Where production sets it.** `union_reselect.py` (`main_exposure_cap`; `dcap = int(UNION_MAIN_DST_CAP × entries)`,
+  for both the pmo_x50 and the mix main) and `week_env.sh` (`UNION_MAIN_CAP` 0.5, `UNION_MAIN_DST_CAP` 0.25), on
+  `production/main-mix-20261006`. The laptop confirms Week 5's arming does not override them.
+- **The change.** Each arm's book is built under production's caps for ITS layout's K:
+  - the head layout (WS, G25, G1): K 20, so a player is banned at 10 rows and a DST at 5;
+  - the sequential and all-distinct deals (SEQD, SEQ, G25S): K 24, so 12 rows and 6.
+
+  The all-distinct deal's spare rows are solved after row 24 under the same running counts and never raise K. SEQD
+  therefore gets its own book (WS's shape under the K-24 caps), and SEQD vs WS compares the two production packages:
+  the deal plus the caps that go with its K. Everything else is unchanged.
+- **Build depth** is 40 rows (was 105): K 24 + 15 spares + 1. The binding census's deepest spare was 9. Sequential
+  solves make the first rows independent of depth.
+- **Code:** nfl2 `4ffd930`. `experiments/s24_qb_game_cap.py` sha256
+  `61fff19a14b7a219db07e3e53cf8b38f67bcb1ba64a567121efd12c221f217b2`; `scripts/s24_census.py`
+  `9f9b68ad6a8cd2529d67d798d7153e5ff06e00264cfb1069d893c6f340f34e41`; `tests/test_s24_qb_game_cap.py`
+  `695025b5181024f67436531cb7aa4843a415cbabd24340b23e811c9351ad6ac2` (17 tests, including the caps per layout and the
+  bans at them). The **reader is unchanged** (`e1a4968a…`), as is the driver (`a2f515d6…`).
+- **Order:** the binding census is RE-RUN on bank 1406 under these caps (§2a's checks, plus "no short books" against
+  the 40-row depth). The first census (`fb4deff`) is kept as superseded. Then the laptop's ack, then the scored run.
+- **For the port** (the laptop, recorded): the union takes `--entries 24` plus a separate `--spares S` (S = 15). The
+  caps are computed from `--entries` only (12 / 6), never from 24 + S. The parity test pins both.
