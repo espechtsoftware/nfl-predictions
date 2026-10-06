@@ -12,6 +12,29 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (15:27 CDT) — The outside review's §8: two money-path claims verified; the operator's two decisions; production fixes started
+
+- **Verified in code:**
+  - The Sunday FP projections capture is ONE unit at 10:40 (lock 60 s, timeout 240 s, no retry). A capture older than
+    the 10:30 inactives only prints a banner that nothing surfaces.
+  - vet_replace_v4 ranks replacements by OUR simulated worlds while the book is FP-priced.
+- **Operator decisions:**
+  - Stale FP (both Sunday captures before the inactives) → fall back to OUR post-inactives projections, loudly.
+  - The contest plan stays as is for Week 5.
+- **Building (branches for the reviewer, Friday rehearsal with a planted stale capture):**
+  - (1a) a second capture at 10:46;
+  - (1b) the freshness line on the upload sheet and in vetting;
+  - (1c) the stale-capture fallback;
+  - (2) replacements ranked by the union's FP file.
+- **Levers:** the outside reviewer's replay runs now; the laptop confirms survivors with production's replay;
+  survivors become an unfrozen s38c companion (the reviewer).
+- **Problem: the outside review file is UNTRACKED in the production checkout**
+  (`~/projects/nfl-predictions/reports/2026-10-06-outside-review-suggestions-for-high-scoring-lineups.md`). Saturday's
+  arm step 0 refuses a dirty checkout, and Friday's ff-only pull would fail on it. Before Friday's fast-forward, move it
+  into a tracked commit (it holds no private data: checked for handles), once the outside reviewer is done with it. The
+  operator was asked to have the outside reviewer use its own worktree.
+- **Study 39** (the reviewer's: an RB in the FLEX, his idea): bank scan 1473–1478 running.
+
 ## 2026-10-06 (15:10 CDT) — The regulars' RB / WR choices from the graph (the reviewer's descriptive mining, at the operator's request)
 
 - Scripts: `~/private/neo4j-reviewer/` (private).

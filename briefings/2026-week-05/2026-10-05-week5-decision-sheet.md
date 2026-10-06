@@ -1,6 +1,7 @@
 # Week 5: your decisions (draft for Friday)
 
 **Decided 10-06 (your words):** "yes to the winners' mix with the tilt and the quarterback cap" (rows 1, 7 and 10); later the same day, "yes, remove the tilt as you suggested and proceed as planned" (row 13: the tilt is 0 under FP).
+**Also decided 10-06 (the outside review's suggestions):** if both Sunday FP captures (10:40 and a new 10:46) predate the 10:30 inactives, the 10:50 build falls back to OUR post-inactives projections, loudly; and the contest plan stays as is for Week 5 (the $4,444 MEGA / FFWC question is revisited for Week 6 with per-class rates).
 The code for it is merged and is rehearsed Wednesday and again Friday. Still open: study 36 (a tighter cap on every
 player, if it passes), the build size, and the small items in the arming checklist.
 

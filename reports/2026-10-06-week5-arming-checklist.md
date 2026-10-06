@@ -88,6 +88,8 @@ rehearsal runs on the merged head in the exact armed env; Friday re-verifies on 
 - **Beside it, study 22b's red-zone line (the reviewer; operator 10-06: do we use our red-zone data appropriately, can it be tested):** red-zone / goal-line usage beyond FP's projection, the mean per SD and big games (>= FP + 10) as an odds ratio per SD, game-week clustered; the same inputs and NOTE as 22a. Command (lab `83fed92`, which also prints the MULTIPLICITY line): `scripts/s22b_redzone_line.py --prod <production checkout> --week 4=~/private/paper-corun/ownline-w04 --week 5=~/private/paper-corun/2026-w05 --week 6=~/private/paper-corun/2026-w06`. W4 alone, reproduced by the laptop 10-06: the NOTE; one interval (WR rz20_targets_smoothed, OR 0.40) excludes no-effect in the NEGATIVE direction, 1 week of 6 features: noise until weeks pool.
 
 
+**Before Friday's fast-forward:** the outside review file is UNTRACKED in the production checkout; move it into a tracked commit and off the checkout, or the ff-only pull and Saturday's clean-checkout check stop.
+
 ## Saturday 10-10 (the laptop arms; fail-stop script, ask only if blocked)
 - **CANARY (the reviewer, 10-06):** the 10:30 `d12800-sat` build is the first live K 26 run through the armed host. By
   11:00, check its receipt (identity f69598b, operational_k 26, tail 0), its lever audit PASS, and the union-args file
