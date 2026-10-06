@@ -32,7 +32,7 @@ and he says yes), the dose confirmation, O-16, O-18's CFB part (the freshness mo
 integration `231b1ea0`, tree identical to a green trial merge (27 money-path modules: 345 passed, 3 skipped, GCP_PROJECT
 unset). Rev3 installed as `~/week5-sunday/contests.json` (sha `8625de0e…` = PLAN_SHA; Rev2 kept as
 `contests.json.rev2-94cc61a8`); rows-needed 26 on the merged code. The arm-script commit (SHAPE=mixt + the QB cap in
-arm_env; FRIDAY_HEAD empty) is `production/arm-w5-mixt-qbcap-20261006` @ `50d42285`, for review. Wednesday's host
+arm_env, the cap with mixt only; FRIDAY_HEAD empty) is MERGED (`50d42285` + the reviewer's gate `ab6edf8d`, approved). Wednesday's host
 rehearsal runs on the merged head in the exact armed env; Friday re-verifies on the final head.
 1. Merge into integration, in this order:
    1. `production/main-mix-20261006` @ `ddd470ed` (MIX / WS / FP source / spares / fallbacks): needed for FP
