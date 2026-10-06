@@ -331,8 +331,9 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
     fi
   }
   if [[ ( "${UNION_MAIN:-mean}" == "pmo_x50" || "${UNION_MAIN:-mean}" == "mix" ) && "${UNION_MAIN_OWN_TILT:-0}" != "0" ]]; then
-    ( cd "$PROD" && PYTHONPATH="$PROD/src" timeout 120 "$PROD_PY" scripts/linestar_ownership_capture.py --season "$SEASON" --week "$WEEK" \
-        --out "$LINESTAR_DIR" --label "$RUN_TAG" ) || echo "LINESTAR CAPTURE FAILED for $RUN_TAG; the newest earlier capture stands"
+    # LineStar RETIRED 2026-10-06 (operator 10-04; the one-time revision check, README log): no per-union capture any more
+    # (it cost up to 120 s inside the T-70 window). Without a capture for the week the blend below refuses at once and
+    # TabPFN cannot run, so the chain is Fantasy Points -> Saturday's LAG at UNION_MAIN_OWN_LAG_TILT -> no term.
     BLEND_SRC=""
     if ( cd "$PROD" && PYTHONPATH="$PROD/src" timeout 120 "$PROD_PY" scripts/ownership_blend.py --sets "$OWNERSHIP_LAG" --linestar-dir "$LINESTAR_DIR" \
            --season "$SEASON" --week "$WEEK" --out "$OUT/ownership_blend-$RUN_TAG.csv" ); then

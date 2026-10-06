@@ -209,3 +209,12 @@ def test_mix_spares_default_reaches_the_union_and_the_units():
     assert "export UNION_MIX_SPARES=${UNION_MIX_SPARES-15}" in ENV_SCRIPT.read_text()
     assert '--mix-spares "${UNION_MIX_SPARES:-15}"' in (ROOT / "scripts" / "sunday_build_host.sh").read_text()
     assert " UNION_MIX_SPARES " in (ROOT / "scripts" / "arm_week_timers.sh").read_text()
+
+
+def test_linestar_is_retired_from_the_build_and_the_arming_steps():
+    """Operator 10-04 / the 10-06 revision check: no LineStar capture per union (it cost up to 120 s inside the T-70
+    window) or at Saturday's arming; the ownership chain is FP -> LAG -> none."""
+    host = (ROOT / "scripts" / "sunday_build_host.sh").read_text()
+    arm = (ROOT / "scripts" / "arm_week_timers.sh").read_text()
+    assert "linestar_ownership_capture.py" not in host and "linestar_ownership_capture.py" not in arm
+    assert "LineStar RETIRED 2026-10-06" in host
