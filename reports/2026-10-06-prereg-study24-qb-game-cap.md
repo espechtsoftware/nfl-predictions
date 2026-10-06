@@ -319,3 +319,26 @@ Descriptive (mechanics only):
   the 40-row depth). The first census (`fb4deff`) is kept as superseded. Then the laptop's ack, then the scored run.
 - **For the port** (the laptop, recorded): the union takes `--entries 24` plus a separate `--spares S` (S = 15). The
   caps are computed from `--entries` only (12 / 6), never from 24 + S. The parity test pins both.
+
+## Deviation note 2 (2026-10-05, at the census review, BEFORE any scored bank)
+**The re-census under production's caps failed one §2a check.** The census is kept at nfl2 `4bac5f3`,
+`results/s24/CENSUS_s24_binding_v2_superseded.txt`.
+- **What failed.** G25S's busiest QB game exceeded 6 of 24 on 2 of 53 slate-banks (7 and 8). There were 0
+  distinct-deal fallbacks.
+- **The cause.** The budget counted only the plan's dealt weight. A spare row (w = 0) could be built for any game still
+  under its budget, and spares did not count against it. So the all-distinct deal could draw several spares from one
+  game as replacements and carry it past the cap. The first census had simply not hit this case.
+- **The fix.** Every built row counts max(w, 1) against its game's budget. Ranks 0–23 are unchanged (w = 1 there).
+  Spares are now governed, so the WHOLE book, whatever the deal draws, holds ≤ 6 rows per QB game. This is exactly the
+  port requirement the reviewer gave the laptop earlier ("the budget must also govern the spare rows").
+- **Code:** nfl2 `4bac5f3`. `experiments/s24_qb_game_cap.py` sha256
+  `ce2cddc111d6c6c0e9f3aa3d803e1997b08799aab12a02c5b6687321035f09d6`; `tests/test_s24_qb_game_cap.py`
+  `475d824400bacdac59caf708e53333b3ec397871cbdb40038d0dc8833cd8815e` (18 tests; the new one checks that the whole
+  book holds the cap). The reader (`e1a4968a…`), driver and census are unchanged.
+- **Other results of the v2 census** (production caps; every other check passed):
+  - 24 distinct lineups everywhere, with 0 fallbacks;
+  - no short books;
+  - G25S never identical to SEQD (61% of entries changed);
+  - the top player's entry share was about 0.49–0.59 (was 0.98 before deviation note 1);
+  - WS's busiest QB game averaged 12.5 of 24 entries (maximum 23).
+- **Order:** a third binding census on 1406, the laptop's ack, then the scored run.
