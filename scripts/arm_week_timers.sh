@@ -167,10 +167,9 @@ gcloud run jobs execute tabpfn-gen --project nfl-predictions-503414 --region us-
 gcloud run jobs execute project-slate --project nfl-predictions-503414 --region us-central1 --wait
 # then, when ENTER_ORDER=fewest-low, the Saturday sets file (the preflight refuses to arm without it):
 PYTHONPATH=\$PROD/src \$PROD_PY \$PROD/scripts/ownership_sets.py sets --week ${WEEK} --group \${GROUP} --out \${OWNERSHIP_SETS}
-# the ownership term (UNION_MAIN_OWN_TILT > 0): Saturday's lag-model file, its gate (sum >= 280), and a LineStar capture:
+# the ownership term (UNION_MAIN_OWN_TILT > 0): Saturday's lag-model file and its gate (sum >= 280); LineStar is retired (10-06):
 PYTHONPATH=\$PROD/src \$PROD_PY \$PROD/scripts/ownership_sets.py sets --season ${SEASON:-2026} --week ${WEEK} --group \${GROUP} --lag-features --out ${OUT}/ownership_lag.csv
 \$PROD_PY \$PROD/scripts/check_ownership_lag.py ${OUT}/ownership_lag.csv
-\$PROD_PY \$PROD/scripts/linestar_ownership_capture.py --season ${SEASON:-2026} --week ${WEEK} --out ${OUT}/linestar --label saturday
 # with UNION_MAIN_OWN_PREDICTOR=tabpfn or fp (TabPFN is fp's first fallback): Saturday's lags (BigQuery) -- the Sunday unions then fit on the laptop GPU:
 PYTHONPATH=\$PROD/src \$PROD_PY \$PROD/scripts/ownership_tabpfn.py lags --season ${SEASON:-2026} --week ${WEEK} --out ${OUT}/ownership_lags.csv
 #
