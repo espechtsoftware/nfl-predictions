@@ -1,4 +1,4 @@
-# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06, amendment 1, before Week 5's lock)
+# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06, amendments 1 and 1b, before Week 5's lock)
 
 **Status: FROZEN 2026-10-06** by the reviewer, BEFORE any week of the decision arm (MIXT_RS0) or of the exploratory arms
 QBB0 / NQC0 / QAL / RBC0 was read on any slate. Disclosed: before the freeze, the reference MIXT_QA0 was scored on
@@ -53,6 +53,15 @@ score. Nothing here enters a contest: the money path, its checkout and its files
     production pin (§7).
 - **Order:** this amendment → the laptop's ack (it re-runs the tests and the smoke) → Wednesday's integrity gate → the
   snapshot before Week 5's lock.
+- **Amendment 1b (same day, before Week 5's lock; the laptop's finding at its ack of amendment 1).** The laptop
+  reproduced the smoke (all eight arms' rows and ranks identical at both limits) but found `books.json` not
+  byte-identical across builds: it carried the build's runtime ("secs"). The record now carries no runtime (printed
+  only) and a CONTENT identity, `books_identity` (the plan, the inputs' shas -- never their names or paths -- the
+  overlap limits, every arm's rows and ranks), per the frozen-chain rule (compare by content, never representation).
+  Two builds of Week 4's copies at 5 gave byte-identical `books.json` (`7ce3d5a4`), identity `3c43ceb8…`, rows and ranks
+  equal to amendment 1's smoke. Code: lab `d36d07d`; `scripts/s38_build.py` `64fe91c6c9e361788a17644549de28a3e7afbf224a7db177cc8b3bc00618bfcf`;
+  `tests/test_s38_paper_corun.py` `a177af0bffc253b29e284ace41ced8d414376d3b283d1074230680334c13bbec` (14 tests). Every other sha of amendment 1 stands (the
+  reader `b4b7d7b7…` unchanged).
 
 ## 1. Why
 - **The operator (10-06), on the proposal:** "yes, please try it, I want to exhaust all reasonable options."
