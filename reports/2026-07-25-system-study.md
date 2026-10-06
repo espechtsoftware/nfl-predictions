@@ -5485,3 +5485,97 @@ secondaries (slate means):
      other way. A flatter book trades average finish for more seats in the weeks that hit, and does not move the
      number his goal counts.
 6. **Transfer:** our projections (the live build uses FP's), the term's stand-in, the Millionaire's ownership field.
+
+## Addendum 142 (2026-10-06): study 37 (the regulars' structure on the recommended book: more QB stacks and a steep player curve): NO DIFFERENCE at the frozen rule, but it leans worse on every endpoint and breaches both guards — spreading the players under our ratings costs, QB breadth alone is neutral; the yes-book stays, and the fair test is under FP's projections
+
+**Setup.**
+- **The operator (10-06):** "Is it because we aren't choosing suitable alternatives or because we suddenly are losing a
+  stack because the QB has changed? Look closely at how the winners do it … Is their pool better only because of their
+  volume? … I want to find a way to reduce my dependency on so many players while having suitable alternatives to
+  pivot to."
+- **What the data showed first** (descriptive, construction only; the laptop's analysis, reproduced by the reviewer):
+  - **Study 36's cost was the alternatives, not the stacks.** A capped player's rows went to the next-best comparable
+    player from anywhere on the slate, at the slate's base rate (2.0 / 5.3 / 92.7% same team / same game / another
+    game, against 2.2 / 5.0 / 92.9% among comparable alternatives).
+  - The QB cap unstacks our top receivers (with their own QB .271 → .212). The regulars' top receiver rides with his
+    QB even less (.15), so that is no gap.
+  - **Not volume:** at our size (random 26-lineup subsets of the 117 max-entry regulars' W1–4 portfolios) they hold
+    11.3 QBs (the most-used at .219), 1.98 / 5.27 / 9.67 non-QB players over 40 / 30 / 20% and 53 distinct. Our book
+    holds 6.75 / .19 / 9.5 / 11.8 / 13.6 / 25. Their alternatives are other stacks: the replacement for their most-used
+    player comes from another game at the base rate, 2.4–3.2 points below him by our projections. Same-game swaps are
+    not their habit (his doubt was right).
+- **Arms** (study 35's harness: 36 slates, Rev3, K 26, head, `enter_layout` `3cb051ac…`, the 0.20 term):
+  - MIXT_QA, the reference: his yes-book (the QB cap of 5 rows, production's player / DST caps 13 / 6);
+  - **MIXT_RS (DECISION):** the regulars' structure = QB tiers (a 6-row cap; at most 1 / 1 / 2 / 4 / 7 QBs reach
+    6 / 5 / 4 / 3 / 2 rows) + non-QB tiers (at most 1 / 1 / 2 / 3 / 4 / 5 / 7 / 10 / 13 / 18 / 25 / 36 players reach
+    13 … 2 rows);
+  - MIXT_QBB and MIXT_NQC (exploratory): each tier set alone.
+  - The tiers are the regulars' cohort medians at 26 rows, rounded half up, with no calibration grid
+    (`scripts/s37_regulars_tiers.py`). QB r2 is exactly 6.50; the users with 26–40 entries sit at 6.30.
+  - **A loud fallback:** a book row infeasible under the tiers is solved with the fewest tiers dropped, and recorded.
+    It fired on 2 of the 216 scored slate-banks (RS, one row each, the r2 tier).
+- **Preregistration:** `reports/2026-10-06-prereg-study37-regulars-structure.md` (frozen `d1ec7348`). Two findings
+  before freezing were fixed and disclosed there (the book is the first 26 rows; the fallback).
+- **Panel:** banks 1467–1472, B 20,000, seed 20261019. The confirmatory census holds on the scored banks: RS 11.03 QBs
+  (.230), 2.23 / 5.27 / 10.45, 51.0 distinct; −2.17 projected points per dealt lineup (QBB −0.21, NQC −2.05).
+- **Read and reproduced:**
+  - Read by the reviewer.
+  - **Reproduced byte-identically by the laptop** (`cmp` clean, its own worktree and production `src`): reader
+    `2b1058de`; READ `73d77944`; raw 1467 `6539cdbf` … 1472 `4f9790f6`. The confirmatory census (`0ba54e2`) was
+    committed before the READ (`32a3328`).
+  - Lab: nfl2 `production/s37-structure-20261006`.
+
+**Reader output (verbatim):**
+```
+STUDY 37 READER  sha256 2b1058dee6e648e48a1af034403705174c6460ca6b067ad2a32f385f0d9f9192
+DIRECTION: P(>= 1 big seat) per slate (the mean over its banks); every difference is ARM - REFERENCE; POSITIVE favours the first arm.
+slates 36  banks [1467, 1468, 1469, 1470, 1471, 1472]  B 20000  seed 20261019  primary MIXT_RS - MIXT_QA, two-sided 0.95, guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only
+MIXT_RS: QB cap 6 rows, QB tiers (rows, at most) [[6, 1], [5, 1], [4, 2], [3, 4], [2, 7]], non-QB tiers [[13, 1], [12, 1], [11, 2], [10, 3], [9, 4], [8, 5], [7, 7], [6, 10], [5, 13], [4, 18], [3, 25], [2, 36]]
+
+== MIXT_RS vs MIXT_QA  [DECISION: the regulars' structure]
+  PRIMARY P(>= 1 big seat) per slate -0.05097  [-0.13559, +0.03738]  seasons 2023 -0.00666, 2024 -0.09528
+  GUARD 1 mean entry pct -0.04526  one-sided lower -0.06889  (must exceed -0.015)
+  GUARD 2 expected big seats 0.52337 vs 0.70313  ratio 0.744  (must be >= 0.80)
+  MIXT_RS dealt identical to MIXT_QA: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+
+== EXPLORATORY (never decision-bearing)
+  MIXT_QBB - MIXT_QA (the QB tiers only): -0.01543  [-0.05238, +0.02620]  seasons 2023 +0.01675, 2024 -0.04760
+  MIXT_NQC - MIXT_QA (the non-QB tiers only): -0.08871  [-0.17090, -0.00033]  seasons 2023 -0.03941, 2024 -0.13802
+
+secondaries (slate means; 'rows' = the 26 book rows, like-for-like with the regulars):
+  MIXT_QA  P(>=1 big) 0.40595  expected big seats 0.70313  P(>=2) 0.16216  entry pct 0.57737  rows: QBs 6.78 top QB 0.192 non-QB over 40% 9.50 distinct non-QB 25.7  dealt top QB 0.224  dealt projection 127.07
+  MIXT_RS  P(>=1 big) 0.35498  expected big seats 0.52337  P(>=2) 0.12533  entry pct 0.53212  rows: QBs 11.03 top QB 0.230 non-QB over 40% 2.23 distinct non-QB 51.0  dealt top QB 0.252  dealt projection 124.91
+  MIXT_QBB P(>=1 big) 0.39052  expected big seats 0.66937  P(>=2) 0.16808  entry pct 0.57243  rows: QBs 11.00 top QB 0.231 non-QB over 40% 9.34 distinct non-QB 29.0  dealt top QB 0.252  dealt projection 126.86
+  MIXT_NQC P(>=1 big) 0.31723  expected big seats 0.46974  P(>=2) 0.10428  entry pct 0.53680  rows: QBs 8.08 top QB 0.192 non-QB over 40% 2.23 distinct non-QB 50.8  dealt top QB 0.223  dealt projection 125.02
+```
+
+**Reading.**
+1. **At the frozen rule: NO DIFFERENCE.** MIXT_RS − MIXT_QA −0.051 [−0.136, +0.037]; 2023 −0.007, 2024 −0.095. The
+   upper bound keeps it off WORSE. The guards gate a PASS only.
+2. **Both guards are breached, and measured.**
+   - Guard 1: the mean entry percentile falls .577 → .532 (−0.045; lower −0.069).
+   - Guard 2: expected big seats .703 → .523 (ratio 0.744). That is 26% fewer, beyond his own 20% tolerance.
+   - Every endpoint leans the same way: P(≥ 1 big) .406 → .355; P(≥ 2) .162 → .125.
+3. **Attribution (exploratory):**
+   - **QB breadth alone is neutral**: QBB −0.015 [−0.052, +0.026], expected big seats .669. Study 35's step toward it
+     leaned positive.
+   - **The player curve carries the cost**: NQC −0.089 [−0.171, −0.0003], an interval that excludes 0, at −2.05
+     projected points per lineup; expected big seats .470.
+4. **Why it costs us and not them.** Spreading means playing one's second and third choices.
+   - Under OUR ratings each spread-in player is rated lower, so the book loses finish and seats.
+   - The regulars beat the field by +6.1 points per lineup WITH their spread, while ours runs −3.8 (the weekly
+     picks-vs-field line, the laptop). The spread does not cost THEM: their alternatives are better than our model
+     says (study 34: their edge is pre-lock knowledge, which FP now supplies).
+   - This harness prices every alternative with our projections and cannot credit that.
+5. **By frozen §5 (NO DIFFERENCE):** the structure is his taste, told plainly what it costs.
+   - **Recommended: keep the yes-book** (the QB cap of 5 rows, player cap 0.5), and build no tier code. The laptop
+     agrees.
+   - What was said to him: "spreading under our ratings" is the problem, not "spreading". More QBs alone is harmless and
+     adds nothing.
+6. **The fair test is under the projections we use.** The proposal is study 38 (the reviewer's): a weekly PAPER co-run
+   from Week 5. MIXT_RS and the yes-book are both built in the lab harness from the same pre-lock frame with FP's
+   projections, never entered, and scored on Mondays against the real field beside the picks-vs-field and monkey lines.
+   It is descriptive each week and pooled after 3–4 weeks under a rule frozen before Week 5's lock.
+7. **Transfer:** our projections (the live build uses FP's), the term's stand-in, the Millionaire's ownership field,
+   and the regulars' tiers from four 2026 weeks.
