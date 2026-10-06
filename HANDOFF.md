@@ -12,6 +12,68 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (08:24 CDT) — choose_entries MERGED (study 32's R4 for 1–3 big-contest entries + the Monday paired scorer); Addendum 137 merged; banks 1443–1448 clean
+
+- **choose_entries** (`production/choose-entries-20261006`, reviewer-approved, merged into integration as
+  `c67da304`):
+  - It adds 5 new files only: `src/nfl_dfs/inference/entry_choice.py`, `scripts/choose_entries.py`,
+    `scripts/score_entry_choice.py` and two tests. Suites: 100 passed.
+  - **Parity** with the frozen s32 `choose()` is pinned on 9 cells.
+  - **The field** is FP's pre-lock ownership through the vendored sampler (byte-identical to the lab's l02).
+  - **Default pool:** the week's entered mean rows (K 26 under Rev3); `--all-rows` is flagged as outside the study;
+    the scale guard on pred_own; m 4 is flagged.
+  - **Monday scorer:** the real contest standings; ties lose; the entered lineups are removed within half a cent,
+    refusing when one is missing; a private paired tally with a review point after 8 contests.
+  - Week-6 usage is in the checklist.
+- **Addendum 137** (study 32) is merged (`e6d4cf5f`) after the laptop's two corrections:
+  - the descriptive header prints the reader sha, not a host path;
+  - the multi-entry-satellite wording.
+- **Banks 1443–1448** (study 33) are CLEAN on the unique-blob scan with the WIDER pattern ("bank" within 25 characters
+  of the number); the narrow pattern missed prose. The reviewer builds study 33 from `4ab03ccb` Wednesday.
+
+## 2026-10-06 (07:53 CDT) — STUDY 32 READ (reproduced): OFFER R4, choose 2–3 entries TOGETHER; single-lineup ranking fails again; study 33 drafted; the SIS session renewed
+
+**Study 32** (choosing m of the K-26 book for a big contest; nfl2 `production/s32-sorting-20261006` @ `b9db6d9`; banks
+1437–1442; reader `c7abb741`):
+- The laptop's re-run of the READ is BYTE-IDENTICAL (`f8a87773`).
+- The descriptive output (`DESCRIPTIVE_s32.txt`) is identical in its body; only line 1 differs, where the header
+  prints the reader's absolute path. The reviewer was asked to print the sha instead (rule 2).
+- **DECISION R4 − RND (S_big, 12 cells): +0.02978 [+0.00081, +0.05986]**, seasons +0.034 / +0.025. R4 − R0 is
+  +0.0426 (≥ 0). → **OFFER R4** (marginal).
+- **Single-row rules are all ≤ random** (R1 −0.048, R2 −0.042, R3 −0.066, R0 −0.013, R5 −0.015). Spearman is
+  +0.047 / +0.075 (A62 holds).
+- **The effect is entirely at m 2–3:** m 1 −0.005, m 2 +0.026, m 3 +0.069 [+0.032, +0.105]. By book: CT +0.044
+  [+0.004, +0.085], MIX +0.016 (NS). MIXT was not in the study.
+- Simulated +0.084 vs realized +0.030: about a third survives.
+- Descriptive: R4 − R5 +0.045 [−0.002, +0.092]; excluding the fallback slate, +0.030.
+- **§5 (frozen):** R4 becomes a reversible class-S selection step for big contests where he holds 2–3 entries, with
+  a weekly R0-vs-R4 paired shadow.
+- **The tool** (`choose_entries`: the week's union run + the pre-lock ownership field + N / S / m → R4's rows, with
+  R0 and RND beside it; a parity test against the frozen s32 `choose()`) is the laptop's build, for review before
+  Week 6's Saturday. No Week-5 change.
+- **The W4 descriptive check** (already seen; frozen s32 rules on the real 110-row W4 book, scored on the real Milly
+  field):
+  - one poor week: best row at the 95th percentile, row 1 at the 47th;
+  - the Wildcat line favoured R2 / R4; the MEGA line was near 0 for every rule;
+  - an anecdote only.
+  - A process slip, disclosed: the first pass read the live frame's empty `actual` column; it was re-scored from
+    contest_ownership, and the script now refuses missing points.
+
+**Decision sheet:** row and section 9 carry study 32's plain answer and table (one entry: random is as good; two or
+three: choose together, about +7 points with three; a small edge, checked weekly). Study list item 26 is marked READ.
+
+**Study 33** (O-14 part 2; an injury-status calibration of our means):
+- Drafted and revised twice with the reviewer: `production/s33-prereg-20261006` @ `4ab03ccb`.
+- The T-70 emulation: every early-window non-player is removed (participation from snap counts); the calibration
+  applies to LATE-window Q / D only, shrunk with k 100.
+- The transfer line comes first: a PASS changes nothing while FP projects every player.
+- The reviewer builds the harness Wednesday. Banks 1443–1448 are being scanned.
+
+**SIS (O-3d):** the operator renewed the session; re-verified at 07:4x. Re-verify again before Wednesday's
+acquisition.
+
+**PROE:** the probes continue every 90 minutes (FP still lacked ATL/NO at 07:22).
+
 ## 2026-10-06 (07:32 CDT) — STUDY 31 READ (reproduced): the ownership term HELPS on both shapes (reverses 29); MIXT recommended as his preference, CT the safe alternative; spread satellites confirmed; MIXT rehearsed 5/5
 
 **Study 31** (the reviewer's: the 2 × 2 shape × term in one co-run, Rev3 K 26, banks 1431–1436). nfl2

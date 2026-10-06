@@ -6,7 +6,7 @@ chat. Private paths stay private (no dollars, no entries here).
 ## Before Friday (laptop)
 | when | item | source |
 |---|---|---|
-| when FP posts it | the weekly vendor run `nfl-weekly-data run --week 5` (PROE waits for ATL/NO's MNF; Route Share W4 already loaded) — every paid page, SIS included | HANDOFF 10-06 |
+| when FP posts it | the weekly vendor run `nfl-weekly-data run --week 5` (PROE waits for ATL/NO's MNF; Route Share W4 already loaded) — every paid page, SIS included. FP still lacked ATL/NO at 09:26 Tue (probes continue). **Fallback, Wed with the SIS acquisition:** if PROE is still missing, run with `--skip-fp-families`, add a Data deficiency log row, and pull PROE (+ the last-four families) alone when FP posts it | HANDOFF 10-06 |
 | Wed 10-07 | O-3 SIS pass-tail: SIS session check, env check against the CURRENT policy, one outcome-blind dry run per job, then resume the three schedulers (first scheduled run Thu 09:15) | OPEN-DEFECTS O-3 |
 | Thu 10-08 | O-25 Route Share companion-v1: one dry run per job (`SHADOW_DRY_RUN=1`) through the launcher lanes; deadline Sat 12:00 | OPEN-DEFECTS O-2 / O-25 |
 | Thu | O-27 cbwu-oi: the fix's dry run | OPEN-DEFECTS O-27 |
@@ -66,3 +66,18 @@ chat. Private paths stay private (no dollars, no entries here).
 ## Monday 10-12
 - `weekly_projection_accuracy.py` (ours / FP / blend) and `weekly_fp_props_check.py` (FP vs FP + props), then `pool`.
 - Settlement; the entered book vs the paper rebuild of today's house shape on the same slate.
+- `weekly_picks_vs_field.py week --season 2026 --week 5 --contest <Milly id> --frame <T-70 frame> --cohort ~/private/regulars/cohort-2026w1-4.txt --entry-history <the refreshed private entry history> --out-dir ~/private/picks-vs-field`, then `pool` (ours vs the regulars, picks vs the rest of the field; after the Monday standings load; once its branch merges).
+
+## Week 6 onward: choosing entries for a big contest (study 32's R4; Addendum 137; merged `c67da304`)
+- When he holds 2–3 entries in ONE big contest (a $4,444 MEGA, a $333 Wildcat, ...), after the T-70 union and the
+  vetting / replacement:
+  `scripts/choose_entries.py --run <T-70 union run> --book <entered book.csv> --ownership <ownership_fp-<tag>.csv>
+  --contests ~/weekNN-sunday/contests.json --contest-details <contest-details json> --contest-id <id> --m <2|3>
+  --out ~/private/entry-choice/wNN-<id>.json`.
+  - It prints R4's rows beside book order (R0); enter R4's.
+  - With ONE entry, no rule beats random: any row.
+- Monday: `scripts/score_entry_choice.py --choice <that json> --standings <the contest's standings csv> --entered R4
+  --tally ~/private/entry-choice/tally.jsonl --week NN`.
+  - This is the paired R0-vs-R4 tally.
+  - After 8 paired contests the decision on keeping R4 goes to him.
+
