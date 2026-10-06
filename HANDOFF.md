@@ -12,6 +12,18 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (01:52 CDT) — The Week-5 build branch is merged with integration and sent for end-to-end review; the dead O-31 guards are fixed
+
+- **Build branch** `production/main-mix-20261006` @ `eb6dc500`. It is a clean `--no-ff` merge of integration `aa3c7213`, so
+  the armed build carries O-31's default. Tests with `GCP_PROJECT` unset: 275 passed, 3 skipped. These are all the
+  money-path modules (union_reselect, vet, sunday_build_host, union_fallbacks, layout, audit, arm, week_env, FP, mix).
+- **The reviewer's end-to-end review** of the diff from integration (b2af6a68 … fa09b57d) is due today, with findings
+  before Thursday. Friday's merge into integration waits for that approval and the operator's yes. No commits to
+  main-mix until the verdict.
+- **Dead O-31 guards fixed.** The weekly accuracy reader now tests `GCP_PROJECT` itself (`aa3c7213`; re-freeze note
+  before W5; the W4 rows sha `760c22ed` is unchanged). fp_projection_override's guard is deleted on main-mix (`fa09b57d`),
+  so a missing variable can't silently fall back to our projections. The reviewer approved both.
+
 ## 2026-10-06 (01:47 CDT) — O-31 MERGED (no new failures, full suite with GCP_PROJECT unset); O-28's full extent registered (138 nodes, 21 modules); study 18b review done
 
 **O-31** (`GCP_PROJECT` default -> `nfl-predictions-503414`): merged into integration as `42334ccb` + the register edit.
