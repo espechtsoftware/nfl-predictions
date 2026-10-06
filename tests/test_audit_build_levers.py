@@ -295,3 +295,24 @@ def test_mix_rows_are_held_to_their_own_cell(tmp_path):
     assert "stack_rules" in run(tmp_path / "c", "pmo_x50", "mix")["failed"]         # a mix-main row with no cell tag
     assert "stack_rules" in run(tmp_path / "d", "mix_Q", "mix")["failed"]           # an unknown cell
     assert "stack_rules" in run(tmp_path / "e", "lev", "t70")["failed"]             # untagged: the house rule, as before
+
+
+def test_union_main_check_reads_a_declared_mix_main(tmp_path):
+    """--main mix: every main row is a mix row tagged with a known cell, the caps held, the receipt carrying the mix table;
+    a mean main must hold no mix rows."""
+    lus = [_lineup("A", "B", "C"), _lineup("C", "D", "E"), _lineup("E", "F", "G"), _lineup("G", "H", "A"), _lineup("B", "A", "D"), _lineup("D", "C", "F")]
+    tail = CONTESTS + [{"name": "milly", "contest_id": "9", "entries": 1, "keep": 1, "track": "tail"}]
+    mix_meta = {"exposure_cap": 3, "max_exposure_used": 3, "dst_cap": 2, "max_dst_rows_used": 2, "mix": {"cells": {"A1": {"rows": 5}}}}
+    base = {"selector": "mean", "operational_k": 5, "tail_sleeve": {"rows": 1, "selector_used": "mean"}}
+
+    def run(tmp, union, tags, srcs):
+        r = _run_dir(tmp, lineups=lus, book=lus[:6], receipt={"written": 6, "config": {**base, "union": union}})
+        c = pd.read_parquet(r / "candidates.parquet"); c["source_run"] = srcs; c["tag"] = tags; c["book_rank"] = [1, 2, 3, 4, 5, None]
+        c.to_parquet(r / "candidates.parquet")
+        return _audit(r, contests=tail, expect_selector="mean")["failed"]
+
+    good_tags, good_src = ["mix_A1"] * 5 + ["lev"], ["mix"] * 5 + ["saturday"]
+    assert "union_main" not in run(tmp_path / "a", {"main": "mix", "mix": mix_meta}, good_tags, good_src)
+    assert "union_main" in run(tmp_path / "b", {"main": "mix", "mix": mix_meta}, ["pmo_x50"] + good_tags[1:], good_src)   # untagged row
+    assert "union_main" in run(tmp_path / "c", {"main": "mix", "mix": {k: v for k, v in mix_meta.items() if k != "mix"}}, good_tags, good_src)
+    assert "union_main" in run(tmp_path / "d", {"main": "mean"}, good_tags, good_src)                                    # mean main holding mix rows

@@ -104,15 +104,17 @@ def main():
     _mix = ((src.get("config", {}).get("union") or {}).get("main") == "mix")
     cell_at: dict[int, str | None] = {}
     if _mix:
-        from nfl_dfs.inference.mix_shapes import MIX_CELLS, cell_of_tag, shape_violations
+        from nfl_dfs.inference.mix_shapes import MIX_CELLS, book_cells, shape_violations
         _game_of_id = f.set_index("id")["game_id"].astype(str).to_dict()
         _cc = pd.read_parquet(run / "candidates.parquet")
-        _cell_of_set: dict = {}
-        for _pl, _tg in zip(_cc["players"].astype(str), _cc["tag"].astype(str)):
-            _cell = cell_of_tag(_tg)
-            if _cell is not None:
-                _cell_of_set.setdefault(frozenset(id_to_dk.get(t.strip()) for t in _pl.split(",")), _cell)
-        cell_at = {p: _cell_of_set.get(frozenset(r)) for p, r in enumerate(book)}
+        _tagged = [(frozenset(id_to_dk.get(t.strip()) for t in _pl.split(",")), _tg)
+                   for _pl, _tg in zip(_cc["players"].astype(str), _cc["tag"].astype(str))]
+        _k_main = min(max(int(src.get("config", {}).get("operational_k") or len(book)), 0), len(book))
+        try:                                                 # every MIX main row must resolve its cell, or nothing is vetted
+            cell_at = dict(enumerate(book_cells([frozenset(r) for r in book], _tagged, _k_main)))
+        except ValueError as e:
+            (out / "replace.json").write_text(json.dumps({"version": "vet-replace-v4.1", "status": "FAILED", "problems": [str(e)]}, indent=1) + "\n")
+            print(f"REPLACEMENT FAILED: {e}", file=sys.stderr); sys.exit(2)
 
         def mix_violations(toks, cell):
             return shape_violations(toks, cell, vr_args[0], vr_args[1], vr_args[2], _game_of_id)

@@ -122,3 +122,21 @@ def shape_violations(ids, cell: str | None, pos: dict, team: dict, opp: dict, ga
     if len({team.get(rb) for rb in rbs}) < len(rbs):
         v.append("two RBs of one team")
     return v
+
+
+def book_cells(book_sets: list[frozenset], tagged: list[tuple[frozenset, str]], k_main: int) -> list[str | None]:
+    """Each book row's cell from the run's candidates (roster -> its first mix_<cell> tag; other tags give None). The first
+    k_main positions are the MIX main block: every one of them must resolve, or ValueError names the 1-based positions --
+    a mix book is never vetted as house by default (reviewer 2026-10-05). Positions past k_main (the tail sleeve) may be
+    None: they keep the house rules, as before."""
+    cell_of_set: dict[frozenset, str] = {}
+    for roster, tag in tagged:
+        cell = cell_of_tag(tag)
+        if cell is not None:
+            cell_of_set.setdefault(roster, cell)
+    cells = [cell_of_set.get(r) for r in book_sets]
+    missing = [p + 1 for p in range(min(k_main, len(cells))) if cells[p] is None]
+    if missing:
+        raise ValueError(f"MIX ROWS WITHOUT A CELL TAG: main-block positions {missing[:12]}"
+                         + (f" (+{len(missing) - 12} more)" if len(missing) > 12 else "") + " -- refusing to vet a mix book as house")
+    return cells

@@ -291,21 +291,38 @@ def audit(run: Path, contests: list[dict], *, layout: str, expect_selector: str 
                 record("union_main", ok, f"union main declared pmo_x50: {n_pmo} of {len(top)} main rows are pmo_x50 rows (need {k_mean}); "
                        f"max exposure used {px.get('max_exposure_used')} <= cap {px.get('exposure_cap')}; DST rows used {px.get('max_dst_rows_used')} "
                        f"<= DST cap {dcap}", main=main, pmo_rows_in_main=n_pmo, dst_cap_ok=dst_ok)
+            elif main == "mix":
+                # study 18's shape portfolio: every main row is a mix row tagged with a known cell, under the declared caps
+                px = uni.get("mix") or {}
+                n_mix = int((top["source_run"] == "mix").sum())
+                tags = top["tag"].astype(str) if "tag" in top.columns else pd.Series([""] * len(top))
+                cells = tags.str.replace("mix_", "", n=1)
+                tagged = int(tags.str.startswith("mix_").sum())
+                dcap = px.get("dst_cap")
+                dst_ok = True if not isinstance(dcap, int) else int(px.get("max_dst_rows_used", 10**9)) <= dcap
+                ok = (n_mix == tagged == len(top) == k_mean and int(px.get("max_exposure_used", 10**9)) <= int(px.get("exposure_cap", 0))
+                      and dst_ok and bool(px.get("mix")))
+                record("union_main", ok, f"union main declared mix: {n_mix} of {len(top)} main rows are mix rows, {tagged} tagged with a cell "
+                       f"(need {k_mean}); cells {dict(cells.value_counts())}; max exposure used {px.get('max_exposure_used')} <= cap "
+                       f"{px.get('exposure_cap')}; DST rows used {px.get('max_dst_rows_used')} <= DST cap {dcap}",
+                       main=main, mix_rows_in_main=n_mix, dst_cap_ok=dst_ok)
             else:
-                record("union_main", n_pmo == 0, f"union main declared {main}: {n_pmo} pmo_x50 rows in the main book (must be 0)", main=main, pmo_rows_in_main=n_pmo)
+                n_mix = int((top["source_run"] == "mix").sum())
+                record("union_main", n_pmo == 0 and n_mix == 0, f"union main declared {main}: {n_pmo} pmo_x50 rows in the main book (must be 0)"
+                       + (f"; {n_mix} mix rows (must be 0)" if n_mix else ""), main=main, pmo_rows_in_main=n_pmo)
         else:
             record("union_main", False, "union receipt without source_run/book_rank columns in candidates.parquet", main=main)
 
     # ---- main_own_term: a declared ownership term must leave its trace (source file, sha256, coverage, a control main that
     # differs); an undeclared one must leave none (reviewer 2026-09-29 gate 3; laptop W-A)
     if uni:
-        px = uni.get("pmo_x50") or {}
+        px = (uni.get("mix") if uni.get("main") == "mix" else uni.get("pmo_x50")) or {}      # the term sits under its main's key
         term = px.get("own_term") or {}
         tilt = float(term.get("tilt") or 0.0)
         control = run / "book_main_control.csv"
         if tilt > 0:
             problems: list[str] = []
-            if uni.get("main", "mean") != "pmo_x50":
+            if uni.get("main", "mean") not in ("pmo_x50", "mix"):
                 problems.append(f"own_term declared on main={uni.get('main')}")
             src = term.get("source"); want = term.get("source_sha256")
             if not src or not want:

@@ -253,3 +253,20 @@ def test_a_player_without_a_game_id_fails_the_check():
     g2 = dict(game); g2.pop("c_wr"); g2["d_te"] = None
     v = M.shape_violations(b_row, "B", pos, team, opp, g2)
     assert len(v) == 1 and v[0].startswith("players without a game id")
+
+
+def test_book_cells_resolve_every_main_row_or_refuse_loudly():
+    """vet_replace (reviewer 10-05): a MIX main row whose cell cannot be resolved must never be vetted as house."""
+    r1, r2, r3, sleeve = (frozenset({f"{x}{i}" for i in range(9)}) for x in "abcd")
+    tagged = [(r1, "mix_B"), (r2, "mix_C"), (r2, "mix_C"), (r3, "lev"), (sleeve, "lev")]
+    assert M.book_cells([r1, r2, sleeve], tagged + [(r3, "mix_A2")], k_main=2) == ["B", "C", None]   # the sleeve may be untagged
+    with pytest.raises(ValueError, match=r"MIX ROWS WITHOUT A CELL TAG: main-block positions \[2\]"):
+        M.book_cells([r1, r3, sleeve], tagged, k_main=2)                      # r3 is in the book's main block, untagged
+    with pytest.raises(ValueError, match=r"positions \[1, 2\]"):
+        M.book_cells([frozenset({"x"}), frozenset({"y"})], tagged, k_main=2)  # rows missing from the candidates entirely
+
+
+def test_vet_replace_refuses_an_unresolved_mix_book_before_vetting():
+    text = (Path(__file__).resolve().parents[1] / "scripts" / "vet_replace_v4.py").read_text()
+    assert "cell_at = dict(enumerate(book_cells([frozenset(r) for r in book], _tagged, _k_main)))" in text
+    assert 'print(f"REPLACEMENT FAILED: {e}", file=sys.stderr); sys.exit(2)' in text
