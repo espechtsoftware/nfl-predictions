@@ -12,6 +12,23 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (11:58 CDT) — Study 36's binding census ACKED (byte-identical); the arm-script gate (QB cap rides with mixt only)
+
+- **Study 36** (a stricter general player cap on his yes-book):
+  - Records: prereg production `dcbe0668` (frozen 11:56:44); lab `b052a0e`; reader `f915e950`; experiment `9e940c8c`.
+  - The laptop's census re-run is BYTE-IDENTICAL (`c5507002`; raw `df52b20d` = RAW_MANIFEST).
+  - Cap parity with production is asserted in code: 13 / 9 / 10 player rows, DST 6, QB 5.
+  - Arms: A = 0.35 (9 rows: over 40% 0.11, top player .390, −1.33 projection per lineup); B = 0.40 (10 rows: 3.67;
+    −0.95).
+  - DISCLOSED: a flat cap makes a plateau. The count over 30% rises 11.5 → 14.8, so it answers "less exposure to our
+    most-used players", not "the regulars' curve".
+  - Banks 1461–1466 are clean. The reviewer launches the scored run.
+- **Arm script**, `production/arm-w5-mixt-qbcap-20261006` @ `ab6edf8d` (on `50d42285`), the reviewer's gate:
+  - SHAPE=ct with the QB cap stops (study 35 tested it on MIXT only);
+  - with the cap off, both cap variables are unset;
+  - tested print-only on all four combinations.
+  - It merges after review.
+
 ## 2026-10-06 (11:55 CDT) — O-18 timing fixed on the operator's OK: s-freshness 08:30 CT (live + deploy_jobs.sh merged)
 
 - **Operator:** "ok to move daily freshness".
