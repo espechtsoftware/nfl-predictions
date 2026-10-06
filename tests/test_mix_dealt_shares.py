@@ -41,6 +41,9 @@ def test_dealt_entries_are_counted_by_cell_with_the_shape(tmp_path, capsys):
     out = json.loads((stage / "ENTER-mix-dealt.json").read_text())
     assert out["entries"] == 5 and out["cells"] == {"A1": 2, "A2": 0, "B": 0, "C": 2, "house": 1}
     assert out["shape"]["qb_plus2"] == 0.6 and out["shape"]["bringback"] == 0.6     # the sleeve row is QB+2 with a bring-back too
+    # dual: row A1 holds C and D players (g2) -> dual; row C: CRB1/CWR2/CWR3 and DWR2/DTE4/DRB1 -> dual; the sleeve row's
+    # QB is C (g2) and g1 holds A and B -> dual
+    assert out["shape"]["dual"] == 1.0
     assert "MIX DEALT (the entries as staged, after the small-contest overlap limit): A1 2 (0.4; quota 0.3)" in capsys.readouterr().out
 
 

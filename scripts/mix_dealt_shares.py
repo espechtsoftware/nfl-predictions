@@ -40,6 +40,13 @@ def dealt_shares(rowmap: dict[str, list[int]], upload_rows: list[list[str]], cel
             bring = sum(1 for i in ids if pos.get(i) in ("RB", "WR", "TE") and team.get(i) == opp.get(qb))
             shape["qb_plus1"] += mates == 1; shape["qb_plus2"] += mates >= 2; shape["bringback"] += bring >= 1
             shape["in_qb_game"] += sum(1 for i in ids if pos.get(i) != "DST" and game.get(i) == game.get(qb))
+            # dual = a second-game pair, as mix_shapes.shape_violations defines it: a game other than the QB's with >= 1
+            # non-DST player from EACH of its two teams
+            teams_by_game: dict = {}
+            for i in ids:
+                if pos.get(i) != "DST" and game.get(i) != game.get(qb):
+                    teams_by_game.setdefault(game.get(i), set()).add(team.get(i))
+            shape["dual"] += any(len(t) == 2 for t in teams_by_game.values())
     return {"entries": n, "cells": {c: cells.get(c, 0) for c in [*MIX_CELLS, "house"]},
             "shares": {c: round(cells.get(c, 0) / n, 3) if n else None for c in [*MIX_CELLS, "house"]},
             "quotas": {c: MIX_CELLS[c][0] for c in MIX_CELLS},
