@@ -4621,3 +4621,92 @@ secondaries (slate means):
 
 **What it can do** (§5): WS is a preference, not a tested gain on his goal. Doing nothing keeps today's house shape.
 WS is now safe to run (the late-scratch fix `ddd470ed`), so the operator chooses on Friday.
+
+## Addendum 132 (2026-10-06): study 26 (a one-game SHOOTOUT build vs the house shape, on the operator's goal and FINAL plan): NO DIFFERENCE, with the first consistent ceiling signal; player-upside (p90) negative again
+
+**Setup.**
+- **The operator's ask:** "around the clock efforts to try different strategies of selecting boom players, sorting,
+  testing usage of route share data etc".
+- **What the ledger sweep found closed at deep lines:** player-upside objectives (p90 Add. 2; q97 / q98.75
+  PREREG-006/010; the finish objective PREREG-098; simulated P(≥ line) L14) and sorting by simulated tail (Add. 62/65,
+  09-22). Building MORE correlation was untested there; L10's CAP5 was read only at p89.
+- **Plan:** his FINAL Rev2 Week-5 plan. 29 contests, 53 entries; his Milly super-satellites and the $125 FFWC are
+  PINNED to rows 1–5 by his rule; 26 entries in 21 big contests.
+- **Caps:** production's caps 11 / 5 (head K 22).
+- **Arms:**
+  - C (PRODUCTION_STACK, MPG 4): the reference;
+  - SH (DECISION): QB + ≥ 3 WR/TE + a bring-back, MPG 5, i.e. five from one game, as the whole book;
+  - C5 (exploratory): the house rules at MPG 5;
+  - P90 (exploratory): the house shape on each player's simulated p90.
+- **Preregistration:** `reports/2026-10-06-prereg-study26-shootout.md` (frozen `36182d74`).
+  - It discloses, before the freeze, that a smoke's grep printed one throwaway slate's secondaries (2023 W9); the design
+    was unchanged.
+  - **Deviation note 1** (`e0ea2991`, after the scored run started, before any read): the operator rules out a
+    whole-book shootout ("I would only want to use it a very small percentage. We know that milly winners use fewer
+    players than that"). The read answers only whether the shape helps or hurts.
+- **Panel:** 53 slates (2022–24), banks 1421/1422; B 20,000, seed 20261008; two-sided 0.95.
+- **Read and reproduced.** Frozen and read by the reviewer. **Reproduced byte-identically by the laptop**, the reader and
+  the agreed non-decision sensitivity: reader `86b3abb2`; READ `d343a218`; SENS `261f348a`. Lab: nfl2
+  `production/s26-boom-objective-20261006`.
+
+**Reader output (verbatim):**
+```
+STUDY 26 READER  sha256 86b3abb2c59a6ac5c88a894541af6e82e6174b445d43bad08b18d54a0c57e8c8
+DIRECTION: P(>= 1 big seat) per slate from each dealt entry's share of the sampled field it BEATS (higher = better); every difference is ARM - its REFERENCE (C); POSITIVE favours the arm.
+slates 53  banks [1421, 1422]  B 20000  seed 20261008  primary two-sided 0.95 (one decision arm), guard 1 one-sided 0.95 at -0.015, guard 2 expected-big-seat ratio >= 0.80  plan 29 mean-track contests, 53 entries (26 in 21 big contests)  production row caps ['{"all": [11, 5]}']  BASE {"lam": 0.0}
+
+== SH vs C  [DECISION]
+  PRIMARY P(>= 1 big seat) per slate +0.02378  [-0.02827, +0.07484]  seasons 2022 +0.06677, 2023 +0.03087, 2024 -0.02390
+  GUARD 1 mean entry pct -0.01450  one-sided lower -0.03685  (must exceed -0.015)
+  GUARD 2 expected big seats 0.70493 vs C 0.61098  ratio 1.154  (must be >= 0.80)
+  dealt identical to C: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+
+== C5 vs C  [EXPLORATORY (never decision-bearing)]
+  PRIMARY P(>= 1 big seat) per slate +0.00498  [-0.02430, +0.03599]  seasons 2022 +0.04260, 2023 +0.01772, 2024 -0.04330
+  GUARD 1 mean entry pct +0.00263  one-sided lower -0.00789  (must exceed -0.015)
+  GUARD 2 expected big seats 0.60877 vs C 0.61098  ratio 0.996  (must be >= 0.80)
+  dealt identical to C: 0.047 of slate-banks
+
+== P90 vs C  [EXPLORATORY (never decision-bearing)]
+  PRIMARY P(>= 1 big seat) per slate -0.02741  [-0.09218, +0.04176]  seasons 2022 -0.02766, 2023 -0.04154, 2024 -0.01305
+  GUARD 1 mean entry pct -0.01290  one-sided lower -0.03749  (must exceed -0.015)
+  GUARD 2 expected big seats 0.50086 vs C 0.61098  ratio 0.820  (must be >= 0.80)
+  dealt identical to C: 0.000 of slate-banks
+
+secondaries (slate means):
+  C   P(>=1 big) 0.26642  expected big seats 0.61098  P(>=2 contests) 0.15903  slates P(>=1 big) < 1% 0.472  tickets 124.0  best>=200 0.075  entry pct 0.50644  worst-decile slate 0.25689  simulated P(>=1 big) 0.51142
+      shape of dealt entries: five_from_one_game 0.000  qb_plus3 0.000  qb_game1_share 0.252  qb_game_top4_share 0.776  qb_games 3.321  qb_game_max_share 0.705  qb_plus1 0.000  bringback 1.000  dual 0.221  in_qb_game 4.000  games 4.281  max_entry_share 0.788
+  SH  P(>=1 big) 0.29020  expected big seats 0.70493  P(>=2 contests) 0.13285  slates P(>=1 big) < 1% 0.368  tickets 168.0  best>=200 0.104  entry pct 0.49194  worst-decile slate 0.28535  simulated P(>=1 big) 0.51422
+      shape of dealt entries: five_from_one_game 1.000  qb_plus3 1.000  qb_game1_share 0.246  qb_game_top4_share 0.753  qb_games 3.245  qb_game_max_share 0.709  qb_plus1 0.000  bringback 1.000  dual 0.135  in_qb_game 5.000  games 3.621  max_entry_share 0.780
+  C5  P(>=1 big) 0.27139  expected big seats 0.60877  P(>=2 contests) 0.15311  slates P(>=1 big) < 1% 0.453  tickets 142.0  best>=200 0.085  entry pct 0.50907  worst-decile slate 0.26290  simulated P(>=1 big) 0.51728
+      shape of dealt entries: five_from_one_game 0.295  qb_plus3 0.025  qb_game1_share 0.253  qb_game_top4_share 0.767  qb_games 3.387  qb_game_max_share 0.704  qb_plus1 0.000  bringback 1.000  dual 0.190  in_qb_game 4.295  games 4.114  max_entry_share 0.789
+  P90 P(>=1 big) 0.23901  expected big seats 0.50086  P(>=2 contests) 0.12725  slates P(>=1 big) < 1% 0.453  tickets 104.0  best>=200 0.066  entry pct 0.49353  worst-decile slate 0.23094  simulated P(>=1 big) 0.50112
+      shape of dealt entries: five_from_one_game 0.000  qb_plus3 0.000  qb_game1_share 0.238  qb_game_top4_share 0.749  qb_games 3.311  qb_game_max_share 0.706  qb_plus1 0.000  bringback 1.000  dual 0.213  in_qb_game 4.000  games 4.217  max_entry_share 0.790
+```
+
+**The agreed NON-DECISION sensitivity (verbatim; the disclosed slate excluded):**
+```
+STUDY 26 SENSITIVITY (NON-DECISION; the frozen reader's verdict governs)  reader sha256 86b3abb2c59a6ac5c88a894541af6e82e6174b445d43bad08b18d54a0c57e8c8  this script sha256 13ddd5df31fe645080423f40c441b1b8d94299014fe91ba353ce0fe2a4b26822
+  SH vs C WITHOUT 2023 W9 (52 slates): P(>= 1 big seat) +0.02404  [-0.02951, +0.07686]  seasons 2022 +0.06677, 2023 +0.03208, 2024 -0.02390
+  C5 vs C WITHOUT 2023 W9 (52 slates): P(>= 1 big seat) +0.00507  [-0.02447, +0.03721]  seasons 2022 +0.04260, 2023 +0.01876, 2024 -0.04330
+  P90 vs C WITHOUT 2023 W9 (52 slates): P(>= 1 big seat) -0.02653  [-0.09222, +0.04359]  seasons 2022 -0.02766, 2023 -0.03968, 2024 -0.01305
+```
+
+**Reading.**
+1. **The shootout is NO DIFFERENCE on P(≥ 1 big seat)** (+2.4 points, interval −2.8 to +7.5; seasons +6.7 / +3.1 /
+   −2.4). The sensitivity without the disclosed slate is the same (+2.4).
+2. **But it is the first lever with a consistent CEILING signal on his goal** (C → SH):
+   - expected big seats +15% (0.611 → 0.705);
+   - tickets 124 → 168;
+   - weeks with a 200+ lineup 7.5% → 10.4%;
+   - near-dead weeks 47% → 37%;
+   - a better worst decile.
+
+   The cost is about 1.4 points of mean finish, which is what a ceiling build should cost.
+3. **Whole-book use is off the table by the operator's choice.** A small sleeve needs its own study (study 27). Under his
+   pins a top rank is many entries (rank 1 = 10 entries), so a small share by entries sits on the single-entry ranks
+   6–22.
+4. **Player upside (P90) is negative again** (−2.7 points; expected seats 0.82×), consistent with every prior read.
+   **Allowing five (C5) is flat:** the plain mean rarely takes the fifth player.
+5. **Transfer:** our projections, no ownership term, no FP.
