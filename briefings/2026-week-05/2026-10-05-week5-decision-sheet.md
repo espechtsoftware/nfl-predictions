@@ -330,8 +330,10 @@ $4,444 MEGA Millionaire and the $333 Wildcat:
 
 **The rule, set now:** we recommend the method only if it beats random clearly, with no losing season. If nothing
 does, the answer is that your lineups are equal shots: pick for variety (different QBs and games), not by rank.
-**One question for you:** in those contests, what counts as a win for you: any cash (every paid place in both pays at
-least $500), or something bigger?
+**Your answer (10-06):** "this week my entries in the qualifiers … first place. … next week if I already am in the big
+contest, then a win of $500 or more is good." This week's qualifiers each pay one seat, so first place is the seat, as
+the studies already count it. Inside the big contests, any finish paying $500 or more is the line study 32 judges by
+(in the MEGA every paid place pays far more; in the Wildcat the minimum cash is $500).
 
 ## The Week-4 replay: one week, a check that it all works, not evidence
 
