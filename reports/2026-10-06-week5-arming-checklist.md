@@ -6,7 +6,7 @@ chat. Private paths stay private (no dollars, no entries here).
 ## Before Friday (laptop)
 | when | item | source |
 |---|---|---|
-| when FP posts it | the weekly vendor run `nfl-weekly-data run --week 5` (PROE waits for ATL/NO's MNF; Route Share W4 already loaded) — every paid page, SIS included | HANDOFF 10-06 |
+| when FP posts it | the weekly vendor run `nfl-weekly-data run --week 5` (PROE waits for ATL/NO's MNF; Route Share W4 already loaded) — every paid page, SIS included. FP still lacked ATL/NO at 09:26 Tue (probes continue). **Fallback, Wed with the SIS acquisition:** if PROE is still missing, run with `--skip-fp-families`, add a Data deficiency log row, and pull PROE (+ the last-four families) alone when FP posts it | HANDOFF 10-06 |
 | Wed 10-07 | O-3 SIS pass-tail: SIS session check, env check against the CURRENT policy, one outcome-blind dry run per job, then resume the three schedulers (first scheduled run Thu 09:15) | OPEN-DEFECTS O-3 |
 | Thu 10-08 | O-25 Route Share companion-v1: one dry run per job (`SHADOW_DRY_RUN=1`) through the launcher lanes; deadline Sat 12:00 | OPEN-DEFECTS O-2 / O-25 |
 | Thu | O-27 cbwu-oi: the fix's dry run | OPEN-DEFECTS O-27 |
