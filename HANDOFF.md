@@ -12,6 +12,28 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (13:22 CDT) — Study 37 census acked and launched; Wednesday's A1/A2 drivers drafted (host-local)
+
+- **Study 37:**
+  - The binding census is BYTE-IDENTICAL (`57aa1f1f`; raw `a745be10`). The prereg `d1ec7348` pins (sha `febe8025`) match
+    the files at nfl2 `7394b32`.
+  - The tiers re-derive from the laptop's private lineups by `s37_regulars_tiers.py`.
+  - Banks 1467–1472 are clean (both scans). The scored run was launched by the reviewer at 13:18:55; the read is due.
+- **A1 driver** `~/.cache/laptop-agent/rehearsal/a1_host_chain_k105.sh <commit>`: the host chain at K 105 in W4's env.
+  - A scratch worktree at the commit; scratch OUT and a scratch live dir with COPIES of the W4 T-70 run and the W4
+    Saturday supply runs (the host marks the dir it adopts).
+  - `MIN_PROJ_GENERATED_AT=2026-10-04T15:30:00+00:00` as the W4 T-70 log declared; MIX + FP + term; no QB cap.
+  - O-19: `--check` must exit 2 and write nothing. O-20: two planted failures, `check_week_runtime.py --role build`.
+  - O-23: no EMIT FAILED. O-24: `sunday_after_build.sh once <union dir> a1` (never the polling form) with a planted
+    stray file.
+- **A2 driver** `~/.cache/laptop-agent/rehearsal/a2_armed_k26.sh <commit>`: the armed settings at K 26 at script level
+  (the 10-06 v2 rehearsal plus the term 0.20 on the W4 FP ownership, `--main-qb-cap-rows 5 --main-qb-cap-k 26`, and
+  entries 26).
+  - Checks (1)–(5), plus (6) the receipt's qb_cap_rows 5 / qb_cap_k 26 and (7) the dealt top-QB share vs .224 / .245.
+  - Its inputs were copied out of the session scratch into `~/.cache/laptop-agent/rehearsal/inputs/`.
+- **A3** (a fresh W5 build in a scratch nfl2 worktree at f69598b) is drafted Wednesday morning after checking the W5
+  inputs (salaries, projections), with the reviewer's three guards.
+
 ## 2026-10-06 (12:47 CDT) — FP Week-4 Route Share (source_week 04 → target week 5): present, verified; the Week-5 gate check passes
 
 The 12:47 scheduled task. It was already captured and imported this morning (the operator-approved repair, 10:53 entry), so
