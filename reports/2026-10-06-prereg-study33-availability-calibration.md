@@ -1,6 +1,12 @@
 # Preregistration: study 33, an injury-status calibration of our means (O-14 part 2) (DRAFT 2026-10-06)
 
-**Status: DRAFT 2026-10-06.** The laptop drafted it at the reviewer's request; the register's deadline is "preregister
+**Transfer, said first:** with Fantasy Points' projections live for every player (316 of 316 in the Week-5
+rehearsal), a PASS changes NOTHING in the Week-5 or Week-6 build. It matters only for players FP does not project (the
+fp-gap-flag cases) and for a return to our means if the weekly ours / FP / blend check ever favours ours. It is LOW
+priority for compute: frozen to meet Wednesday's deadline, run when the host is free after study 32 and anything with
+live effect.
+
+**Status: DRAFT 2026-10-06, revised the same day after the reviewer's review.** The laptop drafted it at the reviewer's request; the register's deadline is "preregister
 by Wed 10-07". The reviewer reviews it, builds the harness and freezes it after the support census and the smokes. The
 laptop acks the census and re-runs the frozen reader.
 
@@ -8,6 +14,15 @@ laptop acks the census and re-runs the frozen reader.
 - **O-14 part 2 (open since 2026-09-19):** the selector carries no availability weighting. Week 2's Zay Flowers (DK
   Doubtful at build) sat in 45 of 97 lineups. Study 1b closed part 1 (an entry cap) in Addendum 123. Part 2, a
   Doubtful / Questionable discount, was never tested.
+- **The motivating case was an EARLY-window game.** Zay Flowers' Week-2 game (NO at BAL, Sunday 13:00 ET) was in the
+  early window. Today's money path rebuilds at T-70 on the salary pull made after the 10:30 CT inactives, so a
+  Doubtful early-window player is resolved (OUT and removed, or active) before the build. Today's rules would already
+  have handled him.
+- **The uncertainty left at selection time is LATE-window only.**
+  - The T-70 build runs at 10:50 CT, after the 10:30 CT inactives for the 12:00 CT (13:00 ET) games.
+  - Late-window games (16:05 / 16:25 ET) post their inactives at about 13:35–13:55 CT, after the build.
+  - Only their Questionable / Doubtful players are uncertain when the book is chosen. `ENTER_FLAG_LATE_Q_ONLY` exists
+    for exactly this.
 - **The operator's money-path rule is untouched.** This study changes how the book is BUILT (the means a lineup is
   chosen on). It never removes a player from entered lineups; only OUT / IR or the official inactives do that.
 
@@ -36,50 +51,67 @@ laptop acks the census and re-runs the frozen reader.
     D 194 rows.
   - 2025 and 2026 have no date_modified, and live uses the pulled-at snapshots. The panel needs 2022–24 only.
 
-## 3. The calibration (class C; the reviewer's design)
-- **Strata** (pre-lock, from the training table's injury_status and practice_level):
+## 3. The T-70 emulation and the calibration (class C; the reviewer's design)
+- **The window** comes from the schedules' `gametime` (ET; nflverse `nfl_raw.schedules`, present for 2022–24): EARLY =
+  13:00 ET, LATE = 16:05 / 16:25 ET (the main slate; 09:30 London and night games are outside it).
+- **The T-70 emulation, applied to EVERY arm alike**, so the reference is today's live behaviour:
+  - (a) An EARLY-window player with a Q / D designation who did NOT play is removed from the pool before the build.
+    This is legitimate T-70 information: the inactives are public at 10:30 CT, before the 10:50 CT build. "Did not
+    play" is read from the inactive / active record, the same fact the live pull reflects.
+  - (b) An EARLY-window Q / D player who played keeps his mean, undiscounted.
+  - (c) The calibration applies to LATE-window Q / D players ONLY.
+- **Strata, LATE-window player-weeks** (pre-lock status from the training table's injury_status and practice_level):
   - Q with DNP;
   - Q with Limited;
   - Q with Full or none;
   - D;
   - HEALTHY (no designation).
   - OUT / IR are outside the pool, as today.
-  - A stratum with fewer than 30 player-weeks in its training seasons pools into its parent (Q, or D with Q).
-- **Factor:**
-  - c_s = Σ realized DK points / Σ our projected mean, over the training seasons' player-weeks in stratum s.
-  - Realized points include the zeros of players who did not play.
-  - The arm multiplies a player's mean by **min(1, c_s / c_healthy)**. Dividing by healthy keeps a general over- or
-    under-projection out of the status effect. The cap at 1 never inflates a flagged player.
-- **Walk-forward:** 2023 slates use factors from 2022; 2024 slates use 2022–23. Never the test season, so this is
-  ordinary walk-forward estimation, not panel mining.
-- **Our projected mean is the harness's own** (the player_mean of the run's draws), so the factor calibrates exactly
-  the quantity the selector uses.
+  - If the late-window strata are too thin to estimate (see the shrinkage), the factors use ALL-window player-weeks
+    instead, disclosed in the census before the freeze.
+- **The raw factor:** c_s = Σ realized DK points / Σ our projected mean, over the training seasons' player-weeks in
+  stratum s. Realized points include the zeros of players who did not play.
+- **Shrinkage, not a hard floor:**
+  - c_s' = (n · c_s + k · c_parent) / (n + k), with k = 100.
+  - The parent chain is: the Q sub-strata shrink to Q, Q to Q+D, D to Q+D, and Q+D to HEALTHY.
+  - DK points have a CV of about 1–1.5 with zeros, so a ratio on n = 30 carries an SE of about 0.2–0.27. The census
+    prints n, c_s, its SE and c_s' per stratum.
+- **The arm** multiplies a LATE-window flagged player's mean by **min(1, c_s' / c_healthy)**. Dividing by healthy keeps
+  a general over- or under-projection out of the status effect. The cap at 1 never inflates a flagged player.
+- **Walk-forward:**
+  - 2023 slates use factors from 2022; 2024 slates use 2022–23. Never the test season.
+  - The training means are the harness's own player_mean, so the factor calibrates exactly what the selector uses.
+    They come from simulating the 2022 slates and the 2023 slates once each, with a fixed training seed (bank 1406's),
+    never the scored banks.
 - **The mean only.** The simulated variance is unchanged. Disclosed: a player who plays at reduced snaps is not
   modelled beyond his mean.
-- **The factors are printed** with their n per stratum in the census, before any scored bank.
 
-## 4. Arms (study 31's harness)
+## 4. Arms (study 31's harness, with the T-70 emulation in every arm)
 - **Plan:** Rev3 (`3dd19d6c…`), K 26, caps 13 / 6, head, `enter_layout` pinned `3cb051ac…`.
-- **Books, both with the 0.20 ownership term (study 31's recommendation):**
-  - **CT** (the house shape + term) and **AV_CT** (the same, on calibrated means);
-  - **MIXT** (the winners' mix + term) and **AV_MIXT** (the same, on calibrated means).
+- **Books, both with the 0.20 ownership term** (study 31's recommendation):
+  - **CT** (the house shape + term) and **AV_CT** (the same, on calibrated late-window means);
+  - **MIXT** (the winners' mix + term) and **AV_MIXT** (the same).
 - The term's ownership input is unchanged; the calibration touches the projected mean only.
+- **Scoring:** a late-window flagged player who sat scores 0 in the book. There is no replacement after T-70 for late
+  games in the panel: live, late swaps are possible but not modelled. Disclosed.
 
 ## 5. Support census FIRST (outcome-blind; before the freeze)
 For every slate on the mechanics bank:
-- the pool's Q / D players by stratum;
-- the book rows holding at least one Q / D player, in each reference book;
-- the distinct Q / D players dealt, and their dealt-entry share;
-- how far the calibration moves each flagged player's mean;
+- the pool's LATE-window Q / D players by stratum, and the early-window flagged players the emulation resolves (their
+  count only; whether they played is T-70 information, not a scored outcome);
+- the book rows holding at least one LATE-window Q / D player, in each reference book;
+- the distinct late-window flagged players dealt, and their dealt-entry share;
+- the stratum table (n, c_s, SE, c_s') and how far the calibration moves each late-window flagged player's mean;
 - whether AV_x's book differs from x's (identical-book share).
 
 **Vacuity rule:** if AV_x's book is identical to x's on more than 80% of slate-banks, the verdict is DEAD LEVER, read
-before any outcome. If support is absent (for example, flagged players almost never reach the books), the design is
-revised before the freeze, not after.
+before any outcome. The census may well come out vacuous (few late games, few flagged players, rarely in a book); that
+is an honest, cheap answer to O-14 part 2 and is recorded as such. If support is absent, the design is revised before
+the freeze, not after.
 
 ## 6. Panel, endpoint and rule
 - **Slates:** the 36 `k1` slates of 2023–24.
-- **Banks:** fresh, after 1442 (proposed 1443–1448), scanned by both parties before use. The census runs on 1406.
+- **Banks:** fresh 1443–1448, scanned by both parties before use. The census runs on 1406.
 - **PRIMARY:** P(≥ 1 big seat) per slate, **AV − reference pooled over the two shapes** (the mean of AV_CT − CT and
   AV_MIXT − MIXT). Bootstrap within season, B 20,000; two-sided 0.95.
 - **Guards (study 18b's):**
@@ -90,8 +122,9 @@ revised before the freeze, not after.
   - WORSE: upper < 0;
   - DEAD LEVER: the vacuity rule;
   - NO DIFFERENCE: otherwise.
-- **EXPLORATORY:** each shape's contrast; the number of entries holding a Q / D player per arm; the share of those
-  players who sat (realized), arm by arm.
+- **EXPLORATORY:** each shape's contrast; the entries holding a late-window Q / D player per arm; the share of those
+  players who sat (realized), arm by arm; the T-70 emulation's effect on the reference itself (the books with and
+  without step (a)), as a description of what today's T-70 rule already buys.
 
 ## 7. What a verdict can do (to be frozen)
 - **PASS supports calibrating OUR means**, not FP's.
@@ -106,10 +139,11 @@ revised before the freeze, not after.
   name them.
 
 ## 8. Disclosures (before any outcome)
-1. FP already discounts flagged players (§2), so the live transfer of a PASS is to OUR means only.
-2. The mean only; snap-share reductions and the variance are not modelled.
-3. Stratum sizes are thin for D and Q-DNP. The pooling rule (§3) is fixed now.
-4. The panel's projections are ours (no FP in history); the term's predictor is the TABPFN_LS stand-in, as in 29–31.
+1. FP already discounts flagged players (§2), so the live transfer of a PASS is to OUR means only, and with FP live for every player it changes nothing in the Week-5 / 6 build (the header).
+2. The T-70 emulation reads who sat in EARLY-window games as T-70 information (public at 10:30 CT); late-window swaps after T-70 are not modelled.
+3. The mean only; snap-share reductions and the variance are not modelled.
+4. Stratum sizes are thin for D and Q-DNP, and thinner in the late window; the shrinkage (k 100) and the all-window fallback (§3) are fixed now.
+5. The panel's projections are ours (no FP in history); the term's predictor is the TABPFN_LS stand-in, as in 29–31.
 
 ## 9. Integrity (to be filled at the freeze)
 Code (nfl2 branch and module shas), reader sha, census sha; the production `enter_layout` pin. Order:
