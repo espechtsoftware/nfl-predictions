@@ -16,7 +16,7 @@ chat. Private paths stay private (no dollars, no entries here).
 1. The shape: **MIX** (recommended as his preference; study 28), WS, or today's house shape.
 2. FP projections as the projection source (decided in principle).
 3. FP + props: the paired paper check (recommended) or a trial now.
-4. The ownership term on MIX: study 29's read (in progress).
+4. The ownership term on MIX: study 29 recommends OFF (his choice).
 5. Dealing stays head (his Rev2 pins require it).
 
 ## Friday after his yes (laptop; the reviewer has approved each branch)
@@ -30,7 +30,7 @@ chat. Private paths stay private (no dollars, no entries here).
    / no LayoutError on Rev2 (`~/week5-sunday/contests.json` sha `94cc61a8…`).
 4. The production checkout `~/projects/nfl-predictions` fast-forwarded to the merged head, clean.
 5. **A FULL REHEARSAL at Week-5 size, archive mode (the reviewer, the K-dependence lesson):** the union on the W4 T-70
-   frame with the Rev2 contests and his chosen arm line (e.g. MIX + FP + the term), `--mix-spares 15`; then vet_book
+   frame with the Rev2 contests and his chosen arm line (e.g. MIX + FP, the term off), `--mix-spares 15`; then vet_book
    and vet_replace with `--test-exclude-dk` of a player in >= 8 entries; then `enter_layout write`. Print and check: (1)
    the dealt cell shares by ENTRIES near A1 .30 / A2 .14 / B .28 / C .28 (pins weighted, O-35 live); (2) the 8 pinned
    contests' ENTER files carry rows 1-5 exactly as pinned; (3) 15 spares in the corpus; (4) the replacement uses
@@ -42,8 +42,8 @@ chat. Private paths stay private (no dollars, no entries here).
 ## Saturday 10-10 (the laptop arms; fail-stop script, ask only if blocked)
 - A host-local Week-5 arm script from `~/.cache/laptop-agent/w4_arm_saturday.sh`: GROUP 154468; the inputs (sets, lag +
   gate, TabPFN lags); **no LineStar step**; the arm line per his Friday choices, e.g. `UNION_MAIN=mix
-  UNION_MIX_PORTFOLIO=mix UNION_PROJ_SOURCE=fp UNION_MAIN_OWN_TILT=0.20 UNION_MAIN_OWN_PREDICTOR=fp` (the term per study
-  29) with `EXPECT_SHA` / `CLONE` above; the expected timer count includes the FP projections capture (11, or 9 when
+  UNION_MIX_PORTFOLIO=mix UNION_PROJ_SOURCE=fp` with the ownership term OFF (`UNION_MAIN_OWN_TILT` unset; study 29
+  recommends off, his choice) and `EXPECT_SHA` / `CLONE` above; the expected timer count includes the FP projections capture (11, or 9 when
   armed late).
 - The FP projections capture runs right after arming; Sunday's runs at 10:40 CT, before the 10:50 T-70 build.
 
