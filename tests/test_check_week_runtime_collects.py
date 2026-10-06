@@ -150,3 +150,16 @@ def test_union_mix_spares_must_be_0_to_50_and_not_0_with_a_mix_main(tmp_path):
     assert any("UNION_MIX_SPARES='lots' must be an integer 0..50" in f for f in _failures(_run(env)))
     env["UNION_MIX_SPARES"] = "0"; env["UNION_MAIN"] = "mix"; env["UNION_MIX_PORTFOLIO"] = "ws"
     assert any("UNION_MIX_SPARES=0 with UNION_MAIN=mix" in f for f in _failures(_run(env)))
+
+
+
+def test_the_qb_cap_is_armed_only_at_the_k_it_was_calibrated_at(tmp_path):
+    env = _healthy(tmp_path); env["UNION_MAIN"] = "pmo_x50"
+    env["UNION_MAIN_QB_CAP_ROWS"] = "7"
+    assert any("needs UNION_MAIN_QB_CAP_K" in f for f in _failures(_run(env)))
+    env["UNION_MAIN_QB_CAP_K"] = "26"                                    # the sandbox book is 90 rows
+    assert any("was calibrated at K 26, but BOOK_ENTRIES=90" in f for f in _failures(_run(env)))
+    env["UNION_MAIN_QB_CAP_K"] = "90"
+    assert not any("QB_CAP" in f for f in _failures(_run(env)))
+    env.pop("UNION_MAIN_QB_CAP_ROWS")
+    assert any("UNION_MAIN_QB_CAP_K is set without" in f for f in _failures(_run(env)))

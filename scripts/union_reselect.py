@@ -572,6 +572,9 @@ def main(argv: list[str] | None = None) -> int:
                     help="with --main pmo_x50 or mix: a QB already in this many book rows is banned from later solves (study 35's "
                          "per-QB cap in ROWS, the unit the study calibrates; operator 10-06: QB diversity). Default none (off): "
                          "UNTESTED until study 35 reads.")
+    ap.add_argument("--main-qb-cap-k", type=int, default=None,
+                    help="the book size --main-qb-cap-rows was calibrated at (study 35: 26); required with it, and the union "
+                         "REFUSES when --entries differs (the K-dependence lesson)")
     ap.add_argument("--main-dst-cap", type=float, default=None,
                     help="with --main pmo_x50: a DST in >= floor(share*K) rows is banned from later solves (operator's open question; "
                          "the tested arm had none -- Week 3 put two busting DSTs in 25 and 22 of 58 rows). Default none.")
@@ -622,6 +625,12 @@ def main(argv: list[str] | None = None) -> int:
     a = ap.parse_args(argv)
     if a.main_qb_cap_rows is not None and not (1 <= a.main_qb_cap_rows <= a.entries and a.main in ("pmo_x50", "mix")):
         raise SystemExit(f"--main-qb-cap-rows must be 1..entries with --main pmo_x50 or mix (got {a.main_qb_cap_rows}, main {a.main})")
+    if a.main_qb_cap_rows is not None and a.main_qb_cap_k != a.entries:
+        raise SystemExit(f"QB CAP REFUSED: --main-qb-cap-rows {a.main_qb_cap_rows} was calibrated at K {a.main_qb_cap_k}, but this "
+                         f"book is K {a.entries}; {a.main_qb_cap_rows} rows is not the studied share here (re-calibrate)")
+    if a.main_qb_cap_rows is not None:
+        print(f"QB CAP: qb_cap_rows {a.main_qb_cap_rows} at K {a.entries} = {a.main_qb_cap_rows / a.entries:.2f} of rows "
+              f"(calibrated at K {a.main_qb_cap_k}; study 35)", flush=True)
     if not 0 < a.main_cap_share <= 1:
         raise SystemExit(f"--main-cap-share must be in (0, 1] (got {a.main_cap_share})")
     if a.sleeve_cap_share is not None and not 0 < a.sleeve_cap_share <= 1:
@@ -851,7 +860,7 @@ def main(argv: list[str] | None = None) -> int:
                     "sleeve_includes_main": bool(a.sleeve_includes_main),
                     "distinct_players": len(expo), "dst_cap": dcap if dcap else "none (the tested arm had none)",
                     "max_dst_rows_used": max(dst_expo.values()), "dst_rows": dict(dst_expo.most_common(3)),
-                    "qb_cap_rows": qcap if qcap else "none (off)",
+                    "qb_cap_rows": qcap if qcap else "none (off)", "qb_cap_k": a.main_qb_cap_k,
                     "max_qb_rows_used": max(Counter(p for i in book for p in rosters[i] if pos[p] == "QB").values()),
                     "own_term": own_meta if bonus else {"tilt": 0.0}}
         if a.main == "mix":

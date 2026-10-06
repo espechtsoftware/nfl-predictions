@@ -224,6 +224,21 @@ def main():
                 fail(f"TAIL_SLEEVE={tail_sleeve} but the contests declare {declared_sleeve} tail-track rows")
             if book_entries is not None and book_entries + tail_sleeve < required_entries:
                 fail(f"BOOK_ENTRIES={book_entries} + TAIL_SLEEVE={tail_sleeve} cannot satisfy {layout} contest layout (needs {required_entries})")
+    # study 35's per-QB cap is in ROWS calibrated at one K (the reviewer 10-06; the K-dependence lesson): it is armed only
+    # with the K it was calibrated at, and only when that K is this week's book
+    _qcap, _qk = os.environ.get("UNION_MAIN_QB_CAP_ROWS", ""), os.environ.get("UNION_MAIN_QB_CAP_K", "")
+    if _qcap:
+        if not (_qcap.isdigit() and int(_qcap) >= 1):
+            fail(f"UNION_MAIN_QB_CAP_ROWS={_qcap!r} must be a positive integer (rows)")
+        elif os.environ.get("UNION_MAIN") not in ("pmo_x50", "mix"):
+            fail(f"UNION_MAIN_QB_CAP_ROWS needs UNION_MAIN=pmo_x50 or mix; got {os.environ.get('UNION_MAIN')!r}")
+        elif not _qk.isdigit():
+            fail("UNION_MAIN_QB_CAP_ROWS needs UNION_MAIN_QB_CAP_K (the book size the cap was calibrated at, study 35: 26)")
+        elif book_entries is not None and int(_qk) != book_entries:
+            fail(f"UNION_MAIN_QB_CAP_ROWS={_qcap} was calibrated at K {_qk}, but BOOK_ENTRIES={book_entries}: "
+                 f"{_qcap} rows is not the studied share at this K; re-calibrate before arming it")
+    elif _qk:
+        fail("UNION_MAIN_QB_CAP_K is set without UNION_MAIN_QB_CAP_ROWS")
     if enter_layout is not None and book_entries is not None and book_entries < enter_layout.MEAN_ROWS_FLOOR:
         fail(f"BOOK_ENTRIES={book_entries} is below the mean-track floor {enter_layout.MEAN_ROWS_FLOOR}")
     if tail_sleeve and env("LIVE_SELECTOR", "dual_emax") not in ("mean", "class"):

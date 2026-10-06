@@ -395,7 +395,7 @@ def test_pmo_rows_per_qb_cap_bans_a_qb_at_the_cap(monkeypatch):
 def test_the_qb_cap_is_wired_from_the_week_env_to_the_union_and_the_timers():
     root = Path(__file__).resolve().parents[1]
     host = (root / "scripts" / "sunday_build_host.sh").read_text()
-    assert '[[ -n "${UNION_MAIN_QB_CAP_ROWS:-}" ]] && UNION_ARGS+=(--main-qb-cap-rows "$UNION_MAIN_QB_CAP_ROWS")' in host
+    assert '[[ -n "${UNION_MAIN_QB_CAP_ROWS:-}" ]] && UNION_ARGS+=(--main-qb-cap-rows "$UNION_MAIN_QB_CAP_ROWS" --main-qb-cap-k "${UNION_MAIN_QB_CAP_K:-}")' in host
     timers = (root / "scripts" / "arm_week_timers.sh").read_text()
-    assert " UNION_MAIN_QB_CAP_ROWS " in timers                                   # passed into the timer units
+    assert " UNION_MAIN_QB_CAP_ROWS UNION_MAIN_QB_CAP_K " in timers               # passed into the timer units
     assert "UNION_MAIN_QB_CAP_ROWS" not in (root / "scripts" / "week_env.sh").read_text()   # no default: off unless armed
