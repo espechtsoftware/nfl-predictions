@@ -17,17 +17,25 @@ before the freeze. Nothing here enters a contest: the money path, its checkout a
   2026 full-data weeks).
 
 ## 2. Arms (built each week; never entered)
-- **MIXT_QA** (reference): the yes-book (the winners' mix, the 0.20 ownership term, the per-QB cap of 5 rows,
-  production's player / DST caps 13 / 6), rebuilt in the lab harness like-for-like with MIXT_RS.
-- **MIXT_RS** (DECISION): study 37's regulars' structure, its frozen tiers unchanged (QB: a 6-row cap, at most 1 / 1 /
-  2 / 4 / 7 QBs reach 6 / 5 / 4 / 3 / 2 rows; non-QB: at most 1 / 1 / 2 / 3 / 4 / 5 / 7 / 10 / 13 / 18 / 25 / 36 players
-  reach 13 … 2 rows; the loud fallback).
-- **MIXT_QBB / MIXT_NQC** (exploratory): each tier set alone.
-- **MIXT_QA0** (exploratory): the yes-book WITHOUT the ownership term. The outside review (10-06) and the reviewer's
-  check the same day: beyond a market-quality projection, ownership carried no information in Weeks 1–4 (props-implied
-  base −0.03 points per ownership point [−0.24, +0.17]; served +0.01; our old model +0.44), and beyond FP in Week 4 it
-  was negative. Under FP, the 0.20 tilt may be a chalk push. This arm tracks the question weekly on the real field.
-- **His ENTERED book**: a context column, scored the same way, never an arm. The lab's MIXT_QA and the production union
+- **His decision (10-06), which sets the reference:** "yes, remove the tilt as you suggested and proceed as planned". From
+  Week 5 the live book runs NO ownership term. The evidence: beyond a market-quality projection, ownership carried no
+  information in Weeks 1–4 (props-implied base −0.03 points per ownership point [−0.24, +0.17]; served +0.01; our old
+  model +0.44, which is why the term helped before); beyond FP in Week 4 it was negative; production's own Week-4
+  replay under FP gave P(≥ 1 big) 0.0094 with the 0.20 term and 0.0336 without. A verdict does not transfer across a
+  changed objective, so the decision pair is on FP's mean alone, like his live book.
+- **MIXT_QA0** (reference): his live yes-book (the winners' mix, the per-QB cap of 5 rows, production's player / DST
+  caps 13 / 6, FP's mean, no ownership term), rebuilt in the lab harness like-for-like.
+- **MIXT_RS0** (DECISION): study 37's regulars' structure on the same objective, its frozen tiers unchanged (QB: a 6-row
+  cap, at most 1 / 1 / 2 / 4 / 7 QBs reach 6 / 5 / 4 / 3 / 2 rows; non-QB: at most 1 / 1 / 2 / 3 / 4 / 5 / 7 / 10 / 13 /
+  18 / 25 / 36 players reach 13 … 2 rows; the loud fallback).
+- **Exploratory, never decision-bearing:**
+  - MIXT_QBB0 / MIXT_NQC0: each tier set alone.
+  - MIXT_QA: the yes-book WITH the dropped +0.20 term (tracks his decision on the real field).
+  - MIXT_QAL: the yes-book leaning AGAINST ownership, −0.10 per ownership point (his question 10-06: can ownership find
+    players who project well but will be under-owned, for an edge?).
+  - The ownership weights are multiples of the frozen 0.20 (0, +1, −0.5); production's `own_bonus` does the matching and
+    the refusals. Without an FP ownership file, only MIXT_QA and MIXT_QAL go missing (recorded), never the week.
+- **His ENTERED book**: a context column, scored the same way, never an arm. The lab's MIXT_QA0 and the production union
   will differ (the union's own solver path, pins and spares); that difference is itself reported.
 
 ## 3. Inputs and provenance (the laptop's pre-lock snapshot; the build runs after lock)
@@ -38,23 +46,29 @@ before the freeze. Nothing here enters a contest: the money path, its checkout a
   one (`--dk-status`; production passes none while O-16 stands, so the union calls `unavailable_ids(fr, None)` and so
   does the build). Also the installed `contests.json`, the week's contest details, `plan-overrides.json` (his
   per-contest decisions that week; `{}` if none), and `MANIFEST.txt` (each file's sha256, bytes, name, source path and
-  mtime; the union's built_utc and the snapshot time). The laptop's tool is create-once.
+  mtime; the header carries the union's built_utc and lock_utc and the snapshot time), and the union's receipt
+  (`union-receipt.json`). The laptop's tool (`scripts/s38_snapshot.sh`) is create-once, never writes under a week's
+  money-path directory, makes every copy fatal on failure, and marks a partial copy `SNAPSHOT-FAILED.txt` (the build
+  refuses such a folder).
 - **The MANIFEST is the build's only input list.** Every file the build reads must have its sha256 in it, or the build
   REFUSES. The copies of FP's projections, FP's ownership and the DK status must be byte-identical to the files the
-  union's arguments name, where those originals are still on disk.
+  union's arguments name, where those originals are still on disk. **Pre-lock is proved by content:** the build refuses
+  unless the MANIFEST's snapshot time is before the union receipt's `lock_utc` (and the tool refuses to snapshot at or
+  after it).
 - **The build** uses production's own functions, imported from a pinned production checkout: `apply_proj_source`
   (FP's projections replace `mean_projection`; it refuses a file made for another frame), `unavailable_ids` plus the
-  skill `--min-proj` filter (the exclusions), and `own_bonus` at the union's tilt (the 0.20 term). Then study 28's
+  skill `--min-proj` filter (the exclusions), and `own_bonus` at the frozen 0.20, scaled per arm. Then study 28's
   `mix_book` with study 37's builders, at the plan's K 26 head layout.
 - **The union's arguments must match the lab builder's mechanics** (mix, K 26, overlap 7, per-game 4, salary floor
   49,000, min-proj 1.0, caps 0.5 / 0.25, the QB cap of 5 rows, head layout), or the build refuses. **The ownership tilt is
-  each paper arm's own** (the frozen 0.20; none for MIXT_QA0), not part of that parity. The live union may run any tilt
-  (his Friday choice). When the union runs no term, Sunday's build captures no FP ownership (the capture and export run
-  only with a non-zero tilt), so the laptop's snapshot tool runs that same capture and export itself: after the T-70
-  union, under the same FP profile lock, before 12:00 CT, recorded in the MANIFEST. If it fails (stale or low coverage),
-  the snapshot has no ownership file, the build refuses, and the week is invalid.
-- **Disclosed: the objective differs from studies 28–37.** It is FP's `mean_projection` + the term, as the money path
-  ranks, not the simulated `player_mean` of the harness.
+  each paper arm's own**, not part of that parity. With the live tilt at 0, Sunday's build captures no FP ownership
+  (the capture and export run only with a non-zero tilt), so the laptop's snapshot tool runs that same capture and
+  export itself: after the T-70 union, under the same FP profile lock, with the export's `--now` set to the snapshot
+  time (before lock). If the vendor collect fails, the export falls back exactly as production's does (the newest
+  capture within its 30-hour limit; the age is recorded in the MANIFEST). If the export refuses (stale or low coverage),
+  there is no ownership file, and only MIXT_QA and MIXT_QAL go missing that week.
+- **Disclosed: the objective differs from studies 28–37.** It is FP's `mean_projection` (plus the arm's ownership
+  weight), as the money path ranks, not the simulated `player_mean` of the harness.
 - **The plan** in the harness's form is derived inside the build from the snapshot's `contests.json`, details and
   overrides by the tracked converter (`scripts/s38_plan.py`): single-prize contests count every paid seat as big except
   a $20 ticket; multi-tier contests count the places paying $500 or more; his decisions ride in the overrides (Week 5:
@@ -76,13 +90,13 @@ before the freeze. Nothing here enters a contest: the money path, its checkout a
 - **A valid week:** its books were built LIVE (the manifest checked, union-args parity, the copies identical to the
   union's files), and every dealt entry was scored with under 1% of player names missing. A week that fails any of
   these is reported as invalid with its reason, never counted.
-- **PRIMARY:** per week, d = P(≥ 1 big seat) of MIXT_RS − MIXT_QA.
+- **PRIMARY:** per week, d = P(≥ 1 big seat) of MIXT_RS0 − MIXT_QA0.
 - **Guards** (pooled over the four weeks): guard 1, the mean of the weekly mean-entry-pct differences > −0.015;
-  guard 2, expected big seats summed, MIXT_RS / MIXT_QA ≥ 0.80 (his tolerance; it holds when both sums are 0).
+  guard 2, expected big seats summed, MIXT_RS0 / MIXT_QA0 ≥ 0.80 (his tolerance; it holds when both sums are 0).
 - **Verdicts:** PASS (d > 0 in ALL FOUR weeks and both guards hold) / FAIL (guard) (d > 0 in all four, a guard fails) /
   WORSE (d < 0 in all four) / NO PASS (anything else) / NOT ENOUGH VALID WEEKS. The guards gate a PASS only.
 - **Said plainly: four weeks are four draws.** With one slate a week, four weeks are four independent outcomes. Under a
-  coin-flip null, MIXT_RS ahead in all four happens 1 time in 16, so a PASS is a strong but not certain signal, and a
+  coin-flip null, MIXT_RS0 ahead in all four happens 1 time in 16, so a PASS is a strong but not certain signal, and a
   real but modest gain will usually read NO PASS. His goal itself (one big win a week) cannot be measured in four
   weeks; the smooth P(≥ 1 big) on the real field is the closest measurable stand-in. Every weekly number is
   descriptive.
