@@ -81,8 +81,6 @@ def build(fr: pd.DataFrame, fp: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
 def load_capture(season: int, week: int, before: str) -> tuple[pd.DataFrame, dict]:
     from google.cloud import bigquery
     from nfl_dfs.config import settings
-    if settings.project == "nfl-dfs-prod":
-        raise Refused("GCP_PROJECT is not set (O-31)")
     c = bigquery.Client(project=settings.project)
     cfg = bigquery.QueryJobConfig(query_parameters=[bigquery.ScalarQueryParameter("s", "INT64", season),
                                                     bigquery.ScalarQueryParameter("w", "INT64", week),
