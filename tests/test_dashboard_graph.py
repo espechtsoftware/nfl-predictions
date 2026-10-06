@@ -130,6 +130,17 @@ def test_saved_cypher_file_is_in_step_with_the_module():
         assert norm(q) + ";" in saved, name
 
 
+def test_browser_queries_are_saved_and_never_run_by_the_panel():
+    """The parameterised Browser queries (operator 10-06, --users-file portfolios) are in the saved file and are not
+    part of run_panel (which passes no parameters)."""
+    from pathlib import Path
+    text = " ".join((Path(__file__).resolve().parents[1] / "cypher" / "milly_insights.cypher").read_text().split())
+    for name, q in G.BROWSER_QUERIES.items():
+        assert " ".join(q.split()) + ";" in text, name
+        assert "$user" in q and "$week_key" in q, name
+    assert not set(G.BROWSER_QUERIES) & (set(G.PANEL_QUERIES) | set(G.INSIGHT_QUERIES))
+
+
 def test_vendor_fields_are_refused():
     b = batches()
     b["players"][0]["fp_own"] = 12.0

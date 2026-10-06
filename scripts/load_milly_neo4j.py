@@ -17,6 +17,12 @@ limits (milly_graph.FREE_TIER_NODES / FREE_TIER_RELS, the Aura Free numbers;
 raise them with --node-limit / --rel-limit on a local instance); it prints the
 counts after the load. Fantasy Points projection/ownership is loaded only with
 --include-fp (opt-in).
+
+--users-file (operator 2026-10-06: "look closely at how the winners do it"): ALSO load EVERY Millionaire lineup of
+the users listed in a PRIVATE file (one DraftKings name per line; chosen by entry count, never by results), so a
+user's whole portfolio -- core players, pivots, stacks -- can be explored, not only their top finishes. Those lineups
+join the top-N set (deduplicated by lineup key); note STACKED_WITH.count then counts them too (top_1pct_count does
+not change). The file stays outside the repository.
 """
 from __future__ import annotations
 
@@ -41,6 +47,8 @@ def main(argv=None) -> int:
     ap.add_argument("--include-fp", action="store_true",
                     help="also load Fantasy Points pre-lock projection/ownership per player-week "
                          "(licensed data; local graph only; opt-in)")
+    ap.add_argument("--users-file", help="a PRIVATE file of DraftKings user names (one per line): also load ALL their "
+                    "Millionaire lineups (chosen by entry count, never results); never a tracked file")
     ap.add_argument("--apply", action="store_true", help="write to Neo4j (default: dry run)")
     a = ap.parse_args(argv)
     if not 1 <= a.top_n <= mg.MAX_TOP_N:
@@ -64,6 +72,13 @@ def main(argv=None) -> int:
         slates.append(data.fetch_milly_slate(query_df, a.season, w))
         owns.append(data.fetch_field_ownership(query_df, a.season, w))
     top = pd.concat(tops, ignore_index=True)
+    if a.users_file:
+        from pathlib import Path
+        users = [u.strip() for u in Path(a.users_file).read_text().splitlines() if u.strip() and not u.startswith("#")]
+        ul = pd.concat([data.fetch_milly_user_lineups(query_df, a.season, w, users) for w in weeks], ignore_index=True)
+        n_top = len(top)
+        top = pd.concat([top, ul], ignore_index=True).drop_duplicates("lineup_key")
+        print(f"users file: {len(users)} users, {len(ul):,} of their lineups ({len(top) - n_top:,} new beyond the top-N set)")
     slate = pd.concat(slates, ignore_index=True)
     own = pd.concat(owns, ignore_index=True)
     batches = mg.build_graph_batches(contests, lines, top, slate, games, own)

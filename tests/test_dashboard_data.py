@@ -412,3 +412,20 @@ def test_every_week_filter_alias_is_declared_in_its_sql(fetch):
     for a in aliases:
         declared = rf"(\bAS\s+{a}\b(?!\s*\()|`\s+{a}\b|\b(?:WITH|,)\s*{a}\s+AS\s*\()"   # table alias or a CTE named a
         assert re.search(declared, sql), f"{fetch.__name__}: filters on {a}.week but never declares {a}"
+
+
+def test_user_lineups_refuse_unsafe_names_and_render_top_columns():
+    """--users-file (operator 10-06): names are inlined as a literal, so anything outside [A-Za-z0-9_.-] is refused;
+    the SQL returns milly_top_lineups' columns, filters every lineup of the listed users, and declares its week alias."""
+    import re
+    for bad in ("a'b", "x; DROP TABLE t", "", "a b"):
+        with pytest.raises(ValueError):
+            D.fetch_milly_user_lineups(lambda sql: pd.DataFrame(), 2026, 4, [bad])
+    seen = []
+    D.fetch_milly_user_lineups(lambda sql: seen.append(sql) or pd.DataFrame(), 2026, 4, ["user_b", "user_a", "user_a"])
+    sql = seen[0]
+    assert "username IN UNNEST(['user_a', 'user_b'])" in sql
+    for col in ("lineup_key", "rank", "points", "lineup_slots_json", "dupes", "n_entries", "username", "at_cash_line"):
+        assert re.search(rf"\b{col}\b", sql), col
+    for a in set(re.findall(r"\b(\w+)\.week = 4\b", sql)):
+        assert re.search(rf"`\s+{a}\b|\bAS\s+{a}\b", sql), a

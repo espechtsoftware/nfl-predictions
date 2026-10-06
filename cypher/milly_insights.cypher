@@ -71,3 +71,35 @@ RETURN s.week_key AS week, a.name AS player_a, b.name AS player_b,
        s.top_1pct_count AS top_1pct_lineups,
        coalesce(ra.fp_own, 0) + coalesce(rb.fp_own, 0) AS pair_fp_own
 ORDER BY week, top_1pct_lineups DESC LIMIT 60;
+
+// ---- Browser queries with parameters (portfolios loaded with --users-file; operator 2026-10-06) ----
+// :param user => '<DraftKings name>'    :param week_key => '2026-w04'    :param player => '<player name>'
+
+// Browser: user_core
+MATCH (u:User {name: $user})-[:ENTERED]->(l:Lineup {week_key: $week_key})
+WITH count(l) AS n, collect(l) AS ls
+UNWIND ls AS l
+MATCH (l)-[:CONTAINS]->(p:Player)
+WITH n, p, count(l) AS k
+RETURN p.name AS player, p.position AS position, p.team AS team, k AS lineups, round(100.0 * k / n, 1) AS pct
+ORDER BY lineups DESC LIMIT 40;
+
+// Browser: what_replaced_player
+MATCH (x:Player {name: $player})
+MATCH (u:User {name: $user})-[:ENTERED]->(l:Lineup {week_key: $week_key})
+WHERE NOT (l)-[:CONTAINS]->(x)
+MATCH (l)-[:CONTAINS]->(p:Player {position: x.position})
+RETURN p.name AS instead, p.team AS team, p.team = x.team AS same_team, count(l) AS lineups
+ORDER BY lineups DESC LIMIT 15;
+
+// Browser: user_qb_receivers
+MATCH (u:User {name: $user})-[:ENTERED]->(l:Lineup {week_key: $week_key})-[:CONTAINS]->(q:Player {position: 'QB'})
+OPTIONAL MATCH (l)-[:CONTAINS]->(r:Player) WHERE r.position IN ['WR', 'TE'] AND r.team = q.team
+RETURN q.name AS qb, coalesce(r.name, '(no teammate receiver)') AS receiver, r.position AS position,
+       count(l) AS lineups
+ORDER BY qb, lineups DESC;
+
+// Browser: user_stack_graph
+MATCH (u:User {name: $user})-[:ENTERED]->(l:Lineup {week_key: $week_key})-[:CONTAINS]->(q:Player {position: 'QB'})
+MATCH (l)-[:CONTAINS]->(r:Player) WHERE r.position IN ['WR', 'TE', 'RB'] AND r.team = q.team
+RETURN q, r, count(l) AS lineups;

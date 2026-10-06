@@ -571,6 +571,21 @@ def fetch_milly_top(query: Query, season: int, week: int | None, top_n: int = 20
                         top_n=int(top_n), top_share=float(top_share), cash_rows=int(cash_rows)))
 
 
+USERNAME_RE = re.compile(r"^[A-Za-z0-9_.\-]{1,64}$")
+
+
+def fetch_milly_user_lineups(query: Query, season: int, week: int | None, users: list[str]) -> pd.DataFrame:
+    """Every Millionaire lineup of ``users`` (milly_user_lineups.sql), in fetch_milly_top's columns. The names are
+    inlined as a literal, so each must match USERNAME_RE; anything else is refused (never quoted or escaped)."""
+    bad = [u for u in users if not USERNAME_RE.match(u)]
+    if bad:
+        raise ValueError(f"refusing {len(bad)} user name(s) outside [A-Za-z0-9_.-]: {bad[:3]}")
+    if not users:
+        raise ValueError("no users given")
+    arr = "[" + ", ".join(f"'{u}'" for u in sorted(set(users))) + "]"
+    return query(render("milly_user_lineups", season=int(season), week_filter=_week_filter(week), users_array=arr))
+
+
 def fetch_milly_slate(query: Query, season: int, week: int | None) -> pd.DataFrame:
     return query(render("milly_slate", season=int(season), week_filter_m=_week_filter(week, "m")))
 
