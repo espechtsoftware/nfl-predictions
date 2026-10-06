@@ -194,3 +194,13 @@ def test_tail_lines_are_descriptive_deterministic_and_leave_the_revisit_check_al
     out2 = capsys.readouterr().out
     assert "own-weighted MAE" in out2 and out2.count("player rows: accuracy-") == 1   # the ownership file is never pooled as rows
     assert [x for x in out2.splitlines() if x.startswith(("REVISIT RULE", "REVISIT CHECK"))] == rules
+
+
+def test_a_shared_ownership_name_carries_no_weight_and_never_misaligns():
+    """Reviewer hardening (10-06): two contest names normalising to one key must not duplicate rows in the join."""
+    fr = _frame(week=5); d, _ = WPA.population(fr, _fp(fr), _actual(fr, noise=2.0, seed=5), _active(fr))
+    own = pd.DataFrame({"season": d.season, "week": d.week, "nkey": d.name.map(WPA.norm), "own": 1.0})
+    dup = pd.concat([own, own.iloc[[0]].assign(own=50.0)], ignore_index=True)    # the first player's key twice
+    t = WPA.tail_metrics(d, dup)
+    e = (d["ours"] - d.actual).abs()
+    assert abs(t["ours"]["own_weighted_MAE"] - e.iloc[1:].mean()) < 1e-12        # the shared key is dropped, the rest weigh 1

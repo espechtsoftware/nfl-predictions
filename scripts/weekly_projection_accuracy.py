@@ -162,7 +162,9 @@ def tail_metrics(d: pd.DataFrame, own: pd.DataFrame | None = None) -> dict:
     w = None
     if own is not None and len(own):
         k = d.assign(nkey=d.name.map(norm))[["season", "week", "nkey"]].astype({"season": int, "week": int})
-        w = k.merge(own.astype({"season": int, "week": int}), on=["season", "week", "nkey"], how="left").own.to_numpy(float)
+        o = own.astype({"season": int, "week": int}).drop_duplicates(["season", "week", "nkey"], keep=False)  # a shared name: no weight
+        w = k.merge(o, on=["season", "week", "nkey"], how="left").own.to_numpy(float)
+        assert len(w) == len(d), f"ownership join misaligned ({len(w)} weights for {len(d)} players)"
     for s in SOURCES:
         hits = tot = 0
         for _, g in d.groupby(["season", "week", "pos"], sort=True):
