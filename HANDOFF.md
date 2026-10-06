@@ -12,6 +12,39 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-05 (21:26 CDT) — Week-5 plan from the operator's entries (Rev1); his utility and dealing choice; study 24 under the reviewer
+
+**The operator's utility (verbatim, 10-05):** "If i could win one 333, 555 or 4444 or $500 in the milly, the week is a
+success and i wouldnt care if i lost all the $20 milly tickets. Winning 4-5 $20 milly tickets is not enough to make the
+week successful, but 20 of them would be." So objectives and tests use P(≥ 1 big seat), not average tickets.
+
+**Dealing:** asked head vs sequential, he chose "All distinct (Recommended)", i.e. sequential (24 rows, not 20).
+Study 24 tests SEQ as a decision arm.
+
+**Production `~/week5-sunday/contests.json`** (private), built from `DKEntries-Week5-Rev1.csv` with
+contests_from_entries, dk_contest_details and set_contest_tracks --all-main.
+- sha256 `94e6ce75`; 19 contests, 24 entries; all main track; rows needed head 20, sequential 24.
+- The MLB $333 satellites were withdrawn by the operator; 2 entries were added in the $19 $555 SUPERSat [2x].
+- One contest (sat9) seats the 10-12 $4,444 SHOWDOWN.
+- The earlier 2ffbcfe8 file is kept privately in `~/private/week5-plan/`.
+
+**Study 24 (the reviewer's, end to end):** arms WS / G25 (DECISION: every game's QBs ≤ 6 of 24 dealt entries) / SEQ
+(DECISION) / G1, G25S (EXPLORATORY).
+- Primary: P(≥ 1 big seat); guards: the mean finish and expected big seats ≥ (1 − TOL) × WS. TOL is from his answer
+  ("accepting up to ~20% fewer expected big seats if average finish holds").
+- It freezes on the Rev1 plan; run and read Tuesday. The laptop re-runs byte-identically.
+- Production follow-ups only if it passes and he says yes: the G25 budget in mix_rows with a parity test; ENTER_LAYOUT
+  per his choice.
+
+**Week-5 arming (his decisions Friday):**
+- UNION_MAIN=mix with UNION_MIX_PORTFOLIO=ws (or mix);
+- UNION_PROJ_SOURCE=fp;
+- EXPECT_SHA f69598b and CLONE week5-live-center;
+- ENTER_LAYOUT=sequential if he confirms;
+- the G25 budget if study 24 passes.
+Decision sheet: `briefings/2026-week-05/2026-10-05-week5-decision-sheet.md`. It needs updating with his utility, the
+Rev1 plan and study 24.
+
 ## 2026-10-05 (20:17 CDT) — STUDY 18 READ: WS PASSES (Addendum 129); FP projections decision; the Week-5 build in progress
 
 **Study 18.**
