@@ -288,13 +288,15 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   # Fantasy Points' projections replace ours in the union's selection (operator 2026-10-05): the newest FP capture taken
   # before THIS T-70 run's build, joined exactly on DK draftable ids, gated (coverage, salary, r >= 0.7); a capture from
   # before the 10:30 CT inactives prints a banner on the earlier builds and REFUSES on the T-70 build (operator 10-06: a
-  # stale FP capture loses to our post-inactives numbers); any refusal falls back LOUDLY to our projections.
+  # stale FP capture loses to our post-inactives numbers); any refusal falls back LOUDLY to our projections. "The T-70
+  # build" = the unit carrying the T70 gate's MIN_PROJ_GENERATED_AT (only the 10:50 unit does), NOT T70_DECLARED, which
+  # also needs the T-70 rules on (the reviewer 10-06, R1: turning those rules off must not silently drop the refusal).
   if [[ "${UNION_PROJ_SOURCE:-}" == "fp" ]]; then
     T70_BUILT=$("$PROD_PY" -c "import json,sys; print(json.load(open(sys.argv[1]))['built_utc'])" "$K90_DIR/receipt.json")
     INACT_UTC=$(date -u -d "@$(TZ=America/Chicago date -d "$SUNDAY 10:30" +%s)" +%Y-%m-%dT%H:%M:%SZ)
     if ( cd "$PROD" && PYTHONPATH="$PROD/src" timeout 180 "$PROD_PY" scripts/fp_projection_override.py --frame "$K90_DIR/frame.parquet" \
            --season "$SEASON" --week "$WEEK" --before "$T70_BUILT" --inactives-utc "$INACT_UTC" --out "$OUT/proj_fp-$RUN_TAG.csv" \
-           $( [[ "$T70_DECLARED" == on ]] && echo --require-after-inactives ) ) \
+           $( [[ -n "${MIN_PROJ_GENERATED_AT:-}" ]] && echo --require-after-inactives ) ) \
          2>&1 | tee "$OUT/proj_fp-$RUN_TAG.txt"; then
       UNION_ARGS+=(--proj-source "$OUT/proj_fp-$RUN_TAG.csv")
       echo "PROJECTION SOURCE for $RUN_TAG: FANTASY POINTS ($(basename "$OUT/proj_fp-$RUN_TAG.csv"))"

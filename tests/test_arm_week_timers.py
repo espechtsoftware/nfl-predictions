@@ -165,3 +165,16 @@ def test_two_sunday_fp_captures_are_armed_and_one_key_skips_both():
     s = _run(SKIP_UNITS="fpproj")
     assert not [l for l in s.stdout.splitlines() if l.startswith("systemd-run") and "fp-projections" in l]
     assert "# SKIPPED (fpproj): nfl-week4-fp-projections-2" in s.stdout
+
+
+def test_the_stale_fp_refusal_rides_the_t70_gate_not_the_t70_rules():
+    """The reviewer (10-06, R1): sunday_build_host refuses a pre-inactives FP capture on the unit that carries the T-70
+    gate's MIN_PROJ_GENERATED_AT -- only the 10:50 unit, even with both T-70 rules off -- never keyed on T70_DECLARED."""
+    from pathlib import Path
+    r = _run(D800_LEV="0", D800_BOOM="4800", T70_MIN_PROJ_CT="10:30", T70_ACTIVE_Q="0", T70_VACATED_BUMP="0")
+    assert r.returncode == 0, r.stderr
+    assert "MIN_PROJ_GENERATED_AT=2026-10-04T15:30:00+00:00" in _unit_line(r.stdout, "nfl-week4-t70-build")
+    assert "MIN_PROJ_GENERATED_AT" not in _unit_line(r.stdout, "nfl-week4-d3200-build")
+    host = (Path(__file__).resolve().parents[1] / "scripts" / "sunday_build_host.sh").read_text()
+    assert '[[ -n "${MIN_PROJ_GENERATED_AT:-}" ]] && echo --require-after-inactives' in host
+    assert '"$T70_DECLARED" == on ]] && echo --require-after-inactives' not in host
