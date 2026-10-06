@@ -55,9 +55,14 @@ laptop acks the census and re-runs the frozen reader.
 - **The window** comes from the schedules' `gametime` (ET; nflverse `nfl_raw.schedules`, present for 2022–24): EARLY =
   13:00 ET, LATE = 16:05 / 16:25 ET (the main slate; 09:30 London and night games are outside it).
 - **The T-70 emulation, applied to EVERY arm alike**, so the reference is today's live behaviour:
-  - (a) An EARLY-window player with a Q / D designation who did NOT play is removed from the pool before the build.
-    This is legitimate T-70 information: the inactives are public at 10:30 CT, before the 10:50 CT build. "Did not
-    play" is read from the inactive / active record, the same fact the live pull reflects.
+  - (a) EVERY early-window player who did NOT play is removed from the pool before the build: the flagged ones and
+    healthy surprise scratches alike, since the 10:30 CT inactives list everyone and the live T-70 pull drops them
+    all. This is legitimate T-70 information, public before the 10:50 CT build.
+    - "Did not play" is read from PARTICIPATION, never from DK points = 0, because a player who plays and scores 0
+      stays in the pool. Participation is offensive snaps > 0 in `nfl_raw.snap_counts`, which covers 2022–24 (about
+      10,500 player-games with a snap per season). It is keyed by `pfr_player_id`, mapped to gsis through the nflverse
+      players crosswalk. Presence in the weekly player stats is the fallback where the crosswalk misses.
+    - DSTs always play.
   - (b) An EARLY-window Q / D player who played keeps his mean, undiscounted.
   - (c) The calibration applies to LATE-window Q / D players ONLY.
 - **Strata, LATE-window player-weeks** (pre-lock status from the training table's injury_status and practice_level):
@@ -97,8 +102,9 @@ laptop acks the census and re-runs the frozen reader.
 
 ## 5. Support census FIRST (outcome-blind; before the freeze)
 For every slate on the mechanics bank:
-- the pool's LATE-window Q / D players by stratum, and the early-window flagged players the emulation resolves (their
-  count only; whether they played is T-70 information, not a scored outcome);
+- the pool's LATE-window Q / D players by stratum;
+- per slate, how many early-window players step (a) removes and how many of them were flagged (counts only; whether
+  they played is T-70 information, not a scored outcome), plus the crosswalk's misses;
 - the book rows holding at least one LATE-window Q / D player, in each reference book;
 - the distinct late-window flagged players dealt, and their dealt-entry share;
 - the stratum table (n, c_s, SE, c_s') and how far the calibration moves each late-window flagged player's mean;
