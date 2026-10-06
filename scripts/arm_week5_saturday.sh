@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+# Saturday 2026-10-10: the agent arms Week 5 itself (operator 10-03: arm without him, ask only if blocked). DRAFTED Tue
+# 10-06 from w4_arm_saturday.sh; FINALISED Friday after his decisions -- it REFUSES to arm until SHAPE and FRIDAY_HEAD
+# are set below. Run AFTER the Saturday 09:47 refresh (build-features -> tabpfn-gen -> project-slate) has succeeded.
+# Stops at the first failure with "ARM STOPPED: <why>" -> ask the operator. Must finish before 10:30 CT.
+#   bash scripts/arm_week5_saturday.sh [--check]   (tracked for review 10-06; Saturday runs the reviewed copy)     (--check: steps 0 and 6 only, nothing written or armed)
+#
+# Week-5 changes vs Week 4 (reports/2026-10-06-week5-arming-checklist.md):
+#   GROUP 154468; no LineStar step (retired 10-06); Rev3 plan (supersats on rows 1-26, K 26, caps 13/6; all mean-track,
+#   so no tail-sleeve settings); FP projections (UNION_PROJ_SOURCE=fp); the ownership term ON at 0.20 on FP ownership
+#   (study 31); the shape per his Friday choice: mixt (the winners' mix + term) or ct (Week 4's shape + term), both on
+#   ONE pin f69598b (the reviewer 10-06); 11 timers (the FP projections capture included), 9 when armed late.
+set -uo pipefail
+SHAPE=""                 # FRIDAY: "mixt" or "ct" (his choice; decision sheet row 1)
+FRIDAY_HEAD=""           # FRIDAY: the integration commit after the six merges (checklist step 1)
+PLAN_SHA=8625de0ec37d491ce7b5cf10f7e6eef7719e3198fc118df890f1b82235fe766f     # Rev3, installed Friday
+CHOSEN_LEV=0; CHOSEN_BOOM=4800                                                # FRIDAY: confirm the Week-5 dose
+P=$HOME/projects/nfl-predictions; W=$HOME/week5-sunday; PY=$P/.venv/bin/python; CHECK=${1:-}
+say() { printf '%s %s\n' "$(date +%H:%M:%S)" "$*"; }
+stop() { say "ARM STOPPED: $*"; exit 1; }
+[[ "$SHAPE" == mixt || "$SHAPE" == ct ]] || stop "SHAPE is not set (Friday: mixt or ct, his choice)"
+[[ -n "$FRIDAY_HEAD" ]] || stop "FRIDAY_HEAD is not set (Friday: the merged integration commit)"
+cd "$P" || stop "no checkout"
+# 0. the checkout at the tested code, clean; fast-forward only if HANDOFF/reports/README/briefings moved
+git fetch -q origin || stop "git fetch failed"
+[[ -z "$(git status --porcelain)" ]] || stop "the production checkout is dirty"
+CHG=$(git diff --name-only HEAD origin/production/week3-integration-20260921)
+if [[ -n "$CHG" ]]; then
+  echo "$CHG" | grep -vqE '^(HANDOFF\.md|README\.md|reports/|briefings/)' && stop "code changed on the branch since the tested commit: $(echo $CHG)"
+  [[ "$CHECK" == --check ]] || { git pull --ff-only -q origin production/week3-integration-20260921 || stop "ff-only pull failed"; }
+fi
+git merge-base --is-ancestor "$FRIDAY_HEAD" HEAD || stop "HEAD $(git rev-parse --short HEAD) is not at or after $FRIDAY_HEAD"
+[[ "$(sha256sum $W/contests.json | cut -d' ' -f1)" == "$PLAN_SHA" ]] || stop "$W/contests.json is not Rev3 ($PLAN_SHA)"
+K=$(PYTHONPATH=src $PY -m nfl_dfs.inference.enter_layout rows-needed $W/contests.json --layout head) || stop "rows-needed failed on the plan"
+[[ "$K" == 26 ]] || stop "rows-needed on the installed plan is $K, not 26 (Rev3 under head)"
+say "step 0 OK: checkout $(git rev-parse --short HEAD) clean; Rev3 installed; K $K; shape $SHAPE"
+if [[ "$CHECK" != --check ]]; then
+  # 1-4. Saturday inputs (no LineStar step: retired 10-06)
+  PYTHONPATH=src $PY scripts/ownership_sets.py sets --week 5 --group 154468 --out $W/ownership_sets.csv 2>&1 | tail -1 || stop "ownership_sets.py sets failed"
+  [[ -s $W/ownership_sets.csv ]] || stop "ownership_sets.csv not written"
+  PYTHONPATH=src $PY scripts/ownership_sets.py sets --season 2026 --week 5 --group 154468 --lag-features --out $W/ownership_lag.csv 2>&1 | tail -1 || stop "ownership_sets.py --lag-features failed"
+  $PY scripts/check_ownership_lag.py $W/ownership_lag.csv || stop "the lag file fails its gate (sum >= 280): the term's LAG fallback would need tilt 0 -- operator decision"
+  PYTHONPATH=src $PY scripts/ownership_tabpfn.py lags --season 2026 --week 5 --out $W/ownership_lags.csv 2>&1 | tail -1 || stop "ownership_tabpfn.py lags failed"
+  [[ -s $W/ownership_lags.csv ]] || stop "ownership_lags.csv not written"
+  # 5. the dose file
+  if [[ -f $W/chosen-dose.env ]]; then
+    grep -qx "CHOSEN_LEV=$CHOSEN_LEV" $W/chosen-dose.env && grep -qx "CHOSEN_BOOM=$CHOSEN_BOOM" $W/chosen-dose.env || stop "chosen-dose.env exists with other values: $(tr '\n' ' ' < $W/chosen-dose.env)"
+  else
+    printf 'CHOSEN_LEV=%s\nCHOSEN_BOOM=%s\n' "$CHOSEN_LEV" "$CHOSEN_BOOM" > $W/chosen-dose.env; chmod 600 $W/chosen-dose.env
+  fi
+  say "inputs OK: sets, lag (gate passed), lags, chosen-dose $CHOSEN_LEV/$CHOSEN_BOOM"
+fi
+# The one arm line (the reviewer 10-06): ONE pin for both shapes (f69598b = 32cdb61 + the optimize() params, inert for
+# the house shape; Friday rehearses the chosen shape on it); the dose from CHOSEN_* (never literals: the dose file and the
+# timers must agree); UNION_MIX_PORTFOLIO only for mixt and unset otherwise.
+PIN=f69598ba559202969cc91d9fbdee7f64996e97af; CLONE_DIR=$HOME/projects/.nfl2-worktrees/week5-live-center
+arm_env() {
+  local skip=$1; shift
+  if [[ "$SHAPE" == mixt ]]; then local shape_env=(UNION_MAIN=mix UNION_MIX_PORTFOLIO=mix); else local shape_env=(-u UNION_MIX_PORTFOLIO UNION_MAIN=pmo_x50); fi
+  env "${shape_env[@]}" GROUP=154468 EXPECT_SHA=$PIN CLONE=$CLONE_DIR ENTER_LAYOUT=head \
+    D3200_LEV=$CHOSEN_LEV D3200_BOOM=$CHOSEN_BOOM D800_LEV=$CHOSEN_LEV D800_BOOM=$CHOSEN_BOOM SKIP_UNITS="$skip" \
+    LEV_CBC_THREADS=8 EARLY_PROPS_CT=04:30 EARLY_PROJECT_CT=04:45 EARLY_SUPPLY_CT=05:00 \
+    UNION_PROJ_SOURCE=fp UNION_MAIN_OWN_TILT=0.20 UNION_MAIN_OWN_PREDICTOR=fp \
+    T70_MIN_PROJ_CT=10:30 T70_PROJECT=1 UNION_SATURDAY_RUN=auto UNION_PMO=0 "$@"
+}
+# 6. not too late: the Saturday D12800 is 10:30
+SKIP="d6400"; EXPECT_N=11
+if [[ "${ARM_LATE:-0}" == 1 ]]; then SKIP="d6400 d12800sat d6400sat"; EXPECT_N=9; say "ARM_LATE=1: Saturday supply units skipped (operator decision)"; fi
+[[ "${ARM_LATE:-0}" == 1 ]] || (( 10#$(date +%H%M) < 1028 )) || stop "it is $(date +%H:%M); the 10:30 Saturday D12800 would be in the past. Operator decision: ARM_LATE=1 (no Saturday supply builds, $((EXPECT_N - 2)) timers)"
+if [[ "$CHECK" == --check ]]; then
+  say "the timers' dose: D3200 and D800 LEV $CHOSEN_LEV / BOOM $CHOSEN_BOOM (chosen-dose.env must say the same)"
+  UNITS=$(arm_env "$SKIP" bash scripts/arm_week_timers.sh 5 2>&1 | grep -oE 'nfl-week5-[a-z0-9-]+' | sort -u)
+  for s in $SKIP; do UNITS=$(echo "$UNITS" | grep -vx "nfl-week5-$(echo $s | sed -E 's/^(d[0-9]+)sat$/\1-sat/')-build"); done
+  echo "$UNITS" | sed 's/^/  planned: /'
+  NU=$(echo "$UNITS" | grep -c .)
+  (( NU == EXPECT_N )) || stop "the print-only arm lists $NU units after SKIP ($SKIP), not $EXPECT_N: a merge changed the unit list"
+  say "CHECK DONE (nothing armed): shape $SHAPE, pin ${PIN:0:7}, $NU units"; exit 0
+fi
+# 7. arm: the shape's pin and main, the rest common
+arm_env "$SKIP" scripts/arm_week_timers.sh 5 --run || stop "arm_week_timers.sh --run exited $?"
+# 8. verify the timer count
+N=$(systemctl --user list-timers --all --no-pager | grep -c 'nfl-week5-')
+systemctl --user list-timers --all --no-pager | grep 'nfl-week5-'
+(( N == EXPECT_N )) || stop "expected $EXPECT_N nfl-week5 timers, found $N"
+[[ -z "$(git status --porcelain)" ]] || stop "the checkout became dirty during arming"
+say "ARMED ($SHAPE): $N timers; checkout $(git rev-parse --short HEAD) clean"
