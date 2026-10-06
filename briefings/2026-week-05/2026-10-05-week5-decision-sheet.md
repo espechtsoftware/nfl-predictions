@@ -16,7 +16,7 @@ second.
 
 | # | Decision | My recommendation |
 |---|---|---|
-| 1 | The lineup shape: WS, the shape-mix portfolio (MIX), or today's | **WS**: the only change that passed its test |
+| 1 | The lineup shape: WS, the shape-mix portfolio (MIX), or today's | **Your preference, not a tested gain:** on your plan and goal WS and today's shape tied (study 18b). Doing nothing keeps today's |
 | 2 | Fantasy Points' projections instead of ours | **Yes** (you decided this in principle; the Week-4 check worked) |
 | 3 | The lab-code update both of these need | **Yes**: it changes nothing when they're off (proven below) |
 | 4 | The Week-5 contest plan | **Done: your revised entries** (19 contests, 24 entries) |
@@ -25,8 +25,30 @@ second.
 
 ## 1. The lineup shape
 
-**What we tested.** Study 18 rebuilt the book on 53 practice slates (2022–24) in three ways. It used the cash lines of
-my first draft plan (9–22% of the field paid):
+**The test that answers your question (study 18b, 10-06): a tie.** It rebuilt your exact plan on 53 practice weeks
+under the live build's limits and compared WS with today's shape by your goal. It was written before any results and
+re-run by both of us with identical output.
+
+| Today's shape vs WS, on your plan | Today's | WS |
+|---|---|---|
+| Chance of at least one big win in a week* | about 1 in 4 | +0.6 points: **no difference** (range −7 to +8) |
+| Expected big seats | — | 3.5% fewer |
+| Average finish (share of the field beaten) | 49.9% | 51.2% |
+| Weeks with almost no chance of a big win | 48% | 36% |
+| Weeks where the best lineup reached 200 points | 9.4% | 7.5% |
+| The worst tenth of weeks (average finish) | 27% | 20% |
+
+\* Practice weeks with an easier, Millionaire-style field; lower in practice.
+
+- **So the shape is a preference, not a tested gain.** WS gives a better average and fewer near-dead weeks. Today's
+  shape gives a slightly higher ceiling and holds up better in its worst weeks.
+- **Doing nothing keeps today's shape.** WS is now safe to run (the Sunday replacement fix), so it is a fair choice if
+  you prefer its profile. I would not switch to it expecting more big wins.
+- **Why study 18's +42% didn't carry over:** that gain was at shallow lines, where 9–22% of the field is paid. Your
+  satellites pay only the top 1–4%, and there today's tighter stack keeps pace.
+
+**The earlier test (study 18), for the record.** It rebuilt the book on 53 practice slates (2022–24) in three ways,
+using the cash lines of my first draft plan (9–22% of the field paid):
 
 | Version | What every lineup looks like | Tickets vs today's | Average finish | Slates with no ticket |
 |---|---|---|---|---|
@@ -34,13 +56,12 @@ my first draft plan (9–22% of the field paid):
 | **WS** | QB + 1 pass catcher, a player from each team of a second game, at most 3 from the QB's game, rarely a bring-back | **+42% (1,047)**, every season better | **up ~3 points** | 15% |
 | MIX | the winners' mix: 30 / 14 / 28 / 28% of four shapes | +16% (856), not conclusive | up ~1 point | 15% |
 
-- **WS passed** the frozen test, which was written before any results were seen. That is the bar we use.
+- **WS passed** that frozen test on tickets at shallow lines. Study 18b (above) is the test on your plan and goal.
 - **The cost:** a noticeably wider swing. Slates where the whole book wins nothing rise from 10% to 15%, and on the
   worst tenth of slates the average entry beats 22% of the field instead of 28%. More tickets on average, bigger swings.
 - **Your plan's lines are deeper than the ones tested.** Your revised plan's seats sit at the top 1–4% of each contest
   (one seat in 23 to 402), not at 9–22%. WS's better average finish should help there too, but the +42% is a number for
-  shallow lines, not for your plan. On your actual plan (study 24), WS wins at least one big seat in about 1 in 4
-  practice weeks with an easier field; lower in practice (see §5).
+  shallow lines, not for your plan. Study 18b answered it on your plan: a tie (above).
 - **MIX** is the "mix of shapes like the winners" you asked for. It moved the right way but was not conclusive.
 - **Your literal dual stack** (QB + 1 + bring-back + a second-game pair, on every lineup) was tested as EXPLORATORY.
   - It got about half WS's gain (+2.2 tickets per slate) with the steadiest results of any version: no ticket on 9% of
