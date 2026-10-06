@@ -12,6 +12,36 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (02:08 CDT) — Main-mix review: one BLOCKING finding (a WS row could not be replaced on Sunday), fixed (ddd470ed) and rehearsed on real data
+
+**The finding (the reviewer, end-to-end review of eb6dc500; everything else APPROVED).** vet_replace_v4 lets a mix row be
+replaced only by a candidate that fits its cell. A house row has 4 players in the QB's game and WS allows at most 3, so
+no house candidate ever fits. A player ruled OUT after the status pull meant "REPLACEMENT FAILED", and the vetted book
+went out with his entries still in it.
+
+**Fix (main-mix `ddd470ed`, pushed; the reviewer's re-review pending):**
+- (a) `--mix-spares S` (`UNION_MIX_SPARES` default 15): spare rows solved after the book under the same running caps
+  (computed from --entries), written last into the corpus as `mix_spare` with their cell tag. They are never book rows
+  and are re-checked (a failure is dropped loudly). The book is byte-identical with or without spares.
+- (b) No in-cell candidate means the best house-legal one is taken, flagged `cell_fallback` in replace.json with a
+  capitals banner on the replacement-status line; the final validation holds that position to the house shape.
+- (c) Tests: test_vet_replace_mix_fallback (6), test_mix_shapes +3, plus the env, runtime and fallback tests. 285
+  money-path tests pass with `GCP_PROJECT` unset.
+
+**Rehearsals** (W4 inputs, WS + FP + term, archive mode, one test-excluded player; scripts and logs in the session
+scratchpad, `rehearse_spares_*`):
+- K 105 (W4 plan): the pre-fix code did NOT fail. 65 plain WS rows (`mix_control`) supplied the replacements. 13 of the
+  15 spares held the excluded player (uncapped at K 105).
+- K 20 (Rev1 plan, Week-5 size), excluding Aaron Jones Sr. (10 of 20 rows):
+  - pre-fix: REPLACEMENT FAILED;
+  - fixed with no spares: 2 house fallbacks, flagged;
+  - fixed with spares: 8 from spares and 2 from control, 0 fallbacks; spares holding him 0 (capped);
+  - the book sha was identical; the audit passed.
+- Worst single-player shortfall at K 20: at most −9, so the supply is enough for any one OUT player.
+
+**Next:** the reviewer re-reviews `ddd470ed`. Friday's merge of main-mix into integration waits for that approval and the
+operator's yes. An optional spare-tail player cap (⌈S/3⌉) was offered to the reviewer; it is not implemented.
+
 ## 2026-10-06 (01:52 CDT) — The Week-5 build branch is merged with integration and sent for end-to-end review; the dead O-31 guards are fixed
 
 - **Build branch** `production/main-mix-20261006` @ `eb6dc500`. It is a clean `--no-ff` merge of integration `aa3c7213`, so
