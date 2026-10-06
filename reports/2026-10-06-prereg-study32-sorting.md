@@ -63,6 +63,20 @@ frozen reader.
   before the freeze).
 - No outcome line was read.
 
+## 2b. Deviation note 1 (2026-10-06, at the binding census, before any scored bank)
+- **What happened:** the first binding census ran 35 of 36 slates. On 2023 W11 the pre-lock selection field could not
+  be sampled: 18,801 of 20,000 lineups.
+  - The predicted ownership leans on expensive players. An ownership-weighted lineup averages about $51.9k, over the
+    cap, so most draws are rejected.
+  - The sampler's reweighting rounds always need 20,000 accepted lineups.
+  - Filling unpredicted players from LAG, or widening the salary floor to $46–47k, also failed.
+- **The change:** only when that sampling fails, the selection field is 10,000 lineups drawn straight from the same
+  targets (`ipf_rounds` 1, no reweighting). On W11 it fills in 0.1 s.
+  - Every row records `sel_field` (n, rounds, fallback, why), and the census counts the fallbacks.
+  - Nothing else changed; the reader is byte-identical (`c7abb741`).
+- **Why it cannot shape the result:** it was made on the mechanics bank (1406) from a sampler error alone, with no
+  outcome in view. The census was re-run in full on the new code; the first attempt is kept aside, not used.
+
 ## 3. Banks
 - Fresh **1437, 1438, 1439, 1440, 1441, 1442**.
   - Scanned 10-06: no hits in either repo's ledger, preregs, code or results. PREREG-092's "D1440" is a world count, not
@@ -124,12 +138,15 @@ frozen reader.
    reported prominently.
 
 ## 7. Integrity
-- **Code:** nfl2 `production/s32-sorting-20261006` @ `638f871` (cut from study 31's `71b61fa`):
-  - `experiments/s32_sorting.py`, sha256 `6350c12c5255b7419936f8f9c786ffe48ffe00429a136a55db85acd8299b37fe`;
+- **Code:** nfl2 `production/s32-sorting-20261006` @ `343f446` (cut from study 31's `71b61fa`; deviation note 1 on
+  top of the frozen `638f871`):
+  - `experiments/s32_sorting.py`, sha256 `06c35b9ae2a5e3472f7c882709a5f0070a382d325162df06d0ba7d31e70730dd`
+    (frozen `6350c12c…` + the fallback);
   - `scripts/s32_drive.py`, `b54f3722ef42ffcc321677aaa4a3348cf56afbb539db164a0c4a81dcdd2b65a3`;
   - **`scripts/s32_report.py` (the reader), sha256 `c7abb741e0a620a8dd2abd57e5114636e6150ab1c858f24410d042ae5eef0f27`**;
-  - `scripts/s32_census.py`, `42eb19095562f5aff0ea580bfa5e49b2a89a199024f4bbd6d6d984b953408cd1`;
-  - `tests/test_s32_sorting.py`, `4f3a04028f01c93acc3f0bb6af6cbf382e5847724853d725b630fecd5ace979d` (7 tests).
+  - `scripts/s32_census.py`, `ca38841919577254151d12e98e26eb260c506986dffd3f31956c1cb0280ba00b` (counts the
+    fallbacks);
+  - `tests/test_s32_sorting.py`, `c4f2d322a6513a9d5380bb3325e97be21a3e07ca0230e266a1da00e6be16d820` (7 tests).
 - **Production `enter_layout.py`:** `3cb051ac…` (`da399bdb`), as study 31. Runs use
   `PYTHONPATH=<nfl2 worktree>/src:<da399bdb worktree>/src`.
 - **Order:**
