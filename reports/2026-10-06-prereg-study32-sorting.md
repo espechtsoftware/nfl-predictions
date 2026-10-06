@@ -1,8 +1,8 @@
-# Preregistration: study 32, choosing the best few lineups for a big contest (DRAFT 2026-10-06)
+# Preregistration: study 32, choosing the best few lineups for a big contest (FROZEN 2026-10-06)
 
-**Status: DRAFT 2026-10-06.** To be frozen after the one-slate smoke, before the binding census and any scored bank.
-The reviewer freezes it and reads first. The laptop comments on this draft, acks the census and re-runs the frozen
-reader.
+**Status: FROZEN 2026-10-06**, after the laptop's comments (all four taken) and the one-slate smoke (§2a), before the
+binding census and any scored bank. The reviewer froze it and reads first. The laptop acks the census and re-runs the
+frozen reader.
 
 ## 1. Why
 - **The operator (10-06):** "we NEED to have a way to sort lineups. Im trying to win entries to large contests this
@@ -55,6 +55,14 @@ reader.
   - Never the realized ownership.
   - At m = 1, R2 and R4 coincide by construction.
 
+## 2a. Smoke (bank 1406, 2023 W1; mechanics plus the full path; the reader checked by exit code and header count only)
+- K 26, caps 13 / 6, the pinned `enter_layout` on the row; 26 rows per book; 5 distinct QBs in each book.
+- R4's in-sample value is at least every other rule's in every cell (it is the exhaustive optimum), and R4 = R2 at m 1.
+- The census and reader exited 0; the reader printed its 2 headers and REFUSED mechanics-only rows (exit 1).
+- The census first pooled the two targets in its "same rows" shares; it now reports each target separately (fixed
+  before the freeze).
+- No outcome line was read.
+
 ## 3. Banks
 - Fresh **1437, 1438, 1439, 1440, 1441, 1442**.
   - Scanned 10-06: no hits in either repo's ledger, preregs, code or results. PREREG-092's "D1440" is a world count, not
@@ -71,7 +79,10 @@ reader.
 - **PRIMARY:** R4 − RND, the mean over the 12 cells {CT, MIX} × {MEGA, Wildcat} × {m 1, 2, 3} at S_big.
   - Slates resampled within season, B 20,000, seed 20261014; two-sided 0.95.
 - **VERDICT:**
-  - **OFFER R4:** the lower bound > 0 and at most one season mean < 0.
+  - **OFFER R4:** the lower bound > 0, at most one season mean < 0, AND the pooled point estimate R4 − R0 ≥ 0
+    (the laptop's amendment: his default is R0, so a step that beats random but loses to the default is not
+    installed).
+  - **KEEP BOOK ORDER (R0):** R4 beats random by the rule above, but R4 − R0 < 0.
   - **R4 WORSE THAN RANDOM:** the upper bound < 0. Do not use it.
   - **CO-EQUAL SHOTS:** otherwise. No rule is shown better than random; pick for breadth (R5) or at random.
   - **NEAR-VACUOUS** is added when R4 picks exactly R0's rows in more than 80% of cells.
@@ -88,6 +99,7 @@ reader.
 ## 5. What a verdict can do (frozen now)
 - **OFFER R4:** next week, when he holds 1–3 entries in a big contest, the entries are chosen by R4 from that week's
   book. Production adds it as a selection step: a reversible class-S trial with a paired shadow (R0 vs R4) each week.
+- **KEEP BOOK ORDER (R0):** no step is installed; he keeps entering rows 1..m, and the finding is reported.
 - **CO-EQUAL SHOTS:** he is told plainly that the book's rows are co-equal shots.
   - Choose for breadth (R5, different QBs and games), or let him pick.
   - No rule is installed.
@@ -102,17 +114,28 @@ reader.
 3. **R2–R4's worlds are in-sample.** They are the same worlds the book was built on, as production would use them. The
    endpoint is realized.
 4. **Projections and ownership:** our projections (no FP in history), and the stand-in for pre-lock ownership.
-5. **A 2026 descriptive check (W1–W4; already seen, never decision-bearing)** may follow on the laptop's books, labelled
-   as such.
+5. **Live R0 is the VETTED order; the panel's R0 is the build order.** `vet_book` demotes flagged rows (under MIX, only
+   within each cell since `030db347`), and the panel has no injury history.
+6. **A 2026 descriptive check (W1–W4; ALREADY SEEN, never decision-bearing)** follows on the laptop's entered books.
+   - It runs after the freeze, importing the FROZEN rule functions so it cannot shape the design.
+   - Rules: R0 / R1 (ours W1–3, FP W4) / R5 / RND exact, and R2–R4 from each week's T-70 worlds where the banks exist.
+7. **The primary line can still change, once and outcome-blind.** If the operator says what "big" means inside a
+   target BEFORE the scored run, a deviation note may swap the primary line. After that, S_top stays exploratory and is
+   reported prominently.
 
 ## 7. Integrity
-- **Code:** nfl2 `production/s32-sorting-20261006`, cut from study 31's `71b61fa`: `experiments/s32_sorting.py`,
-  `scripts/s32_drive.py`, `scripts/s32_report.py` (the reader), `scripts/s32_census.py`, `tests/test_s32_sorting.py`
-  (6 tests). The commit and shas are recorded at the freeze.
+- **Code:** nfl2 `production/s32-sorting-20261006` @ `638f871` (cut from study 31's `71b61fa`):
+  - `experiments/s32_sorting.py`, sha256 `6350c12c5255b7419936f8f9c786ffe48ffe00429a136a55db85acd8299b37fe`;
+  - `scripts/s32_drive.py`, `b54f3722ef42ffcc321677aaa4a3348cf56afbb539db164a0c4a81dcdd2b65a3`;
+  - **`scripts/s32_report.py` (the reader), sha256 `c7abb741e0a620a8dd2abd57e5114636e6150ab1c858f24410d042ae5eef0f27`**;
+  - `scripts/s32_census.py`, `42eb19095562f5aff0ea580bfa5e49b2a89a199024f4bbd6d6d984b953408cd1`;
+  - `tests/test_s32_sorting.py`, `4f3a04028f01c93acc3f0bb6af6cbf382e5847724853d725b630fecd5ace979d` (7 tests).
+- **Production `enter_layout.py`:** `3cb051ac…` (`da399bdb`), as study 31. Runs use
+  `PYTHONPATH=<nfl2 worktree>/src:<da399bdb worktree>/src`.
 - **Order:**
-  1. the laptop's comments on this draft;
+  1. the laptop's comments on the draft (taken);
   2. the smoke;
-  3. the freeze;
+  3. this freeze;
   4. the binding census on 1406;
   5. the laptop's ack;
   6. the scored run on 1437–1442 (after study 31's run; one heavy job at a time);
