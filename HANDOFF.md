@@ -12,6 +12,20 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (17:41 CDT) — Study 43 frozen and running (the operator's first choice); study 38 amendment 2 acked; the cover switch built
+
+- **Study 38 amendment 2** (prereg 596e5d9b, d2cd6111; lab d15fb97) is ACKED. All three W4 smokes reproduce byte-identically: ms4-rr 47b701ee (identity f931364e), ms4-value d1348d29, ms5-group 79b69c17. The reviewer's message had rotated those labels; the prereg line is being corrected.
+  - **For Friday:** move `s38-prod-pin` to FRIDAY_HEAD and disclose union_reselect bdd95a51 vs ffd59b72. The three names it imports are byte-identical, so behaviour is unchanged.
+- **Study 43** (one A1 row in each of the top-4 games by total, built first; COVER6 exploratory; reference = his W5 book at 4 + rr).
+  - The operator: "study 43 sounds the most interesting. I would like to try that first to be considered for this week."
+  - Frozen at e81122af (65c92005). The binding census (lab 79d4a4b, 8773bae8) is reproduced byte-identically. The 1497–1502 scan is clean (one `chunk=1500` false match). The scored run is in progress.
+- **Production switch** `--mix-cover-games N` on `production/mix-cover-games-20261006` @ `36f15a3f`, awaiting review:
+  - default 0, byte-identical for every fill;
+  - parity-pinned to the lab's coverage test;
+  - UNION_MIX_COVER_GAMES; check_week_runtime; MIX_COVER=0 in the arm.
+- **Merged:** the money gate's descriptive package arms (06b5c1c7). The reviewer wants the re-run at his final choices, PKG4-rr; tonight after study 43 if the machine is free.
+- **Study list 39–42** (0f2779f7): study 43; the harness field calibration (the reviewer's); the QB-by-QB round-robin (the reviewer's, after 43); and the operator's 4–5 single-lineup "insurance" options (item 42; the reviewer designs it after 43's read).
+- **The operator's decisions this evening:** overlap 4, round-robin, study 44 dropped (winners' mix everywhere).
 ## 2026-10-06 (17:27 CDT) — Operator: overlap limit 4 and round-robin fill for Week 5 (study 42 reproduced; field audit clean)
 
 - **Study 42 READ** (reviewer 9462d8a, READ_s42 e14276fb) reproduced byte-identically. Bank shas = RAW_MANIFEST.
