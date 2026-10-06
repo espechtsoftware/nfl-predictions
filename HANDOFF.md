@@ -12,6 +12,26 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (01:47 CDT) — O-31 MERGED (no new failures, full suite with GCP_PROJECT unset); O-28's full extent registered (138 nodes, 21 modules); study 18b review done
+
+**O-31** (`GCP_PROJECT` default -> `nfl-predictions-503414`): merged into integration as `42334ccb` + the register edit.
+- Full suite, `GCP_PROJECT` UNSET, one tree at a time: baseline `b2534dde` 64 failed / 74 errors / 8,784 passed (1:32:41);
+  with O-31 (`dadcb75f`, the same base) 64 / 74 / 8,786 passed (1:33:16; +2 = O-31's tests). The 138 failing nodes are
+  identical, and identical again with `GCP_PROJECT` set (8 s targeted run). O-31's and the accuracy reader's tests pass
+  on the merged head with the variable unset (25 passed).
+- O-31 stays OPEN only for its definition's second half: the operator's command recipes carry `GCP_PROJECT` explicitly.
+- Side effect to know: the `settings.project == "nfl-dfs-prod"` guards (weekly accuracy reader; fp_projection_override on
+  main-mix) are now dead code; harmless.
+
+**O-28 extended:** the 138 red nodes are listed in `reports/2026-10-06-o28-red-nodes.txt` (21 modules; classes in the
+register row: frozen-source / contract identity drift, changed error messages, host-only inputs, and 8 shadow-bridge
+fixtures the tightened standings validator rejects). Deadline unchanged (Wed 10-14, with O-18's CI green).
+
+**Study 18b** (the reviewer's: WS vs the house shape on his goal, Rev1 plan, production caps): the laptop reviewed the
+draft (C = house + head + caps without the term is today's main; Week-5 arming has the same caps; C pinned to
+`PRODUCTION_STACK` by identity at lab `9fd014e`); banks 1419/1420 scanned fresh in both repositories and on disk. Freeze
+and census Tuesday morning; the laptop acks the census and re-runs the reader.
+
 ## 2026-10-05 (22:16 CDT) — STUDY 24 READ: all-distinct NO DIFFERENCE, the per-game cap NO DIFFERENCE (guard 2 fails); re-run byte-identical; no ports
 
 **Study 24** (the reviewer's; prereg `4cadd426` + deviation notes 1–2; reader `e1a4968a`; nfl2 `9ed3925`):
