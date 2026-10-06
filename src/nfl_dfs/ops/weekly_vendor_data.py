@@ -5,6 +5,14 @@ starts any long-running work. Once those checks (or terminal login prompts)
 finish, it can be left unattended. The Odds API step executes the deployed
 Cloud Run job, so the API key remains in Secret Manager rather than the local
 ``.env`` file.
+
+SCHEDULE (2026-10-06): start it on WEDNESDAY with the SIS acquisition, and never
+before Tuesday 13:00 CT. The Route Share importer refuses a source week whose
+file was retrieved before noon CT on the day after that week's last kickoff
+(Fantasy Points revises Monday-night numbers on Tuesday morning), so an earlier
+run fails the Route page loudly (a true FAIL). Thursday's s-features-route
+rebuild reads the week imported here. ``--route-operator-early`` overrides the
+gate and is recorded.
 """
 
 from __future__ import annotations
