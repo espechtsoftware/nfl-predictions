@@ -66,6 +66,7 @@ chat. Private paths stay private (no dollars, no entries here).
 ## Monday 10-12
 - `weekly_projection_accuracy.py` (ours / FP / blend) and `weekly_fp_props_check.py` (FP vs FP + props), then `pool`.
 - Settlement; the entered book vs the paper rebuild of today's house shape on the same slate.
+- `weekly_picks_vs_field.py week --season 2026 --week 5 --contest <Milly id> --frame <T-70 frame> --cohort ~/private/regulars/cohort-2026w1-4.txt --entry-history <the refreshed private entry history> --out-dir ~/private/picks-vs-field`, then `pool` (ours vs the regulars, picks vs the rest of the field; after the Monday standings load; once its branch merges).
 
 ## Week 6 onward: choosing entries for a big contest (study 32's R4; Addendum 137; merged `c67da304`)
 - When he holds 2–3 entries in ONE big contest (a $4,444 MEGA, a $333 Wildcat, ...), after the T-70 union and the
