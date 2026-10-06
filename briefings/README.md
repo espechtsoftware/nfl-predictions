@@ -7,6 +7,12 @@ evidence, tooling notes) stays in `reports/`.
 This repository is public. Briefings carry no user names, entry ids or dollar amounts; dollars are kept privately on
 the laptop.
 
+## 2026 Week 5 (Sunday 10-11): the decisions → `2026-week-05/`
+
+| Read | What it answers |
+|---|---|
+| [Week-5 decision sheet (draft for Friday)](2026-week-05/2026-10-05-week5-decision-sheet.md) | The lineup shape (WS passed: +42% tickets on 53 slates), Fantasy Points' projections, the lab-code update, the contest plan; the Week-4 replay; what is untested; how to undo |
+
 ## 2026 Week 4 (Sunday 10-04): post-mortem and the Week-5 decision → `2026-week-04/`
 
 | Read | What it answers |
