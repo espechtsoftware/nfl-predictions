@@ -1,8 +1,10 @@
-# Preregistration: study 18b, WS against the house shape on the operator's goal (his real Week-5 plan, production's caps, P(≥ 1 big seat)) (DRAFT 2026-10-06)
+# Preregistration: study 18b, WS against the house shape on the operator's goal (his real Week-5 plan, production's caps, P(≥ 1 big seat)) (FROZEN 2026-10-06)
 
-**Status: DRAFT.** It is frozen, with the reader's sha256 recorded here, after the one-slate smoke (§2a) and before the
-binding census and any scored bank. Later changes are dated deviation notes at the end. The reviewer freezes it and
-reads first; the laptop reviews the design, acks the census and re-runs the frozen reader before the LEDGER row.
+**Status: FROZEN 2026-10-06** (early morning CDT), after the one-slate smoke (§2a) and the laptop's design review, and
+before the binding census and any scored bank. The operator (10-06, through the laptop, verbatim): "let's not waste any
+time. I would like you to proceed with testing unless there is a valid reason for waiting". Later changes are dated
+deviation notes at the end. The reviewer froze it and reads first; the laptop acks the census and re-runs the frozen
+reader before the LEDGER row.
 
 **Why this study.**
 - Friday's biggest decision is the lineup SHAPE (the decision sheet's item 1: WS recommended).
@@ -104,14 +106,15 @@ Outcomes were not read.
 - No production change follows without his yes.
 
 ## 6. Integrity
-- **Code:** nfl2 `production/s18b-ws-vs-house-20261006` (cut from study 24's `6472c5d`):
-  - `experiments/s18b_ws_vs_house.py`;
-  - `scripts/s18b_drive.py`;
-  - **`scripts/s18b_report.py` (the reader: study 24's with 18b's arms)**;
-  - `scripts/s18b_census.py`;
-  - `tests/test_s18b_ws_vs_house.py` (7 tests; green together with study 24's 18).
-
-  The shas are recorded at the freeze.
+- **Code:** nfl2 `production/s18b-ws-vs-house-20261006` @ `9fd014e` (cut from study 24's `6472c5d`):
+  - `experiments/s18b_ws_vs_house.py`, sha256 `0e2597e507bab5447a4b74725fa5ab2089711e170d78055b9fe8f1be8aabe056`;
+  - `scripts/s18b_drive.py`, `e76221a170434120044bce4760ffb498a15bd68bc99f9072f357f61f7b533925`;
+  - **`scripts/s18b_report.py` (the reader), sha256
+    `5fb03df3f57124afc0d955bdd18321b669447ed75cb5705f5bbb19067e0d9bc0`**;
+  - `scripts/s18b_census.py`, `48e2e93b591dce0f87875e11cb66790658b02662980e4528ba1369de96474f0a`;
+  - `tests/test_s18b_ws_vs_house.py`, `cee1e2a97b342f4dd31eea82209331172e6bc48688a7469abdc4f88da6cef1ce` (7 tests;
+    green with study 24's 18);
+  - the shared module `experiments/s24_qb_game_cap.py`, `ce2cddc1…` (study 24's, unchanged).
 - **Order:**
   1. this freeze;
   2. the BINDING census on 1406 (all 53 slates, mechanics only: shape marginals per arm, the realized caps, short
