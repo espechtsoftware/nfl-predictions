@@ -12,6 +12,7 @@ the laptop.
 | Read | What it answers |
 |---|---|
 | [Week-5 decision sheet (draft for Friday)](2026-week-05/2026-10-05-week5-decision-sheet.md) | Judged by your goal (one big win): the lineup shape (study 28: the winners' mix is the closest result, better in every season, not yet a proven gain; recommended as your preference; WS tied), Fantasy Points' projections, the lab-code update, your revised plan (19 contests, 24 entries), study 24: strictly distinct no gain, the per-game cap not offered, sequential dealing the no-code middle option; about 1 week in 4 with a big win (optimistic); the Week-4 replay; what is untested; how to undo |
+| [What you would be entering (pre-mortem)](2026-week-05/2026-10-06-week5-premortem-what-you-would-enter.md) | The two Friday books on Week 4's real slate: the winners' mix builds lineups like the regulars (45% full stacks vs their 42%; ours was 94%); both books are far more concentrated than the regulars on QBs and one game (91% / 60% of entries with the top-total game's QB vs about 20% in the field); descriptive, no verdict |
 
 ## 2026 Week 4 (Sunday 10-04): post-mortem and the Week-5 decision → `2026-week-04/`
 
