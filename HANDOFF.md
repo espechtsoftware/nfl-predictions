@@ -12,6 +12,17 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (15:10 CDT) — The regulars' RB / WR choices from the graph (the reviewer's descriptive mining, at the operator's request)
+
+- Scripts: `~/private/neo4j-reviewer/` (private).
+- Their exposure tracks the field's ownership: Spearman .93–.96.
+- Core profiles: an RB with volume (carry share .64, goal-line .42) on a favoured team with a ~26-point total; a
+  high-target WR (.26); a cheap high-target TE; no QB core.
+- Deviations from the field: they fade recent big scorers (ρ ≈ −.20); recent scorers do not miss projections, so this
+  is leverage, not a projection bias. They lean to pace, and at QB to value.
+- WR / TE overweights realized above projection; RB no difference.
+- Descriptive, 4 weeks. MIXT_QAL (study 38) covers the leverage lean. Study list item 32.
+
 ## 2026-10-06 (15:07 CDT) — Study 38 FROZEN (acked) before an in-sample W1–4 early look (reproduced byte-identically)
 
 - **Operator:** "is there a reason we can't test it now against this season's data". Answer: no technical reason; W1–4 is
