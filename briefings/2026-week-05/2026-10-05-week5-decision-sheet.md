@@ -24,12 +24,35 @@ lines, in three ways:
 | MIX | the winners' mix: 30 / 14 / 28 / 28% of four shapes | +16% (856), not conclusive | up ~1 point | 15% |
 
 - **WS passed** the frozen test, which was written before any results were seen. That is the bar we use.
-- **The cost:** a wider swing. A few more slates where the whole book wins nothing, and the worst slates are a little
-  worse.
+- **The cost:** a noticeably wider swing. Slates where the whole book wins nothing rise from 10% to 15%, and on the
+  worst tenth of slates the average entry beats 22% of the field instead of 28%. More tickets on average, bigger swings.
 - **MIX** is the "mix of shapes like the winners" you asked for. It moved the right way but was not conclusive.
-- **On your "not one strategy everywhere":** WS is one shape, but a much looser one than today's. It spreads the book
-  over about 4.8 games, against 4.3 today, and is less tied to one game. A further idea, by contest type (WS for
-  qualifiers, today's tighter stack for any Millionaire entries), is on the study list as item 23.
+- **Your literal dual stack** (QB + 1 + bring-back + a second-game pair, on every lineup) was tested as EXPLORATORY.
+  - It got about half WS's gain (+2.2 tickets per slate) with the steadiest results of any version: no ticket on 9% of
+    slates, the worst tenth at 34%, the average finish up about 3 points.
+  - Exploratory versions can't be adopted without a confirming test, so it is information, not an option this week.
+- **Rules that spread the book across more players** (study 17: diminishing returns, expected-max, pool-greedy) did
+  not pass. They trade expected tickets for fewer empty weeks. Today's selection stays, and the shape change carries
+  the diversification.
+- **On your "not one strategy everywhere":** WS is one shape, but a much looser one than today's: about 4.8 games
+  per lineup, against 4.3. A further idea, by contest type (WS for qualifiers, today's tighter stack for any
+  Millionaire entries), is on the study list as item 23.
+- **One risk WS does not fix: leaning on one game.** The share of entries whose QB came from the slate's
+  highest-total game, rebuilt on Week 4:
+
+  | Book (Week 4) | Entries whose QB is from the highest-total game |
+  |---|---|
+  | What we entered | 62% |
+  | WS | 34% |
+  | WS + FP | 53% (52% on draft A) |
+  | MIX + FP | 77% (81% on draft A) |
+  | The field | about 20% |
+
+  So WS + FP still leans on one game about 2½ times as much as the field. That game was Jacksonville–Cincinnati, the
+  Chase game in Week 4.
+- **A cap on that share** (item 24) is relevant. Study 1 found a per-game budget did not cost tickets. But it is not
+  yet built for the new shapes, and it would be a third change this week. **Your call:** I would add it next week,
+  after a check, rather than this week. It's one week of data on this point.
 
 ## 2. Fantasy Points' projections
 
@@ -52,8 +75,8 @@ lines, in three ways:
 ## 4. The Week-5 contest plan
 
 - **Draft A** (sent to you privately) follows your mix: $555, $333 and Millionaire qualifiers, at last week's budget.
-- **It uses the shallow-line versions:** 9–22% of the field paid. At our current level they lose about half as much
-  per dollar as the 1%-line ones.
+- **It uses the shallow-line versions:** 9–22% of the field paid. At our Weeks 1–4 finishing level they lose about
+  half as much per dollar as the 1%-line ones. WS and FP are meant to change that level.
 - **All the testing above used this plan's cash lines.**
 - **The counts are yours.**
 
