@@ -33,6 +33,10 @@ before the freeze. Nothing here enters a contest: the money path, its checkout a
   - MIXT_QA: the yes-book WITH the dropped +0.20 term (tracks his decision on the real field).
   - MIXT_QAL: the yes-book leaning AGAINST ownership, −0.10 per ownership point (his question 10-06: can ownership find
     players who project well but will be under-owned, for an edge?).
+  - MIXT_RBC0: an RB-led floating core plus QB-stack breadth (the laptop's Neo4j finding 10-06: the regulars' heavy core
+    is about 5 players, RB-led, carried across many QB stacks; their pass-catchers spread through the stacks). Study 37's
+    QB tiers plus a WR / TE-only curve at the regulars' WR / TE medians at 26 rows, rounded half up (no WR / TE reaches 12
+    rows; at most 1 / 1 / 2 / 3 / 4 / 6 / 8 / 12 / 17 / 25 reach 11 … 2 rows); RBs at production's 13-row cap; FP's mean.
   - The ownership weights are multiples of the frozen 0.20 (0, +1, −0.5); production's `own_bonus` does the matching and
     the refusals. Without an FP ownership file, only MIXT_QA and MIXT_QAL go missing (recorded), never the week.
 - **His ENTERED book**: a context column, scored the same way, never an arm. The lab's MIXT_QA0 and the production union
