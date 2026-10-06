@@ -17,25 +17,32 @@ chat. Private paths stay private (no dollars, no entries here).
 2. FP projections as the projection source (decided in principle).
 3. FP + props: the paired paper check (recommended) or a trial now.
 4. The ownership term on MIX: study 29 recommends OFF (his choice).
-5. Dealing stays head (his Rev2 pins require it).
+5. Dealing stays head (his pins require it; Rev3 = super-satellites on rows 1–26).
 
 ## Friday after his yes (laptop; the reviewer has approved each branch)
 1. Merge into integration, in this order:
    1. `production/main-mix-20261006` @ `ddd470ed` (MIX / WS / FP source / spares / fallbacks): needed for FP
       projections whatever the shape;
    2. `production/o35-plan-weights-pins-20261006` @ `ce7ba02b` (pin-aware MIX weights): needed only for MIX;
-   3. `production/linestar-retire-20261006` @ `b20628fc` (no LineStar capture in the build or at arming).
+   3. `production/vet-cell-order-20261006` @ `030db347` (O-36: vet_book keeps each MIX cell on its own positions;
+      mix_dealt_shares counts replacements by shape): needed only for MIX (approved);
+   4. `production/pins-extend-book-20261006` @ `da399bdb` (a pin may add rows without gaps): needed for his Rev3
+      plan (super-satellites on rows 1–26; K 22 → 26, caps 13 / 6), after the reviewer's approval;
+   5. `production/linestar-retire-20261006` @ `b20628fc` (no LineStar capture in the build or at arming).
+   Then install Rev3 (`~/private/week5-plan/rev3-26/contests.json`, sha `8625de0e…`) as `~/week5-sunday/contests.json`,
+   keeping Rev2 beside it as `contests.json.rev2-94cc61a8` (unmerged production code refuses Rev3's pins, fail-closed).
 2. A follow-up for review: the arming banner prints `ENTER_LAYOUT`.
-3. The money-path test modules green with `GCP_PROJECT` unset; `check_week_runtime` in the armed env: head / 22 rows
-   / no LayoutError on Rev2 (`~/week5-sunday/contests.json` sha `94cc61a8…`).
+3. The money-path test modules green with `GCP_PROJECT` unset; `check_week_runtime` in the armed env: head / the plan's rows
+   / no LayoutError on the installed plan (Rev3: head / 26 rows / caps 13 / 6; Rev2 would be 22).
 4. The production checkout `~/projects/nfl-predictions` fast-forwarded to the merged head, clean.
 5. **A FULL REHEARSAL at Week-5 size, archive mode (the reviewer, the K-dependence lesson):** the union on the W4 T-70
-   frame with the Rev2 contests and his chosen arm line (e.g. MIX + FP, the term off), `--mix-spares 15`; then vet_book
+   frame with the installed contests (Rev3) and his chosen arm line (e.g. MIX + FP, the term off), `--mix-spares 15`; then vet_book
    and vet_replace with `--test-exclude-dk` of a player in >= 8 entries; then `enter_layout write`. Print and check: (1)
    the dealt cell shares by ENTRIES near A1 .30 / A2 .14 / B .28 / C .28 (pins weighted, O-35 live); (2) the 8 pinned
    contests' ENTER files carry rows 1-5 exactly as pinned; (3) 15 spares in the corpus; (4) the replacement uses
    in-shape spares or the flagged house fallback, and no row ships with the excluded player; (5) audit_build_levers
-   PASS. NOT-PUBLISHABLE (test flags). The last proof before the money path runs it.
+   PASS. NOT-PUBLISHABLE (test flags). The last proof before the money path runs it. The 10-06 preview found O-36
+   (check 1 failed by entries until the vet-cell-order fix); its re-run with the fix passed all five.
 6. The lab pin for MIX / WS: `EXPECT_SHA f69598ba…` with `CLONE ~/projects/.nfl2-worktrees/week5-live-center`
    (`optimize(second_game_pair, qb_game_max)`); the house shape could stay on `32cdb61`.
 

@@ -4783,3 +4783,68 @@ secondaries (slate means):
      (`ddd470ed`).
    - **O-35's own effect is small here** (MIXNP vs MIX +0.5 points). The fix is kept for correctness.
 4. **Transfer:** our projections; no ownership term; no FP.
+
+## Addendum 134 (2026-10-06): study 29 (the live ownership term on the winners' mix, at first-place-only lines): NO DIFFERENCE at the frozen rule, both seasons negative, −29% expected big seats — recommended OFF for Week 5
+
+**Setup.**
+- **The term:** the live main adds tilt × predicted ownership % to the objective (skill players only;
+  `union_reselect.own_bonus`). Week 5 would arm FP's projection at 0.20, with LAG 0.10 as the fallback (LineStar
+  retired).
+- **The prior:** L24 had the term neutral at shallow lines and −14% tickets at p99.
+- **Arms** (on study 28's MIX: production `mix_rows`, pin-aware weights, caps 11 / 5, head, his Rev2 pins):
+  - MIX: no term; the reference;
+  - MIXT (DECISION): + 0.20 × TABPFN_LS (L24's stage-1 walk-forward predictions, sha `5c8384d6…`). Trained on
+    lock-time LineStar, so if anything optimistic as a stand-in for the live FP term;
+  - MIXL (exploratory): + 0.10 × LAG, the live fallback.
+- **Preregistration:** `reports/2026-10-06-prereg-study29-ownership-term.md` (frozen `44185227`).
+- **Panel:** 36 slates (2023–24; no predictions exist for 2022), banks 1427/1428; B 20,000, seed 20261011; two-sided
+  0.95.
+- **Read and reproduced.** Read by the reviewer; **reproduced byte-identically by the laptop** (reader `3cd9fc73`;
+  READ `fc5f6d23`). Lab: nfl2 `production/s29-ownership-term-20261006`.
+
+**Reader output (verbatim):**
+```
+STUDY 29 READER  sha256 3cd9fc73396414674a20d728f12ec2bc0d1a1da7849708e27a3888b06485ac3e
+DIRECTION: P(>= 1 big seat) per slate from each dealt entry's share of the sampled field it BEATS (higher = better); every difference is ARM - its REFERENCE (MIX); POSITIVE favours the arm.
+slates 36  banks [1427, 1428]  B 20000  seed 20261011  primary two-sided 0.95 (one decision arm), guard 1 one-sided 0.95 at -0.015, guard 2 expected-big-seat ratio >= 0.80  plan 29 mean-track contests, 53 entries (26 in 21 big contests)  production row caps ['{"all": [11, 5]}']  BASE {"lam": 0.0}
+
+== MIXT vs MIX  [DECISION]
+  PRIMARY P(>= 1 big seat) per slate -0.06806  [-0.16441, +0.02602]  seasons 2023 -0.03214, 2024 -0.10398
+  GUARD 1 mean entry pct +0.05060  one-sided lower +0.00947  (must exceed -0.015)
+  GUARD 2 expected big seats 0.55146 vs MIX 0.77734  ratio 0.709  (must be >= 0.80)
+  dealt identical to MIX: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+
+== MIXL vs MIX  [EXPLORATORY (never decision-bearing)]
+  PRIMARY P(>= 1 big seat) per slate -0.03965  [-0.12350, +0.04495]  seasons 2023 -0.06360, 2024 -0.01569
+  GUARD 1 mean entry pct +0.01970  one-sided lower -0.00788  (must exceed -0.015)
+  GUARD 2 expected big seats 0.75723 vs MIX 0.77734  ratio 0.974  (must be >= 0.80)
+  dealt identical to MIX: 0.000 of slate-banks
+
+secondaries (slate means):
+  MIX P(>=1 big) 0.36194  expected big seats 0.77734  P(>=2 contests) 0.20239  slates P(>=1 big) < 1% 0.361  tickets 121.0  best>=200 0.139  entry pct 0.53061  worst-decile slate 0.24760  simulated P(>=1 big) 0.50311
+      shape of dealt entries: pred_own_sum_lag 57.689  qb_game1_share 0.233  qb_game_top4_share 0.694  qb_games 3.583  qb_game_max_share 0.516  qb_plus1 0.547  bringback 0.543  dual 0.514  in_qb_game 3.097  games 4.746  max_entry_share 0.651
+  MIXT P(>=1 big) 0.29388  expected big seats 0.55146  P(>=2 contests) 0.12481  slates P(>=1 big) < 1% 0.292  tickets 137.5  best>=200 0.042  entry pct 0.58121  worst-decile slate 0.34185  simulated P(>=1 big) 0.46106
+      shape of dealt entries: pred_own_sum_lag 60.080  qb_game1_share 0.335  qb_game_top4_share 0.824  qb_games 3.444  qb_game_max_share 0.547  qb_plus1 0.547  bringback 0.541  dual 0.504  in_qb_game 3.115  games 4.798  max_entry_share 0.678
+  MIXL P(>=1 big) 0.32229  expected big seats 0.75723  P(>=2 contests) 0.20649  slates P(>=1 big) < 1% 0.347  tickets 141.5  best>=200 0.083  entry pct 0.55031  worst-decile slate 0.31665  simulated P(>=1 big) 0.49693
+      shape of dealt entries: pred_own_sum_lag 64.912  qb_game1_share 0.282  qb_game_top4_share 0.713  qb_games 3.556  qb_game_max_share 0.535  qb_plus1 0.547  bringback 0.543  dual 0.508  in_qb_game 3.115  games 4.717  max_entry_share 0.672
+```
+
+**Reading.**
+1. **At the frozen rule MIXT vs MIX is NO DIFFERENCE** (the interval reaches +2.6). But both seasons are negative
+   (−3.2 / −10.4), and guard 2 fails descriptively: expected big seats ×0.709, beyond his 20% tolerance.
+2. **The chalk tilt trades CEILING for FLOOR** (MIX → MIXT):
+   - mean finish .531 → .581; the worst decile .248 → .342;
+   - but P(≥ 1 big) .362 → .294;
+   - expected big seats .777 → .551;
+   - best ≥ 200 .139 → .042;
+   - P(≥ 2 contests) .202 → .125.
+
+   It concentrates on the #1-total game's QBs (.233 → .335). The fallback (MIXL, LAG 0.10) is milder: −4.0 points,
+   ×0.97.
+3. **On the operator's first-place-only goal the term works against him.** It is RECOMMENDED OFF for Week 5
+   (`UNION_MAIN_OWN_TILT` unset; reversible, class S, no code change). The operator decides (§5: NO DIFFERENCE → his
+   choice, told plainly).
+4. **Comparability:** MIX's absolute .362 is on the 36 slates of 2023–24, so it is not comparable with study 28's .296
+   on 53.
+5. **Transfer:** our projections, while the live term sits on FP's. The predictor is a stand-in.
