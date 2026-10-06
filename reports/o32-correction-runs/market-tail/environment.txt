@@ -1,0 +1,15 @@
+study market-tail
+commit 680f2212292ad80e93a1c4a2613fc05d6f5bdf97
+started_utc 2026-10-06T00:34:23Z
+host Erich
+python 3.14.4
+panel 20260809-e80-k1-ce12-c616390
+google-cloud-bigquery==3.45.2
+lightgbm==4.7.0
+nflreadpy==0.1.5
+numpy==2.5.3
+pandas==3.0.5
+polars==1.44.2
+scikit-learn==1.9.1
+scipy==1.18.1
+finished_utc 2026-10-06T00:35:06Z

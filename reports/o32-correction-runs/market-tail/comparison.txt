@@ -1,0 +1,32 @@
+O-32 market-tail: original (Cloud) | local uncorrected | local corrected   (* = in the reproduction decision)
+* disposition                                             market-tail-mechanism- market-tail-mechanism- market-tail-mechanism-
+* gate.coverage_passes                                                      True                   True                   True
+* gate.heldout_brier20_not_worse_over_1pct                                  True                   True                   True
+* gate.heldout_brier30_improves                                            False                  False                  False
+* gate.heldout_mae_not_worse_over_1pct                                      True                   True                   True
+* gate.heldout_wr_te_brier30_not_worse_over_1pct                            True                   True                   True
+* gate.positive_separation_2024                                            False                  False                  False
+* gate.positive_separation_2025                                             True                   True                   True
+* gate.positive_separation_aggregate                                        True                   True                   True
+* heldout_overall.control_brier20                            0.10312537649518223    0.10312537649518223    0.10350234373064839
+* heldout_overall.control_brier30                           0.030529470852238973   0.030529470852238973   0.030653319789015553
+* heldout_overall.control_mae                                  5.486305232518593      5.486305232518593     5.4895070015217495
+* heldout_overall.rows                                                      1700                   1700                   1693
+* heldout_overall.treatment_brier20                          0.10315409320451295    0.10315409320451295    0.10354104099468985
+* heldout_overall.treatment_brier30                         0.030540829747433555   0.030540829747433555      0.030664924481993
+* heldout_overall.treatment_mae                                5.479527809077609      5.479527809077609     5.4828503108649915
+* heldout_rows                                                              1700                   1700                   1693
+* training_rows                                                             1576                   1576                   1568
+  game_day_active.dropped_no_roster_row                                        -                      -                      0
+  game_day_active.dropped_not_act                                              -                      -                   7648
+  game_day_active.rows_in                                                      -                      -                  18700
+  game_day_active.rows_kept                                                    -                      -                  11052
+  game_day_active.rule                                                         -                      - O-32 game-day rosters_
+  heldout_overall.tail20_rate                                0.14705882352941177    0.14705882352941177    0.14766686355581807
+  heldout_overall.tail30_rate                               0.033529411764705884   0.033529411764705884    0.03366804489072652
+  source_audit.ambiguous_snapshot_names_dropped                                0                      0                      0
+  source_audit.matched_prop_rows_before_ladder_collapse                    45694                  45694                  45548
+  source_audit.valid_ladders                                                4191                   4191                   4175
+
+REPRODUCTION (uncorrected vs original, rel tol 0.0001): REPRODUCED
+CORRECTION: disposition market-tail-mechanism-gate-fails -> market-tail-mechanism-gate-fails
