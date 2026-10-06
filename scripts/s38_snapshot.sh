@@ -14,7 +14,8 @@
 # Wednesday rehearsal (A3): DEST=~/private/paper-corun/rehearsal-w05
 set -uo pipefail
 UD=${1:?union run dir}; OUT=${2:?OUT}; TAG=${3:?RUN_TAG}; DETAILS=${4:?contest-details json}; OVR=${5:?plan-overrides json or -}; DEST=${6:?dest}
-die() { echo "SNAPSHOT REFUSED: $*"; exit 1; }
+CREATED=0
+die() { echo "SNAPSHOT REFUSED: $*"; (( CREATED )) && echo "SNAPSHOT FAILED (partial, not usable): $*" > "$DEST/SNAPSHOT-FAILED.txt"; exit 1; }
 [[ -e "$DEST" ]] && die "$DEST exists (create-once; pick a new dest)"
 [[ "$DEST" == "$HOME"/week*-sunday* ]] && die "never under ~/weekN-sunday"
 ARGS="$OUT/union-args-$TAG.txt"
@@ -28,6 +29,12 @@ a = shlex.split(open(sys.argv[1]).read()); k = sys.argv[2]
 print(a[a.index(k) + 1] if k in a else "")
 EOF
 }
+# R2 (reviewer 10-06): pre-lock by content -- the union receipt's lock_utc; refuse at or after it
+LOCK=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1])).get('lock_utc') or '')" "$UD/receipt.json")
+[[ -n "$LOCK" ]] || die "the union receipt carries no lock_utc"
+TAKEN=${S38_NOW:-$(date -u +%Y-%m-%dT%H:%M:%SZ)}
+python3 -c "import sys; from datetime import datetime as D; t=D.fromisoformat(sys.argv[1].replace('Z','+00:00')); l=D.fromisoformat(sys.argv[2].replace('Z','+00:00')); sys.exit(0 if t < l else 1)" "$TAKEN" "$LOCK" \
+  || die "the snapshot time $TAKEN is at or after the lock $LOCK (pre-lock inputs only)"
 PSRC=$(argval --proj-source); OSRC=$(argval --main-own-source); DSRC=$(argval --dk-status)
 [[ -n "$PSRC" ]] || die "the union args name no --proj-source (FP projections fell back?): no FP week for study 38"
 cmp -s "$PSRC" "$OUT/proj_fp-$TAG.csv" || die "--proj-source $PSRC differs from $OUT/proj_fp-$TAG.csv"
@@ -38,12 +45,14 @@ else
   : "${SEASON:?}" "${WEEK:?}" "${PROD:?}" "${PROD_PY:?}"; [[ -s "$OUT/ownership_lag.csv" ]] || die "no $OUT/ownership_lag.csv for the export"
 fi
 mkdir -p "$DEST" && chmod 700 "$DEST" || die "cannot create $DEST"
-cp -p "$UD/frame.parquet" "$DEST/frame.parquet"
-cp -p "$PSRC" "$DEST/proj_fp-$TAG.csv"; cp -p "$OUT/proj_fp-$TAG.csv.json" "$DEST/proj_fp-$TAG.csv.json"
+CREATED=1
+cp -p "$UD/frame.parquet" "$DEST/frame.parquet" || die "copy failed: frame.parquet"
+cp -p "$PSRC" "$DEST/proj_fp-$TAG.csv" || die "copy failed: proj_fp-$TAG.csv"
+cp -p "$OUT/proj_fp-$TAG.csv.json" "$DEST/proj_fp-$TAG.csv.json" || die "copy failed: proj_fp-$TAG.csv.json"
 if [[ -n "$OSRC" ]]; then
-  cp -p "$OSRC" "$DEST/$(basename "$OSRC")"
+  cp -p "$OSRC" "$DEST/$(basename "$OSRC")" || die "copy failed: $(basename "$OSRC")"
 else
-  NOWS=$(date -u +%Y-%m-%dT%H:%M:%SZ); OGEN="$DEST/ownership_fp-$TAG.csv"
+  NOWS=$TAKEN; OGEN="$DEST/ownership_fp-$TAG.csv"
   if [[ "${S38_NO_COLLECT:-0}" != 1 ]]; then
     LOCK=${FP_PROFILE_LOCK:-$HOME/.cache/nfl-dfs/fantasy-points-profile.lock}; mkdir -p "$(dirname "$LOCK")"
     ( cd "$PROD" && PYTHONPATH="$PROD/src" flock -w 300 "$LOCK" timeout 240 "$PROD_PY" -m nfl_dfs.ops.fantasy_points_ownership collect --week "$WEEK" ) \
@@ -57,20 +66,22 @@ else
   OSRC_LABEL="(generated after the T-70 union by ownership_fp.py, --now ${S38_NOW:-$NOWS}; capture: $(grep -h '^FP OWNERSHIP AGE' "$DEST/.ownership_export.log" 2>/dev/null | tail -1 | tr -s ' ' | cut -c1-120))"
 fi
 # production passes no --dk-status (OPEN-DEFECTS O-16): then NO dk-status file is copied and the build must use none
-[[ -n "$DSRC" ]] && cp -p "$DSRC" "$DEST/$(basename "$DSRC")"
-cp -p "$ARGS" "$DEST/union-args-$TAG.txt"             # ONE union-args file (never also the union dir's union_args.txt)
-cp -p "$OUT/contests.json" "$DEST/contests.json"
-cp -p "$DETAILS" "$DEST/contest-details.json"
-if [[ "$OVR" == "-" ]]; then printf '{}\n' > "$DEST/plan-overrides.json"; else cp -p "$OVR" "$DEST/plan-overrides.json"; fi
+if [[ -n "$DSRC" ]]; then cp -p "$DSRC" "$DEST/$(basename "$DSRC")" || die "copy failed: $(basename "$DSRC")"; fi
+cp -p "$ARGS" "$DEST/union-args-$TAG.txt" || die "copy failed: union-args-$TAG.txt"   # ONE union-args file (never also union_args.txt)
+cp -p "$OUT/contests.json" "$DEST/contests.json" || die "copy failed: contests.json"
+cp -p "$DETAILS" "$DEST/contest-details.json" || die "copy failed: contest-details.json"
+if [[ "$OVR" == "-" ]]; then printf '{}\n' > "$DEST/plan-overrides.json" || die "write failed: plan-overrides.json"; else cp -p "$OVR" "$DEST/plan-overrides.json" || die "copy failed: plan-overrides.json"; fi
+# R2(b): the union receipt, so the build verifies the snapshot was taken before lock_utc by content
+cp -p "$UD/receipt.json" "$DEST/union-receipt.json" || die "copy failed: union-receipt.json"
 BUILT=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1])).get('built_utc'))" "$UD/receipt.json")
 NOW=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 OVR_SRC=$OVR; [[ "$OVR" == "-" ]] && OVR_SRC="(written: {})"
 {
-  echo "# study 38 snapshot: union $UD (built_utc $BUILT), OUT $OUT, RUN_TAG $TAG; taken $NOW"
+  echo "# study 38 snapshot: union $UD (built_utc $BUILT; lock_utc $LOCK), OUT $OUT, RUN_TAG $TAG; taken $TAKEN"
   echo "# sha256  bytes  name  source  source_mtime_utc"
   declare -A SRC=([frame.parquet]="$UD/frame.parquet" ["proj_fp-$TAG.csv"]="$PSRC" ["proj_fp-$TAG.csv.json"]="$OUT/proj_fp-$TAG.csv.json"
                   ["union-args-$TAG.txt"]="$ARGS" [contests.json]="$OUT/contests.json"
-                  [contest-details.json]="$DETAILS" [plan-overrides.json]="$OVR_SRC")
+                  [contest-details.json]="$DETAILS" [plan-overrides.json]="$OVR_SRC" [union-receipt.json]="$UD/receipt.json")
   [[ -n "$DSRC" ]] && SRC["$(basename "$DSRC")"]="$DSRC"
   if [[ -n "$OSRC" ]]; then SRC["$(basename "$OSRC")"]="$OSRC"; else SRC["ownership_fp-$TAG.csv"]="${OSRC_LABEL:-}"; SRC["ownership_fp-$TAG.csv.receipt.json"]="(written by ownership_fp.py with the export)"; fi
   for n in $(ls "$DEST" | sort); do
@@ -81,5 +92,5 @@ OVR_SRC=$OVR; [[ "$OVR" == "-" ]] && OVR_SRC="(written: {})"
   done
 } > "$DEST/MANIFEST.txt"
 chmod 600 "$DEST"/*
-echo "snapshot written: $DEST ($(($(ls "$DEST" | wc -l) - 1)) files + MANIFEST.txt; union built_utc $BUILT; taken $NOW)"
+echo "snapshot written: $DEST ($(($(ls "$DEST" | wc -l) - 1)) files + MANIFEST.txt; union built_utc $BUILT; taken $TAKEN; lock $LOCK)"
 cat "$DEST/MANIFEST.txt"

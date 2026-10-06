@@ -12,7 +12,7 @@ def _setup(tmp_path: Path, own: bool = True, proj: bool = True, proj_copy_differ
     ud, out = tmp_path / "ud", tmp_path / "out"
     ud.mkdir(); out.mkdir()
     (ud / "frame.parquet").write_text("frame")
-    (ud / "receipt.json").write_text('{"built_utc": "2026-10-11T15:55:00Z"}')
+    (ud / "receipt.json").write_text('{"built_utc": "2026-10-11T15:55:00Z", "lock_utc": "2099-01-01 17:00:00+00:00"}')
     (out / "proj_fp-T.csv").write_text("proj")
     (out / "proj_fp-T.csv.json").write_text("{}")
     (out / "ownership_fp-T.csv").write_text("own")
@@ -30,9 +30,9 @@ def _setup(tmp_path: Path, own: bool = True, proj: bool = True, proj_copy_differ
     return ud, out
 
 
-def _run(tmp_path, ud, out, dest, overrides="-"):
+def _run(tmp_path, ud, out, dest, overrides="-", env=None):
     return subprocess.run(["bash", str(SCRIPT), str(ud), str(out), "T", str(tmp_path / "details.json"), overrides, str(dest)],
-                          capture_output=True, text=True)
+                          capture_output=True, text=True, env=env)
 
 
 def test_happy_path_copies_one_file_per_pattern_and_manifests_every_sha(tmp_path):
@@ -41,7 +41,7 @@ def test_happy_path_copies_one_file_per_pattern_and_manifests_every_sha(tmp_path
     assert r.returncode == 0, r.stdout + r.stderr
     files = sorted(p.name for p in (tmp_path / "dest").iterdir() if not p.name.startswith("."))
     assert files == ["MANIFEST.txt", "contest-details.json", "contests.json", "frame.parquet", "ownership_fp-T.csv",
-                     "plan-overrides.json", "proj_fp-T.csv", "proj_fp-T.csv.json", "union-args-T.txt"]
+                     "plan-overrides.json", "proj_fp-T.csv", "proj_fp-T.csv.json", "union-args-T.txt", "union-receipt.json"]
     manifest = (tmp_path / "dest" / "MANIFEST.txt").read_text()
     for f in files:
         if f != "MANIFEST.txt":
@@ -74,3 +74,37 @@ def test_a_no_term_week_needs_the_export_env(tmp_path):
     r = subprocess.run(["bash", str(SCRIPT), str(ud), str(out), "T", str(tmp_path / "details.json"), "-", str(tmp_path / "dest")],
                        capture_output=True, text=True, env={"PATH": "/usr/bin:/bin", "HOME": str(Path.home())})
     assert r.returncode != 0 and "no-term week" in r.stdout          # SEASON/WEEK/PROD/PROD_PY unset: it stops, loudly
+
+
+def test_refuses_at_or_after_the_lock_by_the_union_receipt(tmp_path):
+    """Reviewer R2 (10-06): pre-lock by content; the lock comes from the union receipt and the snapshot time (or
+    S38_NOW) must be strictly before it. The receipt is kept as union-receipt.json for the build's own check."""
+    import os
+    ud, out = _setup(tmp_path)
+    (ud / "receipt.json").write_text('{"built_utc": "2026-10-11T15:55:00Z", "lock_utc": "2026-10-11 17:00:00+00:00"}')
+    env = {**os.environ, "S38_NOW": "2026-10-11T17:00:00Z"}
+    r = _run(tmp_path, ud, out, tmp_path / "dest", env=env)
+    assert r.returncode == 1 and "at or after the lock" in r.stdout and not (tmp_path / "dest").exists()
+    ok = _run(tmp_path, ud, out, tmp_path / "dest2", env={**os.environ, "S38_NOW": "2026-10-11T16:59:59Z"})
+    assert ok.returncode == 0, ok.stdout
+    assert (tmp_path / "dest2" / "union-receipt.json").read_text() == (ud / "receipt.json").read_text()
+    norec = tmp_path / "c"; norec.mkdir(); ud3, out3 = _setup(norec)
+    (ud3 / "receipt.json").write_text('{"built_utc": "x"}')
+    r3 = _run(norec, ud3, out3, norec / "dest")
+    assert r3.returncode == 1 and "no lock_utc" in r3.stdout
+
+
+def test_a_failed_copy_stops_the_tool(tmp_path):
+    """Reviewer R1 (10-06): without set -e a failed cp continued and printed 'snapshot written' over a partial copy."""
+    import os
+    if os.geteuid() == 0:
+        import pytest
+        pytest.skip("root reads unreadable files")
+    ud, out = _setup(tmp_path)
+    (out / "contests.json").chmod(0)
+    try:
+        r = _run(tmp_path, ud, out, tmp_path / "dest")
+    finally:
+        (out / "contests.json").chmod(0o644)
+    assert r.returncode == 1 and "copy failed: contests.json" in r.stdout and "snapshot written" not in r.stdout
+    assert (tmp_path / "dest" / "SNAPSHOT-FAILED.txt").exists() and not (tmp_path / "dest" / "MANIFEST.txt").exists()
