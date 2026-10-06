@@ -12,6 +12,27 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (12:45 CDT) — The operator's alternatives/volume question answered (descriptive); study 37 designed; the Neo4j loader branch fixed
+
+- **(a)** Study 36's cap costs through ALTERNATIVES, not stacks: every lineup keeps QB+1 and the bring-back. The
+  replacements' split (93% from another game) equals the slate's base rate, as the reviewer reproduced. The QB cap
+  (study 35) splits the top receivers from their QB (.27 → .21).
+- **(b)** The spread is CONSTRUCTION, not volume. At 26 lineups the regulars have about 2 players over 40% vs our 9.5,
+  53 vs 25 distinct, and 11 vs 6.75 QBs. Their fills are 2.4–3.2 projected points cheaper. The top receiver goes with
+  his QB about 60% of the time (ours 58%).
+  - Briefing `briefings/2026-week-05/2026-10-06-how-the-winners-spread.md` (`a02e2d97`, sent).
+  - Scripts in the laptop scratch: `s36_why_cost.py`, `s35_36_catcher_context.py`, `depth_lib2.py`,
+    `winners_depth2.py`, `winners_summary2.py`, `winners_replacements.py`, `ours_depth2.py`.
+  - Private data in `~/private/winners-depth/`.
+- **Study 37** (the reviewer's): DECISION MIXT_RS, the regulars' structure (a QB-breadth tier cap + a non-QB curve tier
+  cap), against MIXT_QA. Banks 1467–1472. Scored tonight; read Wednesday morning. Production needs new code, so Week 6
+  at the earliest.
+- **Neo4j loader** `production/milly-graph-users-20261006` @ `855379ee` (R1–R3 fixed, 112 tests).
+  - It loads `--users-file` (the 117-cohort, private) plus the top 1,000 per week.
+  - Run Wednesday after A1–A3, outside build windows.
+- **Studies 35 + 36 records** merged (`52e53d90`). The decision sheet carries rows 10 (QB cap, his yes) and 11 (player
+  cap: keep 0.5).
+
 ## 2026-10-06 (11:58 CDT) — Study 36's binding census ACKED (byte-identical); the arm-script gate (QB cap rides with mixt only)
 
 - **Study 36** (a stricter general player cap on his yes-book):
