@@ -12,6 +12,38 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (16:55 CDT) — Expedited test plan (operator); study 41 PASS reproduced, ms4 held for the field check; fill order: round-robin added, best-first not armed
+
+**The operator (16:40):** "let's plan on an expedited schedule for testing all of these. I want to try all that we can unless
+there's a valid reason not to before week 5". The plan is `briefings/2026-week-05/2026-10-06-expedited-test-plan.md`. The
+reviewer accepted it and owns studies 42 (fill order), 43 (a row in every top-4-total game), 44 (shape by contest type) and
+the §6.1 field audit (moved up to tonight). The laptop owns the replays and the light checks.
+
+- **Study 41 (overlap 4 vs 5): PASS**, +0.05905 [+0.01096, +0.11176]; guards held. READ 9095e875 reproduced byte-identically
+  (reader a5dc8be7 at lab cbeeb7c, production src on the path; bank shas = RAW_MANIFEST). Records merged (`f8f4e80f`;
+  LEDGER lab a9ce129).
+- **W2–4 fixed-book replay** at the armed W5 settings, production `907e5807` / `abed460a`. Scratch
+  `~/rehearsals/fill-20261006T214811Z` and `fill-20261006T215350Z`.
+  - group5 is byte-identical to the outside screen's ms5 books (W2–4), so the default fill is today's book.
+  - Mean entry pct (avg of 3 weeks): group5 .497, group4 .492, rr5 .503, rr4 .481, value5 .445, value4 .471.
+  - P(≥1 big): group5 .908/.310/.343 beats every alternative in most weeks. Each alternative shares only 0–5 of 26 rows with
+    it, and the live W2 book holds one 185-point top-1% row. Mostly single-row luck.
+  - **ms4 decision HELD** until the reviewer's §6.1 check: score these books on a field the harness samples from each week's
+    real ownership. Thursday at the latest, at no cost to W5. Friday's rehearsal can run at 4 or 5.
+- **Fill order.** The outside reviewer objects (`a8441da1` merged their record): the winners' shape follows the game script,
+  not the QB, so a capped QB's rows should cover shapes.
+  - Production now has `--mix-fill rr` (`abed460a`), parity-pinned to the lab's RR. Study 42 is asked to re-add RR as a
+    decision arm (the operator's "disagreement → both arms" rule).
+  - **Best-first (value) is not armed for W5 unless the real-week gap is explained.** The laptop agrees with the outside
+    reviewer.
+  - `mix-fill-value` 907e5807 APPROVED; the rr delta awaits review. Merge into integration after it.
+- **OPRK cannot be tested on past weeks:** DK revised past draftables after the games (W2–4: about half the players'
+  dk_ppg differ from our pre-lock pulls; W1 unchanged). The capture starts Saturday
+  (`~/private/dk-draftables/2026-w05/`).
+- **New O-38** (the outside reviewer): the double-stale-FP fallback should be stale FP plus the inactive-teammate bumps,
+  not ours. Week 6.
+- **Running:** study 42 smoke → census → freeze → scored (reviewer); the §6.1 field check (reviewer); the favorite-RB check
+  (laptop subagent, read-only).
 ## 2026-10-06 (16:39 CDT) — The fill order is a Week-5 candidate: study 42 harness ready; production switch built (not armed)
 
 **Why:** the operator asked, "are we putting our best strategy first for a given QB?" It was verified NOT done: production fills
