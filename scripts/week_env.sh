@@ -152,6 +152,10 @@ week_env() {
   # With UNION_MAIN=mix, which study-18 portfolio: mix (four cells) or ws (the whole-book WS shape that PASSED). NO
   # default (reviewer 10-05): a missed line must never silently arm the other arm; check_week_runtime requires it.
   export UNION_MIX_PORTFOLIO=${UNION_MIX_PORTFOLIO-}
+  # With UNION_MAIN=mix: spare rows solved after the book (same running caps, caps from the book's entries), added to the
+  # candidate corpus as the Sunday replacement step's in-shape supply -- no house candidate fits WS (reviewer 2026-10-06,
+  # blocking). 15 = study 24's sizing (deepest spare drawn 9). Never book rows.
+  export UNION_MIX_SPARES=${UNION_MIX_SPARES-15}
   # Operator 2026-09-28 14:3x: the 25% DST cap on the pmo_x50 main book, and the deep-line sleeve may draw from its rows.
   export UNION_MAIN_DST_CAP=${UNION_MAIN_DST_CAP-0.25} UNION_SLEEVE_INCLUDES_MAIN=${UNION_SLEEVE_INCLUDES_MAIN-1}
   # The main book's per-player exposure cap as a share of K (0.5 = L13's PMO_X50, as entered; L17 09-29: looser is HARMFUL).

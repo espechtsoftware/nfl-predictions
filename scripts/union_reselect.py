@@ -453,12 +453,19 @@ def apply_proj_source(fr: pd.DataFrame, csv_path: Path, frame_path: Path) -> tup
 
 def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap: int | None, min_salary: int,
              weights: list[int], exposure_cap: int | None = None, dst_cap: int | None = None,
-             bonus: dict[str, float] | None = None, portfolio: str = "mix") -> tuple[list[list[str]], list[str], dict]:
+             bonus: dict[str, float] | None = None, portfolio: str = "mix",
+             spares: int = 0) -> tuple[list[list[str]], list[str], dict, list[tuple[list[str], str]]]:
     """study 18's MIX book on the T-70 frame: cells solved largest first (ties: the earlier cell) through ONE shared state
     (banned lineups, the per-player exposure cap, the DST cap, <= max_shared with every earlier row); a cell row that cannot
     be solved passes to A1 (counted); then the rows are ordered by the entry-weighted interleave of the plan's weights.
-    Returns (rows in book order, each row's cell, meta). s18's mix_book with production's objective (mean_projection, or
-    mean_projection + the ownership term with bonus), production's caps and env."""
+    Returns (rows in book order, each row's cell, meta, spares). s18's mix_book with production's objective
+    (mean_projection, or mean_projection + the ownership term with bonus), production's caps and env.
+    spares (reviewer 2026-10-06, the blocking finding: a WS row could not be replaced on Sunday, since no house candidate
+    fits WS): AFTER the k book rows, `spares` more rows are solved through the SAME running state (banned lineups, counts),
+    with the caps the caller computed from the book's entries (never from k + spares), allocated over the cells by quota
+    (ws: all WS), with the same pass to A1. They are never book rows: the caller adds them to the candidate corpus as the
+    Sunday replacement step's in-shape supply. A short spare tail is not a refusal (meta records requested / built). The
+    book rows are identical with or without spares (they are solved first)."""
     from nfl2.core.lineup import StackRules, optimize          # the pinned lab clone on PYTHONPATH (>= f69598b)
     pool = [p for i, p in frame_players(t70).items() if i not in exclude]
     objective = "proj"
@@ -502,6 +509,18 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
                 break
             rows[cell].append(ids)
     got = [len(rows[n]) for n in names]
+    spare_rows: list[tuple[list[str], str]] = []
+    if spares:
+        s_target = mix_allocate(quotas, spares)
+        for i in sorted(range(len(names)), key=lambda i: (-s_target[i], i)):
+            for _ in range(s_target[i]):
+                cell, ids = names[i], solve(names[i])
+                if ids is None and "A1" in cells:
+                    cell = "A1"
+                    ids = solve("A1")
+                if ids is None:
+                    break
+                spare_rows.append((ids, cell))
     seq = mix_interleave(got, quotas, weights)
     pos = [0] * len(names); book, cell_of = [], []
     for j in seq:
@@ -515,9 +534,11 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
             "entry_shares_before_overlap_limit": {n: round(dealt[n] / tot, 4) if tot else None for n in names},
             "rules": {n: {"quota": cells[n][0], "stack": cells[n][1], "qb_game_max": cells[n][2],
                           "second_game_pair": cells[n][3]} for n in names}, "portfolio": portfolio,
+            "spares": {"requested": int(spares), "built": len(spare_rows), "cells": dict(Counter(c for _, c in spare_rows)),
+                       "caps_from_book_entries": k},
             "source": ("nfl2 experiments/s18_stack_shapes.py @ 5869a1b (CELLS, allocate, interleave, mix_book)" if portfolio == "mix"
                        else "nfl2 experiments/s18_stack_shapes.py @ 5869a1b (WS, whole_book; PASSED, Addendum 129)")}
-    return book, cell_of, meta
+    return book, cell_of, meta, spare_rows
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -565,6 +586,10 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--mix-portfolio", choices=sorted(PORTFOLIOS), default=None,
                     help="with --main mix: mix = study 18's four-cell MIX; ws = study 18's WS (one whole-book cell; PASSED)")
     ap.add_argument("--mix-plan", type=Path, default=None, help="with --main mix: the week's contests.json (the interleave's entry weights)")
+    ap.add_argument("--mix-spares", type=int, default=0,
+                    help="with --main mix: spare rows solved after the book under the same running caps (caps from --entries), "
+                         "added to the candidate corpus (source mix_spare, tagged with their cell) as the Sunday replacement "
+                         "step's in-shape supply; never book rows (reviewer 2026-10-06; study 24 sized S = 15)")
     ap.add_argument("--mix-layout", choices=["sequential", "top", "head", "spread"], default="head",
                     help="with --main mix: the layout enter_layout deals with (ENTER_LAYOUT)")
     ap.add_argument("--sleeve-source", choices=["mean", "field"], default="mean",
@@ -598,6 +623,10 @@ def main(argv: list[str] | None = None) -> int:
         raise SystemExit("--main mix needs --mix-portfolio mix|ws (no default: the chosen arm, stated)")
     if a.main == "mix" and a.main_game_cap != "off":
         raise SystemExit("--main-game-cap (study 1) is not defined with --main mix")
+    if not 0 <= a.mix_spares <= 50:
+        raise SystemExit(f"--mix-spares must be 0..50 (got {a.mix_spares})")
+    if a.mix_spares and a.main != "mix":
+        raise SystemExit("--mix-spares is defined with --main mix only")
     from nfl2.two_track import select_top_mean, tail_probability   # the pinned lab clone on PYTHONPATH
     from nfl2.live import dk_csv
     from nfl2.validator import validate_roster
@@ -711,10 +740,14 @@ def main(argv: list[str] | None = None) -> int:
         bonus, own_meta = own_bonus(a.main_own_source, fr, excl, a.main_own_tilt, a.main_own_min_coverage) if a.main_own_tilt else ({}, {})
         t_pmo = _time.time()
         plain_tags = main_tags = None
+        spare_rows: list = []
         if a.main == "mix":
             weights = mix_weights(a.mix_plan, a.entries, a.mix_layout)
-            plain_rows, plain_cells, mix_meta = mix_rows(fr, excl, a.entries, a.mean_max_shared, cap, a.min_salary, weights,
-                                                         exposure_cap=xcap, dst_cap=dcap, portfolio=a.mix_portfolio)
+            plain_rows, plain_cells, mix_meta, plain_spares = mix_rows(fr, excl, a.entries, a.mean_max_shared, cap, a.min_salary,
+                                                                       weights, exposure_cap=xcap, dst_cap=dcap,
+                                                                       portfolio=a.mix_portfolio,
+                                                                       spares=0 if bonus else a.mix_spares)
+            spare_rows = plain_spares
             plain_tags = [TAG_PREFIX + c for c in plain_cells]; main_tags = plain_tags
             mix_meta.update({"plan": str(a.mix_plan), "plan_sha256": sha256_file(a.mix_plan), "layout": a.mix_layout,
                              "weights_nonzero_ranks": sum(1 for w in weights if w), "weights_entries": sum(weights)})
@@ -734,8 +767,9 @@ def main(argv: list[str] | None = None) -> int:
         if bonus:
             t_own = _time.time()
             if a.main == "mix":
-                main_rows, main_cells, own_mix = mix_rows(fr, excl, a.entries, a.mean_max_shared, cap, a.min_salary, weights,
-                                                          exposure_cap=xcap, dst_cap=dcap, bonus=bonus, portfolio=a.mix_portfolio)
+                main_rows, main_cells, own_mix, spare_rows = mix_rows(fr, excl, a.entries, a.mean_max_shared, cap, a.min_salary,
+                                                                      weights, exposure_cap=xcap, dst_cap=dcap, bonus=bonus,
+                                                                      portfolio=a.mix_portfolio, spares=a.mix_spares)
                 main_tags = [TAG_PREFIX + c for c in main_cells]; mix_meta["with_term"] = own_mix
             else:
                 main_rows = pmo_rows(fr, excl, a.entries, a.mean_max_shared, cap, a.min_salary, set(), exposure_cap=xcap, dst_cap=dcap, bonus=bonus,
@@ -764,6 +798,29 @@ def main(argv: list[str] | None = None) -> int:
             for k in range(base, base + len(plain_rows)):
                 if k not in in_book:
                     source[k] = f"{a.main}_control"
+        if a.main == "mix" and a.mix_spares:
+            # the spares (the book's own objective: built by the call that built the book) join the corpus LAST -- past the
+            # plain rows the sleeve reads and past every book row -- as the replacement step's in-shape supply. Each is
+            # re-checked here (DK legality, its cell's shape, the salary floor); a failing spare is dropped LOUDLY, never
+            # written (the audit would fail the whole build on it), and never a refusal of the book.
+            from nfl_dfs.inference.mix_shapes import shape_violations as _spare_v
+            _st = dict(zip(fr.id.astype(str), fr.team.astype(str))); _so = dict(zip(fr.id.astype(str), fr.opp.astype(str)))
+            _sg = dict(zip(fr.id.astype(str), fr.game_id.astype(str)))
+            _ss = dict(zip(fr.id.astype(str), pd.to_numeric(fr.salary, errors="coerce").fillna(0).astype(int)))
+            dropped = []
+            for ids, cell in spare_rows:
+                v = list(validate_roster(ids, pos, _st, _so, _ss)) + list(_spare_v(ids, cell, pos, _st, _so, _sg))
+                if v or sum(_ss[p] for p in ids) < a.min_salary:
+                    dropped.append({"cell": cell, "problems": v or ["salary floor"]})
+                    continue
+                rosters.append(ids); source.append(f"{a.main}_spare"); tags.append(TAG_PREFIX + cell); sat_cand.append(None)
+            if dropped:
+                print("!" * 80 + f"\n!!! {len(dropped)} MIX SPARE ROW(S) DROPPED (failed their re-check): {dropped[:2]}\n" + "!" * 80, flush=True)
+            mix_meta["spares"] = {"requested": a.mix_spares, "built": len(spare_rows), "written": len(spare_rows) - len(dropped),
+                                  "dropped": dropped, "objective": "with the ownership term" if bonus else "plain",
+                                  "caps_from_book_entries": a.entries, "source": f"{a.main}_spare"}
+            if len(spare_rows) - len(dropped) < a.mix_spares:
+                print(f"MIX SPARES: {len(spare_rows) - len(dropped)} of {a.mix_spares} written (a short spare tail is not a refusal)", flush=True)
         frozen = [frozenset(r) for r in rosters]; score = projected_sum(rosters, proj)
         sleeve_score = np.where(np.arange(len(rosters)) < (sleeve_until if a.sleeve_includes_main else base), score, -np.inf)
         if bonus:

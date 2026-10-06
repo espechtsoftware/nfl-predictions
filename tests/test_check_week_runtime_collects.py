@@ -141,3 +141,12 @@ def test_union_mix_portfolio_must_be_mix_or_ws(tmp_path):
     assert any("UNION_MIX_PORTFOLIO='thesis' must be mix or ws" in f for f in _failures(_run(env)))
     env.pop("UNION_MIX_PORTFOLIO"); env["UNION_MAIN"] = "mix"        # reviewer 10-05: no silent default arm
     assert any("UNION_MAIN=mix needs UNION_MIX_PORTFOLIO=mix|ws" in f for f in _failures(_run(env)))
+
+
+def test_union_mix_spares_must_be_0_to_50_and_not_0_with_a_mix_main(tmp_path):
+    env = _healthy(tmp_path); env["UNION_MIX_SPARES"] = "15"
+    assert not any("UNION_MIX_SPARES" in f for f in _failures(_run(env)))
+    env["UNION_MIX_SPARES"] = "lots"
+    assert any("UNION_MIX_SPARES='lots' must be an integer 0..50" in f for f in _failures(_run(env)))
+    env["UNION_MIX_SPARES"] = "0"; env["UNION_MAIN"] = "mix"; env["UNION_MIX_PORTFOLIO"] = "ws"
+    assert any("UNION_MIX_SPARES=0 with UNION_MAIN=mix" in f for f in _failures(_run(env)))

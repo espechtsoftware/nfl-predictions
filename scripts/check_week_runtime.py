@@ -132,6 +132,11 @@ def check_clone_levers(clone, tail_sleeve):
         fail(f"UNION_MIX_PORTFOLIO={os.environ.get('UNION_MIX_PORTFOLIO')!r} must be mix or ws")
     elif os.environ.get("UNION_MAIN") == "mix" and not os.environ.get("UNION_MIX_PORTFOLIO"):
         fail("UNION_MAIN=mix needs UNION_MIX_PORTFOLIO=mix|ws (no default: the operator's chosen arm, stated)")
+    _spares = os.environ.get("UNION_MIX_SPARES", "")
+    if _spares and not (_spares.isdigit() and 0 <= int(_spares) <= 50):
+        fail(f"UNION_MIX_SPARES={_spares!r} must be an integer 0..50")
+    elif os.environ.get("UNION_MAIN") == "mix" and _spares == "0":
+        fail("UNION_MIX_SPARES=0 with UNION_MAIN=mix leaves a WS row with no in-shape replacement on Sunday (reviewer 10-06)")
     if os.environ.get("UNION_PROJ_SOURCE", "") not in ("", "fp"):
         fail(f"UNION_PROJ_SOURCE={os.environ.get('UNION_PROJ_SOURCE')!r} must be empty (ours) or fp")
     elif os.environ.get("UNION_PROJ_SOURCE") == "fp" and not os.environ.get("UNION_SATURDAY_RUN"):

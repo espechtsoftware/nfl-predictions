@@ -213,7 +213,7 @@ def test_mix_rows_equals_study_18s_mix_book_row_for_row(monkeypatch):
     fr = _frame(); k = 21; weights = W_DRAFT_A[:k]
     prod_calls, s18_calls = [], []
     _install(monkeypatch, prod_calls)
-    rows, cells, meta = ur.mix_rows(fr, set(), k, 7, 4, 49_000, weights, exposure_cap=10, dst_cap=5)
+    rows, cells, meta, _ = ur.mix_rows(fr, set(), k, 7, 4, 49_000, weights, exposure_cap=10, dst_cap=5)
     book, cell_of, passes = _s18_mix_book(fr, fr.mean_projection.to_numpy(), 0.0, weights, k, _stand_in(s18_calls), 10, 5, 7)
     assert [frozenset(r) for r in rows] == [lu.ids for lu in book] and cells == cell_of
     assert meta["passes_to_A1"] == passes > 0                             # the stand-in made C pass to A1
@@ -228,10 +228,10 @@ def test_with_the_term_only_the_objective_differs(monkeypatch):
     fr = _frame(); k = 21; weights = W_DRAFT_A[:k]
     plain, term = [], []
     _install(monkeypatch, plain)
-    r0, c0, _ = ur.mix_rows(fr, set(), k, 7, 4, 49_000, weights, exposure_cap=10, dst_cap=5)
+    r0, c0, _, _ = ur.mix_rows(fr, set(), k, 7, 4, 49_000, weights, exposure_cap=10, dst_cap=5)
     _install(monkeypatch, term)
     bonus = {f"p{j}": 1.0 for j in range(40)}                             # a constant term keeps the order, so the rows match
-    r1, c1, _ = ur.mix_rows(fr, set(), k, 7, 4, 49_000, weights, exposure_cap=10, dst_cap=5, bonus=bonus)
+    r1, c1, _, _ = ur.mix_rows(fr, set(), k, 7, 4, 49_000, weights, exposure_cap=10, dst_cap=5, bonus=bonus)
     assert r0 == r1 and c0 == c1
     strip = lambda cs: [{x: c[x] for x in ("stack", "pair", "qmax", "bans", "n_prev", "env", "max_overlap")} for c in cs]  # noqa: E731
     assert strip(plain) == strip(term)
@@ -241,7 +241,7 @@ def test_with_the_term_only_the_objective_differs(monkeypatch):
 def test_mix_rows_orders_by_the_interleave_and_reports_entry_shares(monkeypatch):
     fr = _frame(); weights = W_DRAFT_A[:21]
     _install(monkeypatch, [])
-    rows, cells, meta = ur.mix_rows(fr, set(), 21, 7, 4, 49_000, weights, exposure_cap=10, dst_cap=5)
+    rows, cells, meta, _ = ur.mix_rows(fr, set(), 21, 7, 4, 49_000, weights, exposure_cap=10, dst_cap=5)
     assert len(rows) == 21 == len(cells) and set(cells) <= set(M.MIX_CELLS)
     shares = meta["entry_shares_before_overlap_limit"]
     assert abs(sum(shares.values()) - 1) < 1e-9
@@ -294,7 +294,7 @@ def test_ws_portfolio_equals_study_18s_whole_book_ws(monkeypatch):
     fr = _frame(); k = 21; weights = W_DRAFT_A[:k]
     prod_calls, s18_calls = [], []
     _install(monkeypatch, prod_calls)
-    rows, cells, meta = ur.mix_rows(fr, set(), k, 7, 4, 49_000, weights, exposure_cap=10, dst_cap=5, portfolio="ws")
+    rows, cells, meta, _ = ur.mix_rows(fr, set(), k, 7, 4, 49_000, weights, exposure_cap=10, dst_cap=5, portfolio="ws")
     WS = (StackRules(qb_stack_min=1, bring_back_min=0), 3, "all")                          # s18's WS constant
     book = _s18_whole_book(fr, fr.mean_projection.to_numpy(), 0.0, WS, k, _stand_in(s18_calls), 10, 5, 7)
     assert [frozenset(r) for r in rows] == [lu.ids for lu in book] and set(cells) == {"WS"}
@@ -311,3 +311,39 @@ def test_ws_tags_and_shape():
     assert "no second-game pair" in M.shape_violations(no_pair, "WS", pos, team, opp, game)
     four = ["a_qb", "a_wr1", "a_wr2", "b_wr", "c_wr", "d_te", "e_rb", "f_wr", "c_dst"]       # 4 from the QB's game
     assert "4 players from the QB's game > 3" in M.shape_violations(four, "WS", pos, team, opp, game)
+
+
+# ---------------------------------------------------------------- spares (reviewer 2026-10-06, blocking: no house row fits WS)
+def test_spares_leave_the_book_unchanged_and_come_after_it(monkeypatch):
+    fr = _frame(); k = 21; weights = W_DRAFT_A[:k]
+    c0, c1 = [], []
+    _install(monkeypatch, c0)
+    r0, cells0, m0, s0 = ur.mix_rows(fr, set(), k, 7, 4, 49_000, weights, exposure_cap=10, dst_cap=5, portfolio="ws")
+    _install(monkeypatch, c1)
+    r1, cells1, m1, s1 = ur.mix_rows(fr, set(), k, 7, 4, 49_000, weights, exposure_cap=10, dst_cap=5, portfolio="ws", spares=15)
+    assert r0 == r1 and cells0 == cells1 and s0 == []                     # the book is solved first, byte-identical
+    assert c1[:len(c0)] == c0                                             # the same calls, then the spares' calls
+    assert len(s1) == 15 and {c for _, c in s1} == {"WS"} and m1["spares"] == {"requested": 15, "built": 15, "cells": {"WS": 15},
+                                                                                "caps_from_book_entries": k}
+    book_sets = {frozenset(r) for r in r1}
+    assert not any(frozenset(ids) in book_sets for ids, _ in s1)           # never book rows
+
+
+def test_spares_run_under_the_books_running_caps_from_its_entries(monkeypatch):
+    fr = _frame(); k = 21; weights = W_DRAFT_A[:k]
+    calls = []
+    _install(monkeypatch, calls)
+    rows, _, _, spares = ur.mix_rows(fr, set(), k, 7, 4, 49_000, weights, exposure_cap=10, dst_cap=5, portfolio="ws", spares=15)
+    count = Counter(p for r in rows for p in r)
+    for c, (ids, _) in zip(calls[k:], spares):                            # each spare solve bans exactly the players already
+        assert set(c["bans"]) >= {p for p, n in count.items() if n >= 10}   # at the book's cap (10 = from the entries, not k + S)
+        assert c["n_prev"] == sum(1 for _ in count.elements()) // 9         # every earlier row (book + spares) stays banned
+        count.update(ids)
+
+
+def test_mix_portfolio_spares_follow_the_quotas(monkeypatch):
+    fr = _frame(); k = 21; weights = W_DRAFT_A[:k]
+    _install(monkeypatch, [])
+    _, _, meta, spares = ur.mix_rows(fr, set(), k, 7, 4, 49_000, weights, exposure_cap=10, dst_cap=5, spares=10)
+    assert len(spares) == 10 and set(meta["spares"]["cells"]) <= set(M.MIX_CELLS)
+    assert meta["spares"]["cells"].get("A1", 0) >= 3                      # A1 0.30 of 10, plus any C passes to A1
