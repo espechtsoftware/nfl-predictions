@@ -230,6 +230,10 @@ def main():
     _fill = os.environ.get("UNION_MIX_FILL", "")
     if _fill and (_fill not in ("group", "value", "rr") or os.environ.get("UNION_MAIN") != "mix"):
         fail(f"UNION_MIX_FILL={_fill!r} must be group, value or rr, with UNION_MAIN=mix (got UNION_MAIN={os.environ.get('UNION_MAIN')!r})")
+    _cov = os.environ.get("UNION_MIX_COVER_GAMES", "")
+    if _cov and _cov != "0" and (not (_cov.isdigit() and 1 <= int(_cov) <= 8) or os.environ.get("UNION_MAIN") != "mix"
+                                 or os.environ.get("UNION_MIX_PORTFOLIO") != "mix"):
+        fail(f"UNION_MIX_COVER_GAMES={_cov!r} must be 0..8, with UNION_MAIN=mix and UNION_MIX_PORTFOLIO=mix (study 43)")
     _ms = os.environ.get("UNION_MEAN_MAX_SHARED", "")
     if _ms and not (_ms.isdigit() and 3 <= int(_ms) <= 8):
         fail(f"UNION_MEAN_MAX_SHARED={_ms!r} must be an integer 3..8 (players a union row may share with every earlier row)")
