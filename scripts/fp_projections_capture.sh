@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Capture Fantasy Points' projection tables (dfs, weekly, rankings-weekly, rankings-ros) for $WEEK: CAPTURE ONLY, nothing
-# in the build reads them (reviewer 2026-10-05; the operator's every-paid-page rule). FP serves the current week only,
+# Capture Fantasy Points' projection tables (dfs, weekly, rankings-weekly, rankings-ros) for $WEEK (the operator's
+# every-paid-page rule). Since Week 5 the union READS the newest dfs capture before its build (UNION_PROJ_SOURCE=fp). FP serves the current week only,
 # so a missed capture is lost for good: a failure prints one loud line and exits 1 (a failed unit).
 #
 # Wednesday is covered by `nfl-weekly-data run` (its fp-projections pages). This wrapper is the pre-lock pair: once at

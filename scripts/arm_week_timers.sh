@@ -19,7 +19,10 @@
 # 2026-10-05 (reviewer; every paid page, every week): the Fantasy Points projection tables are captured pre-lock by
 # scripts/fp_projections_capture.sh -- once at arming (--run, after every timer is armed; a failure is loud and does not
 # stop the arming) and by the unit nfl-week<W>-fp-projections at FP_PROJ_CT (default 10:40 CT: after the 10:30 inactives,
-# before the 10:50 T-70 build). SKIP_UNITS key: fpproj (skips both). Capture only; no build reads them.
+# before the 10:50 T-70 build) and a second unit nfl-week<W>-fp-projections-2 at FP_PROJ2_CT (default 10:46 CT; the
+# outside review 10-06: one 240-second attempt was the only post-inactives chance). SKIP_UNITS key: fpproj (skips all
+# three). The union's FP source (UNION_PROJ_SOURCE=fp) reads the newest capture before its build; the T-70 build refuses a
+# capture from before the 10:30 inactives and falls back to ours (operator 10-06).
 set -Eeuo pipefail
 
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
@@ -69,7 +72,7 @@ U3200="nfl-week${WEEK}-d3200-build"
 U800="nfl-week${WEEK}-t70-build"
 UW="nfl-week${WEEK}-watchers"
 UI="nfl-week${WEEK}-host-dk-ingest"
-UFPPROJ="nfl-week${WEEK}-fp-projections"
+UFPPROJ="nfl-week${WEEK}-fp-projections"; UFPPROJ2="nfl-week${WEEK}-fp-projections-2"
 
 GCP_PROJECT=${GCP_PROJECT:-nfl-predictions-503414}
 # GCP_PROJECT rides every unit: the Week-3 D12800 died in 5 s without it (systemd-run does not inherit the shell's env).
@@ -116,7 +119,7 @@ fi
 L800=("${BASE_ENV[@]}" "${T70_GATE[@]}" "PAID_LEV=$D800_LEV" "PAID_BOOM=$D800_BOOM" SKIP_PAIR=1 DOSE_FILE=/dev/null "RUN_TAG=$(tag 10:50 d800)" "$DRIVER")
 LW=("${BASE_ENV[@]}" "${WATCH_FLAGS[@]}" "$WATCHER")
 HI=("${BASE_ENV[@]}" "$INGEST_LOOP")
-FP_PROJ_CT=${FP_PROJ_CT:-10:40}
+FP_PROJ_CT=${FP_PROJ_CT:-10:40}; FP_PROJ2_CT=${FP_PROJ2_CT:-10:46}
 LFPPROJ=("${BASE_ENV[@]}" "$FP_PROJ_CAPTURE" sunday-prelock)
 GCLOUD=${GCLOUD:-$(command -v gcloud || echo "$HOME/google-cloud-sdk/bin/gcloud")}
 NFL_DFS_CLI=${NFL_DFS_CLI:-$PROD/.venv/bin/nfl-dfs}
@@ -216,6 +219,7 @@ arm d3200 "$SUNDAY 09:10" "$U3200" L3200
 arm t70 "$SUNDAY 10:50" "$U800" L800
 arm watchers "$SUNDAY 09:12" "$UW" LW
 arm fpproj "$SUNDAY $FP_PROJ_CT" "$UFPPROJ" LFPPROJ
+arm fpproj "$SUNDAY $FP_PROJ2_CT" "$UFPPROJ2" LFPPROJ
 if [[ -n "${EARLY_SUPPLY_CT:-}" ]]; then
   arm earlyrefresh "$SUNDAY $EARLY_PROPS_CT" "$UEPROPS" LEPROPS
   arm earlyrefresh "$SUNDAY $EARLY_PROJECT_CT" "$UEPROJ" LEPROJ
