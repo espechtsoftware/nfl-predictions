@@ -12,6 +12,23 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (12:47 CDT) — FP Week-4 Route Share (source_week 04 → target week 5): present, verified; the Week-5 gate check passes
+
+The 12:47 scheduled task. It was already captured and imported this morning (the operator-approved repair, 10:53 entry), so
+nothing was re-captured.
+- **Rows:** `nfl_raw.fantasy_points_route_share` season 2026 week 4: one source file, sha256 `8721038b47efde77…`, 264
+  rows, 263 resolved, ingested 2026-10-06 15:45:02Z. The preliminary `07aed99f` rows were deleted in the repair and
+  backed up privately.
+- **Archive (create-once, content-addressed):**
+  `gs://nfl-predictions-503414-raw/licensed/fantasy-points/route-share/season=2026/source_week=04/sha256=8721038b…/route-share__season-2026__weeks-04__target-week-05.csv`,
+  28,842 bytes. The downloaded bytes hash to `8721038b…` (= the path). The preliminary `07aed99f` object stays archived
+  as a record (28,602 bytes).
+- **Earlier weeks, for the gate:** W1 265/265 (`07642ab6`), W2 267/266 (`1e57084d`), W3 274/273 (`9b822bbb`).
+- **The gate's own check:** `route_share_shadow.require_prior_week_source(2026, 5)` → PASS. So Thursday's O-25 treatment
+  dry run and Sunday's graded freeze have their source.
+- **Revisions:** the route-guards merged today stop a later FP revision loudly (RouteRevisionError: stored rows kept, a
+  banner and a deficiency draft) when Wednesday's weekly run re-captures. Every other paid FP page is captured by that run.
+
 ## 2026-10-06 (12:45 CDT) — The operator's alternatives/volume question answered (descriptive); study 37 designed; the Neo4j loader branch fixed
 
 - **(a)** Study 36's cap costs through ALTERNATIVES, not stacks: every lineup keeps QB+1 and the bring-back. The
