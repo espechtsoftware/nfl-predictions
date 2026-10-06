@@ -40,8 +40,12 @@ chat. Private paths stay private (no dollars, no entries here).
    5. `production/pins-extend-book-20261006` @ `da399bdb` (a pin may add rows without gaps): needed for his Rev3
       plan (super-satellites on rows 1–26; K 22 → 26, caps 13 / 6; approved);
    6. `production/linestar-retire-20261006` @ `b20628fc` (no LineStar capture in the build or at arming).
-   7. `production/neo4j-arm-check-20261006` @ `11ed00d4` (the arm script refuses while the local Neo4j runs; the
-      reviewer's binding setting 3, 10-04; for review).
+   7. ~~`production/neo4j-arm-check-20261006` @ `11ed00d4`~~ **MERGED 10-06** (`6af25408`, approved): the arm script
+      refuses while the local Neo4j runs. Its follow-up `production/neo4j-build-guard-20261006` @ `e2845f73` (the build
+      preflight STOPS a running Neo4j, never refuses; under review) merges before Wednesday's host rehearsal if approved.
+   8. `production/freshness-after-weather-20261006` @ `dabebd49` (O-18: s-freshness 08:30 CT; s-weather reconciled to
+      live; code approved): merged, with the live `gcloud scheduler jobs update http s-freshness --schedule '30 8 * * *'
+      --location us-central1`, only after his one-line OK (a registered operator decision). Not on the money path.
    Then install Rev3 (`~/private/week5-plan/rev3-26/contests.json`, sha `8625de0e…`) as `~/week5-sunday/contests.json`,
    keeping Rev2 beside it as `contests.json.rev2-94cc61a8` (unmerged production code refuses Rev3's pins, fail-closed).
 2. A follow-up for review: the arming banner prints `ENTER_LAYOUT`.

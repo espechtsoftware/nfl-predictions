@@ -12,6 +12,24 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (11:48 CDT) — Study 36 drafted (player depth; the operator agreed to MIXT + term + QB cap A); Neo4j arm check merged; build guard and O-18 branches
+
+- **The operator agreed** (relayed by the reviewer) with study 35's recommendation: MIXT + term + QB cap A. He asked a
+  follow-up: "let's consider if we need to change the way it's still including the other most used player." It is
+  recorded on the decision sheet; Friday's arming is still his formal yes.
+- **Study 36** (the reviewer's; lab `production/s36-player-cap-20261006` @ `e1d0304`, calibrating): a stricter general
+  player cap on top of MIXT_QA. The lever is the existing `UNION_MAIN_CAP` → `--main-cap-share` (default 0.5 → 13 of 26
+  rows; caps every player incl. QBs and DSTs; QB 5 / DST 6 stay stricter). No new code.
+  - Banks 1461–1466 scanned clean (0 production hits; the lab hit = "rho 0.1461" prose).
+  - Priors: study 1b; L17 (`PREREG-L17.md`, results `0272209`: looser caps HARMFUL at K 36).
+  - Study list item 30.
+- **Merged:** `production/neo4j-arm-check-20261006` (`6af25408`, approved).
+- **For review / waiting:**
+  - `production/neo4j-build-guard-20261006` @ `e2845f73` (the build stops a running Neo4j; tested three ways; 128
+    tests pass). It merges before Wednesday's host rehearsal if approved.
+  - `production/freshness-after-weather-20261006` @ `dabebd49` (O-18; code approved). It merges, with the live
+    scheduler move, only on the operator's one-line OK.
+
 ## 2026-10-06 (11:42 CDT) — A2 register re-check; study 35 READ and reproduced (QB cap: NO DIFFERENCE, leaning positive); local Neo4j + DuckDB installed; the arm-check branch
 
 **A2 (the 10:37 scheduled task), `1e8adcca`.** The register is re-reviewed 10-06.
