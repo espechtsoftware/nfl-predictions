@@ -50,6 +50,17 @@ ownership tilt, built and scored together on the same 36 practice weeks, average
   finish. Within the noise, so it is not a proven gain; it is the one that plays like the winners (your directive) and
   is not worse on anything we measured.
 - **Rehearsed 10-06** on Week 4's slate with your 1–26 plan, FP projections and FP ownership: every check passed.
+- **Your stated preference (10-06):** "I'm more interested in the winner's mix than our way we've been doing it."
+  Friday's arming choice is still yours to confirm.
+- **Your quarterback question (10-06)** ("it sounds like we're not getting the diversity of quarterbacks that we should
+  be getting … sometimes find a cheaper quarterback that has a good matchup"). What Weeks 1–4 show:
+  - **Price:** the regulars do NOT favour cheap quarterbacks. Their average QB salary is about the same as the field's
+    and ours, and fewer of theirs are under $6k (56%) than ours (69%).
+  - **Matchup:** they lean slightly AWAY from matchups that look soft on this season's few games.
+  - **The real gap is concentration.** In Weeks 1–3 our QB spread matched the field. In Week 4 one QB took 60% of our
+    entries; the regulars' top QB is about 23% of each user's entries.
+  - **Study 35** tests capping any one QB at about 25% of entries on the winners' mix. It will read before Friday if
+    possible.
 - **What each book looks like** (the pre-mortem, 10-06: `briefings/2026-week-05/2026-10-06-week5-premortem-what-you-would-enter.md`):
   the winners' mix builds lineups the way the regulars do (QB + 1 about half the time, second-game pairs, about 3
   players from the QB's game); Week 4's shape builds them the way we did. Both are far more concentrated on QBs than the
