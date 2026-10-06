@@ -173,3 +173,17 @@ real size (12,096 rows), and possibly up to 30 on the laptop under load. Do not 
 `CAND_LOG_TABLE` and `cand_log_required=True`, and the co-run manifest records both and the control's `panel_run_id`.
 If the rows are not persisted or not promoted (`harvest_accept.py`), the §2 no-run rule applies.
 
+
+## Disclosure note 2 (2026-10-06, after the design freeze, before any read): a related look at RB misses
+
+- **What was read** (study list item 19, the favourite-RB calibration check; the laptop, queries only): on the SMOKE
+  panel `20260811-pitclean-e80-k1-a12ab31` (the Aug-12 image), RB misses (DK actual − `mean_projection`, game-day-active
+  lead RBs) by the team's point spread and implied total, 2019 and 2021–25. Result: in 2023–25 the lead RBs of 7+-point
+  favourites were under-projected by about 2 points; the effect is absent in 2019–22.
+- **What it did not touch:** none of the five predictors (H1–H4's defence vs position, last played game and salary
+  change; H5's value decile), no other position, no lineup or contest endpoint, and not the decision panel (the Thursday
+  co-run's control, whose outcomes remain unseen).
+- **The overlap, said plainly:** the opponent's quality enters both. A 7+-point favourite usually faces a weaker
+  opponent, which H1 (last season's defence vs the position) also measures, so for RBs the read is directionally related
+  to H1's predicted sign (+). It cannot move the frozen rule (the hypotheses, the reader `cf2b63fe…`, the 99% interval,
+  the LOSO sign rule); it is disclosed so that a CONFIRMED H1 among RBs is read with it in mind.
