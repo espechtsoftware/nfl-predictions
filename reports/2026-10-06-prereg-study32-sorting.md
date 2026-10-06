@@ -80,6 +80,10 @@ frozen reader.
   - The laptop's threshold: more than 10% would have meant one field rule throughout. So failure-only stays.
 - **Pre-stated sensitivity (descriptive, after the read; the laptop):** R4 − RND recomputed excluding the slate-banks
   whose `sel_field.fallback` is true, from the per-row records, with no reader change.
+- **Pre-stated (descriptive, after the read; the laptop's observation at the census ack):** R4 − R5 at S_big, pooled,
+  with the same within-season bootstrap and seed, from the scored rows. In-sample, R4 gains largely by choosing
+  different QBs deeper in the book, which R5 also does; this line shows whether the simulator adds anything beyond
+  breadth.
 - **The operator's "big" (10-06):**
   - This week's qualifiers: first place = the seat, as studies 24–31 used.
   - Inside next week's big contests: "a win of $500 or more". That is S_big as frozen.
