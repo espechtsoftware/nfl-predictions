@@ -91,3 +91,28 @@ def test_union_refuses_a_file_built_for_another_frame_or_edited(tmp_path):
     csv.write_text(csv.read_text().replace("P1,", "P1x,", 1))
     with pytest.raises(SystemExit, match="does not match its sidecar"):
         ur.apply_proj_source(fr, csv, ff)
+
+
+def _run_main(tmp_path, monkeypatch, retrieved_at, require):
+    fr = _frame(); fpath = tmp_path / "frame.parquet"; fr.to_parquet(fpath)
+    cap = {"retrieved_at": retrieved_at, "slate_id": "s1", "source_sha256": "x", "rows": len(fr)}
+    monkeypatch.setattr(FPO, "load_capture", lambda season, week, before: (_capture(fr), cap))
+    args = ["--frame", str(fpath), "--season", "2026", "--week", "5", "--before", "2026-10-11T15:57:00Z",
+            "--inactives-utc", "2026-10-11T15:30:00Z", "--out", str(tmp_path / "proj_fp-T.csv")]
+    return FPO.main(args + (["--require-after-inactives"] if require else []))
+
+
+def test_the_t70_build_refuses_a_capture_from_before_the_inactives(tmp_path, monkeypatch, capsys):
+    """Operator 10-06 ("Our post-inactives numbers"): the T-70 build REFUSES a pre-inactives capture (exit 2, no file), so
+    the host falls back to OUR post-inactives projections; earlier builds keep it with a banner. Every run prints the
+    capture timing line the upload sheet shows."""
+    assert _run_main(tmp_path, monkeypatch, "2026-10-11T15:10:00Z", require=True) == 2
+    err = capsys.readouterr().err
+    assert "FP CAPTURE TIMING: 2026-10-11T15:10:00Z BEFORE the 10:30 CT inactives" in err
+    assert "FP PROJECTIONS REFUSED: the newest capture" in err and not (tmp_path / "proj_fp-T.csv").exists()
+    assert _run_main(tmp_path, monkeypatch, "2026-10-11T15:10:00Z", require=False) == 0      # the 09:10 build: banner only
+    err = capsys.readouterr().err
+    assert "BEFORE THE 10:30 CT INACTIVES" in err and (tmp_path / "proj_fp-T.csv").exists()
+    (tmp_path / "proj_fp-T.csv").unlink()
+    assert _run_main(tmp_path, monkeypatch, "2026-10-11T15:46:30Z", require=True) == 0       # the 10:46 capture: accepted
+    assert "FP CAPTURE TIMING: 2026-10-11T15:46:30Z AFTER the 10:30 CT inactives" in capsys.readouterr().err
