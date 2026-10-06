@@ -21,7 +21,9 @@ Layouts (ENTER_LAYOUT):
                 - a contest may pin its rows explicitly with "ranks": [1-based ranks] (operator, 2026-09-25: the $20
                   Millionaire takes row 1, three $13 satellites rows 1, 2, 3). Pinned ranks may name any row the
                   unpinned layout already reads (2026-09-27), and the contest takes no part in the rotation, the
-                  overflow or the deal;
+                  overflow or the deal. Since 2026-10-06 (the operator's Rev3: his 26 Millionaire super-satellite
+                  entries on rows 1-26, each its own lineup) a pin may also ADD rows past the unpinned layout: the book
+                  grows to the highest pinned row, provided no row up to it is left unread (no gaps);
                 - TWO TRACKS (operator, 2026-09-27, after Week 3): a contest marked "track": "tail" (default "mean")
                   draws from a SLEEVE of rows placed after every mean-track row: the mean rows 1..K are the
                   highest-projected-mean lineups for the satellites, the sleeve rows K+1..K+T are the tail-selected
@@ -223,12 +225,18 @@ def _head_ranks(contests: list[dict], sizes: list[int]) -> list[list[int]]:
                 unique_slots[i] -= 1
         rnd += 1
     # 2026-09-27 (operator: a 2-entry $18 qualifier on rows 1 and 5): a pin may name any row the unpinned layout already
-    # reads (at least the head), never a new one -- so a pin cannot grow the book, and rows_needed is unchanged by pins.
+    # reads. 2026-10-06 (operator, Rev3: "1-26 for the $20 satellites" while the big contests read rows 1-22): a pin may
+    # also ADD rows -- the book grows to the highest pinned row (rows_needed reads every rank, so K, the caps, the
+    # book-size gates and spread's K follow) -- but every added row must be read by some contest: an unread row would be
+    # built and never entered, and a typo (ranks [300]) must not silently build a 300-row book.
     limit = max([HEAD_TOP] + [max(r) + 1 for j, r in enumerate(out) if j not in pinned and r])
-    for i in pinned:
-        if max(out[i]) + 1 > limit:
-            raise LayoutError(f"contests.json: {contests[i].get('name')!r} ranks {contests[i]['ranks']!r} must be "
-                              f"{sizes[i]} distinct integers in 1..{limit} (a pin may not add rows to the book)")
+    top = max([limit] + [max(out[i]) + 1 for i in pinned if out[i]])
+    if top > limit:
+        gaps = sorted(set(range(top)) - {x for r in out for x in r})        # every row up to the pinned top is read
+        if gaps:
+            raise LayoutError(f"contests.json: pinned ranks past the unpinned layout's {limit} rows must leave no gap; rows "
+                              f"{[g + 1 for g in gaps][:8]} would be built and never entered (pins: "
+                              f"{ {contests[i].get('name'): contests[i]['ranks'] for i in pinned if max(out[i]) + 1 > limit} })")
     return out
 
 
@@ -245,8 +253,7 @@ def _spread_ranks(contests: list[dict], sizes: list[int]) -> list[list[int]]:
             r = c["ranks"]
             if (not isinstance(r, list) or len(r) != n or len(set(r)) != n
                     or any(not isinstance(x, int) or isinstance(x, bool) or not 1 <= x <= K for x in r)):
-                raise LayoutError(f"contests.json: {c.get('name')!r} ranks {r!r} must be {n} distinct integers in 1..{K} "
-                                  f"(a pin may not add rows to the book)")
+                raise LayoutError(f"contests.json: {c.get('name')!r} ranks {r!r} must be {n} distinct integers in 1..{K}")
             out[i] = [x - 1 for x in r]
             pinned.append(i)
         elif n <= HEAD_SMALL:
