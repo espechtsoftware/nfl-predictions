@@ -1,8 +1,11 @@
-# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (DRAFT 2026-10-06)
+# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06)
 
-**Status: DRAFT 2026-10-06** by the reviewer. It FREEZES before Week 5's lock (Sunday 10-11, 12:00 CT), after the
-dress-rehearsal census on a Week-5 snapshot (§7); the laptop acks the census and re-runs every score. No week is built
-before the freeze. Nothing here enters a contest: the money path, its checkout and its files are never touched.
+**Status: FROZEN 2026-10-06** by the reviewer, BEFORE any week of the decision arm (MIXT_RS0) or of the exploratory arms
+QBB0 / NQC0 / QAL / RBC0 was read on any slate. Disclosed: before the freeze, the reference MIXT_QA0 was scored on
+Weeks 1–4 (his rehearsal of the current process, 10-06), and MIXT_QA against MIXT_QA0 on Week 4 (the ownership-tilt
+test). Those reads cannot move a prospective rule on Weeks 5–9 whose decision arm was never read. The live-mode census
+on the Week-5 rehearsal snapshot is a post-freeze INTEGRITY GATE (§7), not a design step. The laptop acks and re-runs every
+score. Nothing here enters a contest: the money path, its checkout and its files are never touched.
 
 ## 1. Why
 - **The operator (10-06), on the proposal:** "yes, please try it, I want to exhaust all reasonable options."
@@ -120,12 +123,26 @@ before the freeze. Nothing here enters a contest: the money path, its checkout a
 - **The Week-4 smoke** (the laptop's frozen copies; dry run): the build exited 0, all four books built (the parity check
   named Week 4's different union arguments, as it should). The scorer exited 0 with its 2 headers and 4 book lines; no
   outcome line was read. The reader marked the dry-run week INVALID.
-- **The dress-rehearsal census:** the live-mode build on a Week-5 snapshot from the laptop's A3 rehearsal (construction
-  only). Results are recorded here before the freeze.
-- **Code:** nfl2 `production/s38-paper-corun-20261006`; the shas are recorded at the freeze.
-- **The production pin:** `union_reselect.py`, `r1c_sunday_reselect.py` and `moneygate_score.py` are checked at the
-  freeze against the head armed for Week 5. If the armed head changes them, the pin follows the armed head and the change
-  is disclosed.
+- **INTEGRITY GATE (post-freeze):** before Week 5's lock, the LIVE-mode build must pass on the laptop's Week-5 rehearsal
+  snapshot (`~/private/paper-corun/rehearsal-w05/`, from A3): the manifest, provenance, union-args parity and pre-lock
+  checks, all arms built. If it fails, Week 5 is INVALID (the reader then takes Week 9). The same live-mode checks gate
+  every week.
+- **Code (frozen):** nfl2 `production/s38-paper-corun-20261006` @ `4429fd8`:
+  - `experiments/s38_paper_corun.py`, sha256 `e2d593a5d4c9f161763b74c2a4b2247830717196b23372215739083855fcbcdf`;
+  - `scripts/s38_build.py`, `fe51ac2e6f528b7ee9d6de27406779e3cbd4dfc4adc6eb85e6b9539587f74174`;
+  - `scripts/s38_score.py`, `ca4e74d3468c0cd2f2459e80a59b97f810e0f6a04b94f41b96f5665111d331c3`;
+  - **`scripts/s38_report.py` (the reader), sha256 `7865303af4b48b1c1365feb4a9098af817d9b176f5d2559bc02c92a34399da44`**;
+  - `scripts/s38_plan.py`, `9af5f8053a0369cc2f787aef332ed3d5f96b506a352a518c763b8773ceb5d924`;
+  - `tests/test_s38_paper_corun.py`, `d43597cc6ac0baa5b0bcbce5c509e36f44f701b435b734c6105fafd2bbdb8029` (10 tests);
+  - study 37's frozen `experiments/s37_regulars_structure.py`, `29a2c2c72b86f1b5eec6072119482cafa462218272c6c90f2e9aa2c95778acbf`.
+- **The production pin** (imported, never copied), identical at integration `5a1ac062` and at the pin `1478dcfb`:
+  `scripts/union_reselect.py` `ffd59b721ba6236e…`, `scripts/r1c_sunday_reselect.py` `3c3b9480fc0f5516…`,
+  `scripts/moneygate_score.py` `48342ae163e20738…`, `src/nfl_dfs/inference/enter_layout.py` `3cb051ac6a2b40a1…`. If
+  the head armed for a week changes these files, the pin follows the armed head and the change is disclosed in that week's
+  record.
+- **An early look on Weeks 1–4 (after this freeze; never decision-bearing):** every arm replayed on the four completed
+  weeks (W4 on FP, W1–3 on our projections), on each week's real Millionaire field. The tiers of RS0 and RBC0 were DERIVED
+  from Weeks 1–4, so it is in-sample: it can warn, not confirm.
 - **Order:**
   1. this freeze;
   2. the laptop's ack;
