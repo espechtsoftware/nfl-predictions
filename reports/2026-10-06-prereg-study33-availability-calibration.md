@@ -136,6 +136,18 @@ the freeze, not after.
   - AV removes nearly all (0.2 / 0.3 entries).
   - AV is dealt identically to its reference on 0.39 (CT) / 0.47 (MIXT) of slate-banks, so the study is NOT vacuous.
   - CT0 / MIXT0 are identical to CT / MIXT on 0.75 / 0.78.
+- **Pre-stated for the read** (the laptop's ack, before any outcome):
+  - **What the study tests, in plain words.** The calibration is small per player (1.7 points), but the selector drops
+    a flagged player once he is slightly worse than his replacement. So AV's books hold almost no late-window flagged
+    player:
+    - CT: 3.00 book rows → 0.14; MIXT: 1.89 → 0.11;
+    - dealt entries 5.8 → 0.2 and 3.8 → 0.3 of 53.
+  - In effect the study tests "keep late-window Q / D players out of the book" against today. The read says so, and
+    that is also the simplest live rule if it PASSes.
+  - **A descriptive post-read line, never decision-bearing:** per arm, the dealt entries holding a late-window Doubtful
+    player and those holding a late-window Questionable player, with the share of each who sat. The strata are
+    recomputed from the frames (outcome-free). Doubtful is under-discounted by the shrinkage (above), so a D-driven
+    effect, or its absence, must be visible on its own.
 - **The smoke** (2023 W1, 1406, the full path): the census and reader exited 0; the reader printed its 2 headers and
   REFUSED mechanics-only rows (exit 1). No outcome line was read.
 - **A process note:** the first training run stalled for 70 minutes; its script lacked the drivers' `OMP_THREAD_LIMIT=1`,
@@ -195,7 +207,7 @@ the freeze, not after.
 - **Order:**
   1. this freeze;
   2. the laptop's ack of the binding census;
-  3. the scored run (LOW priority: when the host is free);
+  3. the scored run (LOW priority; launched 10-06 when the host was free, after the laptop's ack);
   4. the confirmatory census;
   5. the read;
   6. the laptop's re-run;
