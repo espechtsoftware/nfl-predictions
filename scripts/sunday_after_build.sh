@@ -13,6 +13,17 @@ set -u
 : "${OUT:?}" "${LIVE_DIR:?}" "${PROD:?}" "${PROD_PY:?}" "${TOOLS:?}" "${CONTESTS_JSON:?}" "${SEASON:?}"
 PY=$PROD_PY
 log() { echo "$(date -u +%H:%M:%SZ) $*"; }
+# The replacement step's objective on the upload sheet (the reviewer 10-06, R2): an FP-priced union whose replacement fell
+# back to OUR worlds must never read as a plain "OK".  $1 = the replacement log.
+repl_objective_note() {
+  local obj; obj=$(grep -m1 '^REPLACEMENT OBJECTIVE' "$1" 2>/dev/null | sed 's/^REPLACEMENT OBJECTIVE: //')
+  case "$obj" in
+    "") ;;
+    "ours (the FP source failed"*) printf '; *** REPLACEMENTS PRICED ON OUR PROJECTIONS: %s ***' "$obj" ;;
+    *) printf '; priced on: %s' "$obj" ;;
+  esac
+}
+
 process_run() {
   local run=$1 tag=$2 entries lo
   entries=$($PY -c "import json; print(json.load(open('$run/receipt.json'))['written'])") || { log "no receipt in $run"; return 1; }
@@ -30,7 +41,7 @@ process_run() {
   if [ -n "$QBF" ]; then
     if PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=$PROD/src:$TOOLS $PY "$TOOLS/vet_replace_v4.py" "$lo/paid-vetted" "$run" "$lo/paid-vetted-replaced" --lab-src "$CLONE/src" --qb-flags "$QBF" --season "$SEASON" --week "$WEEK" --admit-risky > "$lo/paid-replace.log" 2>&1 \
        && [ ! -e "$lo/paid-vetted-replaced/NOT-PUBLISHABLE-REHEARSAL" ]; then
-      VET="$lo/paid-vetted-replaced"; REPL_STATUS="OK: $(grep -m1 -E '^replaced' "$lo/paid-replace.log" || echo 'ran')"
+      VET="$lo/paid-vetted-replaced"; REPL_STATUS="OK: $(grep -m1 -E '^replaced' "$lo/paid-replace.log" || echo 'ran')$(repl_objective_note "$lo/paid-replace.log")"
     else
       REPL_STATUS="REPLACEMENT FAILED: $(grep -m1 'REPLACEMENT FAILED' "$lo/paid-replace.log" | cut -c1-300 || echo "see $lo/paid-replace.log") -- the vetted book was published with its unavailable rows still in place"
     fi
