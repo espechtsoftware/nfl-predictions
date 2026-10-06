@@ -63,3 +63,14 @@ def test_the_script_uses_the_fallback_in_the_choice_the_validation_and_the_recei
     assert "mix_violations(_t, row_cell(p, cell_at, fallback_at))" in text
     assert '**({"cell_fallback": "house"} if fb else {})' in text and '"cell_fallbacks": [' in text
     assert "BY THE HOUSE FALLBACK" in text                       # the capitals banner on the 'replaced' line (replacement-status)
+
+
+def test_replacement_sources_are_counted_and_no_term_rows_named():
+    """The reviewer (10-06): under the ownership term, rows of the no-term paper control main ('mix_control') may fill
+    replacements; the week's record counts them."""
+    n, note = V.source_summary([{"candidate_source": "mix_spare"}, {"candidate_source": "mix_control"},
+                                {"candidate_source": "mix_control"}, {"candidate_source": "t70"}])
+    assert n == {"mix_control": 2, "mix_spare": 1, "t70": 1}
+    assert note == "; sources {'mix_control': 2, 'mix_spare': 1, 't70': 1} (2 from the NO-TERM control main)"
+    assert V.source_summary([]) == ({}, "")
+    assert V.source_summary([{"candidate_source": "saturday"}])[1] == "; sources {'saturday': 1}"

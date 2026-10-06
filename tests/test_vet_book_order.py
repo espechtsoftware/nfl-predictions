@@ -1,6 +1,9 @@
 """vet_book.block_order: hard / material rows sink WITHIN their block; nothing crosses the mean/sleeve boundary."""
 import sys
+from collections import defaultdict
 from pathlib import Path
+
+import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 import vet_book as vb  # noqa: E402
@@ -47,3 +50,17 @@ def test_cell_block_order_is_used_only_for_a_mix_main():
         assert order == vb.block_order(tiers, 6) and cells is None                  # the house book: today's order exactly
     order, cells = vb.vetted_order(tiers, 6, {"config": {"union": {"main": "mix"}}}, lambda: ["A1", "B", "C", "A1", "B", "C"])
     assert order == [3, 1, 5, 0, 4, 2] and cells == ["A1", "B", "C", "A1", "B", "C"]
+
+
+def test_book_players_without_an_fp_projection_are_tagged_but_never_weighted(tmp_path, capsys):
+    """The reviewer's guard (10-06, O-22): a book player the union selected on OUR mean (no FP projection) is named."""
+    frame = pd.DataFrame({"id": ["a", "b", "c"], "dk": ["11", "22", "33"]})
+    book = [["11", "22"], ["22", "33"]]
+    flags, name = defaultdict(list), {"11": "A", "22": "B", "33": "C"}
+    assert vb.fp_gap_flags(tmp_path, frame, book, flags, name) == [] and not flags     # no proj_source.csv: not an FP run
+    pd.DataFrame({"id": ["a", "b"], "fp": [10.0, 12.0]}).to_csv(tmp_path / "proj_source.csv", index=False)
+    assert vb.fp_gap_flags(tmp_path, frame, book, flags, name) == ["C"]
+    assert dict(flags) == {"33": ["projection:ours-no-FP"]}
+    assert "1 book player(s) selected on OUR projection" in capsys.readouterr().out
+    from nfl_dfs.inference import enter_layout as EL
+    assert "projection" not in EL.INJURY_TAGS                                           # never bars a row from the head

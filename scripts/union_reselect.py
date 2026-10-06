@@ -994,6 +994,12 @@ def main(argv: list[str] | None = None) -> int:
         conf.pop("mean_dst_cap", None)
     conf["union"]["main"] = a.main
     if proj_meta:
+        # the reviewer's guard (10-06, O-22): any BOOK player without an FP projection was selected on our mean; name them
+        _fp_ids = set(pd.read_csv(a.proj_source, dtype={"id": str})["id"].astype(str))
+        _nm = dict(zip(fr["id"].astype(str), fr["display_name"].astype(str)))
+        _ours = sorted({_nm.get(str(i), str(i)) for k in book + book_tail for i in rosters[k] if str(i) not in _fp_ids})
+        proj_meta["book_players_ours"] = _ours
+        print(f"PROJECTION SOURCE: book players on OUR projection (no FP): {len(_ours)}" + (f" -- {_ours}" if _ours else ""))
         conf["union"]["proj_source"] = proj_meta
     if pmo_main:
         conf["union"]["pmo_x50" if a.main == "pmo_x50" else a.main] = pmo_main
