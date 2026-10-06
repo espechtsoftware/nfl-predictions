@@ -50,7 +50,11 @@ chat. Private paths stay private (no dollars, no entries here).
    (`optimize(second_game_pair, qb_game_max)`); the house shape could stay on `32cdb61`.
 
 ## Saturday 10-10 (the laptop arms; fail-stop script, ask only if blocked)
-- **DRAFTED 10-06 and tracked for review:** `scripts/arm_week5_saturday.sh` on `production/w5-arm-20261006` @ `c68da24c` (host-local copy at `~/.cache/laptop-agent/w5_arm_saturday.sh`). After review, merge it; Friday's one commit sets SHAPE and FRIDAY_HEAD in the tracked copy, then `--check` runs Friday evening.
+- **APPROVED and MERGED 10-06:** `scripts/arm_week5_saturday.sh` (c68da24c + e13ec346; host-local copy synced).
+  - Friday's one commit sets SHAPE and FRIDAY_HEAD in the tracked copy.
+  - The chosen shape is rehearsed on pin f69598b.
+  - Then `--check` runs Friday evening. It lists the planned units and stops unless the count is 11.
+  - If it stops on 12, a non-timer unit name has appeared in arm_week_timers.sh's print-only output (the reviewer). It fails safe.
   - Friday: set SHAPE (mixt | ct) and FRIDAY_HEAD; confirm the dose (0 / 4800).
   - It refuses until those are set. It checks Rev3's sha and K 26, and arms 11 timers (9 late).
   - `--check` runs steps 0 and 6 only.
