@@ -12,6 +12,46 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (17:41 CDT) — Study 43 frozen and running (the operator's first choice); study 38 amendment 2 acked; the cover switch built
+
+- **Study 38 amendment 2** (prereg 596e5d9b, d2cd6111; lab d15fb97) is ACKED. All three W4 smokes reproduce byte-identically: ms4-rr 47b701ee (identity f931364e), ms4-value d1348d29, ms5-group 79b69c17. The reviewer's message had rotated those labels; the prereg line is being corrected.
+  - **For Friday:** move `s38-prod-pin` to FRIDAY_HEAD and disclose union_reselect bdd95a51 vs ffd59b72. The three names it imports are byte-identical, so behaviour is unchanged.
+- **Study 43** (one A1 row in each of the top-4 games by total, built first; COVER6 exploratory; reference = his W5 book at 4 + rr).
+  - The operator: "study 43 sounds the most interesting. I would like to try that first to be considered for this week."
+  - Frozen at e81122af (65c92005). The binding census (lab 79d4a4b, 8773bae8) is reproduced byte-identically. The 1497–1502 scan is clean (one `chunk=1500` false match). The scored run is in progress.
+- **Production switch** `--mix-cover-games N` on `production/mix-cover-games-20261006` @ `36f15a3f`, awaiting review:
+  - default 0, byte-identical for every fill;
+  - parity-pinned to the lab's coverage test;
+  - UNION_MIX_COVER_GAMES; check_week_runtime; MIX_COVER=0 in the arm.
+- **Merged:** the money gate's descriptive package arms (06b5c1c7). The reviewer wants the re-run at his final choices, PKG4-rr; tonight after study 43 if the machine is free.
+- **Study list 39–42** (0f2779f7): study 43; the harness field calibration (the reviewer's); the QB-by-QB round-robin (the reviewer's, after 43); and the operator's 4–5 single-lineup "insurance" options (item 42; the reviewer designs it after 43's read).
+- **The operator's decisions this evening:** overlap 4, round-robin, study 44 dropped (winners' mix everywhere).
+## 2026-10-06 (17:27 CDT) — Operator: overlap limit 4 and round-robin fill for Week 5 (study 42 reproduced; field audit clean)
+
+- **Study 42 READ** (reviewer 9462d8a, READ_s42 e14276fb) reproduced byte-identically. Bank shas = RAW_MANIFEST.
+  - Both decisions NO DIFFERENCE: VALUE − GROUP −0.01493 [−0.06396, +0.03486]; RR − GROUP +0.00774 [−0.04024, +0.05611] (0.975 intervals).
+  - GROUP4 − GROUP5 = +0.04845 [+0.01796, +0.07916], replicating study 41 on fresh banks.
+- **§6.1 field audit (reviewer):** the harness's sampled fields rank the arms as the real fields do (18/18 contrast-weeks agree in sign). They are 3–6 points easier at the top, so its absolute chances run high. So the W2–4 ms4 shortfall is single-row noise, not a field-model artifact.
+- **The operator, 10-06 evening (AskUserQuestion):**
+  - "Use round-robin" (the laptop had recommended keeping the earlier order; he chose rr);
+  - "Use 4" (recommended);
+  - study 44 "Drop it" (recommended).
+- **Applied:** `scripts/arm_week5_saturday.sh` sets MAX_SHARED=4 and MIX_FILL=rr; the host copy is synced and still refuses on FRIDAY_HEAD. The host-local `a2_armed_k26.sh` now runs `--mean-max-shared 4 --mix-fill rr`. The decision sheet (rows 14, 15) and checklist (items 8, 9) are updated.
+- **Best-first (value) is NOT to be armed** (study 42 leaning negative; worse on W2–4).
+- **Next:** study 38 amendment 2 (the paper arms follow the live fill and limit, 4 + rr) is the reviewer's smoke tonight. A1–A3 Wednesday, then Friday's rehearsal at 4 + rr.
+## 2026-10-06 (17:19 CDT) — Dashboard redeployed (e5eddb14); the W2–4 package money arms built for review
+
+- **Dashboard:** Cloud Build `f3688ff5` built `nfl-dfs:dashboard-e5eddb14` from the clean worktree `dashboard-build-e5eddb14`. The dashboard tests ran in the build. Digest `sha256:e417e0ca…`.
+  - `deploy_dashboard.sh` by digest put revision **nfl-dfs-app-00080-8lr** at 100%. IAP is on and nothing is public; the script's checks passed.
+  - Rollback: `gcloud run services update-traffic nfl-dfs-app --region us-central1 --project nfl-predictions-503414 --to-revisions nfl-dfs-app-00079-5lp=100`.
+  - A local proxy can't pass IAP (302), so /arms was not viewed from here. The operator can confirm the "Cash rate at" column in a browser.
+- **The W2–4 money figure (descriptive; the reviewer's terms):** `production/moneygate-pkg-20261006` @ `3ec79a3a`, awaiting review.
+  - `PKG<ms>-<fill>` arms translate the package to each week's real contests, with the QB cap scaled to round(5K/26) = 13/20/20 (a translation).
+  - `moneygate_describe.py` scores them through the unchanged scorer, behind the reconcile receipt. It reports the multiple as-is and ex-largest, and realized big wins by his rule.
+  - The private `~/moneygate/weeks.json` now pins W4's `fp_proj_source` (8bba650e); a backup sits beside it.
+  - The smoke on A0–A4 works: 0 big wins anywhere in W2–4.
+  - Builds Wednesday night (heavy), and again Thursday with his final settings.
+- **Study 44 design (open for the operator):** the reviewer's ROUTE (the Milly's 2 entries from 2 A1 rows on ranks 27–28 via a plan pin; every other contest from a 26-row WS book), exploratory MILLY_A1 and WS_ALL, plus the laptop's suggested TOP2_A1 (K 26). Asked the operator; the laptop recommends ROUTE as the decision arm.
 ## 2026-10-06 (17:09 CDT) — Expedited plan, evening: merges, four light checks done, study 42 running
 
 **Merged into integration (all reviewer-approved):**
