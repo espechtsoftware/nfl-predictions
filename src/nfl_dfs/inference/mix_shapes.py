@@ -61,13 +61,17 @@ def interleave(counts: list[int], quotas: list[float], weights: list[int]) -> li
 
 def plan_weights(plan: Path, k: int, layout: str = "head") -> list[int]:
     """w_r = the plan's mean-track entries the layout deals to rank r, before the small-contest overlap limit, from the
-    week's REAL contests.json (what enter_layout deals by rank afterwards)."""
+    week's REAL contests.json (what enter_layout deals by rank afterwards). Contest pins ("ranks") are KEPT (O-35,
+    2026-10-06): the operator's Rev2 pins his Milly super-satellites to rows 1-5, so rank 1 carries 10 entries, and a
+    weight that ignored the pins would allocate the cells against the wrong entry shares. Only head / spread honour
+    pins; a pinned plan under another layout refuses (enter_layout would ignore the pins)."""
     from . import enter_layout as EL
     c = json.loads(Path(plan).read_text()); c = c if isinstance(c, list) else c["contests"]
-    contests = [{**{k_: v for k_, v in x.items() if k_ != "ranks"}, "track": "mean"}
-                for x in c if str(x.get("track", "mean")) != "tail"]
+    contests = [{**x, "track": "mean"} for x in c if str(x.get("track", "mean")) != "tail"]
     if not contests:
         raise ValueError(f"{plan}: no mean-track contests")
+    if layout not in ("head", "spread") and any("ranks" in x for x in contests):
+        raise ValueError(f"{plan}: pinned contests need the head or spread layout (got {layout!r}; O-35)")
     w = [0] * k
     for rr in EL.assign_ranks(contests, layout):
         for r in rr:
