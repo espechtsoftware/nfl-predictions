@@ -12,6 +12,31 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (17:09 CDT) — Expedited plan, evening: merges, four light checks done, study 42 running
+
+**Merged into integration (all reviewer-approved):**
+- the MIX fill switch, `99fdd285` (`--mix-fill group|value|rr`; MIX_FILL=group in the Saturday arm; the host copy is synced and still refuses on FRIDAY_HEAD);
+- the dashboard v2 code and the Milly graph loader, `1e647203` (cli.py conflict resolved by keeping both additions; 161 dashboard and 137 CLI tests pass);
+- the /arms "Cash rate at" label, `78dacf2d`;
+- study 22a disclosure note 2 (the favourite-RB read on its smoke panel).
+
+**Dashboard redeploy:** a Cloud Build of `e5eddb14` from the dedicated clean worktree `dashboard-build-e5eddb14` is uploading.
+- The first attempt was cancelled before any build was created: the source worktree's HEAD moved during the upload.
+- Next: `scripts/deploy_dashboard.sh dashboard-e5eddb14` outside the weekend window.
+
+**Checks done (the plan rows are updated):**
+- **Favourite-RB (19):** in 2023–25, favoured lead RBs were under-projected by about 2 points; absent in 2019–22; not detectable in 2026. No W5 change.
+- **Shark share (21):** private detail in `~/private/regulars-share/`. The toughest W5 fields are the two $4,444 MEGA sats (about 28–31%).
+- **§6.2 (FP ownership vs residual, W4 only, n 218):** −1.2 points per 10 ownership points [−4.2, +1.7] at a fixed FP projection; 0 on ours. Re-fit and pool weekly.
+- **Overlay monitor:** the dry run on Thursday's slate works (read-only; meaningful only near lock). Output in `~/private/overlay/dryrun-20261006`.
+
+**Started:**
+- the OPRK capture (`~/private/dk-draftables/2026-w05/20261006T220128Z.json`, 1,050 draftables with OPRK);
+- the R14 spec (`5246186f`);
+- the shadow-B script, `~/.cache/laptop-agent/shadow_b.py`. It trains A and B locally under the policy env, projects W5 to `~/private/shadow-b/`, never writes BigQuery or the registry, and fails if a dropped feature survives (O-33). Its first run is Wednesday after A1–A3 (heavy).
+- the P3 replay script, `~/.cache/laptop-agent/rehearsal/p3_screen_w2_4.sh` (package vs the plain mean MILP vs the props MILP, W2–4). It runs after study 42.
+
+**Money figure (Wednesday night):** W2–4's real contests need K 68/106/105 with tail sleeves, while the package's QB cap was calibrated at K 26. A W5-package arm in `moneygate_build.py` needs a stated cap scaling (5/26 of K) and no sleeve. To be decided with the reviewer before building.
 ## 2026-10-06 (16:55 CDT) — Expedited test plan (operator); study 41 PASS reproduced, ms4 held for the field check; fill order: round-robin added, best-first not armed
 
 **The operator (16:40):** "let's plan on an expedited schedule for testing all of these. I want to try all that we can unless
