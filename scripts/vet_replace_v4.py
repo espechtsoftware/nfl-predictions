@@ -56,7 +56,9 @@ def fp_shift(world_mean: np.ndarray, frame_ids: list[str], run: pathlib.Path) ->
     the .json sidecar it verified), a replacement must be priced the same way. Returns the per-frame-row shift that moves
     each FP-projected player's simulated mean (world_mean, ours) onto FP's mean -- the worlds keep OUR spread and
     correlation, as the union's banks do -- and a record. No FP file, or one failing its sha checks: zero shift, ours,
-    said loudly in the record (never a refusal: a replacement on our worlds beats an unavailable player)."""
+    said loudly in the record (never a refusal: a replacement on our worlds beats an unavailable player). Not covered:
+    an ownership term (none in Week 5) -- the book would then rank on FP + term while this prices on FP alone; that was
+    already true before (the replacement never carried the term), noted so it is not forgotten."""
     import hashlib
     zero = np.zeros(len(frame_ids), dtype=np.float64)
     csv_p, meta_p = run / "proj_source.csv", run / "proj_source.csv.json"
@@ -64,12 +66,17 @@ def fp_shift(world_mean: np.ndarray, frame_ids: list[str], run: pathlib.Path) ->
         return zero, {"objective": "ours (the run carries no FP source)"}
     sha = lambda q: hashlib.sha256(q.read_bytes()).hexdigest()  # noqa: E731
     problems = []
-    meta = json.loads(meta_p.read_text()) if meta_p.is_file() else {}
+    meta: dict = {}
     if not meta_p.is_file():
         problems.append("no proj_source.csv.json sidecar")
-    elif meta.get("csv_sha256") != sha(csv_p):
+    else:
+        try:
+            meta = json.loads(meta_p.read_text())
+        except (OSError, ValueError) as e:                 # the reviewer's nit: unreadable -> ours, never a crash
+            problems.append(f"sidecar unreadable ({type(e).__name__})")
+    if not problems and meta.get("csv_sha256") != sha(csv_p):
         problems.append("proj_source.csv does not match its sidecar's sha256")
-    elif meta.get("frame_sha256") != sha(run / "frame.parquet"):
+    elif not problems and meta.get("frame_sha256") != sha(run / "frame.parquet"):
         problems.append("the FP file was built for another frame")
     if problems:
         print("!!! REPLACEMENT PRICED ON OUR PROJECTIONS: the run's FP source failed: " + "; ".join(problems), file=sys.stderr)

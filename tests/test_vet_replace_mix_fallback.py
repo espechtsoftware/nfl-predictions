@@ -107,3 +107,33 @@ def test_the_fp_shift_is_applied_before_the_unavailable_rows_are_zeroed_and_reco
     src = (Path(__file__).resolve().parents[1] / "scripts" / "vet_replace_v4.py").read_text()
     assert src.index("fp_shift(np.concatenate([inc, hs], axis=1)") < src.index("inc_g[zr, :] = 0.0")
     assert '"replacement_objective": repl_objective' in src
+
+
+def test_an_unreadable_sidecar_falls_back_to_ours_never_a_crash():
+    import tempfile
+    import numpy as np, pandas as pd
+    from pathlib import Path
+    d = Path(tempfile.mkdtemp()); (d / "frame.parquet").write_bytes(b"f")
+    pd.DataFrame({"id": ["a"], "fp": [3.0]}).to_csv(d / "proj_source.csv", index=False)
+    (d / "proj_source.csv.json").write_text("{not json")
+    shift, rec = V.fp_shift(np.array([1.0]), ["a"], d)
+    assert not shift.any() and "sidecar unreadable" in rec["objective"]
+
+
+def test_the_upload_sheet_names_the_replacement_pricing_and_banners_a_fallback(tmp_path):
+    """The reviewer (10-06, R2): an FP book whose replacement fell back to our worlds must never read as a plain OK."""
+    import re, subprocess
+    from pathlib import Path
+    src = (Path(__file__).resolve().parents[1] / "scripts" / "sunday_after_build.sh").read_text()
+    fn = re.search(r"^repl_objective_note\(\) \{.*?^\}\n", src, re.S | re.M).group(0)
+    assert '$(repl_objective_note "$lo/paid-replace.log")' in src
+    cases = {"fp": "REPLACEMENT OBJECTIVE: the corrected mix recentred on Fantasy Points' means (the union's proj_source.csv)\n",
+             "failed": "REPLACEMENT OBJECTIVE: ours (the FP source failed: the FP file was built for another frame)\n",
+             "none": "replaced 2 unavailable lineup(s)\n"}
+    out = {}
+    for k, text in cases.items():
+        log = tmp_path / f"{k}.log"; log.write_text(text)
+        out[k] = subprocess.run(["bash", "-c", fn + f'printf "OK%s" "$(repl_objective_note {log})"'], capture_output=True, text=True).stdout
+    assert out["fp"] == "OK; priced on: the corrected mix recentred on Fantasy Points' means (the union's proj_source.csv)"
+    assert out["failed"].startswith("OK; *** REPLACEMENTS PRICED ON OUR PROJECTIONS: ours (the FP source failed") and out["failed"].endswith("***")
+    assert out["none"] == "OK"
