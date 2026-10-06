@@ -271,3 +271,23 @@ ACROSS slates. Ties count as losses.
   Sunday 15:30.
 
 ---
+
+## Census note 1 (2026-10-05, after the BINDING census, BEFORE any scored bank; sent for the joint review)
+The census is recorded at nfl2 `fb4deff`, `results/s24/CENSUS_s24_binding.txt` (sha256 `c21e4363…`; raw bank 1406
+`26e475a4…`): 53/53 slate-banks, 0 errors, mechanics only. **Every §2a check passes; no design change.**
+- SEQD and G25S deal 24 distinct lineups on every slate-bank (minimum 24), with 0 distinct-deal fallbacks.
+- G25S's busiest QB game is ≤ 6 of 24 on every slate-bank (mean 5.92, maximum 6).
+- G25S is never dealt identically to SEQD (61% of entries changed); SEQD is never dealt identically to WS.
+- No short books in any arm.
+
+Descriptive (mechanics only):
+- **Concentration is the rule, not the smoke's exception.** WS's busiest QB game averages 15.5 of 24 entries (maximum
+  24); WS uses 3.2 QB games against G25S's 5.8. The #1-total game's share is only 0.21 (G25S 0.17): most of the
+  concentration is NOT on the #1 game, which confirms §2a's redesign.
+- **The exploratory head-layout cap (G25) leaks:** the busiest game reaches 9, and 33 slate-banks exceed 6. G1 is dealt
+  identically to WS on 66% of slate-banks.
+- **Port sizing:** replacement rows beyond the layout's ranks average 2.0 (maximum 5). The deepest spare used is 9
+  (G25S) or 8 (SEQD), so a production port needs S ≥ 9 spare rows; S = 15 is suggested.
+- **Not this study's lever:** the top player's entry share is about 0.98 in every arm, so one non-DST player sits in
+  nearly all 24 entries. The game cap does not address it; study 1b's entry-level player cap FAILED on cost
+  (Addendum 123).
