@@ -12,6 +12,25 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (08:24 CDT) — choose_entries MERGED (study 32's R4 for 1–3 big-contest entries + the Monday paired scorer); Addendum 137 merged; banks 1443–1448 clean
+
+- **choose_entries** (`production/choose-entries-20261006`, reviewer-approved, merged into integration as
+  `c67da304`):
+  - It adds 5 new files only: `src/nfl_dfs/inference/entry_choice.py`, `scripts/choose_entries.py`,
+    `scripts/score_entry_choice.py` and two tests. Suites: 100 passed.
+  - **Parity** with the frozen s32 `choose()` is pinned on 9 cells.
+  - **The field** is FP's pre-lock ownership through the vendored sampler (byte-identical to the lab's l02).
+  - **Default pool:** the week's entered mean rows (K 26 under Rev3); `--all-rows` is flagged as outside the study;
+    the scale guard on pred_own; m 4 is flagged.
+  - **Monday scorer:** the real contest standings; ties lose; the entered lineups are removed within half a cent,
+    refusing when one is missing; a private paired tally with a review point after 8 contests.
+  - Week-6 usage is in the checklist.
+- **Addendum 137** (study 32) is merged (`e6d4cf5f`) after the laptop's two corrections:
+  - the descriptive header prints the reader sha, not a host path;
+  - the multi-entry-satellite wording.
+- **Banks 1443–1448** (study 33) are CLEAN on the unique-blob scan with the WIDER pattern ("bank" within 25 characters
+  of the number); the narrow pattern missed prose. The reviewer builds study 33 from `4ab03ccb` Wednesday.
+
 ## 2026-10-06 (07:53 CDT) — STUDY 32 READ (reproduced): OFFER R4, choose 2–3 entries TOGETHER; single-lineup ranking fails again; study 33 drafted; the SIS session renewed
 
 **Study 32** (choosing m of the K-26 book for a big contest; nfl2 `production/s32-sorting-20261006` @ `b9db6d9`; banks

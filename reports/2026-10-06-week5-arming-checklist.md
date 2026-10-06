@@ -66,3 +66,17 @@ chat. Private paths stay private (no dollars, no entries here).
 ## Monday 10-12
 - `weekly_projection_accuracy.py` (ours / FP / blend) and `weekly_fp_props_check.py` (FP vs FP + props), then `pool`.
 - Settlement; the entered book vs the paper rebuild of today's house shape on the same slate.
+
+## Week 6 onward: choosing entries for a big contest (study 32's R4; Addendum 137; merged `c67da304`)
+- When he holds 2–3 entries in ONE big contest (a $4,444 MEGA, a $333 Wildcat, ...), after the T-70 union and the
+  vetting / replacement:
+  `scripts/choose_entries.py --run <T-70 union run> --book <entered book.csv> --ownership <ownership_fp-<tag>.csv>
+  --contests ~/weekNN-sunday/contests.json --contest-details <contest-details json> --contest-id <id> --m <2|3>
+  --out ~/private/entry-choice/wNN-<id>.json`.
+  - It prints R4's rows beside book order (R0); enter R4's.
+  - With ONE entry, no rule beats random: any row.
+- Monday: `scripts/score_entry_choice.py --choice <that json> --standings <the contest's standings csv> --entered R4
+  --tally ~/private/entry-choice/tally.jsonl --week NN`.
+  - This is the paired R0-vs-R4 tally.
+  - After 8 paired contests the decision on keeping R4 goes to him.
+
