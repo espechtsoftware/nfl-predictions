@@ -49,7 +49,10 @@ before the freeze. Nothing here enters a contest: the money path, its checkout a
 - **The union's arguments must match the lab builder's mechanics** (mix, K 26, overlap 7, per-game 4, salary floor
   49,000, min-proj 1.0, caps 0.5 / 0.25, the QB cap of 5 rows, head layout), or the build refuses. **The ownership tilt is
   each paper arm's own** (the frozen 0.20; none for MIXT_QA0), not part of that parity. The live union may run any tilt
-  (his Friday choice), and the snapshot then carries the week's FP ownership file even when the union reads none.
+  (his Friday choice). When the union runs no term, Sunday's build captures no FP ownership (the capture and export run
+  only with a non-zero tilt), so the laptop's snapshot tool runs that same capture and export itself: after the T-70
+  union, under the same FP profile lock, before 12:00 CT, recorded in the MANIFEST. If it fails (stale or low coverage),
+  the snapshot has no ownership file, the build refuses, and the week is invalid.
 - **Disclosed: the objective differs from studies 28–37.** It is FP's `mean_projection` + the term, as the money path
   ranks, not the simulated `player_mean` of the harness.
 - **The plan** in the harness's form is derived inside the build from the snapshot's `contests.json`, details and
@@ -91,6 +94,11 @@ before the freeze. Nothing here enters a contest: the money path, its checkout a
 - **FAIL, NO PASS, WORSE or NOT ENOUGH VALID WEEKS:** the yes-book stays, and the structure remains a paper option.
 
 ## 7. Smoke, census and integrity
+- **Parity with the money path, confirmed:** the laptop ran production's own fixed-book replay of Week 4 (union_reselect,
+  FP source, the QB cap, Rev3 head; the ownership term at 0.20 against none) and reproduced this harness's numbers to
+  four decimals: P(≥ 1 big) 0.0094 against 0.0336; expected big seats 0.0094 against 0.0339; mean entry pct .4960
+  against .5014. So the paper books are the books production would build. (This one week is a confirmation of the
+  machinery and of the 10-06 tilt evidence, not a sample of this study.)
 - **The Week-4 smoke** (the laptop's frozen copies; dry run): the build exited 0, all four books built (the parity check
   named Week 4's different union arguments, as it should). The scorer exited 0 with its 2 headers and 4 book lines; no
   outcome line was read. The reader marked the dry-run week INVALID.
