@@ -5646,3 +5646,79 @@ secondaries (slate means):
 5. **By frozen §5 (NO DIFFERENCE):** his taste, told plainly what it costs. **Recommended: no RB-in-FLEX rule.** If he
    likes more backs, the 2-in-5 form costs nothing measurable on paper and adds nothing either.
 6. **Transfer:** our projections (the live book uses FP's), realized 2023–24 outcomes against a sampled field.
+
+## Addendum 144 (2026-10-06): study 40 (fewer shared players between rows on his live book: at most 5 of 9 instead of 7): NO DIFFERENCE at the frozen rule, leaning positive on every endpoint at no measured cost — consistent with the outside review's real-field screen, and not against his decision to enter the 5 in Week 5
+
+**Setup.**
+- **The outside review (10-06)** screened seven one-setting levers on a fixed-book replay of Weeks 2–4 against the REAL
+  Millionaire fields (`reports/2026-10-06-fixed-book-lever-screen-w2-w4.md`). `--mean-max-shared 5` (every union row
+  shares at most 5 of 9 players with every earlier row; the live value was 7) read ahead on P(≥ 1 big seat) in W3
+  (.310 against .009) and W4 (.343 against .034), level in W2 (.908 against .931). The laptop reproduced it
+  byte-identically. The mechanism is the published one for top-heavy contests (an upper bound on the overlap with
+  earlier entries; Hunter, Vielma and Zaman 2016). Three weeks with seven arms screened: a candidate, not a verdict.
+- **The prior record, stated before any outcome:** studies 36–37 spread the book (exposure caps, the regulars' player
+  curve) and leaned worse under our ratings; the lab's August overlap caps (008, 044) were null to negative on another
+  objective and population.
+- **His decision came first:** on the screen, he chose to ENTER the 5 in Week 5 (10-06, through the laptop), before
+  this study was read. The harness is the second, independent source.
+- **Arms** (study 39's harness: 36 slates, Rev3, K 26, head, `enter_layout` `3cb051ac…`; every arm the winners' mix, the
+  QB cap of 5 rows, production's caps 13 / 6 and his live objective, the mean with NO ownership term; the arms differ
+  ONLY in the overlap limit, study 18's `MAX_SHARED`, which the cap builder reads at every solve, book rows and spares,
+  as production's `--mean-max-shared`; every built row is checked against it):
+  - MIXT_QA0, the reference: the live 7;
+  - **MIXT_MS5 (DECISION):** at most 5 shared;
+  - MIXT_MS6 (exploratory): at most 6 shared.
+- **Preregistration:** `reports/2026-10-06-prereg-study40-max-shared.md` (frozen `902eccca`).
+- **Panel:** banks 1479–1484, B 20,000, seed 20261021. The confirmatory census holds on the scored banks: shared players
+  per pair of book rows 2.87 / 2.76 / 2.83 (pairs sharing 6+: 9.8% / 0 / 8.0%); QBs 6.93 / 7.64 / 7.16; distinct
+  non-QB players 27.2 / 30.1 / 28.1; −0.06 / −0.01 projected points per dealt lineup; no short books; never identical to
+  the reference.
+- **Read and reproduced:**
+  - Read by the reviewer.
+  - **Reproduced byte-identically by the laptop** (rc 0, `cmp` clean, at lab `e3bfb29`; raw files equal to the
+    RAW_MANIFEST).
+  - Reader `4bf0079d`; READ `09b58f75`; raw 1479 `d940cd78` … 1484 `c0543016`. The confirmatory census (`12a8665`) was
+    committed before the READ (`e3bfb29`).
+  - Lab: nfl2 `production/s40-max-shared-20261006`.
+
+**Reader output (verbatim):**
+```
+STUDY 40 READER  sha256 4bf0079d7bde59ba4b2ac4657e5bf4d42c54cdb42935b0acd3350842f2150b50
+DIRECTION: P(>= 1 big seat) per slate (the mean over its banks); every difference is ARM - REFERENCE; POSITIVE favours the first arm.
+slates 36  banks [1479, 1480, 1481, 1482, 1483, 1484]  B 20000  seed 20261021  primary MIXT_MS5 - MIXT_QA0, two-sided 0.95, guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only
+arms (max shared, QB cap, objective): [{"MIXT_MS5": 5, "MIXT_MS6": 6, "MIXT_QA0": 7}, 5, "player_mean (no ownership term)"]
+
+== MIXT_MS5 vs MIXT_QA0  [DECISION: at most 5 shared players between rows]
+  PRIMARY P(>= 1 big seat) per slate +0.02829  [-0.01167, +0.06735]  seasons 2023 -0.00840, 2024 +0.06499
+  GUARD 1 mean entry pct +0.00576  one-sided lower +0.00194  (must exceed -0.015)
+  GUARD 2 expected big seats 0.47331 vs 0.46084  ratio 1.027  (must be >= 0.80)
+  MIXT_MS5 dealt identical to MIXT_QA0: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+
+== EXPLORATORY (never decision-bearing)
+  MIXT_MS6 - MIXT_QA0 (at most 6 shared): +0.02408  [-0.01237, +0.06217]  seasons 2023 -0.00477, 2024 +0.05293
+
+secondaries (slate means):
+  MIXT_QA0   P(>=1 big) 0.26591  expected big seats 0.46084  P(>=2) 0.10688  entry pct 0.51294  shared per pair 2.87  QBs 6.93  games 9.07  dealt top QB 0.223  dealt projection 128.42
+  MIXT_MS5   P(>=1 big) 0.29421  expected big seats 0.47331  P(>=2) 0.10406  entry pct 0.51871  shared per pair 2.76  QBs 7.64  games 9.31  dealt top QB 0.221  dealt projection 128.37
+  MIXT_MS6   P(>=1 big) 0.28999  expected big seats 0.51056  P(>=2) 0.13067  entry pct 0.51543  shared per pair 2.83  QBs 7.16  games 9.17  dealt top QB 0.221  dealt projection 128.41
+```
+
+**Reading.**
+1. **At the frozen rule: NO DIFFERENCE, leaning positive.** MIXT_MS5 − MIXT_QA0 +0.028 [−0.012, +0.067]; 2023 −0.008,
+   2024 +0.065. The lower bound is below 0, so it is not a PASS.
+2. **The guards hold, and better than hold.** Guard 1: the mean entry percentile RISES .513 → .519 (lower +0.002).
+   Guard 2: expected big seats .461 → .473 (ratio 1.027). P(≥ 1 big) .266 → .294. P(≥ 2) is level (.107 → .104).
+3. **The 6 leans the same way** (exploratory): MS6 +0.024 [−0.012, +0.062], with the most expected seats (.511) and the
+   highest P(≥ 2) (.131).
+4. **Why it differs from the spreading that failed.** The exposure cap and the regulars' curve (studies 36–37) push the
+   best players OUT of the top rows. The pairwise limit keeps them in half the book (the 13-row cap still binds) and
+   only rearranges the tenth of row pairs that share 6–7 players, at 0.06 projected points per lineup: more distinct
+   shots at almost the same mean.
+5. **By frozen §5 (NO DIFFERENCE):** his taste, told what it costs on paper: nothing measurable, with a positive lean
+   that matches the outside screen. **It does not argue against his decision to enter the 5 in Week 5**; Friday's
+   rehearsal at 5 stays required before it touches an entry.
+6. **Study 38 was amended before the Week-5 lock** (amendment 1): its paper arms now follow the live union's limit, and
+   an exploratory MIXT_QA0_MS7 (his live book at the old 7) tracks the switch on the real field each week.
+7. **Transfer:** our projections (the live book uses FP's), realized 2023–24 outcomes against a sampled field; the
+   outside screen is the real-field complement (three 2026 weeks).
