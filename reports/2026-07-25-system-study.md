@@ -5722,3 +5722,72 @@ secondaries (slate means):
    an exploratory MIXT_QA0_MS7 (his live book at the old 7) tracks the switch on the real field each week.
 7. **Transfer:** our projections (the live book uses FP's), realized 2023–24 outcomes against a sampled field; the
    outside screen is the real-field complement (three 2026 weeks).
+
+## Addendum 145 (2026-10-06): study 41 (at most 4 shared players between rows, against his live 5): PASS — with study 40 the overlap limit reads 7 → 5 → 4 in one direction, and 4 is the knee (3 is level with 4 at four times the projection cost); recommended for Week 5 under three conditions
+
+**Setup.**
+- **From Week 5 his live book runs the overlap limit 5** (his 10-06 yes on the outside review's Weeks 2–4 screen).
+  Study 40 (Addendum 144) read 5 against 7: NO DIFFERENCE, leaning positive (+0.028; the 6 alike, +0.024).
+- **The question:** does a tighter limit add more, or has the gain plateaued? The operator, 10-06: "Please next proceed
+  with anything you feel has a chance of helping."
+- **The prior, stated before any outcome:** a plateau likely (the 6 read about as well as the 5; the lab's cap-4 prefix,
+  044, was null on another objective).
+- **Arms** (study 40's harness unchanged: 36 slates, Rev3, K 26, head, `enter_layout` `3cb051ac…`; every arm the winners'
+  mix, the QB cap of 5 rows, production's caps 13 / 6, the mean with NO ownership term; the arms differ ONLY in the
+  overlap limit, study 18's `MAX_SHARED` at every solve, book rows and spares; every built row checked):
+  - MIXT_MS5, the reference: his live 5;
+  - **MIXT_MS4 (DECISION):** at most 4 shared;
+  - MIXT_MS3 (exploratory): at most 3 shared.
+- **Preregistration:** `reports/2026-10-06-prereg-study41-max-shared4.md` (frozen `cc7c7f85`).
+- **Panel:** banks 1485–1490, B 20,000, seed 20261022. The confirmatory census holds on the scored banks: shared
+  players per pair of book rows 2.76 / 2.59 / 2.22; QBs 7.73 / 8.38 / 9.58; distinct non-QB players 30.1 / 33.2 / 38.6;
+  −0.19 / −0.79 projected points per dealt lineup; no short books; never identical to the reference.
+- **Read and reproduced:**
+  - Read by the reviewer.
+  - **Reproduced byte-identically by the laptop** (diff empty, at lab `cbeeb7c`, production `src` on the path; raw
+    files equal to the RAW_MANIFEST).
+  - Reader `a5dc8be7`; READ `9095e875`; raw 1485 … 1490 in the RAW_MANIFEST. The confirmatory census (`bbf14df`) was
+    committed before the READ (`cbeeb7c`).
+  - Lab: nfl2 `production/s41-max-shared4-20261006`.
+
+**Reader output (verbatim):**
+```
+STUDY 41 READER  sha256 a5dc8be7b6d46dd5098039bedb33f5da1a6e065e81fdea44d98d4745297c7c42
+DIRECTION: P(>= 1 big seat) per slate (the mean over its banks); every difference is ARM - REFERENCE; POSITIVE favours the first arm.
+slates 36  banks [1485, 1486, 1487, 1488, 1489, 1490]  B 20000  seed 20261022  primary MIXT_MS4 - MIXT_MS5, two-sided 0.95, guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only
+arms (max shared, QB cap, objective): [{"MIXT_MS3": 3, "MIXT_MS4": 4, "MIXT_MS5": 5}, 5, "player_mean (no ownership term)"]
+
+== MIXT_MS4 vs MIXT_MS5  [DECISION: at most 4 shared players between rows, against the live 5]
+  PRIMARY P(>= 1 big seat) per slate +0.05905  [+0.01096, +0.11176]  seasons 2023 +0.00993, 2024 +0.10818
+  GUARD 1 mean entry pct -0.00381  one-sided lower -0.00902  (must exceed -0.015)
+  GUARD 2 expected big seats 0.55250 vs 0.52991  ratio 1.043  (must be >= 0.80)
+  MIXT_MS4 dealt identical to MIXT_MS5: 0.000 of slate-banks
+  ->  PASS
+
+== EXPLORATORY (never decision-bearing)
+  MIXT_MS3 - MIXT_MS5 (at most 3 shared): +0.05505  [-0.00504, +0.11383]  seasons 2023 +0.02210, 2024 +0.08800
+
+secondaries (slate means):
+  MIXT_MS5   P(>=1 big) 0.30744  expected big seats 0.52991  P(>=2) 0.12655  entry pct 0.52614  shared per pair 2.76  QBs 7.73  games 9.29  dealt top QB 0.218  dealt projection 128.43
+  MIXT_MS4   P(>=1 big) 0.36649  expected big seats 0.55250  P(>=2) 0.12776  entry pct 0.52233  shared per pair 2.59  QBs 8.37  games 9.42  dealt top QB 0.219  dealt projection 128.25
+  MIXT_MS3   P(>=1 big) 0.36249  expected big seats 0.52365  P(>=2) 0.11963  entry pct 0.51534  shared per pair 2.22  QBs 9.58  games 10.07  dealt top QB 0.214  dealt projection 127.64
+```
+
+**Reading.**
+1. **At the frozen rule: PASS.** MIXT_MS4 − MIXT_MS5 +0.059 [+0.011, +0.112]; both seasons positive (2023 +0.010, 2024
+   +0.108). P(≥ 1 big seat) .307 → .366 per slate.
+2. **The guards hold.** Guard 1: the mean entry percentile .526 → .522 (lower −0.009, inside the −0.015 margin). Guard
+   2: expected big seats .530 → .553 (ratio 1.043). P(≥ 2) is level (.127 → .128).
+3. **The curve.** Studies 40 and 41 together, on fresh banks each: 7 → 5 +0.028 (NO DIFFERENCE), 5 → 4 +0.059 (PASS),
+   5 → 3 +0.055 (exploratory) at −0.79 projected points per lineup against −0.19 for the 4. The 4 is the knee: beyond it
+   the projection cost grows and the gain stops.
+4. **Why.** The limit keeps the best players in half the book (the 13-row cap still binds) and only forces every pair of
+   rows to differ in more players, so the book takes more distinct shots (8.4 QBs against 7.7, more games) at almost the
+   same mean. For one big seat, the best row matters, and more distinct rows give more chances at it.
+5. **Multiplicity, said plainly.** Many studies have read these 36 slates. One PASS among them could be luck; what makes
+   this more than that is the monotone trend across studies 40–41 on fresh banks, the outside review's real-field screen
+   (Weeks 2–4) pointing the same way, and the mechanism.
+6. **By frozen §5 (PASS):** the 4 is a candidate for his book. **Recommended for Week 5** if (1) the laptop's fixed-book
+   check of Weeks 2–4 at 4 (the money-path rule's test) does not contradict it, (2) Friday's rehearsal runs at 4, and
+   (3) study 38 is amended before the lock to accept 4; otherwise Week 6. His call.
+7. **Transfer:** our projections (the live book uses FP's), realized 2023–24 outcomes against a sampled field.

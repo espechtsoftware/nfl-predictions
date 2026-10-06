@@ -12,6 +12,98 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (17:19 CDT) — Dashboard redeployed (e5eddb14); the W2–4 package money arms built for review
+
+- **Dashboard:** Cloud Build `f3688ff5` built `nfl-dfs:dashboard-e5eddb14` from the clean worktree `dashboard-build-e5eddb14`. The dashboard tests ran in the build. Digest `sha256:e417e0ca…`.
+  - `deploy_dashboard.sh` by digest put revision **nfl-dfs-app-00080-8lr** at 100%. IAP is on and nothing is public; the script's checks passed.
+  - Rollback: `gcloud run services update-traffic nfl-dfs-app --region us-central1 --project nfl-predictions-503414 --to-revisions nfl-dfs-app-00079-5lp=100`.
+  - A local proxy can't pass IAP (302), so /arms was not viewed from here. The operator can confirm the "Cash rate at" column in a browser.
+- **The W2–4 money figure (descriptive; the reviewer's terms):** `production/moneygate-pkg-20261006` @ `3ec79a3a`, awaiting review.
+  - `PKG<ms>-<fill>` arms translate the package to each week's real contests, with the QB cap scaled to round(5K/26) = 13/20/20 (a translation).
+  - `moneygate_describe.py` scores them through the unchanged scorer, behind the reconcile receipt. It reports the multiple as-is and ex-largest, and realized big wins by his rule.
+  - The private `~/moneygate/weeks.json` now pins W4's `fp_proj_source` (8bba650e); a backup sits beside it.
+  - The smoke on A0–A4 works: 0 big wins anywhere in W2–4.
+  - Builds Wednesday night (heavy), and again Thursday with his final settings.
+- **Study 44 design (open for the operator):** the reviewer's ROUTE (the Milly's 2 entries from 2 A1 rows on ranks 27–28 via a plan pin; every other contest from a 26-row WS book), exploratory MILLY_A1 and WS_ALL, plus the laptop's suggested TOP2_A1 (K 26). Asked the operator; the laptop recommends ROUTE as the decision arm.
+## 2026-10-06 (17:09 CDT) — Expedited plan, evening: merges, four light checks done, study 42 running
+
+**Merged into integration (all reviewer-approved):**
+- the MIX fill switch, `99fdd285` (`--mix-fill group|value|rr`; MIX_FILL=group in the Saturday arm; the host copy is synced and still refuses on FRIDAY_HEAD);
+- the dashboard v2 code and the Milly graph loader, `1e647203` (cli.py conflict resolved by keeping both additions; 161 dashboard and 137 CLI tests pass);
+- the /arms "Cash rate at" label, `78dacf2d`;
+- study 22a disclosure note 2 (the favourite-RB read on its smoke panel).
+
+**Dashboard redeploy:** a Cloud Build of `e5eddb14` from the dedicated clean worktree `dashboard-build-e5eddb14` is uploading.
+- The first attempt was cancelled before any build was created: the source worktree's HEAD moved during the upload.
+- Next: `scripts/deploy_dashboard.sh dashboard-e5eddb14` outside the weekend window.
+
+**Checks done (the plan rows are updated):**
+- **Favourite-RB (19):** in 2023–25, favoured lead RBs were under-projected by about 2 points; absent in 2019–22; not detectable in 2026. No W5 change.
+- **Shark share (21):** private detail in `~/private/regulars-share/`. The toughest W5 fields are the two $4,444 MEGA sats (about 28–31%).
+- **§6.2 (FP ownership vs residual, W4 only, n 218):** −1.2 points per 10 ownership points [−4.2, +1.7] at a fixed FP projection; 0 on ours. Re-fit and pool weekly.
+- **Overlay monitor:** the dry run on Thursday's slate works (read-only; meaningful only near lock). Output in `~/private/overlay/dryrun-20261006`.
+
+**Started:**
+- the OPRK capture (`~/private/dk-draftables/2026-w05/20261006T220128Z.json`, 1,050 draftables with OPRK);
+- the R14 spec (`5246186f`);
+- the shadow-B script, `~/.cache/laptop-agent/shadow_b.py`. It trains A and B locally under the policy env, projects W5 to `~/private/shadow-b/`, never writes BigQuery or the registry, and fails if a dropped feature survives (O-33). Its first run is Wednesday after A1–A3 (heavy).
+- the P3 replay script, `~/.cache/laptop-agent/rehearsal/p3_screen_w2_4.sh` (package vs the plain mean MILP vs the props MILP, W2–4). It runs after study 42.
+
+**Money figure (Wednesday night):** W2–4's real contests need K 68/106/105 with tail sleeves, while the package's QB cap was calibrated at K 26. A W5-package arm in `moneygate_build.py` needs a stated cap scaling (5/26 of K) and no sleeve. To be decided with the reviewer before building.
+## 2026-10-06 (16:55 CDT) — Expedited test plan (operator); study 41 PASS reproduced, ms4 held for the field check; fill order: round-robin added, best-first not armed
+
+**The operator (16:40):** "let's plan on an expedited schedule for testing all of these. I want to try all that we can unless
+there's a valid reason not to before week 5". The plan is `briefings/2026-week-05/2026-10-06-expedited-test-plan.md`. The
+reviewer accepted it and owns studies 42 (fill order), 43 (a row in every top-4-total game), 44 (shape by contest type) and
+the §6.1 field audit (moved up to tonight). The laptop owns the replays and the light checks.
+
+- **Study 41 (overlap 4 vs 5): PASS**, +0.05905 [+0.01096, +0.11176]; guards held. READ 9095e875 reproduced byte-identically
+  (reader a5dc8be7 at lab cbeeb7c, production src on the path; bank shas = RAW_MANIFEST). Records merged (`f8f4e80f`;
+  LEDGER lab a9ce129).
+- **W2–4 fixed-book replay** at the armed W5 settings, production `907e5807` / `abed460a`. Scratch
+  `~/rehearsals/fill-20261006T214811Z` and `fill-20261006T215350Z`.
+  - group5 is byte-identical to the outside screen's ms5 books (W2–4), so the default fill is today's book.
+  - Mean entry pct (avg of 3 weeks): group5 .497, group4 .492, rr5 .503, rr4 .481, value5 .445, value4 .471.
+  - P(≥1 big): group5 .908/.310/.343 beats every alternative in most weeks. Each alternative shares only 0–5 of 26 rows with
+    it, and the live W2 book holds one 185-point top-1% row. Mostly single-row luck.
+  - **ms4 decision HELD** until the reviewer's §6.1 check: score these books on a field the harness samples from each week's
+    real ownership. Thursday at the latest, at no cost to W5. Friday's rehearsal can run at 4 or 5.
+- **Fill order.** The outside reviewer objects (`a8441da1` merged their record): the winners' shape follows the game script,
+  not the QB, so a capped QB's rows should cover shapes.
+  - Production now has `--mix-fill rr` (`abed460a`), parity-pinned to the lab's RR. Study 42 is asked to re-add RR as a
+    decision arm (the operator's "disagreement → both arms" rule).
+  - **Best-first (value) is not armed for W5 unless the real-week gap is explained.** The laptop agrees with the outside
+    reviewer.
+  - `mix-fill-value` 907e5807 APPROVED; the rr delta awaits review. Merge into integration after it.
+- **OPRK cannot be tested on past weeks:** DK revised past draftables after the games (W2–4: about half the players'
+  dk_ppg differ from our pre-lock pulls; W1 unchanged). The capture starts Saturday
+  (`~/private/dk-draftables/2026-w05/`).
+- **New O-38** (the outside reviewer): the double-stale-FP fallback should be stale FP plus the inactive-teammate bumps,
+  not ours. Week 6.
+- **Running:** study 42 smoke → census → freeze → scored (reviewer); the §6.1 field check (reviewer); the favorite-RB check
+  (laptop subagent, read-only).
+## 2026-10-06 (16:39 CDT) — The fill order is a Week-5 candidate: study 42 harness ready; production switch built (not armed)
+
+**Why:** the operator asked, "are we putting our best strategy first for a given QB?" It was verified NOT done: production fills
+the MIX cells largest-quota first, so a capped QB's slots go to the earliest cell (study list 38). He then asked "why is week 6 the
+earliest?" It is not: Week 5 is feasible if study 42 reads well and he says yes.
+
+- **Study 42 (the reviewer):** lab `production/s42-fill-order-20261006` @ `4541886` (DRAFT).
+  - Arms: MIXT_VALUE (DECISION) vs MIXT_GROUP (the live book); MIXT_RR (round-robin) exploratory.
+  - Settings: ms5, QB cap 5, no term; banks 1491–1496 (my wide scan: clean); seed 20261023.
+  - Tonight: smoke → census on 1406 → freeze → my ack → scored run (~40–60 min) → READ before 19:00 CT.
+- **Production switch:** `production/mix-fill-value-20261006` @ `a7fafd38` (off integration; for the reviewer's review).
+  - `mix_rows(fill="value")` peeks every cell's next row on the current state and commits the highest objective (ties to
+    the earlier cell). A failing cell passes its remaining quota to A1.
+  - The default `group` is today's book byte for byte (tested, calls included). It is parity-pinned to the lab harness's
+    scripted commit order and failing-cell case.
+  - Plumbing: `--mix-fill` / `UNION_MIX_FILL` (sunday_build_host, arm_week_timers; check_week_runtime needs group|value
+    with UNION_MAIN=mix).
+  - Tests: test_mix_shapes 25 pass; check_week_runtime / arm_week_timers / union_reselect / build_host_args /
+    union_fallbacks pass.
+  - **Not armed.** Adoption needs study 42's READ + my byte-identical re-run, then the W2–4 fixed-book group-vs-value
+    check (Wednesday, after A1–A3, one heavy job at a time), then the operator's yes. Arming = `UNION_MIX_FILL=value`
+    in the Saturday arm script.
 ## 2026-10-06 (16:21 CDT) — End of Tuesday: Week 5 settings final; studies 38 (amended), 39 and 40 recorded; Wednesday's order
 
 **Week 5 as armed** (all operator-approved and merged):

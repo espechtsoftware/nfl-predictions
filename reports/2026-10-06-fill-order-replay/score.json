@@ -1,0 +1,62 @@
+{
+ "w2-group": {
+  "p_big1": 0.9075,
+  "e_big": 1.6574,
+  "mean_entry_pct": 0.3996,
+  "proj_sum_mean": 137.25,
+  "best_row": 185.16,
+  "top3": "185.2 C, 174.3 C, 174.1 C",
+  "qbs": 8,
+  "top_qb_shapes": "Herbert:A1A1A1A1B; Williams:A1A2A2BB; Prescott:CCCCC; Daniels:A1A2BCC"
+ },
+ "w2-value": {
+  "p_big1": 0.045,
+  "e_big": 0.045,
+  "mean_entry_pct": 0.4112,
+  "proj_sum_mean": 137.16,
+  "best_row": 162.86,
+  "top3": "162.9 A1, 149.6 A2, 147.2 A1",
+  "qbs": 8,
+  "top_qb_shapes": "Herbert:BBCCC; Williams:A1A1A2BB; Prescott:A1A1A2A2C; Daniels:A1A1A1BB"
+ },
+ "w3-group": {
+  "p_big1": 0.3102,
+  "e_big": 0.3183,
+  "mean_entry_pct": 0.5261,
+  "proj_sum_mean": 133.03,
+  "best_row": 170.0,
+  "top3": "170.0 A1, 169.5 B, 157.5 B",
+  "qbs": 10,
+  "top_qb_shapes": "Shough:A1A1A1A1B; Allen:BBCCC; Goff:A1A1A2A2A2; Watson:A1CC"
+ },
+ "w3-value": {
+  "p_big1": 0.0002,
+  "e_big": 0.0002,
+  "mean_entry_pct": 0.472,
+  "proj_sum_mean": 133.15,
+  "best_row": 161.0,
+  "top3": "161.0 C, 160.0 A2, 155.7 C",
+  "qbs": 8,
+  "top_qb_shapes": "Goff:A1A1A1A2A2; Shough:A2CCCC; Mahomes:A1A2BBB; Prescott:A1A1A1B"
+ },
+ "w4-group": {
+  "p_big1": 0.3425,
+  "e_big": 0.3742,
+  "mean_entry_pct": 0.5654,
+  "proj_sum_mean": 143.99,
+  "best_row": 176.08,
+  "top3": "176.1 C, 175.5 C, 151.4 B",
+  "qbs": 10,
+  "top_qb_shapes": "Lawrence:A1A1A1A1B; Burrow:A1BBCC; Brissett:A1BBCC; Allen:CC"
+ },
+ "w4-value": {
+  "p_big1": 0.0046,
+  "e_big": 0.0046,
+  "mean_entry_pct": 0.4517,
+  "proj_sum_mean": 143.79,
+  "best_row": 150.22,
+  "top3": "150.2 C, 144.1 C, 139.9 B",
+  "qbs": 8,
+  "top_qb_shapes": "Brissett:A1A1A1BC; Lawrence:A2BBBC; Burrow:BBCCC; Mahomes:A1A1A1B"
+ }
+}

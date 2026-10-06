@@ -13,6 +13,11 @@ chat. Private paths stay private (no dollars, no entries here).
 | Thu 10-08 | O-25 Route Share companion-v1: one dry run per job (`SHADOW_DRY_RUN=1`) through the launcher lanes; deadline Sat 12:00 | OPEN-DEFECTS O-2 / O-25 |
 | Thu | O-27 cbwu-oi: the fix's dry run | OPEN-DEFECTS O-27 |
 | Thu | `check_prospective_gates.py --week 5` must pass (no paused graded gate; env = policy) | CLAUDE.md |
+| Wed 10-07 (after A1–A3; added 10-06 by the planned-but-not-done audit) | **C3** for W4 (missed Mon/Tue): the field model's predicted vs realized payout lines, LAG vs FP targets | experiment plan 10-02 §3; Monday reads §7 |
+| Wed 10-07 (audit) | **P3** paper toggles on `union_paper_rebuild.sh` (simple-baseline benchmark), so the first P3 read runs Mon 10-12 | study list l.112 |
+| Wed 10-07 (audit) | **Paper shadow B** recipe (`DROP_FEATURES=qb_cpoe_l6,neutral_pass_rate_l6` on the serve path, as the 10-03 A/B): written down and dry-run, so Sunday builds it and Monday scores it beside ours and FP | OPEN-DEFECTS O-22; HANDOFF 10-06 07:13 |
+| Wed 10-07 (audit) | Dashboard: merge the deployed-but-unmerged code into integration (`production/milly-graph-users-20261006` carries `bcd7fc22` / `3e2f76a2` / `f9c67f83`; live revision 00079-5lp runs it) and the `cash_rate` label ("≥ Millionaire cash line"; the reviewer wanted it before Week 5) | HANDOFF 10-05 10:16; Monday reads §8 |
+| Sat 10-10 and Sun 10-11, ~10:45 CT (audit) | **OPRK history starts now** (item 8): save the DraftKings draftables JSON for group 154468 pre-lock, `curl -s https://api.draftkings.com/draftgroups/v1/draftgroups/154468/draftables > ~/private/dk-draftables/2026-w05/$(date -u +%Y%m%dT%H%M%SZ).json` (never tracked; no ingest change) | study list item 8 |
 
 ## The operator's decisions (decision sheet `briefings/2026-week-05/2026-10-05-week5-decision-sheet.md`)
 **DECIDED 2026-10-06 (his formal yes):** "yes to the winners' mix with the tilt and the quarterback cap" = MIXT + the
@@ -120,8 +125,11 @@ rehearsal runs on the merged head in the exact armed env; Friday re-verifies on 
 - The T-70 build on the post-10:30 salary pull; FP projections (refusal → ours, loud); the ownership chain FP → LAG
   0.10 → none; WS/MIX spares and the house fallback for late scratches (`ddd470ed`).
 - Any manual relayout passes `ENTER_LAYOUT=head` (O-34).
+- **Overlay monitor** (audit 10-06; built 10-05, never run on a live slate): ~11:15 CT `overlay_monitor.py flag --slate 2026-10-11 --out-dir ~/private/overlay/2026-w05`; after lock `overlay_monitor.py finalize --flags <the flags file>`. Read-only.
+- Paper shadow B (O-22): built with Sunday's projections, never entered.
 
 ## Monday 10-12
+- **The early checkpoint** (experiment plan 10-02 §6; audit 10-06): O1 / A3 / B2 interim at the doubled bar; the first P3 weekly read; shadow B scored beside ours and FP in `weekly_projection_accuracy.py`.
 - `weekly_projection_accuracy.py` (ours / FP / blend) and `weekly_fp_props_check.py` (FP vs FP + props), then `pool`.
 - Settlement; the entered book vs the paper rebuild of today's house shape on the same slate.
 - The monkey benchmark and the scorecard (once `production/moneygate-harness-20261005` merges, under review): `moneygate_monkeys.py --week 5` (1,000 books per monkey; M1 random pool rows, M2 the same under our caps and dealing, M3 random legal lineups; "worse than random" said plainly below the 25th) and `moneygate_scorecard.py`.
