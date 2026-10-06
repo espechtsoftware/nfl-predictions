@@ -12,6 +12,20 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (17:58 CDT) — Study 43: NO DIFFERENCE (cover stays 0); P3 and the W2–4 money figure done; the contrarian lineup (study 45) approved to test
+
+- **Study 43** (reviewer 6392ca4, READ d830a305) is reproduced byte-identically: COVER4 − LIVE −0.02840 [−0.06453, +0.00704], both seasons negative, seats ratio 0.892.
+  - **MIX_COVER stays 0.** Study 38 amendment 3 will refuse a nonzero cover (the reviewer).
+- **P3** (W2–4, `~/rehearsals/p3-20261006T225158Z`). The package at the afternoon settings (overlap 5, group) against a plain mean MILP and a props MILP:
+  - P(≥1 big), three-week average: .520 vs .197 and .102;
+  - mean entry pct: .497 vs .478 and .486.
+- **The money figure:** PKG4-rr, descriptive. It ran on the W5 lab pin via `pkg_lab_src`; the fix is merged as f0f7e8a1.
+  - Multiple: .228 / .000 / .174 (A0 .106 / .084 / .440). 0 big wins in any arm or week.
+  - W3's 72-row sleeve did not refuse at 4.
+- **The operator**, on a W1–4 read of the Millionaire winners (the winner was less owned than the field in 3 of 4 weeks, each time with 3 players under 5%; a low-owned QB + his stack recurs): "Yes, let's try what you described."
+  - So study 45 tests ONE contrarian lineup: a QB projected under ~5% owned with his stack, at least 3 players under 5%, total projected ownership ≤ ~80%, at rank 22 (ranks 23–26 carry only the $20 supersats), plus a two-row variant at 21–22.
+  - It uses FP projected ownership for that row only.
+  - The reviewer designs it now. W5 if it reads by Thursday.
 ## 2026-10-06 (17:41 CDT) — Study 43 frozen and running (the operator's first choice); study 38 amendment 2 acked; the cover switch built
 
 - **Study 38 amendment 2** (prereg 596e5d9b, d2cd6111; lab d15fb97) is ACKED. All three W4 smokes reproduce byte-identically: ms4-rr 47b701ee (identity f931364e), ms4-value d1348d29, ms5-group 79b69c17. The reviewer's message had rotated those labels; the prereg line is being corrected.
