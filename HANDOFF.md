@@ -12,6 +12,36 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (06:23 CDT) — STUDY 28: the winners' mix (MIX) is the closest result of the week, recommended as his preference; props report; LineStar retired
+
+**Study 28** (the reviewer's; MIX A1 30 / A2 14 / B 28 / C 28 by dealt entries vs the house shape; Rev2 with pin-aware
+weights; banks 1425/1426): NO DIFFERENCE, +0.06081 [−0.01184, +0.13846], EVERY season positive (+0.029 / +0.054 /
++0.097); both guards hold.
+- C → MIX: P(≥ 1 big) .236 → .296, expected big seats +12%, mean finish .501 → .514, worst decile .243 → .290,
+  near-dead weeks .48 → .42. Best ≥ 200 is unchanged (.075).
+- The dealt shape (QB+1 .55, bring-back .54, dual .48) sits near the 2026 top 1%.
+- The laptop's re-run is byte-identical (READ 5366c535). Addendum 133 merged (`ee8c3c58`).
+- **Decision sheet row 1 = MIX**, his stated preference ("mirroring how the winners play"), backed by the closest result,
+  not a proven gain. WS tied (18b); the shootout is off (26; 27 dropped).
+- **If he picks MIX on Friday:** merge main-mix (`ddd470ed`), then O-35 (`ce7ba02b`, approved), then
+  check_prospective_gates and check_week_runtime on the merged head. Arming:
+  `UNION_MAIN=mix UNION_MIX_PORTFOLIO=mix UNION_PROJ_SOURCE=fp` (spares on by default), ENTER_LAYOUT=head (the pins).
+
+**Props report** (`reports/2026-10-06-props-and-winners.md`, reviewed): props beat our model and our served blend on
+prop-covered players (best model weight 0). The regulars lean on props only as far as FP does. There is no sign yet that
+props add beyond FP. The weekly FP vs 0.5 FP + 0.5 props check is frozen (`reports/2026-10-06-prereg-fp-props-weekly-check.md`,
+`scripts/weekly_fp_props_check.py`), pooled from W5. Week-5 options for him: FP plus the paper check (recommended), or
+FP + props now (needs a reviewed fp_projection_override change).
+
+**LineStar retired after the one-time revision check:** the post-week list = the final pre-lock projection (60/60 at
+T−17 min); README log row `8795762d`. FP's T-70 ownership MAE 0.91 pp vs LineStar 1.00 (W4). The effective Week-5
+ownership chain is FP → LAG at 0.10 → none. **TODO after the main-mix merge:** remove the per-union LineStar capture from
+sunday_build_host.sh (a reviewed change).
+
+**Study 29 next** (the reviewer's): the live ownership term (+0.20 × predicted ownership %) on MIX. The laptop sent the
+formula, the predictor chain and the lab stand-ins: TABPFN_LS / LAG cover 2023–24 only (36 slates), and TABPFN_LS rests
+on the lock-time LineStar history.
+
 ## 2026-10-06 (06:03 CDT) — Rev2 plan installed (pins); study 26 read (shootout NO DIFFERENCE); study 27 DROPPED by the operator; study 28 (MIX on his plan) next; O-33/34/35
 
 **The operator's final entries (Rev2, 10-06):** `~/week5-sunday/contests.json` sha256 `94cc61a8…` (29 contests, 53
