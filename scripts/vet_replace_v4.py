@@ -51,6 +51,30 @@ def reslot(dks, pos_of):
     return by["QB"] + by["RB"][:2] + by["WR"][:3] + by["TE"][:1] + [flex] + by["DST"]
 
 
+def pick_replacement(gain: np.ndarray, pool_cells: list[set], need: str, house: str = "A1") -> tuple[int | None, str | None]:
+    """--main mix (reviewer 2026-10-06, blocking): the best candidate that fits the removed row's cell `need`; if NONE fits,
+    the best HOUSE-legal (`house`, A1) candidate -- a legal house lineup beats entering an unavailable player -- returned
+    with its fallback cell. (None, None) when nothing finite is left. `gain` already carries -inf for used candidates."""
+    fit = np.array([need in c for c in pool_cells], dtype=bool)
+    g = np.where(fit, gain, -np.inf)
+    j = int(np.argmax(g)) if len(g) else 0
+    if len(g) and np.isfinite(g[j]):
+        return j, None
+    if need == house:
+        return None, None
+    hfit = np.array([house in c for c in pool_cells], dtype=bool)
+    g = np.where(hfit, gain, -np.inf)
+    j = int(np.argmax(g)) if len(g) else 0
+    if len(g) and np.isfinite(g[j]):
+        return j, house
+    return None, None
+
+
+def row_cell(p: int, cell_at: dict, fallback_at: dict) -> str | None:
+    """The shape a mix book position is validated against: its recorded house fallback, else its own cell."""
+    return fallback_at.get(p) or cell_at.get(p)
+
+
 def slot_legal(row, pos_of):
     return all((s is None and pos_of[d] in ("RB", "WR", "TE")) or pos_of[d] == s
                for d, s in zip(row, ("QB", "RB", "RB", "WR", "WR", "WR", "TE", None, "DST")))
@@ -98,6 +122,26 @@ def main():
     dk_status = dict(zip(f.dk, f.status.astype(str).str.upper().str.strip())) if "status" in f.columns else {}
     gsis_of = dict(zip(f.dk, f.gsis_id.astype(str)))
     vr_args = [f.set_index("id")[k].to_dict() for k in ("pos", "team", "opp", "salary")]
+    # --main mix (study 18's shape portfolio): every book row keeps ITS cell's shape, read from the source run's candidate
+    # tags (mix_<cell>; nfl_dfs.inference.mix_shapes); a replacement takes the removed row's cell; untagged rows keep the
+    # house rules. Without a mix main nothing below changes.
+    _mix = ((src.get("config", {}).get("union") or {}).get("main") == "mix")
+    cell_at: dict[int, str | None] = {}
+    if _mix:
+        from nfl_dfs.inference.mix_shapes import ALL_CELLS, book_cells, shape_violations
+        _game_of_id = f.set_index("id")["game_id"].astype(str).to_dict()
+        _cc = pd.read_parquet(run / "candidates.parquet")
+        _tagged = [(frozenset(id_to_dk.get(t.strip()) for t in _pl.split(",")), _tg)
+                   for _pl, _tg in zip(_cc["players"].astype(str), _cc["tag"].astype(str))]
+        _k_main = min(max(int(src.get("config", {}).get("operational_k") or len(book)), 0), len(book))
+        try:                                                 # every MIX main row must resolve its cell, or nothing is vetted
+            cell_at = dict(enumerate(book_cells([frozenset(r) for r in book], _tagged, _k_main)))
+        except ValueError as e:
+            (out / "replace.json").write_text(json.dumps({"version": "vet-replace-v4.1", "status": "FAILED", "problems": [str(e)]}, indent=1) + "\n")
+            print(f"REPLACEMENT FAILED: {e}", file=sys.stderr); sys.exit(2)
+
+        def mix_violations(toks, cell):
+            return shape_violations(toks, cell, vr_args[0], vr_args[1], vr_args[2], _game_of_id)
     game_arg = f.set_index("id")["game_id"].to_dict() if "game_id" in f.columns else None
 
     # ---- whole-slate statuses: report status (latest row per player) + QB classes ----
@@ -166,6 +210,7 @@ def main():
     # ---- removal from the final (vetted) book, by ids, on every path ----
     remove_positions = [p for p, r in enumerate(book) if any(d in E for d in r)]
     replaced_info = []
+    fallback_at: dict[int, str] = {}                        # --main mix: positions filled by the house fallback (10-06)
     if remove_positions:
         inc = np.load(run / "incumbent_player_scores.npy"); hs = np.load(run / "corrected_hsim_player_scores.npy")
         bank_problems = []
@@ -178,8 +223,10 @@ def main():
         inc_g, hs_g = inc.copy(), hs.copy(); zr = [row_of[d] for d in E if d in row_of]
         inc_g[zr, :] = 0.0; hs_g[zr, :] = 0.0; mix = np.concatenate([inc_g, hs_g], axis=1)
         cands = pd.read_parquet(run / "candidates.parquet")
+        cand_src = cands["source_run"].astype(str).tolist() if "source_run" in cands.columns else None
         book_sets = {frozenset(r) for r in book}
         pool_idx, pool_meta, rejected = [], [], {"unmapped": 0, "in_book": 0, "excluded": 0, "risky": 0, "illegal": 0}
+        pool_cells: list[set] = []                          # --main mix: the cells each admitted candidate fits
         for ci, players in enumerate(cands["players"].astype(str)):
             toks = [t.strip() for t in players.split(",")]
             dks = [id_to_dk.get(t) for t in toks]
@@ -187,7 +234,12 @@ def main():
             if frozenset(dks) in book_sets: rejected["in_book"] += 1; continue
             if any(d in E for d in dks): rejected["excluded"] += 1; continue
             if not a.admit_risky and any(d in risky for d in dks): rejected["risky"] += 1; continue
-            if validate_roster(toks, *vr_args, salary_floor=49000, qb_stack_min=2, bring_back_min=1, forbid_rb_vs_dst=True, forbid_two_rb_same_team=True): rejected["illegal"] += 1; continue
+            if _mix:
+                if validate_roster(toks, *vr_args, salary_floor=49000, forbid_rb_vs_dst=True, forbid_two_rb_same_team=True): rejected["illegal"] += 1; continue
+                fits = {c for c in ALL_CELLS if not mix_violations(toks, c)}
+                if not fits: rejected["illegal"] += 1; continue
+                pool_cells.append(fits)
+            elif validate_roster(toks, *vr_args, salary_floor=49000, qb_stack_min=2, bring_back_min=1, forbid_rb_vs_dst=True, forbid_two_rb_same_team=True): rejected["illegal"] += 1; continue
             pool_idx.append([row_of[d] for d in dks]); pool_meta.append((ci, dks))
         if not pool_idx:
             raise SystemExit("no eligible replacement candidates")
@@ -198,14 +250,28 @@ def main():
         for p in remove_positions:
             gain = np.maximum(M[None, :], T).mean(axis=1) - M.mean()
             if used: gain[list(used)] = -np.inf
-            j = int(np.argmax(gain)); used.add(j); ci, dks = pool_meta[j]
+            fb = None
+            if _mix:                                         # a candidate that fits the removed row's cell (house = A1);
+                need = cell_at.get(p) or "A1"                # none fits -> the best house-legal one, flagged (10-06)
+                j, fb = pick_replacement(gain, pool_cells, need)
+                if j is None:
+                    (out / "replace.json").write_text(json.dumps({"version": "vet-replace-v4.1", "status": "FAILED", "problems": [f"no candidate fits cell {need} or the house shape"]}, indent=1) + "\n")
+                    print(f"REPLACEMENT FAILED: no candidate fits cell {need} or the house shape", file=sys.stderr); sys.exit(2)
+                if fb:
+                    fallback_at[p] = fb
+            else:
+                j = int(np.argmax(gain))
+            used.add(j); ci, dks = pool_meta[j]
             if not np.isfinite(gain[j]):
                 (out / "replace.json").write_text(json.dumps({"version": "vet-replace-v4.1", "status": "FAILED", "problems": ["non-finite replacement gain"]}, indent=1) + "\n")
                 print("REPLACEMENT FAILED: non-finite replacement gain", file=sys.stderr); sys.exit(2)
             new = reslot(dks, pos_of)
             replaced_info.append({"vetted_position": p + 1, "source_rank": order[p], "removed": [name_of[d] for d in book[p]],
                                   "removed_because": {name_of[d]: reasons[d] for d in book[p] if d in E},
-                                  "replacement": [name_of[d] for d in new], "candidate_index": int(ci), "gain_corrected_mix": float(gain[j])})
+                                  "replacement": [name_of[d] for d in new], "candidate_index": int(ci), "gain_corrected_mix": float(gain[j]),
+                                  "candidate_source": str(cand_src[ci]) if cand_src is not None else None,
+                                  **({"cell": cell_at.get(p) or "house"} if _mix else {}),
+                                  **({"cell_fallback": "house"} if fb else {})})
             M = np.maximum(M, T[j]); book[p] = new
         pool_summary = {"eligible": int(len(pool_idx)), "rejected": rejected}
     else:
@@ -227,6 +293,9 @@ def main():
         # held to DraftKings legality only; the main block and every replacement keep the house rules
         if p >= _kb and _sleeve_free:
             v = validate_roster([dk_to_id[d] for d in r], *vr_args)
+        elif _mix and cell_at.get(p) is not None:            # a mix row: DK legality + the floor + ITS cell's shape, or the
+            _t = [dk_to_id[d] for d in r]                    # house shape where replace.json records the fallback for p
+            v = validate_roster(_t, *vr_args, salary_floor=49000, forbid_rb_vs_dst=True, forbid_two_rb_same_team=True) + mix_violations(_t, row_cell(p, cell_at, fallback_at))
         else:
             v = validate_roster([dk_to_id[d] for d in r], *vr_args, salary_floor=49000, qb_stack_min=2, bring_back_min=1, forbid_rb_vs_dst=True, forbid_two_rb_same_team=True)
         if v: problems.append(f"row {p+1}: {v}")
@@ -250,7 +319,8 @@ def main():
                "input_sha256": inputs, "qb_flags": str(a.qb_flags), "required_k": k_required, "admit_risky": bool(a.admit_risky),
                "freshness": {"frame_status": "build-time DK feed", "fresh_dk_pulled_at": fresh_pulled_at, "fresh_dk_players": len(fresh_status), "injury_report_rows": int(len(inj))},
                "exclusion_set": {name_of[d]: reasons[d] for d in sorted(E, key=lambda x: name_of[x]) if d in name_of},
-               "removed_positions": [p + 1 for p in remove_positions], "replacements": replaced_info, "pool": pool_summary}
+               "removed_positions": [p + 1 for p in remove_positions], "replacements": replaced_info, "pool": pool_summary,
+               "cell_fallbacks": [{"vetted_position": p + 1, "cell": cell_at.get(p), "cell_fallback": "house"} for p in sorted(fallback_at)]}
     (out / "replace.json").write_text(json.dumps(receipt, indent=1) + "\n")
     if status != "OK":
         print("REPLACEMENT FAILED:", "; ".join(problems[:6]), file=sys.stderr); sys.exit(2)
@@ -278,7 +348,9 @@ def main():
     (out / "replace.json").write_text(json.dumps(receipt, indent=1) + "\n")
     if test_mode:
         (out / "NOT-PUBLISHABLE-REHEARSAL").write_text("rehearsal flags were used; this book must not be emitted\n")
-    print(f"replaced {len(replaced_info)} unavailable lineup(s) (exclusion set {len(E)} players); final book validated: {n_book} rows OK")
+    fb_note = (f"; !!! {len(fallback_at)} BY THE HOUSE FALLBACK (no in-cell candidate): positions "
+               f"{[p + 1 for p in sorted(fallback_at)]} ({sorted({str(cell_at.get(p)) for p in fallback_at})} rows now house-shaped)") if fallback_at else ""
+    print(f"replaced {len(replaced_info)} unavailable lineup(s) (exclusion set {len(E)} players); final book validated: {n_book} rows OK{fb_note}")
     for r in replaced_info:
         print(f"  pos {r['vetted_position']:>3} (source rank {r['source_rank']}): removed because {r['removed_because']}\n      -> {', '.join(r['replacement'])}  (gain {r['gain_corrected_mix']:+.3f})")
 

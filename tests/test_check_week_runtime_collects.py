@@ -114,3 +114,39 @@ def test_a_missing_prerequisite_skips_its_dependants_without_crashing(tmp_path):
     found = _failures(r)
     assert found[0] == "missing environment: CLONE"
     assert any(f.startswith("contest file missing") for f in found), found
+
+
+def test_union_main_mix_needs_a_clone_whose_optimize_takes_the_shape_options(tmp_path):
+    """--main mix (study 18) solves with optimize(second_game_pair=, qb_game_max=): a clone without them must fail at
+    arming, never with a TypeError at the Sunday solve. Checked by capability in the clone's lineup.py."""
+    env = _healthy(tmp_path); env["UNION_MAIN"] = "mix"; env["UNION_MIX_PORTFOLIO"] = "ws"
+    fails = _failures(_run(env))
+    assert any("UNION_MAIN=mix needs the pinned lab clone's optimize() to take second_game_pair and qb_game_max" in f for f in fails)
+    clone = Path(env["CLONE"])
+    (clone / "src" / "nfl2" / "core").mkdir(parents=True)
+    (clone / "src" / "nfl2" / "core" / "lineup.py").write_text(
+        "def optimize(pool, second_game_pair=None, qb_game_max=None): pass\ndef _apply_game_shape(): pass\n")
+    g = ["git", "-C", str(clone), "-c", "user.name=t", "-c", "user.email=t@t", "-c", "commit.gpgsign=false"]
+    subprocess.run(g + ["add", "-A"], check=True); subprocess.run(g + ["commit", "-q", "-m", "re-pin"], check=True)
+    env["EXPECT_SHA"] = subprocess.run(g[:3] + ["rev-parse", "HEAD"], check=True, capture_output=True, text=True).stdout.strip()
+    assert not any("UNION_MAIN" in f for f in _failures(_run(env)))
+    env["UNION_MAIN"] = "bogus"
+    assert any("must be mean, pmo_x50 or mix" in f for f in _failures(_run(env)))
+
+
+def test_union_mix_portfolio_must_be_mix_or_ws(tmp_path):
+    env = _healthy(tmp_path); env["UNION_MIX_PORTFOLIO"] = "ws"
+    assert not any("UNION_MIX_PORTFOLIO" in f for f in _failures(_run(env)))
+    env["UNION_MIX_PORTFOLIO"] = "thesis"
+    assert any("UNION_MIX_PORTFOLIO='thesis' must be mix or ws" in f for f in _failures(_run(env)))
+    env.pop("UNION_MIX_PORTFOLIO"); env["UNION_MAIN"] = "mix"        # reviewer 10-05: no silent default arm
+    assert any("UNION_MAIN=mix needs UNION_MIX_PORTFOLIO=mix|ws" in f for f in _failures(_run(env)))
+
+
+def test_union_mix_spares_must_be_0_to_50_and_not_0_with_a_mix_main(tmp_path):
+    env = _healthy(tmp_path); env["UNION_MIX_SPARES"] = "15"
+    assert not any("UNION_MIX_SPARES" in f for f in _failures(_run(env)))
+    env["UNION_MIX_SPARES"] = "lots"
+    assert any("UNION_MIX_SPARES='lots' must be an integer 0..50" in f for f in _failures(_run(env)))
+    env["UNION_MIX_SPARES"] = "0"; env["UNION_MAIN"] = "mix"; env["UNION_MIX_PORTFOLIO"] = "ws"
+    assert any("UNION_MIX_SPARES=0 with UNION_MAIN=mix" in f for f in _failures(_run(env)))

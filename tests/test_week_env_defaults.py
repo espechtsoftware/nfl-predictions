@@ -140,7 +140,7 @@ def test_ownership_fallback_chain_tabpfn_blend_lag_none_is_loud(tmp_path):
     assert "UNION_MAIN_OWN_LAG_TILT=${UNION_MAIN_OWN_LAG_TILT:-0.10}" in src
     host = (ROOT / "scripts" / "sunday_build_host.sh").read_text()
     assert host.index("scripts/ownership_blend.py") < host.index('"${UNION_MAIN_OWN_PREDICTOR:-blend}" == "tabpfn"')
-    start = host.index("  own_banner() {"); end = host.index("  if [[ \"${UNION_MAIN:-mean}\" == \"pmo_x50\"", start)
+    start = host.index("  own_banner() {"); end = host.index("  if [[ ( \"${UNION_MAIN:-mean}\" == \"pmo_x50\"", start)   # the term block (pmo_x50 or mix)
     fns = host[start:end]
     good = tmp_path / "lag_good.csv"; good.write_text("display_name,pred_own\n" + "".join(f"P{i},{20.0 if i < 10 else 2.0}\n" for i in range(150)))
     bad = tmp_path / "lag_bad.csv"; bad.write_text("display_name,pred_own\n" + "".join(f"P{i},1.0\n" for i in range(150)))
@@ -201,3 +201,11 @@ def test_exposure_cap_books_count_the_tail_sleeve():
 
 def test_week4_overlap_ceiling_is_ten_by_default_after_the_smoke():
     assert "export ENTER_SMALL_OVERLAP_MAX_ENTRIES=${ENTER_SMALL_OVERLAP_MAX_ENTRIES-10}" in ENV_SCRIPT.read_text()
+
+
+def test_mix_spares_default_reaches_the_union_and_the_units():
+    """reviewer 2026-10-06 (blocking): with a mix main, 15 spare rows (study 24's sizing) are the Sunday replacement
+    step's in-shape supply; the setting reaches the union and rides every armed unit."""
+    assert "export UNION_MIX_SPARES=${UNION_MIX_SPARES-15}" in ENV_SCRIPT.read_text()
+    assert '--mix-spares "${UNION_MIX_SPARES:-15}"' in (ROOT / "scripts" / "sunday_build_host.sh").read_text()
+    assert " UNION_MIX_SPARES " in (ROOT / "scripts" / "arm_week_timers.sh").read_text()

@@ -273,3 +273,68 @@ def test_field_sleeve_rows_are_held_to_their_declared_limits(tmp_path):
     assert "stack_rules" in run(tmp_path / "e", [nostack], ["field"], top)             # top mode keeps the house stack
     free = {"used": True, "max_game": 5, "house_rules_applied": False}
     assert "stack_rules" not in run(tmp_path / "f", [nostack], ["field"], free)
+
+
+def test_mix_rows_are_held_to_their_own_cell(tmp_path):
+    """--main mix (study 18): a row tagged mix_<cell> is checked against THAT cell's shape; a mix-main row without a known
+    cell tag fails; an untagged row keeps the house check. Without this the union's audit refuses every MIX book."""
+    b_row = ["AQB", "AWR1", "BRB1", "CRB0", "DWR0", "CWR2", "DTE", "EWR1", "G_DST"]     # QB+1, bb 1, 3 from g1, pair in g2
+    base = [_lineup("A", "B", "C"), _lineup("C", "D", "E"), _lineup("E", "F", "G"), _lineup("G", "H", "A"), _lineup("B", "A", "D")]
+
+    def run(tmp, tag, src):
+        r = _run_dir(tmp, lineups=base + [b_row], book=base)
+        c = pd.read_parquet(r / "candidates.parquet")
+        c["tag"] = ["lev"] * len(base) + [tag]; c["source_run"] = ["t70"] * len(base) + [src]
+        c.to_parquet(r / "candidates.parquet")
+        return _audit(r)
+
+    ok = run(tmp_path / "a", "mix_B", "mix")
+    assert "stack_rules" not in ok["failed"]
+    assert next(c for c in ok["checks"] if c["check"] == "stack_rules")["mix_rows"] == 1
+    assert "stack_rules" in run(tmp_path / "b", "mix_A1", "mix")["failed"]          # the wrong cell: 1 mate < 2
+    assert "stack_rules" in run(tmp_path / "c", "pmo_x50", "mix")["failed"]         # a mix-main row with no cell tag
+    assert "stack_rules" in run(tmp_path / "d", "mix_Q", "mix")["failed"]           # an unknown cell
+    assert "stack_rules" in run(tmp_path / "e", "lev", "t70")["failed"]             # untagged: the house rule, as before
+
+
+def test_union_main_check_reads_a_declared_mix_main(tmp_path):
+    """--main mix: every main row is a mix row tagged with a known cell, the caps held, the receipt carrying the mix table;
+    a mean main must hold no mix rows."""
+    lus = [_lineup("A", "B", "C"), _lineup("C", "D", "E"), _lineup("E", "F", "G"), _lineup("G", "H", "A"), _lineup("B", "A", "D"), _lineup("D", "C", "F")]
+    tail = CONTESTS + [{"name": "milly", "contest_id": "9", "entries": 1, "keep": 1, "track": "tail"}]
+    mix_meta = {"exposure_cap": 3, "max_exposure_used": 3, "dst_cap": 2, "max_dst_rows_used": 2, "mix": {"cells": {"A1": {"rows": 5}}}}
+    base = {"selector": "mean", "operational_k": 5, "tail_sleeve": {"rows": 1, "selector_used": "mean"}}
+
+    def run(tmp, union, tags, srcs):
+        r = _run_dir(tmp, lineups=lus, book=lus[:6], receipt={"written": 6, "config": {**base, "union": union}})
+        c = pd.read_parquet(r / "candidates.parquet"); c["source_run"] = srcs; c["tag"] = tags; c["book_rank"] = [1, 2, 3, 4, 5, None]
+        c.to_parquet(r / "candidates.parquet")
+        return _audit(r, contests=tail, expect_selector="mean")["failed"]
+
+    good_tags, good_src = ["mix_A1"] * 5 + ["lev"], ["mix"] * 5 + ["saturday"]
+    assert "union_main" not in run(tmp_path / "a", {"main": "mix", "mix": mix_meta}, good_tags, good_src)
+    assert "union_main" in run(tmp_path / "b", {"main": "mix", "mix": mix_meta}, ["pmo_x50"] + good_tags[1:], good_src)   # untagged row
+    assert "union_main" in run(tmp_path / "c", {"main": "mix", "mix": {k: v for k, v in mix_meta.items() if k != "mix"}}, good_tags, good_src)
+    assert "union_main" in run(tmp_path / "d", {"main": "mean"}, good_tags, good_src)                                    # mean main holding mix rows
+
+
+def test_a_declared_fp_projection_source_must_travel_with_the_book(tmp_path):
+    """FP projections (operator 10-05): the override file and its sha in the run dir, the gates held; none when undeclared."""
+    import hashlib
+    run = _run_dir(tmp_path / "a")
+    assert "proj_source" not in [c["check"] for c in _audit(run)["checks"]]               # undeclared: no check
+    (run / "proj_source.csv").write_text("id,fp\nAQB,20.0\n")
+    sha = hashlib.sha256((run / "proj_source.csv").read_bytes()).hexdigest()
+    rec = json.loads((run / "receipt.json").read_text())
+    rec["config"]["union"] = {"main": "pmo_x50", "proj_source": {"sha256": sha, "replaced": 1, "kept_ours": 0,
+                                                                 "gates": {"coverage_skill_ge5": 1.0, "pearson_r": 0.97}}}
+    (run / "receipt.json").write_text(json.dumps(rec))
+    res = _audit(run)
+    assert "proj_source" not in res["failed"] and "proj_source" in [c["check"] for c in res["checks"]]
+    rec["config"]["union"]["proj_source"]["gates"]["pearson_r"] = 0.5
+    (run / "receipt.json").write_text(json.dumps(rec))
+    assert "proj_source" in _audit(run)["failed"]
+    (run / "proj_source.csv").write_text("id,fp\nAQB,21.0\n")
+    rec["config"]["union"]["proj_source"]["gates"]["pearson_r"] = 0.97
+    (run / "receipt.json").write_text(json.dumps(rec))
+    assert "proj_source" in _audit(run)["failed"]                                          # the file changed after the build

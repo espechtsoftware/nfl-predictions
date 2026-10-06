@@ -62,6 +62,8 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from r1c_sunday_reselect import BANKS, OUT_STATUSES, unavailable_ids  # noqa: E402
 from run_dir_publishable import parse_utc  # noqa: E402
+from nfl_dfs.inference.mix_shapes import (MIX_CELLS, PORTFOLIOS, TAG_PREFIX, allocate as mix_allocate, interleave as mix_interleave,  # noqa: E402
+                                           plan_weights as mix_weights, shape_violations, cell_of_tag)
 
 SKILL = ("QB", "RB", "WR", "TE")
 COPY = ("frame.parquet", "universe_ledger.parquet", "exposure_ledger.json", "book_wemax.csv", "book_wemax.json", *BANKS)
@@ -419,6 +421,126 @@ def main_exposure_cap(share: float, k: int) -> int:
         raise ValueError(f"exposure cap share must be in (0, 1] (got {share})")
     return max(1, int(share * k))
 
+
+def apply_proj_source(fr: pd.DataFrame, csv_path: Path, frame_path: Path) -> tuple[pd.DataFrame, dict]:
+    """--proj-source (operator 2026-10-05: Fantasy Points' projections replace ours): the override file written by
+    scripts/fp_projection_override.py FOR THIS FRAME (its sidecar names the frame's sha256; any other frame REFUSES). The
+    frame's mean_projection is replaced for every player the file holds; the rest keep ours; ours stays beside it as
+    mean_projection_ours. Everything downstream (the pool's projection floor, the main or mix solves, the sleeve's
+    projected sums) reads the replaced column. The simulations (banks) stay ours: FP gives a mean only."""
+    meta_path = Path(str(csv_path) + ".json")
+    if not (Path(csv_path).is_file() and meta_path.is_file()):
+        raise SystemExit(f"PROJ SOURCE REFUSED: {csv_path} or its .json sidecar is missing")
+    meta = json.loads(meta_path.read_text())
+    if meta.get("frame_sha256") != sha256_file(frame_path):
+        raise SystemExit(f"PROJ SOURCE REFUSED: {csv_path} was built for another frame ({str(meta.get('frame_sha256'))[:12]})")
+    if meta.get("csv_sha256") != sha256_file(Path(csv_path)):
+        raise SystemExit(f"PROJ SOURCE REFUSED: {csv_path} does not match its sidecar's sha256")
+    ov = pd.read_csv(csv_path, dtype={"id": str})
+    fp = dict(zip(ov["id"].astype(str), pd.to_numeric(ov["fp"], errors="coerce")))
+    if any(not np.isfinite(v) for v in fp.values()):
+        raise SystemExit(f"PROJ SOURCE REFUSED: {csv_path} holds a non-number")
+    out = fr.copy()
+    out["mean_projection_ours"] = out["mean_projection"]
+    ids = out["id"].astype(str)
+    hit = ids.isin(set(fp))
+    out.loc[hit, "mean_projection"] = ids[hit].map(fp).astype(float)
+    return out, {"file": str(csv_path), "sha256": sha256_file(Path(csv_path)), "capture": meta.get("capture"),
+                 "gates": {k: v for k, v in (meta.get("gates") or {}).items() if k != "top15_abs_diff"},
+                 "before_inactives": meta.get("before_inactives"), "replaced": int(hit.sum()), "kept_ours": int((~hit).sum()),
+                 "note": "FP's mean replaces ours in selection; the simulations (banks) stay ours"}
+
+
+def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap: int | None, min_salary: int,
+             weights: list[int], exposure_cap: int | None = None, dst_cap: int | None = None,
+             bonus: dict[str, float] | None = None, portfolio: str = "mix",
+             spares: int = 0) -> tuple[list[list[str]], list[str], dict, list[tuple[list[str], str]]]:
+    """study 18's MIX book on the T-70 frame: cells solved largest first (ties: the earlier cell) through ONE shared state
+    (banned lineups, the per-player exposure cap, the DST cap, <= max_shared with every earlier row); a cell row that cannot
+    be solved passes to A1 (counted); then the rows are ordered by the entry-weighted interleave of the plan's weights.
+    Returns (rows in book order, each row's cell, meta, spares). s18's mix_book with production's objective
+    (mean_projection, or mean_projection + the ownership term with bonus), production's caps and env.
+    spares (reviewer 2026-10-06, the blocking finding: a WS row could not be replaced on Sunday, since no house candidate
+    fits WS): AFTER the k book rows, `spares` more rows are solved through the SAME running state (banned lineups, counts),
+    with the caps the caller computed from the book's entries (never from k + spares), allocated over the cells by quota
+    (ws: all WS), with the same pass to A1. They are never book rows: the caller adds them to the candidate corpus as the
+    Sunday replacement step's in-shape supply. A short spare tail is not a refusal (meta records requested / built). The
+    book rows are identical with or without spares (they are solved first)."""
+    from nfl2.core.lineup import StackRules, optimize          # the pinned lab clone on PYTHONPATH (>= f69598b)
+    pool = [p for i, p in frame_players(t70).items() if i not in exclude]
+    objective = "proj"
+    if bonus:
+        pool = [dict(p, obj=p["proj"] + float(bonus.get(p["id"], 0.0))) for p in pool]
+        objective = "obj"
+    dst_ids = {p["id"] for p in pool if p["pos"] == "DST"}
+    games = sorted({str(p["game_id"]) for p in pool if p["pos"] in SKILL})    # the REAL game ids (skill rows)
+    env = {"MIN_LINEUP_SALARY": str(min_salary)}
+    if cap is not None:
+        env["MAX_PER_GAME"] = str(cap)
+    cells = PORTFOLIOS[portfolio]                              # mix: study 18's MIX cells; ws: one whole-book cell
+    names = list(cells)
+    quotas = [cells[n][0] for n in names]
+    target = mix_allocate(quotas, k)
+    prev: list[frozenset] = []
+    count: Counter = Counter()
+    rows: dict[str, list[list[str]]] = {n: [] for n in names}
+    passes = 0
+
+    def solve(name: str):
+        _, rules, qmax, which = cells[name]
+        bans = {p for p, c in count.items() if exposure_cap is not None and c >= exposure_cap}
+        if dst_cap is not None:
+            bans |= {p for p, c in count.items() if p in dst_ids and c >= dst_cap}
+        lu = optimize(pool, stack=StackRules(**rules), objective_col=objective, banned_lineups=prev, max_overlap=max_shared,
+                      bans=bans or None, env=env, second_game_pair=games if which == "all" else None, qb_game_max=qmax)
+        if lu is None:
+            return None
+        ids = [str(p["id"]) for p in lu.players]
+        prev.append(frozenset(ids)); count.update(ids)
+        return ids
+
+    for i in sorted(range(len(names)), key=lambda i: (-target[i], i)):
+        for _ in range(target[i]):
+            cell, ids = names[i], solve(names[i])
+            if ids is None and "A1" in cells:                  # MIX: a cell row that cannot be solved passes to A1
+                passes += 1; cell = "A1"
+                ids = solve("A1")
+            if ids is None:
+                break
+            rows[cell].append(ids)
+    got = [len(rows[n]) for n in names]
+    spare_rows: list[tuple[list[str], str]] = []
+    if spares:
+        s_target = mix_allocate(quotas, spares)
+        for i in sorted(range(len(names)), key=lambda i: (-s_target[i], i)):
+            for _ in range(s_target[i]):
+                cell, ids = names[i], solve(names[i])
+                if ids is None and "A1" in cells:
+                    cell = "A1"
+                    ids = solve("A1")
+                if ids is None:
+                    break
+                spare_rows.append((ids, cell))
+    seq = mix_interleave(got, quotas, weights)
+    pos = [0] * len(names); book, cell_of = [], []
+    for j in seq:
+        book.append(rows[names[j]][pos[j]]); cell_of.append(names[j]); pos[j] += 1
+    dealt = Counter(); tot = 0
+    for r, cell in enumerate(cell_of):
+        w = weights[r] if r < len(weights) else 0
+        dealt[cell] += w; tot += w
+    meta = {"cells": {n: {"quota": q, "target_rows": t, "rows": g} for n, q, t, g in zip(names, quotas, target, got)},
+            "passes_to_A1": passes, "rows_solved": len(book), "pair_games": len(games),
+            "entry_shares_before_overlap_limit": {n: round(dealt[n] / tot, 4) if tot else None for n in names},
+            "rules": {n: {"quota": cells[n][0], "stack": cells[n][1], "qb_game_max": cells[n][2],
+                          "second_game_pair": cells[n][3]} for n in names}, "portfolio": portfolio,
+            "spares": {"requested": int(spares), "built": len(spare_rows), "cells": dict(Counter(c for _, c in spare_rows)),
+                       "caps_from_book_entries": k},
+            "source": ("nfl2 experiments/s18_stack_shapes.py @ 5869a1b (CELLS, allocate, interleave, mix_book)" if portfolio == "mix"
+                       else "nfl2 experiments/s18_stack_shapes.py @ 5869a1b (WS, whole_book; PASSED, Addendum 129)")}
+    return book, cell_of, meta, spare_rows
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--saturday-run", required=True, help="a run dir, or 'auto' (newest --saturday-dose run in --live-dir built before the T-70 run)")
@@ -455,8 +577,21 @@ def main(argv: list[str] | None = None) -> int:
                     help="with --main-own-tilt: the week's ownership file (pred_own in %%, dk_player_id / gsis_id), from scripts/ownership_blend.py")
     ap.add_argument("--main-own-min-coverage", type=float, default=0.9,
                     help="with --main-own-tilt: refuse when the file names fewer than this share of the pool's skill players projected >= 5")
-    ap.add_argument("--main", choices=["mean", "pmo_x50"], default="mean",
-                    help="the main book: mean = the union pool's top-K by projected sum (paper arm); pmo_x50 = K capped plain-mean-optimizer rows solved on the T-70 frame (ENTERS Week 4)")
+    ap.add_argument("--main", choices=["mean", "pmo_x50", "mix"], default="mean",
+                    help="the main book: mean = the union pool's top-K by projected sum (paper arm); pmo_x50 = K capped plain-mean-optimizer rows solved on the T-70 frame (ENTERS Week 4); "
+                         "mix = study 18's shape portfolio: the same capped solves by cell (nfl_dfs.inference.mix_shapes), ordered by the plan's entry-weighted interleave")
+    ap.add_argument("--proj-source", type=Path, default=None,
+                    help="an override file from scripts/fp_projection_override.py built for THIS T-70 frame: its projections replace "
+                         "the frame's mean_projection for the players it holds (operator 10-05: Fantasy Points)")
+    ap.add_argument("--mix-portfolio", choices=sorted(PORTFOLIOS), default=None,
+                    help="with --main mix: mix = study 18's four-cell MIX; ws = study 18's WS (one whole-book cell; PASSED)")
+    ap.add_argument("--mix-plan", type=Path, default=None, help="with --main mix: the week's contests.json (the interleave's entry weights)")
+    ap.add_argument("--mix-spares", type=int, default=0,
+                    help="with --main mix: spare rows solved after the book under the same running caps (caps from --entries), "
+                         "added to the candidate corpus (source mix_spare, tagged with their cell) as the Sunday replacement "
+                         "step's in-shape supply; never book rows (reviewer 2026-10-06; study 24 sized S = 15)")
+    ap.add_argument("--mix-layout", choices=["sequential", "top", "head", "spread"], default="head",
+                    help="with --main mix: the layout enter_layout deals with (ENTER_LAYOUT)")
     ap.add_argument("--sleeve-source", choices=["mean", "field"], default="mean",
                     help="field: the tail sleeve's rows come from a field-like sample built from the pre-lock ownership predictor "
                          "(scripts/field_sleeve.py; operator 2026-10-02); any failure falls back LOUDLY to the projection sleeve")
@@ -480,8 +615,18 @@ def main(argv: list[str] | None = None) -> int:
         raise SystemExit(f"--sleeve-cap-share must be in (0, 1] (got {a.sleeve_cap_share})")
     if a.rehearsal and (a.out is None or a.live_dir in a.out.resolve().parents):
         raise SystemExit("--rehearsal needs --out outside --live-dir")
-    if a.main_own_tilt and a.main != "pmo_x50":
-        raise SystemExit("--main-own-tilt is defined for --main pmo_x50 (the term sits in the optimizer's objective)")
+    if a.main_own_tilt and a.main not in ("pmo_x50", "mix"):
+        raise SystemExit("--main-own-tilt is defined for --main pmo_x50 / mix (the term sits in the optimizer's objective)")
+    if a.main == "mix" and (a.mix_plan is None or not a.mix_plan.is_file()):
+        raise SystemExit(f"--main mix needs --mix-plan (the week's contests.json; got {a.mix_plan})")
+    if a.main == "mix" and a.mix_portfolio is None:
+        raise SystemExit("--main mix needs --mix-portfolio mix|ws (no default: the chosen arm, stated)")
+    if a.main == "mix" and a.main_game_cap != "off":
+        raise SystemExit("--main-game-cap (study 1) is not defined with --main mix")
+    if not 0 <= a.mix_spares <= 50:
+        raise SystemExit(f"--mix-spares must be 0..50 (got {a.mix_spares})")
+    if a.mix_spares and a.main != "mix":
+        raise SystemExit("--mix-spares is defined with --main mix only")
     from nfl2.two_track import select_top_mean, tail_probability   # the pinned lab clone on PYTHONPATH
     from nfl2.live import dk_csv
     from nfl2.validator import validate_roster
@@ -495,6 +640,10 @@ def main(argv: list[str] | None = None) -> int:
     if parse_utc(sat["receipt"].get("built_utc", "")) >= parse_utc(t70["receipt"].get("built_utc", "")):
         raise SystemExit(f"the Saturday run {sat_dir.name} was built at or after the T-70 run {a.t70_run.name}")
     fr = t70["frame"]
+    proj_meta: dict = {}
+    if a.proj_source is not None:                        # FP's projections replace ours (operator 10-05); off by default
+        fr, proj_meta = apply_proj_source(fr, a.proj_source, a.t70_run / "frame.parquet")
+        print(f"PROJECTION SOURCE: {a.proj_source} -- FP for {proj_meta['replaced']} frame players, ours for {proj_meta['kept_ours']}")
     inc, hs = (np.load(a.t70_run / b) for b in BANKS)
     if inc.shape[0] != len(fr) or hs.shape[0] != len(fr):
         raise SystemExit("T-70 banks do not match the T-70 frame's rows")
@@ -513,8 +662,8 @@ def main(argv: list[str] | None = None) -> int:
     tags = list(t70["cands"]["tag"].astype(str).iloc[t70_idx]) + list(sat["cands"]["tag"].astype(str).iloc[sat_idx])
     sat_cand = [None] * len(t70_rosters) + [int(i) for i in sat_idx]
     n_pmo = 0
-    if a.main == "pmo_x50" and a.pmo > 0:
-        raise SystemExit("--pmo (extra pool rows) is for --main mean; --main pmo_x50 solves the main book itself")
+    if a.main in ("pmo_x50", "mix") and a.pmo > 0:
+        raise SystemExit(f"--pmo (extra pool rows) is for --main mean; --main {a.main} solves the main book itself")
     if a.pmo > 0:
         gone = unavailable_ids(fr, dk)
         proj_all = dict(zip(fr.id.astype(str), pd.to_numeric(fr.mean_projection, errors="coerce")))
@@ -579,7 +728,8 @@ def main(argv: list[str] | None = None) -> int:
         dst_cap = max(1, math.floor(a.mean_dst_cap * a.entries))
         dst_args = {"dst_of": [next(i for i in r if pos[i] == "DST") for r in rosters], "dst_cap": dst_cap}
     pmo_main: dict = {}
-    if a.main == "pmo_x50":
+    mix_meta: dict = {}
+    if a.main in ("pmo_x50", "mix"):
         import time as _time
         gone = unavailable_ids(fr, dk)
         proj_all = dict(zip(fr.id.astype(str), pd.to_numeric(fr.mean_projection, errors="coerce")))
@@ -589,11 +739,26 @@ def main(argv: list[str] | None = None) -> int:
         dcap = max(1, int(a.main_dst_cap * a.entries)) if a.main_dst_cap else None
         bonus, own_meta = own_bonus(a.main_own_source, fr, excl, a.main_own_tilt, a.main_own_min_coverage) if a.main_own_tilt else ({}, {})
         t_pmo = _time.time()
-        plain_rows = pmo_rows(fr, excl, a.entries, a.mean_max_shared, cap, a.min_salary, set(), exposure_cap=xcap, dst_cap=dcap)
+        plain_tags = main_tags = None
+        spare_rows: list = []
+        if a.main == "mix":
+            weights = mix_weights(a.mix_plan, a.entries, a.mix_layout)
+            plain_rows, plain_cells, mix_meta, plain_spares = mix_rows(fr, excl, a.entries, a.mean_max_shared, cap, a.min_salary,
+                                                                       weights, exposure_cap=xcap, dst_cap=dcap,
+                                                                       portfolio=a.mix_portfolio,
+                                                                       spares=0 if bonus else a.mix_spares)
+            spare_rows = plain_spares
+            plain_tags = [TAG_PREFIX + c for c in plain_cells]; main_tags = plain_tags
+            mix_meta.update({"plan": str(a.mix_plan), "plan_sha256": sha256_file(a.mix_plan), "layout": a.mix_layout,
+                             "weights_nonzero_ranks": sum(1 for w in weights if w), "weights_entries": sum(weights)})
+        else:
+            plain_rows = pmo_rows(fr, excl, a.entries, a.mean_max_shared, cap, a.min_salary, set(), exposure_cap=xcap, dst_cap=dcap)
         secs_pmo = round(_time.time() - t_pmo, 1)
         if len(plain_rows) < a.entries:
-            raise SystemExit(f"PMO_X50 MAIN REFUSED: {len(plain_rows)} of {a.entries} rows solved on the T-70 frame under the caps "
-                             f"(exposure cap {xcap}, overlap {a.mean_max_shared}, per-game {cap}, salary floor {a.min_salary}); the union's mean main stands")
+            label = "MIX MAIN REFUSED" if a.main == "mix" else "PMO_X50 MAIN REFUSED"
+            raise SystemExit(f"{label}: {len(plain_rows)} of {a.entries} rows solved on the T-70 frame under the caps "
+                             f"(exposure cap {xcap}, overlap {a.mean_max_shared}, per-game {cap}, salary floor {a.min_salary}); "
+                             + ("the chain builds the HOUSE main (C)" if a.main == "mix" else "the union's mean main stands"))
         main_rows = plain_rows
         gcaps = game_row_caps(fr, a.entries) if a.main_game_cap == "p3" else None
         if gcaps is not None and not bonus:
@@ -601,8 +766,14 @@ def main(argv: list[str] | None = None) -> int:
             check_main_rows(main_rows, a.entries, gcaps, bonus)
         if bonus:
             t_own = _time.time()
-            main_rows = pmo_rows(fr, excl, a.entries, a.mean_max_shared, cap, a.min_salary, set(), exposure_cap=xcap, dst_cap=dcap, bonus=bonus,
-                                 game_caps=gcaps)
+            if a.main == "mix":
+                main_rows, main_cells, own_mix, spare_rows = mix_rows(fr, excl, a.entries, a.mean_max_shared, cap, a.min_salary,
+                                                                      weights, exposure_cap=xcap, dst_cap=dcap, bonus=bonus,
+                                                                      portfolio=a.mix_portfolio, spares=a.mix_spares)
+                main_tags = [TAG_PREFIX + c for c in main_cells]; mix_meta["with_term"] = own_mix
+            else:
+                main_rows = pmo_rows(fr, excl, a.entries, a.mean_max_shared, cap, a.min_salary, set(), exposure_cap=xcap, dst_cap=dcap, bonus=bonus,
+                                     game_caps=gcaps)
             own_meta["secs"] = round(_time.time() - t_own, 1)
             check_main_rows(main_rows, a.entries, gcaps, bonus)
         # the PMO rows join the corpus (source pmo_x50) and ARE the main book, in solve order; a PMO row that duplicates a pool
@@ -610,21 +781,46 @@ def main(argv: list[str] | None = None) -> int:
         # the plain-mean rows keep these places (source pmo_x50_control: the sleeve's supply, as entered) and the term's
         # rows follow them; a term row equal to a plain row IS that row.
         base = len(rosters)
-        rosters += plain_rows; source += ["pmo_x50"] * len(plain_rows); tags += ["pmo_x50"] * len(plain_rows); sat_cand += [None] * len(plain_rows)
+        rosters += plain_rows; source += [a.main] * len(plain_rows); tags += plain_tags or ["pmo_x50"] * len(plain_rows); sat_cand += [None] * len(plain_rows)
         book = list(range(base, base + a.entries))
         sleeve_until = len(rosters)                              # the sleeve never reads past the plain rows
         if bonus:
             at = {frozenset(r): base + k for k, r in enumerate(plain_rows)}
             book = []
-            for r in main_rows:
+            for j, r in enumerate(main_rows):
                 if frozenset(r) in at:
                     book.append(at[frozenset(r)])
+                    if main_tags is not None:
+                        tags[at[frozenset(r)]] = main_tags[j]           # a shared row takes the cell it holds in THIS book
                 else:
-                    book.append(len(rosters)); rosters.append(r); source.append("pmo_x50"); tags.append("pmo_x50"); sat_cand.append(None)
+                    book.append(len(rosters)); rosters.append(r); source.append(a.main); tags.append(main_tags[j] if main_tags else "pmo_x50"); sat_cand.append(None)
             in_book = set(book)
             for k in range(base, base + len(plain_rows)):
                 if k not in in_book:
-                    source[k] = "pmo_x50_control"
+                    source[k] = f"{a.main}_control"
+        if a.main == "mix" and a.mix_spares:
+            # the spares (the book's own objective: built by the call that built the book) join the corpus LAST -- past the
+            # plain rows the sleeve reads and past every book row -- as the replacement step's in-shape supply. Each is
+            # re-checked here (DK legality, its cell's shape, the salary floor); a failing spare is dropped LOUDLY, never
+            # written (the audit would fail the whole build on it), and never a refusal of the book.
+            from nfl_dfs.inference.mix_shapes import shape_violations as _spare_v
+            _st = dict(zip(fr.id.astype(str), fr.team.astype(str))); _so = dict(zip(fr.id.astype(str), fr.opp.astype(str)))
+            _sg = dict(zip(fr.id.astype(str), fr.game_id.astype(str)))
+            _ss = dict(zip(fr.id.astype(str), pd.to_numeric(fr.salary, errors="coerce").fillna(0).astype(int)))
+            dropped = []
+            for ids, cell in spare_rows:
+                v = list(validate_roster(ids, pos, _st, _so, _ss)) + list(_spare_v(ids, cell, pos, _st, _so, _sg))
+                if v or sum(_ss[p] for p in ids) < a.min_salary:
+                    dropped.append({"cell": cell, "problems": v or ["salary floor"]})
+                    continue
+                rosters.append(ids); source.append(f"{a.main}_spare"); tags.append(TAG_PREFIX + cell); sat_cand.append(None)
+            if dropped:
+                print("!" * 80 + f"\n!!! {len(dropped)} MIX SPARE ROW(S) DROPPED (failed their re-check): {dropped[:2]}\n" + "!" * 80, flush=True)
+            mix_meta["spares"] = {"requested": a.mix_spares, "built": len(spare_rows), "written": len(spare_rows) - len(dropped),
+                                  "dropped": dropped, "objective": "with the ownership term" if bonus else "plain",
+                                  "caps_from_book_entries": a.entries, "source": f"{a.main}_spare"}
+            if len(spare_rows) - len(dropped) < a.mix_spares:
+                print(f"MIX SPARES: {len(spare_rows) - len(dropped)} of {a.mix_spares} written (a short spare tail is not a refusal)", flush=True)
         frozen = [frozenset(r) for r in rosters]; score = projected_sum(rosters, proj)
         sleeve_score = np.where(np.arange(len(rosters)) < (sleeve_until if a.sleeve_includes_main else base), score, -np.inf)
         if bonus:
@@ -642,6 +838,8 @@ def main(argv: list[str] | None = None) -> int:
                     "distinct_players": len(expo), "dst_cap": dcap if dcap else "none (the tested arm had none)",
                     "max_dst_rows_used": max(dst_expo.values()), "dst_rows": dict(dst_expo.most_common(3)),
                     "own_term": own_meta if bonus else {"tilt": 0.0}}
+        if a.main == "mix":
+            pmo_main["mix"] = mix_meta
         dst_args = {}
     else:
         is_field = (np.arange(len(rosters)) >= n_field_start) & (np.arange(len(rosters)) < n_field_start + n_field)
@@ -691,11 +889,20 @@ def main(argv: list[str] | None = None) -> int:
     _team = dict(zip(ids_, fr.team.astype(str))); _opp = dict(zip(ids_, fr.opp.astype(str)))
     _sal = dict(zip(ids_, pd.to_numeric(fr.salary, errors="coerce").fillna(0).astype(int)))
     contract = {"dk_contract": "dk_classic_v1", "strategy_contract": "house_qb2_bb1_floor49_v1", "dk_violations": 0, "strategy_violations": 0}
+    if a.main == "mix":
+        contract["strategy_contract"] = "mix_cells_s18_v1 (house for untagged rows); floor49"
+        _game = dict(zip(ids_, fr.game_id.astype(str)))
     for i in book + book_tail:
         v_dk = validate_roster(rosters[i], pos, _team, _opp, _sal)
         if v_dk:
             raise SystemExit(f"written roster fails DK contract: {v_dk}")
-        if validate_roster(rosters[i], pos, _team, _opp, _sal, salary_floor=a.min_salary, qb_stack_min=2, bring_back_min=1,
+        if a.main == "mix" and cell_of_tag(tags[i]) is not None:
+            v_cell = shape_violations(rosters[i], cell_of_tag(tags[i]), pos, _team, _opp, _game)
+            if v_cell:                                     # the solver produced a row its own cell forbids: fail closed
+                raise SystemExit(f"MIX MAIN REFUSED: row {rosters[i]} ({tags[i]}) breaks its cell: {v_cell}")
+            if sum(_sal[p] for p in rosters[i]) < a.min_salary:
+                contract["strategy_violations"] += 1
+        elif validate_roster(rosters[i], pos, _team, _opp, _sal, salary_floor=a.min_salary, qb_stack_min=2, bring_back_min=1,
                            forbid_rb_vs_dst=True, forbid_two_rb_same_team=True):
             contract["strategy_violations"] += 1
 
@@ -709,6 +916,8 @@ def main(argv: list[str] | None = None) -> int:
     for f in COPY:
         if (a.t70_run / f).is_file():
             shutil.copyfile(a.t70_run / f, out / f)
+    if proj_meta:                                        # the projections this book was selected on travel with it
+        shutil.copyfile(a.proj_source, out / "proj_source.csv"); shutil.copyfile(str(a.proj_source) + ".json", out / "proj_source.csv.json")
     players_by_id = frame_players(fr)
     lus = [_LU([players_by_id[i] for i in rosters[k]], tags[k]) for k in range(len(rosters))]
     n_written = dk_csv([lus[i] for i in book + book_tail], fr, out / "book.csv")
@@ -765,6 +974,11 @@ def main(argv: list[str] | None = None) -> int:
                      "selection": ("union_reselect.py --main pmo_x50: K capped plain-mean-optimizer rows on the T-70 frame in solve order (L13 PMO_X50)"
                                    + (f", objective = mean + {a.main_own_tilt} x predicted ownership % (skill players)" if a.main_own_tilt else "") + "; "
                                    if a.main == "pmo_x50" else
+                                   (f"union_reselect.py --main mix --mix-portfolio {a.mix_portfolio}: study 18's shape portfolio, K capped plain-mean-optimizer rows "
+                                    "on the T-70 frame by cell " + ("(A1 30 / A2 14 / B 28 / C 28 % of entries), in the plan's entry-weighted interleave order"
+                                                                    if a.mix_portfolio == "mix" else "(WS: QB + >= 1, bring-back optional, <= 3 from the QB's game, a second-game pair; one cell)"))
+                                   + (f", objective = mean + {a.main_own_tilt} x predicted ownership % (skill players)" if a.main_own_tilt else "") + "; "
+                                   if a.main == "mix" else
                                    "union_reselect.py --main mean: top-K by sum of the T-70 mean_projection under the overlap cap and the DST cap; ")
                                   + "the tail sleeve top-T of the union pool by the same score (may repeat main rows)",
                      "min_proj": a.min_proj, "max_per_game": cap, "main_game_cap": a.main_game_cap, "tool": {"path": str(tool), "sha256": sha256_file(tool), "production_sha": prod_sha}}
@@ -779,8 +993,10 @@ def main(argv: list[str] | None = None) -> int:
     else:
         conf.pop("mean_dst_cap", None)
     conf["union"]["main"] = a.main
+    if proj_meta:
+        conf["union"]["proj_source"] = proj_meta
     if pmo_main:
-        conf["union"]["pmo_x50"] = pmo_main
+        conf["union"]["pmo_x50" if a.main == "pmo_x50" else a.main] = pmo_main
     conf["main_selector_used"] = a.main
     if a.tail_sleeve:
         used_field = bool(field_meta.get("used"))

@@ -150,8 +150,13 @@ def audit(run: Path, contests: list[dict], *, layout: str, expect_selector: str 
     # the sampler's salary band in `free` mode. Every other candidate keeps the build's cap and rules, as before.
     fmeta = ((receipt.get("config", {}).get("tail_sleeve") or {}).get("field") or {})
     src_col = cands["source_run"].astype(str).tolist() if "source_run" in cands else [""] * len(cands)
+    tag_col = cands["tag"].astype(str).tolist() if "tag" in cands else [""] * len(cands)
+    # --main mix (study 18's shape portfolio): a row tagged mix_<cell> is held to ITS cell's shape
+    # (nfl_dfs.inference.mix_shapes.shape_violations, counting as the pinned optimize constrains); a row from the mix main
+    # (source mix / mix_control) without a known cell tag FAILS. Every other row keeps the house check below, unchanged.
+    mix_rows_seen = 0
     field_rows = 0
-    for cell, src in zip(cands["players"], src_col):
+    for cell, src, tag in zip(cands["players"], src_col, tag_col):
         ps = _players_of(cell)
         is_field = src == "field" and bool(fmeta)
         field_rows += is_field
@@ -166,7 +171,19 @@ def audit(run: Path, contests: list[dict], *, layout: str, expect_selector: str 
         if row_cap is not None and m > int(row_cap):
             over_cap += 1
         qbs = [p for p in ps if pos.get(p) == "QB"]
-        if len(qbs) != 1:
+        if tag.startswith("mix_") or src in ("mix", "mix_control"):
+            from nfl_dfs.inference.mix_shapes import cell_of_tag, shape_violations
+            mix_rows_seen += 1
+            try:
+                mcell = cell_of_tag(tag)
+            except ValueError:
+                mcell = None
+            v = [f"no mix cell in tag {tag!r}"] if mcell is None else shape_violations(ps, mcell, pos, team, opp, game)
+            if v:
+                bad_stack += 1
+                if len(stack_examples) < 3:
+                    stack_examples.append(f"{tag}: {v}")
+        elif len(qbs) != 1:
             bad_stack += 1
         elif not house:
             pass
@@ -186,8 +203,9 @@ def audit(run: Path, contests: list[dict], *, layout: str, expect_selector: str 
     record("max_per_game", (cap is None) or over_cap == 0,
            f"cap {cap}: {over_cap} candidates over it; max players from one game seen {max_seen}{fnote}",
            cap=cap, over_cap=over_cap, max_seen=max_seen, field_rows=int(field_rows))
-    record("stack_rules", bad_stack == 0, f"{bad_stack} candidates without QB + 2 same-team WR/TE + 1 bring-back; e.g. {stack_examples}",
-           bad_stack=bad_stack)
+    mnote = f" ({mix_rows_seen} mix rows held to their own cell's shape)" if mix_rows_seen else ""
+    record("stack_rules", bad_stack == 0, f"{bad_stack} candidates without QB + 2 same-team WR/TE + 1 bring-back{mnote}; e.g. {stack_examples}",
+           bad_stack=bad_stack, **({"mix_rows": mix_rows_seen} if mix_rows_seen else {}))
     record("salary_bounds", bad_salary == 0, f"{bad_salary} candidates outside [{min_salary}, 50000]", bad_salary=bad_salary)
 
     # ---- market_sources
@@ -273,21 +291,38 @@ def audit(run: Path, contests: list[dict], *, layout: str, expect_selector: str 
                 record("union_main", ok, f"union main declared pmo_x50: {n_pmo} of {len(top)} main rows are pmo_x50 rows (need {k_mean}); "
                        f"max exposure used {px.get('max_exposure_used')} <= cap {px.get('exposure_cap')}; DST rows used {px.get('max_dst_rows_used')} "
                        f"<= DST cap {dcap}", main=main, pmo_rows_in_main=n_pmo, dst_cap_ok=dst_ok)
+            elif main == "mix":
+                # study 18's shape portfolio: every main row is a mix row tagged with a known cell, under the declared caps
+                px = uni.get("mix") or {}
+                n_mix = int((top["source_run"] == "mix").sum())
+                tags = top["tag"].astype(str) if "tag" in top.columns else pd.Series([""] * len(top))
+                cells = tags.str.replace("mix_", "", n=1)
+                tagged = int(tags.str.startswith("mix_").sum())
+                dcap = px.get("dst_cap")
+                dst_ok = True if not isinstance(dcap, int) else int(px.get("max_dst_rows_used", 10**9)) <= dcap
+                ok = (n_mix == tagged == len(top) == k_mean and int(px.get("max_exposure_used", 10**9)) <= int(px.get("exposure_cap", 0))
+                      and dst_ok and bool(px.get("mix")))
+                record("union_main", ok, f"union main declared mix: {n_mix} of {len(top)} main rows are mix rows, {tagged} tagged with a cell "
+                       f"(need {k_mean}); cells {dict(cells.value_counts())}; max exposure used {px.get('max_exposure_used')} <= cap "
+                       f"{px.get('exposure_cap')}; DST rows used {px.get('max_dst_rows_used')} <= DST cap {dcap}",
+                       main=main, mix_rows_in_main=n_mix, dst_cap_ok=dst_ok)
             else:
-                record("union_main", n_pmo == 0, f"union main declared {main}: {n_pmo} pmo_x50 rows in the main book (must be 0)", main=main, pmo_rows_in_main=n_pmo)
+                n_mix = int((top["source_run"] == "mix").sum())
+                record("union_main", n_pmo == 0 and n_mix == 0, f"union main declared {main}: {n_pmo} pmo_x50 rows in the main book (must be 0)"
+                       + (f"; {n_mix} mix rows (must be 0)" if n_mix else ""), main=main, pmo_rows_in_main=n_pmo)
         else:
             record("union_main", False, "union receipt without source_run/book_rank columns in candidates.parquet", main=main)
 
     # ---- main_own_term: a declared ownership term must leave its trace (source file, sha256, coverage, a control main that
     # differs); an undeclared one must leave none (reviewer 2026-09-29 gate 3; laptop W-A)
     if uni:
-        px = uni.get("pmo_x50") or {}
+        px = (uni.get("mix") if uni.get("main") == "mix" else uni.get("pmo_x50")) or {}      # the term sits under its main's key
         term = px.get("own_term") or {}
         tilt = float(term.get("tilt") or 0.0)
         control = run / "book_main_control.csv"
         if tilt > 0:
             problems: list[str] = []
-            if uni.get("main", "mean") != "pmo_x50":
+            if uni.get("main", "mean") not in ("pmo_x50", "mix"):
                 problems.append(f"own_term declared on main={uni.get('main')}")
             src = term.get("source"); want = term.get("source_sha256")
             if not src or not want:
@@ -322,6 +357,25 @@ def audit(run: Path, contests: list[dict], *, layout: str, expect_selector: str 
             record("main_own_term", not control.is_file(),
                    "no ownership term declared: " + ("book_main_control.csv is present (an undeclared term?)" if control.is_file() else "no control book, as expected"),
                    tilt=0.0)
+
+    # ---- proj_source (operator 2026-10-05, FP projections): a declared projection override must travel with the book
+    # (proj_source.csv in the run dir, its sha256 as the receipt says) and its gates must hold. No check when undeclared.
+    ps = (cfg.get("union") or {}).get("proj_source") or {}
+    if ps:
+        problems = []
+        f = run / "proj_source.csv"
+        if not f.is_file():
+            problems.append("proj_source.csv missing from the run dir")
+        elif hashlib.sha256(f.read_bytes()).hexdigest() != ps.get("sha256"):
+            problems.append("proj_source.csv sha256 differs from the receipt")
+        g = ps.get("gates") or {}
+        if float(g.get("coverage_skill_ge5", 0)) < 0.95:
+            problems.append(f"coverage {g.get('coverage_skill_ge5')} < 0.95")
+        if not float(g.get("pearson_r", 0)) >= 0.7:
+            problems.append(f"r(FP, ours) {g.get('pearson_r')} < 0.7")
+        record("proj_source", not problems, f"FP projections for {ps.get('replaced')} players (ours for {ps.get('kept_ours')}); capture "
+               f"{(ps.get('capture') or {}).get('retrieved_at')}{'; BEFORE THE INACTIVES' if ps.get('before_inactives') else ''}"
+               + (f"; problems: {problems}" if problems else ""), replaced=ps.get("replaced"))
 
     # ---- book_rows_legal
     frame_ids = set(fr["id"].astype(str)) | set(fr["dk_player_id"].astype(str)) if "dk_player_id" in fr else set(fr["id"].astype(str))
