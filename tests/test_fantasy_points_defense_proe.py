@@ -64,3 +64,16 @@ def test_defense_proe_gate_is_aggregate_tail_first():
     coverage[2024] = 0.90
     aggregate["treatment_brier_30"] = 0.021
     assert not diagnostic.defense_proe_gate(aggregate, coverage)["passes"]
+
+
+def test_run_reads_only_the_frozen_import_so_later_weekly_appends_cannot_trip_provenance(monkeypatch):
+    """O-32 amendment 3: the weekly vendor run appends 2026 rows (other run ids) to the table; the frozen diagnostic
+    reads the frozen 2022-2025 import only, and its provenance checks stay unchanged."""
+    import inspect
+
+    from nfl_dfs.analysis import fantasy_points_defense_proe as A
+    from nfl_dfs.ingest.fantasy_points_defense_proe import SOURCE_RUN
+    src = inspect.getsource(A.run)
+    assert "WHERE source_run_id = @run" in src and 'params={"run": SOURCE_RUN}' in src
+    assert SOURCE_RUN == "fantasy-points-defense-proe-2022-2025-v1"
+    assert "set(EXPECTED_HASHES.values()) or len(run_ids) != 1" in src          # the checks themselves unchanged
