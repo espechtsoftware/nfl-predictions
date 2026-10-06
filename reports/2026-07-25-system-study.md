@@ -4439,3 +4439,109 @@ secondaries (slate means):
 
 **What it can do** (§6). The PASS is a reason to offer a reversible Week-5 trial of WS, built through production's
 `--main mix` machinery as a whole-book portfolio (`--mix-portfolio ws`, the laptop's build). The operator decides.
+
+## Addendum 130 (2026-10-05): study 24 (an all-distinct deal and a per-game QB cap, on the operator's real Week-5 plan): both NO DIFFERENCE; the cap fails his tolerance and is not offered
+
+**Setup.**
+- **The operator's goal, the first study built on it:** "If i could win one 333, 555 or 4444 or $500 in the milly, the
+  week is a success". Big = "any one except a $20 milly ticket". His tolerance: "accepting 20% fewer" expected big
+  seats. His dealing choice: "All distinct".
+- **Primary:** P(≥ 1 big seat) per slate. It is computed exactly per contest from each dealt entry's realized
+  percentile in the sampled field: P(Bin(N − m, 1 − F_best) ≤ S − 1), combined over big contests.
+- **Guards:** guard 1 is the mean entry finish (one-sided 0.975 at −0.015). Guard 2 is the operator's tolerance:
+  expected big seats ratio ≥ 0.80.
+- **Plan:** his revised Week-5 entries (Rev1: 19 contests, 24 entries, 23 in 18 big contests; the Milly judged at its
+  $500+ line).
+- **Arms:** each is read against its reference, on study 18's WS shape, under production's main caps for its own K
+  (deviation note 1, the laptop's objection: player int(0.5 × K), DST int(0.25 × K); head K 20, sequential/distinct K
+  24).
+  - SEQD (DECISION vs WS): every entry its own lineup, with overlap replacements drawn from spare rows.
+  - G25S (DECISION vs SEQD): every game's QBs in ≤ 6 of the 24 entries, dealt all-distinct; spares count against the
+    budget (deviation note 2).
+  - Exploratory: G25 (the cap with the head deal), SEQ (production's existing sequential deal) and G1 (the #1-total
+    game's QBs only, the first draft's arm; the smoke showed WS concentrating on games OTHER than the #1 total).
+- **Preregistration:** `reports/2026-10-06-prereg-study24-qb-game-cap.md` (frozen `4cadd426`), with census notes 1–2
+  and deviation notes 1–2, all before any scored bank. The binding census v3 passed every §2a check and the laptop
+  acked it.
+- **Panel:** 53 slates (2022–24), banks 1417/1418; B 20,000, seed 20261006.
+- **Read and reproduced.** Frozen and read by the reviewer. **Reproduced byte-identically by the laptop:** reader
+  `e1a4968a`; raw 1417 `996e7f43`, 1418 `92306276`; READ `b9733686`. Lab: nfl2 `production/s24-qb-game-cap-20261006`
+  (READ `9ed3925`; confirmatory census `b29ca1f`, committed before the read).
+
+**Reader output (verbatim):**
+```
+STUDY 24 READER  sha256 e1a4968ae3eea7a8a382b53d98ee01392016f5c6af5ece5a00f99d591dfdd933
+DIRECTION: P(>= 1 big seat) per slate from each dealt entry's share of the sampled field it BEATS (higher = better); every difference is ARM - its REFERENCE (SEQD, G25, SEQ, G1: WS; G25S: SEQD); POSITIVE favours the arm.
+slates 53  banks [1417, 1418]  B 20000  seed 20261006  primary two-sided 0.975 per decision arm, guard 1 one-sided 0.975 at -0.015, guard 2 expected-big-seat ratio >= 0.80  plan 19 mean-track contests, 24 entries (23 in 18 big contests)  QB-game cap [6] entries  BASE {"lam": 0.0}
+
+== SEQD vs WS  [DECISION]
+  PRIMARY P(>= 1 big seat) per slate +0.01155  [-0.02889, +0.05200]  seasons 2022 +0.00131, 2023 -0.00720, 2024 +0.03998
+  GUARD 1 mean entry pct -0.01558  one-sided lower -0.02635  (must exceed -0.015)
+  GUARD 2 expected big seats 0.51220 vs WS 0.53795  ratio 0.952  (must be >= 0.80)
+  dealt identical to WS: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+
+== G25S vs SEQD  [DECISION]
+  PRIMARY P(>= 1 big seat) per slate -0.01828  [-0.07633, +0.03442]  seasons 2022 -0.01104, 2023 +0.02540, 2024 -0.06878
+  GUARD 1 mean entry pct +0.00280  one-sided lower -0.01071  (must exceed -0.015)
+  GUARD 2 expected big seats 0.39907 vs SEQD 0.51220  ratio 0.779  (must be >= 0.80)
+  dealt identical to SEQD: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+
+== G25 vs WS  [EXPLORATORY (never decision-bearing)]
+  PRIMARY P(>= 1 big seat) per slate -0.01776  [-0.08059, +0.03743]  seasons 2022 -0.03161, 2023 +0.00819, 2024 -0.03064
+  GUARD 1 mean entry pct -0.00082  one-sided lower -0.01408  (must exceed -0.015)
+  GUARD 2 expected big seats 0.41601 vs WS 0.53795  ratio 0.773  (must be >= 0.80)
+  dealt identical to WS: 0.000 of slate-banks
+
+== SEQ vs WS  [EXPLORATORY (never decision-bearing)]
+  PRIMARY P(>= 1 big seat) per slate +0.03044  [-0.01443, +0.07743]  seasons 2022 +0.01530, 2023 +0.01127, 2024 +0.06391
+  GUARD 1 mean entry pct -0.00795  one-sided lower -0.01631  (must exceed -0.015)
+  GUARD 2 expected big seats 0.56133 vs WS 0.53795  ratio 1.043  (must be >= 0.80)
+  dealt identical to WS: 0.000 of slate-banks
+
+== G1 vs WS  [EXPLORATORY (never decision-bearing)]
+  PRIMARY P(>= 1 big seat) per slate +0.00581  [-0.01777, +0.03482]  seasons 2022 -0.00863, 2023 -0.01391, 2024 +0.03916
+  GUARD 1 mean entry pct +0.00394  one-sided lower -0.00341  (must exceed -0.015)
+  GUARD 2 expected big seats 0.48187 vs WS 0.53795  ratio 0.896  (must be >= 0.80)
+  dealt identical to WS: 0.302 of slate-banks
+
+secondaries (slate means):
+  WS  P(>=1 big) 0.25666  expected big seats 0.53795  P(>=2 contests) 0.13613  slates P(>=1 big) < 1% 0.509  tickets 44.5  best>=200 0.094  entry pct 0.50138  worst-decile slate 0.26092  simulated P(>=1 big) 0.48915
+      shape of dealt entries: qb_game1_share 0.253  qb_game_top4_share 0.708  qb_games 3.415  qb_game_max_share 0.535  qb_plus1 0.937  bringback 0.154  dual 1.000  in_qb_game 2.386  games 4.858  max_entry_share 0.584
+  SEQD P(>=1 big) 0.26821  expected big seats 0.51220  P(>=2 contests) 0.11856  slates P(>=1 big) < 1% 0.443  tickets 45.5  best>=200 0.085  entry pct 0.48580  worst-decile slate 0.25690  simulated P(>=1 big) 0.50562
+      shape of dealt entries: qb_game1_share 0.260  qb_game_top4_share 0.702  qb_games 3.717  qb_game_max_share 0.472  qb_plus1 0.941  bringback 0.168  dual 1.000  in_qb_game 2.393  games 4.892  max_entry_share 0.485
+  G25S P(>=1 big) 0.24994  expected big seats 0.39907  P(>=2 contests) 0.09412  slates P(>=1 big) < 1% 0.387  tickets 38.0  best>=200 0.066  entry pct 0.48860  worst-decile slate 0.23065  simulated P(>=1 big) 0.51670
+      shape of dealt entries: qb_game1_share 0.182  qb_game_top4_share 0.586  qb_games 5.660  qb_game_max_share 0.246  qb_plus1 0.958  bringback 0.134  dual 1.000  in_qb_game 2.336  games 4.902  max_entry_share 0.483
+  G25 P(>=1 big) 0.23890  expected big seats 0.41601  P(>=2 contests) 0.11017  slates P(>=1 big) < 1% 0.425  tickets 36.0  best>=200 0.057  entry pct 0.50055  worst-decile slate 0.23975  simulated P(>=1 big) 0.50103
+      shape of dealt entries: qb_game1_share 0.186  qb_game_top4_share 0.596  qb_games 5.208  qb_game_max_share 0.276  qb_plus1 0.954  bringback 0.127  dual 1.000  in_qb_game 2.333  games 4.867  max_entry_share 0.585
+  SEQ P(>=1 big) 0.28710  expected big seats 0.56133  P(>=2 contests) 0.13450  slates P(>=1 big) < 1% 0.453  tickets 49.0  best>=200 0.085  entry pct 0.49342  worst-decile slate 0.25629  simulated P(>=1 big) 0.49676
+      shape of dealt entries: qb_game1_share 0.257  qb_game_top4_share 0.703  qb_games 3.472  qb_game_max_share 0.496  qb_plus1 0.939  bringback 0.161  dual 1.000  in_qb_game 2.390  games 4.880  max_entry_share 0.540
+  G1  P(>=1 big) 0.26247  expected big seats 0.48187  P(>=2 contests) 0.13441  slates P(>=1 big) < 1% 0.472  tickets 43.5  best>=200 0.057  entry pct 0.50532  worst-decile slate 0.26092  simulated P(>=1 big) 0.49161
+      shape of dealt entries: qb_game1_share 0.148  qb_game_top4_share 0.655  qb_games 3.868  qb_game_max_share 0.513  qb_plus1 0.937  bringback 0.144  dual 1.000  in_qb_game 2.366  games 4.857  max_entry_share 0.584
+```
+
+**Reading.**
+1. **The cap (G25S) is NO DIFFERENCE, with the point estimate negative (−1.8 points of P(≥ 1 big seat)).** It fails
+   the operator's tolerance: expected big seats fall 22% (ratio 0.779 < 0.80).
+   - It is variance shaping, as study 1's game budget was (Addendum 122): fewer near-dead slates (P < 1% on 0.39 of
+     slates vs 0.44) but a lower ceiling (best ≥ 200: 0.066 vs 0.085).
+   - Finishing first needs lineups that can spike, and spreading the QBs across games trades that away. **Not
+     offered; no production port.**
+2. **The all-distinct deal (SEQD) is NO DIFFERENCE (+1.2 points)** and costs mean finish: guard 1's lower bound is
+   −0.026, past the margin; descriptive, since the primary did not pass.
+   - The mechanism: the replacements it draws are weaker spare rows. Production's existing sequential deal (SEQ,
+     exploratory), which REUSES a strong row across contests instead, beats SEQD on every big-seat number (P 0.287 vs
+     0.268; expected seats 0.561 vs 0.512).
+   - **No port.** SEQ is a risk preference at most: the best point estimate (+3.0 points), expected seats kept (1.04),
+     a small mean-finish cost (lower bound −0.016), and no code needed.
+3. **Concentration is real but is not what limits his chance.** WS dealt an average of 12.8 of 24 entries to one
+   game's QBs (maximum 24), against 5.9 under the cap, and the cap did not help.
+4. **The absolute numbers are optimistic.** P(≥ 1 big seat) per week is about 0.26–0.29 on practice slates with
+   modelled, softer Milly-style fields; real satellite fields are sharper. Half the slates sit below 1%. The in-sample
+   simulation says about 0.50, so the simulations' absolute big-seat numbers are not to be trusted.
+5. **Transfer:** our projections, no ownership term, production's caps. "WS + FP + term" is untested as a composite.
+
+**What it can do** (§6): nothing passed. For Week 5 the operator chooses between today's head deal (the default,
+`ENTER_LAYOUT=head`) and production's sequential deal (no code) as a risk preference, with this read stated. The cap
+and the all-distinct port are not offered.
