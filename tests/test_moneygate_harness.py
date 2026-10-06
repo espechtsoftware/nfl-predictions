@@ -302,3 +302,40 @@ def test_dk_valid_independent_check():
     assert any("salary" in e for e in MB.dk_valid(ok, fr.assign(salary=7000)))
     swapped = ok[:]; swapped[0], swapped[1] = swapped[1], swapped[0]
     assert MB.dk_valid(swapped, fr)
+
+
+# ------------------------------------------------- the DESCRIPTIVE package arms (the operator's 10-06 expedited plan)
+def test_pkg_arms_translate_the_week5_package_and_name_the_translation():
+    import importlib.util, sys
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    spec = importlib.util.spec_from_file_location("mgb_pkg", root / "scripts" / "moneygate_build.py")
+    B = importlib.util.module_from_spec(spec); sys.modules["mgb_pkg"] = B; spec.loader.exec_module(B)
+    assert [B.pkg_qb_cap_rows(k) for k in (21, 26, 68, 105, 106)] == [4, 5, 13, 20, 20]     # 5 of 26, by share
+    assert B.known_arm("PKG5-group") and B.known_arm("PKG4-rr") and B.known_arm("PKG5-value") and B.known_arm("A1")
+    assert not B.known_arm("PKG9-group") and not B.known_arm("PKG5-best") and not B.known_arm("PKG")
+    e = {"own_file": "/x/own.csv"}
+    f = B.pkg_flags("PKG4-rr", e, 105, Path("/b/w4/contests.json"))
+    val = lambda k: f[f.index(k) + 1]                                                        # noqa: E731
+    assert val("--main") == "mix" and val("--mix-fill") == "rr" and val("--mean-max-shared") == "4"
+    assert val("--main-qb-cap-rows") == "20" and val("--main-qb-cap-k") == "105" and val("--mix-plan") == "/b/w4/contests.json"
+    assert "--main-own-tilt" not in f and "--proj-source" not in f                           # no term; FP only when pinned
+    assert val("--sleeve-source") == "field" and val("--sleeve-own-source") == "/x/own.csv"   # A1's sleeve flags
+    g = B.pkg_flags("PKG5-group", {"fp_proj_source": "/p/fp.csv"}, 68, Path("/b/w2/contests.json"))
+    assert g[g.index("--proj-source") + 1] == "/p/fp.csv" and g[g.index("--sleeve-source") + 1] == "mean"
+    doc = B.__doc__
+    assert "DESCRIPTIVE" in doc and "TRANSLATED by share" in doc and "not Rev3" in doc
+
+
+def test_describe_counts_big_wins_by_his_rule():
+    import importlib.util, sys
+    from pathlib import Path
+    import numpy as np
+    root = Path(__file__).resolve().parents[1]
+    spec = importlib.util.spec_from_file_location("mgd", root / "scripts" / "moneygate_describe.py")
+    D = importlib.util.module_from_spec(spec); sys.modules["mgd"] = D; spec.loader.exec_module(D)
+    assert list(D.big_flags(np.array([0, 499.99, 500, 0, 0]), np.array([20, 0, 0, 125, 333]))) == [False, False, True, False, True]
+    pub, priv = D.summarize([{"contest_id": "a", "fee": 5, "cash": 0, "ticket": 20, "pct": 50},
+                             {"contest_id": "b", "fee": 5, "cash": 600, "ticket": 0, "pct": 99}])
+    assert pub["multiple"] == 62.0 and pub["multiple_ex_largest"] == 2.0 and pub["big_wins"] == 1
+    assert pub["contests_with_big_win"] == 1 and pub["week_has_big_win"] and "winnings" not in pub and priv["winnings"] == 620

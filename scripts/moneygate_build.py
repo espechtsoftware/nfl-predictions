@@ -33,6 +33,13 @@ union_reselect.py imports, so they cannot run it (recorded in the build receipt 
     python scripts/moneygate_build.py integrity [--weeks ...]
     python scripts/moneygate_build.py all       [--weeks ...]
     python scripts/moneygate_build.py a1-paper --week-config <week.json> --out <dir>   # the weekly A1 paper book (rollback trigger)
+    python scripts/moneygate_build.py build --weeks 2,3,4 --arms PKG5-group,PKG4-rr --runs 1   # DESCRIPTIVE package arms
+
+PKG<ms>-<fill> (DESCRIPTIVE, never a money-gate arm; the operator's 10-06 expedited plan, the reviewer's terms): the
+Week-5 package translated to each week's REAL contests -- --main mix (the winners' mix, the week's routed contests as
+the mix plan, head), overlap limit <ms>, --mix-fill <fill>, no ownership term, FP projections where the week's config
+pins an fp_proj_source (W4 only), the week's own T with A1's sleeve flags, and study 35's QB cap TRANSLATED by share:
+rows = round(5 x K / 26) at --main-qb-cap-k K (the cap was studied at K 26 only). The week's contest mix is not Rev3.
 
 Config: ~/moneygate/weeks.json (private: paths and sha256 pins; MONEYGATE_CONFIG overrides). Outputs: ~/moneygate/books
 (MONEYGATE_BOOKS overrides). Nothing is written inside git.
@@ -44,6 +51,7 @@ import csv
 import hashlib
 import json
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -61,6 +69,8 @@ SMALL_MAX_SHARED = 5
 OVERLAP_CEILING = 10
 SAT_DOSE = "2560/10240,1280/5120"
 ARMS = ("A1", "A2", "A3", "A4", "AG")   # AG: study-1 TRANSFER CHECK (descriptive; not a money-gate arm)
+PKG_RE = re.compile(r"^PKG([3-8])-(group|value|rr)$")   # DESCRIPTIVE package arms (see the module docstring)
+QB_CAP_AT_K26 = (5, 26)                                  # study 35's cap A: 5 rows at K 26 (studied there only)
 SLOTS = ("QB", "RB", "RB", "WR", "WR", "WR", "TE", "FLEX", "DST")
 SALARY_CAP = 50_000
 
@@ -94,6 +104,36 @@ def arm_flags(arm: str, own_file: str | None) -> list[str]:
     else:
         f += ["--sleeve-source", "mean"]
     return f
+
+
+def pkg_qb_cap_rows(K: int) -> int:
+    """The QB cap translated by share from study 35's K 26 (a translation, not a studied setting)."""
+    return max(1, int(round(QB_CAP_AT_K26[0] * K / QB_CAP_AT_K26[1])))
+
+
+def pkg_flags(arm: str, e: dict, K: int, contests: Path) -> list[str]:
+    m = PKG_RE.match(arm)
+    if not m:
+        raise ValueError(f"not a package arm: {arm}")
+    ms, fill = m.group(1), m.group(2)
+    f = ["--saturday-dose", SAT_DOSE, "--mean-max-shared", ms, "--min-proj", "1.0", "--max-per-game", "4",
+         "--min-salary", "49000", "--pmo", "0", "--pmo-cap-share", "0.5", "--main", "mix", "--mix-portfolio", "mix",
+         "--mix-plan", str(contests), "--mix-layout", LAYOUT, "--mix-fill", fill, "--main-cap-share", "0.5",
+         "--sleeve-cap-share", "0.5", "--main-dst-cap", "0.25", "--sleeve-includes-main", "--mean-dst-cap", "0.25",
+         "--main-qb-cap-rows", str(pkg_qb_cap_rows(K)), "--main-qb-cap-k", str(K)]
+    own = e.get("own_file")
+    if own:
+        f += ["--sleeve-source", "field", "--sleeve-field-mode", "top", "--sleeve-max-per-game", "5",
+              "--sleeve-field-rows", "1", "--sleeve-own-source", own]
+    else:
+        f += ["--sleeve-source", "mean"]
+    if e.get("fp_proj_source"):
+        f += ["--proj-source", e["fp_proj_source"]]
+    return f
+
+
+def known_arm(arm: str) -> bool:
+    return arm in ARMS or bool(PKG_RE.match(arm))
 
 
 # ------------------------------------------------------------------------------------------------------ contests
@@ -177,12 +217,15 @@ def check_inputs(e: dict) -> dict:
         raise SystemExit(f"INPUTS REFUSED (content != pin): {bad}")
     if e.get("own_file") and sha256(Path(e["own_file"])) != e["own_sha256"]:
         raise SystemExit(f"INPUTS REFUSED: {e['own_file']} sha256 != pin")
+    if e.get("fp_proj_source") and sha256(Path(e["fp_proj_source"])) != e.get("fp_proj_sha256"):
+        raise SystemExit(f"INPUTS REFUSED: {e['fp_proj_source']} sha256 != the pinned fp_proj_sha256")
     return got
 
 
-def union_cmd(cfg: dict, e: dict, arm: str, K: int, T: int, out: Path) -> tuple[list[str], dict]:
+def union_cmd(cfg: dict, e: dict, arm: str, K: int, T: int, out: Path, contests: Path | None = None) -> tuple[list[str], dict]:
+    flags = pkg_flags(arm, e, K, contests) if PKG_RE.match(arm) else arm_flags(arm, e.get("own_file"))
     args = ["--saturday-run", e["saturday_run"], "--t70-run", e["t70_run"], "--live-dir", str(Path(e["t70_run"]).parent),
-            "--entries", str(K), "--tail-sleeve", str(T), *arm_flags(arm, e.get("own_file")), "--out", str(out), "--rehearsal"]
+            "--entries", str(K), "--tail-sleeve", str(T), *flags, "--out", str(out), "--rehearsal"]
     env = dict(os.environ, LIVE_FLEX_LATEST="1", PYTHONPATH=f"{cfg['lab_src']}:{PROD / 'src'}")
     return [cfg["lab_py"], str(PROD / "scripts" / "union_reselect.py"), *args], env
 
@@ -210,7 +253,9 @@ def cmd_build(cfg: dict, weeks: list[str], arms: list[str], runs: int) -> None:
                     print(f"W{w} {arm} run{r}: exists, kept")
                     continue
                 out.parent.mkdir(parents=True, exist_ok=True)
-                cmd, env = union_cmd(cfg, e, arm, K, T, out)
+                if not known_arm(arm):
+                    raise SystemExit(f"unknown arm {arm}")
+                cmd, env = union_cmd(cfg, e, arm, K, T, out, BOOKS / f"w{w}" / "contests.json")
                 (out.parent / f"run{r}.cmd.json").write_text(json.dumps({"argv": cmd, "PYTHONPATH": env["PYTHONPATH"],
                                                                          "LIVE_FLEX_LATEST": "1", "lab_sha": lab}, indent=1) + "\n")
                 print(f"W{w} {arm} run{r}: union_reselect K {K} T {T}", flush=True)
@@ -291,7 +336,7 @@ def cmd_integrity(cfg: dict, weeks: list[str]) -> dict:
         frame = pd.read_parquet(Path(e["t70_run"]) / "frame.parquet")
         wk = {"inputs_sha256": check_inputs(e), "own_file_sha256": e.get("own_sha256"), "arms": {}}
         a1 = BOOKS / f"w{w}" / "A1" / "run1" / "book.csv"
-        for arm in ARMS:
+        for arm in list(ARMS) + sorted(p.name for p in (BOOKS / f"w{w}").glob("PKG*") if PKG_RE.match(p.name)):
             d = BOOKS / f"w{w}" / arm
             if not (d / "run1" / "book.csv").is_file():
                 continue
