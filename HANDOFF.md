@@ -12,6 +12,28 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (11:28 CDT) — PROE posted; the production checkout fast-forwarded; study 35 frozen (QB cap A 5 / B 8) and launched; the QB cap lever approved (off)
+
+- **PROE:** FP added the ATL / NO Monday-night game by 11:20 CT.
+  - The audit-only probe on the updated code: Defense PROE 32 rows (every team), PAID PAGES 19 of 19, Route "no
+    stored row changed".
+  - The 11:18 Route export differed from the stored revision only by hash (`03c6b284` vs `8721038b`, identical W4
+    values). That is no longer a conflict under the route guards; the OLD checkout code had flagged it.
+  - The full weekly run stays WEDNESDAY with the SIS acquisition (schedule rule).
+- **The production checkout** `~/projects/nfl-predictions` was fast-forwarded 551f29af → c83fc641 (192 commits).
+  - Before: clean; no nfl-week timers armed; the running DK ingest loop's script unchanged by the range.
+  - Code changes in the range: route guards, the enter_layout pin guard, O-31's config default, new scripts.
+  - The Friday branches are NOT in it. The Friday fast-forward still follows the six merges.
+- **Study 35** (the per-QB cap on MIXT; his QB-diversity question): FROZEN (production `c4fb005b`; nfl2 `a90dc3a`).
+  - Caps A 5 / B 8 rows: dealt top QB .477 → .223 / .323; distinct QBs 4.1 → 6.7 / 5.3; projection −0.31 / −0.12
+    per lineup; cells intact; 0 passes.
+  - Binding census acked: the laptop's re-run is byte-identical (`79f502b7`). Launched on 1455–1460 (clean).
+  - Note: the cap spreads QBs but not the rest (top player about .54 either way).
+- **The QB cap lever** (`production/qb-cap-20261006` @ `b5514472`, APPROVED, OFF by default).
+  - `UNION_MAIN_QB_CAP_ROWS` + `UNION_MAIN_QB_CAP_K`; the union refuses a K mismatch; check_week_runtime fails on a
+    missing or mismatched K.
+  - Merges Friday only if 35 PASSES and he says yes. Then arm `UNION_MAIN_QB_CAP_ROWS=5 UNION_MAIN_QB_CAP_K=26`.
+
 ## 2026-10-06 (11:00 CDT) — The monkey benchmark re-run on the permanent script (W1–4, 1,000 books): CORRECTS the 10-04 figures; the harness merged
 
 - **The money-gate harness MERGED** (`3210a9f7`, reviewer-approved): moneygate_build / score / monkeys / scorecard /
