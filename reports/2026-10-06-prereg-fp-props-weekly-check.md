@@ -16,7 +16,8 @@ The props report (`reports/2026-10-06-props-and-winners.md`) found, on 2026 Week
 
 ## Population (fixed)
 QB / RB / WR / TE in the week's T-70 frame with:
-- a REAL prop number: `market_points` present and not equal to DraftKings' points-per-game (the old fallback);
+- a REAL prop number: the T-70 frame's `market_points` (the props the build itself had at T-70), present and not
+  equal to DraftKings' points-per-game (the old fallback);
 - an FP projection from the newest DraftKings Main capture retrieved before the T-70 build (the run's receipt
   `built_utc`), joined exactly on the draftable id;
 - the week's Millionaire fpts (normalised name; slate-wide collisions dropped);
