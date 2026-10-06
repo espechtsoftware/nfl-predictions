@@ -324,9 +324,10 @@ Your instinct holds on what you asked: far more chances of at least one ticket, 
 You said: "If successful, i will have a limited number of entries to big contests next week, so we need to figure out
 how to choose the best ones." Agreed; it is study 32 (the reviewer runs it; frozen before study 31's results are read).
 
-**What happened in Weeks 1–4:** the lineups our book chose from its own pool did no better than random rows from that
-same pool: the 59th percentile on cashes over the four weeks, better than random in Weeks 1–2 and worse in Weeks 3–4
-(the "monkey" check, 1,000 random books a week).
+**What happened in Weeks 1–4:** the lineups our book chose did not beat random lineups drawn from the same pool under
+the same limits and dealing: above that random median in 50 of 86 contests (not distinguishable from chance), better
+than random in Weeks 1–2 and worse in Weeks 3–4 (the "monkey" check, 1,000 random books a week; on cashes, 72nd
+percentile against random books built like ours, 59th against plain random rows).
 
 **The honest starting point: every past attempt to pick our best lineups failed.**
 - Over 17 weeks, the week's best lineup sat at a median rank of 15 of 40 in our order.
