@@ -42,7 +42,7 @@ chat. Private paths stay private (no dollars, no entries here).
    6. `production/linestar-retire-20261006` @ `b20628fc` (no LineStar capture in the build or at arming).
    7. ~~`production/neo4j-arm-check-20261006` @ `11ed00d4`~~ **MERGED 10-06** (`6af25408`, approved): the arm script
       refuses while the local Neo4j runs. Its follow-up `production/neo4j-build-guard-20261006` @ `e2845f73` (the build
-      preflight STOPS a running Neo4j, never refuses; under review) merges before Wednesday's host rehearsal if approved.
+      preflight STOPS a running Neo4j, never refuses) is **MERGED 10-06** (approved), so Wednesday's host rehearsal exercises it.
    8. `production/freshness-after-weather-20261006` @ `dabebd49` (O-18: s-freshness 08:30 CT; s-weather reconciled to
       live; code approved): merged, with the live `gcloud scheduler jobs update http s-freshness --schedule '30 8 * * *'
       --location us-central1`, only after his one-line OK (a registered operator decision). Not on the money path.
