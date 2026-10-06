@@ -13,7 +13,10 @@ draftable id (the frame's dk_draftable_id). Gates (reviewer 2026-10-05), each RE
   (b) salary: every matched row's FP salary equals the frame's (a wrong slate or draft group);
   (c) disagreement: Pearson r between FP and ours over the matched skill players either side projects >= 3 must be
       >= 0.7 (a stale, partial or wrong-week capture); the 15 largest |FP - ours| are printed;
-  (d) freshness: a capture older than --inactives-utc (10:30 CT on Sunday) prints a CAPITALS banner (not a refusal).
+  (d) freshness: a capture older than --inactives-utc (10:30 CT on Sunday) prints a CAPITALS banner; with
+      --require-after-inactives (the T-70 build only; operator 10-06: "Our post-inactives numbers") it REFUSES, and the
+      build falls back to OUR post-inactives projections through its existing FP-failure path.
+Every run prints one line "FP CAPTURE TIMING: <ts> AFTER|BEFORE the 10:30 CT inactives" for the upload sheet.
 Players FP does not project keep our projection (counted). FP gives a mean only: the simulations stay ours (disclosed).
 Output: the CSV (id, dk_draftable_id, name, pos, ours, fp) and <out>.json (the capture, the frame's sha256, the gates).
 """
@@ -103,6 +106,8 @@ def main(argv=None) -> int:
     ap.add_argument("--frame", type=Path, required=True); ap.add_argument("--season", type=int, required=True)
     ap.add_argument("--week", type=int, required=True); ap.add_argument("--before", required=True)
     ap.add_argument("--inactives-utc", default=None); ap.add_argument("--out", type=Path, required=True)
+    ap.add_argument("--require-after-inactives", action="store_true",
+                    help="REFUSE a capture older than --inactives-utc (the T-70 build; operator 10-06)")
     a = ap.parse_args(argv)
     try:
         fr = pd.read_parquet(a.frame)
@@ -112,6 +117,13 @@ def main(argv=None) -> int:
         print(f"FP PROJECTIONS REFUSED: {e}", file=sys.stderr)
         return 2
     stale = bool(a.inactives_utc) and pd.Timestamp(cap["retrieved_at"]) < pd.Timestamp(a.inactives_utc)
+    if a.inactives_utc:
+        print(f"FP CAPTURE TIMING: {cap['retrieved_at']} {'BEFORE' if stale else 'AFTER'} the 10:30 CT inactives "
+              f"({a.inactives_utc})", file=sys.stderr)
+    if stale and a.require_after_inactives:
+        print(f"FP PROJECTIONS REFUSED: the newest capture ({cap['retrieved_at']}) is from before the 10:30 CT inactives "
+              f"({a.inactives_utc}); the T-70 build uses OUR post-inactives projections (operator 10-06)", file=sys.stderr)
+        return 2
     if stale:
         print("!!! FP PROJECTIONS ARE FROM BEFORE THE 10:30 CT INACTIVES "
               f"(capture {cap['retrieved_at']}); DK OUT/IR players are still removed by the build", file=sys.stderr)

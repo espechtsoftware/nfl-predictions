@@ -154,3 +154,14 @@ def test_the_arming_banner_states_the_main_book_its_portfolio_and_the_projection
     r = _run(GROUP="154078", UNION_MAIN="mix")
     assert "PORTFOLIO=UNSET (refused at arming)" in r.stdout
     assert "UNION_MIX_PORTFOLIO=ws" in _unit_line(_run(GROUP="154078", UNION_MAIN="mix", UNION_MIX_PORTFOLIO="ws").stdout, "nfl-week4-t70-build")
+
+
+def test_two_sunday_fp_captures_are_armed_and_one_key_skips_both():
+    """The outside review (10-06): one 240-second 10:40 capture was the only post-inactives FP chance; a second unit runs
+    at 10:46 (before the 10:50 T-70 build); SKIP_UNITS fpproj skips both."""
+    r = _run()
+    assert "2026-10-04 10:40 America/Chicago" in _unit_line(r.stdout, "nfl-week4-fp-projections")
+    assert "2026-10-04 10:46 America/Chicago" in _unit_line(r.stdout, "nfl-week4-fp-projections-2")
+    s = _run(SKIP_UNITS="fpproj")
+    assert not [l for l in s.stdout.splitlines() if l.startswith("systemd-run") and "fp-projections" in l]
+    assert "# SKIPPED (fpproj): nfl-week4-fp-projections-2" in s.stdout

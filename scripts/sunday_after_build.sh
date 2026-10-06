@@ -144,6 +144,13 @@ process_run() {
   fi
   { echo "TODAY'S ENTRY = the vetted paid book (HARD/material lineups to the back), keepers first. Source run $(basename "$run"), K$entries, built $(date -u +%H:%M:%SZ), week $WEEK group $GROUP"; echo
     echo "REPLACEMENT STEP: $REPL_STATUS"; echo
+    if [ -f "$run/proj_source_fallback.txt" ]; then
+      echo "*** PROJECTION SOURCE: OUR PROJECTIONS -- FANTASY POINTS FELL BACK: $(grep -h 'REFUSED\|Error' "$run/proj_source.txt" 2>/dev/null | tail -1 | cut -c1-240) ***"
+    elif [ -f "$run/proj_source.txt" ]; then
+      echo "PROJECTION SOURCE: FANTASY POINTS; $(grep -h '^FP CAPTURE TIMING' "$run/proj_source.txt" | tail -1)"
+    else
+      echo "PROJECTION SOURCE: ours (this run carries no FP record: no FP source configured, or the union did not run)"
+    fi; echo
     echo "FIRST-ENTRY PROMOTION: $PROMOTION_STATUS"; echo
     echo "REGENERATION LINEAGE: $LINEAGE_STATUS"; echo
     echo "EXPOSURE SHEET: $SHEET_STATUS"; echo
