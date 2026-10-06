@@ -12,6 +12,20 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (15:33 CDT) — Two production branches for review (FP freshness; replacements priced on FP); study 39 acked
+
+- **`production/fp-freshness-20261006` @ `64cef12a`:**
+  - A second Sunday FP capture at 10:46 (arm EXPECT_N 12).
+  - The T-70 build refuses a pre-inactives capture and falls back to OUR post-inactives projections (the operator's
+    choice).
+  - The upload sheet names the projection source (`proj_source_log.txt` in the union dir). 95 tests.
+- **`production/replace-fp-centre-20261006` @ `c4e309c8`:** vet_replace_v4 recentres the worlds on FP's means when the
+  union carries a verified proj_source.csv; otherwise ours, said loudly. 13 tests. End to end on the W4 FP union: 13 rows
+  replaced, validated.
+- Both merge only after review and run in Friday's rehearsal (a planted stale capture for the first).
+- **Study 39** (an RB in the FLEX; the reviewer's): the binding census re-ran BYTE-IDENTICALLY (`1a6676b4`); prereg
+  `f5708223` pins verified; banks 1473–1478 clean; the scored run is launched by the reviewer.
+
 ## 2026-10-06 (15:27 CDT) — The outside review's §8: two money-path claims verified; the operator's two decisions; production fixes started
 
 - **Verified in code:**
