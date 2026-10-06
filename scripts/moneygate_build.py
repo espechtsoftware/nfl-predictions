@@ -40,6 +40,8 @@ Week-5 package translated to each week's REAL contests -- --main mix (the winner
 the mix plan, head), overlap limit <ms>, --mix-fill <fill>, no ownership term, FP projections where the week's config
 pins an fp_proj_source (W4 only), the week's own T with A1's sleeve flags, and study 35's QB cap TRANSLATED by share:
 rows = round(5 x K / 26) at --main-qb-cap-k K (the cap was studied at K 26 only). The week's contest mix is not Rev3.
+The package arms run on the Week-5 lab pin (private config pkg_lab_src / pkg_lab_sha; the MIX shape options need it);
+A1-A4 keep lab_src, the code that entered Week 4.
 
 Config: ~/moneygate/weeks.json (private: paths and sha256 pins; MONEYGATE_CONFIG overrides). Outputs: ~/moneygate/books
 (MONEYGATE_BOOKS overrides). Nothing is written inside git.
@@ -223,24 +225,31 @@ def check_inputs(e: dict) -> dict:
 
 
 def union_cmd(cfg: dict, e: dict, arm: str, K: int, T: int, out: Path, contests: Path | None = None) -> tuple[list[str], dict]:
-    flags = pkg_flags(arm, e, K, contests) if PKG_RE.match(arm) else arm_flags(arm, e.get("own_file"))
+    pkg = bool(PKG_RE.match(arm))
+    flags = pkg_flags(arm, e, K, contests) if pkg else arm_flags(arm, e.get("own_file"))
     args = ["--saturday-run", e["saturday_run"], "--t70-run", e["t70_run"], "--live-dir", str(Path(e["t70_run"]).parent),
             "--entries", str(K), "--tail-sleeve", str(T), *flags, "--out", str(out), "--rehearsal"]
-    env = dict(os.environ, LIVE_FLEX_LATEST="1", PYTHONPATH=f"{cfg['lab_src']}:{PROD / 'src'}")
+    # the package arms need the Week-5 lab pin (optimize takes the MIX shape options); A1-A4 keep the code that entered W4
+    lab_src = cfg["pkg_lab_src"] if pkg else cfg["lab_src"]
+    env = dict(os.environ, LIVE_FLEX_LATEST="1", PYTHONPATH=f"{lab_src}:{PROD / 'src'}")
     return [cfg["lab_py"], str(PROD / "scripts" / "union_reselect.py"), *args], env
 
 
-def lab_head(cfg: dict) -> str:
-    src = Path(cfg["lab_src"]).parent
+def lab_head(cfg: dict, prefix: str = "") -> str:
+    """The pinned lab clone's HEAD, refused unless clean and at the pin. prefix "pkg_" = the package arms' Week-5 pin."""
+    if f"{prefix}lab_src" not in cfg:
+        raise SystemExit(f"the private config has no {prefix}lab_src / {prefix}lab_sha (the package arms need the Week-5 lab pin)")
+    src = Path(cfg[f"{prefix}lab_src"]).parent
     r = subprocess.run(["git", "-C", str(src), "rev-parse", "HEAD"], capture_output=True, text=True)
     d = subprocess.run(["git", "-C", str(src), "status", "--porcelain", "--untracked-files=no"], capture_output=True, text=True)
-    if r.stdout.strip() != cfg["lab_sha"] or d.stdout.strip():
-        raise SystemExit(f"lab src {src} is at {r.stdout.strip()[:12]} (dirty={bool(d.stdout.strip())}); the config pins {cfg['lab_sha'][:12]}")
+    if r.stdout.strip() != cfg[f"{prefix}lab_sha"] or d.stdout.strip():
+        raise SystemExit(f"lab src {src} is at {r.stdout.strip()[:12]} (dirty={bool(d.stdout.strip())}); the config pins {cfg[f'{prefix}lab_sha'][:12]}")
     return r.stdout.strip()
 
 
 def cmd_build(cfg: dict, weeks: list[str], arms: list[str], runs: int) -> None:
-    lab = lab_head(cfg)
+    lab = lab_head(cfg) if any(not PKG_RE.match(a) for a in arms) else None
+    pkg_lab = lab_head(cfg, "pkg_") if any(PKG_RE.match(a) for a in arms) else None
     for w in weeks:
         e = cfg["weeks"][w]
         check_inputs(e)
@@ -257,7 +266,8 @@ def cmd_build(cfg: dict, weeks: list[str], arms: list[str], runs: int) -> None:
                     raise SystemExit(f"unknown arm {arm}")
                 cmd, env = union_cmd(cfg, e, arm, K, T, out, BOOKS / f"w{w}" / "contests.json")
                 (out.parent / f"run{r}.cmd.json").write_text(json.dumps({"argv": cmd, "PYTHONPATH": env["PYTHONPATH"],
-                                                                         "LIVE_FLEX_LATEST": "1", "lab_sha": lab}, indent=1) + "\n")
+                                                                         "LIVE_FLEX_LATEST": "1",
+                                                                         "lab_sha": pkg_lab if PKG_RE.match(arm) else lab}, indent=1) + "\n")
                 print(f"W{w} {arm} run{r}: union_reselect K {K} T {T}", flush=True)
                 p = subprocess.run(cmd, env=env, cwd=PROD, capture_output=True, text=True)
                 (out.parent / f"run{r}.log").write_text(p.stdout + "\n--- stderr ---\n" + p.stderr)

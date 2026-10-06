@@ -339,3 +339,19 @@ def test_describe_counts_big_wins_by_his_rule():
                              {"contest_id": "b", "fee": 5, "cash": 600, "ticket": 0, "pct": 99}])
     assert pub["multiple"] == 62.0 and pub["multiple_ex_largest"] == 2.0 and pub["big_wins"] == 1
     assert pub["contests_with_big_win"] == 1 and pub["week_has_big_win"] and "winnings" not in pub and priv["winnings"] == 620
+
+
+def test_pkg_arms_run_on_the_week5_lab_pin_and_a1_keeps_the_week4_one():
+    import importlib.util, sys
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    spec = importlib.util.spec_from_file_location("mgb_lab", root / "scripts" / "moneygate_build.py")
+    B = importlib.util.module_from_spec(spec); sys.modules["mgb_lab"] = B; spec.loader.exec_module(B)
+    cfg = {"lab_src": "/lab32/src", "lab_py": "py", "pkg_lab_src": "/lab69/src"}
+    e = {"saturday_run": "/s", "t70_run": "/t/run", "own_file": None}
+    _, env_pkg = B.union_cmd(cfg, e, "PKG4-rr", 68, 1, Path("/o"), Path("/c.json"))
+    _, env_a1 = B.union_cmd(cfg, e, "A1", 68, 1, Path("/o"))
+    assert env_pkg["PYTHONPATH"].startswith("/lab69/src:") and env_a1["PYTHONPATH"].startswith("/lab32/src:")
+    import pytest
+    with pytest.raises(SystemExit, match="no pkg_lab_src"):
+        B.lab_head({"lab_src": "/x/src", "lab_sha": "0"}, "pkg_")
