@@ -16,16 +16,33 @@ second.
 
 | # | Decision | My recommendation |
 |---|---|---|
-| 1 | The lineup shape: the winners' mix (MIX), WS, or today's | **MIX**, your stated preference ("mirroring how the winners play"), backed by this week's closest result (study 28): better in every season, not yet a proven gain. WS tied today's shape; the shootout is off |
+| 1 | The lineup shape: the winners' mix (MIX), WS, or today's | **Open until study 31 reads (before Friday).** MIX is your stated preference ("mirroring how the winners play") and study 28 put it ahead of today's shape. But the direct test of the whole Week-5 package (study 30: MIX, no tilt) against what we ran in Week 4 (today's shape with the tilt) **leaned to Week 4's setup**: −7 points, not significant, both seasons negative. So the package is **not supported as an improvement** today. Study 31 tests all four combinations together on more practice weeks to settle it. WS tied today's shape; the shootout is off |
 | 2 | Fantasy Points' projections instead of ours | **Yes** (you decided this in principle; the Week-4 check worked) |
 | 3 | The lab-code update both of these need | **Yes**: it changes nothing when they're off (proven below) |
-| 4 | The Week-5 contest plan | **Done: your final entries (Rev2)**: 29 contests, 53 entries; the super-satellites reuse your top lineups |
+| 4 | The Week-5 contest plan | **Your final entries (Rev2)**: 29 contests, 53 entries. **Your question (10-06): spread the super-satellites over more lineups instead of reusing rows 1–5.** Recommended, after a test: today all 26 satellite entries ride on the same 5 lineups (all or nothing). The spread version uses all 22 of the week's lineups (the book has 22, so four are reused); see 4a |
 | 5 | Every entry a different lineup | **Keep today's dealing.** Your Rev2 pins the super-satellites to your top lineups, and the sequential dealing would ignore those pins (it now refuses) |
 | 6 | A cap: no game's quarterbacks in more than 6 of your 24 entries | **No:** it didn't raise your chance of a big win and cost 22% of expected big seats |
-| 7 | The ownership tilt (the build favours popular players: +0.20 x predicted ownership) | **Turn it OFF:** on your goal it cost about 7 points of big-win chance and 29% of expected big seats (study 29) |
+| 7 | The ownership tilt (the build favours popular players: +0.20 x predicted ownership) | **OFF on MIX** (study 29: on the winners' mix it cost about 7 points of big-win chance and 29% of expected big seats). Study 30 complicates it: today's shape WITH the tilt did better than MIX without it. Study 31 tests the tilt on both shapes |
 | 8 | Mix props into FP's projections | **Not yet:** FP alone, with FP + props scored beside it every Monday (one week of evidence so far) |
 
 ## 1. The lineup shape
+
+**Update 10-06, study 30: the direct test leans the other way.** Studies 28 and 29 each changed one thing. Study 30
+compared the whole Week-5 package (the winners' mix, no ownership tilt) with what we ran in Week 4 (today's shape with
+the tilt) on your plan and goal, written before any results and re-run by both of us with identical output:
+
+| On 36 practice weeks (2023–24) | Week 4's setup | The Week-5 package |
+|---|---|---|
+| Chance of at least one big win in a week | about 37% | **7 points lower** (range −19 to +5): lower in both seasons |
+| Expected big seats | — | about the same (2% fewer) |
+| Average finish | 57th percentile | 52nd |
+| Weeks with almost no chance of a big win | 26% | 44% |
+
+Not significant, but it does not support switching. It also conflicts with studies 28 and 29: the same build scored
+about 7 points apart on two different sets of practice weeks, so differences of that size between studies are within
+the noise. **Study 31 settles it:** both shapes, with and without the tilt, run together on six fresh sets of practice
+weeks; it is set before any result is seen, and it reads before Friday. The rule: if the winners' mix is not shown to
+be worse than Week 4's setup, it stays your option; if it is worse, we keep Week 4's setup.
 
 **The winners' mix (MIX), study 28 (10-06): the closest result of the week.** Your question was "Is there a reason
 that we aren't trying to play the way the winners play?" Study 28 tested exactly that on your final entries (Rev2) and
@@ -158,6 +175,30 @@ using the cash lines of my first draft plan (9–22% of the field paid):
   It counts as a big win: your words to the reviewer, "any one except a $20 milly ticket count as big wins to me".
 - **Everything in study 24 uses this exact plan**, with the Millionaire judged at the $500+ line (the top 95 of
   161,764).
+
+## 4a. Your super-satellites: rows 1–5, or spread (your question, 10-06)
+
+You asked whether we know lineups 1–5 are our best. **We don't, not strongly:**
+- Under the winners' mix, the order of the lineups is mostly a placement: positions are given to the four shapes so the
+  mix comes out right across your entries. Row 1 is the first lineup of its shape, not the best of the book.
+- The projected gap between row 1 and row 20 is small next to how much Sundays swing.
+- Study 24 dealt every entry its own lineup on your plan: no difference in the chance of a big win (+1.2 points), a
+  slightly lower average finish. Your 25-seat super-satellites pay only the top 4%, where a lineup's ceiling matters
+  more than its average.
+
+**What spreading changes.** Today four 5-entry super-satellites all hold rows 1–5. If those five lineups miss the top
+4%, every satellite entry misses together. Spread over different lineups, the expected number of Millionaire tickets
+stays about the same, winning at least one becomes much more likely, and winning several becomes less likely.
+
+**The spread version (built 10-06, private file, not installed):** the four 5-entry satellites take rows 1–5, 6–10,
+11–15 and 16–20; the 2-entry one rows 21–22; the 3-entry and 1-entry ones (easier lines, where a lineup's average
+matters more) keep rows 1–3 and row 1; the World Championship satellite keeps row 1. The book has 22 lineups, and a pin
+cannot add one, so "1–26" becomes "1–22 with four reused".
+
+**Its rehearsal on Week 4's slate (10-06):** every check passed. Your satellites hold 22 different lineups instead of
+5, and the most-used player is in 29 of your 53 entries instead of 37, so one late scratch hits fewer entries. The
+four-shape mix by entries stayed within 8 points of its targets. The reviewer is adding the satellite outcome (chance
+of at least one ticket, expected tickets) to study 31.
 
 ## 5. Every entry a different lineup: tested (study 24)
 

@@ -24,7 +24,9 @@ chat. Private paths stay private (no dollars, no entries here).
    1. `production/main-mix-20261006` @ `ddd470ed` (MIX / WS / FP source / spares / fallbacks): needed for FP
       projections whatever the shape;
    2. `production/o35-plan-weights-pins-20261006` @ `ce7ba02b` (pin-aware MIX weights): needed only for MIX;
-   3. `production/linestar-retire-20261006` @ `b20628fc` (no LineStar capture in the build or at arming).
+   3. `production/vet-cell-order-20261006` @ `030db347` (O-36: vet_book keeps each MIX cell on its own positions;
+      mix_dealt_shares counts replacements by shape): needed only for MIX, after the reviewer's approval;
+   4. `production/linestar-retire-20261006` @ `b20628fc` (no LineStar capture in the build or at arming).
 2. A follow-up for review: the arming banner prints `ENTER_LAYOUT`.
 3. The money-path test modules green with `GCP_PROJECT` unset; `check_week_runtime` in the armed env: head / 22 rows
    / no LayoutError on Rev2 (`~/week5-sunday/contests.json` sha `94cc61a8…`).
@@ -35,7 +37,8 @@ chat. Private paths stay private (no dollars, no entries here).
    the dealt cell shares by ENTRIES near A1 .30 / A2 .14 / B .28 / C .28 (pins weighted, O-35 live); (2) the 8 pinned
    contests' ENTER files carry rows 1-5 exactly as pinned; (3) 15 spares in the corpus; (4) the replacement uses
    in-shape spares or the flagged house fallback, and no row ships with the excluded player; (5) audit_build_levers
-   PASS. NOT-PUBLISHABLE (test flags). The last proof before the money path runs it.
+   PASS. NOT-PUBLISHABLE (test flags). The last proof before the money path runs it. The 10-06 preview found O-36
+   (check 1 failed by entries until the vet-cell-order fix); its re-run with the fix passed all five.
 6. The lab pin for MIX / WS: `EXPECT_SHA f69598ba…` with `CLONE ~/projects/.nfl2-worktrees/week5-live-center`
    (`optimize(second_game_pair, qb_game_max)`); the house shape could stay on `32cdb61`.
 
