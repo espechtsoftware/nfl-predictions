@@ -5236,3 +5236,87 @@ STUDY 33 DESCRIPTIVE (post-read; pre-stated in §5a; never decision-bearing)  re
    is his preference, not a measured edge. The decision sheet says so.
 7. **Process:** the first training run stalled for 70 minutes without `OMP_THREAD_LIMIT=1`. It was re-run with the limit
    on the same inputs and seed, before any outcome.
+
+## Addendum 139 (2026-10-06): study 34 (the max-entry regulars' habits as a selection tilt): NO DIFFERENCE — copying their visible habits, either where they differ from us or where we already agree, does not change his chance of a big win; their edge is pre-lock knowledge (projections), which FP now supplies
+
+**Setup.**
+- **The operator (10-06):** "do we feel that our ability to choose players - both stacks as well as boom players - is
+  at a level comparable to the winners?", then "Do we have to wait until Thursday to test that?" Study 22a waits on the
+  parked co-run and tests our old projection.
+- **The evidence** (`reports/2026-10-05-regulars-player-choices.md`): the 117 max-entry regulars beat the rest of the
+  Millionaire field by +6.1 points per lineup in Weeks 1–4 (null p 0.002). Our book was −3.8 (p 0.14).
+- **The prior, stated first:** the report's §6 found that copying their visible habits did not carry the edge, so NO
+  DIFFERENCE was expected.
+- **Arms** (study 31's harness: Rev3, K 26, caps 13 / 6, `enter_layout` `3cb051ac…`, the 0.20 term):
+  - **GAP (DECISION):** mean × (1 + 0.2·h_gap). h_gap tilts along their tilt MINUS ours on the BEHAVIOURAL features:
+    the last played game's DK points −0.09, last week's opportunity share −0.06, the Questionable tag +0.05.
+    - Value per $1k (−0.19) was excluded as a projection-difference artifact: it is measured on our projection, and FP
+      closes it live.
+  - **SHR (exploratory):** mean × (1 + 0.0125·h_shr), the three habits we already share (last game, salary change,
+    early-season matchup samples).
+  - **Each on CT and MIXT.**
+- **Calibration (outcome-blind, fixed before it ran):**
+  - Every z is in the report's units (over predicted-owned ≥ 0.2% players).
+  - The GAP weights come from one per-feature reweighting, and β_gap 0.2 was the only grid value with every feature
+    within 30% of its gap (1.02 / 0.88 / 0.89).
+  - β_shr 0.0125 is the closest to the regulars' size (ratio 1.12).
+  - On the scored banks: GAP 1.00 / 0.78 / 0.82, SHR 1.07.
+- **Preregistration:** `reports/2026-10-06-prereg-study34-regulars-habits.md` (frozen `a3417b90`; the laptop's design:
+  the GAP vector, value excluded, units, the landing rules).
+- **Panel:** 36 slates, banks 1449–1454, B 20,000, seed 20261016. The binding census raw is `14879fd0…`.
+- **Read and reproduced:**
+  - Read by the reviewer.
+  - **Reproduced byte-identically by the laptop:** reader `2da832bf`; READ `05dfad1b`; raw 1449 `a361d8f4` … 1454
+    `8173b8a2`.
+  - Lab: nfl2 `production/s34-regulars-habits-20261006`.
+
+**Reader output (verbatim):**
+```
+STUDY 34 READER  sha256 2da832bf677315b166c5ed5941896ba466a600c697580e78c561c2faade6ca14
+DIRECTION: P(>= 1 big seat) per slate (the mean over its banks); every difference is ARM - REFERENCE; POSITIVE favours the first arm.
+slates 36  banks [1449, 1450, 1451, 1452, 1453, 1454]  B 20000  seed 20261016  primary GAP - reference pooled over CT and MIXT, two-sided 0.95, guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80  beta ['{"gap": 0.2, "shr": 0.0125}']
+
+== GAP vs reference, pooled over the two shapes  [DECISION: the tilt toward the regulars along the gap]
+  PRIMARY P(>= 1 big seat) per slate -0.00344  [-0.02968, +0.02329]  seasons 2023 -0.01987, 2024 +0.01298
+  GUARD 1 mean entry pct -0.00313  one-sided lower -0.00904  (must exceed -0.015)
+  GUARD 2 expected big seats 0.56991 vs 0.60583  ratio 0.941  (must be >= 0.80)
+  GAP dealt identical to its reference: 0.000 of slate-banks (pooled over shapes)
+  ->  NO DIFFERENCE
+
+== EXPLORATORY (never decision-bearing)
+  SHR - reference pooled (the shared habits, more of them): -0.00879  [-0.06321, +0.04347]  seasons 2023 -0.03647, 2024 +0.01890
+  GAP_CT - CT (the gap tilt on the house shape): -0.03063  [-0.07059, +0.00803]  seasons 2023 -0.04893, 2024 -0.01233
+  GAP_MIXT - MIXT (the gap tilt on the mix): +0.02375  [-0.00437, +0.05156]  seasons 2023 +0.00920, 2024 +0.03830
+  SHR_CT - CT (the shared habits on the house shape): -0.03585  [-0.10657, +0.03115]  seasons 2023 -0.04694, 2024 -0.02477
+  SHR_MIXT - MIXT (the shared habits on the mix): +0.01828  [-0.03497, +0.07260]  seasons 2023 -0.02600, 2024 +0.06256
+  pooled GAP - reference, weeks 2-5 (the matchup habit acts): +0.01130  [-0.00903, +0.03839]  slates 8
+  pooled GAP - reference, weeks 6+: -0.00765  [-0.03975, +0.02598]  slates 28
+
+secondaries (slate means):
+  CT      P(>=1 big) 0.34277  expected big seats 0.59669  P(>=2) 0.15178  entry pct 0.57779  dealt entries' mean h_gap -0.0598  h_shr -1.1859
+  GAP_CT  P(>=1 big) 0.31214  expected big seats 0.50506  P(>=2) 0.12058  entry pct 0.57217  dealt entries' mean h_gap -0.0530  h_shr -1.0595
+  SHR_CT  P(>=1 big) 0.30692  expected big seats 0.51878  P(>=2) 0.12800  entry pct 0.56131  dealt entries' mean h_gap -0.0516  h_shr -0.8033
+  MIXT    P(>=1 big) 0.32883  expected big seats 0.61498  P(>=2) 0.13010  entry pct 0.57962  dealt entries' mean h_gap -0.0622  h_shr -1.2042
+  GAP_MIXT P(>=1 big) 0.35258  expected big seats 0.63476  P(>=2) 0.14450  entry pct 0.57897  dealt entries' mean h_gap -0.0551  h_shr -1.0745
+  SHR_MIXT P(>=1 big) 0.34711  expected big seats 0.53404  P(>=2) 0.13454  entry pct 0.56674  dealt entries' mean h_gap -0.0541  h_shr -0.8186
+```
+
+**Reading.**
+1. **At the frozen rule: NO DIFFERENCE.**
+   - GAP − reference −0.003 [−0.030, +0.023]; seasons −0.020 / +0.013.
+   - Both guards hold: finish −0.003, expected big seats ×0.94.
+   - SHR −0.009 [−0.063, +0.043].
+   - By shape, both tilts have opposite signs (GAP: CT −0.031, MIXT +0.024): noise around zero.
+2. **Copying the regulars' visible habits at their size does not carry their edge,** whether where they differ from us
+   or where we already agree. This confirms their report's §6: their edge is pre-lock knowledge, most likely better
+   projections (in Week 4 they sided with FP).
+   - From Week 5 FP's projections pick our lineups, which closes the largest known difference.
+   - The weekly picks-vs-field line (merged 10-06) shows whether it worked.
+3. **The books' habit LEVEL** (CT h_shr −1.18) is book against the owned pool. Projection books, like the whole field,
+   take recent good scorers and salary risers. The arms tested a regulars-sized SHIFT on top of that; −1.18 does not
+   mean "we do the opposite of the regulars" (the laptop).
+4. **MIXT vs CT, a third reading** (not a designed contrast): CT .343 vs MIXT .329.
+   - Across studies 31 / 33 / 34, MIXT − CT = +2.2 / −1.4 / −1.4 points (mean about −0.2).
+   - Expected big seats MIXT / CT: 1.14 / 0.99 / 1.03.
+   - Tied within noise. Friday's choice is his preference.
+5. **Transfer:** the panel's means are ours; live, FP picks. The habits were tested on top of a projection-based book.
