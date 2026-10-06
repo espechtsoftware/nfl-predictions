@@ -12,6 +12,29 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (15:07 CDT) — Study 38 FROZEN (acked) before an in-sample W1–4 early look (reproduced byte-identically)
+
+- **Operator:** "is there a reason we can't test it now against this season's data". Answer: no technical reason; W1–4 is
+  in-sample (the tiers came from W1–4) and only W4 has FP. So the rule was frozen first, then an early look was run.
+- **Freeze:** `c979dddd` (15:02:09 CT), prereg sha `26382e93`; reader `7865303a` = lab `4429fd8`. The live-mode census
+  on the laptop's A3 rehearsal snapshot is a post-freeze INTEGRITY GATE: it fails before W5's lock → W5 invalid, W9
+  replaces it.
+- **Early look** (`~/private/rehearsal-current/early_look.py` `d4dd15ba` → `73bc9326`; the laptop re-ran it
+  BYTE-IDENTICALLY): P(≥1 big) per week; W1–3 on our projections, W4 on FP:
+
+  | Arm | W1 | W2 | W3 | W4 |
+  |---|---|---|---|---|
+  | QA0 (live) | 1.000 | .931 | .009 | .034 |
+  | RS0 | .194 | .047 | .012 | .208 |
+  | QBB0 | .396 | .930 | .009 | .038 |
+  | NQC0 | .134 | .266 | .009 | .0025 |
+  | RBC0 | .240 | .022 | .010 | .977 |
+
+  QA / QAL: W3 .049 / .003; W4 .009 / .063.
+  - RBC0's W4 best row 196.6 (~428 of 161,516).
+  - No arm leads consistently. The one FP week favours the spread books. In-sample, never decision-bearing; nothing
+    changes for W5.
+
 ## 2026-10-06 (14:56 CDT) — LOCAL NEO4J LOADED (operator: "as soon as possible"); first findings: the regulars' RB-led floating core
 
 - **Coordinated first:** the reviewer confirmed their rehearsal (lab harness only, done by 15:00) did not overlap.
