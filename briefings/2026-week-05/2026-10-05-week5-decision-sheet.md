@@ -19,8 +19,8 @@ second.
 | 1 | The lineup shape: WS, the shape-mix portfolio (MIX), or today's | **Your preference, not a tested gain:** on your plan and goal WS and today's shape tied (study 18b). Doing nothing keeps today's |
 | 2 | Fantasy Points' projections instead of ours | **Yes** (you decided this in principle; the Week-4 check worked) |
 | 3 | The lab-code update both of these need | **Yes**: it changes nothing when they're off (proven below) |
-| 4 | The Week-5 contest plan | **Done: your revised entries** (19 contests, 24 entries) |
-| 5 | Every entry a different lineup | **Your call:** strictly distinct didn't help and costs a little; the build's sequential dealing (about 22 of 24 distinct, no code) had the best numbers |
+| 4 | The Week-5 contest plan | **Done: your final entries (Rev2)**: 29 contests, 53 entries; the super-satellites reuse your top lineups |
+| 5 | Every entry a different lineup | **Keep today's dealing.** Your Rev2 pins the super-satellites to your top lineups, and the sequential dealing would ignore those pins (it now refuses) |
 | 6 | A cap: no game's quarterbacks in more than 6 of your 24 entries | **No:** it didn't raise your chance of a big win and cost 22% of expected big seats |
 
 ## 1. The lineup shape
@@ -104,8 +104,22 @@ using the cash lines of my first draft plan (9–22% of the field paid):
 - **Proof it is safe when off:** I rebuilt Week 4's actual book on the new code with the new options off. It matched
   what we entered, byte for byte.
 
-## 4. The Week-5 contest plan: your revised entries
+## 4. The Week-5 contest plan: your final entries (Rev2, 10-06)
 
+- **29 contests, 53 entries**, built from your final entries file (Rev2). It keeps everything below and adds:
+  - **the $20-Millionaire super-satellites** (the cheap 25-seat ones), 26 entries in all. Your words: "For those, I
+    only want to reuse my top lineups that I'm using elsewhere. I don't want to have one of those do better than a big
+    contest and feel bad that I should have entered it elsewhere. My hope with those is to win many". So each of them
+    gets your top lineups (rows 1–5, 1–3, 1–2 or 1), never a lineup of its own;
+  - **the $125 World Championship satellite**: not a big win, and it reuses your top lineup (your words: "the 125
+    WFFC one doesn't and it should reuse an entry");
+  - **three Midseason Warm Up Millionaire satellites**: they count as big wins (your words: "the midseason ones count
+    as big wins") and get lineups of their own.
+- The book is 22 lineups (it was 20); every other contest is dealt as before.
+- **The earlier plan (Rev1, below) is what studies 24 and 18b tested.** Rev2 adds cheap contests that reuse the
+  same lineups, so those results carry over; the reviewer's study 26 already runs on Rev2.
+
+**Rev1, for the record:**
 - **19 contests, 24 entries**, built from your revised entries file. The baseball satellites are gone, and your two
   entries in the $555 super-satellite are in.
 - **Almost all of it chases big seats:** the $333 Wildcat, $555 and $4,444 satellites and the World Championship
@@ -140,9 +154,10 @@ using the cash lines of my first draft plan (9–22% of the field paid):
   about 0.8 points of average finish.
 - **Why sequential beats strictly distinct:** putting a strong lineup in a second contest beats replacing it with a
   weaker spare.
-- **My recommendation:** if you want "more distinct," choose the sequential dealing. It is the closest no-code version
-  of your wish, and it lost no big-win chance in the test. Otherwise keep today's dealing. Either way it is a
-  risk preference, not a proven gain.
+- **My recommendation (updated for Rev2): keep today's dealing.** Your Rev2 pins the super-satellites to your top
+  lineups, and the sequential dealing has no way to honour those pins: it would give each of them new, weaker
+  lineups, against your instruction. The build now refuses that combination outright. Sequential also showed no
+  proven gain, so nothing is lost.
 
 ## 6. A cap on any one game: tested (study 24), not offered
 
@@ -206,7 +221,7 @@ section 1 is the evidence.
 
 - **Arming:** the Saturday arming line adds
   `UNION_MAIN=mix UNION_MIX_PORTFOLIO=ws UNION_PROJ_SOURCE=fp`, with the lab pin moved to the new code, plus
-  `ENTER_LAYOUT=sequential` if you choose the sequential dealing. The arming banner prints the choice, so a missed line can't silently
+  nothing for the dealing (today's head dealing stays; your Rev2 pins need it). The arming banner prints the choice, so a missed line can't silently
   pick the wrong arm.
 - **Safety nets:**
   - if WS can't fill the book, the build falls back loudly to today's shape;
