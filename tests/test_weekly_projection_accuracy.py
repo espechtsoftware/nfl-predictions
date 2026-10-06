@@ -154,3 +154,14 @@ def test_the_fp_cutoff_is_the_t70_build_not_the_lock(tmp_path):
         raise AssertionError("a cutoff after the lock must refuse")
     except SystemExit as e:
         assert "after the lock" in str(e)
+
+
+def test_the_reader_refuses_without_an_explicit_project(monkeypatch, tmp_path):
+    monkeypatch.delenv("GCP_PROJECT", raising=False)
+    a = type("A", (), {"frame": tmp_path / "frame.parquet", "season": 2026, "week": 5, "lock_utc": "2026-10-11T17:00:00Z",
+                       "contest": "1", "capture_before": None})()
+    try:
+        WPA.load_week(a)
+        raise AssertionError("an unset GCP_PROJECT must refuse")
+    except SystemExit as e:
+        assert "GCP_PROJECT is not set" in str(e)

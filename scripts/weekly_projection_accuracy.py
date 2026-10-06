@@ -37,12 +37,16 @@ week), B 2000, seed 1. For each pair: the mean MAE improvement, its 5-95% range,
 THE REVISIT CHECK (pooled weeks only; single weeks are descriptive): "ours (or the blend) beats FP" is printed when its
 pooled MAE is lower than FP's AND at least 95% of the pooled resamples are better (B 2000, seed 1). The operator
 decides; this decides nothing by itself.
+Re-freeze note 2026-10-06 (before any Week-5 outcome; the reviewer's O-31 follow-up): the project guard now tests the
+GCP_PROJECT environment variable itself (O-31 made the config default the real project, so the old default-name test
+could no longer trigger). No population, metric or rule changed; W4's rows sha is unchanged.
 """
 from __future__ import annotations
 
 import argparse
 import hashlib
 import json
+import os
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -202,8 +206,8 @@ def load_week(a) -> tuple[pd.DataFrame, dict]:
     from nfl_dfs.analysis.game_day_active import load_active
     from nfl_dfs.bq import query_df
     from nfl_dfs.config import settings
-    if settings.project == "nfl-dfs-prod":
-        raise SystemExit("GCP_PROJECT is not set (O-31)")
+    if not os.environ.get("GCP_PROJECT", "").strip():
+        raise SystemExit("GCP_PROJECT is not set: this reader reads licensed FP data and runs only with an explicit project")
     fr = pd.read_parquet(a.frame)
     if not ((fr.season.astype(int) == a.season) & (fr.week.astype(int) == a.week)).all():
         raise SystemExit(f"the frame is not {a.season} W{a.week}")
