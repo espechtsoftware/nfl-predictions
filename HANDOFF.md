@@ -12,6 +12,102 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (04:42 CDT) — The operator: this week is round-the-clock Sunday-strategy testing; the O-22 co-run and the 2026-only O-22 check are PARKED
+
+**Operator (10-06, verbatim, to the reviewer):** "That 6 season rule is old and i want to clarify something. I dont
+believe we have full data like SIS, Fantasy Points, odds api for the six seasons, so is it a true test?" Then: "I say #4.
+I would rather see around the clock efforts to try different strategies of selecting boom players, sorting, testing
+usage of route share data etc with the intent to use the best system available this week".
+
+- **PARKED:** the six-season O-22 co-run (prereg draft `production/o22-corun-prereg-20261006` 641bbb37; recipe not
+  frozen) and the 2026-only O-22 repair check (outline approved in principle by the reviewer, with notes a–c). The
+  co-run base is left as is on `production/corun-o22-20261006` @ `8da4f0e7` (integration + o22 @ 0bc6b6bc + arm D's
+  candidate registration).
+- **Found while drafting:** arm D would have been a dead lever (EXTRA_FEATURES ignores unregistered names) -> O-33.
+- **This week's work:** Sunday-strategy tests on his real plan and goal: boom-player selection, sorting / dealing,
+  route share. The reviewer drafts the queue from the ledgers (so closed ideas are not re-tested) with an ownership
+  split.
+- **Route Share state** (sent to the reviewer):
+  - 2026 FP captures cover W1–3 (target weeks 2–4); **W4 is not captured yet**. It is due with the weekly vendor run
+    `nfl-weekly-data run --week 5` (manual), before Thursday's route feature rebuild.
+  - The 2026 gate has 0 graded weeks (W2 forfeited, W3–4 failed under O-25). companion-v1 grades W5–W18 (12-week floor,
+    at most 2 missed); its dry runs are due Thu 10-08 (deadline Sat 12:00).
+  - No scientific interim reads; only the descriptive weekly decision record.
+- **Study 18b** (WS vs the house shape on his goal): scored run in progress; the reviewer reads, the laptop re-runs.
+
+## 2026-10-06 (02:09 CDT) — main-mix @ ddd470ed APPROVED end to end (the reviewer); ready to merge on the operator's Friday yes
+
+- The reviewer approved the blocking fix and the whole branch. All 20 money-path modules pass on `ddd470ed` with
+  `GCP_PROJECT` unset; the W5-size rehearsal log was spot-checked.
+- **Lesson (K-dependence):** the pre-fix code survived at K 105 on 65 plain WS control rows and fails at K 20. So
+  W4-sized tests could not catch it. Rehearse money-path changes at the coming week's K, not only at the last week's.
+- The spare-tail player cap is NOT before Friday: study list item 25, for K ≥ ~50.
+- **Merge readiness:** main-mix merges into integration on the operator's Friday yes for WS or MIX. The defaults stay off
+  (`UNION_MAIN` pmo_x50, `UNION_PROJ_SOURCE` empty). Then re-run `check_prospective_gates.py` and the arm preflight
+  (`check_week_runtime`) on the merged head before Saturday's arming.
+
+## 2026-10-06 (02:08 CDT) — Main-mix review: one BLOCKING finding (a WS row could not be replaced on Sunday), fixed (ddd470ed) and rehearsed on real data
+
+**The finding (the reviewer, end-to-end review of eb6dc500; everything else APPROVED).** vet_replace_v4 lets a mix row be
+replaced only by a candidate that fits its cell. A house row has 4 players in the QB's game and WS allows at most 3, so
+no house candidate ever fits. A player ruled OUT after the status pull meant "REPLACEMENT FAILED", and the vetted book
+went out with his entries still in it.
+
+**Fix (main-mix `ddd470ed`, pushed; the reviewer's re-review pending):**
+- (a) `--mix-spares S` (`UNION_MIX_SPARES` default 15): spare rows solved after the book under the same running caps
+  (computed from --entries), written last into the corpus as `mix_spare` with their cell tag. They are never book rows
+  and are re-checked (a failure is dropped loudly). The book is byte-identical with or without spares.
+- (b) No in-cell candidate means the best house-legal one is taken, flagged `cell_fallback` in replace.json with a
+  capitals banner on the replacement-status line; the final validation holds that position to the house shape.
+- (c) Tests: test_vet_replace_mix_fallback (6), test_mix_shapes +3, plus the env, runtime and fallback tests. 285
+  money-path tests pass with `GCP_PROJECT` unset.
+
+**Rehearsals** (W4 inputs, WS + FP + term, archive mode, one test-excluded player; scripts and logs in the session
+scratchpad, `rehearse_spares_*`):
+- K 105 (W4 plan): the pre-fix code did NOT fail. 65 plain WS rows (`mix_control`) supplied the replacements. 13 of the
+  15 spares held the excluded player (uncapped at K 105).
+- K 20 (Rev1 plan, Week-5 size), excluding Aaron Jones Sr. (10 of 20 rows):
+  - pre-fix: REPLACEMENT FAILED;
+  - fixed with no spares: 2 house fallbacks, flagged;
+  - fixed with spares: 8 from spares and 2 from control, 0 fallbacks; spares holding him 0 (capped);
+  - the book sha was identical; the audit passed.
+- Worst single-player shortfall at K 20: at most −9, so the supply is enough for any one OUT player.
+
+**Next:** the reviewer re-reviews `ddd470ed`. Friday's merge of main-mix into integration waits for that approval and the
+operator's yes. An optional spare-tail player cap (⌈S/3⌉) was offered to the reviewer; it is not implemented.
+
+## 2026-10-06 (01:52 CDT) — The Week-5 build branch is merged with integration and sent for end-to-end review; the dead O-31 guards are fixed
+
+- **Build branch** `production/main-mix-20261006` @ `eb6dc500`. It is a clean `--no-ff` merge of integration `aa3c7213`, so
+  the armed build carries O-31's default. Tests with `GCP_PROJECT` unset: 275 passed, 3 skipped. These are all the
+  money-path modules (union_reselect, vet, sunday_build_host, union_fallbacks, layout, audit, arm, week_env, FP, mix).
+- **The reviewer's end-to-end review** of the diff from integration (b2af6a68 … fa09b57d) is due today, with findings
+  before Thursday. Friday's merge into integration waits for that approval and the operator's yes. No commits to
+  main-mix until the verdict.
+- **Dead O-31 guards fixed.** The weekly accuracy reader now tests `GCP_PROJECT` itself (`aa3c7213`; re-freeze note
+  before W5; the W4 rows sha `760c22ed` is unchanged). fp_projection_override's guard is deleted on main-mix (`fa09b57d`),
+  so a missing variable can't silently fall back to our projections. The reviewer approved both.
+
+## 2026-10-06 (01:47 CDT) — O-31 MERGED (no new failures, full suite with GCP_PROJECT unset); O-28's full extent registered (138 nodes, 21 modules); study 18b review done
+
+**O-31** (`GCP_PROJECT` default -> `nfl-predictions-503414`): merged into integration as `42334ccb` + the register edit.
+- Full suite, `GCP_PROJECT` UNSET, one tree at a time: baseline `b2534dde` 64 failed / 74 errors / 8,784 passed (1:32:41);
+  with O-31 (`dadcb75f`, the same base) 64 / 74 / 8,786 passed (1:33:16; +2 = O-31's tests). The 138 failing nodes are
+  identical, and identical again with `GCP_PROJECT` set (8 s targeted run). O-31's and the accuracy reader's tests pass
+  on the merged head with the variable unset (25 passed).
+- O-31 stays OPEN only for its definition's second half: the operator's command recipes carry `GCP_PROJECT` explicitly.
+- Side effect to know: the `settings.project == "nfl-dfs-prod"` guards (weekly accuracy reader; fp_projection_override on
+  main-mix) are now dead code; harmless.
+
+**O-28 extended:** the 138 red nodes are listed in `reports/2026-10-06-o28-red-nodes.txt` (21 modules; classes in the
+register row: frozen-source / contract identity drift, changed error messages, host-only inputs, and 8 shadow-bridge
+fixtures the tightened standings validator rejects). Deadline unchanged (Wed 10-14, with O-18's CI green).
+
+**Study 18b** (the reviewer's: WS vs the house shape on his goal, Rev1 plan, production caps): the laptop reviewed the
+draft (C = house + head + caps without the term is today's main; Week-5 arming has the same caps; C pinned to
+`PRODUCTION_STACK` by identity at lab `9fd014e`); banks 1419/1420 scanned fresh in both repositories and on disk. Freeze
+and census Tuesday morning; the laptop acks the census and re-runs the reader.
+
 ## 2026-10-05 (22:16 CDT) — STUDY 24 READ: all-distinct NO DIFFERENCE, the per-game cap NO DIFFERENCE (guard 2 fails); re-run byte-identical; no ports
 
 **Study 24** (the reviewer's; prereg `4cadd426` + deviation notes 1–2; reader `e1a4968a`; nfl2 `9ed3925`):

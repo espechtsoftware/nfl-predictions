@@ -41,9 +41,15 @@ def _env_bool(name: str, default: bool = False) -> bool:
     return value.strip().lower() in {"1", "true", "yes", "on"}
 
 
+DEFAULT_PROJECT = "nfl-predictions-503414"
+
+
 @dataclass(frozen=True)
 class Settings:
-    project: str = field(default_factory=lambda: os.environ.get("GCP_PROJECT", "nfl-dfs-prod"))
+    # O-31 (2026-10-05): the default is the project this system actually runs in. It was "nfl-dfs-prod", a project that
+    # does not exist; a command run from a shell or worktree without GCP_PROJECT (git worktrees carry no .env) then
+    # targeted it (the operator's dashboard DDL failed closed on it). Every scheduled Cloud Run job sets GCP_PROJECT.
+    project: str = field(default_factory=lambda: os.environ.get("GCP_PROJECT", DEFAULT_PROJECT))
     location: str = field(default_factory=lambda: os.environ.get("BQ_LOCATION", "US"))
     raw_dataset: str = field(default_factory=lambda: os.environ.get("BQ_RAW_DATASET", "nfl_raw"))
     features_dataset: str = field(
@@ -56,7 +62,7 @@ class Settings:
     gcs_bucket: str = field(
         default_factory=lambda: os.environ.get(
             "GCS_BUCKET",
-            f"{os.environ.get('GCP_PROJECT', 'nfl-dfs-prod')}-raw",
+            f"{os.environ.get('GCP_PROJECT', DEFAULT_PROJECT)}-raw",
         )
     )
     model_registry_prefix: str = field(
