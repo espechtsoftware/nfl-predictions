@@ -12,6 +12,51 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (07:32 CDT) — STUDY 31 READ (reproduced): the ownership term HELPS on both shapes (reverses 29); MIXT recommended as his preference, CT the safe alternative; spread satellites confirmed; MIXT rehearsed 5/5
+
+**Study 31** (the reviewer's: the 2 × 2 shape × term in one co-run, Rev3 K 26, banks 1431–1436). nfl2
+`production/s31-factorial-20261006` @ `e6c2a5b`.
+- The laptop's re-run is BYTE-IDENTICAL: READ `2d63a92d` (reader `80b61bab`, raw shas = RAW_MANIFEST, confirm census
+  `c0105d02`, production `da399bdb` on PYTHONPATH).
+- **DECISION MIX vs CT: NO DIFFERENCE**, −0.03636 [−0.13997, +0.06282] (seasons −0.070 / −0.003). Guard 1 fails
+  descriptively (−0.041); guard 2 1.062. Frozen §5: MIX stays an option.
+- **Exploratory:**
+  - CT − C (the term on house): +0.097 [−0.008, +0.200], both seasons up;
+  - MIXT − MIX (the term on MIX): +0.058 [−0.031, +0.156];
+  - MIX − C: +0.061;
+  - MIXT − CT: +0.022 [−0.038, +0.082];
+  - the interaction: −0.039 (none shown).
+- **Levels** (P(≥ 1 big) / expected big seats / finish): C .247 / .500 / .513; CT .344 / .597 / .569; MIX .308 /
+  .634 / .528; MIXT .366 / .683 / .575.
+- **Satellites** (the same books dealt both ways), P(≥ 1 ticket contest), Rev3 spread vs Rev2 pins: C .55 / .28,
+  CT .75 / .53, MIX .60 / .44, MIXT .72 / .53. Expected tickets are about equal (CT 2.40 vs 2.48; the others higher
+  under the spread).
+
+**Recommendation (the reviewer and the laptop):**
+- The ownership term is ON at 0.20 on either shape; study 29's −0.068 does not replicate. The caveat: 29 vs 31 differ
+  in banks AND plan / K, not only noise.
+- MIXT (the winners' mix + the term) is his preference option; CT (Week 4's setup) is the safe alternative.
+- Plain MIX (no term) is NOT to be armed.
+- Arm line: `UNION_MAIN=mix UNION_MIX_PORTFOLIO=mix UNION_PROJ_SOURCE=fp UNION_MAIN_OWN_TILT=0.20
+  UNION_MAIN_OWN_PREDICTOR=fp`. The decision sheet (rows 1 and 7, sections 1, 4a and 7) and the checklist are updated.
+
+**MIXT rehearsal** (preview `71c0e4d5` = main-mix + O-35 + vet-cell-order + fp-gap-flag + pins-extend-book +
+linestar-retire + integration; W4 T-70 frame; Rev3; K 26; FP projections 316 / 316; the term 0.20 on W4's FP ownership
+export `0ec90a6b`, 292 skill players matched):
+- 5/5 PASS: cells by entries .340 / .113 / .283 / .264 (worst gap 4.0 points); pins 8 / 8; 15 spares; 13 replaced,
+  1 fallback, 0 rows holding the excluded player; audit 14 PASS.
+- Note: replacements can draw the no-term paper control main's rows ('mix_control' ×3): legal and in-cell. The
+  reviewer was asked whether to exclude them.
+
+**Also today:**
+- fp-gap-flag `2d84b96e` APPROVED (the O-22 guard).
+- Study 30 merged (`a2b7acb8`; the enter_layout reconstruction corrected).
+- Study 32 (sorting): the draft takes all four of the laptop's comments; the smoke runs now.
+- O-14 (2): the prereg draft is due Wed morning (laptop). W4 shows FP and ours already discount Q players by about
+  22–25% vs healthy; the panel's injury status is pre-lock (018:48).
+- The PROE probes continue (FP still lacks ATL/NO).
+- The SIS session is expired; the operator was asked to log in.
+
 ## 2026-10-06 (07:13 CDT) — Study 31 census acked (byte-identical); no change to the overlap wrap; the SIS session EXPIRED (Tuesday check)
 
 **Study 31 binding census:** nfl2 `b61e93c`, `CENSUS_s31_binding.txt` sha `67dcb331`.
