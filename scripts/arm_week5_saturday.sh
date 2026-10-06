@@ -7,9 +7,11 @@
 #
 # Week-5 changes vs Week 4 (reports/2026-10-06-week5-arming-checklist.md):
 #   GROUP 154468; no LineStar step (retired 10-06); Rev3 plan (supersats on rows 1-26, K 26, caps 13/6; all mean-track,
-#   so no tail-sleeve settings); FP projections (UNION_PROJ_SOURCE=fp); the ownership term ON at 0.20 on FP ownership
-#   (study 31); the shape: mixt (the winners' mix + term; his formal yes 10-06, with study 35's QB cap A) -- ct (Week 4's
-#   shape + term) stays selectable, but only with QB_CAP_ROWS='' (the cap was tested on MIXT only); both on
+#   so no tail-sleeve settings); FP projections (UNION_PROJ_SOURCE=fp); NO ownership term (operator 10-06: "yes, remove
+#   the tilt as you suggested": under FP the tilt carries no information beyond the projection -- the W1-4 regression,
+#   and production's W4 fixed-book replay 0.0094 with it vs 0.0336 without); the shape: mixt (the winners' mix; his formal
+#   yes 10-06, with study 35's QB cap A) -- ct (Week 4's shape) stays selectable, but only with QB_CAP_ROWS='' (the cap
+#   was tested on MIXT only); both on
 #   ONE pin f69598b (the reviewer 10-06); 11 timers (the FP projections capture included), 9 when armed late.
 set -uo pipefail
 SHAPE="mixt"             # his formal yes 2026-10-06: "yes to the winners' mix with the tilt and the quarterback cap"
@@ -49,7 +51,8 @@ if [[ "$CHECK" != --check ]]; then
   PYTHONPATH=src $PY scripts/ownership_sets.py sets --week 5 --group 154468 --out $W/ownership_sets.csv 2>&1 | tail -1 || stop "ownership_sets.py sets failed"
   [[ -s $W/ownership_sets.csv ]] || stop "ownership_sets.csv not written"
   PYTHONPATH=src $PY scripts/ownership_sets.py sets --season 2026 --week 5 --group 154468 --lag-features --out $W/ownership_lag.csv 2>&1 | tail -1 || stop "ownership_sets.py --lag-features failed"
-  $PY scripts/check_ownership_lag.py $W/ownership_lag.csv || stop "the lag file fails its gate (sum >= 280): the term's LAG fallback would need tilt 0 -- operator decision"
+  # the lag file is still produced: study 38's no-term snapshot scales FP's ownership export with it (ownership_fp.py --lag)
+  $PY scripts/check_ownership_lag.py $W/ownership_lag.csv || stop "the lag file fails its gate (sum >= 280): study 38's ownership export needs a valid lag file -- operator decision"
   PYTHONPATH=src $PY scripts/ownership_tabpfn.py lags --season 2026 --week 5 --out $W/ownership_lags.csv 2>&1 | tail -1 || stop "ownership_tabpfn.py lags failed"
   [[ -s $W/ownership_lags.csv ]] || stop "ownership_lags.csv not written"
   # 5. the dose file
@@ -74,7 +77,7 @@ arm_env() {
   env "${u[@]}" "${e[@]}" GROUP=154468 EXPECT_SHA=$PIN CLONE=$CLONE_DIR ENTER_LAYOUT=head \
     D3200_LEV=$CHOSEN_LEV D3200_BOOM=$CHOSEN_BOOM D800_LEV=$CHOSEN_LEV D800_BOOM=$CHOSEN_BOOM SKIP_UNITS="$skip" \
     LEV_CBC_THREADS=8 EARLY_PROPS_CT=04:30 EARLY_PROJECT_CT=04:45 EARLY_SUPPLY_CT=05:00 \
-    UNION_PROJ_SOURCE=fp UNION_MAIN_OWN_TILT=0.20 UNION_MAIN_OWN_PREDICTOR=fp \
+    UNION_PROJ_SOURCE=fp UNION_MAIN_OWN_TILT=0 \
     T70_MIN_PROJ_CT=10:30 T70_PROJECT=1 UNION_SATURDAY_RUN=auto UNION_PMO=0 "$@"
 }
 # 6. not too late: the Saturday D12800 is 10:30
