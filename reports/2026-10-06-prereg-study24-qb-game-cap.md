@@ -342,3 +342,32 @@ Descriptive (mechanics only):
   - the top player's entry share was about 0.49–0.59 (was 0.98 before deviation note 1);
   - WS's busiest QB game averaged 12.5 of 24 entries (maximum 23).
 - **Order:** a third binding census on 1406, the laptop's ack, then the scored run.
+
+## Census note 2 (2026-10-05, the BINDING census v3, after deviation notes 1 and 2; acked by the laptop; BEFORE any scored bank)
+nfl2 `c3fb08c`, `results/s24/CENSUS_s24_binding.txt` (sha256 `af3694c8…`): 53/53 slate-banks, 0 errors, mechanics
+only. **Every §2a check passes:**
+- SEQD and G25S deal 24 distinct lineups everywhere (minimum 24), with 0 fallbacks.
+- G25S's busiest QB game is ≤ 6 of 24 on every slate-bank (maximum 6).
+- G25S is never dealt identically to SEQD (0.608 of entries changed); SEQD is never dealt identically to WS.
+- No short books at depth 40.
+- Production's row caps hold: head 10/5, sequential and distinct 12/6.
+
+The laptop verified the file and raw shas independently before acking. A one-slate full-path smoke on the final code
+(2023 W9, bank 1406) ran clean and the reader exited 0; its output was not read. The scored run on 1417/1418 started
+after the ack.
+
+**Evidence manifest** (content identities; host paths are private run directories on the reviewer's machine):
+
+| item | host path | sha256 |
+|---|---|---|
+| plan (Rev1, study copy) | `~/s24-panel/plan-week5-rev1-s24.json` | `f34f3a0023a649f2270a4c7c0d592ced54ed03d73ec3458cae6d04a3d32982bc` |
+| census v1 raw (superseded) | `~/s24-panel/census/results_bank1406.jsonl` | `26e475a4ce38f086477ec72f52f8ad8f41d361dd8af51441c5a6181b827589ca` |
+| census v1 text (superseded) | nfl2 `results/s24/CENSUS_s24_binding_v1_superseded.txt` | `c21e4363be21302bf51ecdb17221966ef4ddee272d54c1680c396e7cbd1d21c1` |
+| census v2 raw (superseded) | `~/s24-panel/census2/results_bank1406.jsonl` | `aaa80f4aa35fdf39cf8c769a8bd8dfec41d51463d2aebfe969f94ea71fcba326` |
+| census v2 text (superseded) | nfl2 `results/s24/CENSUS_s24_binding_v2_superseded.txt` | `b15487e03b0494177338d42e306dd61d759f2cd0ef482998837bd8303336a83a` |
+| census v3 raw (BINDING) | `~/s24-panel/census3/results_bank1406.jsonl` | `2dbd4053271edca0caf5656f3f07e15a9950136baac74cbbcc95ef41eeb10e27` |
+| census v3 text (BINDING) | nfl2 `results/s24/CENSUS_s24_binding.txt` | `af3694c8e6b6a97f96f62cb265ae10f80ea1ca1e07a002297e5fdb9ccacf6d91` |
+
+(nfl2's `results/s24/SHA256SUMS` at `c3fb08c` lists the run-dir names, so `sha256sum -c` against the committed names
+fails. It is rewritten against the committed names after the scored run, never during it. The laptop's bookkeeping
+note, 10-05.)
