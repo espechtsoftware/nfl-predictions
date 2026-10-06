@@ -84,8 +84,9 @@ score. Nothing here enters a contest: the money path, its checkout and its files
       fill. His book at 4 + rr: 9 QBs, 33 distinct non-QB players, 144.61 FP points per dealt lineup (MS7: 144.94; group
       fill at 4: 144.04).
     - **At 4 with the value fill:** exit 0, parity none, every arm's book full, no fallback rows.
-    - Construction only; no outcome was read. `~/private/paper-corun/smoke-w4-amend2/` (books `47b701ee` / `d1348d29` /
-      `79b69c17`).
+    - Construction only; no outcome was read. `~/private/paper-corun/smoke-w4-amend2/`: books.json `ms4-rr` `47b701ee`,
+      `ms4-value` `d1348d29`, `ms5-group` `79b69c17` (corrected 10-06: the laptop's ack found the first message's labels
+      rotated; reproduced byte-identically by the laptop).
   - **Code:** lab `d15fb97`:
     - `experiments/s38_paper_corun.py`, sha256 `aa152647aab7bf5c8e89e5e35aa606341e422cda9d2648fb3fd09b9387926823`;
     - `scripts/s38_build.py`, `848d5a806e6efdbdb07281bd66e9e316e9b3d7d8525f2c5dee95c014bc51e437`;
