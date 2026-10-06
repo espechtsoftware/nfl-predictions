@@ -76,6 +76,14 @@ frozen reader.
   - Nothing else changed; the reader is byte-identical (`c7abb741`).
 - **Why it cannot shape the result:** it was made on the mechanics bank (1406) from a sampler error alone, with no
   outcome in view. The census was re-run in full on the new code; the first attempt is kept aside, not used.
+- **The re-run binding census** (36/36, code `343f446`): the fallback fired on **1 of 36** slate-banks (2023 W11).
+  - The laptop's threshold: more than 10% would have meant one field rule throughout. So failure-only stays.
+- **Pre-stated sensitivity (descriptive, after the read; the laptop):** R4 − RND recomputed excluding the slate-banks
+  whose `sel_field.fallback` is true, from the per-row records, with no reader change.
+- **The operator's "big" (10-06):**
+  - This week's qualifiers: first place = the seat, as studies 24–31 used.
+  - Inside next week's big contests: "a win of $500 or more". That is S_big as frozen.
+  - So no §6.7 swap: S_big stays the primary and S_top stays exploratory.
 
 ## 3. Banks
 - Fresh **1437, 1438, 1439, 1440, 1441, 1442**.
