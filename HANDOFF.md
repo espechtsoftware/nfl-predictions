@@ -12,6 +12,25 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (16:07 CDT) — THE OVERLAP LIMIT 5 for Week 5 (operator); the replacement and setting branches merged; studies 39 and 40
+
+- **Operator:** "Enter it in Week 5": each union row must differ from every earlier one by 4+ players (limit 5, was 7).
+  - Evidence: the outside reviewer's W2–4 fixed-book replay, which the laptop reproduced: W2–3 byte-identical; W4
+    every arm equal to 4 decimals.
+  - The study-38 conflict (frozen parity at 7) is resolved by the reviewer's amendment before the W5 lock.
+- **Merged** (integration `d68946c7`):
+  - `replace-fp-centre` `108d2327`: replacements priced on FP; the sheet names the pricing.
+  - `union-max-shared-env` `3c3449dd`: `UNION_MEAN_MAX_SHARED`, default 7.
+  - 101 tests pass.
+- **For review:** `production/arm-w5-ms5-20261006` @ `d7bc9a70` (MAX_SHARED=5 into the units).
+  - A2 now runs `--mean-max-shared 5`; A3 runs the arm_env.
+- **New register entry O-37:** replacement candidates are not checked against the overlap limit (low impact; Week 7).
+- **Study 39** (an RB in the FLEX): NO DIFFERENCE. The laptop's re-run is BYTE-IDENTICAL (READ `daa1ea30`).
+- **Study 40** (ms5 on the 36-slate harness): census `13d79acb` acked; banks 1479–1484 clean; prereg `902eccca`;
+  launched.
+- **The outside reviewer's local commit `48dfcdc6`** in the production checkout was merged into integration
+  (`5c771706`; checked for private data), so Friday's ff-only pull works.
+
 ## 2026-10-06 (15:33 CDT) — Two production branches for review (FP freshness; replacements priced on FP); study 39 acked
 
 - **`production/fp-freshness-20261006` @ `64cef12a`:**

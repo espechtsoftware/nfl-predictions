@@ -5579,3 +5579,70 @@ secondaries (slate means; 'rows' = the 26 book rows, like-for-like with the regu
    It is descriptive each week and pooled after 3–4 weeks under a rule frozen before Week 5's lock.
 7. **Transfer:** our projections (the live build uses FP's), the term's stand-in, the Millionaire's ownership field,
    and the regulars' tiers from four 2026 weeks.
+
+## Addendum 143 (2026-10-06): study 39 (an RB in the FLEX of every row on his live book): NO DIFFERENCE — a third running back in every lineup does not raise his chance of a big win; it costs 0.67 projected points per lineup and a tenth of the expected big seats; the 2-in-5 version is flat; his book stays as it is
+
+**Setup.**
+- **The operator (10-06):** "Do you see anything in what you just said that warrants a test now? I think more RBs in
+  flex is a good start."
+- **What the data showed first** (descriptive, aggregates):
+  - The 117 regulars use 2.27–2.50 RBs per lineup (W1–4); his entered books 2.12–2.31. Their heavy core is about half
+    RBs (the laptop's graph finding), workhorse goal-line backs that fit any QB stack. Our books use goal-line backs at
+    least as much (goal-line share of the RBs used: ours .31–.59, theirs .32–.42).
+  - **The prior, stated before any outcome:** in the 2026 W1–4 Millionaires the WINNING lineups held an RB in the FLEX
+    LESS often than the field: top 0.1% 29%, top 1% 33%, the field 39%, our entries 30%.
+- **Arms** (study 37's harness: 36 slates, Rev3, K 26, head, `enter_layout` `3cb051ac…`; every arm the winners' mix, the
+  QB cap of 5 rows, production's caps 13 / 6 and **his live objective, the mean with NO ownership term**):
+  - MIXT_QA0, the reference: his live book;
+  - **MIXT_RBF (DECISION):** every book row holds at least 3 RBs (one set constraint added to the optimizer for the
+    arm's build; an infeasible row would fall back loudly, and never did);
+  - MIXT_RBF40 (exploratory): the same rule on 2 of every 5 book rows.
+- **Preregistration:** `reports/2026-10-06-prereg-study39-rb-flex.md` (frozen `f5708223`).
+- **Panel:** banks 1473–1478, B 20,000, seed 20261020. The confirmatory census holds on the scored banks: RBF 3.00 RBs
+  per book row (an RB in the FLEX on 100% of rows), RBF40 2.51 (51%), QA0 2.23 (23%); −0.67 / −0.20 projected points
+  per dealt lineup; no fallbacks, no short books; dealt identically to the reference on 0.005 / 0.009 of slate-banks.
+- **Read and reproduced:**
+  - Read by the reviewer.
+  - **Reproduced byte-identically by the laptop** (rc 0, `cmp` clean, at lab `c3327c0`; raw files equal to the
+    RAW_MANIFEST).
+  - Reader `af500cc7`; READ `daa1ea30`; raw 1473 `ae444d95` … 1478 `9b2070ba`. The confirmatory census (`e780ab6`) was
+    committed before the READ (`c3327c0`).
+  - Lab: nfl2 `production/s39-rb-flex-20261006`.
+
+**Reader output (verbatim):**
+```
+STUDY 39 READER  sha256 af500cc78050ca3c05f4c78049e2915d959b52a504d8bd1b9d50e3b6a3bf69ce
+DIRECTION: P(>= 1 big seat) per slate (the mean over its banks); every difference is ARM - REFERENCE; POSITIVE favours the first arm.
+slates 36  banks [1473, 1474, 1475, 1476, 1477, 1478]  B 20000  seed 20261020  primary MIXT_RBF - MIXT_QA0, two-sided 0.95, guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only
+arms (rule, min RBs, QB cap, objective): [{"MIXT_QA0": null, "MIXT_RBF": "all", "MIXT_RBF40": "40"}, 3, 5, "player_mean (no ownership term)"]
+
+== MIXT_RBF vs MIXT_QA0  [DECISION: an RB in the FLEX of every row]
+  PRIMARY P(>= 1 big seat) per slate -0.01359  [-0.06456, +0.03902]  seasons 2023 -0.05451, 2024 +0.02732
+  GUARD 1 mean entry pct -0.00223  one-sided lower -0.01783  (must exceed -0.015)
+  GUARD 2 expected big seats 0.49906 vs 0.55189  ratio 0.904  (must be >= 0.80)
+  MIXT_RBF dealt identical to MIXT_QA0: 0.005 of slate-banks
+  ->  NO DIFFERENCE
+
+== EXPLORATORY (never decision-bearing)
+  MIXT_RBF40 - MIXT_QA0 (the rule on 2 of every 5 rows): +0.00689  [-0.02345, +0.03794]  seasons 2023 +0.01023, 2024 +0.00355
+
+secondaries (slate means):
+  MIXT_QA0   P(>=1 big) 0.30690  expected big seats 0.55189  P(>=2) 0.14139  entry pct 0.52004  RBs per row 2.23  FLEX-RB rows 0.225  dealt top QB 0.224  dealt projection 128.48
+  MIXT_RBF   P(>=1 big) 0.29331  expected big seats 0.49906  P(>=2) 0.12183  entry pct 0.51781  RBs per row 3.00  FLEX-RB rows 1.000  dealt top QB 0.223  dealt projection 127.81
+  MIXT_RBF40 P(>=1 big) 0.31379  expected big seats 0.54770  P(>=2) 0.13102  entry pct 0.52067  RBs per row 2.51  FLEX-RB rows 0.514  dealt top QB 0.224  dealt projection 128.27
+```
+
+**Reading.**
+1. **At the frozen rule: NO DIFFERENCE.** MIXT_RBF − MIXT_QA0 −0.014 [−0.065, +0.039]; 2023 −0.055, 2024 +0.027. The
+   guards gate a PASS only.
+2. **The guards, measured.** Guard 1 is breached at its bound (mean entry pct .520 → .518; lower −0.018). Guard 2 holds
+   (expected big seats .552 → .499, ratio 0.904: a tenth fewer). P(≥ 2 big) .141 → .122. Every endpoint leans the same
+   way, none decisively.
+3. **The 2-in-5 version is flat** (exploratory): RBF40 +0.007 [−0.023, +0.038] at −0.20 projected points per lineup.
+4. **Why.** The FLEX goes to the best remaining WR / TE by projection; forcing an RB there gives up 0.67 points per
+   lineup, and the top-heavy contests pay the best lineups. That matches the prior: the winning lineups flexed an RB
+   less often than the field, not more. The regulars' RB-led core is about WHICH backs (the workhorse, goal-line
+   backs), which our books already use at least as much, not how many.
+5. **By frozen §5 (NO DIFFERENCE):** his taste, told plainly what it costs. **Recommended: no RB-in-FLEX rule.** If he
+   likes more backs, the 2-in-5 form costs nothing measurable on paper and adds nothing either.
+6. **Transfer:** our projections (the live book uses FP's), realized 2023–24 outcomes against a sampled field.

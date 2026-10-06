@@ -280,7 +280,7 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   [[ "$LIVE_SELECTOR" == "mean" ]] || { echo "the union is defined for LIVE_SELECTOR=mean (got $LIVE_SELECTOR)"; exit 1; }
   UNION_ARGS=(--saturday-run "$UNION_SATURDAY_RUN" --saturday-dose "${UNION_SAT_DOSE:-2560/10240}" --t70-run "$K90_DIR" --live-dir "$LIVE_DIR"
               --group "$GROUP" ${WEEK_WINDOW_START_UTC:+--saturday-after "$WEEK_WINDOW_START_UTC"}
-              --entries "$BOOK_ENTRIES" --tail-sleeve "$TAIL_SLEEVE" --mean-max-shared 7 --min-proj "${LIVE_MIN_PROJ:-1.0}"
+              --entries "$BOOK_ENTRIES" --tail-sleeve "$TAIL_SLEEVE" --mean-max-shared "${UNION_MEAN_MAX_SHARED:-7}" --min-proj "${LIVE_MIN_PROJ:-1.0}"
               --max-per-game "${MAX_PER_GAME:-4}" --min-salary "${MIN_LINEUP_SALARY:-49000}" --pmo "${UNION_PMO:-0}" --pmo-cap-share "${UNION_PMO_CAP:-0.5}" --main "${UNION_MAIN:-mean}")
   [[ -n "${UNION_MAIN_CAP:-}" ]] && UNION_ARGS+=(--main-cap-share "$UNION_MAIN_CAP")
   # study 18's shape portfolio (--main mix): the interleave's entry weights come from THIS week's plan and layout

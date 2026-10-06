@@ -74,3 +74,66 @@ def test_replacement_sources_are_counted_and_no_term_rows_named():
     assert note == "; sources {'mix_control': 2, 'mix_spare': 1, 't70': 1} (2 from the NO-TERM control main)"
     assert V.source_summary([]) == ({}, "")
     assert V.source_summary([{"candidate_source": "saturday"}])[1] == "; sources {'saturday': 1}"
+
+
+def test_a_replacement_is_priced_on_fp_means_when_the_union_was():
+    """The outside review (10-06): the union selected on FP's means, so the replacement's worlds are recentred on them
+    (our spread and correlation kept); no FP file, an edited file or another frame's file -> ours, said in the record."""
+    import hashlib, json, tempfile
+    import numpy as np, pandas as pd
+    from pathlib import Path
+    VR = V
+    d = Path(tempfile.mkdtemp())
+    (d / "frame.parquet").write_bytes(b"frame-bytes")
+    ids = ["a", "b", "c"]; mean = np.array([10.0, 5.0, 8.0])
+    shift, rec = VR.fp_shift(mean, ids, d)
+    assert not shift.any() and rec["objective"].startswith("ours (the run carries no FP source")
+    pd.DataFrame({"id": ["a", "b"], "fp": [12.0, 4.0]}).to_csv(d / "proj_source.csv", index=False)
+    sha = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()  # noqa: E731
+    meta = {"csv_sha256": sha(d / "proj_source.csv"), "frame_sha256": sha(d / "frame.parquet")}
+    (d / "proj_source.csv.json").write_text(json.dumps(meta))
+    shift, rec = VR.fp_shift(mean, ids, d)
+    assert list(shift) == [2.0, -1.0, 0.0] and rec["fp_players"] == 2 and "Fantasy Points" in rec["objective"]
+    (d / "proj_source.csv.json").write_text(json.dumps({**meta, "frame_sha256": "x"}))
+    shift, rec = VR.fp_shift(mean, ids, d)
+    assert not shift.any() and "another frame" in rec["objective"]
+    (d / "proj_source.csv.json").write_text(json.dumps({**meta, "csv_sha256": "x"}))
+    shift, rec = VR.fp_shift(mean, ids, d)
+    assert not shift.any() and "does not match" in rec["objective"]
+
+
+def test_the_fp_shift_is_applied_before_the_unavailable_rows_are_zeroed_and_recorded():
+    from pathlib import Path
+    src = (Path(__file__).resolve().parents[1] / "scripts" / "vet_replace_v4.py").read_text()
+    assert src.index("fp_shift(np.concatenate([inc, hs], axis=1)") < src.index("inc_g[zr, :] = 0.0")
+    assert '"replacement_objective": repl_objective' in src
+
+
+def test_an_unreadable_sidecar_falls_back_to_ours_never_a_crash():
+    import tempfile
+    import numpy as np, pandas as pd
+    from pathlib import Path
+    d = Path(tempfile.mkdtemp()); (d / "frame.parquet").write_bytes(b"f")
+    pd.DataFrame({"id": ["a"], "fp": [3.0]}).to_csv(d / "proj_source.csv", index=False)
+    (d / "proj_source.csv.json").write_text("{not json")
+    shift, rec = V.fp_shift(np.array([1.0]), ["a"], d)
+    assert not shift.any() and "sidecar unreadable" in rec["objective"]
+
+
+def test_the_upload_sheet_names_the_replacement_pricing_and_banners_a_fallback(tmp_path):
+    """The reviewer (10-06, R2): an FP book whose replacement fell back to our worlds must never read as a plain OK."""
+    import re, subprocess
+    from pathlib import Path
+    src = (Path(__file__).resolve().parents[1] / "scripts" / "sunday_after_build.sh").read_text()
+    fn = re.search(r"^repl_objective_note\(\) \{.*?^\}\n", src, re.S | re.M).group(0)
+    assert '$(repl_objective_note "$lo/paid-replace.log")' in src
+    cases = {"fp": "REPLACEMENT OBJECTIVE: the corrected mix recentred on Fantasy Points' means (the union's proj_source.csv)\n",
+             "failed": "REPLACEMENT OBJECTIVE: ours (the FP source failed: the FP file was built for another frame)\n",
+             "none": "replaced 2 unavailable lineup(s)\n"}
+    out = {}
+    for k, text in cases.items():
+        log = tmp_path / f"{k}.log"; log.write_text(text)
+        out[k] = subprocess.run(["bash", "-c", fn + f'printf "OK%s" "$(repl_objective_note {log})"'], capture_output=True, text=True).stdout
+    assert out["fp"] == "OK; priced on: the corrected mix recentred on Fantasy Points' means (the union's proj_source.csv)"
+    assert out["failed"].startswith("OK; *** REPLACEMENTS PRICED ON OUR PROJECTIONS: ours (the FP source failed") and out["failed"].endswith("***")
+    assert out["none"] == "OK"
