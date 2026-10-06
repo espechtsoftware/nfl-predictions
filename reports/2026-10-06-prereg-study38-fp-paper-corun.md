@@ -28,10 +28,13 @@ before the freeze. Nothing here enters a contest: the money path, its checkout a
 
 ## 3. Inputs and provenance (the laptop's pre-lock snapshot; the build runs after lock)
 - **The snapshot** (the laptop, Sunday right after the T-70 union and before 12:00 CT): copies of the union run's
-  `frame.parquet`, FP's projections `proj_fp-<TAG>.csv` and its `.json` sidecar, FP's ownership `ownership_fp-<TAG>.csv`,
-  the `dk-status` file the union read, the union's arguments, the installed `contests.json`, the week's contest
-  details, `plan-overrides.json` (his per-contest decisions that week; `{}` if none), and `MANIFEST.txt` (each file's
-  sha256, bytes, source path and mtime, the receipt's built_utc, the snapshot time).
+  `frame.parquet`, the union's arguments, and the model inputs AS THE UNION'S OWN ARGUMENTS NAME THEM: FP's
+  projections (`--proj-source`, with its `.json` sidecar; a union without one fell back from FP, and that week is not
+  an FP week), the ownership file (`--main-own-source`, whatever its name), and a DK status file only when the union read
+  one (`--dk-status`; production passes none while O-16 stands, so the union calls `unavailable_ids(fr, None)` and so
+  does the build). Also the installed `contests.json`, the week's contest details, `plan-overrides.json` (his
+  per-contest decisions that week; `{}` if none), and `MANIFEST.txt` (each file's sha256, bytes, name, source path and
+  mtime; the union's built_utc and the snapshot time). The laptop's tool is create-once.
 - **The MANIFEST is the build's only input list.** Every file the build reads must have its sha256 in it, or the build
   REFUSES. The copies of FP's projections, FP's ownership and the DK status must be byte-identical to the files the
   union's arguments name, where those originals are still on disk.
