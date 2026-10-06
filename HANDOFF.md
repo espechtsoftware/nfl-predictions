@@ -12,6 +12,14 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (11:49 CDT) — O-3 Tuesday steps (the 11:47 scheduled task): both already done; the SIS session re-verified
+
+- (1) O-3d: `sis-download verify-login` → "SIS session verified" (rc 0) at 11:49 CT. The operator renewed it this
+  morning (07:13 entry); Wednesday's acquisition re-verifies again first.
+- (2) Both SIS cache dry runs PASSED at 10:30 (entry below): control `…-84nft`, treatment `…-k7mqg`; dry_run true;
+  contract `7693d370…`; CODE_SHA `7bbfd10a`; `_dryrun` tables 881 rows; `target_source_week_end` [3] (W4 SIS arrives
+  Wednesday). The receipts went to the reviewer (nfl-predictions-84, session f71d6947 verified) at the time. Not re-run.
+
 ## 2026-10-06 (11:48 CDT) — Study 36 drafted (player depth; the operator agreed to MIXT + term + QB cap A); Neo4j arm check merged; build guard and O-18 branches
 
 - **The operator agreed** (relayed by the reviewer) with study 35's recommendation: MIXT + term + QB cap A. He asked a
