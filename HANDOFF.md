@@ -12,6 +12,22 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-05 (19:36 CDT) — Study 17 read and reproduced byte-identically (Addendum 127); O-32 corrections 2 of 5 done
+
+**Study 17.**
+- DR, EM and PG are all NO DIFFERENCE on tickets, every estimate negative; the mean-finish guard is far below its
+  margin (descriptive).
+- De-concentration trades expected tickets (DR −20%) for a better distribution (zero-ticket slates 40% → 10–16%).
+- It is the operator's variance-vs-EV call. The reviewer briefs him; study 18's base is λ = 0.
+- The laptop's re-run of reader `f5c6c493` is byte-identical (READ `5637364d`). LEDGER `d06fd69` (nfl2 s17 branch);
+  system study Addendum 127.
+
+**O-32.**
+- QB shell and market tail are REPRODUCED and unchanged (both still fail).
+- Amendment 3 (the defence-PROE frozen-import read, `482bf6c8`) is approved and merged.
+- The defence PROE, NGS receiver and pass-participation corrections are running on the laptop now, in the run
+  worktree at `2b1618a0`.
+
 ## 2026-10-05 (18:18 CDT) — OPERATOR: the regulars' strategies in Week 5 (tested first); priorities moved; Week-5 plan draft
 
 **Operator decisions (10-05):**

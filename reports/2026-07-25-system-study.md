@@ -4211,3 +4211,101 @@ secondaries (slate means):
 - The loss sits in the concentration on the Vegas top-4 totals, not in the contrarian slice. That is consistent with
   study 16's exploratory TP10/TP20 trend, stated as the prior in the preregistration.
 - **The thesis portfolio is CLOSED in both forms.** 16b stays tabled, and no further thesis variant is planned.
+
+## Addendum 127 (2026-10-05): study 17 (selection redundancy): DR, EM and PG all NO DIFFERENCE on tickets; de-concentration trades expected tickets for a better distribution
+
+**Setup.**
+- **Question.** Redundancy is created at selection: the Week-4 book shared 3.28 players per entry pair, against 1.26
+  for random pool rows, and the pool held 122 top-1% rows of which the book took 0. Study 17 re-selects the same K 105
+  pool three ways.
+- **Arms:**
+  - DR (DECISION): diminishing returns, the objective minus λ × prior uses of a player, λ 0.2;
+  - EM (DECISION): exposure matching to the entry-share target;
+  - PG (DECISION): pool-greedy, s 3;
+  - DR35 (λ 0.75) and RND (random rows): EXPLORATORY;
+  - all against C, today's plain-mean selection.
+- **Preregistration:** `reports/2026-10-05-prereg-study17-selection-redundancy.md`, frozen at `6a616da4` before the
+  calibration and any scored bank.
+  - Deviation note 1 (`627be501`): settings from the binding outcome-blind calibration census (DR 0.2, DR35 0.75,
+    PG 3).
+  - Deviation note 2 (`445b7900`): the confirmatory mechanics census, 106/106, 0 errors, committed before the reader
+    ran.
+- **Panel:** 53 slates (2022–24), banks 1413/1414, the Week-4 plan (22 mean-track contests, 147 entries); B 20,000,
+  seed 20261005; two-sided 0.99167 per decision arm (Bonferroni over three).
+- **Read and reproduced.** Frozen and read by the reviewer. **Reproduced byte-identically by the laptop:** reader
+  `f5c6c493`; raw banks 1413 `e40ae573`, 1414 `5cf0deef`; READ sha `5637364d`. Lab: nfl2
+  `production/s17-diminishing-returns-20261005` (results `24279b8`, LEDGER `d06fd69`).
+
+**Reader output (verbatim):**
+```
+STUDY 17 READER  sha256 f5c6c493395d8cf65a247c8ea19a04463e6a4d40996b73986c577a969253b6e3
+DIRECTION: tickets = dealt entries at or above their contest's line (higher = better); pct = share of the sampled field a row BEATS; every difference is ARM - C; POSITIVE favours the arm.
+slates 53  banks [1413, 1414]  B 20000  seed 20261005  primary two-sided 0.99167 per decision arm, guard one-sided 0.99167 at -0.015  plan 22 mean-track contests, 147 entries  SETTINGS {"DR": 0.2, "DR35": 0.75, "PG": 3}
+
+== DR vs C  [DECISION]
+  PRIMARY tickets per slate -1.623  [-4.057, +0.500]  seasons 2022 -1.824, 2023 -2.139, 2024 -0.917
+  GUARD mean entry pct -0.06258  one-sided lower -0.09112  (must exceed -0.015)
+  simulated line-crossing share -0.01838  [-0.02056, -0.01633]  (secondary; in-sample)
+  dealt identical to C: 0.000 of slate-banks
+  ->  NO DIFFERENCE (a tickets effect smaller than about +35% reads NO DIFFERENCE on 53 slates)
+  vs RND (reference): tickets per slate +3.868  [+1.415, +6.808]  mean entry pct +0.11551  [+0.08297, +0.14801]
+
+== DR35 vs C  [EXPLORATORY (never decision-bearing)]
+  PRIMARY tickets per slate -2.679  [-5.906, -0.019]  seasons 2022 -3.147, 2023 -3.167, 2024 -1.750
+  GUARD mean entry pct -0.10863  one-sided lower -0.14521  (must exceed -0.015)
+  simulated line-crossing share -0.03766  [-0.04103, -0.03458]  (secondary; in-sample)
+  dealt identical to C: 0.000 of slate-banks
+
+== EM vs C  [DECISION]
+  PRIMARY tickets per slate -2.575  [-6.481, +0.660]  seasons 2022 -3.206, 2023 -2.944, 2024 -1.611
+  GUARD mean entry pct -0.07752  one-sided lower -0.11762  (must exceed -0.015)
+  simulated line-crossing share -0.03426  [-0.03872, -0.03032]  (secondary; in-sample)
+  dealt identical to C: 0.000 of slate-banks
+  ->  NO DIFFERENCE (a tickets effect smaller than about +35% reads NO DIFFERENCE on 53 slates)
+  vs RND (reference): tickets per slate +2.915  [+1.286, +4.500]  mean entry pct +0.10057  [+0.07326, +0.12740]
+
+== PG vs C  [DECISION]
+  PRIMARY tickets per slate -2.972  [-6.723, +0.198]  seasons 2022 -2.853, 2023 -3.083, 2024 -2.972
+  GUARD mean entry pct -0.09022  one-sided lower -0.12702  (must exceed -0.015)
+  simulated line-crossing share -0.03783  [-0.04229, -0.03394]  (secondary; in-sample)
+  dealt identical to C: 0.000 of slate-banks
+  ->  NO DIFFERENCE (a tickets effect smaller than about +35% reads NO DIFFERENCE on 53 slates)
+  vs RND (reference): tickets per slate +2.519  [+0.896, +4.204]  mean entry pct +0.08786  [+0.06069, +0.11550]
+
+== RND vs C  [EXPLORATORY (never decision-bearing)]
+  PRIMARY tickets per slate -5.491  [-10.255, -1.522]  seasons 2022 -5.912, 2023 -5.500, 2024 -5.083
+  GUARD mean entry pct -0.17809  one-sided lower -0.22995  (must exceed -0.015)
+  simulated line-crossing share -0.07627  [-0.08406, -0.06956]  (secondary; in-sample)
+  dealt identical to C: 0.000 of slate-banks
+
+secondaries (slate means):
+  C     tickets 425.0  zero-ticket slates 0.396  contests with a ticket 0.214  best>=200 0.189  entry pct 0.50732  worst-decile slate 0.28170  simulated crossing 0.12687
+        redundancy: top player entry share 0.614, row share 0.495; shared players per entry pair 3.26; QBs 5.3, top QB share 0.456
+  DR    tickets 339.0  zero-ticket slates 0.160  contests with a ticket 0.222  best>=200 0.245  entry pct 0.44474  worst-decile slate 0.33533  simulated crossing 0.10849
+        redundancy: top player entry share 0.433, row share 0.243; shared players per entry pair 1.44; QBs 15.3, top QB share 0.237
+  DR35  tickets 283.0  zero-ticket slates 0.132  contests with a ticket 0.201  best>=200 0.208  entry pct 0.39870  worst-decile slate 0.30943  simulated crossing 0.08921
+        redundancy: top player entry share 0.313, row share 0.150; shared players per entry pair 0.92; QBs 20.2, top QB share 0.171
+  EM    tickets 288.5  zero-ticket slates 0.104  contests with a ticket 0.208  best>=200 0.236  entry pct 0.42980  worst-decile slate 0.32696  simulated crossing 0.09261
+        redundancy: top player entry share 0.330, row share 0.261; shared players per entry pair 1.36; QBs 19.4, top QB share 0.168
+  PG    tickets 267.5  zero-ticket slates 0.123  contests with a ticket 0.190  best>=200 0.217  entry pct 0.41710  worst-decile slate 0.28789  simulated crossing 0.08904
+        redundancy: top player entry share 0.399, row share 0.277; shared players per entry pair 1.36; QBs 19.6, top QB share 0.203
+  RND   tickets 134.0  zero-ticket slates 0.264  contests with a ticket 0.103  best>=200 0.132  entry pct 0.32924  worst-decile slate 0.21447  simulated crossing 0.05060
+        redundancy: top player entry share 0.311, row share 0.272; shared players per entry pair 1.09; QBs 22.9, top QB share 0.203
+```
+
+**Reading.**
+1. **The frozen verdicts are NO DIFFERENCE for DR, EM and PG, and every point estimate is negative.** The mean-finish
+   guard, descriptive, fails by a wide margin for all three: the mean finish is 6–9 points lower.
+2. **The trade-off is clean and consistent.** De-concentration costs EXPECTED tickets and mean finish (DR −20% of
+   tickets) and buys a much better distribution:
+   - zero-ticket slates fall from 40% to 10–16%;
+   - a 200+ row appears on 22–25% of slates instead of 19%;
+   - DR's worst-decile slate improves (0.282 → 0.335).
+
+   DR, the softest arm, costs least. The dose ordering (DR → DR35) shows the cost grows with λ. **It is a
+   variance-vs-EV choice for the operator, not a frozen win;** adoption is his.
+3. **On this panel C's selection is far better than random** (+5.5 tickets per slate; every arm beats RND). That
+   contradicts the 2026 W3–W4 live monkeys, where random beat the live book. Both are stated. Candidate reasons: the
+   2026 live projections against the walk-forward replays, the realized-ownership field sampler, and only two live
+   weeks.
+4. **Study 18's base is therefore λ = 0**, the plain-mean C.
