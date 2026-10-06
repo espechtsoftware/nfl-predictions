@@ -325,9 +325,10 @@ You said: "If successful, i will have a limited number of entries to big contest
 how to choose the best ones." Agreed; it is study 32 (the reviewer runs it; frozen before study 31's results are read).
 
 **What happened in Weeks 1–4:** the lineups our book chose did not beat random lineups drawn from the same pool under
-the same limits and dealing: above that random median in 50 of 86 contests (not distinguishable from chance), better
-than random in Weeks 1–2 and worse in Weeks 3–4 (the "monkey" check, 1,000 random books a week; on cashes, 72nd
-percentile against random books built like ours, 59th against plain random rows).
+the same limits and dealing. Over the four weeks our 25 cashes sit at the 52nd percentile of such random books (their
+median is also 25). Week 1 was well above random (90th); Weeks 2–4 were at or below it (43rd, 39th, 22nd). Against plain
+random rows from the pool, the 60th percentile. (The "monkey" check, 1,000 random books a week, re-run 10-06 on the
+permanent script.)
 
 **The honest starting point: every past attempt to pick our best lineups failed.**
 - Over 17 weeks, the week's best lineup sat at a median rank of 15 of 40 in our order.

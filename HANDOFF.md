@@ -12,6 +12,27 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (11:00 CDT) — The monkey benchmark re-run on the permanent script (W1–4, 1,000 books): CORRECTS the 10-04 figures; the harness merged
+
+- **The money-gate harness MERGED** (`3210a9f7`, reviewer-approved): moneygate_build / score / monkeys / scorecard /
+  transfers + 3 offline test files (28 tests). These are new files only. The Monday checklist runs the monkeys and the
+  scorecard.
+- **The re-run** (`moneygate_monkeys.py --week 1..4`, 1,000 books, seeds 20260901–04; `~/moneygate/results/monkeys_w1..4.json`
+  public aggregates, per-book `~/private/moneygate/monkeys/w*.pkl`). The W4 5-book smoke JSON is REPLACED.
+  - On cashes, the entered book's percentile, M1 / M2 / M3:
+    - W1: 90.1 / 90.5 / 100;
+    - **W2: 61.6 / 43.1 / 47.4**;
+    - W3: 31.0 / 39.0 / 79.0;
+    - W4: 10.9 / 22.3 / 61.3.
+  - **Four weeks** (per-book sums; entered 25 cashes): **M1 59.6, M2 52.4, M3 100.**
+- **This CORRECTS the 10-04 20:24 HANDOFF figures**, from the earlier pm-selection analysis on a different W2 pool and
+  seeds: W2 M1 84.0 / M2 81.3, four-week M2 72.2, "50 of 86 contests".
+  - The permanent, reviewed script is authoritative.
+  - The stale `~/private/pm-week4/pm-selection/multiweek_monkey_summary.csv` is renamed `…STALE-pre-permanent-script.csv`;
+    `multiweek_monkey_summary_v2.csv` replaces it.
+- **The decision sheet's section 9 line is corrected:** M2 52nd over four weeks; W1 above, W2–4 at or below; M1 60th.
+  The "50 of 86" per-contest figure is dropped (not reproducible from the per-book files).
+
 ## 2026-10-06 (10:53 CDT) — FP Route Share W4 repaired (operator-approved) + import guards merged; pre-mortem merged; the arm script merged; studies 31–34 all recorded
 
 - **The FP Route Share W4 revision.** FP's first Tuesday export (06:26, `07aed99f`, 262 rows) had PRELIMINARY
