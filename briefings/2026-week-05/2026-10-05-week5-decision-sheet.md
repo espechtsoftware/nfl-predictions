@@ -158,8 +158,11 @@ section 1 is the evidence.
   - Your 24 entries come from a 24-lineup book (20 with the old dealing), and no player can be in more than half of it.
   - The studies built 105 lineups and dealt the best 24. Their player limit (52 of 105) never applied within those 24,
     so one player sat in nearly every entry (about 98%).
-  - So the live book spreads its players more than the tested books did. The tests don't cover that difference.
+  - So the live book spreads its players more than study 18's books did, and study 18 doesn't cover that difference.
     (I wrote on 10-05 that the limits were "the same shares". That was wrong; corrected 10-06.)
+  - **Study 24 was changed to match the live build** before any of its results existed: each version is built with
+    the live limits (half the lineups per player, a quarter per defence). So its verdicts are about the package the
+    build would actually run.
 - **The fields are modelled, not real.** Study 24 models every contest's opponents as Millionaire-style entries.
   Real satellite fields are smaller and sharper (the regulars are a much bigger share of them), so its absolute
   chances are optimistic. The comparisons between versions are what it decides on.

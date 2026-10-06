@@ -23,9 +23,11 @@
   0 fallbacks; G25S max 6; never identical to the reference; no short books). Port spares: deepest 9, S = 15.
 - **Transfer issue raised by the laptop (pending the reviewer's call):** production's mix main caps each player at
   int(0.5 × K) rows (12 of 24); the study's ban (52 of 105) never binds in the dealt rows, so its books put one player
-  in ~98% of entries. Options: disclose (a), or a pre-outcome deviation to production's cap and a re-census (b; the
-  laptop recommends b). Studies 18 and 24 both have this; the decision sheet's "same shares" sentence was wrong and is
-  corrected.
+  in ~98% of entries. **The reviewer chose (b): deviation note 1, before any scored bank** -- each arm builds under
+  production's caps for its own K (player int(0.5 K): head 10 / sequential-distinct 12 rows; DST int(0.25 K): 5 / 6;
+  `UNION_MAIN_DST_CAP` stays 0.25 at Week-5 arming), build depth 40 (K 24 + S 15); re-census on 1406, then the scored
+  run. Study 18 keeps the issue (disclosed); the decision sheet's "same shares" sentence was wrong and is corrected.
+  Port note: caps from --entries (24) only, never 24 + S; spares solved under the same running counts.
 - Next: the scored run on 1417/1418 → the reviewer's read → the laptop's byte-identical re-run (with the production
   commit the run used) → LEDGER row and Addendum → the sheet's numbers.
 
