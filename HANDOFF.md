@@ -12,6 +12,55 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (10:30 CDT) — O-3: both SIS cache dry runs PASSED (through their lanes); study 34 read and reproduced (NO DIFFERENCE); MIXT vs CT tied over three co-runs
+
+- **SIS cache dry runs** (O-3, the "Tue after the features build" step; `scripts/sis_pass_tail_dry_run.sh`, each
+  through its production lane, exit 0):
+  - control `tabpfn-sis-pass-tail-live-control-84nft` (5 m 16 s) and treatment `…-treatment-k7mqg` (4 m 58 s),
+    against a 3,600 s timeout;
+  - image `ac07a31e…`; contract `pass-tail-v1-a1`, settings `7693d370…`; CODE_SHA `7bbfd10a`;
+  - `dry_run: true` → `nfl_features.tabpfn_sis_pass_tail_live_{control,treatment}_v1_dryrun` (881 rows each, W5);
+  - `target_source_week_end` [3]: the W4 SIS rows arrive with Wednesday's acquisition.
+  - The jobs had never run before. Receipts went to the reviewer.
+  - **Wednesday:** re-verify SIS → the acquisition (W4 team-context) → re-dry-run both caches (expect week_end 4)
+    → the paired job's FIRST dry run → the env check against the current policy → resume the 3 schedulers →
+    `check_prospective_gates.py --week 5`.
+- **Study 34** (the regulars' habits at their size; nfl2 `c10444a`; reader `2da832bf`): the laptop's re-run is
+  BYTE-IDENTICAL (READ `05dfad1b`).
+  - GAP − reference **NO DIFFERENCE**: −0.003 [−0.030, +0.023]; SHR −0.009.
+  - By shape, opposite signs (noise).
+  - It confirms the report's §6: the regulars' edge is pre-lock knowledge (projections), not visible habits; FP now
+    supplies it. The weekly picks-vs-field line monitors it.
+  - The reviewer drafts the LEDGER row and Addendum 139.
+- **MIXT vs CT over three co-runs** (31 / 33 / 34): +2.2 / −1.4 / −1.4 points for MIXT, so tied. The decision sheet
+  row 1 says so: his preference, not a measured edge.
+
+## 2026-10-06 (09:49 CDT) — Week-5 prep: the arm script drafted; the prospective gates show the 5 known items; studies 33 (merged, O-14 closed) and 34 (calibrating)
+
+- **The Saturday arm script is DRAFTED** at `~/.cache/laptop-agent/w5_arm_saturday.sh` (host-local, like W4's).
+  - It is W4's script with:
+    - GROUP 154468;
+    - no LineStar step;
+    - the Rev3 sha and K 26 checks;
+    - FP projections, and the term at 0.20 on FP ownership;
+    - SHAPE = mixt (UNION_MAIN=mix, pin f69598b, CLONE week5-live-center) or ct (UNION_MAIN=pmo_x50, pin 32cdb61,
+      CLONE week4-live-center);
+    - no tail-sleeve settings (Rev3 has 29 mean-track contests);
+    - 11 timers, or 9 when armed late.
+  - It REFUSES until SHAPE and FRIDAY_HEAD are set on Friday (verified: "ARM STOPPED: SHAPE is not set").
+- **`check_prospective_gates.py --week 5` (10-06 ~09:45): 5 problems, all known and scheduled:**
+  - the Route Share companion pair's last executions failed (O-25 / O-2: Thursday's dry runs);
+  - the cbwu-oi paired job's last execution failed (O-27: Wed / Thu dry run after the W5 roster pull and
+    build-features);
+  - the SIS pass-tail schedulers are PAUSED (O-3: Wednesday's acquisition, dry runs and resume).
+  - Re-run it Thursday after those steps; it must be clean before Saturday's arming.
+- **Study 33 merged** (Addendum 138, `abb2e457`): NO DIFFERENCE; the D part is already live since `81c1eabb`;
+  **O-14 is CLOSED** (`3e35fcfc`).
+- **Study 34** (the regulars' habits): rebuilt (GAP = 3 behavioural features; value excluded as a projection
+  artifact; owned-set z; a one-round per-feature reweighting; finer SHR β). Calibrating on 1406; the laptop acks the
+  census next.
+- **The picks-vs-field weekly line is merged** (`65c7854a`; first run Monday 10-12).
+
 ## 2026-10-06 (08:24 CDT) — choose_entries MERGED (study 32's R4 for 1–3 big-contest entries + the Monday paired scorer); Addendum 137 merged; banks 1443–1448 clean
 
 - **choose_entries** (`production/choose-entries-20261006`, reviewer-approved, merged into integration as
