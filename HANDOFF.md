@@ -12,6 +12,29 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (07:13 CDT) — Study 31 census acked (byte-identical); no change to the overlap wrap; the SIS session EXPIRED (Tuesday check)
+
+**Study 31 binding census:** nfl2 `b61e93c`, `CENSUS_s31_binding.txt` sha `67dcb331`.
+- The laptop's re-run is BYTE-IDENTICAL: nfl2 worktree at b61e93c plus production `da399bdb` src (enter_layout
+  `3cb051ac`); raw bank1406 `37a38005`; plan shas Rev3 `3dd19d6c` and Rev2 `00c66004`; census `6b2823cb`; reader
+  `80b61bab`, as the prereg says.
+- **ACKED**; the reviewer launches 1431–1436.
+- The census shows the spread lowering concentration: max entry share .54–.58, against .68–.79 under Rev2 in study 30.
+
+**The overlap wrap (decided: NO CHANGE).** At K 26, `limit_small_overlap`'s replacement scan can reach rows 23–26: once
+in 36 CT slate-banks (wildcat3, a 2-entry big contest). Those rows are ordinary book rows, and ranks are decorative
+(A62). A cap would change enter_layout's sha and force a re-pin of study 31. It is recorded behaviour, reported by the
+census.
+
+**SIS (O-3d), the Tuesday check FAILED:** `sis-download verify-login` reports the saved session missing or expired.
+The operator was asked to run `sis-download login` today. Wednesday's SIS acquisition (O-3) needs it; re-verify after.
+
+**Bank scan 1431–1442** (laptop, independent): nfl2 CLEAN on every branch (only s31's own scripts). The production repo
+and disk were still running when the ack went out (the reviewer's own scan had cleared them).
+
+**Proposed to the reviewer:** re-date the O-22 fix, retrain and Wednesday-night six-season co-run to after Week 5.
+Week 5 takes FP for every player, so our model's means don't pick lineups; paper shadow B stays.
+
 ## 2026-10-06 (07:06 CDT) — Rev3: super-satellites on rows 1–26 (K 26), code done and rehearsed; study 31 runs on Rev3; study 32 (choosing the best few lineups) agreed
 
 **The operator (10-06 ~07:00)** pushed back on "1–26 isn't worth it this week": "It is only Tuesday and this is an easy
