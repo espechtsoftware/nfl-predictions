@@ -12,6 +12,17 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (02:09 CDT) — main-mix @ ddd470ed APPROVED end to end (the reviewer); ready to merge on the operator's Friday yes
+
+- The reviewer approved the blocking fix and the whole branch. All 20 money-path modules pass on `ddd470ed` with
+  `GCP_PROJECT` unset; the W5-size rehearsal log was spot-checked.
+- **Lesson (K-dependence):** the pre-fix code survived at K 105 on 65 plain WS control rows and fails at K 20. So
+  W4-sized tests could not catch it. Rehearse money-path changes at the coming week's K, not only at the last week's.
+- The spare-tail player cap is NOT before Friday: study list item 25, for K ≥ ~50.
+- **Merge readiness:** main-mix merges into integration on the operator's Friday yes for WS or MIX. The defaults stay off
+  (`UNION_MAIN` pmo_x50, `UNION_PROJ_SOURCE` empty). Then re-run `check_prospective_gates.py` and the arm preflight
+  (`check_week_runtime`) on the merged head before Saturday's arming.
+
 ## 2026-10-06 (02:08 CDT) — Main-mix review: one BLOCKING finding (a WS row could not be replaced on Sunday), fixed (ddd470ed) and rehearsed on real data
 
 **The finding (the reviewer, end-to-end review of eb6dc500; everything else APPROVED).** vet_replace_v4 lets a mix row be
