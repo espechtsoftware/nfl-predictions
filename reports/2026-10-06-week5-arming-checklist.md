@@ -26,8 +26,9 @@ chat. Private paths stay private (no dollars, no entries here).
    2. `production/o35-plan-weights-pins-20261006` @ `ce7ba02b` (pin-aware MIX weights): needed only for MIX;
    3. `production/vet-cell-order-20261006` @ `030db347` (O-36: vet_book keeps each MIX cell on its own positions;
       mix_dealt_shares counts replacements by shape): needed only for MIX (approved);
-   4. `production/fp-gap-flag-20261006` @ `2d84b96e` (the O-22 guard: book players without an FP projection are
-      printed, recorded and tagged in vetting; approved);
+   4. `production/fp-gap-flag-20261006` @ `645bddc0` (the O-22 guard: book players without an FP projection are
+      printed, recorded and tagged in vetting, `2d84b96e` approved; plus each week's replacement sources counted, with
+      the no-term control rows named, `645bddc0`, for re-approval);
    5. `production/pins-extend-book-20261006` @ `da399bdb` (a pin may add rows without gaps): needed for his Rev3
       plan (super-satellites on rows 1–26; K 22 → 26, caps 13 / 6; approved);
    6. `production/linestar-retire-20261006` @ `b20628fc` (no LineStar capture in the build or at arming).
