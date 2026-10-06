@@ -1,4 +1,4 @@
-# Preregistration: study 33, an injury-status calibration of our means (O-14 part 2) (DRAFT 2026-10-06)
+# Preregistration: study 33, an injury-status calibration of our means (O-14 part 2) (FROZEN 2026-10-06)
 
 **Transfer, said first:** with Fantasy Points' projections live for every player (316 of 316 in the Week-5
 rehearsal), a PASS changes NOTHING in the Week-5 or Week-6 build. It matters only for players FP does not project (the
@@ -6,9 +6,7 @@ fp-gap-flag cases) and for a return to our means if the weekly ours / FP / blend
 priority for compute: frozen to meet Wednesday's deadline, run when the host is free after study 32 and anything with
 live effect.
 
-**Status: DRAFT 2026-10-06, revised the same day after the reviewer's review.** The laptop drafted it at the reviewer's request; the register's deadline is "preregister
-by Wed 10-07". The reviewer reviews it, builds the harness and freezes it after the support census and the smokes. The
-laptop acks the census and re-runs the frozen reader.
+**Status: FROZEN 2026-10-06** by the reviewer, after the laptop's draft and revisions, the support census and the smoke (§5a, §9), before any scored bank. The support census ran on the frozen code and is the binding census. The laptop acks it and re-runs the frozen reader.
 
 ## 1. Why
 - **O-14 part 2 (open since 2026-09-19):** the selector carries no availability weighting. Week 2's Zay Flowers (DK
@@ -58,10 +56,11 @@ laptop acks the census and re-runs the frozen reader.
   - (a) EVERY early-window player who did NOT play is removed from the pool before the build: the flagged ones and
     healthy surprise scratches alike, since the 10:30 CT inactives list everyone and the live T-70 pull drops them
     all. This is legitimate T-70 information, public before the 10:50 CT build.
-    - "Did not play" is read from PARTICIPATION, never from DK points = 0, because a player who plays and scores 0
-      stays in the pool. Participation is offensive snaps > 0 in `nfl_raw.snap_counts`, which covers 2022–24 (about
-      10,500 player-games with a snap per season). It is keyed by `pfr_player_id`, mapped to gsis through the nflverse
-      players crosswalk. Presence in the weekly player stats is the fallback where the crosswalk misses.
+    - "Did not play" means NOT ACTIVE on game day: the frame's `was_active`, which is the inactives list itself, the
+      exact information the 10:30 CT pull carries. A player who is active and takes no snap stays in the pool, as
+      live. This replaces the draft's "offensive snaps > 0" (the reviewer's earlier suggestion): snaps would
+      remove active players live never removes. Changed at the freeze, before any outcome; the column is read only
+      for step (a) and for the realized "sat" count (tested).
     - DSTs always play.
   - (b) An EARLY-window Q / D player who played keeps his mean, undiscounted.
   - (c) The calibration applies to LATE-window Q / D players ONLY.
@@ -115,6 +114,33 @@ before any outcome. The census may well come out vacuous (few late games, few fl
 is an honest, cheap answer to O-14 part 2 and is recorded as such. If support is absent, the design is revised before
 the freeze, not after.
 
+## 5a. The training factors and the support census (outcome-blind for the test seasons; 2026-10-06)
+- **The training factors** (`results/s33/factors.json`, sha `4e4607ef…`): 36 training slates (2022 and 2023),
+  simulated once at the fixed training seed (bank 1406's), 11,091 player-weeks.
+  - The LATE window is used for both test seasons: Q+D n 108 (2022 → 2023) and 213 (2022–23 → 2024), both ≥ 100.
+  - Late-window raw c (realized / our mean):
+    - healthy .844 / .906;
+    - Questionable .710 / .691;
+    - Doubtful .000 (n 7) / .000 (n 19).
+  - Arm factors, min(1, c' / c_H):
+    - Q_DNP .845 / .725, Q_LP .844 / .755, Q_FP .909 / .848;
+    - D .838 / .667.
+  - Disclosed: the shrinkage (k 100) leaves Doubtful players about 67–84% of their mean, although none scored in
+    training. That is generous; live, a Doubtful player is only demoted in the vetting order (weight 3), never
+    excluded. Late-window Doubtful players are about 1 per slate.
+- **The support census** (1406, 36/36, code `87e408d`; the binding census):
+  - T-70 step (a) removes 26.6 early-window players per slate (4.3 of them flagged).
+  - 5.8 late-window flagged players per slate (Q_LP 2.9, D 1.1, Q_DNP 0.9, Q_FP 0.9).
+  - The calibration moves their means by 1.7 DK points on average (max 5.3).
+  - The reference books hold one on 44% (CT) / 42% (MIXT) of slate-banks, in 5.8 / 3.8 of 53 dealt entries.
+  - AV removes nearly all (0.2 / 0.3 entries).
+  - AV is dealt identically to its reference on 0.39 (CT) / 0.47 (MIXT) of slate-banks, so the study is NOT vacuous.
+  - CT0 / MIXT0 are identical to CT / MIXT on 0.75 / 0.78.
+- **The smoke** (2023 W1, 1406, the full path): the census and reader exited 0; the reader printed its 2 headers and
+  REFUSED mechanics-only rows (exit 1). No outcome line was read.
+- **A process note:** the first training run stalled for 70 minutes; its script lacked the drivers' `OMP_THREAD_LIMIT=1`,
+  so the threads oversubscribed across workers. It was stopped and re-run with the limit, with identical inputs and seed.
+
 ## 6. Panel, endpoint and rule
 - **Slates:** the 36 `k1` slates of 2023–24.
 - **Banks:** fresh 1443–1448, scanned by both parties before use. The census runs on 1406.
@@ -151,17 +177,26 @@ the freeze, not after.
 4. Stratum sizes are thin for D and Q-DNP, and thinner in the late window; the shrinkage (k 100) and the all-window fallback (§3) are fixed now.
 5. The panel's projections are ours (no FP in history); the term's predictor is the TABPFN_LS stand-in, as in 29–31.
 
-## 9. Integrity (to be filled at the freeze)
-Code (nfl2 branch and module shas), reader sha, census sha; the production `enter_layout` pin. Order:
-1. this draft;
-2. the reviewer's review;
-3. the support census;
-4. the smokes;
-5. the freeze;
-6. the binding census;
-7. the laptop's ack;
-8. the scored run;
-9. the confirmatory census;
-10. the read;
-11. the laptop's re-run;
-12. the LEDGER row and an Addendum.
+## 9. Integrity
+- **Code:** nfl2 `production/s33-availability-20261006` @ `36e7431` (harness `87e408d` + the binding census):
+  - `experiments/s33_availability.py`, sha256 `08cabbca747d8eccc6d9ab3da7d80e79434ada1c077e394a0ebd7c6d102b351c`;
+  - `scripts/s33_train.py`, `56fb040339f62707d11f651ecf37af8c53bed701efb7de97e074582753b10d3d`;
+  - `scripts/s33_drive.py`, `c2dd0185ea34b20ae956246f9181a305a1a28f0d20272b29620d2c9acd155f5c`;
+  - **`scripts/s33_report.py` (the reader), sha256 `9654d1b3abe320489e15cad5dd82a661eb4a37076b8abf0bd0a0b8cb72696c42`**;
+  - `scripts/s33_census.py`, `7b605d5dcff75dedf809335ad8a777cd710b88b1c3405fec1ca842be9686bd57`;
+  - `tests/test_s33_availability.py`, `2c06a3835f5698a26304acb59f9b171a2e172562a0513cef7ed562dce7d9e560` (6 tests).
+- **Factors:** `results/s33/factors.json`, `4e4607effa5c8f160d280c233358d3609a8d822a01ef0ddb834fc164835a1c3e` (training
+  rows `5f30e947…`).
+- **Binding census:** `results/s33/CENSUS_s33_binding.txt`,
+  `16e136ee4fe61106e245176160e7c0d426a42fd26c786a7f8cff82b5cb11434d` (raw `9d3c527b…`).
+- **Production `enter_layout.py`:** `3cb051ac…` (`da399bdb`). Runs use `PYTHONPATH=<nfl2 worktree>/src:<da399bdb
+  worktree>/src`.
+- **Reader seed:** 20261015. **Banks:** 1443–1448 (scanned clean by the laptop with the wider pattern).
+- **Order:**
+  1. this freeze;
+  2. the laptop's ack of the binding census;
+  3. the scored run (LOW priority: when the host is free);
+  4. the confirmatory census;
+  5. the read;
+  6. the laptop's re-run;
+  7. the LEDGER row and an Addendum.
