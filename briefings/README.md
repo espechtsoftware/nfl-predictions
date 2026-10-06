@@ -11,7 +11,7 @@ the laptop.
 
 | Read | What it answers |
 |---|---|
-| [Week-5 decision sheet (draft for Friday)](2026-week-05/2026-10-05-week5-decision-sheet.md) | Judged by your goal (one big win): the lineup shape (study 18b: WS and today's shape TIE on your plan; a preference, not a tested gain), Fantasy Points' projections, the lab-code update, your revised plan (19 contests, 24 entries), study 24: strictly distinct no gain, the per-game cap not offered, sequential dealing the no-code middle option; about 1 week in 4 with a big win (optimistic); the Week-4 replay; what is untested; how to undo |
+| [Week-5 decision sheet (draft for Friday)](2026-week-05/2026-10-05-week5-decision-sheet.md) | Judged by your goal (one big win): the lineup shape (study 28: the winners' mix is the closest result, better in every season, not yet a proven gain; recommended as your preference; WS tied), Fantasy Points' projections, the lab-code update, your revised plan (19 contests, 24 entries), study 24: strictly distinct no gain, the per-game cap not offered, sequential dealing the no-code middle option; about 1 week in 4 with a big win (optimistic); the Week-4 replay; what is untested; how to undo |
 
 ## 2026 Week 4 (Sunday 10-04): post-mortem and the Week-5 decision → `2026-week-04/`
 
