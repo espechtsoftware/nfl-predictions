@@ -65,6 +65,7 @@ chat. Private paths stay private (no dollars, no entries here).
   not to be armed (study 31); the expected timer count includes the FP projections capture (11, or 9 when
   armed late).
 - The FP projections capture runs right after arming; Sunday's runs at 10:40 CT, before the 10:50 T-70 build.
+- **The arming message to him names the one-game risk** (the reviewer's pre-mortem follow-up, 10-06): if Saturday's Week-5 build puts most of the book's QBs in one game (Week 4's MIXT replay: 91% in JAX–CIN; the historical slates 25–35%), say so in plain words before lock, with the share and the game.
 
 ## Sunday 10-11
 - The T-70 build on the post-10:30 salary pull; FP projections (refusal → ours, loud); the ownership chain FP → LAG

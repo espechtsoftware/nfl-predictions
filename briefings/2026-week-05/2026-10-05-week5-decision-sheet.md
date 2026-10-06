@@ -50,6 +50,11 @@ ownership tilt, built and scored together on the same 36 practice weeks, average
   finish. Within the noise, so it is not a proven gain; it is the one that plays like the winners (your directive) and
   is not worse on anything we measured.
 - **Rehearsed 10-06** on Week 4's slate with your 1–26 plan, FP projections and FP ownership: every check passed.
+- **What each book looks like** (the pre-mortem, 10-06: `briefings/2026-week-05/2026-10-06-week5-premortem-what-you-would-enter.md`):
+  the winners' mix builds lineups the way the regulars do (QB + 1 about half the time, second-game pairs, about 3
+  players from the QB's game); Week 4's shape builds them the way we did. Both are far more concentrated on QBs than the
+  regulars (top QB 51% / 59% of entries vs their 23%), and on Week 4's slate the winners' mix put 91% of its QBs in the
+  highest-total game. If one QB or one game busts, about half the entries go with it either way.
 - **Said plainly: the two are tied.** Two later tests had it the other way round: study 33 (with Sunday's 10:30
   inactives modelled) Week 4's setup 35% vs the winners' mix with the tilt 34%; study 34 34% vs 33%. Across the three
   tests the winners' mix is +2, −1 and −1 points: level within the noise. So Friday's choice between them is your
