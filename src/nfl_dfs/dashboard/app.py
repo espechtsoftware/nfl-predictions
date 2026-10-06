@@ -456,8 +456,12 @@ def create_app(query: D.Query | None = None,
             cols = [("arm", "Arm", None, "l"), ("kind", "Kind", None, "l"),
                     ("contest_id", "Contest", None, "l"), ("n_lineups", "Lineups"),
                     ("mean_points", "Mean pts", fmt_num(1)), ("best_points", "Best pts", fmt_num(1)),
-                    ("best_rank", "Best Milly rank", fmt_num(0)), ("cash_rate", "Cash rate", fmt_num(3))]
+                    ("best_rank", "Best Milly rank", fmt_num(0)), ("cash_rate", "Cash rate", fmt_num(3)),
+                    ("cash_basis", "Cash rate at", None, "l")]
             wk = a[a.week == week].sort_values(["kind", "best_points"], ascending=[True, False])
+            # the reviewer (10-05): an arm without a contest is measured at the Millionaire's cash line, not its own
+            wk = wk.assign(cash_basis=["≥ Millionaire cash line" if c is None or pd.isna(c) or str(c) == "" else
+                                       "its own contest's cash line" for c in wk.contest_id])
             out = f"<h2>Week {week}</h2>" + (table(wk, cols) if len(wk) else note("Nothing published for this week."))
             piv = a.pivot_table(index=["arm", "kind"], columns="week", values="best_points", aggfunc="max")
             rk = a.pivot_table(index=["arm", "kind"], columns="week", values="best_rank", aggfunc="min")
