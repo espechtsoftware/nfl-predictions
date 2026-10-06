@@ -157,6 +157,7 @@ fi
 
 cat <<EOT
 # Week $WEEK (America/Chicago), Sunday $SUNDAY; code tag $CODE_TAG
+# Main book: UNION_MAIN=${UNION_MAIN:-(week_env default)}$( [[ "${UNION_MAIN:-}" == "mix" ]] && echo " PORTFOLIO=${UNION_MIX_PORTFOLIO:-UNSET (refused at arming)}"); projections: ${UNION_PROJ_SOURCE:-ours}
 # Before arming: refresh build-features -> tabpfn-gen -> project-slate for ${SEASON}:${WEEK}, fill $CONTESTS_JSON,
 # and create $OUT/chosen-dose.env with CHOSEN_LEV/CHOSEN_BOOM.  The watcher fails closed without that file.
 #

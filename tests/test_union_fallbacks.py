@@ -63,5 +63,5 @@ def test_the_host_sources_the_fallback_before_the_pmo_block():
     i_src, i_call = host.index('source "$PROD/scripts/union_fallbacks.sh"'), host.index("\n  mix_fallback ")
     i_pmo = host.index("'PMO_X50 MAIN REFUSED' \"$OUT/union-$RUN_TAG.txt\"")
     assert i_src < i_call < i_pmo
-    assert '[[ "${UNION_MAIN:-mean}" == "mix" ]] && UNION_ARGS+=(--mix-plan "$CONTESTS_JSON" --mix-layout "${ENTER_LAYOUT:-head}" --mix-portfolio "${UNION_MIX_PORTFOLIO:-mix}")' in host
+    assert '[[ "${UNION_MAIN:-mean}" == "mix" ]] && UNION_ARGS+=(--mix-plan "$CONTESTS_JSON" --mix-layout "${ENTER_LAYOUT:-head}" --mix-portfolio "${UNION_MIX_PORTFOLIO:?UNION_MAIN=mix needs UNION_MIX_PORTFOLIO=mix|ws}")' in host
     assert '( "${UNION_MAIN:-mean}" == "pmo_x50" || "${UNION_MAIN:-mean}" == "mix" ) && "${UNION_MAIN_OWN_TILT:-0}" != "0"' in host

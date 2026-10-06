@@ -144,3 +144,13 @@ def test_the_capture_only_job_cannot_wait_ahead_of_the_t70_money_path():
     assert wait + run < ((th * 60 + tm) - (hh * 60 + mm)) * 60
     host = (SCRIPT.parent / "sunday_build_host.sh").read_text()
     assert wait < int(re.search(r'flock -w "\$\{FP_OWN_LOCK_WAIT_S:-(\d+)\}" "\$FP_PROFILE_LOCK"', host).group(1))
+
+
+
+def test_the_arming_banner_states_the_main_book_its_portfolio_and_the_projections():
+    r = _run(GROUP="154078", UNION_MAIN="mix", UNION_MIX_PORTFOLIO="ws", UNION_PROJ_SOURCE="fp")
+    assert r.returncode == 0, r.stderr
+    assert "# Main book: UNION_MAIN=mix PORTFOLIO=ws; projections: fp" in r.stdout
+    r = _run(GROUP="154078", UNION_MAIN="mix")
+    assert "PORTFOLIO=UNSET (refused at arming)" in r.stdout
+    assert "UNION_MIX_PORTFOLIO=ws" in _unit_line(_run(GROUP="154078", UNION_MAIN="mix", UNION_MIX_PORTFOLIO="ws").stdout, "nfl-week4-t70-build")

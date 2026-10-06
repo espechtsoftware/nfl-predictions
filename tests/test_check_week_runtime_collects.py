@@ -119,7 +119,7 @@ def test_a_missing_prerequisite_skips_its_dependants_without_crashing(tmp_path):
 def test_union_main_mix_needs_a_clone_whose_optimize_takes_the_shape_options(tmp_path):
     """--main mix (study 18) solves with optimize(second_game_pair=, qb_game_max=): a clone without them must fail at
     arming, never with a TypeError at the Sunday solve. Checked by capability in the clone's lineup.py."""
-    env = _healthy(tmp_path); env["UNION_MAIN"] = "mix"
+    env = _healthy(tmp_path); env["UNION_MAIN"] = "mix"; env["UNION_MIX_PORTFOLIO"] = "ws"
     fails = _failures(_run(env))
     assert any("UNION_MAIN=mix needs the pinned lab clone's optimize() to take second_game_pair and qb_game_max" in f for f in fails)
     clone = Path(env["CLONE"])
@@ -139,3 +139,5 @@ def test_union_mix_portfolio_must_be_mix_or_ws(tmp_path):
     assert not any("UNION_MIX_PORTFOLIO" in f for f in _failures(_run(env)))
     env["UNION_MIX_PORTFOLIO"] = "thesis"
     assert any("UNION_MIX_PORTFOLIO='thesis' must be mix or ws" in f for f in _failures(_run(env)))
+    env.pop("UNION_MIX_PORTFOLIO"); env["UNION_MAIN"] = "mix"        # reviewer 10-05: no silent default arm
+    assert any("UNION_MAIN=mix needs UNION_MIX_PORTFOLIO=mix|ws" in f for f in _failures(_run(env)))

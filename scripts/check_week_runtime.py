@@ -128,8 +128,10 @@ def check_clone_levers(clone, tail_sleeve):
         dose = os.environ.get("UNION_SAT_DOSE", "2560/10240")
         if not re.fullmatch(r"\d+/\d+(,\d+/\d+)*", dose):     # an ordered list since 10-01 (week_env; cracks audit B)
             fail(f"UNION_SAT_DOSE={dose!r} must be lev/boom[,lev/boom...]")
-    if os.environ.get("UNION_MIX_PORTFOLIO", "mix") not in ("mix", "ws"):
+    if os.environ.get("UNION_MIX_PORTFOLIO", "") not in ("", "mix", "ws"):
         fail(f"UNION_MIX_PORTFOLIO={os.environ.get('UNION_MIX_PORTFOLIO')!r} must be mix or ws")
+    elif os.environ.get("UNION_MAIN") == "mix" and not os.environ.get("UNION_MIX_PORTFOLIO"):
+        fail("UNION_MAIN=mix needs UNION_MIX_PORTFOLIO=mix|ws (no default: the operator's chosen arm, stated)")
     if os.environ.get("UNION_PROJ_SOURCE", "") not in ("", "fp"):
         fail(f"UNION_PROJ_SOURCE={os.environ.get('UNION_PROJ_SOURCE')!r} must be empty (ours) or fp")
     elif os.environ.get("UNION_PROJ_SOURCE") == "fp" and not os.environ.get("UNION_SATURDAY_RUN"):

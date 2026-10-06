@@ -562,7 +562,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--proj-source", type=Path, default=None,
                     help="an override file from scripts/fp_projection_override.py built for THIS T-70 frame: its projections replace "
                          "the frame's mean_projection for the players it holds (operator 10-05: Fantasy Points)")
-    ap.add_argument("--mix-portfolio", choices=sorted(PORTFOLIOS), default="mix",
+    ap.add_argument("--mix-portfolio", choices=sorted(PORTFOLIOS), default=None,
                     help="with --main mix: mix = study 18's four-cell MIX; ws = study 18's WS (one whole-book cell; PASSED)")
     ap.add_argument("--mix-plan", type=Path, default=None, help="with --main mix: the week's contests.json (the interleave's entry weights)")
     ap.add_argument("--mix-layout", choices=["sequential", "top", "head", "spread"], default="head",
@@ -594,6 +594,8 @@ def main(argv: list[str] | None = None) -> int:
         raise SystemExit("--main-own-tilt is defined for --main pmo_x50 / mix (the term sits in the optimizer's objective)")
     if a.main == "mix" and (a.mix_plan is None or not a.mix_plan.is_file()):
         raise SystemExit(f"--main mix needs --mix-plan (the week's contests.json; got {a.mix_plan})")
+    if a.main == "mix" and a.mix_portfolio is None:
+        raise SystemExit("--main mix needs --mix-portfolio mix|ws (no default: the chosen arm, stated)")
     if a.main == "mix" and a.main_game_cap != "off":
         raise SystemExit("--main-game-cap (study 1) is not defined with --main mix")
     from nfl2.two_track import select_top_mean, tail_probability   # the pinned lab clone on PYTHONPATH
