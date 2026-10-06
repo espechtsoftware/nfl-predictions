@@ -136,3 +136,21 @@ def test_the_written_rows_are_order_independent():
     fr = _frame(); a, _ = WPA.population(fr, _fp(fr), _actual(fr), _active(fr))
     b, _ = WPA.population(fr.sample(frac=1.0, random_state=3), _fp(fr), _actual(fr), _active(fr))
     assert a.to_csv(index=False) == b.to_csv(index=False)
+
+
+def test_the_fp_cutoff_is_the_t70_build_not_the_lock(tmp_path):
+    run = tmp_path / "run"; run.mkdir(); frame = run / "frame.parquet"
+    try:
+        WPA.resolve_cutoff(frame, None, "2026-10-11T17:00:00Z")
+        raise AssertionError("no receipt must refuse")
+    except SystemExit as e:
+        assert "no built_utc" in str(e)
+    (run / "receipt.json").write_text('{"built_utc": "2026-10-11 15:50:47.4+00:00"}')
+    cut, src = WPA.resolve_cutoff(frame, None, "2026-10-11T17:00:00Z")
+    assert cut == "2026-10-11T15:50:47.400000+00:00" and src == "receipt.json built_utc"
+    assert WPA.resolve_cutoff(frame, "2026-10-11T15:45:00Z", "2026-10-11T17:00:00Z") == ("2026-10-11T15:45:00+00:00", "--capture-before")
+    try:
+        WPA.resolve_cutoff(frame, "2026-10-11T17:05:00Z", "2026-10-11T17:00:00Z")
+        raise AssertionError("a cutoff after the lock must refuse")
+    except SystemExit as e:
+        assert "after the lock" in str(e)

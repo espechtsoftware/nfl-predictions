@@ -7,20 +7,27 @@ and the >= 3 eligibility every week, frozen now, so the comparison can't drift")
     # one week: writes the player rows (PRIVATE: FP's numbers are licensed) and prints the week's row
     python scripts/weekly_projection_accuracy.py week --season 2026 --week 5 --frame <T-70 run>/frame.parquet \\
         --lock-utc 2026-10-11T17:00:00Z --contest <the week's Millionaire id> --out-dir ~/private/projection-accuracy
+        [--capture-before <UTC>]   (default: the T-70 run's receipt.json built_utc, the build's own FP cutoff)
     # every week so far, pooled: the revisit check
     python scripts/weekly_projection_accuracy.py pool --out-dir ~/private/projection-accuracy
 
-Sources, per week (all captured BEFORE the lock):
+Sources, per week (all captured BEFORE the T-70 build, the inputs the build could use):
   OURS   the T-70 build's frame.parquet `mean_projection` (the frame on disk is always ours: --proj-source replaces it
          only inside the union step);
-  FP     nfl_raw.fantasy_points_dfs_projections, DraftKings, the Main slate, the newest capture before --lock-utc
-         (the same selection the build's FP override makes), joined EXACTLY on the DraftKings draftable id;
+  FP     nfl_raw.fantasy_points_dfs_projections, DraftKings, the Main slate, the newest capture retrieved before the
+         CUTOFF, joined EXACTLY on the DraftKings draftable id. The cutoff is the T-70 run's receipt.json `built_utc`
+         (the --before the build hands its FP override), so a capture made after the build (a retry, a manual
+         re-capture) is never credited to FP; --capture-before overrides it; no receipt time and no flag, or a cutoff
+         after the lock, REFUSES. Both the capture time and the cutoff are printed (reviewer 10-05);
   BLEND  0.5 OURS + 0.5 FP (fixed);
   ACTUAL the week's Millionaire `fpts` per player (nfl_raw.contest_ownership; DraftKings' own scoring), by normalised
          display name; a name two slate players share is dropped (counted).
 Population (fixed): QB / RB / WR / TE with OURS >= 3 or FP >= 3, an FP projection and an actual, and game-day
 rosters_weekly status ACT (the O-32 rule, `nfl_dfs.analysis.game_day_active`: a player who did not play is a miss no
-projection can explain, and the build removes him anyway). Drops are counted and printed.
+projection can explain, and the build removes him anyway). Drops are counted and printed. This measures accuracy on
+players who played. The BUILD-level effect is separate and real: FP zeroes a player scratched at the 10:30 inactives
+(W4: two of three), while our T-70 frame keeps him until DraftKings marks him OUT (caught at the ~11:00 live-status
+check before upload).
 Zero points: an ACT player who scores 0 STAYS IN (a real miss). A player not ACT on game day is OUT. An ACT player missing
 from the Millionaire's player list (nobody drafted him, so DraftKings lists no score) has no actual and is OUT (counted
 as dropped_no_actual). Rows are sorted by player id, so the written player list (and its sha256) is reproducible.
@@ -173,6 +180,24 @@ def load_fp(season: int, week: int, lock_utc: str) -> tuple[pd.DataFrame, dict]:
                 "source_sha256": str(fp.source_sha256.iloc[0]), "rows": int(len(fp))}
 
 
+def resolve_cutoff(frame: Path, capture_before: str | None, lock_utc: str) -> tuple[str, str]:
+    """The FP capture cutoff: --capture-before, else the T-70 run's receipt.json built_utc. Refuses without either, or
+    after the lock. Returns (cutoff ISO UTC, its source)."""
+    if capture_before:
+        cut, src = pd.Timestamp(capture_before), "--capture-before"
+    else:
+        rec = Path(frame).parent / "receipt.json"
+        built = json.loads(rec.read_text()).get("built_utc") if rec.is_file() else None
+        if not built:
+            raise SystemExit(f"no built_utc in {rec}: pass --capture-before (the T-70 build's start, UTC)")
+        cut, src = pd.Timestamp(built), f"{rec.name} built_utc"
+    cut = cut.tz_localize("UTC") if cut.tzinfo is None else cut.tz_convert("UTC")
+    lock = pd.Timestamp(lock_utc); lock = lock.tz_localize("UTC") if lock.tzinfo is None else lock.tz_convert("UTC")
+    if cut > lock:
+        raise SystemExit(f"the FP capture cutoff {cut.isoformat()} is after the lock {lock.isoformat()}")
+    return cut.isoformat(), src
+
+
 def load_week(a) -> tuple[pd.DataFrame, dict]:
     from nfl_dfs.analysis.game_day_active import load_active
     from nfl_dfs.bq import query_df
@@ -182,14 +207,16 @@ def load_week(a) -> tuple[pd.DataFrame, dict]:
     fr = pd.read_parquet(a.frame)
     if not ((fr.season.astype(int) == a.season) & (fr.week.astype(int) == a.week)).all():
         raise SystemExit(f"the frame is not {a.season} W{a.week}")
-    fp, cap = load_fp(a.season, a.week, a.lock_utc)
+    cutoff, cutoff_src = resolve_cutoff(a.frame, a.capture_before, a.lock_utc)
+    fp, cap = load_fp(a.season, a.week, cutoff)
     act = query_df(f"""SELECT display_name, MAX(CAST(fpts AS FLOAT64)) fpts FROM `{settings.raw}.contest_ownership`
         WHERE season = @s AND week = @w AND contest_id = @c GROUP BY 1""", params={"s": a.season, "w": a.week, "c": str(a.contest)})
     if act.empty:
         raise SystemExit(f"no contest_ownership rows for contest {a.contest}")
     actual = pd.Series(act.fpts.to_numpy(float), index=act.display_name.map(norm))
     d, audit = population(fr, fp, actual, load_active([a.season]))
-    audit.update({"capture": cap, "frame": str(a.frame), "lock_utc": a.lock_utc, "contest": str(a.contest),
+    audit.update({"capture": cap, "capture_before": cutoff, "capture_before_source": cutoff_src, "frame": str(a.frame),
+                  "lock_utc": a.lock_utc, "contest": str(a.contest),
                   "written_utc": datetime.now(timezone.utc).isoformat()})
     return d, audit
 
@@ -200,6 +227,7 @@ def main(argv=None) -> int:
     w = sub.add_parser("week"); w.add_argument("--season", type=int, required=True); w.add_argument("--week", type=int, required=True)
     w.add_argument("--frame", type=Path, required=True); w.add_argument("--lock-utc", required=True)
     w.add_argument("--contest", required=True); w.add_argument("--out-dir", type=Path, required=True)
+    w.add_argument("--capture-before", default=None)
     p = sub.add_parser("pool"); p.add_argument("--out-dir", type=Path, required=True)
     a = ap.parse_args(argv)
     if a.cmd == "week":
@@ -211,7 +239,8 @@ def main(argv=None) -> int:
         Path(f"{stem}.json").write_text(json.dumps(audit, indent=1) + "\n")
         print("population:", {k: v for k, v in audit.items() if isinstance(v, int)})
         print(f"player rows: {stem}.csv  n {len(d)}  sha256 {audit['rows_sha256']}")
-        print(f"FP capture {audit['capture']['retrieved_at']} (slate {audit['capture']['slate_id']})")
+        print(f"FP capture {audit['capture']['retrieved_at']} (slate {audit['capture']['slate_id']}); cutoff "
+              f"{audit['capture_before']} ({audit['capture_before_source']}); lock {audit['lock_utc']}")
         report(d, f"{a.season} W{a.week}")
         return 0
     files = sorted(a.out_dir.glob("accuracy-*-w*.csv"))

@@ -64,6 +64,9 @@ my first draft plan (9–22% of the field paid):
 - **Your rule** ("use fantasy points unless ... our projections or the blend have beat them") stays the test. The
   frozen weekly check calls it "beat" only when the weeks pooled show a lower average miss in at least 95% of
   resamples. Week 4 alone doesn't meet that for anyone, so FP stays the choice.
+- **Expect "nobody beats FP" for several weeks.** With about 195 players a week, a real difference of a tenth of a
+  point takes several weeks to show at that level. So that answer is the default for a while. It is not evidence that FP
+  is better.
 - **What changes:** FP's numbers pick the lineups. They are captured at 10:40 Sunday, after the inactives, and matched
   exactly by DraftKings' player ID. If the capture is missing or looks wrong, the build falls back to ours and says
   so loudly.
