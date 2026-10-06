@@ -178,3 +178,13 @@ def test_the_stale_fp_refusal_rides_the_t70_gate_not_the_t70_rules():
     host = (Path(__file__).resolve().parents[1] / "scripts" / "sunday_build_host.sh").read_text()
     assert '[[ -n "${MIN_PROJ_GENERATED_AT:-}" ]] && echo --require-after-inactives' in host
     assert '"$T70_DECLARED" == on ]] && echo --require-after-inactives' not in host
+
+
+def test_the_union_overlap_limit_rides_into_the_units_and_defaults_to_7():
+    """The outside review's lever (10-06): UNION_MEAN_MAX_SHARED reaches the build units; the host defaults to 7."""
+    from pathlib import Path
+    r = _run(UNION_MEAN_MAX_SHARED="5")
+    assert "UNION_MEAN_MAX_SHARED=5" in _unit_line(r.stdout, "nfl-week4-t70-build")
+    assert "UNION_MEAN_MAX_SHARED" not in _unit_line(_run().stdout, "nfl-week4-t70-build")
+    host = (Path(__file__).resolve().parents[1] / "scripts" / "sunday_build_host.sh").read_text()
+    assert '--mean-max-shared "${UNION_MEAN_MAX_SHARED:-7}"' in host and "--mean-max-shared 7 " not in host

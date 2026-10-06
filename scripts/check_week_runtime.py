@@ -226,6 +226,10 @@ def main():
                 fail(f"BOOK_ENTRIES={book_entries} + TAIL_SLEEVE={tail_sleeve} cannot satisfy {layout} contest layout (needs {required_entries})")
     # study 35's per-QB cap is in ROWS calibrated at one K (the reviewer 10-06; the K-dependence lesson): it is armed only
     # with the K it was calibrated at, and only when that K is this week's book
+    # the union overlap limit (the outside review 10-06: 5 instead of 7 read ahead on the W2-4 replay); default 7
+    _ms = os.environ.get("UNION_MEAN_MAX_SHARED", "")
+    if _ms and not (_ms.isdigit() and 3 <= int(_ms) <= 8):
+        fail(f"UNION_MEAN_MAX_SHARED={_ms!r} must be an integer 3..8 (players a union row may share with every earlier row)")
     _qcap, _qk = os.environ.get("UNION_MAIN_QB_CAP_ROWS", ""), os.environ.get("UNION_MAIN_QB_CAP_K", "")
     if _qcap:
         if not (_qcap.isdigit() and int(_qcap) >= 1):
