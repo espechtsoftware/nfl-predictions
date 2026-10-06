@@ -12,6 +12,23 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (14:56 CDT) — LOCAL NEO4J LOADED (operator: "as soon as possible"); first findings: the regulars' RB-led floating core
+
+- **Coordinated first:** the reviewer confirmed their rehearsal (lab harness only, done by 15:00) did not overlap.
+- **Load:** branch `production/milly-graph-users-20261006` @ `855379ee` (approved), run in the analytics venv (the
+  production venv has no neo4j driver and was not changed).
+  - Inputs: `--users-file ~/private/neo4j/users-cohort-plus-ours.txt` (the 117-cohort plus our account, private),
+    `--include-fp`, limits raised for the local instance.
+  - 14:49–14:52 CT: 75,669 nodes, 800,486 relationships; W1–4 Milly; names 100% resolved.
+  - Browser queries verified on real data. It is left RUNNING for the operator this afternoon. Stop it before any build
+    or arm check: the guards refuse or stop it anyway.
+- **Findings** (private `~/private/neo4j/analysis/q1–q3`; aggregates only):
+  - The regulars' heavy players (≥30%) are RB-led and ride with many QBs. Full portfolios: 4 heavy, 14 QBs each, own
+    QB .09. At 26 lineups: 5.2 heavy, 6.5 QBs each, 48% RBs. Our MIXT_QA: 12 heavy, 5 QBs, 33% RBs.
+  - Within a regular's week, his top-1% lineups don't differ in structure from his others; they are slightly chalkier
+    (+1.9 own-sum) and use slightly more salary (+$26). Outcome-based and descriptive.
+  - Proposed to the reviewer: an exploratory study-38 paper arm, an RB-led core with pass-catchers spread by QB stacks.
+
 ## 2026-10-06 (14:37 CDT) — Merged: the no-tilt arm script, study 38's snapshot tool, the descriptive tail lines (all reviewer-approved)
 
 - **Integration `2fed68e2`:**
