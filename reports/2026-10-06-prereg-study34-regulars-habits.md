@@ -29,25 +29,37 @@ it is cheap.
   - opponent allowed: −0.13 vs −0.12;
   - last game above projection: −0.12 vs −0.13.
   So tilting further along them overshoots.
-- **GAP (the DECISION arm)** tilts along (their tilt − ours) on the features where at least 84% of them agree and we
-  differ:
-  - h_gap = −0.19·z(value per $1k: our mean / salary) − 0.09·z(the last PLAYED game's DK points) − 0.06·z(last week's
-    opportunity share: target share for WR / TE, carry share for RB, none for QB) + 0.05·z(the Questionable tag).
-  - FP above ours (+0.13 vs −0.15) is the largest gap, but history has no FP, and FP closes it live.
+- **GAP (the DECISION arm)** tilts along (their tilt − ours) on the BEHAVIOURAL features where at least 84% of them
+  agree and we differ:
+  - the last PLAYED game's DK points: −0.09;
+  - last week's opportunity share (target share for WR / TE, carry share for RB, none for QB): −0.06;
+  - the Questionable tag: +0.05.
+- **Value per $1k (−0.19) is EXCLUDED** (agreed with the laptop at the first calibration point, outcome-blind).
+  - It is computed on OUR projection, so their lower value tilt is their different projections showing through. In
+    Week 4 they sided with FP; FP closes that live.
+  - At β_gap 0.2, a mean tilt moved the book's value −0.02 against a −0.19 target, while last game's points
+    overshot 2.4×.
 - **SHR (exploratory)** tilts along the three shared habits:
   - h_shr = −z(the last played game's DK points) − z(salary change) − [weeks 2–5] z(the opponent's season-to-date DK
     points allowed per game to the position).
-- **Common to both:** each z is within slate × position over the skill pool, and missing = 0. "Last week" is
-  implemented as the last PLAYED game (study 22a's H3), so byes do not drop rows.
+- **Units (both arms):** every z is in the report's units. It is standardised within slate × position over the pool
+  players with PREDICTED (TABPFN_LS, pre-lock) ownership ≥ 0.2%, then applied to every pool player; missing = 0. "Last
+  week" is the last PLAYED game (study 22a's H3).
 
 ## 3. Arms (study 31's harness; Rev3, K 26, caps 13 / 6, head, `enter_layout` `3cb051ac…`; all with the 0.20 term)
 - CT / GAP_CT / SHR_CT: the house shape on the mean, mean × (1 + β_gap·h_gap) and mean × (1 + β_shr·h_shr).
 - MIXT / GAP_MIXT / SHR_MIXT: the winners' mix, the same.
-- **β, from one outcome-blind calibration census on 1406 (five runs):**
-  - **β_gap:** the smallest of {0.2, 0.4, 0.6, 0.8, 1.0} whose dealt entries' mean h_gap moves (GAP − reference,
-    pooled over shapes) by ≥ ‖gap‖² = 0.0503. That is the move that closes each feature's gap, were the features
-    uncorrelated. The census also prints each feature's achieved mean-z shift beside its gap target (the laptop).
-  - **β_shr:** the smallest of {0.02, 0.04, 0.06, 0.08, 0.10} with Δh_shr ≥ +0.36.
+- **The calibration (outcome-blind, bank 1406; fixed before it ran):**
+  - **Round 0:** GAP weights = the gaps, β_gap 0.2, giving each feature's achieved shift a_f.
+  - **One reweighting:** w_f = g_f × g_f / a_f (one round only).
+  - **The grid** on those weights, in paired runs:
+    - β_shr ∈ {0.005, 0.0075, 0.01, 0.0125, 0.015, 0.02};
+    - β_gap ∈ {0.1, 0.15, 0.2, 0.25, 0.3, 0.4}.
+  - **β_gap** is the grid value whose per-feature shifts all lie within ±30% of their gaps; if several, the smallest
+    worst ratio; if none, the minimiser of max_f |a_f / g_f − 1|.
+  - **β_shr** is the minimiser of |Δh_shr / 0.36 − 1|, i.e. their habits at THEIR size; the coarse first grid had
+    overshot to 1.9×.
+  - The census lines are printed in §6 at the freeze.
 
 ## 4. Endpoint and rule (studies 31 / 33)
 - **PRIMARY (one decision arm):** P(≥ 1 big seat) per slate, GAP − reference pooled over the two shapes.
