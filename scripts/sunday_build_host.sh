@@ -284,6 +284,8 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
               --max-per-game "${MAX_PER_GAME:-4}" --min-salary "${MIN_LINEUP_SALARY:-49000}" --pmo "${UNION_PMO:-0}" --pmo-cap-share "${UNION_PMO_CAP:-0.5}" --main "${UNION_MAIN:-mean}")
   [[ -n "${UNION_MAIN_CAP:-}" ]] && UNION_ARGS+=(--main-cap-share "$UNION_MAIN_CAP")
   # study 18's shape portfolio (--main mix): the interleave's entry weights come from THIS week's plan and layout
+  # the MIX fill order (study 42; operator 10-06): unset = group, as before
+  [[ "${UNION_MAIN:-mean}" == "mix" && -n "${UNION_MIX_FILL:-}" ]] && UNION_ARGS+=(--mix-fill "$UNION_MIX_FILL")
   [[ "${UNION_MAIN:-mean}" == "mix" ]] && UNION_ARGS+=(--mix-plan "$CONTESTS_JSON" --mix-layout "${ENTER_LAYOUT:-head}" --mix-portfolio "${UNION_MIX_PORTFOLIO:?UNION_MAIN=mix needs UNION_MIX_PORTFOLIO=mix|ws}" --mix-spares "${UNION_MIX_SPARES:-15}")
   # Fantasy Points' projections replace ours in the union's selection (operator 2026-10-05): the newest FP capture taken
   # before THIS T-70 run's build, joined exactly on DK draftable ids, gated (coverage, salary, r >= 0.7); a capture from

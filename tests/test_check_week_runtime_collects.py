@@ -170,3 +170,17 @@ def test_the_qb_cap_check_never_skips_a_missing_book_size(tmp_path):
     env = _healthy(tmp_path); env["UNION_MAIN"] = "pmo_x50"
     env["UNION_MAIN_QB_CAP_ROWS"] = "7"; env["UNION_MAIN_QB_CAP_K"] = "26"; env.pop("BOOK_ENTRIES", None)
     assert any("needs BOOK_ENTRIES" in f for f in _failures(_run(env)))
+
+
+def test_union_mix_fill_must_be_group_value_or_rr_with_a_mix_main(tmp_path):
+    """Study 42's switch (operator 10-06): unset is today's group fill; set, it must name a fill and ride a MIX main."""
+    env = _healthy(tmp_path)
+    assert not any("UNION_MIX_FILL" in f for f in _failures(_run(env)))
+    env["UNION_MIX_FILL"] = "value"
+    assert any("UNION_MIX_FILL='value' must be group, value or rr, with UNION_MAIN=mix" in f for f in _failures(_run(env)))
+    env["UNION_MAIN"] = "mix"; env["UNION_MIX_PORTFOLIO"] = "mix"
+    assert not any("UNION_MIX_FILL" in f for f in _failures(_run(env)))
+    env["UNION_MIX_FILL"] = "rr"
+    assert not any("UNION_MIX_FILL" in f for f in _failures(_run(env)))
+    env["UNION_MIX_FILL"] = "best"
+    assert any("UNION_MIX_FILL='best'" in f for f in _failures(_run(env)))
