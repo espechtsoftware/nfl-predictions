@@ -46,6 +46,26 @@ def cell_block_order(tiers, k_mean, cells):
     return head + block_order(tiers, k_mean)[k:]
 
 
+def fp_gap_flags(run, frame, book, flags, name):
+    """FP projections (operator 2026-10-05; the reviewer's guard 2026-10-06, O-22): when the union selected on FP's means
+    (its run holds proj_source.csv), a book player WITHOUT an FP projection (a late add or a swap) was selected on OUR
+    mean, which carries the O-22 bias. Each such player gets the tag "projection:ours-no-FP" -- informational, weight 0:
+    it names him on the vetting page and never reorders (the "projection" prefix is not an enter_layout INJURY_TAGS
+    prefix; vet_replace's risky set reads statuses, not tags). Returns the names, printed loudly when any."""
+    ps = pathlib.Path(run) / "proj_source.csv"
+    if not ps.is_file():
+        return []
+    fp_ids = set(pd.read_csv(ps, dtype={"id": str})["id"].astype(str))
+    id_of = dict(zip(frame["dk"], frame["id"].astype(str)))
+    out = []
+    for dk in sorted({v for row in book for v in row}):
+        if id_of.get(dk) not in fp_ids:
+            flags[dk].append("projection:ours-no-FP"); out.append(name.get(dk, dk))
+    if out:
+        print(f"!!! PROJECTION: {len(out)} book player(s) selected on OUR projection (no FP projection; O-22 bias): {out}")
+    return out
+
+
 def vetted_order(tiers, k_mean, receipt, cells_of):
     """The vetted order and the main block's cells: cell_block_order ONLY when the source receipt's union main is "mix"
     (`cells_of()` is called only then); every other book keeps block_order's order unchanged. Returns (order, cells|None)."""
@@ -170,6 +190,7 @@ def main():
             nn = norm_name(name[dk])
             if nn in vanished_norm: flags[dk].append("market:VANISHED"); weight[dk] = HARD
             elif nn not in present_norm and sal.get(dk, 0) >= 5000: flags[dk].append("market:no_props"); weight[dk] += 1.0
+    no_fp = fp_gap_flags(run, f, book, flags, name)
     lineups = []
     for i, row in enumerate(book):
         risk = sum(weight[dk] for dk in row); hard = any(weight[dk] >= HARD for dk in row)
@@ -202,7 +223,7 @@ def main():
     k = a.k; top_before = set(range(k)); top_after = set(order[:k]); demoted = sorted(top_before - top_after); promoted = sorted(top_after - top_before)
     rec = {"version": "vet-book-v2.1-backup-qb-classified", "source_run": str(run), "k": k, "vetted_at_utc": datetime.now(UTC).isoformat(), "prop_fetch_days": [str(d) for d in days[-2:]],
            "signals": {"dk_status_players": sum(1 for d in weight if any(x.startswith("DK:") for x in flags[d])), "injury_report_players": len(inj), "inference_players": len(pwi), "vanished_lines": len(vanished_norm)},
-           "order_source_ranks": [i + 1 for i in order], "order_rule": "within-cell" if _cells is not None else "within-block",
+           "no_fp_projection_players": no_fp, "order_source_ranks": [i + 1 for i in order], "order_rule": "within-cell" if _cells is not None else "within-block",
            **({"cells_source_order": _cells[:_k_mean], "flagged_kept_ahead_positions": [p + 1 for p in _kept]} if _cells is not None else {}), "demoted_out_of_top_k": [i + 1 for i in demoted], "promoted_into_top_k": [i + 1 for i in promoted],
            "material_threshold": thr, "lineups": lineups, "player_flags": {name[d]: {"dk": d, "pos": pos[d], "team": team[d], "weight": weight[d], "flags": fl} for d, fl in flags.items()}}
     (out / "vetting.json").write_text(json.dumps(rec, indent=1) + "\n")
