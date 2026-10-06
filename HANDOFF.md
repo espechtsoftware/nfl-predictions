@@ -12,6 +12,80 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (14:56 CDT) — LOCAL NEO4J LOADED (operator: "as soon as possible"); first findings: the regulars' RB-led floating core
+
+- **Coordinated first:** the reviewer confirmed their rehearsal (lab harness only, done by 15:00) did not overlap.
+- **Load:** branch `production/milly-graph-users-20261006` @ `855379ee` (approved), run in the analytics venv (the
+  production venv has no neo4j driver and was not changed).
+  - Inputs: `--users-file ~/private/neo4j/users-cohort-plus-ours.txt` (the 117-cohort plus our account, private),
+    `--include-fp`, limits raised for the local instance.
+  - 14:49–14:52 CT: 75,669 nodes, 800,486 relationships; W1–4 Milly; names 100% resolved.
+  - Browser queries verified on real data. It is left RUNNING for the operator this afternoon. Stop it before any build
+    or arm check: the guards refuse or stop it anyway.
+- **Findings** (private `~/private/neo4j/analysis/q1–q3`; aggregates only):
+  - The regulars' heavy players (≥30%) are RB-led and ride with many QBs. Full portfolios: 4 heavy, 14 QBs each, own
+    QB .09. At 26 lineups: 5.2 heavy, 6.5 QBs each, 48% RBs. Our MIXT_QA: 12 heavy, 5 QBs, 33% RBs.
+  - Within a regular's week, his top-1% lineups don't differ in structure from his others; they are slightly chalkier
+    (+1.9 own-sum) and use slightly more salary (+$26). Outcome-based and descriptive.
+  - Proposed to the reviewer: an exploratory study-38 paper arm, an RB-led core with pass-catchers spread by QB stacks.
+
+## 2026-10-06 (14:37 CDT) — Merged: the no-tilt arm script, study 38's snapshot tool, the descriptive tail lines (all reviewer-approved)
+
+- **Integration `2fed68e2`:**
+  - `arm-w5-no-tilt` `ab9d1420`: `OWN_TILT=0`. At tilt 0 the term-only Saturday inputs WARN and continue; at a non-zero
+    tilt they stop.
+  - `s38-snapshot` `f8bd0341`: every copy fatal; pre-lock refusal; union-receipt.json.
+  - `accuracy-tail-metrics` `eaecb658`: top-decile hit and ownership-weighted MAE, descriptive; the revisit rule
+    untouched; the ownership join hardened.
+  - 54 tests pass across the four touched modules. The host copies are synced
+    (`~/.cache/laptop-agent/w5_arm_saturday.sh`, `…/rehearsal/s38_snapshot.sh`).
+  - `--check` still stops on the empty FRIDAY_HEAD.
+- **Study 38 (lab `4ac7825`, prereg draft `544e1a52`):** DECISION MIXT_RS0 vs MIXT_QA0, both on FP's mean.
+  - Exploratory: QBB0 / NQC0; MIXT_QA (+0.20); MIXT_QAL (a −0.10 leverage lean, his question whether ownership finds
+    good under-owned players).
+  - The W5 dose has CHOSEN_LEV 0, so nothing live leans against ownership; QAL is the only test of that lean.
+- **Monday list:** study 22a's ownership-information line from the Monday after W6.
+
+## 2026-10-06 (14:32 CDT) — THE OWNERSHIP TILT IS 0 for Week 5 (operator); production's W4 replay; the snapshot tool reviewed and fixed
+
+- **Finding (the reviewer, at the outside review's top rank):** under FP projections the 0.20 tilt carries no
+  information.
+  - W1–4 regression: ownership beyond OUR model +0.44 [+0.24, +0.65]; beyond the props-implied projection −0.03
+    [−0.24, +0.17]; beyond FP (W4) −0.34.
+  - **Production's own W4 fixed-book replay** (`~/.cache/laptop-agent/rehearsal/b_w4_term_replay.sh`; union at
+    `c21261fb`; Rev3; MIX + FP + QB cap; the real W4 Milly field; big_seat_stats): P(≥1 big) 0.0094 with the term vs
+    0.0336 without; mean entry pct .496 vs .501. This equals the lab replay to 4 decimals (the same books).
+  - The duplicates link: 47% of W4 Milly entries copied in the field, r .52 with the ownership product.
+- **Operator:** "yes, remove the tilt as you suggested and proceed as planned". Decision-sheet row 13 and checklist item 7.
+- **Arm change** `production/arm-w5-no-tilt-20261006` @ `2f2ffa21` (for review): `UNION_MAIN_OWN_TILT=0`, predictor
+  dropped. All 7 build units carry it (print-only). At tilt 0 the build makes no FP ownership file
+  (sunday_build_host ~line 333).
+- **Study 38's snapshot tool** `production/s38-snapshot-20261006` @ `f8bd0341`: the reviewer approved it with R1/R2,
+  both done.
+  - A no-term week generates FP ownership itself after the union, under the build's flock, before lock.
+  - Every copy is fatal on failure (partial dir → SNAPSHOT-FAILED.txt).
+  - It refuses at or after the union receipt's lock_utc and keeps union-receipt.json. 6 tests.
+  - The host-local copy is synced.
+- **A2** (`~/.cache/laptop-agent/rehearsal/a2_armed_k26.sh`) now runs WITHOUT the term. A3 and the study-38 rehearsal
+  snapshot run in the no-term env, which exercises the no-term export.
+
+## 2026-10-06 (13:50 CDT) — Study 38 plumbing: the laptop's snapshot tool; the reviewer's build reads the union's own inputs; outside-agent report
+
+- **Snapshot tool (host-local, tested):** `~/.cache/laptop-agent/rehearsal/s38_snapshot.sh <union dir> <OUT> <RUN_TAG>
+  <contest-details> <plan-overrides | -> <dest>`.
+  - It copies exactly the files the union's own args name: `--proj-source` must be byte-identical to OUT's
+    `proj_fp-<TAG>.csv`, else REFUSED; no `--proj-source` means not an FP week, REFUSED. It also copies the ownership
+    source as named, dk-status only if named, ONE `union-args-<TAG>.txt`, contests.json, contest-details.json and
+    plan-overrides.json.
+  - It writes MANIFEST.txt (sha256, bytes, name, source, mtime; union built_utc; snapshot time). Create-once; never
+    under `~/weekN-sunday`.
+  - Used Wednesday after A3 (`~/private/paper-corun/rehearsal-w05`) and Sundays before 12:00 CT (`…/2026-wNN`).
+- **The laptop's finding:** production passes NO `--dk-status` (O-16), so the paper build must use dk = None unless the
+  union args name one. Fixed by the reviewer: lab `production/s38-paper-corun-20261006` @ `ebfe2f8`; prereg draft
+  `77096ef6`; the plan converter `scripts/s38_plan.py` reproduces the W5 plan `3dd19d6c` byte for byte.
+- **Outside-agent report** for the operator: `reports/2026-10-06-project-status-challenges-and-attempts.md` (`fc1e72d7`,
+  sent; public, no private data).
+
 ## 2026-10-06 (13:34 CDT) — Study 37 READ and reproduced (keep the yes-book); the operator approves the FP paper co-run (study 38)
 
 - **Study 37** (the regulars' structure): READ by the reviewer, reproduced BYTE-IDENTICALLY by the laptop (`73d77944`).

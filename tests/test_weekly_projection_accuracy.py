@@ -165,3 +165,42 @@ def test_the_reader_refuses_without_an_explicit_project(monkeypatch, tmp_path):
         raise AssertionError("an unset GCP_PROJECT must refuse")
     except SystemExit as e:
         assert "GCP_PROJECT is not set" in str(e)
+
+
+def test_tail_lines_are_descriptive_deterministic_and_leave_the_revisit_check_alone(tmp_path, capsys):
+    """The outside review (10-06): top-decile hit and ownership-weighted MAE are printed, labelled DESCRIPTIVE, and the
+    revisit check's output is byte-for-byte what it was without them."""
+    fr = _frame(week=5); d, _ = WPA.population(fr, _fp(fr), _actual(fr, noise=2.0, seed=5), _active(fr))
+    t1, t2 = WPA.tail_metrics(d), WPA.tail_metrics(d.sample(frac=1.0, random_state=3))
+    assert t1 == t2                                                   # ties broken by id: order-independent
+    assert all(0.0 <= t1[s]["top_decile_hit"] <= 1.0 for s in WPA.SOURCES)
+    perfect = d.assign(ours=d.actual)
+    assert WPA.tail_metrics(perfect)["ours"]["top_decile_hit"] == 1.0
+    own = pd.DataFrame({"season": d.season, "week": d.week, "nkey": d.name.map(WPA.norm), "own": 1.0})
+    t = WPA.tail_metrics(d, own)
+    for s in WPA.SOURCES:                                             # equal weights reproduce the plain MAE
+        assert abs(t[s]["own_weighted_MAE"] - (d[s] - d.actual).abs().mean()) < 1e-12
+    heavy = own.assign(own=np.where(np.arange(len(own)) == 0, 1000.0, 1e-9))
+    e0 = abs(d["fp"].iloc[0] - d.actual.iloc[0])
+    assert abs(WPA.tail_metrics(d, heavy)["fp"]["own_weighted_MAE"] - e0) < 1e-3
+    d.to_csv(tmp_path / "accuracy-2026-w05.csv", index=False)
+    assert WPA.main(["pool", "--out-dir", str(tmp_path)]) == 0
+    out = capsys.readouterr().out
+    assert WPA.TAIL_LABEL in out and "own-weighted" not in out        # no ownership file: no weighted MAE in pool
+    rules = [x for x in out.splitlines() if x.startswith(("REVISIT RULE", "REVISIT CHECK"))]
+    assert len(rules) >= 2 and "TAIL" not in " ".join(rules)
+    own.to_csv(tmp_path / "ownership-2026-w05.csv", index=False)
+    assert WPA.main(["pool", "--out-dir", str(tmp_path)]) == 0
+    out2 = capsys.readouterr().out
+    assert "own-weighted MAE" in out2 and out2.count("player rows: accuracy-") == 1   # the ownership file is never pooled as rows
+    assert [x for x in out2.splitlines() if x.startswith(("REVISIT RULE", "REVISIT CHECK"))] == rules
+
+
+def test_a_shared_ownership_name_carries_no_weight_and_never_misaligns():
+    """Reviewer hardening (10-06): two contest names normalising to one key must not duplicate rows in the join."""
+    fr = _frame(week=5); d, _ = WPA.population(fr, _fp(fr), _actual(fr, noise=2.0, seed=5), _active(fr))
+    own = pd.DataFrame({"season": d.season, "week": d.week, "nkey": d.name.map(WPA.norm), "own": 1.0})
+    dup = pd.concat([own, own.iloc[[0]].assign(own=50.0)], ignore_index=True)    # the first player's key twice
+    t = WPA.tail_metrics(d, dup)
+    e = (d["ours"] - d.actual).abs()
+    assert abs(t["ours"]["own_weighted_MAE"] - e.iloc[1:].mean()) < 1e-12        # the shared key is dropped, the rest weigh 1
