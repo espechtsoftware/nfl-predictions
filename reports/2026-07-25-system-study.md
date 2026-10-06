@@ -5791,3 +5791,86 @@ secondaries (slate means):
    check of Weeks 2–4 at 4 (the money-path rule's test) does not contradict it, (2) Friday's rehearsal runs at 4, and
    (3) study 38 is amended before the lock to accept 4; otherwise Week 6. His call.
 7. **Transfer:** our projections (the live book uses FP's), realized 2023–24 outcomes against a sampled field.
+
+## Addendum 146 (2026-10-06): study 42 (the fill order: his best lineups first, or every shape for each QB?): both fills NO DIFFERENCE — the order the book is filled in is not where the big-win chance is; the value fill is not to be armed, the round-robin is his taste; and the overlap limit 4 over 5 replicated on fresh banks
+
+**Setup.**
+- **The operator (10-06):** "at one point this week we changed the way lineups are created so that we start with the best
+  lineup for a QB so that others don't use up the available slots. Can you verify that we did that? Are we confident
+  that we are putting our best strategy first for a given QB?" The laptop verified it was NOT done: production fills the
+  MIX cells largest quota first (A1 8 → B 7 → C 7 → A2 4 at K 26), so a capped QB's 5 rows go to the earliest cells.
+- **Two answers, one study** (his rule: a disagreement between agents becomes arms of one co-run study):
+  - the reviewer's **value** fill: each step commits the best next row across the cells;
+  - the outside reviewer's **round-robin**: one row per cell in turn, because in Weeks 2–4 the winning shape followed
+    the game script, not the QB (`reports/2026-10-06-fill-order-replay-and-winners-shapes.md`).
+- **Arms** (study 40's harness: 36 slates, Rev3, K 26, head; every arm his live book otherwise): a 3 × 2 of the fill
+  (group = his live book / value / rr) by the overlap limit (4 / 5). The fill is `experiments/mix_fill.py` (shared with
+  study 38, pinned `dcf6a299`); its group IS study 28's `mix_book` (parity tested on a scripted builder and on a real
+  slate); production's `--mix-fill value` / `rr` are parity-pinned to its tests.
+- **Disclosed:** the laptop's Weeks 2–4 real-field replays (value worse on the mean finish) were seen after the design and
+  before the freeze.
+- **Preregistration:** `reports/2026-10-06-prereg-study42-fill-order.md` (frozen `b68ffdd1`): TWO decisions (value − group,
+  rr − group), each pooled over the limits, two-sided 0.975 each.
+- **Panel:** banks 1491–1496, B 20,000, seed 20261023. The confirmatory census holds: capped QBs' rows in A1 .35–.39
+  (group) → .18–.21 (value), .27–.28 (rr); dealt projection +0.07 (value), +0.4 (rr).
+- **Read and reproduced:** read by the reviewer; **reproduced byte-identically by the laptop** (diff empty, at lab
+  `9462d8a`; raw files equal to the RAW_MANIFEST). Reader `75062239`; READ `e14276fb`. The confirmatory census (`9cf2f1d`)
+  was committed before the READ (`9462d8a`). Lab: nfl2 `production/s42-fill-order-20261006`.
+
+**Reader output (verbatim):**
+```
+STUDY 42 READER  sha256 75062239cab424558af945d0483ba29d0ed18585ec5692f2393185eb0627167c
+DIRECTION: P(>= 1 big seat) per slate (the mean over its banks); every difference is ARM - REFERENCE; POSITIVE favours the first arm.
+slates 36  banks [1491, 1492, 1493, 1494, 1495, 1496]  B 20000  seed 20261023  two decisions (MIXT_VALUE, MIXT_RR), each against the group fill, pooled over the limits 4 and 5: primary two-sided 0.975 per decision, guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only
+arms ((fill, max shared), QB cap, objective): [{"MIXT_GROUP4": ["group", 4], "MIXT_GROUP5": ["group", 5], "MIXT_RR4": ["rr", 4], "MIXT_RR5": ["rr", 5], "MIXT_VALUE4": ["value", 4], "MIXT_VALUE5": ["value", 5]}, 5, "player_mean (no ownership term)"]
+
+== MIXT_VALUE vs MIXT_GROUP, pooled over the limits 4 and 5  [DECISION]
+  PRIMARY P(>= 1 big seat) per slate -0.01493  [-0.06396, +0.03486] (two-sided 0.975)  seasons 2023 -0.04942, 2024 +0.01955
+  GUARD 1 mean entry pct -0.00121  one-sided lower -0.00845  (must exceed -0.015)
+  GUARD 2 expected big seats 0.53134 vs 0.55190  ratio 0.963  (must be >= 0.80)
+  MIXT_VALUE dealt identical to MIXT_GROUP: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+
+== MIXT_RR vs MIXT_GROUP, pooled over the limits 4 and 5  [DECISION]
+  PRIMARY P(>= 1 big seat) per slate +0.00774  [-0.04024, +0.05611] (two-sided 0.975)  seasons 2023 -0.01831, 2024 +0.03379
+  GUARD 1 mean entry pct +0.00509  one-sided lower -0.00075  (must exceed -0.015)
+  GUARD 2 expected big seats 0.60197 vs 0.55190  ratio 1.091  (must be >= 0.80)
+  MIXT_RR dealt identical to MIXT_GROUP: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+
+== EXPLORATORY (never decision-bearing; two-sided 0.95)
+  value at 4 (MIXT_VALUE4 - MIXT_GROUP4): -0.01881  [-0.06577, +0.02946]  seasons 2023 -0.05838, 2024 +0.02077
+  value at 5 (MIXT_VALUE5 - MIXT_GROUP5): -0.01106  [-0.05959, +0.03896]  seasons 2023 -0.04045, 2024 +0.01832
+  round-robin at 4 (MIXT_RR4 - MIXT_GROUP4): -0.00945  [-0.06093, +0.04411]  seasons 2023 -0.04327, 2024 +0.02436
+  round-robin at 5 (MIXT_RR5 - MIXT_GROUP5): +0.02493  [-0.02106, +0.07288]  seasons 2023 +0.00664, 2024 +0.04321
+  round-robin against value, pooled over the limits (MIXT_RR4 - MIXT_VALUE4 + MIXT_RR5 - MIXT_VALUE5): +0.02267  [-0.00301, +0.04799]  seasons 2023 +0.03110, 2024 +0.01424
+  the limit 4 against 5, group fill: study 41 on fresh banks (MIXT_GROUP4 - MIXT_GROUP5): +0.04845  [+0.01796, +0.07916]  seasons 2023 +0.06352, 2024 +0.03337
+
+secondaries (slate means):
+  MIXT_GROUP4 P(>=1 big) 0.36069  expected big seats 0.56081  P(>=2) 0.12487  entry pct 0.51483  projection per book row 127.99  QBs 8.40  QBs at the cap 2.90  dealt projection 128.21
+  MIXT_VALUE4 P(>=1 big) 0.34188  expected big seats 0.56379  P(>=2) 0.13138  entry pct 0.51374  projection per book row 127.98  QBs 8.20  QBs at the cap 2.89  dealt projection 128.29
+  MIXT_RR4    P(>=1 big) 0.35123  expected big seats 0.60986  P(>=2) 0.15991  entry pct 0.52065  projection per book row 128.12  QBs 8.22  QBs at the cap 2.98  dealt projection 128.58
+  MIXT_GROUP5 P(>=1 big) 0.31224  expected big seats 0.54299  P(>=2) 0.13088  entry pct 0.51691  projection per book row 128.18  QBs 7.74  QBs at the cap 3.37  dealt projection 128.38
+  MIXT_VALUE5 P(>=1 big) 0.30118  expected big seats 0.49889  P(>=2) 0.12236  entry pct 0.51558  projection per book row 128.13  QBs 7.67  QBs at the cap 3.34  dealt projection 128.45
+  MIXT_RR5    P(>=1 big) 0.33717  expected big seats 0.59407  P(>=2) 0.13487  entry pct 0.52127  projection per book row 128.28  QBs 7.50  QBs at the cap 3.42  dealt projection 128.79
+```
+
+**Reading.**
+1. **Both decisions: NO DIFFERENCE.** Value − group −0.015 [−0.064, +0.035], leaning negative in 2023; rr − group +0.008
+   [−0.040, +0.056]. Neither fill moves P(≥ 1 big seat).
+2. **The value fill is not to be armed.** It leans negative here (both limits), its expected big seats fall (ratio
+   0.963), and on the real Weeks 2–4 it lowered the mean finish (−0.05 at 5, −0.02 at 4).
+3. **The round-robin is his taste.** Level on the main measure, it raises expected big seats by 9% (ratio 1.091) and the
+   mean finish slightly, at no projection cost; rr beats value head to head (+0.023 [−0.003, +0.048], exploratory).
+4. **The overlap limit, again.** GROUP4 − GROUP5 +0.048 [+0.018, +0.079], both seasons positive: study 41's PASS (+0.059)
+   replicated on independent banks.
+5. **The field audit** (the reviewer, 10-06; `reports/2026-10-06-field-audit-sampled-vs-real.md`): on the Weeks 2–4 replay
+   books, fields drawn by the harness's own sampler from the real ownership rank every arm the way the real Millionaire
+   fields do (18 of 18 contrast-weeks agree in sign; the mean-finish contrasts match to about 0.003), while their top
+   lines run 3–6 points easier, so the harness's absolute chances are optimistic and its contrasts somewhat magnified in
+   both directions. The 4's shortfall on the three real weeks is therefore not a field-model artifact: on those weeks the
+   sampled fields say 4 < 5 too; it is those weeks' realized rows.
+6. **Recommended:** the 4 for Week 5 (Friday's rehearsal at 4; study 38 amended to accept it); the group fill stays unless
+   he prefers the round-robin; the value fill is not armed.
+7. **Transfer:** our projections (the live book uses FP's), realized 2023–24 outcomes against a sampled field whose top
+   end is a little easier than the real one.
