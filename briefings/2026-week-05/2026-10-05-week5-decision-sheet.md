@@ -247,7 +247,8 @@ section 1 is the evidence.
 ## If you say yes: how it runs and how we undo it
 
 - **Arming:** the Saturday arming line adds
-  `UNION_MAIN=mix UNION_MIX_PORTFOLIO=ws UNION_PROJ_SOURCE=fp`, with the lab pin moved to the new code, plus
+  `UNION_MAIN=mix UNION_MIX_PORTFOLIO=mix UNION_PROJ_SOURCE=fp` (or `...=ws` if you prefer WS), with the lab pin moved
+  to the new code, plus
   nothing for the dealing (today's head dealing stays; your Rev2 pins need it). The arming banner prints the choice, so a missed line can't silently
   pick the wrong arm.
 - **Safety nets:**
