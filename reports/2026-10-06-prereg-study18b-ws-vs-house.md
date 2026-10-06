@@ -48,8 +48,22 @@ The arms:
 - **WSQ (EXPLORATORY, vs CQ):** WS under production's sequential deal (the operator's no-code "more distinct" option).
 
 ## 2a. Smoke observations before the freeze
-(To be filled from `~/s18b-panel/smoke/`: mechanics only, 2023 W9, throwaway bank 1406; the reader exit-checked with
-its output unread.)
+One slate, 2023 W9, throwaway bank 1406. The mechanics and full paths ran (about 29 s each) and were identical; the
+census exited 0; the reader exited 0 with 3 comparison blocks, its output unread. Shares are of the 24 DEALT entries.
+Outcomes were not read.
+
+| arm | caps (player, DST) | distinct lineups | QB + 2 | bring-back | second-game pair | busiest QB game | top player |
+|---|---|---|---|---|---|---|---|
+| C | 10 / 5 | 19 | 1.00 | 1.00 | 0.00 | 9 of 24 | 0.58 |
+| WS | 10 / 5 | 18 | 0.00 | 0.04 | 1.00 | **14 of 24** | 0.58 |
+| CQ | 12 / 6 | 21 | 1.00 | 1.00 | 0.00 | 8 of 24 | 0.54 |
+| WSQ | 12 / 6 | 22 | 0.04 | 0.04 | 1.00 | 12 of 24 | 0.54 |
+
+- **The shapes are realized as defined.**
+- **On this slate the house shape spread its QBs over the games MORE evenly than WS did.** QB + 2 + a bring-back puts
+  4 players in the QB's game, and the per-player cap then forces different QBs. WS, with ≤ 3 from the QB's game, can
+  reuse one game's QB pair more often. The binding census reports this over all 53 slates.
+- No design change.
 
 ## 3. Panel and plan
 - **Slates and banks:**
