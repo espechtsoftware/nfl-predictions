@@ -32,14 +32,14 @@ intact, it is offered as a preference, as studies 35 and 40 were.
 
 | Item | When | What it tells you |
 |---|---|---|
-| Favorite-RB check (study list 19) | tonight | whether FP's and our RB projections under-rate big favourites (a calibration finding; a fix would need a test) |
+| Favorite-RB check (study list 19) | **done 10-06** | In 2023–25, lead RBs of 7+-point favourites were under-projected by about 2 points (big underdogs' were right); not seen in 2019–22, not detectable in 2026's four weeks, and FP has only Week 4. No change for Week 5; re-checked as weeks accrue |
 | DraftKings opponent ranks (OPRK, item 8) | **checked 10-06 17:00: cannot be tested on past weeks** | DraftKings still serves Weeks 1–4, but revised the numbers after the games: in Weeks 2–4 about half the players' points-per-game in the same feed differ from our pre-lock copy (e.g. one RB's Week-2 figure 31.3 before lock, 21.2 now); only Week 1 is unchanged. Past ranks would carry the week's own result. Saving them before lock starts Saturday; a test needs a few captured weeks |
 | C3: how well the field model predicted each contest's payout lines, LAG vs FP ownership | Wednesday | which ownership source to trust for satellite and cash lines |
-| Regulars' share of each contest you enter (study list 21) | Wednesday | which of your Week-5 contests are the toughest fields (your plan stays as decided; this is for Week 6) |
+| Regulars' share of each contest you enter (study list 21) | **done 10-06** | The toughest Week-5 fields are the two $4,444 MEGA satellites (about 28–31% of entries from the regulars), then the $333 Wildcat and the $555 super-satellite (15–17%); the Millionaire about 11%; the $20 super-satellites 0–8.5%. Descriptive; your plan stays as decided |
 | Dollar figure of the final Week-5 setup on Weeks 2–4 (the money gate) | Wednesday night | what the package would have returned, not only its chance of a big finish |
 | Simple-baseline benchmark (P3) on Weeks 1–4 | Wednesday code, Thursday replay | whether our machinery beats a plain "best projected lineups" book; first read moved up from Monday |
 | Outside review §6.1: how much the study results depend on the simulated field, checked against the real fields | **reviewer, moved up to tonight** (on the Weeks 2–4 replay books: limit 4 vs 5, all three fill orders) | how far to trust the 36-slate verdicts; it decides whether the limit-4 result stands |
-| Outside review §6.2: realized points against FP projection and FP ownership, Weeks 1–4 | laptop, Thursday | whether FP's ownership carries information beyond its projection |
+| Outside review §6.2: realized points against FP projection and FP ownership | **done 10-06 (Week 4 only: FP has no earlier week)** | At the same FP projection, higher-owned players scored slightly LESS: −1.2 points per 10 ownership points [−4.2, +1.7], not different from zero; on our projection, zero. Consistent with your Week-5 tilt of 0. Re-fitted every week and pooled |
 | "Where did the points go" (12b) and frequent winning combinations (X5) | laptop, Thursday (descriptive, Neo4j and queries) | patterns only; any lever they suggest needs a study, so Week 6 |
 | Overlay monitor dry run | Thursday's slate, then Sunday live | whether any contest is short of its guarantee (read-only) |
 
