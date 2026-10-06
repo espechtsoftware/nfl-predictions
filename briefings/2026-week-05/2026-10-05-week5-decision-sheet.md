@@ -16,7 +16,7 @@ second.
 
 | # | Decision | My recommendation |
 |---|---|---|
-| 1 | The lineup shape: the winners' mix (MIX), WS, or today's | **The winners' mix WITH the ownership tilt ("MIXT") as your preference; today's shape with the tilt (Week 4's setup) is the safe alternative.** Study 31 tested all four combinations together on your plan: the winners' mix with the tilt scored highest on every measure (+2 points of big-win chance over Week 4's setup, 14% more expected big seats), but that edge is within the noise, so it is your preference, not a proven gain. **Plain winners' mix without the tilt trailed Week 4's setup and should not be armed** |
+| 1 | The lineup shape: the winners' mix (MIX), WS, or today's | **Your preference: the winners' mix WITH the ownership tilt ("MIXT") or Week 4's setup (today's shape with the tilt). They are tied within the noise** (study 31: 37% vs 34% in the mix's favour; study 33: 35% vs 34% the other way), so this is your call, not a measured edge. **Plain winners' mix without the tilt trailed and should not be armed** |
 | 2 | Fantasy Points' projections instead of ours | **Yes** (you decided this in principle; the Week-4 check worked) |
 | 3 | The lab-code update both of these need | **Yes**: it changes nothing when they're off (proven below) |
 | 4 | The Week-5 contest plan | **Your entries (Rev3, 10-06): rows 1–26 for the super-satellites, as you asked.** 29 contests, 53 entries, unchanged; each of the 26 satellite entries now gets its own lineup, so the book grows from 22 to 26 lineups (the code change is done and rehearsed; it merges Friday). Study 31 is being run on this plan; see 4a |
@@ -50,6 +50,10 @@ ownership tilt, built and scored together on the same 36 practice weeks, average
   finish. Within the noise, so it is not a proven gain; it is the one that plays like the winners (your directive) and
   is not worse on anything we measured.
 - **Rehearsed 10-06** on Week 4's slate with your 1–26 plan, FP projections and FP ownership: every check passed.
+- **Said plainly: the two are tied.** A later test (study 33, other simulated fields, with Sunday's 10:30 inactives
+  modelled) had it the other way round: Week 4's setup 35% vs the winners' mix with the tilt 34%. Across the two tests
+  they are level within the noise, so Friday's choice between them is your preference, not a measured edge. Both keep
+  the tilt, which helped in both tests.
 
 **Update 10-06, study 30: the direct test leans the other way.** Studies 28 and 29 each changed one thing. Study 30
 compared the whole Week-5 package (the winners' mix, no ownership tilt) with what we ran in Week 4 (today's shape with
