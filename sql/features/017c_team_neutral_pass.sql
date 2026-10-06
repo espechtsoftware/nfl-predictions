@@ -5,7 +5,7 @@
 -- double-counts script once a simulator (or the model's opponent
 -- features) generates script separately.
 --
--- Point-in-time: l6 window is strictly prior (1 PRECEDING).
+-- Point-in-time: the 6 most recent observed team-weeks strictly before the row.
 CREATE OR REPLACE TABLE `${features}.team_week_neutral_pass` AS
 WITH plays AS (
   SELECT posteam AS team, season, week, CAST(pass AS INT64) AS is_pass
@@ -21,32 +21,33 @@ tw AS (
   FROM plays
   GROUP BY team, season, week
 ),
--- Preserve every historical window exactly and append only the one live
--- target row. Without this row the inference join asks for (team, upcoming
--- season/week), finds nothing, and silently loses an adopted feature.
-tw_with_upcoming AS (
-  SELECT team, season, week, p, n
-  FROM tw
-  UNION ALL
-  SELECT DISTINCT
-    ro.team, ro.season, ro.week,
-    CAST(NULL AS INT64) AS p,
-    CAST(NULL AS INT64) AS n
-  FROM `${features}.player_week_role` ro
-  WHERE ro.is_upcoming
-    AND ro.team IS NOT NULL
-    AND NOT EXISTS (
-      SELECT 1 FROM tw prior
-      WHERE prior.team = ro.team
-        AND prior.season = ro.season
-        AND prior.week = ro.week
-    )
+-- O-22 (2026-10-05): AS-OF over the row spine, not an event-only row set. The
+-- old table had a row only for team-weeks with at least one neutral-script
+-- play, and 021 joins by exact week, so a training row was NULL exactly when
+-- its OWN game was a blowout (post-game information), while a served row was
+-- never NULL. Now every (team, season, week) that training or inference can
+-- join (player_week_usage, upcoming rows included) carries the ratio over the
+-- team's 6 most recent OBSERVED team-weeks strictly before it, across seasons as
+-- the old ROWS window ran. Where the old table had a row its value is unchanged;
+-- NULL now means only "no prior observed week", in training and serving alike.
+spine AS (
+  SELECT DISTINCT team, season, week
+  FROM `${features}.player_week_usage`
+  WHERE team IS NOT NULL
+),
+prior AS (
+  SELECT s.team, s.season, s.week, t.p, t.n,
+         ROW_NUMBER() OVER (
+           PARTITION BY s.team, s.season, s.week
+           ORDER BY t.season DESC, t.week DESC) AS k
+  FROM spine s
+  JOIN tw t
+    ON t.team = s.team
+   AND (t.season < s.season OR (t.season = s.season AND t.week < s.week))
 )
-SELECT
-  team, season, week,
-  SAFE_DIVIDE(SUM(p) OVER w, SUM(n) OVER w) AS neutral_pass_rate_l6
-FROM tw_with_upcoming
-WINDOW w AS (
-  PARTITION BY team ORDER BY season, week
-  ROWS BETWEEN 6 PRECEDING AND 1 PRECEDING
-);
+SELECT s.team, s.season, s.week,
+       SAFE_DIVIDE(SUM(pr.p), SUM(pr.n)) AS neutral_pass_rate_l6
+FROM spine s
+LEFT JOIN prior pr
+  ON pr.team = s.team AND pr.season = s.season AND pr.week = s.week AND pr.k <= 6
+GROUP BY 1, 2, 3;

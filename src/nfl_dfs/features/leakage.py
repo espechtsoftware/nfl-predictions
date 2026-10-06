@@ -1031,6 +1031,13 @@ SELECT team, season, week, neutral_pass_rate_l6
 FROM `{features}.team_week_neutral_pass`
 WHERE MOD(FARM_FINGERPRINT(team), 4) = 0
 """
+# O-22 (2026-10-05): the reference is the AS-OF definition over the row spine
+# (player_week_usage), written independently of the build SQL: a correlated
+# running count of observations (spine rows sorted before a same-week
+# observation) picks the 6 most recent observed team-weeks strictly before each
+# row, where the build ranks a cross join. Keys and NULL support must match
+# exactly, so a regression to the event-only row set (NULL = "my own game was a
+# blowout") fails here.
 NEUTRAL_PASS_EXPECTED_SQL = """
 WITH plays AS (
   SELECT posteam AS team, season, week, CAST(pass AS INT64) AS is_pass
@@ -1040,26 +1047,30 @@ WITH plays AS (
     AND half_seconds_remaining > 120 AND qtr <= 4
 ), tw AS (
   SELECT team, season, week, SUM(is_pass) AS p, COUNT(*) AS n
-  FROM plays GROUP BY team, season, week
+  FROM plays WHERE MOD(FARM_FINGERPRINT(team), 4) = 0
+  GROUP BY team, season, week
 ), spine AS (
-  SELECT * FROM tw
+  SELECT DISTINCT team, season, week
+  FROM `{features}.player_week_usage`
+  WHERE team IS NOT NULL AND MOD(FARM_FINGERPRINT(team), 4) = 0
+), stream AS (
+  -- spine rows sort BEFORE a same-week observation, so a row's running count
+  -- of observations covers strictly earlier team-weeks only
+  SELECT team, season, week, 0 AS is_obs, CAST(NULL AS INT64) AS p, CAST(NULL AS INT64) AS n FROM spine
   UNION ALL
-  SELECT DISTINCT ro.team, ro.season, ro.week,
-         CAST(NULL AS INT64) AS p, CAST(NULL AS INT64) AS n
-  FROM `{features}.player_week_role` ro
-  WHERE ro.is_upcoming AND ro.team IS NOT NULL
-    AND NOT EXISTS (
-      SELECT 1 FROM tw prior
-      WHERE prior.team = ro.team AND prior.season = ro.season
-        AND prior.week = ro.week
-    )
+  SELECT team, season, week, 1, p, n FROM tw
+), idx AS (
+  SELECT *, SUM(is_obs) OVER (PARTITION BY team ORDER BY season, week, is_obs
+                              ROWS UNBOUNDED PRECEDING) AS c
+  FROM stream
 )
-SELECT team, season, week,
-       SAFE_DIVIDE(SUM(p) OVER w, SUM(n) OVER w) AS neutral_pass_rate_l6
-FROM spine
-WHERE MOD(FARM_FINGERPRINT(team), 4) = 0
-WINDOW w AS (PARTITION BY team ORDER BY season, week
-             ROWS BETWEEN 6 PRECEDING AND 1 PRECEDING)
+SELECT s.team, s.season, s.week,
+       SAFE_DIVIDE(SUM(o.p), SUM(o.n)) AS neutral_pass_rate_l6
+FROM idx s
+LEFT JOIN idx o
+  ON o.team = s.team AND o.is_obs = 1 AND o.c BETWEEN s.c - 5 AND s.c
+WHERE s.is_obs = 0
+GROUP BY 1, 2, 3
 """
 
 QB_NGS_FEATURES = ["qb_cpoe_l6", "qb_time_to_throw_l6"]
@@ -1068,6 +1079,8 @@ SELECT gsis_id, season, week, qb_cpoe_l6, qb_time_to_throw_l6
 FROM `{features}.qb_week_ngs`
 WHERE MOD(FARM_FINGERPRINT(gsis_id), 20) = 0
 """
+# O-22: as-of over the row spine, independently written (see the neutral-pass
+# reference); NULL means only "no prior qualifying NGS game".
 QB_NGS_EXPECTED_SQL = """
 WITH observations AS (
   SELECT player_gsis_id AS gsis_id, season, week,
@@ -1075,27 +1088,185 @@ WITH observations AS (
          avg_time_to_throw AS time_to_throw
   FROM `{raw}.ngs_passing`
   WHERE week > 0
+), sampled AS (
+  SELECT * FROM observations WHERE MOD(FARM_FINGERPRINT(gsis_id), 20) = 0
 ), spine AS (
-  SELECT * FROM observations
+  SELECT DISTINCT u.gsis_id, u.season, u.week
+  FROM `{features}.player_week_usage` u
+  WHERE u.gsis_id IN (SELECT gsis_id FROM sampled)
+), stream AS (
+  SELECT gsis_id, season, week, 0 AS is_obs,
+         CAST(NULL AS FLOAT64) AS cpoe, CAST(NULL AS FLOAT64) AS time_to_throw FROM spine
   UNION ALL
-  SELECT DISTINCT ro.gsis_id, ro.season, ro.week,
-         CAST(NULL AS FLOAT64) AS cpoe,
-         CAST(NULL AS FLOAT64) AS time_to_throw
-  FROM `{features}.player_week_role` ro
-  WHERE ro.is_upcoming AND ro.position = 'QB'
-    AND NOT EXISTS (
-      SELECT 1 FROM observations prior
-      WHERE prior.gsis_id = ro.gsis_id AND prior.season = ro.season
-        AND prior.week = ro.week
-    )
+  SELECT gsis_id, season, week, 1, cpoe, time_to_throw FROM sampled
+), idx AS (
+  SELECT *, SUM(is_obs) OVER (PARTITION BY gsis_id ORDER BY season, week, is_obs
+                              ROWS UNBOUNDED PRECEDING) AS c
+  FROM stream
 )
-SELECT gsis_id, season, week,
-       AVG(cpoe) OVER w AS qb_cpoe_l6,
-       AVG(time_to_throw) OVER w AS qb_time_to_throw_l6
-FROM spine
+SELECT s.gsis_id, s.season, s.week,
+       AVG(o.cpoe) AS qb_cpoe_l6, AVG(o.time_to_throw) AS qb_time_to_throw_l6
+FROM idx s
+LEFT JOIN idx o
+  ON o.gsis_id = s.gsis_id AND o.is_obs = 1 AND o.c BETWEEN s.c - 5 AND s.c
+WHERE s.is_obs = 0
+GROUP BY 1, 2, 3
+"""
+
+XFP_FEATURES = ["xfp_l4"]
+XFP_BUILT_SQL = """
+SELECT gsis_id, season, week, xfp_l4
+FROM `{features}.player_week_xfp`
 WHERE MOD(FARM_FINGERPRINT(gsis_id), 20) = 0
-WINDOW w AS (PARTITION BY gsis_id ORDER BY season, week
-             ROWS BETWEEN 6 PRECEDING AND 1 PRECEDING)
+"""
+# O-21 (2026-10-05): as-of over the row spine within a season, written
+# independently of 017j (per-play values unioned, then the running-count
+# stream of the neutral-pass reference). An opportunity week is an observation;
+# NULL means only "no earlier opportunity week this season".
+XFP_EXPECTED_SQL = """
+WITH tgt_rate AS (
+  SELECT CASE WHEN air_yards >= 20 THEN 'deep'
+              WHEN air_yards >= 10 THEN 'mid' ELSE 'short' END AS ab,
+         CASE WHEN yardline_100 <= 10 THEN 'rz10'
+              WHEN yardline_100 <= 20 THEN 'rz20' ELSE 'field' END AS fz,
+         AVG(COALESCE(yards_gained, 0) * 0.1 + IF(complete_pass = 1, 1.0, 0.0)
+             + IF(pass_touchdown = 1, 6.0, 0.0)) AS v
+  FROM `{raw}.pbp`
+  WHERE season BETWEEN 2014 AND 2018 AND pass = 1 AND air_yards IS NOT NULL
+  GROUP BY 1, 2
+), rush_rate AS (
+  SELECT CASE WHEN yardline_100 <= 5 THEN 'gl'
+              WHEN yardline_100 <= 20 THEN 'rz' ELSE 'field' END AS fz,
+         AVG(COALESCE(yards_gained, 0) * 0.1 + IF(rush_touchdown = 1, 6.0, 0.0)) AS v
+  FROM `{raw}.pbp`
+  WHERE season BETWEEN 2014 AND 2018 AND rush = 1
+  GROUP BY 1
+), plays AS (
+  SELECT p.receiver_player_id AS gsis_id, p.season, p.week, r.v
+  FROM `{raw}.pbp` p
+  JOIN tgt_rate r
+    ON r.ab = CASE WHEN p.air_yards >= 20 THEN 'deep'
+                   WHEN p.air_yards >= 10 THEN 'mid' ELSE 'short' END
+   AND r.fz = CASE WHEN p.yardline_100 <= 10 THEN 'rz10'
+                   WHEN p.yardline_100 <= 20 THEN 'rz20' ELSE 'field' END
+  WHERE p.pass = 1 AND p.air_yards IS NOT NULL
+    AND MOD(FARM_FINGERPRINT(p.receiver_player_id), 20) = 0
+  UNION ALL
+  SELECT p.rusher_player_id, p.season, p.week, r.v
+  FROM `{raw}.pbp` p
+  JOIN rush_rate r
+    ON r.fz = CASE WHEN p.yardline_100 <= 5 THEN 'gl'
+                   WHEN p.yardline_100 <= 20 THEN 'rz' ELSE 'field' END
+  WHERE p.rush = 1 AND MOD(FARM_FINGERPRINT(p.rusher_player_id), 20) = 0
+), obs AS (
+  SELECT gsis_id, season, week, SUM(v) AS xfp FROM plays GROUP BY 1, 2, 3
+), spine AS (
+  SELECT DISTINCT u.gsis_id, u.season, u.week
+  FROM `{features}.player_week_usage` u
+  WHERE u.gsis_id IN (SELECT gsis_id FROM obs)
+), stream AS (
+  SELECT gsis_id, season, week, 0 AS is_obs, CAST(NULL AS FLOAT64) AS xfp FROM spine
+  UNION ALL
+  SELECT gsis_id, season, week, 1, xfp FROM obs
+), idx AS (
+  SELECT *, SUM(is_obs) OVER (PARTITION BY gsis_id, season ORDER BY week, is_obs
+                              ROWS UNBOUNDED PRECEDING) AS c
+  FROM stream
+)
+SELECT s.gsis_id, s.season, s.week, AVG(o.xfp) AS xfp_l4
+FROM idx s
+LEFT JOIN idx o
+  ON o.gsis_id = s.gsis_id AND o.season = s.season AND o.is_obs = 1
+ AND o.c BETWEEN s.c - 3 AND s.c
+WHERE s.is_obs = 0
+GROUP BY 1, 2, 3
+"""
+
+# O-22 (2026-10-05): checked AFTER 021's and 023's joins, on every row of both
+# tables. Under the as-of construction a row is NULL only when its key has no
+# earlier observation (cross-season for neutral pass and NGS, within season
+# for xfp), so a row past the key's first observation must carry a value. An
+# event-only table joined by exact week fails this in training (NULL = "no
+# event in the game being predicted"); a stale or dropped join fails it in
+# serving. The first observations are read from raw sources, not the build.
+ASOF_PRESENCE_FEATURES = [
+    "neutral_pass_rate_l6", "qb_cpoe_l6", "qb_time_to_throw_l6", "xfp_l4",
+]
+ASOF_PRESENCE_SQL = """
+WITH np_first AS (
+  SELECT posteam AS team, MIN(season * 100 + week) AS sw
+  FROM `{raw}.pbp`
+  WHERE posteam IS NOT NULL AND (pass = 1 OR rush = 1)
+    AND ABS(COALESCE(score_differential, 0)) <= 3
+    AND half_seconds_remaining > 120 AND qtr <= 4
+  GROUP BY 1
+), ngs_first AS (
+  SELECT player_gsis_id AS gsis_id,
+         MIN(IF(completion_percentage_above_expectation IS NOT NULL,
+                season * 100 + week, NULL)) AS sw_cpoe,
+         MIN(IF(avg_time_to_throw IS NOT NULL, season * 100 + week, NULL)) AS sw_ttt
+  FROM `{raw}.ngs_passing`
+  WHERE week > 0
+  GROUP BY 1
+), xfp_first AS (
+  SELECT gsis_id, season, MIN(week) AS week FROM (
+    SELECT receiver_player_id AS gsis_id, season, week FROM `{raw}.pbp`
+    WHERE pass = 1 AND receiver_player_id IS NOT NULL AND air_yards IS NOT NULL
+    UNION ALL
+    SELECT rusher_player_id, season, week FROM `{raw}.pbp`
+    WHERE rush = 1 AND rusher_player_id IS NOT NULL)
+  GROUP BY 1, 2
+), served AS (
+  SELECT 'training' AS tbl, gsis_id, team, season, week, {cols}
+  FROM `{features}.player_week_training`
+  UNION ALL
+  SELECT 'inference', gsis_id, team, season, week, {cols}
+  FROM `{features}.player_week_inference`
+), flagged AS (
+  SELECT r.tbl, r.gsis_id, r.team, r.season, r.week,
+         r.neutral_pass_rate_l6 IS NULL AND r.season * 100 + r.week > np.sw
+           AS neutral_pass_rate_l6,
+         r.qb_cpoe_l6 IS NULL AND r.season * 100 + r.week > n.sw_cpoe AS qb_cpoe_l6,
+         r.qb_time_to_throw_l6 IS NULL AND r.season * 100 + r.week > n.sw_ttt
+           AS qb_time_to_throw_l6,
+         r.xfp_l4 IS NULL AND r.week > x.week AS xfp_l4
+  FROM served r
+  LEFT JOIN np_first np ON np.team = r.team
+  LEFT JOIN ngs_first n ON n.gsis_id = r.gsis_id
+  LEFT JOIN xfp_first x ON x.gsis_id = r.gsis_id AND x.season = r.season
+)
+SELECT * FROM flagged
+WHERE IFNULL(neutral_pass_rate_l6, FALSE) OR IFNULL(qb_cpoe_l6, FALSE)
+   OR IFNULL(qb_time_to_throw_l6, FALSE) OR IFNULL(xfp_l4, FALSE)
+"""
+
+# O-22 train-vs-serve NULL-rate monitor: the served rows (023, players with a
+# prior game) against the latest completed training week with a full slate
+# (>= 200 rows) before the served week, per position. Within-season windows
+# fill as the season advances, so their rates move between adjacent weeks with
+# no defect (measured 10-05 on live tables: dk_points_vol -15 pp from training
+# W3 to serving W4); the monitor therefore FAILS only on the cross-season as-of
+# features and reports every other gap above the tolerance.
+NULL_RATE_FAIL_FEATURES = ("neutral_pass_rate_l6", "qb_cpoe_l6", "qb_time_to_throw_l6")
+NULL_RATE_TOLERANCE_PP = 10.0
+NULL_RATE_SQL = """
+WITH served_week AS (
+  SELECT MIN(season * 100 + week) AS sw FROM `{features}.player_week_inference`
+), train_week AS (
+  SELECT MAX(season * 100 + week) AS sw
+  FROM (SELECT season, week FROM `{features}.player_week_training`
+        GROUP BY 1, 2 HAVING COUNT(*) >= 200), served_week
+  WHERE season * 100 + week < served_week.sw
+)
+SELECT 'serve' AS src, position, COUNT(*) AS n, {rates}
+FROM `{features}.player_week_inference`
+WHERE games_played_prior >= 1
+GROUP BY 1, 2
+UNION ALL
+SELECT 'train', t.position, COUNT(*), {rates}
+FROM `{features}.player_week_training` t, train_week
+WHERE t.season * 100 + t.week = train_week.sw AND t.games_played_prior >= 1
+GROUP BY 1, 2
 """
 
 
@@ -1483,6 +1654,61 @@ GROUP BY 1, 2, 3
 """
 
 
+def assert_asof_features_present(violations: pd.DataFrame) -> None:
+    """Fail when a served or training row past its first observation is NULL.
+
+    `violations` is ASOF_PRESENCE_SQL's output: one row per offending row,
+    with a boolean column per feature saying which ones violate.
+    """
+    if violations.empty:
+        return
+    counts = {
+        (tbl, f): int(group[f].fillna(False).astype(bool).sum())
+        for tbl, group in violations.groupby("tbl") for f in ASOF_PRESENCE_FEATURES
+    }
+    summary = ", ".join(f"{tbl}.{f}={n}" for (tbl, f), n in counts.items() if n)
+    raise LeakageError(
+        "as-of features are NULL on rows with an earlier observation "
+        f"({summary}): an event-only table is joined by exact week, or a join "
+        "dropped the value. NULL must mean only 'no prior observation'.\n"
+        f"Examples:\n{violations.head(5).to_string(index=False)}"
+    )
+
+
+def assert_train_serve_null_rates(
+    rates: pd.DataFrame,
+    fail_features: tuple[str, ...] = NULL_RATE_FAIL_FEATURES,
+    tolerance_pp: float = NULL_RATE_TOLERANCE_PP,
+) -> pd.DataFrame:
+    """Compare per-position NULL rates of served rows against training rows.
+
+    `rates` is NULL_RATE_SQL's output: src ('serve'/'train'), position, n and
+    one NULL-rate column per feature. Returns the gaps above the tolerance
+    (in percentage points, serve minus train); raises if any is a fail feature.
+    """
+    long = rates.drop(columns="n").melt(
+        id_vars=["src", "position"], var_name="feature", value_name="null_rate")
+    wide = long.pivot_table(index=["feature", "position"], columns="src",
+                            values="null_rate")
+    if not {"serve", "train"} <= set(wide.columns):
+        raise LeakageError("train-vs-serve NULL-rate monitor has no rows to compare")
+    wide = wide.dropna()
+    wide["gap_pp"] = 100 * (wide["serve"] - wide["train"])
+    over = wide[wide["gap_pp"].abs() > tolerance_pp].reset_index()
+    for row in over.itertuples():
+        log.warning("train-vs-serve NULL rate %s/%s: serve %.3f vs train %.3f (%+.1f pp)",
+                    row.feature, row.position, row.serve, row.train, row.gap_pp)
+    failing = over[over["feature"].isin(fail_features)]
+    if not failing.empty:
+        raise LeakageError(
+            "train-vs-serve NULL rates differ by more than "
+            f"{tolerance_pp:.0f} pp on as-of features: NULL means something "
+            "different in training and serving.\n"
+            f"{failing.round(3).to_string(index=False)}"
+        )
+    return over
+
+
 def run_team_qb_quality_checks() -> None:
     """Validate only the isolated strict-prior team-QB-quality side table."""
     from ..bq import query_df
@@ -1603,6 +1829,27 @@ def run_leakage_checks() -> None:
         qb_built, qb_expected, QB_NGS_FEATURES,
         ("gsis_id", "season", "week"),
     )
+    xfp_built = query_df(XFP_BUILT_SQL.format(features=settings.features))
+    xfp_expected = query_df(XFP_EXPECTED_SQL.format(
+        features=settings.features, raw=settings.raw))
+    assert_recomputed_features_match(
+        xfp_built, xfp_expected, XFP_FEATURES, ("gsis_id", "season", "week"),
+    )
+    # O-22: the same as-of features after 021's and 023's joins, then the
+    # train-vs-serve NULL-rate monitor over every model feature both carry.
+    assert_asof_features_present(query_df(ASOF_PRESENCE_SQL.format(
+        features=settings.features, raw=settings.raw,
+        cols=", ".join(ASOF_PRESENCE_FEATURES))))
+    from ..models.featureset import NUMERIC_FEATURES
+    shared = query_df(f"""
+        SELECT column_name FROM `{settings.features}.INFORMATION_SCHEMA.COLUMNS`
+        WHERE table_name IN ('player_week_training', 'player_week_inference')
+        GROUP BY 1 HAVING COUNT(*) = 2""")["column_name"]
+    monitored = [f for f in dict.fromkeys([*NUMERIC_FEATURES, *ASOF_PRESENCE_FEATURES])
+                 if f in set(shared)]
+    assert_train_serve_null_rates(query_df(NULL_RATE_SQL.format(
+        features=settings.features,
+        rates=", ".join(f"AVG(IF({f} IS NULL, 1, 0)) AS {f}" for f in monitored))))
     run_team_qb_quality_checks()
 
     # Exact replay-universe contract. This catches identity, source-spine,

@@ -32,6 +32,73 @@ def test_coverage_table_present_and_ordered_before_training():
     assert cov < names.index("023_player_week_inference.sql")
 
 
+def test_defense_allowed_is_as_of_over_the_schedule_and_served_by_exact_week():
+    # O-22 (2026-10-05): the opponent-defense l6 table had rows only for played
+    # games and 023 took the latest one (one game stale at serve). It is now
+    # as-of over every scheduled defense-week, and 023 joins by exact week.
+    dw = (SQL_DIR / "features" / "017_defense_week_allowed.sql").read_text()
+    assert "SELECT DISTINCT team, season, week FROM `${features}.schedule_long`" in dw
+    assert "ON g.team = s.team AND g.season = s.season AND g.week < s.week" in dw
+    assert "pr.k <= 6" in dw and "OVER w6" not in dw
+    infer = (SQL_DIR / "features" / "023_player_week_inference.sql").read_text()
+    assert "def_asof" not in infer
+    assert ("LEFT JOIN `${features}.defense_week_allowed` d\n  ON d.team = s.opponent AND d.season = u.season "
+            "AND d.week = u.week") in infer
+
+
+def test_team_ol_out_is_point_in_time_and_null_where_uncovered():
+    # O-22 (d): 017d counted raw injuries with no lock filter and 021/023
+    # COALESCEd a missing row to 0, so 2025 (no admissible report) read as
+    # "no lineman out". 018b reads the lock-filtered injury table after 018,
+    # carries 0 only inside covered season-weeks, and the joins keep NULL.
+    names = [p.name for p in FEATURE_SQL]
+    assert "017d_team_ol_out.sql" not in names
+    ol = (SQL_DIR / "features" / "018b_team_ol_out.sql").read_text()
+    assert names.index("018_player_week_injury.sql") < names.index("018b_team_ol_out.sql")
+    assert names.index("018b_team_ol_out.sql") < names.index("021_player_week_training.sql")
+    assert "${raw}.injuries" not in ol
+    assert "FROM `${features}.player_week_injury` i" in ol
+    assert "IF(pw.season IS NULL, NULL, IFNULL(o.n, 0)) AS team_ol_out" in ol
+    assert "r.week <= o.week" in ol
+    for consumer in ("021_player_week_training.sql", "023_player_week_inference.sql"):
+        sql = (SQL_DIR / "features" / consumer).read_text()
+        assert "  ol.team_ol_out,\n" in sql
+        assert "COALESCE(ol.team_ol_out" not in sql
+
+
+def test_game_weather_uses_only_snapshots_pulled_before_lock():
+    # O-22 (d): a completed game's weather must be what serving could see:
+    # the latest snapshot at/before the earlier of kickoff and the slate lock.
+    sql = (SQL_DIR / "features" / "020_game_weather.sql").read_text()
+    assert "WHERE w.pulled_at <= g.lock_at" in sql
+    assert "LEAST(g.kickoff_at, COALESCE(l.slate_lock_at, g.kickoff_at))" in sql
+
+
+def test_top_cb_out_reads_the_point_in_time_injury_table_only():
+    """O-22 (2026-10-05): 017a runs before 018, so it must not read raw injuries
+    (that bypassed 018's common Sunday-main lock). 018a fills top_cb_out from
+    player_week_injury after 018 and before the training/inference joins."""
+    names = [p.name for p in FEATURE_SQL]
+    fill = names.index("018a_defense_week_cb_out.sql")
+    assert names.index("017a_defense_week_coverage.sql") < names.index("018_player_week_injury.sql") < fill
+    assert fill < names.index("021_player_week_training.sql")
+    assert fill < names.index("023_player_week_inference.sql")
+    cov = (SQL_DIR / "features" / "017a_defense_week_coverage.sql").read_text()
+    out = (SQL_DIR / "features" / "018a_defense_week_cb_out.sql").read_text()
+    assert "${raw}.injuries" not in cov and "${features}.player_week_injury" not in cov
+    assert "top_cb_pfr_id" in cov and "CAST(NULL AS BOOL) AS top_cb_out" in cov
+    assert "${raw}.injuries" not in out
+    assert "${features}.player_week_injury" in out
+    assert "WHERE c.top_cb_pfr_id IS NOT NULL" in out            # week-1 rows stay NULL
+    assert "IFNULL(LOGICAL_OR(inj.injury_status = 'Out'), FALSE)" in out
+    # A season-week the point-in-time table does not cover (all of 2025: NULL
+    # date_modified) stays NULL: the FALSE default applies only inside covered
+    # weeks, so "no source" never reads as "the corner played".
+    assert "SELECT DISTINCT season, week FROM `${features}.player_week_injury`" in out
+    assert "JOIN pit_weeks pw ON pw.season = c.season AND pw.week = c.week" in out
+    assert "LEFT JOIN pit_weeks" not in out
+
+
 def test_route_shadow_table_is_strict_prior_and_joined_symmetrically():
     names = [p.name for p in FEATURE_SQL]
     route_path = SQL_DIR / "features" / "017k_fantasy_points_route.sql"
@@ -149,23 +216,31 @@ def test_target_concentration_tiebreak_uses_weekly_stats_schema():
     assert "ORDER BY t DESC, gsis_id" not in sql
 
 
-def test_adopted_context_features_emit_upcoming_inference_rows():
-    neutral = (
-        SQL_DIR / "features" / "017c_team_neutral_pass.sql"
-    ).read_text()
-    ngs = (SQL_DIR / "features" / "017h_qb_ngs.sql").read_text()
-    for sql in (neutral, ngs):
-        assert "`${features}.player_week_role`" in sql
-        assert "ro.is_upcoming" in sql
-        assert "NOT EXISTS" in sql
-        assert "UNION ALL" in sql
-    assert "FROM tw_with_upcoming" in neutral
-    assert "FROM with_upcoming" in ngs
-    # Only one synthetic live row is appended. Building a complete player-week
-    # spine would change the historical ROWS-window population and invalidate
-    # replay parity.
-    assert "CAST(NULL AS INT64) AS p" in neutral
-    assert "CAST(NULL AS FLOAT64) AS cpoe" in ngs
+def test_adopted_context_features_are_as_of_over_the_usage_spine():
+    # O-22 (2026-10-05): the old tables had a row only for event weeks (a
+    # neutral-situation play, an NGS passing record, a target or carry) plus
+    # one synthetic upcoming row, and 021 joined them by exact week, so a
+    # training NULL meant "no event in the game being predicted". Each table
+    # now has a row for every player_week_usage key (upcoming week included)
+    # holding the mean of the most recent observations strictly before it.
+    for name, strictly_prior, window in (
+        ("017c_team_neutral_pass.sql",
+         "(t.season < s.season OR (t.season = s.season AND t.week < s.week))", "pr.k <= 6"),
+        ("017h_qb_ngs.sql",
+         "(o.season < s.season OR (o.season = s.season AND o.week < s.week))", "pr.k <= 6"),
+        ("017j_xfp_schedule.sql",
+         "w.season = s.season AND w.week < s.week", "pr.k <= 4"),
+    ):
+        sql = (SQL_DIR / "features" / name).read_text()
+        assert "FROM `${features}.player_week_usage`" in sql, name
+        assert strictly_prior in sql, name
+        assert window in sql, name
+        assert "1 PRECEDING" not in sql.split("spine AS")[1], name
+        assert "is_upcoming" not in sql, name
+    infer = (SQL_DIR / "features" / "023_player_week_inference.sql").read_text()
+    assert "xfp_asof" not in infer.replace("-- xfp", "")
+    assert "LEFT JOIN `${features}.player_week_xfp` xf\n  ON xf.gsis_id = u.gsis_id " \
+        "AND xf.season = u.season AND xf.week = u.week" in infer
 
 
 def test_candidate_team_context_features_emit_upcoming_inference_rows():
