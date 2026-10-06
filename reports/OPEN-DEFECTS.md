@@ -1,13 +1,24 @@
 # Open defects and deliberate non-fixes
 
 **This file is the authoritative list of what is known-broken and NOT being fixed right now, and why.**
-Last reviewed 2026-10-04 (laptop agent; reviewer confirmed 2026-10-05). Every entry states the impact, the deadline by which it must be resolved, and what
+Last reviewed 2026-10-06 (laptop agent, the scheduled A2 re-check; the full review was 2026-10-04, reviewer-confirmed 10-05). Every entry states the impact, the deadline by which it must be resolved, and what
 "resolved" means. An item leaves this file only by being fixed and tested, or by an explicit recorded decision to
 accept it — never by being forgotten.
 
 Nothing in this file is on the Sunday money path unless its Impact column says so. That distinction is the point of
 the file: research and vendor plumbing failures cost information over months, and are not the same as a defect that
 can cost an entry.
+
+**2026-10-06 A2 re-check** (every live row against today's work):
+- **Closed:** O-14 (part 2 by study 33's recorded result, Addendum 138).
+- **New:** O-36 (vet_book's MIX reorder; fixed on `production/vet-cell-order-20261006`, approved, merges Friday).
+- **Progressed:**
+  - O-3: both SIS cache dry runs passed; the acquisition, the paired dry run and the resume are Wednesday;
+  - O-3d: the Tuesday check failed, the operator renewed the session, re-verified;
+  - O-22: re-dated after Week 5, with the FP-gap guard;
+  - O-35: fixed on its branch, merges Friday.
+- **O-19 / O-20 / O-23 / O-24 stay open on their own terms** ("leaves the register after Wednesday's rehearsal on the merged code"). Today's rehearsals exercised the union / vet / layout scripts directly, not `sunday_build_host`, so that host-level rehearsal is scheduled for Wednesday (the arming checklist).
+- **Operator decisions still due Friday:** O-16 (wire or remove `--dk-status`) and O-18's CFB question (move s-freshness or drop CFB).
 
 **2026-10-04 review** (every live row checked against git, HANDOFF and read-only GCP; then overridden by the operator decisions and fixes of the same night, HANDOFF 10-04 19:44–22:06). Closed: O-1, O-3a, O-3c, O-3e, O-7, O-12, O-13. New: O-25 (Route Share shadows failed every run in Weeks 3–4), O-27 (the cbwu-oi shadow failed every run since 09-13 on a stale image), O-28 (a frozen research-chain module red on integration), O-29 (dormant shadow jobs on pre-`193e1b44` images), O-30 (`own_shadow` table drift). O-2/O-25, O-3 and O-27 are fixed and deployed and leave when their dry runs pass this week. O-10 moved to *Standing constraints*.
 
