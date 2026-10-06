@@ -12,6 +12,29 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-05 (22:16 CDT) — STUDY 24 READ: all-distinct NO DIFFERENCE, the per-game cap NO DIFFERENCE (guard 2 fails); re-run byte-identical; no ports
+
+**Study 24** (the reviewer's; prereg `4cadd426` + deviation notes 1–2; reader `e1a4968a`; nfl2 `9ed3925`):
+- **SEQD (all-distinct) vs WS (head): NO DIFFERENCE.** P(≥ 1 big seat) +0.01155 [−0.02889, +0.05200]; seasons +0.001 /
+  −0.007 / +0.040. Guard 1 fails descriptively (−0.01558, lower −0.02635): the distinct deal's spares are weaker rows.
+- **G25S (cap on all-distinct) vs SEQD: NO DIFFERENCE.** −0.01828 [−0.07633, +0.03442]; guard 2 fails descriptively
+  (expected big seats ratio 0.779 < 0.80, the operator's tolerance).
+- Exploratory: SEQ (production's ENTER_LAYOUT=sequential, no code) +0.03044 [−0.01443, +0.07743], ratio 1.043, guard 1
+  lower −0.0163; G25 (head) −0.018, ratio 0.77; G1 +0.006.
+- Absolute (optimistic; modelled Milly-style field): P(≥ 1 big) WS 0.257 / SEQD 0.268 / G25S 0.250 / SEQ 0.287; the
+  in-sample simulation says ~0.50 (do not trust the sims' absolute big-seat chances).
+- **Laptop re-run BYTE-IDENTICAL:** fresh worktree `~/projects/.nfl2-worktrees/s24-reread-9ed3925`, raw copies verified
+  (1417 `996e7f43…`, 1418 `92306276…`, plan `f34f3a00…`), `sha256sum -c` in results/s24 all OK, `cmp` identical, READ
+  sha256 `b9733686d40f4a1ed1130c9975ca581de029a0d5b1b10aceadc40dd1e175c273`. Verdict logic checked by hand against §5.
+- **Consequences (agreed with the reviewer):** no G25S port, no SEQD port (the private port plan stays unbuilt). The
+  no-code middle option is ENTER_LAYOUT=sequential (SEQ), offered as a risk preference with its exploratory read.
+  Production's default stays ENTER_LAYOUT=head (= WS as tested).
+- Records: the reviewer drafts the LEDGER row (lab) and system study Addendum 130; the laptop reviews them.
+
+**Decision sheet** updated with the result (§5 table, §6 not offered, "about 1 week in 4", the arming line).
+
+**O-31:** the full-suite comparison (baseline, then merged; GCP_PROJECT unset) is running in the background.
+
 ## 2026-10-05 (21:50 CDT) — Study 24 frozen and censused (the reviewer's); the frozen weekly FP accuracy reader; W4's FP edge corrected; decision sheet revised
 
 **Study 24** (the reviewer's; prereg FROZEN `4cadd426`, reader `e1a4968a` @ nfl2 `109ca2b`):

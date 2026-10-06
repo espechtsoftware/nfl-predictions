@@ -9,6 +9,9 @@ and i wouldnt care if i lost all the $20 milly tickets." So from now on the numb
 least one big win in the week**: a $333 or bigger seat, or a $500+ finish in the Millionaire. Average tickets come
 second.
 
+**What to expect:** on practice slates, your plan wins at least one big seat in about 1 week in 4 (study 24). That is
+against a softer field than the real satellites, so the true chance is lower.
+
 ## The short version
 
 | # | Decision | My recommendation |
@@ -17,8 +20,8 @@ second.
 | 2 | Fantasy Points' projections instead of ours | **Yes** (you decided this in principle; the Week-4 check worked) |
 | 3 | The lab-code update both of these need | **Yes**: it changes nothing when they're off (proven below) |
 | 4 | The Week-5 contest plan | **Done: your revised entries** (19 contests, 24 entries) |
-| 5 | Every entry a different lineup | **You chose this.** Study 24 checks it against your goal; result Wednesday |
-| 6 | A cap: no game's quarterbacks in more than 6 of your 24 entries, on top of 5 | **Decide after study 24** (Wednesday) |
+| 5 | Every entry a different lineup | **Your call:** strictly distinct didn't help and costs a little; the build's sequential dealing (about 22 of 24 distinct, no code) had the best numbers |
+| 6 | A cap: no game's quarterbacks in more than 6 of your 24 entries | **No:** it didn't raise your chance of a big win and cost 22% of expected big seats |
 
 ## 1. The lineup shape
 
@@ -36,8 +39,8 @@ my first draft plan (9–22% of the field paid):
   worst tenth of slates the average entry beats 22% of the field instead of 28%. More tickets on average, bigger swings.
 - **Your plan's lines are deeper than the ones tested.** Your revised plan's seats sit at the top 1–4% of each contest
   (one seat in 23 to 402), not at 9–22%. WS's better average finish should help there too, but the +42% is a number for
-  shallow lines, not for your plan. Study 24 runs on your actual plan and reports WS's own chance of at least one big
-  win (Wednesday).
+  shallow lines, not for your plan. On your actual plan (study 24), WS wins at least one big seat in about 26% of
+  weeks (optimistic; see §5).
 - **MIX** is the "mix of shapes like the winners" you asked for. It moved the right way but was not conclusive.
 - **Your literal dual stack** (QB + 1 + bring-back + a second-game pair, on every lineup) was tested as EXPLORATORY.
   - It got about half WS's gain (+2.2 tickets per slate) with the steadiest results of any version: no ticket on 9% of
@@ -92,23 +95,36 @@ my first draft plan (9–22% of the field paid):
 - **Everything in study 24 uses this exact plan**, with the Millionaire judged at the $500+ line (the top 95 of
   161,764).
 
-## 5. Every entry a different lineup
+## 5. Every entry a different lineup: tested (study 24)
 
-- **Your choice (10-05):** "All distinct." The build then makes 24 lineups, one per entry, instead of putting the best
-  four lineups in two contests each.
-- **One wrinkle:** a rule that stops two entries in the same small contest from sharing more than 5 players can still
-  reuse a lineup. In the reviewer's trial runs, 21–22 of 24 entries were distinct, not 24.
-- **Study 24 decides on strictly distinct (24 of 24) against today's dealing,** judged by your goal. Strictly distinct
-  needs a small, reviewed change to the build before Saturday: it builds a few spare lineups to swap in.
-- **The build's sequential dealing as it stands** (no code change; 21–22 of 24 distinct) is measured too, as the fallback
-  if the change isn't ready.
+- **Your choice (10-05):** "All distinct." Study 24 tested it on your exact plan, judged by your goal. The test was
+  written before any results and re-run by both of us with identical output.
 
-## 6. A cap on any one game
+  | Dealing | Chance of at least one big win in a week* | Expected big seats | Average finish | Distinct lineups |
+  |---|---|---|---|---|
+  | Today's (the best 4 lineups in two contests each) | 26% | 0.54 | 50.1% | about 19 of 24 |
+  | Strictly distinct | 27% | 0.51 | 48.6% | 24 of 24 |
+  | The build's sequential dealing (no code change) | 29% | 0.56 | 49.3% | about 22 of 24 |
 
-- **Why:** concentration. When one game carries most of the book and disappoints, most entries lose together. That
-  hurts your goal (one big win) more than it hurts average tickets.
-- **How often it happens,** rebuilt on Week 4: the share of entries whose quarterback came from the slate's
-  highest-total game.
+  \* On 53 practice slates, against a modelled Millionaire-style field. Real satellite fields are tougher (the
+  regulars are a bigger share), so your true chances are lower. The differences between the rows are what the test
+  measures.
+- **Strictly distinct: no difference** in your chance of a big win (+1 point; the test's range runs from −3 to +5). It
+  costs about 1.6 points of average finish, because the extra lineups it needs are weaker ones. **Not recommended,**
+  and the code change is not being built.
+- **The build's sequential dealing** had the best numbers: +3 points of chance, 4% more expected big seats, and about 22
+  of 24 lineups distinct. But it was measured as a side arm, not the deciding one, so it is not a passed test. It costs
+  about 0.8 points of average finish.
+- **Why sequential beats strictly distinct:** putting a strong lineup in a second contest beats replacing it with a
+  weaker spare.
+- **My recommendation:** if you want "more distinct," choose the sequential dealing. It is the closest to your
+  preference, needs no code, and lost no big-win chance in the test. Otherwise keep today's dealing. Either way it is a
+  risk preference, not a proven gain.
+
+## 6. A cap on any one game: tested (study 24), not offered
+
+- **Why it was tested:** concentration. When one game carries most of the book and disappoints, most entries lose
+  together. Rebuilt on Week 4, the share of entries whose quarterback came from the highest-total game:
 
   | Book (Week 4) | Entries whose QB is from the highest-total game |
   |---|---|
@@ -118,21 +134,14 @@ my first draft plan (9–22% of the field paid):
   | MIX + FP | 77% |
   | The field | about 20% |
 
-- **It is not only the top game.** In the reviewer's trial run, WS put 21 of 24 entries on ONE game's quarterbacks,
-  and that game was not the highest-total one.
-- **So study 24 tests a cap on every game:** no game's quarterbacks in more than 6 of your 24 entries. Other players
-  from that game can still appear as bring-backs and second-game pairs.
-- **It is tested on top of all-distinct dealing,** the package you would run. With the old dealing, the rule that stops
-  two entries in the same small contest from sharing more than 5 players swaps the second entry onto another lineup,
-  sometimes one from a game already at its limit, so the cap leaked to 8 of 24 in the trial run. All-distinct draws
-  those swaps from spare lineups the cap already governs, and held it at exactly 6.
-- **Judged by your rule:** the cap passes only if it raises the chance of at least one big win, keeps the average
-  finish, and costs at most about 20% of expected big seats. Your words: "judge the entry cap by chance of at least one
-  big win (seats of $333+ or $500+ Milly), not average tickets, accepting up to ~20% fewer expected big seats if
-  average finish holds."
-- **If it passes and you say yes:** I build it into the live build with a check that it matches the study, call for
-  call; the reviewer reviews it before Saturday. If it fails or reads "no difference," it is not offered as a passed
-  test.
+  On the practice slates, today's book put about half your entries on one game's quarterbacks, often not the
+  highest-total game.
+- **What was tested:** no game's quarterbacks in more than 6 of your 24 entries, on top of all-distinct dealing.
+- **Result: no gain toward your goal,** and it fails your limit:
+  - the chance of at least one big win: −2 points (the test's range runs from −8 to +3);
+  - expected big seats: 22% fewer, past your "up to ~20% fewer";
+  - fewer weeks with almost no chance (39% of slates against 44%), but a lower ceiling.
+- **So it is not offered,** and it is not being built. Study 1 found the same trade: steadier weeks, fewer big ones.
 
 ## The Week-4 replay: one week, a check that it all works, not evidence
 
@@ -173,8 +182,8 @@ section 1 is the evidence.
 ## If you say yes: how it runs and how we undo it
 
 - **Arming:** the Saturday arming line adds
-  `UNION_MAIN=mix UNION_MIX_PORTFOLIO=ws UNION_PROJ_SOURCE=fp`, with the lab pin moved to the new code, plus the
-  dealing setting and, if adopted, the game cap. The arming banner prints the choice, so a missed line can't silently
+  `UNION_MAIN=mix UNION_MIX_PORTFOLIO=ws UNION_PROJ_SOURCE=fp`, with the lab pin moved to the new code, plus
+  `ENTER_LAYOUT=sequential` if you choose the sequential dealing. The arming banner prints the choice, so a missed line can't silently
   pick the wrong arm.
 - **Safety nets:**
   - if WS can't fill the book, the build falls back loudly to today's shape;
