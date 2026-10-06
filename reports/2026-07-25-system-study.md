@@ -4848,3 +4848,70 @@ secondaries (slate means):
 4. **Comparability:** MIX's absolute .362 is on the 36 slates of 2023–24, so it is not comparable with study 28's .296
    on 53.
 5. **Transfer:** our projections, while the live term sits on FP's. The predictor is a stand-in.
+
+## Addendum 135 (2026-10-06): study 30 (the Week-5 package against the status quo, on the operator's goal): NO DIFFERENCE at the frozen rule, both seasons negative, guard 1 fails descriptively — the direct test leans to the status quo, against the composition of studies 28 + 29
+
+**Setup.**
+- **Why:** studies 28 (the shape) and 29 (the term) each changed ONE stage. The post-selection law says a verdict does
+  not transfer across a changed downstream stage, so the two COMPLETE constructions were compared directly.
+- **Arms** (study 29's harness: caps 11 / 5, head, his Rev2 pins, our projections):
+  - SQ (reference): the STATUS QUO, Week 4 as entered: the house shape (`PRODUCTION_STACK`) + 0.20 × TABPFN_LS
+    predicted ownership % (the live term's stand-in; skill only);
+  - PKG (DECISION): the PACKAGE recommended for Week 5: study 18's MIX (production `mix_rows`, pin-aware weights), NO
+    term.
+- **Preregistration:** `reports/2026-10-06-prereg-study30-package.md` (frozen `4996a53a`).
+- **Panel:** 36 slates (2023–24), banks 1429/1430; B 20,000, seed 20261012; two-sided 0.95; guards as 18b.
+- **Read and reproduced:**
+  - Read by the reviewer.
+  - **Reproduced byte-identically by the laptop:** reader `24108528`; READ `8dbdce26`; raw 1429 `767846fe`, 1430
+    `09ec0394`.
+  - The binding census was acked byte-identical (`773ff77d`).
+  - Lab: nfl2 `production/s30-package-vs-status-quo-20261006`.
+
+**Reader output (verbatim):**
+```
+STUDY 30 READER  sha256 2410852812c747fbad1e5e6a10d138d8fc56c58eeb528865a85eda309b0eb8d5
+DIRECTION: P(>= 1 big seat) per slate from each dealt entry's share of the sampled field it BEATS (higher = better); every difference is ARM - its REFERENCE (SQ); POSITIVE favours the arm.
+slates 36  banks [1429, 1430]  B 20000  seed 20261012  primary two-sided 0.95 (one decision arm), guard 1 one-sided 0.95 at -0.015, guard 2 expected-big-seat ratio >= 0.80  plan 29 mean-track contests, 53 entries (26 in 21 big contests)  production row caps ['{"all": [11, 5]}']  BASE {"lam": 0.0}
+
+== PKG vs SQ  [DECISION]
+  PRIMARY P(>= 1 big seat) per slate -0.07113  [-0.18760, +0.05327]  seasons 2023 -0.04223, 2024 -0.10003
+  GUARD 1 mean entry pct -0.05128  one-sided lower -0.09698  (must exceed -0.015)
+  GUARD 2 expected big seats 0.61593 vs SQ 0.62702  ratio 0.982  (must be >= 0.80)
+  dealt identical to SQ: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+
+secondaries (slate means):
+  SQ  P(>=1 big) 0.36549  expected big seats 0.62702  P(>=2 contests) 0.16773  slates P(>=1 big) < 1% 0.264  tickets 108.0  best>=200 0.069  entry pct 0.57387  worst-decile slate 0.32708  simulated P(>=1 big) 0.46539
+      shape of dealt entries: pred_own_sum_lag 60.452  qb_game1_share 0.333  qb_game_top4_share 0.832  qb_games 3.250  qb_game_max_share 0.750  qb_plus1 0.000  bringback 1.000  dual 0.270  in_qb_game 4.000  games 4.318  max_entry_share 0.788
+  PKG P(>=1 big) 0.29436  expected big seats 0.61593  P(>=2 contests) 0.16406  slates P(>=1 big) < 1% 0.444  tickets 112.5  best>=200 0.069  entry pct 0.52260  worst-decile slate 0.29473  simulated P(>=1 big) 0.50373
+      shape of dealt entries: pred_own_sum_lag 57.369  qb_game1_share 0.246  qb_game_top4_share 0.714  qb_games 3.778  qb_game_max_share 0.526  qb_plus1 0.546  bringback 0.542  dual 0.511  in_qb_game 3.105  games 4.761  max_entry_share 0.667
+```
+
+**Reading.**
+1. **At the frozen rule PKG vs SQ is NO DIFFERENCE** (the interval reaches +5.3). Both seasons are negative (−4.2 /
+   −10.0). Guard 1 fails descriptively: mean finish −0.051, one-sided lower −0.097. Guard 2 holds (×0.982).
+2. **The status quo leads on nearly everything** (SQ / PKG):
+   - P(≥ 1 big) .365 / .294;
+   - mean finish .574 / .523;
+   - near-dead slates .264 / .444;
+   - worst decile .327 / .295.
+
+   Expected big seats are nearly equal (.627 / .616), and the in-sample simulation favours PKG (.465 / .504).
+3. **It contradicts the composition of studies 28 and 29.**
+   - Study 28 had MIX − C at +6.1; study 29 had the term on MIX at −6.8. Together they imply the package beats the
+     status quo by about 13 points, if the term's effect transferred to the house shape.
+   - The guard-1 direction IS consistent across all three (the term raises the mean finish); only the primary conflicts.
+   - Bank noise is large: the same construction (MIX, no term, the same 36 slates) read .362 on banks 1427/28 and
+     .294 here.
+4. **By §5 (frozen), NO DIFFERENCE means the package rests on studies 28 and 29, offered as his preference.** With
+   both seasons negative and guard 1 failing descriptively, the reviewer's recommendation changed: the package is NOT
+   supported as an improvement, and the status quo is the safer Week-5 choice until **study 31** reads. Study 31 is
+   the 2 × 2 (shape × term) in one co-run on six banks, on Rev3; it measures the interaction directly.
+5. **Record repair (disclosed in study 31's prereg):** studies 24–30 imported production's `enter_layout` from the
+   checkout on `PYTHONPATH` without recording its version. That checkout was this host's integration branch, on
+   which `enter_layout.py` was unchanged from `e9ed88f1` (2026-09-30) until `da399bdb` (2026-10-06), content sha256
+   `fb2bf404…`. That is a reconstruction, not a recorded identity. Study 31 pins and records it on every row.
+6. **Transfer:** our projections, while the live build adds FP. The term's predictor is a stand-in. Study 30's reader
+   docstring names the Rev1 plan file; the runs used Rev2 (`00c66004…`, checked by the reader's plan-sha gate). The
+   frozen reader is unchanged.
