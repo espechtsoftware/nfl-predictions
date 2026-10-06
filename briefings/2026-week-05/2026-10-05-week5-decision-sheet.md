@@ -85,10 +85,10 @@ my first draft plan (9–22% of the field paid):
 - **Your choice (10-05):** "All distinct." The build then makes 24 lineups, one per entry, instead of putting the best
   four lineups in two contests each.
 - **One wrinkle:** a rule that stops two entries in the same small contest from sharing more than 5 players can still
-  reuse a lineup. In the reviewer's trial run, 21 of 24 entries were distinct, not 24.
+  reuse a lineup. In the reviewer's trial runs, 21–22 of 24 entries were distinct, not 24.
 - **Study 24 decides on strictly distinct (24 of 24) against today's dealing,** judged by your goal. Strictly distinct
   needs a small, reviewed change to the build before Saturday: it builds a few spare lineups to swap in.
-- **The build's sequential dealing as it stands** (no code change; 21–24 distinct) is measured too, as the fallback
+- **The build's sequential dealing as it stands** (no code change; 21–22 of 24 distinct) is measured too, as the fallback
   if the change isn't ready.
 
 ## 6. A cap on any one game
@@ -110,9 +110,10 @@ my first draft plan (9–22% of the field paid):
   and that game was not the highest-total one.
 - **So study 24 tests a cap on every game:** no game's quarterbacks in more than 6 of your 24 entries. Other players
   from that game can still appear as bring-backs and second-game pairs.
-- **It is tested on top of all-distinct dealing,** the package you would run. With the old dealing (the best lineups in
-  two contests each), a lineup in two contests counts twice and the cap leaked to 8 of 24 in the trial run; all-distinct
-  held it at exactly 6.
+- **It is tested on top of all-distinct dealing,** the package you would run. With the old dealing, the rule that stops
+  two entries in the same small contest from sharing more than 5 players swaps the second entry onto another lineup,
+  sometimes one from a game already at its limit, so the cap leaked to 8 of 24 in the trial run. All-distinct draws
+  those swaps from spare lineups the cap already governs, and held it at exactly 6.
 - **Judged by your rule:** the cap passes only if it raises the chance of at least one big win, keeps the average
   finish, and costs at most about 20% of expected big seats. Your words: "judge the entry cap by chance of at least one
   big win (seats of $333+ or $500+ Milly), not average tickets, accepting up to ~20% fewer expected big seats if
