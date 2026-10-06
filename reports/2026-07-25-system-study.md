@@ -4545,3 +4545,79 @@ secondaries (slate means):
 **What it can do** (§6): nothing passed. For Week 5 the operator chooses between today's head deal (the default,
 `ENTER_LAYOUT=head`) and production's sequential deal (no code) as a risk preference, with this read stated. The cap
 and the all-distinct port are not offered.
+
+## Addendum 131 (2026-10-06): study 18b (WS vs the house shape on the operator's goal, his real Week-5 plan, production's caps): NO DIFFERENCE; the shape is a wash on his plan
+
+**Setup.**
+- **Why:** Friday's shape recommendation (WS) rested on study 18 (Addendum 129). That study measured tickets, at draft
+  A's shallow lines, under the lab's loose caps. This study asks the shape question on the operator's terms.
+- **Plan:** his Rev1 Week-5 plan (19 contests, 24 entries, 23 in 18 big contests).
+- **Caps:** production's main caps per layout (head 10/5, sequential 12/6).
+- **Primary:** P(≥ 1 big seat) per slate, computed exactly per contest against modelled Milly-style fields.
+- **Guards:** mean finish (−0.015) and his tolerance (expected big seats ≥ 0.80).
+- **Arms:**
+  - C: PRODUCTION_STACK by identity, head layout; the reference.
+  - WS (DECISION vs C): head layout.
+  - CQ and WSQ (exploratory): production's sequential deal.
+- **Preregistration:** `reports/2026-10-06-prereg-study18b-ws-vs-house.md` (frozen `43e944f6`, after the operator's
+  "proceed with testing unless there is a valid reason for waiting").
+- **Panel:** 53 slates (2022–24), banks 1419/1420; B 20,000, seed 20261007; two-sided 0.95. The binding census
+  (1406, 53/53) was clean and acked by the laptop.
+- **Read and reproduced.** Frozen and read by the reviewer. **Reproduced byte-identically by the laptop:** reader
+  `5fb03df3`; raw 1419 `1d8d6c10`, 1420 `ecdd665b`; READ `5b4c7eec`. Lab: nfl2 `production/s18b-ws-vs-house-20261006`
+  (READ `0113ecb`, LEDGER `6196f8c`).
+
+**Reader output (verbatim):**
+```
+STUDY 18B READER  sha256 5fb03df3f57124afc0d955bdd18321b669447ed75cb5705f5bbb19067e0d9bc0
+DIRECTION: P(>= 1 big seat) per slate from each dealt entry's share of the sampled field it BEATS (higher = better); every difference is ARM - its REFERENCE (WS, CQ: C; WSQ: CQ); POSITIVE favours the arm.
+slates 53  banks [1419, 1420]  B 20000  seed 20261007  primary two-sided 0.95 (one decision arm), guard 1 one-sided 0.95 at -0.015, guard 2 expected-big-seat ratio >= 0.80  plan 19 mean-track contests, 24 entries (23 in 18 big contests)  production row caps ['{"C": [10, 5], "CQ": [12, 6], "WS": [10, 5], "WSQ": [12, 6]}']  BASE {"lam": 0.0}
+
+== WS vs C  [DECISION]
+  PRIMARY P(>= 1 big seat) per slate +0.00634  [-0.07013, +0.08232]  seasons 2022 +0.07465, 2023 -0.12161, 2024 +0.06977
+  GUARD 1 mean entry pct +0.01347  one-sided lower -0.00248  (must exceed -0.015)
+  GUARD 2 expected big seats 0.49848 vs C 0.51633  ratio 0.965  (must be >= 0.80)
+  dealt identical to C: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+
+== CQ vs C  [EXPLORATORY (never decision-bearing)]
+  PRIMARY P(>= 1 big seat) per slate +0.00747  [-0.02895, +0.04273]  seasons 2022 +0.03423, 2023 -0.04994, 2024 +0.03960
+  GUARD 1 mean entry pct -0.00240  one-sided lower -0.00879  (must exceed -0.015)
+  GUARD 2 expected big seats 0.48433 vs C 0.51633  ratio 0.938  (must be >= 0.80)
+  dealt identical to C: 0.000 of slate-banks
+
+== WSQ vs CQ  [EXPLORATORY (never decision-bearing)]
+  PRIMARY P(>= 1 big seat) per slate +0.01844  [-0.05256, +0.09098]  seasons 2022 +0.01256, 2023 -0.03019, 2024 +0.07262
+  GUARD 1 mean entry pct +0.00556  one-sided lower -0.00877  (must exceed -0.015)
+  GUARD 2 expected big seats 0.46698 vs CQ 0.48433  ratio 0.964  (must be >= 0.80)
+  dealt identical to CQ: 0.000 of slate-banks
+
+secondaries (slate means):
+  C   P(>=1 big) 0.25582  expected big seats 0.51633  P(>=2 contests) 0.13110  slates P(>=1 big) < 1% 0.481  tickets 45.5  best>=200 0.094  entry pct 0.49876  worst-decile slate 0.27077  simulated P(>=1 big) 0.50905
+      shape of dealt entries: qb_game1_share 0.242  qb_game_top4_share 0.750  qb_games 3.396  qb_game_max_share 0.540  qb_plus1 0.000  bringback 1.000  dual 0.219  in_qb_game 4.000  games 4.297  max_entry_share 0.586
+  WS  P(>=1 big) 0.26216  expected big seats 0.49848  P(>=2 contests) 0.11764  slates P(>=1 big) < 1% 0.358  tickets 43.0  best>=200 0.075  entry pct 0.51223  worst-decile slate 0.20319  simulated P(>=1 big) 0.49135
+      shape of dealt entries: qb_game1_share 0.242  qb_game_top4_share 0.688  qb_games 3.349  qb_game_max_share 0.524  qb_plus1 0.923  bringback 0.146  dual 1.000  in_qb_game 2.386  games 4.854  max_entry_share 0.584
+  CQ  P(>=1 big) 0.26329  expected big seats 0.48433  P(>=2 contests) 0.12124  slates P(>=1 big) < 1% 0.472  tickets 41.5  best>=200 0.075  entry pct 0.49636  worst-decile slate 0.25067  simulated P(>=1 big) 0.51680
+      shape of dealt entries: qb_game1_share 0.246  qb_game_top4_share 0.734  qb_games 3.500  qb_game_max_share 0.500  qb_plus1 0.000  bringback 1.000  dual 0.213  in_qb_game 4.000  games 4.310  max_entry_share 0.535
+  WSQ P(>=1 big) 0.28173  expected big seats 0.46698  P(>=2 contests) 0.10984  slates P(>=1 big) < 1% 0.396  tickets 41.0  best>=200 0.085  entry pct 0.50193  worst-decile slate 0.19881  simulated P(>=1 big) 0.49692
+      shape of dealt entries: qb_game1_share 0.254  qb_game_top4_share 0.695  qb_games 3.368  qb_game_max_share 0.498  qb_plus1 0.933  bringback 0.147  dual 1.000  in_qb_game 2.367  games 4.881  max_entry_share 0.536
+```
+
+**Reading.**
+1. **On his goal and plan the shape is a wash.**
+   - WS vs C: +0.6 points of P(≥ 1 big seat), interval −7.0 to +8.2, with seasons +7.5 / −12.2 / +7.0.
+   - Both guards hold.
+2. **The trade-offs** (secondaries, C → WS):
+   - WS gives a better mean entry finish (0.499 → 0.512) and fewer near-dead slates (P < 1%: 0.48 → 0.36).
+   - The house shape gives a slightly higher ceiling (best ≥ 200: 0.094 vs 0.075) and a better worst decile (0.271 vs
+     0.203).
+3. **Study 18's +42% tickets does not carry to his plan.** Its edge was at shallow lines (p79–p91). His satellites need
+   first place (p95.7–p99.94), where the house shape's correlation keeps pace.
+4. **Studies 24 and 18b together:**
+   - neither the shape, the per-game cap nor the all-distinct deal moves his chance of a big win measurably on the
+     2022–24 practice slates;
+   - the absolute chance is about one week in four, with easier fields than real satellites, so lower in practice.
+5. **Transfer:** our projections, no ownership term, no FP (no FP history exists for 2022–24).
+
+**What it can do** (§5): WS is a preference, not a tested gain on his goal. Doing nothing keeps today's house shape.
+WS is now safe to run (the late-scratch fix `ddd470ed`), so the operator chooses on Friday.
