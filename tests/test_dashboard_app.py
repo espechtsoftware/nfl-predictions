@@ -166,6 +166,7 @@ def test_pages_show_synthetic_content():
     assert "<svg" in c.get("/offense" + Q).text and "<svg" in c.get("/defense?season=2026&pos=WR").text
     arms = c.get("/arms" + Q).text
     assert "composite" in arms and "W5 best" in arms
+    assert "≥ Millionaire cash line" in arms and "Cash rate at" in arms   # the non-contest arms' basis (reviewer 10-05)
     assert "Synthetic Satellite" in arms and "$61.00" in arms                # 3x20 + 4x0.25
     milly = c.get("/milly" + Q).text
     assert "Winning lineup" in milly and "QB+2+2" in milly and "Top construction" in milly
