@@ -23,6 +23,10 @@ before the freeze. Nothing here enters a contest: the money path, its checkout a
   2 / 4 / 7 QBs reach 6 / 5 / 4 / 3 / 2 rows; non-QB: at most 1 / 1 / 2 / 3 / 4 / 5 / 7 / 10 / 13 / 18 / 25 / 36 players
   reach 13 … 2 rows; the loud fallback).
 - **MIXT_QBB / MIXT_NQC** (exploratory): each tier set alone.
+- **MIXT_QA0** (exploratory): the yes-book WITHOUT the ownership term. The outside review (10-06) and the reviewer's
+  check the same day: beyond a market-quality projection, ownership carried no information in Weeks 1–4 (props-implied
+  base −0.03 points per ownership point [−0.24, +0.17]; served +0.01; our old model +0.44), and beyond FP in Week 4 it
+  was negative. Under FP, the 0.20 tilt may be a chalk push. This arm tracks the question weekly on the real field.
 - **His ENTERED book**: a context column, scored the same way, never an arm. The lab's MIXT_QA and the production union
   will differ (the union's own solver path, pins and spares); that difference is itself reported.
 
@@ -42,8 +46,10 @@ before the freeze. Nothing here enters a contest: the money path, its checkout a
   (FP's projections replace `mean_projection`; it refuses a file made for another frame), `unavailable_ids` plus the
   skill `--min-proj` filter (the exclusions), and `own_bonus` at the union's tilt (the 0.20 term). Then study 28's
   `mix_book` with study 37's builders, at the plan's K 26 head layout.
-- **The union's arguments must match the lab builder** (mix, K 26, overlap 7, per-game 4, salary floor 49,000, min-proj
-  1.0, caps 0.5 / 0.25, the QB cap of 5 rows, tilt 0.20, head layout), or the build refuses.
+- **The union's arguments must match the lab builder's mechanics** (mix, K 26, overlap 7, per-game 4, salary floor
+  49,000, min-proj 1.0, caps 0.5 / 0.25, the QB cap of 5 rows, head layout), or the build refuses. **The ownership tilt is
+  each paper arm's own** (the frozen 0.20; none for MIXT_QA0), not part of that parity. The live union may run any tilt
+  (his Friday choice), and the snapshot then carries the week's FP ownership file even when the union reads none.
 - **Disclosed: the objective differs from studies 28–37.** It is FP's `mean_projection` + the term, as the money path
   ranks, not the simulated `player_mean` of the harness.
 - **The plan** in the harness's form is derived inside the build from the snapshot's `contests.json`, details and
