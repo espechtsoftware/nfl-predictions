@@ -12,6 +12,48 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-05 (21:50 CDT) — Study 24 frozen and censused (the reviewer's); the frozen weekly FP accuracy reader; W4's FP edge corrected; decision sheet revised
+
+**Study 24** (the reviewer's; prereg FROZEN `4cadd426`, reader `e1a4968a` @ nfl2 `109ca2b`):
+- Decisions: SEQD (all-distinct) vs WS (head), and G25S (no game's QBs in > 6 of 24, on the all-distinct deal) vs SEQD.
+  G25 (head), SEQ and G1 are exploratory.
+- The laptop's plan check passed: production `contests.json` `94e6ce75` vs the study's `f34f3a00` have identical ids,
+  order and entries; only the intended differences (extra fields; the Milly line, cash vs $500+).
+- BINDING census on 1406 (nfl2 `fb4deff`, sha `c21e4363…`), acked by the laptop: every §2a check passes (24 distinct,
+  0 fallbacks; G25S max 6; never identical to the reference; no short books). Port spares: deepest 9, S = 15.
+- **Transfer issue raised by the laptop (pending the reviewer's call):** production's mix main caps each player at
+  int(0.5 × K) rows (12 of 24); the study's ban (52 of 105) never binds in the dealt rows, so its books put one player
+  in ~98% of entries. Options: disclose (a), or a pre-outcome deviation to production's cap and a re-census (b; the
+  laptop recommends b). Studies 18 and 24 both have this; the decision sheet's "same shares" sentence was wrong and is
+  corrected.
+- Next: the scored run on 1417/1418 → the reviewer's read → the laptop's byte-identical re-run (with the production
+  commit the run used) → LEDGER row and Addendum → the sheet's numbers.
+
+**Weekly ours / FP / blend accuracy reader** (`scripts/weekly_projection_accuracy.py`, frozen tonight before any W5
+outcome, at the reviewer's request; tests `tests/test_weekly_projection_accuracy.py`, 11):
+- Population: skill players with ours ≥ 3 or FP ≥ 3, FP present, an actual (the Milly's fpts), game-day ACT (O-32);
+  FP joined exactly on the DK draftable id; ACT zeros stay, inactive players go.
+- Game-cluster bootstrap B 2000, seed 1 (pooled: within week). Revisit check (pooled only): MAE lower AND ≥ 95% of
+  resamples better. Player rows are PRIVATE (FP is licensed): `~/private/projection-accuracy/`.
+- **W4 row:** n 195, rows sha256 `760c22ed975910219fbd89b302eff868bf9f45ce0afe1f63e40de89aaabba881`; MAE FP 5.539,
+  ours 5.577, blend 5.517; FP better than ours in 0.675 of resamples, the blend better than FP in 0.677. Revisit
+  check: no source beats FP.
+- **Correction:** the 10-05 ad hoc figure (FP 5.47 vs ours 5.56, n 198) included 3 later-inactive players. FP had
+  zeroed 2 of them at 10:38; our T-70 frame (DK pull 10:33) still projected them (DK status None/Q). None was in the
+  entered W4 book, and the after-build exposure sheet reads live DK status (~11:00) before upload. The operator's FP
+  decision stands under his rule; the decision sheet §2 carries the corrected numbers.
+- Every Monday from 10-12: `... week --season 2026 --week W --frame <T-70 run>/frame.parquet --lock-utc <lock>
+  --contest <Milly id> --out-dir ~/private/projection-accuracy`, then `... pool --out-dir ...`.
+
+**Decision sheet** (`briefings/2026-week-05/2026-10-05-week5-decision-sheet.md`): revised for his one-big-win goal,
+the Rev1 plan, all-distinct dealing and the per-game cap (`256a17c4`); the reviewer's two corrections (`865a1dfd`);
+tonight: the §2 FP correction and the player-cap correction. Study 24's numbers go in after the read.
+
+**O-31:** the merge worktree `o31-merged` is at `dadcb75f` (cherry-picks of `8148849b` and `64689ff4`; the
+OPEN-DEFECTS conflict resolved by taking the FIXED-IN-CODE row and dropping the orphaned O-32 fragment that sat below
+it on integration). The full-suite baseline run was stopped at 18% to give the census the CPU; it restarts after the
+scored run. Push only if the merged tree adds no failures.
+
 ## 2026-10-05 (21:26 CDT) — Week-5 plan from the operator's entries (Rev1); his utility and dealing choice; study 24 under the reviewer
 
 **The operator's utility (verbatim, 10-05):** "If i could win one 333, 555 or 4444 or $500 in the milly, the week is a
