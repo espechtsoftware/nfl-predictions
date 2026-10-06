@@ -126,3 +126,25 @@ The arms:
 - **Order:** this freeze → the binding census on 1406 (the laptop's ack) → the scored run on **1421/1422** → a
   confirmatory census before the reader → the reviewer's read → the laptop's byte-identical re-run → LEDGER and
   Addendum.
+
+## Deviation note 1 (2026-10-06, after the scored run on 1421/1422 STARTED and BEFORE any of its outcome is read)
+**The operator, through the laptop (verbatim):** "I'm not wild about the bigger one-game stack. If that is adopted, I
+would only want to use it a very small percentage. We know that milly winners use fewer players than that".
+- **The record agrees with him:**
+  - stack depth 3+ appeared in 2% of 69 historical winners
+    (`reports/2026-09-22-production-response-to-winner-anatomy-review.md`, which dropped QB+3);
+  - the regulars build QB+2 about 42% of the time.
+
+  The 09-27 field lift (QB+3 reaching the top 10% 1.4–2.5× as often) is a descriptive top-10% lift, not a winners'
+  rate.
+- **What changes:** NOTHING in the frozen design, reader or rule. The scored run was already under way, so adding a
+  sleeve arm now is not clean.
+- **What the verdict can do (replacing §5's SH PASS line):**
+  - SH as a WHOLE BOOK is OFF the table by the operator's choice, whatever the read. The read answers only whether the
+    shootout SHAPE helps or hurts his chance of a big win on his plan.
+  - A PASS or NO DIFFERENCE does NOT license a small-share sleeve (the post-selection law: a verdict does not transfer
+    to a changed downstream mix). Any sleeve use needs its own study, e.g. about 10% of rows as SH and the rest house.
+    That study is offered only if SH is not WORSE.
+  - WORSE closes the shootout for Week 5.
+- **Power note for any sleeve study:** a 2-of-22-row sleeve moves P(≥ 1 big seat) very little. On 53 slates it would
+  likely read NO DIFFERENCE, and that would be said in advance.
