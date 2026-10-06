@@ -22,6 +22,8 @@ second.
 | 4 | The Week-5 contest plan | **Done: your final entries (Rev2)**: 29 contests, 53 entries; the super-satellites reuse your top lineups |
 | 5 | Every entry a different lineup | **Keep today's dealing.** Your Rev2 pins the super-satellites to your top lineups, and the sequential dealing would ignore those pins (it now refuses) |
 | 6 | A cap: no game's quarterbacks in more than 6 of your 24 entries | **No:** it didn't raise your chance of a big win and cost 22% of expected big seats |
+| 7 | The ownership tilt (the build favours popular players: +0.20 x predicted ownership) | **Turn it OFF:** on your goal it cost about 7 points of big-win chance and 29% of expected big seats (study 29) |
+| 8 | Mix props into FP's projections | **Not yet:** FP alone, with FP + props scored beside it every Monday (one week of evidence so far) |
 
 ## 1. The lineup shape
 
@@ -208,6 +210,37 @@ using the cash lines of my first draft plan (9–22% of the field paid):
   - fewer weeks with almost no chance (39% of slates against 44%), but a lower ceiling.
 - **So it is not offered,** and it is not being built. Study 1 found the same trade: steadier weeks, fewer big ones.
 
+## 7. The ownership tilt: tested on the winners' mix (study 29), recommend OFF
+
+- **What it is:** since Week 4 the build adds a bonus for players the field is expected to own heavily (+0.20 points
+  per point of predicted ownership), which pulls the book toward popular players.
+- **What the test found** on your plan and goal, with the winners' mix (36 practice weeks, 2023–24, the only seasons
+  with an ownership predictor to test with):
+
+  | | Winners' mix | Winners' mix + the tilt |
+  |---|---|---|
+  | Chance of at least one big win in a week* | about 1 in 3 | **7 points lower** (range −16 to +3): lower in both seasons |
+  | Expected big seats | — | **29% fewer** (past your 20% limit) |
+  | Weeks where the best lineup reached 200 points | 13.9% | 4.2% |
+  | Average finish | 53.1% | 58.1% |
+  | The worst tenth of weeks | 25% | 34% |
+
+  \* Practice weeks with an easier field; lower in practice.
+- **So the tilt trades your ceiling for a steadier floor:** a better average and better bad weeks, but far fewer big
+  wins, which is the opposite of your goal. It also put more of your entries on the highest-total game's quarterbacks
+  (23% → 34%).
+- **The frozen rule calls it "no difference"** (the range includes zero), so this is your choice; the evidence points
+  against it. The predictor we tested with was, if anything, better informed than the live one.
+- **Recommendation: turn it off for Week 5.** It's one setting, reversible, no code change.
+
+## 8. Mixing props into Fantasy Points' projections
+
+- **The props report** (`reports/2026-10-06-props-and-winners.md`): on players with prop lines, props beat our own model
+  every week, and in Week 4 a 50/50 FP + props mix beat FP alone by 0.09 points per player (98% of resamples).
+- **That is one week.** Recommendation: FP alone this Sunday, with FP + props scored beside it every Monday under a rule
+  frozen today (`reports/2026-10-06-prereg-fp-props-weekly-check.md`). If you'd rather start now, it's a small reviewed
+  code change by Friday, reversible.
+
 ## The Week-4 replay: one week, a check that it all works, not evidence
 
 The arms are rebuilt from Week 4's real pre-lock inputs and scored on the real Week-4 contests. "Return per $1" is
@@ -247,8 +280,8 @@ section 1 is the evidence.
 ## If you say yes: how it runs and how we undo it
 
 - **Arming:** the Saturday arming line adds
-  `UNION_MAIN=mix UNION_MIX_PORTFOLIO=mix UNION_PROJ_SOURCE=fp` (or `...=ws` if you prefer WS), with the lab pin moved
-  to the new code, plus
+  `UNION_MAIN=mix UNION_MIX_PORTFOLIO=mix UNION_PROJ_SOURCE=fp` (or `...=ws` if you prefer WS) with the ownership tilt left
+  off (`UNION_MAIN_OWN_TILT` unset), with the lab pin moved to the new code, plus
   nothing for the dealing (today's head dealing stays; your Rev2 pins need it). The arming banner prints the choice, so a missed line can't silently
   pick the wrong arm.
 - **Safety nets:**
