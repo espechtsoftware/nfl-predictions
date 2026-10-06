@@ -12,6 +12,23 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (14:37 CDT) — Merged: the no-tilt arm script, study 38's snapshot tool, the descriptive tail lines (all reviewer-approved)
+
+- **Integration `2fed68e2`:**
+  - `arm-w5-no-tilt` `ab9d1420`: `OWN_TILT=0`. At tilt 0 the term-only Saturday inputs WARN and continue; at a non-zero
+    tilt they stop.
+  - `s38-snapshot` `f8bd0341`: every copy fatal; pre-lock refusal; union-receipt.json.
+  - `accuracy-tail-metrics` `eaecb658`: top-decile hit and ownership-weighted MAE, descriptive; the revisit rule
+    untouched; the ownership join hardened.
+  - 54 tests pass across the four touched modules. The host copies are synced
+    (`~/.cache/laptop-agent/w5_arm_saturday.sh`, `…/rehearsal/s38_snapshot.sh`).
+  - `--check` still stops on the empty FRIDAY_HEAD.
+- **Study 38 (lab `4ac7825`, prereg draft `544e1a52`):** DECISION MIXT_RS0 vs MIXT_QA0, both on FP's mean.
+  - Exploratory: QBB0 / NQC0; MIXT_QA (+0.20); MIXT_QAL (a −0.10 leverage lean, his question whether ownership finds
+    good under-owned players).
+  - The W5 dose has CHOSEN_LEV 0, so nothing live leans against ownership; QAL is the only test of that lean.
+- **Monday list:** study 22a's ownership-information line from the Monday after W6.
+
 ## 2026-10-06 (14:32 CDT) — THE OWNERSHIP TILT IS 0 for Week 5 (operator); production's W4 replay; the snapshot tool reviewed and fixed
 
 - **Finding (the reviewer, at the outside review's top rank):** under FP projections the 0.20 tilt carries no
