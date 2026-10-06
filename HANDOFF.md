@@ -12,6 +12,28 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (16:39 CDT) — The fill order is a Week-5 candidate: study 42 harness ready; production switch built (not armed)
+
+**Why:** the operator asked, "are we putting our best strategy first for a given QB?" It was verified NOT done: production fills
+the MIX cells largest-quota first, so a capped QB's slots go to the earliest cell (study list 38). He then asked "why is week 6 the
+earliest?" It is not: Week 5 is feasible if study 42 reads well and he says yes.
+
+- **Study 42 (the reviewer):** lab `production/s42-fill-order-20261006` @ `4541886` (DRAFT).
+  - Arms: MIXT_VALUE (DECISION) vs MIXT_GROUP (the live book); MIXT_RR (round-robin) exploratory.
+  - Settings: ms5, QB cap 5, no term; banks 1491–1496 (my wide scan: clean); seed 20261023.
+  - Tonight: smoke → census on 1406 → freeze → my ack → scored run (~40–60 min) → READ before 19:00 CT.
+- **Production switch:** `production/mix-fill-value-20261006` @ `a7fafd38` (off integration; for the reviewer's review).
+  - `mix_rows(fill="value")` peeks every cell's next row on the current state and commits the highest objective (ties to
+    the earlier cell). A failing cell passes its remaining quota to A1.
+  - The default `group` is today's book byte for byte (tested, calls included). It is parity-pinned to the lab harness's
+    scripted commit order and failing-cell case.
+  - Plumbing: `--mix-fill` / `UNION_MIX_FILL` (sunday_build_host, arm_week_timers; check_week_runtime needs group|value
+    with UNION_MAIN=mix).
+  - Tests: test_mix_shapes 25 pass; check_week_runtime / arm_week_timers / union_reselect / build_host_args /
+    union_fallbacks pass.
+  - **Not armed.** Adoption needs study 42's READ + my byte-identical re-run, then the W2–4 fixed-book group-vs-value
+    check (Wednesday, after A1–A3, one heavy job at a time), then the operator's yes. Arming = `UNION_MIX_FILL=value`
+    in the Saturday arm script.
 ## 2026-10-06 (16:21 CDT) — End of Tuesday: Week 5 settings final; studies 38 (amended), 39 and 40 recorded; Wednesday's order
 
 **Week 5 as armed** (all operator-approved and merged):
