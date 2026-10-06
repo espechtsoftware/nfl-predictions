@@ -347,3 +347,34 @@ def test_mix_portfolio_spares_follow_the_quotas(monkeypatch):
     _, _, meta, spares = ur.mix_rows(fr, set(), k, 7, 4, 49_000, weights, exposure_cap=10, dst_cap=5, spares=10)
     assert len(spares) == 10 and set(meta["spares"]["cells"]) <= set(M.MIX_CELLS)
     assert meta["spares"]["cells"].get("A1", 0) >= 3                      # A1 0.30 of 10, plus any C passes to A1
+
+
+# ---------------------------------------------------------------- O-35: the interleave weights keep the operator's pins
+def test_plan_weights_count_pinned_entries_like_the_deal(tmp_path):
+    import json
+    """Rev2-like: super-satellites pinned to the top rows. The weights must equal the entries enter_layout deals to each
+    rank (pins included), or MIX's cells are allocated against the wrong entry shares."""
+    from collections import Counter
+    from nfl_dfs.inference import enter_layout as EL
+    plan = [{"name": "milly", "contest_id": 1, "entries": 2, "keep": 2},
+            *[{"name": f"sat{i}", "contest_id": 10 + i, "entries": 1, "keep": 1} for i in range(6)],
+            {"name": "supersat", "contest_id": 30, "entries": 3, "keep": 3, "ranks": [1, 2, 3]},
+            {"name": "supersat2", "contest_id": 31, "entries": 3, "keep": 3, "ranks": [1, 2, 3]},
+            {"name": "wildcat", "contest_id": 40, "entries": 2, "keep": 2}]
+    f = tmp_path / "contests.json"; f.write_text(json.dumps(plan))
+    k = EL.rows_needed(plan, "head")
+    dealt = Counter(r for rr in EL.assign_ranks(plan, "head") for r in rr)
+    w = M.plan_weights(f, k, "head")
+    assert w == [dealt[r] for r in range(k)]
+    assert w[0] == 4 and sum(w) == sum(c["entries"] for c in plan)        # rank 1: milly, sat0 and both super-sats
+    unpinned = tmp_path / "unpinned.json"; unpinned.write_text(json.dumps([{k_: v for k_, v in c.items() if k_ != "ranks"} for c in plan]))
+    assert M.plan_weights(unpinned, k, "head") != w                          # stripping the pins changes the weights
+
+
+def test_plan_weights_refuse_a_pinned_plan_under_a_layout_that_ignores_pins(tmp_path):
+    import json
+    plan = [{"name": "milly", "contest_id": 1, "entries": 2, "keep": 2},
+            {"name": "supersat", "contest_id": 30, "entries": 2, "keep": 2, "ranks": [1, 2]}]
+    f = tmp_path / "contests.json"; f.write_text(json.dumps(plan))
+    with pytest.raises(ValueError, match="pinned contests need the head or spread layout"):
+        M.plan_weights(f, 4, "sequential")
