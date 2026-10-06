@@ -360,3 +360,42 @@ def test_main_rows_refusal_is_named_for_the_cap_with_or_without_the_term():
         ur.check_main_rows([1] * 4, 5, {"g": 1}, None)
     with pytest.raises(SystemExit, match="OWN TERM REFUSED: 4 of 5"):
         ur.check_main_rows([1] * 4, 5, None, {"p": 1.0})
+
+
+def test_pmo_rows_per_qb_cap_bans_a_qb_at_the_cap(monkeypatch):
+    """Study 35's lever in the house main: a QB in qb_cap rows is banned from later solves; off by default."""
+    import types
+
+    class LU:
+        def __init__(self, players):
+            self.players = players
+
+    def optimize(pool, stack, objective_col, banned_lineups, max_overlap, bans, env):
+        free = [p for p in pool if not bans or p["id"] not in bans]
+        qb = sorted((p for p in free if p["pos"] == "QB"), key=lambda p: (-p[objective_col], p["id"]))
+        rest = sorted((p for p in free if p["pos"] != "QB"), key=lambda p: (-p[objective_col], p["id"]))
+        if not qb:
+            return None
+        pick = [qb[0]] + rest[len(banned_lineups) % 3: len(banned_lineups) % 3 + 8]     # vary the rest so rows differ
+        return LU(pick)
+    lineup = types.ModuleType("nfl2.core.lineup"); lineup.optimize = optimize
+    pipeline = types.ModuleType("nfl2.pipeline"); pipeline.PRODUCTION_STACK = "stack"
+    for name, mod in (("nfl2", types.ModuleType("nfl2")), ("nfl2.core", types.ModuleType("nfl2.core")),
+                      ("nfl2.core.lineup", lineup), ("nfl2.pipeline", pipeline)):
+        monkeypatch.setitem(sys.modules, name, mod)
+    fr = _frame()
+    qbs = set(fr[fr.pos == "QB"].id)
+    off = ur.pmo_rows(fr, set(), 6, 9, None, 49_000, set())
+    assert len({p for r in off for p in r if p in qbs}) == 1                     # uncapped: one QB in every row
+    capped = ur.pmo_rows(fr, set(), 6, 9, None, 49_000, set(), qb_cap=2)
+    from collections import Counter as _C
+    assert max(_C(p for r in capped for p in r if p in qbs).values()) <= 2 and len({p for r in capped for p in r if p in qbs}) >= 3
+
+
+def test_the_qb_cap_is_wired_from_the_week_env_to_the_union_and_the_timers():
+    root = Path(__file__).resolve().parents[1]
+    host = (root / "scripts" / "sunday_build_host.sh").read_text()
+    assert '[[ -n "${UNION_MAIN_QB_CAP_ROWS:-}" ]] && UNION_ARGS+=(--main-qb-cap-rows "$UNION_MAIN_QB_CAP_ROWS" --main-qb-cap-k "${UNION_MAIN_QB_CAP_K:-}")' in host
+    timers = (root / "scripts" / "arm_week_timers.sh").read_text()
+    assert " UNION_MAIN_QB_CAP_ROWS UNION_MAIN_QB_CAP_K " in timers               # passed into the timer units
+    assert "UNION_MAIN_QB_CAP_ROWS" not in (root / "scripts" / "week_env.sh").read_text()   # no default: off unless armed

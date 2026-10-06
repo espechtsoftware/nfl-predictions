@@ -476,8 +476,33 @@ def test_pin_may_name_any_row_the_layout_already_reads(tmp_path):
     assert EL.protected_ranks(cs, "head") == EL.protected_ranks(base, "head") == 19     # row 5 stays in the clean head
     top = EL.rows_needed(base, "head")
     EL.assign_ranks(base + [{**pin, "ranks": [1, top]}], "head")                         # the last existing row is fine
-    with pytest.raises(EL.LayoutError, match="may not add rows"):
-        EL.assign_ranks(base + [{**pin, "ranks": [1, top + 1]}], "head")                  # one past it is refused
+
+
+def test_pins_may_add_rows_without_gaps_and_the_book_grows_to_them():
+    """Operator 2026-10-06 (Rev3): "1-26 for the $20 satellites" -- 26 super-satellite entries, each its own lineup,
+    while the big contests read 22 rows. Pins may ADD rows past the unpinned layout; the book grows to the highest pinned
+    row (rows_needed, so K and the caps follow); nothing unpinned moves; a gap (an unread row) refuses."""
+    base = [{"name": f"big{j}", "contest_id": str(100 + j), "entries": 1, "keep": 1} for j in range(18)]
+    base += [{"name": f"wild{j}", "contest_id": str(200 + j), "entries": 2, "keep": 2} for j in range(4)]
+    K0 = EL.rows_needed(base, "head")
+    sats = [{"name": f"supersat{j}", "contest_id": str(300 + j), "entries": 5, "keep": 5, "ranks": list(range(5 * j + 1, 5 * j + 6))}
+            for j in range(4)]
+    sats += [{"name": "supersat6", "contest_id": "306", "entries": 2, "keep": 2, "ranks": [21, 22]},
+             {"name": "supersat7", "contest_id": "307", "entries": 3, "keep": 3, "ranks": [23, 24, 25]},
+             {"name": "supersat8", "contest_id": "308", "entries": 1, "keep": 1, "ranks": [26]},
+             {"name": "ffwc", "contest_id": "309", "entries": 1, "keep": 1, "ranks": [1]}]
+    assert K0 < 26
+    cs = sats + base
+    ranks = EL.assign_ranks(cs, "head")
+    assert ranks[len(sats):] == EL.assign_ranks(base, "head")                     # the big contests' rows do not move
+    assert sorted(x for r in ranks[:7] for x in r) == list(range(26))            # 26 satellite entries, 26 distinct rows
+    assert EL.rows_needed(cs, "head") == 26 and EL.rows_needed(cs, "spread") == 26
+    with pytest.raises(EL.LayoutError, match="no gap"):                          # row 26 unread: [27] would leave a hole
+        EL.assign_ranks(sats[:-2] + [{**sats[-2], "ranks": [27]}, sats[-1]] + base, "head")
+    with pytest.raises(EL.LayoutError, match="no gap"):                          # a typo never builds a 300-row book
+        EL.assign_ranks(base + [{"name": "typo", "contest_id": "9", "entries": 1, "keep": 1, "ranks": [300]}], "head")
+    one_past = base + [{"name": "q", "contest_id": "9", "entries": 2, "keep": 2, "ranks": [1, K0 + 1]}]
+    assert EL.rows_needed(one_past, "head") == K0 + 1                            # one past the layout: the book grows by one
 
 
 def test_tail_track_contests_take_a_sleeve_after_the_mean_rows():

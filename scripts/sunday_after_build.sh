@@ -109,6 +109,15 @@ process_run() {
        --book "$VET/book.csv" --vetting "$VFILE" > "$STAGE/ENTER-layout.txt" 2> "$lo/enter-layout.err"; then
     log "ENTER layout FAILED: $(head -c 300 "$lo/enter-layout.err") -- NOT published, previous ENTER/ kept"; return 1
   fi
+  # --main mix (study 18; reviewer 10-05 item c): the shape mix AS DEALT, after the small-contest overlap limit, beside the
+  # quotas. Informational, never blocks the bundle; a non-mix run prints one line. An untagged main-block row (a Sunday
+  # replacement) counts by its shape (10-06); `house` = the tail sleeve and rows fitting no cell.
+  if PYTHONPATH=$PROD/src $PY "$PROD/scripts/mix_dealt_shares.py" --stage "$STAGE" --upload "$all" --run "$run" \
+       >> "$STAGE/ENTER-layout.txt" 2>> "$lo/enter-layout.err"; then
+    log "  $(tail -1 "$STAGE/ENTER-layout.txt")"
+  else
+    log "  mix dealt shares unavailable (see $lo/enter-layout.err); the bundle is unaffected"
+  fi
   cp "$all" "$STAGE/ENTER-all-rows-1-to-$(( $($PY -c "import json; print(sum(c['keep'] for c in json.load(open('$CONTESTS_JSON'))))") ))-are-the-KEEPERS.csv"
   cp "$OUT/lineup-sheet-$tag-paid-vetted-30.md" "$STAGE/ENTER-sheet-keepers.md" 2>/dev/null
   # verify the staged bundle before it becomes visible: one file per contest, each with its configured entry count

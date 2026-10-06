@@ -1,0 +1,37 @@
+# Sourced by scripts/sunday_build_host.sh (and its tests): the --main mix fallback (reviewer 2026-10-05).
+#
+# A MIX main that cannot reach K rows exits "MIX MAIN REFUSED" before writing anything. The chain then re-runs the union
+# with the HOUSE main -- --main pmo_x50, the ownership term's flags KEPT, the --mix-* flags dropped -- under a capitals
+# banner: "MIX REFUSED -> HOUSE MAIN (C)". That is the closest tested arm (study 18's C is that form without the term).
+# A partial cell failure never comes here: it stays inside MIX (a pass to A1, counted in the receipt). If the house main
+# then refuses too, the host's existing PMO_X50 fallback builds the union's mean main, as before.
+#
+# Needs from the caller: UNION_ARGS (array), UNION_RC, OUT, RUN_TAG, and a run_union function.
+
+# mix_to_house_args ARGS... -> OUT_ARGS: --main mix becomes --main pmo_x50; --mix-plan / --mix-layout / --mix-portfolio / --mix-spares and their values dropped
+mix_to_house_args() {
+  OUT_ARGS=(); local skip=0 x i
+  for x in "$@"; do
+    if (( skip )); then skip=0; continue; fi
+    case "$x" in --mix-plan|--mix-layout|--mix-portfolio|--mix-spares) skip=1 ;; *) OUT_ARGS+=("$x") ;; esac
+  done
+  for i in "${!OUT_ARGS[@]}"; do
+    if [[ "${OUT_ARGS[$i]}" == "--main" && "${OUT_ARGS[$((i+1))]:-}" == "mix" ]]; then OUT_ARGS[$((i+1))]=pmo_x50; fi
+  done
+}
+
+# mix_fallback: when the last union call refused its MIX main, re-run it as the house main (sets UNION_RC, UNION_ARGS,
+# UNION_MAIN_EFFECTIVE; keeps the refusal log as $OUT/union-$RUN_TAG-mix-refused.txt). A no-op otherwise.
+mix_fallback() {
+  UNION_MAIN_EFFECTIVE=${UNION_MAIN_EFFECTIVE:-${UNION_MAIN:-mean}}
+  (( UNION_RC != 0 )) || return 0
+  [[ "$UNION_MAIN_EFFECTIVE" == "mix" ]] || return 0
+  grep -q 'MIX MAIN REFUSED' "$OUT/union-$RUN_TAG.txt" || return 0
+  local why; why=$(grep 'MIX MAIN REFUSED' "$OUT/union-$RUN_TAG.txt" | tail -1)
+  printf '\n%s\n%s\n%s\n\n' "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" \
+    "!!! MIX REFUSED -> HOUSE MAIN (C) for $RUN_TAG: $why" \
+    "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+  cp "$OUT/union-$RUN_TAG.txt" "$OUT/union-$RUN_TAG-mix-refused.txt"
+  mix_to_house_args "${UNION_ARGS[@]}"; UNION_ARGS=("${OUT_ARGS[@]}"); UNION_MAIN_EFFECTIVE=pmo_x50
+  UNION_RC=0; run_union "${UNION_ARGS[@]}" || UNION_RC=$?
+}

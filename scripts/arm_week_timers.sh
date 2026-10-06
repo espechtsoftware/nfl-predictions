@@ -85,7 +85,7 @@ BASE_ENV=(env "GCP_PROJECT=$GCP_PROJECT" "PATH=$PATH"
 [[ -n "${ENTER_ORDER:-}" ]] && BASE_ENV+=("ENTER_ORDER=$ENTER_ORDER")
 [[ -n "${LIVE_FLEX_LATEST:-}" ]] && BASE_ENV+=("LIVE_FLEX_LATEST=$LIVE_FLEX_LATEST")
 [[ -n "${OWNERSHIP_SETS:-}" ]] && BASE_ENV+=("OWNERSHIP_SETS=$OWNERSHIP_SETS")
-for v in ENTER_FLAG_LATE_Q_ONLY T70_ACTIVE_Q T70_VACATED_BUMP LIVE_SELECTOR TAIL_LINE LIVE_MIN_PROJ MEAN_OWN_TILT MEAN_OWN_SOURCE MEAN_DST_CAP TAIL_SLEEVE_SELECTOR CLASS_MODEL CLASS_SLEEVE_EVERY UNION_SATURDAY_RUN UNION_SAT_DOSE UNION_PMO UNION_PMO_CAP UNION_MAIN UNION_MAIN_CAP UNION_SLEEVE_CAP UNION_MAIN_OWN_TILT UNION_MAIN_OWN_LAG_TILT OWNERSHIP_LAG LINESTAR_DIR UNION_MAIN_OWN_PREDICTOR TABPFN_PY OWNERSHIP_LAGS OWN_TABPFN_ROWS OWN_TABPFN_ROWS_2026 ENTER_SMALL_MAX_SHARED ENTER_SMALL_OVERLAP_MAX_ENTRIES LEV_CBC_THREADS UNION_MAIN_DST_CAP UNION_SLEEVE_INCLUDES_MAIN UNION_SLEEVE_SOURCE UNION_SLEEVE_FIELD_MODE UNION_SLEEVE_MAX_PER_GAME UNION_SLEEVE_FIELD_ROWS UNION_DK_STATUS FP_MAX_AGE_HOURS \
+for v in ENTER_FLAG_LATE_Q_ONLY T70_ACTIVE_Q T70_VACATED_BUMP LIVE_SELECTOR TAIL_LINE LIVE_MIN_PROJ MEAN_OWN_TILT MEAN_OWN_SOURCE MEAN_DST_CAP TAIL_SLEEVE_SELECTOR CLASS_MODEL CLASS_SLEEVE_EVERY UNION_SATURDAY_RUN UNION_SAT_DOSE UNION_PMO UNION_PMO_CAP UNION_MAIN UNION_PROJ_SOURCE UNION_MIX_PORTFOLIO UNION_MIX_SPARES UNION_MAIN_CAP UNION_SLEEVE_CAP UNION_MAIN_OWN_TILT UNION_MAIN_OWN_LAG_TILT OWNERSHIP_LAG LINESTAR_DIR UNION_MAIN_OWN_PREDICTOR TABPFN_PY OWNERSHIP_LAGS OWN_TABPFN_ROWS OWN_TABPFN_ROWS_2026 ENTER_SMALL_MAX_SHARED ENTER_SMALL_OVERLAP_MAX_ENTRIES LEV_CBC_THREADS UNION_MAIN_DST_CAP UNION_MAIN_QB_CAP_ROWS UNION_MAIN_QB_CAP_K UNION_SLEEVE_INCLUDES_MAIN UNION_SLEEVE_SOURCE UNION_SLEEVE_FIELD_MODE UNION_SLEEVE_MAX_PER_GAME UNION_SLEEVE_FIELD_ROWS UNION_DK_STATUS FP_MAX_AGE_HOURS \
          ENTRIES_END_CT MAX_PER_GAME MIN_LINEUP_SALARY CASH_SHADOW CASH_SHADOW_N REQUIRE_AUDIT_PASSED; do
   [[ -n "${!v:-}" ]] && BASE_ENV+=("$v=${!v}")
 done
@@ -157,6 +157,7 @@ fi
 
 cat <<EOT
 # Week $WEEK (America/Chicago), Sunday $SUNDAY; code tag $CODE_TAG
+# Main book: UNION_MAIN=${UNION_MAIN:-(week_env default)}$( [[ "${UNION_MAIN:-}" == "mix" ]] && echo " PORTFOLIO=${UNION_MIX_PORTFOLIO:-UNSET (refused at arming)}"); projections: ${UNION_PROJ_SOURCE:-ours}
 # Before arming: refresh build-features -> tabpfn-gen -> project-slate for ${SEASON}:${WEEK}, fill $CONTESTS_JSON,
 # and create $OUT/chosen-dose.env with CHOSEN_LEV/CHOSEN_BOOM.  The watcher fails closed without that file.
 #
@@ -166,10 +167,9 @@ gcloud run jobs execute tabpfn-gen --project nfl-predictions-503414 --region us-
 gcloud run jobs execute project-slate --project nfl-predictions-503414 --region us-central1 --wait
 # then, when ENTER_ORDER=fewest-low, the Saturday sets file (the preflight refuses to arm without it):
 PYTHONPATH=\$PROD/src \$PROD_PY \$PROD/scripts/ownership_sets.py sets --week ${WEEK} --group \${GROUP} --out \${OWNERSHIP_SETS}
-# the ownership term (UNION_MAIN_OWN_TILT > 0): Saturday's lag-model file, its gate (sum >= 280), and a LineStar capture:
+# the ownership term (UNION_MAIN_OWN_TILT > 0): Saturday's lag-model file and its gate (sum >= 280); LineStar is retired (10-06):
 PYTHONPATH=\$PROD/src \$PROD_PY \$PROD/scripts/ownership_sets.py sets --season ${SEASON:-2026} --week ${WEEK} --group \${GROUP} --lag-features --out ${OUT}/ownership_lag.csv
 \$PROD_PY \$PROD/scripts/check_ownership_lag.py ${OUT}/ownership_lag.csv
-\$PROD_PY \$PROD/scripts/linestar_ownership_capture.py --season ${SEASON:-2026} --week ${WEEK} --out ${OUT}/linestar --label saturday
 # with UNION_MAIN_OWN_PREDICTOR=tabpfn or fp (TabPFN is fp's first fallback): Saturday's lags (BigQuery) -- the Sunday unions then fit on the laptop GPU:
 PYTHONPATH=\$PROD/src \$PROD_PY \$PROD/scripts/ownership_tabpfn.py lags --season ${SEASON:-2026} --week ${WEEK} --out ${OUT}/ownership_lags.csv
 #

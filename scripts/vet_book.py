@@ -26,6 +26,63 @@ def block_order(tiers, k_mean):
     n = len(tiers); k = min(max(int(k_mean), 0), n)
     key = lambda i: (bool(tiers[i][0]), bool(tiers[i][1]), i)
     return sorted(range(k), key=key) + sorted(range(k, n), key=key)
+
+
+def cell_block_order(tiers, k_mean, cells):
+    """block_order for a --main mix book (laptop 2026-10-06, the Week-5 rehearsal): WITHIN the mean block every MIX cell
+    keeps its own positions -- a flagged row sinks only past rows of its own cell. mix_shapes.plan_weights places the cells
+    by position for the entries each position is dealt (head; the Rev2 pins give rows 1-5 most of them, O-35), so the plain
+    sort moved the entered cell mix (rehearsal, W4 frame: two flagged head rows, A2 .151 -> .057 and B .245 -> .415 of
+    the entries). cells[p] for p < k_mean; None rows sort among themselves. The sleeve block is block_order's."""
+    n = len(tiers); k = min(max(int(k_mean), 0), n)
+    key = lambda i: (bool(tiers[i][0]), bool(tiers[i][1]), i)
+    slots: dict = defaultdict(list)
+    for p in range(k):
+        slots[cells[p]].append(p)
+    head = [0] * k
+    for ps in slots.values():
+        for p, i in zip(ps, sorted(ps, key=key)):
+            head[p] = i
+    return head + block_order(tiers, k_mean)[k:]
+
+
+def fp_gap_flags(run, frame, book, flags, name):
+    """FP projections (operator 2026-10-05; the reviewer's guard 2026-10-06, O-22): when the union selected on FP's means
+    (its run holds proj_source.csv), a book player WITHOUT an FP projection (a late add or a swap) was selected on OUR
+    mean, which carries the O-22 bias. Each such player gets the tag "projection:ours-no-FP" -- informational, weight 0:
+    it names him on the vetting page and never reorders (the "projection" prefix is not an enter_layout INJURY_TAGS
+    prefix; vet_replace's risky set reads statuses, not tags). Returns the names, printed loudly when any."""
+    ps = pathlib.Path(run) / "proj_source.csv"
+    if not ps.is_file():
+        return []
+    fp_ids = set(pd.read_csv(ps, dtype={"id": str})["id"].astype(str))
+    id_of = dict(zip(frame["dk"], frame["id"].astype(str)))
+    out = []
+    for dk in sorted({v for row in book for v in row}):
+        if id_of.get(dk) not in fp_ids:
+            flags[dk].append("projection:ours-no-FP"); out.append(name.get(dk, dk))
+    if out:
+        print(f"!!! PROJECTION: {len(out)} book player(s) selected on OUR projection (no FP projection; O-22 bias): {out}")
+    return out
+
+
+def vetted_order(tiers, k_mean, receipt, cells_of):
+    """The vetted order and the main block's cells: cell_block_order ONLY when the source receipt's union main is "mix"
+    (`cells_of()` is called only then); every other book keeps block_order's order unchanged. Returns (order, cells|None)."""
+    if ((receipt.get("config") or {}).get("union") or {}).get("main") == "mix":
+        cells = cells_of()
+        return cell_block_order(tiers, k_mean, cells), cells
+    return block_order(tiers, k_mean), None
+
+
+def flagged_kept_ahead(tiers, k_mean, order):
+    """Main-block positions (0-based, vetted) holding a hard / material row AHEAD of a clean row of the same block -- what
+    cell_block_order leaves when a flagged row's cell has no clean row behind it (a one-row cell, or a cell flagged
+    throughout). Intended: the cell keeps its position; printed so it is seen. block_order never leaves any."""
+    k = min(max(int(k_mean), 0), len(order))
+    flagged = [bool(tiers[i][0]) or bool(tiers[i][1]) for i in order[:k]]
+    last_clean = max((p for p in range(k) if not flagged[p]), default=-1)
+    return [p for p in range(k) if flagged[p] and p < last_clean]
 from google.cloud import bigquery
 from nfl_dfs.names import norm_name
 
@@ -133,6 +190,7 @@ def main():
             nn = norm_name(name[dk])
             if nn in vanished_norm: flags[dk].append("market:VANISHED"); weight[dk] = HARD
             elif nn not in present_norm and sal.get(dk, 0) >= 5000: flags[dk].append("market:no_props"); weight[dk] += 1.0
+    no_fp = fp_gap_flags(run, f, book, flags, name)
     lineups = []
     for i, row in enumerate(book):
         risk = sum(weight[dk] for dk in row); hard = any(weight[dk] >= HARD for dk in row)
@@ -146,14 +204,27 @@ def main():
     _src = json.loads((run / "receipt.json").read_text())
     _k_mean = int((_src.get("config") or {}).get("operational_k") or n)
     _k_mean = min(max(_k_mean, 0), n)
-    order = block_order([(lu["hard"], lu["material"]) for lu in lineups], _k_mean)
+    _tiers = [(lu["hard"], lu["material"]) for lu in lineups]
+
+    def _mix_cells():                                        # --main mix: each cell keeps its positions (10-06)
+        from nfl_dfs.inference.mix_shapes import book_cells
+        _id_to_dk = {str(i): d for i, d in zip(f["id"].astype(str), f.dk)}
+        _cc = pd.read_parquet(run / "candidates.parquet")
+        _tagged = [(frozenset(_id_to_dk.get(t.strip()) for t in pl.split(",")), tg) for pl, tg in zip(_cc["players"].astype(str), _cc["tag"].astype(str))]
+        return book_cells([frozenset(r) for r in book], _tagged, _k_mean)      # ValueError: an untagged main row -> refuse
+    order, _cells = vetted_order(_tiers, _k_mean, _src, _mix_cells)
+    _kept = flagged_kept_ahead(_tiers, _k_mean, order) if _cells is not None else []
+    if _kept:
+        print(f"MIX CELL ORDER: {len(_kept)} flagged row(s) kept ahead of clean rows (no clean row of their cell behind them): "
+              f"vetted positions {[p + 1 for p in _kept]} (cells {[_cells[order[p]] for p in _kept]})")
     with (out / "book.csv").open("w", newline="") as h:
         wr = csv.writer(h); wr.writerow(SLOTS); [wr.writerow(book[i]) for i in order]
     shutil.copy(run / "frame.parquet", out / "frame.parquet"); shutil.copy(run / "receipt.json", out / "source_receipt.json")
     k = a.k; top_before = set(range(k)); top_after = set(order[:k]); demoted = sorted(top_before - top_after); promoted = sorted(top_after - top_before)
     rec = {"version": "vet-book-v2.1-backup-qb-classified", "source_run": str(run), "k": k, "vetted_at_utc": datetime.now(UTC).isoformat(), "prop_fetch_days": [str(d) for d in days[-2:]],
            "signals": {"dk_status_players": sum(1 for d in weight if any(x.startswith("DK:") for x in flags[d])), "injury_report_players": len(inj), "inference_players": len(pwi), "vanished_lines": len(vanished_norm)},
-           "order_source_ranks": [i + 1 for i in order], "demoted_out_of_top_k": [i + 1 for i in demoted], "promoted_into_top_k": [i + 1 for i in promoted],
+           "no_fp_projection_players": no_fp, "order_source_ranks": [i + 1 for i in order], "order_rule": "within-cell" if _cells is not None else "within-block",
+           **({"cells_source_order": _cells[:_k_mean], "flagged_kept_ahead_positions": [p + 1 for p in _kept]} if _cells is not None else {}), "demoted_out_of_top_k": [i + 1 for i in demoted], "promoted_into_top_k": [i + 1 for i in promoted],
            "material_threshold": thr, "lineups": lineups, "player_flags": {name[d]: {"dk": d, "pos": pos[d], "team": team[d], "weight": weight[d], "flags": fl} for d, fl in flags.items()}}
     (out / "vetting.json").write_text(json.dumps(rec, indent=1) + "\n")
     lines = [f"# Vetting report — {run.name} (k={k}, {datetime.now(UTC):%Y-%m-%d %H:%MZ})", "",

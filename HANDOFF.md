@@ -12,6 +12,69 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (11:58 CDT) — Study 36's binding census ACKED (byte-identical); the arm-script gate (QB cap rides with mixt only)
+
+- **Study 36** (a stricter general player cap on his yes-book):
+  - Records: prereg production `dcbe0668` (frozen 11:56:44); lab `b052a0e`; reader `f915e950`; experiment `9e940c8c`.
+  - The laptop's census re-run is BYTE-IDENTICAL (`c5507002`; raw `df52b20d` = RAW_MANIFEST).
+  - Cap parity with production is asserted in code: 13 / 9 / 10 player rows, DST 6, QB 5.
+  - Arms: A = 0.35 (9 rows: over 40% 0.11, top player .390, −1.33 projection per lineup); B = 0.40 (10 rows: 3.67;
+    −0.95).
+  - DISCLOSED: a flat cap makes a plateau. The count over 30% rises 11.5 → 14.8, so it answers "less exposure to our
+    most-used players", not "the regulars' curve".
+  - Banks 1461–1466 are clean. The reviewer launches the scored run.
+- **Arm script**, `production/arm-w5-mixt-qbcap-20261006` @ `ab6edf8d` (on `50d42285`), the reviewer's gate:
+  - SHAPE=ct with the QB cap stops (study 35 tested it on MIXT only);
+  - with the cap off, both cap variables are unset;
+  - tested print-only on all four combinations.
+  - It merges after review.
+
+## 2026-10-06 (11:55 CDT) — O-18 timing fixed on the operator's OK: s-freshness 08:30 CT (live + deploy_jobs.sh merged)
+
+- **Operator:** "ok to move daily freshness".
+- **Live:** `gcloud scheduler jobs update http s-freshness --location us-central1 --schedule '30 8 * * *' --time-zone
+  America/Chicago`. Describe after: `30 8 * * *` America/Chicago, ENABLED, the same `check-freshness:run` target,
+  userUpdateTime 2026-10-06T16:55:37Z. `s-weather` is unchanged (`0 8 * * 5-7`).
+- **Code:** `production/freshness-after-weather-20261006` (`dabebd49`, approved) merged. `deploy_jobs.sh` now matches live
+  for both jobs.
+- **Register:** O-18's timing part leaves after the Friday 10-09 08:30 run shows no weather-stale line. The CFB part (his
+  Friday decision) and CI stay open.
+
+## 2026-10-06 (11:53 CDT) — THE OPERATOR'S YES (MIXT + term + QB cap A); all seven approved branches MERGED (231b1ea0); Rev3 installed; the arm-script commit for review
+
+**Operator (10-06):** "yes to the winners' mix with the tilt and the quarterback cap". The reviewer agreed to merge on
+Tuesday instead of Friday, because earlier merges buy rehearsal time.
+- **Merged into integration, in the checklist order:**
+  - main-mix `ddd470ed` → O-35 `ce7ba02b` → vet-cell-order `030db347` → fp-gap-flag `645bddc0` (re-approval confirmed)
+    → qb-cap `b5514472` → pins-extend `da399bdb` → linestar-retire `b20628fc` (approval confirmed).
+  - Head `231b1ea0`. Its tree is identical to a scratch trial merge that ran green: 27 money-path modules, 345 passed,
+    3 skipped, GCP_PROJECT unset.
+- **Rev3 installed:** `~/week5-sunday/contests.json` sha `8625de0e…` (= the arm script's PLAN_SHA), Rev2 kept as
+  `contests.json.rev2-94cc61a8`; rows-needed 26 (head) on the merged code.
+- **The production checkout** (`c83fc641`) is NOT fast-forwarded yet. Nothing scheduled reads the plan before Friday,
+  and old code refuses Rev3's pins (fail-closed). Friday's step 4 fast-forwards it.
+- **The arm-script commit** `production/arm-w5-mixt-qbcap-20261006` @ `50d42285` (for the reviewer):
+  - SHAPE="mixt"; QB_CAP_ROWS=5 / QB_CAP_K=26 → `UNION_MAIN_QB_CAP_ROWS` / `_K` in arm_env;
+  - step 0 stops if rows-needed ≠ the cap's K; `--check` prints the cap;
+  - FRIDAY_HEAD is still empty, so it refuses to arm.
+  - A print-only `arm_week_timers.sh 5` run through this arm_env showed all 7 build units carrying UNION_MAIN=mix,
+    UNION_MIX_PORTFOLIO=mix and the cap.
+- **Wednesday's host rehearsal** runs on the merged head in the EXACT armed env (MIXT + mix + FP source + FP term 0.20 +
+  Rev3 + K 26 + the cap + pin f69598b) in a scratch OUT. It checks:
+  - O-19 / O-20 / O-23 / O-24;
+  - the dealt top-QB share against study 35's census (.224 mean, .245 max);
+  - that the receipt shows qb_cap_rows 5 / qb_cap_k 26.
+  Friday re-verifies on the final head (+ UNION_MAIN_CAP only if study 36 passes and he says yes).
+- O-18 stays unapplied (no answer yet).
+
+## 2026-10-06 (11:49 CDT) — O-3 Tuesday steps (the 11:47 scheduled task): both already done; the SIS session re-verified
+
+- (1) O-3d: `sis-download verify-login` → "SIS session verified" (rc 0) at 11:49 CT. The operator renewed it this
+  morning (07:13 entry); Wednesday's acquisition re-verifies again first.
+- (2) Both SIS cache dry runs PASSED at 10:30 (entry below): control `…-84nft`, treatment `…-k7mqg`; dry_run true;
+  contract `7693d370…`; CODE_SHA `7bbfd10a`; `_dryrun` tables 881 rows; `target_source_week_end` [3] (W4 SIS arrives
+  Wednesday). The receipts went to the reviewer (nfl-predictions-84, session f71d6947 verified) at the time. Not re-run.
+
 ## 2026-10-06 (11:48 CDT) — Study 36 drafted (player depth; the operator agreed to MIXT + term + QB cap A); Neo4j arm check merged; build guard and O-18 branches
 
 - **The operator agreed** (relayed by the reviewer) with study 35's recommendation: MIXT + term + QB cap A. He asked a

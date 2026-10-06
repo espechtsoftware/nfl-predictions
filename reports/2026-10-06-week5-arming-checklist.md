@@ -8,12 +8,16 @@ chat. Private paths stay private (no dollars, no entries here).
 |---|---|---|
 | **Wed 10-07, with the SIS acquisition** (never before Tue 13:00 CT) | the weekly vendor run `nfl-weekly-data run --week 5`: every paid page, SIS included. **Schedule rule (route-guards, the reviewer 10-06): the run is agent-started (no timer) on WEDNESDAY with the SIS acquisition, or on Tuesday no earlier than 13:00 CT. The Route importer refuses a source week retrieved before noon CT the day after its last kickoff, so an earlier run would fail the Route page (a true FAIL, never ignored).** Thursday's s-features-route rebuild (the O-25 gate's input) then reads the week imported Wednesday. W4 Route is already imported (repaired 10-06). **PROE POSTED (FP added ATL/NO by 11:20 Tue 10-06: 32 teams); the 11:20 audit-only probe captured 19 of 19 paid pages.** The production checkout was fast-forwarded to integration on 10-06 (c83fc641) so the run uses the route guards; re-check it is clean and current before Wednesday's run. | HANDOFF 10-06 |
 | Wed 10-07 | O-3 SIS pass-tail: SIS session check, env check against the CURRENT policy, one outcome-blind dry run per job, then resume the three schedulers (first scheduled run Thu 09:15) | OPEN-DEFECTS O-3 |
-| Wed 10-07 (afternoon, outside any build window) | **The host-level rehearsal on the merged integration code** (10-04 plan; retires O-19 / O-20 / O-23 / O-24): `sunday_build_host.sh` with `REUSE_K90_DIR=<W4 T-70 run>` and `SKIP_PAIR=1` in a scratch OUT (never `~/week5-sunday`, O-24), exercising the union, vetting, replacement, ENTER layout, the composite emit (O-23), the freshness sweep (O-24), the arguments guard (O-19) and the preflight's collected failures (O-20); plus the own_shadow scratch row. Then those four leave the register. | OPEN-DEFECTS O-19/20/23/24, HANDOFF 10-04 |
+| Wed 10-07 (afternoon, outside any build window; one heavy job at a time) | **Three rehearsals on the merged head** (agreed with the reviewer 10-06; no hand-edited receipt, no rehearsal path in verify_k90). **A1, the host chain at K 105** (W4's own env: week_env 4, W4 contests, `EXPECT_SHA` 32cdb61, `REUSE_K90_DIR` = the W4 T-70 run `20261004T155026918221Z-32cdb61`, `SKIP_PAIR=1`, scratch OUT; mix + FP + term, no QB cap): closes O-19 / O-20 / O-23 / O-24 on the real host path (the `--check` refusal, the collected preflight failures, the composite emit, the after-build sweep with a planted stray file), plus the own_shadow scratch row. It is NOT the armed configuration. **A2, the armed settings at K 26 at script level** (W4 T-70 frame, Rev3, MIX + FP + term 0.20 + `--main-qb-cap-rows 5 --main-qb-cap-k 26` + spares; vet_book, vet_replace with a test exclusion, enter_layout, mix_dealt_shares, audit): the receipt shows qb_cap_rows 5 / qb_cap_k 26; the dealt top-QB share is near study 35's .224 (max .245). **A3, one host run in the EXACT armed env on a FRESH Week-5 build** (W4 cannot be rebuilt: live_week asserts now < lock): a new lab worktree at f69598b (run dirs out of the live clone), scratch OUT, Rev3 copy, week_env 5, the arm_env values; verify_k90 with `EXPECT_SHA` f69598b, the K 26 audit, the union receipt, layout with the 1–26 pins, emit, the sweep. Known gap: FP's W5 files are not out yet, so the FP steps take their loud fallbacks. **Supply (reviewer: option i):** first one 1280/5120 Saturday-dose build (~39 min) in the same rehearsal clone, so the union takes the path Sunday takes (with a supply; auto's second-dose fallback as a bonus). **Guards:** (1) the `WEEK_WINDOW_START_UTC` override lives ONLY in the rehearsal command's env (never exported in a shell that later arms), and is disclosed in the run record and HANDOFF ("rehearsal: window start moved to <time> so the Wednesday supply qualifies"); (2) isolation: the rehearsal clone's run dirs are on no path the Saturday watcher or auto-selection reads; before Saturday's arming confirm `week5-live-center` has no results dir from it and the scratch OUT was never `~/week5-sunday`; afterwards archive the scratch OUT privately and remove the rehearsal worktree; (3) each FP fallback banner names what it fell back to (LAG ownership 0.10, our means), so Saturday's arming message can tell a real FP failure from Wednesday's expected one. | OPEN-DEFECTS O-19/20/23/24, HANDOFF 10-06 |
 | Thu 10-08 | O-25 Route Share companion-v1: one dry run per job (`SHADOW_DRY_RUN=1`) through the launcher lanes; deadline Sat 12:00 | OPEN-DEFECTS O-2 / O-25 |
 | Thu | O-27 cbwu-oi: the fix's dry run | OPEN-DEFECTS O-27 |
 | Thu | `check_prospective_gates.py --week 5` must pass (no paused graded gate; env = policy) | CLAUDE.md |
 
-## Friday 10-09: the operator's decisions (decision sheet `briefings/2026-week-05/2026-10-05-week5-decision-sheet.md`)
+## The operator's decisions (decision sheet `briefings/2026-week-05/2026-10-05-week5-decision-sheet.md`)
+**DECIDED 2026-10-06 (his formal yes):** "yes to the winners' mix with the tilt and the quarterback cap" = MIXT + the
+term at 0.20 + study 35's QB cap A (5 rows at K 26). Still open for Friday: study 36's player cap (only if it passes
+and he says yes), the dose confirmation, O-16, O-18's CFB part (the freshness move was OK'd and applied 10-06).
+
 1. The shape: **MIXT** (the winners' mix + the term; his preference, study 31) or CT (Week 4's setup, the safe alternative).
 2. FP projections as the projection source (decided in principle).
 3. FP + props: the paired paper check (recommended) or a trial now.
@@ -23,7 +27,13 @@ chat. Private paths stay private (no dollars, no entries here).
    [−0.027, +0.083]; both seasons positive; guards 1.048 / +0.005). By its frozen §4 he may choose it as a preference;
    the reviewer and the laptop recommend it. Cap A = 5 rows at K 26.
 
-## Friday after his yes (laptop; the reviewer has approved each branch)
+## After his yes (laptop; the reviewer has approved each branch)
+**DONE 2026-10-06 (Tuesday, the reviewer agreed: earlier merges buy rehearsal time):** all seven merged in this order;
+integration `231b1ea0`, tree identical to a green trial merge (27 money-path modules: 345 passed, 3 skipped, GCP_PROJECT
+unset). Rev3 installed as `~/week5-sunday/contests.json` (sha `8625de0e…` = PLAN_SHA; Rev2 kept as
+`contests.json.rev2-94cc61a8`); rows-needed 26 on the merged code. The arm-script commit (SHAPE=mixt + the QB cap in
+arm_env, the cap with mixt only; FRIDAY_HEAD empty) is MERGED (`50d42285` + the reviewer's gate `ab6edf8d`, approved). Wednesday's host
+rehearsal runs on the merged head in the exact armed env; Friday re-verifies on the final head.
 1. Merge into integration, in this order:
    1. `production/main-mix-20261006` @ `ddd470ed` (MIX / WS / FP source / spares / fallbacks): needed for FP
       projections whatever the shape;
@@ -43,9 +53,8 @@ chat. Private paths stay private (no dollars, no entries here).
    7. ~~`production/neo4j-arm-check-20261006` @ `11ed00d4`~~ **MERGED 10-06** (`6af25408`, approved): the arm script
       refuses while the local Neo4j runs. Its follow-up `production/neo4j-build-guard-20261006` @ `e2845f73` (the build
       preflight STOPS a running Neo4j, never refuses) is **MERGED 10-06** (approved), so Wednesday's host rehearsal exercises it.
-   8. `production/freshness-after-weather-20261006` @ `dabebd49` (O-18: s-freshness 08:30 CT; s-weather reconciled to
-      live; code approved): merged, with the live `gcloud scheduler jobs update http s-freshness --schedule '30 8 * * *'
-      --location us-central1`, only after his one-line OK (a registered operator decision). Not on the money path.
+   8. ~~`production/freshness-after-weather-20261006` @ `dabebd49`~~ **MERGED and APPLIED 10-06** on his OK (O-18 timing:
+      live s-freshness `30 8 * * *` CT). Check the Friday 08:30 run shows no weather-stale line.
    Then install Rev3 (`~/private/week5-plan/rev3-26/contests.json`, sha `8625de0e…`) as `~/week5-sunday/contests.json`,
    keeping Rev2 beside it as `contests.json.rev2-94cc61a8` (unmerged production code refuses Rev3's pins, fail-closed).
 2. A follow-up for review: the arming banner prints `ENTER_LAYOUT`.
@@ -71,6 +80,10 @@ chat. Private paths stay private (no dollars, no entries here).
    (`optimize(second_game_pair, qb_game_max)`); the house shape could stay on `32cdb61`.
 
 ## Saturday 10-10 (the laptop arms; fail-stop script, ask only if blocked)
+- **CANARY (the reviewer, 10-06):** the 10:30 `d12800-sat` build is the first live K 26 run through the armed host. By
+  11:00, check its receipt (identity f69598b, operational_k 26, tail 0), its lever audit PASS, and the union-args file
+  (`--main mix`, the FP source, the term, `--main-qb-cap-rows 5 --main-qb-cap-k 26`). Any failure leaves about 24 hours
+  to fix before Sunday.
 - **APPROVED and MERGED 10-06:** `scripts/arm_week5_saturday.sh` (c68da24c + e13ec346; host-local copy synced).
   - Friday's one commit sets SHAPE and FRIDAY_HEAD in the tracked copy.
   - The chosen shape is rehearsed on pin f69598b.
