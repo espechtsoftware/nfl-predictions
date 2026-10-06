@@ -70,6 +70,19 @@ def pick_replacement(gain: np.ndarray, pool_cells: list[set], need: str, house: 
     return None, None
 
 
+def source_summary(replaced: list[dict]) -> tuple[dict, str]:
+    """The candidate sources of a week's replacements, counted (the reviewer, 2026-10-06: under an ownership term the
+    no-term paper control main's rows ('mix_control') are legal in-cell replacements; the record must show how many
+    were entered). Returns (counts, a note for the summary line; empty when nothing was replaced)."""
+    n: dict[str, int] = {}
+    for r in replaced:
+        k = str(r.get("candidate_source")); n[k] = n.get(k, 0) + 1
+    n = dict(sorted(n.items()))
+    if not n:
+        return n, ""
+    return n, f"; sources {n}" + (f" ({n['mix_control']} from the NO-TERM control main)" if n.get("mix_control") else "")
+
+
 def row_cell(p: int, cell_at: dict, fallback_at: dict) -> str | None:
     """The shape a mix book position is validated against: its recorded house fallback, else its own cell."""
     return fallback_at.get(p) or cell_at.get(p)
@@ -320,7 +333,8 @@ def main():
                "freshness": {"frame_status": "build-time DK feed", "fresh_dk_pulled_at": fresh_pulled_at, "fresh_dk_players": len(fresh_status), "injury_report_rows": int(len(inj))},
                "exclusion_set": {name_of[d]: reasons[d] for d in sorted(E, key=lambda x: name_of[x]) if d in name_of},
                "removed_positions": [p + 1 for p in remove_positions], "replacements": replaced_info, "pool": pool_summary,
-               "cell_fallbacks": [{"vetted_position": p + 1, "cell": cell_at.get(p), "cell_fallback": "house"} for p in sorted(fallback_at)]}
+               "cell_fallbacks": [{"vetted_position": p + 1, "cell": cell_at.get(p), "cell_fallback": "house"} for p in sorted(fallback_at)],
+               "replacement_sources": source_summary(replaced_info)[0]}
     (out / "replace.json").write_text(json.dumps(receipt, indent=1) + "\n")
     if status != "OK":
         print("REPLACEMENT FAILED:", "; ".join(problems[:6]), file=sys.stderr); sys.exit(2)
@@ -350,9 +364,9 @@ def main():
         (out / "NOT-PUBLISHABLE-REHEARSAL").write_text("rehearsal flags were used; this book must not be emitted\n")
     fb_note = (f"; !!! {len(fallback_at)} BY THE HOUSE FALLBACK (no in-cell candidate): positions "
                f"{[p + 1 for p in sorted(fallback_at)]} ({sorted({str(cell_at.get(p)) for p in fallback_at})} rows now house-shaped)") if fallback_at else ""
-    print(f"replaced {len(replaced_info)} unavailable lineup(s) (exclusion set {len(E)} players); final book validated: {n_book} rows OK{fb_note}")
+    print(f"replaced {len(replaced_info)} unavailable lineup(s) (exclusion set {len(E)} players); final book validated: {n_book} rows OK{source_summary(replaced_info)[1]}{fb_note}")
     for r in replaced_info:
-        print(f"  pos {r['vetted_position']:>3} (source rank {r['source_rank']}): removed because {r['removed_because']}\n      -> {', '.join(r['replacement'])}  (gain {r['gain_corrected_mix']:+.3f})")
+        print(f"  pos {r['vetted_position']:>3} (source rank {r['source_rank']}): removed because {r['removed_because']}\n      -> {', '.join(r['replacement'])}  (gain {r['gain_corrected_mix']:+.3f}; from {r.get('candidate_source')})")
 
 
 if __name__ == "__main__":
