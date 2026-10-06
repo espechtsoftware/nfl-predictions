@@ -13,7 +13,11 @@ chat. Private paths stay private (no dollars, no entries here).
 | Thu | O-27 cbwu-oi: the fix's dry run | OPEN-DEFECTS O-27 |
 | Thu | `check_prospective_gates.py --week 5` must pass (no paused graded gate; env = policy) | CLAUDE.md |
 
-## Friday 10-09: the operator's decisions (decision sheet `briefings/2026-week-05/2026-10-05-week5-decision-sheet.md`)
+## The operator's decisions (decision sheet `briefings/2026-week-05/2026-10-05-week5-decision-sheet.md`)
+**DECIDED 2026-10-06 (his formal yes):** "yes to the winners' mix with the tilt and the quarterback cap" = MIXT + the
+term at 0.20 + study 35's QB cap A (5 rows at K 26). Still open for Friday: study 36's player cap (only if it passes
+and he says yes), the dose confirmation, O-16, O-18 (the freshness move awaits his one-line OK; CFB separately).
+
 1. The shape: **MIXT** (the winners' mix + the term; his preference, study 31) or CT (Week 4's setup, the safe alternative).
 2. FP projections as the projection source (decided in principle).
 3. FP + props: the paired paper check (recommended) or a trial now.
@@ -23,7 +27,13 @@ chat. Private paths stay private (no dollars, no entries here).
    [−0.027, +0.083]; both seasons positive; guards 1.048 / +0.005). By its frozen §4 he may choose it as a preference;
    the reviewer and the laptop recommend it. Cap A = 5 rows at K 26.
 
-## Friday after his yes (laptop; the reviewer has approved each branch)
+## After his yes (laptop; the reviewer has approved each branch)
+**DONE 2026-10-06 (Tuesday, the reviewer agreed: earlier merges buy rehearsal time):** all seven merged in this order;
+integration `231b1ea0`, tree identical to a green trial merge (27 money-path modules: 345 passed, 3 skipped, GCP_PROJECT
+unset). Rev3 installed as `~/week5-sunday/contests.json` (sha `8625de0e…` = PLAN_SHA; Rev2 kept as
+`contests.json.rev2-94cc61a8`); rows-needed 26 on the merged code. The arm-script commit (SHAPE=mixt + the QB cap in
+arm_env; FRIDAY_HEAD empty) is `production/arm-w5-mixt-qbcap-20261006` @ `50d42285`, for review. Wednesday's host
+rehearsal runs on the merged head in the exact armed env; Friday re-verifies on the final head.
 1. Merge into integration, in this order:
    1. `production/main-mix-20261006` @ `ddd470ed` (MIX / WS / FP source / spares / fallbacks): needed for FP
       projections whatever the shape;

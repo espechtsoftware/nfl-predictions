@@ -1,5 +1,9 @@
 # Week 5: your decisions (draft for Friday)
 
+**Decided 10-06 (your words):** "yes to the winners' mix with the tilt and the quarterback cap" (rows 1, 7 and 10).
+The code for it is merged and is rehearsed Wednesday and again Friday. Still open: study 36 (a tighter cap on every
+player, if it passes), the build size, and the small items in the arming checklist.
+
 2026-10-05, written for you; revised 10-06 for your revised entries and your goal. Each decision is reversible, and
 none is armed without your yes. The contest plan's dollars are in your private files, not here (this repository is
 public).

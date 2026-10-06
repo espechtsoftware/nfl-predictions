@@ -12,6 +12,33 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (11:53 CDT) — THE OPERATOR'S YES (MIXT + term + QB cap A); all seven approved branches MERGED (231b1ea0); Rev3 installed; the arm-script commit for review
+
+**Operator (10-06):** "yes to the winners' mix with the tilt and the quarterback cap". The reviewer agreed to merge on
+Tuesday instead of Friday, because earlier merges buy rehearsal time.
+- **Merged into integration, in the checklist order:**
+  - main-mix `ddd470ed` → O-35 `ce7ba02b` → vet-cell-order `030db347` → fp-gap-flag `645bddc0` (re-approval confirmed)
+    → qb-cap `b5514472` → pins-extend `da399bdb` → linestar-retire `b20628fc` (approval confirmed).
+  - Head `231b1ea0`. Its tree is identical to a scratch trial merge that ran green: 27 money-path modules, 345 passed,
+    3 skipped, GCP_PROJECT unset.
+- **Rev3 installed:** `~/week5-sunday/contests.json` sha `8625de0e…` (= the arm script's PLAN_SHA), Rev2 kept as
+  `contests.json.rev2-94cc61a8`; rows-needed 26 (head) on the merged code.
+- **The production checkout** (`c83fc641`) is NOT fast-forwarded yet. Nothing scheduled reads the plan before Friday,
+  and old code refuses Rev3's pins (fail-closed). Friday's step 4 fast-forwards it.
+- **The arm-script commit** `production/arm-w5-mixt-qbcap-20261006` @ `50d42285` (for the reviewer):
+  - SHAPE="mixt"; QB_CAP_ROWS=5 / QB_CAP_K=26 → `UNION_MAIN_QB_CAP_ROWS` / `_K` in arm_env;
+  - step 0 stops if rows-needed ≠ the cap's K; `--check` prints the cap;
+  - FRIDAY_HEAD is still empty, so it refuses to arm.
+  - A print-only `arm_week_timers.sh 5` run through this arm_env showed all 7 build units carrying UNION_MAIN=mix,
+    UNION_MIX_PORTFOLIO=mix and the cap.
+- **Wednesday's host rehearsal** runs on the merged head in the EXACT armed env (MIXT + mix + FP source + FP term 0.20 +
+  Rev3 + K 26 + the cap + pin f69598b) in a scratch OUT. It checks:
+  - O-19 / O-20 / O-23 / O-24;
+  - the dealt top-QB share against study 35's census (.224 mean, .245 max);
+  - that the receipt shows qb_cap_rows 5 / qb_cap_k 26.
+  Friday re-verifies on the final head (+ UNION_MAIN_CAP only if study 36 passes and he says yes).
+- O-18 stays unapplied (no answer yet).
+
 ## 2026-10-06 (11:49 CDT) — O-3 Tuesday steps (the 11:47 scheduled task): both already done; the SIS session re-verified
 
 - (1) O-3d: `sis-download verify-login` → "SIS session verified" (rc 0) at 11:49 CT. The operator renewed it this
