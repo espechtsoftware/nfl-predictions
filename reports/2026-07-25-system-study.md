@@ -5874,3 +5874,61 @@ secondaries (slate means):
    he prefers the round-robin; the value fill is not armed.
 7. **Transfer:** our projections (the live book uses FP's), realized 2023–24 outcomes against a sampled field whose top
    end is a little easier than the real one.
+
+## Addendum 147 (2026-10-06): study 43 (a row in every high-total game): NO DIFFERENCE, leaning worse in both seasons — forcing a stack into each of the top games spends rows on weaker lineups and costs about a tenth of the expected big seats; the coverage switch stays off
+
+**Setup.**
+- **The operator (10-06):** "study 43 sounds the most interesting. I would like to try that first to be considered for
+  this week." The idea: the outside review's §4.3 and the Week-4 post-mortem's "minimum exposure to every high-total
+  game" -- the winning stack can sit in a game the book does not hold at all.
+- **Arms** (study 42's harness: 36 slates, Rev3, K 26, head; the reference is his LIVE Week-5 book: the winners' mix,
+  the overlap limit 4, the round-robin fill, the QB cap of 5 rows, caps 13 / 6, no ownership term):
+  - MIXT_LIVE, the reference;
+  - **MIXT_COVER4 (DECISION):** each of the slate's top-4 games by pre-lock total gets one A1 stack (QB + 2 + a
+    bring-back) with its QB from that game, solved FIRST through the shared state and counted toward A1's quota; then
+    the live fill; A1's rows then ordered by projection;
+  - MIXT_COVER6 (exploratory): the top-6 games.
+  - With no cover the fill IS study 42's frozen `mix_fill` (tested for every fill order).
+- **Prior, stated first:** study 26's one-game shootout build read NO DIFFERENCE with a ceiling signal.
+- **Preregistration:** `reports/2026-10-07-prereg-study43-game-cover.md` (frozen `e81122af`).
+- **Panel:** banks 1497–1502, B 20,000, seed 20261024. The confirmatory census holds: the top-4 games holding an A1
+  stack 2.11 (live) → 4.00; coverage rows 4 / 6, none missed; −0.21 / −0.31 projected points per dealt lineup.
+- **Read and reproduced:** read by the reviewer; **reproduced byte-identically by the laptop** (diff empty, at lab
+  `6392ca4`; raw files equal to the RAW_MANIFEST). Reader `88115e33`; READ `d830a305`. The confirmatory census
+  (`95e2243`) was committed before the READ (`6392ca4`). Lab: nfl2 `production/s43-game-cover-20261006`.
+
+**Reader output (verbatim):**
+```
+STUDY 43 READER  sha256 88115e33850b0a489a5e00956350fa2fb90860a2b5c34e777237355d21730588
+DIRECTION: P(>= 1 big seat) per slate (the mean over its banks); every difference is ARM - REFERENCE; POSITIVE favours the first arm.
+slates 36  banks [1497, 1498, 1499, 1500, 1501, 1502]  B 20000  seed 20261024  primary MIXT_COVER4 - MIXT_LIVE, two-sided 0.95, guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only
+arms (cover k, live settings, QB cap, objective): [{"MIXT_COVER4": 4, "MIXT_COVER6": 6, "MIXT_LIVE": 0}, {"fill": "rr", "max_shared": 4}, 5, "player_mean (no ownership term)"]
+
+== MIXT_COVER4 vs MIXT_LIVE  [DECISION: the top-4 games by total each hold an A1 stack]
+  PRIMARY P(>= 1 big seat) per slate -0.02840  [-0.06453, +0.00704]  seasons 2023 -0.02635, 2024 -0.03045
+  GUARD 1 mean entry pct -0.00416  one-sided lower -0.00893  (must exceed -0.015)
+  GUARD 2 expected big seats 0.58042 vs 0.65078  ratio 0.892  (must be >= 0.80)
+  MIXT_COVER4 dealt identical to MIXT_LIVE: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+
+== EXPLORATORY (never decision-bearing)
+  MIXT_COVER6 - MIXT_LIVE (the top-6 games): -0.00679  [-0.04872, +0.03431]  seasons 2023 +0.00813, 2024 -0.02172
+
+secondaries (slate means):
+  MIXT_LIVE   P(>=1 big) 0.34976  expected big seats 0.65078  P(>=2) 0.15562  entry pct 0.52327  top-4 held 2.11  top-6 held 2.81  QBs 8.09  games 9.48  dealt projection 128.62
+  MIXT_COVER4 P(>=1 big) 0.32136  expected big seats 0.58042  P(>=2) 0.12917  entry pct 0.51912  top-4 held 4.00  top-6 held 4.55  QBs 8.90  games 9.73  dealt projection 128.41
+  MIXT_COVER6 P(>=1 big) 0.34297  expected big seats 0.60895  P(>=2) 0.15024  entry pct 0.52096  top-4 held 4.00  top-6 held 6.00  QBs 9.52  games 9.96  dealt projection 128.31
+```
+
+**Reading.**
+1. **At the frozen rule: NO DIFFERENCE, leaning worse.** COVER4 − LIVE −0.028 [−0.065, +0.007]; both seasons negative
+   (2023 −0.026, 2024 −0.030).
+2. **The guards hold, but the seats fall:** expected big seats .651 → .580 (ratio 0.892), P(≥ 2) .156 → .129. The mean
+   finish is close (−0.004).
+3. **Covering six games is level** (−0.007, exploratory): the cost of the forced rows is spread thinner.
+4. **Why.** His live book already holds about half of the top-4 games; the other half are games the projection did not
+   choose, and a stack forced into them is a weaker lineup taking a deal position from a stronger one.
+5. **By frozen §5:** his book stays as it is; production's `--mix-cover-games` (reviewed) stays at 0, and study 38's
+   parity refuses a nonzero cover (amendment 3).
+6. **Transfer:** our projections (the live book uses FP's), realized 2023–24 outcomes against a sampled field whose top
+   end is a little easier than the real one (the field audit).
