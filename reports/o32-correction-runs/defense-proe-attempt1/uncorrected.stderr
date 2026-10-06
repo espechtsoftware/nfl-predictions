@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/erich/projects/.nfl-predictions-worktrees/o32-runs/src/nfl_dfs/cli.py", line 1467, in <module>
+    main()
+    ~~~~^^
+  File "/home/erich/projects/.nfl-predictions-worktrees/o32-runs/src/nfl_dfs/cli.py", line 1425, in main
+    fantasy_points_defense_proe.run(args.panel, game_day_active=args.game_day_active)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/erich/projects/.nfl-predictions-worktrees/o32-runs/src/nfl_dfs/analysis/fantasy_points_defense_proe.py", line 118, in run
+    raise ValueError("Defense PROE table provenance is invalid")
+ValueError: Defense PROE table provenance is invalid

@@ -1,0 +1,25 @@
+O-32 qb-shell: original (Cloud) | local uncorrected | local corrected   (* = in the reproduction decision)
+* disposition                                             fp-qb-shell-player-tai fp-qb-shell-player-tai fp-qb-shell-player-tai
+* gate.aggregate_30_brier_improves                                         False                  False                  False
+* gate.coverage_at_least_70pct_each_fold                                    True                   True                   True
+* gate.passes                                                              False                  False                  False
+* aggregate.control_brier_20                                 0.06631047932682058    0.06631047932682058    0.10729786870952607
+* aggregate.control_brier_30                                0.018710729509087465    0.01871072950908747   0.030365791855194134
+* aggregate.control_mae                                       3.4004139042179498     3.4004139042179498      4.122744336617684
+* aggregate.rows                                                            2918                   2918                   1796
+* aggregate.treatment_brier_20                                0.0664469315346424    0.06644693153464251       0.10757147747039
+* aggregate.treatment_brier_30                              0.018717603791062982   0.018717603791062982   0.030371345997557652
+* aggregate.treatment_mae                                     3.4056194891439917     3.4056194891439917      4.128374021013325
+  aggregate.events_20                                                        321                    321                    321
+  aggregate.events_30                                                         61                     61                     61
+  aggregate.fold                                                       aggregate              aggregate              aggregate
+  aggregate.tail_rate_20                                     0.11000685400959562    0.11000685400959562     0.1787305122494432
+  aggregate.tail_rate_30                                    0.020904729266620972   0.020904729266620972    0.03396436525612472
+  game_day_active.dropped_no_roster_row                                        -                      -                      0
+  game_day_active.dropped_not_act                                              -                      -                   1481
+  game_day_active.rows_in                                                      -                      -                   3884
+  game_day_active.rows_kept                                                    -                      -                   2403
+  game_day_active.rule                                                         -                      - O-32 game-day rosters_
+
+REPRODUCTION (uncorrected vs original, rel tol 0.0001): REPRODUCED
+CORRECTION: disposition fp-qb-shell-player-tail-fails -> fp-qb-shell-player-tail-fails

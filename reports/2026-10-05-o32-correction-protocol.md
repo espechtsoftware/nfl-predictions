@@ -119,3 +119,36 @@ coverage each fold"). A gate that fails on support after the filter is reported 
   - The evidence is a count of non-ACT rows by roster status, the same mechanical check as deviation note 1. No
     correlation was computed.
   - It has no correction leg, and O-32's in-class list is five.
+
+## Amendment 3 (2026-10-05, before the defence-PROE correction's results): read the frozen import only
+
+**Found.** The first defence-PROE run (`reports/o32-correction-runs/defense-proe-attempt1/`, commit `680f2212`)
+stopped on its uncorrected leg before producing any output: "Defense PROE table provenance is invalid".
+
+**Cause.** `nfl_raw.fantasy_points_defense_proe` still holds the frozen 2022–2025 import intact: 2,174 rows, 4 hashes
+and one run, `fantasy-points-defense-proe-2022-2025-v1`, the contract the August Cloud wrapper checked. Since
+2026-09-23, however, the weekly vendor run has APPENDED three 2026 runs of 32 rows each. The analysis reads the whole
+table and requires a single run id, so it now refuses.
+
+**Repair.** One line, applied to BOTH legs: `run()` reads `WHERE source_run_id = SOURCE_RUN`, the ingest module's
+constant `fantasy-points-defense-proe-2022-2025-v1`. The provenance checks (the four expected hashes, one run) are
+unchanged. The analysis reads 2022–2025 only by design, so this restores the August input exactly; the reproduction
+leg must still match the original.
+
+**Sweep** (frozen-chain rule 4).
+- QB shell's source `fantasy_points_qb_shell_l4` holds only its frozen run (4 × 448 rows), and its correction
+  reproduced exactly.
+- The DraftKings prop lines for 2024–25 have no snapshot after their seasons.
+- The NGS and pass-participation analyses download nflverse data live. Revisions there are caught by their
+  reproduction legs; there is no table contract to fix in advance.
+
+## Result: QB shell (run 2026-10-05, commit `680f2212`)
+
+**REPRODUCED.** The local uncorrected leg equals the August Cloud report on every whitelisted field.
+
+**CORRECTED: `fp-qb-shell-player-tail-fails` → `fp-qb-shell-player-tail-fails` (unchanged).**
+- The filter dropped 1,481 of 3,884 target QB rows (38%; backup QBs listed with 0 points).
+- The aggregate went from 2,918 to 1,796 rows; the 20- and 30-point events are unchanged (321 and 61).
+- The treatment's Brier-30 is 0.030371 vs the control's 0.030366: still not an improvement.
+
+Full columns: `reports/o32-correction-runs/qb-shell/comparison.txt`.
