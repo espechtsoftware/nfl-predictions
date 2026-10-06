@@ -152,3 +152,25 @@ leg must still match the original.
 - The treatment's Brier-30 is 0.030371 vs the control's 0.030366: still not an improvement.
 
 Full columns: `reports/o32-correction-runs/qb-shell/comparison.txt`.
+
+## Results: defence PROE, NGS receiver, pass participation (run 2026-10-05, commit `2b1618a0`); the correction is complete
+
+All five in-class studies **REPRODUCED** their August Cloud reports on every whitelisted field. NGS and pass
+participation, which download nflverse data live, agree within rel 1e-4. **All five corrected dispositions are
+unchanged.**
+
+| Study | Original | Corrected | Target rows in → kept (non-ACT dropped) | Aggregate rows |
+|---|---|---|---|---|
+| defence PROE | `defense-proe-pass-game-tail-fails` | **unchanged** | 21,375 → 12,554 (8,821) | 16,110 → 9,496 |
+| QB shell | `fp-qb-shell-player-tail-fails` | **unchanged** | 3,884 → 2,403 (1,481) | 2,918 → 1,796 |
+| market tail | `market-tail-mechanism-gate-fails` | **unchanged** | 18,700 → 11,052 (7,648) | held-out 1,700 → 1,693 |
+| NGS receiver tail | `ngs-receiver-tail-gate-fails` | **unchanged** | 9,059 → 8,524 (535) | 2,936 → 2,695 |
+| pass participation | `supports-paid-route-trial` | **unchanged** | 24,205 → 14,216 (9,989) | 9,887 → 8,043 |
+
+No row was dropped for a missing roster row.
+
+**Defence PROE**, the one the operator's matchup question leans on, still fails after the repair: treatment Brier-30
+0.015668 vs control 0.015666, MAE 3.644 vs 3.640.
+
+**No adopted production lever rested on an in-class measure** (the reviewer's check above), and no in-class verdict
+changed. O-32 is resolved. Each study's columns are in `reports/o32-correction-runs/<study>/comparison.txt`.

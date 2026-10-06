@@ -1,0 +1,25 @@
+O-32 defense-proe: original (Cloud) | local uncorrected | local corrected   (* = in the reproduction decision)
+* disposition                                             defense-proe-pass-game defense-proe-pass-game defense-proe-pass-game
+* gate.aggregate_30_brier_improves                                         False                  False                  False
+* gate.coverage_at_least_90pct_each_fold                                    True                   True                   True
+* gate.passes                                                              False                  False                  False
+* aggregate.control_brier_20                                 0.03341100029155675    0.03341100029155675   0.056060645256117814
+* aggregate.control_brier_30                                 0.00928944656705255    0.00928944656705255   0.015665957965572134
+* aggregate.control_mae                                       2.7439164290233875     2.7439164290233875     3.6398548949328067
+* aggregate.rows                                                           16110                  16110                   9496
+* aggregate.treatment_brier_20                              0.033484726387058905   0.033484726387058905    0.05616966964285108
+* aggregate.treatment_brier_30                              0.009292921760766067   0.009292921760766067      0.015667843101145
+* aggregate.treatment_mae                                      2.743278348185257      2.743278348185257     3.6440964280627868
+  aggregate.events_20                                                        748                    748                    748
+  aggregate.events_30                                                        162                    162                    162
+  aggregate.fold                                                       aggregate              aggregate              aggregate
+  aggregate.tail_rate_20                                     0.04643078833022967    0.04643078833022967    0.07877000842459983
+  aggregate.tail_rate_30                                     0.01005586592178771    0.01005586592178771   0.017059814658803706
+  game_day_active.dropped_no_roster_row                                        -                      -                      0
+  game_day_active.dropped_not_act                                              -                      -                   8821
+  game_day_active.rows_in                                                      -                      -                  21375
+  game_day_active.rows_kept                                                    -                      -                  12554
+  game_day_active.rule                                                         -                      - O-32 game-day rosters_
+
+REPRODUCTION (uncorrected vs original, rel tol 0.0001): REPRODUCED
+CORRECTION: disposition defense-proe-pass-game-tail-fails -> defense-proe-pass-game-tail-fails

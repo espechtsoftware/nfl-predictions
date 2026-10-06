@@ -1,0 +1,15 @@
+study defense-proe
+commit 2b1618a07b41c93be868f3b10ab047e4e3c5d8cd
+started_utc 2026-10-06T00:35:40Z
+host Erich
+python 3.14.4
+panel 20260810-lockfix-e80-k1-8677d21
+google-cloud-bigquery==3.45.2
+lightgbm==4.7.0
+nflreadpy==0.1.5
+numpy==2.5.3
+pandas==3.0.5
+polars==1.44.2
+scikit-learn==1.9.1
+scipy==1.18.1
+finished_utc 2026-10-06T00:36:01Z

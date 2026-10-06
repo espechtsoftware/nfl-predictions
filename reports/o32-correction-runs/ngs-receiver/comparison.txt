@@ -1,0 +1,30 @@
+O-32 ngs-receiver: original (Cloud) | local uncorrected | local corrected   (* = in the reproduction decision)
+* disposition                                             ngs-receiver-tail-gate ngs-receiver-tail-gate ngs-receiver-tail-gate
+* gate.aggregate_brier_20_not_worse                                        False                  False                  False
+* gate.aggregate_brier_30_improves                                         False                  False                  False
+* gate.aggregate_mae_not_worse                                             False                  False                  False
+* gate.at_least_1000_rows_each_fold                                         True                   True                   True
+* gate.candidate_weighted_coverage_at_least_70pct                           True                   True                   True
+* gate.no_fold_brier_30_worse_over_1pct                                     True                   True                   True
+* aggregate.control_brier_20                                 0.09125366156139317    0.09125034075024209    0.09835170518804758
+* aggregate.control_brier_30                                 0.02307851283982059    0.02307631061070437   0.025036851153337623
+* aggregate.control_mae                                        5.656018039984956      5.656509365217964      5.590455810901537
+* aggregate.rows                                                            2936                   2936                   2695
+* aggregate.treatment_brier_20                               0.09143434385835861    0.09143852724725075    0.09848137145521287
+* aggregate.treatment_brier_30                              0.023101197222804765   0.023100215277387447   0.025052605800941707
+* aggregate.treatment_mae                                      5.661375940728019      5.661934811792347      5.596128065722002
+  aggregate.fold                                                       aggregate              aggregate              aggregate
+  aggregate.tail_20_rate                                     0.11376021798365123    0.11376021798365123    0.12393320964749537
+  aggregate.tail_30_rate                                    0.023841961852861037   0.023841961852861037   0.025974025974025976
+  game_day_active.dropped_no_roster_row                                        -                      -                      0
+  game_day_active.dropped_not_act                                              -                      -                    535
+  game_day_active.rows_in                                                      -                      -                   9059
+  game_day_active.rows_kept                                                    -                      -                   8524
+  game_day_active.rule                                                         -                      - O-32 game-day rosters_
+  source_audit.candidate_rows                                              25766                  25766                  25766
+  source_audit.ngs_rows_downloaded                                         14731                  14731                  14731
+  source_audit.rows_with_prior_ngs                                          8628                   8628                   8190
+  source_audit.snapshot_rows                                                9059                   9059                   8524
+
+REPRODUCTION (uncorrected vs original, rel tol 0.0001): REPRODUCED
+CORRECTION: disposition ngs-receiver-tail-gate-fails -> ngs-receiver-tail-gate-fails

@@ -1,0 +1,27 @@
+O-32 pass-participation: original (Cloud) | local uncorrected | local corrected   (* = in the reproduction decision)
+* disposition                                             supports-paid-route-tr supports-paid-route-tr supports-paid-route-tr
+* gate.aggregate_brier_improves                                             True                   True                   True
+* gate.aggregate_mae_improves                                               True                   True                   True
+* gate.no_fold_metric_worse_over_1pct                                       True                   True                   True
+* gate.wr_te_brier_improves                                                 True                   True                   True
+* aggregate.control_brier                                   0.045374857131376865    0.04537485713137687    0.05494816507553661
+* aggregate.control_mae                                        3.710889224112552      3.710889224112552     4.0327969010825555
+* aggregate.control_wr_te_brier                              0.03925818155981954    0.03925818155981954    0.04800790163735878
+* aggregate.rows                                                            9887                   9887                   8043
+* aggregate.treatment_brier                                 0.045226080436793305    0.04522575189452999   0.054833093709738163
+* aggregate.treatment_mae                                     3.6795726960391377     3.6795365803628384      4.024148437471269
+* aggregate.treatment_wr_te_brier                             0.0390820041979458     0.0390818405201846    0.04785619071011173
+  aggregate.fold                                                       aggregate              aggregate              aggregate
+  aggregate.tail_rate                                        0.05664003236573278    0.05664003236573278    0.06962576153176675
+  game_day_active.dropped_no_roster_row                                        -                      -                      0
+  game_day_active.dropped_not_act                                              -                      -                   9989
+  game_day_active.rows_in                                                      -                      -                  24205
+  game_day_active.rows_kept                                                    -                      -                  14216
+  game_day_active.rule                                                         -                      - O-32 game-day rosters_
+  source_audit.joined_valid_dropbacks                                      60805                  60807                  60807
+  source_audit.malformed_personnel_rows                                       53                     53                     53
+  source_audit.participation_rows                                         137271                 137271                 137271
+  source_audit.player_week_rows                                            17067                  17067                  17067
+
+REPRODUCTION (uncorrected vs original, rel tol 0.0001): REPRODUCED
+CORRECTION: disposition supports-paid-route-trial -> supports-paid-route-trial

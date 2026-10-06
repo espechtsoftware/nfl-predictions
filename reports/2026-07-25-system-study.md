@@ -4309,3 +4309,40 @@ secondaries (slate means):
    2026 live projections against the walk-forward replays, the realized-ownership field sampler, and only two live
    weeks.
 4. **Study 18's base is therefore λ = 0**, the plain-mean C.
+
+## Addendum 128 (2026-10-05): CORRECTION RECORD for O-32: five analyses re-scored without inactive players; every verdict unchanged
+
+**What was wrong.** Replay panels (`nfl_predictions.slate_player_features`) keep players who did not play, as
+`actual` = 0, and have no `was_active` column. Five analyses scored the projection against outcomes at the player
+level with those rows included. The reviewer dates the class from the 08-08 salary spine.
+- The served/TabPFN calibration family and `served_position_calibration` filter `was_active` and were clean.
+- `market_movement_eval` (Addendum 96) predates the spine: 0 non-ACT rows.
+
+**Protocol.** `reports/2026-10-05-o32-correction-protocol.md`, frozen before any re-run, with amendments 1–3:
+- ONE shared repair, the game-day `rosters_weekly` ACT join (`analysis/game_day_active.py`), applied identically,
+  OFF by default;
+- each frozen gate unchanged;
+- a local reproduction leg that must match the August Cloud report before the correction is read;
+- a whitelist comparison with a leg-identity check;
+- for defence PROE, a read of its frozen 2022–25 import only, because the weekly vendor run had appended 2026 runs.
+
+**Results** (original | corrected; every uncorrected leg REPRODUCED the original):
+
+| Study (addendum or report it fed) | Original disposition | Corrected | Non-ACT target rows dropped |
+|---|---|---|---|
+| FP defence PROE (2026-08-11 protocol) | pass-game tail FAILS | **FAILS** | 8,821 of 21,375 |
+| FP QB shell (2026-08-13) | player tail FAILS | **FAILS** | 1,481 of 3,884 |
+| market-tail disagreement (2026-08-10) | mechanism gate FAILS | **FAILS** | 7,648 of 18,700 (the prop match had already excluded nearly all) |
+| NGS receiver tail (2026-08-10) | gate FAILS | **FAILS** | 535 of 9,059 |
+| pass participation (2026-08-10) | SUPPORTS the paid route trial | **SUPPORTS** | 9,989 of 24,205 |
+
+**Reading.**
+- No verdict changes. The inactive zeros diluted every comparison, but in none did they hide a signal: in each case
+  treatment and control moved together.
+- The defence-PROE result that study list item 11 cites stands on clean rows: treatment Brier-30 0.015668 vs control
+  0.015666.
+- No adopted production lever rested on an in-class measure: `BLEND_W` and `DEFAULT_WIDEN` were fit on played-only
+  rows, the TabPFN targets are ownership, and the served family filters.
+- **Standing rule:** a player-level projection-vs-outcome measure on replay panels joins game-day ACT (or
+  `was_active`) first.
+- O-32 is closed. Results: `reports/o32-correction-runs/`.
