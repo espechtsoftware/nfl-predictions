@@ -24,7 +24,7 @@ and he says yes), the dose confirmation, O-16, O-18's CFB part (the freshness mo
 3. FP + props: the paired paper check (recommended) or a trial now.
 4. The ownership term: ON at 0.20 on either shape (study 31 reversed study 29; his choice).
 5. Dealing stays head (his pins require it; Rev3 = super-satellites on rows 1–26).
-7. **The ownership tilt under FP (decision sheet row 13; new 10-06):** keep 0.20, 0, or 0.05. The reviewer and the laptop recommend 0. If 0: the arm script's `UNION_MAIN_OWN_TILT` changes in Friday's commit; the build then makes NO FP ownership file, so study 38's snapshot generates it itself (s38_snapshot.sh, before lock). Production's W4 replay (`~/.cache/laptop-agent/rehearsal/b_w4_term_replay.sh`): P(≥1 big) 0.0094 with the term vs 0.0336 without (one week).
+7. **The ownership tilt under FP (decision sheet row 13): DECIDED 10-06 -- 0** ("yes, remove the tilt as you suggested and proceed as planned"); the arm change is `production/arm-w5-no-tilt-20261006` @ `2f2ffa21` (for review); A2 / A3 rehearse WITHOUT the term. Earlier: keep 0.20, 0, or 0.05; the reviewer and the laptop recommended 0. If 0: the arm script's `UNION_MAIN_OWN_TILT` changes in Friday's commit; the build then makes NO FP ownership file, so study 38's snapshot generates it itself (s38_snapshot.sh, before lock). Production's W4 replay (`~/.cache/laptop-agent/rehearsal/b_w4_term_replay.sh`): P(≥1 big) 0.0094 with the term vs 0.0336 without (one week).
 6. The per-QB cap (decision sheet row 10): study 35 read NO DIFFERENCE, leaning positive on every endpoint (+0.026
    [−0.027, +0.083]; both seasons positive; guards 1.048 / +0.005). By its frozen §4 he may choose it as a preference;
    the reviewer and the laptop recommend it. Cap A = 5 rows at K 26.

@@ -12,6 +12,29 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (14:32 CDT) — THE OWNERSHIP TILT IS 0 for Week 5 (operator); production's W4 replay; the snapshot tool reviewed and fixed
+
+- **Finding (the reviewer, at the outside review's top rank):** under FP projections the 0.20 tilt carries no
+  information.
+  - W1–4 regression: ownership beyond OUR model +0.44 [+0.24, +0.65]; beyond the props-implied projection −0.03
+    [−0.24, +0.17]; beyond FP (W4) −0.34.
+  - **Production's own W4 fixed-book replay** (`~/.cache/laptop-agent/rehearsal/b_w4_term_replay.sh`; union at
+    `c21261fb`; Rev3; MIX + FP + QB cap; the real W4 Milly field; big_seat_stats): P(≥1 big) 0.0094 with the term vs
+    0.0336 without; mean entry pct .496 vs .501. This equals the lab replay to 4 decimals (the same books).
+  - The duplicates link: 47% of W4 Milly entries copied in the field, r .52 with the ownership product.
+- **Operator:** "yes, remove the tilt as you suggested and proceed as planned". Decision-sheet row 13 and checklist item 7.
+- **Arm change** `production/arm-w5-no-tilt-20261006` @ `2f2ffa21` (for review): `UNION_MAIN_OWN_TILT=0`, predictor
+  dropped. All 7 build units carry it (print-only). At tilt 0 the build makes no FP ownership file
+  (sunday_build_host ~line 333).
+- **Study 38's snapshot tool** `production/s38-snapshot-20261006` @ `f8bd0341`: the reviewer approved it with R1/R2,
+  both done.
+  - A no-term week generates FP ownership itself after the union, under the build's flock, before lock.
+  - Every copy is fatal on failure (partial dir → SNAPSHOT-FAILED.txt).
+  - It refuses at or after the union receipt's lock_utc and keeps union-receipt.json. 6 tests.
+  - The host-local copy is synced.
+- **A2** (`~/.cache/laptop-agent/rehearsal/a2_armed_k26.sh`) now runs WITHOUT the term. A3 and the study-38 rehearsal
+  snapshot run in the no-term env, which exercises the no-term export.
+
 ## 2026-10-06 (13:50 CDT) — Study 38 plumbing: the laptop's snapshot tool; the reviewer's build reads the union's own inputs; outside-agent report
 
 - **Snapshot tool (host-local, tested):** `~/.cache/laptop-agent/rehearsal/s38_snapshot.sh <union dir> <OUT> <RUN_TAG>
