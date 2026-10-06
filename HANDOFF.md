@@ -12,6 +12,84 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (07:13 CDT) — Study 31 census acked (byte-identical); no change to the overlap wrap; the SIS session EXPIRED (Tuesday check)
+
+**Study 31 binding census:** nfl2 `b61e93c`, `CENSUS_s31_binding.txt` sha `67dcb331`.
+- The laptop's re-run is BYTE-IDENTICAL: nfl2 worktree at b61e93c plus production `da399bdb` src (enter_layout
+  `3cb051ac`); raw bank1406 `37a38005`; plan shas Rev3 `3dd19d6c` and Rev2 `00c66004`; census `6b2823cb`; reader
+  `80b61bab`, as the prereg says.
+- **ACKED**; the reviewer launches 1431–1436.
+- The census shows the spread lowering concentration: max entry share .54–.58, against .68–.79 under Rev2 in study 30.
+
+**The overlap wrap (decided: NO CHANGE).** At K 26, `limit_small_overlap`'s replacement scan can reach rows 23–26: once
+in 36 CT slate-banks (wildcat3, a 2-entry big contest). Those rows are ordinary book rows, and ranks are decorative
+(A62). A cap would change enter_layout's sha and force a re-pin of study 31. It is recorded behaviour, reported by the
+census.
+
+**SIS (O-3d), the Tuesday check FAILED:** `sis-download verify-login` reports the saved session missing or expired.
+The operator was asked to run `sis-download login` today. Wednesday's SIS acquisition (O-3) needs it; re-verify after.
+
+**Bank scan 1431–1442** (laptop, independent): nfl2 CLEAN on every branch (only s31's own scripts). The production repo
+and disk were still running when the ack went out (the reviewer's own scan had cleared them).
+
+**Proposed to the reviewer:** re-date the O-22 fix, retrain and Wednesday-night six-season co-run to after Week 5.
+Week 5 takes FP for every player, so our model's means don't pick lineups; paper shadow B stays.
+
+## 2026-10-06 (07:06 CDT) — Rev3: super-satellites on rows 1–26 (K 26), code done and rehearsed; study 31 runs on Rev3; study 32 (choosing the best few lineups) agreed
+
+**The operator (10-06 ~07:00)** pushed back on "1–26 isn't worth it this week": "It is only Tuesday and this is an easy
+change to make. And we NEED to have a way to sort lineups. Im trying to win entries to large contests this week. If
+successful, i will have a limited number of entries to big contests next week, so we need to figure out how to choose
+the best ones." He was right; it was done within the hour.
+
+**Rev3 (1–26):**
+- **Code:** `production/pins-extend-book-20261006` @ `da399bdb` (off integration; enter_layout.py sha `3cb051ac…`).
+  - `_head_ranks`: a pin may ADD rows past the unpinned layout, never leaving a gap (a typo [300] refuses).
+  - `rows_needed` already reads every rank, so K follows everywhere: week_env BOOK_ENTRIES, sunday_build_host,
+    check_week_runtime, audit, spread, and plan_weights.
+  - Tests: test_enter_layout 91 passed; money-path modules 238 passed, 3 skipped.
+  - Not changed: `protected_ranks` under fewest-low would protect all 26 ranks (fail-closed); the week runs greedy.
+  - With the reviewer for approval.
+- **Plan:** `~/private/week5-plan/rev3-26/contests.json` (sha `8625de0e…`).
+  - Rev2 with only the pins changed: supersat2–5 → 1–5 / 6–10 / 11–15 / 16–20, supersat6 21–22, supersat7 23–25,
+    supersat8 26, ffwc 1.
+  - It installs Friday after the merge. Unmerged code refuses its pins (fail-closed). The earlier 22-row candidate
+    `rev3-spread` is superseded.
+- **The K-26 rehearsal** (preview 70fbed3b = main-mix + O-35 + vet-cell-order + pins-extend-book + linestar-retire +
+  integration): rows 26, caps 13 / 6.
+  - 5/5 PASS: cells by entries .321 / .151 / .283 / .245 (worst gap 3.5 points); pins 8/8; 15 spares; 13 replaced,
+    1 fallback; audit 14 PASS.
+  - The excluded player is in 30 of 53 entries (Rev2: 37).
+- **Friday merge order:** main-mix → O-35 → vet-cell-order → pins-extend-book → linestar-retire, then install Rev3
+  (checklist updated).
+
+**Study 31** (the reviewer): frozen on Rev3 at K 26. It pins enter_layout by content sha (study 30 had not recorded
+which production enter_layout it imported; a records gap, now fixed going forward).
+- Primary: MIX vs CT.
+- Satellite secondary: the same K-26 book dealt under Rev2's pins vs Rev3's, giving P(≥ 1 ticket), expected tickets
+  and P(≥ 2).
+
+**Study 32 (sorting; the reviewer owns it; study list item 26):**
+- The honest prior: ranking our own lineups has failed every time (Addenda 13 / 62 / 93; study 18's line-aware deal).
+- One decision contrast: R4, the joint coverage (the m rows maximising P(≥ 1 cashes)), vs RND (exact average). The
+  rest are exploratory.
+- The rule: R4 is offered only if it beats RND at 0.95 with no negative season.
+- Banks 1437–1442; frozen before 31's outcomes; read on the book he picks Friday.
+- **The target contests** (DK public lobby, today; private file `~/private/week5-plan/targets/target-contests-20261006.json`):
+  - the $4,444 MEGA Millionaire: max 634, 119 paid places, every one at least $7,000;
+  - the $333 Wildcat: max 4,170, 1,000 paid places, min-cash $500;
+  - the $555 Millionaire: not open this week.
+- **Asked of the operator:** what counts as a win inside those contests: any cash, or more?
+
+**Decision sheet:** row 4 / section 4a = Rev3 (1–26); new row and section 9 = study 32 (with the question to him); row 5
+says the pins need head.
+
+**Next:**
+- Review approval of `da399bdb`.
+- Confirm the reviewer's s24-format plan sha against `8625de0e`.
+- Ack the census for 31 and then 32; re-read 31.
+- Friday: merge and install Rev3.
+
 ## 2026-10-06 (06:54 CDT) — Full Week-5 rehearsal found O-36 (vet_book undid the MIX cell placement), fixed and approved; study 30 leans to the status quo; study 29 merged; the operator's super-satellite question
 
 **The full Week-5 rehearsal** (reviewer's request; local Friday-merge preview; W4 T-70 frame; Rev2 pins; MIX + FP; no
