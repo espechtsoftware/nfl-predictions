@@ -53,8 +53,17 @@ my first draft plan (9–22% of the field paid):
 ## 2. Fantasy Points' projections
 
 - **Your decision (10-05):** use FP's instead of ours, unless ours or a blend beats them.
-- **Week 4, the only week with FP data:** FP was a little more accurate than ours (average miss 5.47 vs 5.56 points).
-  A 50/50 blend tied FP.
+- **Week 4, the only week with FP data, corrected 10-06** (the frozen weekly check, players who actually played):
+  - average miss: **FP 5.54 points, ours 5.58, a 50/50 blend 5.52**;
+  - all three are within noise of each other: FP beat ours in about 2 of 3 resamples of the games, and the blend beat
+    FP in about 2 of 3;
+  - my 10-05 figure (FP 5.47 vs ours 5.56) counted three players who turned out inactive. FP had already zeroed two of
+    them; ours had not. That part of FP's edge is real but different: FP knew about the 10:30 inactives at 10:40, and
+    DraftKings had not yet marked those players OUT at our 10:33 pull. With FP's numbers, the build won't pick a
+    just-ruled-out player. Our check before upload (DraftKings' live statuses, about 11:00) catches them either way.
+- **Your rule** ("use fantasy points unless ... our projections or the blend have beat them") stays the test. The
+  frozen weekly check calls it "beat" only when the weeks pooled show a lower average miss in at least 95% of
+  resamples. Week 4 alone doesn't meet that for anyone, so FP stays the choice.
 - **What changes:** FP's numbers pick the lineups. They are captured at 10:40 Sunday, after the inactives, and matched
   exactly by DraftKings' player ID. If the capture is missing or looks wrong, the build falls back to ours and says
   so loudly.
@@ -145,8 +154,12 @@ section 1 is the evidence.
 - **The combination is untested as a whole.** Studies 17, 18 and 24 run on OUR simulated projections, without the
   ownership adjustment. "WS + the ownership adjustment + FP projections" as a combination is untested except by the
   one-week Week-4 replay. There is no FP data for 2022–24, so a full test of the combination is not possible.
-- **Book size differs.** Your 24 entries need 24 lineups dealt all-distinct (20 with the old dealing); the studies dealt
-  from 105. The caps are the same shares, so it should carry over, but it is not identical.
+- **The live build limits every player to half the lineups; the tests did not.**
+  - Your 24 entries come from a 24-lineup book (20 with the old dealing), and no player can be in more than half of it.
+  - The studies built 105 lineups and dealt the best 24. Their player limit (52 of 105) never applied within those 24,
+    so one player sat in nearly every entry (about 98%).
+  - So the live book spreads its players more than the tested books did. The tests don't cover that difference.
+    (I wrote on 10-05 that the limits were "the same shares". That was wrong; corrected 10-06.)
 - **The fields are modelled, not real.** Study 24 models every contest's opponents as Millionaire-style entries.
   Real satellite fields are smaller and sharper (the regulars are a much bigger share of them), so its absolute
   chances are optimistic. The comparisons between versions are what it decides on.
