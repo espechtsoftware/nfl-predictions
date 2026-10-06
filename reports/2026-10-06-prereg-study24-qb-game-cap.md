@@ -1,9 +1,10 @@
-# Preregistration: study 24, a cap on the #1-total game's QBs and a distinct-lineup deal, on the operator's real Week-5 plan (DRAFT 2026-10-06)
+# Preregistration: study 24, a per-game QB cap (no game in more than a quarter of the entries) and the sequential deal, on the operator's real Week-5 plan (DRAFT 2026-10-06)
 
 **Status: DRAFT.** It is frozen, with the reader's sha256 recorded here, after three things:
 - the one-slate smoke (§2a);
 - the operator's answer on the expected-seat tolerance (§5, GUARD 2);
-- his answer on whether the two MLB satellites and the Showdown satellite count as big seats (§4).
+- his revised Week-5 entries (the MLB satellites withdrawn, 10-05) and whether the Showdown satellite counts as a big
+  seat (§4).
 
 Both answers come before the binding census and before any scored bank. Later changes are dated deviation notes at the
 end. The reviewer freezes it and reads first. The laptop reviews the design and re-runs the frozen reader before the
@@ -17,7 +18,7 @@ LEDGER row. Study list item 24 (`reports/2026-10-04-post-week4-study-list.md`).
 - Earlier: "If there is disagreement, perhaps we can try both approaches."
 
 ## 1. What is known (descriptive; motivates, is not evidence)
-- **Concentration on one game.**
+- **Concentration on one game** (the smoke, §2a, shows WS can concentrate on a game OTHER than the #1 total).
   - Week 4 dealt 62% of our entries to QBs from the #1-total game.
   - On the laptop's W4 replay, WS + Fantasy Points projections still put about half there (52–53%, 11 of 21 entries).
   - The 2026 W1–4 Millionaire field puts about 1 in 5 there (18–22%).
@@ -56,21 +57,50 @@ Common to every arm, study 18's WS builder unchanged:
 
 N = the plan's 24 mean-track entries, so the cap is floor(0.25 × 24) = **6 entries**.
 - **WS (control):** study 18's WS book, head layout.
-- **G1 (DECISION):** WS, plus an entry-weighted budget on the QBs of the slate's #1-total game.
-  - The game is ranked by pre-lock `game_total`, using study 1's `game_ranks`.
+- **G25 (DECISION):** WS, plus an entry-weighted budget on EVERY game's QBs: no game's QBs in more than 6 of the 24
+  dealt entries.
   - w_k = the plan entries the head layout deals to rank k, before the overlap limit.
-  - Solve k bans that game's QBs when the dealt count so far + max(w_k, 1) > 6.
-  - Rows the plan never deals (w_k = 0) are banned once the budget is spent, so overlap replacements cannot leak it.
-  - Only the QB is capped. That game's other players stay available as bring-backs and second-game pairs.
-- **SEQ (DECISION):** WS's same book, dealt by `ENTER_LAYOUT=sequential`, so every entry gets its own row (24 lineups).
-  It is an existing production layout; no code change.
-- **GA (EXPLORATORY):** the same 6-entry budget for EVERY game's QBs.
-- **G1S (EXPLORATORY):** G1's budget computed on the sequential deal's weights, dealt sequentially (the cap and the
-  distinct deal together).
+  - Solve k bans a game's QBs when that game's dealt count so far + max(w_k, 1) > 6.
+  - Rows the plan never deals (w_k = 0) are banned from a game once its budget is spent.
+  - Only the QB is capped. Other players from a capped game stay available as bring-backs and second-game pairs.
+  - The small-contest overlap limit runs AFTER the budget, exactly as production deals. It can move a 2-entry
+    contest's second entry to a row whose game is already at the cap, so the realized busiest game can exceed 6 by
+    the number of such moves (at most 4 in this plan). The census reports it. This keeps parity with how a production
+    build would deliver the cap.
+- **SEQ (DECISION):** WS's same book, dealt by `ENTER_LAYOUT=sequential`. Every entry gets its own RANK. The overlap
+  limit may then reuse a row across contests, as production does, so distinct lineups are about 21–24 rather than
+  exactly 24. It is an existing production layout; no code change.
+- **G1 (EXPLORATORY):** the same 6-entry budget for the #1-total game's QBs only. The game is ranked by pre-lock
+  `game_total`, using study 1's `game_ranks`. This was the first draft's decision arm; see §2a for why it moved.
+- **G25S (EXPLORATORY):** G25's budget computed on the sequential deal's weights, dealt sequentially (the cap and the
+  deal together).
 
 ## 2a. Smoke observations before the freeze (mechanics only; one slate, 2023 W9, throwaway bank 1406)
-(To be filled from `~/s24-panel/smoke/` before the freeze: rows, distinct dealt rows, #1-game QB entries, QB games, the
-busiest QB game's share, banned solves, identical-to-WS, and wall time. Outcomes are not read.)
+Both paths ran: mechanics only, then the full outcome path. Each took about 95 s, and the rows and deals were identical
+across the two. The smoke used the first draft's arm names; they are mapped here. Shares are of the 24 DEALT entries.
+Outcomes were not read.
+
+| arm (smoke name) | distinct lineups dealt | QB games | busiest QB game | #1-total game's QB entries | solves with a ban |
+|---|---|---|---|---|---|
+| WS | 19 | 3 | **21 of 24 (0.875)** | 0 | — |
+| G25 (GA) | 20 | 5 | 7 of 24 (0.292) | 3 | 102 |
+| SEQ | 21 | 3 | 20 of 24 (0.833) | 0 | — |
+| G1 | identical to WS | 3 | 0.875 | 0 | 0 |
+
+- **The first draft's decision arm was the wrong cap.** On this slate WS put 21 of 24 entries on ONE game's QBs, and
+  that game was NOT the #1-total game. The #1-game cap therefore did nothing (dealt identically to WS). The operator's
+  concern, and the laptop's question to him ("to keep one game from carrying half your entries"), is concentration on
+  ANY one game. So the per-game cap (G25) became the decision arm and the #1-game cap moved to exploratory. This was
+  decided on mechanics alone, before any outcome existed for these arms.
+- **The cap leaked by one entry.** The Milly's head rows 0 and 1 shared more than 5 players, so the overlap limit
+  replaced rank 1 with rank 5, whose game was already at the cap. That is disclosed in §2 and kept for production
+  parity.
+- **SEQ still reuses rows.** The overlap limit reused rows across contests (21 distinct lineups, not 24).
+- **Build time:** about 95 s per slate-bank, so the 106 scored slate-banks take about 10 minutes on 24 workers.
+- **Binding-census checks before the scored run** (a failure is a design question at that review, not after scoring):
+  - G25's busiest QB game ≤ 8 of 24 on every slate-bank;
+  - G25 dealt identically to WS on ≤ 80% of slate-banks;
+  - no short books.
 
 ## 3. Why these endpoints
 The operator's utility is P(≥ 1 big seat in the week), not total tickets. The primary is computed EXACTLY per
@@ -90,7 +120,10 @@ ACROSS slates. Ties count as losses.
   - **fresh banks 1417/1418**: no bank-label use in either repository's branch scan, 10-06; the same scan finds 1415 and
     1406;
   - the smoke and the binding census on throwaway bank 1406.
-- **The plan is the operator's REAL Week-5 plan.**
+- **The plan is the operator's REAL Week-5 plan.** It is being revised: he is withdrawing the MLB satellites (10-05,
+  verbatim: "I didnt mean to do an mlb one.  Im withdrawing.  Will share what i replace it with shortly"). The plan, its
+  sha, the table below and the cap are rebuilt from his revised export before the freeze. The text below describes the
+  first export.
   - Source: built from his DraftKings entries export (`DKEntries-Week5.csv`, 10-05 21:03) by production's own
     `contests_from_entries.py` and `dk_contest_details.py`, at the integration head. Only public contest details were
     fetched, and only the export's four header columns were read.
@@ -111,11 +144,11 @@ ACROSS slates. Ties count as losses.
   | 1 FFWC $490 qualifier sat | $8 | 72 | 1 | 1 | yes |
   | 3 $333 Wildcat sats | $5 | 79 | 1 | 2 | yes |
   | 3 $333 Wildcat sats | $17 | 23 | 1 | 1 | yes |
-  | 2 MLB $333 Perfect Game sats | $5 / $17 | 79 / 23 | 1 | 1 | yes (operator to confirm) |
+  | 2 MLB $333 Perfect Game sats (WITHDRAWN by the operator, 10-05) | $5 / $17 | 79 / 23 | 1 | 1 | — |
   | 1 SUPERSat to the $20 Milly [25x] | $5 | 118 | 25 | 1 | **no** |
 
   "Big" = a prize worth $333 or more: his list ($333, $555, $4,444, $500+ in the Milly), plus the $490 qualifier. If he
-  excludes the MLB or Showdown seats, the flags change and so does the plan's sha, before the freeze.
+  excludes the Showdown seat, its flag changes and so does the plan's sha, before the freeze.
 - **Field caveat.** Every contest's opponents are modelled as draws from the Millionaire field at the slate's realized
   Millionaire ownership. Real satellite fields are smaller and sharper: the regulars are 54% of FFWC-qualifier entries,
   28% of the $4,444 Showdown satellite's and 11% of the $555 satellites' (`reports/2026-10-05-max-entry-regulars.md`).
@@ -147,20 +180,20 @@ ACROSS slates. Ties count as losses.
   - best ≥ 200;
   - the worst-decile slate's entry finish;
   - the SIMULATED P(≥ 1 big seat) over the run's own worlds (in-sample; never decision-bearing);
-  - the dealt entries' shape and QB-game spread: #1-game share, top-4 share, QB games, the busiest QB game's share,
+  - the dealt entries' shape and QB-game spread: the busiest QB game's share, QB games, #1-game share, top-4 share,
     QB + 1, bring-back, second-game pair, players in the QB's game, games used, the top player's entry share.
 - **Power:** not estimable before outcomes. The per-slate P(≥ 1) is heavy-tailed, since a few slates where the book's
   best row is near the top carry most of it. With 53 slates, an effect of a few points of P(≥ 1) will likely read NO
   DIFFERENCE. That is a legitimate result, not a failure.
 
 ## 6. What a verdict can do
-- **G1 PASS:** a reason to offer a reversible Week-5 trial.
+- **G25 PASS:** a reason to offer a reversible Week-5 trial.
   - The laptop builds the same budget in production's `mix_rows`, with a parity test against this module, call for call
     on a frozen frame. The reviewer reviews it before Friday.
   - The operator decides. Rollback = the budget off: the WS book is byte-identical when off.
 - **SEQ PASS:** a reason to offer `ENTER_LAYOUT=sequential` for the week's deal (an existing layout; no code). The
   operator decides.
-- **Both pass:** G1S (exploratory) informs whether to combine them. A combination is not a verdict.
+- **Both pass:** G25S (exploratory) informs whether to combine them. A combination is not a verdict.
 - **NO DIFFERENCE with both guards intact:** a legitimate reason to choose either as a risk preference, stated as such.
   It is not a PASS.
 - **WORSE / FAIL (guard):** the arm is not offered.
@@ -178,8 +211,9 @@ ACROSS slates. Ties count as losses.
   The shas are recorded here at the freeze.
 - **Order:**
   1. this freeze;
-  2. the BINDING outcome-blind census on bank 1406: all 53 slates, mechanics only (rows, distinct dealt rows, #1-game QB
-     entries against the cap, QB games, banned solves, identical-to-WS, short books), reviewed by both parties;
+  2. the BINDING outcome-blind census on bank 1406: all 53 slates, mechanics only (rows, distinct dealt rows, the
+     busiest QB game's entries against the cap, #1-game QB entries, QB games, banned solves, identical-to-WS, short
+     books), reviewed by both parties, with §2a's checks;
   3. the scored run on 1417/1418 (nothing changes after it starts);
   4. a confirmatory mechanics-only census from the scored rows, committed before the reader;
   5. the reviewer's read;
