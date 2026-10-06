@@ -12,6 +12,29 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (04:42 CDT) — The operator: this week is round-the-clock Sunday-strategy testing; the O-22 co-run and the 2026-only O-22 check are PARKED
+
+**Operator (10-06, verbatim, to the reviewer):** "That 6 season rule is old and i want to clarify something. I dont
+believe we have full data like SIS, Fantasy Points, odds api for the six seasons, so is it a true test?" Then: "I say #4.
+I would rather see around the clock efforts to try different strategies of selecting boom players, sorting, testing
+usage of route share data etc with the intent to use the best system available this week".
+
+- **PARKED:** the six-season O-22 co-run (prereg draft `production/o22-corun-prereg-20261006` 641bbb37; recipe not
+  frozen) and the 2026-only O-22 repair check (outline approved in principle by the reviewer, with notes a–c). The
+  co-run base is left as is on `production/corun-o22-20261006` @ `8da4f0e7` (integration + o22 @ 0bc6b6bc + arm D's
+  candidate registration).
+- **Found while drafting:** arm D would have been a dead lever (EXTRA_FEATURES ignores unregistered names) -> O-33.
+- **This week's work:** Sunday-strategy tests on his real plan and goal: boom-player selection, sorting / dealing,
+  route share. The reviewer drafts the queue from the ledgers (so closed ideas are not re-tested) with an ownership
+  split.
+- **Route Share state** (sent to the reviewer):
+  - 2026 FP captures cover W1–3 (target weeks 2–4); **W4 is not captured yet**. It is due with the weekly vendor run
+    `nfl-weekly-data run --week 5` (manual), before Thursday's route feature rebuild.
+  - The 2026 gate has 0 graded weeks (W2 forfeited, W3–4 failed under O-25). companion-v1 grades W5–W18 (12-week floor,
+    at most 2 missed); its dry runs are due Thu 10-08 (deadline Sat 12:00).
+  - No scientific interim reads; only the descriptive weekly decision record.
+- **Study 18b** (WS vs the house shape on his goal): scored run in progress; the reviewer reads, the laptop re-runs.
+
 ## 2026-10-06 (02:09 CDT) — main-mix @ ddd470ed APPROVED end to end (the reviewer); ready to merge on the operator's Friday yes
 
 - The reviewer approved the blocking fix and the whole branch. All 20 money-path modules pass on `ddd470ed` with
