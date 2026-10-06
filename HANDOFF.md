@@ -12,6 +12,19 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (17:19 CDT) — Dashboard redeployed (e5eddb14); the W2–4 package money arms built for review
+
+- **Dashboard:** Cloud Build `f3688ff5` built `nfl-dfs:dashboard-e5eddb14` from the clean worktree `dashboard-build-e5eddb14`. The dashboard tests ran in the build. Digest `sha256:e417e0ca…`.
+  - `deploy_dashboard.sh` by digest put revision **nfl-dfs-app-00080-8lr** at 100%. IAP is on and nothing is public; the script's checks passed.
+  - Rollback: `gcloud run services update-traffic nfl-dfs-app --region us-central1 --project nfl-predictions-503414 --to-revisions nfl-dfs-app-00079-5lp=100`.
+  - A local proxy can't pass IAP (302), so /arms was not viewed from here. The operator can confirm the "Cash rate at" column in a browser.
+- **The W2–4 money figure (descriptive; the reviewer's terms):** `production/moneygate-pkg-20261006` @ `3ec79a3a`, awaiting review.
+  - `PKG<ms>-<fill>` arms translate the package to each week's real contests, with the QB cap scaled to round(5K/26) = 13/20/20 (a translation).
+  - `moneygate_describe.py` scores them through the unchanged scorer, behind the reconcile receipt. It reports the multiple as-is and ex-largest, and realized big wins by his rule.
+  - The private `~/moneygate/weeks.json` now pins W4's `fp_proj_source` (8bba650e); a backup sits beside it.
+  - The smoke on A0–A4 works: 0 big wins anywhere in W2–4.
+  - Builds Wednesday night (heavy), and again Thursday with his final settings.
+- **Study 44 design (open for the operator):** the reviewer's ROUTE (the Milly's 2 entries from 2 A1 rows on ranks 27–28 via a plan pin; every other contest from a 26-row WS book), exploratory MILLY_A1 and WS_ALL, plus the laptop's suggested TOP2_A1 (K 26). Asked the operator; the laptop recommends ROUTE as the decision arm.
 ## 2026-10-06 (17:09 CDT) — Expedited plan, evening: merges, four light checks done, study 42 running
 
 **Merged into integration (all reviewer-approved):**
