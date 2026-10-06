@@ -130,6 +130,17 @@ CANDIDATE_FEATURES = (
     "fp_route_share_l4",
     "fp_route_share_jump",
     "fp_route_cross_season",
+    # O-22 co-run arm D (2026-10-06): the opponent-defence l6 columns of 017_defense_week_allowed, as-of over the
+    # schedule spine since 0bc6b6bc (serving joins by exact week). Built into 021/023 but never registered, so
+    # EXTRA_FEATURES silently dropped them -- an arm naming them would have trained C's model (a dead lever). The
+    # default model is unchanged while EXTRA_FEATURES is unset.
+    "epa_per_dropback_allowed_l6",
+    "epa_per_rush_allowed_l6",
+    "rz_td_rate_allowed_l6",
+    "qb_fp_allowed_adj_l6",
+    "rb_fp_allowed_adj_l6",
+    "wr_fp_allowed_adj_l6",
+    "te_fp_allowed_adj_l6",
 )
 
 
