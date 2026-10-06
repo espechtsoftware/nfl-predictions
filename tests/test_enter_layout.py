@@ -845,3 +845,23 @@ def test_overlap_ceiling_extends_the_limit_to_larger_contests_without_touching_t
     with pytest.raises(EL.LayoutError, match=EL.SMALL_OVERLAP_CEILING_ENV):     # refuses before anything is written
         EL.main(["write", str(tmp_path / "c.json"), str(tmp_path / "u.csv"), str(tmp_path / "stage"), "--layout", "head"])
     assert not (tmp_path / "stage").exists()
+
+
+def test_pins_are_refused_under_layouts_that_ignore_them():
+    """2026-10-06, the operator's Rev2: Milly super-satellites pinned to the top rows. sequential / top have no pin
+    handling, so a pinned plan there would silently deal new rows; they refuse instead. head honours the pins."""
+    import pytest
+    from nfl_dfs.inference import enter_layout as EL
+    plan = [{"name": "milly", "contest_id": 1, "entries": 2, "keep": 2},
+            {"name": "sat", "contest_id": 2, "entries": 1, "keep": 1},
+            {"name": "sat2", "contest_id": 3, "entries": 1, "keep": 1},
+            {"name": "supersat", "contest_id": 4, "entries": 3, "keep": 3, "ranks": [1, 2, 3]},
+            {"name": "wildcat", "contest_id": 5, "entries": 2, "keep": 2}]
+    for layout in ("sequential", "top"):
+        with pytest.raises(EL.LayoutError, match=r"pinned contests \['supersat'\].*would ignore the pins"):
+            EL.assign_ranks(plan, layout)
+    ranks = EL.assign_ranks(plan, "head")
+    assert ranks[3] == [0, 1, 2]                               # the pin: the top three rows, reused
+    assert EL.rows_needed(plan, "head") == EL.rows_needed([c for c in plan if "ranks" not in c], "head")
+    unpinned = [{k: v for k, v in c.items() if k != "ranks"} for c in plan]
+    assert EL.assign_ranks(unpinned, "sequential")              # without pins sequential is unchanged

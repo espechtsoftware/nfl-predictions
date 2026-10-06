@@ -117,6 +117,12 @@ def assign_ranks(contests: list[dict], layout: str) -> list[list[int]]:
         sizes.append(n)
     if layout not in TWO_TRACK and any(str(c.get("track", "mean")) == "tail" for c in contests):
         raise LayoutError(f"contests.json: a \"track\": \"tail\" contest needs ENTER_LAYOUT=head or spread (got {layout!r})")
+    # 2026-10-06 (the operator's Rev2: his Milly super-satellites pinned to his top rows): sequential and top have no pin
+    # handling, so a pinned contest would silently get its own new rows -- against his explicit instruction. Fail closed.
+    pinned = [c.get("name") for c in contests if "ranks" in c]
+    if pinned and layout not in TWO_TRACK:
+        raise LayoutError(f"contests.json: pinned contests {pinned} (\"ranks\") are honored only under ENTER_LAYOUT=head or "
+                          f"spread; {layout!r} would ignore the pins")
     if layout == "sequential":
         keep_total = sum(int(c["keep"]) for c in contests)
         keep_next, fill_next, out = 0, keep_total, []
