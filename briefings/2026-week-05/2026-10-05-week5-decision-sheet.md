@@ -16,17 +16,40 @@ second.
 
 | # | Decision | My recommendation |
 |---|---|---|
-| 1 | The lineup shape: the winners' mix (MIX), WS, or today's | **Open until study 31 reads (before Friday).** MIX is your stated preference ("mirroring how the winners play") and study 28 put it ahead of today's shape. But the direct test of the whole Week-5 package (study 30: MIX, no tilt) against what we ran in Week 4 (today's shape with the tilt) **leaned to Week 4's setup**: −7 points, not significant, both seasons negative. So the package is **not supported as an improvement** today. Study 31 tests all four combinations together on more practice weeks to settle it. WS tied today's shape; the shootout is off |
+| 1 | The lineup shape: the winners' mix (MIX), WS, or today's | **The winners' mix WITH the ownership tilt ("MIXT") as your preference; today's shape with the tilt (Week 4's setup) is the safe alternative.** Study 31 tested all four combinations together on your plan: the winners' mix with the tilt scored highest on every measure (+2 points of big-win chance over Week 4's setup, 14% more expected big seats), but that edge is within the noise, so it is your preference, not a proven gain. **Plain winners' mix without the tilt trailed Week 4's setup and should not be armed** |
 | 2 | Fantasy Points' projections instead of ours | **Yes** (you decided this in principle; the Week-4 check worked) |
 | 3 | The lab-code update both of these need | **Yes**: it changes nothing when they're off (proven below) |
 | 4 | The Week-5 contest plan | **Your entries (Rev3, 10-06): rows 1–26 for the super-satellites, as you asked.** 29 contests, 53 entries, unchanged; each of the 26 satellite entries now gets its own lineup, so the book grows from 22 to 26 lineups (the code change is done and rehearsed; it merges Friday). Study 31 is being run on this plan; see 4a |
 | 5 | Every entry a different lineup | **Keep today's dealing.** Your pins (now Rev3, rows 1–26) need it; the sequential dealing would ignore them (it now refuses) |
 | 6 | A cap: no game's quarterbacks in more than 6 of your 24 entries | **No:** it didn't raise your chance of a big win and cost 22% of expected big seats |
-| 7 | The ownership tilt (the build favours popular players: +0.20 x predicted ownership) | **OFF on MIX** (study 29: on the winners' mix it cost about 7 points of big-win chance and 29% of expected big seats). Study 30 complicates it: today's shape WITH the tilt did better than MIX without it. Study 31 tests the tilt on both shapes |
+| 7 | The ownership tilt (the build favours popular players: +0.20 x predicted ownership) | **Keep it ON at 0.20.** Study 31 (six practice sets, your 1–26 plan) found it helped on both shapes (+10 points on today's shape, +6 on the winners' mix). That reverses study 29's smaller test, which had it hurting; we now recommend it on |
 | 8 | Mix props into FP's projections | **Not yet:** FP alone, with FP + props scored beside it every Monday (one week of evidence so far) |
 | 9 | Choosing your best lineups for next week's big contests (your question, 10-06) | **Study 32, before Week 6.** Honest starting point: every past attempt to pick our best lineups failed; see 9 |
 
 ## 1. The lineup shape
+
+**Update 10-06 (later), study 31: the four-way test on your 1–26 plan.** Both shapes, each with and without the
+ownership tilt, built and scored together on the same 36 practice weeks, averaged over six sets of simulated fields
+(studies 28–30 used one or two). Written before any result was seen; re-run by both of us with identical output.
+
+| On 36 practice weeks (2023–24), your Rev3 plan | Chance of at least one big win in a week* | Expected big seats | Average finish |
+|---|---|---|---|
+| Today's shape, no tilt | 25% | 0.50 | 51st percentile |
+| **Today's shape + tilt (Week 4's setup)** | 34% | 0.60 | 57th |
+| Winners' mix, no tilt | 31% | 0.63 | 53rd |
+| **Winners' mix + tilt ("MIXT")** | **37%** | **0.68** | **57th** |
+
+\* Practice weeks with an easier field; lower in practice.
+
+- **The test written in advance** (winners' mix without the tilt vs Week 4's setup): no difference, 4 points lower, so
+  the winners' mix stays an option but not without the tilt.
+- **The tilt helped on both shapes:** +10 points on today's shape (range −1 to +20, both seasons up) and +6 on the
+  winners' mix (range −3 to +16). This reverses study 29, which had it hurting on the winners' mix in a smaller test
+  (two sets, the old 22-lineup plan). The six-set test on your actual plan is the better estimate.
+- **Winners' mix + tilt vs Week 4's setup: +2 points** (range −4 to +8), 14% more expected big seats, the same average
+  finish. Within the noise, so it is not a proven gain; it is the one that plays like the winners (your directive) and
+  is not worse on anything we measured.
+- **Rehearsed 10-06** on Week 4's slate with your 1–26 plan, FP projections and FP ownership: every check passed.
 
 **Update 10-06, study 30: the direct test leans the other way.** Studies 28 and 29 each changed one thing. Study 30
 compared the whole Week-5 package (the winners' mix, no ownership tilt) with what we ran in Week 4 (today's shape with
@@ -199,8 +222,20 @@ a gap) is done, tested and with the reviewer; it merges Friday with the rest.
 
 **Its rehearsal on Week 4's slate (10-06):** every check passed. Your satellites hold 26 different lineups instead of
 5. The most-used player is in 30 of your 53 entries instead of 37, so one late scratch hits fewer entries. The
-four-shape mix by entries stayed within 4 points of its targets. **Study 31 is now being run on Rev3**, and it reports
-your satellite results both ways on the same lineups (the chance of at least one ticket, the expected tickets).
+four-shape mix by entries stayed within 4 points of its targets.
+
+**Study 31's answer (the same lineups dealt both ways, 36 practice weeks):** spreading gives you a much better chance of
+at least one Millionaire ticket, with about the same number of tickets on average (a little more on three books,
+a little fewer on Week 4's setup):
+
+| Book | Chance of at least one ticket: rows 1–26 / rows 1–5 | Expected tickets: 1–26 / 1–5 |
+|---|---|---|
+| Winners' mix + tilt | **72% / 53%** | 2.5 / 2.4 |
+| Today's shape + tilt | **75% / 53%** | 2.4 / 2.5 |
+| Winners' mix | 60% / 44% | 2.2 / 2.0 |
+| Today's shape | 55% / 28% | 1.9 / 1.4 |
+
+Your instinct holds on what you asked: far more chances of at least one ticket, at about the same ticket count.
 
 ## 5. Every entry a different lineup: tested (study 24)
 
@@ -253,28 +288,19 @@ your satellite results both ways on the same lineups (the chance of at least one
   - fewer weeks with almost no chance (39% of slates against 44%), but a lower ceiling.
 - **So it is not offered,** and it is not being built. Study 1 found the same trade: steadier weeks, fewer big ones.
 
-## 7. The ownership tilt: tested on the winners' mix (study 29), recommend OFF
+## 7. The ownership tilt: keep it ON at 0.20 (study 31 reversed study 29)
 
 - **What it is:** since Week 4 the build adds a bonus for players the field is expected to own heavily (+0.20 points
-  per point of predicted ownership), which pulls the book toward popular players.
-- **What the test found** on your plan and goal, with the winners' mix (36 practice weeks, 2023–24, the only seasons
-  with an ownership predictor to test with):
-
-  | | Winners' mix | Winners' mix + the tilt |
-  |---|---|---|
-  | Chance of at least one big win in a week* | about 1 in 3 | **7 points lower** (range −16 to +3): lower in both seasons |
-  | Expected big seats | — | **29% fewer** (past your 20% limit) |
-  | Weeks where the best lineup reached 200 points | 13.9% | 4.2% |
-  | Average finish | 53.1% | 58.1% |
-  | The worst tenth of weeks | 25% | 34% |
-
-  \* Practice weeks with an easier field; lower in practice.
-- **So the tilt trades your ceiling for a steadier floor:** a better average and better bad weeks, but far fewer big
-  wins, which is the opposite of your goal. It also put more of your entries on the highest-total game's quarterbacks
-  (23% → 34%).
-- **The frozen rule calls it "no difference"** (the range includes zero), so this is your choice; the evidence points
-  against it. The predictor we tested with was, if anything, better informed than the live one.
-- **Recommendation: turn it off for Week 5.** It's one setting, reversible, no code change.
+  per point of predicted ownership), which pulls the book toward popular players. Live it uses Fantasy Points'
+  ownership, then the lag estimate at 0.10, then no tilt.
+- **Study 29 (this morning)** tested it on the winners' mix with two simulated field sets and the old 22-lineup plan:
+  7 points lower. We recommended OFF.
+- **Study 31 (six field sets, your 1–26 plan)** tested it on both shapes at once: **+6 points on the winners' mix and
+  +10 on today's shape**, with a better average finish both times. The bigger, better-matched test wins: **keep it ON
+  at 0.20**, whichever shape you choose. Study 29's result is most likely noise (and partly the old plan).
+- Neither result is a proven gain on its own (the ranges include zero); together they point to "on".
+- The predictor we tested with is a stand-in for Fantasy Points' ownership, trained on lock-time data, so it is if
+  anything better informed than the live one.
 
 ## 8. Mixing props into Fantasy Points' projections
 
@@ -304,8 +330,10 @@ $4,444 MEGA Millionaire and the $333 Wildcat:
 
 **The rule, set now:** we recommend the method only if it beats random clearly, with no losing season. If nothing
 does, the answer is that your lineups are equal shots: pick for variety (different QBs and games), not by rank.
-**One question for you:** in those contests, what counts as a win for you: any cash (every paid place in both pays at
-least $500), or something bigger?
+**Your answer (10-06):** "this week my entries in the qualifiers … first place. … next week if I already am in the big
+contest, then a win of $500 or more is good." This week's qualifiers each pay one seat, so first place is the seat, as
+the studies already count it. Inside the big contests, any finish paying $500 or more is the line study 32 judges by
+(in the MEGA every paid place pays far more; in the Wildcat the minimum cash is $500).
 
 ## The Week-4 replay: one week, a check that it all works, not evidence
 

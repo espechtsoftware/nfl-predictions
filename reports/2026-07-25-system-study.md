@@ -4848,3 +4848,171 @@ secondaries (slate means):
 4. **Comparability:** MIX's absolute .362 is on the 36 slates of 2023–24, so it is not comparable with study 28's .296
    on 53.
 5. **Transfer:** our projections, while the live term sits on FP's. The predictor is a stand-in.
+
+## Addendum 135 (2026-10-06): study 30 (the Week-5 package against the status quo, on the operator's goal): NO DIFFERENCE at the frozen rule, both seasons negative, guard 1 fails descriptively — the direct test leans to the status quo, against the composition of studies 28 + 29
+
+**Setup.**
+- **Why:** studies 28 (the shape) and 29 (the term) each changed ONE stage. The post-selection law says a verdict does
+  not transfer across a changed downstream stage, so the two COMPLETE constructions were compared directly.
+- **Arms** (study 29's harness: caps 11 / 5, head, his Rev2 pins, our projections):
+  - SQ (reference): the STATUS QUO, Week 4 as entered: the house shape (`PRODUCTION_STACK`) + 0.20 × TABPFN_LS
+    predicted ownership % (the live term's stand-in; skill only);
+  - PKG (DECISION): the PACKAGE recommended for Week 5: study 18's MIX (production `mix_rows`, pin-aware weights), NO
+    term.
+- **Preregistration:** `reports/2026-10-06-prereg-study30-package.md` (frozen `4996a53a`).
+- **Panel:** 36 slates (2023–24), banks 1429/1430; B 20,000, seed 20261012; two-sided 0.95; guards as 18b.
+- **Read and reproduced:**
+  - Read by the reviewer.
+  - **Reproduced byte-identically by the laptop:** reader `24108528`; READ `8dbdce26`; raw 1429 `767846fe`, 1430
+    `09ec0394`.
+  - The binding census was acked byte-identical (`773ff77d`).
+  - Lab: nfl2 `production/s30-package-vs-status-quo-20261006`.
+
+**Reader output (verbatim):**
+```
+STUDY 30 READER  sha256 2410852812c747fbad1e5e6a10d138d8fc56c58eeb528865a85eda309b0eb8d5
+DIRECTION: P(>= 1 big seat) per slate from each dealt entry's share of the sampled field it BEATS (higher = better); every difference is ARM - its REFERENCE (SQ); POSITIVE favours the arm.
+slates 36  banks [1429, 1430]  B 20000  seed 20261012  primary two-sided 0.95 (one decision arm), guard 1 one-sided 0.95 at -0.015, guard 2 expected-big-seat ratio >= 0.80  plan 29 mean-track contests, 53 entries (26 in 21 big contests)  production row caps ['{"all": [11, 5]}']  BASE {"lam": 0.0}
+
+== PKG vs SQ  [DECISION]
+  PRIMARY P(>= 1 big seat) per slate -0.07113  [-0.18760, +0.05327]  seasons 2023 -0.04223, 2024 -0.10003
+  GUARD 1 mean entry pct -0.05128  one-sided lower -0.09698  (must exceed -0.015)
+  GUARD 2 expected big seats 0.61593 vs SQ 0.62702  ratio 0.982  (must be >= 0.80)
+  dealt identical to SQ: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+
+secondaries (slate means):
+  SQ  P(>=1 big) 0.36549  expected big seats 0.62702  P(>=2 contests) 0.16773  slates P(>=1 big) < 1% 0.264  tickets 108.0  best>=200 0.069  entry pct 0.57387  worst-decile slate 0.32708  simulated P(>=1 big) 0.46539
+      shape of dealt entries: pred_own_sum_lag 60.452  qb_game1_share 0.333  qb_game_top4_share 0.832  qb_games 3.250  qb_game_max_share 0.750  qb_plus1 0.000  bringback 1.000  dual 0.270  in_qb_game 4.000  games 4.318  max_entry_share 0.788
+  PKG P(>=1 big) 0.29436  expected big seats 0.61593  P(>=2 contests) 0.16406  slates P(>=1 big) < 1% 0.444  tickets 112.5  best>=200 0.069  entry pct 0.52260  worst-decile slate 0.29473  simulated P(>=1 big) 0.50373
+      shape of dealt entries: pred_own_sum_lag 57.369  qb_game1_share 0.246  qb_game_top4_share 0.714  qb_games 3.778  qb_game_max_share 0.526  qb_plus1 0.546  bringback 0.542  dual 0.511  in_qb_game 3.105  games 4.761  max_entry_share 0.667
+```
+
+**Reading.**
+1. **At the frozen rule PKG vs SQ is NO DIFFERENCE** (the interval reaches +5.3). Both seasons are negative (−4.2 /
+   −10.0). Guard 1 fails descriptively: mean finish −0.051, one-sided lower −0.097. Guard 2 holds (×0.982).
+2. **The status quo leads on nearly everything** (SQ / PKG):
+   - P(≥ 1 big) .365 / .294;
+   - mean finish .574 / .523;
+   - near-dead slates .264 / .444;
+   - worst decile .327 / .295.
+
+   Expected big seats are nearly equal (.627 / .616), and the in-sample simulation favours PKG (.465 / .504).
+3. **It contradicts the composition of studies 28 and 29.**
+   - Study 28 had MIX − C at +6.1; study 29 had the term on MIX at −6.8. Together they imply the package beats the
+     status quo by about 13 points, if the term's effect transferred to the house shape.
+   - The guard-1 direction IS consistent across all three (the term raises the mean finish); only the primary conflicts.
+   - Bank noise is large: the same construction (MIX, no term, the same 36 slates) read .362 on banks 1427/28 and
+     .294 here.
+4. **By §5 (frozen), NO DIFFERENCE means the package rests on studies 28 and 29, offered as his preference.** With
+   both seasons negative and guard 1 failing descriptively, the reviewer's recommendation changed: the package is NOT
+   supported as an improvement, and the status quo is the safer Week-5 choice until **study 31** reads. Study 31 is
+   the 2 × 2 (shape × term) in one co-run on six banks, on Rev3; it measures the interaction directly.
+5. **Record repair (disclosed in study 31's prereg; corrected by the laptop):** studies 24–30 imported production's
+   `enter_layout` from the checkout on `PYTHONPATH` without recording its version. Reconstructed, not recorded:
+   - integration's `enter_layout.py` was `fb2bf404…` (`e9ed88f1`, 09-30) until 10-06 05:03 CDT;
+   - then `2851f7cf…` (`994590ea`), which only adds a refusal of pinned plans under the sequential / top layouts and
+     never fires under head.
+   - Every study dealt under head, and study 24's all-distinct arm (the one sequential path) ran on a plan without
+     pins, so the two versions are behaviourally identical for 24–30.
+   - The reviewer's runs imported `fb2bf404` (that checkout lacked `994590ea`). The laptop's byte-identical re-runs of
+     29 and 30 imported `2851f7cf`. The two versions gave identical results.
+   - Study 31 pins `3cb051ac` (`da399bdb`) and records it on every row.
+6. **Transfer:** our projections, while the live build adds FP. The term's predictor is a stand-in. Study 30's reader
+   docstring names the Rev1 plan file; the runs used Rev2 (`00c66004…`, checked by the reader's plan-sha gate). The
+   frozen reader is unchanged.
+
+## Addendum 136 (2026-10-06): study 31 (shape × ownership term in one co-run, on the plan he will enter): MIX vs CT NO DIFFERENCE, both seasons negative; the term HELPED on both shapes (against study 29); the winners' mix WITH the term is highest on every endpoint; the 1–26 satellite spread raises P(≥ 1 ticket) on every book
+
+**Setup.**
+- **Why:** studies 28 + 29 implied the package (MIX, no term) beats the status quo by about 13 points; study 30 measured
+  that comparison directly and read −7.1. This study put all four constructions in ONE co-run per slate-bank and
+  averaged SIX banks per slate.
+- **Arms** (study 29's harness):
+  - C: the house shape (`PRODUCTION_STACK`), no term;
+  - CT: the house shape + 0.20 × TABPFN_LS predicted ownership % (the STATUS QUO, Week 4 as entered);
+  - MIX: study 18's MIX (production `mix_rows`, pin-aware weights from Rev3's pins), no term (the PACKAGE);
+  - MIXT: MIX + the same term.
+- **Plan:** the operator's Rev3 (his 26 $20-ticket super-satellite entries spread over rows 1–26; `3dd19d6c…`).
+  - K 26, caps 13 / 6, head.
+  - Production `enter_layout` pinned `3cb051ac…` (`da399bdb`, a pin may add rows) and recorded on every row.
+- **Preregistration:** `reports/2026-10-06-prereg-study31-factorial.md` (frozen `7d22756e`).
+- **Panel:** 36 slates (2023–24), banks 1431–1436; B 20,000, seed 20261013; two-sided 0.95; guards as 18b.
+- **Census:** the binding census on 1406 (36/36) and the confirmatory census (216/216) both passed every frozen check.
+  - MIX / MIXT cells within 3 points of the quotas;
+  - no short books;
+  - no arm identical to its reference.
+  - The Rev2 re-deal moves a 2-entry Wildcat on 5 of 432 house slate-banks (the overlap limit's wider wrap at K 26).
+- **Read and reproduced:**
+  - Read by the reviewer.
+  - **Reproduced byte-identically by the laptop:** reader `80b61bab`; READ `2d63a92d`; raw 1431 `3557c8bd` … 1436
+    `e763f60f`; confirmatory census `c0105d02`.
+  - Lab: nfl2 `production/s31-factorial-20261006`.
+
+**Reader output (verbatim):**
+```
+STUDY 31 READER  sha256 80b61bab99f0a6166c70651835f3fc8186736aa5dd5fb0d074d92c9a06e43b79
+DIRECTION: P(>= 1 big seat) per slate (the mean over its banks); every difference is ARM - REFERENCE; POSITIVE favours the first arm.
+slates 36  banks [1431, 1432, 1433, 1434, 1435, 1436]  B 20000  seed 20261013  primary MIX - CT two-sided 0.95, guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80  plan 29 contests, 53 entries; 7 $20-ticket super-satellites
+
+== MIX vs CT  [DECISION: the package vs the status quo]
+  PRIMARY P(>= 1 big seat) per slate -0.03636  [-0.13997, +0.06282]  seasons 2023 -0.06993, 2024 -0.00280
+  GUARD 1 mean entry pct -0.04098  one-sided lower -0.07636  (must exceed -0.015)
+  GUARD 2 expected big seats 0.63399 vs CT 0.59689  ratio 1.062  (must be >= 0.80)
+  dealt identical: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+
+== EXPLORATORY contrasts (never decision-bearing)
+  CT - C (the term on the house shape): +0.09695  [-0.00800, +0.20033]  seasons 2023 +0.11740, 2024 +0.07650
+  MIXT - MIX (the term on MIX): +0.05839  [-0.03147, +0.15635]  seasons 2023 +0.11876, 2024 -0.00198
+  MIX - C (the shape without the term): +0.06059  [-0.02978, +0.15460]  seasons 2023 +0.04747, 2024 +0.07371
+  MIXT - CT (the shape with the term): +0.02203  [-0.03791, +0.08176]  seasons 2023 +0.04883, 2024 -0.00478
+  INTERACTION (MIXT - MIX) - (CT - C): -0.03856  [-0.13945, +0.06181]
+
+secondaries (slate means):
+  C    P(>=1 big) 0.24694  expected big seats 0.49970  P(>=2 contests) 0.12461  entry pct 0.51284
+  CT   P(>=1 big) 0.34389  expected big seats 0.59689  P(>=2 contests) 0.14572  entry pct 0.56871
+  MIX  P(>=1 big) 0.30753  expected big seats 0.63399  P(>=2 contests) 0.15412  entry pct 0.52773
+  MIXT P(>=1 big) 0.36591  expected big seats 0.68288  P(>=2 contests) 0.16186  entry pct 0.57485
+
+the operator's super-satellite question ($20-Milly-ticket super-satellites; descriptive; the same books dealt both ways):
+  C    SPREAD 1-26 (the plan): P(>=1 ticket contest) 0.5512  expected tickets 1.8775  P(>=2 contests) 0.3634   REV2 PINS 1-5: 0.2776 / 1.3943 / 0.2048
+  CT   SPREAD 1-26 (the plan): P(>=1 ticket contest) 0.7541  expected tickets 2.4012  P(>=2 contests) 0.4983   REV2 PINS 1-5: 0.5262 / 2.4775 / 0.4003
+  MIX  SPREAD 1-26 (the plan): P(>=1 ticket contest) 0.6022  expected tickets 2.2287  P(>=2 contests) 0.4151   REV2 PINS 1-5: 0.4387 / 2.0425 / 0.3590
+  MIXT SPREAD 1-26 (the plan): P(>=1 ticket contest) 0.7247  expected tickets 2.4852  P(>=2 contests) 0.5294   REV2 PINS 1-5: 0.5338 / 2.3716 / 0.3866
+```
+
+**Reading.**
+1. **DECISION (MIX vs CT) is NO DIFFERENCE at the frozen rule** (the interval reaches +6.3). Both seasons are
+   negative (−7.0 / −0.3), and guard 1 fails descriptively (mean finish −0.041, lower −0.076). By §5 (frozen), the
+   package is not shown worse, so MIX stays his preference option. Read with the next item, though: MIX without the
+   term trails the status quo on the primary and on mean finish.
+2. **The ownership term HELPED on both shapes** (exploratory):
+   - CT − C: +0.097 [−0.008, +0.200], both seasons positive;
+   - MIXT − MIX: +0.058 [−0.031, +0.156];
+   - the interaction: −0.039 [−0.139, +0.062], so there is no evidence the term's effect depends on the shape.
+
+   **This does not replicate study 29** (MIXT − MIX −0.068 on 2 banks).
+   - The two studies differ in BANKS (2 vs 6) and in PLAN / K: Rev2 at K 22, caps 11 / 5 vs Rev3 at K 26, caps 13 / 6.
+     So the sign change is bank noise, K-dependence, or both (the laptop's caveat), not bank noise alone.
+   - Study 31 is on the plan he enters, with three times the banks; study 29's recommendation (term OFF) is
+     withdrawn.
+3. **The winners' mix WITH the term (MIXT) is highest on every endpoint** (P(≥ 1 big) .366, expected big seats .683,
+   P(≥ 2) .162, entry pct .575).
+   - Against the status quo: +0.022 [−0.038, +0.082]; expected big seats ×1.14; mean finish +0.006. Exploratory, not
+     a tested gain.
+   - The shape alone (MIX − C +0.061) repeats study 28's +0.061.
+4. **Recommendation for Week 5 (the operator decides):**
+   - the term ON at 0.20 (the live predictor is FP's ownership projection, not this stand-in);
+   - MIXT as his preference option, matching "play like the winners";
+   - CT (Week 4 as entered) as the safe alternative;
+   - plain MIX not to be armed without the term.
+   - The laptop rehearsed MIXT end to end at K 26 (preview `71c0e4d5`): every check passed.
+5. **The super-satellite secondary (descriptive; the same book dealt both ways).** Rev3's spread over rows 1–26
+   against Rev2's pins on rows 1–5:
+   - P(≥ 1 contest with a ticket) is higher on every book: C .55 / .28, CT .75 / .53, MIX .60 / .44, MIXT .72 / .53;
+   - P(≥ 2) is higher on every book;
+   - expected tickets are higher on C, MIX and MIXT, and about equal on CT (2.40 / 2.48).
+   - His 1–26 instinct is supported on what he asked for: more chances of at least one ticket.
+6. **Transfer:** our projections (the live build takes FP's), the term's predictor is a stand-in, and the fields are
+   sampled from the Millionaire's ownership.
