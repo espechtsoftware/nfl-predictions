@@ -24,7 +24,7 @@ second.
 | 6 | A cap: no game's quarterbacks in more than 6 of your 24 entries | **No:** it didn't raise your chance of a big win and cost 22% of expected big seats |
 | 7 | The ownership tilt (the build favours popular players: +0.20 x predicted ownership) | **Keep it ON at 0.20.** Study 31 (six practice sets, your 1–26 plan) found it helped on both shapes (+10 points on today's shape, +6 on the winners' mix). That reverses study 29's smaller test, which had it hurting; we now recommend it on |
 | 8 | Mix props into FP's projections | **Not yet:** FP alone, with FP + props scored beside it every Monday (one week of evidence so far) |
-| 9 | Choosing your best lineups for next week's big contests (your question, 10-06) | **Study 32, before Week 6.** Honest starting point: every past attempt to pick our best lineups failed; see 9 |
+| 9 | Choosing your best lineups for next week's big contests (your question, 10-06) | **Study 32's answer: with ONE entry, no method beats a random pick. With 2–3 entries in the same big contest, choose them TOGETHER ("at least one cashes"): about +7 points of cash chance with three entries.** A small edge, worth using because it costs nothing; see 9 |
 
 ## 1. The lineup shape
 
@@ -334,6 +334,29 @@ does, the answer is that your lineups are equal shots: pick for variety (differe
 contest, then a win of $500 or more is good." This week's qualifiers each pay one seat, so first place is the seat, as
 the studies already count it. Inside the big contests, any finish paying $500 or more is the line study 32 judges by
 (in the MEGA every paid place pays far more; in the Wildcat the minimum cash is $500).
+
+**Study 32's answer (10-06; written before any result, re-run by both of us with identical output; 36 practice
+weeks, six simulated field sets; your 26-lineup book; the $4,444 MEGA and the $333 Wildcat at the $500+ line):**
+
+| How the entries are picked | Chance at least one cashes (all cases pooled) |
+|---|---|
+| Random pick from the book | 41% |
+| Book order (today's default) | 40% |
+| Highest projection / highest ceiling / most-likely-to-cash, one at a time | 35–37% |
+| Different QBs and games | 40% |
+| **Chosen together: the set most likely to have at least one cash** | **44%** |
+
+- **One entry: no method beats random.** Our "best" lineup is a coin flip among the 26, as every past test found.
+- **Two or three entries: choose them together.** With three entries the together-pick adds about 7 points of cash
+  chance over a random pick (a clear result on its own); with two, about 3 points (not proven on its own).
+- **It is a small edge:** the simulator expected about three times as much as it delivered. It passed the rule set in
+  advance only just. It is worth using because it costs nothing, and we will check it every week (the together-pick
+  beside today's book order).
+- **One caveat:** the practice books were Week 4's setup and the winners' mix without the tilt; the winners' mix with
+  the tilt (our recommendation) was not itself in the test. The edge was clear on the first book and smaller on the
+  second.
+- **Next week:** if you win seats, a small tool prints the together-pick for each big contest where you hold 2–3
+  entries. It is being built now and reviewed before then. Nothing changes this week.
 
 ## The Week-4 replay: one week, a check that it all works, not evidence
 
