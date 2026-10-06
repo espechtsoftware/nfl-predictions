@@ -30,6 +30,7 @@ second.
 | 8 | Mix props into FP's projections | **Not yet:** FP alone, with FP + props scored beside it every Monday (one week of evidence so far) |
 | 9 | Choosing your best lineups for next week's big contests (your question, 10-06) | **Study 32's answer: with ONE entry, no method beats a random pick. With 2–3 entries in the same big contest, choose them TOGETHER ("at least one cashes"): about +7 points of cash chance with three entries.** A small edge, worth using because it costs nothing; see 9 |
 | 10 | A cap on any one quarterback: no QB in more than 5 of your 26 lineups (your QB question, 10-06) | **Your choice; we both lean yes.** Study 35 (36 practice weeks, six sets of fields): chance of a big win 32% → 35% with the cap, expected big seats 0.59 → 0.61, average finish the same. Up in both seasons, but within the noise (the range runs from −3 to +8 points), so it is not a proven gain. Nothing we measured went the wrong way. It brings the top QB from 47% of your entries to 22% (the regulars: 23%), with 7 different QBs instead of 4. Reversible each week; see 1. **You agreed (10-06): the winners' mix + tilt + this cap**; Friday's arming is still your formal yes |
+| 11 | A tighter cap on every player: no player in more than 9 of your 26 lineups (today: 13) (your follow-up, 10-06) | **No: keep today's cap (the reviewer and I).** Study 36 (36 practice weeks, six sets of fields, on your chosen book): chance of a big win 37.4% → 37.3%, i.e. no change. It does what you asked: your most-used players fall from about 55% of entries to 39%, and almost no player stays above 40% (from about 9). But it costs: about 1.3 projected points per lineup, and your average finish drops about 2.4 percentile points (it could be as much as 4). In exchange, weeks with two or more big wins go up a little (15.5% → 17.0%). It is your call; on your goal (one big win) it does not help |
 
 ## 1. The lineup shape
 
@@ -81,6 +82,11 @@ ownership tilt, built and scored together on the same 36 practice weeks, average
       has about 2. Study 36 tests a tighter cap on every player (today: no player in more than 13 of 26 lineups) on top
       of the QB cap. An earlier test of a tight player cap (study 1b, 30%) roughly halved the damage when one player
       busts but lowered the average finish, so it may cost something; it will be told plainly either way.
+    - **Study 36 read 10-06 (re-run by both of us with identical output): NO DIFFERENCE on your goal** (37.4% vs 37.3%),
+      with a measured cost to the average finish (−2.4 percentile points; it cannot rule out −4.3) and −1.3 projected
+      points per lineup. Note what a flat cap does: it lowers the top but leaves a shelf of about 15 players at 35–39%,
+      so it means "less exposure to our most-used players", not "play like the regulars". We recommend keeping
+      today's cap (row 11).
 - **What each book looks like** (the pre-mortem, 10-06: `briefings/2026-week-05/2026-10-06-week5-premortem-what-you-would-enter.md`):
   the winners' mix builds lineups the way the regulars do (QB + 1 about half the time, second-game pairs, about 3
   players from the QB's game); Week 4's shape builds them the way we did. Both are far more concentrated on QBs than the
