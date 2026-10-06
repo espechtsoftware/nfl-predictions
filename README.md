@@ -166,7 +166,7 @@ environment variables.
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `GCP_PROJECT` | `nfl-dfs-prod` | Project id |
+| `GCP_PROJECT` | `nfl-predictions-503414` | Project id (O-31: was a nonexistent `nfl-dfs-prod`) |
 | `BQ_LOCATION` | `US` | Dataset location |
 | `BQ_RAW_DATASET` / `BQ_FEATURES_DATASET` / `BQ_PREDICTIONS_DATASET` | `nfl_raw` / `nfl_features` / `nfl_predictions` | Dataset names |
 | `GCS_BUCKET` | `${GCP_PROJECT}-raw` | Artifacts, model registry, research receipts |

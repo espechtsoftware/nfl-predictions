@@ -12,6 +12,149 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (01:47 CDT) — O-31 MERGED (no new failures, full suite with GCP_PROJECT unset); O-28's full extent registered (138 nodes, 21 modules); study 18b review done
+
+**O-31** (`GCP_PROJECT` default -> `nfl-predictions-503414`): merged into integration as `42334ccb` + the register edit.
+- Full suite, `GCP_PROJECT` UNSET, one tree at a time: baseline `b2534dde` 64 failed / 74 errors / 8,784 passed (1:32:41);
+  with O-31 (`dadcb75f`, the same base) 64 / 74 / 8,786 passed (1:33:16; +2 = O-31's tests). The 138 failing nodes are
+  identical, and identical again with `GCP_PROJECT` set (8 s targeted run). O-31's and the accuracy reader's tests pass
+  on the merged head with the variable unset (25 passed).
+- O-31 stays OPEN only for its definition's second half: the operator's command recipes carry `GCP_PROJECT` explicitly.
+- Side effect to know: the `settings.project == "nfl-dfs-prod"` guards (weekly accuracy reader; fp_projection_override on
+  main-mix) are now dead code; harmless.
+
+**O-28 extended:** the 138 red nodes are listed in `reports/2026-10-06-o28-red-nodes.txt` (21 modules; classes in the
+register row: frozen-source / contract identity drift, changed error messages, host-only inputs, and 8 shadow-bridge
+fixtures the tightened standings validator rejects). Deadline unchanged (Wed 10-14, with O-18's CI green).
+
+**Study 18b** (the reviewer's: WS vs the house shape on his goal, Rev1 plan, production caps): the laptop reviewed the
+draft (C = house + head + caps without the term is today's main; Week-5 arming has the same caps; C pinned to
+`PRODUCTION_STACK` by identity at lab `9fd014e`); banks 1419/1420 scanned fresh in both repositories and on disk. Freeze
+and census Tuesday morning; the laptop acks the census and re-runs the reader.
+
+## 2026-10-05 (22:16 CDT) — STUDY 24 READ: all-distinct NO DIFFERENCE, the per-game cap NO DIFFERENCE (guard 2 fails); re-run byte-identical; no ports
+
+**Study 24** (the reviewer's; prereg `4cadd426` + deviation notes 1–2; reader `e1a4968a`; nfl2 `9ed3925`):
+- **SEQD (all-distinct) vs WS (head): NO DIFFERENCE.** P(≥ 1 big seat) +0.01155 [−0.02889, +0.05200]; seasons +0.001 /
+  −0.007 / +0.040. Guard 1 fails descriptively (−0.01558, lower −0.02635): the distinct deal's spares are weaker rows.
+- **G25S (cap on all-distinct) vs SEQD: NO DIFFERENCE.** −0.01828 [−0.07633, +0.03442]; guard 2 fails descriptively
+  (expected big seats ratio 0.779 < 0.80, the operator's tolerance).
+- Exploratory: SEQ (production's ENTER_LAYOUT=sequential, no code) +0.03044 [−0.01443, +0.07743], ratio 1.043, guard 1
+  lower −0.0163; G25 (head) −0.018, ratio 0.77; G1 +0.006.
+- Absolute (optimistic; modelled Milly-style field): P(≥ 1 big) WS 0.257 / SEQD 0.268 / G25S 0.250 / SEQ 0.287; the
+  in-sample simulation says ~0.50 (do not trust the sims' absolute big-seat chances).
+- **Laptop re-run BYTE-IDENTICAL:** fresh worktree `~/projects/.nfl2-worktrees/s24-reread-9ed3925`, raw copies verified
+  (1417 `996e7f43…`, 1418 `92306276…`, plan `f34f3a00…`), `sha256sum -c` in results/s24 all OK, `cmp` identical, READ
+  sha256 `b9733686d40f4a1ed1130c9975ca581de029a0d5b1b10aceadc40dd1e175c273`. Verdict logic checked by hand against §5.
+- **Consequences (agreed with the reviewer):** no G25S port, no SEQD port (the private port plan stays unbuilt). The
+  no-code middle option is ENTER_LAYOUT=sequential (SEQ), offered as a risk preference with its exploratory read.
+  Production's default stays ENTER_LAYOUT=head (= WS as tested).
+- Records: the reviewer drafts the LEDGER row (lab) and system study Addendum 130; the laptop reviews them.
+
+**Decision sheet** updated with the result (§5 table, §6 not offered, "about 1 week in 4", the arming line).
+
+**O-31:** the full-suite comparison (baseline, then merged; GCP_PROJECT unset) is running in the background.
+
+## 2026-10-05 (21:50 CDT) — Study 24 frozen and censused (the reviewer's); the frozen weekly FP accuracy reader; W4's FP edge corrected; decision sheet revised
+
+**Study 24** (the reviewer's; prereg FROZEN `4cadd426`, reader `e1a4968a` @ nfl2 `109ca2b`):
+- Decisions: SEQD (all-distinct) vs WS (head), and G25S (no game's QBs in > 6 of 24, on the all-distinct deal) vs SEQD.
+  G25 (head), SEQ and G1 are exploratory.
+- The laptop's plan check passed: production `contests.json` `94e6ce75` vs the study's `f34f3a00` have identical ids,
+  order and entries; only the intended differences (extra fields; the Milly line, cash vs $500+).
+- BINDING census on 1406 (nfl2 `fb4deff`, sha `c21e4363…`), acked by the laptop: every §2a check passes (24 distinct,
+  0 fallbacks; G25S max 6; never identical to the reference; no short books). Port spares: deepest 9, S = 15.
+- **Transfer issue raised by the laptop (pending the reviewer's call):** production's mix main caps each player at
+  int(0.5 × K) rows (12 of 24); the study's ban (52 of 105) never binds in the dealt rows, so its books put one player
+  in ~98% of entries. **The reviewer chose (b): deviation note 1, before any scored bank** -- each arm builds under
+  production's caps for its own K (player int(0.5 K): head 10 / sequential-distinct 12 rows; DST int(0.25 K): 5 / 6;
+  `UNION_MAIN_DST_CAP` stays 0.25 at Week-5 arming), build depth 40 (K 24 + S 15); re-census on 1406, then the scored
+  run. Study 18 keeps the issue (disclosed); the decision sheet's "same shares" sentence was wrong and is corrected.
+  Port note: caps from --entries (24) only, never 24 + S; spares solved under the same running counts.
+- Next: the scored run on 1417/1418 → the reviewer's read → the laptop's byte-identical re-run (with the production
+  commit the run used) → LEDGER row and Addendum → the sheet's numbers.
+
+**Weekly ours / FP / blend accuracy reader** (`scripts/weekly_projection_accuracy.py`, frozen tonight before any W5
+outcome, at the reviewer's request; tests `tests/test_weekly_projection_accuracy.py`, 11):
+- Population: skill players with ours ≥ 3 or FP ≥ 3, FP present, an actual (the Milly's fpts), game-day ACT (O-32);
+  FP joined exactly on the DK draftable id; ACT zeros stay, inactive players go.
+- Game-cluster bootstrap B 2000, seed 1 (pooled: within week). Revisit check (pooled only): MAE lower AND ≥ 95% of
+  resamples better. Player rows are PRIVATE (FP is licensed): `~/private/projection-accuracy/`.
+- **W4 row:** n 195, rows sha256 `760c22ed975910219fbd89b302eff868bf9f45ce0afe1f63e40de89aaabba881`; MAE FP 5.539,
+  ours 5.577, blend 5.517; FP better than ours in 0.675 of resamples, the blend better than FP in 0.677. Revisit
+  check: no source beats FP.
+- **Correction:** the 10-05 ad hoc figure (FP 5.47 vs ours 5.56, n 198) included 3 later-inactive players. FP had
+  zeroed 2 of them at 10:38; our T-70 frame (DK pull 10:33) still projected them (DK status None/Q). None was in the
+  entered W4 book, and the after-build exposure sheet reads live DK status (~11:00) before upload. The operator's FP
+  decision stands under his rule; the decision sheet §2 carries the corrected numbers.
+- Every Monday from 10-12: `... week --season 2026 --week W --frame <T-70 run>/frame.parquet --lock-utc <lock>
+  --contest <Milly id> --out-dir ~/private/projection-accuracy`, then `... pool --out-dir ...`.
+
+**Decision sheet** (`briefings/2026-week-05/2026-10-05-week5-decision-sheet.md`): revised for his one-big-win goal,
+the Rev1 plan, all-distinct dealing and the per-game cap (`256a17c4`); the reviewer's two corrections (`865a1dfd`);
+tonight: the §2 FP correction and the player-cap correction. Study 24's numbers go in after the read.
+
+**O-31:** the merge worktree `o31-merged` is at `dadcb75f` (cherry-picks of `8148849b` and `64689ff4`; the
+OPEN-DEFECTS conflict resolved by taking the FIXED-IN-CODE row and dropping the orphaned O-32 fragment that sat below
+it on integration). The full-suite baseline run was stopped at 18% to give the census the CPU; it restarts after the
+scored run. Push only if the merged tree adds no failures.
+
+## 2026-10-05 (21:26 CDT) — Week-5 plan from the operator's entries (Rev1); his utility and dealing choice; study 24 under the reviewer
+
+**The operator's utility (verbatim, 10-05):** "If i could win one 333, 555 or 4444 or $500 in the milly, the week is a
+success and i wouldnt care if i lost all the $20 milly tickets. Winning 4-5 $20 milly tickets is not enough to make the
+week successful, but 20 of them would be." So objectives and tests use P(≥ 1 big seat), not average tickets.
+
+**Dealing:** asked head vs sequential, he chose "All distinct (Recommended)", i.e. sequential (24 rows, not 20).
+Study 24 tests SEQ as a decision arm.
+
+**Production `~/week5-sunday/contests.json`** (private), built from `DKEntries-Week5-Rev1.csv` with
+contests_from_entries, dk_contest_details and set_contest_tracks --all-main.
+- sha256 `94e6ce75`; 19 contests, 24 entries; all main track; rows needed head 20, sequential 24.
+- The MLB $333 satellites were withdrawn by the operator; 2 entries were added in the $19 $555 SUPERSat [2x].
+- One contest (sat9) seats the 10-12 $4,444 SHOWDOWN.
+- The earlier 2ffbcfe8 file is kept privately in `~/private/week5-plan/`.
+
+**Study 24 (the reviewer's, end to end):** arms WS / G25 (DECISION: every game's QBs ≤ 6 of 24 dealt entries) / SEQ
+(DECISION) / G1, G25S (EXPLORATORY).
+- Primary: P(≥ 1 big seat); guards: the mean finish and expected big seats ≥ (1 − TOL) × WS. TOL is from his answer
+  ("accepting up to ~20% fewer expected big seats if average finish holds").
+- It freezes on the Rev1 plan; run and read Tuesday. The laptop re-runs byte-identically.
+- Production follow-ups only if it passes and he says yes: the G25 budget in mix_rows with a parity test; ENTER_LAYOUT
+  per his choice.
+
+**Week-5 arming (his decisions Friday):**
+- UNION_MAIN=mix with UNION_MIX_PORTFOLIO=ws (or mix);
+- UNION_PROJ_SOURCE=fp;
+- EXPECT_SHA f69598b and CLONE week5-live-center;
+- ENTER_LAYOUT=sequential if he confirms;
+- the G25 budget if study 24 passes.
+Decision sheet: `briefings/2026-week-05/2026-10-05-week5-decision-sheet.md`. It needs updating with his utility, the
+Rev1 plan and study 24.
+
+## 2026-10-05 (20:17 CDT) — STUDY 18 READ: WS PASSES (Addendum 129); FP projections decision; the Week-5 build in progress
+
+**Study 18.**
+- WS (QB + 1, a second-game pair, ≤ 3 from the QB's game, bring-back optional) PASSES: tickets +5.849 per slate
+  [+1.613, +10.481], every season positive, mean finish up.
+- MIX is NO DIFFERENCE (+2.245); DS is exploratory (+2.189); the line-aware deals are closed.
+- Reproduced byte-identically by the laptop (READ `9b2649bc`). LEDGER `0738a41`; Addendum 129.
+- The result is plan-specific (draft A's shallow lines). The composite with the FP term and FP projections is untested
+  as such.
+
+**Operator decisions (10-05):**
+- Fantasy Points' projections REPLACE ours (not a blend), if the W4 replay holds. His stated condition for revisiting:
+  ours or a blend beating FP, measured weekly.
+
+**Build:** `production/main-mix-20261006` (reviewer-approved through part 3a; the FP source `cfb02816` is for review).
+- `--main mix` and `--proj-source` exist; WS (`--mix-portfolio ws`) is next.
+- The new live clone `~/projects/.nfl2-worktrees/week5-live-center` @ `f69598b` exists. The week_env defaults stay on
+  `32cdb61` until the operator's yes.
+- Running: the W4 paper replay. A0 first (the house main on the new clone must reproduce the entered W4 book byte for
+  byte), then FP and mix, scored on the real W4 contests.
+
+**Friday:** the operator's decisions on WS (or MIX), FP projections, the pin switch, and the Week-5 contest plan (draft A).
+
 ## 2026-10-05 (19:36 CDT) — Study 17 read and reproduced byte-identically (Addendum 127); O-32 corrections 2 of 5 done
 
 **Study 17.**
