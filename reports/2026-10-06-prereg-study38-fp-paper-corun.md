@@ -1,4 +1,4 @@
-# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06, amendments 1, 1b and 2, before Week 5's lock)
+# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06, amendments 1, 1b, 2 and 3, before Week 5's lock)
 
 **Status: FROZEN 2026-10-06** by the reviewer, BEFORE any week of the decision arm (MIXT_RS0) or of the exploratory arms
 QBB0 / NQC0 / QAL / RBC0 was read on any slate. Disclosed: before the freeze, the reference MIXT_QA0 was scored on
@@ -95,6 +95,15 @@ score. Nothing here enters a contest: the money path, its checkout and its files
     - `tests/test_s38_paper_corun.py`, `57dcb8815b1cd89f2a4fdf4529a943a310089d46dd9e77ad6a4c74d436d23119` (15 tests);
     - `experiments/mix_fill.py` (study 42's, byte-identical), `dcf6a29997d97369f467377ceb5a69a0ba3bc0edc51fe0c8ec495610a8436fd7`.
     - Every other amendment-1 / 1b sha stands; `scripts/s38_plan.py` `9af5f805…` unchanged.
+
+- **Amendment 3 (same day, before Week 5's lock).** The union now takes `--mix-cover-games N` (study 43's coverage rows,
+  production `909c306b`, default 0). Study 43 read NO DIFFERENCE, leaning worse (Addendum 147), and the switch is not
+  armed. The paper arms build no coverage rows, so a live nonzero cover is a parity mismatch (an invalid week), never
+  silently mirrored without it; 0 or absent passes. Smoke: Week 4's copies at 4 + rr give `books.json` byte-identical to
+  amendment 2's (`ms4-rr` `47b701ee`); with `--mix-cover-games 4` the build records the mismatch. Code: lab `7a50650`;
+  `experiments/s38_paper_corun.py` `f7b73a9c1f902b434f1ae43faf662ca52203bce069a0d6a526a5cc27820027a2`;
+  `tests/test_s38_paper_corun.py` `dbcd08c94438679c22af7136c74eb4bf6390893adaa8b0353b9385080f5887cd` (16 tests). Every other
+  amendment-2 sha stands (the reader `33d350b5…` unchanged).
 
 ## 1. Why
 - **The operator (10-06), on the proposal:** "yes, please try it, I want to exhaust all reasonable options."
