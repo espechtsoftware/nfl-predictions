@@ -12,6 +12,45 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (06:03 CDT) — Rev2 plan installed (pins); study 26 read (shootout NO DIFFERENCE); study 27 DROPPED by the operator; study 28 (MIX on his plan) next; O-33/34/35
+
+**The operator's final entries (Rev2, 10-06):** `~/week5-sunday/contests.json` sha256 `94cc61a8…` (29 contests, 53
+entries, group 154468; built in `~/private/week5-plan/rev2/`; Rev1 kept there). His rule, verbatim: "For those [Milly
+super satellites], I only want to reuse my top lineups that I'm using elsewhere … My hope with those is to win many";
+"the midseason ones count as big wins, the 125 WFFC one doesn't and it should reuse an entry". Pins: SUPERSats
+684–687 [1..5], 688 [1,2], 689 [1,2,3], 690 [1]; $125 FFWC 726 [1]. Head rows needed 22 (caps 11 / 5). Matches the
+reviewer's study copy (00c66004) on ids / order / entries / ranks.
+- **Pin guard merged** (`d1b42b27`): enter_layout refuses pins under sequential / top. **Dealing stays head.**
+- Entries per rank under head on Rev2: 10, 8, 7, 6, 5, then 1 each (ranks 6–22). A "top-row" lever touches ~half the
+  entries.
+- `week_env 5` preview: head / BOOK_ENTRIES 22 / TAIL_SLEEVE 0 / GROUP 154468. Repeat on the merged head before arming.
+
+**Study 26** (the reviewer's; shootout QB+3+BB, MPG 5, whole book vs house; Rev2 plan): NO DIFFERENCE, +0.02378
+[−0.02827, +0.07484]. Sensitivity without the disclosed 2023 W9: +0.02404. A ceiling signal (expected big seats +15%,
+best ≥ 200 .075 → .104, near-dead .47 → .37) for −1.4 points of finish. The laptop's re-run is byte-identical (READ
+d343a218, SENS 261f348a). Addendum 132 merged (`95d7b0c2`).
+- **The operator, verbatim:** "I'm not wild about the bigger one-game stack. If that is adopted, I would only want to
+  use it a very small percentage. We know that milly winners use fewer players than that". Then: "In my opinion, that is
+  too big of a stack and it doesn't match what the winners do. However, it's alternative is the same shape for every
+  lineup. I like what we discussed previously of mirroring how the winners play - with a mix of stacks, double stacks,
+  etc. Is there a reason that we aren't trying to play the way the winners play?"
+- **Study 27 (the shootout sleeve) is DROPPED** by his decision; its lab branch is parked as a draft.
+- **Study 28 (the reviewer drafting):** study 18's MIX (A1 30 / A2 14 / B 28 / C 28 by dealt entries) vs the house shape
+  on his goal and the Rev2 plan, with pin-aware weights. Fresh banks 1425/1426 (the laptop's scan is running).
+
+**Fixes and the register:**
+- O-33: EXTRA_FEATURES / DROP_FEATURES silently ignore unknown names.
+- O-34: scripts default ENTER_LAYOUT=sequential outside week_env; they now fail closed on a pinned plan, so a manual
+  Sunday relayout must pass ENTER_LAYOUT=head.
+- O-35: plan_weights stripped the pins. **Fixed** on `production/o35-plan-weights-pins-20261006` @ `ce7ba02b` (off
+  main-mix; parity tests; Rev2 weights [10,8,7,6,5,1×17] = 53). For review; it merges after main-mix if MIX is chosen.
+
+**Route Share anecdote** (frozen note `503cf60b`, result `73efece0`): the tilt finished worse in W3 and W4 (pooled
+41.9 vs 46.2, half the return). It stays out of the W5 book.
+
+**Pending:** the weekly vendor run, once FP's PROE has ATL/NO's MNF (an hourly prober is running); the Friday merge and
+arming checklist (main-mix, the banner shows ENTER_LAYOUT, check_week_runtime on the merged head).
+
 ## 2026-10-06 (04:49 CDT) — STUDY 18b READ: WS vs the house shape on his goal = NO DIFFERENCE (Addendum 131); FP W4 Route Share loaded
 
 - **Study 18b** (the reviewer's; prereg 43e944f6; reader 5fb03df3): WS vs C, P(≥ 1 big seat) +0.00634 [−0.07013,
