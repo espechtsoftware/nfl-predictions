@@ -1,11 +1,10 @@
-# Preregistration: study 34, the regulars' player habits as a selection tilt, on the operator's goal (DRAFT 2026-10-06)
+# Preregistration: study 34, the regulars' player habits as a selection tilt, on the operator's goal (FROZEN 2026-10-06)
 
 **Transfer, said first:** the panel's projections are OURS (no FP history). A PASS says the habits add to a
 projection-based book. It cannot prove they add on top of FP, which picks the lineups from Week 5. The weekly Monday
 "picks vs the field" score (requested 10-06) is the live check.
 
-**Status: DRAFT 2026-10-06.** The reviewer drafts it and freezes it after the calibration census and the smoke; the
-laptop comments, acks the binding census and re-runs the frozen reader.
+**Status: FROZEN 2026-10-06** by the reviewer, after the laptop's comments (the GAP design, value excluded, the owned-set units, the landing rules), the calibration census and the smoke (§6), before any scored bank. The laptop acks the binding census and re-runs the frozen reader.
 
 **The prior, said second:** the regulars' report already tested copying their visible habits (§6 Test 1). A model of
 their tilt predicted their picks well, but the predicted picks' gain was indistinguishable from the null (p 0.55 /
@@ -83,18 +82,36 @@ it is cheap.
 - **NO DIFFERENCE / WORSE:** the habits are recorded as the field's habits, not a lever. The weekly line stays the
   monitor of whether FP closed the gap.
 
-## 6. Integrity (filled at the freeze)
-Code (nfl2 `production/s34-regulars-habits-20261006`), reader sha, β and the calibration census, the binding census,
-the banks scan. Order:
-1. this draft;
-2. the laptop's comments;
-3. the calibration census;
-4. the smoke;
-5. the freeze;
-6. the binding census;
-7. the laptop's ack;
-8. the scored run;
-9. the confirmatory census;
-10. the read;
-11. the laptop's re-run;
-12. the LEDGER row and an Addendum.
+## 6. Calibration, smoke and integrity
+- **The calibration census** (bank 1406, outcome-blind; `results/s34/CALIB_s34.txt`):
+  - Round 0 (weights = the gaps, β_gap 0.2) overshot: last game 2.27×, share 1.59×, Q 1.24×.
+  - The one-round weights are last_pts −0.03960, share_last −0.03783, q_tag +0.04029.
+  - On the grid, **β_gap 0.2 is the only value with every feature within 30%** (ratios 1.02 / 0.88 / 0.89). At 0.15
+    the worst miss was 0.36, at 0.25 it was 0.32.
+  - **β_shr 0.0125** gives a ratio of 1.12, the closest to 1 (0.01: 0.86; 0.015: 1.34).
+  - The superseded first point (value included, pool-z units) is appended to that file.
+- **The binding census at the frozen values** (1406, 36/36, code `df9429f`; `CENSUS_s34_binding.txt`, `c41b32d4…`):
+  - It reproduces those ratios exactly.
+  - No arm is identical to its reference (GAP .000, SHR .056), so neither is a dead lever.
+  - No short books.
+  - The habit inputs cover .90 (last game), .94 (salary change, opponent allowed).
+- **The smoke** (2023 W1, 1406, the full path) found one reader defect, fixed before the freeze. The weeks-2–5 subset is
+  empty on a one-slate smoke, so the bootstrap crashed. It now prints "no slates" (only the traceback was read). The
+  census and reader then exited 0 with their 2 headers, and the reader REFUSED mechanics-only rows.
+- **Code:** nfl2 `production/s34-regulars-habits-20261006` @ `6160a02`:
+  - `experiments/s34_regulars.py`, sha256 `c3c5a57beb01017334e697162031f74d6c88d082f3ced43dd1076ce50d5421df` (β and
+    weights frozen in code, with no environment override);
+  - `scripts/s34_drive.py`, `cd410d45bbb6e4c7ca7d3d3817dd19f086eb668e3aa5073e1998ec7e6594fd43`;
+  - **`scripts/s34_report.py` (the reader), sha256 `2da832bf677315b166c5ed5941896ba466a600c697580e78c561c2faade6ca14`**;
+  - `scripts/s34_census.py`, `0cefa46347d39e236e520f1649fcdd3c14514a6ac8646d3b7a8ee7f7f87a1f15`;
+  - `tests/test_s34_regulars.py`, `f6393bb753077ca81716a3740413c30336fcdf4e034c91276f0122fddda2dc9b` (8 tests).
+- **Production `enter_layout`:** `3cb051ac…` (`da399bdb`). **Banks:** 1449–1454 (scanned clean by the laptop). **Seed:**
+  20261016.
+- **Order:**
+  1. this freeze;
+  2. the laptop's ack;
+  3. the scored run;
+  4. the confirmatory census;
+  5. the read;
+  6. the laptop's re-run;
+  7. the LEDGER row and an Addendum.
