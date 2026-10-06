@@ -187,10 +187,13 @@ sched s-odds        ingest-odds     "0 9,15 * * 3-7"
 sched s-props       ingest-props    "0 11 * * 4"
 sched s-us-dfs      ingest-us-dfs   "30 10 * * 3-6"
 sched s-us-dfs-sun  ingest-us-dfs   "30 6,8,10,11 * * 0"
-sched s-weather     ingest-weather  "0 6,12,18 * * 5,6,0"
+# Live since 2026-07-31 (the 08-01 reconciliation missed it; found 2026-10-06, O-18): 08:00 Fri-Sun.
+sched s-weather     ingest-weather  "0 8 * * 5-7"
 sched s-score       score-entries   "0 8 * * 2"
 sched s-trends      trends-alerts   "15 8 * * 2"
-sched s-freshness   check-freshness "0 8 * * *"
+# 08:30, after s-weather's 08:00 load (O-18: at the same minute it read raw.weather a moment before the load and
+# called it stale every Fri-Sun).
+sched s-freshness   check-freshness "30 8 * * *"
 sched s-cfb         ingest-cfb      "0 10,14,18 * * *"
 # The daily trigger owns Saturday 10:00; the Saturday supplement skips it.
 sched s-cfb-sat     ingest-cfb      "0 8,9,11,12,13 * * 6"
