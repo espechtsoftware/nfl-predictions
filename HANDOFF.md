@@ -12,6 +12,25 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (04:49 CDT) — STUDY 18b READ: WS vs the house shape on his goal = NO DIFFERENCE (Addendum 131); FP W4 Route Share loaded
+
+- **Study 18b** (the reviewer's; prereg 43e944f6; reader 5fb03df3): WS vs C, P(≥ 1 big seat) +0.00634 [−0.07013,
+  +0.08232], seasons +0.075 / −0.122 / +0.070; both guards hold.
+  - WS: better average finish (.499 → .512), fewer near-dead weeks (.48 → .36).
+  - House: a higher ceiling (best ≥ 200 .094 vs .075) and a better worst decile (.271 vs .203).
+  - The laptop's re-run is BYTE-IDENTICAL (READ 5b4c7eec). LEDGER nfl2 6196f8c; Addendum 131 merged (3f615c2c).
+  - **For Friday:** the shape is a preference, not a tested gain; doing nothing keeps the house shape. Decision sheet
+    §1 rewritten (68aa4638).
+- **FP Week-4 Route Share loaded** (target week 5): 262 rows, 261 resolved, sha 07aed99f, archived in the licensed
+  bucket. The route treatment's prior-week requirement is met for W5.
+  - The weekly run `nfl-weekly-data run --week 5` stopped at the Defense PROE import: FP's file lacks ATL / NO (their
+    W4 game was Monday night). Route Share was loaded alone with `nfl-dfs import-fantasy-points-route-weekly --write`
+    on the downloaded file.
+  - **TODO:** re-run the full weekly run once FP adds the MNF game to PROE. Not yet captured: PROE, the FP families,
+    matchups, the four paid DFS pages, SIS.
+- **Next:** the reviewer's strategy-testing queue (boom selection, sorting / dealing, route share) with an ownership
+  split.
+
 ## 2026-10-06 (04:42 CDT) — The operator: this week is round-the-clock Sunday-strategy testing; the O-22 co-run and the 2026-only O-22 check are PARKED
 
 **Operator (10-06, verbatim, to the reviewer):** "That 6 season rule is old and i want to clarify something. I dont
