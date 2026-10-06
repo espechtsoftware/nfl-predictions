@@ -5145,3 +5145,94 @@ STUDY 32 DESCRIPTIVE (post-read; pre-stated in §2b; never decision-bearing)  re
      +0.009 [−0.023, +0.046].
 7. **His plain answer:** "With 3 entries in the same big contest, choose them together by the simulator: about +7
    points of cash chance. With 2, about +3, not proven on its own. With 1, nothing beats a random pick."
+
+## Addendum 138 (2026-10-06): study 33 (O-14 part 2: an injury-status calibration for late-window players, under a T-70 emulation): NO DIFFERENCE, leaning positive; every late Doubtful player in a reference book sat, but production already excludes Doubtful players at T-70; today's post-inactives rebuild is worth about +1.6 points; O-14 part 2 closes with no change
+
+**Setup.**
+- **Transfer, said first in the prereg:** with FP's projections live for every player, a PASS would change nothing in
+  the Week-5 / 6 build. The study was LOW priority and run when the host was free.
+- **The T-70 emulation in every arm:** every EARLY-window (13:00 ET) player not active on game day leaves the pool (the
+  10:30 CT inactives list, the frame's `was_active`), and an early flagged player who was active keeps his mean.
+- **The calibration (AV arms):** LATE-window (16:05 / 16:25 ET) Questionable / Doubtful players' means are multiplied
+  by min(1, c_s' / c_H).
+  - c_s is realized ÷ our mean per pre-lock stratum (Q × practice level, D), learned walk-forward (2022 → 2023;
+    2022–23 → 2024) on the harness's own means at a fixed training seed, and shrunk toward the parent (k 100).
+  - Late window: healthy c .844 / .906, Q .710 / .691, D .000.
+  - Factors .73–.91.
+- **Arms:** CT / AV_CT (the house shape + 0.20 term) and MIXT / AV_MIXT (the winners' mix + term). Exploratory: CT0 /
+  MIXT0 without the T-70 step.
+- **Plan and panel:** Rev3, K 26, caps 13 / 6, `enter_layout` `3cb051ac…`. 36 slates, banks 1443–1448, B 20,000, seed
+  20261015.
+- **Preregistration:** `reports/2026-10-06-prereg-study33-availability-calibration.md` (the laptop's draft and revisions
+  after the reviewer's review; frozen `7f505dba`).
+  - Participation is game-day active status (the inactives list), not snaps (corrected at the freeze).
+- **Support census (= the binding census):** 5.8 late flagged players per slate. The reference books hold one on 44%
+  (CT) / 42% (MIXT) of slate-banks; AV is identical to its reference on .39 / .47 (not vacuous).
+- **Read and reproduced:**
+  - Read by the reviewer.
+  - **Reproduced byte-identically by the laptop:** reader `9654d1b3`; READ `acfc7c33`; DESCRIPTIVE `7a81f70f`; raw
+    1443 `379a2752` … 1448 `14334b5f`.
+  - Lab: nfl2 `production/s33-availability-20261006`.
+
+**Reader output (verbatim):**
+```
+STUDY 33 READER  sha256 9654d1b3abe320489e15cad5dd82a661eb4a37076b8abf0bd0a0b8cb72696c42
+DIRECTION: P(>= 1 big seat) per slate (the mean over its banks); every difference is ARM - REFERENCE; POSITIVE favours the first arm.
+slates 36  banks [1443, 1444, 1445, 1446, 1447, 1448]  B 20000  seed 20261015  primary AV - reference pooled over CT and MIXT, two-sided 0.95, guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80  factor table ['4e4607effa5c8f160d280c233358d3609a8d822a01ef0ddb834fc164835a1c3e']
+
+== AV vs reference, pooled over the two shapes  [DECISION]
+  PRIMARY P(>= 1 big seat) per slate +0.01633  [-0.00454, +0.04145]  seasons 2023 +0.00591, 2024 +0.02675
+  GUARD 1 mean entry pct +0.00592  one-sided lower +0.00131  (must exceed -0.015)
+  GUARD 2 expected big seats 0.64324 vs 0.61829  ratio 1.040  (must be >= 0.80)
+  AV dealt identical to its reference: 0.447 of slate-banks (pooled over shapes)
+  ->  NO DIFFERENCE
+
+== EXPLORATORY (never decision-bearing)
+  AV_CT - CT (calibration on the house shape): +0.02221  [-0.00245, +0.05350]  seasons 2023 +0.00165, 2024 +0.04278
+  AV_MIXT - MIXT (calibration on the mix): +0.01045  [-0.00919, +0.03591]  seasons 2023 +0.01017, 2024 +0.01073
+  CT - CT0 (the T-70 emulation on the house shape): +0.01713  [+0.00165, +0.03720]  seasons 2023 +0.00005, 2024 +0.03420
+  MIXT - MIXT0 (the T-70 emulation on the mix): +0.01560  [+0.00353, +0.03041]  seasons 2023 +0.00604, 2024 +0.02515
+
+secondaries (slate means):
+  CT      P(>=1 big) 0.35283  expected big seats 0.62119  P(>=2) 0.16459  entry pct 0.57461  entries with a late flagged player 5.89  late flagged players dealt 0.59 (sat 0.12)
+  AV_CT   P(>=1 big) 0.37505  expected big seats 0.66373  P(>=2) 0.17385  entry pct 0.58267  entries with a late flagged player 0.44  late flagged players dealt 0.10 (sat 0.02)
+  MIXT    P(>=1 big) 0.33930  expected big seats 0.61538  P(>=2) 0.13591  entry pct 0.57561  entries with a late flagged player 4.16  late flagged players dealt 0.47 (sat 0.09)
+  AV_MIXT P(>=1 big) 0.34975  expected big seats 0.62275  P(>=2) 0.13714  entry pct 0.57941  entries with a late flagged player 0.42  late flagged players dealt 0.08 (sat 0.01)
+  CT0     P(>=1 big) 0.33571  expected big seats 0.59183  P(>=2) 0.15402  entry pct 0.56898  entries with a late flagged player 5.80  late flagged players dealt 0.60 (sat 0.12)
+  MIXT0   P(>=1 big) 0.32370  expected big seats 0.59228  P(>=2) 0.12946  entry pct 0.57092  entries with a late flagged player 4.06  late flagged players dealt 0.47 (sat 0.09)
+```
+
+**Pre-stated descriptive line (post-read, never decision-bearing; verbatim):**
+```
+STUDY 33 DESCRIPTIVE (post-read; pre-stated in §5a; never decision-bearing)  reader sha256 9654d1b3abe320489e15cad5dd82a661eb4a37076b8abf0bd0a0b8cb72696c42
+  CT      late D: dealt entries holding one 0.20 of 53, distinct players dealt 0.03 per slate-bank, of whom sat 1.000 (7 of 7)   late Q: dealt entries holding one 5.69 of 53, distinct players dealt 0.56 per slate-bank, of whom sat 0.149 (18 of 121)
+  AV_CT   late D: dealt entries holding one 0.00 of 53, distinct players dealt 0.00 per slate-bank, of whom sat nan (0 of 0)   late Q: dealt entries holding one 0.44 of 53, distinct players dealt 0.10 per slate-bank, of whom sat 0.182 (4 of 22)
+  MIXT    late D: dealt entries holding one 0.19 of 53, distinct players dealt 0.03 per slate-bank, of whom sat 1.000 (6 of 6)   late Q: dealt entries holding one 4.01 of 53, distinct players dealt 0.44 per slate-bank, of whom sat 0.146 (14 of 96)
+  AV_MIXT late D: dealt entries holding one 0.00 of 53, distinct players dealt 0.00 per slate-bank, of whom sat nan (0 of 0)   late Q: dealt entries holding one 0.42 of 53, distinct players dealt 0.08 per slate-bank, of whom sat 0.118 (2 of 17)
+  CT0     late D: dealt entries holding one 0.20 of 53, distinct players dealt 0.04 per slate-bank, of whom sat 1.000 (8 of 8)   late Q: dealt entries holding one 5.60 of 53, distinct players dealt 0.56 per slate-bank, of whom sat 0.149 (18 of 121)
+  MIXT0   late D: dealt entries holding one 0.17 of 53, distinct players dealt 0.03 per slate-bank, of whom sat 1.000 (6 of 6)   late Q: dealt entries holding one 3.93 of 53, distinct players dealt 0.44 per slate-bank, of whom sat 0.137 (13 of 95)
+```
+
+**Reading.**
+1. **At the frozen rule: NO DIFFERENCE**, leaning positive.
+   - AV − reference +0.016 [−0.005, +0.041], both seasons positive.
+   - Both guards hold: finish +0.006, expected big seats ×1.04.
+   - **In plain words:** the calibration is small per player (1.7 points), but the selector drops a flagged player once
+     he is slightly worse than his replacement. So AV in effect keeps late-window Q / D players out of the book (5.9 →
+     0.4 dealt entries of 53 on CT).
+2. **The Doubtful part is already live** (the laptop's correction, verified in code).
+   - Every late Doubtful player dealt in a reference book sat: 7 of 7 (CT), 6 of 6 (MIXT), 8 of 8 (CT0).
+   - Production has excluded DraftKings-status Doubtful players at T-70, in every window, since `81c1eabb`
+     (2026-09-25): `r1c_sunday_reselect.OUT_STATUSES` includes D, and `union_reselect` drops them from every solve.
+   - So the study's D gain is already captured live; the panel's references kept D players that live would have dropped.
+   - Caveat: live keys on DraftKings' status field, the panel on the injury report's designation; they normally agree.
+3. **The Questionable part is the open question, and it is NO DIFFERENCE.** About 15% of the late Q players dealt sat
+   (18 of 121 on CT).
+4. **Today's post-inactives T-70 rebuild is worth keeping:** CT − CT0 +0.017 [+0.002, +0.037], MIXT − MIXT0 +0.016
+   [+0.004, +0.030]. These are the only intervals of the study that exclude 0. Live already does this.
+5. **O-14 part 2 closes with no change** (frozen §7).
+6. **MIXT vs CT** (not a designed contrast): here CT .353 vs MIXT .339 (calibrated .375 / .350), on other banks and with
+   the T-70 emulation. Study 31 had MIXT .366 vs CT .344. **Together, tied within noise:** Friday's choice between them
+   is his preference, not a measured edge. The decision sheet says so.
+7. **Process:** the first training run stalled for 70 minutes without `OMP_THREAD_LIMIT=1`. It was re-run with the limit
+   on the same inputs and seed, before any outcome.
