@@ -450,7 +450,7 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   [[ -n "$UNION_DIR" && -n "${OWN_REFUSED:-}" && ! -f "$UNION_DIR/own_term_refused.txt" ]] && cp "$OUT/union-$RUN_TAG-own-refused.txt" "$UNION_DIR/own_term_refused.txt"
   [[ -n "$UNION_DIR" && -f "$OUT/union-args-$RUN_TAG.txt" ]] && cp "$OUT/union-args-$RUN_TAG.txt" "$UNION_DIR/union_args.txt"
   # the projection source travels with the union dir, so the upload sheet can name it (the outside review 10-06, (1b))
-  [[ -n "$UNION_DIR" && -f "$OUT/proj_fp-$RUN_TAG.txt" ]] && cp "$OUT/proj_fp-$RUN_TAG.txt" "$UNION_DIR/proj_source.txt"
+  [[ -n "$UNION_DIR" && -f "$OUT/proj_fp-$RUN_TAG.txt" ]] && cp "$OUT/proj_fp-$RUN_TAG.txt" "$UNION_DIR/proj_source_log.txt"
   [[ -n "$UNION_DIR" && -f "$OUT/proj_source_fallback-$RUN_TAG.txt" ]] && cp "$OUT/proj_source_fallback-$RUN_TAG.txt" "$UNION_DIR/proj_source_fallback.txt"
   [[ -n "$UNION_DIR" && -f "$OUT/union-$RUN_TAG-mix-refused.txt" ]] && cp "$OUT/union-$RUN_TAG-mix-refused.txt" "$UNION_DIR/mix_refused.txt" \
     && echo "!!! MIX REFUSED for this union; it carries the HOUSE main (C): $UNION_DIR/mix_refused.txt"
