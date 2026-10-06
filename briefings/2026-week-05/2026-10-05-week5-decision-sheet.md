@@ -325,7 +325,7 @@ You said: "If successful, i will have a limited number of entries to big contest
 how to choose the best ones." Agreed; it is study 32 (the reviewer runs it; frozen before study 31's results are read).
 
 **What happened in Weeks 1–4:** the lineups our book chose from its own pool did no better than random rows from that
-same pool: the 58th percentile on cashes over the four weeks, better than random in Weeks 1–2 and worse in Weeks 3–4
+same pool: the 59th percentile on cashes over the four weeks, better than random in Weeks 1–2 and worse in Weeks 3–4
 (the "monkey" check, 1,000 random books a week).
 
 **The honest starting point: every past attempt to pick our best lineups failed.**
