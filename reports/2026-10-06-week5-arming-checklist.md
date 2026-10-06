@@ -16,7 +16,7 @@ chat. Private paths stay private (no dollars, no entries here).
 ## The operator's decisions (decision sheet `briefings/2026-week-05/2026-10-05-week5-decision-sheet.md`)
 **DECIDED 2026-10-06 (his formal yes):** "yes to the winners' mix with the tilt and the quarterback cap" = MIXT + the
 term at 0.20 + study 35's QB cap A (5 rows at K 26). Still open for Friday: study 36's player cap (only if it passes
-and he says yes), the dose confirmation, O-16, O-18 (the freshness move awaits his one-line OK; CFB separately).
+and he says yes), the dose confirmation, O-16, O-18's CFB part (the freshness move was OK'd and applied 10-06).
 
 1. The shape: **MIXT** (the winners' mix + the term; his preference, study 31) or CT (Week 4's setup, the safe alternative).
 2. FP projections as the projection source (decided in principle).
@@ -53,9 +53,8 @@ rehearsal runs on the merged head in the exact armed env; Friday re-verifies on 
    7. ~~`production/neo4j-arm-check-20261006` @ `11ed00d4`~~ **MERGED 10-06** (`6af25408`, approved): the arm script
       refuses while the local Neo4j runs. Its follow-up `production/neo4j-build-guard-20261006` @ `e2845f73` (the build
       preflight STOPS a running Neo4j, never refuses) is **MERGED 10-06** (approved), so Wednesday's host rehearsal exercises it.
-   8. `production/freshness-after-weather-20261006` @ `dabebd49` (O-18: s-freshness 08:30 CT; s-weather reconciled to
-      live; code approved): merged, with the live `gcloud scheduler jobs update http s-freshness --schedule '30 8 * * *'
-      --location us-central1`, only after his one-line OK (a registered operator decision). Not on the money path.
+   8. ~~`production/freshness-after-weather-20261006` @ `dabebd49`~~ **MERGED and APPLIED 10-06** on his OK (O-18 timing:
+      live s-freshness `30 8 * * *` CT). Check the Friday 08:30 run shows no weather-stale line.
    Then install Rev3 (`~/private/week5-plan/rev3-26/contests.json`, sha `8625de0e…`) as `~/week5-sunday/contests.json`,
    keeping Rev2 beside it as `contests.json.rev2-94cc61a8` (unmerged production code refuses Rev3's pins, fail-closed).
 2. A follow-up for review: the arming banner prints `ENTER_LAYOUT`.

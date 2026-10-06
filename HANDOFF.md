@@ -12,6 +12,17 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (11:55 CDT) — O-18 timing fixed on the operator's OK: s-freshness 08:30 CT (live + deploy_jobs.sh merged)
+
+- **Operator:** "ok to move daily freshness".
+- **Live:** `gcloud scheduler jobs update http s-freshness --location us-central1 --schedule '30 8 * * *' --time-zone
+  America/Chicago`. Describe after: `30 8 * * *` America/Chicago, ENABLED, the same `check-freshness:run` target,
+  userUpdateTime 2026-10-06T16:55:37Z. `s-weather` is unchanged (`0 8 * * 5-7`).
+- **Code:** `production/freshness-after-weather-20261006` (`dabebd49`, approved) merged. `deploy_jobs.sh` now matches live
+  for both jobs.
+- **Register:** O-18's timing part leaves after the Friday 10-09 08:30 run shows no weather-stale line. The CFB part (his
+  Friday decision) and CI stay open.
+
 ## 2026-10-06 (11:53 CDT) — THE OPERATOR'S YES (MIXT + term + QB cap A); all seven approved branches MERGED (231b1ea0); Rev3 installed; the arm-script commit for review
 
 **Operator (10-06):** "yes to the winners' mix with the tilt and the quarterback cap". The reviewer agreed to merge on
