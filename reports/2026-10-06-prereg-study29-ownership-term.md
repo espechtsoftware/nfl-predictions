@@ -1,8 +1,7 @@
-# Preregistration: study 29, the live ownership term on the winners' mix, at the operator's first-place-only lines (DRAFT 2026-10-06)
+# Preregistration: study 29, the live ownership term on the winners' mix, at the operator's first-place-only lines (FROZEN 2026-10-06)
 
-**Status: DRAFT.** It is frozen, with the reader's sha256 recorded here, after the one-slate smoke (§2a) and before the
-binding census and any scored bank. The reviewer freezes it and reads first. The laptop acks the census and re-runs the
-frozen reader.
+**Status: FROZEN 2026-10-06**, after the smoke (§2a), before the binding census and any scored bank. The reviewer
+froze it and reads first. The laptop acks the census and re-runs the frozen reader.
 
 ## 1. Why
 - **The live main adds an ownership term:** tilt × predicted ownership, in percentage points, for skill players only,
@@ -26,9 +25,13 @@ the objective differs.
 slightly better informed than a T-70 predictor. Any benefit of MIXT is therefore a little OPTIMISTIC as an estimate of
 the live FP term. LAG has no such issue.
 
-## 2a. Smoke observations before the freeze
-(To be filled from `~/s29-panel/smoke/`: 2023 W9, throwaway bank 1406, mechanics only; the reader checked by its exit
-code and its count of "== " headers only.)
+## 2a. Smoke observations before the freeze (2023 W9, throwaway bank 1406; mechanics; the reader checked by exit code and header count only)
+- Caps 11 / 5; k_book 22. Both term arms change the book (identical to MIX: no).
+- The dealt cell shares stay near quota:
+  - MIXT: A1 .302 / A2 .151 / B .226 / C .321;
+  - MIXL: A1 .283 / A2 .151 / B .245 / C .321.
+- The dealt entries' predicted-ownership sum (LAG yardstick): MIX 42.0, MIXT 42.8, MIXL 50.7.
+- The reader exited 0 with 2 comparison blocks. No design change.
 
 ## 3. Panel and plan
 - **Slates:** the **36** `k1` slates of 2023–24 with Millionaire ownership and the predictions. No predictions exist
@@ -56,14 +59,12 @@ code and its count of "== " headers only.)
 - **MIXL** is information on the fallback.
 
 ## 6. Integrity
-- **Code:** nfl2 `production/s29-ownership-term-20261006`:
-  - `experiments/s29_ownership_term.py`;
-  - `scripts/s29_drive.py`, limited to 2023–24;
-  - **`scripts/s29_report.py` (the reader)**;
-  - `scripts/s29_census.py`;
-  - `tests/test_s29_ownership_term.py` (5 tests).
-
-  The shas are recorded at the freeze.
+- **Code:** nfl2 `production/s29-ownership-term-20261006` @ `2fbeedf`:
+  - `experiments/s29_ownership_term.py`, sha256 `07abafc367d7fff2a0ba49ae3c21cbeebfe1523cccf922581c41143b755f7596`;
+  - `scripts/s29_drive.py`, `00851984d782b28de96993b08604db78b297de73449a81142bb495a533f418c9`;
+  - **`scripts/s29_report.py` (the reader), sha256 `3cd9fc73396414674a20d728f12ec2bc0d1a1da7849708e27a3888b06485ac3e`**;
+  - `scripts/s29_census.py`, `de9c1d67cd83fb39ce0b537018348171b9cd1d6391cbc57cff55cd75850636ae`;
+  - `tests/test_s29_ownership_term.py`, `725f7f9a895819d048a9a0688c5cff7d7448df20dc3199157283eaa103326364` (5 tests).
 - **Order:** this freeze → the binding census → the laptop's ack → the scored run → the confirmatory census → the read
   → the laptop's re-run → LEDGER and Addendum 134.
 - **Transfer:** our projections (the live term sits on FP's); no FP ownership history.
