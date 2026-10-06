@@ -509,6 +509,7 @@ RETURN p.name AS player, p.position AS position, collect(wk + ':' + toString(n))
 ORDER BY n_weeks DESC, top_1pct_lineups DESC LIMIT 25""",
     "repeat_finishers": """
 MATCH (u:User)-[:ENTERED]->(l:Lineup)
+WHERE coalesce(l.source, 'top') = 'top'
 WITH u, count(l) AS loaded, sum(CASE WHEN l.top_1pct THEN 1 ELSE 0 END) AS top_1pct_lineups,
      count(DISTINCT CASE WHEN l.top_1pct THEN l.week_key END) AS top_1pct_weeks, min(l.rank) AS best_rank
 WHERE top_1pct_lineups > 0
@@ -529,6 +530,7 @@ ORDER BY week""",
 INSIGHT_QUERIES: dict[str, str] = {
     "winners_vs_projected": """
 MATCH (l:Lineup)-[:CONTAINS]->(p:Player)-[r:FP_PROJECTED]->(w:Week {key: l.week_key})
+WHERE coalesce(l.source, 'top') = 'top'
 WITH l, sum(r.fp_own) AS own_sum, sum(r.fp_proj) AS proj_sum
 RETURN l.week_key AS week,
        CASE WHEN l.rank = 1 THEN 'winner' WHEN l.top_1pct THEN 'top 1%' ELSE 'loaded' END AS grp,

@@ -333,3 +333,18 @@ def test_users_file_lineups_never_change_the_panel_figures():
     assert k7["source"] == "users_file" and k7["top_1pct"] is False and k7["rank_top_1pct"] is True
     assert all(r["source"] == "top" and r["top_1pct"] for r in only["lineups"])
     assert {"name": "user_c", "lineup_key": "k7"} in both["entered"]
+
+
+def test_every_panel_query_on_lineups_filters_to_the_top_set():
+    """Reviewer R3 (10-06, a defect-class sweep): a users file adds whole portfolios as Lineup nodes, so every panel or
+    insight query that matches a Lineup must filter it: top_1pct (set on 'top' lineups only), rank 1, or source 'top'
+    (coalesce: graphs loaded before the source property have none)."""
+    filters = (r"WHERE[^\n]*\bl\.top_1pct\b", r"\{top_1pct: true\}", r"WHERE[^\n]*\bl\.rank = 1\b",
+               r"coalesce\(l\.source, 'top'\) = 'top'")
+    checked = 0
+    for name, q in {**G.PANEL_QUERIES, **G.INSIGHT_QUERIES}.items():
+        if ":Lineup" not in q:
+            continue
+        checked += 1
+        assert any(re.search(f, q) for f in filters), name
+    assert checked >= 5
