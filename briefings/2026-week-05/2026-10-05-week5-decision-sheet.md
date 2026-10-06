@@ -9,8 +9,8 @@ and i wouldnt care if i lost all the $20 milly tickets." So from now on the numb
 least one big win in the week**: a $333 or bigger seat, or a $500+ finish in the Millionaire. Average tickets come
 second.
 
-**What to expect:** on practice slates, your plan wins at least one big seat in about 1 week in 4 (study 24). That is
-against a softer field than the real satellites, so the true chance is lower.
+**What to expect:** your plan wins at least one big seat in about 1 in 4 practice weeks with an easier field (study
+24). Real satellite fields are tougher, so the chance is lower in practice.
 
 ## The short version
 
@@ -39,8 +39,8 @@ my first draft plan (9–22% of the field paid):
   worst tenth of slates the average entry beats 22% of the field instead of 28%. More tickets on average, bigger swings.
 - **Your plan's lines are deeper than the ones tested.** Your revised plan's seats sit at the top 1–4% of each contest
   (one seat in 23 to 402), not at 9–22%. WS's better average finish should help there too, but the +42% is a number for
-  shallow lines, not for your plan. On your actual plan (study 24), WS wins at least one big seat in about 26% of
-  weeks (optimistic; see §5).
+  shallow lines, not for your plan. On your actual plan (study 24), WS wins at least one big seat in about 1 in 4
+  practice weeks with an easier field; lower in practice (see §5).
 - **MIX** is the "mix of shapes like the winners" you asked for. It moved the right way but was not conclusive.
 - **Your literal dual stack** (QB + 1 + bring-back + a second-game pair, on every lineup) was tested as EXPLORATORY.
   - It got about half WS's gain (+2.2 tickets per slate) with the steadiest results of any version: no ticket on 9% of
@@ -97,18 +97,20 @@ my first draft plan (9–22% of the field paid):
 
 ## 5. Every entry a different lineup: tested (study 24)
 
-- **Your choice (10-05):** "All distinct." Study 24 tested it on your exact plan, judged by your goal. The test was
-  written before any results and re-run by both of us with identical output.
+- **You chose "All distinct" (10-05) before this result.** Study 24 tested it on your exact plan, judged by your goal.
+  It found **no gain from it, and a small cost in average finish.** The test was written before any results and re-run
+  by both of us with identical output.
+- **Doing nothing means today's dealing:** the best 4 lineups go in two contests each.
 
   | Dealing | Chance of at least one big win in a week* | Expected big seats | Average finish | Distinct lineups |
   |---|---|---|---|---|
-  | Today's (the best 4 lineups in two contests each) | 26% | 0.54 | 50.1% | about 19 of 24 |
-  | Strictly distinct | 27% | 0.51 | 48.6% | 24 of 24 |
-  | The build's sequential dealing (no code change) | 29% | 0.56 | 49.3% | about 22 of 24 |
+  | Today's (the default) | about 1 in 4 | — | 50.1% | about 19 of 24 |
+  | Strictly distinct | +1 point: no difference | 5% fewer | 48.6% | 24 of 24 |
+  | The build's sequential dealing (no code change) | +3 points (a side arm, not a passed test) | 4% more | 49.3% | about 22 of 24 |
 
-  \* On 53 practice slates, against a modelled Millionaire-style field. Real satellite fields are tougher (the
-  regulars are a bigger share), so your true chances are lower. The differences between the rows are what the test
-  measures.
+  \* On 53 practice weeks with an easier, Millionaire-style field. Real satellite fields are tougher (the regulars
+  are a bigger share), so the chance is lower in practice. Our simulations put it near 1 in 2, which is why we don't
+  quote simulated odds of a big win. The differences between the rows are what the test measures.
 - **Strictly distinct: no difference** in your chance of a big win (+1 point; the test's range runs from −3 to +5). It
   costs about 1.6 points of average finish, because the extra lineups it needs are weaker ones. **Not recommended,**
   and the code change is not being built.
@@ -117,8 +119,8 @@ my first draft plan (9–22% of the field paid):
   about 0.8 points of average finish.
 - **Why sequential beats strictly distinct:** putting a strong lineup in a second contest beats replacing it with a
   weaker spare.
-- **My recommendation:** if you want "more distinct," choose the sequential dealing. It is the closest to your
-  preference, needs no code, and lost no big-win chance in the test. Otherwise keep today's dealing. Either way it is a
+- **My recommendation:** if you want "more distinct," choose the sequential dealing. It is the closest no-code version
+  of your wish, and it lost no big-win chance in the test. Otherwise keep today's dealing. Either way it is a
   risk preference, not a proven gain.
 
 ## 6. A cap on any one game: tested (study 24), not offered
