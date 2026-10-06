@@ -11,8 +11,12 @@ A separate, small analytical graph -- not the corpus-retrieval graph:
   (:Game {game_id, season, week, home, away})-[:IN_WEEK]->(:Week)
   (:Team {code})-[:IN_GAME]->(:Game)
   (:Player {dk_player_id, name, position, team})-[:PLAYS_FOR {season, weeks}]->(:Team)
-  (:Lineup {key, rank, points, dupes, stack_label, stack, bring_back,
-            salary, own_sum, top_1pct, at_cash_line})-[:ENTERED_IN]->(:Contest)
+  (:Lineup {key, rank, points, dupes, stack_label, stack, bring_back, salary, own_sum, top_1pct, at_cash_line,
+            week_key, source, rank_top_1pct})-[:ENTERED_IN]->(:Contest)
+      week_key = week_key(season, week), e.g. '2026-04'. source = 'top' (the top-N set every panel figure uses) or
+      'users_file' (loader --users-file: a listed user's other lineups, reached only through ENTERED / CONTAINS).
+      top_1pct is set on 'top' lineups only, so run_panel's top-1% views and STACKED_WITH (built from the top set
+      only) are unchanged by a users file; rank_top_1pct is the plain fact (rank <= 1% of the field) for every lineup.
   (:Lineup)-[:CONTAINS {slot}]->(:Player)
   (:User {name})-[:ENTERED]->(:Lineup)            DraftKings user name: the entry
       name without its "(k/n)" counter (operator 2026-10-03/04: user names are
@@ -156,7 +160,8 @@ MERGE (l:Lineup {key: row.key})
 SET l.rank = row.rank, l.points = row.points, l.dupes = row.dupes,
     l.stack_label = row.stack_label, l.stack = row.stack, l.bring_back = row.bring_back,
     l.salary = row.salary, l.own_sum = row.own_sum, l.top_1pct = row.top_1pct,
-    l.at_cash_line = row.at_cash_line, l.week_key = row.week_key
+    l.at_cash_line = row.at_cash_line, l.week_key = row.week_key, l.source = row.source,
+    l.rank_top_1pct = row.rank_top_1pct
 WITH l, row MATCH (c:Contest {contest_id: row.contest_id}) MERGE (l)-[:ENTERED_IN]->(c)""",
     "entered": """
 UNWIND $rows AS row
@@ -198,11 +203,16 @@ def _records(df: pd.DataFrame) -> list[dict]:
     return [{k: _clean(v) for k, v in r.items()} for r in df.to_dict("records")]
 
 
+def week_key(season: int, week: int) -> str:
+    """The Week node key and Lineup.week_key: '2026-04' (never '2026-w04')."""
+    return f"{int(season)}-{int(week):02d}"
+
+
 def build_graph_batches(contests: pd.DataFrame, lines: pd.DataFrame, top: pd.DataFrame,
                         slate: pd.DataFrame, games: pd.DataFrame,
                         own: pd.DataFrame | None = None) -> dict[str, list[dict]]:
     """Rows for every STATEMENTS key from the BigQuery reads (pure)."""
-    wk = lambda s, w: f"{int(s)}-{int(w):02d}"  # noqa: E731
+    wk = week_key
     out: dict[str, list[dict]] = {k: [] for k in STATEMENTS}
     if contests.empty:
         return out
@@ -215,7 +225,9 @@ def build_graph_batches(contests: pd.DataFrame, lines: pd.DataFrame, top: pd.Dat
     for col in ("winning_score", "top_1pct_line", "top_01pct_line", "cash_line"):
         if col not in c:
             c[col] = np.nan
-    share = loaded_share(top)
+    source = top.set_index("lineup_key")["source"].to_dict() if "source" in top else {}
+    top_only = top[top.source == "top"] if "source" in top else top
+    share = loaded_share(top_only)
     out["contests"] = _records(pd.DataFrame({
         "contest_id": c.contest_id.astype(str), "name": c.contest_name,
         "n_entries": c.n_entries, "winning_score": c.winning_score,
@@ -255,11 +267,13 @@ def build_graph_batches(contests: pd.DataFrame, lines: pd.DataFrame, top: pd.Dat
     lrows = []
     for r in cons.itertuples(index=False):
         n = n_by_contest.get(r.contest_id) or 0
+        src = source.get(r.lineup_key, "top")
+        in_1pct = bool(n and r.rank <= np.ceil(0.01 * n))
         lrows.append({"key": r.lineup_key, "contest_id": str(r.contest_id), "rank": r.rank,
                       "points": r.points, "dupes": r.dupes, "stack_label": r.stack_label,
                       "stack": r.stack, "bring_back": r.bring_back, "salary": r.salary,
                       "own_sum": r.own_sum,
-                      "top_1pct": bool(n and r.rank <= np.ceil(0.01 * n)),
+                      "top_1pct": in_1pct and src == "top", "rank_top_1pct": in_1pct, "source": src,
                       "at_cash_line": bool(cash.get(r.lineup_key, False)),
                       "week_key": wk(r.season, r.week)})
     out["lineups"] = [{k: _clean(v) for k, v in d.items()} for d in lrows]
@@ -285,6 +299,8 @@ def build_graph_batches(contests: pd.DataFrame, lines: pd.DataFrame, top: pd.Dat
     top1 = {d["key"] for d in lrows if d["top_1pct"]}
     pairs: dict[tuple, list[int]] = {}
     for key, gl in long.groupby("lineup_key", sort=False):
+        if source.get(key, "top") != "top":
+            continue                                   # a users-file lineup never changes the panel's pair counts
         f = gl.iloc[0]
         members = [(int(p), t) for p, t in zip(gl.dk_player_id, gl.team_c) if isinstance(t, str)]
         for (p1, t1), (p2, t2) in combinations(sorted(set(members)), 2):
@@ -544,8 +560,9 @@ ORDER BY week, top_1pct_lineups DESC LIMIT 60""",
 
 # Neo4j Browser queries with parameters (operator 2026-10-06: "reduce my dependency on so many players while having
 # suitable alternatives to pivot to"), for portfolios loaded with --users-file. Set them first in the Browser, e.g.
-#   :param user => '<DraftKings name>'      :param week_key => '2026-w04'      :param player => 'Ja\'Marr Chase'
+#   BROWSER_PARAMS below (week_key is week_key(season, week): '2026-04')
 # They are for looking; the figures come from the reproducible scripts. Never run by run_panel (no parameters there).
+BROWSER_PARAMS = ":param user => '<DraftKings name>'    :param week_key => '2026-04'    :param player => '<player name>'"
 BROWSER_QUERIES: dict[str, str] = {
     "user_core": """
 MATCH (u:User {name: $user})-[:ENTERED]->(l:Lineup {week_key: $week_key})

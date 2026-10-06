@@ -306,3 +306,30 @@ def test_loaded_share_is_recorded_on_the_contest():
     assert c["loaded_lineups"] == 3 and c["loaded_share"] == pytest.approx(3 / 300)
     assert G.loaded_share(top_rows()) == {"c1": (3, pytest.approx(0.01))}
     assert "c.loaded_share = row.loaded_share" in G.STATEMENTS["contests"]
+
+
+def test_browser_week_key_example_matches_the_graph():
+    """Reviewer R1 (10-06): the Browser example said '2026-w04' while Week keys are '2026-04', so every query following
+    it would return nothing, silently."""
+    from pathlib import Path
+    assert G.week_key(2026, 4) == "2026-04"
+    assert f"week_key => '{G.week_key(2026, 4)}'" in G.BROWSER_PARAMS
+    assert G.BROWSER_PARAMS in (Path(__file__).resolve().parents[1] / "cypher" / "milly_insights.cypher").read_text()
+    assert batches()["lineups"][0]["week_key"] == G.week_key(2026, 5)
+
+
+def test_users_file_lineups_never_change_the_panel_figures():
+    """Reviewer R2 (10-06): a listed user's lineup ranked between top_n and 1% of the field must not count as a top-1%
+    lineup, in STACKED_WITH or in the loaded share; it is loaded with source 'users_file' and its rank fact kept."""
+    top = top_rows().assign(n_entries=1000)                      # 1% of 1,000 = rank 10; the top set is ranks 1-3
+    extra = top.iloc[[1]].assign(lineup_key="k7", rank=7, points=200.0, username="user_c")
+    only = G.build_graph_batches(contests(), lines(), top.assign(source="top"), SLATE, GAMES, OWN)
+    both = G.build_graph_batches(contests(), lines(),
+                                 pd.concat([top.assign(source="top"), extra.assign(source="users_file")], ignore_index=True),
+                                 SLATE, GAMES, OWN)
+    assert both["stacked_with"] == only["stacked_with"]
+    assert both["contests"][0]["loaded_lineups"] == only["contests"][0]["loaded_lineups"] == 3
+    k7 = next(r for r in both["lineups"] if r["key"] == "k7")
+    assert k7["source"] == "users_file" and k7["top_1pct"] is False and k7["rank_top_1pct"] is True
+    assert all(r["source"] == "top" and r["top_1pct"] for r in only["lineups"])
+    assert {"name": "user_c", "lineup_key": "k7"} in both["entered"]

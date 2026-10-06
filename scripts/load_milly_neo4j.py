@@ -21,8 +21,9 @@ counts after the load. Fantasy Points projection/ownership is loaded only with
 --users-file (operator 2026-10-06: "look closely at how the winners do it"): ALSO load EVERY Millionaire lineup of
 the users listed in a PRIVATE file (one DraftKings name per line; chosen by entry count, never by results), so a
 user's whole portfolio -- core players, pivots, stacks -- can be explored, not only their top finishes. Those lineups
-join the top-N set (deduplicated by lineup key); note STACKED_WITH.count then counts them too (top_1pct_count does
-not change). The file stays outside the repository.
+are tagged source='users_file' (the top-N set keeps 'top'); STACKED_WITH, the share of the field and Lineup.top_1pct
+come from the top set only, so the panel's figures do not change (rank_top_1pct is the plain fact for every lineup).
+Use the 117-regular cohort plus any user he names, not every user. The file stays outside the repository.
 """
 from __future__ import annotations
 
@@ -77,7 +78,9 @@ def main(argv=None) -> int:
         users = [u.strip() for u in Path(a.users_file).read_text().splitlines() if u.strip() and not u.startswith("#")]
         ul = pd.concat([data.fetch_milly_user_lineups(query_df, a.season, w, users) for w in weeks], ignore_index=True)
         n_top = len(top)
-        top = pd.concat([top, ul], ignore_index=True).drop_duplicates("lineup_key")
+        # the top set keeps source 'top' (first wins in the dedupe); the rest are 'users_file' and never change the
+        # panel's figures (milly_graph.build_graph_batches)
+        top = pd.concat([top.assign(source="top"), ul.assign(source="users_file")], ignore_index=True).drop_duplicates("lineup_key")
         print(f"users file: {len(users)} users, {len(ul):,} of their lineups ({len(top) - n_top:,} new beyond the top-N set)")
     slate = pd.concat(slates, ignore_index=True)
     own = pd.concat(owns, ignore_index=True)
@@ -86,7 +89,8 @@ def main(argv=None) -> int:
         if pd.notna(c.get("lobby_contest_id")) and str(c.lobby_contest_id) != str(c.contest_id):
             print(f"MISMATCH week {c.week}: lobby Millionaire {c.lobby_contest_id}, standings "
                   f"{c.contest_id}; loading the standings")
-    for cid, (n, share) in sorted(mg.loaded_share(top).items()):
+    top_set = top[top.source == "top"] if "source" in top else top    # the share line counts the top-N set only
+    for cid, (n, share) in sorted(mg.loaded_share(top_set).items()):
         wk_ = contests[contests.contest_id.astype(str) == cid].week
         label = f"{share:.2%} of the field" if share is not None else "share unknown"
         print(f"week {int(wk_.iloc[0]) if len(wk_) else '?'} contest {cid}: top {n:,} lineups loaded = {label}")

@@ -1,4 +1,6 @@
 // Milly graph (scripts/load_milly_neo4j.py; a local instance): saved queries for the Neo4j Browser.
+// Week keys look like '2026-04' (milly_graph.week_key). Browser queries at the end take parameters:
+// :param user => '<DraftKings name>'    :param week_key => '2026-04'    :param player => '<player name>'
 // Generated from nfl_dfs.dashboard.milly_graph; keep the two in step.
 // The uniqueness constraints are in cypher/milly_schema.cypher.
 
@@ -73,7 +75,7 @@ RETURN s.week_key AS week, a.name AS player_a, b.name AS player_b,
 ORDER BY week, top_1pct_lineups DESC LIMIT 60;
 
 // ---- Browser queries with parameters (portfolios loaded with --users-file; operator 2026-10-06) ----
-// :param user => '<DraftKings name>'    :param week_key => '2026-w04'    :param player => '<player name>'
+// :param user => '<DraftKings name>'    :param week_key => '2026-04'    :param player => '<player name>'
 
 // Browser: user_core
 MATCH (u:User {name: $user})-[:ENTERED]->(l:Lineup {week_key: $week_key})
