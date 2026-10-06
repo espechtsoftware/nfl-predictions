@@ -63,12 +63,16 @@ def rank_in(field: np.ndarray, score: float) -> int:
     return 1 + int((field >= score).sum())
 
 
+MATCH_TOL = 0.005                                             # half a cent of DK's 2-dp print (its Points carry float noise)
+
+
 def score_sets(field: np.ndarray, r4: list[float], r0: list[float], S: int, entered: str) -> dict:
     f = np.sort(field)
     for sc in {"R4": r4, "R0": r0}.get(entered, []):          # the entered lineups are in the standings: drop one each
-        j = np.searchsorted(f, sc, side="left")
-        if j < len(f) and abs(f[j] - sc) < 1e-6:
-            f = np.delete(f, j)
+        j = int(np.searchsorted(f, sc - MATCH_TOL, side="left"))
+        if not (j < len(f) and f[j] <= sc + MATCH_TOL):          # never continue with our own entry left in the field
+            raise SystemExit(f"entered lineup score {sc} not found in the standings (within {MATCH_TOL})")
+        f = np.delete(f, j)
     out = {}
     for k, sc in (("R4", r4), ("R0", r0)):
         best = max(sc)

@@ -109,3 +109,13 @@ def test_monday_scorer_ranks_with_ties_drops_the_entered_lineups_and_tallies(tmp
     ch.write_text(json.dumps({"contest_id": "9", "m": 1, "S": 3, "R4_names": [["Nobody Here"]], "R0_names": [["Alpha One"]]}))
     with pytest.raises(SystemExit, match="REFUSED"):
         SC.main(["--choice", str(ch), "--standings", str(st), "--entered", "none", "--tally", str(tally), "--week", "7"])
+
+
+def test_entered_scores_match_dk_rounding_and_a_missing_one_refuses():
+    # DK prints 150.04001; our lineup's per-player FPTS sum to 150.0399999: the same entry, removed
+    f = np.array([200.0, 150.04001, 120.0, 100.0])
+    r = SC.score_sets(f, [150.0399999], [100.0], S=2, entered="R4")
+    assert r["R4"]["best_rank"] == 2 and r["R4"]["hit"]           # only 200 left at or above
+    assert r["R0"]["best_rank"] == 4                              # 200, 120, 100 (ties lose) on the reduced field
+    with pytest.raises(SystemExit, match="entered lineup score 140.0 not found"):
+        SC.score_sets(f, [140.0], [100.0], S=2, entered="R4")
