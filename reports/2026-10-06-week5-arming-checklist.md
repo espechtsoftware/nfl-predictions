@@ -29,7 +29,7 @@ chat. Private paths stay private (no dollars, no entries here).
    4. `production/fp-gap-flag-20261006` @ `645bddc0` (the O-22 guard: book players without an FP projection are
       printed, recorded and tagged in vetting, `2d84b96e` approved; plus each week's replacement sources counted, with
       the no-term control rows named, `645bddc0`, for re-approval);
-   4b. **Only if study 35 PASSES and he says yes:** `production/qb-cap-20261006` @ `6a1f1aaf` (the per-QB cap in ROWS,
+   4b. **Only if study 35 PASSES and he says yes:** `production/qb-cap-20261006` @ `b5514472` (the per-QB cap in ROWS,
       off by default; under review). Arming then adds `UNION_MAIN_QB_CAP_ROWS=<study 35's frozen cap>` to the arm
       script's env WITH `UNION_MAIN_QB_CAP_K=26` (the runtime check refuses a mismatch with BOOK_ENTRIES), and the Friday rehearsal runs with it;
    5. `production/pins-extend-book-20261006` @ `da399bdb` (a pin may add rows without gaps): needed for his Rev3
