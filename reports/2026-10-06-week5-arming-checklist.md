@@ -80,6 +80,11 @@ rehearsal runs on the merged head in the exact armed env; Friday re-verifies on 
 6. The lab pin for MIX / WS: `EXPECT_SHA f69598ba…` with `CLONE ~/projects/.nfl2-worktrees/week5-live-center`
    (`optimize(second_game_pair, qb_game_max)`); the house shape could stay on `32cdb61`.
 
+## Sunday 10-11 and Monday 10-12: study 38 (the FP paper co-run; operator 10-06 "yes, please try it, I want to exhaust all reasonable options")
+- **Sunday, right after the T-70 union and BEFORE 12:00 CT:** snapshot (copies, read-only reads) the T-70 run dir and the union dir (frame.parquet, candidates.parquet, receipt.json, union_args.txt, lever_audit.json) and OUT's proj_fp-<RUN_TAG>, ownership_fp-<RUN_TAG> (+ receipts), union-args-<RUN_TAG>, contests.json to `~/private/paper-corun/2026-w05/` with MANIFEST.txt (sha256, bytes, source path and mtime, the receipt's built_utc, the snapshot time). Never edits the live dirs; never writes under `~/week5-sunday`. The pre-lock provenance for the paper books, built after lock by the reviewer.
+- **Monday, after settlement imports the standings:** add week 5 to `~/moneygate/weeks.json` (paths + shas), `moneygate_score.py fetch` for W5, then the reviewer's study-38 scorer; the laptop re-runs it byte-identically.
+
+
 ## Saturday 10-10 (the laptop arms; fail-stop script, ask only if blocked)
 - **CANARY (the reviewer, 10-06):** the 10:30 `d12800-sat` build is the first live K 26 run through the armed host. By
   11:00, check its receipt (identity f69598b, operational_k 26, tail 0), its lever audit PASS, and the union-args file

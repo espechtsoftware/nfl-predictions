@@ -12,6 +12,22 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (13:34 CDT) — Study 37 READ and reproduced (keep the yes-book); the operator approves the FP paper co-run (study 38)
+
+- **Study 37** (the regulars' structure): READ by the reviewer, reproduced BYTE-IDENTICALLY by the laptop (`73d77944`).
+  - NO DIFFERENCE, leaning the wrong way: RS − QA −0.051 [−0.136, +0.037]; guard 1 −0.045 (lower −0.069) and guard 2
+    ratio 0.744 are both breached and measured (the guards gate PASS only).
+  - QBB is a wash; NQC carries the cost (−0.089 [−0.171, −0.0003], exploratory).
+  - Records merged: `b70ea6a4` (Addendum 142); lab row nfl2 `9a36ef2`.
+  - Decision sheet row 12: keep the yes-book; no tier code.
+- **Operator:** "yes, please try it, I want to exhaust all reasonable options". So **study 38** (the reviewer's) is the
+  FP paper co-run on live weeks W5–W8.
+  - The laptop's part: the Sunday pre-lock snapshot (`~/private/paper-corun/2026-w05/`, MANIFEST with shas) and
+    Monday's `~/moneygate/weeks.json` W5 entry plus the fetch; a byte-identical re-run of the scorer.
+  - Both are in the checklist. Paths answered to the reviewer: frame = nfl2.live.build_frame; objective = production's
+    apply_proj_source + own_bonus; scoring = moneygate_score.place / score_book.
+- Memory: operator-exhaust-reasonable-options.
+
 ## 2026-10-06 (13:22 CDT) — Study 37 census acked and launched; Wednesday's A1/A2 drivers drafted (host-local)
 
 - **Study 37:**
