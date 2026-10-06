@@ -4908,10 +4908,16 @@ secondaries (slate means):
    both seasons negative and guard 1 failing descriptively, the reviewer's recommendation changed: the package is NOT
    supported as an improvement, and the status quo is the safer Week-5 choice until **study 31** reads. Study 31 is
    the 2 × 2 (shape × term) in one co-run on six banks, on Rev3; it measures the interaction directly.
-5. **Record repair (disclosed in study 31's prereg):** studies 24–30 imported production's `enter_layout` from the
-   checkout on `PYTHONPATH` without recording its version. That checkout was this host's integration branch, on
-   which `enter_layout.py` was unchanged from `e9ed88f1` (2026-09-30) until `da399bdb` (2026-10-06), content sha256
-   `fb2bf404…`. That is a reconstruction, not a recorded identity. Study 31 pins and records it on every row.
+5. **Record repair (disclosed in study 31's prereg; corrected by the laptop):** studies 24–30 imported production's
+   `enter_layout` from the checkout on `PYTHONPATH` without recording its version. Reconstructed, not recorded:
+   - integration's `enter_layout.py` was `fb2bf404…` (`e9ed88f1`, 09-30) until 10-06 05:03 CDT;
+   - then `2851f7cf…` (`994590ea`), which only adds a refusal of pinned plans under the sequential / top layouts and
+     never fires under head.
+   - Every study dealt under head, and study 24's all-distinct arm (the one sequential path) ran on a plan without
+     pins, so the two versions are behaviourally identical for 24–30.
+   - The reviewer's runs imported `fb2bf404` (that checkout lacked `994590ea`). The laptop's byte-identical re-runs of
+     29 and 30 imported `2851f7cf`. The two versions gave identical results.
+   - Study 31 pins `3cb051ac` (`da399bdb`) and records it on every row.
 6. **Transfer:** our projections, while the live build adds FP. The term's predictor is a stand-in. Study 30's reader
    docstring names the Rev1 plan file; the runs used Rev2 (`00c66004…`, checked by the reader's plan-sha gate). The
    frozen reader is unchanged.
