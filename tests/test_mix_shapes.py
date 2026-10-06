@@ -396,3 +396,83 @@ def test_the_per_qb_cap_limits_every_qb_and_is_inert_when_off(monkeypatch):
     capped, _, _, spares = ur.mix_rows(fr, set(), k, 7, 4, 49_000, weights, exposure_cap=10, dst_cap=5, qb_cap=3, spares=4)
     used = Counter(p for r in capped + [s for s, _ in spares] for p in r if p in qbs)
     assert len(capped) == k and max(used.values()) <= 3 and len(used) > len(Counter(p for r in base for p in r if p in qbs))
+
+
+# ---------------------------------------------- study 42 (operator 10-06): the value fill order, best row across cells first
+def _cell_valued(calls, rank_of_cell, fail_cells=()):
+    """Pure in the state (a peek is repeatable, as the real solver): each cell takes the 9 best non-banned, not-yet-used
+    players starting at its own rank offset, so the cells' next rows differ in value by a known amount."""
+    def optimize(pool, stack, objective_col, banned_lineups, max_overlap, bans, env, second_game_pair=None, qb_game_max=None):
+        name = next(n for n, (_, r, _, _) in M.MIX_CELLS.items() if dataclasses.asdict(StackRules(**r)) == dataclasses.asdict(stack))
+        calls.append({"cell": name, "n_prev": len(banned_lineups), "bans": sorted(bans or ())})
+        if name in fail_cells:
+            return None
+        order = sorted((p for p in pool if not bans or p["id"] not in bans), key=lambda p: (-p[objective_col], str(p["id"])))
+        off = (rank_of_cell[name] + len(banned_lineups)) % len(order)
+        return LU([order[(off + j) % len(order)] for j in range(9)])
+    return optimize
+
+
+def _install_valued(monkeypatch, calls, rank_of_cell, fail_cells=()):
+    lineup = _install(monkeypatch, calls)
+    lineup.optimize = _cell_valued(calls, rank_of_cell, fail_cells)
+
+
+def test_the_default_fill_is_the_group_order_byte_for_byte(monkeypatch):
+    fr = _frame(); k = 21; weights = W_DRAFT_A[:k]
+    a, b = [], []
+    _install(monkeypatch, a)
+    r0, c0, m0, s0 = ur.mix_rows(fr, set(), k, 7, 4, 49_000, weights, exposure_cap=10, dst_cap=5, spares=5)
+    _install(monkeypatch, b)
+    r1, c1, m1, s1 = ur.mix_rows(fr, set(), k, 7, 4, 49_000, weights, exposure_cap=10, dst_cap=5, spares=5, fill="group")
+    assert (r0, c0, s0) == (r1, c1, s1) and a == b and m0["fill"] == "group"
+    assert m0["commit_order"][:12] == ["A1"] * 6 + ["B"] * 6                                       # cells consecutively
+
+
+def test_value_fill_commits_the_highest_objective_next_row(monkeypatch):
+    """B's rows are worth most, then C, A1, A2: the value fill commits B until its quota is met, then C, ...; the group
+    fill commits A1 first. Every commit is the best of the peeks made on the same state."""
+    fr = _frame(); k = 21; weights = W_DRAFT_A[:k]
+    rank = {"B": 0, "C": 1, "A1": 2, "A2": 3}
+    calls = []
+    _install_valued(monkeypatch, calls, rank)
+    rows, cells, meta, _ = ur.mix_rows(fr, set(), k, 7, 4, 49_000, weights, exposure_cap=10, dst_cap=5, fill="value")
+    assert meta["fill"] == "value" and meta["passes_to_A1"] == 0
+    assert meta["commit_order"] == ["B"] * 6 + ["C"] * 6 + ["A1"] * 6 + ["A2"] * 3
+    assert sorted(cells) == sorted(["A1"] * 6 + ["A2"] * 3 + ["B"] * 6 + ["C"] * 6)            # the quotas are unchanged
+    assert [meta["cells"][n]["rows"] for n in ("A1", "A2", "B", "C")] == [6, 3, 6, 6]
+    # the first step peeked every cell on the empty state, then committed B
+    assert [c["cell"] for c in calls[:4]] == ["A1", "B", "C", "A2"] and {c["n_prev"] for c in calls[:4]} == {0}
+    _install_valued(monkeypatch, [], rank)
+    _, _, g, _ = ur.mix_rows(fr, set(), k, 7, 4, 49_000, weights, exposure_cap=10, dst_cap=5)
+    assert g["commit_order"][:6] == ["A1"] * 6
+
+
+def test_value_fill_ties_go_to_the_earlier_cell_in_the_group_order(monkeypatch):
+    fr = _frame(); k = 21; weights = W_DRAFT_A[:k]
+    _install_valued(monkeypatch, [], {"A1": 0, "A2": 0, "B": 0, "C": 0})
+    _, _, meta, _ = ur.mix_rows(fr, set(), k, 7, 4, 49_000, weights, exposure_cap=10, dst_cap=5, fill="value")
+    assert meta["commit_order"] == ["A1"] * 6 + ["B"] * 6 + ["C"] * 6 + ["A2"] * 3
+
+
+def test_value_fill_passes_a_failing_cells_remaining_quota_to_a1(monkeypatch):
+    fr = _frame(); k = 21; weights = W_DRAFT_A[:k]
+    _install_valued(monkeypatch, [], {"B": 0, "C": 1, "A1": 2, "A2": 3}, fail_cells=("C",))
+    rows, cells, meta, _ = ur.mix_rows(fr, set(), k, 7, 4, 49_000, weights, exposure_cap=10, dst_cap=5, fill="value")
+    assert meta["passes_to_A1"] == 6 and "C" not in cells and len(rows) == k
+    assert [meta["cells"][n]["rows"] for n in ("A1", "A2", "B", "C")] == [12, 3, 6, 0]
+    _install_valued(monkeypatch, [], {"B": 0, "C": 1, "A1": 2, "A2": 3}, fail_cells=("A1",))
+    rows, cells, meta, _ = ur.mix_rows(fr, set(), k, 7, 4, 49_000, weights, exposure_cap=10, dst_cap=5, fill="value")
+    assert "A1" not in cells and len(rows) == 15 and meta["passes_to_A1"] == 0                 # A1 itself cannot pass
+
+
+def test_value_fill_keeps_the_caps_and_the_qb_cap(monkeypatch):
+    fr = _frame(); k = 21; weights = W_DRAFT_A[:k]
+    _install(monkeypatch, [])
+    rows, _, _, spares = ur.mix_rows(fr, set(), k, 7, 4, 49_000, weights, exposure_cap=10, dst_cap=5, qb_cap=3, spares=4,
+                                     fill="value")
+    qbs = set(fr[fr.pos == "QB"].id)
+    used = Counter(p for r in rows + [s for s, _ in spares] for p in r)
+    assert len(rows) == k and max(used[q] for q in qbs if q in used) <= 3 and max(used.values()) <= 10
+    with pytest.raises(ValueError, match="fill must be"):
+        ur.mix_rows(fr, set(), k, 7, 4, 49_000, weights, exposure_cap=10, dst_cap=5, fill="best")

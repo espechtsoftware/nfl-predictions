@@ -458,7 +458,8 @@ def apply_proj_source(fr: pd.DataFrame, csv_path: Path, frame_path: Path) -> tup
 def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap: int | None, min_salary: int,
              weights: list[int], exposure_cap: int | None = None, dst_cap: int | None = None,
              bonus: dict[str, float] | None = None, portfolio: str = "mix",
-             spares: int = 0, qb_cap: int | None = None) -> tuple[list[list[str]], list[str], dict, list[tuple[list[str], str]]]:
+             spares: int = 0, qb_cap: int | None = None, fill: str = "group"
+             ) -> tuple[list[list[str]], list[str], dict, list[tuple[list[str], str]]]:
     """study 18's MIX book on the T-70 frame: cells solved largest first (ties: the earlier cell) through ONE shared state
     (banned lineups, the per-player exposure cap, the DST cap, <= max_shared with every earlier row); a cell row that cannot
     be solved passes to A1 (counted); then the rows are ordered by the entry-weighted interleave of the plan's weights.
@@ -469,7 +470,13 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
     with the caps the caller computed from the book's entries (never from k + spares), allocated over the cells by quota
     (ws: all WS), with the same pass to A1. They are never book rows: the caller adds them to the candidate corpus as the
     Sunday replacement step's in-shape supply. A short spare tail is not a refusal (meta records requested / built). The
-    book rows are identical with or without spares (they are solved first)."""
+    book rows are identical with or without spares (they are solved first).
+    fill (the operator 10-06: "are we putting our best strategy first for a given QB?"; study 42): "group" (default, as
+    before) solves each cell's quota consecutively, largest cell first, so a capped QB's or player's uses go to the EARLIEST
+    cells; "value" PEEKS the next row of every cell with quota left on the current state and COMMITS the highest-objective
+    one (ties: the earlier cell in the group order), repeating until the quotas are met -- the capped uses go to the best
+    rows across cells. A cell that cannot solve passes its remaining quota to A1 (counted); A1 failing ends the fill. The
+    caps, overlap, quotas, interleave and spares are unchanged."""
     from nfl2.core.lineup import StackRules, optimize          # the pinned lab clone on PYTHONPATH (>= f69598b)
     pool = [p for i, p in frame_players(t70).items() if i not in exclude]
     objective = "proj"
@@ -491,7 +498,8 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
     rows: dict[str, list[list[str]]] = {n: [] for n in names}
     passes = 0
 
-    def solve(name: str):
+    def peek(name: str):
+        """The cell's next row on the CURRENT state, not committed: (ids, objective value) or (None, None)."""
         _, rules, qmax, which = cells[name]
         bans = {p for p, c in count.items() if exposure_cap is not None and c >= exposure_cap}
         if dst_cap is not None:
@@ -501,20 +509,51 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
         lu = optimize(pool, stack=StackRules(**rules), objective_col=objective, banned_lineups=prev, max_overlap=max_shared,
                       bans=bans or None, env=env, second_game_pair=games if which == "all" else None, qb_game_max=qmax)
         if lu is None:
-            return None
-        ids = [str(p["id"]) for p in lu.players]
+            return None, None
+        return [str(p["id"]) for p in lu.players], float(sum(p.get(objective, p["proj"]) for p in lu.players))
+
+    def commit(ids: list[str]) -> list[str]:
         prev.append(frozenset(ids)); count.update(ids)
         return ids
 
-    for i in sorted(range(len(names)), key=lambda i: (-target[i], i)):
-        for _ in range(target[i]):
-            cell, ids = names[i], solve(names[i])
-            if ids is None and "A1" in cells:                  # MIX: a cell row that cannot be solved passes to A1
-                passes += 1; cell = "A1"
-                ids = solve("A1")
-            if ids is None:
+    def solve(name: str):
+        ids, _ = peek(name)
+        return commit(ids) if ids is not None else None
+
+    group_order = sorted(range(len(names)), key=lambda i: (-target[i], i))
+    commit_order: list[str] = []
+    if fill == "group":
+        for i in group_order:
+            for _ in range(target[i]):
+                cell, ids = names[i], solve(names[i])
+                if ids is None and "A1" in cells:              # MIX: a cell row that cannot be solved passes to A1
+                    passes += 1; cell = "A1"
+                    ids = solve("A1")
+                if ids is None:
+                    break
+                rows[cell].append(ids); commit_order.append(cell)
+    elif fill == "value":
+        remaining = {n: t for n, t in zip(names, target)}
+        while any(remaining[n] > 0 for n in names):
+            best = None
+            for i in group_order:
+                n = names[i]
+                if remaining[n] <= 0:
+                    continue
+                ids, val = peek(n)
+                if ids is None:
+                    if "A1" in cells and n != "A1":            # its remaining quota passes to A1 (counted)
+                        passes += remaining[n]; remaining["A1"] += remaining[n]
+                    remaining[n] = 0
+                    continue
+                if best is None or val > best[2]:                 # strict: a tie keeps the earlier cell
+                    best = (n, ids, val)
+            if best is None:
                 break
-            rows[cell].append(ids)
+            n, ids, _ = best
+            rows[n].append(commit(ids)); remaining[n] -= 1; commit_order.append(n)
+    else:
+        raise ValueError(f"fill must be 'group' or 'value' (got {fill!r})")
     got = [len(rows[n]) for n in names]
     spare_rows: list[tuple[list[str], str]] = []
     if spares:
@@ -537,7 +576,8 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
         w = weights[r] if r < len(weights) else 0
         dealt[cell] += w; tot += w
     meta = {"cells": {n: {"quota": q, "target_rows": t, "rows": g} for n, q, t, g in zip(names, quotas, target, got)},
-            "passes_to_A1": passes, "rows_solved": len(book), "pair_games": len(games),
+            "passes_to_A1": passes, "rows_solved": len(book), "pair_games": len(games), "fill": fill,
+            "commit_order": commit_order,
             "entry_shares_before_overlap_limit": {n: round(dealt[n] / tot, 4) if tot else None for n in names},
             "rules": {n: {"quota": cells[n][0], "stack": cells[n][1], "qb_game_max": cells[n][2],
                           "second_game_pair": cells[n][3]} for n in names}, "portfolio": portfolio,
@@ -604,6 +644,9 @@ def main(argv: list[str] | None = None) -> int:
                     help="with --main mix: spare rows solved after the book under the same running caps (caps from --entries), "
                          "added to the candidate corpus (source mix_spare, tagged with their cell) as the Sunday replacement "
                          "step's in-shape supply; never book rows (reviewer 2026-10-06; study 24 sized S = 15)")
+    ap.add_argument("--mix-fill", choices=["group", "value"], default="group",
+                    help="with --main mix: group (default) = each cell's quota consecutively, largest cell first; value = at each "
+                         "step the highest-objective next row across the cells (a capped QB's uses go to his best rows; study 42)")
     ap.add_argument("--mix-layout", choices=["sequential", "top", "head", "spread"], default="head",
                     help="with --main mix: the layout enter_layout deals with (ENTER_LAYOUT)")
     ap.add_argument("--sleeve-source", choices=["mean", "field"], default="mean",
@@ -768,7 +811,7 @@ def main(argv: list[str] | None = None) -> int:
             weights = mix_weights(a.mix_plan, a.entries, a.mix_layout)
             plain_rows, plain_cells, mix_meta, plain_spares = mix_rows(fr, excl, a.entries, a.mean_max_shared, cap, a.min_salary,
                                                                        weights, exposure_cap=xcap, dst_cap=dcap, qb_cap=qcap,
-                                                                       portfolio=a.mix_portfolio,
+                                                                       portfolio=a.mix_portfolio, fill=a.mix_fill,
                                                                        spares=0 if bonus else a.mix_spares)
             spare_rows = plain_spares
             plain_tags = [TAG_PREFIX + c for c in plain_cells]; main_tags = plain_tags
@@ -792,7 +835,7 @@ def main(argv: list[str] | None = None) -> int:
             if a.main == "mix":
                 main_rows, main_cells, own_mix, spare_rows = mix_rows(fr, excl, a.entries, a.mean_max_shared, cap, a.min_salary,
                                                                       weights, exposure_cap=xcap, dst_cap=dcap, qb_cap=qcap, bonus=bonus,
-                                                                      portfolio=a.mix_portfolio, spares=a.mix_spares)
+                                                                      portfolio=a.mix_portfolio, spares=a.mix_spares, fill=a.mix_fill)
                 main_tags = [TAG_PREFIX + c for c in main_cells]; mix_meta["with_term"] = own_mix
             else:
                 main_rows = pmo_rows(fr, excl, a.entries, a.mean_max_shared, cap, a.min_salary, set(), exposure_cap=xcap, dst_cap=dcap, qb_cap=qcap, bonus=bonus,

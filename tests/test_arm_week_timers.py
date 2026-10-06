@@ -188,3 +188,13 @@ def test_the_union_overlap_limit_rides_into_the_units_and_defaults_to_7():
     assert "UNION_MEAN_MAX_SHARED" not in _unit_line(_run().stdout, "nfl-week4-t70-build")
     host = (Path(__file__).resolve().parents[1] / "scripts" / "sunday_build_host.sh").read_text()
     assert '--mean-max-shared "${UNION_MEAN_MAX_SHARED:-7}"' in host and "--mean-max-shared 7 " not in host
+
+
+def test_the_mix_fill_rides_into_the_units_and_unset_keeps_the_group_fill():
+    """Study 42's switch (operator 10-06): UNION_MIX_FILL reaches the build units; unset passes no --mix-fill (group)."""
+    from pathlib import Path
+    r = _run(UNION_MIX_FILL="value")
+    assert "UNION_MIX_FILL=value" in _unit_line(r.stdout, "nfl-week4-t70-build")
+    assert "UNION_MIX_FILL" not in _unit_line(_run().stdout, "nfl-week4-t70-build")
+    host = (Path(__file__).resolve().parents[1] / "scripts" / "sunday_build_host.sh").read_text()
+    assert '-n "${UNION_MIX_FILL:-}" ]] && UNION_ARGS+=(--mix-fill "$UNION_MIX_FILL")' in host
