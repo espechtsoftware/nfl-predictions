@@ -5139,7 +5139,9 @@ STUDY 32 DESCRIPTIVE (post-read; pre-stated in §2b; never decision-bearing)  re
    contest.
    - The laptop builds `choose_entries` (R4's rows beside R0 and RND; a parity test against the frozen `choose()`) and
      records a paired R0-vs-R4 shadow each week.
-   - **No Week-5 change:** this week's multi-entry contests are FIRST-PLACE satellites, a line study 32 did not test.
-     Its deepest line (S_top) showed nothing: R4 − RND +0.009 [−0.023, +0.046].
+   - **No Week-5 change** (wording corrected by the laptop): this week's multi-entry contests are satellites whose
+     lines study 32 did not test. They are the single-seat first-place ones, and the 25-seat $20-ticket
+     super-satellites, which his Rev3 already deals on distinct rows. S_top, its deepest line, showed nothing: R4 − RND
+     +0.009 [−0.023, +0.046].
 7. **His plain answer:** "With 3 entries in the same big contest, choose them together by the simulator: about +7
    points of cash chance. With 2, about +3, not proven on its own. With 1, nothing beats a random pick."
