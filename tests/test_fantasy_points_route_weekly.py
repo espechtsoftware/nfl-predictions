@@ -173,3 +173,63 @@ def test_row_count_guard_refuses_a_short_week():
     weekly.check_row_count(10, 0)                       # no prior week stored: no check
     with pytest.raises(ValueError, match="looks unfinished"):
         weekly.check_row_count(200, 265)                # the 2026 Week-2 case (75%)
+
+
+
+# ---- the settle gate and the content-revision check (2026-10-06: FP revised W4's MNF route shares after the first import)
+
+def test_settle_time_is_noon_ct_the_day_after_the_last_kickoff():
+    # Week 4 2026: the last game is Monday 10-05 20:15 ET -> Tuesday 10-06 12:00 CT = 17:00 UTC
+    t = weekly.settle_time_utc([("2026-10-04", "13:00"), ("2026-10-04", "20:20"), ("2026-10-05", "20:15")])
+    assert t == pd.Timestamp("2026-10-06 17:00", tz="UTC")
+    # a week ending Sunday night -> Monday noon CT
+    assert weekly.settle_time_utc([("2026-12-27", "20:20")]) == pd.Timestamp("2026-12-28 18:00", tz="UTC")   # CST
+    with pytest.raises(ValueError, match="settle time is unknown"):
+        weekly.settle_time_utc([])
+
+
+def _stored(tmp_path):
+    manifest, _ = _manifest(tmp_path)
+    _, artifact = weekly.validate_manifest(tmp_path, target_week=2)
+    rows, _ = weekly.normalize_artifact(manifest, artifact, _snapshots())
+    existing = rows[["season", "week", "gsis_id", "normalized_name", "pos", "canonical_teams", "route_share_pct", "source_sha256"]].copy()
+    return rows, existing
+
+
+def test_a_hash_only_difference_is_not_a_revision(tmp_path):
+    rows, existing = _stored(tmp_path)
+    other_file = existing.assign(source_sha256="f" * 64)            # the same values from a different file
+    assert weekly.rows_to_append(rows, other_file).empty
+    d = weekly.content_diff(rows, other_file)
+    assert (d["changed"], d["removed"], d["added"], d["hash_only"]) == (0, 0, 0, len(rows))
+
+
+def test_a_changed_or_removed_value_is_a_revision_never_appended(tmp_path):
+    rows, existing = _stored(tmp_path)
+    changed = existing.copy(); changed.loc[0, "route_share_pct"] = 74.0
+    with pytest.raises(weekly.RouteRevisionError, match="conflicts with stored rows") as e:
+        weekly.rows_to_append(rows, changed)
+    assert e.value.report["changed"] == 1 and isinstance(e.value, RuntimeError)
+    gone = pd.concat([existing, existing.assign(normalized_name="someoneelse", gsis_id=None)], ignore_index=True)
+    with pytest.raises(weekly.RouteRevisionError) as e2:
+        weekly.rows_to_append(rows, gone)                          # a stored player the export no longer holds
+    assert e2.value.report["removed"] == 1
+
+
+def test_the_import_refuses_a_file_retrieved_before_the_settle_time(tmp_path, monkeypatch, capsys):
+    _manifest(tmp_path)                                             # retrieved 2026-09-15 15:00 UTC, source week 1
+
+    def fake_query(sql, params=None):
+        if "schedules" in sql:                                      # W1 2026 ended Monday 09-14 20:15 ET -> settles 09-15 17:00 UTC
+            return pd.DataFrame({"gameday": ["2026-09-13", "2026-09-14"], "gametime": ["13:00", "20:15"]})
+        raise AssertionError("no other query may run before the gate")
+    import nfl_dfs.bq as bq
+    monkeypatch.setattr(bq, "query_df", fake_query)
+    with pytest.raises(weekly.RouteNotSettledError, match="before its settle time"):
+        weekly.run(tmp_path, target_week=2, write=True)
+    with pytest.raises(AssertionError, match="no other query"):     # audit only: a NOTE, then it proceeds to the reads
+        weekly.run(tmp_path, target_week=2, write=False)
+    assert "NOTE (audit only)" in capsys.readouterr().out
+    with pytest.raises(AssertionError, match="no other query"):     # operator-early: recorded, then proceeds
+        weekly.run(tmp_path, target_week=2, write=True, operator_early=True)
+    assert "OPERATOR-EARLY IMPORT (recorded)" in capsys.readouterr().out

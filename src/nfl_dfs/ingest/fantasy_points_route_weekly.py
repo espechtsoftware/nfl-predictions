@@ -29,6 +29,52 @@ from ..names import norm_name
 
 
 MAX_ZERO_ROUTE_SHARE = 0.50   # completeness guard; see normalize (2026-09-23)
+# The settle gate (reviewer + laptop, 2026-10-06): FP's first Tuesday Week-4 export carried PRELIMINARY Monday-night
+# numbers (14 ATL/NO rows revised and 2 added at 10:23 CT; README deficiency log). A source week is imported only from a
+# file retrieved at or after SETTLE_HOUR_CT on the day after that week's LAST kickoff (Tuesday noon after a Monday
+# game); --operator-early overrides, recorded. Capture/archive is unaffected (every-paid-page rule); only the import waits.
+SETTLE_HOUR_CT = 12
+
+
+class RouteNotSettledError(RuntimeError):
+    """An import of a source week from a file retrieved before the week's settle time."""
+
+
+class RouteRevisionError(RuntimeError):
+    """The vendor's export changed stored rows' CONTENT (a value changed, or a stored player is gone). Never an automatic
+    delete: the repair (delete + re-import) is operator-approved. `report` carries the content diff."""
+
+    def __init__(self, message: str, report: dict):
+        super().__init__(message)
+        self.report = report
+
+
+def settle_time_utc(kickoffs_et: list[tuple[str, str]]) -> pd.Timestamp:
+    """SETTLE_HOUR_CT (America/Chicago) on the day after the LAST kickoff, as UTC. kickoffs_et: (gameday 'YYYY-MM-DD',
+    gametime 'HH:MM') pairs in US Eastern time (nflverse schedules)."""
+    if not kickoffs_et:
+        raise ValueError("no kickoffs for the source week: the settle time is unknown")
+    last = max(pd.Timestamp(f"{d} {t}").tz_localize("America/New_York") for d, t in kickoffs_et)
+    day = last.tz_convert("America/Chicago").normalize() + pd.Timedelta(days=1)
+    return (day + pd.Timedelta(hours=SETTLE_HOUR_CT)).tz_convert("UTC")
+
+
+def content_diff(rows: pd.DataFrame, existing: pd.DataFrame) -> dict:
+    """The export against the stored rows of the same source week, by CONTENT (route_share_pct per logical identity):
+    changed values, stored identities the export no longer holds, new identities, and hash-only differences."""
+    keys = ["season", "week", "_identity"]
+    want = rows.assign(_identity=_logical_identity(rows))[keys + ["route_share_pct", "canonical_teams", "source_sha256"]]
+    have = existing.assign(_identity=_logical_identity(existing))[keys + ["route_share_pct", "canonical_teams", "source_sha256"]]
+    j = want.merge(have, on=keys, how="outer", suffixes=("", "_existing"), indicator=True)
+    both = j._merge.eq("both")
+    same = j.route_share_pct.round(6).eq(j.route_share_pct_existing.round(6)) | (j.route_share_pct.isna() & j.route_share_pct_existing.isna())
+    changed = j[both & ~same]; removed = j[j._merge.eq("right_only")]; added = j[j._merge.eq("left_only")]
+    hash_only = j[both & same & j.source_sha256.ne(j.source_sha256_existing)]
+    team = lambda d, c="canonical_teams": {str(k): int(v) for k, v in d[c].astype(str).value_counts().items()}
+    return {"changed": int(len(changed)), "changed_by_team": team(changed), "removed": int(len(removed)),
+            "removed_by_team": team(removed, "canonical_teams_existing"), "added": int(len(added)),
+            "added_by_team": team(added), "hash_only": int(len(hash_only)),
+            "examples": changed[keys].head(5).to_dict("records") + removed[keys].head(3).to_dict("records")}
 
 PLAN_NAME = "2026-route-share-weekly-v1"
 PLAN_SHA256 = "cb6cf183c9f7455344954b227100152baeded9df4d5b3699b326d5b4e6baa35a"
@@ -282,14 +328,14 @@ def rows_to_append(rows: pd.DataFrame, existing: pd.DataFrame) -> pd.DataFrame:
         suffixes=("", "_existing"),
         indicator=True,
     )
-    overlap = joined._merge.eq("both")
-    same_value = joined.route_share_pct.eq(joined.route_share_pct_existing)
-    same_hash = joined.source_sha256.eq(joined.source_sha256_existing)
-    if (overlap & ~(same_value & same_hash)).any():
-        bad = joined.loc[
-            overlap & ~(same_value & same_hash), keys
-        ].to_dict("records")[:5]
-        raise RuntimeError(f"weekly Route append conflicts with stored rows: {bad}")
+    # by CONTENT (2026-10-06): a changed value, or a stored identity the export no longer holds, is a vendor REVISION;
+    # a different file hash with identical values is not (it appends nothing for those rows)
+    diff = content_diff(rows, existing)
+    if diff["changed"] or diff["removed"]:
+        raise RouteRevisionError(
+            f"weekly Route append conflicts with stored rows: {diff['examples']} -- a vendor REVISION: "
+            f"{diff['changed']} changed {diff['changed_by_team']}, {diff['removed']} removed {diff['removed_by_team']}, "
+            f"{diff['added']} added {diff['added_by_team']}", diff)
     novel_keys = joined.loc[joined._merge.eq("left_only"), keys]
     if novel_keys.empty:
         return rows.iloc[0:0].copy()
@@ -332,12 +378,29 @@ def run(
     *,
     target_week: int,
     write: bool = False,
+    operator_early: bool = False,
 ) -> dict:
     """Audit one weekly export and optionally archive/append it atomically."""
     from ..bq import load_dataframe, query_df
     from ..config import settings
 
     manifest, artifact = validate_manifest(input_dir, target_week=target_week)
+    kick = query_df(f"""
+        SELECT CAST(gameday AS STRING) AS gameday, CAST(gametime AS STRING) AS gametime
+        FROM `{settings.raw}.schedules`
+        WHERE CAST(season AS INT64) = @season AND CAST(week AS INT64) = @week AND game_type = 'REG'
+          AND gameday IS NOT NULL AND gametime IS NOT NULL
+        """, params={"season": SEASON, "week": int(artifact["source_week"])})
+    settle = settle_time_utc(list(zip(kick.gameday, kick.gametime)))
+    settled = bool(artifact["retrieved_at"] >= settle)
+    gate = {"settle_time_utc": settle.isoformat(), "retrieved_at_utc": artifact["retrieved_at"].isoformat(),
+            "settled": settled, "operator_early": bool(operator_early)}
+    if not settled:
+        msg = (f"Route source week {artifact['source_week']} retrieved {gate['retrieved_at_utc']}, before its settle time "
+               f"{gate['settle_time_utc']} (noon CT the day after the week's last kickoff): the vendor may still revise it")
+        if write and not operator_early:
+            raise RouteNotSettledError(msg + "; re-download after the settle time, or pass --route-operator-early (recorded)")
+        print(("OPERATOR-EARLY IMPORT (recorded): " if write else "NOTE (audit only): ") + msg, flush=True)
     snapshots = query_df(f"""
         SELECT DISTINCT CAST(season AS INT64) AS season, gsis_id,
                full_name AS name, position AS pos, team
@@ -360,8 +423,20 @@ def run(
             SELECT COUNT(*) AS n FROM `{table_ref}` WHERE season = @season AND week = @prior_week
             """, params={"season": SEASON, "prior_week": source_week - 1}).n.iloc[0])
         check_row_count(len(rows), prior_rows)
-    novel = rows_to_append(rows, existing)
-    audit.update({
+    try:
+        novel = rows_to_append(rows, existing)
+    except RouteRevisionError as exc:
+        r = exc.report
+        print("!" * 100 + f"\n!!! FANTASY POINTS REVISED STORED ROUTE ROWS (source week {source_week}): {r['changed']} changed "
+              f"{r['changed_by_team']}, {r['removed']} removed {r['removed_by_team']}, {r['added']} added {r['added_by_team']}. "
+              "The stored rows are KEPT. The repair (delete + re-import of the revised export) is OPERATOR-APPROVED, never "
+              "automatic (README deficiency log, 2026-09-21 W2 and 2026-10-06 W4).\nDEFICIENCY-LOG DRAFT: | "
+              f"{datetime.now(UTC):%Y-%m-%d} | Fantasy Points revised the Week-{source_week} Route Share export after it was "
+              f"stored ({r['changed']} rows changed {r['changed_by_team']}, {r['removed']} removed, {r['added']} added; new "
+              f"file {artifact.get('sha256', '')[:8]}). | The stored values are stale for those players until repaired. | "
+              "Awaiting the operator's approval to delete + re-import. |\n" + "!" * 100, flush=True)
+        raise
+    audit.update({"settle_gate": gate, "revision_check": "no stored row changed" if not existing.empty else "first import",
         "table": table_ref,
         "source_run_id": manifest["run_id"],
         "write_requested": bool(write),
