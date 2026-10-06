@@ -1,4 +1,4 @@
-# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06)
+# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06, amendment 1, before Week 5's lock)
 
 **Status: FROZEN 2026-10-06** by the reviewer, BEFORE any week of the decision arm (MIXT_RS0) or of the exploratory arms
 QBB0 / NQC0 / QAL / RBC0 was read on any slate. Disclosed: before the freeze, the reference MIXT_QA0 was scored on
@@ -6,6 +6,53 @@ Weeks 1–4 (his rehearsal of the current process, 10-06), and MIXT_QA against M
 test). Those reads cannot move a prospective rule on Weeks 5–9 whose decision arm was never read. The live-mode census
 on the Week-5 rehearsal snapshot is a post-freeze INTEGRITY GATE (§7), not a design step. The laptop acks and re-runs every
 score. Nothing here enters a contest: the money path, its checkout and its files are never touched.
+
+## Amendment 1 (2026-10-06, before Week 5's lock; no Week-5 outcome exists)
+
+- **Why.** The operator adopted the union overlap limit 5 for Week 5 (10-06, through the laptop: "Enter it in Week 5";
+  `UNION_MEAN_MAX_SHARED=5`: every union row shares at most 5 of 9 players with every earlier row; the outside review's
+  fixed-book screen of Weeks 2–4, reproduced by the laptop). The frozen parity (§3) required the overlap 7, so every
+  week with a live 5 would have been INVALID (PARITY REFUSED), and the decision pair would no longer have been "the
+  regulars' structure vs his live book".
+- **What changes:**
+  1. Every paper arm is built at THE LIVE UNION'S `--mean-max-shared`, read from its own arguments (study 18's
+     `MAX_SHARED`, which the cap builder reads at every solve, set for each arm's build and restored). The parity
+     accepts 5, 6 or 7; any other value, or none, is a mismatch, and the week is invalid. The other parity items are
+     unchanged.
+  2. A new exploratory arm, **MIXT_QA0_MS7**: his live book at the pre-Week-5 limit, 7. Against MIXT_QA0 it tracks the
+     switch to 5 on the real field each week. It is descriptive, never decision-bearing, and identical to MIXT_QA0 in a
+     week whose live limit is 7.
+  3. Every built book (book rows and spares) is checked against its limit; a breach stops the build.
+  4. The scorer scores the new arm and carries the week's live limit into its record; the reader prints both on its
+     descriptive line.
+- **What does not change:** the rule (§5: the decision pair MIXT_RS0 − MIXT_QA0, the weeks, validity, the guards, the
+  verdicts), the decision arm's definition (study 37's frozen tiers), the objective (FP's mean, no ownership term), the
+  inputs and provenance (§3), the scoring (§4), and the integrity gate (§7: Wednesday's live-mode build on the A3
+  snapshot, which now runs at 5).
+- **Disclosed:** the early look on Weeks 1–4 (after the original freeze; in-sample, never decision-bearing) was built at
+  7. The limit's own evidence is study 40 (the 36-slate harness: NO DIFFERENCE, leaning positive, +0.028 [−0.012,
+  +0.067] on P(≥ 1 big seat), both guards held; read after this amendment's code was committed, and it cannot move this
+  study's rule) and the outside screen (Weeks 2–4).
+- **The smoke (dry run, Week 4's frozen copies: the same frame, FP projections and ownership, and the rehearsal union
+  arguments as the original smoke):**
+  - **Regression at 7** (the arguments unchanged): every one of the seven original arms is byte-identical to the
+    pre-amendment build (`smoke-w4g`, rows and ranks); MIXT_QA0_MS7 equals MIXT_QA0; parity mismatches none.
+  - **At 5** (`--mean-max-shared 5`): the build exited 0; parity mismatches none; every arm was built at 5 and
+    MIXT_QA0_MS7 at 7, each book's largest pairwise overlap equal to its limit; no fallback rows; no short books (row
+    counts as at 7: the tiered arms' short spare tails are the tiers', not the limit's). His book at 5 against 7:
+    10 QBs against 8, 31 distinct non-QB players against 27, 0.14 fewer FP points per dealt lineup (144.34 against
+    144.48). Construction only: no outcome was read.
+- **Code (amended; supersedes the shas in §7 for the files listed):** nfl2 `production/s38-paper-corun-20261006` @
+  `acda6ab`:
+  - `experiments/s38_paper_corun.py`, sha256 `cc99885aa2d18394beee0952afe07f3747c25f2121eafe6484f66f2d5b2c3c91`;
+  - `scripts/s38_build.py`, `8841d841b8c1757d0f1932323caf6e3d5fc4791f8227b36eac7fe6c6edf35ae3`;
+  - `scripts/s38_score.py`, `7cf99ffcade5fb0886b08c114bf78ed3b3080d8964ff07d164565fd3805771d2`;
+  - **`scripts/s38_report.py` (the reader), sha256 `b4b7d7b76f32e07a5eb2492549746913655c1cc85b3935f3952a7e7dc09e25d3`**;
+  - `tests/test_s38_paper_corun.py`, `1d9778485fb078285271402a3596c51233daf292cf85573017f4115e9e038bb3` (13 tests);
+  - Unchanged: `scripts/s38_plan.py` `9af5f805…`; study 37's `experiments/s37_regulars_structure.py` `29a2c2c7…`; the
+    production pin (§7).
+- **Order:** this amendment → the laptop's ack (it re-runs the tests and the smoke) → Wednesday's integrity gate → the
+  snapshot before Week 5's lock.
 
 ## 1. Why
 - **The operator (10-06), on the proposal:** "yes, please try it, I want to exhaust all reasonable options."
@@ -66,7 +113,7 @@ score. Nothing here enters a contest: the money path, its checkout and its files
   (FP's projections replace `mean_projection`; it refuses a file made for another frame), `unavailable_ids` plus the
   skill `--min-proj` filter (the exclusions), and `own_bonus` at the frozen 0.20, scaled per arm. Then study 28's
   `mix_book` with study 37's builders, at the plan's K 26 head layout.
-- **The union's arguments must match the lab builder's mechanics** (mix, K 26, overlap 7, per-game 4, salary floor
+- **The union's arguments must match the lab builder's mechanics** (mix, K 26, overlap 7 [amendment 1: the live 5 / 6 / 7], per-game 4, salary floor
   49,000, min-proj 1.0, caps 0.5 / 0.25, the QB cap of 5 rows, head layout), or the build refuses. **The ownership tilt is
   each paper arm's own**, not part of that parity. With the live tilt at 0, Sunday's build captures no FP ownership
   (the capture and export run only with a non-zero tilt), so the laptop's snapshot tool runs that same capture and
@@ -127,7 +174,7 @@ score. Nothing here enters a contest: the money path, its checkout and its files
   snapshot (`~/private/paper-corun/rehearsal-w05/`, from A3): the manifest, provenance, union-args parity and pre-lock
   checks, all arms built. If it fails, Week 5 is INVALID (the reader then takes Week 9). The same live-mode checks gate
   every week.
-- **Code (frozen):** nfl2 `production/s38-paper-corun-20261006` @ `4429fd8`:
+- **Code (frozen; amendment 1 supersedes the shas of the files it changed):** nfl2 `production/s38-paper-corun-20261006` @ `4429fd8`:
   - `experiments/s38_paper_corun.py`, sha256 `e2d593a5d4c9f161763b74c2a4b2247830717196b23372215739083855fcbcdf`;
   - `scripts/s38_build.py`, `fe51ac2e6f528b7ee9d6de27406779e3cbd4dfc4adc6eb85e6b9539587f74174`;
   - `scripts/s38_score.py`, `ca4e74d3468c0cd2f2459e80a59b97f810e0f6a04b94f41b96f5665111d331c3`;
