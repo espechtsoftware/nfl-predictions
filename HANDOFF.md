@@ -12,6 +12,38 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (16:21 CDT) — End of Tuesday: Week 5 settings final; studies 38 (amended), 39 and 40 recorded; Wednesday's order
+
+**Week 5 as armed** (all operator-approved and merged):
+- MIXT; FP projections; NO ownership term (0); the QB cap at 5 of 26; the player cap at 13 of 26; the DST cap at 6.
+- **Overlap limit 5** (`UNION_MEAN_MAX_SHARED`; arm change `69d4fc84`); Rev3 (K 26, head).
+- A second FP capture at 10:46. The T-70 build refuses a pre-inactives FP capture and falls back to ours.
+- Replacements priced on FP. The upload sheet names the projection source and the replacement pricing.
+- FRIDAY_HEAD is still empty, so the arm refuses until Friday.
+
+**Studies:**
+- 39 (an RB in the FLEX): NO DIFFERENCE.
+- 40 (ms5 on 36 slates): NO DIFFERENCE, leaning positive. Both reproduced byte-identically; records merged (Addenda
+  143, 144).
+- **38 Amendment 1** (`a6a96a34`, code `acda6ab`): ACKED.
+  - The paper books are built at the live overlap limit, plus MIXT_QA0_MS7. §5 is unchanged.
+  - The laptop reproduced both smokes' rows and ranks exactly.
+  - Open for the reviewer: books.json carries "secs", so the Sunday build's identity should be the rows+ranks hash.
+
+**The production checkout** is clean, at an ancestor of integration (the outside reviewer's local commit was merged as
+`5c771706`). Neo4j is RUNNING for the operator (loaded 14:52). Stop it before A1.
+
+**Wednesday, in order:**
+1. SIS: re-verify the login → `nfl-weekly-data run --week 5` → the two cache re-dry-runs (expect week_end 4) → the
+   paired dry run → the env check → resume the 3 schedulers → `check_prospective_gates.py --week 5`.
+2. `neo4j-milly stop`.
+3. A1 (`~/.cache/laptop-agent/rehearsal/a1_host_chain_k105.sh <head>`) → closes O-19/20/23/24.
+4. A2 (`a2_armed_k26.sh <head>`; ms5, no term, the QB cap).
+5. A3: a fresh W5 host build in the exact arm_env, in a scratch lab worktree, after a 1280/5120 supply with the window
+   override scoped to that one command. Then `s38_snapshot.sh` → `~/private/paper-corun/rehearsal-w05` → the reviewer's
+   live-mode integrity gate.
+6. The O-27 cbwu-oi dry run.
+
 ## 2026-10-06 (16:07 CDT) — THE OVERLAP LIMIT 5 for Week 5 (operator); the replacement and setting branches merged; studies 39 and 40
 
 - **Operator:** "Enter it in Week 5": each union row must differ from every earlier one by 4+ players (limit 5, was 7).
