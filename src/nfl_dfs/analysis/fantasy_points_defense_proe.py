@@ -10,6 +10,7 @@ from .fantasy_points_coverage_fit import _score
 from .fantasy_points_route_share import CONTROL_NUMERIC, _fit_predict
 from ..ingest.fantasy_points_defense_proe import (
     EXPECTED_HASHES,
+    SOURCE_RUN,
     TABLE,
     attach_prior_l4,
 )
@@ -111,7 +112,11 @@ def run(panel_id: str = PANEL_ID, *, game_day_active: bool = False) -> dict:
     from ..bq import query_df
     from ..config import settings
 
-    weekly = query_df(f"SELECT * FROM `{settings.raw}.{TABLE}`")
+    # O-32 protocol amendment 3 (2026-10-05): read only the frozen 2022-2025 import. The weekly vendor run has since
+    # APPENDED 2026 rows (other run ids) to this table; the frozen protocol reads 2022-2025 only, and the provenance
+    # checks below are unchanged (the same four hashes, one run).
+    weekly = query_df(f"SELECT * FROM `{settings.raw}.{TABLE}` WHERE source_run_id = @run",
+                      params={"run": SOURCE_RUN})
     hashes = set(weekly.source_sha256.dropna().astype(str))
     run_ids = set(weekly.source_run_id.dropna().astype(str))
     if hashes != set(EXPECTED_HASHES.values()) or len(run_ids) != 1:
