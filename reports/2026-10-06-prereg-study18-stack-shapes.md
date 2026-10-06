@@ -147,3 +147,11 @@ points). No arm passed, so C stands and every study-18 arm is built on it.
 **(ii) A path typo in §4:** the draft plan's path is `~/private/week5-plan/contests.draft-A.json` (its sha256 `8d97f5eb…e1f6` as
 written is correct).
 **Next:** the scored run on 1415/1416; nothing in the design changes after it starts.
+
+## Deviation note 2 (2026-10-05, after the scored run, BEFORE the reader): the confirmatory census
+- The scored run on 1415/1416 finished: 106/106 slate-banks, 0 errors; nothing in the design changed after it started.
+- The confirmatory census (`scripts/s18_census.py` sha256 `25b4b744…0229`, mechanics fields only) is committed at nfl2
+  `results/s18/CENSUS_s18_confirm.txt` before the reader runs: MIX dealt cells A1 .266 / A2 .158 / B .227 / C .349; MIX
+  shape QB+1 .576, QB+2+ .424, bring-back .493, dual .480, QB's game 3.03, games 4.76, top player .575 (the binding census
+  on 1406 within 0.01 on each); passes 0; short books 0.
+- Next: the frozen reader (`1dbef254…`) on 1415/1416.
