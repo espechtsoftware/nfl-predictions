@@ -29,7 +29,14 @@ chat. Private paths stay private (no dollars, no entries here).
 3. The money-path test modules green with `GCP_PROJECT` unset; `check_week_runtime` in the armed env: head / 22 rows
    / no LayoutError on Rev2 (`~/week5-sunday/contests.json` sha `94cc61a8…`).
 4. The production checkout `~/projects/nfl-predictions` fast-forwarded to the merged head, clean.
-5. The lab pin for MIX / WS: `EXPECT_SHA f69598ba…` with `CLONE ~/projects/.nfl2-worktrees/week5-live-center`
+5. **A FULL REHEARSAL at Week-5 size, archive mode (the reviewer, the K-dependence lesson):** the union on the W4 T-70
+   frame with the Rev2 contests and his chosen arm line (e.g. MIX + FP + the term), `--mix-spares 15`; then vet_book
+   and vet_replace with `--test-exclude-dk` of a player in >= 8 entries; then `enter_layout write`. Print and check: (1)
+   the dealt cell shares by ENTRIES near A1 .30 / A2 .14 / B .28 / C .28 (pins weighted, O-35 live); (2) the 8 pinned
+   contests' ENTER files carry rows 1-5 exactly as pinned; (3) 15 spares in the corpus; (4) the replacement uses
+   in-shape spares or the flagged house fallback, and no row ships with the excluded player; (5) audit_build_levers
+   PASS. NOT-PUBLISHABLE (test flags). The last proof before the money path runs it.
+6. The lab pin for MIX / WS: `EXPECT_SHA f69598ba…` with `CLONE ~/projects/.nfl2-worktrees/week5-live-center`
    (`optimize(second_game_pair, qb_game_max)`); the house shape could stay on `32cdb61`.
 
 ## Saturday 10-10 (the laptop arms; fail-stop script, ask only if blocked)
