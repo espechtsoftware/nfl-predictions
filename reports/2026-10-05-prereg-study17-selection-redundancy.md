@@ -170,3 +170,11 @@ nothing else in it changed. The reader (`f5c6c493…`) and census (`477d4ea3…`
 `DR25` name and targets; the scored code path is otherwise identical.
 
 **Next:** the scored run on 1413/1414; nothing in the design changes after it starts.
+
+## Deviation note 2 (2026-10-05, after the scored run, BEFORE the reader): the confirmatory census
+- The scored run on 1413/1414 finished: 106/106 slate-banks, 0 errors; nothing in the design changed after it started.
+- The confirmatory census (`scripts/s17_census.py`, sha256 `477d4ea3…2a03`, mechanics fields only) is committed at nfl2
+  `results/s17/CENSUS_s17.txt` before the reader runs. Mean dealt-entry share of the top non-DST player: C 0.614, DR
+  0.433, DR35 0.313, EM 0.330, PG 0.399, RND 0.311 (the binding calibration on 1406: 0.606 / 0.434 / 0.315 / 0.333 /
+  0.407 / 0.303). PG fills 0; short books 0; dealt-identical-to-C 0 for every arm.
+- Next: the frozen reader (`f5c6c493…`) on 1413/1414.
