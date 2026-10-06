@@ -23,13 +23,14 @@ OWN_TILT=0                          # the ownership term (his 10-06 yes: "remove
 MAX_SHARED=5                        # a union row shares at most 5 players with every earlier row (his 10-06 yes; the outside
                                     # review's W2-4 replay, reproduced by the laptop; production default 7)
 MIX_FILL=group                      # the MIX fill order (study 42; operator 10-06 "best strategy first for a given QB?"):
-                                    # group = today's book; value = each step commits the best next row across the cells.
-                                    # value only after study 42's READ, the W2-4 check and HIS yes
+                                    # group = today's book; value = each step commits the best next row across the cells;
+                                    # rr = the cells in turn (a row per shape for the top QBs). Not group only after
+                                    # study 42's READ, the W2-4 check and HIS yes
 P=$HOME/projects/nfl-predictions; W=$HOME/week5-sunday; PY=$P/.venv/bin/python; CHECK=${1:-}
 say() { printf '%s %s\n' "$(date +%H:%M:%S)" "$*"; }
 stop() { say "ARM STOPPED: $*"; exit 1; }
 [[ "$SHAPE" == mixt || "$SHAPE" == ct ]] || stop "SHAPE is not set (Friday: mixt or ct, his choice)"
-[[ "$MIX_FILL" == group || ( "$MIX_FILL" == value && "$SHAPE" == mixt ) ]] || stop "MIX_FILL=$MIX_FILL: group, or value with SHAPE=mixt"
+[[ "$MIX_FILL" == group || ( ( "$MIX_FILL" == value || "$MIX_FILL" == rr ) && "$SHAPE" == mixt ) ]] || stop "MIX_FILL=$MIX_FILL: group, or value / rr with SHAPE=mixt"
 [[ -n "$FRIDAY_HEAD" ]] || stop "FRIDAY_HEAD is not set (Friday: the merged integration commit)"
 # the reviewer's gate (10-06): study 35 tested the QB cap on MIXT only, so ct + the cap is an untested combination
 [[ "$SHAPE" == ct && -n "$QB_CAP_ROWS" ]] && stop "the QB cap was studied on MIXT only (study 35); for ct set QB_CAP_ROWS='' after an operator decision"

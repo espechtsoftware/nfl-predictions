@@ -502,3 +502,37 @@ def test_value_fill_commits_in_study_42s_scripted_order(monkeypatch):
     fail = ("A2",)                                                        # the lab's test_a_failing_cell_passes_its_quota_to_a1
     _, _, meta, _ = ur.mix_rows(_frame(), set(), 10, 7, 4, 49_000, [1] * 10, exposure_cap=10, dst_cap=5, fill="value")
     assert meta["passes_to_A1"] == 1 and {n: meta["cells"][n]["rows"] for n in meta["cells"]} == {"A1": 4, "A2": 0, "B": 3, "C": 3}
+
+
+def test_rr_fill_takes_the_cells_in_turn_as_study_42s_harness(monkeypatch):
+    """Parity with the lab's test_round_robin_takes_the_cells_in_turn (lab 4541886): at k 10 (A1 3, A2 1, B 3, C 3) the
+    round-robin commits A1 B C A2, A1 B C, A1 B C whatever the values; a failing cell passes its remaining quota to A1."""
+    values = {"A1": [8, 7, 6, 5, 4, 3], "B": [10, 9, 4, 3, 2, 1], "C": [5, 5, 5, 5, 5, 5], "A2": [9, 1, 1, 1, 1, 1]}
+    fail: tuple = ()
+
+    def optimize(pool, stack, objective_col, banned_lineups, max_overlap, bans, env, second_game_pair=None, qb_game_max=None):
+        name = next(n for n, (_, r, _, _) in M.MIX_CELLS.items() if dataclasses.asdict(StackRules(**r)) == dataclasses.asdict(stack))
+        if name in fail:
+            return None
+        j = sum(1 for ids in banned_lineups if any(i.startswith(f"{name}:") for i in ids))
+        return LU([{"id": f"{name}:{j}:{s}", objective_col: (values[name][j] if s == 0 else 0.0)} for s in range(9)])
+
+    lineup = _install(monkeypatch, [])
+    lineup.optimize = optimize
+    rows, cells, meta, _ = ur.mix_rows(_frame(), set(), 10, 7, 4, 49_000, [1] * 10, exposure_cap=10, dst_cap=5, fill="rr")
+    assert meta["fill"] == "rr" and meta["commit_order"] == ["A1", "B", "C", "A2", "A1", "B", "C", "A1", "B", "C"]
+    assert sorted(cells) == sorted(["A1"] * 3 + ["A2"] + ["B"] * 3 + ["C"] * 3) and meta["passes_to_A1"] == 0
+    fail = ("C",)
+    _, _, meta, _ = ur.mix_rows(_frame(), set(), 10, 7, 4, 49_000, [1] * 10, exposure_cap=10, dst_cap=5, fill="rr")
+    assert meta["passes_to_A1"] == 3 and {n: meta["cells"][n]["rows"] for n in meta["cells"]} == {"A1": 6, "A2": 1, "B": 3, "C": 0}
+
+
+def test_rr_fill_keeps_the_caps_and_the_qb_cap(monkeypatch):
+    fr = _frame(); k = 21; weights = W_DRAFT_A[:k]
+    _install(monkeypatch, [])
+    rows, cells, meta, spares = ur.mix_rows(fr, set(), k, 7, 4, 49_000, weights, exposure_cap=10, dst_cap=5, qb_cap=3, spares=4,
+                                            fill="rr")
+    qbs = set(fr[fr.pos == "QB"].id)
+    used = Counter(p for r in rows + [s for s, _ in spares] for p in r)
+    assert len(rows) == k and max(used[q] for q in qbs if q in used) <= 3 and max(used.values()) <= 10
+    assert meta["commit_order"][:4] == ["A1", "B", "C", "A2"]

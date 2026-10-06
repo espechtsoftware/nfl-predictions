@@ -475,8 +475,10 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
     before) solves each cell's quota consecutively, largest cell first, so a capped QB's or player's uses go to the EARLIEST
     cells; "value" PEEKS the next row of every cell with quota left on the current state and COMMITS the highest-objective
     one (ties: the earlier cell in the group order), repeating until the quotas are met -- the capped uses go to the best
-    rows across cells. A cell that cannot solve passes its remaining quota to A1 (counted); A1 failing ends the fill. The
-    caps, overlap, quotas, interleave and spares are unchanged."""
+    rows across cells. A cell that cannot solve passes its remaining quota to A1 (counted); A1 failing ends the fill.
+    "rr" (round-robin; the outside reviewer 10-06, the winners' shapes follow the game script, not the QB) takes the cells
+    in the group order in turn, one row each while its quota lasts, so the top QBs get a row in each shape; the same pass
+    to A1. The caps, overlap, quotas, interleave and spares are unchanged in every fill."""
     from nfl2.core.lineup import StackRules, optimize          # the pinned lab clone on PYTHONPATH (>= f69598b)
     pool = [p for i, p in frame_players(t70).items() if i not in exclude]
     objective = "proj"
@@ -532,6 +534,20 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
                 if ids is None:
                     break
                 rows[cell].append(ids); commit_order.append(cell)
+    elif fill == "rr":
+        remaining = {n: t for n, t in zip(names, target)}
+        while any(remaining[n] > 0 for n in names):
+            for i in group_order:
+                n = names[i]
+                if remaining[n] <= 0:
+                    continue
+                ids = solve(n)
+                if ids is None:
+                    if "A1" in cells and n != "A1":            # its remaining quota passes to A1 (counted)
+                        passes += remaining[n]; remaining["A1"] += remaining[n]
+                    remaining[n] = 0
+                    continue
+                rows[n].append(ids); remaining[n] -= 1; commit_order.append(n)
     elif fill == "value":
         remaining = {n: t for n, t in zip(names, target)}
         while any(remaining[n] > 0 for n in names):
@@ -553,7 +569,7 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
             n, ids, _ = best
             rows[n].append(commit(ids)); remaining[n] -= 1; commit_order.append(n)
     else:
-        raise ValueError(f"fill must be 'group' or 'value' (got {fill!r})")
+        raise ValueError(f"fill must be 'group', 'value' or 'rr' (got {fill!r})")
     got = [len(rows[n]) for n in names]
     spare_rows: list[tuple[list[str], str]] = []
     if spares:
@@ -644,9 +660,10 @@ def main(argv: list[str] | None = None) -> int:
                     help="with --main mix: spare rows solved after the book under the same running caps (caps from --entries), "
                          "added to the candidate corpus (source mix_spare, tagged with their cell) as the Sunday replacement "
                          "step's in-shape supply; never book rows (reviewer 2026-10-06; study 24 sized S = 15)")
-    ap.add_argument("--mix-fill", choices=["group", "value"], default="group",
+    ap.add_argument("--mix-fill", choices=["group", "value", "rr"], default="group",
                     help="with --main mix: group (default) = each cell's quota consecutively, largest cell first; value = at each "
-                         "step the highest-objective next row across the cells (a capped QB's uses go to his best rows; study 42)")
+                         "step the highest-objective next row across the cells (a capped QB's uses go to his best rows; study 42); rr = the "
+                         "cells in turn, one row each (a row per shape for the top QBs; the outside reviewer, study 42)")
     ap.add_argument("--mix-layout", choices=["sequential", "top", "head", "spread"], default="head",
                     help="with --main mix: the layout enter_layout deals with (ENTER_LAYOUT)")
     ap.add_argument("--sleeve-source", choices=["mean", "field"], default="mean",
