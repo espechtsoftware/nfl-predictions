@@ -12,6 +12,22 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (18:44 CDT) — Study 45 WORSE (not for W5); "play like the regular" benchmark (W1–4); field calibration v2; study 46 next
+
+- **Study 45** (the contrarian row at rank 22; reviewer e2d73a2, READ 376d396d) is reproduced byte-identically: WORSE. The position's big-seat chance is −0.01009 [−0.02178, −0.00205]; the contrarian row wins its satellite 0.28% vs 1.29%.
+  - Records merged (bdc1f617; LEDGER lab 41ef9ea). Not for W5.
+- **Study 38 amendment 3** is ACKED: ms4-rr 47b701ee is byte-identical to amendment 2; ms4-rr-cover4 bb6eb9bb records the cover mismatch.
+- **The operator, 10-06 evening:** "following the one player that we're modeling our strategy after, we should be somewhere in the ballpark of the way that player performed" … "keep working on this until you figure out a strategy like that person's strategy that works". The player is elidkatz1 (chat only; label in tracked files). Study list item 43.
+  - **W1–4 per-lineup benchmark** on the real Millionaire fields; private, `~/private/contrarian/`.
+  - He WON W2; his money per $1 was W1 .37 / W3 .62 / W4 .58. His best-lineup ranks (top 1.6% / won / 1.05% / 0.3%) are the reviewer's numbers.
+  - Mean finish over W2–4: him 53.9; RS0 51.2; QA0 48.2; W5 final 48.4. In W4 (FP), RS0 58.5 beat him.
+  - Same players as him in W4. The difference is construction: 7–10 players over 40% vs his 0–1; 9 vs 14 QBs per 26; ownership 122–143% vs 104–111%.
+  - The concentrated book had the only top-1% week (W1).
+- **Framing with the operator** (the reviewer agrees): we expect to lose most weeks; the strategy targets the occasional big win.
+- **Item 40, field calibration v2** (lab b21edaf; report merged 76d2c9be): the real field stacks much harder than l02. v2 closes about a third of the top-line gap (12.2 → 8.4 points over W2–4) and half at p99.
+- **Study 46** (the reviewer; operator-endorsed direction), Wednesday morning on the v2 field: HALF (13 RS-tier rows + 13 live rows, one shared state, alternating positions) vs LIVE; THIRD and TWOTHIRDS exploratory; l02 alongside.
+  - The laptop builds the production block mechanism behind a switch Wednesday morning, parity-pinned. W5 only if it reads by Wednesday midday.
+- **Correction:** the W2–4 round-robin replay dir is `~/rehearsals/fill-20261006T215349Z`, not …215350Z as written in earlier entries.
 ## 2026-10-06 (17:58 CDT) — Study 43: NO DIFFERENCE (cover stays 0); P3 and the W2–4 money figure done; the contrarian lineup (study 45) approved to test
 
 - **Study 43** (reviewer 6392ca4, READ d830a305) is reproduced byte-identically: COVER4 − LIVE −0.02840 [−0.06453, +0.00704], both seasons negative, seats ratio 0.892.
