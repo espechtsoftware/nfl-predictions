@@ -5320,3 +5320,168 @@ secondaries (slate means):
    - Expected big seats MIXT / CT: 1.14 / 0.99 / 1.03.
    - Tied within noise. Friday's choice is his preference.
 5. **Transfer:** the panel's means are ours; live, FP picks. The habits were tested on top of a projection-based book.
+
+## Addendum 140 (2026-10-06): study 35 (QB diversity on the winners' mix: a per-QB cap at the regulars' level): NO DIFFERENCE, leaning positive on every endpoint in both seasons — the cap costs nothing measurable (unlike study 24's per-game cap) and is offered as his preference
+
+**Setup.**
+- **The operator (10-06):** "I'm more interested in the winner's mix than our way we've been doing it. However, it
+  sounds like we're not getting the diversity of quarterbacks that we should be getting … I suspect … they look at the
+  value of quarterbacks. And sometimes find a cheaper quarterback that has a good matchup."
+- **What the data showed first** (2026 Weeks 1–4, descriptive):
+  - The regulars have NO cheap-QB habit: share-weighted QB salary $5,878 vs the field's $5,961; their tilt against
+    salary is +0.02.
+  - They have NO good-matchup habit: they lean slightly away from small-sample soft matchups (−0.22).
+  - They leaned toward the QBs FP rated above our model (+0.30, Week 4).
+  - **The gap is CONCENTRATION, and it is new.** Our Weeks 1–3 QB spread matched the field. Week 4 put 60% on one QB;
+    both Week-5 books put 51–59%. Each regular's most-used QB is in about 23% of his entries.
+- **Arms** (study 31's harness: 36 slates, Rev3, K 26, caps 13 / 6, head, `enter_layout` `3cb051ac…`, the 0.20 term):
+  - MIXT, the reference;
+  - **MIXT_QA (DECISION):** a per-QB ROW cap of 5 (a QB is banned once in 5 rows, as the DST cap works);
+  - MIXT_QB (exploratory): 8 rows.
+  - The caps came from an outcome-blind calibration census: A is the loosest cap at or under a 25% most-used-QB share
+    (5 rows: .223); B the loosest at or under 35% (8 rows: .323). The cost is −0.31 / −0.12 projected points per lineup.
+  - Study 28's `mix_book` ran unchanged, with the capped builder swapped in.
+- **Preregistration:** `reports/2026-10-06-prereg-study35-qb-cap.md` (frozen `c4fb005b`).
+- **Panel:** banks 1455–1460, B 20,000, seed 20261017. The confirmatory census holds on the scored banks: QA .224
+  (max .245), QB .323.
+- **Read and reproduced:**
+  - Read by the reviewer.
+  - **Reproduced byte-identically by the laptop:** reader `bf55070e`; READ `7edbf566`; raw 1455 `1984590a` … 1460
+    `687c998f`.
+  - Lab: nfl2 `production/s35-qb-cap-20261006`.
+- **A cosmetic defect, disclosed:** the frozen reader's header line prints "STUDY 34 READER", a leftover from deriving
+  it from study 34's reader. The sha identifies it, and the reader is unchanged.
+
+**Reader output (verbatim):**
+```
+STUDY 34 READER  sha256 bf55070e56439a5f4a6bba23198ead737d6f05e989737674b6374c347bbbf69a
+DIRECTION: P(>= 1 big seat) per slate (the mean over its banks); every difference is ARM - REFERENCE; POSITIVE favours the first arm.
+slates 36  banks [1455, 1456, 1457, 1458, 1459, 1460]  B 20000  seed 20261017  primary MIXT_QA - MIXT, two-sided 0.95, guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80  QB row caps ['{"A": 5, "B": 8}']
+
+== MIXT_QA vs MIXT  [DECISION: the per-QB cap at the regulars' level]
+  PRIMARY P(>= 1 big seat) per slate +0.02563  [-0.02728, +0.08309]  seasons 2023 +0.02167, 2024 +0.02959
+  GUARD 1 mean entry pct +0.00478  one-sided lower -0.00783  (must exceed -0.015)
+  GUARD 2 expected big seats 0.61351 vs 0.58547  ratio 1.048  (must be >= 0.80)
+  MIXT_QA dealt identical to MIXT: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+
+== EXPLORATORY (never decision-bearing)
+  MIXT_QB - MIXT (the milder QB cap): +0.02105  [-0.02407, +0.07048]  seasons 2023 +0.01233, 2024 +0.02976
+
+secondaries (slate means):
+  MIXT    P(>=1 big) 0.32495  expected big seats 0.58547  P(>=2) 0.12486  entry pct 0.57615  dealt top-QB share 0.474  effective QBs 2.81  distinct QBs 4.15
+  MIXT_QA P(>=1 big) 0.35058  expected big seats 0.61351  P(>=2) 0.13967  entry pct 0.58093  dealt top-QB share 0.224  effective QBs 5.60  distinct QBs 6.75
+  MIXT_QB P(>=1 big) 0.34600  expected big seats 0.63338  P(>=2) 0.14374  entry pct 0.58280  dealt top-QB share 0.323  effective QBs 3.91  distinct QBs 5.19
+```
+
+**Reading.**
+1. **At the frozen rule: NO DIFFERENCE**, leaning positive.
+   - MIXT_QA − MIXT +0.026 [−0.027, +0.083], both seasons positive (+0.022 / +0.030).
+   - Both guards hold: finish +0.005, expected big seats ×1.05.
+   - The milder cap: +0.021 [−0.024, +0.070], both seasons positive.
+2. **Every endpoint leans the same way** (MIXT → QA): P(≥ 1 big) .325 → .351; expected big seats .585 → .614;
+   P(≥ 2) .125 → .140; mean finish .576 → .581.
+   - **Unlike study 24's per-GAME QB cap** (−1.8 points, failed his tolerance), the per-QB cap at the regulars' level
+     costs nothing measurable. It is not a proven gain: the interval reaches −0.027.
+3. **What it changes:** the most-used QB falls from .474 to .224 of the entries, and the distinct QBs rise from 4.2 to
+   6.8. **It does not spread the rest of the book:** the top player's entry share stays .551 → .550 (the laptop).
+4. **By frozen §4 (NO DIFFERENCE):** QB concentration is a feature without a measured cost or benefit, and he may
+   choose the cap as a preference, told plainly.
+   - **Recommended:** choose it. He asked for QB diversity, it matches the winners' level, nothing measured goes the
+     wrong way, and it is reversible.
+   - **Arming:** `UNION_MAIN_QB_CAP_ROWS=5 UNION_MAIN_QB_CAP_K=26` with MIXT. The production lever is
+     `production/qb-cap-20261006` @ `b5514472`; its parity with the harness is confirmed (the ban at count ≥ cap, one
+     running state, spares counted), and the union refuses any other K.
+   - Friday's host rehearsal on the merged head checks the dealt most-used-QB share against the census level (.224 mean,
+     .245 max).
+5. **Transfer:** our projections (the live build uses FP's), the term's stand-in, the Millionaire's ownership field.
+
+## Addendum 141 (2026-10-06): study 36 (less exposure to our most-used players: a stricter general player cap on the winners' mix with the QB cap): NO DIFFERENCE — the cap spreads the book but does not move P(≥ 1 big), and it costs average finish and projection; production's 0.5 cap stays recommended
+
+**Setup.**
+- **The operator (10-06), after agreeing to the recommended book** (the winners' mix + the ownership tilt + study 35's
+  per-QB cap): "let's consider if we need to change the way it's still including the other most used player."
+- **What the data showed first** (descriptive; aggregates only):
+  - The regulars' most-used non-QB player is in .525 of their entries, about ours (.549).
+  - **The difference is DEPTH.** Their 2nd / 5th / 10th sit at .431 / .296 / .205, with about 1.8 players over 40% of
+    entries and 77 distinct non-QB players. Our recommended book has .537 / .510 / .402, 9.4 players over 40% and 26
+    distinct.
+  - Production's player cap (0.5 × K = 13 of 26 rows) binds for about ten players.
+- **Arms** (study 35's harness unchanged: 36 slates, Rev3, K 26, DST cap 6, head, `enter_layout` `3cb051ac…`, the 0.20
+  term, the per-QB cap of 5 rows in every arm):
+  - MIXT_QA, the reference: production's player cap 0.5 (13 rows), the book he said yes to;
+  - **MIXT_QAP (DECISION):** the general player cap at 0.35 (9 rows);
+  - MIXT_QAP2 (exploratory): 0.40 (10 rows).
+  - **The shares came from an outcome-blind calibration census.** A is the loosest share with at most 3 non-QB
+    players over 40% of the dealt entries (the regulars' 75th percentile); B is the loosest with at most 6. The cost
+    on paper is −1.33 / −0.95 projected points per lineup.
+  - **Disclosed before freezing: a flat cap makes a plateau.** It does not reproduce the regulars' falling curve: at
+    0.35 the top fifteen players sit near 35–39%, and the count over 30% rises from 11.5 to 14.8. The study therefore
+    answers "less exposure to our most-used players", not "copy the regulars' curve".
+  - The production lever exists: `UNION_MAIN_CAP` → `--main-cap-share`; the binding census asserted every row's caps
+    equal production's floors.
+- **Preregistration:** `reports/2026-10-06-prereg-study36-player-cap.md` (frozen `dcbe0668`).
+- **Panel:** banks 1461–1466, B 20,000, seed 20261018.
+  - The confirmatory census holds on the scored banks (216/216, code `b052a0e` clean, caps asserted on every row).
+  - The most-used non-QB player: QA .549, QAP .394, QAP2 .433. Players over 40%: 9.47 / 0.17 / 3.72.
+  - Projection against QA: −1.31 (QAP) and −0.93 (QAP2) per lineup.
+- **Read and reproduced:**
+  - Read by the reviewer.
+  - **Reproduced byte-identically by the laptop** (`cmp` clean): reader `f915e950`; READ `885ff890`; raw 1461
+    `e8f98910` … 1466 `9c20f748`.
+    - It used its own lab worktree detached at `de9b0f8`, with its own integration worktree's `src` (`enter_layout`
+      `3cb051ac…`, the pin), so the reproduction does not share the reviewer's production path.
+    - It checked the reader and experiment shas against the prereg pins, and the banks and plan against
+      RAW_MANIFEST. It also checked that the confirmatory census (`b4f2433`, 12:07) was committed before the READ
+      (`de9b0f8`, 12:11).
+  - Lab: nfl2 `production/s36-player-cap-20261006`.
+
+**Reader output (verbatim):**
+```
+STUDY 36 READER  sha256 f915e9504121c18b455a936fb0830b7f9dc10db7f929cfb469ac033956420381
+DIRECTION: P(>= 1 big seat) per slate (the mean over its banks); every difference is ARM - REFERENCE; POSITIVE favours the first arm.
+slates 36  banks [1461, 1462, 1463, 1464, 1465, 1466]  B 20000  seed 20261018  primary MIXT_QAP - MIXT_QA, two-sided 0.95, guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80  player-cap shares ['{"A": 0.35, "B": 0.4}']
+
+== MIXT_QAP vs MIXT_QA  [DECISION: the stricter general player cap]
+  PRIMARY P(>= 1 big seat) per slate -0.00041  [-0.08406, +0.09292]  seasons 2023 +0.03580, 2024 -0.03662
+  GUARD 1 mean entry pct -0.02410  one-sided lower -0.04307  (must exceed -0.015)
+  GUARD 2 expected big seats 0.69312 vs 0.64926  ratio 1.068  (must be >= 0.80)
+  MIXT_QAP dealt identical to MIXT_QA: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+
+== EXPLORATORY (never decision-bearing)
+  MIXT_QAP2 - MIXT_QA (the milder player cap): +0.00278  [-0.06411, +0.07879]  seasons 2023 +0.02927, 2024 -0.02372
+
+secondaries (slate means):
+  MIXT_QA P(>=1 big) 0.37355  expected big seats 0.64926  P(>=2) 0.15460  entry pct 0.57750  dealt 2nd non-QB player 0.538  non-QB players over 40% 9.47  top QB 0.224
+  MIXT_QAP P(>=1 big) 0.37314  expected big seats 0.69312  P(>=2) 0.16968  entry pct 0.55341  dealt 2nd non-QB player 0.384  non-QB players over 40% 0.17  top QB 0.223
+  MIXT_QAP2 P(>=1 big) 0.37633  expected big seats 0.68575  P(>=2) 0.17334  entry pct 0.55842  dealt 2nd non-QB player 0.421  non-QB players over 40% 3.72  top QB 0.223
+```
+
+**Reading.**
+1. **At the frozen rule: NO DIFFERENCE.**
+   - MIXT_QAP − MIXT_QA −0.0004 [−0.084, +0.093]; the seasons split (+0.036 / −0.037).
+   - The milder cap: +0.003 [−0.064, +0.079].
+2. **Guard 1 is breached, and the breach is MEASURED** (not a cost on paper). The mean entry percentile falls from
+   .578 to .553 (−0.0241; one-sided lower −0.0431, beyond the −0.015 margin).
+   - **The guards gate a PASS only, per the frozen reader.** Its `verdict()` (unchanged since `e1d0304`, pinned by
+     sha) evaluates them only inside the PASS branch (lower bound > 0, at most one negative season). A primary
+     interval that spans 0 therefore reads NO DIFFERENCE whatever the guards show. Study 35's reader has the same
+     structure.
+   - **A text gap, disclosed (the laptop's audit):** §4 lists "PASS / FAIL (guard) / NO DIFFERENCE" without saying
+     this. The code resolves it, and the verdict stands. **From study 37 on, §4 states in words that the guards gate a
+     PASS only**, the same rule as the reader tests (the text must say what the code does).
+   - The shortfall is reported as part of what the choice costs.
+3. **Where the seats go:** expected big seats .649 → .693 (×1.07) and P(≥ 2) .155 → .170, while P(≥ 1) is flat
+   (.374 → .373). A spread book adds seats on the weeks it already hits, not more weeks with a hit, and his goal is the
+   weeks.
+4. **What it changes:** the most-used non-QB player falls from .549 to .394 of the entries, and the players over 40%
+   from 9.47 to 0.17. The QB cap is untouched (top QB .224 / .223).
+5. **By frozen §5 (NO DIFFERENCE):** depth is his taste, told plainly what it costs: −1.31 projected points per lineup,
+   and an average entry about 2.4 percentile points lower (the data cannot rule out 4.3).
+   - **Recommended: keep production's 0.5 cap** (`UNION_MAIN_CAP` unset; the QB cap as armed). Nothing measured favours
+     the spread on his goal, and the average-finish shortfall exceeds the margin we set. The laptop agrees.
+   - **It is study 1b's pattern again.** At K 105 a ~30% cap cost mean finish while its ticket secondaries went the
+     other way. A flatter book trades average finish for more seats in the weeks that hit, and does not move the
+     number his goal counts.
+6. **Transfer:** our projections (the live build uses FP's), the term's stand-in, the Millionaire's ownership field.
