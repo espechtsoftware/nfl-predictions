@@ -378,3 +378,21 @@ def test_plan_weights_refuse_a_pinned_plan_under_a_layout_that_ignores_pins(tmp_
     f = tmp_path / "contests.json"; f.write_text(json.dumps(plan))
     with pytest.raises(ValueError, match="pinned contests need the head or spread layout"):
         M.plan_weights(f, 4, "sequential")
+
+
+def test_the_per_qb_cap_limits_every_qb_and_is_inert_when_off(monkeypatch):
+    """Study 35's lever (operator 10-06: QB diversity): with qb_cap, a QB already in qb_cap rows is banned from later solves,
+    in the book and the spares alike; without it the book is exactly today's."""
+    fr = _frame(); k = 21; weights = W_DRAFT_A[:k]
+    _install(monkeypatch, [])
+    base, base_cells, _, _ = ur.mix_rows(fr, set(), k, 7, 4, 49_000, weights, exposure_cap=10, dst_cap=5)
+    _install(monkeypatch, [])
+    off, off_cells, _, _ = ur.mix_rows(fr, set(), k, 7, 4, 49_000, weights, exposure_cap=10, dst_cap=5, qb_cap=None)
+    assert off == base and off_cells == base_cells                       # inert when off
+    qbs = set(fr[fr.pos == "QB"].id)
+    top = max(Counter(p for r in base for p in r if p in qbs).values())
+    assert top > 3                                                        # the uncapped book concentrates its QBs
+    _install(monkeypatch, [])
+    capped, _, _, spares = ur.mix_rows(fr, set(), k, 7, 4, 49_000, weights, exposure_cap=10, dst_cap=5, qb_cap=3, spares=4)
+    used = Counter(p for r in capped + [s for s, _ in spares] for p in r if p in qbs)
+    assert len(capped) == k and max(used.values()) <= 3 and len(used) > len(Counter(p for r in base for p in r if p in qbs))

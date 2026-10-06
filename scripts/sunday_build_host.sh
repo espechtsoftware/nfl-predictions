@@ -305,6 +305,8 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   fi
   [[ -n "${UNION_SLEEVE_CAP:-}" ]] && UNION_ARGS+=(--sleeve-cap-share "$UNION_SLEEVE_CAP")
   [[ -n "${UNION_MAIN_DST_CAP:-}" ]] && UNION_ARGS+=(--main-dst-cap "$UNION_MAIN_DST_CAP")
+  # study 35's per-QB cap in ROWS (operator 10-06: QB diversity); default unset = off, as before
+  [[ -n "${UNION_MAIN_QB_CAP_ROWS:-}" ]] && UNION_ARGS+=(--main-qb-cap-rows "$UNION_MAIN_QB_CAP_ROWS" --main-qb-cap-k "${UNION_MAIN_QB_CAP_K:-}")
   [[ "${UNION_SLEEVE_INCLUDES_MAIN:-0}" == "1" ]] && UNION_ARGS+=(--sleeve-includes-main)
   [[ -n "${MEAN_DST_CAP:-}" ]] && UNION_ARGS+=(--mean-dst-cap "$MEAN_DST_CAP")
   [[ -n "${UNION_DK_STATUS:-}" ]] && UNION_ARGS+=(--dk-status "$UNION_DK_STATUS")
