@@ -107,7 +107,7 @@ using the cash lines of my first draft plan (9–22% of the field paid):
 ## 4. The Week-5 contest plan: your final entries (Rev2, 10-06)
 
 - **29 contests, 53 entries**, built from your final entries file (Rev2). It keeps everything below and adds:
-  - **the $20-Millionaire super-satellites** (the cheap 25-seat ones), 27 entries in all. Your words: "For those, I
+  - **the $20-Millionaire super-satellites** (the cheap 25-seat ones), 26 entries in all. Your words: "For those, I
     only want to reuse my top lineups that I'm using elsewhere. I don't want to have one of those do better than a big
     contest and feel bad that I should have entered it elsewhere. My hope with those is to win many". So each of them
     gets your top lineups (rows 1–5, 1–3, 1–2 or 1), never a lineup of its own;
