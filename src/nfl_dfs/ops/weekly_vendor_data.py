@@ -5,6 +5,14 @@ starts any long-running work. Once those checks (or terminal login prompts)
 finish, it can be left unattended. The Odds API step executes the deployed
 Cloud Run job, so the API key remains in Secret Manager rather than the local
 ``.env`` file.
+
+SCHEDULE (2026-10-06): start it on WEDNESDAY with the SIS acquisition, and never
+before Tuesday 13:00 CT. The Route Share importer refuses a source week whose
+file was retrieved before noon CT on the day after that week's last kickoff
+(Fantasy Points revises Monday-night numbers on Tuesday morning), so an earlier
+run fails the Route page loudly (a true FAIL). Thursday's s-features-route
+rebuild reads the week imported here. ``--route-operator-early`` overrides the
+gate and is recorded.
 """
 
 from __future__ import annotations
@@ -234,6 +242,7 @@ def run_week(
     region: str = DEFAULT_REGION,
     headed: bool = False,
     write_route: bool = True,
+    route_operator_early: bool = False,
     write_alignment: bool = True,
     collect_fp_families: bool = True,
     write_fp_families: bool = True,
@@ -314,6 +323,7 @@ def run_week(
             "sis_team_context_import": bool(_is_team_context_plan(sis_plan)),
             "write_sis_team_context": bool(write_sis_team_context),
             "write_route": bool(write_route),
+            "route_operator_early": bool(route_operator_early),
             "write_alignment": bool(write_alignment),
             "fantasy_points_defense_proe_plan": (
                 str(fp_proe_plan) if collect_fp_families and week >= 2 else None
@@ -521,13 +531,18 @@ def run_week(
                 target_week=week,
             ),
         )
+        # NOT fatal (2026-10-06): a vendor revision of stored rows or a file retrieved before the week's settle time is
+        # printed loudly by the importer, recorded here, and named by the paid-page gate at the end; the run goes on so
+        # the other paid pages (PROE, the families, SIS) are still captured. Nothing is ever deleted automatically.
         step(
             "fantasy-points-route-import",
             lambda: fantasy_points_route_weekly.run(
                 fp_manifest.parent,
                 target_week=week,
                 write=write_route,
+                operator_early=route_operator_early,
             ),
+            fatal=False,
         )
         if collect_fp_families:
             proe_manifest = step(
@@ -765,6 +780,11 @@ def _parser() -> argparse.ArgumentParser:
         help="validate Route Share without archiving/appending the guarded import",
     )
     run.add_argument(
+        "--route-operator-early",
+        action="store_true",
+        help="import a Route Share source week retrieved before its settle time (noon CT the day after its last kickoff); recorded",
+    )
+    run.add_argument(
         "--audit-only-alignment",
         action="store_true",
         help="validate alignment without archiving/appending the guarded import",
@@ -857,6 +877,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         region=args.region,
         headed=args.headed,
         write_route=not args.audit_only_route,
+        route_operator_early=args.route_operator_early,
         write_alignment=not args.audit_only_alignment,
         collect_fp_families=not args.skip_fp_families,
         write_fp_families=not args.audit_only_fp_families,
