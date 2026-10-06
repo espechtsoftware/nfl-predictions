@@ -112,8 +112,19 @@ def check_clone_levers(clone, tail_sleeve):
         u = os.environ["UNION_SATURDAY_RUN"]
         if u != "auto" and not Path(u, "receipt.json").is_file():
             fail(f"UNION_SATURDAY_RUN={u!r} is neither 'auto' nor a run dir with a receipt")
-        if os.environ.get("UNION_MAIN", "mean") not in ("mean", "pmo_x50"):
-            fail(f"UNION_MAIN={os.environ.get('UNION_MAIN')!r} must be mean or pmo_x50")
+        if os.environ.get("UNION_MAIN", "mean") not in ("mean", "pmo_x50", "mix"):
+            fail(f"UNION_MAIN={os.environ.get('UNION_MAIN')!r} must be mean, pmo_x50 or mix")
+        if os.environ.get("UNION_MAIN") == "mix":
+            # study 18's shape portfolio solves with optimize(second_game_pair=, qb_game_max=): a clone without them would
+            # raise TypeError at the Sunday solve. Checked by CAPABILITY in the clone's own optimize() (frozen-chain rule 7:
+            # content, not a commit constant), as the levers above are; the Week-5 re-pin f69598b is the first such clone.
+            lineup = clone / "src" / "nfl2" / "core" / "lineup.py"
+            ltext = lineup.read_text() if lineup.is_file() else ""
+            if not ("second_game_pair" in ltext and "qb_game_max" in ltext and "def _apply_game_shape" in ltext):
+                fail(f"UNION_MAIN=mix needs the pinned lab clone's optimize() to take second_game_pair and qb_game_max "
+                     f"(lab production/live-pin-w5-20261006 @ f69598b or later); {clone} lacks them")
+            if not Path(os.environ.get("CONTESTS_JSON", "")).is_file():
+                fail(f"UNION_MAIN=mix needs CONTESTS_JSON (the interleave's plan weights); got {os.environ.get('CONTESTS_JSON')!r}")
         dose = os.environ.get("UNION_SAT_DOSE", "2560/10240")
         if not re.fullmatch(r"\d+/\d+(,\d+/\d+)*", dose):     # an ordered list since 10-01 (week_env; cracks audit B)
             fail(f"UNION_SAT_DOSE={dose!r} must be lev/boom[,lev/boom...]")

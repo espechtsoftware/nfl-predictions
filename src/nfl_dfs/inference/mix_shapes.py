@@ -102,6 +102,9 @@ def shape_violations(ids, cell: str | None, pos: dict, team: dict, opp: dict, ga
     if r.get("bring_back_max") is not None and bring > r["bring_back_max"]:
         v.append(f"{bring} bring-backs > {r['bring_back_max']}")
     skill = [i for i in ids if pos.get(i) != "DST"]
+    unmapped = [i for i in skill if game.get(i) in (None, "", "None", "nan")]
+    if unmapped:                         # a missing game id could fake a pair or dodge the QB-game cap: fail, never guess
+        return v + [f"players without a game id: {unmapped[:3]}"]
     qg = game.get(q)
     if qmax is not None and sum(1 for i in skill if game.get(i) == qg) > qmax:
         v.append(f"{sum(1 for i in skill if game.get(i) == qg)} players from the QB's game > {qmax}")

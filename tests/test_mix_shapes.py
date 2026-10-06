@@ -245,3 +245,11 @@ def test_mix_rows_orders_by_the_interleave_and_reports_entry_shares(monkeypatch)
     assert len(rows) == 21 == len(cells) and set(cells) <= set(M.MIX_CELLS)
     shares = meta["entry_shares_before_overlap_limit"]
     assert abs(sum(shares.values()) - 1) < 1e-9
+
+
+def test_a_player_without_a_game_id_fails_the_check():
+    pos, team, opp, game = _maps()
+    b_row = ["a_qb", "a_wr1", "b_wr", "c_wr", "d_te", "e_rb", "c_rb", "f_wr", "c_dst"]
+    g2 = dict(game); g2.pop("c_wr"); g2["d_te"] = None
+    v = M.shape_violations(b_row, "B", pos, team, opp, g2)
+    assert len(v) == 1 and v[0].startswith("players without a game id")

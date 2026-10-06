@@ -273,3 +273,25 @@ def test_field_sleeve_rows_are_held_to_their_declared_limits(tmp_path):
     assert "stack_rules" in run(tmp_path / "e", [nostack], ["field"], top)             # top mode keeps the house stack
     free = {"used": True, "max_game": 5, "house_rules_applied": False}
     assert "stack_rules" not in run(tmp_path / "f", [nostack], ["field"], free)
+
+
+def test_mix_rows_are_held_to_their_own_cell(tmp_path):
+    """--main mix (study 18): a row tagged mix_<cell> is checked against THAT cell's shape; a mix-main row without a known
+    cell tag fails; an untagged row keeps the house check. Without this the union's audit refuses every MIX book."""
+    b_row = ["AQB", "AWR1", "BRB1", "CRB0", "DWR0", "CWR2", "DTE", "EWR1", "G_DST"]     # QB+1, bb 1, 3 from g1, pair in g2
+    base = [_lineup("A", "B", "C"), _lineup("C", "D", "E"), _lineup("E", "F", "G"), _lineup("G", "H", "A"), _lineup("B", "A", "D")]
+
+    def run(tmp, tag, src):
+        r = _run_dir(tmp, lineups=base + [b_row], book=base)
+        c = pd.read_parquet(r / "candidates.parquet")
+        c["tag"] = ["lev"] * len(base) + [tag]; c["source_run"] = ["t70"] * len(base) + [src]
+        c.to_parquet(r / "candidates.parquet")
+        return _audit(r)
+
+    ok = run(tmp_path / "a", "mix_B", "mix")
+    assert "stack_rules" not in ok["failed"]
+    assert next(c for c in ok["checks"] if c["check"] == "stack_rules")["mix_rows"] == 1
+    assert "stack_rules" in run(tmp_path / "b", "mix_A1", "mix")["failed"]          # the wrong cell: 1 mate < 2
+    assert "stack_rules" in run(tmp_path / "c", "pmo_x50", "mix")["failed"]         # a mix-main row with no cell tag
+    assert "stack_rules" in run(tmp_path / "d", "mix_Q", "mix")["failed"]           # an unknown cell
+    assert "stack_rules" in run(tmp_path / "e", "lev", "t70")["failed"]             # untagged: the house rule, as before

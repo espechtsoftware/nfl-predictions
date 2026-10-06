@@ -114,3 +114,21 @@ def test_a_missing_prerequisite_skips_its_dependants_without_crashing(tmp_path):
     found = _failures(r)
     assert found[0] == "missing environment: CLONE"
     assert any(f.startswith("contest file missing") for f in found), found
+
+
+def test_union_main_mix_needs_a_clone_whose_optimize_takes_the_shape_options(tmp_path):
+    """--main mix (study 18) solves with optimize(second_game_pair=, qb_game_max=): a clone without them must fail at
+    arming, never with a TypeError at the Sunday solve. Checked by capability in the clone's lineup.py."""
+    env = _healthy(tmp_path); env["UNION_MAIN"] = "mix"
+    fails = _failures(_run(env))
+    assert any("UNION_MAIN=mix needs the pinned lab clone's optimize() to take second_game_pair and qb_game_max" in f for f in fails)
+    clone = Path(env["CLONE"])
+    (clone / "src" / "nfl2" / "core").mkdir(parents=True)
+    (clone / "src" / "nfl2" / "core" / "lineup.py").write_text(
+        "def optimize(pool, second_game_pair=None, qb_game_max=None): pass\ndef _apply_game_shape(): pass\n")
+    g = ["git", "-C", str(clone), "-c", "user.name=t", "-c", "user.email=t@t", "-c", "commit.gpgsign=false"]
+    subprocess.run(g + ["add", "-A"], check=True); subprocess.run(g + ["commit", "-q", "-m", "re-pin"], check=True)
+    env["EXPECT_SHA"] = subprocess.run(g[:3] + ["rev-parse", "HEAD"], check=True, capture_output=True, text=True).stdout.strip()
+    assert not any("UNION_MAIN" in f for f in _failures(_run(env)))
+    env["UNION_MAIN"] = "bogus"
+    assert any("must be mean, pmo_x50 or mix" in f for f in _failures(_run(env)))

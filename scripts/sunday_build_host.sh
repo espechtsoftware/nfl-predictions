@@ -269,6 +269,8 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
               --entries "$BOOK_ENTRIES" --tail-sleeve "$TAIL_SLEEVE" --mean-max-shared 7 --min-proj "${LIVE_MIN_PROJ:-1.0}"
               --max-per-game "${MAX_PER_GAME:-4}" --min-salary "${MIN_LINEUP_SALARY:-49000}" --pmo "${UNION_PMO:-0}" --pmo-cap-share "${UNION_PMO_CAP:-0.5}" --main "${UNION_MAIN:-mean}")
   [[ -n "${UNION_MAIN_CAP:-}" ]] && UNION_ARGS+=(--main-cap-share "$UNION_MAIN_CAP")
+  # study 18's shape portfolio (--main mix): the interleave's entry weights come from THIS week's plan and layout
+  [[ "${UNION_MAIN:-mean}" == "mix" ]] && UNION_ARGS+=(--mix-plan "$CONTESTS_JSON" --mix-layout "${ENTER_LAYOUT:-head}")
   [[ -n "${UNION_SLEEVE_CAP:-}" ]] && UNION_ARGS+=(--sleeve-cap-share "$UNION_SLEEVE_CAP")
   [[ -n "${UNION_MAIN_DST_CAP:-}" ]] && UNION_ARGS+=(--main-dst-cap "$UNION_MAIN_DST_CAP")
   [[ "${UNION_SLEEVE_INCLUDES_MAIN:-0}" == "1" ]] && UNION_ARGS+=(--sleeve-includes-main)
@@ -294,7 +296,7 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
       OWN_SRC=""; OWN_TILT="0"
     fi
   }
-  if [[ "${UNION_MAIN:-mean}" == "pmo_x50" && "${UNION_MAIN_OWN_TILT:-0}" != "0" ]]; then
+  if [[ ( "${UNION_MAIN:-mean}" == "pmo_x50" || "${UNION_MAIN:-mean}" == "mix" ) && "${UNION_MAIN_OWN_TILT:-0}" != "0" ]]; then
     ( cd "$PROD" && PYTHONPATH="$PROD/src" timeout 120 "$PROD_PY" scripts/linestar_ownership_capture.py --season "$SEASON" --week "$WEEK" \
         --out "$LINESTAR_DIR" --label "$RUN_TAG" ) || echo "LINESTAR CAPTURE FAILED for $RUN_TAG; the newest earlier capture stands"
     BLEND_SRC=""
@@ -370,6 +372,9 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   # the exact arguments of the last union call, kept with the union dir so Monday can rebuild the incumbent's book on
   # paper from the same inputs (scripts/union_paper_rebuild.sh; adoption track v2's unchanged comparison)
   run_union() { printf '%q ' "$@" > "$OUT/union-args-$RUN_TAG.txt"; ( cd "$PROD" && LIVE_FLEX_LATEST="${LIVE_FLEX_LATEST:-1}" PYTHONPATH="$CLONE/src:$PROD/src" "$LAB_PY" scripts/union_reselect.py "$@" 2>&1 | tee "$OUT/union-$RUN_TAG.txt"; return "${PIPESTATUS[0]}" ); }
+  # shellcheck source=union_fallbacks.sh
+  source "$PROD/scripts/union_fallbacks.sh"                 # mix_fallback: MIX REFUSED -> HOUSE MAIN (C), loudly
+  UNION_MAIN_EFFECTIVE="${UNION_MAIN:-mean}"
   UNION_RC=0; run_union "${UNION_ARGS[@]}" || UNION_RC=$?
   if (( UNION_RC != 0 )) && grep -q 'OWN TERM REFUSED' "$OUT/union-$RUN_TAG.txt"; then
     # the union refused the term's file or its solves (named, before any output): step down to the lag file at the lag
@@ -388,8 +393,9 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
       UNION_RC=0; run_union "${UNION_ARGS[@]}" || UNION_RC=$?
     fi
   fi
+  mix_fallback                                               # a refused MIX main re-runs as the house main (term kept)
   if (( UNION_RC != 0 )); then
-    if [[ "${UNION_MAIN:-mean}" == "pmo_x50" ]] && grep -q 'PMO_X50 MAIN REFUSED' "$OUT/union-$RUN_TAG.txt"; then
+    if [[ "$UNION_MAIN_EFFECTIVE" == "pmo_x50" ]] && grep -q 'PMO_X50 MAIN REFUSED' "$OUT/union-$RUN_TAG.txt"; then
       # fail closed, named (operator spec 14:05): the capped optimizer could not reach K rows; the union's MEAN main is built
       # instead, in capitals, and the run dir carries the refusal
       echo "PMO_X50 MAIN REFUSED -- $(grep 'PMO_X50 MAIN REFUSED' "$OUT/union-$RUN_TAG.txt" | tail -1); BUILDING THE UNION'S MEAN MAIN INSTEAD"
@@ -406,6 +412,8 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   UNION_DIR=$(sed -n 's/^UNION -> //p' "$OUT/union-$RUN_TAG.txt" | tail -1)
   [[ -n "$UNION_DIR" && -n "${OWN_REFUSED:-}" && ! -f "$UNION_DIR/own_term_refused.txt" ]] && cp "$OUT/union-$RUN_TAG-own-refused.txt" "$UNION_DIR/own_term_refused.txt"
   [[ -n "$UNION_DIR" && -f "$OUT/union-args-$RUN_TAG.txt" ]] && cp "$OUT/union-args-$RUN_TAG.txt" "$UNION_DIR/union_args.txt"
+  [[ -n "$UNION_DIR" && -f "$OUT/union-$RUN_TAG-mix-refused.txt" ]] && cp "$OUT/union-$RUN_TAG-mix-refused.txt" "$UNION_DIR/mix_refused.txt" \
+    && echo "!!! MIX REFUSED for this union; it carries the HOUSE main (C): $UNION_DIR/mix_refused.txt"
   [[ -n "$UNION_DIR" && -f "$OUT/own_term_fallback-$RUN_TAG.txt" ]] && cp "$OUT/own_term_fallback-$RUN_TAG.txt" "$UNION_DIR/own_term_fallback.txt" \
     && echo "!!! OWNERSHIP TERM FELL BACK for this union: $UNION_DIR/own_term_fallback.txt"
   [[ -n "$UNION_DIR" && -f "$UNION_DIR/receipt.json" ]] || { echo "union run dir not found in $OUT/union-$RUN_TAG.txt"; touch "$K90_DIR/union_failed"; exit 1; }

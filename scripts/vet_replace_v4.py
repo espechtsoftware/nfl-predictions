@@ -98,6 +98,24 @@ def main():
     dk_status = dict(zip(f.dk, f.status.astype(str).str.upper().str.strip())) if "status" in f.columns else {}
     gsis_of = dict(zip(f.dk, f.gsis_id.astype(str)))
     vr_args = [f.set_index("id")[k].to_dict() for k in ("pos", "team", "opp", "salary")]
+    # --main mix (study 18's shape portfolio): every book row keeps ITS cell's shape, read from the source run's candidate
+    # tags (mix_<cell>; nfl_dfs.inference.mix_shapes); a replacement takes the removed row's cell; untagged rows keep the
+    # house rules. Without a mix main nothing below changes.
+    _mix = ((src.get("config", {}).get("union") or {}).get("main") == "mix")
+    cell_at: dict[int, str | None] = {}
+    if _mix:
+        from nfl_dfs.inference.mix_shapes import MIX_CELLS, cell_of_tag, shape_violations
+        _game_of_id = f.set_index("id")["game_id"].astype(str).to_dict()
+        _cc = pd.read_parquet(run / "candidates.parquet")
+        _cell_of_set: dict = {}
+        for _pl, _tg in zip(_cc["players"].astype(str), _cc["tag"].astype(str)):
+            _cell = cell_of_tag(_tg)
+            if _cell is not None:
+                _cell_of_set.setdefault(frozenset(id_to_dk.get(t.strip()) for t in _pl.split(",")), _cell)
+        cell_at = {p: _cell_of_set.get(frozenset(r)) for p, r in enumerate(book)}
+
+        def mix_violations(toks, cell):
+            return shape_violations(toks, cell, vr_args[0], vr_args[1], vr_args[2], _game_of_id)
     game_arg = f.set_index("id")["game_id"].to_dict() if "game_id" in f.columns else None
 
     # ---- whole-slate statuses: report status (latest row per player) + QB classes ----
@@ -180,6 +198,7 @@ def main():
         cands = pd.read_parquet(run / "candidates.parquet")
         book_sets = {frozenset(r) for r in book}
         pool_idx, pool_meta, rejected = [], [], {"unmapped": 0, "in_book": 0, "excluded": 0, "risky": 0, "illegal": 0}
+        pool_cells: list[set] = []                          # --main mix: the cells each admitted candidate fits
         for ci, players in enumerate(cands["players"].astype(str)):
             toks = [t.strip() for t in players.split(",")]
             dks = [id_to_dk.get(t) for t in toks]
@@ -187,7 +206,12 @@ def main():
             if frozenset(dks) in book_sets: rejected["in_book"] += 1; continue
             if any(d in E for d in dks): rejected["excluded"] += 1; continue
             if not a.admit_risky and any(d in risky for d in dks): rejected["risky"] += 1; continue
-            if validate_roster(toks, *vr_args, salary_floor=49000, qb_stack_min=2, bring_back_min=1, forbid_rb_vs_dst=True, forbid_two_rb_same_team=True): rejected["illegal"] += 1; continue
+            if _mix:
+                if validate_roster(toks, *vr_args, salary_floor=49000, forbid_rb_vs_dst=True, forbid_two_rb_same_team=True): rejected["illegal"] += 1; continue
+                fits = {c for c in MIX_CELLS if not mix_violations(toks, c)}
+                if not fits: rejected["illegal"] += 1; continue
+                pool_cells.append(fits)
+            elif validate_roster(toks, *vr_args, salary_floor=49000, qb_stack_min=2, bring_back_min=1, forbid_rb_vs_dst=True, forbid_two_rb_same_team=True): rejected["illegal"] += 1; continue
             pool_idx.append([row_of[d] for d in dks]); pool_meta.append((ci, dks))
         if not pool_idx:
             raise SystemExit("no eligible replacement candidates")
@@ -198,6 +222,9 @@ def main():
         for p in remove_positions:
             gain = np.maximum(M[None, :], T).mean(axis=1) - M.mean()
             if used: gain[list(used)] = -np.inf
+            if _mix:                                         # only a candidate that fits the removed row's cell (house = A1)
+                need = cell_at.get(p) or "A1"
+                gain[[j for j, fits in enumerate(pool_cells) if need not in fits]] = -np.inf
             j = int(np.argmax(gain)); used.add(j); ci, dks = pool_meta[j]
             if not np.isfinite(gain[j]):
                 (out / "replace.json").write_text(json.dumps({"version": "vet-replace-v4.1", "status": "FAILED", "problems": ["non-finite replacement gain"]}, indent=1) + "\n")
@@ -205,7 +232,8 @@ def main():
             new = reslot(dks, pos_of)
             replaced_info.append({"vetted_position": p + 1, "source_rank": order[p], "removed": [name_of[d] for d in book[p]],
                                   "removed_because": {name_of[d]: reasons[d] for d in book[p] if d in E},
-                                  "replacement": [name_of[d] for d in new], "candidate_index": int(ci), "gain_corrected_mix": float(gain[j])})
+                                  "replacement": [name_of[d] for d in new], "candidate_index": int(ci), "gain_corrected_mix": float(gain[j]),
+                                  **({"cell": cell_at.get(p) or "house"} if _mix else {})})
             M = np.maximum(M, T[j]); book[p] = new
         pool_summary = {"eligible": int(len(pool_idx)), "rejected": rejected}
     else:
@@ -227,6 +255,9 @@ def main():
         # held to DraftKings legality only; the main block and every replacement keep the house rules
         if p >= _kb and _sleeve_free:
             v = validate_roster([dk_to_id[d] for d in r], *vr_args)
+        elif _mix and cell_at.get(p) is not None:            # a mix row: DK legality + the floor + ITS cell's shape
+            _t = [dk_to_id[d] for d in r]
+            v = validate_roster(_t, *vr_args, salary_floor=49000, forbid_rb_vs_dst=True, forbid_two_rb_same_team=True) + mix_violations(_t, cell_at[p])
         else:
             v = validate_roster([dk_to_id[d] for d in r], *vr_args, salary_floor=49000, qb_stack_min=2, bring_back_min=1, forbid_rb_vs_dst=True, forbid_two_rb_same_team=True)
         if v: problems.append(f"row {p+1}: {v}")
