@@ -184,3 +184,15 @@ def test_union_mix_fill_must_be_group_value_or_rr_with_a_mix_main(tmp_path):
     assert not any("UNION_MIX_FILL" in f for f in _failures(_run(env)))
     env["UNION_MIX_FILL"] = "best"
     assert any("UNION_MIX_FILL='best'" in f for f in _failures(_run(env)))
+
+
+def test_union_mix_cover_games_must_be_0_to_8_with_the_mix(tmp_path):
+    """Study 43's switch: 0 (or unset) is off; 1..8 needs UNION_MAIN=mix and UNION_MIX_PORTFOLIO=mix."""
+    env = _healthy(tmp_path); env["UNION_MIX_COVER_GAMES"] = "0"
+    assert not any("UNION_MIX_COVER_GAMES" in f for f in _failures(_run(env)))
+    env["UNION_MIX_COVER_GAMES"] = "4"
+    assert any("UNION_MIX_COVER_GAMES='4' must be 0..8, with UNION_MAIN=mix" in f for f in _failures(_run(env)))
+    env["UNION_MAIN"] = "mix"; env["UNION_MIX_PORTFOLIO"] = "mix"
+    assert not any("UNION_MIX_COVER_GAMES" in f for f in _failures(_run(env)))
+    env["UNION_MIX_COVER_GAMES"] = "9"
+    assert any("UNION_MIX_COVER_GAMES='9'" in f for f in _failures(_run(env)))

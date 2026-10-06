@@ -458,7 +458,7 @@ def apply_proj_source(fr: pd.DataFrame, csv_path: Path, frame_path: Path) -> tup
 def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap: int | None, min_salary: int,
              weights: list[int], exposure_cap: int | None = None, dst_cap: int | None = None,
              bonus: dict[str, float] | None = None, portfolio: str = "mix",
-             spares: int = 0, qb_cap: int | None = None, fill: str = "group"
+             spares: int = 0, qb_cap: int | None = None, fill: str = "group", cover_games: int = 0
              ) -> tuple[list[list[str]], list[str], dict, list[tuple[list[str], str]]]:
     """study 18's MIX book on the T-70 frame: cells solved largest first (ties: the earlier cell) through ONE shared state
     (banned lineups, the per-player exposure cap, the DST cap, <= max_shared with every earlier row); a cell row that cannot
@@ -478,7 +478,13 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
     rows across cells. A cell that cannot solve passes its remaining quota to A1 (counted); A1 failing ends the fill.
     "rr" (round-robin; the outside reviewer 10-06, the winners' shapes follow the game script, not the QB) takes the cells
     in the group order in turn, one row each while its quota lasts, so the top QBs get a row in each shape; the same pass
-    to A1. The caps, overlap, quotas, interleave and spares are unchanged in every fill."""
+    to A1. The caps, overlap, quotas, interleave and spares are unchanged in every fill.
+    cover_games N (study 43; the operator 10-06 "study 43 sounds the most interesting"; default 0 = off, byte for byte
+    today's book): BEFORE any fill, for each of the pool's top-N games by pre-lock game_total (highest first, ties by game
+    id), one A1 row with every QB NOT in that game banned for that solve, committed through the shared state and counted
+    toward A1's quota; a game whose row cannot be built, or with A1's quota used up, is recorded as missed. Then the fill
+    runs on the remaining quotas; then, only if a coverage row exists, A1's rows are ordered by objective sum, descending
+    and stable (a coverage row takes the deal position its projection earns)."""
     from nfl2.core.lineup import StackRules, optimize          # the pinned lab clone on PYTHONPATH (>= f69598b)
     pool = [p for i, p in frame_players(t70).items() if i not in exclude]
     objective = "proj"
@@ -500,10 +506,10 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
     rows: dict[str, list[list[str]]] = {n: [] for n in names}
     passes = 0
 
-    def peek(name: str):
+    def peek(name: str, extra_bans: frozenset = frozenset()):
         """The cell's next row on the CURRENT state, not committed: (ids, objective value) or (None, None)."""
         _, rules, qmax, which = cells[name]
-        bans = {p for p, c in count.items() if exposure_cap is not None and c >= exposure_cap}
+        bans = {p for p, c in count.items() if exposure_cap is not None and c >= exposure_cap} | set(extra_bans)
         if dst_cap is not None:
             bans |= {p for p, c in count.items() if p in dst_ids and c >= dst_cap}
         if qb_cap is not None:                                  # study 35's per-QB cap (10-06; default off)
@@ -514,19 +520,43 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
             return None, None
         return [str(p["id"]) for p in lu.players], float(sum(p.get(objective, p["proj"]) for p in lu.players))
 
-    def commit(ids: list[str]) -> list[str]:
+    row_value: dict[tuple, float] = {}                         # each committed row's objective sum, as solved
+
+    def commit(ids: list[str], value: float | None = None) -> list[str]:
         prev.append(frozenset(ids)); count.update(ids)
+        if value is not None:
+            row_value[tuple(ids)] = value
         return ids
 
-    def solve(name: str):
-        ids, _ = peek(name)
-        return commit(ids) if ids is not None else None
+    def solve(name: str, extra_bans: frozenset = frozenset()):
+        ids, v = peek(name, extra_bans)
+        return commit(ids, v) if ids is not None else None
 
     group_order = sorted(range(len(names)), key=lambda i: (-target[i], i))
     commit_order: list[str] = []
+    left = dict(zip(names, target))                            # quotas still to fill (the coverage rows use A1's first)
+    cover_list, covered, cover_missed = [], [], []
+    if cover_games:
+        if "A1" not in cells:
+            raise ValueError("cover_games needs the MIX portfolio (an A1 cell)")
+        if "game_total" not in t70.columns:
+            raise SystemExit("COVER REFUSED: the T-70 frame has no game_total (the pre-lock total ranks the games)")
+        pool_ids = {p["id"] for p in pool}
+        gt = t70[t70.id.astype(str).isin(pool_ids)][["game_id", "game_total"]].copy()
+        gt["game_id"] = gt.game_id.astype(str); gt["game_total"] = pd.to_numeric(gt.game_total, errors="coerce")
+        gt = gt.dropna().drop_duplicates("game_id").sort_values(["game_total", "game_id"], ascending=[False, True])
+        cover_list = [str(g) for g in gt.game_id.tolist()[:int(cover_games)]]
+        qb_game = {p["id"]: str(p["game_id"]) for p in pool if p["pos"] == "QB"}
+        for g in cover_list:                                   # coverage first: an A1 row with its QB from game g
+            if left["A1"] <= 0:
+                cover_missed.append(g); continue
+            ids = solve("A1", frozenset(q for q, gg in qb_game.items() if gg != g))
+            if ids is None:
+                cover_missed.append(g); continue
+            rows["A1"].append(ids); left["A1"] -= 1; covered.append(g); commit_order.append("A1")
     if fill == "group":
         for i in group_order:
-            for _ in range(target[i]):
+            for _ in range(left[names[i]]):
                 cell, ids = names[i], solve(names[i])
                 if ids is None and "A1" in cells:              # MIX: a cell row that cannot be solved passes to A1
                     passes += 1; cell = "A1"
@@ -535,7 +565,7 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
                     break
                 rows[cell].append(ids); commit_order.append(cell)
     elif fill == "rr":
-        remaining = {n: t for n, t in zip(names, target)}
+        remaining = dict(left)
         while any(remaining[n] > 0 for n in names):
             for i in group_order:
                 n = names[i]
@@ -549,7 +579,7 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
                     continue
                 rows[n].append(ids); remaining[n] -= 1; commit_order.append(n)
     elif fill == "value":
-        remaining = {n: t for n, t in zip(names, target)}
+        remaining = dict(left)
         while any(remaining[n] > 0 for n in names):
             best = None
             for i in group_order:
@@ -566,10 +596,12 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
                     best = (n, ids, val)
             if best is None:
                 break
-            n, ids, _ = best
-            rows[n].append(commit(ids)); remaining[n] -= 1; commit_order.append(n)
+            n, ids, v = best
+            rows[n].append(commit(ids, v)); remaining[n] -= 1; commit_order.append(n)
     else:
         raise ValueError(f"fill must be 'group', 'value' or 'rr' (got {fill!r})")
+    if covered:                                                # a coverage row takes the deal position its projection earns
+        rows["A1"] = sorted(rows["A1"], key=lambda ids: -row_value[tuple(ids)])
     got = [len(rows[n]) for n in names]
     spare_rows: list[tuple[list[str], str]] = []
     if spares:
@@ -594,6 +626,7 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
     meta = {"cells": {n: {"quota": q, "target_rows": t, "rows": g} for n, q, t, g in zip(names, quotas, target, got)},
             "passes_to_A1": passes, "rows_solved": len(book), "pair_games": len(games), "fill": fill,
             "commit_order": commit_order,
+            "cover": {"games": int(cover_games), "ranked": cover_list, "covered": covered, "missed": cover_missed},
             "entry_shares_before_overlap_limit": {n: round(dealt[n] / tot, 4) if tot else None for n in names},
             "rules": {n: {"quota": cells[n][0], "stack": cells[n][1], "qb_game_max": cells[n][2],
                           "second_game_pair": cells[n][3]} for n in names}, "portfolio": portfolio,
@@ -660,6 +693,9 @@ def main(argv: list[str] | None = None) -> int:
                     help="with --main mix: spare rows solved after the book under the same running caps (caps from --entries), "
                          "added to the candidate corpus (source mix_spare, tagged with their cell) as the Sunday replacement "
                          "step's in-shape supply; never book rows (reviewer 2026-10-06; study 24 sized S = 15)")
+    ap.add_argument("--mix-cover-games", type=int, default=0,
+                    help="with --main mix: before the fill, one A1 row with its QB from each of the top-N games by pre-lock "
+                         "total, counted toward A1's quota (study 43; default 0 = off)")
     ap.add_argument("--mix-fill", choices=["group", "value", "rr"], default="group",
                     help="with --main mix: group (default) = each cell's quota consecutively, largest cell first; value = at each "
                          "step the highest-objective next row across the cells (a capped QB's uses go to his best rows; study 42); rr = the "
@@ -699,6 +735,8 @@ def main(argv: list[str] | None = None) -> int:
         raise SystemExit("--rehearsal needs --out outside --live-dir")
     if a.main_own_tilt and a.main not in ("pmo_x50", "mix"):
         raise SystemExit("--main-own-tilt is defined for --main pmo_x50 / mix (the term sits in the optimizer's objective)")
+    if a.mix_cover_games and (a.main != "mix" or a.mix_portfolio != "mix" or not 0 < a.mix_cover_games <= 8):
+        raise SystemExit("--mix-cover-games N (1..8) needs --main mix with --mix-portfolio mix (study 43)")
     if a.main == "mix" and (a.mix_plan is None or not a.mix_plan.is_file()):
         raise SystemExit(f"--main mix needs --mix-plan (the week's contests.json; got {a.mix_plan})")
     if a.main == "mix" and a.mix_portfolio is None:
@@ -829,6 +867,7 @@ def main(argv: list[str] | None = None) -> int:
             plain_rows, plain_cells, mix_meta, plain_spares = mix_rows(fr, excl, a.entries, a.mean_max_shared, cap, a.min_salary,
                                                                        weights, exposure_cap=xcap, dst_cap=dcap, qb_cap=qcap,
                                                                        portfolio=a.mix_portfolio, fill=a.mix_fill,
+                                                                       cover_games=a.mix_cover_games,
                                                                        spares=0 if bonus else a.mix_spares)
             spare_rows = plain_spares
             plain_tags = [TAG_PREFIX + c for c in plain_cells]; main_tags = plain_tags
@@ -852,7 +891,8 @@ def main(argv: list[str] | None = None) -> int:
             if a.main == "mix":
                 main_rows, main_cells, own_mix, spare_rows = mix_rows(fr, excl, a.entries, a.mean_max_shared, cap, a.min_salary,
                                                                       weights, exposure_cap=xcap, dst_cap=dcap, qb_cap=qcap, bonus=bonus,
-                                                                      portfolio=a.mix_portfolio, spares=a.mix_spares, fill=a.mix_fill)
+                                                                      portfolio=a.mix_portfolio, spares=a.mix_spares, fill=a.mix_fill,
+                                                                      cover_games=a.mix_cover_games)
                 main_tags = [TAG_PREFIX + c for c in main_cells]; mix_meta["with_term"] = own_mix
             else:
                 main_rows = pmo_rows(fr, excl, a.entries, a.mean_max_shared, cap, a.min_salary, set(), exposure_cap=xcap, dst_cap=dcap, qb_cap=qcap, bonus=bonus,

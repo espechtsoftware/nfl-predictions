@@ -536,3 +536,79 @@ def test_rr_fill_keeps_the_caps_and_the_qb_cap(monkeypatch):
     used = Counter(p for r in rows + [s for s, _ in spares] for p in r)
     assert len(rows) == k and max(used[q] for q in qbs if q in used) <= 3 and max(used.values()) <= 10
     assert meta["commit_order"][:4] == ["A1", "B", "C", "A2"]
+
+
+# ------------------------------------- study 43 (operator 10-06): one A1 row per top-N game by total, built first
+def _cover_frame():
+    rows = [{"id": q, "name": q, "pos": "QB", "team": f"T{q}", "opp": f"O{q}", "salary": 6000, "game_id": g,
+             "mean_projection": v, "game_total": t}
+            for q, g, v, t in (("qb_g1", "g1", 7.5, 50.0), ("qb_g2", "g2", 3.0, 48.0), ("qb_g3", "g3", 1.0, 40.0))]
+    return pd.DataFrame(rows)
+
+
+def _cover_stand_in(values, fail_cover=()):
+    """Parity with the lab's scripted builder (lab c98be41 tests/test_s43_game_cover.py): cell c's k-th row is ("c:k",)
+    worth values[c][k]; an A1 solve that bans every QB but one game's is a coverage row (that QB + "cov:k")."""
+    qbs = {"qb_g1": 7.5, "qb_g2": 3.0, "qb_g3": 1.0}
+
+    def optimize(pool, stack, objective_col, banned_lineups, max_overlap, bans, env, second_game_pair=None, qb_game_max=None):
+        name = next(n for n, (_, r, _, _) in M.MIX_CELLS.items() if dataclasses.asdict(StackRules(**r)) == dataclasses.asdict(stack))
+        live = [q for q in qbs if not bans or q not in bans]
+        if name == "A1" and len(live) == 1:
+            if live[0] in fail_cover:
+                return None
+            k = sum(1 for ids in banned_lineups if any(i.startswith("cov:") for i in ids))
+            return LU([{"id": live[0], objective_col: qbs[live[0]]}, {"id": f"cov:{k}", objective_col: 0.0}])
+        k = sum(1 for ids in banned_lineups if any(i.startswith(f"{name}:") for i in ids))
+        return LU([{"id": f"{name}:{k}", objective_col: values[name][k]}])
+    return optimize
+
+
+COVER_VALUES = {"A1": [8, 7, 6, 5, 4, 3, 2, 1], "B": [10, 9, 4, 3, 2, 1, 1, 1], "C": [5] * 8, "A2": [9, 1, 1, 1, 1, 1, 1, 1]}
+
+
+def test_coverage_rows_come_first_count_toward_a1_and_are_ordered_by_value(monkeypatch):
+    """The lab's test of the same name, on production's mix_rows: at k 10 (A1 3), covering the top-2 games builds the g1
+    then the g2 row first, A1 then takes 1 more, and A1's rows deal by value: A1:0 (8), cov g1 (7.5), cov g2 (3)."""
+    lineup = _install(monkeypatch, [])
+    lineup.optimize = _cover_stand_in(COVER_VALUES)
+    rows, cells, meta, _ = ur.mix_rows(_cover_frame(), set(), 10, 7, 4, 49_000, [1] * 10, exposure_cap=10, dst_cap=5,
+                                       cover_games=2)
+    assert meta["cover"] == {"games": 2, "ranked": ["g1", "g2"], "covered": ["g1", "g2"], "missed": []}
+    assert meta["commit_order"][:2] == ["A1", "A1"] and meta["cells"]["A1"]["rows"] == 3
+    a1 = [r for r, c in zip(rows, cells) if c == "A1"]
+    assert a1 == [["A1:0"], ["qb_g1", "cov:0"], ["qb_g2", "cov:1"]]
+
+
+def test_cover_zero_is_todays_book_for_every_fill(monkeypatch):
+    fr = _frame(); k = 21; weights = W_DRAFT_A[:k]
+    for fill in ("group", "value", "rr"):
+        a, b = [], []
+        _install(monkeypatch, a)
+        r0 = ur.mix_rows(fr, set(), k, 7, 4, 49_000, weights, exposure_cap=10, dst_cap=5, spares=5, fill=fill)
+        _install(monkeypatch, b)
+        r1 = ur.mix_rows(fr, set(), k, 7, 4, 49_000, weights, exposure_cap=10, dst_cap=5, spares=5, fill=fill, cover_games=0)
+        assert r0[0] == r1[0] and r0[1] == r1[1] and r0[3] == r1[3] and a == b
+        assert r1[2]["cover"] == {"games": 0, "ranked": [], "covered": [], "missed": []}
+
+
+def test_a_game_that_cannot_be_covered_is_missed_and_the_quota_stays_with_a1(monkeypatch):
+    lineup = _install(monkeypatch, [])
+    lineup.optimize = _cover_stand_in(COVER_VALUES, fail_cover=("qb_g1",))
+    rows, cells, meta, _ = ur.mix_rows(_cover_frame(), set(), 10, 7, 4, 49_000, [1] * 10, exposure_cap=10, dst_cap=5,
+                                       cover_games=3, fill="rr")
+    assert meta["cover"]["covered"] == ["g2", "g3"] and meta["cover"]["missed"] == ["g1"]
+    assert meta["cells"]["A1"]["rows"] == 3 and len(rows) == 10                  # 2 coverage rows + 1 more A1
+    lineup.optimize = _cover_stand_in(COVER_VALUES)
+    _, _, meta, _ = ur.mix_rows(_cover_frame(), set(), 10, 7, 4, 49_000, [1] * 10, exposure_cap=10, dst_cap=5, cover_games=4)
+    assert meta["cover"]["ranked"] == ["g1", "g2", "g3"] and meta["cover"]["missed"] == []   # only 3 games on this slate
+    assert meta["cells"]["A1"]["rows"] == 3                                     # A1's 3 rows are all coverage rows
+
+
+def test_cover_refuses_without_game_total_or_the_mix_portfolio(monkeypatch):
+    lineup = _install(monkeypatch, [])
+    lineup.optimize = _cover_stand_in(COVER_VALUES)
+    with pytest.raises(SystemExit, match="COVER REFUSED"):
+        ur.mix_rows(_cover_frame().drop(columns="game_total"), set(), 10, 7, 4, 49_000, [1] * 10, cover_games=2)
+    with pytest.raises(ValueError, match="needs the MIX portfolio"):
+        ur.mix_rows(_cover_frame(), set(), 10, 7, 4, 49_000, [1] * 10, cover_games=2, portfolio="ws")
