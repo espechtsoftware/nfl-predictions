@@ -50,6 +50,10 @@ chat. Private paths stay private (no dollars, no entries here).
    (`optimize(second_game_pair, qb_game_max)`); the house shape could stay on `32cdb61`.
 
 ## Saturday 10-10 (the laptop arms; fail-stop script, ask only if blocked)
+- **DRAFTED 10-06: `~/.cache/laptop-agent/w5_arm_saturday.sh`** (host-local).
+  - Friday: set SHAPE (mixt | ct) and FRIDAY_HEAD; confirm the dose (0 / 4800).
+  - It refuses until those are set. It checks Rev3's sha and K 26, and arms 11 timers (9 late).
+  - `--check` runs steps 0 and 6 only.
 - A host-local Week-5 arm script from `~/.cache/laptop-agent/w4_arm_saturday.sh`: GROUP 154468; the inputs (sets, lag +
   gate, TabPFN lags); **no LineStar step**; the arm line per his Friday choices, e.g. `UNION_MAIN=mix
   UNION_MIX_PORTFOLIO=mix UNION_PROJ_SOURCE=fp UNION_MAIN_OWN_TILT=0.20 UNION_MAIN_OWN_PREDICTOR=fp` (MIXT: study 31

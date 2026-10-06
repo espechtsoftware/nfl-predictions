@@ -12,6 +12,32 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (09:49 CDT) — Week-5 prep: the arm script drafted; the prospective gates show the 5 known items; studies 33 (merged, O-14 closed) and 34 (calibrating)
+
+- **The Saturday arm script is DRAFTED** at `~/.cache/laptop-agent/w5_arm_saturday.sh` (host-local, like W4's).
+  - It is W4's script with:
+    - GROUP 154468;
+    - no LineStar step;
+    - the Rev3 sha and K 26 checks;
+    - FP projections, and the term at 0.20 on FP ownership;
+    - SHAPE = mixt (UNION_MAIN=mix, pin f69598b, CLONE week5-live-center) or ct (UNION_MAIN=pmo_x50, pin 32cdb61,
+      CLONE week4-live-center);
+    - no tail-sleeve settings (Rev3 has 29 mean-track contests);
+    - 11 timers, or 9 when armed late.
+  - It REFUSES until SHAPE and FRIDAY_HEAD are set on Friday (verified: "ARM STOPPED: SHAPE is not set").
+- **`check_prospective_gates.py --week 5` (10-06 ~09:45): 5 problems, all known and scheduled:**
+  - the Route Share companion pair's last executions failed (O-25 / O-2: Thursday's dry runs);
+  - the cbwu-oi paired job's last execution failed (O-27: Wed / Thu dry run after the W5 roster pull and
+    build-features);
+  - the SIS pass-tail schedulers are PAUSED (O-3: Wednesday's acquisition, dry runs and resume).
+  - Re-run it Thursday after those steps; it must be clean before Saturday's arming.
+- **Study 33 merged** (Addendum 138, `abb2e457`): NO DIFFERENCE; the D part is already live since `81c1eabb`;
+  **O-14 is CLOSED** (`3e35fcfc`).
+- **Study 34** (the regulars' habits): rebuilt (GAP = 3 behavioural features; value excluded as a projection
+  artifact; owned-set z; a one-round per-feature reweighting; finer SHR β). Calibrating on 1406; the laptop acks the
+  census next.
+- **The picks-vs-field weekly line is merged** (`65c7854a`; first run Monday 10-12).
+
 ## 2026-10-06 (08:24 CDT) — choose_entries MERGED (study 32's R4 for 1–3 big-contest entries + the Monday paired scorer); Addendum 137 merged; banks 1443–1448 clean
 
 - **choose_entries** (`production/choose-entries-20261006`, reviewer-approved, merged into integration as
