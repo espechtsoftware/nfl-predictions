@@ -4710,3 +4710,76 @@ STUDY 26 SENSITIVITY (NON-DECISION; the frozen reader's verdict governs)  reader
 4. **Player upside (P90) is negative again** (−2.7 points; expected seats 0.82×), consistent with every prior read.
    **Allowing five (C5) is flat:** the plain mean rarely takes the fifth player.
 5. **Transfer:** our projections, no ownership term, no FP.
+
+## Addendum 133 (2026-10-06): study 28 (the WINNERS' SHAPE MIX vs the house shape, on the operator's goal and final plan): NO DIFFERENCE, every season positive, both guards intact — the closest result of the week
+
+**Setup.**
+- **The operator's ask:** "I like what we discussed previously of mirroring how the winners play - with a mix of
+  stacks, double stacks, etc.  Is there a reason that we aren't trying to play the way the winners play?" Study 18 had
+  read MIX only at shallow lines with the lab's loose caps.
+- **The MIX cells** (study 18's, by DEALT ENTRIES):
+  - A1 30%: QB + 2+, a bring-back;
+  - A2 14%: QB + 2+, no bring-back;
+  - B 28%: QB + 1, a bring-back, a second-game pair, ≤ 3 from the QB's game;
+  - C 28%: QB + 1, no bring-back, ≤ 3.
+- **The build** is production's `mix_rows`: K = 22 rows by quota, the cells largest first through one shared state, and
+  the entry-weighted interleave with PIN-AWARE weights [10, 8, 7, 6, 5, 1 × 17].
+- **Plan and caps:** his Rev2 plan with pins; production caps 11 / 5; head; P(≥ 1 big seat).
+- **Arms:** MIX (DECISION) vs C (`PRODUCTION_STACK`). MIXNP (production's pin-stripping weights, O-35) is exploratory
+  vs MIX.
+- **Preregistration:** `reports/2026-10-06-prereg-study28-winners-mix.md` (frozen `9bb2d42b`). A smoke caught a
+  meta-key bug before the freeze (fixed `669f92b`).
+- **Census:** the binding census (1406, 53/53) dealt A1 .302 / A2 .149 / B .240 / C .308, with 0 passes.
+- **Panel:** 53 slates, banks 1425/1426; B 20,000, seed 20261010; two-sided 0.95.
+- **Read and reproduced.** Read by the reviewer; **reproduced byte-identically by the laptop** (reader `d320a368`;
+  READ `5366c535`). Lab: nfl2 `production/s28-winners-mix-20261006`.
+
+**Reader output (verbatim):**
+```
+STUDY 28 READER  sha256 d320a3689d108b07b2f723977896512c9fa50ab1a1ae26f9288b72d758442f4e
+DIRECTION: P(>= 1 big seat) per slate from each dealt entry's share of the sampled field it BEATS (higher = better); every difference is ARM - its REFERENCE (MIX: C; MIXNP: MIX); POSITIVE favours the arm.
+slates 53  banks [1425, 1426]  B 20000  seed 20261010  primary two-sided 0.95 (one decision arm), guard 1 one-sided 0.95 at -0.015, guard 2 expected-big-seat ratio >= 0.80  plan 29 mean-track contests, 53 entries (26 in 21 big contests)  production row caps ['{"all": [11, 5]}']  BASE {"lam": 0.0}
+
+== MIX vs C  [DECISION]
+  PRIMARY P(>= 1 big seat) per slate +0.06081  [-0.01184, +0.13846]  seasons 2022 +0.02925, 2023 +0.05435, 2024 +0.09708
+  GUARD 1 mean entry pct +0.01259  one-sided lower -0.00539  (must exceed -0.015)
+  GUARD 2 expected big seats 0.55447 vs C 0.49527  ratio 1.120  (must be >= 0.80)
+  dealt identical to C: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+
+== MIXNP vs MIX  [EXPLORATORY (never decision-bearing)]
+  PRIMARY P(>= 1 big seat) per slate +0.00491  [-0.02392, +0.03414]  seasons 2022 +0.01459, 2023 +0.00793, 2024 -0.00724
+  GUARD 1 mean entry pct -0.00056  one-sided lower -0.00171  (must exceed -0.015)
+  GUARD 2 expected big seats 0.53217 vs MIX 0.55447  ratio 0.960  (must be >= 0.80)
+  dealt identical to MIX: 0.000 of slate-banks
+
+secondaries (slate means):
+  C   P(>=1 big) 0.23564  expected big seats 0.49527  P(>=2 contests) 0.12332  slates P(>=1 big) < 1% 0.481  tickets 119.5  best>=200 0.075  entry pct 0.50142  worst-decile slate 0.24260  simulated P(>=1 big) 0.51239
+      shape of dealt entries: qb_game1_share 0.235  qb_game_top4_share 0.758  qb_games 3.330  qb_game_max_share 0.700  qb_plus1 0.000  bringback 1.000  dual 0.220  in_qb_game 4.000  games 4.263  max_entry_share 0.788
+  MIX P(>=1 big) 0.29645  expected big seats 0.55447  P(>=2 contests) 0.13826  slates P(>=1 big) < 1% 0.415  tickets 164.5  best>=200 0.075  entry pct 0.51401  worst-decile slate 0.29023  simulated P(>=1 big) 0.51475
+      shape of dealt entries: qb_game1_share 0.244  qb_game_top4_share 0.730  qb_games 3.736  qb_game_max_share 0.513  qb_plus1 0.549  bringback 0.543  dual 0.481  in_qb_game 3.107  games 4.680  max_entry_share 0.666
+  MIXNP P(>=1 big) 0.30137  expected big seats 0.53217  P(>=2 contests) 0.13699  slates P(>=1 big) < 1% 0.396  tickets 161.5  best>=200 0.075  entry pct 0.51345  worst-decile slate 0.28999  simulated P(>=1 big) 0.52407
+      shape of dealt entries: qb_game1_share 0.244  qb_game_top4_share 0.730  qb_games 3.736  qb_game_max_share 0.512  qb_plus1 0.557  bringback 0.537  dual 0.480  in_qb_game 3.094  games 4.685  max_entry_share 0.667
+```
+
+**Reading.**
+1. **MIX vs C is NO DIFFERENCE, but the closest result of the week on his goal.**
+   - P(≥ 1 big seat) +6.1 points (interval −1.2 to +13.8), positive in EVERY season (+2.9 / +5.4 / +9.7).
+   - Both guards hold: mean finish +1.3 points; expected big seats ×1.12.
+2. **It improves his goal measures and the downside together** (C → MIX):
+   - P(≥ 1 big) .236 → .296;
+   - expected big seats .495 → .554;
+   - P(≥ 2 contests) .123 → .138;
+   - tickets 119.5 → 164.5;
+   - mean finish .501 → .514;
+   - the worst decile .243 → .290;
+   - near-dead weeks .48 → .42.
+
+   The best ≥ 200 share is unchanged (.075). The dealt shape (QB+1 .55, bring-back .54, dual .48) sits near the 2026
+   top-1% rates, and the top player's entry share falls from .79 to .67.
+3. **By §5 (frozen):** "NO DIFFERENCE with both guards intact: a legitimate reason to choose MIX as his stated
+   preference ('mirroring how the winners play'), said plainly as a preference, not a tested gain."
+   - **Arming:** `--main mix --mix-portfolio mix`, with O-35 (`ce7ba02b`) merged first and the MIX Sunday spares
+     (`ddd470ed`).
+   - **O-35's own effect is small here** (MIXNP vs MIX +0.5 points). The fix is kept for correctness.
+4. **Transfer:** our projections; no ownership term; no FP.
