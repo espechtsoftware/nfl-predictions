@@ -51,6 +51,36 @@ def reslot(dks, pos_of):
     return by["QB"] + by["RB"][:2] + by["WR"][:3] + by["TE"][:1] + [flex] + by["DST"]
 
 
+def fp_shift(world_mean: np.ndarray, frame_ids: list[str], run: pathlib.Path) -> tuple[np.ndarray, dict]:
+    """The outside review (10-06): when the union selected on Fantasy Points' means (its dir carries proj_source.csv and
+    the .json sidecar it verified), a replacement must be priced the same way. Returns the per-frame-row shift that moves
+    each FP-projected player's simulated mean (world_mean, ours) onto FP's mean -- the worlds keep OUR spread and
+    correlation, as the union's banks do -- and a record. No FP file, or one failing its sha checks: zero shift, ours,
+    said loudly in the record (never a refusal: a replacement on our worlds beats an unavailable player)."""
+    import hashlib
+    zero = np.zeros(len(frame_ids), dtype=np.float64)
+    csv_p, meta_p = run / "proj_source.csv", run / "proj_source.csv.json"
+    if not csv_p.is_file():
+        return zero, {"objective": "ours (the run carries no FP source)"}
+    sha = lambda q: hashlib.sha256(q.read_bytes()).hexdigest()  # noqa: E731
+    problems = []
+    meta = json.loads(meta_p.read_text()) if meta_p.is_file() else {}
+    if not meta_p.is_file():
+        problems.append("no proj_source.csv.json sidecar")
+    elif meta.get("csv_sha256") != sha(csv_p):
+        problems.append("proj_source.csv does not match its sidecar's sha256")
+    elif meta.get("frame_sha256") != sha(run / "frame.parquet"):
+        problems.append("the FP file was built for another frame")
+    if problems:
+        print("!!! REPLACEMENT PRICED ON OUR PROJECTIONS: the run's FP source failed: " + "; ".join(problems), file=sys.stderr)
+        return zero, {"objective": "ours (the FP source failed: " + "; ".join(problems) + ")"}
+    ov = pd.read_csv(csv_p, dtype={"id": str})
+    fp = dict(zip(ov["id"].astype(str), pd.to_numeric(ov["fp"], errors="coerce")))
+    shift = np.array([(fp[i] - m) if i in fp and np.isfinite(fp[i]) else 0.0 for i, m in zip(frame_ids, world_mean)])
+    return shift, {"objective": "the corrected mix recentred on Fantasy Points' means (the union's proj_source.csv)",
+                   "fp_players": int(sum(i in fp for i in frame_ids)), "csv_sha256": sha(csv_p)}
+
+
 def pick_replacement(gain: np.ndarray, pool_cells: list[set], need: str, house: str = "A1") -> tuple[int | None, str | None]:
     """--main mix (reviewer 2026-10-06, blocking): the best candidate that fits the removed row's cell `need`; if NONE fits,
     the best HOUSE-legal (`house`, A1) candidate -- a legal house lineup beats entering an unavailable player -- returned
@@ -224,6 +254,7 @@ def main():
     remove_positions = [p for p, r in enumerate(book) if any(d in E for d in r)]
     replaced_info = []
     fallback_at: dict[int, str] = {}                        # --main mix: positions filled by the house fallback (10-06)
+    repl_objective = {"objective": "no replacement needed"}
     if remove_positions:
         inc = np.load(run / "incumbent_player_scores.npy"); hs = np.load(run / "corrected_hsim_player_scores.npy")
         bank_problems = []
@@ -233,7 +264,11 @@ def main():
         if bank_problems:
             (out / "replace.json").write_text(json.dumps({"version": "vet-replace-v4.1", "status": "FAILED", "problems": bank_problems}, indent=1) + "\n")
             print("REPLACEMENT FAILED: " + "; ".join(bank_problems), file=sys.stderr); sys.exit(2)
-        inc_g, hs_g = inc.copy(), hs.copy(); zr = [row_of[d] for d in E if d in row_of]
+        # priced like the book (the outside review 10-06): an FP-selected union's replacement is recentred on FP's means
+        shift, repl_objective = fp_shift(np.concatenate([inc, hs], axis=1).mean(axis=1), f["id"].astype(str).tolist(), run)
+        print(f"REPLACEMENT OBJECTIVE: {repl_objective['objective']}")
+        inc_g, hs_g = (inc + shift[:, None]).astype(inc.dtype), (hs + shift[:, None]).astype(hs.dtype)
+        zr = [row_of[d] for d in E if d in row_of]
         inc_g[zr, :] = 0.0; hs_g[zr, :] = 0.0; mix = np.concatenate([inc_g, hs_g], axis=1)
         cands = pd.read_parquet(run / "candidates.parquet")
         cand_src = cands["source_run"].astype(str).tolist() if "source_run" in cands.columns else None
@@ -334,7 +369,7 @@ def main():
                "exclusion_set": {name_of[d]: reasons[d] for d in sorted(E, key=lambda x: name_of[x]) if d in name_of},
                "removed_positions": [p + 1 for p in remove_positions], "replacements": replaced_info, "pool": pool_summary,
                "cell_fallbacks": [{"vetted_position": p + 1, "cell": cell_at.get(p), "cell_fallback": "house"} for p in sorted(fallback_at)],
-               "replacement_sources": source_summary(replaced_info)[0]}
+               "replacement_sources": source_summary(replaced_info)[0], "replacement_objective": repl_objective}
     (out / "replace.json").write_text(json.dumps(receipt, indent=1) + "\n")
     if status != "OK":
         print("REPLACEMENT FAILED:", "; ".join(problems[:6]), file=sys.stderr); sys.exit(2)
