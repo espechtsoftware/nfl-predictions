@@ -240,21 +240,26 @@ def run_week(w, out, nmax, log, test=False):
     rec["final_rules"] = hit_rules or rules; rec["hit"] = hit_rules is not None
     (out / f"week{w}.json").write_text(json.dumps(rec, indent=1, default=str)); return rec
 
-def cross(weeks, recs, out, nmax, log, test=False, w_from_only=None, w_to_only=None):
+def cross(weeks, recs, out, nmax, log, test=False, w_from_only=None, w_to_only=None, layer=None):
     cp = out / "cross.json"; res = json.loads(cp.read_text()) if cp.exists() and not test else {}
     for w_from in weeks:
         if w_from_only and w_from not in w_from_only: continue
-        rules = recs[w_from]["final_rules"]
+        if layer:
+            hit = [e for e in recs[w_from]["layers"] if e["layer"] == layer]
+            if not hit: log(f"W{w_from}: no layer {layer!r}; skipped"); continue
+            rules = hit[0]["rules"]; tag = f"{w_from}@{layer}"
+        else:
+            rules = recs[w_from]["final_rules"]; tag = str(w_from)
         for w_to in (w_to_only or weeks):
-            if w_to == w_from or f"{w_from}->{w_to}" in res: continue
+            if w_to == w_from or f"{tag}->{w_to}" in res: continue
             W, fr, f = load_week(w_to); winner = float(f.points.max()) / 100.0; pts = np.sort(f.points.values)
             lines = {"top400": float(pts[-400]) / 100, "top100": float(pts[-100]) / 100, "top1pct": float(pts[int(0.99 * len(pts))]) / 100, "hit": winner - WITHIN}
             r = {k: v for k, v in rules.items() if not (k in ("max_own", "n_low_own", "own_sum") and fr.pown.isna().all())}
             O = build(fr, r, "actual", []); oracle = float(fr.actual.iloc[O].sum()) if O else None
             e = {"rules": r, "oracle": None if oracle is None else round(oracle, 2), "winner": winner, "lines": lines}
-            log(f"  rules of W{w_from} on W{w_to}: oracle {e['oracle']} (winner {winner:.1f})")
-            if oracle is not None: e["enum"] = enumerate_until(fr, r, winner, lines, 30 if test else nmax, log, f"W{w_from}->W{w_to}")
-            res[f"{w_from}->{w_to}"] = e
+            log(f"  rules of W{tag} on W{w_to}: oracle {e['oracle']} (winner {winner:.1f})")
+            if oracle is not None: e["enum"] = enumerate_until(fr, r, winner, lines, 30 if test else nmax, log, f"W{tag}->W{w_to}")
+            res[f"{tag}->{w_to}"] = e
             cur = json.loads(cp.read_text()) if cp.exists() else {}; cur.update(res); cp.write_text(json.dumps(cur, indent=1, default=str))
     return res
 
@@ -262,6 +267,7 @@ def main():
     ap = argparse.ArgumentParser(); ap.add_argument("out"); ap.add_argument("--weeks", default="1,2,3,4"); ap.add_argument("--nmax", type=int, default=1000)
     ap.add_argument("--cross-nmax", type=int, default=500); ap.add_argument("--test", action="store_true"); ap.add_argument("--cross-only", action="store_true"); ap.add_argument("--no-cross", action="store_true")
     ap.add_argument("--cross-from", default=None, help="comma list: only these weeks' rules"); ap.add_argument("--cross-to", default=None, help="comma list: only onto these weeks")
+    ap.add_argument("--cross-layer", default=None, help="use this layer's rules of the from-week instead of its final rules (e.g. environment)")
     a = ap.parse_args(); out = Path(a.out); out.mkdir(parents=True, exist_ok=True); weeks = [int(x) for x in a.weeks.split(",")]
     lf = open(out / f"log-{'cross' if a.cross_only else 'w' + ''.join(map(str, weeks))}.txt", "a")
     def log(s): print(s, flush=True); lf.write(s + "\n"); lf.flush()
@@ -274,6 +280,6 @@ def main():
         recs[w] = run_week(w, out, a.nmax, log, a.test)
     if a.no_cross: log("== week ladders done (no cross)"); return
     cf = [int(x) for x in a.cross_from.split(",")] if a.cross_from else None; ct = [int(x) for x in a.cross_to.split(",")] if a.cross_to else None
-    log(f"== cross-week runs (from {cf or weeks} to {ct or weeks})"); cross(weeks, recs, out, a.cross_nmax, log, a.test, cf, ct); log("== done")
+    log(f"== cross-week runs (from {cf or weeks} to {ct or weeks})"); cross(weeks, recs, out, a.cross_nmax, log, a.test, cf, ct, a.cross_layer); log("== done")
 if __name__ == "__main__":
     main()
