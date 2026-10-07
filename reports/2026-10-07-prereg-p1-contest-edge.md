@@ -1,9 +1,40 @@
-# Preregistration: P1, the prospective contest-class edge record and its lower-confidence-bound stake rule (FROZEN 2026-10-07)
+# Preregistration: P1, the prospective contest-class edge record and its lower-confidence-bound stake rule (FROZEN 2026-10-07; amendments 1 and 2 before any Week-5 outcome)
 
 **Status: FROZEN 2026-10-07** by the reviewer, before any Week-5 outcome.
 - Drafted by the laptop: v1 `5e6fffdd`, v2 `a9736719`. The reviewer's four decisions are folded in (§9).
 - The operator's approved-plan item P1 (his Wed 10-07 directive).
 - It holds from Week 5. Week 5 locks Sunday 10-11, and its standings load Monday 10-12, after this freeze.
+- **AMENDMENT 1 (2026-10-07, before any Week-5 outcome; a disclosed drafting error, found by the laptop while building
+  the reader).**
+  - §4's yardstick read z = (points − the field's mean) / the field's sd and called it the 10-05 method. It was not. The
+    10-05 analysis, and the break-even values and power table calibrated on it, use the latent normal score of the
+    finish position.
+  - §4 now states that score. Nothing else changes: the break-even table, the classes, the week weighting, the t bound,
+    and the power table, whose total sd 0.95 and ICC 0.062 were measured on this latent z.
+- **AMENDMENT 2 (2026-10-07, before any Week-5 outcome; a definitional clarification, no change to the rule or the
+  frozen values).** The laptop's text, found while building the reader, accepted by the reviewer:
+  1. *"The week's mean z over the class's entered rows"* = the class's UNIQUE lineups, one z per lineup per class. A
+     lineup entered several times in a class counts once there; a lineup entered in two classes counts once in each.
+     The money lines stay per entry, because money is paid per entry.
+     - The evidence, the W1–4 week means over all classes: unique lineups +0.100 / −0.409 / −0.338 / +0.007; the 10-05
+       report +0.10 / −0.41 / −0.33 / +0.03; per entry +0.100 / −0.409 / −0.269 / −0.086, which does not reproduce.
+     - The frozen break-even table was built on the 10-05 convention, so the reader uses it too.
+  2. *N in p = (position − 0.5) / N* = the Millionaire's other entries (ours removed) + 1: the scored row placed in that
+     field.
+     - This is NOT the 10-05 convention: 10-05's field held all of our rows.
+     - The two differ by at most (our Millionaire entries − 1) out of about 160,000, which is negligible.
+     - It keeps p < 1 for a row below the whole field.
+  3. *The tie rule:* position = 1 + the field's entries STRICTLY higher than the row, so ties take the better side. That
+     is exactly 10-05's rule (paper.py's searchsorted on the negated points, side 'left'). Ties are common at
+     DraftKings' 0.1-point grain.
+  - **The reader:** `scripts/p1_record.py`, sha256 `ea142610e303…`, at integration `87edab08`.
+  - **Its tests:** `tests/test_p1_record.py`, sha256 `d1cd6af73d57…` (5 pass). They include a lineup entered 3× in one
+    class (counting once there and once in a second class) and a tied score taking position 1 + the entries strictly
+    higher.
+  - **Verified by the reviewer:** both shas at `87edab08` and at the integration head. The reader computes
+    position = (len − searchsorted(sorted others, points, side='right')) + 1 and N = len(others) + 1.
+  - **Disclosed:** commit `ca9f8785` changed only this document's title (the text was omitted by a tool error); the
+    text above was added in the next commit, before any Week-5 outcome.
 
 **Units:** multiples of the fee, rates and z-scores only. Dollars stay in BigQuery and private files.
 
@@ -42,9 +73,12 @@ Each contest's class comes from `v_dk_payout_structure` and its name:
 
 ## 4. Measures, per class, per week from W5 (W1–4 reported as the baseline, never pooled into the decision)
 - **Primary (finish level; the 10-05 method; the reviewer's decisions 2 and 3):**
-  - **The yardstick:** each entered row's z against the SAME week's Millionaire field, z = (row points − the field's
-    mean) / the field's sd. The break-even values were derived on this yardstick. Own fields are too small and noisy
-    for the satellites.
+  - **The yardstick** (AMENDMENT 1, 2026-10-07): each entered row's z against the SAME week's Millionaire field is the
+    10-05 latent score z = Φ⁻¹(1 − p).
+    - p = (position − 0.5) / N; position = 1 + the number of the field's entries (ours removed) strictly above the row;
+      N = that field's size.
+    - The break-even values below were calibrated on this scale.
+    - Own fields are too small and noisy for the satellites.
   - **The unit is the week, weighted equally.** Per class: the week's mean z over the class's entered rows; the class's
     edge = the mean over weeks of (the week mean − the class's break-even z).
   - **Beside it, descriptive:** each contest's own-field finish percentile.

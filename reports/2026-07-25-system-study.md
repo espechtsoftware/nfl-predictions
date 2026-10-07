@@ -7059,3 +7059,198 @@ secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; th
 - The one block slot is the matchup block (study 51 ENTERABLE: not harmful, not better) or none.
 - The decision is his. A cheap block would be an OVERRIDE of a frozen stop, written as such. Even then, its file goes
   through Friday's Week-5 union first.
+
+## Addendum 162 (2026-10-07): study 54 (his live book against production's plain optimizer, P3's MEAN_MILP, in the harness): NO DIFFERENCE out of sample; every estimate favours his construction; nothing says to simplify
+
+**Setup.**
+- **The question.** The operator's approved-plan P3 (`reports/2026-10-07-prereg-p3-simple-baseline.md`, frozen
+  `f129bc0b`) asks on live weeks whether our construction layers earn their place against production's plain capped
+  optimizer. Its sign rule cannot decide before Week 12.
+  - The operator, 10-07: "That is way too long for me to wait to adopt anything."
+  - His yes, the same day: this harness answer, out of sample, read by Thursday.
+- **The arms.**
+  - **LIVE:** his live Week-5 book and production's 15 spares (study 48d's 41 rows: the winners' mix, the round-robin
+    fill, QB cap 5, overlap limit 4, caps 13 / 6).
+  - **PLAIN (the decision):** union_reselect's `pmo_rows`, copied verbatim (production's file `82ef245e…`): 26 rows,
+    PRODUCTION_STACK, overlap 7, no QB cap, exposure 13, DST 6, per-game 4, $49k.
+    - The smoke showed the Week-5 lab pin (`f69598b`) solves the same plain rows.
+  - **PLAIN_O4 / PLAIN_O4Q5** (exploratory steps): PLAIN with the overlap limit 4, then also with the QB cap 5.
+- **The decision is out of sample: the 17 2022 slates.**
+  - Studies 35, 40, 41 and 42 chose the QB cap, the overlap limit and the fill on 2023–24.
+  - Study 28 read the mix against the house shape once on 2022, on another harness.
+  - 2023–24 is the in-sample read, never decision-bearing.
+- **Support census:** PLAIN costs about −0.10 projected points per row. Its top QB sits in about 12 of 26 rows (LIVE 5),
+  with about 4.1 distinct QBs (LIVE 7.7–8.1). The two books share 1.4–1.5 rows.
+- **Preregistration:** `reports/2026-10-08-prereg-study54-plain-baseline.md` (DRAFT `eb97b570`; FROZEN `3c5bd444`,
+  sha256 `81363694…`).
+- **Panel:** banks 1575–1580, B 20,000, seed 20261106.
+- **Read and reproduced:** read by the reviewer and **reproduced byte-identically by the laptop**.
+  - Reader `74fc1b3c`; READ `7af01d9b`; census `34fb1ce0`.
+  - The confirmatory census (`72c80cb`) was committed before the READ (`2d9d18b`).
+
+**Reader output (verbatim):**
+```
+STUDY 54 READER  sha256 74fc1b3cb0f18de65ea6a65c3a88aa9bfb320aba095466b5d327e31a3c2e58e4
+DIRECTION: P(>= 1 big seat) per slate (the mean over its banks); every difference is ARM - REFERENCE; POSITIVE favours the first arm (the decision PLAIN - LIVE: positive = production's plain optimizer ahead, negative = his live book ahead).
+slates 17 (2022: THE DECISION, out of sample) + 36 (2023-24: in-sample, never decision-bearing)  banks [1575, 1576, 1577, 1578, 1579, 1580]  B 20000  seed 20261106  one decision (PLAIN - LIVE) on the CALIBRATED field (v2), two-sided 0.95, guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only
+arms (definitions, the plain constants, study 48's sha, live settings, QB cap, objective): [["LIVE", "PLAIN", "PLAIN_O4", "PLAIN_O4Q5"], {"arms": {"PLAIN": [7, null], "PLAIN_O4": [4, null], "PLAIN_O4Q5": [4, 5]}, "caps": [13, 6], "copied_sha256": "bc3c0f74513e29d65e229e72d77ef403382d7c325296b147c061229854ed5199", "max_per_game": 4, "min_salary": 49000}, "c22d28114ab4b463b6842594cb2ff7ca1babf41e28015c7242b21baedb1bc67c", {"fill": "rr", "max_shared": 4}, 5, "player_mean (every arm)"]
+
+== PLAIN vs LIVE  [DECISION; the calibrated field; 2022, out of sample]
+  PRIMARY P(>= 1 big seat) per slate -0.05331  [-0.14945, +0.03834] (two-sided 0.95)  seasons 2022 -0.05331
+  GUARD 1 mean entry pct +0.00124  one-sided lower -0.01978  (must exceed -0.015)
+  GUARD 2 expected big seats 0.57141 vs 0.36547  ratio 1.563  (must be >= 0.80)
+  PLAIN dealt identical to LIVE: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  IN-SAMPLE 2023-24 (never decision-bearing; the selection favours LIVE): -0.06800  [-0.14877, +0.01179] (two-sided 0.95)  seasons 2023 -0.04464, 2024 -0.09136
+
+== STUDY: NO EVIDENCE EITHER WAY out of sample (NO DIFFERENCE on 2022): his live book stands and P3's weekly record continues
+
+== EXPLORATORY (never decision-bearing; two-sided 0.95)
+  PLAIN_O4 - PLAIN (the overlap limit 4; v2, 2022): +0.03711  [-0.01423, +0.09836]  seasons 2022 +0.03711
+  PLAIN_O4 - PLAIN (the overlap limit 4; v2, 2023-24): +0.02464  [-0.03857, +0.09022]  seasons 2023 +0.05449, 2024 -0.00522
+  PLAIN_O4Q5 - PLAIN_O4 (the QB cap 5; v2, 2022): -0.01417  [-0.04372, +0.01207]  seasons 2022 -0.01417
+  PLAIN_O4Q5 - PLAIN_O4 (the QB cap 5; v2, 2023-24): +0.05209  [+0.02294, +0.09348]  seasons 2023 +0.04047, 2024 +0.06371
+  LIVE - PLAIN_O4Q5 (the shape mix and the round-robin fill; v2, 2022): +0.03038  [-0.00662, +0.07804]  seasons 2022 +0.03038
+  LIVE - PLAIN_O4Q5 (the shape mix and the round-robin fill; v2, 2023-24): -0.00872  [-0.06255, +0.04087]  seasons 2023 -0.05032, 2024 +0.03287
+  PLAIN - LIVE (the l02 field, 2022): -0.06017  [-0.15825, +0.03321]  seasons 2022 -0.06017
+  PLAIN - LIVE (the l02 field, 2023-24): -0.07954  [-0.16164, +0.00184]  seasons 2023 -0.05941, 2024 -0.09967
+  PLAIN - LIVE (the l02 field, the 53-slate pool, 2022-24): -0.07332  [-0.13723, -0.00939]  seasons 2022 -0.06017, 2023 -0.05941, 2024 -0.09967
+  PLAIN - LIVE (v2, the 53-slate pool, 2022-24; not a fresh test): -0.06329  [-0.12585, -0.00040]  seasons 2022 -0.05331, 2023 -0.04464, 2024 -0.09136
+
+secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; the book's rows are pre-lock facts):
+  [2022]
+  LIVE        v2: P(>=1 big) 0.24947  expected big seats 0.36547  P(>=2) 0.07733  entry pct 0.44316  |  l02: P(>=1 big) 0.26457
+              book: projection per row 132.22  salary 49967  predicted ownership nan%  distinct QBs 7.7  top QB rows 5.0  distinct players 47.8
+  PLAIN       v2: P(>=1 big) 0.19616  expected big seats 0.57141  P(>=2) 0.14143  entry pct 0.44440  |  l02: P(>=1 big) 0.20440
+              book: projection per row 132.12  salary 49944  predicted ownership nan%  distinct QBs 4.1  top QB rows 11.8  distinct players 38.7
+  PLAIN_O4    v2: P(>=1 big) 0.23327  expected big seats 0.42460  P(>=2) 0.09905  entry pct 0.44157  |  l02: P(>=1 big) 0.24683
+              book: projection per row 131.41  salary 49960  predicted ownership nan%  distinct QBs 7.0  top QB rows 9.7  distinct players 52.6
+  PLAIN_O4Q5  v2: P(>=1 big) 0.21910  expected big seats 0.37097  P(>=2) 0.08659  entry pct 0.43807  |  l02: P(>=1 big) 0.23647
+              book: projection per row 131.12  salary 49960  predicted ownership nan%  distinct QBs 8.4  top QB rows 5.0  distinct players 55.7
+  [2023-24]
+  LIVE        v2: P(>=1 big) 0.31333  expected big seats 0.51527  P(>=2) 0.12258  entry pct 0.51452  |  l02: P(>=1 big) 0.34272
+              book: projection per row 128.15  salary 49971  predicted ownership 78.21%  distinct QBs 8.1  top QB rows 5.0  distinct players 46.1
+  PLAIN       v2: P(>=1 big) 0.24533  expected big seats 0.44378  P(>=2) 0.12472  entry pct 0.51161  |  l02: P(>=1 big) 0.26318
+              book: projection per row 128.05  salary 49951  predicted ownership 79.53%  distinct QBs 4.1  top QB rows 12.0  distinct players 37.8
+  PLAIN_O4    v2: P(>=1 big) 0.26997  expected big seats 0.38625  P(>=2) 0.08616  entry pct 0.49066  |  l02: P(>=1 big) 0.29658
+              book: projection per row 127.25  salary 49961  predicted ownership 77.26%  distinct QBs 7.5  top QB rows 8.9  distinct players 51.1
+  PLAIN_O4Q5  v2: P(>=1 big) 0.32206  expected big seats 0.47978  P(>=2) 0.11340  entry pct 0.50038  |  l02: P(>=1 big) 0.35082
+              book: projection per row 127.02  salary 49961  predicted ownership 76.34%  distinct QBs 8.7  top QB rows 5.0  distinct players 53.9
+```
+
+**Reading.**
+- **The decision: NO DIFFERENCE out of sample, so no evidence either way.**
+  - On 2022, P(≥ 1 big seat) per week was 0.249 for his live book and 0.196 for the plain optimizer: −5.3 points, with
+    the interval wide across zero.
+- **Every estimate favours his construction:**
+  - 2022 −0.053;
+  - 2023 −0.045;
+  - 2024 −0.091;
+  - the 53-slate pool (exploratory, not a fresh test) −0.063 [−0.126, −0.0004].
+- **The plain book wins MORE seats in total on 2022 (0.571 vs 0.365 a week), but less often.**
+  - Its top QB fills about 12 of 26 rows, so its hits cluster: P(≥ 2) is 0.141 vs 0.077.
+  - On his goal, at least one big win a week, the live shape is the better one.
+- **The exploratory steps** (indicative only):
+
+  | step | 2022 | 2023–24 |
+  |---|---|---|
+  | the overlap limit 4 | +0.037 | +0.025 |
+  | the QB cap 5 | −0.014 | +0.052 |
+  | the shape mix and the round-robin fill | +0.030 | −0.009 |
+
+  The QB cap's in-sample gain does not replicate on 2022.
+
+**What it means.**
+- Nothing says to simplify. The live construction stays.
+- P3's weekly real-field record (ENTERED vs MEAN_MILP) continues as the live check. The laptop's Week 2–4 replay
+  (reconstructed, in-sample, descriptive) tied on big seats in all three weeks.
+
+## Addendum 163 (2026-10-07): study 56 (fewer QB+1 rows in his live book): NO DIFFERENCE, not contradicted; not adoptable; on paper in Week 5 by his own line
+
+**Setup.**
+- **The question.** The outside reviewer's satellite finding: QB+1 lineups reached a top-10% finish less often than
+  QB+2 (odds 0.83 [0.74, 0.93]; W1–4, 76 satellite and qualifier contests). His live book deals about 48% of its entries
+  to QB+1 rows.
+- **The arms.** His live book (study 48d's 41 rows) at three sets of cell quotas:
+  - LIVE: A1 0.30 / A2 0.14 / B 0.28 / C 0.28;
+  - QB2HALF (the decision): 0.44 / 0.28 / 0.14 / 0.14, half of each QB+1 cell moved to its QB+2 counterpart;
+  - QB2ALL: 0.58 / 0.42 / 0 / 0;
+  - and, exploratory, LIVE_CB / QB2HALF_CB with Week 5's live cheap +2 block.
+- **Support census:** dealt QB+1 goes from .48 to .26 (QB2HALF), at −0.26 projected points per row; QB2HALF shares 4 of
+  26 rows with LIVE.
+- **His Week-5 line** (10-07, frozen before the read): "If it doesn't seem like it will improve things, I don't want to
+  do it this week. But I do think it's worth a test to find out as planned." Live only on a PASS that is not
+  contradicted.
+- **Preregistration:** `reports/2026-10-08-prereg-study56-fewer-qb1.md` (DRAFT `895cb346`, committed before study 54's
+  read; FROZEN `19db7b43`, sha256 `8fd8805f…`).
+- **Panel:** banks 1581–1586, B 20,000, seed 20261107.
+- **Read and reproduced:** read by the reviewer and **reproduced byte-identically by the laptop**.
+  - Reader `38fb00d7`; READ `d2b0fe17`; census `eeb04d4f`.
+  - The confirmatory census (`8d70119`) was committed before the READ (`d1f3d28`).
+- **Production's vehicle:** `union_reselect --mix-cell-quotas` (integration `48946cd0`, default off).
+- **Study 38's paper arm:** MIXT_QA0_QB2HALF (amendment 6j).
+
+**Reader output (verbatim):**
+```
+STUDY 56 READER  sha256 38fb00d768012390c4d08597706e1ff7affbc8da745c6c7174cbebc1185c6d1f
+DIRECTION: P(>= 1 big seat) per slate (the mean over its banks); every difference is ARM - REFERENCE; POSITIVE favours the first arm.
+slates 36 (the 2023-24 read) + 17 (the 2022 go / no-go)  banks [1581, 1582, 1583, 1584, 1585, 1586]  B 20000  seed 20261107  one decision (QB2HALF - LIVE) on the CALIBRATED field (v2), two-sided 0.95, guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only; 2022: the point estimate (two-sided 0.95 interval); the plan's satellites: 28 of 29 contests
+arms (definitions, the quotas, the cells, the block, study 48's sha, live settings, QB cap, objective): [["LIVE", "QB2HALF", "QB2ALL", "LIVE_CB", "QB2HALF_CB"], {"LIVE": [0.3, 0.14, 0.28, 0.28], "QB2ALL": [0.58, 0.42, 0.0, 0.0], "QB2HALF": [0.44, 0.28, 0.14, 0.14]}, ["A1", "A2", "B", "C"], {"arms": {"LIVE_CB": "LIVE", "QB2HALF_CB": "QB2HALF"}, "cap": 2.0, "dose": 2.0, "n_term": 8, "s53_sha256": "f3f9d735ca0c5dfadb7abe6c2999fd3bcb352425e4fcc7ea73bd2b09d4522c89"}, "c22d28114ab4b463b6842594cb2ff7ca1babf41e28015c7242b21baedb1bc67c", {"fill": "rr", "max_shared": 4}, 5, "player_mean (every arm)"]
+
+== QB2HALF vs LIVE  [DECISION; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate +0.01846  [-0.02489, +0.06469] (two-sided 0.95)  seasons 2023 +0.02888, 2024 +0.00803
+  GUARD 1 mean entry pct -0.00632  one-sided lower -0.01149  (must exceed -0.015)
+  GUARD 2 expected big seats 0.56890 vs 0.55808  ratio 1.019  (must be >= 0.80)
+  QB2HALF dealt identical to LIVE: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  GO / NO-GO 2022: +0.02170  [-0.03679, +0.08300] (two-sided 0.95)  ->  not contradicted
+
+== STUDY: not adoptable: QB2HALF NO DIFFERENCE on 2023-24, not contradicted on 2022
+== TRIAL (study 51's rule, the adoption track v2): ENTERABLE, his decision: no harm shown and no gain shown (NO DIFFERENCE on the read, not contradicted on 2022)
+
+== EXPLORATORY (never decision-bearing; two-sided 0.95)
+  QB2ALL - LIVE (v2, 2023-24): +0.01616  [-0.04211, +0.07737]  seasons 2023 +0.00598, 2024 +0.02634
+  QB2ALL - LIVE (v2, 2022): +0.00444  [-0.02604, +0.03909]  seasons 2022 +0.00444
+  QB2HALF_CB - LIVE_CB (the tilt beside the cheap +2 block; v2, 2023-24): +0.02361  [-0.02904, +0.07634]  seasons 2023 +0.02851, 2024 +0.01872
+  QB2HALF_CB - LIVE_CB (the tilt beside the cheap +2 block; v2, 2022): -0.00765  [-0.04340, +0.02656]  seasons 2022 -0.00765
+  QB2HALF - LIVE (the plan's satellites only, v2, 2023-24): +0.01846  [-0.02489, +0.06469]  seasons 2023 +0.02888, 2024 +0.00803
+  QB2HALF - LIVE (the plan's satellites only, v2, 2022): +0.02170  [-0.03679, +0.08300]  seasons 2022 +0.02170
+  QB2ALL - LIVE (the plan's satellites only, v2, 2023-24): +0.01616  [-0.04211, +0.07737]  seasons 2023 +0.00598, 2024 +0.02634
+  QB2ALL - LIVE (the plan's satellites only, v2, 2022): +0.00444  [-0.02604, +0.03909]  seasons 2022 +0.00444
+  QB2HALF - LIVE (the l02 field, 2023-24): +0.01684  [-0.02626, +0.06320]  seasons 2023 +0.02906, 2024 +0.00463
+  QB2HALF - LIVE (the l02 field, 2022): +0.03067  [-0.02296, +0.08986]  seasons 2022 +0.03067
+
+secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; the book's rows are pre-lock facts):
+  [2023-24]
+  LIVE       v2: P(>=1 big) 0.35466  expected big seats 0.55808  P(>=2) 0.13405  entry pct 0.52160  satellites P(>=1 big) 0.35466  |  l02: P(>=1 big) 0.38605
+             book: projection per row 128.12  salary 49971  predicted ownership 78.59%  dealt QB+1 / +2 / +3+ 0.486 / 0.472 / 0.042  distinct QBs 8.1
+  QB2HALF    v2: P(>=1 big) 0.37312  expected big seats 0.56890  P(>=2) 0.13588  entry pct 0.51528  satellites P(>=1 big) 0.37312  |  l02: P(>=1 big) 0.40289
+             book: projection per row 127.85  salary 49970  predicted ownership 78.18%  dealt QB+1 / +2 / +3+ 0.269 / 0.662 / 0.069  distinct QBs 8.3
+  QB2ALL     v2: P(>=1 big) 0.37082  expected big seats 0.57098  P(>=2) 0.14260  entry pct 0.51023  satellites P(>=1 big) 0.37082  |  l02: P(>=1 big) 0.39910
+             book: projection per row 127.46  salary 49966  predicted ownership 77.73%  dealt QB+1 / +2 / +3+ 0.000 / 0.897 / 0.103  distinct QBs 8.4
+  LIVE_CB    v2: P(>=1 big) 0.32032  expected big seats 0.49749  P(>=2) 0.12336  entry pct 0.51626  satellites P(>=1 big) 0.32021  |  l02: P(>=1 big) 0.34578
+             book: projection per row 127.71  salary 49965  predicted ownership 76.91%  dealt QB+1 / +2 / +3+ 0.465 / 0.495 / 0.040  distinct QBs 8.4
+  QB2HALF_CB v2: P(>=1 big) 0.34393  expected big seats 0.53419  P(>=2) 0.13338  entry pct 0.50938  satellites P(>=1 big) 0.34393  |  l02: P(>=1 big) 0.37210
+             book: projection per row 127.42  salary 49962  predicted ownership 76.52%  dealt QB+1 / +2 / +3+ 0.240 / 0.694 / 0.067  distinct QBs 8.7
+  [2022]
+  LIVE       v2: P(>=1 big) 0.23722  expected big seats 0.35022  P(>=2) 0.08118  entry pct 0.44458  satellites P(>=1 big) 0.23722  |  l02: P(>=1 big) 0.25312
+             book: projection per row 132.30  salary 49967  predicted ownership nan%  dealt QB+1 / +2 / +3+ 0.482 / 0.464 / 0.054  distinct QBs 7.7
+  QB2HALF    v2: P(>=1 big) 0.25892  expected big seats 0.39811  P(>=2) 0.10418  entry pct 0.43943  satellites P(>=1 big) 0.25892  |  l02: P(>=1 big) 0.28379
+             book: projection per row 132.08  salary 49964  predicted ownership nan%  dealt QB+1 / +2 / +3+ 0.264 / 0.661 / 0.075  distinct QBs 7.8
+  QB2ALL     v2: P(>=1 big) 0.24166  expected big seats 0.40237  P(>=2) 0.10291  entry pct 0.43666  satellites P(>=1 big) 0.24166  |  l02: P(>=1 big) 0.25752
+             book: projection per row 131.77  salary 49964  predicted ownership nan%  dealt QB+1 / +2 / +3+ 0.000 / 0.884 / 0.116  distinct QBs 7.9
+  LIVE_CB    v2: P(>=1 big) 0.23536  expected big seats 0.33307  P(>=2) 0.07916  entry pct 0.44988  satellites P(>=1 big) 0.23536  |  l02: P(>=1 big) 0.25655
+             book: projection per row 131.87  salary 49961  predicted ownership nan%  dealt QB+1 / +2 / +3+ 0.464 / 0.486 / 0.050  distinct QBs 7.9
+  QB2HALF_CB v2: P(>=1 big) 0.22771  expected big seats 0.34785  P(>=2) 0.08545  entry pct 0.45046  satellites P(>=1 big) 0.22771  |  l02: P(>=1 big) 0.24819
+             book: projection per row 131.63  salary 49957  predicted ownership nan%  dealt QB+1 / +2 / +3+ 0.243 / 0.684 / 0.073  distinct QBs 8.1
+```
+
+**Reading.**
+- **No difference.** P(≥ 1 big seat) per week 0.373 vs 0.355 on 2023–24 (+1.8 points, interval −2.5 to +6.5). Both
+  seasons and 2022 lean the same way (+2.9 / +0.8 / +2.2). Expected big seats are unchanged (ratio 1.02).
+- **Not adoptable, so it stays on paper in Week 5 by his line.** The trial rule says ENTERABLE (no harm shown), which
+  makes it a Week-6 trial option if he wants one.
+- The tilt beside the cheap block is the same story (+2.4 / −0.8).
+- **Descriptive only:** LIVE_CB vs LIVE read 0.320 vs 0.355 on 2023–24 and 0.235 vs 0.237 on 2022 on these banks. Study
+  53's frozen read of the same block, on other banks, was +0.004. Two harness samples show no gain. The live trial's stop
+  rule watches the real weeks.

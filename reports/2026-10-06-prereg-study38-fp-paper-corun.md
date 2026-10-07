@@ -1,4 +1,4 @@
-# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06 and 10-07, amendments 1, 1b, 2, 3, 4, 5, 6, 6b, 6c and 6d, before Week 5's lock)
+# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06 and 10-07, amendments 1, 1b, 2, 3, 4, 5, 6, 6b, 6c, 6d, 6e, 6f, 6i and 6j before Week 5's lock; repair 6g and the big-win rule 6h before its first score)
 
 **Status: FROZEN 2026-10-06** by the reviewer, BEFORE any week of the decision arm (MIXT_RS0) or of the exploratory arms
 QBB0 / NQC0 / QAL / RBC0 was read on any slate. Disclosed: before the freeze, the reference MIXT_QA0 was scored on
@@ -499,6 +499,125 @@ score. Nothing here enters a contest: the money path, its checkout and its files
     1. this amendment;
     2. the laptop's ack (tests and smoke);
     3. Friday's rehearsal and the integrity gate.
+- **Amendment 6g (2026-10-07, a REPAIR before Week 5's first score; no Week-5 outcome exists).**
+  - **Why.** The laptop's P3 Week 2–4 replay (10-07) found that `scripts/s38_plan.py` crashes on a multi-tier contest whose
+    tier pays a TICKET. Week 3's $14M FFWC qualifier #42 pays first place "NFL 2026 $12.5M FFWC Contest Ticket,…", and
+    the text parse raised ValueError.
+    - Study 38's plan step would fail the same way in any week holding such a qualifier, and P3's scorer uses the same
+      converter.
+  - **What changes.** A multi-tier contest's tier is counted in dollars by its description when that is a cash amount (the
+    rule as frozen). Otherwise it takes DK's numeric `value`: 70,000 for that ticket. A tier with neither raises; the
+    converter never guesses.
+  - **What does not change:** the plan rule ($500+ seats in a multi-tier contest, BIG; single-prize contests as before),
+    the overrides, and every other file.
+  - **The check:** the old and new converters were run over every contest in the Week 1–4 details files (86):
+    - 83 convert identically;
+    - 0 change;
+    - the 3 that crashed now convert: Week 1's FFWC qualifiers #6 and #7 and Week 3's #42, each 2 seats, big, at lines
+      99.9888 / 99.96 / 99.96.
+  - **Code:** lab `91359fc`:
+    - `scripts/s38_plan.py`, sha256 `19ad35a09cbf9a63c52c2f8ad9ac06f9f35f649d229fbe027e03d03279d2d199` (was `9af5f805…`);
+    - `tests/test_s38_paper_corun.py`, `2a328926185d677a42a07c75968d7d3f615da7aa987a343ec4e79e740f43a72c` (25 tests;
+      one added);
+    - every other amendment-6f sha stands, including the four files the Friday integrity gate pins.
+- **Amendment 6h (2026-10-07, before Week 5's first score; no Week-5 outcome exists).**
+  - **Why.** The operator, 10-07, relayed verbatim by the laptop: "A $125 qualifier ticket is not considered a big win. A
+    $490 qualifier ticket is."
+    - The converter's single-prize rule ("BIG unless the prize is a $20 ticket") makes a $125 FFWC qualifier ticket big.
+      Only Week 5's hand override (`{"196421726": {"big": false}}`) caught it.
+    - The rule now encodes his definition, so no later week depends on remembering the override.
+  - **What changes.** A single-prize contest is BIG unless its prize contains "$20 " (as frozen) or "FFWC $125
+    Qualifier" (`NOT_BIG`). The override mechanism stays; Week 5's override is now redundant and still applied.
+  - **What does not change:** multi-tier contests (6g), the overrides, the reader, and every other file.
+  - **The check:** against 6g, over every contest in the Week 1–4 details files (86):
+    - 85 convert identically;
+    - 1 changes: Week 3's "NFL $125 2026 FFWC Qualifier Satellite", big → not big, as he defines it;
+    - the Week-5 plan's big flags (`plan-week5-rev3-s24.json`) are unchanged, because its override already said so.
+  - **Code:** lab `35a1c4f`:
+    - `scripts/s38_plan.py`, sha256 `6c4cc53accdce8e1a8f8977e01eae8e70801558261221b0e25db609a9780cf1b` (was `19ad35a0…`);
+    - `tests/test_s38_paper_corun.py`, `3c1b8a212346e20e7cc695f0734d76365e73fe81beb26e5c94d671aa1c259844` (26 tests; one
+      added: $125 not big, $490 big, $20 not big, $333 / $555 / $4,444 big);
+    - every other sha stands, including the four the Friday integrity gate pins.
+- **Amendment 6i (2026-10-07, before Week 5's lock; no Week-5 outcome exists).**
+  - **Why.** The operator chose the cheap +2 block as Week 5's live block (about 13:10, confirmed directly to the laptop),
+    "matchup kept on paper". MIXT_QA0_MATCHUPX (6d) is the whole-book matchup bonus, not the 8-row block, so no paper arm
+    built the matchup block in its 8-row form.
+  - **What changes.** A new exploratory arm, **MIXT_QA0_MBLOCK8**: his live construction plus the 8-row MATCHUP block.
+    - The block comes from a PAPER file in the snapshot, `paper-mblock-*.csv`: the week's production
+      `matchup_block_file.py` file, copied by `s38_snapshot.sh`'s `S38_PAPER_MBLOCK_FILE` (integration `7c7f11ce`).
+    - It uses 6b's frozen parameters (8 rows, tilt 0.20, cap 2.0, gate 0.5), through the same own_bonus and term_book.
+    - It never carries the live block; its paper block replaces it, as TERM8's does. Reference MIXT_QA0_NOTERM.
+    - With the matchup block live from the same file it equals MIXT_QA0. Without a paper file, with a live fill other than
+      rr, or with a live regulars' block, it is missing that week (recorded).
+    - It is built after every earlier arm. The build CLI, the content identity, the scorer and the reader carry it (the
+      reader's descriptive line "the paper matchup block − NOTERM").
+  - **What does not change:** the rule (§5), the decision pair, and every other arm.
+  - **The smoke** (dry run, Week 4's frozen copies; 6f's inputs plus 6e's W4 matchup file as the paper matchup block;
+    `~/private/paper-corun/smoke-w4-amend6i/`, script `run.sh`):
+    - **OFF** (no live block): every one of the 17 amendment-6f arms is identical to 6f's smoke. MIXT_QA0_MBLOCK8 is built
+      with 8 term rows at ranks 2, 5, 9, 12, 15, 18, 22, 25, differs from NOTERM (17 of 26 rows shared), and the paper file
+      applied (127 players, none capped).
+    - **ON, the matchup block live from the same file:** every 6f arm is identical to 6f's ON smoke, and MBLOCK8 = MIXT_QA0.
+    - **ON, the cheap +2 block live** (production's `cheap_block_file.py` on W4's frame, cap 2.0; 134 of 292 skill
+      players): MIXT_QA0 carries the cheap block (8 rows, applied) and differs from MBLOCK8. MBLOCK8, NOTERM, TERM8 and the
+      factor and cheap paper arms equal OFF's.
+    - Parity none in all three. `books.json` OFF `60ea49d4`, ON-matchup `5e171463`, ON-cheap `1944e3ca`.
+  - **The integrity gate (§7)** adds: the MANIFEST names `paper-mblock-*`; the paper matchup block is applied;
+    MIXT_QA0_MBLOCK8 has 8 term rows at ranks 2–25. The gate now pins 6i's four shas.
+  - **Code:** lab `beea499`:
+    - `experiments/s38_paper_corun.py`, sha256 `1f5d43e230edd634b5b0466d6e4cf37beb3221bc1491896b66ed20aad6e6cac0`;
+    - `scripts/s38_build.py`, `42ce1de6526fabd0ed9621a1ec86c635c9288195565b07bb50d6f24e1f86aa4a`;
+    - `scripts/s38_score.py`, `fffe2dde259a8a04344cfe3513034aa27be90d46652f2dc39d78824362dd9deb`;
+    - **`scripts/s38_report.py` (the reader), sha256 `e5120fe3048b67f2c8f873d1efe199af571afbf46561258c7387eb9b40a5444a`**;
+    - `tests/test_s38_paper_corun.py`, `1853acd92d61cd0e5046f59e73296599183cd18692381db47202f6f5f2d30ccc` (27 tests);
+    - `scripts/s38_plan.py` `6c4cc53a…` (6h), unchanged.
+  - **Order:**
+    1. this amendment;
+    2. the laptop's ack (tests and its own smoke copy);
+    3. Friday's cheap-armed A3 and the integrity gate.
+- **Amendment 6j (2026-10-07, before Week 5's lock; no Week-5 outcome exists).**
+  - **Why.** Production's `--mix-cell-quotas` (study 56's switch, integration `48946cd0`, default off) changes the MIX
+    cells' entry quotas. If the operator arms it on a study 56 PASS, his live book changes, and QA0 must follow it or the
+    week is invalid.
+    - Study 38's parity did not know the argument. A live switch would have passed silently while every paper arm kept
+      the old quotas: an invalid week that looks complete.
+    - The same sweep of the union's arguments (55 now; 45 at amendment 4) found three more unchecked: `--winner-select`
+      and `--winner-order` (study 48d / 48b's steps, default off) and `--priority-order` (study 59's switch, default off).
+  - **What changes.**
+    - Every arm is built at the LIVE union's quotas, through `s28_winners_mix.QUOTAS` (the one list the fill, the blocks
+      and the spares read), set for each arm's build. With the argument absent the quotas are the cells' own, so every
+      arm is 6i's byte for byte.
+    - A new exploratory arm, **MIXT_QA0_QB2HALF**: his live construction (every live setting as QA0, the live block
+      included) at study 56's QB2HALF quotas, A1 0.44 / A2 0.28 / B 0.14 / C 0.14. It is read against MIXT_QA0, and
+      equals it when those quotas are live. This is the operator's "worth a test to find out" on the real fields: study 56
+      read NO DIFFERENCE (Addendum 163), so QB2HALF stays on paper in Week 5 through this arm.
+    - **Parity:** a `--mix-cell-quotas` outside its definition (the four MIX cells, every value > 0, the sum 1), a live
+      `--winner-select`, a live `--winner-order`, or a live `--priority-order` (production `f19222e0`, default off;
+      followed only by a later amendment) is a mismatch (an invalid week).
+  - **What does not change:** the rule (§5), the decision pair, and every other arm's definition.
+  - **The smoke:** (dry run, Week 4's frozen copies with 6i's inputs; `~/private/paper-corun/smoke-w4-amend6j/`, script `run.sh`)
+    - **OFF** (no quotas argument): every one of the 18 amendment-6i arms is identical to 6i's smoke. MIXT_QA0_QB2HALF is
+      built at book cells 11 / 7 / 4 / 4 (QA0: 8 / 4 / 7 / 7) and shares 3 of 26 rows with QA0.
+    - **ON**, `--mix-cell-quotas A1=0.44,A2=0.28,B=0.14,C=0.14`: parity none; MIXT_QA0 = MIXT_QA0_QB2HALF, and equals the
+      OFF build's QB2HALF arm; NOTERM and the other arms follow the live quotas.
+    - **ON with the cheap +2 block live:** MIXT_QA0 = MIXT_QA0_QB2HALF, both with 8 term rows.
+    - `books.json` OFF `906c6861`, ON `a4112f83`, ON + block `41545383`.
+    - The parity tests also cover an undefined quotas spec (five forms) and live `--winner-select`, `--winner-order` and
+      `--priority-order`.
+  - **The integrity gate (§7)** adds: MIXT_QA0_QB2HALF is built; with the QB2HALF quotas live, QB2HALF = MIXT_QA0. The gate
+    pins 6j's four shas.
+  - **Code:** lab `44becda`:
+    - `experiments/s38_paper_corun.py`, sha256 `801381ab7540b3f08072e1270a8603cf1d3429c2cddad18a536cefee55aebcc0`;
+    - `scripts/s38_build.py`, `bb52c6f18ca02f92fe7596ec70aaef604f0cecc50f1d245cae4b036f2619ef8c`;
+    - `scripts/s38_score.py`, `564ce2c60b22b33ffb1d44af8d6c844cebe291e9ca6256dcfe1226516763932a`;
+    - **`scripts/s38_report.py` (the reader), sha256 `de63c136fe4442c1077fd4cb60a20b95fd6dd9b9de1c2cd989bf6888b959a74a`**;
+    - `tests/test_s38_paper_corun.py`, `b00f9b5ec92ea830ca0345f6d1cb6a5c96ffea6f6b8167c4775bcf43a49dad62` (28 tests; one added, three earlier pinned
+      strings updated);
+    - `scripts/s38_plan.py` `6c4cc53a…` (6h), unchanged.
+  - **Order:**
+    1. this amendment;
+    2. the laptop's ack;
+    3. Friday's A3 and the integrity gate (pinned to 6j).
 
 ## 1. Why
 - **The operator (10-06), on the proposal:** "yes, please try it, I want to exhaust all reasonable options."
