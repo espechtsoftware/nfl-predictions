@@ -12,6 +12,45 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-07 (08:23 CDT) — O-41 (bye weeks stop the SIS cache auto target) fixed and DEPLOYED; the operator wants the matchup bonus LIVE as a capped block (tests first); study 50 running; 6c / 6d acked; 46(b) dropped
+
+**The operator (10-07, after the outside reviewer's Experiment B and their advice):** "Please try to tackle the 'matchup bonus' one this week."
+- That is the live matchup bonus on FP's means as a capped block, the prior-top vehicle; the outside reviewer advised against it.
+- **Plan, his go / no-go at Saturday's arming:**
+  1. The W2–4 fixed-book replay of the 8-row matchup block (`~/.cache/laptop-agent/rehearsal/matchup_block_replay.sh`, after study 50 frees the machine).
+  2. Study 50's MATCHUP read today.
+  3. A harness check of the block form plus study 38 amendment 6e (the reviewer's design, asked).
+  4. The W5 matchup file from A3's frame (`scripts/matchup_block_file.py`, 57d80375). It reproduces the outside reviewer's matchup-w4.csv exactly.
+  5. Friday's rehearsal with TERM_ROWS=8 on it.
+- **Live stays TERM_ROWS=0 until his word.**
+
+**O-41 (OPEN-DEFECTS; the O-39 class; found by the 07:54 cache dry runs):**
+- From W5, player_week_inference holds each team's NEXT game (CAR / KC → W6), and the cache generator's auto target refused [(2026, 5), (2026, 6)].
+- Class swept: only this consumer was affected.
+- **Fix:** 23f80b61 + the reviewer's hardening 1ce56db0, both reviewed and approved, merged at ffb5e166.
+- **Deployed 13:16Z in the lanes:**
+  - both caches on `tabpfn-sis-pass-tail-live@sha256:498d93fe…` = ac07a31e + gen.py at 1ce56db0, an overlay (Cloud Build e205475c). FROM = ac07a31e's digest; in-image hashes equal the commit's blobs (gen.py 1dd39c66, features 52cc95c5, sis_pass_tail 8acf68b9, live_shadow dde9e921);
+  - the paired job relabeled (image 7f632786 unchanged);
+  - CODE_SHA 1ce56db0ee081b2a5df9f9df01af555b18bc10c0 on all three.
+- The fresh build bf9c9935 (41fa6fbf) is superseded and unused.
+- **Next:** the cache re-dry-runs (running) → the paired dry run → the env check → resume the 3 schedulers → check_prospective_gates.
+
+**Studies (the reviewer designs; the laptop reproduces):**
+- **Study 50 FROZEN** (prereg 8976e320; lab 3281bd2). The laptop acked:
+  - the census reader on the reviewer's raw is byte-identical (b321cf7d);
+  - the raw rebuild of bank 1406 shows 53/53 identical mechanics (timing excluded);
+  - banks 1551–1556 are clean.
+- The scored run started 08:16 CT (a day early, disclosed); the read is today.
+- **Study 38:**
+  - 6c FINAL (cbca4dd); the laptop's smoke copy matches all four (1adbd2e7 / 2e114268 / 4fa7e4a3 / fff6fa8a).
+  - The DvP writer was repaired before first use (the missing-id refusal; f4a1d2d6, sha a4651e61; prereg bfc58197).
+  - 6d (MATCHUPX / COMBINED; lab f01611c): the writer paper_factor_file.py de4f4cb3 is APPROVED and reproduces the outside reviewer's W4 files exactly; the laptop's smoke copy matches all three (38ff01ef / ea81475a / 25b5f067).
+  - The checklist's snapshot command names all three paper files, absolute paths (99f84c0f).
+- **46(b) DROPPED** (the reviewer and the laptop): the outside reviewer's no-hindsight test (world-optimal rows inside four forms, 32 rows) found 0 top-1% rows in 4 weeks. Power caveat and reasons are in study list row 46; (c) a weekly descriptive replaces it.
+
+**Today's heavy queue (one at a time):** study 50 (the reviewer) → the matchup-block replay → A3 → the s38 snapshot from A3 with all three paper files → the reviewer's integrity gate.
+**Still open:** the licensed FP numbers on the public review branch (the operator's call on a history rewrite); the props pre-check after 09:30, then project-slate; the FP W5 live pages (still not posted at 07:55); R14 when the new W5 articles land.
+
 ## 2026-10-07 (07:44 CDT) — The operator: "review this and schedule any necessary experiments this week" (the outside reviewer's why-we-missed-the-winners report): study 50 + amendment 6d proposed to the reviewer, 46(b) scheduled; 6c FINAL; SIS team context captured
 
 **The operator's request** (10-07, on the outside reviewer's interim status; report on review/outside-fill-order-20261006 @ 0ad813b2):
