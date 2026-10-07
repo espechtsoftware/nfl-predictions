@@ -13,8 +13,9 @@
   - On 36 slates of 2023–24, R4 − RND +0.030 [+0.001, +0.060]; R4 − R0 (book order) +0.043.
   - By m: m = 2 +0.026, m = 3 +0.069.
   - Production's tool is `scripts/choose_entries.py`.
-- **His Week-5 plan (Rev5)** holds five UNPINNED big contests with 2 entries each: the Millionaire (ranks 1–2), the $555
-  2x supersat (3–4), and three $333 Wildcats (13–14, 15–16, 17–18). The head layout deals them consecutive ranks.
+- **His Week-5 plan (Rev6, his final order of 10-07)** holds five UNPINNED big contests with 2 entries each: the $555 2x
+  supersat (ranks 1–2), three $333 Wildcats (3–4, 11–12, 13–14) and the Millionaire (18–19). The head layout deals them
+  consecutive ranks. The DRAFT first named Rev5; it moved to Rev6 before study 56's read.
 - **Disclosed:** study 32 chose R4 among six rules on these same 36 slates. This read is therefore partly in-sample for
   the rule (not for these contests or this plan).
   - No 2022 go / no-go is possible: the pre-lock field needs predicted ownership (TABPFN_LS), which exists for 2023–24
@@ -24,8 +25,8 @@
 
 ## 2. Arms (`experiments/s57_r4_pairs.py`)
 - **The book:** on each slate-bank, study 48's harness (`s48_winner_like.py` `c22d2811…`, sha-asserted), his live book with
-  Week 5's live cheap +2 block (LIVE_CB, study 53's CHEAP2_BLOCK8), dealt on Rev5 (`plan-week5-rev5-s24.json`
-  `008678f7…`).
+  Week 5's live cheap +2 block (LIVE_CB, study 53's CHEAP2_BLOCK8), dealt on Rev6 (`plan-week5-rev6-s24.json`
+  `ac10ddf6…`).
 - **CB** (reference): the head deal.
 - **CB_R4** (THE DECISION): the same deal, except that each of the five unpinned 2-entry big contests takes R4's pair.
   - The pair is chosen from the book's 26 rows by study 32's `choose` (m = 2; the contest's N and its big seats S),

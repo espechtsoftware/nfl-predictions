@@ -50,25 +50,31 @@ small-contest overlap limit 5):
 On Rev3 under head, the $4,444 / $555 / $333 / FFWC contests read ranks 1–19, the Midseason Warm Up satellites (also
 priority, the operator 10-07) 20–22, and the $20 supersats 23–26.
 
-**THE PLAN: Rev5** (added to the DRAFT before study 56's read; it replaces Rev4, which was never installed).
-- **The operator, 10-07, in two steps:**
+**THE PLAN: Rev6, his final order** (added to the DRAFT before study 56's read; it replaces Rev4 and Rev5, neither of
+which was ever installed).
+- **The operator, 10-07, in three steps:**
   - "I forgot about the midseason warm ups. Those are big prizes. Can we move that up to under the 4444 and before 555."
-  - Then: "I'm sorry - I didn't even realize what the showdown Mega is. That should be under the $333. The order should be
-    two mega 4444 satellites / midseason warmup / 555 / WFFC / 333 / Showdown mega / everything else".
-- **Rev5** holds Rev3's 29 contests and fields, re-ordered. Under head: MEGA 1–2, Warm Up 3–5, $555 6–11 (the 2x supersat
-  3–4), WFFC $490 12, $333 13–21, Showdown MEGA 22, and the $20 supersats alone on 23–26.
-- Rev5's per-rank entry weights equal Rev3's ([4, 3, 3, 3, 2×18, 1, 1, 1, 1]), so the books and their built order are
-  unchanged. Only the contest-to-rank map moves.
-- **Every arm is dealt on Rev5's map:** `~/s24-panel/plan-week5-rev5-s24.json`, sha256 `008678f7…`.
-  - It was built from Rev3 by re-ordering its contest dicts (byte-equal), in Rev3's format.
+  - Then: "I'm sorry - I didn't even realize what the showdown Mega is. That should be under the $333. …"
+  - Finally: "I apologize again. I didn't understand what the prizes were in some of these contests. Let's change the order
+    for the final time to: 4444 (all of them including the showdown - which seems the same as the others anyway) / 555 /
+    WFFC / 333 / Millionaire / Midseason warmup / Everything else including milly qualifiers".
+- **Rev6** holds Rev3's 29 contests and fields, re-ordered. Under head:
+  - $4,444 1–3 (the Showdown at 3);
+  - $555 singles 4–9, the 2x 1–2;
+  - WFFC $490 10;
+  - $333 2-entry 3–4, 11–12, 13–14, singles 15–17;
+  - the Millionaire 18–19;
+  - Warm Up 20–22;
+  - the $20 supersats alone on 23–26.
+- Rev6's per-rank entry weights equal Rev3's, so the books and their built order are unchanged. Only the contest-to-rank
+  map moves.
+- **Every arm is dealt on Rev6's map:** `~/s24-panel/plan-week5-rev6-s24.json`, sha256 `ac10ddf6…`.
+  - It was built from Rev3 by re-ordering its byte-equal contest dicts, in Rev3's format.
   - Its head ranks equal the laptop's for all 29 contests.
-  - It mirrors the live installed contests.json (sha `0877fbcd…`), a different file format: the check is equivalence,
-    not a sha match.
-  - The decision therefore isolates the sort, on the plan he will run.
-- The Rev3 → Rev5 move itself is his plan decision, an entry-side change. The laptop's in-sample screen covers it
-  (CB_REV5 vs CB).
-- His priority contests are the 20 big ones ($4,444 incl. the Showdown MEGA, Warm Up, $555, FFWC $490, $333), covering
-  ranks 1–22.
+  - It mirrors the live installed contests.json (sha `5f8352ee…`), a different file format: the check is equivalence.
+- **Every big contest (21) is above "everything else" in his order,** covering ranks 1–22. The priority-only endpoint
+  would equal the primary, so it is dropped.
+- The Rev3 → Rev6 move itself is his plan decision. The laptop's in-sample screen covers it.
 
 ## 3. Endpoint and rule (the reader `scripts/s59_report.py`)
 - **THE READ: 2023–24** (36 slates).
@@ -87,12 +93,6 @@ priority, the operator 10-07) 20–22, and the $20 supersats 23–26.
   the laptop's in-sample harm screen runs beside it.
 - **EXPLORATORY** (two-sided 0.95):
   - PRI_ALL − LIVE (the whole-book form, no block), on the read and on 2022;
-  - P(≥ 1 big seat) over his PRIORITY contests only: the plan's big single-prize contests whose prize names a $4,444, a
-    $555 or a $333 ticket, an FFWC $490 qualifier or a Midseason Warm Up ticket. The last was added to the DRAFT before
-    study 56's read, on the operator's 10-07 word that the Warm Up sats are big prizes "under the 4444 and before 555"
-    (`6e287447`). That makes 20 of the 29 contests. The other 9 are the Millionaire (multi-tier), the seven $20 supersats and the
-    $125 FFWC satellite. CB_PRI − CB, on the
-    read and on 2022;
   - the decision on l02;
   - the priority entries' QB+1, bring-back and 2+ sub-$4,000 shares under each deal.
 
