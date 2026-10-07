@@ -4,6 +4,13 @@
 - Drafted by the laptop: v1 `5e6fffdd`, v2 `a9736719`. The reviewer's four decisions are folded in (§9).
 - The operator's approved-plan item P1 (his Wed 10-07 directive).
 - It holds from Week 5. Week 5 locks Sunday 10-11, and its standings load Monday 10-12, after this freeze.
+- **AMENDMENT 1 (2026-10-07, before any Week-5 outcome; a disclosed drafting error, found by the laptop while building
+  the reader).**
+  - §4's yardstick read z = (points − the field's mean) / the field's sd and called it the 10-05 method. It was not. The
+    10-05 analysis, and the break-even values and power table calibrated on it, use the latent normal score of the
+    finish position.
+  - §4 now states that score. Nothing else changes: the break-even table, the classes, the week weighting, the t bound,
+    and the power table, whose total sd 0.95 and ICC 0.062 were measured on this latent z.
 
 **Units:** multiples of the fee, rates and z-scores only. Dollars stay in BigQuery and private files.
 
@@ -42,9 +49,12 @@ Each contest's class comes from `v_dk_payout_structure` and its name:
 
 ## 4. Measures, per class, per week from W5 (W1–4 reported as the baseline, never pooled into the decision)
 - **Primary (finish level; the 10-05 method; the reviewer's decisions 2 and 3):**
-  - **The yardstick:** each entered row's z against the SAME week's Millionaire field, z = (row points − the field's
-    mean) / the field's sd. The break-even values were derived on this yardstick. Own fields are too small and noisy
-    for the satellites.
+  - **The yardstick** (AMENDMENT 1, 2026-10-07): each entered row's z against the SAME week's Millionaire field is the
+    10-05 latent score z = Φ⁻¹(1 − p).
+    - p = (position − 0.5) / N; position = 1 + the number of the field's entries (ours removed) strictly above the row;
+      N = that field's size.
+    - The break-even values below were calibrated on this scale.
+    - Own fields are too small and noisy for the satellites.
   - **The unit is the week, weighted equally.** Per class: the week's mean z over the class's entered rows; the class's
     edge = the mean over weeks of (the week mean − the class's break-even z).
   - **Beside it, descriptive:** each contest's own-field finish percentile.
