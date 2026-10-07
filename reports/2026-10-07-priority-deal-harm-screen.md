@@ -7,43 +7,48 @@ same sort (below).
 
 **Amendment 1 (2026-10-07, before any replay number exists): his contest order and the pairs.**
 
-**His requests** (to the outside reviewer, verbatim):
+**His requests** (to the outside reviewer and the laptop, verbatim, in order):
 - "I forgot about the midseason warm ups. Those are big prizes. Can we move that up to under the 4444 and before 555."
-- Then, FINAL: "I'm sorry - I didn't even realize what the showdown Mega is. That should be under the $333. The order
-  should be two mega 4444 satellites / midseason warmup / 555 / WFFC / 333 / Showdown mega / everything else."
+- "I'm sorry - I didn't even realize what the showdown Mega is. That should be under the $333. The order should be two
+  mega 4444 satellites / midseason warmup / 555 / WFFC / 333 / Showdown mega / everything else."
+- FINAL: "I apologize again. I didn't understand what the prizes were in some of these contests. Let's change the order
+  for the final time to: 4444 (all of them including the showdown - which seems the same as the others anyway) / 555 /
+  WFFC / 333 / Millionaire / Midseason warmup / Everything else including milly qualifiers."
 
-**The vehicle: his private plan Rev5.** It replaces an intermediate Rev4, which was never installed.
-- Rev5 holds Rev3's same 29 contests with byte-equal fields, re-ordered only. It is never committed; HANDOFF and the arm
-  script carry its sha.
+**The vehicle: his private plan Rev6.** It replaces the intermediate Rev4 and Rev5, neither of which was installed.
+- Rev6 holds Rev3's same 29 contests with byte-equal fields, re-ordered only. It is never committed; HANDOFF and the arm
+  script carry its sha (`5f8352ee…`).
 - Its per-rank entry weights equal Rev3's, so the MIX interleave and the book's rows and built order are unchanged.
 - The new ranks under head:
-  - the two $4,444 MEGA satellites: 1–2;
-  - the Midseason Warm Ups: 3–5 (from 20–22);
-  - the $555 singles: 6–11 (from 3–8). The $555 2x supersat keeps 3–4, the head block of the second 2-entry contest; it
-    shares those rows with two Warm Ups and takes none from them;
-  - the $490 FFWC: 12 (from 9);
-  - the $333 satellites: 13–21 (from 11–19);
-  - the $4,444 Showdown MEGA satellite: 22 (from 10).
-- The Millionaire's 1–2, the pinned $125 FFWC at 1, and the pinned $20 supersats over 1–26 do not move.
-- Every contest except the $20 supersats now reads ranks 1–22. Only the supersats read 23–26.
-- **The block:** its ranks 2, 5, 9, 12, 15, 18, 22 and 25 are kept. Seven of them are inside 1–22: the second MEGA, the
-  third Warm Up, a $555, the FFWC, two $333s and the Showdown each get a block row whatever the scores. Of the 18
-  sorted positions, 15 are inside 1–22. The 3 lowest-scoring non-block rows go to ranks 23, 24 and 26.
+  - $4,444: 1–3 (the Showdown MEGA from 10);
+  - $555: the singles 4–9 (from 3–8), and the 2x supersat 1–2;
+  - the $490 FFWC: 10 (from 9);
+  - $333: the 2-entry contests 3–4, 11–12 and 13–14, the singles 15–17 (from 11–19);
+  - the Millionaire: 18–19 (from 1–2);
+  - the Midseason Warm Ups: 20–22 (unchanged).
+- **A mechanical note:** the head layout gives its two 2-entry head blocks (the shared top rows 1–2 and 3–4) to the first
+  two 2-entry contests in the file. Under his order those are the $555 2x and the first $333 2-entry; in Rev3 they were
+  the Millionaire and the $555 2x. Those rows are shared, so nothing is taken from the contests above.
+- The pinned $125 FFWC at 1 and the pinned $20 supersats over 1–26 do not move. Every contest except the $20 supersats
+  reads ranks 1–22. Only the supersats read 23–26.
+- **The block:** its ranks 2, 5, 9, 12, 15, 18, 22 and 25 are kept: the second MEGA and the $555 2x at 2, $555s at 5 and
+  9, $333s at 12 and 15, the Millionaire at 18, a Warm Up at 22, the supersats at 25. The 15 sorted positions inside 1–22
+  are filled best-first in rank order. The 3 lowest-scoring non-block rows go to ranks 23, 24 and 26.
 
 **The arms** (both changes are in-sample):
 - **CB:** today's deal, Rev3 in book order.
-- **CB_REV5:** Rev5 in book order.
-- **CB_PRI:** Rev5 with `--priority-order`.
+- **CB_REV6:** Rev6 in book order.
+- **CB_PRI:** Rev6 with `--priority-order`.
 
 **Each pair answers its own question under the frozen rule below** (NOT ENTERED if P(≥ 1 big) is lower in 2 or 3 of the 3
 weeks, or the pooled e_big ratio is below 0.80):
-- **(i) THE SORT:** CB_PRI vs CB_REV5, both on Rev5. This decides whether `--priority-order` is armed. It is the pairing
+- **(i) THE SORT:** CB_PRI vs CB_REV6, both on Rev6. This decides whether `--priority-order` is armed. It is the pairing
   of the reviewer's study 59, which isolates the sort.
-- **(ii) THE PLAN RE-ORDER:** CB_REV5 vs CB. This decides whether Rev5 stands.
+- **(ii) THE PLAN RE-ORDER:** CB_REV6 vs CB. This decides whether Rev6 stands.
 - **Descriptive only:** CB_PRI vs CB, the whole change against today.
 
 "CB_PRI vs CB" in the rule below reads as pair (i), and the same rule applies to pair (ii).
-- CB and CB_REV5 are ONE book: Rev3 and Rev5 give equal weights, which the replay asserts. They are dealt on their own
+- CB and CB_REV6 are ONE book: Rev3 and Rev6 give equal weights, which the replay asserts. They are dealt on their own
   plans.
 - CB_PRI is the same build with `--priority-order`. Integrity requires the same 26 rows, the same block rows at the block
   positions, and the same spares.

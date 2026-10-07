@@ -120,33 +120,33 @@ rehearsal runs on the merged head in the exact armed env; Friday re-verifies on 
   runs the sha check and `check_term_block_file.py` (refuses a bonus above TERM_CAP, a cap outside (0, 5], a pred_own that is not
   bonus / 0.20), also under `--check`.
 
-## Wednesday 10-07 to Saturday 10-10: priority-first dealing and his Rev5 contest order (decision sheet row 24)
+## Wednesday 10-07 to Saturday 10-10: priority-first dealing and his Rev6 contest order (decision sheet row 24)
 - **His request** (to the laptop, 10-07): "Let's try to do this one this week as it seems more promising." His contest order
-  (to the outside reviewer, final): "two mega 4444 satellites / midseason warmup / 555 / WFFC / 333 / Showdown mega /
-  everything else".
+  (final, 10-07): "4444 (all of them including the showdown...) / 555 / WFFC / 333 / Millionaire / Midseason warmup /
+  Everything else including milly qualifiers".
 - **The vehicles:**
   - The switch `f19222e0` (`UNION_PRIORITY_ORDER`, off): the 18 non-block rows sort by priority_deal's score; the cheap
     block keeps its ranks.
-  - The private plan Rev5 (sha `0877fbcd…`): Rev3's contests re-ordered, with equal weights, so the same book. It is
-    staged as `~/week5-sunday/contests.json.rev5-0877fbcd`, not installed.
+  - The private plan Rev6 (sha `5f8352ee…`; Rev4 and Rev5 were never installed): Rev3's contests re-ordered, with equal weights, so the same book. It is
+    staged as `~/week5-sunday/contests.json.rev6-5f8352ee`, not installed.
 - **Wednesday (after study 56's run):** `bash ~/.cache/laptop-agent/rehearsal/priority_deal_replay.sh f19222e0
-  ~/week5-sunday/contests.json.rev5-0877fbcd` runs the frozen harm screen
+  ~/week5-sunday/contests.json.rev6-5f8352ee` runs the frozen harm screen
   (`reports/2026-10-07-priority-deal-harm-screen.md`).
-  - (i) THE SORT (CB_PRI vs CB_REV5) decides the switch.
-  - (ii) THE RE-ORDER (CB_REV5 vs CB) decides Rev5.
+  - (i) THE SORT (CB_PRI vs CB_REV6) decides the switch.
+  - (ii) THE RE-ORDER (CB_REV6 vs CB) decides Rev6.
   - Report both to him and to the reviewers.
-- **Install Rev5** (if pair (ii) passes), before Thursday's A3:
+- **Install Rev6** (if pair (ii) passes), before Thursday's A3:
   - `cp -p ~/week5-sunday/contests.json ~/week5-sunday/contests.json.rev3-8625de0e`, then
-    `cp -p ~/week5-sunday/contests.json.rev5-0877fbcd ~/week5-sunday/contests.json`.
-  - Check the sha is `0877fbcd…`.
-  - Set the arm script's `PLAN_SHA` to Rev5 (tracked copy and host copy; the "is not Rev3" message names Rev5).
-  - Send the reviewer the equivalence check against `~/s24-panel/plan-week5-rev5-s24.json` (`008678f7`): the same
+    `cp -p ~/week5-sunday/contests.json.rev6-5f8352ee ~/week5-sunday/contests.json`.
+  - Check the sha is `5f8352ee…`.
+  - Set the arm script's `PLAN_SHA` to Rev6 (tracked copy and host copy; the "is not Rev3" message names Rev6).
+  - Send the reviewer the equivalence check against the reviewer's Rev6 s24 plan (`~/s24-panel/plan-week5-rev6-s24.json`): the same
     contest_id order and head ranks.
-- **Thursday:** study 59's read (the reviewer; CB_PRI − CB on Rev5; by about noon). He decides whether its bar applies.
+- **Thursday:** study 59's read (the reviewer; CB_PRI − CB on Rev6; by about noon). He decides whether its bar applies.
 - **Friday:** if pair (i) passed (and 59, if he set that bar) and the reviewer's 6k is in, A3 runs with
   `A3_PRIORITY_ORDER=1` on top of the cheap block. The union log prints `PRIORITY ORDER: … block positions kept […]`, and
   the receipt carries `config.union.priority_order`.
-- **Saturday:** `PRIORITY_ORDER=1` in the arm script only on HIS yes at arming. Otherwise it stays 0, and Rev5 stays as his
+- **Saturday:** `PRIORITY_ORDER=1` in the arm script only on HIS yes at arming. Otherwise it stays 0, and Rev6 stays as his
   plan order.
 - **Rollback:** `PRIORITY_ORDER=0`, and Rev3 from the backup with its PLAN_SHA.
 
