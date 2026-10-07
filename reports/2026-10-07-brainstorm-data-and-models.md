@@ -8,6 +8,23 @@ Millionaire fields (1.33M lineups), the T-70 frames and world draws, and 2014–
 are in `reports/2026-10-07-brainstorm/`. Aggregates only: user names are fingerprinted inside BigQuery and never
 downloaded, and no per-player vendor values appear.
 
+> **Update, 10-07 afternoon: study 53's frozen read (lab fd9687d; the laptop reproduced it byte-identical, READ
+> f587bb8c). The cheap block is NOT ENTERED at either dose.**
+> - CHEAP2_BLOCK8 on 2023–24: +0.004 [−0.031, +0.043]; e_big ratio 0.936. On 2022 −0.0016, which the rule reads as
+>   CONTRADICTED.
+> - CHEAP4_BLOCK8 on 2023–24: −0.014 [−0.049, +0.022]; ratio 0.889; also stopped.
+>
+> The operator's Week-5 leaning was conditional on this read, so the cheap block is out for Week 5 by his own condition
+> (decision sheet row 21: the matchup block or none).
+>
+> What follows for this document:
+> - §1.1's real-field pattern stays a fact about the 2026 fields.
+> - The *lever* (a bonus in our build) shows no benefit on 2022–24.
+> - **M1 (a graded cheap-boom model) is dropped:** any cheap variant tested on the already-read 2022–24 slates would be
+>   panel mining.
+> - The fair ground is new weeks: study 38's 6f paper arms (CHEAP2 / CHEAP4) on real W5+ fields, and the weekly
+>   monitor's prospective reading once the reviewer freezes it. If both hold over W5–W8, that is the case for reopening.
+
 ## 0. In plain words
 
 **What I tested today (nine quick checks):**
@@ -273,7 +290,8 @@ per-game market TD sums (redundant with the total).
 
 ## 3. Models to train, ranked
 
-**M1. A cheap-boom model.** P(a sub-$4k WR/TE, or a near-minimum RB, scores 4× salary).
+**M1. A cheap-boom model. DROPPED 10-07 after study 53** (see the update at the top; reopen only from W5+ real-field
+evidence). P(a sub-$4k WR/TE, or a near-minimum RB, scores 4× salary).
 - **Data:** 2014–2025 salaries (D4 for 2022–25 points), role (`player_week_role` depth rank, rookie, depth change), lagged
   usage (the feature tables' snap/target/route shares), team implied total, the matchup term (O-40), and from 2023 the
   market lines.
@@ -310,7 +328,7 @@ shapes found here as features: cheap count, DST price, stacked QB, and salary us
   rule decides it. The defense price and game coverage are already right under the Week-5 settings.
 - **Monday 10-12:** run `field_pattern_monitor.py` on W5's real field (its first prospective week). The laptop's weekly
   graph refresh is the natural place for it.
-- **Week 6+ candidates:** the graded cheap block (M1) if it beats flat; a game-allocation rule (M2) if it beats the rank
+- **Week 6+ candidates:** (the graded cheap block, M1, dropped after study 53); a game-allocation rule (M2) if it beats the rank
   base rates. Each takes the usual path: preregistered test, operational proof, rollback, and the operator's decision.
 
 ## 5. Reproduction
