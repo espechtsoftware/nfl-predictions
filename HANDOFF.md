@@ -12,6 +12,25 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-07 (04:29 CDT) — Study 48d READ reproduced (NO DIFFERENCE, leaning positive); study 48e (the operator's gate at generation) designed, production draft built; SIS renewed; the W5 vendor run started
+
+- **Study 48d** (choose the book by the winner-likeness score): **NO DIFFERENCE, leaning positive.**
+  - Primary, SEL_CELL − LIVE: +0.02090 [−0.01536, +0.06024]; 2023 +0.029, 2024 +0.013; P(≥1 big) 0.319 → 0.340.
+  - Guard 1 (mean entry pct): −0.0127, lower bound −0.0272, past the margin (the guards gate a PASS only). Guard 2: ratio 1.029.
+  - Selection takes in 7.8 spares, at −1.72 projected points per row.
+  - The laptop's re-run at lab `ea7e30c` is byte-identical: census `CENSUS_s48d_confirm` 3f3634fb, reader e786af21, READ 8bdeb0b3, all six raw files matching.
+  - Same shape as study 46 (46c then reversed on 2022). Not for live use without a 2022 check ("48d-2022", the reviewer, after 48e).
+  - The switch stays merged OFF. LEDGER + Addendum: the reviewer; the laptop verifies and merges.
+- **Study 48e** (the operator 10-07: "before a lineup is added to the corpus it needs to appear winner like … a good next test today"):
+  - The design (the reviewer): his live fill with each peeked row scored by study 48's walk-forward model. Below tau, that lineup is banned and the cell re-solved, up to R = 10 tries; else the best-scoring try, counted. Spares are gated too.
+  - tau = the median score of the prior slates' training top-1% rows. GATE (decision) vs LIVE; GATE_SOFT (25th pct) exploratory. Banks 1539–1544, seed 20261031.
+  - **Production draft:** `production/winner-gate-20261007` @ fac84b5a (`--winner-gate`, `--winner-gate-tau`, tries 10, fallback best).
+    - Tests: the one-row score equals score_book; each rejected lineup is banned on the re-solve.
+    - W4 smoke (placeholder tau = the W4 book median, R 20): 19 of 41 rows passed, 511 solves, 182 s.
+    - Not wired to the host or the arm. Production needs the LIVE tau as a frozen number plus a parity case from the reviewer.
+- **SIS session:** expired at 04:13 and renewed by the operator; both vendor logins verified at 04:27.
+- **The W5 weekly vendor run** (`nfl-weekly-data run --week 5 --skip-odds --no-login-if-needed`, production checkout; its ops code equals the integration tip) is running. Log: `~/.cache/laptop-agent/vendor-w5.log`.
+- **Next:** both SIS cache re-dry-runs (expect week_end 4) → the paired dry run → the env check → resume the 3 schedulers → `check_prospective_gates.py --week 5`. Then A1–A3 when the outside reviewer's job leaves the CPU.
 ## 2026-10-07 (04:12 CDT) — Study 48d's selection switch merged OFF (the reviewer's NOTE 1 fixed); 48d's READ pending
 
 - **The switch:** `union_reselect --winner-select` (SEL_CELL: per cell, keep its book count of the most winner-like rows among the cell's book rows and spares) is merged into integration OFF.
