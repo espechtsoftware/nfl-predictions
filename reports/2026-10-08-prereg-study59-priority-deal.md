@@ -1,8 +1,12 @@
-# Preregistration: study 59, priority-first dealing, in the harness, with a 2022 go / no-go (DRAFT 2026-10-07)
+# Preregistration: study 59, priority-first dealing, in the harness, with a 2022 go / no-go (FROZEN 2026-10-07)
 
-**Status: DRAFT 2026-10-07**, committed by the reviewer BEFORE study 56's read. The score favours QB+2 rows, and study
-56 measures fewer QB+1 rows on the same slates, so its read would bear on this design.
-- The code, the smoke, the binding census, the bank scan and the freeze follow.
+**Status: FROZEN 2026-10-07** by the reviewer, after the smoke and the binding (support) census (§6), before any scored
+bank. A WEEK-6 READ.
+- The DRAFT (`6d8967f2`) and its plan updates through Rev6 (`9ad61eeb`, `16cb6fc0`, `597e00d4`, `3ca3d8c6`) were all
+  committed before study 56's read.
+- **It is no longer decision-bearing for Week 5.** The laptop's frozen in-sample harm screen (`27a1957b`, amendment 1
+  `7ee09fe1`) said NOT ENTERED for the sort (lower in 2 of 3 weeks, seats ratio 0.587), so `--priority-order` is not
+  armed for Week 5. This study reads the question out of sample for Week 6.
 - The laptop acks the census, scans the banks and re-runs the frozen reader.
 
 ## 1. Why
@@ -108,8 +112,44 @@ which was ever installed).
 - The deal is production's head layout.
 
 ## 6. Smoke and integrity
-(Added at the freeze: the smoke, including the order's parity with production, the binding census, the bank scan and
-the code shas.)
+- **The smoke** (`~/s59-panel/smoke.sh`; code as committed at lab `b1eca48`, clean; bank 1406; Rev6; 2024 W10 SCORED,
+  2022 W6 MECHANICS ONLY):
+  - LIVE's rows equal study 53's LIVE, and LIVE_CB's rows equal its CHEAP2_BLOCK8, on both slates. The books do not
+    depend on the deal.
+  - **Production parity:** production's `priority_deal.priority_order` (copied verbatim, `fa47594d…`) gives the same order
+    as the reviewer's independent reference on the real rows, with the block (CB_PRI) and without it (PRI_ALL). A test
+    also checks 200 random books.
+  - The block rows keep their positions, and the spares are in place (asserted).
+  - **Disclosed:** the reader ran on a FAKE file (the 2024 row relabelled 2022 as well). Its section lines, truncated at
+    14 characters, showed "not" in the STUDY line for that single 2024 W10 slate-bank of bank 1406, a mechanics-test
+    slate-bank.
+  - The log: lab `results/s59/SMOKE_s59.log`.
+- **The binding (support) census** (outcome-blind; bank 1406; 53/53; code `b1eca48` clean;
+  `results/s59/CENSUS_s59_binding.txt` `c5c54b09…`, raw `9e36900d…`; lab `e7dae3d`):
+
+  | 2023–24 | CB | CB_PRI | LIVE | PRI_ALL |
+  |---|---|---|---|---|
+  | score per row at ranks 1–22 / 23–26 | 2.097 / 2.340 | 2.312 / 1.160 | 1.846 / 2.292 | 2.231 / 0.174 |
+  | score per dealt entry | 2.157 | 2.342 | 1.912 | 2.200 |
+  | rows moved (of 26) | 0 | 16.6 | 0 | 24.6 |
+
+  - **2022 is alike:** CB_PRI 2.267 / 1.294 against CB 2.067 / 2.397.
+  - In its own order the book holds its highest-scoring rows at ranks 23–26, the $20 supersats. The sort moves them into
+    the priority span.
+  - Neither re-deal is dealt identically to its reference on any slate-bank.
+- **Banks:** 1587–1592 and seed 20261108. The reviewer's unique-blob scan of both repositories (8,057 lab and 17,723
+  production blobs up to 5 MB) found them only in study 59's own records (the DRAFTs, `s59_drive.py`, `s59_report.py`).
+  No result file exists on disk.
+- **Code:** nfl2 `production/s59-priority-deal-20261007` @ `b1eca48` (the census at `e7dae3d`):
+  - `experiments/s59_priority_deal.py`, sha256 `6a0b65e24fdf859a22c06a10cfb85e6ea2949399acbfdb3fe6ac16db3eafb888`;
+  - `experiments/priority_deal.py` (production's, verbatim), `fa47594dc9113bd74ca699ad6ea7babbc9cb6b320b37dcbc349095cf4dbef426`;
+  - `scripts/s59_drive.py`, `7f74a2f97c69c71986653e6e703ed2cc8977834b3239d5a9193493d1c61e0167`;
+  - **`scripts/s59_report.py` (the reader), sha256 `c6b70771acadd5a35880d85f4eaa86cd626b55451bc043b22b203964e78f31ad`**;
+  - `scripts/s59_census.py`, `881735d00e6f0894e7cb325d976644da11339479034c28ac52572dbf415dd429`;
+  - `tests/test_s59_priority_deal.py`, `b586bbe462d177ea2717446f8d74eb108e3f534be7452d577fc2199a975aace7` (7 tests);
+  - unchanged, sha-asserted: `s48_winner_like.py` `c22d2811…`, `s53_cheap_pref.py` `f3f9d735…`, production's
+    `enter_layout.py` `3cb051ac…`;
+  - the plan: `plan-week5-rev6-s24.json` `ac10ddf6…`.
 
 ## 7. Order
 1. This DRAFT, before study 56's read.
