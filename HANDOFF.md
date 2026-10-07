@@ -12,6 +12,30 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-07 (10:19 CDT) — Study 52 NOT SUPPORTED (TD sorting closed; reproduced byte-identically); records 159 / 160 merged; GitHub push outage 10:09–10:17; O-40 confirmatory script for review; R14 article versions
+
+**Study 52** (deal the book by projected TDs; READ lab cf88676, the census 504e153 committed first at 10:15:27):
+- **NO DIFFERENCE, NOT SUPPORTED:** DEAL_TD − DEAL_LIVE **−0.02207 [−0.05925, +0.01408]**, negative in both read seasons, ratio 0.884; 2022 +0.01957.
+- DEAL_TD − DEAL_PROJ −0.0065: TDs add nothing beyond projection.
+- **The laptop's re-run is BYTE-IDENTICAL:** census caeae9ff, READ dd505310.
+- With the in-sample market re-deal NOT ENTERED, the idea is CLOSED unless a new TD source appears (decision sheet row 22, study list 49).
+
+**Records merged:** Addendum 159 (study 51; 7621fe7e) and Addendum 160 + the study 52 prereg (b8fd737f). The lab LEDGER rows were verified: 84c54db (51) and 6e13d84 (52).
+
+**GitHub:** every ref update on BOTH repos returned "Internal Server Error" from about 10:09 to 10:17 CT, while githubstatus said operational; reads worked. A retry loop pushed d668a25b at 10:17:09 (7 retries). No commit was lost.
+- Note for Saturday: arming needs only fetches, and a local commit keeps the checkout clean, so a push outage would not block arming.
+
+**O-40 confirmatory** (`scripts/o40_dvp_confirmatory.py`, b4cd67c9, sha 535d388c; tests 3 pass):
+- It implements the frozen §2 of `reports/2026-10-07-prereg-o40-dvp-ablation.md` and refuses until the DVP / DEF columns are registered CANDIDATE_FEATURES (Monday's o22 merge).
+- Two open choices await the reviewer: MIN_GROUP 10, and "pooled" = all target weeks.
+- **Monday:** merge o22-leak-fixes → register the columns → build-features → send the base commit → run.
+
+**R14** (logging only):
+- The new WR/CB matchups article logged: 18 records; the W5 log is 493 records / 9 articles.
+- FP REPUBLISHED the Game Hub (same id, 15.5k → 49.6k chars). The reviewer approved article VERSIONS, with spec rules (a) strictly later published_date and retrieved_at, version_of, dedup; (b) grading takes the latest version before kickoff per (article, player, fact type); (c) per-version counts here (spec d668a25b).
+- The private appender implements the rule; its private test passes 4 checks.
+- The v2 extraction is running (reusing v1's records verbatim where unchanged); its counts follow.
+
 ## 2026-10-07 (09:47 CDT) — The live-block options decided for Saturday's choice: study 51 ENTERABLE (matchup; reproduced byte-identically); TD block NOT ENTERED and TD sort NOT ENTERED by their frozen screens; combined in-sample only; W4's top row was copied in all 8 supersats
 
 **Study 51** (the 8-row matchup block in the harness; READ lab 3b150a8, the census e357df4 committed first):
