@@ -1,0 +1,82 @@
+apiVersion: run.googleapis.com/v1
+kind: Job
+metadata:
+  annotations:
+    run.googleapis.com/client-name: gcloud
+    run.googleapis.com/client-version: 586.0.0
+    run.googleapis.com/creator: espechtsoftware@gmail.com
+    run.googleapis.com/lastModifier: espechtsoftware@gmail.com
+    run.googleapis.com/operation-id: 27ea809f-dbbb-46d9-814b-2933a2de2d93
+  creationTimestamp: '2026-07-27T15:07:35.373052Z'
+  generation: 79
+  labels:
+    cloud.googleapis.com/location: us-central1
+    run.googleapis.com/lastUpdatedTime: '2026-09-29T17:28:25.052717Z'
+  name: project-slate
+  namespace: '817589974517'
+  resourceVersion: AAZdLOs4bZE
+  selfLink: /apis/run.googleapis.com/v1/namespaces/817589974517/jobs/project-slate
+  uid: 4340170d-33d2-4a0b-afb1-d96309bbba81
+spec:
+  template:
+    metadata:
+      annotations:
+        run.googleapis.com/client-name: gcloud
+        run.googleapis.com/client-version: 586.0.0
+        run.googleapis.com/execution-environment: gen2
+      labels:
+        client.knative.dev/nonce: rub_wed_buf
+    spec:
+      taskCount: 1
+      template:
+        spec:
+          containers:
+          - args:
+            - project
+            command:
+            - nfl-dfs
+            env:
+            - name: GCP_PROJECT
+              value: nfl-predictions-503414
+            - name: GAME_SIM_MODE
+              value: possession
+            - name: ODDS_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: latest
+                  name: odds-api-key
+            - name: MODEL_ENSEMBLE
+              value: '1'
+            - name: MODEL_REGISTRY_VARIANT
+              value: tail_k1
+            - name: BLEND_MODEL_WEIGHT
+              value: '0.45'
+            - name: Q_HAIRCUT
+              value: '0.80'
+            - name: CASCADE_DOUBTFUL
+              value: '1'
+            - name: CASCADE_SKIP_PRICED_CARRIES
+              value: '1'
+            - name: QB_Q_PRIMARY_BACKUP_SCALE
+              value: '0.20'
+            - name: RETURNING_TEAMMATE_ADJ
+              value: '1'
+            image: us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:7641feeb417dc2f3c9f489b0ad4cf70afc1cdbf661792ae4b3a5941b63f770f4
+            resources:
+              limits:
+                cpu: '2'
+                memory: 4Gi
+          maxRetries: 1
+          serviceAccountName: 817589974517-compute@developer.gserviceaccount.com
+          timeoutSeconds: '3600'
+status:
+  conditions:
+  - status: 'True'
+    type: Ready
+  executionCount: 83
+  latestCreatedExecution:
+    completionStatus: EXECUTION_FAILED
+    completionTimestamp: '2026-10-06T14:35:29.918585Z'
+    creationTimestamp: '2026-10-06T14:30:01.686155Z'
+    name: project-slate-75qhs
+  observedGeneration: 79

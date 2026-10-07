@@ -1,0 +1,92 @@
+apiVersion: run.googleapis.com/v1
+kind: Job
+metadata:
+  annotations:
+    run.googleapis.com/client-name: gcloud
+    run.googleapis.com/client-version: 586.0.0
+    run.googleapis.com/creator: espechtsoftware@gmail.com
+    run.googleapis.com/lastModifier: espechtsoftware@gmail.com
+    run.googleapis.com/operation-id: 3ced8327-4bf3-499d-88be-c410f2fb3c01
+  creationTimestamp: '2026-08-15T07:30:54.991569Z'
+  generation: 2
+  labels:
+    cloud.googleapis.com/location: us-central1
+    run.googleapis.com/lastUpdatedTime: '2026-10-05T03:05:13.509893Z'
+  name: shadow-sis-pass-tail-paired
+  namespace: '817589974517'
+  resourceVersion: AAZdDyacMGQ
+  selfLink: /apis/run.googleapis.com/v1/namespaces/817589974517/jobs/shadow-sis-pass-tail-paired
+  uid: 5b0a7a75-0d75-47a8-8647-bd911a028351
+spec:
+  template:
+    metadata:
+      annotations:
+        run.googleapis.com/client-name: gcloud
+        run.googleapis.com/client-version: 586.0.0
+        run.googleapis.com/execution-environment: gen2
+      labels:
+        client.knative.dev/nonce: zok_rer_kux
+    spec:
+      taskCount: 1
+      template:
+        spec:
+          containers:
+          - args:
+            - shadow-sis-pass-tail-paired
+            command:
+            - nfl-dfs
+            env:
+            - name: GCP_PROJECT
+              value: nfl-predictions-503414
+            - name: CODE_SHA
+              value: 7bbfd10a7fc5716f492466a3e6ecf91076e03492
+            - name: SIS_PASS_TAIL_CONTRACT
+              value: pass-tail-v1-a1-companion
+            - name: GEN_TOTAL_BUDGET
+              value: '172'
+            - name: N_LEV
+              value: '40'
+            - name: N_CE
+              value: '0'
+            - name: N_EPISTEMIC
+              value: '12'
+            - name: N_BOOM
+              value: '160'
+            - name: N_GUMBEL
+              value: '0'
+            - name: REPLACEMENT_SLOTS
+              value: '12'
+            - name: BOOM_UNIQUE_FILL
+              value: '0'
+            - name: EPISTEMIC_FAMILY
+              value: role_draws
+            - name: ROLE_BELIEF_FEATURES
+              value: target_share_last,carry_share_last,snap_share_last,target_share_jump,carry_share_jump,snap_share_jump
+            - name: CE_SEED
+              value: '1701'
+            - name: BLEND_MODEL_WEIGHT
+              value: '0.45'
+            - name: LIVE_SIMS
+              value: '30000'
+            - name: GAME_SIM_MODE
+              value: possession
+            - name: SERVED_POSITION_SCALES
+              value: QB:0.970,RB:1.005,TE:0.940,WR:1.070
+            - name: MODEL_ENSEMBLE
+              value: '1'
+            - name: MIN_LINEUP_SALARY
+              value: '49000'
+            image: us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:04cd5e062117f0d1e4a8d1d31de1b99bb884131c5a4b6c3e78cda654d4496c08
+            resources:
+              limits:
+                cpu: '4'
+                memory: 16Gi
+          maxRetries: 1
+          serviceAccountName: 817589974517-compute@developer.gserviceaccount.com
+          timeoutSeconds: '14400'
+status:
+  conditions:
+  - lastTransitionTime: '2026-08-15T07:30:55.382461Z'
+    status: 'True'
+    type: Ready
+  observedGeneration: 2

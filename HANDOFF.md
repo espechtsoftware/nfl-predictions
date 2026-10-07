@@ -12,6 +12,61 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-07 (06:11 CDT) — O-39 (bye weeks block every projection) FIXED and DEPLOYED: one image for project-slate and the four shadows; inventory v17; the SIS GPU image rebuilding
+
+**The defect (found 05:3x):**
+- `run_projections.upcoming_slate_features` required the W5 roster receipt to cover `COUNT(DISTINCT team) = 32`.
+- W5 is 2026's first bye week (30 teams), so every W5 projection refused: Tuesday's `project-slate-75qhs` and today's props pre-check.
+- Unfixed, Saturday's refresh, Sunday's T-70 and every shadow would have refused through Week 14.
+
+**The fix:** 04ce58ac — the receipt is complete against the week's REG schedule.
+- Reviewer: APPROVED.
+- Class sweep (rule 4): clean, by both agents.
+- Merged into integration: bd90cb6d.
+
+**My miss:**
+- The fix changed a frozen source of the effective-policy inventory. The first two hotfix builds (9552dab8 and its project-slate twin) FAILED in the live lane on `test_effective_policy_rule_inventory.py`.
+- Integration was red on that module from bd90cb6d until v17 merged (303432ad).
+- **Lesson (the reviewer's condition 4):** any change to a frozen-inventory source (`effective_policy_rule_inventory.py`'s *_FROZEN_SOURCE_SHA256 paths) runs `tests/test_effective_policy_rule_inventory.py` BEFORE merging, and bumps the source set when it changes.
+
+**Inventory source-set v17** (07d67dcc, APPROVED; merged 303432ad):
+- run_projections is now a39e571d….
+- 278 read sites / 130 inputs, position-free identical to v16; projection 7d1e7775….
+
+**ONE image for all five jobs** (APPROVED):
+- `nfl-dfs@sha256:7f6327864241b00c4c49a01d436a578e425119b5e0d3c69d6f403781998fc229`.
+- Cloud Build `78656d3e`; the lane passed 737 tests, 3 skipped.
+- Built from `production/hotfix-bye-shadows-7bbfd10a` @ 6fd3ef00 = 7bbfd10a + 04ce58ac + v17.
+- run_projections.py is byte-identical at 66ce2c86, 7bbfd10a and the pre-fix tip.
+
+| job | before | after | CODE_SHA |
+|---|---|---|---|
+| project-slate | 7641feeb (66ce2c86) | 7f632786 | (none declared) |
+| shadow-k1-roleunion | 04cd5e06 | 7f632786 | 7bbfd10a → 6fd3ef00 |
+| shadow-k1-route-roleunion | 04cd5e06 | 7f632786 | 7bbfd10a → 6fd3ef00 |
+| shadow-cbwu-oi-paired | 04cd5e06 | 7f632786 | 7bbfd10a → 6fd3ef00 |
+| shadow-sis-pass-tail-paired | 04cd5e06 | 7f632786 | 7bbfd10a → 6fd3ef00 |
+
+**Deployment details:**
+- Each job was updated inside its launcher lane (`~/.cache/laptop-agent/update_job_image.sh`; receipts in `.tmp/launcher-completions/`).
+- The before/after YAMLs differ only in the image, CODE_SHA, timestamps and nonces: `reports/reviews/evidence/2026-10-07-<job>-{before,after}.yaml`.
+- Both arms of the Route Share pair are on the same digest. Nothing paused was resumed.
+
+**project-slate's import closure** (33 nfl_dfs files, 66ce2c86 vs 6fd3ef00):
+- Equal except run_projections.py (the fix), config.py and cli.py.
+- config.py adds `SALARY_SPINE_ALLOW_GAPS`, default `""`. Only features/leakage.py reads it, and project-slate's env does not set it.
+- cli.py adds the unrelated `freeze-route-share-pair` subcommand.
+
+**Checks:**
+- `verify_deployment.py`: "Deployment contract OK", 9 of 9.
+- `check_prospective_gates.py --week 5`: six FAILs. Five are expected:
+  - Route Share ×2 and cbwu-oi: the newest executions are the old failures; Thursday's dry runs clear them.
+  - The SIS schedulers: paused by design until their dry runs.
+- **The sixth was new:** the SIS companion gate requires ONE CODE_SHA across its jobs, and the GPU cache jobs still declared 7bbfd10a.
+  - The GPU image `tabpfn-sis-pass-tail-live` is rebuilding from 6fd3ef00, from a minimal context of its five COPY inputs. All are byte-identical at 7bbfd10a and 6fd3ef00, but the rebuild keeps the label literally true (the 10-04 precedent).
+  - Both cache jobs then move together, in their lanes, to CODE_SHA 6fd3ef00. The SIS cache dry runs re-run on it after SIS posts the W4 blocking data.
+- **Next:** the W5 project-slate run (running now, pre-props); the props pre-check and a re-run after the 09:30 pull.
+
 ## 2026-10-07 (05:24 CDT) — Wednesday morning: the operator's prior-top decision (live, capped, 8-row block) built and replayed; the outside reviewer's branch merged; real-field checks of the winner-likeness score; 48e frozen and acked; A1 / A2 PASS
 
 **The operator's decisions this morning (AskUserQuestion):**
