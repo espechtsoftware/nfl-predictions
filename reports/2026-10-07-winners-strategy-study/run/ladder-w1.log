@@ -1,0 +1,65 @@
+== winners strategy study 2026-10-06 19:39:28 weeks [1] nmax 1000 cross 500 test False cross_only False
+W1: field 831,028 winner 273.98; cluster 2 (unresolved in frame: 0); top-1% 209.0; 100th 244.8
+    bb             1        share 0.51 field 0.36 lift 1.41 USE (top100)
+    cheap          1        share 0.51 field 0.51 lift 1.00  (top100)
+    dst_price      cheap    share 0.99 field 0.95 lift 1.05  (top100)
+    dual           yes      share 0.83 field 0.69 lift 1.19  (top100)
+    flex           RB       share 0.63 field 0.43 lift 1.48 USE (top100)
+    games          6+       share 0.50 field 0.62 lift 0.81  (top100)
+    mates          1        share 0.53 field 0.46 lift 1.14  (top100)
+    qb_fav         fav      share 0.79 field 0.34 lift 2.29 USE (top100)
+    qb_tier        cheap    share 0.82 field 0.49 lift 1.66 USE (top100)
+    qb_total_rank  2-3      share 0.89 field 0.45 lift 1.99 USE (top100)
+    salary_left    0-200    share 0.82 field 0.83 lift 0.98  (top100)
+    te_price       not      share 0.72 field 0.60 lift 1.19  (top100)
+    top_total_n    0        share 0.83 field 0.38 lift 2.21 USE (top100)
+  L0 unconstrained: rules {} | oracle 292.1 (winner 274.0)
+    W1 L0 unconstrained: n=100 best 184.5 (winner 274.0) 19s
+    W1 L0 unconstrained: n=200 best 184.5 (winner 274.0) 62s
+    W1 L0 unconstrained: n=300 best 184.6 (winner 274.0) 132s
+    W1 L0 unconstrained: n=400 best 190.8 (winner 274.0) 270s
+    W1 L0 unconstrained: n=500 best 193.5 (winner 274.0) 405s
+    W1 L0 unconstrained: n=600 best 193.5 (winner 274.0) 705s
+    W1 L0 unconstrained: n=700 best 200.0 (winner 274.0) 1075s
+    W1 L0 unconstrained: n=800 best 200.0 (winner 274.0) 1351s
+    W1 L0 unconstrained: n=900 best 200.0 (winner 274.0) 1691s
+    W1 L0 unconstrained: n=1000 best 200.0 (winner 274.0) 2083s
+    -> first hit None, first top-1% None, first top-100 None, best 200.04
+  shape: rules {'bb': '1', 'flex': 'RB'} | oracle 292.1 (winner 274.0)
+    W1 shape: n=100 best 197.2 (winner 274.0) 36s
+    W1 shape: n=200 best 197.2 (winner 274.0) 112s
+    W1 shape: n=300 best 202.7 (winner 274.0) 253s
+    W1 shape: n=400 best 202.7 (winner 274.0) 468s
+    W1 shape: n=500 best 204.9 (winner 274.0) 699s
+    W1 shape: n=600 best 204.9 (winner 274.0) 996s
+    W1 shape: n=700 best 204.9 (winner 274.0) 1228s
+    W1 shape: n=800 best 204.9 (winner 274.0) 1462s
+    W1 shape: n=900 best 204.9 (winner 274.0) 1724s
+    W1 shape: n=1000 best 204.9 (winner 274.0) 2010s
+    -> first hit None, first top-1% None, first top-100 None, best 204.94
+  environment: rules {'bb': '1', 'flex': 'RB', 'qb_total_rank': '2-3', 'qb_fav': 'fav', 'top_total_n': '0'} | oracle 290.2 (winner 274.0)
+    W1 environment: n=100 best 239.9 (winner 274.0) 18s
+    W1 environment: n=200 best 248.7 (winner 274.0) 65s
+    W1 environment: n=300 best 248.7 (winner 274.0) 145s
+    W1 environment: n=400 best 248.7 (winner 274.0) 260s
+    W1 environment: n=500 best 248.7 (winner 274.0) 389s
+    W1 environment: n=600 best 248.7 (winner 274.0) 550s
+    W1 environment: n=700 best 248.7 (winner 274.0) 752s
+    W1 environment: n=800 best 248.7 (winner 274.0) 1018s
+    W1 environment: n=900 best 248.7 (winner 274.0) 1300s
+    W1 environment: n=1000 best 248.7 (winner 274.0) 1693s
+    -> first hit None, first top-1% 1, first top-100 108, best 248.74
+  salary: rules {'bb': '1', 'flex': 'RB', 'qb_total_rank': '2-3', 'qb_fav': 'fav', 'top_total_n': '0', 'qb_tier': 'cheap'} | oracle 290.2 (winner 274.0)
+    W1 salary: n=100 best 239.9 (winner 274.0) 18s
+    W1 salary: n=200 best 248.7 (winner 274.0) 76s
+    W1 salary: n=300 best 248.7 (winner 274.0) 199s
+    W1 salary: n=400 best 248.7 (winner 274.0) 316s
+    W1 salary: n=500 best 248.7 (winner 274.0) 494s
+    W1 salary: n=600 best 248.7 (winner 274.0) 710s
+    W1 salary: n=700 best 248.7 (winner 274.0) 914s
+    W1 salary: n=800 best 248.7 (winner 274.0) 1181s
+    W1 salary: n=900 best 248.7 (winner 274.0) 1529s
+    W1 salary: n=1000 best 248.7 (winner 274.0) 2189s
+    -> first hit None, first top-1% 1, first top-100 108, best 248.74
+  ownership: no distinctive attribute; skipped
+== week ladders done (no cross)

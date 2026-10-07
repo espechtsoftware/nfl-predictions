@@ -1,0 +1,718 @@
+{
+ "1->2": {
+  "rules": {
+   "bb": "1",
+   "flex": "RB",
+   "qb_total_rank": "2-3",
+   "qb_fav": "fav",
+   "top_total_n": "0",
+   "qb_tier": "cheap"
+  },
+  "oracle": 234.58,
+  "winner": 232.38,
+  "lines": {
+   "top400": 193.96,
+   "top100": 203.5,
+   "top1pct": 179.78,
+   "hit": 222.38
+  },
+  "enum": {
+   "n_built": 500,
+   "first": {
+    "hit": null,
+    "top100": null,
+    "top1pct": null,
+    "top400": null
+   },
+   "best_actual": 151.88,
+   "best_lineup": [
+    "Patriots DST NE $3100 21.0",
+    "Tyler Shough QB NO $5300 22.4",
+    "Derrick Henry RB BAL $7200 17.7",
+    "Breece Hall RB NYJ $6200 14.2",
+    "Aaron Jones Sr. RB MIN $5100 13.5",
+    "Dalton Schultz TE HOU $3200 29.0",
+    "Justin Jefferson WR MIN $7800 8.5",
+    "Garrett Wilson WR NYJ $6000 16.7",
+    "Drake London WR ATL $6000 8.9"
+   ],
+   "hit_lineup": null,
+   "secs": 443.4
+  }
+ },
+ "1->3": {
+  "rules": {
+   "bb": "1",
+   "flex": "RB",
+   "qb_total_rank": "2-3",
+   "qb_fav": "fav",
+   "top_total_n": "0",
+   "qb_tier": "cheap"
+  },
+  "oracle": 246.0,
+  "winner": 239.8,
+  "lines": {
+   "top400": 199.6,
+   "top100": 208.3,
+   "top1pct": 188.2,
+   "hit": 229.8
+  },
+  "enum": {
+   "n_built": 500,
+   "first": {
+    "hit": null,
+    "top100": null,
+    "top1pct": null,
+    "top400": null
+   },
+   "best_actual": 184.24,
+   "best_lineup": [
+    "Vikings DST MIN $3100 17.0",
+    "Geno Smith QB NYJ $4900 30.0",
+    "Jahmyr Gibbs RB DET $8800 41.4",
+    "Kenneth Walker III RB KC $7400 21.3",
+    "James Cook III RB BUF $6900 23.4",
+    "Dalton Schultz TE HOU $4200 6.0",
+    "Garrett Wilson WR NYJ $6300 29.7",
+    "Devaughn Vele WR NO $4400 6.9",
+    "Xavier Hutchinson WR HOU $4000 8.5"
+   ],
+   "hit_lineup": null,
+   "secs": 532.7
+  }
+ },
+ "1->4": {
+  "rules": {
+   "bb": "1",
+   "flex": "RB",
+   "qb_total_rank": "2-3",
+   "qb_fav": "fav",
+   "top_total_n": "0",
+   "qb_tier": "cheap"
+  },
+  "oracle": 271.76,
+  "winner": 234.2,
+  "lines": {
+   "top400": 197.18,
+   "top100": 209.2,
+   "top1pct": 182.8,
+   "hit": 224.2
+  },
+  "enum": {
+   "n_built": 500,
+   "first": {
+    "hit": null,
+    "top100": null,
+    "top1pct": 259,
+    "top400": null
+   },
+   "best_actual": 184.26,
+   "best_lineup": [
+    "Cardinals DST ARI $2500 9.0",
+    "Bo Nix QB DEN $5600 13.6",
+    "Christian McCaffrey RB SF $7700 16.0",
+    "Aaron Jones Sr. RB MIN $6000 16.8",
+    "Kyren Williams RB LA $5900 36.7",
+    "T.J. Hockenson TE MIN $3300 27.9",
+    "Puka Nacua WR LA $7500 30.7",
+    "Zay Flowers WR BAL $6900 28.8",
+    "Dontayvion Wicks WR PHI $4300 4.8"
+   ],
+   "hit_lineup": null,
+   "secs": 323.9
+  }
+ },
+ "2->1": {
+  "rules": {
+   "bb": "0",
+   "flex": "TE",
+   "games": "6+",
+   "dual": "no",
+   "qb_total_rank": "1",
+   "qb_fav": "dog",
+   "top_total_n": "1-2",
+   "dst_price": "cheap",
+   "qb_tier": "mid",
+   "te_price": "cheap"
+  },
+  "oracle": null,
+  "winner": 273.98,
+  "lines": {
+   "top400": 235.14,
+   "top100": 244.84,
+   "top1pct": 209.04,
+   "hit": 263.98
+  }
+ },
+ "2->3": {
+  "rules": {
+   "bb": "0",
+   "flex": "TE",
+   "games": "6+",
+   "dual": "no",
+   "qb_total_rank": "1",
+   "qb_fav": "dog",
+   "top_total_n": "1-2",
+   "dst_price": "cheap",
+   "qb_tier": "mid",
+   "te_price": "cheap"
+  },
+  "oracle": null,
+  "winner": 239.8,
+  "lines": {
+   "top400": 199.6,
+   "top100": 208.3,
+   "top1pct": 188.2,
+   "hit": 229.8
+  }
+ },
+ "2->4": {
+  "rules": {
+   "bb": "0",
+   "flex": "TE",
+   "games": "6+",
+   "dual": "no",
+   "qb_total_rank": "1",
+   "qb_fav": "dog",
+   "top_total_n": "1-2",
+   "dst_price": "cheap",
+   "qb_tier": "mid",
+   "te_price": "cheap"
+  },
+  "oracle": null,
+  "winner": 234.2,
+  "lines": {
+   "top400": 197.18,
+   "top100": 209.2,
+   "top1pct": 182.8,
+   "hit": 224.2
+  }
+ },
+ "2@environment->1": {
+  "rules": {
+   "bb": "0",
+   "flex": "TE",
+   "games": "6+",
+   "dual": "no",
+   "qb_total_rank": "1",
+   "qb_fav": "dog",
+   "top_total_n": "1-2",
+   "dst_price": "cheap"
+  },
+  "oracle": 259.76,
+  "winner": 273.98,
+  "lines": {
+   "top400": 235.14,
+   "top100": 244.84,
+   "top1pct": 209.04,
+   "hit": 263.98
+  },
+  "enum": {
+   "n_built": 500,
+   "first": {
+    "hit": null,
+    "top100": null,
+    "top1pct": null,
+    "top400": null
+   },
+   "best_actual": 192.06,
+   "best_lineup": [
+    "Jaguars DST JAX $3400 13.0",
+    "Joe Burrow QB CIN $6900 15.2",
+    "Jahmyr Gibbs RB DET $8000 37.6",
+    "Jonathan Taylor RB IND $7300 26.1",
+    "Breece Hall RB NYJ $6200 22.8",
+    "D'Andre Swift RB CHI $6100 35.4",
+    "T.J. Hockenson TE MIN $3300 13.6",
+    "Michael Mayer TE LV $2900 9.2",
+    "Ladd McConkey WR LAC $5900 19.2"
+   ],
+   "hit_lineup": null,
+   "secs": 708.7
+  }
+ },
+ "2@environment->3": {
+  "rules": {
+   "bb": "0",
+   "flex": "TE",
+   "games": "6+",
+   "dual": "no",
+   "qb_total_rank": "1",
+   "qb_fav": "dog",
+   "top_total_n": "1-2",
+   "dst_price": "cheap"
+  },
+  "oracle": 226.8,
+  "winner": 239.8,
+  "lines": {
+   "top400": 199.6,
+   "top100": 208.3,
+   "top1pct": 188.2,
+   "hit": 229.8
+  },
+  "enum": {
+   "n_built": 500,
+   "first": {
+    "hit": null,
+    "top100": null,
+    "top1pct": null,
+    "top400": null
+   },
+   "best_actual": 166.44,
+   "best_lineup": [
+    "Browns DST CLE $2500 6.0",
+    "Lamar Jackson QB BAL $7500 20.4",
+    "Jahmyr Gibbs RB DET $8800 41.4",
+    "Kenneth Walker III RB KC $7400 21.3",
+    "Dalton Schultz TE HOU $4200 6.0",
+    "Juwan Johnson TE NO $3700 24.3",
+    "Parker Washington WR JAX $6000 13.0",
+    "Michael Wilson WR ARI $5200 25.9",
+    "Denzel Boston WR CLE $4500 8.1"
+   ],
+   "hit_lineup": null,
+   "secs": 928.5
+  }
+ },
+ "2@environment->4": {
+  "rules": {
+   "bb": "0",
+   "flex": "TE",
+   "games": "6+",
+   "dual": "no",
+   "qb_total_rank": "1",
+   "qb_fav": "dog",
+   "top_total_n": "1-2",
+   "dst_price": "cheap"
+  },
+  "oracle": 260.52,
+  "winner": 234.2,
+  "lines": {
+   "top400": 197.18,
+   "top100": 209.2,
+   "top1pct": 182.8,
+   "hit": 224.2
+  },
+  "enum": {
+   "n_built": 500,
+   "first": {
+    "hit": null,
+    "top100": null,
+    "top1pct": 371,
+    "top400": null
+   },
+   "best_actual": 192.62,
+   "best_lineup": [
+    "Cardinals DST ARI $2500 9.0",
+    "Joe Burrow QB CIN $6800 28.7",
+    "Christian McCaffrey RB SF $7700 16.0",
+    "Chase Brown RB CIN $6100 19.1",
+    "Cam Skattebo RB NYG $6100 7.6",
+    "Kyren Williams RB LA $5900 36.7",
+    "Emanuel Wilson RB SEA $4700 27.0",
+    "Brock Bowers TE LV $6900 20.6",
+    "T.J. Hockenson TE MIN $3300 27.9"
+   ],
+   "hit_lineup": null,
+   "secs": 754.1
+  }
+ },
+ "3->1": {
+  "rules": {
+   "mates": "2",
+   "bb": "1",
+   "flex": "TE",
+   "qb_total_rank": "2-3",
+   "qb_fav": "fav",
+   "top_total_n": "0",
+   "qb_tier": "cheap",
+   "te_price": "cheap"
+  },
+  "oracle": 267.24,
+  "winner": 273.98,
+  "lines": {
+   "top400": 235.14,
+   "top100": 244.84,
+   "top1pct": 209.04,
+   "hit": 263.98
+  },
+  "enum": {
+   "n_built": 500,
+   "first": {
+    "hit": null,
+    "top100": null,
+    "top1pct": 3,
+    "top400": 481
+   },
+   "best_actual": 236.8,
+   "best_lineup": [
+    "Jaguars DST JAX $3400 13.0",
+    "Tyler Shough QB NO $5600 29.2",
+    "Jahmyr Gibbs RB DET $8000 37.6",
+    "Derrick Henry RB BAL $6700 38.3",
+    "D'Andre Swift RB CHI $6100 35.4",
+    "Travis Etienne Jr. RB NO $5900 14.8",
+    "Dallas Goedert TE PHI $4100 23.7",
+    "T.J. Hockenson TE MIN $3300 13.6",
+    "Chris Olave WR NO $6700 31.2"
+   ],
+   "hit_lineup": null,
+   "secs": 357.1
+  }
+ },
+ "3->2": {
+  "rules": {
+   "mates": "2",
+   "bb": "1",
+   "flex": "TE",
+   "qb_total_rank": "2-3",
+   "qb_fav": "fav",
+   "top_total_n": "0",
+   "qb_tier": "cheap",
+   "te_price": "cheap"
+  },
+  "oracle": 219.28,
+  "winner": 232.38,
+  "lines": {
+   "top400": 193.96,
+   "top100": 203.5,
+   "top1pct": 179.78,
+   "hit": 222.38
+  },
+  "enum": {
+   "n_built": 500,
+   "first": {
+    "hit": null,
+    "top100": null,
+    "top1pct": null,
+    "top400": null
+   },
+   "best_actual": 142.62,
+   "best_lineup": [
+    "Panthers DST CAR $2700 26.0",
+    "Carson Wentz QB MIN $4600 6.3",
+    "Christian McCaffrey RB SF $8000 22.6",
+    "Aaron Jones Sr. RB MIN $5100 13.5",
+    "Colston Loveland TE CHI $5000 1.3",
+    "Dalton Schultz TE HOU $3200 29.0",
+    "Justin Jefferson WR MIN $7800 8.5",
+    "Ja'Marr Chase WR CIN $7600 26.5",
+    "Drake London WR ATL $6000 8.9"
+   ],
+   "hit_lineup": null,
+   "secs": 319.7
+  }
+ },
+ "3->4": {
+  "rules": {
+   "mates": "2",
+   "bb": "1",
+   "flex": "TE",
+   "qb_total_rank": "2-3",
+   "qb_fav": "fav",
+   "top_total_n": "0",
+   "qb_tier": "cheap",
+   "te_price": "cheap",
+   "max_own": "15-30"
+  },
+  "oracle": 237.66,
+  "winner": 234.2,
+  "lines": {
+   "top400": 197.18,
+   "top100": 209.2,
+   "top1pct": 182.8,
+   "hit": 224.2
+  },
+  "enum": {
+   "n_built": 500,
+   "first": {
+    "hit": null,
+    "top100": null,
+    "top1pct": null,
+    "top400": null
+   },
+   "best_actual": 177.66,
+   "best_lineup": [
+    "Cardinals DST ARI $2500 9.0",
+    "Drake Maye QB NE $6000 28.2",
+    "Kenneth Walker III RB KC $8200 33.9",
+    "Christian McCaffrey RB SF $7700 16.0",
+    "James Cook III RB BUF $7400 16.3",
+    "Aaron Jones Sr. RB MIN $6000 16.8",
+    "Rhamondre Stevenson RB NE $5100 18.4",
+    "Hunter Henry TE NE $3500 11.2",
+    "T.J. Hockenson TE MIN $3300 27.9"
+   ],
+   "hit_lineup": null,
+   "secs": 352.6
+  }
+ },
+ "4@environment->1": {
+  "rules": {
+   "mates": "1",
+   "bb": "1",
+   "flex": "TE",
+   "games": "5",
+   "dual": "yes",
+   "qb_total_rank": "2-3",
+   "qb_fav": "fav",
+   "top_total_n": "1-2",
+   "dst_price": "cheap"
+  },
+  "oracle": 276.04,
+  "winner": 273.98,
+  "lines": {
+   "top400": 235.14,
+   "top100": 244.84,
+   "top1pct": 209.04,
+   "hit": 263.98
+  },
+  "enum": {
+   "n_built": 500,
+   "first": {
+    "hit": null,
+    "top100": null,
+    "top1pct": 185,
+    "top400": null
+   },
+   "best_actual": 224.8,
+   "best_lineup": [
+    "Jaguars DST JAX $3400 13.0",
+    "Tyler Shough QB NO $5600 29.2",
+    "Jahmyr Gibbs RB DET $8000 37.6",
+    "Jonathan Taylor RB IND $7300 26.1",
+    "Derrick Henry RB BAL $6700 38.3",
+    "Ashton Jeanty RB LV $6600 35.7",
+    "Bucky Irving RB TB $5700 21.3",
+    "Juwan Johnson TE NO $3700 14.4",
+    "Michael Mayer TE LV $2900 9.2"
+   ],
+   "hit_lineup": null,
+   "secs": 1136.6
+  }
+ },
+ "4@environment->2": {
+  "rules": {
+   "mates": "1",
+   "bb": "1",
+   "flex": "TE",
+   "games": "5",
+   "dual": "yes",
+   "qb_total_rank": "2-3",
+   "qb_fav": "fav",
+   "top_total_n": "1-2",
+   "dst_price": "cheap"
+  },
+  "oracle": 234.18,
+  "winner": 232.38,
+  "lines": {
+   "top400": 193.96,
+   "top100": 203.5,
+   "top1pct": 179.78,
+   "hit": 222.38
+  },
+  "enum": {
+   "n_built": 500,
+   "first": {
+    "hit": null,
+    "top100": null,
+    "top1pct": null,
+    "top400": null
+   },
+   "best_actual": 148.28,
+   "best_lineup": [
+    "Jaguars DST JAX $2400 3.0",
+    "Joe Burrow QB CIN $6600 16.2",
+    "Javonte Williams RB DAL $6400 8.0",
+    "Aaron Jones Sr. RB MIN $5100 13.5",
+    "Michael Mayer TE LV $3600 5.3",
+    "Dalton Schultz TE HOU $3200 29.0",
+    "Justin Jefferson WR MIN $7800 8.5",
+    "Ja'Marr Chase WR CIN $7600 26.5",
+    "CeeDee Lamb WR DAL $7300 38.3"
+   ],
+   "hit_lineup": null,
+   "secs": 1229.9
+  }
+ },
+ "4@environment->3": {
+  "rules": {
+   "mates": "1",
+   "bb": "1",
+   "flex": "TE",
+   "games": "5",
+   "dual": "yes",
+   "qb_total_rank": "2-3",
+   "qb_fav": "fav",
+   "top_total_n": "1-2",
+   "dst_price": "cheap"
+  },
+  "oracle": 240.8,
+  "winner": 239.8,
+  "lines": {
+   "top400": 199.6,
+   "top100": 208.3,
+   "top1pct": 188.2,
+   "hit": 229.8
+  },
+  "enum": {
+   "n_built": 500,
+   "first": {
+    "hit": null,
+    "top100": null,
+    "top1pct": 41,
+    "top400": 369
+   },
+   "best_actual": 202.84,
+   "best_lineup": [
+    "Vikings DST MIN $3100 17.0",
+    "Geno Smith QB NYJ $4900 30.0",
+    "Jahmyr Gibbs RB DET $8800 41.4",
+    "Kenneth Walker III RB KC $7400 21.3",
+    "Javonte Williams RB DAL $6700 18.3",
+    "Travis Kelce TE KC $4500 13.9",
+    "Juwan Johnson TE NO $3700 24.3",
+    "Garrett Wilson WR NYJ $6300 29.7",
+    "Devaughn Vele WR NO $4400 6.9"
+   ],
+   "hit_lineup": null,
+   "secs": 1727.9
+  }
+ },
+ "4->1": {
+  "rules": {
+   "mates": "1",
+   "bb": "1",
+   "flex": "TE",
+   "games": "5",
+   "dual": "yes",
+   "qb_total_rank": "2-3",
+   "qb_fav": "fav",
+   "top_total_n": "1-2",
+   "dst_price": "cheap",
+   "te_price": "cheap"
+  },
+  "oracle": 276.04,
+  "winner": 273.98,
+  "lines": {
+   "top400": 235.14,
+   "top100": 244.84,
+   "top1pct": 209.04,
+   "hit": 263.98
+  },
+  "enum": {
+   "n_built": 500,
+   "first": {
+    "hit": null,
+    "top100": null,
+    "top1pct": 169,
+    "top400": null
+   },
+   "best_actual": 224.8,
+   "best_lineup": [
+    "Jaguars DST JAX $3400 13.0",
+    "Tyler Shough QB NO $5600 29.2",
+    "Jahmyr Gibbs RB DET $8000 37.6",
+    "Jonathan Taylor RB IND $7300 26.1",
+    "Derrick Henry RB BAL $6700 38.3",
+    "Ashton Jeanty RB LV $6600 35.7",
+    "Bucky Irving RB TB $5700 21.3",
+    "Juwan Johnson TE NO $3700 14.4",
+    "Michael Mayer TE LV $2900 9.2"
+   ],
+   "hit_lineup": null,
+   "secs": 1160.0
+  }
+ },
+ "4->2": {
+  "rules": {
+   "mates": "1",
+   "bb": "1",
+   "flex": "TE",
+   "games": "5",
+   "dual": "yes",
+   "qb_total_rank": "2-3",
+   "qb_fav": "fav",
+   "top_total_n": "1-2",
+   "dst_price": "cheap",
+   "te_price": "cheap"
+  },
+  "oracle": 234.18,
+  "winner": 232.38,
+  "lines": {
+   "top400": 193.96,
+   "top100": 203.5,
+   "top1pct": 179.78,
+   "hit": 222.38
+  },
+  "enum": {
+   "n_built": 500,
+   "first": {
+    "hit": null,
+    "top100": null,
+    "top1pct": null,
+    "top400": null
+   },
+   "best_actual": 154.48,
+   "best_lineup": [
+    "Panthers DST CAR $2700 26.0",
+    "Joe Burrow QB CIN $6600 16.2",
+    "Javonte Williams RB DAL $6400 8.0",
+    "Aaron Jones Sr. RB MIN $5100 13.5",
+    "Jake Ferguson TE DAL $3800 20.3",
+    "Dalton Schultz TE HOU $3200 29.0",
+    "Justin Jefferson WR MIN $7800 8.5",
+    "Ja'Marr Chase WR CIN $7600 26.5",
+    "Ladd McConkey WR LAC $6200 6.5"
+   ],
+   "hit_lineup": null,
+   "secs": 1709.0
+  }
+ },
+ "4->3": {
+  "rules": {
+   "mates": "1",
+   "bb": "1",
+   "flex": "TE",
+   "games": "5",
+   "dual": "yes",
+   "qb_total_rank": "2-3",
+   "qb_fav": "fav",
+   "top_total_n": "1-2",
+   "dst_price": "cheap",
+   "te_price": "cheap",
+   "own_sum": "<80"
+  },
+  "oracle": 240.8,
+  "winner": 239.8,
+  "lines": {
+   "top400": 199.6,
+   "top100": 208.3,
+   "top1pct": 188.2,
+   "hit": 229.8
+  },
+  "enum": {
+   "n_built": 500,
+   "first": {
+    "hit": null,
+    "top100": null,
+    "top1pct": 19,
+    "top400": 19
+   },
+   "best_actual": 203.44,
+   "best_lineup": [
+    "Vikings DST MIN $3100 17.0",
+    "Geno Smith QB NYJ $4900 30.0",
+    "Jahmyr Gibbs RB DET $8800 41.4",
+    "Kenneth Walker III RB KC $7400 21.3",
+    "Harold Fannin Jr. TE CLE $4000 24.1",
+    "Cade Otton TE TB $3100 8.6",
+    "CeeDee Lamb WR DAL $7800 23.2",
+    "Garrett Wilson WR NYJ $6300 29.7",
+    "Denzel Boston WR CLE $4500 8.1"
+   ],
+   "hit_lineup": null,
+   "secs": 3088.2
+  }
+ }
+}

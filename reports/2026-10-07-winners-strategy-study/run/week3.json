@@ -1,0 +1,584 @@
+{
+ "week": 3,
+ "field": 161682,
+ "winner": 239.8,
+ "lines": {
+  "top400": 199.6,
+  "top100": 208.3,
+  "top1pct": 188.2,
+  "hit": 229.8
+ },
+ "proj_source": "ours",
+ "frame_players": 439,
+ "describe": {
+  "n": {
+   "cluster": 2,
+   "top100": 100,
+   "field": 60000
+  },
+  "unresolved_cluster": 0,
+  "table": {
+   "bb": {
+    "0": {
+     "cluster": 0.5,
+     "top100": 0.25,
+     "field": 0.588
+    },
+    "1": {
+     "cluster": 0.0,
+     "top100": 0.57,
+     "field": 0.343
+    },
+    "2+": {
+     "cluster": 0.5,
+     "top100": 0.18,
+     "field": 0.068
+    }
+   },
+   "cheap": {
+    "0": {
+     "cluster": 0.0,
+     "top100": 0.04,
+     "field": 0.381
+    },
+    "1": {
+     "cluster": 0.5,
+     "top100": 0.48,
+     "field": 0.466
+    },
+    "2+": {
+     "cluster": 0.5,
+     "top100": 0.48,
+     "field": 0.153
+    }
+   },
+   "dst_price": {
+    "cheap": {
+     "cluster": 1.0,
+     "top100": 0.98,
+     "field": 0.867
+    },
+    "exp": {
+     "cluster": 0.0,
+     "top100": 0.02,
+     "field": 0.133
+    }
+   },
+   "dual": {
+    "no": {
+     "cluster": 0.5,
+     "top100": 0.35,
+     "field": 0.344
+    },
+    "yes": {
+     "cluster": 0.5,
+     "top100": 0.65,
+     "field": 0.656
+    }
+   },
+   "flex": {
+    "RB": {
+     "cluster": 0.0,
+     "top100": 0.16,
+     "field": 0.323
+    },
+    "TE": {
+     "cluster": 1.0,
+     "top100": 0.7,
+     "field": 0.383
+    },
+    "WR": {
+     "cluster": 0.0,
+     "top100": 0.14,
+     "field": 0.294
+    }
+   },
+   "games": {
+    "5": {
+     "cluster": 1.0,
+     "top100": 0.39,
+     "field": 0.235
+    },
+    "6+": {
+     "cluster": 0.0,
+     "top100": 0.37,
+     "field": 0.68
+    },
+    "<=4": {
+     "cluster": 0.0,
+     "top100": 0.24,
+     "field": 0.084
+    }
+   },
+   "mates": {
+    "0": {
+     "cluster": 0.0,
+     "top100": 0.0,
+     "field": 0.13
+    },
+    "1": {
+     "cluster": 0.0,
+     "top100": 0.2,
+     "field": 0.454
+    },
+    "2": {
+     "cluster": 1.0,
+     "top100": 0.65,
+     "field": 0.36
+    },
+    "3+": {
+     "cluster": 0.0,
+     "top100": 0.15,
+     "field": 0.056
+    }
+   },
+   "max_own": {
+    "15-30": {
+     "cluster": 0.5,
+     "top100": 0.98,
+     "field": 0.809
+    },
+    "<=15": {
+     "cluster": 0.5,
+     "top100": 0.02,
+     "field": 0.191
+    }
+   },
+   "n_low_own": {
+    "1": {
+     "cluster": 0.0,
+     "top100": 0.0,
+     "field": 0.0
+    },
+    "2+": {
+     "cluster": 1.0,
+     "top100": 1.0,
+     "field": 1.0
+    }
+   },
+   "own_sum": {
+    "80-120": {
+     "cluster": 0.0,
+     "top100": 0.06,
+     "field": 0.094
+    },
+    "<80": {
+     "cluster": 1.0,
+     "top100": 0.94,
+     "field": 0.906
+    }
+   },
+   "qb_fav": {
+    "dog": {
+     "cluster": 0.0,
+     "top100": 0.28,
+     "field": 0.738
+    },
+    "fav": {
+     "cluster": 1.0,
+     "top100": 0.72,
+     "field": 0.262
+    }
+   },
+   "qb_tier": {
+    "cheap": {
+     "cluster": 1.0,
+     "top100": 0.93,
+     "field": 0.563
+    },
+    "mid": {
+     "cluster": 0.0,
+     "top100": 0.07,
+     "field": 0.218
+    },
+    "top3": {
+     "cluster": 0.0,
+     "top100": 0.0,
+     "field": 0.219
+    }
+   },
+   "qb_total_rank": {
+    "1": {
+     "cluster": 0.0,
+     "top100": 0.0,
+     "field": 0.105
+    },
+    "2-3": {
+     "cluster": 1.0,
+     "top100": 0.77,
+     "field": 0.353
+    },
+    "4+": {
+     "cluster": 0.0,
+     "top100": 0.23,
+     "field": 0.542
+    }
+   },
+   "salary_left": {
+    "0-200": {
+     "cluster": 1.0,
+     "top100": 0.9,
+     "field": 0.856
+    },
+    "1001+": {
+     "cluster": 0.0,
+     "top100": 0.01,
+     "field": 0.007
+    },
+    "201-1000": {
+     "cluster": 0.0,
+     "top100": 0.09,
+     "field": 0.138
+    }
+   },
+   "te_price": {
+    "cheap": {
+     "cluster": 1.0,
+     "top100": 0.79,
+     "field": 0.322
+    },
+    "not": {
+     "cluster": 0.0,
+     "top100": 0.21,
+     "field": 0.678
+    }
+   },
+   "top_total_n": {
+    "0": {
+     "cluster": 1.0,
+     "top100": 0.82,
+     "field": 0.497
+    },
+    "1-2": {
+     "cluster": 0.0,
+     "top100": 0.18,
+     "field": 0.418
+    },
+    "3+": {
+     "cluster": 0.0,
+     "top100": 0.0,
+     "field": 0.085
+    }
+   }
+  },
+  "chosen": {
+   "bb": {
+    "value": "1",
+    "share": 0.57,
+    "field": 0.343,
+    "lift": 1.66,
+    "source": "top100",
+    "use": true
+   },
+   "cheap": {
+    "value": "2+",
+    "share": 0.48,
+    "field": 0.153,
+    "lift": 3.14,
+    "source": "top100",
+    "use": false
+   },
+   "dst_price": {
+    "value": "cheap",
+    "share": 0.98,
+    "field": 0.867,
+    "lift": 1.13,
+    "source": "top100",
+    "use": false
+   },
+   "dual": {
+    "value": "yes",
+    "share": 0.65,
+    "field": 0.656,
+    "lift": 0.99,
+    "source": "top100",
+    "use": false
+   },
+   "flex": {
+    "value": "TE",
+    "share": 0.7,
+    "field": 0.383,
+    "lift": 1.83,
+    "source": "top100",
+    "use": true
+   },
+   "games": {
+    "value": "5",
+    "share": 0.39,
+    "field": 0.235,
+    "lift": 1.66,
+    "source": "top100",
+    "use": false
+   },
+   "mates": {
+    "value": "2",
+    "share": 0.65,
+    "field": 0.36,
+    "lift": 1.81,
+    "source": "top100",
+    "use": true
+   },
+   "max_own": {
+    "value": "15-30",
+    "share": 0.98,
+    "field": 0.809,
+    "lift": 1.21,
+    "source": "top100",
+    "use": true
+   },
+   "n_low_own": {
+    "value": "2+",
+    "share": 1.0,
+    "field": 1.0,
+    "lift": 1.0,
+    "source": "top100",
+    "use": false
+   },
+   "own_sum": {
+    "value": "<80",
+    "share": 0.94,
+    "field": 0.906,
+    "lift": 1.04,
+    "source": "top100",
+    "use": false
+   },
+   "qb_fav": {
+    "value": "fav",
+    "share": 0.72,
+    "field": 0.262,
+    "lift": 2.75,
+    "source": "top100",
+    "use": true
+   },
+   "qb_tier": {
+    "value": "cheap",
+    "share": 0.93,
+    "field": 0.563,
+    "lift": 1.65,
+    "source": "top100",
+    "use": true
+   },
+   "qb_total_rank": {
+    "value": "2-3",
+    "share": 0.77,
+    "field": 0.353,
+    "lift": 2.18,
+    "source": "top100",
+    "use": true
+   },
+   "salary_left": {
+    "value": "0-200",
+    "share": 0.9,
+    "field": 0.856,
+    "lift": 1.05,
+    "source": "top100",
+    "use": false
+   },
+   "te_price": {
+    "value": "cheap",
+    "share": 0.79,
+    "field": 0.322,
+    "lift": 2.45,
+    "source": "top100",
+    "use": true
+   },
+   "top_total_n": {
+    "value": "0",
+    "share": 0.82,
+    "field": 0.497,
+    "lift": 1.65,
+    "source": "top100",
+    "use": true
+   }
+  }
+ },
+ "layers": [
+  {
+   "layer": "L0 unconstrained",
+   "rules": {},
+   "oracle": 256.8,
+   "can_hit": true,
+   "enum": {
+    "n_built": 1000,
+    "first": {
+     "hit": null,
+     "top100": null,
+     "top1pct": null,
+     "top400": null
+    },
+    "best_actual": 176.76,
+    "best_lineup": [
+     "Vikings DST MIN $3100 17.0",
+     "Josh Allen QB BUF $8000 20.5",
+     "Jahmyr Gibbs RB DET $8800 41.4",
+     "Kenneth Walker III RB KC $7400 21.3",
+     "Dalton Schultz TE HOU $4200 6.0",
+     "Juwan Johnson TE NO $3700 24.3",
+     "Garrett Wilson WR NYJ $6300 29.7",
+     "Denzel Boston WR CLE $4500 8.1",
+     "Xavier Hutchinson WR HOU $4000 8.5"
+    ],
+    "hit_lineup": null,
+    "secs": 2602.8
+   }
+  },
+  {
+   "layer": "shape",
+   "rules": {
+    "mates": "2",
+    "bb": "1",
+    "flex": "TE"
+   },
+   "oracle": 256.8,
+   "can_hit": true,
+   "enum": {
+    "n_built": 1000,
+    "first": {
+     "hit": null,
+     "top100": null,
+     "top1pct": 812,
+     "top400": null
+    },
+    "best_actual": 193.24,
+    "best_lineup": [
+     "Titans DST TEN $2400 7.0",
+     "Geno Smith QB NYJ $4900 30.0",
+     "Jahmyr Gibbs RB DET $8800 41.4",
+     "Kenneth Walker III RB KC $7400 21.3",
+     "Dalton Schultz TE HOU $4200 6.0",
+     "Kenyon Sadiq TE NYJ $3500 26.5",
+     "CeeDee Lamb WR DAL $7800 23.2",
+     "Garrett Wilson WR NYJ $6300 29.7",
+     "Denzel Boston WR CLE $4500 8.1"
+    ],
+    "hit_lineup": null,
+    "secs": 4040.0
+   }
+  },
+  {
+   "layer": "environment",
+   "rules": {
+    "mates": "2",
+    "bb": "1",
+    "flex": "TE",
+    "qb_total_rank": "2-3",
+    "qb_fav": "fav",
+    "top_total_n": "0"
+   },
+   "oracle": 256.8,
+   "can_hit": true,
+   "enum": {
+    "n_built": 1000,
+    "first": {
+     "hit": null,
+     "top100": 459,
+     "top1pct": 44,
+     "top400": 97
+    },
+    "best_actual": 211.34,
+    "best_lineup": [
+     "Vikings DST MIN $3100 17.0",
+     "Geno Smith QB NYJ $4900 30.0",
+     "Jahmyr Gibbs RB DET $8800 41.4",
+     "Kenneth Walker III RB KC $7400 21.3",
+     "James Cook III RB BUF $6900 23.4",
+     "Travis Kelce TE KC $4500 13.9",
+     "Kenyon Sadiq TE NYJ $3500 26.5",
+     "Garrett Wilson WR NYJ $6300 29.7",
+     "Denzel Boston WR CLE $4500 8.1"
+    ],
+    "hit_lineup": null,
+    "secs": 2760.4
+   }
+  },
+  {
+   "layer": "salary",
+   "rules": {
+    "mates": "2",
+    "bb": "1",
+    "flex": "TE",
+    "qb_total_rank": "2-3",
+    "qb_fav": "fav",
+    "top_total_n": "0",
+    "qb_tier": "cheap",
+    "te_price": "cheap"
+   },
+   "oracle": 256.8,
+   "can_hit": true,
+   "enum": {
+    "n_built": 1000,
+    "first": {
+     "hit": null,
+     "top100": 240,
+     "top1pct": 21,
+     "top400": 44
+    },
+    "best_actual": 215.64,
+    "best_lineup": [
+     "Browns DST CLE $2500 6.0",
+     "Geno Smith QB NYJ $4900 30.0",
+     "Jahmyr Gibbs RB DET $8800 41.4",
+     "Kenneth Walker III RB KC $7400 21.3",
+     "James Cook III RB BUF $6900 23.4",
+     "Juwan Johnson TE NO $3700 24.3",
+     "Kenyon Sadiq TE NYJ $3500 26.5",
+     "Garrett Wilson WR NYJ $6300 29.7",
+     "Parker Washington WR JAX $6000 13.0"
+    ],
+    "hit_lineup": null,
+    "secs": 2518.3
+   }
+  },
+  {
+   "layer": "ownership",
+   "rules": {
+    "mates": "2",
+    "bb": "1",
+    "flex": "TE",
+    "qb_total_rank": "2-3",
+    "qb_fav": "fav",
+    "top_total_n": "0",
+    "qb_tier": "cheap",
+    "te_price": "cheap",
+    "max_own": "15-30"
+   },
+   "oracle": 256.8,
+   "can_hit": true,
+   "enum": {
+    "n_built": 1000,
+    "first": {
+     "hit": null,
+     "top100": 240,
+     "top1pct": 21,
+     "top400": 44
+    },
+    "best_actual": 215.64,
+    "best_lineup": [
+     "Browns DST CLE $2500 6.0",
+     "Geno Smith QB NYJ $4900 30.0",
+     "Jahmyr Gibbs RB DET $8800 41.4",
+     "Kenneth Walker III RB KC $7400 21.3",
+     "James Cook III RB BUF $6900 23.4",
+     "Juwan Johnson TE NO $3700 24.3",
+     "Kenyon Sadiq TE NYJ $3500 26.5",
+     "Garrett Wilson WR NYJ $6300 29.7",
+     "Parker Washington WR JAX $6000 13.0"
+    ],
+    "hit_lineup": null,
+    "secs": 2500.9
+   }
+  }
+ ],
+ "final_rules": {
+  "mates": "2",
+  "bb": "1",
+  "flex": "TE",
+  "qb_total_rank": "2-3",
+  "qb_fav": "fav",
+  "top_total_n": "0",
+  "qb_tier": "cheap",
+  "te_price": "cheap",
+  "max_own": "15-30"
+ },
+ "hit": false
+}

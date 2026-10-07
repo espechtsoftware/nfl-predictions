@@ -640,7 +640,9 @@ def test_live_eligibility_requires_fresh_complete_active_roster_receipt():
     sql = sql.upper()
 
     assert "CURRENT_ROSTER_RECEIPT_QUALITY AS" in sql
-    assert "COUNT(DISTINCT R.TEAM) = 32" in sql
+    # bye weeks (2026-10-07): complete against the week's REG schedule, not a fixed 32 (Week 5 has 30 teams)
+    assert "COUNT(DISTINCT R.TEAM) = 32" not in sql
+    assert "COUNT(DISTINCT R.TEAM) >= (SELECT N FROM TARGET_WEEK_TEAMS)" in sql
     assert "COUNT(DISTINCT R.GSIS_ID) >= 1000" in sql
     assert "INTERVAL 72 HOUR" in sql
     assert sql.count("CAST(R.WEEK AS INT64) = @WEEK") >= 2
