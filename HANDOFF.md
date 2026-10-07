@@ -12,6 +12,35 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-07 (18:25 CDT) — R14 spec amendment: `team_change` (team moves) from W6, prompts by week, the Saturday sweep from W5
+
+- **Why:** the operator's 10-07 question about team news ("the trade deadline is near and Dallas just got a
+  cornerback"; study list 61, step 2). The v1 prompt logs only statements about a named player, so a trade note
+  could not be logged in a usable form.
+- **The form:** the laptop proposed it and the reviewer named it 10-07. It is written up in
+  `reports/2026-10-06-r14-fact-log-spec.md` (Amendment 2026-10-07).
+  - `team_change` is a unit record: the moved player, the team whose unit changes, `unit` from 6 values,
+    `unit_effect` ±1/0, and direction always 0.
+  - `unit` and `unit_effect` are required on `team_change` and refused on the other types.
+  - The player mapping is defined now. The reviewer's reader amendment 3 applies it on its own descriptive line. It never
+    enters study 61's primary through W10.
+- **Built (private, beside the log):**
+  - `PROMPT-v2.md` `0ff95377…` (v1 plus `team_change`). `PROMPT.md` v1 `ee7a1310…` is untouched and serves W5.
+  - `r14_append.py` `721e74c2…`: picks the prompt by week, refuses a second prompt within a week, and enforces the
+    `team_change` fields.
+  - The private test passes 17 checks (`bb770ad1…`), including the real W5 log (606 records) still validating. The
+    W5 log itself is unchanged.
+  - Backups: `*.bak-20261007-team-change`.
+- **The Saturday sweep:**
+  - The reviewer said yes for W5 this Saturday, with prompt v1.
+  - It goes on the checklist's Saturday section: after the arm and the canary, before Sunday's 10:33 CT pull.
+  - Study 61's §5a stays the 10-07 snapshot.
+- **Next, W6:** the reviewer's reader amendment 3 lands, with tests, before W6's extraction (Wed 10-14). W6 is then
+  extracted on v2.
+- **Also checked:** FP has left no projection null in any 2026 Main capture (W4: 3 captures; W5: 4; DSTs and the rest).
+  The code that refuses FP for a whole build over a null DST has never fired. The operator still decides whether a
+  null DST should keep ours instead.
+
 ## 2026-10-07 (18:18 CDT) — Study 61 amendment 2 merged as `2ab44bab`: a fallback week is NOT VALID, not a refusal; Sunday's census runs `94fced43…`
 
 - **The reviewer's amendment 2** (`81fd7d43`) answers the laptop's review note (a). A week whose T-70 fell back to OUR

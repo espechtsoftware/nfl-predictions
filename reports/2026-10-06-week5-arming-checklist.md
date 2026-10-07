@@ -198,6 +198,15 @@ rehearsal runs on the merged head in the exact armed env; Friday re-verifies on 
   not to be armed (study 31); the expected timer count includes the FP projections capture (11, or 9 when
   armed late).
 - The FP projections capture runs right after arming; Sunday's runs at 10:40 CT, before the 10:50 T-70 build.
+- **The R14 Saturday sweep (W5; the reviewer's yes 10-07; spec amendment 2026-10-07).** Run it after the arm and the
+  canary, outside any build window, and before Sunday's 10:33 CT T-70 pull.
+  - Collect: `cd ~/projects/nfl-predictions && .venv/bin/python -m nfl_dfs.ops.fantasy_points_articles collect --week 5`.
+  - Extract only the articles and versions not yet logged (rule (a)), with the SAME prompt v1 (`PROMPT.md`
+    `ee7a1310…`). The appender picks v1 for W5 and refuses a second prompt within the week.
+  - Append, then `r14_append.py --season 2026 --week 5 --counts`. Put the sweep's counts in HANDOFF: new records,
+    deduplicated records, by type.
+  - Study 61's §5a stays the 10-07 snapshot. Sunday's census counts every record logged before the pull.
+  - Prompt v2 (`team_change`) starts with W6's extraction, after the reviewer's reader amendment 3.
 - **The arming message to him names the one-game risk** (the reviewer's pre-mortem follow-up, 10-06): if Saturday's Week-5 build puts most of the book's QBs in one game (Week 4's MIXT replay: 91% in JAX–CIN; the historical slates 25–35%), say so in plain words before lock, with the share and the game.
 
 ## Sunday 10-11
