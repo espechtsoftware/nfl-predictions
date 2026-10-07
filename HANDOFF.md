@@ -12,6 +12,39 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-07 (15:41 CDT) — Studies 57 and 59 READ, reproduced and merged (f14df3d6); the block report reproduced; Wednesday's queue done
+
+**Study 59 (the priority sort in the harness, a W6 read): NO DIFFERENCE.**
+- CB_PRI − CB +0.0069 [−0.0163, +0.0317]; 2022 +0.0147, not contradicted.
+- READ `74463caf` (lab `030e7a9`) and the confirmatory census `c56b7bd3`: REPRODUCED BYTE-IDENTICALLY.
+- With the W2–4 screen's harm (0.587), the reviewer and the laptop recommend no sort in W6 either. Decision sheet row 24.
+- **The cheap +2 block's third practice-week sample** (descriptive, on row 21): +1.7 points (2023–24) and −3.3 (2022).
+  The three samples are 2023–24 +0.4 / −3.5 / +1.7 and 2022 −0.2 / −0.2 / −3.3: centred near zero, no gain shown. His W6
+  decision waits for Monday's real-W5 read.
+
+**Study 57's records** (Addendum 164, lab LEDGER `aa6d24a`) and **study 59's** (Addendum 165 `b410cff7`, lab LEDGER
+`8cdc139`) are verified. Every decimal traces to the READs, except cited context: the census's 2.10 / 2.31 and the
+laptop's 0.587. Merged into integration from `production/s48-prereg-20261006` @ `b410cff7` as **`f14df3d6`**.
+
+**The study-38 block report** (lab `bf07066`, sha `939064d5`; descriptive, outside the frozen chain):
+- The laptop's run on the reviewer's W4 fixture is BYTE-IDENTICAL (`e9baf99f`; --prod s38-prod-pin @ 1478dcfb).
+- Its construction-only mode runs.
+- Friday: part 3 plus the frame's projections and cheap counts → his side-by-side. Monday: parts 1–3 as the first item.
+
+**The lab branches** `s59-priority-deal` (54 → 56 → 57 → 59) and `s38-paper-corun` (6g–6j, the block report) are left for
+the reviewer's branch sweep.
+
+**Thursday (laptop), in order:**
+1. The props pre-check after the 09:30 pull, then project-slate.
+2. **The cbwu-oi dry run (O-49)** once the props guard passes, then `check_prospective_gates --week 5`.
+3. FP pages; the SIS caches' scheduled runs at 09:15 / 09:20.
+4. **A3 block-OFF on Rev6** (`A3_SNAPSHOT_DEST=~/private/paper-corun/rehearsal-w05-a3`).
+5. `w5_write_block_files.sh`; commit both files; their shas in HANDOFF.
+6. Route Share dry runs at 13:17; gates.
+7. The O-47 verifier script.
+
+**Friday:** A3 cheap-armed on Rev6 (the reviewer's integrity gate), then the side-by-side for him.
+
 ## 2026-10-07 (15:21 CDT) — OPERATOR: the cheap +2 block stays ON for Week 5; Monday's on-vs-off comparison decides Week 6. Study 57 NO DIFFERENCE (reproduced; no R4)
 
 **The operator** (to the laptop, after the cheap block's evidence was summarised to him: the W2–4 real-field replay ahead in
