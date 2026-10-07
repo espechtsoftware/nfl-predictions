@@ -81,6 +81,17 @@ def ladder_rows(details: dict, season: int, week: int, source_file: str, source_
     return rows
 
 
+def split_payout_multiple(tiers: list[dict], rank: int, n_tied: int, fee: float) -> float:
+    """The realized payout multiple of an entry at a reported rank shared by n_tied entries: DraftKings pools the prizes
+    of positions rank .. rank + n_tied - 1 and splits them equally -- the sum over tiers of overlap(tier, [rank,
+    rank + n_tied - 1]) x the tier's per-position value, over n_tied x fee. Positions past the last tier pay 0, so a tie
+    across the cash line gets its partial share (the reviewer, 10-07). v_dk_entry_tier.split_payout_multiple is this."""
+    hi = rank + n_tied - 1
+    paid = sum(max(0, min(int(t["max_position"]), hi) - max(int(t["min_position"]), rank) + 1)
+               * (float(t["cash_value"]) + float(t["ticket_value"])) for t in tiers)
+    return paid / (n_tied * float(fee))
+
+
 def structure(rows: list[dict]) -> pd.DataFrame:
     """Per contest, in multiples of its fee (never dollars): positions paid and their share of the field, the pool ratio
     (paid / fees at capacity), the first and min-cash multiples, the payout kind, and -- for a flat ticket ladder -- the

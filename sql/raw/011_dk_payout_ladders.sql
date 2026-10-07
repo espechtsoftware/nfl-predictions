@@ -54,16 +54,37 @@ SELECT season, week, contest_id, ANY_VALUE(contest_name) AS contest_name, ANY_VA
 FROM `${raw}.v_dk_payout_ladder_latest`
 GROUP BY season, week, contest_id;
 
--- rank -> tier: each settled entry's tier and payout multiple at its REPORTED rank, from the contest's LATEST import
--- (2026 W1-4: one post-settlement import per contest, one rank per entry). Ties are not split (DraftKings splits tied
--- prizes; this view gives the tier at the reported rank); a contest without a loaded ladder gives NULL.
+-- rank -> tier: each settled entry of the contest's LATEST import (2026 W1-4: one post-settlement import per contest, one
+-- rank per entry), with n_tied (the entries sharing its reported rank) and two payouts in multiples of the fee:
+--   payout_multiple       the tier at the REPORTED rank (0 out of the money). It ignores ties, so it OVERSTATES the paid
+--                         entries at every tier boundary (79 extra on the W1 Millionaire): never use it for money;
+--   split_payout_multiple DraftKings' rule: the prizes of positions rank .. rank + n_tied - 1 pooled and split equally
+--                         (positions past the last tier pay 0, so a tie across the cash line gets its partial share).
+--                         USE THIS ONE for realized payouts (scripts/load_payout_ladders.split_payout_multiple is the
+--                         tested reference; the reviewer, 10-07).
+-- tier / cash_value / ticket_value describe the reported rank's tier (NULL out of the money); both payouts are NULL for a
+-- contest without a loaded ladder.
 CREATE OR REPLACE VIEW `${raw}.v_dk_entry_tier` AS
-SELECT e.season, e.week, e.contest_id, e.entry_id, e.rank, l.tier, l.cash_value, l.ticket_value,
-       SAFE_DIVIDE(l.cash_value + l.ticket_value, l.entry_fee) AS payout_multiple
-FROM (SELECT DISTINCT c.season, c.week, c.contest_id, c.entry_id, c.rank
-      FROM `${raw}.contest_entries` c
-      JOIN (SELECT contest_id, ARRAY_AGG(import_id ORDER BY imported_at DESC LIMIT 1)[OFFSET(0)] AS import_id
-            FROM `${raw}.contest_entries` GROUP BY contest_id) k
-        ON k.contest_id = c.contest_id AND k.import_id = c.import_id) e
+WITH e AS (
+  SELECT DISTINCT c.season, c.week, c.contest_id, c.entry_id, c.rank
+  FROM `${raw}.contest_entries` c
+  JOIN (SELECT contest_id, ARRAY_AGG(import_id ORDER BY imported_at DESC LIMIT 1)[OFFSET(0)] AS import_id
+        FROM `${raw}.contest_entries` GROUP BY contest_id) k
+    ON k.contest_id = c.contest_id AND k.import_id = c.import_id),
+t AS (SELECT e.*, COUNT(*) OVER (PARTITION BY contest_id, rank) AS n_tied FROM e),
+f AS (SELECT contest_id, ANY_VALUE(entry_fee) AS entry_fee FROM `${raw}.v_dk_payout_ladder_latest` GROUP BY contest_id)
+SELECT t.season, t.week, t.contest_id, t.entry_id, t.rank, t.n_tied,
+       MAX(IF(t.rank BETWEEN l.min_position AND l.max_position, l.tier, NULL)) AS tier,
+       MAX(IF(t.rank BETWEEN l.min_position AND l.max_position, l.cash_value, NULL)) AS cash_value,
+       MAX(IF(t.rank BETWEEN l.min_position AND l.max_position, l.ticket_value, NULL)) AS ticket_value,
+       IF(ANY_VALUE(f.entry_fee) IS NULL, NULL,
+          IFNULL(MAX(IF(t.rank BETWEEN l.min_position AND l.max_position, l.cash_value + l.ticket_value, NULL)), 0)
+            / ANY_VALUE(f.entry_fee)) AS payout_multiple,
+       IF(ANY_VALUE(f.entry_fee) IS NULL, NULL,
+          IFNULL(SUM(GREATEST(0, LEAST(l.max_position, t.rank + t.n_tied - 1) - GREATEST(l.min_position, t.rank) + 1)
+                     * (l.cash_value + l.ticket_value)), 0) / (t.n_tied * ANY_VALUE(f.entry_fee))) AS split_payout_multiple
+FROM t
+LEFT JOIN f ON f.contest_id = t.contest_id
 LEFT JOIN `${raw}.v_dk_payout_ladder_latest` l
-  ON l.contest_id = e.contest_id AND e.rank BETWEEN l.min_position AND l.max_position;
+  ON l.contest_id = t.contest_id AND l.min_position <= t.rank + t.n_tied - 1 AND l.max_position >= t.rank
+GROUP BY t.season, t.week, t.contest_id, t.entry_id, t.rank, t.n_tied;

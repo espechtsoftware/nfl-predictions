@@ -74,3 +74,26 @@ def test_the_ddl_declares_the_table_and_the_three_views():
         assert f"CREATE OR REPLACE VIEW `${{raw}}.{v}`" in ddl
     cols = ddl[ddl.index("dk_payout_ladders` ("):ddl.index("PARTITION BY")]
     assert all(f"  {c} " in cols for c in L.COLUMNS)
+
+
+def test_tied_entries_split_the_pooled_prizes_across_tier_boundaries_and_the_cash_line():
+    """The reviewer (10-07): DraftKings pools the prizes of tied positions and splits them equally. Ladder: 1st 1000,
+    2nd 300, 3rd-15th 30 each, fee 20."""
+    tiers = [r for r in L.ladder_rows(_capture(), 2026, 5, "f.json", "abc", "t") if r["contest_id"] == "1"]
+    # a 3-way tie at reported rank 2 straddles the 2nd / 3rd-15th boundary: (300 + 30 + 30) / (3 x 20) = 6.0, not 15.0
+    assert L.split_payout_multiple(tiers, 2, 3, 20.0) == 6.0
+    # a 3-way tie at reported rank 14 straddles the last paid position (15): (30 + 30 + 0) / (3 x 20) = 1.0, not 1.5
+    assert L.split_payout_multiple(tiers, 14, 3, 20.0) == 1.0
+    assert L.split_payout_multiple(tiers, 1, 1, 20.0) == 50.0 and L.split_payout_multiple(tiers, 16, 1, 20.0) == 0.0
+    # splitting conserves the pool: a fully filled field (one entry a rank, plus the two ties) pays out exactly the ladder
+    ranks = [(1, 1)] + [(2, 3)] * 3 + [(5, 1)] * 0 + [(r, 1) for r in range(5, 14)] + [(14, 3)] * 3 + [(17, 1)]
+    assert abs(sum(L.split_payout_multiple(tiers, r, n, 20.0) for r, n in ranks) * 20.0 - 1690.0) < 1e-9
+
+
+def test_the_entry_view_carries_the_split_payout_and_documents_which_one_to_use():
+    ddl = (ROOT / "sql" / "raw" / "011_dk_payout_ladders.sql").read_text()
+    view = ddl[ddl.index("CREATE OR REPLACE VIEW `${raw}.v_dk_entry_tier`"):]
+    assert "COUNT(*) OVER (PARTITION BY contest_id, rank) AS n_tied" in view
+    assert "GREATEST(0, LEAST(l.max_position, t.rank + t.n_tied - 1) - GREATEST(l.min_position, t.rank) + 1)" in view
+    assert "AS split_payout_multiple" in view and "AS payout_multiple" in view
+    assert "USE THIS ONE for realized payouts" in ddl and "never use it for money" in ddl
