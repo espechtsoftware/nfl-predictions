@@ -1,4 +1,4 @@
-# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06 and 10-07, amendments 1, 1b, 2, 3, 4, 5, 6, 6b, 6c and 6d, before Week 5's lock)
+# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06 and 10-07, amendments 1, 1b, 2, 3, 4, 5, 6, 6b, 6c, 6d, 6e and 6f before Week 5's lock; repair 6g before its first score)
 
 **Status: FROZEN 2026-10-06** by the reviewer, BEFORE any week of the decision arm (MIXT_RS0) or of the exploratory arms
 QBB0 / NQC0 / QAL / RBC0 was read on any slate. Disclosed: before the freeze, the reference MIXT_QA0 was scored on
@@ -499,6 +499,27 @@ score. Nothing here enters a contest: the money path, its checkout and its files
     1. this amendment;
     2. the laptop's ack (tests and smoke);
     3. Friday's rehearsal and the integrity gate.
+- **Amendment 6g (2026-10-07, a REPAIR before Week 5's first score; no Week-5 outcome exists).**
+  - **Why.** The laptop's P3 Week 2–4 replay (10-07) found that `scripts/s38_plan.py` crashes on a multi-tier contest whose
+    tier pays a TICKET. Week 3's $14M FFWC qualifier #42 pays first place "NFL 2026 $12.5M FFWC Contest Ticket,…", and
+    the text parse raised ValueError.
+    - Study 38's plan step would fail the same way in any week holding such a qualifier, and P3's scorer uses the same
+      converter.
+  - **What changes.** A multi-tier contest's tier is counted in dollars by its description when that is a cash amount (the
+    rule as frozen). Otherwise it takes DK's numeric `value`: 70,000 for that ticket. A tier with neither raises; the
+    converter never guesses.
+  - **What does not change:** the plan rule ($500+ seats in a multi-tier contest, BIG; single-prize contests as before),
+    the overrides, and every other file.
+  - **The check:** the old and new converters were run over every contest in the Week 1–4 details files (86):
+    - 83 convert identically;
+    - 0 change;
+    - the 3 that crashed now convert: Week 1's FFWC qualifiers #6 and #7 and Week 3's #42, each 2 seats, big, at lines
+      99.9888 / 99.96 / 99.96.
+  - **Code:** lab `91359fc`:
+    - `scripts/s38_plan.py`, sha256 `19ad35a09cbf9a63c52c2f8ad9ac06f9f35f649d229fbe027e03d03279d2d199` (was `9af5f805…`);
+    - `tests/test_s38_paper_corun.py`, `2a328926185d677a42a07c75968d7d3f615da7aa987a343ec4e79e740f43a72c` (25 tests;
+      one added);
+    - every other amendment-6f sha stands, including the four files the Friday integrity gate pins.
 
 ## 1. Why
 - **The operator (10-06), on the proposal:** "yes, please try it, I want to exhaust all reasonable options."
