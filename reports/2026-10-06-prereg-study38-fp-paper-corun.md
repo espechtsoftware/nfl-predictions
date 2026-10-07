@@ -1,4 +1,4 @@
-# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06, amendments 1, 1b, 2, 3, 4 and 5, before Week 5's lock)
+# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06 and 10-07, amendments 1, 1b, 2, 3, 4, 5 and 6, before Week 5's lock)
 
 **Status: FROZEN 2026-10-06** by the reviewer, BEFORE any week of the decision arm (MIXT_RS0) or of the exploratory arms
 QBB0 / NQC0 / QAL / RBC0 was read on any slate. Disclosed: before the freeze, the reference MIXT_QA0 was scored on
@@ -167,6 +167,78 @@ score. Nothing here enters a contest: the money path, its checkout and its files
     - `experiments/s46_half_half.py` (study 46's, byte-identical), `30647fef4175770e8f809cb704f282788f8b4d079319ba282768ad907433ec7a`;
     - `experiments/l02b_field_sampler.py` (item 40's, byte-identical), `fadf9cfe3269ed746e8bd82d109b2cd35797ff934c93861cac56c5893f1241b5`.
     - Every other amendment-3 sha stands (`mix_fill.py` `dcf6a299…`, `s38_plan.py` `9af5f805…`).
+
+- **Amendment 6 (2026-10-07, before Week 5's lock; no Week-5 outcome exists).**
+  - **Why.** The operator's Week-5 decision (10-07, through the laptop): the prior-top term goes into the live book,
+    capped, on part of it ("Live, capped, part of book").
+    - The form: 8 of the 26 rows are built after the live block, on the projection + min(0.20 × pred_own, 2.0).
+    - pred_own: 5 × z within position of each player's mean share of the prior weeks' real Millionaire top-1% lineups,
+      clipped at 0. The file is `reports/2026-10-07-prior-top-term/priortop-w5.csv`, sha256 `694a6622…`.
+    - Production: `union_reselect --term-block-rows 8 --term-block-source <file>` (`production/term-block-20261007` @
+      `26fb8d40`).
+    - With the block live, "his live book" includes it, so the decision reference must follow it.
+  - **What changes.**
+    - **MIXT_QA0 follows the live union's `--term-block-rows N`.** N is 0 (off), or 1–25 with `--term-block-source`, a
+      tilt in (0, 0.5], a cap in (0, 5] and its coverage gate. The block needs the round-robin fill, no regulars' block
+      and no whole-book ownership term, as production.
+      - **The term:** production's `own_bonus` (imported from the pin, as for MIXT_QA) on the snapshot's copy of the
+        union's term file, then min(term, cap). The copy must be content-identical to the file the union read.
+      - **The book:** `experiments/term_book.py`, copied byte-identical from study 49's branch (`62c2306e…`):
+        - one state;
+        - the live block (26 − N rows) first, on FP's mean;
+        - then the N-row block on FP's mean + the term;
+        - at study 46's block_positions(26, N);
+        - each block interleaved on its own positions' head weights;
+        - the spares on FP's mean.
+      - If `own_bonus` refuses the file, MIXT_QA0 is built without the block, as the union falls back. This is recorded;
+        the host stops the entry until he decides.
+    - **A new exploratory arm, MIXT_QA0_NOTERM:** his live construction without the block. It is identical to MIXT_QA0
+      while N is 0 and no regulars' block is live (production refuses the two blocks together). Each week it measures
+      the block itself on the real field, the only prospective evidence the term will get.
+    - **Every other arm is unchanged.**
+    - **Parity:** a term-block argument outside its definition, or the block with another fill, a regulars' block or a
+      whole-book term, is a parity mismatch (an invalid week).
+    - **The snapshot:** the build resolves the term file by the union's own `--term-block-source`. Its copy must be in
+      the MANIFEST and identical to the union's file. The laptop's snapshot tool copies it.
+    - **The records:** the build's content identity, the scorer (MIXT_QA0_NOTERM scored; the build's `term_block`
+      recorded) and the reader (a descriptive "QA0 without the term block − QA0" line) carry it.
+  - **What does not change:** the rule (§5), the decision pair "the regulars' structure vs his live book" (MIXT_RS0 vs
+    MIXT_QA0), the objective, the provenance, the scoring.
+  - **The smoke** (dry run, Week 4's frozen copies, at 4 + rr with `--mix-portfolio mix --tail-sleeve 0`; on the
+    committed code):
+    - **(i) No block:**
+      - exit 0, parity none;
+      - all ten amendment-5 arms are identical, rows and ranks, to amendment 5's (i);
+      - MIXT_QA0_NOTERM equals MIXT_QA0;
+      - `books.json` `2cd95e9b`.
+    - **(ii) `--term-block-rows 8 --term-block-source priortop-w4.csv`** (`1f38c8cb`, the replay's Week-4 file):
+      - exit 0, parity none;
+      - the block applied: 64 players carry a term, 13 at the cap, coverage 0.954;
+      - MIXT_QA0's block sits at ranks 2, 5, 9, 12, 15, 18, 22 and 25, and 17 of its 26 rows are shared with (i)'s
+        MIXT_QA0;
+      - MIXT_QA0_NOTERM equals (i)'s MIXT_QA0, and every other arm is identical to (i);
+      - `books.json` `c276bf08` (identical from the union's own frame).
+    - **(iii) Production parity:** (ii)'s MIXT_QA0 equals the laptop's Week-4 term8 union book (production `26fb8d40`,
+      the exact-form replay) position by position, 26 of 26. This holds from the entered frame and from the union's own
+      frame alike.
+    - Construction only; no outcome was read. `~/private/paper-corun/smoke-w4-amend6/`, script `run.sh`.
+  - **The integrity gate (§7) for Week 5** must pass on a snapshot whose union carries the block. That is Friday's
+    rehearsal with the block armed, since the A3 snapshot predates his decision.
+  - **Code:** lab `bffa16f`:
+    - `experiments/s38_paper_corun.py`, sha256 `358bb71638b2a2886d29331cbb43392715caa7ba6f52480cbdd2e3cec714a440`;
+    - `experiments/term_book.py` (study 49's, byte-identical), `62c2306eff1135713d599b788bcbd29be9db308c2eb8537183f3d291b996b887`;
+    - `scripts/s38_build.py`, `b194f8e0d3663fe9375dca000615add208cc6f599257d1f3f735db5e6fd82dff`;
+    - `scripts/s38_score.py`, `d807a65d708aae9e591b70ad40c3feff30efea3c7398556cffab0fc4152147d7`;
+    - **`scripts/s38_report.py` (the reader), sha256 `3f27d123e67bc24c14f7a4e6354ba96d7f4b95cce9ab5a09d61d208b7506fefc`**;
+    - `tests/test_s38_paper_corun.py`, `cade05db7caef6baff4ef984266d5a00abe930c0026dfa1b59d5a5f12f00f418` (19 tests).
+    - Every other amendment-5 sha stands (`s46_half_half.py` `30647fef…`, `mix_fill.py` `dcf6a299…`, `s38_plan.py`
+      `9af5f805…`).
+  - **Order:**
+    1. this amendment;
+    2. the laptop's ack (it re-runs the tests and the smoke);
+    3. the snapshot tool copies the term file;
+    4. the integrity gate on Friday's rehearsal snapshot;
+    5. the snapshot before Week 5's lock.
 
 ## 1. Why
 - **The operator (10-06), on the proposal:** "yes, please try it, I want to exhaust all reasonable options."
