@@ -231,3 +231,36 @@ Real-field evidence for the score's elements in the priority contests (within us
 [−0.030, +0.044]). This deal is narrower: it moves rows only between his priority and lower-priority contests, so for
 his utility the downside is about nil.
 
+### 4a. The final deal order with the Midseason Warm Ups (the operator, 10-07)
+
+The operator: *"I forgot about the midseason warm ups. Those are big prizes. Can we move that up to under the 4444 and
+before 555."*
+
+**How it is applied:**
+- The deal follows the order of contests in his plan file, so the vehicle is a **private plan Rev4**: Rev3's 29
+  contests and fields, re-ordered only. Nothing tracked holds it; HANDOFF and the arm script record only its sha.
+- Rev4's per-rank entry weights are identical to Rev3's, so the MIX interleave, the 26 rows and their built order are
+  unchanged. Only the map from contest to rank moves. Rows needed and protected ranks stay at 26.
+
+**Rank map under head (Rev3's ranks in brackets):**
+
+| Contests | Rev4 ranks |
+|---|---|
+| $4,444: MEGA, MEGA, Showdown MEGA sat | 1 [1], 2 [2], 3 [10] |
+| Midseason Warm Up × 3 | 4, 5, 6 [20–22] |
+| $555 × 6 single entries | 7–12 [3–8]; the $555 2x supersat reads 3–4 [3–4] |
+| FFWC ($490 ticket) | 13 [9] |
+| $333 × 9 entries | 14–22 [11–19] |
+| The Millionaire × 2, the pinned $125 FFWC, the pinned $20 supersats | unchanged (1–2; 1; 1–26) |
+
+- Below the Warm Ups, his existing relative order is kept ($555, then the $490 FFWC, then $333). He was asked whether he
+  wants the FFWC last.
+- With the cheap block's 1-based ranks 2, 5, 9, 12, 15, 18, 22 and 25, seven block ranks fall inside the priority
+  span 1–22.
+- 15 of the 18 non-block positions are inside it. The 3 lowest-scoring non-block rows go to ranks 23, 24 and 26, which
+  only the $20 supersats read.
+
+**The harm screen is amended before any number**, with three arms under the same frozen rule:
+- **CB:** the unchanged deal (Rev3, book order).
+- **CB_PRI:** Rev4 + the priority order.
+- **CB_REV4:** Rev4, book order, so that Rev4's own effect is tested if the priority order fails.
