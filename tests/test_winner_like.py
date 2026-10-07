@@ -172,3 +172,13 @@ def test_winner_select_falls_back_without_spares_and_refuses_with_the_order():
     import union_reselect as ur
     rows, cells, spares, meta = ur.winner_select_or_fallback([["a"] * 9], ["A1"], [], pd.DataFrame(), Path("x"), [1], (13, 6, 5, 4))
     assert "no spares" in meta["not_applied"] and rows == [["a"] * 9]
+
+
+def test_selected_shares_use_the_chosen_cells_and_the_as_built_ones_are_kept_apart():
+    """The reviewer's NOTE 1 (10-07): after a selection the book-level shares describe the book as chosen."""
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import union_reselect as ur
+    sh = ur.selected_entry_shares(["A1", "B", "A1", "C"], [3, 1, 1, 0, 0])
+    assert sh["A1"] == 0.8 and sh["B"] == 0.2 and sh["C"] == 0.0 and sh["A2"] == 0.0
+    src = (ROOT / "scripts" / "union_reselect.py").read_text()
+    assert 'mix_meta["pre_selection"]' in src and '"commit_order", "entry_shares_before_overlap_limit"' in src

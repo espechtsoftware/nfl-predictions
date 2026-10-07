@@ -792,6 +792,15 @@ def winner_select(book_rows: list, book_cells: list[str], spares: list, fr: pd.D
     return chosen, [cells_all[i] for i in order], new_spares, meta
 
 
+def selected_entry_shares(cells: list[str], weights: list[int]) -> dict:
+    """The entry-weighted cell shares of the book as CHOSEN (mix_rows' own formula, over the selected rows' cells)."""
+    dealt, tot = Counter(), 0
+    for r, c in enumerate(cells):
+        w = weights[r] if r < len(weights) else 0
+        dealt[c] += w; tot += w
+    return {c: round(dealt[c] / tot, 4) if tot else None for c in MIX_CELLS}
+
+
 def winner_select_or_fallback(book_rows, book_cells, spares, fr, inputs_path, weights, limits):
     """winner_select, or -- on any failure -- the book and spares as built, with the reason (LOUD; never stops a union)."""
     try:
@@ -1066,6 +1075,10 @@ def main(argv: list[str] | None = None) -> int:
                     plain_rows, plain_cells, spare_rows, fr, a.winner_select, weights,
                     (xcap, dcap, qcap, a.mean_max_shared))
                 mix_meta["winner_select"] = sel_meta
+                if "not_applied" not in sel_meta:            # the reviewer's NOTE 1: the as-built fields kept apart, the shares recomputed
+                    mix_meta["pre_selection"] = {f: mix_meta.pop(f) for f in ("commit_order", "entry_shares_before_overlap_limit")
+                                                 if f in mix_meta}
+                    mix_meta["entry_shares_before_overlap_limit"] = selected_entry_shares(plain_cells, weights)
                 if "not_applied" in sel_meta:
                     print(f"\n!!! WINNER SELECTION NOT APPLIED: {sel_meta['not_applied']} -- the book stands as built\n")
                 else:
