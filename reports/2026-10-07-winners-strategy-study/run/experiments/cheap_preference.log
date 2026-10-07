@@ -1,0 +1,34 @@
+W2: 175 sub-$4,000 skill players get the bonus
+W3: 180 sub-$4,000 skill players get the bonus
+W4: 134 sub-$4,000 skill players get the bonus
+== cheap-preference replay 2026-10-07T15:12:13Z: code 7aa2c91a, lab f69598b
+  union w2 live rc 0 (0 refusal lines) 10:12:24
+  union w2 cheap2 rc 0 (0 refusal lines) 10:12:42
+  union w2 cheap4 rc 0 (0 refusal lines) 10:12:58
+  layout w2 live rc 0
+  layout w2 cheap2 rc 0
+  layout w2 cheap4 rc 0
+  union w3 live rc 0 (0 refusal lines) 10:13:14
+  union w3 cheap2 rc 0 (0 refusal lines) 10:13:35
+  union w3 cheap4 rc 0 (0 refusal lines) 10:13:56
+  layout w3 live rc 0
+  layout w3 cheap2 rc 0
+  layout w3 cheap4 rc 0
+  union w4 live rc 0 (0 refusal lines) 10:14:12
+  union w4 cheap2 rc 0 (0 refusal lines) 10:14:31
+  union w4 cheap4 rc 0 (0 refusal lines) 10:14:46
+  layout w4 live rc 0
+  layout w4 cheap2 rc 0
+  layout w4 cheap4 rc 0
+
+           p_big1   e_big  mean_entry_pct  proj_sum_mean  best_row  rows_top1pct  distinct_players  rows_same_as_live  cheap_per_row
+w2-live    0.0413  0.0414          0.4239         136.95    162.96           0.0              53.0                NaN           1.35
+w2-cheap2  0.0000  0.0000          0.4192         136.35    141.46           0.0              52.0                2.0           2.12
+w2-cheap4  0.6545  0.7949          0.4711         135.29    170.46           0.0              49.0                0.0           2.58
+w3-live    0.0016  0.0016          0.5163         133.11    164.64           0.0              48.0                NaN           0.54
+w3-cheap2  0.3186  0.3195          0.5055         131.52    183.90           0.0              50.0                0.0           2.15
+w3-cheap4  0.1271  0.1311          0.5693         128.93    176.54           0.0              46.0                0.0           3.12
+w4-live    0.4336  0.4339          0.5024         144.00    181.08           0.0              49.0                NaN           0.69
+w4-cheap2  0.6413  0.6575          0.5729         143.15    174.58           0.0              47.0                2.0           1.35
+w4-cheap4  0.1603  0.1658          0.6654         140.65    171.40           0.0              44.0                0.0           2.19
+== done 10:14:48

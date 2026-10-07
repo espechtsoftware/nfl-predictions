@@ -1,0 +1,101 @@
+{
+ "w2-live": {
+  "p_big1": 0.0413,
+  "e_big": 0.0414,
+  "mean_entry_pct": 0.4239,
+  "proj_sum_mean": 136.95,
+  "best_row": 162.96,
+  "rows_top1pct": 0,
+  "distinct_players": 53,
+  "rows_same_as_live": null,
+  "cheap_per_row": 1.35
+ },
+ "w2-cheap2": {
+  "p_big1": 0.0,
+  "e_big": 0.0,
+  "mean_entry_pct": 0.4192,
+  "proj_sum_mean": 136.35,
+  "best_row": 141.46,
+  "rows_top1pct": 0,
+  "distinct_players": 52,
+  "rows_same_as_live": 2,
+  "cheap_per_row": 2.12
+ },
+ "w2-cheap4": {
+  "p_big1": 0.6545,
+  "e_big": 0.7949,
+  "mean_entry_pct": 0.4711,
+  "proj_sum_mean": 135.29,
+  "best_row": 170.46,
+  "rows_top1pct": 0,
+  "distinct_players": 49,
+  "rows_same_as_live": 0,
+  "cheap_per_row": 2.58
+ },
+ "w3-live": {
+  "p_big1": 0.0016,
+  "e_big": 0.0016,
+  "mean_entry_pct": 0.5163,
+  "proj_sum_mean": 133.11,
+  "best_row": 164.64,
+  "rows_top1pct": 0,
+  "distinct_players": 48,
+  "rows_same_as_live": null,
+  "cheap_per_row": 0.54
+ },
+ "w3-cheap2": {
+  "p_big1": 0.3186,
+  "e_big": 0.3195,
+  "mean_entry_pct": 0.5055,
+  "proj_sum_mean": 131.52,
+  "best_row": 183.9,
+  "rows_top1pct": 0,
+  "distinct_players": 50,
+  "rows_same_as_live": 0,
+  "cheap_per_row": 2.15
+ },
+ "w3-cheap4": {
+  "p_big1": 0.1271,
+  "e_big": 0.1311,
+  "mean_entry_pct": 0.5693,
+  "proj_sum_mean": 128.93,
+  "best_row": 176.54,
+  "rows_top1pct": 0,
+  "distinct_players": 46,
+  "rows_same_as_live": 0,
+  "cheap_per_row": 3.12
+ },
+ "w4-live": {
+  "p_big1": 0.4336,
+  "e_big": 0.4339,
+  "mean_entry_pct": 0.5024,
+  "proj_sum_mean": 144.0,
+  "best_row": 181.08,
+  "rows_top1pct": 0,
+  "distinct_players": 49,
+  "rows_same_as_live": null,
+  "cheap_per_row": 0.69
+ },
+ "w4-cheap2": {
+  "p_big1": 0.6413,
+  "e_big": 0.6575,
+  "mean_entry_pct": 0.5729,
+  "proj_sum_mean": 143.15,
+  "best_row": 174.58,
+  "rows_top1pct": 0,
+  "distinct_players": 47,
+  "rows_same_as_live": 2,
+  "cheap_per_row": 1.35
+ },
+ "w4-cheap4": {
+  "p_big1": 0.1603,
+  "e_big": 0.1658,
+  "mean_entry_pct": 0.6654,
+  "proj_sum_mean": 140.65,
+  "best_row": 171.4,
+  "rows_top1pct": 0,
+  "distinct_players": 44,
+  "rows_same_as_live": 0,
+  "cheap_per_row": 2.19
+ }
+}
