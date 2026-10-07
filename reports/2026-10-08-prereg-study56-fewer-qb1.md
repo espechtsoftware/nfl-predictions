@@ -64,6 +64,11 @@ shares the fill allocates and interleaves to):
     tolerance);
   - MOOT on a dead lever;
   - otherwise ENTERABLE, his decision.
+- **THE WEEK-5 LINE** (the operator, 10-07, relayed verbatim by the laptop, added before the freeze): "If it doesn't seem
+  like it will improve things, I don't want to do it this week. But I do think it's worth a test to find out as planned."
+  - QB2HALF goes live in Week 5 ONLY on a PASS on the 2023–24 read that is not contradicted on 2022. Anything else stays
+    on paper in Week 5 (study 38's paper arm MIXT_QA0_QB2HALF, amendment 6j).
+  - The TRIAL rule's ENTERABLE stays a Week-6 trial option, his decision then.
 - **EXPLORATORY** (two-sided 0.95):
   - QB2ALL − LIVE, on the read and on 2022;
   - QB2HALF_CB − LIVE_CB (the tilt beside the cheap +2 block), on the read and on 2022;
