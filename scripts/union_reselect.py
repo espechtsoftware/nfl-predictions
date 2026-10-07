@@ -458,12 +458,38 @@ def apply_proj_source(fr: pd.DataFrame, csv_path: Path, frame_path: Path) -> tup
                  "note": "FP's mean replaces ours in selection; the simulations (banks) stay ours"}
 
 
+def parse_cell_quotas(spec: str) -> dict[str, float]:
+    """--mix-cell-quotas "A1=0.40,A2=0.26,B=0.17,C=0.17" (study 56; the operator 10-07, his priority test this week):
+    the MIX cells' entry quotas in place of mix_shapes.MIX_CELLS'. Exactly the four MIX cells, every value > 0, the sum 1
+    (within 1e-9); anything else raises ValueError. The cells' RULES are unchanged."""
+    out: dict[str, float] = {}
+    for part in str(spec).split(","):
+        name, sep, val = part.strip().partition("=")
+        if not sep or not name.strip():
+            raise ValueError(f"--mix-cell-quotas: {part!r} is not CELL=QUOTA")
+        name = name.strip()
+        if name in out:
+            raise ValueError(f"--mix-cell-quotas: {name} given twice")
+        try:
+            out[name] = float(val)
+        except ValueError:
+            raise ValueError(f"--mix-cell-quotas: {name}={val!r} is not a number") from None
+    if set(out) != set(MIX_CELLS):
+        raise ValueError(f"--mix-cell-quotas: the cells must be exactly {sorted(MIX_CELLS)} (got {sorted(out)})")
+    if any(not v > 0 for v in out.values()):
+        raise ValueError("--mix-cell-quotas: every quota must be > 0")
+    if abs(sum(out.values()) - 1.0) > 1e-9:
+        raise ValueError(f"--mix-cell-quotas: the quotas sum to {sum(out.values())}, not 1")
+    return {n: out[n] for n in MIX_CELLS}
+
+
 def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap: int | None, min_salary: int,
              weights: list[int], exposure_cap: int | None = None, dst_cap: int | None = None,
              bonus: dict[str, float] | None = None, portfolio: str = "mix",
              spares: int = 0, qb_cap: int | None = None, fill: str = "group", cover_games: int = 0,
              rs_rows: int = 0, term_rows: int = 0,
-             term_bonus: dict[str, float] | None = None) -> tuple[list[list[str]], list[str], dict, list[tuple[list[str], str]]]:
+             term_bonus: dict[str, float] | None = None,
+             cell_quotas: dict[str, float] | None = None) -> tuple[list[list[str]], list[str], dict, list[tuple[list[str], str]]]:
     """study 18's MIX book on the T-70 frame: cells solved largest first (ties: the earlier cell) through ONE shared state
     (banned lineups, the per-player exposure cap, the DST cap, <= max_shared with every earlier row); a cell row that cannot
     be solved passes to A1 (counted); then the rows are ordered by the entry-weighted interleave of the plan's weights.
@@ -519,6 +545,10 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
     cells = PORTFOLIOS[portfolio]                              # mix: study 18's MIX cells; ws: one whole-book cell
     names = list(cells)
     quotas = [cells[n][0] for n in names]
+    if cell_quotas is not None:                               # study 56's switch (default None: MIX_CELLS, as before)
+        if portfolio != "mix" or set(cell_quotas) != set(names):
+            raise ValueError(f"cell_quotas {sorted(cell_quotas)} need the MIX portfolio's cells {names} (got portfolio {portfolio})")
+        quotas = [float(cell_quotas[n]) for n in names]      # every allocate / interleave below reads this one list
     target = mix_allocate(quotas, k)
     prev: list[frozenset] = []
     count: Counter = Counter()
@@ -758,6 +788,7 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
         w = weights[r] if r < len(weights) else 0
         dealt[cell] += w; tot += w
     meta = {"cells": {n: {"quota": q, "target_rows": t, "rows": g} for n, q, t, g in zip(names, quotas, target, got)},
+            "cell_quotas_override": dict(cell_quotas) if cell_quotas is not None else None,
             "passes_to_A1": passes, "rows_solved": len(book), "pair_games": len(games), "fill": fill,
             "commit_order": commit_order,
             "cover": {"games": int(cover_games), "ranked": cover_list, "covered": covered, "missed": cover_missed},
@@ -961,6 +992,10 @@ def main(argv: list[str] | None = None) -> int:
                     help="with --main mix: group (default) = each cell's quota consecutively, largest cell first; value = at each "
                          "step the highest-objective next row across the cells (a capped QB's uses go to his best rows; study 42); rr = the "
                          "cells in turn, one row each (a row per shape for the top QBs; the outside reviewer, study 42)")
+    ap.add_argument("--mix-cell-quotas", default=None,
+                    help="with --main mix --mix-portfolio mix: the MIX cells' entry quotas 'A1=..,A2=..,B=..,C=..' (> 0, sum 1) in "
+                         "place of mix_shapes.MIX_CELLS' (study 56, fewer QB + 1 rows; the operator 10-07). Unset = today's book, "
+                         "byte for byte; the cells' rules are unchanged")
     ap.add_argument("--mix-layout", choices=["sequential", "top", "head", "spread"], default="head",
                     help="with --main mix: the layout enter_layout deals with (ENTER_LAYOUT)")
     ap.add_argument("--sleeve-source", choices=["mean", "field"], default="mean",
@@ -1010,6 +1045,16 @@ def main(argv: list[str] | None = None) -> int:
                           or a.mix_rs_rows not in (9, 13, 17) or a.entries != 26):
         raise SystemExit("--mix-rs-rows N (9, 13 or 17) needs --main mix, --mix-portfolio mix, --mix-fill rr, no cover and "
                          "--entries 26 (study 46)")
+    cell_quotas = None
+    if a.mix_cell_quotas is not None:
+        if a.main != "mix" or a.mix_portfolio != "mix":
+            raise SystemExit("--mix-cell-quotas needs --main mix --mix-portfolio mix (study 56)")
+        try:
+            cell_quotas = parse_cell_quotas(a.mix_cell_quotas)
+        except ValueError as exc:
+            raise SystemExit(str(exc)) from None
+        print(f"MIX CELL QUOTAS (study 56's switch): {cell_quotas} in place of "
+              f"{ {n: c[0] for n, c in MIX_CELLS.items()} }")
     if a.mix_cover_games and (a.main != "mix" or a.mix_portfolio != "mix" or not 0 < a.mix_cover_games <= 8):
         raise SystemExit("--mix-cover-games N (1..8) needs --main mix with --mix-portfolio mix (study 43)")
     if a.main == "mix" and (a.mix_plan is None or not a.mix_plan.is_file()):
@@ -1158,7 +1203,8 @@ def main(argv: list[str] | None = None) -> int:
                                                                        portfolio=a.mix_portfolio, fill=a.mix_fill,
                                                                        cover_games=a.mix_cover_games, rs_rows=a.mix_rs_rows,
                                                                        spares=0 if bonus else a.mix_spares,
-                                                                       term_rows=term_rows, term_bonus=term_bonus)
+                                                                       term_rows=term_rows, term_bonus=term_bonus,
+                                                                       cell_quotas=cell_quotas)
             if a.term_block_rows:
                 mix_meta["term_source"] = term_src
             spare_rows = plain_spares
@@ -1197,7 +1243,8 @@ def main(argv: list[str] | None = None) -> int:
                 main_rows, main_cells, own_mix, spare_rows = mix_rows(fr, excl, a.entries, a.mean_max_shared, cap, a.min_salary,
                                                                       weights, exposure_cap=xcap, dst_cap=dcap, qb_cap=qcap, bonus=bonus,
                                                                       portfolio=a.mix_portfolio, spares=a.mix_spares, fill=a.mix_fill,
-                                                                      cover_games=a.mix_cover_games, rs_rows=a.mix_rs_rows)
+                                                                      cover_games=a.mix_cover_games, rs_rows=a.mix_rs_rows,
+                                                                      cell_quotas=cell_quotas)
                 main_tags = [TAG_PREFIX + c for c in main_cells]; mix_meta["with_term"] = own_mix
             else:
                 main_rows = pmo_rows(fr, excl, a.entries, a.mean_max_shared, cap, a.min_salary, set(), exposure_cap=xcap, dst_cap=dcap, qb_cap=qcap, bonus=bonus,

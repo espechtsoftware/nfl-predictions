@@ -791,3 +791,45 @@ def test_the_union_caps_the_term_and_falls_back_loudly(tmp_path):
     src = (Path(__file__).resolve().parents[1] / "scripts" / "union_reselect.py").read_text()
     assert "term_bonus = {i: min(v, a.term_block_cap_points) for i, v in raw.items()}" in src
     assert "!!! TERM BLOCK NOT APPLIED" in src and 'mix_meta["term_source"] = term_src' in src
+
+
+def test_study_56s_cell_quotas_replace_the_mix_quotas_everywhere_and_unset_is_todays_book(monkeypatch):
+    """Study 56's switch (the operator 10-07, fewer QB + 1 rows): cell_quotas replaces MIX_CELLS' entry quotas in the ONE
+    list mix_rows reads (allocation, fill, interleave, meta); the cells' rules are unchanged; None is today's book."""
+    fr = _frame(); k = 21; weights = W_DRAFT_A[:k]
+    base, tilt = [], []
+    _install(monkeypatch, base)
+    r0, c0, m0, _ = ur.mix_rows(fr, set(), k, 7, 4, 49_000, weights, exposure_cap=10, dst_cap=5, fill="rr")
+    _install(monkeypatch, [])
+    r_none, c_none, _, _ = ur.mix_rows(fr, set(), k, 7, 4, 49_000, weights, exposure_cap=10, dst_cap=5, fill="rr", cell_quotas=None)
+    assert (r_none, c_none) == (r0, c0) and m0["cell_quotas_override"] is None          # unset = today's book
+    q = {"A1": 0.40, "A2": 0.26, "B": 0.17, "C": 0.17}
+    _install(monkeypatch, tilt)
+    r1, c1, m1, _ = ur.mix_rows(fr, set(), k, 7, 4, 49_000, weights, exposure_cap=10, dst_cap=5, fill="rr", cell_quotas=q)
+    assert m1["cell_quotas_override"] == q and {n: v["quota"] for n, v in m1["cells"].items()} == q
+    assert [m1["cells"][n]["target_rows"] for n in ("A1", "A2", "B", "C")] == M.allocate(list(q.values()), k)
+    qb1 = lambda cells: sum(c in ("B", "C") for c in cells)                              # noqa: E731
+    assert qb1(c1) < qb1(c0)                                                              # fewer QB + 1 rows
+    rules = {(tuple(sorted(c["stack"].items()))) for c in tilt}
+    assert rules and rules <= {(tuple(sorted(c["stack"].items()))) for c in base}      # the cells' rules, unchanged
+    with pytest.raises(ValueError, match="need the MIX portfolio"):
+        ur.mix_rows(fr, set(), k, 7, 4, 49_000, weights, cell_quotas={"A1": 1.0})
+
+
+@pytest.mark.parametrize("spec, msg", [
+    ("A1=0.4,A2=0.26,B=0.17", "exactly"), ("A1=0.4,A2=0.26,B=0.17,C=0.2", "sum to"), ("A1=0.4,A2=0.26,B=0.34,C=0", "> 0"),
+    ("A1=0.4,A2=x,B=0.17,C=0.17", "not a number"), ("A1=0.4,A1=0.26,B=0.17,C=0.17", "twice"), ("A1:0.4", "CELL=QUOTA"),
+])
+def test_the_cell_quota_switch_refuses_a_malformed_spec(spec, msg):
+    with pytest.raises(ValueError, match=msg):
+        ur.parse_cell_quotas(spec)
+    assert ur.parse_cell_quotas("C=0.17,B=0.17,A2=0.26,A1=0.40") == {"A1": 0.40, "A2": 0.26, "B": 0.17, "C": 0.17}
+
+
+def test_study_56s_qb2half_allocations_at_k26_and_the_15_spares():
+    """The reviewer 10-07 (study 56's decision arm QB2HALF: half of each QB + 1 cell's quota to its QB + 2 counterpart):
+    at K 26 the targets are [11, 7, 4, 4] (today [8, 4, 7, 7]) and the 15 spares [7, 4, 2, 2]."""
+    qb2half = ur.parse_cell_quotas("A1=0.44,A2=0.28,B=0.14,C=0.14")
+    assert M.allocate(list(qb2half.values()), 26) == [11, 7, 4, 4]
+    assert M.allocate([c[0] for c in M.MIX_CELLS.values()], 26) == [8, 4, 7, 7]
+    assert M.allocate(list(qb2half.values()), 15) == [7, 4, 2, 2]

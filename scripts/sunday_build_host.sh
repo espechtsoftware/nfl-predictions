@@ -290,6 +290,8 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   [[ "${UNION_MAIN:-mean}" == "mix" && "${UNION_MIX_COVER_GAMES:-0}" != 0 ]] && UNION_ARGS+=(--mix-cover-games "$UNION_MIX_COVER_GAMES")
   # the half-and-half book (study 46; operator 10-06): unset or 0 = off, as before
   [[ "${UNION_MAIN:-mean}" == "mix" && "${UNION_MIX_RS_ROWS:-0}" != 0 ]] && UNION_ARGS+=(--mix-rs-rows "$UNION_MIX_RS_ROWS")
+  # the MIX cells' entry quotas (study 56, fewer QB + 1 rows; the operator 10-07): unset = MIX_CELLS, as before
+  [[ "${UNION_MAIN:-mean}" == "mix" && -n "${UNION_MIX_CELL_QUOTAS:-}" ]] && UNION_ARGS+=(--mix-cell-quotas "$UNION_MIX_CELL_QUOTAS")
   # The prior-top term block (the operator 10-07: "Live, capped, part of book"; default 0 = off): N rows on projection +
   # min(tilt x pred_own, cap) from the pinned file. A union that builds WITHOUT it is stopped after the union (below).
   [[ "${UNION_MAIN:-mean}" == "mix" && "${UNION_TERM_BLOCK_ROWS:-0}" != 0 ]] && UNION_ARGS+=(--term-block-rows "$UNION_TERM_BLOCK_ROWS" \

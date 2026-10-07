@@ -261,3 +261,16 @@ def test_the_week5_arm_pins_the_class_sleeves_model_in_step_0():
     assert '"$(cut -c1-64 $W/class_model.json.sha256)" == "$CLASS_SHA"' in step0
     env = (Path(__file__).resolve().parents[1] / "scripts" / "week_env.sh").read_text()
     assert "CLASS_SLEEVE_EVERY=${CLASS_SLEEVE_EVERY-2}" in env and "CLASS_MODEL=${CLASS_MODEL:-$OUT/class_model.json}" in env
+
+
+def test_study_56s_cell_quotas_ride_into_the_units_and_the_week5_arm_keeps_them_off():
+    """Study 56's switch (the operator 10-07): UNION_MIX_CELL_QUOTAS reaches the build units and the host passes
+    --mix-cell-quotas; unset passes nothing; the Week-5 arm keeps MIX_QUOTAS empty until 56 passes and he says yes."""
+    from pathlib import Path
+    r = _run(UNION_MIX_CELL_QUOTAS="A1=0.40,A2=0.26,B=0.17,C=0.17")
+    assert "UNION_MIX_CELL_QUOTAS=A1=0.40,A2=0.26,B=0.17,C=0.17" in _unit_line(r.stdout, "nfl-week4-t70-build")
+    assert "UNION_MIX_CELL_QUOTAS" not in _unit_line(_run().stdout, "nfl-week4-t70-build")
+    host = (Path(__file__).resolve().parents[1] / "scripts" / "sunday_build_host.sh").read_text()
+    assert '-n "${UNION_MIX_CELL_QUOTAS:-}" ]] && UNION_ARGS+=(--mix-cell-quotas "$UNION_MIX_CELL_QUOTAS")' in host
+    arm = (Path(__file__).resolve().parents[1] / "scripts" / "arm_week5_saturday.sh").read_text()
+    assert '\nMIX_QUOTAS="" ' in arm and "e+=(UNION_MIX_CELL_QUOTAS=$MIX_QUOTAS)" in arm
