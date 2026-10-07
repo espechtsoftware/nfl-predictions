@@ -6664,3 +6664,103 @@ correct: the implied total and spread carry team-level defensive strength.
 addendum without checking for a correction". Verified for this correction: Addendum 8's sentence (as quoted), the
 current `NUMERIC_FEATURES` list, `CANDIDATE_FEATURES`, the `featureset.py` history, and the screen table against the
 O-40 record.
+
+## Addendum 158 (2026-10-07): study 50 (the outside reviewer's factor bonuses in the harness): NO DIFFERENCE on both decisions; the whole-book matchup bonus leans negative on the read and positive on 2022
+
+**Setup.**
+- **The question.** The operator (10-07), on the outside reviewer's "why we missed the winners' players": "review this
+  and schedule any necessary experiments this week". The reviewer's in-sample replay (Weeks 2–4) had the matchup and
+  combined bonuses ahead in some weeks. Their weights were fixed before that replay but chosen on the same weeks.
+- **The bonuses** (`make_factor_files.py`, ported verbatim):
+  - **MATCHUP:** clip(1.0 × z, 0, 2), z within position of the opponent's DK points allowed to the position, a 6-game
+    prior-season shrink.
+  - **COMBINED_NOMKT:** clip(MATCHUP + the own-type vacated bonus clip(10 × share, 0, 3), 0, 3). The market part is
+    excluded: there are no props in the history, and it is a dead lever under FP.
+  - The points allowed come from nflverse weekly stats by the DK formula, point in time (tested).
+- **The arms.** His live Week-5 book and production's 15 spares (41 rows, one state; mix_fill rr, limit 4, QB cap 5,
+  caps 13 / 6), on player_mean (LIVE) and with each bonus on the objective.
+- **Census** (outcome-blind, binding and confirmatory):
+  - the bonuses cost 1.76 (MATCHUP) and 2.40 (COMBINED) projected points per row;
+  - they rebuild almost the whole book (0.2 / 0.1 of 26 rows shared with LIVE);
+  - the matchup bonus is independent of the harness projection (Spearman +0.004).
+- **Rule.** Two co-primary decisions on the 2023–24 read (Bonferroni, two-sided 0.975 each) and a 2022 go / no-go per
+  decision (point estimate < 0 = contradicted). ADOPTABLE = PASS and not contradicted.
+- **Preregistration:** `reports/2026-10-08-prereg-study50-factor-bonuses.md` (frozen `f96067d3`, sha256 `8976e320…`).
+- **Panel:** banks 1551–1556, B 20,000, seed 20261102. The run was 10-07, a day before the plan, because the machine was
+  free.
+- **Read and reproduced:** read by the reviewer and **reproduced byte-identically by the laptop** (raw files equal to
+  `RAW_s50_run.sha256`).
+  - Reader `76366b13`; READ `781e06f9`.
+  - The confirmatory census (`da62bd4`, `aacc85e5`) was committed before the READ (`e123c7f`).
+  - LEDGER row lab `b4df5d0`.
+
+**Reader output (verbatim):**
+```
+STUDY 50 READER  sha256 76366b131f7223890b1442f80d5e70050a7e259f7144cbc2557db45d543acb16
+DIRECTION: P(>= 1 big seat) per slate (the mean over its banks); every difference is ARM - REFERENCE; POSITIVE favours the first arm.
+slates 36 (the 2023-24 read) + 17 (the 2022 go / no-go)  banks [1551, 1552, 1553, 1554, 1555, 1556]  B 20000  seed 20261102  two co-primary decisions (MATCHUP - LIVE, COMBINED_NOMKT - LIVE) on the CALIBRATED field (v2), each two-sided 0.975 (Bonferroni), guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only; 2022: the point estimate (two-sided 0.95 interval)
+arms (definitions, the bonus constants, study 48's sha, live settings, QB cap, objective): [["LIVE", "MATCHUP", "COMBINED_NOMKT"], {"clip_combined": 3.0, "clip_matchup": 2.0, "clip_vacated": 3.0, "prior_games": 6.0, "w_matchup": 1.0, "w_vacated": 10.0}, "c22d28114ab4b463b6842594cb2ff7ca1babf41e28015c7242b21baedb1bc67c", {"fill": "rr", "max_shared": 4}, 5, "player_mean (+ the arm's bonus)"]
+
+== MATCHUP vs LIVE  [DECISION; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate -0.07374  [-0.15997, +0.01073] (two-sided 0.975)  seasons 2023 -0.03869, 2024 -0.10879
+  GUARD 1 mean entry pct -0.00410  one-sided lower -0.02839  (must exceed -0.015)
+  GUARD 2 expected big seats 0.45579 vs 0.60301  ratio 0.756  (must be >= 0.80)
+  MATCHUP dealt identical to LIVE: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  GO / NO-GO 2022: +0.09449  [-0.02778, +0.22029] (two-sided 0.95)  ->  not contradicted
+
+== COMBINED_NOMKT vs LIVE  [DECISION; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate -0.02605  [-0.12490, +0.07474] (two-sided 0.975)  seasons 2023 +0.01431, 2024 -0.06641
+  GUARD 1 mean entry pct +0.00150  one-sided lower -0.02917  (must exceed -0.015)
+  GUARD 2 expected big seats 0.63329 vs 0.60301  ratio 1.050  (must be >= 0.80)
+  COMBINED_NOMKT dealt identical to LIVE: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  GO / NO-GO 2022: +0.06165  [-0.05902, +0.19333] (two-sided 0.95)  ->  not contradicted
+
+== STUDY: no decision adoptable: MATCHUP NO DIFFERENCE on 2023-24, not contradicted on 2022; COMBINED_NOMKT NO DIFFERENCE on 2023-24, not contradicted on 2022
+
+== EXPLORATORY (never decision-bearing; two-sided 0.95)
+  MATCHUP - LIVE (the l02 field, 2023-24): -0.07862  [-0.15627, -0.00226]  seasons 2023 -0.04320, 2024 -0.11404
+  MATCHUP - LIVE (the l02 field, 2022): +0.10548  [-0.01159, +0.22766]  seasons 2022 +0.10548
+  COMBINED_NOMKT - LIVE (the l02 field, 2023-24): -0.03441  [-0.11942, +0.05242]  seasons 2023 +0.00401, 2024 -0.07283
+  COMBINED_NOMKT - LIVE (the l02 field, 2022): +0.06698  [-0.05908, +0.20378]  seasons 2022 +0.06698
+
+secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; the book's rows are pre-lock facts):
+  [2023-24]
+  LIVE            v2: P(>=1 big) 0.34641  expected big seats 0.60301  P(>=2) 0.15002  entry pct 0.51836  |  l02: P(>=1 big) 0.37418
+                  book: projection per row 128.13  predicted ownership 78.24%  matchup points per row 3.897  combined points per row 7.006
+  MATCHUP         v2: P(>=1 big) 0.27268  expected big seats 0.45579  P(>=2) 0.10705  entry pct 0.51426  |  l02: P(>=1 big) 0.29556
+                  book: projection per row 126.37  predicted ownership 78.74%  matchup points per row 7.406  combined points per row 10.007
+  COMBINED_NOMKT  v2: P(>=1 big) 0.32037  expected big seats 0.63329  P(>=2) 0.15810  entry pct 0.51986  |  l02: P(>=1 big) 0.33977
+                  book: projection per row 125.73  predicted ownership 76.32%  matchup points per row 6.385  combined points per row 12.340
+  [2022]
+  LIVE            v2: P(>=1 big) 0.19730  expected big seats 0.32584  P(>=2) 0.08659  entry pct 0.45076  |  l02: P(>=1 big) 0.21119
+                  book: projection per row 132.23  predicted ownership nan%  matchup points per row 3.650  combined points per row 6.548
+  MATCHUP         v2: P(>=1 big) 0.29178  expected big seats 0.41130  P(>=2) 0.09052  entry pct 0.47974  |  l02: P(>=1 big) 0.31668
+                  book: projection per row 130.40  predicted ownership nan%  matchup points per row 7.423  combined points per row 9.914
+  COMBINED_NOMKT  v2: P(>=1 big) 0.25894  expected big seats 0.34017  P(>=2) 0.06823  entry pct 0.46172  |  l02: P(>=1 big) 0.27817
+                  book: projection per row 129.62  predicted ownership nan%  matchup points per row 6.337  combined points per row 12.422
+```
+
+**Reading.**
+- **Neither decision is adoptable.** Both read NO DIFFERENCE, and neither is contradicted on 2022.
+- **The whole-book matchup bonus leans NEGATIVE on the read.**
+  - About −7 points of P(≥ 1 big) (0.346 → 0.273), worse in 2024 (−0.109) than in 2023 (−0.039).
+  - It keeps 0.756 of the expected big seats, past his 20% tolerance; both guards would fail.
+  - On the earlier l02 field the exploratory interval excludes 0.
+  - 2022 leans the other way: +0.094, interval through 0.
+  - The seasons disagree, so there is no evidence of a gain. If anything there is mild evidence of harm in the two read
+    seasons.
+- **The combined form is flat:** −0.026, ratio 1.05.
+- **It is consistent with:**
+  - the outside reviewer's own out-of-sample note (odds ratio 1.07 per sd in 2023–25, nothing in 2026 Weeks 1–4);
+  - O-40's screen (matchup columns add about 0 to the projection model);
+  - the census: a bonus independent of the projection, bought with about 1.8 projected points per row.
+
+**What it means.**
+- The bonuses stay OFF as whole-book rules.
+- Study 38's paper arms (MIXT_QA0_MATCHUPX, MIXT_QA0_COMBINED; amendment 6d, read against NOTERM since 6e) keep the
+  weekly real-field record, which is the reviewer's in-sample replay checked out of sample.
+- **The operator's 8-row matchup BLOCK** (his 10-07 request; production `matchup_block_file.py`) is decided by study
+  51's frozen Saturday rule on its own banks. Study 51's design and stop rule were committed (`472434c7`, lab `93e0810`)
+  BEFORE this read: the same slates, so the rule could not be tuned to this result.
