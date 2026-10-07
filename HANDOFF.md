@@ -12,6 +12,67 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-07 (11:31 CDT) — Study 53 READ reproduced: NEITHER cheap block is enterable (2022 contradicted, a knife-edge); Saturday's slot is matchup or none; the outside reviewer's brainstorm adopted where ready
+
+**Study 53 READ** (lab fd9687d; the confirmatory census d611a9d committed first; scored run 10:51–11:27, banks 1569–1574):
+- My re-run: all six raw banks pass sha256 against RAW_s53_run.sha256. s53_census.py → **384ac944** = CENSUS_s53_confirm.txt,
+  BYTE-IDENTICAL. s53_report.py (--plan ~/s24-panel/plan-week5-rev3-s24.json) → **f587bb8c** = READ_s53.txt, BYTE-IDENTICAL.
+  Tests: 5 pass.
+- **Saturday (amendment 1):**
+  - CHEAP2_BLOCK8: +0.00413 [−0.031, +0.043] (2023 +0.021, 2024 −0.013); ratio 0.936; guards held. **2022 −0.00163 →
+    CONTRADICTED → NOT ENTERED.**
+  - CHEAP4_BLOCK8: −0.01363 [−0.049, +0.022]; ratio 0.889; 2022 −0.00138 → NOT ENTERED.
+  - **Neither block dose is enterable.**
+- **Whole book (W6):**
+  - CHEAP2: −0.01196 [−0.077, +0.054], NO DIFFERENCE; 2022 +0.014, not contradicted.
+  - CHEAP4: −0.08774 [−0.194, +0.022], ratio 0.665, NO DIFFERENCE; 2022 CONTRADICTED.
+  - No decision adoptable.
+- **For him** (decision sheet row 21, 061a44e4): a knife-edge, not a clear loss. His leaning was conditional on this read
+  ("the cheap block at +2 if study 53's block read doesn't contradict it"), and by the agreed definition it does. So Saturday's
+  slot is the matchup block (study 51 ENTERABLE: not harmful, not better) or none. The decision stays his. An override would be
+  recorded as an override of a frozen stop, not as an enterable option.
+- **Records:** the reviewer writes the LEDGER row and Addendum 161; I verify and merge.
+- **Friday (proposed to the reviewer after the read):**
+  - A3 arms the MATCHUP block (the only enterable one), with the binding 6e gate on that snapshot.
+  - Thursday still writes both files, so an override stays possible.
+  - Only if he overrides does the cheap file get a union-only check on Friday's T-70 run.
+  - The checklist changes once the reviewer confirms.
+
+- **The outside reviewer's brainstorm** (the operator 10-07: "please keep brainstorming ... models to train ... I'm all for it"):
+  review/outside-fill-order-20261006 @ e8390d73, reports/2026-10-07-brainstorm-data-and-models.md, scripts and outputs in
+  reports/2026-10-07-brainstorm/. Aggregates only. Nothing in it changes Week 5. Their findings:
+  1. The cheap pattern on the whole field: within user-week MH odds ratio of a top-1% finish, 2+ vs 0–1 sub-$4k non-DST,
+     1.88 [1.75, 2.01]; by week 1.69 / 2.46 / 2.30 / 2.10.
+  2. Where the cheap player sits (stack piece vs elsewhere) flips by week (1.94 / 1.03 / 3.45 / 0.33), while any cheap player
+     beats none every week. The flat block is the right form.
+  3. DST under $3,000 vs $3,500+: OR 2.86 [2.51, 3.33], above 1 in all four weeks; history 2014–21: +2.5 points per extra $1k at
+     DST vs 3.5–6.1 elsewhere. Our entered T-70 books paid up (DST ≥ $3,500: .01 / .57 / .33 / .65 vs the field's .06 / .34 /
+     .13 / .27); the W5-settings replays are already cheaper (.31 / .04 / .04). Naked QB OR 0.54 and $1,000+ unused 0.56, below 1
+     every week.
+  4. Game coverage (207 Sundays 2014–2025): the top-4 total games hold the best QB+2+1 stack 55% of the time. Our entered books
+     put .46 / .41 / .48 / .13 of rows there (the field ~.50; the top 1% .49–.76); the W5 settings .73 / .58 / .65 (fixed by
+     removing the term).
+  5. Market TD sums per game add nothing beyond the total; late news is not measurable (the earliest frames are Saturday's).
+  6. Data: dk_salaries_historical has no DK points after 2021 (README log row, 299b3329).
+  7. Lab ledger: the parked prop-ladder row cannot resume (no alternate markets collected); relayed to the reviewer.
+  - Adopted: scripts/field_pattern_monitor.py + test, byte-identical (3e657c2a; d5246f23 / 904c6322, 7 pass), as Monday refresh
+    learning step 5. Their proposed prospective reading (OR > 1 in 3+ of W5–W8 and the pooled lower bound > 1; descriptive) went
+    to the reviewer to freeze before W5's field loads. A NaN-salary fragility was flagged back to them.
+  - Study list 52–55 (fb8a9f4a): a cheap-boom model (needs the points join), a game-environment model, a historical winners
+    table, and Neo4j game results + lineup labels. The last is production's to build for the W5 Monday refresh once they send
+    the exact definitions.
+
+- **Monitor robustness:** e58eb9e7's fix (unpriced rows dropped, a game without a total ranks last, an uninformative bootstrap
+  returns NaN) is copied byte-identical: 937415b3, 881ad086 / test 4c6d7ee4, 15 pass with the wrapper's tests. W1–4 output is
+  unchanged.
+- **The reviewer froze the field-pattern prospective reading** (4ceada3f; descriptive; the monitor pinned at d5246f23). I told
+  them production now runs 881ad086, which has byte-identical W1–4 output.
+- **The Neo4j result facts** (study list 55): names agreed with the outside reviewer.
+  - Game: pre_total_rank (method "first" by game_id, a missing total last); out_best_stack_pts, out_is_best_stack_game,
+    out_field_qb_share, out_top1_qb_share.
+  - Lineup: lbl_stack_n, lbl_bring_n, lbl_max_game. lbl_flex_pos switches to the count rule (not the slot).
+  - Being built for Monday's W5 refresh; tested against their W1–4 reference CSVs (graph_result_facts_reference.py e9099d9f).
+
 ## 2026-10-07 (11:00 CDT) — FP's W5 projections captured; the QB coverage page and FP's weekly rankings still unposted; graph queries hardened; the outside reviewer's boom-calibration check
 
 - **FP W5 projections** (scripts/fp_projections_capture.sh, label wed-retry-1100; log ~/.cache/nfl-dfs/fp-projections/):
