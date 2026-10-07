@@ -60,6 +60,9 @@ def main(argv=None) -> int:
                     "Millionaire lineups (chosen by entry count, never results); never a tracked file")
     ap.add_argument("--with-facts", action="store_true",
                     help="also load pre_ / out_ player, team, game and lineup facts (study list item 44)")
+    ap.add_argument("--facts-only", action="store_true",
+                    help="with --with-facts and --apply: write ONLY the fact batches (the base graph of the same "
+                         "selection must already be loaded; its lineups are rebuilt in memory for the labels)")
     ap.add_argument("--facts-frames", default=None,
                     help="a PRIVATE JSON {week: T-70 run dir} for --with-facts (default: ~/moneygate/weeks.json t70_run)")
     ap.add_argument("--apply", action="store_true", help="write to Neo4j (default: dry run)")
@@ -135,16 +138,19 @@ def main(argv=None) -> int:
         print(f"REFUSED: set {mg.URI_ENV}, {mg.USERNAME_ENV}, {mg.PASSWORD_ENV} "
               f"(and optionally {mg.DATABASE_ENV})", file=sys.stderr)
         return 3
-    driver = mg.connect(cfg)
-    try:
-        res = mg.guarded_load(driver, cfg.database, batches, fp_rows=fp_rows,
-                              node_limit=a.node_limit, rel_limit=a.rel_limit)
-    except mg.CapacityError as exc:
-        print(f"REFUSED: {exc}", file=sys.stderr)
-        return 4
-    finally:
-        driver.close()
-    print(f"loaded: {res['sent']}")
+    if a.facts_only and facts is None:
+        ap.error("--facts-only needs --with-facts")
+    if not a.facts_only:
+        driver = mg.connect(cfg)
+        try:
+            res = mg.guarded_load(driver, cfg.database, batches, fp_rows=fp_rows,
+                                  node_limit=a.node_limit, rel_limit=a.rel_limit)
+        except mg.CapacityError as exc:
+            print(f"REFUSED: {exc}", file=sys.stderr)
+            return 4
+        finally:
+            driver.close()
+        print(f"loaded: {res['sent']}")
     if facts is not None:
         driver = mg.connect(cfg)
         try:
