@@ -98,14 +98,18 @@ def _resolve_auto_target(client: bigquery.Client) -> tuple[int, int]:
     # NEXT game, so a team on bye in the upcoming week carries the week after
     # it (Week 5: CAR / KC on Week 6). Only the teams that play the upcoming
     # week name the inference week; a stale table (a playing team still on an
-    # earlier week) still fails closed in resolve_auto_target.
+    # earlier week) still fails closed in resolve_auto_target. Only games still
+    # ahead count (003_player_week_role's `upcoming` rule): after Thursday's game
+    # a feature rebuild moves its two teams to the next week, and a Saturday
+    # cache re-run must not refuse on them (the reviewer, 10-07).
     rows = client.query(f"""
         SELECT DISTINCT CAST(i.season AS INT64) season, CAST(i.week AS INT64) week
         FROM `{PROJECT}.nfl_features.player_week_inference` i
         WHERE i.season=2026 AND i.team IN (
           SELECT team FROM `{PROJECT}.nfl_raw.schedules` s,
             UNNEST([s.home_team, s.away_team]) AS team
-          WHERE s.season=2026 AND s.game_type='REG' AND s.week=@upcoming)
+          WHERE s.season=2026 AND s.game_type='REG' AND s.week=@upcoming
+            AND s.gameday >= CAST(CURRENT_DATE() AS STRING))
     """, job_config=bigquery.QueryJobConfig(query_parameters=[
         bigquery.ScalarQueryParameter("upcoming", "INT64", int(upcoming)),
     ])).to_dataframe()

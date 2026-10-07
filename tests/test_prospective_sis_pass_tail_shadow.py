@@ -473,6 +473,7 @@ def test_gpu_generator_auto_target_counts_only_the_upcoming_weeks_teams():
     body = generator[generator.index("def _resolve_auto_target("):generator.index("def _checksum(")]
     assert body.index("SELECT MIN(week) AS week") < body.index("player_week_inference")   # the schedule's week first
     for needle in ("UNNEST([s.home_team, s.away_team]) AS team", "s.week=@upcoming", "i.team IN (",
+                   "AND s.gameday >= CAST(CURRENT_DATE() AS STRING))",
                    'ScalarQueryParameter("upcoming", "INT64", int(upcoming))', "resolve_auto_target(\n"):
         assert needle in body, needle
     # the resolver's contract is unchanged: a bye-filtered single week passes, a stale or mixed table refuses
