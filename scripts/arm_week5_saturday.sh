@@ -34,6 +34,8 @@ WINNER_ORDER=0                      # study 48b: re-order the book by study 48's
                                     # on the big-entry ranks); 0 = off. 1 only after 48b's READ, the W2-4 check and HIS yes
 WINNER_SELECT=0                     # study 48d: keep, per cell, the most winner-like of the book rows + spares (study
                                     # 48's frozen score); 0 = off. 1 only after 48d's READ, a rehearsal and HIS yes
+WINNER_GATE=0                       # study 48e: every row must score >= WINNER_GATE_TAU before it is committed (study 48's
+WINNER_GATE_TAU=""                  # frozen score; R 10); 0 = off. 1 only after 48e's READ, a rehearsal and HIS yes
 P=$HOME/projects/nfl-predictions; W=$HOME/week5-sunday; PY=$P/.venv/bin/python; CHECK=${1:-}
 say() { printf '%s %s\n' "$(date +%H:%M:%S)" "$*"; }
 stop() { say "ARM STOPPED: $*"; exit 1; }
@@ -43,6 +45,7 @@ stop() { say "ARM STOPPED: $*"; exit 1; }
 [[ "$MIX_RS" == 0 || ( "$MIX_RS" =~ ^(9|13|17)$ && "$SHAPE" == mixt && "$MIX_FILL" == rr && "$MIX_COVER" == 0 ) ]] || stop "MIX_RS=$MIX_RS: 0, or 9 / 13 / 17 with SHAPE=mixt, MIX_FILL=rr and MIX_COVER=0"
 [[ "$WINNER_ORDER" == 0 || ( "$WINNER_ORDER" == 1 && "$SHAPE" == mixt ) ]] || stop "WINNER_ORDER=$WINNER_ORDER: 0, or 1 with SHAPE=mixt"
 [[ "$WINNER_SELECT" == 0 || ( "$WINNER_SELECT" == 1 && "$SHAPE" == mixt && "$WINNER_ORDER" == 0 ) ]] || stop "WINNER_SELECT=$WINNER_SELECT: 0, or 1 with SHAPE=mixt and WINNER_ORDER=0"
+[[ "$WINNER_GATE" == 0 || ( "$WINNER_GATE" == 1 && "$SHAPE" == mixt && "$MIX_FILL" == rr && "$MIX_RS" == 0 && "$MIX_COVER" == 0 && "$WINNER_ORDER" == 0 && "$WINNER_SELECT" == 0 && "$WINNER_GATE_TAU" =~ ^-?[0-9]+(\.[0-9]+)?$ ) ]] || stop "WINNER_GATE=$WINNER_GATE: 0, or 1 with SHAPE=mixt, MIX_FILL=rr, no half / cover / order / select, and a numeric WINNER_GATE_TAU"
 [[ -n "$FRIDAY_HEAD" ]] || stop "FRIDAY_HEAD is not set (Friday: the merged integration commit)"
 # the reviewer's gate (10-06): study 35 tested the QB cap on MIXT only, so ct + the cap is an untested combination
 [[ "$SHAPE" == ct && -n "$QB_CAP_ROWS" ]] && stop "the QB cap was studied on MIXT only (study 35); for ct set QB_CAP_ROWS='' after an operator decision"
@@ -95,7 +98,7 @@ arm_env() {
   # env takes every -u before any NAME=VALUE: build the two lists apart. The QB cap rides only when set (and ct + cap
   # never reaches here: the preamble stops it); unset otherwise, so check_week_runtime never sees a K without a cap.
   local u=() e=()
-  if [[ "$SHAPE" == mixt ]]; then e+=(UNION_MAIN=mix UNION_MIX_PORTFOLIO=mix UNION_MIX_FILL=$MIX_FILL UNION_MIX_COVER_GAMES=$MIX_COVER UNION_MIX_RS_ROWS=$MIX_RS UNION_WINNER_ORDER=$WINNER_ORDER UNION_WINNER_SELECT=$WINNER_SELECT); else u+=(-u UNION_MIX_PORTFOLIO -u UNION_MIX_FILL -u UNION_MIX_COVER_GAMES -u UNION_MIX_RS_ROWS -u UNION_WINNER_ORDER -u UNION_WINNER_SELECT); e+=(UNION_MAIN=pmo_x50); fi
+  if [[ "$SHAPE" == mixt ]]; then e+=(UNION_MAIN=mix UNION_MIX_PORTFOLIO=mix UNION_MIX_FILL=$MIX_FILL UNION_MIX_COVER_GAMES=$MIX_COVER UNION_MIX_RS_ROWS=$MIX_RS UNION_WINNER_ORDER=$WINNER_ORDER UNION_WINNER_SELECT=$WINNER_SELECT UNION_WINNER_GATE=$WINNER_GATE UNION_WINNER_GATE_TAU=$WINNER_GATE_TAU); else u+=(-u UNION_MIX_PORTFOLIO -u UNION_MIX_FILL -u UNION_MIX_COVER_GAMES -u UNION_MIX_RS_ROWS -u UNION_WINNER_ORDER -u UNION_WINNER_SELECT -u UNION_WINNER_GATE -u UNION_WINNER_GATE_TAU); e+=(UNION_MAIN=pmo_x50); fi
   if [[ -n "$QB_CAP_ROWS" ]]; then e+=(UNION_MAIN_QB_CAP_ROWS=$QB_CAP_ROWS UNION_MAIN_QB_CAP_K=$QB_CAP_K); else u+=(-u UNION_MAIN_QB_CAP_ROWS -u UNION_MAIN_QB_CAP_K); fi
   env "${u[@]}" "${e[@]}" GROUP=154468 EXPECT_SHA=$PIN CLONE=$CLONE_DIR ENTER_LAYOUT=head \
     D3200_LEV=$CHOSEN_LEV D3200_BOOM=$CHOSEN_BOOM D800_LEV=$CHOSEN_LEV D800_BOOM=$CHOSEN_BOOM SKIP_UNITS="$skip" \
@@ -108,7 +111,7 @@ SKIP="d6400"; EXPECT_N=12                  # 11 + the second Sunday FP capture (
 if [[ "${ARM_LATE:-0}" == 1 ]]; then SKIP="d6400 d12800sat d6400sat"; EXPECT_N=10; say "ARM_LATE=1: Saturday supply units skipped (operator decision)"; fi
 [[ "${ARM_LATE:-0}" == 1 ]] || (( 10#$(date +%H%M) < 1028 )) || stop "it is $(date +%H:%M); the 10:30 Saturday D12800 would be in the past. Operator decision: ARM_LATE=1 (no Saturday supply builds, $((EXPECT_N - 2)) timers)"
 if [[ "$CHECK" == --check ]]; then
-  say "the timers' dose: D3200 and D800 LEV $CHOSEN_LEV / BOOM $CHOSEN_BOOM (chosen-dose.env must say the same); QB cap ${QB_CAP_ROWS:-off} rows at K $QB_CAP_K; overlap limit $MAX_SHARED shared players; MIX fill $MIX_FILL; cover $MIX_COVER; half $MIX_RS; winner order $WINNER_ORDER; winner select $WINNER_SELECT"
+  say "the timers' dose: D3200 and D800 LEV $CHOSEN_LEV / BOOM $CHOSEN_BOOM (chosen-dose.env must say the same); QB cap ${QB_CAP_ROWS:-off} rows at K $QB_CAP_K; overlap limit $MAX_SHARED shared players; MIX fill $MIX_FILL; cover $MIX_COVER; half $MIX_RS; winner order $WINNER_ORDER; winner select $WINNER_SELECT; winner gate $WINNER_GATE${WINNER_GATE_TAU:+ (tau $WINNER_GATE_TAU)}"
   UNITS=$(arm_env "$SKIP" bash scripts/arm_week_timers.sh 5 2>&1 | grep -oE 'nfl-week5-[a-z0-9-]+' | sort -u)
   for s in $SKIP; do UNITS=$(echo "$UNITS" | grep -vx "nfl-week5-$(echo $s | sed -E 's/^(d[0-9]+)sat$/\1-sat/')-build"); done
   echo "$UNITS" | sed 's/^/  planned: /'

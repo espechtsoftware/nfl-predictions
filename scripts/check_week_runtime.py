@@ -234,6 +234,19 @@ def main():
     if _ws and _ws != "0" and (_ws != "1" or os.environ.get("UNION_MAIN") != "mix" or os.environ.get("UNION_WINNER_ORDER", "0") not in ("", "0")
                                or os.environ.get("UNION_MIX_SPARES", "15") == "0"):
         fail(f"UNION_WINNER_SELECT={_ws!r} must be 0 or 1; 1 needs UNION_MAIN=mix with spares and UNION_WINNER_ORDER off (study 48d)")
+    _wg = os.environ.get("UNION_WINNER_GATE", "")
+    if _wg and _wg != "0":
+        _tau = os.environ.get("UNION_WINNER_GATE_TAU", "")
+        try:
+            float(_tau)
+            _tau_ok = True
+        except ValueError:
+            _tau_ok = False
+        if (_wg != "1" or os.environ.get("UNION_MAIN") != "mix" or os.environ.get("UNION_MIX_FILL") != "rr" or not _tau_ok
+                or os.environ.get("UNION_WINNER_ORDER", "0") not in ("", "0") or os.environ.get("UNION_WINNER_SELECT", "0") not in ("", "0")
+                or os.environ.get("UNION_MIX_RS_ROWS", "0") not in ("", "0") or os.environ.get("UNION_MIX_COVER_GAMES", "0") not in ("", "0")):
+            fail(f"UNION_WINNER_GATE={_wg!r} must be 0 or 1; 1 needs UNION_MAIN=mix, UNION_MIX_FILL=rr, a numeric "
+                 f"UNION_WINNER_GATE_TAU (got {_tau!r}), and no order / select / half / cover (study 48e)")
     _wo = os.environ.get("UNION_WINNER_ORDER", "")
     if _wo and _wo != "0" and (_wo != "1" or os.environ.get("UNION_MAIN") != "mix"):
         fail(f"UNION_WINNER_ORDER={_wo!r} must be 0 or 1, and 1 needs UNION_MAIN=mix (study 48b)")

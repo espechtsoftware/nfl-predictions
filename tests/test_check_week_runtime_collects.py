@@ -230,3 +230,16 @@ def test_union_winner_select_needs_the_mix_spares_and_not_the_order(tmp_path):
     env["UNION_WINNER_ORDER"] = "1"
     assert any("UNION_WINNER_SELECT='1' must be 0 or 1; 1 needs UNION_MAIN=mix with spares and UNION_WINNER_ORDER off" in f
                for f in _failures(_run(env)))
+
+
+def test_the_winner_gate_needs_the_mix_rr_a_numeric_tau_and_no_other_winner_switch(tmp_path):
+    """Study 48e: UNION_WINNER_GATE=1 only with UNION_MAIN=mix, UNION_MIX_FILL=rr, a numeric tau, nothing else on."""
+    env = _healthy(tmp_path); env.update({"UNION_MAIN": "mix", "UNION_MIX_PORTFOLIO": "mix", "UNION_MIX_FILL": "rr",
+                                          "UNION_WINNER_GATE": "1", "UNION_WINNER_GATE_TAU": "-4.49767187489062"})
+    assert not any("UNION_WINNER_GATE" in f for f in _failures(_run(env)))
+    for k, v in (("UNION_WINNER_GATE_TAU", ""), ("UNION_WINNER_GATE_TAU", "median"), ("UNION_MIX_FILL", "group"),
+                 ("UNION_WINNER_SELECT", "1"), ("UNION_WINNER_ORDER", "1"), ("UNION_MIX_RS_ROWS", "13"), ("UNION_WINNER_GATE", "2")):
+        bad = dict(env, **{k: v})
+        assert any("UNION_WINNER_GATE=" in f and "study 48e" in f for f in _failures(_run(bad))), (k, v)
+    env["UNION_WINNER_GATE"] = "0"; env["UNION_WINNER_GATE_TAU"] = ""
+    assert not any("UNION_WINNER_GATE" in f for f in _failures(_run(env)))

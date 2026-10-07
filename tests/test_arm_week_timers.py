@@ -231,3 +231,19 @@ def test_the_winner_order_rides_into_the_units_and_the_host_falls_back_loudly():
     assert "NOT APPLIED for $RUN_TAG" in host and 'UNION_ARGS+=("$WIN_FLAG" "$OUT/winner_inputs-$RUN_TAG.csv")' in host
     r2 = _run(UNION_WINNER_SELECT="1")
     assert "UNION_WINNER_SELECT=1" in _unit_line(r2.stdout, "nfl-week4-t70-build")
+
+
+def test_the_winner_gate_and_its_tau_ride_into_the_units_and_the_host_refuses_without_a_tau():
+    """Study 48e's switch: UNION_WINNER_GATE and UNION_WINNER_GATE_TAU reach the build units; the host passes the tau to
+    the union, refuses the gate LOUDLY without one, and never runs two winner switches together."""
+    from pathlib import Path
+    r = _run(UNION_WINNER_GATE="1", UNION_WINNER_GATE_TAU="-4.49767187489062")
+    line = _unit_line(r.stdout, "nfl-week4-t70-build")
+    assert "UNION_WINNER_GATE=1" in line and "UNION_WINNER_GATE_TAU=-4.49767187489062" in line
+    host = (Path(__file__).resolve().parents[1] / "scripts" / "sunday_build_host.sh").read_text()
+    assert '[[ "${UNION_WINNER_GATE:-0}" == "1" ]] && WIN_FLAG="--winner-gate"' in host
+    assert '[[ "$WIN_FLAG" == "--winner-gate" ]] && UNION_ARGS+=(--winner-gate-tau "$UNION_WINNER_GATE_TAU")' in host
+    assert 'WIN_WHY="no UNION_WINNER_GATE_TAU (the frozen threshold)"' in host
+    assert "more than one of WINNER ORDER / SELECT / GATE is on: refusing all" in host
+    arm = (Path(__file__).resolve().parents[1] / "scripts" / "arm_week5_saturday.sh").read_text()
+    assert "\nWINNER_GATE=0 " in arm and 'WINNER_GATE_TAU=""' in arm

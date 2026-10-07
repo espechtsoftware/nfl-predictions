@@ -407,8 +407,12 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   WIN_FLAG=""
   [[ "${UNION_WINNER_ORDER:-0}" == "1" ]] && WIN_FLAG="--winner-order"
   [[ "${UNION_WINNER_SELECT:-0}" == "1" ]] && WIN_FLAG="--winner-select"
-  if [[ "${UNION_WINNER_ORDER:-0}" == "1" && "${UNION_WINNER_SELECT:-0}" == "1" ]]; then
-    echo "WINNER ORDER and WINNER SELECT are both on: refusing both (they are alternatives; check_week_runtime refuses this too)"; WIN_FLAG=""
+  # Study 48e's gate at generation (UNION_WINNER_GATE=1 with UNION_WINNER_GATE_TAU; default off) uses the same inputs.
+  [[ "${UNION_WINNER_GATE:-0}" == "1" ]] && WIN_FLAG="--winner-gate"
+  WIN_ON=0
+  for _w in "${UNION_WINNER_ORDER:-0}" "${UNION_WINNER_SELECT:-0}" "${UNION_WINNER_GATE:-0}"; do [[ "$_w" == "1" ]] && WIN_ON=$((WIN_ON + 1)); done
+  if (( WIN_ON > 1 )); then
+    echo "more than one of WINNER ORDER / SELECT / GATE is on: refusing all (they are alternatives; check_week_runtime refuses this too)"; WIN_FLAG=""
   fi
   if [[ -n "$WIN_FLAG" && "${UNION_MAIN:-mean}" == "mix" ]]; then
     WIN_OWN=""; WIN_WHY=""
@@ -426,11 +430,13 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
         WIN_WHY="FP ownership export: $(grep -h 'REFUSED' "$OUT/winner_own-$RUN_TAG.txt" | tail -1)"
       fi
     fi
+    [[ "$WIN_FLAG" == "--winner-gate" && -z "${UNION_WINNER_GATE_TAU:-}" ]] && WIN_WHY="no UNION_WINNER_GATE_TAU (the frozen threshold)" && WIN_OWN=""
     if [[ -n "$WIN_OWN" ]]; then
       if ( cd "$PROD" && PYTHONPATH="$PROD/src" timeout 180 "$PROD_PY" scripts/winner_like_inputs.py --season "$SEASON" --week "$WEEK" \
              --frame "$K90_DIR/frame.parquet" --own "$WIN_OWN" --out "$OUT/winner_inputs-$RUN_TAG.csv" ) 2>&1 | tee "$OUT/winner_inputs-$RUN_TAG.txt"; then
         UNION_ARGS+=("$WIN_FLAG" "$OUT/winner_inputs-$RUN_TAG.csv")
-        echo "WINNER ${WIN_FLAG#--winner-} for $RUN_TAG: ON (studies 48b / 48d; FP ownership $(basename "$WIN_OWN"))"
+        [[ "$WIN_FLAG" == "--winner-gate" ]] && UNION_ARGS+=(--winner-gate-tau "$UNION_WINNER_GATE_TAU")
+        echo "WINNER ${WIN_FLAG#--winner-} for $RUN_TAG: ON (studies 48b / 48d / 48e; FP ownership $(basename "$WIN_OWN"))"
       else
         WIN_WHY="inputs: $(grep -h 'REFUSED\|Error' "$OUT/winner_inputs-$RUN_TAG.txt" | tail -1)"
       fi
