@@ -147,3 +147,24 @@ def test_the_paper_term_file_is_copied_as_paper_term_with_its_sha(tmp_path):
     env3 = {k: v for k, v in os.environ.items() if k != "S38_PAPER_TERM_FILE"}
     r3 = _run(tmp_path, ud, out, tmp_path / "dest3", env=env3)
     assert r3.returncode == 0 and not any(p.name.startswith("paper-term") for p in (tmp_path / "dest3").iterdir())
+
+
+def test_the_paper_dvp_file_is_copied_as_paper_dvp_with_its_sha_beside_the_paper_term(tmp_path):
+    """Study 38 amendment 6c (10-07; the operator: the FP-means DvP arm on paper): S38_PAPER_DVP_FILE (written by
+    scripts/paper_dvp_file.py) is copied as paper-dvp-<basename> with its sha in MANIFEST.txt, beside the paper term
+    file; a named but missing file is refused; unset copies nothing."""
+    import os
+    ud, out = _setup(tmp_path)
+    paper = tmp_path / "priortop-w5.csv"; paper.write_text("dk_player_id,pred_own\n1,10\n")
+    dvp = tmp_path / "w05.csv"; dvp.write_text("dk_player_id,pos,z,slope,adj_points,weeks,n\n1,WR,0.5,0.6,0.3,4,152\n")
+    base = {k: v for k, v in os.environ.items() if k not in ("S38_PAPER_TERM_FILE", "S38_PAPER_DVP_FILE")}
+    r = _run(tmp_path, ud, out, tmp_path / "dest", env=dict(base, S38_PAPER_TERM_FILE=str(paper), S38_PAPER_DVP_FILE=str(dvp)))
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert (tmp_path / "dest" / "paper-dvp-w05.csv").read_bytes() == dvp.read_bytes()
+    assert (tmp_path / "dest" / "paper-term-priortop-w5.csv").read_bytes() == paper.read_bytes()
+    manifest = (tmp_path / "dest" / "MANIFEST.txt").read_text()
+    assert hashlib.sha256(dvp.read_bytes()).hexdigest() in manifest and "paper-dvp-w05.csv" in manifest
+    r2 = _run(tmp_path, ud, out, tmp_path / "dest2", env=dict(base, S38_PAPER_DVP_FILE=str(tmp_path / "none.csv")))
+    assert r2.returncode == 1 and "S38_PAPER_DVP_FILE" in r2.stdout and not (tmp_path / "dest2").exists()
+    r3 = _run(tmp_path, ud, out, tmp_path / "dest3", env=base)
+    assert r3.returncode == 0 and not any(p.name.startswith("paper-dvp") for p in (tmp_path / "dest3").iterdir())
