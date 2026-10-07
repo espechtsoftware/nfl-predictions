@@ -138,3 +138,16 @@ def test_pool_lineups_carry_pre_lock_labels_and_real_finish_tiers():
     assert p["out_points"] == 225.0 and p["out_tier_top1pct_line"] and p["out_tier_top01pct_line"] and not p["out_tier_winner_line"]
     assert p["out_tier_within10_line"] is True
     assert "pool_lineups" in F.STATEMENTS and "PoolLineup" in F.STATEMENTS["pool_lineups"]
+
+
+def test_a_pool_player_without_points_nulls_the_tiers_never_zero():
+    """The reviewer (10-07): a pool player nobody rostered has no OWNED_IN fpts; missing points never read as 0 --
+    out_points and the four tiers are null and out_points_missing counts them."""
+    fr = _frame(); ids = fr["id"].tolist()
+    row = [ids[0], ids[1], ids[2], ids[3], ids[4], ids[7], ids[8], ids[13], ids[5]]
+    actual = {i: 25.0 for i in row[:-1]}                                      # the DST has no points
+    rows = F.pool_lineup_rows(pd.DataFrame({"players": [",".join(row)], "tag": ["boom"]}), fr, "2026-04", actual,
+                              {"winning_score": 230.0, "top_1pct_line": 190.0, "top_01pct_line": 215.0})
+    p = rows[0]["props"]
+    assert p["out_points_missing"] == 1 and "out_points" not in p
+    assert not any(k.startswith("out_tier_") for k in p)

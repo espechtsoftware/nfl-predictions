@@ -200,8 +200,10 @@ def pool_lineup_rows(cands: pd.DataFrame, frame: pd.DataFrame, week_key: str, ac
         teams = Counter(str(r.team) for r in recs if str(r.pos) != "DST")
         te = [float(r.salary) for r in recs if str(r.pos) == "TE"]
         dst = next((r for r in recs if str(r.pos) == "DST"), None)
-        pts = sum(float(actual.get(r.id, 0.0)) for r in recs)
+        missing = sum(1 for r in recs if actual.get(r.id) is None)
+        pts = None if missing else sum(float(actual[r.id]) for r in recs)     # a missing player never reads as 0
         win, t1, t01 = lines.get("winning_score"), lines.get("top_1pct_line"), lines.get("top_01pct_line")
+        tier = lambda line, off=0.0: (pts >= float(line) - off) if (pts is not None and line is not None) else None  # noqa: E731
         props = {"lbl_games": len({str(r.game_id) for r in recs}),
                  "lbl_flex_pos": "RB" if pos["RB"] == 3 else "TE" if pos["TE"] == 2 else "WR",
                  "lbl_dual_stack": bool(qb is not None and teams.get(str(qb.team), 0) >= 2 and teams.get(str(qb.opp), 0) >= 2),
@@ -212,11 +214,9 @@ def pool_lineup_rows(cands: pd.DataFrame, frame: pd.DataFrame, week_key: str, ac
                  "lbl_salary_left": 50_000 - sum(float(r.salary) for r in recs),
                  "lbl_qb_salary": float(qb.salary) if qb is not None else None,
                  "lbl_te_salary": max(te) if te else None, "lbl_dst_salary": float(dst.salary) if dst is not None else None,
-                 "out_points": round(pts, 2),
-                 "out_tier_winner_line": (pts >= float(win)) if win is not None else None,
-                 "out_tier_within10_line": (pts >= float(win) - 10.0) if win is not None else None,
-                 "out_tier_top1pct_line": (pts >= float(t1)) if t1 is not None else None,
-                 "out_tier_top01pct_line": (pts >= float(t01)) if t01 is not None else None}
+                 "out_points": round(pts, 2) if pts is not None else None, "out_points_missing": missing,
+                 "out_tier_winner_line": tier(win), "out_tier_within10_line": tier(win, 10.0),
+                 "out_tier_top1pct_line": tier(t1), "out_tier_top01pct_line": tier(t01)}
         seen[key] = {"key": key, "week_key": week_key, "tags": [tag], "players": [int(r.dk) for r in recs],
                      "props": {k: _v(v) for k, v in props.items() if _v(v) is not None}}
     rows = list(seen.values())

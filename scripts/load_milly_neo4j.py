@@ -229,12 +229,16 @@ def build_facts(a, query_df, batches, weeks, games) -> dict:
                       else [Path(x) / "candidates.parquet" for x in ((ew or {}).get("t70_run"), (ew or {}).get("saturday_run")) if x])
         pool_files = [f for f in pool_files if f.is_file()]
         if mc and pool_files:
-            pool = pd.concat([pd.read_parquet(f, columns=[c for c in ("players", "tag") if c in pd.read_parquet(f).columns])
-                              for f in pool_files], ignore_index=True)
+            pool = pd.concat([d[[c for c in ("players", "tag") if c in d.columns]] for d in map(pd.read_parquet, pool_files)],
+                             ignore_index=True)
             fpts = {int(o["dk_player_id"]): float(o["fpts"]) for o in batches.get("owned_in", [])
                     if str(o["contest_id"]) == mc and o.get("fpts") is not None}
             dk_of = dict(zip(frame["id"].astype(str), pd.to_numeric(frame.dk_player_id, errors="coerce")))
             actual = {i: fpts[int(d)] for i, d in dk_of.items() if pd.notna(d) and int(d) in fpts}
+            if "dk_points" in outs.columns:                     # a player nobody in the field rostered: the week's stats
+                for g, v in zip(outs.gsis_id.astype(str), pd.to_numeric(outs.dk_points, errors="coerce")):
+                    if g in dk_of and g not in actual and pd.notna(v):
+                        actual[g] = float(v)
             lines = next((c for c in batches.get("contests", []) if str(c["contest_id"]) == mc), {})
             pr = mgf.pool_lineup_rows(pool, frame, wk, actual, lines)
             out["pool_lineups"] += pr
