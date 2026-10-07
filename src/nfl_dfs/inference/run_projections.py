@@ -71,9 +71,21 @@ def upcoming_slate_features(season: int, week: int, as_of: str | None = None) ->
           WHERE CAST(season AS INT64) = @season
             AND CAST(week AS INT64) = @week
         ),
+        target_week_teams AS (
+          -- Bye weeks (from Week 5 on): nflverse's weekly roster for the week holds only the teams that play it, so the
+          -- receipt is complete when it covers every team on the week's REG schedule (2026-10-07: "= 32" refused Week 5).
+          SELECT COUNT(DISTINCT t) AS n FROM (
+            SELECT home_team AS t FROM `{settings.raw}.schedules`
+            WHERE season = @season AND week = @week AND game_type = 'REG'
+            UNION ALL
+            SELECT away_team FROM `{settings.raw}.schedules`
+            WHERE season = @season AND week = @week AND game_type = 'REG'
+          )
+        ),
         current_roster_receipt_quality AS (
           SELECT
-            COUNT(DISTINCT r.team) = 32
+            (SELECT n FROM target_week_teams) >= 2
+            AND COUNT(DISTINCT r.team) >= (SELECT n FROM target_week_teams)
             AND COUNT(DISTINCT r.gsis_id) >= 1000
             AND MAX(r.nflverse_pulled_at) >=
                 TIMESTAMP_SUB({clock}, INTERVAL 72 HOUR)
