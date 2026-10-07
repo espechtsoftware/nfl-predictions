@@ -12,6 +12,43 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-07 (17:05 CDT) — The outside reviewer's W5 money-path code review: H1, H2, H3, M1, M2, M5 and the grep LOW FIXED (4a860839); H2 decided by the operator; O-50..O-54 registered
+
+**The review:** `reports/2026-10-07-w5-money-path-code-review.md` (93a5655d on `review/outside-fill-order-20261006`),
+read-only, on integration 0a974187. Nothing found makes Sunday's lineups illegal. The cheap block applies as designed;
+the OFF switches are off and byte-identical; Rev6 and the class model are installed as pinned. The laptop verified each
+fixed item in the code and data before fixing it.
+
+**Fixed in `4a860839`** (sent to the reviewer for review; the arm's host copy is synced):
+- **H1.** A failed T-70 union published the plain T-70 book, with none of MIX, FP, the QB cap, overlap 4 or the block.
+  - Now every union-failure exit goes through `union_fail()`. Under mix or a live block it writes `union_required` plus
+    an ALERT file and a banner.
+  - `run_dir_publishable` refuses it unless `UNION_FAILED_OK=1`, so the earlier published book stands.
+  - **M5:** the watcher writes a STOP banner into TODAY.
+  - **LOW:** the ownership-term retry greps are anchored; a term-block refusal used to re-run the union WITH the
+    removed term.
+- **H2, the operator's decision (AskUserQuestion): "FP anyway, label it honestly".**
+  - The T-70 gate reads FP's own `MAX(last_updated)` and refuses only numbers last updated before Sunday 06:00 CT.
+  - Numbers updated before the 10:30 inactives are used with a banner, and the timing line names both times.
+  - W4: our capture at 10:38 CT held FP's 08:58 CT numbers, which is the input the W4 test that adopted FP used.
+  - Decision sheet top line refined.
+- **M1.** A null FP projection keeps OURS: it was set to 0 and dropped by the 1.0 floor. Nulls are not counted as
+  coverage, and they are counted and named. W4's Sunday capture had 7 nulls among the 316 frame players, none projected
+  ≥ 5 by us.
+- **M2.** The arm forces TERM_ROWS (empty refuses), TERM_FILE defaults to the cheap path, `--require-bonus` refuses the
+  paper prior-top file, and the ARMED line names the block.
+- **H3.** `cheap_block_file.py` and its test were copied byte-identically from the outside reviewer's `c18fb62f`
+  (`--group G` covers the draft group's newest DK pull, create-once).
+  - On W4, the group file and the tested frame file built byte-identical union books (`a4ab2839`).
+  - Thursday's helper writes cheap with `--group 154468` (matchup still from A3's frame), with `--require-bonus`, and a
+    receipt check replaces its dead guard.
+
+**Registered:**
+- O-50 (M3: pin PROD at arming) and O-51 (M4: the T-70 salary-pull gate), both due before Saturday's arming and fixed
+  Thursday before A3.
+- O-52 (M6) and O-53 (M7), for W6.
+- O-54: the review's other LOWs.
+
 ## 2026-10-07 (16:01 CDT) — The operator agrees with the outside reviewer; study 60 designed (real-field cash-line paper record); its ladder files W02–W05 written
 
 **The operator** ("here's what the outside reviewer says, and I agree"):
