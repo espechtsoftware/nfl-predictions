@@ -28,10 +28,15 @@ today, before any Week-5 result exists. All figures are multiples, rates and cou
        satellite seat, and the props-only book three plus a Millionaire cash.
      - **Result:** no difference on big seats in any of the three weeks. Almost nothing wins a big seat in a single
        week, so this cannot separate the two; the smaller wins go back and forth.
-  2. **The reviewer's study 54 in the historical test harness.** It covers 36 historical slates plus the 2022 slates,
-     which the current settings were never chosen on. It runs Thursday morning:
-     - if the plain book is clearly better on 2022, simplifying becomes your call for Week 6;
-     - if your construction is clearly better, the layers stay.
+  2. **The reviewer's study 54 in the historical test harness (done today, 13:40; reproduced exactly).** On the 2022
+     slates, which none of the current settings were chosen on:
+     - **No clear difference.** The plain book's chance of at least one big win was 5.3 points lower than yours (19.6%
+       vs 24.9% a week), with a range from 15 points lower to 4 points higher.
+     - **Every estimate favoured your construction:** on 2022, on 2023–24, and on all 53 slates together.
+     - **The plain book wins MORE big seats in total, but in fewer weeks.** Its wins cluster: it stacks one top QB in
+       about 12 of 26 lineups. On your goal of at least one big win per week, your construction's shape is the better
+       one.
+     - **So nothing says to simplify.** Your book stands, and P3's weekly record continues.
 
 ## What was built today
 - **A payout-ladder table** in the warehouse holding every contest's real prize ladder. DraftKings splits tied prizes,
