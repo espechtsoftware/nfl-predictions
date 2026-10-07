@@ -56,8 +56,9 @@ def test_a_refresh_that_started_neo4j_stops_it_on_a_clean_exit(env):
     assert r.returncode == 0, r.stdout + r.stderr
     assert neo == ["status", "start", "stop"] and not env["state"].exists()
     assert "Neo4j stopped (this refresh started it)" in r.stdout
-    assert len(py) == 7 and any("tier_edges.py" in c and "weekly_picks_vs_field.py" in c for c in py)
+    assert len(py) == 8 and any("tier_edges.py" in c and "weekly_picks_vs_field.py" in c for c in py)
     assert any("field_pattern_monitor.py" in c and "--out" in c for c in py)
+    assert any("priority_field_monitor.py" in c and "--out" in c for c in py)
 
 
 def test_a_failed_load_still_stops_the_instance_it_started(env):
