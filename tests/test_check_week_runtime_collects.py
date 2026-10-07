@@ -196,3 +196,17 @@ def test_union_mix_cover_games_must_be_0_to_8_with_the_mix(tmp_path):
     assert not any("UNION_MIX_COVER_GAMES" in f for f in _failures(_run(env)))
     env["UNION_MIX_COVER_GAMES"] = "9"
     assert any("UNION_MIX_COVER_GAMES='9'" in f for f in _failures(_run(env)))
+
+
+def test_union_mix_rs_rows_must_be_0_9_13_17_with_mix_rr_and_no_cover(tmp_path):
+    """Study 46's switch: 0 (or unset) is off; 9 / 13 / 17 need the MIX portfolio, the round-robin fill and no cover."""
+    env = _healthy(tmp_path); env["UNION_MIX_RS_ROWS"] = "0"
+    assert not any("UNION_MIX_RS_ROWS" in f for f in _failures(_run(env)))
+    env.update({"UNION_MIX_RS_ROWS": "13", "UNION_MAIN": "mix", "UNION_MIX_PORTFOLIO": "mix"})
+    assert any("UNION_MIX_RS_ROWS='13' must be 0, 9, 13 or 17" in f for f in _failures(_run(env)))   # no rr
+    env["UNION_MIX_FILL"] = "rr"
+    assert not any("UNION_MIX_RS_ROWS" in f for f in _failures(_run(env)))
+    env["UNION_MIX_COVER_GAMES"] = "4"
+    assert any("UNION_MIX_RS_ROWS='13'" in f for f in _failures(_run(env)))
+    env["UNION_MIX_COVER_GAMES"] = "0"; env["UNION_MIX_RS_ROWS"] = "12"
+    assert any("UNION_MIX_RS_ROWS='12'" in f for f in _failures(_run(env)))

@@ -207,3 +207,12 @@ def test_the_mix_cover_rides_into_the_units_and_0_passes_nothing():
     assert "UNION_MIX_COVER_GAMES=4" in _unit_line(r.stdout, "nfl-week4-t70-build")
     host = (Path(__file__).resolve().parents[1] / "scripts" / "sunday_build_host.sh").read_text()
     assert '"${UNION_MIX_COVER_GAMES:-0}" != 0 ]] && UNION_ARGS+=(--mix-cover-games "$UNION_MIX_COVER_GAMES")' in host
+
+
+def test_the_half_and_half_rides_into_the_units_and_0_passes_nothing():
+    """Study 46's switch: UNION_MIX_RS_ROWS reaches the build units; the host passes --mix-rs-rows only when not 0."""
+    from pathlib import Path
+    r = _run(UNION_MIX_RS_ROWS="13")
+    assert "UNION_MIX_RS_ROWS=13" in _unit_line(r.stdout, "nfl-week4-t70-build")
+    host = (Path(__file__).resolve().parents[1] / "scripts" / "sunday_build_host.sh").read_text()
+    assert '"${UNION_MIX_RS_ROWS:-0}" != 0 ]] && UNION_ARGS+=(--mix-rs-rows "$UNION_MIX_RS_ROWS")' in host
