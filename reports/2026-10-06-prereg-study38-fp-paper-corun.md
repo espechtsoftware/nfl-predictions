@@ -1,4 +1,4 @@
-# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06 and 10-07, amendments 1, 1b, 2, 3, 4, 5, 6, 6b and 6c, before Week 5's lock)
+# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06 and 10-07, amendments 1, 1b, 2, 3, 4, 5, 6, 6b, 6c and 6d, before Week 5's lock)
 
 **Status: FROZEN 2026-10-06** by the reviewer, BEFORE any week of the decision arm (MIXT_RS0) or of the exploratory arms
 QBB0 / NQC0 / QAL / RBC0 was read on any slate. Disclosed: before the freeze, the reference MIXT_QA0 was scored on
@@ -311,7 +311,10 @@ score. Nothing here enters a contest: the money path, its checkout and its files
     MIXT_QA0 does (limit, fill, regulars' block, term block), on FP's means plus a defense-vs-position correction from a
     PAPER file in the snapshot (`paper-dvp-*.csv`).
     - **The file** is written by production's `scripts/paper_dvp_file.py` (integration `e07675ab`, sha256 `592799cc…`;
-      the writer and its format are FROZEN). It holds a `#` JSON metadata line (slope, n_slope, weeks, prior_weeks
+      the writer and its format are FROZEN). **Repaired before first use** (integration `f4a1d2d6`, sha256 `a4651e61…`, the
+      reviewer's decision): a frame row without a dk_player_id is now refused (exit 3). Under pandas 3 the old string cast
+      kept a missing id as "nan", so the refusal never fired. The format, the recipe and the output for any valid frame
+      are unchanged. It holds a `#` JSON metadata line (slope, n_slope, weeks, prior_weeks
       with their frame and FP shas, the target's frame and FP shas, rows, the script's sha), then dk_player_id,
       gsis_id, pos, opp, z, slope, fp and adj_points. adj_points is FP's ADJUSTED mean, fp + slope × z; a player FP
       projects at 0 stays 0. There is one row per skill player of the frame with an FP value and a z.
@@ -366,6 +369,55 @@ score. Nothing here enters a contest: the money path, its checkout and its files
     5. Friday's rehearsal snapshot carries both paper files for the integrity gate.
 
     If Week 5's file cannot be made, the arm starts at Week 6, never with an improvised slope.
+- **Amendment 6d (2026-10-07, before Week 5's lock; no Week-5 outcome exists).**
+  - **Why.** The operator (10-07) asked to "schedule any necessary experiments this week" on the outside reviewer's "why
+    we missed the winners' players". The harness test is study 50 (`reports/2026-10-08-prereg-study50-factor-bonuses.md`).
+    These paper arms are the same bonuses on the real field, with no money at risk. With 6c's walk-forward DvP arm, two
+    matchup doses are tested side by side (the operator's rule: when the agents disagree, test both).
+  - **What changes.** Two new exploratory arms, each his live construction (every live setting as MIXT_QA0 does;
+    `FOLLOW_QA0` is now the DvP arm and these two) on FP's means plus a bonus from a PAPER file in the snapshot
+    (`paper-factor-*.csv`):
+    - **MIXT_QA0_MATCHUPX** adds b_matchup.
+    - **MIXT_QA0_COMBINED** adds b_combined = clip(b_matchup + b_vacated + b_market, 0, 3), the full live form, with the
+      market term computed against FP's means.
+  - **The file** is written by production's `scripts/paper_factor_file.py` (integration `fb837d58`, sha256 `de4f4cb3…`).
+    Its format was named by the reviewer before the build:
+    - a `#` JSON metadata line (weights, clips, prior season, prior games, input and script shas, rows, unmatched_opp);
+    - then dk_player_id, gsis_id, pos, team, opp, b_matchup, b_vacated, b_market, b_combined and fp.
+    - The formulas are `make_factor_files.py`'s exactly. The writer reproduces the outside reviewer's own Week-4 bonus
+      files (all four bonuses, 270 rows, max difference 0).
+  - **The arm validates the file:** its metadata line; every b finite and inside its clip ([0, 2], [0, 3], [0, 2],
+    [0, 3]); b_combined on its rule; a player FP projects at 0 with no bonus; skill positions; unique ids. A player
+    absent gets 0. Without a valid file both arms are missing that week (recorded).
+  - **The records:** the content identity, the scorer and the reader (descriptive "QA0 + matchup bonus − QA0" and "QA0 +
+    combined bonus − QA0" lines) carry it.
+  - **What does not change:** the rule (§5), the decision pair, every other arm. The older amendments' `like` pins now
+    read `FOLLOW_QA0`, unchanged for every other arm.
+  - **The smoke** (dry run, Week 4's frozen copies, at 4 + rr, with 6b's paper term file; on the committed code
+    `f01611c`, clean). The factor files are written by PRODUCTION's own `build()` (`fb837d58`) with main()'s metadata
+    keys and a SYNTHETIC points-allowed table: mechanics only.
+    - **(i) Every bonus zero:** MIXT_QA0_MATCHUPX and MIXT_QA0_COMBINED equal MIXT_QA0, and every amendment-6b arm is
+      identical to 6b's (i). `books.json` `38ff01ef`.
+    - **(ii) The real formulas:** 127 / 162 pool players carry a matchup / combined bonus. Both arms differ from
+      MIXT_QA0, and every other arm is identical to 6b's (i). `books.json` `ea81475a`.
+    - **(iii) No file:** both arms are missing, and every other arm is identical. `books.json` `25b5f067`.
+    - Parity none in all three. Construction only; no outcome was read. `~/private/paper-corun/smoke-w4-amend6d/`,
+      script `run.sh`.
+  - **Code:** lab `f01611c`:
+    - `experiments/s38_paper_corun.py`, sha256 `913652c35113da4a23f66459132da1cdbc745b61de1dcb449a1b089968bb80d5`;
+    - `scripts/s38_build.py`, `f756705dfd11621a7ced7310f7bf82234f7ccf24de89c41ac6dc6939c7b660a2`;
+    - `scripts/s38_score.py`, `131fc323b4bf823077dc52e0dac48826d27244fa18cec0f368bfec031ca4f6d8`;
+    - **`scripts/s38_report.py` (the reader), sha256 `865d691bc21c4beb4b8d322812911844c5e7325dfbbd30ecf63eed3f4a0869ac`**;
+    - `tests/test_s38_paper_corun.py`, `b71fa7e0235e27acc72d7f8276547518c262c1c12a6a50886637299419aa0c08` (22 tests).
+  - **Order:**
+    1. this amendment;
+    2. the laptop's ack (tests and smoke);
+    3. the snapshot tool's `S38_PAPER_FACTOR_FILE` (`8b3d63ae`, done);
+    4. Sunday's checklist writes the week's file after the T-70 union, beside the DvP file;
+    5. Friday's rehearsal carries all three paper files.
+
+    If Week 5's file cannot be made, both arms start at Week 6.
+
 ## 1. Why
 - **The operator (10-06), on the proposal:** "yes, please try it, I want to exhaust all reasonable options."
 - **Study 37** (Addendum 142): the regulars' structure (about 11 QB stacks and a steep player curve, their own tier
