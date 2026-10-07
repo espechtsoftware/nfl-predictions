@@ -24,10 +24,10 @@ today, before any Week-5 result exists. All figures are multiples, rates and cou
        vs 1). Those don't count as big wins.
      - **Week 4:** both won 0 big seats, a tie. Your construction won a satellite seat and a supersat ticket; the plain
        book won nothing.
-     - **Week 3:** the books were built but not yet scored. A converter tripped over one qualifier contest; the reviewer
-       is fixing it.
-     - **Result:** no difference on big seats. In these weeks almost nothing wins a big seat, so this cannot separate
-       the two.
+     - **Week 3:** both won 0 big seats, a tie. Your construction won nothing at all that week; the plain book won one
+       satellite seat, and the props-only book three plus a Millionaire cash.
+     - **Result:** no difference on big seats in any of the three weeks. Almost nothing wins a big seat in a single
+       week, so this cannot separate the two; the smaller wins go back and forth.
   2. **The reviewer's study 54 in the historical test harness.** It covers 36 historical slates plus the 2022 slates,
      which the current settings were never chosen on. It runs Thursday morning:
      - if the plain book is clearly better on 2022, simplifying becomes your call for Week 6;
