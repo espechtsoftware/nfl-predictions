@@ -1,9 +1,11 @@
-# Preregistration: study 53, a soft preference for sub-$4,000 players on the objective, in the harness, with a 2022 go / no-go (DRAFT 2026-10-07)
+# Preregistration: study 53, a soft preference for sub-$4,000 players on the objective, in the harness, with a 2022 go / no-go (FROZEN 2026-10-07)
 
-**Status: DRAFT 2026-10-07** (lab `production/s53-cheap-pref-20261007` @ `74c6ed0`).
-- The design was sent to the laptop at about 10:22 CT.
-- The smoke and the binding census follow. Then the freeze, with the code's shas.
-- No other read on these slates is pending.
+**Status: FROZEN 2026-10-07** by the reviewer, after the smoke and the binding (support) census (§6), before any scored
+bank.
+- The design was sent to the laptop at about 10:22 CT, and the DRAFT was committed at 10:25 (`960bcb37`; lab `74c6ed0`).
+  Only §6 and the code shas were added at the freeze.
+- No other read on these slates was pending.
+- The laptop acks the census, scans the banks and re-runs the frozen reader.
 
 ## 1. Why
 - **The outside reviewer's graph finding** (`review/outside-fill-order-20261006` @ `0c727116`, relayed by the laptop at
@@ -76,10 +78,38 @@ TEs. A missing salary never counts.
   writer and no model.
 - The block form is production's term block (study 49's parity).
 
-## 6. Smoke and integrity (filled before the freeze)
-- The smoke: 2024 W10 and 2022 W6, bank 1406, the full path, code as committed.
-- The binding (support) census: outcome-blind, bank 1406, all 53 slates, on clean committed code. It reports the rows with
-  0 / 1 / 2+ cheap players per arm and the projection cost.
+## 6. Smoke and integrity
+- **The smoke** (2024 W10 and 2022 W6, bank 1406, the full path, code as committed at `74c6ed0`, clean):
+  - every arm built 41 rows within production's constraints;
+  - LIVE equals study 48d's (and study 50's) rows and ranks on both slates;
+  - the block sits at ranks 2, 5, 9, 12, 15, 18, 22 and 25;
+  - the census and the reader exited 0, and the reader's header names STUDY 53 (tested).
+- **The binding (support) census** (outcome-blind; bank 1406; 53/53 (2022: 17; 2023–24: 36), code `74c6ed0` clean;
+  `results/s53/CENSUS_s53_binding.txt` `de0b66e6…`, raw `ac38323b…`; lab `bfc7247`):
+
+  | 2023–24 | LIVE | CHEAP2 | CHEAP4 | CHEAP4_BLOCK8 |
+  |---|---|---|---|---|
+  | sub-$4,000 players per row | 1.10 | 2.31 | 2.96 | 1.79 |
+  | book rows with 0 / 1 / 2+ of them (of 26) | 5.5 / 13.1 / 7.4 | 0.1 / 3.0 / 22.9 | 0.0 / 0.2 / 25.8 | 3.7 / 9.0 / 13.3 |
+  | projection per row (change) | 128.04 | −1.16 | −3.03 | −0.91 |
+  | predicted ownership per row (change) | 78.56% | −4.90 | −9.48 | −3.04 |
+  | book rows shared with LIVE | — | 0.3 | 0.0 | 16.2 |
+  | identical to LIVE | — | 0.000 | 0.000 | 0.000 |
+
+  - **The pool:** about 88 such players a slate (WR / TE; mean projection 3.7). The block applies on every slate-bank.
+    2022 is alike (the pool 140; −1.26 / −3.33 / −1.04).
+  - **Disclosed:** the harness's LIVE carries more of these players (1.10 a row) than production's Week-5 book under FP's
+    means (2 in 1 row of 26, the outside reviewer's count). The two projections price them differently, and each is
+    consistent with itself.
+- **Banks:** 1569–1574 and seed 20261105. The reviewer's unique-blob scan of both repositories found them only in study
+  53's own records (this prereg's DRAFT, the laptop's HANDOFF entry naming them, `s53_drive.py`, `s53_report.py`, the tests). That covers every blob up to 5 MB; the 8 larger blobs per repository were not searched.
+- **Code:** nfl2 `production/s53-cheap-pref-20261007` @ `74c6ed0` (the census at `bfc7247`):
+  - `experiments/s53_cheap_pref.py`, sha256 `996fab81c36022d392c568f0c91da92099737bf8527b12baae085808d696e5d6`;
+  - `scripts/s53_drive.py`, `9bf5c43ce3b8b48692802383398b30bd47bc124c1521f25e81c0163f99e0e03e`;
+  - **`scripts/s53_report.py` (the reader), sha256 `c612025afdb853c269c6aa1b0bc04b2856eebca8b8a7b851581ca3013dd89766`**;
+  - `scripts/s53_census.py`, `77236949fb246f765f3898e67565c8bb6c831df82899e5e3e473017968d3ce7c`;
+  - `tests/test_s53_cheap_pref.py`, `737f2d268395a5e08b7c348a4daf64bae4931913354422498532e5ff244efcb2` (5 tests);
+  - unchanged, sha-asserted: study 48's `s48_winner_like.py` `c22d2811…`, `term_book.py` `62c2306e…`.
 
 ## 7. Order
 1. This DRAFT.
