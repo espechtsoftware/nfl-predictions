@@ -26,6 +26,7 @@ HELPERS = (
 )
 
 FAILURES = []
+DOC_ONLY = re.compile(r"^(HANDOFF\.md|README\.md|reports/|briefings/)")   # changes that never reach a build (M3)
 
 
 def fail(message):
@@ -195,6 +196,18 @@ def main():
         if not (clone / "scripts/live_week.py").is_file(): fail("live clone has no scripts/live_week.py")
     if prod is not None:
         if git(prod, "status", "--porcelain"): fail(f"production checkout is dirty: {prod}")
+        armed = env("PROD_ARMED_HEAD")      # M3 (the outside review 10-07): Sunday runs the code armed on Saturday
+        if armed:
+            if not re.fullmatch(r"[0-9a-f]{40}", armed):
+                fail(f"PROD_ARMED_HEAD must be a full 40-character commit: {armed!r}")
+            else:
+                head = git(prod, "rev-parse", "HEAD")
+                if head is not None and head != armed:
+                    changed = git(prod, "diff", "--name-only", armed, "HEAD")
+                    if changed is not None:
+                        code = [f for f in changed.splitlines() if f and not DOC_ONLY.match(f)]
+                        if code:
+                            fail(f"production code moved since arming ({armed[:12]} -> {head[:12]}): {code[:8]}")
         if not (prod / "scripts/sunday_build_host.sh").is_file(): fail("production checkout has no sunday_build_host.sh")
     if tools is not None:
         missing_tools = [name for name in HELPERS if not (tools / name).is_file()]

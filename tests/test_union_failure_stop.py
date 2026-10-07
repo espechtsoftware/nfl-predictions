@@ -48,7 +48,28 @@ def test_the_ownership_term_retry_is_anchored():
 
 def test_the_watcher_passes_the_override_and_puts_a_stop_on_today():
     assert '$( [[ "${UNION_FAILED_OK:-0}" == "1" ]] && echo --accept-union-failed )' in AFTER
-    assert '[[ "$why" == term_block_missing:* || "$why" == union_required:* ]]' in AFTER
+    assert '[[ "$why" == term_block_missing:* || "$why" == union_required:* || "$why" == salary_pull_stale:* ]]' in AFTER
     assert '>> "$OUT/TODAY-30-LATEST.md"' in AFTER and 'after_build.stops' in AFTER
     timers = (ROOT / "scripts" / "arm_week_timers.sh").read_text()
     assert " UNION_FAILED_OK " in timers
+
+
+def test_a_stale_t70_salary_pull_is_a_stop_the_union_inherits():
+    """M4: only the T-70 unit (MIN_PROJ_GENERATED_AT) checks; the union dir inherits the marker; the watcher banners it."""
+    assert 'if [[ -n "${MIN_PROJ_GENERATED_AT:-}" ]]; then' in HOST
+    assert '"$PROD_PY" "$PROD/scripts/check_salary_pull.py" "$K90_DIR" --after "$MIN_PROJ_GENERATED_AT"' in HOST
+    assert '| tee "$K90_DIR/salary_pull_stale" > "$OUT/ALERT-salary-pull-stale-$RUN_TAG.txt"' in HOST
+    assert '[[ -f "$K90_DIR/salary_pull_stale" ]] && cp "$K90_DIR/salary_pull_stale" "$UNION_DIR/salary_pull_stale"' in HOST
+    assert HOST.index("check_salary_pull.py") < HOST.index('touch "$K90_DIR/audit_passed"')
+    assert '"$why" == salary_pull_stale:*' in AFTER and "--accept-salary-pull-stale" in AFTER
+    timers = (ROOT / "scripts" / "arm_week_timers.sh").read_text()
+    assert " SALARY_PULL_STALE_OK " in timers and " PROD_ARMED_HEAD " in timers
+
+
+def test_the_arm_pins_the_rehearsed_code_and_passes_the_armed_head():
+    """M3: step 0 refuses a code change between FRIDAY_HEAD and HEAD (docs and the arm script aside); the units get
+    PROD_ARMED_HEAD, which check_week_runtime enforces at every build."""
+    arm = (ROOT / "scripts" / "arm_week5_saturday.sh").read_text()
+    assert 'CODECHG=$(git diff --name-only "$FRIDAY_HEAD" HEAD | grep -vE' in arm and 'scripts/arm_week5_saturday\\.sh)$' in arm
+    assert '[[ -z "$CODECHG" ]] || stop "code changed between FRIDAY_HEAD' in arm
+    assert 'PROD_ARMED_HEAD=$(git -C "$P" rev-parse HEAD)' in arm

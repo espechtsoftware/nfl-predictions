@@ -17,7 +17,9 @@ Exit 0 = publish; exit 1 = skip (the reason on stdout; the watcher logs it and l
     published unless --accept-term-block-missing (TERM_BLOCK_MISSING_OK=1, the operator's decision to enter without it);
   * a `union_required` marker (the build host, 2026-10-07, the outside review's H1: the union failed while the week's
     construction lives only in the union -- MIX, or a live term block) is not published unless --accept-union-failed
-    (UNION_FAILED_OK=1, the operator's decision to enter the plain T-70 book); `union_failed` alone stays the fallback.
+    (UNION_FAILED_OK=1, the operator's decision to enter the plain T-70 book); `union_failed` alone stays the fallback;
+  * a `salary_pull_stale` marker (the build host, 10-07, M4: the T-70 build used a DK pull from before the 10:30 CT
+    inactives) is not published unless --accept-salary-pull-stale (SALARY_PULL_STALE_OK=1).
 """
 from __future__ import annotations
 
@@ -40,7 +42,7 @@ def parse_utc(text: str):
 
 def publishable(run: Path, union_mode: bool, audit_gate: bool = True, group: str | None = None,
                 built_after: str | None = None, accept_term_block_missing: bool = False,
-                accept_union_failed: bool = False) -> tuple[bool, str]:
+                accept_union_failed: bool = False, accept_salary_pull_stale: bool = False) -> tuple[bool, str]:
     for f in ("receipt.json", "candidates.parquet", "incumbent_player_scores.npy"):
         if not (run / f).is_file():
             return False, f"{f} not written yet"
@@ -54,6 +56,9 @@ def publishable(run: Path, union_mode: bool, audit_gate: bool = True, group: str
     if (run / "union_required").is_file() and not accept_union_failed:
         why = (run / "union_required").read_text().strip()
         return False, f"union_required: the union failed and this plain T-70 book has none of the week's settings ({why}); STOP for the operator (UNION_FAILED_OK=1 enters it)"
+    if (run / "salary_pull_stale").is_file() and not accept_salary_pull_stale:
+        why = (run / "salary_pull_stale").read_text().strip()
+        return False, f"salary_pull_stale: this T-70 build used a DK pull from before the inactives ({why}); STOP for the operator (SALARY_PULL_STALE_OK=1 enters it)"
     if group is not None or built_after is not None:
         try:
             rec = json.loads((run / "receipt.json").read_text())
@@ -89,9 +94,12 @@ def main(argv=None) -> int:
                     help="publish a union marked term_block_missing (the operator's decision; TERM_BLOCK_MISSING_OK=1)")
     ap.add_argument("--accept-union-failed", action="store_true",
                     help="publish a T-70 book marked union_required (the operator's decision; UNION_FAILED_OK=1)")
+    ap.add_argument("--accept-salary-pull-stale", action="store_true",
+                    help="publish a build marked salary_pull_stale (the operator's decision; SALARY_PULL_STALE_OK=1)")
     a = ap.parse_args(argv)
     ok, why = publishable(a.run, a.union_mode, audit_gate=not a.no_audit_gate, group=a.group, built_after=a.built_after,
-                          accept_term_block_missing=a.accept_term_block_missing, accept_union_failed=a.accept_union_failed)
+                          accept_term_block_missing=a.accept_term_block_missing, accept_union_failed=a.accept_union_failed,
+                          accept_salary_pull_stale=a.accept_salary_pull_stale)
     print(why)
     return 0 if ok else 1
 

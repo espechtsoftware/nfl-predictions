@@ -90,6 +90,9 @@ if [[ -n "$CHG" ]]; then
   [[ "$CHECK" == --check ]] || { git pull --ff-only -q origin production/week3-integration-20260921 || stop "ff-only pull failed"; }
 fi
 git merge-base --is-ancestor "$FRIDAY_HEAD" HEAD || stop "HEAD $(git rev-parse --short HEAD) is not at or after $FRIDAY_HEAD"
+# M3 (the outside review 10-07): the armed code is the code Friday rehearsed -- only docs and this arm script may differ
+CODECHG=$(git diff --name-only "$FRIDAY_HEAD" HEAD | grep -vE '^(HANDOFF\.md|README\.md|reports/|briefings/|scripts/arm_week5_saturday\.sh)$' || true)
+[[ -z "$CODECHG" ]] || stop "code changed between FRIDAY_HEAD ${FRIDAY_HEAD:0:12} and HEAD: $(echo $CODECHG)"
 [[ "$(sha256sum $W/contests.json | cut -d' ' -f1)" == "$PLAN_SHA" ]] || stop "$W/contests.json is not Rev6 ($PLAN_SHA)"
 # O-42 (10-07): the class sleeve's model, checked here (also under --check) rather than at the 10:30 build's preflight
 [[ -s $W/class_model.json && -s $W/class_model.json.sha256 ]] || stop "$W/class_model.json or its .sha256 is missing (the class sleeve's model, CLASS_SLEEVE_EVERY=2; O-42)"
@@ -134,7 +137,7 @@ arm_env() {
   local u=() e=()
   if [[ "$SHAPE" == mixt ]]; then e+=(UNION_MAIN=mix UNION_MIX_PORTFOLIO=mix UNION_MIX_FILL=$MIX_FILL UNION_MIX_COVER_GAMES=$MIX_COVER UNION_MIX_RS_ROWS=$MIX_RS UNION_WINNER_ORDER=$WINNER_ORDER UNION_WINNER_SELECT=$WINNER_SELECT UNION_PRIORITY_ORDER=$PRIORITY_ORDER UNION_TERM_BLOCK_ROWS=$TERM_ROWS UNION_TERM_BLOCK_SOURCE=$P/$TERM_FILE UNION_TERM_BLOCK_TILT=0.20 UNION_TERM_BLOCK_CAP=$TERM_CAP UNION_TERM_BLOCK_SHA256=$TERM_SHA); [[ -n "$MIX_QUOTAS" ]] && e+=(UNION_MIX_CELL_QUOTAS=$MIX_QUOTAS) || u+=(-u UNION_MIX_CELL_QUOTAS); else u+=(-u UNION_MIX_CELL_QUOTAS -u UNION_PRIORITY_ORDER -u UNION_MIX_PORTFOLIO -u UNION_MIX_FILL -u UNION_MIX_COVER_GAMES -u UNION_MIX_RS_ROWS -u UNION_WINNER_ORDER -u UNION_WINNER_SELECT -u UNION_TERM_BLOCK_ROWS -u UNION_TERM_BLOCK_SOURCE -u UNION_TERM_BLOCK_TILT -u UNION_TERM_BLOCK_CAP -u UNION_TERM_BLOCK_SHA256); e+=(UNION_MAIN=pmo_x50); fi
   if [[ -n "$QB_CAP_ROWS" ]]; then e+=(UNION_MAIN_QB_CAP_ROWS=$QB_CAP_ROWS UNION_MAIN_QB_CAP_K=$QB_CAP_K); else u+=(-u UNION_MAIN_QB_CAP_ROWS -u UNION_MAIN_QB_CAP_K); fi
-  env "${u[@]}" "${e[@]}" GROUP=154468 EXPECT_SHA=$PIN CLONE=$CLONE_DIR ENTER_LAYOUT=head \
+  env "${u[@]}" "${e[@]}" GROUP=154468 EXPECT_SHA=$PIN CLONE=$CLONE_DIR ENTER_LAYOUT=head PROD_ARMED_HEAD=$(git -C "$P" rev-parse HEAD) \
     D3200_LEV=$CHOSEN_LEV D3200_BOOM=$CHOSEN_BOOM D800_LEV=$CHOSEN_LEV D800_BOOM=$CHOSEN_BOOM SKIP_UNITS="$skip" \
     LEV_CBC_THREADS=8 EARLY_PROPS_CT=04:30 EARLY_PROJECT_CT=04:45 EARLY_SUPPLY_CT=05:00 \
     UNION_PROJ_SOURCE=fp UNION_MAIN_OWN_TILT=$OWN_TILT UNION_MEAN_MAX_SHARED=$MAX_SHARED \

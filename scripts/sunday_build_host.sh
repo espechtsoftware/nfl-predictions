@@ -255,6 +255,21 @@ print(f"k90 receipt verified (governed): {d.name} lev/boom {lev}/{boom} entries 
 PYEOF
 }
 verify_k90 "$K90_DIR" || { echo "K90 receipt verification FAILED for $K90_DIR"; exit 1; }
+# M4 (the outside review 10-07): the T-70 build (the unit carrying MIN_PROJ_GENERATED_AT) must have used the DK salary pull
+# made after the 10:30 CT inactives -- the money-path rule. The 10:33 t70-pull unit is independent of this build, so a failed
+# pull left it on the morning's pull silently. A stale pull marks the dir salary_pull_stale (copied to its union below): a
+# STOP the operator clears (SALARY_PULL_STALE_OK=1), with an ALERT and a banner; the earlier published book stands.
+if [[ -n "${MIN_PROJ_GENERATED_AT:-}" ]]; then
+  if ! SP_WHY=$("$PROD_PY" "$PROD/scripts/check_salary_pull.py" "$K90_DIR" --after "$MIN_PROJ_GENERATED_AT"); then
+    printf '%s run %s: SALARY PULL STALE: %s\n' "$(date -u +%FT%TZ)" "$RUN_TAG" "$SP_WHY" \
+      | tee "$K90_DIR/salary_pull_stale" > "$OUT/ALERT-salary-pull-stale-$RUN_TAG.txt"
+    printf '\n%s\n%s\n%s\n\n' "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" \
+      "!!! SALARY PULL STALE for $RUN_TAG: $SP_WHY -- NOT PUBLISHABLE until the operator decides (SALARY_PULL_STALE_OK=1)" \
+      "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+  else
+    echo "SALARY PULL: $SP_WHY"
+  fi
+fi
 # The T-70 rules are declared ON for the audit only on the T-70 build: the unit that carries MIN_PROJ_GENERATED_AT (the
 # projections made after the 10:30 inactives). Every other build (Saturday, 09:10) runs on projections the rules never
 # touched, so it declares OFF (sweep 2026-09-29 item 1; with ON on every build the audit refused every run dir).
@@ -535,6 +550,7 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   [[ -n "$UNION_DIR" && -f "$OUT/own_term_fallback-$RUN_TAG.txt" ]] && cp "$OUT/own_term_fallback-$RUN_TAG.txt" "$UNION_DIR/own_term_fallback.txt" \
     && echo "!!! OWNERSHIP TERM FELL BACK for this union: $UNION_DIR/own_term_fallback.txt"
   [[ -n "$UNION_DIR" && -f "$UNION_DIR/receipt.json" ]] || { echo "union run dir not found in $OUT/union-$RUN_TAG.txt"; union_fail "the union run dir was not found"; exit 1; }
+  [[ -f "$K90_DIR/salary_pull_stale" ]] && cp "$K90_DIR/salary_pull_stale" "$UNION_DIR/salary_pull_stale"   # M4: the union inherits the STOP
   verify_k90 "$UNION_DIR" || { echo "K90 receipt verification FAILED for the union $UNION_DIR"; union_fail "the union receipt verification failed"; rm -rf "$UNION_DIR"; exit 1; }
   # A DECIDED live rule must not go missing silently (the reviewer, 10-07): with UNION_TERM_BLOCK_ROWS set, a union whose
   # receipt does not carry the applied block (the right size, the pinned file) is marked term_block_missing, which

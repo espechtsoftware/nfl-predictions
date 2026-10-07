@@ -92,3 +92,13 @@ def test_a_union_failure_under_the_weeks_settings_stops_publication_until_the_op
     assert not ok and why.startswith("union_required:") and "UNION_FAILED_OK=1" in why and "build audit failed" in why
     assert rp.publishable(d, True, accept_union_failed=True) == (True, "publishable")
     assert rp.main([str(d), "--union-mode"]) == 1 and rp.main([str(d), "--union-mode", "--accept-union-failed"]) == 0
+
+
+def test_a_stale_salary_pull_stops_publication_until_the_operator_accepts(tmp_path):
+    """The outside review 10-07, M4: a build marked salary_pull_stale is a STOP (SALARY_PULL_STALE_OK=1 enters it)."""
+    d = _run(tmp_path, union=True); (d / "audit_passed").touch()
+    (d / "salary_pull_stale").write_text("2026-10-11T15:52Z run x: SALARY PULL STALE: the T-70 build used the DK pull of 14:05\n")
+    ok, why = rp.publishable(d, True)
+    assert not ok and why.startswith("salary_pull_stale:") and "SALARY_PULL_STALE_OK=1" in why
+    assert rp.publishable(d, True, accept_salary_pull_stale=True) == (True, "publishable")
+    assert rp.main([str(d), "--union-mode", "--accept-salary-pull-stale"]) == 0

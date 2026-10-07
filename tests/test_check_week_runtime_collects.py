@@ -249,3 +249,32 @@ def test_the_term_block_needs_the_mix_rr_and_a_pinned_file(tmp_path):
         assert any("UNION_TERM_BLOCK_ROWS" in x and msg in x for x in _failures(_run(bad))), (k, v)
     env["UNION_TERM_BLOCK_ROWS"] = "0"; env["UNION_TERM_BLOCK_SOURCE"] = ""
     assert not any("UNION_TERM_BLOCK_ROWS" in x for x in _failures(_run(env)))
+
+
+def _commit(path: Path, rel: str, text: str) -> str:
+    g = ["git", "-C", str(path), "-c", "user.name=t", "-c", "user.email=t@t", "-c", "commit.gpgsign=false"]
+    (path / rel).parent.mkdir(parents=True, exist_ok=True)
+    (path / rel).write_text(text)
+    subprocess.run(g + ["add", "-A"], check=True)
+    subprocess.run(g + ["commit", "-q", "-m", rel], check=True)
+    return subprocess.run(g[:3] + ["rev-parse", "HEAD"], check=True, capture_output=True, text=True).stdout.strip()
+
+
+def test_production_code_that_moved_since_arming_fails_and_docs_do_not(tmp_path):
+    """The outside review 10-07, M3: Sunday runs the code armed on Saturday. PROD_ARMED_HEAD pins it; a later docs-only
+    pull (HANDOFF, reports, briefings, README) passes, a code change fails, and a malformed pin fails."""
+    env = _healthy(tmp_path)
+    prod = Path(env["PROD"])
+    armed = subprocess.run(["git", "-C", str(prod), "rev-parse", "HEAD"], check=True, capture_output=True, text=True).stdout.strip()
+    env["PROD_ARMED_HEAD"] = armed
+    assert _run(env).returncode == 0
+    _commit(prod, "HANDOFF.md", "a note\n"); _commit(prod, "reports/x.md", "r\n")
+    r = _run(env)
+    assert r.returncode == 0, r.stderr                                                  # docs only
+    _commit(prod, "scripts/sunday_build_host.sh", "#!/usr/bin/env bash\necho changed\n")
+    r = _run(env)
+    assert r.returncode == 2
+    assert any(f.startswith(f"production code moved since arming ({armed[:12]} -> ") and "scripts/sunday_build_host.sh" in f
+               for f in _failures(r)), _failures(r)
+    env["PROD_ARMED_HEAD"] = "abc"
+    assert any("PROD_ARMED_HEAD must be a full 40-character commit" in f for f in _failures(_run(env)))
