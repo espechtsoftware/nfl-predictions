@@ -63,10 +63,12 @@ P3 builds three books each week from the ENTERED T-70 union's own recorded input
     multiplicity adjustment; disclosed here.
 - **SECONDARY, descriptive (never ruling):**
   1. **Cash at the real lines.** For each contest in the week's ladder file (`scripts/cash_line_rows.py`; private,
-     `~/private/cash-line/cash-lines-wWW.csv`), each row is placed among that contest's real entrants by
-     `moneygate_score.place`, with ours removed and DraftKings' tie split.
-     - A hit is a finish at or inside the contest's line: `cash500_last_position` for the roles big and gpp,
+     `~/private/cash-line/cash-lines-wWW.csv`, checked against its `.sha256`), each row gets a position among that
+     contest's real entrants by P1's rule: 1 + the entries (every real entry of ours removed) strictly above it.
+     - A hit is a position at or inside the contest's line: `cash500_last_position` for the roles big and gpp,
        `seat_last_position` for sat.
+     - (Changed in the DRAFT, before any W5 outcome: the first text placed rows with `moneygate_score.place` and its
+       tie split. The position needs no prize ladder, and `place`'s ladder refuses a tier that mixes cash and tickets.)
      - Counts only. The role "big" (a $333+ fee or a won ticket) is the study's real target. It first appears in a week
        he holds such a ticket; W2–5 have none.
   2. **The proxy cash line:** a finish in the Millionaire field's top 20% (p ≤ 0.20), standing in for "about any cash"
@@ -89,9 +91,11 @@ P3 builds three books each week from the ENTERED T-70 union's own recorded input
     check). Likewise for D2.
 
 ## 5. The rule (fixed now)
-- **Looks:** W8 (with at least 4 valid weeks), W12 and W18 (the season's end).
+- **Looks:** W8, W12 and W18 (the season's end), each over the valid prospective weeks up to it.
   - Fixed looks limit the inflation from looking every week. With three looks it is modest, and it is disclosed here.
-  - If W8 has fewer than 4 valid weeks, the first look waits for the fourth.
+  - A look with fewer than 4 valid weeks reads "too few valid weeks", and the next look comes as scheduled.
+  - (Changed in the DRAFT, before any W5 outcome: the first text let a short W8 look wait for the fourth week. The
+    reader was written with the simpler rule before the W2–4 baseline ran.)
 - **At each look, for each of D1 and D2:** the mean of d_w over the valid prospective weeks. Its interval is the
   two-sided 90% t interval: each side is a one-sided 95% bound, with P1's t and n − 1 degrees of freedom.
   - **Lower bound > 0:** "the props row is the better [single ticket | second ticket]".
@@ -103,11 +107,32 @@ P3 builds three books each week from the ENTERED T-70 union's own recorded input
   - Each Monday's line prints every d_w plainly.
   - A W6 or W7 ticket's rows are his choice, on this record and the W2–4 replay. One week is never read as a verdict.
 
-## 6. Power (filled in from the W2–4 baseline after this DRAFT is committed)
-- The sd of d1_w and d2_w over W2–4 (in-sample, disclosed). Then the margin t(0.95, n − 1) × sd / √n at n = 4, 8 and 14
-  weeks, for that sd and for 0.5 and 1.0.
-- What it can show is stated now, before any number: only a large, steady difference reads at W8. A difference of the
+## 6. Power (filled in from the W2–4 baseline after the DRAFT `746719ca`; §2–§5 unchanged by it)
+- **What it can show was stated before any number:** only a large, steady difference reads at W8. A difference of the
   W2–4 size would need every prospective week to agree with it.
+- **The W2–4 baseline** (in-sample, the P3 replay; the reader's full path; never pooled):
+
+  | | W2 | W3 | W4 | Mean | sd |
+  |---|---|---|---|---|---|
+  | d1 = z(PROPS #1) − z(R0 #1) | +1.043 | +0.401 | +0.222 | +0.555 | 0.431 |
+  | d2 = z(MIXED) − z(R0 PAIR) | −0.926 | +0.401 | −0.529 | −0.352 | 0.681 |
+
+  - D1 agrees with the outside reviewer's field shares (§1).
+  - D2 was negative in W2 and W4, because the book's #2 row finished well in those weeks.
+- **The interval's half-width,** t(0.95, n − 1) × sd / √n:
+
+  | sd | 4 weeks | 8 weeks | 14 weeks |
+  |---|---|---|---|
+  | 0.431 (d1, W2–4) | 0.508 | 0.289 | 0.204 |
+  | 0.681 (d2, W2–4) | 0.802 | 0.456 | 0.322 |
+  | 0.5 | 0.588 | 0.335 | 0.237 |
+  | 1.0 | 1.177 | 0.670 | 0.473 |
+
+- **What it means:**
+  - Four prospective weeks with W2–4's d1 mean and sd would read at W8 "the props row is the better single ticket", by
+    a hair (+0.555 − 0.508 = +0.047).
+  - A smaller or noisier difference waits for W12 or W18, or never reads.
+  - D2 needs a much larger difference.
 
 ## 7. Smoke, census and integrity (before the freeze)
 - **The reader:** `scripts/s60_record.py`, with its tests. It runs behind the reconcile gate, as P1's reader does.
@@ -118,6 +143,23 @@ P3 builds three books each week from the ENTERED T-70 union's own recorded input
   - It runs on the W2–4 replay now, and on W5's books once P3 builds them (Sunday, before the standings load).
   - It reads lineups only, never points.
 - **At the freeze:** the shas of the reader, its tests, `p1_record.py` and `moneygate_score.py`.
+- **Done in the DRAFT (2026-10-07 evening):**
+  - **The identity census on the W2–4 replay** (outcome-blind; lineups only). PROPS #1 differs from R0 #1, and MIXED
+    from R0 PAIR, in all three weeks. FP #1 is R0 #1's lineup in all three, as the outside reviewer found. D1 and D2
+    have support.
+  - **The full path on W2–4** (the baseline in §6) ran behind the reconcile gate and exited 0.
+    - Every ladder-file contest got a position for every row, inside its size.
+    - There were no hits at those weeks' deep lines.
+    - It is never counted.
+  - **The tests:** `tests/test_s60_record.py`, 9 pass. They cover:
+    - the frozen constants and the printed level;
+    - the same-lineup rule and the MIXED fallback;
+    - P3's validity rules;
+    - the position and p (P1's, to 1e-12);
+    - the look readings;
+    - the lines by role;
+    - that the census reads no outcome code;
+    - one scored synthetic week.
 
 ## 8. What a reading can do
 - **"The props row is the better ...":** a candidate for his big-contest tickets.
