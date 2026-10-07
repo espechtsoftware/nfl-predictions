@@ -210,3 +210,15 @@ def test_union_mix_rs_rows_must_be_0_9_13_17_with_mix_rr_and_no_cover(tmp_path):
     assert any("UNION_MIX_RS_ROWS='13'" in f for f in _failures(_run(env)))
     env["UNION_MIX_COVER_GAMES"] = "0"; env["UNION_MIX_RS_ROWS"] = "12"
     assert any("UNION_MIX_RS_ROWS='12'" in f for f in _failures(_run(env)))
+
+
+def test_union_winner_order_is_0_or_1_and_needs_the_mix(tmp_path):
+    """Study 48b's switch: 0 (or unset) is off; 1 needs UNION_MAIN=mix."""
+    env = _healthy(tmp_path); env["UNION_WINNER_ORDER"] = "0"
+    assert not any("UNION_WINNER_ORDER" in f for f in _failures(_run(env)))
+    env["UNION_WINNER_ORDER"] = "1"
+    assert any("UNION_WINNER_ORDER='1' must be 0 or 1, and 1 needs UNION_MAIN=mix" in f for f in _failures(_run(env)))
+    env["UNION_MAIN"] = "mix"; env["UNION_MIX_PORTFOLIO"] = "mix"
+    assert not any("UNION_WINNER_ORDER" in f for f in _failures(_run(env)))
+    env["UNION_WINNER_ORDER"] = "2"
+    assert any("UNION_WINNER_ORDER='2'" in f for f in _failures(_run(env)))

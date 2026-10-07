@@ -713,6 +713,23 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
     return book, cell_of, meta, spare_rows
 
 
+def apply_winner_order(book: list[int], rosters: list, fr: pd.DataFrame, inputs_path: Path) -> tuple[list[int], dict]:
+    """Study 48b's DEAL_SCORE on the live book: score each main row with study 48's frozen model
+    (nfl_dfs.inference.winner_like) and order the rows by score, descending, ties keeping the book order."""
+    from nfl_dfs.inference import winner_like as WL
+    inp = pd.read_csv(inputs_path, dtype={"id": str}).drop_duplicates("id").set_index("id")
+    cols = ["pos", "team", "opp", "game_id", "salary", "game_total"] + [c for c in WL.FRAME_FACTS if c in fr.columns]
+    players = fr.assign(id=fr["id"].astype(str)).drop_duplicates("id").set_index("id")[list(dict.fromkeys(cols))]
+    players = players.join(inp[["own_proj", *WL.LAG_COLUMNS]], how="left")
+    rows = [[str(x) for x in rosters[i]] for i in book]
+    scores, feats = WL.score_book(rows, players)
+    order = WL.order_by_score(scores)
+    new = [book[o] for o in order]
+    return new, {"model_sha256": sha256_file(WL.MODEL_PATH), "inputs": str(inputs_path),
+                 "inputs_sha256": sha256_file(Path(inputs_path)), "scores_in_book_order": [round(float(x), 6) for x in scores],
+                 "order": order, "moved": int(sum(o != i for i, o in enumerate(order))), "hist": "0 (live; study 48's port notes)"}
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--saturday-run", required=True, help="a run dir, or 'auto' (newest --saturday-dose run in --live-dir built before the T-70 run)")
@@ -772,6 +789,10 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--mix-cover-games", type=int, default=0,
                     help="with --main mix: before the fill, one A1 row with its QB from each of the top-N games by pre-lock "
                          "total, counted toward A1's quota (study 43; default 0 = off)")
+    ap.add_argument("--winner-order", type=Path, default=None,
+                    help="study 48b: re-order the main book by study 48's winner-likeness score (descending, ties keep the "
+                         "book order) before writing book.csv; the file is scripts/winner_like_inputs.py's per-player inputs "
+                         "for THIS frame (default off)")
     ap.add_argument("--mix-rs-rows", type=int, default=0,
                     help="with --main mix: the half-and-half book (study 46): the last N of 26 rows built under the regulars' "
                          "tiers (9, 13 or 17), the rest as today, through one state (default 0 = off; needs --mix-fill rr)")
@@ -1126,6 +1147,10 @@ def main(argv: list[str] | None = None) -> int:
             shutil.copyfile(a.t70_run / f, out / f)
     if proj_meta:                                        # the projections this book was selected on travel with it
         shutil.copyfile(a.proj_source, out / "proj_source.csv"); shutil.copyfile(str(a.proj_source) + ".json", out / "proj_source.csv.json")
+    winner_meta = None
+    if a.winner_order is not None:                       # study 48b: the most winner-like rows first (the head deal's big ranks)
+        book, winner_meta = apply_winner_order(book, rosters, fr, a.winner_order)
+        print(f"WINNER ORDER: {winner_meta['moved']} of {len(book)} book positions moved (model {winner_meta['model_sha256'][:12]})")
     players_by_id = frame_players(fr)
     lus = [_LU([players_by_id[i] for i in rosters[k]], tags[k]) for k in range(len(rosters))]
     n_written = dk_csv([lus[i] for i in book + book_tail], fr, out / "book.csv")
@@ -1209,6 +1234,7 @@ def main(argv: list[str] | None = None) -> int:
         proj_meta["book_players_ours"] = _ours
         print(f"PROJECTION SOURCE: book players on OUR projection (no FP): {len(_ours)}" + (f" -- {_ours}" if _ours else ""))
         conf["union"]["proj_source"] = proj_meta
+    conf["union"]["winner_order"] = winner_meta if winner_meta is not None else "off"
     if pmo_main:
         conf["union"]["pmo_x50" if a.main == "pmo_x50" else a.main] = pmo_main
     conf["main_selector_used"] = a.main

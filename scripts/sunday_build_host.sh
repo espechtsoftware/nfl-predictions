@@ -399,6 +399,42 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
     [[ -n "$FP_WHY" ]] && own_banner "FANTASY POINTS" "$FP_WHY"
     [[ -n "$OWN_SRC" ]] && UNION_ARGS+=(--main-own-tilt "$OWN_TILT" --main-own-source "$OWN_SRC")
   fi
+  # Study 48b's winner-likeness order (operator 10-07: "Test tonight, aim for Week 5"; default off): FP's projected
+  # ownership (the term's FP export when there is one, else this run's own capture + export) and the players' prior-game
+  # touchdowns / attempts (scripts/winner_like_inputs.py), then the union re-orders the main book by study 48's frozen
+  # score. Any failure keeps the book's own order, LOUDLY (a banner, a fallback file copied with the union, the receipt).
+  if [[ "${UNION_WINNER_ORDER:-0}" == "1" && "${UNION_MAIN:-mean}" == "mix" ]]; then
+    WIN_OWN=""; WIN_WHY=""
+    if [[ -n "$OWN_SRC" && "$(basename "$OWN_SRC")" == ownership_fp-* ]]; then
+      WIN_OWN="$OWN_SRC"
+    else
+      FP_PROFILE_LOCK=${FP_PROFILE_LOCK:-$HOME/.cache/nfl-dfs/fantasy-points-profile.lock}; mkdir -p "$(dirname "$FP_PROFILE_LOCK")"
+      ( cd "$PROD" && PYTHONPATH="$PROD/src" flock -w "${FP_OWN_LOCK_WAIT_S:-300}" "$FP_PROFILE_LOCK" timeout 240 "$PROD_PY" -m nfl_dfs.ops.fantasy_points_ownership collect --week "$WEEK" ) \
+          > "$OUT/winner_own-$RUN_TAG.txt" 2>&1 || echo "FP OWNERSHIP CAPTURE FAILED for $RUN_TAG (winner order; see $OUT/winner_own-$RUN_TAG.txt); the newest earlier capture is used if fresh"
+      if ( cd "$PROD" && PYTHONPATH="$PROD/src" timeout 120 "$PROD_PY" scripts/ownership_fp.py --season "$SEASON" --week "$WEEK" \
+             --frame "$K90_DIR/frame.parquet" --lag "$OWNERSHIP_LAG" --max-age-hours "${FP_MAX_AGE_HOURS:-30}" \
+             --out "$OUT/ownership_fp-$RUN_TAG.csv" ) 2>&1 | tee -a "$OUT/winner_own-$RUN_TAG.txt"; then
+        WIN_OWN="$OUT/ownership_fp-$RUN_TAG.csv"
+      else
+        WIN_WHY="FP ownership export: $(grep -h 'REFUSED' "$OUT/winner_own-$RUN_TAG.txt" | tail -1)"
+      fi
+    fi
+    if [[ -n "$WIN_OWN" ]]; then
+      if ( cd "$PROD" && PYTHONPATH="$PROD/src" timeout 180 "$PROD_PY" scripts/winner_like_inputs.py --season "$SEASON" --week "$WEEK" \
+             --frame "$K90_DIR/frame.parquet" --own "$WIN_OWN" --out "$OUT/winner_inputs-$RUN_TAG.csv" ) 2>&1 | tee "$OUT/winner_inputs-$RUN_TAG.txt"; then
+        UNION_ARGS+=(--winner-order "$OUT/winner_inputs-$RUN_TAG.csv")
+        echo "WINNER ORDER for $RUN_TAG: ON (study 48b; FP ownership $(basename "$WIN_OWN"))"
+      else
+        WIN_WHY="inputs: $(grep -h 'REFUSED\|Error' "$OUT/winner_inputs-$RUN_TAG.txt" | tail -1)"
+      fi
+    fi
+    if [[ -n "$WIN_WHY" ]]; then
+      printf '\n%s\n%s\n%s\n\n' "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" \
+        "!!! WINNER ORDER NOT APPLIED for $RUN_TAG: ${WIN_WHY} -- the book keeps its own order" \
+        "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+      printf '%s run %s: winner order NOT applied: %s\n' "$(date -u +%FT%TZ)" "$RUN_TAG" "$WIN_WHY" >> "$OUT/winner_order_fallback-$RUN_TAG.txt"
+    fi
+  fi
   # The winner-shaped tail sleeve (operator 2026-10-02, after the corpus audit): the Millionaire/FFWC/$555 rows come from a
   # field-like sample built from the pre-lock ownership predictor -- the term's source when there is one, else Saturday's
   # lag file. union_reselect.py falls back LOUDLY to the projection sleeve on any failure.
@@ -462,6 +498,8 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   [[ -n "$UNION_DIR" && -f "$OUT/proj_source_fallback-$RUN_TAG.txt" ]] && cp "$OUT/proj_source_fallback-$RUN_TAG.txt" "$UNION_DIR/proj_source_fallback.txt"
   [[ -n "$UNION_DIR" && -f "$OUT/union-$RUN_TAG-mix-refused.txt" ]] && cp "$OUT/union-$RUN_TAG-mix-refused.txt" "$UNION_DIR/mix_refused.txt" \
     && echo "!!! MIX REFUSED for this union; it carries the HOUSE main (C): $UNION_DIR/mix_refused.txt"
+  [[ -n "$UNION_DIR" && -f "$OUT/winner_order_fallback-$RUN_TAG.txt" ]] && cp "$OUT/winner_order_fallback-$RUN_TAG.txt" "$UNION_DIR/winner_order_fallback.txt" \
+    && echo "!!! WINNER ORDER NOT APPLIED for this union: $UNION_DIR/winner_order_fallback.txt"
   [[ -n "$UNION_DIR" && -f "$OUT/own_term_fallback-$RUN_TAG.txt" ]] && cp "$OUT/own_term_fallback-$RUN_TAG.txt" "$UNION_DIR/own_term_fallback.txt" \
     && echo "!!! OWNERSHIP TERM FELL BACK for this union: $UNION_DIR/own_term_fallback.txt"
   [[ -n "$UNION_DIR" && -f "$UNION_DIR/receipt.json" ]] || { echo "union run dir not found in $OUT/union-$RUN_TAG.txt"; touch "$K90_DIR/union_failed"; exit 1; }
