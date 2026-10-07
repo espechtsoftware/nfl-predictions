@@ -417,6 +417,57 @@ score. Nothing here enters a contest: the money path, its checkout and its files
     5. Friday's rehearsal carries all three paper files.
 
     If Week 5's file cannot be made, both arms start at Week 6.
+- **Amendment 6e (2026-10-07, before Week 5's lock; no Week-5 outcome exists).**
+  - **Why.** The operator (10-07): "Please try to tackle the 'matchup bonus' one this week". The matchup bonus may go
+    LIVE in the Week-5 book as the 8-row term block. The file is production's `scripts/matchup_block_file.py`
+    (`57d80375`, reviewed): every skill player, with pred_own = b_matchup / 0.20, tilt 0.20 and cap 2.0. His decision is
+    at Saturday's arming, after study 51 (`reports/2026-10-08-prereg-study51-matchup-block.md`) and the laptop's replay.
+    Amendment 6 assumed the live block's file was the prior-top file, so a live block from another source needs a rule.
+  - **What changes.**
+    - **MIXT_QA0** carries whatever block is armed (TERM_FOLLOW, unchanged). **MIXT_QA0_NOTERM** is his live
+      construction with no block (unchanged).
+    - **MIXT_QA0_MATCHUPX and MIXT_QA0_COMBINED never carry the live block** (`NO_LIVE_TERM`). They keep every other live
+      setting of MIXT_QA0 and add their whole-book bonus. With a live matchup block, their block rows would otherwise
+      carry the bonus twice.
+    - **References.** MIXT_QA0_TERM8, MIXT_QA0_MATCHUPX and MIXT_QA0_COMBINED are read against MIXT_QA0_NOTERM.
+      TERM8's paper block already replaces the live one: its rows come from the paper file and its frozen parameters,
+      not from the live N.
+    - **MIXT_QA0_DVP** follows the live book, including its block (reference MIXT_QA0): his live book on DvP-corrected
+      means. Its overlap with a live matchup block is confined to the block's 8 rows (disclosed).
+    - **The reader's descriptive lines:**
+      - "the paper 8-row block − NOTERM", "matchup bonus − NOTERM" and "combined bonus − NOTERM";
+      - the live block's line ("QA0 without the term block − QA0 with N term rows") names the live file. It is the
+        weekly real-field record of the live matchup block.
+    - **With no live block, MIXT_QA0_NOTERM equals MIXT_QA0**, so every arm, record and line is 6b's and 6d's.
+  - **What does not change:** the rule (§5), the decision pair (RS0 vs QA0, where QA0 stays the book he plays), and
+    every other arm.
+  - **The smoke** (dry run, Week 4's frozen copies, at 4 + rr, with 6b's paper term file, 6d's factor files and 6c's
+    DvP file):
+    - **OFF:** 6d's three runs with the 6e code reproduce 6d's `books.json` byte-for-byte (zero `38ff01ef`, real
+      `ea81475a`, none `25b5f067`).
+    - **ON:** a live matchup block built by PRODUCTION's own writer (`matchup_block_file.py` at integration
+      `9d6818a9`, on Week 4's frame with 6d's SYNTHETIC points-allowed table; 292 rows, 158 with a bonus; mechanics
+      only).
+      - MIXT_QA0 and MIXT_QA0_DVP carry it at ranks 2, 5, 9, 12, 15, 18, 22 and 25.
+      - MIXT_QA0_NOTERM equals the OFF run's MIXT_QA0.
+      - TERM8, MATCHUPX and COMBINED equal the OFF run's, and so do the 13 other arms.
+      - Parity none; no arm missing. `books.json` `5cfd22f8`.
+    - Construction only; no outcome was read. `~/private/paper-corun/smoke-w4-amend6e/`, script `run.sh`.
+  - **The integrity gate (§7) for Week 5** follows the arming on Friday's rehearsal snapshot.
+    - **Block armed:** the live file is in MANIFEST; MIXT_QA0 and MIXT_QA0_DVP carry it at ranks 2–25; NOTERM,
+      MATCHUPX and COMBINED do not; TERM8 carries the paper block; every arm is built.
+    - **Block off:** NOTERM == QA0, as in 6b.
+  - **Code:** lab `ef46bc6`:
+    - `experiments/s38_paper_corun.py`, sha256 `df3e5d5d6fb0bd1f644f148eff07c31f5678f829c3151aa994115e548609f3d2`;
+    - `scripts/s38_build.py`, `f756705d…` (unchanged);
+    - `scripts/s38_score.py`, `131fc323…` (unchanged);
+    - **`scripts/s38_report.py` (the reader), sha256 `f177fea3e9c4b69f53a1e28bdae9c381cd33a1b5622e575fb64b58d8bf03d72d`**;
+    - `tests/test_s38_paper_corun.py`, `64e53a54adeda6e02ac4b85708182e2fdc5f3335dd528b6eb47e6aedb339e43d` (23 tests).
+  - **Order:**
+    1. this amendment;
+    2. the laptop's ack (tests and smoke);
+    3. Friday's rehearsal, with the block armed as the laptop plans, and the integrity gate;
+    4. Saturday, his decision. If he says no, Sunday's snapshot takes the OFF path.
 
 ## 1. Why
 - **The operator (10-06), on the proposal:** "yes, please try it, I want to exhaust all reasonable options."
