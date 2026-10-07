@@ -1,0 +1,20 @@
+prop rows 3459 markets per week: {np.int64(1): '2026-09-13T14:33:41Z', np.int64(2): '2026-09-20T14:32:27Z', np.int64(3): '2026-09-27T14:32:49Z', np.int64(4): '2026-10-04T09:32:59Z'}
+W1: 119 skill players with a TD line (of 126); mean TD prob 0.31
+W2: 122 skill players with a TD line (of 130); mean TD prob 0.31
+W3: 124 skill players with a TD line (of 132); mean TD prob 0.32
+W4: 120 skill players with a TD line (of 126); mean TD prob 0.31
+   week      feature    n  winners_minus_field_z  lift_slope  lift_t  resid_slope_pts  resid_t
+0     1      td_prob  119                  0.061       0.237    1.39             0.81     0.46
+1     1  td_per_proj  119                 -0.016       0.042    0.56             0.02     0.03
+2     2      td_prob  122                  0.206       0.232    1.77             2.39     2.11
+3     2  td_per_proj  122                  0.082       0.110    1.41             0.93     1.38
+4     3      td_prob  124                  0.024      -0.161   -0.84            -0.61    -0.42
+5     3  td_per_proj  124                 -0.193      -0.072   -0.82            -0.39    -0.59
+6     4      td_prob  120                 -0.022      -0.048   -0.25             0.60     0.29
+7     4  td_per_proj  120                  0.020       0.032    0.37             0.87     0.92
+
+pooled:
+             winners_minus_field_z  lift_slope  lift_t  resid_slope_pts  resid_t
+feature                                                                         
+td_per_proj                 -0.027       0.028   0.380            0.358    0.435
+td_prob                      0.067       0.065   0.518            0.798    0.610

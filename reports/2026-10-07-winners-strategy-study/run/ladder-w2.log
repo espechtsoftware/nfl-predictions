@@ -1,0 +1,65 @@
+== winners strategy study 2026-10-06 19:39:28 weeks [2] nmax 1000 cross 500 test False cross_only False
+W2: field 172,692 winner 232.38; cluster 7 (unresolved in frame: 0); top-1% 179.8; 100th 203.5
+    bb             0        share 0.71 field 0.56 lift 1.28 USE (cluster)
+    cheap          1        share 0.57 field 0.54 lift 1.05  (cluster)
+    dst_price      cheap    share 1.00 field 0.66 lift 1.51 USE (cluster)
+    dual           no       share 0.57 field 0.38 lift 1.52 USE (cluster)
+    flex           TE       share 0.86 field 0.17 lift 5.07 USE (cluster)
+    games          6+       share 0.86 field 0.69 lift 1.25 USE (cluster)
+    mates          1        share 0.57 field 0.48 lift 1.18  (cluster)
+    qb_fav         dog      share 1.00 field 0.68 lift 1.47 USE (cluster)
+    qb_tier        mid      share 0.86 field 0.35 lift 2.43 USE (cluster)
+    qb_total_rank  1        share 0.57 field 0.22 lift 2.62 USE (cluster)
+    salary_left    0-200    share 0.71 field 0.84 lift 0.85  (cluster)
+    te_price       cheap    share 1.00 field 0.36 lift 2.79 USE (cluster)
+    top_total_n    1-2      share 0.57 field 0.42 lift 1.35 USE (cluster)
+  L0 unconstrained: rules {} | oracle 258.5 (winner 232.4)
+    W2 L0 unconstrained: n=100 best 140.6 (winner 232.4) 18s
+    W2 L0 unconstrained: n=200 best 144.4 (winner 232.4) 60s
+    W2 L0 unconstrained: n=300 best 144.4 (winner 232.4) 129s
+    W2 L0 unconstrained: n=400 best 144.4 (winner 232.4) 300s
+    W2 L0 unconstrained: n=500 best 144.4 (winner 232.4) 481s
+    W2 L0 unconstrained: n=600 best 145.9 (winner 232.4) 714s
+    W2 L0 unconstrained: n=700 best 145.9 (winner 232.4) 1023s
+    W2 L0 unconstrained: n=800 best 145.9 (winner 232.4) 1297s
+    W2 L0 unconstrained: n=900 best 145.9 (winner 232.4) 1567s
+    W2 L0 unconstrained: n=1000 best 148.7 (winner 232.4) 1965s
+    -> first hit None, first top-1% None, first top-100 None, best 148.68
+  shape: rules {'bb': '0', 'flex': 'TE', 'games': '6+', 'dual': 'no'} | oracle 255.0 (winner 232.4)
+    W2 shape: n=100 best 149.8 (winner 232.4) 42s
+    W2 shape: n=200 best 149.8 (winner 232.4) 172s
+    W2 shape: n=300 best 161.8 (winner 232.4) 441s
+    W2 shape: n=400 best 161.8 (winner 232.4) 828s
+    W2 shape: n=500 best 161.8 (winner 232.4) 1297s
+    W2 shape: n=600 best 161.8 (winner 232.4) 1691s
+    W2 shape: n=700 best 161.8 (winner 232.4) 2196s
+    W2 shape: n=800 best 164.1 (winner 232.4) 2826s
+    W2 shape: n=900 best 164.1 (winner 232.4) 3536s
+    W2 shape: n=1000 best 164.1 (winner 232.4) 4556s
+    -> first hit None, first top-1% None, first top-100 None, best 164.06
+  environment: rules {'bb': '0', 'flex': 'TE', 'games': '6+', 'dual': 'no', 'qb_total_rank': '1', 'qb_fav': 'dog', 'top_total_n': '1-2', 'dst_price': 'cheap'} | oracle 255.0 (winner 232.4)
+    W2 environment: n=100 best 145.8 (winner 232.4) 35s
+    W2 environment: n=200 best 154.9 (winner 232.4) 114s
+    W2 environment: n=300 best 157.3 (winner 232.4) 242s
+    W2 environment: n=400 best 157.3 (winner 232.4) 437s
+    W2 environment: n=500 best 157.3 (winner 232.4) 739s
+    W2 environment: n=600 best 157.3 (winner 232.4) 1317s
+    W2 environment: n=700 best 158.0 (winner 232.4) 1900s
+    W2 environment: n=800 best 168.0 (winner 232.4) 2379s
+    W2 environment: n=900 best 168.0 (winner 232.4) 2758s
+    W2 environment: n=1000 best 169.7 (winner 232.4) 3173s
+    -> first hit None, first top-1% None, first top-100 None, best 169.66
+  salary: rules {'bb': '0', 'flex': 'TE', 'games': '6+', 'dual': 'no', 'qb_total_rank': '1', 'qb_fav': 'dog', 'top_total_n': '1-2', 'dst_price': 'cheap', 'qb_tier': 'mid', 'te_price': 'cheap'} | oracle 255.0 (winner 232.4)
+    W2 salary: n=100 best 145.8 (winner 232.4) 35s
+    W2 salary: n=200 best 154.9 (winner 232.4) 116s
+    W2 salary: n=300 best 157.3 (winner 232.4) 244s
+    W2 salary: n=400 best 157.3 (winner 232.4) 436s
+    W2 salary: n=500 best 157.3 (winner 232.4) 681s
+    W2 salary: n=600 best 157.3 (winner 232.4) 1008s
+    W2 salary: n=700 best 158.0 (winner 232.4) 1406s
+    W2 salary: n=800 best 168.0 (winner 232.4) 1811s
+    W2 salary: n=900 best 169.7 (winner 232.4) 2120s
+    W2 salary: n=1000 best 169.7 (winner 232.4) 2462s
+    -> first hit None, first top-1% None, first top-100 None, best 169.66
+  ownership: no distinctive attribute; skipped
+== week ladders done (no cross)

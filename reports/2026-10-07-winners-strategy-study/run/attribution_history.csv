@@ -1,0 +1,7 @@
+week,feature,n,winners_minus_field_z,raw_corr_with_lift,corr_with_proj,corr_with_pown,lift_slope,lift_t,resid_slope_pts,resid_t
+2,prior_lift,105,-0.148,-0.013,0.147,,-0.003,-0.04,0.85,1.29
+2,prior_top,105,-0.146,0.057,0.343,,0.133,1.48,1.18,1.73
+3,prior_lift,132,-0.045,-0.067,0.358,0.405,-0.054,-0.53,0.25,0.36
+3,prior_top,132,0.164,0.009,0.577,0.602,0.113,0.97,1.64,2.08
+4,prior_lift,130,0.038,0.028,0.262,0.234,0.055,0.7,0.31,0.4
+4,prior_top,130,0.172,-0.032,0.483,0.31,0.081,0.9,0.18,0.21

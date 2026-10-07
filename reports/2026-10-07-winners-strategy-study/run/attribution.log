@@ -1,0 +1,46 @@
+W1: 150 players, top-1% lineups 8314
+W2: 155 players, top-1% lineups 1729
+W3: 158 players, top-1% lineups 1620
+W4: 150 players, top-1% lineups 1617
+
+== pooled over weeks (sorted by |mean t| of the lift slope; controls: projection, salary, projected ownership where it exists) ==
+                           weeks  wmf_mean  wmf_pos  lift_slope  lift_t_mean  lift_pos  resid_slope  resid_t_mean  resid_pos
+feature                                                                                                                     
+salary                         4     0.000        2      -0.261       -1.465         0        2.228         1.695          3
+snap_share_jump                2    -0.046        0      -0.100       -1.255         0       -0.975        -1.585          0
+target_share_jump              2    -0.127        0      -0.088       -1.140         0       -0.905        -1.305          0
+yards_per_target_l8            3    -0.107        0      -0.091       -1.100         0       -0.033        -0.043          1
+proj                           4     0.045        3       0.171        0.905         4       -1.912        -1.272          0
+dk_ppg                         4    -0.055        2      -0.093       -0.865         1        0.002        -0.042          3
+market_points                  4     0.066        3       0.113        0.862         2        0.920         0.845          3
+total_line                     4     0.147        4       0.060        0.858         3        0.440         0.638          3
+pace_l4                        3    -0.035        1       0.063        0.857         3        0.253         0.410          3
+gl3_carry_share_l4             3     0.012        1      -0.070       -0.833         1       -0.380        -0.437          1
+value                          4     0.106        4       0.200        0.825         3        1.758         0.938          3
+targets_l4                     3     0.038        2       0.078        0.777         3        0.063         0.107          2
+xfp_l4                         2     0.008        1       0.080        0.755         2        0.245         0.265          2
+spread                         4    -0.090        1      -0.061       -0.740         0       -0.170        -0.298          2
+team_vacated_carry_share       4     0.001        2      -0.046       -0.712         1       -0.067        -0.008          1
+snap_share_l4                  3    -0.020        1       0.053        0.667         2        0.047         0.087          1
+gl3_carries_l4                 3     0.012        1      -0.046       -0.643         1       -0.373        -0.420          1
+depth_rank                     4    -0.080        0      -0.043       -0.502         1       -0.413        -0.540          0
+target_share_l4                3    -0.000        1       0.038        0.377         2        0.087         0.103          2
+wopr_l4                        3     0.003        1       0.038        0.363         2        0.223         0.223          2
+carries_l4                     3     0.097        2      -0.023       -0.357         2       -0.150        -0.320          1
+rz10_targets_l4                3    -0.005        1       0.028        0.333         2        0.447         0.667          3
+fp_route_share_l4              4     0.024        2       0.027        0.312         3        0.170         0.240          3
+air_yards_share_l4             3     0.082        3       0.021        0.280         2        0.333         0.490          2
+carry_share_jump               2    -0.107        0       0.014        0.225         1       -0.110        -0.195          0
+pown                           2    -0.045        1       0.046        0.205         1       -0.295        -0.195          1
+proe_l4                        3    -0.057        1       0.013        0.197         1        0.063         0.130          2
+target_share_last              3    -0.039        1      -0.013       -0.130         1       -0.450        -0.497          1
+rz20_target_share_l4           3     0.030        2       0.009        0.130         2        0.130         0.197          2
+implied_team_total             4     0.013        2      -0.017       -0.128         2        0.105         0.110          2
+rz20_targets_l4                3     0.013        1       0.008        0.100         2        0.020         0.027          2
+games_played_prior             4    -0.068        1      -0.006       -0.088         1       -0.178        -0.262          1
+deep_targets_l4                3    -0.057        1       0.006        0.073         2       -0.003        -0.020          1
+fp_route_share_jump            4     0.043        2      -0.001       -0.073         3       -0.035        -0.077          2
+carry_share_l4                 3     0.125        2       0.004        0.043         2       -0.153        -0.310          1
+team_vacated_target_share      4     0.073        2       0.001       -0.015         2       -0.170        -0.190          1
+ez_targets_l4                  3     0.035        3      -0.001       -0.013         1        0.207         0.313          3
+target_share_trend             3     0.000        0       0.000        0.000         0        0.000         0.000          0

@@ -1,0 +1,478 @@
+{
+ "week": 1,
+ "field": 831028,
+ "winner": 273.98,
+ "lines": {
+  "top400": 235.14,
+  "top100": 244.84,
+  "top1pct": 209.04,
+  "hit": 263.98
+ },
+ "proj_source": "ours",
+ "frame_players": 367,
+ "describe": {
+  "n": {
+   "cluster": 2,
+   "top100": 100,
+   "field": 60000
+  },
+  "unresolved_cluster": 0,
+  "table": {
+   "bb": {
+    "0": {
+     "cluster": 0.5,
+     "top100": 0.39,
+     "field": 0.558
+    },
+    "1": {
+     "cluster": 0.5,
+     "top100": 0.51,
+     "field": 0.361
+    },
+    "2+": {
+     "cluster": 0.0,
+     "top100": 0.1,
+     "field": 0.082
+    }
+   },
+   "cheap": {
+    "0": {
+     "cluster": 0.5,
+     "top100": 0.35,
+     "field": 0.258
+    },
+    "1": {
+     "cluster": 0.5,
+     "top100": 0.51,
+     "field": 0.508
+    },
+    "2+": {
+     "cluster": 0.0,
+     "top100": 0.14,
+     "field": 0.234
+    }
+   },
+   "dst_price": {
+    "cheap": {
+     "cluster": 1.0,
+     "top100": 0.99,
+     "field": 0.946
+    },
+    "exp": {
+     "cluster": 0.0,
+     "top100": 0.01,
+     "field": 0.054
+    }
+   },
+   "dual": {
+    "no": {
+     "cluster": 0.0,
+     "top100": 0.17,
+     "field": 0.305
+    },
+    "yes": {
+     "cluster": 1.0,
+     "top100": 0.83,
+     "field": 0.695
+    }
+   },
+   "flex": {
+    "RB": {
+     "cluster": 1.0,
+     "top100": 0.63,
+     "field": 0.426
+    },
+    "TE": {
+     "cluster": 0.0,
+     "top100": 0.09,
+     "field": 0.213
+    },
+    "WR": {
+     "cluster": 0.0,
+     "top100": 0.28,
+     "field": 0.361
+    }
+   },
+   "games": {
+    "5": {
+     "cluster": 0.5,
+     "top100": 0.35,
+     "field": 0.269
+    },
+    "6+": {
+     "cluster": 0.5,
+     "top100": 0.5,
+     "field": 0.619
+    },
+    "<=4": {
+     "cluster": 0.0,
+     "top100": 0.15,
+     "field": 0.112
+    }
+   },
+   "mates": {
+    "0": {
+     "cluster": 0.0,
+     "top100": 0.09,
+     "field": 0.148
+    },
+    "1": {
+     "cluster": 0.5,
+     "top100": 0.53,
+     "field": 0.463
+    },
+    "2": {
+     "cluster": 0.5,
+     "top100": 0.32,
+     "field": 0.334
+    },
+    "3+": {
+     "cluster": 0.0,
+     "top100": 0.06,
+     "field": 0.056
+    }
+   },
+   "qb_fav": {
+    "dog": {
+     "cluster": 0.0,
+     "top100": 0.21,
+     "field": 0.655
+    },
+    "fav": {
+     "cluster": 1.0,
+     "top100": 0.79,
+     "field": 0.345
+    }
+   },
+   "qb_tier": {
+    "cheap": {
+     "cluster": 1.0,
+     "top100": 0.82,
+     "field": 0.493
+    },
+    "mid": {
+     "cluster": 0.0,
+     "top100": 0.09,
+     "field": 0.301
+    },
+    "top3": {
+     "cluster": 0.0,
+     "top100": 0.09,
+     "field": 0.206
+    }
+   },
+   "qb_total_rank": {
+    "1": {
+     "cluster": 0.0,
+     "top100": 0.0,
+     "field": 0.175
+    },
+    "2-3": {
+     "cluster": 0.5,
+     "top100": 0.89,
+     "field": 0.447
+    },
+    "4+": {
+     "cluster": 0.5,
+     "top100": 0.11,
+     "field": 0.378
+    }
+   },
+   "salary_left": {
+    "0-200": {
+     "cluster": 1.0,
+     "top100": 0.82,
+     "field": 0.833
+    },
+    "1001+": {
+     "cluster": 0.0,
+     "top100": 0.01,
+     "field": 0.016
+    },
+    "201-1000": {
+     "cluster": 0.0,
+     "top100": 0.17,
+     "field": 0.151
+    }
+   },
+   "te_price": {
+    "cheap": {
+     "cluster": 0.0,
+     "top100": 0.28,
+     "field": 0.396
+    },
+    "not": {
+     "cluster": 1.0,
+     "top100": 0.72,
+     "field": 0.604
+    }
+   },
+   "top_total_n": {
+    "0": {
+     "cluster": 1.0,
+     "top100": 0.83,
+     "field": 0.376
+    },
+    "1-2": {
+     "cluster": 0.0,
+     "top100": 0.17,
+     "field": 0.499
+    },
+    "3+": {
+     "cluster": 0.0,
+     "top100": 0.0,
+     "field": 0.125
+    }
+   }
+  },
+  "chosen": {
+   "bb": {
+    "value": "1",
+    "share": 0.51,
+    "field": 0.361,
+    "lift": 1.41,
+    "source": "top100",
+    "use": true
+   },
+   "cheap": {
+    "value": "1",
+    "share": 0.51,
+    "field": 0.508,
+    "lift": 1.0,
+    "source": "top100",
+    "use": false
+   },
+   "dst_price": {
+    "value": "cheap",
+    "share": 0.99,
+    "field": 0.946,
+    "lift": 1.05,
+    "source": "top100",
+    "use": false
+   },
+   "dual": {
+    "value": "yes",
+    "share": 0.83,
+    "field": 0.695,
+    "lift": 1.19,
+    "source": "top100",
+    "use": false
+   },
+   "flex": {
+    "value": "RB",
+    "share": 0.63,
+    "field": 0.426,
+    "lift": 1.48,
+    "source": "top100",
+    "use": true
+   },
+   "games": {
+    "value": "6+",
+    "share": 0.5,
+    "field": 0.619,
+    "lift": 0.81,
+    "source": "top100",
+    "use": false
+   },
+   "mates": {
+    "value": "1",
+    "share": 0.53,
+    "field": 0.463,
+    "lift": 1.14,
+    "source": "top100",
+    "use": false
+   },
+   "qb_fav": {
+    "value": "fav",
+    "share": 0.79,
+    "field": 0.345,
+    "lift": 2.29,
+    "source": "top100",
+    "use": true
+   },
+   "qb_tier": {
+    "value": "cheap",
+    "share": 0.82,
+    "field": 0.493,
+    "lift": 1.66,
+    "source": "top100",
+    "use": true
+   },
+   "qb_total_rank": {
+    "value": "2-3",
+    "share": 0.89,
+    "field": 0.447,
+    "lift": 1.99,
+    "source": "top100",
+    "use": true
+   },
+   "salary_left": {
+    "value": "0-200",
+    "share": 0.82,
+    "field": 0.833,
+    "lift": 0.98,
+    "source": "top100",
+    "use": false
+   },
+   "te_price": {
+    "value": "not",
+    "share": 0.72,
+    "field": 0.604,
+    "lift": 1.19,
+    "source": "top100",
+    "use": false
+   },
+   "top_total_n": {
+    "value": "0",
+    "share": 0.83,
+    "field": 0.376,
+    "lift": 2.21,
+    "source": "top100",
+    "use": true
+   }
+  }
+ },
+ "layers": [
+  {
+   "layer": "L0 unconstrained",
+   "rules": {},
+   "oracle": 292.14,
+   "can_hit": true,
+   "enum": {
+    "n_built": 1000,
+    "first": {
+     "hit": null,
+     "top100": null,
+     "top1pct": null,
+     "top400": null
+    },
+    "best_actual": 200.04,
+    "best_lineup": [
+     "Jaguars DST JAX $3400 13.0",
+     "Bryce Young QB CAR $5200 35.4",
+     "Jahmyr Gibbs RB DET $8000 37.6",
+     "Ashton Jeanty RB LV $6600 35.7",
+     "Travis Etienne Jr. RB NO $5900 14.8",
+     "Michael Mayer TE LV $2900 9.2",
+     "Ja'Marr Chase WR CIN $7800 3.2",
+     "Chris Olave WR NO $6700 31.2",
+     "Devaughn Vele WR NO $3500 19.9"
+    ],
+    "hit_lineup": null,
+    "secs": 2082.8
+   }
+  },
+  {
+   "layer": "shape",
+   "rules": {
+    "bb": "1",
+    "flex": "RB"
+   },
+   "oracle": 292.14,
+   "can_hit": true,
+   "enum": {
+    "n_built": 1000,
+    "first": {
+     "hit": null,
+     "top100": null,
+     "top1pct": null,
+     "top400": null
+    },
+    "best_actual": 204.94,
+    "best_lineup": [
+     "Raiders DST LV $2900 13.0",
+     "Bryce Young QB CAR $5200 35.4",
+     "Jahmyr Gibbs RB DET $8000 37.6",
+     "D'Andre Swift RB CHI $6100 35.4",
+     "Travis Etienne Jr. RB NO $5900 14.8",
+     "Juwan Johnson TE NO $3700 14.4",
+     "Ja'Marr Chase WR CIN $7800 3.2",
+     "Chris Olave WR NO $6700 31.2",
+     "Devaughn Vele WR NO $3500 19.9"
+    ],
+    "hit_lineup": null,
+    "secs": 2009.6
+   }
+  },
+  {
+   "layer": "environment",
+   "rules": {
+    "bb": "1",
+    "flex": "RB",
+    "qb_total_rank": "2-3",
+    "qb_fav": "fav",
+    "top_total_n": "0"
+   },
+   "oracle": 290.24,
+   "can_hit": true,
+   "enum": {
+    "n_built": 1000,
+    "first": {
+     "hit": null,
+     "top100": 108,
+     "top1pct": 1,
+     "top400": 43
+    },
+    "best_actual": 248.74,
+    "best_lineup": [
+     "Jaguars DST JAX $3400 13.0",
+     "Bryce Young QB CAR $5200 35.4",
+     "Jahmyr Gibbs RB DET $8000 37.6",
+     "Derrick Henry RB BAL $6700 38.3",
+     "D'Andre Swift RB CHI $6100 35.4",
+     "Michael Mayer TE LV $2900 9.2",
+     "Amon-Ra St. Brown WR DET $7500 28.7",
+     "Chris Olave WR NO $6700 31.2",
+     "Devaughn Vele WR NO $3500 19.9"
+    ],
+    "hit_lineup": null,
+    "secs": 1692.7
+   }
+  },
+  {
+   "layer": "salary",
+   "rules": {
+    "bb": "1",
+    "flex": "RB",
+    "qb_total_rank": "2-3",
+    "qb_fav": "fav",
+    "top_total_n": "0",
+    "qb_tier": "cheap"
+   },
+   "oracle": 290.24,
+   "can_hit": true,
+   "enum": {
+    "n_built": 1000,
+    "first": {
+     "hit": null,
+     "top100": 108,
+     "top1pct": 1,
+     "top400": 43
+    },
+    "best_actual": 248.74,
+    "best_lineup": [
+     "Jaguars DST JAX $3400 13.0",
+     "Bryce Young QB CAR $5200 35.4",
+     "Jahmyr Gibbs RB DET $8000 37.6",
+     "Derrick Henry RB BAL $6700 38.3",
+     "D'Andre Swift RB CHI $6100 35.4",
+     "Michael Mayer TE LV $2900 9.2",
+     "Amon-Ra St. Brown WR DET $7500 28.7",
+     "Chris Olave WR NO $6700 31.2",
+     "Devaughn Vele WR NO $3500 19.9"
+    ],
+    "hit_lineup": null,
+    "secs": 2189.3
+   }
+  }
+ ],
+ "final_rules": {
+  "bb": "1",
+  "flex": "RB",
+  "qb_total_rank": "2-3",
+  "qb_fav": "fav",
+  "top_total_n": "0",
+  "qb_tier": "cheap"
+ },
+ "hit": false
+}
