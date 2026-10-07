@@ -1,0 +1,103 @@
+apiVersion: run.googleapis.com/v1
+kind: Job
+metadata:
+  annotations:
+    run.googleapis.com/client-name: gcloud
+    run.googleapis.com/client-version: 586.0.0
+    run.googleapis.com/creator: espechtsoftware@gmail.com
+    run.googleapis.com/lastModifier: espechtsoftware@gmail.com
+    run.googleapis.com/operation-id: fdec0e97-462e-42ba-85cb-6365de44362c
+  creationTimestamp: '2026-08-10T14:18:20.537748Z'
+  generation: 6
+  labels:
+    cloud.googleapis.com/location: us-central1
+    run.googleapis.com/lastUpdatedTime: '2026-10-07T11:07:55.288143Z'
+  name: shadow-k1-roleunion
+  namespace: '817589974517'
+  resourceVersion: AAZdPiCMkAE
+  selfLink: /apis/run.googleapis.com/v1/namespaces/817589974517/jobs/shadow-k1-roleunion
+  uid: 65978b57-a1c6-4483-9723-98736c108619
+spec:
+  template:
+    metadata:
+      annotations:
+        run.googleapis.com/client-name: gcloud
+        run.googleapis.com/client-version: 586.0.0
+        run.googleapis.com/execution-environment: gen2
+      labels:
+        client.knative.dev/nonce: qik_xiz_way
+    spec:
+      taskCount: 1
+      template:
+        spec:
+          containers:
+          - args:
+            - shadow-k1-roleunion
+            command:
+            - nfl-dfs
+            env:
+            - name: GCP_PROJECT
+              value: nfl-predictions-503414
+            - name: MODEL_ENSEMBLE
+              value: '1'
+            - name: MODEL_REGISTRY_VARIANT
+              value: tail_k1
+            - name: GAME_SIM_MODE
+              value: possession
+            - name: GEN_TOTAL_BUDGET
+              value: '172'
+            - name: N_CE
+              value: '0'
+            - name: CE_SEED
+              value: '1701'
+            - name: N_EPISTEMIC
+              value: '12'
+            - name: EPISTEMIC_FAMILY
+              value: role_draws
+            - name: ROLE_BELIEF_FEATURES
+              value: target_share_last,carry_share_last,snap_share_last,target_share_jump,carry_share_jump,snap_share_jump
+            - name: ROLE_BELIEF_SEED
+              value: '7331'
+            - name: N_GUMBEL
+              value: '0'
+            - name: N_BOOM
+              value: '160'
+            - name: REPLACEMENT_SLOTS
+              value: '12'
+            - name: MIN_LINEUP_SALARY
+              value: '49000'
+            - name: BLEND_MODEL_WEIGHT
+              value: '0.45'
+            - name: LIVE_SIMS
+              value: '30000'
+            - name: CAND_ARTIFACT_BUCKET
+              value: nfl-predictions-503414-raw
+            - name: CODE_SHA
+              value: 6fd3ef00db52bd0f9834615aede5595cd53a7cec
+            - name: N_LEV
+              value: '40'
+            - name: ROUTE_SHARE_CONTRACT
+              value: companion-v1
+            - name: BOOM_UNIQUE_FILL
+              value: '0'
+            - name: SERVED_POSITION_SCALES
+              value: QB:0.970,RB:1.005,TE:0.940,WR:1.070
+            image: us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:7f6327864241b00c4c49a01d436a578e425119b5e0d3c69d6f403781998fc229
+            resources:
+              limits:
+                cpu: '4'
+                memory: 8Gi
+          maxRetries: 1
+          serviceAccountName: 817589974517-compute@developer.gserviceaccount.com
+          timeoutSeconds: '3600'
+status:
+  conditions:
+  - status: 'True'
+    type: Ready
+  executionCount: 4
+  latestCreatedExecution:
+    completionStatus: EXECUTION_FAILED
+    completionTimestamp: '2026-10-04T16:16:00.494930Z'
+    creationTimestamp: '2026-10-04T16:10:04.196372Z'
+    name: shadow-k1-roleunion-7mdht
+  observedGeneration: 6

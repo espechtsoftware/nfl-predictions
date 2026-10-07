@@ -1,0 +1,109 @@
+apiVersion: run.googleapis.com/v1
+kind: Job
+metadata:
+  annotations:
+    run.googleapis.com/client-name: gcloud
+    run.googleapis.com/client-version: 586.0.0
+    run.googleapis.com/creator: espechtsoftware@gmail.com
+    run.googleapis.com/lastModifier: espechtsoftware@gmail.com
+    run.googleapis.com/operation-id: 7851fe4c-ecae-4823-9982-0025ccf26bca
+  creationTimestamp: '2026-08-18T19:22:46.578576Z'
+  generation: 3
+  labels:
+    cloud.googleapis.com/location: us-central1
+    run.googleapis.com/lastUpdatedTime: '2026-10-05T03:05:10.951723Z'
+  name: shadow-cbwu-oi-paired
+  namespace: '817589974517'
+  resourceVersion: AAZdDyZ0jVY
+  selfLink: /apis/run.googleapis.com/v1/namespaces/817589974517/jobs/shadow-cbwu-oi-paired
+  uid: 431f53cc-3ed2-4e44-9fb9-216eced7f53c
+spec:
+  template:
+    metadata:
+      annotations:
+        run.googleapis.com/client-name: gcloud
+        run.googleapis.com/client-version: 586.0.0
+        run.googleapis.com/execution-environment: gen2
+      labels:
+        client.knative.dev/nonce: xig_vel_qem
+    spec:
+      taskCount: 1
+      template:
+        spec:
+          containers:
+          - args:
+            - shadow-cbwu-oi-paired
+            command:
+            - nfl-dfs
+            env:
+            - name: GCP_PROJECT
+              value: nfl-predictions-503414
+            - name: CODE_SHA
+              value: 7bbfd10a7fc5716f492466a3e6ecf91076e03492
+            - name: CBWU_OI_CONTRACT
+              value: 2026-cbwu-oi-companion-v1
+            - name: GEN_TOTAL_BUDGET
+              value: '172'
+            - name: N_LEV
+              value: '40'
+            - name: N_CE
+              value: '0'
+            - name: N_EPISTEMIC
+              value: '12'
+            - name: N_BOOM
+              value: '160'
+            - name: N_GUMBEL
+              value: '0'
+            - name: REPLACEMENT_SLOTS
+              value: '12'
+            - name: BOOM_UNIQUE_FILL
+              value: '0'
+            - name: EPISTEMIC_FAMILY
+              value: role_draws
+            - name: ROLE_BELIEF_FEATURES
+              value: target_share_last,carry_share_last,snap_share_last,target_share_jump,carry_share_jump,snap_share_jump
+            - name: ROLE_BELIEF_SEED
+              value: '7331'
+            - name: CE_SEED
+              value: '1701'
+            - name: BLEND_MODEL_WEIGHT
+              value: '0.45'
+            - name: LIVE_SIMS
+              value: '30000'
+            - name: GAME_SIM_MODE
+              value: possession
+            - name: SERVED_POSITION_SCALES
+              value: QB:0.970,RB:1.005,TE:0.940,WR:1.070
+            - name: MODEL_ENSEMBLE
+              value: '1'
+            - name: MIN_LINEUP_SALARY
+              value: '49000'
+            - name: MULTISEED_SEED_PAIRS
+              value: R0=0:7331;R1=1137260708:2690847602;R2=2875959182:1630284992;R3=253722715:3374646876;R4=1643280042:3977633467
+            - name: MULTISEED_WORLDS_PER_BLOCK
+              value: '10000'
+            - name: MULTISEED_CANDIDATE_ENTRY_BASIS
+              value: '80'
+            - name: SELECT_LSE
+              value: '0'
+            - name: MULTISEED_PORTFOLIO
+              value: CBWU_OI_SHADOW
+            image: us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/nfl-dfs@sha256:04cd5e062117f0d1e4a8d1d31de1b99bb884131c5a4b6c3e78cda654d4496c08
+            resources:
+              limits:
+                cpu: '4'
+                memory: 16Gi
+          maxRetries: 1
+          serviceAccountName: 817589974517-compute@developer.gserviceaccount.com
+          timeoutSeconds: '7200'
+status:
+  conditions:
+  - status: 'True'
+    type: Ready
+  executionCount: 14
+  latestCreatedExecution:
+    completionStatus: EXECUTION_FAILED
+    completionTimestamp: '2026-10-04T15:51:18.426695Z'
+    creationTimestamp: '2026-10-04T15:45:05.425884Z'
+    name: shadow-cbwu-oi-paired-xjrm9
+  observedGeneration: 3
