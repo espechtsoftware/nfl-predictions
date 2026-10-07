@@ -6400,3 +6400,74 @@ secondaries (slate means; v2 = the calibrated field, l02 = the earlier field):
    - Study 38 needs no amendment.
    - Next, his choice for Week 6 at the earliest: a confirmation of DEAL_CELL on fresh banks, and the weekly real-field
      line with the frozen model.
+
+## Addendum 154 (2026-10-07): study 48d (choose his book by the winner-likeness score): NO DIFFERENCE, leaning positive in both seasons — about 2 points of P(≥ 1 big) at 1.7 projected points per row; not armed for Week 5
+
+**Setup.**
+- **The question.** Study 48 (Addendum 152) passed and study 48b (Addendum 153) showed re-dealing the same rows does not
+  help. The operator asked "Why not adopt it?", and, offered the use that changes WHICH rows are entered: "Yes, test it
+  now".
+- **The use.** His live Week-5 book built with production's 15 spares: 41 rows through one state (the winners' mix,
+  limit 4, round-robin, QB cap 5, caps 13 / 6, no term; study 48's module sha-asserted). All 41 are scored by the
+  walk-forward model, then:
+  - **LIVE:** rows 0–25, as today.
+  - **SEL_CELL (DECISION):** per cell, its book count of the most winner-like of that cell's book rows and spares;
+    build order within a cell, then the entry-weighted interleave.
+  - **SEL_CELL_ORD (exploratory):** SEL_CELL with score order within each cell.
+  - **SEL_ALL (exploratory):** the global top 26 of the 41.
+  - Every chosen book stays within production's caps, QB cap and overlap limit (asserted on every slate-bank).
+- **Preregistration:** `reports/2026-10-07-prereg-study48d-winner-select.md` (frozen `6d71534f`, sha256 `bffffe9b…`).
+- **Panel:** banks 1533–1538, B 20,000, seed 20261030.
+- **Read and reproduced:** read by the reviewer and **reproduced byte-identically by the laptop** (raw files equal to the
+  RAW_MANIFEST).
+  - Reader `e786af21`; READ `8bdeb0b3`.
+  - The confirmatory census (`00d24b8`, `3f3634fb`) was committed before the READ (`ea7e30c`).
+  - LEDGER row lab `5421cfb`.
+
+**Reader output (verbatim):**
+```
+STUDY 48D READER  sha256 e786af21fe541bf5ef651e2f68139d108b74d0a9fdf96429a00e4501f04b9c23
+DIRECTION: P(>= 1 big seat) per slate (the mean over its banks); every difference is ARM - REFERENCE; POSITIVE favours the first arm.
+slates 36  banks [1533, 1534, 1535, 1536, 1537, 1538]  B 20000  seed 20261030  primary SEL_CELL - LIVE on the CALIBRATED field (v2), two-sided 0.95, guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only
+arms (deals, study 48's sha, its training table, live settings, QB cap, objective): [["LIVE", "SEL_CELL", "SEL_CELL_ORD", "SEL_ALL"], "c22d28114ab4b463b6842594cb2ff7ca1babf41e28015c7242b21baedb1bc67c", "66272167b80dc08b008060fa921f9cb67abecb2c12c8a17394b75d9670423ca1", {"fill": "rr", "max_shared": 4}, 5, "player_mean (no ownership term)"]
+
+== SEL_CELL vs LIVE  [DECISION: per cell, the most winner-like of its book rows and spares; the calibrated field]
+  PRIMARY P(>= 1 big seat) per slate +0.02090  [-0.01536, +0.06024]  seasons 2023 +0.02922, 2024 +0.01258
+  GUARD 1 mean entry pct -0.01268  one-sided lower -0.02721  (must exceed -0.015)
+  GUARD 2 expected big seats 0.53174 vs 0.51669  ratio 1.029  (must be >= 0.80)
+  SEL_CELL dealt identical to LIVE: 0.014 of slate-banks
+  ->  NO DIFFERENCE
+
+== EXPLORATORY (never decision-bearing)
+  SEL_CELL_ORD - LIVE (per cell, score order within cells): +0.00957  [-0.03085, +0.05305]  seasons 2023 +0.03871, 2024 -0.01957
+  SEL_ALL - LIVE (the global top 26): +0.02391  [-0.01468, +0.06335]  seasons 2023 +0.04061, 2024 +0.00721
+  SEL_CELL - LIVE (per cell, the l02 field): +0.02190  [-0.01584, +0.06302]  seasons 2023 +0.02837, 2024 +0.01543
+  SEL_CELL_ORD - LIVE (per cell, score order within cells, the l02 field): +0.01042  [-0.03160, +0.05646]  seasons 2023 +0.04037, 2024 -0.01954
+  SEL_ALL - LIVE (the global top 26, the l02 field): +0.02235  [-0.01755, +0.06313]  seasons 2023 +0.03814, 2024 +0.00657
+
+secondaries (slate means; v2 = the calibrated field, l02 = the earlier field):
+  LIVE         v2: P(>=1 big) 0.31945  expected big seats 0.51669  P(>=2) 0.11781  entry pct 0.51520  |  spares in 0.00  projection per row 128.09  score -4.5174
+               l02: P(>=1 big) 0.34843  expected big seats 0.58883  entry pct 0.52368
+  SEL_CELL     v2: P(>=1 big) 0.34035  expected big seats 0.53174  P(>=2) 0.12710  entry pct 0.50252  |  spares in 7.81  projection per row 126.37  score -4.3939
+               l02: P(>=1 big) 0.37033  expected big seats 0.60143  entry pct 0.51095
+  SEL_CELL_ORD v2: P(>=1 big) 0.32902  expected big seats 0.48629  P(>=2) 0.11114  entry pct 0.50033  |  spares in 7.81  projection per row 126.37  score -4.3939
+               l02: P(>=1 big) 0.35885  expected big seats 0.55124  entry pct 0.50878
+  SEL_ALL      v2: P(>=1 big) 0.34336  expected big seats 0.54746  P(>=2) 0.13837  entry pct 0.50163  |  spares in 8.11  projection per row 126.24  score -4.3714
+               l02: P(>=1 big) 0.37079  expected big seats 0.61112  entry pct 0.51007
+```
+
+**Reading.**
+1. **NO DIFFERENCE, leaning positive.** P(≥ 1 big) moved +0.021 [−0.015, +0.060], positive in both seasons (2023
+   +0.029, 2024 +0.013). Expected big seats rose slightly (ratio 1.029) and P(≥ 2) went from 0.118 to 0.127.
+2. **The price.** The chosen rows carry 1.7 fewer projected points each (126.37 against 128.09; 7.8 spares taken in),
+   and the mean finish falls 1.3 percentile points (one-sided lower −0.027, past the −0.015 guard; the guards gate a
+   PASS only). This is the same shape as study 46 (half and half): a bit more of the top, a bit less of the middle.
+   The 2022 check of study 46 (46c) contradicted it.
+3. **The exploratory arms agree in direction.** The global top 26 (SEL_ALL) +0.024 [−0.015, +0.063]; the l02 field
+   +0.022. Score order within cells (SEL_CELL_ORD) +0.010, negative in 2024.
+4. **Not armed for Week 5 by this read.**
+   - Production's `--winner-select` stays OFF.
+   - Any live use needs a 2022 check first (the 46c template). If he adopts it, study 38 needs an amendment before the
+     lock.
+   - Next: study 48e, his 10-07 request to apply the score at generation (every row must look winner-like before it
+     enters the book).
