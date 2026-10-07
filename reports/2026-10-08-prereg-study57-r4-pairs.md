@@ -35,6 +35,15 @@
   - The pairs are written as pins, so the small-contest overlap limit does not re-deal them, as production's pins.
   - Every other contest keeps its head deal.
 
+- **Added to the DRAFT before study 56's read (the laptop's design note, 10-07):** if priority-first dealing (study 59)
+  is armed too, the entered deal is "the priority sort, then R4 on top". That is a combination neither arm above covers.
+  Two more arms make it tested:
+  - **CB_PRI:** the same book in production's priority order (`priority_deal.py`, the block kept), head deal;
+  - **CB_PRI_R4:** CB_PRI with the five contests pinned to R4's pairs. R4 picks book ROWS, not ranks, so the pins name
+    the positions those rows hold in the priority order.
+  - **Which pair decides is fixed by his arming, not by any outcome:** CB_PRI_R4 − CB_PRI if the operator arms the
+    priority order for Week 5 (after study 59), else CB_R4 − CB. The reader prints both, with the same rule each.
+
 ## 3. Endpoint and rule (the reader `scripts/s57_report.py`)
 - **THE READ: 2023–24** (36 slates).
   - CB_R4 − CB, P(≥ 1 big seat) per slate on the calibrated field v2.
