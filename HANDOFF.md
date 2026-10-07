@@ -12,6 +12,24 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-07 (10:52 CDT) — Study 53 amendment 1 re-ACKED (census byte-identical; the four frozen arms unchanged); the scored run is the reviewer's; R14 scope note
+
+- **Study 53 amendment 1 FROZEN** (prereg 9ad836fe on s48-prereg, file sha256 de2c5181; lab 0cdfe31, the census at f71965b).
+  - My re-ack: shas match (module f3f9d735, driver 9bf5c43c, census 44910940, reader 0d241d83, tests 706317bb with 5 passing;
+    s48 c22d2811 and term_book 62c2306e unchanged).
+  - s53_census.py on the reviewer's raw (~/s53-panel/census-a1/results_bank1406.jsonl, 4c80803a) gives **ff038dcb**,
+    byte-identical.
+  - My own comparison of the two census raws (ac38323b vs 4c80803a): LIVE / CHEAP2 / CHEAP4 / CHEAP4_BLOCK8 have identical rows
+    and ranks on all 53 slates. CHEAP2_BLOCK8 is on all 53, with its term rows at ranks 2,5,9,12,15,18,22,25.
+  - The bank scan stands. The reviewer's scored run (5 arms, ~35 min) follows; then the READ, my re-run, and the records.
+- **R14 scope:** 10 W5 articles are in nfl_raw.fantasy_points_articles; 9 are logged. The 10th,
+  week-5-idp-fantasy-football-waiver-wire (a27cb875), is NOT extracted. IDP players score no DraftKings points and have no FP
+  DK projection, so the spec's grading (direction vs DK points − FP projection) could use none of its records.
+- The outside reviewer has the local Neo4j up since 10:50 (pid 907687, read-only, ~20–30 min): a duplicate-edge census by type
+  for the +202 reload edges. Likely cause: CONTAINS is MERGEd with {slot} in the key, so a player whose slot differs between
+  loads gets a second edge. Their queries take each lineup's players DISTINCT (a commit follows; I copy it into graph_weekly/).
+  The loader fix (MERGE without slot in the key, SET the slot) waits for their census.
+
 ## 2026-10-07 (10:47 CDT) — The cheap block becomes a Saturday option (his leaning, gated by study 53 amendment 1); its writer and the arm's TERM_CAP check approved; the weekly Neo4j refresh's stop path proven on a real W4 run; 6f acked; R14 Game Hub v2 appended
 
 **The cheap block (decision sheet row 21, checklist "the live bonus block").**
