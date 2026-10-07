@@ -172,3 +172,20 @@ be rerun when it is free.
   retrain (small, real, mostly RB and TE).
 
 
+
+## 5. The operator's salary idea (10-07): "a preference to a lower-priced player that has high upside", not ruling out the expensive ones
+
+Field check on the four real Millionaire fields (`cheap_upside_field.py`, BigQuery, results `run/experiments/cheap_upside_field.csv`):
+the top-1% rate of real lineups by how many of three kinds of player they carried.
+
+| Real field lineups, top-1% rate W1 / W2 / W3 / W4 | 0 | 1 | 2 | 3+ |
+|---|---|---|---|---|
+| cheap players (< $7,000) whose anytime-TD odds beat what their salary implies (top sixth) | .24 / .08 / 2.8 / .26% | .61 / .69 / 1.8 / .53% | 1.1 / 1.2 / 1.0 / .87% | 1.3 / 1.3 / .47 / 1.2% |
+| cheap players our simulator rates high-upside (p90 − mean, top sixth) | 1.2 / 2.6 / .57 / 1.6% | 1.3 / 1.3 / 1.2 / 1.5% | .99 / .65 / 1.1 / 1.2% | .56 / .18 / .78 / .36% |
+| $8,000+ players | .45 / .51 / .06 / 1.7% | 1.8 / 1.0 / 1.3 / .63% | — / 2.1 / 3.2 / .18% | |
+
+The idea holds in three of four weeks when upside is the market's touchdown price relative to salary, and fails in all
+four when upside is our simulator's ceiling (the reason the August "punt boost" was removed). The expensive players
+helped in Weeks 1–3 and hurt in Week 4, so ruling them out would be wrong. This is a field pattern, not a construction
+test: the replay of the live Week-5 book with a preference of up to +2 projected points for sub-$7,000 players whose
+touchdown odds beat their price (`tdupside-…/replay_tdup.sh`) is armed to run when the machine is free.
