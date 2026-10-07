@@ -231,46 +231,63 @@ Real-field evidence for the score's elements in the priority contests (within us
 [−0.030, +0.044]). This deal is narrower: it moves rows only between his priority and lower-priority contests, so for
 his utility the downside is about nil.
 
-### 4a. The final deal order (the operator, 10-07): private plan Rev5
+### 4a. The final deal order (the operator, 10-07): private plan Rev6
 
-The operator's two messages, verbatim:
-- *"I forgot about the midseason warm ups. Those are big prizes. Can we move that up to under the 4444 and before
-  555."*
-- *"I'm sorry - I didn't even realize what the showdown Mega is. That should be under the $333. The order should be:
-  two mega 4444 satellites / midseason warmup / 555 / WFFC / 333 / Showdown mega / everything else."*
+The operator's messages, verbatim, in order (Rev4 and Rev5 were built from the first two and never installed):
+1. *"I forgot about the midseason warm ups. Those are big prizes. Can we move that up to under the 4444 and before
+   555."*
+2. *"I'm sorry - I didn't even realize what the showdown Mega is. That should be under the $333. The order should be:
+   two mega 4444 satellites / midseason warmup / 555 / WFFC / 333 / Showdown mega / everything else."*
+3. **FINAL:** *"I apologize again. I didn't understand what the prizes were in some of these contests. Let's change the
+   order for the final time to: 4444 (all of them including the showdown - which seems the same as the others anyway) /
+   555 / WFFC / 333 / Millionaire / Midseason warmup / Everything else including milly qualifiers."*
 
 **How it is applied:**
-- The deal follows the order of contests in his plan file. **Rev5** is Rev3's same 29 contests, byte-equal, re-ordered
-  only. It **replaces Rev4**, which was never installed.
-- The installed `contests.json` form will be sha256 `0877fbcd027391c51087b8d6529508ee4e557f27221a2786f0a890ed6b789cd3`
-  (Thursday, before A3). Nothing tracked holds the file itself.
-- Rev5's per-rank entry weights are identical to Rev3's, so the 26 rows and their built order are unchanged. Rows
-  needed and protected ranks stay at 26.
+- The deal follows the order of contests in his plan file. **Rev6** is Rev3's 29 contests, byte-equal, re-ordered only.
+  It replaces Rev5.
+- The installed form will be sha256 `5f8352eebf17860795922f8b5bca754c4ed0566c8c5ca63419e6dacd24e59470`. Nothing tracked
+  holds the file itself.
+- Rev6's per-rank entry weights are identical to Rev3's ([4, 3, 3, 3, 2 × 18, 1, 1, 1, 1]), so the same 26 rows are
+  built in the same order. Rows needed and protected ranks stay at 26.
 
 **Rank map under head (Rev3's ranks in brackets):**
 
-| His order | Contests | Rev5 ranks |
+| His order | Contests | Rev6 ranks |
 |---|---|---|
-| 1 | the two $4,444 MEGA sats | 1, 2 [1, 2] |
-| 2 | the Midseason Warm Ups × 3 | 3, 4, 5 [20–22] |
-| 3 | the $555 single entries × 6 | 6–11 [3–8] |
-| 3 | the $555 2x supersat (2 entries) | 3–4 [3–4]; see note |
-| 4 | the WFFC ($490 ticket) | 12 [9] |
-| 5 | the $333s × 9 | 13–21 [11–19] |
-| 6 | the $4,444 Showdown MEGA sat | 22 [10] |
-| 7 | everything else: the Millionaire × 2, the pinned $125 FFWC, the pinned $20 supersats | unchanged (1–2; 1; 1–26) |
+| 1 | $4,444: MEGA, MEGA, Showdown MEGA | 1 [1], 2 [2], 3 [10] |
+| 2 | $555 single entries × 6 | 4–9 [3–8] |
+| 2 | $555 2x supersat | 1–2 [3–4] |
+| 3 | the WFFC ($490 ticket) | 10 [9] |
+| 4 | $333 2-entry contests × 3 | 3–4, 11–12, 13–14 [11–16] |
+| 4 | $333 single entries × 3 | 15–17 [17–19] |
+| 5 | the Millionaire (2 entries) | 18–19 [1–2] |
+| 6 | the Midseason Warm Ups × 3 | 20–22 [20–22] |
+| 7 | everything else: the $20 supersats pinned over 1–26, the $125 FFWC pinned at 1 | unchanged |
 
-Note on the $555 2x supersat: a 2-entry contest's head block goes to the second 2-entry contest in the file, after the
-Millionaire. So it shares rows 3–4 with two Warm Ups and takes none from them.
+**The mechanics** (no pin tied the Millionaire to ranks 1–2):
+- The head layout gives its two 2-entry head blocks (the shared top rows 1–2 and 3–4) to the first two 2-entry
+  contests in file order. In Rev6 those are the $555 2x (1–2) and the first $333 2-entry contest (3–4).
+- That $333 contest shares rows 3–4 with the Showdown MEGA and the first $555 single entry, and takes nothing from
+  them.
+- The Millionaire becomes an ordinary 2-entry contest on its own rows 18–19.
+- The pins reach 26, and the all-head rule now protects through the Warm Ups' rank 22.
+- **The priority span is ranks 1–22.** Only the $20 supersats read 23–26.
 
-- **The priority span is ranks 1–22.** Only the $20 supersats read ranks 23–26.
-- **The cheap block keeps its 1-based ranks 2, 5, 9, 12, 15, 18, 22 and 25.** Seven of them sit inside 1–22: the
-  second MEGA (2), the third Warm Up (5), a $555 (9), the WFFC (12), two $333s (15, 18) and the Showdown sat (22). Those
-  contests get a cheap-block row whatever the scores, under the reviewer's block rule.
-- **Fifteen non-block positions are inside the span.** The sort's best non-block row goes to rank 1, then 3, 4, 6, 7,
-  8, 10, 11, 13, … The 3 lowest-scoring non-block rows go to ranks 23, 24 and 26.
+**The cheap block** keeps its 1-based ranks 2, 5, 9, 12, 15, 18, 22 and 25, so block rows land at:
 
-**The harm screen's three arms**, under the same frozen rule:
+| Block rank | Contests |
+|---|---|
+| 2 | MEGA #2, and the $555 2x |
+| 5, 9 | $555 entries |
+| 12, 15 | $333 entries |
+| 18 | the Millionaire |
+| 22 | a Warm Up |
+| 25 | the supersats |
+
+The priority sort fills the non-block ranks 1, 3, 4, 6, 7, 8, 10, 11, 13, 14, 16, 17, 19, 20 and 21, best first. The 3
+lowest-scoring non-block rows go to ranks 23, 24 and 26.
+
+**The harm screen's three arms**, under the same frozen rule, amended before any number was run:
 - **CB:** Rev3, book order (unchanged).
-- **CB_REV5:** Rev5, book order.
-- **CB_PRI:** Rev5 + the priority sort.
+- **CB_REV6:** Rev6, book order.
+- **CB_PRI:** Rev6 + the priority sort.
