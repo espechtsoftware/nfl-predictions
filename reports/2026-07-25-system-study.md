@@ -6627,3 +6627,40 @@ secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; th
    - Not WORSE at the frozen rule, so by its §4 the block stays his Week-5 decision. The laptop takes him three options
      for Friday's arming: live 8 capped rows, paper only, or off.
    - Study 38's MIXT_QA0_NOTERM line measures the block on the real field every week it is live.
+
+## Addendum 157 (2026-10-07): Addendum 8 corrected — the projection model never carried defense-vs-position (O-40)
+
+**What Addendum 8 said.** Addendum 8 (2026-07-26) closed the head-to-head features. One sentence gave the reason:
+"opponent info is already carried by trailing defense-vs-position form + the Vegas blend".
+
+**What is true.** The production projection model (`models/featureset.py` `NUMERIC_FEATURES`) has NEVER contained a
+defense-vs-position input.
+- It carries game environment: implied team total, spread, game total, expected game script.
+- It carries the opponent's pass coverage: `cb_ypt_allowed_l6`, `cb_comp_rate_allowed_l6`, `db_ypt_allowed_l6`,
+  `top_cb_out`.
+- The position-level columns (`qb/rb/wr/te_fp_allowed_adj_l6`) and the defence EPA / red-zone columns are built into
+  021 / 023 but were never registered as features (not in `NUMERIC_FEATURES` or `CANDIDATE_FEATURES`). No commit to
+  `featureset.py` has ever added them (`git log -S fp_allowed_adj_l6`).
+- They were also empty in the 2026 T-70 frames: W1–W3 0%, W4 91%. Today's serving join takes each defense's latest built
+  row, one game stale. 0bc6b6bc (O-22, unmerged until after Week 5) serves them as-of by exact week.
+
+**What still holds.** The head-to-head null result stands; only its stated reason was wrong. The "Vegas blend" part is
+correct: the implied total and spread carry team-level defensive strength.
+
+**What it measures.** A walk-forward SCREEN (2026-10-07; seen before any rule was frozen, so it decides nothing;
+`reports/2026-10-07-prereg-o40-dvp-ablation.md` §1):
+- Adding the four position columns changes the within-week rank correlation by +0.0005, +0.0021 and −0.0007 (2023,
+  2024 and 2025), and MAE in the third decimal.
+- On 2026 W2–W4 our residuals against in-season DvP flip sign (corr −0.12, −0.05, +0.13).
+- So the missing input is real but, on this evidence, not costing the projections anything measurable.
+
+**What decides.**
+- The CONFIRMATORY ablation, frozen in that file's §2: the O-22-repaired base after the Monday merge, with untouched
+  targets 2020–2022. A PASS buys only the projection-level gate.
+- The consumer replay (2026 W2–W5): it decides the Week-6 question with the operator.
+- Separately, by his decision (10-07), a paper arm: FP's means plus a walk-forward DvP correction (study 38 amendment 6c).
+
+**Lesson.** A closing reason must be checked against the code, not stated from memory. Same class as "never cite an
+addendum without checking for a correction". Verified for this correction: Addendum 8's sentence (as quoted), the
+current `NUMERIC_FEATURES` list, `CANDIDATE_FEATURES`, the `featureset.py` history, and the screen table against the
+O-40 record.
