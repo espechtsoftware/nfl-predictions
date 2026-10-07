@@ -231,3 +231,19 @@ def test_the_winner_order_rides_into_the_units_and_the_host_falls_back_loudly():
     assert "NOT APPLIED for $RUN_TAG" in host and 'UNION_ARGS+=("$WIN_FLAG" "$OUT/winner_inputs-$RUN_TAG.csv")' in host
     r2 = _run(UNION_WINNER_SELECT="1")
     assert "UNION_WINNER_SELECT=1" in _unit_line(r2.stdout, "nfl-week4-t70-build")
+
+
+def test_the_term_block_rides_into_the_units_and_a_missing_block_stops_publication():
+    """The prior-top term block (the operator 10-07): its env reaches the build units; the host passes it to the union and
+    marks a union built WITHOUT it term_block_missing (not publishable until his decision)."""
+    from pathlib import Path
+    r = _run(UNION_TERM_BLOCK_ROWS="8", UNION_TERM_BLOCK_SOURCE="/x/priortop-w5.csv", UNION_TERM_BLOCK_SHA256="ab" * 32)
+    line = _unit_line(r.stdout, "nfl-week4-t70-build")
+    assert "UNION_TERM_BLOCK_ROWS=8" in line and "UNION_TERM_BLOCK_SOURCE=/x/priortop-w5.csv" in line and "UNION_TERM_BLOCK_SHA256=" in line
+    host = (Path(__file__).resolve().parents[1] / "scripts" / "sunday_build_host.sh").read_text()
+    assert 'UNION_ARGS+=(--term-block-rows "$UNION_TERM_BLOCK_ROWS"' in host
+    assert '| tee "$UNION_DIR/term_block_missing" > "$OUT/ALERT-term-block-missing-$RUN_TAG.txt"' in host
+    after = (Path(__file__).resolve().parents[1] / "scripts" / "sunday_after_build.sh").read_text()
+    assert '[[ "${TERM_BLOCK_MISSING_OK:-0}" == "1" ]] && echo --accept-term-block-missing' in after
+    arm = (Path(__file__).resolve().parents[1] / "scripts" / "arm_week5_saturday.sh").read_text()
+    assert "\nTERM_ROWS=0 " in arm and "UNION_TERM_BLOCK_SHA256=$TERM_SHA" in arm

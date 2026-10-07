@@ -64,3 +64,12 @@ def test_book_players_without_an_fp_projection_are_tagged_but_never_weighted(tmp
     assert "1 book player(s) selected on OUR projection" in capsys.readouterr().out
     from nfl_dfs.inference import enter_layout as EL
     assert "projection" not in EL.INJURY_TAGS                                           # never bars a row from the head
+
+
+def test_vetting_records_each_vetted_positions_term_block():
+    """The reviewer (10-07): every entered row attributable to its block, L or T, after vetting's within-cell moves."""
+    rec = {"config": {"union": {"mix": {"mix": {"term": {"blocks": ["L", "T", "L", "L", "T"]}}}}}}
+    out = vb.term_blocks_by_vetted_position(rec, [0, 2, 1, 3, 4])
+    assert out == {"term_block_by_vetted_position": ["L", "L", "T", "L", "T"], "term_block_source_positions": [2, 5]}
+    assert vb.term_blocks_by_vetted_position({"config": {"union": {"mix": {"mix": {"term": None}}}}}, [0, 1]) == {}
+    assert vb.term_blocks_by_vetted_position({}, [0]) == {}

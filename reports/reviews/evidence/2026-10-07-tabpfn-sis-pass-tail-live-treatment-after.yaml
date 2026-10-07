@@ -1,0 +1,69 @@
+apiVersion: run.googleapis.com/v1
+kind: Job
+metadata:
+  annotations:
+    run.googleapis.com/client-name: gcloud
+    run.googleapis.com/client-version: 586.0.0
+    run.googleapis.com/creator: espechtsoftware@gmail.com
+    run.googleapis.com/lastModifier: espechtsoftware@gmail.com
+    run.googleapis.com/operation-id: 7856600b-e5f9-4602-b123-bd807b61116a
+  creationTimestamp: '2026-08-15T07:36:21.979447Z'
+  generation: 5
+  labels:
+    cloud.googleapis.com/location: us-central1
+    run.googleapis.com/lastUpdatedTime: '2026-10-07T11:17:43.057835Z'
+  name: tabpfn-sis-pass-tail-live-treatment
+  namespace: '817589974517'
+  resourceVersion: AAZdPkOUkaQ
+  selfLink: /apis/run.googleapis.com/v1/namespaces/817589974517/jobs/tabpfn-sis-pass-tail-live-treatment
+  uid: fba4a23c-0a27-419f-8e3a-f0d8ea605c99
+spec:
+  template:
+    metadata:
+      annotations:
+        run.googleapis.com/client-name: gcloud
+        run.googleapis.com/client-version: 586.0.0
+        run.googleapis.com/execution-environment: gen2
+        run.googleapis.com/gpu-zonal-redundancy-disabled: 'true'
+      labels:
+        client.knative.dev/nonce: wed_vos_gak
+    spec:
+      taskCount: 1
+      template:
+        spec:
+          containers:
+          - env:
+            - name: GCP_PROJECT
+              value: nfl-predictions-503414
+            - name: TABPFN_SIS_PASS_TAIL_LIVE_ARM
+              value: treatment
+            - name: TABPFN_OUTPUT_TABLE
+              value: tabpfn_sis_pass_tail_live_treatment_v1
+            - name: TABPFN_UPCOMING
+              value: auto
+            - name: CODE_SHA
+              value: 6fd3ef00db52bd0f9834615aede5595cd53a7cec
+            - name: SIS_PASS_TAIL_CONTRACT
+              value: pass-tail-v1-a1
+            image: us-central1-docker.pkg.dev/nfl-predictions-503414/nfl-dfs/tabpfn-sis-pass-tail-live@sha256:ac07a31ea103f0bb0e444294f2dc2214ab7ee0a58f8d241c20c76c5a412c253f
+            resources:
+              limits:
+                cpu: '4'
+                memory: 16Gi
+                nvidia.com/gpu: '1'
+          maxRetries: 0
+          nodeSelector:
+            run.googleapis.com/accelerator: nvidia-l4
+          serviceAccountName: 817589974517-compute@developer.gserviceaccount.com
+          timeoutSeconds: '3600'
+status:
+  conditions:
+  - status: 'True'
+    type: Ready
+  executionCount: 1
+  latestCreatedExecution:
+    completionStatus: EXECUTION_SUCCEEDED
+    completionTimestamp: '2026-10-06T15:27:51.457431Z'
+    creationTimestamp: '2026-10-06T15:22:41.493278Z'
+    name: tabpfn-sis-pass-tail-live-treatment-k7mqg
+  observedGeneration: 5

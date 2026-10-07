@@ -815,6 +815,36 @@ _V16_SOURCE_SET = _SourceSetContract(
     frozen_source_sha256=tuple(sorted(V16_FROZEN_SOURCE_SHA256.items())),
 )
 
+# Source-set v17 (2026-10-07): bye weeks (O-39). run_projections' target-week roster receipt is complete against the
+# week's REG schedule (a target_week_teams CTE in upcoming_slate_features' SQL) instead of a fixed 32 teams, which
+# refused every Week-5 projection (2026's first bye week: 30 teams). SQL text only: no environment read is added or
+# removed. Measured before pinning (bd90cb6d text against the current file, whole frozen tree): 278 direct read sites in
+# both, position-free identical; only line positions move. V5-v16 remain immutable; never rewrite them.
+V17_SOURCE_SET_ID = (
+    "adopted-classic-policy-20261007-week5-bye-week-roster-receipt-v17"
+)
+V17_CLASSIFIED_INPUT_PROJECTION_SHA256 = (
+    "7d1e777537aa414cca245a11b20d22e3c68d7c9fe2d0e5d9e1b932be4b1c69ea"
+)
+V17_FROZEN_SOURCE_SHA256: Mapping[str, str] = {
+    **V16_FROZEN_SOURCE_SHA256,
+    "src/nfl_dfs/inference/run_projections.py": (
+        "a39e571d29fbb4eb3097fd0fb255546bdebd8816e1c4931c6bb8732cdbefb845"
+    ),
+}
+
+_V17_SOURCE_SET = _SourceSetContract(
+    schema=SCHEMA,
+    source_set_id=V17_SOURCE_SET_ID,
+    policy_env_sha256=POLICY_ENV_SHA256,
+    classified_input_projection_sha256=(
+        V17_CLASSIFIED_INPUT_PROJECTION_SHA256
+    ),
+    classified_input_key_count=CLASSIFIED_INPUT_KEY_COUNT,
+    direct_input_read_site_count=DIRECT_INPUT_READ_SITE_COUNT,
+    frozen_source_sha256=tuple(sorted(V17_FROZEN_SOURCE_SHA256.items())),
+)
+
 @dataclass(frozen=True)
 class _Locator:
     path: str
@@ -2497,6 +2527,15 @@ def generate_effective_policy_rule_inventory_v16(
     )
 
 
+def generate_effective_policy_rule_inventory_v17(
+    root: Path,
+) -> dict[str, Any]:
+    """Generate the explicit current Week-5 source-set v17 inventory (bye weeks)."""
+    return _generate_effective_policy_rule_inventory(
+        root, source_set=_V17_SOURCE_SET
+    )
+
+
 def _source_set_for_inventory(
     inventory: Mapping[str, Any],
 ) -> _SourceSetContract:
@@ -2525,6 +2564,8 @@ def _source_set_for_inventory(
         return _V15_SOURCE_SET
     if source_set_id == V16_SOURCE_SET_ID:
         return _V16_SOURCE_SET
+    if source_set_id == V17_SOURCE_SET_ID:
+        return _V17_SOURCE_SET
     raise EffectivePolicyInventoryError(
         "effective-policy inventory source-set id is not registered"
     )
