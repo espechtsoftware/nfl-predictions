@@ -45,12 +45,15 @@ WINNER_ORDER=0                      # study 48b: re-order the book by study 48's
                                     # on the big-entry ranks); 0 = off. 1 only after 48b's READ, the W2-4 check and HIS yes
 WINNER_SELECT=0                     # study 48d: keep, per cell, the most winner-like of the book rows + spares (study
                                     # 48's frozen score); 0 = off. 1 only after 48d's READ, a rehearsal and HIS yes
-TERM_ROWS=0                         # the live term block (Saturday's one slot: the matchup block, the cheap block or none;
+TERM_ROWS=""                        # SATURDAY sets it (the outside review 10-07, M2: a forcing step): 8 = his cheap +2 trial
+                                    # (his 10-07 decision), 0 = none (only by a recorded decision); empty REFUSES to arm.
+                                    # The live term block (Saturday's one slot: the matchup block, the cheap block or none;
                                     # his decision at arming, each only if its frozen Saturday rule says ENTERABLE -- study
                                     # 51 for matchup, study 53 amendment 1 for cheap). Was the prior-top block: 8 of the
                                     # 26 rows on projection + min(0.20 x pred_own, 2.0); 0 until the replay, study 49 and
                                     # the rehearsal are recorded; a book built WITHOUT it is not published (his decision)
-TERM_FILE=reports/2026-10-07-prior-top-term/priortop-w5.csv    # in the FRIDAY_HEAD checkout ($P); W1-W4 real fields, final
+TERM_FILE=reports/2026-10-08-live-block/cheap2-w5.csv    # in the FRIDAY_HEAD checkout ($P): his cheap trial's file (Thursday,
+                                    # cheap_block_file.py --group 154468); the prior-top file is paper only and the check refuses it
 TERM_SHA=""                         # its sha256, pinned (the arm refuses a mismatch)
 TERM_CAP=2.0                        # the block's cap in projected points = its dose (matchup and cheap +2: 2.0; cheap +4:
                                     # 4.0); the arm refuses a bonus file whose largest bonus exceeds it (the union would clip
@@ -63,6 +66,7 @@ P=$HOME/projects/nfl-predictions; W=$HOME/week5-sunday; PY=$P/.venv/bin/python; 
 say() { printf '%s %s\n' "$(date +%H:%M:%S)" "$*"; }
 stop() { say "ARM STOPPED: $*"; exit 1; }
 [[ "$SHAPE" == mixt || "$SHAPE" == ct ]] || stop "SHAPE is not set (Friday: mixt or ct, his choice)"
+[[ -n "$TERM_ROWS" ]] || stop "TERM_ROWS is not set (Saturday: 8 for his cheap +2 trial, or 0 by a recorded decision)"
 [[ "$MIX_FILL" == group || ( ( "$MIX_FILL" == value || "$MIX_FILL" == rr ) && "$SHAPE" == mixt ) ]] || stop "MIX_FILL=$MIX_FILL: group, or value / rr with SHAPE=mixt"
 [[ "$MIX_COVER" =~ ^[0-8]$ && ( "$MIX_COVER" == 0 || "$SHAPE" == mixt ) ]] || stop "MIX_COVER=$MIX_COVER: 0..8, and not 0 only with SHAPE=mixt"
 [[ "$MIX_RS" == 0 || ( "$MIX_RS" =~ ^(9|13|17)$ && "$SHAPE" == mixt && "$MIX_FILL" == rr && "$MIX_COVER" == 0 ) ]] || stop "MIX_RS=$MIX_RS: 0, or 9 / 13 / 17 with SHAPE=mixt, MIX_FILL=rr and MIX_COVER=0"
@@ -73,7 +77,7 @@ stop() { say "ARM STOPPED: $*"; exit 1; }
 [[ "$TERM_ROWS" == 0 || ( "$TERM_ROWS" =~ ^[1-9][0-9]?$ && "$SHAPE" == mixt && "$MIX_FILL" == rr && "$MIX_RS" == 0 && "$MIX_COVER" == 0 && "$WINNER_ORDER" == 0 && "$WINNER_SELECT" == 0 && "$TERM_SHA" =~ ^[0-9a-f]{64}$ ) ]] || stop "TERM_ROWS=$TERM_ROWS: 0, or N with SHAPE=mixt, MIX_FILL=rr, no half / cover / winner order or select, and a pinned TERM_SHA"
 [[ -n "$FRIDAY_HEAD" ]] || stop "FRIDAY_HEAD is not set (Friday: the merged integration commit)"
 [[ "$TERM_ROWS" == 0 || "$(sha256sum "$P/$TERM_FILE" 2>/dev/null | cut -c1-64)" == "$TERM_SHA" ]] || stop "TERM_FILE $P/$TERM_FILE is missing or its sha is not the pinned TERM_SHA"
-[[ "$TERM_ROWS" == 0 ]] || "$PY" "$P/scripts/check_term_block_file.py" "$P/$TERM_FILE" --cap "$TERM_CAP" || stop "TERM_FILE does not fit TERM_CAP=$TERM_CAP (above)"
+[[ "$TERM_ROWS" == 0 ]] || "$PY" "$P/scripts/check_term_block_file.py" "$P/$TERM_FILE" --cap "$TERM_CAP" --require-bonus || stop "TERM_FILE does not fit TERM_CAP=$TERM_CAP or is not the bonus form (above)"
 # the reviewer's gate (10-06): study 35 tested the QB cap on MIXT only, so ct + the cap is an untested combination
 [[ "$SHAPE" == ct && -n "$QB_CAP_ROWS" ]] && stop "the QB cap was studied on MIXT only (study 35); for ct set QB_CAP_ROWS='' after an operator decision"
 cd "$P" || stop "no checkout"
@@ -156,4 +160,4 @@ N=$(systemctl --user list-timers --all --no-pager | grep -c 'nfl-week5-')
 systemctl --user list-timers --all --no-pager | grep 'nfl-week5-'
 (( N == EXPECT_N )) || stop "expected $EXPECT_N nfl-week5 timers, found $N"
 [[ -z "$(git status --porcelain)" ]] || stop "the checkout became dirty during arming"
-say "ARMED ($SHAPE): $N timers; checkout $(git rev-parse --short HEAD) clean"
+say "ARMED ($SHAPE): $N timers; checkout $(git rev-parse --short HEAD) clean; term block $TERM_ROWS rows$( [[ "$TERM_ROWS" != 0 ]] && echo " from $TERM_FILE (sha ${TERM_SHA:0:12}, cap $TERM_CAP)")"

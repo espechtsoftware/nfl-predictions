@@ -23,7 +23,7 @@ import pandas as pd
 CAP_MAX = 5.0          # the union's --term-block-cap-points range is (0, 5]
 
 
-def check(df: pd.DataFrame, cap: float, tilt: float) -> str:
+def check(df: pd.DataFrame, cap: float, tilt: float, require_bonus: bool = False) -> str:
     if not 0 < cap <= CAP_MAX:
         raise ValueError(f"the cap {cap:g} is outside the union's range (0, {CAP_MAX:g}]")
     for c in ("dk_player_id", "pred_own"):
@@ -33,6 +33,8 @@ def check(df: pd.DataFrame, cap: float, tilt: float) -> str:
     if ids.isna().any() or ids.duplicated().any():
         raise ValueError("a missing or duplicated dk_player_id")
     if "bonus_points" not in df.columns:
+        if require_bonus:                    # the outside review 10-07, M2: the paper-only prior-top file must never be armed
+            raise ValueError("no bonus_points column (the prior-top, paper-only form): an ARMED block needs the bonus form")
         return f"no bonus_points column (the prior-top form): {len(df)} players; the cap {cap:g} clips tilt x pred_own by design"
     b = pd.to_numeric(df["bonus_points"], errors="coerce"); p = pd.to_numeric(df["pred_own"], errors="coerce")
     if b.isna().any() or p.isna().any():
@@ -51,9 +53,10 @@ def check(df: pd.DataFrame, cap: float, tilt: float) -> str:
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("file", type=Path); ap.add_argument("--cap", type=float, required=True); ap.add_argument("--tilt", type=float, default=0.20)
+    ap.add_argument("--require-bonus", action="store_true", help="refuse the prior-top form (no bonus_points): the arm's live block")
     a = ap.parse_args(argv)
     try:
-        msg = check(pd.read_csv(a.file), a.cap, a.tilt)
+        msg = check(pd.read_csv(a.file), a.cap, a.tilt, a.require_bonus)
     except (ValueError, OSError, pd.errors.ParserError) as e:
         print(f"TERM BLOCK FILE REFUSED ({a.file.name}): {e}", file=sys.stderr)
         return 3

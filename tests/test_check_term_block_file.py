@@ -59,4 +59,12 @@ def test_the_prior_top_form_without_bonus_points_passes_with_a_note():
 def test_the_week5_arm_runs_the_check_with_its_cap_and_passes_the_cap_to_the_union():
     arm = (ROOT / "scripts" / "arm_week5_saturday.sh").read_text()
     assert "\nTERM_CAP=2.0 " in arm and "UNION_TERM_BLOCK_CAP=$TERM_CAP" in arm and "UNION_TERM_BLOCK_CAP=2.0" not in arm
-    assert '"$PY" "$P/scripts/check_term_block_file.py" "$P/$TERM_FILE" --cap "$TERM_CAP"' in arm
+    assert '"$PY" "$P/scripts/check_term_block_file.py" "$P/$TERM_FILE" --cap "$TERM_CAP" --require-bonus' in arm
+
+
+def test_the_armed_check_refuses_the_prior_top_form():
+    """The outside review 10-07, M2: --require-bonus (the arm's live block) refuses a file without bonus_points."""
+    d = pd.DataFrame({"dk_player_id": [1, 2], "pred_own": [42.4, 3.0], "prior_top": [0.8, 0.1]})
+    with pytest.raises(ValueError, match="paper-only form"):
+        CT.check(d, 2.0, 0.20, require_bonus=True)
+    assert "carry a bonus" in CT.check(CB.build(frame(), 2.0), 2.0, 0.20, require_bonus=True)

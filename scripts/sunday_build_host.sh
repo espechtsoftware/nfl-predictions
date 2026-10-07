@@ -272,6 +272,21 @@ cp "$OUT/lever-audit-$RUN_TAG.json" "$K90_DIR/lever_audit.json" && touch "$K90_D
 # 2a. The T-70 UNION (operator 2026-09-28): with UNION_SATURDAY_RUN set, the Saturday paid pool's survivors join the T-70
 # pool and the book is re-selected with the same mean selector; the union run dir is verified and audited like any build
 # and becomes the run dir the chain emits and the watcher promotes (newest, same lev/boom as the T-70 run).
+# union_fail WHY (the outside review 10-07, H1): every union-failure exit marks the T-70 dir union_failed. When the week's
+# construction lives only in the union (UNION_MAIN=mix, or a live term block) the plain T-70 book carries none of it (no
+# MIX, FP, QB cap, overlap 4 or block), so the dir is ALSO marked union_required: run_dir_publishable refuses it until the
+# operator decides (UNION_FAILED_OK=1 enters the plain book); the published earlier book stands. Loud, like term_block_missing.
+union_fail() {
+  touch "$K90_DIR/union_failed"
+  if [[ "${UNION_MAIN:-mean}" == "mix" || "${UNION_TERM_BLOCK_ROWS:-0}" != "0" ]]; then
+    printf '%s run %s: UNION FAILED (%s) under UNION_MAIN=%s, term block %s rows: the plain T-70 book has none of the week settings\n' \
+      "$(date -u +%FT%TZ)" "$RUN_TAG" "$1" "${UNION_MAIN:-mean}" "${UNION_TERM_BLOCK_ROWS:-0}" \
+      | tee "$K90_DIR/union_required" > "$OUT/ALERT-union-failed-$RUN_TAG.txt"
+    printf '\n%s\n%s\n%s\n\n' "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" \
+      "!!! UNION FAILED for $RUN_TAG ($1): the plain T-70 book is NOT published -- the earlier book stands until the operator decides (UNION_FAILED_OK=1 enters the plain book)" \
+      "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+  fi
+}
 if [[ -n "${UNION_SATURDAY_RUN:-}" && ",${UNION_SAT_DOSE:-2560/10240}," == *",$PAID_LEV/$PAID_BOOM,"* ]]; then   # any listed supply dose
   echo "this build ($PAID_LEV/$PAID_BOOM) IS the Saturday supply (UNION_SAT_DOSE): no union for it (sweep item 7)"
   UNION_SATURDAY_RUN=""
@@ -474,20 +489,20 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   source "$PROD/scripts/union_fallbacks.sh"                 # mix_fallback: MIX REFUSED -> HOUSE MAIN (C), loudly
   UNION_MAIN_EFFECTIVE="${UNION_MAIN:-mean}"
   UNION_RC=0; run_union "${UNION_ARGS[@]}" || UNION_RC=$?
-  if (( UNION_RC != 0 )) && grep -q 'OWN TERM REFUSED' "$OUT/union-$RUN_TAG.txt"; then
+  if (( UNION_RC != 0 )) && grep -q '^OWN TERM REFUSED' "$OUT/union-$RUN_TAG.txt"; then   # anchored: a term-block refusal prints it mid-line (the outside review 10-07)
     # the union refused the term's file or its solves (named, before any output): step down to the lag file at the lag
     # tilt (unless that is what was refused), then to no term -- loudly each time
     cp "$OUT/union-$RUN_TAG.txt" "$OUT/union-$RUN_TAG-own-refused.txt"; OWN_REFUSED=1
-    WHY=$(grep 'OWN TERM REFUSED' "$OUT/union-$RUN_TAG.txt" | tail -1)
+    WHY=$(grep '^OWN TERM REFUSED' "$OUT/union-$RUN_TAG.txt" | tail -1)
     strip_own "${UNION_ARGS[@]}"; UNION_ARGS=("${OUT_ARGS[@]}")
     WAS_LAG=0; [[ "$OWN_SRC" == "${OWNERSHIP_LAG:-}" ]] && WAS_LAG=1
     if (( ! WAS_LAG )); then own_use_lag; else OWN_SRC=""; OWN_TILT="0"; fi
     own_banner "TERM ($(basename "${OWN_SRC:-none}"))" "the union refused it: $WHY"
     [[ -n "$OWN_SRC" ]] && UNION_ARGS+=(--main-own-tilt "$OWN_TILT" --main-own-source "$OWN_SRC")
     UNION_RC=0; run_union "${UNION_ARGS[@]}" || UNION_RC=$?
-    if (( UNION_RC != 0 )) && grep -q 'OWN TERM REFUSED' "$OUT/union-$RUN_TAG.txt"; then
+    if (( UNION_RC != 0 )) && grep -q '^OWN TERM REFUSED' "$OUT/union-$RUN_TAG.txt"; then
       strip_own "${UNION_ARGS[@]}"; UNION_ARGS=("${OUT_ARGS[@]}"); OWN_SRC=""; OWN_TILT="0"
-      own_banner "LAG TERM" "the union refused it too: $(grep 'OWN TERM REFUSED' "$OUT/union-$RUN_TAG.txt" | tail -1)"
+      own_banner "LAG TERM" "the union refused it too: $(grep '^OWN TERM REFUSED' "$OUT/union-$RUN_TAG.txt" | tail -1)"
       UNION_RC=0; run_union "${UNION_ARGS[@]}" || UNION_RC=$?
     fi
   fi
@@ -500,11 +515,11 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
       cp "$OUT/union-$RUN_TAG.txt" "$OUT/union-$RUN_TAG-pmo-refused.txt"
       strip_own "${UNION_ARGS[@]}"; MEAN_ARGS_U=("${OUT_ARGS[@]}")     # the term is defined for pmo_x50 only
       for i in "${!MEAN_ARGS_U[@]}"; do [[ "${MEAN_ARGS_U[$i]}" == "--main" ]] && MEAN_ARGS_U[$((i+1))]=mean; done
-      run_union "${MEAN_ARGS_U[@]}" || { echo "UNION FAILED (see $OUT/union-$RUN_TAG.txt); the T-70 run dir $K90_DIR stands"; touch "$K90_DIR/union_failed"; exit 1; }
+      run_union "${MEAN_ARGS_U[@]}" || { echo "UNION FAILED (see $OUT/union-$RUN_TAG.txt); the T-70 run dir $K90_DIR stands"; union_fail "the mean-main fallback union failed"; exit 1; }
       UNION_DIR=$(sed -n 's/^UNION -> //p' "$OUT/union-$RUN_TAG.txt" | tail -1); [[ -n "$UNION_DIR" ]] && cp "$OUT/union-$RUN_TAG-pmo-refused.txt" "$UNION_DIR/pmo_x50_refused.txt"
       [[ -n "$UNION_DIR" && -n "${OWN_REFUSED:-}" ]] && cp "$OUT/union-$RUN_TAG-own-refused.txt" "$UNION_DIR/own_term_refused.txt"
     else
-      echo "UNION FAILED (see $OUT/union-$RUN_TAG.txt); the T-70 run dir $K90_DIR stands"; touch "$K90_DIR/union_failed"; exit 1
+      echo "UNION FAILED (see $OUT/union-$RUN_TAG.txt); the T-70 run dir $K90_DIR stands"; union_fail "the union failed, rc $UNION_RC"; exit 1
     fi
   fi
   UNION_DIR=$(sed -n 's/^UNION -> //p' "$OUT/union-$RUN_TAG.txt" | tail -1)
@@ -519,8 +534,8 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
     && echo "!!! WINNER ORDER NOT APPLIED for this union: $UNION_DIR/winner_order_fallback.txt"
   [[ -n "$UNION_DIR" && -f "$OUT/own_term_fallback-$RUN_TAG.txt" ]] && cp "$OUT/own_term_fallback-$RUN_TAG.txt" "$UNION_DIR/own_term_fallback.txt" \
     && echo "!!! OWNERSHIP TERM FELL BACK for this union: $UNION_DIR/own_term_fallback.txt"
-  [[ -n "$UNION_DIR" && -f "$UNION_DIR/receipt.json" ]] || { echo "union run dir not found in $OUT/union-$RUN_TAG.txt"; touch "$K90_DIR/union_failed"; exit 1; }
-  verify_k90 "$UNION_DIR" || { echo "K90 receipt verification FAILED for the union $UNION_DIR"; touch "$K90_DIR/union_failed"; rm -rf "$UNION_DIR"; exit 1; }
+  [[ -n "$UNION_DIR" && -f "$UNION_DIR/receipt.json" ]] || { echo "union run dir not found in $OUT/union-$RUN_TAG.txt"; union_fail "the union run dir was not found"; exit 1; }
+  verify_k90 "$UNION_DIR" || { echo "K90 receipt verification FAILED for the union $UNION_DIR"; union_fail "the union receipt verification failed"; rm -rf "$UNION_DIR"; exit 1; }
   # A DECIDED live rule must not go missing silently (the reviewer, 10-07): with UNION_TERM_BLOCK_ROWS set, a union whose
   # receipt does not carry the applied block (the right size, the pinned file) is marked term_block_missing, which
   # run_dir_publishable refuses -- nothing is published until the operator decides (TERM_BLOCK_MISSING_OK=1 enters without it).
@@ -554,7 +569,7 @@ PYEOF
       --layout "${ENTER_LAYOUT:-sequential}" --expect-selector "$LIVE_SELECTOR" ${MAX_PER_GAME:+--expect-max-per-game "$MAX_PER_GAME"} \
       --min-salary "${MIN_LINEUP_SALARY:-49000}" --fade "${AUDIT_FADE:-off}" --sources "${AUDIT_SOURCES:-market_points:0.30,dk_ppg:0.80}" \
       --t70 "$T70_DECLARED" \
-      --out "$OUT/lever-audit-$RUN_TAG-union.json" | tee "$OUT/lever-audit-$RUN_TAG-union.txt" ) || { echo "BUILD AUDIT FAILED for the union $UNION_DIR; refusing it (the T-70 run dir $K90_DIR stands)"; touch "$K90_DIR/union_failed"; rm -rf "$UNION_DIR"; exit 1; }
+      --out "$OUT/lever-audit-$RUN_TAG-union.json" | tee "$OUT/lever-audit-$RUN_TAG-union.txt" ) || { echo "BUILD AUDIT FAILED for the union $UNION_DIR; refusing it (the T-70 run dir $K90_DIR stands)"; union_fail "the union build audit failed"; rm -rf "$UNION_DIR"; exit 1; }
   cp "$OUT/lever-audit-$RUN_TAG-union.json" "$UNION_DIR/lever_audit.json" && touch "$UNION_DIR/audit_passed"
   echo "union=$UNION_DIR (T-70 run $K90_DIR; $(( $(date +%s) - T2 )) s)"
   K90_DIR=$UNION_DIR

@@ -288,9 +288,17 @@ while [ "$(date -u +%H%M)" -lt 1650 ]; do
     # only a run dir the build host marked audit_passed (after ITS verify_k90 and audit) is published; with the union on,
     # only the union dir, or a build marked union_failed (the fallback). A skipped dir stays eligible (never marked seen).
     # REQUIRE_AUDIT_PASSED=0 is an explicit rehearsal override and is logged on every publish.
-    if ! why=$($PY "$TOOLS/run_dir_publishable.py" "$run" $( [[ -n "${UNION_SATURDAY_RUN:-}" ]] && echo --union-mode ) $( [[ "${REQUIRE_AUDIT_PASSED:-1}" == "0" ]] && echo --no-audit-gate ) $( [[ "${TERM_BLOCK_MISSING_OK:-0}" == "1" ]] && echo --accept-term-block-missing ) \
+    if ! why=$($PY "$TOOLS/run_dir_publishable.py" "$run" $( [[ -n "${UNION_SATURDAY_RUN:-}" ]] && echo --union-mode ) $( [[ "${REQUIRE_AUDIT_PASSED:-1}" == "0" ]] && echo --no-audit-gate ) $( [[ "${TERM_BLOCK_MISSING_OK:-0}" == "1" ]] && echo --accept-term-block-missing ) $( [[ "${UNION_FAILED_OK:-0}" == "1" ]] && echo --accept-union-failed ) \
                  ${GROUP:+--group "$GROUP"} ${WEEK_WINDOW_START_UTC:+--built-after "$WEEK_WINDOW_START_UTC"}); then
-      log "skip $d ($why)"; continue
+      log "skip $d ($why)"
+      # M5 (the outside review 10-07): a STOP marker is put on TODAY once per dir, so the published (earlier) book is never
+      # read as the final build while the operator's decision is pending
+      if [[ "$why" == term_block_missing:* || "$why" == union_required:* ]] && ! grep -qx "$d" "$OUT/after_build.stops" 2>/dev/null; then
+        printf '\n!!! STOP (%s): build %s was NOT published: %s\n!!! The book above is the EARLIER build. Ask the operator before uploading.\n' \
+          "$(date -u +%H:%M:%SZ)" "$d" "$why" >> "$OUT/TODAY-30-LATEST.md"
+        echo "$d" >> "$OUT/after_build.stops"; log "STOP marker for $d written to TODAY"
+      fi
+      continue
     fi
     [[ "$why" == *override* ]] && log "PUBLISHING $d WITHOUT the audit gate ($why)"
     entries=$($PY -c "import json; print(json.load(open('$run/receipt.json'))['written'])" 2>/dev/null) || { log "unreadable receipt for $d"; continue; }

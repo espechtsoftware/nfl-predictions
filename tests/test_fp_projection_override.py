@@ -93,26 +93,76 @@ def test_union_refuses_a_file_built_for_another_frame_or_edited(tmp_path):
         ur.apply_proj_source(fr, csv, ff)
 
 
-def _run_main(tmp_path, monkeypatch, retrieved_at, require):
-    fr = _frame(); fpath = tmp_path / "frame.parquet"; fr.to_parquet(fpath)
-    cap = {"retrieved_at": retrieved_at, "slate_id": "s1", "source_sha256": "x", "rows": len(fr)}
-    monkeypatch.setattr(FPO, "load_capture", lambda season, week, before: (_capture(fr), cap))
-    args = ["--frame", str(fpath), "--season", "2026", "--week", "5", "--before", "2026-10-11T15:57:00Z",
-            "--inactives-utc", "2026-10-11T15:30:00Z", "--out", str(tmp_path / "proj_fp-T.csv")]
-    return FPO.main(args + (["--require-after-inactives"] if require else []))
+def test_a_null_fp_projection_keeps_ours_and_is_named():
+    """The outside review 10-07, M1: a null fantasyPoints was set to 0 and dropped by the union's 1.0 floor."""
+    fr = _frame(); cap = _capture(fr)
+    cap.loc[cap.slate_player_id == "1003", "fantasy_points"] = np.nan                  # p3 (TE, ours 4.5)
+    out, g = FPO.build(fr, cap)
+    assert "p3" not in set(out.id) and g["fp_null_kept_ours"] == 1 and g["kept_ours"] == 1
+    assert g["fp_null_players"] == [{"name": "P3", "pos": "TE", "ours": 4.5}]
+    assert not (out.fp == 0).any()
 
 
-def test_the_t70_build_refuses_a_capture_from_before_the_inactives(tmp_path, monkeypatch, capsys):
-    """Operator 10-06 ("Our post-inactives numbers"): the T-70 build REFUSES a pre-inactives capture (exit 2, no file), so
-    the host falls back to OUR post-inactives projections; earlier builds keep it with a banner. Every run prints the
-    capture timing line the upload sheet shows."""
-    assert _run_main(tmp_path, monkeypatch, "2026-10-11T15:10:00Z", require=True) == 2
+def test_null_fp_projections_are_not_coverage():
+    fr = _frame(); cap = _capture(fr)
+    cap.loc[cap.slate_player_id.isin([str(1000 + k) for k in range(10, 20)]), "fantasy_points"] = np.nan
+    with pytest.raises(FPO.Refused, match="coverage"):
+        FPO.build(fr, cap)
+
+
+def test_the_content_floor_is_six_am_central_on_the_inactives_date():
+    assert FPO.content_floor("2026-10-11T15:30:00Z") == pd.Timestamp("2026-10-11T11:00:00Z")
+    assert FPO.content_floor("2026-12-06T16:30:00Z") == pd.Timestamp("2026-12-06T12:00:00Z")      # CST
+    assert FPO.content_floor("2026-10-11T15:30:00Z", "2026-10-11T09:00:00Z") == pd.Timestamp("2026-10-11T09:00:00Z")
+
+
+def _run_main(tmp_path, monkeypatch, fp_last_updated, retrieved_at="2026-10-11T15:38:35+00:00", extra=()):
+    fr = _frame(); ff = tmp_path / "frame.parquet"; fr.to_parquet(ff)
+    cap = _capture(fr)
+    meta = {"retrieved_at": retrieved_at, "slate_id": "154468", "source_sha256": "x" * 64, "rows": len(cap),
+            "fp_last_updated": fp_last_updated}
+    monkeypatch.setattr(FPO, "load_capture", lambda s, w, b: (cap, meta))
+    out = tmp_path / "proj_fp.csv"
+    rc = FPO.main(["--frame", str(ff), "--season", "2026", "--week", "5", "--before", "2026-10-11T15:50:00Z",
+                   "--inactives-utc", "2026-10-11T15:30:00Z", "--out", str(out), *extra])
+    return rc, out
+
+
+def test_the_t70_gate_uses_fp_numbers_updated_before_the_inactives_and_says_so(tmp_path, monkeypatch, capsys):
+    """The operator 10-07 ("FP anyway, label it honestly"): W4's pattern -- captured 10:38 CT, FP last updated 08:58 CT."""
+    rc, out = _run_main(tmp_path, monkeypatch, "2026-10-11T13:58:38+00:00", extra=["--require-after-inactives"])
     err = capsys.readouterr().err
-    assert "FP CAPTURE TIMING: 2026-10-11T15:10:00Z BEFORE the 10:30 CT inactives" in err
-    assert "FP PROJECTIONS REFUSED: the newest capture" in err and not (tmp_path / "proj_fp-T.csv").exists()
-    assert _run_main(tmp_path, monkeypatch, "2026-10-11T15:10:00Z", require=False) == 0      # the 09:10 build: banner only
+    assert rc == 0 and out.is_file()
+    assert "captured 2026-10-11T15:38:35+00:00 AFTER" in err and "FP last updated 2026-10-11T13:58:38+00:00 BEFORE them" in err
+    assert "LAST UPDATED BEFORE THE 10:30 CT INACTIVES" in err
+    meta = json.loads(Path(str(out) + ".json").read_text())
+    assert meta["before_inactives"] is True and meta["captured_before_inactives"] is False
+    assert meta["content_floor_utc"] == "2026-10-11T11:00:00+00:00"
+
+
+def test_the_t70_gate_refuses_fp_numbers_from_before_sunday_morning(tmp_path, monkeypatch, capsys):
+    rc, out = _run_main(tmp_path, monkeypatch, "2026-10-10T21:00:00+00:00", extra=["--require-after-inactives"])
+    assert rc == 2 and not out.exists()
+    assert "before Sunday morning" in capsys.readouterr().err
+    rc, _ = _run_main(tmp_path, monkeypatch, None, extra=["--require-after-inactives"])                # unknown: refuse
+    assert rc == 2
+
+
+def test_without_the_t70_flag_old_fp_numbers_are_used_with_the_banner(tmp_path, monkeypatch, capsys):
+    rc, out = _run_main(tmp_path, monkeypatch, "2026-10-10T21:00:00+00:00")
+    assert rc == 0 and "LAST UPDATED BEFORE" in capsys.readouterr().err
+
+
+def test_the_timing_line_names_both_our_capture_time_and_fps_update_time(tmp_path, monkeypatch, capsys):
+    """Replaces the 10-06 rule's test (refuse a capture taken before the inactives): the operator 10-07 keys the gate to FP's
+    own update time. An early capture of fresh numbers is used; a late capture of numbers updated after 10:30 says AFTER."""
+    rc, _ = _run_main(tmp_path, monkeypatch, "2026-10-11T15:05:00+00:00", retrieved_at="2026-10-11T15:10:00+00:00",
+                      extra=["--require-after-inactives"])
     err = capsys.readouterr().err
-    assert "BEFORE THE 10:30 CT INACTIVES" in err and (tmp_path / "proj_fp-T.csv").exists()
-    (tmp_path / "proj_fp-T.csv").unlink()
-    assert _run_main(tmp_path, monkeypatch, "2026-10-11T15:46:30Z", require=True) == 0       # the 10:46 capture: accepted
-    assert "FP CAPTURE TIMING: 2026-10-11T15:46:30Z AFTER the 10:30 CT inactives" in capsys.readouterr().err
+    assert rc == 0 and "captured 2026-10-11T15:10:00+00:00 BEFORE the 10:30 CT inactives" in err
+    assert "FP last updated 2026-10-11T15:05:00+00:00 BEFORE them" in err
+    (tmp_path / "proj_fp.csv").unlink(); Path(str(tmp_path / "proj_fp.csv") + ".json").unlink()
+    rc, _ = _run_main(tmp_path, monkeypatch, "2026-10-11T15:44:00+00:00", retrieved_at="2026-10-11T15:46:30+00:00",
+                      extra=["--require-after-inactives"])
+    err = capsys.readouterr().err
+    assert rc == 0 and "FP last updated 2026-10-11T15:44:00+00:00 AFTER them" in err and "LAST UPDATED BEFORE" not in err

@@ -246,7 +246,9 @@ def test_the_term_block_rides_into_the_units_and_a_missing_block_stops_publicati
     after = (Path(__file__).resolve().parents[1] / "scripts" / "sunday_after_build.sh").read_text()
     assert '[[ "${TERM_BLOCK_MISSING_OK:-0}" == "1" ]] && echo --accept-term-block-missing' in after
     arm = (Path(__file__).resolve().parents[1] / "scripts" / "arm_week5_saturday.sh").read_text()
-    assert "\nTERM_ROWS=0 " in arm and "UNION_TERM_BLOCK_SHA256=$TERM_SHA" in arm
+    assert '\nTERM_ROWS="" ' in arm and "UNION_TERM_BLOCK_SHA256=$TERM_SHA" in arm         # M2: empty refuses to arm
+    assert '[[ -n "$TERM_ROWS" ]] || stop "TERM_ROWS is not set' in arm
+    assert "\nTERM_FILE=reports/2026-10-08-live-block/cheap2-w5.csv " in arm and "--require-bonus" in arm
 
 
 def test_the_week5_arm_pins_the_class_sleeves_model_in_step_0():

@@ -14,7 +14,10 @@ Exit 0 = publish; exit 1 = skip (the reason on stdout; the watcher logs it and l
   * --built-after ISO: the receipt's built_utc must not be earlier (Wednesday's smoke, a Thursday paper build never are);
   * a `superseded` marker (the build host writes it when a build finishes after the T-70 build's start) is never published;
   * a `term_block_missing` marker (the build host: the decided live term block is not in this union's book) is not
-    published unless --accept-term-block-missing (TERM_BLOCK_MISSING_OK=1, the operator's decision to enter without it).
+    published unless --accept-term-block-missing (TERM_BLOCK_MISSING_OK=1, the operator's decision to enter without it);
+  * a `union_required` marker (the build host, 2026-10-07, the outside review's H1: the union failed while the week's
+    construction lives only in the union -- MIX, or a live term block) is not published unless --accept-union-failed
+    (UNION_FAILED_OK=1, the operator's decision to enter the plain T-70 book); `union_failed` alone stays the fallback.
 """
 from __future__ import annotations
 
@@ -36,7 +39,8 @@ def parse_utc(text: str):
 
 
 def publishable(run: Path, union_mode: bool, audit_gate: bool = True, group: str | None = None,
-                built_after: str | None = None, accept_term_block_missing: bool = False) -> tuple[bool, str]:
+                built_after: str | None = None, accept_term_block_missing: bool = False,
+                accept_union_failed: bool = False) -> tuple[bool, str]:
     for f in ("receipt.json", "candidates.parquet", "incumbent_player_scores.npy"):
         if not (run / f).is_file():
             return False, f"{f} not written yet"
@@ -47,6 +51,9 @@ def publishable(run: Path, union_mode: bool, audit_gate: bool = True, group: str
     if (run / "term_block_missing").is_file() and not accept_term_block_missing:
         why = (run / "term_block_missing").read_text().strip()
         return False, f"term_block_missing: the decided term block is not in this book ({why}); STOP for the operator (TERM_BLOCK_MISSING_OK=1 enters without it)"
+    if (run / "union_required").is_file() and not accept_union_failed:
+        why = (run / "union_required").read_text().strip()
+        return False, f"union_required: the union failed and this plain T-70 book has none of the week's settings ({why}); STOP for the operator (UNION_FAILED_OK=1 enters it)"
     if group is not None or built_after is not None:
         try:
             rec = json.loads((run / "receipt.json").read_text())
@@ -80,9 +87,11 @@ def main(argv=None) -> int:
     ap.add_argument("--built-after", help="ISO UTC; a run dir built before this (a smoke, an old build) is never published")
     ap.add_argument("--accept-term-block-missing", action="store_true",
                     help="publish a union marked term_block_missing (the operator's decision; TERM_BLOCK_MISSING_OK=1)")
+    ap.add_argument("--accept-union-failed", action="store_true",
+                    help="publish a T-70 book marked union_required (the operator's decision; UNION_FAILED_OK=1)")
     a = ap.parse_args(argv)
     ok, why = publishable(a.run, a.union_mode, audit_gate=not a.no_audit_gate, group=a.group, built_after=a.built_after,
-                          accept_term_block_missing=a.accept_term_block_missing)
+                          accept_term_block_missing=a.accept_term_block_missing, accept_union_failed=a.accept_union_failed)
     print(why)
     return 0 if ok else 1
 

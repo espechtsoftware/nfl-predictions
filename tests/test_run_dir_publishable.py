@@ -79,3 +79,16 @@ def test_a_missing_term_block_stops_publication_until_the_operator_accepts(tmp_p
     assert not ok and "term_block_missing" in why and "OWN TERM REFUSED" in why and "TERM_BLOCK_MISSING_OK=1" in why
     assert rp.publishable(d, True, accept_term_block_missing=True) == (True, "publishable")
     assert rp.main([str(d), "--union-mode"]) == 1 and rp.main([str(d), "--union-mode", "--accept-term-block-missing"]) == 0
+
+
+def test_a_union_failure_under_the_weeks_settings_stops_publication_until_the_operator_accepts(tmp_path):
+    """The outside review 10-07, H1: a T-70 dir the host marked union_failed AND union_required (the union failed while the
+    week's construction lives in it: MIX or a live term block) is not published -- the plain T-70 book has none of it --
+    unless --accept-union-failed (UNION_FAILED_OK=1). union_failed alone stays the fallback (a house-shape week)."""
+    d = _run(tmp_path, union=False); (d / "audit_passed").touch(); (d / "union_failed").touch()
+    assert rp.publishable(d, True) == (True, "publishable")                                  # the old fallback
+    (d / "union_required").write_text("2026-10-11T15:52Z run x: UNION FAILED (the union build audit failed) under UNION_MAIN=mix\n")
+    ok, why = rp.publishable(d, True)
+    assert not ok and why.startswith("union_required:") and "UNION_FAILED_OK=1" in why and "build audit failed" in why
+    assert rp.publishable(d, True, accept_union_failed=True) == (True, "publishable")
+    assert rp.main([str(d), "--union-mode"]) == 1 and rp.main([str(d), "--union-mode", "--accept-union-failed"]) == 0
