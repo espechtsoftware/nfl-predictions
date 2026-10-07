@@ -1,4 +1,4 @@
-# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06 and 10-07, amendments 1, 1b, 2, 3, 4, 5, 6, 6b, 6c, 6d, 6e and 6f before Week 5's lock; repair 6g and the big-win rule 6h before its first score)
+# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06 and 10-07, amendments 1, 1b, 2, 3, 4, 5, 6, 6b, 6c, 6d, 6e, 6f and 6i before Week 5's lock; repair 6g and the big-win rule 6h before its first score)
 
 **Status: FROZEN 2026-10-06** by the reviewer, BEFORE any week of the decision arm (MIXT_RS0) or of the exploratory arms
 QBB0 / NQC0 / QAL / RBC0 was read on any slate. Disclosed: before the freeze, the reference MIXT_QA0 was scored on
@@ -538,6 +538,43 @@ score. Nothing here enters a contest: the money path, its checkout and its files
     - `tests/test_s38_paper_corun.py`, `3c1b8a212346e20e7cc695f0734d76365e73fe81beb26e5c94d671aa1c259844` (26 tests; one
       added: $125 not big, $490 big, $20 not big, $333 / $555 / $4,444 big);
     - every other sha stands, including the four the Friday integrity gate pins.
+- **Amendment 6i (2026-10-07, before Week 5's lock; no Week-5 outcome exists).**
+  - **Why.** The operator chose the cheap +2 block as Week 5's live block (about 13:10, confirmed directly to the laptop),
+    "matchup kept on paper". MIXT_QA0_MATCHUPX (6d) is the whole-book matchup bonus, not the 8-row block, so no paper arm
+    built the matchup block in its 8-row form.
+  - **What changes.** A new exploratory arm, **MIXT_QA0_MBLOCK8**: his live construction plus the 8-row MATCHUP block.
+    - The block comes from a PAPER file in the snapshot, `paper-mblock-*.csv`: the week's production
+      `matchup_block_file.py` file, copied by `s38_snapshot.sh`'s `S38_PAPER_MBLOCK_FILE` (integration `7c7f11ce`).
+    - It uses 6b's frozen parameters (8 rows, tilt 0.20, cap 2.0, gate 0.5), through the same own_bonus and term_book.
+    - It never carries the live block; its paper block replaces it, as TERM8's does. Reference MIXT_QA0_NOTERM.
+    - With the matchup block live from the same file it equals MIXT_QA0. Without a paper file, with a live fill other than
+      rr, or with a live regulars' block, it is missing that week (recorded).
+    - It is built after every earlier arm. The build CLI, the content identity, the scorer and the reader carry it (the
+      reader's descriptive line "the paper matchup block − NOTERM").
+  - **What does not change:** the rule (§5), the decision pair, and every other arm.
+  - **The smoke** (dry run, Week 4's frozen copies; 6f's inputs plus 6e's W4 matchup file as the paper matchup block;
+    `~/private/paper-corun/smoke-w4-amend6i/`, script `run.sh`):
+    - **OFF** (no live block): every one of the 17 amendment-6f arms is identical to 6f's smoke. MIXT_QA0_MBLOCK8 is built
+      with 8 term rows at ranks 2, 5, 9, 12, 15, 18, 22, 25, differs from NOTERM (17 of 26 rows shared), and the paper file
+      applied (127 players, none capped).
+    - **ON, the matchup block live from the same file:** every 6f arm is identical to 6f's ON smoke, and MBLOCK8 = MIXT_QA0.
+    - **ON, the cheap +2 block live** (production's `cheap_block_file.py` on W4's frame, cap 2.0; 134 of 292 skill
+      players): MIXT_QA0 carries the cheap block (8 rows, applied) and differs from MBLOCK8. MBLOCK8, NOTERM, TERM8 and the
+      factor and cheap paper arms equal OFF's.
+    - Parity none in all three. `books.json` OFF `60ea49d4`, ON-matchup `5e171463`, ON-cheap `1944e3ca`.
+  - **The integrity gate (§7)** adds: the MANIFEST names `paper-mblock-*`; the paper matchup block is applied;
+    MIXT_QA0_MBLOCK8 has 8 term rows at ranks 2–25. The gate now pins 6i's four shas.
+  - **Code:** lab `beea499`:
+    - `experiments/s38_paper_corun.py`, sha256 `1f5d43e230edd634b5b0466d6e4cf37beb3221bc1491896b66ed20aad6e6cac0`;
+    - `scripts/s38_build.py`, `42ce1de6526fabd0ed9621a1ec86c635c9288195565b07bb50d6f24e1f86aa4a`;
+    - `scripts/s38_score.py`, `fffe2dde259a8a04344cfe3513034aa27be90d46652f2dc39d78824362dd9deb`;
+    - **`scripts/s38_report.py` (the reader), sha256 `e5120fe3048b67f2c8f873d1efe199af571afbf46561258c7387eb9b40a5444a`**;
+    - `tests/test_s38_paper_corun.py`, `1853acd92d61cd0e5046f59e73296599183cd18692381db47202f6f5f2d30ccc` (27 tests);
+    - `scripts/s38_plan.py` `6c4cc53a…` (6h), unchanged.
+  - **Order:**
+    1. this amendment;
+    2. the laptop's ack (tests and its own smoke copy);
+    3. Friday's cheap-armed A3 and the integrity gate.
 
 ## 1. Why
 - **The operator (10-06), on the proposal:** "yes, please try it, I want to exhaust all reasonable options."
