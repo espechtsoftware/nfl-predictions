@@ -12,6 +12,21 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (19:42 CDT) — Study 46 (half-and-half): NO DIFFERENCE, leaning positive; the operator says yes PENDING the 2022 check; the machine waits for the outside job
+
+- **Study 46 READ** (reviewer d48ff3c, 4578b611; census 1a95ba7c), reproduced byte-identically. Raw dir `~/s46-panel/run`.
+  - HALF − LIVE on the calibrated field (v2): +0.03170 [−0.00632, +0.06865]; guard 2 ratio 1.062; guard 1 lower −0.01527.
+  - Records merged (4a3947f4).
+- **The production switch** `--mix-rs-rows` / `MIX_RS` is merged OFF (f70ce138). The reviewer's review is CLEAN, with parity to the lab's scripted builder.
+- **The W2–4 real-field replay at rs 13** (`~/rehearsals/half13-combined`):
+  - P(≥1 big): HALF .083 / .010 / .530 vs live .041 / .002 / .434.
+  - Mean finish 48.8 vs 48.4 (him 53.9; W4 54.2 vs his 53.6).
+  - W3's first build hit a one-off CBC execution error; the clean re-run passed.
+  - The replay started when the outside reviewer's first process exited, so it overlapped their lighter second phase (~1 minute; disclosed to the operator).
+- **The operator (AskUserQuestion):**
+  - HALF for W5: "Yes, pending 2022 check". It goes in unless study 46c (the 17 never-read 2022 slates, frozen before its read) contradicts it. Decision sheet row 16; checklist item 11.
+  - The machine: "Wait for the outside job". Nothing heavy from either agent until no winners_strategy_study.py process is left. A watcher is running; the reviewer's queue is the amendment-4 smoke, study 47, then 46c.
+- **Gate checker:** the laptop's reading is that no gate contract covers the union's book construction (contracts describe generation env only), so no change is needed. This is with the reviewer for confirmation.
 ## 2026-10-06 (18:44 CDT) — Study 45 WORSE (not for W5); "play like the regular" benchmark (W1–4); field calibration v2; study 46 next
 
 - **Study 45** (the contrarian row at rank 22; reviewer e2d73a2, READ 376d396d) is reproduced byte-identically: WORSE. The position's big-seat chance is −0.01009 [−0.02178, −0.00205]; the contrarian row wins its satellite 0.28% vs 1.29%.
