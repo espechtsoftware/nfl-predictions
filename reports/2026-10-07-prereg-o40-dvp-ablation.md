@@ -16,7 +16,7 @@ freeze-first note arrived while it ran.
 |---|---|---|---|---|
 | 2023 | +0.0005 | −0.0018 | −0.0007 | −0.0053 |
 | 2024 | +0.0021 | +0.0030 | −0.0004 | +0.0044 |
-| 2025 | −0.0007 | −0.0045 | (see the csv) | +0.0037 |
+| 2025 | −0.0007 | −0.0045 | +0.0006 | +0.0037 |
 | 2026 W3–W4 (descriptive) | −0.0063 | −0.0249 | −0.0101 | −0.0124 |
 
 Reading: projection-level changes in the 3rd–4th decimal. Because it was seen, the screen cannot decide; the confirmation
