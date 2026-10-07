@@ -1,0 +1,96 @@
+# Week 5: what can still change this week (2026-10-07, afternoon)
+
+The operator, 10-07: *"I'm very interested in finding improvements that can be made this week after several weeks of
+heavy losses. Please consider ideas - prioritizing those that can be tested this week."*
+
+Outside reviewer. Everything here was measured today on data we already hold: the Week 1–4 real Millionaire fields
+(1.33M lineups), the T-70 frames, the W2–4 replay books at the Week-5 settings, and 2018–2025 history. Scripts and full
+outputs are in `reports/2026-10-07-brainstorm/` (`line_depth.*`, `role_value.*`, `role_persist.*`). Aggregates only.
+This is evidence for the operator's Saturday choice. It is not a passed test.
+
+## 0. In plain words
+
+**Already right under the Week-5 settings (nothing to do):**
+- the salary is used (at most $300 left in any replay row);
+- defenses are cheaper than the field's;
+- about two-thirds of rows sit in the four highest-total games;
+- late-game inactives are replaced at 1:55 CT by production's step.
+
+**New today: what wins at the depths Week 5 actually enters.** Week 5's installed plan puts most entries into contests
+paying the top 1–4%, with a few shallower. Within the same user's lineups, three patterns held in **all four weeks** at
+those depths:
+
+| Within the same user's lineups (users with 20+ entries) | top 1% | top 4% | top 10% | top 20% |
+|---|---|---|---|---|
+| **2+ players under $4,000 vs 0–1** | 1.87 | **1.81** (1.73 / 2.15 / 1.92 / 1.88) | 1.77 | 1.71 |
+| **Defense under $3,000 vs $3,500+** | 2.86 | **2.29** (2.98 / 3.09 / 2.42 / 1.22) | 1.91 | 1.76 |
+| **QB with 3+ teammates vs 2** | 1.32 (mixed) | **1.29** (1.35 / 1.12 / 1.29 / 1.08) | 1.28 | 1.23 |
+| QB with 1 teammate vs 2 | 0.80 | 0.82 (W4 1.68) | 0.85 | 0.90 |
+| Projection above the user's own median | 1.55 | 1.42 (W2, W4 below 1) | 1.38 | 1.31 |
+| Chalkier (ownership sum above own median) | 0.99 | 1.00 | 1.00 | 0.99 |
+
+The numbers are odds ratios of finishing inside the line; per-week values are in brackets. Higher projection and chalk
+do not reliably help, even at shallow depths.
+
+**Why study 53 found nothing for the cheap block.** It tested on 2022–24, the three weakest seasons since 2018 for
+cheap players with real roles, on both value per dollar and the 4× rate. 2026 has the highest value per dollar of the
+nine so far:
+
+| Weeks 1–4, depth-chart starters under $4,000 | 2018 | 2019 | 2020 | 2021 | 2022 | 2023 | 2024 | 2025 | **2026** |
+|---|---|---|---|---|---|---|---|---|---|
+| Points per $1,000 | 1.85 | 1.82 | 1.81 | 1.80 | 1.43 | 1.64 | 1.16 | 1.76 | **1.87** |
+| Share scoring 4× salary | .103 | .124 | .110 | .139 | .074 | .099 | .051 | .112 | **.130** |
+
+A season's early *average* cheap value carries forward: across 2018–2025, Weeks 1–4 correlate 0.68 with Weeks 5–8.
+Its *boom* rate does not (0.21), and booms are what deep lines need. So this supports the cheap block for 2026, but only
+partly.
+
+**Options, ranked:**
+
+1. **Cheap +2 in place of the matchup block, as an override of the frozen stop. The operator decides.**
+   - **On history:** it is neutral, not harmful (2023–24 +0.004 [−0.031, +0.043]; 2022 −0.0016; expected big seats −6%).
+   - **This season:** the evidence is consistently positive. The W2–4 replay ran ahead every week (ratio 1.46), and the
+     real fields show the pattern at every depth, every week.
+   - **Against it:**
+     - This reasoning comes after study 53's read and uses the same four weeks that suggested the idea.
+     - The boom rate is weak to persist (0.21).
+     - It would be recorded as an override, not a passed test.
+   - **My recommendation:** if one block goes in this week, cheap +2 rather than matchup. Both are neutral on history,
+     and only cheap has this season's evidence behind it.
+   - **Timing:** decide before Friday's A3 rehearsal, so the rehearsal and its 6e snapshot gate use the block that will
+     be entered. Production already writes both files on Thursday.
+   - *(Earlier today I told the laptop I would not argue for an override. The depth and season results above are new
+     since then, and they change my view of his choice. They do not change the frozen verdict.)*
+2. **Keep the matchup block.** This is the rule's choice, also neutral on history (study 51: enterable).
+3. **For Week 6, with proper tests:**
+   - **A shape tilt toward QB + 2 / QB + 3.** Our Week-5 replay rows are 50% QB + 1, 42% QB + 2 and 8% QB + 3+, while the
+     field runs about 52 / 33 / 15. QB + 3 beat QB + 2 in all four weeks at the top 4–20%. This needs a harness test at
+     the installed plan's lines; study 18's shape result stands until then.
+   - **Duplicate-aware dealing** for one-seat satellites (study list 50).
+   - **R4 joint coverage** for the contests with two entries (study 32 passed, +0.030; the tool is due in Week 6). The
+     five-entry SUPERSat pins follow his rule ("reuse my top lineups ... hope with those is to win many"), so R4 does
+     not apply there.
+
+**Checked and not worth doing:**
+- a salary floor (salary is already used);
+- a ceiling objective (tested null before the season);
+- late swap (closed, lab 023 / 024);
+- prop-line movement (the close absorbs the news, Addendum 17).
+
+## 1. Method notes
+
+- **Line depth (`line_depth.py`)**
+  - Population: the week's largest Millionaire, users with 20+ entries, and lineups with all nine names matched to the
+    T-70 frame.
+  - The finish is inside the line when rank ≤ the line × the field.
+  - The Mantel–Haenszel odds ratio is stratified by user-week.
+  - Projection is the frame's mean projection. Ownership is realized field ownership, used as the measure of chalk.
+- **Season regime (`role_value.py`, `role_persist.py`)**
+  - Population: depth-chart starters (`player_week_role`: WR ≤ 3, TE 1, RB ≤ 2) in Sunday 13:00–16:30 ET games.
+  - History: 2018–2025 salaries from `dk_salaries_historical`, joined by normalized name + season + week to
+    `rosters_weekly` (gsis) and to `player_week_actuals`. A starter without an actuals row scores 0.
+  - 2026: the T-70 frames with the same role and actuals tables.
+  - An earlier pass without the role filter is not used: the 2022–25 salary rows hold about twice as many fringe cheap
+    players as other seasons.
+- **Stack size:** the W2–4 replay books at the Week-5 settings (`~/rehearsals/outside-cblocks-20261007T153309Z`) vs the
+  10-07 structure screen's field shares.

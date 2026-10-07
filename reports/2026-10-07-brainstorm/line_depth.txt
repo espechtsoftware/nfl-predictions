@@ -1,0 +1,23 @@
+W1: multi-entry lineups 388,386
+W2: multi-entry lineups 56,139
+W3: multi-entry lineups 55,188
+W4: multi-entry lineups 56,620
+
+within user-week Mantel-Haenszel odds ratios by line depth (W1-4 real Millionaire fields, users with 20+ entries)
+                   feature (vs reference)  top1% OR         top1% weeks  top4% OR         top4% weeks  top10% OR        top10% weeks  top20% OR        top20% weeks
+              projection above own median      1.55 2.18/0.77/1.36/0.56      1.42 1.75/0.88/1.42/0.63       1.38 1.60/0.93/1.52/0.69       1.31 1.46/0.93/1.60/0.78
+ownership sum above own median (chalkier)      0.99 0.96/1.54/1.02/0.70      1.00 0.96/1.48/1.14/0.74       1.00 0.96/1.39/1.19/0.79       0.99 0.93/1.38/1.24/0.83
+                        2+ sub-$4k vs 0-1      1.87 1.69/2.46/2.30/2.09      1.81 1.73/2.15/1.92/1.88       1.77 1.76/2.01/1.60/1.63       1.71 1.71/2.04/1.54/1.56
+                DST < $3,000 vs >= $3,500      2.86 4.21/4.92/3.04/1.28      2.29 2.98/3.09/2.42/1.22       1.91 2.40/2.40/1.96/1.08       1.76 2.17/2.08/1.76/1.06
+                         QB + 1 vs QB + 2      0.80 0.69/0.90/0.59/1.98      0.82 0.73/0.90/0.72/1.68       0.85 0.78/0.86/0.83/1.39       0.90 0.85/0.90/0.94/1.22
+                        QB + 3+ vs QB + 2      1.32 1.50/0.99/1.08/0.72      1.29 1.35/1.12/1.29/1.08       1.28 1.33/1.14/1.24/1.10       1.23 1.29/1.16/1.11/1.10
+                    bring-back 1+ vs none      1.77 2.32/0.58/1.42/1.65      1.52 1.88/0.71/1.22/1.16       1.37 1.65/0.78/1.00/1.05       1.26 1.44/0.82/0.94/1.06
+
+mean percentile finish (share of field beaten) by projection quintile WITHIN user-week:
+week      1      2      3      4
+pq                              
+1     0.470  0.567  0.484  0.549
+2     0.508  0.570  0.522  0.547
+3     0.529  0.562  0.547  0.537
+4     0.540  0.573  0.578  0.530
+5     0.559  0.493  0.618  0.501

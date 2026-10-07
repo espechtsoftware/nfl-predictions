@@ -1,0 +1,42 @@
+/tmp/claude-1000/-home-erich-projects-nfl-predictions/5b45848a-b7d8-4455-85c7-aaa433f36ba3/scratchpad/brain/role_persist.py:36: Pandas4Warning: Starting with pandas version 4.0 all arguments of mean will be keyword-only.
+  print("\nacross 2018-2025: correlation of W1-4 with W5-8 cheap value (ppk) %.2f; with the rest of the season (W5-17 mean) %.2f" % (h["W1-4"].corr(h["W5-8"]), h["W1-4"].corr(h[["W5-8", "W9-12", "W13-17"]].mean(1))))
+/tmp/claude-1000/-home-erich-projects-nfl-predictions/5b45848a-b7d8-4455-85c7-aaa433f36ba3/scratchpad/brain/role_persist.py:38: Pandas4Warning: Starting with pandas version 4.0 all arguments of mean will be keyword-only.
+  print("same for the 4x rate: W1-4 vs W5-8 %.2f; vs W5-17 %.2f" % (x["W1-4"].corr(x["W5-8"]), x["W1-4"].corr(x[["W5-8", "W9-12", "W13-17"]].mean(1))))
+cheap (<$4k) depth-chart starters, by season and block of weeks: points per $1k / 4x-salary rate / n
+block   W1-4  W5-8  W9-12  W13-17
+season                           
+2018    1.85  1.86   1.66    1.80
+2019    1.82  1.57   1.32    1.65
+2020    1.81  1.69   1.76    1.78
+2021    1.80  1.71   1.32    1.41
+2022    1.43  1.35   1.47    1.62
+2023    1.64  1.29   1.53    1.45
+2024    1.16  1.39   1.26    1.51
+2025    1.76  1.92   1.77    1.61
+2026    1.87   NaN    NaN     NaN
+block    W1-4   W5-8  W9-12  W13-17
+season                             
+2018    0.103  0.122  0.108   0.107
+2019    0.124  0.082  0.070   0.111
+2020    0.110  0.127  0.107   0.104
+2021    0.139  0.080  0.072   0.079
+2022    0.074  0.072  0.087   0.123
+2023    0.099  0.065  0.071   0.072
+2024    0.051  0.083  0.082   0.093
+2025    0.112  0.151  0.124   0.067
+2026    0.130    NaN    NaN     NaN
+block   W1-4  W5-8  W9-12  W13-17
+season                           
+2018     214   180    176     298
+2019     217   159    158     226
+2020     100   110    121     211
+2021     165   138    125     152
+2022     136   111    126     163
+2023     161   170    154     208
+2024     136   108    122     161
+2025     143   126    137     179
+2026     123     0      0       0
+
+across 2018-2025: correlation of W1-4 with W5-8 cheap value (ppk) 0.68; with the rest of the season (W5-17 mean) 0.64
+same for the 4x rate: W1-4 vs W5-8 0.21; vs W5-17 0.01
+week level 2018-2025: correlation of a week's cheap ppk with the previous 4 weeks' mean 0.27 (n 104 weeks)
