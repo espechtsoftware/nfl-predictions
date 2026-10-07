@@ -50,6 +50,18 @@ small-contest overlap limit 5):
 On Rev3 under head, the $4,444 / $555 / $333 / FFWC contests read ranks 1–19, the Midseason Warm Up satellites (also
 priority, the operator 10-07) 20–22, and the $20 supersats 23–26.
 
+**THE PLAN: Rev4** (added to the DRAFT before study 56's read). The operator, 10-07: "I forgot about the midseason
+warm ups. Those are big prizes. Can we move that up to under the 4444 and before 555."
+- His Rev4 holds Rev3's 29 contests and fields, re-ordered. The Warm Up sats move to ranks 4–6 under head (from 20–22),
+  and the priority span becomes ranks 1–22.
+- Rev4's per-rank entry weights equal Rev3's, so the books and their built order are unchanged. Only the contest-to-rank
+  map moves.
+- Every arm is dealt on Rev4's map (`~/s24-panel/plan-week5-rev4-s24.json`, built from Rev3 by re-ordering its contests;
+  its head ranks are checked against the laptop's; its sha is pinned at the freeze). The decision therefore isolates the
+  sort, on the plan he will run.
+- The Rev3 → Rev4 move itself is his plan decision, an entry-side change. The laptop's in-sample screen covers it
+  (CB_REV4 vs CB).
+
 ## 3. Endpoint and rule (the reader `scripts/s59_report.py`)
 - **THE READ: 2023–24** (36 slates).
   - CB_PRI − CB, P(≥ 1 big seat) per slate on the calibrated field v2.
