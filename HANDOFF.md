@@ -12,6 +12,38 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-07 (11:00 CDT) — FP's W5 projections captured; the QB coverage page and FP's weekly rankings still unposted; graph queries hardened; the outside reviewer's boom-calibration check
+
+- **FP W5 projections** (scripts/fp_projections_capture.sh, label wed-retry-1100; log ~/.cache/nfl-dfs/fp-projections/):
+  - captured, archived and loaded: dfs 5,954 rows (DK Main 154468: 571 players, FP updated 09:48 CT, no ownership yet),
+    weekly 536, rankings-ros 271;
+  - **rankings-weekly REFUSED** ("a row is for week 4, expected 5": FP has not rolled that page), so the script exited 2 (the
+    loud miss).
+  - Retry this afternoon. Saturday's arming and the Sunday unit run the same collector.
+  - The union now has FP's real W5 means for Thursday's A3 and the block files.
+- **FP live matchups re-run** (python -m nfl_dfs.ops.fantasy_points_matchups --week 5 --archive, from the main checkout, under
+  the FP profile lock): **qb-coverage-matchup still fails its schedule gate** (3 attempts; FP has not posted W5's). Retry this
+  afternoon or Thursday.
+- **Graph queries:** the outside reviewer's within_portfolio.py and cheap_tier.py (DISTINCT players per lineup, hardening) are
+  copied byte-identical at 7e5c58b6 (d61db2df: 25bb03f3 / 15821900). All five graph_weekly files match their branch.
+  - Their duplicate-edge census found none; the +202 relationships on the W4 reload were FP_PROJECTED (413 sent vs 211 before).
+  - The checklist's Monday step names all four queries and the W1–4 baselines (c613fa73).
+- **The outside reviewer's boom-calibration check** (W1–4 T-70 frames; their finding):
+  - the incumbent draws OVER-state sub-$4k booms: 4× salary 27 vs 46.0 (z −3.0); 2× own mean 70 vs 109.7 (z −4.3);
+  - corrected_hsim is calibrated (24 vs 25.6; 40 vs 41.6);
+  - $6–7.9k WRs are under-stated by the incumbent (25+ points: 14 vs 6.7).
+  - So the cheap edge is not a tail-calibration miss: the flat block is the vehicle and study 53 the test.
+  - The incumbent's fringe-cheap over-dispersion is their open item for row-building worlds (boom pool / tail sleeve), not a
+    W5 change.
+- **Decision sheet row 21** adds the whole-field version of the sub-$4k pattern (every user with 20+ Millionaire entries:
+  +0.31 sd, positive in all four weeks) with the after-the-games caveat (517426b4).
+- **Thursday helpers** (host, ~/.cache/laptop-agent/rehearsal/):
+  - w5_write_block_files.sh <A3 dir> <checkout>: both files from the block-OFF A3's frame plus the arm's check. Tested on the
+    W4 frame: the cheap file reproduces e7b77399, the W4 +2 bytes; it refuses a dirty checkout or an existing file.
+  - w5_matchup_union_check.sh <A3 dir> <matchup file> <sha>: Friday's union-only matchup run from A3's own union_args.txt with
+    the source swapped. Untested until a cheap-armed A3 exists.
+- The study 53 scored run (reviewer, started 10:51, 5 arms) is in progress.
+
 ## 2026-10-07 (10:52 CDT) — Study 53 amendment 1 re-ACKED (census byte-identical; the four frozen arms unchanged); the scored run is the reviewer's; R14 scope note
 
 - **Study 53 amendment 1 FROZEN** (prereg 9ad836fe on s48-prereg, file sha256 de2c5181; lab 0cdfe31, the census at f71965b).
