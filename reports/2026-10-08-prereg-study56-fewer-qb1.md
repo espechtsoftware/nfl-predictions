@@ -35,6 +35,13 @@ shares the fill allocates and interleaves to):
 - **QB2HALF** moves half of each QB+1 cell's quota to its QB+2 counterpart with the same bring-back rule: B to A1, C to A2.
 - **The mechanism:** a context manager sets `s28_winners_mix.QUOTAS` (which mix_fill reads at call time) for that arm's
   build and restores it afterwards. The cells' StackRules are unchanged.
+- **Added to the DRAFT at about 13:37, still before study 54's read:** two EXPLORATORY arms with Week 5's live block. The
+  operator's 10-07 trial puts the cheap +2 block in the 8-row slot, and if this tilt is adopted the two would run together.
+  - **LIVE_CB:** LIVE plus study 53's CHEAP2_BLOCK8 block (`s53_cheap_pref.py` `f3f9d735…`, `term_book.py` `62c2306e…`):
+    the +2 term on every non-DST player under $4,000, cap 2.0, at ranks 2, 5, 9, 12, 15, 18, 22, 25.
+  - **QB2HALF_CB:** the same block at QB2HALF's quotas. The block's own rows allocate by the arm's quotas, as production's
+    `--mix-cell-quotas` would make them.
+  - Read only as QB2HALF_CB − LIVE_CB, the tilt beside his live block, on the read and on 2022.
 - **Production's constraints** are asserted on every arm's 41 rows. Each arm is dealt by the head layout.
 - **Production's vehicle for a Week-6 adoption:** a new named portfolio in `mix_shapes.PORTFOLIOS` (union_reselect
   `--mix-portfolio`), with the same cells and these quotas.
@@ -59,6 +66,7 @@ shares the fill allocates and interleaves to):
   - otherwise ENTERABLE, his decision.
 - **EXPLORATORY** (two-sided 0.95):
   - QB2ALL − LIVE, on the read and on 2022;
+  - QB2HALF_CB − LIVE_CB (the tilt beside the cheap +2 block), on the read and on 2022;
   - the decision on l02;
   - P(≥ 1 big seat) over the plan's SATELLITES only (the plan's contests less the Millionaire), QB2HALF − LIVE, on the
     read and on 2022 (the outside reviewer's "judged at the satellite lines");
