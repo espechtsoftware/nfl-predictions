@@ -33,6 +33,12 @@ MIX_QUOTAS=""                       # study 56's MIX cell quotas "A1=..,A2=..,B=
                                     # rehearsal with it and HIS yes at arming
 MIX_RS=0                            # study 46's half-and-half book (N of the 26 rows under the regulars' tiers; 0 =
                                     # off; 9 / 13 / 17). Not 0 only after study 46's READ, the replay and HIS yes
+PRIORITY_ORDER=0                    # priority-first dealing (the operator 10-07: "Let's try to do this one this week"; the
+                                    # outside reviewer's class-E proposal): the 18 non-block rows re-ordered among their own
+                                    # positions by the frozen score (nfl_dfs.inference.priority_deal), the live block kept at
+                                    # its ranks; on Rev5 (his order 10-07) the priority contests read ranks 1-22. 0 = the book's own order. 1 only
+                                    # after the W2-4 harm screen (reports/2026-10-07-priority-deal-harm-screen.md), study 59's
+                                    # read if he sets that bar, Friday's A3 with it on, and HIS yes at arming
 WINNER_ORDER=0                      # study 48b: re-order the book by study 48's winner-likeness score (most winner-like
                                     # on the big-entry ranks); 0 = off. 1 only after 48b's READ, the W2-4 check and HIS yes
 WINNER_SELECT=0                     # study 48d: keep, per cell, the most winner-like of the book rows + spares (study
@@ -59,6 +65,7 @@ stop() { say "ARM STOPPED: $*"; exit 1; }
 [[ "$MIX_COVER" =~ ^[0-8]$ && ( "$MIX_COVER" == 0 || "$SHAPE" == mixt ) ]] || stop "MIX_COVER=$MIX_COVER: 0..8, and not 0 only with SHAPE=mixt"
 [[ "$MIX_RS" == 0 || ( "$MIX_RS" =~ ^(9|13|17)$ && "$SHAPE" == mixt && "$MIX_FILL" == rr && "$MIX_COVER" == 0 ) ]] || stop "MIX_RS=$MIX_RS: 0, or 9 / 13 / 17 with SHAPE=mixt, MIX_FILL=rr and MIX_COVER=0"
 [[ "$WINNER_ORDER" == 0 || ( "$WINNER_ORDER" == 1 && "$SHAPE" == mixt ) ]] || stop "WINNER_ORDER=$WINNER_ORDER: 0, or 1 with SHAPE=mixt"
+[[ "$PRIORITY_ORDER" == 0 || ( "$PRIORITY_ORDER" == 1 && "$SHAPE" == mixt && "$MIX_RS" == 0 && "$MIX_COVER" == 0 && "$WINNER_ORDER" == 0 && "$WINNER_SELECT" == 0 ) ]] || stop "PRIORITY_ORDER=$PRIORITY_ORDER: 0, or 1 with SHAPE=mixt and no half / cover / winner order or select"
 [[ "$WINNER_SELECT" == 0 || ( "$WINNER_SELECT" == 1 && "$SHAPE" == mixt && "$WINNER_ORDER" == 0 ) ]] || stop "WINNER_SELECT=$WINNER_SELECT: 0, or 1 with SHAPE=mixt and WINNER_ORDER=0"
 [[ -z "$MIX_QUOTAS" || ( "$SHAPE" == mixt && "$MIX_QUOTAS" =~ ^A1=[0-9.]+,A2=[0-9.]+,B=[0-9.]+,C=[0-9.]+$ ) ]] || stop "MIX_QUOTAS='$MIX_QUOTAS': empty, or A1=..,A2=..,B=..,C=.. with SHAPE=mixt (study 56)"
 [[ "$TERM_ROWS" == 0 || ( "$TERM_ROWS" =~ ^[1-9][0-9]?$ && "$SHAPE" == mixt && "$MIX_FILL" == rr && "$MIX_RS" == 0 && "$MIX_COVER" == 0 && "$WINNER_ORDER" == 0 && "$WINNER_SELECT" == 0 && "$TERM_SHA" =~ ^[0-9a-f]{64}$ ) ]] || stop "TERM_ROWS=$TERM_ROWS: 0, or N with SHAPE=mixt, MIX_FILL=rr, no half / cover / winner order or select, and a pinned TERM_SHA"
@@ -119,7 +126,7 @@ arm_env() {
   # env takes every -u before any NAME=VALUE: build the two lists apart. The QB cap rides only when set (and ct + cap
   # never reaches here: the preamble stops it); unset otherwise, so check_week_runtime never sees a K without a cap.
   local u=() e=()
-  if [[ "$SHAPE" == mixt ]]; then e+=(UNION_MAIN=mix UNION_MIX_PORTFOLIO=mix UNION_MIX_FILL=$MIX_FILL UNION_MIX_COVER_GAMES=$MIX_COVER UNION_MIX_RS_ROWS=$MIX_RS UNION_WINNER_ORDER=$WINNER_ORDER UNION_WINNER_SELECT=$WINNER_SELECT UNION_TERM_BLOCK_ROWS=$TERM_ROWS UNION_TERM_BLOCK_SOURCE=$P/$TERM_FILE UNION_TERM_BLOCK_TILT=0.20 UNION_TERM_BLOCK_CAP=$TERM_CAP UNION_TERM_BLOCK_SHA256=$TERM_SHA); [[ -n "$MIX_QUOTAS" ]] && e+=(UNION_MIX_CELL_QUOTAS=$MIX_QUOTAS) || u+=(-u UNION_MIX_CELL_QUOTAS); else u+=(-u UNION_MIX_CELL_QUOTAS -u UNION_MIX_PORTFOLIO -u UNION_MIX_FILL -u UNION_MIX_COVER_GAMES -u UNION_MIX_RS_ROWS -u UNION_WINNER_ORDER -u UNION_WINNER_SELECT -u UNION_TERM_BLOCK_ROWS -u UNION_TERM_BLOCK_SOURCE -u UNION_TERM_BLOCK_TILT -u UNION_TERM_BLOCK_CAP -u UNION_TERM_BLOCK_SHA256); e+=(UNION_MAIN=pmo_x50); fi
+  if [[ "$SHAPE" == mixt ]]; then e+=(UNION_MAIN=mix UNION_MIX_PORTFOLIO=mix UNION_MIX_FILL=$MIX_FILL UNION_MIX_COVER_GAMES=$MIX_COVER UNION_MIX_RS_ROWS=$MIX_RS UNION_WINNER_ORDER=$WINNER_ORDER UNION_WINNER_SELECT=$WINNER_SELECT UNION_PRIORITY_ORDER=$PRIORITY_ORDER UNION_TERM_BLOCK_ROWS=$TERM_ROWS UNION_TERM_BLOCK_SOURCE=$P/$TERM_FILE UNION_TERM_BLOCK_TILT=0.20 UNION_TERM_BLOCK_CAP=$TERM_CAP UNION_TERM_BLOCK_SHA256=$TERM_SHA); [[ -n "$MIX_QUOTAS" ]] && e+=(UNION_MIX_CELL_QUOTAS=$MIX_QUOTAS) || u+=(-u UNION_MIX_CELL_QUOTAS); else u+=(-u UNION_MIX_CELL_QUOTAS -u UNION_PRIORITY_ORDER -u UNION_MIX_PORTFOLIO -u UNION_MIX_FILL -u UNION_MIX_COVER_GAMES -u UNION_MIX_RS_ROWS -u UNION_WINNER_ORDER -u UNION_WINNER_SELECT -u UNION_TERM_BLOCK_ROWS -u UNION_TERM_BLOCK_SOURCE -u UNION_TERM_BLOCK_TILT -u UNION_TERM_BLOCK_CAP -u UNION_TERM_BLOCK_SHA256); e+=(UNION_MAIN=pmo_x50); fi
   if [[ -n "$QB_CAP_ROWS" ]]; then e+=(UNION_MAIN_QB_CAP_ROWS=$QB_CAP_ROWS UNION_MAIN_QB_CAP_K=$QB_CAP_K); else u+=(-u UNION_MAIN_QB_CAP_ROWS -u UNION_MAIN_QB_CAP_K); fi
   env "${u[@]}" "${e[@]}" GROUP=154468 EXPECT_SHA=$PIN CLONE=$CLONE_DIR ENTER_LAYOUT=head \
     D3200_LEV=$CHOSEN_LEV D3200_BOOM=$CHOSEN_BOOM D800_LEV=$CHOSEN_LEV D800_BOOM=$CHOSEN_BOOM SKIP_UNITS="$skip" \
@@ -132,7 +139,7 @@ SKIP="d6400"; EXPECT_N=12                  # 11 + the second Sunday FP capture (
 if [[ "${ARM_LATE:-0}" == 1 ]]; then SKIP="d6400 d12800sat d6400sat"; EXPECT_N=10; say "ARM_LATE=1: Saturday supply units skipped (operator decision)"; fi
 [[ "${ARM_LATE:-0}" == 1 ]] || (( 10#$(date +%H%M) < 1028 )) || stop "it is $(date +%H:%M); the 10:30 Saturday D12800 would be in the past. Operator decision: ARM_LATE=1 (no Saturday supply builds, $((EXPECT_N - 2)) timers)"
 if [[ "$CHECK" == --check ]]; then
-  say "the timers' dose: D3200 and D800 LEV $CHOSEN_LEV / BOOM $CHOSEN_BOOM (chosen-dose.env must say the same); QB cap ${QB_CAP_ROWS:-off} rows at K $QB_CAP_K; overlap limit $MAX_SHARED shared players; MIX fill $MIX_FILL; cover $MIX_COVER; half $MIX_RS; winner order $WINNER_ORDER; winner select $WINNER_SELECT; term block $TERM_ROWS${TERM_SHA:+ (file ${TERM_SHA:0:12})}"
+  say "the timers' dose: D3200 and D800 LEV $CHOSEN_LEV / BOOM $CHOSEN_BOOM (chosen-dose.env must say the same); QB cap ${QB_CAP_ROWS:-off} rows at K $QB_CAP_K; overlap limit $MAX_SHARED shared players; MIX fill $MIX_FILL; cover $MIX_COVER; half $MIX_RS; winner order $WINNER_ORDER; winner select $WINNER_SELECT; priority order $PRIORITY_ORDER; term block $TERM_ROWS${TERM_SHA:+ (file ${TERM_SHA:0:12})}"
   UNITS=$(arm_env "$SKIP" bash scripts/arm_week_timers.sh 5 2>&1 | grep -oE 'nfl-week5-[a-z0-9-]+' | sort -u)
   for s in $SKIP; do UNITS=$(echo "$UNITS" | grep -vx "nfl-week5-$(echo $s | sed -E 's/^(d[0-9]+)sat$/\1-sat/')-build"); done
   echo "$UNITS" | sed 's/^/  planned: /'

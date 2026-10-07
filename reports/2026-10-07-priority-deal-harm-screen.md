@@ -2,7 +2,51 @@
 
 **Status: FROZEN 2026-10-07 13:58 CT, before any replay number exists** (the laptop; the wording is the TD-deal screen's,
 `c9028505`, which the reviewer worded). It is the test the money-path rule requires before the change is entered: a
-fixed-book replay on the weeks with real fields. It is in-sample. No harness study backs the change this week.
+fixed-book replay on the weeks with real fields. It is in-sample. The reviewer's study 59 is the harness test of the
+same sort (below).
+
+**Amendment 1 (2026-10-07, before any replay number exists): his contest order and the pairs.**
+
+**His requests** (to the outside reviewer, verbatim):
+- "I forgot about the midseason warm ups. Those are big prizes. Can we move that up to under the 4444 and before 555."
+- Then, FINAL: "I'm sorry - I didn't even realize what the showdown Mega is. That should be under the $333. The order
+  should be two mega 4444 satellites / midseason warmup / 555 / WFFC / 333 / Showdown mega / everything else."
+
+**The vehicle: his private plan Rev5.** It replaces an intermediate Rev4, which was never installed.
+- Rev5 holds Rev3's same 29 contests with byte-equal fields, re-ordered only. It is never committed; HANDOFF and the arm
+  script carry its sha.
+- Its per-rank entry weights equal Rev3's, so the MIX interleave and the book's rows and built order are unchanged.
+- The new ranks under head:
+  - the two $4,444 MEGA satellites: 1–2;
+  - the Midseason Warm Ups: 3–5 (from 20–22);
+  - the $555 singles: 6–11 (from 3–8). The $555 2x supersat keeps 3–4, the head block of the second 2-entry contest; it
+    shares those rows with two Warm Ups and takes none from them;
+  - the $490 FFWC: 12 (from 9);
+  - the $333 satellites: 13–21 (from 11–19);
+  - the $4,444 Showdown MEGA satellite: 22 (from 10).
+- The Millionaire's 1–2, the pinned $125 FFWC at 1, and the pinned $20 supersats over 1–26 do not move.
+- Every contest except the $20 supersats now reads ranks 1–22. Only the supersats read 23–26.
+- **The block:** its ranks 2, 5, 9, 12, 15, 18, 22 and 25 are kept. Seven of them are inside 1–22: the second MEGA, the
+  third Warm Up, a $555, the FFWC, two $333s and the Showdown each get a block row whatever the scores. Of the 18
+  sorted positions, 15 are inside 1–22. The 3 lowest-scoring non-block rows go to ranks 23, 24 and 26.
+
+**The arms** (both changes are in-sample):
+- **CB:** today's deal, Rev3 in book order.
+- **CB_REV5:** Rev5 in book order.
+- **CB_PRI:** Rev5 with `--priority-order`.
+
+**Each pair answers its own question under the frozen rule below** (NOT ENTERED if P(≥ 1 big) is lower in 2 or 3 of the 3
+weeks, or the pooled e_big ratio is below 0.80):
+- **(i) THE SORT:** CB_PRI vs CB_REV5, both on Rev5. This decides whether `--priority-order` is armed. It is the pairing
+  of the reviewer's study 59, which isolates the sort.
+- **(ii) THE PLAN RE-ORDER:** CB_REV5 vs CB. This decides whether Rev5 stands.
+- **Descriptive only:** CB_PRI vs CB, the whole change against today.
+
+"CB_PRI vs CB" in the rule below reads as pair (i), and the same rule applies to pair (ii).
+- CB and CB_REV5 are ONE book: Rev3 and Rev5 give equal weights, which the replay asserts. They are dealt on their own
+  plans.
+- CB_PRI is the same build with `--priority-order`. Integrity requires the same 26 rows, the same block rows at the block
+  positions, and the same spares.
 
 ## Why
 

@@ -9,11 +9,20 @@
 # Needs from the caller: UNION_ARGS (array), UNION_RC, OUT, RUN_TAG, and a run_union function.
 
 # mix_to_house_args ARGS... -> OUT_ARGS: --main mix becomes --main pmo_x50; --mix-plan / --mix-layout / --mix-portfolio / --mix-spares and their values dropped
+# 2026-10-07 (the laptop, wiring the priority order): every MIX-only flag goes too -- --mix-fill / --mix-cell-quotas /
+# --mix-cover-games / --mix-rs-rows, the live term block's --term-block-* (the cheap +2 trial), --winner-select (each with its
+# value) and the bare --priority-order. Each needs --main mix, so the house main REFUSED with any of them aboard and the
+# chain ended in UNION FAILED instead of C: the fallback now builds C without them (the house main never carried them).
 mix_to_house_args() {
   OUT_ARGS=(); local skip=0 x i
   for x in "$@"; do
     if (( skip )); then skip=0; continue; fi
-    case "$x" in --mix-plan|--mix-layout|--mix-portfolio|--mix-spares) skip=1 ;; *) OUT_ARGS+=("$x") ;; esac
+    case "$x" in
+      --mix-plan|--mix-layout|--mix-portfolio|--mix-spares|--mix-fill|--mix-cell-quotas|--mix-cover-games|--mix-rs-rows) skip=1 ;;
+      --term-block-rows|--term-block-source|--term-block-tilt|--term-block-cap-points|--term-block-min-coverage|--winner-select) skip=1 ;;
+      --priority-order) ;;
+      *) OUT_ARGS+=("$x") ;;
+    esac
   done
   for i in "${!OUT_ARGS[@]}"; do
     if [[ "${OUT_ARGS[$i]}" == "--main" && "${OUT_ARGS[$((i+1))]:-}" == "mix" ]]; then OUT_ARGS[$((i+1))]=pmo_x50; fi

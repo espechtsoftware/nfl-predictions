@@ -261,6 +261,11 @@ def main():
             _bad.append("UNION_TERM_BLOCK_CAP is not a number")
         if _bad:
             fail(f"UNION_TERM_BLOCK_ROWS={_tb!r}: " + "; ".join(_bad) + " (the live term block)")
+    _po = os.environ.get("UNION_PRIORITY_ORDER", "")         # priority-first dealing (the operator 10-07)
+    if _po and _po != "0" and (_po != "1" or os.environ.get("UNION_MAIN") != "mix" or os.environ.get("UNION_MIX_PORTFOLIO") != "mix"
+                               or any(os.environ.get(v, "0") not in ("", "0") for v in ("UNION_MIX_RS_ROWS", "UNION_MIX_COVER_GAMES", "UNION_WINNER_ORDER", "UNION_WINNER_SELECT", "UNION_MAIN_OWN_TILT"))):
+        fail(f"UNION_PRIORITY_ORDER={_po!r} must be 0 or 1; 1 needs UNION_MAIN=mix with UNION_MIX_PORTFOLIO=mix and no half / cover / "
+             f"winner order or select / whole-book ownership term (the priority-first deal)")
     _wo = os.environ.get("UNION_WINNER_ORDER", "")
     if _wo and _wo != "0" and (_wo != "1" or os.environ.get("UNION_MAIN") != "mix"):
         fail(f"UNION_WINNER_ORDER={_wo!r} must be 0 or 1, and 1 needs UNION_MAIN=mix (study 48b)")
