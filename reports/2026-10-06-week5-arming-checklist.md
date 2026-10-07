@@ -95,7 +95,7 @@ rehearsal runs on the merged head in the exact armed env; Friday re-verifies on 
 - **Thursday 10-08, before A3:** `neo4j-milly stop` (the local graph has run since the 10-07 load; the arm refuses while it runs and a build must not compete with its heap). The outside reviewer was told (10-07).
 
 ## Thursday 10-08 to Saturday 10-10: the live bonus block (decision sheet rows 21–22; his choice at arming)
-- **DECIDED (10-07 ~13:20, the operator, confirmed directly): the CHEAP +2 block** (8 rows, cap 2.0) for Week 5 as a
+- **DECIDED (10-07 ~13:10, the operator, confirmed directly): the CHEAP +2 block** (8 rows, cap 2.0) for Week 5 as a
   REVERSIBLE one-week trial under the adoption track (09-19 §1), instead of matchup. Study 53's NOT ENTERED stays on the
   record beside it. Stop rule (his, accepted): clearly worse paired P(≥1 big) over the trial weeks, or expected big seats
   more than 20% below the unblocked book (not a loss count); first full review Mon 10-19. Rollback: matchup or none.
@@ -108,7 +108,7 @@ rehearsal runs on the merged head in the exact armed env; Friday re-verifies on 
   then `scripts/check_term_block_file.py <file> --cap 2.0` on each (the arm's own check). Players on Sunday's frame but not A3's
   get no bonus (disclosed; matchup z is over A3's skill players). A +4 cheap file is written only if study 53 makes CHEAP4_BLOCK8
   the enterable dose.
-- **Friday (his cheap decision, 10-07 ~13:20):** the A3 rehearsal with the CHEAP +2 block armed exactly as Saturday will
+- **Friday (his cheap decision, 10-07 ~13:10):** the A3 rehearsal with the CHEAP +2 block armed exactly as Saturday will
   arm it: `A3_TERM_ROWS=8 A3_TERM_FILE=$WT/reports/2026-10-08-live-block/cheap2-w5.csv A3_TERM_SHA=<its sha>
   A3_TERM_CAP=2.0 A3_SNAPSHOT_DEST=~/private/paper-corun/rehearsal-w05` (the script checks the file against the cap). The
   s38 snapshot is the reviewer's binding 6e gate, source-agnostic: QA0 and DVP carry the armed (cheap) block at ranks

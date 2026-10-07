@@ -19,7 +19,7 @@
     changes isn't an option. We need to consider ways to expedite things.";
   - then, on their expedite note (703e0f6a): "yes, I thought I approved cheap +2 over the matchup block earlier when you
     asked about it. Consider that approved.";
-  - CONFIRMED DIRECTLY to the laptop (AskUserQuestion, about 13:20): "Yes, cheap +2 instead"; the stop rule "Accept as
+  - CONFIRMED DIRECTLY to the laptop (AskUserQuestion, about 13:10): "Yes, cheap +2 instead"; the stop rule "Accept as
     proposed".
 - **The trial** (adoption track 09-19 §1): 8 of 26 rows on projection + min(0.20 × pred_own, 2.0) from cheap2-w5.csv
   (the adopted writer, +2 per non-DST player under $4,000; TERM_CAP 2.0; the arm's file check).
