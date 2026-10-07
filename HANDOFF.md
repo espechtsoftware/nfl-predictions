@@ -12,6 +12,44 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-07 (06:40 CDT) — The operator: the prior-top block PAPER ONLY (study 49 NO DIFFERENCE, leaning negative); 48e NO DIFFERENCE; O-27 closed (cbwu-oi dry run); 48f census running
+
+**Studies, each reproduced byte-identically by the laptop, records merged:**
+- **48e** (the gate at generation): NO DIFFERENCE on both co-primaries.
+  - GATE +0.0115 [−0.0546, +0.0758]; GATE_SOFT +0.0207 [−0.0427, +0.0822].
+  - Cheap (−0.36 / −0.19 projected points per row) with a mild re-chalk.
+  - OFF by its §5; 48f decides the real-field question.
+  - Addendum 155, merged 47953d1b; READ 81e7bd23.
+- **49** (the prior-top block in the harness): NO DIFFERENCE, leaning NEGATIVE.
+  - TERM8 −0.0165 [−0.0718, +0.0562].
+  - The uncapped whole-book form −0.112 [−0.221, +0.004]: the mechanism hurts at strength.
+  - Addendum 156, merged 7762fd27; READ 47cea4cc.
+
+**The operator (AskUserQuestion, after 49):** "Paper only (Recommended)".
+- Live `TERM_ROWS=0`; the arm and the host copy are unchanged.
+- Study 38 amendment 6b (prereg 3c168294; lab 9389216) builds MIXT_QA0_TERM8 from the snapshot's paper file every week.
+- `s38_snapshot.sh` copies `S38_PAPER_TERM_FILE` as `paper-term-<file>` (76672512).
+- W5's file: `reports/2026-10-07-prior-top-term/priortop-w5.csv` (694a6622…). From W6, a new file each week after settlement (make_priortop_files' rule).
+- **Sunday:** set `S38_PAPER_TERM_FILE` for the snapshot.
+- Decision sheet row 20; study list 45.
+
+**O-27 CLOSED:** the outcome-blind dry run `shadow-cbwu-oi-paired-pmc97` passed in 13 min, with the reviewer's checklist complete.
+- Image 7f632786 / CODE_SHA 6fd3ef00; settings 9849d07f; the dry-run namespace; draft group 154468 = the W5 Sunday main.
+- `check_prospective_gates --week 5`: 4 expected problems remain (Route Share ×2 dry runs Thursday; the SIS schedulers paused until their dry runs).
+- Tool: `~/.cache/laptop-agent/shadow_dry_run.sh` (lane-checked).
+
+**48f:**
+- The prereg DRAFT is revised for the reviewer: the week as the unit, the W5–W9 picker, validity floors, descriptive lines and seeds, §8 wording. The reviewer: ready to freeze once the census and fit are in.
+- The census (W1–W4) is running → `~/private/s48f/`. Then the frozen fit, the freeze commit with its sha, and the reviewer's re-review. Target: Friday, before the lock.
+
+**Pending today:**
+- the props pre-check + project-slate after 09:30;
+- SIS team-context (the W4 blocking for ATL–NO) and FP's W5 projection / matchup pages: re-capture when posted;
+- the SIS cache dry runs + the paired dry run + resume, before Thu 09:15;
+- study 38 amendment 6 / 6b smokes, in copies;
+- A3 / Friday's rehearsals;
+- the facts-layer pool rows.
+
 ## 2026-10-07 (06:18 CDT) — O-39 follow-up: the SIS gate's one CODE_SHA by RELABEL (the reviewer); W5 project-slate OK; gates at the 5 expected
 
 - **The SIS companion gate needs ONE CODE_SHA across its jobs.** Both GPU cache jobs keep image `tabpfn-sis-pass-tail-live@sha256:ac07a31e…` and now declare CODE_SHA 6fd3ef00.
