@@ -1,0 +1,37 @@
+W2 cheapmkt4: 16 cheap players get +4: Dalton Schultz, David Njoku, Juwan Johnson, T.J. Hockenson, Jerry Jeudy, Cade Otton, Jake Ferguson, Pat Freiermuth
+W2 cheaptd4: 56 cheap players get +4: Darren Waller, Chris Moore, Kalif Raymond, Demarcus Robinson, Jonnu Smith, Evan Engram, Kendrick Bourne, Dalton Schultz
+W3 cheapmkt4: 17 cheap players get +4: Hunter Henry, Mike Gesicki, Juwan Johnson, T.J. Hockenson, Cade Otton, Pat Freiermuth, Jalen Nailor, Brenton Strange
+W3 cheaptd4: 59 cheap players get +4: Darren Waller, Chris Moore, Hunter Henry, Laquon Treadwell, Durham Smythe, Kendrick Bourne, KhaDarel Hodge, Mike Gesicki
+W4 cheapmkt4: 18 cheap players get +4: Tyler Higbee, Kalif Raymond, Hunter Henry, Mike Gesicki, Jauan Jennings, Rashid Shaheed, T.J. Hockenson, Cade Otton
+W4 cheaptd4: 43 cheap players get +4: Zach Ertz, Tyler Higbee, Chris Moore, Brandin Cooks, Kalif Raymond, Hunter Henry, Evan Engram, Kendrick Bourne
+== cheap-preference replay 2026-10-07T15:21:35Z: code 7f903074, lab f69598b
+  union w2 live rc 0 (0 refusal lines) 10:21:41
+  union w2 cheapmkt4 rc 0 (0 refusal lines) 10:21:50
+  union w2 cheaptd4 rc 0 (0 refusal lines) 10:21:59
+  layout w2 live rc 0
+  layout w2 cheapmkt4 rc 0
+  layout w2 cheaptd4 rc 0
+  union w3 live rc 0 (0 refusal lines) 10:22:08
+  union w3 cheapmkt4 rc 0 (0 refusal lines) 10:22:21
+  union w3 cheaptd4 rc 0 (0 refusal lines) 10:22:34
+  layout w3 live rc 0
+  layout w3 cheapmkt4 rc 0
+  layout w3 cheaptd4 rc 0
+  union w4 live rc 0 (0 refusal lines) 10:22:44
+  union w4 cheapmkt4 rc 0 (0 refusal lines) 10:22:55
+  union w4 cheaptd4 rc 0 (0 refusal lines) 10:23:08
+  layout w4 live rc 0
+  layout w4 cheapmkt4 rc 0
+  layout w4 cheaptd4 rc 0
+
+              p_big1   e_big  mean_entry_pct  proj_sum_mean  best_row  rows_top1pct  distinct_players  rows_same_as_live  cheap_per_row
+w2-live       0.0413  0.0414          0.4239         136.95    162.96           0.0              53.0                NaN           1.35
+w2-cheapmkt4  0.0825  0.0843          0.4802         135.18    162.96           0.0              51.0                1.0           2.46
+w2-cheaptd4   0.6462  0.7725          0.4813         135.39    170.46           0.0              51.0                0.0           2.54
+w3-live       0.0016  0.0016          0.5163         133.11    164.64           0.0              48.0                NaN           0.54
+w3-cheapmkt4  0.0082  0.0082          0.5225         129.26    171.80           0.0              44.0                0.0           3.00
+w3-cheaptd4   0.1271  0.1311          0.5693         128.93    176.54           0.0              46.0                0.0           3.12
+w4-live       0.4336  0.4339          0.5024         144.00    181.08           0.0              49.0                NaN           0.69
+w4-cheapmkt4  0.1603  0.1658          0.6654         140.65    171.40           0.0              44.0                0.0           2.19
+w4-cheaptd4   0.1603  0.1658          0.6654         140.65    171.40           0.0              44.0                0.0           2.19
+== done 10:23:09

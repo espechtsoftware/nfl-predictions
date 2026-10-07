@@ -6,11 +6,12 @@ from pathlib import Path
 import numpy as np, pandas as pd
 from google.cloud import bigquery
 out = Path(sys.argv[1]); out.mkdir(parents=True, exist_ok=True); BQ = bigquery.Client(); CFG = json.loads((Path.home() / "moneygate/weeks.json").read_text())
-RUNS = Path.home() / "moneygate/inputs/runs"; GROUP = {1: 151307, 2: 153428, 3: 153769, 4: 154078}
+RUNS = Path.home() / "moneygate/inputs/runs"; WEEKS = sorted(int(k) for k, v in CFG["weeks"].items() if v.get("t70_run"))
+GROUP = {w: int(json.loads((Path(CFG["weeks"][str(w)]["t70_run"]) / "receipt.json").read_text())["draft_group"]) for w in WEEKS}
 def canon(s):
     s = unicodedata.normalize("NFKD", str(s)).encode("ascii", "ignore").decode().lower(); s = re.sub(r"\b(jr|sr|ii|iii|iv|v)\b\.?", "", s); return re.sub(r"[^a-z]", "", s)
 res_field, res_pool, res_book = [], [], []
-for w in (1, 2, 3, 4):
+for w in WEEKS:
     t70 = Path(CFG["weeks"][str(w)]["t70_run"]); fr = pd.read_parquet(t70 / "frame.parquet").drop_duplicates("id")
     cheap = fr[(fr.salary < 4000) & (fr.pos != "DST")]; names = cheap.display_name.astype(str).tolist()
     cid = BQ.query(f"SELECT contest_id FROM `nfl_raw.contest_entries` WHERE season = 2026 AND week = {w} GROUP BY 1 ORDER BY MAX(expected_entries) DESC LIMIT 1").to_dataframe().contest_id.iloc[0]

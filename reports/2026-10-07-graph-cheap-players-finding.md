@@ -56,3 +56,29 @@ difference as a deal order (48b), a selection (48d) and a generation gate (48e);
 high-projection lineups. Its real-field refit (48f) is frozen and grades Weeks 5–8 prospectively. The finding above is
 the first pre-lock fact that sorts lineups inside good portfolios in every week, and the natural next step is a
 preregistered harness study of the +2/+4 preference with the 2022 go/no-go, the process every live lever has followed.
+
+## 4. Which cheap players (added 10-07, 10:30 CT; `graph/cheap_tier.py`)
+
+All 546 sub-$4,000 RB/WR/TE player-weeks of W1–4, scored with the real contest points; boom = 15+ DK points (20 booms, 3.7%).
+- **The regulars pick better cheap players than the field:** ownership-weighted points 12.2 vs 9.9 (three weeks of four),
+  boom share 31% vs 23%.
+- **Their lean tracks the betting market:** Spearman with the props-implied projection +0.82, the anytime-TD odds +0.47,
+  our projection +0.44, target share +0.44, snap share +0.41, Fantasy Points route share +0.33; vacated opportunity +0.07.
+- **What separates the booms (tercile within week, low / high, positive in all four weeks):** props-implied points
+  3.2% / 18.5%; anytime-TD odds 0.6% / 10.7%; route share 0.6% / 9.3%; our projection 0.6% / 9.8%. Not: vacated
+  opportunity, depth-chart moves, route-share jump, team total.
+
+**Refined preference, same replay:** +4 only for the top third of each week's cheap players by props-implied points
+(cheapmkt4) or by TD odds (cheaptd4).
+
+| Arm | P(≥1 big) W2 / W3 / W4 | mean entry percentile W2 / W3 / W4 |
+|---|---|---|
+| live | .041 / .002 / .434 | .424 / .516 / .502 |
+| +4 all cheap | .655 / .127 / .160 | .471 / .569 / .665 |
+| +4 market-rated cheap | .083 / .008 / .160 | .480 / .523 / .665 |
+| +4 TD-rated cheap | .646 / .127 / .160 | .481 / .569 / .665 |
+
+The refinement does not beat the plain preference; the market-rated set is mostly cheap tight ends. Every cheap
+variant improves the average finish in all three weeks and trails live on the big-win chance in Week 4; the laptop's
+reading (10-07) is right that the replay is dose-unstable (+2 trails in W2, +4 in W4), which is why the harness study
+(study list 51) decides.

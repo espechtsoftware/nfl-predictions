@@ -1,12 +1,16 @@
-"""Within the regulars' own portfolios (the Milly graph, W1-4): do their top-1% lineups differ BEFORE LOCK from the same
+"""Standing weekly query (the laptop, from 10-12). Usage: python within_portfolio.py OUT_DIR [MIN_LINEUPS=20]
+Within the regulars' own portfolios (the Milly graph, W1-4): do their top-1% lineups differ BEFORE LOCK from the same
 user's other lineups that week? For every user-week with >= 20 lineups and >= 1 top-1% lineup, each lineup-level pre-lock
 feature is standardized within the user-week; the mean of the standardized value over the top-1% lineups is the
 within-portfolio difference (0 = indistinguishable). 95% interval by bootstrap over user-weeks; sign per week."""
+import sys
+from pathlib import Path
 import numpy as np, pandas as pd
 from gconn import driver
+OUT = Path(sys.argv[1]) if len(sys.argv) > 1 else Path('.'); OUT.mkdir(parents=True, exist_ok=True); MINL = int(sys.argv[2]) if len(sys.argv) > 2 else 20
 d = driver()
 Q = """MATCH (u:User)-[:ENTERED]->(l:Lineup {week_key: $wk})
-WITH u, collect(l) AS ls WHERE size(ls) >= 20 AND any(x IN ls WHERE x.rank_top_1pct)
+WITH u, collect(l) AS ls WHERE size(ls) >= $minl AND any(x IN ls WHERE x.rank_top_1pct)
 UNWIND ls AS l
 MATCH (l)-[:CONTAINS]->(p:Player)-[:HAS_WEEK]->(pw:PlayerWeek)-[:OF_WEEK]->(:Week {key: $wk})
 RETURN u.name AS user, l.key AS lk, l.rank_top_1pct AS top1, l.points AS pts, l.salary AS sal, l.stack AS stack, l.bring_back AS bb,
@@ -19,7 +23,10 @@ RETURN u.name AS user, l.key AS lk, l.rank_top_1pct AS top1, l.points AS pts, l.
 frames = []
 with d.session() as s:
     for wk in sorted(s.run("MATCH (w:Week) RETURN w.key AS k").value()):
-        df = pd.DataFrame(s.run(Q, wk=wk).data()); df["week"] = wk; frames.append(df); print(wk, len(df), flush=True)
+        df = pd.DataFrame(s.run(Q, wk=wk, minl=MINL).data())
+        if df.empty:
+            print(wk, 0, flush=True); continue
+        df["week"] = wk; frames.append(df); print(wk, len(df), flush=True)
 d.close()
 P = pd.concat(frames, ignore_index=True)
 P["skill"] = P.pos.isin(["RB", "WR", "TE"])
@@ -54,4 +61,4 @@ for f in feats:
 R = pd.DataFrame(rows).sort_values("within_portfolio_diff_sd", key=abs, ascending=False)
 pd.set_option("display.width", 250); pd.set_option("display.max_colwidth", 90)
 print(R.to_string(index=False))
-R.to_csv("within_portfolio.csv", index=False)
+R.to_csv(OUT / "within_portfolio.csv", index=False)   # aggregates only: no user names, no player values
