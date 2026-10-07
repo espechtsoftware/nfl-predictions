@@ -6337,3 +6337,66 @@ levels (slate means, v2): the 5 most winner-like rows' mean pct 0.5388, top-1% r
    - For Week 5 it also needs the production port by Friday 17:00 (`MODEL_all53` and `PORT_NOTES` on lab
      `production/s48-port-20261007`), parity, review, Friday's rehearsal and his yes.
    - **Transfer caveat:** this was measured under our projections, while his live book uses FP's.
+
+## Addendum 153 (2026-10-07): study 48b (deal his book by the winner-likeness score): NO DIFFERENCE — re-dealing the book by the score does not raise P(≥ 1 big) and costs a tenth of the expected seats; not armed for Week 5
+
+**Setup.**
+- **The question.** Study 48 (Addendum 152) passed: within his book the more winner-like rows finish better at equal
+  projection. Its frozen §5 asked for a book-level test of a use. The operator: "Test tonight, aim for Week 5".
+- **The use, with no new lineups.** The SAME 26-row live book, built and scored exactly as in study 48, dealt three ways
+  by production's head layout:
+  - **DEAL_LIVE:** its own order (the entry-weighted shape interleave).
+  - **DEAL_SCORE (DECISION):** positions by score, so the most winner-like rows land on the big-entry ranks 1–22 and the
+    least on the $20-only ranks 23–26.
+  - **DEAL_CELL (exploratory):** each position keeps its cell, and the rows within a cell go in score order.
+- **Preregistration:** `reports/2026-10-07-prereg-study48b-winner-deal.md` (frozen `ed11d548`, sha256 `44af4f83…`).
+- **Panel:** banks 1527–1532, B 20,000, seed 20261029.
+- **Read and reproduced:** read by the reviewer and **reproduced byte-identically by the laptop** (raw files equal to the
+  RAW_MANIFEST).
+  - Reader `604794cc`; READ `6d5f89c0`.
+  - The confirmatory census (`b1950cc`) was committed before the READ (`d0d0150`).
+  - LEDGER row lab `fb87aa5`.
+
+**Reader output (verbatim):**
+```
+STUDY 48B READER  sha256 604794ccb8816f9526df9a8198b96456cf03951082829941b7a8a2d8715205e3
+DIRECTION: P(>= 1 big seat) per slate (the mean over its banks); every difference is ARM - REFERENCE; POSITIVE favours the first arm.
+slates 36  banks [1527, 1528, 1529, 1530, 1531, 1532]  B 20000  seed 20261029  primary DEAL_SCORE - DEAL_LIVE on the CALIBRATED field (v2), two-sided 0.95, guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only
+arms (deals, study 48's sha, its training table, live settings, QB cap, objective): [["DEAL_LIVE", "DEAL_SCORE", "DEAL_CELL"], "c22d28114ab4b463b6842594cb2ff7ca1babf41e28015c7242b21baedb1bc67c", "66272167b80dc08b008060fa921f9cb67abecb2c12c8a17394b75d9670423ca1", {"fill": "rr", "max_shared": 4}, 5, "player_mean (no ownership term)"]
+
+== DEAL_SCORE vs DEAL_LIVE  [DECISION: the same book, the most winner-like rows on the big ranks; the calibrated field]
+  PRIMARY P(>= 1 big seat) per slate +0.00794  [-0.02970, +0.04391]  seasons 2023 +0.01846, 2024 -0.00258
+  GUARD 1 mean entry pct -0.00244  one-sided lower -0.00766  (must exceed -0.015)
+  GUARD 2 expected big seats 0.48590 vs 0.54053  ratio 0.899  (must be >= 0.80)
+  DEAL_SCORE dealt identical to DEAL_LIVE: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+
+== EXPLORATORY (never decision-bearing)
+  DEAL_CELL - DEAL_LIVE (by the score within each cell): +0.02183  [-0.00327, +0.04841]  seasons 2023 +0.00996, 2024 +0.03371
+  DEAL_SCORE - DEAL_LIVE (by the score, the l02 field): +0.00942  [-0.02847, +0.04571]  seasons 2023 +0.01532, 2024 +0.00352
+  DEAL_CELL - DEAL_LIVE (by the score within each cell, the l02 field): +0.02073  [-0.00580, +0.04900]  seasons 2023 +0.01032, 2024 +0.03115
+
+secondaries (slate means; v2 = the calibrated field, l02 = the earlier field):
+  DEAL_LIVE  v2: P(>=1 big) 0.30955  expected big seats 0.54053  P(>=2) 0.13291  entry pct 0.52096  |  mean score, ranks 1-22 -4.5181, ranks 23-26 -4.5070
+             l02: P(>=1 big) 0.33883  expected big seats 0.61157  entry pct 0.52955
+  DEAL_SCORE v2: P(>=1 big) 0.31749  expected big seats 0.48590  P(>=2) 0.11769  entry pct 0.51852  |  mean score, ranks 1-22 -4.4309, ranks 23-26 -4.9864
+             l02: P(>=1 big) 0.34825  expected big seats 0.55556  entry pct 0.52709
+  DEAL_CELL  v2: P(>=1 big) 0.33138  expected big seats 0.55028  P(>=2) 0.13380  entry pct 0.51919  |  mean score, ranks 1-22 -4.4646, ranks 23-26 -4.8010
+             l02: P(>=1 big) 0.35957  expected big seats 0.61933  entry pct 0.52778
+```
+
+**Reading.**
+1. **NO DIFFERENCE.** P(≥ 1 big) moved +0.008 [−0.030, +0.044]. Expected big seats fell by a tenth (ratio 0.899) and
+   P(≥ 2) went from 0.133 to 0.118. Ordering the whole book by the score breaks the shape interleave that spreads the
+   entries over the shapes.
+2. **The within-cell order** (DEAL_CELL, exploratory) leans positive in both seasons: +0.022 [−0.003, +0.048], with
+   expected big seats 0.550 against 0.541. It is the candidate for any further test.
+3. **The real-field check.** The laptop's descriptive check of the score on the Week 3 and Week 4 replays, with
+   production's port, found partial rank correlations of −0.10 and −0.02. That is no support, though 26 rows a week
+   cannot contradict +0.08.
+4. **Not armed for Week 5.**
+   - Production's `--winner-order` is merged, reviewed and parity-pinned (0.0 against the private fixture), and it
+     stays OFF.
+   - Study 38 needs no amendment.
+   - Next, his choice for Week 6 at the earliest: a confirmation of DEAL_CELL on fresh banks, and the weekly real-field
+     line with the frozen model.
