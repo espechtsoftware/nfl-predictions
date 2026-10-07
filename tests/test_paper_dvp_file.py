@@ -40,18 +40,29 @@ def test_z_uses_only_prior_weeks_and_is_within_position():
         assert abs(z3[pos == p].mean()) < 1e-9
 
 
-def test_the_walk_forward_slope_recovers_a_planted_effect_and_the_adjustment():
+def test_the_walk_forward_slope_recovers_a_planted_effect_and_the_file_meets_the_arm_spec():
     fr, al = _frame(200), _allowed()
     z = P.matchup_z(fr, al, 4)
     fp = pd.DataFrame({"dk_draftable_id": fr.dk_draftable_id, "fp": 12.0})
     actual = pd.Series(12.0 + 2.0 * z, index=z.index)                     # residual = 2 x z exactly
     slope, n = P.walk_forward_slope([(4, fr, fp, actual)], al)
     assert abs(slope - 2.0) < 1e-9 and n == len(z.dropna())
-    out = P.build(fr, fp.assign(fp=lambda d: np.where(d.dk_draftable_id == 5000, 0.0, 12.0)), al, 5, slope)
-    zero = out[out.gsis_id == "00-0000"]
-    assert (zero.adj_points == 0.0).all()                                   # FP's 0 stays 0
-    rest = out[out.gsis_id != "00-0000"]
-    assert np.allclose(rest.adj_points, rest.fp + 2.0 * rest.z) and "DST" not in set(out.pos)
+    out = P.build(pd.concat([fr, fr.head(3)]), al, 5, slope, "4", n)     # a duplicated frame row counts once
+    assert list(out.columns) == ["dk_player_id", "pos", "z", "slope", "adj_points", "weeks", "n"]
+    assert len(out) == 200 and out.dk_player_id.is_unique and set(out.pos) == {"QB", "RB", "WR", "TE"}
+    assert out.slope.nunique() == 1 and np.allclose(out.adj_points, out.slope * out.z, atol=1e-6)
+    assert np.isfinite(out[["z", "slope", "adj_points"]].to_numpy()).all()
+    assert (out.weeks == "4").all() and (out.n == n).all() and out.dk_player_id.map(type).eq(str).all()
+
+
+def test_refuses_rather_than_write_outside_the_spec():
+    fr, al = _frame(), _allowed()
+    with pytest.raises(ValueError, match="no z"):                          # an opponent with no prior week
+        P.build(fr.assign(opp=lambda d: d.opp.where(d.index != 0, "T99")), al, 4, 1.0, "3", 40)
+    with pytest.raises(ValueError, match="not unique"):
+        P.build(fr.assign(dk_player_id=lambda d: d.dk_player_id.where(d.index != 1, 1000)), al, 4, 1.0, "3", 40)
+    with pytest.raises(ValueError, match="not finite"):
+        P.build(fr, al, 4, float("nan"), "3", 40)
 
 
 def test_too_few_prior_rows_gives_no_slope():

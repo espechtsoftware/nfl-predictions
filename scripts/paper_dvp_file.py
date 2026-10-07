@@ -1,20 +1,24 @@
 #!/usr/bin/env python3
-"""The week's PAPER DvP file for study 38 amendment 6c (the operator 10-07: "Yes, paper arm"; the reviewer's frozen
-walk-forward recipe; OPEN-DEFECTS O-40). Paper only: nothing on the money path reads it.
+"""The week's PAPER DvP file for study 38 amendment 6c (the operator 10-07: "Yes, paper arm"; OPEN-DEFECTS O-40; the
+reviewer's arm MIXT_QA0_DVP, lab production/s38-paper-corun-20261006 @ 0b8c9f9). Paper only: nothing on the money path
+reads it.
 
-The matchup score (point in time): for each QB / RB / WR / TE on week w's T-70 frame, the opponent's mean DK points
-allowed to the player's position over the PRIOR weeks of the season (< w), z-scored within position across the slate's
-players that have one. The DST gets no adjustment.
+The recipe (frozen; the reviewer's text, verbatim):
+    z = the z-score, within position across the slate's skill players, of the opponent's mean DK points allowed to the
+    player's position over the PRIOR 2026 weeks (< w); slope = the OLS slope (with intercept) of (actual DK points -
+    FP's T-70 mean) on z, pooled over positions and over every prior 2026 week with an archived T-70 FP capture,
+    players with FP >= 5, each week's z as of that week; adj = slope x z. W5: weeks "4"; the FP capture is
+    proj_fp-w4.csv 8bba650e.
 
-The slope (walk-forward): slope_w = the OLS slope (with intercept) of FP's residual (actual DK points - FP's T-70 mean)
-on that z, pooled over positions and over every PRIOR week that had an archived T-70 FP capture, players with FP >= 5,
-each week's z computed as of that week. W5 uses W4 alone (disclosed: one week); W6 uses W4-W5; ... No cap, no shrinkage.
+The file spec (the arm refuses anything else): columns dk_player_id (string), pos in {QB, RB, WR, TE}, z, slope,
+adj_points, weeks, n; one row per skill player on week w's T-70 frame; unique dk_player_id; a single slope; adj_points =
+slope x z; all values finite; weeks names the prior weeks used ("4" for W5, "4,5" for W6); n = the regression's rows.
+This script refuses rather than write a file outside the spec (a skill player whose opponent has no prior week, a
+duplicated dk_player_id, fewer than 30 regression rows): the arm is then missing that week -- no improvised slope.
+The input identities (frame and FP capture sha256 per week) go to <out>.meta.json beside the file.
 
-Output (CSV after one '#' metadata line): dk_player_id, gsis_id, pos, opp, z, slope, fp, adj_points (= fp + slope x z;
-a player FP projects at 0 -- not expected to play -- stays 0), for the week's frame players with an FP projection and a z.
-
-    python scripts/paper_dvp_file.py --season 2026 --week 5 --frame <w5 T-70 frame.parquet> --fp <w5 T-70 proj_fp csv> \
-        --prior 4:<w4 T-70 frame.parquet>:<w4 T-70 proj_fp csv> [--prior 5:...] --out paper-dvp-w05.csv
+    python scripts/paper_dvp_file.py --season 2026 --week 5 --frame <w5 T-70 frame.parquet> \
+        --prior 4:<w4 T-70 frame.parquet>:<w4 T-70 proj_fp csv> [--prior 5:...] --out <abs dir>/2026-w05.csv   (the snapshot copies it as paper-dvp-2026-w05.csv)
 """
 from __future__ import annotations
 
@@ -32,7 +36,7 @@ FP_MIN = 5.0
 
 DVP_SQL = """
 WITH pm AS (SELECT gsis_id, ANY_VALUE(position HAVING MAX week) AS position FROM `{raw}.rosters_weekly`
-            WHERE season = @season AND gsis_id IS NOT NULL GROUP BY 1)
+            WHERE season = @season AND week < @week AND gsis_id IS NOT NULL GROUP BY 1)
 SELECT s.opponent AS def_team, a.week, pm.position, SUM(a.dk_points) AS fp_allowed
 FROM `{features}.player_week_actuals` a
 JOIN `{features}.schedule_long` s ON s.team = a.team AND s.season = a.season AND s.week = a.week
@@ -53,6 +57,7 @@ def matchup_z(frame: pd.DataFrame, allowed: pd.DataFrame, week: int) -> pd.Serie
     prior = allowed[allowed.week < week].groupby(["def_team", "position"]).fp_allowed.mean().rename("dvp").reset_index()
     f = frame[frame.pos.astype(str).isin(SKILL)][["id", "pos", "opp"]].copy()
     f["id"] = f["id"].astype(str)
+    f = f.drop_duplicates("id")                                         # each player counts once
     f = f.merge(prior, left_on=["opp", "pos"], right_on=["def_team", "position"], how="left")
     z = f.groupby("pos").dvp.transform(lambda s: (s - s.mean()) / s.std(ddof=0) if s.notna().sum() > 1 and s.std(ddof=0) > 0 else s * np.nan)
     return pd.Series(z.to_numpy(), index=f["id"].to_numpy())
@@ -75,23 +80,33 @@ def walk_forward_slope(prior: list[tuple[int, pd.DataFrame, pd.DataFrame, pd.Ser
     return float(np.polyfit(x, y, 1)[0]), int(len(x))
 
 
-def build(frame: pd.DataFrame, fp: pd.DataFrame, allowed: pd.DataFrame, week: int, slope: float) -> pd.DataFrame:
+def build(frame: pd.DataFrame, allowed: pd.DataFrame, week: int, slope: float, weeks: str, n: int) -> pd.DataFrame:
+    """One row per skill player on the frame, in the arm's spec; raises ValueError rather than write outside it."""
     z = matchup_z(frame, allowed, week)
-    f = fp_by_frame_id(frame, fp)
-    fr = frame.drop_duplicates("id").set_index(frame.drop_duplicates("id")["id"].astype(str))
-    d = pd.DataFrame({"z": z}).join(f.rename("fp")).dropna()
-    d["gsis_id"] = d.index
-    d["dk_player_id"] = fr.loc[d.index, "dk_player_id"].astype("Int64").astype(str).to_numpy()
-    d["pos"] = fr.loc[d.index, "pos"].astype(str).to_numpy(); d["opp"] = fr.loc[d.index, "opp"].astype(str).to_numpy()
-    d["slope"] = slope
-    d["adj_points"] = np.where(d.fp > 0, d.fp + slope * d.z, d.fp)    # FP's 0 (not expected to play) stays 0
-    return d[["dk_player_id", "gsis_id", "pos", "opp", "z", "slope", "fp", "adj_points"]].reset_index(drop=True)
+    f = frame[frame.pos.astype(str).isin(SKILL)].copy()
+    f["id"] = f["id"].astype(str)
+    f = f.drop_duplicates("id")
+    d = pd.DataFrame({"dk_player_id": f.dk_player_id.astype("Int64").astype(str).to_numpy(),
+                      "pos": f.pos.astype(str).to_numpy(), "z": z.reindex(f["id"]).to_numpy(float)})
+    bad = d[~np.isfinite(d.z)]
+    if len(bad):
+        raise ValueError(f"{len(bad)} skill players have no z (opponent without a prior week?): {bad.dk_player_id.tolist()[:10]}")
+    dup = d.dk_player_id[d.dk_player_id.duplicated()]
+    if len(dup) or (d.dk_player_id == "<NA>").any():
+        raise ValueError(f"dk_player_id not unique / missing: {dup.tolist()[:10]}")
+    if not np.isfinite(slope):
+        raise ValueError(f"slope {slope} is not finite")
+    d["slope"] = float(slope)
+    d["adj_points"] = d.slope * d.z
+    d["weeks"] = weeks
+    d["n"] = int(n)
+    return d[["dk_player_id", "pos", "z", "slope", "adj_points", "weeks", "n"]]
 
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--season", type=int, required=True); ap.add_argument("--week", type=int, required=True)
-    ap.add_argument("--frame", type=Path, required=True); ap.add_argument("--fp", type=Path, required=True)
+    ap.add_argument("--frame", type=Path, required=True, help="week w's T-70 frame (the union's frame.parquet)")
     ap.add_argument("--prior", action="append", default=[], help="WEEK:FRAME:FP_CSV of a prior week with an archived T-70 FP capture")
     ap.add_argument("--out", type=Path, required=True)
     a = ap.parse_args(argv)
@@ -106,6 +121,8 @@ def main(argv=None) -> int:
         wk = int(wk)
         if wk >= a.week:
             raise SystemExit(f"PAPER DVP REFUSED: prior week {wk} is not before week {a.week}")
+        if wk in [u["week"] for u in used]:
+            raise SystemExit(f"PAPER DVP REFUSED: prior week {wk} given twice")
         frame_v = pd.read_parquet(fpath); fp_v = pd.read_csv(cpath)
         act_v = acts[acts.week == wk].assign(gsis_id=lambda d: d.gsis_id.astype(str)).set_index("gsis_id").dk_points
         prior.append((wk, frame_v, fp_v, act_v))
@@ -116,16 +133,20 @@ def main(argv=None) -> int:
         print(f"PAPER DVP REFUSED: {n} prior player-weeks with FP >= {FP_MIN} (< 30): no slope; the arm is missing this week",
               file=sys.stderr)
         return 3
-    out = build(pd.read_parquet(a.frame), pd.read_csv(a.fp), allowed, a.week, slope)
-    meta = {"study": "38 amendment 6c (paper DvP)", "season": a.season, "week": a.week, "slope": slope, "n_slope": n,
-            "prior_weeks": used, "frame_sha256": hashlib.sha256(a.frame.read_bytes()).hexdigest(),
-            "fp_sha256": hashlib.sha256(a.fp.read_bytes()).hexdigest(), "rows": len(out),
-            "note": "W5's slope rests on one week (W4)" if [u["week"] for u in used] == [4] else ""}
-    with a.out.open("w") as h:
-        h.write("# " + json.dumps(meta, sort_keys=True) + "\n")
-        out.to_csv(h, index=False)
-    print(f"PAPER DVP: week {a.week}, slope {slope:+.3f} points per z from {n} prior player-weeks "
-          f"(weeks {[u['week'] for u in used]}); {len(out)} players -> {a.out}")
+    weeks = ",".join(str(u["week"]) for u in sorted(used, key=lambda u: u["week"]))
+    try:
+        out = build(pd.read_parquet(a.frame), allowed, a.week, slope, weeks, n)
+    except ValueError as e:
+        print(f"PAPER DVP REFUSED: {e}; the arm is missing this week", file=sys.stderr)
+        return 3
+    meta = {"study": "38 amendment 6c (paper DvP)", "season": a.season, "week": a.week, "slope": slope, "n": n,
+            "weeks": weeks, "prior_weeks": used, "frame_sha256": hashlib.sha256(a.frame.read_bytes()).hexdigest(),
+            "rows": len(out), "script_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest()}
+    out.to_csv(a.out, index=False)
+    meta["file_sha256"] = hashlib.sha256(a.out.read_bytes()).hexdigest()
+    Path(str(a.out) + ".meta.json").write_text(json.dumps(meta, indent=1, sort_keys=True) + "\n")
+    print(f"PAPER DVP: week {a.week}, slope {slope:+.3f} points per z from {n} prior player-weeks (weeks {weeks}); "
+          f"{len(out)} players -> {a.out} (sha256 {meta['file_sha256'][:8]})")
     return 0
 
 
