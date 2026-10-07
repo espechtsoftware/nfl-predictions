@@ -43,6 +43,33 @@
   - **Its tests:** `tests/test_s61_r14_grade.py`, sha256
     `57d37803d0902e7f5c5be047044558880ae527d1fa2776202599bb1584a4fb8f`. 40 pass; one is new and covers this rule.
   - **The census smoke** is unchanged in every count.
+- **AMENDMENT 3 (2026-10-07, before any Week-5 game and before W6's extraction): team_change, per §7.**
+  - **The form** is the R14 spec amendment `5da57a31`, which the reviewer named and the laptop built. A `team_change`
+    record is a UNIT record: direction always 0, with `unit` and `unit_effect` in place of a player claim.
+  - **What the reader does with it:**
+    - It never enters the player join, the player groups or the direction-0 placebo, so it can never move the primary.
+    - That holds through W10, as §7 allows: the mapping was defined before W6's extraction, but the primary was powered
+      on W5's record mix (§6). Mixing in derived players from W6 on would change what the W8 and W10 reads pool.
+  - **Its own descriptive line** (never ruling): "team_change derived players: mean derived direction × r′", with counts
+    by unit. The spec's mapping, verbatim:
+    - `pass_defense` / `pass_rush`: the opponent's QB, WR and TE on the frame, at −`unit_effect`;
+    - `run_defense`: the opponent's RBs, at −`unit_effect`;
+    - `offensive_line`: the team's own QB and RBs, at +`unit_effect`;
+    - `receiving_corps` / `backfield`: counted only;
+    - a team off the Main slate, an unknown team or unit, or a frame without opponents: nothing derived, counted.
+    - The opponent comes from the frame's `opp`.
+  - **The census** counts team_change records. The `--out` file never carries a record.
+  - Also completed: amendment 2's code comment, which was cut short. It is text only.
+  - **The reader:** `scripts/s61_r14_grade.py`, sha256 **`081c13433228868b0d756b1e1b49e0b9d4b060e09531f661b04ec98774772312`**
+    (commit `01fc3270`). It replaces amendment 2's `94fced43…`.
+  - **Its tests:** `tests/test_s61_r14_grade.py`, sha256
+    `4109f7fda171f4cb26acdf029d0ca5036fcdae420753006e84315aa1f4bc6867`. 44 pass, and 4 of them are new:
+    - the mapping;
+    - the exclusion from the groups and the placebo;
+    - the derived line;
+    - no opponents.
+  - **The W5 census smoke** is unchanged in every count. W5 has no team_change records, and its prompt (v1) cannot
+    write any.
 - Week 5's first kickoff is Thursday 10-08 at 19:15 CT (TB at DAL). The graded slate, DraftKings' Sunday Main, starts
   Sunday 10-11 at 12:00 CT. The London game (08:30 CT) is not on it.
 - **The design freezes before Thursday's kickoff.** The reader is pinned by an amendment before Sunday 12:00 CT (§9).
