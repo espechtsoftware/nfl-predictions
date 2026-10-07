@@ -193,3 +193,22 @@ def test_the_paper_factor_file_is_copied_as_paper_factor_with_its_sha_beside_the
     assert r2.returncode == 1 and "S38_PAPER_FACTOR_FILE" in r2.stdout and not (tmp_path / "dest2").exists()
     r3 = _run(tmp_path, ud, out, tmp_path / "dest3", env=base)
     assert r3.returncode == 0 and not any(p.name.startswith("paper-factor") for p in (tmp_path / "dest3").iterdir())
+
+
+def test_the_paper_matchup_block_file_is_copied_as_paper_mblock_beside_the_live_cheap_block(tmp_path):
+    """Study 38 amendment 6i (10-07): with the CHEAP block live, S38_PAPER_MBLOCK_FILE (the matchup block's file) is copied
+    as paper-mblock-<basename> with its sha in MANIFEST.txt; a named but missing file is refused; unset copies nothing."""
+    import os
+    ud, out = _setup(tmp_path)
+    mb = tmp_path / "matchup-w5.csv"; mb.write_text("dk_player_id,id,display_name,pos,team,opp,pred_own,bonus_points\n1,a,A,WR,X,Y,5.0,1.0\n")
+    keys = ("S38_PAPER_TERM_FILE", "S38_PAPER_DVP_FILE", "S38_PAPER_FACTOR_FILE", "S38_PAPER_MBLOCK_FILE")
+    base = {k: v for k, v in os.environ.items() if k not in keys}
+    r = _run(tmp_path, ud, out, tmp_path / "dest", env=dict(base, S38_PAPER_MBLOCK_FILE=str(mb)))
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert (tmp_path / "dest" / "paper-mblock-matchup-w5.csv").read_bytes() == mb.read_bytes()
+    manifest = (tmp_path / "dest" / "MANIFEST.txt").read_text()
+    assert hashlib.sha256(mb.read_bytes()).hexdigest() in manifest and "paper-mblock-matchup-w5.csv" in manifest
+    r2 = _run(tmp_path, ud, out, tmp_path / "dest2", env=dict(base, S38_PAPER_MBLOCK_FILE=str(tmp_path / "none.csv")))
+    assert r2.returncode == 1 and "S38_PAPER_MBLOCK_FILE" in r2.stdout and not (tmp_path / "dest2").exists()
+    r3 = _run(tmp_path, ud, out, tmp_path / "dest3", env=base)
+    assert r3.returncode == 0 and not any(p.name.startswith("paper-mblock") for p in (tmp_path / "dest3").iterdir())
