@@ -248,3 +248,54 @@ def test_a_fallback_week_is_recorded_not_valid_and_the_others_stand(tmp_path, mo
     out = capsys.readouterr().out
     assert "W6: NOT VALID -- no FP projection" in out and "no look yet (valid prospective weeks so far: 0)" in out
     assert R.main(["--census", "--weeks", "5,6", "--log-dir", str(log)]) == 0          # the census passes over it too
+
+
+TC_POP = _pop([("q1", "q1", "21", "Tb Qb", "QB", "TB", 18.0), ("w1", "w1", "22", "Tb Wr", "WR", "TB", 12.0),
+               ("t1", "t1", "23", "Tb Te", "TE", "TB", 7.0), ("r1", "r1", "24", "Tb Rb", "RB", "TB", 11.0),
+               ("q2", "q2", "25", "Dal Qb", "QB", "DAL", 17.0), ("r2", "r2", "26", "Dal Rb", "RB", "DAL", 10.0),
+               ("w2", "w2", "27", "Dal Wr", "WR", "DAL", 13.0)])
+TC_OPP = {"TB": "DAL", "DAL": "TB"}
+
+
+def _tc(rid, unit, eff, team="Cowboys", player="A Corner", **kw):
+    return _rec(rid, player, ft="team_change", d=0, team=team, unit=unit, unit_effect=eff, **kw)
+
+
+def test_the_team_change_mapping():
+    """Amendment 3: the spec's mapping, verbatim; a count-only unit, an unknown team and a team off the slate derive nothing."""
+    der, c = R.derive_team_change([_tc("c1", "pass_defense", 1), _tc("c2", "run_defense", 1), _tc("c3", "offensive_line", -1),
+                                   _tc("c4", "pass_rush", -1), _tc("c5", "receiving_corps", 1), _tc("c6", "backfield", -1),
+                                   _tc("c7", "pass_defense", 1, team="Gotham"), _tc("c8", "pass_defense", 1, team="Steelers"),
+                                   _tc("c9", "run_defense", 0), _tc("c10", "special_teams", 1)], TC_POP, TC_OPP)
+    got = {(r["record_id"], TC_POP.at[i, "id"]): d for r, i, d in der}
+    assert got == {("c1", "q1"): -1, ("c1", "w1"): -1, ("c1", "t1"): -1,                 # DAL pass D stronger: TB passing -1
+                   ("c2", "r1"): -1,                                                    # DAL run D stronger: TB RBs -1
+                   ("c3", "q2"): -1, ("c3", "r2"): -1,                                  # DAL line weaker: DAL QB / RB -1
+                   ("c4", "q1"): 1, ("c4", "w1"): 1, ("c4", "t1"): 1,                   # DAL rush weaker: TB passing +1
+                   ("c9", "r1"): 0}                                                     # unclear: derived 0, not in the mean
+    assert c["count_only"] == 2 and c["team_unknown"] == 1 and c["team_not_on_slate"] == 1 and c["unit_unknown"] == 1
+    assert c["records"] == 10 and c["derived_pairs"] == 10
+
+
+def test_team_change_stays_out_of_the_groups_and_the_placebo():
+    """A team_change record about a frame player (a traded WR) neither joins nor lands in the direction-0 placebo."""
+    U = {"pop": TC_POP, "cutoff": CUT, "skill_on_frame": 7, "team_opp": TC_OPP}
+    recs = [_tc("k1", "receiving_corps", 1, team="Cowboys", player="Dal Wr"), _rec("k2", "Tb Wr", team="Buccaneers", d=1)]
+    cen = R.week_census(5, U, recs)
+    assert [r["record_id"] for r, _ in cen["pairs"]] == ["k2"] and cen["players"]["zero_only"] == 0
+    assert cen["team_change"]["records"] == 1 and cen["team_change"]["count_only"] == 1
+    assert cen["records"]["kept"] == 2
+
+
+def test_the_derived_line_in_the_descriptives():
+    rp = pd.Series([2.0, -1.0, 0.5, 3.0, -2.0, 1.0, 0.0], index=TC_POP.index)
+    der, _ = R.derive_team_change([_tc("d1", "pass_defense", 1), _tc("d2", "offensive_line", 1)], TC_POP, TC_OPP)
+    desc = R.week_descriptive([], {}, rp, None, derived=der)
+    t = desc["team_change_derived"]
+    want = np.mean([-2.0, 1.0, -0.5, -2.0, 1.0])            # TB QB / WR / TE at -1, DAL QB / RB at +1
+    assert t["pairs"] == 5 and math.isclose(t["mean_signed_r"], want) and t["by_unit"] == {"pass_defense": 3, "offensive_line": 2}
+
+
+def test_a_frame_without_opponents_maps_no_team_change():
+    der, c = R.derive_team_change([_tc("n1", "pass_defense", 1), _tc("n2", "run_defense", -1)], TC_POP, {})
+    assert der == [] and c == {"records": 2, "no_opponent_map": 2}

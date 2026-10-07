@@ -123,7 +123,8 @@ def load_union(d: Path) -> dict:
     ps = un.get("proj_source") or {}
     if not ps and not (d / "proj_source.csv").exists():
         # amendment 2: the T-70 fell back to OUR projections (no FP projection was used), so the week is NOT VALID for the
-        # study -- recorded, never a refusal of the other weeks; an FP file the receipt names but does not match is
+        # study -- recorded, never a refusal of the other weeks. An FP file the receipt names but which is missing or
+        # different is still refused just below (integrity).
         return {"no_fp": True, "reason": "no FP projection: the T-70 build fell back to our projections"}
     if not ps.get("sha256") or not (d / "proj_source.csv").is_file() or sha256(d / "proj_source.csv") != ps["sha256"]:
         raise SystemExit(f"STUDY 61 REFUSED: {d}/proj_source.csv is missing or not the receipt's projection file")
@@ -140,8 +141,12 @@ def load_union(d: Path) -> dict:
     pop["fp"] = pd.to_numeric(pop["fp"], errors="coerce")
     pop = pop[pop["fp"].notna()].copy()
     pop["nname"] = pop["display_name"].map(norm_name)
+    team_opp = {}                        # amendment 3: each team's opponent (team_change's mapping; the primary never reads it)
+    if "opp" in fr.columns:
+        opp = fr.groupby(fr["team"].astype(str))["opp"].agg(lambda s: str(s.iloc[0]) if s.nunique() == 1 else None)
+        team_opp = {t: o for t, o in opp.items() if o is not None}
     return {"pop": pop.reset_index(drop=True), "cutoff": when(fr["pulled_at"].iloc[0]),
-            "fp_last_updated": when(fp_lu) if fp_lu else None, "skill_on_frame": int(len(sk))}
+            "fp_last_updated": when(fp_lu) if fp_lu else None, "skill_on_frame": int(len(sk)), "team_opp": team_opp}
 
 
 def load_log(week: int, log_dir: Path) -> list[dict]:
@@ -204,6 +209,42 @@ def join(recs: list[dict], pop: pd.DataFrame) -> tuple[list[tuple[dict, int]], d
     return out, dict(c)
 
 
+# amendment 3 (the R14 spec amendment of 2026-10-07, before W6's extraction): team_change records are UNIT records, kept
+# out of the player join, the groups and the direction-0 placebo; their derived players form a descriptive line only
+UNIT_TARGETS = {"pass_defense": ("opp", ("QB", "WR", "TE"), -1), "pass_rush": ("opp", ("QB", "WR", "TE"), -1),
+                "run_defense": ("opp", ("RB",), -1), "offensive_line": ("own", ("QB", "RB"), 1),
+                "receiving_corps": None, "backfield": None}
+
+
+def derive_team_change(recs: list[dict], pop: pd.DataFrame, team_opp: dict[str, str]) -> tuple[list[tuple[dict, int, int]], dict]:
+    """(record, population row, derived direction) for the spec's mapping: pass_defense / pass_rush -> the opponent's QB,
+    WR and TE at -unit_effect; run_defense -> the opponent's RBs at -unit_effect; offensive_line -> the team's own QB and
+    RBs at +unit_effect; receiving_corps / backfield -> counted only. A team not on the Main slate derives nothing."""
+    out, c = [], Counter(records=len(recs))
+    for r in recs:
+        if not team_opp:                                     # the frame carried no opponent column: nothing can map
+            c["no_opponent_map"] += 1; continue
+        unit, eff = r.get("unit"), r.get("unit_effect")
+        if unit not in UNIT_TARGETS:
+            c["unit_unknown"] += 1; continue
+        c[f"unit {unit}"] += 1
+        code = team_code(r.get("team"))
+        if code is None:
+            c["team_unknown"] += 1; continue
+        if code not in team_opp:
+            c["team_not_on_slate"] += 1; continue
+        tgt = UNIT_TARGETS[unit]
+        if tgt is None:
+            c["count_only"] += 1; continue
+        side, poss, sign = tgt
+        team = team_opp[code] if side == "opp" else code
+        d = sign * int(eff) if eff in (-1, 0, 1) and not isinstance(eff, bool) else 0
+        rows = pop.index[(pop["team"].astype(str) == team) & pop["pos"].isin(poss)].tolist()
+        out += [(r, int(i), d) for i in rows]
+        c["derived_pairs"] += len(rows)
+    return out, dict(c)
+
+
 def player_groups(pairs: list[tuple[dict, int]], exclude_types: tuple = ()) -> dict[int, int]:
     """Per population row: n = the sign of the sum of its counted +1 / -1 directions (0 = balanced)."""
     s, seen = defaultdict(int), set()
@@ -250,8 +291,9 @@ def load_actuals(season: int, week: int, gsis_ids: list[str]) -> tuple[pd.DataFr
     return act, hashlib.sha256(body.encode()).hexdigest()
 
 
-def week_descriptive(pairs, groups, rp, fp_lu) -> dict:
-    """By fact type (mean of direction x r' over records), the priceable split, the sign rate, the direction-0 placebo."""
+def week_descriptive(pairs, groups, rp, fp_lu, derived=()) -> dict:
+    """By fact type (mean of direction x r' over records), the priceable split, the sign rate, the direction-0 placebo,
+    and (amendment 3) team_change's derived players: the mean of derived direction x r', by unit."""
     by_type = {}
     for t in TYPES:
         v = [r["direction"] * rp[i] for r, i in pairs if r["fact_type"] == t and r["direction"] in (-1, 1) and pd.notna(rp[i])]
@@ -267,8 +309,11 @@ def week_descriptive(pairs, groups, rp, fp_lu) -> dict:
     for r, i in pairs:
         dirs[i].add(r["direction"])
     zero_only = [rp[i] for i, ds in dirs.items() if ds == {0} and pd.notna(rp[i])]
+    tc = [(r["unit"], d * rp[i]) for r, i, d in derived if d != 0 and pd.notna(rp[i])]
     return {"by_type": by_type, "priceable_split": split, "sign_rate": sign_rate,
-            "zero_only": {"players": len(zero_only), "mean_r": float(np.mean(zero_only)) if zero_only else None}}
+            "zero_only": {"players": len(zero_only), "mean_r": float(np.mean(zero_only)) if zero_only else None},
+            "team_change_derived": {"pairs": len(tc), "mean_signed_r": float(np.mean([v for _, v in tc])) if tc else None,
+                                    "by_unit": dict(Counter(u for u, _ in tc))}}
 
 
 def read_look(values: list[float]) -> dict:
@@ -297,7 +342,9 @@ def parse_map(text: str) -> dict[int, Path]:
 
 def week_census(week: int, U: dict, recs: list[dict]) -> dict:
     kept, c1 = counted_records(recs, U["cutoff"])
-    pairs, c2 = join(kept, U["pop"])
+    unit_recs = [r for r in kept if r["fact_type"] == "team_change"]          # amendment 3: unit records, apart
+    pairs, c2 = join([r for r in kept if r["fact_type"] != "team_change"], U["pop"])
+    derived, c3 = derive_team_change(unit_recs, U["pop"], U.get("team_opp") or {})
     g = player_groups(pairs)
     by_type = dict(Counter((r["fact_type"], r["direction"]) for r, _ in pairs))
     return {"records": c1, "join": c2, "joined_by_type_direction": {f"{t} {d:+d}": n for (t, d), n in sorted(by_type.items())},
@@ -305,7 +352,7 @@ def week_census(week: int, U: dict, recs: list[dict]) -> dict:
                         "balanced": sum(1 for i, n in g.items() if n == 0 and any(r["direction"] for r, j in pairs if j == i)),
                         "zero_only": sum(1 for i in g if all(r["direction"] == 0 for r, j in pairs if j == i))},
             "population": int(len(U["pop"])), "skill_on_frame": U["skill_on_frame"], "cutoff_utc": U["cutoff"].isoformat(),
-            "pairs": pairs, "groups": g}
+            "team_change": c3, "pairs": pairs, "groups": g, "derived": derived}
 
 
 MONEYGATE_WEEKS = Path.home() / "moneygate" / "weeks.json"
@@ -353,15 +400,16 @@ def main(argv=None) -> int:
         if a.smoke_cutoff_utc:
             U["cutoff"] = when(a.smoke_cutoff_utc)
         cen = week_census(w, U, recs)
-        pw = {k: v for k, v in cen.items() if k not in ("pairs", "groups")}
+        pw = {k: v for k, v in cen.items() if k not in ("pairs", "groups", "derived")}     # counts only: no record text
         print(f"  W{w} CENSUS: population {cen['population']} of {cen['skill_on_frame']} frame skill players; cut-off "
-              f"{cen['cutoff_utc']}; records {cen['records']}; join {cen['join']}; players {cen['players']}")
+              f"{cen['cutoff_utc']}; records {cen['records']}; join {cen['join']}; players {cen['players']}"
+              + (f"; team_change {cen['team_change']}" if cen["team_change"].get("records") else ""))
         if not a.census:
             act, act_sha = load_actuals(SEASON, w, U["pop"]["gsis_id"].astype(str).tolist())
             rp = residuals(U["pop"], act)
             d = delta(cen["groups"], rp)
             d_no_other = delta(player_groups(cen["pairs"], exclude_types=("other",)), rp)
-            desc = week_descriptive(cen["pairs"], cen["groups"], rp, U["fp_last_updated"])
+            desc = week_descriptive(cen["pairs"], cen["groups"], rp, U["fp_last_updated"], derived=cen["derived"])
             pw.update({"actuals_sha256": act_sha, "population_with_actuals": int(rp.notna().sum()), "primary": d,
                        "primary_without_other": d_no_other, "descriptive": desc})
             tag = "PROSPECTIVE" if w >= PROSPECTIVE_FROM else "BEFORE THE STUDY"
@@ -370,6 +418,10 @@ def main(argv=None) -> int:
                   f"{d_no_other.get('delta', float('nan')):+.3f}; sign rate {desc['sign_rate']}; direction-0 placebo {desc['zero_only']}")
             print("      by type (mean direction x r'): " + ", ".join(f"{t} {v['mean_signed_r']:+.2f} ({v['records']})" for t, v in desc["by_type"].items() if v["records"])
                   + " | priceable split: " + ", ".join(f"{k} {v['mean_signed_r']:+.2f} ({v['records']})" for k, v in desc["priceable_split"].items() if v["records"]))
+            tcd = desc["team_change_derived"]
+            if tcd["pairs"]:
+                print(f"      team_change derived players (descriptive only, never the primary): mean derived direction x r' "
+                      f"{tcd['mean_signed_r']:+.2f} over {tcd['pairs']} pairs, by unit {tcd['by_unit']}")
         out["per_week"][w] = pw
     if not a.census:
         ok = lambda w: bool((out["per_week"][w].get("primary") or {}).get("valid"))
