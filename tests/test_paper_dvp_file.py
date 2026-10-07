@@ -73,3 +73,23 @@ def test_too_few_prior_rows_gives_no_slope():
     fp = pd.DataFrame({"dk_draftable_id": fr.dk_draftable_id, "fp": 12.0})
     slope, n = P.walk_forward_slope([(4, fr, fp, pd.Series(12.0, index=fr["id"]))], al)
     assert slope is None and n < 30
+
+
+def test_a_frame_row_without_a_dk_player_id_is_refused_with_exit_3(tmp_path, monkeypatch):
+    """The 10-07 repair before first use (the reviewer's option b): pandas 3 keeps a missing Int64 id as NaN through
+    astype(str), so the refusal is checked before the cast; main() maps it to exit 3 (the arm missing that week)."""
+    import nfl_dfs.bq as bq
+    prior_fr, al = _frame(200), _allowed(weeks=(1, 2, 3, 4))
+    z = P.matchup_z(prior_fr, al, 4)
+    acts = pd.DataFrame({"gsis_id": z.index, "week": 4, "dk_points": (12.0 + 2.0 * z).to_numpy()})
+    monkeypatch.setattr(bq, "query_df", lambda sql, params=None: acts if "dk_points FROM" in sql else al)
+    prior_fr.to_parquet(tmp_path / "prior.parquet")
+    pd.DataFrame({"dk_draftable_id": prior_fr.dk_draftable_id, "fp": 12.0}).to_csv(tmp_path / "prior_fp.csv", index=False)
+    target = _frame(40)
+    target.assign(dk_player_id=target.dk_player_id.astype("Int64").where(target.index != 3)).to_parquet(tmp_path / "t.parquet")
+    pd.DataFrame({"dk_draftable_id": target.dk_draftable_id, "fp": 12.0}).to_csv(tmp_path / "t_fp.csv", index=False)
+    args = ["--season", "2026", "--week", "5", "--frame", str(tmp_path / "t.parquet"), "--fp", str(tmp_path / "t_fp.csv"),
+            "--prior", f"4:{tmp_path / 'prior.parquet'}:{tmp_path / 'prior_fp.csv'}", "--out", str(tmp_path / "out.csv")]
+    assert P.main(args) == 3 and not (tmp_path / "out.csv").exists()
+    target.to_parquet(tmp_path / "t.parquet")                               # the same frame with every id: written
+    assert P.main(args) == 0 and len(pd.read_csv(tmp_path / "out.csv", comment="#")) == 40
