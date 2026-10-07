@@ -12,6 +12,32 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-07 (13:07 CDT) — Study 54 acked (scored run started); his WFFC answer; the W3 replay scored (d = 0 every week); the priority-contest monitor as Monday step 6
+
+- **Study 54 FROZEN** (prereg 3c5bd444, 81363694; lab 3a2cded, code a94da39). The question: PLAIN (production's pmo_x50)
+  − LIVE (his construction) on the 17 2022 slates (out of sample); 2023–24 is printed only. My ACK:
+  - all §6 shas match; tests 7 pass;
+  - pmo_plain's frame_players / heavy_games / pmo_rows are character-identical to integration's union_reselect.py;
+  - s54_census.py on the reviewer's raw (7ba703ce) gives a4d5d0ed, byte-identical;
+  - my bank scan of 1575–1580 + seed 20261106 is clean (scratchpad bank_scan_1575_1580.out).
+  - The scored run started on the ack (~30 min). Next: my READ re-run, then the records.
+- **His WFFC answer** (to the laptop, verbatim): "Sorry for the confusion. If I had a ticket to a WWFC, then that contest
+  would be a priority. A $125 qualifier ticket is not considered a big win. A $490 qualifier ticket is."
+  - The W5 override stands; studies 54 / 38 / P3's big flags are unaffected.
+  - The reviewer encodes the rule in s38_plan as amendment 6h.
+  - Recorded on the decision sheet and in memory, with his contest priorities ("the 4444, 555, 333, WWFC are top
+    priorities").
+- **The P3 W2–4 replay is complete** (reconstructed, never counted; in-sample): big-seat d = 0 / 0 / 0.
+  - W3 was scored after the reviewer's s38_plan fix (6g, 91359fc): every arm won 0 big seats. The package won nothing at
+    all; the plain book won one satellite seat, the props book 3 plus a Millionaire cash.
+  - Briefing for the operator: briefings/2026-week-05/2026-10-07-p1-p3-first-reads.md (sent).
+- **P1 amendment 2** is committed by the reviewer (0f21128b; P1 prereg now 2b8c99a7): unique lineups per class, N =
+  others + 1, ties = 1 + strictly higher. The reader's tests are 87edab08.
+- **Monday refresh learning step 6:** the outside reviewer's priority_field_monitor.py (fc3aff11, byte-identical,
+  af031d77). The W1–4 run reproduces their primary line (2+ sub-$4k, top 5%: 2.03 / 1.93 within user). The weekly chore
+  added to the checklist: type the week's contests in the private type CSV.
+- FP rankings-weekly and the QB coverage page are still not posted (12:45 retry). Thursday's FP step retries them.
+
 ## 2026-10-07 (12:43 CDT) — P1 and P3 (the operator's Wed approved-plan items): ladder table built and applied; both preregs FROZEN with readers; P3 smoke accepted; the W2–4 reconstructed replay; the scorer reads week dates from the schedule
 
 **P1 (contest-class edge; the 10-05 analysis already answered power and the W1–4 record):**
