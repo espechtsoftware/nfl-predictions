@@ -1,0 +1,42 @@
+{
+ "week": 4,
+ "mode": "boom",
+ "rules": {
+  "mates": "1",
+  "bb": "1",
+  "flex": "TE",
+  "games": "5",
+  "dual": "yes",
+  "qb_total_rank": "2-3",
+  "qb_fav": "fav",
+  "top_total_n": "1-2",
+  "dst_price": "cheap",
+  "te_price": "cheap",
+  "own_sum": "<80"
+ },
+ "winner": 234.2,
+ "lines": {
+  "top100": 209.2,
+  "top1pct": 182.8,
+  "hit": 224.2
+ },
+ "built": 500,
+ "first": {
+  "top100": 251,
+  "top1pct": 248,
+  "hit": null
+ },
+ "best": 212.3,
+ "best_lineup": [
+  "Packers DST GB 8.0",
+  "Dak Prescott QB DAL 21.1",
+  "Jakobi Meyers WR JAX 6.3",
+  "T.J. Hockenson TE MIN 27.9",
+  "Nico Collins WR HOU 33.8",
+  "Javonte Williams RB DAL 31.3",
+  "Puka Nacua WR LA 30.7",
+  "Kyren Williams RB LA 36.7",
+  "Tucker Kraft TE GB 16.5"
+ ],
+ "secs": 85
+}

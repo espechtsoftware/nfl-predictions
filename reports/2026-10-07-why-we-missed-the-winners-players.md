@@ -56,7 +56,8 @@ it was the game.
 | teammates Out vacate ≥ 10% of the own-type share | no 9.2% (n 487) | | yes 13.8% (n 58) | yes-rate .13, .14, .14 (W2–4) |
 | market ≥ projection + 1.5 | no 9.4% | | yes 25.0% (n 12) | W1 .50, W2 .00, W3 .25 |
 
-**The matchup measure is the one pre-lock fact that doubles the explosion rate in all four weeks.** And the
+**The matchup measure is the one pre-lock fact that doubles the explosion rate in all four 2026 weeks (but see §3.0:
+out of sample the effect is about a fifth of that, and nothing in Weeks 1–4).** And the
 projection model does not have it: `src/nfl_dfs/models/featureset.py` carries coverage and pressure features
 (`cb_ypt_allowed_l6`, `db_ypt_allowed_l6`, `top_cb_out`, `opp_pressure_rate_l6`, …) but not the opponent's points
 allowed to the position; the warehouse's own `qb/rb/wr/te_fp_allowed_adj_l6` and `rz_td_rate_allowed_l6` exist but
@@ -68,4 +69,59 @@ finding that FP is market-quality. Vacated opportunity carries a small, consiste
 
 ## 3. Experiments run on these findings
 
-[EXPERIMENTS]
+### 3.0 Correction first: the matchup signal out of sample (2023–2025)
+
+`matchup_oos.py`: the same matchup measure on 2023–2025 (10,742 player-weeks expected ≥ 5 points; none of today's work
+touched these seasons), with each player's own pre-week scoring (prior season as a six-game prior plus the season so
+far) standing in for the projection, because no archived projections exist before 2026.
+
+| | hard | mid | soft |
+|---|---|---|---|
+| explosion rate, all positions | 8.8% | 10.7% | 10.3% |
+| RB | 8.2% | 9.8% | 11.4% |
+| TE | 5.9% | 10.4% | 9.2% |
+
+Logistic, explosion on the player's expected points and the matchup: odds ratio **1.07 per standard deviation**
+(z 2.1 pooled; 2023 1.10, 2024 1.07, 2025 1.05). **In Weeks 1–4, when the measure leans on the prior season, 1.01
+(z 0.2): nothing.** So the matchup effect is real but small, and the doubling seen in the 2026 weeks was mostly those
+four weeks. It is worth a feature in the projection (RB and TE most), not a construction rule.
+
+### 3.1 Experiment A — the live Week-5 book with pre-lock factor bonuses (Weeks 2–4 real fields)
+
+The fixed-book replay harness (the one that decided the tilt and the overlap limit), the live Week-5 settings
+(overlap 4, round-robin, QB cap 5, no ownership term), each arm adding a pre-lock bonus through the union's existing
+term vehicle, weights fixed before the run: MATCHUP up to +2 (one point per standard deviation of softness),
+VACATED up to +3 (10 × the own-type share vacated by teammates ruled Out), MARKET up to +2 (half the props-implied
+excess over the projection played), COMBINED their sum capped at +3. `run/experiments/` holds the files and log.
+
+| Arm | P(≥1 big) W2 / W3 / W4 | mean entry percentile W2 / W3 / W4 | best row W2 / W3 / W4 |
+|---|---|---|---|
+| live | .041 / .002 / .434 | .424 / .516 / .502 | 163.0 / 164.6 / 181.1 |
+| matchup | .001 / .296 / .503 | .417 / .606 / .661 | 143.2 / 189.6 / 183.5 |
+| vacated | .000 / .025 / .056 | .449 / .692 / .494 | 155.3 / 175.1 / 161.5 |
+| market | .134 / .028 / .434 (= live: no bonus under FP) | .419 / .525 / .502 | 162.0 / 160.6 / 181.1 |
+| combined | .007 / **.921** / .308 | **.482 / .694 / .571** | 165.0 / 190.1 / 174.8 |
+
+The combined bonus improves the average finish in all three weeks (+6, +18, +7 percentile points) and is ahead on
+P(≥1 big) in one; the matchup bonus is ahead in two of three on both. **These are in-sample:** the factors were chosen
+from these same weeks, and §3.0 shows the matchup effect is about a fifth of its 2026 size out of sample. The vacated
+bonus alone, at ten times the share, promotes fringe backups and is harmful in every week.
+
+### 3.2 Experiment C — lineups built from the simulator's sampled worlds inside each week's winning environment
+
+One lineup per simulated world (the archived worlds of that week's T−70 run, in production's order), under the same
+rules as the ladder's best layer; 500 worlds per week.
+
+| Week | Sampled worlds: first top 1% / first top 100 / best | Projection order (same rules, 1,000 builds) |
+|---|---|---|
+| 1 | 165 / never / 244.1 | 1 / 108 / 248.7 |
+| 2 | **6** / never / **192.8** | never / never / 169.7 |
+| 3 | **5 / 82** / 210.8 | 21 / 240 / 215.6 |
+| 4 | 248 / 251 / 212.3 | 35 / 262 / 219.2 |
+
+The sampled worlds reach the winners' region faster in the two weeks where the projection was furthest from the
+winners (Week 2: a top-1% lineup at the 6th build where projection order never got one in 4,000; Week 3: the top 100
+at the 82nd), and slower in Weeks 1 and 4. Neither search came within 10 of a winner in any week.
+
+[EXPERIMENT-B]
+

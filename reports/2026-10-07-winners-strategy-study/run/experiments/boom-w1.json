@@ -1,0 +1,36 @@
+{
+ "week": 1,
+ "mode": "boom",
+ "rules": {
+  "bb": "1",
+  "flex": "RB",
+  "qb_total_rank": "2-3",
+  "qb_fav": "fav",
+  "top_total_n": "0"
+ },
+ "winner": 273.98,
+ "lines": {
+  "top100": 244.84,
+  "top1pct": 209.04,
+  "hit": 263.98
+ },
+ "built": 500,
+ "first": {
+  "top100": null,
+  "top1pct": 165,
+  "hit": null
+ },
+ "best": 244.14,
+ "best_lineup": [
+  "Jaguars DST JAX 13.0",
+  "Derrick Henry RB BAL 38.3",
+  "Christian Watson WR GB 35.7",
+  "D'Andre Swift RB CHI 35.4",
+  "Dalton Kincaid TE BUF 21.0",
+  "Bryce Young QB CAR 35.4",
+  "Ladd McConkey WR LAC 19.2",
+  "Jalen Coker WR CAR 36.8",
+  "Omarion Hampton RB LAC 9.3"
+ ],
+ "secs": 48
+}
