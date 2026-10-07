@@ -6267,3 +6267,73 @@ secondaries (slate means; v2 = the calibrated field, l02 = studies 24-45's field
    solver put each shape on the QB it suits.
 3. **With study 42** (value and round-robin level with the group fill), the fill question is closed. His round-robin
    stays, and no QB-major switch is built. Study list item 41: closed, WORSE.
+
+## Addendum 152 (2026-10-06): study 48 (does a lineup "look like a winner"?): PASS — within his book, the rows that look more like recent winners score more than their projection says; the first choice among our own lineups that beats chance
+
+**Setup.**
+- **The operator (10-06 night):** "would there be any benefit to loading them into Neo4j and looking at each of them
+  quickly and seeing if it looks like a winner?" Then: "I want to do it right away." On the inputs, through the outside
+  reviewer's plan: every player's red-zone, touchdown and attempt facts.
+- **The score.** A point-in-time ridge logistic model of "in the top 1% of a PRIOR slate's calibrated v2 field by
+  realized points" against the rest. It is fitted on 2022 and the 2023–24 slates strictly before each scored slate,
+  on 24 PRE-LOCK features:
+  - **Shape and field:** the QB's WR / TE teammates, bring-back, QB-team RB, players from the QB's and the top-total
+    game, salary used.
+  - **Ownership:** the skill players' mean ownership rank. Training uses the prior slates' real ownership; scoring uses
+    the pre-lock TABPFN prediction.
+  - **Player history:** the players' prior top-1% frequency.
+  - **The operator's per-player facts, aggregated over the lineup:**
+    - red-zone and end-zone targets, goal-line carries;
+    - target, carry, snap and route shares, WOPR, vacated share;
+    - the QB's implied total, spread and game total;
+    - lagged TDs over 4 / 8 games, and the QB's pass TDs and attempts over 4 (nflverse, strictly prior).
+- **Disclosed:** the inputs were widened at the operator's request before the freeze, and the 2022–24 "winners" are
+  sampled-field winners.
+- **Preregistration:** `reports/2026-10-07-prereg-study48-winner-like.md` (frozen `3d890e34`, sha256 `ea1ff2ee…`). The
+  training table is byte-deterministic (`66272167…`).
+- **Panel:** his live book's 26 rows on each slate-bank; banks 1521–1526, B 20,000, seed 20261028.
+- **Read and reproduced:** read by the reviewer and **reproduced byte-identically by the laptop** (raw files equal to the
+  RAW_MANIFEST; the prep and the binding census also reproduced).
+  - Reader `c8d9ece7`; READ `477e0eea`.
+  - The confirmatory census (`22c6530`) was committed before the READ (`4c30057`).
+  - Lab: nfl2 `production/s48-winner-like-20261006`; LEDGER row `e5dee65`.
+
+**Reader output (verbatim):**
+```
+STUDY 48 READER  sha256 c8d9ece7b3b4169b8d86492b58aa588c7ae7d71f3c3f947866ea7f1d7498cdb5
+DIRECTION: POSITIVE = the more winner-like rows of a book finish better (at equal projection for the primary).
+slates 36  banks [1521, 1522, 1523, 1524, 1525, 1526]  B 20000  seed 20261028  primary the partial rank correlation (score vs finish pct on the CALIBRATED field v2, projection held), two-sided 0.95; prep identity 66272167b80dc08b008060fa921f9cb67abecb2c12c8a17394b75d9670423ca1
+
+== THE WINNER-LIKENESS SCORE on his live book  [DECISION]
+  PRIMARY partial rank correlation (score vs finish, projection held) +0.08212  [+0.02884, +0.13449]  seasons 2023 +0.09503, 2024 +0.06921
+  ->  PASS (looking like a winner predicts a better finish at equal projection; a candidate tiebreak, needing its own book-level test)
+
+== EXPLORATORY (never decision-bearing)
+  partial, the l02 field: +0.08212  [+0.02884, +0.13449]  seasons 2023 +0.09503, 2024 +0.06921
+  plain rank correlation (no projection held), v2: +0.08821  [+0.03093, +0.14362]  seasons 2023 +0.09006, 2024 +0.08635
+  top-5 minus bottom-5 rows by score: mean finish pct, v2: +0.06530  [+0.02167, +0.10801]  seasons 2023 +0.06887, 2024 +0.06174
+  top-5 minus bottom-5 rows by score: top-1% rate, v2: +0.02130  [+0.00556, +0.04167]  seasons 2023 +0.01852, 2024 +0.02407
+
+levels (slate means, v2): the 5 most winner-like rows' mean pct 0.5388, top-1% rate 0.0269; the 5 least: 0.4735, 0.0056
+```
+
+**Reading.**
+1. **PASS.** The score's partial rank correlation with the realized finish at equal projection is +0.082
+   [+0.029, +0.134], positive in both seasons. The five most winner-like rows of a book reach the top 1% 2.7% of the
+   time; the five least, 0.6%.
+   - The l02 line equals v2 by construction: a within-book rank statistic does not depend on which field converts the
+     points.
+2. **Leak check after the read:**
+   - the frame's `*_l4` columns are 4-game means of the games BEFORE the week (correlation 0.986, against 0.953 when the
+     week is included);
+   - the weekly lags are strictly prior (tested);
+   - the ownership rank at scoring is the pre-lock prediction;
+   - the model and the history use earlier slates only.
+3. **What it leans on.** The all-53 fit (`MODEL_all53.json`) weights:
+   - **toward:** ownership rank (+0.20), snap share (+0.13), QB teammates (+0.11);
+   - **against:** recent end-zone targets (−0.17) and touchdowns (−0.10), i.e. regression.
+4. **By frozen §5 (PASS):** a use needs its own book-level test. That is study 48b: the same book dealt with the most
+   winner-like rows on the big-entry ranks.
+   - For Week 5 it also needs the production port by Friday 17:00 (`MODEL_all53` and `PORT_NOTES` on lab
+     `production/s48-port-20261007`), parity, review, Friday's rehearsal and his yes.
+   - **Transfer caveat:** this was measured under our projections, while his live book uses FP's.
