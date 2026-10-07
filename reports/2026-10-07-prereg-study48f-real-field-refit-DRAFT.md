@@ -4,6 +4,14 @@ Drafted 2026-10-07 by the laptop agent for the reviewer's review. Study list ite
 reviewer reviews the design before any Week-5 outcome is read. The freeze happens before the Week-5 lock (Sun 10-11
 12:00 CT).
 
+**Revision 1 (2026-10-07, the reviewer's review):**
+- The decision's unit is the WEEK, not the lineup. Lineups within a week share the few players whose games decide the top
+  1%, so a lineup bootstrap understates the uncertainty several-fold: the frozen 48 score's band AUC moved .492 / .538 /
+  .391 across W2–W4.
+- Also added: the 5% band as a descriptive line, a W9 replacement rule, OWN kept with SE-without-OWN as a descriptive
+  line, the walk-forward refit as a descriptive line, the monkeys pool definition, the seeds, the dropped-lineup count,
+  and the freeze contents.
+
 ## 1. Why (the evidence so far)
 
 - Study 48 (PASS in the harness) fitted its score on top-1% rows of SAMPLED 2022–24 fields, scored on real points. The
@@ -47,42 +55,60 @@ part add anything over structure and environment?
   - **SE** = STRUCT + ENV + OWN;
   - **FULL** = SE + FACTS.
 - Trained on the top-1% rows against the band's other rows (not the whole field).
-- Weeks without an ownership source enter OWN as the training mean (0 after standardizing).
+- Weeks without an ownership source enter OWN as the training mean (0 after standardizing). OWN stays in SE: ownership is
+  the largest coefficient in study 48, and FP's projected ownership exists from W5 on. Disclosed: OWN's coefficient is
+  learned from W3–W4 only, from two sources (the sets file, then FP).
 - **Development (allowed, not graded):** walk-forward fits W1→W2, W1–2→W3, W1–3→W4, used only to check that the code runs
   and the features are point-in-time. These weeks' outcomes are already known, so they grade nothing.
-- **The frozen model for grading:** SE and FULL fit on W1–W4. Coefficients, standardization and sha256 committed before the
-  Week-5 lock.
+- **The frozen model for grading (decision-bearing):** SE and FULL fit on W1–W4. The freeze commit carries the fit's
+  coefficients, standardization, the exact feature list and the sha256, before the Week-5 lock.
+- **Descriptive only:** the walk-forward refit with the same frozen recipe (W1..W(w−1)) for each graded week w, and
+  SE-without-OWN, so a failure can be attributed.
 
 ## 5. Grading: prospective only, Weeks 5–8 (the reviewer: "fitting walk-forward on W1–W4 is fine; grading on them is not")
 
-- **PRIMARY:** the pooled AUC of SE for the top-1% label within each graded week's band, with the weeks' AUCs averaged
-  with equal weight.
-  - 95% interval by a bootstrap over lineups, stratified by week, B = 20,000, seed fixed at freezing.
-  - **PASS** if the lower bound > 0.50 after Week 8.
-  - **NO DIFFERENCE** if the interval covers 0.50.
-  - **WORSE** if the upper bound < 0.50.
-- **SECONDARY:** FULL − SE pooled AUC, with the same bootstrap. "The player facts add nothing" is supported if the
-  interval covers 0 or is negative.
-- **SECONDARY, the monkeys test (the outside reviewer's point 3, the score's actual use):**
-  - Each week, our union's candidate pool is scored (the week's T-70 candidates, the book and the spares).
-  - SE's top 26 is compared with 10,000 random 26-row draws from the same pool, all scored on the real field.
-  - Reported: the percentile of SE's 26 on P(≥ 1 top-1% row) and on mean finish. Descriptive; not decision-bearing.
-- **Weekly line:** each graded week's AUCs and the monkeys percentile go into the weekly evidence record on Monday. No
-  interim decision.
+**The unit is the week.** Lineups within a week are not independent: when one player booms, thousands of lineups carrying
+him enter the top 1% together.
+
+- **PRIMARY:** SE's band AUC for the top-1% label, computed separately in each graded week (the 20% band).
+  - **PASS:** AUC > 0.50 in ALL FOUR graded weeks (1 in 16 under a coin-flip null).
+  - **WORSE:** AUC < 0.50 in all four.
+  - **NO PASS:** anything else.
+  - Printed with it: the mean AUC across the weeks and the across-week SD.
+  - Four weeks can detect only a large, consistent effect. A NO PASS is not evidence of no effect.
+- **SECONDARY:** FULL − SE, per week. "The player facts add nothing" is supported unless the difference is positive in
+  all four weeks.
+- **Descriptive only, never decision-bearing:**
+  - each week's lineup-bootstrap interval (B = 20,000, seed 20261048), labelled as assuming independent lineups;
+  - the 5% band's AUC per week (closer to our rows, few labels);
+  - the walk-forward refit and SE-without-OWN (§4).
+- **The monkeys test (the outside reviewer's point 3, the score's actual use), descriptive:**
+  - The pool is the union's own candidate pool as the union selected from it that week (its `candidates.parquet`),
+    plus the book and the spares. The weekly line records the pool's size and sha256.
+  - SE's top 26 is compared with 10,000 random 26-row draws from the same pool (seed 20261049), all scored on the real
+    field.
+  - Reported: the percentile of SE's 26 on P(≥ 1 top-1% row) and on mean finish.
+  - The random 26s ignore the caps, so the comparison is descriptive.
+- **Horizon:** W5–W8. If a week is invalid (a missing T-70 frame or ownership file), W9 may replace it, and no later week
+  (as in study 38).
+- **Weekly line:** each graded week's AUCs and the monkeys percentile go into the Monday evidence record. No interim
+  decision.
 
 ## 6. Support census (outcome-blind, before freezing)
 
 For W1–W4 (outcomes already known; counts only):
 - band size and top-1% labels per week (the whole-field check: W2 344 of 34,466; W3 541 of 32,302; W4 151 of 32,008);
-- the share of band lineups with every feature defined.
+- the share of band lineups with every feature defined;
+- the band lineups dropped because a player is missing from the T-70 frame.
 
 For W5–W8, the band and label counts are computed when each week settles.
 
-## 7. Power (rough, for the reviewer)
+## 7. Power and point-in-time
 
-Per week the band holds about 32k lineups and 150–540 top-1% labels. With a per-week AUC SE of about 0.012–0.025, four
-graded weeks give an interval half-width of about 0.015–0.02 on the averaged AUC. So the design can detect an AUC of
-0.53–0.54 and above.
+- **Power:** each week is one draw. The across-week SD of a band AUC looks like ~0.08 (the frozen 48 score W2–W4), so
+  only a consistent effect passes in all four weeks. The per-lineup SE (0.012–0.025) is not the relevant uncertainty.
+- **Point in time:** the T-70 frame and the lags come strictly before the lock. The top-total game is the frame's
+  pre-lock total rank. FP's projected ownership is the newest capture before the lock.
 
 ## 8. What a result would do
 
@@ -90,9 +116,9 @@ graded weeks give an interval half-width of about 0.015–0.02 on the averaged A
   own test.
 - **NO DIFFERENCE or WORSE:** closes the winner-likeness line for construction. The graph stays a looking tool.
 
-## 9. Open for the reviewer
+## 9. Resolved with the reviewer (revision 1)
 
-- (a) Band at 20%, or the top 5%? The 5% band holds only 12–94 labels a week.
-- (b) Is a 4-week horizon (W5–W8) right, given 2 seasons of practice weeks are not usable here?
-- (c) Should OWN be dropped entirely for symmetry (W1–2 lack it), or kept as W4-on only?
-- (d) For the monkeys pool: the T-70 candidates plus the book and spares, or also the Saturday supply?
+- (a) The primary stays on the 20% band; the 5% band is descriptive.
+- (b) W5–W8, with W9 as the only replacement.
+- (c) OWN is kept in SE and disclosed; SE-without-OWN is descriptive.
+- (d) The pool is the union's candidates.parquet plus the book and the spares, size and sha recorded.
