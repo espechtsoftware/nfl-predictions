@@ -123,7 +123,8 @@ For W5–W8, the band and label counts are computed when each week settles.
 
 - **PASS on SE:** a candidate for a real use (48e's gate at the soft threshold, or a selection), each still needing its
   own test.
-- **NO DIFFERENCE or WORSE:** closes the winner-likeness line for construction. The graph stays a looking tool.
+- **NO PASS or WORSE:** closes the winner-likeness line for construction. The graph stays a looking tool.
+- **INCOMPLETE** (fewer than four valid weeks by W9): no verdict, reported as such; the line stays open only by a new preregistration.
 
 ## 9. Resolved with the reviewer (revision 1)
 
