@@ -231,36 +231,46 @@ Real-field evidence for the score's elements in the priority contests (within us
 [−0.030, +0.044]). This deal is narrower: it moves rows only between his priority and lower-priority contests, so for
 his utility the downside is about nil.
 
-### 4a. The final deal order with the Midseason Warm Ups (the operator, 10-07)
+### 4a. The final deal order (the operator, 10-07): private plan Rev5
 
-The operator: *"I forgot about the midseason warm ups. Those are big prizes. Can we move that up to under the 4444 and
-before 555."*
+The operator's two messages, verbatim:
+- *"I forgot about the midseason warm ups. Those are big prizes. Can we move that up to under the 4444 and before
+  555."*
+- *"I'm sorry - I didn't even realize what the showdown Mega is. That should be under the $333. The order should be:
+  two mega 4444 satellites / midseason warmup / 555 / WFFC / 333 / Showdown mega / everything else."*
 
 **How it is applied:**
-- The deal follows the order of contests in his plan file, so the vehicle is a **private plan Rev4**: Rev3's 29
-  contests and fields, re-ordered only. Nothing tracked holds it; HANDOFF and the arm script record only its sha.
-- Rev4's per-rank entry weights are identical to Rev3's, so the MIX interleave, the 26 rows and their built order are
-  unchanged. Only the map from contest to rank moves. Rows needed and protected ranks stay at 26.
+- The deal follows the order of contests in his plan file. **Rev5** is Rev3's same 29 contests, byte-equal, re-ordered
+  only. It **replaces Rev4**, which was never installed.
+- The installed `contests.json` form will be sha256 `0877fbcd027391c51087b8d6529508ee4e557f27221a2786f0a890ed6b789cd3`
+  (Thursday, before A3). Nothing tracked holds the file itself.
+- Rev5's per-rank entry weights are identical to Rev3's, so the 26 rows and their built order are unchanged. Rows
+  needed and protected ranks stay at 26.
 
 **Rank map under head (Rev3's ranks in brackets):**
 
-| Contests | Rev4 ranks |
-|---|---|
-| $4,444: MEGA, MEGA, Showdown MEGA sat | 1 [1], 2 [2], 3 [10] |
-| Midseason Warm Up × 3 | 4, 5, 6 [20–22] |
-| $555 × 6 single entries | 7–12 [3–8]; the $555 2x supersat reads 3–4 [3–4] |
-| FFWC ($490 ticket) | 13 [9] |
-| $333 × 9 entries | 14–22 [11–19] |
-| The Millionaire × 2, the pinned $125 FFWC, the pinned $20 supersats | unchanged (1–2; 1; 1–26) |
+| His order | Contests | Rev5 ranks |
+|---|---|---|
+| 1 | the two $4,444 MEGA sats | 1, 2 [1, 2] |
+| 2 | the Midseason Warm Ups × 3 | 3, 4, 5 [20–22] |
+| 3 | the $555 single entries × 6 | 6–11 [3–8] |
+| 3 | the $555 2x supersat (2 entries) | 3–4 [3–4]; see note |
+| 4 | the WFFC ($490 ticket) | 12 [9] |
+| 5 | the $333s × 9 | 13–21 [11–19] |
+| 6 | the $4,444 Showdown MEGA sat | 22 [10] |
+| 7 | everything else: the Millionaire × 2, the pinned $125 FFWC, the pinned $20 supersats | unchanged (1–2; 1; 1–26) |
 
-- Below the Warm Ups, his existing relative order is kept ($555, then the $490 FFWC, then $333). He was asked whether he
-  wants the FFWC last.
-- With the cheap block's 1-based ranks 2, 5, 9, 12, 15, 18, 22 and 25, seven block ranks fall inside the priority
-  span 1–22.
-- 15 of the 18 non-block positions are inside it. The 3 lowest-scoring non-block rows go to ranks 23, 24 and 26, which
-  only the $20 supersats read.
+Note on the $555 2x supersat: a 2-entry contest's head block goes to the second 2-entry contest in the file, after the
+Millionaire. So it shares rows 3–4 with two Warm Ups and takes none from them.
 
-**The harm screen is amended before any number**, with three arms under the same frozen rule:
-- **CB:** the unchanged deal (Rev3, book order).
-- **CB_PRI:** Rev4 + the priority order.
-- **CB_REV4:** Rev4, book order, so that Rev4's own effect is tested if the priority order fails.
+- **The priority span is ranks 1–22.** Only the $20 supersats read ranks 23–26.
+- **The cheap block keeps its 1-based ranks 2, 5, 9, 12, 15, 18, 22 and 25.** Seven of them sit inside 1–22: the
+  second MEGA (2), the third Warm Up (5), a $555 (9), the WFFC (12), two $333s (15, 18) and the Showdown sat (22). Those
+  contests get a cheap-block row whatever the scores, under the reviewer's block rule.
+- **Fifteen non-block positions are inside the span.** The sort's best non-block row goes to rank 1, then 3, 4, 6, 7,
+  8, 10, 11, 13, … The 3 lowest-scoring non-block rows go to ranks 23, 24 and 26.
+
+**The harm screen's three arms**, under the same frozen rule:
+- **CB:** Rev3, book order (unchanged).
+- **CB_REV5:** Rev5, book order.
+- **CB_PRI:** Rev5 + the priority sort.
