@@ -174,9 +174,45 @@ this one directly; it is logged here as the proposal's record.
   row goes to which contest changes. This is class E (entry side): his authority, plus a mechanical rehearsal, the
   affected entries named, and a restore path (today's deal).
 
-**Proposed score** (pre-lock, from the row itself; ties by today's book rank):
+**FINAL RULE (production, the laptop, 10-07; logged in its wording):**
+- **Score per row:**
+  - 2 if the QB has 2+ teammates (players on his team, not QB or DST, FLEX included);
+  - +1 for a bring-back (1+ non-DST player on the QB's opponent);
+  - +1 for 2+ non-DST players with salary < $4,000.
+  These are `priority_field_monitor.py`'s definitions.
+- **With the cheap +2 block armed** (the reviewer's standing rule from the TD-deal screen, c9028505: a re-deal armed
+  with a block "applies only to the 18 non-block rows over their own positions (the block keeps its ranks), tested in
+  that form first"):
+  - The 8 block rows keep their positions (0-based 1, 4, 8, 11, 14, 17, 21, 24).
+  - The other 18 rows are sorted among their own positions by score, highest first, ties by book order.
+  - 13 of those 18 positions are priority ranks, so the 5 lowest-scoring non-block rows go to ranks 20, 21, 23, 24 and
+    26.
+  - 6 block rows sit in the priority ranks either way.
+  - The spares are untouched. Without a block, all 26 rows would sort.
+- **Where it lives:** `union_reselect --priority-order` (`UNION_PRIORITY_ORDER`, default off, byte-identical when off),
+  the same pattern as study 48b's WINNER_ORDER. The book.csv order is the deal, so the head layout, the row map, the
+  exposure sheet and the relayout checks do not change.
+- **Which ranks are priority** (Rev3 under head):
+  - ranks 1–19 are his priority contests: $4,444 × 3 incl. the Showdown sat, $555 × 8 incl. the 2x supersat, $333 × 9,
+    FFWC × 2;
+  - ranks 20–22 are the Midseason Warm Up sats;
+  - ranks 23–26 are the $20 supersats.
+  The pinned $125 FFWC reuses rank 1. Its ticket is not a big win (the operator, 10-07). The Midseason Warm Up sats
+  count as big under s38_plan but are not in his priority list, so they now get leftovers. The harm screen's P(≥ 1 big)
+  prices that.
+- **The test before entering:**
+  1. The laptop commits a frozen harm screen first, in the TD-screen wording: NOT ENTERED if P(≥ 1 big) is below the
+     unchanged deal in 2 or 3 of 3 weeks, or the pooled e_big ratio is < 0.80.
+  2. The books: cheap2-armed W2–4 builds through the real switch (cheap2 vs cheap2 + priority order), scored by
+     big_seat_stats on the Rev3 s24 plan.
+  3. Descriptive beside it: the priority entries' mean percentile and their QB + 1 / bring-back / 2+ cheap shares,
+     before and after.
+  4. All of this is in-sample and disclosed as such. Then Friday's A3 runs with it armed, and arming on Saturday
+     follows his yes after both. The restore path is UNION_PRIORITY_ORDER=0.
 
-| Element | Points | Real-field evidence in the priority contests (within user, top 5%) |
+Real-field evidence for the score's elements in the priority contests (within user, top 5%):
+
+| Element | Points | Evidence |
 |---|---|---|
 | QB with 2+ teammates | 2 | QB + 1 vs QB + 2: 0.78 [0.61, 0.97] (by contest 0.64) |
 | A bring-back | 1 | 1.51 [1.15, 2.01] |
@@ -195,9 +231,3 @@ this one directly; it is logged here as the proposal's record.
 [−0.030, +0.044]). This deal is narrower: it moves rows only between his priority and lower-priority contests, so for
 his utility the downside is about nil.
 
-**Test before entering:**
-- Production's fixed-book replay of P(≥ 1 big seat) on W2–4, today's deal vs priority-first. This is in-sample for the
-  layers and descriptive.
-- Friday's A3 rehearsal with the layout armed.
-
-If it cannot be built and rehearsed by Friday, it goes to Week 6 as a paper deal.
