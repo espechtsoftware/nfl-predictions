@@ -12,6 +12,20 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-07 (03:50 CDT) — Overnight: the winner-likeness work (graph facts layer; studies 48 PASS / 48b NO DIFFERENCE; the order merged OFF)
+
+- **The operator and the outside reviewer's plan** (`reports/2026-10-06-neo4j-winner-likeness-inputs.md`) asked for per-player football facts in the graph and the score.
+  - **Graph facts layer** merged (1a3e726a; reviewer CLEAN after one finding: realized ownership was under a pre-lock name, now `out_own_*_realized` with a guard). Loaded locally for W1–4: 1,107 player-weeks, 100 team-weeks, 50 games, 72,405 lineup labels.
+  - First look: winners' players looked no different pre-lock from the regulars' other lineups (only salary left differs).
+- **Study 48** (the winner-likeness score: 24 features incl. the operator's pre-lock player facts): PASS.
+  - Partial rank correlation +0.08212 [+0.02884, +0.13449] (READ 477e0eea; training table 66272167 and both READs reproduced byte-identically).
+  - Records merged (728008a6, Addendum 152).
+- **Study 48b** (re-deal the book by the score): NO DIFFERENCE, +0.00794 [−0.02970, +0.04391], expected seats −10% (READ 6d5f89c0, reproduced). DEAL_CELL (exploratory) +0.022.
+- **The laptop's real-field check** (W3/W4 replay books): partial −0.10 / −0.02, no support.
+- **Production port merged OFF** (44f4608f): `nfl_dfs.inference.winner_like` (parity 0.0 with the lab's private fixture), `scripts/winner_like_inputs.py`, `--winner-order`, UNION_WINNER_ORDER, WINNER_ORDER=0.
+  - A frame missing a model column keeps the book's order loudly.
+  - The ordered W4 book deals through enter_layout cleanly; vetting under the order is untested (a condition of any arming).
+- **Not for W5.** W6 options: 48c (within-cell order as the decision) and the weekly real-field line with the frozen model.
 ## 2026-10-06 (20:43 CDT) — End of Tuesday: Week 5 settings final; the evening's tests all recorded; Wednesday's order
 
 **Week 5 as armed** (the operator's decisions, all recorded):
