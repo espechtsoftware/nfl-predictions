@@ -235,6 +235,10 @@ rehearsal runs on the merged head in the exact armed env; Friday re-verifies on 
      `scripts/s38_plan.py` on the installed contests.json + the W5 capture + his overrides: the SAME plan study 38 scores
      with), then `PYTHONPATH=src python scripts/p3_score.py --week 5 --arms ~/moneygate/p3/w05 --plan <plan-w05-s24.json>
      --ledger ~/moneygate/results/p3_ledger.csv` -- d = big seats(ENTERED) - big seats(MEAN_MILP) and the class lines.
+  4b. **Study 60** (frozen 8a22f5f2; the reviewer re-runs the same and compares): after P3's arms and the reconcile,
+     `PYTHONPATH=src python scripts/s60_record.py --census --arms 5=~/moneygate/p3/w05` FIRST (the identity census),
+     then `PYTHONPATH=src python scripts/s60_record.py --weeks 5 --arms 5=~/moneygate/p3/w05`. If vetting changed the
+     lineup entered at rank 1 or 2, say so in words from the published upload (a disclosure; d is unchanged).
   5. Report P1's and P3's lines side by side (the weekly record and HANDOFF); P3's W8 read is descriptive, its W12 rule
      binding (7 of 8); P1's flag from W8 (>= 4 prospective weeks).
 - `weekly_projection_accuracy.py` (ours / FP / blend) and `weekly_fp_props_check.py` (FP vs FP + props), then `pool`.
