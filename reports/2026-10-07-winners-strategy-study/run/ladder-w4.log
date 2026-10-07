@@ -1,0 +1,79 @@
+== winners strategy study 2026-10-06 19:39:28 weeks [4] nmax 1000 cross 500 test False cross_only False
+W4: field 161,516 winner 234.20; cluster 10 (unresolved in frame: 0); top-1% 182.8; 100th 209.2
+    bb             1        share 0.70 field 0.37 lift 1.89 USE (cluster)
+    cheap          1        share 0.50 field 0.51 lift 0.98  (cluster)
+    dst_price      cheap    share 0.90 field 0.73 lift 1.23 USE (cluster)
+    dual           yes      share 1.00 field 0.64 lift 1.57 USE (cluster)
+    flex           TE       share 0.60 field 0.35 lift 1.71 USE (cluster)
+    games          5        share 0.50 field 0.27 lift 1.82 USE (cluster)
+    mates          1        share 0.80 field 0.45 lift 1.78 USE (cluster)
+    max_own        <=15     share 0.50 field 0.43 lift 1.17  (cluster)
+    n_low_own      2+       share 0.90 field 0.91 lift 0.99  (cluster)
+    own_sum        <80      share 1.00 field 0.83 lift 1.20 USE (cluster)
+    qb_fav         fav      share 0.50 field 0.38 lift 1.31 USE (cluster)
+    qb_tier        cheap    share 0.70 field 0.65 lift 1.09  (cluster)
+    qb_total_rank  2-3      share 0.80 field 0.27 lift 2.94 USE (cluster)
+    salary_left    0-200    share 0.80 field 0.85 lift 0.94  (cluster)
+    te_price       cheap    share 0.80 field 0.47 lift 1.71 USE (cluster)
+    top_total_n    1-2      share 0.70 field 0.46 lift 1.53 USE (cluster)
+  L0 unconstrained: rules {} | oracle 280.9 (winner 234.2)
+    W4 L0 unconstrained: n=100 best 160.1 (winner 234.2) 18s
+    W4 L0 unconstrained: n=200 best 179.1 (winner 234.2) 61s
+    W4 L0 unconstrained: n=300 best 179.1 (winner 234.2) 130s
+    W4 L0 unconstrained: n=400 best 185.8 (winner 234.2) 297s
+    W4 L0 unconstrained: n=500 best 185.8 (winner 234.2) 481s
+    W4 L0 unconstrained: n=600 best 185.8 (winner 234.2) 816s
+    W4 L0 unconstrained: n=700 best 185.8 (winner 234.2) 1215s
+    W4 L0 unconstrained: n=800 best 185.8 (winner 234.2) 1541s
+    W4 L0 unconstrained: n=900 best 185.8 (winner 234.2) 2012s
+    W4 L0 unconstrained: n=1000 best 185.8 (winner 234.2) 2771s
+    -> first hit None, first top-1% 395, first top-100 None, best 185.82
+  shape: rules {'mates': '1', 'bb': '1', 'flex': 'TE', 'games': '5', 'dual': 'yes'} | oracle 266.3 (winner 234.2)
+    W4 shape: n=100 best 176.0 (winner 234.2) 112s
+    W4 shape: n=200 best 176.0 (winner 234.2) 431s
+    W4 shape: n=300 best 179.0 (winner 234.2) 782s
+    W4 shape: n=400 best 179.0 (winner 234.2) 1260s
+    W4 shape: n=500 best 179.0 (winner 234.2) 1885s
+    W4 shape: n=600 best 182.6 (winner 234.2) 2673s
+    W4 shape: n=700 best 185.0 (winner 234.2) 3826s
+    W4 shape: n=800 best 185.0 (winner 234.2) 4691s
+    W4 shape: n=900 best 185.0 (winner 234.2) 5893s
+    W4 shape: n=1000 best 185.0 (winner 234.2) 6910s
+    -> first hit None, first top-1% 698, first top-100 None, best 185.02
+  environment: rules {'mates': '1', 'bb': '1', 'flex': 'TE', 'games': '5', 'dual': 'yes', 'qb_total_rank': '2-3', 'qb_fav': 'fav', 'top_total_n': '1-2', 'dst_price': 'cheap'} | oracle 249.0 (winner 234.2)
+    W4 environment: n=100 best 166.9 (winner 234.2) 56s
+    W4 environment: n=200 best 189.0 (winner 234.2) 186s
+    W4 environment: n=300 best 198.1 (winner 234.2) 429s
+    W4 environment: n=400 best 198.1 (winner 234.2) 785s
+    W4 environment: n=500 best 199.5 (winner 234.2) 1252s
+    W4 environment: n=600 best 199.5 (winner 234.2) 1845s
+    W4 environment: n=700 best 199.5 (winner 234.2) 2547s
+    W4 environment: n=800 best 199.5 (winner 234.2) 3082s
+    W4 environment: n=900 best 199.5 (winner 234.2) 3731s
+    W4 environment: n=1000 best 199.5 (winner 234.2) 4467s
+    -> first hit None, first top-1% 140, first top-100 None, best 199.5
+  salary: rules {'mates': '1', 'bb': '1', 'flex': 'TE', 'games': '5', 'dual': 'yes', 'qb_total_rank': '2-3', 'qb_fav': 'fav', 'top_total_n': '1-2', 'dst_price': 'cheap', 'te_price': 'cheap'} | oracle 249.0 (winner 234.2)
+    W4 salary: n=100 best 166.9 (winner 234.2) 52s
+    W4 salary: n=200 best 189.0 (winner 234.2) 176s
+    W4 salary: n=300 best 198.1 (winner 234.2) 413s
+    W4 salary: n=400 best 199.5 (winner 234.2) 755s
+    W4 salary: n=500 best 199.5 (winner 234.2) 1218s
+    W4 salary: n=600 best 199.5 (winner 234.2) 1794s
+    W4 salary: n=700 best 199.5 (winner 234.2) 2435s
+    W4 salary: n=800 best 199.5 (winner 234.2) 2931s
+    W4 salary: n=900 best 199.5 (winner 234.2) 3532s
+    W4 salary: n=1000 best 199.5 (winner 234.2) 4254s
+    -> first hit None, first top-1% 122, first top-100 None, best 199.5
+  ownership: rules {'mates': '1', 'bb': '1', 'flex': 'TE', 'games': '5', 'dual': 'yes', 'qb_total_rank': '2-3', 'qb_fav': 'fav', 'top_total_n': '1-2', 'dst_price': 'cheap', 'te_price': 'cheap', 'own_sum': '<80'} | oracle 249.0 (winner 234.2)
+    W4 ownership: n=100 best 193.4 (winner 234.2) 107s
+    W4 ownership: n=200 best 193.4 (winner 234.2) 374s
+    W4 ownership: n=300 best 219.2 (winner 234.2) 869s
+    W4 ownership: n=400 best 219.2 (winner 234.2) 1566s
+    W4 ownership: n=500 best 219.2 (winner 234.2) 2450s
+    W4 ownership: n=600 best 219.2 (winner 234.2) 3476s
+    W4 ownership: n=700 best 219.2 (winner 234.2) 4395s
+    W4 ownership: n=800 best 219.2 (winner 234.2) 5466s
+    W4 ownership: n=900 best 219.2 (winner 234.2) 6688s
+    W4 ownership: n=1000 best 219.2 (winner 234.2) 8098s
+    -> first hit None, first top-1% 35, first top-100 262, best 219.2
+== week ladders done (no cross)

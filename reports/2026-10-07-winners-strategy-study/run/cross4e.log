@@ -1,0 +1,25 @@
+== winners strategy study 2026-10-07 00:18:52 weeks [1, 2, 3, 4] nmax 1000 cross 500 test False cross_only True
+W1: loaded from checkpoint
+W2: loaded from checkpoint
+W3: loaded from checkpoint
+W4: loaded from checkpoint
+== cross-week runs (from [4] to [1, 2, 3])
+  rules of W4@environment on W1: oracle 276.04 (winner 274.0)
+    W4@environment->W1: n=100 best 200.5 (winner 274.0) 50s
+    W4@environment->W1: n=200 best 224.8 (winner 274.0) 169s
+    W4@environment->W1: n=300 best 224.8 (winner 274.0) 393s
+    W4@environment->W1: n=400 best 224.8 (winner 274.0) 706s
+    W4@environment->W1: n=500 best 224.8 (winner 274.0) 1137s
+  rules of W4@environment on W2: oracle 234.18 (winner 232.4)
+    W4@environment->W2: n=100 best 147.5 (winner 232.4) 59s
+    W4@environment->W2: n=200 best 147.5 (winner 232.4) 218s
+    W4@environment->W2: n=300 best 148.3 (winner 232.4) 472s
+    W4@environment->W2: n=400 best 148.3 (winner 232.4) 802s
+    W4@environment->W2: n=500 best 148.3 (winner 232.4) 1230s
+  rules of W4@environment on W3: oracle 240.8 (winner 239.8)
+    W4@environment->W3: n=100 best 193.6 (winner 239.8) 78s
+    W4@environment->W3: n=200 best 196.4 (winner 239.8) 262s
+    W4@environment->W3: n=300 best 196.4 (winner 239.8) 592s
+    W4@environment->W3: n=400 best 201.9 (winner 239.8) 1076s
+    W4@environment->W3: n=500 best 202.8 (winner 239.8) 1728s
+== done

@@ -1,0 +1,491 @@
+{
+ "week": 2,
+ "field": 172692,
+ "winner": 232.38,
+ "lines": {
+  "top400": 193.96,
+  "top100": 203.5,
+  "top1pct": 179.78,
+  "hit": 222.38
+ },
+ "proj_source": "ours",
+ "frame_players": 418,
+ "describe": {
+  "n": {
+   "cluster": 7,
+   "top100": 100,
+   "field": 60000
+  },
+  "unresolved_cluster": 0,
+  "table": {
+   "bb": {
+    "0": {
+     "cluster": 0.714,
+     "top100": 0.68,
+     "field": 0.559
+    },
+    "1": {
+     "cluster": 0.286,
+     "top100": 0.32,
+     "field": 0.376
+    },
+    "2+": {
+     "cluster": 0.0,
+     "top100": 0.0,
+     "field": 0.066
+    }
+   },
+   "cheap": {
+    "0": {
+     "cluster": 0.0,
+     "top100": 0.01,
+     "field": 0.216
+    },
+    "1": {
+     "cluster": 0.571,
+     "top100": 0.55,
+     "field": 0.542
+    },
+    "2+": {
+     "cluster": 0.429,
+     "top100": 0.44,
+     "field": 0.242
+    }
+   },
+   "dst_price": {
+    "cheap": {
+     "cluster": 1.0,
+     "top100": 0.94,
+     "field": 0.664
+    },
+    "exp": {
+     "cluster": 0.0,
+     "top100": 0.06,
+     "field": 0.336
+    }
+   },
+   "dual": {
+    "no": {
+     "cluster": 0.571,
+     "top100": 0.49,
+     "field": 0.377
+    },
+    "yes": {
+     "cluster": 0.429,
+     "top100": 0.51,
+     "field": 0.623
+    }
+   },
+   "flex": {
+    "RB": {
+     "cluster": 0.0,
+     "top100": 0.13,
+     "field": 0.507
+    },
+    "TE": {
+     "cluster": 0.857,
+     "top100": 0.54,
+     "field": 0.169
+    },
+    "WR": {
+     "cluster": 0.143,
+     "top100": 0.33,
+     "field": 0.325
+    }
+   },
+   "games": {
+    "5": {
+     "cluster": 0.143,
+     "top100": 0.18,
+     "field": 0.239
+    },
+    "6+": {
+     "cluster": 0.857,
+     "top100": 0.81,
+     "field": 0.686
+    },
+    "<=4": {
+     "cluster": 0.0,
+     "top100": 0.01,
+     "field": 0.075
+    }
+   },
+   "mates": {
+    "0": {
+     "cluster": 0.0,
+     "top100": 0.05,
+     "field": 0.125
+    },
+    "1": {
+     "cluster": 0.571,
+     "top100": 0.53,
+     "field": 0.484
+    },
+    "2": {
+     "cluster": 0.429,
+     "top100": 0.35,
+     "field": 0.344
+    },
+    "3+": {
+     "cluster": 0.0,
+     "top100": 0.07,
+     "field": 0.048
+    }
+   },
+   "qb_fav": {
+    "dog": {
+     "cluster": 1.0,
+     "top100": 0.9,
+     "field": 0.68
+    },
+    "fav": {
+     "cluster": 0.0,
+     "top100": 0.1,
+     "field": 0.32
+    }
+   },
+   "qb_tier": {
+    "cheap": {
+     "cluster": 0.143,
+     "top100": 0.27,
+     "field": 0.479
+    },
+    "mid": {
+     "cluster": 0.857,
+     "top100": 0.72,
+     "field": 0.353
+    },
+    "top3": {
+     "cluster": 0.0,
+     "top100": 0.01,
+     "field": 0.168
+    }
+   },
+   "qb_total_rank": {
+    "1": {
+     "cluster": 0.571,
+     "top100": 0.6,
+     "field": 0.218
+    },
+    "2-3": {
+     "cluster": 0.0,
+     "top100": 0.06,
+     "field": 0.373
+    },
+    "4+": {
+     "cluster": 0.429,
+     "top100": 0.34,
+     "field": 0.409
+    }
+   },
+   "salary_left": {
+    "0-200": {
+     "cluster": 0.714,
+     "top100": 0.86,
+     "field": 0.841
+    },
+    "1001+": {
+     "cluster": 0.0,
+     "top100": 0.0,
+     "field": 0.01
+    },
+    "201-1000": {
+     "cluster": 0.286,
+     "top100": 0.14,
+     "field": 0.149
+    }
+   },
+   "te_price": {
+    "cheap": {
+     "cluster": 1.0,
+     "top100": 0.93,
+     "field": 0.359
+    },
+    "not": {
+     "cluster": 0.0,
+     "top100": 0.07,
+     "field": 0.641
+    }
+   },
+   "top_total_n": {
+    "0": {
+     "cluster": 0.0,
+     "top100": 0.07,
+     "field": 0.413
+    },
+    "1-2": {
+     "cluster": 0.571,
+     "top100": 0.52,
+     "field": 0.424
+    },
+    "3+": {
+     "cluster": 0.429,
+     "top100": 0.41,
+     "field": 0.162
+    }
+   }
+  },
+  "chosen": {
+   "bb": {
+    "value": "0",
+    "share": 0.714,
+    "field": 0.559,
+    "lift": 1.28,
+    "source": "cluster",
+    "use": true
+   },
+   "cheap": {
+    "value": "1",
+    "share": 0.571,
+    "field": 0.542,
+    "lift": 1.05,
+    "source": "cluster",
+    "use": false
+   },
+   "dst_price": {
+    "value": "cheap",
+    "share": 1.0,
+    "field": 0.664,
+    "lift": 1.51,
+    "source": "cluster",
+    "use": true
+   },
+   "dual": {
+    "value": "no",
+    "share": 0.571,
+    "field": 0.377,
+    "lift": 1.52,
+    "source": "cluster",
+    "use": true
+   },
+   "flex": {
+    "value": "TE",
+    "share": 0.857,
+    "field": 0.169,
+    "lift": 5.07,
+    "source": "cluster",
+    "use": true
+   },
+   "games": {
+    "value": "6+",
+    "share": 0.857,
+    "field": 0.686,
+    "lift": 1.25,
+    "source": "cluster",
+    "use": true
+   },
+   "mates": {
+    "value": "1",
+    "share": 0.571,
+    "field": 0.484,
+    "lift": 1.18,
+    "source": "cluster",
+    "use": false
+   },
+   "qb_fav": {
+    "value": "dog",
+    "share": 1.0,
+    "field": 0.68,
+    "lift": 1.47,
+    "source": "cluster",
+    "use": true
+   },
+   "qb_tier": {
+    "value": "mid",
+    "share": 0.857,
+    "field": 0.353,
+    "lift": 2.43,
+    "source": "cluster",
+    "use": true
+   },
+   "qb_total_rank": {
+    "value": "1",
+    "share": 0.571,
+    "field": 0.218,
+    "lift": 2.62,
+    "source": "cluster",
+    "use": true
+   },
+   "salary_left": {
+    "value": "0-200",
+    "share": 0.714,
+    "field": 0.841,
+    "lift": 0.85,
+    "source": "cluster",
+    "use": false
+   },
+   "te_price": {
+    "value": "cheap",
+    "share": 1.0,
+    "field": 0.359,
+    "lift": 2.79,
+    "source": "cluster",
+    "use": true
+   },
+   "top_total_n": {
+    "value": "1-2",
+    "share": 0.571,
+    "field": 0.424,
+    "lift": 1.35,
+    "source": "cluster",
+    "use": true
+   }
+  }
+ },
+ "layers": [
+  {
+   "layer": "L0 unconstrained",
+   "rules": {},
+   "oracle": 258.46,
+   "can_hit": true,
+   "enum": {
+    "n_built": 1000,
+    "first": {
+     "hit": null,
+     "top100": null,
+     "top1pct": null,
+     "top400": null
+    },
+    "best_actual": 148.68,
+    "best_lineup": [
+     "Patriots DST NE $3100 21.0",
+     "Brock Purdy QB SF $6200 28.5",
+     "Javonte Williams RB DAL $6400 8.0",
+     "Bucky Irving RB TB $6100 13.0",
+     "Michael Mayer TE LV $3600 5.3",
+     "Dalton Schultz TE HOU $3200 29.0",
+     "Justin Jefferson WR MIN $7800 8.5",
+     "Ja'Marr Chase WR CIN $7600 26.5",
+     "Drake London WR ATL $6000 8.9"
+    ],
+    "hit_lineup": null,
+    "secs": 1964.7
+   }
+  },
+  {
+   "layer": "shape",
+   "rules": {
+    "bb": "0",
+    "flex": "TE",
+    "games": "6+",
+    "dual": "no"
+   },
+   "oracle": 254.96,
+   "can_hit": true,
+   "enum": {
+    "n_built": 1000,
+    "first": {
+     "hit": null,
+     "top100": null,
+     "top1pct": null,
+     "top400": null
+    },
+    "best_actual": 164.06,
+    "best_lineup": [
+     "Patriots DST NE $3100 21.0",
+     "Dak Prescott QB DAL $6400 29.8",
+     "Javonte Williams RB DAL $6400 8.0",
+     "Breece Hall RB NYJ $6200 14.2",
+     "Cade Otton TE TB $3400 8.8",
+     "Dalton Schultz TE HOU $3200 29.0",
+     "Justin Jefferson WR MIN $7800 8.5",
+     "CeeDee Lamb WR DAL $7300 38.3",
+     "Ladd McConkey WR LAC $6200 6.5"
+    ],
+    "hit_lineup": null,
+    "secs": 4556.2
+   }
+  },
+  {
+   "layer": "environment",
+   "rules": {
+    "bb": "0",
+    "flex": "TE",
+    "games": "6+",
+    "dual": "no",
+    "qb_total_rank": "1",
+    "qb_fav": "dog",
+    "top_total_n": "1-2",
+    "dst_price": "cheap"
+   },
+   "oracle": 254.96,
+   "can_hit": true,
+   "enum": {
+    "n_built": 1000,
+    "first": {
+     "hit": null,
+     "top100": null,
+     "top1pct": null,
+     "top400": null
+    },
+    "best_actual": 169.66,
+    "best_lineup": [
+     "Panthers DST CAR $2700 26.0",
+     "Dak Prescott QB DAL $6400 29.8",
+     "Javonte Williams RB DAL $6400 8.0",
+     "Bucky Irving RB TB $6100 13.0",
+     "Rhamondre Stevenson RB NE $5700 4.6",
+     "Michael Mayer TE LV $3600 5.3",
+     "Dalton Schultz TE HOU $3200 29.0",
+     "Jaxon Smith-Njigba WR SEA $8100 45.5",
+     "Justin Jefferson WR MIN $7800 8.5"
+    ],
+    "hit_lineup": null,
+    "secs": 3173.4
+   }
+  },
+  {
+   "layer": "salary",
+   "rules": {
+    "bb": "0",
+    "flex": "TE",
+    "games": "6+",
+    "dual": "no",
+    "qb_total_rank": "1",
+    "qb_fav": "dog",
+    "top_total_n": "1-2",
+    "dst_price": "cheap",
+    "qb_tier": "mid",
+    "te_price": "cheap"
+   },
+   "oracle": 254.96,
+   "can_hit": true,
+   "enum": {
+    "n_built": 1000,
+    "first": {
+     "hit": null,
+     "top100": null,
+     "top1pct": null,
+     "top400": null
+    },
+    "best_actual": 169.66,
+    "best_lineup": [
+     "Panthers DST CAR $2700 26.0",
+     "Dak Prescott QB DAL $6400 29.8",
+     "Javonte Williams RB DAL $6400 8.0",
+     "Bucky Irving RB TB $6100 13.0",
+     "Rhamondre Stevenson RB NE $5700 4.6",
+     "Michael Mayer TE LV $3600 5.3",
+     "Dalton Schultz TE HOU $3200 29.0",
+     "Jaxon Smith-Njigba WR SEA $8100 45.5",
+     "Justin Jefferson WR MIN $7800 8.5"
+    ],
+    "hit_lineup": null,
+    "secs": 2462.2
+   }
+  }
+ ],
+ "final_rules": {
+  "bb": "0",
+  "flex": "TE",
+  "games": "6+",
+  "dual": "no",
+  "qb_total_rank": "1",
+  "qb_fav": "dog",
+  "top_total_n": "1-2",
+  "dst_price": "cheap",
+  "qb_tier": "mid",
+  "te_price": "cheap"
+ },
+ "hit": false
+}

@@ -1,0 +1,25 @@
+== winners strategy study 2026-10-06 22:00:51 weeks [1, 2, 3, 4] nmax 1000 cross 500 test False cross_only True
+W1: loaded from checkpoint
+W2: loaded from checkpoint
+W3: loaded from checkpoint
+W4: loaded from checkpoint
+== cross-week runs (from [1] to [2, 3, 4])
+  rules of W1 on W2: oracle 234.58 (winner 232.4)
+    W1->W2: n=100 best 140.5 (winner 232.4) 34s
+    W1->W2: n=200 best 143.3 (winner 232.4) 98s
+    W1->W2: n=300 best 151.9 (winner 232.4) 209s
+    W1->W2: n=400 best 151.9 (winner 232.4) 321s
+    W1->W2: n=500 best 151.9 (winner 232.4) 443s
+  rules of W1 on W3: oracle 246.0 (winner 239.8)
+    W1->W3: n=100 best 184.2 (winner 239.8) 18s
+    W1->W3: n=200 best 184.2 (winner 239.8) 63s
+    W1->W3: n=300 best 184.2 (winner 239.8) 158s
+    W1->W3: n=400 best 184.2 (winner 239.8) 357s
+    W1->W3: n=500 best 184.2 (winner 239.8) 533s
+  rules of W1 on W4: oracle 271.76 (winner 234.2)
+    W1->W4: n=100 best 159.9 (winner 234.2) 17s
+    W1->W4: n=200 best 178.2 (winner 234.2) 59s
+    W1->W4: n=300 best 184.3 (winner 234.2) 128s
+    W1->W4: n=400 best 184.3 (winner 234.2) 223s
+    W1->W4: n=500 best 184.3 (winner 234.2) 324s
+== done
