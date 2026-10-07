@@ -6552,3 +6552,78 @@ secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; th
    - By the frozen §5 the gate stays OFF. Production's `--winner-gate` (parity-pinned, not merged) stays unarmed.
    - The winner-likeness line now rests on study 48f: the score refit on the real 2026 fields, graded W5–W8 with the
      week as the unit.
+
+## Addendum 156 (2026-10-07): study 49 (the prior-top term block in the harness): NO DIFFERENCE, leaning negative; the uncapped form costs a third of P(≥ 1 big)
+
+**Setup.**
+- **The question.** The operator put the prior-top term in Week 5 live, capped, on part of the book (10-07, "Live, capped,
+  part of book").
+  - The block: 8 of 26 rows built after the live block on the projection + min(0.20 × pred_own, 2.0).
+  - pred_own: 5 × z within position of each player's mean share of the PRIOR weeks' real Millionaire top-1% lineups,
+    clipped at 0.
+  - Production: `union_reselect --term-block-rows 8`.
+  - Its evidence was three in-sample weeks (the exact form: ahead in one of three).
+  - He then said "Yes, run it" to this check: can the harness catch harm before Sunday?
+- **The arms.** His live Week-5 book and production's 15 spares (41 rows, one state):
+  - **LIVE:** mix_fill's round-robin, called.
+  - **TERM8 (DECISION):** production's term block (`experiments/term_book.py` `62c2306e…`, the file study 38's amendment
+    6 copies), with the block at ranks 2, 5, 9, 12, 15, 18, 22 and 25.
+  - **TERM_ALL (exploratory):** every row on the uncapped term, the outside reviewer's replay form.
+- **The harness analogue of the file:** each player's mean share of the season's prior slates' sampled top-1% lineups
+  (the calibrated v2 field from each slate's REAL ownership, the top 1% by REALIZED points), 5 × z within position,
+  clipped at 0. Week 1 has no file, so TERM8 equals LIVE on 2 of 36 slates.
+- **Production parity:** study 38's amendment-6 smoke. The lab's book with the block equals the laptop's Week-4
+  production union book, 26 of 26 positions.
+- **Preregistration:** `reports/2026-10-07-prereg-study49-prior-top-block.md` (frozen `53bbb840`, sha256 `127f73e1…`).
+- **Panel:** banks 1545–1550, B 20,000, seed 20261101.
+- **Read and reproduced:** read by the reviewer and **reproduced byte-identically by the laptop** (raw files equal to the
+  RAW_MANIFEST).
+  - Reader `8cae1f22`; READ `47cea4cc`.
+  - The confirmatory census (`fba41f5`, `33cd67f0`) was committed before the READ (`84cfe8d`).
+  - LEDGER row lab `95e98f7`.
+
+**Reader output (verbatim):**
+```
+STUDY 49 READER  sha256 8cae1f22363637efa678a2125bd78dc5ca5e7e0796269d164337ef8e5ae9121f
+DIRECTION: P(>= 1 big seat) per slate (the mean over its banks); every difference is ARM - REFERENCE; POSITIVE favours the first arm.
+slates 36  banks [1545, 1546, 1547, 1548, 1549, 1550]  B 20000  seed 20261101  primary TERM8 - LIVE on the CALIBRATED field (v2), two-sided 0.95, guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only
+arms (definitions, the term, study 48's sha, study 46's sha, the term block's sha, the training table, live settings, QB cap, objective): [["LIVE", "TERM8", "TERM_ALL"], {"cap": 2.0, "floor_proj": 5.0, "min_coverage": 0.5, "n_term": 8, "tilt": 0.2, "z_scale": 5.0}, "c22d28114ab4b463b6842594cb2ff7ca1babf41e28015c7242b21baedb1bc67c", "30647fef4175770e8f809cb704f282788f8b4d079319ba282768ad907433ec7a", "62c2306eff1135713d599b788bcbd29be9db308c2eb8537183f3d291b996b887", "66272167b80dc08b008060fa921f9cb67abecb2c12c8a17394b75d9670423ca1", {"fill": "rr", "max_shared": 4}, 5, "player_mean (no ownership term)"]
+the term block applied on 0.944 of slate-banks (Week 1 has no prior slate)
+
+== TERM8 vs LIVE  [DECISION: production's prior-top term block, 8 rows, capped at 2 points; the calibrated field]
+  PRIMARY P(>= 1 big seat) per slate -0.01651  [-0.07180, +0.05619]  seasons 2023 -0.02397, 2024 -0.00905
+  GUARD 1 mean entry pct +0.00054  one-sided lower -0.00973  (must exceed -0.015)
+  GUARD 2 expected big seats 0.53735 vs 0.56116  ratio 0.958  (must be >= 0.80)
+  TERM8 dealt identical to LIVE: 0.056 of slate-banks
+  ->  NO DIFFERENCE
+
+== EXPLORATORY (never decision-bearing; two-sided 0.95)
+  TERM_ALL - LIVE (every row on the uncapped term): -0.11154  [-0.22059, +0.00396]  seasons 2023 -0.04095, 2024 -0.18212
+  TERM8 - LIVE (the term block, the l02 field): -0.01565  [-0.07082, +0.05675]  seasons 2023 -0.02937, 2024 -0.00192
+  TERM_ALL - LIVE (every row on the uncapped term, the l02 field): -0.11694  [-0.22727, +0.00047]  seasons 2023 -0.04483, 2024 -0.18905
+
+secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; the book's rows are pre-lock facts):
+  LIVE      v2: P(>=1 big) 0.33231  expected big seats 0.56116  P(>=2) 0.14280  entry pct 0.51313
+            l02: P(>=1 big) 0.35876  expected big seats 0.63814  entry pct 0.52162
+            book: projection per row 128.16  predicted ownership 78.42%  capped term points per row 8.666
+  TERM8     v2: P(>=1 big) 0.31580  expected big seats 0.53735  P(>=2) 0.14057  entry pct 0.51366
+            l02: P(>=1 big) 0.34311  expected big seats 0.60451  entry pct 0.52212
+            book: projection per row 127.69  predicted ownership 78.58%  capped term points per row 9.840
+  TERM_ALL  v2: P(>=1 big) 0.22077  expected big seats 0.34002  P(>=2) 0.08278  entry pct 0.43960
+            l02: P(>=1 big) 0.24182  expected big seats 0.37623  entry pct 0.44745
+            book: projection per row 123.91  predicted ownership 72.58%  capped term points per row 12.217
+```
+
+**Reading.**
+1. **NO DIFFERENCE, leaning negative in both seasons.** The capped 8-row block moved P(≥ 1 big) −0.017 [−0.072, +0.056]
+   (0.332 → 0.316). Both guards held. It costs 0.48 projected points per row; its 8 rows project 123.9 against 129.2 for
+   the live block's.
+2. **The mechanism hurts at strength.** Riding the players in recent winning lineups, applied to every row uncapped,
+   cost −0.112 [−0.221, +0.004] (0.332 → 0.221) and 7 points of mean finish. The cap and the 8-row limit are what keep
+   the block near harmless.
+3. **The caveat.** The harness's winners are sampled-field winners on real points. So this measures recent-hitter
+   momentum in real outcomes, not the real field's ownership pattern.
+4. **What follows.**
+   - Not WORSE at the frozen rule, so by its §4 the block stays his Week-5 decision. The laptop takes him three options
+     for Friday's arming: live 8 capped rows, paper only, or off.
+   - Study 38's MIXT_QA0_NOTERM line measures the block on the real field every week it is live.
