@@ -1,0 +1,62 @@
+{
+ "w2-live": {
+  "p_big1": 0.0413,
+  "e_big": 0.0414,
+  "mean_entry_pct": 0.4239,
+  "proj_sum_mean": 136.95,
+  "best_row": 162.96,
+  "rows_top1pct": 0,
+  "distinct_players": 53,
+  "rows_same_as_live": null
+ },
+ "w2-priortop": {
+  "p_big1": 0.0139,
+  "e_big": 0.0139,
+  "mean_entry_pct": 0.4169,
+  "proj_sum_mean": 132.43,
+  "best_row": 140.5,
+  "rows_top1pct": 0,
+  "distinct_players": 53,
+  "rows_same_as_live": 0
+ },
+ "w3-live": {
+  "p_big1": 0.0016,
+  "e_big": 0.0016,
+  "mean_entry_pct": 0.5163,
+  "proj_sum_mean": 133.11,
+  "best_row": 164.64,
+  "rows_top1pct": 0,
+  "distinct_players": 48,
+  "rows_same_as_live": null
+ },
+ "w3-priortop": {
+  "p_big1": 0.3027,
+  "e_big": 0.3327,
+  "mean_entry_pct": 0.7457,
+  "proj_sum_mean": 129.64,
+  "best_row": 174.9,
+  "rows_top1pct": 0,
+  "distinct_players": 54,
+  "rows_same_as_live": 0
+ },
+ "w4-live": {
+  "p_big1": 0.4336,
+  "e_big": 0.4339,
+  "mean_entry_pct": 0.5024,
+  "proj_sum_mean": 144.0,
+  "best_row": 181.08,
+  "rows_top1pct": 0,
+  "distinct_players": 49,
+  "rows_same_as_live": null
+ },
+ "w4-priortop": {
+  "p_big1": 0.7635,
+  "e_big": 0.7635,
+  "mean_entry_pct": 0.4846,
+  "proj_sum_mean": 138.23,
+  "best_row": 180.58,
+  "rows_top1pct": 0,
+  "distinct_players": 48,
+  "rows_same_as_live": 0
+ }
+}

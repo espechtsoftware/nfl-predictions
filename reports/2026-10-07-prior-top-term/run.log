@@ -1,0 +1,26 @@
+W2 file: 367 players from weeks < 2; pred_own > 0 for 59; max 34.20; top 5: Chris Olave 34.2, Jahmyr Gibbs 33.6, Jalen Coker 31.1, Tyler Shough 29.5, Michael Mayer 28.4
+W3 file: 480 players from weeks < 3; pred_own > 0 for 80; max 41.92; top 5: Dalton Schultz 41.9, CeeDee Lamb 40.9, Jahmyr Gibbs 37.9, Dak Prescott 34.8, Jaxon Smith-Njigba 29.7
+W4 file: 550 players from weeks < 4; pred_own > 0 for 104; max 42.29; top 5: Jahmyr Gibbs 42.3, Dalton Schultz 36.3, Jaxon Smith-Njigba 34.5, CeeDee Lamb 31.3, Garrett Wilson 27.1
+W5 file: 574 players from weeks < 5; pred_own > 0 for 114; max 42.36; top 5: Jahmyr Gibbs 42.4, CeeDee Lamb 38.6, Dalton Schultz 32.4, Nico Collins 27.8, Dak Prescott 27.1
+== prior-top replay 2026-10-07T09:40:11Z: code fc27f3aa, lab f69598b
+  union w2 live rc 0 (0 refusal lines) 04:40:23
+  union w2 priortop rc 0 (0 refusal lines) 04:40:39
+  layout w2 live rc 0
+  layout w2 priortop rc 0
+  union w3 live rc 0 (0 refusal lines) 04:40:59
+  union w3 priortop rc 0 (0 refusal lines) 04:41:24
+  layout w3 live rc 0
+  layout w3 priortop rc 0
+  union w4 live rc 0 (0 refusal lines) 04:41:46
+  union w4 priortop rc 0 (0 refusal lines) 04:42:11
+  layout w4 live rc 0
+  layout w4 priortop rc 0
+
+             p_big1   e_big  mean_entry_pct  proj_sum_mean  best_row  rows_top1pct  distinct_players  rows_same_as_live
+w2-live      0.0413  0.0414          0.4239         136.95    162.96           0.0              53.0                NaN
+w2-priortop  0.0139  0.0139          0.4169         132.43    140.50           0.0              53.0                0.0
+w3-live      0.0016  0.0016          0.5163         133.11    164.64           0.0              48.0                NaN
+w3-priortop  0.3027  0.3327          0.7457         129.64    174.90           0.0              54.0                0.0
+w4-live      0.4336  0.4339          0.5024         144.00    181.08           0.0              49.0                NaN
+w4-priortop  0.7635  0.7635          0.4846         138.23    180.58           0.0              48.0                0.0
+== done 04:42:14
