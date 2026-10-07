@@ -49,6 +49,9 @@ PAPER=${S38_PAPER_TERM_FILE:-}
 # study 38 amendment 6c (10-07; the operator: the FP-means DvP arm on paper): scripts/paper_dvp_file.py's week file
 PDVP=${S38_PAPER_DVP_FILE:-}
 [[ -z "$PDVP" || -s "$PDVP" ]] || die "S38_PAPER_DVP_FILE '$PDVP' is missing or empty"
+# study 38 amendment 6d (10-07; the operator: "schedule any necessary experiments this week"): scripts/paper_factor_file.py's week file
+PFAC=${S38_PAPER_FACTOR_FILE:-}
+[[ -z "$PFAC" || -s "$PFAC" ]] || die "S38_PAPER_FACTOR_FILE '$PFAC' is missing or empty"
 [[ -n "$PSRC" ]] || die "the union args name no --proj-source (FP projections fell back?): no FP week for study 38"
 cmp -s "$PSRC" "$OUT/proj_fp-$TAG.csv" || die "--proj-source $PSRC differs from $OUT/proj_fp-$TAG.csv"
 if [[ -n "$OSRC" ]]; then
@@ -81,6 +84,7 @@ fi
 if [[ -n "$TROWS" && "$TROWS" != 0 ]]; then cp -p "$TSRC" "$DEST/$(basename "$TSRC")" || die "copy failed: $(basename "$TSRC")"; fi
 if [[ -n "$PAPER" ]]; then cp -p "$PAPER" "$DEST/paper-term-$(basename "$PAPER")" || die "copy failed: paper-term-$(basename "$PAPER")"; fi
 if [[ -n "$PDVP" ]]; then cp -p "$PDVP" "$DEST/paper-dvp-$(basename "$PDVP")" || die "copy failed: paper-dvp-$(basename "$PDVP")"; fi
+if [[ -n "$PFAC" ]]; then cp -p "$PFAC" "$DEST/paper-factor-$(basename "$PFAC")" || die "copy failed: paper-factor-$(basename "$PFAC")"; fi
 # production passes no --dk-status (OPEN-DEFECTS O-16): then NO dk-status file is copied and the build must use none
 if [[ -n "$DSRC" ]]; then cp -p "$DSRC" "$DEST/$(basename "$DSRC")" || die "copy failed: $(basename "$DSRC")"; fi
 cp -p "$ARGS" "$DEST/union-args-$TAG.txt" || die "copy failed: union-args-$TAG.txt"   # ONE union-args file (never also union_args.txt)
@@ -102,6 +106,7 @@ OVR_SRC=$OVR; [[ "$OVR" == "-" ]] && OVR_SRC="(written: {})"
   [[ -n "$TROWS" && "$TROWS" != 0 ]] && SRC["$(basename "$TSRC")"]="$TSRC"
   [[ -n "$PAPER" ]] && SRC["paper-term-$(basename "$PAPER")"]="$PAPER"
   [[ -n "$PDVP" ]] && SRC["paper-dvp-$(basename "$PDVP")"]="$PDVP"
+  [[ -n "$PFAC" ]] && SRC["paper-factor-$(basename "$PFAC")"]="$PFAC"
   if [[ -n "$OSRC" ]]; then SRC["$(basename "$OSRC")"]="$OSRC"; else SRC["ownership_fp-$TAG.csv"]="${OSRC_LABEL:-}"; SRC["ownership_fp-$TAG.csv.receipt.json"]="(written by ownership_fp.py with the export)"; fi
   for n in $(ls "$DEST" | sort); do
     [[ "$n" == .* ]] && continue

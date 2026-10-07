@@ -168,3 +168,28 @@ def test_the_paper_dvp_file_is_copied_as_paper_dvp_with_its_sha_beside_the_paper
     assert r2.returncode == 1 and "S38_PAPER_DVP_FILE" in r2.stdout and not (tmp_path / "dest2").exists()
     r3 = _run(tmp_path, ud, out, tmp_path / "dest3", env=base)
     assert r3.returncode == 0 and not any(p.name.startswith("paper-dvp") for p in (tmp_path / "dest3").iterdir())
+
+
+def test_the_paper_factor_file_is_copied_as_paper_factor_with_its_sha_beside_the_others(tmp_path):
+    """Study 38 amendment 6d (10-07): S38_PAPER_FACTOR_FILE (written by scripts/paper_factor_file.py) is copied as
+    paper-factor-<basename> with its sha in MANIFEST.txt, beside the paper term and DvP files; a named but missing
+    file is refused; unset copies nothing."""
+    import os
+    ud, out = _setup(tmp_path)
+    paper = tmp_path / "priortop-w5.csv"; paper.write_text("dk_player_id,pred_own\n1,10\n")
+    dvp = tmp_path / "w05.csv"; dvp.write_text('# {"slope": 0.6}\ndk_player_id,gsis_id,pos,opp,z,slope,fp,adj_points\n1,00-1,WR,NO,0.5,0.6,12,12.3\n')
+    fac = tmp_path / "f05.csv"
+    fac.write_text('# {"study": "38 amendment 6d"}\ndk_player_id,gsis_id,pos,team,opp,b_matchup,b_vacated,b_market,b_combined,fp\n1,00-1,WR,ATL,NO,0.5,0,0,0.5,12\n')
+    keys = ("S38_PAPER_TERM_FILE", "S38_PAPER_DVP_FILE", "S38_PAPER_FACTOR_FILE")
+    base = {k: v for k, v in os.environ.items() if k not in keys}
+    r = _run(tmp_path, ud, out, tmp_path / "dest", env=dict(base, S38_PAPER_TERM_FILE=str(paper), S38_PAPER_DVP_FILE=str(dvp),
+                                                            S38_PAPER_FACTOR_FILE=str(fac)))
+    assert r.returncode == 0, r.stdout + r.stderr
+    for name, src in (("paper-factor-f05.csv", fac), ("paper-dvp-w05.csv", dvp), ("paper-term-priortop-w5.csv", paper)):
+        assert (tmp_path / "dest" / name).read_bytes() == src.read_bytes()
+    manifest = (tmp_path / "dest" / "MANIFEST.txt").read_text()
+    assert hashlib.sha256(fac.read_bytes()).hexdigest() in manifest and "paper-factor-f05.csv" in manifest
+    r2 = _run(tmp_path, ud, out, tmp_path / "dest2", env=dict(base, S38_PAPER_FACTOR_FILE=str(tmp_path / "none.csv")))
+    assert r2.returncode == 1 and "S38_PAPER_FACTOR_FILE" in r2.stdout and not (tmp_path / "dest2").exists()
+    r3 = _run(tmp_path, ud, out, tmp_path / "dest3", env=base)
+    assert r3.returncode == 0 and not any(p.name.startswith("paper-factor") for p in (tmp_path / "dest3").iterdir())
