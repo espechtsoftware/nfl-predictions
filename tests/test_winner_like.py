@@ -251,7 +251,7 @@ def test_the_gate_re_solves_with_the_rejected_lineup_banned_and_falls_back_to_th
     g = _FakeGate()
     book, cells, meta, spares = ur.mix_rows(pd.DataFrame(), set(), 1, 4, None, 0, [1], portfolio="ws", fill="rr", gate=g)
     assert seen == [0, 1, 2]                                    # each try bans the rejected lineups so far (none passed)
-    assert meta["gate"]["rows"][0]["tries"] == 3 and meta["gate"]["rows"][0]["passed"] is False
+    assert meta["gate"]["rows"][0]["tries"] == 3 and meta["gate"]["rows"][0]["solves"] == 3 and meta["gate"]["rows"][0]["passed"] is False
     assert book[0][0] == "x0" and meta["gate"]["rows"][0]["score"] == -1.0      # the best-scoring try: the first
     with pytest.raises(ValueError, match="fill rr"):
         ur.mix_rows(pd.DataFrame(), set(), 1, 4, None, 0, [1], portfolio="ws", fill="group", gate=g)

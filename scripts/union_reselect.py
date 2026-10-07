@@ -531,17 +531,18 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
         ids, v = peek_plain(name, extra_bans)
         if gate is None or ids is None:
             return ids, v
-        tried = []
+        tried, calls = [], 1
         while True:
             tried.append((ids, v, gate.score(ids)))
             if tried[-1][2] >= gate.tau or len(tried) >= gate.tries:
                 break
             ids, v = peek_plain(name, extra_bans, [frozenset(t[0]) for t in tried])
+            calls += 1                                         # a solve that returns None counts (the lab's count)
             if ids is None:
                 break
         passed = [t for t in tried if t[2] >= gate.tau]
         pick = passed[0] if passed else (max(tried, key=lambda t: t[2]) if gate.fallback == "best" else tried[0])
-        gate_log.append({"cell": name, "tries": len(tried), "passed": bool(passed), "score": round(float(pick[2]), 6),
+        gate_log.append({"cell": name, "tries": len(tried), "solves": calls, "passed": bool(passed), "score": round(float(pick[2]), 6),
                          "first_score": round(float(tried[0][2]), 6), "proj_cost": round(float(tried[0][1] - pick[1]), 4)})
         return pick[0], pick[1]
 
@@ -780,7 +781,7 @@ class WinnerGate:
         return {"rule": "GATE (study 48e DRAFT)", "tau": self.tau, "tries": self.tries, "fallback": self.fallback,
                 "model_sha256": sha256_file(self.WL.MODEL_PATH), "inputs": str(self.inputs_path),
                 "inputs_sha256": sha256_file(self.inputs_path), "hist": "0 (live)", "rows": log,
-                "passed": sum(r["passed"] for r in log), "solves": sum(r["tries"] for r in log)}
+                "passed": sum(r["passed"] for r in log), "solves": sum(r.get("solves", r["tries"]) for r in log)}
 
 
 def apply_winner_order(book: list[int], rosters: list, fr: pd.DataFrame, inputs_path: Path) -> tuple[list[int], dict]:
