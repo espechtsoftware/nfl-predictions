@@ -465,6 +465,25 @@ def test_auto_target_is_one_week_and_the_schedules_week():
         shadow.resolve_auto_target([(2026, 4)], (2026, 5))
 
 
+def test_gpu_generator_auto_target_counts_only_the_upcoming_weeks_teams():
+    """O-41 (2026-10-07): from Week 5 a team on bye carries its NEXT game in player_week_inference (Week 5: CAR / KC
+    on Week 6), so the generator's distinct inference weeks are taken over the teams the schedule plays in the
+    upcoming week only; the resolver itself (one week, the schedule's week) is unchanged and still fails closed."""
+    generator = (ROOT / "scripts/tabpfn_sis_pass_tail_live/gen.py").read_text(encoding="utf-8")
+    body = generator[generator.index("def _resolve_auto_target("):generator.index("def _checksum(")]
+    assert body.index("SELECT MIN(week) AS week") < body.index("player_week_inference")   # the schedule's week first
+    for needle in ("UNNEST([s.home_team, s.away_team]) AS team", "s.week=@upcoming", "i.team IN (",
+                   "AND s.gameday >= CAST(CURRENT_DATE() AS STRING))",
+                   'ScalarQueryParameter("upcoming", "INT64", int(upcoming))', "resolve_auto_target(\n"):
+        assert needle in body, needle
+    # the resolver's contract is unchanged: a bye-filtered single week passes, a stale or mixed table refuses
+    assert shadow.resolve_auto_target([(2026, 5)] * 30, (2026, 5)) == (2026, 5)
+    with pytest.raises(ValueError, match="exactly one"):
+        shadow.resolve_auto_target([(2026, 5), (2026, 6)], (2026, 5))
+    with pytest.raises(ValueError, match="differs from the schedule"):
+        shadow.resolve_auto_target([(2026, 4)], (2026, 5))
+
+
 def test_gpu_generator_is_wired_to_the_contract():
     generator = (ROOT / "scripts/tabpfn_sis_pass_tail_live/gen.py").read_text(
         encoding="utf-8")

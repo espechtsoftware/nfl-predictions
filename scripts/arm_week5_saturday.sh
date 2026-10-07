@@ -39,6 +39,10 @@ TERM_ROWS=0                         # the prior-top term block (the operator 10-
                                     # the rehearsal are recorded; a book built WITHOUT it is not published (his decision)
 TERM_FILE=reports/2026-10-07-prior-top-term/priortop-w5.csv    # in the FRIDAY_HEAD checkout ($P); W1-W4 real fields, final
 TERM_SHA=""                         # its sha256, pinned (the arm refuses a mismatch)
+CLASS_SHA=92cec73388193a107c235ff3d8e8dafeea9a2d5d0121b481814b2e4fe0802f13   # O-42 (10-07): the class sleeve's model
+                                    # (week_env's CLASS_SLEEVE_EVERY=2 makes every build's preflight need $W/class_model.json
+                                    # + .sha256): W4's class_model_w4_w1w3 (W1 + W3), installed 10-07, unless the reviewer's
+                                    # Friday decision replaces it
 P=$HOME/projects/nfl-predictions; W=$HOME/week5-sunday; PY=$P/.venv/bin/python; CHECK=${1:-}
 say() { printf '%s %s\n' "$(date +%H:%M:%S)" "$*"; }
 stop() { say "ARM STOPPED: $*"; exit 1; }
@@ -64,6 +68,9 @@ if [[ -n "$CHG" ]]; then
 fi
 git merge-base --is-ancestor "$FRIDAY_HEAD" HEAD || stop "HEAD $(git rev-parse --short HEAD) is not at or after $FRIDAY_HEAD"
 [[ "$(sha256sum $W/contests.json | cut -d' ' -f1)" == "$PLAN_SHA" ]] || stop "$W/contests.json is not Rev3 ($PLAN_SHA)"
+# O-42 (10-07): the class sleeve's model, checked here (also under --check) rather than at the 10:30 build's preflight
+[[ -s $W/class_model.json && -s $W/class_model.json.sha256 ]] || stop "$W/class_model.json or its .sha256 is missing (the class sleeve's model, CLASS_SLEEVE_EVERY=2; O-42)"
+[[ "$(sha256sum $W/class_model.json | cut -c1-64)" == "$CLASS_SHA" && "$(cut -c1-64 $W/class_model.json.sha256)" == "$CLASS_SHA" ]] || stop "$W/class_model.json is not the pinned CLASS_SHA ${CLASS_SHA:0:8} (or its .sha256 disagrees)"
 K=$(PYTHONPATH=src $PY -m nfl_dfs.inference.enter_layout rows-needed $W/contests.json --layout head) || stop "rows-needed failed on the plan"
 [[ "$K" == 26 ]] || stop "rows-needed on the installed plan is $K, not 26 (Rev3 under head)"
 [[ -z "$QB_CAP_ROWS" || "$K" == "$QB_CAP_K" ]] || stop "the QB cap was calibrated at K $QB_CAP_K, but the plan needs $K rows (study 35: re-calibrate)"
@@ -72,7 +79,7 @@ K=$(PYTHONPATH=src $PY -m nfl_dfs.inference.enter_layout rows-needed $W/contests
 NEO_PID=$HOME/.local/share/neo4j-milly/run/neo4j.pid
 if [[ -s $NEO_PID ]] && ps -p "$(cat "$NEO_PID")" >/dev/null 2>&1; then stop "the local Neo4j is running (pid $(cat "$NEO_PID")): neo4j-milly stop, then re-run"; fi
 [[ -z "$(ss -ltnH '( sport = :7474 or sport = :7687 )' 2>/dev/null)" ]] || stop "a process listens on 7474/7687 (the local Neo4j?): stop it, then re-run"
-say "step 0 OK: checkout $(git rev-parse --short HEAD) clean; Rev3 installed; K $K; shape $SHAPE; Neo4j not running"
+say "step 0 OK: checkout $(git rev-parse --short HEAD) clean; Rev3 installed; class model ${CLASS_SHA:0:8}; K $K; shape $SHAPE; Neo4j not running"
 if [[ "$CHECK" != --check ]]; then
   # 1-4. Saturday inputs (no LineStar step: retired 10-06)
   PYTHONPATH=src $PY scripts/ownership_sets.py sets --week 5 --group 154468 --out $W/ownership_sets.csv 2>&1 | tail -1 || stop "ownership_sets.py sets failed"

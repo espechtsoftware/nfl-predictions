@@ -12,6 +12,80 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-07 (08:48 CDT) — Study 50 READ (NO DIFFERENCE; matchup leaning negative, 24% fewer expected big seats) reproduced byte-identically; the 8-row matchup block's W2–4 replay; O-42 (no W5 class model) fixed and pinned; O-43 recorded; the paired SIS dry run re-running after a stale-roster refusal
+
+**Study 50** (the factor bonuses in the harness; READ lab e123c7f; the census da62bd4 was committed first). **The laptop's re-run is BYTE-IDENTICAL:** census aacc85e5, READ 781e06f9, raw shas as recorded.
+- MATCHUP − LIVE: **−0.07374 [−0.15997, +0.01073]**, NO DIFFERENCE, leaning negative (2023 −0.039, 2024 −0.109; LIVE 0.346 → 0.273). Expected-big-seats ratio 0.756, past his 20% tolerance. 2022 +0.094, not contradicted.
+- COMBINED_NOMKT − LIVE: −0.026 [−0.125, +0.075], NO DIFFERENCE (ratio 1.050; 2022 +0.062).
+- Nothing adoptable. The LEDGER row and Addendum 158 come from the reviewer.
+
+**The operator's matchup block, test (a)** (the W2–4 fixed-book replay, IN-SAMPLE; ~/rehearsals/matchupblock-20261007T134632Z; code 6a623edf):
+- Block: 8 rows at ranks 2, 5, 9, 12, 15, 18, 22, 25; term min(0.20 × pred_own, 2.0) from the outside reviewer's matchup files (pred_own rounded to 4 decimals, so within 1e-5 of b_matchup).
+- **P(≥1 big), live → block:** W2 .041 → .031, W3 .002 → .018, W4 .434 → .530 (e_big .434 → .620).
+- Mean entry percentile: .424 → .410, .516 → .605, .502 → .593.
+- The block's own rows vs the live rows: .46 vs .42, .57 vs .56, **.85 vs .47 (W4)**.
+- **Next:** study 51 (the block in the harness; DRAFT lab 93e0810, prereg 472434c7, written before study 50's read).
+  - Its frozen Saturday rule: NOT entered if WORSE, CONTRADICTED on 2022, or the expected-big-seats ratio < 0.80.
+  - Order: census after (a) → freeze → the laptop's ack + bank scan of 1557–1562 → the scored run tonight or Thu 06:00 → the read Thursday.
+  - Then Friday's rehearsal with TERM_ROWS=8 on the W5 matchup file (`scripts/matchup_block_file.py` 57d80375, approved), and **his decision at Saturday's arming.** The laptop's current lean, told to him: no, unless study 51 is clean.
+- **Study 38 amendment 6e** (the reviewer, code done, smoke running): QA0 follows the live block; NOTERM is the no-block reference; TERM8 / MATCHUPX / COMBINED never carry a live block.
+
+**O-42** (OPEN-DEFECTS; found while drafting A3): `~/week5-sunday` had no class_model.json, which week_env's CLASS_SLEEVE_EVERY=2 makes every build's preflight require.
+- **Decided deviation (the reviewer):** W5 runs the W4 model, W1 + W3, `92cec733` (installed 10-07, mode 600). The docstring's Monday refit was missed on 10-05; keep it.
+- The arm pins CLASS_SHA and step 0 STOPs on a mismatch (09df1bc5; the host copy is synced).
+- The refit is a measured Monday step from 10-12 (arming checklist).
+- The class sweep found nothing else missing.
+- **O-43** recorded: MEAN_OWN_TILT="0" counts as set in check_week_runtime; fix after W5.
+
+**SIS:**
+- The paired dry run shadow-sis-pass-tail-paired-nzjs7 FAILED fail-closed: run_projections' stale-roster guard (Robert Henry Jr. DK SEA vs inference WAS).
+- **The lesson:** the 05:09 build-features read the rosters before the 05:02 pull landed. On days the pull lands at 05:00, a 05:0x feature build can be stale; the Sunday hourly s-features-sun covers Sunday.
+- build-features-7m7nb (08:37–08:44) fixed it: Robert Henry Jr. on SEA W5; W5 884 rows / 30 teams, W6 the 2 bye teams.
+- Both caches and then the paired job are re-dry-running now; the resume and gates follow.
+
+**Also:**
+- Study list 48: the operator's cheap-TD-upside idea (the outside reviewer's field check 70437915); its test is a study 38 paper arm on live weeks, earliest W6.
+- 6c / 6d smokes and the s50 census were acked earlier (the 08:23 entry).
+
+## 2026-10-07 (08:23 CDT) — O-41 (bye weeks stop the SIS cache auto target) fixed and DEPLOYED; the operator wants the matchup bonus LIVE as a capped block (tests first); study 50 running; 6c / 6d acked; 46(b) dropped
+
+**The operator (10-07, after the outside reviewer's Experiment B and their advice):** "Please try to tackle the 'matchup bonus' one this week."
+- That is the live matchup bonus on FP's means as a capped block, the prior-top vehicle; the outside reviewer advised against it.
+- **Plan, his go / no-go at Saturday's arming:**
+  1. The W2–4 fixed-book replay of the 8-row matchup block (`~/.cache/laptop-agent/rehearsal/matchup_block_replay.sh`, after study 50 frees the machine).
+  2. Study 50's MATCHUP read today.
+  3. A harness check of the block form plus study 38 amendment 6e (the reviewer's design, asked).
+  4. The W5 matchup file from A3's frame (`scripts/matchup_block_file.py`, 57d80375). It reproduces the outside reviewer's matchup-w4.csv exactly.
+  5. Friday's rehearsal with TERM_ROWS=8 on it.
+- **Live stays TERM_ROWS=0 until his word.**
+
+**O-41 (OPEN-DEFECTS; the O-39 class; found by the 07:54 cache dry runs):**
+- From W5, player_week_inference holds each team's NEXT game (CAR / KC → W6), and the cache generator's auto target refused [(2026, 5), (2026, 6)].
+- Class swept: only this consumer was affected.
+- **Fix:** 23f80b61 + the reviewer's hardening 1ce56db0, both reviewed and approved, merged at ffb5e166.
+- **Deployed 13:16Z in the lanes:**
+  - both caches on `tabpfn-sis-pass-tail-live@sha256:498d93fe…` = ac07a31e + gen.py at 1ce56db0, an overlay (Cloud Build e205475c). FROM = ac07a31e's digest; in-image hashes equal the commit's blobs (gen.py 1dd39c66, features 52cc95c5, sis_pass_tail 8acf68b9, live_shadow dde9e921);
+  - the paired job relabeled (image 7f632786 unchanged);
+  - CODE_SHA 1ce56db0ee081b2a5df9f9df01af555b18bc10c0 on all three.
+- The fresh build bf9c9935 (41fa6fbf) is superseded and unused.
+- **Next:** the cache re-dry-runs (running) → the paired dry run → the env check → resume the 3 schedulers → check_prospective_gates.
+
+**Studies (the reviewer designs; the laptop reproduces):**
+- **Study 50 FROZEN** (prereg 8976e320; lab 3281bd2). The laptop acked:
+  - the census reader on the reviewer's raw is byte-identical (b321cf7d);
+  - the raw rebuild of bank 1406 shows 53/53 identical mechanics (timing excluded);
+  - banks 1551–1556 are clean.
+- The scored run started 08:16 CT (a day early, disclosed); the read is today.
+- **Study 38:**
+  - 6c FINAL (cbca4dd); the laptop's smoke copy matches all four (1adbd2e7 / 2e114268 / 4fa7e4a3 / fff6fa8a).
+  - The DvP writer was repaired before first use (the missing-id refusal; f4a1d2d6, sha a4651e61; prereg bfc58197).
+  - 6d (MATCHUPX / COMBINED; lab f01611c): the writer paper_factor_file.py de4f4cb3 is APPROVED and reproduces the outside reviewer's W4 files exactly; the laptop's smoke copy matches all three (38ff01ef / ea81475a / 25b5f067).
+  - The checklist's snapshot command names all three paper files, absolute paths (99f84c0f).
+- **46(b) DROPPED** (the reviewer and the laptop): the outside reviewer's no-hindsight test (world-optimal rows inside four forms, 32 rows) found 0 top-1% rows in 4 weeks. Power caveat and reasons are in study list row 46; (c) a weekly descriptive replaces it.
+
+**Today's heavy queue (one at a time):** study 50 (the reviewer) → the matchup-block replay → A3 → the s38 snapshot from A3 with all three paper files → the reviewer's integrity gate.
+**Still open:** the licensed FP numbers on the public review branch (the operator's call on a history rewrite); the props pre-check after 09:30, then project-slate; the FP W5 live pages (still not posted at 07:55); R14 when the new W5 articles land.
+
 ## 2026-10-07 (07:44 CDT) — The operator: "review this and schedule any necessary experiments this week" (the outside reviewer's why-we-missed-the-winners report): study 50 + amendment 6d proposed to the reviewer, 46(b) scheduled; 6c FINAL; SIS team context captured
 
 **The operator's request** (10-07, on the outside reviewer's interim status; report on review/outside-fill-order-20261006 @ 0ad813b2):

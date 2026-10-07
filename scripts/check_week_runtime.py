@@ -235,7 +235,7 @@ def main():
                                or os.environ.get("UNION_MIX_SPARES", "15") == "0"):
         fail(f"UNION_WINNER_SELECT={_ws!r} must be 0 or 1; 1 needs UNION_MAIN=mix with spares and UNION_WINNER_ORDER off (study 48d)")
     _tb = os.environ.get("UNION_TERM_BLOCK_ROWS", "")
-    if _tb and _tb != "0":                                   # the prior-top term block (the operator 10-07)
+    if _tb and _tb != "0":                                   # the live term block (the operator 10-07; its source is the armed file)
         _src = Path(os.environ.get("UNION_TERM_BLOCK_SOURCE", "") or "/nonexistent")
         _sha = os.environ.get("UNION_TERM_BLOCK_SHA256", "")
         _bad = []
@@ -260,7 +260,7 @@ def main():
         except ValueError:
             _bad.append("UNION_TERM_BLOCK_CAP is not a number")
         if _bad:
-            fail(f"UNION_TERM_BLOCK_ROWS={_tb!r}: " + "; ".join(_bad) + " (the prior-top term block)")
+            fail(f"UNION_TERM_BLOCK_ROWS={_tb!r}: " + "; ".join(_bad) + " (the live term block)")
     _wo = os.environ.get("UNION_WINNER_ORDER", "")
     if _wo and _wo != "0" and (_wo != "1" or os.environ.get("UNION_MAIN") != "mix"):
         fail(f"UNION_WINNER_ORDER={_wo!r} must be 0 or 1, and 1 needs UNION_MAIN=mix (study 48b)")
