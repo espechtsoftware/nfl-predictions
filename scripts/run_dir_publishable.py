@@ -12,7 +12,9 @@ Exit 0 = publish; exit 1 = skip (the reason on stdout; the watcher logs it and l
     `union_failed` (the build host marks a build whose union was refused, so it is published as the fallback);
   * --group G: the receipt's draft_group must be G (a smoke on another slate is never published);
   * --built-after ISO: the receipt's built_utc must not be earlier (Wednesday's smoke, a Thursday paper build never are);
-  * a `superseded` marker (the build host writes it when a build finishes after the T-70 build's start) is never published.
+  * a `superseded` marker (the build host writes it when a build finishes after the T-70 build's start) is never published;
+  * a `term_block_missing` marker (the build host: the decided prior-top term block is not in this union's book) is not
+    published unless --accept-term-block-missing (TERM_BLOCK_MISSING_OK=1, the operator's decision to enter without it).
 """
 from __future__ import annotations
 
@@ -34,7 +36,7 @@ def parse_utc(text: str):
 
 
 def publishable(run: Path, union_mode: bool, audit_gate: bool = True, group: str | None = None,
-                built_after: str | None = None) -> tuple[bool, str]:
+                built_after: str | None = None, accept_term_block_missing: bool = False) -> tuple[bool, str]:
     for f in ("receipt.json", "candidates.parquet", "incumbent_player_scores.npy"):
         if not (run / f).is_file():
             return False, f"{f} not written yet"
@@ -42,6 +44,9 @@ def publishable(run: Path, union_mode: bool, audit_gate: bool = True, group: str
         return False, "superseded: a later build for this week replaces it (the build host marked it)"
     if (run / "audit_failed").is_file():
         return False, "audit_failed: the build host refused this run dir"
+    if (run / "term_block_missing").is_file() and not accept_term_block_missing:
+        why = (run / "term_block_missing").read_text().strip()
+        return False, f"term_block_missing: the decided term block is not in this book ({why}); STOP for the operator (TERM_BLOCK_MISSING_OK=1 enters without it)"
     if group is not None or built_after is not None:
         try:
             rec = json.loads((run / "receipt.json").read_text())
@@ -73,8 +78,11 @@ def main(argv=None) -> int:
     ap.add_argument("run", type=Path); ap.add_argument("--union-mode", action="store_true"); ap.add_argument("--no-audit-gate", action="store_true")
     ap.add_argument("--group", help="this week's draft group; a run dir for another group is never published")
     ap.add_argument("--built-after", help="ISO UTC; a run dir built before this (a smoke, an old build) is never published")
+    ap.add_argument("--accept-term-block-missing", action="store_true",
+                    help="publish a union marked term_block_missing (the operator's decision; TERM_BLOCK_MISSING_OK=1)")
     a = ap.parse_args(argv)
-    ok, why = publishable(a.run, a.union_mode, audit_gate=not a.no_audit_gate, group=a.group, built_after=a.built_after)
+    ok, why = publishable(a.run, a.union_mode, audit_gate=not a.no_audit_gate, group=a.group, built_after=a.built_after,
+                          accept_term_block_missing=a.accept_term_block_missing)
     print(why)
     return 0 if ok else 1
 

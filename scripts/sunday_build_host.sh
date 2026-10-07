@@ -290,6 +290,11 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   [[ "${UNION_MAIN:-mean}" == "mix" && "${UNION_MIX_COVER_GAMES:-0}" != 0 ]] && UNION_ARGS+=(--mix-cover-games "$UNION_MIX_COVER_GAMES")
   # the half-and-half book (study 46; operator 10-06): unset or 0 = off, as before
   [[ "${UNION_MAIN:-mean}" == "mix" && "${UNION_MIX_RS_ROWS:-0}" != 0 ]] && UNION_ARGS+=(--mix-rs-rows "$UNION_MIX_RS_ROWS")
+  # The prior-top term block (the operator 10-07: "Live, capped, part of book"; default 0 = off): N rows on projection +
+  # min(tilt x pred_own, cap) from the pinned file. A union that builds WITHOUT it is stopped after the union (below).
+  [[ "${UNION_MAIN:-mean}" == "mix" && "${UNION_TERM_BLOCK_ROWS:-0}" != 0 ]] && UNION_ARGS+=(--term-block-rows "$UNION_TERM_BLOCK_ROWS" \
+      --term-block-source "${UNION_TERM_BLOCK_SOURCE:-}" --term-block-tilt "${UNION_TERM_BLOCK_TILT:-0.20}" \
+      --term-block-cap-points "${UNION_TERM_BLOCK_CAP:-2.0}")
   [[ "${UNION_MAIN:-mean}" == "mix" ]] && UNION_ARGS+=(--mix-plan "$CONTESTS_JSON" --mix-layout "${ENTER_LAYOUT:-head}" --mix-portfolio "${UNION_MIX_PORTFOLIO:?UNION_MAIN=mix needs UNION_MIX_PORTFOLIO=mix|ws}" --mix-spares "${UNION_MIX_SPARES:-15}")
   # Fantasy Points' projections replace ours in the union's selection (operator 2026-10-05): the newest FP capture taken
   # before THIS T-70 run's build, joined exactly on DK draftable ids, gated (coverage, salary, r >= 0.7); a capture from
@@ -511,6 +516,35 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
     && echo "!!! OWNERSHIP TERM FELL BACK for this union: $UNION_DIR/own_term_fallback.txt"
   [[ -n "$UNION_DIR" && -f "$UNION_DIR/receipt.json" ]] || { echo "union run dir not found in $OUT/union-$RUN_TAG.txt"; touch "$K90_DIR/union_failed"; exit 1; }
   verify_k90 "$UNION_DIR" || { echo "K90 receipt verification FAILED for the union $UNION_DIR"; touch "$K90_DIR/union_failed"; rm -rf "$UNION_DIR"; exit 1; }
+  # A DECIDED live rule must not go missing silently (the reviewer, 10-07): with UNION_TERM_BLOCK_ROWS set, a union whose
+  # receipt does not carry the applied block (the right size, the pinned file) is marked term_block_missing, which
+  # run_dir_publishable refuses -- nothing is published until the operator decides (TERM_BLOCK_MISSING_OK=1 enters without it).
+  if [[ "${UNION_TERM_BLOCK_ROWS:-0}" != 0 ]]; then
+    TB_WHY=$("$PROD_PY" - "$UNION_DIR/receipt.json" "$UNION_TERM_BLOCK_ROWS" "${UNION_TERM_BLOCK_SHA256:-}" <<'PYEOF'
+import json, sys
+rec, rows, sha = sys.argv[1], int(sys.argv[2]), sys.argv[3]
+try:
+    mix = json.load(open(rec))["config"]["union"]["mix"]["mix"]
+except Exception as exc:
+    print(f"the union receipt has no mix meta ({type(exc).__name__}: {exc})"); sys.exit()
+src, term = mix.get("term_source") or {}, mix.get("term")
+if "not_applied" in src:
+    print(f"not applied: {src['not_applied']}")
+elif not term or term.get("term_rows") != rows or sum(b == "T" for b in term.get("blocks", [])) != rows:
+    print(f"the receipt carries no {rows}-row term block (term = {None if not term else term.get('term_rows')})")
+elif sha and str(src.get("source_sha256", "")) != sha:
+    print(f"the block's file sha {str(src.get('source_sha256'))[:12]} is not the pinned {sha[:12]}")
+PYEOF
+)
+    if [[ -n "$TB_WHY" ]]; then
+      printf '%s run %s: TERM BLOCK MISSING: %s\n' "$(date -u +%FT%TZ)" "$RUN_TAG" "$TB_WHY" | tee "$UNION_DIR/term_block_missing" > "$OUT/ALERT-term-block-missing-$RUN_TAG.txt"
+      printf '\n%s\n%s\n%s\n\n' "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" \
+        "!!! TERM BLOCK MISSING for $RUN_TAG: $TB_WHY -- NOT PUBLISHABLE until the operator decides (TERM_BLOCK_MISSING_OK=1)" \
+        "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+    else
+      echo "TERM BLOCK for $RUN_TAG: $UNION_TERM_BLOCK_ROWS rows applied (receipt checked)"
+    fi
+  fi
   ( cd "$PROD" && PYTHONPATH="$PROD/src" "$PROD_PY" scripts/audit_build_levers.py "$UNION_DIR" --contests "$CONTESTS_JSON" \
       --layout "${ENTER_LAYOUT:-sequential}" --expect-selector "$LIVE_SELECTOR" ${MAX_PER_GAME:+--expect-max-per-game "$MAX_PER_GAME"} \
       --min-salary "${MIN_LINEUP_SALARY:-49000}" --fade "${AUDIT_FADE:-off}" --sources "${AUDIT_SOURCES:-market_points:0.30,dk_ppg:0.80}" \
