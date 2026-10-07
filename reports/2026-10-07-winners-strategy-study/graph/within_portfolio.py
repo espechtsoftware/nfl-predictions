@@ -3,8 +3,9 @@ Within the regulars' own portfolios (the Milly graph, W1-4): do their top-1% lin
 user's other lineups that week? For every user-week with >= 20 lineups and >= 1 top-1% lineup, each lineup-level pre-lock
 feature is standardized within the user-week; the mean of the standardized value over the top-1% lineups is the
 within-portfolio difference (0 = indistinguishable). 95% interval by bootstrap over user-weeks; sign per week.
-Each lineup's players are taken DISTINCT: CONTAINS is merged with a slot property, so a slot that differs between
-loads adds a second edge to the same player (the laptop, 10-07: +202 relationships on the W4 reload)."""
+Each lineup's players are taken DISTINCT (hardening): CONTAINS is merged with a slot property, so a slot that differs
+between loads COULD add a second edge to the same player; the 10-07 census found none (the +202 relationships on the
+W4 reload were FP_PROJECTED edges)."""
 import sys
 from pathlib import Path
 import numpy as np, pandas as pd
