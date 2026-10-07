@@ -25,6 +25,16 @@ week. It extracts no forecasts and no opinions about points. Each statement beco
 
 - **Prospective only.** Week 5 is the first logged week. Weeks 1–4 are not logged, because their outcomes are known.
 - **Append-only.** One JSONL file per week. A correction is a new record that names the one it supersedes.
+- **Article versions** (added 2026-10-07, before any grading; the reviewer's rules, after FP republished the W5 Game Hub):
+  - **(a)** A logged article may take a later VERSION: a new `source_sha256` whose `published_date` AND `retrieved_at` are
+    both strictly later than every logged version's; otherwise the append is refused. Its records carry `version_of` (the
+    latest logged version's sha), and statements already logged (same article, player, fact type, quote) are skipped. The
+    void-after-kickoff rule applies per record, unchanged.
+  - **(b) Grading rule, preregistered now:** per (article_id, player, fact_type), the record from the LATEST version
+    published before that player's kickoff counts. A statement a later version drops still counts (it was made and never
+    retracted); a changed direction or magnitude in a later version is the later record.
+  - **(c)** HANDOFF records the counts per version (new records, deduplicated records). The frozen extraction prompt is the
+    same for every version.
 - **Private.** The records quote licensed vendor text. They live in `~/private/r14-fact-log/<season>-w<NN>.jsonl`, never in
   git. Only counts and graded aggregates may enter reports.
 - **No use before grading.** The grading (4–6 weeks, preregistered first) asks two questions. Does `direction` predict the
