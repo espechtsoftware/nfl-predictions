@@ -1,0 +1,25 @@
+W1: lineups 831,028
+W2: lineups 172,692
+W3: lineups 161,682
+W4: lineups 161,516
+
+whole field: top-1% rate % by where the lineup's sub-$4k players sit
+week                  1     2     3     4
+cat                                      
+0 none             0.75  0.08  0.31  0.38
+1 has stack piece  1.94  1.37  3.66  0.59
+2 bring-back only   0.6  0.35   0.2  1.42
+3 elsewhere only   0.87  1.41  0.61  1.73
+share of lineups %
+week                  1     2     3     4
+cat                                      
+0 none             30.8  25.8  43.0  37.5
+1 has stack piece  17.0  13.9  17.6  18.5
+2 bring-back only   5.2   5.6   4.5   4.3
+3 elsewhere only   47.0  54.7  34.8  39.8
+
+within user-week MH odds ratio of a top-1% finish (users 20+ entries); 95% by bootstrap over user-weeks:
+  1 has stack piece vs 3 elsewhere only: OR 1.60 [1.50, 1.73] by week {1: np.float64(1.94), 2: np.float64(1.03), 3: np.float64(3.45), 4: np.float64(0.33)}
+  2 bring-back only vs 3 elsewhere only: OR 0.51 [0.44, 0.59] by week {1: np.float64(0.58), 2: np.float64(0.2), 3: np.float64(0.09), 4: np.float64(0.96)}
+  1 has stack piece vs 0 none: OR 2.51 [2.27, 2.80] by week {1: np.float64(1.99), 2: np.float64(15.38), 3: np.float64(4.63), 4: np.float64(2.46)}
+  3 elsewhere only vs 0 none: OR 1.75 [1.61, 1.93] by week {1: np.float64(1.15), 2: np.float64(15.84), 3: np.float64(1.55), 4: np.float64(6.95)}

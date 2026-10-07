@@ -1,0 +1,23 @@
+week,stat,value,lo,hi
+pooled,2+ sub-$4k vs 0-1,1.876,1.746,2.011
+1,2+ sub-$4k vs 0-1,1.691,1.539,1.848
+2,2+ sub-$4k vs 0-1,2.456,2.114,2.859
+3,2+ sub-$4k vs 0-1,2.299,1.88,2.787
+4,2+ sub-$4k vs 0-1,2.096,1.674,2.55
+pooled,1+ sub-$4k vs none,1.892,1.749,2.057
+1,1+ sub-$4k vs none,1.312,1.186,1.441
+2,1+ sub-$4k vs none,14.317,9.381,30.669
+3,1+ sub-$4k vs none,2.65,2.147,3.351
+4,1+ sub-$4k vs none,5.223,4.002,7.122
+1,top4_games_share_field,0.54,,
+1,top4_games_share_top1,0.49,,
+1,top4_games_share_book,0.46,,
+2,top4_games_share_field,0.51,,
+2,top4_games_share_top1,0.6,,
+2,top4_games_share_book,0.41,,
+3,top4_games_share_field,0.46,,
+3,top4_games_share_top1,0.73,,
+3,top4_games_share_book,0.48,,
+4,top4_games_share_field,0.5,,
+4,top4_games_share_top1,0.76,,
+4,top4_games_share_book,0.13,,

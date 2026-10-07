@@ -1,0 +1,29 @@
+(A) history 2014-2025: 207 Sunday main slates, 2374 games (k = rank by closing total; 7 = 7th or lower)
+    slates  p_best_stack  p_best_pts  mean_total  fair_share_1_over_n
+kk                                                                   
+1      207         0.217       0.237      51.758                0.088
+2      207         0.140       0.164      49.399                0.088
+3      207         0.106       0.126      48.010                0.088
+4      207         0.087       0.101      46.923                0.088
+5      207         0.068       0.087      45.937                0.088
+6      207         0.097       0.072      44.947                0.088
+7     1132         0.053       0.039      41.970                0.086
+  2014-2019: P(best stack) k=1 0.188, k=2 0.119, k=3 0.069, k>=4 per game 0.072
+  2020-2025: P(best stack) k=1 0.245, k=2 0.160, k=3 0.142, k>=4 per game 0.056
+W1: field lineups 831,028 (QB resolved 1.000); winner's QB from total rank 6.0; book rows 90
+W2: field lineups 172,692 (QB resolved 1.000); winner's QB from total rank 7.0; book rows 97
+W3: field lineups 161,682 (QB resolved 1.000); winner's QB from total rank 4.0; book rows 144
+W4: field lineups 161,516 (QB resolved 0.993); winner's QB from total rank 3.0; book rows 110
+
+(B) 2026 W1-4 mean share of lineups by the QB's game total rank (7 = 7th or lower, summed), vs history's P(best stacking game):
+    field   top1   book  top1_lift_vs_field  hist_p_best_stack  book_vs_hist  field_vs_hist
+kk                                                                                         
+1   0.181  0.157  0.130                0.87              0.217          0.60           0.83
+2   0.149  0.109  0.104                0.73              0.140          0.74           1.06
+3   0.087  0.212  0.068                2.44              0.106          0.64           0.82
+4   0.082  0.166  0.066                2.01              0.087          0.76           0.95
+5   0.085  0.099  0.061                1.16              0.068          0.90           1.25
+6   0.072  0.038  0.186                0.53              0.097          1.92           0.75
+7   0.344  0.220  0.384                0.64              0.053          7.24           6.49
+
+per week, QB share in the top-total game: field / top-1% / book: W1 0.18/0.01/0.12, W2 0.22/0.51/0.13, W3 0.10/0.00/0.15, W4 0.23/0.11/0.12
