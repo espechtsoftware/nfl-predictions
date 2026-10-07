@@ -12,6 +12,33 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-07 (07:15 CDT) — O-40: the projection model has no position-level matchup (the operator: "five alarm fire"); confirmed, screened (≈0), confirmatory rule frozen; W5 unaffected (FP means); 48f frozen; the graph facts loaded
+
+**The finding:** the outside reviewer, relayed by the operator. **Confirmed by the laptop** and registered as O-40 (b468bc27).
+- `NUMERIC_FEATURES` has no defense-vs-position input. The seven opponent-defence columns are built into 021/023 but were never registered. They were 0% filled in the W1–W3 T-70 frames and 91% in W4; today's W5 serving rows are 100%.
+- Addendum 8's July reason ("already carried by trailing defense-vs-position form") was wrong. A correction draft is with the reviewer for placement.
+- **W5 is unaffected:** the book's means are FP's (316 of 316).
+
+**Evidence so far:**
+- **2026 W2–W4 descriptive:** our residuals against in-season DvP, corr −0.12 / −0.05 / +0.13. The sign flips. FP's W4 residual is +0.12 too.
+- **The walk-forward SCREEN** (seen before any rule, so disclosed and non-deciding): DVP4 − BASE rank corr +0.0005 / +0.0021 / −0.0007 (2023–25), MAE in the 3rd decimal. Projection-level ≈ 0.
+- **The CONFIRMATORY rule is frozen** in `reports/2026-10-07-prereg-o40-dvp-ablation.md` (affa24fd / 6ccf3b95):
+  - the O-22-repaired base after Monday's merge;
+  - targets 2020–2022, untouched;
+  - PASS = > 0 in 2 of 3 + pooled week-resampled lower bound > 0 + an MAE guard;
+  - a PASS buys only the gate.
+- **W6 path (the reviewer):** Monday merge o22-leak-fixes (incl. the as-of 0bc6b6bc, reviewed CORRECT) → register DVP4 → build-features (leakage checks unchanged) → the confirmatory ablation → the consumer replay of 2026 W2–W5 (REPAIRED vs REPAIRED + DVP4) → the operator decides W6 by 10-15/16.
+
+**The operator (AskUserQuestion): "Yes, paper arm"** — an FP-means DvP tilt as a study 38 paper arm.
+- The reviewer had advised holding: there's no basis yet for a frozen slope.
+- Agreed build: the slope comes from the outside reviewer's W2–W4 matchup replay (running), frozen before any W5 outcome. Near zero is disclosed as near-vacuous. Pending the replay.
+
+**Also today:**
+- **48f FROZEN** (prereg 2003f464; week-equal fit ba2ac709; the reviewer CONFIRMED).
+- **The Milly graph facts loaded** (64dbd7ce): TD prices, the prior-top share, starters out (pre-lock status), and 42,409 PoolLineups with real-finish tiers.
+- **Study 38 amendment 6 smoke reproduced** by the laptop (books 2cd95e9b / c276bf08). The 6b smoke follows.
+- **The arming checklist:** the Sunday s38 snapshot uses an ABSOLUTE `S38_PAPER_TERM_FILE` (d3f3bfe9).
+
 ## 2026-10-07 (06:40 CDT) — The operator: the prior-top block PAPER ONLY (study 49 NO DIFFERENCE, leaning negative); 48e NO DIFFERENCE; O-27 closed (cbwu-oi dry run); 48f census running
 
 **Studies, each reproduced byte-identically by the laptop, records merged:**
