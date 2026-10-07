@@ -243,3 +243,16 @@ def test_the_winner_gate_needs_the_mix_rr_a_numeric_tau_and_no_other_winner_swit
         assert any("UNION_WINNER_GATE=" in f and "study 48e" in f for f in _failures(_run(bad))), (k, v)
     env["UNION_WINNER_GATE"] = "0"; env["UNION_WINNER_GATE_TAU"] = ""
     assert not any("UNION_WINNER_GATE" in f for f in _failures(_run(env)))
+
+
+def test_the_winner_gate_tau_must_be_finite_and_frozen(tmp_path):
+    """The reviewer (10-07): nan / inf / a retyped tau all fail the preflight."""
+    env = _healthy(tmp_path); env.update({"UNION_MAIN": "mix", "UNION_MIX_PORTFOLIO": "mix", "UNION_MIX_FILL": "rr",
+                                          "UNION_WINNER_GATE": "1"})
+    for bad in ("nan", "inf", "-inf"):
+        env["UNION_WINNER_GATE_TAU"] = bad
+        assert any("UNION_WINNER_GATE=" in f and "study 48e" in f for f in _failures(_run(env))), bad
+    env["UNION_WINNER_GATE_TAU"] = "-4.977"
+    assert any("is not the frozen study-48e tau" in f for f in _failures(_run(env)))
+    env["UNION_WINNER_GATE_TAU"] = "-4.49767187489062"
+    assert not any("UNION_WINNER_GATE" in f for f in _failures(_run(env)))

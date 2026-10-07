@@ -255,3 +255,36 @@ def test_the_gate_re_solves_with_the_rejected_lineup_banned_and_falls_back_to_th
     assert book[0][0] == "x0" and meta["gate"]["rows"][0]["score"] == -1.0      # the best-scoring try: the first
     with pytest.raises(ValueError, match="fill rr"):
         ur.mix_rows(pd.DataFrame(), set(), 1, 4, None, 0, [1], portfolio="ws", fill="group", gate=g)
+
+
+def _gate_argv(tmp, *extra):
+    return ["--saturday-run", "auto", "--t70-run", str(tmp), "--live-dir", str(tmp), "--entries", "26", "--main", "mix",
+            "--mix-fill", "rr", "--winner-gate", str(tmp / "inp.csv"), *extra]
+
+
+def test_the_gate_tau_must_be_finite_and_the_frozen_one_unless_overridden(tmp_path):
+    """The reviewer (10-07): nan / inf would make every row a silent fallback (or the gate a silent no-op), and a retyped
+    tau would change the gate's strictness unseen -- the union refuses both; the override is explicit and recorded."""
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import argparse as _ap
+    import union_reselect as ur
+    for bad in ("nan", "inf", "-inf"):
+        with pytest.raises(_ap.ArgumentTypeError):
+            ur.finite_float(bad)
+        with pytest.raises(SystemExit):
+            ur.main(_gate_argv(tmp_path, "--winner-gate-tau", bad))
+    assert W.FROZEN_GATE_TAU == -4.49767187489062
+    with pytest.raises(SystemExit, match="not the frozen"):
+        ur.main(_gate_argv(tmp_path, "--winner-gate-tau", "-4.977"))
+    P = _players().reset_index()
+    f = tmp_path / "inp.csv"
+    P[["id", "own_proj", "td_l4", "td_l8", "pass_td_l4", "att_l4"]].to_csv(f, index=False)
+    fr = P.drop(columns=["own_proj", "td_l4", "td_l8", "pass_td_l4", "att_l4"])
+    for c in W.FRAME_FACTS:
+        if c not in fr.columns:
+            fr[c] = 0.0
+    for bad in (float("nan"), float("inf"), float("-inf")):
+        with pytest.raises(ValueError, match="finite"):
+            ur.WinnerGate(fr, f, tau=bad)
+    assert ur.WinnerGate(fr, f, tau=W.FROZEN_GATE_TAU).meta([])["tau_source"] == "frozen"
+    assert ur.WinnerGate(fr, f, tau=-4.977).meta([])["tau_source"] == "OVERRIDE"

@@ -13,6 +13,7 @@ that needs an input which itself failed (a missing variable, directory or contes
 """
 import argparse
 import json
+import math
 import os
 import re
 import subprocess
@@ -238,10 +239,17 @@ def main():
     if _wg and _wg != "0":
         _tau = os.environ.get("UNION_WINNER_GATE_TAU", "")
         try:
-            float(_tau)
-            _tau_ok = True
+            _tau_ok = math.isfinite(float(_tau))
         except ValueError:
             _tau_ok = False
+        if _tau_ok:                                      # the frozen number, resolved from its source (the reviewer, 10-07)
+            try:
+                from nfl_dfs.inference.winner_like import FROZEN_GATE_TAU
+                if abs(float(_tau) - FROZEN_GATE_TAU) > 1e-12:
+                    fail(f"UNION_WINNER_GATE_TAU={_tau!r} is not the frozen study-48e tau {FROZEN_GATE_TAU!r} "
+                         f"(nfl_dfs.inference.winner_like.FROZEN_GATE_TAU)")
+            except ImportError as exc:
+                fail(f"UNION_WINNER_GATE=1 but the frozen tau cannot be read: {exc}")
         if (_wg != "1" or os.environ.get("UNION_MAIN") != "mix" or os.environ.get("UNION_MIX_FILL") != "rr" or not _tau_ok
                 or os.environ.get("UNION_WINNER_ORDER", "0") not in ("", "0") or os.environ.get("UNION_WINNER_SELECT", "0") not in ("", "0")
                 or os.environ.get("UNION_MIX_RS_ROWS", "0") not in ("", "0") or os.environ.get("UNION_MIX_COVER_GAMES", "0") not in ("", "0")):

@@ -34,6 +34,11 @@ FEATURES = ("mates", "bringback", "rb_mate", "in_qb_game", "top_game", "salary",
 FRAME_FACTS = ("rz20_targets_l4", "ez_targets_l4", "gl3_carries_l4", "target_share_l4", "carry_share_l4", "snap_share_l4",
                "wopr_l4", "fp_route_share_l4", "team_vacated_target_share", "implied_team_total", "spread", "game_total")
 LAG_COLUMNS = ("td_l4", "td_l8", "pass_td_l4", "att_l4")
+# Study 48e's frozen GATE threshold (q 0.50): the all-53 model's median score (hist = 0, as live) of the 31,858 training
+# top-1% rows of the 53 slates; lab results/s48e/LIVE_TAU.json sha256 d1c8aaaa2b9202c69614ab8ced19deddc892105586aacb705ac0a33f0a4cd209
+# @ c59fa5b (scripts/s48e_live_tau.py, which refits the model and asserts it equal to MODEL_all53). Resolved from here,
+# never retyped (CLAUDE.md lesson 7); a different tau needs the explicit override (research / rehearsal only).
+FROZEN_GATE_TAU = -4.49767187489062
 
 
 def load_model(path: Path = MODEL_PATH) -> tuple[np.ndarray, np.ndarray, np.ndarray]:

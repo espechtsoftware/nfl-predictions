@@ -48,6 +48,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import os
 import shutil
 import subprocess
@@ -744,6 +745,14 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
     return book, cell_of, meta, spare_rows
 
 
+def finite_float(text: str) -> float:
+    """argparse type: a finite float (nan / inf refused)."""
+    v = float(text)
+    if not math.isfinite(v):
+        raise argparse.ArgumentTypeError(f"{text!r} is not a finite number")
+    return v
+
+
 class WinnerGate:
     """Study 48e's DRAFT gate at generation: study 48's frozen winner-likeness score of one candidate row (the slate's
     arrays, top game and projected-ownership ranks computed once from the whole frame, exactly as score_book does), a
@@ -754,6 +763,8 @@ class WinnerGate:
         from nfl_dfs.inference import winner_like as WL
         if fallback not in ("best", "first") or tries < 1:
             raise ValueError(f"gate fallback must be best / first and tries >= 1 (got {fallback!r}, {tries})")
+        if not math.isfinite(float(tau)):                 # nan / inf: every row a silent fallback, or a silent no-op
+            raise ValueError(f"the gate's tau must be finite (got {tau!r})")
         missing = [c for c in WL.FRAME_FACTS if c not in fr.columns]
         if missing:                                      # never score with a model column silently zeroed (the reviewer, 10-07)
             raise ValueError(f"the frame lacks the model's columns {missing}")
@@ -778,7 +789,9 @@ class WinnerGate:
         return float(self.WL.score(F.to_numpy(float), self.model)[0])
 
     def meta(self, log: list[dict]) -> dict:
-        return {"rule": "GATE (study 48e DRAFT)", "tau": self.tau, "tries": self.tries, "fallback": self.fallback,
+        frozen = abs(self.tau - self.WL.FROZEN_GATE_TAU) <= 1e-12
+        return {"rule": "GATE (study 48e DRAFT)", "tau": self.tau, "tau_source": "frozen" if frozen else "OVERRIDE",
+                "frozen_tau": self.WL.FROZEN_GATE_TAU, "tries": self.tries, "fallback": self.fallback,
                 "model_sha256": sha256_file(self.WL.MODEL_PATH), "inputs": str(self.inputs_path),
                 "inputs_sha256": sha256_file(self.inputs_path), "hist": "0 (live)", "rows": log,
                 "passed": sum(r["passed"] for r in log), "solves": sum(r.get("solves", r["tries"]) for r in log)}
@@ -956,7 +969,11 @@ def main(argv: list[str] | None = None) -> int:
                     help="study 48e (DRAFT): every MIX row must score at least --winner-gate-tau on study 48's frozen "
                          "winner-likeness score before it is committed (a rejected lineup is banned and the cell re-solved); "
                          "the file is scripts/winner_like_inputs.py's inputs for THIS frame (default off)")
-    ap.add_argument("--winner-gate-tau", type=float, default=None, help="with --winner-gate: the frozen threshold")
+    ap.add_argument("--winner-gate-tau", type=finite_float, default=None,
+                    help="with --winner-gate: the threshold; must equal nfl_dfs.inference.winner_like.FROZEN_GATE_TAU "
+                         "(within 1e-12) unless --winner-gate-tau-override")
+    ap.add_argument("--winner-gate-tau-override", action="store_true",
+                    help="with --winner-gate: accept a tau other than the frozen one (research and rehearsal ONLY; recorded)")
     ap.add_argument("--winner-gate-tries", type=int, default=10, help="with --winner-gate: solves per row at most (48e: R = 10)")
     ap.add_argument("--winner-gate-fallback", choices=("best", "first"), default="best",
                     help="with --winner-gate: when no try passes, the best-scoring try (best) or the plain row (first)")
@@ -1010,6 +1027,11 @@ def main(argv: list[str] | None = None) -> int:
                                         or a.main_own_tilt or a.mix_rs_rows or a.mix_cover_games):
         raise SystemExit("--winner-select needs --main mix --mix-portfolio mix with spares, no ownership term, no half-and-half, "
                          "no cover, and not --winner-order (study 48d)")
+    if a.winner_gate is not None and a.winner_gate_tau is not None and not a.winner_gate_tau_override:
+        from nfl_dfs.inference.winner_like import FROZEN_GATE_TAU
+        if abs(a.winner_gate_tau - FROZEN_GATE_TAU) > 1e-12:
+            raise SystemExit(f"--winner-gate-tau {a.winner_gate_tau!r} is not the frozen {FROZEN_GATE_TAU!r} (study 48e); "
+                             "pass --winner-gate-tau-override only for research or a rehearsal")
     if a.winner_gate is not None and (a.main != "mix" or a.mix_fill != "rr" or a.mix_rs_rows or a.mix_cover_games
                                       or a.winner_gate_tau is None or a.winner_order is not None or a.winner_select is not None):
         raise SystemExit("--winner-gate needs --main mix --mix-fill rr, no half-and-half, no cover, a --winner-gate-tau, and "
