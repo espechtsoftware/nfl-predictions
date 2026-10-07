@@ -59,3 +59,21 @@ def test_game_total_ranks_break_ties_by_game_id():
     fr = pd.DataFrame({"game_id": ["2026_05_B", "2026_05_A", "2026_05_C", "2026_05_A", "2026_05_D"],
                        "game_total": [47.5, 47.5, 51.0, 47.5, 40.0]})
     assert M.game_total_ranks(fr) == {"2026_05_C": 1, "2026_05_A": 2, "2026_05_B": 3, "2026_05_D": 4}
+
+
+def test_game_total_ranks_put_a_missing_total_last():
+    fr = pd.DataFrame({"game_id": ["G1", "G2", "G3"], "game_total": [44.5, np.nan, 51.0]})
+    assert M.game_total_ranks(fr) == {"G3": 1, "G1": 2, "G2": 3}
+
+
+def test_slate_arrays_drop_unpriced_rows_and_stay_aligned():
+    fr = pd.DataFrame({"display_name": ["A QB", "B WR", "C TE", "A QB", "D RB"], "salary": [6500.0, 3500.0, np.nan, 6500.0, 4000.0],
+                       "pos": ["QB", "WR", "TE", "QB", "RB"], "game_id": ["G1", "G1", "G2", "G1", "G2"]})
+    names, sal, pos, qrank = M.slate_arrays(fr, {"G1": 2, "G2": 1})
+    assert names == ["A QB", "B WR", "D RB"] and sal == [6500, 3500, 4000] and pos == ["QB", "WR", "RB"] and qrank == [2, 0, 0]
+    assert all(isinstance(x, int) for x in sal)
+
+
+def test_bootstrap_without_information_is_nan():
+    lo, hi = M.bootstrap_ci(pd.Series([0.0, 0.0]), pd.Series([0.0, 0.0]), reps=20)
+    assert np.isnan(lo) and np.isnan(hi)

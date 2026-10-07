@@ -29,9 +29,18 @@ CHEAP_MAX_SALARY = 4000
 
 def game_total_ranks(frame: pd.DataFrame) -> dict:
     """Games ranked by total, highest = 1; ties broken by game_id order (groupby sorts by it), the convention the
-    2014-2025 base rates used. Tied totals are common (e.g. two games at 47.5), so the tie rule moves games between ranks."""
-    gt = frame.groupby("game_id").game_total.max().astype(float)
-    return gt.rank(ascending=False, method="first").astype(int).to_dict()
+    2014-2025 base rates used. Tied totals are common (e.g. two games at 47.5), so the tie rule moves games between ranks.
+    A game without a total ranks after every game with one (it stays in the denominators instead of vanishing)."""
+    gt = pd.to_numeric(frame.groupby("game_id").game_total.max(), errors="coerce")
+    return gt.rank(ascending=False, method="first", na_option="bottom").astype(int).to_dict()
+
+
+def slate_arrays(frame: pd.DataFrame, kmap: dict) -> tuple[list, list, list, list]:
+    """The parallel name / salary / position / QB-game-rank arrays sent to BigQuery: one row per display name, unpriced
+    rows dropped (an unpriced player cannot be rostered; int() of a NaN salary would kill the step -- the laptop, 10-07)."""
+    fn = frame[pd.to_numeric(frame.salary, errors="coerce").notna()].drop_duplicates("display_name")
+    qrank = [int(kmap.get(g, 0)) if p == "QB" else 0 for g, p in zip(fn.game_id, fn.pos)]
+    return (fn.display_name.astype(str).tolist(), [int(x) for x in pd.to_numeric(fn.salary)], fn.pos.astype(str).tolist(), qrank)
 
 
 def mh_odds_ratio(cells: pd.DataFrame, exposed) -> tuple[float, pd.Series, pd.Series]:
@@ -51,6 +60,8 @@ def mh_odds_ratio(cells: pd.DataFrame, exposed) -> tuple[float, pd.Series, pd.Se
 def bootstrap_ci(num: pd.Series, den: pd.Series, reps: int = 1000, seed: int = 5) -> tuple[float, float]:
     rng = np.random.default_rng(seed); nv, dv = num.values, den.values
     bs = [nv[i].sum() / dv[i].sum() for i in (rng.integers(0, len(nv), len(nv)) for _ in range(reps)) if dv[i].sum() > 0]
+    if not bs:
+        return float("nan"), float("nan")
     return float(np.percentile(bs, 2.5)), float(np.percentile(bs, 97.5))
 
 
@@ -64,14 +75,12 @@ def main() -> None:
     bq = bigquery.Client(); U, F, G, rows = [], [], [], []
     for w in weeks:
         t70 = Path(cfg["weeks"][str(w)]["t70_run"]); fr = pd.read_parquet(t70 / "frame.parquet")
-        fn = fr.drop_duplicates("display_name")
         cid = bq.query(f"SELECT contest_id FROM `nfl_raw.contest_entries` WHERE season = {a.season} AND week = {w} GROUP BY 1 "
                        "ORDER BY MAX(expected_entries) DESC LIMIT 1").to_dataframe()
         if cid.empty:
             print(f"W{w}: no real field loaded yet -- skipped", flush=True); continue
         cid = cid.contest_id.iloc[0]
-        kmap = game_total_ranks(fr)
-        qrank = [int(kmap.get(g, 0)) if p == "QB" else 0 for g, p in zip(fn.game_id, fn.pos)]
+        kmap = game_total_ranks(fr); names, sal, pos, qrank = slate_arrays(fr, kmap)
         base = """WITH m AS (SELECT n, s, p, q FROM UNNEST(@names) n WITH OFFSET i JOIN UNNEST(@sal) s WITH OFFSET j ON i = j
                     JOIN UNNEST(@pos) p WITH OFFSET k ON i = k JOIN UNNEST(@qrank) q WITH OFFSET l ON i = l),
           e AS (SELECT DISTINCT entry_id, rank, expected_entries ne, FARM_FINGERPRINT(TRIM(SPLIT(entry_name, ' (')[OFFSET(0)])) u, players_key
@@ -81,9 +90,8 @@ def main() -> None:
         jc = bigquery.QueryJobConfig(query_parameters=[
             bigquery.ScalarQueryParameter("c", "STRING", cid), bigquery.ScalarQueryParameter("w", "INT64", w),
             bigquery.ScalarQueryParameter("season", "INT64", a.season), bigquery.ScalarQueryParameter("cheap", "INT64", CHEAP_MAX_SALARY),
-            bigquery.ArrayQueryParameter("names", "STRING", fn.display_name.astype(str).tolist()),
-            bigquery.ArrayQueryParameter("sal", "INT64", [int(x) for x in fn.salary]),
-            bigquery.ArrayQueryParameter("pos", "STRING", fn.pos.astype(str).tolist()), bigquery.ArrayQueryParameter("qrank", "INT64", qrank)])
+            bigquery.ArrayQueryParameter("names", "STRING", names), bigquery.ArrayQueryParameter("sal", "INT64", sal),
+            bigquery.ArrayQueryParameter("pos", "STRING", pos), bigquery.ArrayQueryParameter("qrank", "INT64", qrank)])
         u = bq.query(base + f", big AS (SELECT u FROM x GROUP BY u HAVING COUNT(*) >= {int(a.min_entries)}) "
                      "SELECT u, k, COUNT(*) n, COUNTIF(top1) t FROM x JOIN big USING (u) GROUP BY u, k", job_config=jc).to_dataframe()
         f = bq.query(base + " SELECT k, LEAST(IFNULL(qk, 0), 7) qk, COUNT(*) n, COUNTIF(top1) t FROM x GROUP BY k, qk", job_config=jc).to_dataframe()
