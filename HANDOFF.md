@@ -12,6 +12,83 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-07 (14:47 CDT) — Priority sort NOT ENTERED (frozen W2–4 screen); his Rev6 contest order INSTALLED; study 56 NO DIFFERENCE (paper in W5); 6i/6j acked; records merged
+
+**His contest order changed twice more after the 14:15 entry.** His FINAL words: "4444 (all of them including the showdown
+- which seems the same as the others anyway) / 555 / WFFC / 333 / Millionaire / Midseason warmup / Everything else
+including milly qualifiers".
+- **The vehicle is the private plan Rev6, sha `5f8352ee…`.** It holds Rev3's 29 contest dicts byte-equal, re-ordered
+  only. Rev4 and Rev5 were never installed; the staged Rev5 file was removed.
+- Per-rank weights equal Rev3's, so the same book.
+- Ranks under head:
+  - $4,444: 1–3;
+  - $555: 4–9, with the 2x supersat on 1–2;
+  - WFFC $490: 10;
+  - $333: 3–4, 11–14, 15–17;
+  - the Millionaire: 18–19 (it loses the 1–2 head block);
+  - Warm Up: 20–22;
+  - the $20 supersats alone on 23–26.
+- `priority_deal.py`'s docstring still describes Rev5's map. It is left byte-equal on purpose (the lab copies it,
+  fa47594d); both copies get the fix in W6.
+
+**THE PRIORITY HARM SCREEN** (frozen `27a1957b`, amendment 1 at `7ee09fe1`, both before any number):
+- Run 20261007T193507Z, built through the real switch at `7ee09fe1`.
+- Record: `reports/2026-10-07-priority-deal-replay-result.md`.
+- **(i) THE SORT: NOT ENTERED.** CB_PRI vs CB_REV6 is lower in 2 of 3 weeks; e_big ratio 0.587. `PRIORITY_ORDER` stays 0.
+- **(ii) REV6: passed** (ratio 1.466). **INSTALLED 14:38** by `~/.cache/laptop-agent/w5_install_rev6.sh`:
+  - the equivalence with the reviewer's s24 Rev6 (`ac10ddf6`) was checked first;
+  - Rev3 is kept as `contests.json.rev3-8625de0e`;
+  - the arm's PLAN_SHA is Rev6 (`5766b799`; host copy synced).
+- Descriptive: the whole change 0.861; the all-row sort 0.543.
+- **A disclosed defect in the replay's own check, fixed before any verdict was reported:**
+  - Its first pass printed a false "rows differ": `sorted()` over frozensets is not a total order.
+  - It now uses a Counter multiset. The same outputs were re-scored with no rebuild; the numbers are unchanged.
+  - The reviewer accepted the fix.
+- The outside reviewer accepts the result; the field patterns belong in the build, not the deal. Study 59 becomes a W6
+  read.
+
+**Study 56 — NO DIFFERENCE, not contradicted** (Addendum 163).
+- READ (lab `d1f3d28`): QB2HALF − LIVE +0.01846 [−0.02489, +0.06469] on 2023–24; 2022 +0.0217.
+- **REPRODUCED BYTE-IDENTICALLY:** READ `d2b0fe17`; the confirmatory census `eeb04d4f` (committed in `8d70119`, before
+  the READ); the raw manifest matches.
+- Not adoptable; TRIAL ENTERABLE. **His W5 line keeps QB2HALF OFF the live book** (on paper through 6j). `MIX_QUOTAS`
+  stays "".
+- The reviewer's descriptive note beside the cheap trial (decision sheet row 21): on 56's banks, LIVE_CB vs LIVE
+  P(≥1 big) is .320 vs .355 (2023–24) and .235 vs .237 (2022). That makes two harness reads with no gain.
+  - The laptop told the operator that the paper co-run measures cheap either way. It leans slightly to the unblocked live
+    book; his call, and nothing changes unless he says so.
+
+**Study 38 amendments acked.**
+- **6i** (lab `beea499`; shas 1f5d43e2 / 42ce1de6 / fffe2dde / e5120fe3 / 1853acd9; 27 tests):
+  - the laptop's smoke copy is identical on off and onm;
+  - onc is identical BY CONTENT (all 18 arms' rows and ranks). Its bytes differ only by the cheap file's absolute path
+    inside the args file, which `books_identity` hashes; reported to the reviewer as a lesson-2 representation issue.
+- **6j** (lab `44becda`; 801381ab / bb52c6f1 / 564ce2c6 / de63c136 / b00f9b5e; 28 tests): the smoke copy is
+  BYTE-IDENTICAL on all three builds.
+
+**Records merged:** `production/s48-prereg-20261006` at `cb8ee46b` into integration (`3b55adb9`).
+- P1 amendments 1–2.
+- Study 54 frozen, with Addendum 162.
+- 6g–6j.
+- Study 56 frozen, with Addendum 163.
+- The 57 and 59 DRAFTs, as marked.
+- Lab LEDGER rows verified: 54 (`09f77f7`), 56 (`0288374`).
+
+**Study 57 (R4 for the five 2-entry contests): two production issues found before the freeze.**
+- (a) The reviewer's smoke: pinning only the five contests re-blocks six others (the Warm Ups 20–22 → 14–16). The Sunday
+  step must pin ALL 29 contests from the head deal, with only the five replaced.
+- (b) The laptop: 57 picks each contest's R4 pair independently, so the three $333 2-entry contests get the SAME pair.
+  That is against his 09-24 rule (2-entry contests "NEVER repeat a lineup inside the group") and his 10-05 "All
+  distinct". The laptop proposed sequential picks in his Rev6 order, excluding rows already taken; the reviewer's call.
+- `choose_entries.py` writes no pins today. The Sunday step (exclusion plus the full pinned plan) is built only to
+  whatever 57 freezes, if it passes, and is rehearsed Friday.
+
+**Next (laptop):**
+1. Study 57's census and freeze ack.
+2. Thursday's list (props → project-slate, FP pages, SIS caches, A3 block-OFF on Rev6, the block files, Route Share dry
+   runs, gates).
+3. Friday's A3 with the cheap block (no priority order, no quotas) unless he changes the trial.
+
 ## 2026-10-07 (14:15 CDT) — Study 56 frozen, acked and running; PRIORITY-FIRST DEALING built (switch f19222e0, off); his Rev5 contest order; study 54's records verified
 
 **Study 56 (fewer QB + 1 rows; his priority test this week).**

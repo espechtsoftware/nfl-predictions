@@ -121,6 +121,14 @@ rehearsal runs on the merged head in the exact armed env; Friday re-verifies on 
   bonus / 0.20), also under `--check`.
 
 ## Wednesday 10-07 to Saturday 10-10: priority-first dealing and his Rev6 contest order (decision sheet row 24)
+- **RESULT (10-07 14:36), the screen as frozen:**
+  - The SORT is NOT ENTERED (lower in 2 of 3 weeks; e_big ratio 0.587). `PRIORITY_ORDER` stays 0, and A3 runs
+    without `A3_PRIORITY_ORDER`.
+  - **Rev6 passed** (ratio 1.466) and is INSTALLED: 10-07 14:38, sha `5f8352ee…`; Rev3 is kept as
+    `contests.json.rev3-8625de0e`; the arm's PLAN_SHA is Rev6 (`5766b799`, host copy synced). The equivalence
+    with the reviewer's s24 Rev6 (`ac10ddf6`) was checked at install.
+  - Record: `reports/2026-10-07-priority-deal-replay-result.md`. The steps below stand as written for a later
+    week.
 - **His request** (to the laptop, 10-07): "Let's try to do this one this week as it seems more promising." His contest order
   (final, 10-07): "4444 (all of them including the showdown...) / 555 / WFFC / 333 / Millionaire / Midseason warmup /
   Everything else including milly qualifiers".
