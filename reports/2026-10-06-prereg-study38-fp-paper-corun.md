@@ -291,6 +291,17 @@ score. Nothing here enters a contest: the money path, its checkout and its files
     - every other amendment-6 sha stands (`term_book.py` `62c2306e…`).
   - **Order:** this amendment → the laptop's ack (tests and smoke) → the snapshot tool's `S38_PAPER_TERM_FILE` → his
     Friday choice decides whether the file is set.
+  - **His decision (10-07, after study 49's read, through the laptop): "Paper only".**
+    - The live union runs no term block (`TERM_ROWS = 0`).
+    - The snapshot carries the paper file: `S38_PAPER_TERM_FILE`, Week 5's `priortop-w5.csv` (`694a6622…`). From Week
+      6, a new file each week by `make_priortop_files.py`'s rule on the prior weeks' real fields after settlement, each
+      sha recorded in HANDOFF.
+    - So from Week 5 MIXT_QA0 is his live book without the block, MIXT_QA0_NOTERM equals it, and MIXT_QA0_TERM8 is the
+      block's paper test (its weekly "QA0 + the paper 8-row block − QA0" line).
+    - **The integrity gate (§7) for Week 5** therefore runs on Friday's rehearsal snapshot with the live block OFF and
+      the paper file SET (superseding amendment 6's "with the block armed"). It must show the paper file in the
+      MANIFEST, MIXT_QA0_TERM8 built with its block at ranks 2, 5, 9, 12, 15, 18, 22 and 25, MIXT_QA0_NOTERM equal to
+      MIXT_QA0, and every live-mode check passing.
 
 ## 1. Why
 - **The operator (10-06), on the proposal:** "yes, please try it, I want to exhaust all reasonable options."
