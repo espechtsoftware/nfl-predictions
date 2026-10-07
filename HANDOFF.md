@@ -45,7 +45,7 @@
 
 **Also:**
 - Study list 48: the operator's cheap-TD-upside idea (the outside reviewer's field check 70437915); its test is a study 38 paper arm on live weeks, earliest W6.
-- 6c / 6d smokes and the s50 census were acked earlier (09:2x entry).
+- 6c / 6d smokes and the s50 census were acked earlier (the 08:23 entry).
 
 ## 2026-10-07 (08:23 CDT) — O-41 (bye weeks stop the SIS cache auto target) fixed and DEPLOYED; the operator wants the matchup bonus LIVE as a capped block (tests first); study 50 running; 6c / 6d acked; 46(b) dropped
 
