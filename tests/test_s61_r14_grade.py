@@ -221,3 +221,30 @@ def test_the_scored_path_on_a_synthetic_week(tmp_path, monkeypatch, capsys):
     out = capsys.readouterr().out
     assert "PROSPECTIVE: Delta +6.000 DK points (24 +1 vs 24 -1 players; valid)" in out and "no look yet" in out
     assert "Player" not in out and "QUOTE" not in out
+
+
+def test_a_fallback_week_is_recorded_not_valid_and_the_others_stand(tmp_path, monkeypatch, capsys):
+    """Amendment 2: a union with no FP projection (the T-70 fell back to ours) is a NOT VALID week, never a refusal of
+    the other weeks; an FP file the receipt names but which is missing still refuses."""
+    ok = _union(tmp_path / "w5")                                                     # a normal week
+    fb = tmp_path / "w6"; fb.mkdir()                                                 # the fallback week: no proj_source
+    pd.read_parquet(ok / "frame.parquet").to_parquet(fb / "frame.parquet")
+    sha = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
+    (fb / "receipt.json").write_text(json.dumps({"config": {"union": {"input_sha256": {"t70_frame": sha(fb / "frame.parquet")}}}}))
+    assert R.load_union(fb) == {"no_fp": True, "reason": "no FP projection: the T-70 build fell back to our projections"}
+    broken = _union(tmp_path / "w7"); (broken / "proj_source.csv").unlink()           # named by the receipt, missing
+    with pytest.raises(SystemExit, match="not the receipt's projection file"):
+        R.load_union(broken)
+    log = tmp_path / "log"; log.mkdir()
+    for w in (5, 6):
+        (log / f"2026-w{w:02d}.jsonl").write_text(json.dumps(_rec(f"f{w}", "A One")) + "\n")
+    monkeypatch.setattr(R, "entered_union", lambda w, *a: {5: ok, 6: fb}[w])
+    monkeypatch.setattr(R, "load_actuals", lambda s, w, g: (pd.DataFrame({"gsis_id": ["g1", "g2"], "dk_points": [12.0, 6.0]}), "a" * 64))
+    out_json = tmp_path / "o.json"
+    assert R.main(["--weeks", "5,6", "--log-dir", str(log), "--out", str(out_json)]) == 0
+    res = json.loads(out_json.read_text())["per_week"]
+    assert res["6"] == {"valid": False, "reason": "no FP projection: the T-70 build fell back to our projections"}
+    assert "primary" in res["5"] and res["5"]["primary"]["valid"] is False                # 1 vs 0 players: too few a side
+    out = capsys.readouterr().out
+    assert "W6: NOT VALID -- no FP projection" in out and "no look yet (valid prospective weeks so far: 0)" in out
+    assert R.main(["--census", "--weeks", "5,6", "--log-dir", str(log)]) == 0          # the census passes over it too

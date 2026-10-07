@@ -31,6 +31,18 @@
     - Players: +1 53, −1 34, balanced 7, direction-0 only 37.
   - **The real W5 census** runs Sunday on W5's entered union (§9 step 4).
   - **A repair** of the reader names its new sha in a further amendment before the next read it makes.
+- **AMENDMENT 2 (2026-10-07 18:16 CDT, before any Week-5 game; from the laptop's review): a fallback week.**
+  - **The rule:** a week whose T-70 build fell back to OUR projections is NOT VALID for the study. In such a week the
+    entered union's receipt names no FP projection and holds no `proj_source.csv`.
+    - It is recorded with that reason and does not count. The other weeks stand.
+    - No week replaces it: the looks stay at W8 and W10, over the valid weeks.
+    - The amendment-1 reader refused such a week instead, which would also have stopped every multi-week read.
+  - **Unchanged:** an FP file the receipt names but which is missing or different still refuses (integrity, §8).
+  - **The reader:** `scripts/s61_r14_grade.py`, sha256 **`94fced43752e19a2549e2960205865242f2e5ccfe4f1a59409fa7588cea32da6`**
+    (commit `14a35fd3`). It replaces amendment 1's `ceb8c4cd…`.
+  - **Its tests:** `tests/test_s61_r14_grade.py`, sha256
+    `57d37803d0902e7f5c5be047044558880ae527d1fa2776202599bb1584a4fb8f`. 40 pass; one is new and covers this rule.
+  - **The census smoke** is unchanged in every count.
 - Week 5's first kickoff is Thursday 10-08 at 19:15 CT (TB at DAL). The graded slate, DraftKings' Sunday Main, starts
   Sunday 10-11 at 12:00 CT. The London game (08:30 CT) is not on it.
 - **The design freezes before Thursday's kickoff.** The reader is pinned by an amendment before Sunday 12:00 CT (§9).
