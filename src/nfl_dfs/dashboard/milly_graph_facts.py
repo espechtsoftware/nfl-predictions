@@ -24,11 +24,14 @@ NOTE: the base graph's Lineup.own_sum is REALIZED ownership too (it describes a 
 
 Added 10-07 (the outside reviewer's facts-layer review, items E and the two missing inputs), all pre-lock:
   PlayerWeek pre_anytime_td_prob / pre_anytime_td_books -- the market's anytime-touchdown price, the last prop snapshot
-            before the slate's first Sunday kickoff, the mean price-implied probability over bookmakers;
+            before the slate's first Sunday kickoff, the mean price-implied probability over bookmakers. NOT de-vigged:
+            it includes the books' margin, so it ranks players within a week; never compare it across weeks or books as
+            a calibrated probability. A canonical name shared by two frame players in the week gets no price;
   PlayerWeek pre_prior_top1_share / pre_prior_top1_weeks / pre_prior_top1_source -- the player's mean share of the REAL
             Millionaire top-1% lineups over the PRIOR weeks (reports/2026-10-07-prior-top-term/priortop-wNN.csv);
   TeamWeek pre_starters_out / pre_starters_out_pos -- depth-chart starters (QB / RB / TE rank 1, WR ranks 1-3, the last
-            snapshot at or before the frame's build time) absent from the T-70 frame's active pool.
+            snapshot at or before the frame's build time) that are OUT before lock: absent from the T-70 frame, or in it
+            with a pre-lock status of Out / IR / suspended; pre_starters_doubtful counts the Doubtful ones apart.
 """
 from __future__ import annotations
 
@@ -260,6 +263,10 @@ def player_week_rows(frame: pd.DataFrame, week_key: str, source: str, as_of: str
     outd = out.set_index(out.gsis_id.astype(str)) if out is not None and not out.empty else None
     pbpd = pbp.set_index(pbp.gsis_id.astype(str)) if pbp is not None and not pbp.empty else None
     tdd = td.set_index("key") if td is not None and not td.empty else None
+    if tdd is not None:                                       # a canonical name shared by two frame players: no price
+        names = fr.get("display_name", fr.get("name", pd.Series(dtype=str))).map(canon_name)
+        shared = set(names[names.duplicated(keep=False)])
+        tdd = tdd[~tdd.index.isin(shared)]
     ptd = (prior_top.assign(dk=pd.to_numeric(prior_top.dk_player_id, errors="coerce")).dropna(subset=["dk"])
            .drop_duplicates("dk").set_index("dk")) if prior_top is not None and not prior_top.empty else None
     rows = []
@@ -292,7 +299,15 @@ def team_week_rows(frame: pd.DataFrame, week_key: str, source: str, as_of: str,
     """One TeamWeek per team on the slate: implied total, favourite, pace, PROE, vacated shares (pre-lock); with
     starters (DEPTH_SQL rows), pre_starters_out: depth-chart starters absent from the frame's active pool."""
     fr = frame.dropna(subset=["team"]).copy()
-    active = set(frame["id"].astype(str)) if "id" in frame.columns else set()
+    status = pd.Series("", index=frame.index)
+    for c in ("status", "injury_status", "roster_status"):
+        if c in frame.columns:
+            status = status + "|" + frame[c].astype(object).where(frame[c].notna(), "").astype(str).str.upper()
+    is_out = status.str.contains(r"\|(?:O|OUT|IR|INJURED RESERVE|SUS|SUSPENDED|PUP|NA|INA|RES)(?:\||$)", regex=True)
+    is_doubtful = status.str.contains(r"\|(?:D|DOUBTFUL)(?:\||$)", regex=True)
+    ids = frame["id"].astype(str) if "id" in frame.columns else pd.Series(dtype=str)
+    active = set(ids[~is_out]) if len(ids) else set()
+    doubtful = set(ids[is_doubtful & ~is_out]) if len(ids) else set()
     st = starters.assign(code=starters.team.map(team_code)) if starters is not None and not starters.empty else None
     rows = []
     for team, g in fr.groupby(fr.team.astype(str)):
@@ -308,7 +323,8 @@ def team_week_rows(frame: pd.DataFrame, week_key: str, source: str, as_of: str,
             mine = st[st.code == team_code(team)]
             if len(mine):
                 gone = mine[~mine.gsis_id.astype(str).isin(active)]
-                props.update({"pre_starters_out": int(len(gone)), "pre_starters_out_pos": ",".join(sorted(gone.pos_abb.astype(str)))})
+                props.update({"pre_starters_out": int(len(gone)), "pre_starters_out_pos": ",".join(sorted(gone.pos_abb.astype(str))),
+                              "pre_starters_doubtful": int(mine.gsis_id.astype(str).isin(doubtful).sum())})
         rows.append({"key": f"{team}|{week_key}", "team": team, "week_key": week_key,
                      "props": {k: v for k, v in props.items() if v is not None}})
     assert_point_in_time(rows)

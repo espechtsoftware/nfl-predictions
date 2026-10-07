@@ -104,3 +104,19 @@ def test_the_td_price_prior_top_and_starters_out_are_pre_lock_facts():
     assert tw["BUF"]["pre_starters_out"] == 1 and tw["BUF"]["pre_starters_out_pos"] == "WR" and tw["NE"]["pre_starters_out"] == 0
     assert "pre_starters_out" not in tw["KC"]
     assert F.team_code("LAR") == "LA" and F.canon_name("Amon-Ra St. Brown") == "amon ra st brown"
+
+
+def test_starters_out_reads_the_pre_lock_status_and_shared_names_get_no_td_price():
+    """The reviewer (10-07): a starter in the frame but ruled OUT before T-70 is out; Doubtful counts apart; a canonical
+    name shared by two frame players gets no TD price."""
+    fr = _frame(); fr["display_name"] = [f"Player {chr(65 + k)}{chr(65 + k)}" for k in range(len(fr))]
+    fr["status"] = None; fr["injury_status"] = None
+    fr.loc[fr["id"] == "00-0002", "injury_status"] = "Out"         # BUF WR, in the frame but OUT
+    fr.loc[fr["id"] == "00-0004", "status"] = "D"                  # BUF TE, doubtful
+    st = pd.DataFrame({"team": ["BUF", "BUF", "BUF"], "gsis_id": ["00-0002", "00-0004", "00-0000"], "pos_abb": ["WR", "TE", "QB"]})
+    tw = {r["team"]: r["props"] for r in F.team_week_rows(fr, "2026-05", "s", "t", starters=st)}
+    assert tw["BUF"]["pre_starters_out"] == 1 and tw["BUF"]["pre_starters_out_pos"] == "WR" and tw["BUF"]["pre_starters_doubtful"] == 1
+    fr.loc[fr["id"] == "00-0001", "display_name"] = "Player AA"     # two frame players now share "player aa"
+    td = F.td_probabilities(pd.DataFrame({"player": ["Player AA"], "bookmaker": ["a"], "price": [200], "outcome_name": ["Yes"]}))
+    rows = F.player_week_rows(fr, "2026-05", "s", "t", td=td)
+    assert not any("pre_anytime_td_prob" in r["props"] for r in rows)
