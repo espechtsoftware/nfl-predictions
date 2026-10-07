@@ -6764,3 +6764,88 @@ secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; th
 - **The operator's 8-row matchup BLOCK** (his 10-07 request; production `matchup_block_file.py`) is decided by study
   51's frozen Saturday rule on its own banks. Study 51's design and stop rule were committed (`472434c7`, lab `93e0810`)
   BEFORE this read: the same slates, so the rule could not be tuned to this result.
+
+## Addendum 159 (2026-10-07): study 51 (the matchup bonus as the live 8-row capped block): NO DIFFERENCE; by its frozen Saturday rule ENTERABLE at his decision
+
+**Setup.**
+- **The question.** The operator (10-07): "Please try to tackle the 'matchup bonus' one this week". He wants the outside
+  reviewer's matchup bonus LIVE in his Week-5 book as a capped block like the prior-top one: production's
+  `union_reselect --term-block-rows 8` on `scripts/matchup_block_file.py`'s file (every skill player, pred_own =
+  b_matchup / 0.20, tilt 0.20, cap 2.0). His decision is at Saturday's arming, after the tests.
+- **The arms.** His live Week-5 book and production's 15 spares (41 rows, one state), built two ways:
+  - **LIVE:** study 48d's rows.
+  - **MBLOCK8:** production's term block (`term_book.py` `62c2306e`), with study 50's MATCHUP as the term through
+    production's own_bonus and the cap; the block at ranks 2, 5, 9, 12, 15, 18, 22 and 25.
+- **Census:** −0.70 projected points per row; 16.2 of 26 rows shared with LIVE; the block's rows project 123.4 with 8.9
+  term points each.
+- **The frozen Saturday rule.** It was committed in the DRAFT (`472434c7`) BEFORE study 50's read, on the same slates.
+  - NOT ENTERED if the read is WORSE, or 2022 is CONTRADICTED, or the expected-big-seats ratio is < 0.80 (his
+    tolerance).
+  - MOOT on a dead lever.
+  - Otherwise ENTERABLE, his decision.
+- **Preregistration:** `reports/2026-10-08-prereg-study51-matchup-block.md` (frozen `56674479`, sha256 `1dfac1a9…`).
+- **Panel:** banks 1557–1562, B 20,000, seed 20261103.
+- **Read and reproduced:** read by the reviewer and **reproduced byte-identically by the laptop** (raw files equal to
+  `RAW_s51_run.sha256`).
+  - Reader `2cba7163`; READ `b605304f`.
+  - The confirmatory census (`e357df4`, `256b14ac`) was committed before the READ (`3b150a8`).
+  - LEDGER row lab `84c54db` (order 49 / 50 / 51 merged, `592f015`).
+
+**Reader output (verbatim):**
+```
+STUDY 51 READER  sha256 2cba71638ed1ba9e0faa64ef1fb629f7a42176adcb674279bd19cdad8295df63
+DIRECTION: P(>= 1 big seat) per slate (the mean over its banks); every difference is ARM - REFERENCE; POSITIVE favours the first arm.
+slates 36 (the 2023-24 read) + 17 (the 2022 go / no-go)  banks [1557, 1558, 1559, 1560, 1561, 1562]  B 20000  seed 20261103  one decision (MBLOCK8 - LIVE) on the CALIBRATED field (v2), two-sided 0.95, guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only; 2022: the point estimate (two-sided 0.95 interval)
+arms (definitions, the term, study 48's sha, study 50's sha, the term block's sha, live settings, QB cap, objective): [["LIVE", "MBLOCK8"], {"bonus": "study 50 MATCHUP", "cap": 2.0, "floor_proj": 5.0, "min_coverage": 0.5, "n_term": 8, "tilt": 0.2}, "c22d28114ab4b463b6842594cb2ff7ca1babf41e28015c7242b21baedb1bc67c", "bf4704a0d94ad87938fc29bf94d20fc9deb86f857f454e671f5cd195c1e74265", "62c2306eff1135713d599b788bcbd29be9db308c2eb8537183f3d291b996b887", {"fill": "rr", "max_shared": 4}, 5, "player_mean (+ the block's capped term)"]
+the block applied on 1.000 of slate-banks
+
+== MBLOCK8 vs LIVE  [DECISION: the matchup bonus as production's 8-row capped block; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate +0.01272  [-0.02993, +0.05417] (two-sided 0.95)  seasons 2023 +0.05214, 2024 -0.02670
+  GUARD 1 mean entry pct -0.00332  one-sided lower -0.01372  (must exceed -0.015)
+  GUARD 2 expected big seats 0.54474 vs 0.58624  ratio 0.929  (must be >= 0.80)
+  MBLOCK8 dealt identical to LIVE: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  GO / NO-GO 2022: +0.02339  [-0.02532, +0.08571] (two-sided 0.95)  ->  not contradicted
+
+== SATURDAY (the frozen rule for Week 5's live block): ENTERABLE, his decision: no harm shown and no gain shown (NO DIFFERENCE on the read, not contradicted on 2022)
+
+== EXPLORATORY (never decision-bearing; two-sided 0.95)
+  MBLOCK8 - LIVE (the l02 field, 2023-24): +0.00977  [-0.03347, +0.05179]  seasons 2023 +0.05017, 2024 -0.03063
+  MBLOCK8 - LIVE (the l02 field, 2022): +0.02617  [-0.02548, +0.09094]  seasons 2022 +0.02617
+
+secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; the book's rows are pre-lock facts):
+  [2023-24]
+  LIVE     v2: P(>=1 big) 0.32936  expected big seats 0.58624  P(>=2) 0.14268  entry pct 0.51773  |  l02: P(>=1 big) 0.36122
+           book: projection per row 128.14  predicted ownership 78.48%  term points per row 3.912
+  MBLOCK8  v2: P(>=1 big) 0.34208  expected big seats 0.54474  P(>=2) 0.12626  entry pct 0.51441  |  l02: P(>=1 big) 0.37099
+           book: projection per row 127.43  predicted ownership 78.85%  term points per row 5.479
+  [2022]
+  LIVE     v2: P(>=1 big) 0.21820  expected big seats 0.30217  P(>=2) 0.06776  entry pct 0.44102  |  l02: P(>=1 big) 0.23163
+           book: projection per row 132.21  predicted ownership nan%  term points per row 3.687
+  MBLOCK8  v2: P(>=1 big) 0.24160  expected big seats 0.31343  P(>=2) 0.05995  entry pct 0.45046  |  l02: P(>=1 big) 0.25780
+           book: projection per row 131.51  predicted ownership nan%  term points per row 5.332
+```
+
+**Reading.**
+- **Neither harm nor gain is shown.** The 8-row block leans slightly positive:
+  - +1.3 points of P(≥ 1 big) on 2023–24 (2023 +5.2, 2024 −2.7);
+  - +2.3 on 2022;
+  - about 7% fewer expected big seats, inside his tolerance.
+- None of the frozen stop conditions holds, so **the block is enterable at his call**.
+- **The whole-book form leaned negative (study 50, −7.4 points; ratio 0.756).** Diluting the bonus to 8 rows is what
+  keeps it harmless. It is a small bet, not a supported gain.
+
+**Beside it, the laptop's in-sample Week 2–4 replays** (production writers, Saturday 10:00 CT props cut; frozen harm
+screens `f61aa4cc` / `28e28ab9`, committed before any number):
+- **MBLOCK8:** P(≥ 1 big) .031 / .018 / .530 vs LIVE .041 / .002 / .434. Ahead in 2 of 3 weeks; pooled ratio 1.40.
+- **The operator's TD-value block (TDBLOCK8):** NOT ENTERED by its screen (below LIVE in Weeks 2 and 4).
+- **The combined matchup + TD block:** passes its screen only in-sample, carried by Week 4 alone. Its TD half failed on
+  its own.
+- **The TD re-deal:** NOT ENTERED (below LIVE in all three weeks; ratio 0.101). Study 52 tests the deal out of sample.
+
+**What it means.**
+- **For Saturday's block slot, the matchup block is the only option with out-of-sample support**, and that support is
+  "not harmful", not "better".
+- If he enters it, study 38's line "QA0 − NOTERM (the live block: matchup-w5.csv)" (amendment 6e) records it on the
+  real field from Week 5.
+- If he does not, the bonus stays on paper through study 38's whole-book arms.
