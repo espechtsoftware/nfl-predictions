@@ -1,4 +1,4 @@
-# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06, amendments 1, 1b, 2 and 3, before Week 5's lock)
+# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06, amendments 1, 1b, 2, 3, 4 and 5, before Week 5's lock)
 
 **Status: FROZEN 2026-10-06** by the reviewer, BEFORE any week of the decision arm (MIXT_RS0) or of the exploratory arms
 QBB0 / NQC0 / QAL / RBC0 was read on any slate. Disclosed: before the freeze, the reference MIXT_QA0 was scored on
@@ -104,6 +104,69 @@ score. Nothing here enters a contest: the money path, its checkout and its files
   `experiments/s38_paper_corun.py` `f7b73a9c1f902b434f1ae43faf662ca52203bce069a0d6a526a5cc27820027a2`;
   `tests/test_s38_paper_corun.py` `dbcd08c94438679c22af7136c74eb4bf6390893adaa8b0353b9385080f5887cd` (16 tests). Every other
   amendment-2 sha stands (the reader `33d350b5…` unchanged).
+
+- **Amendment 4 (same day, before Week 5's lock; amendment 3's defect class swept over every union argument).**
+  - **Why.** The union now takes `--mix-rs-rows N` (study 46's half-and-half book; production `8a9a5a34`, merged at
+    integration `f70ce138`, off). Amendment 3's parity named the cover only. A sweep of all 46 union arguments found
+    three more that change the book and were not compared:
+    - `--mix-rs-rows`;
+    - `--mix-portfolio` (`ws` would be a different book);
+    - `--tail-sleeve`.
+  - **What changes.** A live nonzero `--mix-rs-rows`, a `--mix-portfolio` other than `mix`, or a nonzero
+    `--tail-sleeve` is a parity mismatch (an invalid week).
+  - **Why the other construction arguments need nothing:**
+    - they are in the parity table;
+    - or the union itself refuses them with `--main mix` (`--main-game-cap`, `--pmo`, a QB-cap K other than
+      `--entries`);
+    - or they are part of each paper arm's own definition (the tilt, the projection and ownership inputs).
+  - The live Week-5 arguments pass: `sunday_build_host` always passes `--tail-sleeve 0` and `--mix-portfolio mix`.
+  - Code: lab `eb84e85`; `experiments/s38_paper_corun.py` `df9829920c1ac533eac0951540e23f8aa779109b691ed7b2094d340192905441`;
+    `tests/test_s38_paper_corun.py` `a0bbe301a19e0473cc0728db57ecf9ecd48b486d0c94b02587f93711df477890` (17 tests).
+
+- **Amendment 5 (same day, before Week 5's lock; no Week-5 outcome exists).**
+  - **Why.** The operator's yes on study 46's half-and-half book for Week 5 (10-06, through the laptop): "Yes, pending
+    2022 check". The 2022 check is study 46c, with its go / no-go frozen before its read. With a live regulars' block,
+    "his live book" is the half book, so the decision reference must follow it.
+  - **What changes.**
+    - MIXT_QA0 follows the live union's `--mix-rs-rows N` (0 / 9 / 13 / 17; N > 0 needs the round-robin fill, as
+      production). It is built through study 46's frozen `half_book`:
+      - `experiments/s46_half_half.py`, copied byte-identical (`30647fef…`), with its `l02b_field_sampler.py`
+        (`fadf9cfe…`);
+      - every module they import is byte-identical to study 46's branch.
+    - A new exploratory arm, **MIXT_QA0_FULL**: his live construction without the regulars' block. It tracks the switch
+      on the real field (identical to MIXT_QA0 while N is 0).
+    - Every other arm is unchanged. The regulars' arms already are the regulars' structure; QA / QAL / MS7 / GROUP stay
+      full books.
+    - Amendment 4's refusal of a nonzero N becomes: an N outside 0 / 9 / 13 / 17, or N > 0 with another fill, is a
+      parity mismatch.
+    - The build's content identity, the scorer (QA0_FULL scored; the build's `mix_rs_rows` recorded) and the reader (a
+      descriptive "QA0 without the regulars' block − QA0" line) carry it.
+  - **What does not change:** the rule (§5), the decision pair "the regulars' structure vs his live book" (MIXT_RS0 vs
+    MIXT_QA0), the objective, the provenance, the scoring.
+  - **If study 46c contradicts,** `MIX_RS` stays 0: MIXT_QA0 is the full book and MIXT_QA0_FULL is identical to it.
+  - **The smoke** (dry run, Week 4's frozen copies, at 4 + rr with `--mix-portfolio mix --tail-sleeve 0`):
+    - **(i)** The ms4-rr arguments plus `--mix-portfolio mix --tail-sleeve 0`, as `sunday_build_host` passes them:
+      - exit 0, parity none;
+      - all nine amendment-2 arms are identical, rows and ranks, to amendment 2's `ms4-rr` build;
+      - MIXT_QA0_FULL equals MIXT_QA0;
+      - `books.json` `402f365e`, identity `90c18e3c`.
+    - **(ii)** The same plus `--mix-rs-rows 13`:
+      - exit 0, parity none;
+      - MIXT_QA0 is the half book: 13 regulars' rows at the odd positions (blocks L R L R …), 40 rows, the largest
+        overlap 4;
+      - MIXT_QA0_FULL equals (i)'s MIXT_QA0;
+      - every other arm is identical to (i);
+      - `books.json` `4dccc845`, identity `c7524101`.
+    - Construction only; no outcome was read. `~/private/paper-corun/smoke-w4-amend45/`, script `run.sh`.
+  - **Code:** lab `897f880`:
+    - `experiments/s38_paper_corun.py`, sha256 `2ac7e02f3bbb79c28f586d279cc9e96ad9260a402d1925746b829a03705e9d15`;
+    - `scripts/s38_build.py`, `2a4b8fdd00892315616eac255e59561f83a391002daf7991ffd101552d847411`;
+    - `scripts/s38_score.py`, `b222949c0b4b90c897c18832dec685c7411b3a94b7dc67c1767fe88d433f2f9e`;
+    - **`scripts/s38_report.py` (the reader), sha256 `17fda3ac62c77ae172af49b5dccf08726fbf88a83f920ed8c73f4bddbf44c4e3`**;
+    - `tests/test_s38_paper_corun.py`, `19de3592d6983daf0d45a9f5c5bd00a409011ec1b21a4f78cfa975d634a174a9` (18 tests);
+    - `experiments/s46_half_half.py` (study 46's, byte-identical), `30647fef4175770e8f809cb704f282788f8b4d079319ba282768ad907433ec7a`;
+    - `experiments/l02b_field_sampler.py` (item 40's, byte-identical), `fadf9cfe3269ed746e8bd82d109b2cd35797ff934c93861cac56c5893f1241b5`.
+    - Every other amendment-3 sha stands (`mix_fill.py` `dcf6a299…`, `s38_plan.py` `9af5f805…`).
 
 ## 1. Why
 - **The operator (10-06), on the proposal:** "yes, please try it, I want to exhaust all reasonable options."
