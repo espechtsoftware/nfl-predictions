@@ -12,7 +12,7 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
-## 2026-10-07 (15:14 CDT) — The operator's 14:47 SIS + cbwu-oi directive: (1) (2) (4) (5) verified PASS from receipts; (3) passed at 06:20 but the re-run after the roster fix FAILED at the props guard (gate RED until Thursday, O-49); O-46 / O-47 / O-48 registered
+## 2026-10-07 (15:11 CDT) — The operator's 14:47 SIS + cbwu-oi directive: (1) (2) (4) (5) verified PASS from receipts; (3) passed at 06:20 but the re-run after the roster fix FAILED at the props guard (gate RED until Thursday, O-49); O-46 / O-47 / O-48 registered
 
 Most of the directive had been done this morning (HANDOFF 09:35). Each item was verified against its receipts rather than
 re-run, except (3), which had run before the final roster-fix features build, and (5), which had not run yet.
