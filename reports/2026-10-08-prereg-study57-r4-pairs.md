@@ -32,8 +32,14 @@
   - The pair is chosen from the book's 26 rows by study 32's `choose` (m = 2; the contest's N and its big seats S),
     against study 32's pre-lock field (TABPFN_LS predicted ownership, DSTs uniform; study 32's fallback) on W_SIM of the
     slate-bank's own worlds.
-  - The pairs are written as pins, so the small-contest overlap limit does not re-deal them, as production's pins.
-  - Every other contest keeps its head deal.
+  - **Every other contest keeps its head deal exactly.** R4's pairs replace only the five contests' ranks in the dealt
+    layout.
+  - **Changed at the smoke, before the freeze:** the first form wrote only the five pins and re-ran the head layout. That
+    re-blocks six other contests: the single Wildcats move 15–17 → 11–13, and his Warm Up sats move 20–22 → 14–16, which
+    overrides his Rev6 order.
+    - Production's Sunday step must therefore pin all 29 contests from the head deal, replacing only the five. The
+      laptop is told.
+    - The census asserts that no other contest moves.
 
 - **Added to the DRAFT before study 56's read (the laptop's design note, 10-07):** if priority-first dealing (study 59)
   is armed too, the entered deal is "the priority sort, then R4 on top". That is a combination neither arm above covers.
