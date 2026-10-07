@@ -159,3 +159,45 @@ The FFWC qualifiers alone and the small priority satellites alone give the same 
 - **The utility definition for tests should follow his priority statement.** On 10-06 he said the $125 WFFC "doesn't"
   count as a big win; on 10-07 he names WFFC among the top priorities. Production should confirm with him which WFFC
   contests count before the next test freezes its endpoint.
+
+## 4. Priority-first dealing: an entry-side change for Week 5 (requested by the operator, 10-07)
+
+The operator asked for anything more that could help his priority contests this week. He has asked production to try
+this one directly; it is logged here as the proposal's record.
+
+**What:**
+- His priority entries ($4,444 / $555 / $333 / FFWC satellites: 22 of 53 entries, most of the fee total) are dealt
+  first, from the book's rows ranked by a simple frozen score.
+- The rows left over go to the 29 $20-Millionaire-satellite entries, which he calls lower priority and which do not
+  count as big wins.
+- **The 26 rows are not changed.** The cheap +2 trial and its paper comparisons stay exactly as they are; only which
+  row goes to which contest changes. This is class E (entry side): his authority, plus a mechanical rehearsal, the
+  affected entries named, and a restore path (today's deal).
+
+**Proposed score** (pre-lock, from the row itself; ties by today's book rank):
+
+| Element | Points | Real-field evidence in the priority contests (within user, top 5%) |
+|---|---|---|
+| QB with 2+ teammates | 2 | QB + 1 vs QB + 2: 0.78 [0.61, 0.97] (by contest 0.64) |
+| A bring-back | 1 | 1.51 [1.15, 2.01] |
+| 2+ sub-$4,000 non-DST players | 1 | 1.93 [1.52, 2.41] |
+
+**Our rows** (W2–4 replays at the Week-5 settings, cheap +2 armed) against the priority-contest field:
+
+| Share of rows | Ours | Field |
+|---|---|---|
+| QB + 1 | 49% | 41% |
+| Bring-back | 58% | ~49% |
+| 2+ cheap | 42% | 18% |
+| All three of QB 2+, bring-back, 2+ cheap | 17% | — |
+
+**Against:** study 48b, a whole-book re-deal by a winner-likeness score, read NO DIFFERENCE on history (+0.008
+[−0.030, +0.044]). This deal is narrower: it moves rows only between his priority and lower-priority contests, so for
+his utility the downside is about nil.
+
+**Test before entering:**
+- Production's fixed-book replay of P(≥ 1 big seat) on W2–4, today's deal vs priority-first. This is in-sample for the
+  layers and descriptive.
+- Friday's A3 rehearsal with the layout armed.
+
+If it cannot be built and rehearsed by Friday, it goes to Week 6 as a paper deal.
