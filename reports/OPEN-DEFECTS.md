@@ -122,7 +122,7 @@ allowance.
 
 ## Closed since this file was created
 
-### Closed 2026-10-07 (O-19, O-20, O-23, O-24; Wednesday's A1 rehearsal on the merged code, laptop agent)
+### Closed 2026-10-07 (O-19, O-20, O-23, O-24 by Wednesday's A1 rehearsal on the merged code; O-27 by the cbwu-oi dry run; laptop agent)
 
 | # | Defect | Impact | Deadline | Resolved means |
 |---|---|---|---|---|
