@@ -5,8 +5,8 @@
 #   2. load the week's Millionaire lineups -- the top set plus every lineup of the users in the PRIVATE users file -- with
 #      FP projection / ownership (--include-fp; the graph is local only);
 #   3. load the week's pre-lock player / team / game / lineup facts (--with-facts --facts-only; needs the T-70 frame);
-#   4. run the standing learning queries (scripts/graph_weekly/: the outside reviewer's within-portfolio facts and the
-#      sub-$4k count check), writing their AGGREGATE outputs under ~/private/neo4j/weekly/<season>-w<NN>/ for the weekly record;
+#   4. run the standing learning queries (scripts/graph_weekly/: the outside reviewer's within-portfolio facts, the
+#      sub-$4k count check and the cheap-tier boom check), writing their AGGREGATE outputs under ~/private/neo4j/weekly/<season>-w<NN>/ for the weekly record;
 #   5. stop Neo4j (unless --keep-running; then it MUST be stopped before Saturday's arming).
 # Credentials come from ~/.config/neo4j-local-milly.txt (sourced, never printed). Nothing is written to the repository.
 #   bash scripts/neo4j_weekly_refresh.sh <week> <private users file> [--keep-running]
@@ -34,12 +34,17 @@ grep -v -i warn "$OUTD/load-lineups.txt" | tail -3
 say "pass 2: the week's pre-lock facts"
 ( cd "$P" && PYTHONPATH="$P/src" timeout 3000 "$PY" scripts/load_milly_neo4j.py "${LOAD[@]}" --with-facts --facts-only --apply ) > "$OUTD/load-facts.txt" 2>&1 || stop "the facts load failed (see $OUTD/load-facts.txt)"
 grep -E "FACTS|facts loaded" "$OUTD/load-facts.txt" | tail -4
-G=$P/scripts/graph_weekly                   # the outside reviewer's standing queries (copied 10-07 from 0c727116; aggregates only)
+G=$P/scripts/graph_weekly                   # the outside reviewer's standing queries (copied 10-07 from abb4db74; aggregates only)
+# every query runs FROM the private output dir (cheap_tier.py writes to its working directory; each finds gconn.py through
+# its own folder on sys.path), so nothing lands in the repository
 say "learning 1: within-portfolio pre-lock facts (the regulars' top-1% lineups vs their other lineups, every loaded week)"
-( cd "$G" && timeout 1800 "$PY" within_portfolio.py "$OUTD" ) > "$OUTD/within_portfolio.txt" 2>&1 || say "WARN: within_portfolio.py failed (see $OUTD)"
+( cd "$OUTD" && timeout 1800 "$PY" "$G/within_portfolio.py" "$OUTD" ) > "$OUTD/within_portfolio.txt" 2>&1 || say "WARN: within_portfolio.py failed (see $OUTD)"
 tail -15 "$OUTD/within_portfolio.txt"
 say "learning 2: sub-\$4,000 players in the field, our pool and our books (study list 51)"
-( cd "$G" && PYTHONPATH="$P/src" timeout 1800 "$PY" cheap_count_check.py "$OUTD" ) > "$OUTD/cheap_count.txt" 2>&1 || say "WARN: cheap_count_check.py failed (see $OUTD)"
+( cd "$OUTD" && timeout 1800 "$PY" "$G/cheap_count_check.py" "$OUTD" ) > "$OUTD/cheap_count.txt" 2>&1 || say "WARN: cheap_count_check.py failed (see $OUTD)"
 tail -12 "$OUTD/cheap_count.txt"
+say "learning 3: which sub-\$4,000 players boom, and do the regulars pick better ones"
+( cd "$OUTD" && timeout 1800 "$PY" "$G/cheap_tier.py" ) > "$OUTD/cheap_tier.txt" 2>&1 || say "WARN: cheap_tier.py failed (see $OUTD)"
+tail -12 "$OUTD/cheap_tier.txt"
 if [[ "$KEEP" != --keep-running ]]; then neo4j-milly stop > "$OUTD/neo4j-stop.txt" 2>&1 && say "Neo4j stopped"; else say "Neo4j LEFT RUNNING: stop it before Saturday's arming (neo4j-milly stop)"; fi
 say "done: $OUTD"

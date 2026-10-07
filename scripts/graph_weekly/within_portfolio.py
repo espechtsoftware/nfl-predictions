@@ -24,7 +24,9 @@ frames = []
 with d.session() as s:
     for wk in sorted(s.run("MATCH (w:Week) RETURN w.key AS k").value()):
         df = pd.DataFrame(s.run(Q, wk=wk, minl=MINL).data())
-        if df.empty: print(wk, 0, flush=True); continue; df["week"] = wk; frames.append(df); print(wk, len(df), flush=True)
+        if df.empty:
+            print(wk, 0, flush=True); continue
+        df["week"] = wk; frames.append(df); print(wk, len(df), flush=True)
 d.close()
 P = pd.concat(frames, ignore_index=True)
 P["skill"] = P.pos.isin(["RB", "WR", "TE"])
