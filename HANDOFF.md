@@ -12,6 +12,36 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-07 (17:39 CDT) — M3 / M4 (O-50 / O-51) fixed, reviewed and closed; every money-path review item for Saturday is done
+
+- **M4 (O-51)** `b3b607fe`, reviewed OK.
+  - The 10:50 T-70 build checks that its receipt's `salary_pull` is at or after 10:30 CT, using
+    `scripts/check_salary_pull.py`.
+  - A stale or missing pull marks the build `salary_pull_stale`; its union inherits the marker. That is a STOP, cleared
+    by `SALARY_PULL_STALE_OK=1`, with an ALERT, a banner and a TODAY STOP.
+  - It is a STOP, not an automatic re-pull, because a rebuild in the last hour could miss the lock. The reviewer agrees.
+- **M3 (O-50)** `b3b607fe` + `a276a1dd`.
+  - Saturday's step 0 refuses any code change since FRIDAY_HEAD; docs and the arm script are allowed.
+  - PROD_ARMED_HEAD reaches every unit, and `check_week_runtime` refuses a build whose code moved since arming. It was
+    tested on a real git repo.
+  - The reviewer caught the arm filter's `$` anchoring every alternative: a report or briefing would have blocked the arm.
+    It is fixed, with a behaviour test on sample paths.
+- **The open ordering question for the operator** (the reviewer's, now covering all three STOP markers): the markers are
+  checked before the week-window check, so a rehearsal dir carrying one would raise a false STOP on TODAY.
+  - It cannot arise in W5 as run. A3 runs WITHOUT MIN_PROJ_GENERATED_AT, so no salary check, and writes to its own
+    scratch live dir, which the watcher never reads.
+  - Left as is unless he decides.
+- **State for Saturday:** the money-path review's fixes are in. H1, H2 (his decision), H3, M1, M2, M3, M4 and M5 are
+  done, along with the grep LOW. M6, M7 and the remaining LOWs are O-52..O-54, for W6.
+- **Thursday (laptop):**
+  1. The props pull pre-check and project-slate.
+  2. The cbwu-oi dry run (O-49).
+  3. FP pages.
+  4. A3 block-OFF on Rev6.
+  5. The block files: cheap from `--group 154468`, matchup from A3's frame.
+  6. Route Share dry runs at 13:17.
+  7. Gates.
+
 ## 2026-10-07 (17:05 CDT) — The outside reviewer's W5 money-path code review: H1, H2, H3, M1, M2, M5 and the grep LOW FIXED (4a860839); H2 decided by the operator; O-50..O-54 registered
 
 **The review:** `reports/2026-10-07-w5-money-path-code-review.md` (93a5655d on `review/outside-fill-order-20261006`),
