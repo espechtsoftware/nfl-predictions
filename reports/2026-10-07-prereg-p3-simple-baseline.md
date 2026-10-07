@@ -1,8 +1,9 @@
-# Preregistration DRAFT: P3, the standing simple-baseline benchmark -- do our construction layers earn their place? (2026-10-07)
+# Preregistration: P3, the standing simple-baseline benchmark -- do our construction layers earn their place? (FROZEN 2026-10-07)
 
-**Status: DRAFT** by the laptop, for the reviewer to check against his rule (10-07) and freeze BEFORE Week 5's results
-load (Monday 10-12). The operator's approved-plan item P3 (`reports/2026-10-04-agent-proposed-studies.md`), his Wed
-10-07 directive. No Week-5 outcome has been read.
+**Status: FROZEN 2026-10-07** by the reviewer, before any Week-5 outcome.
+- Drafted by the laptop (`9eb3341e`) to the reviewer's rule. At the freeze the reviewer added only a terminal condition
+  to §5.
+- The operator's approved-plan item P3 (`reports/2026-10-04-agent-proposed-studies.md`), his Wed 10-07 directive.
 
 **Units:** counts, rates and multiples only. Dollars stay in BigQuery and private files.
 
@@ -66,6 +67,8 @@ ours removed and DraftKings' tie split. It runs only behind the reconcile gate (
   - **"the layers are earning their place"** if d_w > 0 in at least 7 of the 8;
   - otherwise **undetermined**.
   - If fewer than 8 valid weeks exist by W12, the read waits for the eighth.
+  - If 8 valid weeks do not exist by Week 18 (the season's end), the read is **undetermined (fewer than 8 valid
+    weeks)**, with the valid weeks' signs reported.
 - **The read is a recommendation to simplify or keep.** He decides.
 
 ## 6. Power, stated before any outcome
