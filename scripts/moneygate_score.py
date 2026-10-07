@@ -44,7 +44,6 @@ import re
 import sys
 import zipfile
 from collections import Counter, defaultdict
-from datetime import date, timedelta
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -58,9 +57,25 @@ PUBLIC = Path(os.environ.get("MONEYGATE_RESULTS", Path.home() / "moneygate" / "r
 PRIVATE = Path(os.environ.get("MONEYGATE_PRIVATE", Path.home() / "private" / "moneygate"))
 ARMS = ("A1", "A2", "A3", "A4")
 ALTERNATIVES = ("A2", "A3", "A4")          # simplest first (§5.3: A2 before A3 before A4)
-# each week's Sunday main slate, W1 2026-09-13 + 7 days a week (W1-4 exactly as before; 10-07: W5-18 for the Monday
-# reads -- study 38, the monkeys, P3 -- which raised a KeyError for W5)
-WEEK_DATES = {w: (date(2026, 9, 13) + timedelta(weeks=w - 1)).isoformat() for w in range(1, 19)}
+# Each week's Sunday main-slate date comes from nfl_raw.schedules (the REG week's Sunday; the reviewer 10-07, CLAUDE.md
+# rule 7: no hard-coded week table -- the W1-4 table raised a KeyError for W5). week_date() caches it per process.
+SUNDAY_SQL = ("SELECT MIN(gameday) AS sunday FROM `{project}.nfl_raw.schedules` "
+              "WHERE season = @season AND week = @w AND game_type = 'REG' AND weekday = 'Sunday'")
+_SUNDAYS: dict[tuple[int, int], str] = {}
+
+
+def week_date(cfg: dict, w: int) -> str:
+    key = (int(cfg.get("season", 2026)), int(w))
+    if key not in _SUNDAYS:
+        from google.cloud import bigquery
+        project = cfg.get("bq_project", "nfl-predictions-503414")
+        jc = bigquery.QueryJobConfig(query_parameters=[bigquery.ScalarQueryParameter("season", "INT64", key[0]),
+                                                       bigquery.ScalarQueryParameter("w", "INT64", key[1])])
+        d = bigquery.Client(project=project).query(SUNDAY_SQL.format(project=project), job_config=jc).to_dataframe()
+        if d.empty or pd.isna(d.sunday.iloc[0]):
+            raise SystemExit(f"no REG Sunday for {key[0]} week {key[1]} in nfl_raw.schedules")
+        _SUNDAYS[key] = str(d.sunday.iloc[0])[:10]
+    return _SUNDAYS[key]
 
 # ---- the frozen rule (design §5 + Addendum 1 + Addendum 2). Changing any value here is a NEW, disclosed replay. ---
 RULE = {
@@ -297,7 +312,7 @@ def load_history(cfg: dict, w: int) -> pd.DataFrame:
     if cfg.get("entry_history_sha256") and sha256(Path(cfg["entry_history"])) != cfg["entry_history_sha256"]:
         raise SystemExit(f"{cfg['entry_history']} sha256 != the pinned entry history")
     h = pd.read_csv(Path(cfg["entry_history"]), dtype=str)
-    h = h[(h.Sport == "NFL") & (h.Contest_Date_EST.str[:10] == WEEK_DATES[w])].copy()
+    h = h[(h.Sport == "NFL") & (h.Contest_Date_EST.str[:10] == week_date(cfg, w))].copy()
     h["Contest_Key"] = h.Contest_Key.astype(str); h["Entry_Key"] = h.Entry_Key.astype(str)
     return h
 
