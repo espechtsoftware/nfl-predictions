@@ -13,7 +13,7 @@ Exit 0 = publish; exit 1 = skip (the reason on stdout; the watcher logs it and l
   * --group G: the receipt's draft_group must be G (a smoke on another slate is never published);
   * --built-after ISO: the receipt's built_utc must not be earlier (Wednesday's smoke, a Thursday paper build never are);
   * a `superseded` marker (the build host writes it when a build finishes after the T-70 build's start) is never published;
-  * a `term_block_missing` marker (the build host: the decided prior-top term block is not in this union's book) is not
+  * a `term_block_missing` marker (the build host: the decided live term block is not in this union's book) is not
     published unless --accept-term-block-missing (TERM_BLOCK_MISSING_OK=1, the operator's decision to enter without it).
 """
 from __future__ import annotations

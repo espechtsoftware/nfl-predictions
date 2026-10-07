@@ -247,3 +247,17 @@ def test_the_term_block_rides_into_the_units_and_a_missing_block_stops_publicati
     assert '[[ "${TERM_BLOCK_MISSING_OK:-0}" == "1" ]] && echo --accept-term-block-missing' in after
     arm = (Path(__file__).resolve().parents[1] / "scripts" / "arm_week5_saturday.sh").read_text()
     assert "\nTERM_ROWS=0 " in arm and "UNION_TERM_BLOCK_SHA256=$TERM_SHA" in arm
+
+
+def test_the_week5_arm_pins_the_class_sleeves_model_in_step_0():
+    """O-42 (10-07): week_env's CLASS_SLEEVE_EVERY=2 makes every build's preflight need $OUT/class_model.json + .sha256;
+    the Week-5 arm checks the installed model against a pinned CLASS_SHA in step 0 (so --check catches it too)."""
+    from pathlib import Path
+    arm = (Path(__file__).resolve().parents[1] / "scripts" / "arm_week5_saturday.sh").read_text()
+    assert "\nCLASS_SHA=92cec73388193a107c235ff3d8e8dafeea9a2d5d0121b481814b2e4fe0802f13 " in arm
+    step0 = arm[arm.index("# 0. the checkout"):arm.index('say "step 0 OK')]
+    assert '[[ -s $W/class_model.json && -s $W/class_model.json.sha256 ]] || stop' in step0
+    assert '"$(sha256sum $W/class_model.json | cut -c1-64)" == "$CLASS_SHA"' in step0
+    assert '"$(cut -c1-64 $W/class_model.json.sha256)" == "$CLASS_SHA"' in step0
+    env = (Path(__file__).resolve().parents[1] / "scripts" / "week_env.sh").read_text()
+    assert "CLASS_SLEEVE_EVERY=${CLASS_SLEEVE_EVERY-2}" in env and "CLASS_MODEL=${CLASS_MODEL:-$OUT/class_model.json}" in env
