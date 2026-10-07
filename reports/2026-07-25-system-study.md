@@ -6849,3 +6849,89 @@ screens `f61aa4cc` / `28e28ab9`, committed before any number):
 - If he enters it, study 38's line "QA0 − NOTERM (the live block: matchup-w5.csv)" (amendment 6e) records it on the
   real field from Week 5.
 - If he does not, the bonus stays on paper through study 38's whole-book arms.
+
+## Addendum 160 (2026-10-07): study 52 (deal the book by the lineups' projected touchdowns): NO DIFFERENCE, NOT SUPPORTED; with the in-sample market re-deal NOT ENTERED, the idea is closed
+
+**Setup.**
+- **The question.** The operator (10-07): "if we haven't already, I'd like to try sorting our lineups by projected
+  touchdowns for the lineup". It had not been tried before. The nearest is study 48b's re-deal by a winner-likeness
+  score (Addendum 153, NO DIFFERENCE).
+- **The arms.** The SAME 41 rows (his live book + 15 spares, study 48d's build), dealt three ways by production's head
+  layout:
+  - **DEAL_LIVE:** the book's own order.
+  - **DEAL_TD** (the decision): positions by the lineup's projected touchdowns, most first, so the most-TD rows take the
+    big-entry ranks 1–22 and the Millionaire's 1–2.
+  - **DEAL_PROJ** (a control): positions by projection.
+- **The touchdowns.**
+  - They come from the hierarchical simulator's pre-lock worlds, already drawn for player_mean (`simulate_hsim`'s
+    additive capture; the draws are unchanged, asserted in the smoke).
+  - Per player: the mean rushing + receiving TDs. Passing is excluded, because production's input would be the market's
+    anytime-TD price.
+  - They are summed over the lineup.
+- **Census:**
+  - DEAL_TD moves 24.6 of 26 rows;
+  - the Millionaire's positions carry 4.48 projected TDs vs 4.08, at equal projection;
+  - a row's TDs correlate +0.40 with its projection.
+- **Rule.** One decision on the 2023–24 read (two-sided 0.95, the usual guards) and the 2022 go / no-go. SUPPORTED only
+  if PASS and not contradicted.
+- **Preregistration:** `reports/2026-10-08-prereg-study52-td-deal.md`.
+  - The DRAFT (`3641979b`) came before study 51's read and before the laptop's re-deal numbers.
+  - Frozen `499b2257`, sha256 `4ef7195c…`.
+- **Panel:** banks 1563–1568, B 20,000, seed 20261104.
+- **Read and reproduced:** read by the reviewer and **reproduced byte-identically by the laptop**.
+  - Reader `040794f1`; READ `dd505310`; census `caeae9ff`; LEDGER row lab `6e13d84`.
+  - The confirmatory census was committed (`504e153`, 10:15:27 CT) before the READ was written (10:15:33).
+  - GitHub refused every push from about 10:09 CT, so both commits landed at 10:17.
+
+**Reader output (verbatim):**
+```
+STUDY 52 READER  sha256 040794f1a1d8a0b99d2cb11bc90c1edb0f2a08a62f27002c59b04bf828f52a5f
+DIRECTION: P(>= 1 big seat) per slate (the mean over its banks); every difference is ARM - REFERENCE; POSITIVE favours the first arm.
+slates 36 (the 2023-24 read) + 17 (the 2022 go / no-go)  banks [1563, 1564, 1565, 1566, 1567, 1568]  B 20000  seed 20261104  one decision (DEAL_TD - DEAL_LIVE) on the CALIBRATED field (v2), two-sided 0.95, guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only; 2022: the point estimate (two-sided 0.95 interval)
+arms (definitions, the touchdown projection, study 48's sha, live settings, QB cap, objective): [["DEAL_LIVE", "DEAL_TD", "DEAL_PROJ"], "the simulator's mean rushing + receiving touchdowns per player (passing excluded)", "c22d28114ab4b463b6842594cb2ff7ca1babf41e28015c7242b21baedb1bc67c", {"fill": "rr", "max_shared": 4}, 5, "player_mean (no ownership term)"]
+
+== DEAL_TD vs DEAL_LIVE  [DECISION: the same book dealt by the lineups' projected touchdowns; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate -0.02207  [-0.05925, +0.01408] (two-sided 0.95)  seasons 2023 -0.02550, 2024 -0.01863
+  GUARD 1 mean entry pct -0.00060  one-sided lower -0.00549  (must exceed -0.015)
+  GUARD 2 expected big seats 0.49353 vs 0.55809  ratio 0.884  (must be >= 0.80)
+  DEAL_TD dealt identical to DEAL_LIVE: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  GO / NO-GO 2022: +0.01957  [-0.02835, +0.06945] (two-sided 0.95)  ->  not contradicted
+
+== STUDY: NOT SUPPORTED: NO DIFFERENCE on the 2023-24 read, not contradicted on 2022
+
+== EXPLORATORY (never decision-bearing; two-sided 0.95)
+  DEAL_PROJ - DEAL_LIVE (the projection-order control), 2023-24: -0.01557  [-0.04845, +0.01642]  seasons 2023 -0.01193, 2024 -0.01921
+  DEAL_PROJ - DEAL_LIVE (the projection-order control), 2022: +0.00084  [-0.04321, +0.04565]  seasons 2022 +0.00084
+  DEAL_TD - DEAL_PROJ (the touchdowns beyond the projection), 2023-24: -0.00650  [-0.03213, +0.01897]  seasons 2023 -0.01357, 2024 +0.00058
+  DEAL_TD - DEAL_PROJ (the touchdowns beyond the projection), 2022: +0.01873  [-0.02590, +0.06668]  seasons 2022 +0.01873
+  DEAL_TD - DEAL_LIVE (the l02 field, 2023-24): -0.02092  [-0.05969, +0.01618]  seasons 2023 -0.02669, 2024 -0.01515
+  DEAL_TD - DEAL_LIVE (the l02 field, 2022): +0.01830  [-0.02943, +0.06765]  seasons 2022 +0.01830
+  the mechanism (2023-24, slate-banks 216): top-1% share of each book's 5 most-TD rows 0.0157 vs its 5 fewest-TD rows 0.0120
+
+secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; the deals are pre-lock facts):
+  [2023-24]
+  DEAL_LIVE v2: P(>=1 big) 0.33824  expected big seats 0.55809  P(>=2) 0.13109  entry pct 0.51798  |  l02: P(>=1 big) 0.36754  |  projected TDs on positions 1-22 3.945
+  DEAL_TD   v2: P(>=1 big) 0.31617  expected big seats 0.49353  P(>=2) 0.10995  entry pct 0.51738  |  l02: P(>=1 big) 0.34662  |  projected TDs on positions 1-22 3.997
+  DEAL_PROJ v2: P(>=1 big) 0.32267  expected big seats 0.51819  P(>=2) 0.13005  entry pct 0.51854  |  l02: P(>=1 big) 0.35316  |  projected TDs on positions 1-22 3.952
+  [2022]
+  DEAL_LIVE v2: P(>=1 big) 0.25688  expected big seats 0.35190  P(>=2) 0.07322  entry pct 0.44986  |  l02: P(>=1 big) 0.27577  |  projected TDs on positions 1-22 3.908
+  DEAL_TD   v2: P(>=1 big) 0.27645  expected big seats 0.44797  P(>=2) 0.11242  entry pct 0.45099  |  l02: P(>=1 big) 0.29407  |  projected TDs on positions 1-22 3.962
+  DEAL_PROJ v2: P(>=1 big) 0.25772  expected big seats 0.36861  P(>=2) 0.08506  entry pct 0.45014  |  l02: P(>=1 big) 0.27645  |  projected TDs on positions 1-22 3.920
+```
+
+**Reading.**
+- **Dealing by projected touchdowns does not raise the big-win chance.** It leans slightly negative in both read
+  seasons (−2.2 points; 2023 −2.6, 2024 −1.9), with 12% fewer expected big seats.
+- **The touchdowns add nothing beyond the projection** (DEAL_TD − DEAL_PROJ −0.0065).
+- **The book's own order beats both re-sorts.**
+- At the row level, a book's 5 most-TD rows hit the top 1% slightly more often (1.57% vs 1.20%). The deal does not
+  convert that into seats, because a re-deal only moves rows between contests.
+
+**Beside it:** the laptop's in-sample Week 2–4 re-deal by the market's summed anytime-TD probability (its frozen harm
+screen `28e28ab9`) read NOT ENTERED. It was below LIVE in all three weeks, ratio 0.101, carried by Week 4's single hit.
+
+**What it means.** The idea was tested on both inputs, the market's TD prices in-sample and the simulator's TDs out of
+sample, and neither helps. It is closed unless a new TD source appears. The outside reviewer's real-field screen of sort
+keys points the same way (`b335d1fd`: the TD key improves the average finish, and is level with random picks at the
+top).
