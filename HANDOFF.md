@@ -12,6 +12,28 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-07 (16:03 CDT) — The operator agrees with the outside reviewer; study 60 designed (real-field cash-line paper record); its ladder files W02–W05 written
+
+**The operator** ("here's what the outside reviewer says, and I agree"):
+- keep our construction for the satellites (study 54, with its deep-line caveat);
+- study 56 (QB2HALF) is the **W6 trial candidate**; Monday's 6j paper arm is the first real-week read;
+- no R4 or joint coverage (study 57; the outside reviewer withdrew it);
+- **W6 big-contest entries are tested at the CASH line**, including the market-projection #1.
+- Recorded at `25c54952`: study list 60, decision sheet rows 23 / 25 / 26, the Monday checklist.
+
+**Study 60 (the reviewer's design).** The harness lacks FP, props and SIS (the six-season limit), so it is a PROSPECTIVE
+real-field paper record from W5, frozen before Monday's numbers.
+- Per target contest it tracks R0 (his book's #1), the FP-means #1 and the props-means #1, plus top-2 under all-distinct.
+- PRIMARY: P1's latent z in the contest's real field. SECONDARY: cash or seat at the real line.
+- From W8, with ≥ 4 weeks, a t lower bound applies, as in P1.
+
+**Its ladder files** (the format agreed with the reviewer: role from his big-win rule, big > gpp > sat; positions only):
+- `scripts/cash_line_rows.py` (`630e03f0`, 6 tests) wrote `~/private/cash-line/cash-lines-w0{2,3,4,5}.csv`
+  (ab96c0d2 / 38d76ca5 / 68d41879 / 37ce545c; owner-only).
+- The s24 plans come from s38_plan at lab bf07066 (W5 = the reviewer's Rev6 `ac10ddf6`).
+- Every line equals the plan's seats. No "big" role in W2–W5.
+- Weekly chore: the next week's file once its contests are captured (checklist).
+
 ## 2026-10-07 (15:41 CDT) — Studies 57 and 59 READ, reproduced and merged (f14df3d6); the block report reproduced; Wednesday's queue done
 
 **Study 59 (the priority sort in the harness, a W6 read): NO DIFFERENCE.**

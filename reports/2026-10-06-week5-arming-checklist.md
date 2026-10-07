@@ -210,6 +210,10 @@ rehearsal runs on the merged head in the exact armed env; Friday re-verifies on 
   The stop rule's first full review stays Monday 10-19.
 - **The W6 trial candidate's first real-week read** (the operator 10-07 agrees with the outside reviewer: study 56's fewer QB + 1
   rows): study 38's MIXT_QA0_QB2HALF vs MIXT_QA0 on the real W5 results, in plain words.
+- **Study 60's ladder file for the NEXT week** (the format agreed with the reviewer 10-07), once that week's plan and contest details
+  are captured and loaded into the ladder table. First run s38_plan.py (lab) on the week's contests.json and details, then
+  `PYTHONPATH=src .venv/bin/python scripts/cash_line_rows.py --week W --plan-s24 <that s24 plan>`. It writes
+  `~/private/cash-line/cash-lines-wWW.csv` once; send its sha to the reviewer. W02–W05 were written 10-07.
 - **The FP #1 vs the props #1** (study list 60's step 3): the W5 FP-means plain optimizer's top row against the props-means one,
   on the real Millionaire field and the sharpest priority field, with each row's share of the field beaten.
 - **Friday, before this:** the side-by-side of the two W5 books (the same snapshot, the block on vs off): which of the 26 rows
