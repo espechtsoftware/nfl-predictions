@@ -274,3 +274,20 @@ def test_study_56s_cell_quotas_ride_into_the_units_and_the_week5_arm_keeps_them_
     assert '-n "${UNION_MIX_CELL_QUOTAS:-}" ]] && UNION_ARGS+=(--mix-cell-quotas "$UNION_MIX_CELL_QUOTAS")' in host
     arm = (Path(__file__).resolve().parents[1] / "scripts" / "arm_week5_saturday.sh").read_text()
     assert '\nMIX_QUOTAS="" ' in arm and "e+=(UNION_MIX_CELL_QUOTAS=$MIX_QUOTAS)" in arm
+
+
+def test_the_priority_order_rides_into_the_units_and_the_week5_arm_keeps_it_off():
+    """Priority-first dealing (the operator 10-07): UNION_PRIORITY_ORDER reaches the build units; the host passes
+    --priority-order only with the mix; the Week-5 arm keeps PRIORITY_ORDER=0 until the screen, A3 and his yes, and unsets
+    it for the house shape; check_week_runtime refuses it off the mix."""
+    from pathlib import Path
+    r = _run(UNION_PRIORITY_ORDER="1")
+    assert "UNION_PRIORITY_ORDER=1" in _unit_line(r.stdout, "nfl-week4-t70-build")
+    assert "UNION_PRIORITY_ORDER" not in _unit_line(_run().stdout, "nfl-week4-t70-build")
+    root = Path(__file__).resolve().parents[1]
+    host = (root / "scripts" / "sunday_build_host.sh").read_text()
+    assert '[[ "${UNION_MAIN:-mean}" == "mix" && "${UNION_PRIORITY_ORDER:-0}" == "1" ]] && UNION_ARGS+=(--priority-order)' in host
+    arm = (root / "scripts" / "arm_week5_saturday.sh").read_text()
+    assert "\nPRIORITY_ORDER=0 " in arm and "UNION_PRIORITY_ORDER=$PRIORITY_ORDER" in arm and "-u UNION_PRIORITY_ORDER" in arm
+    chk = (root / "scripts" / "check_week_runtime.py").read_text()
+    assert 'os.environ.get("UNION_PRIORITY_ORDER", "")' in chk and "the priority-first deal" in chk

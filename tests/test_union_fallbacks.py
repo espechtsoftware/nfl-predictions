@@ -58,6 +58,21 @@ def test_mix_to_house_args_only_rewrites_the_main_value():
     assert r.stdout == "--main|pmo_x50|--x|mix|--y|"
 
 
+def test_mix_to_house_args_drops_every_mix_only_flag():
+    """2026-10-07: each of these needs --main mix, so the house main refused with any of them aboard (UNION FAILED instead
+    of C). The fallback drops them -- the live term block, the quotas, the fill, the cover, the half, winner select and the
+    priority order -- and keeps the ownership term and the rest."""
+    args = ("--main mix --mix-plan p --mix-layout head --mix-portfolio mix --mix-spares 15 --mix-fill rr "
+            "--mix-cell-quotas A1=0.44,A2=0.28,B=0.14,C=0.14 --mix-cover-games 2 --mix-rs-rows 9 --term-block-rows 8 "
+            "--term-block-source /w/cheap2-w5.csv --term-block-tilt 0.20 --term-block-cap-points 2.0 "
+            "--term-block-min-coverage 0.5 --winner-select /w/win.csv --priority-order --main-qb-cap-rows 5 "
+            "--main-own-tilt 0.2 --main-own-source /w/own.csv --winner-order /w/win2.csv --y")
+    script = f'source "{LIB}"; mix_to_house_args {args}; printf "%s|" "${{OUT_ARGS[@]}}"'
+    r = subprocess.run(["bash", "-c", script], capture_output=True, text=True, timeout=30)
+    assert r.stdout == ("--main|pmo_x50|--main-qb-cap-rows|5|--main-own-tilt|0.2|--main-own-source|/w/own.csv|"
+                        "--winner-order|/w/win2.csv|--y|")
+
+
 def test_the_host_sources_the_fallback_before_the_pmo_block():
     host = (ROOT / "scripts" / "sunday_build_host.sh").read_text()
     i_src, i_call = host.index('source "$PROD/scripts/union_fallbacks.sh"'), host.index("\n  mix_fallback ")

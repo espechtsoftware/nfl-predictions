@@ -900,6 +900,45 @@ def winner_select_or_fallback(book_rows, book_cells, spares, fr, inputs_path, we
         return book_rows, book_cells, spares, {"not_applied": str(exc)}
 
 
+def apply_priority_order(book: list[int], rosters: list, fr: pd.DataFrame, term: dict | None,
+                         cells: list[str] | None = None, weights: list[int] | None = None) -> tuple[list[int], dict]:
+    """Priority-first dealing (the operator 10-07; nfl_dfs.inference.priority_deal.priority_order): a live term block's
+    rows keep their positions (the reviewer's c9028505 rule) and the other main rows are sorted among the other positions
+    by the frozen score, highest first, ties keeping the book order. The rows themselves never change."""
+    from nfl_dfs.inference import priority_deal as PD
+    need = ["pos", "team", "opp", "salary"]
+    missing = [c for c in need if c not in fr.columns]
+    if missing:
+        raise ValueError(f"the frame lacks {missing}")
+    pl = fr.assign(id=fr["id"].astype(str)).drop_duplicates("id").set_index("id")[need]
+    maps = {c: pl[c].to_dict() for c in need}
+    rows = [[str(x) for x in rosters[i]] for i in book]
+    blocks = (term or {}).get("blocks") or []
+    if blocks and len(blocks) != len(book):
+        raise ValueError(f"the term block's position list holds {len(blocks)} entries for a {len(book)}-row book")
+    fixed = [j for j, b in enumerate(blocks) if b == "T"]
+    perm, scores = PD.priority_order(rows, maps["pos"], maps["team"], maps["opp"], maps["salary"], fixed, return_scores=True)
+    new = [book[o] for o in perm]
+    meta = {"rule": "nfl_dfs.inference.priority_deal.priority_order: +2 QB with 2+ teammates, +1 a bring-back, +1 2+ non-DST "
+                    "under 4,000; a live block keeps its positions, the others sorted by score (stable, highest first)",
+            "module_sha256": sha256_file(Path(PD.__file__)), "fixed_positions": fixed, "scores_in_book_order": scores,
+            "order": perm, "moved": int(sum(o != i for i, o in enumerate(perm))),
+            "scores_in_new_order": [scores[o] for o in perm], "score_counts": {str(k): v for k, v in sorted(Counter(scores).items())}}
+    if cells is not None and weights is not None:
+        meta["entry_shares_after"] = selected_entry_shares([cells[o] for o in perm], weights)
+    return new, meta
+
+
+def priority_order_or_fallback(book: list[int], rosters: list, fr: pd.DataFrame, term: dict | None,
+                               cells: list[str] | None = None, weights: list[int] | None = None) -> tuple[list[int], dict]:
+    """apply_priority_order, or -- on any failure -- the book's own order with the reason (printed LOUDLY by the caller and
+    recorded in the receipt and priority_order_fallback.txt). The order is a refinement: it never stops a union."""
+    try:
+        return apply_priority_order(book, rosters, fr, term, cells, weights)
+    except (ValueError, KeyError, OSError, SystemExit) as exc:
+        return book, {"not_applied": f"{type(exc).__name__}: {exc}"}
+
+
 def winner_order_or_fallback(book: list[int], rosters: list, fr: pd.DataFrame, inputs_path: Path) -> tuple[list[int], dict]:
     """apply_winner_order, or -- on any failure -- the book's own order with the reason (printed LOUDLY by the caller and
     recorded in the receipt and winner_order_fallback.txt). The order is a refinement: it never stops a union."""
@@ -985,6 +1024,10 @@ def main(argv: list[str] | None = None) -> int:
                     help="study 48b: re-order the main book by study 48's winner-likeness score (descending, ties keep the "
                          "book order) before writing book.csv; the file is scripts/winner_like_inputs.py's per-player inputs "
                          "for THIS frame (default off)")
+    ap.add_argument("--priority-order", action="store_true",
+                    help="with --main mix: priority-first dealing (the operator 10-07): a live term block's rows keep their "
+                         "positions, the other main rows are sorted among theirs by nfl_dfs.inference.priority_deal's frozen "
+                         "score, highest first, ties keeping the book order (default off: the book's own order)")
     ap.add_argument("--mix-rs-rows", type=int, default=0,
                     help="with --main mix: the half-and-half book (study 46): the last N of 26 rows built under the regulars' "
                          "tiers (9, 13 or 17), the rest as today, through one state (default 0 = off; needs --mix-fill rr)")
@@ -1041,6 +1084,10 @@ def main(argv: list[str] | None = None) -> int:
                                         or a.main_own_tilt or a.mix_rs_rows or a.mix_cover_games):
         raise SystemExit("--winner-select needs --main mix --mix-portfolio mix with spares, no ownership term, no half-and-half, "
                          "no cover, and not --winner-order (study 48d)")
+    if a.priority_order and (a.main != "mix" or a.mix_portfolio != "mix" or a.winner_order is not None or a.winner_select is not None
+                             or a.main_own_tilt or a.mix_rs_rows or a.mix_cover_games):
+        raise SystemExit("--priority-order needs --main mix --mix-portfolio mix, and no winner order or select, ownership "
+                         "term, half-and-half or cover (untested together)")
     if a.mix_rs_rows and (a.main != "mix" or a.mix_portfolio != "mix" or a.mix_fill != "rr" or a.mix_cover_games
                           or a.mix_rs_rows not in (9, 13, 17) or a.entries != 26):
         raise SystemExit("--mix-rs-rows N (9, 13 or 17) needs --main mix, --mix-portfolio mix, --mix-fill rr, no cover and "
@@ -1403,6 +1450,18 @@ def main(argv: list[str] | None = None) -> int:
             (out / "winner_order_fallback.txt").write_text(f"winner order NOT applied: {winner_meta['not_applied']}\n")
         else:
             print(f"WINNER ORDER: {winner_meta['moved']} of {len(book)} book positions moved (model {winner_meta['model_sha256'][:12]})")
+    priority_meta = None
+    if a.priority_order:                                 # priority-first dealing (the operator 10-07): the block keeps its ranks
+        _cells = [str(tags[i])[len(TAG_PREFIX):] if str(tags[i]).startswith(TAG_PREFIX) else None for i in book]
+        book, priority_meta = priority_order_or_fallback(book, rosters, fr, mix_meta.get("term"),
+                                                         _cells if None not in _cells else None, weights)
+        if "not_applied" in priority_meta:
+            print(f"\n!!! PRIORITY ORDER NOT APPLIED: {priority_meta['not_applied']} -- the book keeps its own order\n")
+            (out / "priority_order_fallback.txt").write_text(f"priority order NOT applied: {priority_meta['not_applied']}\n")
+        else:
+            print(f"PRIORITY ORDER: {priority_meta['moved']} of {len(book)} book positions moved; block positions kept "
+                  f"{priority_meta['fixed_positions']}; scores in the new order {priority_meta['scores_in_new_order']} "
+                  f"(module {priority_meta['module_sha256'][:12]})")
     players_by_id = frame_players(fr)
     lus = [_LU([players_by_id[i] for i in rosters[k]], tags[k]) for k in range(len(rosters))]
     n_written = dk_csv([lus[i] for i in book + book_tail], fr, out / "book.csv")
@@ -1487,6 +1546,8 @@ def main(argv: list[str] | None = None) -> int:
         print(f"PROJECTION SOURCE: book players on OUR projection (no FP): {len(_ours)}" + (f" -- {_ours}" if _ours else ""))
         conf["union"]["proj_source"] = proj_meta
     conf["union"]["winner_order"] = winner_meta if winner_meta is not None else "off"
+    if priority_meta is not None:                        # only when on: an OFF union's receipt stays byte-identical
+        conf["union"]["priority_order"] = priority_meta
     if pmo_main:
         conf["union"]["pmo_x50" if a.main == "pmo_x50" else a.main] = pmo_main
     conf["main_selector_used"] = a.main

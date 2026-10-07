@@ -19,9 +19,9 @@ def test_load_types_reads_both_id_conventions_and_later_files_win(tmp_path):
 
 def test_priority_keys_follow_the_operator():
     for t in ("$4,444 MEGA Milly sat", "$4,444 Showdown MEGA Milly sat", "$555 Milly supersat [2x]", "$333 Wildcat sat",
-              "FFWC qualifier ($14M)", "FFWC qualifier sat/supersat"):
+              "FFWC qualifier ($14M)", "FFWC qualifier sat/supersat", "Midseason Warm Up Milly sat"):
         assert M.is_priority(t)
-    for t in ("$20 Milly sat (1 seat)", "$20 Milly supersat [25x]", "Millionaire (main)", "other GPP", "Midseason Warm Up Milly sat"):
+    for t in ("$20 Milly sat (1 seat)", "$20 Milly supersat [25x]", "$20 Milly supersat [2x/4x]", "Millionaire (main)", "other GPP"):
         assert not M.is_priority(t)
 
 
