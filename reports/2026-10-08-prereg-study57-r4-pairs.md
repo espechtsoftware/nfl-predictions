@@ -43,6 +43,9 @@
     the positions those rows hold in the priority order.
   - **Which pair decides is fixed by his arming, not by any outcome:** CB_PRI_R4 − CB_PRI if the operator arms the
     priority order for Week 5 (after study 59), else CB_R4 − CB. The reader prints both, with the same rule each.
+  - **Resolved before any study 57 outcome (10-07 ~14:40):** the laptop's frozen W2–4 harm screen for the priority order
+    (`27a1957b`, amendment 1 `7ee09fe1`) said NOT ENTERED: lower in 2 of 3 weeks, seats ratio 0.587. The priority order is
+    not armed for Week 5, so **the decision pair is CB_R4 − CB**. CB_PRI_R4 − CB_PRI is printed as descriptive.
 
 ## 3. Endpoint and rule (the reader `scripts/s57_report.py`)
 - **THE READ: 2023–24** (36 slates).
