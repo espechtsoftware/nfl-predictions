@@ -70,6 +70,11 @@ def test_the_arm_pins_the_rehearsed_code_and_passes_the_armed_head():
     """M3: step 0 refuses a code change between FRIDAY_HEAD and HEAD (docs and the arm script aside); the units get
     PROD_ARMED_HEAD, which check_week_runtime enforces at every build."""
     arm = (ROOT / "scripts" / "arm_week5_saturday.sh").read_text()
-    assert 'CODECHG=$(git diff --name-only "$FRIDAY_HEAD" HEAD | grep -vE' in arm and 'scripts/arm_week5_saturday\\.sh)$' in arm
+    m = re.search(r'CODECHG=\$\(git diff --name-only "\$FRIDAY_HEAD" HEAD \| grep -vE \'([^\']+)\' \|\| true\)', arm)
+    assert m, "the arm's CODECHG filter was not found"
+    paths = ["HANDOFF.md", "README.md", "reports/2026-10-09-week5-note.md", "briefings/2026-week-05/x.md",
+             "scripts/arm_week5_saturday.sh", "scripts/sunday_build_host.sh", "src/nfl_dfs/a.py", "reports.py", "HANDOFF.md.bak"]
+    kept = subprocess.run(["grep", "-vE", m.group(1)], input="\n".join(paths) + "\n", capture_output=True, text=True).stdout.split()
+    assert kept == ["scripts/sunday_build_host.sh", "src/nfl_dfs/a.py", "reports.py", "HANDOFF.md.bak"]   # the reviewer's case
     assert '[[ -z "$CODECHG" ]] || stop "code changed between FRIDAY_HEAD' in arm
     assert 'PROD_ARMED_HEAD=$(git -C "$P" rev-parse HEAD)' in arm

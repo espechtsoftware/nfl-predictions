@@ -91,7 +91,7 @@ if [[ -n "$CHG" ]]; then
 fi
 git merge-base --is-ancestor "$FRIDAY_HEAD" HEAD || stop "HEAD $(git rev-parse --short HEAD) is not at or after $FRIDAY_HEAD"
 # M3 (the outside review 10-07): the armed code is the code Friday rehearsed -- only docs and this arm script may differ
-CODECHG=$(git diff --name-only "$FRIDAY_HEAD" HEAD | grep -vE '^(HANDOFF\.md|README\.md|reports/|briefings/|scripts/arm_week5_saturday\.sh)$' || true)
+CODECHG=$(git diff --name-only "$FRIDAY_HEAD" HEAD | grep -vE '^(HANDOFF\.md|README\.md|scripts/arm_week5_saturday\.sh)$|^(reports|briefings)/' || true)
 [[ -z "$CODECHG" ]] || stop "code changed between FRIDAY_HEAD ${FRIDAY_HEAD:0:12} and HEAD: $(echo $CODECHG)"
 [[ "$(sha256sum $W/contests.json | cut -d' ' -f1)" == "$PLAN_SHA" ]] || stop "$W/contests.json is not Rev6 ($PLAN_SHA)"
 # O-42 (10-07): the class sleeve's model, checked here (also under --check) rather than at the 10:30 build's preflight
