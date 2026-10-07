@@ -230,6 +230,12 @@ def main():
     _fill = os.environ.get("UNION_MIX_FILL", "")
     if _fill and (_fill not in ("group", "value", "rr") or os.environ.get("UNION_MAIN") != "mix"):
         fail(f"UNION_MIX_FILL={_fill!r} must be group, value or rr, with UNION_MAIN=mix (got UNION_MAIN={os.environ.get('UNION_MAIN')!r})")
+    _rs = os.environ.get("UNION_MIX_RS_ROWS", "")
+    if _rs and _rs != "0" and (_rs not in ("9", "13", "17") or os.environ.get("UNION_MAIN") != "mix"
+                               or os.environ.get("UNION_MIX_PORTFOLIO") != "mix" or os.environ.get("UNION_MIX_FILL") != "rr"
+                               or os.environ.get("UNION_MIX_COVER_GAMES", "0") not in ("", "0")):
+        fail(f"UNION_MIX_RS_ROWS={_rs!r} must be 0, 9, 13 or 17, with UNION_MAIN=mix, UNION_MIX_PORTFOLIO=mix, "
+             f"UNION_MIX_FILL=rr and no cover (study 46)")
     _cov = os.environ.get("UNION_MIX_COVER_GAMES", "")
     if _cov and _cov != "0" and (not (_cov.isdigit() and 1 <= int(_cov) <= 8) or os.environ.get("UNION_MAIN") != "mix"
                                  or os.environ.get("UNION_MIX_PORTFOLIO") != "mix"):

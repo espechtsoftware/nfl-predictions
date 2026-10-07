@@ -152,3 +152,49 @@ def book_cells(book_sets: list[frozenset], tagged: list[tuple[frozenset, str]], 
         raise ValueError(f"MIX ROWS WITHOUT A CELL TAG: main-block positions {missing[:12]}"
                          + (f" (+{len(missing) - 12} more)" if len(missing) > 12 else "") + " -- refusing to vet a mix book as house")
     return cells
+
+
+# ---------------------------------------------------------------- study 46: the half-and-half book (operator 10-06)
+# The regulars' tiers for an RS block of n rows inside a 26-row book, VERBATIM from the lab's frozen
+# experiments/s46_half_half.py (lab ee6624d, sha256 30647fef...): (block QB cap, QB tiers, block non-QB cap, non-QB tiers).
+# A tier (r, m): once m players of the group hold >= r rows OF THE RS BLOCK, every other player of the group at r - 1
+# RS rows is banned. The block caps are never relaxed.
+RS_BOOK_ROWS = 26
+RS_TIERS = {13: (3, ((3, 1), (2, 3)), 7, ((7, 1), (6, 2), (5, 4), (4, 7), (3, 12), (2, 22))),
+            9: (3, ((3, 1), (2, 2)), 6, ((6, 1), (5, 1), (4, 3), (3, 7), (2, 15))),
+            17: (4, ((4, 1), (3, 2), (2, 4)), 9, ((9, 1), (8, 2), (7, 3), (6, 4), (5, 7), (4, 11), (3, 17), (2, 27)))}
+
+
+def tier_bans(count, group: set, tiers) -> set:
+    """Study 37 verbatim: for each tier (r, m), once m players of `group` hold >= r rows, ban every other player of the
+    group at r - 1."""
+    bans: set = set()
+    for r, m in tiers:
+        if sum(1 for p in group if count.get(p, 0) >= r) >= m:
+            bans |= {p for p in group if count.get(p, 0) == r - 1}
+    return bans
+
+
+def relaxations(qb_tiers: tuple, nq_tiers: tuple):
+    """Study 37 verbatim (the loud fallback's order): all tiers first; then the non-QB tiers dropped from the lowest r
+    upward, one more each time; then (all non-QB tiers dropped) the QB tiers from the lowest r upward. Yields (qb tiers
+    kept, non-QB tiers kept, non-QB dropped, QB dropped)."""
+    nq, qt = sorted(nq_tiers), sorted(qb_tiers)
+    for d in range(len(nq) + 1):
+        yield tuple(qt), tuple(nq[d:]), d, 0
+    for d in range(1, len(qt) + 1):
+        yield tuple(qt[d:]), (), len(nq), d
+
+
+def block_positions(k_book: int, n_rs: int) -> tuple[list[int], list[int]]:
+    """Study 46's rule 4 verbatim: (the RS block's book positions, the live block's). The smaller block (RS on a tie) at
+    floor((2i + 1) k / (2n)); the other block the remaining positions in order."""
+    n_live = k_book - n_rs
+    if not 0 <= n_rs <= k_book:
+        raise ValueError(f"n_rs {n_rs} outside 0..{k_book}")
+    if n_rs == 0 or n_live == 0:
+        return (list(range(k_book)), []) if n_live == 0 else ([], list(range(k_book)))
+    minor = min(n_rs, n_live)
+    mpos = [((2 * i + 1) * k_book) // (2 * minor) for i in range(minor)]
+    rest = [p for p in range(k_book) if p not in set(mpos)]
+    return (mpos, rest) if n_rs <= n_live else (rest, mpos)
