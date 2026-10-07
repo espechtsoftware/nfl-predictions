@@ -100,14 +100,20 @@ rehearsal runs on the merged head in the exact armed env; Friday re-verifies on 
   record beside it. Stop rule (his, accepted): clearly worse paired P(≥1 big) over the trial weeks, or expected big seats
   more than 20% below the unblocked book (not a loss count); first full review Mon 10-19. Rollback: matchup or none.
   Matchup stays on paper (study 38's 6e / 6d arms). His final word is still given at Saturday's arming.
-- **Thursday, after A3 (block OFF):** write BOTH files from A3's union frame (DraftKings salaries and the matchup inputs are
-  fixed for the week; no props needed) and commit them (reports/, so the arm's ff-pull accepts them); record both shas in
-  HANDOFF. From the FRIDAY_HEAD-to-be checkout:
-  `.venv/bin/python scripts/cheap_block_file.py --season 2026 --week 5 --frame <A3 union dir>/frame.parquet --points 2.0 --out reports/2026-10-08-live-block/cheap2-w5.csv`
-  `.venv/bin/python scripts/matchup_block_file.py --season 2026 --week 5 --frame <A3 union dir>/frame.parquet --out reports/2026-10-08-live-block/matchup-w5.csv`
-  then `scripts/check_term_block_file.py <file> --cap 2.0` on each (the arm's own check). Players on Sunday's frame but not A3's
-  get no bonus (disclosed; matchup z is over A3's skill players). A +4 cheap file is written only if study 53 makes CHEAP4_BLOCK8
-  the enterable dose.
+- **Thursday, after A3 (block OFF):** write BOTH files, and commit them under reports/, so the arm's ff-pull accepts them.
+  Record both shas in HANDOFF. The helper `~/.cache/laptop-agent/rehearsal/w5_write_block_files.sh <A3 dir> <checkout>` runs
+  exactly these, from the FRIDAY_HEAD-to-be checkout:
+  - **cheap** (his trial). It comes from draft group 154468's NEWEST DK salary pull: the outside review's H3 (10-07)
+    showed that a frame misses late-week cheap players; on W4 the group file built a book byte-identical to the tested
+    frame file's. Add `--pulled-before <UTC>` only to fix a pull.
+    `.venv/bin/python scripts/cheap_block_file.py --season 2026 --week 5 --group 154468 --points 2.0 --out reports/2026-10-08-live-block/cheap2-w5.csv`
+  - **matchup** (the rollback). It comes from A3's union frame, because its z needs the frame's features.
+    `.venv/bin/python scripts/matchup_block_file.py --season 2026 --week 5 --frame <A3 union dir>/frame.parquet --out reports/2026-10-08-live-block/matchup-w5.csv`
+  - Then run the arm's own check on each, with the arm's flags:
+    `scripts/check_term_block_file.py <file> --cap 2.0 --require-bonus`.
+  - For the MATCHUP file only: a player on Sunday's frame but not A3's gets no bonus (disclosed; matchup z is over A3's
+    skill players). The cheap file covers the whole draft group.
+  - A +4 cheap file is written only if study 53 makes CHEAP4_BLOCK8 the enterable dose.
 - **Friday (his cheap decision, 10-07 ~13:10):** the A3 rehearsal with the CHEAP +2 block armed exactly as Saturday will
   arm it: `A3_TERM_ROWS=8 A3_TERM_FILE=$WT/reports/2026-10-08-live-block/cheap2-w5.csv A3_TERM_SHA=<its sha>
   A3_TERM_CAP=2.0 A3_SNAPSHOT_DEST=~/private/paper-corun/rehearsal-w05` (the script checks the file against the cap). The
