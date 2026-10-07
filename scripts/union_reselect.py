@@ -62,6 +62,9 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from r1c_sunday_reselect import BANKS, OUT_STATUSES, unavailable_ids  # noqa: E402
 from run_dir_publishable import parse_utc  # noqa: E402
+from nfl_dfs.inference.mix_shapes import (RS_BOOK_ROWS as MS_RS_BOOK_ROWS, RS_TIERS as MS_RS_TIERS,  # noqa: E402
+                                         block_positions as ms_block_positions, relaxations as ms_relaxations,
+                                         tier_bans as ms_tier_bans)
 from nfl_dfs.inference.mix_shapes import (MIX_CELLS, PORTFOLIOS, TAG_PREFIX, allocate as mix_allocate, interleave as mix_interleave,  # noqa: E402
                                            plan_weights as mix_weights, shape_violations, cell_of_tag)
 
@@ -458,8 +461,8 @@ def apply_proj_source(fr: pd.DataFrame, csv_path: Path, frame_path: Path) -> tup
 def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap: int | None, min_salary: int,
              weights: list[int], exposure_cap: int | None = None, dst_cap: int | None = None,
              bonus: dict[str, float] | None = None, portfolio: str = "mix",
-             spares: int = 0, qb_cap: int | None = None, fill: str = "group", cover_games: int = 0
-             ) -> tuple[list[list[str]], list[str], dict, list[tuple[list[str], str]]]:
+             spares: int = 0, qb_cap: int | None = None, fill: str = "group", cover_games: int = 0,
+             rs_rows: int = 0) -> tuple[list[list[str]], list[str], dict, list[tuple[list[str], str]]]:
     """study 18's MIX book on the T-70 frame: cells solved largest first (ties: the earlier cell) through ONE shared state
     (banned lineups, the per-player exposure cap, the DST cap, <= max_shared with every earlier row); a cell row that cannot
     be solved passes to A1 (counted); then the rows are ordered by the entry-weighted interleave of the plan's weights.
@@ -484,7 +487,15 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
     id), one A1 row with every QB NOT in that game banned for that solve, committed through the shared state and counted
     toward A1's quota; a game whose row cannot be built, or with A1's quota used up, is recorded as missed. Then the fill
     runs on the remaining quotas; then, only if a coverage row exists, A1's rows are ordered by objective sum, descending
-    and stable (a coverage row takes the deal position its projection earns)."""
+    and stable (a coverage row takes the deal position its projection earns).
+    rs_rows n (study 46, the half-and-half book; the operator 10-06 "keep working on this until you figure out a strategy
+    like that person's strategy that works"; default 0 = off, byte for byte today's book): THE RULES of the lab's frozen
+    experiments/s46_half_half.py -- (1) one state: the player / DST / QB caps and the overlap limit count every row;
+    (2) the live block (k - n rows) fills FIRST, round-robin on the quotas at ITS size; (3) then the RS block (n rows),
+    round-robin on the quotas at its size, with the regulars' tiers (mix_shapes.RS_TIERS[n]) on the RS block's OWN rows:
+    hard block caps, and an infeasible RS row solved with the fewest tiers dropped (study 37's order), recorded;
+    (4) positions: mix_shapes.block_positions; (5) each block interleaved on the head weights of ITS positions;
+    (6) the spares after the book, without tiers. Needs the MIX portfolio, the round-robin fill, no cover, k 26."""
     from nfl2.core.lineup import StackRules, optimize          # the pinned lab clone on PYTHONPATH (>= f69598b)
     pool = [p for i, p in frame_players(t70).items() if i not in exclude]
     objective = "proj"
@@ -536,6 +547,9 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
     commit_order: list[str] = []
     left = dict(zip(names, target))                            # quotas still to fill (the coverage rows use A1's first)
     cover_list, covered, cover_missed = [], [], []
+    if rs_rows and (portfolio != "mix" or fill != "rr" or cover_games or k != MS_RS_BOOK_ROWS or rs_rows not in MS_RS_TIERS):
+        raise ValueError(f"rs_rows {rs_rows} needs the MIX portfolio, fill rr, no cover and a {MS_RS_BOOK_ROWS}-row book "
+                         f"(rs_rows in {sorted(MS_RS_TIERS)}); got portfolio {portfolio}, fill {fill}, cover {cover_games}, k {k}")
     if cover_games:
         if "A1" not in cells:
             raise ValueError("cover_games needs the MIX portfolio (an A1 cell)")
@@ -554,7 +568,63 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
             if ids is None:
                 cover_missed.append(g); continue
             rows["A1"].append(ids); left["A1"] -= 1; covered.append(g); commit_order.append("A1")
-    if fill == "group":
+    blocks: list[str] = []
+    rs_meta: dict = {}
+    if rs_rows:                                                # study 46: two blocks through the one state
+        nonqb_ids = {p["id"] for p in pool if p["pos"] not in ("QB", "DST")}
+        qcap_b, qt0, ncap_b, nt0 = MS_RS_TIERS[rs_rows]
+        rs_count: Counter = Counter()
+        relaxed: list = []
+        rs_done = [0]                                          # RS rows committed so far (the relaxed record's index)
+
+        def solve_rs(name: str):
+            hard = {q for q in qb_ids if rs_count.get(q, 0) >= qcap_b} | {q for q in nonqb_ids if rs_count.get(q, 0) >= ncap_b}
+            for qt, nt, dn, dq in ms_relaxations(qt0, nt0):
+                ids, v = peek(name, frozenset(hard | ms_tier_bans(rs_count, qb_ids, qt) | ms_tier_bans(rs_count, nonqb_ids, nt)))
+                if ids is not None:
+                    if dn or dq:
+                        relaxed.append([rs_done[0], dn, dq])
+                    commit(ids, v); rs_count.update(ids); rs_done[0] += 1
+                    return ids
+            return None
+
+        def fill_block(n_rows: int, rs: bool, tag: str) -> tuple[dict, list[int], dict]:
+            tb = mix_allocate(quotas, n_rows)
+            order_b = sorted(range(len(names)), key=lambda i: (-tb[i], i))
+            rem = dict(zip(names, tb)); rows_b: dict = {n: [] for n in names}; mb = {"passes": 0, "dropped": 0}
+            while any(rem[n] > 0 for n in names):
+                for i in order_b:
+                    n = names[i]
+                    if rem[n] <= 0:
+                        continue
+                    ids = solve_rs(n) if rs else solve(n)
+                    if ids is None:
+                        if n == "A1":
+                            mb["dropped"] += rem["A1"]; rem["A1"] = 0
+                        else:
+                            mb["passes"] += rem[n]; rem["A1"] += rem[n]; rem[n] = 0
+                        continue
+                    rows_b[n].append(ids); rem[n] -= 1; commit_order.append(tag + n)
+            return rows_b, tb, mb
+
+        rs_pos, live_pos = ms_block_positions(k, rs_rows)
+        live_rows, live_t, live_m = fill_block(len(live_pos), False, "L:")
+        rs_rows_b, rs_t, rs_m = fill_block(len(rs_pos), True, "R:")
+        slots: dict = {}
+        for P, rows_b, tag in ((live_pos, live_rows, "L"), (rs_pos, rs_rows_b, "R")):
+            got_b = [len(rows_b[n]) for n in names]
+            seq_b = mix_interleave(got_b, quotas, [weights[q] if q < len(weights) else 0 for q in P])
+            ptr = [0] * len(names)
+            for q, j in zip(P, seq_b):
+                slots[q] = (rows_b[names[j]][ptr[j]], names[j], tag); ptr[j] += 1
+        for n in names:
+            rows[n] = live_rows[n] + rs_rows_b[n]
+        passes = live_m["passes"] + rs_m["passes"]
+        rs_meta = {"rs_rows": rs_rows, "rs_positions": rs_pos, "relaxed": relaxed,
+                   "live_block": {"target_rows": dict(zip(names, live_t)), "cell_rows": {n: len(live_rows[n]) for n in names}, **live_m},
+                   "rs_block": {"target_rows": dict(zip(names, rs_t)), "cell_rows": {n: len(rs_rows_b[n]) for n in names}, **rs_m},
+                   "tiers": {"qb_cap": qcap_b, "qb_tiers": qt0, "nonqb_cap": ncap_b, "nonqb_tiers": nt0}}
+    elif fill == "group":
         for i in group_order:
             for _ in range(left[names[i]]):
                 cell, ids = names[i], solve(names[i])
@@ -615,10 +685,15 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
                 if ids is None:
                     break
                 spare_rows.append((ids, cell))
-    seq = mix_interleave(got, quotas, weights)
-    pos = [0] * len(names); book, cell_of = [], []
-    for j in seq:
-        book.append(rows[names[j]][pos[j]]); cell_of.append(names[j]); pos[j] += 1
+    if rs_rows:                                                # each block on its positions; a short block closes up
+        book, cell_of = [], []
+        for q in sorted(slots):
+            book.append(slots[q][0]); cell_of.append(slots[q][1]); blocks.append(slots[q][2])
+    else:
+        seq = mix_interleave(got, quotas, weights)
+        pos = [0] * len(names); book, cell_of = [], []
+        for j in seq:
+            book.append(rows[names[j]][pos[j]]); cell_of.append(names[j]); pos[j] += 1
     dealt = Counter(); tot = 0
     for r, cell in enumerate(cell_of):
         w = weights[r] if r < len(weights) else 0
@@ -627,6 +702,7 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
             "passes_to_A1": passes, "rows_solved": len(book), "pair_games": len(games), "fill": fill,
             "commit_order": commit_order,
             "cover": {"games": int(cover_games), "ranked": cover_list, "covered": covered, "missed": cover_missed},
+            "half": ({**rs_meta, "blocks": blocks} if rs_rows else None),
             "entry_shares_before_overlap_limit": {n: round(dealt[n] / tot, 4) if tot else None for n in names},
             "rules": {n: {"quota": cells[n][0], "stack": cells[n][1], "qb_game_max": cells[n][2],
                           "second_game_pair": cells[n][3]} for n in names}, "portfolio": portfolio,
@@ -696,6 +772,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--mix-cover-games", type=int, default=0,
                     help="with --main mix: before the fill, one A1 row with its QB from each of the top-N games by pre-lock "
                          "total, counted toward A1's quota (study 43; default 0 = off)")
+    ap.add_argument("--mix-rs-rows", type=int, default=0,
+                    help="with --main mix: the half-and-half book (study 46): the last N of 26 rows built under the regulars' "
+                         "tiers (9, 13 or 17), the rest as today, through one state (default 0 = off; needs --mix-fill rr)")
     ap.add_argument("--mix-fill", choices=["group", "value", "rr"], default="group",
                     help="with --main mix: group (default) = each cell's quota consecutively, largest cell first; value = at each "
                          "step the highest-objective next row across the cells (a capped QB's uses go to his best rows; study 42); rr = the "
@@ -735,6 +814,10 @@ def main(argv: list[str] | None = None) -> int:
         raise SystemExit("--rehearsal needs --out outside --live-dir")
     if a.main_own_tilt and a.main not in ("pmo_x50", "mix"):
         raise SystemExit("--main-own-tilt is defined for --main pmo_x50 / mix (the term sits in the optimizer's objective)")
+    if a.mix_rs_rows and (a.main != "mix" or a.mix_portfolio != "mix" or a.mix_fill != "rr" or a.mix_cover_games
+                          or a.mix_rs_rows not in (9, 13, 17) or a.entries != 26):
+        raise SystemExit("--mix-rs-rows N (9, 13 or 17) needs --main mix, --mix-portfolio mix, --mix-fill rr, no cover and "
+                         "--entries 26 (study 46)")
     if a.mix_cover_games and (a.main != "mix" or a.mix_portfolio != "mix" or not 0 < a.mix_cover_games <= 8):
         raise SystemExit("--mix-cover-games N (1..8) needs --main mix with --mix-portfolio mix (study 43)")
     if a.main == "mix" and (a.mix_plan is None or not a.mix_plan.is_file()):
@@ -867,7 +950,7 @@ def main(argv: list[str] | None = None) -> int:
             plain_rows, plain_cells, mix_meta, plain_spares = mix_rows(fr, excl, a.entries, a.mean_max_shared, cap, a.min_salary,
                                                                        weights, exposure_cap=xcap, dst_cap=dcap, qb_cap=qcap,
                                                                        portfolio=a.mix_portfolio, fill=a.mix_fill,
-                                                                       cover_games=a.mix_cover_games,
+                                                                       cover_games=a.mix_cover_games, rs_rows=a.mix_rs_rows,
                                                                        spares=0 if bonus else a.mix_spares)
             spare_rows = plain_spares
             plain_tags = [TAG_PREFIX + c for c in plain_cells]; main_tags = plain_tags
@@ -892,7 +975,7 @@ def main(argv: list[str] | None = None) -> int:
                 main_rows, main_cells, own_mix, spare_rows = mix_rows(fr, excl, a.entries, a.mean_max_shared, cap, a.min_salary,
                                                                       weights, exposure_cap=xcap, dst_cap=dcap, qb_cap=qcap, bonus=bonus,
                                                                       portfolio=a.mix_portfolio, spares=a.mix_spares, fill=a.mix_fill,
-                                                                      cover_games=a.mix_cover_games)
+                                                                      cover_games=a.mix_cover_games, rs_rows=a.mix_rs_rows)
                 main_tags = [TAG_PREFIX + c for c in main_cells]; mix_meta["with_term"] = own_mix
             else:
                 main_rows = pmo_rows(fr, excl, a.entries, a.mean_max_shared, cap, a.min_salary, set(), exposure_cap=xcap, dst_cap=dcap, qb_cap=qcap, bonus=bonus,

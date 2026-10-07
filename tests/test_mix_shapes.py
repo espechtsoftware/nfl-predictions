@@ -612,3 +612,121 @@ def test_cover_refuses_without_game_total_or_the_mix_portfolio(monkeypatch):
         ur.mix_rows(_cover_frame().drop(columns="game_total"), set(), 10, 7, 4, 49_000, [1] * 10, cover_games=2)
     with pytest.raises(ValueError, match="needs the MIX portfolio"):
         ur.mix_rows(_cover_frame(), set(), 10, 7, 4, 49_000, [1] * 10, cover_games=2, portfolio="ws")
+
+
+# ---------------------------------------- study 46 (operator 10-06): the half-and-half book, parity with the lab's rules
+# The lab's scripted builder (lab ee6624d tests/test_s46_half_half.py): each solve takes the best QB, the best six non-QB
+# players and the best DST not banned, plus a unique filler f<k> (k = the row's build index); cells are not modelled.
+NQ46 = [f"p{i:02d}" for i in range(60)]
+W46 = [10, 9, 3, 3, 2, 2] + [1] * 20
+
+
+def _half_frame(n_qbs=15):
+    rows = [{"id": f"q{i:02d}", "pos": "QB", "proj": 30.0 - i} for i in range(n_qbs)]
+    rows += [{"id": p, "pos": "WR", "proj": 20.0 - 0.1 * i} for i, p in enumerate(NQ46)]
+    rows += [{"id": f"f{i:03d}", "pos": "WR", "proj": 0.0} for i in range(200)]
+    rows += [{"id": f"d{i}", "pos": "DST", "proj": 5.0 - i} for i in range(10)]
+    return pd.DataFrame([{"id": r["id"], "name": r["id"], "pos": r["pos"], "team": "T", "opp": "O", "salary": 5000,
+                          "game_id": "g", "mean_projection": r["proj"]} for r in rows])
+
+
+def _half_stand_in(commits, n_qbs=15):
+    qbs = [f"q{i:02d}" for i in range(n_qbs)]; dsts = [f"d{i}" for i in range(10)]
+
+    def optimize(pool, stack, objective_col, banned_lineups, max_overlap, bans, env, second_game_pair=None, qb_game_max=None):
+        b = set(bans or ())
+        q = next((x for x in qbs if x not in b), None)
+        nq = [p for p in NQ46 if p not in b][:6]
+        d = next((x for x in dsts if x not in b), None)
+        if q is None or d is None or len(nq) < 6:
+            return None
+        ids = [q, *nq, f"f{len(banned_lineups):03d}", d]
+        commits.append(ids)
+        return LU([{"id": i, objective_col: 1.0} for i in ids])
+    return optimize
+
+
+def _half(monkeypatch, rs, k=26, spares=0, n_qbs=15, weights=W46):
+    commits = []
+    lineup = _install(monkeypatch, [])
+    lineup.optimize = _half_stand_in(commits, n_qbs)
+    out = ur.mix_rows(_half_frame(n_qbs), set(), k, 4, 4, 49_000, weights[:k], exposure_cap=13, dst_cap=6, qb_cap=5,
+                      fill="rr", spares=spares, rs_rows=rs)
+    return out, commits
+
+
+def test_half_with_no_rs_rows_is_todays_round_robin(monkeypatch):
+    (r0, c0, m0, s0), a = _half(monkeypatch, 0, spares=4)
+    lineup = _install(monkeypatch, [])
+    b = []; lineup.optimize = _half_stand_in(b)
+    r1, c1, m1, s1 = ur.mix_rows(_half_frame(), set(), 26, 4, 4, 49_000, W46, exposure_cap=13, dst_cap=6, qb_cap=5,
+                                 fill="rr", spares=4)
+    assert (r0, c0, s0) == (r1, c1, s1) and a == b and m0["half"] is None
+
+
+def test_half_live_block_fills_first_and_is_the_live_book_at_its_size(monkeypatch):
+    (_, _, meta, _), commits = _half(monkeypatch, 13)
+    (_, _, m13, _), c13 = _half(monkeypatch, 0, k=13)
+    assert commits[:13] == c13[:13]                                              # the first 13 commits: his book at 13
+    assert meta["half"]["live_block"]["target_rows"] == dict(zip(list(M.MIX_CELLS), M.allocate(Q, 13)))
+    assert meta["half"]["live_block"]["target_rows"] == {"A1": 4, "A2": 2, "B": 4, "C": 3}
+    assert meta["half"]["rs_block"]["target_rows"] == meta["half"]["live_block"]["target_rows"]
+
+
+def test_half_tiers_count_the_rs_blocks_own_rows_and_the_global_caps_count_all(monkeypatch):
+    """The lab's test of the same name: the live block's QBs q00 / q01 at the cap 5 and q02 at 3; q02's 3 LIVE rows are not
+    seen by the RS tiers, and the global cap 5 stops him at 2 RS rows."""
+    (rows, cells, meta, _), commits = _half(monkeypatch, 13)
+    rs_pos, live_pos = M.block_positions(26, 13)
+    assert [meta["half"]["blocks"][p] for p in rs_pos] == ["R"] * 13 and [meta["half"]["blocks"][p] for p in live_pos] == ["L"] * 13
+    live_q = Counter(ids[0] for ids in commits[:13]); rs_q = Counter(ids[0] for ids in commits[13:26])
+    assert live_q == {"q00": 5, "q01": 5, "q02": 3}
+    assert rs_q == {"q02": 2, "q03": 3, "q04": 2, "q05": 1, "q06": 1, "q07": 1, "q08": 1, "q09": 1, "q10": 1}
+    assert meta["half"]["relaxed"] == [] and meta["passes_to_A1"] == 0
+    qcap, qt, ncap, nt = M.RS_TIERS[13]
+    nq_rs = Counter(p for ids in commits[13:26] for p in ids if p.startswith("p"))
+    assert max(nq_rs.values()) <= ncap and max(rs_q.values()) <= qcap
+    assert all(sum(v >= r for v in rs_q.values()) <= m for r, m in qt)
+    allc = Counter(p for ids in commits for p in ids)
+    assert max(v for p, v in allc.items() if p.startswith("p")) <= 13 and not set(NQ46[:6]) & set(nq_rs)
+
+
+def test_half_each_block_interleaves_on_its_positions_weights(monkeypatch):
+    (rows, cells, meta, _), commits = _half(monkeypatch, 9)
+    rs_pos, live_pos = M.block_positions(26, 9)
+    assert rs_pos == [1, 4, 7, 10, 13, 15, 18, 21, 24]
+    for P, key in ((live_pos, "live_block"), (rs_pos, "rs_block")):
+        got = [meta["half"][key]["cell_rows"][n] for n in M.MIX_CELLS]
+        seq = M.interleave(got, Q, [W46[p] for p in P])
+        assert [cells[p] for p in P] == [list(M.MIX_CELLS)[j] for j in seq]
+        for n in M.MIX_CELLS:                                                    # within a cell: commit order
+            ks = [int(rows[p][7][1:]) for p in P if cells[p] == n]
+            assert ks == sorted(ks)
+    assert all(int(rows[p][7][1:]) < 17 for p in live_pos) and all(int(rows[p][7][1:]) >= 17 for p in rs_pos)
+
+
+def test_half_spares_follow_the_book_without_tiers(monkeypatch):
+    (rows, cells, meta, spares), commits = _half(monkeypatch, 13, spares=4)
+    assert len(rows) == 26 and len(spares) == 4
+    assert spares[0][0][0] == "q03"     # q03 is at the RS block's QB cap (3) but holds 3 of 5 rows overall: a spare may use him
+
+
+def test_half_an_infeasible_rs_row_is_solved_with_the_fewest_tiers_dropped(monkeypatch):
+    """The lab's 6-QB scenario: the ninth RS row (index 8) needs every non-QB tier and then the lowest QB tier dropped."""
+    (rows, cells, meta, _), commits = _half(monkeypatch, 13, n_qbs=6)
+    qcap, qt, ncap, nt = M.RS_TIERS[13]
+    assert meta["half"]["relaxed"][0] == [8, len(nt), 1]
+    rs_q = Counter(r[0] for r, t in zip(rows, meta["half"]["blocks"]) if t == "R")
+    assert max(rs_q.values()) <= qcap
+    assert meta["half"]["rs_block"]["dropped"] > 0 and sum(t == "R" for t in meta["half"]["blocks"]) == 13 - meta["half"]["rs_block"]["dropped"]
+
+
+def test_half_refuses_outside_its_frozen_conditions(monkeypatch):
+    lineup = _install(monkeypatch, [])
+    lineup.optimize = _half_stand_in([])
+    for kw in ({"fill": "group"}, {"fill": "rr", "cover_games": 2}, {"fill": "rr", "portfolio": "ws"}):
+        with pytest.raises(ValueError, match="rs_rows 13 needs"):
+            ur.mix_rows(_half_frame(), set(), 26, 4, 4, 49_000, W46, exposure_cap=13, dst_cap=6, qb_cap=5, rs_rows=13, **kw)
+    with pytest.raises(ValueError, match="rs_rows 12 needs"):
+        ur.mix_rows(_half_frame(), set(), 26, 4, 4, 49_000, W46, exposure_cap=13, dst_cap=6, qb_cap=5, fill="rr", rs_rows=12)
+    assert M.block_positions(26, 13)[0] == list(range(1, 26, 2)) and M.block_positions(26, 0) == ([], list(range(26)))
