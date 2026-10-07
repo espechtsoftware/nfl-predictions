@@ -1,0 +1,30 @@
+W1: priority contests 1 of 3 loaded (0 untyped); lineups with 9 matched 4,993 of 4,998
+W2: priority contests 2 of 12 loaded (0 untyped); lineups with 9 matched 126 of 127
+W3: priority contests 7 of 45 loaded (0 untyped); lineups with 9 matched 6,511 of 6,512
+W4: priority contests 4 of 26 loaded (0 untyped); lineups with 9 matched 589 of 590
+
+=== all priority: lineups 12,219 in 14 contests; user-weeks with 3+ lineups 501
+  2+ sub-$4k vs 0-1                          top2 2.25 [1.83, 4.55] (239); top5 2.03 [1.55, 2.64] (606); top10 1.78 [1.55, 2.19] (1216); top5 within user 1.93 [1.52, 2.41] (540); top10 by contest per week W1 1.65 W2 2.94 W3 1.96 W4 1.19
+  DST < $3,000 vs >= $3,500                  top2 3.26 [1.68, 12.85] (169); top5 1.93 [1.39, 2.57] (436); top10 2.22 [1.17, 3.30] (897); top5 within user 1.16 [0.71, 2.20] (387); top10 by contest per week W1 4.25 W2 1.31 W3 2.23 W4 0.93
+  bring-back 1+ vs none                      top2 2.01 [1.33, 3.64] (239); top5 1.73 [1.25, 1.88] (606); top10 1.49 [1.21, 1.67] (1216); top5 within user 1.51 [1.15, 2.01] (540); top10 by contest per week W1 1.71 W2 0.50 W3 1.40 W4 1.17
+  QB + 1 vs QB + 2                           top2 0.51 [0.29, 1.02] (197); top5 0.64 [0.46, 0.92] (517); top10 0.68 [0.61, 0.91] (1039); top5 within user 0.78 [0.61, 0.97] (463); top10 by contest per week W1 0.65 W2 1.54 W3 0.64 W4 1.45
+  projection above contest median            top2 1.94 [1.60, 6.25] (239); top5 1.74 [1.36, 2.52] (606); top10 1.67 [1.25, 2.53] (1216); top5 within user 1.39 [1.14, 1.71] (540); top10 by contest per week W1 1.21 W2 1.83 W3 2.32 W4 0.86
+  chalkier (own sum above contest median)    top2 0.99 [0.87, 1.71] (239); top5 1.00 [0.86, 1.39] (606); top10 0.97 [0.80, 1.38] (1216); top5 within user 0.88 [0.71, 1.10] (540); top10 by contest per week W1 0.77 W2 0.54 W3 1.20 W4 0.80
+
+=== FFWC $14M qualifiers: lineups 9,992 in 2 contests; user-weeks with 3+ lineups 393
+  2+ sub-$4k vs 0-1                          top2 2.05 [1.77, 2.47] (199); top5 2.01 [1.84, 2.25] (499); top10 1.76 [1.65, 1.92] (999); top5 within user 1.88 [1.48, 2.39] (458); top10 by contest per week W1 1.65 W3 1.92
+  DST < $3,000 vs >= $3,500                  top2 2.73 [1.63, 7.29] (139); top5 2.04 [1.69, 2.55] (351); top10 2.86 [2.16, 4.25] (717); top5 within user 1.11 [0.69, 2.16] (321); top10 by contest per week W1 4.25 W3 2.16
+  bring-back 1+ vs none                      top2 1.98 [1.73, 2.27] (199); top5 1.80 [1.75, 1.85] (499); top10 1.53 [1.38, 1.71] (999); top5 within user 1.53 [1.14, 2.10] (458); top10 by contest per week W1 1.71 W3 1.38
+  QB + 1 vs QB + 2                           top2 0.50 [0.35, 0.68] (165); top5 0.64 [0.63, 0.65] (424); top10 0.66 [0.65, 0.68] (850); top5 within user 0.82 [0.63, 1.07] (394); top10 by contest per week W1 0.65 W3 0.68
+  projection above contest median            top2 1.71 [1.49, 1.97] (199); top5 1.67 [1.32, 2.13] (499); top10 1.60 [1.21, 2.15] (999); top5 within user 1.28 [1.04, 1.60] (458); top10 by contest per week W1 1.21 W3 2.15
+  chalkier (own sum above contest median)    top2 0.93 [0.87, 1.00] (199); top5 0.96 [0.84, 1.11] (499); top10 0.93 [0.77, 1.11] (999); top5 within user 0.84 [0.68, 1.05] (458); top10 by contest per week W1 0.77 W3 1.11
+
+=== other priority sats: lineups 2,227 in 12 contests; user-weeks with 3+ lineups 199
+  2+ sub-$4k vs 0-1                          top2 3.54 [1.70, 6.46] (40); top5 2.12 [0.93, 3.35] (107); top10 1.88 [1.29, 2.72] (217); top5 within user 2.34 [1.16, 4.79] (82); top10 by contest per week W2 2.94 W3 2.08 W4 1.19
+  DST < $3,000 vs >= $3,500                  top2 7.30 [1.16, 12.06] (30); top5 1.68 [1.08, 3.25] (85); top10 1.36 [1.03, 2.24] (180); top5 within user 1.40 [0.44, 6.28] (66); top10 by contest per week W2 1.31 W3 2.46 W4 0.93
+  bring-back 1+ vs none                      top2 2.19 [0.66, 7.90] (40); top5 1.47 [1.02, 2.28] (107); top10 1.31 [1.07, 1.60] (217); top5 within user 1.30 [0.71, 2.63] (82); top10 by contest per week W2 0.50 W3 1.48 W4 1.17
+  QB + 1 vs QB + 2                           top2 0.57 [0.14, 2.12] (32); top5 0.64 [0.28, 1.43] (93); top10 0.76 [0.50, 1.21] (189); top5 within user 0.53 [0.27, 1.02] (69); top10 by contest per week W2 1.54 W3 0.54 W4 1.45
+  projection above contest median            top2 4.07 [1.73, 11.33] (40); top5 2.13 [1.31, 3.00] (107); top10 2.06 [1.17, 3.00] (217); top5 within user 2.52 [1.26, 6.56] (82); top10 by contest per week W2 1.83 W3 3.09 W4 0.86
+  chalkier (own sum above contest median)    top2 1.36 [0.72, 2.33] (40); top5 1.20 [0.82, 1.65] (107); top10 1.22 [0.82, 1.61] (217); top5 within user 1.03 [0.54, 2.05] (82); top10 by contest per week W2 0.54 W3 1.53 W4 0.80
+
+wrote priority_field_monitor_w1-4.csv
