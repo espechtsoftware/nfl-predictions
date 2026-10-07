@@ -1,6 +1,9 @@
-# Preregistration: study 61, does FP's news predict what FP's projections miss? The R14 fact log, graded on paper (DRAFT 2026-10-07)
+# Preregistration: study 61, does FP's news predict what FP's projections miss? The R14 fact log, graded on paper (DESIGN FROZEN 2026-10-07)
 
-**Status: DRAFT 2026-10-07** by the reviewer, before any Week-5 game.
+**Status: DESIGN FROZEN 2026-10-07 (18:01 CDT)** by the reviewer, before any Week-5 game.
+- DRAFT `9add333a`. At the freeze it took in the log's structure (§2, §5a), from the laptop's export, which the
+  reviewer's own count matches. Nothing else changed.
+- §2–§7 are frozen. §9's reader comes by amendment.
 - Week 5's first kickoff is Thursday 10-08 at 19:15 CT (TB at DAL). The graded slate, DraftKings' Sunday Main, starts
   Sunday 10-11 at 12:00 CT. The London game (08:30 CT) is not on it.
 - **The design freezes before Thursday's kickoff.** The reader is pinned by an amendment before Sunday 12:00 CT (§9).
@@ -34,17 +37,25 @@
   - DSTs are left out: they have no gsis id, and the log is about player roles.
 - **A record joins a frame player** by its written name and team.
   - The name is normalised: case, punctuation and the suffixes Jr / Sr / II–V are removed.
-  - The team is mapped to DraftKings' abbreviation by an alias table fixed in the reader.
-  - Failing that, the normalised name alone joins if exactly one frame player has it. Otherwise the record is unmatched
-    and counted.
+  - The team is written freely in the log: nicknames ("Eagles"), cities and short forms ("Mia", "Philly",
+    "Washington"), full names, "FA", and null on 108 of W5's 606 records. An alias table fixed in the reader maps it to
+    the frame's team code (nflverse's: LA for the Rams).
+  - Failing that (a null or unknown team), the normalised name alone joins if exactly one frame player has it. Otherwise
+    the record is unmatched and counted.
+  - Position is not used: it is null on 299 of W5's records.
   - The spec's `gsis_id` / `dk_player_id`, when filled, must agree with the join. A disagreement is counted and the
-    record left out.
+    record left out. (None is filled in W5.)
 - **A record counts when all of these hold:**
   1. It was logged (`logged_utc`) before the T-70 frame's DraftKings pull (`pulled_at`, 10:33 CT). A later record
      could not feed the build. Every Main-slate kickoff is later still, so the spec's void-after-kickoff rule is met.
-  2. It survives the spec's version rule (b). Per (article, player, fact type), the records of the latest version that
-     has any are kept; a statement a later version drops still counts. A record a later correction names as superseded
-     does not count.
+  2. It survives the spec's version rule (b). Per (article, player, fact type), the records of the latest version
+     (ordered by published_date, then retrieved_at) that has any are kept; a statement a later version drops still
+     counts.
+     - A record named by another counted record's `supersedes` (the superseded record's `record_id`, as the laptop's
+       appender writes it) does not count.
+     - **Disclosed:** a statement a later version repeats word for word was skipped at logging (the appender's
+       deduplication). If a later version both repeats one statement and changes another for the same key, the repeat
+       is lost. W5 has 1 such key in 581, and the census counts them each week.
   3. Its direction is +1 or −1. Direction 0 is descriptive only (§5).
 - **A player's net direction** n is the sign of the sum of his counted records' directions. A tie (n = 0) is
   descriptive only.
@@ -92,6 +103,25 @@
   - players per group;
   - team_change records (W6 on), if the spec amendment adds them.
 
+## 5a. The W5 log before any outcome (record level, counts only; the laptop's export and the reviewer's own count agree)
+- **Size:** 606 records, 9 articles, 10 versions (one article logged in two: 49 + 113 records). 235 distinct players.
+  One extraction prompt (`ee7a1310…`). Logged 10-07 between 10:41 and 15:45 UTC.
+- **By fact type and direction:**
+
+  | Fact type | −1 | 0 | +1 |
+  |---|---|---|---|
+  | availability | 129 | 81 | 1 |
+  | matchup | 33 | 21 | 54 |
+  | role_up | — | 6 | 76 |
+  | role_down | 22 | — | — |
+  | usage_quote | 2 | — | 3 |
+  | other | 6 | 172 | — |
+
+- **What the groups will be made of:** the +1 side is mostly role_up and favourable matchups; the −1 side is mostly
+  availability and role_down.
+- Many availability −1 players will be ruled out at 10:30 and so leave the frame (§2). The player-level group sizes
+  come from Sunday's census.
+
 ## 6. Power (W4's residuals; W4 has no fact log and is settled)
 - **The measure:** r = DK points − FP's projection, from FP's W4 Sunday capture, for the 333 of its 395 projected
   players found in W4's contest tables.
@@ -126,8 +156,8 @@
   - Its `--census` mode reads no outcome: only the records, the frame and the projection file.
 
 ## 9. Order
-1. This DRAFT.
-2. **The design freeze**, before Thursday 10-08 at 19:15 CT.
+1. The DRAFT (`9add333a`). Done.
+2. **The design freeze**, before Thursday 10-08 at 19:15 CT. Done (10-07 18:01 CDT, this text).
 3. **The reader**, its tests and a smoke.
    - The smoke uses the W5 log's records and the W5 frame once it exists, in census mode only, plus a synthetic scored
      week.
