@@ -23,6 +23,9 @@ for w in WEEKS:
     own = BQ.query(f"SELECT display_name, ANY_VALUE(fpts) fpts FROM `nfl_raw.contest_ownership` WHERE contest_id = '{cid}' GROUP BY 1").to_dataframe(); fp = dict(zip(own.display_name.map(canon), own.fpts))
     field = np.sort(BQ.query(f"SELECT points FROM `nfl_raw.contest_entries` WHERE contest_id = '{cid}' AND season = 2026 AND week = {w}").to_dataframe().points.values.astype(float))
     act = dict(zip(fr.id.astype(str), fr.display_name.map(canon).map(fp).fillna(0.0))); sal = dict(zip(fr.id.astype(str), fr.salary)); pos = dict(zip(fr.id.astype(str), fr.pos))
+    # the T-70 book holds DraftKings player ids, one column per roster slot (the laptop 10-07: the gsis-id match found none)
+    dkid = pd.to_numeric(fr.dk_player_id, errors="coerce").astype("Int64").astype(str)
+    sal_dk = dict(zip(dkid, fr.salary)); pos_dk = dict(zip(dkid, fr.pos))
     cands = []
     for d in sorted(RUNS.iterdir()):
         r = json.loads((d / "receipt.json").read_text())
@@ -34,9 +37,10 @@ for w in WEEKS:
     # our entered-style books: the live W5-settings replay books (W2-4) and the week's T-70 book
     for tag, bp in (("t70 book", t70 / "book.csv"),):
         if bp.exists():
-            b = pd.read_csv(bp); ids = [c for c in b.columns if b[c].astype(str).str.contains("_DST|00-00").any()]
-            ks = [sum(1 for p in row if pos.get(str(p)) != "DST" and sal.get(str(p), 9999) < 4000) for row in b[ids].astype(str).values] if ids else []
-            res_book.append({"week": w, "book": tag, "rows": len(ks), "mean_cheap": round(float(np.mean(ks)), 2) if ks else None, "share_with_2plus": round(float(np.mean([k >= 2 for k in ks])), 3) if ks else None})
+            b = pd.read_csv(bp, dtype=str); unmapped = int(sum(v not in pos_dk for v in b.values.ravel()))
+            ks = [sum(1 for p in row if pos_dk.get(p) != "DST" and sal_dk.get(p, 9999) < 4000) for row in b.values]
+            res_book.append({"week": w, "book": tag, "rows": len(ks), "unmapped_ids": unmapped, "mean_cheap": round(float(np.mean(ks)), 2) if ks else None,
+                             "share_with_2plus": round(float(np.mean([k >= 2 for k in ks])), 3) if ks else None})
 F = pd.concat(res_field); Pp = pd.concat(res_pool)
 for name, T in (("THE WHOLE REAL FIELD", F), ("OUR CANDIDATE POOL (scored on the real field)", Pp)):
     T = T.assign(k=T.k.clip(upper=3)).groupby(["week", "k"])[["lineups", "top1"]].sum(); T["top1_rate_%"] = (100 * T.top1 / T.lineups).round(2); T["share_%"] = (100 * T.lineups / T.groupby(level=0).lineups.transform("sum")).round(1)

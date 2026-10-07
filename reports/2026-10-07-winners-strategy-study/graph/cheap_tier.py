@@ -25,9 +25,9 @@ for w in WEEKS:
     own = BQ.query(f"SELECT display_name, ANY_VALUE(fpts) fpts, ANY_VALUE(pct_drafted) own FROM `nfl_raw.contest_ownership` WHERE contest_id = '{cid}' GROUP BY 1").to_dataframe(); own["key"] = own.display_name.map(canon)
     fr = fr.merge(own[["key", "fpts", "own"]], on="key", how="left").merge(TDQ[TDQ.week == w][["key", "td"]], on="key", how="left")
     with d.session() as s:
-        reg = pd.DataFrame(s.run("""MATCH (u:User)-[:ENTERED]->(l:Lineup {week_key: $wk}) WITH u, collect(l) AS ls WHERE size(ls) >= 20
-            UNWIND ls AS l MATCH (l)-[:CONTAINS]->(p:Player) RETURN p.dk_player_id AS id, count(*) AS n""", wk=f"2026-{w:02d}").data())
-        nlu = s.run("""MATCH (u:User)-[:ENTERED]->(l:Lineup {week_key: $wk}) WITH u, count(l) AS n WHERE n >= 20 RETURN sum(n) AS t""", wk=f"2026-{w:02d}").single()["t"]
+        reg = pd.DataFrame(s.run("""MATCH (u:User)-[:ENTERED]->(l:Lineup {week_key: $wk}) WITH u, collect(DISTINCT l) AS ls WHERE size(ls) >= 20
+            UNWIND ls AS l MATCH (l)-[:CONTAINS]->(p:Player) WITH DISTINCT l, p RETURN p.dk_player_id AS id, count(*) AS n""", wk=f"2026-{w:02d}").data())
+        nlu = s.run("""MATCH (u:User)-[:ENTERED]->(l:Lineup {week_key: $wk}) WITH u, count(DISTINCT l) AS n WHERE n >= 20 RETURN sum(n) AS t""", wk=f"2026-{w:02d}").single()["t"]
     fr["reg_share"] = fr.dk_player_id.astype("Int64").astype(str).map(dict(zip(reg.id.astype(str), 100.0 * reg.n / nlu))).fillna(0.0)
     c = fr[fr.pos.isin(["RB", "WR", "TE"]) & (fr.salary < 4000) & fr.fpts.notna()].copy(); c["week"] = w
     c["vac"] = np.where(c.pos == "RB", c.team_vacated_carry_share, c.team_vacated_target_share)
