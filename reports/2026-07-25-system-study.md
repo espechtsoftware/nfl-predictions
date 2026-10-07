@@ -5997,3 +5997,105 @@ secondaries (slate means):
    top-end chalk is not calibrated to the real top 1% and its top line is 3–6 points easier (the field audit). A
    contrarian row's value depends on exactly that; the field calibration (study list item 40) is the check, and a
    reversal there would be reported. The gap here (about four to one) is large.
+
+## Addendum 149 (2026-10-06): study 46 (half and half — his live book and the regulars' structure in one book): NO DIFFERENCE, leaning positive in both seasons — about +3 points of weekly P(≥ 1 big) and +6% expected big seats at about 1 point of mean finish; his taste, not proven
+
+**Setup.**
+- **The operator's standing directive (10-06, through the laptop):** "keep working on this until you figure out a
+  strategy like that person's strategy that works". The person is a max-entry regular who won the Week-2 Millionaire
+  (name private).
+- **The laptop's per-lineup benchmark** on the real W1–4 Millionaires found:
+  - the regulars' structure (study 38's RS0) finishes nearer him on average: W2–4 mean pct 51.2, against his 53.9;
+  - our concentrated book finishes at 48.2, but it had our only top-1% week.
+- **Study 37** put the regulars' structure on the whole book and leaned worse.
+- **Arms.** The harness is study 43's, with his live Week-5 book as the reference: the winners' mix, limit 4,
+  round-robin, QB cap 5, caps 13 / 6, no term.
+  - **MIXT_HALF (DECISION).** 13 live rows are filled first. Then 13 rows are built under the regulars' tiers at 13
+    lineups.
+    - The tiers use study 37's method at the block's size, rounded half up.
+    - They count the RS block's own rows only, with hard block caps (QB 3, non-QB 7).
+    - An infeasible RS row uses study 37's loud fallback.
+    - One builder state carries the global caps and the limit on every row.
+    - The smaller block sits at positions ⌊(2i + 1) × 26 / (2n)⌋.
+    - Each block is interleaved on its positions' head weights.
+    - Spares are built without tiers.
+  - **MIXT_THIRD** (9 RS rows) and **MIXT_TWOTHIRDS** (17) are exploratory.
+  - With no RS rows the builder IS `mix_fill`'s round-robin. This holds on the scripted builder and on a real slate, 40
+    of 40 rows.
+- **The first study decided on the CALIBRATED field.** That is the sampler v2 of study-list item 40
+  (`reports/2026-10-06-field-calibration-v2.md`). l02's field is scored beside it, drawn with the same seed.
+- **Preregistration:** `reports/2026-10-07-prereg-study46-half-half.md` (frozen `e64c38c4`, sha256 `4ba0780e…`).
+- **Panel:** banks 1509–1514, B 20,000, seed 20261026.
+- **The confirmatory census holds:**
+  - HALF has 10.25 QBs against 8.15, and 40.9 distinct players against 31.5;
+  - 5.58 players sit over 40% of rows, against 7.59;
+  - the live rows project 129.70 and the RS rows 125.12 per row (the live book: 128.12);
+  - the projection cost is −0.65 per dealt lineup;
+  - there were no relaxed rows, passes, drops or short books.
+- **Read and reproduced:** read by the reviewer and **reproduced byte-identically by the laptop** (diff empty, at lab
+  `d48ff3c`; raw files equal to the RAW_MANIFEST).
+  - Reader `8fb926b1`; READ `4578b611`.
+  - The confirmatory census (`78a5b05`) was committed before the READ (`d48ff3c`).
+  - Lab: nfl2 `production/s46-half-half-20261006`; LEDGER row `0842d07`.
+
+**Reader output (verbatim):**
+```
+STUDY 46 READER  sha256 8fb926b198bff9fb8c7775e78f8863bb82f61bcf744677a163809fd843249b50
+DIRECTION: P(>= 1 big seat) per slate (the mean over its banks); every difference is ARM - REFERENCE; POSITIVE favours the first arm.
+slates 36  banks [1509, 1510, 1511, 1512, 1513, 1514]  B 20000  seed 20261026  primary MIXT_HALF - MIXT_LIVE on the CALIBRATED field (v2), two-sided 0.95, guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only
+arms (RS rows, RS tiers, live settings, QB cap, objective): [{"MIXT_HALF": 13, "MIXT_LIVE": 0, "MIXT_THIRD": 9, "MIXT_TWOTHIRDS": 17}, {"13": [3, [[3, 1], [2, 3]], 7, [[7, 1], [6, 2], [5, 4], [4, 7], [3, 12], [2, 22]]], "17": [4, [[4, 1], [3, 2], [2, 4]], 9, [[9, 1], [8, 2], [7, 3], [6, 4], [5, 7], [4, 11], [3, 17], [2, 27]]], "9": [3, [[3, 1], [2, 2]], 6, [[6, 1], [5, 1], [4, 3], [3, 7], [2, 15]]]}, {"fill": "rr", "max_shared": 4}, 5, "player_mean (no ownership term)"]
+
+== MIXT_HALF vs MIXT_LIVE  [DECISION: 13 regulars' rows + 13 live rows, one state; the calibrated field]
+  PRIMARY P(>= 1 big seat) per slate +0.03170  [-0.00632, +0.06865]  seasons 2023 +0.04266, 2024 +0.02075
+  GUARD 1 mean entry pct -0.00992  one-sided lower -0.01527  (must exceed -0.015)
+  GUARD 2 expected big seats 0.53353 vs 0.50248  ratio 1.062  (must be >= 0.80)
+  MIXT_HALF dealt identical to MIXT_LIVE: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+
+== EXPLORATORY (never decision-bearing)
+  MIXT_THIRD - MIXT_LIVE (9 regulars' rows): +0.01249  [-0.02743, +0.05313]  seasons 2023 +0.02643, 2024 -0.00144
+  MIXT_TWOTHIRDS - MIXT_LIVE (17 regulars' rows): +0.02044  [-0.01723, +0.05934]  seasons 2023 +0.01979, 2024 +0.02108
+  MIXT_HALF - MIXT_LIVE (13 regulars' rows, the l02 field): +0.02705  [-0.01040, +0.06432]  seasons 2023 +0.04081, 2024 +0.01328
+  MIXT_THIRD - MIXT_LIVE (9 regulars' rows, the l02 field): +0.00867  [-0.03286, +0.05075]  seasons 2023 +0.02730, 2024 -0.00996
+  MIXT_TWOTHIRDS - MIXT_LIVE (17 regulars' rows, the l02 field): +0.01617  [-0.02223, +0.05612]  seasons 2023 +0.01657, 2024 +0.01578
+
+the fields' lines (DK points, slate-bank means): v2 mean 128.11 p99 185.18 top-95 206.05  l02 mean 127.38 p99 183.71 top-95 204.65
+secondaries (slate means; v2 = the calibrated field, l02 = studies 24-45's field):
+  MIXT_LIVE       v2: P(>=1 big) 0.29794  expected big seats 0.50248  P(>=2) 0.11951  entry pct 0.51110  (live rows 0.51110, regulars' rows nan)
+                  l02: P(>=1 big) 0.32728  expected big seats 0.56430  entry pct 0.51934  |  QBs 8.15  distinct 31.5  dealt projection 128.58
+  MIXT_HALF       v2: P(>=1 big) 0.32965  expected big seats 0.53353  P(>=2) 0.12900  entry pct 0.50118  (live rows 0.53009, regulars' rows 0.47116)
+                  l02: P(>=1 big) 0.35433  expected big seats 0.59564  entry pct 0.50929  |  QBs 10.25  distinct 40.9  dealt projection 127.93
+  MIXT_THIRD      v2: P(>=1 big) 0.31044  expected big seats 0.50959  P(>=2) 0.12817  entry pct 0.50545  (live rows 0.52749, regulars' rows 0.46261)
+                  l02: P(>=1 big) 0.33595  expected big seats 0.57529  entry pct 0.51360  |  QBs 8.97  distinct 37.7  dealt projection 128.06
+  MIXT_TWOTHIRDS  v2: P(>=1 big) 0.31838  expected big seats 0.51306  P(>=2) 0.12752  entry pct 0.50407  (live rows 0.53212, regulars' rows 0.48964)
+                  l02: P(>=1 big) 0.34345  expected big seats 0.57241  entry pct 0.51219  |  QBs 10.77  distinct 43.9  dealt projection 127.80
+```
+
+**Reading.**
+1. **At the frozen rule: NO DIFFERENCE.** P(≥ 1 big seat) moved +0.0317 [−0.0063, +0.0687] (0.298 → 0.330), positive
+   in both seasons.
+   - Expected big seats rose 6%.
+   - The mean finish fell about 1 point (guard 1's lower bound, −0.0153, sits just past −0.015). The guards gate a PASS
+     only.
+2. **The direction is consistent.** It holds in both seasons, on both fields (l02 +0.027), and in all three splits
+   (THIRD +0.012, TWOTHIRDS +0.020; half is the best).
+   - Study 37's whole-book version leaned the other way.
+   - So a mix of the two constructions, not a copy of the regular, is what this harness likes. That matches his
+     strategy-mix principle (10-05).
+3. **Why it can help.** The live block keeps his best 13 rows; they finish higher than his whole book does (.530 against
+   .511). The regulars' rows finish lower on average (.471), but they are more independent shots: more QBs, more
+   players and fewer heavy exposures.
+4. **The calibrated field reads the levels lower:** his live book's P(≥ 1 big) is .298 on v2, against .327 on l02.
+   That is expected and closer to the real fields, not a regression.
+5. **By frozen §5 (NO DIFFERENCE):** his taste, told the cost and the change. The production switch exists:
+   - `--mix-rs-rows` / `UNION_MIX_RS_ROWS`, merged at integration `f70ce138`;
+   - reviewed CLEAN and parity-pinned to the lab's scripted builder;
+   - off.
+
+   Turning it on for Week 5 needs four things:
+   - the laptop's W2–4 real-field replay at 13;
+   - study 38's amendment 5 before the lock (amendment 4 refuses a live regulars' block until then);
+   - the gate checker's policy view;
+   - Friday's rehearsal at 13.
+6. **Multiplicity.** Many studies have read these 36 slates. A +0.032 whose interval touches 0 is suggestive, not proof.
+   Study 38's live FP weeks and the weekly real-field benchmark are the checks that follow.
