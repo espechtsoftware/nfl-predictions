@@ -7254,3 +7254,76 @@ secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; th
 - **Descriptive only:** LIVE_CB vs LIVE read 0.320 vs 0.355 on 2023–24 and 0.235 vs 0.237 on 2022 on these banks. Study
   53's frozen read of the same block, on other banks, was +0.004. Two harness samples show no gain. The live trial's stop
   rule watches the real weeks.
+
+## Addendum 164 (2026-10-07): study 57 (R4 joint coverage for his five 2-entry contests): NO DIFFERENCE, leaning negative; not supported; not for Week 5 or 6
+
+**Setup.**
+- **The question.** Study 32 offered R4 (Addendum 137): the m rows of a finished book most likely to put at least one
+  entry in a contest's top S, chosen against a pre-lock field. His priorities for the week named it second after study
+  56.
+- **The arms.** One book: his live book with the cheap +2 block (LIVE_CB), on his final plan Rev6 (`ac10ddf6`).
+  - CB: the head deal.
+  - **CB_R4 (the decision):** each of the five unpinned 2-entry big contests ($555 2x, three $333 Wildcats, the
+    Millionaire) takes R4's pair, chosen sequentially in Rev6 order over the rows not yet taken. Every other contest keeps
+    its head deal.
+  - CB_PRI / CB_PRI_R4: the same with production's priority order.
+- **The decision pair** was fixed by his arming: the priority order was not armed (the laptop's screen), so it is
+  CB_R4 − CB.
+- **Two smoke fixes before the freeze:**
+  - five pins alone re-blocked six other contests, moving his Warm Up sats from ranks 20–22 to 14–16;
+  - independent picks gave the three Wildcats the same pair (the laptop's catch).
+- **Production parity:** `entry_choice.joint_coverage`, with the same exclusions, picked the same pairs.
+- **Preregistration:** `reports/2026-10-08-prereg-study57-r4-pairs.md` (FROZEN `60a6474e`, sha256 `171040df…`).
+- **Panel:** banks 1593–1598, B 20,000, seed 20261109; 2023–24 only (the pre-lock field needs predicted ownership).
+- **Disclosed:** in-sample for the rule (study 32 chose R4 on these slates). The frozen reader's STUDY line names
+  "CB_R4" for the second pair too, a cosmetic string.
+- **Read and reproduced:** read by the reviewer and **reproduced byte-identically by the laptop**.
+  - Reader `d7fedb91`; READ `6cb3d24c`; census `00d2a5a6`.
+  - The confirmatory census (`53f7ecb`) was committed before the READ (`a536d35`).
+
+**Reader output (verbatim):**
+```
+STUDY 57 READER  sha256 d7fedb91d73243ba52e09b2a3b36f7da0438c2e85e792ddd93512ff31561c633
+DIRECTION: P(>= 1 big seat) per slate (the mean over its banks); every difference is ARM - REFERENCE; POSITIVE favours the first arm.
+slates 36 (2023-24; no 2022 go / no-go)  banks [1593, 1594, 1595, 1596, 1597, 1598]  B 20000  seed 20261109  one decision (CB_R4 - CB) on the CALIBRATED field (v2), two-sided 0.95, guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only; the R4 contests: 5 of 29; DISCLOSED: in-sample for the rule (study 32 chose R4 on these slates)
+arms (definitions, R4, the block, study 48's and 32's shas, live settings, QB cap, objective): [["CB", "CB_R4", "CB_PRI", "CB_PRI_R4"], {"contests": ["supersat", "wildcat", "wildcat2", "wildcat3", "milly"], "field_sim": 20000, "m": 2, "sel_own": "TABPFN_LS", "w_sim": 1000}, {"cap": 2.0, "dose": 2.0, "n_term": 8, "s53_sha256": "f3f9d735ca0c5dfadb7abe6c2999fd3bcb352425e4fcc7ea73bd2b09d4522c89"}, "c22d28114ab4b463b6842594cb2ff7ca1babf41e28015c7242b21baedb1bc67c", "06c35b9ae2a5e3472f7c882709a5f0070a382d325162df06d0ba7d31e70730dd", {"fill": "rr", "max_shared": 4}, 5, "player_mean"]
+
+== CB_R4 vs CB  [DECISION when the priority order NOT armed; the calibrated field; 2023-24]
+  PRIMARY P(>= 1 big seat) per slate -0.01637  [-0.03865, +0.00448] (two-sided 0.95)  seasons 2023 -0.02130, 2024 -0.01145
+  GUARD 1 mean entry pct -0.00245  one-sided lower -0.00517  (must exceed -0.015)
+  GUARD 2 expected big seats 0.55029 vs 0.53066  ratio 1.037  (must be >= 0.80)
+  CB_R4 dealt identical to CB: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  STUDY: not supported: CB_R4 NO DIFFERENCE on 2023-24
+  TRIAL (study 51's rule without its 2022 clause, the adoption track v2): ENTERABLE, his decision: no harm shown and no gain shown (NO DIFFERENCE on the read)
+
+== CB_PRI_R4 vs CB_PRI  [DECISION when the priority order ARMED; the calibrated field; 2023-24]
+  PRIMARY P(>= 1 big seat) per slate -0.01595  [-0.04031, +0.00690] (two-sided 0.95)  seasons 2023 -0.03151, 2024 -0.00040
+  GUARD 1 mean entry pct +0.00010  one-sided lower -0.00309  (must exceed -0.015)
+  GUARD 2 expected big seats 0.53560 vs 0.52735  ratio 1.016  (must be >= 0.80)
+  CB_PRI_R4 dealt identical to CB_PRI: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  STUDY: not supported: CB_R4 NO DIFFERENCE on 2023-24
+  TRIAL (study 51's rule without its 2022 clause, the adoption track v2): ENTERABLE, his decision: no harm shown and no gain shown (NO DIFFERENCE on the read)
+
+== EXPLORATORY (never decision-bearing; two-sided 0.95)
+  CB_R4 - CB (the five R4 contests only, v2, 2023-24): -0.00203  [-0.04052, +0.03752]  seasons 2023 -0.01421, 2024 +0.01016
+  CB_PRI_R4 - CB_PRI (the five R4 contests only, v2, 2023-24): +0.00229  [-0.04185, +0.04691]  seasons 2023 -0.02128, 2024 +0.02587
+  CB_PRI - CB (the five R4 contests only, v2, 2023-24): -0.00432  [-0.03846, +0.02794]  seasons 2023 +0.00707, 2024 -0.01571
+  CB_PRI - CB (the priority order alone, v2, 2023-24): +0.00459  [-0.02400, +0.03643]  seasons 2023 -0.00537, 2024 +0.01454
+  CB_R4 - CB (the l02 field, 2023-24): -0.01972  [-0.04294, +0.00212]  seasons 2023 -0.02323, 2024 -0.01620
+
+secondaries (slate means; v2 = the calibrated field, l02 = the earlier field):
+  CB        v2: P(>=1 big) 0.34064  expected big seats 0.53066  P(>=2) 0.12593  entry pct 0.51545  the R4 contests P(>=1 big) 0.16739  |  l02: P(>=1 big) 0.36917
+  CB_R4     v2: P(>=1 big) 0.32427  expected big seats 0.55029  P(>=2) 0.13699  entry pct 0.51300  the R4 contests P(>=1 big) 0.16536  |  l02: P(>=1 big) 0.34945
+  CB_PRI    v2: P(>=1 big) 0.34523  expected big seats 0.52735  P(>=2) 0.12599  entry pct 0.51024  the R4 contests P(>=1 big) 0.16307  |  l02: P(>=1 big) 0.37420
+  CB_PRI_R4 v2: P(>=1 big) 0.32927  expected big seats 0.53560  P(>=2) 0.13537  entry pct 0.51034  the R4 contests P(>=1 big) 0.16536  |  l02: P(>=1 big) 0.35515
+```
+
+**Reading.**
+- **No difference, leaning against.** P(≥ 1 big seat) per week was 0.324 with R4's pairs against 0.341 with the head deal
+  (−1.6 points, interval −3.9 to +0.4); both seasons are negative.
+- **R4 shifts wins rather than adding them.** It raises P(≥ 2) (0.137 vs 0.126) and expected seats (ratio 1.04). In the
+  five contests alone it changes nothing (−0.002). Optimizing each pair seems to correlate the contests' results.
+- **Not supported; not for Week 5 or Week 6.** It fails his study-56 bar, and it leans the wrong way on his utility. The
+  Sunday step need not be built.
