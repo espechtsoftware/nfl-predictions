@@ -1,4 +1,4 @@
-# Preregistration: P1, the prospective contest-class edge record and its lower-confidence-bound stake rule (FROZEN 2026-10-07)
+# Preregistration: P1, the prospective contest-class edge record and its lower-confidence-bound stake rule (FROZEN 2026-10-07; amendments 1 and 2 before any Week-5 outcome)
 
 **Status: FROZEN 2026-10-07** by the reviewer, before any Week-5 outcome.
 - Drafted by the laptop: v1 `5e6fffdd`, v2 `a9736719`. The reviewer's four decisions are folded in (§9).
