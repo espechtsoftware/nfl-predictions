@@ -12,6 +12,21 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-07 (06:18 CDT) — O-39 follow-up: the SIS gate's one CODE_SHA by RELABEL (the reviewer); W5 project-slate OK; gates at the 5 expected
+
+- **The SIS companion gate needs ONE CODE_SHA across its jobs.** Both GPU cache jobs keep image `tabpfn-sis-pass-tail-live@sha256:ac07a31e…` and now declare CODE_SHA 6fd3ef00.
+  - Each moved in its lane.
+  - Evidence: `reports/reviews/evidence/2026-10-07-tabpfn-sis-pass-tail-live-{control,treatment}-{before,after}.yaml`.
+- **Why the relabel is true:** the image's five build inputs are byte-identical at 7bbfd10a and 6fd3ef00 (`…/2026-10-07-sis-gpu-image-inputs-identity.txt`), so ac07a31e IS what 6fd3ef00's code builds. Rule 2: content identity.
+- **Disclosed:**
+  - I first rebuilt the image from 6fd3ef00 (Cloud Build `94ba40a6`, `sha256:3d197df5…`) and moved both jobs to it at 11:15–11:16Z.
+  - The reviewer preferred the relabel: the Dockerfile leaves pandas / pyarrow / db-dtypes / bigquery unpinned, so a rebuild can silently change a frozen chain.
+  - Both jobs were back on ac07a31e at 11:17Z. No execution ran in between (the newest executions are 10-06's dry runs `84nft` / `k7mqg`; the schedulers are paused). The rebuilt image is unused.
+- **W5 projections:** `project-slate-fjssz` succeeded on the fixed image (11:11–11:15Z, pre-props). The props pre-check and a re-run follow after the 09:30 pull.
+- **Checks:** `verify_deployment`: OK. `check_prospective_gates --week 5`: the 5 expected FAILs only.
+  - Route Share ×2 and cbwu-oi: old failed executions; Thursday's dry runs clear them.
+  - The SIS schedulers: paused by design until the cache and paired dry runs.
+
 ## 2026-10-07 (06:11 CDT) — O-39 (bye weeks block every projection) FIXED and DEPLOYED: one image for project-slate and the four shadows; inventory v17; the SIS GPU image rebuilding
 
 **The defect (found 05:3x):**
