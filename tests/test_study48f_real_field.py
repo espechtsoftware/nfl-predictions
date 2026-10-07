@@ -34,10 +34,31 @@ def test_fit_and_score_impute_a_missing_own_at_the_training_mean():
     X.loc[:199, "own_rank"] = np.nan                                      # two weeks without an ownership source
     y = (X.mates + rng.normal(scale=0.5, size=n) > 1.0).to_numpy()
     m = S.fit_models(X, y)
-    assert set(m) == {"SE", "FULL"} and m["SE"]["features"] == list(S.SE) and len(m["FULL"]["beta"]) == len(S.FULL) + 1
+    assert set(m) == {"SE", "FULL", "SE_NOOWN"} and m["SE"]["features"] == list(S.SE) and "own_rank" not in m["SE_NOOWN"]["features"] and len(m["FULL"]["beta"]) == len(S.FULL) + 1
     own_mu = m["SE"]["mu"][list(S.SE).index("own_rank")]
     assert abs(own_mu - X.own_rank.mean()) < 1e-12
     row = X.iloc[[0]].copy()
     a = S.score(m["SE"], row); row.loc[:, "own_rank"] = own_mu
     assert abs(a[0] - S.score(m["SE"], row)[0]) < 1e-12              # NaN scores as the training mean
     assert m["SE"]["beta"][1 + list(S.SE).index("mates")] > 0
+
+
+def test_validity_floor_and_the_week_picker():
+    good = {"frame_present": True, "fp_proj_present": True, "own_source": "own.csv", "resolved_share": 0.95}
+    assert S.week_validity(good, 60) == (True, [])
+    ok, why = S.week_validity(dict(good, resolved_share=0.85), 60)
+    assert not ok and any("resolved share" in w for w in why)
+    ok, why = S.week_validity(dict(good, own_source="none", fp_proj_present=False), 10)
+    assert not ok and len(why) == 3
+    assert S.pick_weeks({5: True, 6: True, 7: True, 8: True, 9: True}) == [5, 6, 7, 8]          # W9 unused
+    assert S.pick_weeks({5: True, 6: False, 7: True, 8: True, 9: True}) == [5, 7, 8, 9]         # W9 replaces W6
+    assert S.pick_weeks({5: True, 6: False, 7: False, 8: True, 9: True}) == [5, 8, 9]           # never W10: incomplete
+    assert S.decide([0.6, 0.6, 0.6]) == "INCOMPLETE"
+
+
+def test_the_label_uses_the_whole_field_and_the_band_is_on_the_rows_given():
+    ranks = np.array([1, 5, 10, 11, 200])
+    assert S.top1_label(ranks, n_all=1000).tolist() == [True, True, True, False, False]     # 1% of 1000 = 10
+    assert S.top1_label(ranks, n_all=5).tolist() == [True, False, False, False, False]       # never of the 5 resolved
+    proj = np.array([10.0, 9, 8, 7, 6, 5, 4, 3, 2, 1])
+    assert S.band_mask(proj).tolist() == [True, True] + [False] * 8

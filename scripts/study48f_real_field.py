@@ -37,8 +37,16 @@ FACTS = ("rz_targets", "ez_targets", "gl_carries", "target_share", "carry_share"
          "vacated", "td_l4", "td_l8", "qb_pass_td_l4", "qb_att_l4")
 SE = STRUCT + ENV + OWN
 FULL = SE + FACTS
+SE_NOOWN = STRUCT + ENV                                  # descriptive: SE without the ownership feature
 BAND = 0.20
+BAND5 = 0.05                                             # descriptive: closer to our rows, few labels
 C = 1.0
+CANDIDATE_WEEKS = (5, 6, 7, 8, 9)                        # W5-W8 graded; W9 only as the one replacement
+GRADED = 4
+RESOLVED_FLOOR = 0.90                                    # a valid week resolves >= 90% of the field's non-ours entries
+MIN_BAND_LABELS = 50                                     # ... and holds >= 50 top-1% labels in the 20% band
+BOOT_B, BOOT_SEED = 20_000, 20261048                     # descriptive lineup bootstrap (assumes independent lineups)
+MONKEYS, MONKEY_SEED = 10_000, 20261049                  # descriptive monkeys test
 
 
 def env_features(L: np.ndarray, A: dict, game_total_rank: dict, top_game: str | None, dst_sal: np.ndarray) -> pd.DataFrame:
@@ -70,6 +78,35 @@ def auc(score: np.ndarray, y: np.ndarray) -> float | None:
     return float((r[y].sum() - n1 * (n1 + 1) / 2) / (n1 * n0))
 
 
+def top1_label(ranks: np.ndarray, n_all: int) -> np.ndarray:
+    """The real top 1% of the WHOLE field (n_all = every entry, ours included), never of the resolved rows."""
+    return np.asarray(ranks) <= max(1, int(round(0.01 * n_all)))
+
+
+def week_validity(meta: dict, band_labels: int | None) -> tuple[bool, list[str]]:
+    """A graded week counts only if: its T-70 frame and FP projections were read, a pre-lock ownership file existed,
+    >= RESOLVED_FLOOR of the field's non-ours entries resolved to the frame, and the 20% band holds >= MIN_BAND_LABELS
+    top-1% labels. Returns (valid, reasons)."""
+    why = []
+    if not meta.get("frame_present"):
+        why.append("no T-70 frame")
+    if not meta.get("fp_proj_present"):
+        why.append("no FP projection file")
+    if meta.get("own_source", "none") == "none":
+        why.append("no pre-lock ownership file")
+    share = meta.get("resolved_share")
+    if share is None or share < RESOLVED_FLOOR:
+        why.append(f"resolved share {share} < {RESOLVED_FLOOR}")
+    if band_labels is None or band_labels < MIN_BAND_LABELS:
+        why.append(f"band labels {band_labels} < {MIN_BAND_LABELS}")
+    return not why, why
+
+
+def pick_weeks(validity: dict[int, bool]) -> list[int]:
+    """The graded weeks: the first GRADED valid weeks of CANDIDATE_WEEKS in order (W9 can only replace an invalid week)."""
+    return [w for w in CANDIDATE_WEEKS if validity.get(w)][:GRADED]
+
+
 def decide(aucs: list[float | None]) -> str:
     """The frozen rule (revision 1): the WEEK is the unit -- PASS if the AUC > .50 in every graded week, WORSE if < .50
     in every one, NO PASS otherwise (fewer than four valid weeks: INCOMPLETE)."""
@@ -86,7 +123,7 @@ def decide(aucs: list[float | None]) -> str:
 def fit_models(X: pd.DataFrame, y: np.ndarray) -> dict:
     from sklearn.linear_model import LogisticRegression
     out = {}
-    for name, cols in (("SE", SE), ("FULL", FULL)):
+    for name, cols in (("SE", SE), ("FULL", FULL), ("SE_NOOWN", SE_NOOWN)):
         Z = X[list(cols)].to_numpy(float)
         mu = np.nanmean(Z, axis=0)                          # a missing value (OWN in weeks without a source) = the training mean
         Z = np.where(np.isnan(Z), mu, Z)
@@ -160,10 +197,17 @@ def load_week_rows(w: int) -> tuple[pd.DataFrame, dict]:
     X = pd.concat([X.reset_index(drop=True), env_features(L, A, grank, W.game_top(P), P.salary.to_numpy(float))], axis=1)
     n_all = len(Wk.field[Wk.field.contest_id == cid])
     X["proj_sum"] = proj.to_numpy(float)[L].sum(axis=1)
-    X["top1"] = f["rank"].to_numpy() <= max(1, int(round(0.01 * n_all)))
+    X["top1"] = top1_label(f["rank"].to_numpy(), n_all)
+    X["points"] = f["points"].to_numpy()
+    has_own = w in own_src and own_src[w][0].is_file()
     meta = {"week": w, "field_entries": int(n_all), "rows_resolved": int(len(X)), "dropped": int(len(field) - len(X)),
-            "own_source": own_src[w][0].name if w in own_src else "none", "frame": Path(e["t70_run"]).name}
-    return X, meta
+            "resolved_share": round(len(X) / max(len(field), 1), 4), "own_source": own_src[w][0].name if has_own else "none",
+            "frame": Path(e["t70_run"]).name, "frame_present": (Path(e["t70_run"]) / "frame.parquet").is_file(),
+            "fp_proj_present": bool(e.get("fp_proj_source") and Path(e["fp_proj_source"]).is_file())}
+    ctx = {"P": P, "A": A, "own": own, "grank": grank, "proj": proj, "fr": fr, "others": np.sort(field.points.to_numpy()),
+           "line_top1": float(np.sort(Wk.field[Wk.field.contest_id == cid].points.to_numpy())[::-1][max(1, int(round(0.01 * n_all))) - 1]),
+           "e": e, "MS": MS, "Wk": Wk}
+    return X, meta, ctx
 
 
 def main(argv=None) -> int:
@@ -179,7 +223,7 @@ def main(argv=None) -> int:
     weeks = [int(x) for x in a.weeks.split(",")]
     if a.cmd == "census":
         for w in weeks:
-            X, meta = load_week_rows(w)
+            X, meta, _ = load_week_rows(w)
             b = band_mask(X.proj_sum.to_numpy())
             meta.update({"band_rows": int(b.sum()), "band_top1": int(X.top1[b].sum()), "all_top1": int(X.top1.sum()),
                          "band_features_defined": round(float(X.loc[b, list(FULL)].notna().all(axis=1).mean()), 4)})
@@ -188,7 +232,7 @@ def main(argv=None) -> int:
     if a.cmd == "fit":
         parts = []
         for w in weeks:
-            X, meta = load_week_rows(w)
+            X, meta, _ = load_week_rows(w)
             b = band_mask(X.proj_sum.to_numpy())
             parts.append(X[b]); print(json.dumps(meta))
         D = pd.concat(parts, ignore_index=True)
@@ -199,21 +243,90 @@ def main(argv=None) -> int:
         print(f"FIT -> {a.out} sha256 {hashlib.sha256(raw + b'\n').hexdigest()}")
         return 0
     model = json.loads(a.model.read_text())
-    aucs = {"SE": [], "FULL": []}
+    rows, metas, ctxs = {}, {}, {}
+    for w in sorted(set(range(1, 5)) | set(weeks)):             # W1-W4 feed the descriptive walk-forward refits
+        try:
+            rows[w], metas[w], ctxs[w] = load_week_rows(w)
+        except Exception as exc:                                  # a week that cannot load is invalid, with the reason
+            metas[w] = {"week": w, "load_error": f"{type(exc).__name__}: {exc}"}
+    validity, lines = {}, {}
     for w in weeks:
-        X, meta = load_week_rows(w)
-        b = band_mask(X.proj_sum.to_numpy())
-        line = {"week": w, **meta, "band_rows": int(b.sum()), "band_top1": int(X.top1[b].sum())}
+        if w not in rows:
+            validity[w] = False; lines[w] = {"week": w, "valid": False, "reasons": [metas[w].get("load_error")]}
+            continue
+        X = rows[w]; b = band_mask(X.proj_sum.to_numpy())
+        ok, why = week_validity(metas[w], int(X.top1[b].sum()))
+        validity[w] = ok; lines[w] = {"week": w, "valid": ok, "reasons": why, **metas[w], "band_rows": int(b.sum()), "band_top1": int(X.top1[b].sum())}
+    graded = pick_weeks(validity)
+    print(f"GRADED WEEKS {graded} (candidates {list(CANDIDATE_WEEKS)}; invalid: "
+          + ", ".join(f"W{w} {lines[w]['reasons']}" for w in weeks if not validity.get(w)) + ")")
+    aucs = {"SE": [], "FULL": []}
+    rng = np.random.default_rng(BOOT_SEED)
+    for w in graded:
+        X = rows[w]; y = X.top1.to_numpy(); b = band_mask(X.proj_sum.to_numpy()); b5 = band_mask(X.proj_sum.to_numpy(), BAND5)
+        line = lines[w]
         for name in ("SE", "FULL"):
-            s = score(model["models"][name], X[b])
-            aucs[name].append(auc(s, X.top1[b].to_numpy()))
-            line[f"auc_{name}"] = aucs[name][-1]
-        print(json.dumps(line))
+            s_ = score(model["models"][name], X)
+            aucs[name].append(auc(s_[b], y[b])); line[f"auc_{name}"] = aucs[name][-1]
+            line[f"desc_auc5_{name}"] = auc(s_[b5], y[b5])
+            sb, yb = s_[b], y[b]; n = len(sb)
+            boots = [auc(sb[i], yb[i]) for i in (rng.integers(0, n, n) for _ in range(BOOT_B))]
+            boots = [x for x in boots if x is not None]
+            line[f"desc_boot95_{name}_assumes_independent_lineups"] = [float(np.quantile(boots, 0.025)), float(np.quantile(boots, 0.975))] if boots else None
+        line["desc_auc_SE_NOOWN"] = auc(score(model["models"]["SE_NOOWN"], X)[b], y[b])
+        prior = [rows[v][band_mask(rows[v].proj_sum.to_numpy())] for v in sorted(rows) if v < w]
+        if prior:                                                 # the walk-forward refit, the frozen recipe on W1..W(w-1)
+            D = pd.concat(prior, ignore_index=True)
+            wf = fit_models(D, D.top1.to_numpy())
+            line["desc_auc_SE_walk_forward"] = auc(score(wf["SE"], X)[b], y[b])
+        line["desc_monkeys"] = monkeys(model["models"]["SE"], ctxs[w])
+        print(json.dumps(line, default=str))
     v = [x for x in aucs["SE"] if x is not None]
-    print(f"PRIMARY SE band AUC by week {aucs['SE']}; mean {np.mean(v):.4f} sd {np.std(v, ddof=1) if len(v) > 1 else float('nan'):.4f} -> {decide(aucs['SE'])}")
+    print(f"PRIMARY SE band AUC by graded week {dict(zip(graded, aucs['SE']))}; mean {np.mean(v) if v else float('nan'):.4f} "
+          f"sd {np.std(v, ddof=1) if len(v) > 1 else float('nan'):.4f} -> {decide(aucs['SE']) if len(graded) == GRADED else 'INCOMPLETE'}")
     diff = [None if a1 is None or a0 is None else a1 - a0 for a1, a0 in zip(aucs["FULL"], aucs["SE"])]
-    print(f"SECONDARY FULL - SE by week {diff}: " + ("the player facts add (positive every week)" if diff and all(d is not None and d > 0 for d in diff) and len(diff) >= 4 else "no gain shown"))
+    print(f"SECONDARY FULL - SE by graded week {diff}: " + ("the player facts add (positive every graded week)"
+          if len(diff) == GRADED and all(d is not None and d > 0 for d in diff) else "no gain shown"))
     return 0
+
+
+def monkeys(model: dict, ctx: dict) -> dict | None:
+    """Descriptive: SE's top 26 of the union's candidate pool (its candidates.parquet + the book + the spares) against
+    MONKEYS random 26-row draws from the same pool, all scored on the real field (P(>= 1 top-1% row), mean finish).
+    The random draws ignore the caps. The pool's union dir is the week's `union_dir_48f` in the money gate's config."""
+    e = ctx["e"]
+    if not e.get("union_dir_48f") or not (Path(e["union_dir_48f"]) / "candidates.parquet").is_file():
+        return None
+    ud = Path(e["union_dir_48f"]); fr, P = ctx["fr"], ctx["P"]
+    gs = set(P.index)
+    dk2g = dict(zip(fr.dk_player_id.astype("Int64").astype(str), fr["id"].astype(str)))
+    rows = [[p.strip() for p in str(r).split(",")] for r in pd.read_parquet(ud / "candidates.parquet").players]
+    for f in ("book.csv",):
+        if (ud / f).is_file():
+            rows += [[dk2g.get(x, x) for x in r] for r in pd.read_csv(ud / f, dtype=str).itertuples(index=False)]
+    rows = [list(r) for r in {tuple(sorted(r)) for r in rows if len(r) == 9 and all(x in gs for x in r)}]
+    if len(rows) < 26:
+        return None
+    at = {p: k for k, p in enumerate(P.index)}
+    L = np.array([[at[x] for x in r] for r in rows])
+    ok = (ctx["A"]["pos"][L] == "QB").sum(axis=1) == 1
+    L = L[ok]
+    X = W.features(L, ctx["A"], ctx["own"], np.zeros(len(P)))
+    X = pd.concat([X.reset_index(drop=True), env_features(L, ctx["A"], ctx["grank"], W.game_top(P), P.salary.to_numpy(float))], axis=1)
+    sc = score(model, X)
+    MS, Wk = ctx["MS"], ctx["Wk"]
+    name = dict(zip(fr["id"].astype(str), fr.display_name))
+    pts = np.array([sum(Wk.fpts.get(MS.canon(name.get(P.index[i], "")), 0) for i in r) for r in L], np.int64)
+    fin = np.searchsorted(ctx["others"], pts, "left") / len(ctx["others"])
+    hit = pts >= ctx["line_top1"]
+    top = np.argsort(-sc, kind="stable")[:26]
+    rng = np.random.default_rng(MONKEY_SEED)
+    draws = np.array([rng.choice(len(L), 26, replace=False) for _ in range(MONKEYS)])
+    r_hit = hit[draws].any(axis=1).astype(float); r_fin = fin[draws].mean(axis=1)
+    pool_sha = hashlib.sha256(json.dumps(sorted(map(sorted, rows))).encode()).hexdigest()
+    return {"pool_rows": int(len(L)), "pool_sha256": pool_sha, "se_any_top1": bool(hit[top].any()),
+            "random_any_top1_rate": float(r_hit.mean()), "se_mean_finish": float(fin[top].mean()),
+            "se_mean_finish_percentile_vs_random": float((r_fin < fin[top].mean()).mean()), "random_draws_ignore_caps": True}
 
 
 if __name__ == "__main__":
