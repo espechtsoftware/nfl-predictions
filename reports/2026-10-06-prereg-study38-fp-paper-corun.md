@@ -1,4 +1,4 @@
-# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06 and 10-07, amendments 1, 1b, 2, 3, 4, 5, 6 and 6b, before Week 5's lock)
+# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06 and 10-07, amendments 1, 1b, 2, 3, 4, 5, 6, 6b and 6c, before Week 5's lock)
 
 **Status: FROZEN 2026-10-06** by the reviewer, BEFORE any week of the decision arm (MIXT_RS0) or of the exploratory arms
 QBB0 / NQC0 / QAL / RBC0 was read on any slate. Disclosed: before the freeze, the reference MIXT_QA0 was scored on
@@ -302,6 +302,55 @@ score. Nothing here enters a contest: the money path, its checkout and its files
       the paper file SET (superseding amendment 6's "with the block armed"). It must show the paper file in the
       MANIFEST, MIXT_QA0_TERM8 built with its block at ranks 2, 5, 9, 12, 15, 18, 22 and 25, MIXT_QA0_NOTERM equal to
       MIXT_QA0, and every live-mode check passing.
+
+- **Amendment 6c (2026-10-07, before Week 5's lock; no Week-5 outcome exists).**
+  - **Why.** O-40 (Addendum 157): the projection model never carried a defense-vs-position input. Our model's screen
+    shows almost no projection gain from it, but Week 4's FP residual correlated +0.12 with in-season DvP (one week).
+    The book's means are FP's. The operator chose (10-07): "Yes, paper arm".
+  - **What changes.** A new exploratory arm, **MIXT_QA0_DVP**: his live construction, following every live setting as
+    MIXT_QA0 does (limit, fill, regulars' block, term block), on FP's means plus a defense-vs-position correction from a
+    PAPER file in the snapshot (`paper-dvp-*.csv`).
+    - **The file's recipe** is frozen in production; it is the laptop's script, reviewed:
+      - **z:** the opponent's mean DK points allowed to the player's position over the PRIOR 2026 weeks, as a z-score
+        within position across the slate. QB / RB / WR / TE only.
+      - **slope:** the OLS slope of FP's residual (actual DK points − FP's T-70 mean) on that z, pooled over every prior
+        2026 week that had FP projections, using players with FP ≥ 5.
+      - **adj:** slope × z. The columns are dk_player_id, pos, z, slope, adj_points, weeks, n.
+      - Week 5's slope rests on Week 4 alone (disclosed); it learns as weeks accrue. There is no cap and no shrinkage.
+    - **The arm validates the file:** one slope, adj = slope × z, skill positions, finite values, unique ids. It adds adj
+      by DK id; a player absent from the file gets 0. Without a valid file it is missing that week (recorded).
+    - **The records:** the snapshot finds the one `paper-dvp-*.csv` (or none). The content identity, the scorer and the
+      reader (a descriptive "QA0 on FP + DvP − QA0" line) carry it. The identical-book share every arm already prints
+      is the vacuity check: a slope near 0 changes nothing.
+  - **What does not change:** the rule (§5), the decision pair, every other arm. The older amendments' code paths are
+    unchanged: their `arm_rs` / `arm_term` calls now go through `like`, which equals the arm for every arm but the DvP
+    one, and their tests pin it.
+  - **The smoke** (dry run, Week 4's frozen copies, at 4 + rr, with amendment 6b's paper term file; on the committed
+    code `0b8c9f9`, clean). The DvP files are HAND-MADE, for mechanics only: zero is every z = 0; mech is z in −2…2 by
+    id, slope 1.
+    - **(i) Zero correction:** MIXT_QA0_DVP equals MIXT_QA0 (rows and ranks), and every amendment-6b arm is identical to
+      6b's (i). `books.json` `a899e471`.
+    - **(ii) Mech correction:** 197 pool players adjusted; MIXT_QA0_DVP differs from MIXT_QA0, and every other arm is
+      identical to 6b's (i). `books.json` `be34d6ed`.
+    - **(iii) No file:** MIXT_QA0_DVP is missing, and every other arm is identical to 6b's (i). `books.json` `4fa7e4a3`.
+    - **(iv) A live 8-row term block with the mech file:** MIXT_QA0_DVP follows the block (ranks 2, 5, …, 25), and every
+      other arm is identical to 6b's (ii). `books.json` `1d2a4fef`.
+    - Parity none in all four. Construction only; no outcome was read. `~/private/paper-corun/smoke-w4-amend6c/`,
+      script `run.sh`.
+  - **Code:** lab `0b8c9f9`:
+    - `experiments/s38_paper_corun.py`, sha256 `9db9d9d0cbae090d0d5f4713eed0a49de1fe7464c8dddd91f542cf0a7e7ffbc5`;
+    - `scripts/s38_build.py`, `5d5dd74b24ddd67bf45556e0c63098ce55a449e0cc738f99167af33a9d3aa834`;
+    - `scripts/s38_score.py`, `a902b7a90c52a09010091af275642706755ea60056b529dfb370334488f3eccf`;
+    - **`scripts/s38_report.py` (the reader), sha256 `0bea39a63ab1097dd85b539cd2f90a1d556759117217c2c7096fa35abf88a591`**;
+    - `tests/test_s38_paper_corun.py`, `ce64191d0964fdaa475e1d3ca78e49855dddebe39df54a2f8b55e3f44de42296` (21 tests);
+    - every other sha stands (`term_book.py` `62c2306e…`).
+  - **Order:**
+    1. this amendment;
+    2. the laptop's frozen paper-dvp script, reviewed, plus the snapshot tool's `S38_PAPER_DVP_FILE`;
+    3. the laptop's ack (tests and smoke);
+    4. Friday's rehearsal snapshot carries both paper files for the integrity gate.
+
+    If Week 5's file is not ready by Saturday, the arm starts at Week 6, never with an improvised slope.
 
 ## 1. Why
 - **The operator (10-06), on the proposal:** "yes, please try it, I want to exhaust all reasonable options."
