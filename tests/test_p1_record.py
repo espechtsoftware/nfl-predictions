@@ -47,3 +47,23 @@ def test_unique_lineups_per_class_and_the_t_bound():
     v = [0.1, 0.2, 0.3, 0.4]
     want = 0.25 - student_t.ppf(0.95, 3) * np.std(v, ddof=1) / math.sqrt(4)
     assert abs(P1.t_lower_bound(v) - want) < 1e-12 and P1.t_lower_bound([0.2]) is None
+
+
+def test_a_lineup_entered_three_times_counts_once_per_class_amendment_2():
+    """P1 amendment 2 (the reviewer 10-07): the class's week mean is over UNIQUE lineups; a lineup entered 3 times in one
+    class counts once there, and once again in a second class (money stays per entry)."""
+    a, b = frozenset({"p1", "p2"}), frozenset({"p1", "p3"})
+    rows = [{"class": "flat ticket <= 600", "lineup": a, "z": 0.5}] * 3 + [{"class": "flat ticket <= 600", "lineup": b, "z": -0.1},
+                                                                        {"class": "Millionaire", "lineup": a, "z": 0.5}]
+    by = P1.class_rows(rows)
+    assert len(by["flat ticket <= 600"]) == 2 and len(by["Millionaire"]) == 1
+    assert np.mean([r["z"] for r in by["flat ticket <= 600"]]) == 0.2       # (0.5 - 0.1) / 2, not (3 x 0.5 - 0.1) / 4
+
+
+def test_position_is_one_plus_the_entries_strictly_higher_on_a_tie_amendment_2():
+    """The 10-05 tie rule (paper.py: searchsorted on the negated points, side 'left' = the entries strictly higher): a row
+    tied with field entries takes position 1 + the entries STRICTLY above it -- the better side of the tie."""
+    field = np.array([1000, 2000, 2000, 2000, 3000], np.int64)        # three field entries tied at 20.00 points
+    z = P1.latent_z(np.array([2000]), field)
+    p = (1 + 1 - 0.5) / (len(field) + 1)                               # one entry (30.00) strictly above -> position 2
+    assert np.isclose(z[0], norm.ppf(1 - p))
