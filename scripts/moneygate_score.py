@@ -44,6 +44,7 @@ import re
 import sys
 import zipfile
 from collections import Counter, defaultdict
+from datetime import date, timedelta
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -57,7 +58,9 @@ PUBLIC = Path(os.environ.get("MONEYGATE_RESULTS", Path.home() / "moneygate" / "r
 PRIVATE = Path(os.environ.get("MONEYGATE_PRIVATE", Path.home() / "private" / "moneygate"))
 ARMS = ("A1", "A2", "A3", "A4")
 ALTERNATIVES = ("A2", "A3", "A4")          # simplest first (§5.3: A2 before A3 before A4)
-WEEK_DATES = {1: "2026-09-13", 2: "2026-09-20", 3: "2026-09-27", 4: "2026-10-04"}
+# each week's Sunday main slate, W1 2026-09-13 + 7 days a week (W1-4 exactly as before; 10-07: W5-18 for the Monday
+# reads -- study 38, the monkeys, P3 -- which raised a KeyError for W5)
+WEEK_DATES = {w: (date(2026, 9, 13) + timedelta(weeks=w - 1)).isoformat() for w in range(1, 19)}
 
 # ---- the frozen rule (design §5 + Addendum 1 + Addendum 2). Changing any value here is a NEW, disclosed replay. ---
 RULE = {
