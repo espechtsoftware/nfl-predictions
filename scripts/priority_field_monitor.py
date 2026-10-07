@@ -2,11 +2,12 @@
 """Weekly real-field pattern monitor for the operator's PRIORITY contests (the outside reviewer, 10-07; descriptive, no rule).
 
 The operator, 10-07: "I'd consider the $20 milly satellites a lower priority, the 4444, 555, 333, WWFC are top
-priorities." This is a separate script from field_pattern_monitor.py on purpose: the frozen field-pattern reading
+priorities"; then "I forgot about the midseason warm ups. Those are big prizes. Can we move that up to under the 4444
+and before 555" -- so the Midseason Warm Up sats are priority too. This is a separate script from field_pattern_monitor.py on purpose: the frozen field-pattern reading
 (4ceada3f / ce13626d) is pinned to that monitor's Millionaire output, and nothing here writes to it.
 
 For each week with a T-70 run (or --weeks), on the week's contests whose type (from the private type CSVs, read at
-runtime: the shark-share table and the weekly mapping) contains a priority key ($4,444 / $555 / $333 / FFWC):
+runtime: the shark-share table and the weekly mapping) contains a priority key ($4,444 / Warm Up / $555 / $333 / FFWC):
 - the Mantel-Haenszel odds ratio of finishing in the top 2% / 5% / 10% of the lineup's own contest, stratified by
   CONTEST (controls the field) and by USER-WEEK (controls the user; users with 3+ priority lineups that week);
 - features: 2+ sub-$4k non-DST players vs 0-1 (the primary line: the W5-W8 cheap tracking), DST < $3,000 vs >= $3,500,
@@ -26,7 +27,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-PRIORITY_KEYS = ("$4,444", "$555", "$333", "FFWC")
+PRIORITY_KEYS = ("$4,444", "Warm Up", "$555", "$333", "FFWC")
 DEPTHS = (0.02, 0.05, 0.10)
 CHEAP_MAX_SALARY = 4000
 MIN_USER_LINEUPS = 3
