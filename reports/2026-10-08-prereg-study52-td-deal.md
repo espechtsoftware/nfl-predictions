@@ -1,10 +1,14 @@
-# Preregistration: study 52, deal the book by the lineups' projected touchdowns, in the harness, with a 2022 go / no-go (DRAFT 2026-10-07)
+# Preregistration: study 52, deal the book by the lineups' projected touchdowns, in the harness, with a 2022 go / no-go (FROZEN 2026-10-07)
 
-**Status: DRAFT 2026-10-07** (lab `production/s52-td-deal-20261007` @ `8085c9a`).
-- The design was sent to the laptop at about 09:29 CT. It is committed here BEFORE study 51's scored run is read (same
-  slates) and before any re-deal number of the laptop's Week 2–4 replay exists.
-- The smoke and the binding census follow. Then the freeze, with the code's shas.
-- The file carries the date of its scheduled run (10-08).
+**Status: FROZEN 2026-10-07** by the reviewer, after the smoke and the binding census (§6), before any scored bank.
+- **The design came first.** It was sent to the laptop at about 09:29 CT, and the DRAFT was committed at 09:34 (`3641979b`;
+  lab `8085c9a`). That was BEFORE study 51's scored run was read (same slates) and BEFORE any number of the laptop's Week
+  2–4 re-deal existed.
+- **Only §6 and the code shas were added at the freeze.**
+- **Disclosed:** the laptop's in-sample re-deal (market TDs, its frozen screen `28e28ab9`) has since read NOT ENTERED
+  (ratio 0.101, carried by Week 4's single hit). This study's design, rule and banks were fixed before that number.
+- The file carries the date of its scheduled run (10-08). The laptop acks the census, scans the banks and re-runs the
+  frozen reader.
 
 ## 1. Why
 - **The operator (10-07):** "if we haven't already, I'd like to try sorting our lineups by projected touchdowns for the
@@ -88,10 +92,37 @@ harness is used throughout (`s48_winner_like.py` `c22d2811…`, sha-asserted).
 - The deal is production's head layout (`S24.deal_layout`, the same as study 48b) on the re-ordered rows, with the
   spares after.
 
-## 6. Smoke and integrity (filled before the freeze)
-- The smoke: 2024 W10 and 2022 W6, bank 1406, the full path, code as committed. It also checks that the simulator's
-  draws with and without `capture` are identical.
-- The binding census: outcome-blind, bank 1406, all 53 slates, on clean committed code.
+## 6. Smoke and integrity
+- **The smoke** (2024 W10 and 2022 W6, bank 1406, the full path, code as committed at `8085c9a`, clean):
+  - the simulator's draws are identical with and without `capture` (2024 W10, 2,000 worlds);
+  - the book equals study 48d's LIVE rows, and DEAL_LIVE equals its ranks, on both slates;
+  - every deal is a permutation of the book;
+  - the census and the reader exited 0, and the reader's header names STUDY 52 (tested).
+- **The binding census** (outcome-blind; bank 1406; 53/53 (2022: 17; 2023–24: 36), code `8085c9a` clean;
+  `results/s52/CENSUS_s52_binding.txt` `4181eb5a…`, raw `255a7d77…`; lab `bdb8167`):
+
+  | 2023–24 | DEAL_LIVE | DEAL_TD | DEAL_PROJ |
+  |---|---|---|---|
+  | projected TDs on positions 1–22 | 3.939 | 3.991 | 3.947 |
+  | projected TDs on positions 23–26 | 3.674 | 3.391 | 3.631 |
+  | projected TDs on positions 1–2 (the Millionaire) | 4.072 | 4.468 | 4.108 |
+  | projection on positions 1–22 | 128.55 | 128.31 | 128.69 |
+  | rows moved from the book's order | 0 | 24.3 of 26 | 23.4 of 26 |
+  | dealt identical to DEAL_LIVE | — | 0.000 | 0.000 |
+
+  - **The projection:** a book row carries 3.90 projected TDs (max − min 1.28 within a book). The rows' TDs correlate
+    with their projection at Spearman +0.386. 2022 is alike.
+  - About 43 s per slate-bank.
+- **Banks:** 1563–1568 and seed 20261104. The reviewer's unique-blob scan of both repositories found them only in study
+  52's own files (this prereg's DRAFT, `s52_drive.py`, `s52_report.py`, the tests). That covers every blob up to 5 MB;
+  the 8 larger blobs per repository were not searched.
+- **Code:** nfl2 `production/s52-td-deal-20261007` @ `8085c9a` (the census at `bdb8167`):
+  - `experiments/s52_td_deal.py`, sha256 `38e46b5011f225b3c3a6fec4832563022501f1c1e2dcefb6f4a9ca7531da17c2`;
+  - `scripts/s52_drive.py`, `b107c2a0ef3d434adf501cab71bc0290c69409c885c424bad8b91905692dd73e`;
+  - **`scripts/s52_report.py` (the reader), sha256 `040794f1a1d8a0b99d2cb11bc90c1edb0f2a08a62f27002c59b04bf828f52a5f`**;
+  - `scripts/s52_census.py`, `3afa7b62959d0942ecc4d2edc6353984f296b0eecb2840c547385bb65e9dffc3`;
+  - `tests/test_s52_td_deal.py`, `6bea50f6031434d5af64909fb57b8c22c49eb55f6ed04e1610b2ad83ab0d7514` (6 tests);
+  - study 48's `s48_winner_like.py` `c22d2811…`, sha-asserted and unchanged.
 
 ## 7. Order
 1. This DRAFT, committed before study 51 is read.
