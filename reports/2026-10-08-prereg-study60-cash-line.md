@@ -1,10 +1,18 @@
-# Preregistration: study 60, the rows for a big-contest ticket at the CASH line -- the book's top rows vs the plain FP and props top rows, on the real Millionaire field (DRAFT 2026-10-07)
+# Preregistration: study 60, the rows for a big-contest ticket at the CASH line -- the book's top rows vs the plain FP and props top rows, on the real Millionaire field (FROZEN 2026-10-07)
 
-**Status: DRAFT 2026-10-07** by the reviewer, before any Week-5 outcome.
-- Week 5 locks Sunday 10-11, and its standings load Monday 10-12. This study freezes before that load.
-- Before the freeze come the reader, its tests, the W4 mechanics smoke and the outcome-blind identity census (§7).
-- The power table (§6) is filled in from the W2–4 in-sample baseline AFTER this DRAFT is committed. Nothing in §2–§5
-  changes when it is.
+**Status: FROZEN 2026-10-07 (17:30 CDT)** by the reviewer, before any Week-5 outcome. Week 5 locks Sunday 10-11, and its
+standings load Monday 10-12.
+- **The DRAFT and what came before the freeze:**
+  - DRAFT `746719ca`.
+  - The reader, its tests, the W2–4 identity census and the W2–4 full-path baseline (which filled §6): `29567af2`.
+  - Two DRAFT changes, both before any W5 outcome and disclosed where they sit: §3's positions by P1's rule, and §5's
+    short look.
+  - **At the freeze, from the laptop's answers (10-07):**
+    - P3 builds its arms MONDAY after settlement, from the union's pinned pre-lock inputs, at `~/moneygate/p3/wWW`. So
+      the W5 identity census runs then, before the record is read (§7).
+    - R0 is the union's book BEFORE Sunday's vetting, the same stage as every arm (§2).
+- **Frozen:** the reader, its tests and the code it reads (§7, "At the freeze").
+- **The laptop:** acks, and re-runs the W2–4 baseline.
 
 **Units:** z-scores, counts and rates only. Dollars stay in BigQuery and private files.
 
@@ -37,6 +45,12 @@ P3 builds three books each week from the ENTERED T-70 union's own recorded input
   - These are the rows a 1–2-ticket contest takes under the head layout when it heads his contest order. His order
     (Rev6, 10-07) puts a won big-contest ticket first: 4444, 555, WFFC, 333, Millionaire, Warm Up.
   - ENTERED must be P3's byte-identical rebuild of the entered book.
+  - **R0 is the union's book BEFORE Sunday's vetting**, the same stage as MEAN_MILP and PROPS_MILP.
+    - Vetting replaces an OUT/IR player or moves a flagged row back. It applies to whichever rows are entered, so the
+      arms are compared at one stage.
+    - A player scratched after T-70 scores 0 in whichever row holds him, as P3 scores.
+    - When vetting changed the lineup entered at rank 1 or 2, the Monday record says so in words (the laptop, from the
+      published upload). It never changes d.
 - **FP #1:** MEAN_MILP's row 1. This is the plain capped optimizer on the LIVE projections, which are FP's from W5.
 - **PROPS #1 and PROPS #2:** PROPS_MILP's rows 1 and 2. This is the same optimizer on props-implied DK points where a
   player has props, else on the live projection.
@@ -140,9 +154,21 @@ P3 builds three books each week from the ENTERED T-70 union's own recorded input
   examined (§1), so its values may print. It is never counted.
 - **The outcome-blind identity census:** from the books alone, how often PROPS #1 is R0 #1's lineup, MIXED is R0
   PAIR's, and FP #1 is R0 #1's.
-  - It runs on the W2–4 replay now, and on W5's books once P3 builds them (Sunday, before the standings load).
+  - It runs on the W2–4 replay now. For W5 it runs on P3's books at `~/moneygate/p3/w05`, once P3 builds them on
+    Monday.
+    - P3 builds them from the union's pinned pre-lock inputs, so they hold no outcome.
+    - The census runs before the record is read.
   - It reads lineups only, never points.
-- **At the freeze:** the shas of the reader, its tests, `p1_record.py` and `moneygate_score.py`.
+- **At the freeze** (production `review/s60-cash-line-20261008`; the reader and tests as committed at `29567af2`):
+  - **`scripts/s60_record.py` (the reader), sha256 `76fa50fe1e0a13e6d1fe7c5a410d257600f8c6d54347d258d87dc22fc24b3b14`**;
+  - `tests/test_s60_record.py`, sha256 `2da8b9a06e8859f15f86e2d09ff598a92083a2385776489c9ef7f50943c1e421`;
+  - `scripts/p1_record.py` (P1's frozen reader; its `latent_z`), sha256
+    `ea142610e30320b03d4b4d66270abea571088950df3855d48d90ff895267bbb8`, asserted by the reader;
+  - `scripts/moneygate_score.py` (the week tables and the reconcile gate), sha256
+    `dd8ff1f7015ada7ebe307ffd599be39166736ecb38dd64ad67e0acb9fa741e56`. Its own receipt pins it per reconcile.
+  - `scripts/p3_arms.sh` (the books), sha256 `41fb7db32a57c3823c8c9efab2f40e6d9c536374958bc3fcab3a935aa6adf3bd`. Each
+    week's arms.json carries its build shas.
+  - **A repair** of the reader after the freeze names its new sha in an amendment before the next record it reads.
 - **Done in the DRAFT (2026-10-07 evening):**
   - **The identity census on the W2–4 replay** (outcome-blind; lineups only). PROPS #1 differs from R0 #1, and MIXED
     from R0 PAIR, in all three weeks. FP #1 is R0 #1's lineup in all three, as the outside reviewer found. D1 and D2
@@ -170,10 +196,16 @@ P3 builds three books each week from the ENTERED T-70 union's own recorded input
 - **Otherwise:** the head deal stands; the book's top rows go on the tickets.
 
 ## 9. Order
-1. This DRAFT.
-2. The power table (§6) from the W2–4 baseline.
-3. The reader, its tests, the W4 smoke and the identity census.
-4. The freeze, before Monday's W5 standings load.
-5. The laptop's ack.
-6. Each Monday, the record, which the laptop re-runs.
+1. The DRAFT (`746719ca`). Done.
+2. The power table (§6) from the W2–4 baseline. Done (`29567af2`).
+3. The reader, its tests, the W2–4 smoke and the identity census. Done (`29567af2`).
+4. The freeze. Done (this text).
+5. The laptop's ack, and its re-run of the W2–4 baseline:
+   `PYTHONPATH=src python scripts/s60_record.py --weeks 2,3,4 --arms 2=<replay>/w2,3=<replay>/w3,4=<replay>/w4`.
+   Expect d1 +1.043 / +0.401 / +0.222 and d2 −0.926 / +0.401 / −0.529.
+6. **Each Monday from W5:**
+   - P3's arms at `~/moneygate/p3/wWW` (P3's Monday step).
+   - `--census` on them.
+   - The reconcile covering the week.
+   - The record: `--weeks 5,…,W --arms 5=~/moneygate/p3/w05,…`, which the laptop re-runs.
 7. The looks at W8, W12 and W18.
