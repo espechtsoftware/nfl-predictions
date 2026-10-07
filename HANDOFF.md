@@ -12,6 +12,23 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-07 (18:18 CDT) — Study 61 amendment 2 merged as `2ab44bab`: a fallback week is NOT VALID, not a refusal; Sunday's census runs `94fced43…`
+
+- **The reviewer's amendment 2** (`81fd7d43`) answers the laptop's review note (a). A week whose T-70 fell back to OUR
+  projections is NOT VALID: recorded with its reason, the other weeks stand, no week replaces it, the looks stay at W8 and
+  W10 over the valid weeks. An FP file the receipt names but which is missing or different still refuses (integrity).
+- **Verified by the laptop:**
+  - shas: reader `94fced43…` (replaces `ceb8c4cd…`); tests `57d37803…`, 40 pass;
+  - the census smoke is unchanged in every count;
+  - on a REAL no-FP artifact (W4's live union, our projections: no `proj_source` in the receipt, no
+    `proj_source.csv`), the reader prints "W5: NOT VALID -- no FP projection ..." and exits 0. Amendment 1's reader refused.
+  - `union_reselect.py` writes `config.union.proj_source` only when `--proj-source` is given, so the rule fires on a real
+    fallback.
+- **Checklist updated:** the Sunday census names `94fced43…` and merge `2ab44bab`; a fallback week is recorded NOT VALID
+  and reported to the reviewer.
+- **Nit, not repaired:** a comment in `load_union` stops mid-sentence ("... does not match is"). Changing it would change
+  the pinned sha.
+
 ## 2026-10-07 (18:14 CDT) — Study 61 (the R14 news paper study) merged as `03a5bc77`; its Sunday census and Tuesday read are on the checklist
 
 - **The reader, reviewed before any Week-5 game.** The reviewer pinned it by amendment 1
