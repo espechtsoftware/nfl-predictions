@@ -70,3 +70,15 @@ def test_refusals():
         T.build(fr.assign(dk_player_id=fr.dk_player_id.where(fr.index != 1)), _td(fr), "ts")
     with pytest.raises(ValueError, match="no player carries a bonus"):
         T.build(fr, pd.DataFrame({"player": ["nobody"], "td": [0.3]}), "ts")
+
+
+def test_timing_guards_refuse_a_naive_as_of_a_late_or_a_stale_snapshot():
+    """The reviewer 10-07: a missed Saturday pull must not hand Friday's prices to the live file (max age 3 h by default),
+    and an --as-of without a time zone is refused by name."""
+    T.check_timing("2026-10-10T14:33:10Z", "2026-10-10T15:00:00Z", 3.0)                 # the Saturday pull: accepted
+    with pytest.raises(ValueError, match="no time zone"):
+        T.check_timing("2026-10-10T14:33:10Z", "2026-10-10T15:00:00", 3.0)
+    with pytest.raises(ValueError, match="not before"):
+        T.check_timing("2026-10-10T15:00:00Z", "2026-10-10T15:00:00Z", 3.0)
+    with pytest.raises(ValueError, match="more than 3 h"):
+        T.check_timing("2026-10-09T14:33:10Z", "2026-10-10T15:00:00Z", 3.0)             # Friday's pull: refused

@@ -35,7 +35,7 @@ The live file is pinned (TERM_SHA) at Saturday's arming, so its TD prices are th
 The replay uses the same timing: **as-of = each week's Saturday 10:00 CT** (W2 2026-09-19 15:00Z, W3 09-26 15:00Z, W4 10-03
 15:00Z; each week's last snapshot before it is that Saturday's ~09:33 CT pull). The outside reviewer's whole-book replay
 used the last snapshot before Sunday's lock instead (W4: Sunday 04:32 CT): a different input, noted beside its numbers. The
-W5 live file uses `--as-of` = the arming time (the Saturday 09:3x pull).
+**W5 live file: `--as-of 2026-10-10T15:00:00Z` (Saturday 10:00 CT), written after that morning's ~09:33 CT props pull lands; TERM_SHA is pinned after it** (the arm runs after the 09:47 refresh; everything else in the arming is unchanged). Amended 10-07 before any replay number existed (the reviewer's timing condition: one timing for W5 and the replay). The writer refuses a snapshot more than 3 h before --as-of (a missed Saturday pull cannot hand Friday's prices to the live file) and an --as-of without a time zone.
 
 ## The replay
 

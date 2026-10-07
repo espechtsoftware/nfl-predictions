@@ -17,10 +17,13 @@ on projection + min(tilt x pred_own, cap); pred_own = bonus / 0.20 at tilt 0.20 
 Output (plain CSV, the format own_bonus reads; no metadata line): dk_player_id, id, display_name, pos, team, opp, pred_own
 (= bonus / 0.20), bonus_points, b_td, b_matchup, td_prob, salary, td_res, z, snapshot_ts; every skill player of the frame
 once (a bonus of 0 included), the DST omitted. Refuses (exit 3): a frame without skill players, a missing or duplicated
-dk_player_id, no props snapshot before --as-of (or one at / after it), or a week where no player carries a bonus.
+dk_player_id, no props snapshot before --as-of (or one at / after it), a snapshot more than --max-age-hours (default 3) before
+--as-of (a missed pull must not hand an older day's prices to the live file; the reviewer 10-07), an --as-of without a time
+zone, or a week where no player carries a bonus.
 
     python scripts/td_value_block_file.py --season 2026 --week 5 --frame <a Week-5 frame.parquet> \
-        --as-of 2026-10-10T14:50:00Z [--matchup-file <matchup-w5.csv>] --out <path>/tdvalue-w5.csv
+        --as-of 2026-10-10T15:00:00Z [--matchup-file <matchup-w5.csv>] --out <path>/tdvalue-w5.csv   (W5: Saturday 10:00 CT,
+        written after that morning's ~09:33 CT props pull lands; reports/2026-10-07-td-block-harm-screen.md)
 """
 from __future__ import annotations
 
@@ -96,23 +99,43 @@ def build(frame: pd.DataFrame, td: pd.DataFrame, snapshot_ts: str, matchup: pd.D
     return out, unmatched
 
 
+def check_timing(snapshot_ts: str, as_of: str, max_age_hours: float) -> None:
+    """Refuses (ValueError) an --as-of without a time zone, a snapshot at / after --as-of, or one older than the limit."""
+    a = pd.Timestamp(as_of)
+    if a.tzinfo is None:
+        raise ValueError(f"--as-of {as_of} has no time zone (give UTC, e.g. 2026-10-10T15:00:00Z)")
+    t = pd.Timestamp(snapshot_ts)
+    if t.tzinfo is None:
+        t = t.tz_localize("UTC")
+    if t >= a:
+        raise ValueError(f"snapshot {snapshot_ts} is not before --as-of {as_of}")
+    if (a - t) > pd.Timedelta(hours=max_age_hours):
+        raise ValueError(f"snapshot {snapshot_ts} is more than {max_age_hours:g} h before --as-of {as_of} (a missed props pull?)")
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--season", type=int, required=True); ap.add_argument("--week", type=int, required=True)
     ap.add_argument("--frame", type=Path, required=True)
     ap.add_argument("--as-of", required=True, help="UTC ISO time (Saturday's arming); the last snapshot strictly before it")
     ap.add_argument("--matchup-file", type=Path, help="scripts/matchup_block_file.py's file for the same frame (combined option)")
+    ap.add_argument("--max-age-hours", type=float, default=3.0, help="refuse a snapshot older than this before --as-of")
     ap.add_argument("--out", type=Path, required=True)
     a = ap.parse_args(argv)
     from nfl_dfs.bq import query_df
     from nfl_dfs.config import settings
+    if pd.Timestamp(a.as_of).tzinfo is None:
+        print(f"TD BLOCK FILE REFUSED: --as-of {a.as_of} has no time zone (give UTC, e.g. 2026-10-10T15:00:00Z)", file=sys.stderr)
+        return 3
     td = query_df(TD_SQL.format(raw=settings.raw), {"season": a.season, "week": a.week, "as_of": a.as_of})
     if td.empty or td.ts.isna().all():
         print(f"TD BLOCK FILE REFUSED: no player_anytime_td snapshot for {a.season} W{a.week} before {a.as_of}", file=sys.stderr)
         return 3
     ts = str(td.ts.iloc[0])
-    if pd.Timestamp(ts) >= pd.Timestamp(a.as_of):
-        print(f"TD BLOCK FILE REFUSED: snapshot {ts} is not before --as-of {a.as_of}", file=sys.stderr)
+    try:
+        check_timing(ts, a.as_of, a.max_age_hours)
+    except ValueError as e:
+        print(f"TD BLOCK FILE REFUSED: {e}", file=sys.stderr)
         return 3
     matchup = pd.read_csv(a.matchup_file, dtype={"dk_player_id": str}) if a.matchup_file else None
     try:
