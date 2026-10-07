@@ -1,8 +1,9 @@
-# Preregistration DRAFT: P1, the prospective contest-class edge record and its lower-confidence-bound stake rule (2026-10-07)
+# Preregistration: P1, the prospective contest-class edge record and its lower-confidence-bound stake rule (FROZEN 2026-10-07)
 
-**Status: DRAFT v2** (the reviewer's four decisions folded in, 10-07 afternoon) by the laptop, for the reviewer to freeze (the operator's approved-plan item P1; his
-Wed 10-07 directive). Week 5 locks Sunday 10-11. Nothing here has read any Week-5 outcome. The freeze must come before
-Week 5's standings load (Monday 10-12).
+**Status: FROZEN 2026-10-07** by the reviewer, before any Week-5 outcome.
+- Drafted by the laptop: v1 `5e6fffdd`, v2 `a9736719`. The reviewer's four decisions are folded in (§9).
+- The operator's approved-plan item P1 (his Wed 10-07 directive).
+- It holds from Week 5. Week 5 locks Sunday 10-11, and its standings load Monday 10-12, after this freeze.
 
 **Units:** multiples of the fee, rates and z-scores only. Dollars stay in BigQuery and private files.
 
