@@ -1,4 +1,4 @@
-# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06 and 10-07, amendments 1, 1b, 2, 3, 4, 5, 6, 6b, 6c, 6d, 6e, 6f and 6i before Week 5's lock; repair 6g and the big-win rule 6h before its first score)
+# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06 and 10-07, amendments 1, 1b, 2, 3, 4, 5, 6, 6b, 6c, 6d, 6e, 6f, 6i and 6j before Week 5's lock; repair 6g and the big-win rule 6h before its first score)
 
 **Status: FROZEN 2026-10-06** by the reviewer, BEFORE any week of the decision arm (MIXT_RS0) or of the exploratory arms
 QBB0 / NQC0 / QAL / RBC0 was read on any slate. Disclosed: before the freeze, the reference MIXT_QA0 was scored on
@@ -575,6 +575,49 @@ score. Nothing here enters a contest: the money path, its checkout and its files
     1. this amendment;
     2. the laptop's ack (tests and its own smoke copy);
     3. Friday's cheap-armed A3 and the integrity gate.
+- **Amendment 6j (2026-10-07, before Week 5's lock; no Week-5 outcome exists).**
+  - **Why.** Production's `--mix-cell-quotas` (study 56's switch, integration `48946cd0`, default off) changes the MIX
+    cells' entry quotas. If the operator arms it on a study 56 PASS, his live book changes, and QA0 must follow it or the
+    week is invalid.
+    - Study 38's parity did not know the argument. A live switch would have passed silently while every paper arm kept
+      the old quotas: an invalid week that looks complete.
+    - The same sweep of the union's arguments (55 now; 45 at amendment 4) found three more unchecked: `--winner-select`
+      and `--winner-order` (study 48d / 48b's steps, default off) and `--priority-order` (study 59's switch, default off).
+  - **What changes.**
+    - Every arm is built at the LIVE union's quotas, through `s28_winners_mix.QUOTAS` (the one list the fill, the blocks
+      and the spares read), set for each arm's build. With the argument absent the quotas are the cells' own, so every
+      arm is 6i's byte for byte.
+    - A new exploratory arm, **MIXT_QA0_QB2HALF**: his live construction (every live setting as QA0, the live block
+      included) at study 56's QB2HALF quotas, A1 0.44 / A2 0.28 / B 0.14 / C 0.14. It is read against MIXT_QA0, and
+      equals it when those quotas are live. This is the operator's "worth a test to find out" on the real fields: study 56
+      read NO DIFFERENCE (Addendum 163), so QB2HALF stays on paper in Week 5 through this arm.
+    - **Parity:** a `--mix-cell-quotas` outside its definition (the four MIX cells, every value > 0, the sum 1), a live
+      `--winner-select`, a live `--winner-order`, or a live `--priority-order` (production `f19222e0`, default off;
+      followed only by a later amendment) is a mismatch (an invalid week).
+  - **What does not change:** the rule (§5), the decision pair, and every other arm's definition.
+  - **The smoke:** (dry run, Week 4's frozen copies with 6i's inputs; `~/private/paper-corun/smoke-w4-amend6j/`, script `run.sh`)
+    - **OFF** (no quotas argument): every one of the 18 amendment-6i arms is identical to 6i's smoke. MIXT_QA0_QB2HALF is
+      built at book cells 11 / 7 / 4 / 4 (QA0: 8 / 4 / 7 / 7) and shares 3 of 26 rows with QA0.
+    - **ON**, `--mix-cell-quotas A1=0.44,A2=0.28,B=0.14,C=0.14`: parity none; MIXT_QA0 = MIXT_QA0_QB2HALF, and equals the
+      OFF build's QB2HALF arm; NOTERM and the other arms follow the live quotas.
+    - **ON with the cheap +2 block live:** MIXT_QA0 = MIXT_QA0_QB2HALF, both with 8 term rows.
+    - `books.json` OFF `906c6861`, ON `a4112f83`, ON + block `41545383`.
+    - The parity tests also cover an undefined quotas spec (five forms) and live `--winner-select`, `--winner-order` and
+      `--priority-order`.
+  - **The integrity gate (§7)** adds: MIXT_QA0_QB2HALF is built; with the QB2HALF quotas live, QB2HALF = MIXT_QA0. The gate
+    pins 6j's four shas.
+  - **Code:** lab `44becda`:
+    - `experiments/s38_paper_corun.py`, sha256 `801381ab7540b3f08072e1270a8603cf1d3429c2cddad18a536cefee55aebcc0`;
+    - `scripts/s38_build.py`, `bb52c6f18ca02f92fe7596ec70aaef604f0cecc50f1d245cae4b036f2619ef8c`;
+    - `scripts/s38_score.py`, `564ce2c60b22b33ffb1d44af8d6c844cebe291e9ca6256dcfe1226516763932a`;
+    - **`scripts/s38_report.py` (the reader), sha256 `de63c136fe4442c1077fd4cb60a20b95fd6dd9b9de1c2cd989bf6888b959a74a`**;
+    - `tests/test_s38_paper_corun.py`, `b00f9b5ec92ea830ca0345f6d1cb6a5c96ffea6f6b8167c4775bcf43a49dad62` (28 tests; one added, three earlier pinned
+      strings updated);
+    - `scripts/s38_plan.py` `6c4cc53a…` (6h), unchanged.
+  - **Order:**
+    1. this amendment;
+    2. the laptop's ack;
+    3. Friday's A3 and the integrity gate (pinned to 6j).
 
 ## 1. Why
 - **The operator (10-06), on the proposal:** "yes, please try it, I want to exhaust all reasonable options."
