@@ -1,0 +1,39 @@
+{
+ "week": 3,
+ "mode": "bonus",
+ "rules": {
+  "mates": "2",
+  "bb": "1",
+  "flex": "TE",
+  "qb_total_rank": "2-3",
+  "qb_fav": "fav",
+  "top_total_n": "0",
+  "qb_tier": "cheap",
+  "te_price": "cheap"
+ },
+ "winner": 239.8,
+ "lines": {
+  "top100": 208.3,
+  "top1pct": 188.2,
+  "hit": 229.8
+ },
+ "built": 500,
+ "first": {
+  "top100": 13,
+  "top1pct": 1,
+  "hit": null
+ },
+ "best": 227.44,
+ "best_lineup": [
+  "Jaguars DST JAX 16.0",
+  "Geno Smith QB NYJ 30.0",
+  "George Kittle TE SF 26.2",
+  "Kenneth Walker III RB KC 21.3",
+  "Garrett Wilson WR NYJ 29.7",
+  "Jaylen Warren RB PIT 23.6",
+  "Jahmyr Gibbs RB DET 41.4",
+  "Josh Downs WR IND 12.7",
+  "Kenyon Sadiq TE NYJ 26.5"
+ ],
+ "secs": 422
+}

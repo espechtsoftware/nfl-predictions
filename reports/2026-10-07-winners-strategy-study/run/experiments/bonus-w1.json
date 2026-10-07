@@ -1,0 +1,36 @@
+{
+ "week": 1,
+ "mode": "bonus",
+ "rules": {
+  "bb": "1",
+  "flex": "RB",
+  "qb_total_rank": "2-3",
+  "qb_fav": "fav",
+  "top_total_n": "0"
+ },
+ "winner": 273.98,
+ "lines": {
+  "top100": 244.84,
+  "top1pct": 209.04,
+  "hit": 263.98
+ },
+ "built": 500,
+ "first": {
+  "top100": 11,
+  "top1pct": 3,
+  "hit": null
+ },
+ "best": 263.34,
+ "best_lineup": [
+  "Jaguars DST JAX 13.0",
+  "D'Andre Swift RB CHI 35.4",
+  "Chris Olave WR NO 31.2",
+  "Zay Flowers WR BAL 29.0",
+  "Bryce Young QB CAR 35.4",
+  "Jahmyr Gibbs RB DET 37.6",
+  "Jalen Coker WR CAR 36.8",
+  "Michael Mayer TE LV 9.2",
+  "Ashton Jeanty RB LV 35.7"
+ ],
+ "secs": 404
+}

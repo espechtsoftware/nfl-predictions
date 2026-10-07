@@ -1,0 +1,39 @@
+{
+ "week": 2,
+ "mode": "bonus",
+ "rules": {
+  "bb": "0",
+  "flex": "TE",
+  "games": "6+",
+  "dual": "no",
+  "qb_total_rank": "1",
+  "qb_fav": "dog",
+  "top_total_n": "1-2",
+  "dst_price": "cheap"
+ },
+ "winner": 232.38,
+ "lines": {
+  "top100": 203.5,
+  "top1pct": 179.78,
+  "hit": 222.38
+ },
+ "built": 500,
+ "first": {
+  "top100": null,
+  "top1pct": null,
+  "hit": null
+ },
+ "best": 168.56,
+ "best_lineup": [
+  "Patriots DST NE 21.0",
+  "Dak Prescott QB DAL 29.8",
+  "Dalton Schultz TE HOU 29.0",
+  "CeeDee Lamb WR DAL 38.3",
+  "Justin Jefferson WR MIN 8.5",
+  "Breece Hall RB NYJ 14.2",
+  "Devaughn Vele WR NO 11.4",
+  "Bijan Robinson RB ATL 11.1",
+  "Michael Mayer TE LV 5.3"
+ ],
+ "secs": 636
+}

@@ -123,5 +123,52 @@ The sampled worlds reach the winners' region faster in the two weeks where the p
 winners (Week 2: a top-1% lineup at the 6th build where projection order never got one in 4,000; Week 3: the top 100
 at the 82nd), and slower in Weeks 1 and 4. Neither search came within 10 of a winner in any week.
 
-[EXPERIMENT-B]
+### 3.3 Experiment B — the factor bonus inside the winners' exercise (each week's own winning rules)
+
+Projection-ordered enumeration on projection + the combined pre-lock bonus (the weights of experiment A), under the
+same rules as the ladder's best layer, 500 builds per week.
+
+| Week | Within-10 line | Bonus: first top 1% / first top 100 / best | Projection only (1,000 builds): first top 1% / top 100 / best |
+|---|---|---|---|
+| 1 | 264.0 | 3 / **11** / **263.3** | 1 / 108 / 248.7 |
+| 2 | 222.4 | never / never / 168.6 | never / never / 169.7 |
+| 3 | 229.8 | 1 / **13** / **227.4** | 21 / 240 / 215.6 |
+| 4 | 224.2 | 2 / **14** / 219.2 | 35 / 262 / 219.2 |
+
+With the bonus the search reached the real top 100 within the first 11–14 builds in three weeks (against 108–262), and
+came within 0.7 points (Week 1) and 2.4 points (Week 3) of the within-10 line; Week 2 is untouched. The winner's exact
+lineup did not become more selectable (its gap to the best lineup under the rules is unchanged or wider: 9.7→12.4,
+24.7→27.6, 9.8→10.9, 17.2→17.2): the bonus makes the top-100 region dense, not the winner's nine. **Two hindsights
+remain:** the rules are each week's own winning rules, and the factors were chosen on these weeks.
+
+### 3.4 The no-hindsight test — four generic environment forms, the same every week
+
+`environment_forms.py`: sampled-world lineups under four forms fixed in advance (the QB's game is the top total or
+ranks 2nd–3rd, × favourite or underdog), 125 per form, no stack or salary rule; a 32-row coverage book of the first
+eight of each form.
+
+| Week | Best per form (F1 top-fav / F2 top-dog / F3 2nd–3rd-fav / F4 2nd–3rd-dog) | Coverage book (32): top-1% rows / best | Projection order (32): best |
+|---|---|---|---|
+| 1 | 188.7 / 196.6 / 201.8 / 205.8 | 0 / 196.7 | 183.1 |
+| 2 | 168.0 / 182.1 / 187.5 / 173.4 | 0 / 162.4 | 140.6 |
+| 3 | 167.7 / 167.1 / 185.1 / 164.2 | 0 / 168.3 | 160.8 |
+| 4 | 189.4 / 195.6 / 204.5 / 202.4 | 0 / 172.6 | 160.1 |
+
+**Without knowing the week's environment, no 32-row book reached the top 1% in any week.** The coverage book's best
+row beats projection order's in all four weeks, but by too little to matter at book size. The version with the factor
+bonus inside the generic forms was stopped at 07:25 to yield the machine to another agent's twelve-worker job and will
+be rerun when it is free.
+
+## 4. What this means for choosing lineups
+
+- **Nothing here changes the Week-5 book.** The factor bonuses are in-sample and weak out of sample; under Fantasy
+  Points the market part is zero and the matchup and injury parts are largely inside the projection already. The
+  things that address the pre-lock cases (Warren, Hockenson, Schultz) are armed: FP's projections with the 10:46
+  post-inactives capture.
+- **The binding problem is unchanged:** finding the winners' region needs the week's environment, and the environment
+  is not knowable in advance; given it, a better player score (experiment B) makes the top 100 easy to reach. Given only
+  the generic forms, 32 rows do not reach the top 1%.
+- **For the projection (Week 6 onward):** add the position-level matchup with a prior-season fallback to the planned
+  retrain (small, real, mostly RB and TE).
+
 

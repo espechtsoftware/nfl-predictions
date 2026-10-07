@@ -1,0 +1,56 @@
+== W3 mode bonus: rules {'mates': '2', 'bb': '1', 'flex': 'TE', 'qb_total_rank': '2-3', 'qb_fav': 'fav', 'top_total_n': '0', 'qb_tier': 'cheap', 'te_price': 'cheap'}; winner 239.8; lines within10 229.8 top100 208.3 top1% 188.2
+/home/erich/projects/nfl2/.venv/lib/python3.14/site-packages/google/cloud/bigquery/table.py:2128: UserWarning: BigQuery Storage module not found, fetch data with the REST endpoint instead.
+  warnings.warn(
+   gap [projection       | no rules  ]: best lineup objective 138.9, the winner's lineup 125.0, gap +13.9
+   gap [projection       | week rules]: best lineup objective 134.9, the winner's lineup 125.0, gap +9.8
+   gap [projection+bonus | no rules  ]: best lineup objective 151.6, the winner's lineup 137.0, gap +14.6
+   gap [projection+bonus | week rules]: best lineup objective 147.9, the winner's lineup 137.0, gap +10.9
+   bonus on the winner's players: Garrett Wilson +2.4, Geno Smith +2.0, Jahmyr Gibbs +0.5, Jameson Williams +0.0, Jaxon Smith-Njigba +1.8, Jaylen Warren +3.0, Juwan Johnson +0.1, Kenyon Sadiq +2.2, Vikings +0.0 | mean bonus over skill players 0.72
+   n=100 best 212.9 first {'top100': 13, 'top1pct': 1, 'hit': None} 25s
+   n=200 best 223.3 first {'top100': 13, 'top1pct': 1, 'hit': None} 71s
+   n=300 best 223.3 first {'top100': 13, 'top1pct': 1, 'hit': None} 157s
+   n=400 best 227.4 first {'top100': 13, 'top1pct': 1, 'hit': None} 291s
+   n=500 best 227.4 first {'top100': 13, 'top1pct': 1, 'hit': None} 422s
+   RESULT W3 bonus: built 500; first top-1% 1, top-100 13, within-10 None; best 227.4: ['Jaguars DST JAX 16.0', 'Geno Smith QB NYJ 30.0', 'George Kittle TE SF 26.2', 'Kenneth Walker III RB KC 21.3', 'Garrett Wilson WR NYJ 29.7', 'Jaylen Warren RB PIT 23.6', 'Jahmyr Gibbs RB DET 41.4', 'Josh Downs WR IND 12.7', 'Kenyon Sadiq TE NYJ 26.5']
+== W4 mode bonus: rules {'mates': '1', 'bb': '1', 'flex': 'TE', 'games': '5', 'dual': 'yes', 'qb_total_rank': '2-3', 'qb_fav': 'fav', 'top_total_n': '1-2', 'dst_price': 'cheap', 'te_price': 'cheap', 'own_sum': '<80'}; winner 234.2; lines within10 224.2 top100 209.2 top1% 182.8
+/home/erich/projects/nfl2/.venv/lib/python3.14/site-packages/google/cloud/bigquery/table.py:2128: UserWarning: BigQuery Storage module not found, fetch data with the REST endpoint instead.
+  warnings.warn(
+   gap [projection       | no rules  ]: best lineup objective 151.5, the winner's lineup 126.0, gap +25.5
+   gap [projection       | week rules]: best lineup objective 143.3, the winner's lineup 126.0, gap +17.2
+   gap [projection+bonus | no rules  ]: best lineup objective 165.2, the winner's lineup 135.2, gap +30.0
+   gap [projection+bonus | week rules]: best lineup objective 152.3, the winner's lineup 135.2, gap +17.2
+   bonus on the winner's players: CeeDee Lamb +0.1, Dak Prescott +0.0, Jaguars +0.0, Javonte Williams +0.0, Kyren Williams +0.0, Nico Collins +1.8, T.J. Hockenson +3.0, Zach Ertz +3.0, Zay Flowers +1.3 | mean bonus over skill players 0.84
+   n=100 best 219.2 first {'top100': 14, 'top1pct': 2, 'hit': None} 81s
+   n=200 best 219.2 first {'top100': 14, 'top1pct': 2, 'hit': None} 293s
+   n=300 best 219.2 first {'top100': 14, 'top1pct': 2, 'hit': None} 628s
+   n=400 best 219.2 first {'top100': 14, 'top1pct': 2, 'hit': None} 1082s
+   n=500 best 219.2 first {'top100': 14, 'top1pct': 2, 'hit': None} 1663s
+   RESULT W4 bonus: built 500; first top-1% 2, top-100 14, within-10 None; best 219.2: ['Cardinals DST ARI 9.0', 'Dak Prescott QB DAL 21.1', 'Aaron Jones Sr. RB MIN 16.8', 'T.J. Hockenson TE MIN 27.9', 'CeeDee Lamb WR DAL 44.3', 'Nico Collins WR HOU 33.8', 'Chase Brown RB CIN 19.1', 'Puka Nacua WR LA 30.7', 'Brenton Strange TE JAX 16.5']
+== W2 mode bonus: rules {'bb': '0', 'flex': 'TE', 'games': '6+', 'dual': 'no', 'qb_total_rank': '1', 'qb_fav': 'dog', 'top_total_n': '1-2', 'dst_price': 'cheap'}; winner 232.4; lines within10 222.4 top100 203.5 top1% 179.8
+/home/erich/projects/nfl2/.venv/lib/python3.14/site-packages/google/cloud/bigquery/table.py:2128: UserWarning: BigQuery Storage module not found, fetch data with the REST endpoint instead.
+  warnings.warn(
+   gap [projection       | no rules  ]: best lineup objective 146.9, the winner's lineup 119.5, gap +27.4
+   gap [projection       | week rules]: best lineup objective 144.2, the winner's lineup 119.5, gap +24.7
+   gap [projection+bonus | no rules  ]: best lineup objective 159.1, the winner's lineup 127.9, gap +31.2
+   gap [projection+bonus | week rules]: best lineup objective 155.5, the winner's lineup 127.9, gap +27.6
+   bonus on the winner's players: Brock Purdy +0.5, CeeDee Lamb +1.0, Christian McCaffrey +2.6, Dalton Schultz +3.0, George Kittle +1.2, J.K. Dobbins +0.0, Jaxon Smith-Njigba +0.1, Patriots +0.0, Tre Tucker +0.0 | mean bonus over skill players 0.49
+   n=100 best 152.5 first {'top100': None, 'top1pct': None, 'hit': None} 35s
+   n=200 best 157.6 first {'top100': None, 'top1pct': None, 'hit': None} 109s
+   n=300 best 160.5 first {'top100': None, 'top1pct': None, 'hit': None} 235s
+   n=400 best 163.3 first {'top100': None, 'top1pct': None, 'hit': None} 414s
+   n=500 best 168.6 first {'top100': None, 'top1pct': None, 'hit': None} 636s
+   RESULT W2 bonus: built 500; first top-1% None, top-100 None, within-10 None; best 168.6: ['Patriots DST NE 21.0', 'Dak Prescott QB DAL 29.8', 'Dalton Schultz TE HOU 29.0', 'CeeDee Lamb WR DAL 38.3', 'Justin Jefferson WR MIN 8.5', 'Breece Hall RB NYJ 14.2', 'Devaughn Vele WR NO 11.4', 'Bijan Robinson RB ATL 11.1', 'Michael Mayer TE LV 5.3']
+== W1 mode bonus: rules {'bb': '1', 'flex': 'RB', 'qb_total_rank': '2-3', 'qb_fav': 'fav', 'top_total_n': '0'}; winner 274.0; lines within10 264.0 top100 244.8 top1% 209.0
+/home/erich/projects/nfl2/.venv/lib/python3.14/site-packages/google/cloud/bigquery/table.py:2128: UserWarning: BigQuery Storage module not found, fetch data with the REST endpoint instead.
+  warnings.warn(
+   gap [projection       | no rules  ]: best lineup objective 139.0, the winner's lineup 125.2, gap +13.8
+   gap [projection       | week rules]: best lineup objective 134.8, the winner's lineup 125.2, gap +9.7
+   gap [projection+bonus | no rules  ]: best lineup objective 145.0, the winner's lineup 128.5, gap +16.5
+   gap [projection+bonus | week rules]: best lineup objective 140.9, the winner's lineup 128.5, gap +12.4
+   bonus on the winner's players: Christian Watson +0.0, D'Andre Swift +0.6, DJ Moore +0.0, Dallas Goedert +0.9, Derrick Henry +0.0, Jahmyr Gibbs +0.6, Jalen Coker +1.3, Jordan Love +0.0, Steelers +0.0 | mean bonus over skill players 0.45
+   n=100 best 263.3 first {'top100': 11, 'top1pct': 3, 'hit': None} 25s
+   n=200 best 263.3 first {'top100': 11, 'top1pct': 3, 'hit': None} 70s
+   n=300 best 263.3 first {'top100': 11, 'top1pct': 3, 'hit': None} 150s
+   n=400 best 263.3 first {'top100': 11, 'top1pct': 3, 'hit': None} 290s
+   n=500 best 263.3 first {'top100': 11, 'top1pct': 3, 'hit': None} 404s
+   RESULT W1 bonus: built 500; first top-1% 3, top-100 11, within-10 None; best 263.3: ['Jaguars DST JAX 13.0', "D'Andre Swift RB CHI 35.4", 'Chris Olave WR NO 31.2', 'Zay Flowers WR BAL 29.0', 'Bryce Young QB CAR 35.4', 'Jahmyr Gibbs RB DET 37.6', 'Jalen Coker WR CAR 36.8', 'Michael Mayer TE LV 9.2', 'Ashton Jeanty RB LV 35.7']
