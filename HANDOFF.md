@@ -12,6 +12,93 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-07 (10:47 CDT) — The cheap block becomes a Saturday option (his leaning, gated by study 53 amendment 1); its writer and the arm's TERM_CAP check approved; the weekly Neo4j refresh's stop path proven on a real W4 run; 6f acked; R14 Game Hub v2 appended
+
+**The cheap block (decision sheet row 21, checklist "the live bonus block").**
+- The outside reviewer's 8-row block replay (live W5 settings, Rev3 head; `~/rehearsals/outside-cblocks-20261007T153309Z`, their score.json),
+  big-win chance W2 / W3 / W4:
+  - live .041 / .002 / .434;
+  - cheap +2 (cap 2.0) .058 / .018 / .535;
+  - cheap +4 .084 / .018 / .529;
+  - ahead of live in all three weeks at both doses; pooled expected big seats 1.46x / 1.52x.
+  - In-sample: the idea came from W1–4.
+- **The operator's leaning,** relayed verbatim by the outside reviewer (10-07, before 10:45 CT), on "the cheap block at +2 if study
+  53's block read doesn't contradict it": "I like it- please share that". The final choice stays his at Saturday's arming.
+- **The gate (the reviewer):** study 53 AMENDMENT 1 (lab 0cdfe31) adds CHEAP2_BLOCK8 beside CHEAP4_BLOCK8, with study 51's frozen
+  Saturday rule for each block arm. NOT ENTERED if WORSE on 2023–24, CONTRADICTED on 2022, or the e_big ratio < 0.80. MOOT on a dead
+  lever. If both doses are enterable, CHEAP2_BLOCK8.
+  - Disclosed in the amendment: the block rule was added after their in-sample replay was seen.
+  - The co-primary whole-book decisions, the banks and the seed are unchanged.
+- One slot: cheap / matchup / none. Choosing between two enterable blocks on W2–4 is selection, and the sheet says so.
+- **The writer:** scripts/cheap_block_file.py + test, byte-identical from the outside reviewer's 83b44f8b (6e1a5379 / ff0cb884), in
+  integration **a33c5bee (the reviewer APPROVED)**. My check: on weeks.json's T-70 frames its bonuses equal the six replay files'
+  on every skill player (175 / 180 / 134 players get a bonus in W2 / W3 / W4). The replay files were an older format (a salary
+  column, DST rows at 0), so they are not byte-identical.
+- **The cap:** the arm hard-coded UNION_TERM_BLOCK_CAP=2.0, so a +4 file would have entered clipped to +2. a33c5bee adds TERM_CAP=2.0
+  and scripts/check_term_block_file.py in step 0 (it runs under --check too). It refuses:
+  - a cap outside (0, 5];
+  - a largest bonus above the cap;
+  - a pred_own that is not bonus / 0.20;
+  - missing or duplicate ids;
+  - no bonus at all.
+  A file without bonus_points (the prior-top form) passes with a note. Tests: 9; 39 pass with the writer and arm tests. The host arm
+  copy is synced. The host A3 script gets A3_TERM_CAP and the same check (backup a3_armed_w5.sh.bak-20261007-cap).
+- **Thursday–Saturday flow (agreed with the reviewer; checklist rewritten):**
+  - Thursday: A3 with the block OFF. Then cheap2-w5.csv AND matchup-w5.csv from A3's frame into reports/2026-10-08-live-block/,
+    each checked at cap 2.0, committed, shas recorded here.
+  - Friday: A3 with cheap +2 ARMED and the s38 snapshot to rehearsal-w05 (the binding 6e gate, source-agnostic). Then a union-only
+    replay of the matchup block on Friday's T-70 run.
+  - Saturday: his choice sets TERM_ROWS / TERM_FILE / TERM_SHA / TERM_CAP.
+
+**Study 53.**
+- On the original freeze (prereg 000601cc, file 6a640573; lab bfc7247), all seven shas match: module 996fab81, driver 9bf5c43c,
+  census 77236949, reader c612025a, tests 737f2d26 (5 pass), s48 c22d2811, term_book 62c2306e.
+- s53_census.py on the reviewer's raw (~/s53-panel/census/results_bank1406.jsonl ac38323b) gives de0b66e6, byte-identical.
+- **My bank scan** of 1569–1574 + seed 20261105 (production 9387 blobs, lab 5202, disk; scratchpad bank_scan_1569_1574.out) is
+  clean. The only hits are the prereg, the HANDOFF entry on s48-prereg and the lab's s53_drive / s53_report / test, the same as
+  the reviewer's scan. The scan stands for amendment 1.
+- The formal ack is HELD for amendment 1's re-freeze. Next: the new shas → s53_census.py on the 5-arm raw → my ack → the reviewer's
+  scored run (5 arms, ~30 min) → my READ re-run → records.
+
+**Study 38 amendment 6f ACKED and merged** (integration 0028d8cb; prereg text = 37d1dd74's, bb5be6b2).
+- Lab 3279ab8 shas: 16c1bd8c / ec8ad8f1 / c283a20b / tests 37db54ce (24 pass with the run's PYTHONPATH); s38_build f756705d
+  unchanged.
+- My smoke copy (~/private/paper-corun/smoke-w4-amend6f-laptop) gives books byte-identical to the reviewer's: OFF 65a43969, ON
+  91fdfa42.
+- Every 6e arm is identical. CHEAP2 / CHEAP4 are built with 0 term rows and equal OFF / ON (W4 pool: 91 such players, WR 48 / TE 43).
+- The merge also brings study 53's DRAFT (960bcb37).
+
+**The weekly Neo4j refresh (scripts/neo4j_weekly_refresh.sh).**
+- **d2ee13d1:**
+  - the reviewer's two fixes: an EXIT trap stops Neo4j only when this refresh started it (unless --keep-running), and the script
+    refuses xtrace before sourcing the credentials;
+  - the bolt wait reads NEO4J_URI;
+  - the outside reviewer's tier_edges.py (d7b811c2, d4331657…) is learning step 4;
+  - tests: 5, offline.
+- **The real W4 run** (10:34–10:40; the outside reviewer freed the graph, so I stopped the 06:53 instance first): rc 0, and
+  "Neo4j stopped (this refresh started it)". Neo4j is now DOWN. The outside reviewer will message when they start or stop it, and
+  stop it before 09:00 Thursday.
+- **02eb0b0e:** cheap_count_check.py's "our T-70 books" matched gsis ids, but book.csv holds DraftKings ids, so it printed 0 rows. It
+  now maps through the frame's dk_player_id. Sub-$4,000 non-DST players per row, W1–W4: 0.79 / 1.13 / 0.85 / 0.91 (rows with 2+:
+  .122 / .278 / .167 / .155).
+- **Not chased:** the W4 lineup reload added 0 nodes but +202 relationships (1,222,391 → 1,222,593). Every write is a MERGE; the
+  candidates are the property-keyed CONTAINS / STACKED_WITH / PLAYS_FOR and new ENTERED edges. Told the outside reviewer.
+- The test worktree neo4j-refresh-w4-test (mine) is removed.
+
+**R14 (Game Hub v2).**
+- 161 records extracted; all quotes are verbatim in the v2 text (my independent check).
+- Appended as a version of article 808c5753: 113 records with version_of c47c1603b6a9; 48 duplicates skipped.
+- The Week-5 log has 606 records, 9 articles.
+- Extractor flags, kept as logged:
+  - Lane Johnson (OL) retirement;
+  - "Mack Hollin" spelled as written;
+  - conditional rest items (Chase / Higgins, Meyers / Tinsley);
+  - a Dowdle +1 that could be 0;
+  - ongoing injuries without a W5 status logged as −1 (Jefferson, Allen, Mitchell, Oliver);
+  - four players with two matchup records.
+
+**Next:** study 53's re-ack, run and read; FP's W5 live pages (retry this afternoon); Thursday's order (checklist).
+
 ## 2026-10-07 (10:25 CDT) — The operator: "keep the enhanced neo4j data populated and learn from it" -- a weekly Monday graph refresh built; the outside reviewer's Neo4j finding (sub-$4,000 players) → study 53 + amendment 6f; O-40 confirmatory script final for Monday
 
 **The outside reviewer now messages the laptop directly** (the operator 10-07; session nfl-predictions-4d). Their handoff: `reports/2026-10-07-outside-reviewer-handoff-to-laptop.md` on review/outside-fill-order-20261006.

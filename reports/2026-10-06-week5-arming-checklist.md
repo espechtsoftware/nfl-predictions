@@ -95,21 +95,33 @@ rehearsal runs on the merged head in the exact armed env; Friday re-verifies on 
 - **Thursday 10-08, before A3:** `neo4j-milly stop` (the local graph has run since the 10-07 load; the arm refuses while it runs and a build must not compete with its heap). The outside reviewer was told (10-07).
 
 ## Thursday 10-08 to Saturday 10-10: the live bonus block (decision sheet rows 21–22; his choice at arming)
-- **Options after 10-07's tests:** the matchup block (study 51 ENTERABLE: "not harmful", not "better"; ~7% fewer expected big seats)
-  or none. The TD block, the combined block and the TD-sorted deal are OUT (their frozen screens / the reviewer). His word comes at
-  Saturday's arming; until then TERM_ROWS stays 0 in the arm script.
-- **Thursday, after A3:** write the W5 matchup file from A3's union frame (no props needed: points allowed through W4 + the 2025
-  prior): `cd <FRIDAY_HEAD-to-be checkout> && .venv/bin/python scripts/matchup_block_file.py --season 2026 --week 5 --frame <A3 union
-  dir>/frame.parquet --out reports/2026-10-08-live-block/matchup-w5.csv`; commit it (reports/, so the arm's ff-pull accepts it) and
-  record its sha in HANDOFF. Players on Sunday's frame but not A3's get no bonus (disclosed; z is over A3's skill players).
-- **Friday:** the rehearsal runs with the block ON exactly as it would be armed: `UNION_TERM_BLOCK_ROWS=8`,
-  `UNION_TERM_BLOCK_SOURCE=$P/reports/2026-10-08-live-block/matchup-w5.csv`, `UNION_TERM_BLOCK_SHA256=<its sha>` (tilt 0.20, cap
-  2.0); the s38 snapshot with all three paper files goes to `~/private/paper-corun/rehearsal-w05/` (the reviewer's binding 6e gate:
-  QA0 and DVP carry the block at ranks 2..25, NOTERM / MATCHUPX / COMBINED 0 term rows, TERM8 its 8). Also, if cheap, A3's union
-  (block OFF) to `~/private/paper-corun/rehearsal-w05-a3/`.
-- **Saturday (arming):** his yes -> the arm script's `TERM_ROWS=8`, `TERM_FILE=reports/2026-10-08-live-block/matchup-w5.csv`,
-  `TERM_SHA=<sha>` (host copy and tracked copy alike); his no -> `TERM_ROWS=0` (nothing else changes). Either way the arm's step 0
-  sha check runs.
+- **Options (10-07 midday):** ONE block slot -- the cheap block at +2 (his stated leaning, relayed by the outside reviewer
+  10-07 before 10:45: "I like it- please share that"), the matchup block, or none. The cheap block is an option ONLY if study 53 amendment
+  1's frozen Saturday rule says ENTERABLE for CHEAP2_BLOCK8 (NOT ENTERED if WORSE on 2023–24, CONTRADICTED on 2022, or the
+  expected-big-seats ratio < 0.80; MOOT on a dead lever); if only CHEAP4_BLOCK8 is enterable, +4 with TERM_CAP=4.0. The
+  matchup block: study 51 ENTERABLE ("not harmful", not "better"; ~7% fewer expected big seats). The TD block, the combined
+  block and the TD-sorted deal are OUT. Choosing between two enterable blocks on Weeks 2–4 is selection (the sheet says so). His
+  word comes at Saturday's arming; until then TERM_ROWS stays 0 in the arm script.
+- **Thursday, after A3 (block OFF):** write BOTH files from A3's union frame (DraftKings salaries and the matchup inputs are
+  fixed for the week; no props needed) and commit them (reports/, so the arm's ff-pull accepts them); record both shas in
+  HANDOFF. From the FRIDAY_HEAD-to-be checkout:
+  `.venv/bin/python scripts/cheap_block_file.py --season 2026 --week 5 --frame <A3 union dir>/frame.parquet --points 2.0 --out reports/2026-10-08-live-block/cheap2-w5.csv`
+  `.venv/bin/python scripts/matchup_block_file.py --season 2026 --week 5 --frame <A3 union dir>/frame.parquet --out reports/2026-10-08-live-block/matchup-w5.csv`
+  then `scripts/check_term_block_file.py <file> --cap 2.0` on each (the arm's own check). Players on Sunday's frame but not A3's
+  get no bonus (disclosed; matchup z is over A3's skill players). A +4 cheap file is written only if study 53 makes CHEAP4_BLOCK8
+  the enterable dose.
+- **Friday (agreed with the reviewer 10-07):** the A3 rehearsal with the CHEAP +2 block armed exactly as Saturday would arm it:
+  `A3_TERM_ROWS=8 A3_TERM_FILE=$WT/reports/2026-10-08-live-block/cheap2-w5.csv A3_TERM_SHA=<its sha> A3_TERM_CAP=2.0
+  A3_SNAPSHOT_DEST=~/private/paper-corun/rehearsal-w05` (the script checks the file against the cap). The s38 snapshot is the
+  reviewer's binding 6e gate, source-agnostic: QA0 and DVP carry the armed block at ranks 2..25; NOTERM, MATCHUPX, COMBINED,
+  CHEAP2 and CHEAP4 have 0 term rows; TERM8 its 8. Then a union-only replay of the MATCHUP block on Friday's T-70 run (the
+  bonus_blocks_replay.sh form: union_reselect with --term-block-source matchup-w5.csv, tilt 0.20, cap 2.0), so both files have
+  been through a Week-5 union before Saturday. If he picks matchup, Sunday's snapshot runs the same 6e path with that file (the
+  W4 smoke covered a matchup-sourced block).
+- **Saturday (arming):** his choice -> the arm script's `TERM_ROWS=8`, `TERM_FILE=reports/2026-10-08-live-block/<cheap2|matchup>-w5.csv`,
+  `TERM_SHA=<its sha>`, `TERM_CAP=2.0` (host copy and tracked copy alike); none -> `TERM_ROWS=0` (nothing else changes). Step 0
+  runs the sha check and `check_term_block_file.py` (refuses a bonus above TERM_CAP, a cap outside (0, 5], a pred_own that is not
+  bonus / 0.20), also under `--check`.
 
 ## Sunday 10-11 and Monday 10-12: study 38 (the FP paper co-run; operator 10-06 "yes, please try it, I want to exhaust all reasonable options")
 - **Sunday, right after the T-70 union and BEFORE 12:00 CT:** snapshot (copies, read-only reads) the T-70 run dir and the union dir (frame.parquet, candidates.parquet, receipt.json, union_args.txt, lever_audit.json) and OUT's proj_fp-<RUN_TAG>.csv AND its .csv.json sidecar (apply_proj_source refuses without it), ownership_fp-<RUN_TAG> (+ receipts), union-args-<RUN_TAG>, the dk-status-<utc>.csv the T-70 union read (`--dk-status`; unavailable_ids needs it), contests.json and the week's DK contest-details file (for the study's size/seats/big plan; the reviewer's tracked `scripts/s38_plan.py` converts them) and `plan-overrides.json` (any per-contest decision he makes that week, e.g. W5's `{"196421726": {"big": false}}`, the $125 WFFC; `{}` if none) to `~/private/paper-corun/2026-w05/` with MANIFEST.txt (sha256, bytes, source path and mtime, the receipt's built_utc, the snapshot time). Never edits the live dirs; never writes under `~/week5-sunday`. The pre-lock provenance for the paper books, built after lock by the reviewer.

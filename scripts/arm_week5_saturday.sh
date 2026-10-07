@@ -34,11 +34,16 @@ WINNER_ORDER=0                      # study 48b: re-order the book by study 48's
                                     # on the big-entry ranks); 0 = off. 1 only after 48b's READ, the W2-4 check and HIS yes
 WINNER_SELECT=0                     # study 48d: keep, per cell, the most winner-like of the book rows + spares (study
                                     # 48's frozen score); 0 = off. 1 only after 48d's READ, a rehearsal and HIS yes
-TERM_ROWS=0                         # the prior-top term block (the operator 10-07: "Live, capped, part of book"): 8 of the
+TERM_ROWS=0                         # the live term block (Saturday's one slot: the matchup block, the cheap block or none;
+                                    # his decision at arming, each only if its frozen Saturday rule says ENTERABLE -- study
+                                    # 51 for matchup, study 53 amendment 1 for cheap). Was the prior-top block: 8 of the
                                     # 26 rows on projection + min(0.20 x pred_own, 2.0); 0 until the replay, study 49 and
                                     # the rehearsal are recorded; a book built WITHOUT it is not published (his decision)
 TERM_FILE=reports/2026-10-07-prior-top-term/priortop-w5.csv    # in the FRIDAY_HEAD checkout ($P); W1-W4 real fields, final
 TERM_SHA=""                         # its sha256, pinned (the arm refuses a mismatch)
+TERM_CAP=2.0                        # the block's cap in projected points = its dose (matchup and cheap +2: 2.0; cheap +4:
+                                    # 4.0); the arm refuses a bonus file whose largest bonus exceeds it (the union would clip
+                                    # a +4 file to +2 silently: a different rule from the one tested) and a cap outside (0, 5]
 CLASS_SHA=92cec73388193a107c235ff3d8e8dafeea9a2d5d0121b481814b2e4fe0802f13   # O-42 (10-07): the class sleeve's model
                                     # (week_env's CLASS_SLEEVE_EVERY=2 makes every build's preflight need $W/class_model.json
                                     # + .sha256): W4's class_model_w4_w1w3 (W1 + W3), installed 10-07, unless the reviewer's
@@ -55,6 +60,7 @@ stop() { say "ARM STOPPED: $*"; exit 1; }
 [[ "$TERM_ROWS" == 0 || ( "$TERM_ROWS" =~ ^[1-9][0-9]?$ && "$SHAPE" == mixt && "$MIX_FILL" == rr && "$MIX_RS" == 0 && "$MIX_COVER" == 0 && "$WINNER_ORDER" == 0 && "$WINNER_SELECT" == 0 && "$TERM_SHA" =~ ^[0-9a-f]{64}$ ) ]] || stop "TERM_ROWS=$TERM_ROWS: 0, or N with SHAPE=mixt, MIX_FILL=rr, no half / cover / winner order or select, and a pinned TERM_SHA"
 [[ -n "$FRIDAY_HEAD" ]] || stop "FRIDAY_HEAD is not set (Friday: the merged integration commit)"
 [[ "$TERM_ROWS" == 0 || "$(sha256sum "$P/$TERM_FILE" 2>/dev/null | cut -c1-64)" == "$TERM_SHA" ]] || stop "TERM_FILE $P/$TERM_FILE is missing or its sha is not the pinned TERM_SHA"
+[[ "$TERM_ROWS" == 0 ]] || "$PY" "$P/scripts/check_term_block_file.py" "$P/$TERM_FILE" --cap "$TERM_CAP" || stop "TERM_FILE does not fit TERM_CAP=$TERM_CAP (above)"
 # the reviewer's gate (10-06): study 35 tested the QB cap on MIXT only, so ct + the cap is an untested combination
 [[ "$SHAPE" == ct && -n "$QB_CAP_ROWS" ]] && stop "the QB cap was studied on MIXT only (study 35); for ct set QB_CAP_ROWS='' after an operator decision"
 cd "$P" || stop "no checkout"
@@ -109,7 +115,7 @@ arm_env() {
   # env takes every -u before any NAME=VALUE: build the two lists apart. The QB cap rides only when set (and ct + cap
   # never reaches here: the preamble stops it); unset otherwise, so check_week_runtime never sees a K without a cap.
   local u=() e=()
-  if [[ "$SHAPE" == mixt ]]; then e+=(UNION_MAIN=mix UNION_MIX_PORTFOLIO=mix UNION_MIX_FILL=$MIX_FILL UNION_MIX_COVER_GAMES=$MIX_COVER UNION_MIX_RS_ROWS=$MIX_RS UNION_WINNER_ORDER=$WINNER_ORDER UNION_WINNER_SELECT=$WINNER_SELECT UNION_TERM_BLOCK_ROWS=$TERM_ROWS UNION_TERM_BLOCK_SOURCE=$P/$TERM_FILE UNION_TERM_BLOCK_TILT=0.20 UNION_TERM_BLOCK_CAP=2.0 UNION_TERM_BLOCK_SHA256=$TERM_SHA); else u+=(-u UNION_MIX_PORTFOLIO -u UNION_MIX_FILL -u UNION_MIX_COVER_GAMES -u UNION_MIX_RS_ROWS -u UNION_WINNER_ORDER -u UNION_WINNER_SELECT -u UNION_TERM_BLOCK_ROWS -u UNION_TERM_BLOCK_SOURCE -u UNION_TERM_BLOCK_TILT -u UNION_TERM_BLOCK_CAP -u UNION_TERM_BLOCK_SHA256); e+=(UNION_MAIN=pmo_x50); fi
+  if [[ "$SHAPE" == mixt ]]; then e+=(UNION_MAIN=mix UNION_MIX_PORTFOLIO=mix UNION_MIX_FILL=$MIX_FILL UNION_MIX_COVER_GAMES=$MIX_COVER UNION_MIX_RS_ROWS=$MIX_RS UNION_WINNER_ORDER=$WINNER_ORDER UNION_WINNER_SELECT=$WINNER_SELECT UNION_TERM_BLOCK_ROWS=$TERM_ROWS UNION_TERM_BLOCK_SOURCE=$P/$TERM_FILE UNION_TERM_BLOCK_TILT=0.20 UNION_TERM_BLOCK_CAP=$TERM_CAP UNION_TERM_BLOCK_SHA256=$TERM_SHA); else u+=(-u UNION_MIX_PORTFOLIO -u UNION_MIX_FILL -u UNION_MIX_COVER_GAMES -u UNION_MIX_RS_ROWS -u UNION_WINNER_ORDER -u UNION_WINNER_SELECT -u UNION_TERM_BLOCK_ROWS -u UNION_TERM_BLOCK_SOURCE -u UNION_TERM_BLOCK_TILT -u UNION_TERM_BLOCK_CAP -u UNION_TERM_BLOCK_SHA256); e+=(UNION_MAIN=pmo_x50); fi
   if [[ -n "$QB_CAP_ROWS" ]]; then e+=(UNION_MAIN_QB_CAP_ROWS=$QB_CAP_ROWS UNION_MAIN_QB_CAP_K=$QB_CAP_K); else u+=(-u UNION_MAIN_QB_CAP_ROWS -u UNION_MAIN_QB_CAP_K); fi
   env "${u[@]}" "${e[@]}" GROUP=154468 EXPECT_SHA=$PIN CLONE=$CLONE_DIR ENTER_LAYOUT=head \
     D3200_LEV=$CHOSEN_LEV D3200_BOOM=$CHOSEN_BOOM D800_LEV=$CHOSEN_LEV D800_BOOM=$CHOSEN_BOOM SKIP_UNITS="$skip" \
