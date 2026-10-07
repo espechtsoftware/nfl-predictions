@@ -230,3 +230,22 @@ def test_union_winner_select_needs_the_mix_spares_and_not_the_order(tmp_path):
     env["UNION_WINNER_ORDER"] = "1"
     assert any("UNION_WINNER_SELECT='1' must be 0 or 1; 1 needs UNION_MAIN=mix with spares and UNION_WINNER_ORDER off" in f
                for f in _failures(_run(env)))
+
+
+def test_the_term_block_needs_the_mix_rr_and_a_pinned_file(tmp_path):
+    """The prior-top term block (the operator 10-07): rows in 1..K-1, the mix with rr, nothing it is refused with, and the
+    term file present with its sha pinned."""
+    import hashlib
+    f = tmp_path / "priortop-w5.csv"; f.write_text("dk_player_id,pred_own\n1,10\n")
+    sha = hashlib.sha256(f.read_bytes()).hexdigest()
+    env = _healthy(tmp_path); env.update({"UNION_MAIN": "mix", "UNION_MIX_PORTFOLIO": "mix", "UNION_MIX_FILL": "rr",
+                                          "UNION_TERM_BLOCK_ROWS": "8", "UNION_TERM_BLOCK_SOURCE": str(f), "UNION_TERM_BLOCK_SHA256": sha})
+    assert not any("UNION_TERM_BLOCK_ROWS" in x for x in _failures(_run(env)))
+    for k, v, msg in (("UNION_TERM_BLOCK_SHA256", "0" * 64, "sha"), ("UNION_TERM_BLOCK_SHA256", "", "no UNION_TERM_BLOCK_SHA256"),
+                      ("UNION_TERM_BLOCK_SOURCE", str(tmp_path / "nope.csv"), "does not exist"), ("UNION_MIX_FILL", "group", "rr"),
+                      ("UNION_TERM_BLOCK_ROWS", "90", "BOOK_ENTRIES"), ("UNION_MAIN_OWN_TILT", "0.2", "whole-book"),
+                      ("UNION_TERM_BLOCK_CAP", "9", "cap")):
+        bad = dict(env, **{k: v})
+        assert any("UNION_TERM_BLOCK_ROWS" in x and msg in x for x in _failures(_run(bad))), (k, v)
+    env["UNION_TERM_BLOCK_ROWS"] = "0"; env["UNION_TERM_BLOCK_SOURCE"] = ""
+    assert not any("UNION_TERM_BLOCK_ROWS" in x for x in _failures(_run(env)))

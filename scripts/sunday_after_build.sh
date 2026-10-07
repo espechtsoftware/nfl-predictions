@@ -288,7 +288,7 @@ while [ "$(date -u +%H%M)" -lt 1650 ]; do
     # only a run dir the build host marked audit_passed (after ITS verify_k90 and audit) is published; with the union on,
     # only the union dir, or a build marked union_failed (the fallback). A skipped dir stays eligible (never marked seen).
     # REQUIRE_AUDIT_PASSED=0 is an explicit rehearsal override and is logged on every publish.
-    if ! why=$($PY "$TOOLS/run_dir_publishable.py" "$run" $( [[ -n "${UNION_SATURDAY_RUN:-}" ]] && echo --union-mode ) $( [[ "${REQUIRE_AUDIT_PASSED:-1}" == "0" ]] && echo --no-audit-gate ) \
+    if ! why=$($PY "$TOOLS/run_dir_publishable.py" "$run" $( [[ -n "${UNION_SATURDAY_RUN:-}" ]] && echo --union-mode ) $( [[ "${REQUIRE_AUDIT_PASSED:-1}" == "0" ]] && echo --no-audit-gate ) $( [[ "${TERM_BLOCK_MISSING_OK:-0}" == "1" ]] && echo --accept-term-block-missing ) \
                  ${GROUP:+--group "$GROUP"} ${WEEK_WINDOW_START_UTC:+--built-after "$WEEK_WINDOW_START_UTC"}); then
       log "skip $d ($why)"; continue
     fi

@@ -108,3 +108,42 @@ def test_a_failed_copy_stops_the_tool(tmp_path):
         (out / "contests.json").chmod(0o644)
     assert r.returncode == 1 and "copy failed: contests.json" in r.stdout and "snapshot written" not in r.stdout
     assert (tmp_path / "dest" / "SNAPSHOT-FAILED.txt").exists() and not (tmp_path / "dest" / "MANIFEST.txt").exists()
+
+
+def test_a_term_block_week_copies_the_term_file_with_its_sha_and_refuses_without_it(tmp_path):
+    """Study 38 amendment 6 (10-07): the union's --term-block-source travels with the snapshot (sha in MANIFEST.txt);
+    a union naming --term-block-rows without a readable term file is refused."""
+    ud, out = _setup(tmp_path, own=False)
+    term = tmp_path / "priortop-w5.csv"; term.write_text("dk_player_id,pred_own\n1,10\n")
+    args = (out / "union-args-T.txt").read_text().strip() + f" --term-block-rows 8 --term-block-source {term}"
+    (out / "union-args-T.txt").write_text(args + "\n")
+    env = {"S38_NO_COLLECT": "1", "SEASON": "2026", "WEEK": "5", "PROD": str(ROOT), "PROD_PY": "/bin/false", "PATH": "/usr/bin:/bin", "HOME": str(tmp_path)}
+    (out / "ownership_lag.csv").write_text("x")
+    r = _run(tmp_path, ud, out, tmp_path / "dest", env=env)
+    assert r.returncode == 0, r.stdout + r.stderr
+    copied = tmp_path / "dest" / "priortop-w5.csv"
+    assert copied.read_text() == term.read_text()
+    manifest = (tmp_path / "dest" / "MANIFEST.txt").read_text()
+    assert hashlib.sha256(term.read_bytes()).hexdigest() in manifest and str(term) in manifest
+    term.unlink()
+    r2 = _run(tmp_path, ud, out, tmp_path / "dest2", env=env)
+    assert r2.returncode == 1 and "--term-block-rows 8 but the term file" in r2.stdout
+
+
+def test_the_paper_term_file_is_copied_as_paper_term_with_its_sha(tmp_path):
+    """Study 38 amendment 6b (10-07; the operator: the prior-top block on paper): S38_PAPER_TERM_FILE is copied as
+    paper-term-<basename> with its sha in MANIFEST.txt; a named but missing file is refused; unset copies nothing."""
+    import os
+    ud, out = _setup(tmp_path)
+    paper = tmp_path / "priortop-w5.csv"; paper.write_text("dk_player_id,pred_own\n1,10\n")
+    env = dict(os.environ, S38_PAPER_TERM_FILE=str(paper))
+    r = _run(tmp_path, ud, out, tmp_path / "dest", env=env)
+    assert r.returncode == 0, r.stdout + r.stderr
+    copied = tmp_path / "dest" / "paper-term-priortop-w5.csv"
+    assert copied.read_text() == paper.read_text()
+    assert hashlib.sha256(paper.read_bytes()).hexdigest() in (tmp_path / "dest" / "MANIFEST.txt").read_text()
+    r2 = _run(tmp_path, ud, out, tmp_path / "dest2", env=dict(os.environ, S38_PAPER_TERM_FILE=str(tmp_path / "none.csv")))
+    assert r2.returncode == 1 and "S38_PAPER_TERM_FILE" in r2.stdout
+    env3 = {k: v for k, v in os.environ.items() if k != "S38_PAPER_TERM_FILE"}
+    r3 = _run(tmp_path, ud, out, tmp_path / "dest3", env=env3)
+    assert r3.returncode == 0 and not any(p.name.startswith("paper-term") for p in (tmp_path / "dest3").iterdir())

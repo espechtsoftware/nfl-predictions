@@ -1,8 +1,16 @@
-# Study 48f (DRAFT, not frozen): the winner-likeness score refit on REAL 2026 fields, graded prospectively from Week 5
+# Study 48f (FROZEN 2026-10-07): the winner-likeness score refit on REAL 2026 fields, graded prospectively from Week 5
 
-Drafted 2026-10-07 by the laptop agent for the reviewer's review. Study list item 44. **Nothing here is frozen.** The
-reviewer reviews the design before any Week-5 outcome is read. The freeze happens before the Week-5 lock (Sun 10-11
-12:00 CT).
+Drafted and frozen 2026-10-07 by the laptop agent, reviewed by the reviewer. Study list item 44. Frozen before the
+Week-5 lock (Sun 10-11 12:00 CT); no Week-5 outcome exists.
+
+**The freeze:**
+- **Code:** `scripts/study48f_real_field.py` at 58c0c6f8 (sha256 1d08e7405d7398c3…), with `tests/test_study48f_real_field.py` (6 pass). Its docstring names this file's draft path (`…-DRAFT.md`), renamed at the freeze; the script is left byte-for-byte as fitted.
+- **The frozen fit:** `reports/2026-10-07-study48f/MODEL_48f_w1-4.json`, sha256
+  `ba2ac709da981656b8d57aa09b6e53c7374fda3807441fc25210398819c66564`. It holds SE, FULL and SE_NOOWN; week-equal
+  weights; 263,384 band rows; 4,353 labels; each week's total weight 65,846.
+- **The census:** §6; the private file `~/private/s48f/census-w1-4-58c0c6f8.txt` (sha256 d9039ffb…).
+- **Superseded before the freeze:** an unweighted first fit (sha256 7cf13ea4…, kept privately) was run and replaced on
+  design grounds (§4) before any use. Grading is prospective from W5, so nothing was graded with it.
 
 **Revision 1 (2026-10-07, the reviewer's review):**
 - The decision's unit is the WEEK, not the lineup. Lineups within a week share the few players whose games decide the top
@@ -62,6 +70,17 @@ part add anything over structure and environment?
   and the features are point-in-time. These weeks' outcomes are already known, so they grade nothing.
 - **The frozen model for grading (decision-bearing):** SE and FULL fit on W1–W4. The freeze commit carries the fit's
   coefficients, standardization, the exact feature list and the sha256, before the Week-5 lock.
+- **Week-equal weights (the reviewer, revision 2).**
+  - W1's Millionaire was ~5× the others, so its band is ~62% of the training rows and ~74% of the labels. An unweighted
+    fit would be a Week-1 model.
+  - The fit therefore weighs each row 1 / (its week's band rows), normalized to sum to the row count. The weights enter
+    the standardization (weighted mean / sd; a missing value is the weighted training mean) and the logistic fit, for
+    all three models and for the descriptive walk-forward refit.
+  - Grading counts each week equally too.
+- **Disclosed:**
+  - W1's frame has empty 4-week player-fact windows (the season's first week), so FULL's player-fact coefficients are
+    effectively learned from W2–W4.
+  - OWN exists only in W3 (the sets file) and W4 (FP's export).
 - **Descriptive only:** the walk-forward refit with the same frozen recipe (W1..W(w−1)) for each graded week w, and
   SE-without-OWN, so a failure can be attributed.
 
@@ -89,17 +108,35 @@ him enter the top 1% together.
     field.
   - Reported: the percentile of SE's 26 on P(≥ 1 top-1% row) and on mean finish.
   - The random 26s ignore the caps, so the comparison is descriptive.
-- **Horizon:** W5–W8. If a week is invalid (a missing T-70 frame or ownership file), W9 may replace it, and no later week
-  (as in study 38).
+- **Horizon:** W5–W8. The reader takes the first four VALID weeks of W5–W9 and prints which. W9 can only replace an
+  invalid week; there is never a W10. With fewer than four valid weeks the study is INCOMPLETE.
+- **A valid week** (`week_validity`, frozen in the code):
+  - the T-70 frame and its FP projection file were read;
+  - a pre-lock ownership file existed;
+  - at least 90% of the field's non-ours entries resolved to the frame;
+  - the 20% band holds at least 50 top-1% labels.
+
+  An invalid week prints its reasons and is not counted.
+- **The frozen fit** carries three models: SE and FULL (decision-bearing) and SE_NOOWN (descriptive).
+- **The monkeys pool** for week w is the union dir named `union_dir_48f` in the money gate's per-week config.
 - **Weekly line:** each graded week's AUCs and the monkeys percentile go into the Monday evidence record. No interim
   decision.
 
 ## 6. Support census (outcome-blind, before freezing)
 
-For W1–W4 (outcomes already known; counts only):
-- band size and top-1% labels per week (the whole-field check: W2 344 of 34,466; W3 541 of 32,302; W4 151 of 32,008);
-- the share of band lineups with every feature defined;
-- the band lineups dropped because a player is missing from the T-70 frame.
+For W1–W4 (outcomes already known; counts only). Run at 58c0c6f8:
+
+| week | field entries | resolved share | dropped | band rows | band top-1% labels | features defined | projection | ownership source |
+|---|---|---|---|---|---|---|---|---|
+| 1 | 831,028 | 0.9904 | 7,936 | 164,608 | 3,214 | 1.0 (no OWN) | ours | none |
+| 2 | 172,692 | 0.9979 | 362 | 34,466 | 344 | 1.0 (no OWN) | ours | none |
+| 3 | 161,682 | 0.9989 | 180 | 32,302 | 541 | 1.0 | ours | the sets file |
+| 4 | 161,764 | 0.9893 | 1,725 | 32,008 | 254 | 1.0 | FP | FP's export |
+
+- The W4 band uses FP's projections, consistent with W5+. That is why it holds 254 labels, not the 151 of the morning's
+  whole-field check, which used ours. W1–3 used ours: the projection played those weeks.
+- "Features defined" checks FULL, without OWN in the weeks that have no source (OWN is imputed at the training mean by
+  design).
 
 For W5–W8, the band and label counts are computed when each week settles.
 
@@ -114,7 +151,8 @@ For W5–W8, the band and label counts are computed when each week settles.
 
 - **PASS on SE:** a candidate for a real use (48e's gate at the soft threshold, or a selection), each still needing its
   own test.
-- **NO DIFFERENCE or WORSE:** closes the winner-likeness line for construction. The graph stays a looking tool.
+- **NO PASS or WORSE:** closes the winner-likeness line for construction. The graph stays a looking tool.
+- **INCOMPLETE** (fewer than four valid weeks by W9): no verdict, reported as such; the line stays open only by a new preregistration.
 
 ## 9. Resolved with the reviewer (revision 1)
 

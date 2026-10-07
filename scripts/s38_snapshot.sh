@@ -36,6 +36,16 @@ TAKEN=${S38_NOW:-$(date -u +%Y-%m-%dT%H:%M:%SZ)}
 python3 -c "import sys; from datetime import datetime as D; t=D.fromisoformat(sys.argv[1].replace('Z','+00:00')); l=D.fromisoformat(sys.argv[2].replace('Z','+00:00')); sys.exit(0 if t < l else 1)" "$TAKEN" "$LOCK" \
   || die "the snapshot time $TAKEN is at or after the lock $LOCK (pre-lock inputs only)"
 PSRC=$(argval --proj-source); OSRC=$(argval --main-own-source); DSRC=$(argval --dk-status)
+# study 38 amendment 6 (10-07): a union with the prior-top term block read --term-block-source; the build refuses a week
+# whose union read a term file the snapshot lacks, so it is copied with its sha in MANIFEST.txt
+TROWS=$(argval --term-block-rows); TSRC=$(argval --term-block-source)
+if [[ -n "$TROWS" && "$TROWS" != 0 ]]; then
+  [[ -n "$TSRC" && -s "$TSRC" ]] || die "the union args name --term-block-rows $TROWS but the term file '$TSRC' is missing"
+fi
+# study 38 amendment 6b (10-07; the operator chose the prior-top block on PAPER): the week's paper term file, named by
+# S38_PAPER_TERM_FILE (W5: reports/2026-10-07-prior-top-term/priortop-w5.csv), copied as paper-term-<basename>
+PAPER=${S38_PAPER_TERM_FILE:-}
+[[ -z "$PAPER" || -s "$PAPER" ]] || die "S38_PAPER_TERM_FILE '$PAPER' is missing or empty"
 [[ -n "$PSRC" ]] || die "the union args name no --proj-source (FP projections fell back?): no FP week for study 38"
 cmp -s "$PSRC" "$OUT/proj_fp-$TAG.csv" || die "--proj-source $PSRC differs from $OUT/proj_fp-$TAG.csv"
 if [[ -n "$OSRC" ]]; then
@@ -65,6 +75,8 @@ else
     || { echo "NOTE: FP OWNERSHIP EXPORT REFUSED: $(grep -h REFUSED "$DEST/.ownership_export.log" | tail -1)"; rm -f "$OGEN"; }
   OSRC_LABEL="(generated after the T-70 union by ownership_fp.py, --now ${S38_NOW:-$NOWS}; capture: $(grep -h '^FP OWNERSHIP AGE' "$DEST/.ownership_export.log" 2>/dev/null | tail -1 | tr -s ' ' | cut -c1-120))"
 fi
+if [[ -n "$TROWS" && "$TROWS" != 0 ]]; then cp -p "$TSRC" "$DEST/$(basename "$TSRC")" || die "copy failed: $(basename "$TSRC")"; fi
+if [[ -n "$PAPER" ]]; then cp -p "$PAPER" "$DEST/paper-term-$(basename "$PAPER")" || die "copy failed: paper-term-$(basename "$PAPER")"; fi
 # production passes no --dk-status (OPEN-DEFECTS O-16): then NO dk-status file is copied and the build must use none
 if [[ -n "$DSRC" ]]; then cp -p "$DSRC" "$DEST/$(basename "$DSRC")" || die "copy failed: $(basename "$DSRC")"; fi
 cp -p "$ARGS" "$DEST/union-args-$TAG.txt" || die "copy failed: union-args-$TAG.txt"   # ONE union-args file (never also union_args.txt)
@@ -83,6 +95,8 @@ OVR_SRC=$OVR; [[ "$OVR" == "-" ]] && OVR_SRC="(written: {})"
                   ["union-args-$TAG.txt"]="$ARGS" [contests.json]="$OUT/contests.json"
                   [contest-details.json]="$DETAILS" [plan-overrides.json]="$OVR_SRC" [union-receipt.json]="$UD/receipt.json")
   [[ -n "$DSRC" ]] && SRC["$(basename "$DSRC")"]="$DSRC"
+  [[ -n "$TROWS" && "$TROWS" != 0 ]] && SRC["$(basename "$TSRC")"]="$TSRC"
+  [[ -n "$PAPER" ]] && SRC["paper-term-$(basename "$PAPER")"]="$PAPER"
   if [[ -n "$OSRC" ]]; then SRC["$(basename "$OSRC")"]="$OSRC"; else SRC["ownership_fp-$TAG.csv"]="${OSRC_LABEL:-}"; SRC["ownership_fp-$TAG.csv.receipt.json"]="(written by ownership_fp.py with the export)"; fi
   for n in $(ls "$DEST" | sort); do
     [[ "$n" == .* ]] && continue
