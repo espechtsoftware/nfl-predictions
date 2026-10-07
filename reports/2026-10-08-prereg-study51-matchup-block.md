@@ -1,10 +1,12 @@
-# Preregistration: study 51, the matchup bonus as the live 8-row capped block, in the harness, with a 2022 go / no-go (DRAFT 2026-10-07)
+# Preregistration: study 51, the matchup bonus as the live 8-row capped block, in the harness, with a 2022 go / no-go (FROZEN 2026-10-07)
 
-**Status: DRAFT 2026-10-07** (lab `production/s51-matchup-block-20261007` @ `93e0810`).
-- The design was sent to the laptop at about 08:27 CT and agreed at about 08:33. It is committed here BEFORE study 50's
-  scored run is read; study 51 uses the same slates.
-- The smoke and the binding census follow. Then the freeze, with the code's shas.
-- The file carries the date of its scheduled run (10-08), the name the code points to.
+**Status: FROZEN 2026-10-07** by the reviewer, after the smoke and the binding census (§6), before any scored bank.
+- **The design came before study 50's read.** It was sent to the laptop at about 08:27 CT and agreed at about 08:33.
+  The DRAFT, with every decision-bearing part (arms, endpoint, the Saturday rule, banks, seed), was committed at 08:36
+  (`472434c7`; lab `93e0810`), BEFORE study 50's scored run was read (`e123c7f`). Study 51 uses the same slates.
+- **Only §6 and the code shas were added at the freeze.** The smoke and the census are outcome-blind.
+- The file carries the date of its scheduled run (10-08), the name the code points to. The laptop acks the census,
+  scans the banks and re-runs the frozen reader.
 
 ## 1. Why
 - **The operator (10-07):** "Please try to tackle the 'matchup bonus' one this week". He wants the outside reviewer's
@@ -102,9 +104,38 @@ block's positions. Each arm is dealt by the head layout.
     the frame's skill players;
   - the points allowed: the harness uses nflverse weekly stats by the DK formula; production reads the warehouse.
 
-## 6. Smoke and integrity (filled before the freeze)
-- The smoke: 2024 W10 and 2022 W6, bank 1406, the full path, code as committed.
-- The binding census: outcome-blind, bank 1406, all 53 slates, on clean committed code.
+## 6. Smoke and integrity
+- **The smoke** (2024 W10 and 2022 W6, bank 1406, the full path, code as committed at `93e0810`, clean):
+  - both arms built 41 rows within production's constraints;
+  - LIVE equals study 48d's (and study 50's) 41 rows and ranks on both slates;
+  - the term applied with coverage 1.0 (157 and 120 players termed);
+  - MBLOCK8's block sits at ranks 2, 5, 9, 12, 15, 18, 22 and 25;
+  - the census and the reader exited 0, and the reader's header names STUDY 51 (tested).
+- **The binding census** (outcome-blind; bank 1406; 53/53 (2022: 17; 2023–24: 36), code `93e0810` clean;
+  `results/s51/CENSUS_s51_binding.txt` `ca409dd3…`, raw `cd940dd3…`; lab `d7d287e`):
+
+  | | 2023–24 LIVE | 2023–24 MBLOCK8 | 2022 MBLOCK8 |
+  |---|---|---|---|
+  | projection per row (change) | 128.04 | 127.35 (−0.69) | −0.66 |
+  | predicted ownership per row (change) | 78.56% | +0.24 | n/a |
+  | book rows shared with LIVE | — | 16.2 of 26 | 16.3 |
+  | the block's 8 rows: projection, term points per row | — | 123.24, 8.88 | 127.02, 8.90 |
+  | identical to LIVE | — | 0.000 | 0.000 |
+
+  - **The term:** applied on every slate-bank, coverage 1.000. About 119 players termed a slate in 2023–24 (mean where
+    termed 0.84, max 2); Spearman with player_mean +0.004.
+  - No quota passed to A1. About 50 s per slate-bank for the two arms.
+- **Banks:** 1557–1562 and seed 20261103. The reviewer's unique-blob scan of both repositories found them only in study
+  51's own files (this prereg's DRAFT, `s51_report.py`, `s51_drive.py`, the tests). That covers every blob up to 5 MB;
+  the 8 larger blobs per repository were not searched.
+- **Code:** nfl2 `production/s51-matchup-block-20261007` @ `93e0810` (the census at `d7d287e`):
+  - `experiments/s51_matchup_block.py`, sha256 `c766a12e4b8f8c0285bb4bf0f2a7c37b57640a1631af25f6a047d25372ed4a15`;
+  - `scripts/s51_drive.py`, `5f903bf3de4be2b21520900f61c49da52dab4e59a94e740a1ad0a23058653d0e`;
+  - **`scripts/s51_report.py` (the reader), sha256 `2cba71638ed1ba9e0faa64ef1fb629f7a42176adcb674279bd19cdad8295df63`**;
+  - `scripts/s51_census.py`, `c49dae77fbd4c09bef0506950fecb6911db93f0b99f8840d3c792610ecd48028`;
+  - `tests/test_s51_matchup_block.py`, `caeee4fe50fcea1ca4801d1084727b2a7460a127b954ee4cc6b4f811c68673cb` (5 tests);
+  - unchanged, sha-asserted: study 48's `s48_winner_like.py` `c22d2811…`, study 50's `s50_factor_bonuses.py`
+    `bf4704a0…`, `term_book.py` `62c2306e…`.
 
 ## 7. Order
 1. This DRAFT, committed before study 50 is read.
