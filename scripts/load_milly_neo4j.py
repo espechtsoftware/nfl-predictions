@@ -214,7 +214,25 @@ def build_facts(a, query_df, batches, weeks, games) -> dict:
                 raise SystemExit(f"FACTS REFUSED: vendor fields {bad[:5]} without --include-fp")
         out["player_weeks"] += pw
         out["team_weeks"] += mgf.team_week_rows(frame, wk, source, as_of, starters=starters)
-        out["game_facts"] += mgf.game_fact_rows(frame, games[games.week == int(w)], source, as_of)
+        # the result facts (study list 55; the outside reviewer's definitions): the best QB + 2 + 1 stack per game by DK
+        # points, and the WHOLE field's QB-game shares in the week's largest Millionaire (BigQuery, not the loaded subset)
+        team_game = dict(zip(frame.team.astype(str), frame.game_id.astype(str)))
+        stack_pts = mgf.best_stack_points(query_df(mgf.STACK_SQL.format(features=settings.features), prm), team_game)
+        qb_shares, big = None, query_df(mgf.LARGEST_CONTEST_SQL.format(raw=settings.raw), prm)
+        if not big.empty:
+            pr = frame[pd.to_numeric(frame.salary, errors="coerce").notna()].drop_duplicates("display_name")
+            q = query_df(mgf.FIELD_QB_SQL.format(raw=settings.raw),
+                         {**prm, "contest": str(big.contest_id.iloc[0]), "names": pr.display_name.astype(str).tolist(),
+                          "pos": pr.pos.astype(str).tolist(), "games": pr.game_id.astype(str).tolist()})
+            qb_shares = mgf.qb_game_shares(q, sorted(frame.game_id.astype(str).unique()))
+            resolved = float(q[q.qb_game.notna()].n.sum()) / max(float(q.n.sum()), 1.0)
+            ranks = mgf.game_total_ranks(frame)
+            top = max(stack_pts.values()) if stack_pts else None
+            print(f"FACTS week {w}: best stack {top} in total-rank "
+                  f"{sorted(ranks[g] for g, v in stack_pts.items() if v == top)}; QB-game shares from contest "
+                  f"{big.contest_id.iloc[0]} (QB resolved {resolved:.3f})")
+        out["game_facts"] += mgf.game_fact_rows(frame, games[games.week == int(w)], source, as_of,
+                                                stack_points=stack_pts, qb_shares=qb_shares)
         lw = [d for d in batches.get("lineups", []) if d.get("week_key") == wk]
         keys = {d["key"] for d in lw}
         cw = [c for c in batches.get("contains", []) if c["lineup_key"] in keys]

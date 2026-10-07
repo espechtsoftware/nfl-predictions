@@ -78,6 +78,7 @@ def test_lineup_labels_and_tiers():
     assert p["lbl_games"] == 2 and p["lbl_qb_game_rank"] == 1 and p["lbl_qb_favourite"] is True
     assert p["lbl_top_game_players"] == 6 and p["lbl_cheap_players"] == 1 and p["lbl_flex_pos"] == "WR"
     assert p["lbl_dual_stack"] is True and p["lbl_salary_left"] == 50_000 - sum(fr.set_index("dk_player_id").salary[[x for x, _ in picks]])
+    assert p["lbl_stack_n"] == 2 and p["lbl_bring_n"] == 2 and p["lbl_max_game"] == 6     # study list 55 (10-07)
     assert p["out_tier_winner"] and p["out_tier_top01pct"] and p["out_tier_within10"]
     assert p["out_own_under5_realized"] == sum(own[("c", x)] < 5 for x, _ in picks) and p["out_own_max_realized"] == 20.0
     assert not any(k.startswith("lbl_") and "own" in k for k in p)       # realized ownership is never a pre-lock label
@@ -135,6 +136,7 @@ def test_pool_lineups_carry_pre_lock_labels_and_real_finish_tiers():
     assert len(rows) == 1 and rows[0]["tags"] == ["boom", "lev"] and len(rows[0]["players"]) == 9
     p = rows[0]["props"]
     assert p["lbl_flex_pos"] == "RB" and p["lbl_qb_game_rank"] == 1 and p["lbl_dual_stack"] is True
+    assert p["lbl_stack_n"] == 4 and p["lbl_bring_n"] == 2 and p["lbl_max_game"] == 8
     assert p["out_points"] == 225.0 and p["out_tier_top1pct_line"] and p["out_tier_top01pct_line"] and not p["out_tier_winner_line"]
     assert p["out_tier_within10_line"] is True
     assert "pool_lineups" in F.STATEMENTS and "PoolLineup" in F.STATEMENTS["pool_lineups"]
@@ -151,3 +153,52 @@ def test_a_pool_player_without_points_nulls_the_tiers_never_zero():
     p = rows[0]["props"]
     assert p["out_points_missing"] == 1 and "out_points" not in p
     assert not any(k.startswith("out_tier_") for k in p)
+
+
+def test_game_total_ranks_break_ties_by_game_id_and_rank_a_missing_total_last():
+    """Study list 55 (the outside reviewer's rule, 10-07, = scripts/field_pattern_monitor.game_total_ranks): 1 = the
+    highest total, tied totals in game_id order, a game without a total after every game with one; the top-total game
+    is None when no game has a total."""
+    fr = pd.DataFrame({"game_id": ["g3", "g3", "g1", "g2", "g4"], "game_total": [47.5, 47.5, 47.5, 50.0, None]})
+    assert F.game_total_ranks(fr) == {"g2": 1, "g1": 2, "g3": 3, "g4": 4} and F.top_total_game(fr) == "g2"
+    assert F.top_total_game(fr.assign(game_total=None)) is None
+
+
+def test_flex_is_read_from_the_position_counts_never_the_loaded_slot():
+    """A FLEX slot label that disagrees with the counts (3 RBs, the slot on a WR) reads as RB; a nine that is not a
+    legal lineup has no flex label."""
+    from collections import Counter
+    fr = _frame(); ids = list(fr.dk_player_id)
+    picks = [(ids[0], "QB"), (ids[1], "RB"), (ids[7], "RB"), (ids[13], "RB"), (ids[2], "FLEX"), (ids[3], "WR"),
+             (ids[8], "WR"), (ids[4], "TE"), (ids[5], "DST")]
+    rows = F.lineup_label_rows([{"key": "L1", "contest_id": "c", "rank": 5, "points": 150.0}],
+                               [{"lineup_key": "L1", "dk_player_id": x, "slot": s} for x, s in picks], fr, {}, {"c": 1000}, {"c": 230.0})
+    assert rows[0]["props"]["lbl_flex_pos"] == "RB"
+    assert F.flex_position(Counter({"QB": 2, "RB": 2, "WR": 3, "TE": 1})) is None
+
+
+def test_best_stack_points_and_the_game_result_facts():
+    """Per team: its best QB + its two best non-QB skill players + the opponent's best non-QB skill player; the max over
+    the game's teams; the slate's best stack flagged (ties all true); the whole field's QB-game shares among lineups
+    whose QB resolved; pre_total_rank pre_, the rest out_ (assert_point_in_time passes)."""
+    fr = _frame()
+    team_game = dict(zip(fr.team, fr.game_id))
+    act = pd.DataFrame({"team": ["BUF", "BUF", "BUF", "BUF", "NE", "NE", "KC", "KC", "KC", "LV", "LV", "XXX"],
+                        "position": ["QB", "QB", "WR", "RB", "WR", "QB", "QB", "WR", "TE", "RB", "QB", "QB"],
+                        "dk_points": [20.0, 25.0, 10.0, 8.0, 30.0, 5.0, 18.0, 12.0, 9.0, 21.0, None, 99.0]})
+    best = F.best_stack_points(act, team_game)
+    # g1: BUF 25 (best QB) + 10 + 8 + NE's best 30 = 73; NE 5 + 30 + 0 + BUF's best 10 = 45. g2: KC 18 + 12 + 9 + 21 = 60;
+    # LV (QB None -> 0) 0 + 21 + 0 + 12 = 33. The XXX row has no game and never counts.
+    assert best == {"g1": 73.0, "g2": 60.0}
+    sch = pd.DataFrame({"game_id": ["g1", "g2"], "home_team": ["BUF", "KC"], "away_team": ["NE", "LV"],
+                        "home_score": [10, 31], "away_score": [7, 28], "week": [4, 4]})
+    q = pd.DataFrame({"qb_game": ["g1", "g2", None], "n": [300, 100, 50], "t": [3, 1, 9]})
+    shares = F.qb_game_shares(q, ["g1", "g2", "g9"])
+    assert shares == {"g1": (0.75, 0.75), "g2": (0.25, 0.25), "g9": (0.0, 0.0)}           # unresolved QBs leave the denominators
+    g = {r["game_id"]: r["props"] for r in F.game_fact_rows(fr, sch, "s", "t", stack_points=best, qb_shares=shares)}
+    assert g["g1"]["pre_total_rank"] == 1 and g["g2"]["pre_total_rank"] == 2
+    assert g["g1"]["out_best_stack_pts"] == 73.0 and g["g1"]["out_is_best_stack_game"] is True and g["g2"]["out_is_best_stack_game"] is False
+    assert g["g1"]["out_field_qb_share"] == 0.75 and g["g2"]["out_top1_qb_share"] == 0.25
+    tie = {r["game_id"]: r["props"] for r in F.game_fact_rows(fr, sch, "s", "t", stack_points={"g1": 60.0, "g2": 60.0})}
+    assert tie["g1"]["out_is_best_stack_game"] and tie["g2"]["out_is_best_stack_game"] and "out_field_qb_share" not in tie["g1"]
+    assert "out_best_stack_pts" not in {r["game_id"]: r["props"] for r in F.game_fact_rows(fr, sch, "s", "t")}["g1"]

@@ -36,6 +36,19 @@ Added 10-07 (the outside reviewer's facts-layer review, items E and the two miss
             -[:OF_WEEK]->(:Week), -[:CONTAINS]->(:Player) -- OUR candidate pool (the rows the union could have entered;
             the reviewer's item D): the same pre-lock construction labels as the field's Lineups, and the real finish
             tiers against that week's Millionaire lines (winner, within 10, top 1%, top 0.1%).
+
+Added 10-07 evening (the outside reviewer's brainstorm, study list 55; definitions agreed before the build, reference
+values reports/2026-10-07-brainstorm/graph_result_facts_reference_*.csv on review/outside-fill-order-20261006):
+  Game pre_total_rank -- 1 = the highest total (the max of the frame's game_total), ties broken by game_id order, a game
+            without a total last (game_total_ranks: the weekly field monitor's rule; lbl_qb_game_rank uses it too);
+  Game out_best_stack_pts / out_is_best_stack_game -- per team: its best QB + its two best non-QB skill players + the
+            opponent's best non-QB skill player, by that week's DK points (player_week_actuals; positions from
+            player_week_role), the max over the game's two teams; the slate's best (every tie true);
+  Game out_field_qb_share / out_top1_qb_share -- the share of the week's largest Millionaire's lineups (and of its top-1%
+            lineups) whose QB is from the game, from BigQuery's WHOLE field (the field is revealed only at lock);
+  Lineup / PoolLineup lbl_stack_n, lbl_bring_n, lbl_max_game -- the QB's teammates (not the DST), players on the QB's
+            opponent (not its DST), the most of the nine from one game (the DST included); lbl_flex_pos is read from
+            the position counts (3 RB / 4 WR / 2 TE), never the loaded slot.
 """
 from __future__ import annotations
 
@@ -159,6 +172,96 @@ def canon_name(s) -> str:
     return t
 
 
+def game_total_ranks(frame: pd.DataFrame) -> dict[str, int]:
+    """Games ranked by total, 1 = the highest (the max of the frame's game_total over the game's rows); ties broken by
+    game_id order and a game without a total ranked after every game with one -- the rule of the weekly field monitor
+    (scripts/field_pattern_monitor.game_total_ranks) and of its 2014-2025 best-stack base rates (the outside reviewer,
+    10-07). Tied totals are common, so the tie rule moves games between ranks."""
+    gt = pd.to_numeric(frame.groupby("game_id").game_total.max(), errors="coerce")
+    return {str(g): int(r) for g, r in gt.rank(ascending=False, method="first", na_option="bottom").items()}
+
+
+def top_total_game(frame: pd.DataFrame) -> str | None:
+    """The slate's highest-total game (rank 1 of game_total_ranks), or None when no game has a total."""
+    if pd.to_numeric(frame.get("game_total"), errors="coerce").notna().sum() == 0:
+        return None
+    return next(g for g, k in game_total_ranks(frame).items() if k == 1)
+
+
+def flex_position(pos: Counter) -> str | None:
+    """The FLEX position from the position counts: a legal classic nine has exactly one of 3 RB / 4 WR / 2 TE. Never
+    the loaded slot property (the outside reviewer, 10-07); None for a nine that is not a legal lineup."""
+    return "RB" if pos["RB"] == 3 else "WR" if pos["WR"] == 4 else "TE" if pos["TE"] == 2 else None
+
+
+def shape_labels(recs: list) -> dict:
+    """lbl_stack_n (players on the QB's team other than the QB and the DST), lbl_bring_n (players on the QB's opponent
+    other than its DST) and lbl_max_game (the most of the nine from one game, the DST included); a DST's team and game
+    are its own (the outside reviewer's definitions, 10-07)."""
+    qb = next((r for r in recs if str(r.pos) == "QB"), None)
+    per_game = Counter(str(r.game_id) for r in recs)
+    out = {"lbl_max_game": max(per_game.values()) if per_game else None}
+    if qb is not None:
+        out["lbl_stack_n"] = sum(1 for r in recs if str(r.team) == str(qb.team) and str(r.pos) not in ("QB", "DST"))
+        out["lbl_bring_n"] = sum(1 for r in recs if str(r.team) == str(qb.opp) and str(r.pos) != "DST")
+    return out
+
+
+# That week's best QB + 2 + 1 stack per game: DK points with positions (player_week_role), skill positions only.
+STACK_SQL = """
+SELECT a.team, r.position, a.dk_points
+FROM `{features}.player_week_actuals` a
+JOIN `{features}.player_week_role` r ON r.gsis_id = a.gsis_id AND r.season = a.season AND r.week = a.week
+WHERE a.season = @season AND a.week = @week AND r.position IN ('QB', 'RB', 'WR', 'TE')"""
+
+# The week's largest Millionaire (by expected entries), whose WHOLE field gives the QB-game shares.
+LARGEST_CONTEST_SQL = """
+SELECT contest_id FROM `{raw}.contest_entries` WHERE season = @season AND week = @week
+GROUP BY 1 ORDER BY MAX(expected_entries) DESC LIMIT 1"""
+
+# Lineups by their QB's game (exact display-name match to the frame's priced players), all and top 1%.
+FIELD_QB_SQL = """
+WITH m AS (SELECT n, p, g FROM UNNEST(@names) n WITH OFFSET i JOIN UNNEST(@pos) p WITH OFFSET k ON i = k
+           JOIN UNNEST(@games) g WITH OFFSET j ON i = j),
+     e AS (SELECT DISTINCT entry_id, rank, expected_entries ne, players_key FROM `{raw}.contest_entries`
+           WHERE contest_id = @contest AND season = @season AND week = @week),
+     x AS (SELECT e.entry_id, ANY_VALUE(e.rank) <= 0.01 * ANY_VALUE(e.ne) top1, ANY_VALUE(IF(m.p = 'QB', m.g, NULL)) qb_game
+           FROM e, UNNEST(SPLIT(e.players_key, '|')) nm LEFT JOIN m ON m.n = nm GROUP BY e.entry_id)
+SELECT qb_game, COUNT(*) n, COUNTIF(top1) t FROM x GROUP BY 1"""
+
+
+def best_stack_points(actuals: pd.DataFrame, team_game: Mapping[str, str]) -> dict[str, float]:
+    """Per game: for each of its teams, the team's best QB (max DK points among its QBs, 0 if none) + its two best
+    non-QB skill players + the opponent's best non-QB skill player; the max over the two teams, to 2 decimals.
+    actuals: team, position (QB / RB / WR / TE), dk_points; team -> game through the T-70 frame (team_game)."""
+    a = actuals.copy()
+    a["dk_points"] = pd.to_numeric(a.dk_points, errors="coerce").fillna(0.0)
+    a["game_id"] = a.team.astype(str).map(team_game)
+    a = a[a.game_id.notna()]
+    best: dict[str, float] = {}
+    for gid, g in a.groupby("game_id"):
+        vals = []
+        for tm, t in g.groupby("team"):
+            qb = t[t.position == "QB"].dk_points.max()
+            mates = float(np.sort(t[t.position != "QB"].dk_points.values)[::-1][:2].sum())
+            opp = g[(g.team != tm) & (g.position != "QB")].dk_points.max()
+            vals.append((0.0 if pd.isna(qb) else float(qb)) + mates + (0.0 if pd.isna(opp) else float(opp)))
+        best[str(gid)] = round(max(vals), 2)
+    return best
+
+
+def qb_game_shares(q: pd.DataFrame, games) -> dict[str, tuple[float | None, float]]:
+    """{game_id: (field share, top-1% share)} of the lineups whose QB is from the game, among the lineups whose QB
+    resolved to a priced frame QB (FIELD_QB_SQL's rows with a qb_game); a game no lineup's QB came from gets 0."""
+    r = q[q.qb_game.notna()]
+    n_all, t_all = float(r.n.sum()), float(r.t.sum())
+    out = {}
+    for g in games:
+        s_ = r[r.qb_game.astype(str) == str(g)]
+        out[str(g)] = (round(float(s_.n.sum()) / n_all, 4) if n_all else None, round(float(s_.t.sum()) / max(t_all, 1.0), 4))
+    return out
+
+
 def td_probabilities(props: pd.DataFrame) -> pd.DataFrame:
     """TD_SQL rows -> one row per player (canonical name): the mean price-implied probability over bookmakers and the
     number of bookmakers. The 'yes' side only (outcome yes / over / the player's own name / missing)."""
@@ -182,9 +285,7 @@ def pool_lineup_rows(cands: pd.DataFrame, frame: pd.DataFrame, week_key: str, ac
     fr = frame.copy(); fr["id"] = fr["id"].astype(str)
     fr["dk"] = pd.to_numeric(fr.get("dk_player_id"), errors="coerce")
     info = {r.id: r for r in fr.dropna(subset=["dk"]).drop_duplicates("id").itertuples(index=False)}
-    gt = fr.dropna(subset=["game_total"]).drop_duplicates("game_id").sort_values(["game_total", "game_id"], ascending=[False, True])
-    g_rank = {str(g): i + 1 for i, g in enumerate(gt.game_id)}
-    top_game = gt.game_id.iloc[0] if len(gt) else None
+    g_rank, top_game = game_total_ranks(frame), top_total_game(frame)
     seen: dict[str, dict] = {}
     for players, tag in zip(cands.players.astype(str), cands.tag.astype(str) if "tag" in cands else [""] * len(cands)):
         ids = sorted(p.strip() for p in players.split(",") if p.strip())
@@ -205,7 +306,7 @@ def pool_lineup_rows(cands: pd.DataFrame, frame: pd.DataFrame, week_key: str, ac
         win, t1, t01 = lines.get("winning_score"), lines.get("top_1pct_line"), lines.get("top_01pct_line")
         tier = lambda line, off=0.0: (pts >= float(line) - off) if (pts is not None and line is not None) else None  # noqa: E731
         props = {"lbl_games": len({str(r.game_id) for r in recs}),
-                 "lbl_flex_pos": "RB" if pos["RB"] == 3 else "TE" if pos["TE"] == 2 else "WR",
+                 "lbl_flex_pos": flex_position(pos), **shape_labels(recs),
                  "lbl_dual_stack": bool(qb is not None and teams.get(str(qb.team), 0) >= 2 and teams.get(str(qb.opp), 0) >= 2),
                  "lbl_qb_game_rank": g_rank.get(str(qb.game_id)) if qb is not None else None,
                  "lbl_qb_favourite": (float(qb.spread) < 0) if qb is not None and pd.notna(getattr(qb, "spread", np.nan)) else None,
@@ -397,9 +498,13 @@ def team_week_rows(frame: pd.DataFrame, week_key: str, source: str, as_of: str,
     return rows
 
 
-def game_fact_rows(frame: pd.DataFrame, schedule: pd.DataFrame, source: str, as_of: str) -> list[dict]:
-    """Game pre_ facts from the frame (total, home spread, implied totals, kickoff window) and out_ facts from the
-    schedule's final scores, with the slate's scoring rank (1 = the highest-scoring game of the slate)."""
+def game_fact_rows(frame: pd.DataFrame, schedule: pd.DataFrame, source: str, as_of: str,
+                   stack_points: Mapping[str, float] | None = None,
+                   qb_shares: Mapping[str, tuple] | None = None) -> list[dict]:
+    """Game pre_ facts from the frame (total and its rank, home spread, implied totals, kickoff window) and out_ facts
+    from the schedule's final scores, with the slate's scoring rank (1 = the highest-scoring game of the slate); with
+    stack_points (best_stack_points) the game's best QB + 2 + 1 stack and whether it is the slate's best (ties all true),
+    with qb_shares (qb_game_shares) the whole field's and its top 1%'s share of lineups whose QB is from the game."""
     fr = frame.copy()
     fr["game_id"] = fr.game_id.astype(str)
     sch = schedule.copy()
@@ -408,6 +513,8 @@ def game_fact_rows(frame: pd.DataFrame, schedule: pd.DataFrame, source: str, as_
     tot = (pd.to_numeric(sch.home_score, errors="coerce") + pd.to_numeric(sch.away_score, errors="coerce"))
     sch = sch.assign(tot_pts=tot.values)
     sch["score_rank"] = sch.tot_pts.rank(ascending=False, method="min")
+    ranks = game_total_ranks(frame)
+    best = max(stack_points.values()) if stack_points else None
     rows = []
     for s in sch.itertuples(index=False):
         g = fr[fr.game_id == s.game_id]
@@ -418,7 +525,13 @@ def game_fact_rows(frame: pd.DataFrame, schedule: pd.DataFrame, source: str, as_
                  "pre_implied_home": first(home, "implied_team_total"), "pre_implied_away": first(away, "implied_team_total"),
                  "pre_kickoff": kickoff_window(first(g, "game_start")), "pre_source": source, "pre_as_of": as_of,
                  "out_home_pts": _v(s.home_score), "out_away_pts": _v(s.away_score), "out_total": _v(s.tot_pts),
-                 "out_top_game_rank": _v(s.score_rank), "out_source": "nfl_raw.schedules"}
+                 "out_top_game_rank": _v(s.score_rank), "out_source": "nfl_raw.schedules",
+                 "pre_total_rank": ranks.get(str(s.game_id))}
+        if stack_points is not None and str(s.game_id) in stack_points:
+            props["out_best_stack_pts"] = stack_points[str(s.game_id)]
+            props["out_is_best_stack_game"] = bool(stack_points[str(s.game_id)] == best)
+        if qb_shares is not None and str(s.game_id) in qb_shares:
+            props["out_field_qb_share"], props["out_top1_qb_share"] = qb_shares[str(s.game_id)]
         rows.append({"game_id": s.game_id, "props": {k: v for k, v in props.items() if v is not None}})
     assert_point_in_time(rows)
     return rows
@@ -436,10 +549,7 @@ def lineup_label_rows(lineups: list[dict], contains: list[dict], frame: pd.DataF
     fr["dk"] = pd.to_numeric(fr.get("dk_player_id"), errors="coerce")
     fr = fr.dropna(subset=["dk"]).drop_duplicates("dk")
     info = {int(r.dk): r for r in fr.itertuples(index=False)}
-    gt = fr.dropna(subset=["game_total"]).drop_duplicates("game_id").sort_values(["game_total", "game_id"],
-                                                                                  ascending=[False, True])
-    g_rank = {str(g): i + 1 for i, g in enumerate(gt.game_id)}
-    top_game = gt.game_id.iloc[0] if len(gt) else None
+    g_rank, top_game = game_total_ranks(frame), top_total_game(frame)
     by_lineup: dict[str, list[tuple[int, str]]] = {}
     for c in contains:
         by_lineup.setdefault(c["lineup_key"], []).append((int(c["dk_player_id"]), c["slot"]))
@@ -450,7 +560,7 @@ def lineup_label_rows(lineups: list[dict], contains: list[dict], frame: pd.DataF
         if len(recs) < 9:
             continue
         qb = next((r for r, _ in recs if str(r.pos) == "QB"), None)
-        flex = next((str(r.pos) for r, slot in recs if str(slot).upper() == "FLEX"), None)
+        flex = flex_position(Counter(str(r.pos) for r, _ in recs))      # the counts, never the loaded slot
         teams = Counter(str(r.team) for r, _ in recs if str(r.pos) != "DST")
         games = {str(r.game_id) for r, _ in recs}
         sal = sum(float(r.salary) for r, _ in recs)
@@ -459,7 +569,7 @@ def lineup_label_rows(lineups: list[dict], contains: list[dict], frame: pd.DataF
         dst = next((r for r, _ in recs if str(r.pos) == "DST"), None)
         te = [float(r.salary) for r, _ in recs if str(r.pos) == "TE"]
         opp_of_qb = str(qb.opp) if qb is not None else None
-        props = {"lbl_games": len(games), "lbl_flex_pos": flex,
+        props = {"lbl_games": len(games), "lbl_flex_pos": flex, **shape_labels([r for r, _ in recs]),
                  "lbl_dual_stack": bool(qb is not None and teams.get(str(qb.team), 0) >= 2 and teams.get(opp_of_qb, 0) >= 2),
                  "lbl_qb_game_rank": g_rank.get(str(qb.game_id)) if qb is not None else None,
                  "lbl_qb_favourite": (float(qb.spread) < 0) if qb is not None and pd.notna(getattr(qb, "spread", np.nan)) else None,
