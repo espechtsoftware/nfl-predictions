@@ -53,3 +53,56 @@ this machine at `~/projects/.nfl-predictions-worktrees/review/outside-fill-order
 
 The operator asked that results go to you directly: I will message this session (`nfl-predictions-7d`) with each
 committed finding. Replies that need the operator still go through him.
+
+## 5. End of day (2026-10-07 16:16 CDT): what was done after 10:30, what is open, and Monday's plan
+
+**Week 5 as armed (the operator's decisions, recorded by the laptop on decision sheet row 21):**
+- **The cheap +2 block** runs as a reversible trial in place of the matchup block (his words: "Consider that
+  approved"). Matchup stays on paper.
+  - Stop rule: behind the unblocked book on paired P(≥ 1 big) in every live week, or summed expected big seats
+    < 0.80×.
+  - The first full review is Monday 10-19.
+  - Three practice-week side reads average about zero (2023–24 +0.4 / −3.5 / +1.7; 2022 −0.2 / −0.2 / −3.3).
+- **His contest order, private plan Rev6:** $4,444 → $555 → WFFC → $333 → Millionaire → Warm Up → the rest. It is
+  installed after its harm screen passed (1.466).
+- **Priority-first SORT of our rows:**
+  - NOT ENTERED: the W2–4 screen read 0.587.
+  - Study 59 on practice weeks: +0.7 / +1.5, within noise.
+  - Closed, except as a possible no-cost paper deal if he wants it watched.
+
+**Committed today on `review/outside-fill-order-20261006`** (all aggregates; the scripts beside their outputs in
+`reports/2026-10-07-brainstorm/`):
+
+| What | Where |
+|---|---|
+| Brainstorm: Neo4j data, models, nine quick tests | `reports/2026-10-07-brainstorm-data-and-models.md` (study list 52–55; 52 later DROPPED) |
+| Week-5 options, priority contests, satellites, the Rev6 log, the harm screen, big-contest entries | `reports/2026-10-07-week5-options-this-week.md` §0–§5 |
+| Expediting under the adoption track | `reports/2026-10-07-expedite-options.md` |
+| Weekly monitors, adopted by production (steps 5 and 6) | `scripts/field_pattern_monitor.py` (881ad086); `scripts/priority_field_monitor.py` (849adde2, the Warm Up update) |
+| Neo4j result facts (built by production) | definitions and W1–4 references in `graph_result_facts_reference.py` |
+| Graph-query hardening and production's fix | `within_portfolio.py` / `cheap_tier.py` (DISTINCT); `cheap_count_check.py` = production 02eb0b0e |
+
+**Open, owned elsewhere:**
+- Study list 58 (the 2025 regime study, W6+; needs 2025 inputs).
+- The 2022–25 DK-points join (README log).
+- The cash-line test for big-contest entries (§5 of the options note; the reviewer's harness at the target contests'
+  real lines, m = 1 and 2: LIVE vs FP-plain vs props-plain).
+- Study 56 (fewer QB + 1) as a possible W6 trial.
+
+**Withdrawn by me:**
+- Joint-coverage pairs for big-contest entries, after study 57 read −1.6.
+- Row-ranking deals built from field odds ratios. The lesson in §4b: field associations say how to build a book, not
+  how to deal our rows.
+
+**Monday 10-12 (my plan):** read Week 5's real fields and report to the operator in plain words:
+1. The paper arms: the cheap trial vs the unblocked book, plus matchup and QB2HALF.
+2. Both monitors.
+3. The graph's game results: did our rows cover the best-stack game?
+4. The FP-#1 vs props-#1 lineup on the real field, from P3's W5 books, extending `cash_line_books.py`.
+Then a short note for the Tuesday 10-13 Week-6 decisions.
+
+**Housekeeping:**
+- Neo4j is stopped.
+- No jobs of mine are running.
+- My last scratch worktree (the cheap-block replay checkout) was removed by exact path; its results stay in
+  `~/rehearsals/outside-cblocks-20261007T153309Z`.
