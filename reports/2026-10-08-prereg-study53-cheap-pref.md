@@ -1,4 +1,4 @@
-# Preregistration: study 53, a soft preference for sub-$4,000 players on the objective, in the harness, with a 2022 go / no-go (FROZEN 2026-10-07)
+# Preregistration: study 53, a soft preference for sub-$4,000 players on the objective, in the harness, with a 2022 go / no-go (FROZEN 2026-10-07; amendment 1 before any scored bank)
 
 **Status: FROZEN 2026-10-07** by the reviewer, after the smoke and the binding (support) census (§6), before any scored
 bank.
@@ -110,6 +110,43 @@ TEs. A missing salary never counts.
   - `scripts/s53_census.py`, `77236949fb246f765f3898e67565c8bb6c831df82899e5e3e473017968d3ce7c`;
   - `tests/test_s53_cheap_pref.py`, `737f2d268395a5e08b7c348a4daf64bae4931913354422498532e5ff244efcb2` (5 tests);
   - unchanged, sha-asserted: study 48's `s48_winner_like.py` `c22d2811…`, `term_book.py` `62c2306e…`.
+
+## 6a. AMENDMENT 1 (2026-10-07, before any scored bank; FROZEN with it)
+- **Why.** The outside reviewer, relayed by the laptop at about 10:37 CT, asked for the conservative-dose block as an arm.
+  Their in-sample Week 2–4 replay of an 8-row cheap block was ahead of LIVE in all three weeks at +2 and +4 (expected
+  big seats 1.46× and 1.52×).
+  - The operator's stated leaning (about 11:00, relayed): "I like it- please share that", on their recommendation of "the
+    cheap block at +2 if study 53's block read doesn't contradict it".
+  - A block that can take Week 5's one live block slot needs study 51's standard, not an exploratory read.
+- **What changes.**
+  - A fifth arm, **CHEAP2_BLOCK8**: the +2 term as production's 8-row block (cap 2.0), beside **CHEAP4_BLOCK8** (cap
+    4.0). The cap equals the dose, as in production's arm (`TERM_CAP`, a33c5bee). The new arm is built after every
+    frozen arm.
+  - **A FROZEN SATURDAY RULE for the two block arms**, exactly study 51's (two-sided 0.95 per arm, the usual guards):
+    - NOT ENTERED if WORSE on the 2023–24 read, CONTRADICTED on 2022, or the read's expected-big-seats ratio is < 0.80
+      (his tolerance);
+    - MOOT on a dead lever;
+    - otherwise ENTERABLE, his decision (PASS = supported; else no harm shown, no gain shown);
+    - **if both doses are ENTERABLE, the recommendation is CHEAP2_BLOCK8**, the conservative dose. Choosing by the read
+      would be selection.
+- **What does not change:** the two co-primary whole-book decisions and their study rule (a Week-6 question), banks
+  1569–1574, seed 20261105 (the scan stands), and every frozen arm.
+- **Disclosed:** the block rule was added after the outside reviewer's in-sample Week 2–4 replay was seen. That is 2026
+  data; the harness slates are unseen for this question, and no study 53 outcome exists.
+- **The re-run census** (outcome-blind; bank 1406; 53/53; code `0cdfe31` clean; `results/s53/CENSUS_s53_binding_a1.txt`
+  `ff038dcb…`, raw `4c80803a…`; lab `f71965b`):
+  - **the four frozen arms are IDENTICAL (rows and ranks) on all 53 slates** to the first census
+    (`A1_ORIGINAL_ARMS_UNCHANGED.txt`);
+  - CHEAP2_BLOCK8 is built on every slate with the block at ranks 2–25;
+  - on 2023–24 it costs −0.42 projected points and −1.82 points of predicted ownership per row, carries 1.61 sub-$4,000
+    players per row (rows with 0 / 1 / 2+: 3.7 / 9.2 / 13.1), and shares 16.3 of 26 rows with LIVE (identical 0.000).
+- **Code at the amendment** (lab `0cdfe31`; the census at `f71965b`):
+  - `experiments/s53_cheap_pref.py`, sha256 `f3f9d735ca0c5dfadb7abe6c2999fd3bcb352425e4fcc7ea73bd2b09d4522c89`;
+  - `scripts/s53_drive.py`, `9bf5c43ce3b8b48692802383398b30bd47bc124c1521f25e81c0163f99e0e03e` (unchanged);
+  - **`scripts/s53_report.py` (the reader), sha256 `0d241d8314452ca13dfe49a1ab40c915636533de5b9f14720f41e38f762acc6e`**;
+  - `scripts/s53_census.py`, `44910940813c0a14e02c34ee8d2da70f472b075770779c2cb006d715b0a81bfa`;
+  - `tests/test_s53_cheap_pref.py`, `706317bb3fe0a784d24a0a6a7e03d0e50ff5b23f857869c2a7bb04dfc295bfae` (5 tests).
+  These supersede §6's shas for the module, the census, the reader and the tests.
 
 ## 7. Order
 1. This DRAFT.
