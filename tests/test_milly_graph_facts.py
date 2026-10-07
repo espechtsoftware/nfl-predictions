@@ -83,3 +83,71 @@ def test_lineup_labels_and_tiers():
     assert not any(k.startswith("lbl_") and "own" in k for k in p)       # realized ownership is never a pre-lock label
     with pytest.raises(ValueError, match="realized"):
         F.assert_point_in_time([{"props": {"lbl_own_max": 20.0}}])
+
+
+def test_the_td_price_prior_top_and_starters_out_are_pre_lock_facts():
+    """10-07 (the outside reviewer's facts-layer review): the market's anytime-TD price (yes side, mean implied
+    probability over books), the prior real weeks' top-1% share by dk id, and depth-chart starters missing from the
+    frame's active pool, all under pre_ names."""
+    fr = _frame(); fr["display_name"] = [f"Player {chr(65 + k)}{chr(65 + k)} Jr." for k in range(len(fr))]
+    props = pd.DataFrame({"player": ["Player AA Jr.", "Player AA Jr.", "Player BB"], "bookmaker": ["a", "b", "a"],
+                          "price": [150, -120, 400], "outcome_name": ["Yes", "Yes", "No"]})
+    td = F.td_probabilities(props)
+    assert list(td.key) == ["player aa"] and td.books.iloc[0] == 2
+    assert abs(td.td_prob.iloc[0] - (100 / 250 + 120 / 220) / 2) < 1e-12
+    pt = pd.DataFrame({"dk_player_id": [100, 101], "prior_top": [0.21, 0.0], "weeks": [3, 1]})
+    rows = {r["dk_player_id"]: r["props"] for r in F.player_week_rows(fr, "2026-05", "s", "t", td=td, prior_top=pt, prior_top_source="f sha x")}
+    assert rows[100]["pre_anytime_td_prob"] == td.td_prob.iloc[0] and rows[100]["pre_prior_top1_share"] == 0.21
+    assert rows[100]["pre_prior_top1_source"] == "f sha x" and "pre_anytime_td_prob" not in rows[101]
+    st = pd.DataFrame({"team": ["BUF", "BUF", "NE"], "gsis_id": ["00-0000", "00-9999", "00-0006"], "pos_abb": ["QB", "WR", "QB"]})
+    tw = {r["team"]: r["props"] for r in F.team_week_rows(fr, "2026-05", "s", "t", starters=st)}
+    assert tw["BUF"]["pre_starters_out"] == 1 and tw["BUF"]["pre_starters_out_pos"] == "WR" and tw["NE"]["pre_starters_out"] == 0
+    assert "pre_starters_out" not in tw["KC"]
+    assert F.team_code("LAR") == "LA" and F.canon_name("Amon-Ra St. Brown") == "amon ra st brown"
+
+
+def test_starters_out_reads_the_pre_lock_status_and_shared_names_get_no_td_price():
+    """The reviewer (10-07): a starter in the frame but ruled OUT before T-70 is out; Doubtful counts apart; a canonical
+    name shared by two frame players gets no TD price."""
+    fr = _frame(); fr["display_name"] = [f"Player {chr(65 + k)}{chr(65 + k)}" for k in range(len(fr))]
+    fr["status"] = None; fr["injury_status"] = None
+    fr.loc[fr["id"] == "00-0002", "injury_status"] = "Out"         # BUF WR, in the frame but OUT
+    fr.loc[fr["id"] == "00-0004", "status"] = "D"                  # BUF TE, doubtful
+    st = pd.DataFrame({"team": ["BUF", "BUF", "BUF"], "gsis_id": ["00-0002", "00-0004", "00-0000"], "pos_abb": ["WR", "TE", "QB"]})
+    tw = {r["team"]: r["props"] for r in F.team_week_rows(fr, "2026-05", "s", "t", starters=st)}
+    assert tw["BUF"]["pre_starters_out"] == 1 and tw["BUF"]["pre_starters_out_pos"] == "WR" and tw["BUF"]["pre_starters_doubtful"] == 1
+    fr.loc[fr["id"] == "00-0001", "display_name"] = "Player AA"     # two frame players now share "player aa"
+    td = F.td_probabilities(pd.DataFrame({"player": ["Player AA"], "bookmaker": ["a"], "price": [200], "outcome_name": ["Yes"]}))
+    rows = F.player_week_rows(fr, "2026-05", "s", "t", td=td)
+    assert not any("pre_anytime_td_prob" in r["props"] for r in rows)
+
+
+def test_pool_lineups_carry_pre_lock_labels_and_real_finish_tiers():
+    """The reviewer's item D (10-07): our candidate pool as PoolLineup rows -- the field Lineups' lbl_ labels (FLEX
+    from the position counts) and out_ tiers against the week's Millionaire lines; duplicates collapse, tags joined."""
+    fr = _frame()
+    ids = fr["id"].tolist()
+    # BUF QB + BUF RB + 2 BUF WR + BUF TE + NE RB + NE WR + KC RB (a 3rd RB -> RB flex) + BUF DST
+    row = [ids[0], ids[1], ids[2], ids[3], ids[4], ids[7], ids[8], ids[13], ids[5]]
+    cands = pd.DataFrame({"players": [",".join(row), ",".join(reversed(row)), ",".join(row[:8])], "tag": ["boom", "lev", "x"]})
+    actual = {i: 25.0 for i in row}
+    rows = F.pool_lineup_rows(cands, fr, "2026-04", actual, {"winning_score": 230.0, "top_1pct_line": 190.0, "top_01pct_line": 215.0})
+    assert len(rows) == 1 and rows[0]["tags"] == ["boom", "lev"] and len(rows[0]["players"]) == 9
+    p = rows[0]["props"]
+    assert p["lbl_flex_pos"] == "RB" and p["lbl_qb_game_rank"] == 1 and p["lbl_dual_stack"] is True
+    assert p["out_points"] == 225.0 and p["out_tier_top1pct_line"] and p["out_tier_top01pct_line"] and not p["out_tier_winner_line"]
+    assert p["out_tier_within10_line"] is True
+    assert "pool_lineups" in F.STATEMENTS and "PoolLineup" in F.STATEMENTS["pool_lineups"]
+
+
+def test_a_pool_player_without_points_nulls_the_tiers_never_zero():
+    """The reviewer (10-07): a pool player nobody rostered has no OWNED_IN fpts; missing points never read as 0 --
+    out_points and the four tiers are null and out_points_missing counts them."""
+    fr = _frame(); ids = fr["id"].tolist()
+    row = [ids[0], ids[1], ids[2], ids[3], ids[4], ids[7], ids[8], ids[13], ids[5]]
+    actual = {i: 25.0 for i in row[:-1]}                                      # the DST has no points
+    rows = F.pool_lineup_rows(pd.DataFrame({"players": [",".join(row)], "tag": ["boom"]}), fr, "2026-04", actual,
+                              {"winning_score": 230.0, "top_1pct_line": 190.0, "top_01pct_line": 215.0})
+    p = rows[0]["props"]
+    assert p["out_points_missing"] == 1 and "out_points" not in p
+    assert not any(k.startswith("out_tier_") for k in p)

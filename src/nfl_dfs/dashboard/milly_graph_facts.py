@@ -21,6 +21,21 @@ Nodes and relationships (all MERGE, idempotent):
   (:Lineup) gains lbl_* construction labels (PRE-LOCK facts of the lineup: built from the frame only) and out_* (its
             finish tiers, and the REALIZED ownership facts out_own_max_realized / out_own_under5_realized)
 NOTE: the base graph's Lineup.own_sum is REALIZED ownership too (it describes a contest); never score on it.
+
+Added 10-07 (the outside reviewer's facts-layer review, items E and the two missing inputs), all pre-lock:
+  PlayerWeek pre_anytime_td_prob / pre_anytime_td_books -- the market's anytime-touchdown price, the last prop snapshot
+            before the slate's first Sunday kickoff, the mean price-implied probability over bookmakers. NOT de-vigged:
+            it includes the books' margin, so it ranks players within a week; never compare it across weeks or books as
+            a calibrated probability. A canonical name shared by two frame players in the week gets no price;
+  PlayerWeek pre_prior_top1_share / pre_prior_top1_weeks / pre_prior_top1_source -- the player's mean share of the REAL
+            Millionaire top-1% lineups over the PRIOR weeks (reports/2026-10-07-prior-top-term/priortop-wNN.csv);
+  TeamWeek pre_starters_out / pre_starters_out_pos -- depth-chart starters (QB / RB / TE rank 1, WR ranks 1-3, the last
+            snapshot at or before the frame's build time) that are OUT before lock: absent from the T-70 frame, or in it
+            with a pre-lock status of Out / IR / suspended; pre_starters_doubtful counts the Doubtful ones apart.
+  (:PoolLineup {key: "pool|<week_key>|<players sha16>", source: "pool", tags, lbl_*, out_points, out_tier_*_line})
+            -[:OF_WEEK]->(:Week), -[:CONTAINS]->(:Player) -- OUR candidate pool (the rows the union could have entered;
+            the reviewer's item D): the same pre-lock construction labels as the field's Lineups, and the real finish
+            tiers against that week's Millionaire lines (winner, within 10, top 1%, top 0.1%).
 """
 from __future__ import annotations
 
@@ -107,6 +122,108 @@ SELECT gsis_id, SUM(rz20_targets) AS rz20_targets, SUM(rz20_carries) AS rz20_car
   FROM p WHERE rusher_player_id IS NOT NULL AND two_pt = 0
 ) GROUP BY gsis_id"""
 
+TD_SQL = """
+WITH lk AS (SELECT MIN(commence_time) AS lock FROM `{raw}.prop_lines`
+            WHERE season = @season AND week = @week
+              AND EXTRACT(DAYOFWEEK FROM commence_time AT TIME ZONE 'America/Chicago') = 1),
+     snap AS (SELECT MAX(p.snapshot_ts) AS ts FROM `{raw}.prop_lines` p, lk
+              WHERE p.season = @season AND p.week = @week AND p.market = 'player_anytime_td'
+                AND TIMESTAMP(p.snapshot_ts) < lk.lock)
+SELECT p.player, p.bookmaker, p.price, p.outcome_name
+FROM `{raw}.prop_lines` p, snap
+WHERE p.season = @season AND p.week = @week AND p.market = 'player_anytime_td' AND p.snapshot_ts = snap.ts"""
+
+DEPTH_SQL = """
+WITH s AS (SELECT team, gsis_id, pos_abb, pos_rank, dt FROM `{raw}.depth_charts_snapshots`
+           WHERE TIMESTAMP(dt) <= TIMESTAMP(@as_of) AND TIMESTAMP(dt) >= TIMESTAMP_SUB(TIMESTAMP(@as_of), INTERVAL 8 DAY)
+             AND pos_abb IN ('QB', 'RB', 'WR', 'TE') AND gsis_id IS NOT NULL),
+     last AS (SELECT team, MAX(dt) AS dt FROM s GROUP BY team)
+SELECT s.team, s.gsis_id, s.pos_abb FROM s JOIN last USING (team, dt)
+WHERE (s.pos_abb IN ('QB', 'RB', 'TE') AND s.pos_rank = 1) OR (s.pos_abb = 'WR' AND s.pos_rank <= 3)"""
+
+TEAM_CODE = {"ARZ": "ARI", "BLT": "BAL", "CLV": "CLE", "HST": "HOU", "GNB": "GB", "GBP": "GB", "JAC": "JAX",
+             "KAN": "KC", "KCC": "KC", "LVR": "LV", "OAK": "LV", "LAR": "LA", "STL": "LA", "NWE": "NE", "NEP": "NE",
+             "NOR": "NO", "NOS": "NO", "SDG": "LAC", "SD": "LAC", "SFO": "SF", "TAM": "TB", "TBB": "TB", "WSH": "WAS"}
+
+
+def team_code(t) -> str:
+    t = str(t).strip().upper()
+    return TEAM_CODE.get(t, t)
+
+
+def canon_name(s) -> str:
+    """A player name for joining vendor / market feeds: lower case, letters and spaces, no suffix."""
+    import re
+    t = re.sub(r"[^a-z ]", "", str(s).lower().replace("-", " "))
+    t = re.sub(r"\s+(jr|sr|ii|iii|iv|v)$", "", re.sub(r"\s+", " ", t).strip())
+    return t
+
+
+def td_probabilities(props: pd.DataFrame) -> pd.DataFrame:
+    """TD_SQL rows -> one row per player (canonical name): the mean price-implied probability over bookmakers and the
+    number of bookmakers. The 'yes' side only (outcome yes / over / the player's own name / missing)."""
+    if props is None or props.empty:
+        return pd.DataFrame(columns=["key", "td_prob", "books"])
+    d = props.copy()
+    oc = d.outcome_name.astype(str).str.lower()
+    d = d[oc.isin(["yes", "over"]) | d.outcome_name.isna() | (d.outcome_name.astype(str) == d.player.astype(str))]
+    price = pd.to_numeric(d.price, errors="coerce")
+    d = d.assign(p=np.where(price > 0, 100.0 / (price + 100.0), -price / (-price + 100.0))).dropna(subset=["p"])
+    d["key"] = d.player.map(canon_name)
+    return d.groupby("key").agg(td_prob=("p", "mean"), books=("bookmaker", "nunique")).reset_index()
+
+
+def pool_lineup_rows(cands: pd.DataFrame, frame: pd.DataFrame, week_key: str, actual: Mapping[str, float],
+                     lines: Mapping[str, float | None]) -> list[dict]:
+    """PoolLineup rows from a candidates table (players = comma-separated frame ids; tag): lbl_ labels from the frame
+    (pre-lock; the FLEX position read from the position counts, since a pool row has no slots) and the real finish
+    tiers against the week's Millionaire lines (out_*, the week's results). Duplicate player sets collapse, tags joined."""
+    import hashlib
+    fr = frame.copy(); fr["id"] = fr["id"].astype(str)
+    fr["dk"] = pd.to_numeric(fr.get("dk_player_id"), errors="coerce")
+    info = {r.id: r for r in fr.dropna(subset=["dk"]).drop_duplicates("id").itertuples(index=False)}
+    gt = fr.dropna(subset=["game_total"]).drop_duplicates("game_id").sort_values(["game_total", "game_id"], ascending=[False, True])
+    g_rank = {str(g): i + 1 for i, g in enumerate(gt.game_id)}
+    top_game = gt.game_id.iloc[0] if len(gt) else None
+    seen: dict[str, dict] = {}
+    for players, tag in zip(cands.players.astype(str), cands.tag.astype(str) if "tag" in cands else [""] * len(cands)):
+        ids = sorted(p.strip() for p in players.split(",") if p.strip())
+        recs = [info[i] for i in ids if i in info]
+        if len(recs) != 9:
+            continue
+        key = f"pool|{week_key}|" + hashlib.sha256(",".join(ids).encode()).hexdigest()[:16]
+        if key in seen:
+            seen[key]["tags"] = sorted(set(seen[key]["tags"]) | {tag})
+            continue
+        pos = Counter(str(r.pos) for r in recs)
+        qb = next((r for r in recs if str(r.pos) == "QB"), None)
+        teams = Counter(str(r.team) for r in recs if str(r.pos) != "DST")
+        te = [float(r.salary) for r in recs if str(r.pos) == "TE"]
+        dst = next((r for r in recs if str(r.pos) == "DST"), None)
+        missing = sum(1 for r in recs if actual.get(r.id) is None)
+        pts = None if missing else sum(float(actual[r.id]) for r in recs)     # a missing player never reads as 0
+        win, t1, t01 = lines.get("winning_score"), lines.get("top_1pct_line"), lines.get("top_01pct_line")
+        tier = lambda line, off=0.0: (pts >= float(line) - off) if (pts is not None and line is not None) else None  # noqa: E731
+        props = {"lbl_games": len({str(r.game_id) for r in recs}),
+                 "lbl_flex_pos": "RB" if pos["RB"] == 3 else "TE" if pos["TE"] == 2 else "WR",
+                 "lbl_dual_stack": bool(qb is not None and teams.get(str(qb.team), 0) >= 2 and teams.get(str(qb.opp), 0) >= 2),
+                 "lbl_qb_game_rank": g_rank.get(str(qb.game_id)) if qb is not None else None,
+                 "lbl_qb_favourite": (float(qb.spread) < 0) if qb is not None and pd.notna(getattr(qb, "spread", np.nan)) else None,
+                 "lbl_top_game_players": sum(str(r.game_id) == str(top_game) for r in recs) if top_game else None,
+                 "lbl_cheap_players": sum(float(r.salary) < 4000 for r in recs if str(r.pos) != "DST"),
+                 "lbl_salary_left": 50_000 - sum(float(r.salary) for r in recs),
+                 "lbl_qb_salary": float(qb.salary) if qb is not None else None,
+                 "lbl_te_salary": max(te) if te else None, "lbl_dst_salary": float(dst.salary) if dst is not None else None,
+                 "out_points": round(pts, 2) if pts is not None else None, "out_points_missing": missing,
+                 "out_tier_winner_line": tier(win), "out_tier_within10_line": tier(win, 10.0),
+                 "out_tier_top1pct_line": tier(t1), "out_tier_top01pct_line": tier(t01)}
+        seen[key] = {"key": key, "week_key": week_key, "tags": [tag], "players": [int(r.dk) for r in recs],
+                     "props": {k: _v(v) for k, v in props.items() if _v(v) is not None}}
+    rows = list(seen.values())
+    assert_point_in_time(rows)
+    return rows
+
+
 STATEMENTS: dict[str, str] = {
     "player_weeks": """
 UNWIND $rows AS row
@@ -131,10 +248,21 @@ SET g += row.props""",
 UNWIND $rows AS row
 MATCH (l:Lineup {key: row.key})
 SET l += row.props""",
+    "pool_lineups": """
+UNWIND $rows AS row
+MATCH (w:Week {key: row.week_key})
+MERGE (pl:PoolLineup {key: row.key})
+SET pl += row.props, pl.source = 'pool', pl.tags = row.tags, pl.week_key = row.week_key
+MERGE (pl)-[:OF_WEEK]->(w)
+WITH pl, row
+UNWIND row.players AS d
+MATCH (p:Player {dk_player_id: d})
+MERGE (pl)-[:CONTAINS]->(p)""",
 }
 SCHEMA = (
     "CREATE CONSTRAINT milly_playerweek_key IF NOT EXISTS FOR (n:PlayerWeek) REQUIRE n.key IS UNIQUE",
     "CREATE CONSTRAINT milly_teamweek_key IF NOT EXISTS FOR (n:TeamWeek) REQUIRE n.key IS UNIQUE",
+    "CREATE CONSTRAINT milly_poollineup_key IF NOT EXISTS FOR (n:PoolLineup) REQUIRE n.key IS UNIQUE",
 )
 
 
@@ -188,7 +316,8 @@ def kickoff_window(ts) -> str | None:
 
 def player_week_rows(frame: pd.DataFrame, week_key: str, source: str, as_of: str, lag: pd.DataFrame | None = None,
                      out: pd.DataFrame | None = None, pbp: pd.DataFrame | None = None,
-                     include_vendor: bool = False) -> list[dict]:
+                     include_vendor: bool = False, td: pd.DataFrame | None = None,
+                     prior_top: pd.DataFrame | None = None, prior_top_source: str | None = None) -> list[dict]:
     """One PlayerWeek per frame player with a DraftKings id: pre_ from the frame (+ the lagged facts), out_ from the
     week's actuals and play-by-play. Joined on the frame's gsis id (`id`)."""
     cols = list(PRE_PLAYER_COLUMNS) + (list(VENDOR_PRE_COLUMNS) if include_vendor else [])
@@ -199,9 +328,23 @@ def player_week_rows(frame: pd.DataFrame, week_key: str, source: str, as_of: str
     lagd = lag.set_index(lag.gsis_id.astype(str)) if lag is not None and not lag.empty else None
     outd = out.set_index(out.gsis_id.astype(str)) if out is not None and not out.empty else None
     pbpd = pbp.set_index(pbp.gsis_id.astype(str)) if pbp is not None and not pbp.empty else None
+    tdd = td.set_index("key") if td is not None and not td.empty else None
+    if tdd is not None:                                       # a canonical name shared by two frame players: no price
+        names = fr.get("display_name", fr.get("name", pd.Series(dtype=str))).map(canon_name)
+        shared = set(names[names.duplicated(keep=False)])
+        tdd = tdd[~tdd.index.isin(shared)]
+    ptd = (prior_top.assign(dk=pd.to_numeric(prior_top.dk_player_id, errors="coerce")).dropna(subset=["dk"])
+           .drop_duplicates("dk").set_index("dk")) if prior_top is not None and not prior_top.empty else None
     rows = []
     for _, r in fr.iterrows():
         props = {f"pre_{c}": _v(r.get(c)) for c in cols if c in fr.columns}
+        if tdd is not None:
+            k = canon_name(r.get("display_name", r.get("name", "")))
+            if k in tdd.index:
+                props.update({"pre_anytime_td_prob": _v(tdd.at[k, "td_prob"]), "pre_anytime_td_books": _v(tdd.at[k, "books"])})
+        if ptd is not None and float(r.dk) in ptd.index:
+            props.update({"pre_prior_top1_share": _v(ptd.at[float(r.dk), "prior_top"]),
+                          "pre_prior_top1_weeks": _v(ptd.at[float(r.dk), "weeks"]), "pre_prior_top1_source": prior_top_source})
         if lagd is not None and r.gsis in lagd.index:
             props.update({f"pre_{c}": _v(lagd.at[r.gsis, c]) for c in LAG_COLUMNS if c in lagd.columns})
         if outd is not None and r.gsis in outd.index:
@@ -217,9 +360,21 @@ def player_week_rows(frame: pd.DataFrame, week_key: str, source: str, as_of: str
     return rows
 
 
-def team_week_rows(frame: pd.DataFrame, week_key: str, source: str, as_of: str) -> list[dict]:
-    """One TeamWeek per team on the slate: implied total, favourite, pace, PROE, vacated shares (pre-lock)."""
+def team_week_rows(frame: pd.DataFrame, week_key: str, source: str, as_of: str,
+                   starters: pd.DataFrame | None = None) -> list[dict]:
+    """One TeamWeek per team on the slate: implied total, favourite, pace, PROE, vacated shares (pre-lock); with
+    starters (DEPTH_SQL rows), pre_starters_out: depth-chart starters absent from the frame's active pool."""
     fr = frame.dropna(subset=["team"]).copy()
+    status = pd.Series("", index=frame.index)
+    for c in ("status", "injury_status", "roster_status"):
+        if c in frame.columns:
+            status = status + "|" + frame[c].astype(object).where(frame[c].notna(), "").astype(str).str.upper()
+    is_out = status.str.contains(r"\|(?:O|OUT|IR|INJURED RESERVE|SUS|SUSPENDED|PUP|NA|INA|RES)(?:\||$)", regex=True)
+    is_doubtful = status.str.contains(r"\|(?:D|DOUBTFUL)(?:\||$)", regex=True)
+    ids = frame["id"].astype(str) if "id" in frame.columns else pd.Series(dtype=str)
+    active = set(ids[~is_out]) if len(ids) else set()
+    doubtful = set(ids[is_doubtful & ~is_out]) if len(ids) else set()
+    st = starters.assign(code=starters.team.map(team_code)) if starters is not None and not starters.empty else None
     rows = []
     for team, g in fr.groupby(fr.team.astype(str)):
         first = lambda c: _v(g[c].dropna().iloc[0]) if c in g and g[c].notna().any() else None  # noqa: E731
@@ -230,6 +385,12 @@ def team_week_rows(frame: pd.DataFrame, week_key: str, source: str, as_of: str) 
                  "pre_vacated_target_share": first("team_vacated_target_share"),
                  "pre_vacated_carry_share": first("team_vacated_carry_share"),
                  "pre_source": source, "pre_as_of": as_of}
+        if st is not None:
+            mine = st[st.code == team_code(team)]
+            if len(mine):
+                gone = mine[~mine.gsis_id.astype(str).isin(active)]
+                props.update({"pre_starters_out": int(len(gone)), "pre_starters_out_pos": ",".join(sorted(gone.pos_abb.astype(str))),
+                              "pre_starters_doubtful": int(mine.gsis_id.astype(str).isin(doubtful).sum())})
         rows.append({"key": f"{team}|{week_key}", "team": team, "week_key": week_key,
                      "props": {k: v for k, v in props.items() if v is not None}})
     assert_point_in_time(rows)
