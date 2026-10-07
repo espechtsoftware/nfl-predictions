@@ -717,8 +717,11 @@ def apply_winner_order(book: list[int], rosters: list, fr: pd.DataFrame, inputs_
     """Study 48b's DEAL_SCORE on the live book: score each main row with study 48's frozen model
     (nfl_dfs.inference.winner_like) and order the rows by score, descending, ties keeping the book order."""
     from nfl_dfs.inference import winner_like as WL
+    missing = [c for c in WL.FRAME_FACTS if c not in fr.columns]
+    if missing:                                          # never score with a model column silently zeroed (the reviewer, 10-07)
+        raise ValueError(f"the frame lacks the model's columns {missing}")
     inp = pd.read_csv(inputs_path, dtype={"id": str}).drop_duplicates("id").set_index("id")
-    cols = ["pos", "team", "opp", "game_id", "salary", "game_total"] + [c for c in WL.FRAME_FACTS if c in fr.columns]
+    cols = ["pos", "team", "opp", "game_id", "salary", "game_total"] + list(WL.FRAME_FACTS)
     players = fr.assign(id=fr["id"].astype(str)).drop_duplicates("id").set_index("id")[list(dict.fromkeys(cols))]
     players = players.join(inp[["own_proj", *WL.LAG_COLUMNS]], how="left")
     rows = [[str(x) for x in rosters[i]] for i in book]
@@ -728,6 +731,15 @@ def apply_winner_order(book: list[int], rosters: list, fr: pd.DataFrame, inputs_
     return new, {"model_sha256": sha256_file(WL.MODEL_PATH), "inputs": str(inputs_path),
                  "inputs_sha256": sha256_file(Path(inputs_path)), "scores_in_book_order": [round(float(x), 6) for x in scores],
                  "order": order, "moved": int(sum(o != i for i, o in enumerate(order))), "hist": "0 (live; study 48's port notes)"}
+
+
+def winner_order_or_fallback(book: list[int], rosters: list, fr: pd.DataFrame, inputs_path: Path) -> tuple[list[int], dict]:
+    """apply_winner_order, or -- on any failure -- the book's own order with the reason (printed LOUDLY by the caller and
+    recorded in the receipt and winner_order_fallback.txt). The order is a refinement: it never stops a union."""
+    try:
+        return apply_winner_order(book, rosters, fr, inputs_path)
+    except (ValueError, KeyError, OSError, SystemExit) as exc:
+        return book, {"not_applied": str(exc)}
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -1149,8 +1161,12 @@ def main(argv: list[str] | None = None) -> int:
         shutil.copyfile(a.proj_source, out / "proj_source.csv"); shutil.copyfile(str(a.proj_source) + ".json", out / "proj_source.csv.json")
     winner_meta = None
     if a.winner_order is not None:                       # study 48b: the most winner-like rows first (the head deal's big ranks)
-        book, winner_meta = apply_winner_order(book, rosters, fr, a.winner_order)
-        print(f"WINNER ORDER: {winner_meta['moved']} of {len(book)} book positions moved (model {winner_meta['model_sha256'][:12]})")
+        book, winner_meta = winner_order_or_fallback(book, rosters, fr, a.winner_order)
+        if "not_applied" in winner_meta:
+            print(f"\n!!! WINNER ORDER NOT APPLIED: {winner_meta['not_applied']} -- the book keeps its own order\n")
+            (out / "winner_order_fallback.txt").write_text(f"winner order NOT applied: {winner_meta['not_applied']}\n")
+        else:
+            print(f"WINNER ORDER: {winner_meta['moved']} of {len(book)} book positions moved (model {winner_meta['model_sha256'][:12]})")
     players_by_id = frame_players(fr)
     lus = [_LU([players_by_id[i] for i in rosters[k]], tags[k]) for k in range(len(rosters))]
     n_written = dk_csv([lus[i] for i in book + book_tail], fr, out / "book.csv")

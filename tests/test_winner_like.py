@@ -86,6 +86,29 @@ def test_the_union_hook_reorders_the_main_book_only(monkeypatch):
         f = Path(d) / "inp.csv"
         P[["id", "own_proj", "td_l4", "td_l8", "pass_td_l4", "att_l4"]].to_csv(f, index=False)
         fr = P.drop(columns=["own_proj", "td_l4", "td_l8", "pass_td_l4", "att_l4"])
+        for c in W.FRAME_FACTS:
+            if c not in fr.columns:
+                fr[c] = 0.0
         book, meta = ur.apply_winner_order([0, 1], rosters, fr, f)
     assert sorted(book) == [0, 1] and meta["order"] in ([0, 1], [1, 0]) and len(meta["scores_in_book_order"]) == 2
     assert meta["model_sha256"].startswith(W.MODEL_SHA256) and meta["hist"].startswith("0")
+
+
+def test_a_frame_missing_a_model_column_keeps_the_book_order_and_says_why():
+    """The reviewer (10-07): never score with a model column silently zeroed -- refuse, and the union keeps its order."""
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import tempfile
+    import union_reselect as ur
+    P = _players().reset_index()
+    rosters = [["p0", "p1", "p2", "p3", "p4", "p5", "p6", "p9", "p7"], ["p16", "p17", "p18", "p19", "p20", "p21", "p22", "p25", "p23"]]
+    with tempfile.TemporaryDirectory() as d:
+        f = Path(d) / "inp.csv"
+        P[["id", "own_proj", "td_l4", "td_l8", "pass_td_l4", "att_l4"]].to_csv(f, index=False)
+        fr = P.drop(columns=["own_proj", "td_l4", "td_l8", "pass_td_l4", "att_l4"])
+        for c in W.FRAME_FACTS:                                   # a frame with every model column ...
+            if c not in fr.columns:
+                fr[c] = 0.0
+        book, meta = ur.winner_order_or_fallback([0, 1], rosters, fr, f)
+        assert "not_applied" not in meta
+        book, meta = ur.winner_order_or_fallback([0, 1], rosters, fr.drop(columns=["wopr_l4"]), f)   # ... and one without wopr
+    assert book == [0, 1] and "wopr_l4" in meta["not_applied"]
