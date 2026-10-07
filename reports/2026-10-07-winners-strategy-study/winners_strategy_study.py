@@ -240,12 +240,13 @@ def run_week(w, out, nmax, log, test=False):
     rec["final_rules"] = hit_rules or rules; rec["hit"] = hit_rules is not None
     (out / f"week{w}.json").write_text(json.dumps(rec, indent=1, default=str)); return rec
 
-def cross(weeks, recs, out, nmax, log, test=False):
-    res = {}
+def cross(weeks, recs, out, nmax, log, test=False, w_from_only=None, w_to_only=None):
+    cp = out / "cross.json"; res = json.loads(cp.read_text()) if cp.exists() and not test else {}
     for w_from in weeks:
+        if w_from_only and w_from not in w_from_only: continue
         rules = recs[w_from]["final_rules"]
-        for w_to in weeks:
-            if w_to == w_from: continue
+        for w_to in (w_to_only or weeks):
+            if w_to == w_from or f"{w_from}->{w_to}" in res: continue
             W, fr, f = load_week(w_to); winner = float(f.points.max()) / 100.0; pts = np.sort(f.points.values)
             lines = {"top400": float(pts[-400]) / 100, "top100": float(pts[-100]) / 100, "top1pct": float(pts[int(0.99 * len(pts))]) / 100, "hit": winner - WITHIN}
             r = {k: v for k, v in rules.items() if not (k in ("max_own", "n_low_own", "own_sum") and fr.pown.isna().all())}
@@ -253,12 +254,14 @@ def cross(weeks, recs, out, nmax, log, test=False):
             e = {"rules": r, "oracle": None if oracle is None else round(oracle, 2), "winner": winner, "lines": lines}
             log(f"  rules of W{w_from} on W{w_to}: oracle {e['oracle']} (winner {winner:.1f})")
             if oracle is not None: e["enum"] = enumerate_until(fr, r, winner, lines, 30 if test else nmax, log, f"W{w_from}->W{w_to}")
-            res[f"{w_from}->{w_to}"] = e; (out / "cross.json").write_text(json.dumps(res, indent=1, default=str))
+            res[f"{w_from}->{w_to}"] = e
+            cur = json.loads(cp.read_text()) if cp.exists() else {}; cur.update(res); cp.write_text(json.dumps(cur, indent=1, default=str))
     return res
 
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("out"); ap.add_argument("--weeks", default="1,2,3,4"); ap.add_argument("--nmax", type=int, default=1000)
     ap.add_argument("--cross-nmax", type=int, default=500); ap.add_argument("--test", action="store_true"); ap.add_argument("--cross-only", action="store_true"); ap.add_argument("--no-cross", action="store_true")
+    ap.add_argument("--cross-from", default=None, help="comma list: only these weeks' rules"); ap.add_argument("--cross-to", default=None, help="comma list: only onto these weeks")
     a = ap.parse_args(); out = Path(a.out); out.mkdir(parents=True, exist_ok=True); weeks = [int(x) for x in a.weeks.split(",")]
     lf = open(out / f"log-{'cross' if a.cross_only else 'w' + ''.join(map(str, weeks))}.txt", "a")
     def log(s): print(s, flush=True); lf.write(s + "\n"); lf.flush()
@@ -267,9 +270,10 @@ def main():
     for w in weeks:
         p = out / f"week{w}.json"
         if a.cross_only or (p.exists() and json.loads(p.read_text()).get("final_rules") is not None and not a.test):
-            recs[w] = json.loads(p.read_text()); log(f"W{w}: loaded from checkpoint"); continue
+            recs[w] = json.loads(p.read_text()) if p.exists() else {"final_rules": None}; log(f"W{w}: loaded from checkpoint"); continue
         recs[w] = run_week(w, out, a.nmax, log, a.test)
     if a.no_cross: log("== week ladders done (no cross)"); return
-    log("== cross-week runs"); cross(weeks, recs, out, a.cross_nmax, log, a.test); log("== done")
+    cf = [int(x) for x in a.cross_from.split(",")] if a.cross_from else None; ct = [int(x) for x in a.cross_to.split(",")] if a.cross_to else None
+    log(f"== cross-week runs (from {cf or weeks} to {ct or weeks})"); cross(weeks, recs, out, a.cross_nmax, log, a.test, cf, ct); log("== done")
 if __name__ == "__main__":
     main()
