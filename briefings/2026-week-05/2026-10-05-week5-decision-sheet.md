@@ -242,7 +242,10 @@ using the cash lines of my first draft plan (9–22% of the field paid):
     contest and feel bad that I should have entered it elsewhere. My hope with those is to win many". So each of them
     gets your top lineups (rows 1–5, 1–3, 1–2 or 1), never a lineup of its own;
   - **the $125 World Championship satellite**: not a big win, and it reuses your top lineup (your words: "the 125
-    WFFC one doesn't and it should reuse an entry");
+    WFFC one doesn't and it should reuse an entry"). **Confirmed 10-07:** "A $125 qualifier ticket is not considered a
+    big win. A $490 qualifier ticket is." And "If I had a ticket to a WWFC, then that contest would be a priority";
+    your priorities (10-07): "I'd consider the $20 milly satellites a lower priority, the 4444, 555, 333, WWFC are top
+    priorities" -- the tests judge your big wins at THOSE contests;
   - **three Midseason Warm Up Millionaire satellites**: they count as big wins (your words: "the midseason ones count
     as big wins") and get lineups of their own.
 - The book is 22 lineups (it was 20); every other contest is dealt as before.
