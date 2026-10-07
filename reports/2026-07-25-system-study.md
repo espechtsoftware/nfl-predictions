@@ -6205,3 +6205,65 @@ secondaries (slate means; v2 = the calibrated field, l02 = studies 24-45's field
 4. **The lesson for this harness.** Study 37 (the whole book) leaned worse, study 46 (half) leaned better on
    2023–24, and the half was level-to-worse on 2022. On our ratings the regulars' structure neither helps nor hurts
    P(≥ 1 big) by an amount these slates can see. The fair test is the live FP weeks (study 38).
+
+## Addendum 151 (2026-10-06): study 47 (the QB-by-QB round-robin — each QB his best row in every shape): WORSE — about 5 points of weekly P(≥ 1 big) and 30% of the expected big seats lost; his round-robin over the shapes stays
+
+**Setup.**
+- **The question.** The operator queued the outside reviewer's wording (study list item 41): "for each QB in turn,
+  build his best row under each shape". His live Week-5 fill is study 42's round-robin. It takes the SHAPES in turn
+  and lets the solver pick the QB, so a top QB's 5 rows sit in about two shapes.
+- **Arms.** The harness is study 46's: 36 slates, the calibrated field v2 decides, l02 beside it. Every arm uses the
+  winners' quotas, the QB cap 5, caps 13 / 6, no term and the limit 4.
+  - **MIXT_QBRR_ROW (DECISION).** The QBs go in order of their best A1 row. That row is solved on the empty state and
+    rolled back, for the top 16 by projection. Each QB gets his best row in every shape that still has quota, with every
+    other QB banned for that solve. Further passes run under the cap.
+  - **MIXT_QBRR (exploratory):** the QBs in order of their own projection.
+  - **Disclosed:** the census set the decision arm before the freeze, outcome-blind. The projection order also changes
+    WHICH QBs fill the book (−1.85 against −0.64 per dealt lineup). The re-run census was byte-identical.
+- **Preregistration:** `reports/2026-10-07-prereg-study47-qb-round-robin.md` (frozen `21d19345`, sha256 `b187cf7f…`).
+- **Panel:** banks 1515–1520, B 20,000, seed 20261027.
+- **The confirmatory census holds:** no QB at the 5-row cap (live 3.05), 3.25 shapes per QB (live 2.01), −0.62 per
+  dealt lineup.
+- **Read and reproduced:** read by the reviewer and **reproduced byte-identically by the laptop** (diff empty, at lab
+  `0f74949`; raw files equal to the RAW_MANIFEST).
+  - Reader `6ba9898f`; READ `c8f01c96`.
+  - The confirmatory census (`5254334`) was committed before the READ.
+  - Lab: nfl2 `production/s47-qb-round-robin-20261006`; LEDGER row `4fbad6f`.
+
+**Reader output (verbatim):**
+```
+STUDY 47 READER  sha256 6ba9898f364f9382da4de56e6ff27a8701efbfe6e1fc81a69bfa14291bbaa004
+DIRECTION: P(>= 1 big seat) per slate (the mean over its banks); every difference is ARM - REFERENCE; POSITIVE favours the first arm.
+slates 36  banks [1515, 1516, 1517, 1518, 1519, 1520]  B 20000  seed 20261027  primary MIXT_QBRR_ROW - MIXT_LIVE on the CALIBRATED field (v2), two-sided 0.95, guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only
+arms (QB order, row peek, live settings, QB cap, objective): [{"MIXT_LIVE": null, "MIXT_QBRR": "mean", "MIXT_QBRR_ROW": "row"}, 16, {"fill": "rr", "max_shared": 4}, 5, "player_mean (no ownership term)"]
+
+== MIXT_QBRR_ROW vs MIXT_LIVE  [DECISION: the QBs in turn (by their best row), each his best row in every cell; the calibrated field]
+  PRIMARY P(>= 1 big seat) per slate -0.05122  [-0.09955, -0.00403]  seasons 2023 -0.06138, 2024 -0.04106
+  GUARD 1 mean entry pct -0.01154  one-sided lower -0.01924  (must exceed -0.015)
+  GUARD 2 expected big seats 0.36731 vs 0.52003  ratio 0.706  (must be >= 0.80)
+  MIXT_QBRR_ROW dealt identical to MIXT_LIVE: 0.000 of slate-banks
+  ->  WORSE
+
+== EXPLORATORY (never decision-bearing)
+  MIXT_QBRR - MIXT_LIVE (QBs by their own projection): -0.03427  [-0.09700, +0.03040]  seasons 2023 -0.02402, 2024 -0.04452
+  MIXT_QBRR_ROW - MIXT_LIVE (QBs by their best A1 row, the l02 field): -0.05261  [-0.10189, -0.00430]  seasons 2023 -0.06074, 2024 -0.04448
+  MIXT_QBRR - MIXT_LIVE (QBs by their own projection, the l02 field): -0.03489  [-0.10319, +0.03441]  seasons 2023 -0.02160, 2024 -0.04819
+
+the fields' lines (DK points, slate-bank means): v2 mean 128.10 p99 185.16 top-95 206.05  l02 mean 127.36 p99 183.68 top-95 204.57
+secondaries (slate means; v2 = the calibrated field, l02 = studies 24-45's field):
+  MIXT_LIVE     v2: P(>=1 big) 0.32508  expected big seats 0.52003  P(>=2) 0.12388  entry pct 0.51572
+                l02: P(>=1 big) 0.35477  expected big seats 0.59273  entry pct 0.52410  |  QBs 8.14  cells per QB 2.01  distinct 31.4  dealt projection 128.59
+  MIXT_QBRR     v2: P(>=1 big) 0.29081  expected big seats 0.39077  P(>=2) 0.07570  entry pct 0.48112
+                l02: P(>=1 big) 0.31988  expected big seats 0.44539  entry pct 0.48929  |  QBs 8.02  cells per QB 3.24  distinct 40.3  dealt projection 126.66
+  MIXT_QBRR_ROW v2: P(>=1 big) 0.27386  expected big seats 0.36731  P(>=2) 0.07454  entry pct 0.50418
+                l02: P(>=1 big) 0.30216  expected big seats 0.41777  entry pct 0.51273  |  QBs 8.00  cells per QB 3.25  distinct 35.4  dealt projection 127.97
+```
+
+**Reading.**
+1. **WORSE at the frozen rule.** P(≥ 1 big) fell −0.0512 [−0.0996, −0.0040] (0.325 → 0.274), negative in both
+   seasons. Expected big seats fell by 29%, and the mean finish by about 1 point.
+2. **Why.** Giving every top QB one row of each shape spends rows on shapes his game does not suit: a bring-back in a
+   game without a shootout, or a lone receiver when his stack is the play. The round-robin over the shapes lets the
+   solver put each shape on the QB it suits.
+3. **With study 42** (value and round-robin level with the group fill), the fill question is closed. His round-robin
+   stays, and no QB-major switch is built. Study list item 41: closed, WORSE.
