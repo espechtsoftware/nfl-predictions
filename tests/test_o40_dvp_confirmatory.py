@@ -47,3 +47,26 @@ def test_the_three_part_rule():
     v, why = O.decide({2020: 0.01, 2021: 0.02, 2022: 0.01}, -0.0001, mae); assert v == "NOT PASS" and why[0].startswith("(2)")
     v, why = O.decide({2020: 0.01, 2021: 0.02, 2022: 0.01}, 0.001, {**mae, 2022: (5.0, 5.06)})
     assert v == "NOT PASS" and why[0].startswith("(3)") and "2022" in why[0]
+
+
+def test_an_empty_extra_features_is_exactly_the_base_and_unregistered_extras_never_enter(monkeypatch):
+    """The reviewer 10-07: BASE_R runs with EXTRA_FEATURES="" and must be exactly the repaired base."""
+    from nfl_dfs.models import featureset as FS
+    monkeypatch.delenv("DROP_FEATURES", raising=False)
+    monkeypatch.delenv("EXTRA_FEATURES", raising=False); unset = FS._active_numeric_features()
+    monkeypatch.setenv("EXTRA_FEATURES", ""); empty = FS._active_numeric_features()
+    assert empty == unset == list(FS.NUMERIC_FEATURES)
+    monkeypatch.setenv("EXTRA_FEATURES", "not_a_registered_column"); assert FS._active_numeric_features() == list(FS.NUMERIC_FEATURES)
+
+
+def test_smoke_refuses_decision_seasons_and_drop_features_refuses(monkeypatch, capsys):
+    for season in (2020, 2021, 2022, 2026):
+        assert O.main(["--smoke-target", str(season)]) == 2
+    monkeypatch.setenv("DROP_FEATURES", "x")
+    assert O.main([]) == 2 and "DROP_FEATURES" in capsys.readouterr().err
+
+
+def test_dropped_groups_counts_small_week_position_groups():
+    d = _rows(weeks=2, n=12)
+    assert O.dropped_groups(d) == 0
+    assert O.dropped_groups(d[~((d.week == 1) & (d.position == "TE") & (d.index % 12 >= 3))]) == 1

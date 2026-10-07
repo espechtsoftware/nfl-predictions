@@ -15,14 +15,23 @@ improve its within-week ranking on untouched seasons?
   (B 20,000, seed 20261040); (3) no season's MAE (same rows) worse by more than 1%. Otherwise NOT PASS. 2026 W3-W4 descriptive.
 - Mean DK points come from the components exactly as the screen did (mean_dk: no yardage bonuses; identical across arms).
 
-    python scripts/o40_dvp_confirmatory.py [--out o40_confirmatory.json]
+- Provenance (the reviewer 10-07): REFUSES unless the O-22 repair (0bc6b6bc and the o22-leak-fixes branch tip) is an
+  ancestor of HEAD, or if DROP_FEATURES is set; the JSON records the code commit, featureset's sha256 and the training
+  panel's identity (the table's modified time and rows, and a content fingerprint of the panel read).
+- --smoke-target <season> (mechanics only, never 2020-2022 or 2026): rows, weeks and dropped groups per arm; no
+  correlations, no verdict. Monday: the 2019 smoke, then the frozen run with the default targets.
+
+    python scripts/o40_dvp_confirmatory.py [--out o40_confirmatory.json] [--smoke-target 2019]
 """
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
+import subprocess
 import sys
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -37,6 +46,9 @@ MIN_GROUP = 10
 PROJ_FLOOR = 5.0
 B, SEED = 20_000, 20261040
 MAE_GUARD = 1.01
+O22_FIX = "0bc6b6bc"                               # the as-of serving fix inside the O-22 repair
+O22_BRANCH = "origin/production/o22-leak-fixes-20261005"
+FORBIDDEN_SMOKE = set(TARGETS) | {2026}
 
 
 def mean_dk(pc: pd.DataFrame) -> np.ndarray:
@@ -75,6 +87,22 @@ def pooled_lower_bound(diffs: dict[int, pd.Series], b: int = B, seed: int = SEED
     return pooled, float(np.quantile(sums / n, 0.05))
 
 
+def dropped_groups(df: pd.DataFrame) -> int:
+    """Week x position groups with fewer than MIN_GROUP rows (mechanics for the smoke)."""
+    return int(sum(len(df[(df.week == w) & (df.position == p)]) < MIN_GROUP for w in df.week.unique() for p in POSITIONS))
+
+
+def provenance(repo: Path) -> dict:
+    """The code identity; refuses (SystemExit) unless the O-22 repair is in HEAD's history."""
+    git = lambda *a: subprocess.run(["git", "-C", str(repo), *a], capture_output=True, text=True)     # noqa: E731
+    head = git("rev-parse", "HEAD").stdout.strip()
+    tip = git("rev-parse", O22_BRANCH).stdout.strip()
+    for c, name in ((O22_FIX, "the as-of fix 0bc6b6bc"), (tip, f"{O22_BRANCH} ({tip[:8] or 'unresolved'})")):
+        if not c or git("merge-base", "--is-ancestor", c, head).returncode != 0:
+            raise SystemExit(f"O-40 CONFIRMATORY REFUSED: {name} is not an ancestor of HEAD {head[:8]}: not the O-22-repaired base")
+    return {"code_commit": head, "o22_branch_tip": tip}
+
+
 def decide(season_diff: dict[int, float], lower: float, mae: dict[int, tuple[float, float]]) -> tuple[str, list[str]]:
     why = []
     pos = sum(v > 0 for v in season_diff.values())
@@ -90,7 +118,14 @@ def decide(season_diff: dict[int, float], lower: float, mae: dict[int, tuple[flo
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0]); ap.add_argument("--out", default="o40_confirmatory.json")
+    ap.add_argument("--smoke-target", type=int, help="mechanics only on one season (never 2020-2022 or 2026)")
     a = ap.parse_args(argv)
+    if a.smoke_target is not None and a.smoke_target in FORBIDDEN_SMOKE:
+        print(f"O-40 SMOKE REFUSED: {a.smoke_target} is a decision / descriptive season; smoke on an earlier one (2019)", file=sys.stderr)
+        return 2
+    if os.environ.get("DROP_FEATURES", "").strip():
+        print("O-40 CONFIRMATORY REFUSED: DROP_FEATURES is set; BASE_R must be exactly the repaired base", file=sys.stderr)
+        return 2
     from nfl_dfs.models import featureset as FS
     from nfl_dfs.models import components as C
     from nfl_dfs.models import train_job as TJ
@@ -99,12 +134,21 @@ def main(argv=None) -> int:
         print(f"O-40 CONFIRMATORY REFUSED: {missing} are not registered CANDIDATE_FEATURES (Monday's merge registers them; "
               "this script never registers in-process)", file=sys.stderr)
         return 2
+    prov = provenance(Path(__file__).resolve().parents[1])
     panel = TJ.training_panel()
+    from nfl_dfs.bq import client as bq_client
+    from nfl_dfs.config import settings
+    t = bq_client().get_table(f"{settings.features}.player_week_training")
+    prov.update({"featureset_sha256": hashlib.sha256(Path(FS.__file__).read_bytes()).hexdigest(),
+                 "panel_table_modified": t.modified.isoformat() if t.modified else None, "panel_table_rows": int(t.num_rows or 0),
+                 "panel_rows_read": int(len(panel)),
+                 "panel_fingerprint": int(pd.util.hash_pandas_object(panel, index=False).sum() & 0xFFFFFFFFFFFF)})
+    print("provenance:", json.dumps(prov), flush=True)
     ycol = "y_dk_points" if "y_dk_points" in panel else "dk_points"
-    res = {"targets": {}, "descriptive_2026": {}}
-    for target in TARGETS + (2026,):
+    res = {"provenance": prov, "targets": {}, "descriptive_2026": {}}
+    for target in ((a.smoke_target,) if a.smoke_target is not None else TARGETS + (2026,)):
         rows = panel[panel.season == target]
-        rows = FS.active_training_rows(rows) if hasattr(FS, "active_training_rows") else rows
+        rows = FS.active_training_rows(rows)
         rows = rows[rows[ycol].notna()].copy()
         if target == 2026:
             rows = rows[rows.week.isin([3, 4])]
@@ -116,6 +160,13 @@ def main(argv=None) -> int:
         os.environ.pop("EXTRA_FEATURES", None)
         d = rows.assign(y=rows[ycol].to_numpy(float), **{f"p_{k}": v for k, v in preds.items()})
         d = d[d.p_BASE_R >= PROJ_FLOOR]                                   # the same rows in every arm
+        if a.smoke_target is not None:                                    # mechanics only: no correlation, no verdict
+            print(f"SMOKE {target}: rows {len(d)} weeks {d.week.nunique()} groups dropped (< {MIN_GROUP}) {dropped_groups(d)} "
+                  f"of {d.week.nunique() * len(POSITIONS)}; arms trained {list(preds)}", flush=True)
+            with open(a.out, "w") as h:
+                json.dump({"provenance": prov, "smoke": {"target": target, "rows": int(len(d)), "weeks": int(d.week.nunique()),
+                                                         "groups_dropped": dropped_groups(d)}}, h, indent=1)
+            return 0
         wk = {arm: weekly_rank_corr(d, f"p_{arm}") for arm in ARMS}
         mae = {arm: float(np.abs(d[f"p_{arm}"] - d.y).mean()) for arm in ARMS}
         entry = {"rows": int(len(d)), "weeks": int(len(wk["BASE_R"])),
