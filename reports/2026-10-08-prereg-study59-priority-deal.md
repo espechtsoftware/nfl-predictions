@@ -47,8 +47,8 @@ small-contest overlap limit 5):
 | **LIVE** (reference for the exploratory) | LIVE | the book's own |
 | **PRI_ALL** (exploratory) | LIVE | all 26 rows sorted by score, ties in book order |
 
-On Rev3 under head, the priority contests read ranks 1–19, the Midseason Warm Up satellites 20–22, and the $20
-supersats 23–26.
+On Rev3 under head, the $4,444 / $555 / $333 / FFWC contests read ranks 1–19, the Midseason Warm Up satellites (also
+priority, the operator 10-07) 20–22, and the $20 supersats 23–26.
 
 ## 3. Endpoint and rule (the reader `scripts/s59_report.py`)
 - **THE READ: 2023–24** (36 slates).
@@ -68,7 +68,11 @@ supersats 23–26.
 - **EXPLORATORY** (two-sided 0.95):
   - PRI_ALL − LIVE (the whole-book form, no block), on the read and on 2022;
   - P(≥ 1 big seat) over his PRIORITY contests only: the plan's big single-prize contests whose prize names a $4,444, a
-    $555 or a $333 ticket or an FFWC $490 qualifier. CB_PRI − CB, on the read and on 2022;
+    $555 or a $333 ticket, an FFWC $490 qualifier or a Midseason Warm Up ticket. The last was added to the DRAFT before
+    study 56's read, on the operator's 10-07 word that the Warm Up sats are big prizes "under the 4444 and before 555"
+    (`6e287447`). That makes 20 of Rev3's 29 contests. The other 9 are the Millionaire (multi-tier), the seven $20 supersats and the
+    $125 FFWC satellite. CB_PRI − CB, on the
+    read and on 2022;
   - the decision on l02;
   - the priority entries' QB+1, bring-back and 2+ sub-$4,000 shares under each deal.
 
