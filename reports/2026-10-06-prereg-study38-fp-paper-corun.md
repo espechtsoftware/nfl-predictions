@@ -468,6 +468,37 @@ score. Nothing here enters a contest: the money path, its checkout and its files
     2. the laptop's ack (tests and smoke);
     3. Friday's rehearsal, with the block armed as the laptop plans, and the integrity gate;
     4. Saturday, his decision. If he says no, Sunday's snapshot takes the OFF path.
+- **Amendment 6f (2026-10-07, before Week 5's lock; no Week-5 outcome exists).**
+  - **Why.** The outside reviewer's graph finding, relayed at the operator's request
+    (`review/outside-fill-order-20261006` @ `0c727116`): within the regulars' own portfolios, the top-1% lineups carried
+    more sub-$4,000 non-DST players (+0.43 sd). The harness test is study 53
+    (`reports/2026-10-08-prereg-study53-cheap-pref.md`). These paper arms are its real-field record, from Week 5, with no
+    money at risk.
+  - **What changes.** Two exploratory arms, **MIXT_QA0_CHEAP2** and **MIXT_QA0_CHEAP4**, built as the factor arms are:
+    - every live setting as MIXT_QA0, but never a live block (`FOLLOW_QA0`, `NO_LIVE_TERM`); reference MIXT_QA0_NOTERM;
+    - on FP's means plus 2.0 / 4.0 points per non-DST player with a DK salary under 4,000;
+    - the salaries are the snapshot frame's own, so no new file is needed (a missing salary never counts);
+    - the record carries `paper_cheap` (the pool's count, by position);
+    - the scorer scores them, and the reader's descriptive lines read "sub-$4k +2 / +4 − NOTERM".
+  - **What does not change:** the rule (§5), the decision pair, and every other arm.
+  - **The smoke** (dry run, Week 4's frozen copies; 6e's OFF+DvP and ON+DvP runs repeated with the 6f code):
+    - every one of the 15 amendment-6e arms is identical, OFF and ON;
+    - the two cheap arms are built (Week 4's pool: 91 such players, WR 48 / TE 43) and differ from NOTERM (2 / 0 of 26
+      rows shared; FP projection per dealt lineup 143.86 / 141.43 vs 144.61);
+    - they carry no live block and are equal between OFF and ON;
+    - parity none. `books.json` OFF `65a43969`, ON `91fdfa42`. `~/private/paper-corun/smoke-w4-amend6f/`, script
+      `run.sh`.
+  - **The integrity gate (§7)** also checks both cheap arms: built, no live block, and the pool holds such players.
+  - **Code:** lab `3279ab8`:
+    - `experiments/s38_paper_corun.py`, sha256 `16c1bd8c613643eb7ccfd9571945055f64376819e9cd79c14f3485cbe8c2e870`;
+    - `scripts/s38_build.py`, `f756705d…` (unchanged);
+    - `scripts/s38_score.py`, `ec8ad8f192e2f636f3c0a22359828ab20e2925a3479799f3b6fd202f109c17a7`;
+    - **`scripts/s38_report.py` (the reader), sha256 `c283a20bc08ba9c9ed7249a7232bdb12acd75e4f5b72787c49d6d27aa0464708`**;
+    - `tests/test_s38_paper_corun.py`, `37db54ce351306c19748b78f53b566643d351c08e0ff64cade9301d8f7fe87f2` (24 tests).
+  - **Order:**
+    1. this amendment;
+    2. the laptop's ack (tests and smoke);
+    3. Friday's rehearsal and the integrity gate.
 
 ## 1. Why
 - **The operator (10-06), on the proposal:** "yes, please try it, I want to exhaust all reasonable options."
