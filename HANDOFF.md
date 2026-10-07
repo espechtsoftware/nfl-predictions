@@ -12,7 +12,7 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
-## 2026-10-07 (16:03 CDT) — The operator agrees with the outside reviewer; study 60 designed (real-field cash-line paper record); its ladder files W02–W05 written
+## 2026-10-07 (16:01 CDT) — The operator agrees with the outside reviewer; study 60 designed (real-field cash-line paper record); its ladder files W02–W05 written
 
 **The operator** ("here's what the outside reviewer says, and I agree"):
 - keep our construction for the satellites (study 54, with its deep-line caveat);
