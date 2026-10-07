@@ -216,7 +216,7 @@ rehearsal runs on the merged head in the exact armed env; Friday re-verifies on 
 - **Overlay monitor** (audit 10-06; built 10-05, never run on a live slate): ~11:15 CT `overlay_monitor.py flag --slate 2026-10-11 --out-dir ~/private/overlay/2026-w05`; after lock `overlay_monitor.py finalize --flags <the flags file>`. Read-only.
 - Paper shadow B (O-22): built with Sunday's projections, never entered.
 - **Study 61's W5 support census** (the R14 news paper study; prereg `reports/2026-10-08-prereg-study61-r14-news-grading.md`
-  §9 step 4; the reader pinned by amendment 2, `scripts/s61_r14_grade.py` `94fced43…`, merged `2ab44bab`, so
+  §9 step 4; the reader pinned by amendment 3, `scripts/s61_r14_grade.py` `081c1343…`, merged `517aa252`, so
   FRIDAY_HEAD carries it). Outcome-blind, offline, seconds. It runs after the T-70 upload, behind study 38's snapshot, and it is
   committed before any read.
   1. Copy the entered union dir and the T-70 run dir the way W4's were made (reads only of the live dirs; nothing under
@@ -229,7 +229,7 @@ rehearsal runs on the merged head in the exact armed env; Friday re-verifies on 
      these two.
   3. From the production checkout: `mkdir -p ~/private/r14-grade && PYTHONPATH=src .venv/bin/python
      scripts/s61_r14_grade.py --census --weeks 5 --out ~/private/r14-grade/census-w05.json`. The first line must print
-     sha `94fced43…` with no SMOKE label. Record the printed `W5 CENSUS` line in HANDOFF (counts only; the reader prints
+     sha `081c1343…` with no SMOKE label. Record the printed `W5 CENSUS` line in HANDOFF (counts only; the reader prints
      no name or quote), commit and push, and send it to the reviewer.
   - **If the T-70 fell back to OUR projections:** the union has no `proj_source.csv`, and the reader records the week
     NOT VALID (amendment 2: recorded with its reason; the other weeks stand; no week replaces it). Record that line in

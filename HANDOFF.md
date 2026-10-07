@@ -12,6 +12,30 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-07 (18:30 CDT) — Study 61 amendment 3 merged as `517aa252`: team_change on its own descriptive line; Sunday's census runs `081c1343…`
+
+- **The reviewer's amendment 3** (`966908c8`, reader commit `01fc3270`; before any W5 game and before W6's extraction):
+  - `team_change` records are split off after the version rule. They never enter the player join, the groups or the
+    direction-0 placebo.
+  - Their derived players follow the spec's mapping, using the frame's `opp`, on a line of their own: mean derived
+    direction × r′, with counts by unit.
+  - Nothing is derived, and the case is counted, for a count-only unit, a team off the Main slate, an unknown team or
+    unit, or a frame without `opp`.
+  - The reviewer kept the laptop's non-empty-team rule. Amendment 2's comment is completed (text only).
+- **Verified by the laptop:**
+  - shas: reader `081c1343…` (replaces `94fced43…`); tests `4109f7fd…`, 44 pass.
+  - The census smoke is unchanged in every count. The real-fallback smoke (W4's live union) prints NOT VALID and exits 0.
+  - The real T-70 frame carries `opp` with no NaN, one symmetric opponent per team, and only team codes the alias table
+    produces.
+  - A scratch log of 5 synthetic `team_change` records (no vendor text) on the real W4 frame derives 15 pairs. An
+    independent count from the frame also gives 15:
+    - DAL pass_defense → HOU's QB/WR/TE: 10;
+    - LA offensive_line → its own QB/RB: 3;
+    - JAX run_defense → CIN's RBs: 2.
+  - In that smoke, ATL (off the slate) was counted as not on the slate, receiving_corps as count-only, and 0 records
+    joined, so nothing reached the primary. The `--out` file carries no record text.
+- **Checklist:** the Sunday census names `081c1343…` and merge `517aa252`.
+
 ## 2026-10-07 (18:25 CDT) — R14 spec amendment: `team_change` (team moves) from W6, prompts by week, the Saturday sweep from W5
 
 - **Why:** the operator's 10-07 question about team news ("the trade deadline is near and Dallas just got a
