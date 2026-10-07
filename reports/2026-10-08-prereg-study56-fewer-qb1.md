@@ -1,8 +1,12 @@
-# Preregistration: study 56, fewer QB+1 rows in his live book, in the harness, with a 2022 go / no-go (DRAFT 2026-10-07)
+# Preregistration: study 56, fewer QB+1 rows in his live book, in the harness, with a 2022 go / no-go (FROZEN 2026-10-07)
 
-**Status: DRAFT 2026-10-07.** The reviewer committed it BEFORE reading study 54. Study 54's PLAIN arm (the house shape on
-every row: QB + 2 + one bring-back) is close to this study's arms, so its read would bear on this design.
-- The code, the smoke, the binding census, the bank scan and the freeze follow.
+**Status: FROZEN 2026-10-07** by the reviewer, after the smoke and the binding (support) census (§6), before any scored
+bank.
+- The DRAFT (`895cb346`) was committed BEFORE study 54's read, whose PLAIN arm (the house shape on every row) is close to
+  this study's arms.
+- Two additions were made before that read: the exploratory cheap-block arms (`ebb17277`), and the code (lab `ff66338` /
+  `103516c`).
+- Added after study 54's read, before the freeze: the operator's Week-5 line (`3cf242a0`, his words of 10-07) and §6.
 - The laptop acks the census, scans the banks and re-runs the frozen reader.
 
 ## 1. Why
@@ -87,7 +91,50 @@ shares the fill allocates and interleaves to):
 - The fill, the caps and the QB cap are study 48d's emulation of his live book (the reference for studies 48–55).
 
 ## 6. Smoke and integrity
-(Added at the freeze: the smoke, the binding census, the bank scan, the code shas.)
+- **The smoke** (`~/s56-panel/smoke.sh`; code as committed at lab `103516c`, clean; bank 1406; 2024 W10 SCORED, 2022 W6
+  MECHANICS ONLY):
+  - every arm built 41 rows within production's constraints;
+  - LIVE equals study 53's LIVE (= study 48d's), and LIVE_CB equals study 53's CHEAP2_BLOCK8, in rows and ranks on both
+    slates (against study 53's amendment-1 smoke);
+  - the quotas are reached: book rows per cell LIVE 8 / 4 / 7 / 7, QB2HALF 11 / 7 / 4 / 4, QB2ALL 15 / 11 / 0 / 0,
+    QB2HALF_CB 12 / 7 / 4 / 3 (its block and its live part each allocate by the quotas);
+  - the census and the reader exited 0.
+  - **Disclosed:** the reader ran on a FAKE file (the 2024 row relabelled 2022 as well) to exercise the code. Its STUDY
+    line, truncated at 40 characters, printed a verdict word for the single 2024 W10 slate-bank of bank 1406 ("not
+    adoptable: QB2HALF FAIL (g"). That is one mechanics-test slate-bank, not a study bank.
+  - The smoke's last check first named study 53's pre-amendment smoke, which has no CHEAP2_BLOCK8; it was re-run against
+    the amendment-1 smoke (recorded in the log).
+  - The log: lab `results/s56/SMOKE_s56.log`.
+- **The binding (support) census** (outcome-blind; bank 1406; 53/53 (2022: 17; 2023–24: 36); code `f3c7549` clean;
+  `results/s56/CENSUS_s56_binding.txt` `cc5f27b0…`, raw `84c07dc6…`; lab `08afaa9`). The first run (code `103516c`)
+  printed a stale "three arms" in its header. The label was fixed (`f3c7549`) and the census re-run before the freeze.
+
+  | 2023–24 | LIVE | QB2HALF | QB2ALL | LIVE_CB | QB2HALF_CB |
+  |---|---|---|---|---|---|
+  | dealt entries QB+1 / QB+2 / QB+3+ | .480 / .474 / .047 | .261 / .671 / .068 | 0 / .896 / .104 | .462 / .492 / .046 | .241 / .690 / .069 |
+  | projection per row (change vs its reference) | 128.04 | −0.26 | −0.64 | −0.42 | −0.26 (vs LIVE_CB) |
+  | predicted ownership per row | 78.56% | 78.14% | 77.70% | 76.74% | 76.64% |
+  | book rows shared with the reference (of 26) | — | 3.9 | 2.3 | 16.3 | 4.1 |
+  | identical to the reference | — | 0.000 | 0.000 | 0.000 | 0.000 |
+
+  - **2022 is alike:** QB+1 .464 / .250 / 0 / .452 / .233; projection −0.20 / −0.51 / −0.42 / −0.27.
+  - **Support holds:** every arm reaches its quotas on every slate-bank (passes 0, dropped 0). The cheap block applies on
+    every slate-bank. The tilt costs about a quarter of a projected point per row.
+- **Banks:** 1581–1586 and seed 20261107. The reviewer's unique-blob scan of both repositories (every blob up to 5 MB:
+  17,670 in production, 7,996 in the lab; the 8 larger blobs per repository were not searched) found them only in study
+  56's own records: this prereg's DRAFTs, `s56_drive.py` and `s56_report.py`. No result file for these banks exists on
+  disk.
+- **Code:** nfl2 `production/s56-fewer-qb1-20261007` @ `f3c7549` (the census at `08afaa9`):
+  - `experiments/s56_fewer_qb1.py`, sha256 `1a1bbe0b14c36356a825071db7a23ff7a56bd5f1e3e774b41195effd5bbe7ad3`;
+  - `scripts/s56_drive.py`, `f70b9bd56514c2b6eff5fb1215e67720d0c8bcbfeccc09f3e1d189aabdaafabb`;
+  - **`scripts/s56_report.py` (the reader), sha256 `38fb00d768012390c4d08597706e1ff7affbc8da745c6c7174cbebc1185c6d1f`**;
+  - `scripts/s56_census.py`, `767f3ed6585a24de87b2d3e599d8f1d6ee745ddaa3948c1255fff1d470b02030`;
+  - `tests/test_s56_fewer_qb1.py`, `4330c3f1f183d528ad1f0e6d4cb3f827248fdede03aaf136fdb8754e08d51400` (7 tests);
+  - unchanged, sha-asserted: study 48's `s48_winner_like.py` `c22d2811…`; study 53's `s53_cheap_pref.py` `f3f9d735…`;
+    `term_book.py` `62c2306e…`; production's `enter_layout.py` `3cb051ac…` (pins-extend-review).
+- **Production's vehicle:** integration `48946cd0`, `union_reselect --mix-cell-quotas` (default off, byte-identical).
+  - Its tests check that the targets at K 26 are [11, 7, 4, 4] for QB2HALF (LIVE [8, 4, 7, 7]) and the 15 spares
+    [7, 4, 2, 2]. The harness's allocation gives the same.
 
 ## 7. Order
 1. This DRAFT.
