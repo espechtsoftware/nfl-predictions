@@ -1,0 +1,86 @@
+{
+ "w2-live": {
+  "p_big1": 0.0413,
+  "e_big": 0.0414,
+  "mean_entry_pct": 0.4239,
+  "best_row": 162.96,
+  "rows_top1pct": 0
+ },
+ "w2-cheapdeal": {
+  "p_big1": 0.0082,
+  "e_big": 0.0082,
+  "mean_entry_pct": 0.444,
+  "best_row": 162.96,
+  "rows_top1pct": 0
+ },
+ "w2-mktdeal": {
+  "p_big1": 0.0,
+  "e_big": 0.0,
+  "mean_entry_pct": 0.467,
+  "best_row": 162.96,
+  "rows_top1pct": 0
+ },
+ "w2-projdeal": {
+  "p_big1": 0.0426,
+  "e_big": 0.0427,
+  "mean_entry_pct": 0.4431,
+  "best_row": 162.96,
+  "rows_top1pct": 0
+ },
+ "w3-live": {
+  "p_big1": 0.0016,
+  "e_big": 0.0016,
+  "mean_entry_pct": 0.5163,
+  "best_row": 164.64,
+  "rows_top1pct": 0
+ },
+ "w3-cheapdeal": {
+  "p_big1": 0.0038,
+  "e_big": 0.0038,
+  "mean_entry_pct": 0.5068,
+  "best_row": 164.64,
+  "rows_top1pct": 0
+ },
+ "w3-mktdeal": {
+  "p_big1": 0.0004,
+  "e_big": 0.0004,
+  "mean_entry_pct": 0.5278,
+  "best_row": 164.64,
+  "rows_top1pct": 0
+ },
+ "w3-projdeal": {
+  "p_big1": 0.0016,
+  "e_big": 0.0016,
+  "mean_entry_pct": 0.5101,
+  "best_row": 164.64,
+  "rows_top1pct": 0
+ },
+ "w4-live": {
+  "p_big1": 0.4336,
+  "e_big": 0.4339,
+  "mean_entry_pct": 0.5024,
+  "best_row": 181.08,
+  "rows_top1pct": 0
+ },
+ "w4-cheapdeal": {
+  "p_big1": 0.3401,
+  "e_big": 0.3642,
+  "mean_entry_pct": 0.5401,
+  "best_row": 181.08,
+  "rows_top1pct": 0
+ },
+ "w4-mktdeal": {
+  "p_big1": 0.4593,
+  "e_big": 0.4975,
+  "mean_entry_pct": 0.4611,
+  "best_row": 181.08,
+  "rows_top1pct": 0
+ },
+ "w4-projdeal": {
+  "p_big1": 0.398,
+  "e_big": 0.4433,
+  "mean_entry_pct": 0.5191,
+  "best_row": 181.08,
+  "rows_top1pct": 0
+ }
+}

@@ -82,3 +82,28 @@ The refinement does not beat the plain preference; the market-rated set is mostl
 variant improves the average finish in all three weeks and trails live on the big-win chance in Week 4; the laptop's
 reading (10-07) is right that the replay is dose-unstable (+2 trails in W2, +4 in W4), which is why the harness study
 (study list 51) decides.
+
+## 5. The cheap preference as Saturday's 8-row block (added 10-07, 10:45 CT) — the form that could enter Week 5
+
+The laptop's own block harness (`bonus_blocks_replay.sh`, copied as `run/experiments/cblocks_replay.sh`; production at
+the integration head, the live W5 settings, Rev3, head layout), 8 of 26 rows built on projection + min(0.20 × pred_own,
+cap) from the cheap file, the other 18 as live. W2–4 real fields.
+
+| P(≥ 1 big) | W2 | W3 | W4 | weeks below live | expected big seats vs live | mean entry percentile W2 / W3 / W4 |
+|---|---|---|---|---|---|---|
+| live | .041 | .002 | .434 | — | 1.00 | .424 / .516 / .502 |
+| **cheap block, +2** | **.058** | **.018** | **.535** | **0** | **1.46** | .449 / .500 / .570 |
+| **cheap block, +4** | **.084** | **.018** | **.529** | **0** | **1.52** | .437 / .495 / .563 |
+| matchup block (the laptop's run, 10-07) | .031 | .018 | .530 | 1 | 1.40 | — |
+
+The block form is ahead of live in **all three weeks at both doses** (the whole-book form was dose-unstable); it passes
+the frozen block screen production applied to the matchup and TD blocks (not entered if below live in 2+ weeks or the
+pooled expected-seats ratio is under 0.80). In-sample: the cheap idea came from W1–4; the block form and doses were not
+tuned on these numbers. Study 53's CHEAP4_BLOCK8 arm (Thursday) is the out-of-sample read.
+
+**Sort-key deals (`sortdeal_replay.sh`), the same live books re-dealt:** cheap count (below live in 2 of 3 weeks,
+expected-seats ratio 0.79) and props-minus-projection (2 of 3, 1.04) do not help; projection order (control) 1 of 3,
+1.02. Sorting stays at chance.
+
+**Writer:** `scripts/cheap_block_file.py` (`--season --week --frame --points --out`; the matchup writer's columns and
+refusals; public salaries only), test `tests/test_cheap_block_file.py` (7 pass); it reproduces the six replay files exactly.
