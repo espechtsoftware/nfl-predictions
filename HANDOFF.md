@@ -12,6 +12,40 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-07 (13:12 CDT) — OPERATOR DECISION: Week 5 arms the CHEAP +2 block as a reversible trial (not matchup); Friday's A3 arms cheap
+
+- **His words:**
+  - to the outside reviewer about 13:00, verbatim: "As I've mentioned to the other agent, waiting til after week 8 to make
+    changes isn't an option. We need to consider ways to expedite things.";
+  - then, on their expedite note (703e0f6a): "yes, I thought I approved cheap +2 over the matchup block earlier when you
+    asked about it. Consider that approved.";
+  - CONFIRMED DIRECTLY to the laptop (AskUserQuestion, about 13:20): "Yes, cheap +2 instead"; the stop rule "Accept as
+    proposed".
+- **The trial** (adoption track 09-19 §1): 8 of 26 rows on projection + min(0.20 × pred_own, 2.0) from cheap2-w5.csv
+  (the adopted writer, +2 per non-DST player under $4,000; TERM_CAP 2.0; the arm's file check).
+  - Recorded as "his trial against study 53's NOT ENTERED (contradicted on 2022)". The reviewer's recommendation (matchup;
+    "a defensible one-week choice, not a mistake") is beside it.
+  - Matchup stays on paper (study 38).
+- **The stop rule**, his accepted OR version, the reviewer's precise terms:
+  - stop at a review if MIXT_QA0 is behind MIXT_QA0_NOTERM on P(≥1 big seat) in EVERY live week, OR its summed expected big
+    seats fall below 0.80× the unblocked book's;
+  - first full review Monday 10-19;
+  - any integrity failure stops it at once.
+  - Rollback: matchup or none.
+  - I asked the reviewer whether he should see OR vs their AND before lock.
+- **Flow** (checklist and row 21 updated, 3b2424ca plus the next commit):
+  - Thursday: both files from A3's block-OFF frame, checked at cap 2.0, committed.
+  - Friday: A3 with A3_TERM_FILE=cheap2-w5.csv, the reviewer's binding 6e gate on that snapshot (source-agnostic, no change
+    needed), then w5_matchup_union_check.sh with matchup-w5.csv as the rollback's readiness.
+  - Saturday: TERM_ROWS 8, TERM_FILE reports/2026-10-08-live-block/cheap2-w5.csv, TERM_SHA, TERM_CAP 2.0.
+- **The reviewer on expediting:**
+  - The harness is the fast lever. They can run 56 (fewer QB+1, at the satellite and priority lines), 57 and 50 this week,
+    about an hour each, with 2022 out of sample, so they could be W6 decisions by Tuesday 10-13.
+  - 2019–21 can't carry these endpoints.
+  - More than one trial a week is fine across different stages, each with its own paired paper arm.
+  - Cloud Run is not needed.
+- **Memory:** week5-cheap-block-trial.
+
 ## 2026-10-07 (13:07 CDT) — Study 54 acked (scored run started); his WFFC answer; the W3 replay scored (d = 0 every week); the priority-contest monitor as Monday step 6
 
 - **Study 54 FROZEN** (prereg 3c5bd444, 81363694; lab 3a2cded, code a94da39). The question: PLAIN (production's pmo_x50)
