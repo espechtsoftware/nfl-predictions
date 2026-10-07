@@ -16,6 +16,14 @@
   user-weeks (1,000 reps, seed 5), and the pooled ratio over the weeks given.
 - Any change to the monitor before Week 8's read voids this reading, unless it is re-frozen before the affected week's
   field loads.
+- **Re-pinned 2026-10-07, about 11:30 CT, before Week 5's field loads** (this rule applied). Production `937415b3` (the
+  outside reviewer's `e58eb9e7`) changed the monitor for robustness only:
+  - unpriced rows are dropped before the integer arrays (an unpriced player cannot be rostered);
+  - a game without a total ranks last (this affects the game-coverage table, not the odds ratio);
+  - an uninformative bootstrap returns NaN.
+  The pattern's definition, the user filter, the contest and the bootstrap are unchanged. **The pinned instrument is now
+  sha256 `881ad086a77264117d8a4042b24432f9ad65f84306f8a6d05a7aa8d31c151717`** (production `937415b3`); it supersedes
+  `d5246f23…`.
 
 ## The reading (frozen)
 - The pattern **holds prospectively** if BOTH:
