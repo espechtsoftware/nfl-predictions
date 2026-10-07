@@ -89,8 +89,17 @@ him enter the top 1% together.
     field.
   - Reported: the percentile of SE's 26 on P(≥ 1 top-1% row) and on mean finish.
   - The random 26s ignore the caps, so the comparison is descriptive.
-- **Horizon:** W5–W8. If a week is invalid (a missing T-70 frame or ownership file), W9 may replace it, and no later week
-  (as in study 38).
+- **Horizon:** W5–W8. The reader takes the first four VALID weeks of W5–W9 and prints which. W9 can only replace an
+  invalid week; there is never a W10. With fewer than four valid weeks the study is INCOMPLETE.
+- **A valid week** (`week_validity`, frozen in the code):
+  - the T-70 frame and its FP projection file were read;
+  - a pre-lock ownership file existed;
+  - at least 90% of the field's non-ours entries resolved to the frame;
+  - the 20% band holds at least 50 top-1% labels.
+
+  An invalid week prints its reasons and is not counted.
+- **The frozen fit** carries three models: SE and FULL (decision-bearing) and SE_NOOWN (descriptive).
+- **The monkeys pool** for week w is the union dir named `union_dir_48f` in the money gate's per-week config.
 - **Weekly line:** each graded week's AUCs and the monkeys percentile go into the Monday evidence record. No interim
   decision.
 
