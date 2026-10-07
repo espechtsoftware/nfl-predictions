@@ -222,3 +222,11 @@ def test_union_winner_order_is_0_or_1_and_needs_the_mix(tmp_path):
     assert not any("UNION_WINNER_ORDER" in f for f in _failures(_run(env)))
     env["UNION_WINNER_ORDER"] = "2"
     assert any("UNION_WINNER_ORDER='2'" in f for f in _failures(_run(env)))
+
+
+def test_union_winner_select_needs_the_mix_spares_and_not_the_order(tmp_path):
+    env = _healthy(tmp_path); env.update({"UNION_MAIN": "mix", "UNION_MIX_PORTFOLIO": "mix", "UNION_WINNER_SELECT": "1"})
+    assert not any("UNION_WINNER_SELECT" in f for f in _failures(_run(env)))
+    env["UNION_WINNER_ORDER"] = "1"
+    assert any("UNION_WINNER_SELECT='1' must be 0 or 1; 1 needs UNION_MAIN=mix with spares and UNION_WINNER_ORDER off" in f
+               for f in _failures(_run(env)))

@@ -225,5 +225,9 @@ def test_the_winner_order_rides_into_the_units_and_the_host_falls_back_loudly():
     r = _run(UNION_WINNER_ORDER="1")
     assert "UNION_WINNER_ORDER=1" in _unit_line(r.stdout, "nfl-week4-t70-build")
     host = (Path(__file__).resolve().parents[1] / "scripts" / "sunday_build_host.sh").read_text()
-    assert '"${UNION_WINNER_ORDER:-0}" == "1" && "${UNION_MAIN:-mean}" == "mix"' in host
-    assert "WINNER ORDER NOT APPLIED" in host and 'UNION_ARGS+=(--winner-order "$OUT/winner_inputs-$RUN_TAG.csv")' in host
+    assert '[[ "${UNION_WINNER_ORDER:-0}" == "1" ]] && WIN_FLAG="--winner-order"' in host
+    assert '[[ "${UNION_WINNER_SELECT:-0}" == "1" ]] && WIN_FLAG="--winner-select"' in host
+    assert '[[ -n "$WIN_FLAG" && "${UNION_MAIN:-mean}" == "mix" ]]' in host
+    assert "NOT APPLIED for $RUN_TAG" in host and 'UNION_ARGS+=("$WIN_FLAG" "$OUT/winner_inputs-$RUN_TAG.csv")' in host
+    r2 = _run(UNION_WINNER_SELECT="1")
+    assert "UNION_WINNER_SELECT=1" in _unit_line(r2.stdout, "nfl-week4-t70-build")

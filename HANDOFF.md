@@ -12,6 +12,22 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-07 (04:12 CDT) — Study 48d's selection switch merged OFF (the reviewer's NOTE 1 fixed); 48d's READ pending
+
+- **The switch:** `union_reselect --winner-select` (SEL_CELL: per cell, keep its book count of the most winner-like rows among the cell's book rows and spares) is merged into integration OFF.
+  - Commits: df06f681 (branch `production/winner-select-20261007`: a3189419 reviewed CLEAN, plus 01a306c6).
+  - Settings: `UNION_WINNER_SELECT` in the host, `WINNER_SELECT=0` in the arm (host copy synced), validated by `check_week_runtime`.
+  - Any failure keeps the book as built and says so loudly.
+- **NOTE 1 (the reviewer) fixed:** after a selection, `commit_order` and the as-built entry shares move under `mix_meta.pre_selection`, and the shares are recomputed over the chosen cells.
+  - W4 end to end: rc 0, one spare in, the same selection as a3189419.
+- **Tests:** 108 pass, 1 skip; host args 4 pass.
+- **Not armed.** Arming needs all three:
+  - 48d's READ, reproduced here byte-identically;
+  - a vetted rehearsal under the selection;
+  - the operator's yes.
+  - If he says yes, the reviewer amends study 38 before the lock (NOTE 2).
+- **The W3/W4 real-field check of the score showed no support,** so the laptop recommends 48d only on a clear pass.
+- **Next:** reproduce 48d's census and READ when the reviewer sends the shas. Then Wednesday's cadence once the machine is free (load 18 now: the outside reviewer's job / 48d).
 ## 2026-10-07 (03:50 CDT) — Overnight: the winner-likeness work (graph facts layer; studies 48 PASS / 48b NO DIFFERENCE; the order merged OFF)
 
 - **The operator and the outside reviewer's plan** (`reports/2026-10-06-neo4j-winner-likeness-inputs.md`) asked for per-player football facts in the graph and the score.
