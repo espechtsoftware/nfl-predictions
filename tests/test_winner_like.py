@@ -182,3 +182,76 @@ def test_selected_shares_use_the_chosen_cells_and_the_as_built_ones_are_kept_apa
     assert sh["A1"] == 0.8 and sh["B"] == 0.2 and sh["C"] == 0.0 and sh["A2"] == 0.0
     src = (ROOT / "scripts" / "union_reselect.py").read_text()
     assert 'mix_meta["pre_selection"]' in src and '"commit_order", "entry_shares_before_overlap_limit"' in src
+
+
+def test_the_gate_scores_a_row_as_score_book_does_and_refuses_unknown_players():
+    """Study 48e (DRAFT): the gate's one-row score equals score_book on the same frame and inputs."""
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import tempfile
+    import union_reselect as ur
+    P = _players().reset_index()
+    rows = [["p0", "p1", "p2", "p3", "p4", "p5", "p6", "p9", "p7"], ["p16", "p17", "p18", "p19", "p20", "p21", "p22", "p25", "p23"]]
+    with tempfile.TemporaryDirectory() as d:
+        f = Path(d) / "inp.csv"
+        P[["id", "own_proj", "td_l4", "td_l8", "pass_td_l4", "att_l4"]].to_csv(f, index=False)
+        fr = P.drop(columns=["own_proj", "td_l4", "td_l8", "pass_td_l4", "att_l4"])
+        for c in W.FRAME_FACTS:
+            if c not in fr.columns:
+                fr[c] = 0.0
+        g = ur.WinnerGate(fr, f, tau=0.0, tries=5)
+        inp = pd.read_csv(f, dtype={"id": str}).set_index("id")
+        players = fr.set_index("id").join(inp, how="left")
+        ref, _ = W.score_book(rows, players)
+        assert [round(g.score(r), 12) for r in rows] == [round(float(x), 12) for x in ref]
+        with pytest.raises(ValueError, match="without inputs"):
+            g.score(["zz"] + rows[0][1:])
+        with pytest.raises(ValueError, match="model's columns"):
+            ur.WinnerGate(fr.drop(columns=["wopr_l4"]), f, tau=0.0)
+        m = g.meta([{"passed": True, "tries": 3}, {"passed": False, "tries": 5}])
+    assert m["passed"] == 1 and m["solves"] == 8 and m["tau"] == 0.0 and m["model_sha256"].startswith(W.MODEL_SHA256)
+
+
+class _FakeGate:
+    """Scores a row by a lookup; tau 1: only rows containing 'good' pass."""
+    tau, tries, fallback = 1.0, 3, "best"
+
+    def __init__(self):
+        self.calls = 0
+
+    def score(self, ids):
+        self.calls += 1
+        return 1.0 if "good" in ids else -float(self.calls)
+
+    def meta(self, log):
+        return {"rows": log}
+
+
+def test_the_gate_re_solves_with_the_rejected_lineup_banned_and_falls_back_to_the_best_try(monkeypatch):
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import union_reselect as ur
+    seen = []
+
+    class _LU:
+        def __init__(self, ids):
+            self.players = [{"id": i, "proj": 10.0} for i in ids]
+
+    def fake_optimize(pool, banned_lineups=None, **kw):
+        seen.append(len(banned_lineups))
+        return _LU([f"x{len(banned_lineups)}"] + [f"y{j}" for j in range(8)])
+
+    import types
+    fake = types.ModuleType("nfl2.core.lineup")
+    fake.StackRules = lambda **kw: None
+    fake.optimize = fake_optimize
+    monkeypatch.setitem(sys.modules, "nfl2", types.ModuleType("nfl2"))
+    monkeypatch.setitem(sys.modules, "nfl2.core", types.ModuleType("nfl2.core"))
+    monkeypatch.setitem(sys.modules, "nfl2.core.lineup", fake)
+    monkeypatch.setattr(ur, "frame_players", lambda fr: {f"p{i}": {"id": f"p{i}", "pos": "WR", "proj": 1.0, "game_id": "g"}
+                                                          for i in range(3)})
+    g = _FakeGate()
+    book, cells, meta, spares = ur.mix_rows(pd.DataFrame(), set(), 1, 4, None, 0, [1], portfolio="ws", fill="rr", gate=g)
+    assert seen == [0, 1, 2]                                    # each try bans the rejected lineups so far (none passed)
+    assert meta["gate"]["rows"][0]["tries"] == 3 and meta["gate"]["rows"][0]["passed"] is False
+    assert book[0][0] == "x0" and meta["gate"]["rows"][0]["score"] == -1.0      # the best-scoring try: the first
+    with pytest.raises(ValueError, match="fill rr"):
+        ur.mix_rows(pd.DataFrame(), set(), 1, 4, None, 0, [1], portfolio="ws", fill="group", gate=g)

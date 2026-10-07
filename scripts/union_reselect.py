@@ -462,7 +462,7 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
              weights: list[int], exposure_cap: int | None = None, dst_cap: int | None = None,
              bonus: dict[str, float] | None = None, portfolio: str = "mix",
              spares: int = 0, qb_cap: int | None = None, fill: str = "group", cover_games: int = 0,
-             rs_rows: int = 0) -> tuple[list[list[str]], list[str], dict, list[tuple[list[str], str]]]:
+             rs_rows: int = 0, gate=None) -> tuple[list[list[str]], list[str], dict, list[tuple[list[str], str]]]:
     """study 18's MIX book on the T-70 frame: cells solved largest first (ties: the earlier cell) through ONE shared state
     (banned lineups, the per-player exposure cap, the DST cap, <= max_shared with every earlier row); a cell row that cannot
     be solved passes to A1 (counted); then the rows are ordered by the entry-weighted interleave of the plan's weights.
@@ -495,7 +495,12 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
     round-robin on the quotas at its size, with the regulars' tiers (mix_shapes.RS_TIERS[n]) on the RS block's OWN rows:
     hard block caps, and an infeasible RS row solved with the fewest tiers dropped (study 37's order), recorded;
     (4) positions: mix_shapes.block_positions; (5) each block interleaved on the head weights of ITS positions;
-    (6) the spares after the book, without tiers. Needs the MIX portfolio, the round-robin fill, no cover, k 26."""
+    (6) the spares after the book, without tiers. Needs the MIX portfolio, the round-robin fill, no cover, k 26.
+    gate (study 48e DRAFT; the operator 10-07: "before a lineup is added to the corpus it needs to appear winner like";
+    default None = off, byte for byte today's book): a WinnerGate. Every row a solve returns is scored before it is
+    committed; below the gate's threshold, that exact lineup is banned for the cell's next try and the cell re-solved on the
+    same state, up to the gate's tries; the first passing try is committed, else the gate's fallback (the best-scoring try,
+    or the first). Book rows and spares alike. Needs the round-robin fill, no cover, no half-and-half."""
     from nfl2.core.lineup import StackRules, optimize          # the pinned lab clone on PYTHONPATH (>= f69598b)
     pool = [p for i, p in frame_players(t70).items() if i not in exclude]
     objective = "proj"
@@ -517,7 +522,30 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
     rows: dict[str, list[list[str]]] = {n: [] for n in names}
     passes = 0
 
+    if gate is not None and (fill != "rr" or cover_games or rs_rows):
+        raise ValueError(f"the winner gate needs fill rr, no cover and no half-and-half (got {fill}, {cover_games}, {rs_rows})")
+    gate_log: list[dict] = []
+
     def peek(name: str, extra_bans: frozenset = frozenset()):
+        """The cell's next row on the CURRENT state, not committed (through the winner gate when one is set)."""
+        ids, v = peek_plain(name, extra_bans)
+        if gate is None or ids is None:
+            return ids, v
+        tried = []
+        while True:
+            tried.append((ids, v, gate.score(ids)))
+            if tried[-1][2] >= gate.tau or len(tried) >= gate.tries:
+                break
+            ids, v = peek_plain(name, extra_bans, [frozenset(t[0]) for t in tried])
+            if ids is None:
+                break
+        passed = [t for t in tried if t[2] >= gate.tau]
+        pick = passed[0] if passed else (max(tried, key=lambda t: t[2]) if gate.fallback == "best" else tried[0])
+        gate_log.append({"cell": name, "tries": len(tried), "passed": bool(passed), "score": round(float(pick[2]), 6),
+                         "first_score": round(float(tried[0][2]), 6), "proj_cost": round(float(tried[0][1] - pick[1]), 4)})
+        return pick[0], pick[1]
+
+    def peek_plain(name: str, extra_bans: frozenset = frozenset(), rejected: list | None = None):
         """The cell's next row on the CURRENT state, not committed: (ids, objective value) or (None, None)."""
         _, rules, qmax, which = cells[name]
         bans = {p for p, c in count.items() if exposure_cap is not None and c >= exposure_cap} | set(extra_bans)
@@ -525,7 +553,8 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
             bans |= {p for p, c in count.items() if p in dst_ids and c >= dst_cap}
         if qb_cap is not None:                                  # study 35's per-QB cap (10-06; default off)
             bans |= {p for p, c in count.items() if p in qb_ids and c >= qb_cap}
-        lu = optimize(pool, stack=StackRules(**rules), objective_col=objective, banned_lineups=prev, max_overlap=max_shared,
+        lu = optimize(pool, stack=StackRules(**rules), objective_col=objective, banned_lineups=prev + list(rejected or ()),
+                      max_overlap=max_shared,
                       bans=bans or None, env=env, second_game_pair=games if which == "all" else None, qb_game_max=qmax)
         if lu is None:
             return None, None
@@ -703,6 +732,7 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
             "commit_order": commit_order,
             "cover": {"games": int(cover_games), "ranked": cover_list, "covered": covered, "missed": cover_missed},
             "half": ({**rs_meta, "blocks": blocks} if rs_rows else None),
+            "gate": (gate.meta(gate_log) if gate is not None else None),
             "entry_shares_before_overlap_limit": {n: round(dealt[n] / tot, 4) if tot else None for n in names},
             "rules": {n: {"quota": cells[n][0], "stack": cells[n][1], "qb_game_max": cells[n][2],
                           "second_game_pair": cells[n][3]} for n in names}, "portfolio": portfolio,
@@ -711,6 +741,46 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
             "source": ("nfl2 experiments/s18_stack_shapes.py @ 5869a1b (CELLS, allocate, interleave, mix_book)" if portfolio == "mix"
                        else "nfl2 experiments/s18_stack_shapes.py @ 5869a1b (WS, whole_book; PASSED, Addendum 129)")}
     return book, cell_of, meta, spare_rows
+
+
+class WinnerGate:
+    """Study 48e's DRAFT gate at generation: study 48's frozen winner-likeness score of one candidate row (the slate's
+    arrays, top game and projected-ownership ranks computed once from the whole frame, exactly as score_book does), a
+    threshold tau, a number of tries and the fallback when no try passes ("best": the best-scoring try; "first": the
+    plain row)."""
+
+    def __init__(self, fr: pd.DataFrame, inputs_path: Path, tau: float, tries: int = 10, fallback: str = "best"):
+        from nfl_dfs.inference import winner_like as WL
+        if fallback not in ("best", "first") or tries < 1:
+            raise ValueError(f"gate fallback must be best / first and tries >= 1 (got {fallback!r}, {tries})")
+        missing = [c for c in WL.FRAME_FACTS if c not in fr.columns]
+        if missing:                                      # never score with a model column silently zeroed (the reviewer, 10-07)
+            raise ValueError(f"the frame lacks the model's columns {missing}")
+        inp = pd.read_csv(inputs_path, dtype={"id": str}).drop_duplicates("id").set_index("id")
+        cols = list(dict.fromkeys(["pos", "team", "opp", "game_id", "salary", "game_total", *WL.FRAME_FACTS]))
+        players = fr.assign(id=fr["id"].astype(str)).drop_duplicates("id").set_index("id")[cols]
+        self.players = players.join(inp[["own_proj", *WL.LAG_COLUMNS]], how="left")
+        self.WL, self.model = WL, WL.load_model()
+        self.at = {p: i for i, p in enumerate(self.players.index.astype(str))}
+        self.A = WL.slate_arrays(self.players.reset_index(drop=True), WL.game_top(self.players))
+        self.own = WL.rank_pct(pd.to_numeric(self.players["own_proj"], errors="coerce").fillna(0.0).to_numpy(float), self.A["pos"])
+        self.hist = np.zeros(len(self.players))
+        self.tau, self.tries, self.fallback = float(tau), int(tries), fallback
+        self.inputs_path = Path(inputs_path)
+
+    def score(self, ids: list[str]) -> float:
+        missing = [p for p in ids if str(p) not in self.at]
+        if missing:
+            raise ValueError(f"book players without inputs: {missing[:5]}")
+        L = np.array([[self.at[str(p)] for p in ids]])
+        F = self.WL.features(L, self.A, self.own, self.hist)
+        return float(self.WL.score(F.to_numpy(float), self.model)[0])
+
+    def meta(self, log: list[dict]) -> dict:
+        return {"rule": "GATE (study 48e DRAFT)", "tau": self.tau, "tries": self.tries, "fallback": self.fallback,
+                "model_sha256": sha256_file(self.WL.MODEL_PATH), "inputs": str(self.inputs_path),
+                "inputs_sha256": sha256_file(self.inputs_path), "hist": "0 (live)", "rows": log,
+                "passed": sum(r["passed"] for r in log), "solves": sum(r["tries"] for r in log)}
 
 
 def apply_winner_order(book: list[int], rosters: list, fr: pd.DataFrame, inputs_path: Path) -> tuple[list[int], dict]:
@@ -881,6 +951,14 @@ def main(argv: list[str] | None = None) -> int:
                     help="study 48d: build the MIX book with its spares, then keep, per cell, its book count of the most "
                          "winner-like rows (study 48's frozen score) among the cell's book rows and spares; the rest become "
                          "the spares. The file is scripts/winner_like_inputs.py's inputs for THIS frame (default off)")
+    ap.add_argument("--winner-gate", type=Path, default=None,
+                    help="study 48e (DRAFT): every MIX row must score at least --winner-gate-tau on study 48's frozen "
+                         "winner-likeness score before it is committed (a rejected lineup is banned and the cell re-solved); "
+                         "the file is scripts/winner_like_inputs.py's inputs for THIS frame (default off)")
+    ap.add_argument("--winner-gate-tau", type=float, default=None, help="with --winner-gate: the frozen threshold")
+    ap.add_argument("--winner-gate-tries", type=int, default=10, help="with --winner-gate: solves per row at most (48e: R = 10)")
+    ap.add_argument("--winner-gate-fallback", choices=("best", "first"), default="best",
+                    help="with --winner-gate: when no try passes, the best-scoring try (best) or the plain row (first)")
     ap.add_argument("--winner-order", type=Path, default=None,
                     help="study 48b: re-order the main book by study 48's winner-likeness score (descending, ties keep the "
                          "book order) before writing book.csv; the file is scripts/winner_like_inputs.py's per-player inputs "
@@ -931,6 +1009,10 @@ def main(argv: list[str] | None = None) -> int:
                                         or a.main_own_tilt or a.mix_rs_rows or a.mix_cover_games):
         raise SystemExit("--winner-select needs --main mix --mix-portfolio mix with spares, no ownership term, no half-and-half, "
                          "no cover, and not --winner-order (study 48d)")
+    if a.winner_gate is not None and (a.main != "mix" or a.mix_fill != "rr" or a.mix_rs_rows or a.mix_cover_games
+                                      or a.winner_gate_tau is None or a.winner_order is not None or a.winner_select is not None):
+        raise SystemExit("--winner-gate needs --main mix --mix-fill rr, no half-and-half, no cover, a --winner-gate-tau, and "
+                         "neither --winner-order nor --winner-select (study 48e)")
     if a.mix_rs_rows and (a.main != "mix" or a.mix_portfolio != "mix" or a.mix_fill != "rr" or a.mix_cover_games
                           or a.mix_rs_rows not in (9, 13, 17) or a.entries != 26):
         raise SystemExit("--mix-rs-rows N (9, 13 or 17) needs --main mix, --mix-portfolio mix, --mix-fill rr, no cover and "
@@ -1064,11 +1146,23 @@ def main(argv: list[str] | None = None) -> int:
         spare_rows: list = []
         if a.main == "mix":
             weights = mix_weights(a.mix_plan, a.entries, a.mix_layout)
+            gate, gate_fail = None, None
+            if a.winner_gate is not None:                    # study 48e (DRAFT): a winner-like gate at generation
+                try:
+                    gate = WinnerGate(fr, a.winner_gate, a.winner_gate_tau, a.winner_gate_tries, a.winner_gate_fallback)
+                except Exception as exc:                     # never stops a union: the book is built ungated, LOUDLY
+                    gate_fail = f"{type(exc).__name__}: {exc}"
+                    print(f"\n!!! WINNER GATE NOT APPLIED: {gate_fail} -- the book is built without it\n")
             plain_rows, plain_cells, mix_meta, plain_spares = mix_rows(fr, excl, a.entries, a.mean_max_shared, cap, a.min_salary,
                                                                        weights, exposure_cap=xcap, dst_cap=dcap, qb_cap=qcap,
                                                                        portfolio=a.mix_portfolio, fill=a.mix_fill,
                                                                        cover_games=a.mix_cover_games, rs_rows=a.mix_rs_rows,
-                                                                       spares=0 if bonus else a.mix_spares)
+                                                                       spares=0 if bonus else a.mix_spares, gate=gate)
+            if gate_fail is not None:
+                mix_meta["gate"] = {"not_applied": gate_fail}  # the receipt records it (the union dir is made later)
+            elif gate is not None:
+                gm = mix_meta["gate"]
+                print(f"WINNER GATE: tau {gm['tau']}; {gm['passed']} of {len(gm['rows'])} rows passed; {gm['solves']} solves")
             spare_rows = plain_spares
             if a.winner_select is not None:                  # study 48d: choose the book by the winner-likeness score
                 plain_rows, plain_cells, spare_rows, sel_meta = winner_select_or_fallback(
