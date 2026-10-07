@@ -121,6 +121,10 @@ def load_union(d: Path) -> dict:
     if not want_fr or sha256(d / "frame.parquet") != want_fr:
         raise SystemExit(f"STUDY 61 REFUSED: {d}/frame.parquet is not the receipt's T-70 frame")
     ps = un.get("proj_source") or {}
+    if not ps and not (d / "proj_source.csv").exists():
+        # amendment 2: the T-70 fell back to OUR projections (no FP projection was used), so the week is NOT VALID for the
+        # study -- recorded, never a refusal of the other weeks; an FP file the receipt names but does not match is
+        return {"no_fp": True, "reason": "no FP projection: the T-70 build fell back to our projections"}
     if not ps.get("sha256") or not (d / "proj_source.csv").is_file() or sha256(d / "proj_source.csv") != ps["sha256"]:
         raise SystemExit(f"STUDY 61 REFUSED: {d}/proj_source.csv is missing or not the receipt's projection file")
     side = json.loads((d / "proj_source.csv.json").read_text()) if (d / "proj_source.csv.json").is_file() else {}
@@ -340,7 +344,12 @@ def main(argv=None) -> int:
     print(f"STUDY 61 RECORD  sha256 {sha256(Path(__file__))}" + ("   SMOKE (mechanics only; never a record)" if a.smoke else ""))
     out = {"weeks": weeks, "smoke": bool(a.smoke), "per_week": {}, "looks": {}}
     for w in weeks:
-        U = load_union(unions[w]); recs = load_log(w, a.log_dir)
+        U = load_union(unions[w])
+        if U.get("no_fp"):                                 # amendment 2: a fallback week is recorded as not valid
+            out["per_week"][w] = {"valid": False, "reason": U["reason"]}
+            print(f"  W{w}: NOT VALID -- {U['reason']} (recorded; the other weeks stand)")
+            continue
+        recs = load_log(w, a.log_dir)
         if a.smoke_cutoff_utc:
             U["cutoff"] = when(a.smoke_cutoff_utc)
         cen = week_census(w, U, recs)
@@ -363,11 +372,12 @@ def main(argv=None) -> int:
                   + " | priceable split: " + ", ".join(f"{k} {v['mean_signed_r']:+.2f} ({v['records']})" for k, v in desc["priceable_split"].items() if v["records"]))
         out["per_week"][w] = pw
     if not a.census:
-        vals = [out["per_week"][w]["primary"]["delta"] for w in weeks if w >= PROSPECTIVE_FROM and out["per_week"][w]["primary"]["valid"]]
+        ok = lambda w: bool((out["per_week"][w].get("primary") or {}).get("valid"))
+        vals = [out["per_week"][w]["primary"]["delta"] for w in weeks if w >= PROSPECTIVE_FROM and ok(w)]
         print(f"STUDY 61 (prereg 2026-10-08): prospective from W{PROSPECTIVE_FROM}; looks at W{', W'.join(map(str, LOOKS))}; "
               f"the two-sided 90% t interval (each side a one-sided 95% bound); at least {MIN_SIDE} players a side, {MIN_WEEKS} valid weeks")
         for L in looks_due(weeks):
-            upto = [out["per_week"][w]["primary"]["delta"] for w in weeks if PROSPECTIVE_FROM <= w <= L and out["per_week"][w]["primary"]["valid"]]
+            upto = [out["per_week"][w]["primary"]["delta"] for w in weeks if PROSPECTIVE_FROM <= w <= L and ok(w)]
             r = read_look(upto); out["looks"][L] = r
             print(f"  LOOK W{L}: n {r['n']}" + (f", mean {r['mean']:+.3f} [{r['lo']:+.3f}, {r['hi']:+.3f}] (two-sided 90%)" if "mean" in r else "")
                   + f" -> {r['reading']}")
