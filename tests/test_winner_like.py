@@ -288,3 +288,42 @@ def test_the_gate_tau_must_be_finite_and_the_frozen_one_unless_overridden(tmp_pa
             ur.WinnerGate(fr, f, tau=bad)
     assert ur.WinnerGate(fr, f, tau=W.FROZEN_GATE_TAU).meta([])["tau_source"] == "frozen"
     assert ur.WinnerGate(fr, f, tau=-4.977).meta([])["tau_source"] == "OVERRIDE"
+
+
+GATE_FIXTURE = Path.home() / "private" / "s48-port" / "PARITY_gate_2024w10.json"
+
+
+@pytest.mark.skipif(not GATE_FIXTURE.is_file(), reason="the private gate parity fixture is not on this host")
+def test_gate_parity_with_the_labs_fixture():
+    """Study 48e (the reviewer's fixture, lab 0d43823 s48e_parity_fixture.py, 2024 W10 bank 1406): every try's score to
+    1e-9 and the pick rule to the lab's chosen try, on all 41 peeks; production's frozen tau, R and fallback."""
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import union_reselect as ur
+    j = json.loads(GATE_FIXTURE.read_text())
+    g = j["gate"]
+    assert g["model_sha256"].startswith(W.MODEL_SHA256) and g["tau"] == W.FROZEN_GATE_TAU and g["tries"] == 10 and g["fallback"] == "best"
+    P = pd.DataFrame.from_dict(j["players"], orient="index")
+    A = W.slate_arrays(P.reset_index(drop=True), j["slate"]["top_game_id"])
+    at = {p: i for i, p in enumerate(P.index)}
+    own = np.array([np.nan if v is None else float(v) for v in P["own_rank"]])
+    hist = np.zeros(len(P))
+    model = W.load_model()
+    worst, picks = 0.0, 0
+    for peek in j["peeks"]:
+        L = np.array([[at[p] for p in t["ids"]] for t in peek["tries"]])
+        sc = W.score(W.features(L, A, own, hist).to_numpy(float), model)
+        worst = max(worst, float(np.max(np.abs(sc - np.array([t["score"] for t in peek["tries"]])))))
+        k, ok = ur.gate_pick(list(sc), W.FROZEN_GATE_TAU, "best")
+        assert (k, ok) == (peek["chosen"], peek["passed"]), peek["cell"]
+        assert len(peek["tries"]) == 10 or ok                 # a peek stops at its first pass or after R tries
+        picks += 1
+    assert worst <= 1e-9 and picks == j["summary"]["peeks"] == 41
+    assert sum(p["passed"] for p in j["peeks"]) == j["summary"]["passed"]
+
+
+def test_gate_pick_prefers_the_first_pass_then_the_best_earlier_on_ties():
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import union_reselect as ur
+    assert ur.gate_pick([-5.0, -4.4, -4.0], -4.5) == (1, True)
+    assert ur.gate_pick([-5.0, -4.7, -4.7, -4.9], -4.5) == (1, False)
+    assert ur.gate_pick([-5.0, -4.7], -4.5, "first") == (0, False)

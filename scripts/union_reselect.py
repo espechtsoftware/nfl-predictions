@@ -541,8 +541,8 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
             calls += 1                                         # a solve that returns None counts (the lab's count)
             if ids is None:
                 break
-        passed = [t for t in tried if t[2] >= gate.tau]
-        pick = passed[0] if passed else (max(tried, key=lambda t: t[2]) if gate.fallback == "best" else tried[0])
+        k, ok = gate_pick([t[2] for t in tried], gate.tau, gate.fallback)
+        passed, pick = ok, tried[k]
         gate_log.append({"cell": name, "tries": len(tried), "solves": calls, "passed": bool(passed), "score": round(float(pick[2]), 6),
                          "first_score": round(float(tried[0][2]), 6), "proj_cost": round(float(tried[0][1] - pick[1]), 4)})
         return pick[0], pick[1]
@@ -743,6 +743,17 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
             "source": ("nfl2 experiments/s18_stack_shapes.py @ 5869a1b (CELLS, allocate, interleave, mix_book)" if portfolio == "mix"
                        else "nfl2 experiments/s18_stack_shapes.py @ 5869a1b (WS, whole_book; PASSED, Addendum 129)")}
     return book, cell_of, meta, spare_rows
+
+
+def gate_pick(scores: list[float], tau: float, fallback: str = "best") -> tuple[int, bool]:
+    """Study 48e's pick among one peek's tries (in try order): the first try scoring >= tau (passed); else the best-scoring
+    try, the earlier on ties ("best"), or the first try ("first")."""
+    for i, s in enumerate(scores):
+        if s >= tau:
+            return i, True
+    if fallback == "first":
+        return 0, False
+    return max(range(len(scores)), key=lambda i: (scores[i], -i)), False
 
 
 def finite_float(text: str) -> float:
