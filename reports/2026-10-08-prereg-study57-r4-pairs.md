@@ -1,7 +1,10 @@
-# Preregistration: study 57, R4 joint coverage for his 2-entry contests, in the harness (DRAFT 2026-10-07)
+# Preregistration: study 57, R4 joint coverage for his 2-entry contests, in the harness (FROZEN 2026-10-07)
 
-**Status: DRAFT 2026-10-07.** It was written while study 56 ran, and it does not depend on 56's lever.
-- The code, the smoke, the binding census, the bank scan and the freeze follow.
+**Status: FROZEN 2026-10-07** by the reviewer, after the smoke and the binding (support) census (§6), before any scored
+bank.
+- DRAFT `c395471e`, with additions before study 56's read: the combined arms (`01961fbf`) and Rev6 (`3ca3d8c6`).
+- The decision pair was fixed by his arming (`93a2d04d`). Two design fixes came out of the smoke (`328af45a` and this
+  freeze), both before any scored bank.
 - The laptop acks the census, scans the banks and re-runs the frozen reader.
 
 ## 1. Why
@@ -81,7 +84,40 @@
   smoke checks both pick the same pair from the same inputs.
 
 ## 6. Smoke and integrity
-(Added at the freeze.)
+- **The smoke** (`~/s57-panel/smoke.sh`; bank 1406; 2024 W10 SCORED with the F dump, 2023 W5 MECHANICS ONLY; Rev6). It
+  found two design defects, both fixed before the freeze:
+  1. **The five pins alone re-blocked six other contests** under production's head layout. The single Wildcats moved
+     15–17 → 11–13, and his Warm Up sats moved 20–22 → 14–16, against his Rev6 order. R4 now replaces only the five
+     contests' ranks in the dealt layout (lab `4c5c10a`). Production's Sunday step must pin all 29 contests from the head
+     deal; the laptop is told.
+  2. **Independent picks repeated lineups inside the 2-entry group.** The three Wildcats took the same pair; the
+     laptop's catch. His rule, encoded in enter_layout's head docstring, is that no lineup repeats inside a size group
+     (2026-09-24; "All distinct", 10-05). The five pairs are now chosen SEQUENTIALLY in his Rev6 order (the $555 2x, the
+     three Wildcats, the Millionaire), each from the book rows the earlier ones have not taken (lab `e7d73ad`).
+  - **Production parity** (the final smoke): production's `entry_choice.joint_coverage`, given the same F and the same
+    exclusions, picks the same pair as study 32's `choose` for all five contests (2024 W10, bank 1406).
+  - The census and the reader exited 0; the reader printed section names only.
+  - The logs: lab `results/s57/SMOKE_s57.log` (the first smoke and the final).
+- **The binding (support) census** (outcome-blind; bank 1406; 36/36 slates of 2023–24; code `e7d73ad` clean;
+  `results/s57/CENSUS_s57_binding.txt` `96532e4d…`, raw `cec6d951…`; lab `9e3416a`):
+  - R4's pair differs from the head pair on every slate-bank, for all five contests.
+  - No other contest moves (asserted). The five pairs are disjoint (asserted).
+  - The pre-lock field fell back on 1 of 36 slate-banks (0.028).
+  - The priority order (CB_PRI) moves 16.6 of 26 book positions.
+  - R4 − the head pair, simulated in-sample (study 32 found the simulator over-sells about 3×): supersat +0.038, Wildcats
+    +0.012 / +0.019 / +0.014, Millionaire +0.008.
+- **Banks:** 1593–1598 and seed 20261109. The reviewer's unique-blob scan of both repositories (8,048 lab and 17,714
+  production blobs up to 5 MB) found them only in study 57's own records (the DRAFTs, `s57_drive.py`, `s57_report.py`).
+  No result file exists on disk.
+- **Code:** nfl2 `production/s57-r4-pairs-20261007` @ `e7d73ad` (the census at `9e3416a`):
+  - `experiments/s57_r4_pairs.py`, sha256 `a1c1ce66f7e2f241a4ff907cb976726b04dc7b6cffc1428b6db1357075f729e4`;
+  - `scripts/s57_drive.py`, `e71c082b27655efec08bd6b3e2029e36e387f1b4b9f8b7d324fa3089a86019ea`;
+  - **`scripts/s57_report.py` (the reader), sha256 `d7fedb91d73243ba52e09b2a3b36f7da0438c2e85e792ddd93512ff31561c633`**;
+  - `scripts/s57_census.py`, `705f317f5604a51031ac60ff741478fde8f21ffb811aab10cd85159bb238a4cf`;
+  - `tests/test_s57_r4_pairs.py`, `9a7b36e89a7319140760815502860b8307e507733d970b3018c96a80ddcd0e27` (7 tests);
+  - unchanged, sha-asserted: `s32_sorting.py` `06c35b9a…`, `s48_winner_like.py` `c22d2811…`, `s53_cheap_pref.py`
+    `f3f9d735…`, `priority_deal.py` `fa47594d…`, and production's `enter_layout.py` `3cb051ac…`;
+  - the plan: `plan-week5-rev6-s24.json` `ac10ddf6…`.
 
 ## 7. Order
 1. This DRAFT.
