@@ -1,6 +1,6 @@
 # Preregistration DRAFT: P1, the prospective contest-class edge record and its lower-confidence-bound stake rule (2026-10-07)
 
-**Status: DRAFT** by the laptop, for the reviewer to edit and freeze (the operator's approved-plan item P1; his
+**Status: DRAFT v2** (the reviewer's four decisions folded in, 10-07 afternoon) by the laptop, for the reviewer to freeze (the operator's approved-plan item P1; his
 Wed 10-07 directive). Week 5 locks Sunday 10-11. Nothing here has read any Week-5 outcome. The freeze must come before
 Week 5's standings load (Monday 10-12).
 
@@ -40,30 +40,60 @@ Each contest's class comes from `v_dk_payout_structure` and its name:
 5. **Everything else:** reported, never ruled on.
 
 ## 4. Measures, per class, per week from W5 (W1–4 reported as the baseline, never pooled into the decision)
-- **Primary (finish level, the 10-05 method):**
-  - Each entered row's z against the SAME week's Millionaire field: (row points − the field's mean) / the field's sd. The
-    class's edge is the mean z minus the class's break-even z.
-  - The break-even z is FROZEN here from the 10-05 latent model, which was calibrated on W1–4 and placed each class's
-    exact ladder and entries: +0.12 to +0.22 sd. **The reviewer fixes one value per class before the freeze** (the
-    10-05 scratch, recomputed from `v_dk_payout_structure`).
-- **Secondary (money):**
-  - The realized multiple per class (tie-split payouts), its ticket/cash rate against the break-even rate (the flat
-    ladders: 1 / the pool ratio × the field's paid rate), and the 10-05 clustered model interval (a common weekly
-    slate shock; ICC 0.062, with 0.15 / 0.25 as sensitivity).
-  - The monkey percentile beside every line (the money gate's rule 3).
-- **Beside them (P3's prereg):** the paper arms per class at each contest's own line.
+- **Primary (finish level; the 10-05 method; the reviewer's decisions 2 and 3):**
+  - **The yardstick:** each entered row's z against the SAME week's Millionaire field, z = (row points − the field's
+    mean) / the field's sd. The break-even values were derived on this yardstick. Own fields are too small and noisy
+    for the satellites.
+  - **The unit is the week, weighted equally.** Per class: the week's mean z over the class's entered rows; the class's
+    edge = the mean over weeks of (the week mean − the class's break-even z).
+  - **Beside it, descriptive:** each contest's own-field finish percentile.
+  - **A limitation, stated now:** satellite fields are probably sharper than the Millionaire's, so a satellite's true
+    break-even z is probably HIGHER than the value below. The flag (§5) is, if anything, generous there.
+- **The break-even z per class, FROZEN here** (the reviewer's decision 1):
+  - Each value is the 10-05 latent model's calibrated μ at an expected multiple of exactly 1.00. Total sd 0.95, week
+    ICC 0.062, each type's actual ladder and entries (scripts and CSVs: the laptop's 10-04 P1 scratch,
+    `power.py` / `power_by_type.csv`).
+  - Where a class holds several 10-05 types, the value is their mean weighted by the Week-5 plan's entries. A class the
+    Week-5 plan does not use takes its 10-05 plan's types.
+  - **No later re-freeze:** if a class's ladders change materially later in the season, the record reports it and the
+    value stays.
+
+  | Class | Break-even z | Computed on (10-05 types: their plan and entries) |
+  |---|---|---|
+  | Flat ticket ladders, capacity ≤ 600 | **0.158** | The W5 plan's 28 contests, 51 entries: SAT_402 0.164 (W4 plan: 1 contest), SAT_OTHER 0.152 (W4: 3 contests, 6 entries), SS25_594 0.162 (W4: 4, 40), SS25_198 0.159 (W4: 2, 10), SS25_118 0.159 (W4: 2, 6) |
+  | Flat ticket ladders, capacity > 600 | **0.175** | SS25_2378 0.175 (W4 plan: 4 contests, 80 entries); not in the W5 plan |
+  | The Millionaire | **0.216** | MILLY 0.216 (W4 plan: 1 contest, 2 entries; the W1 57-entry plan gave 0.224) |
+  | Other large cash GPPs (capacity ≥ 10,000) | **0.199** | GPP_LARGE 0.202 (W2 plan: 1 contest, 23 entries), GPP_MID 0.187 (W2: 3, 7), weighted by those entries; not in the W5 plan |
+  | Qualifiers (a seat plus cash) | **0.207** | FFWC_QUAL 0.207 (W3 plan: 1 contest, 2 entries); not in the W5 plan |
+  | Everything else | — | reported, never ruled on |
+
+- **Secondary (money):** per class, the realized multiple from tie-split payouts (`v_dk_entry_tier.split_payout_multiple`)
+  and the ticket/cash rate against the break-even rate (the flat ladders: 1 / the pool ratio × the field's paid rate).
+  The 10-05 clustered model interval goes beside it: a common weekly slate shock at ICC 0.062, with 0.15 / 0.25 as
+  sensitivity.
+- **The paper arms (the reviewer's decision 4):** kept in P3's own record, never in this one. P1 is our ENTERED rows
+  against break-even, for stakes; mixing in paper arms would blur the stake rule. The Monday report prints the two side
+  by side.
+- **Weeks:**
+  - A week with a standings-import failure is skipped and recorded.
+  - A week entered under an operator override counts as entered.
+- **The W1–4 baseline note:** W4 had 1 contest (196305080) excluded from the money gate for lack of a pre-lock ladder;
+  its ladder was fetched 10-07 after settlement. From W5, every plan contest's ladder is captured pre-lock, or fetched
+  after settlement under this rule.
 
 ## 5. The stake rule (Addendum 95 item 5; fixed now)
-- **What is computed:** per class, the one-sided 95% lower confidence bound of the prospective finish-level edge (mean
-  z − the class's break-even z). The week is the cluster, W5 onward only. It is reported each Monday from Week 8 (four
-  prospective weeks).
-- **The rule:** a class carries **"stake supported"** only while its LCB is above 0. Otherwise it reads **"no evidence
-  for stake"**.
+- **The bound:** per class, the one-sided 95% t lower bound on its week means (model-free; the week is the unit),
+  i.e. the mean over weeks of (week mean − break-even z) − t(0.95, n − 1) × sd / √n.
+  - It is computed from W8 on, and only for a class with at least 4 prospective weeks.
+  - With fewer weeks, the class carries no flag.
+  - The 10-05 clustered-model interval is reported beside it.
+- **The rule:** a class carries **"stake supported"** only while that bound is above 0. Otherwise it reads **"no
+  evidence for stake"**.
   - Realized money never turns the flag on: its power within a season is close to zero (§1).
-  - The flag is advice. Contest choice and stakes stay the operator's.
+  - The flag is advice. Contest choice and stakes stay the operator's (R6 / R7).
 
 ## 6. Power, stated before any outcome
-Fourteen prospective weeks (W5–W18), the 10-05 model (total sd 0.95, week ICC 0.062):
+Fourteen prospective weeks (W5–W18), the 10-05 model (total sd 0.95, week ICC 0.062), normal approximation:
 
 | Rows a week in the class | SE of the mean z | LCB margin (one-sided 95%) | True edge above break-even for 80% power |
 |---|---|---|---|
@@ -72,11 +102,11 @@ Fourteen prospective weeks (W5–W18), the 10-05 model (total sd 0.95, week ICC 
 | 4 | 0.138 | 0.227 | 0.344 |
 | 2 (the Millionaire) | 0.185 | 0.304 | 0.460 |
 
+- **The t bound is wider with few weeks.** t(0.95, 3) = 2.35 at 4 weeks against 1.645, so a flag at W8 needs about 1.4×
+  the margins above, before the √(14 / weeks) factor.
 - **The bar this sets:** a class turns "stake supported" this season only if its rows run about 0.2–0.5 sd ABOVE their
   break-even.
-- **Against the W1–4 record:** our rows ran −0.15 sd against the Millionaire field, with break-even at +0.12 to
-  +0.22. A flag this season needs a large real improvement, not a modest one.
-- **Fewer weeks are weaker still:** the margins above scale by about √(14 / weeks).
+- **Against the W1–4 record:** our rows ran −0.15 sd against the Millionaire field, with break-even at +0.16 to +0.22.
 
 ## 7. Review points
 - **Weekly (Monday, with settlement):** the record, as data only.
@@ -89,9 +119,12 @@ Fourteen prospective weeks (W5–W18), the 10-05 model (total sd 0.95, week ICC 
   the likely outcome even with a real edge (the 10-05 table: 82–99% for GPPs and the Millionaire).
 - **It changes nothing on the money path** without the operator.
 
-## 9. Open points for the reviewer before the freeze
-1. **One break-even z per class** (§4): recompute from the views and the 10-05 model, or keep the 10-05 values.
-2. **The z reference:** the same-week Millionaire field (the 10-05 method, one yardstick for every class), or each
-   contest's own field? The latter is noisier for small satellites.
-3. **Unequal rows a week:** classes have different row counts each week. Weight weeks equally, or by rows?
-4. **The paper arms (P3):** in this record, or kept in P3's own ledger?
+## 9. The reviewer's decisions (10-07), folded in
+1. One break-even z per class, the 10-05 values (§4 table); no later re-freeze.
+2. The yardstick is the same-week Millionaire field, with the satellite limitation stated and own-field percentiles
+   beside it.
+3. Equal week weights, the week as the unit; the one-sided t bound from W8 with at least 4 weeks; the clustered
+   interval beside it.
+4. P3's arms stay in P3's own record.
+Also added: standings-import failures are skipped and recorded; operator-override weeks count as entered; the W4
+exclusion note.
