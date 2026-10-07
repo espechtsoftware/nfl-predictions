@@ -120,6 +120,36 @@ rehearsal runs on the merged head in the exact armed env; Friday re-verifies on 
   runs the sha check and `check_term_block_file.py` (refuses a bonus above TERM_CAP, a cap outside (0, 5], a pred_own that is not
   bonus / 0.20), also under `--check`.
 
+## Wednesday 10-07 to Saturday 10-10: priority-first dealing and his Rev5 contest order (decision sheet row 24)
+- **His request** (to the laptop, 10-07): "Let's try to do this one this week as it seems more promising." His contest order
+  (to the outside reviewer, final): "two mega 4444 satellites / midseason warmup / 555 / WFFC / 333 / Showdown mega /
+  everything else".
+- **The vehicles:**
+  - The switch `f19222e0` (`UNION_PRIORITY_ORDER`, off): the 18 non-block rows sort by priority_deal's score; the cheap
+    block keeps its ranks.
+  - The private plan Rev5 (sha `0877fbcd…`): Rev3's contests re-ordered, with equal weights, so the same book. It is
+    staged as `~/week5-sunday/contests.json.rev5-0877fbcd`, not installed.
+- **Wednesday (after study 56's run):** `bash ~/.cache/laptop-agent/rehearsal/priority_deal_replay.sh f19222e0
+  ~/week5-sunday/contests.json.rev5-0877fbcd` runs the frozen harm screen
+  (`reports/2026-10-07-priority-deal-harm-screen.md`).
+  - (i) THE SORT (CB_PRI vs CB_REV5) decides the switch.
+  - (ii) THE RE-ORDER (CB_REV5 vs CB) decides Rev5.
+  - Report both to him and to the reviewers.
+- **Install Rev5** (if pair (ii) passes), before Thursday's A3:
+  - `cp -p ~/week5-sunday/contests.json ~/week5-sunday/contests.json.rev3-8625de0e`, then
+    `cp -p ~/week5-sunday/contests.json.rev5-0877fbcd ~/week5-sunday/contests.json`.
+  - Check the sha is `0877fbcd…`.
+  - Set the arm script's `PLAN_SHA` to Rev5 (tracked copy and host copy; the "is not Rev3" message names Rev5).
+  - Send the reviewer the equivalence check against `~/s24-panel/plan-week5-rev5-s24.json` (`008678f7`): the same
+    contest_id order and head ranks.
+- **Thursday:** study 59's read (the reviewer; CB_PRI − CB on Rev5; by about noon). He decides whether its bar applies.
+- **Friday:** if pair (i) passed (and 59, if he set that bar) and the reviewer's 6k is in, A3 runs with
+  `A3_PRIORITY_ORDER=1` on top of the cheap block. The union log prints `PRIORITY ORDER: … block positions kept […]`, and
+  the receipt carries `config.union.priority_order`.
+- **Saturday:** `PRIORITY_ORDER=1` in the arm script only on HIS yes at arming. Otherwise it stays 0, and Rev5 stays as his
+  plan order.
+- **Rollback:** `PRIORITY_ORDER=0`, and Rev3 from the backup with its PLAN_SHA.
+
 ## Sunday 10-11 and Monday 10-12: study 38 (the FP paper co-run; operator 10-06 "yes, please try it, I want to exhaust all reasonable options")
 - **Sunday, right after the T-70 union and BEFORE 12:00 CT:** snapshot (copies, read-only reads) the T-70 run dir and the union dir (frame.parquet, candidates.parquet, receipt.json, union_args.txt, lever_audit.json) and OUT's proj_fp-<RUN_TAG>.csv AND its .csv.json sidecar (apply_proj_source refuses without it), ownership_fp-<RUN_TAG> (+ receipts), union-args-<RUN_TAG>, the dk-status-<utc>.csv the T-70 union read (`--dk-status`; unavailable_ids needs it), contests.json and the week's DK contest-details file (for the study's size/seats/big plan; the reviewer's tracked `scripts/s38_plan.py` converts them) and `plan-overrides.json` (any per-contest decision he makes that week, e.g. W5's `{"196421726": {"big": false}}`, the $125 WFFC; `{}` if none) to `~/private/paper-corun/2026-w05/` with MANIFEST.txt (sha256, bytes, source path and mtime, the receipt's built_utc, the snapshot time). Never edits the live dirs; never writes under `~/week5-sunday`. The pre-lock provenance for the paper books, built after lock by the reviewer.
 - **The prior-top block on PAPER (the operator 10-07, "Paper only"; study 38 amendment 6b): the snapshot step runs EXACTLY** (all three paper files, absolute paths; the reviewer 10-07) `S38_PAPER_TERM_FILE=$HOME/projects/nfl-predictions/reports/2026-10-07-prior-top-term/priortop-w5.csv S38_PAPER_DVP_FILE=$HOME/private/paper-corun/dvp/2026-w05.csv S38_PAPER_FACTOR_FILE=$HOME/private/paper-corun/factor/2026-w05.csv S38_PAPER_MBLOCK_FILE=$HOME/projects/nfl-predictions/reports/2026-10-08-live-block/matchup-w5.csv bash $HOME/projects/nfl-predictions/scripts/s38_snapshot.sh <union dir> <OUT> <RUN_TAG> <contest-details json> <plan-overrides json | -> $HOME/private/paper-corun/2026-w05` (the DvP and factor files are written by the two steps below, right after the T-70 union) -- an ABSOLUTE path in the FRIDAY_HEAD production checkout (the reviewer: a cwd-relative path dies at snapshot time and costs the week). The file's sha256 must be 694a6622589d50766e290fa3aef92a263fa8d36bea2a8786c305563ac272de0b (`paper-term-priortop-w5.csv` in MANIFEST.txt). Live stays OFF (`TERM_ROWS=0`). **Friday's rehearsal runs this same invocation** (dest `~/private/paper-corun/rehearsal-w05-fri`; the DvP / factor files `.../dvp/rehearsal-w05-fri.csv`, `.../factor/rehearsal-w05-fri.csv`; the integrity gate then checks TERM8, DVP, MATCHUPX and COMBINED together) and its snapshot path goes to the reviewer for the live-mode integrity gate (TERM8 at ranks 2…25; NOTERM == QA0; "live 0, paper 0 / paper block applied"). From W6 a new file each week from the settled fields (make_priortop_files' rule), its sha in HANDOFF.
