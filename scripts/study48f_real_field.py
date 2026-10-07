@@ -120,16 +120,29 @@ def decide(aucs: list[float | None]) -> str:
     return "NO PASS"
 
 
-def fit_models(X: pd.DataFrame, y: np.ndarray) -> dict:
+def week_weights(weeks: np.ndarray) -> np.ndarray:
+    """Equal weight per training week (the reviewer, 10-07; the week is the unit in grading too): each row weighs
+    1 / (its week's band rows), normalized so the weights sum to the row count. W1's field is ~5x the others'."""
+    weeks = np.asarray(weeks)
+    counts = pd.Series(weeks).value_counts()
+    w = 1.0 / pd.Series(weeks).map(counts).to_numpy(float)
+    return w * (len(w) / w.sum())
+
+
+def fit_models(X: pd.DataFrame, y: np.ndarray, weights: np.ndarray | None = None) -> dict:
+    """The three frozen models (SE, FULL decision-bearing; SE_NOOWN descriptive), with the week-equal weights in the
+    standardization (weighted mean / sd; a missing value = the weighted training mean) and in the logistic fit."""
     from sklearn.linear_model import LogisticRegression
+    wts = np.ones(len(X)) if weights is None else np.asarray(weights, float)
     out = {}
     for name, cols in (("SE", SE), ("FULL", FULL), ("SE_NOOWN", SE_NOOWN)):
         Z = X[list(cols)].to_numpy(float)
-        mu = np.nanmean(Z, axis=0)                          # a missing value (OWN in weeks without a source) = the training mean
+        ok = ~np.isnan(Z)
+        mu = np.array([np.average(Z[ok[:, j], j], weights=wts[ok[:, j]]) if ok[:, j].any() else 0.0 for j in range(Z.shape[1])])
         Z = np.where(np.isnan(Z), mu, Z)
-        sd = Z.std(axis=0)
+        sd = np.sqrt(np.average((Z - mu) ** 2, axis=0, weights=wts))
         sd = np.where(sd > 0, sd, 1.0)
-        m = LogisticRegression(C=C, max_iter=2000).fit((Z - mu) / sd, y)
+        m = LogisticRegression(C=C, max_iter=2000).fit((Z - mu) / sd, y, sample_weight=wts)
         out[name] = {"features": list(cols), "mu": mu.tolist(), "sd": sd.tolist(),
                      "beta": [float(m.intercept_[0])] + [float(b) for b in m.coef_[0]]}
     return out
@@ -225,8 +238,11 @@ def main(argv=None) -> int:
         for w in weeks:
             X, meta, _ = load_week_rows(w)
             b = band_mask(X.proj_sum.to_numpy())
+            feats = [c for c in FULL if c != "own_rank" or meta.get("own_source", "none") != "none"]
             meta.update({"band_rows": int(b.sum()), "band_top1": int(X.top1[b].sum()), "all_top1": int(X.top1.sum()),
-                         "band_features_defined": round(float(X.loc[b, list(FULL)].notna().all(axis=1).mean()), 4)})
+                         "band_features_defined": round(float(X.loc[b, feats].notna().all(axis=1).mean()), 4),
+                         "band_features_checked": "FULL" if len(feats) == len(FULL) else "FULL without own_rank (no source; imputed at the training mean)",
+                         "projection_used": "FP" if meta.get("fp_proj_present") else "ours"})
             print(json.dumps(meta))
         return 0
     if a.cmd == "fit":
@@ -234,10 +250,14 @@ def main(argv=None) -> int:
         for w in weeks:
             X, meta, _ = load_week_rows(w)
             b = band_mask(X.proj_sum.to_numpy())
-            parts.append(X[b]); print(json.dumps(meta))
+            parts.append(X[b].assign(_week=w)); print(json.dumps(meta))
         D = pd.concat(parts, ignore_index=True)
-        models = fit_models(D, D.top1.to_numpy())
-        rec = {"study": "48f", "weeks": weeks, "band": BAND, "C": C, "rows": int(len(D)), "labels": int(D.top1.sum()), "models": models}
+        wts = week_weights(D._week.to_numpy())
+        models = fit_models(D, D.top1.to_numpy(), wts)
+        rec = {"study": "48f", "weeks": weeks, "band": BAND, "C": C, "rows": int(len(D)), "labels": int(D.top1.sum()),
+               "weighting": "week-equal (each row 1 / its week's band rows, normalized to sum to the row count)",
+               "week_total_weight": {str(w): round(float(wts[D._week.to_numpy() == w].sum()), 6) for w in weeks},
+               "week_rows": {str(w): int((D._week == w).sum()) for w in weeks}, "models": models}
         raw = json.dumps(rec, indent=1, sort_keys=True).encode()
         a.out.write_bytes(raw + b"\n")
         print(f"FIT -> {a.out} sha256 {hashlib.sha256(raw + b'\n').hexdigest()}")
@@ -274,10 +294,10 @@ def main(argv=None) -> int:
             boots = [x for x in boots if x is not None]
             line[f"desc_boot95_{name}_assumes_independent_lineups"] = [float(np.quantile(boots, 0.025)), float(np.quantile(boots, 0.975))] if boots else None
         line["desc_auc_SE_NOOWN"] = auc(score(model["models"]["SE_NOOWN"], X)[b], y[b])
-        prior = [rows[v][band_mask(rows[v].proj_sum.to_numpy())] for v in sorted(rows) if v < w]
+        prior = [rows[v][band_mask(rows[v].proj_sum.to_numpy())].assign(_week=v) for v in sorted(rows) if v < w]
         if prior:                                                 # the walk-forward refit, the frozen recipe on W1..W(w-1)
             D = pd.concat(prior, ignore_index=True)
-            wf = fit_models(D, D.top1.to_numpy())
+            wf = fit_models(D, D.top1.to_numpy(), week_weights(D._week.to_numpy()))
             line["desc_auc_SE_walk_forward"] = auc(score(wf["SE"], X)[b], y[b])
         line["desc_monkeys"] = monkeys(model["models"]["SE"], ctxs[w])
         print(json.dumps(line, default=str))

@@ -12,6 +12,71 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-07 (07:15 CDT) — O-40: the projection model has no position-level matchup (the operator: "five alarm fire"); confirmed, screened (≈0), confirmatory rule frozen; W5 unaffected (FP means); 48f frozen; the graph facts loaded
+
+**The finding:** the outside reviewer, relayed by the operator. **Confirmed by the laptop** and registered as O-40 (b468bc27).
+- `NUMERIC_FEATURES` has no defense-vs-position input. The seven opponent-defence columns are built into 021/023 but were never registered. They were 0% filled in the W1–W3 T-70 frames and 91% in W4; today's W5 serving rows are 100%.
+- Addendum 8's July reason ("already carried by trailing defense-vs-position form") was wrong. A correction draft is with the reviewer for placement.
+- **W5 is unaffected:** the book's means are FP's (316 of 316).
+
+**Evidence so far:**
+- **2026 W2–W4 descriptive:** our residuals against in-season DvP, corr −0.12 / −0.05 / +0.13. The sign flips. FP's W4 residual is +0.12 too.
+- **The walk-forward SCREEN** (seen before any rule, so disclosed and non-deciding): DVP4 − BASE rank corr +0.0005 / +0.0021 / −0.0007 (2023–25), MAE in the 3rd decimal. Projection-level ≈ 0.
+- **The CONFIRMATORY rule is frozen** in `reports/2026-10-07-prereg-o40-dvp-ablation.md` (affa24fd / 6ccf3b95):
+  - the O-22-repaired base after Monday's merge;
+  - targets 2020–2022, untouched;
+  - PASS = > 0 in 2 of 3 + pooled week-resampled lower bound > 0 + an MAE guard;
+  - a PASS buys only the gate.
+- **W6 path (the reviewer):** Monday merge o22-leak-fixes (incl. the as-of 0bc6b6bc, reviewed CORRECT) → register DVP4 → build-features (leakage checks unchanged) → the confirmatory ablation → the consumer replay of 2026 W2–W5 (REPAIRED vs REPAIRED + DVP4) → the operator decides W6 by 10-15/16.
+
+**The operator (AskUserQuestion): "Yes, paper arm"** — an FP-means DvP tilt as a study 38 paper arm.
+- The reviewer had advised holding: there's no basis yet for a frozen slope.
+- Agreed build: the slope comes from the outside reviewer's W2–W4 matchup replay (running), frozen before any W5 outcome. Near zero is disclosed as near-vacuous. Pending the replay.
+
+**Also today:**
+- **48f FROZEN** (prereg 2003f464; week-equal fit ba2ac709; the reviewer CONFIRMED).
+- **The Milly graph facts loaded** (64dbd7ce): TD prices, the prior-top share, starters out (pre-lock status), and 42,409 PoolLineups with real-finish tiers.
+- **Study 38 amendment 6 smoke reproduced** by the laptop (books 2cd95e9b / c276bf08). The 6b smoke follows.
+- **The arming checklist:** the Sunday s38 snapshot uses an ABSOLUTE `S38_PAPER_TERM_FILE` (d3f3bfe9).
+
+## 2026-10-07 (06:40 CDT) — The operator: the prior-top block PAPER ONLY (study 49 NO DIFFERENCE, leaning negative); 48e NO DIFFERENCE; O-27 closed (cbwu-oi dry run); 48f census running
+
+**Studies, each reproduced byte-identically by the laptop, records merged:**
+- **48e** (the gate at generation): NO DIFFERENCE on both co-primaries.
+  - GATE +0.0115 [−0.0546, +0.0758]; GATE_SOFT +0.0207 [−0.0427, +0.0822].
+  - Cheap (−0.36 / −0.19 projected points per row) with a mild re-chalk.
+  - OFF by its §5; 48f decides the real-field question.
+  - Addendum 155, merged 47953d1b; READ 81e7bd23.
+- **49** (the prior-top block in the harness): NO DIFFERENCE, leaning NEGATIVE.
+  - TERM8 −0.0165 [−0.0718, +0.0562].
+  - The uncapped whole-book form −0.112 [−0.221, +0.004]: the mechanism hurts at strength.
+  - Addendum 156, merged 7762fd27; READ 47cea4cc.
+
+**The operator (AskUserQuestion, after 49):** "Paper only (Recommended)".
+- Live `TERM_ROWS=0`; the arm and the host copy are unchanged.
+- Study 38 amendment 6b (prereg 3c168294; lab 9389216) builds MIXT_QA0_TERM8 from the snapshot's paper file every week.
+- `s38_snapshot.sh` copies `S38_PAPER_TERM_FILE` as `paper-term-<file>` (76672512).
+- W5's file: `reports/2026-10-07-prior-top-term/priortop-w5.csv` (694a6622…). From W6, a new file each week after settlement (make_priortop_files' rule).
+- **Sunday:** set `S38_PAPER_TERM_FILE` for the snapshot.
+- Decision sheet row 20; study list 45.
+
+**O-27 CLOSED:** the outcome-blind dry run `shadow-cbwu-oi-paired-pmc97` passed in 13 min, with the reviewer's checklist complete.
+- Image 7f632786 / CODE_SHA 6fd3ef00; settings 9849d07f; the dry-run namespace; draft group 154468 = the W5 Sunday main.
+- `check_prospective_gates --week 5`: 4 expected problems remain (Route Share ×2 dry runs Thursday; the SIS schedulers paused until their dry runs).
+- Tool: `~/.cache/laptop-agent/shadow_dry_run.sh` (lane-checked).
+
+**48f:**
+- The prereg DRAFT is revised for the reviewer: the week as the unit, the W5–W9 picker, validity floors, descriptive lines and seeds, §8 wording. The reviewer: ready to freeze once the census and fit are in.
+- The census (W1–W4) is running → `~/private/s48f/`. Then the frozen fit, the freeze commit with its sha, and the reviewer's re-review. Target: Friday, before the lock.
+
+**Pending today:**
+- the props pre-check + project-slate after 09:30;
+- SIS team-context (the W4 blocking for ATL–NO) and FP's W5 projection / matchup pages: re-capture when posted;
+- the SIS cache dry runs + the paired dry run + resume, before Thu 09:15;
+- study 38 amendment 6 / 6b smokes, in copies;
+- A3 / Friday's rehearsals;
+- the facts-layer pool rows.
+
 ## 2026-10-07 (06:18 CDT) — O-39 follow-up: the SIS gate's one CODE_SHA by RELABEL (the reviewer); W5 project-slate OK; gates at the 5 expected
 
 - **The SIS companion gate needs ONE CODE_SHA across its jobs.** Both GPU cache jobs keep image `tabpfn-sis-pass-tail-live@sha256:ac07a31e…` and now declare CODE_SHA 6fd3ef00.

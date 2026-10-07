@@ -62,3 +62,20 @@ def test_the_label_uses_the_whole_field_and_the_band_is_on_the_rows_given():
     assert S.top1_label(ranks, n_all=5).tolist() == [True, False, False, False, False]       # never of the 5 resolved
     proj = np.array([10.0, 9, 8, 7, 6, 5, 4, 3, 2, 1])
     assert S.band_mask(proj).tolist() == [True, True] + [False] * 8
+
+
+def test_week_equal_weights_and_the_weighted_fit():
+    """The reviewer (10-07): every training week weighs the same (W1's field is ~5x); weights sum to the row count."""
+    weeks = np.array([1] * 600 + [2] * 100 + [3] * 100 + [4] * 200)
+    w = S.week_weights(weeks)
+    totals = [w[weeks == k].sum() for k in (1, 2, 3, 4)]
+    assert abs(sum(totals) - len(weeks)) < 1e-9 and max(totals) - min(totals) < 1e-9
+    rng = np.random.default_rng(3)
+    X = pd.DataFrame({c: rng.normal(size=len(weeks)) for c in S.FULL})
+    X.loc[weeks <= 2, "own_rank"] = np.nan
+    y = (X.mates + rng.normal(scale=0.5, size=len(weeks)) > 1.0).to_numpy()
+    m = S.fit_models(X, y, w)
+    j = list(S.SE).index("own_rank")
+    ok = weeks > 2
+    assert abs(m["SE"]["mu"][j] - np.average(X.own_rank[ok], weights=w[ok])) < 1e-12      # the weighted training mean
+    assert m["SE"]["mu"] != S.fit_models(X, y)["SE"]["mu"]                                   # the weights matter
