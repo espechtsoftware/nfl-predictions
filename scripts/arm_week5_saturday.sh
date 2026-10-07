@@ -6,7 +6,7 @@
 #   bash scripts/arm_week5_saturday.sh [--check]   (tracked for review 10-06; Saturday runs the reviewed copy)     (--check: steps 0 and 6 only, nothing written or armed)
 #
 # Week-5 changes vs Week 4 (reports/2026-10-06-week5-arming-checklist.md):
-#   GROUP 154468; no LineStar step (retired 10-06); Rev3 plan (supersats on rows 1-26, K 26, caps 13/6; all mean-track,
+#   GROUP 154468; no LineStar step (retired 10-06); Rev3 plan, Rev6 since 10-07 (supersats on rows 1-26, K 26, caps 13/6; all mean-track,
 #   so no tail-sleeve settings); FP projections (UNION_PROJ_SOURCE=fp); NO ownership term (operator 10-06: "yes, remove
 #   the tilt as you suggested": under FP the tilt carries no information beyond the projection -- the W1-4 regression,
 #   and production's W4 fixed-book replay 0.0094 with it vs 0.0336 without); the shape: mixt (the winners' mix; his formal
@@ -16,7 +16,9 @@
 set -uo pipefail
 SHAPE="mixt"             # his formal yes 2026-10-06: "yes to the winners' mix with the tilt and the quarterback cap" (the tilt removed by his 10-06 yes)
 FRIDAY_HEAD=""           # FRIDAY: the final integration head after Friday's host rehearsal (the merges landed 10-06, 231b1ea0)
-PLAN_SHA=8625de0ec37d491ce7b5cf10f7e6eef7719e3198fc118df890f1b82235fe766f     # Rev3, installed Friday
+PLAN_SHA=5f8352eebf17860795922f8b5bca754c4ed0566c8c5ca63419e6dacd24e59470     # Rev6 (his FINAL contest order 10-07; Rev3's contests
+                                    # re-ordered, the same book; installed 10-07 14:38 after the priority screen's pair (ii);
+                                    # Rev3 kept as contests.json.rev3-8625de0e)
 CHOSEN_LEV=0; CHOSEN_BOOM=4800                                                # FRIDAY: confirm the Week-5 dose
 QB_CAP_ROWS=5; QB_CAP_K=26          # study 35's cap A (his yes 10-06): no QB in more than 5 of the 26 book rows
 OWN_TILT=0                          # the ownership term (his 10-06 yes: "remove the tilt"); 0 = no term, no FP ownership on the money path
@@ -84,19 +86,19 @@ if [[ -n "$CHG" ]]; then
   [[ "$CHECK" == --check ]] || { git pull --ff-only -q origin production/week3-integration-20260921 || stop "ff-only pull failed"; }
 fi
 git merge-base --is-ancestor "$FRIDAY_HEAD" HEAD || stop "HEAD $(git rev-parse --short HEAD) is not at or after $FRIDAY_HEAD"
-[[ "$(sha256sum $W/contests.json | cut -d' ' -f1)" == "$PLAN_SHA" ]] || stop "$W/contests.json is not Rev3 ($PLAN_SHA)"
+[[ "$(sha256sum $W/contests.json | cut -d' ' -f1)" == "$PLAN_SHA" ]] || stop "$W/contests.json is not Rev6 ($PLAN_SHA)"
 # O-42 (10-07): the class sleeve's model, checked here (also under --check) rather than at the 10:30 build's preflight
 [[ -s $W/class_model.json && -s $W/class_model.json.sha256 ]] || stop "$W/class_model.json or its .sha256 is missing (the class sleeve's model, CLASS_SLEEVE_EVERY=2; O-42)"
 [[ "$(sha256sum $W/class_model.json | cut -c1-64)" == "$CLASS_SHA" && "$(cut -c1-64 $W/class_model.json.sha256)" == "$CLASS_SHA" ]] || stop "$W/class_model.json is not the pinned CLASS_SHA ${CLASS_SHA:0:8} (or its .sha256 disagrees)"
 K=$(PYTHONPATH=src $PY -m nfl_dfs.inference.enter_layout rows-needed $W/contests.json --layout head) || stop "rows-needed failed on the plan"
-[[ "$K" == 26 ]] || stop "rows-needed on the installed plan is $K, not 26 (Rev3 under head)"
+[[ "$K" == 26 ]] || stop "rows-needed on the installed plan is $K, not 26 (Rev6 under head)"
 [[ -z "$QB_CAP_ROWS" || "$K" == "$QB_CAP_K" ]] || stop "the QB cap was calibrated at K $QB_CAP_K, but the plan needs $K rows (study 35: re-calibrate)"
 # the local Milly graph must not run through the build windows (reviewer 10-04, binding: a CHECK, not a habit -- the O-24
 # lesson): its heap and page cache (up to 18 GB) could starve the Sunday builds. ss/ps only, never pgrep -f.
 NEO_PID=$HOME/.local/share/neo4j-milly/run/neo4j.pid
 if [[ -s $NEO_PID ]] && ps -p "$(cat "$NEO_PID")" >/dev/null 2>&1; then stop "the local Neo4j is running (pid $(cat "$NEO_PID")): neo4j-milly stop, then re-run"; fi
 [[ -z "$(ss -ltnH '( sport = :7474 or sport = :7687 )' 2>/dev/null)" ]] || stop "a process listens on 7474/7687 (the local Neo4j?): stop it, then re-run"
-say "step 0 OK: checkout $(git rev-parse --short HEAD) clean; Rev3 installed; class model ${CLASS_SHA:0:8}; K $K; shape $SHAPE; Neo4j not running"
+say "step 0 OK: checkout $(git rev-parse --short HEAD) clean; Rev6 installed; class model ${CLASS_SHA:0:8}; K $K; shape $SHAPE; Neo4j not running"
 if [[ "$CHECK" != --check ]]; then
   # 1-4. Saturday inputs (no LineStar step: retired 10-06)
   PYTHONPATH=src $PY scripts/ownership_sets.py sets --week 5 --group 154468 --out $W/ownership_sets.csv 2>&1 | tail -1 || stop "ownership_sets.py sets failed"
