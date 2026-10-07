@@ -12,6 +12,41 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-06 (20:43 CDT) — End of Tuesday: Week 5 settings final; the evening's tests all recorded; Wednesday's order
+
+**Week 5 as armed** (the operator's decisions, all recorded):
+- the winners' mix (MIXT), FP projections, no ownership tilt;
+- the QB cap 5 of 26, player cap 13, DST cap 6;
+- **overlap limit 4**, **round-robin fill**;
+- Rev3 (K 26, head).
+- The switches built OFF: `MIX_COVER=0` (study 43), `MIX_RS=0` (study 46, contradicted by 46c).
+
+**Studies tonight**, each reproduced byte-identically and with its records merged:
+
+| study | what | result |
+|---|---|---|
+| 41 | overlap 4 | PASS |
+| 42 | fill order | no difference; value not armed; rr his preference |
+| 43 | game cover | no difference, leaning worse |
+| 45 | contrarian row | WORSE |
+| 46 | half-and-half | no difference, leaning positive |
+| 46c | half-and-half on 2022 | CONTRADICTS → off |
+| 47 | QB-by-QB round-robin | WORSE |
+
+Also: item 40, field calibration v2; study 38 amendments 2–5, all acked.
+
+**The regular we model** (study list 43; private benchmark, `~/private/contrarian/`):
+- He won W2 and lost money in W1, W3 and W4.
+- Same players as us in W4; the difference is construction.
+- The deciding live test is study 38 (RS0 vs QA0, W5–W8). The weekly per-lineup line against him becomes a Monday item.
+
+**Wednesday, in order:**
+1. SIS and the weekly vendor run, then the scheduler resumes and `check_prospective_gates.py --week 5`.
+2. `neo4j-milly stop`.
+3. A1 (`a1_host_chain_k105.sh`), then A2 (`a2_armed_k26.sh`, now `--mean-max-shared 4 --mix-fill rr`), then A3. The s38 snapshot follows, then the reviewer's live-mode integrity gate.
+4. The R14 fact log once the W5 FP articles land; the shadow-B dry run (`shadow_b.py`, heavy) after the rehearsals; the cbwu-oi dry run.
+
+**Friday:** FRIDAY_HEAD; move `s38-prod-pin` to it and disclose union_reselect `bdd95a51` vs `ffd59b72` (the reviewer); the final rehearsal at 4 + rr; `--check`.
 ## 2026-10-06 (19:42 CDT) — Study 46 (half-and-half): NO DIFFERENCE, leaning positive; the operator says yes PENDING the 2022 check; the machine waits for the outside job
 
 - **Study 46 READ** (reviewer d48ff3c, 4578b611; census 1a95ba7c), reproduced byte-identically. Raw dir `~/s46-panel/run`.
