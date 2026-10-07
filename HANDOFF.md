@@ -12,6 +12,52 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-07 (05:24 CDT) — Wednesday morning: the operator's prior-top decision (live, capped, 8-row block) built and replayed; the outside reviewer's branch merged; real-field checks of the winner-likeness score; 48e frozen and acked; A1 / A2 PASS
+
+**The operator's decisions this morning (AskUserQuestion):**
+- The prior-top term in Week 5: **"Live, capped, part of book"** (offered: paper / capped block / as tested).
+- Study 49 (the exact form on the 36-slate harness, to flag harm): **"Yes, run it"**.
+
+**The prior-top term block:**
+- `production/term-block-20261007` @ 26fb8d40, OFF; the reviewer verified the mechanics.
+- What it does: `--term-block-rows 8`, projection + min(0.20 × pred_own, 2.0) from `reports/2026-10-07-prior-top-term/priortop-w5.csv` (sha256 694a6622…). Positions are ranks 2, 5, 9, 12, 15, 18, 22, 25.
+- Wiring: the host, the timers, check_week_runtime (pinned sha) and the arm (TERM_ROWS=0 until Friday).
+- **A book built WITHOUT the block is not published** (`term_block_missing` + an ALERT file). It goes out only with TERM_BLOCK_MISSING_OK=1, his decision.
+- vetting.json records each position's block.
+- **Exact-form W2–4 replay** (`~/rehearsals/termblock-20261007T101550Z`): mechanics clean.
+  - P(≥1 big) .041→.031 / .002→.093 / .434→.404.
+  - Mean entry pct .424→.424 / .516→.603 / .502→.475.
+  - About 1 projected point per row. No disaster; ahead in one week of three; in-sample.
+- **Pending:** study 49 (the reviewer, after 48e), study 38 amendment 6 (the reviewer; MIXT_QA0 follows the block, plus MIXT_QA0_NOTERM), the merge, a rehearsal with vetting, and Friday's arm with TERM_ROWS=8.
+
+**The outside reviewer's branch:**
+- Merged into integration (0e2992e4) after a private-data scan: no handles against 55k real usernames, salaries only, no per-player vendor values, no entry ids.
+- Contents: the winners' strategy study, the prior-top replay, the neo4j inputs plan, the facts-layer review, a worktree note. Their 04:51 cleanup removed the laptop's rehearsal worktrees; no run was affected.
+- Verified two numbers: the W1 field really is 831,028 entries; in W4, 80% of the within-10 lineups and 84% of the top 100 had a QB from the 2nd–3rd-total game, against ~20% of the field.
+
+**The winner-likeness score on real fields (descriptive, private):**
+- The frozen score on every Millionaire entrant W2–W4: AUC .548 / .546 / .590 on the whole field, but **.492 / .538 / .391 within the top 20% by projection**. So it has no real-field support where our candidates live.
+- Study 48d: NO DIFFERENCE, leaning positive. Reproduced byte-identically; records merged (116b275e, Addendum 154).
+- Study 48e: frozen (prereg c636ef86). It cannot arm W5 on any read. Census acked: the rebuild equals the frozen census apart from timing fields. Banks scanned clean. Running on the reviewer's side.
+  - The production gate @ 7467b8ce matches the lab fixture exactly: 312 tries' scores (3.6e-15), 41 of 41 picks.
+- Study 48f: the real-field refit. DRAFT on integration (5550771f) for the reviewer; grades W5–W8 prospectively.
+
+**The operator's question about the exercise** (projection order never reached a winner): answered in chat. The ordering check (study list 46a):
+- Unconstrained, the simulator's boom supply beats projection order every week (more top-1% rows, a better best).
+- But it sits below the field's 1% rate and almost never lands in the winners' environments.
+- The next design is boom rows inside each environment form.
+
+**Operations:**
+- **SIS:** the session expired 04:13; the operator renewed it.
+- **Weekly vendor run:** 21 of 44 pages; plus the SIS pass-tail / copula 7 of 7. That makes 28.
+  - The 11 SIS team-context pages wait for SIS's W4 blocking data for ATL–NO (the MNF game; 31 vs 32 team-games). The import correctly refused.
+  - FP has not posted its W5 projection pages and the QB-coverage matchup page.
+  - Re-capture later today. That gates the SIS cache dry runs, the paired dry run and the scheduler resume before Thursday 09:15.
+- **FP articles W5:** collected.
+- **A2:** PASS on 116b275e.
+- **A1:** PASS on fc27f3aa; O-19 / O-20 / O-23 / O-24 closed (1bd4e1ce). The first A1 run lacked W4's class model in its copy list; the script is fixed.
+- **Cadence:** W5 rosters landed 05:04; build-features `vxpfn` OK (05:04–05:11); tabpfn-gen (2026:5) running; then the props pre-check and project-slate.
+
 ## 2026-10-07 (04:29 CDT) — Study 48d READ reproduced (NO DIFFERENCE, leaning positive); study 48e (the operator's gate at generation) designed, production draft built; SIS renewed; the W5 vendor run started
 
 - **Study 48d** (choose the book by the winner-likeness score): **NO DIFFERENCE, leaning positive.**
