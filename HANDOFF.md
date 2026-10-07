@@ -12,6 +12,25 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-07 (15:21 CDT) — OPERATOR: the cheap +2 block stays ON for Week 5; Monday's on-vs-off comparison decides Week 6. Study 57 NO DIFFERENCE (reproduced; no R4)
+
+**The operator** (to the laptop, after the cheap block's evidence was summarised to him: the W2–4 real-field replay ahead in
+all 3 weeks, in-sample; study 53 +0.004 on 2023–24 with 2022 a hair negative; study 56's banks −3.5 points, descriptive)
+said, verbatim: "Let's keep it on for week 5 and see how it compares for deciding what to do week 6."
+- **The block stays armed** (TERM_ROWS 8, cheap2-w5.csv, cap 2.0, per the checklist).
+- **Friday:** a side-by-side of the two W5 books from one snapshot (on vs off). The paper co-run's QA0 and NOTERM give the
+  pair.
+- **Monday 10-12, first item:** QA0 vs NOTERM on the real W5 results, in plain words, as his Week-6 input. The stop rule's
+  10-19 review is unchanged.
+- Recorded on decision sheet row 21 and the checklist's Monday section.
+
+**Study 57 (R4 two-entry coverage): NO DIFFERENCE, leaning against.**
+- READ `6cb3d24c` (lab `a536d35`) and the confirmatory census `00d2a5a6`: REPRODUCED BYTE-IDENTICALLY by the laptop.
+- CB_R4 − CB −0.0164 [−0.0387, +0.0045], both seasons negative. P(≥2) .126 → .137 but P(≥1 big) .341 → .324.
+- The reviewer and the laptop recommend no R4 in W5 or W6. The Sunday step is not built. Decision sheet row 25.
+- Records (LEDGER, Addendum 164) to verify when sent.
+- Study 59 (the priority sort, a W6 read) is running.
+
 ## 2026-10-07 (15:11 CDT) — The operator's 14:47 SIS + cbwu-oi directive: (1) (2) (4) (5) verified PASS from receipts; (3) passed at 06:20 but the re-run after the roster fix FAILED at the props guard (gate RED until Thursday, O-49); O-46 / O-47 / O-48 registered
 
 Most of the directive had been done this morning (HANDOFF 09:35). Each item was verified against its receipts rather than
