@@ -230,6 +230,10 @@ def main():
     _fill = os.environ.get("UNION_MIX_FILL", "")
     if _fill and (_fill not in ("group", "value", "rr") or os.environ.get("UNION_MAIN") != "mix"):
         fail(f"UNION_MIX_FILL={_fill!r} must be group, value or rr, with UNION_MAIN=mix (got UNION_MAIN={os.environ.get('UNION_MAIN')!r})")
+    _ws = os.environ.get("UNION_WINNER_SELECT", "")
+    if _ws and _ws != "0" and (_ws != "1" or os.environ.get("UNION_MAIN") != "mix" or os.environ.get("UNION_WINNER_ORDER", "0") not in ("", "0")
+                               or os.environ.get("UNION_MIX_SPARES", "15") == "0"):
+        fail(f"UNION_WINNER_SELECT={_ws!r} must be 0 or 1; 1 needs UNION_MAIN=mix with spares and UNION_WINNER_ORDER off (study 48d)")
     _wo = os.environ.get("UNION_WINNER_ORDER", "")
     if _wo and _wo != "0" and (_wo != "1" or os.environ.get("UNION_MAIN") != "mix"):
         fail(f"UNION_WINNER_ORDER={_wo!r} must be 0 or 1, and 1 needs UNION_MAIN=mix (study 48b)")
