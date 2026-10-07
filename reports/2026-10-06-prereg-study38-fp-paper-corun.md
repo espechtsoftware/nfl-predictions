@@ -1,4 +1,4 @@
-# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06 and 10-07, amendments 1, 1b, 2, 3, 4, 5, 6, 6b, 6c, 6d, 6e and 6f before Week 5's lock; repair 6g before its first score)
+# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06 and 10-07, amendments 1, 1b, 2, 3, 4, 5, 6, 6b, 6c, 6d, 6e and 6f before Week 5's lock; repair 6g and the big-win rule 6h before its first score)
 
 **Status: FROZEN 2026-10-06** by the reviewer, BEFORE any week of the decision arm (MIXT_RS0) or of the exploratory arms
 QBB0 / NQC0 / QAL / RBC0 was read on any slate. Disclosed: before the freeze, the reference MIXT_QA0 was scored on
@@ -520,6 +520,24 @@ score. Nothing here enters a contest: the money path, its checkout and its files
     - `tests/test_s38_paper_corun.py`, `2a328926185d677a42a07c75968d7d3f615da7aa987a343ec4e79e740f43a72c` (25 tests;
       one added);
     - every other amendment-6f sha stands, including the four files the Friday integrity gate pins.
+- **Amendment 6h (2026-10-07, before Week 5's first score; no Week-5 outcome exists).**
+  - **Why.** The operator, 10-07, relayed verbatim by the laptop: "A $125 qualifier ticket is not considered a big win. A
+    $490 qualifier ticket is."
+    - The converter's single-prize rule ("BIG unless the prize is a $20 ticket") makes a $125 FFWC qualifier ticket big.
+      Only Week 5's hand override (`{"196421726": {"big": false}}`) caught it.
+    - The rule now encodes his definition, so no later week depends on remembering the override.
+  - **What changes.** A single-prize contest is BIG unless its prize contains "$20 " (as frozen) or "FFWC $125
+    Qualifier" (`NOT_BIG`). The override mechanism stays; Week 5's override is now redundant and still applied.
+  - **What does not change:** multi-tier contests (6g), the overrides, the reader, and every other file.
+  - **The check:** against 6g, over every contest in the Week 1–4 details files (86):
+    - 85 convert identically;
+    - 1 changes: Week 3's "NFL $125 2026 FFWC Qualifier Satellite", big → not big, as he defines it;
+    - the Week-5 plan's big flags (`plan-week5-rev3-s24.json`) are unchanged, because its override already said so.
+  - **Code:** lab `35a1c4f`:
+    - `scripts/s38_plan.py`, sha256 `6c4cc53accdce8e1a8f8977e01eae8e70801558261221b0e25db609a9780cf1b` (was `19ad35a0…`);
+    - `tests/test_s38_paper_corun.py`, `3c1b8a212346e20e7cc695f0734d76365e73fe81beb26e5c94d671aa1c259844` (26 tests; one
+      added: $125 not big, $490 big, $20 not big, $333 / $555 / $4,444 big);
+    - every other sha stands, including the four the Friday integrity gate pins.
 
 ## 1. Why
 - **The operator (10-06), on the proposal:** "yes, please try it, I want to exhaust all reasonable options."
