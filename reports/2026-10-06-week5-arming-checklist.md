@@ -121,6 +121,14 @@ rehearsal runs on the merged head in the exact armed env; Friday re-verifies on 
   bonus / 0.20), also under `--check`.
 
 ## Wednesday 10-07 to Saturday 10-10: priority-first dealing and his Rev6 contest order (decision sheet row 24)
+- **RESULT (10-07 14:36), the screen as frozen:**
+  - The SORT is NOT ENTERED (lower in 2 of 3 weeks; e_big ratio 0.587). `PRIORITY_ORDER` stays 0, and A3 runs
+    without `A3_PRIORITY_ORDER`.
+  - **Rev6 passed** (ratio 1.466) and is INSTALLED: 10-07 14:38, sha `5f8352ee…`; Rev3 is kept as
+    `contests.json.rev3-8625de0e`; the arm's PLAN_SHA is Rev6 (`5766b799`, host copy synced). The equivalence
+    with the reviewer's s24 Rev6 (`ac10ddf6`) was checked at install.
+  - Record: `reports/2026-10-07-priority-deal-replay-result.md`. The steps below stand as written for a later
+    week.
 - **His request** (to the laptop, 10-07): "Let's try to do this one this week as it seems more promising." His contest order
   (final, 10-07): "4444 (all of them including the showdown...) / 555 / WFFC / 333 / Millionaire / Midseason warmup /
   Everything else including milly qualifiers".
@@ -194,6 +202,14 @@ rehearsal runs on the merged head in the exact armed env; Friday re-verifies on 
 - Paper shadow B (O-22): built with Sunday's projections, never entered.
 
 ## Monday 10-12
+- **FIRST: the cheap +2 block, on vs off, for his Week-6 decision** (the operator 10-07: "Let's keep it on for week 5 and see how it compares for deciding what to do week 6"). From study 38's scoring on the real W5 results:
+  - MIXT_QA0 (his live book, the cheap block on) vs MIXT_QA0_NOTERM (the same construction without it): P(≥ 1 big seat),
+    expected big seats, and the realized big seats / tickets in his priority contests;
+  - plus the 8 block rows' own finishes against the 8 rows they replaced;
+  - plain words, with one week's limits stated (a single week rarely separates two books).
+  The stop rule's first full review stays Monday 10-19.
+- **Friday, before this:** the side-by-side of the two W5 books (the same snapshot, the block on vs off): which of the 26 rows
+  change, the sub-$4,000 players added, the projected points given up per row, and the shapes / QB spread.
 - **The weekly Milly-graph refresh -- EVERY Monday from now on** (the operator 10-07: "let's make sure each week we keep the enhanced neo4j data populated and learn from it"): after settlement adds the week to `~/moneygate/weeks.json`, `bash scripts/neo4j_weekly_refresh.sh <week> ~/private/neo4j/users-cohort-plus-ours.txt` -- starts the local Neo4j, loads the week's Millionaire lineups (top set + the cohort's and our portfolios, FP values) and its pre-lock facts, runs the standing learning queries (`scripts/graph_weekly/`, the outside reviewer's, copied byte-identical: the within-portfolio facts, the sub-$4,000 count check, the cheap-tier boom check and `tier_edges.py`, the picks-vs-field edge by salary tier; aggregates to `~/private/neo4j/weekly/<season>-w<NN>/`), and stops Neo4j on every exit IF the refresh started it (an instance already running, e.g. the outside reviewer's, is left as found and must be stopped before Saturday's arming; proven on the W4 run 10-07). Record in the weekly record / HANDOFF: the within-portfolio table's lines (which pre-lock facts separated the regulars' top-1% lineups this week and cumulatively), our T-70 book's sub-$4k counts (W1–W4: 0.79 / 1.13 / 0.85 / 0.91 per row), and tier_edges' running mean (where our picks gain or lose by salary tier; W1–4 ours: QB −1.23, $8k+ −2.22, $6–7.9k −2.12, $4–5.9k −4.51, <$4k +4.75, DST +1.49 points per lineup vs the field); anything that holds every week goes to the study list. Never during a build window. **Every week, before the refresh:** the week's contests must carry a type in the private type CSVs (`~/private/regulars-share/week5_type_mapping.csv` covers W5; extend it the same way for W6+), or learning step 6 (`scripts/priority_field_monitor.py`, his priority contests: $4,444 / $555 / $333 / FFWC; the outside reviewer's fc3aff11) prints "no typed priority contest" for the week. **Monday 10-12, once (after the reviewer's review of 1f82932d):** with Neo4j still up from the W5 refresh (`--keep-running`), re-run the facts-only pass for W1–4 (`load_milly_neo4j.py --season 2026 --week N --users-file <private users file> --include-fp --with-facts --facts-only --apply`, about 1 min each) so the earlier weeks carry the 10-07 result facts (Game pre_total_rank, out_best_stack_pts, out_is_best_stack_game, out_field_qb_share, out_top1_qb_share; Lineup lbl_stack_n / lbl_bring_n / lbl_max_game); then `neo4j-milly stop` and tell the outside reviewer.
 - **The early checkpoint** (experiment plan 10-02 §6; audit 10-06): O1 / A3 / B2 interim at the doubled bar; the first P3 weekly read; shadow B scored beside ours and FP in `weekly_projection_accuracy.py`.
 - **P1 and P3, the two frozen weekly readers (from W5; the reviewer froze both 10-07), after settlement and the standings import:**
