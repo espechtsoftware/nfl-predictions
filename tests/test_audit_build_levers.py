@@ -338,3 +338,25 @@ def test_a_declared_fp_projection_source_must_travel_with_the_book(tmp_path):
     rec["config"]["union"]["proj_source"]["gates"]["pearson_r"] = 0.97
     (run / "receipt.json").write_text(json.dumps(rec))
     assert "proj_source" in _audit(run)["failed"]                                          # the file changed after the build
+
+
+def test_the_fp_line_names_our_capture_and_fps_update(tmp_path):
+    """Since 4a860839 (H2) before_inactives is FP's own update time: the line names both times (the reviewer, 10-07; W4's
+    Sunday capture 10:38 CT held FP's 08:58 CT numbers)."""
+    import hashlib
+    run = _run_dir(tmp_path / "a")
+    (run / "proj_source.csv").write_text("id,fp\nAQB,20.0\n")
+    rec = json.loads((run / "receipt.json").read_text())
+    rec["config"]["union"] = {"main": "pmo_x50", "proj_source": {
+        "sha256": hashlib.sha256((run / "proj_source.csv").read_bytes()).hexdigest(), "replaced": 1, "kept_ours": 0,
+        "gates": {"coverage_skill_ge5": 1.0, "pearson_r": 0.97}, "before_inactives": True,
+        "capture": {"retrieved_at": "2026-10-04T15:38:35+00:00", "fp_last_updated": "2026-10-04T13:58:38+00:00"}}}
+    (run / "receipt.json").write_text(json.dumps(rec))
+    detail = next(c["detail"] for c in _audit(run)["checks"] if c["check"] == "proj_source")
+    assert ("captured 2026-10-04T15:38:35+00:00, FP last updated 2026-10-04T13:58:38+00:00; FP UPDATED BEFORE THE INACTIVES"
+            in detail)
+    del rec["config"]["union"]["proj_source"]["capture"]["fp_last_updated"]
+    rec["config"]["union"]["proj_source"]["before_inactives"] = False
+    (run / "receipt.json").write_text(json.dumps(rec))
+    detail = next(c["detail"] for c in _audit(run)["checks"] if c["check"] == "proj_source")
+    assert "FP last updated UNKNOWN" in detail and "BEFORE" not in detail

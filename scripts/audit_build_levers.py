@@ -373,8 +373,11 @@ def audit(run: Path, contests: list[dict], *, layout: str, expect_selector: str 
             problems.append(f"coverage {g.get('coverage_skill_ge5')} < 0.95")
         if not float(g.get("pearson_r", 0)) >= 0.7:
             problems.append(f"r(FP, ours) {g.get('pearson_r')} < 0.7")
-        record("proj_source", not problems, f"FP projections for {ps.get('replaced')} players (ours for {ps.get('kept_ours')}); capture "
-               f"{(ps.get('capture') or {}).get('retrieved_at')}{'; BEFORE THE INACTIVES' if ps.get('before_inactives') else ''}"
+        # before_inactives is FP's own update time since 4a860839 (H2), not our capture time: name both (the reviewer, 10-07)
+        cap = ps.get("capture") or {}
+        record("proj_source", not problems, f"FP projections for {ps.get('replaced')} players (ours for {ps.get('kept_ours')}); captured "
+               f"{cap.get('retrieved_at')}, FP last updated {cap.get('fp_last_updated') or 'UNKNOWN'}"
+               f"{'; FP UPDATED BEFORE THE INACTIVES' if ps.get('before_inactives') else ''}"
                + (f"; problems: {problems}" if problems else ""), replaced=ps.get("replaced"))
 
     # ---- book_rows_legal
