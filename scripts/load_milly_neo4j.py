@@ -24,6 +24,13 @@ user's whole portfolio -- core players, pivots, stacks -- can be explored, not o
 are tagged source='users_file' (the top-N set keeps 'top'); STACKED_WITH, the share of the field and Lineup.top_1pct
 come from the top set only, so the panel's figures do not change (rank_top_1pct is the plain fact for every lineup).
 Use the 117-regular cohort plus any user he names, not every user. The file stays outside the repository.
+
+--with-facts (study list item 44; the operator and the outside reviewer, 10-06: "all the data points that could help it
+look like a winner … red zone … touchdowns … attempts"; reports/2026-10-06-neo4j-winner-likeness-inputs.md): ALSO load
+the player, team, game and lineup facts of nfl_dfs.dashboard.milly_graph_facts -- pre_* (known before lock: each week's
+archived T-70 frame, plus lagged touchdowns / attempts over PRIOR games, with provenance) and out_* (that week's results).
+--facts-frames names a PRIVATE JSON {week: T-70 run dir} (default: the money gate's ~/moneygate/weeks.json t70_run). A
+week without a frame loads no facts (said loudly). Fantasy Points columns of the frame only with --include-fp.
 """
 from __future__ import annotations
 
@@ -34,6 +41,7 @@ import pandas as pd
 
 from nfl_dfs.dashboard import data
 from nfl_dfs.dashboard import milly_graph as mg
+from nfl_dfs.dashboard import milly_graph_facts as mgf
 
 
 def main(argv=None) -> int:
@@ -50,6 +58,10 @@ def main(argv=None) -> int:
                          "(licensed data; local graph only; opt-in)")
     ap.add_argument("--users-file", help="a PRIVATE file of DraftKings user names (one per line): also load ALL their "
                     "Millionaire lineups (chosen by entry count, never results); never a tracked file")
+    ap.add_argument("--with-facts", action="store_true",
+                    help="also load pre_ / out_ player, team, game and lineup facts (study list item 44)")
+    ap.add_argument("--facts-frames", default=None,
+                    help="a PRIVATE JSON {week: T-70 run dir} for --with-facts (default: ~/moneygate/weeks.json t70_run)")
     ap.add_argument("--apply", action="store_true", help="write to Neo4j (default: dry run)")
     a = ap.parse_args(argv)
     if not 1 <= a.top_n <= mg.MAX_TOP_N:
@@ -111,6 +123,10 @@ def main(argv=None) -> int:
         print(f"{'fp_projected':14s} {len(fp_rows):7d} rows (opt-in)")
     for name, rows in batches.items():
         print(f"{name:14s} {len(rows):7d} rows")
+    facts = build_facts(a, query_df, batches, weeks, games) if a.with_facts else None
+    if facts is not None:
+        for name, rows in facts.items():
+            print(f"{name:14s} {len(rows):7d} rows (facts)")
     if not a.apply:
         print("dry run: nothing written (pass --apply)")
         return 0
@@ -129,7 +145,68 @@ def main(argv=None) -> int:
     finally:
         driver.close()
     print(f"loaded: {res['sent']}")
+    if facts is not None:
+        driver = mg.connect(cfg)
+        try:
+            n0, r0 = mg.count_graph(driver, cfg.database)
+            dn = len(facts["player_weeks"]) + len(facts["team_weeks"])
+            dr = 2 * dn
+            mg.check_capacity((n0, r0), (dn, dr), a.node_limit, a.rel_limit)
+            print(f"facts loaded: {mgf.apply_fact_batches(driver, cfg.database, facts)}")
+        except mg.CapacityError as exc:
+            print(f"REFUSED (facts): {exc}", file=sys.stderr)
+            return 4
+        finally:
+            driver.close()
     return 0
+
+
+def build_facts(a, query_df, batches, weeks, games) -> dict:
+    """The fact batches for each loaded week with an archived T-70 frame (milly_graph_facts)."""
+    import hashlib
+    import json
+    from pathlib import Path
+
+    from nfl_dfs.config import settings
+    src = Path(a.facts_frames) if a.facts_frames else Path.home() / "moneygate" / "weeks.json"
+    cfg = json.loads(src.read_text())
+    runs = {str(k): (v["t70_run"] if isinstance(v, dict) else v) for k, v in (cfg.get("weeks", cfg)).items()}
+    out = {k: [] for k in mgf.STATEMENTS}
+    n_entries = {d["contest_id"]: d.get("n_entries") for d in batches.get("contests", [])}
+    win_pts = {d["contest_id"]: d.get("winning_score") for d in batches.get("contests", [])}
+    for w in weeks:
+        run = runs.get(str(w))
+        if not run or not (Path(run) / "frame.parquet").is_file():
+            print(f"FACTS: week {w} has no archived T-70 frame in {src}; no facts loaded for it")
+            continue
+        fpath = Path(run) / "frame.parquet"
+        frame = pd.read_parquet(fpath)
+        rec = Path(run) / "receipt.json"
+        as_of = str(json.loads(rec.read_text()).get("built_utc")) if rec.is_file() else "unknown"
+        source = f"{Path(run).name} frame sha256 {hashlib.sha256(fpath.read_bytes()).hexdigest()[:16]}"
+        wk = mg.week_key(a.season, w)
+        prm = {"season": a.season, "week": int(w)}
+        lag = query_df(mgf.LAG_SQL.format(features=settings.features), prm)
+        outs = query_df(mgf.OUT_SQL.format(features=settings.features, cols=", ".join(mgf.OUT_ACTUAL_COLUMNS)), prm)
+        pbp = query_df(mgf.PBP_SQL.format(raw=settings.raw), prm)
+        pw = mgf.player_week_rows(frame, wk, source, as_of, lag, outs, pbp, include_vendor=a.include_fp)
+        if not a.include_fp:
+            vendor = {f"pre_{c}" for c in mgf.VENDOR_PRE_COLUMNS}       # the explicit licensed columns ("fp_allowed" is ours)
+            bad = sorted({k for r in pw for k in r["props"] if k in vendor})
+            if bad:
+                raise SystemExit(f"FACTS REFUSED: vendor fields {bad[:5]} without --include-fp")
+        out["player_weeks"] += pw
+        out["team_weeks"] += mgf.team_week_rows(frame, wk, source, as_of)
+        out["game_facts"] += mgf.game_fact_rows(frame, games[games.week == int(w)], source, as_of)
+        lw = [d for d in batches.get("lineups", []) if d.get("week_key") == wk]
+        keys = {d["key"] for d in lw}
+        cw = [c for c in batches.get("contains", []) if c["lineup_key"] in keys]
+        cids = {d["contest_id"] for d in lw}
+        own = {int(o["dk_player_id"]): float(o["own"]) for o in batches.get("owned_in", [])
+               if o["contest_id"] in cids and o.get("own") is not None}
+        out["lineup_labels"] += mgf.lineup_label_rows(lw, cw, frame, own, n_entries, win_pts)
+        print(f"FACTS week {w}: {len(pw)} player-weeks from {source} (as of {as_of})")
+    return out
 
 
 if __name__ == "__main__":
