@@ -2,7 +2,10 @@
 Within the regulars' own portfolios (the Milly graph, W1-4): do their top-1% lineups differ BEFORE LOCK from the same
 user's other lineups that week? For every user-week with >= 20 lineups and >= 1 top-1% lineup, each lineup-level pre-lock
 feature is standardized within the user-week; the mean of the standardized value over the top-1% lineups is the
-within-portfolio difference (0 = indistinguishable). 95% interval by bootstrap over user-weeks; sign per week."""
+within-portfolio difference (0 = indistinguishable). 95% interval by bootstrap over user-weeks; sign per week.
+Each lineup's players are taken DISTINCT (hardening): CONTAINS is merged with a slot property, so a slot that differs
+between loads COULD add a second edge to the same player; the 10-07 census found none (the +202 relationships on the
+W4 reload were FP_PROJECTED edges)."""
 import sys
 from pathlib import Path
 import numpy as np, pandas as pd
@@ -10,9 +13,11 @@ from gconn import driver
 OUT = Path(sys.argv[1]) if len(sys.argv) > 1 else Path('.'); OUT.mkdir(parents=True, exist_ok=True); MINL = int(sys.argv[2]) if len(sys.argv) > 2 else 20
 d = driver()
 Q = """MATCH (u:User)-[:ENTERED]->(l:Lineup {week_key: $wk})
-WITH u, collect(l) AS ls WHERE size(ls) >= $minl AND any(x IN ls WHERE x.rank_top_1pct)
+WITH u, collect(DISTINCT l) AS ls WHERE size(ls) >= $minl AND any(x IN ls WHERE x.rank_top_1pct)
 UNWIND ls AS l
-MATCH (l)-[:CONTAINS]->(p:Player)-[:HAS_WEEK]->(pw:PlayerWeek)-[:OF_WEEK]->(:Week {key: $wk})
+MATCH (l)-[:CONTAINS]->(p:Player)
+WITH DISTINCT u, l, p
+MATCH (p)-[:HAS_WEEK]->(pw:PlayerWeek)-[:OF_WEEK]->(:Week {key: $wk})
 RETURN u.name AS user, l.key AS lk, l.rank_top_1pct AS top1, l.points AS pts, l.salary AS sal, l.stack AS stack, l.bring_back AS bb,
        l.lbl_qb_game_rank AS qb_game_rank, l.lbl_qb_favourite AS qb_fav, l.lbl_top_game_players AS top_game_players, l.lbl_dual_stack AS dual,
        l.lbl_games AS games, l.lbl_cheap_players AS cheap, l.lbl_salary_left AS sal_left, l.lbl_te_salary AS te_sal, l.lbl_qb_salary AS qb_sal, l.lbl_dst_salary AS dst_sal,

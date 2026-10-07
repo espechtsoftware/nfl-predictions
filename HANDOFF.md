@@ -12,6 +12,56 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-07 (11:00 CDT) — FP's W5 projections captured; the QB coverage page and FP's weekly rankings still unposted; graph queries hardened; the outside reviewer's boom-calibration check
+
+- **FP W5 projections** (scripts/fp_projections_capture.sh, label wed-retry-1100; log ~/.cache/nfl-dfs/fp-projections/):
+  - captured, archived and loaded: dfs 5,954 rows (DK Main 154468: 571 players, FP updated 09:48 CT, no ownership yet),
+    weekly 536, rankings-ros 271;
+  - **rankings-weekly REFUSED** ("a row is for week 4, expected 5": FP has not rolled that page), so the script exited 2 (the
+    loud miss).
+  - Retry this afternoon. Saturday's arming and the Sunday unit run the same collector.
+  - The union now has FP's real W5 means for Thursday's A3 and the block files.
+- **FP live matchups re-run** (python -m nfl_dfs.ops.fantasy_points_matchups --week 5 --archive, from the main checkout, under
+  the FP profile lock): **qb-coverage-matchup still fails its schedule gate** (3 attempts; FP has not posted W5's). Retry this
+  afternoon or Thursday.
+- **Graph queries:** the outside reviewer's within_portfolio.py and cheap_tier.py (DISTINCT players per lineup, hardening) are
+  copied byte-identical at 7e5c58b6 (d61db2df: 25bb03f3 / 15821900). All five graph_weekly files match their branch.
+  - Their duplicate-edge census found none; the +202 relationships on the W4 reload were FP_PROJECTED (413 sent vs 211 before).
+  - The checklist's Monday step names all four queries and the W1–4 baselines (c613fa73).
+- **The outside reviewer's boom-calibration check** (W1–4 T-70 frames; their finding):
+  - the incumbent draws OVER-state sub-$4k booms: 4× salary 27 vs 46.0 (z −3.0); 2× own mean 70 vs 109.7 (z −4.3);
+  - corrected_hsim is calibrated (24 vs 25.6; 40 vs 41.6);
+  - $6–7.9k WRs are under-stated by the incumbent (25+ points: 14 vs 6.7).
+  - So the cheap edge is not a tail-calibration miss: the flat block is the vehicle and study 53 the test.
+  - The incumbent's fringe-cheap over-dispersion is their open item for row-building worlds (boom pool / tail sleeve), not a
+    W5 change.
+- **Decision sheet row 21** adds the whole-field version of the sub-$4k pattern (every user with 20+ Millionaire entries:
+  +0.31 sd, positive in all four weeks) with the after-the-games caveat (517426b4).
+- **Thursday helpers** (host, ~/.cache/laptop-agent/rehearsal/):
+  - w5_write_block_files.sh <A3 dir> <checkout>: both files from the block-OFF A3's frame plus the arm's check. Tested on the
+    W4 frame: the cheap file reproduces e7b77399, the W4 +2 bytes; it refuses a dirty checkout or an existing file.
+  - w5_matchup_union_check.sh <A3 dir> <matchup file> <sha>: Friday's union-only matchup run from A3's own union_args.txt with
+    the source swapped. Untested until a cheap-armed A3 exists.
+- The study 53 scored run (reviewer, started 10:51, 5 arms) is in progress.
+
+## 2026-10-07 (10:52 CDT) — Study 53 amendment 1 re-ACKED (census byte-identical; the four frozen arms unchanged); the scored run is the reviewer's; R14 scope note
+
+- **Study 53 amendment 1 FROZEN** (prereg 9ad836fe on s48-prereg, file sha256 de2c5181; lab 0cdfe31, the census at f71965b).
+  - My re-ack: shas match (module f3f9d735, driver 9bf5c43c, census 44910940, reader 0d241d83, tests 706317bb with 5 passing;
+    s48 c22d2811 and term_book 62c2306e unchanged).
+  - s53_census.py on the reviewer's raw (~/s53-panel/census-a1/results_bank1406.jsonl, 4c80803a) gives **ff038dcb**,
+    byte-identical.
+  - My own comparison of the two census raws (ac38323b vs 4c80803a): LIVE / CHEAP2 / CHEAP4 / CHEAP4_BLOCK8 have identical rows
+    and ranks on all 53 slates. CHEAP2_BLOCK8 is on all 53, with its term rows at ranks 2,5,9,12,15,18,22,25.
+  - The bank scan stands. The reviewer's scored run (5 arms, ~35 min) follows; then the READ, my re-run, and the records.
+- **R14 scope:** 10 W5 articles are in nfl_raw.fantasy_points_articles; 9 are logged. The 10th,
+  week-5-idp-fantasy-football-waiver-wire (a27cb875), is NOT extracted. IDP players score no DraftKings points and have no FP
+  DK projection, so the spec's grading (direction vs DK points − FP projection) could use none of its records.
+- The outside reviewer has the local Neo4j up since 10:50 (pid 907687, read-only, ~20–30 min): a duplicate-edge census by type
+  for the +202 reload edges. Likely cause: CONTAINS is MERGEd with {slot} in the key, so a player whose slot differs between
+  loads gets a second edge. Their queries take each lineup's players DISTINCT (a commit follows; I copy it into graph_weekly/).
+  The loader fix (MERGE without slot in the key, SET the slot) waits for their census.
+
 ## 2026-10-07 (10:47 CDT) — The cheap block becomes a Saturday option (his leaning, gated by study 53 amendment 1); its writer and the arm's TERM_CAP check approved; the weekly Neo4j refresh's stop path proven on a real W4 run; 6f acked; R14 Game Hub v2 appended
 
 **The cheap block (decision sheet row 21, checklist "the live bonus block").**

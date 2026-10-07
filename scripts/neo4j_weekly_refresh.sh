@@ -6,7 +6,7 @@
 #      FP projection / ownership (--include-fp; the graph is local only);
 #   3. load the week's pre-lock player / team / game / lineup facts (--with-facts --facts-only; needs the T-70 frame);
 #   4. run the standing learning queries (scripts/graph_weekly/: the outside reviewer's within-portfolio facts, the
-#      sub-$4k count check, the cheap-tier boom check and the by-tier picks-vs-field edges), writing their AGGREGATE outputs under ~/private/neo4j/weekly/<season>-w<NN>/ for the weekly record;
+#      sub-$4k count check, the cheap-tier boom check, the by-tier picks-vs-field edges and the whole-field pattern monitor), writing their AGGREGATE outputs under ~/private/neo4j/weekly/<season>-w<NN>/ for the weekly record;
 #   5. stop Neo4j if THIS refresh started it, on every exit (unless --keep-running); an instance already running (another
 #      session's) is left as found and must be stopped before Saturday's arming. Refuses to run under xtrace.
 # Credentials come from ~/.config/neo4j-local-milly.txt (sourced, never printed). Nothing is written to the repository.
@@ -58,6 +58,9 @@ tail -12 "$OUTD/cheap_tier.txt"
 say "learning 4: where our picks gained or lost, by salary tier (the Monday picks-vs-field line; the outside reviewer's tier_edges)"
 ( cd "$OUTD" && timeout 1800 "$PY" "$G/tier_edges.py" "$P/scripts/weekly_picks_vs_field.py" "$OUTD/tier_edges.csv" ) > "$OUTD/tier_edges.txt" 2>&1 || say "WARN: tier_edges.py failed (see $OUTD)"
 tail -20 "$OUTD/tier_edges.txt"
+say "learning 5: the whole-field patterns, every loaded week (the outside reviewer's field_pattern_monitor: within-user cheap odds ratios, QB game-rank shares; BigQuery only)"
+( cd "$OUTD" && timeout 1800 "$PY" "$P/scripts/field_pattern_monitor.py" --out "$OUTD/field_pattern_monitor.csv" ) > "$OUTD/field_pattern_monitor.txt" 2>&1 || say "WARN: field_pattern_monitor.py failed (see $OUTD)"
+tail -24 "$OUTD/field_pattern_monitor.txt"
 if [[ $STARTED == 0 ]]; then say "Neo4j was already running before this refresh (left as found): it must be stopped before Saturday's arming"
 elif [[ "$KEEP" == --keep-running ]]; then say "Neo4j LEFT RUNNING (--keep-running): stop it before Saturday's arming (neo4j-milly stop)"; fi
 say "done: $OUTD"
