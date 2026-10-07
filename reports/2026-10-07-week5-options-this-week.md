@@ -291,3 +291,30 @@ lowest-scoring non-block rows go to ranks 23, 24 and 26.
 - **CB:** Rev3, book order (unchanged).
 - **CB_REV6:** Rev6, book order.
 - **CB_PRI:** Rev6 + the priority sort.
+
+### 4b. The frozen W2–4 harm screen (the laptop, 10-07): the sort is NOT ENTERED; his Rev6 order passed
+
+The screen was built through the real switch, and the integrity checks pass every week. It is in-sample: it can show
+harm, not a gain.
+
+| Comparison | P(≥ 1 big), W2 / W3 / W4 | Pooled expected big seats, ratio | Verdict |
+|---|---|---|---|
+| **The priority sort**: CB_PRI vs CB_REV6 | .0907 vs .1120 / .0262 vs .0178 / .4264 vs .6597 (lower in 2 of 3) | **0.587** | **NOT ENTERED**; `--priority-order` stays off for Week 5 |
+| **His Rev6 order**: CB_REV6 vs CB | .1120 vs .0578 / .0178 vs .0179 / .6597 vs .5347 (lower in 1 of 3, by a hair) | **1.466** | passed; Rev6 is being installed |
+| Descriptive: the whole change, CB_PRI vs CB | — | 0.861 | — |
+| Descriptive: an all-26 sort, CB_ALL vs CB_REV6 | lower in all 3 | 0.543 | — |
+
+**What the sort did:** it moved the priority entries toward the score's features exactly as designed (W4: QB + 1 .375 →
+.292, bring-back .625 → .708, 2+ cheap .292 → .333). But their mean finish fell (W4 .614 → .557): on these weeks the
+score picked rows that finished worse. The Midseason Warm Ups were not the cause. Under Rev6 they read the
+big-contest ranks 20–22 like the rest, and no other big seat moved.
+
+**The lesson (the outside reviewer's own):**
+- The score's elements are real associations *across the field's lineups*: within users, in his priority contests,
+  W1–4.
+- Ranking *our own* rows by them did not carry over. This is the project's standing result again: selection among our
+  rows sits at chance (study 48b's re-deal read the same way).
+- A field-level structural pattern says how a book should be **built** (the cheap block tests exactly that). It does
+  not say which of our already-built rows to send where.
+- The reviewer's study 59 can still give a Week-6 read. The shape question (fewer QB + 1) stays with study list 56 as a
+  build change, not a deal.
