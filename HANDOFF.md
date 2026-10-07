@@ -12,6 +12,39 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-07 (09:47 CDT) — The live-block options decided for Saturday's choice: study 51 ENTERABLE (matchup; reproduced byte-identically); TD block NOT ENTERED and TD sort NOT ENTERED by their frozen screens; combined in-sample only; W4's top row was copied in all 8 supersats
+
+**Study 51** (the 8-row matchup block in the harness; READ lab 3b150a8, the census e357df4 committed first):
+- **NO DIFFERENCE → ENTERABLE** by its frozen Saturday rule; his call.
+- MBLOCK8 − LIVE **+0.01272 [−0.02993, +0.05417]** (2023 +0.052, 2024 −0.027); guard 1 −0.0137 and ratio 0.929 both hold; 2022 +0.02339, not contradicted.
+- **The laptop's re-run is BYTE-IDENTICAL:** census 256b14ac, READ b605304f, raw as recorded.
+- The LEDGER row and Addendum 159 come from the reviewer.
+
+**The W2–4 bonus-blocks replay** (in-sample; ~/rehearsals/bonusblocks-20261007T144332Z, code 5a1a576d; inputs from the production writers at b6d5ff1c, Saturday 10:00 CT props cut). P(≥1 big) W2 / W3 / W4:
+
+| Arm | W2 | W3 | W4 | Screen (f61aa4cc) |
+|---|---|---|---|---|
+| LIVE | .0413 | .0016 | .4336 | |
+| MBLOCK8 | .0313 | .0178 | .5304 | study 51 rules; below LIVE 1 of 3, ratio 1.402 |
+| TDBLOCK8 | .0313 | .0178 | .4047 | **NOT ENTERED** (below LIVE in W2, W4) |
+| MTDBLOCK8 | .0313 | .0178 | .8806 | ENTERABLE (in-sample; W4 carries ratio 3.388) |
+
+**The TD deal (screen 28e28ab9): NOT ENTERED.**
+- DEAL_TD: .0084 / .0009 / .0390, below LIVE in all 3 weeks; pooled ratio 0.101.
+- DEAL_PROJ control: ratio 1.022.
+- Study 52 (the harness, decision-bearing) runs today anyway.
+
+**For Saturday:** decision sheet rows 21–22 (d798aa21) set every option side by side with the selection caveat.
+- **The laptop's recommendation: the matchup block if he wants a block** (the only option with out-of-sample support); none is equally defensible.
+- **Saturday flow:** after the ~09:33 props pull, write the chosen file (matchup_block_file.py / td_value_block_file.py at --as-of 2026-10-10T15:00:00Z) from the newest W5 frame → commit to reports/ → set TERM_ROWS 8 / TERM_FILE / TERM_SHA in the host arm copy → arm.
+
+**Duplication** (the outside reviewer's sorting research; the in-season recheck Addendum 18 asked for):
+- 15 of our 535 W1–4 entries had an exact copy in the field: W1 4, W2 0, W3 0, **W4 11, all in supersats**.
+- **W4's book row 1 was copied once in all 8 supersats it entered.** No seat was lost (it scored 115).
+- Study list 50: deal the most-copyable rows away from the satellites; a W6 candidate.
+
+**Also:** study list 48 / 49 / 50 updated; OPEN-DEFECTS O-44 (the TD file's name join) and O-45 (the stale editable install, latent) registered.
+
 ## 2026-10-07 (09:35 CDT) — SIS O-41 CLOSED (dry runs passed, schedulers resumed); the operator's two new ideas (the under-$7,000 TD block LIVE-candidate, the TD-sorted deal) frozen for testing; study 51 running; props guard holds project-slate; A3 → Thursday
 
 **SIS (O-41 CLOSED, OPEN-DEFECTS 61da4a24):**
