@@ -95,13 +95,11 @@ rehearsal runs on the merged head in the exact armed env; Friday re-verifies on 
 - **Thursday 10-08, before A3:** `neo4j-milly stop` (the local graph has run since the 10-07 load; the arm refuses while it runs and a build must not compete with its heap). The outside reviewer was told (10-07).
 
 ## Thursday 10-08 to Saturday 10-10: the live bonus block (decision sheet rows 21–22; his choice at arming)
-- **Options (10-07, after study 53's READ 11:28):** ONE block slot -- **the matchup block or none.** The cheap block is NOT
-  ENTERED: study 53 amendment 1's frozen Saturday rule stopped both doses on the 2022 sign (CHEAP2_BLOCK8 +0.00413 on 2023–24,
-  2022 −0.00163; a knife-edge). His leaning was conditional on that read ("the cheap block at +2 if study 53's block read doesn't
-  contradict it"), so it is out by his own condition. The decision stays his: an override is recorded as an override of a frozen
-  stop. The matchup block: study 51 ENTERABLE ("not harmful", not "better"; ~7% fewer expected big seats). The TD block, the
-  combined block and the TD-sorted deal are OUT. His word comes at Saturday's arming; until then TERM_ROWS stays 0 in the arm
-  script.
+- **DECIDED (10-07 ~13:20, the operator, confirmed directly): the CHEAP +2 block** (8 rows, cap 2.0) for Week 5 as a
+  REVERSIBLE one-week trial under the adoption track (09-19 §1), instead of matchup. Study 53's NOT ENTERED stays on the
+  record beside it. Stop rule (his, accepted): clearly worse paired P(≥1 big) over the trial weeks, or expected big seats
+  more than 20% below the unblocked book (not a loss count); first full review Mon 10-19. Rollback: matchup or none.
+  Matchup stays on paper (study 38's 6e / 6d arms). His final word is still given at Saturday's arming.
 - **Thursday, after A3 (block OFF):** write BOTH files from A3's union frame (DraftKings salaries and the matchup inputs are
   fixed for the week; no props needed) and commit them (reports/, so the arm's ff-pull accepts them); record both shas in
   HANDOFF. From the FRIDAY_HEAD-to-be checkout:
@@ -110,15 +108,14 @@ rehearsal runs on the merged head in the exact armed env; Friday re-verifies on 
   then `scripts/check_term_block_file.py <file> --cap 2.0` on each (the arm's own check). Players on Sunday's frame but not A3's
   get no bonus (disclosed; matchup z is over A3's skill players). A +4 cheap file is written only if study 53 makes CHEAP4_BLOCK8
   the enterable dose.
-- **Friday (revised with the reviewer after study 53's READ, 10-07 11:31):** the A3 rehearsal with the MATCHUP block armed
-  exactly as Saturday would arm it: `A3_TERM_ROWS=8 A3_TERM_FILE=$WT/reports/2026-10-08-live-block/matchup-w5.csv
-  A3_TERM_SHA=<its sha> A3_TERM_CAP=2.0 A3_SNAPSHOT_DEST=~/private/paper-corun/rehearsal-w05` (the script checks the file against
-  the cap). The s38 snapshot is the reviewer's binding 6e gate, source-agnostic: QA0 and DVP carry the armed block at ranks
-  2..25; NOTERM, MATCHUPX, COMBINED, CHEAP2 and CHEAP4 have 0 term rows; TERM8 its 8. ONLY IF he overrides to the cheap block:
-  `w5_matchup_union_check.sh <A3 dir> <cheap2-w5.csv> <sha>` runs the cheap file through Friday's T-70 union before Saturday
-  (the script swaps whichever term-block source A3 armed), so even an override never enters an unexercised file. Without an
-  override it is skipped.
-- **Saturday (arming):** his choice -> the arm script's `TERM_ROWS=8`, `TERM_FILE=reports/2026-10-08-live-block/<cheap2|matchup>-w5.csv`,
+- **Friday (his cheap decision, 10-07 ~13:20):** the A3 rehearsal with the CHEAP +2 block armed exactly as Saturday will
+  arm it: `A3_TERM_ROWS=8 A3_TERM_FILE=$WT/reports/2026-10-08-live-block/cheap2-w5.csv A3_TERM_SHA=<its sha>
+  A3_TERM_CAP=2.0 A3_SNAPSHOT_DEST=~/private/paper-corun/rehearsal-w05` (the script checks the file against the cap). The
+  s38 snapshot is the reviewer's binding 6e gate, source-agnostic: QA0 and DVP carry the armed (cheap) block at ranks
+  2..25; NOTERM, MATCHUPX, COMBINED, CHEAP2 and CHEAP4 have 0 term rows; TERM8 its 8. Then the ROLLBACK's readiness:
+  `w5_matchup_union_check.sh <A3 dir> <matchup-w5.csv> <sha>` puts the matchup file through Friday's T-70 union too, so
+  either block can be armed Saturday without entering an unexercised file.
+- **Saturday (arming):** his decision (cheap) -> the arm script's `TERM_ROWS=8`, `TERM_FILE=reports/2026-10-08-live-block/cheap2-w5.csv` (matchup only on a rollback),
   `TERM_SHA=<its sha>`, `TERM_CAP=2.0` (host copy and tracked copy alike); none -> `TERM_ROWS=0` (nothing else changes). Step 0
   runs the sha check and `check_term_block_file.py` (refuses a bonus above TERM_CAP, a cap outside (0, 5], a pred_own that is not
   bonus / 0.20), also under `--check`.
