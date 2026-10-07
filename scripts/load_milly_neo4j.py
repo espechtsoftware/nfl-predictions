@@ -208,8 +208,8 @@ def build_facts(a, query_df, batches, weeks, games) -> dict:
         keys = {d["key"] for d in lw}
         cw = [c for c in batches.get("contains", []) if c["lineup_key"] in keys]
         cids = {d["contest_id"] for d in lw}
-        own = {int(o["dk_player_id"]): float(o["own"]) for o in batches.get("owned_in", [])
-               if o["contest_id"] in cids and o.get("own") is not None}
+        own = {(str(o["contest_id"]), int(o["dk_player_id"])): float(o["own"]) for o in batches.get("owned_in", [])
+               if o["contest_id"] in cids and o.get("own") is not None}      # REALIZED: goes to out_ only
         out["lineup_labels"] += mgf.lineup_label_rows(lw, cw, frame, own, n_entries, win_pts)
         print(f"FACTS week {w}: {len(pw)} player-weeks from {source} (as of {as_of})")
     return out

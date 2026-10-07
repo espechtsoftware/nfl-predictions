@@ -70,7 +70,8 @@ def test_lineup_labels_and_tiers():
     picks = [(ids[0], "QB"), (ids[2], "WR"), (ids[3], "WR"), (ids[8], "WR"), (ids[7], "RB"), (ids[13], "RB"),
              (ids[14], "FLEX"), (ids[22], "TE"), (ids[5], "DST")]
     contains = [{"lineup_key": "L1", "dk_player_id": p, "slot": s} for p, s in picks]
-    own = {p: (3.0 if i % 2 else 20.0) for i, p in enumerate(ids)}
+    own = {("c", p): (3.0 if i % 2 else 20.0) for i, p in enumerate(ids)}
+    own.update({("other", p): 99.0 for p in ids})                    # another contest's ownership is never used
     rows = F.lineup_label_rows([{"key": "L1", "contest_id": "c", "rank": 1, "points": 230.0}], contains, fr, own,
                                {"c": 160_000}, {"c": 230.0})
     p = rows[0]["props"]
@@ -78,4 +79,7 @@ def test_lineup_labels_and_tiers():
     assert p["lbl_top_game_players"] == 6 and p["lbl_cheap_players"] == 1 and p["lbl_flex_pos"] == "WR"
     assert p["lbl_dual_stack"] is True and p["lbl_salary_left"] == 50_000 - sum(fr.set_index("dk_player_id").salary[[x for x, _ in picks]])
     assert p["out_tier_winner"] and p["out_tier_top01pct"] and p["out_tier_within10"]
-    assert p["lbl_own_under5"] == sum(own[x] < 5 for x, _ in picks)
+    assert p["out_own_under5_realized"] == sum(own[("c", x)] < 5 for x, _ in picks) and p["out_own_max_realized"] == 20.0
+    assert not any(k.startswith("lbl_") and "own" in k for k in p)       # realized ownership is never a pre-lock label
+    with pytest.raises(ValueError, match="realized"):
+        F.assert_point_in_time([{"props": {"lbl_own_max": 20.0}}])

@@ -18,7 +18,9 @@ Nodes and relationships (all MERGE, idempotent):
   (:Player)-[:HAS_WEEK]->(:PlayerWeek {key: "<dk_player_id>|<week_key>", pre_*, out_*})-[:OF_WEEK]->(:Week)
   (:Team)-[:HAS_WEEK]->(:TeamWeek {key: "<team>|<week_key>", pre_*})-[:OF_WEEK]->(:Week)
   (:Game) gains pre_* (total, spread, implied totals, kickoff window) and out_* (scores, the slate's scoring rank)
-  (:Lineup) gains lbl_* construction labels (pre-lock facts of the lineup) and out_tier_* (its finish)
+  (:Lineup) gains lbl_* construction labels (PRE-LOCK facts of the lineup: built from the frame only) and out_* (its
+            finish tiers, and the REALIZED ownership facts out_own_max_realized / out_own_under5_realized)
+NOTE: the base graph's Lineup.own_sum is REALIZED ownership too (it describes a contest); never score on it.
 """
 from __future__ import annotations
 
@@ -65,6 +67,8 @@ LAG_COLUMNS = ("tds_l4", "tds_l8", "pass_tds_l4", "pass_tds_l8", "pass_att_l4", 
 
 # Names that are a same-week OUTCOME whatever their prefix: refused under pre_ (the plan's §3F).
 OUTCOME_NAMES = set(OUT_ACTUAL_COLUMNS) | set(OUT_PBP_COLUMNS) | {"fpts", "points", "rank", "own", "realized_own"}
+# A lbl_ (pre-lock lineup label) may never carry these: the contest's realized ownership and results.
+REALIZED_MARKERS = ("realized", "points", "fpts", "tier", "finish")   # plus any lbl_own* (realized ownership)
 
 LAG_SQL = """
 WITH g AS (
@@ -161,7 +165,10 @@ def assert_point_in_time(rows: list[dict]) -> None:
             if k.startswith("pre_"):
                 if k[4:] in OUTCOME_NAMES:
                     raise ValueError(f"refused: '{k}' is a same-week outcome under a pre_ name")
-            elif not (k.startswith("out_") or k.startswith("lbl_") or k.startswith("out_tier_")):
+            elif k.startswith("lbl_"):
+                if any(m in k for m in REALIZED_MARKERS) or k.startswith("lbl_own"):
+                    raise ValueError(f"refused: '{k}' is a realized (post-lock) fact under a lbl_ name")
+            elif not k.startswith("out_"):
                 raise ValueError(f"refused: '{k}' is in neither the pre_ nor the out_ group")
 
 
@@ -256,12 +263,14 @@ def game_fact_rows(frame: pd.DataFrame, schedule: pd.DataFrame, source: str, as_
     return rows
 
 
-def lineup_label_rows(lineups: list[dict], contains: list[dict], frame: pd.DataFrame, own: Mapping[int, float],
-                      n_entries: Mapping[str, int], winning_points: Mapping[str, float]) -> list[dict]:
-    """lbl_* construction labels per loaded lineup (pre-lock facts of the lineup: games, dual stack, flex position,
-    the QB's game-total rank and favourite status, players from the top-total game, cheap players, salary left, QB /
-    TE / DST prices, ownership max and the count under 5%) and out_tier_* (winner, within 10 points of the winner,
-    top 100, top 1%, top 0.1%) from the loaded rank and points."""
+def lineup_label_rows(lineups: list[dict], contains: list[dict], frame: pd.DataFrame,
+                      realized_own: Mapping[tuple[str, int], float], n_entries: Mapping[str, int],
+                      winning_points: Mapping[str, float]) -> list[dict]:
+    """lbl_* construction labels per loaded lineup, from the T-70 FRAME ONLY (pre-lock: games, dual stack, flex
+    position, the QB's game-total rank and favourite status, players from the top-total game, cheap players, salary
+    left, QB / TE / DST prices) and out_* (the finish tiers -- winner, within 10 points of the winner, top 100, top 1%,
+    top 0.1% -- and the contest's REALIZED ownership: out_own_max_realized, out_own_under5_realized, looked up by
+    (contest_id, dk_player_id)). Realized ownership is post-lock and never a lbl_ (the reviewer, 10-06)."""
     fr = frame.copy()
     fr["dk"] = pd.to_numeric(fr.get("dk_player_id"), errors="coerce")
     fr = fr.dropna(subset=["dk"]).drop_duplicates("dk")
@@ -284,7 +293,8 @@ def lineup_label_rows(lineups: list[dict], contains: list[dict], frame: pd.DataF
         teams = Counter(str(r.team) for r, _ in recs if str(r.pos) != "DST")
         games = {str(r.game_id) for r, _ in recs}
         sal = sum(float(r.salary) for r, _ in recs)
-        owns = [float(own.get(int(r.dk), 0.0)) for r, _ in recs]
+        cid = str(l["contest_id"])
+        owns = [float(realized_own.get((cid, int(r.dk)), 0.0)) for r, _ in recs]
         dst = next((r for r, _ in recs if str(r.pos) == "DST"), None)
         te = [float(r.salary) for r, _ in recs if str(r.pos) == "TE"]
         opp_of_qb = str(qb.opp) if qb is not None else None
@@ -296,7 +306,8 @@ def lineup_label_rows(lineups: list[dict], contains: list[dict], frame: pd.DataF
                  "lbl_cheap_players": sum(float(r.salary) < 4000 for r, _ in recs if str(r.pos) != "DST"),
                  "lbl_salary_left": 50_000 - sal, "lbl_qb_salary": float(qb.salary) if qb is not None else None,
                  "lbl_te_salary": max(te) if te else None, "lbl_dst_salary": float(dst.salary) if dst is not None else None,
-                 "lbl_own_max": max(owns) if owns else None, "lbl_own_under5": sum(o < 5.0 for o in owns)}
+                 "out_own_max_realized": max(owns) if owns else None,
+                 "out_own_under5_realized": sum(o < 5.0 for o in owns)}
         n, rank, pts = n_entries.get(str(l["contest_id"])), l.get("rank"), l.get("points")
         win = winning_points.get(str(l["contest_id"]))
         if rank is not None:
@@ -310,10 +321,15 @@ def lineup_label_rows(lineups: list[dict], contains: list[dict], frame: pd.DataF
     return rows
 
 
+# Properties an earlier version of this module wrote under a wrong group (realized ownership as lbl_): removed first.
+LEGACY_REMOVE = "MATCH (l:Lineup) WHERE l.lbl_own_max IS NOT NULL OR l.lbl_own_under5 IS NOT NULL REMOVE l.lbl_own_max, l.lbl_own_under5"
+
+
 def apply_fact_batches(driver, database: str, batches: Mapping[str, list[dict]], chunk: int = 500) -> dict[str, int]:
     """MERGE the fact batches after the base load (the base Player / Week / Game / Lineup nodes must exist)."""
     for stmt in SCHEMA:
         driver.execute_query(stmt, database_=database)
+    driver.execute_query(LEGACY_REMOVE, database_=database)
     sent = {}
     for name, cypher in STATEMENTS.items():
         rows = list(batches.get(name, []))
