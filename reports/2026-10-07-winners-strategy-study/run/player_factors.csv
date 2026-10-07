@@ -1,0 +1,59 @@
+week,group,name,pos,team,opp,sal,proj,market,td_prob,pown,matchup_pct,opp_rz_td,team_tot,spread,status,depth,depth_delta,vac_tgt,vac_car,teammates_out_prelock,snap_l4,snap_game,usage_l4_per_game,usage_game,rz_tgt,rz_car,gl_car,tds,yards,plays20,actual,resid,teammates_collapsed_in_game
+1,winner_MISSED,Steelers,DST,PIT,ATL,3300,8.5,,,,,,,6.0,None/nan,,,,,-,,,,,,,,,,,,,-
+1,winner_MISSED,Jordan Love,QB,GB,MIN,5700,19.8,16.9,0.1,,3.0,,22.0,-2.5,None/nan,1,,0.0,0.0,-,,1.0,,42.0,0,1,0,0,0.0,0,24.5,4.7,-
+1,winner_shared,Derrick Henry,RB,BAL,IND,6700,16.5,15.7,0.67,,22.0,,25.5,3.5,None/nan,1,,0.0,0.0,-,,0.54,,24.0,0,6,2,3,163.0,2,38.3,21.8,-
+1,winner_shared,Jahmyr Gibbs,RB,DET,NO,8000,21.5,22.7,0.74,,28.0,,28.25,7.0,None/nan,1,,0.0,0.0,-,,0.74,,29.0,0,8,5,2,186.0,1,37.6,16.1,-
+1,winner_shared,D'Andre Swift,RB,CHI,CAR,6100,15.5,14.2,0.57,,73.0,,25.25,3.0,None/nan,1,,0.0,0.0,-,,0.57,,18.0,0,6,3,3,134.0,2,35.4,19.9,-
+1,winner_MISSED,Dallas Goedert,TE,PHI,WAS,4100,8.8,9.0,0.32,,84.0,,25.25,6.0,None/nan,1,,0.0,0.0,Eli Stowers TE Out (no prior share),,0.95,,5.0,2,0,0,2,77.0,1,23.7,14.9,-
+1,winner_MISSED,Jalen Coker,WR,CAR,CHI,4600,10.1,8.7,0.25,,84.0,,22.25,-3.0,None/nan,2,,0.0,0.0,-,,0.84,,9.0,1,0,0,2,138.0,2,36.8,26.7,-
+1,winner_MISSED,Christian Watson,WR,GB,MIN,5900,12.7,11.0,0.35,,3.0,,22.0,-2.5,None/nan,1,,0.0,0.0,-,,0.76,,8.0,1,0,0,2,147.0,2,35.7,23.0,-
+1,winner_MISSED,DJ Moore,WR,BUF,HOU,5600,11.8,9.9,0.27,,10.0,,23.0,1.5,None/nan,1,,0.0,0.0,-,,0.76,,8.0,0,0,0,1,100.0,1,24.0,12.2,-
+1,ours_instead,Jaguars,DST,JAX,CLE,3400,10.3,,,,,,,8.5,None/nan,,,,,-,,,,,,,,,,,,,-
+1,ours_instead,Bryce Young,QB,CAR,CHI,5200,19.0,16.7,0.18,,81.0,,22.25,-3.0,None/nan,1,,0.0,0.0,-,,0.9,,37.0,0,2,0,1,10.0,0,35.4,16.4,-
+1,ours_instead,Michael Mayer,TE,LV,MIA,2900,7.8,8.2,0.3,,86.0,,21.75,3.0,None/nan,2,,0.0,0.0,Brock Bowers TE Out (no prior share),,0.81,,7.0,1,0,0,0,32.0,0,9.2,1.4,-
+1,ours_instead,Amon-Ra St. Brown,WR,DET,NO,7500,18.2,18.2,0.52,,28.0,,28.25,7.0,None/nan,1,,0.0,0.0,-,,0.9,,14.0,4,0,0,2,67.0,0,28.7,10.5,-
+1,ours_instead,Chris Olave,WR,NO,DET,6700,15.7,16.7,0.39,,87.0,,21.25,-7.0,None/nan,1,,0.0,0.0,"Audric Estimé RB Out (no prior share), Oscar Delp TE Out (no prior share)",,0.86,,13.0,1,0,0,0,182.0,4,31.2,15.5,-
+1,ours_instead,Devaughn Vele,WR,NO,DET,3500,8.4,8.4,0.21,,87.0,,21.25,-7.0,None/nan,2,,0.0,0.0,"Audric Estimé RB Out (no prior share), Oscar Delp TE Out (no prior share)",,0.91,,9.0,1,0,0,1,69.0,1,19.9,11.5,-
+2,winner_MISSED,Patriots,DST,NE,PIT,3100,8.3,,,,,,,5.5,None/nan,,,,,-,,,,,,,,,,,,,-
+2,winner_MISSED,Brock Purdy,QB,SF,MIA,6200,21.4,18.5,0.25,,80.0,,29.0,13.5,None/nan,1,0,0.0,0.0,De'Zhaun Stribling WR Out (no prior share),1.0,0.85,,22.0,0,1,1,1,30.0,0,28.5,7.1,Demarcus Robinson WR 31% vs 63% [W3: Out Ankle]
+2,winner_MISSED,Christian McCaffrey,RB,SF,MIA,8000,18.9,20.6,0.71,,93.0,,29.0,13.5,None/nan,1,0,0.0,0.0,De'Zhaun Stribling WR Out (no prior share),0.55,0.52,10.0,10.0,2,4,4,2,66.0,0,22.6,3.7,Demarcus Robinson WR 31% vs 63% [W3: Out Ankle]
+2,winner_MISSED,J.K. Dobbins,RB,DEN,JAX,5000,8.9,8.9,0.48,,3.0,,24.25,3.0,None/nan,1,0,0.0,0.0,Marvin Mims Jr. WR Out (no prior share),0.43,0.34,8.0,10.0,0,3,3,0,36.0,0,3.6,-5.3,-
+2,winner_shared,Dalton Schultz,TE,HOU,CIN,3200,10.3,9.1,0.28,,98.0,,24.0,2.5,None/nan,1,0,0.27,0.03,Nico Collins WR Out (no prior share),0.66,0.68,8.0,14.0,0,0,0,0,140.0,2,29.0,18.7,-
+2,winner_MISSED,George Kittle,TE,SF,MIA,4600,9.0,9.7,0.34,,85.0,,29.0,13.5,None/nan,1,0,0.0,0.0,De'Zhaun Stribling WR Out (no prior share),0.46,0.48,5.0,4.0,2,0,0,1,80.0,2,18.0,9.0,Demarcus Robinson WR 31% vs 63% [W3: Out Ankle]
+2,winner_shared,Jaxon Smith-Njigba,WR,SEA,ARI,8100,17.4,17.5,0.42,,45.0,,22.0,3.5,None/nan,1,0,0.0,0.0,-,0.9,0.67,11.0,11.0,3,0,0,3,155.0,1,45.5,28.1,Cooper Kupp WR 43% vs 78% [W3: nan nan]
+2,winner_MISSED,CeeDee Lamb,WR,DAL,WAS,7300,16.6,16.5,0.48,,82.0,,27.0,3.5,None/nan,1,0,0.0,0.0,-,0.81,0.75,8.0,9.0,1,0,0,2,153.0,4,38.3,21.7,-
+2,winner_MISSED,Tre Tucker,WR,LV,LAC,4500,8.6,8.7,0.25,,15.0,,18.25,-7.0,None/nan,1,0,0.0,0.0,Brock Bowers TE Doubtful (no prior share),0.71,0.59,4.0,7.0,0,0,0,1,119.0,2,25.9,17.3,-
+2,ours_instead,Panthers,DST,CAR,ATL,2700,7.0,,,,,,,2.5,None/nan,,,,,-,,,,,,,,,,,,,-
+2,ours_instead,Dak Prescott,QB,DAL,WAS,6400,21.7,18.4,0.17,,91.0,,27.0,3.5,None/nan,1,0,0.0,0.0,-,1.0,1.0,,31.0,0,1,0,0,26.0,0,29.8,8.1,-
+2,ours_instead,Javonte Williams,RB,DAL,WAS,6400,17.8,16.4,0.65,,78.0,,27.0,3.5,None/nan,1,0,0.0,0.0,-,0.71,0.8,12.0,12.0,1,3,1,0,50.0,0,8.0,-9.8,-
+2,ours_instead,Bucky Irving,RB,TB,CLE,6100,15.0,13.7,0.51,,39.0,,24.5,7.5,None/nan,1,0,0.0,0.0,-,0.61,0.78,8.0,17.0,2,1,0,0,90.0,1,13.0,-2.0,-
+2,ours_instead,Rhamondre Stevenson,RB,NE,PIT,5700,14.5,12.7,0.49,,47.0,,23.5,5.5,None/nan,1,0,0.0,0.0,-,0.85,0.36,18.0,6.0,0,0,0,0,46.0,1,4.6,-9.9,"Rhamondre Stevenson RB 36% vs 85%, Eli Raridon TE 20% vs 54% [W3: Questionable Thigh]"
+2,ours_instead,Michael Mayer,TE,LV,LAC,3600,10.5,11.8,0.3,,27.0,,18.25,-7.0,None/nan,2,0,0.0,0.0,Brock Bowers TE Doubtful (no prior share),0.81,0.84,7.0,4.0,0,0,0,0,23.0,0,5.3,-5.2,-
+2,ours_instead,Justin Jefferson,WR,MIN,CHI,7800,25.4,16.4,0.38,,99.0,,21.5,-4.5,None/nan,1,0,0.04,0.06,Jauan Jennings WR Out (no prior share),0.92,1.0,10.0,6.0,1,0,0,0,55.0,1,8.5,-16.9,-
+3,winner_MISSED,Vikings,DST,MIN,TB,3100,8.1,,,0.4,,,,1.5,None/nan,,,,,-,,,,,,,,,,,,,-
+3,winner_shared,Geno Smith,QB,NYJ,DET,4900,16.3,16.5,0.11,1.5,95.0,0.31,21.0,-6.5,None/nan,1,0,0.07,0.0,"Kene Nwangwu RB Doubtful (no prior share), Mason Taylor TE Out (tgt 0.13/car 0.00)",1.0,1.0,,37.0,0,0,0,0,12.0,0,30.0,13.7,-
+3,winner_shared,Jahmyr Gibbs,RB,DET,NYJ,8800,24.0,23.5,0.75,25.4,73.0,0.33,27.5,6.5,None/nan,1,0,0.0,0.0,-,0.78,0.69,22.5,20.0,3,7,2,3,164.0,0,41.4,17.4,-
+3,winner_MISSED,Jaylen Warren,RB,PIT,CIN,5700,12.2,15.9,0.47,2.9,90.0,0.22,19.5,-3.5,Q/Questionable,1,0,0.09,0.34,Rico Dowdle RB Out (tgt 0.14/car 0.38),0.54,0.9,10.5,17.0,1,2,0,0,176.0,3,23.6,11.4,Roman Wilson WR 39% vs 67%
+3,winner_shared,Kenyon Sadiq,TE,NYJ,DET,3500,7.6,6.4,0.22,1.5,96.0,0.31,21.0,-6.5,None/nan,1,1,0.07,0.0,"Kene Nwangwu RB Doubtful (no prior share), Mason Taylor TE Out (tgt 0.13/car 0.00)",0.39,0.58,3.0,8.0,0,0,0,1,105.0,2,26.5,18.9,-
+3,winner_shared,Juwan Johnson,TE,NO,LV,3700,8.5,8.7,0.26,2.4,6.0,0.2,23.5,3.5,None/nan,1,0,0.0,0.02,Barion Brown WR Out (tgt 0.00/car 0.04),0.68,0.62,5.5,8.0,2,0,0,2,53.0,1,24.3,15.8,-
+3,winner_MISSED,Jaxon Smith-Njigba,WR,SEA,WAS,8600,18.6,19.4,0.52,5.4,84.0,0.33,24.5,8.5,None/nan,1,0,0.0,0.0,-,0.78,0.87,11.0,14.0,3,0,0,2,128.0,2,38.4,19.7,-
+3,winner_shared,Garrett Wilson,WR,NYJ,DET,6300,15.7,14.1,0.36,6.7,95.0,0.31,21.0,-6.5,None/nan,1,0,0.07,0.0,"Kene Nwangwu RB Doubtful (no prior share), Mason Taylor TE Out (tgt 0.13/car 0.00)",0.82,0.94,7.0,13.0,1,0,0,1,107.0,2,29.7,14.0,-
+3,winner_MISSED,Jameson Williams,WR,DET,NYJ,5400,14.0,11.7,0.4,8.6,35.0,0.33,27.5,6.5,None/nan,2,0,0.0,0.0,-,0.9,0.82,6.5,4.0,0,0,0,0,49.0,1,8.9,-5.1,-
+3,ours_instead,Browns,DST,CLE,CAR,2500,6.9,,,0.0,,,,-1.5,None/nan,,,,,-,,,,,,,,,,,,,-
+3,ours_instead,Kenneth Walker III,RB,KC,MIA,7400,20.2,19.8,0.67,28.1,98.0,0.25,27.75,10.0,None/nan,1,0,0.0,0.0,-,0.75,0.73,23.5,18.0,2,7,1,2,73.0,1,21.3,1.1,-
+3,ours_instead,James Cook III,RB,BUF,LAC,6900,16.1,15.8,0.64,5.8,8.0,0.15,28.75,7.0,None/nan,1,0,0.0,0.0,-,0.73,0.67,17.0,24.0,0,3,2,1,154.0,1,23.4,7.3,-
+3,ours_instead,Parker Washington,WR,JAX,NE,6000,15.0,13.3,0.38,7.9,31.0,0.0,24.25,3.0,None/nan,1,1,0.0,0.0,-,0.71,0.81,9.0,5.0,3,0,0,1,40.0,0,13.0,-2.0,-
+4,winner_MISSED,Jaguars,DST,JAX,CIN,2600,5.7,,,1.0,,,,-2.5,None/nan,,,,,-,,,,,,,,,,,,,-
+4,winner_shared,Dak Prescott,QB,DAL,HOU,6400,20.3,18.4,0.12,2.6,42.0,0.31,22.75,-3.0,None/nan,1,0,0.0,0.0,-,1.0,1.0,,45.0,0,1,1,0,7.0,0,21.1,0.8,-
+4,winner_MISSED,Kyren Williams,RB,LA,PHI,5900,14.8,13.4,0.53,5.3,47.0,0.17,23.0,3.5,None/nan,1,0,0.13,0.0,Terrance Ferguson TE Out (no prior share),0.63,0.83,12.7,16.0,1,5,1,2,147.0,1,36.7,21.9,Konata Mumpfield WR 27% vs 56%
+4,winner_MISSED,Javonte Williams,RB,DAL,HOU,6600,15.2,14.2,0.57,4.0,3.0,0.31,22.75,-3.0,None/nan,1,0,0.0,0.0,-,0.76,0.74,14.3,19.0,0,8,5,3,83.0,0,31.3,16.1,-
+4,winner_shared,T.J. Hockenson,TE,MIN,MIA,3300,11.4,10.6,0.36,12.8,91.0,0.33,24.25,10.0,None/nan,1,0,0.27,0.0,Justin Jefferson WR Out (tgt 0.37/car 0.00),0.73,0.83,4.3,13.0,3,0,0,0,119.0,2,27.9,16.5,-
+4,winner_MISSED,Zach Ertz,TE,PHI,LA,3100,6.0,4.6,0.18,0.2,14.0,0.1,19.5,-3.5,None/nan,2,,0.47,0.06,"Dallas Goedert TE Out (no prior share), DeVonta Smith WR Out (no prior share), Marquise Brown WR Out (no prior share)",0.38,0.21,2.0,4.0,0,0,0,0,13.0,0,3.3,-2.7,Saquon Barkley RB 7% vs 53%
+4,winner_shared,CeeDee Lamb,WR,DAL,HOU,7800,18.1,16.2,0.43,5.4,62.0,0.31,22.75,-3.0,None/nan,1,0,0.0,0.0,-,0.79,0.86,8.7,21.0,3,0,0,1,183.0,2,44.3,26.2,-
+4,winner_shared,Nico Collins,WR,HOU,DAL,7200,17.6,15.5,0.42,5.3,94.0,0.24,25.75,3.0,None/nan,1,0,0.0,0.0,-,0.72,0.69,10.0,8.0,1,0,0,2,118.0,2,33.8,16.2,Xavier Hutchinson WR 31% vs 64%
+4,winner_MISSED,Zay Flowers,WR,BAL,TEN,6900,17.0,15.0,0.41,7.5,90.0,0.23,26.5,11.5,Q/Questionable,1,0,0.0,0.0,-,0.31,0.73,6.0,10.0,2,0,0,1,118.0,2,28.8,11.8,"Durham Smythe TE 28% vs 57%, Rashod Bateman WR 47% vs 86%"
+4,ours_instead,Cardinals,DST,ARI,NYG,2500,7.9,,,6.6,,,,2.5,None/nan,,,,,-,,,,,,,,,,,,,-
+4,ours_instead,Chase Brown,RB,CIN,JAX,6100,18.2,15.6,0.59,16.1,17.0,0.07,27.0,2.5,None/nan,1,0,0.02,0.0,Colbie Young WR Out (tgt 0.02/car 0.00),0.71,0.79,16.3,9.0,0,1,0,0,81.0,0,19.1,0.9,"Drew Sample TE 26% vs 59%, Ja'Marr Chase WR 20% vs 94%"
+4,ours_instead,Aaron Jones Sr.,RB,MIN,MIA,6000,18.1,16.7,0.6,15.9,99.0,0.33,24.25,10.0,None/nan,1,0,0.27,0.0,Justin Jefferson WR Out (tgt 0.37/car 0.00),0.69,0.73,17.3,20.0,2,2,0,0,128.0,0,16.8,-1.3,-
+4,ours_instead,Brenton Strange,TE,JAX,CIN,3200,9.2,8.7,0.28,6.8,99.0,0.11,24.5,-2.5,None/nan,1,0,0.0,0.0,-,0.76,0.87,3.3,8.0,0,0,0,0,95.0,1,16.5,7.3,-
+4,ours_instead,Puka Nacua,WR,LA,PHI,7500,19.5,15.9,0.42,7.9,36.0,0.17,23.0,3.5,None/nan,1,0,0.13,0.0,Terrance Ferguson TE Out (no prior share),0.7,0.9,9.0,12.0,0,1,1,1,127.0,2,30.7,11.2,Konata Mumpfield WR 27% vs 56%
