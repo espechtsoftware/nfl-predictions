@@ -1,0 +1,30 @@
+
+=== FFWC $14M qualifier field: rows per arm per week = 26 (W3 only for the FFWC qualifier)
+                 mean_pct_beaten  top20  top10  top1  mean_pts
+arm        week                                               
+ENTERED    3               0.395  0.079  0.006   0.0   125.498
+MEAN_MILP  3               0.488  0.169  0.051   0.0   133.976
+PROPS_MILP 3               0.633  0.287  0.146   0.0   145.581
+  pooled: ENTERED: top20 0.079, top10 0.006, mean beaten 0.395; MEAN_MILP: top20 0.169, top10 0.051, mean beaten 0.488; PROPS_MILP: top20 0.287, top10 0.146, mean beaten 0.633
+  row #1 of each arm (the 'best' single entry), % of field beaten by week: ENTERED: 0.60; MEAN_MILP: 0.60; PROPS_MILP: 0.75
+  rows 1-2 of each arm, mean % of field beaten per week: ENTERED: 0.56; MEAN_MILP: 0.66; PROPS_MILP: 0.83
+  rows 1-3 of each arm, mean % of field beaten per week: ENTERED: 0.56; MEAN_MILP: 0.64; PROPS_MILP: 0.73
+
+=== Millionaire field: rows per arm per week = 26 (W3 only for the FFWC qualifier)
+                 mean_pct_beaten  top20  top10   top1  mean_pts
+arm        week                                                
+ENTERED    2               0.420  0.130  0.058  0.014   108.316
+           3               0.473  0.157  0.056  0.000   125.498
+           4               0.540  0.191  0.073  0.000   121.553
+MEAN_MILP  2               0.390  0.203  0.174  0.014   106.178
+           3               0.572  0.247  0.107  0.000   133.976
+           4               0.526  0.118  0.064  0.000   119.947
+PROPS_MILP 2               0.424  0.087  0.058  0.014   109.110
+           3               0.715  0.410  0.219  0.006   145.581
+           4               0.413  0.045  0.000  0.000   110.669
+  pooled: ENTERED: top20 0.162, top10 0.062, mean beaten 0.483; MEAN_MILP: top20 0.199, top10 0.106, mean beaten 0.523; PROPS_MILP: top20 0.235, top10 0.120, mean beaten 0.565
+  row #1 of each arm (the 'best' single entry), % of field beaten by week: ENTERED: 0.02/0.71/0.35; MEAN_MILP: 0.02/0.71/0.35; PROPS_MILP: 0.15/0.83/0.43
+  rows 1-2 of each arm, mean % of field beaten per week: ENTERED: 0.23/0.67/0.49; MEAN_MILP: 0.06/0.76/0.51; PROPS_MILP: 0.18/0.88/0.39
+  rows 1-3 of each arm, mean % of field beaten per week: ENTERED: 0.27/0.67/0.62; MEAN_MILP: 0.05/0.74/0.43; PROPS_MILP: 0.23/0.81/0.36
+
+identical row #1 (ENTERED vs MEAN_MILP), by week: W2 True, W3 True, W4 True

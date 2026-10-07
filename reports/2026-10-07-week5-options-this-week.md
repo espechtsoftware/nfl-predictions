@@ -318,3 +318,40 @@ big-contest ranks 20–22 like the rest, and no other big seat moved.
   not say which of our already-built rows to send where.
 - The reviewer's study 59 can still give a Week-6 read. The shape question (fewer QB + 1) stays with study list 56 as a
   build change, not a deal.
+
+## 5. Big-contest entries next week: 1–2 tickets, where a win means cashing (`cash_line_books.py`)
+
+The operator, 10-07: *"if I win entries next week, I'll only have 1-2 of the large ones so I need to make them count."*
+
+Inside a big contest he holds a seat in, a win is any finish paying $500+. In $333+ contests that is any cash, and
+DraftKings GPPs pay about the top 20% (production should confirm each target contest's ladder). So the line for those
+entries is a **cash line in a sharp field**, not the deep satellite lines the book is built for.
+
+**Real-field check** (in-sample, W2–4): production's P3 replay books, built for each week's real plan (69 / 178 / 110
+rows): ENTERED (his Week-5 package), MEAN_MILP (the plain capped optimizer on the frame's means) and PROPS_MILP (the same
+on the betting market's means). Each row is scored on realized points against the week's Millionaire field and the W3
+$14M FFWC qualifier field (sharp, ~56% regulars).
+
+| Share of the field beaten | ENTERED | MEAN_MILP | PROPS_MILP |
+|---|---|---|---|
+| Whole book, Millionaire field, share of rows in the top 20% | .162 | .199 | .235 (W4 only .045) |
+| Whole book, W3 FFWC field, share in the top 20% | .079 | .169 | .287 |
+| **Row #1, the single best entry**, Millionaire field W2 / W3 / W4 | .02 / .71 / .35 | **identical to ENTERED** | **.15 / .83 / .43** |
+| Row #1, W3 FFWC field | .60 | .60 | **.75** |
+| Rows 1–2, Millionaire field | .23 / .67 / .49 | .06 / .76 / .51 | .18 / .88 / .39 |
+| Rows 1–2, W3 FFWC field | .56 | .66 | .83 |
+
+**What it says:**
+- **For one entry, the book's #1 row is already the best-projection lineup.** It is identical to the plain optimizer's
+  #1 every week. The only lever left is **which projection** drives it. On these weeks the market (props) #1 beat ours
+  in each week and in the sharp field (3 of 3 plus 1), which is suggestive but small.
+- **For two entries,** no construction's top rows were consistently better. The tested tool is study 32's R4 joint
+  coverage (+0.030 at 2–3 entries), which study 57 is preparing.
+
+**Proposed for Week 6, if he holds big-contest tickets (each tested before use):**
+1. Production fetches each target contest's payout ladder from the public API, so the entry's line is the line where it
+   pays $500+.
+2. The reviewer's study-32 harness reads, at those contests' sizes and lines with m = 1 and 2: LIVE's top rows vs the
+   FP-means plain rows vs the props-means plain rows. This is the cash-line endpoint study 54 did not measure.
+3. Monday's W5 real field adds one more prospective comparison of the FP #1 and the props #1.
+4. R4 (study 57) for the two-entry case, with the distinct-rows fix.
