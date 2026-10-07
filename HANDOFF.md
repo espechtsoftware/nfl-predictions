@@ -12,6 +12,41 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-07 (07:44 CDT) — The operator: "review this and schedule any necessary experiments this week" (the outside reviewer's why-we-missed-the-winners report): study 50 + amendment 6d proposed to the reviewer, 46(b) scheduled; 6c FINAL; SIS team context captured
+
+**The operator's request** (10-07, on the outside reviewer's interim status; report on review/outside-fill-order-20261006 @ 0ad813b2):
+- **Out of sample (2023–25 player-weeks):** a softer matchup raises explosion odds 7% per SD, RB/TE most, nothing in Weeks 1–4. This agrees with O-40's screen.
+- **Experiment A (in-sample W2–4 fixed-book replay):** the factor bonuses ride the ownership-term vehicle (checked: objective = mean + tilt × pred_own).
+  - Under FP's means the market part is dead: the W4 book equals live.
+  - **In W4, the one FP week, combined trailed live on P(≥1 big) (.308 vs .434); matchup alone led (.503); vacated alone hurt every week.**
+- **Experiment C** is production's boom family (one lineup per world, lab admission) under hindsight rules. It is evidence for study-list 46(b), not a generator change (Add. 66 / 72).
+- **Experiment B** (inside the winners' environment) is diagnosis only.
+
+**Scheduled** (study list 47 and 46(b); proposal sent to the reviewer, who designs):
+- **Study 50, Thu 10-08 after B:** LIVE vs MATCHUP vs COMBINED_NOMKT on the 36 slates of 2023–24, with the 17 2022 slates as a go / no-go frozen in the same prereg; support census first. A W6 candidate.
+- **Study 38 amendment 6d:** both bonuses as W5+ paper arms. The laptop writes the factor-file writer (a port of make_factor_files.py) and the snapshot copy, to a format the reviewer names first; in Friday's rehearsal, else from W6.
+- **46(b), environment coverage with world-optimal rows:** designed this week; harness run Sat 10-10 or Mon 10-12.
+- **Unchanged:** O-40's confirmatory ablation Mon 10-12; 6c from W5. The operator decides W6 by 10-15/16.
+
+**Study 38 amendment 6c FINAL** (the reviewer, lab cbca4dd; prereg f7b68e8b on production/s48-prereg-20261006):
+- The file format is FROZEN as the laptop's e07675ab: scripts/paper_dvp_file.py 592799cc.
+- Format: a '#' metadata line, then dk_player_id, gsis_id, pos, opp, z, slope, fp, adj_points; adj = fp + slope × z; FP's 0 stays 0; the 30-row floor is kept.
+- The day's crossing is disclosed: 6614a660 → 62cc706c → e07675ab on our side; 0b8c9f9 → 05acfee → e08b05f → cbca4dd on the lab's.
+- W4 stand-in: slope +0.585 from 152 player-weeks; the lab loader accepts it.
+- W4 prior inputs pinned at ~/private/paper-corun/dvp-inputs. The Sunday command is in the arming checklist.
+- **The laptop's copy of the 6c smoke** (zero 1adbd2e7, slope-1 2e114268, no file 4fa7e4a3, live block fff6fa8a) runs after Experiment B frees the machine.
+- **6b smoke matched:** full-paper cb0e9401, term8-paper 9f5ecb87, full-nopaper e5f886b2.
+
+**SIS:**
+- The 07:32 re-capture got ATL–NO's W4 blocking: 11 / 11 team-context pages, sis-team-context-import complete.
+- The pass-tail re-import logged 866 vendor revisions (588 at 04:42), first-seen kept.
+- The receiver-copula re-import refused an append conflict: SIS revised W4 wide to 110 rows after the 04:42 import of 108 / 114. W5's copy is the 04:42 one; the re-run's "NOT CAPTURED" is a re-run artifact.
+- Next: both SIS cache dry runs, the paired dry run, the env check, resume the 3 schedulers, check_prospective_gates (before Thu 09:15).
+
+**Flag for the operator:** three files on the pushed PUBLIC review branch carry FP's licensed W4 projections and ownership per player:
+- run/player_factors.csv, player_factors.log, missing_players.txt (since 2739bf49).
+- None is in integration. Strip them before any merge; scrubbing the pushed history is the operator's call.
+
 ## 2026-10-07 (07:15 CDT) — O-40: the projection model has no position-level matchup (the operator: "five alarm fire"); confirmed, screened (≈0), confirmatory rule frozen; W5 unaffected (FP means); 48f frozen; the graph facts loaded
 
 **The finding:** the outside reviewer, relayed by the operator. **Confirmed by the laptop** and registered as O-40 (b468bc27).
