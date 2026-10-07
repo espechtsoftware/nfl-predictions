@@ -67,3 +67,15 @@ def test_group_window_and_superseded_gate_publication(tmp_path):
 def test_parse_utc_compares_the_lab_form_and_iso_by_content():
     assert rp.parse_utc("2026-10-03 15:00:00.123456+00:00") > rp.parse_utc("2026-10-03T05:00:00")
     assert rp.parse_utc("2026-10-03T15:00:00Z") == rp.parse_utc("2026-10-03 15:00:00+00:00")
+
+
+def test_a_missing_term_block_stops_publication_until_the_operator_accepts(tmp_path):
+    """The reviewer (10-07): a decided live rule must not go missing silently -- a union the host marked
+    term_block_missing is not published unless --accept-term-block-missing (TERM_BLOCK_MISSING_OK=1, his decision)."""
+    d = _run(tmp_path, union=True); (d / "audit_passed").touch()
+    assert rp.publishable(d, True) == (True, "publishable")
+    (d / "term_block_missing").write_text("2026-10-11T15:50Z run x: TERM BLOCK MISSING: not applied: OWN TERM REFUSED\n")
+    ok, why = rp.publishable(d, True)
+    assert not ok and "term_block_missing" in why and "OWN TERM REFUSED" in why and "TERM_BLOCK_MISSING_OK=1" in why
+    assert rp.publishable(d, True, accept_term_block_missing=True) == (True, "publishable")
+    assert rp.main([str(d), "--union-mode"]) == 1 and rp.main([str(d), "--union-mode", "--accept-term-block-missing"]) == 0

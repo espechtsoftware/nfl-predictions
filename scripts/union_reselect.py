@@ -549,7 +549,8 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
             return None, None
         return [str(p["id"]) for p in lu.players], float(sum(p.get(use_obj, p["proj"]) for p in lu.players))
 
-    row_value: dict[tuple, float] = {}                         # each committed row's objective sum, as solved
+    row_value: dict[tuple, float] = {}                         # each committed row's objective sum, as solved (a term row's
+                                                               # includes its term; read only to order cover rows, refused with the block)
 
     def commit(ids: list[str], value: float | None = None) -> list[str]:
         prev.append(frozenset(ids)); count.update(ids)

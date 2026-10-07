@@ -234,6 +234,33 @@ def main():
     if _ws and _ws != "0" and (_ws != "1" or os.environ.get("UNION_MAIN") != "mix" or os.environ.get("UNION_WINNER_ORDER", "0") not in ("", "0")
                                or os.environ.get("UNION_MIX_SPARES", "15") == "0"):
         fail(f"UNION_WINNER_SELECT={_ws!r} must be 0 or 1; 1 needs UNION_MAIN=mix with spares and UNION_WINNER_ORDER off (study 48d)")
+    _tb = os.environ.get("UNION_TERM_BLOCK_ROWS", "")
+    if _tb and _tb != "0":                                   # the prior-top term block (the operator 10-07)
+        _src = Path(os.environ.get("UNION_TERM_BLOCK_SOURCE", "") or "/nonexistent")
+        _sha = os.environ.get("UNION_TERM_BLOCK_SHA256", "")
+        _bad = []
+        if not _tb.isdigit() or not 0 < int(_tb) < int(os.environ.get("BOOK_ENTRIES", "0") or 0):
+            _bad.append(f"rows {_tb!r} not in 1..BOOK_ENTRIES-1")
+        if os.environ.get("UNION_MAIN") != "mix" or os.environ.get("UNION_MIX_FILL") != "rr":
+            _bad.append("needs UNION_MAIN=mix and UNION_MIX_FILL=rr")
+        if any(os.environ.get(v, "0") not in ("", "0") for v in ("UNION_MIX_RS_ROWS", "UNION_MIX_COVER_GAMES", "UNION_WINNER_ORDER", "UNION_WINNER_SELECT", "UNION_MAIN_OWN_TILT")):
+            _bad.append("no half / cover / winner order or select / whole-book ownership term with it")
+        if not _src.is_file():
+            _bad.append(f"the term file {_src} does not exist")
+        elif _sha:
+            import hashlib
+            if hashlib.sha256(_src.read_bytes()).hexdigest() != _sha:
+                _bad.append(f"the term file's sha is not the pinned UNION_TERM_BLOCK_SHA256 {_sha[:12]}")
+        else:
+            _bad.append("no UNION_TERM_BLOCK_SHA256 pin for the term file")
+        try:
+            _cap = float(os.environ.get("UNION_TERM_BLOCK_CAP", "2.0") or 2.0)
+            if not 0 < _cap <= 5.0:
+                _bad.append(f"cap {_cap} outside (0, 5]")
+        except ValueError:
+            _bad.append("UNION_TERM_BLOCK_CAP is not a number")
+        if _bad:
+            fail(f"UNION_TERM_BLOCK_ROWS={_tb!r}: " + "; ".join(_bad) + " (the prior-top term block)")
     _wo = os.environ.get("UNION_WINNER_ORDER", "")
     if _wo and _wo != "0" and (_wo != "1" or os.environ.get("UNION_MAIN") != "mix"):
         fail(f"UNION_WINNER_ORDER={_wo!r} must be 0 or 1, and 1 needs UNION_MAIN=mix (study 48b)")

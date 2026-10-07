@@ -66,6 +66,18 @@ def fp_gap_flags(run, frame, book, flags, name):
     return out
 
 
+def term_blocks_by_vetted_position(receipt: dict, order: list[int]) -> dict:
+    """The prior-top term block (10-07; the reviewer: every entered row attributable to its block): when the source union
+    built one, each VETTED position's block, L (live) or T (term), from the receipt's mix meta (source positions), so a
+    within-cell move of a term row is visible. Empty when the union built no block."""
+    term = ((((receipt.get("config") or {}).get("union") or {}).get("mix") or {}).get("mix") or {}).get("term")
+    if not term or not term.get("blocks"):
+        return {}
+    blocks = term["blocks"]
+    return {"term_block_by_vetted_position": [blocks[i] if i < len(blocks) else None for i in order],
+            "term_block_source_positions": [i + 1 for i, b in enumerate(blocks) if b == "T"]}
+
+
 def vetted_order(tiers, k_mean, receipt, cells_of):
     """The vetted order and the main block's cells: cell_block_order ONLY when the source receipt's union main is "mix"
     (`cells_of()` is called only then); every other book keeps block_order's order unchanged. Returns (order, cells|None)."""
@@ -224,7 +236,9 @@ def main():
     rec = {"version": "vet-book-v2.1-backup-qb-classified", "source_run": str(run), "k": k, "vetted_at_utc": datetime.now(UTC).isoformat(), "prop_fetch_days": [str(d) for d in days[-2:]],
            "signals": {"dk_status_players": sum(1 for d in weight if any(x.startswith("DK:") for x in flags[d])), "injury_report_players": len(inj), "inference_players": len(pwi), "vanished_lines": len(vanished_norm)},
            "no_fp_projection_players": no_fp, "order_source_ranks": [i + 1 for i in order], "order_rule": "within-cell" if _cells is not None else "within-block",
-           **({"cells_source_order": _cells[:_k_mean], "flagged_kept_ahead_positions": [p + 1 for p in _kept]} if _cells is not None else {}), "demoted_out_of_top_k": [i + 1 for i in demoted], "promoted_into_top_k": [i + 1 for i in promoted],
+           **({"cells_source_order": _cells[:_k_mean], "flagged_kept_ahead_positions": [p + 1 for p in _kept]} if _cells is not None else {}),
+           **term_blocks_by_vetted_position(_src, order),
+           "demoted_out_of_top_k": [i + 1 for i in demoted], "promoted_into_top_k": [i + 1 for i in promoted],
            "material_threshold": thr, "lineups": lineups, "player_flags": {name[d]: {"dk": d, "pos": pos[d], "team": team[d], "weight": weight[d], "flags": fl} for d, fl in flags.items()}}
     (out / "vetting.json").write_text(json.dumps(rec, indent=1) + "\n")
     lines = [f"# Vetting report — {run.name} (k={k}, {datetime.now(UTC):%Y-%m-%d %H:%MZ})", "",
