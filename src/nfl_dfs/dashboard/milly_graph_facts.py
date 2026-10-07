@@ -32,6 +32,10 @@ Added 10-07 (the outside reviewer's facts-layer review, items E and the two miss
   TeamWeek pre_starters_out / pre_starters_out_pos -- depth-chart starters (QB / RB / TE rank 1, WR ranks 1-3, the last
             snapshot at or before the frame's build time) that are OUT before lock: absent from the T-70 frame, or in it
             with a pre-lock status of Out / IR / suspended; pre_starters_doubtful counts the Doubtful ones apart.
+  (:PoolLineup {key: "pool|<week_key>|<players sha16>", source: "pool", tags, lbl_*, out_points, out_tier_*_line})
+            -[:OF_WEEK]->(:Week), -[:CONTAINS]->(:Player) -- OUR candidate pool (the rows the union could have entered;
+            the reviewer's item D): the same pre-lock construction labels as the field's Lineups, and the real finish
+            tiers against that week's Millionaire lines (winner, within 10, top 1%, top 0.1%).
 """
 from __future__ import annotations
 
@@ -169,6 +173,57 @@ def td_probabilities(props: pd.DataFrame) -> pd.DataFrame:
     return d.groupby("key").agg(td_prob=("p", "mean"), books=("bookmaker", "nunique")).reset_index()
 
 
+def pool_lineup_rows(cands: pd.DataFrame, frame: pd.DataFrame, week_key: str, actual: Mapping[str, float],
+                     lines: Mapping[str, float | None]) -> list[dict]:
+    """PoolLineup rows from a candidates table (players = comma-separated frame ids; tag): lbl_ labels from the frame
+    (pre-lock; the FLEX position read from the position counts, since a pool row has no slots) and the real finish
+    tiers against the week's Millionaire lines (out_*, the week's results). Duplicate player sets collapse, tags joined."""
+    import hashlib
+    fr = frame.copy(); fr["id"] = fr["id"].astype(str)
+    fr["dk"] = pd.to_numeric(fr.get("dk_player_id"), errors="coerce")
+    info = {r.id: r for r in fr.dropna(subset=["dk"]).drop_duplicates("id").itertuples(index=False)}
+    gt = fr.dropna(subset=["game_total"]).drop_duplicates("game_id").sort_values(["game_total", "game_id"], ascending=[False, True])
+    g_rank = {str(g): i + 1 for i, g in enumerate(gt.game_id)}
+    top_game = gt.game_id.iloc[0] if len(gt) else None
+    seen: dict[str, dict] = {}
+    for players, tag in zip(cands.players.astype(str), cands.tag.astype(str) if "tag" in cands else [""] * len(cands)):
+        ids = sorted(p.strip() for p in players.split(",") if p.strip())
+        recs = [info[i] for i in ids if i in info]
+        if len(recs) != 9:
+            continue
+        key = f"pool|{week_key}|" + hashlib.sha256(",".join(ids).encode()).hexdigest()[:16]
+        if key in seen:
+            seen[key]["tags"] = sorted(set(seen[key]["tags"]) | {tag})
+            continue
+        pos = Counter(str(r.pos) for r in recs)
+        qb = next((r for r in recs if str(r.pos) == "QB"), None)
+        teams = Counter(str(r.team) for r in recs if str(r.pos) != "DST")
+        te = [float(r.salary) for r in recs if str(r.pos) == "TE"]
+        dst = next((r for r in recs if str(r.pos) == "DST"), None)
+        pts = sum(float(actual.get(r.id, 0.0)) for r in recs)
+        win, t1, t01 = lines.get("winning_score"), lines.get("top_1pct_line"), lines.get("top_01pct_line")
+        props = {"lbl_games": len({str(r.game_id) for r in recs}),
+                 "lbl_flex_pos": "RB" if pos["RB"] == 3 else "TE" if pos["TE"] == 2 else "WR",
+                 "lbl_dual_stack": bool(qb is not None and teams.get(str(qb.team), 0) >= 2 and teams.get(str(qb.opp), 0) >= 2),
+                 "lbl_qb_game_rank": g_rank.get(str(qb.game_id)) if qb is not None else None,
+                 "lbl_qb_favourite": (float(qb.spread) < 0) if qb is not None and pd.notna(getattr(qb, "spread", np.nan)) else None,
+                 "lbl_top_game_players": sum(str(r.game_id) == str(top_game) for r in recs) if top_game else None,
+                 "lbl_cheap_players": sum(float(r.salary) < 4000 for r in recs if str(r.pos) != "DST"),
+                 "lbl_salary_left": 50_000 - sum(float(r.salary) for r in recs),
+                 "lbl_qb_salary": float(qb.salary) if qb is not None else None,
+                 "lbl_te_salary": max(te) if te else None, "lbl_dst_salary": float(dst.salary) if dst is not None else None,
+                 "out_points": round(pts, 2),
+                 "out_tier_winner_line": (pts >= float(win)) if win is not None else None,
+                 "out_tier_within10_line": (pts >= float(win) - 10.0) if win is not None else None,
+                 "out_tier_top1pct_line": (pts >= float(t1)) if t1 is not None else None,
+                 "out_tier_top01pct_line": (pts >= float(t01)) if t01 is not None else None}
+        seen[key] = {"key": key, "week_key": week_key, "tags": [tag], "players": [int(r.dk) for r in recs],
+                     "props": {k: _v(v) for k, v in props.items() if _v(v) is not None}}
+    rows = list(seen.values())
+    assert_point_in_time(rows)
+    return rows
+
+
 STATEMENTS: dict[str, str] = {
     "player_weeks": """
 UNWIND $rows AS row
@@ -193,10 +248,21 @@ SET g += row.props""",
 UNWIND $rows AS row
 MATCH (l:Lineup {key: row.key})
 SET l += row.props""",
+    "pool_lineups": """
+UNWIND $rows AS row
+MATCH (w:Week {key: row.week_key})
+MERGE (pl:PoolLineup {key: row.key})
+SET pl += row.props, pl.source = 'pool', pl.tags = row.tags, pl.week_key = row.week_key
+MERGE (pl)-[:OF_WEEK]->(w)
+WITH pl, row
+UNWIND row.players AS d
+MATCH (p:Player {dk_player_id: d})
+MERGE (pl)-[:CONTAINS]->(p)""",
 }
 SCHEMA = (
     "CREATE CONSTRAINT milly_playerweek_key IF NOT EXISTS FOR (n:PlayerWeek) REQUIRE n.key IS UNIQUE",
     "CREATE CONSTRAINT milly_teamweek_key IF NOT EXISTS FOR (n:TeamWeek) REQUIRE n.key IS UNIQUE",
+    "CREATE CONSTRAINT milly_poollineup_key IF NOT EXISTS FOR (n:PoolLineup) REQUIRE n.key IS UNIQUE",
 )
 
 

@@ -222,6 +222,24 @@ def build_facts(a, query_df, batches, weeks, games) -> dict:
         own = {(str(o["contest_id"]), int(o["dk_player_id"])): float(o["own"]) for o in batches.get("owned_in", [])
                if o["contest_id"] in cids and o.get("own") is not None}      # REALIZED: goes to out_ only
         out["lineup_labels"] += mgf.lineup_label_rows(lw, cw, frame, own, n_entries, win_pts)
+        # OUR candidate pool (the reviewer's item D): the entered union's candidates, else the T-70 + Saturday runs'
+        ew = (cfg.get("weeks") or {}).get(str(w)) if isinstance(cfg.get("weeks"), dict) else None
+        mc = str((ew or {}).get("millionaire_contest") or "")
+        pool_files = ([Path(ew["entered_union"]) / "candidates.parquet"] if ew and ew.get("entered_union")
+                      else [Path(x) / "candidates.parquet" for x in ((ew or {}).get("t70_run"), (ew or {}).get("saturday_run")) if x])
+        pool_files = [f for f in pool_files if f.is_file()]
+        if mc and pool_files:
+            pool = pd.concat([pd.read_parquet(f, columns=[c for c in ("players", "tag") if c in pd.read_parquet(f).columns])
+                              for f in pool_files], ignore_index=True)
+            fpts = {int(o["dk_player_id"]): float(o["fpts"]) for o in batches.get("owned_in", [])
+                    if str(o["contest_id"]) == mc and o.get("fpts") is not None}
+            dk_of = dict(zip(frame["id"].astype(str), pd.to_numeric(frame.dk_player_id, errors="coerce")))
+            actual = {i: fpts[int(d)] for i, d in dk_of.items() if pd.notna(d) and int(d) in fpts}
+            lines = next((c for c in batches.get("contests", []) if str(c["contest_id"]) == mc), {})
+            pr = mgf.pool_lineup_rows(pool, frame, wk, actual, lines)
+            out["pool_lineups"] += pr
+            print(f"FACTS week {w}: {len(pr)} pool lineups from {[f.parent.name for f in pool_files]} "
+                  f"(Millionaire {mc}; top-1% line {lines.get('top_1pct_line')})")
         print(f"FACTS week {w}: {len(pw)} player-weeks from {source} (as of {as_of}); TD prices {len(td)}; "
               f"prior-top {'none' if prior_top is None else len(prior_top)}; starters {0 if starters is None else len(starters)}")
     return out

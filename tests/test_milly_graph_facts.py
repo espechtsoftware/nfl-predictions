@@ -120,3 +120,21 @@ def test_starters_out_reads_the_pre_lock_status_and_shared_names_get_no_td_price
     td = F.td_probabilities(pd.DataFrame({"player": ["Player AA"], "bookmaker": ["a"], "price": [200], "outcome_name": ["Yes"]}))
     rows = F.player_week_rows(fr, "2026-05", "s", "t", td=td)
     assert not any("pre_anytime_td_prob" in r["props"] for r in rows)
+
+
+def test_pool_lineups_carry_pre_lock_labels_and_real_finish_tiers():
+    """The reviewer's item D (10-07): our candidate pool as PoolLineup rows -- the field Lineups' lbl_ labels (FLEX
+    from the position counts) and out_ tiers against the week's Millionaire lines; duplicates collapse, tags joined."""
+    fr = _frame()
+    ids = fr["id"].tolist()
+    # BUF QB + BUF RB + 2 BUF WR + BUF TE + NE RB + NE WR + KC RB (a 3rd RB -> RB flex) + BUF DST
+    row = [ids[0], ids[1], ids[2], ids[3], ids[4], ids[7], ids[8], ids[13], ids[5]]
+    cands = pd.DataFrame({"players": [",".join(row), ",".join(reversed(row)), ",".join(row[:8])], "tag": ["boom", "lev", "x"]})
+    actual = {i: 25.0 for i in row}
+    rows = F.pool_lineup_rows(cands, fr, "2026-04", actual, {"winning_score": 230.0, "top_1pct_line": 190.0, "top_01pct_line": 215.0})
+    assert len(rows) == 1 and rows[0]["tags"] == ["boom", "lev"] and len(rows[0]["players"]) == 9
+    p = rows[0]["props"]
+    assert p["lbl_flex_pos"] == "RB" and p["lbl_qb_game_rank"] == 1 and p["lbl_dual_stack"] is True
+    assert p["out_points"] == 225.0 and p["out_tier_top1pct_line"] and p["out_tier_top01pct_line"] and not p["out_tier_winner_line"]
+    assert p["out_tier_within10_line"] is True
+    assert "pool_lineups" in F.STATEMENTS and "PoolLineup" in F.STATEMENTS["pool_lineups"]
