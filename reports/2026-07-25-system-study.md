@@ -6935,3 +6935,127 @@ screen `28e28ab9`) read NOT ENTERED. It was below LIVE in all three weeks, ratio
 sample, and neither helps. It is closed unless a new TD source appears. The outside reviewer's real-field screen of sort
 keys points the same way (`b335d1fd`: the TD key improves the average finish, and is level with random picks at the
 top).
+
+## Addendum 161 (2026-10-07): study 53 (a soft preference for sub-$4,000 players): no whole-book decision adoptable; neither 8-row block enterable for Week 5 (the +2 block a knife edge, stopped by the frozen 2022 rule)
+
+**Setup.**
+- **The question.** The outside reviewer's graph finding (relayed at the operator's request): within the regulars' own
+  Week 1–4 portfolios, top-1% lineups carried more sub-$4,000 non-DST players (+0.43 sd).
+  - Their in-sample Week 2–4 replays were dose-unstable as a whole-book bonus, and ahead of LIVE in all three weeks as an
+    8-row block.
+  - Addendum 77 had deleted the HARD punt mandate with no effect; a SOFT preference was never tested.
+- **The arms.** His live Week-5 book and production's 15 spares (41 rows, one state; study 48d's LIVE):
+  - **CHEAP2 / CHEAP4** (whole book, the decisions): +2 / +4 projected points per non-DST player salaried under $4,000
+    (WR / TE at DK's floors).
+  - **CHEAP2_BLOCK8 / CHEAP4_BLOCK8** (amendment 1, before any scored bank): the same terms as production's 8-row block
+    (cap = the dose), under study 51's frozen SATURDAY rule.
+- **Support census:** on 2023–24, sub-$4k players per row LIVE 1.09, CHEAP2 2.32, CHEAP4 2.97, the blocks 1.59 / 1.77.
+  Projection per row −1.19 / −3.05 / −0.43 / −0.93. Amendment 1 left the four frozen arms identical on all 53 slates.
+- **The operator's stated leaning** (relayed): the cheap block at +2 "if study 53's block read doesn't contradict it".
+- **Preregistration:** `reports/2026-10-08-prereg-study53-cheap-pref.md` (frozen `000601cc`; amendment 1 `9ad836fe`,
+  sha256 `de2c5181…`).
+- **Panel:** banks 1569–1574, B 20,000, seed 20261105.
+- **Read and reproduced:** read by the reviewer and **reproduced byte-identically by the laptop**.
+  - Reader `0d241d83`; READ `f587bb8c`; census `384ac944`.
+  - The confirmatory census (`d611a9d`) was committed before the READ (`fd9687d`).
+  - LEDGER row lab `5e0c9ce` (plus the closed prop-ladder row, `18ea688`).
+
+**Reader output (verbatim):**
+```
+STUDY 53 READER  sha256 0d241d8314452ca13dfe49a1ab40c915636533de5b9f14720f41e38f762acc6e
+DIRECTION: P(>= 1 big seat) per slate (the mean over its banks); every difference is ARM - REFERENCE; POSITIVE favours the first arm.
+slates 36 (the 2023-24 read) + 17 (the 2022 go / no-go)  banks [1569, 1570, 1571, 1572, 1573, 1574]  B 20000  seed 20261105  two co-primary decisions (CHEAP2 - LIVE, CHEAP4 - LIVE) on the CALIBRATED field (v2), each two-sided 0.975 (Bonferroni), guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only; 2022: the point estimate (two-sided 0.95 interval)
+arms (definitions, the cheap constants, study 48's sha, the term block's sha, live settings, QB cap, objective): [["LIVE", "CHEAP2", "CHEAP4", "CHEAP4_BLOCK8", "CHEAP2_BLOCK8"], {"block": {"caps": {"CHEAP2_BLOCK8": 2.0, "CHEAP4_BLOCK8": 4.0}, "floor_proj": 5.0, "min_coverage": 0.5, "n_term": 8, "tilt": 0.2}, "doses": {"CHEAP2": 2.0, "CHEAP4": 4.0}, "salary_below": 4000}, "c22d28114ab4b463b6842594cb2ff7ca1babf41e28015c7242b21baedb1bc67c", "62c2306eff1135713d599b788bcbd29be9db308c2eb8537183f3d291b996b887", {"fill": "rr", "max_shared": 4}, 5, "player_mean (+ the arm's cheap-player bonus)"]
+
+== CHEAP2 vs LIVE  [DECISION; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate -0.01196  [-0.07657, +0.05424] (two-sided 0.975)  seasons 2023 +0.02464, 2024 -0.04856
+  GUARD 1 mean entry pct -0.01378  one-sided lower -0.03536  (must exceed -0.015)
+  GUARD 2 expected big seats 0.47644 vs 0.53415  ratio 0.892  (must be >= 0.80)
+  CHEAP2 dealt identical to LIVE: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  GO / NO-GO 2022: +0.01375  [-0.09658, +0.11887] (two-sided 0.95)  ->  not contradicted
+
+== CHEAP4 vs LIVE  [DECISION; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate -0.08774  [-0.19395, +0.02179] (two-sided 0.975)  seasons 2023 -0.07333, 2024 -0.10215
+  GUARD 1 mean entry pct -0.04106  one-sided lower -0.07588  (must exceed -0.015)
+  GUARD 2 expected big seats 0.35508 vs 0.53415  ratio 0.665  (must be >= 0.80)
+  CHEAP4 dealt identical to LIVE: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  GO / NO-GO 2022: -0.00297  [-0.13974, +0.13014] (two-sided 0.95)  ->  CONTRADICTED (the 2022 point estimate is < 0)
+
+== STUDY: no decision adoptable: CHEAP2 NO DIFFERENCE on 2023-24, not contradicted on 2022; CHEAP4 NO DIFFERENCE on 2023-24, CONTRADICTED (the 2022 point estimate is < 0) on 2022
+
+== CHEAP2_BLOCK8 vs LIVE  [SATURDAY (amendment 1): the block form for Week 5's one block slot; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate +0.00413  [-0.03070, +0.04265] (two-sided 0.95)  seasons 2023 +0.02127, 2024 -0.01302
+  GUARD 1 mean entry pct -0.00195  one-sided lower -0.01228  (must exceed -0.015)
+  GUARD 2 expected big seats 0.50013 vs 0.53415  ratio 0.936  (must be >= 0.80)
+  CHEAP2_BLOCK8 dealt identical to LIVE: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  GO / NO-GO 2022: -0.00163  [-0.05378, +0.05076] (two-sided 0.95)  ->  CONTRADICTED (the 2022 point estimate is < 0)
+  SATURDAY: NOT ENTERED: CONTRADICTED on 2022
+
+== CHEAP4_BLOCK8 vs LIVE  [SATURDAY (amendment 1): the block form for Week 5's one block slot; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate -0.01363  [-0.04908, +0.02210] (two-sided 0.95)  seasons 2023 -0.01665, 2024 -0.01062
+  GUARD 1 mean entry pct -0.01018  one-sided lower -0.02312  (must exceed -0.015)
+  GUARD 2 expected big seats 0.47474 vs 0.53415  ratio 0.889  (must be >= 0.80)
+  CHEAP4_BLOCK8 dealt identical to LIVE: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  GO / NO-GO 2022: -0.00138  [-0.05463, +0.05406] (two-sided 0.95)  ->  CONTRADICTED (the 2022 point estimate is < 0)
+  SATURDAY: NOT ENTERED: CONTRADICTED on 2022
+
+== SATURDAY (the block slot): neither block dose is enterable
+
+== EXPLORATORY (never decision-bearing; two-sided 0.95)
+  CHEAP2_BLOCK8 - LIVE (the l02 field, 2023-24): +0.00550  [-0.03064, +0.04513]  seasons 2023 +0.02235, 2024 -0.01136
+  CHEAP2_BLOCK8 - LIVE (the l02 field, 2022): +0.00189  [-0.05283, +0.05735]  seasons 2022 +0.00189
+  CHEAP4_BLOCK8 - LIVE (the l02 field, 2023-24): -0.01477  [-0.05190, +0.02252]  seasons 2023 -0.02056, 2024 -0.00897
+  CHEAP4_BLOCK8 - LIVE (the l02 field, 2022): +0.00222  [-0.05350, +0.06016]  seasons 2022 +0.00222
+  CHEAP2 - LIVE (the l02 field, 2023-24): -0.01786  [-0.07492, +0.03965]  seasons 2023 +0.01347, 2024 -0.04919
+  CHEAP2 - LIVE (the l02 field, 2022): +0.01827  [-0.09752, +0.12956]  seasons 2022 +0.01827
+  CHEAP4 - LIVE (the l02 field, 2023-24): -0.09134  [-0.18524, +0.00673]  seasons 2023 -0.08247, 2024 -0.10022
+  CHEAP4 - LIVE (the l02 field, 2022): +0.00087  [-0.14212, +0.13916]  seasons 2022 +0.00087
+
+secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; the book's rows are pre-lock facts):
+  [2023-24]
+  LIVE            v2: P(>=1 big) 0.32685  expected big seats 0.53415  P(>=2) 0.12507  entry pct 0.51515  |  l02: P(>=1 big) 0.35737
+                  book: projection per row 128.14  salary 49970  predicted ownership 78.18%  cheap players per row 1.09
+  CHEAP2          v2: P(>=1 big) 0.31490  expected big seats 0.47644  P(>=2) 0.11078  entry pct 0.50137  |  l02: P(>=1 big) 0.33951
+                  book: projection per row 126.96  salary 49954  predicted ownership 73.54%  cheap players per row 2.32
+  CHEAP4          v2: P(>=1 big) 0.23912  expected big seats 0.35508  P(>=2) 0.08254  entry pct 0.47408  |  l02: P(>=1 big) 0.26603
+                  book: projection per row 125.10  salary 49922  predicted ownership 69.02%  cheap players per row 2.97
+  CHEAP4_BLOCK8   v2: P(>=1 big) 0.31322  expected big seats 0.47474  P(>=2) 0.11034  entry pct 0.50496  |  l02: P(>=1 big) 0.34260
+                  book: projection per row 127.21  salary 49954  predicted ownership 75.42%  cheap players per row 1.77
+  CHEAP2_BLOCK8   v2: P(>=1 big) 0.33098  expected big seats 0.50013  P(>=2) 0.11858  entry pct 0.51319  |  l02: P(>=1 big) 0.36286
+                  book: projection per row 127.72  salary 49965  predicted ownership 76.53%  cheap players per row 1.59
+  [2022]
+  LIVE            v2: P(>=1 big) 0.21115  expected big seats 0.29504  P(>=2) 0.06750  entry pct 0.44654  |  l02: P(>=1 big) 0.22882
+                  book: projection per row 132.25  salary 49969  predicted ownership nan%  cheap players per row 0.99
+  CHEAP2          v2: P(>=1 big) 0.22490  expected big seats 0.28467  P(>=2) 0.05271  entry pct 0.45321  |  l02: P(>=1 big) 0.24710
+                  book: projection per row 130.96  salary 49951  predicted ownership nan%  cheap players per row 2.28
+  CHEAP4          v2: P(>=1 big) 0.20818  expected big seats 0.27074  P(>=2) 0.05033  entry pct 0.44336  |  l02: P(>=1 big) 0.22969
+                  book: projection per row 128.84  salary 49921  predicted ownership nan%  cheap players per row 3.02
+  CHEAP4_BLOCK8   v2: P(>=1 big) 0.20977  expected big seats 0.27772  P(>=2) 0.05827  entry pct 0.45321  |  l02: P(>=1 big) 0.23104
+                  book: projection per row 131.25  salary 49953  predicted ownership nan%  cheap players per row 1.68
+  CHEAP2_BLOCK8   v2: P(>=1 big) 0.20952  expected big seats 0.27989  P(>=2) 0.05817  entry pct 0.45279  |  l02: P(>=1 big) 0.23071
+                  book: projection per row 131.82  salary 49963  predicted ownership nan%  cheap players per row 1.49
+```
+
+**Reading.**
+- **The whole book: no decision adoptable.**
+  - +2 is neutral: −1.2 points of P(≥ 1 big); ratio 0.892.
+  - +4 costs a third of the expected big seats (ratio 0.665), leans negative in both read seasons, and 2022 contradicts
+    it.
+- **The blocks, by the frozen Saturday rule: neither is enterable.**
+  - The +2 block is a knife edge: +0.4 points on 2023–24 and −0.16 on 2022, every interval wide across zero, about 6%
+    fewer expected big seats.
+  - The rule stops it on the 2022 sign, the same rule the matchup block passed. So there is no evidence for it, and
+    little against it.
+  - His own condition, "if study 53's block read doesn't contradict it", is not met.
+- **The field pattern is an association with realized booms.** The frozen prospective reading (`4ceada3f`, re-pinned
+  `ce13626d`) watches it in Weeks 5–8, descriptive only.
+- Study 38's amendment-6f paper arms (MIXT_QA0_CHEAP2 / _CHEAP4) keep the real-field record from Week 5.
+
+**What it means for Saturday.**
+- The one block slot is the matchup block (study 51 ENTERABLE: not harmful, not better) or none.
+- The decision is his. A cheap block would be an OVERRIDE of a frozen stop, written as such. Even then, its file goes
+  through Friday's Week-5 union first.
