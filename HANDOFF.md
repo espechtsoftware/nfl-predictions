@@ -12,6 +12,42 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-07 (09:35 CDT) — SIS O-41 CLOSED (dry runs passed, schedulers resumed); the operator's two new ideas (the under-$7,000 TD block LIVE-candidate, the TD-sorted deal) frozen for testing; study 51 running; props guard holds project-slate; A3 → Thursday
+
+**SIS (O-41 CLOSED, OPEN-DEFECTS 61da4a24):**
+- **Cache dry runs PASSED** on the fixed jobs (control-fqc9m, treatment-5wtp9: W5, 884 rows, weeks 1–4 complete). They ran after build-features-7m7nb fixed a stale roster (Robert Henry Jr.).
+- **The paired dry run PASSED:** shadow-sis-pass-tail-paired-pbnww, exit 0; marginals 463/463 per arm from the _dryrun copies; outputs under the dryrun identity.
+- **The 3 SIS schedulers RESUMED** (Thu 09:15 / 09:20, Sun 06:00).
+- `check_prospective_gates --week 5`: 2 problems, both fp-route-share-2026-companion-v1 (Thursday's dry runs).
+
+**The operator's new requests (10-07):**
+1. **"I would like to test the under $7000 player idea before this week - not as paper"** (the outside reviewer's cheap-TD-value pattern, study list 48).
+   - Writer `scripts/td_value_block_file.py` (77a1ddda, approved). It reproduces the outside reviewer's W4 file exactly at their snapshot; it refuses a > 3 h stale snapshot and a naive as-of.
+   - **Frozen HARM SCREEN** `reports/2026-10-07-td-block-harm-screen.md` (f61aa4cc, before any number): TDBLOCK8 / MTDBLOCK8 are NOT ENTERED if the block trails LIVE on P(≥1 big) in 2+ of W2–4 or the pooled e_big ratio is < 0.80; otherwise ENTERABLE, his call, disclosed as in-sample.
+   - **Timing, for W5 and the replay alike:** the last props snapshot before Saturday 10:00 CT. The W5 file is written after Saturday's ~09:33 pull and pinned at arming.
+   - O-44: the display_name join drops suffixed names; fix W6+ with a new screen.
+2. **"if we haven't already, I'd like to try sorting our lineups by projected touchdowns for the lineup"** (study list 49). Not tried before; the nearest is study 48b's re-deal, NO DIFFERENCE.
+   - **Study 52** (the reviewer): DEAL_TD vs DEAL_LIVE on the harness's simulated TDs, with DEAL_PROJ as the control; the 2023–24 read and the 2022 go / no-go. Built today, run tonight or Thu 06:00.
+   - **The laptop's W2–4 market-TD re-deal**, under a frozen harm screen `reports/2026-10-07-td-deal-harm-screen.md` (c9028505, before any number).
+   - One construction change per week (the reviewer): if a block is armed for W5, a supported TD deal is a W6 candidate.
+3. **The matchup block:** study 51 (frozen 56674479, merged) is running (09:18, ~30 min). Its frozen Saturday rule decides whether it is enterable.
+
+**Saturday's live block slot:** one of matchup / TD / combined / none, his choice. Study 38's 6e (merged e5196313) handles any armed source.
+
+**Props:**
+- Today's first W5 pull is thin: the pre-check reads "GUARD WOULD STOP THE RUN: … matched only 120 of 497 non-DST slate rows (minimum 30%)". So **no project-slate re-run today**; this morning's pre-props projections (fjssz) stay served.
+- Re-check after Thursday's 09:30 pull. The Saturday 09:47 refresh rebuilds everything before any money build.
+
+**A3 → Thursday** (`~/.cache/laptop-agent/rehearsal/a3_armed_w5.sh`, ready): after Thursday's project-slate passes and FP's W5 projections are captured. Its frame feeds Friday's block files.
+
+**Merged today:**
+- Addendum 158 (study 50; 9acbbd79);
+- the 6e prereg (e5196313);
+- the study 51 frozen prereg (1fb86fe8).
+The laptop's acks: 6c / 6d / 6e smokes byte-identical; studies 50 / 51 censuses and banks.
+
+**Still open for the operator:** the licensed FP numbers on the public review branch (history rewrite: his call).
+
 ## 2026-10-07 (08:48 CDT) — Study 50 READ (NO DIFFERENCE; matchup leaning negative, 24% fewer expected big seats) reproduced byte-identically; the 8-row matchup block's W2–4 replay; O-42 (no W5 class model) fixed and pinned; O-43 recorded; the paired SIS dry run re-running after a stale-roster refusal
 
 **Study 50** (the factor bonuses in the harness; READ lab e123c7f; the census da62bd4 was committed first). **The laptop's re-run is BYTE-IDENTICAL:** census aacc85e5, READ 781e06f9, raw shas as recorded.
