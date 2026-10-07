@@ -12,6 +12,84 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-07 (14:15 CDT) — Study 56 frozen, acked and running; PRIORITY-FIRST DEALING built (switch f19222e0, off); his Rev5 contest order; study 54's records verified
+
+**Study 56 (fewer QB + 1 rows; his priority test this week).**
+- Frozen at `19db7b43` on `production/s48-prereg-20261006`, prereg sha256 `8fd8805f…`. His Week-5 line is in it verbatim:
+  live in W5 only on a PASS on the 2023–24 read that is not contradicted on 2022; anything else stays on paper (6j's
+  MIXT_QA0_QB2HALF).
+- **The laptop acked it at 13:5x.**
+  - Every §6 sha matches at lab `08afaa9`, which differs from code `f3c7549` only in `results/s56/`.
+  - 7 tests pass.
+  - The census re-run is BYTE-IDENTICAL: `cc5f27b0` on the reviewer's raw `84c07dc6`.
+  - The unique-blob scan of both repos is clean: banks 1581–1586 hit only the prereg, `s56_drive.py` and
+    `s56_report.py`; seed 20261107 hits only the prereg, the reader and its test. No such file exists on disk.
+- The scored run started 13:57 with 16 workers, ETA about 14:45. Next: the confirmatory census, the READ, the laptop's
+  re-run.
+- The production vehicle stays `48946cd0` (`--mix-cell-quotas`, off). Decision sheet row 23 records his condition.
+
+**PRIORITY-FIRST DEALING** (the operator, to the laptop: "Let's try to do this one this week as it seems more promising").
+- **The proposal:** the outside reviewer's class-E change, logged on `review/outside-fill-order-20261006` §4 and §4a
+  (`29e6632b` → `0b11cc89` → `adbc0ba1` → `5ed20ad2`). The book is unchanged; the rows are re-ordered so his priority
+  contests read the rows scoring best on what wins there.
+- **The score:** +2 for a QB with 2+ teammates, +1 for a bring-back, +1 for 2+ non-DST players under 4,000; the
+  definitions of `priority_field_monitor.py`. The reviewer's c9028505 rule applies: the cheap +2 block keeps its
+  positions, and the 18 other rows sort among theirs, stable, highest first.
+- **The switch, `f19222e0`, default off:**
+  - `src/nfl_dfs/inference/priority_deal.py` holds ONE pure stdlib function, `priority_order`, sha `fa47594d`; the lab
+    copies it verbatim for study 59.
+  - `union_reselect --priority-order` / `UNION_PRIORITY_ORDER`, mix only. It refuses untested combinations and falls
+    back loudly. An OFF union is byte-identical, receipt included.
+  - Wired through the host, the timers' allow-list, `check_week_runtime` and `arm_week5_saturday.sh`
+    (`PRIORITY_ORDER=0`; host copy synced).
+  - Reviewed OK by the reviewer.
+  - The same commit sweeps a latent defect class: the MIX → HOUSE MAIN (C) fallback now drops every mix-only flag.
+    Before, with the cheap block or the quotas armed, the house main itself refused, so a MIX refusal ended in UNION
+    FAILED instead of C. It never fired in a rehearsal.
+  - Tests: 14 new plus the affected modules, 160+ in all.
+- **His contest order, Rev5.** His two messages, verbatim:
+  - "I forgot about the midseason warm ups. Those are big prizes. Can we move that up to under the 4444 and before 555"
+  - then "...The order should be two mega 4444 satellites / midseason warmup / 555 / WFFC / 333 / Showdown mega /
+    everything else".
+- **The vehicle is a private plan Rev5.** It holds Rev3's 29 contests with byte-equal fields, re-ordered only; Rev4 was
+  never installed.
+  - Its sha is `0877fbcd…`. It sits in the laptop's scratch until it is installed Thursday morning before A3, together
+    with the arm script's PLAN_SHA. The reviewer's harness form is `~/s24-panel/plan-week5-rev5-s24.json`
+    (`008678f7`); the check at install is equivalence (contest_id order and head ranks).
+  - Rev5's per-rank weights equal Rev3's, so the book is unchanged.
+  - Ranks: MEGA 1–2; Warm Up 3–5; $555 6–11 (the 2x supersat 3–4); WFFC $490 12; $333 13–21; Showdown MEGA 22. Only the
+    $20 supersats read 23–26.
+- **The test before entering:** the frozen W2–4 harm screen `reports/2026-10-07-priority-deal-harm-screen.md`, frozen
+  at `27a1957b` with amendment 1 in `f19222e0`, both before any number.
+  - (i) THE SORT: CB_PRI vs CB_REV5. It decides the switch.
+  - (ii) THE RE-ORDER: CB_REV5 vs CB(Rev3). It decides Rev5.
+  - NOT ENTERED if P(≥ 1 big) is lower in 2 or 3 of the 3 weeks, or the pooled e_big ratio is < 0.80.
+  - It is a STOP rule only, in-sample.
+  - The script is `~/.cache/laptop-agent/rehearsal/priority_deal_replay.sh <f19222e0> <Rev5 file>`. It builds through
+    the real switch and checks integrity: the same rows, the block in place, the same spares, the switch's order equal
+    to `priority_order` recomputed. **It runs after study 56's run (one heavy job at a time).**
+- **The reviewer's harness test is study 59.**
+  - DRAFT `597e00d4`, lab `ef636fb` with the function copied (fa47594d asserted).
+  - CB_PRI − CB on Rev5, the 2023–24 read and the 2022 go / no-go, study 51's trial rule.
+  - Smoke and census after 56; read Thursday by about noon.
+- **Study 38:** 6j (lab `44becda`) makes a live `--priority-order` a parity MISMATCH until 6k. The reviewer writes 6k
+  before Friday's A3 only if 59 reads ENTERABLE or PASS and he says yes.
+- **Arming:** `PRIORITY_ORDER=1` only after the screen's pair (i), study 59 if he sets that bar, A3 with it on (with
+  6k), and HIS yes. Rev5 is installed Thursday unless pair (ii) stops it. The reviewer's line "one construction change
+  per week" is advice; he decides.
+
+**Study 54's records verified.**
+- Addendum 162 (`e8915e04`) and the lab LEDGER row (`09f77f7`): every decimal (24 in the row, 124 in the Addendum)
+  traces to the READ the laptop reproduced byte-identically (`7af01d9b`).
+- The merge of `production/s48-prereg-20261006` waits for the laptop's 6i ack (smoke copy), so the branch goes in once.
+
+**Next (laptop):**
+1. The priority replay after 56's run.
+2. 56's READ re-run, then the LEDGER and Addendum checks.
+3. The 6i ack (smoke), then the merge.
+4. Thursday: install Rev5 (PLAN_SHA, the equivalence check sent to the reviewer), then A3 block-OFF and the rest of
+   Thursday's list.
+
 ## 2026-10-07 (13:12 CDT) — OPERATOR DECISION: Week 5 arms the CHEAP +2 block as a reversible trial (not matchup); Friday's A3 arms cheap
 
 - **His words:**
