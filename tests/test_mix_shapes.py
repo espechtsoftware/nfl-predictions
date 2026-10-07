@@ -730,3 +730,64 @@ def test_half_refuses_outside_its_frozen_conditions(monkeypatch):
     with pytest.raises(ValueError, match="rs_rows 12 needs"):
         ur.mix_rows(_half_frame(), set(), 26, 4, 4, 49_000, W46, exposure_cap=13, dst_cap=6, qb_cap=5, fill="rr", rs_rows=12)
     assert M.block_positions(26, 13)[0] == list(range(1, 26, 2)) and M.block_positions(26, 0) == ([], list(range(26)))
+
+
+# ---- the prior-top term block (the operator 10-07: "Live, capped, part of book") ----
+
+def _term(monkeypatch, n, bonus=None, k=26, spares=0, **kw):
+    calls = []
+    _install(monkeypatch, calls)
+    out = ur.mix_rows(_frame(), set(), k, 4, 4, 49_000, W46[:k], exposure_cap=13, dst_cap=6, qb_cap=5, fill="rr",
+                      spares=spares, term_rows=n, term_bonus=bonus, **kw)
+    return out, calls
+
+
+def test_term_block_off_is_todays_round_robin_byte_for_byte(monkeypatch):
+    (r0, c0, m0, s0), a = _term(monkeypatch, 0, spares=3)
+    calls = []; _install(monkeypatch, calls)
+    r1, c1, m1, s1 = ur.mix_rows(_frame(), set(), 26, 4, 4, 49_000, W46, exposure_cap=13, dst_cap=6, qb_cap=5, fill="rr", spares=3)
+    assert (r0, c0, s0) == (r1, c1, s1) and a == calls and m0["term"] is None
+
+
+def test_term_block_live_rows_first_on_the_plain_objective_then_the_term_rows(monkeypatch):
+    bonus = {"p39": 2.0, "p38": 2.0}                                     # two low-projection players with the capped term
+    (rows, cells, meta, spares), calls = _term(monkeypatch, 8, bonus, spares=2)
+    objs = [c["objective_col"] for c in calls]
+    n_live = sum(meta["term"]["live_block"]["target_rows"].values())
+    assert n_live == 18 and sum(meta["term"]["term_block"]["target_rows"].values()) == 8
+    runs = [o for i, o in enumerate(objs) if i == 0 or objs[i - 1] != o]
+    assert runs == ["proj", "obj", "proj"]                              # the live block, then the term block, then the spares
+    assert sum(r[0] in ("p39", "p38") or "p39" in r or "p38" in r for r in rows) >= 1   # the term reaches the book
+    t_pos, live_pos = M.block_positions(26, 8)
+    assert t_pos == [1, 4, 8, 11, 14, 17, 21, 24]
+    assert [meta["term"]["blocks"][p] for p in t_pos] == ["T"] * 8 and [meta["term"]["blocks"][p] for p in live_pos] == ["L"] * 18
+    assert meta["term"]["term_positions"] == t_pos and meta["term"]["players_with_a_term"] == 2 and meta["term"]["max_points"] == 2.0
+
+
+def test_term_block_each_block_interleaves_on_its_positions_weights(monkeypatch):
+    (rows, cells, meta, _), _ = _term(monkeypatch, 8, {"p39": 2.0})
+    t_pos, live_pos = M.block_positions(26, 8)
+    for P, key in ((live_pos, "live_block"), (t_pos, "term_block")):
+        got = [meta["term"][key]["cell_rows"][n] for n in M.MIX_CELLS]
+        seq = M.interleave(got, Q, [W46[p] for p in P])
+        assert [cells[p] for p in P] == [list(M.MIX_CELLS)[j] for j in seq]
+
+
+def test_term_block_refuses_outside_its_conditions(monkeypatch):
+    _install(monkeypatch, [])
+    base = dict(exposure_cap=13, dst_cap=6, qb_cap=5)
+    for kw in ({"fill": "group"}, {"fill": "rr", "rs_rows": 13}, {"fill": "rr", "bonus": {"p1": 1.0}},
+               {"fill": "rr", "cover_games": 2}, {"fill": "rr", "portfolio": "ws"}):
+        with pytest.raises(ValueError, match="term_rows"):
+            ur.mix_rows(_frame(), set(), 26, 4, 4, 49_000, W46, term_rows=8, term_bonus={"p39": 2.0}, **base, **kw)
+    with pytest.raises(ValueError, match="term_rows"):
+        ur.mix_rows(_frame(), set(), 26, 4, 4, 49_000, W46, fill="rr", term_rows=8, term_bonus=None, **base)
+    with pytest.raises(ValueError, match="term_rows"):
+        ur.mix_rows(_frame(), set(), 26, 4, 4, 49_000, W46, fill="rr", term_rows=26, term_bonus={"p39": 2.0}, **base)
+
+
+def test_the_union_caps_the_term_and_falls_back_loudly(tmp_path):
+    """The union's term: min(tilt x pred_own, cap) per player; refusals (own_bonus) build the book without the block."""
+    src = (Path(__file__).resolve().parents[1] / "scripts" / "union_reselect.py").read_text()
+    assert "term_bonus = {i: min(v, a.term_block_cap_points) for i, v in raw.items()}" in src
+    assert "!!! TERM BLOCK NOT APPLIED" in src and 'mix_meta["term_source"] = term_src' in src
