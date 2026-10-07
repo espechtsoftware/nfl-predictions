@@ -7,7 +7,8 @@
 #               term (--main-own-*), term block (--term-block-*), sleeve (--tail-sleeve / --sleeve-*), winner order /
 #               select, QB cap and the overlap limit (--mean-max-shared: the union's default 7) -- PLUS --main pmo_x50
 #               --tail-sleeve 0. Production's caps (main cap share, DST caps, salary floor, games per row), the pool, the
-#               live projections (the union's own proj_source.csv when it read one) and the week's K are kept. The house
+#               live projections (the union's own proj_source.csv when it read one) and the week's K are kept (K + T in a
+#               week with a tail sleeve, so its last T plain rows take the tail-track contests). The house
 #               stacking rules stay (pmo_rows has no switch): "no layers" = none of OUR layers, not a raw MILP;
 #   PROPS_MILP  MEAN_MILP with --proj-source <out>/proj_props.csv (scripts/props_projection_file.py: props where real,
 #               else the live projection).
@@ -43,8 +44,10 @@ DROP_V=" --saturday-run --t70-run --out --main --main-own-tilt --main-own-source
  --mix-plan --mix-spares --mix-cover-games --mix-rs-rows --mix-fill --mix-layout --term-block-rows --term-block-source
  --term-block-tilt --term-block-cap-points --term-block-min-coverage --tail-sleeve --tail-line --mean-max-shared --proj-source "
 DROP_S=" --sleeve-includes-main --rehearsal "
-BASE=(); i=0; n=${#ARGS[@]}; PROJ=""
+BASE=(); i=0; n=${#ARGS[@]}; PROJ=""; K=""; T=0
 while (( i < n )); do x=${ARGS[$i]}
+  [[ "$x" == --entries ]] && K=${ARGS[$((i+1))]}
+  [[ "$x" == --tail-sleeve ]] && T=${ARGS[$((i+1))]}
   if [[ "$x" == --proj-source ]]; then PROJ=${ARGS[$((i+1))]}; i=$((i+2)); continue; fi
   if [[ "$DROP_V" == *" $x "* ]]; then i=$((i+2)); continue; fi
   if [[ "$DROP_S" == *" $x "* ]]; then i=$((i+1)); continue; fi
@@ -58,6 +61,10 @@ fi
 PROPS=$OUTD/proj_props.csv
 "$PY" "$PROD/scripts/props_projection_file.py" --frame "$T70/frame.parquet" ${LIVE_PROJ:+--base "$LIVE_PROJ"} --out "$PROPS" || echo "PROPS FILE FAILED: PROPS_MILP will be void"
 
+# the head layout deals tail-track contests the book's LAST T rows (the sleeve), so in a week with a tail sleeve (W1-4) the
+# plain arms solve K + T rows -- their last T plain rows take the tail contests (no sleeve); from W5 (T = 0) this is K
+[[ "$K" =~ ^[0-9]+$ ]] || { echo "P3 ARMS REFUSED: no --entries in $U/union_args.txt"; exit 2; }
+PLAIN_K=$((K + T)); echo "K $K, tail sleeve $T: the plain arms solve $PLAIN_K rows"
 build() {  # $1 arm, $2 build number, rest: extra args
   local arm=$1 k=$2; shift 2
   ( cd "$PROD" && LIVE_FLEX_LATEST=1 PYTHONPATH="$CLONE/src:$PROD/src" "$LAB_PY" scripts/union_reselect.py "${BASE[@]}" "$@" \
@@ -67,8 +74,8 @@ build() {  # $1 arm, $2 build number, rest: extra args
 for k in 1 2; do
   CLONE="$CLONE" PROD="$PROD" LAB_PY="$LAB_PY" bash "$PROD/scripts/union_paper_rebuild.sh" "$U" "$OUTD/ENTERED-$k" same > "$OUTD/ENTERED-$k.txt" 2>&1
   echo "  ENTERED build $k rc $? ($(date +%H:%M:%S))"
-  build MEAN_MILP "$k" --main pmo_x50 --tail-sleeve 0 ${LIVE_PROJ:+--proj-source "$LIVE_PROJ"}
-  [[ -s "$PROPS" ]] && build PROPS_MILP "$k" --main pmo_x50 --tail-sleeve 0 --proj-source "$PROPS"
+  build MEAN_MILP "$k" --main pmo_x50 --entries "$PLAIN_K" --tail-sleeve 0 ${LIVE_PROJ:+--proj-source "$LIVE_PROJ"}
+  [[ -s "$PROPS" ]] && build PROPS_MILP "$k" --main pmo_x50 --entries "$PLAIN_K" --tail-sleeve 0 --proj-source "$PROPS"
 done
 "$PY" - "$U" "$OUTD" <<'PY'
 import hashlib, json, sys
