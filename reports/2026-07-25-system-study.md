@@ -6471,3 +6471,84 @@ secondaries (slate means; v2 = the calibrated field, l02 = the earlier field):
      lock.
    - Next: study 48e, his 10-07 request to apply the score at generation (every row must look winner-like before it
      enters the book).
+
+## Addendum 155 (2026-10-07): study 48e (a winner-likeness gate at generation): NO DIFFERENCE on both co-primary decisions, leaning positive; the cheapest form of the idea, not armed
+
+**Setup.**
+- **The question.** The operator (10-07): "before a lineup is added to the corpus it needs to appear winner like ... I
+  think that would be a good next test today". Studies 48b and 48d (Addenda 153–154) used study 48's score on rows
+  already built; this gate acts while the book is built.
+- **The arms.** His live Week-5 book and production's 15 spares (41 rows, one state: the winners' mix, round-robin, limit
+  4, QB cap 5, caps 13 / 6, no term), built three ways:
+  - **LIVE:** mix_fill's round-robin, called.
+  - **GATE:** every peeked row is scored by study 48's walk-forward model. Below tau (the median score of the training
+    top-1% rows of the prior slates), the row is banned for that peek and the cell re-solved, up to 10 tries; with no
+    pass, the best try is committed (counted). The spares are gated too.
+  - **GATE_SOFT:** the same with tau at the 25th percentile, the outside reviewer's "safer form".
+- **Two co-primary decisions** (Bonferroni, each two-sided 0.975): the operator's rule when the agents disagree is to test
+  both.
+- **The real-field evidence, stated before the run:** the laptop's Week 2–4 whole-field check found no support for the
+  score among high-projection lineups (AUC .49 / .54 / .39). So the prereg declared a harness PASS necessary, not
+  sufficient: no Week-5 arming on any read, and study 48f (the real-field refit, graded prospectively) decides.
+- **Production parity, done before the read:** the frozen live threshold −4.49767187489062 (`LIVE_TAU.json` `d1c8aaaa`;
+  MODEL_all53, history 0); production's gate (`production/winner-gate-20261007` @ `7467b8ce`) reproduces the private
+  fixture's 312 try scores and 41 picks.
+- **Preregistration:** `reports/2026-10-07-prereg-study48e-winner-gate.md` (frozen `c636ef86`, sha256 `8370a8ca…`).
+- **Panel:** banks 1539–1544, B 20,000, seed 20261031.
+- **Read and reproduced:** read by the reviewer and **reproduced byte-identically by the laptop** (raw files equal to the
+  RAW_MANIFEST).
+  - Reader `c4c92c18`; READ `81e7bd23`.
+  - The confirmatory census (`b733e8c`, `a37c5e4d`) was committed before the READ (`3dd2be5`).
+  - LEDGER row lab `3efd65a`.
+
+**Reader output (verbatim):**
+```
+STUDY 48E READER  sha256 c4c92c18032da02281887cef2fe23a7bd788c953973f8bd7a415ad4b8a7e8f9b
+DIRECTION: P(>= 1 big seat) per slate (the mean over its banks); every difference is ARM - REFERENCE; POSITIVE favours the first arm.
+slates 36  banks [1539, 1540, 1541, 1542, 1543, 1544]  B 20000  seed 20261031  two co-primary decisions (GATE - LIVE, GATE_SOFT - LIVE) on the CALIBRATED field (v2), each two-sided 0.975 (Bonferroni), guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only
+arms (definitions, R, study 48's sha, its training table, live settings, QB cap, objective): [{"GATE": 0.5, "GATE_SOFT": 0.25, "LIVE": null}, 10, "c22d28114ab4b463b6842594cb2ff7ca1babf41e28015c7242b21baedb1bc67c", "66272167b80dc08b008060fa921f9cb67abecb2c12c8a17394b75d9670423ca1", {"fill": "rr", "max_shared": 4}, 5, "player_mean (no ownership term)"]
+
+== GATE vs LIVE  [DECISION (tau at the median of the training top-1% scores); every built row must look winner-like; the calibrated field]
+  PRIMARY P(>= 1 big seat) per slate +0.01150  [-0.05456, +0.07576] (two-sided 0.975)  seasons 2023 +0.01022, 2024 +0.01279
+  GUARD 1 mean entry pct +0.01019  one-sided lower -0.00032  (must exceed -0.015)
+  GUARD 2 expected big seats 0.61101 vs 0.57371  ratio 1.065  (must be >= 0.80)
+  GATE dealt identical to LIVE: 0.023 of slate-banks
+  ->  NO DIFFERENCE
+
+== GATE_SOFT vs LIVE  [DECISION (tau at the 25th percentile); every built row must look winner-like; the calibrated field]
+  PRIMARY P(>= 1 big seat) per slate +0.02065  [-0.04269, +0.08219] (two-sided 0.975)  seasons 2023 +0.01002, 2024 +0.03129
+  GUARD 1 mean entry pct +0.00673  one-sided lower -0.00023  (must exceed -0.015)
+  GUARD 2 expected big seats 0.59646 vs 0.57371  ratio 1.040  (must be >= 0.80)
+  GATE_SOFT dealt identical to LIVE: 0.069 of slate-banks
+  ->  NO DIFFERENCE
+
+== STUDY: no decision passes: GATE NO DIFFERENCE; GATE_SOFT NO DIFFERENCE
+
+== EXPLORATORY (never decision-bearing; two-sided 0.95)
+  GATE - LIVE (tau at the median, the l02 field): +0.00713  [-0.05275, +0.06482]  seasons 2023 +0.00268, 2024 +0.01159
+  GATE_SOFT - LIVE (tau at the 25th percentile, the l02 field): +0.02034  [-0.03752, +0.07681]  seasons 2023 +0.00785, 2024 +0.03283
+
+secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; the book's rows are pre-lock facts):
+  LIVE       v2: P(>=1 big) 0.33690  expected big seats 0.57371  P(>=2) 0.14106  entry pct 0.51139
+             l02: P(>=1 big) 0.36619  expected big seats 0.64310  entry pct 0.51992
+             book: gate pass rate nan  fallbacks nan  projection per row 128.11  score -4.5258  predicted ownership 78.26%  ownership rank 0.9379  salary 49968
+  GATE       v2: P(>=1 big) 0.34840  expected big seats 0.61101  P(>=2) 0.15807  entry pct 0.52157
+             l02: P(>=1 big) 0.37333  expected big seats 0.68276  entry pct 0.53024
+             book: gate pass rate 0.754  fallbacks 6.39  projection per row 127.75  score -4.3520  predicted ownership 80.54%  ownership rank 0.9425  salary 49973
+  GATE_SOFT  v2: P(>=1 big) 0.35755  expected big seats 0.59646  P(>=2) 0.14054  entry pct 0.51812
+             l02: P(>=1 big) 0.38653  expected big seats 0.66595  entry pct 0.52661
+             book: gate pass rate 0.949  fallbacks 1.33  projection per row 127.92  score -4.4214  predicted ownership 79.69%  ownership rank 0.9409  salary 49970
+```
+
+**Reading.**
+1. **NO DIFFERENCE on both decisions, leaning positive in both seasons.** GATE +0.012 [−0.055, +0.076]; GATE_SOFT +0.021
+   [−0.043, +0.082].
+2. **The cheapest form of the winner-likeness idea in the harness.** The re-peeked rows cost little projection (−0.36 and
+   −0.19 points per row, against −1.72 for 48d's selection). The mean finish did not fall (+0.010 and +0.007), and
+   expected big seats rose slightly (ratios 1.065 and 1.040).
+3. **The outside reviewer's re-chalk is real but small.** Predicted ownership rose 2.3 and 1.4 points per row, higher
+   on 84% and 69% of slate-banks. The score's largest coefficient is the ownership rank.
+4. **Not armed.**
+   - By the frozen §5 the gate stays OFF. Production's `--winner-gate` (parity-pinned, not merged) stays unarmed.
+   - The winner-likeness line now rests on study 48f: the score refit on the real 2026 fields, graded W5–W8 with the
+     week as the unit.
