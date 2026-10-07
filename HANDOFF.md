@@ -12,6 +12,31 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-07 (11:40 CDT) — Study 53 records merged; Friday's A3 arms the matchup block; the Neo4j result facts built and verified against the outside reviewer's W1–4 reference
+
+- **Study 53 records:** lab LEDGER 5e0c9ce verified (7 cells; every READ number and both hashes present; after study 52's row).
+  The prop-ladder closure row 18ea688 is the reviewer's. Addendum 161 b62c2b35 verified. Merged into integration at
+  **272d163a** with the frozen prereg (file de2c5181) and the prospective field-pattern reading (4ceada3f, re-pinned ce13626d
+  to the monitor 881ad086).
+- **Friday revised with the reviewer** (checklist 6742434b): Saturday's slot is matchup or none.
+  - Friday's A3 arms the MATCHUP block, with the binding 6e gate on that snapshot.
+  - Thursday still writes both files.
+  - The cheap file goes through Friday's T-70 union only if he overrides (host script w5_matchup_union_check.sh, now generic:
+    it swaps whichever file is not armed).
+  - Study list 52 (cheap-boom model) DROPPED: the 2022–24 slates are read for this lever, and reopening happens only on new
+    weeks.
+- **The decision sheet** (row 21, 061a44e4) went to the operator by SendUserFile.
+- **The Neo4j result facts (study list 55), integration 1f82932d, for the reviewer's review:**
+  - Game: pre_total_rank (game_total_ranks, the monitor's rule; lbl_qb_game_rank uses it too); out_best_stack_pts /
+    out_is_best_stack_game; out_field_qb_share / out_top1_qb_share (the whole field, from BigQuery).
+  - Lineup / PoolLineup: lbl_stack_n / lbl_bring_n / lbl_max_game. lbl_flex_pos now comes from the position counts.
+  - **Verified:** all 50 W1–4 games equal the outside reviewer's reference on all five facts. The label counts over every
+    real top-1% lineup (8,341 / 1,729 / 1,620 / 1,613) equal their top1 column exactly (scratchpad verify_result_facts.py:
+    ALL MATCH).
+  - W4 loader dry run: best stack 130.5 in total-rank 3, QB resolved 0.993.
+  - Tests: 63 pass across the graph test files.
+  - Monday: W5 loads with them; a one-time facts-only re-run for W1–4 (checklist).
+
 ## 2026-10-07 (11:31 CDT) — Study 53 READ reproduced: NEITHER cheap block is enterable (2022 contradicted, a knife-edge); Saturday's slot is matchup or none; the outside reviewer's brainstorm adopted where ready
 
 **Study 53 READ** (lab fd9687d; the confirmatory census d611a9d committed first; scored run 10:51–11:27, banks 1569–1574):
