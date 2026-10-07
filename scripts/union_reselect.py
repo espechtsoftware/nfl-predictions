@@ -733,6 +733,82 @@ def apply_winner_order(book: list[int], rosters: list, fr: pd.DataFrame, inputs_
                  "order": order, "moved": int(sum(o != i for i, o in enumerate(order))), "hist": "0 (live; study 48's port notes)"}
 
 
+def winner_select(book_rows: list, book_cells: list[str], spares: list, fr: pd.DataFrame, inputs_path: Path,
+                  weights: list[int], limits: tuple) -> tuple[list, list[str], list, dict]:
+    """Study 48d's SEL_CELL on the live book (lab s48d_winner_select.py, `selections` + `interleaved`): score the book rows
+    (indices 0..k-1, book order) and the spares (k.., build order); per cell keep its book count of the most winner-like
+    rows (ties: the book row, then the index); within a cell, index order; then study 28's entry-weighted interleave on the
+    head weights. The rows not chosen become the spares, in index order. Production's caps and overlap are re-checked on
+    the chosen book."""
+    from collections import Counter as _C
+    from itertools import combinations as _comb
+    from nfl_dfs.inference import winner_like as WL
+    if not spares:
+        raise ValueError("no spares were built (--mix-spares 0): nothing to select from")
+    missing = [c for c in WL.FRAME_FACTS if c not in fr.columns]
+    if missing:
+        raise ValueError(f"the frame lacks the model's columns {missing}")
+    inp = pd.read_csv(inputs_path, dtype={"id": str}).drop_duplicates("id").set_index("id")
+    cols = list(dict.fromkeys(["pos", "team", "opp", "game_id", "salary", "game_total", *WL.FRAME_FACTS]))
+    players = fr.assign(id=fr["id"].astype(str)).drop_duplicates("id").set_index("id")[cols]
+    players = players.join(inp[["own_proj", *WL.LAG_COLUMNS]], how="left")
+    rows_all = [[str(x) for x in r] for r in book_rows] + [[str(x) for x in ids] for ids, _ in spares]
+    cells_all = list(book_cells) + [c for _, c in spares]
+    scores, _ = WL.score_book(rows_all, players)
+    k, n = len(book_rows), len(rows_all)
+    key = lambda i: (-scores[i], i >= k, i)                                            # noqa: E731
+    names = list(MIX_CELLS)
+    book_count = _C(book_cells)
+    sel = {c: sorted(sorted([i for i in range(n) if cells_all[i] == c], key=key)[:book_count.get(c, 0)]) for c in names}
+    got = [len(sel[c]) for c in names]
+    seq = mix_interleave(got, [MIX_CELLS[c][0] for c in names], weights)
+    ptr = [0] * len(names); order = []
+    for j in seq:
+        order.append(sel[names[j]][ptr[j]]); ptr[j] += 1
+    if sorted(order) != sorted(i for c in names for i in sel[c]) or len(order) != k:
+        raise ValueError(f"the interleave placed {len(order)} of {k} rows")
+    chosen = [rows_all[i] for i in order]
+    xcap, dcap, qcap, ms = limits
+    pos = dict(zip(players.index, players.pos.astype(str)))
+    cnt = _C(p for r in chosen for p in r)
+    qb = _C(next(p for p in r if pos.get(p) == "QB") for r in chosen)
+    shared = max(len(set(a) & set(b)) for a, b in _comb(chosen, 2))
+    bad = []
+    if xcap is not None and max(v for p, v in cnt.items() if pos.get(p) != "DST") > xcap:
+        bad.append("player cap")
+    if dcap is not None and max((v for p, v in cnt.items() if pos.get(p) == "DST"), default=0) > dcap:
+        bad.append("DST cap")
+    if qcap is not None and max(qb.values()) > qcap:
+        bad.append("QB cap")
+    if shared > ms:
+        bad.append(f"overlap {shared} > {ms}")
+    if bad:
+        raise ValueError(f"the chosen book breaks {bad}")
+    taken = set(order)
+    new_spares = [(rows_all[i], cells_all[i]) for i in range(n) if i not in taken]
+    meta = {"model_sha256": sha256_file(WL.MODEL_PATH), "inputs": str(inputs_path), "inputs_sha256": sha256_file(Path(inputs_path)),
+            "scores_built_order": [round(float(x), 6) for x in scores], "chosen_built_index_in_book_order": order,
+            "spares_in": int(sum(i >= k for i in order)), "rule": "SEL_CELL (study 48d)", "hist": "0 (live)"}
+    return chosen, [cells_all[i] for i in order], new_spares, meta
+
+
+def selected_entry_shares(cells: list[str], weights: list[int]) -> dict:
+    """The entry-weighted cell shares of the book as CHOSEN (mix_rows' own formula, over the selected rows' cells)."""
+    dealt, tot = Counter(), 0
+    for r, c in enumerate(cells):
+        w = weights[r] if r < len(weights) else 0
+        dealt[c] += w; tot += w
+    return {c: round(dealt[c] / tot, 4) if tot else None for c in MIX_CELLS}
+
+
+def winner_select_or_fallback(book_rows, book_cells, spares, fr, inputs_path, weights, limits):
+    """winner_select, or -- on any failure -- the book and spares as built, with the reason (LOUD; never stops a union)."""
+    try:
+        return winner_select(book_rows, book_cells, spares, fr, inputs_path, weights, limits)
+    except (ValueError, KeyError, OSError, SystemExit) as exc:
+        return book_rows, book_cells, spares, {"not_applied": str(exc)}
+
+
 def winner_order_or_fallback(book: list[int], rosters: list, fr: pd.DataFrame, inputs_path: Path) -> tuple[list[int], dict]:
     """apply_winner_order, or -- on any failure -- the book's own order with the reason (printed LOUDLY by the caller and
     recorded in the receipt and winner_order_fallback.txt). The order is a refinement: it never stops a union."""
@@ -801,6 +877,10 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--mix-cover-games", type=int, default=0,
                     help="with --main mix: before the fill, one A1 row with its QB from each of the top-N games by pre-lock "
                          "total, counted toward A1's quota (study 43; default 0 = off)")
+    ap.add_argument("--winner-select", type=Path, default=None,
+                    help="study 48d: build the MIX book with its spares, then keep, per cell, its book count of the most "
+                         "winner-like rows (study 48's frozen score) among the cell's book rows and spares; the rest become "
+                         "the spares. The file is scripts/winner_like_inputs.py's inputs for THIS frame (default off)")
     ap.add_argument("--winner-order", type=Path, default=None,
                     help="study 48b: re-order the main book by study 48's winner-likeness score (descending, ties keep the "
                          "book order) before writing book.csv; the file is scripts/winner_like_inputs.py's per-player inputs "
@@ -847,6 +927,10 @@ def main(argv: list[str] | None = None) -> int:
         raise SystemExit("--rehearsal needs --out outside --live-dir")
     if a.main_own_tilt and a.main not in ("pmo_x50", "mix"):
         raise SystemExit("--main-own-tilt is defined for --main pmo_x50 / mix (the term sits in the optimizer's objective)")
+    if a.winner_select is not None and (a.main != "mix" or a.mix_portfolio != "mix" or not a.mix_spares or a.winner_order is not None
+                                        or a.main_own_tilt or a.mix_rs_rows or a.mix_cover_games):
+        raise SystemExit("--winner-select needs --main mix --mix-portfolio mix with spares, no ownership term, no half-and-half, "
+                         "no cover, and not --winner-order (study 48d)")
     if a.mix_rs_rows and (a.main != "mix" or a.mix_portfolio != "mix" or a.mix_fill != "rr" or a.mix_cover_games
                           or a.mix_rs_rows not in (9, 13, 17) or a.entries != 26):
         raise SystemExit("--mix-rs-rows N (9, 13 or 17) needs --main mix, --mix-portfolio mix, --mix-fill rr, no cover and "
@@ -986,6 +1070,19 @@ def main(argv: list[str] | None = None) -> int:
                                                                        cover_games=a.mix_cover_games, rs_rows=a.mix_rs_rows,
                                                                        spares=0 if bonus else a.mix_spares)
             spare_rows = plain_spares
+            if a.winner_select is not None:                  # study 48d: choose the book by the winner-likeness score
+                plain_rows, plain_cells, spare_rows, sel_meta = winner_select_or_fallback(
+                    plain_rows, plain_cells, spare_rows, fr, a.winner_select, weights,
+                    (xcap, dcap, qcap, a.mean_max_shared))
+                mix_meta["winner_select"] = sel_meta
+                if "not_applied" not in sel_meta:            # the reviewer's NOTE 1: the as-built fields kept apart, the shares recomputed
+                    mix_meta["pre_selection"] = {f: mix_meta.pop(f) for f in ("commit_order", "entry_shares_before_overlap_limit")
+                                                 if f in mix_meta}
+                    mix_meta["entry_shares_before_overlap_limit"] = selected_entry_shares(plain_cells, weights)
+                if "not_applied" in sel_meta:
+                    print(f"\n!!! WINNER SELECTION NOT APPLIED: {sel_meta['not_applied']} -- the book stands as built\n")
+                else:
+                    print(f"WINNER SELECTION: {sel_meta['spares_in']} spare(s) replace book rows (model {sel_meta['model_sha256'][:12]})")
             plain_tags = [TAG_PREFIX + c for c in plain_cells]; main_tags = plain_tags
             mix_meta.update({"plan": str(a.mix_plan), "plan_sha256": sha256_file(a.mix_plan), "layout": a.mix_layout,
                              "weights_nonzero_ranks": sum(1 for w in weights if w), "weights_entries": sum(weights)})

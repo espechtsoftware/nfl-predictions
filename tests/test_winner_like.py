@@ -112,3 +112,73 @@ def test_a_frame_missing_a_model_column_keeps_the_book_order_and_says_why():
         assert "not_applied" not in meta
         book, meta = ur.winner_order_or_fallback([0, 1], rosters, fr.drop(columns=["wopr_l4"]), f)   # ... and one without wopr
     assert book == [0, 1] and "wopr_l4" in meta["not_applied"]
+
+
+# ------------------------------------------------ study 48d: SEL_CELL (lab s48d_winner_select.py d746010, verbatim reference)
+def _lab_selections(score, cells, k_book, names):
+    from collections import Counter
+    n = len(score)
+    key = lambda i: (-score[i], i >= k_book, i)                                     # noqa: E731
+    book_count = Counter(cells[:k_book])
+    cell_sel = {c: sorted([i for i in range(n) if cells[i] == c], key=key)[:book_count.get(c, 0)] for c in names}
+    return {c: sorted(v) for c, v in cell_sel.items()}
+
+
+def _lab_interleaved(by_cell, weights, names, quotas):
+    from nfl_dfs.inference.mix_shapes import interleave
+    got = [len(by_cell.get(c, [])) for c in names]
+    seq = interleave(got, quotas, weights)
+    ptr = [0] * len(names); order = []
+    for j in seq:
+        order.append(by_cell[names[j]][ptr[j]]); ptr[j] += 1
+    return order
+
+
+def test_winner_select_equals_the_labs_sel_cell(monkeypatch):
+    """Production's winner_select picks and orders exactly as the lab's selections + interleaved (SEL_CELL), on random
+    scores and cells; the chosen book keeps the caps; the rest become the spares."""
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import union_reselect as ur
+    from nfl_dfs.inference.mix_shapes import MIX_CELLS
+    names = list(MIX_CELLS); quotas = [MIX_CELLS[c][0] for c in names]
+    rng = np.random.default_rng(5)
+    weights = [10, 9, 3, 3, 2, 2] + [1] * 20
+    for trial in range(20):
+        k, n = 26, 41
+        cells = list(rng.choice(names, size=n, p=[0.3, 0.14, 0.28, 0.28]))
+        while any(cells[:k].count(c) == 0 for c in names):
+            cells = list(rng.choice(names, size=n, p=[0.3, 0.14, 0.28, 0.28]))
+        scores = rng.normal(size=n).round(2)                                      # rounding makes ties happen
+        rows = [[f"r{i}_{j}" for j in range(9)] for i in range(n)]
+        monkeypatch.setattr(W, "score_book", lambda rws, players, model=None, _s=scores: (np.asarray(_s[:len(rws)]), None))
+        fr = pd.DataFrame({"id": [p for r in rows for p in r], "pos": (["QB"] + ["WR"] * 7 + ["DST"]) * n, "team": "T",
+                           "opp": "O", "game_id": "g", "salary": 5000.0, "game_total": 44.0,
+                           **{c: 0.0 for c in W.FRAME_FACTS if c != "game_total"}})
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            f = Path(d) / "inp.csv"
+            pd.DataFrame({"id": fr.id, "own_proj": 1.0, "td_l4": 0, "td_l8": 0, "pass_td_l4": 0, "att_l4": 0}).to_csv(f, index=False)
+            chosen, ccells, spares, meta = ur.winner_select(rows[:k], cells[:k], [(rows[i], cells[i]) for i in range(k, n)], fr, f,
+                                                           weights, (13, 6, 5, 9))
+        want = _lab_interleaved(_lab_selections(scores, cells, k, names), weights, names, quotas)
+        assert meta["chosen_built_index_in_book_order"] == want, trial
+        assert chosen == [rows[i] for i in want] and ccells == [cells[i] for i in want]
+        assert [ids for ids, _ in spares] == [rows[i] for i in range(n) if i not in set(want)]
+        assert sorted(cells[:k]) == sorted(ccells)                               # the shape quotas hold
+
+
+def test_winner_select_falls_back_without_spares_and_refuses_with_the_order():
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import union_reselect as ur
+    rows, cells, spares, meta = ur.winner_select_or_fallback([["a"] * 9], ["A1"], [], pd.DataFrame(), Path("x"), [1], (13, 6, 5, 4))
+    assert "no spares" in meta["not_applied"] and rows == [["a"] * 9]
+
+
+def test_selected_shares_use_the_chosen_cells_and_the_as_built_ones_are_kept_apart():
+    """The reviewer's NOTE 1 (10-07): after a selection the book-level shares describe the book as chosen."""
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import union_reselect as ur
+    sh = ur.selected_entry_shares(["A1", "B", "A1", "C"], [3, 1, 1, 0, 0])
+    assert sh["A1"] == 0.8 and sh["B"] == 0.2 and sh["C"] == 0.0 and sh["A2"] == 0.0
+    src = (ROOT / "scripts" / "union_reselect.py").read_text()
+    assert 'mix_meta["pre_selection"]' in src and '"commit_order", "entry_shares_before_overlap_limit"' in src

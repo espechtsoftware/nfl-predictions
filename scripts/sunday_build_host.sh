@@ -403,7 +403,14 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   # ownership (the term's FP export when there is one, else this run's own capture + export) and the players' prior-game
   # touchdowns / attempts (scripts/winner_like_inputs.py), then the union re-orders the main book by study 48's frozen
   # score. Any failure keeps the book's own order, LOUDLY (a banner, a fallback file copied with the union, the receipt).
-  if [[ "${UNION_WINNER_ORDER:-0}" == "1" && "${UNION_MAIN:-mean}" == "mix" ]]; then
+  # Study 48d's selection (UNION_WINNER_SELECT=1; default off) uses the same inputs; the two are never on together.
+  WIN_FLAG=""
+  [[ "${UNION_WINNER_ORDER:-0}" == "1" ]] && WIN_FLAG="--winner-order"
+  [[ "${UNION_WINNER_SELECT:-0}" == "1" ]] && WIN_FLAG="--winner-select"
+  if [[ "${UNION_WINNER_ORDER:-0}" == "1" && "${UNION_WINNER_SELECT:-0}" == "1" ]]; then
+    echo "WINNER ORDER and WINNER SELECT are both on: refusing both (they are alternatives; check_week_runtime refuses this too)"; WIN_FLAG=""
+  fi
+  if [[ -n "$WIN_FLAG" && "${UNION_MAIN:-mean}" == "mix" ]]; then
     WIN_OWN=""; WIN_WHY=""
     if [[ -n "$OWN_SRC" && "$(basename "$OWN_SRC")" == ownership_fp-* ]]; then
       WIN_OWN="$OWN_SRC"
@@ -422,15 +429,15 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
     if [[ -n "$WIN_OWN" ]]; then
       if ( cd "$PROD" && PYTHONPATH="$PROD/src" timeout 180 "$PROD_PY" scripts/winner_like_inputs.py --season "$SEASON" --week "$WEEK" \
              --frame "$K90_DIR/frame.parquet" --own "$WIN_OWN" --out "$OUT/winner_inputs-$RUN_TAG.csv" ) 2>&1 | tee "$OUT/winner_inputs-$RUN_TAG.txt"; then
-        UNION_ARGS+=(--winner-order "$OUT/winner_inputs-$RUN_TAG.csv")
-        echo "WINNER ORDER for $RUN_TAG: ON (study 48b; FP ownership $(basename "$WIN_OWN"))"
+        UNION_ARGS+=("$WIN_FLAG" "$OUT/winner_inputs-$RUN_TAG.csv")
+        echo "WINNER ${WIN_FLAG#--winner-} for $RUN_TAG: ON (studies 48b / 48d; FP ownership $(basename "$WIN_OWN"))"
       else
         WIN_WHY="inputs: $(grep -h 'REFUSED\|Error' "$OUT/winner_inputs-$RUN_TAG.txt" | tail -1)"
       fi
     fi
     if [[ -n "$WIN_WHY" ]]; then
       printf '\n%s\n%s\n%s\n\n' "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" \
-        "!!! WINNER ORDER NOT APPLIED for $RUN_TAG: ${WIN_WHY} -- the book keeps its own order" \
+        "!!! WINNER ${WIN_FLAG#--winner-} NOT APPLIED for $RUN_TAG: ${WIN_WHY} -- the book stands as built" \
         "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
       printf '%s run %s: winner order NOT applied: %s\n' "$(date -u +%FT%TZ)" "$RUN_TAG" "$WIN_WHY" >> "$OUT/winner_order_fallback-$RUN_TAG.txt"
     fi
