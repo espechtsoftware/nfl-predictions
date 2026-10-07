@@ -6099,3 +6099,109 @@ secondaries (slate means; v2 = the calibrated field, l02 = studies 24-45's field
    - Friday's rehearsal at 13.
 6. **Multiplicity.** Many studies have read these 36 slates. A +0.032 whose interval touches 0 is suggestive, not proof.
    Study 38's live FP weeks and the weekly real-field benchmark are the checks that follow.
+
+## Addendum 150 (2026-10-06): study 46c (the half-and-half book on the 2022 slates — the out-of-sample check): CONTRADICTS at the frozen go / no-go — the 2022 estimate is negative; the half book stays off for Week 5; pooled over 2022–24 it is a wash
+
+**Setup.**
+- **The trigger.** Study 46 (Addendum 149) read the half book NO DIFFERENCE, leaning positive in 2023–24. The
+  operator's Week-5 answer (10-06, through the laptop) was "Yes, pending 2022 check".
+- **The 2022 slates.** The 17 2022 k1 slates with real Millionaire ownership had never been read on this question.
+  Studies 37–46 use 2023–24 because their ownership-PREDICTION arms need it; study 46's arms use none.
+- **Disclosed:** proposed after study 46's read, as a confirmation.
+- **The code.** Study 46's frozen experiment is imported, its sha `30647fef` asserted, with only the season guard
+  opened to 2022. Its census and frozen reader (`8fb926b1`) are unchanged.
+- **The go / no-go**, frozen before the read in the laptop's wording:
+  - CONTRADICTS if the 2022 read is WORSE, or its point estimate of HALF − LIVE is below 0. Then `MIX_RS` stays 0.
+  - Otherwise `MIX_RS=13` goes in.
+- **Preregistration:** `reports/2026-10-07-prereg-study46c-half-half-2022.md` (frozen `f6baebd2`, sha256 `2f7982e3…`).
+- **Panel:** banks 1509–1514 on the 2022 slates (never computed before), B 20,000, seed 20261026.
+- **The confirmatory census holds:** QBs 7.76 / 10.12, distinct 33.0 / 42.2, −0.73 per dealt lineup; no relaxed rows,
+  passes, drops or short books.
+- **Read and reproduced:** read by the reviewer and **reproduced byte-identically by the laptop** (diff empty, at lab
+  `05b4580`; raw 2022 and pool files equal to the RAW_MANIFEST).
+  - READ `e90b7afa`; pool READ `40574df4`.
+  - The confirmatory census (`9dafd73`) was committed before the READ.
+  - Lab: nfl2 `production/s46c-half-half-2022-20261006`; LEDGER row `7aebf46`.
+
+**Reader output on the 2022 slates (verbatim; the PRIMARY):**
+```
+STUDY 46 READER  sha256 8fb926b198bff9fb8c7775e78f8863bb82f61bcf744677a163809fd843249b50
+DIRECTION: P(>= 1 big seat) per slate (the mean over its banks); every difference is ARM - REFERENCE; POSITIVE favours the first arm.
+slates 17  banks [1509, 1510, 1511, 1512, 1513, 1514]  B 20000  seed 20261026  primary MIXT_HALF - MIXT_LIVE on the CALIBRATED field (v2), two-sided 0.95, guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only
+arms (RS rows, RS tiers, live settings, QB cap, objective): [{"MIXT_HALF": 13, "MIXT_LIVE": 0, "MIXT_THIRD": 9, "MIXT_TWOTHIRDS": 17}, {"13": [3, [[3, 1], [2, 3]], 7, [[7, 1], [6, 2], [5, 4], [4, 7], [3, 12], [2, 22]]], "17": [4, [[4, 1], [3, 2], [2, 4]], 9, [[9, 1], [8, 2], [7, 3], [6, 4], [5, 7], [4, 11], [3, 17], [2, 27]]], "9": [3, [[3, 1], [2, 2]], 6, [[6, 1], [5, 1], [4, 3], [3, 7], [2, 15]]]}, {"fill": "rr", "max_shared": 4}, 5, "player_mean (no ownership term)"]
+
+== MIXT_HALF vs MIXT_LIVE  [DECISION: 13 regulars' rows + 13 live rows, one state; the calibrated field]
+  PRIMARY P(>= 1 big seat) per slate -0.02268  [-0.09830, +0.03754]  seasons 2022 -0.02268
+  GUARD 1 mean entry pct -0.00020  one-sided lower -0.00772  (must exceed -0.015)
+  GUARD 2 expected big seats 0.35806 vs 0.39961  ratio 0.896  (must be >= 0.80)
+  MIXT_HALF dealt identical to MIXT_LIVE: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+
+== EXPLORATORY (never decision-bearing)
+  MIXT_THIRD - MIXT_LIVE (9 regulars' rows): -0.00438  [-0.08869, +0.06430]  seasons 2022 -0.00438
+  MIXT_TWOTHIRDS - MIXT_LIVE (17 regulars' rows): -0.01734  [-0.07122, +0.02555]  seasons 2022 -0.01734
+  MIXT_HALF - MIXT_LIVE (13 regulars' rows, the l02 field): -0.01789  [-0.09029, +0.04067]  seasons 2022 -0.01789
+  MIXT_THIRD - MIXT_LIVE (9 regulars' rows, the l02 field): -0.00079  [-0.08341, +0.06747]  seasons 2022 -0.00079
+  MIXT_TWOTHIRDS - MIXT_LIVE (17 regulars' rows, the l02 field): -0.01492  [-0.06692, +0.02636]  seasons 2022 -0.01492
+
+the fields' lines (DK points, slate-bank means): v2 mean 125.56 p99 185.61 top-95 208.46  l02 mean 124.83 p99 183.63 top-95 206.32
+secondaries (slate means; v2 = the calibrated field, l02 = studies 24-45's field):
+  MIXT_LIVE       v2: P(>=1 big) 0.26667  expected big seats 0.39961  P(>=2) 0.09926  entry pct 0.45221  (live rows 0.45221, regulars' rows nan)
+                  l02: P(>=1 big) 0.28432  expected big seats 0.45052  entry pct 0.45950  |  QBs 7.76  distinct 33.0  dealt projection 132.77
+  MIXT_HALF       v2: P(>=1 big) 0.24399  expected big seats 0.35806  P(>=2) 0.08183  entry pct 0.45201  (live rows 0.48936, regulars' rows 0.41322)
+                  l02: P(>=1 big) 0.26643  expected big seats 0.41003  entry pct 0.45933  |  QBs 10.12  distinct 42.2  dealt projection 132.05
+  MIXT_THIRD      v2: P(>=1 big) 0.26229  expected big seats 0.41107  P(>=2) 0.10541  entry pct 0.45409  (live rows 0.48489, regulars' rows 0.39421)
+                  l02: P(>=1 big) 0.28353  expected big seats 0.46856  entry pct 0.46152  |  QBs 8.61  distinct 38.9  dealt projection 132.25
+  MIXT_TWOTHIRDS  v2: P(>=1 big) 0.24933  expected big seats 0.36056  P(>=2) 0.08742  entry pct 0.45148  (live rows 0.48819, regulars' rows 0.43260)
+                  l02: P(>=1 big) 0.26940  expected big seats 0.40825  entry pct 0.45890  |  QBs 10.63  distinct 44.0  dealt projection 132.03
+```
+
+**Reader output on the 53-slate pool (verbatim; EXPLORATORY, not a fresh test):**
+```
+STUDY 46 READER  sha256 8fb926b198bff9fb8c7775e78f8863bb82f61bcf744677a163809fd843249b50
+DIRECTION: P(>= 1 big seat) per slate (the mean over its banks); every difference is ARM - REFERENCE; POSITIVE favours the first arm.
+slates 53  banks [1509, 1510, 1511, 1512, 1513, 1514]  B 20000  seed 20261026  primary MIXT_HALF - MIXT_LIVE on the CALIBRATED field (v2), two-sided 0.95, guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only
+arms (RS rows, RS tiers, live settings, QB cap, objective): [{"MIXT_HALF": 13, "MIXT_LIVE": 0, "MIXT_THIRD": 9, "MIXT_TWOTHIRDS": 17}, {"13": [3, [[3, 1], [2, 3]], 7, [[7, 1], [6, 2], [5, 4], [4, 7], [3, 12], [2, 22]]], "17": [4, [[4, 1], [3, 2], [2, 4]], 9, [[9, 1], [8, 2], [7, 3], [6, 4], [5, 7], [4, 11], [3, 17], [2, 27]]], "9": [3, [[3, 1], [2, 2]], 6, [[6, 1], [5, 1], [4, 3], [3, 7], [2, 15]]]}, {"fill": "rr", "max_shared": 4}, 5, "player_mean (no ownership term)"]
+
+== MIXT_HALF vs MIXT_LIVE  [DECISION: 13 regulars' rows + 13 live rows, one state; the calibrated field]
+  PRIMARY P(>= 1 big seat) per slate +0.01426  [-0.02018, +0.04642]  seasons 2022 -0.02268, 2023 +0.04266, 2024 +0.02075
+  GUARD 1 mean entry pct -0.00680  one-sided lower -0.01111  (must exceed -0.015)
+  GUARD 2 expected big seats 0.47724 vs 0.46949  ratio 1.017  (must be >= 0.80)
+  MIXT_HALF dealt identical to MIXT_LIVE: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+
+== EXPLORATORY (never decision-bearing)
+  MIXT_THIRD - MIXT_LIVE (9 regulars' rows): +0.00708  [-0.03010, +0.04316]  seasons 2022 -0.00438, 2023 +0.02643, 2024 -0.00144
+  MIXT_TWOTHIRDS - MIXT_LIVE (17 regulars' rows): +0.00832  [-0.02212, +0.03864]  seasons 2022 -0.01734, 2023 +0.01979, 2024 +0.02108
+  MIXT_HALF - MIXT_LIVE (13 regulars' rows, the l02 field): +0.01263  [-0.02073, +0.04410]  seasons 2022 -0.01789, 2023 +0.04081, 2024 +0.01328
+  MIXT_THIRD - MIXT_LIVE (9 regulars' rows, the l02 field): +0.00563  [-0.03151, +0.04234]  seasons 2022 -0.00079, 2023 +0.02730, 2024 -0.00996
+  MIXT_TWOTHIRDS - MIXT_LIVE (17 regulars' rows, the l02 field): +0.00620  [-0.02439, +0.03673]  seasons 2022 -0.01492, 2023 +0.01657, 2024 +0.01578
+
+the fields' lines (DK points, slate-bank means): v2 mean 127.30 p99 185.32 top-95 206.82  l02 mean 126.56 p99 183.69 top-95 205.18
+secondaries (slate means; v2 = the calibrated field, l02 = studies 24-45's field):
+  MIXT_LIVE       v2: P(>=1 big) 0.28791  expected big seats 0.46949  P(>=2) 0.11302  entry pct 0.49221  (live rows 0.49221, regulars' rows nan)
+                  l02: P(>=1 big) 0.31350  expected big seats 0.52781  entry pct 0.50015  |  QBs 8.03  distinct 32.0  dealt projection 129.92
+  MIXT_HALF       v2: P(>=1 big) 0.30217  expected big seats 0.47724  P(>=2) 0.11387  entry pct 0.48541  (live rows 0.51702, regulars' rows 0.45258)
+                  l02: P(>=1 big) 0.32613  expected big seats 0.53610  entry pct 0.49326  |  QBs 10.21  distinct 41.3  dealt projection 129.25
+  MIXT_THIRD      v2: P(>=1 big) 0.29499  expected big seats 0.47799  P(>=2) 0.12087  entry pct 0.48898  (live rows 0.51382, regulars' rows 0.44067)
+                  l02: P(>=1 big) 0.31913  expected big seats 0.54105  entry pct 0.49690  |  QBs 8.85  distinct 38.1  dealt projection 129.41
+  MIXT_TWOTHIRDS  v2: P(>=1 big) 0.29623  expected big seats 0.46415  P(>=2) 0.11466  entry pct 0.48720  (live rows 0.51803, regulars' rows 0.47134)
+                  l02: P(>=1 big) 0.31970  expected big seats 0.51976  entry pct 0.49510  |  QBs 10.72  distinct 43.9  dealt projection 129.15
+```
+
+**Reading.**
+1. **CONTRADICTS.** On 2022 the half book read −0.0227 [−0.0983, +0.0375] (P(≥ 1 big) 0.267 → 0.244). That is no
+   difference at the rule, but the estimate is negative.
+   - Every 2022 split read below the live book, on both fields.
+   - Expected big seats fell by a tenth.
+   - By the frozen go / no-go, the half book does not go into Week 5.
+2. **Pooled over 2022–24 it is a wash:** +0.014 [−0.020, +0.046], expected big seats ratio 1.017. Study 46's +0.032
+   was carried by 2023 (+0.043).
+3. **What stays.**
+   - The production switch stays off (`--mix-rs-rows` / `UNION_MIX_RS_ROWS` 0).
+   - Study 38's amendment 5 is harmless at 0 (MIXT_QA0_FULL equals MIXT_QA0).
+   - The real-field checks stay open: the laptop's Weeks 2–4 replay favoured the half book in all three weeks (a
+     small sample), and study 38's paper arms track the regulars' structure on live FP weeks.
+4. **The lesson for this harness.** Study 37 (the whole book) leaned worse, study 46 (half) leaned better on
+   2023–24, and the half was level-to-worse on 2022. On our ratings the regulars' structure neither helps nor hurts
+   P(≥ 1 big) by an amount these slates can see. The fair test is the live FP weeks (study 38).
