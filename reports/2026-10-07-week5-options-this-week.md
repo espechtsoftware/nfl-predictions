@@ -122,3 +122,40 @@ user-week, for users with 3+ satellite lineups that week. Weeks: W1 had one sate
   than more QB + 3. Our Week-5 replay rows are 50% QB + 1.
 - The projection effect seen between users (1.56–1.71) almost disappears within a user (1.06). It is mostly who builds
   the lineup, not a lever.
+
+## 3. Update: the operator's priority contests (`priority_fields.py`)
+
+The operator, 10-07: *"I'd consider the $20 milly satellites a lower priority, the 4444, 555, 333, WWFC are top
+priorities."*
+
+The same test, restricted to the 14 W1–4 contests the laptop's private shark-share table types as:
+- FFWC qualifier ($14M) and FFWC sat/supersat;
+- $4,444 MEGA and Showdown-MEGA sat;
+- $555 sat/supersat;
+- $333 Wildcat.
+
+That is 12,219 lineups: the two $14M FFWC qualifiers hold 9,992 (sharp, 150-max fields, ~56% regulars), and twelve
+small satellites hold 2,227. Odds ratios [95%]:
+
+| Feature (vs reference) | top 2%, by contest | top 5%, by contest | top 10%, by contest | top 5%, within user | top 10% by contest, per week |
+|---|---|---|---|---|---|
+| **2+ sub-$4k vs 0–1** | 2.25 | 2.03 [1.60, 2.55] | 1.78 | **1.93 [1.50, 2.44]** | 1.65 / 2.94 / 1.96 / 1.19 |
+| DST < $3,000 vs ≥ $3,500 | 3.26 | 1.93 | 2.22 | 1.16 [0.70, 2.06] | 4.25 / 1.31 / 2.23 / 0.93 |
+| **Bring-back 1+ vs none** | 2.01 | 1.73 | 1.49 | **1.51 [1.14, 2.04]** | 1.71 / 0.50 / 1.40 / 1.17 |
+| QB + 1 vs QB + 2 | 0.51 | 0.64 | 0.68 | 0.78 [0.61, 1.00] | 0.65 / 1.54 / 0.64 / 1.45 |
+| QB + 3+ vs QB + 2 | 1.30 | 1.12 | 1.15 | 1.03 | mixed |
+| **Projection above contest median** | 1.94 | 1.74 | 1.67 | **1.39 [1.15, 1.74]** | 1.21 / 1.83 / 2.32 / 0.86 |
+| Chalkier | 0.99 | 1.00 | 0.97 | 0.88 | mixed |
+
+The FFWC qualifiers alone and the small priority satellites alone give the same signs (full output in
+`priority_fields.txt`). W2 and W4 rest on small satellites only, so their per-week values are thin.
+
+**What this adds:**
+- **In his priority contests, the cheap-player pattern is the strongest and steadiest signal:** about 2× the odds, every
+  week, within contest and within user. It carries the W5–W8 cheap tracking, and the 2025 regime study (list 58) should
+  be judged at these contests' lines.
+- **Bring-backs and higher projection help here within the same user,** unlike in the $20 Millionaire satellites. Study
+  list 56 (the shape tilt) should be judged at these contests' lines: fewer QB + 1, keep bring-backs.
+- **The utility definition for tests should follow his priority statement.** On 10-06 he said the $125 WFFC "doesn't"
+  count as a big win; on 10-07 he names WFFC among the top priorities. Production should confirm with him which WFFC
+  contests count before the next test freezes its endpoint.
