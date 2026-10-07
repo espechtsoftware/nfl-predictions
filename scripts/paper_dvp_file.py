@@ -90,7 +90,10 @@ def build(frame: pd.DataFrame, fp: pd.DataFrame, allowed: pd.DataFrame, week: in
     fr = frame.drop_duplicates("id").set_index(frame.drop_duplicates("id")["id"].astype(str))
     d = pd.DataFrame({"z": z}).join(f[~f.index.duplicated()].rename("fp")).dropna()
     d["gsis_id"] = d.index
-    d["dk_player_id"] = fr.loc[d.index, "dk_player_id"].astype("Int64").astype(str).to_numpy()
+    ids = fr.loc[d.index, "dk_player_id"]
+    if ids.isna().any():                          # checked before the string cast (pandas 3 keeps NA as NaN)
+        raise ValueError(f"dk_player_id not unique / missing: {int(ids.isna().sum())} missing")
+    d["dk_player_id"] = ids.astype("Int64").astype(str).to_numpy()
     d["pos"] = fr.loc[d.index, "pos"].astype(str).to_numpy(); d["opp"] = fr.loc[d.index, "opp"].astype(str).to_numpy()
     dup = d.dk_player_id[d.dk_player_id.duplicated()]
     if len(dup) or (d.dk_player_id == "<NA>").any():
