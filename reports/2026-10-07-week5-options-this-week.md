@@ -94,3 +94,31 @@ partly.
     players as other seasons.
 - **Stack size:** the W2–4 replay books at the Week-5 settings (`~/rehearsals/outside-cblocks-20261007T153309Z`) vs the
   10-07 structure screen's field shares.
+
+## 2. Update, 10-07 afternoon: the satellites themselves (`satellite_fields.py`)
+
+The Neo4j graph holds only the Millionaire, but Week 5's entries are mostly satellites. The same test on every W1–4
+satellite / qualifier contest in `nfl_raw.contest_entries` (76 contests, 42,309 lineups). Odds ratios [95%] of finishing
+in the top 2% / top 10% of the lineup's own contest:
+
+| Feature (vs reference) | top 2%, by contest | top 10%, by contest | top 10%, within user | top 10% by contest, per week |
+|---|---|---|---|---|
+| **2+ sub-$4k vs 0–1** | 1.55 [1.25, 1.87] | 1.44 [1.23, 1.67] | 1.59 [1.36, 1.82] | 1.65 / 2.12 / 1.35 / 1.11 |
+| **DST < $3,000 vs ≥ $3,500** | 2.46 [1.78, 3.42] | 1.92 [1.58, 2.42] | 1.55 [1.28, 1.92] | 4.25 / 3.16 / 2.70 / 1.21 |
+| QB + 3+ vs QB + 2 | 0.97 | 1.02 | 1.23 [1.02, 1.47] | 0.93 / 1.00 / 0.95 / 1.19 |
+| **QB + 1 vs QB + 2** | 0.81 [0.63, 1.04] | 0.83 [0.74, 0.93] | 0.95 | 0.65 / 0.88 / 0.68 / 1.18 |
+| Bring-back 1+ vs none | 1.91 | 1.33 | 1.08 | 1.71 / 0.93 / 1.43 / 1.31 |
+| Projection above contest median | 1.71 | 1.56 | 1.06 | 1.21 / 1.94 / 2.62 / 0.79 |
+| Chalkier | 0.93 | 1.13 | 0.95 | mixed |
+
+"By contest" is stratified by contest: it controls the field and compares users. "Within user" is stratified by
+user-week, for users with 3+ satellite lineups that week. Weeks: W1 had one satellite (the FFWC qualifier), W2 7, W3
+44, W4 24.
+
+**What this changes:**
+- **The cheap-player and cheap-DST patterns hold in the satellites too, every week.**
+- **The QB + 3 advantage does not carry to the satellites.** QB + 2 over QB + 1 does, in three weeks of four. So study
+  list 56 (the shape tilt) should test **fewer QB + 1 rows in favour of QB + 2**, judged at the satellite lines, rather
+  than more QB + 3. Our Week-5 replay rows are 50% QB + 1.
+- The projection effect seen between users (1.56–1.71) almost disappears within a user (1.06). It is mostly who builds
+  the lineup, not a lever.
