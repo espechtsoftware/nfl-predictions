@@ -1,4 +1,4 @@
-# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06 and 10-07, amendments 1, 1b, 2, 3, 4, 5 and 6, before Week 5's lock)
+# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06 and 10-07, amendments 1, 1b, 2, 3, 4, 5, 6 and 6b, before Week 5's lock)
 
 **Status: FROZEN 2026-10-06** by the reviewer, BEFORE any week of the decision arm (MIXT_RS0) or of the exploratory arms
 QBB0 / NQC0 / QAL / RBC0 was read on any slate. Disclosed: before the freeze, the reference MIXT_QA0 was scored on
@@ -239,6 +239,58 @@ score. Nothing here enters a contest: the money path, its checkout and its files
     3. the snapshot tool copies the term file;
     4. the integrity gate on Friday's rehearsal snapshot;
     5. the snapshot before Week 5's lock.
+
+- **Amendment 6b (2026-10-07, before Week 5's lock; no Week-5 outcome exists).**
+  - **Why.** Study 49 (Addendum 156) read NO DIFFERENCE, leaning negative, for the capped block. The laptop is taking him
+    three options for Friday's arming: live 8 capped rows, paper only, or off. "Paper only" needs a study-38 arm that
+    carries the block while the live book does not.
+  - **What changes.**
+    - **A new exploratory arm, MIXT_QA0_TERM8:** his live construction plus the prior-top block from a PAPER term file in
+      the snapshot (`paper-term-*.csv`, the week's file made by `make_priortop_files.py`'s rule). The block's parameters
+      are frozen here: 8 rows, tilt 0.20, cap 2.0 points, coverage gate 0.5. They do not depend on the live union's term
+      arguments. It is built through the same `term_book` and `own_bonus` as amendment 6.
+    - **Each of his three options:**
+      - **live 8 rows from the same file:** MIXT_QA0_TERM8 equals MIXT_QA0, and MIXT_QA0_NOTERM measures the block;
+      - **paper only:** MIXT_QA0 is the live book without the block, and MIXT_QA0_TERM8 is the block's real-field test,
+        with no money at risk;
+      - **off:** no paper file is in the snapshot, so MIXT_QA0_TERM8 is missing that week (recorded).
+    - **When the arm cannot be built** (a live fill other than rr, or a live regulars' block), it is missing that week,
+      recorded.
+    - **The snapshot:** the build reads the one `paper-term-*.csv` (or none) and records its sha in the MANIFEST check.
+      The laptop's snapshot tool copies the week's file when `S38_PAPER_TERM_FILE` is set.
+    - **The records:** the content identity, the scorer and the reader (a descriptive "QA0 + the paper 8-row block − QA0"
+      line) carry it.
+  - **What does not change:** the rule (§5), the decision pair (MIXT_RS0 vs MIXT_QA0), every other arm, the objective,
+    the provenance, the scoring. Amendment 6's behavior is unchanged: its term points pass to `term_book` as `arm_pts`,
+    which equals `term_pts` for every arm but the paper one.
+  - **The smoke** (dry run, Week 4's frozen copies, at 4 + rr; on the committed code `9389216`, clean; the paper file is
+    the replay's `priortop-w4.csv`, `1f38c8cb`):
+    - **(i) The paper file, no live block:**
+      - exit 0, parity none;
+      - MIXT_QA0_TERM8 equals amendment 6's (ii) MIXT_QA0 (the live-block book), rows and ranks, with its block at ranks
+        2, 5, 9, 12, 15, 18, 22 and 25;
+      - every amendment-6 arm is identical to amendment 6's (i);
+      - `books.json` `cb0e9401`.
+    - **(ii) The live block and the paper file:**
+      - parity none;
+      - MIXT_QA0_TERM8 equals MIXT_QA0;
+      - every amendment-6 arm is identical to amendment 6's (ii);
+      - `books.json` `9f5ecb87`.
+    - **(iii) No paper file:**
+      - parity none;
+      - MIXT_QA0_TERM8 is missing ("no paper term file");
+      - every amendment-6 arm is identical to amendment 6's (i);
+      - `books.json` `e5f886b2`.
+    - Construction only; no outcome was read. `~/private/paper-corun/smoke-w4-amend6b/`, script `run.sh`.
+  - **Code:** lab `9389216`:
+    - `experiments/s38_paper_corun.py`, sha256 `97cc15b324541f094667d034cc659082c3c9cf899d76e6d6c3367da61c8e37d5`;
+    - `scripts/s38_build.py`, `64756adeea259d4afe98d89160310e099ea98ba8f1ba870116d82dace01497a2`;
+    - `scripts/s38_score.py`, `3d6e7bc34bc53943fd52c50ea1d51f9a641ad17342a164f6071808ba60f7e550`;
+    - **`scripts/s38_report.py` (the reader), sha256 `5c979d1c75ecd404fce1ca1d3f012cebb93353c1517ed00e1e32b438c3455214`**;
+    - `tests/test_s38_paper_corun.py`, `9eccc91073d64428e8c1a1505eebda3d1e1fe07fc11b252b14212dafc9064f12` (20 tests);
+    - every other amendment-6 sha stands (`term_book.py` `62c2306e…`).
+  - **Order:** this amendment → the laptop's ack (tests and smoke) → the snapshot tool's `S38_PAPER_TERM_FILE` → his
+    Friday choice decides whether the file is set.
 
 ## 1. Why
 - **The operator (10-06), on the proposal:** "yes, please try it, I want to exhaust all reasonable options."
