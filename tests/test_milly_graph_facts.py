@@ -83,3 +83,24 @@ def test_lineup_labels_and_tiers():
     assert not any(k.startswith("lbl_") and "own" in k for k in p)       # realized ownership is never a pre-lock label
     with pytest.raises(ValueError, match="realized"):
         F.assert_point_in_time([{"props": {"lbl_own_max": 20.0}}])
+
+
+def test_the_td_price_prior_top_and_starters_out_are_pre_lock_facts():
+    """10-07 (the outside reviewer's facts-layer review): the market's anytime-TD price (yes side, mean implied
+    probability over books), the prior real weeks' top-1% share by dk id, and depth-chart starters missing from the
+    frame's active pool, all under pre_ names."""
+    fr = _frame(); fr["display_name"] = [f"Player {chr(65 + k)}{chr(65 + k)} Jr." for k in range(len(fr))]
+    props = pd.DataFrame({"player": ["Player AA Jr.", "Player AA Jr.", "Player BB"], "bookmaker": ["a", "b", "a"],
+                          "price": [150, -120, 400], "outcome_name": ["Yes", "Yes", "No"]})
+    td = F.td_probabilities(props)
+    assert list(td.key) == ["player aa"] and td.books.iloc[0] == 2
+    assert abs(td.td_prob.iloc[0] - (100 / 250 + 120 / 220) / 2) < 1e-12
+    pt = pd.DataFrame({"dk_player_id": [100, 101], "prior_top": [0.21, 0.0], "weeks": [3, 1]})
+    rows = {r["dk_player_id"]: r["props"] for r in F.player_week_rows(fr, "2026-05", "s", "t", td=td, prior_top=pt, prior_top_source="f sha x")}
+    assert rows[100]["pre_anytime_td_prob"] == td.td_prob.iloc[0] and rows[100]["pre_prior_top1_share"] == 0.21
+    assert rows[100]["pre_prior_top1_source"] == "f sha x" and "pre_anytime_td_prob" not in rows[101]
+    st = pd.DataFrame({"team": ["BUF", "BUF", "NE"], "gsis_id": ["00-0000", "00-9999", "00-0006"], "pos_abb": ["QB", "WR", "QB"]})
+    tw = {r["team"]: r["props"] for r in F.team_week_rows(fr, "2026-05", "s", "t", starters=st)}
+    assert tw["BUF"]["pre_starters_out"] == 1 and tw["BUF"]["pre_starters_out_pos"] == "WR" and tw["NE"]["pre_starters_out"] == 0
+    assert "pre_starters_out" not in tw["KC"]
+    assert F.team_code("LAR") == "LA" and F.canon_name("Amon-Ra St. Brown") == "amon ra st brown"

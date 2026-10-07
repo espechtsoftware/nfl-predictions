@@ -195,14 +195,25 @@ def build_facts(a, query_df, batches, weeks, games) -> dict:
         lag = query_df(mgf.LAG_SQL.format(features=settings.features), prm)
         outs = query_df(mgf.OUT_SQL.format(features=settings.features, cols=", ".join(mgf.OUT_ACTUAL_COLUMNS)), prm)
         pbp = query_df(mgf.PBP_SQL.format(raw=settings.raw), prm)
-        pw = mgf.player_week_rows(frame, wk, source, as_of, lag, outs, pbp, include_vendor=a.include_fp)
+        td = mgf.td_probabilities(query_df(mgf.TD_SQL.format(raw=settings.raw), prm))
+        pt_file = Path(__file__).resolve().parents[1] / "reports" / "2026-10-07-prior-top-term" / f"priortop-w{int(w)}.csv"
+        prior_top, pt_src = None, None
+        if pt_file.is_file():                                   # the prior REAL weeks' top-1% shares (weeks < w)
+            prior_top = pd.read_csv(pt_file)
+            pt_src = f"{pt_file.name} sha256 {hashlib.sha256(pt_file.read_bytes()).hexdigest()[:16]}"
+        starters = None
+        if as_of not in ("unknown", "None", ""):
+            starters = query_df(mgf.DEPTH_SQL.format(raw=settings.raw), {"as_of": pd.Timestamp(as_of).tz_convert("UTC").strftime("%Y-%m-%d %H:%M:%S")
+                                if pd.Timestamp(as_of).tzinfo else pd.Timestamp(as_of).strftime("%Y-%m-%d %H:%M:%S")})
+        pw = mgf.player_week_rows(frame, wk, source, as_of, lag, outs, pbp, include_vendor=a.include_fp,
+                                  td=td, prior_top=prior_top, prior_top_source=pt_src)
         if not a.include_fp:
             vendor = {f"pre_{c}" for c in mgf.VENDOR_PRE_COLUMNS}       # the explicit licensed columns ("fp_allowed" is ours)
             bad = sorted({k for r in pw for k in r["props"] if k in vendor})
             if bad:
                 raise SystemExit(f"FACTS REFUSED: vendor fields {bad[:5]} without --include-fp")
         out["player_weeks"] += pw
-        out["team_weeks"] += mgf.team_week_rows(frame, wk, source, as_of)
+        out["team_weeks"] += mgf.team_week_rows(frame, wk, source, as_of, starters=starters)
         out["game_facts"] += mgf.game_fact_rows(frame, games[games.week == int(w)], source, as_of)
         lw = [d for d in batches.get("lineups", []) if d.get("week_key") == wk]
         keys = {d["key"] for d in lw}
@@ -211,7 +222,8 @@ def build_facts(a, query_df, batches, weeks, games) -> dict:
         own = {(str(o["contest_id"]), int(o["dk_player_id"])): float(o["own"]) for o in batches.get("owned_in", [])
                if o["contest_id"] in cids and o.get("own") is not None}      # REALIZED: goes to out_ only
         out["lineup_labels"] += mgf.lineup_label_rows(lw, cw, frame, own, n_entries, win_pts)
-        print(f"FACTS week {w}: {len(pw)} player-weeks from {source} (as of {as_of})")
+        print(f"FACTS week {w}: {len(pw)} player-weeks from {source} (as of {as_of}); TD prices {len(td)}; "
+              f"prior-top {'none' if prior_top is None else len(prior_top)}; starters {0 if starters is None else len(starters)}")
     return out
 
 
