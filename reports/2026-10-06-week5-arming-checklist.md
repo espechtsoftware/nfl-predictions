@@ -206,6 +206,25 @@ rehearsal runs on the merged head in the exact armed env; Friday re-verifies on 
 - Any manual relayout passes `ENTER_LAYOUT=head` (O-34).
 - **Overlay monitor** (audit 10-06; built 10-05, never run on a live slate): ~11:15 CT `overlay_monitor.py flag --slate 2026-10-11 --out-dir ~/private/overlay/2026-w05`; after lock `overlay_monitor.py finalize --flags <the flags file>`. Read-only.
 - Paper shadow B (O-22): built with Sunday's projections, never entered.
+- **Study 61's W5 support census** (the R14 news paper study; prereg `reports/2026-10-08-prereg-study61-r14-news-grading.md`
+  §9 step 4; the reader pinned by amendment 1, `scripts/s61_r14_grade.py` `ceb8c4cd…`, merged `03a5bc77`, so FRIDAY_HEAD
+  carries it). Outcome-blind, offline, seconds. It runs after the T-70 upload, behind study 38's snapshot, and it is
+  committed before any read.
+  1. Copy the entered union dir and the T-70 run dir the way W4's were made (reads only of the live dirs; nothing under
+     `~/week5-sunday` is written): `cp -a <union dir> ~/moneygate/inputs/entered/` and
+     `cp -a <T-70 run dir> ~/moneygate/inputs/runs/`. Vetting and swaps write elsewhere (`paid-vetted`,
+     `upload-*-swapN.csv`), so the copy stays the entered union.
+  2. Back up `~/moneygate/weeks.json` (`weeks.json.bak-20261011`). Then add W5 with ONLY `t70_run` and `entered_union`
+     (the copies' paths). The reader refuses any union other than weeks.json's `entered_union`. Write both keys, because
+     `load_milly_neo4j.py` reads every week's `t70_run`. Monday's step 1 adds the other keys to the same entry and keeps
+     these two.
+  3. From the production checkout: `mkdir -p ~/private/r14-grade && PYTHONPATH=src .venv/bin/python
+     scripts/s61_r14_grade.py --census --weeks 5 --out ~/private/r14-grade/census-w05.json`. The first line must print
+     sha `ceb8c4cd…` with no SMOKE label. Record the printed `W5 CENSUS` line in HANDOFF (counts only; the reader prints
+     no name or quote), commit and push, and send it to the reviewer.
+  - **If the T-70 fell back to OUR projections:** the union has no `proj_source.csv` and the reader refuses. Record the
+    refusal in HANDOFF and tell the reviewer; the prereg names no replacement week. Never force a census (`--smoke` and
+    `--union` are mechanics only, never a record).
 
 ## Monday 10-12
 - **FIRST: the cheap +2 block, on vs off, for his Week-6 decision** (the operator 10-07: "Let's keep it on for week 5 and see how it compares for deciding what to do week 6"). From study 38's scoring on the real W5 results:
@@ -227,8 +246,8 @@ rehearsal runs on the merged head in the exact armed env; Friday re-verifies on 
 - **The weekly Milly-graph refresh -- EVERY Monday from now on** (the operator 10-07: "let's make sure each week we keep the enhanced neo4j data populated and learn from it"): after settlement adds the week to `~/moneygate/weeks.json`, `bash scripts/neo4j_weekly_refresh.sh <week> ~/private/neo4j/users-cohort-plus-ours.txt` -- starts the local Neo4j, loads the week's Millionaire lineups (top set + the cohort's and our portfolios, FP values) and its pre-lock facts, runs the standing learning queries (`scripts/graph_weekly/`, the outside reviewer's, copied byte-identical: the within-portfolio facts, the sub-$4,000 count check, the cheap-tier boom check and `tier_edges.py`, the picks-vs-field edge by salary tier; aggregates to `~/private/neo4j/weekly/<season>-w<NN>/`), and stops Neo4j on every exit IF the refresh started it (an instance already running, e.g. the outside reviewer's, is left as found and must be stopped before Saturday's arming; proven on the W4 run 10-07). Record in the weekly record / HANDOFF: the within-portfolio table's lines (which pre-lock facts separated the regulars' top-1% lineups this week and cumulatively), our T-70 book's sub-$4k counts (W1–W4: 0.79 / 1.13 / 0.85 / 0.91 per row), and tier_edges' running mean (where our picks gain or lose by salary tier; W1–4 ours: QB −1.23, $8k+ −2.22, $6–7.9k −2.12, $4–5.9k −4.51, <$4k +4.75, DST +1.49 points per lineup vs the field); anything that holds every week goes to the study list. Never during a build window. **Every week, before the refresh:** the week's contests must carry a type in the private type CSVs (`~/private/regulars-share/week5_type_mapping.csv` covers W5; extend it the same way for W6+), or learning step 6 (`scripts/priority_field_monitor.py`, his priority contests: $4,444 / $555 / $333 / FFWC; the outside reviewer's fc3aff11) prints "no typed priority contest" for the week. **Monday 10-12, once (after the reviewer's review of 1f82932d):** with Neo4j still up from the W5 refresh (`--keep-running`), re-run the facts-only pass for W1–4 (`load_milly_neo4j.py --season 2026 --week N --users-file <private users file> --include-fp --with-facts --facts-only --apply`, about 1 min each) so the earlier weeks carry the 10-07 result facts (Game pre_total_rank, out_best_stack_pts, out_is_best_stack_game, out_field_qb_share, out_top1_qb_share; Lineup lbl_stack_n / lbl_bring_n / lbl_max_game); then `neo4j-milly stop` and tell the outside reviewer.
 - **The early checkpoint** (experiment plan 10-02 §6; audit 10-06): O1 / A3 / B2 interim at the doubled bar; the first P3 weekly read; shadow B scored beside ours and FP in `weekly_projection_accuracy.py`.
 - **P1 and P3, the two frozen weekly readers (from W5; the reviewer froze both 10-07), after settlement and the standings import:**
-  1. `~/moneygate/weeks.json` gets W5 (t70_run, saturday_run, details = the W5 capture, entered_union, millionaire_contest,
-     standings_dir, contests_src); `~/moneygate/books/w5/contests.json` = the contests as entered. Then
+  1. `~/moneygate/weeks.json` gets the rest of W5 (saturday_run, details = the W5 capture, millionaire_contest,
+     standings_dir, contests_src; t70_run and entered_union are already there from Sunday's study-61 step: keep them); `~/moneygate/books/w5/contests.json` = the contests as entered. Then
      `scripts/moneygate_score.py fetch --weeks 5` and `scripts/moneygate_score.py reconcile --weeks 1,2,3,4,5` (must PASS:
      every real entry reproduced; the scorer is dd8ff1f7, week dates from nfl_raw.schedules).
   2. The ladders: every W5 plan contest must be in `nfl_raw.dk_payout_ladders` (the rev2 capture is loaded, 29
@@ -247,6 +266,11 @@ rehearsal runs on the merged head in the exact armed env; Friday re-verifies on 
      lineup entered at rank 1 or 2, say so in words from the published upload (a disclosure; d is unchanged).
   5. Report P1's and P3's lines side by side (the weekly record and HANDOFF); P3's W8 read is descriptive, its W12 rule
      binding (7 of 8); P1's flag from W8 (>= 4 prospective weeks).
+- **Study 61's first scored read** (prereg §9 step 5), once W5's `player_week_actuals` load (Tuesday at the latest):
+  `PYTHONPATH=src .venv/bin/python scripts/s61_r14_grade.py --weeks 5 --out ~/private/r14-grade/read-w05.json`, from the
+  production checkout. The reviewer froze it and reads first. The laptop re-runs the same command and compares the
+  `--out` file byte for byte. Descriptive until W8: no look before then (looks at W8 and W10, which need at least 4 valid
+  weeks and 10 players a side). Both reads go in HANDOFF, as counts and DK points only.
 - `weekly_projection_accuracy.py` (ours / FP / blend) and `weekly_fp_props_check.py` (FP vs FP + props), then `pool`.
 - Settlement; the entered book vs the paper rebuild of today's house shape on the same slate.
 - **The class model refit, a MEASURED step from 10-12 (O-42; the reviewer 10-07):** W5 runs Week 4's model (W1 + W3, `92cec733`) because the 10-05 Monday refit was missed. Monday: fit `scripts/fit_field_class_model.py` on W1 + W3 + W4 (W2 stays out, the defect week) with its leave-one-week-out receipt; score BOTH models out of sample on W5's real Millionaire field (top-1% lift at the model's top 1%: `92cec733` vs the refit); W6 installs the refit (then refit on W1 + W3 + W4 + W5) only if its W5 lift is at least `92cec733`'s, else keep it -- recorded either way, its sha pinned as the W6 arm's CLASS_SHA.

@@ -12,6 +12,36 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-07 (18:14 CDT) — Study 61 (the R14 news paper study) merged as `03a5bc77`; its Sunday census and Tuesday read are on the checklist
+
+- **The reader, reviewed before any Week-5 game.** The reviewer pinned it by amendment 1
+  (`review/s61-r14-grading-20261008` @ `41bea2a9`).
+  - Shas verified: `scripts/s61_r14_grade.py` `ceb8c4cd…`; `tests/test_s61_r14_grade.py` `7f2baf0d…`. 39 tests pass.
+  - The census smoke (the W5 log × the laptop's FP-sourced W4 union, cut-off 2026-10-11T15:33Z) reproduces amendment 1
+    exactly:
+    - records: 606 logged, 0 late, 0 superseded, 1 older version, 605 kept;
+    - join: 319 by name and team, 61 by name only, 225 not on the frame, 380 joined;
+    - players: +1 53, −1 34, balanced 7, direction-0 only 37.
+  - Merged into integration with `--no-ff` as `03a5bc77`, so FRIDAY_HEAD carries it.
+- **Checklist (`reports/2026-10-06-week5-arming-checklist.md`):**
+  - **Sunday, after the T-70 upload:**
+    - Copy the entered union and the T-70 run into `~/moneygate/inputs` (as W4's were).
+    - Add W5 to `~/moneygate/weeks.json` with ONLY `t70_run` and `entered_union`. The reader refuses any union other
+      than weeks.json's `entered_union`. `load_milly_neo4j.py` reads every week's `t70_run`, so both keys are written.
+    - Run the census, record its line here, and send it to the reviewer.
+  - **Monday's step 1** adds the rest of W5 and keeps those two keys.
+  - **Tuesday at the latest:** the first scored read, descriptive (looks at W8 and W10). The reviewer reads first; the
+    laptop re-runs it byte for byte.
+- **Checked while reviewing:**
+  - Vetting and swaps write outside the union dir, so Sunday's copy stays the entered union.
+  - The live W5 projection sidecar carries `fp_last_updated` where the reader looks: `fp_projection_override.py` writes
+    it at the top level and under `capture`, and the union byte-copies the sidecar. Only the W4 smoke sidecar (written
+    10-06) lacks it. That field feeds a descriptive line only.
+- **Open, raised with the reviewer:** if the T-70 falls back to our projections, the union has no `proj_source.csv` and
+  the reader refuses. The prereg names no replacement week for that case.
+- **Next:** Thursday's list is unchanged (props pre-check → project-slate; the cbwu-oi dry run, O-49; A3 block-OFF on
+  Rev6; the block files).
+
 ## 2026-10-07 (17:39 CDT) — M3 / M4 (O-50 / O-51) fixed, reviewed and closed; every money-path review item for Saturday is done
 
 - **M4 (O-51)** `b3b607fe`, reviewed OK.
