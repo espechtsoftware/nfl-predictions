@@ -4,6 +4,33 @@
 - DRAFT `9add333a`. At the freeze it took in the log's structure (§2, §5a), from the laptop's export, which the
   reviewer's own count matches. Nothing else changed.
 - §2–§7 are frozen. §9's reader comes by amendment.
+- **AMENDMENT 1 (2026-10-07 18:07 CDT, before any Week-5 game): the reader is pinned.**
+  - **`scripts/s61_r14_grade.py`, sha256 `ceb8c4cd19aad450216144a1219e48dd5bdb93c38add3c4bc6b58598e6bc221d`**
+    (commit `f80d96b8`).
+  - `tests/test_s61_r14_grade.py`, sha256 `7f2baf0deaf6c5c1b8d1b5427ad7162363cb6a2a7417c4aa654ae96910ff12fd`. 39 pass.
+    They cover:
+    - every W5 team spelling;
+    - the time forms;
+    - the record rules;
+    - the join (including a traded player and an ambiguous name);
+    - the groups and Δ, the looks, and the union's content checks;
+    - the entered-union rule;
+    - that the census reads no outcome;
+    - that no quote or name is printed;
+    - the scored path on a synthetic week.
+  - **Two mechanics beyond §8:**
+    - The union dir defaults to moneygate weeks.json's `entered_union`, and any other dir is refused.
+    - Under `--smoke` another dir is allowed (labelled "SMOKE", never a record), and only there may `--smoke-cutoff-utc`
+      replace the frame's pull as the cut-off.
+  - **The smoke** (census only, mechanics; never a record):
+    - The W5 log was joined to the laptop's FP-sourced W4 test union (`~/rehearsals/w4-fp-union-20261007`), with a
+      smoke cut-off.
+    - Records: 606 logged, 0 late, 0 superseded, 1 older version, 605 kept.
+    - Joined 380: 319 by name and team, 61 by name only. 225 were not on that frame.
+    - No team spelling was unknown to the alias table.
+    - Players: +1 53, −1 34, balanced 7, direction-0 only 37.
+  - **The real W5 census** runs Sunday on W5's entered union (§9 step 4).
+  - **A repair** of the reader names its new sha in a further amendment before the next read it makes.
 - Week 5's first kickoff is Thursday 10-08 at 19:15 CT (TB at DAL). The graded slate, DraftKings' Sunday Main, starts
   Sunday 10-11 at 12:00 CT. The London game (08:30 CT) is not on it.
 - **The design freezes before Thursday's kickoff.** The reader is pinned by an amendment before Sunday 12:00 CT (§9).
@@ -158,7 +185,7 @@
 ## 9. Order
 1. The DRAFT (`9add333a`). Done.
 2. **The design freeze**, before Thursday 10-08 at 19:15 CT. Done (10-07 18:01 CDT, this text).
-3. **The reader**, its tests and a smoke.
+3. **The reader**, its tests and a smoke. Done: amendment 1 (`ceb8c4cd…`, 39 tests, the census smoke).
    - The smoke uses the W5 log's records and the W5 frame once it exists, in census mode only, plus a synthetic scored
      week.
    - An amendment pins the reader's sha before Sunday 10-11 at 12:00 CT.
