@@ -12,6 +12,80 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-07 (12:43 CDT) — P1 and P3 (the operator's Wed approved-plan items): ladder table built and applied; both preregs FROZEN with readers; P3 smoke accepted; the W2–4 reconstructed replay; the scorer reads week dates from the schedule
+
+**P1 (contest-class edge; the 10-05 analysis already answered power and the W1–4 record):**
+- **The ladder table:**
+  - `nfl_raw.dk_payout_ladders` plus three views (sql/raw/011): v_dk_payout_ladder_latest, v_dk_payout_structure, and
+    v_dk_entry_tier with n_tied and split_payout_multiple, DraftKings' tie split (the reviewer's addition).
+  - The reviewer approved the DDL before it was applied (1bb4869e, 29eabd3f).
+  - Loaded: 381 tiers from six captures (W1–5 plus W4's 196305080, fetched from the public API, no login).
+  - The views reproduce the 10-05 ladder table (on capacity; 10-05 used entries where a contest didn't fill). Split
+    payouts conserve each contest's pool exactly on all 86 laddered fields.
+  - `dk_contest_fills.payout_metadata_json` turned out to be a one-line lobby summary, not a ladder (README deficiency
+    log).
+- **The prereg is FROZEN** by the reviewer: 83091ee7 (9417d74f), then amendment 1 (the z is the 10-05 latent score
+  Φ⁻¹(1 − p), my drafting error caught before any W5 outcome). Amendment 2 is in progress: unique lineups per class;
+  N = others + 1; the tie rule.
+  - The break-even z table: flat ≤ 600 0.158, flat > 600 0.175, Millionaire 0.216, large cash GPP 0.199, qualifier 0.207.
+  - The one-sided t bound from W8 with ≥ 4 prospective weeks.
+- **Reader:** scripts/p1_record.py (475a711a, 87edab08; tests 5). It reproduces the 10-05 week means on W1–4 with unique
+  lineups: +0.100 / −0.409 / −0.338 / +0.007.
+
+**P3 (the simple-baseline benchmark):**
+- **The prereg is FROZEN** (f129bc0b, ce4f7f36; the reviewer's rule).
+  - d_w = big seats(ENTERED) − big seats(MEAN_MILP).
+  - W8 is descriptive. At W12, 7 of 8 decides; ties count as neither.
+  - A void arm voids only itself.
+  - MEAN_MILP keeps the house stacking rules.
+- **Code** (91ea25a2, 4217b4df; tests 4): scripts/props_projection_file.py, scripts/p3_arms.sh, scripts/p3_score.py. In a
+  week with a tail sleeve the plain arms solve K+T rows, so the tail contests take their last T rows; from W5, T = 0.
+- **The W4 smoke, accepted by the reviewer:**
+  - ENTERED byte-identical twice (010df6c0); twin builds MEAN_MILP 059c9301, PROPS_MILP ae9d23d6.
+  - d = 0 (smoke, never counted).
+- **The operator, relayed by the reviewer:** "That is way too long for me to wait to adopt anything." So P3's question is
+  answered THIS week two ways:
+  - (1) **The W2–4 real-field replay.** RECONSTRUCTED, NEVER COUNTED; in-sample for the layers, descriptive. ENTERED is the
+    money gate's PKG4-rr (his W5 package), rebuilt byte-identical to its recorded book.
+    - W2 d = 0 (0 vs 0 big seats; plain ahead on $20 SuperSat tickets 4/62 vs 1/62).
+    - W4 d = 0 (the package won a 1-ticket satellite seat and a SuperSat ticket; the plain arms won nothing).
+    - W3 built (twins OK) but NOT scored: the lab's s38_plan.py crashes on W3's FFWC qualifier (a multi-tier ticket
+      ladder). Told the reviewer; the fix is theirs.
+    - W1–3 are not replayable by the frozen path.
+    - Out dir: ~/rehearsals/p3-replay-20261007T172856Z.
+  - (2) **The reviewer's study 54 in the harness** (DRAFT eb97b570; lab a94da39): PLAIN − LIVE, decided on the 17
+    2022 slates; 2023–24 is in-sample and printed only. Banks 1575–1580, seed 20261106. My ack and bank scan come at its
+    freeze.
+- **The facts the reviewer needed for study 54** (sent): pmo_x50 at K 26 solves exactly 26 rows with no spares, and the
+  pmo_rows call verbatim (exposure 13, DST 6, per-game 4, $49k, overlap = --mean-max-shared, qb_cap = --main-qb-cap-rows).
+
+**The scorer** (moneygate_score.py; the reviewer approved both versions):
+- It had a W1–4 date table, so W5 raised a KeyError, which would break study 38's W5 scoring.
+- Now (aca783a4) week dates come from nfl_raw.schedules (the REG week's Sunday), cached per process. Sha dd8ff1f7.
+- Reconcile on W1–4: PASS in scratch, then LIVE. The old receipt is backed up as
+  reconcile_receipt.json.bak-20261007-48342ae1.
+- The reviewer moves s38-prod-pin Friday to a head containing aca783a4 and discloses dd8ff1f7.
+
+**Decision sheet row 21:**
+- His answer (relayed verbatim by the outside reviewer): "Thank you for these suggestions. I agree with your
+  recommendations if they pass the necessary tests."
+- So the cheap block does not enter; Friday's A3 arms the matchup block; matchup or none at Saturday's arming.
+- The outside reviewer's override case and the reviewer's and my reasons are both recorded.
+- The 2025 re-test is not possible in the harness: study list 58, a W6+ project.
+
+**Study list:**
+- 56 (the QB+2/+3 tilt; now framed as fewer QB+1 rows at the satellite lines, per the outside reviewer's satellite-field
+  input), 57 (R4 for the 2-entry contests) and 50 (duplicate-aware dealing): approved for testing. The reviewer designs
+  them next week.
+- 52 (cheap-boom model): dropped.
+- 58: the 2025 regime re-test.
+
+**Monday:** the checklist has the P1 and P3 frozen readers (W5 config, fetch, reconcile W1–5, ladders, p1_record,
+p3_arms, s38_plan, p3_score, ledger), plus the W1–4 graph facts reload.
+
+**Still today:** FP's rankings-weekly and QB coverage pages (retry); P1 amendment 2's text (the reviewer commits or asks
+me to).
+
 ## 2026-10-07 (11:40 CDT) — Study 53 records merged; Friday's A3 arms the matchup block; the Neo4j result facts built and verified against the outside reviewer's W1–4 reference
 
 - **Study 53 records:** lab LEDGER 5e0c9ce verified (7 cells; every READ number and both hashes present; after study 52's row).
