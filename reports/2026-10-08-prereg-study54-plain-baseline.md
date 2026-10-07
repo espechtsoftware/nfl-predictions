@@ -1,6 +1,8 @@
-# Preregistration: study 54, his live book against production's plain optimizer, in the harness, decided out of sample on 2022 (DRAFT 2026-10-07)
+# Preregistration: study 54, his live book against production's plain optimizer, in the harness, decided out of sample on 2022 (FROZEN 2026-10-07)
 
-**Status: DRAFT 2026-10-07**, committed by the reviewer before any smoke output was examined and before any scored bank.
+**Status: FROZEN 2026-10-07** by the reviewer, after the smoke and the binding (support) census (§6), before any scored
+bank. The DRAFT (`eb97b570`; lab `a94da39`) was committed before any smoke output was examined; only §6 and this
+status were added at the freeze.
 - The operator approved this study on 10-07, in reply to the reviewer's proposal: "LIVE vs production's plain optimizer, out
   of sample, frozen rule, read by Thursday".
 - The design went to the laptop at about 12:27 CT, with 2023–24 as the read and 2022 as a two-way go / no-go. At about
@@ -123,7 +125,57 @@ LIVE's 15 spares are never dealt.
   sampled from real ownership.
 
 ## 6. Smoke and integrity
-(Added at the freeze: the smoke, the binding census, the bank scan, the code shas.)
+- **The smoke** (`~/s54-panel/smoke.sh`; code as committed at lab `a94da39`, clean; bank 1406):
+  - 2024 W10 SCORED, 2022 W6 MECHANICS ONLY: **no 2022 outcome was scored before the freeze**;
+  - every arm built its rows within its constraints (LIVE 41; each plain arm 26, the largest dealt rank 25);
+  - LIVE equals study 53's smoke LIVE (= study 48d's) in rows and ranks on both slates;
+  - **production parity:** from the same frame, the Week-5 lab pin (`week5-live-center` `f69598b`) solves the same
+    rows as the harness for all three plain arms on both slates, and they are the experiment's own rows; the three
+    copied functions equal production's `scripts/union_reselect.py` at the integration head (file sha256 `82ef245e…`);
+  - the census and the reader exited 0. The reader ran on a FAKE-2022 copy of the 2024 row, which exercises the
+    decision path; its numbers mean nothing.
+  - **Disclosed:** the smoke printed that fake read's STUDY line, truncated at 90 characters. It names a verdict for the
+    single 2024 W10 slate-bank (PLAIN ahead on its primary there, guard 1 failing). That is one in-sample slate-bank of
+    bank 1406; the decision's 2022 slates were not scored.
+  - The log: lab `results/s54/SMOKE_s54.log`.
+- **The binding (support) census** (outcome-blind; bank 1406; 53/53 (2022: 17; 2023–24: 36); code `a94da39` clean;
+  `results/s54/CENSUS_s54_binding.txt` `a4d5d0ed…`, raw `7ba703ce…`; lab `3a2cded`):
+
+  | 2022 (the decision) | LIVE | PLAIN | PLAIN_O4 | PLAIN_O4Q5 |
+  |---|---|---|---|---|
+  | projection per row | 132.27 | 132.17 | 131.48 | 131.18 |
+  | distinct QBs / the top QB's rows (of 26) | 7.5 / 5.0 | 3.9 / 12.5 | 7.3 / 9.5 | 8.2 / 5.0 |
+  | distinct players | 47.8 | 39.4 | 52.9 | 55.1 |
+  | most shared between two rows | 4 | 7 | 4 | 4 |
+  | rows shared with the reference (of 26) | — | 1.6 (LIVE) | 2.6 (PLAIN) | 18.4 (PLAIN_O4) |
+  | identical to the reference | — | 0.000 | 0.000 | 0.059 |
+
+  - **2023–24 is alike:** projection 128.04 / 127.90 / 127.13 / 126.91; QBs 8.2 / 4.3 / 7.3 / 8.8 (the top QB 5.0 /
+    11.9 / 9.1 / 5.0 rows); distinct players 46.3 / 38.3 / 50.9 / 54.0; predicted ownership per row 78.56% / 78.64% /
+    77.47% / 76.88%; PLAIN shares 1.4 of 26 rows with LIVE, identical 0.000.
+  - **What it says, before any outcome:** the layers cost almost no projection (PLAIN − LIVE −0.11 per row on 2022, −0.14
+    on 2023–24). They buy QB breadth: PLAIN's top QB sits in about 12 of 26 rows, against LIVE's 5. The two books share
+    under 2 rows, so the lever is far from dead.
+  - Every arm built a full book on every slate-bank, so support holds for the decision.
+- **Banks:** 1575–1580 and seed 20261106. The reviewer's unique-blob scan of both repositories (every blob up to 5 MB:
+  17,643 in production, 7,974 in the lab; the 8 larger blobs per repository were not searched) found them only in study
+  54's own records: this prereg's DRAFT, the laptop's HANDOFF entry naming them, `s54_drive.py` and `s54_report.py`.
+  The other hits are timing values (for example `secs_gen_CTRL: 1575.9`). No result file for these banks exists on disk.
+- **Code:** nfl2 `production/s54-plain-baseline-20261007` @ `a94da39` (the census at `3a2cded`):
+  - `experiments/s54_plain_baseline.py`, sha256 `93a6ab3b645aa5cc0598f5c0544107b6e83421f8fb900703d29ffc8d25d9fd3f`;
+  - `experiments/pmo_plain.py`, `5eed9e28a652bdd3c5e67f01ce78618f281641dd6184b26c5519c0f6e548c552` (the copied text
+    `bc3c0f74513e29d65e229e72d77ef403382d7c325296b147c061229854ed5199`);
+  - `scripts/s54_drive.py`, `17f48a2e575a29bfb53e5b77c39412b0a78d33610044ac01e02ca9cc8d082e95`;
+  - **`scripts/s54_report.py` (the reader), sha256 `74fc1b3cb0f18de65ea6a65c3a88aa9bfb320aba095466b5d327e31a3c2e58e4`**;
+  - `scripts/s54_census.py`, `1f3e3bce04ab38ad60f0f0257f7eed10db50ec126ae8eedcdd76defac8e81fba`;
+  - `scripts/s54_plain_parity.py`, `3c1687fdfcc903483c094e632113c6570b427fbe30010a5045c315c176b55fbe` (the smoke only);
+  - `tests/test_s54_plain_baseline.py`, `56ea1dd87d8caefc66116fb697787178e6228b725d90a40851bb172567b25556` (7 tests);
+  - unchanged, sha-asserted: study 48's `s48_winner_like.py` `c22d2811…`; production's `enter_layout.py` `3cb051ac…`
+    (pins-extend-review).
+- **The endpoint's big flags** are the plan's (`plan-week5-rev3-s24.json`, sha256 `3dd19d6c…`), unchanged. The
+  operator confirmed them on 10-07, relayed verbatim by the laptop: "A $125 qualifier ticket is not considered a big win.
+  A $490 qualifier ticket is." The plan has the $125 FFWC qualifier satellite not big and the $490 one big. The build
+  never reads the big flags (head weights, row caps and dealing use entries and pins only); only the reader does.
 
 ## 7. Order
 1. This DRAFT.
