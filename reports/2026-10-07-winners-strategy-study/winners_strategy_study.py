@@ -207,16 +207,26 @@ def enumerate_until(fr, rules, winner, lines, nmax, log, tag):
 def run_week(w, out, nmax, log, test=False):
     W, fr, f = load_week(w); winner = float(f.points.max()) / 100.0; N = len(f)
     pts = np.sort(f.points.values); lines = {"top400": float(pts[-400]) / 100 if len(pts) >= 400 else winner, "top100": float(pts[-100]) / 100, "top1pct": float(pts[int(0.99 * len(pts))]) / 100, "hit": winner - WITHIN}
-    d = describe(fr, f, winner)
-    rec = {"week": w, "field": N, "winner": winner, "lines": lines, "proj_source": fr.proj_source.iloc[0], "frame_players": int(len(fr)), "describe": d, "layers": []}
+    p = out / f"week{w}.json"; rec = json.loads(p.read_text()) if p.exists() and not test else None
+    if rec and rec.get("describe"):
+        d = rec["describe"]; log(f"W{w}: resumed ({len(rec['layers'])} layers recorded)")
+    else:
+        d = describe(fr, f, winner)
+        rec = {"week": w, "field": N, "winner": winner, "lines": lines, "proj_source": fr.proj_source.iloc[0], "frame_players": int(len(fr)), "describe": d, "layers": []}
+        p.write_text(json.dumps(rec, indent=1, default=str))
     log(f"W{w}: field {N:,} winner {winner:.2f}; cluster {d['n']['cluster']} (unresolved in frame: {d['unresolved_cluster']}); top-1% {lines['top1pct']:.1f}; 100th {lines['top100']:.1f}")
     for k, c in d["chosen"].items(): log(f"    {k:14s} {c['value']:8s} share {c['share']:.2f} field {c['field']:.2f} lift {c['lift']:.2f} {'USE' if c['use'] else ''} ({c['source']})")
     rules = {}; hit_rules = None
+    done = {e["layer"]: e for e in rec["layers"]}
     layers = [("L0 unconstrained", [])] + LAYERS
     for name, keys in layers:
         add = {k: d["chosen"][k]["value"] for k in keys if k in d["chosen"] and d["chosen"][k]["use"]}
         if name != "L0 unconstrained" and not add: log(f"  {name}: no distinctive attribute; skipped"); continue
         rules = {**rules, **add}
+        if name in done:
+            e = done[name]; log(f"  {name}: recorded ({'hit at ' + str(e['enum']['first']['hit']) if e.get('enum') and e['enum']['first']['hit'] else 'no hit'})")
+            if e.get("enum") and e["enum"]["first"]["hit"]: hit_rules = dict(rules); break
+            continue
         O = build(fr, rules, "actual", []); oracle = float(fr.actual.iloc[O].sum()) if O else None
         log(f"  {name}: rules {rules} | oracle {oracle if oracle is None else round(oracle, 1)} (winner {winner:.1f})")
         entry = {"layer": name, "rules": dict(rules), "oracle": None if oracle is None else round(oracle, 2), "can_hit": bool(oracle is not None and oracle >= winner - WITHIN)}
@@ -247,17 +257,19 @@ def cross(weeks, recs, out, nmax, log, test=False):
     return res
 
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument("out"); ap.add_argument("--weeks", default="1,2,3,4"); ap.add_argument("--nmax", type=int, default=1500); ap.add_argument("--test", action="store_true")
+    ap = argparse.ArgumentParser(); ap.add_argument("out"); ap.add_argument("--weeks", default="1,2,3,4"); ap.add_argument("--nmax", type=int, default=1000)
+    ap.add_argument("--cross-nmax", type=int, default=500); ap.add_argument("--test", action="store_true"); ap.add_argument("--cross-only", action="store_true"); ap.add_argument("--no-cross", action="store_true")
     a = ap.parse_args(); out = Path(a.out); out.mkdir(parents=True, exist_ok=True); weeks = [int(x) for x in a.weeks.split(",")]
-    lf = open(out / "log.txt", "a")
+    lf = open(out / f"log-{'cross' if a.cross_only else 'w' + ''.join(map(str, weeks))}.txt", "a")
     def log(s): print(s, flush=True); lf.write(s + "\n"); lf.flush()
-    log(f"== winners strategy study {time.strftime('%Y-%m-%d %H:%M:%S')} weeks {weeks} nmax {a.nmax} test {a.test}")
+    log(f"== winners strategy study {time.strftime('%Y-%m-%d %H:%M:%S')} weeks {weeks} nmax {a.nmax} cross {a.cross_nmax} test {a.test} cross_only {a.cross_only}")
     recs = {}
     for w in weeks:
         p = out / f"week{w}.json"
-        if p.exists() and json.loads(p.read_text()).get("final_rules") is not None and not a.test:
+        if a.cross_only or (p.exists() and json.loads(p.read_text()).get("final_rules") is not None and not a.test):
             recs[w] = json.loads(p.read_text()); log(f"W{w}: loaded from checkpoint"); continue
         recs[w] = run_week(w, out, a.nmax, log, a.test)
-    log("== cross-week runs"); cross(weeks, recs, out, a.nmax, log, a.test); log("== done")
+    if a.no_cross: log("== week ladders done (no cross)"); return
+    log("== cross-week runs"); cross(weeks, recs, out, a.cross_nmax, log, a.test); log("== done")
 if __name__ == "__main__":
     main()
