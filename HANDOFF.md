@@ -12,6 +12,60 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-07 (10:25 CDT) — The operator: "keep the enhanced neo4j data populated and learn from it" -- a weekly Monday graph refresh built; the outside reviewer's Neo4j finding (sub-$4,000 players) → study 53 + amendment 6f; O-40 confirmatory script final for Monday
+
+**The outside reviewer now messages the laptop directly** (the operator 10-07; session nfl-predictions-4d). Their handoff: `reports/2026-10-07-outside-reviewer-handoff-to-laptop.md` on review/outside-fill-order-20261006.
+
+**Their Neo4j finding** (study list 51):
+- Within the regulars' own portfolios (351 user-weeks, 51,729 lineups, 1,075 top-1%), the top-1% lineups carried more sub-$4,000 non-DST players than the same user's other lineups: **+0.43 sd [+0.36, +0.49], positive W1–4**. The whole field shows the same gradient.
+- Our books carry few such players; our projection does not separate their winners.
+- The regulars pick better cheap players than the field, and their lean tracks props-implied points and TD odds.
+- **Their replay is in-sample and dose-unstable:** +2 .000 / .319 / .641; +4 .655 / .127 / .160 vs live .041 / .002 / .434.
+- Addendum 77 (Aug) deleted the HARD punt mandate; a SOFT bonus was never tested.
+
+**Scheduled (the reviewer):**
+- **Study 53:** LIVE / CHEAP2 / CHEAP4 (decisions) / CHEAP4_BLOCK8 (exploratory), the 2022 go / no-go, banks 1569–1574, seed 20261105. It runs this afternoon or Thu 06:00.
+- **Study 38 amendment 6f:** CHEAP2 / CHEAP4 paper arms from W5 (no writer: computed from the frame's salaries).
+- **NOT a W5 entry:** one change per week, and the matchup block is W5's candidate.
+
+**The weekly graph refresh (EVERY Monday from 10-12; arming checklist):**
+- Run `bash scripts/neo4j_weekly_refresh.sh <week> ~/private/neo4j/users-cohort-plus-ours.txt` after settlement adds the week to ~/moneygate/weeks.json.
+- It starts the local Neo4j, loads the week's lineups and pre-lock facts, runs the outside reviewer's standing queries (`scripts/graph_weekly/`: within_portfolio, cheap_count_check, cheap_tier; copied as code from abb4db74, not a branch merge, because of the FP-value history), writes AGGREGATES to ~/private/neo4j/weekly/<season>-wNN/, and stops Neo4j.
+- Record the week's lines in the weekly record; anything that holds every week goes to the study list. Never during a build window. **Thursday: `neo4j-milly stop` before A3** (it has run since this morning's load; the outside reviewer finishes by 09:00).
+
+**O-40 confirmatory:** the reviewer's review applied (51d30bfd; sha cc10322d).
+- Fail-closed active rows; provenance (code commit, featureset sha, the panel's table time / rows / fingerprint).
+- REFUSES unless 0bc6b6bc and the o22-leak-fixes tip are in HEAD's history, or if DROP_FEATURES is set.
+- An empty-EXTRA_FEATURES test; `--smoke-target` (mechanics only; refuses 2020–22 and 2026).
+- The prereg carries the dated clarification (MIN_GROUP 10; pooled = all target weeks; the sha), 9ae2624e.
+- **Monday's order:** merge o22 → register the columns → build-features (unchanged leakage checks) → send the base commit to the reviewer → the 2019 smoke → the frozen run → JSON to the reviewer → their byte-identical re-run → the Addendum.
+
+**Still open:** the licensed FP values in the review branch's HISTORY. The files were removed at the tip (806664db); the rewrite is the operator's call.
+
+## 2026-10-07 (10:19 CDT) — Study 52 NOT SUPPORTED (TD sorting closed; reproduced byte-identically); records 159 / 160 merged; GitHub push outage 10:09–10:17; O-40 confirmatory script for review; R14 article versions
+
+**Study 52** (deal the book by projected TDs; READ lab cf88676, the census 504e153 committed first at 10:15:27):
+- **NO DIFFERENCE, NOT SUPPORTED:** DEAL_TD − DEAL_LIVE **−0.02207 [−0.05925, +0.01408]**, negative in both read seasons, ratio 0.884; 2022 +0.01957.
+- DEAL_TD − DEAL_PROJ −0.0065: TDs add nothing beyond projection.
+- **The laptop's re-run is BYTE-IDENTICAL:** census caeae9ff, READ dd505310.
+- With the in-sample market re-deal NOT ENTERED, the idea is CLOSED unless a new TD source appears (decision sheet row 22, study list 49).
+
+**Records merged:** Addendum 159 (study 51; 7621fe7e) and Addendum 160 + the study 52 prereg (b8fd737f). The lab LEDGER rows were verified: 84c54db (51) and 6e13d84 (52).
+
+**GitHub:** every ref update on BOTH repos returned "Internal Server Error" from about 10:09 to 10:17 CT, while githubstatus said operational; reads worked. A retry loop pushed d668a25b at 10:17:09 (7 retries). No commit was lost.
+- Note for Saturday: arming needs only fetches, and a local commit keeps the checkout clean, so a push outage would not block arming.
+
+**O-40 confirmatory** (`scripts/o40_dvp_confirmatory.py`, b4cd67c9, sha 535d388c; tests 3 pass):
+- It implements the frozen §2 of `reports/2026-10-07-prereg-o40-dvp-ablation.md` and refuses until the DVP / DEF columns are registered CANDIDATE_FEATURES (Monday's o22 merge).
+- Two open choices await the reviewer: MIN_GROUP 10, and "pooled" = all target weeks.
+- **Monday:** merge o22-leak-fixes → register the columns → build-features → send the base commit → run.
+
+**R14** (logging only):
+- The new WR/CB matchups article logged: 18 records; the W5 log is 493 records / 9 articles.
+- FP REPUBLISHED the Game Hub (same id, 15.5k → 49.6k chars). The reviewer approved article VERSIONS, with spec rules (a) strictly later published_date and retrieved_at, version_of, dedup; (b) grading takes the latest version before kickoff per (article, player, fact type); (c) per-version counts here (spec d668a25b).
+- The private appender implements the rule; its private test passes 4 checks.
+- The v2 extraction is running (reusing v1's records verbatim where unchanged); its counts follow.
+
 ## 2026-10-07 (09:47 CDT) — The live-block options decided for Saturday's choice: study 51 ENTERABLE (matchup; reproduced byte-identically); TD block NOT ENTERED and TD sort NOT ENTERED by their frozen screens; combined in-sample only; W4's top row was copied in all 8 supersats
 
 **Study 51** (the 8-row matchup block in the harness; READ lab 3b150a8, the census e357df4 committed first):

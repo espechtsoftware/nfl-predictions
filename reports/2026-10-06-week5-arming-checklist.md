@@ -91,6 +91,9 @@ rehearsal runs on the merged head in the exact armed env; Friday re-verifies on 
 6. The lab pin for MIX / WS: `EXPECT_SHA f69598ba…` with `CLONE ~/projects/.nfl2-worktrees/week5-live-center`
    (`optimize(second_game_pair, qb_game_max)`); the house shape could stay on `32cdb61`.
 
+- **THURSDAY 10-08, the order (written 10-07):** (1) 09:30 props pull → `PYTHONPATH=<deployed src> python reports/lab-handoffs/props_guard_precheck.py --season 2026 --week 5` → if it passes, `gcloud run jobs execute project-slate --wait` (Wednesday's thin pull matched 120/497 < 30%: no re-run on 10-07); (2) the FP W5 live pages: `nfl-weekly-data run --week 5 --skip-fp-families --skip-sis-team-context --skip-sis-pass-tail --skip-sis-receiver-copula --skip-odds --no-login-if-needed` (unposted on 10-07); (3) 09:15 / 09:20 the SIS caches run on their schedulers (O-41 fixed): check both executions; (4) `neo4j-milly stop`; (5) A3: `A3_SNAPSHOT_DEST=$HOME/private/paper-corun/rehearsal-w05-a3 bash ~/.cache/laptop-agent/rehearsal/a3_armed_w5.sh <integration head>` (block OFF; heavy ~1.2 h; study 53's run first if it is queued) → the snapshot path to the reviewer; (6) the W5 matchup file from A3's union frame (the live-block section below), committed with its sha; (7) the Route Share dry runs (`~/.cache/laptop-agent/shadow_dry_run.sh` in each job's lane) → `check_prospective_gates.py --week 5` (expect 0 problems).
+- **Thursday 10-08, before A3:** `neo4j-milly stop` (the local graph has run since the 10-07 load; the arm refuses while it runs and a build must not compete with its heap). The outside reviewer was told (10-07).
+
 ## Thursday 10-08 to Saturday 10-10: the live bonus block (decision sheet rows 21–22; his choice at arming)
 - **Options after 10-07's tests:** the matchup block (study 51 ENTERABLE: "not harmful", not "better"; ~7% fewer expected big seats)
   or none. The TD block, the combined block and the TD-sorted deal are OUT (their frozen screens / the reviewer). His word comes at
@@ -152,6 +155,7 @@ rehearsal runs on the merged head in the exact armed env; Friday re-verifies on 
 - Paper shadow B (O-22): built with Sunday's projections, never entered.
 
 ## Monday 10-12
+- **The weekly Milly-graph refresh -- EVERY Monday from now on** (the operator 10-07: "let's make sure each week we keep the enhanced neo4j data populated and learn from it"): after settlement adds the week to `~/moneygate/weeks.json`, `bash scripts/neo4j_weekly_refresh.sh <week> ~/private/neo4j/users-cohort-plus-ours.txt` -- starts the local Neo4j, loads the week's Millionaire lineups (top set + the cohort's and our portfolios, FP values) and its pre-lock facts, runs the standing learning queries (`scripts/graph_weekly/`: the outside reviewer's within-portfolio facts and the sub-$4,000 count check; aggregates to `~/private/neo4j/weekly/<season>-w<NN>/`), stops Neo4j. Record the within-portfolio table's lines (which pre-lock facts separated the regulars' top-1% lineups this week and cumulatively) and our books' sub-$4k counts in the weekly record / HANDOFF; anything that holds every week goes to the study list. Never during a build window.
 - **The early checkpoint** (experiment plan 10-02 §6; audit 10-06): O1 / A3 / B2 interim at the doubled bar; the first P3 weekly read; shadow B scored beside ours and FP in `weekly_projection_accuracy.py`.
 - `weekly_projection_accuracy.py` (ours / FP / blend) and `weekly_fp_props_check.py` (FP vs FP + props), then `pool`.
 - Settlement; the entered book vs the paper rebuild of today's house shape on the same slate.

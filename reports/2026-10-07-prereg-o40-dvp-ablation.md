@@ -38,6 +38,12 @@ below must run on UNTOUCHED seasons.
     seed 20261040, weeks resampled within each season);
   - (3) no target season's MAE is worse by more than 1% (guard).
 - **NOT PASS** otherwise. 2026 W3–W4 are printed, descriptive only.
+- **Clarification (2026-10-07, before any confirmatory run; the reviewer confirmed both):** (i) a week × position group
+  needs at least 10 rows (MIN_GROUP 10, the screen's convention); smaller groups drop out of that week's equal-weighted mean;
+  (ii) "the pooled difference" is the mean of the weekly DVP4_R − BASE_R differences over ALL target weeks, each season
+  keeping its own week count in the within-season resample. The implementing script is `scripts/o40_dvp_confirmatory.py`
+  at integration 51d30bfd, sha256 `cc10322d…` (it refuses unless the O-22 repair is in HEAD's history and the seven columns
+  are registered; a `--smoke-target` mode on a non-decision season runs first, mechanics only).
 - **What a PASS buys:** the projection-level gate only. The consumer test (the reviewer's (d): the 2026 W2–W5 fixed-book
   replay, REPAIRED vs REPAIRED + DVP4 supplies through the same union, primary P(≥ 1 big), guards declared before it
   runs) decides Week 6 with the operator.
