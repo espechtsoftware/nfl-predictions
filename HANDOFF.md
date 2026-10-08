@@ -12,6 +12,35 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-08 (10:58 CDT) — Thursday's pulls: props guard PASSES (34.5%), project-slate W5 written, SIS caches OK; FP vendor run stopped by a revision (fixed on a branch, pages collected); A3 and the three dry runs running
+
+- **Scheduled jobs today:** all succeeded except `check-freshness`, which fails every day (O-18). The two causes are CFB
+  (retired; his decision) and weather (refreshes Fri–Sun; it should clear Friday 08:30).
+  - Succeeded: backup 02:00, nflverse 05:00, build-features 06:30, k1-route training 07:30 / 08:00, odds 09:00, the SIS
+    caches 09:15 / 09:20, props 09:30, us-dfs 10:30.
+  - The SIS caches wrote 884 W5 rows each, with sources W1–W4. The W4 team context is the `9aa14287…` run.
+- **The props guard at the deployed commit `6fd3ef00`** (image `7f632786`): PASSES, 172 / 498 = 34.5% (floor 30%).
+  Wednesday's pull was 120 / 497.
+- **`project-slate` ran 10:49–10:52** (project-slate-mnhfv). It wrote 498 W5 projections under policy
+  classic-k1-role12-lev40-boom160-poscal-cbwu-v5, with the props blend on 172.
+- **DK salaries, group 154468:** the laptop loop's newest pull was 09:59 CT (83 pulls).
+- **The FP vendor run** (10:50; checklist step 2) STOPPED with rc 1:
+  - Route Share W4 was revised again (51 rows). Its non-fatal import refused it.
+  - The QB coverage matchup page has not been posted for W5 (it failed its schedule gate on all 6 runs since Wednesday).
+    The WR coverage and line-matchups pages validate. Retry Friday.
+  - The alignment page was revised after Wednesday. Its FATAL import stopped the run before the four FP projection pages.
+  - Collected separately at 11:00: dfs 6,393 / weekly 536 / rankings-weekly 398 (the first W5 capture) / rankings-ros
+    272 rows.
+  - Deficiency log: `9e4c6c85`. The W4 Route Share repair awaits the operator, as on 10-06.
+  - **Fix:** `fix/alignment-import-nonfatal-20261008` @ `227954d0` makes the alignment import non-fatal, with a test that
+    fails without it (25 pass). It is with the reviewer.
+- **Neo4j:** not running (checklist step 4 needs nothing).
+- **A3 (block OFF)** started 10:55 at `9d069991`: ~/rehearsals/a3-20261008T155507Z, snapshot to
+  ~/private/paper-corun/rehearsal-w05-a3.
+- **The dry runs** started 11:2x, in order cbwu-oi (O-49), then Route Share ×2, each in its lane. Then
+  `check_prospective_gates --week 5`.
+- **After A3:** the TE-columns check (6k), the block files, and the snapshot path to the reviewer.
+
 ## 2026-10-08 (01:40 CDT) — Study 63 READ: every QB + TE arm NO DIFFERENCE against the live cheap block; reproduced byte-identically by the laptop
 
 - **The read:** lab `7cc2bca` `results/s63/READ_s63.txt` `6251da92…`, the frozen reader `5c24b8b9`.
