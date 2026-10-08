@@ -409,7 +409,10 @@ def test_every_shipped_sql_file_renders():
     in the morning build."""
     from nfl_dfs.bq import SQL_DIR, render_sql
 
-    files = sorted(SQL_DIR.rglob("*.sql"))
+    # sql/dashboard/ holds the dashboard's templates: build-features never runs them, and they take the dashboard's own
+    # ${season} / ${inc:...} substitutions (nfl_dfs.dashboard.data.render) -- rendered by test_dashboard_data's
+    # every-template test (test_every_dashboard_template_renders)
+    files = sorted(f for f in SQL_DIR.rglob("*.sql") if "dashboard" not in f.relative_to(SQL_DIR).parts)
     assert files, f"no SQL found under {SQL_DIR}"
     for path in files:
         sql = render_sql(path, prior_k=4)

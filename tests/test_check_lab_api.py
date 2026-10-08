@@ -56,9 +56,17 @@ def test_kwargs_signature_accepts_any_keyword_and_missing_things_are_named(tmp_p
 
 
 def _clone() -> Path | None:
-    for c in (os.environ.get("NFL2_PINNED_SRC"), "/home/erich/projects/.nfl2-worktrees/week4-live-center/src"):
-        if c and (Path(c) / "nfl2").is_dir():
-            return Path(c)
+    """NFL2_PINNED_SRC, else the live-center worktree checked out at the money path's CURRENT pin (mix_shapes.LIVE_PIN).
+    2026-10-08: a hard-coded week4-live-center (pin 32cdb61) predates f69598b's qb_game_max / second_game_pair, so this
+    test failed on a stale clone while the arm preflight, which checks the live clone, passed."""
+    import subprocess
+    from nfl_dfs.inference.mix_shapes import LIVE_PIN
+    if os.environ.get("NFL2_PINNED_SRC") and (Path(os.environ["NFL2_PINNED_SRC"]) / "nfl2").is_dir():
+        return Path(os.environ["NFL2_PINNED_SRC"])
+    for wt in sorted(Path.home().glob("projects/.nfl2-worktrees/*-live-center"), reverse=True):
+        head = subprocess.run(["git", "-C", str(wt), "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip()
+        if head == LIVE_PIN and (wt / "src" / "nfl2").is_dir():
+            return wt / "src"
     return None
 
 

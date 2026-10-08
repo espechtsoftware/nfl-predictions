@@ -429,3 +429,21 @@ def test_user_lineups_refuse_unsafe_names_and_render_top_columns():
         assert re.search(rf"\b{col}\b", sql), col
     for a in set(re.findall(r"\b(\w+)\.week = 4\b", sql)):
         assert re.search(rf"`\s+{a}\b|\bAS\s+{a}\b", sql), a
+
+
+def test_every_dashboard_template_renders():
+    """EVERY sql/dashboard/*.sql renders through D.render, which raises on any unresolved placeholder (2026-10-08: moved
+    here from test_dk_client's pipeline render test, whose renderer cannot fill the dashboard's own ${season} / ${inc:}
+    templates). Placeholders render fills itself are left to it; the rest get season=2026 or a dummy value."""
+    import re as _re
+    files = sorted(D.SQL_DIR.glob("*.sql"))
+    assert len(files) >= 30, files
+    self_filled = {"raw", "features", "predictions", "dashboard", "week_filter", "week_filter_m", "milly_contests"}
+    names = set()
+    for f in files:
+        names |= set(_re.findall(r"\$\{(\w+)\}", f.read_text()))      # ${inc:NAME} has a colon: not matched, render inlines it
+    subs = {n: "1" for n in names - self_filled}
+    subs["season"] = 2026
+    for f in files:
+        sql = D.render(f.stem, **subs)
+        assert "${" not in sql, f.name
