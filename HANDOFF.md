@@ -12,6 +12,47 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-08 (16:30 CDT) — laptop: the production checkout fast-forwarded; the weekend is in a safe place
+
+The operator asked (10-08) for a safe place heading into the weekend, after the reviews. Every review is done:
+- study 64 acked;
+- study 65 reproduced and recorded;
+- the Monday lines (67–69) merged;
+- O-62 reviewed (it merges after Sunday);
+- O-62b measured SMALL.
+
+**The fast-forward:** `~/projects/nfl-predictions` went from `8abf20bc` to `d528970e` (ff-only; 484 commits; no
+dependency change). The checkout is clean and its editable install points at it.
+- The only process running from the checkout, `host_ingest_dk_loop.sh`, was untouched. Its script is unchanged, and the
+  only change among its callees is the `dashboard` CLI command.
+- Today's Sunday-path fixes are now in the checkout the timers use:
+  - the 10:47 second DK pull;
+  - the T-70 status banner;
+  - `emit_ref`;
+  - the non-fatal vendor import;
+  - the Monday scripts.
+
+**The tests:** the 73 test modules that touch a Sunday-path script, run with `GCP_PROJECT` unset.
+- Baseline on integration `89ea93ac`: 1,233 passed, 74 skipped, 0 failed.
+- From the production checkout after the fast-forward: the same, 1,233 passed, 74 skipped, 0 failed.
+
+**The arming check:**
+- `bash scripts/arm_week5_saturday.sh --check` stops at `TERM_ROWS is not set`, as designed until Saturday.
+- A scratch copy with Saturday's values (FRIDAY_HEAD = `d528970e`, TERM_ROWS 8, TERM_SHA `5941678b…`) in `--check`
+  passes step 0: clean checkout, Rev6, class model `92cec733`, K 26, mixt, Neo4j not running, and the term file valid
+  (294 of 565 players with a bonus, cap 2).
+- It then stopped at the Saturday-timing gate (10:30 is in the past on a Thursday afternoon). With `ARM_LATE=1` it
+  completes step 6: the dose 0 / 4800, QB cap 5 at K 26, overlap 4, rr, and 11 planned units including
+  `nfl-week5-t70-pull-2`.
+- `CHECK DONE (nothing armed)`. No timer is armed, and `chosen-dose.env` was not written.
+
+**Keep it safe until Sunday:**
+- Do not merge CODE into integration before arming. The arm refuses any code change between FRIDAY_HEAD and HEAD, and the
+  O-62 fix waits until after Sunday.
+- Friday: FRIDAY_HEAD = the head after Friday's records (code `d528970e` unless something is reviewed and merged), plus
+  FP ownership 12:30 / 16:30, A3 cheap-armed, and the full `--check`.
+- Saturday: the arm as planned (TERM_ROWS 8, TERM_SHA `5941678b…`).
+
 ## 2026-10-08 (16:20 CDT) — laptop: study 65 reproduced and recorded (no arm enterable); O-62b measured SMALL
 
 **Study 65 (S2 + S3), its records verified and merged** (`90218f37`).
