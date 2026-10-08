@@ -12,6 +12,32 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-08 (17:42 CDT) — laptop: study 71's production flag format agreed (W6)
+
+**The reviewer's study 71 plan** (study list 71):
+- no lab change and no re-pin: f69598b's `optimize` takes `interaction_floor_weights` / `interaction_floor`, and
+  union_reselect's mix solve calls it at line 576 (checked by the laptop);
+- the rule is a floor of 1 over the pairs (QB, opponent's top WR);
+- the top WR is study 70's `top_wr` on the buildable pool.
+
+**The outside reviewer's flag format, agreed by the laptop with four amendments:**
+- the flag: `union_reselect.py --mix-bring-back-top-wr A1,B` (default off; refuses A2 / C, unknown cells and non-mix);
+- the receipt block `conf.union.mix.bring_back_top_wr` (cells, rule, top_wr map, pairs, rows floored, fallbacks);
+- a fallback re-solve without the floor, recorded;
+- `mix_shapes.shape_violations(..., top_wr=, top_wr_cells=)`.
+
+The amendments:
+- (a) a top WR excluded later (OUT / IR at vet) switches the rule off for that opponent, and the next WR is never promoted;
+- (b) fallback exemptions are keyed by row identity, not commit index, because vet_book re-orders a MIX book (O-36);
+- (c) the flag-off test compares the receipt by content, without the code-identity fields;
+- (d) the outside reviewer wires vet_replace_v4 and audit_build_levers through ONE shared reader in mix_shapes. The laptop
+  reviews it and keeps sunday_build_host / week_env / arm wiring for itself, after ENTERABLE.
+
+**Timeline:**
+- the branch `review/s71-bringback-topwr-20261008` is ready for review by Sunday night;
+- the reviewer's harness READ comes before Tuesday's W6 decisions;
+- the flag is merged only on ENTERABLE, before FRIDAY_HEAD 10-16.
+
 ## 2026-10-08 (17:37 CDT) — laptop: study 70 READ reproduced; recommendation for W5: do NOT enter (his option kept open)
 
 **Study 70 READ:** the reviewer's `c2d15669` (lab `68c900d`, reader `26409685`) was reproduced BYTE-IDENTICALLY by the
