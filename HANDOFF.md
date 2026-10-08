@@ -50,6 +50,11 @@ Its four design facts, all forwarded to the reviewer (nfl-predictions-84) for S1
 
 The size is unmeasured. It is not fixed before W5: FP's means replace ours from W5, and a live-feature change mid-gate moves the frozen Route Share
 models, which is the reviewer's call. Planned for W6 with O-55's retrain. The S64 wind rule should classify roofs the same way in its fit and its application.
+**Later the same afternoon, from the outside reviewer (forwarded to the reviewer):**
+- Its 2023–25 wind estimate came almost entirely from open-air games: 4,468 is_dome = False rows plus 12 dome rows (wind 2.0).
+- 1,823 dome / closed-roof rows and 488 open-air rows without wind dropped out.
+- Wind there averaged 8.1 mph (sd 4.3, max 20), so the QB −0.97 per sd is about −0.23 pts per mph, an upper bound.
+- Its advice: apply wind only to open-air stadiums; treat retractable roofs as excluded or unknown.
 
 **Next:** ack S64's freeze Friday evening (shas, tests, a re-run of the fit byte-identical); S65's census / freeze Saturday morning; Friday's
 list as in the 10-08 entries (FP ownership captures 12:30 / 16:30, A3 cheap-armed, the QB-coverage retry, the arm `--check`).
