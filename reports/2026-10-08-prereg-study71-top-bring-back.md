@@ -1,9 +1,9 @@
-# Preregistration: study 71, the bring-back is the opponent's top receiver, in the harness (DRAFT 2026-10-08)
+# Preregistration: study 71, the bring-back is the opponent's top receiver, in the harness (FROZEN 2026-10-08)
 
-**Status: DRAFT 2026-10-08** by the reviewer, written after the code's smoke and before the binding census and any
-scored bank.
-- **Next:** the binding census (§6), the freeze, the laptop's ack (banks and seed already scanned clean), the run, the
-  confirmatory census before the read, the frozen reader, the laptop's re-run and the records.
+**Status: FROZEN 2026-10-08 (17:55 CDT)** by the reviewer, after the smoke and the binding census (§6), before any scored bank.
+- The DRAFT was `0a22ffa6`. Nothing in §2–§5 changed at the census; §6 records it.
+- **Next:** the laptop's ack (the banks and seed already scanned clean), the run, the confirmatory census before the
+  read, the frozen reader, the laptop's re-run and the records.
 - **Target:** read tonight. If TOPBB_AB is ENTERABLE, the production flag can be reviewed, merged before FRIDAY_HEAD and
   rehearsed on Friday's A3, for his choice at Saturday's arming (default OFF).
 
@@ -106,7 +106,20 @@ scored bank.
 - **The full-path smoke** (2024 W10 and 2022 W6 scored on bank 1406):
   - the reader exited 0 with its 3 sections and both infeasible-solve lines;
   - only the exit code, the line count and the section count were read.
-- **The binding census:** to follow (all 53 slate-banks of 2022–24, bank 1406, mechanics only).
+- **The binding (support) census** (outcome-blind; bank 1406; all 53 slate-banks of 2022–24; code `b512093` clean; lab
+  `results/s71/CENSUS_s71_binding.txt` `dfc89127…`, the raw mechanics rows `census_mechanics_bank1406.jsonl` `178b477f…` with no
+  outcome field, committed at `8363072`):
+  - every arm is 41 rows within production's caps, QB cap and overlap limit, with 8 term rows and every row in the pool;
+  - every QB had an opponent's top receiver (52.5 of 52.5 per slate-bank);
+  - rule solves 1,272 (TOPBB_AB) / 689 (TOPBB_A1), with 0 infeasible.
+  - Rows holding the QB's opponent's top receiver: LIVE_CB 3.4 of 26 (3.4 of the 15.0 A1 / B rows), TOPBB_AB 15.0 (15.0
+    of 15.0), TOPBB_A1 8.6.
+  - Projection per row: 128.98 / 128.64 / 128.82 (cost −0.34 / −0.15).
+  - QB games 6.4 / 6.5 / 6.4.
+  - Rows shared with LIVE_CB: 1.5 / 3.7; dealt identical 0.000 (no dead lever).
+  - Build time: about 70 s per slate-bank with 16 workers.
+  - Disclosed: the census was started a few minutes before this DRAFT's text was committed. It ran on the committed
+    code `b512093`, where the design is fixed, and it is outcome-blind.
 - **Code:** nfl2 `production/s71-topbb-20261008` @ `b512093`:
   - `experiments/s71_topbb.py` `2d287cf4…`;
   - `scripts/s71_drive.py` `6abda73c…`;
@@ -119,9 +132,9 @@ scored bank.
 
 ## 7. Order
 1. The code and the smoke. Done.
-2. This DRAFT.
-3. The binding census.
-4. The freeze.
+2. The DRAFT (`0a22ffa6`). Done.
+3. The binding census. Done (§6).
+4. The freeze. Done (this text).
 5. The laptop's ack (the banks and seed already scanned).
 6. The run.
 7. The confirmatory census before the read.
