@@ -7818,3 +7818,94 @@ secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; th
 - **Recommendation for Week 5:** keep the cheap block, and do not enter a top-receiver block. The rule allows
   CHEAPEXPWR2_B8 as his decision. If he wants it anyway, the writer needs `--base cheap2-w5.csv --min-salary 7000`, and
   Friday's A3 must rehearse the file first. The reviewer advises against it.
+
+## Addendum 169 (2026-10-08): study 71 (the bring-back is the opponent's top receiver, in the harness): NO DIFFERENCE, not contradicted -- ENTERABLE by the trial rule, but neutral (no gain shown); the recommendation is to keep it off for Week 5
+
+**Setup.**
+- **The question.** The operator, 10-08 evening: "Why can't we test the study 71 today with, and if it's good, use it
+  this week?" Study list 71 is the outside reviewer's design from his W4 concern: the $500+ Millionaire lineups paired
+  Stroud with Collins and Dallas's Lamb, while our bring-backs are the cheapest opposing player that fits.
+- **The arms.** Built on study 48's harness (LIVE = 48d's 41 rows with the cheap +2 block; Rev6 `ac10ddf6`):
+  - LIVE_CB (the reference).
+  - TOPBB_AB, the single decision: on every solve of the MIX cells that require a bring-back (A1, B), the pinned
+    optimizer's interaction floor of 1 over the (QB, his opponent's top receiver) pairs. The top receiver is study 70's
+    `top_wr`. The cheap block is kept, and no lab change was needed.
+  - Exploratory TOPBB_A1: A1 only.
+- **Preregistration:** `reports/2026-10-08-prereg-study71-top-bring-back.md` (DRAFT `0a22ffa6`; FROZEN `568c6a75`,
+  10-08 17:55 CDT, before any scored bank).
+- **Panel:** banks 1617–1622, B 20,000, seed 20261115.
+- **Read:** the reader `7a77ce5b`; READ `e37c9cff` (lab `c9efad0`). The confirmatory census (`773450f`, with the raw
+  files' shas) was committed before the READ.
+- **Reproduced byte-identically by the laptop:** raw 1617–1622 = `RAW_s71_run.sha256` (`sha256sum -c` OK); the READ
+  `e37c9cff` (cmp); the confirmatory census `fc90a445` (cmp).
+- **The prior, stated first:** NOT ENTERABLE was more likely (study 70; the clustering rules of studies 54 and 57;
+  study 63's QBTE_SHARE).
+- **Census:**
+  - 0 of 1,272 rule solves were infeasible.
+  - Rows with the top bring-back: LIVE_CB 3.4 vs TOPBB_AB 15.0 of the 15.0 A1 / B rows.
+  - Projection cost −0.34 per row.
+  - The book is nearly all new: 1.5 rows of 26 shared with LIVE_CB.
+
+**Reader output (verbatim):**
+```
+STUDY 71 READER  sha256 7a77ce5b8fc328816c9e8fb0458d68516e2c3413d06c28a15fa3631610842f62
+DIRECTION: P(>= 1 big seat) per slate (the mean over its banks); every difference is ARM - LIVE_CB; POSITIVE favours the arm.
+slates 36 (the 2023-24 read) + 17 (the 2022 go / no-go)  banks [1617, 1618, 1619, 1620, 1621, 1622]  B 20000  seed 20261115  one decision arm against LIVE_CB on the CALIBRATED field (v2), each two-sided 0.95; guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only; 2022: the point estimate (two-sided 0.95 interval); study 51's trial rule per arm
+arms (definitions, the bring-back rule's constants, study 48's and study 53's shas, live settings, QB cap, objective): [["LIVE_CB", "TOPBB_AB", "TOPBB_A1"], {"block": {"cap": 2.0, "min_coverage": 0.5, "n_term": 8, "tilt": 0.2}, "floor": 1.0, "rule_cells": {"TOPBB_A1": ["A1"], "TOPBB_AB": ["A1", "B"]}, "top_wr": "s70_topwr.top_wr"}, "c22d28114ab4b463b6842594cb2ff7ca1babf41e28015c7242b21baedb1bc67c", "f3f9d735ca0c5dfadb7abe6c2999fd3bcb352425e4fcc7ea73bd2b09d4522c89", {"fill": "rr", "max_shared": 4}, 5, "player_mean (+ the cheap block term)"]
+
+== TOPBB_AB vs LIVE_CB  [DECISION; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate -0.01881  [-0.07207, +0.03047] (two-sided 0.95)  seasons 2023 -0.06509, 2024 +0.02747
+  GUARD 1 mean entry pct -0.00403  one-sided lower -0.01226  (must exceed -0.015)
+  GUARD 2 expected big seats 0.47597 vs 0.52242  ratio 0.911  (must be >= 0.80)
+  TOPBB_AB dealt identical to LIVE_CB: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  GO / NO-GO 2022: +0.05530  [-0.00935, +0.12216] (two-sided 0.95)  ->  not contradicted
+  TRIAL: ENTERABLE, his decision: no harm shown and no gain shown (NO DIFFERENCE on the read, not contradicted on 2022)
+
+== TRIAL SUMMARY: TOPBB_AB ENTERABLE (his decision; one construction change a week)
+
+== EXPLORATORY (never decision-bearing; two-sided 0.95)
+  TOPBB_A1 - LIVE_CB (v2, 2023-24): -0.02819  [-0.06702, +0.00817]  seasons 2023 -0.04860, 2024 -0.00777
+  TOPBB_A1 - LIVE_CB (v2, 2022): +0.01712  [-0.03723, +0.07019]  seasons 2022 +0.01712
+  TOPBB_AB - LIVE_CB (the l02 field, 2023-24): -0.01971  [-0.07049, +0.02770]  seasons 2023 -0.06178, 2024 +0.02235
+  TOPBB_AB - LIVE_CB (the l02 field, 2022): +0.06180  [-0.00788, +0.13449]  seasons 2022 +0.06180
+  TOPBB_A1 - LIVE_CB (the l02 field, 2023-24): -0.02916  [-0.06538, +0.00498]  seasons 2023 -0.04692, 2024 -0.01141
+  TOPBB_A1 - LIVE_CB (the l02 field, 2022): +0.01930  [-0.03789, +0.07453]  seasons 2022 +0.01930
+  TOPBB_AB solves the rule made infeasible (built without it): 0 of 7632 rule solves over 318 slate-banks
+  TOPBB_A1 solves the rule made infeasible (built without it): 0 of 4134 rule solves over 318 slate-banks
+
+secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; the book's rows are pre-lock facts):
+  [2023-24]
+  LIVE_CB      v2: P(>=1 big) 0.33437  expected big seats 0.52242  P(>=2) 0.12857  entry pct 0.51683  |  l02: P(>=1 big) 0.36065
+               book: projection per row 127.69  salary 49963  rows with the QB's opponent's top receiver 3.7 of 26 (3.7 of the 15.0 A1 / B rows)  QB games 6.3
+  TOPBB_AB     v2: P(>=1 big) 0.31557  expected big seats 0.47597  P(>=2) 0.11308  entry pct 0.51280  |  l02: P(>=1 big) 0.34093
+               book: projection per row 127.37  salary 49963  rows with the QB's opponent's top receiver 15.0 of 26 (15.0 of the 15.0 A1 / B rows)  QB games 6.3
+  TOPBB_A1     v2: P(>=1 big) 0.30619  expected big seats 0.47015  P(>=2) 0.11257  entry pct 0.51139  |  l02: P(>=1 big) 0.33148
+               book: projection per row 127.53  salary 49962  rows with the QB's opponent's top receiver 8.9 of 26 (8.9 of the 15.0 A1 / B rows)  QB games 6.4
+  [2022]
+  LIVE_CB      v2: P(>=1 big) 0.21247  expected big seats 0.29139  P(>=2) 0.06474  entry pct 0.45593  |  l02: P(>=1 big) 0.23154
+               book: projection per row 131.78  salary 49962  rows with the QB's opponent's top receiver 2.9 of 26 (2.9 of the 15.0 A1 / B rows)  QB games 6.6
+  TOPBB_AB     v2: P(>=1 big) 0.26777  expected big seats 0.37853  P(>=2) 0.07865  entry pct 0.45896  |  l02: P(>=1 big) 0.29334
+               book: projection per row 131.42  salary 49961  rows with the QB's opponent's top receiver 15.0 of 26 (15.0 of the 15.0 A1 / B rows)  QB games 6.7
+  TOPBB_A1     v2: P(>=1 big) 0.22960  expected big seats 0.32250  P(>=2) 0.07256  entry pct 0.45833  |  l02: P(>=1 big) 0.25085
+               book: projection per row 131.61  salary 49962  rows with the QB's opponent's top receiver 8.6 of 26 (8.6 of the 15.0 A1 / B rows)  QB games 6.6
+```
+
+**Reading.**
+- **The rule does what it says.** Every A1 / B row carries its QB's opponent's top receiver (15.0 of 15.0, against
+  3.7 in LIVE_CB), at 0.3 projected points per row. No rule solve was infeasible (0 of 7,632).
+- **It does not show a gain.**
+  - On the read, TOPBB_AB is −1.9 points [−7.2, +3.0], with the seasons split (2023 −6.5, 2024 +2.7).
+  - Expected big seats ×0.91; P(≥ 2) 0.113 against 0.129.
+  - On 2022 it is +5.5 [−0.9, +12.2], not contradicted.
+  - Over all 53 slates the two halves net to about zero.
+- **The trial rule makes it ENTERABLE,** his decision, in the reader's words "no harm shown and no gain shown".
+- **A1 alone (exploratory)** is −2.8 on the read and +1.7 on 2022: no better.
+- **What kind of change it is.** Unlike a block, the rule rebuilds almost the whole book (1.5 of 26 rows shared with
+  LIVE_CB), because the A1 / B rows change and the caps carry the change into the rest.
+- **Recommendation for Week 5:** keep it off (the default), and decide for Week 6.
+  - The evidence does not say it helps, and a whole-book change has more ways to surprise on Sunday than an 8-row block.
+  - It is a legitimate reversible trial if he wants to act on the pairing idea now. The rule allows it, and the 2022 half
+    leans his way.
+  - If he chooses it: the production flag is reviewed and merged before FRIDAY_HEAD, and Friday's A3 ON run is clean,
+    or it waits.
