@@ -327,6 +327,8 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   [[ "${UNION_MAIN:-mean}" == "mix" && -n "${UNION_MIX_FILL:-}" ]] && UNION_ARGS+=(--mix-fill "$UNION_MIX_FILL")
   # the MIX coverage rows (study 43; operator 10-06): unset or 0 = off, as before
   [[ "${UNION_MAIN:-mean}" == "mix" && "${UNION_MIX_COVER_GAMES:-0}" != 0 ]] && UNION_ARGS+=(--mix-cover-games "$UNION_MIX_COVER_GAMES")
+  # study 71 (the operator 10-08): the bring-back = the opponent's top receiver on the named MIX cells (A1,B); empty = off
+  [[ "${UNION_MAIN:-mean}" == "mix" && -n "${UNION_MIX_BRING_BACK_TOP_WR:-}" ]] && UNION_ARGS+=(--mix-bring-back-top-wr "$UNION_MIX_BRING_BACK_TOP_WR")
   # the half-and-half book (study 46; operator 10-06): unset or 0 = off, as before
   [[ "${UNION_MAIN:-mean}" == "mix" && "${UNION_MIX_RS_ROWS:-0}" != 0 ]] && UNION_ARGS+=(--mix-rs-rows "$UNION_MIX_RS_ROWS")
   # the MIX cells' entry quotas (study 56, fewer QB + 1 rows; the operator 10-07): unset = MIX_CELLS, as before
