@@ -12,6 +12,23 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-08 (11:57 CDT) — The Route Share treatment rebuilt on the repaired W4 data and re-proven; check_prospective_gates GREEN; O-2, O-25 and O-49 closed
+
+- **The rebuild** (each step in its lane):
+  - `build-features` 11:31:52–11:37:04;
+  - `train-weekly-k1-route` (execution dncgr): "Registered 11 component models as pooled/components__tail_k1_route/2026-W41", 16:42:46Z;
+  - `train-weekly-k1-route-role` (execution wbsbh): "... components__tail_k1_route_role/2026-W41", 16:48:37Z.
+- **Verified:**
+  - The W5 inference rows carry the repaired W4 route shares (e.g. 42.9 → 45.7%; `fp_route_share_last` 0.457). 50 of the
+    51 revised players have a W5 row.
+  - The controls are UNTOUCHED: `tail_k1` W41 written 2026-10-06T13:38Z, `tail_k1_role` W41 13:49Z. The treatments were
+    rewritten 10-08 at 16:42Z and 16:48Z.
+- **The reviewer's condition (b):** `shadow-k1-route-roleunion` dry run REPEATED after the retrain as `-wzp6x` (16:49–16:55Z,
+  exit 0). It froze dryrun-live-shadow-tail_k1_route_roleunion-2026w05-20261008T165223Z: group 154468, 80 lineups.
+- **(c):** `check_prospective_gates.py --week 5`, exit 0: "every gate that must be armed this week is armed and
+  policy-consistent". The companion-v1 line says "may lose at most 2 paired weeks".
+- **Register:** O-2, O-25 and O-49 moved to "Closed 2026-10-08".
+
 ## 2026-10-08 (11:36 CDT) — The Route Share gate record: W2–W4 ABSENT (the reviewer's ruling); a two-week evidence margin
 
 - **The record, in the reviewer's words:** "W2–W4: no companion-v1 pair (contract starts W5; W3–W4 executions failed,
