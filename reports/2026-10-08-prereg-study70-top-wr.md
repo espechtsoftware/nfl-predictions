@@ -1,9 +1,10 @@
-# Preregistration: study 70, a top-receiver block for this week, in the harness (DRAFT 2026-10-08)
+# Preregistration: study 70, a top-receiver block for this week, in the harness (FROZEN 2026-10-08)
 
-**Status: DRAFT 2026-10-08** by the reviewer, written after the code's smoke and before the binding census, the bank
-scan and any scored bank.
-- **Next:** the binding census (§6), the seed scan, the freeze, the laptop's ack and scan, the run, the confirmatory
-  census before the read, the frozen reader, the laptop's re-run and the records.
+**Status: FROZEN 2026-10-08 (16:52 CDT)** by the reviewer, after the smoke, the binding census (§6) and the bank and seed scan,
+before any scored bank.
+- The DRAFT was `a1d85a96`. Nothing in §2–§5 changed at the census; §6 records it.
+- **Next:** the laptop's ack and scan, the run, the confirmatory census before the read, the frozen reader, the laptop's
+  re-run and the records.
 - **Target:** read tonight, so an ENTERABLE arm can still be rehearsed Friday and chosen at Saturday's arming.
 
 **Units:** probabilities, counts and rates only. Dollars stay in BigQuery and private files.
@@ -51,8 +52,8 @@ scan and any scored bank.
 - **THE READ: 2023–24** (36 slates). For each of the three decision arms, the arm − LIVE_CB on P(≥ 1 big seat), per
   slate, on the calibrated field v2.
   - The interval is two-sided 0.95, with B 20,000.
-  - **Banks 1611–1616** (scanned clean by the laptop; the reviewer re-scans with the seed), seed **20261114**. Each
-    slate's value is the mean over its six banks.
+  - **Banks 1611–1616**, seed **20261114** (scanned clean by the laptop and by the reviewer, §6). Each slate's value is
+    the mean over its six banks.
 - **THE GO / NO-GO: 2022** (study 51's frozen rule): the point estimate of P(≥ 1 big) ARM − LIVE_CB on 2022, with its
   two-sided 0.95 interval. CONTRADICTED if the point estimate is < 0.
 - **Guards** as in studies 54–65. They gate a PASS only: the mean entry percentile (one-sided 0.95 lower bound above
@@ -113,8 +114,25 @@ scan and any scored bank.
 - **The full-path smoke** (2024 W10 and 2022 W6 scored on bank 1406):
   - the reader exited 0 and printed its five sections;
   - only the exit code, the line count and the section count were read. No number or verdict word was seen.
-- **The binding census:** to follow (all 53 slate-banks of 2022–24, bank 1406, mechanics only).
-- **Code:** nfl2 `production/s70-topwr-20261008` @ `2698ed2`:
+- **The binding (support) census** (outcome-blind; bank 1406; all 53 slate-banks of 2022–24; code `2698ed2` clean; lab
+  `results/s70/CENSUS_s70_binding.txt` `b38c5d3d…`, the raw mechanics rows `census_mechanics_bank1406.jsonl` `7ab96c4f…` with no
+  outcome field, committed at `2a312e0`):
+  - every arm is 41 rows within production's caps, QB cap and overlap limit, with 8 term rows and every row in the pool;
+  - one top receiver per team on every slate-bank (asserted): 22.4 per slate-bank, 7.4 of them at $7,000+, mean salary
+    $6,471;
+  - every block applied on every slate-bank;
+  - per book row, LIVE_CB vs TOPWR2 / CHEAPTOPWR2 / CHEAPEXPWR2 / TOPWR3:
+    - top receivers 1.90 vs 2.53 / 2.33 / 2.06 / 2.60;
+    - expensive top receivers 0.87 vs 0.81 / 0.92 / 1.14 / 0.81;
+    - cheap players 1.58 vs 1.00 / 1.34 / 1.56 / 0.98.
+  - Rows shared with LIVE_CB 18.0–18.5; dealt identical 0.000 for every arm (no dead lever).
+  - Build time: about 81 s per slate-bank with 16 workers.
+- **The bank and seed scan** (the reviewer's `bank_scan.py`; blobs up to 5 MB; 18,043 production and 8,100 lab blobs):
+  - filtered to bank contexts, 1611–1616 appear only in this study's agenda (the study list, HANDOFF) and this
+    preregistration;
+  - the seed 20261114 appears only in this study's reader and test;
+  - no `results_bank1611`–`1616` file exists on disk.
+- **Code:** nfl2 `production/s70-topwr-20261008` @ `2698ed2` (the census at `2a312e0`):
   - `experiments/s70_topwr.py` `d622a211…`;
   - `scripts/s70_drive.py` `9c82f0db…`;
   - `scripts/s70_census.py` `cca92be7…`;
@@ -126,10 +144,10 @@ scan and any scored bank.
 
 ## 7. Order
 1. The code and the smoke. Done.
-2. This DRAFT.
-3. The binding census.
-4. The seed and bank scan.
-5. The freeze.
+2. The DRAFT (`a1d85a96`). Done.
+3. The binding census. Done (§6).
+4. The seed and bank scan. Done (§6).
+5. The freeze. Done (this text).
 6. The laptop's ack and scan.
 7. The run.
 8. The confirmatory census before the read.
