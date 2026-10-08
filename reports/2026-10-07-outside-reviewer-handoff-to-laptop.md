@@ -134,3 +134,62 @@ Then a short note for the Tuesday 10-13 Week-6 decisions.
 - **Monday 10-12, item 5 added to my plan:** the Week-5 row of the frozen weekly FP vs 50/50 FP + props check
   (`scripts/weekly_fp_props_check.py`, `reports/2026-10-06-prereg-fp-props-weekly-check.md`). If its rule offers the
   mix, I recommend it for Week 6 (class C; the operator decides).
+
+## 7. Thursday afternoon (2026-10-08 13:22 CDT): the T-70 DK pull sees no inactives; the late-scratch bump; the pros briefing
+
+**Found (needs a production decision before Saturday's arming): the 10:33 CT T-70 DraftKings pull does not carry the
+10:30 inactives.**
+- Read-only `nfl_raw.dk_salaries` counts (statuses OUT/IR/D/O).
+- **W4, group 154078:** 90 out at every pull from 00:59 through 09:59 and at the 10:33 T-70 pull; 109 at 10:59
+  (Questionable 13 → 5).
+- **W2:** the 10:49 pull had them (83 → 101).
+- **W1 and W3:** they appeared between the last pull before 10:30 and the first after (11:02 / 11:29).
+- So DK posts inactive statuses after 10:33 and, in W2, by 10:49. Our T-70 frame, the T-70 project-slate (and its
+  cascade) and the union all ran on pre-inactives statuses in W4.
+- The pre-upload live-status check (about 11:00) and the replacements caught the scratches. In W5 the union's
+  `--min-proj` floor also drops players FP has already zeroed (FP zeroed 2 of W4's 3 late inactives by its 10:38
+  capture).
+- **W5 is armed the same way:** `T70_PULL_CT` defaults to 10:33 in `arm_week_timers.sh`.
+- **My own gap:** `check_salary_pull.py` (my M4) checks the pull's time, not its content, so it passes this case.
+- **Options (production's and the operator's call):**
+  - (a) A content check: compare the T-70 pull's out count with the morning pull. If unchanged, print a CAPITALS
+    banner, retry the pull until about 10:47, and record it in the receipt.
+  - (b) Move `T70_PULL_CT` later. The 10:36 project-slate (about 3 minutes) and the 10:50 build constrain this.
+  - (c) Accept it, relying on the pre-upload check, with a recorded decision.
+- I recommend (a) for Sunday, because it changes no build input when DK has updated, and (b) for Week 6. I can write
+  (a) with tests today if production wants it.
+
+**The late-scratch bump (my 10-08 morning commitment):** `review/late-scratch-bump-20261008` @ `fbad73be`.
+- **What it does:** `scripts/union_reselect.py` `--proj-source-late-scratch-bump`, default off, not wired. A frame
+  player that `unavailable_ids` marks out but whom FP still projects at or above `--min-proj` gives his depth-2
+  same-position teammate our T-70 table bump (RB/TE +1.6, WR +0.7) on top of FP's number. It is recorded under
+  `config.union.proj_source.late_scratch_bump`. Any missing input prints a banner and does nothing.
+- **Tests:** a new module, 15 passing. Every module that references `union_reselect`: 184 passed, 1 skipped (the
+  lab-clone test).
+- **Limits found while building it:**
+  - It sees late scratches only through `--dk-status` (O-16), which production does not pass, and the frame's own
+    pull is pre-inactives (above). In W4 it would have fired on nothing.
+  - Players DK marked out before the pull are dropped from the frame and from FP's override, so their teammates' stale
+    FP numbers are not reached. That needs `fp_projection_override.py` to export FP rows for out-of-frame players.
+  - Sunday replacements (`vet_replace_v4.fp_shift`) price on `proj_source.csv` only. That is where post-pull
+    scratches are actually handled, so it is the natural next home for the function.
+- **Proposed OPEN-DEFECTS entries for production:**
+  - **O-NN:** FP projections drop our next-man-up bump for scratches FP has not processed. The fix branch is above,
+    with gaps (a) out-of-frame scratches, (b) the model cascade's spread to other teammates, (c) QBs and
+    (d) replacements. Deadline: before the W6 T-70 build. Resolved means merged, wired with a fresh `--dk-status`, and
+    rehearsed, or an explicit decision to accept the gap.
+  - **O-NN+1:** the T-70 pull is pre-inactives (above). Deadline: W6 at the latest; the W5 option is (a). Resolved means
+    a content check or later pull with a test, or a recorded decision.
+
+**The operator's research question (10-08): how the pros use FP and what else they use.**
+- The briefing is `briefings/2026-week-05/2026-10-08-how-the-pros-pick-players.md` on `review/pro-methods-20261008` @
+  `1cbdc837`, with an index row; scripts and aggregate tables are in `reports/2026-10-08-pro-methods/`.
+- **Headlines:**
+  - FP and props agree at 0.85 beyond salary, so no pro can be pinned to FP.
+  - The regulars follow the projection at RB, TE, studs and chalk, and hardly at QB/WR.
+  - Their habits are leverage, not information.
+  - Their edge is about half market-following and half beyond the market.
+  - Over 2023–25 the props under-price team totals (+0.33 per sd, z 3.4), underdogs and wind.
+- **Proposed tests (operator's decision):**
+  - S1: an environment calibration on top of FP (class C).
+  - S2 and S3: tail tilts and a recency fade in the harness (class S).
