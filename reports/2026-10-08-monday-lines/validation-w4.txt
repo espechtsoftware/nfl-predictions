@@ -1,0 +1,24 @@
+# Rows 67-68 validation on 2026 Week 4 (written 2026-10-08 15:08 CDT; aggregates only)
+## Row 68: field_sharpness.py --season 2026 --week 4 --check-sources
+2026 W1: top-10 actuals 36.22 (n 661) vs Millionaire fpts 36.22 (n 641); difference +0.00
+2026 W2: top-10 actuals 30.30 (n 629) vs Millionaire fpts 30.30 (n 386); difference +0.00
+2026 W3: top-10 actuals 31.35 (n 631) vs Millionaire fpts 31.35 (n 389); difference +0.00
+2026 W4: top-10 actuals 33.13 (n 593) vs Millionaire fpts 33.13 (n 356); difference +0.00
+2026 W4: Millionaire 196151357 winning score 234.20, field 161,764 entries; slate top-10 33.13 (actuals) -> expected 244.8; residual -10.6 (sd 12.1); 2026 to date +2.7 over 4 week(s) (2023 +1.1 / 2024 -4.1 / 2025 +2.6) [fit: reports/2026-10-07-brainstorm/winning_trend.py @ f1689126, 2023-25, 48 weeks]
+## Row 67: tier_check.py week (W4 accuracy rows; W4 fp-props rows generated privately for this check)
+== TIER CHECK $6,000-7,900: 2026 W4 (REFERENCE: before Week 5, never pooled) -- descriptive, gates nothing. bias = source - actual (+ = over-projected); improvement = MAE(incumbent) - MAE(challenger), game clusters within week, B 2000, seed 1
+   tier rows 36 in 12 games; by position {'QB': 9, 'RB': 11, 'TE': 2, 'WR': 14}; tier mean actual 17.23
+   A. the accuracy reader's tier rows:
+      ours   MAE 7.67  bias -0.92  Spearman +0.36  top-5 mean actual 20.75
+      fp     MAE 7.57  bias +0.13  Spearman +0.37  top-5 mean actual 20.47
+      blend  MAE 7.59  bias -0.40  Spearman +0.39  top-5 mean actual 20.02
+      ours_vs_fp     improvement -0.10 [-0.47, +0.30]  better in 33%
+      blend_vs_fp    improvement -0.01 [-0.20, +0.20]  better in 46%
+      blend_vs_ours  improvement +0.09 [-0.12, +0.30]  better in 77%
+   B. the prop-covered part (n 35; props in the reader's ours slot, 0.5 FP + 0.5 props in its blend slot):
+      props    MAE 7.71  bias -1.66  Spearman +0.34  top-5 mean actual 20.73
+      fp       MAE 7.74  bias +0.18  Spearman +0.35  top-5 mean actual 20.47
+      fp+props MAE 7.69  bias -0.74  Spearman +0.38  top-5 mean actual 20.84
+      props_vs_fp        improvement +0.05 [-0.45, +0.57]  better in 55%
+      fp+props_vs_fp     improvement +0.07 [-0.20, +0.35]  better in 64%
+      fp+props_vs_props  improvement +0.02 [-0.23, +0.25]  better in 56%
