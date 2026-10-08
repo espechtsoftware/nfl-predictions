@@ -12,6 +12,48 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-08 (14:19 CDT) — laptop: the pros briefing correction merged; the reviewer's S64 / S65 plan; O-61 (is_dome skew for retractable roofs)
+
+**Merged** `review/pro-methods-20261008` @ `d8df6af0` (the outside reviewer's correction to the pros briefing, made before S1 freezes)
+as `0b2207b8`. One file (`briefings/2026-week-05/2026-10-08-how-the-pros-pick-players.md`); privacy grep clean (aggregates only).
+Its four design facts, all forwarded to the reviewer (nfl-predictions-84) for S1 / S2 / S3:
+- **History's wind is the wind measured at the game, so it is an upper bound.** Verified: `sql/features/020_game_weather.sql` falls back to
+  `schedules.wind` when no `nfl_raw.weather` snapshot exists (2023–25); live wind is Open-Meteo's forecast. Wind goes in as a separate,
+  low-confidence term, judged on forecasts.
+- **The team-total effect holds in Sunday 1 pm ET games** (+0.37 pts per sd, z 3.4, 5,429 player-games), so it is not late news.
+- **Fit the environment jointly, in real units**, never by adding solo effects (team total = game total / 2 ± spread / 2).
+- **2022 has no props**, so a market-relative go / no-go (S3, part of S2) needs a 2022 stand-in.
+
+**The reviewer's plan (received 10-08; the reviewer writes all code, the laptop acks, verifies, re-runs and merges):**
+- **S1 = study 64.** The environment calibration on FP's projections:
+  - a joint OLS per position of the props-market residual on z(implied team total) and z(wind), on 2023–25, capped at ±2.0 points;
+  - frozen Friday 10-09 evening, then a W6 paper arm in study 38 (by amendment);
+  - Monday's line uses the accuracy reader's own rule, and the trial is eligible at W8 or later with at least 4 weeks pooled.
+- **S2 + S3 = study 65.** One harness prereg (TAILTILT_B8, RECENCY_B8 vs LIVE_CB):
+  - DRAFT Friday; census and freeze Saturday morning; run Saturday 13:00–17:00, outside the build windows;
+  - READ Monday; Tuesday 10-13 still holds.
+
+**Answers sent to the reviewer:**
+- `wind_mph` is NOT in any live model. It is in neither NUMERIC_FEATURES nor CANDIDATE_FEATURES, and EXTRA_FEATURES admits only
+  candidates. The domes' outdoor wind reaches no model. The 020 wind source dates from Phase 2; the 2026 change only added precipitation.
+- The accuracy reader's private player rows are `~/private/projection-accuracy/accuracy-<season>-w<NN>.csv`.
+  - Columns: `id, name, pos, game, gsis_id, season, week, ours, fp, actual, blend`, sorted by `id`.
+  - `id` is the T-70 frame's `id`. There is NO `dk_draftable_id`: it is used for the FP join and then dropped.
+  - The `.json` beside each file holds the FP capture, the cutoff, the frame path and `rows_sha256`.
+  - Suggested: S64's line joins `env_adj` on `id` and adds it to the rows' own `fp`, so FP + ENV uses the reader's exact capture.
+
+**New: O-61 (register + README deficiency row).** `is_dome`, a LIVE model input, is false live for every retractable-roof game:
+- nflverse's `roof` is NULL before kickoff;
+- the weather job stamps `false`, and the snapshot wins in `game_weather`;
+- all 7 of 2026's W1–4 `closed` games show it;
+- history (2023–25) counts `closed` roofs as domes (31 / 43 / 42 games a season).
+
+The size is unmeasured. It is not fixed before W5: FP's means replace ours from W5, and a live-feature change mid-gate moves the frozen Route Share
+models, which is the reviewer's call. Planned for W6 with O-55's retrain. The S64 wind rule should classify roofs the same way in its fit and its application.
+
+**Next:** ack S64's freeze Friday evening (shas, tests, a re-run of the fit byte-identical); S65's census / freeze Saturday morning; Friday's
+list as in the 10-08 entries (FP ownership captures 12:30 / 16:30, A3 cheap-armed, the QB-coverage retry, the arm `--check`).
+
 ## 2026-10-08 (14:11 CDT) — The operator: the pros briefing's experiments ON THE AGENDA before Week 6 (study list 64–66; the reviewer asked to schedule)
 
 - **His words:** "please make sure that the recommended experiments that the outside reviewer suggested in the pros
