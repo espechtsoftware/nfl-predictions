@@ -429,3 +429,34 @@ opponent's EPA allowed per dropback over its previous 6 games (`nfl_raw.pbp`, ev
 - Track the real-field pattern as one more weekly line ("QB + TE vs QB + WR by the opponent's pass defence"). If it
   holds through W5–W8, it is a real signal beyond history, and it goes to a test.
 - The matchup block's paper results are the tested route for position-specific matchups.
+
+### 6a. Time of possession and passes to tight ends (the operator, 10-07)
+
+The operator: *"could you do a check on if there's any correlation between the time of possession and the number of
+passes to tight ends? I'm wondering if tough defenses make it so that we have the ball less and they have to quickly
+throw it to a tight end."*
+
+**Data and method** (`top_te_study.py`): regular seasons 2014–2025 from play-by-play, 6,302 offense games.
+- Time of possession is the sum of the team's drives.
+- Targets are counted by the receiver's position.
+- Play-by-play has no time-to-throw, so passes of 5 air yards or less stand in for "quick throws".
+- Defense strength is point-in-time: EPA allowed per dropback over the opponent's previous 6 games that season.
+
+**Link 1 (tough defence → less possession): not there.** The offense's time of possession is 30.2 min against tough pass
+defences, 30.1 middle, 30.4 soft. Within offense-season, with the implied total controlled, the effect is +0.0006 per sd
+(t 0.6). The implied total matters: favourites hold the ball longer (t 5.2).
+
+**Link 2 (less possession → more passes to the TE): the reverse.** Comparing the same offense-season's games:
+
+| Possession | Minutes | Pass attempts | TE targets | TE share | Short-pass share | TE share of short passes | Margin |
+|---|---|---|---|---|---|---|---|
+| Less ball (own low third) | 25.6 | 35.7 | 6.70 | .209 | .495 | .218 | −5.8 |
+| Middle | 30.2 | 37.3 | 7.13 | .212 | .508 | .223 | −0.2 |
+| More ball (own high third) | 34.8 | 37.4 | 7.35 | .218 | .520 | .228 | +6.2 |
+
+- With the score margin controlled, more possession goes with a slightly **higher** TE share (t 2.8).
+- The opponent's pass defence has no effect on TE share (t 0.0).
+
+**Reading:** offenses facing tough pass defences do not have the ball less. When they have it less, they throw slightly
+fewer and shorter-share passes to the TE, not more. The data cannot see the QB's time to throw itself, but the short-pass
+proxy points the same way.

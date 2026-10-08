@@ -1,0 +1,26 @@
+offense games 2014-2025: 6,302; mean time of possession 30.2 min (sd 4.5); TE targets per game 7.1, TE share 0.213
+
+(1) LINK 2: time of possession vs passes to tight ends (correlations; 'within' = the same offense-season)
+  time-of-possession share vs te_tgt            : raw r +0.089; within offense-season r +0.097
+  time-of-possession share vs te_share          : raw r +0.049; within offense-season r +0.047
+  time-of-possession share vs att               : raw r +0.086; within offense-season r +0.101
+  time-of-possession share vs short_share       : raw r +0.103; within offense-season r +0.119
+  time-of-possession share vs te_share_of_short : raw r +0.034; within offense-season r +0.039
+
+(2) by the game's time of possession relative to the same offense-season's average:
+                            top_min     att    rush  te_tgt  te_share  wr_tgt  rb_tgt  short_share  te_share_of_short  te_adot  margin  games
+top_third                                                                                                                                    
+less ball (own low third)    25.606  35.709  21.280   6.701     0.209  19.188   6.148        0.495              0.218    7.302  -5.810   2101
+middle                       30.238  37.284  26.478   7.125     0.212  20.025   6.458        0.508              0.223    6.986  -0.219   2100
+more ball (own high third)   34.818  37.356  32.327   7.351     0.218  19.942   6.555        0.520              0.228    6.838   6.151   2101
+
+(3) LINK 1: does a tough pass defense (opponent's EPA allowed per dropback, previous 6 games, point-in-time) cut our time of possession? (5,150 games)
+              top_min  top_share  top_share_w     att  te_tgt  te_share  te_share_w  short_share     itt
+def_third                                                                                               
+tough pass D   30.187      0.500       -0.001  36.473   7.031     0.215       0.002        0.508  21.541
+middle         30.060      0.497       -0.002  36.990   7.188     0.216       0.002        0.507  22.572
+soft pass D    30.444      0.503        0.004  36.595   7.089     0.215       0.002        0.504  23.752
+  top_share_w: per 1 sd SOFTER pass defense +0.0006 (t +0.6); per 1 point of implied total +0.0021 (t +5.2)
+  te_share_w: per 1 sd SOFTER pass defense +0.0000 (t +0.0); per 1 point of implied total +0.0008 (t +1.8)
+
+(4) TE share within offense-season ~ time-of-possession share + score margin (game script): TOP +0.0444 per unit share (t +2.8), i.e. +0.0022 per 5 points of possession share; margin +0.00013 per point (t +1.6)
