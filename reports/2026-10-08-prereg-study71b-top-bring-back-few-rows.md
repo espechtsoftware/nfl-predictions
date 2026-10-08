@@ -1,9 +1,9 @@
-# Preregistration: study 71b, the top-receiver bring-back on a few rows only, in the harness (DRAFT 2026-10-08)
+# Preregistration: study 71b, the top-receiver bring-back on a few rows only, in the harness (FROZEN 2026-10-08)
 
-**Status: DRAFT 2026-10-08** by the reviewer, written after the code's smoke and before the binding census and any
-scored bank.
-- **Next:** the binding census (§6), the freeze, the laptop's ack (the banks and seed already scanned clean), the run,
-  the confirmatory census before the read, the frozen reader, the laptop's re-run and the records.
+**Status: FROZEN 2026-10-08 (18:50 CDT)** by the reviewer, after the smoke and the binding census (§6), before any scored bank.
+- The DRAFT was `f121c044`. Nothing in §2–§5 changed at the census; §6 records it.
+- **Next:** the laptop's ack (the banks and seed already scanned clean), the run, the confirmatory census before the
+  read, the frozen reader, the laptop's re-run and the records.
 - **Target:** read tonight. If TOPBB_N4 is ENTERABLE, the production row cap can be reviewed, merged before
   FRIDAY_HEAD and rehearsed on Friday's A3, for his choice at Saturday's arming (default OFF).
 
@@ -84,7 +84,18 @@ its `qb_top_wr` and study 70's `top_wr`.
   - Rows shared with LIVE_CB: 0.3 / 1.0.
 - **The full-path smoke** (2024 W10 and 2022 W6 scored on bank 1406): the reader exited 0 with its 3 sections. Only the
   exit code, the line count and the section count were read.
-- **The binding census:** to follow.
+- **The binding (support) census** (outcome-blind; bank 1406; all 53 slate-banks of 2022–24; code `c2f5638` clean; lab
+  `results/s71b/CENSUS_s71b_binding.txt` `76d4f617…`, the raw mechanics rows `census_mechanics_bank1406.jsonl` `a05b581d…` with no
+  outcome field, committed at `1b0d221`):
+  - every arm is 41 rows within production's constraints, with 8 term rows and every row in the pool;
+  - exactly 4 / 2 ruled book rows per slate-bank (asserted), with 0 of 212 / 106 floored solves infeasible;
+  - every QB had an opponent's top receiver (52.5 of 52.5).
+  - Rows with the top bring-back: LIVE_CB 3.43, TOPBB_N4 5.43, TOPBB_N2 4.21 of 26.
+  - TOPBB_N4's top-bring-back rows sit at book positions 0–4 (2.47 per slate-bank), 5–9 (2.00), 10–14 (0.23),
+    15–19 (0.25) and 20–25 (0.49): the head, as designed.
+  - Projection per row: 128.98 / 128.92 / 128.94 (cost −0.06 / −0.04).
+  - QB games 6.4 / 6.6 / 6.5.
+  - Rows shared with LIVE_CB: 2.6 / 3.6; dealt identical 0.019 / 0.038 (no dead lever).
 - **Code:** nfl2 `production/s71b-topbb-n-20261008` @ `c2f5638`:
   - `experiments/s71b_topbb_n.py` `1592a9c8…`;
   - `scripts/s71b_drive.py` `5aa365a2…`;
@@ -97,9 +108,9 @@ its `qb_top_wr` and study 70's `top_wr`.
 
 ## 7. Order
 1. The code and the smoke. Done.
-2. This DRAFT.
-3. The binding census.
-4. The freeze.
+2. The DRAFT (`f121c044`). Done.
+3. The binding census. Done (§6).
+4. The freeze. Done (this text).
 5. The laptop's ack.
 6. The run.
 7. The confirmatory census before the read.
