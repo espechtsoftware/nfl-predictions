@@ -12,6 +12,30 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-08 (13:30 CDT) — The outside reviewer's 10-08 note: the T-70 DK pull is PRE-inactives (verified; O-59, the operator's decision before arming); the late-scratch gap (O-60); the pros briefing merged
+
+- **O-59 (URGENT for W5), verified on `nfl_raw.dk_salaries`:**
+  - W4 (group 154078): 90 OUT/IR/D/O at 09:59 and at the 10:33 T-70 pull; 109 at 10:59.
+  - W3: 86 → 114 (10:29 → 11:29). W2: 83 → 101 by 10:49.
+  - So the 10:33 pull (`nfl-dfs ingest-dk`, arm_week_timers T70_PULL_CT) precedes DK's inactive update. The T-70 frame and
+    union ran on pre-inactives statuses. M4's `check_salary_pull.py` checks time, not content.
+  - The safety net that caught W4's scratches: the ~11:00 pre-upload status check plus the replacements.
+  - **The options (the operator decides; the outside reviewer asked him too):**
+    - (a) a content check plus pull retries until about 10:47;
+    - (b) a later pull;
+    - (c) accept.
+  - **The laptop's recommendation for W5:** a second DK pull at about 10:47, plus a loud banner in the T-70 build when its
+    statuses still match the morning's out count. The 10:50 build then reads DK's update whenever DK has posted it, and
+    nothing else in the build changes.
+- **O-60:** the late-scratch next-man-up gap under FP; branch `review/late-scratch-bump-20261008` @ `fbad73be` (off, not
+  wired); W6.
+- **The operator's decisions, relayed by the outside reviewer:** "let's stick with the current plan" (FP alone for W5;
+  the FP + props mix not armed).
+  - Weather is not double counted: our model has no forecast inputs, and `--proj-source` replaces our mean.
+  - Monday: if any W5 game had a forecast of ≥ 20 mph, compare FP with ours for its passers and receivers.
+- **Merged `d3e112d5`:** the pros briefing (`briefings/2026-week-05/2026-10-08-how-the-pros-pick-players.md` + scripts +
+  aggregate CSVs). Checked first: no cohort handle in any of the 16 files, no private path, the CSVs aggregate only.
+
 ## 2026-10-08 (13:19 CDT) — The operator's 13:17 directive (O-25 Route Share dry runs): every check PASSES on today's lane-run dry runs; no duplicate executions
 
 - **The directive:** "Thu 2026-10-08 13:17 CT: O-25 ROUTE SHARE DRY RUNS (deadline Sat 10-10 12:00 ...)". It lists three
