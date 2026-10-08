@@ -189,7 +189,8 @@ unless it says otherwise.** Record each capture's count in HANDOFF.
 - **Thu 10-08:**
   - **Done:** the props guard and project-slate; the FP vendor re-run, then the four FP projection pages collected
     separately; FP's latest route and alignment data loaded; an OPRK draftables snapshot (1,079).
-  - **After A3 and the full test suite** (one heavy job at a time): the shadow-B SMOKE,
+  - **DONE 13:05 (smoke, after A3 and the full suite):** A and B 469 rows each (36 / 34 features; both dropped features
+    absent); ~2 minutes. The original step was: the shadow-B SMOKE,
     `PYTHONPATH=<integration worktree>/src .venv/bin/python ~/.cache/laptop-agent/shadow_b.py --season 2026 --week 5 --out ~/private/shadow-b/smoke-2026-w05`
     (create-once; it records the runtime for Sunday).
 - **Fri 10-09:**
@@ -204,8 +205,8 @@ unless it says otherwise.** Record each capture's count in HANDOFF.
   - The QB coverage retry (the same command).
   - The R14 sweep and the OPRK snapshot (~10:45), both above.
 - **Sun 10-11:**
-  - **06:45, shadow B for real:** `--out ~/private/shadow-b/2026-w05`. It must finish before the 10:33 pulls. If the smoke
-    ran longer than 3 h, start it at 06:00.
+  - **09:30, shadow B for real:** `--out ~/private/shadow-b/2026-w05` (the smoke 10-08 ran in about 2 minutes, so it goes
+    after the 09:00 project-slate run, whose serve rows carry the morning's injuries, and well before the 10:33 pulls).
   - **09:15:** FP projected ownership (the same command, outside the 10:40–10:50 capture window).
   - **The Route Share pair freezes, BY HAND, THE SAME SUNDAY** (the gate: "It is not scheduled; the weekly record runs it by hand after each freeze"; the week is resolved from the UTC date, O-58):
     - after the 10:20 slot's two shadow jobs have frozen, `cd ~/projects/nfl-predictions && .venv/bin/nfl-dfs freeze-route-share-pair --slot early`;

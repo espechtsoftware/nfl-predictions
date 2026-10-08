@@ -12,6 +12,20 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-08 (13:06 CDT) — Shadow B's first run (smoke) PASSES in about 2 minutes; Sunday's run moves to 09:30; two stale tests fixed and merged (71f965e2)
+
+- **Shadow B (O-22 / O-56 (e))**, smoke at code `0f272b27`: `~/.cache/laptop-agent/shadow_b.py --season 2026 --week 5 --out
+  ~/private/shadow-b/smoke-2026-w05`, 13:03:54–13:05:47.
+  - Policy classic-k1-role12-lev40-boom160-poscal-cbwu-v5; 73,862 training rows, 469 serve rows, 30,000 sims.
+  - Arm A: 469 rows, 36 features.
+  - Arm B: 469 rows, 34 features; `qb_cpoe_l6` and `neutral_pass_rate_l6` absent, as intended.
+  - **Sunday's real run moves to 09:30** (`--out ~/private/shadow-b/2026-w05`): after the 09:00 project-slate, before the
+    10:33 pulls (checklist).
+  - The Monday reader arm is still to build (O-56 (e)). The data is what is perishable, and it will exist.
+- **The full suite's two new failures** (vs O-28's 10-06 list) were stale tests. Fixed, reviewed and merged at `71f965e2`:
+  - check_lab_api now finds the clone at the current pin;
+  - the dashboard templates moved to an every-template render test (the reviewer's change).
+
 ## 2026-10-08 (11:57 CDT) — The Route Share treatment rebuilt on the repaired W4 data and re-proven; check_prospective_gates GREEN; O-2, O-25 and O-49 closed
 
 - **The rebuild** (each step in its lane):
