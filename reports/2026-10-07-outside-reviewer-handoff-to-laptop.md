@@ -227,3 +227,27 @@ Then a short note for the Tuesday 10-13 Week-6 decisions.
   a re-pin): the design has gone to nfl-predictions-84, which names the owner and the format before any code.
 - **Also today:** study 65 (S2 tail tilts, S3 recency fade) READ: no arm enterable (TAIL_B8 −0.037; CHEAPTAIL_B8
   worse). My briefing's S2 and S3 are closed.
+
+## 9. Thursday evening (2026-10-08 18:10 CDT): study 71's production flag, expedited for a possible Week-5 use
+
+- **Why expedited:** the operator asked why study 71 could not be tested today and used this week. Production proposed the
+  path and asked for the flag by Friday 09:00. Done at about 18:05.
+- **The flag:** `review/s71-bringback-topwr-20261008` @ b672d396.
+  - `union_reselect --mix-bring-back-top-wr A1,B`, default off.
+  - The interaction floor over (QB, opponent top WR) pairs. The top WR is study 70's definition, parity-tested.
+  - Fallbacks are recorded by row identity.
+  - The one shared reader lives in mix_shapes; vet_replace_v4 has a lenient house fallback; audit_build_levers uses the
+    same reader.
+  - Tests: 241 passed, 2 skipped (15 modules).
+  - Production APPROVED it. With its wiring branch (production/s71-wiring-20261008 @ 0a3c6514): 1,256 passed, 74
+    skipped, 0 failed (74 modules).
+- **W4 real inputs:**
+  - OFF: book.csv byte-identical to integration 22c3bebe; the receipt differs only in tool identity and timing.
+  - ON (outcome-chosen, so mechanics only): 15 book rows + 9 spares floored, 0 fallbacks; adds a Stroud + Collins +
+    Lamb row (222.2, about rank 14).
+- **Path:**
+  - 84's harness (TOPBB_AB, banks 1617–1622) runs tonight.
+  - The flag merges only if TOPBB_AB is ENTERABLE, before FRIDAY_HEAD.
+  - Friday's A3 rehearses it with the flag ON (production's `w5_bringback_union_check.sh`).
+  - The operator decides at Saturday's arming.
+  - Otherwise it waits for W6.
