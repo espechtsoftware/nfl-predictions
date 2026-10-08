@@ -1,0 +1,15 @@
+offense games 2014-2025 with 3+ prior opponent games: 5,150
+
+(A) REALIZED -- the offense's own first downs in the game, relative to its season average (thirds):
+                   first_downs  top_min   plays  targets  te_targets  te_share  margin  games
+fd_third                                                                                     
+fewer first downs       14.910   27.235  56.387   30.080       6.373     0.213  -4.991   1719
+about usual             19.795   30.505  62.951   33.301       7.142     0.216   0.566   1723
+more first downs        24.636   32.957  68.381   36.183       7.800     0.217   4.546   1708
+  within offense-season correlation: first downs vs time of possession r +0.60; first downs vs TE share r +0.027
+
+(B) PREDICTABLE -- pre-game measures vs the game's first downs and time of possession (within offense-season correlations; sign: a tougher defense should give FEWER first downs)
+  pass EPA allowed per dropback, last 6 : r with first downs +0.126, with time of possession +0.044; toughest third vs softest third (own season): first downs 19.1 vs 20.4, possession 30.1 vs 30.5 min, TE share 0.214 vs 0.216
+  EPA allowed per play, last 6          : r with first downs +0.138, with time of possession +0.049; toughest third vs softest third (own season): first downs 19.0 vs 20.4, possession 30.1 vs 30.5 min, TE share 0.214 vs 0.216
+  first downs allowed per game, last 6  : r with first downs +0.142, with time of possession +0.062; toughest third vs softest third (own season): first downs 19.1 vs 20.6, possession 29.9 vs 30.6 min, TE share 0.214 vs 0.218
+  Vegas implied team total              : r with first downs +0.217, with time of possession +0.077; toughest third vs softest third (own season): first downs 18.6 vs 20.7, possession 29.9 vs 30.6 min, TE share 0.214 vs 0.218

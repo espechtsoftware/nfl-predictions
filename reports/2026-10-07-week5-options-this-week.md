@@ -442,7 +442,7 @@ throw it to a tight end."*
 - Play-by-play has no time-to-throw, so passes of 5 air yards or less stand in for "quick throws".
 - Defense strength is point-in-time: EPA allowed per dropback over the opponent's previous 6 games that season.
 
-**Link 1 (tough defence → less possession): not there.** The offense's time of possession is 30.2 min against tough pass
+**Link 1 (tough defence → less possession): small. CORRECTED below — the first version said "not there", which was too strong.** The offense's time of possession is 30.2 min against tough pass
 defences, 30.1 middle, 30.4 soft. Within offense-season, with the implied total controlled, the effect is +0.0006 per sd
 (t 0.6). The implied total matters: favourites hold the ball longer (t 5.2).
 
@@ -460,3 +460,29 @@ defences, 30.1 middle, 30.4 soft. Within offense-season, with the implied total 
 **Reading:** offenses facing tough pass defences do not have the ball less. When they have it less, they throw slightly
 fewer and shorter-share passes to the TE, not more. The data cannot see the QB's time to throw itself, but the short-pass
 proxy points the same way.
+
+**Correction after the operator's challenge** (*"If you're going against a tough defense, you're likely going to get
+fewer first downs, which means less time of possession."*). Script: `top_firstdowns.py`; 5,150 offense games.
+
+**Realized:** the operator's mechanism holds. Games where the offense gets fewer first downs than its season average
+are games with less possession (within offense-season r +0.60):
+
+| | First downs | Minutes of possession | TE targets | TE share |
+|---|---|---|---|---|
+| Fewer first downs | 14.9 | 27.2 | 6.4 | .213 |
+| About usual | 19.8 | 30.5 | 7.1 | .216 |
+| More first downs | 24.6 | 33.0 | 7.8 | .217 |
+
+**Predictable before the game:** tough defences do cost first downs and possession, as he expected, but modestly. The
+pre-game measure predicts the game only partly, and possession depends on both teams. Toughest vs softest third of
+opponents, within offense-season:
+
+| Pre-game measure | First downs | Possession (min) | TE share |
+|---|---|---|---|
+| Pass EPA allowed per dropback, last 6 | 19.0 vs 20.4 | 30.1 vs 30.5 | flat |
+| First downs allowed per game, last 6 | 19.1 vs 20.6 | 29.9 vs 30.6 | flat |
+| Vegas implied team total (the best predictor) | 18.6 vs 20.7 | 29.9 vs 30.6 | flat |
+
+**Reading:** the chain holds up to "fewer first downs and less possession", by about half a minute to a minute before
+the game. It breaks at the last step. With less possession, the TE's share of targets stays flat (.213–.218), and his
+count falls with the team's.
