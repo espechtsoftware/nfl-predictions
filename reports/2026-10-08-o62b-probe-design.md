@@ -26,7 +26,7 @@ Everything else stays identical, including production's `expected_game_script` a
 
 ## 3. How it runs
 - **Code:** `live_week.py` itself, from a separate probe worktree. The pinned live center is never touched. The worktree
-  is nfl2 at `f69598b`, plus one env-gated block committed on `production/o62b-probe-20261008`.
+  is nfl2 at `f69598b`, plus env-gated blocks committed on `production/o62b-probe-20261008` (`b8f7bc9` after the pre-run amendment).
   - `O62B_PROBE_SPREAD=train` rebuilds `spread` on the component rows.
   - `O62B_PROBE_DUMP=<path>` writes those rows.
   - With neither set, the code is byte-identical in behaviour to `f69598b`.
@@ -79,6 +79,14 @@ trip on noise. Requiring the sign to move the pool MORE than a seed change does 
   - (a) Week 5 as is, the pin unchanged;
   - (b) the TRAIN sign. This would come only after a Friday rehearsal on A3's frame, per the money-path rule "never enter
     an untested rule".
+
+**Pre-run amendments (2026-10-08, before any run; neither changes an arm, a measure or the line):**
+1. `live_week.py` asserts that the lock is still ahead, so a Week-4 replay cannot run. The probe branch adds
+   `O62B_PROBE_ALLOW_PAST_LOCK=1`, which skips only that assertion. It is set on all three W4 arms and unset for W5.
+   Because the warehouse reads happen after the games, the W4 inputs are post-lock (statuses included). They are still
+   identical across the arms.
+2. The reviewer asked that the report print the LIVE / LIVE_SEED Jaccard beside the TRAIN / LIVE Jaccard, by tag. This
+   adds one print line.
 
 **Reporting:** W4 first, then W5 Friday, with the probe patch's commit and the measurement script's sha256
 (`reports/2026-10-08-o62b-probe/probe_measure.py`).

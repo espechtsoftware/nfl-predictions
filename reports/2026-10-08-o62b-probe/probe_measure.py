@@ -132,6 +132,8 @@ def main(argv=None) -> int:
     print("== POOL (candidates.parquet)")
     pt = pool_compare(cl, ct, "TRAIN vs LIVE")
     ps = pool_compare(cl, cs, "LIVE_SEED vs LIVE (the noise reference)")
+    print("   Jaccard side by side (the reviewer's request): " + "; ".join(
+        f"{k}: TRAIN/LIVE {pt[k]:.3f} vs LIVE/LIVE_SEED {ps.get(k, float('nan')):.3f}" for k in pt if not k.startswith("top30")))
     worst = max(dr.items(), key=lambda kv: abs(kv[1]["sd_ratio_median"] - 1))
     crossed_a = any(abs(v["sd_ratio_median"] - 1) > SD_LINE for v in dr.values())
     crossed_b = pt["all"] < JACCARD_LINE and pt["all"] < ps["all"]
