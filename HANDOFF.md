@@ -16,7 +16,7 @@
 
 - **Why** (condition (a), recorded before any re-run):
   - The operator's standing "I do want the latest data" (10-08).
-  - FP's revision of the W4 Route Share export, repaired at 11:0x CT. The repair verified exactly 51 changed, 0
+  - FP's revision of the W4 Route Share export, repaired at 11:09:09 CT (the archive object's creation time; alignment 11:10:23). The repair verified exactly 51 changed, 0
     added, 0 removed.
   - The frozen gate (`reports/2026-08-11-route-share-2026-shadow-gate.md`) trains the Route model on "the manifest-locked
     source Week W-1 rows available before target Week W". The repaired import is now that import, and W5 is not yet
