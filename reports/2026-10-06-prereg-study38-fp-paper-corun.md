@@ -1,4 +1,4 @@
-# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06 and 10-07, amendments 1, 1b, 2, 3, 4, 5, 6, 6b, 6c, 6d, 6e, 6f, 6i and 6j before Week 5's lock; repair 6g and the big-win rule 6h before its first score)
+# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06 and 10-07, amendments 1, 1b, 2, 3, 4, 5, 6, 6b, 6c, 6d, 6e, 6f, 6i, 6j and 6k before Week 5's lock; repair 6g and the big-win rule 6h before its first score)
 
 **Status: FROZEN 2026-10-06** by the reviewer, BEFORE any week of the decision arm (MIXT_RS0) or of the exploratory arms
 QBB0 / NQC0 / QAL / RBC0 was read on any slate. Disclosed: before the freeze, the reference MIXT_QA0 was scored on
@@ -618,6 +618,68 @@ score. Nothing here enters a contest: the money path, its checkout and its files
     1. this amendment;
     2. the laptop's ack;
     3. Friday's A3 and the integrity gate (pinned to 6j).
+- **Amendment 6k (2026-10-08, before Week 5's lock; no Week-5 outcome exists).**
+  - **Why.** The operator asked on 10-07 night, relayed by the outside reviewer (study list 63): "I would like to do more
+    testing on the QB tight end stacks right away" … "and also to include a bonus to the tight end in these types of
+    situations."
+    - The harness test is study 63.
+    - These arms add a real-field read from Week 5, at no risk.
+  - **What changes.** Three new exploratory arms. Each is his live construction with an 8-row PAPER tight-end block
+    INSTEAD of any live block, with 6b's frozen parameters (8 rows, tilt 0.20, cap 2.0, coverage gate 0.5):
+    - **MIXT_QA0_TE2B8:** +2.0 to pass-catching TEs, those whose frame `target_share_l4` is ≥ 0.15.
+    - **MIXT_QA0_TETOUGH2B8:** those TEs only when they face the slate's toughest third of pass defences, by
+      `epa_per_dropback_allowed_l6`. This is the operator's form.
+    - **MIXT_QA0_CHEAPTE2B8:** one block giving +2.0 to a pass-catching TE OR to any non-DST player under $4,000.
+  - **How the blocks are built.**
+    - Each block file is written by PRODUCTION's `scripts/te_block_file.py`, imported from the pinned checkout (never
+      copied), with its sha256 asserted: `196ae64eaf795c4dd9a802d2659cdf8747c4a16ace60431f9a5d676290ff2bf1`. Integration
+      `266da256` holds it, and the laptop's test `d35e1542…` passes 8.
+    - The writer runs on the snapshot's own frame, so there is no new snapshot file. Its output goes into the build's
+      out dir and is read through the same `own_bonus` and `term_book` as every paper block.
+  - **How they are read:** against **MIXT_QA0**, his live book with the live cheap block. The Week-6 question is "this
+    block INSTEAD of the cheap block".
+  - **When an arm is missing that week** (recorded):
+    - the writer is absent or is not the pinned one;
+    - the writer refuses the frame (for the tough form, a frame without `epa_per_dropback_allowed_l6`; the laptop checks
+      A3's W5 frame on Thursday);
+    - `own_bonus` refuses the file;
+    - the live fill is not rr, or a regulars' block is live.
+  - **Disclosed (production O-55, `1004155c`):** the served frame's defence columns are one game staler than training's,
+    because Week W's frame holds the defence's week W−1 row. The tough third reads the SERVED value, which is exactly
+    what a live block would read.
+  - **What does not change:** the rule (§5), the decision pair, every other arm and the snapshot.
+  - **The smoke** (dry run on Week 4's frozen copies with 6i's onc-6i inputs, the cheap +2 block live;
+    `~/private/paper-corun/smoke-w4-amend6k/`, script `run.sh`):
+    - **Against `s38-prod-pin`** (no writer): every 6i arm is identical to onc-6i's (rows and ranks), and the three TE
+      arms are missing, "production's te_block_file.py is not in the pinned checkout". `books.json` is `6e4f8353`.
+    - **Against production `266da256`:**
+      - Every arm is identical to the pin's build. The union_reselect sha differs, ffd59b72 vs 8b325960, and moves no arm.
+      - The three TE arms are built, each with 8 term rows at ranks 2, 5, 9, 12, 15, 18, 22, 25.
+      - The TE2 and CHEAPTE2 files are byte-identical to the outside reviewer's W4 replay files (`80a3b039…`,
+        `53208c3f…`).
+      - TETOUGH2 gives the bonus to 4 TEs (file `c90de0c7…`).
+      - Each TE arm shares 18–19 of 26 rows with QA0.
+      - `books.json` is `9c7d9046`.
+  - **The integrity gate (§7)** adds four checks:
+    - the TE blocks used the pinned writer;
+    - TE2B8 and CHEAPTE2B8 carry 8 term rows at those ranks;
+    - TETOUGH2B8 does too, or is missing only for a frame without the pass-defence column;
+    - every other arm is still required.
+    - The gate pins 6k's four shas, and its default production checkout must contain `266da256`. That is Friday's move
+      of `s38-prod-pin` to FRIDAY_HEAD.
+  - **Code:** lab `82a5bf4`:
+    - `experiments/s38_paper_corun.py`, sha256 `770aa5c6d94ea38833d916e89e345da1c26a673dcdb9358456094ad6b8af37ce`;
+    - `scripts/s38_build.py`, `412f92a222b572c1356599051ed9438471b4c3838cefaac7002962d4ac208790`;
+    - `scripts/s38_score.py`, `fb8781fb298ca9d89d56762244f98a5738c7750f661d7548299663f79f2bf938`;
+    - **`scripts/s38_report.py` (the reader), sha256 `afd56ba1e317774c99dd268df45fc395b6924b47a34719080ee2341e72a90a1d`**;
+    - `tests/test_s38_paper_corun.py`, `f757a1b10d092fb5f0e345b296fbf97a5354911435fd0bca607f4f04ddba1c63` (29 tests; one
+      added, one order assertion updated);
+    - `scripts/s38_plan.py` `6c4cc53a…` (6h), unchanged.
+  - **Order:**
+    1. this amendment;
+    2. the laptop's ack;
+    3. Thursday's frame-column check on A3;
+    4. Friday's A3, `s38-prod-pin` moved to FRIDAY_HEAD, and the integrity gate (pinned to 6k).
 
 ## 1. Why
 - **The operator (10-06), on the proposal:** "yes, please try it, I want to exhaust all reasonable options."
