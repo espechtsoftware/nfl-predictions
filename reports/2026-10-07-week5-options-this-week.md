@@ -413,6 +413,17 @@ ratios, users 20+ entries):
   bonus against defences **weak against TEs**, which the **matchup block** (on paper this week) already applies to
   every position.
 
+**Robustness: the same measure as the 2026 frames** (the operator asked whether the 12 seasons have the defense
+information). They do. History derives each defence's strength from game results before every game. The rerun uses the
+opponent's EPA allowed per dropback over its previous 6 games (`nfl_raw.pbp`, every season; `te_defense_epa.py`;
+4,846 team-games):
+- Against strong pass defences, TE1 scores 9.23 vs 9.91–10.10, and the TE boom rate is 6.8% vs 8.6–9.4%.
+- Within offense-season with the total controlled, TE1 is +0.04 per sd (t 0.4).
+- QB + TE beats QB + WR in .207 / .199 / .200 of games: flat.
+- QB + TE ≥ 45 occurs in .081 / .095 / .104 of games: lower against strong defences.
+- QB + RB + TE ≥ 60 occurs in .133 / .164 / .174: also lower.
+- The conclusion holds under either measure.
+
 **Proposed:**
 - No new layout rule or TE bonus now.
 - Track the real-field pattern as one more weekly line ("QB + TE vs QB + WR by the opponent's pass defence"). If it
