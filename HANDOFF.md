@@ -12,6 +12,47 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-08 (15:24 CDT) — laptop: O-62 (the live frame's spread sign) verified; O-62b; the weekend safety plan
+
+**O-62 (the reviewer):** the live T-70 frame's `spread` is POSITIVE = favoured (nfl2 live.py), while the warehouse and every
+history frame are NEGATIVE = favoured.
+- The laptop verified it on W4's live frame: spread = −(game_total − 2 × ITT) exactly, and corr(ITT, spread) by team is +0.812.
+- The reviewer's fix, `review/winner-like-spread-20261008` @ `3b94321c` (`winner_like.slate_arrays` rebuilds the spread),
+  has been read; its four test modules pass (52 passed, 1 skipped).
+- **The fix is merged AFTER Sunday** (the reviewer's request; WINNER_ORDER / SELECT are off). It is not in the weekend code.
+- The O-62 register row is in integration now, verbatim (`23d50615`), and the branch still merges cleanly (`6ed29806`).
+
+**O-62b (new, the laptop): the lab live center's component model reads the flipped spread.**
+- `live_week.py` (week5-live-center `f69598b`) predicts the lab components from features that include `spread`, trained in
+  the warehouse sign, on live rows carrying the live sign.
+- Production's centring fixes the MEANS for matched players. The unmatched-player lab blend is negligible (W4: 5 long
+  snappers).
+- But the SHAPE of every modeled skill player's draws (W4: 287) comes from those components before re-centring, and the
+  draws feed the T-70 pool. This has been true since Week 1; the size is unmeasured.
+- Not changed before W5, because the live pin is the money path.
+- **Next:** an outcome-free probe after the study-65 run (the live sign vs the rebuilt sign: draw sd / p90 after centring,
+  pool overlap). If the effect is large, the operator gets options before Saturday's arming.
+
+**Study 65's UNDERDOG**, in any live port or paper arm, uses team ITT < opponent ITT, never the frame's spread.
+
+**The weekend safety plan (the operator asked 10-08; he waits until the reviews are done):**
+- The production checkout `~/projects/nfl-predictions` is clean at `8abf20bc`, 484 commits behind integration. Today's
+  Sunday-path fixes are only on integration:
+  - the 10:47 second DK pull;
+  - the T-70 status banner;
+  - `emit_ref`;
+  - the non-fatal vendor import;
+  - the Monday scripts.
+- The only process running from the checkout is `host_ingest_dk_loop.sh`. Its script is unchanged, and the only change in
+  its callees is an added `dashboard` CLI command, so a fast-forward does not disturb it.
+- **Tonight, after study 65's READ and records:**
+  1. fast-forward the checkout (ff-only), and confirm it is clean;
+  2. run the money-path tests from it with `GCP_PROJECT` unset;
+  3. run `arm_week5_saturday.sh --check`, which is expected to stop at the empty FRIDAY_HEAD by design.
+- **Friday stays as planned:** FP ownership at 12:30 / 16:30, the FRIDAY_HEAD + SHAPE commit, A3 cheap-armed on that head,
+  and the full `--check`.
+- `main` is 1,528 commits behind integration; nothing runs from it. That merge is the operator's push, after Week 5.
+
 ## 2026-10-08 (15:16 CDT) — laptop: the Monday lines (study list 67–69) verified and merged
 
 The outside reviewer's `review/monday-lines-20261008` @ `c58dae2c` is merged. It adds seven files, all new:
