@@ -193,3 +193,37 @@ Then a short note for the Tuesday 10-13 Week-6 decisions.
 - **Proposed tests (operator's decision):**
   - S1: an environment calibration on top of FP (class C).
   - S2 and S3: tail tilts and a recency fade in the harness (class S).
+
+## 8. Thursday night (2026-10-08 17:39 CDT): the operator's "necessary players" concern, study 70, and study 71
+
+- **The operator's questions (10-08):**
+  - "Would our system today have picked them?"
+  - "Is there a test we can do immediately to try to fix this for this week?"
+  - Then, before going away: "Please do whatever testing is needed without input from me."
+- **Today's settings rebuilt on Week 4:**
+  - Lamb was in 0 of 26 lineups and Collins in 2 (only with Stroud); Collins + Lamb together in 0.
+  - The best row scored 181 (about 1,900th place); none reached $500+.
+- **The W2–4 replay** (in-sample; W4 chose the idea): top-WR blocks helped W2, tied W3 and were worse than the cheap
+  block in W4.
+- **The mechanics probe:** +2, +3 and +4 never put Lamb in. The Stroud rows take no Dallas receiver, or only the cheap
+  one (Flournoy).
+- **The bring-back pattern** (descriptive), stacked-QB lineups in the 2026 Millionaires W1–4:
+  - share bringing back the opponent's top-salaried WR: field 18%, top 1% 30%, top 0.1% 33%;
+  - our books: 1–4 of 26 rows.
+  - Briefing: `briefings/2026-week-05/2026-10-08-necessary-players-and-the-bring-back.md`.
+- **Study 70** (nfl-predictions-84 designed it; production reproduced it byte-identically; banks 1611–1616; I read the
+  READ). P(≥1 big seat) per slate, arm minus LIVE_CB:
+
+  | Arm | 2023–24 | 2022 | Verdict |
+  |---|---|---|---|
+  | TOPWR2_B8 | −0.012 [−0.069, +0.041] | −0.005, contradicted | not entered |
+  | CHEAPTOPWR2_B8 | +0.019 [−0.027, +0.064] | −0.006, contradicted | not entered |
+  | CHEAPEXPWR2_B8 | −0.034 [−0.076, +0.004], negative both seasons; seats ratio 0.90 | +0.032 | ENTERABLE by the rule; the reviewer, production and I recommend NOT entering it |
+
+- **The writer** `scripts/top_wr_block_file.py` (01ca2df1: --base, --min-salary) is merged into integration
+  (f30e8e7f) only to keep the operator's option open. Friday's A3 rehearses the CHEAPEXPWR2 file. The default stays
+  cheap2-w5.csv.
+- **Study 71** (W6; bring-back = the opponent's top-salaried receiver in the A1 and B cells; a lab StackRules field and
+  a re-pin): the design has gone to nfl-predictions-84, which names the owner and the format before any code.
+- **Also today:** study 65 (S2 tail tilts, S3 recency fade) READ: no arm enterable (TAIL_B8 −0.037; CHEAPTAIL_B8
+  worse). My briefing's S2 and S3 are closed.
