@@ -1,0 +1,214 @@
+{
+ "study": 64,
+ "version": 2,
+ "what": "the game-environment calibration on Fantasy Points (S1, the pros briefing 10-08)",
+ "fit": {
+  "seasons": [
+   2023,
+   2024,
+   2025
+  ],
+  "rows": 6791,
+  "rows_open_air": 4452,
+  "residual": "y_dk_points - market_points (nfl_dfs.models.prop_market, minimum_markets 2), played QB/RB/WR/TE",
+  "models": {
+   "ITT": "resid_d ~ b_itt * itt_d (THE PRIMARY)",
+   "ENV": "resid_d ~ b_itt * itt_d + b_wind * wind_d (secondary; wind an upper bound)"
+  },
+  "units": {
+   "b_itt": "DK points per point of team implied total",
+   "b_wind": "DK points per mph"
+  },
+  "demeaning": "within season x week x position; wind among the open-air rows only (home team not in roofed_home, wind not NULL)",
+  "bootstrap": {
+   "reps": 300,
+   "seed": 3,
+   "unit": "season-week"
+  },
+  "input_content_sha256": "de00025ed571a93f9a4e5360f91eb35e6c50da2c68bbb0021395492c20235888",
+  "fitter_sha256": "f479c5b80254a6056f07c6cad60f1717c11c6433817f8d5b1411024a026e598a",
+  "written_utc": "2026-10-08T19:28:42+00:00"
+ },
+ "apply": {
+  "itt": "implied_team_total minus the slate frame's mean by position (players with an FP projection)",
+  "wind": "open-air only: the home team is not in roofed_home; wind minus the slate's open-air mean by position; else 0",
+  "roofed_home": [
+   "ARI",
+   "ATL",
+   "DAL",
+   "DET",
+   "HOU",
+   "IND",
+   "LA",
+   "LAC",
+   "LV",
+   "MIN",
+   "NO"
+  ],
+  "missing": "a missing value contributes 0",
+  "cap_points": 2.0,
+  "floor": "max(fp + adj, 0)"
+ },
+ "models": {
+  "ITT": {
+   "QB": {
+    "n": 951,
+    "n_open_air": 611,
+    "b_itt": 0.15605,
+    "se_itt": 0.07864,
+    "by_season": {
+     "2023": {
+      "b_itt": 0.2364
+     },
+     "2024": {
+      "b_itt": 0.12802
+     },
+     "2025": {
+      "b_itt": 0.10955
+     }
+    }
+   },
+   "RB": {
+    "n": 1666,
+    "n_open_air": 1102,
+    "b_itt": 0.13623,
+    "se_itt": 0.05153,
+    "by_season": {
+     "2023": {
+      "b_itt": 0.04382
+     },
+     "2024": {
+      "b_itt": 0.23426
+     },
+     "2025": {
+      "b_itt": 0.12732
+     }
+    }
+   },
+   "WR": {
+    "n": 2887,
+    "n_open_air": 1880,
+    "b_itt": 0.09836,
+    "se_itt": 0.03176,
+    "by_season": {
+     "2023": {
+      "b_itt": 0.15623
+     },
+     "2024": {
+      "b_itt": 0.08165
+     },
+     "2025": {
+      "b_itt": 0.05654
+     }
+    }
+   },
+   "TE": {
+    "n": 1287,
+    "n_open_air": 859,
+    "b_itt": -0.00041,
+    "se_itt": 0.04377,
+    "by_season": {
+     "2023": {
+      "b_itt": -0.01819
+     },
+     "2024": {
+      "b_itt": -0.07079
+     },
+     "2025": {
+      "b_itt": 0.07525
+     }
+    }
+   }
+  },
+  "ENV": {
+   "QB": {
+    "n": 951,
+    "n_open_air": 611,
+    "b_itt": 0.14067,
+    "se_itt": 0.08083,
+    "b_wind": -0.24714,
+    "se_wind": 0.07905,
+    "by_season": {
+     "2023": {
+      "b_itt": 0.23329,
+      "b_wind": -0.39888
+     },
+     "2024": {
+      "b_itt": 0.12017,
+      "b_wind": -0.09865
+     },
+     "2025": {
+      "b_itt": 0.08188,
+      "b_wind": -0.29106
+     }
+    }
+   },
+   "RB": {
+    "n": 1666,
+    "n_open_air": 1102,
+    "b_itt": 0.13518,
+    "se_itt": 0.05158,
+    "b_wind": -0.01966,
+    "se_wind": 0.05318,
+    "by_season": {
+     "2023": {
+      "b_itt": 0.0364,
+      "b_wind": -0.24722
+     },
+     "2024": {
+      "b_itt": 0.23685,
+      "b_wind": 0.04372
+     },
+     "2025": {
+      "b_itt": 0.1311,
+      "b_wind": 0.05436
+     }
+    }
+   },
+   "WR": {
+    "n": 2887,
+    "n_open_air": 1880,
+    "b_itt": 0.09426,
+    "se_itt": 0.03321,
+    "b_wind": -0.0758,
+    "se_wind": 0.03992,
+    "by_season": {
+     "2023": {
+      "b_itt": 0.15174,
+      "b_wind": -0.11281
+     },
+     "2024": {
+      "b_itt": 0.08148,
+      "b_wind": -0.00325
+     },
+     "2025": {
+      "b_itt": 0.04763,
+      "b_wind": -0.1284
+     }
+    }
+   },
+   "TE": {
+    "n": 1287,
+    "n_open_air": 859,
+    "b_itt": -0.00153,
+    "se_itt": 0.04255,
+    "b_wind": -0.01412,
+    "se_wind": 0.0768,
+    "by_season": {
+     "2023": {
+      "b_itt": -0.01427,
+      "b_wind": 0.06762
+     },
+     "2024": {
+      "b_itt": -0.06967,
+      "b_wind": 0.04633
+     },
+     "2025": {
+      "b_itt": 0.06118,
+      "b_wind": -0.09694
+     }
+    }
+   }
+  }
+ }
+}
