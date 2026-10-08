@@ -12,6 +12,39 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-08 (16:39 CDT) — laptop: study 70 inputs (the outside reviewer's replay and mechanics probe); the W5 writer reviewed; study list 71
+
+**The operator, via the outside reviewer:** "Please do whatever testing is needed without input from me". The decisions
+stay his at arming.
+
+**The outside reviewer's W2–4 real-field replay with FP** (in-sample, W4 outcome-chosen, descriptive;
+review/outside-fill-order-20261006 @ `1ed24fa5`, `reports/2026-10-08-topwr/`):
+
+| Arm | W2 P(≥1 big) | W3 | W4 |
+|---|---|---|---|
+| live | .010 | .002 | .297 |
+| cheap +2 | .112 | .018 | .660 |
+| top-WR +2 | .453 | .018 | .455 |
+| cheap OR top-WR | .452 | .019 | .421 |
+
+- W2 rises (Lamb boomed); W4 falls below the cheap block.
+- W4 Lamb rows: 0 in every arm. Collins + Lamb together: 0.
+
+**Its mechanics probe:** top-WR +2 / +3 / +4 never produce the W4 pairing. The solver chooses the bring-back, and a
+per-player bonus does not steer it.
+- So study 70 can only pass for other reasons.
+- Forwarded to the reviewer for the s70 prereg.
+- The pairing idea becomes study 71 for W6: bring-back = the opponent's top-salaried receiver. That needs code in both
+  repos.
+
+**The W5 writer** `top_wr_block_file.py` (review/outside-fill-order-20261006 @ `885f1fd7`), reviewed by the laptop:
+- the code was read; 9 tests pass; it uses the cheap / TE writers' format;
+- a W4 dry run gives 24 top WRs, one per team, and `check_term_block_file.py --cap 2.0 --require-bonus` passes.
+- **REQUIRED before use:** `--base <cheap2-w5.csv>`, so that the combined file is the live trial's GROUP-based cheap rows
+  (565) plus the top-WR flags. Its `--with-cheap` rebuilds cheap from the frame and would drop late-week cheap players
+  (the 10-07 H3).
+- It merges only on study 70 ENTERABLE, before FRIDAY_HEAD.
+
 ## 2026-10-08 (16:36 CDT) — laptop: study 70 (a top-receiver block for Week 5) set up for tonight
 
 **The operator, about 16:25, via the outside reviewer:** "I find this somewhat concerning. Is there a test we can do
