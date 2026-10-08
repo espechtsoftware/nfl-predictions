@@ -1,0 +1,21 @@
+W1: 6,449 users with >= 20 entries, 389,562 lineups, 4,687 top-1%; unmatched slots 0.003/lineup
+W2: 934 users with >= 20 entries, 56,162 lineups, 863 top-1%; unmatched slots 0.000/lineup
+W3: 914 users with >= 20 entries, 55,216 lineups, 762 top-1%; unmatched slots 0.001/lineup
+W4: 924 users with >= 20 entries, 56,779 lineups, 749 top-1%; unmatched slots 0.003/lineup
+  cheap    within-portfolio top-1% vs other lineups: +0.307 sd [+0.278, +0.336]; by week {1: 0.2, 2: 0.54, 3: 0.45, 4: 0.52}; user-weeks 3,333
+  sal      within-portfolio top-1% vs other lineups: +0.050 sd [+0.023, +0.076]; by week {1: 0.05, 2: 0.02, 3: 0.07, 4: 0.08}; user-weeks 3,296
+  max_sal  within-portfolio top-1% vs other lineups: +0.304 sd [+0.278, +0.332]; by week {1: 0.34, 2: 0.03, 3: 0.81, 4: -0.14}; user-weeks 3,298
+
+multi-entry users' lineups: top-1% rate (%) by sub-$4k count
+week     1     2     3     4
+k                           
+0     1.92  0.24  1.26  0.71
+1     2.15  2.68  2.91  3.02
+2     3.43  4.94  5.27  4.18
+3     1.97  5.36  3.93  3.12
+week       1      2      3      4
+k                                
+0      45536   6362  10876   9889
+1     112712  19266  13914  16662
+2      39844   6434   4038   4088
+3       1013    261    178    160

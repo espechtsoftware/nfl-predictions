@@ -1,0 +1,38 @@
+team-games 2014-2025 with a point-in-time pass-catching TE (prior target share >= 15%): 2,111 of 5,129 (his prior share: median 0.189); excluded as blocking/low-target TE rooms: 3,018
+
+(1) raw means by the opponent's pass defense (EPA allowed per dropback, previous 6 games):
+               te_dk  te_tsh   te15   te20   wr_dk      qb   qb_te   qb_wr  te_beats_wr  qbte45  qbwr45     itt
+def_third                                                                                                      
+tough pass D  10.788   0.191  0.257  0.130  12.343  17.454  28.241  29.796        0.463   0.126   0.159  21.822
+middle        11.270   0.190  0.289  0.149  13.441  18.130  29.401  31.571        0.417   0.123   0.170  22.819
+soft pass D   10.825   0.180  0.244  0.130  13.216  18.432  29.258  31.649        0.407   0.132   0.179  23.742
+
+(2) within offense-season, implied total controlled: effect of a 1-sd TOUGHER pass defense (positive = more against tough D)
+  te_dk  : -0.112 (t -0.6)
+  te_tsh : +0.005 (t +2.5)
+  te15   : +0.007 (t +0.7)
+  te20   : -0.007 (t -0.9)
+  wr_dk  : -0.093 (t -0.4)
+  qb_te  : -0.456 (t -1.5)
+  qb_wr  : -0.436 (t -1.3)
+
+(3) the pass-catching TE by the game's realized first downs and possession (thirds within the same offense-season):
+                   first_downs  possession  te_target_share   te_dk   te20  wr1_dk  games
+fd_third                                                                                 
+fewer first downs       15.091      27.400            0.190   8.743  0.065  10.725    706
+about usual             19.802      30.241            0.182  10.980  0.143  13.275    701
+more first downs        24.472      33.072            0.188  13.153  0.200  14.975    704
+           first_downs  possession  te_target_share   te_dk   te20  wr1_dk  games
+top_third                                                                        
+less ball       16.851      25.727            0.189   9.982  0.108  11.812    704
+middle          19.939      30.193            0.182  11.117  0.137  13.302    703
+more ball       22.561      34.784            0.189  11.772  0.163  13.854    704
+
+(4) for contrast, the excluded low-target TE rooms (3,018 team-games): mean top TE DK 6.44, target share 0.111; pass-catching TEs: DK 10.96, share 0.187
+
+(5) the stack head-to-head WITHIN offense-season (implied total controlled), per 1-sd TOUGHER pass defense:
+  te_beats_wr : +0.012 (t +1.0)
+  qbte45      : -0.009 (t -1.1)
+  qbwr45      : -0.011 (t -1.3)
+  diff        : -0.019 (t -0.1)
+  pooled shares: QB+TE beats QB+WR1 0.430; QB+TE >= 45 0.127; QB+WR1 >= 45 0.169

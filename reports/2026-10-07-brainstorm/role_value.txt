@@ -1,0 +1,21 @@
+/home/erich/projects/.nfl-predictions-worktrees/review/outside-fill-order-20261006/reports/2026-10-07-brainstorm/role_value.py:45: Pandas4Warning: Starting with pandas version 4.0 all arguments of sum will be keyword-only.
+  print("\n(2) QB-stack size (teammates of the QB; 3 = 3+), share of rows, W2-4:"); print(R.groupby(["book", "s"]).size().unstack(fill_value=0).pipe(lambda z: z.div(z.sum(1), axis=0)).round(2).to_string())
+(1) depth-chart starters (WR <= 3, TE 1, RB <= 2), Sunday main-slate games, weeks 1-4:
+        starters  share priced <$4k  cheap: mean pts  cheap: pts per $1k  cheap: 4x rate  6-8k: pts per $1k  6-8k: 4x rate
+season                                                                                                                    
+2018       545.0              0.393            6.118               1.851           0.103              2.567          0.157
+2019       537.0              0.404            5.911               1.818           0.124              2.434          0.143
+2020       526.0              0.190            6.058               1.806           0.110              2.660          0.168
+2021       586.0              0.282            5.796               1.804           0.139              2.349          0.133
+2022       591.0              0.230            4.714               1.432           0.074              2.058          0.133
+2023       581.0              0.277            5.259               1.637           0.099              2.121          0.119
+2024       586.0              0.232            3.732               1.163           0.051              1.992          0.102
+2025       570.0              0.251            5.976               1.764           0.112              2.314          0.095
+2026       577.0              0.213            6.354               1.871           0.130              2.393          0.170
+
+(2) QB-stack size (teammates of the QB; 3 = 3+), share of rows, W2-4:
+s               1     2     3
+book                         
+W5 live       0.5  0.42  0.08
+entered T-70  0.0  0.89  0.11
+    the real field (multi-entry users, W1-4, from the 10-07 structure screen): QB+1 ~52%, QB+2 ~33%, QB+3+ ~15% of stacked lineups (shares among the compared pairs)

@@ -1,0 +1,88 @@
+== team codes that do not appear in all three sources, by season ==
+ season   t  in_sched  in_pbp  in_actuals
+   2014  LA     False    True        True
+   2014 LAC     False    True        True
+   2014  LV     False    True        True
+   2014 OAK      True   False       False
+   2014  SD      True   False       False
+   2014 STL      True   False       False
+   2015  LA     False    True        True
+   2015 LAC     False    True        True
+   2015  LV     False    True        True
+   2015 OAK      True   False       False
+   2015  SD      True   False       False
+   2015 STL      True   False       False
+   2016 LAC     False    True        True
+   2016  LV     False    True        True
+   2016 OAK      True   False       False
+   2016  SD      True   False       False
+   2017  LV     False    True        True
+   2017 OAK      True   False       False
+   2018  LV     False    True        True
+   2018 OAK      True   False       False
+   2019  LV     False    True        True
+   2019 OAK      True   False       False
+
+== relocated / renamed franchises: codes per season in schedules ==
+ season              codes
+   2014 JAX,OAK,SD,STL,WAS
+   2015 JAX,OAK,SD,STL,WAS
+   2016  JAX,LA,OAK,SD,WAS
+   2017 JAX,LA,LAC,OAK,WAS
+   2018 JAX,LA,LAC,OAK,WAS
+   2019 JAX,LA,LAC,OAK,WAS
+   2020  JAX,LA,LAC,LV,WAS
+   2021  JAX,LA,LAC,LV,WAS
+   2022  JAX,LA,LAC,LV,WAS
+   2023  JAX,LA,LAC,LV,WAS
+   2024  JAX,LA,LAC,LV,WAS
+   2025  JAX,LA,LAC,LV,WAS
+   2026  JAX,LA,LAC,LV,WAS
+
+== actuals team-weeks that do NOT join to a REG schedule game (season, week, team as home/away) ==
+ season  team_weeks  unmatched                                                                       examples
+   2014         512         48            LAw12 LAw1 LAw16 LAw14 LAw17 LAw13 LAw15 LAw9 LAw11 LAw3 LAw6 LAw10
+   2015         512         48            LAw10 LAw16 LAw17 LAw13 LAw15 LAw12 LAw14 LAw11 LAw1 LAw2 LAw4 LAw5
+   2016         512         32 LACw7 LACw10 LACw15 LACw12 LACw17 LACw8 LACw14 LACw13 LACw1 LACw9 LACw6 LACw16
+   2017         512         16               LVw5 LVw9 LVw14 LVw6 LVw2 LVw3 LVw13 LVw15 LVw4 LVw17 LVw11 LVw7
+   2018         512         16                LVw1 LVw6 LVw4 LVw3 LVw2 LVw5 LVw8 LVw10 LVw15 LVw17 LVw12 LVw9
+   2019         512         16               LVw12 LVw4 LVw11 LVw8 LVw5 LVw7 LVw1 LVw13 LVw10 LVw2 LVw3 LVw15
+   2020         512          0                                                                            NaN
+   2021         544          0                                                                            NaN
+   2022         542          0                                                                            NaN
+   2023         544          0                                                                            NaN
+   2024         544          0                                                                            NaN
+   2025         544          0                                                                            NaN
+   2026         128          0                                                                            NaN
+
+== pbp defense-weeks that do NOT join to a schedule game, and schedule games (played) with no pbp dropbacks ==
+ season  played_team_games  no_pbp_for_defense  min_dropbacks_faced  max_dropbacks_faced
+   2014                512                  48                   16                   67
+   2015                512                  48                   17                   71
+   2016                512                  32                   19                   63
+   2017                512                  16                   12                   68
+   2018                512                  16                   19                   70
+   2019                512                  16                   11                   71
+   2020                512                   0                   11                   67
+   2021                544                   0                    3                   69
+   2022                542                   0                   15                   78
+   2023                544                   0                   19                   62
+   2024                544                   0                   14                   63
+   2025                544                   0                   13                   61
+   2026                128                   0                   18                   63
+
+== do pbp game_ids match schedule game_ids (and weeks)? ==
+ season  pbp_games  not_in_sched  week_mismatch
+   2014        256             0              0
+   2015        256             0              0
+   2016        256             0              0
+   2017        256             0              0
+   2018        256             0              0
+   2019        256             0              0
+   2020        256             0              0
+   2021        272             0              0
+   2022        271             0              0
+   2023        272             0              0
+   2024        272             0              0
+   2025        272             0              0
+   2026         64             0              0

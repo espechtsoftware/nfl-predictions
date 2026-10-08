@@ -1,0 +1,49 @@
+history 2014-2025, weeks with 3+ prior defense games: 4,846 team-games (12 seasons)
+
+(1) raw means by the opponent's PIT strength against WRs (DK points it allowed to WRs per game so far that season)
+                        te1  te_share  te_boom     wr1  wr1_boom     rb1  rb_touch_share      qb   qb_te   qb_wr  qb_wr_wr  qb_rb_te     itt
+wr_def                                                                                                                                      
+strong pass D (EPA)   9.231     0.214    0.068  17.904     0.193  16.034           0.477  17.207  26.438  35.111    44.641    42.471  21.445
+middle               10.100     0.217    0.094  18.418     0.211  16.464           0.470  18.160  28.259  36.578    46.464    44.723  22.565
+weak pass D (EPA)     9.909     0.214    0.086  18.612     0.224  17.066           0.481  18.324  28.233  36.937    46.772    45.299  23.671
+
+(2) WITHIN the same offense-season (each game minus that offense-season's mean), by the opponent's strength vs WRs
+                       te1  te_share  te_boom    wr1  wr1_boom    rb1  rb_touch_share     qb  qb_te  qb_wr  qb_wr_wr  qb_rb_te    itt
+wr_def                                                                                                                               
+strong pass D (EPA) -0.534    -0.001   -0.014 -0.410    -0.016 -0.648           0.000 -0.824 -1.357 -1.233    -1.406    -2.006 -1.270
+middle               0.217     0.002    0.008  0.046     0.001 -0.041          -0.005  0.258  0.474  0.304     0.422     0.433 -0.007
+weak pass D (EPA)    0.283    -0.000    0.005  0.334     0.014  0.639           0.004  0.511  0.795  0.845     0.891     1.433  1.180
+
+(3) regression within offense-season, controlling the implied team total: column 1 = per 1 sd of the defense's EPA allowed per dropback, last 6 games (positive = more output against WEAKER pass defenses); then TE- and RB-allowed
+       outcome per sd EPA allowed per sd TE-allowed per sd RB-allowed per sd implied total
+           te1     +0.041 (+0.4t)    +0.300 (+3.1t)    +0.206 (+2.0t)       +0.697 (+4.6t)
+      te_share     -0.002 (-1.3t)    +0.003 (+2.6t)    +0.004 (+2.9t)       +0.001 (+0.6t)
+       te_boom     -0.000 (-0.1t)    +0.008 (+2.0t)    +0.004 (+0.9t)       +0.015 (+2.4t)
+           wr1     +0.104 (+0.7t)    +0.080 (+0.6t)    -0.452 (-3.4t)       +1.355 (+6.9t)
+           rb1     +0.305 (+2.3t)    -0.064 (-0.5t)    +0.629 (+4.9t)       +0.746 (+4.0t)
+rb_touch_share     +0.001 (+0.6t)    -0.002 (-1.2t)    +0.010 (+7.0t)       -0.006 (-2.8t)
+            qb     +0.077 (+0.6t)    +0.285 (+2.5t)    -0.067 (-0.5t)      +1.834 (+10.1t)
+         qb_te     +0.118 (+0.6t)    +0.585 (+3.4t)    +0.139 (+0.8t)       +2.531 (+9.3t)
+         qb_wr     +0.182 (+0.8t)    +0.365 (+1.7t)    -0.520 (-2.3t)       +3.189 (+9.6t)
+      qb_rb_te     +0.424 (+1.8t)    +0.521 (+2.4t)    +0.768 (+3.4t)       +3.277 (+9.7t)
+      qb_wr_wr     +0.132 (+0.5t)    +0.423 (+1.6t)    -0.908 (-3.3t)      +4.041 (+10.0t)
+
+(4) stacks by the opponent's strength vs WRs: share of games where each stack is the better one, and stack booms
+                     te_beats_wr  rbte_beats_wrwr  qbte_45  qbwr_45  qbrbte_60  qbwrwr_60
+wr_def                                                                                   
+strong pass D (EPA)        0.207            0.455    0.081    0.239      0.133      0.191
+middle                     0.199            0.467    0.095    0.260      0.164      0.216
+weak pass D (EPA)          0.200            0.470    0.104    0.292      0.174      0.235
+
+(5) the extreme: the 10% strongest pass defenses by EPA vs the rest
+         te1  te_share  te_boom     wr1     rb1  rb_touch_share  te_beats_wr  rbte_beats_wrwr  qbte_45  qbwr_45
+top10                                                                                                          
+False  9.819     0.215    0.084  18.416  16.650           0.476        0.202            0.465    0.094    0.269
+True   9.084     0.211    0.073  17.296  15.292           0.478        0.199            0.455    0.090    0.218
+
+2026 W4 (the only 2026 week with 3+ prior games): 32 team-games; by strength vs WR:
+                      te1  te_share    wr1    rb1  qb_te  qb_wr
+wr_def                                                         
+strong pass D (EPA)  9.92      0.25  16.44  16.88  25.75  32.27
+middle               9.61      0.22  19.57  20.18  26.61  36.58
+weak pass D (EPA)    9.82      0.26  23.48  18.04  27.14  40.81

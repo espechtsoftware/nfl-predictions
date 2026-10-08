@@ -1,0 +1,655 @@
+# Week 5: what can still change this week (2026-10-07, afternoon)
+
+The operator, 10-07: *"I'm very interested in finding improvements that can be made this week after several weeks of
+heavy losses. Please consider ideas - prioritizing those that can be tested this week."*
+
+Outside reviewer. Everything here was measured today on data we already hold: the Week 1–4 real Millionaire fields
+(1.33M lineups), the T-70 frames, the W2–4 replay books at the Week-5 settings, and 2018–2025 history. Scripts and full
+outputs are in `reports/2026-10-07-brainstorm/` (`line_depth.*`, `role_value.*`, `role_persist.*`). Aggregates only.
+This is evidence for the operator's Saturday choice. It is not a passed test.
+
+## 0. In plain words
+
+**Already right under the Week-5 settings (nothing to do):**
+- the salary is used (at most $300 left in any replay row);
+- defenses are cheaper than the field's;
+- about two-thirds of rows sit in the four highest-total games;
+- late-game inactives are replaced at 1:55 CT by production's step.
+
+**New today: what wins at the depths Week 5 actually enters.** Week 5's installed plan puts most entries into contests
+paying the top 1–4%, with a few shallower. Within the same user's lineups, three patterns held in **all four weeks** at
+those depths:
+
+| Within the same user's lineups (users with 20+ entries) | top 1% | top 4% | top 10% | top 20% |
+|---|---|---|---|---|
+| **2+ players under $4,000 vs 0–1** | 1.87 | **1.81** (1.73 / 2.15 / 1.92 / 1.88) | 1.77 | 1.71 |
+| **Defense under $3,000 vs $3,500+** | 2.86 | **2.29** (2.98 / 3.09 / 2.42 / 1.22) | 1.91 | 1.76 |
+| **QB with 3+ teammates vs 2** | 1.32 (mixed) | **1.29** (1.35 / 1.12 / 1.29 / 1.08) | 1.28 | 1.23 |
+| QB with 1 teammate vs 2 | 0.80 | 0.82 (W4 1.68) | 0.85 | 0.90 |
+| Projection above the user's own median | 1.55 | 1.42 (W2, W4 below 1) | 1.38 | 1.31 |
+| Chalkier (ownership sum above own median) | 0.99 | 1.00 | 1.00 | 0.99 |
+
+The numbers are odds ratios of finishing inside the line; per-week values are in brackets. Higher projection and chalk
+do not reliably help, even at shallow depths.
+
+**Why study 53 found nothing for the cheap block.** It tested on 2022–24, the three weakest seasons since 2018 for
+cheap players with real roles, on both value per dollar and the 4× rate. 2026 has the highest value per dollar of the
+nine so far:
+
+| Weeks 1–4, depth-chart starters under $4,000 | 2018 | 2019 | 2020 | 2021 | 2022 | 2023 | 2024 | 2025 | **2026** |
+|---|---|---|---|---|---|---|---|---|---|
+| Points per $1,000 | 1.85 | 1.82 | 1.81 | 1.80 | 1.43 | 1.64 | 1.16 | 1.76 | **1.87** |
+| Share scoring 4× salary | .103 | .124 | .110 | .139 | .074 | .099 | .051 | .112 | **.130** |
+
+A season's early *average* cheap value carries forward: across 2018–2025, Weeks 1–4 correlate 0.68 with Weeks 5–8.
+Its *boom* rate does not (0.21), and booms are what deep lines need. So this supports the cheap block for 2026, but only
+partly.
+
+**Options, ranked:**
+
+1. **Cheap +2 in place of the matchup block, as an override of the frozen stop. The operator decides.**
+   - **On history:** it is neutral, not harmful (2023–24 +0.004 [−0.031, +0.043]; 2022 −0.0016; expected big seats −6%).
+   - **This season:** the evidence is consistently positive. The W2–4 replay ran ahead every week (ratio 1.46), and the
+     real fields show the pattern at every depth, every week.
+   - **Against it:**
+     - This reasoning comes after study 53's read and uses the same four weeks that suggested the idea.
+     - The boom rate is weak to persist (0.21).
+     - It would be recorded as an override, not a passed test.
+   - **My recommendation:** if one block goes in this week, cheap +2 rather than matchup. Both are neutral on history,
+     and only cheap has this season's evidence behind it.
+   - **Timing:** decide before Friday's A3 rehearsal, so the rehearsal and its 6e snapshot gate use the block that will
+     be entered. Production already writes both files on Thursday.
+   - *(Earlier today I told the laptop I would not argue for an override. The depth and season results above are new
+     since then, and they change my view of his choice. They do not change the frozen verdict.)*
+2. **Keep the matchup block.** This is the rule's choice, also neutral on history (study 51: enterable).
+3. **For Week 6, with proper tests:**
+   - **A shape tilt toward QB + 2 / QB + 3.** Our Week-5 replay rows are 50% QB + 1, 42% QB + 2 and 8% QB + 3+, while the
+     field runs about 52 / 33 / 15. QB + 3 beat QB + 2 in all four weeks at the top 4–20%. This needs a harness test at
+     the installed plan's lines; study 18's shape result stands until then.
+   - **Duplicate-aware dealing** for one-seat satellites (study list 50).
+   - **R4 joint coverage** for the contests with two entries (study 32 passed, +0.030; the tool is due in Week 6). The
+     five-entry SUPERSat pins follow his rule ("reuse my top lineups ... hope with those is to win many"), so R4 does
+     not apply there.
+
+**Checked and not worth doing:**
+- a salary floor (salary is already used);
+- a ceiling objective (tested null before the season);
+- late swap (closed, lab 023 / 024);
+- prop-line movement (the close absorbs the news, Addendum 17).
+
+## 1. Method notes
+
+- **Line depth (`line_depth.py`)**
+  - Population: the week's largest Millionaire, users with 20+ entries, and lineups with all nine names matched to the
+    T-70 frame.
+  - The finish is inside the line when rank ≤ the line × the field.
+  - The Mantel–Haenszel odds ratio is stratified by user-week.
+  - Projection is the frame's mean projection. Ownership is realized field ownership, used as the measure of chalk.
+- **Season regime (`role_value.py`, `role_persist.py`)**
+  - Population: depth-chart starters (`player_week_role`: WR ≤ 3, TE 1, RB ≤ 2) in Sunday 13:00–16:30 ET games.
+  - History: 2018–2025 salaries from `dk_salaries_historical`, joined by normalized name + season + week to
+    `rosters_weekly` (gsis) and to `player_week_actuals`. A starter without an actuals row scores 0.
+  - 2026: the T-70 frames with the same role and actuals tables.
+  - An earlier pass without the role filter is not used: the 2022–25 salary rows hold about twice as many fringe cheap
+    players as other seasons.
+- **Stack size:** the W2–4 replay books at the Week-5 settings (`~/rehearsals/outside-cblocks-20261007T153309Z`) vs the
+  10-07 structure screen's field shares.
+
+## 2. Update, 10-07 afternoon: the satellites themselves (`satellite_fields.py`)
+
+The Neo4j graph holds only the Millionaire, but Week 5's entries are mostly satellites. The same test on every W1–4
+satellite / qualifier contest in `nfl_raw.contest_entries` (76 contests, 42,309 lineups). Odds ratios [95%] of finishing
+in the top 2% / top 10% of the lineup's own contest:
+
+| Feature (vs reference) | top 2%, by contest | top 10%, by contest | top 10%, within user | top 10% by contest, per week |
+|---|---|---|---|---|
+| **2+ sub-$4k vs 0–1** | 1.55 [1.25, 1.87] | 1.44 [1.23, 1.67] | 1.59 [1.36, 1.82] | 1.65 / 2.12 / 1.35 / 1.11 |
+| **DST < $3,000 vs ≥ $3,500** | 2.46 [1.78, 3.42] | 1.92 [1.58, 2.42] | 1.55 [1.28, 1.92] | 4.25 / 3.16 / 2.70 / 1.21 |
+| QB + 3+ vs QB + 2 | 0.97 | 1.02 | 1.23 [1.02, 1.47] | 0.93 / 1.00 / 0.95 / 1.19 |
+| **QB + 1 vs QB + 2** | 0.81 [0.63, 1.04] | 0.83 [0.74, 0.93] | 0.95 | 0.65 / 0.88 / 0.68 / 1.18 |
+| Bring-back 1+ vs none | 1.91 | 1.33 | 1.08 | 1.71 / 0.93 / 1.43 / 1.31 |
+| Projection above contest median | 1.71 | 1.56 | 1.06 | 1.21 / 1.94 / 2.62 / 0.79 |
+| Chalkier | 0.93 | 1.13 | 0.95 | mixed |
+
+"By contest" is stratified by contest: it controls the field and compares users. "Within user" is stratified by
+user-week, for users with 3+ satellite lineups that week. Weeks: W1 had one satellite (the FFWC qualifier), W2 7, W3
+44, W4 24.
+
+**What this changes:**
+- **The cheap-player and cheap-DST patterns hold in the satellites too, every week.**
+- **The QB + 3 advantage does not carry to the satellites.** QB + 2 over QB + 1 does, in three weeks of four. So study
+  list 56 (the shape tilt) should test **fewer QB + 1 rows in favour of QB + 2**, judged at the satellite lines, rather
+  than more QB + 3. Our Week-5 replay rows are 50% QB + 1.
+- The projection effect seen between users (1.56–1.71) almost disappears within a user (1.06). It is mostly who builds
+  the lineup, not a lever.
+
+## 3. Update: the operator's priority contests (`priority_fields.py`)
+
+The operator, 10-07: *"I'd consider the $20 milly satellites a lower priority, the 4444, 555, 333, WWFC are top
+priorities."*
+
+The same test, restricted to the 14 W1–4 contests the laptop's private shark-share table types as:
+- FFWC qualifier ($14M) and FFWC sat/supersat;
+- $4,444 MEGA and Showdown-MEGA sat;
+- $555 sat/supersat;
+- $333 Wildcat.
+
+That is 12,219 lineups: the two $14M FFWC qualifiers hold 9,992 (sharp, 150-max fields, ~56% regulars), and twelve
+small satellites hold 2,227. Odds ratios [95%]:
+
+| Feature (vs reference) | top 2%, by contest | top 5%, by contest | top 10%, by contest | top 5%, within user | top 10% by contest, per week |
+|---|---|---|---|---|---|
+| **2+ sub-$4k vs 0–1** | 2.25 | 2.03 [1.60, 2.55] | 1.78 | **1.93 [1.50, 2.44]** | 1.65 / 2.94 / 1.96 / 1.19 |
+| DST < $3,000 vs ≥ $3,500 | 3.26 | 1.93 | 2.22 | 1.16 [0.70, 2.06] | 4.25 / 1.31 / 2.23 / 0.93 |
+| **Bring-back 1+ vs none** | 2.01 | 1.73 | 1.49 | **1.51 [1.14, 2.04]** | 1.71 / 0.50 / 1.40 / 1.17 |
+| QB + 1 vs QB + 2 | 0.51 | 0.64 | 0.68 | 0.78 [0.61, 1.00] | 0.65 / 1.54 / 0.64 / 1.45 |
+| QB + 3+ vs QB + 2 | 1.30 | 1.12 | 1.15 | 1.03 | mixed |
+| **Projection above contest median** | 1.94 | 1.74 | 1.67 | **1.39 [1.15, 1.74]** | 1.21 / 1.83 / 2.32 / 0.86 |
+| Chalkier | 0.99 | 1.00 | 0.97 | 0.88 | mixed |
+
+The FFWC qualifiers alone and the small priority satellites alone give the same signs (full output in
+`priority_fields.txt`). W2 and W4 rest on small satellites only, so their per-week values are thin.
+
+**What this adds:**
+- **In his priority contests, the cheap-player pattern is the strongest and steadiest signal:** about 2× the odds, every
+  week, within contest and within user. It carries the W5–W8 cheap tracking, and the 2025 regime study (list 58) should
+  be judged at these contests' lines.
+- **Bring-backs and higher projection help here within the same user,** unlike in the $20 Millionaire satellites. Study
+  list 56 (the shape tilt) should be judged at these contests' lines: fewer QB + 1, keep bring-backs.
+- **The utility definition for tests should follow his priority statement.** On 10-06 he said the $125 WFFC "doesn't"
+  count as a big win; on 10-07 he names WFFC among the top priorities. Production should confirm with him which WFFC
+  contests count before the next test freezes its endpoint.
+
+## 4. Priority-first dealing: an entry-side change for Week 5 (requested by the operator, 10-07)
+
+The operator asked for anything more that could help his priority contests this week. He has asked production to try
+this one directly; it is logged here as the proposal's record.
+
+**What:**
+- His priority entries ($4,444 / $555 / $333 / FFWC satellites: 22 of 53 entries, most of the fee total) are dealt
+  first, from the book's rows ranked by a simple frozen score.
+- The rows left over go to the 29 $20-Millionaire-satellite entries, which he calls lower priority and which do not
+  count as big wins.
+- **The 26 rows are not changed.** The cheap +2 trial and its paper comparisons stay exactly as they are; only which
+  row goes to which contest changes. This is class E (entry side): his authority, plus a mechanical rehearsal, the
+  affected entries named, and a restore path (today's deal).
+
+**FINAL RULE (production, the laptop, 10-07; logged in its wording):**
+- **Score per row:**
+  - 2 if the QB has 2+ teammates (players on his team, not QB or DST, FLEX included);
+  - +1 for a bring-back (1+ non-DST player on the QB's opponent);
+  - +1 for 2+ non-DST players with salary < $4,000.
+  These are `priority_field_monitor.py`'s definitions.
+- **With the cheap +2 block armed** (the reviewer's standing rule from the TD-deal screen, c9028505: a re-deal armed
+  with a block "applies only to the 18 non-block rows over their own positions (the block keeps its ranks), tested in
+  that form first"):
+  - The 8 block rows keep their positions (0-based 1, 4, 8, 11, 14, 17, 21, 24).
+  - The other 18 rows are sorted among their own positions by score, highest first, ties by book order.
+  - 13 of those 18 positions are priority ranks, so the 5 lowest-scoring non-block rows go to ranks 20, 21, 23, 24 and
+    26.
+  - 6 block rows sit in the priority ranks either way.
+  - The spares are untouched. Without a block, all 26 rows would sort.
+- **Where it lives:** `union_reselect --priority-order` (`UNION_PRIORITY_ORDER`, default off, byte-identical when off),
+  the same pattern as study 48b's WINNER_ORDER. The book.csv order is the deal, so the head layout, the row map, the
+  exposure sheet and the relayout checks do not change.
+- **Which ranks are priority** (Rev3 under head):
+  - ranks 1–19 are his priority contests: $4,444 × 3 incl. the Showdown sat, $555 × 8 incl. the 2x supersat, $333 × 9,
+    FFWC × 2;
+  - ranks 20–22 are the Midseason Warm Up sats;
+  - ranks 23–26 are the $20 supersats.
+  The pinned $125 FFWC reuses rank 1. Its ticket is not a big win (the operator, 10-07). The Midseason Warm Up sats
+  count as big under s38_plan but are not in his priority list, so they now get leftovers. The harm screen's P(≥ 1 big)
+  prices that.
+- **The test before entering:**
+  1. The laptop commits a frozen harm screen first, in the TD-screen wording: NOT ENTERED if P(≥ 1 big) is below the
+     unchanged deal in 2 or 3 of 3 weeks, or the pooled e_big ratio is < 0.80.
+  2. The books: cheap2-armed W2–4 builds through the real switch (cheap2 vs cheap2 + priority order), scored by
+     big_seat_stats on the Rev3 s24 plan.
+  3. Descriptive beside it: the priority entries' mean percentile and their QB + 1 / bring-back / 2+ cheap shares,
+     before and after.
+  4. All of this is in-sample and disclosed as such. Then Friday's A3 runs with it armed, and arming on Saturday
+     follows his yes after both. The restore path is UNION_PRIORITY_ORDER=0.
+
+Real-field evidence for the score's elements in the priority contests (within user, top 5%):
+
+| Element | Points | Evidence |
+|---|---|---|
+| QB with 2+ teammates | 2 | QB + 1 vs QB + 2: 0.78 [0.61, 0.97] (by contest 0.64) |
+| A bring-back | 1 | 1.51 [1.15, 2.01] |
+| 2+ sub-$4,000 non-DST players | 1 | 1.93 [1.52, 2.41] |
+
+**Our rows** (W2–4 replays at the Week-5 settings, cheap +2 armed) against the priority-contest field:
+
+| Share of rows | Ours | Field |
+|---|---|---|
+| QB + 1 | 49% | 41% |
+| Bring-back | 58% | ~49% |
+| 2+ cheap | 42% | 18% |
+| All three of QB 2+, bring-back, 2+ cheap | 17% | — |
+
+**Against:** study 48b, a whole-book re-deal by a winner-likeness score, read NO DIFFERENCE on history (+0.008
+[−0.030, +0.044]). This deal is narrower: it moves rows only between his priority and lower-priority contests, so for
+his utility the downside is about nil.
+
+### 4a. The final deal order (the operator, 10-07): private plan Rev6
+
+The operator's messages, verbatim, in order (Rev4 and Rev5 were built from the first two and never installed):
+1. *"I forgot about the midseason warm ups. Those are big prizes. Can we move that up to under the 4444 and before
+   555."*
+2. *"I'm sorry - I didn't even realize what the showdown Mega is. That should be under the $333. The order should be:
+   two mega 4444 satellites / midseason warmup / 555 / WFFC / 333 / Showdown mega / everything else."*
+3. **FINAL:** *"I apologize again. I didn't understand what the prizes were in some of these contests. Let's change the
+   order for the final time to: 4444 (all of them including the showdown - which seems the same as the others anyway) /
+   555 / WFFC / 333 / Millionaire / Midseason warmup / Everything else including milly qualifiers."*
+
+**How it is applied:**
+- The deal follows the order of contests in his plan file. **Rev6** is Rev3's 29 contests, byte-equal, re-ordered only.
+  It replaces Rev5.
+- The installed form will be sha256 `5f8352eebf17860795922f8b5bca754c4ed0566c8c5ca63419e6dacd24e59470`. Nothing tracked
+  holds the file itself.
+- Rev6's per-rank entry weights are identical to Rev3's ([4, 3, 3, 3, 2 × 18, 1, 1, 1, 1]), so the same 26 rows are
+  built in the same order. Rows needed and protected ranks stay at 26.
+
+**Rank map under head (Rev3's ranks in brackets):**
+
+| His order | Contests | Rev6 ranks |
+|---|---|---|
+| 1 | $4,444: MEGA, MEGA, Showdown MEGA | 1 [1], 2 [2], 3 [10] |
+| 2 | $555 single entries × 6 | 4–9 [3–8] |
+| 2 | $555 2x supersat | 1–2 [3–4] |
+| 3 | the WFFC ($490 ticket) | 10 [9] |
+| 4 | $333 2-entry contests × 3 | 3–4, 11–12, 13–14 [11–16] |
+| 4 | $333 single entries × 3 | 15–17 [17–19] |
+| 5 | the Millionaire (2 entries) | 18–19 [1–2] |
+| 6 | the Midseason Warm Ups × 3 | 20–22 [20–22] |
+| 7 | everything else: the $20 supersats pinned over 1–26, the $125 FFWC pinned at 1 | unchanged |
+
+**The mechanics** (no pin tied the Millionaire to ranks 1–2):
+- The head layout gives its two 2-entry head blocks (the shared top rows 1–2 and 3–4) to the first two 2-entry
+  contests in file order. In Rev6 those are the $555 2x (1–2) and the first $333 2-entry contest (3–4).
+- That $333 contest shares rows 3–4 with the Showdown MEGA and the first $555 single entry, and takes nothing from
+  them.
+- The Millionaire becomes an ordinary 2-entry contest on its own rows 18–19.
+- The pins reach 26, and the all-head rule now protects through the Warm Ups' rank 22.
+- **The priority span is ranks 1–22.** Only the $20 supersats read 23–26.
+
+**The cheap block** keeps its 1-based ranks 2, 5, 9, 12, 15, 18, 22 and 25, so block rows land at:
+
+| Block rank | Contests |
+|---|---|
+| 2 | MEGA #2, and the $555 2x |
+| 5, 9 | $555 entries |
+| 12, 15 | $333 entries |
+| 18 | the Millionaire |
+| 22 | a Warm Up |
+| 25 | the supersats |
+
+The priority sort fills the non-block ranks 1, 3, 4, 6, 7, 8, 10, 11, 13, 14, 16, 17, 19, 20 and 21, best first. The 3
+lowest-scoring non-block rows go to ranks 23, 24 and 26.
+
+**The harm screen's three arms**, under the same frozen rule, amended before any number was run:
+- **CB:** Rev3, book order (unchanged).
+- **CB_REV6:** Rev6, book order.
+- **CB_PRI:** Rev6 + the priority sort.
+
+### 4b. The frozen W2–4 harm screen (the laptop, 10-07): the sort is NOT ENTERED; his Rev6 order passed
+
+The screen was built through the real switch, and the integrity checks pass every week. It is in-sample: it can show
+harm, not a gain.
+
+| Comparison | P(≥ 1 big), W2 / W3 / W4 | Pooled expected big seats, ratio | Verdict |
+|---|---|---|---|
+| **The priority sort**: CB_PRI vs CB_REV6 | .0907 vs .1120 / .0262 vs .0178 / .4264 vs .6597 (lower in 2 of 3) | **0.587** | **NOT ENTERED**; `--priority-order` stays off for Week 5 |
+| **His Rev6 order**: CB_REV6 vs CB | .1120 vs .0578 / .0178 vs .0179 / .6597 vs .5347 (lower in 1 of 3, by a hair) | **1.466** | passed; Rev6 is being installed |
+| Descriptive: the whole change, CB_PRI vs CB | — | 0.861 | — |
+| Descriptive: an all-26 sort, CB_ALL vs CB_REV6 | lower in all 3 | 0.543 | — |
+
+**What the sort did:** it moved the priority entries toward the score's features exactly as designed (W4: QB + 1 .375 →
+.292, bring-back .625 → .708, 2+ cheap .292 → .333). But their mean finish fell (W4 .614 → .557): on these weeks the
+score picked rows that finished worse. The Midseason Warm Ups were not the cause. Under Rev6 they read the
+big-contest ranks 20–22 like the rest, and no other big seat moved.
+
+**The lesson (the outside reviewer's own):**
+- The score's elements are real associations *across the field's lineups*: within users, in his priority contests,
+  W1–4.
+- Ranking *our own* rows by them did not carry over. This is the project's standing result again: selection among our
+  rows sits at chance (study 48b's re-deal read the same way).
+- A field-level structural pattern says how a book should be **built** (the cheap block tests exactly that). It does
+  not say which of our already-built rows to send where.
+- The reviewer's study 59 can still give a Week-6 read. The shape question (fewer QB + 1) stays with study list 56 as a
+  build change, not a deal.
+
+## 5. Big-contest entries next week: 1–2 tickets, where a win means cashing (`cash_line_books.py`)
+
+The operator, 10-07: *"if I win entries next week, I'll only have 1-2 of the large ones so I need to make them count."*
+
+Inside a big contest he holds a seat in, a win is any finish paying $500+. In $333+ contests that is any cash, and
+DraftKings GPPs pay about the top 20% (production should confirm each target contest's ladder). So the line for those
+entries is a **cash line in a sharp field**, not the deep satellite lines the book is built for.
+
+**Real-field check** (in-sample, W2–4): production's P3 replay books, built for each week's real plan (69 / 178 / 110
+rows): ENTERED (his Week-5 package), MEAN_MILP (the plain capped optimizer on the frame's means) and PROPS_MILP (the same
+on the betting market's means). Each row is scored on realized points against the week's Millionaire field and the W3
+$14M FFWC qualifier field (sharp, ~56% regulars).
+
+| Share of the field beaten | ENTERED | MEAN_MILP | PROPS_MILP |
+|---|---|---|---|
+| Whole book, Millionaire field, share of rows in the top 20% | .162 | .199 | .235 (W4 only .045) |
+| Whole book, W3 FFWC field, share in the top 20% | .079 | .169 | .287 |
+| **Row #1, the single best entry**, Millionaire field W2 / W3 / W4 | .02 / .71 / .35 | **identical to ENTERED** | **.15 / .83 / .43** |
+| Row #1, W3 FFWC field | .60 | .60 | **.75** |
+| Rows 1–2, Millionaire field | .23 / .67 / .49 | .06 / .76 / .51 | .18 / .88 / .39 |
+| Rows 1–2, W3 FFWC field | .56 | .66 | .83 |
+
+**What it says:**
+- **For one entry, the book's #1 row is already the best-projection lineup.** It is identical to the plain optimizer's
+  #1 every week. The only lever left is **which projection** drives it. On these weeks the market (props) #1 beat ours
+  in each week and in the sharp field (3 of 3 plus 1), which is suggestive but small.
+- **For two entries,** no construction's top rows were consistently better. The tested tool is study 32's R4 joint
+  coverage (+0.030 at 2–3 entries), which study 57 is preparing.
+
+**Proposed for Week 6, if he holds big-contest tickets (each tested before use):**
+1. Production fetches each target contest's payout ladder from the public API, so the entry's line is the line where it
+   pays $500+.
+2. The reviewer's study-32 harness reads, at those contests' sizes and lines with m = 1 and 2: LIVE's top rows vs the
+   FP-means plain rows vs the props-means plain rows. This is the cash-line endpoint study 54 did not measure.
+3. Monday's W5 real field adds one more prospective comparison of the FP #1 and the props #1.
+4. R4 (study 57) for the two-entry case, with the distinct-rows fix.
+
+## 6. Tight ends against tough defenses (the operator, 10-07)
+
+The operator, 10-07: *"Using the Neo4j data, please do some research on when tight ends have a big game. My suspicion is
+that happens when it's a strong defense and they're not going to be able to throw to the wide receiver as much ... a
+stack with a quarterback, running back, and a tight end."* Then: *"maybe we also consider giving a tight end a bonus ...
+when he's used alone as well, when it's against a tough defense."*
+
+The graph holds only the 2026 weeks, so the history test reads the tables it is built from (12 seasons). Scripts:
+`te_defense_study.py` and `te_stack_fields.py` in `reports/2026-10-07-brainstorm/`.
+
+**History 2014–2025** (4,973 team-games, weeks with 3+ prior defense games):
+- **Defense strength** is point-in-time: the DK points the opponent allowed per game to WRs / TEs / RBs in its earlier
+  games that season.
+- **Comparisons** are within the same offense-season, with the Vegas implied team total as a control.
+
+| Against defenses strong vs WRs (per sd stronger) | Effect | Reading |
+|---|---|---|
+| TE1 DK points | +0.08 (t 0.8) | **no gain** |
+| TE target share | +0.3 pt (t 2.5) | a hair more of the targets |
+| TE boom (20+) | +0.3 pt (t 0.8) | no gain; the strongest 10% of WR defences give 7.7% vs 8.4% |
+| RB touch share | +0.4 pt (t 3.0) | a hair more touches, not more points (RB1 −0.18, t 1.5) |
+| WR1 / QB | −0.21 / −0.16 | everyone produces less, and the implied total already prices most of it |
+
+| Stack, share of team-games | Strong vs WR | Middle | Weak vs WR |
+|---|---|---|---|
+| QB + TE beats QB + WR | .213 | .207 | .190 |
+| QB + TE ≥ 45 points | .087 | .098 | .096 |
+| QB + WR ≥ 45 points | .235 | .266 | .288 |
+| QB + RB + TE ≥ 60 | .147 | .161 | .162 |
+| QB + WR + WR ≥ 60 | .191 | .225 | .225 |
+
+**What does predict TE production:**
+- **The opponent's record against TEs specifically:** TE1 +0.28 per sd of TE points allowed (t 3.0); QB + TE +0.57
+  (t 3.4).
+- **A run / pass funnel:** against weak run defences, QB + RB + TE does better (+0.92 per sd of RB points allowed,
+  t 4.1); against strong run defences, QB + WR + WR does better (−0.86, t 3.2).
+- **The implied team total**, by far the strongest predictor.
+
+**The 2026 real fields** (W3–4 only, because the frames carry the pre-lock pass-defense measure from W3; within-user odds
+ratios, users 20+ entries):
+
+| QB's opponent (pre-lock EPA per dropback allowed) | QB + TE vs QB + WR, top 1% / top 5% | QB + RB + TE vs QB + WR + WR, top 1% / top 5% |
+|---|---|---|
+| Strong pass defence | **4.48 / 2.78** | 7.27 (10 events) / 3.74 |
+| Middle | 0.48 / 0.53 | 0.13 / 0.45 |
+| Weak pass defence | 0.29 / 0.38 | 0.37 / 0.19 |
+
+**Reading:**
+- The two 2026 weeks match the operator's idea strongly. Twelve seasons say it is not a general rule: tight ends do not
+  score more against tough pass defences.
+- QB + TE stacks gain only relatively, because WR stacks fall more. Even then, WR stacks boom about 2.7× as often in
+  every defence group.
+- The two weeks most likely reflect a few games.
+- **The TE bonus "against a tough defense" is not supported** (TE points do not rise there). The supported form is a
+  bonus against defences **weak against TEs**, which the **matchup block** (on paper this week) already applies to
+  every position.
+
+**Robustness: the same measure as the 2026 frames** (the operator asked whether the 12 seasons have the defense
+information). They do. History derives each defence's strength from game results before every game. The rerun uses the
+opponent's EPA allowed per dropback over its previous 6 games (`nfl_raw.pbp`, every season; `te_defense_epa.py`;
+4,846 team-games):
+- Against strong pass defences, TE1 scores 9.23 vs 9.91–10.10, and the TE boom rate is 6.8% vs 8.6–9.4%.
+- Within offense-season with the total controlled, TE1 is +0.04 per sd (t 0.4).
+- QB + TE beats QB + WR in .207 / .199 / .200 of games: flat.
+- QB + TE ≥ 45 occurs in .081 / .095 / .104 of games: lower against strong defences.
+- QB + RB + TE ≥ 60 occurs in .133 / .164 / .174: also lower.
+- The conclusion holds under either measure.
+
+**Proposed:**
+- No new layout rule or TE bonus now.
+- Track the real-field pattern as one more weekly line ("QB + TE vs QB + WR by the opponent's pass defence"). If it
+  holds through W5–W8, it is a real signal beyond history, and it goes to a test.
+- The matchup block's paper results are the tested route for position-specific matchups.
+
+### 6a. Time of possession and passes to tight ends (the operator, 10-07)
+
+The operator: *"could you do a check on if there's any correlation between the time of possession and the number of
+passes to tight ends? I'm wondering if tough defenses make it so that we have the ball less and they have to quickly
+throw it to a tight end."*
+
+**Data and method** (`top_te_study.py`): regular seasons 2014–2025 from play-by-play, 6,302 offense games.
+- Time of possession is the sum of the team's drives.
+- Targets are counted by the receiver's position.
+- Play-by-play has no time-to-throw, so passes of 5 air yards or less stand in for "quick throws".
+- Defense strength is point-in-time: EPA allowed per dropback over the opponent's previous 6 games that season.
+
+**Link 1 (tough defence → less possession): small. CORRECTED below — the first version said "not there", which was too strong.** The offense's time of possession is 30.2 min against tough pass
+defences, 30.1 middle, 30.4 soft. Within offense-season, with the implied total controlled, the effect is +0.0006 per sd
+(t 0.6). The implied total matters: favourites hold the ball longer (t 5.2).
+
+**Link 2 (less possession → more passes to the TE): the reverse.** Comparing the same offense-season's games:
+
+| Possession | Minutes | Pass attempts | TE targets | TE share | Short-pass share | TE share of short passes | Margin |
+|---|---|---|---|---|---|---|---|
+| Less ball (own low third) | 25.6 | 35.7 | 6.70 | .209 | .495 | .218 | −5.8 |
+| Middle | 30.2 | 37.3 | 7.13 | .212 | .508 | .223 | −0.2 |
+| More ball (own high third) | 34.8 | 37.4 | 7.35 | .218 | .520 | .228 | +6.2 |
+
+- With the score margin controlled, more possession goes with a slightly **higher** TE share (t 2.8).
+- The opponent's pass defence has no effect on TE share (t 0.0).
+
+**Reading:** offenses facing tough pass defences do not have the ball less. When they have it less, they throw slightly
+fewer and shorter-share passes to the TE, not more. The data cannot see the QB's time to throw itself, but the short-pass
+proxy points the same way.
+
+**Correction after the operator's challenge** (*"If you're going against a tough defense, you're likely going to get
+fewer first downs, which means less time of possession."*). Script: `top_firstdowns.py`; 5,150 offense games.
+
+**Realized:** the operator's mechanism holds. Games where the offense gets fewer first downs than its season average
+are games with less possession (within offense-season r +0.60):
+
+| | First downs | Minutes of possession | TE targets | TE share |
+|---|---|---|---|---|
+| Fewer first downs | 14.9 | 27.2 | 6.4 | .213 |
+| About usual | 19.8 | 30.5 | 7.1 | .216 |
+| More first downs | 24.6 | 33.0 | 7.8 | .217 |
+
+**Predictable before the game:** tough defences do cost first downs and possession, as he expected, but modestly. The
+pre-game measure predicts the game only partly, and possession depends on both teams. Toughest vs softest third of
+opponents, within offense-season:
+
+| Pre-game measure | First downs | Possession (min) | TE share |
+|---|---|---|---|
+| Pass EPA allowed per dropback, last 6 | 19.0 vs 20.4 | 30.1 vs 30.5 | flat |
+| First downs allowed per game, last 6 | 19.1 vs 20.6 | 29.9 vs 30.6 | flat |
+| Vegas implied team total (the best predictor) | 18.6 vs 20.7 | 29.9 vs 30.6 | flat |
+
+**Reading:** the chain holds up to "fewer first downs and less possession", by about half a minute to a minute before
+the game. It breaks at the last step. With less possession, the TE's share of targets stays flat (.213–.218), and his
+count falls with the team's.
+
+### 6b. Pass-catching tight ends only, and a correction to the stack comparison (the operator, 10-07)
+
+The operator: *"Since there are two types of tight ends, ones that do more blocking and ones that are pass catching
+tight ends, is it possible that the blocking ones are skewing these results? Can we look at it only through the pass
+catching tight ends?"* Script: `te_receiving_study.py`.
+
+**Definition, point-in-time:** the team's TE with the highest average target share in his earlier games that season
+(3+ games), kept only if that share is ≥ 15%. That leaves 2,111 of 5,129 team-games 2014–2025; his prior share has a
+median of 18.9%. The team's WR1 is chosen the same way.
+
+The excluded low-target TE rooms average a top-TE score of 6.4 DK points on an 11.1% target share. The pass-catching
+TEs average 11.0 on 18.7%. So yes, the blocking rooms diluted the earlier averages.
+
+**Results for the pass-catching TE, against a 1-sd tougher pass defence, within offense-season with the total
+controlled:**
+
+| Measure | Effect | Reading |
+|---|---|---|
+| His DK points | −0.11 (t −0.6) | no gain |
+| His target share | +0.5 pt (t 2.5) | slightly more |
+| 15+ / 20+ games | +0.7 / −0.7 pt | no change |
+| QB + TE beats QB + WR1 | +1.2 pt (t 1.0) | a lean, not reliable |
+| QB + TE ≥ 45 / QB + WR1 ≥ 45 | −0.9 / −1.1 pt | both drop alike |
+
+Raw thirds show QB + TE winning the head-to-head .463 / .417 / .407 (tough / middle / soft). Within team, that gap is
+mostly which teams met the tough defences.
+
+**When his offense struggles** (fewer first downs, or less possession, than its own season average), his target share
+is flat (.190 / .182 / .188). His points fall (8.7 → 11.0 → 13.2 by first-down third).
+
+**CORRECTION to §6:** the earlier stack table compared the team's best-scoring TE that day with its best-scoring WR that
+day. The best of 3–5 WRs naturally beats the best of 1–3 TEs, so it overstated the WR edge ("WR stacks boom about 2.7×
+as often"). With the TE and WR1 known before the game:
+- QB + pass-catching TE beats QB + WR1 in 43% of games.
+- QB + TE ≥ 45 occurs 12.7% of the time, against 16.9% for QB + WR1. That is about three-quarters as often, not a
+  third.
+
+The conclusion on tough defences does not change: no reliable gain for the TE. But QB + a pass-catching TE is a much
+closer alternative to QB + WR1 than §6 said.
+
+## 7. QB + tight-end stacks: tests run tonight, and the request to production (the operator, 10-07 night)
+
+The operator: *"I would like to do more testing on the QB tight end stacks right away."* Then, going to sleep: *"please
+engage with the production laptop to see if we can get a test running of this and perhaps consider a percentage of our
+lineups to have a QB tight end stack"* and *"also to include a bonus to the tight end in these types of situations."*
+
+**Real fields, 2026** (`qbte_fields.py`; a pass-catching TE = frame `target_share_l4` ≥ 15%, available W2–4):
+
+| Within-user odds ratio, top 5% | Millionaire | Priority contests |
+|---|---|---|
+| QB + pass-catching TE (no WR) vs QB + WR (no TE) | 0.76 [0.70, 0.83] | 1.76 [0.76, 3.52] |
+| QB + WR + pass-catching TE vs QB + WR + WR | 0.78 [0.72, 0.85] | 0.92 [0.46, 2.08] |
+| Any TE in the QB's stack vs none | 1.28 [1.25, 1.32] (W4 0.53) | 1.73 [1.35, 2.23] (W4 0.26) |
+
+**Winners' rates (W2–4):**
+
+| | Top 1% | Field |
+|---|---|---|
+| Millionaire: QB stacked with ANY TE | **.396** | .303 |
+| Millionaire: QB stacked with a pass-catching TE | .124 | .184 |
+| Priority contests, top 5%: any TE | .686 | .457 |
+| Priority contests, top 5%: pass-catching TE | .213 | .311 |
+
+The winners stacked a TE more often than the field, but mostly not the established pass-catching ones: cheaper,
+lower-target TEs who had big days. That is consistent with the cheap block.
+
+**Our book already stacks a TE at about the winners' rate.** The W2–4 replays at the Week-5 settings and Rev6 have 9–13
+of 26 rows with a TE stacked with the QB (≈ 40%), 5–10 of them pass-catching.
+
+**W2–4 fixed-book replay** (in-sample; the laptop's bonus-block harness copied, original untouched;
+`te_blocks_replay/`; Rev6 plan, Week-5 settings; 8-row blocks at +2):
+
+| Book | P(≥ 1 big) W2 / W3 / W4 | Expected big seats, 3 weeks | QB + TE rows of 26 |
+|---|---|---|---|
+| Live (no block) | .010 / .002 / .297 | 0.31 | 10 / 9 / 12 |
+| Cheap +2 (the W5 trial) | .112 / .018 / .660 | 1.03 | 9 / 7 / 12 |
+| Pass-catching TE +2 | .061 / .018 / .699 | 0.98 | 9 / 10 / 13 |
+| Cheap OR pass-catching TE +2 (one file) | .032 / .018 / .703 | 0.96 | 8 / 9 / 12 |
+
+- **Every block beats the live book every week, by similar amounts.** On these weeks almost any 8-row change does,
+  because the live Rev6 book is weak in W2–3. So this replay cannot rank the blocks against each other; the practice-week
+  harness can.
+- **The TE bonus barely changes the number of QB + TE stacks** (+0 to +1 rows). The MIX shapes choose the QB's stack
+  partners.
+
+**The writer for a test:** `scripts/te_block_file.py` (8 tests).
+- `--frame F --points 2.0` gives +2 to TEs with `target_share_l4` ≥ 0.15.
+- `--tough-pass-d` limits that to TEs facing the slate's toughest third by `epa_per_dropback_allowed_l6`. This is the
+  operator's idea; history did not support it, and it is offered so it can be tested directly.
+- `--with-cheap` adds the cheap rule to the same file.
+- It is create-once and in the cheap / matchup writers' format.
+- On the W4 T-70 frame it reproduces the replay's file exactly (11 TEs; 4 with `--tough-pass-d`).
+
+**Proposed to production** (each needs the reviewer's design; the operator decides adoption):
+1. Before Sunday's lock, paper arms in study 38: TE +2, TE +2 against tough pass defences, and cheap-or-TE +2. That
+   gives a real-field read Monday at no risk.
+2. A practice-week harness study for Week 6 (2023–24, the 2022 check, the installed plan's lines): CHEAP2 (the trial)
+   vs TE2 / TE2_TOUGH / CHEAPTE2 under the frozen Saturday rule.
+3. A fixed "% of lineups with a QB + TE stack" quota is not needed now: the book is at the winners' rate. If wanted
+   later, it is a MIX cell (code) and a study of its own.
+
+## 8. The independent audit of the TE study (the operator, 10-07: "I would like another agent to double check your work")
+
+A fresh agent with no access to the reviewer's reasoning rebuilt the study in its own code (`te_audit/`, read-only
+queries). Its verdict: **correct.**
+
+**Defense history exists for every season.**
+- Play-by-play has every 2014–2025 regular-season game.
+- Production's own `defense_week_allowed` carries `epa_per_dropback_allowed_l6` on 480–512 defense-weeks every season,
+  with only Week 1 empty by design.
+- What is limited to recent weeks is the T-70 frames (2026 only, the column empty in W1–2) and the real contest fields
+  (2026 W1–4).
+
+**No leakage.** Every window ends one game before the game studied.
+
+**It reproduced every number exactly:** 4,973 / 4,846 team-games, every table cell, the regressions, and the real-field
+4.48.
+
+**Corrections to this note (none changes the answer):**
+1. **Team codes.** `nfl_raw.schedules` uses STL / SD / OAK for 2014–2019 while play-by-play uses LA / LAC / LV.
+   - The scripts here joined the raw schedule, which silently dropped 303 of 5,149 team-games (5.9%). Verified by the
+     reviewer.
+   - Production's `schedule_long` already normalises these.
+   - Fixed, it moves nothing material (TE1 against strong defences 9.231 → 9.240).
+2. **"The same measure as the 2026 frames" was inaccurate.** The frames carry a ONE-GAME-STALE version: the W3 frame
+   equals each defence's W1 game alone (26 of 26, verified by the reviewer), and the W4 frame equals the W1–2 mean. So
+   the 2026 two-week test rested on the thinner label, not the history test.
+3. **The best-of-the-day TE1 / WR1** inflated the WR stack edge: "2.7×" becomes about 2.2× with the highest-salaried
+   player who played (see also §6b).
+4. **The t-statistics were not clustered by defence**; clustering moves them ≤ 0.3.
+
+**Every variant gives the same answer:**
+- the training feature;
+- the stale live feature;
+- the stale feature on W3–4 only (the exact 2026 set-up, in history);
+- prior-6 games across seasons, including weeks 1–3;
+- players picked by salary;
+- cornerback quality.
+
+The ratio [P(QB + TE ≥ 45) / P(QB + WR ≥ 45)] against strong vs weak defences is 0.95 (95% CI 0.78–1.16), which rules
+out anything like the 2026 4× effect.
+
+**The 2026 W3–4 effect** comes from four games, which hold 99% of the events. The 109 top-1% QB + TE lineups against
+"strong" defences were:
+- Purdy + Kittle: 57 (W3 SF vs ARI, 58% of the effect).
+- Shough + Juwan Johnson: 19, plus 1 with Fant.
+- Cousins + Bowers: 14.
+- Lawrence + Strange: 11.
+
+The label rested on 1–2 games. ARI was "strong" on its W1 game alone, had allowed +0.60 EPA per dropback in W2 (skipped
+by the stale frame), and allowed +0.90 that day. Measured on prior-6 games across seasons, the odds ratio is 0.92 / 1.33
+/ 0.76; it vanishes.
+
+**What holds of the operator's idea:**
+- Good cornerback play does hurt WRs, and the TE's target share rises (+0.8 pt), but TE points do not.
+- A defence's record **against TEs** is the usable signal: TE1 +0.29 per sd (t 3.4), and 20+ TE games +1.0 pt (t 2.8).
+  That is the matchup block.
+- Elite TEs against strong pass defences score less (12.5 vs 13.2–13.9).
+
+**Side finding for production (train / serve skew):** the seven defence columns from `017_defense_week_allowed`
+(including `epa_per_dropback_allowed_l6` and `te_fp_allowed_adj_l6`) are one game staler in the live frames than in the
+training rows.
+- The 2026-08-11 audit dismissed this join as not a skew.
+- It is not on the money path (the live model does not use these columns).
+- It matters for studies that read them and for arms that add them (the O-22 co-run's arm D).
+- Relayed to the laptop for OPEN-DEFECTS.

@@ -1,0 +1,6 @@
+observed MH OR (frame thirds): {'t1': {'strong': np.float64(4.48), 'middle': np.float64(0.48), 'weak': np.float64(0.29)}, 't5': {'strong': np.float64(2.76), 'middle': np.float64(0.52), 'weak': np.float64(0.38)}}
+t1: strong-third OR observed 4.48; permutation median 0.89, 90th pct 2.51, share >= observed 0.017
+t1: log OR(strong) - log OR(weak) observed 2.73; permutation 95th pct 2.20, share >= observed 0.017
+t5: strong-third OR observed 2.76; permutation median 0.91, 90th pct 1.87, share >= observed 0.018
+t5: log OR(strong) - log OR(weak) observed 1.99; permutation 95th pct 1.60, share >= observed 0.009
+note: the permutation keeps every lineup and every game outcome fixed and only reshuffles which defenses are called strong/middle/weak; with 50 defense-weeks it measures how often a random labelling of a handful of games yields a pattern this strong.

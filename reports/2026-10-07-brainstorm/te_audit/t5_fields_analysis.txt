@@ -1,0 +1,119 @@
+W3 defenses by frame value (low = strong): PIT -0.61 [S], KC -0.44 [S], BAL -0.44 [S], SF -0.35 [S], CIN -0.29 [S], JAX -0.23 [S], LV -0.21 [S], ARI -0.19 [S], NYJ -0.12 [S], MIN -0.06 [M], TB -0.04 [M], DET -0.01 [M], MIA +0.01 [M], NO +0.01 [M], SEA +0.07 [M], BUF +0.10 [M], WAS +0.17 [M], NE +0.23 [W], LAC +0.29 [W], NYG +0.31 [W], TEN +0.35 [W], IND +0.46 [W], HOU +0.51 [W], CAR +0.54 [W], DAL +0.67 [W], CLE +0.79 [W]
+   defenses whose third differs between the QB-row cut and the per-defense cut: ['NYJ']
+W4 defenses by frame value (low = strong): CIN -0.20 [S], KC -0.16 [S], LA -0.16 [S], NE -0.13 [S], LV -0.12 [S], NYJ -0.11 [S], SEA -0.11 [S], SF -0.10 [S], BAL -0.09 [M], DEN -0.05 [M], MIN -0.04 [M], JAX +0.02 [M], GB +0.08 [M], PHI +0.10 [M], TB +0.14 [M], CHI +0.16 [M], ARI +0.20 [W], LAC +0.24 [W], HOU +0.25 [W], BUF +0.26 [W], TEN +0.27 [W], DAL +0.41 [W], NYG +0.44 [W], MIA +0.53 [W]
+   defenses whose third differs between the QB-row cut and the per-defense cut: []
+
+(1) REPRODUCTION, reviewer's cut (QB rows), users with 20+ entries, W3+W4:
+QB faces             contrast  top1 MH OR  top1 events exp/ref  top5 MH OR    top5 events exp/ref
+  strong       QB+TE vs QB+WR        4.48 109/5311 vs 91/20537        2.76  504/5311 vs 730/20537
+  strong QB+RB+TE vs QB+WR+WR        7.27    10/979 vs 12/5380        3.66     84/979 vs 131/5380
+  middle       QB+TE vs QB+WR        0.48 23/4084 vs 207/16671        0.52 155/4084 vs 1177/16671
+  middle QB+RB+TE vs QB+WR+WR        0.13    2/1887 vs 60/4591        0.44    56/1887 vs 379/4591
+    weak       QB+TE vs QB+WR        0.29 22/5012 vs 438/18691        0.38 135/5012 vs 1619/18691
+    weak QB+RB+TE vs QB+WR+WR        0.37   13/1266 vs 87/3387        0.19    35/1266 vs 375/3387
+
+(2) per-defense cut, users 20+, W3+W4:
+QB faces             contrast  top1 MH OR  top1 events exp/ref  top5 MH OR    top5 events exp/ref
+  strong       QB+TE vs QB+WR        4.69 109/5502 vs 91/21974        2.76  507/5502 vs 757/21974
+  strong QB+RB+TE vs QB+WR+WR        4.20   10/1087 vs 12/5830        3.37    86/1087 vs 131/5830
+  middle       QB+TE vs QB+WR        0.46 23/3893 vs 207/15234        0.50 152/3893 vs 1150/15234
+  middle QB+RB+TE vs QB+WR+WR        0.14    2/1779 vs 60/4141        0.43    54/1779 vs 379/4141
+    weak       QB+TE vs QB+WR        0.29 22/5012 vs 438/18691        0.38 135/5012 vs 1619/18691
+    weak QB+RB+TE vs QB+WR+WR        0.37   13/1266 vs 87/3387        0.19    35/1266 vs 375/3387
+
+(3) week 3 alone, reviewer's cut, users 20+:
+QB faces             contrast  top1 MH OR top1 events exp/ref  top5 MH OR  top5 events exp/ref
+  strong       QB+TE vs QB+WR        4.95  83/2307 vs 63/9804        2.97 367/2307 vs 524/9804
+  strong QB+RB+TE vs QB+WR+WR       11.86    9/521 vs 10/3318        3.96   67/521 vs 107/3318
+  middle       QB+TE vs QB+WR        0.49 11/2236 vs 111/9094        0.45  68/2236 vs 684/9094
+  middle QB+RB+TE vs QB+WR+WR        0.00    0/757 vs 36/2111        0.20   13/757 vs 243/2111
+    weak       QB+TE vs QB+WR        7.47    6/2742 vs 6/8686        1.69   36/2742 vs 99/8686
+    weak QB+RB+TE vs QB+WR+WR        0.00     0/483 vs 2/1650        0.27     3/483 vs 10/1650
+
+(3) week 4 alone, reviewer's cut, users 20+:
+QB faces             contrast  top1 MH OR  top1 events exp/ref  top5 MH OR   top5 events exp/ref
+  strong       QB+TE vs QB+WR        3.40  26/3004 vs 28/10733        2.33 137/3004 vs 206/10733
+  strong QB+RB+TE vs QB+WR+WR        1.57      1/458 vs 2/2062        2.80     17/458 vs 24/2062
+  middle       QB+TE vs QB+WR        0.46   12/1848 vs 96/7577        0.61   87/1848 vs 493/7577
+  middle QB+RB+TE vs QB+WR+WR        0.38    2/1130 vs 24/2480        0.77   43/1130 vs 136/2480
+    weak       QB+TE vs QB+WR        0.21 16/2270 vs 432/10005        0.28 99/2270 vs 1520/10005
+    weak QB+RB+TE vs QB+WR+WR        0.39    13/783 vs 85/1737        0.19    32/783 vs 365/1737
+
+(4) ALL users (crude, still stratified by user-week), reviewer's cut:
+QB faces             contrast  top1 MH OR    top1 events exp/ref  top5 MH OR     top5 events exp/ref
+  strong       QB+TE vs QB+WR        3.97 180/12619 vs 149/53464        2.83 995/12619 vs 1434/53464
+  strong QB+RB+TE vs QB+WR+WR        8.29    23/2581 vs 19/10530        4.16   184/2581 vs 247/10530
+  middle       QB+TE vs QB+WR        0.45  41/11755 vs 366/47606        0.56 347/11755 vs 2490/47606
+  middle QB+RB+TE vs QB+WR+WR        0.11      3/5752 vs 89/9830        0.49    105/5752 vs 682/9830
+    weak       QB+TE vs QB+WR        0.28  47/15936 vs 990/55230        0.40 287/15936 vs 3925/55230
+    weak QB+RB+TE vs QB+WR+WR        0.33    19/3314 vs 171/6634        0.20     71/3314 vs 727/6634
+
+(5) strong-pass-D lineups (users 20+): by game and stack: lineups, top-1% and top-5% counts and rates
+      game qbt stack  lineups  top1  top5  top1 rate  top5 rate
+ W3 ARI-SF ARI QB+TE      430     6    30      0.014     0.0698
+ W3 ARI-SF ARI QB+WR      382    31   112     0.0812     0.2932
+ W3 ARI-SF  SF QB+TE     1273    57   247     0.0448      0.194
+ W3 ARI-SF  SF QB+WR      914     8    60     0.0088     0.0656
+W3 BAL-DAL DAL QB+TE       38     0     0        0.0        0.0
+W3 BAL-DAL DAL QB+WR     2419     2    17     0.0008      0.007
+W3 CIN-PIT CIN QB+TE        8     0     0        0.0        0.0
+W3 CIN-PIT CIN QB+WR      661     0    18        0.0     0.0272
+W3 CIN-PIT PIT QB+TE       38     0     0        0.0        0.0
+W3 CIN-PIT PIT QB+WR      163     2    19     0.0123     0.1166
+ W3 JAX-NE  NE QB+TE      170     0     0        0.0        0.0
+ W3 JAX-NE  NE QB+WR      194     0     1        0.0     0.0052
+ W3 KC-MIA MIA QB+TE       33     0     0        0.0        0.0
+ W3 KC-MIA MIA QB+WR      302     0     4        0.0     0.0132
+  W3 LV-NO  NO QB+TE      317    20    90     0.0631     0.2839
+  W3 LV-NO  NO QB+WR     4769    20   293     0.0042     0.0614
+ W4 BUF-NE BUF QB+TE      894     0    13        0.0     0.0145
+ W4 BUF-NE BUF QB+WR     1882     8    39     0.0043     0.0207
+W4 CHI-NYJ CHI QB+TE      125     1     2      0.008      0.016
+W4 CHI-NYJ CHI QB+WR     1533     2    17     0.0013     0.0111
+W4 CIN-JAX JAX QB+TE      727    11    54     0.0151     0.0743
+W4 CIN-JAX JAX QB+WR     3809     8    48     0.0021     0.0126
+ W4 DEN-SF DEN QB+TE       32     0     0        0.0        0.0
+ W4 DEN-SF DEN QB+WR     1913     5    52     0.0026     0.0272
+  W4 KC-LV  KC QB+TE      573     0     7        0.0     0.0122
+  W4 KC-LV  KC QB+WR     1072     5    30     0.0047      0.028
+  W4 KC-LV  LV QB+TE      622    14    61     0.0225     0.0981
+  W4 KC-LV  LV QB+WR       81     0     4        0.0     0.0494
+ W4 LA-PHI PHI QB+TE       16     0     0        0.0        0.0
+ W4 LA-PHI PHI QB+WR      340     0    15        0.0     0.0441
+W4 LAC-SEA LAC QB+TE       15     0     0        0.0        0.0
+W4 LAC-SEA LAC QB+WR      103     0     1        0.0     0.0097
+
+(6) the 109 top-1% QB+TE lineups vs strong pass D, by QB and TE stacked:
+week  qb               te_mates        
+3     Brock Purdy      George Kittle       57
+      Tyler Shough     Juwan Johnson       19
+4     Kirk Cousins     Brock Bowers        14
+      Trevor Lawrence  Brenton Strange     11
+3     Jacoby Brissett  Trey McBride         6
+      Tyler Shough     Noah Fant            1
+4     Tyson Bagent     Colston Loveland     1
+by game:
+game
+W3 ARI-SF     63
+W3 LV-NO      20
+W4 KC-LV      14
+W4 CIN-JAX    11
+W4 CHI-NYJ     1
+cumulative share: {'W3 ARI-SF': 0.578, 'W3 LV-NO': 0.761, 'W4 KC-LV': 0.89, 'W4 CIN-JAX': 0.991, 'W4 CHI-NYJ': 1.0}
+
+(7) leave-one-game-out: the strong-third QB+TE vs QB+WR MH OR (top 1% / top 5%) after removing every lineup whose QB plays in game g
+ drop game  top1 OR  top1 events exp  top5 OR  top5 events exp
+ W3 ARI-SF     5.06               46     2.78              227
+W3 BAL-DAL     3.73              109     2.32              504
+W3 CIN-PIT     4.52              109     2.84              504
+ W3 JAX-NE     4.62              109     2.92              504
+ W3 KC-MIA     4.44              109     2.76              504
+  W3 LV-NO     3.19               89     2.65              414
+ W4 BUF-NE     5.06              109     2.98              491
+W4 CHI-NYJ     4.37              108     2.73              502
+W4 CIN-JAX     4.34               98     2.54              450
+ W4 DEN-SF     4.60              109     2.85              504
+  W4 KC-LV     4.41               95     2.79              436
+ W4 LA-PHI     4.44              109     2.81              504
+W4 LAC-SEA     4.47              109     2.76              504
+drop the two largest contributors ['W3 ARI-SF', 'W3 LV-NO']: top1 OR 3.23, top5 OR 2.09

@@ -1,0 +1,25 @@
+W1: lineups 828,085 (Millionaire 823,092; priority 4,993); pass-catching TEs in the frame 0
+W2: lineups 172,456 (Millionaire 172,330; priority 126); pass-catching TEs in the frame 14
+W3: lineups 168,013 (Millionaire 161,502; priority 6,511); pass-catching TEs in the frame 14
+W4: lineups 160,628 (Millionaire 160,039; priority 589); pass-catching TEs in the frame 11
+
+within-user odds ratio [95%] of finishing in the top k% (users with 3+ lineups in that field-week):
+            field                       contrast             top1%             top5%            top10%            top20%                per week, top 5%
+      Millionaire       QB+pcTE vs QB+WR (2-man) 0.70 [0.59, 0.83] 0.76 [0.70, 0.83] 0.78 [0.73, 0.83] 0.79 [0.75, 0.82]  W1:nan W2:0.68 W3:1.09 W4:0.57
+      Millionaire QB+WR+pcTE vs QB+WR+WR (3-man) 0.80 [0.66, 0.95] 0.78 [0.72, 0.85] 0.78 [0.73, 0.83] 0.76 [0.72, 0.80]  W1:nan W2:0.76 W3:1.10 W4:0.60
+      Millionaire    any TE in the stack vs none 1.25 [1.18, 1.31] 1.28 [1.25, 1.32] 1.29 [1.26, 1.31] 1.27 [1.25, 1.29] W1:1.38 W2:1.03 W3:2.34 W4:0.53
+priority contests       QB+pcTE vs QB+WR (2-man) 0.90 [0.00, 4.92] 1.76 [0.76, 3.52] 1.24 [0.72, 1.91] 1.51 [1.00, 2.21]   W1:nan W2:nan W3:1.75 W4:2.15
+priority contests QB+WR+pcTE vs QB+WR+WR (3-man) 1.60 [0.22, 2.64] 0.92 [0.46, 2.08] 1.02 [0.62, 1.86] 0.94 [0.68, 1.36]   W1:nan W2:nan W3:0.94 W4:0.60
+priority contests    any TE in the stack vs none 1.83 [1.06, 3.25] 1.73 [1.35, 2.23] 1.46 [1.23, 1.76] 1.38 [1.22, 1.59]  W1:1.20 W2:nan W3:2.71 W4:0.26
+
+share of lineups by stack type:
+                   qb_pcte  qb_wr  qb_wr_pcte  qb_wr_wr  qb_any_te
+field                                                             
+Millionaire           0.03  0.557       0.039     0.107      0.265
+priority contests    0.064   0.54        0.12     0.148        0.4
+
+WINNER-LIKE RATES: share of lineups with the QB stacked with ANY TE / a pass-catching TE, among all lineups vs the top 1% / top 5% (all entrants of the field, W2-4 where pass-catching TEs are defined):
+  Millionaire       top 1%: any TE stacked 0.396 (field 0.303); pass-catching TE stacked 0.124 (field 0.184); n top 4,962
+  Millionaire       top 5%: any TE stacked 0.360 (field 0.303); pass-catching TE stacked 0.145 (field 0.184); n top 24,781
+  priority contests top 1%: any TE stacked 0.818 (field 0.457); pass-catching TE stacked 0.136 (field 0.311); n top 66
+  priority contests top 5%: any TE stacked 0.686 (field 0.457); pass-catching TE stacked 0.213 (field 0.311); n top 357

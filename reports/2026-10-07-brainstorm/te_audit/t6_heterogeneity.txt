@@ -1,0 +1,56 @@
+[max] history (in6 measure, 5,149 team-games): [P(QB+TE1>=45)/P(QB+WR1>=45)] strong / weak = 0.95, 95% cluster-bootstrap CI 0.78-1.16
+[max] elite TE (top-8 TE salary that week), n=1384:
+           TE1  te_share  te_boom     WR1  te_beats_wr  qbte45  qbwr45    n
+third                                                                      
+strong  12.506     0.263    0.152  17.449        0.342   0.167   0.234  448
+middle  13.931     0.269    0.216  18.469        0.313   0.191   0.293  467
+weak    13.190     0.262    0.192  17.786        0.328   0.175   0.294  469
+    outcome strong-minus-middle weak-minus-middle strong-minus-weak
+        TE1     -0.959 (t -1.8)   -0.346 (t -0.6)            -0.613
+   te_share     -0.010 (t -1.7)   +0.002 (t +0.4)            -0.012
+    te_boom     -0.056 (t -2.2)   -0.009 (t -0.3)            -0.047
+te_beats_wr     +0.039 (t +1.2)   +0.052 (t +1.6)            -0.013
+     qbte45     -0.017 (t -0.6)   +0.005 (t +0.2)            -0.022
+     qbwr45     -0.048 (t -1.7)   -0.002 (t -0.1)            -0.045
+[max] funnel groups (DK allowed, season to date, 3+ games), within offense-season means (raw n):
+                                TE1  te_share  te_boom    WR1  te_beats_wr  qbte45  qbwr45    itt     n
+funnel                                                                                                 
+neither                      -0.114    -0.003   -0.004  0.075       -0.011   0.000   0.003  0.137  2296
+strong vs WR & weak vs TE     0.198     0.008   -0.000 -0.742        0.023  -0.005  -0.019 -0.115   567
+strong vs WR, not weak vs TE -0.382     0.002   -0.004 -0.683        0.000  -0.010  -0.040 -1.025  1074
+weak vs TE, not strong vs WR  0.462     0.001    0.012  0.810        0.009   0.011   0.038  0.702  1212
+[max] run-funnel groups, within offense-season means:
+                        qbrbte60  qbwrwr60  rbte_beats_wrwr    RB1    TE1    itt     n  raw_qbrbte60  raw_qbwrwr60
+grp                                                                                                               
+other                      0.013     0.010            0.007  0.326  0.249  0.600  3508         0.168         0.223
+pass-strong & run-weak     0.005    -0.004            0.010 -0.044  0.113 -0.214   303         0.155         0.211
+pass-strong, other run    -0.036    -0.026           -0.021 -0.844 -0.678 -1.524  1338         0.129         0.185
+
+[sal] history (in6 measure, 5,089 team-games): [P(QB+TE1>=45)/P(QB+WR1>=45)] strong / weak = 0.97, 95% cluster-bootstrap CI 0.79-1.23
+[sal] elite TE (top-8 TE salary that week), n=1383:
+           TE1  te_share  te_boom     WR1  te_beats_wr  qbte45  qbwr45    n
+third                                                                      
+strong  11.943     0.262    0.147  13.870        0.455   0.165   0.176  448
+middle  13.221     0.269    0.208  14.663        0.431   0.182   0.212  466
+weak    12.518     0.261    0.181  13.951        0.443   0.162   0.207  469
+    outcome strong-minus-middle weak-minus-middle strong-minus-weak
+        TE1     -0.731 (t -1.3)   -0.333 (t -0.6)            -0.398
+   te_share     -0.009 (t -1.6)   +0.002 (t +0.4)            -0.012
+    te_boom     -0.054 (t -2.1)   -0.015 (t -0.6)            -0.038
+te_beats_wr     +0.054 (t +1.5)   +0.032 (t +1.0)            +0.022
+     qbte45     -0.006 (t -0.2)   +0.001 (t +0.0)            -0.007
+     qbwr45     -0.043 (t -1.6)   -0.016 (t -0.6)            -0.027
+[sal] funnel groups (DK allowed, season to date, 3+ games), within offense-season means (raw n):
+                                TE1  te_share  te_boom    WR1  te_beats_wr  qbte45  qbwr45    itt     n
+funnel                                                                                                 
+neither                      -0.084    -0.003   -0.002 -0.052       -0.010   0.000  -0.000  0.139  2261
+strong vs WR & weak vs TE     0.228     0.008   -0.002 -0.193        0.007  -0.007  -0.019 -0.165   556
+strong vs WR, not weak vs TE -0.342     0.002   -0.004 -0.448        0.007  -0.010  -0.017 -0.993  1071
+weak vs TE, not strong vs WR  0.357     0.000    0.008  0.588        0.010   0.012   0.024  0.701  1201
+[sal] run-funnel groups, within offense-season means:
+                        qbrbte60  qbwrwr60  rbte_beats_wrwr    RB1    TE1    itt     n  raw_qbrbte60  raw_qbwrwr60
+grp                                                                                                               
+other                      0.009     0.007            0.004  0.243  0.208  0.600  3462         0.134         0.168
+pass-strong & run-weak     0.010    -0.012            0.031  0.582  0.236 -0.230   305         0.131         0.157
+pass-strong, other run    -0.025    -0.015           -0.017 -0.770 -0.599 -1.518  1322         0.110         0.150
+

@@ -1,0 +1,24 @@
+--- panel_rawcodes | DK allowed (col 1 = WR allowed) | n=4973
+ outcome                          per sd wr_al                          per sd te_al                          per sd rb_al                              per sd itt
+   qb_te +0.079 (t +0.5 naive, +0.5 clustered) +0.568 (t +3.4 naive, +3.6 clustered) +0.183 (t +1.0 naive, +1.0 clustered)   +2.544 (t +9.6 naive, +9.7 clustered)
+   qb_wr +0.372 (t +1.8 naive, +1.9 clustered) +0.416 (t +2.0 naive, +2.1 clustered) -0.464 (t -2.1 naive, -2.0 clustered)  +3.119 (t +9.7 naive, +10.3 clustered)
+qb_rb_te +0.259 (t +1.2 naive, +1.3 clustered) +0.567 (t +2.7 naive, +2.9 clustered) +0.916 (t +4.1 naive, +4.4 clustered) +3.313 (t +10.2 naive, +10.4 clustered)
+qb_wr_wr +0.495 (t +2.0 naive, +2.1 clustered) +0.460 (t +1.9 naive, +1.9 clustered) -0.855 (t -3.2 naive, -2.9 clustered)  +3.887 (t +9.9 naive, +10.5 clustered)
+--- panel_rawcodes | EPA (col 1 = EPA l6) | n=4846
+ outcome                          per sd wr_al                          per sd te_al                          per sd rb_al                              per sd itt
+   qb_te +0.118 (t +0.6 naive, +0.6 clustered) +0.585 (t +3.4 naive, +3.6 clustered) +0.139 (t +0.8 naive, +0.7 clustered)   +2.531 (t +9.3 naive, +9.3 clustered)
+   qb_wr +0.182 (t +0.8 naive, +0.7 clustered) +0.365 (t +1.7 naive, +1.7 clustered) -0.520 (t -2.3 naive, -2.1 clustered)   +3.189 (t +9.6 naive, +9.8 clustered)
+qb_rb_te +0.424 (t +1.8 naive, +1.7 clustered) +0.521 (t +2.4 naive, +2.6 clustered) +0.768 (t +3.4 naive, +3.4 clustered)  +3.277 (t +9.7 naive, +10.0 clustered)
+qb_wr_wr +0.132 (t +0.5 naive, +0.4 clustered) +0.423 (t +1.6 naive, +1.6 clustered) -0.908 (t -3.3 naive, -2.9 clustered) +4.041 (t +10.0 naive, +10.2 clustered)
+--- panel | DK allowed (col 1 = WR allowed) | n=5149
+ outcome                          per sd wr_al                          per sd te_al                          per sd rb_al                              per sd itt
+   qb_te +0.068 (t +0.4 naive, +0.4 clustered) +0.579 (t +3.5 naive, +3.8 clustered) +0.161 (t +0.9 naive, +0.9 clustered)   +2.528 (t +9.7 naive, +9.9 clustered)
+   qb_wr +0.399 (t +2.0 naive, +2.0 clustered) +0.394 (t +2.0 naive, +2.0 clustered) -0.432 (t -2.0 naive, -1.9 clustered)  +3.104 (t +9.8 naive, +10.6 clustered)
+qb_rb_te +0.187 (t +0.9 naive, +1.0 clustered) +0.584 (t +2.9 naive, +3.2 clustered) +0.864 (t +4.0 naive, +4.2 clustered) +3.370 (t +10.5 naive, +10.9 clustered)
+qb_wr_wr +0.530 (t +2.1 naive, +2.2 clustered) +0.456 (t +1.9 naive, +1.9 clustered) -0.803 (t -3.1 naive, -2.9 clustered) +3.854 (t +10.0 naive, +10.7 clustered)
+--- panel | EPA (col 1 = EPA l6) | n=5149
+ outcome                          per sd wr_al                          per sd te_al                          per sd rb_al                              per sd itt
+   qb_te +0.129 (t +0.7 naive, +0.6 clustered) +0.547 (t +3.3 naive, +3.5 clustered) +0.117 (t +0.7 naive, +0.6 clustered)   +2.500 (t +9.5 naive, +9.7 clustered)
+   qb_wr +0.158 (t +0.7 naive, +0.7 clustered) +0.325 (t +1.6 naive, +1.6 clustered) -0.543 (t -2.5 naive, -2.3 clustered) +3.208 (t +10.0 naive, +10.3 clustered)
+qb_rb_te +0.407 (t +1.7 naive, +1.6 clustered) +0.487 (t +2.4 naive, +2.6 clustered) +0.731 (t +3.3 naive, +3.3 clustered) +3.267 (t +10.0 naive, +10.6 clustered)
+qb_wr_wr +0.087 (t +0.3 naive, +0.3 clustered) +0.389 (t +1.6 naive, +1.5 clustered) -0.920 (t -3.4 naive, -3.1 clustered) +4.049 (t +10.3 naive, +10.6 clustered)

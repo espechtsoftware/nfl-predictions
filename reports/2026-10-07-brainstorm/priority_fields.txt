@@ -1,0 +1,40 @@
+W1: satellite contests 1, lineups with 9 matched 4,993 of 4,998
+W2: satellite contests 2, lineups with 9 matched 126 of 127
+W3: satellite contests 7, lineups with 9 matched 6,511 of 6,512
+W4: satellite contests 4, lineups with 9 matched 589 of 590
+
+=== ALL PRIORITY: lineups 12,219 in 14 contests; user-weeks with 3+ lineups 501
+odds ratio [95% bootstrap over strata] (events in the compared lineups):
+                 feature (vs reference)          top2 by contest         top5 by contest         top10 by contest        top5 within user      top10 by contest, per week
+                      2+ sub-$4k vs 0-1  2.25 [1.85, 4.31] (239) 2.03 [1.60, 2.55] (606) 1.78 [1.61, 2.23] (1216) 1.93 [1.50, 2.44] (540) W1 1.65 W2 2.94 W3 1.96 W4 1.19
+              DST < $3,000 vs >= $3,500 3.26 [1.75, 13.34] (169) 1.93 [1.47, 2.56] (436)  2.22 [1.21, 3.38] (897) 1.16 [0.70, 2.06] (387) W1 4.25 W2 1.31 W3 2.23 W4 0.93
+                      QB + 3+ vs QB + 2  1.30 [0.97, 1.50] (170) 1.12 [0.80, 1.35] (401)  1.15 [0.72, 1.45] (784) 1.03 [0.78, 1.33] (367) W1 0.93 W2 0.00 W3 1.34 W4 0.92
+                       QB + 1 vs QB + 2  0.51 [0.30, 0.92] (197) 0.64 [0.46, 0.96] (517) 0.68 [0.61, 0.89] (1039) 0.78 [0.61, 1.00] (463) W1 0.65 W2 1.54 W3 0.64 W4 1.45
+                  bring-back 1+ vs none  2.01 [1.36, 3.44] (239) 1.73 [1.23, 1.87] (606) 1.49 [1.22, 1.67] (1216) 1.51 [1.14, 2.04] (540) W1 1.71 W2 0.50 W3 1.40 W4 1.17
+        projection above contest median  1.94 [1.59, 5.20] (239) 1.74 [1.37, 2.46] (606) 1.67 [1.26, 2.40] (1216) 1.39 [1.15, 1.74] (540) W1 1.21 W2 1.83 W3 2.32 W4 0.86
+chalkier (own sum above contest median)  0.99 [0.88, 1.57] (239) 1.00 [0.86, 1.36] (606) 0.97 [0.80, 1.36] (1216) 0.88 [0.71, 1.09] (540) W1 0.77 W2 0.54 W3 1.20 W4 0.80
+  share of lineups: 2+ cheap 0.18, DST < $3k 0.67, QB+3+ 0.09, QB+1 0.41
+
+=== FFWC $14M qualifiers: lineups 9,992 in 2 contests; user-weeks with 3+ lineups 393
+odds ratio [95% bootstrap over strata] (events in the compared lineups):
+                 feature (vs reference)         top2 by contest         top5 by contest        top10 by contest        top5 within user top10 by contest, per week
+                      2+ sub-$4k vs 0-1 2.05 [1.77, 2.47] (199) 2.01 [1.84, 2.25] (499) 1.76 [1.65, 1.92] (999) 1.88 [1.46, 2.36] (458)            W1 1.65 W3 1.92
+              DST < $3,000 vs >= $3,500 2.73 [1.63, 7.29] (139) 2.04 [1.69, 2.55] (351) 2.86 [2.16, 4.25] (717) 1.11 [0.66, 2.36] (321)            W1 4.25 W3 2.16
+                      QB + 3+ vs QB + 2 1.32 [1.26, 1.36] (142) 1.19 [0.95, 1.42] (329) 1.24 [0.93, 1.53] (648) 1.05 [0.78, 1.43] (308)            W1 0.93 W3 1.53
+                       QB + 1 vs QB + 2 0.50 [0.35, 0.68] (165) 0.64 [0.63, 0.65] (424) 0.66 [0.65, 0.68] (850) 0.82 [0.64, 1.06] (394)            W1 0.65 W3 0.68
+                  bring-back 1+ vs none 1.98 [1.73, 2.27] (199) 1.80 [1.75, 1.85] (499) 1.53 [1.38, 1.71] (999) 1.53 [1.15, 2.09] (458)            W1 1.71 W3 1.38
+        projection above contest median 1.71 [1.49, 1.97] (199) 1.67 [1.32, 2.13] (499) 1.60 [1.21, 2.15] (999) 1.28 [1.03, 1.62] (458)            W1 1.21 W3 2.15
+chalkier (own sum above contest median) 0.93 [0.87, 1.00] (199) 0.96 [0.84, 1.11] (499) 0.93 [0.77, 1.11] (999) 0.84 [0.67, 1.01] (458)            W1 0.77 W3 1.11
+  share of lineups: 2+ cheap 0.18, DST < $3k 0.66, QB+3+ 0.09, QB+1 0.42
+
+=== small priority sats: lineups 2,227 in 12 contests; user-weeks with 3+ lineups 199
+odds ratio [95% bootstrap over strata] (events in the compared lineups):
+                 feature (vs reference)         top2 by contest         top5 by contest        top10 by contest       top5 within user top10 by contest, per week
+                      2+ sub-$4k vs 0-1  3.54 [1.62, 5.89] (40) 2.12 [0.89, 3.31] (107) 1.88 [1.19, 2.59] (217) 2.34 [1.21, 4.95] (82)    W2 2.94 W3 2.08 W4 1.19
+              DST < $3,000 vs >= $3,500 7.30 [1.22, 12.21] (30)  1.68 [1.12, 2.99] (85) 1.36 [1.04, 2.18] (180) 1.40 [0.44, 6.75] (66)    W2 1.31 W3 2.46 W4 0.93
+                      QB + 3+ vs QB + 2  1.24 [0.16, 1.84] (28)  0.83 [0.65, 1.08] (72) 0.79 [0.55, 1.03] (136) 0.86 [0.30, 2.14] (59)    W2 0.00 W3 0.78 W4 0.92
+                       QB + 1 vs QB + 2  0.57 [0.16, 2.03] (32)  0.64 [0.27, 1.54] (93) 0.76 [0.51, 1.22] (189) 0.53 [0.25, 1.01] (69)    W2 1.54 W3 0.54 W4 1.45
+                  bring-back 1+ vs none  2.19 [0.65, 8.31] (40) 1.47 [0.99, 2.20] (107) 1.31 [1.09, 1.61] (217) 1.30 [0.68, 2.39] (82)    W2 0.50 W3 1.48 W4 1.17
+        projection above contest median 4.07 [1.82, 11.09] (40) 2.13 [1.30, 3.13] (107) 2.06 [1.20, 2.97] (217) 2.52 [1.26, 7.05] (82)    W2 1.83 W3 3.09 W4 0.86
+chalkier (own sum above contest median)  1.36 [0.71, 2.20] (40) 1.20 [0.80, 1.61] (107) 1.22 [0.84, 1.57] (217) 1.03 [0.50, 2.01] (82)    W2 0.54 W3 1.53 W4 0.80
+  share of lineups: 2+ cheap 0.15, DST < $3k 0.70, QB+3+ 0.10, QB+1 0.38

@@ -1,0 +1,329 @@
+=== (0) how well does each pre-game measure predict the defense's EPA per dropback allowed IN the game? (corr; 2014-2025)
+    weeks    n      epa_stale        epa_in6         epa_x6
+   week 3  384  0.097 (n 382)  0.150 (n 384)  0.107 (n 384)
+   week 4  368  0.057 (n 368)  0.086 (n 368)  0.117 (n 368)
+ weeks 5+ 4784 0.108 (n 4784) 0.130 (n 4784) 0.127 (n 4784)
+ weeks 4+ 5152 0.103 (n 5152) 0.127 (n 5152) 0.127 (n 5152)
+weeks 1-3 1150  0.097 (n 382)  0.074 (n 766) 0.128 (n 1118)
+   (stale in week 3 = ONE prior game, week 4 = two; this is what the 2026 W3/W4 frames carried)
+   agreement of thirds (weeks 4+): share of team-games where stale-third == in6-third: 0.709
+
+################ outcomes='max' | measure in6 (training def), 3+ prior games in season | team-games 5,149
+raw:
+           n     TE1  te_share  te_boom     WR1  te_beats_wr  qbte45  qbwr45  qbrbte60  qbwrwr60  te_minus_wr  rel_boom     itt
+third                                                                                                                          
+strong  1641   9.240     0.214    0.069  17.847        0.209   0.084   0.236     0.134     0.190       -8.607    -0.152  21.418
+middle  1728  10.104     0.218    0.092  18.434        0.197   0.094   0.263     0.162     0.215       -8.330    -0.169  22.589
+weak    1780   9.987     0.215    0.092  18.476        0.208   0.107   0.284     0.175     0.231       -8.490    -0.178  23.721
+within offense-season:
+          TE1  te_share  te_boom    WR1  te_beats_wr  qbte45  qbwr45  qbrbte60  qbwrwr60  te_minus_wr  rel_boom    itt
+third                                                                                                                 
+strong -0.532    -0.001   -0.013 -0.404        0.003  -0.012  -0.027    -0.029    -0.022       -0.128     0.015 -1.282
+middle  0.194     0.002    0.003  0.135       -0.014  -0.003   0.002     0.005     0.002        0.059    -0.004 -0.026
+weak    0.301    -0.000    0.008  0.241        0.011   0.014   0.024     0.022     0.018        0.060    -0.010  1.207
+within offense-season regression, thirds as dummies + implied total, SE clustered by defense-season:
+    outcome strong-minus-middle weak-minus-middle strong-minus-weak
+        TE1     -0.509 (t -2.4)   -0.154 (t -0.7)            -0.355
+   te_share     -0.002 (t -0.8)   -0.003 (t -1.1)            +0.001
+    te_boom     -0.013 (t -1.4)   +0.001 (t +0.1)            -0.014
+te_beats_wr     +0.016 (t +1.2)   +0.029 (t +2.3)            -0.013
+te_minus_wr     -0.375 (t -1.0)   +0.171 (t +0.5)            -0.546
+     qbte45     -0.002 (t -0.1)   +0.009 (t +0.9)            -0.011
+     qbwr45     -0.012 (t -0.8)   +0.004 (t +0.3)            -0.015
+   rel_boom     +0.010 (t +0.7)   +0.005 (t +0.4)            +0.005
+   qbrbte60     -0.021 (t -1.7)   +0.003 (t +0.2)            -0.023
+   qbwrwr60     -0.010 (t -0.8)   +0.003 (t +0.2)            -0.013
+stack boom odds ratios by third (the history analogue of the real-field odds ratio):
+        P(QB+TE1>=45)  P(QB+WR1>=45)  ratio TE/WR  odds ratio TE vs WR  P(QB+RB+TE>=60)  P(QB+WR+WR>=60)  odds ratio RBTE vs WRWR
+third                                                                                                                            
+strong          0.084          0.236        0.356                0.297            0.134            0.190                    0.659
+middle          0.094          0.263        0.358                0.291            0.162            0.215                    0.707
+weak            0.107          0.284        0.375                0.301            0.175            0.231                    0.703
+
+################ outcomes='max' | measure stale (live/frame def), 1+ games | team-games 5,533
+raw:
+           n    TE1  te_share  te_boom     WR1  te_beats_wr  qbte45  qbwr45  qbrbte60  qbwrwr60  te_minus_wr  rel_boom     itt
+third                                                                                                                         
+strong  1761  9.452     0.213    0.080  18.009        0.208   0.089   0.249     0.141     0.203       -8.557    -0.160  21.556
+middle  1860  9.846     0.216    0.087  18.375        0.203   0.094   0.258     0.161     0.205       -8.529    -0.163  22.568
+weak    1912  9.948     0.216    0.087  18.621        0.198   0.103   0.282     0.168     0.234       -8.673    -0.180  23.641
+within offense-season:
+          TE1  te_share  te_boom    WR1  te_beats_wr  qbte45  qbwr45  qbrbte60  qbwrwr60  te_minus_wr  rel_boom    itt
+third                                                                                                                 
+strong -0.411    -0.002   -0.008 -0.336       -0.001  -0.009  -0.018    -0.023    -0.012       -0.075     0.009 -1.208
+middle  0.096     0.002    0.002 -0.079        0.003  -0.004  -0.010     0.002    -0.013        0.175     0.006 -0.038
+weak    0.285     0.000    0.005  0.386       -0.003   0.012   0.027     0.019     0.024       -0.102    -0.014  1.150
+within offense-season regression, thirds as dummies + implied total, SE clustered by defense-season:
+    outcome strong-minus-middle weak-minus-middle strong-minus-weak
+        TE1     -0.282 (t -1.4)   -0.068 (t -0.3)            -0.214
+   te_share     -0.004 (t -1.4)   -0.002 (t -0.8)            -0.002
+    te_boom     -0.005 (t -0.6)   -0.001 (t -0.1)            -0.004
+te_beats_wr     -0.005 (t -0.4)   -0.006 (t -0.5)            +0.000
+te_minus_wr     -0.434 (t -1.2)   -0.135 (t -0.4)            -0.300
+     qbte45     +0.003 (t +0.3)   +0.009 (t +0.9)            -0.006
+     qbwr45     +0.012 (t +0.9)   +0.019 (t +1.3)            -0.007
+   rel_boom     -0.009 (t -0.6)   -0.010 (t -0.7)            +0.001
+   qbrbte60     -0.012 (t -1.0)   +0.003 (t +0.3)            -0.015
+   qbwrwr60     +0.018 (t +1.3)   +0.023 (t +1.7)            -0.005
+stack boom odds ratios by third (the history analogue of the real-field odds ratio):
+        P(QB+TE1>=45)  P(QB+WR1>=45)  ratio TE/WR  odds ratio TE vs WR  P(QB+RB+TE>=60)  P(QB+WR+WR>=60)  odds ratio RBTE vs WRWR
+third                                                                                                                            
+strong          0.089          0.249        0.358                0.295            0.141            0.203                    0.648
+middle          0.094          0.258        0.365                0.299            0.161            0.205                    0.741
+weak            0.103          0.282        0.363                0.290            0.168            0.234                    0.662
+
+################ outcomes='max' | measure stale, weeks 3-4 only (the 2026 test's weeks: 1-2 game samples) | team-games 750
+raw:
+          n     TE1  te_share  te_boom     WR1  te_beats_wr  qbte45  qbwr45  qbrbte60  qbwrwr60  te_minus_wr  rel_boom     itt
+third                                                                                                                         
+strong  238   9.131     0.197    0.076  19.317        0.151   0.092   0.277     0.176     0.223      -10.186    -0.185  22.075
+middle  256   9.443     0.210    0.070  18.701        0.191   0.078   0.258     0.168     0.207       -9.258    -0.180  22.725
+weak    256  10.078     0.210    0.094  18.512        0.195   0.137   0.270     0.176     0.250       -8.433    -0.133  23.420
+within offense-season:
+          TE1  te_share  te_boom    WR1  te_beats_wr  qbte45  qbwr45  qbrbte60  qbwrwr60  te_minus_wr  rel_boom    itt
+third                                                                                                                 
+strong -0.335    -0.003   -0.015  0.219       -0.036  -0.015  -0.004    -0.017    -0.019       -0.553    -0.011 -0.575
+middle  0.004     0.001   -0.002  0.256        0.012  -0.002   0.018     0.016     0.012       -0.252    -0.020  0.086
+weak    0.307     0.002    0.016 -0.459        0.021   0.016  -0.014     0.000     0.006        0.766     0.029  0.448
+within offense-season regression, thirds as dummies + implied total, SE clustered by defense-season:
+    outcome strong-minus-middle weak-minus-middle strong-minus-weak
+        TE1     -0.247 (t -0.5)   +0.453 (t +0.8)            -0.700
+   te_share     -0.005 (t -0.6)   +0.002 (t +0.4)            -0.007
+    te_boom     -0.011 (t -0.4)   +0.033 (t +1.7)            -0.044
+te_beats_wr     -0.080 (t -2.5)   +0.014 (t +0.4)            -0.094
+te_minus_wr     -0.165 (t -0.2)   +2.202 (t +2.3)            -2.367
+     qbte45     -0.032 (t -1.3)   +0.048 (t +2.0)            -0.080
+     qbwr45     -0.031 (t -0.8)   -0.085 (t -2.0)            +0.055
+   rel_boom     -0.002 (t -0.0)   +0.133 (t +3.2)            -0.135
+   qbrbte60     -0.055 (t -1.6)   -0.045 (t -1.4)            -0.011
+   qbwrwr60     -0.065 (t -1.7)   -0.012 (t -0.3)            -0.053
+stack boom odds ratios by third (the history analogue of the real-field odds ratio):
+        P(QB+TE1>=45)  P(QB+WR1>=45)  ratio TE/WR  odds ratio TE vs WR  P(QB+RB+TE>=60)  P(QB+WR+WR>=60)  odds ratio RBTE vs WRWR
+third                                                                                                                            
+strong          0.092          0.277        0.333                0.265            0.176            0.223                    0.748
+middle          0.078          0.258        0.303                0.244            0.168            0.207                    0.773
+weak            0.137          0.270        0.507                0.429            0.176            0.250                    0.640
+
+################ outcomes='max' | measure x6 cross-season, all weeks | team-games 6,204
+raw:
+           n     TE1  te_share  te_boom     WR1  te_beats_wr  qbte45  qbwr45  qbrbte60  qbwrwr60  te_minus_wr  rel_boom     itt
+third                                                                                                                          
+strong  1971   9.245     0.212    0.070  17.939        0.200   0.083   0.235     0.131     0.191       -8.694    -0.152  21.452
+middle  2090  10.032     0.216    0.094  18.495        0.204   0.100   0.274     0.167     0.226       -8.462    -0.173  22.572
+weak    2143   9.820     0.213    0.088  18.761        0.197   0.099   0.289     0.166     0.232       -8.941    -0.189  23.753
+within offense-season:
+          TE1  te_share  te_boom    WR1  te_beats_wr  qbte45  qbwr45  qbrbte60  qbwrwr60  te_minus_wr  rel_boom    itt
+third                                                                                                                 
+strong -0.444    -0.001   -0.011 -0.467       -0.000  -0.011  -0.035    -0.027    -0.027        0.023     0.024 -1.238
+middle  0.181     0.001    0.004  0.108       -0.005   0.003   0.009     0.010     0.010        0.072    -0.006 -0.046
+weak    0.233    -0.000    0.006  0.324        0.005   0.007   0.023     0.016     0.015       -0.091    -0.016  1.184
+within offense-season regression, thirds as dummies + implied total, SE clustered by defense-season:
+    outcome strong-minus-middle weak-minus-middle strong-minus-weak
+        TE1     -0.409 (t -2.1)   -0.205 (t -1.0)            -0.204
+   te_share     -0.002 (t -0.8)   -0.002 (t -0.8)            -0.000
+    te_boom     -0.012 (t -1.5)   -0.002 (t -0.2)            -0.010
+te_beats_wr     +0.003 (t +0.3)   +0.012 (t +1.0)            -0.008
+te_minus_wr     -0.205 (t -0.6)   -0.016 (t -0.1)            -0.190
+     qbte45     -0.007 (t -0.8)   -0.004 (t -0.4)            -0.004
+     qbwr45     -0.027 (t -2.0)   -0.005 (t -0.4)            -0.022
+   rel_boom     +0.020 (t +1.4)   +0.002 (t +0.1)            +0.018
+   qbrbte60     -0.025 (t -2.2)   -0.008 (t -0.7)            -0.017
+   qbwrwr60     -0.024 (t -1.9)   -0.010 (t -0.8)            -0.013
+stack boom odds ratios by third (the history analogue of the real-field odds ratio):
+        P(QB+TE1>=45)  P(QB+WR1>=45)  ratio TE/WR  odds ratio TE vs WR  P(QB+RB+TE>=60)  P(QB+WR+WR>=60)  odds ratio RBTE vs WRWR
+third                                                                                                                            
+strong          0.083          0.235        0.354                0.296            0.131            0.191                    0.639
+middle          0.100          0.274        0.367                0.296            0.167            0.226                    0.685
+weak            0.099          0.289        0.344                0.272            0.166            0.232                    0.660
+
+################ outcomes='max' | measure x6 cross-season, weeks 1-3 only (prior-season data) | team-games 1,053
+raw:
+          n    TE1  te_share  te_boom     WR1  te_beats_wr  qbte45  qbwr45  qbrbte60  qbwrwr60  te_minus_wr  rel_boom     itt
+third                                                                                                                        
+strong  330  9.382     0.203    0.076  18.285        0.173   0.091   0.224     0.130     0.194       -8.904    -0.133  21.680
+middle  361  9.376     0.207    0.080  19.013        0.205   0.094   0.316     0.163     0.244       -9.637    -0.222  22.562
+weak    362  9.221     0.201    0.083  20.031        0.157   0.088   0.323     0.138     0.273      -10.811    -0.235  23.775
+within offense-season:
+          TE1  te_share  te_boom    WR1  te_beats_wr  qbte45  qbwr45  qbrbte60  qbwrwr60  te_minus_wr  rel_boom    itt
+third                                                                                                                 
+strong -0.194    -0.002   -0.009 -0.520       -0.016  -0.001  -0.040    -0.015    -0.024        0.326     0.039 -0.688
+middle -0.008     0.001    0.005  0.067        0.020   0.000   0.018     0.010     0.001       -0.075    -0.018 -0.022
+weak    0.185     0.001    0.004  0.407       -0.006   0.001   0.019     0.004     0.021       -0.223    -0.018  0.649
+within offense-season regression, thirds as dummies + implied total, SE clustered by defense-season:
+    outcome strong-minus-middle weak-minus-middle strong-minus-weak
+        TE1     -0.096 (t -0.2)   +0.105 (t +0.2)            -0.201
+   te_share     -0.004 (t -0.7)   +0.000 (t +0.0)            -0.004
+    te_boom     -0.013 (t -0.7)   -0.008 (t -0.4)            -0.005
+te_beats_wr     -0.041 (t -1.5)   -0.051 (t -1.9)            +0.010
+te_minus_wr     +0.900 (t +1.1)   -0.547 (t -0.7)            +1.447
+     qbte45     -0.001 (t -0.1)   +0.001 (t +0.0)            -0.002
+     qbwr45     -0.090 (t -2.8)   +0.009 (t +0.3)            -0.099
+   rel_boom     +0.089 (t +2.6)   -0.008 (t -0.2)            +0.097
+   qbrbte60     -0.034 (t -1.4)   -0.012 (t -0.5)            -0.023
+   qbwrwr60     -0.052 (t -1.7)   +0.046 (t +1.5)            -0.098
+stack boom odds ratios by third (the history analogue of the real-field odds ratio):
+        P(QB+TE1>=45)  P(QB+WR1>=45)  ratio TE/WR  odds ratio TE vs WR  P(QB+RB+TE>=60)  P(QB+WR+WR>=60)  odds ratio RBTE vs WRWR
+third                                                                                                                            
+strong          0.091          0.224        0.405                0.346            0.130            0.194                    0.623
+middle          0.094          0.316        0.298                0.225            0.163            0.244                    0.606
+weak            0.088          0.323        0.274                0.203            0.138            0.273                    0.426
+
+################ outcomes='sal' | measure in6 (training def), 3+ prior games in season | team-games 5,089
+raw:
+           n    TE1  te_share  te_boom     WR1  te_beats_wr  qbte45  qbwr45  qbrbte60  qbwrwr60  te_minus_wr  rel_boom     itt
+third                                                                                                                         
+strong  1627  8.276     0.215    0.066  13.893        0.304   0.078   0.172     0.114     0.151       -5.617    -0.094  21.423
+middle  1703  9.049     0.218    0.085  14.617        0.295   0.086   0.193     0.130     0.157       -5.568    -0.106  22.597
+weak    1759  8.945     0.216    0.086  14.838        0.292   0.097   0.209     0.139     0.179       -5.893    -0.111  23.712
+within offense-season:
+          TE1  te_share  te_boom    WR1  te_beats_wr  qbte45  qbwr45  qbrbte60  qbwrwr60  te_minus_wr  rel_boom    itt
+third                                                                                                                 
+strong -0.442    -0.001   -0.010 -0.504        0.005  -0.010  -0.022    -0.019    -0.014        0.061     0.012 -1.277
+middle  0.142     0.001    0.002  0.110       -0.006  -0.002   0.002     0.002    -0.002        0.031    -0.005 -0.017
+weak    0.272    -0.000    0.007  0.359        0.001   0.012   0.018     0.015     0.015       -0.087    -0.006  1.197
+within offense-season regression, thirds as dummies + implied total, SE clustered by defense-season:
+    outcome strong-minus-middle weak-minus-middle strong-minus-weak
+        TE1     -0.351 (t -1.6)   -0.130 (t -0.6)            -0.221
+   te_share     -0.001 (t -0.5)   -0.003 (t -1.0)            +0.001
+    te_boom     -0.009 (t -1.1)   +0.002 (t +0.3)            -0.012
+te_beats_wr     +0.014 (t +0.9)   +0.006 (t +0.4)            +0.008
+te_minus_wr     -0.055 (t -0.1)   -0.044 (t -0.1)            -0.010
+     qbte45     +0.001 (t +0.1)   +0.007 (t +0.7)            -0.006
+     qbwr45     -0.009 (t -0.7)   +0.000 (t +0.0)            -0.009
+   rel_boom     +0.010 (t +0.7)   +0.007 (t +0.5)            +0.003
+   qbrbte60     -0.011 (t -0.9)   +0.002 (t +0.2)            -0.013
+   qbwrwr60     -0.001 (t -0.1)   +0.007 (t +0.5)            -0.008
+stack boom odds ratios by third (the history analogue of the real-field odds ratio):
+        P(QB+TE1>=45)  P(QB+WR1>=45)  ratio TE/WR  odds ratio TE vs WR  P(QB+RB+TE>=60)  P(QB+WR+WR>=60)  odds ratio RBTE vs WRWR
+third                                                                                                                            
+strong          0.078          0.172        0.454                0.407            0.114            0.151                    0.725
+middle          0.086          0.193        0.448                0.396            0.130            0.157                    0.798
+weak            0.097          0.209        0.466                0.408            0.139            0.179                    0.738
+
+################ outcomes='sal' | measure stale (live/frame def), 1+ games | team-games 5,472
+raw:
+           n    TE1  te_share  te_boom     WR1  te_beats_wr  qbte45  qbwr45  qbrbte60  qbwrwr60  te_minus_wr  rel_boom     itt
+third                                                                                                                         
+strong  1747  8.485     0.214    0.075  14.000        0.307   0.083   0.175     0.117     0.154       -5.515    -0.092  21.566
+middle  1834  8.762     0.216    0.082  14.587        0.293   0.086   0.191     0.135     0.158       -5.825    -0.105  22.567
+weak    1891  8.895     0.217    0.080  15.019        0.281   0.093   0.212     0.132     0.178       -6.124    -0.118  23.637
+within offense-season:
+          TE1  te_share  te_boom    WR1  te_beats_wr  qbte45  qbwr45  qbrbte60  qbwrwr60  te_minus_wr  rel_boom    itt
+third                                                                                                                 
+strong -0.337    -0.002   -0.006 -0.513        0.005  -0.007  -0.022    -0.017    -0.012        0.176     0.015 -1.201
+middle  0.069     0.001    0.002 -0.040        0.005  -0.003  -0.003     0.006    -0.007        0.109    -0.000 -0.037
+weak    0.244     0.000    0.003  0.513       -0.009   0.010   0.024     0.010     0.017       -0.269    -0.014  1.146
+within offense-season regression, thirds as dummies + implied total, SE clustered by defense-season:
+    outcome strong-minus-middle weak-minus-middle strong-minus-weak
+        TE1     -0.171 (t -0.8)   -0.082 (t -0.4)            -0.090
+   te_share     -0.002 (t -0.8)   -0.002 (t -0.7)            -0.000
+    te_boom     -0.005 (t -0.6)   -0.003 (t -0.4)            -0.002
+te_beats_wr     +0.002 (t +0.2)   -0.018 (t -1.2)            +0.021
+te_minus_wr     +0.004 (t +0.0)   -0.333 (t -0.9)            +0.337
+     qbte45     +0.004 (t +0.4)   +0.006 (t +0.6)            -0.002
+     qbwr45     -0.004 (t -0.4)   +0.012 (t +1.0)            -0.017
+   rel_boom     +0.008 (t +0.6)   -0.007 (t -0.5)            +0.015
+   qbrbte60     -0.014 (t -1.3)   -0.008 (t -0.7)            -0.006
+   qbwrwr60     +0.007 (t +0.6)   +0.013 (t +1.1)            -0.006
+stack boom odds ratios by third (the history analogue of the real-field odds ratio):
+        P(QB+TE1>=45)  P(QB+WR1>=45)  ratio TE/WR  odds ratio TE vs WR  P(QB+RB+TE>=60)  P(QB+WR+WR>=60)  odds ratio RBTE vs WRWR
+third                                                                                                                            
+strong          0.083          0.175        0.475                0.428            0.117            0.154                    0.726
+middle          0.086          0.191        0.451                0.400            0.135            0.158                    0.832
+weak            0.093          0.212        0.440                0.383            0.132            0.178                    0.702
+
+################ outcomes='sal' | measure stale, weeks 3-4 only (the 2026 test's weeks: 1-2 game samples) | team-games 748
+raw:
+          n    TE1  te_share  te_boom     WR1  te_beats_wr  qbte45  qbwr45  qbrbte60  qbwrwr60  te_minus_wr  rel_boom     itt
+third                                                                                                                        
+strong  238  8.018     0.198    0.071  15.639        0.269   0.080   0.206     0.151     0.176       -7.620    -0.126  22.076
+middle  254  8.180     0.209    0.067  14.962        0.276   0.075   0.201     0.138     0.154       -6.782    -0.126  22.740
+weak    256  9.097     0.211    0.090  14.928        0.258   0.133   0.191     0.156     0.180       -5.831    -0.059  23.412
+within offense-season:
+          TE1  te_share  te_boom    WR1  te_beats_wr  qbte45  qbwr45  qbrbte60  qbwrwr60  te_minus_wr  rel_boom    itt
+third                                                                                                                 
+strong -0.351    -0.002   -0.013  0.107        0.006  -0.017  -0.002    -0.013    -0.019       -0.458    -0.015 -0.571
+middle -0.080    -0.000   -0.002  0.110       -0.002  -0.004   0.008     0.010     0.016       -0.190    -0.012  0.092
+weak    0.406     0.002    0.014 -0.209       -0.004   0.020  -0.006     0.002     0.002        0.615     0.025  0.439
+within offense-season regression, thirds as dummies + implied total, SE clustered by defense-season:
+    outcome strong-minus-middle weak-minus-middle strong-minus-weak
+        TE1     -0.080 (t -0.1)   +0.880 (t +1.6)            -0.960
+   te_share     -0.002 (t -0.3)   +0.004 (t +0.6)            -0.006
+    te_boom     -0.008 (t -0.3)   +0.029 (t +1.5)            -0.038
+te_beats_wr     +0.028 (t +0.7)   -0.012 (t -0.3)            +0.040
+te_minus_wr     -0.101 (t -0.1)   +1.667 (t +1.6)            -1.768
+     qbte45     -0.032 (t -1.3)   +0.060 (t +2.7)            -0.092
+     qbwr45     -0.013 (t -0.4)   -0.038 (t -1.0)            +0.025
+   rel_boom     -0.019 (t -0.5)   +0.098 (t +2.6)            -0.117
+   qbrbte60     -0.032 (t -1.0)   -0.028 (t -0.9)            -0.004
+   qbwrwr60     -0.078 (t -2.2)   -0.029 (t -0.9)            -0.050
+stack boom odds ratios by third (the history analogue of the real-field odds ratio):
+        P(QB+TE1>=45)  P(QB+WR1>=45)  ratio TE/WR  odds ratio TE vs WR  P(QB+RB+TE>=60)  P(QB+WR+WR>=60)  odds ratio RBTE vs WRWR
+third                                                                                                                            
+strong          0.080          0.206        0.388                0.335            0.151            0.176                    0.832
+middle          0.075          0.201        0.373                0.322            0.138            0.154                    0.881
+weak            0.133          0.191        0.694                0.647            0.156            0.180                    0.845
+
+################ outcomes='sal' | measure x6 cross-season, all weeks | team-games 6,141
+raw:
+           n    TE1  te_share  te_boom     WR1  te_beats_wr  qbte45  qbwr45  qbrbte60  qbwrwr60  te_minus_wr  rel_boom     itt
+third                                                                                                                         
+strong  1957  8.295     0.213    0.065  14.006        0.298   0.077   0.171     0.108     0.149       -5.711    -0.095  21.452
+middle  2062  8.980     0.217    0.087  14.746        0.291   0.094   0.201     0.138     0.166       -5.767    -0.107  22.575
+weak    2122  8.772     0.213    0.082  14.920        0.289   0.090   0.213     0.134     0.182       -6.148    -0.122  23.756
+within offense-season:
+          TE1  te_share  te_boom    WR1  te_beats_wr  qbte45  qbwr45  qbrbte60  qbwrwr60  te_minus_wr  rel_boom    itt
+third                                                                                                                 
+strong -0.345    -0.001   -0.009 -0.496        0.003  -0.010  -0.027    -0.021    -0.019        0.152     0.017 -1.233
+middle  0.130     0.001    0.003  0.140       -0.006   0.004   0.006     0.008     0.002       -0.010    -0.002 -0.045
+weak    0.192    -0.000    0.006  0.322        0.003   0.006   0.019     0.011     0.015       -0.130    -0.013  1.181
+within offense-season regression, thirds as dummies + implied total, SE clustered by defense-season:
+    outcome strong-minus-middle weak-minus-middle strong-minus-weak
+        TE1     -0.236 (t -1.2)   -0.210 (t -1.0)            -0.027
+   te_share     -0.002 (t -0.7)   -0.002 (t -0.9)            +0.000
+    te_boom     -0.010 (t -1.3)   -0.001 (t -0.1)            -0.009
+te_beats_wr     +0.013 (t +0.9)   +0.007 (t +0.6)            +0.005
+te_minus_wr     +0.121 (t +0.3)   -0.075 (t -0.2)            +0.197
+     qbte45     -0.007 (t -0.8)   -0.006 (t -0.7)            -0.001
+     qbwr45     -0.019 (t -1.6)   -0.003 (t -0.2)            -0.016
+   rel_boom     +0.012 (t +0.9)   -0.004 (t -0.3)            +0.015
+   qbrbte60     -0.019 (t -1.9)   -0.009 (t -0.8)            -0.011
+   qbwrwr60     -0.012 (t -1.1)   +0.003 (t +0.3)            -0.015
+stack boom odds ratios by third (the history analogue of the real-field odds ratio):
+        P(QB+TE1>=45)  P(QB+WR1>=45)  ratio TE/WR  odds ratio TE vs WR  P(QB+RB+TE>=60)  P(QB+WR+WR>=60)  odds ratio RBTE vs WRWR
+third                                                                                                                            
+strong          0.077          0.171        0.448                0.402            0.108            0.149                    0.693
+middle          0.094          0.201        0.466                0.411            0.138            0.166                    0.807
+weak            0.090          0.213        0.426                0.369            0.134            0.182                    0.695
+
+################ outcomes='sal' | measure x6 cross-season, weeks 1-3 only (prior-season data) | team-games 1,050
+raw:
+          n    TE1  te_share  te_boom     WR1  te_beats_wr  qbte45  qbwr45  qbrbte60  qbwrwr60  te_minus_wr  rel_boom     itt
+third                                                                                                                        
+strong  330  8.475     0.204    0.067  14.688        0.291   0.085   0.179     0.103     0.148       -6.213    -0.094  21.682
+middle  358  8.362     0.207    0.078  15.162        0.274   0.089   0.229     0.151     0.187       -6.800    -0.140  22.590
+weak    362  8.142     0.201    0.075  15.377        0.262   0.083   0.232     0.116     0.207       -7.235    -0.149  23.768
+within offense-season:
+          TE1  te_share  te_boom    WR1  te_beats_wr  qbte45  qbwr45  qbrbte60  qbwrwr60  te_minus_wr  rel_boom    itt
+third                                                                                                                 
+strong -0.091    -0.002   -0.011 -0.141        0.004  -0.002  -0.023    -0.019    -0.019        0.050     0.021 -0.694
+middle -0.082     0.000    0.007  0.109       -0.001   0.000   0.006     0.016    -0.002       -0.192    -0.006 -0.016
+weak    0.164     0.001    0.004  0.020       -0.003   0.002   0.016     0.002     0.019        0.144    -0.014  0.648
+within offense-season regression, thirds as dummies + implied total, SE clustered by defense-season:
+    outcome strong-minus-middle weak-minus-middle strong-minus-weak
+        TE1     +0.174 (t +0.3)   +0.179 (t +0.4)            -0.005
+   te_share     -0.002 (t -0.4)   +0.001 (t +0.2)            -0.004
+    te_boom     -0.020 (t -1.0)   -0.010 (t -0.5)            -0.009
+te_beats_wr     +0.016 (t +0.5)   -0.012 (t -0.4)            +0.028
+te_minus_wr     +0.646 (t +0.7)   +0.204 (t +0.3)            +0.441
+     qbte45     -0.003 (t -0.2)   +0.003 (t +0.2)            -0.007
+     qbwr45     -0.044 (t -1.5)   +0.017 (t +0.6)            -0.062
+   rel_boom     +0.041 (t +1.3)   -0.014 (t -0.5)            +0.055
+   qbrbte60     -0.044 (t -1.8)   -0.027 (t -1.3)            -0.017
+   qbwrwr60     -0.042 (t -1.5)   +0.050 (t +1.8)            -0.092
+stack boom odds ratios by third (the history analogue of the real-field odds ratio):
+        P(QB+TE1>=45)  P(QB+WR1>=45)  ratio TE/WR  odds ratio TE vs WR  P(QB+RB+TE>=60)  P(QB+WR+WR>=60)  odds ratio RBTE vs WRWR
+third                                                                                                                            
+strong          0.085          0.179        0.475                0.426            0.103            0.148                    0.659
+middle          0.089          0.229        0.390                0.330            0.151            0.187                    0.772
+weak            0.083          0.232        0.357                0.299            0.116            0.207                    0.502

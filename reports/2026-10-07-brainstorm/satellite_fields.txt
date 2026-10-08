@@ -1,0 +1,25 @@
+/home/erich/projects/.nfl-predictions-worktrees/review/outside-fill-order-20261006/reports/2026-10-07-brainstorm/satellite_fields.py:17: UserWarning: This pattern is interpreted as a regular expression, and has match groups. To actually get the groups, use str.extract.
+  cs = cs[cs.nm.str.contains(SAT, regex=True) & ~cs.nm.str.contains("(?i)millionaire \\[|showdown", regex=True)]
+W1: satellite contests 1, lineups with 9 matched 4,993 of 4,998
+/home/erich/projects/.nfl-predictions-worktrees/review/outside-fill-order-20261006/reports/2026-10-07-brainstorm/satellite_fields.py:17: UserWarning: This pattern is interpreted as a regular expression, and has match groups. To actually get the groups, use str.extract.
+  cs = cs[cs.nm.str.contains(SAT, regex=True) & ~cs.nm.str.contains("(?i)millionaire \\[|showdown", regex=True)]
+W2: satellite contests 7, lineups with 9 matched 6,626 of 6,664
+/home/erich/projects/.nfl-predictions-worktrees/review/outside-fill-order-20261006/reports/2026-10-07-brainstorm/satellite_fields.py:17: UserWarning: This pattern is interpreted as a regular expression, and has match groups. To actually get the groups, use str.extract.
+  cs = cs[cs.nm.str.contains(SAT, regex=True) & ~cs.nm.str.contains("(?i)millionaire \\[|showdown", regex=True)]
+W3: satellite contests 44, lineups with 9 matched 17,907 of 17,917
+/home/erich/projects/.nfl-predictions-worktrees/review/outside-fill-order-20261006/reports/2026-10-07-brainstorm/satellite_fields.py:17: UserWarning: This pattern is interpreted as a regular expression, and has match groups. To actually get the groups, use str.extract.
+  cs = cs[cs.nm.str.contains(SAT, regex=True) & ~cs.nm.str.contains("(?i)millionaire \\[|showdown", regex=True)]
+W4: satellite contests 24, lineups with 9 matched 12,783 of 12,871
+
+satellite lineups 42,309 in 76 contests; users with 3+ satellite lineups in a week: 1,974 user-weeks
+odds ratio [95% bootstrap over strata] (events in the compared lineups):
+                 feature (vs reference)         top2 by contest         top10 by contest        top10 within user top10 by contest, per week
+                      2+ sub-$4k vs 0-1 1.55 [1.25, 1.87] (837) 1.44 [1.23, 1.67] (4217) 1.59 [1.36, 1.82] (3940)        1.65/2.12/1.35/1.11
+              DST < $3,000 vs >= $3,500 2.46 [1.78, 3.42] (665) 1.92 [1.58, 2.42] (3448) 1.55 [1.28, 1.92] (3235)        4.25/3.16/2.70/1.21
+                      QB + 3+ vs QB + 2 0.97 [0.73, 1.20] (471) 1.02 [0.85, 1.19] (2293) 1.23 [1.02, 1.47] (2171)        0.93/1.00/0.95/1.19
+                       QB + 1 vs QB + 2 0.81 [0.63, 1.04] (735) 0.83 [0.74, 0.93] (3600) 0.95 [0.84, 1.09] (3383)        0.65/0.88/0.68/1.18
+                  bring-back 1+ vs none 1.91 [1.60, 2.26] (837) 1.33 [1.19, 1.48] (4217) 1.08 [0.94, 1.24] (3940)        1.71/0.93/1.43/1.31
+        projection above contest median 1.71 [1.41, 2.18] (837) 1.56 [1.29, 1.95] (4217) 1.06 [0.92, 1.21] (3940)        1.21/1.94/2.62/0.79
+chalkier (own sum above contest median) 0.93 [0.75, 1.25] (837) 1.13 [0.95, 1.37] (4217) 0.95 [0.85, 1.07] (3940)        0.77/1.83/1.48/0.72
+
+share of satellite lineups: 2+ cheap 0.17, DST < $3k 0.62, QB+3+ 0.08, QB+1 0.43

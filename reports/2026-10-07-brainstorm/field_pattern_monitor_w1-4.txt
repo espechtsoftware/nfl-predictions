@@ -1,0 +1,36 @@
+W1: contest 193028206, lineups 831,028, multi-entry users 6,449, book rows 90
+W2: contest 195648007, lineups 172,692, multi-entry users 934, book rows 97
+W3: contest 195905122, lineups 161,682, multi-entry users 914, book rows 144
+W4: contest 196151357, lineups 161,516, multi-entry users 924, book rows 110
+
+(1) within user-week Mantel-Haenszel OR of a top-1% finish (users with 20+ entries), 95% bootstrap over user-weeks
+  2+ sub-$4k vs 0-1    pooled 1.88 [1.75, 2.01]; W1 1.69, W2 2.46, W3 2.30, W4 2.10
+  1+ sub-$4k vs none   pooled 1.89 [1.75, 2.06]; W1 1.31, W2 14.32, W3 2.65, W4 5.22
+
+    whole-field top-1% rate % by sub-$4k count (3 = 3+)
+week     1     2     3     4
+k                           
+0     0.75  0.08  0.31  0.38
+1     0.97  1.15  1.26  1.34
+2     1.61  1.82  2.45   1.5
+3     0.65  1.92  2.12  0.73
+
+(2) share of lineups by the QB's game total rank (7 = 7th or lower, summed) vs the 2014-2025 base rate of holding the best stack (7: per game)
+    book  field  hist_p_best_stack   top1
+k                                        
+1  0.130  0.181              0.217  0.157
+2  0.104  0.149              0.140  0.109
+3  0.068  0.087              0.106  0.212
+4  0.066  0.082              0.087  0.166
+5  0.061  0.085              0.068  0.099
+6  0.186  0.072              0.097  0.038
+7  0.384  0.344              0.053  0.220
+    top-4 games' share by week (base rate 0.55):
+      field  top1  book
+week                   
+1      0.54  0.49  0.46
+2      0.51  0.60  0.41
+3      0.46  0.73  0.48
+4      0.50  0.76  0.13
+
+wrote field_pattern_monitor_w1-4.csv

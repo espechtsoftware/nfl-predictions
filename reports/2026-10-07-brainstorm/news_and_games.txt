@@ -1,0 +1,19 @@
+W1: early frame 20260912T132523 vs T-70 20260913T160405; players 338; |delta| >= 1.5: 215
+W2: early frame 20260919T153008 vs T-70 20260920T155005; players 315; |delta| >= 1.5: 9
+W3: early frame 20260926T153408 vs T-70 20260927T155027; players 332; |delta| >= 1.5: 2
+W4: early frame 20261004T100027 vs T-70 20261004T155026; players 268; |delta| >= 1.5: 3
+
+(1) LATE NEWS (players projected >= 3 at T-70):
+          n  mean_delta  actual_minus_t70  field_own_pct  own_per_proj_point  regulars_lean
+move                                                                                       
+faller   39       -3.52             -3.07           0.15                0.04          -0.16
+riser    89        3.78              1.23           6.86                0.44          -0.16
+stable  715        0.01             -0.39           3.60                0.29          -0.18
+  by week, actual - T-70 projection for risers / fallers: W1 +1.2 / -3.1, W2 +17.3 / -3.5, W3 -2.5 / +nan, W4 -0.7 / +nan
+
+(2) GAME ENVIRONMENT: Spearman with the game's realized skill DK points, within week
+  W1 games 12: Vegas total +0.48, props TD sum +0.49; top game by total ranked 9, by TD sum 9
+  W2 games 13: Vegas total +0.13, props TD sum -0.03; top game by total ranked 1, by TD sum 1
+  W3 games 13: Vegas total +0.37, props TD sum +0.40; top game by total ranked 6, by TD sum 6
+  W4 games 12: Vegas total +0.71, props TD sum +0.63; top game by total ranked 4, by TD sum 4
+  pooled: Spearman total +0.52, TD sum +0.49, TD sum beyond the total -0.07 (n 50)

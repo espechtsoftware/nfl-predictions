@@ -1,0 +1,23 @@
+positions: {'WR': 41230, 'RB': 27592, 'TE': 23900, 'QB': 12564, 'Def': 4642, 'K': 1929, 'DST': 1704}
+rows without points dropped: 58139
+
+(A) DSTs 2014-2021 by salary tier
+             n   mean     sd  p_15plus  p_20plus  pts_per_1k
+tier                                                        
+<2.5k     1134  5.316  5.505     0.064     0.017        2.40
+2.5-2.9k  1696  6.433  5.874     0.105     0.031        2.38
+3.0-3.4k  1180  7.996  6.312     0.142     0.057        2.52
+3.5-3.9k   508  8.906  6.430     0.183     0.073        2.43
+4k+        124  9.685  6.484     0.177     0.105        2.32
+  2014-2017: DST points per extra $1k of salary (slope) +2.60; n 2,042
+  2018-2021: DST points per extra $1k of salary (slope) +2.54; n 2,600
+  WR 2018-2021 slope: +3.49 points per $1k (n 10,078)
+  RB 2018-2021 slope: +3.97 points per $1k (n 7,197)
+  TE 2018-2021 slope: +3.60 points per $1k (n 5,880)
+  QB 2018-2021 slope: +6.10 points per $1k (n 2,583)
+
+(B) DST salary: share of lineups/rows with DST < $3,000 / >= $3,500, and mean DST salary
+  W1: T-70 entered: <3k 0.14 / >=3.5k 0.01 / mean 3,271 | field: <3k 0.49 / >=3.5k 0.06 / mean 2,935 (DST ownership summed 100%)
+  W2: T-70 entered: <3k 0.23 / >=3.5k 0.57 / mean 3,346 | W5 live: <3k 0.42 / >=3.5k 0.31 / mean 3,054 | W5 cheap+2: <3k 0.35 / >=3.5k 0.42 / mean 3,162 | field: <3k 0.47 / >=3.5k 0.34 / mean 3,035 (DST ownership summed 100%)
+  W3: T-70 entered: <3k 0.55 / >=3.5k 0.33 / mean 3,104 | W5 live: <3k 0.73 / >=3.5k 0.04 / mean 2,750 | W5 cheap+2: <3k 0.62 / >=3.5k 0.08 / mean 2,850 | field: <3k 0.69 / >=3.5k 0.13 / mean 2,815 (DST ownership summed 100%)
+  W4: T-70 entered: <3k 0.27 / >=3.5k 0.65 / mean 3,419 | W5 live: <3k 0.54 / >=3.5k 0.04 / mean 2,785 | W5 cheap+2: <3k 0.50 / >=3.5k 0.04 / mean 2,808 | field: <3k 0.54 / >=3.5k 0.27 / mean 2,973 (DST ownership summed 100%)

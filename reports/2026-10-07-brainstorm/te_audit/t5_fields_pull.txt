@@ -1,0 +1,6 @@
+W3 contest 195905122: 161,682 entries; all 9 matched: 0.9989; unmatched-name examples: {'Brandin Cooks': 53, 'Nico Collins': 18, 'Demarcus Robinson': 13, 'Caleb Douglas': 8, 'David Njoku': 7, 'Theo Wease Jr.': 6, 'Luke Basso': 6, 'Tanner Conner': 5}
+W4 contest 196151357: 161,516 entries; all 9 matched: 0.9909; unmatched-name examples: {'Case Keenum': 1111, 'DeVonta Smith': 84, 'Kolbe Katsis': 24, 'Rocco Underwood': 24, 'Justin Jefferson': 21, 'Carson Wentz': 21, 'Sean Tucker': 16, 'Jadarian Price': 14}
+           n  users  matched9
+week                         
+3     161682  55340  0.998887
+4     161516  54673  0.990855

@@ -1,0 +1,27 @@
+fit on 48 weeks 2023-2025: winning score = 33.8 + 6.37 x (mean of the slate's top-10 skill scores); residual sd 12.1
+
+weeks 1-4 by season:
+season   2023   2024   2025   2026
+week                              
+1       233.2    NaN  193.9  274.0
+2       224.4  229.9  260.2  232.4
+3       294.4  240.1  231.1  239.8
+4         NaN  223.7  239.9  234.2
+
+weeks 1-4, winning score minus what the slate's scoring predicts:
+season  2023  2024  2025  2026
+week                          
+1        0.8   NaN  -2.3   9.5
+2       -6.6   0.7   3.9   5.6
+3       22.7  -5.4   6.4   6.3
+4        NaN  -2.1   8.7 -10.6
+
+season summaries (all available weeks):
+        weeks  mean_win  mean_vs_expected  slate_top10
+season                                                
+2023       16     238.6               1.1         32.0
+2024       15     230.4              -4.1         31.5
+2025       17     236.9               2.6         31.5
+2026        4     245.1               2.7         32.8
+
+2026 field sizes (largest Millionaire): {np.int64(1): np.int64(832342), np.int64(2): np.int64(172761), np.int64(3): np.int64(161764), np.int64(4): np.int64(161764)}

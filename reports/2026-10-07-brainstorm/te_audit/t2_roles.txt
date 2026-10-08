@@ -1,0 +1,37 @@
+== actuals rows WITH a stat line, by season: role row present? position from the season roster for those without ==
+ season  stat_lines  with_role  skill_pos_without_role  dk_lost_skill  dk_with_role  no_roster_at_all                                       other_positions
+   2014       16873       5363                     231          490.0       45578.0                 0 NT,S,MLB,OLB,SS,FB,LS,ILB,DT,CB,FS,G,LB,DB,K,DE,P,C,T
+   2015       16888       5367                     249          639.0       46533.0                 0 NT,S,MLB,SS,OLB,CB,LS,FB,LB,ILB,DT,FS,G,DB,K,DE,P,T,C
+   2016       16823       5558                       0            0.0       46717.0                 0                                    LB,OL,LS,DB,P,K,DL
+   2017       16769       5614                       2            3.0       43806.0                 0                                 DL,RB,LB,LS,OL,DB,K,P
+   2018       16711       5513                       0            0.0       47540.0                 0                                    DB,K,P,DL,LS,LB,OL
+   2019       16646       5529                       0            0.0       46649.0                 0                                    DL,LB,OL,LS,DB,K,P
+   2020       16757       5672                       0            0.0       48911.0                 9                                    DB,K,P,DL,LS,LB,OL
+   2021       18110       5974                       0            0.0       49184.0                 0                                    P,K,DL,LS,LB,OL,DB
+   2022       17963       5918                       0            0.0       47085.0                 0                                    K,P,DL,LS,LB,OL,DB
+   2023       17788       5892                       0            0.0       46992.0                 0                                    P,K,DL,LB,LS,OL,DB
+   2024       18110       5955                       0            0.0       47787.0                 0                                    K,P,DL,LB,LS,OL,DB
+   2025       18522       6106                       0            0.0       46511.0                 0                                    DB,K,P,DL,LB,LS,OL
+   2026        4445       1457                       0            0.0       11200.0                 0                                    DL,OL,LB,LS,DB,K,P
+
+== TE stat lines specifically lost: TEs (season roster) with a stat line but no role row ==
+ season pos  n_lost  mean_dk  n_20plus
+   2014  FB     231     2.12         0
+   2015  FB     249     2.56         2
+   2017  RB       2     1.25         0
+
+== role-table position vs the same week's roster position (mismatch counts) ==
+ season     n  mismatch
+   2014  8579         0
+   2015  8599         0
+   2016 10745         0
+   2017 16580         0
+   2018 16810         0
+   2019 16355         0
+   2020 13920         0
+   2021 14579         0
+   2022 14228         0
+   2023 14074         0
+   2024 14128         0
+   2025 14348         0
+   2026  4048         0
