@@ -119,8 +119,9 @@ trip on noise. Requiring the sign to move the pool MORE than a seed change does 
   - The served draw shape is a rank-preserving TabPFN quantile remap (`core/draw_shape.py`), shifted to production's
     mean. The components' `spread` therefore reaches only the ORDER of the worlds (which players score high
     together), never a player's marginal.
-  - So the sd ratio is 1.0000 and the p90 / p99 differences are 0.000 at every position. (LIVE_SEED's marginals differ
-    slightly, as a reseed should.)
+  - So the sd ratio is 1.0000 and the p90 / p99 differences are 0.000 at every position. (A reseed changes 5 of
+    282 players' marginals, max |sd ratio − 1| 0.017 and max |p90 diff| 0.06 points, presumably the players outside the
+    quantile remap; TRAIN changes none.)
 - **The joint shape** (the mean QB–WR1 / QB–TE1 correlation over 22 teams):
 
   | Arm | QB–WR1 | QB–TE1 |
@@ -129,7 +130,8 @@ trip on noise. Requiring the sign to move the pool MORE than a seed change does 
   | TRAIN | 0.3589 | 0.3153 |
   | LIVE_SEED | 0.3596 | 0.3168 |
 
-  TRAIN sits inside the seed noise.
+  The changes are under 0.004. QB–WR1 moves less than a reseed (+0.0007 vs +0.0014); QB–TE1 moves slightly more
+  (−0.0036 vs −0.0021). Both are tiny. (Corrected at the reviewer's reading.)
 - **(b) The pool:**
   - Any change to the draws rebuilds the 4,800-solve pool almost entirely: Jaccard TRAIN / LIVE 0.006, against
     LIVE / LIVE_SEED 0.005.
