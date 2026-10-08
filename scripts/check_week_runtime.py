@@ -292,6 +292,14 @@ def main():
     if _cov and _cov != "0" and (not (_cov.isdigit() and 1 <= int(_cov) <= 8) or os.environ.get("UNION_MAIN") != "mix"
                                  or os.environ.get("UNION_MIX_PORTFOLIO") != "mix"):
         fail(f"UNION_MIX_COVER_GAMES={_cov!r} must be 0..8, with UNION_MAIN=mix and UNION_MIX_PORTFOLIO=mix (study 43)")
+    _bb = os.environ.get("UNION_MIX_BRING_BACK_TOP_WR", "")       # study 71: the tested arm only (TOPBB_AB on LIVE_CB)
+    if _bb and (_bb != "A1,B" or os.environ.get("UNION_MAIN") != "mix" or os.environ.get("UNION_MIX_PORTFOLIO") != "mix"
+                or os.environ.get("UNION_MIX_FILL") != "rr"
+                or any(os.environ.get(v, "0") not in ("", "0") for v in ("UNION_MIX_RS_ROWS", "UNION_MIX_COVER_GAMES", "UNION_WINNER_ORDER",
+                                                                         "UNION_WINNER_SELECT", "UNION_PRIORITY_ORDER", "UNION_MAIN_OWN_TILT"))):
+        fail(f"UNION_MIX_BRING_BACK_TOP_WR={_bb!r} must be empty or A1,B (study 71's tested arm), with UNION_MAIN=mix, "
+             f"UNION_MIX_PORTFOLIO=mix, UNION_MIX_FILL=rr and no half / cover / winner order or select / priority order / "
+             f"whole-book ownership term")
     _ms = os.environ.get("UNION_MEAN_MAX_SHARED", "")
     if _ms and not (_ms.isdigit() and 3 <= int(_ms) <= 8):
         fail(f"UNION_MEAN_MAX_SHARED={_ms!r} must be an integer 3..8 (players a union row may share with every earlier row)")

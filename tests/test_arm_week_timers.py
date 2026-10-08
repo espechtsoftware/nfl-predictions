@@ -209,6 +209,21 @@ def test_the_mix_cover_rides_into_the_units_and_0_passes_nothing():
     assert '"${UNION_MIX_COVER_GAMES:-0}" != 0 ]] && UNION_ARGS+=(--mix-cover-games "$UNION_MIX_COVER_GAMES")' in host
 
 
+def test_the_bring_back_top_wr_rides_into_the_units_and_empty_passes_nothing():
+    """Study 71's switch: UNION_MIX_BRING_BACK_TOP_WR reaches the build units; the host passes --mix-bring-back-top-wr only
+    when it is set (empty = off, the default), and the Week-5 arm defaults it to off and allows only the tested arm."""
+    from pathlib import Path
+    r = _run(UNION_MIX_BRING_BACK_TOP_WR="A1,B")
+    assert "UNION_MIX_BRING_BACK_TOP_WR=A1,B" in _unit_line(r.stdout, "nfl-week4-t70-build")
+    root = Path(__file__).resolve().parents[1] / "scripts"
+    host = (root / "sunday_build_host.sh").read_text()
+    assert '-n "${UNION_MIX_BRING_BACK_TOP_WR:-}" ]] && UNION_ARGS+=(--mix-bring-back-top-wr "$UNION_MIX_BRING_BACK_TOP_WR")' in host
+    arm = (root / "arm_week5_saturday.sh").read_text()
+    assert '\nBRING_BACK_TOP_WR=""' in arm
+    assert "UNION_MIX_BRING_BACK_TOP_WR=$BRING_BACK_TOP_WR" in arm
+    assert '"$BRING_BACK_TOP_WR" == "A1,B" && "$SHAPE" == mixt && "$MIX_FILL" == rr' in arm
+
+
 def test_the_half_and_half_rides_into_the_units_and_0_passes_nothing():
     """Study 46's switch: UNION_MIX_RS_ROWS reaches the build units; the host passes --mix-rs-rows only when not 0."""
     from pathlib import Path

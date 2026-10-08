@@ -198,6 +198,21 @@ def test_union_mix_cover_games_must_be_0_to_8_with_the_mix(tmp_path):
     assert any("UNION_MIX_COVER_GAMES='9'" in f for f in _failures(_run(env)))
 
 
+def test_union_mix_bring_back_top_wr_is_only_the_tested_arm(tmp_path):
+    """Study 71's switch: empty (or unset) is off; only A1,B, with the MIX portfolio, the round-robin fill and none of the
+    half / cover / winner order or select / priority order / whole-book term (LIVE_CB + the rule, the arm the harness read)."""
+    env = _healthy(tmp_path); env["UNION_MIX_BRING_BACK_TOP_WR"] = ""
+    assert not any("UNION_MIX_BRING_BACK_TOP_WR" in f for f in _failures(_run(env)))
+    env["UNION_MIX_BRING_BACK_TOP_WR"] = "A1,B"
+    assert any("UNION_MIX_BRING_BACK_TOP_WR='A1,B' must be empty or A1,B" in f for f in _failures(_run(env)))   # no mix
+    env.update({"UNION_MAIN": "mix", "UNION_MIX_PORTFOLIO": "mix", "UNION_MIX_FILL": "rr"})
+    assert not any("UNION_MIX_BRING_BACK_TOP_WR" in f for f in _failures(_run(env)))
+    env["UNION_PRIORITY_ORDER"] = "1"
+    assert any("UNION_MIX_BRING_BACK_TOP_WR='A1,B'" in f for f in _failures(_run(env)))
+    env["UNION_PRIORITY_ORDER"] = "0"; env["UNION_MIX_BRING_BACK_TOP_WR"] = "A1"
+    assert any("UNION_MIX_BRING_BACK_TOP_WR='A1'" in f for f in _failures(_run(env)))
+
+
 def test_union_mix_rs_rows_must_be_0_9_13_17_with_mix_rr_and_no_cover(tmp_path):
     """Study 46's switch: 0 (or unset) is off; 9 / 13 / 17 need the MIX portfolio, the round-robin fill and no cover."""
     env = _healthy(tmp_path); env["UNION_MIX_RS_ROWS"] = "0"
