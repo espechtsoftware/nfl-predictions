@@ -12,6 +12,44 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-08 (16:58 CDT) — laptop: study 70 acked (GO); the top-WR writer approved; the outside reviewer's briefing merged
+
+**Study 70 was FROZEN by the reviewer at 16:52:**
+- production `review/s70-topwr-20261008` @ `de7c340d` (prereg `76198ea9`, merged into integration `83dc6ebf`);
+- lab `production/s70-topwr-20261008` (code `2698ed2`, census `2a312e0`).
+
+**Its arms,** against LIVE_CB:
+- TOPWR2_B8;
+- CHEAPTOPWR2_B8;
+- CHEAPEXPWR2_B8 (added at the smoke: a flat +2 drifts toward the cheaper top WRs, so this arm boosts only top WRs at $7,000+);
+- exploratory TOPWR3_B8.
+
+The reader is `26409685` (study 63's statistics); banks 1611–1616; seed 20261114.
+
+**The laptop's ack (all passed):**
+- every sha matched;
+- 6 tests passed;
+- the code was read;
+- the census re-run was identical on all 53 slate-banks, its text IDENTICAL with the build time masked;
+- the bank and seed scan was clean.
+
+GO was given; the run is on `~/s70-panel/run`.
+
+**The W5 writer** `top_wr_block_file.py`, review/outside-fill-order-20261006 @ `01ca2df1`, is APPROVED:
+- `--base cheap2-w5.csv` keeps the live trial's group-based cheap rows byte for byte and flags only the top WRs;
+- `--min-salary 7000` applies after the pick, with no fall-through, and a run where nothing reaches the floor refuses;
+- 17 tests pass.
+
+The laptop's W5 dry runs on A3's frame `6a6ef92b`:
+- `--base`: 22 lines changed (316 of 565 players with a bonus);
+- `--base --min-salary 7000`: 6 lines changed (Jefferson, Collins, Chase, Olave, St. Brown, Smith-Njigba; 300 of 565);
+- `check_term_block_file.py` passes on both.
+
+It is merged (path-limited) ONLY if an arm is ENTERABLE, tonight, before FRIDAY_HEAD.
+
+**The outside reviewer's briefing** `briefings/2026-week-05/2026-10-08-necessary-players-and-the-bring-back.md` was
+merged (`3e4a35f8`), privacy-checked, with an index row, and sent to the operator.
+
 ## 2026-10-08 (16:39 CDT) — laptop: study 70 inputs (the outside reviewer's replay and mechanics probe); the W5 writer reviewed; study list 71
 
 **The operator, via the outside reviewer:** "Please do whatever testing is needed without input from me". The decisions
