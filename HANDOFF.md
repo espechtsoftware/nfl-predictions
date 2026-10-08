@@ -12,6 +12,20 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-08 (14:11 CDT) — The operator: the pros briefing's experiments ON THE AGENDA before Week 6 (study list 64–66; the reviewer asked to schedule)
+
+- **His words:** "please make sure that the recommended experiments that the outside reviewer suggested in the pros
+  briefing are on the agenda before week 6".
+- **Study list:**
+  - **64 (S1):** environment calibration on top of FP. Freeze from 2023–25 before Sunday 12:00 CT; Monday's line FP vs
+    FP + env; a paper book from W6; a trial only after the pooled check.
+  - **65 (S2 + S3):** tail tilts and a recency fade. One harness prereg, two arms vs LIVE_CB, frozen and run this week,
+    read by Tue 10-13.
+  - **66 (S4 + S5):** no new experiment; already running.
+- **Checklist:** dated in the Tuesday section's agenda line.
+- **Owners:** the reviewer designs and freezes S1 and S2 / S3 (asked 10-08); the laptop acks, scans, reproduces and
+  merges. The outside reviewer's scripts are `reports/2026-10-08-pro-methods/`.
+
 ## 2026-10-08 (13:40 CDT) — O-59's 10:47 DK pull MERGED (`9a49a4d1`, reviewed); the host arm copy re-synced; the timing margin about 3 minutes
 
 - **The reviewer approved `1e0d658d`.** It checked all 16 modules that read the four files: 185 pass, 3 skipped. Merged as

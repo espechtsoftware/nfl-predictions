@@ -224,6 +224,12 @@ unless it says otherwise.** Record each capture's count in HANDOFF.
     4. runs `capture-dk-standings --apply`;
     5. checks the Millionaire's standings are imported BEFORE the graph refresh (the graph monitors silently fall back to
        the largest imported contest; O-56).
+- **The pros-briefing experiments (the operator 10-08: "on the agenda before week 6"; study list 64–66):**
+  - **S1, environment calibration on top of FP:** FROZEN before Sun 10-11 12:00 CT. Its first line is in Monday 10-12's
+    accuracy read: FP vs FP + environment on W5. A paper book from W6.
+  - **S2 + S3, the tail tilts and the recency fade:** one harness preregistration against the live cheap block, frozen
+    and run this week, READ by Tue 10-13 for the W6 decisions (arming Sat 10-17).
+  - **S4 and S5:** running already (the weekly FP vs FP + props check; study 63 and the 6k paper TE arms).
 - **Tue 10-13:** once Week 5's `player_week_actuals` and pbp load, re-run the graph's facts-only pass for Week 5
   (`load_milly_neo4j.py --season 2026 --week 5 --users-file <private users file> --include-fp --with-facts --facts-only --apply`).
   Monday's refresh ran before the result facts existed.
