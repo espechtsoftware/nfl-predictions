@@ -1,0 +1,9 @@
+# Mechanics probe (10-08, W4 only, outcome-chosen): can a bigger top-WR bonus put CeeDee Lamb into the Week-5-settings book?
+TERM BLOCK: 8 of 26 rows on projection + min(0.2 x pred_own, 3.0) from /home/erich/rehearsals/outside-twblocks-20261008T213239Z/topwr3-w4.cs
+TERM BLOCK: 8 of 26 rows on projection + min(0.2 x pred_own, 4.0) from /home/erich/rehearsals/outside-twblocks-20261008T213239Z/topwr4-w4.cs
+w4-live        Lamb 0  Collins 1  Lamb+Collins 0  Stroud rows 1 (their Dallas players: [[]])
+w4-cblock8     Lamb 0  Collins 2  Lamb+Collins 0  Stroud rows 2 (their Dallas players: [['Ryan Flournoy'], []])
+w4-twblock8    Lamb 0  Collins 2  Lamb+Collins 0  Stroud rows 2 (their Dallas players: [[], []])
+w4-ctwblock8   Lamb 0  Collins 2  Lamb+Collins 0  Stroud rows 2 (their Dallas players: [[], []])
+w4-tw3block8   Lamb 0  Collins 2  Lamb+Collins 0  Stroud rows 2 (their Dallas players: [[], []])
+w4-tw4block8   Lamb 0  Collins 2  Lamb+Collins 0  Stroud rows 2 (their Dallas players: [[], []])

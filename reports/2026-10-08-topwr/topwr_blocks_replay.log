@@ -1,0 +1,55 @@
+== bonus-blocks replay 20261008T213239Z: code a424248b, lab f69598b, files 3bf8eca2 82f454e9 e7b77399 a4835b8c 5afefb6e 21f51f8f 754e9740 181f8db3 2e4c8b54 
+  union w2 live rc 0 (0 refusal lines; ) 16:32:46
+  union w2 cblock8 rc 0 (0 refusal lines; TERM BLOCK: 8 of 26 rows on projection + min(0.2 x pred_own, 2.0) from /home/erich/rehearsals/outside-twblocks-20261008T) 16:32:52
+  union w2 twblock8 rc 0 (0 refusal lines; TERM BLOCK: 8 of 26 rows on projection + min(0.2 x pred_own, 2.0) from /home/erich/rehearsals/outside-twblocks-20261008T) 16:32:58
+  union w2 ctwblock8 rc 0 (0 refusal lines; TERM BLOCK: 8 of 26 rows on projection + min(0.2 x pred_own, 2.0) from /home/erich/rehearsals/outside-twblocks-20261008T) 16:33:04
+  layout w2 live rc 0
+  layout w2 cblock8 rc 0
+  layout w2 twblock8 rc 0
+  layout w2 ctwblock8 rc 0
+  union w3 live rc 0 (0 refusal lines; ) 16:33:13
+  union w3 cblock8 rc 0 (0 refusal lines; TERM BLOCK: 8 of 26 rows on projection + min(0.2 x pred_own, 2.0) from /home/erich/rehearsals/outside-twblocks-20261008T) 16:33:22
+  union w3 twblock8 rc 0 (0 refusal lines; TERM BLOCK: 8 of 26 rows on projection + min(0.2 x pred_own, 2.0) from /home/erich/rehearsals/outside-twblocks-20261008T) 16:33:31
+  union w3 ctwblock8 rc 0 (0 refusal lines; TERM BLOCK: 8 of 26 rows on projection + min(0.2 x pred_own, 2.0) from /home/erich/rehearsals/outside-twblocks-20261008T) 16:33:40
+  layout w3 live rc 0
+  layout w3 cblock8 rc 0
+  layout w3 twblock8 rc 0
+  layout w3 ctwblock8 rc 0
+  union w4 live rc 0 (0 refusal lines; ) 16:33:50
+  union w4 cblock8 rc 0 (0 refusal lines; TERM BLOCK: 8 of 26 rows on projection + min(0.2 x pred_own, 2.0) from /home/erich/rehearsals/outside-twblocks-20261008T) 16:34:00
+  union w4 twblock8 rc 0 (0 refusal lines; TERM BLOCK: 8 of 26 rows on projection + min(0.2 x pred_own, 2.0) from /home/erich/rehearsals/outside-twblocks-20261008T) 16:34:09
+  union w4 ctwblock8 rc 0 (0 refusal lines; TERM BLOCK: 8 of 26 rows on projection + min(0.2 x pred_own, 2.0) from /home/erich/rehearsals/outside-twblocks-20261008T) 16:34:19
+  layout w4 live rc 0
+  layout w4 cblock8 rc 0
+  layout w4 twblock8 rc 0
+  layout w4 ctwblock8 rc 0
+/home/erich/projects/nfl2/.venv/lib/python3.14/site-packages/google/cloud/bigquery/table.py:2128: UserWarning: BigQuery Storage module not found, fetch data with the REST endpoint instead.
+  warnings.warn(
+/home/erich/projects/nfl2/.venv/lib/python3.14/site-packages/google/cloud/bigquery/table.py:2128: UserWarning: BigQuery Storage module not found, fetch data with the REST endpoint instead.
+  warnings.warn(
+/home/erich/projects/nfl2/.venv/lib/python3.14/site-packages/google/cloud/bigquery/table.py:2128: UserWarning: BigQuery Storage module not found, fetch data with the REST endpoint instead.
+  warnings.warn(
+
+              p_big1   e_big  mean_entry_pct  proj_sum_mean  best_row  rows_top1pct  distinct_players  rows_with_top_wr  rows_bringback_top_wr  rows_lamb  rows_collins  rows_lamb_and_collins  term_rows_mean_pct  live_block_mean_pct  term_rows_best  term_rows_with_a_top5_bonus_player  rows_same_as_live
+w2-live       0.0097  0.0098          0.4239         136.95    162.96           0.0              53.0              26.0                    4.0        5.0           0.0                    0.0                 NaN                  NaN             NaN                                 NaN                NaN
+w2-cblock8    0.1120  0.1149          0.4486         136.47    162.96           0.0              53.0              26.0                    4.0        3.0           0.0                    0.0              0.5722               0.4180          161.46                                 0.0               16.0
+w2-twblock8   0.4528  0.4674          0.4770         136.60    165.04           0.0              55.0              26.0                    6.0        6.0           0.0                    0.0              0.6921               0.4180          165.04                                 1.0               17.0
+w2-ctwblock8  0.4518  0.4655          0.4813         136.58    182.76           1.0              54.0              26.0                    6.0        7.0           0.0                    0.0              0.7120               0.4180          182.76                                 0.0               16.0
+w3-live       0.0021  0.0021          0.5163         133.11    164.64           0.0              48.0              25.0                    2.0        3.0           0.0                    0.0                 NaN                  NaN             NaN                                 NaN                NaN
+w3-cblock8    0.0178  0.0178          0.5002         132.40    164.64           0.0              50.0              25.0                    1.0        7.0           0.0                    0.0              0.2740               0.5572          140.04                                 0.0               15.0
+w3-twblock8   0.0178  0.0178          0.5595         132.61    164.64           0.0              51.0              25.0                    4.0        5.0           0.0                    0.0              0.4643               0.5572          157.14                                 8.0               15.0
+w3-ctwblock8  0.0186  0.0186          0.5640         132.59    164.64           0.0              50.0              25.0                    2.0        8.0           0.0                    0.0              0.4683               0.5572          156.64                                 1.0               15.0
+w4-live       0.2971  0.3025          0.5024         144.00    181.08           0.0              49.0              26.0                    5.0        0.0           1.0                    0.0                 NaN                  NaN             NaN                                 NaN                NaN
+w4-cblock8    0.6597  0.8935          0.5698         143.70    181.08           0.0              48.0              26.0                    3.0        0.0           2.0                    0.0              0.7427               0.4668          174.28                                 0.0               17.0
+w4-twblock8   0.4550  0.4918          0.4992         143.46    181.08           0.0              50.0              26.0                    7.0        0.0           2.0                    0.0              0.4927               0.4668          164.98                                 4.0               17.0
+w4-ctwblock8  0.4210  0.4330          0.5118         143.63    181.08           0.0              51.0              26.0                    6.0        0.0           2.0                    0.0              0.5418               0.4668          164.98                                 0.0               17.0
+w2-cblock8 term positions [1, 4, 8, 11, 14, 17, 21, 24] top-5 bonus players ['Jahdae Walker', 'Tyler Ott', 'Dallen Bentley', 'Darren Waller', 'Kenyon Sadiq'] source {'source_sha256': '3bf8eca239cef10b85df780ac8081e36926f0dbc90387544bd8048f94e8a96c9', 'coverage_projected_5': 1.0, 'players_with_a_term': 109, 'players_capped': 0, 'cap_points': 2.0}
+w2-twblock8 term positions [1, 4, 8, 11, 14, 17, 21, 24] top-5 bonus players ['Jaylen Waddle', 'Carnell Tate', 'Jaxon Smith-Njigba', 'Kayshon Boutte', 'Michael Wilson'] source {'source_sha256': 'a4835b8cac85850e69c829899e15dfb0ebbfe128009f9d70f81281f72a15b19a', 'coverage_projected_5': 1.0, 'players_with_a_term': 26, 'players_capped': 0, 'cap_points': 2.0}
+w2-ctwblock8 term positions [1, 4, 8, 11, 14, 17, 21, 24] top-5 bonus players ['Carnell Tate', 'Tyler Ott', 'Mike Evans', 'Darren Waller', 'Malik Benson'] source {'source_sha256': '754e9740e8149a436e0435bead637b3ae956233d951d9a0cf070b81be1065158', 'coverage_projected_5': 1.0, 'players_with_a_term': 135, 'players_capped': 0, 'cap_points': 2.0}
+w3-cblock8 term positions [1, 4, 8, 11, 14, 17, 21, 24] top-5 bonus players ['Chris Moore', 'Darren Waller', 'Ted Hurst III', 'Isaac TeSlaa', 'Robert Tonyan'] source {'source_sha256': '82f454e9ace0022360311e55f5795178f4612796511e787e3747e695ec82ed58', 'coverage_projected_5': 1.0, 'players_with_a_term': 143, 'players_capped': 0, 'cap_points': 2.0}
+w3-twblock8 term positions [1, 4, 8, 11, 14, 17, 21, 24] top-5 bonus players ['Parker Washington', 'Romeo Doubs', 'Denzel Boston', 'Michael Wilson', 'CeeDee Lamb'] source {'source_sha256': '5afefb6e00955d11187aa8f3717214adc4c96fc1934a7393b206f39e1b8928e1', 'coverage_projected_5': 1.0, 'players_with_a_term': 26, 'players_capped': 0, 'cap_points': 2.0}
+w3-ctwblock8 term positions [1, 4, 8, 11, 14, 17, 21, 24] top-5 bonus players ['Carnell Tate', 'Andrew DePaola', 'Ted Hurst III', 'Isaac TeSlaa', 'Kenyon Sadiq'] source {'source_sha256': '181f8db36598e7934804ac6be562fb2e57a7664aff378b081a9ad78cc6f2ddab', 'coverage_projected_5': 1.0, 'players_with_a_term': 169, 'players_capped': 0, 'cap_points': 2.0}
+w4-cblock8 term positions [1, 4, 8, 11, 14, 17, 21, 24] top-5 bonus players ['Zavion Thomas', 'Ted Hurst III', 'Elic Ayomanor', 'CJ Williams', 'James Winchester'] source {'source_sha256': 'e7b77399b6c8c8614cd6f5b5db757c9e36a5fb3e047ffec645ea81521fc0876d', 'coverage_projected_5': 1.0, 'players_with_a_term': 91, 'players_capped': 0, 'cap_points': 2.0}
+w4-twblock8 term positions [1, 4, 8, 11, 14, 17, 21, 24] top-5 bonus players ['Ladd McConkey', 'Romeo Doubs', 'Michael Wilson', 'Luther Burden III', 'CeeDee Lamb'] source {'source_sha256': '21f51f8fe1665cf676c42cacee59309de343682c1339b446cbc79a2b56ed0305', 'coverage_projected_5': 1.0, 'players_with_a_term': 24, 'players_capped': 0, 'cap_points': 2.0}
+w4-ctwblock8 term positions [1, 4, 8, 11, 14, 17, 21, 24] top-5 bonus players ['Ryan Flournoy', 'Andrew DePaola', 'Jahdae Walker', 'Ted Hurst III', 'Elijah Sarratt'] source {'source_sha256': '2e4c8b54e9fce08cfb6d4f513b58f2facfc9aabed39be4034dfc5d25b472bce8', 'coverage_projected_5': 1.0, 'players_with_a_term': 115, 'players_capped': 0, 'cap_points': 2.0}
+== done 16:34:26; scratch /home/erich/rehearsals/outside-twblocks-20261008T213239Z; worktree /home/erich/projects/.nfl-predictions-worktrees/rehearsal-outside-twblocks-20261008T213239Z
