@@ -12,6 +12,36 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-07 (23:45 CDT) — The operator's QB + tight-end request (relayed by the outside reviewer while he sleeps): production checks done, test plan proposed to the reviewer
+
+- **His words (10-07 night):**
+  - "I would like to do more testing on the QB tight end stacks right away";
+  - "please engage with the production laptop to see if we can get a test running of this and perhaps consider a
+    percentage of our lineups to have a QB tight end stack";
+  - "and also to include a bonus to the tight end in these types of situations."
+  - It is study list 63.
+- **The outside reviewer's material:** `79a205f5` on `review/outside-fill-order-20261006`, §6, 6a, 6b and 7 of the
+  Week-5 options note.
+  - The history: no TE gain against tough pass defenses. With pre-game roles, QB + a pass-catching TE beats QB + WR1 in
+    43% of games.
+  - Their in-sample W2–4 replay, e_big summed: CHEAP2 1.03, TE2 0.98, CHEAPTE2 0.96. They note it cannot rank the blocks.
+- **Laptop checks:**
+  - `scripts/te_block_file.py` (`196ae64e`) and its test (`d35e1542`): 8 pass. The W4 `te2` and `cheapte2` files are
+    byte-identical to the outside reviewer's (`80a3b039`, `53208c3f`). W4 gives 11 TEs, 4 under `--tough-pass-d`.
+  - The T-70 frames carry `target_share_l4` and `epa_per_dropback_allowed_l6`. The latter is empty in W2 and present from
+    W3.
+  - His live-setting books (W2–4, cheap block, Rev6) already stack a TE with the QB in 9 / 7 / 12 of 26 rows, of which
+    5 / 5 / 9 have a pass-catching TE.
+  - Note for any LIVE use: the writer reads a frame. A file pinned at Saturday arming would miss T-70 joiners, the class
+    the cheap writer fixed with `--group`.
+- **Proposed to the reviewer (the reviewer designs; the operator decides):**
+  1. W5 PAPER arms in study 38: TE2, TE2_TOUGH and CHEAPTE2, read Monday on the real field. The laptop suggests computing
+     the bonus in the lab from the snapshot's frame, as amendment 6f's CHEAP arms do, so the money path and the snapshot
+     stay unchanged.
+  2. A W6 harness study of the TE bonus AND a fixed QB + TE share of rows (his percentage idea, as its own arm).
+  3. Live only after (2), Week 6 at the earliest, because the cheap block is Week 5's one construction change.
+- **Nothing changes for Week 5's live book.**
+
 ## 2026-10-07 (23:03 CDT) — The operator's season-to-date-touchdown deal: NOT ENTERED by its frozen W2–4 screen (ratio 0.587)
 
 - **His request (10-07):** after the projected-TD sort failed, "try another experiment on the total touchdowns prior to
