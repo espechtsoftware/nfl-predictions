@@ -156,6 +156,9 @@ def audit(run: Path, contests: list[dict], *, layout: str, expect_selector: str 
     # (source mix / mix_control) without a known cell tag FAILS. Every other row keeps the house check below, unchanged.
     mix_rows_seen = 0
     field_rows = 0
+    from nfl_dfs.inference.mix_shapes import bring_back_top_wr_rule      # study 71 (off: {}, (), set())
+    bb_top, bb_cells, bb_exempt = bring_back_top_wr_rule(receipt)
+    bb_top = {t: i for t, i in bb_top.items() if not ((i in proj and proj[i] < 1.0) or status.get(i, "") in OUT_STATUSES)}
     for cell, src, tag in zip(cands["players"], src_col, tag_col):
         ps = _players_of(cell)
         is_field = src == "field" and bool(fmeta)
@@ -178,7 +181,8 @@ def audit(run: Path, contests: list[dict], *, layout: str, expect_selector: str 
                 mcell = cell_of_tag(tag)
             except ValueError:
                 mcell = None
-            v = [f"no mix cell in tag {tag!r}"] if mcell is None else shape_violations(ps, mcell, pos, team, opp, game)
+            v = [f"no mix cell in tag {tag!r}"] if mcell is None else shape_violations(
+                ps, mcell, pos, team, opp, game, top_wr=bb_top, top_wr_cells=() if frozenset(ps) in bb_exempt else bb_cells)
             if v:
                 bad_stack += 1
                 if len(stack_examples) < 3:

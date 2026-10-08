@@ -1,0 +1,12 @@
+# Study 71 flag: Week-4 validation on the real inputs (written 2026-10-08 17:57 CDT); aggregates + public NFL names only
+# runs: reports/2026-10-08-s71-flag/w4_union_run.sh <checkout> <out> [--mix-bring-back-top-wr A1,B]; W5 arming on W4 inputs (mix, rr, ms4, QB cap 5, FP, cheap +2 block)
+
+## (c) OFF = IDENTICAL: production integration 22c3bebe vs this branch, both with the flag off
+book.csv sha256: base a4ab283949254d12  branch a4ab283949254d12  -> byte-identical
+candidates.parquet, book.json, exposure_ledger.json, proj_source.csv: identical
+receipt.json by CONTENT: 4 differences, all code identity or timing: /built_utc, /config/union/tool/path, /config/union/tool/production_sha, /config/union/tool/sha256
+
+## ON (--mix-bring-back-top-wr A1,B), W4 OUTCOME-CHOSEN (the rule came from W4): mechanics only, never evidence
+BRING-BACK TOP WR: cells A1,B; 15 book rows + 9 spares floored; 0 fallbacks
+off: Lamb 0 / Collins 2 / both 0 rows; best 181.1 (~rank 1,893); cash 8, $70+ 1, $500+ 0; mean projected sum 143.7
+on:  Lamb 1 / Collins 2 / both 1 row;  best 222.2 (~rank 14: C.J. Stroud, Chase Brown, Aaron Jones Sr., CeeDee Lamb, Nico Collins, Puka Nacua, Brenton Strange, T.J. Hockenson, Bears); cash 6, $70+ 1, $500+ 1; mean projected sum 143.1
