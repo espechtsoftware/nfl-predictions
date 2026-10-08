@@ -7687,3 +7687,134 @@ secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; th
   T-70 frame's `spread` has the opposite sign of the harness frames' (O-62); the census checked the harness sign on every
   slate-bank.
 - **Recommendation for Week 6:** keep the cheap block, and add no S2 or S3 block.
+
+## Addendum 168 (2026-10-08): study 70 (a top-receiver block for this week, in the harness): no fix shown -- two arms contradicted on 2022; the expensive-WR arm passes the trial rule only at the edge (−3.4 points on the read), so the recommendation is not to enter it
+
+**Setup.**
+- **The question.** The operator, 10-08 about 16:25 (via the outside reviewer; study list 70): "I find this somewhat
+  concerning. Is there a test we can do immediately to try to fix this for this week?"
+  - The concern: the W4 Millionaire's $500+ lineups needed Collins + Lamb (9 of the top 10).
+  - Today's W5 settings, rebuilt on W4, held Lamb in 0 of 26 rows.
+  - The FP-value solve never pays for an expensive WR1. This is in-sample and outcome-chosen.
+- **The arms.** Built on study 48's harness (LIVE = 48d's 41 rows; Rev6 `ac10ddf6`), each with study 53's frozen block
+  term and term_book. The top receiver is each team's highest-salaried WR in the pool.
+  - LIVE_CB (the reference): his live book with the cheap +2 block, the Week-5 trial.
+  - TOPWR2_B8: +2 to every top receiver, INSTEAD of the cheap block.
+  - CHEAPTOPWR2_B8: cheap OR top receiver, +2, in one block.
+  - CHEAPEXPWR2_B8: cheap OR a top receiver at $7,000+, +2, in one block. It was added at the smoke, which showed the flat
+    +2 moving the block toward the cheaper top receivers.
+  - Exploratory TOPWR3_B8: +3.
+- **Preregistration:** `reports/2026-10-08-prereg-study70-top-wr.md` (DRAFT `a1d85a96`; FROZEN `de7c340d`, 10-08 16:52
+  CDT, before any scored bank).
+- **Panel:** banks 1611–1616, B 20,000, seed 20261114.
+- **Read:** the reader `26409685`; READ `c2d15669` (lab `68c900d`). The confirmatory census (`4210440`, with the raw
+  files' shas) was committed before the READ.
+- **Reproduced byte-identically by the laptop:** raw 1611–1616 = `RAW_s70_run.sha256` (`sha256sum -c` OK); the READ
+  `c2d15669` (cmp); the confirmatory census `ba81f097` (cmp).
+- **The prior, stated first:** NOT ENTERABLE was more likely (studies 51, 63, 65).
+- **Census** (expensive top receivers per book row): LIVE_CB 0.87, TOPWR2 0.81, CHEAPTOPWR2 0.92, CHEAPEXPWR2 1.14.
+  No arm is near a dead lever.
+- **What it can't say:**
+  - The base is our simulator, not FP's value solve.
+  - No block can produce W4's Collins + Lamb pairing: the bring-back is not steered (the outside reviewer's mechanics
+    probe). That is study 71.
+
+**Reader output (verbatim):**
+```
+STUDY 70 READER  sha256 264096855e25d2e7541f85009114bee35ffb777e2b92f1cc1e56eb71cc9c1b08
+DIRECTION: P(>= 1 big seat) per slate (the mean over its banks); every difference is ARM - LIVE_CB; POSITIVE favours the arm.
+slates 36 (the 2023-24 read) + 17 (the 2022 go / no-go)  banks [1611, 1612, 1613, 1614, 1615, 1616]  B 20000  seed 20261114  three decision arms against LIVE_CB on the CALIBRATED field (v2), each two-sided 0.95; guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only; 2022: the point estimate (two-sided 0.95 interval); study 51's trial rule per arm
+arms (definitions, the top-receiver constants, study 48's and study 53's shas, live settings, QB cap, objective): [["LIVE_CB", "TOPWR2_B8", "CHEAPTOPWR2_B8", "CHEAPEXPWR2_B8", "TOPWR3_B8"], {"block": {"floor_proj": 5.0, "min_coverage": 0.5, "n_term": 8, "tilt": 0.2}, "blocks": {"CHEAPEXPWR2_B8": {"cheap": true, "dose": 2.0, "min_salary": 7000}, "CHEAPTOPWR2_B8": {"cheap": true, "dose": 2.0, "min_salary": 0}, "TOPWR2_B8": {"cheap": false, "dose": 2.0, "min_salary": 0}, "TOPWR3_B8": {"cheap": false, "dose": 3.0, "min_salary": 0}}, "cheap_dose": 2.0, "expensive_label": 7000}, "c22d28114ab4b463b6842594cb2ff7ca1babf41e28015c7242b21baedb1bc67c", "f3f9d735ca0c5dfadb7abe6c2999fd3bcb352425e4fcc7ea73bd2b09d4522c89", {"fill": "rr", "max_shared": 4}, 5, "player_mean (+ the arm's block term)"]
+
+== TOPWR2_B8 vs LIVE_CB  [DECISION; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate -0.01186  [-0.06946, +0.04057] (two-sided 0.95)  seasons 2023 -0.01352, 2024 -0.01021
+  GUARD 1 mean entry pct +0.00450  one-sided lower -0.00920  (must exceed -0.015)
+  GUARD 2 expected big seats 0.63006 vs 0.58459  ratio 1.078  (must be >= 0.80)
+  TOPWR2_B8 dealt identical to LIVE_CB: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  GO / NO-GO 2022: -0.00488  [-0.03466, +0.02817] (two-sided 0.95)  ->  CONTRADICTED (the 2022 point estimate is < 0)
+  TRIAL: NOT ENTERED: CONTRADICTED on 2022
+
+== CHEAPTOPWR2_B8 vs LIVE_CB  [DECISION; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate +0.01862  [-0.02714, +0.06386] (two-sided 0.95)  seasons 2023 +0.00207, 2024 +0.03516
+  GUARD 1 mean entry pct +0.00191  one-sided lower -0.00610  (must exceed -0.015)
+  GUARD 2 expected big seats 0.62925 vs 0.58459  ratio 1.076  (must be >= 0.80)
+  CHEAPTOPWR2_B8 dealt identical to LIVE_CB: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  GO / NO-GO 2022: -0.00647  [-0.04400, +0.03111] (two-sided 0.95)  ->  CONTRADICTED (the 2022 point estimate is < 0)
+  TRIAL: NOT ENTERED: CONTRADICTED on 2022
+
+== CHEAPEXPWR2_B8 vs LIVE_CB  [DECISION; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate -0.03429  [-0.07588, +0.00397] (two-sided 0.95)  seasons 2023 -0.01263, 2024 -0.05594
+  GUARD 1 mean entry pct -0.00744  one-sided lower -0.01660  (must exceed -0.015)
+  GUARD 2 expected big seats 0.52651 vs 0.58459  ratio 0.901  (must be >= 0.80)
+  CHEAPEXPWR2_B8 dealt identical to LIVE_CB: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  GO / NO-GO 2022: +0.03213  [+0.00137, +0.06652] (two-sided 0.95)  ->  not contradicted
+  TRIAL: ENTERABLE, his decision: no harm shown and no gain shown (NO DIFFERENCE on the read, not contradicted on 2022)
+
+== TRIAL SUMMARY: CHEAPEXPWR2_B8 ENTERABLE (his decision; one construction change a week)
+
+== EXPLORATORY (never decision-bearing; two-sided 0.95)
+  TOPWR3_B8 - LIVE_CB (v2, 2023-24): -0.01348  [-0.07186, +0.03910]  seasons 2023 -0.01702, 2024 -0.00994
+  TOPWR3_B8 - LIVE_CB (v2, 2022): -0.00726  [-0.03868, +0.02909]  seasons 2022 -0.00726
+  TOPWR2_B8 - LIVE_CB (the l02 field, 2023-24): -0.01451  [-0.07303, +0.03873]  seasons 2023 -0.01227, 2024 -0.01674
+  TOPWR2_B8 - LIVE_CB (the l02 field, 2022): -0.00314  [-0.03719, +0.03714]  seasons 2022 -0.00314
+  CHEAPTOPWR2_B8 - LIVE_CB (the l02 field, 2023-24): +0.01730  [-0.02728, +0.06215]  seasons 2023 +0.00427, 2024 +0.03033
+  CHEAPTOPWR2_B8 - LIVE_CB (the l02 field, 2022): -0.00760  [-0.04685, +0.03092]  seasons 2022 -0.00760
+  CHEAPEXPWR2_B8 - LIVE_CB (the l02 field, 2023-24): -0.03453  [-0.07624, +0.00408]  seasons 2023 -0.00990, 2024 -0.05917
+  CHEAPEXPWR2_B8 - LIVE_CB (the l02 field, 2022): +0.03513  [+0.00406, +0.06887]  seasons 2022 +0.03513
+  TOPWR3_B8 - LIVE_CB (the l02 field, 2023-24): -0.01683  [-0.07573, +0.03627]  seasons 2023 -0.01725, 2024 -0.01641
+  TOPWR3_B8 - LIVE_CB (the l02 field, 2022): -0.00636  [-0.04185, +0.03694]  seasons 2022 -0.00636
+
+secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; the book's rows are pre-lock facts):
+  [2023-24]
+  LIVE_CB      v2: P(>=1 big) 0.35492  expected big seats 0.58459  P(>=2) 0.14581  entry pct 0.51718  |  l02: P(>=1 big) 0.38321
+               book: projection per row 127.73  salary 49964  flagged players per row: top_wr 1.93, top_wr_expensive 0.79, cheap 1.59
+  TOPWR2_B8    v2: P(>=1 big) 0.34306  expected big seats 0.63006  P(>=2) 0.16355  entry pct 0.52168  |  l02: P(>=1 big) 0.36871
+               book: projection per row 127.73  salary 49970  flagged players per row: top_wr 2.55, top_wr_expensive 0.74, cheap 1.01
+  CHEAPTOPWR2_B8 v2: P(>=1 big) 0.37354  expected big seats 0.62925  P(>=2) 0.15926  entry pct 0.51909  |  l02: P(>=1 big) 0.40052
+               book: projection per row 127.79  salary 49968  flagged players per row: top_wr 2.33, top_wr_expensive 0.83, cheap 1.36
+  CHEAPEXPWR2_B8 v2: P(>=1 big) 0.32064  expected big seats 0.52651  P(>=2) 0.12529  entry pct 0.50974  |  l02: P(>=1 big) 0.34868
+               book: projection per row 127.52  salary 49966  flagged players per row: top_wr 2.07, top_wr_expensive 1.06, cheap 1.58
+  TOPWR3_B8    v2: P(>=1 big) 0.34145  expected big seats 0.61370  P(>=2) 0.15419  entry pct 0.52204  |  l02: P(>=1 big) 0.36638
+               book: projection per row 127.56  salary 49969  flagged players per row: top_wr 2.62, top_wr_expensive 0.73, cheap 0.99
+  [2022]
+  LIVE_CB      v2: P(>=1 big) 0.23672  expected big seats 0.33300  P(>=2) 0.06911  entry pct 0.46398  |  l02: P(>=1 big) 0.25744
+               book: projection per row 131.80  salary 49963  flagged players per row: top_wr 1.80, top_wr_expensive 0.94, cheap 1.48
+  TOPWR2_B8    v2: P(>=1 big) 0.23184  expected big seats 0.34571  P(>=2) 0.08106  entry pct 0.46260  |  l02: P(>=1 big) 0.25430
+               book: projection per row 131.82  salary 49967  flagged players per row: top_wr 2.43, top_wr_expensive 0.90, cheap 0.91
+  CHEAPTOPWR2_B8 v2: P(>=1 big) 0.23025  expected big seats 0.33588  P(>=2) 0.07645  entry pct 0.46992  |  l02: P(>=1 big) 0.24984
+               book: projection per row 131.82  salary 49966  flagged players per row: top_wr 2.23, top_wr_expensive 1.02, cheap 1.26
+  CHEAPEXPWR2_B8 v2: P(>=1 big) 0.26885  expected big seats 0.40806  P(>=2) 0.09215  entry pct 0.48256  |  l02: P(>=1 big) 0.29258
+               book: projection per row 131.60  salary 49962  flagged players per row: top_wr 1.98, top_wr_expensive 1.24, cheap 1.45
+  TOPWR3_B8    v2: P(>=1 big) 0.22946  expected big seats 0.34112  P(>=2) 0.08040  entry pct 0.46138  |  l02: P(>=1 big) 0.25108
+               book: projection per row 131.68  salary 49967  flagged players per row: top_wr 2.48, top_wr_expensive 0.89, cheap 0.89
+```
+
+**Reading.**
+- **Nothing here shows that a top-receiver block fixes the pattern.**
+  - **TOPWR2_B8** (every top receiver, instead of the cheap block): −1.2 points [−6.9, +4.1] on the read, both seasons
+    negative; 2022 −0.5, contradicted. NOT ENTERED.
+  - **CHEAPTOPWR2_B8** (cheap OR any top receiver): +1.9 [−2.7, +6.4] on the read (2023 +0.2, 2024 +3.5), with more
+    expected big seats (×1.08) and P(≥ 2) 0.159 against 0.146; but 2022 −0.6, contradicted. NOT ENTERED.
+  - **CHEAPEXPWR2_B8** (cheap OR a top receiver at $7,000+, the operator's concern itself): −3.4 [−7.6, +0.4] on the
+    read, negative in both seasons (−1.3 / −5.6). Expected big seats ×0.90. Guard 1's lower bound is −0.0166 (moot: the
+    guards gate a PASS only). 2022 +3.2 [+0.1, +6.7].
+    - By study 51's trial rule it is ENTERABLE: the read's interval reaches zero (upper +0.004), so it is not WORSE, and
+      2022 is not contradicted. The reader's own words are "no harm shown and no gain shown".
+    - **It is the most negative of the three on the deciding seasons,** and its two halves disagree in sign. That reads
+      as noise, not a fix.
+  - **Exploratory TOPWR3_B8** (+3) is like TOPWR2_B8: −1.3.
+- **The blocks did what they were built to do.**
+  - CHEAPEXPWR2_B8 put more expensive top receivers in the book: 1.06 against 0.79 per row on the read slates.
+  - TOPWR2_B8 put more top receivers in but fewer expensive ones (0.74), as the smoke had shown.
+  - The extra exposure did not turn into big seats on the decision seasons.
+- **What it cannot say** (§4 of the preregistration):
+  - The base here is our simulator, not FP's value solve.
+  - No block can produce W4's Collins + Lamb pairing.
+  - The outside reviewer's W2–4 FP replay (descriptive) also had the top-WR forms below the cheap block in W4.
+  - The pairing is study 71's question, a Week-6 candidate.
+- **Recommendation for Week 5:** keep the cheap block, and do not enter a top-receiver block. The rule allows
+  CHEAPEXPWR2_B8 as his decision. If he wants it anyway, the writer needs `--base cheap2-w5.csv --min-salary 7000`, and
+  Friday's A3 must rehearse the file first. The reviewer advises against it.
