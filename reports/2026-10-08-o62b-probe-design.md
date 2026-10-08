@@ -88,5 +88,18 @@ trip on noise. Requiring the sign to move the pool MORE than a seed change does 
 2. The reviewer asked that the report print the LIVE / LIVE_SEED Jaccard beside the TRAIN / LIVE Jaccard, by tag. This
    adds one print line.
 
+3. **(after the first W4 attempt, before any measured run) W4 is infeasible; W5 runs tonight instead.**
+   - The W4 LIVE arm stopped inside `predict_components` with zero component rows. The live frame takes its features
+     from production's inference table, which holds only the upcoming week (W5 now), so every W4 player has
+     `has_features` false. Nothing was measured; the failed arm's log is kept in `~/private/o62b-probe/w04/`.
+   - The three arms run on **W5 tonight**, with W5's lock still ahead, so the past-lock switch is unset.
+   - The settings are the W5 arm's: group 154468, `--selector mean`, `--lev 0 --boom 4800`, `--sims 10000 --k 1`,
+     `--seed 2026` (LIVE_SEED 2027), `--entries 26` (Rev6 head; tail sleeve 0), `--emit-a5-sidecars`,
+     `--max-per-game 4`, `--class-sleeve-every 2 --class-model ~/week5-sunday/class_model.json` (`92cec733`),
+     `--min-proj 1.0` and `--mean-dst-cap 0.25`.
+   - The inputs are tonight's warehouse reads, identical across the arms. Friday's A3-frame run becomes optional: it is
+     repeated only if tonight's result sits near a line.
+   - Measures, lines and verdict are unchanged.
+
 **Reporting:** W4 first, then W5 Friday, with the probe patch's commit and the measurement script's sha256
 (`reports/2026-10-08-o62b-probe/probe_measure.py`).
