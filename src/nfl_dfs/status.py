@@ -74,7 +74,10 @@ FEEDS: tuple[Feed, ...] = (
     Feed("tabpfn_components", "TabPFN component cache (GPU job)",
          "features", "tabpfn_components", 9 * 24, "nfl", alert=False,
          note="historical research-only cache; TABPFN_COMPONENTS is default-off"),
-    Feed("weather", "Weather (Open-Meteo)", "raw", "weather", 72, "nfl"),
+    # 108 h, not 72 (2026-10-08): s-weather loads Fri-Sun 08:00 CT and s-freshness checks daily 08:30, so a healthy
+    # week reaches 96.5 h on Thursday (Sunday 08:00 -> Thursday 08:30) and 72 h failed the check every Wednesday and
+    # Thursday. A missed Friday load is 120.5 h at Friday 08:30, so 108 h still catches it.
+    Feed("weather", "Weather (Open-Meteo)", "raw", "weather", 108, "nfl"),
     Feed("player_week_training", "Feature build (training)", "features",
          "player_week_training", 8 * 24, "nfl"),
     # 'nfl', not 'always': inference rows are synthetic upcoming-week rows,
