@@ -269,6 +269,15 @@ if [[ -n "${MIN_PROJ_GENERATED_AT:-}" ]]; then
   else
     echo "SALARY PULL: $SP_WHY"
   fi
+  # O-59 (the operator 10-08: "Add a 10:47 pull" + a loud warning): the pull's CONTENT -- did it carry DraftKings' inactive
+  # update? A warning only (the ~11:00 pre-upload status check stays the safety net); its line goes to an ALERT file.
+  ST_OUT=$(PYTHONPATH="$PROD/src" timeout 90 "$PROD_PY" "$PROD/scripts/check_t70_statuses.py" "$K90_DIR" --group "$GROUP" \
+            --inactives-utc "$MIN_PROJ_GENERATED_AT" 2>/dev/null || echo "DK STATUS CHECK UNAVAILABLE: the checker failed")
+  echo "$ST_OUT"
+  if grep -q "DK STATUSES LOOK PRE-INACTIVES" <<< "$ST_OUT"; then
+    printf '%s run %s: %s\n' "$(date -u +%FT%TZ)" "$RUN_TAG" "$(grep -m1 -o 'DK STATUSES LOOK PRE-INACTIVES.*' <<< "$ST_OUT")" \
+      > "$OUT/ALERT-dk-statuses-pre-inactives-$RUN_TAG.txt"
+  fi
 fi
 # The T-70 rules are declared ON for the audit only on the T-70 build: the unit that carries MIN_PROJ_GENERATED_AT (the
 # projections made after the 10:30 inactives). Every other build (Saturday, 09:10) runs on projections the rules never

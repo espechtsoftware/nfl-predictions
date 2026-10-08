@@ -12,7 +12,8 @@
 #   and production's W4 fixed-book replay 0.0094 with it vs 0.0336 without); the shape: mixt (the winners' mix; his formal
 #   yes 10-06, with study 35's QB cap A) -- ct (Week 4's shape) stays selectable, but only with QB_CAP_ROWS='' (the cap
 #   was tested on MIXT only); both on
-#   ONE pin f69598b (the reviewer 10-06); 11 timers (the FP projections capture included), 9 when armed late.
+#   ONE pin f69598b (the reviewer 10-06); 13 timers (two Sunday FP captures and two T-70 DK pulls included), 11 when
+#   armed late.
 set -uo pipefail
 SHAPE="mixt"             # his formal yes 2026-10-06: "yes to the winners' mix with the tilt and the quarterback cap" (the tilt removed by his 10-06 yes)
 FRIDAY_HEAD=""           # FRIDAY: the final integration head after Friday's host rehearsal (the merges landed 10-06, 231b1ea0)
@@ -144,8 +145,8 @@ arm_env() {
     T70_MIN_PROJ_CT=10:30 T70_PROJECT=1 UNION_SATURDAY_RUN=auto UNION_PMO=0 "$@"
 }
 # 6. not too late: the Saturday D12800 is 10:30
-SKIP="d6400"; EXPECT_N=12                  # 11 + the second Sunday FP capture (10:46; the outside review 10-06)
-if [[ "${ARM_LATE:-0}" == 1 ]]; then SKIP="d6400 d12800sat d6400sat"; EXPECT_N=10; say "ARM_LATE=1: Saturday supply units skipped (operator decision)"; fi
+SKIP="d6400"; EXPECT_N=13                  # 11 + the second Sunday FP capture (10:46; the outside review 10-06) + the 10:47 DK pull (O-59, 10-08)
+if [[ "${ARM_LATE:-0}" == 1 ]]; then SKIP="d6400 d12800sat d6400sat"; EXPECT_N=11; say "ARM_LATE=1: Saturday supply units skipped (operator decision)"; fi
 [[ "${ARM_LATE:-0}" == 1 ]] || (( 10#$(date +%H%M) < 1028 )) || stop "it is $(date +%H:%M); the 10:30 Saturday D12800 would be in the past. Operator decision: ARM_LATE=1 (no Saturday supply builds, $((EXPECT_N - 2)) timers)"
 if [[ "$CHECK" == --check ]]; then
   say "the timers' dose: D3200 and D800 LEV $CHOSEN_LEV / BOOM $CHOSEN_BOOM (chosen-dose.env must say the same); QB cap ${QB_CAP_ROWS:-off} rows at K $QB_CAP_K; overlap limit $MAX_SHARED shared players; MIX fill $MIX_FILL; cover $MIX_COVER; half $MIX_RS; winner order $WINNER_ORDER; winner select $WINNER_SELECT; priority order $PRIORITY_ORDER; term block $TERM_ROWS${TERM_SHA:+ (file ${TERM_SHA:0:12})}"
