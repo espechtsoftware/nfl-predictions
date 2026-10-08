@@ -1,0 +1,24 @@
+== O-62b PROBE  component rows: identical but for `spread` (asserted); spread differs on 337 rows
+   frames LIVE vs TRAIN identical on 139 input columns: True
+== DRAWS (selection bank after centring), by position
+   TRAIN vs LIVE: modeled skill players 255
+      QB  n  25  sd ratio median 1.0000  median |ratio-1| 0.0000  outside +/-5% 0.000  p90 diff median +0.000 (max |.| 0.000)  p99 diff median +0.000 (max |.| 0.000)  mean max |diff| 0.0000
+      RB  n  70  sd ratio median 1.0000  median |ratio-1| 0.0000  outside +/-5% 0.000  p90 diff median +0.000 (max |.| 0.000)  p99 diff median +0.000 (max |.| 0.000)  mean max |diff| 0.0000
+      WR  n 100  sd ratio median 1.0000  median |ratio-1| 0.0000  outside +/-5% 0.000  p90 diff median +0.000 (max |.| 0.000)  p99 diff median +0.000 (max |.| 0.000)  mean max |diff| 0.0000
+      TE  n  60  sd ratio median 1.0000  median |ratio-1| 0.0000  outside +/-5% 0.000  p90 diff median +0.000 (max |.| 0.000)  p99 diff median +0.000 (max |.| 0.000)  mean max |diff| 0.0000
+   LIVE_SEED vs LIVE (the noise reference): modeled skill players 255
+      QB  n  25  sd ratio median 1.0000  median |ratio-1| 0.0000  outside +/-5% 0.000  p90 diff median +0.000 (max |.| 0.000)  p99 diff median +0.000 (max |.| 0.000)  mean max |diff| 0.0000
+      RB  n  70  sd ratio median 1.0000  median |ratio-1| 0.0000  outside +/-5% 0.000  p90 diff median +0.000 (max |.| 0.000)  p99 diff median +0.000 (max |.| 0.000)  mean max |diff| 0.0000
+      WR  n 100  sd ratio median 1.0000  median |ratio-1| 0.0000  outside +/-5% 0.000  p90 diff median +0.000 (max |.| 0.000)  p99 diff median +0.000 (max |.| 0.000)  mean max |diff| 0.0000
+      TE  n  60  sd ratio median 1.0000  median |ratio-1| 0.0000  outside +/-5% 0.000  p90 diff median +0.000 (max |.| 0.000)  p99 diff median +0.000 (max |.| 0.000)  mean max |diff| 0.0000
+== STACK CORRELATION (mean over teams)
+   LIVE      QB-WR1 0.3582 (teams 22)  QB-TE1 0.3189 (teams 22)
+   TRAIN     QB-WR1 0.3589 (teams 22)  QB-TE1 0.3153 (teams 22)
+   LIVE_SEED QB-WR1 0.3596 (teams 22)  QB-TE1 0.3168 (teams 22)
+== POOL (candidates.parquet)
+   TRAIN vs LIVE: candidates 4766 vs 4770; Jaccard all 0.006, boom 0.000, boom:class 0.012; top-30 exposure |change| median 0.0025 max 0.0089
+   LIVE_SEED vs LIVE (the noise reference): candidates 4766 vs 4761; Jaccard all 0.005, boom 0.000, boom:class 0.011; top-30 exposure |change| median 0.0033 max 0.0139
+   Jaccard side by side (the reviewer's request): all: TRAIN/LIVE 0.006 vs LIVE/LIVE_SEED 0.005; boom: TRAIN/LIVE 0.000 vs LIVE/LIVE_SEED 0.000; boom:class: TRAIN/LIVE 0.012 vs LIVE/LIVE_SEED 0.011
+== THE PRE-STATED LINE: (a) median |sd ratio - 1| > 5% at any position: below (largest: QB 0.0000); (b) TRAIN/LIVE pool Jaccard 0.006 < 0.7 AND below LIVE/LIVE_SEED 0.005: below
+   VERDICT: SMALL -- recorded; fixed after Week 5 with O-62
+5c267fb008d8994583307a04ca9761f54aa55afde74458e61fbbecc0118412e5  probe_measure.py

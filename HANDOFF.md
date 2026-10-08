@@ -12,6 +12,39 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-08 (16:20 CDT) — laptop: study 65 reproduced and recorded (no arm enterable); O-62b measured SMALL
+
+**Study 65 (S2 + S3), its records verified and merged** (`90218f37`).
+- The reviewer's READ `b076f981` (lab `cf53ef1`, reader `880c76c8`) was reproduced BYTE-IDENTICALLY by the laptop.
+  The raw files match `RAW_s65_run.sha256`, and the confirmatory census `6adad85e` is identical.
+- Addendum 167's verbatim block is identical to the READ, and every number in its prose was traced. The LEDGER row,
+  nfl2 `68de764` (7 cells), was verified.
+- **The result:** no arm is enterable, and every estimate is below the cheap block.
+  - TAIL −0.037 [−0.085, +0.006];
+  - RECENCY −0.025;
+  - CHEAPTAIL −0.047, WORSE;
+  - CHEAPREC −0.021;
+  - all four are contradicted on 2022.
+- **The W6 recommendation, the reviewer's and the laptop's, for the operator:** keep the cheap block, with no S2 or S3
+  block. An S2 study 38 paper arm, with FP as the base on the real fields, is an offer only.
+
+**O-62b probe:**
+- The design and three pre-run amendments were committed before any measured run: W4 was infeasible (the inference table
+  holds only the upcoming week), so the probe ran on W5.
+- **The result is SMALL, below both pre-stated lines.**
+  - The flipped spread changes NO player's marginal. The served shape is a rank-preserving quantile remap, so the sign
+    only re-orders worlds.
+  - The stack correlations and the top-30 exposures move less than a reseed does.
+- The first LIVE arm read an earlier DK pull, the assertion stopped the measures, and LIVE was re-run on the same pull
+  (disclosed).
+- Week 5 keeps the live pin unchanged. O-62b is fixed after W5 with O-62. Details:
+  `reports/2026-10-08-o62b-probe-design.md` §5.
+
+**Next tonight:**
+1. the money-path test baseline;
+2. the fast-forward of the production checkout;
+3. the tests and the arming `--check` from it.
+
 ## 2026-10-08 (15:24 CDT) — laptop: O-62 (the live frame's spread sign) verified; O-62b; the weekend safety plan
 
 **O-62 (the reviewer):** the live T-70 frame's `spread` is POSITIVE = favoured (nfl2 live.py), while the warehouse and every

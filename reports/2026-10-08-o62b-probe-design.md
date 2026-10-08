@@ -103,3 +103,37 @@ trip on noise. Requiring the sign to move the pool MORE than a seed change does 
 
 **Reporting:** W4 first, then W5 Friday, with the probe patch's commit and the measurement script's sha256
 (`reports/2026-10-08-o62b-probe/probe_measure.py`).
+
+## 5. Result, W5 (2026-10-08 evening): SMALL; fixed after Week 5 with O-62
+
+- **Verbatim output:** `reports/2026-10-08-o62b-probe/REPORT-w05.txt`, from the measures `5c267fb0`. The lab probe is
+  `b8f7bc9`, and the run dirs are under the probe worktree. The private copies are in `~/private/o62b-probe/w05/`.
+- **One operational re-run, disclosed.** The first LIVE arm read the 19:59:45 UTC DraftKings pull, while TRAIN and
+  LIVE_SEED read the 20:59:45 pull (11 statuses changed). The design's assertion stopped the measures, so nothing was
+  measured. LIVE was re-run at once on the 20:59:45 pull. All three arms' component rows are then identical but for
+  `spread`, LIVE and LIVE_SEED are byte-identical, and the frames are identical on 139 input columns. The first LIVE
+  run is kept privately (`first-LIVE-19z/`).
+- **(a) The draw shape: no change at all.**
+  - Every modeled skill player's TRAIN draws are the SAME multiset of values as his LIVE draws: the sorted draws are
+    identical, while only 11.9% of draws sit in the same world.
+  - The served draw shape is a rank-preserving TabPFN quantile remap (`core/draw_shape.py`), shifted to production's
+    mean. The components' `spread` therefore reaches only the ORDER of the worlds (which players score high
+    together), never a player's marginal.
+  - So the sd ratio is 1.0000 and the p90 / p99 differences are 0.000 at every position. (LIVE_SEED's marginals differ
+    slightly, as a reseed should.)
+- **The joint shape** (the mean QB–WR1 / QB–TE1 correlation over 22 teams):
+
+  | Arm | QB–WR1 | QB–TE1 |
+  |---|---|---|
+  | LIVE | 0.3582 | 0.3189 |
+  | TRAIN | 0.3589 | 0.3153 |
+  | LIVE_SEED | 0.3596 | 0.3168 |
+
+  TRAIN sits inside the seed noise.
+- **(b) The pool:**
+  - Any change to the draws rebuilds the 4,800-solve pool almost entirely: Jaccard TRAIN / LIVE 0.006, against
+    LIVE / LIVE_SEED 0.005.
+  - The sign moves the top-30 exposures LESS than a reseed does: median 0.0025 vs 0.0033, max 0.0089 vs 0.0139.
+- **The verdict by the pre-stated line:** both lines are below, so the effect is SMALL. O-62b stays open and is fixed
+  with O-62's frame decision after Week 5. Week 5 runs the pin unchanged. Friday's A3 repeat is not needed: no
+  number is near a line.
