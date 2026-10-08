@@ -1,0 +1,31 @@
+ week team pos                  nm   dk  targets
+    3  ARI  QB     Jacoby Brissett 25.6      0.0
+    3  ARI  TE        Trey McBride 16.5     11.0
+    3  ARI  WR      Michael Wilson 25.9     17.0
+    3  ARI  WR Marvin Harrison Jr.  7.0      5.0
+    3   NO  QB        Tyler Shough 26.8      0.0
+    3   NO  TE       Juwan Johnson 24.3      8.0
+    3   NO  WR         Chris Olave 22.7     13.0
+    3   NO  WR       Devaughn Vele  6.9      6.0
+    3   SF  QB         Brock Purdy 31.3      0.0
+    3   SF  TE       George Kittle 26.2      7.0
+    3   SF  WR    Deebo Samuel Sr. 15.4      0.0
+    3   SF  WR          Mike Evans 12.4      6.0
+    4  JAX  QB     Trevor Lawrence 13.1      0.0
+    4  JAX  TE     Brenton Strange 16.5      8.0
+    4  JAX  WR    Brian Thomas Jr.  9.7      2.0
+    4  JAX  WR       Jakobi Meyers  6.3      4.0
+    4   LV  QB        Kirk Cousins 26.6      0.0
+    4   LV  TE        Brock Bowers 20.6     11.0
+    4   LV  WR          Tre Tucker  8.4      8.0
+    4   LV  WR          Cody White  7.6      4.0
+
+2026 game-by-game EPA per dropback allowed (pbp) for the defenses involved, and the frame value used:
+week      1      2      3      4
+d                               
+ARI  -0.191  0.596  0.901  0.114
+CIN  -0.292 -0.113  0.238  0.332
+KC   -0.443  0.125 -0.014  0.196
+LV   -0.206 -0.027 -0.112  0.065
+SF   -0.352  0.158  0.211  0.115
+frame values: W3 ARI -0.19 (=week 1 only), W3 SF -0.35 (=wk1), W3 LV -0.21 (=wk1), W4 KC -0.16 (=mean wk1-2), W4 CIN -0.20 (=mean wk1-2)

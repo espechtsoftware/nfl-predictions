@@ -1,0 +1,102 @@
+==================== outcome definition 'sal'
+
+--- EPA in6, 2014-2017: 1,643 team-games; raw TE1 by third {'strong': 8.25, 'middle': 8.98, 'weak': 8.89}, P(QB+TE>=45) {'strong': 0.073, 'middle': 0.085, 'weak': 0.09}, P(QB+WR>=45) {'strong': 0.17, 'middle': 0.174, 'weak': 0.202}
+    outcome strong-minus-middle weak-minus-middle strong-minus-weak
+        TE1     -0.314 (t -0.8)   -0.518 (t -1.3)            +0.204
+   te_share     +0.003 (t +0.7)   -0.007 (t -1.4)            +0.010
+    te_boom     -0.013 (t -0.9)   -0.003 (t -0.2)            -0.011
+te_beats_wr     +0.014 (t +0.5)   -0.015 (t -0.6)            +0.029
+     qbte45     -0.007 (t -0.4)   -0.008 (t -0.5)            +0.001
+     qbwr45     +0.009 (t +0.4)   +0.013 (t +0.6)            -0.004
+   rel_boom     -0.016 (t -0.7)   -0.022 (t -1.0)            +0.005
+
+--- EPA in6, 2018-2021: 1,678 team-games; raw TE1 by third {'strong': 7.92, 'middle': 9.08, 'weak': 8.6}, P(QB+TE>=45) {'strong': 0.072, 'middle': 0.097, 'weak': 0.119}, P(QB+WR>=45) {'strong': 0.159, 'middle': 0.224, 'weak': 0.234}
+    outcome strong-minus-middle weak-minus-middle strong-minus-weak
+        TE1     -0.842 (t -2.2)   -0.459 (t -1.2)            -0.383
+   te_share     -0.002 (t -0.4)   -0.004 (t -0.9)            +0.003
+    te_boom     -0.028 (t -1.8)   -0.008 (t -0.5)            -0.020
+te_beats_wr     -0.002 (t -0.1)   -0.007 (t -0.3)            +0.004
+     qbte45     -0.018 (t -1.0)   +0.024 (t +1.2)            -0.042
+     qbwr45     -0.054 (t -2.4)   -0.025 (t -1.0)            -0.029
+   rel_boom     +0.036 (t +1.3)   +0.049 (t +1.9)            -0.013
+
+--- EPA in6, 2022-2025: 1,768 team-games; raw TE1 by third {'strong': 8.64, 'middle': 9.08, 'weak': 9.32}, P(QB+TE>=45) {'strong': 0.089, 'middle': 0.078, 'weak': 0.083}, P(QB+WR>=45) {'strong': 0.187, 'middle': 0.18, 'weak': 0.191}
+    outcome strong-minus-middle weak-minus-middle strong-minus-weak
+        TE1     +0.110 (t +0.3)   +0.543 (t +1.4)            -0.433
+   te_share     -0.005 (t -1.1)   +0.002 (t +0.5)            -0.008
+    te_boom     +0.013 (t +1.0)   +0.016 (t +1.1)            -0.003
+te_beats_wr     +0.031 (t +1.1)   +0.036 (t +1.5)            -0.005
+     qbte45     +0.026 (t +1.6)   +0.006 (t +0.4)            +0.020
+     qbwr45     +0.018 (t +0.8)   +0.011 (t +0.5)            +0.007
+   rel_boom     +0.008 (t +0.3)   -0.006 (t -0.2)            +0.013
+
+--- CB yards/target allowed l6 (production 017a), 2018-2025: 3,393 team-games; raw TE1 by third {'strong': 8.57, 'middle': 8.85, 'weak': 8.89}, P(QB+TE>=45) {'strong': 0.083, 'middle': 0.088, 'weak': 0.095}, P(QB+WR>=45) {'strong': 0.171, 'middle': 0.202, 'weak': 0.213}
+    outcome strong-minus-middle weak-minus-middle strong-minus-weak
+        TE1     -0.073 (t -0.3)   -0.076 (t -0.3)            +0.003
+   te_share     +0.008 (t +2.1)   +0.003 (t +0.8)            +0.005
+    te_boom     +0.002 (t +0.2)   +0.005 (t +0.5)            -0.003
+te_beats_wr     +0.013 (t +0.8)   +0.014 (t +0.7)            -0.001
+     qbte45     +0.003 (t +0.3)   +0.007 (t +0.7)            -0.004
+     qbwr45     -0.018 (t -1.1)   +0.005 (t +0.3)            -0.022
+   rel_boom     +0.021 (t +1.3)   +0.002 (t +0.1)            +0.018
+
+--- points allowed per game, season to date: 5,089 team-games; raw TE1 by third {'strong': 8.34, 'middle': 8.93, 'weak': 9.0}, P(QB+TE>=45) {'strong': 0.073, 'middle': 0.091, 'weak': 0.097}, P(QB+WR>=45) {'strong': 0.165, 'middle': 0.203, 'weak': 0.206}
+    outcome strong-minus-middle weak-minus-middle strong-minus-weak
+        TE1     -0.308 (t -1.4)   -0.372 (t -1.6)            +0.065
+   te_share     -0.001 (t -0.2)   +0.001 (t +0.3)            -0.001
+    te_boom     -0.005 (t -0.6)   -0.009 (t -1.0)            +0.004
+te_beats_wr     -0.009 (t -0.6)   -0.009 (t -0.6)            +0.000
+     qbte45     -0.009 (t -0.9)   -0.002 (t -0.2)            -0.007
+     qbwr45     -0.015 (t -1.1)   -0.019 (t -1.4)            +0.005
+   rel_boom     +0.006 (t +0.4)   +0.017 (t +1.2)            -0.011
+==================== outcome definition 'max'
+
+--- EPA in6, 2014-2017: 1,664 team-games; raw TE1 by third {'strong': 9.47, 'middle': 10.14, 'weak': 9.69}, P(QB+TE>=45) {'strong': 0.079, 'middle': 0.098, 'weak': 0.092}, P(QB+WR>=45) {'strong': 0.236, 'middle': 0.257, 'weak': 0.282}
+    outcome strong-minus-middle weak-minus-middle strong-minus-weak
+        TE1     -0.287 (t -0.7)   -0.705 (t -1.9)            +0.418
+   te_share     +0.001 (t +0.3)   -0.007 (t -1.6)            +0.009
+    te_boom     -0.014 (t -0.8)   -0.007 (t -0.4)            -0.007
+te_beats_wr     +0.040 (t +1.6)   +0.019 (t +0.9)            +0.021
+     qbte45     -0.013 (t -0.7)   -0.017 (t -1.1)            +0.004
+     qbwr45     -0.006 (t -0.2)   +0.008 (t +0.3)            -0.014
+   rel_boom     -0.007 (t -0.3)   -0.025 (t -1.0)            +0.018
+
+--- EPA in6, 2018-2021: 1,695 team-games; raw TE1 by third {'strong': 8.9, 'middle': 10.03, 'weak': 9.95}, P(QB+TE>=45) {'strong': 0.083, 'middle': 0.106, 'weak': 0.135}, P(QB+WR>=45) {'strong': 0.234, 'middle': 0.295, 'weak': 0.307}
+    outcome strong-minus-middle weak-minus-middle strong-minus-weak
+        TE1     -0.962 (t -2.6)   -0.120 (t -0.3)            -0.842
+   te_share     -0.002 (t -0.4)   -0.003 (t -0.6)            +0.001
+    te_boom     -0.032 (t -2.0)   -0.009 (t -0.5)            -0.024
+te_beats_wr     +0.006 (t +0.3)   +0.034 (t +1.5)            -0.028
+     qbte45     -0.019 (t -1.0)   +0.031 (t +1.6)            -0.050
+     qbwr45     -0.052 (t -1.9)   -0.020 (t -0.7)            -0.031
+   rel_boom     +0.033 (t +1.1)   +0.051 (t +1.9)            -0.018
+
+--- EPA in6, 2022-2025: 1,790 team-games; raw TE1 by third {'strong': 9.34, 'middle': 10.14, 'weak': 10.3}, P(QB+TE>=45) {'strong': 0.09, 'middle': 0.08, 'weak': 0.094}, P(QB+WR>=45) {'strong': 0.239, 'middle': 0.239, 'weak': 0.265}
+    outcome strong-minus-middle weak-minus-middle strong-minus-weak
+        TE1     -0.272 (t -0.8)   +0.334 (t +0.8)            -0.606
+   te_share     -0.006 (t -1.2)   +0.001 (t +0.2)            -0.007
+    te_boom     +0.007 (t +0.5)   +0.017 (t +1.0)            -0.010
+te_beats_wr     +0.004 (t +0.2)   +0.034 (t +1.4)            -0.030
+     qbte45     +0.026 (t +1.6)   +0.014 (t +0.9)            +0.011
+     qbwr45     +0.022 (t +0.9)   +0.024 (t +1.0)            -0.001
+   rel_boom     +0.003 (t +0.1)   -0.010 (t -0.4)            +0.013
+
+--- CB yards/target allowed l6 (production 017a), 2018-2025: 3,432 team-games; raw TE1 by third {'strong': 9.68, 'middle': 9.87, 'weak': 9.79}, P(QB+TE>=45) {'strong': 0.091, 'middle': 0.101, 'weak': 0.099}, P(QB+WR>=45) {'strong': 0.222, 'middle': 0.283, 'weak': 0.283}
+    outcome strong-minus-middle weak-minus-middle strong-minus-weak
+        TE1     +0.092 (t +0.3)   -0.197 (t -0.8)            +0.289
+   te_share     +0.008 (t +2.0)   +0.002 (t +0.4)            +0.006
+    te_boom     +0.004 (t +0.4)   +0.002 (t +0.2)            +0.002
+te_beats_wr     +0.039 (t +2.7)   +0.021 (t +1.3)            +0.018
+     qbte45     -0.002 (t -0.2)   -0.003 (t -0.2)            +0.001
+     qbwr45     -0.051 (t -3.0)   -0.006 (t -0.3)            -0.045
+   rel_boom     +0.049 (t +2.8)   +0.003 (t +0.2)            +0.046
+
+--- points allowed per game, season to date: 5,149 team-games; raw TE1 by third {'strong': 9.36, 'middle': 9.89, 'weak': 10.09}, P(QB+TE>=45) {'strong': 0.081, 'middle': 0.099, 'weak': 0.105}, P(QB+WR>=45) {'strong': 0.23, 'middle': 0.274, 'weak': 0.28}
+    outcome strong-minus-middle weak-minus-middle strong-minus-weak
+        TE1     -0.289 (t -1.3)   -0.159 (t -0.7)            -0.130
+   te_share     +0.000 (t +0.1)   +0.001 (t +0.3)            -0.001
+    te_boom     -0.009 (t -1.0)   -0.011 (t -1.1)            +0.001
+te_beats_wr     -0.016 (t -1.2)   +0.003 (t +0.2)            -0.019
+     qbte45     -0.011 (t -1.1)   -0.004 (t -0.4)            -0.007
+     qbwr45     -0.017 (t -1.1)   -0.016 (t -1.0)            -0.001
+   rel_boom     +0.005 (t +0.3)   +0.012 (t +0.8)            -0.007

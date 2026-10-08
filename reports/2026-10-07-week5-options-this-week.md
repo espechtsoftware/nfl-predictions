@@ -587,3 +587,69 @@ of 26 rows with a TE stacked with the QB (≈ 40%), 5–10 of them pass-catching
    vs TE2 / TE2_TOUGH / CHEAPTE2 under the frozen Saturday rule.
 3. A fixed "% of lineups with a QB + TE stack" quota is not needed now: the book is at the winners' rate. If wanted
    later, it is a MIX cell (code) and a study of its own.
+
+## 8. The independent audit of the TE study (the operator, 10-07: "I would like another agent to double check your work")
+
+A fresh agent with no access to the reviewer's reasoning rebuilt the study in its own code (`te_audit/`, read-only
+queries). Its verdict: **correct.**
+
+**Defense history exists for every season.**
+- Play-by-play has every 2014–2025 regular-season game.
+- Production's own `defense_week_allowed` carries `epa_per_dropback_allowed_l6` on 480–512 defense-weeks every season,
+  with only Week 1 empty by design.
+- What is limited to recent weeks is the T-70 frames (2026 only, the column empty in W1–2) and the real contest fields
+  (2026 W1–4).
+
+**No leakage.** Every window ends one game before the game studied.
+
+**It reproduced every number exactly:** 4,973 / 4,846 team-games, every table cell, the regressions, and the real-field
+4.48.
+
+**Corrections to this note (none changes the answer):**
+1. **Team codes.** `nfl_raw.schedules` uses STL / SD / OAK for 2014–2019 while play-by-play uses LA / LAC / LV.
+   - The scripts here joined the raw schedule, which silently dropped 303 of 5,149 team-games (5.9%). Verified by the
+     reviewer.
+   - Production's `schedule_long` already normalises these.
+   - Fixed, it moves nothing material (TE1 against strong defences 9.231 → 9.240).
+2. **"The same measure as the 2026 frames" was inaccurate.** The frames carry a ONE-GAME-STALE version: the W3 frame
+   equals each defence's W1 game alone (26 of 26, verified by the reviewer), and the W4 frame equals the W1–2 mean. So
+   the 2026 two-week test rested on the thinner label, not the history test.
+3. **The best-of-the-day TE1 / WR1** inflated the WR stack edge: "2.7×" becomes about 2.2× with the highest-salaried
+   player who played (see also §6b).
+4. **The t-statistics were not clustered by defence**; clustering moves them ≤ 0.3.
+
+**Every variant gives the same answer:**
+- the training feature;
+- the stale live feature;
+- the stale feature on W3–4 only (the exact 2026 set-up, in history);
+- prior-6 games across seasons, including weeks 1–3;
+- players picked by salary;
+- cornerback quality.
+
+The ratio [P(QB + TE ≥ 45) / P(QB + WR ≥ 45)] against strong vs weak defences is 0.95 (95% CI 0.78–1.16), which rules
+out anything like the 2026 4× effect.
+
+**The 2026 W3–4 effect** comes from four games, which hold 99% of the events. The 109 top-1% QB + TE lineups against
+"strong" defences were:
+- Purdy + Kittle: 57 (W3 SF vs ARI, 58% of the effect).
+- Shough + Juwan Johnson: 19, plus 1 with Fant.
+- Cousins + Bowers: 14.
+- Lawrence + Strange: 11.
+
+The label rested on 1–2 games. ARI was "strong" on its W1 game alone, had allowed +0.60 EPA per dropback in W2 (skipped
+by the stale frame), and allowed +0.90 that day. Measured on prior-6 games across seasons, the odds ratio is 0.92 / 1.33
+/ 0.76; it vanishes.
+
+**What holds of the operator's idea:**
+- Good cornerback play does hurt WRs, and the TE's target share rises (+0.8 pt), but TE points do not.
+- A defence's record **against TEs** is the usable signal: TE1 +0.29 per sd (t 3.4), and 20+ TE games +1.0 pt (t 2.8).
+  That is the matchup block.
+- Elite TEs against strong pass defences score less (12.5 vs 13.2–13.9).
+
+**Side finding for production (train / serve skew):** the seven defence columns from `017_defense_week_allowed`
+(including `epa_per_dropback_allowed_l6` and `te_fp_allowed_adj_l6`) are one game staler in the live frames than in the
+training rows.
+- The 2026-08-11 audit dismissed this join as not a skew.
+- It is not on the money path (the live model does not use these columns).
+- It matters for studies that read them and for arms that add them (the O-22 co-run's arm D).
+- Relayed to the laptop for OPEN-DEFECTS.

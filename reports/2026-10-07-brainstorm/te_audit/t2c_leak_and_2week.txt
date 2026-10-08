@@ -1,0 +1,37 @@
+(i) defense-games 2014-2025 with 3+ prior games: 5,150
+    corr(strict-prior 6-game measure, this game's EPA allowed) = 0.126  <- the reviewer's / production's definition
+    corr(leaky window incl. this game, this game's EPA allowed) = 0.479  <- what leakage would look like
+
+(ii) weeks 3-4 of each season, frame-style stale pass-D measure (1-2 games), all team-games; 2026 = all 2026 W3-W4 games
+--- outcome definition 'max'
+ season  n  P(TE1>WR1) strong  P(TE1>WR1) weak  diff strong-weak  TE/WR boom ratio strong / weak
+   2014 58              0.167            0.150             0.017                            2.00
+   2015 62              0.000            0.286            -0.286                            0.00
+   2016 62              0.200            0.286            -0.086                            0.53
+   2017 62              0.150            0.333            -0.183                            0.25
+   2018 62              0.150            0.333            -0.183                            0.39
+   2019 62              0.200            0.095             0.105                            2.62
+   2020 62              0.150            0.143             0.007                            0.74
+   2021 64              0.150            0.182            -0.032                            0.80
+   2022 64              0.100            0.091             0.009                            0.40
+   2023 64              0.150            0.136             0.014                            0.70
+   2024 64              0.050            0.045             0.005                            1.17
+   2025 64              0.350            0.273             0.077                            0.37
+   2026 64              0.200            0.136             0.064                             NaN
+    2014-2025: diff strong-weak mean -0.045, sd 0.117, range -0.286 to +0.105
+--- outcome definition 'sal'
+ season  n  P(TE1>WR1) strong  P(TE1>WR1) weak  diff strong-weak  TE/WR boom ratio strong / weak
+   2014 58              0.389            0.300             0.089                            1.20
+   2015 62              0.050            0.286            -0.236                            0.00
+   2016 61              0.350            0.381            -0.031                            0.07
+   2017 62              0.400            0.381             0.019                            0.25
+   2018 62              0.200            0.333            -0.133                            0.51
+   2019 62              0.350            0.286             0.064                            1.33
+   2020 62              0.300            0.190             0.110                            0.80
+   2021 64              0.250            0.182             0.068                            0.53
+   2022 64              0.150            0.227            -0.077                            1.33
+   2023 63              0.250            0.136             0.114                            1.17
+   2024 64              0.150            0.136             0.014                            0.89
+   2025 64              0.400            0.273             0.127                            0.33
+   2026 64              0.300            0.273             0.027                             NaN
+    2014-2025: diff strong-weak mean +0.011, sd 0.112, range -0.236 to +0.127

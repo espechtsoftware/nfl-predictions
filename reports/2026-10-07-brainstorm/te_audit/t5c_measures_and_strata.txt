@@ -1,0 +1,124 @@
+defense thirds on the Milly slates under each measure (S = strong):
+--- W3
+    epa_stale epa_in6  epa_x6 epa_hind_loo  epa_stale_v  epa_in6_v  epa_x6_v  epa_hind_loo_v  opp_epa_this_game
+PIT    strong  strong  strong       strong        -0.61      -0.37     -0.05           -0.14               0.38
+BAL    strong  strong  middle       strong        -0.44      -0.09      0.06           -0.10               0.17
+KC     strong  strong  strong       strong        -0.44      -0.16     -0.06           -0.04              -0.01
+SF     strong  strong    weak       strong        -0.35      -0.10      0.08           -0.03               0.21
+CIN    strong  strong  strong       strong        -0.29      -0.20     -0.10           -0.02               0.24
+JAX    strong  middle  strong       middle        -0.23       0.02     -0.18            0.06              -0.33
+LV     strong  strong  middle       strong        -0.21      -0.12      0.07           -0.06              -0.11
+ARI    strong  middle    weak         weak        -0.19       0.20      0.32            0.17               0.90
+NYJ    strong  strong    weak       middle        -0.12      -0.11      0.43           -0.00               0.31
+MIN    middle  middle  strong       strong        -0.06      -0.04     -0.32           -0.21              -0.23
+TB     middle  middle    weak       middle        -0.04       0.14      0.18            0.17              -0.30
+DET    middle    weak  middle         weak        -0.01       0.27      0.02            0.33               0.23
+MIA    middle    weak    weak         weak         0.01       0.53      0.42            0.35               0.49
+NO     middle  middle  strong         weak         0.01       0.06     -0.07            0.21               0.23
+SEA    middle  strong  strong       strong         0.07      -0.11     -0.13           -0.14               0.08
+BUF    middle    weak  middle         weak         0.10       0.26     -0.02            0.29              -0.17
+WAS    middle    weak    weak       middle         0.17       0.31      0.19            0.09               0.14
+NE       weak  strong  strong       strong         0.23      -0.13     -0.08           -0.06               0.23
+LAC      weak  middle  middle       middle         0.29       0.24      0.07            0.10              -0.11
+NYG      weak    weak  middle       middle         0.31       0.44      0.06            0.14              -0.18
+TEN      weak    weak    weak         weak         0.35       0.27      0.24            0.31              -0.18
+IND      weak    weak    weak       middle         0.46       0.37      0.24            0.16              -0.04
+HOU      weak  middle  middle         weak         0.51       0.25      0.07            0.22              -0.13
+CAR      weak  middle  middle       middle         0.54      -0.07      0.07            0.03               0.14
+DAL      weak    weak    weak         weak         0.67       0.41      0.42            0.44               0.57
+CLE      weak    weak  strong         weak         0.79       0.28     -0.04            0.20              -0.12
+--- W4
+    epa_stale epa_in6  epa_x6 epa_hind_loo  epa_stale_v  epa_in6_v  epa_x6_v  epa_hind_loo_v  opp_epa_this_game
+CIN    strong  strong  strong       strong        -0.20      -0.06     -0.07           -0.06               0.33
+LA     strong  strong  middle       strong        -0.16      -0.11     -0.03           -0.11              -0.21
+KC     strong  strong  strong       strong        -0.16      -0.11     -0.07           -0.11               0.20
+NE     strong  middle  strong       middle        -0.13      -0.01     -0.09           -0.01               0.07
+LV     strong  strong  strong       strong        -0.12      -0.11     -0.11           -0.11               0.07
+NYJ    strong  middle    weak       middle        -0.11       0.03      0.35            0.03               0.22
+SEA    strong  strong  strong       strong        -0.11      -0.05     -0.11           -0.05              -0.20
+SF     strong  middle  middle       middle        -0.10       0.01      0.10            0.01               0.12
+BAL    middle  middle    weak       middle        -0.09      -0.00      0.14           -0.00              -0.11
+DEN    middle  middle  strong       middle        -0.05      -0.03     -0.11           -0.03               0.30
+MIN    middle  strong  strong       strong        -0.04      -0.11     -0.36           -0.11              -0.53
+JAX    middle  strong  strong       strong         0.02      -0.09     -0.20           -0.09               0.13
+GB     middle    weak    weak         weak         0.08       0.18      0.20            0.18              -0.08
+PHI    middle    weak  middle         weak         0.10       0.13      0.02            0.13               0.03
+TB     middle  middle  middle       middle         0.14      -0.01      0.08           -0.01               0.23
+CHI    middle  strong    weak       strong         0.16      -0.11      0.11           -0.11              -0.27
+ARI      weak    weak    weak         weak         0.20       0.44      0.40            0.44               0.11
+LAC      weak    weak  middle         weak         0.24       0.12      0.06            0.12              -0.16
+HOU      weak    weak  middle         weak         0.25       0.12      0.05            0.12               0.17
+BUF      weak  middle  middle       middle         0.26       0.11     -0.04            0.11               0.37
+TEN      weak  middle    weak       middle         0.27       0.12      0.12            0.12               0.39
+DAL      weak    weak    weak         weak         0.41       0.47      0.43            0.47               0.48
+NYG      weak    weak  middle         weak         0.44       0.23      0.01            0.23              -0.46
+MIA      weak    weak    weak         weak         0.53       0.52      0.44            0.52              -0.02
+
+QB+TE vs QB+WR, users 20+, W3+W4: MH odds ratio (exposed top-finish events) by the QB opponent's third under each measure and stratification
+  [user] = the reviewer's strata; [user x QB] and [QB only] compare TE and WR stacks of the SAME quarterback
+     measure  third top1 OR [user] top5 OR [user] top1 OR [user x QB] top5 OR [user x QB] top1 OR [QB only] top5 OR [QB only]
+   epa_stale strong     4.69 (109)     2.76 (507)          2.49 (109)          2.37 (507)        2.02 (109)        1.81 (507)
+   epa_stale middle      0.46 (23)     0.50 (152)           3.49 (23)          1.20 (152)         2.86 (23)        1.47 (152)
+   epa_stale   weak      0.29 (22)     0.38 (135)           0.47 (22)          0.64 (135)         0.39 (22)        0.62 (135)
+     epa_in6 strong      2.03 (54)     1.68 (256)           2.28 (54)          2.21 (256)         1.59 (54)        1.51 (256)
+     epa_in6 middle      3.17 (72)     2.53 (392)           2.68 (72)          2.06 (392)         2.69 (72)        2.15 (392)
+     epa_in6   weak      0.28 (28)     0.30 (146)           0.57 (28)          0.59 (146)         0.50 (28)        0.60 (146)
+      epa_x6 strong      0.92 (35)     1.07 (224)           2.18 (35)          1.59 (224)         2.02 (35)        1.69 (224)
+      epa_x6 middle      1.33 (37)     0.99 (172)           4.37 (37)          2.75 (172)         3.00 (37)        2.21 (172)
+      epa_x6   weak      0.76 (82)     0.89 (398)           0.61 (82)          0.83 (398)         0.68 (82)        0.83 (398)
+epa_hind_loo strong      2.05 (54)     1.75 (255)           2.28 (54)          2.23 (255)         1.59 (54)        1.54 (255)
+epa_hind_loo middle      0.58 (16)     0.88 (145)           1.70 (16)          1.33 (145)         1.18 (16)        1.27 (145)
+epa_hind_loo   weak      0.70 (84)     0.73 (394)           0.88 (84)          0.97 (394)         0.93 (84)        1.04 (394)
+
+2026 team-game outcomes by the opponent's third (all 2026 games, thirds within week; TE1/WR1 = best scorer, *_sal = top-salaried who played)
+--- measure epa_stale, weeks [3, 4]
+         n     TE1  TE1_sal  te_share  te_boom     WR1  WR1_sal  te_beats_wr  te_beats_wr_sal  qbte45  qbwr45     itt
+third                                                                                                                
+strong  20  10.520   10.200     0.238    0.150  18.005   13.390        0.200            0.300   0.150   0.350  22.438
+middle  22  11.773   10.327     0.245    0.182  20.085   16.271        0.136            0.273   0.182   0.364  21.784
+weak    22   8.982    8.223     0.244    0.091  18.427   16.259        0.136            0.273   0.000   0.227  23.091
+--- measure epa_in6, weeks [2, 3, 4]
+         n     TE1  TE1_sal  te_share  te_boom     WR1  WR1_sal  te_beats_wr  te_beats_wr_sal  qbte45  qbwr45     itt
+third                                                                                                                
+strong  30  10.783    9.893     0.224    0.100  17.743   13.173        0.233            0.333   0.100   0.200  21.842
+middle  33  11.355   10.445     0.227    0.212  18.191   15.730        0.242            0.273   0.242   0.333  22.871
+weak    33   9.355    8.552     0.251    0.091  19.768   18.250        0.121            0.273   0.091   0.333  22.667
+--- measure epa_x6, weeks [1, 2, 3, 4]
+         n     TE1  TE1_sal  te_share  te_boom     WR1  WR1_sal  te_beats_wr  te_beats_wr_sal  qbte45  qbwr45     itt
+third                                                                                                                
+strong  40  10.705    9.660     0.235    0.150  18.015   13.595        0.175            0.275   0.150   0.300  22.081
+middle  44  10.357    9.193     0.232    0.114  18.555   16.007        0.250            0.318   0.136   0.273  22.267
+weak    44  10.352    9.730     0.236    0.136  18.406   16.758        0.205            0.273   0.136   0.295  23.091
+--- measure epa_x6, weeks [2, 3, 4]
+         n     TE1  TE1_sal  te_share  te_boom     WR1  WR1_sal  te_beats_wr  te_beats_wr_sal  qbte45  qbwr45     itt
+third                                                                                                                
+strong  30  10.913    9.573     0.239    0.133  16.920   11.910        0.200            0.300   0.167   0.267  22.158
+middle  33  11.024   10.361     0.237    0.152  19.673   17.627        0.242            0.333   0.152   0.273  22.182
+weak    33   9.567    8.927     0.227    0.121  19.035   17.502        0.152            0.242   0.121   0.333  23.068
+
+W3/W4 Milly-slate offenses facing a frame-'strong' pass defense: what their TE1 and WR1 actually scored
+ week offense vs D frame third proper-measure third (in6)    QB  TE1 (best)  WR1 (best)  TE1>WR1  te_share   itt
+    3     ARI   SF      strong                     strong 25.60        16.5        25.9    False      0.30 20.50
+    3     CIN  PIT      strong                     strong 23.58        12.7        24.8    False      0.19 23.00
+    3     DAL  BAL      strong                     strong 18.94        10.3        23.2    False      0.17 25.25
+    3     DET  NYJ      strong                     strong 19.36         7.4        11.9    False      0.23 28.25
+    3     MIA   KC      strong                     strong 12.00        10.5        11.1    False      0.20 17.75
+    3      NE  JAX      strong                     middle  6.76         1.5        14.7    False      0.07 21.75
+    3      NO   LV      strong                     strong 26.80        24.3        22.7     True      0.30 23.50
+    3     PIT  CIN      strong                     strong 23.68         9.7        15.0    False      0.29 19.50
+    3      SF  ARI      strong                     middle 31.28        26.2        15.4     True      0.31 28.00
+    4     BUF   NE      strong                     middle 19.52         3.3        26.6    False      0.13 28.25
+    4     CHI  NYJ      strong                     middle  9.82        11.7        15.4    False      0.39 23.50
+    4     DEN   SF      strong                     middle 13.56         1.6        14.5    False      0.16 22.75
+    4     JAX  CIN      strong                     strong 13.08        16.5         9.7     True      0.43 24.50
+    4      KC   LV      strong                     strong 17.00         3.7        31.1    False      0.26 26.00
+    4     LAC  SEA      strong                     strong 12.56         8.8         9.0    False      0.26 17.75
+    4      LV   KC      strong                     strong 26.60        20.6         8.4     True      0.48 21.50
+    4     PHI   LA      strong                     strong 13.52         3.3        18.3    False      0.16 19.50
+
+means by frame third over the Milly-slate offenses:
+             TE1 (best)  WR1 (best)  TE1>WR1  te_share     QB    itt
+frame third                                                         
+middle            10.66       19.29     0.12      0.22  17.44  21.11
+strong            11.09       17.51     0.24      0.25  18.45  23.01
+weak              10.09       18.59     0.18      0.28  17.01  23.09
