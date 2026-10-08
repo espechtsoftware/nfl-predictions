@@ -1,0 +1,53 @@
+
+== W1: pool 1,447 lineups (boom 1,205); field 831,028; top-1% line 209.0; pool rows in the top 1%: 0.55%; random 26-row book: mean top-1% rows 0.15, mean best pct 0.9365
+   PROJ         top-1% rows  0 (random-book pctile 0.43) | best row  191.6, pct 0.9565 (rb pctile 0.56) | mean pct 0.761 (rb pctile 1.00)
+   TD           top-1% rows  0 (random-book pctile 0.43) | best row  186.4, pct 0.9369 (rb pctile 0.43) | mean pct 0.640 (rb pctile 1.00)
+   TD_VALUE     top-1% rows  0 (random-book pctile 0.43) | best row  186.4, pct 0.9369 (rb pctile 0.43) | mean pct 0.492 (rb pctile 0.90)
+   MARKET       top-1% rows  0 (random-book pctile 0.43) | best row  191.6, pct 0.9565 (rb pctile 0.56) | mean pct 0.798 (rb pctile 1.00)
+   OPTIMAL      top-1% rows  0 (random-book pctile 0.43) | best row  186.4, pct 0.9369 (rb pctile 0.43) | mean pct 0.692 (rb pctile 1.00)
+   STACK        top-1% rows  1 (random-book pctile 0.93) | best row  209.6, pct 0.9905 (rb pctile 0.87) | mean pct 0.559 (rb pctile 0.99)
+   SALARY_LEFT  top-1% rows  0 (random-book pctile 0.43) | best row  203.7, pct 0.9834 (rb pctile 0.76) | mean pct 0.530 (rb pctile 0.97)
+
+== W2: pool 17,144 lineups (boom 15,183); field 172,692; top-1% line 179.8; pool rows in the top 1%: 0.08%; random 26-row book: mean top-1% rows 0.02, mean best pct 0.8833
+   PROJ         top-1% rows  0 (random-book pctile 0.49) | best row  145.8, pct 0.8659 (rb pctile 0.37) | mean pct 0.284 (rb pctile 0.10)
+   TD           top-1% rows  0 (random-book pctile 0.49) | best row  159.7, pct 0.9435 (rb pctile 0.75) | mean pct 0.402 (rb pctile 0.83)
+   TD_VALUE     top-1% rows  0 (random-book pctile 0.49) | best row  141.4, pct 0.8317 (rb pctile 0.23) | mean pct 0.418 (rb pctile 0.90)
+   MARKET       top-1% rows  0 (random-book pctile 0.49) | best row  113.8, pct 0.4991 (rb pctile 0.00) | mean pct 0.186 (rb pctile 0.00)
+   OPTIMAL      top-1% rows  0 (random-book pctile 0.49) | best row  138.7, pct 0.8068 (rb pctile 0.16) | mean pct 0.194 (rb pctile 0.00)
+   STACK        top-1% rows  0 (random-book pctile 0.49) | best row  139.0, pct 0.8091 (rb pctile 0.16) | mean pct 0.117 (rb pctile 0.00)
+   SALARY_LEFT  top-1% rows  0 (random-book pctile 0.49) | best row  135.4, pct 0.7744 (rb pctile 0.09) | mean pct 0.246 (rb pctile 0.02)
+
+== W3: pool 13,250 lineups (boom 10,635); field 161,682; top-1% line 188.2; pool rows in the top 1%: 0.37%; random 26-row book: mean top-1% rows 0.10, mean best pct 0.9307
+   PROJ         top-1% rows  0 (random-book pctile 0.45) | best row  187.4, pct 0.9891 (rb pctile 0.90) | mean pct 0.740 (rb pctile 1.00)
+   TD           top-1% rows  0 (random-book pctile 0.45) | best row  182.9, pct 0.9824 (rb pctile 0.82) | mean pct 0.612 (rb pctile 1.00)
+   TD_VALUE     top-1% rows  0 (random-book pctile 0.45) | best row  111.6, pct 0.2600 (rb pctile 0.00) | mean pct 0.121 (rb pctile 0.00)
+   MARKET       top-1% rows  0 (random-book pctile 0.45) | best row  187.4, pct 0.9891 (rb pctile 0.90) | mean pct 0.784 (rb pctile 1.00)
+   OPTIMAL      top-1% rows  1 (random-book pctile 0.95) | best row  188.9, pct 0.9908 (rb pctile 0.92) | mean pct 0.707 (rb pctile 1.00)
+   STACK        top-1% rows  0 (random-book pctile 0.45) | best row  187.4, pct 0.9891 (rb pctile 0.90) | mean pct 0.740 (rb pctile 1.00)
+   SALARY_LEFT  top-1% rows  0 (random-book pctile 0.45) | best row  172.9, pct 0.9570 (rb pctile 0.61) | mean pct 0.643 (rb pctile 1.00)
+   UNIQUE       top-1% rows  0 (random-book pctile 0.45) | best row  154.6, pct 0.8493 (rb pctile 0.08) | mean pct 0.553 (rb pctile 0.99)
+   LEVERAGE     top-1% rows  0 (random-book pctile 0.45) | best row  151.2, pct 0.8191 (rb pctile 0.05) | mean pct 0.219 (rb pctile 0.00)
+
+== W4: pool 16,944 lineups (boom 14,384); field 161,516; top-1% line 182.8; pool rows in the top 1%: 0.71%; random 26-row book: mean top-1% rows 0.20, mean best pct 0.9620
+   PROJ         top-1% rows  0 (random-book pctile 0.41) | best row  171.7, pct 0.9742 (rb pctile 0.54) | mean pct 0.561 (rb pctile 0.82)
+   TD           top-1% rows  0 (random-book pctile 0.41) | best row  149.7, pct 0.8872 (rb pctile 0.04) | mean pct 0.489 (rb pctile 0.36)
+   TD_VALUE     top-1% rows  0 (random-book pctile 0.41) | best row  175.5, pct 0.9810 (rb pctile 0.65) | mean pct 0.797 (rb pctile 1.00)
+   MARKET       top-1% rows  0 (random-book pctile 0.41) | best row  153.6, pct 0.9107 (rb pctile 0.08) | mean pct 0.393 (rb pctile 0.03)
+   OPTIMAL      top-1% rows  0 (random-book pctile 0.41) | best row  177.8, pct 0.9845 (rb pctile 0.70) | mean pct 0.521 (rb pctile 0.57)
+   STACK        top-1% rows  0 (random-book pctile 0.41) | best row  171.7, pct 0.9742 (rb pctile 0.54) | mean pct 0.561 (rb pctile 0.82)
+   SALARY_LEFT  top-1% rows  0 (random-book pctile 0.41) | best row  180.5, pct 0.9878 (rb pctile 0.77) | mean pct 0.577 (rb pctile 0.89)
+   UNIQUE       top-1% rows  0 (random-book pctile 0.41) | best row  160.3, pct 0.9425 (rb pctile 0.22) | mean pct 0.533 (rb pctile 0.65)
+   LEVERAGE     top-1% rows  0 (random-book pctile 0.41) | best row  156.6, pct 0.9262 (rb pctile 0.13) | mean pct 0.594 (rb pctile 0.94)
+
+== averages over the weeks each key exists (random-book percentile: 0.5 = no better than random)
+             top1_rows  vs_random_top1  vs_random_best  vs_random_mean
+key                                                                   
+STACK             0.25           0.569           0.618           0.704
+PROJ              0.00           0.446           0.591           0.730
+SALARY_LEFT       0.00           0.446           0.559           0.718
+OPTIMAL           0.25           0.570           0.552           0.644
+TD                0.00           0.446           0.508           0.798
+MARKET            0.00           0.446           0.385           0.507
+TD_VALUE          0.00           0.446           0.327           0.699
+UNIQUE            0.00           0.431           0.153           0.824
+LEVERAGE          0.00           0.431           0.091           0.468

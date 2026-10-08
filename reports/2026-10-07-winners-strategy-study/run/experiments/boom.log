@@ -1,0 +1,28 @@
+== W3 mode boom: rules {'mates': '2', 'bb': '1', 'flex': 'TE', 'qb_total_rank': '2-3', 'qb_fav': 'fav', 'top_total_n': '0', 'qb_tier': 'cheap', 'te_price': 'cheap'}; winner 239.8; lines within10 229.8 top100 208.3 top1% 188.2
+   worlds=100 distinct lineups 100 best 210.8 first {'top100': 82, 'top1pct': 5, 'hit': None} 11s
+   worlds=200 distinct lineups 200 best 210.8 first {'top100': 82, 'top1pct': 5, 'hit': None} 20s
+   worlds=300 distinct lineups 300 best 210.8 first {'top100': 82, 'top1pct': 5, 'hit': None} 29s
+   worlds=400 distinct lineups 400 best 210.8 first {'top100': 82, 'top1pct': 5, 'hit': None} 39s
+   worlds=500 distinct lineups 500 best 210.8 first {'top100': 82, 'top1pct': 5, 'hit': None} 48s
+   RESULT W3 boom: built 500; first top-1% 5, top-100 82, within-10 None; best 210.8: ['Giants DST NYG 8.0', 'Geno Smith QB NYJ 30.0', 'Keenan Allen WR IND 18.3', 'Juwan Johnson TE NO 24.3', 'Breece Hall RB NYJ 8.5', 'Garrett Wilson WR NYJ 29.7', 'Jaxon Smith-Njigba WR SEA 38.4', 'Jahmyr Gibbs RB DET 41.4', 'Michael Mayer TE LV 12.2']
+== W4 mode boom: rules {'mates': '1', 'bb': '1', 'flex': 'TE', 'games': '5', 'dual': 'yes', 'qb_total_rank': '2-3', 'qb_fav': 'fav', 'top_total_n': '1-2', 'dst_price': 'cheap', 'te_price': 'cheap', 'own_sum': '<80'}; winner 234.2; lines within10 224.2 top100 209.2 top1% 182.8
+   worlds=100 distinct lineups 100 best 180.3 first {'top100': None, 'top1pct': None, 'hit': None} 19s
+   worlds=200 distinct lineups 200 best 180.3 first {'top100': None, 'top1pct': None, 'hit': None} 36s
+   worlds=300 distinct lineups 300 best 212.3 first {'top100': 251, 'top1pct': 248, 'hit': None} 52s
+   worlds=400 distinct lineups 400 best 212.3 first {'top100': 251, 'top1pct': 248, 'hit': None} 68s
+   worlds=500 distinct lineups 500 best 212.3 first {'top100': 251, 'top1pct': 248, 'hit': None} 85s
+   RESULT W4 boom: built 500; first top-1% 248, top-100 251, within-10 None; best 212.3: ['Packers DST GB 8.0', 'Dak Prescott QB DAL 21.1', 'Jakobi Meyers WR JAX 6.3', 'T.J. Hockenson TE MIN 27.9', 'Nico Collins WR HOU 33.8', 'Javonte Williams RB DAL 31.3', 'Puka Nacua WR LA 30.7', 'Kyren Williams RB LA 36.7', 'Tucker Kraft TE GB 16.5']
+== W2 mode boom: rules {'bb': '0', 'flex': 'TE', 'games': '6+', 'dual': 'no', 'qb_total_rank': '1', 'qb_fav': 'dog', 'top_total_n': '1-2', 'dst_price': 'cheap'}; winner 232.4; lines within10 222.4 top100 203.5 top1% 179.8
+   worlds=100 distinct lineups 100 best 192.8 first {'top100': None, 'top1pct': 6, 'hit': None} 18s
+   worlds=200 distinct lineups 200 best 192.8 first {'top100': None, 'top1pct': 6, 'hit': None} 35s
+   worlds=300 distinct lineups 300 best 192.8 first {'top100': None, 'top1pct': 6, 'hit': None} 51s
+   worlds=400 distinct lineups 400 best 192.8 first {'top100': None, 'top1pct': 6, 'hit': None} 67s
+   worlds=500 distinct lineups 500 best 192.8 first {'top100': None, 'top1pct': 6, 'hit': None} 83s
+   RESULT W2 boom: built 500; first top-1% 6, top-100 None, within-10 None; best 192.8: ['Patriots DST NE 21.0', 'Dak Prescott QB DAL 29.8', 'Derrick Henry RB BAL 17.7', 'Dalton Schultz TE HOU 29.0', 'Jake Ferguson TE DAL 20.3', 'Garrett Wilson WR NYJ 16.7', 'Jaxon Smith-Njigba WR SEA 45.5', 'Kaelon Black RB SF 2.5', 'Ashton Jeanty RB LV 10.3']
+== W1 mode boom: rules {'bb': '1', 'flex': 'RB', 'qb_total_rank': '2-3', 'qb_fav': 'fav', 'top_total_n': '0'}; winner 274.0; lines within10 264.0 top100 244.8 top1% 209.0
+   worlds=100 distinct lineups 100 best 195.1 first {'top100': None, 'top1pct': None, 'hit': None} 15s
+   worlds=200 distinct lineups 200 best 244.1 first {'top100': None, 'top1pct': 165, 'hit': None} 23s
+   worlds=300 distinct lineups 300 best 244.1 first {'top100': None, 'top1pct': 165, 'hit': None} 31s
+   worlds=400 distinct lineups 400 best 244.1 first {'top100': None, 'top1pct': 165, 'hit': None} 40s
+   worlds=500 distinct lineups 500 best 244.1 first {'top100': None, 'top1pct': 165, 'hit': None} 48s
+   RESULT W1 boom: built 500; first top-1% 165, top-100 None, within-10 None; best 244.1: ['Jaguars DST JAX 13.0', 'Derrick Henry RB BAL 38.3', 'Christian Watson WR GB 35.7', "D'Andre Swift RB CHI 35.4", 'Dalton Kincaid TE BUF 21.0', 'Bryce Young QB CAR 35.4', 'Ladd McConkey WR LAC 19.2', 'Jalen Coker WR CAR 36.8', 'Omarion Hampton RB LAC 9.3']

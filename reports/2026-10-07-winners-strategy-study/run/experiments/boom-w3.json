@@ -1,0 +1,39 @@
+{
+ "week": 3,
+ "mode": "boom",
+ "rules": {
+  "mates": "2",
+  "bb": "1",
+  "flex": "TE",
+  "qb_total_rank": "2-3",
+  "qb_fav": "fav",
+  "top_total_n": "0",
+  "qb_tier": "cheap",
+  "te_price": "cheap"
+ },
+ "winner": 239.8,
+ "lines": {
+  "top100": 208.3,
+  "top1pct": 188.2,
+  "hit": 229.8
+ },
+ "built": 500,
+ "first": {
+  "top100": 82,
+  "top1pct": 5,
+  "hit": null
+ },
+ "best": 210.8,
+ "best_lineup": [
+  "Giants DST NYG 8.0",
+  "Geno Smith QB NYJ 30.0",
+  "Keenan Allen WR IND 18.3",
+  "Juwan Johnson TE NO 24.3",
+  "Breece Hall RB NYJ 8.5",
+  "Garrett Wilson WR NYJ 29.7",
+  "Jaxon Smith-Njigba WR SEA 38.4",
+  "Jahmyr Gibbs RB DET 41.4",
+  "Michael Mayer TE LV 12.2"
+ ],
+ "secs": 48
+}

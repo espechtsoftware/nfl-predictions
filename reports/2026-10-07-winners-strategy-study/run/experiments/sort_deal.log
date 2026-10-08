@@ -1,0 +1,37 @@
+== sort-key re-deal (cheap count, market minus projection): run /home/erich/rehearsals/outside-cblocks-20261007T153309Z, code dd03ff26
+  re-deal w2-live -> w2-cheapdeal: 22 of 26 positions moved; key range 0.00-2.00
+  layout w2 cheapdeal rc 0
+  re-deal w2-live -> w2-mktdeal: 26 of 26 positions moved; key range -21.52--1.24
+  layout w2 mktdeal rc 0
+  re-deal w2-live -> w2-projdeal: 24 of 26 positions moved; key range 127.59-144.66
+  layout w2 projdeal rc 0
+  re-deal w3-live -> w3-cheapdeal: 25 of 26 positions moved; key range 0.00-2.00
+  layout w3 cheapdeal rc 0
+  re-deal w3-live -> w3-mktdeal: 25 of 26 positions moved; key range -10.29--1.27
+  layout w3 mktdeal rc 0
+  re-deal w3-live -> w3-projdeal: 24 of 26 positions moved; key range 128.08-137.41
+  layout w3 projdeal rc 0
+  re-deal w4-live -> w4-cheapdeal: 25 of 26 positions moved; key range 0.00-2.00
+  layout w4 cheapdeal rc 0
+  re-deal w4-live -> w4-mktdeal: 24 of 26 positions moved; key range -8.32--0.41
+  layout w4 mktdeal rc 0
+  re-deal w4-live -> w4-projdeal: 25 of 26 positions moved; key range 138.62-148.28
+  layout w4 projdeal rc 0
+
+              p_big1   e_big  mean_entry_pct  best_row  rows_top1pct
+w2-live       0.0413  0.0414          0.4239    162.96           0.0
+w2-cheapdeal  0.0082  0.0082          0.4440    162.96           0.0
+w2-mktdeal    0.0000  0.0000          0.4670    162.96           0.0
+w2-projdeal   0.0426  0.0427          0.4431    162.96           0.0
+w3-live       0.0016  0.0016          0.5163    164.64           0.0
+w3-cheapdeal  0.0038  0.0038          0.5068    164.64           0.0
+w3-mktdeal    0.0004  0.0004          0.5278    164.64           0.0
+w3-projdeal   0.0016  0.0016          0.5101    164.64           0.0
+w4-live       0.4336  0.4339          0.5024    181.08           0.0
+w4-cheapdeal  0.3401  0.3642          0.5401    181.08           0.0
+w4-mktdeal    0.4593  0.4975          0.4611    181.08           0.0
+w4-projdeal   0.3980  0.4433          0.5191    181.08           0.0
+cheapdeal: P(>=1 big) below LIVE in 2 of 3 weeks; pooled e_big ratio 0.789
+mktdeal: P(>=1 big) below LIVE in 2 of 3 weeks; pooled e_big ratio 1.044
+projdeal: P(>=1 big) below LIVE in 1 of 3 weeks; pooled e_big ratio 1.022
+== done 10:34:44

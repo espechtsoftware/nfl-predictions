@@ -1,0 +1,37 @@
+== bonus-blocks replay 20261007T153309Z: code dd03ff26, lab f69598b, files 3531288d 38956c65 d74b1035 89610b27 fbdee8dd f732f19a 
+  union w2 live rc 0 (0 refusal lines; ) 10:33:17
+  union w2 cblock2 rc 0 (0 refusal lines; TERM BLOCK: 8 of 26 rows on projection + min(0.2 x pred_own, 2.0) from /home/erich/rehearsals/outside-cblocks-20261007T1) 10:33:23
+  union w2 cblock4 rc 0 (0 refusal lines; TERM BLOCK: 8 of 26 rows on projection + min(0.2 x pred_own, 4.0) from /home/erich/rehearsals/outside-cblocks-20261007T1) 10:33:29
+  layout w2 live rc 0
+  layout w2 cblock2 rc 0
+  layout w2 cblock4 rc 0
+  union w3 live rc 0 (0 refusal lines; ) 10:33:39
+  union w3 cblock2 rc 0 (0 refusal lines; TERM BLOCK: 8 of 26 rows on projection + min(0.2 x pred_own, 2.0) from /home/erich/rehearsals/outside-cblocks-20261007T1) 10:33:48
+  union w3 cblock4 rc 0 (0 refusal lines; TERM BLOCK: 8 of 26 rows on projection + min(0.2 x pred_own, 4.0) from /home/erich/rehearsals/outside-cblocks-20261007T1) 10:33:57
+  layout w3 live rc 0
+  layout w3 cblock2 rc 0
+  layout w3 cblock4 rc 0
+  union w4 live rc 0 (0 refusal lines; ) 10:34:06
+  union w4 cblock2 rc 0 (0 refusal lines; TERM BLOCK: 8 of 26 rows on projection + min(0.2 x pred_own, 2.0) from /home/erich/rehearsals/outside-cblocks-20261007T1) 10:34:16
+  union w4 cblock4 rc 0 (0 refusal lines; TERM BLOCK: 8 of 26 rows on projection + min(0.2 x pred_own, 4.0) from /home/erich/rehearsals/outside-cblocks-20261007T1) 10:34:24
+  layout w4 live rc 0
+  layout w4 cblock2 rc 0
+  layout w4 cblock4 rc 0
+
+            p_big1   e_big  mean_entry_pct  proj_sum_mean  best_row  rows_top1pct  distinct_players  term_rows_mean_pct  live_block_mean_pct  term_rows_best  term_rows_with_a_top5_bonus_player  rows_same_as_live
+w2-live     0.0413  0.0414          0.4239         136.95    162.96           0.0              53.0                 NaN                  NaN             NaN                                 NaN                NaN
+w2-cblock2  0.0578  0.0586          0.4486         136.47    162.96           0.0              53.0              0.5722               0.4180          161.46                                 0.0               16.0
+w2-cblock4  0.0843  0.0868          0.4367         135.98    162.96           0.0              59.0              0.5580               0.4180          161.46                                 0.0               16.0
+w3-live     0.0016  0.0016          0.5163         133.11    164.64           0.0              48.0                 NaN                  NaN             NaN                                 NaN                NaN
+w3-cblock2  0.0179  0.0179          0.5002         132.40    164.64           0.0              50.0              0.2740               0.5572          140.04                                 0.0               15.0
+w3-cblock4  0.0179  0.0179          0.4953         132.07    164.64           0.0              53.0              0.2580               0.5572          140.04                                 0.0               15.0
+w4-live     0.4336  0.4339          0.5024         144.00    181.08           0.0              49.0                 NaN                  NaN             NaN                                 NaN                NaN
+w4-cblock2  0.5347  0.6236          0.5698         143.70    181.08           0.0              48.0              0.7427               0.4668          174.28                                 0.0               17.0
+w4-cblock4  0.5292  0.6222          0.5632         142.83    181.08           0.0              53.0              0.7104               0.4668          172.42                                 0.0               17.0
+w2-cblock2 term positions [1, 4, 8, 11, 14, 17, 21, 24] top-5 bonus players ['Kameron Johnson', 'Kenyon Sadiq', 'Zachariah Branch', 'Dallen Bentley', 'Malik Benson'] source {'source_sha256': '3531288d1108fcbe24076a29f90b200f0d209f5fc64e8d8b0a92ed8f4992bfb2', 'coverage_projected_5': 1.0, 'players_with_a_term': 109, 'players_capped': 0, 'cap_points': 2.0}
+w2-cblock4 term positions [1, 4, 8, 11, 14, 17, 21, 24] top-5 bonus players ['Kameron Johnson', 'Kenyon Sadiq', 'Zachariah Branch', 'Dallen Bentley', 'Malik Benson'] source {'source_sha256': '89610b2794e6a1cd056c81dfc05e94833a64b9e8c1a2ea2bf5379910556df1b8', 'coverage_projected_5': 1.0, 'players_with_a_term': 109, 'players_capped': 0, 'cap_points': 4.0}
+w3-cblock2 term positions [1, 4, 8, 11, 14, 17, 21, 24] top-5 bonus players ['Ted Hurst III', 'Eli Raridon', 'Reggie Virgil', 'Jack Endries', 'Jalen Royals'] source {'source_sha256': '38956c65596717613f869560bca600cdd761a368527f731296e214a6ae6fcec3', 'coverage_projected_5': 1.0, 'players_with_a_term': 143, 'players_capped': 0, 'cap_points': 2.0}
+w3-cblock4 term positions [1, 4, 8, 11, 14, 17, 21, 24] top-5 bonus players ['Ted Hurst III', 'Eli Raridon', 'Reggie Virgil', 'Jack Endries', 'Jalen Royals'] source {'source_sha256': 'fbdee8dd70d38f3262215d248674a74a87502a10fdb961ed83b4c45d2b514e8b', 'coverage_projected_5': 1.0, 'players_with_a_term': 143, 'players_capped': 0, 'cap_points': 4.0}
+w4-cblock2 term positions [1, 4, 8, 11, 14, 17, 21, 24] top-5 bonus players ['CJ Williams', 'Jahdae Walker', 'Ted Hurst III', 'Sam Roush', 'Malik Benson'] source {'source_sha256': 'd74b10352ac358935d598c5b99a7282434a76d9ae3a418449277141474ff275d', 'coverage_projected_5': 1.0, 'players_with_a_term': 91, 'players_capped': 0, 'cap_points': 2.0}
+w4-cblock4 term positions [1, 4, 8, 11, 14, 17, 21, 24] top-5 bonus players ['CJ Williams', 'Jahdae Walker', 'Ted Hurst III', 'Sam Roush', 'Malik Benson'] source {'source_sha256': 'f732f19afa084637ac63e2e5bb3106540915d9351fbb54226577294b8030fa69', 'coverage_projected_5': 1.0, 'players_with_a_term': 91, 'players_capped': 0, 'cap_points': 4.0}
+== done 10:34:26; scratch /home/erich/rehearsals/outside-cblocks-20261007T153309Z; worktree /home/erich/projects/.nfl-predictions-worktrees/rehearsal-outside-cblocks-20261007T153309Z

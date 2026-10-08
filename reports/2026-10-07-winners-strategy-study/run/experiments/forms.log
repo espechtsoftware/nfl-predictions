@@ -1,0 +1,32 @@
+== W2: winner 232.4; top 1% 179.8; top 100 203.5; within 10 222.4
+   F1_top_fav     built 125: first top-1% None, top-100 None, within-10 None; best 168.0; top-1% rows 0 (11s)
+   F2_top_dog     built 125: first top-1% 52, top-100 None, within-10 None; best 182.1; top-1% rows 1 (21s)
+   F3_2nd3rd_fav  built 125: first top-1% 52, top-100 None, within-10 None; best 187.5; top-1% rows 1 (30s)
+   F4_2nd3rd_dog  built 125: first top-1% None, top-100 None, within-10 None; best 173.4; top-1% rows 0 (40s)
+   BOOK coverage book (8 per form, 32 rows)   : top-1% rows 0, top-100 rows 0, best 162.4
+   BOOK sampled worlds, no form (32)          : top-1% rows 0, top-100 rows 0, best 148.4
+   BOOK projection order, no form (32)        : top-1% rows 0, top-100 rows 0, best 140.6
+== W3: winner 239.8; top 1% 188.2; top 100 208.3; within 10 229.8
+   F1_top_fav     built 125: first top-1% None, top-100 None, within-10 None; best 167.7; top-1% rows 0 (11s)
+   F2_top_dog     built 125: first top-1% None, top-100 None, within-10 None; best 167.1; top-1% rows 0 (21s)
+   F3_2nd3rd_fav  built 125: first top-1% None, top-100 None, within-10 None; best 185.1; top-1% rows 0 (31s)
+   F4_2nd3rd_dog  built 125: first top-1% None, top-100 None, within-10 None; best 164.2; top-1% rows 0 (41s)
+   BOOK coverage book (8 per form, 32 rows)   : top-1% rows 0, top-100 rows 0, best 168.3
+   BOOK sampled worlds, no form (32)          : top-1% rows 0, top-100 rows 0, best 142.6
+   BOOK projection order, no form (32)        : top-1% rows 0, top-100 rows 0, best 160.8
+== W4: winner 234.2; top 1% 182.8; top 100 209.2; within 10 224.2
+   F1_top_fav     built 125: first top-1% 81, top-100 None, within-10 None; best 189.4; top-1% rows 2 (10s)
+   F2_top_dog     built 125: first top-1% 81, top-100 None, within-10 None; best 195.6; top-1% rows 3 (19s)
+   F3_2nd3rd_fav  built 125: first top-1% 81, top-100 None, within-10 None; best 204.5; top-1% rows 3 (27s)
+   F4_2nd3rd_dog  built 125: first top-1% 81, top-100 None, within-10 None; best 202.4; top-1% rows 4 (36s)
+   BOOK coverage book (8 per form, 32 rows)   : top-1% rows 0, top-100 rows 0, best 172.6
+   BOOK sampled worlds, no form (32)          : top-1% rows 0, top-100 rows 0, best 164.3
+   BOOK projection order, no form (32)        : top-1% rows 0, top-100 rows 0, best 160.1
+== W1: winner 274.0; top 1% 209.0; top 100 244.8; within 10 264.0
+   F1_top_fav     built 125: first top-1% None, top-100 None, within-10 None; best 188.7; top-1% rows 0 (16s)
+   F2_top_dog     built 125: first top-1% None, top-100 None, within-10 None; best 196.6; top-1% rows 0 (25s)
+   F3_2nd3rd_fav  built 125: first top-1% None, top-100 None, within-10 None; best 201.8; top-1% rows 0 (34s)
+   F4_2nd3rd_dog  built 125: first top-1% None, top-100 None, within-10 None; best 205.8; top-1% rows 0 (42s)
+   BOOK coverage book (8 per form, 32 rows)   : top-1% rows 0, top-100 rows 0, best 196.7
+   BOOK sampled worlds, no form (32)          : top-1% rows 0, top-100 rows 0, best 198.7
+   BOOK projection order, no form (32)        : top-1% rows 0, top-100 rows 0, best 183.1

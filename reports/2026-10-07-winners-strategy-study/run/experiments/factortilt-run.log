@@ -1,0 +1,61 @@
+W2 matchup  : 178 players with a bonus; mean over skill 0.37; top Myles Price +2.0, Marcus Mariota +2.0, Carson Wentz +2.0, Stefon Diggs +2.0
+W2 vacated  : 42 players with a bonus; mean over skill 0.11; top Kayshon Boutte +2.7, Jaylin Noel +2.7, Dalton Schultz +2.7, Lewis Bond +2.7
+W2 market   : 40 players with a bonus; mean over skill 0.03; top Christian McCaffrey +0.9, Aaron Jones Sr. +0.8, Michael Mayer +0.6, Ashton Jeanty +0.6
+W2 combined : 212 players with a bonus; mean over skill 0.49; top Stefon Diggs +3.0, Antonio Williams +3.0, Terry McLaurin +3.0, Dalton Schultz +3.0
+W3 matchup  : 162 players with a bonus; mean over skill 0.39; top Robert Tonyan +2.0, Pat Freiermuth +2.0, Darnell Washington +2.0, Tyler Huntley +2.0
+W3 vacated  : 98 players with a bonus; mean over skill 0.32; top Eli Heidenreich +3.0, Lew Nichols +3.0, Jaylen Warren +3.0, Riley Nowakowski +3.0
+W3 market   : 61 players with a bonus; mean over skill 0.06; top Zay Flowers +1.9, Jaylen Warren +1.8, Kyler Murray +1.6, Brock Bowers +1.4
+W3 combined : 244 players with a bonus; mean over skill 0.72; top Eli Heidenreich +3.0, Jaylin Noel +3.0, Lewis Bond +3.0, Dalton Schultz +3.0
+W4 matchup  : 126 players with a bonus; mean over skill 0.38; top Demond Claiborne +2.0, Aaron Jones Sr. +2.0, C.J. Stroud +2.0, Nate Boerkircher +2.0
+W4 vacated  : 76 players with a bonus; mean over skill 0.47; top Emanuel Wilson +3.0, Braelon Allen +3.0, Malik McClain +3.0, Sterling Shepard +3.0
+W4 market   : 28 players with a bonus; mean over skill 0.02; top Geno Smith +0.7, Tory Horton +0.5, Jalen Hurts +0.4, Drake Maye +0.3
+W4 combined : 189 players with a bonus; mean over skill 0.84; top Kenyon Sadiq +3.0, Emanuel Wilson +3.0, Zach Ertz +3.0, Andrew Beck +3.0
+== factor-tilt replay 2026-10-07T11:57:59Z: code 64dbd7ce, lab f69598b
+  union w2 live rc 0 (0 refusal lines) 06:58:05
+  union w2 matchup rc 0 (0 refusal lines) 06:58:15
+  union w2 vacated rc 0 (0 refusal lines) 06:58:24
+  union w2 market rc 0 (0 refusal lines) 06:58:33
+  union w2 combined rc 0 (0 refusal lines) 06:58:43
+  layout w2 live rc 0
+  layout w2 matchup rc 0
+  layout w2 vacated rc 0
+  layout w2 market rc 0
+  layout w2 combined rc 0
+  union w3 live rc 0 (0 refusal lines) 06:58:53
+  union w3 matchup rc 0 (0 refusal lines) 06:59:06
+  union w3 vacated rc 0 (0 refusal lines) 06:59:20
+  union w3 market rc 0 (0 refusal lines) 06:59:34
+  union w3 combined rc 0 (0 refusal lines) 06:59:48
+  layout w3 live rc 0
+  layout w3 matchup rc 0
+  layout w3 vacated rc 0
+  layout w3 market rc 0
+  layout w3 combined rc 0
+  union w4 live rc 0 (0 refusal lines) 06:59:59
+  union w4 matchup rc 0 (0 refusal lines) 07:00:12
+  union w4 vacated rc 0 (0 refusal lines) 07:00:25
+  union w4 market rc 0 (0 refusal lines) 07:00:39
+  union w4 combined rc 0 (0 refusal lines) 07:00:52
+  layout w4 live rc 0
+  layout w4 matchup rc 0
+  layout w4 vacated rc 0
+  layout w4 market rc 0
+  layout w4 combined rc 0
+
+             p_big1   e_big  mean_entry_pct  proj_sum_mean  best_row  rows_top1pct  distinct_players  rows_same_as_live
+w2-live      0.0413  0.0414          0.4239         136.95    162.96           0.0              53.0                NaN
+w2-matchup   0.0005  0.0005          0.4166         135.53    143.16           0.0              54.0                0.0
+w2-vacated   0.0000  0.0000          0.4490         136.23    155.26           0.0              49.0                1.0
+w2-market    0.1337  0.1381          0.4190         136.91    161.96           0.0              53.0                0.0
+w2-combined  0.0071  0.0071          0.4818         134.80    165.04           0.0              53.0                0.0
+w3-live      0.0016  0.0016          0.5163         133.11    164.64           0.0              48.0                NaN
+w3-matchup   0.2955  0.3051          0.6058         130.62    189.64           1.0              49.0                0.0
+w3-vacated   0.0252  0.0254          0.6922         129.97    175.08           0.0              47.0                0.0
+w3-market    0.0279  0.0279          0.5249         132.62    160.60           0.0              49.0                6.0
+w3-combined  0.9211  1.4173          0.6938         129.38    190.14           2.0              52.0                0.0
+w4-live      0.4336  0.4339          0.5024         144.00    181.08           0.0              49.0                NaN
+w4-matchup   0.5028  0.5830          0.6613         143.16    183.48           1.0              40.0                1.0
+w4-vacated   0.0564  0.0564          0.4938         141.85    161.52           0.0              45.0                0.0
+w4-market    0.4336  0.4339          0.5024         144.00    181.08           0.0              49.0               26.0
+w4-combined  0.3082  0.3439          0.5706         141.95    174.78           0.0              47.0                0.0
+== done 07:00:54
