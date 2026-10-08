@@ -10,6 +10,26 @@ analysis on the different methodologies and then write a document of suggestions
 The analysis of different methodologies should look into the available data points for a given player or game that
 might have been used."
 
+> **Correction, 10-08 evening (after this briefing was first merged).** Two checks on §7, made before S1 is frozen:
+>
+> - **The wind result is overstated.**
+>   - Our weather history before 2026 is the wind actually measured at each game: no forecasts were stored until this
+>     season. The betting market at lock only had the forecast.
+>   - So part of "wind beats the market" is wind nobody could know before kickoff. An adjustment built on forecasts
+>     should be expected to capture less of it, possibly much less.
+>   - Wind stays in S1 and S2 only as a separate, low-confidence term, judged on forecasts as weeks accumulate.
+> - **The team-total result is not late news, and it stands.**
+>   - Our historical betting lines are closing lines, so a late game's line could include news from after lock.
+>   - But the effect is just as strong in Sunday 1 pm games, where the line at lock is essentially the closing line:
+>     +0.37 points per sd, z 3.4, 5,429 player-games.
+>   - Late games have too few props rows in the history to say anything on their own.
+> - **For whoever builds S1:**
+>   - The team total, the game total and the spread are tied together: a team's total is half the game total plus or
+>     minus half the spread. They must be fitted together. Adding the separate effects in §7 would count the same thing
+>     twice.
+>   - The per-sd numbers here were scaled within each week and position. A live adjustment needs real units, such as
+>     points per point of team total.
+
 ## The short answers
 
 1. **Most pros follow a market-style projection. We can't tell whether it is Fantasy Points' own.** Fantasy Points'
@@ -282,19 +302,22 @@ a bust 0.5× or less. Base rates are 21% and 22%. The figures control for the pr
   points it is zero.
 - **Touchdown-dependent receivers bust more than their projection says; steady route runners bust less.** This matches
   the regulars' preference for route volume over end-zone targets.
-- **Two cautions:**
+- **Three cautions:**
   - The history's "market" is props converted to DraftKings points. Part of the team-total effect could come from that
     conversion.
   - Only the team-total mean effect passes the strict multiple-testing bar. Wind passes on the absolute big-game
     definition (z −4.0).
+  - The history's wind is the wind measured at the game, not the forecast available at lock, so the wind effects here
+    are an upper bound for anything we can use (see the correction at the top).
 
 ## 8. Suggestions: approaches that seem promising
 
 Each is a test first, under the adoption track. Nothing changes Sunday.
 
 **S1. A game-environment calibration on top of Fantasy Points (class C; promising; small).**
-- **What:** add to each player's Fantasy Points projection a fixed amount per standard deviation of team implied total
-  (+0.33), game total and expected plays, and subtract for wind (about −1 per sd for quarterbacks).
+- **What:** add to each player's Fantasy Points projection a fixed amount for the game environment: team implied total
+  (+0.33 per sd), fitted jointly with the game total and spread, not added up. Wind is a separate, low-confidence term:
+  the history's wind is the measured game wind, and live we only have forecasts (see the correction at the top).
 - **Why:** this is the one effect that beat the betting market in all three seasons and passes the strict bar.
   Fantasy Points shows no sign of carrying it, and the regulars don't use it either. So it would be information the
   field's projections lack, not a copy of the field.
