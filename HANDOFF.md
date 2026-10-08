@@ -12,6 +12,27 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-08 (00:03 CDT) — Study 38 amendment 6k (three PAPER tight-end block arms) acked and merged `88ec3d46`; study 63 DRAFT merged
+
+- **The operator's QB + TE request (10-07 night):** the reviewer's plan, recorded in the prereg texts.
+  - **6k (W5 paper):** MIXT_QA0_TE2B8 / TETOUGH2B8 / CHEAPTE2B8.
+    - Each is his live construction with an 8-row TE block INSTEAD of the cheap block, read against MIXT_QA0.
+    - Production's `te_block_file.py` (`196ae64e`) is imported sha-pinned from the pinned checkout.
+    - O-55 is disclosed: the tough third reads the served value.
+  - **Study 63 (W6 harness, DRAFT):** LIVE_CB vs TE2_B8 / TETOUGH2_B8 (served label) / CHEAPTE2_B8 / QBTE_SHARE (a QB + TE
+    stack required on 18 of 26 rows), plus an exploratory TEWEAKD2_B8. It reads before W6 arming.
+- **The laptop's ack:**
+  - lab `82a5bf4` shas verified (module `770aa5c6`, build `412f92a2`, score `fb8781fb`, reader `afd56ba1`, tests
+    `f757a1b1`); 29 tests pass;
+  - the smoke's head case rebuilt in the laptop's own worktree at `266da256`: `books.json` `9c7d9046` byte-identical,
+    books identity `efb33925`, the three TE files identical.
+- **W5 early read:** the inference rows carry `epa_per_dropback_allowed_l6` on all 884 rows (30 opponents) and
+  `target_share_l4` on 116 of 201 TEs. Thursday's A3 frame check is the binding one (checklist).
+- **Friday:** `s38-prod-pin` moves to FRIDAY_HEAD, which must contain `266da256` and `aca783a4`. The reviewer's gate is
+  pinned to 6k.
+- **If QBTE_SHARE reads ENTERABLE:** union code for an interaction floor on designated rows is needed, written by the
+  laptop and rehearsed before entry.
+
 ## 2026-10-07 (23:50 CDT) — O-55 registered: the live frame serves defense and xfp features one game staler than training (verified; off the money path except `ref_flags_prior`)
 
 - **Found by** the outside reviewer's independent TE audit (`8922956a`, §8 of the options note).
