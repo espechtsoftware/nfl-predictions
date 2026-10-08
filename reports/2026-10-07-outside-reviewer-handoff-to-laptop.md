@@ -106,3 +106,31 @@ Then a short note for the Tuesday 10-13 Week-6 decisions.
 - No jobs of mine are running.
 - My last scratch worktree (the cheap-block replay checkout) was removed by exact path; its results stay in
   `~/rehearsals/outside-cblocks-20261007T153309Z`.
+
+## 6. Thursday morning (2026-10-08 09:39 CDT): the operator's questions, and the decision to keep the Week-5 plan
+
+- **"Anything more to try today for Week 5?"** No more lineup changes: nothing else passed its tests. The remaining value
+  is execution (Friday's A3 with the cheap block, Saturday's arming, the Sunday 10:30 inactives and stop checks). The
+  weather table has no Sunday forecasts yet; that is the schedule (`s-weather` runs Friday to Sunday at 08:00 CT).
+- **"Are we double counting weather?" No.**
+  - Our model has no forecast inputs: `featureset.py` holds `is_dome` and the Vegas lines only, and
+    `EXTRA_FEATURES` admits only registered candidates, none of them weather.
+  - `--proj-source` REPLACES `mean_projection` (ours is kept beside it as `mean_projection_ours`).
+  - No weather rule exists in the money-path scripts, `inference/`, `optimizer/` or nfl2.
+  - I had told the operator that FP "already accounts for weather"; corrected: FP's method is not visible to us.
+  - Weeks 1–4 had no strong wind (the highest forecast was 16.6 mph, NE at BUF in Week 4, played at 11 mph).
+  - Monday: if a Week-5 game had a forecast of 20 mph or more, I compare FP with `mean_projection_ours` for its passers
+    and receivers.
+- **"Why haven't the plain book and the props book been tested?"** Both had been; I had wrongly said P3's comparison
+  "starts this week".
+  - The plain book: study 54 (Addendum 162), and the laptop's Week 2–4 replay.
+  - The props book: the same replay (`~/rehearsals/p3-replay-20261007T172856Z`). No book won a big seat. Small hits
+    were props 13, plain 10, entered 7.
+  - The props report of 10-06 has Week 4 only, on prop-covered players. The average miss was props 5.71, a 50/50
+    FP + props mix 5.76, and FP 5.85.
+  - Nothing more can be tested before Monday: FP exists from Week 4 only, and history has props but no FP.
+- **The operator's decision (verbatim): "let's stick with the current plan".** FP alone for Week 5; the FP + props mix
+  is not armed.
+- **Monday 10-12, item 5 added to my plan:** the Week-5 row of the frozen weekly FP vs 50/50 FP + props check
+  (`scripts/weekly_fp_props_check.py`, `reports/2026-10-06-prereg-fp-props-weekly-check.md`). If its rule offers the
+  mix, I recommend it for Week 6 (class C; the operator decides).
