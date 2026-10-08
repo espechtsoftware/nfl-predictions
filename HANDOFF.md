@@ -29,7 +29,7 @@
   - The QB coverage matchup page has not been posted for W5 (it failed its schedule gate on all 6 runs since Wednesday).
     The WR coverage and line-matchups pages validate. Retry Friday.
   - The alignment page was revised after Wednesday. Its FATAL import stopped the run before the four FP projection pages.
-  - Collected separately at 11:00: dfs 6,393 / weekly 536 / rankings-weekly 398 (the first W5 capture) / rankings-ros
+  - Collected separately at 10:53 CT (retrieved 15:53:34Z): dfs 6,393 / weekly 536 / rankings-weekly 398 (the first W5 capture) / rankings-ros
     272 rows.
   - Deficiency log: `9e4c6c85`. The W4 Route Share repair awaits the operator, as on 10-06.
   - **Fix:** `fix/alignment-import-nonfatal-20261008` @ `227954d0` makes the alignment import non-fatal, with a test that
@@ -37,7 +37,7 @@
 - **Neo4j:** not running (checklist step 4 needs nothing).
 - **A3 (block OFF)** started 10:55 at `9d069991`: ~/rehearsals/a3-20261008T155507Z, snapshot to
   ~/private/paper-corun/rehearsal-w05-a3.
-- **The dry runs** started 11:2x, in order cbwu-oi (O-49), then Route Share ×2, each in its lane. Then
+- **The dry runs** started 10:58:38 CT (the lane log), in order cbwu-oi (O-49), then Route Share ×2, each in its lane. Then
   `check_prospective_gates --week 5`.
 - **After A3:** the TE-columns check (6k), the block files, and the snapshot path to the reviewer.
 
