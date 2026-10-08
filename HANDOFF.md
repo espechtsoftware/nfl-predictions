@@ -12,6 +12,27 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-08 (11:11 CDT) — The operator: CFB dropped from the freshness check (deployed), and "the latest data" — FP's W4 Route Share and the W5 alignment data replaced
+
+- **CFB** (operator: "I told you to drop college football before"; retired 10-02).
+  - The deployed `check-freshness` image predated the non-alerting change. The job now runs the current image
+    `7f632786` (was `1800e210`; rollback is that digest).
+  - The current code's check run locally today: only weather is stale. No manual execution today, since weather would
+    alert again. Friday 08:30 is the first live check.
+  - O-18's CFB part is closed.
+- **Weather:** at a 72 h bar it fails every Wednesday and Thursday by schedule. Fix `fix/weather-freshness-cadence-20261008`
+  @ `df89d6c2` (108 h, between the 96.5 h worst healthy age and the 120.5 h missed-Friday age; test; status tests 30
+  pass). It is with the reviewer and goes live with the job's next image.
+- **"I do want the latest data"** (operator; standing for vendor revisions).
+  - **Route Share W4:** 264 rows backed up (`39750a94`, ~/private/fp-route-repair) and deleted; FP's revised export
+    `d1e89fdf` re-imported and archived. Verified: exactly 51 changed, by the same teams, 0 added, 0 removed.
+  - **Alignment, target week 5:** a content check confirmed a real revision (239 / 295 player rows, 9 / 32 team rows, 2
+    added). Both tables backed up (`bb063967`, `2883d6bd`, ~/private/fp-alignment-repair), deleted and re-imported
+    (`e62b5e3d`: 297 + 32). The re-audit finds stored = latest.
+  - **Downstream:** today's 06:30 route features and 07:30 / 08:00 k1-route training used the old W4 rows. Whether to
+    re-run them for the Route Share gate's W5 pair is the gate owner's call; asked the reviewer.
+- **Records:** README deficiency rows marked REPAIRED; OPEN-DEFECTS O-18 updated.
+
 ## 2026-10-08 (10:58 CDT) — Thursday's pulls: props guard PASSES (34.5%), project-slate W5 written, SIS caches OK; FP vendor run stopped by a revision (fixed on a branch, pages collected); A3 and the three dry runs running
 
 - **Scheduled jobs today:** all succeeded except `check-freshness`, which fails every day (O-18). The two causes are CFB
