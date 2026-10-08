@@ -7531,3 +7531,159 @@ secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; th
 - **Recommendation for Week 6:** keep the cheap block. A TE block is a fair choice if he wants one: it is not worse,
   and study 38's 6k paper arms give the first real-field read on Monday. But swapping the one block slot for a NO
   DIFFERENCE arm is a change without evidence.
+
+## Addendum 167 (2026-10-08): study 65 (the pros briefing's S2 tail tilts and S3 recency fade as 8-row blocks, in the harness, a Week-6 read): no arm enterable; every estimate is below the cheap block, and the cheap block plus S2 is WORSE
+
+**Setup.**
+- **The question.** The operator 10-08: "please make sure that the recommended experiments that the outside reviewer
+  suggested in the pros briefing are on the agenda before week 6". This study covers the briefing's S2 (tail-aware
+  tilts) and S3 (a recency fade), study list 65. S1 is study 64, frozen and acked, with its first line on Monday.
+- **The arms.** Built on study 48's harness (LIVE = 48d's 41 rows; Rev6 `ac10ddf6`), each with study 53's frozen block
+  term and term_book. Each score is one point per flag, clipped to ±2 per skill player, and carried as the shifted file
+  production would write (score + 2, cap 4).
+  - LIVE_CB (the reference): his live book with the cheap +2 block, the Week-5 trial.
+  - TAIL_B8 (S2) INSTEAD of the cheap block:
+    - +1 for a team implied total in the slate's top third;
+    - +1 for an underdog;
+    - +1 for a QB, WR or TE whose top opposing cornerback is out;
+    - −1 for a WR or TE with ≥ 0.5 end-zone targets per game over 4.
+  - RECENCY_B8 (S3) INSTEAD of the cheap block:
+    - −1 for a big last game, ≥ 1.6× max(the mean of the up to 4 games before it, 5), in any time slot (nflverse
+      weekly), the stand-in in every season for "beat his projection";
+    - −1 for a salary rise ≥ $300.
+  - CHEAPTAIL_B8 and CHEAPREC_B8: the cheap +2 plus S2's or S3's flags, in one block.
+  - Exploratory TAILWIND_B8: TAIL_B8 − 1 for wind ≥ 15 mph in open-air games. This is the measured game wind, an
+    upper bound.
+- **Preregistration:** `reports/2026-10-09-prereg-study65-tail-recency.md` (DRAFT `63bec096`; FROZEN `9bc87927`, 10-08
+  14:59 CDT, before any scored bank; merged into integration as `cb089d5a`).
+- **Read:** the reader `880c76c8`; READ `b076f981` (lab `cf53ef1`). The confirmatory census (`94b511d`, with the raw
+  files' shas) was committed before the READ.
+- **Reproduced byte-identically by the laptop:** raw 1605–1610 = `RAW_s65_run.sha256` (`sha256sum -c` OK); the READ
+  `b076f981` (cmp); the confirmatory census `6adad85e`.
+- **Panel:** banks 1605–1610, B 20,000, seed 20261113.
+- **The prior, stated first:** NO DIFFERENCE was likely (study 63's four TE blocks, study 50's factor bonuses, study 34's
+  habit tilt).
+- **Census:**
+  - Flag support: HIGH_ITT .32, UNDERDOG .50, CB_OUT .03 (none on .47 of slate-banks), TD_DEP .16, WINDY .04,
+    BIG_LAST .13, SALARY_RISE .14.
+  - RECENCY_B8 was applied on .943 of slate-banks: the Week-1 slates fall back to LIVE_CB.
+  - No arm is near a dead lever.
+  - On the Week-1 slates, CHEAPREC_B8 (the cheap +2 alone, shifted) was dealt identical to LIVE_CB: the shift changes no
+    solve.
+
+**Reader output (verbatim):**
+```
+STUDY 65 READER  sha256 880c76c8998237a233e31d68126ed9486b33f0bd009c305cfc35bff63b646a45
+DIRECTION: P(>= 1 big seat) per slate (the mean over its banks); every difference is ARM - LIVE_CB; POSITIVE favours the arm.
+slates 36 (the 2023-24 read) + 17 (the 2022 go / no-go)  banks [1605, 1606, 1607, 1608, 1609, 1610]  B 20000  seed 20261113  four decision arms against LIVE_CB on the CALIBRATED field (v2), each two-sided 0.95; guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only; 2022: the point estimate (two-sided 0.95 interval); study 51's trial rule per arm
+arms (definitions, the tilt constants, study 48's and study 53's shas, live settings, QB cap, objective): [["LIVE_CB", "TAIL_B8", "RECENCY_B8", "CHEAPTAIL_B8", "CHEAPREC_B8", "TAILWIND_B8"], {"big_floor": 5.0, "big_x": 1.6, "block": {"floor_proj": 5.0, "min_coverage": 0.5, "n_term": 8, "tilt": 0.2}, "blocks": {"CHEAPREC_B8": ["cheap", "recency"], "CHEAPTAIL_B8": ["cheap", "tail"], "RECENCY_B8": ["recency"], "TAILWIND_B8": ["tail", "wind"], "TAIL_B8": ["tail"]}, "cheap_dose": 2.0, "dose": 1.0, "ez_min": 0.5, "itt_top": 0.333333, "min_prior": 2, "prior_games": 4, "rise_min": 300.0, "roofed_home": ["ARI", "ATL", "DAL", "DET", "HOU", "IND", "LA", "LAC", "LV", "MIN", "NO"], "s50_sha256": "bf4704a0d94ad87938fc29bf94d20fc9deb86f857f454e671f5cd195c1e74265", "shift": 2.0, "signed_cap": 2.0, "wind_min": 15.0}, "c22d28114ab4b463b6842594cb2ff7ca1babf41e28015c7242b21baedb1bc67c", "f3f9d735ca0c5dfadb7abe6c2999fd3bcb352425e4fcc7ea73bd2b09d4522c89", {"fill": "rr", "max_shared": 4}, 5, "player_mean (+ the arm's block term)"]
+
+== TAIL_B8 vs LIVE_CB  [DECISION; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate -0.03715  [-0.08523, +0.00576] (two-sided 0.95)  seasons 2023 -0.07330, 2024 -0.00099
+  GUARD 1 mean entry pct -0.00314  one-sided lower -0.01538  (must exceed -0.015)
+  GUARD 2 expected big seats 0.47873 vs 0.57137  ratio 0.838  (must be >= 0.80)
+  TAIL_B8 dealt identical to LIVE_CB: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  GO / NO-GO 2022: -0.00389  [-0.07747, +0.04721] (two-sided 0.95)  ->  CONTRADICTED (the 2022 point estimate is < 0)
+  TRIAL: NOT ENTERED: CONTRADICTED on 2022
+
+== RECENCY_B8 vs LIVE_CB  [DECISION; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate -0.02456  [-0.07226, +0.02030] (two-sided 0.95)  seasons 2023 -0.06012, 2024 +0.01099
+  GUARD 1 mean entry pct -0.00693  one-sided lower -0.01855  (must exceed -0.015)
+  GUARD 2 expected big seats 0.52710 vs 0.57137  ratio 0.923  (must be >= 0.80)
+  RECENCY_B8 dealt identical to LIVE_CB: 0.056 of slate-banks
+  ->  NO DIFFERENCE
+  GO / NO-GO 2022: -0.01941  [-0.09042, +0.02647] (two-sided 0.95)  ->  CONTRADICTED (the 2022 point estimate is < 0)
+  TRIAL: NOT ENTERED: CONTRADICTED on 2022
+
+== CHEAPTAIL_B8 vs LIVE_CB  [DECISION; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate -0.04737  [-0.08451, -0.01624] (two-sided 0.95)  seasons 2023 -0.05576, 2024 -0.03897
+  GUARD 1 mean entry pct -0.00517  one-sided lower -0.01342  (must exceed -0.015)
+  GUARD 2 expected big seats 0.47513 vs 0.57137  ratio 0.832  (must be >= 0.80)
+  CHEAPTAIL_B8 dealt identical to LIVE_CB: 0.000 of slate-banks
+  ->  WORSE
+  GO / NO-GO 2022: -0.00915  [-0.08407, +0.05251] (two-sided 0.95)  ->  CONTRADICTED (the 2022 point estimate is < 0)
+  TRIAL: NOT ENTERED: WORSE on the 2023-24 read; CONTRADICTED on 2022
+
+== CHEAPREC_B8 vs LIVE_CB  [DECISION; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate -0.02091  [-0.05850, +0.01361] (two-sided 0.95)  seasons 2023 -0.03542, 2024 -0.00640
+  GUARD 1 mean entry pct -0.01276  one-sided lower -0.02365  (must exceed -0.015)
+  GUARD 2 expected big seats 0.51745 vs 0.57137  ratio 0.906  (must be >= 0.80)
+  CHEAPREC_B8 dealt identical to LIVE_CB: 0.056 of slate-banks
+  ->  NO DIFFERENCE
+  GO / NO-GO 2022: -0.02701  [-0.09860, +0.02385] (two-sided 0.95)  ->  CONTRADICTED (the 2022 point estimate is < 0)
+  TRIAL: NOT ENTERED: CONTRADICTED on 2022
+
+== TRIAL SUMMARY: no arm is enterable
+
+== EXPLORATORY (never decision-bearing; two-sided 0.95)
+  TAILWIND_B8 - LIVE_CB (v2, 2023-24): -0.03770  [-0.08629, +0.00581]  seasons 2023 -0.06961, 2024 -0.00580
+  TAILWIND_B8 - LIVE_CB (v2, 2022): -0.00373  [-0.07707, +0.04856]  seasons 2022 -0.00373
+  TAIL_B8 - LIVE_CB (the l02 field, 2023-24): -0.03536  [-0.08276, +0.00744]  seasons 2023 -0.07204, 2024 +0.00131
+  TAIL_B8 - LIVE_CB (the l02 field, 2022): -0.00305  [-0.07963, +0.05234]  seasons 2022 -0.00305
+  RECENCY_B8 - LIVE_CB (the l02 field, 2023-24): -0.02448  [-0.07299, +0.02156]  seasons 2023 -0.06122, 2024 +0.01226
+  RECENCY_B8 - LIVE_CB (the l02 field, 2022): -0.02228  [-0.09630, +0.02609]  seasons 2022 -0.02228
+  CHEAPTAIL_B8 - LIVE_CB (the l02 field, 2023-24): -0.04821  [-0.08503, -0.01711]  seasons 2023 -0.05806, 2024 -0.03836
+  CHEAPTAIL_B8 - LIVE_CB (the l02 field, 2022): -0.01038  [-0.08716, +0.05329]  seasons 2022 -0.01038
+  CHEAPREC_B8 - LIVE_CB (the l02 field, 2023-24): -0.01773  [-0.05573, +0.01755]  seasons 2023 -0.03388, 2024 -0.00157
+  CHEAPREC_B8 - LIVE_CB (the l02 field, 2022): -0.02985  [-0.10352, +0.02327]  seasons 2022 -0.02985
+  TAILWIND_B8 - LIVE_CB (the l02 field, 2023-24): -0.03532  [-0.08325, +0.00838]  seasons 2023 -0.06681, 2024 -0.00383
+  TAILWIND_B8 - LIVE_CB (the l02 field, 2022): -0.00314  [-0.07986, +0.05311]  seasons 2022 -0.00314
+
+secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; the book's rows are pre-lock facts):
+  [2023-24]
+  LIVE_CB      v2: P(>=1 big) 0.35695  expected big seats 0.57137  P(>=2) 0.14765  entry pct 0.51044  |  l02: P(>=1 big) 0.38576
+               book: projection per row 127.74  salary 49965  flagged players per row: high_itt 4.07, underdog 3.39, cb_out 0.22, td_dep 2.44, windy 0.24, big_last 1.87, salary_rise 2.41
+  TAIL_B8      v2: P(>=1 big) 0.31980  expected big seats 0.47873  P(>=2) 0.10636  entry pct 0.50730  |  l02: P(>=1 big) 0.35040
+               book: projection per row 127.71  salary 49967  flagged players per row: high_itt 4.29, underdog 3.63, cb_out 0.37, td_dep 2.07, windy 0.25, big_last 1.84, salary_rise 2.39
+  RECENCY_B8   v2: P(>=1 big) 0.33239  expected big seats 0.52710  P(>=2) 0.11429  entry pct 0.50351  |  l02: P(>=1 big) 0.36128
+               book: projection per row 127.76  salary 49969  flagged players per row: high_itt 3.99, underdog 3.44, cb_out 0.23, td_dep 2.47, windy 0.25, big_last 1.40, salary_rise 1.91
+  CHEAPTAIL_B8 v2: P(>=1 big) 0.30958  expected big seats 0.47513  P(>=2) 0.11006  entry pct 0.50527  |  l02: P(>=1 big) 0.33755
+               book: projection per row 127.71  salary 49965  flagged players per row: high_itt 4.28, underdog 3.56, cb_out 0.31, td_dep 2.22, windy 0.24, big_last 1.86, salary_rise 2.39
+  CHEAPREC_B8  v2: P(>=1 big) 0.33604  expected big seats 0.51745  P(>=2) 0.11733  entry pct 0.49768  |  l02: P(>=1 big) 0.36803
+               book: projection per row 127.46  salary 49964  flagged players per row: high_itt 4.03, underdog 3.41, cb_out 0.21, td_dep 2.42, windy 0.24, big_last 1.44, salary_rise 1.96
+  TAILWIND_B8  v2: P(>=1 big) 0.31925  expected big seats 0.47277  P(>=2) 0.10315  entry pct 0.50474  |  l02: P(>=1 big) 0.35044
+               book: projection per row 127.68  salary 49967  flagged players per row: high_itt 4.29, underdog 3.63, cb_out 0.37, td_dep 2.07, windy 0.15, big_last 1.84, salary_rise 2.39
+  [2022]
+  LIVE_CB      v2: P(>=1 big) 0.24070  expected big seats 0.32558  P(>=2) 0.06889  entry pct 0.45572  |  l02: P(>=1 big) 0.26170
+               book: projection per row 131.86  salary 49963  flagged players per row: high_itt 4.49, underdog 2.73, cb_out 0.23, td_dep 2.61, windy 0.20, big_last 1.69, salary_rise 2.26
+  TAIL_B8      v2: P(>=1 big) 0.23681  expected big seats 0.35567  P(>=2) 0.08313  entry pct 0.45111  |  l02: P(>=1 big) 0.25865
+               book: projection per row 131.78  salary 49966  flagged players per row: high_itt 4.83, underdog 2.93, cb_out 0.46, td_dep 2.15, windy 0.14, big_last 1.74, salary_rise 2.35
+  RECENCY_B8   v2: P(>=1 big) 0.22130  expected big seats 0.31331  P(>=2) 0.06862  entry pct 0.45149  |  l02: P(>=1 big) 0.23943
+               book: projection per row 131.89  salary 49968  flagged players per row: high_itt 4.42, underdog 2.69, cb_out 0.26, td_dep 2.62, windy 0.17, big_last 1.22, salary_rise 1.76
+  CHEAPTAIL_B8 v2: P(>=1 big) 0.23156  expected big seats 0.31949  P(>=2) 0.07116  entry pct 0.45849  |  l02: P(>=1 big) 0.25132
+               book: projection per row 131.79  salary 49963  flagged players per row: high_itt 4.75, underdog 2.90, cb_out 0.40, td_dep 2.30, windy 0.17, big_last 1.73, salary_rise 2.32
+  CHEAPREC_B8  v2: P(>=1 big) 0.21370  expected big seats 0.28781  P(>=2) 0.06002  entry pct 0.44310  |  l02: P(>=1 big) 0.23185
+               book: projection per row 131.60  salary 49962  flagged players per row: high_itt 4.46, underdog 2.71, cb_out 0.23, td_dep 2.59, windy 0.21, big_last 1.27, salary_rise 1.81
+  TAILWIND_B8  v2: P(>=1 big) 0.23697  expected big seats 0.34723  P(>=2) 0.07893  entry pct 0.44908  |  l02: P(>=1 big) 0.25856
+               book: projection per row 131.77  salary 49966  flagged players per row: high_itt 4.81, underdog 2.94, cb_out 0.47, td_dep 2.15, windy 0.11, big_last 1.74, salary_rise 2.35
+```
+
+**Reading.**
+- **No arm is enterable.** Every decision arm is below LIVE_CB on P(≥ 1 big seat), on the 2023–24 read and on 2022,
+  on both fields. The prior was NO DIFFERENCE; the result leans the other way.
+  - **CHEAPTAIL_B8 is WORSE:** −4.7 points [−8.5, −1.6], negative in both seasons (−5.6 / −3.9). Adding S2's flags to
+    the cheap block costs.
+  - **TAIL_B8:** −3.7 [−8.5, +0.6] (2023 −7.3, 2024 −0.1; 2022 −0.4). P(≥ 2) 0.106 against 0.148.
+  - **RECENCY_B8:** −2.5 [−7.2, +2.0] (2023 −6.0, 2024 +1.1; 2022 −1.9).
+  - **CHEAPREC_B8:** −2.1 [−5.9, +1.4] (2022 −2.7).
+  - Expected big seats fell 8–17% (ratios 0.83–0.92).
+  - Guard 1's one-sided lower bound is below −0.015 for TAIL_B8 (−0.0154), RECENCY_B8 (−0.0186) and CHEAPREC_B8
+    (−0.0237). That is moot, because the guards gate a PASS only, but it points the same way.
+  - The trial rule: all four NOT ENTERED. Each is contradicted on 2022, and CHEAPTAIL_B8 is also WORSE.
+- **The wind penalty (exploratory, an upper bound)** adds nothing: TAILWIND_B8 −3.8, as TAIL_B8.
+- **The blocks did what they were built to do.** At equal projection (127.7 per row), the block rows carried more
+  high-total and underdog players and fewer end-zone-dependent receivers (TAIL), or fewer big-last-game and risen-salary
+  players (RECENCY). Those shifts did not turn into big seats.
+- **Why it can differ from the briefing.** The briefing measured big-game chances beyond the market, player by player.
+  Here two other things act:
+  - The harness base is our simulator, which already prices team totals and spreads.
+  - The books are judged in real fields with real ownership. High-total players are popular (the "dark game" finding),
+    so tilting toward them buys ownership along with the boom.
+  - S3's fade did not pay either, consistent with study 34 (Addendum 139).
+- **The transfer caveat stands.** The base live is FP, not our simulator. A fair FP test exists only as a study 38 paper
+  arm on the real fields. With every estimate negative here, it is an offer, not a recommendation.
+- **A live port would also have needed** a convention-free underdog (team implied total below the opponent's). The live
+  T-70 frame's `spread` has the opposite sign of the harness frames' (O-62); the census checked the harness sign on every
+  slate-bank.
+- **Recommendation for Week 6:** keep the cheap block, and add no S2 or S3 block.
