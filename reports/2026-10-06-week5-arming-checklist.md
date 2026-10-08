@@ -140,6 +140,19 @@ rehearsal runs on the merged head in the exact armed env; Friday re-verifies on 
   3. `w5_matchup_union_check.sh <A3 dir> <abs cheapexpwr2-w5.csv> <its sha>`: it reruns A3's T-70 union with only the term
      file swapped (outcome-blind).
   The arm's default stays `cheap2-w5.csv`.
+- **Friday, after A3: study 71's rule (bring-back = the opponent's top receiver), rehearsed but the default stays OFF**
+  (study 71 READ 10-08: TOPBB_AB ENTERABLE, NEUTRAL. 2023–24 −1.9 points, the seasons opposite; 2022 +5.5; about 0
+  over all 53 slates. It changes almost the whole book: 1.5 of 26 rows shared. The reviewer leans OFF for W5.)
+  It is kept as his option:
+  1. `bash ~/.cache/laptop-agent/rehearsal/w5_bringback_union_check.sh <A3 dir>`: it re-runs A3's T-70 union with only
+     `--mix-bring-back-top-wr A1,B` added. It must PASS: the receipt block, rows floored, 0 or recorded fallbacks, the
+     term ranks unchanged.
+  2. On that output, `vet_book` + `vet_replace_v4 --test-exclude-dk <a top WR in ≥ 1 row>`: no REPLACEMENT FAILED; the
+     excluded WR drops the rule for his opponent (no promotion); any house row is recorded in
+     `bring_back_top_wr_exempt`.
+  3. Record both in HANDOFF.
+  Saturday: `BRING_BACK_TOP_WR=""` (off) unless he chooses `"A1,B"`. The arm and `check_week_runtime` allow only that,
+  on the tested configuration. `--check` passes both ways (10-08).
 - **Saturday (arming):** his decision (cheap) -> the arm script's `TERM_ROWS=8`, `TERM_FILE=reports/2026-10-08-live-block/cheap2-w5.csv` (matchup only on a rollback),
   `TERM_SHA=<its sha>`, `TERM_CAP=2.0` (host copy and tracked copy alike); none -> `TERM_ROWS=0` (nothing else changes). Step 0
   runs the sha check and `check_term_block_file.py` (refuses a bonus above TERM_CAP, a cap outside (0, 5], a pred_own that is not

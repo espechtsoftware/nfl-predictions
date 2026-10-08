@@ -12,6 +12,46 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-08 (18:34 CDT) — laptop: study 71 READ reproduced (TOPBB_AB ENTERABLE, neutral); the flag + wiring merged DEFAULT OFF; his option ready
+
+**The operator 10-08:** "Why can't we test the study 71 today with, and if it's good, use it this week?"
+
+**Done tonight:**
+- the reviewer froze study 71 at 17:55 (prereg `44a3ae7e`; merged `da36d782`), ran it and read it;
+- the laptop acked it (shas, 7 tests, the census re-run identical, the scan clean) and reproduced the READ BYTE-IDENTICALLY:
+  `e37c9cff`, census `fc90a445`, raw = `RAW_s71_run.sha256`.
+
+**The result:**
+- TOPBB_AB (A1 / B rows hold the QB's opponent's top WR) vs LIVE_CB: −0.019 [−0.072, +0.030]. The seasons point opposite
+  ways: 2023 −0.065, 2024 +0.027.
+- Guard 1 holds (−0.0123); the seats ratio is 0.911.
+- 2022: +0.055 [−0.009, +0.122], not contradicted, so the trial rule says **ENTERABLE: "no harm shown and no gain shown"**.
+- The equal-weight net over 53 slates is +0.005, about zero.
+- 0 of 7,632 rule solves were infeasible.
+- It changes almost the whole book: 1.5 of 26 rows shared.
+- **The reviewer's lean: OFF for W5, decide for W6. The laptop agrees.** It is a legitimate reversible trial if he wants
+  to act on the pairing idea now.
+
+**The option is ready, merged into integration and the production checkout (`da36d782`), DEFAULT OFF:**
+- **The flag** (the outside reviewer's, b672d396; reviewed by the laptop):
+  - `union_reselect --mix-bring-back-top-wr A1,B` with the interaction floor;
+  - mix_shapes' one reader, vet_replace_v4's lenient house, and audit_build_levers.
+- **The wiring** (the laptop's, 0a3c6514): UNION_MIX_BRING_BACK_TOP_WR, the arm's `BRING_BACK_TOP_WR`, and
+  check_week_runtime allowing only `A1,B` on the tested configuration.
+- **Verified:**
+  - OFF is byte-identical on the real W4 inputs: book.csv `a4ab283949254d12`, the same as integration's off run.
+  - ON: 15 book + 9 spares floored, 0 fallbacks, and the union's own shape checks pass.
+  - The combined tree is code-identical to the merge: 74 modules, 1,256 passed, 0 failed.
+  - `--check` passes with `""` and with `A1,B`, and nothing is armed.
+  - The host arm copy was re-synced (backup `.bak-20261008-s71`).
+
+**Friday (checklist):**
+1. A3's union re-run ON (`w5_bringback_union_check.sh`);
+2. vet_replace with a top WR excluded;
+3. both recorded.
+
+Saturday: OFF unless he chooses `A1,B`.
+
 ## 2026-10-08 (17:42 CDT) — laptop: study 71's production flag format agreed (W6)
 
 **The reviewer's study 71 plan** (study list 71):
