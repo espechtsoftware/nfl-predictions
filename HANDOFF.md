@@ -43,6 +43,10 @@
 - **`check_prospective_gates.py --week 5`:** exit 0, "every gate that must be armed this week is armed and
   policy-consistent".
 - **Sent to the reviewer** (pid 1922, sessionId `f71d6947-9b10-…`, verified in ~/.claude/sessions).
+- **THE PROOF PANELS for the W5 freeze** (the reviewer 10-08: no re-run needed; the gate's three operational-proof items are met):
+  - control `dryrun-live-shadow-tail_k1_roleunion-2026w05-20261008T162308Z`;
+  - treatment **`dryrun-live-shadow-tail_k1_route_roleunion-2026w05-20261008T165223Z` (POST-repair)**.
+  - The pre-repair treatment panel `…-163108Z` is NOT Sunday's evidence. It sits in the dry-run namespace, which no graded reader reads.
 
 ## 2026-10-08 (13:06 CDT) — Shadow B's first run (smoke) PASSES in about 2 minutes; Sunday's run moves to 09:30; two stale tests fixed and merged (71f965e2)
 
