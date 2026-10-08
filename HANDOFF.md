@@ -12,6 +12,29 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-07 (23:50 CDT) — O-55 registered: the live frame serves defense and xfp features one game staler than training (verified; off the money path except `ref_flags_prior`)
+
+- **Found by** the outside reviewer's independent TE audit (`8922956a`, §8 of the options note).
+- **The audit's verdict on the TE study:** correct, an exact reproduction. No TE gain against tough pass defenses
+  (QB+TE / QB+WR 45+ ratio, strong vs weak defenses: 0.95 [0.78, 1.16]). The W3–4 effect is four games, 58% of it one
+  game. The usable TE signal is a defense's record against TEs, i.e. the matchup block.
+- **Laptop verification on the real T-70 frames:**
+  - `def_asof` and `xfp_asof` in `023_player_week_inference.sql` take the latest built row, which is one game staler
+    than training's exact-week row.
+  - W3 `epa_per_dropback_allowed_l6` = the week-2 row for 26 of 26 defenses (training's week-3 row: 0).
+  - W4: 24 of 24.
+  - W4 `xfp_l4` = the week-3 row for 191 of 191.
+  - W3's four `*_fp_allowed_adj_l6` columns are all NULL.
+- **Class sweep:** columns all-NULL on live frames: also `ref_flags_prior`, a live model input that is NULL at serve
+  (officials are post-game; documented in the SQL only).
+- **Impact:**
+  - Off the money path for the defense columns and `xfp_l4`: neither is a live model feature, and the production bonus
+    writers compute their own defense numbers.
+  - It matters for study 38 6k's TETOUGH2 (stale label) versus study 63's harness (fresh rows), the O-40 arms, any
+    adoption, and the Milly-graph facts.
+  - Fix in W6. No feature-SQL change before W5's lock.
+- **Told the reviewer** for 6k and study 63.
+
 ## 2026-10-07 (23:45 CDT) — The operator's QB + tight-end request (relayed by the outside reviewer while he sleeps): production checks done, test plan proposed to the reviewer
 
 - **His words (10-07 night):**
