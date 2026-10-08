@@ -12,6 +12,35 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-08 (16:36 CDT) — laptop: study 70 (a top-receiver block for Week 5) set up for tonight
+
+**The operator, about 16:25, via the outside reviewer:** "I find this somewhat concerning. Is there a test we can do
+immediately to try to fix this for this week?"
+
+**The concern:** our W5 construction never pays for an expensive WR1. The W4 Millionaire's $500+ lineups needed
+Collins + Lamb, while today's settings rebuilt on W4 hold Lamb 0 of 26.
+
+**Study 70 (study list row 70):**
+- The arms, in the study 63/65 harness:
+  - TOPWR2_B8 (+2 to each team's highest-salaried WR);
+  - CHEAPTOPWR2_B8 (the cheap rule OR top WR, +2, cap 2: the arm he would enter);
+  - exploratory TOPWR3_B8.
+- Banks 1611–1616, scanned clean by the laptop.
+- Who does what:
+  - the reviewer designs, builds and freezes: ACCEPTED (seed 20261114; two decision arms, about 5% multiplicity
+    disclosed; its plan: DRAFT and code ~18:00, the binding census ~18:30–19:00, freeze ~19:30, the run ~19:30–20:30,
+    READ ~20:45);
+  - the outside reviewer writes only the W5 writer `top_wr_block_file.py --with-cheap`, naming its format first;
+  - the laptop acks, scans and re-runs, and keeps the machine free tonight.
+- Target: frozen ~20:00, scored ~21:00–22:00.
+
+**Only on ENTERABLE:**
+- the writer is merged with tests BEFORE Friday's FRIDAY_HEAD (the arm refuses code changes after it);
+- A3 rehearses the combined file;
+- he chooses at Saturday's arming between `cheap2-w5.csv` and the combined file (TERM_FILE / TERM_SHA; cap 2.0).
+
+The honest prior: blocks 51, 63 and 65 never beat the cheap block.
+
 ## 2026-10-08 (16:30 CDT) — laptop: the production checkout fast-forwarded; the weekend is in a safe place
 
 The operator asked (10-08) for a safe place heading into the weekend, after the reviews. Every review is done:
