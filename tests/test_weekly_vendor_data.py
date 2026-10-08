@@ -611,6 +611,50 @@ def test_a_failed_matchups_capture_is_named_and_the_run_goes_on(monkeypatch, tmp
     assert "matchups-stage" not in events and "sis-capture" in events                  # no stage; SIS still ran
 
 
+def test_a_refused_alignment_revision_is_named_and_the_run_goes_on(monkeypatch, tmp_path, capsys):
+    """2026-10-08: FP revised weeks 1-4 of the alignment page after Wednesday's capture; the import's append-once check
+    refused it and, fatal then, stopped the run before the FP projection pages. Like the Route import since 10-06, the
+    refusal is recorded, the paid-page gate names the page, and every later page is still captured."""
+    events = []
+    run_dir = tmp_path / "fp-run"; run_dir.mkdir()
+    (run_dir / "manifest.json").write_text("{}")
+    monkeypatch.setattr(weekly.fp, "load_plan", lambda *_: ({}, [object()]))
+    monkeypatch.setattr(weekly.fp, "select_target_week", lambda specs, _: specs)
+    monkeypatch.setattr(weekly.fp, "verify_login", lambda *_: None)
+    monkeypatch.setattr(weekly.sis, "verify_login", lambda *_: None)
+    monkeypatch.setattr(weekly.fp, "run_downloads", lambda plan, *_a, **_k: events.append(plan.name) or run_dir / "manifest.json")
+    monkeypatch.setattr(weekly.fantasy_points_route_weekly, "run", lambda *_a, **_k: events.append("route-import") or {})
+    monkeypatch.setattr(weekly.fantasy_points_defense_proe_weekly, "run", lambda *_a, **k: events.append("proe-import") or {})
+
+    def refused(*_a, **_k):
+        events.append("alignment-import")
+        raise RuntimeError("weekly alignment append conflicts: [{'season': 2026, 'target_week': 5}]")
+
+    monkeypatch.setattr(weekly.fantasy_points_alignment_weekly, "run", refused)
+    monkeypatch.setattr(weekly.fantasy_points_weekly_2026, "run", lambda key, *_a, **k: events.append(f"{key}-import") or {})
+    monkeypatch.setattr(weekly.fp_projections, "collect", lambda *_a, which, **_k: events.append(f"projections-{which[0]}") or {})
+    monkeypatch.setattr(weekly.sis, "run_pass_tail_weekly_acquisition", lambda *_a, **_k: events.append("sis-pass-tail") or {})
+    monkeypatch.setattr(weekly.sis_pass_tail_weekly, "run", lambda *_a, **_k: events.append("sis-pass-tail-import") or {})
+    monkeypatch.setattr(weekly.sis, "run_receiver_copula_weekly_acquisition", lambda *_a, **_k: events.append("copula") or {})
+    monkeypatch.setattr(weekly.sis_receiver_copula_weekly, "run", lambda *_a, **_k: events.append("copula-import") or {})
+    with pytest.raises(RuntimeError, match=r"NOT CAPTURED: fantasy-points alignment: receiving-separation-by-alignment"):
+        weekly.run_week(
+            week=5, fp_profile_dir=tmp_path / "fp-profile", sis_profile_dir=tmp_path / "sis-profile", timeout_seconds=10,
+            output_root=tmp_path / "runs", fp_output_root=tmp_path / "fp-output", sis_output_root=tmp_path / "sis-output",
+            capture_matchups=False, ingest_odds=False, login_if_needed=False, sis_team_context=False,
+            now=datetime(2026, 10, 8, 15, tzinfo=UTC),
+        )
+    after = events[events.index("alignment-import") + 1:]
+    assert "advanced-passing-import" in after and "coverage-import" in after                 # the families still ran
+    assert [e for e in after if e.startswith("projections-")] == [f"projections-{t}" for t in weekly.FP_PROJECTION_TABLES]
+    assert "sis-pass-tail-import" in after and "copula-import" in after                        # and SIS after them
+    manifest = json.loads(next((tmp_path / "runs").glob("*/manifest.json")).read_text())
+    (step,) = [s for s in manifest["steps"] if s["name"] == "fantasy-points-alignment-import"]
+    assert step["status"] == "failed" and "append conflicts" in step["error"]
+    assert manifest["steps"][-1]["name"] == "paid-page-completeness"
+    assert "fantasy-points-alignment-import FAILED (RuntimeError: weekly alignment append conflicts" in capsys.readouterr().out
+
+
 def test_skipped_pages_are_named_not_failed(monkeypatch, tmp_path, capsys):
     """The SIS-only re-run: the Fantasy Points pages are named as skipped by the flag, never counted as captured."""
     events = []

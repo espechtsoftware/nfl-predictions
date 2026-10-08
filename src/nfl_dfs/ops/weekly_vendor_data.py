@@ -602,6 +602,9 @@ def run_week(
                 target_week=week,
             ),
         )
+        # NOT fatal (2026-10-08, the Route import's 10-06 rule): on 10-08 FP revised weeks 1-4 of the alignment page
+        # after Wednesday's capture, the append-once check (correctly) refused it, and -- fatal then -- it stopped the run
+        # before the FP projection pages. A refusal is recorded here and named by the paid-page gate; the run goes on.
         step(
             "fantasy-points-alignment-import",
             lambda: fantasy_points_alignment_weekly.run(
@@ -609,6 +612,7 @@ def run_week(
                 target_week=week,
                 write=write_alignment,
             ),
+            fatal=False,
         )
         if collect_fp_families:
             family_dirs: dict[str, Path] = {}
