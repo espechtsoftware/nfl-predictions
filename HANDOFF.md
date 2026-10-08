@@ -12,6 +12,30 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-07 (23:03 CDT) — The operator's season-to-date-touchdown deal: NOT ENTERED by its frozen W2–4 screen (ratio 0.587)
+
+- **His request (10-07):** after the projected-TD sort failed, "try another experiment on the total touchdowns prior to
+  this game this year for all the players in the lineup and sort by that". It is study list 62.
+- **Frozen first:** the harm screen `reports/2026-10-07-tdytd-deal-harm-screen.md` at `8eed3bf4`, before any number.
+  - The only data seen before the freeze was an outcome-blind coverage census.
+  - The key per lineup: the 2026 touchdowns its 9 players scored before the slate. That is passing, rushing, receiving
+    and special-teams TDs from `player_week_actuals`, plus a DST's defensive and return TDs from `team_defense_week`.
+  - The arm: the cheap block kept, and the 18 other rows sorted by the key.
+- **The run:** `~/rehearsals/tdytddeal-20261008T040126Z`, script `~/.cache/laptop-agent/rehearsal/tdytd_deal_replay.sh`.
+  - It re-deals the priority-deal run's CB books on Rev6, with no new builds.
+  - Integrity OK in all 3 weeks. CB_REV6 reproduces the earlier run's rowmap byte for byte, and its scores exactly.
+- **Verdict: NOT ENTERED.**
+  - P(≥ 1 big) is lower in 3 of 3 weeks: .1119 / .0032 / .4265 vs .1120 / .0178 / .6597. W2 is a tie in practice.
+  - The pooled e_big ratio is 0.587.
+  - Exploratory: every re-sort also trailed the book's own order (all-26 0.251, scored-TDs-only 0.745, projection order
+    0.861).
+  - The mechanism: W4's best row (181 points, the 98.8th percentile) moved from a $333 satellite (rank 14) to a $20
+    supersat (rank 26), because its players had scored few TDs before Week 4. The priority sort did the same, so the two
+    W4 numbers coincide.
+  - Record: `reports/2026-10-07-tdytd-deal-replay-result.md`.
+- **Next:** the out-of-sample harness test (study 52's shape) is offered to the operator. The laptop recommends closing
+  the idea. Nothing changes for Week 5.
+
 ## 2026-10-07 (18:30 CDT) — Study 61 amendment 3 merged as `517aa252`: team_change on its own descriptive line; Sunday's census runs `081c1343…`
 
 - **The reviewer's amendment 3** (`966908c8`, reader commit `01fc3270`; before any W5 game and before W6's extraction):
