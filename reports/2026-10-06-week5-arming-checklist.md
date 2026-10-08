@@ -100,6 +100,11 @@ rehearsal runs on the merged head in the exact armed env; Friday re-verifies on 
   record beside it. Stop rule (his, accepted): clearly worse paired P(≥1 big) over the trial weeks, or expected big seats
   more than 20% below the unblocked book (not a loss count); first full review Mon 10-19. Rollback: matchup or none.
   Matchup stays on paper (study 38's 6e / 6d arms). His final word is still given at Saturday's arming.
+- **Thursday, after A3: the TE columns check for study 38 amendment 6k** (the reviewer 10-07 night; the operator's QB + TE
+  request). On A3's W5 frame, count the non-empty `target_share_l4` among TEs and `epa_per_dropback_allowed_l6` among all
+  rows (W2's frames had the latter empty, W3–4 had it); send both counts to the reviewer. If `epa_per_dropback_allowed_l6`
+  is empty, TETOUGH2 is void for W5 (the reviewer records it in 6k). Note O-55: the frame's defense columns are one game
+  staler than training's (W5's frame carries the week-4 row, i.e. W1–3); report it, do not fix it this week.
 - **Thursday, after A3 (block OFF):** write BOTH files, and commit them under reports/, so the arm's ff-pull accepts them.
   Record both shas in HANDOFF. The helper `~/.cache/laptop-agent/rehearsal/w5_write_block_files.sh <A3 dir> <checkout>` runs
   exactly these, from the FRIDAY_HEAD-to-be checkout:
