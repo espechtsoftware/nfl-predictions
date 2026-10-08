@@ -12,6 +12,21 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-08 (00:40 CDT) — Study 63 (QB + TE in the harness) FROZEN and acked by the laptop; the reviewer runs it (banks 1599–1604)
+
+- **Frozen** at `43f0fe9a` (10-08 00:26 CDT, before any scored bank); merged into integration.
+  - Arms: LIVE_CB vs TE2_B8 / TETOUGH2_B8 (served label) / CHEAPTE2_B8 / QBTE_SHARE (QB + TE on 18 of 26 rows), plus an
+    exploratory TEWEAKD2_B8.
+  - The 2023–24 read and the 2022 go / no-go. Study 51's trial rule per arm.
+- **The laptop's ack:**
+  - lab shas verified; 8 tests pass;
+  - the binding census re-run on bank 1406 is identical: every non-timing field of the 53 raw rows; the text equals
+    `c053b84a` up to one trailing newline;
+  - the unique-blob scan of both repos is clean for banks 1599–1604 and seed 20261110, and no result files are on disk;
+  - the served `target_share_l4` equals training's same-week value (W3 341/341, W4 267/267), so it is not part of O-55.
+- **Next:** the run (about an hour), the confirmatory census, the read, then the laptop's byte-identical re-run, all
+  before W6 arming.
+
 ## 2026-10-08 (00:03 CDT) — Study 38 amendment 6k (three PAPER tight-end block arms) acked and merged `88ec3d46`; study 63 DRAFT merged
 
 - **The operator's QB + TE request (10-07 night):** the reviewer's plan, recorded in the prereg texts.
