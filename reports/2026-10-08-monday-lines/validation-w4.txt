@@ -22,3 +22,17 @@
       props_vs_fp        improvement +0.05 [-0.45, +0.57]  better in 55%
       fp+props_vs_fp     improvement +0.07 [-0.20, +0.35]  better in 64%
       fp+props_vs_props  improvement +0.02 [-0.23, +0.25]  better in 56%
+## Row 69: pool_hit_density.py on W4 (pool: the W4 T-70 candidates; book: the P3 replay's ENTERED-1 rebuild; plan: plan-w04-s24.json; real W4 fields)
+== POOL HIT DENSITY 2026 W4 -- descriptive, gates nothing. A row clears a big contest when, entered ALONE into its real field (our real entries removed), it would finish inside the seats (P3's big rule).
+   The T-70 pool is generated from OUR projections; the book's rows are solved on FP's (since W5). d_pool measures our pool, not FP's book.
+   pool: 4739 generated rows, 4739 distinct (0 unmapped); book: 110 rows; names nobody rostered (scored 0): pool 105, book 0
+   d = share of distinct pool rows / book rows clearing; P26 = 1 - (1 - d)^26; [5-95%] cluster bootstrap over the row's QB game, B 2000, seed 1
+   supersat       Satellite $555       seats    2  line  178.60   pool d 0.0116 [0.0042, 0.0219] (all rows 0.0116) P26 0.262   book d 0.0091 [0.0000, 0.0270] P26 0.211
+   milly          Millionaire          seats   95  line  209.58   pool d 0.0002 [0.0000, 0.0005] (all rows 0.0002) P26 0.005   book d 0.0000 [0.0000, 0.0000] P26 0.000
+   sat            Satellite $555       seats    1  line  184.28   pool d 0.0063 [0.0029, 0.0105] (all rows 0.0063) P26 0.152   book d 0.0000 [0.0000, 0.0000] P26 0.000
+   ffwc           Satellite FFWC       seats    1  line  171.10   pool d 0.0226 [0.0103, 0.0398] (all rows 0.0226) P26 0.448   book d 0.0364 [0.0000, 0.0658] P26 0.618
+   by class (mean d over the class's contests):
+      Millionaire          contests  1  median line  209.58  pool d 0.0002 (P26 0.005)  book d 0.0000 (P26 0.000)
+      Satellite $555       contests  2  median line  181.44  pool d 0.0090 (P26 0.209)  book d 0.0045 (P26 0.112)
+      Satellite FFWC       contests  1  median line  171.10  pool d 0.0226 (P26 0.448)  book d 0.0364 (P26 0.618)
+   any big contest: pool d 0.0226  book d 0.0364
