@@ -117,7 +117,9 @@ def test_ownership_term_is_off_unless_armed_and_the_chain_falls_back_named():
     host = (ROOT / "scripts" / "sunday_build_host.sh").read_text()
     assert 'BLEND_SRC="$OUT/ownership_blend-$RUN_TAG.csv"' in host
     assert '[[ -n "$OWN_SRC" ]] && UNION_ARGS+=(--main-own-tilt "$OWN_TILT" --main-own-source "$OWN_SRC")' in host
-    assert "grep -q 'OWN TERM REFUSED'" in host and "own_term_refused.txt" in host
+    # anchored since 2026-10-07 (the outside review's grep LOW): a term-block refusal prints the words mid-line
+    assert "grep -q '^OWN TERM REFUSED'" in host and "own_term_refused.txt" in host
+    assert "grep -q 'OWN TERM REFUSED'" not in host                                       # no unanchored form left
     assert 'strip_own "${UNION_ARGS[@]}"; MEAN_ARGS_U=("${OUT_ARGS[@]}")' in host         # the mean fallback never carries the term
     assert "timeout 120" in host                                                           # a hung capture cannot stall the union
 
