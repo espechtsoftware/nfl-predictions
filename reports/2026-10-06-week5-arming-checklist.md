@@ -134,7 +134,9 @@ rehearsal runs on the merged head in the exact armed env; Friday re-verifies on 
      --points 2.0 --base reports/2026-10-08-live-block/cheap2-w5.csv --min-salary 7000 --out
      reports/2026-10-09-live-block/cheapexpwr2-w5.csv` (in the FRIDAY_HEAD-to-be checkout). Expect about 6 WRs flagged;
      `check_term_block_file.py --cap 2.0 --require-bonus` must pass.
-  2. commit it under reports/ and record its sha in HANDOFF.
+  2. commit it under reports/, and record in HANDOFF (the reviewer's ask) its top-WR count, how many are at ≥ $7,000
+     (all of them under the floor), and its sha256. If he picks it, the armed TERM_SHA is then the rehearsed file, byte
+     for byte.
   3. `w5_matchup_union_check.sh <A3 dir> <abs cheapexpwr2-w5.csv> <its sha>`: it reruns A3's T-70 union with only the term
      file swapped (outcome-blind).
   The arm's default stays `cheap2-w5.csv`.
