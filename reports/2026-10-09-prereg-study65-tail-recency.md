@@ -1,9 +1,10 @@
-# Preregistration: study 65 (S2 + S3), tail-aware tilts and a recency fade as 8-row blocks, in the harness (DRAFT 2026-10-08)
+# Preregistration: study 65 (S2 + S3), tail-aware tilts and a recency fade as 8-row blocks, in the harness (FROZEN 2026-10-08)
 
-**Status: DRAFT 2026-10-08** by the reviewer, written after the code's mechanics smoke and before the binding census, the
-bank scan and any scored bank.
-- **Next:** the binding census (§6), the bank scan, the freeze, the laptop's ack and scan, the run, the confirmatory
-  census before the read, the frozen reader, the laptop's re-run and the records.
+**Status: FROZEN 2026-10-08 (14:59 CDT)** by the reviewer, after the smoke, the binding census (§6) and the bank scan, before any
+scored bank.
+- The DRAFT was `63bec096`. Nothing in §2–§5 changed at the census; §6 records it, and §3's banks are confirmed.
+- **Next:** the laptop's ack and scan, the run, the confirmatory census before the read, the frozen reader, the laptop's
+  re-run and the records.
 - **Target:** read before the Week-6 decisions (Tue 10-13; W6 arming Sat 10-17).
 
 **Units:** probabilities, counts and rates only. Dollars stay in BigQuery and private files.
@@ -84,8 +85,7 @@ bank scan and any scored bank.
 - **THE READ: 2023–24** (36 slates). For each of the four decision arms, the arm − LIVE_CB on P(≥ 1 big seat), per slate,
   on the calibrated field v2.
   - The interval is two-sided 0.95, with B 20,000.
-  - **Banks 1605–1610** (to be confirmed unused by the bank scan before the freeze), seed **20261113**. Each slate's
-    value is the mean over its six banks.
+  - **Banks 1605–1610**, seed **20261113** (the bank scan, §6). Each slate's value is the mean over its six banks.
 - **THE GO / NO-GO: 2022** (study 51's frozen rule): the point estimate of P(≥ 1 big) ARM − LIVE_CB on 2022, with its
   two-sided 0.95 interval. CONTRADICTED if the point estimate is < 0.
 - **Guards** as in studies 54–63. They gate a PASS only: the mean entry percentile (one-sided 0.95 lower bound above
@@ -127,7 +127,7 @@ bank scan and any scored bank.
 
 ## 6. Smoke, census and integrity
 - **The mechanics smoke** (bank 1406, never a decision bank; Rev6; `~/s65-panel/smoke/`):
-  - **First pass (2022 W9, 2024 W10)** found one defect, fixed before this DRAFT. S3's last game was read from the
+  - **First pass (2022 W9, 2024 W10)** found one defect, fixed before the DRAFT. S3's last game was read from the
     harness frames, which hold the main slate only, so a player whose last game was in prime time got an older game.
     The rule now reads nflverse weekly stats (§2).
   - **Second pass (2022 W9, 2023 W3, 2024 W10):**
@@ -142,8 +142,41 @@ bank scan and any scored bank.
   - its output was read with numbers and verdict words masked.
   - Disclosed: the masked TRIAL SUMMARY line still showed one arm's name. Bank 1406 and one read slate carry no
     information on the decision banks.
-- **The binding census:** to follow (all 53 slate-banks of 2022–24, bank 1406, mechanics only).
-- **Code:** nfl2 `production/s65-tailtilt-20261009` @ `a5cab7b`:
+- **The binding (support) census** (outcome-blind; bank 1406; all 53 slate-banks of 2022–24; code `a5cab7b` clean; lab
+  `results/s65/CENSUS_s65_binding.txt` `ff692e48…`, the raw mechanics rows `census_mechanics_bank1406.jsonl`
+  `cb6babc4…` with no outcome field, committed whole at `6214e4a`):
+  - every arm is 41 rows within production's caps, QB cap and overlap limit, with 8 term rows and every row in the pool
+    (asserted);
+  - the spread's sign: team implied total vs spread is negative on every slate-bank (at most −0.627), so spread > 0 is
+    the underdog;
+  - flag support (share of the pool's skill players; 2022 / 2023 / 2024):
+    - HIGH_ITT .319 (.314 / .325 / .317);
+    - UNDERDOG .502;
+    - CB_OUT .029 (.035 / .029 / .023), with none on .472 of slate-banks;
+    - TD_DEP .161 (.121 / .173 / .187);
+    - WINDY .041, with none on .623 of slate-banks;
+    - BIG_LAST .125 (.096 / .141 / .136);
+    - SALARY_RISE .135.
+    - The three Week-1 slate-banks have no BIG_LAST or SALARY_RISE.
+  - the recency audit (per slate-bank, of 293 skill players): 235 with a last game this season, 174 of those in the
+    previous week, and 224 with at least 2 games before it.
+  - Blocks applied: TAIL_B8, CHEAPTAIL_B8, CHEAPREC_B8 and TAILWIND_B8 on 1.000; RECENCY_B8 on .943, falling back to
+    LIVE_CB's book on the Week-1 slates.
+    - There CHEAPREC_B8 (the cheap +2 alone, shifted) came out dealt identical to LIVE_CB. That is an empirical check that
+      the shift changes no solve.
+  - Flagged players per book row (26 rows; the 8 block rows carry the whole difference):
+    - TAIL_B8 vs LIVE_CB: HIGH_ITT 4.48 vs 4.21, UNDERDOG 3.38 vs 3.14, CB_OUT 0.39 vs 0.21, TD_DEP 2.05 vs 2.47;
+    - RECENCY_B8: BIG_LAST 1.33 vs 1.81, SALARY_RISE 1.86 vs 2.34;
+    - TAILWIND_B8: WINDY 0.13 vs 0.22.
+  - Rows shared with LIVE_CB: 18.0 / 18.5 / 18.3 / 18.8 / 18.0. Dealt identical on 0.000 / 0.057 / 0.000 / 0.057 / 0.000,
+    so no arm is near the 0.80 dead-lever line.
+  - Build time: about 93 s per slate-bank with 16 workers.
+- **The bank scan** (the reviewer's unique-blob scan, `bank_scan.py`; blobs up to 5 MB) covered 17,991 production blobs
+  and 8,087 lab blobs.
+  - Filtered to bank contexts, banks 1605–1610 appear only in this preregistration, and the seed 20261113 only in this
+    study's reader and test.
+  - No `results_bank1605`–`1610` file exists on disk.
+- **Code:** nfl2 `production/s65-tailtilt-20261009` @ `a5cab7b` (the census at `6214e4a`):
   - `experiments/s65_tailtilt.py` `7667c963…`;
   - `scripts/s65_drive.py` `2694b234…`;
   - `scripts/s65_census.py` `5d91fbbb…`;
@@ -155,10 +188,10 @@ bank scan and any scored bank.
 
 ## 7. Order
 1. The code and the smoke. Done.
-2. This DRAFT.
-3. The binding census.
-4. The bank scan.
-5. The freeze.
+2. The DRAFT (`63bec096`). Done.
+3. The binding census. Done (§6).
+4. The bank scan. Done (§6).
+5. The freeze. Done (this text).
 6. The laptop's ack and scan.
 7. The run, outside the build windows.
 8. The confirmatory census before the read.
