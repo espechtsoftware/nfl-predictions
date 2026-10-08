@@ -12,6 +12,32 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-08 (17:37 CDT) — laptop: study 70 READ reproduced; recommendation for W5: do NOT enter (his option kept open)
+
+**Study 70 READ:** the reviewer's `c2d15669` (lab `68c900d`, reader `26409685`) was reproduced BYTE-IDENTICALLY by the
+laptop. The raw files 1611–1616 match `RAW_s70_run.sha256`, and the confirmatory census `ba81f097` is identical.
+
+**The result,** P(≥ 1 big) arm − LIVE_CB on 2023–24, then the 2022 check:
+
+| Arm | 2023–24 [interval] | Read | 2022 | Trial rule |
+|---|---|---|---|---|
+| TOPWR2_B8 | −0.012 [−0.069, +0.041] | NO DIFFERENCE | −0.005 | NOT ENTERED |
+| CHEAPTOPWR2_B8 | +0.019 [−0.027, +0.064] | NO DIFFERENCE | −0.006 | NOT ENTERED |
+| CHEAPEXPWR2_B8 | −0.034 [−0.076, +0.004] | NO DIFFERENCE | +0.032 | **ENTERABLE** |
+
+- CHEAPEXPWR2_B8 is negative in both seasons (2023 −0.013, 2024 −0.056). Its expected-seats ratio is 0.901, and guard
+  1's lower bound is −0.0166 (moot).
+- **Recommendation, the reviewer's and the laptop's: do NOT enter it; keep the cheap block.**
+  - "Enterable" means "no harm shown and no gain shown".
+  - The deciding seasons are negative, and the 2022 check is positive.
+  - The pairing itself (Collins + Lamb) is study 71's question, for W6.
+
+**Kept as his option at Saturday's arming** (he asked us to test without him; the decision is his):
+- the writer is merged, path-limited from `01ca2df1`, as `f30e8e7f` (17 tests; 39 with the cheap / term-check modules);
+- Friday's checklist adds the file (`--base cheap2-w5.csv --min-salary 7000`, from A3's frame), its commit and sha, and the
+  union swap check;
+- the arm's default stays `cheap2-w5.csv`.
+
 ## 2026-10-08 (16:58 CDT) — laptop: study 70 acked (GO); the top-WR writer approved; the outside reviewer's briefing merged
 
 **Study 70 was FROZEN by the reviewer at 16:52:**

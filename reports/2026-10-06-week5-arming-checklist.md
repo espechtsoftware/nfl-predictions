@@ -126,6 +126,18 @@ rehearsal runs on the merged head in the exact armed env; Friday re-verifies on 
   2..25; NOTERM, MATCHUPX, COMBINED, CHEAP2 and CHEAP4 have 0 term rows; TERM8 its 8. Then the ROLLBACK's readiness:
   `w5_matchup_union_check.sh <A3 dir> <matchup-w5.csv> <sha>` puts the matchup file through Friday's T-70 union too, so
   either block can be armed Saturday without entering an unexercised file.
+- **Friday, after A3: study 70's ENTERABLE arm, rehearsed but NOT recommended** (study 70 READ 10-08: CHEAPEXPWR2_B8
+  ENTERABLE by the rule. It means "no harm shown and no gain shown": −3.4 points on 2023–24, both seasons negative,
+  and 2022 +3.2. The reviewer and the laptop recommend NOT entering it.) It is kept as his option, because he decides
+  at arming:
+  1. write the file from A3's frame: `python scripts/top_wr_block_file.py --season 2026 --week 5 --frame <A3 frame.parquet>
+     --points 2.0 --base reports/2026-10-08-live-block/cheap2-w5.csv --min-salary 7000 --out
+     reports/2026-10-09-live-block/cheapexpwr2-w5.csv` (in the FRIDAY_HEAD-to-be checkout). Expect about 6 WRs flagged;
+     `check_term_block_file.py --cap 2.0 --require-bonus` must pass.
+  2. commit it under reports/ and record its sha in HANDOFF.
+  3. `w5_matchup_union_check.sh <A3 dir> <abs cheapexpwr2-w5.csv> <its sha>`: it reruns A3's T-70 union with only the term
+     file swapped (outcome-blind).
+  The arm's default stays `cheap2-w5.csv`.
 - **Saturday (arming):** his decision (cheap) -> the arm script's `TERM_ROWS=8`, `TERM_FILE=reports/2026-10-08-live-block/cheap2-w5.csv` (matchup only on a rollback),
   `TERM_SHA=<its sha>`, `TERM_CAP=2.0` (host copy and tracked copy alike); none -> `TERM_ROWS=0` (nothing else changes). Step 0
   runs the sha check and `check_term_block_file.py` (refuses a bonus above TERM_CAP, a cap outside (0, 5], a pred_own that is not
