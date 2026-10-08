@@ -486,3 +486,43 @@ opponents, within offense-season:
 **Reading:** the chain holds up to "fewer first downs and less possession", by about half a minute to a minute before
 the game. It breaks at the last step. With less possession, the TE's share of targets stays flat (.213–.218), and his
 count falls with the team's.
+
+### 6b. Pass-catching tight ends only, and a correction to the stack comparison (the operator, 10-07)
+
+The operator: *"Since there are two types of tight ends, ones that do more blocking and ones that are pass catching
+tight ends, is it possible that the blocking ones are skewing these results? Can we look at it only through the pass
+catching tight ends?"* Script: `te_receiving_study.py`.
+
+**Definition, point-in-time:** the team's TE with the highest average target share in his earlier games that season
+(3+ games), kept only if that share is ≥ 15%. That leaves 2,111 of 5,129 team-games 2014–2025; his prior share has a
+median of 18.9%. The team's WR1 is chosen the same way.
+
+The excluded low-target TE rooms average a top-TE score of 6.4 DK points on an 11.1% target share. The pass-catching
+TEs average 11.0 on 18.7%. So yes, the blocking rooms diluted the earlier averages.
+
+**Results for the pass-catching TE, against a 1-sd tougher pass defence, within offense-season with the total
+controlled:**
+
+| Measure | Effect | Reading |
+|---|---|---|
+| His DK points | −0.11 (t −0.6) | no gain |
+| His target share | +0.5 pt (t 2.5) | slightly more |
+| 15+ / 20+ games | +0.7 / −0.7 pt | no change |
+| QB + TE beats QB + WR1 | +1.2 pt (t 1.0) | a lean, not reliable |
+| QB + TE ≥ 45 / QB + WR1 ≥ 45 | −0.9 / −1.1 pt | both drop alike |
+
+Raw thirds show QB + TE winning the head-to-head .463 / .417 / .407 (tough / middle / soft). Within team, that gap is
+mostly which teams met the tough defences.
+
+**When his offense struggles** (fewer first downs, or less possession, than its own season average), his target share
+is flat (.190 / .182 / .188). His points fall (8.7 → 11.0 → 13.2 by first-down third).
+
+**CORRECTION to §6:** the earlier stack table compared the team's best-scoring TE that day with its best-scoring WR that
+day. The best of 3–5 WRs naturally beats the best of 1–3 TEs, so it overstated the WR edge ("WR stacks boom about 2.7×
+as often"). With the TE and WR1 known before the game:
+- QB + pass-catching TE beats QB + WR1 in 43% of games.
+- QB + TE ≥ 45 occurs 12.7% of the time, against 16.9% for QB + WR1. That is about three-quarters as often, not a
+  third.
+
+The conclusion on tough defences does not change: no reliable gain for the TE. But QB + a pass-catching TE is a much
+closer alternative to QB + WR1 than §6 said.
