@@ -12,6 +12,31 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-08 (01:40 CDT) — Study 63 READ: every QB + TE arm NO DIFFERENCE against the live cheap block; reproduced byte-identically by the laptop
+
+- **The read:** lab `7cc2bca` `results/s63/READ_s63.txt` `6251da92…`, the frozen reader `5c24b8b9`.
+  - The confirmatory census (`7413fff`, 01:38:41) was committed before the read (01:39:23).
+  - The raw run files match `RAW_s63_run.sha256`.
+  - **The laptop's re-run is BYTE-IDENTICAL.**
+- **P(≥ 1 big seat), arm − LIVE_CB, 2023–24, two-sided 0.95:**
+
+  | Arm | Difference | 2022 | Big-seats ratio |
+  |---|---|---|---|
+  | TE2_B8 | +0.013 [−0.021, +0.045] | +0.025 | 1.051 |
+  | TETOUGH2_B8 | +0.019 [−0.017, +0.054] | +0.011 | 1.059 |
+  | CHEAPTE2_B8 | +0.012 [−0.016, +0.042] | +0.018 | 1.028 |
+  | QBTE_SHARE | −0.016 [−0.060, +0.027], both seasons negative | +0.025 | 0.928 |
+
+  - Every arm is NO DIFFERENCE, not contradicted, and ENTERABLE by the trial rule (his decision).
+  - Exploratory TEWEAKD2_B8: −0.000 on 2023–24, +0.040 on 2022.
+- **Recommendation (the reviewer, the laptop agrees):**
+  - Keep the cheap block for W6.
+  - A TE block is a fair alternative if he wants one: it leans positive, but no gain is shown. Monday's 6k paper arms are
+    the first real-field read.
+  - The QB + TE share is not recommended (it leans negative on the decision years).
+- **Next:** the reviewer writes Addendum 166 and the lab LEDGER row; the laptop verifies and merges them. Study list 63 is
+  updated.
+
 ## 2026-10-08 (00:40 CDT) — Study 63 (QB + TE in the harness) FROZEN and acked by the laptop; the reviewer runs it (banks 1599–1604)
 
 - **Frozen** at `43f0fe9a` (10-08 00:26 CDT, before any scored bank); merged into integration.
