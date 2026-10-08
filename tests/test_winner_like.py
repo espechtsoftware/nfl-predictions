@@ -182,3 +182,18 @@ def test_selected_shares_use_the_chosen_cells_and_the_as_built_ones_are_kept_apa
     assert sh["A1"] == 0.8 and sh["B"] == 0.2 and sh["C"] == 0.0 and sh["A2"] == 0.0
     src = (ROOT / "scripts" / "union_reselect.py").read_text()
     assert 'mix_meta["pre_selection"]' in src and '"commit_order", "entry_shares_before_overlap_limit"' in src
+
+
+def test_the_spread_is_rebuilt_in_the_models_convention_whatever_the_frames_sign():
+    """O-62: the live T-70 frame's `spread` is positive for the favourite; the model's (the lab's history frames, the
+    warehouse) is negative. slate_arrays rebuilds it as game_total - 2 x implied_team_total, so both frames score alike."""
+    P = _players()
+    P["implied_team_total"] = np.where(P.team.isin(["A", "C"]), 26.5, 23.5)          # A and C favoured by 3
+    P["game_total"] = 50.0
+    hist = P.assign(spread=np.where(P.team.isin(["A", "C"]), -3.0, 3.0))               # the history frames' sign
+    live = P.assign(spread=np.where(P.team.isin(["A", "C"]), 3.0, -3.0))               # the live frame's sign
+    a_hist, a_live = W.slate_arrays(hist.reset_index(drop=True), "g1"), W.slate_arrays(live.reset_index(drop=True), "g1")
+    assert np.array_equal(a_hist["spread"], a_live["spread"]) and np.array_equal(a_hist["spread"], hist.spread.to_numpy(float))
+    rows = [["p0", "p1", "p2", "p3", "p4", "p5", "p6", "p9", "p7"], ["p8", "p9", "p10", "p11", "p12", "p13", "p14", "p1", "p15"]]
+    assert np.array_equal(W.score_book(rows, hist)[0], W.score_book(rows, live)[0])
+    assert list(W.score_book(rows, live)[1].qb_spread) == [-3.0, 3.0]                  # A's QB favoured, B's QB not

@@ -61,6 +61,14 @@ def slate_arrays(players: pd.DataFrame, top_game: str | None) -> dict:
          "sal": pd.to_numeric(players.salary, errors="coerce").fillna(0).to_numpy(float), "top": top_game}
     for c in FRAME_FACTS + LAG_COLUMNS:
         A[c] = pd.to_numeric(players[c], errors="coerce").fillna(0.0).to_numpy(float) if c in players.columns else np.zeros(len(players))
+    if {"game_total", "implied_team_total"} <= set(players.columns):
+        # The model was fitted on the lab's history frames, whose spread is the warehouse's (team_week_context: NEGATIVE =
+        # this team favoured) and equals game_total - 2 x implied_team_total exactly on all 54 of them. The LIVE T-70
+        # frame's own `spread` is the opposite sign (nfl2 live.py: the team line, positive = favoured; O-62), so the
+        # spread is rebuilt here in the model's convention; a missing input stays 0, as before.
+        gt = pd.to_numeric(players["game_total"], errors="coerce")
+        itt = pd.to_numeric(players["implied_team_total"], errors="coerce")
+        A["spread"] = (gt - 2.0 * itt).fillna(0.0).to_numpy(float)
     return A
 
 
