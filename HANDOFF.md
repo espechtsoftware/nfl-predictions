@@ -12,6 +12,15 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-08 (11:36 CDT) — The Route Share gate record: W2–W4 ABSENT (the reviewer's ruling); a two-week evidence margin
+
+- **The record, in the reviewer's words:** "W2–W4: no companion-v1 pair (contract starts W5; W3–W4 executions failed,
+  O-25); freeze-route-share-pair never run before W5 (O-58)".
+- **Not reconstructed:** companion-v1 starts in W5, and the pair reader refuses arms built under other contracts. W2's
+  old-contract rows, if any, stay under the superseded key fp-route-share-2026.
+- **The evidence floor:** the gate needs at least 12 complete paired weeks. W5–W18 give 14, a TWO-WEEK margin, so every
+  further lost week counts. Sunday's two hand freezes (checklist) are part of that.
+
 ## 2026-10-08 (11:36 CDT) — Dry runs: cbwu-oi, roleunion and route-roleunion all PASS (O-49 cleared); the Route Share pair freeze was never run (O-58); Friday's snapshot notes
 
 - **The three dry runs** (`~/.cache/laptop-agent/shadow_dry_run.sh`, each in its lane; image `7f632786`, CODE_SHA `6fd3ef00`):
