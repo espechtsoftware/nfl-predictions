@@ -647,6 +647,12 @@ emit() {  # $1 run dir, $2 label, $3 ranks
       --run-dir "$1" --ranks "$3" --output "$OUT/upload-$RUN_TAG-$2-ranks-$3.csv" > "$OUT/upload-$RUN_TAG-$2-ranks-$3.receipt.json" 2>&1 ) \
     && echo "emitted $2 $3" || echo "EMIT FAILED $2 $3"
 }
+emit_ref() {  # $1 run dir, $2 label, $3 N: a REFERENCE emit of ranks 1..N, skipped (said, not failed) when N exceeds the
+  # book (2026-10-08: at K 26 the all30 / all90 emits always failed "rank range 1-30 exceeds the 26 available lineups",
+  # breaking the rule that an EMIT FAILED line on Sunday means a real failure)
+  local book=$(( BOOK_ENTRIES + ${TAIL_SLEEVE:-0} ))
+  if (( $3 > book )); then echo "skip reference emit $2 (ranks 1-$3 exceed the $book-lineup book)"; else emit "$1" "$2" "1-$3"; fi
+}
 # layouts: k80 = the paid book's first N per contest (same lineups in every contest); k90 = one unique lineup per
 # reserved entry (sequential ranks); k30 = the keepers only (sequential ranks over the keep counts)
 # k80 = the per-contest layout the money path uses (every contest gets ranks 1..N; ENTER_LAYOUT=top).
@@ -685,14 +691,14 @@ VET_DIR="$OUT/vetted-$RUN_TAG"
 ( cd "$PROD" && PYTHONPATH="$PROD/src" "$PROD_PY" "$TOOLS/vet_book.py" "$K90_DIR" --k 30 --season "$SEASON" --week "$WEEK" --output-dir "$VET_DIR" > "$OUT/vetting-$RUN_TAG.txt" 2>&1 ) \
   && { echo "vetted book -> $VET_DIR (report $VET_DIR/vetting_report.md)"; grep -m1 "demoted_out_of_top_k" "$OUT/vetting-$RUN_TAG.txt"
        while read -r layout lab ranks; do [[ "$layout" == k30 ]] && emit "$VET_DIR" "vetted-$lab" "$ranks"; done <<< "$layouts"
-       emit "$VET_DIR" vetted-all30 1-30; emit "$VET_DIR" vetted-all90 1-90; } \
+       emit_ref "$VET_DIR" vetted-all30 30; emit_ref "$VET_DIR" vetted-all90 90; } \
   || echo "VETTING FAILED (see $OUT/vetting-$RUN_TAG.txt)"
 COMP_DIR="$OUT/composite-$RUN_TAG"
 ( cd "$PROD" && PYTHONPATH="$PROD/src" "$PROD_PY" "$TOOLS/player_score.py" "$K90_DIR" --k 30 --season "$SEASON" --week "$WEEK" --vetting "$VET_DIR/vetting.json" --output-dir "$COMP_DIR" > "$OUT/composite-$RUN_TAG.txt" 2>&1 ) \
-  && { echo "composite book -> $COMP_DIR"; emit "$COMP_DIR" composite-all30 1-30; } || echo "COMPOSITE FAILED (see $OUT/composite-$RUN_TAG.txt)"
+  && { echo "composite book -> $COMP_DIR"; emit_ref "$COMP_DIR" composite-all30 30; } || echo "COMPOSITE FAILED (see $OUT/composite-$RUN_TAG.txt)"
 HYB_DIR="$OUT/hybrid15-$RUN_TAG"
 ( cd "$CLONE" && "$LAB_PY" "$TOOLS/hybrid30.py" "$K90_DIR" --core 15 --k 30 --output-dir "$HYB_DIR" > "$OUT/hybrid15-$RUN_TAG.txt" 2>&1 ) \
-  && { echo "hybrid15 -> $HYB_DIR"; emit "$HYB_DIR" hybrid15-all30 1-30; } || echo "HYBRID15 FAILED (see $OUT/hybrid15-$RUN_TAG.txt)"
+  && { echo "hybrid15 -> $HYB_DIR"; emit_ref "$HYB_DIR" hybrid15-all30 30; } || echo "HYBRID15 FAILED (see $OUT/hybrid15-$RUN_TAG.txt)"
 # 6. exposure caps (reported, never entered automatically). K = mean rows + sleeve rows: the head layout deals the tail
 #    contests ranks BOOK_ENTRIES+1.. (Week-4 smoke 2026-10-01: K = mean rows alone failed "reads rank 106 but the book is 105").  2026-09-22: Week 2 entered a
 # player listed Doubtful at build time in 48 of 97 rows including the Millionaire seat; he
