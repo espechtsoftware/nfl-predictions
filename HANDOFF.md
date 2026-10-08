@@ -12,6 +12,42 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-08 (14:56 CDT) — laptop: the outside reviewer's 10-07 documents merged; study list 67–69; a condition on the W6 FP + props decision
+
+**At the operator's request, via the outside reviewer (nfl-predictions-63).** These are its 10-06/10-07 suggestions that never
+reached the study list; the operator said yes to its recommendation.
+
+- **Merged as records** (`31d6dc21`, path-limited from `review/outside-fill-order-20261006` @ `f1689126`; the blobs are identical):
+  - `reports/2026-10-07-brainstorm-data-and-models.md` with its evidence folder `reports/2026-10-07-brainstorm/` (91 files);
+  - `reports/2026-10-07-week5-options-this-week.md`;
+  - `reports/2026-10-07-expedite-options.md`.
+
+  The branch's four monitor / block-file scripts and their tests were already in integration, byte-identical. The branch's
+  other files (six 10-07 reports and the winners-strategy-study folder) were not part of this request and stay on the branch.
+
+  **Privacy check:**
+  - no cohort handle (117 checked);
+  - scripts only name the `~/private` files they read;
+  - the CSVs are aggregate;
+  - every dollar figure is a salary tier, a contest name or ticket price, or the $500 win line;
+  - the options note's rank map mirrors the one HANDOFF already tracks (no plan file, no total stake).
+- **Study list rows added:**
+  - 67: a weekly $6,000–7,900 tier check;
+  - 68: a weekly "is the field getting sharper" line;
+  - 69: pool hit density as a headline Monday number.
+
+  All three are descriptive. The outside reviewer offered to build them; it names each format first and the laptop agrees,
+  verifies and merges. First lines Monday 10-12 if merged by then, otherwise 10-19.
+- **Recorded as not scheduled, by the operator's decision:**
+  - the simulator dependence audit;
+  - the fringe-cheap repair of the draws (M3);
+  - a late-swap paper study;
+  - the 2022–25 salary-to-points join;
+  - practice reports and weather as graph facts (D6 / D7).
+- **A condition on Tuesday 10-13's W6 FP + props decision** (in the checklist): if the 50/50 FP + props mix is adopted, the props
+  feeding the build need a pull at about 10:47 after the inactives, plus a changed-check (O-59's fix). Props are pulled
+  at 04:30 today. Not needed while FP alone is armed.
+
 ## 2026-10-08 (14:35 CDT) — laptop: study 64 (S1) acked and merged into integration
 
 **Study 64 was FROZEN by the reviewer** at `review/s64-env-20261009` @ `3370ae0d`. It is the game-environment calibration on FP's
