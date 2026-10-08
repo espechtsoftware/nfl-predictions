@@ -91,8 +91,59 @@ def cell_of_tag(tag: object) -> str | None:
     return cell
 
 
-def shape_violations(ids, cell: str | None, pos: dict, team: dict, opp: dict, game: dict) -> list[str]:
-    """What a roster breaks of its cell's shape (cell None = the house shape, A1's rules). Empty list = conforms."""
+TOP_WR_RULE_CELLS = ("A1", "B")      # study 71: the MIX cells whose rules REQUIRE a bring-back (bring_back_min >= 1)
+
+
+def top_receivers(players) -> dict[str, str]:
+    """Study 71 (the same definition as study 70's top_wr, nfl2 experiments/s70_topwr.py d622a211): each team's
+    highest-salaried WR among `players` -- the solve's BUILDABLE pool, an iterable of dicts with id, pos, team, salary
+    and proj -- ties: the higher proj, then the id; a missing or non-numeric salary counts as 0. Returns team -> id."""
+    best: dict[str, tuple] = {}
+    for p in players:
+        if str(p.get("pos")) != "WR":
+            continue
+        try:
+            sal = float(p.get("salary"))
+        except (TypeError, ValueError):
+            sal = 0.0
+        sal = 0.0 if sal != sal else sal                     # NaN -> 0, as study 70's fillna(0.0)
+        try:
+            proj = float(p.get("proj"))
+        except (TypeError, ValueError):
+            proj = 0.0
+        proj = 0.0 if proj != proj else proj
+        key = (-sal, -proj, str(p.get("id")))
+        t = str(p.get("team"))
+        if t not in best or key < best[t][0]:
+            best[t] = (key, str(p.get("id")))
+    return {t: v[1] for t, v in sorted(best.items())}
+
+
+def bring_back_top_wr_rule(receipt: dict, vet_receipt: dict | None = None) -> tuple[dict[str, str], tuple[str, ...], set[frozenset]]:
+    """Study 71's ONE reader (production's amendment d, 10-08): the union receipt's bring_back_top_wr block(s) ->
+    (top_wr: team -> frame id, cells, exempt_rows: the rows built WITHOUT the floor, each a frozenset of frame ids).
+    The book's own block sits at config.union.mix.mix.bring_back_top_wr; an ownership-term main adds the term call's block
+    at config.union.mix.mix.with_term.bring_back_top_wr (its fallbacks are exempt too). vet_receipt (vet_replace_v4's
+    replace.json) adds its house-fallback rows (bring_back_top_wr_exempt), A1 WITHOUT the rule. Off / absent = ({}, (), set())."""
+    union = ((receipt or {}).get("config") or {}).get("union") or {}
+    mix = (union.get("mix") or {}).get("mix") or {}
+    blocks = [b for b in (mix.get("bring_back_top_wr"), (mix.get("with_term") or {}).get("bring_back_top_wr")) if b]
+    if not blocks:
+        return {}, (), set()
+    top = {str(t): str(v["id"]) for t, v in (blocks[0].get("top_wr") or {}).items()}
+    cells = tuple(str(c) for c in blocks[0].get("cells") or ())
+    exempt = {frozenset(str(i) for i in f["row"]) for b in blocks for f in (b.get("fallbacks") or [])}
+    exempt |= {frozenset(str(i) for i in f["row"]) for f in ((vet_receipt or {}).get("bring_back_top_wr_exempt") or [])}
+    return top, cells, exempt
+
+
+def shape_violations(ids, cell: str | None, pos: dict, team: dict, opp: dict, game: dict, *,
+                     top_wr: dict | None = None, top_wr_cells=()) -> list[str]:
+    """What a roster breaks of its cell's shape (cell None = the house shape, A1's rules). Empty list = conforms.
+    Study 71 (default off): when `cell` is one of `top_wr_cells` and `top_wr` (team -> frame id) names a top receiver for
+    the QB's opponent, the row must hold him. A caller passes top_wr MINUS its own excluded players (a top WR ruled out
+    later removes the rule for that opponent; his team's next WR is never promoted) and exempts the receipt's fallback
+    rows by identity. The house shape (cell None) never carries the rule."""
     rules_cell = cell or HOUSE_CELL
     if rules_cell not in ALL_CELLS:
         return [f"unknown cell {cell!r}"]
@@ -113,6 +164,10 @@ def shape_violations(ids, cell: str | None, pos: dict, team: dict, opp: dict, ga
         v.append(f"{bring} bring-backs < {r['bring_back_min']}")
     if r.get("bring_back_max") is not None and bring > r["bring_back_max"]:
         v.append(f"{bring} bring-backs > {r['bring_back_max']}")
+    if cell is not None and cell in tuple(top_wr_cells or ()) and top_wr:
+        w = top_wr.get(qo)
+        if w is not None and w not in set(ids):
+            v.append(f"top-WR bring-back missing: {qo}'s top receiver {w}")
     skill = [i for i in ids if pos.get(i) != "DST"]
     unmapped = [i for i in skill if game.get(i) in (None, "", "None", "nan")]
     if unmapped:                         # a missing game id could fake a pair or dodge the QB-game cap: fail, never guess

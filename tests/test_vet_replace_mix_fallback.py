@@ -59,7 +59,8 @@ def test_the_validation_holds_a_flagged_position_to_the_house_shape_only():
 
 def test_the_script_uses_the_fallback_in_the_choice_the_validation_and_the_receipt():
     text = (ROOT / "scripts" / "vet_replace_v4.py").read_text()
-    assert "j, fb = pick_replacement(gain, pool_cells, need)" in text
+    assert "j, fb = pick_replacement(gain, pool_cells, need, house=house_cell)" in text      # study 71: "house" when on, else "A1"
+    assert 'house_cell = "house" if bb_cells else "A1"' in text
     assert "mix_violations(_t, row_cell(p, cell_at, fallback_at))" in text
     assert '**({"cell_fallback": "house"} if fb else {})' in text and '"cell_fallbacks": [' in text
     assert "BY THE HOUSE FALLBACK" in text                       # the capitals banner on the 'replaced' line (replacement-status)

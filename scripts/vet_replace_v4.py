@@ -120,6 +120,18 @@ def source_summary(replaced: list[dict]) -> tuple[dict, str]:
     return n, f"; sources {n}" + (f" ({n['mix_control']} from the NO-TERM control main)" if n.get("mix_control") else "")
 
 
+def cell_violations(toks, cell, pos, team, opp, game, top_wr=None, rule_cells=(), exempt=frozenset()) -> list[str]:
+    """--main mix: what `toks` breaks of `cell` (mix_shapes.shape_violations), with study 71's rule when the union ran it
+    (rule_cells non-empty): a designated cell needs its QB's opponent's top receiver (top_wr = the receipt's MINUS this
+    step's exclusions) unless the row is exempt by identity; "house" (study 71's lenient house fallback) is A1 WITHOUT the
+    rule. With the rule off (rule_cells empty) this is exactly shape_violations(toks, cell, ...)."""
+    from nfl_dfs.inference.mix_shapes import shape_violations
+    house = cell == "house"
+    on = bool(rule_cells) and not house and frozenset(toks) not in exempt
+    return shape_violations(toks, "A1" if house else cell, pos, team, opp, game,
+                            top_wr=top_wr if on else None, top_wr_cells=tuple(rule_cells) if on else ())
+
+
 def row_cell(p: int, cell_at: dict, fallback_at: dict) -> str | None:
     """The shape a mix book position is validated against: its recorded house fallback, else its own cell."""
     return fallback_at.get(p) or cell_at.get(p)
@@ -177,6 +189,14 @@ def main():
     # house rules. Without a mix main nothing below changes.
     _mix = ((src.get("config", {}).get("union") or {}).get("main") == "mix")
     cell_at: dict[int, str | None] = {}
+    # study 71 (the union's --mix-bring-back-top-wr; off: {}, (), set() and nothing below changes): its designated cells hold
+    # the QB's opponent's top receiver unless the union recorded the row as built without the floor (exempt by identity);
+    # a top WR this step EXCLUDES drops the rule for his opponent (never promoting his team's next WR); and the HOUSE
+    # fallback ("house") is A1 WITHOUT the rule -- a replacement must never fail because of study 71.
+    from nfl_dfs.inference.mix_shapes import bring_back_top_wr_rule
+    bb_top, bb_cells, bb_exempt = bring_back_top_wr_rule(src)
+    bb_live: dict[str, str] = dict(bb_top)                 # minus E, once E is known (below)
+    house_cell = "house" if bb_cells else "A1"
     if _mix:
         from nfl_dfs.inference.mix_shapes import ALL_CELLS, book_cells, shape_violations
         _game_of_id = f.set_index("id")["game_id"].astype(str).to_dict()
@@ -191,7 +211,7 @@ def main():
             print(f"REPLACEMENT FAILED: {e}", file=sys.stderr); sys.exit(2)
 
         def mix_violations(toks, cell):
-            return shape_violations(toks, cell, vr_args[0], vr_args[1], vr_args[2], _game_of_id)
+            return cell_violations(toks, cell, vr_args[0], vr_args[1], vr_args[2], _game_of_id, bb_live, bb_cells, bb_exempt)
     game_arg = f.set_index("id")["game_id"].to_dict() if "game_id" in f.columns else None
 
     # ---- whole-slate statuses: report status (latest row per player) + QB classes ----
@@ -256,6 +276,8 @@ def main():
     for tok in [t for t in a.test_exclude_dk.split(",") if t.strip()]:
         reasons[int(tok)] = "TEST-EXCLUDE"
     E = set(reasons)
+    if bb_cells:                                             # study 71: an excluded top WR takes the rule with him
+        bb_live.clear(); bb_live.update({t: i for t, i in bb_top.items() if id_to_dk.get(i) not in E})
 
     # ---- removal from the final (vetted) book, by ids, on every path ----
     remove_positions = [p for p, r in enumerate(book) if any(d in E for d in r)]
@@ -292,6 +314,8 @@ def main():
             if _mix:
                 if validate_roster(toks, *vr_args, salary_floor=49000, forbid_rb_vs_dst=True, forbid_two_rb_same_team=True): rejected["illegal"] += 1; continue
                 fits = {c for c in ALL_CELLS if not mix_violations(toks, c)}
+                if bb_cells and not mix_violations(toks, "house"):
+                    fits.add("house")                        # study 71: the lenient house fallback
                 if not fits: rejected["illegal"] += 1; continue
                 pool_cells.append(fits)
             elif validate_roster(toks, *vr_args, salary_floor=49000, qb_stack_min=2, bring_back_min=1, forbid_rb_vs_dst=True, forbid_two_rb_same_team=True): rejected["illegal"] += 1; continue
@@ -308,7 +332,7 @@ def main():
             fb = None
             if _mix:                                         # a candidate that fits the removed row's cell (house = A1);
                 need = cell_at.get(p) or "A1"                # none fits -> the best house-legal one, flagged (10-06)
-                j, fb = pick_replacement(gain, pool_cells, need)
+                j, fb = pick_replacement(gain, pool_cells, need, house=house_cell)
                 if j is None:
                     (out / "replace.json").write_text(json.dumps({"version": "vet-replace-v4.1", "status": "FAILED", "problems": [f"no candidate fits cell {need} or the house shape"]}, indent=1) + "\n")
                     print(f"REPLACEMENT FAILED: no candidate fits cell {need} or the house shape", file=sys.stderr); sys.exit(2)
@@ -377,6 +401,15 @@ def main():
                "removed_positions": [p + 1 for p in remove_positions], "replacements": replaced_info, "pool": pool_summary,
                "cell_fallbacks": [{"vetted_position": p + 1, "cell": cell_at.get(p), "cell_fallback": "house"} for p in sorted(fallback_at)],
                "replacement_sources": source_summary(replaced_info)[0], "replacement_objective": repl_objective}
+    if bb_cells:                                             # study 71's record (absent when the rule is off)
+        exempt_rows = []
+        for p in sorted(fallback_at):
+            row = sorted(str(dk_to_id[d]) for d in book[p])
+            exempt_rows.append({"vetted_position": p + 1, "row": row, "row_sha256": hashlib.sha256(",".join(row).encode()).hexdigest(),
+                                "reason": "house fallback"})
+        receipt["bring_back_top_wr"] = {"cells": list(bb_cells), "top_wr_excluded": sorted(name_of[id_to_dk[i]] for i in bb_top.values()
+                                                                                           if id_to_dk.get(i) in E)}
+        receipt["bring_back_top_wr_exempt"] = exempt_rows
     (out / "replace.json").write_text(json.dumps(receipt, indent=1) + "\n")
     if status != "OK":
         print("REPLACEMENT FAILED:", "; ".join(problems[:6]), file=sys.stderr); sys.exit(2)
