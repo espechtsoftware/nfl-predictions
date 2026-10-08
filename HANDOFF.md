@@ -12,6 +12,27 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-08 (13:38 CDT) — The operator DECIDED O-59: "Add a 10:47 pull" (+ a loud warning); built and in review (`1e0d658d`)
+
+- **The question** (AskUserQuestion): the 10:33 T-70 DK pull has preceded DK's inactive update in W2–W4.
+  - Options: a second pull at 10:47 (recommended), a retry loop, a later pull, or leave it.
+  - **His answer:** "Add a 10:47 pull (Recommended)".
+- **Built:** `fix/t70-second-pull-20261008` @ `1e0d658d`.
+  - **Timers:** `nfl-week<W>-t70-pull-2`, `ingest-dk` at 10:47 CT.
+  - **Arm:** EXPECT_N 13 (ARM_LATE 11).
+  - **New `check_t70_statuses.py`:** the build's pull vs the morning pull, OUT/IR/D/O plus Questionable. Pre-inactives gets
+    a banner and an ALERT file, never a stop. Smoked on the real T-70 runs: W4 and W3 PRE, W2 POST.
+  - **Host:** runs it in the T-70 build after M4.
+- **Why the second pull suffices:** nfl2 `live_inputs` reads each player's newest pull, so the 10:50 build and
+  `receipt.salary_pull` take the 10:47 statuses when DK has posted them.
+- **Limit:** the 10:36 project-slate stays on the 10:33 statuses. In W5 FP replaces our means for most players.
+- **Next:**
+  1. the reviewer's review, then the merge;
+  2. re-sync the host arm copy `~/.cache/laptop-agent/w5_arm_saturday.sh`;
+  3. Friday's arm `--check` (expects 13 units).
+- **The outside reviewer's three confirmations are answered:** the newest pull drives the exclusions and the receipt; the
+  Questionable trigger is added; the banner text names the pre-upload check as the only net.
+
 ## 2026-10-08 (13:30 CDT) — The outside reviewer's 10-08 note: the T-70 DK pull is PRE-inactives (verified; O-59, the operator's decision before arming); the late-scratch gap (O-60); the pros briefing merged
 
 - **O-59 (URGENT for W5), verified on `nfl_raw.dk_salaries`:**
