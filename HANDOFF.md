@@ -12,6 +12,29 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-08 (11:30 CDT) — The operator: "make sure we're getting all the necessary data ... so we don't lose a week of good data again": the Week-5 capture inventory, the gaps and the dated steps
+
+- **The inventory:** `reports/2026-10-08-week5-data-capture-inventory.md`.
+  - It covers every source, its consumers (the live build, the Monday graph, the paper shadows, the Monday readers),
+    when it must be captured, what captures it, and whether it is perishable.
+  - It was checked against the code (a read-only subagent), the warehouse (Week 4 / Week 5 rows per raw table) and the
+    live schedulers (all capture jobs ENABLED; `s-dk` and the contests jobs paused by design).
+- **Gaps closed or scheduled:**
+  - **FP projected ownership** had one collector, Sunday's snapshot (tilt 0 skips the build's). Four captures added: Fri
+    12:30 / 16:30, Sat after arming, Sun 09:15. 10-08's attempt: not posted yet.
+  - **Paper shadow B never ran:** a smoke after A3, then the real run Sun 06:45.
+  - **Standings:** the operator's Monday exports (DraftKings purges them after about 4 days). The links page plus the
+    entry history's extra contests; the entry-history refresh with its sha pin; the Millionaire's import checked before
+    the graph refresh.
+  - **A Tuesday graph facts re-run** after the actuals load.
+  - **The FP QB coverage retry** Fri / Sat (O-57).
+  - **An OPRK snapshot** taken 10-08 (1,079 draftables).
+- **Registered for W6:** O-56 (automate (a)–(f)) and O-57 (the matchup loader).
+- **Referred to the reviewer:**
+  - the subagent's claim that `freeze-route-share-pair` must run by Monday 19:00 CT. Nothing in our scripts or checklist
+    calls it; the shadow jobs freeze their own pairs.
+  - study 38's prereg pin of moneygate_score 48342ae1 vs the dd8ff1f7 in use (its memory already says to disclose it).
+
 ## 2026-10-08 (11:15 CDT) — Route Share gate W5: the treatment inputs will be REBUILT on the repaired W4 import (recorded BEFORE the re-run; the reviewer's reading of the frozen gate)
 
 - **Why** (condition (a), recorded before any re-run):

@@ -183,6 +183,45 @@ rehearsal runs on the merged head in the exact armed env; Friday re-verifies on 
 
 **Before Friday's fast-forward:** the outside review file is UNTRACKED in the production checkout; move it into a tracked commit and off the checkout, or the ff-only pull and Saturday's clean-checkout check stop.
 
+## Week 5 data capture (the operator 10-08: "so we don't lose a week of good data again")
+The inventory and the gaps it found: `reports/2026-10-08-week5-data-capture-inventory.md`. **Every step below is perishable
+unless it says otherwise.** Record each capture's count in HANDOFF.
+- **Thu 10-08:**
+  - **Done:** the props guard and project-slate; the FP vendor re-run, then the four FP projection pages collected
+    separately; FP's latest route and alignment data loaded; an OPRK draftables snapshot (1,079).
+  - **After A3 and the full test suite** (one heavy job at a time): the shadow-B SMOKE,
+    `PYTHONPATH=<integration worktree>/src .venv/bin/python ~/.cache/laptop-agent/shadow_b.py --season 2026 --week 5 --out ~/private/shadow-b/smoke-2026-w05`
+    (create-once; it records the runtime for Sunday).
+- **Fri 10-09:**
+  - **FP projected ownership at 12:30 and 16:30 CT:** `cd ~/projects/nfl-predictions && flock -w 300 ~/.cache/nfl-dfs/fantasy-points-profile.lock timeout 300 .venv/bin/python -m nfl_dfs.ops.fantasy_points_ownership collect --week 5`. FP posted Week 4's by Friday 12:23. "ownership table has no
+    values" means not posted yet, so retry hourly.
+  - **The FP QB coverage matchup retry:** `.venv/bin/nfl-weekly-data run --week 5 --skip-fp-families --skip-fp-projections --skip-sis-team-context --skip-sis-pass-tail --skip-sis-receiver-copula --skip-odds --no-login-if-needed`.
+    - Run it after Friday's fast-forward, so it has the non-fatal alignment import.
+    - The 10-08 page was missing the ATL and WAS QBs (O-57).
+- **Sat 10-10:**
+  - FP projected ownership right after arming (the same command).
+  - The QB coverage retry (the same command).
+  - The R14 sweep and the OPRK snapshot (~10:45), both above.
+- **Sun 10-11:**
+  - **06:45, shadow B for real:** `--out ~/private/shadow-b/2026-w05`. It must finish before the 10:33 pulls. If the smoke
+    ran longer than 3 h, start it at 06:00.
+  - **09:15:** FP projected ownership (the same command, outside the 10:40–10:50 capture window).
+  - Then, as written below: the OPRK snapshot ~10:45, the study-38 snapshot (it collects FP ownership again), the paper
+    files, the study-61 copies, `weeks.json` keys.
+- **Mon 10-12, THE OPERATOR (by Tue 10-13 at the latest; DraftKings purges standings about 4 days after a contest):**
+  - Export the full standings CSV for EVERY contest entered on Sunday.
+  - Download the refreshed DraftKings contest entry history.
+  - **The laptop first:**
+    1. writes the links page (`scripts/dk_standings_links.py`, plan contests);
+    2. after the history refresh, adds any Sunday contest in the history that is not in the plan;
+    3. pins the new history sha in `weeks.json`;
+    4. runs `capture-dk-standings --apply`;
+    5. checks the Millionaire's standings are imported BEFORE the graph refresh (the graph monitors silently fall back to
+       the largest imported contest; O-56).
+- **Tue 10-13:** once Week 5's `player_week_actuals` and pbp load, re-run the graph's facts-only pass for Week 5
+  (`load_milly_neo4j.py --season 2026 --week 5 --users-file <private users file> --include-fp --with-facts --facts-only --apply`).
+  Monday's refresh ran before the result facts existed.
+
 ## Saturday 10-10 (the laptop arms; fail-stop script, ask only if blocked)
 - **CANARY (the reviewer, 10-06):** the 10:30 `d12800-sat` build is the first live K 26 run through the armed host. By
   11:00, check its receipt (identity f69598b, operational_k 26, tail 0), its lever audit PASS, and the union-args file
