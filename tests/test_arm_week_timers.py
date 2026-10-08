@@ -293,3 +293,24 @@ def test_the_priority_order_rides_into_the_units_and_the_week5_arm_keeps_it_off(
     assert "\nPRIORITY_ORDER=0 " in arm and "UNION_PRIORITY_ORDER=$PRIORITY_ORDER" in arm and "-u UNION_PRIORITY_ORDER" in arm
     chk = (root / "scripts" / "check_week_runtime.py").read_text()
     assert 'os.environ.get("UNION_PRIORITY_ORDER", "")' in chk and "the priority-first deal" in chk
+
+
+def test_the_t70_second_dk_pull_and_the_week5_arm_count():
+    """O-59 (the operator 10-08: "Add a 10:47 pull"): T70_PROJECT=1 arms a second ingest-dk unit at 10:47 CT beside the 10:33
+    one, and the Week-5 arm's EXPECT_N matches the print-only unit list it counts (step 6's --check)."""
+    import re
+    r = _run(T70_PROJECT="1", T70_MIN_PROJ_CT="10:30")
+    pull2 = _unit_line(r.stdout, "nfl-week4-t70-pull-2")
+    assert "2026-10-04 10:47 America/Chicago" in pull2 and pull2.rstrip().endswith("ingest-dk")
+    assert "2026-10-04 10:33 America/Chicago" in _unit_line(r.stdout, "nfl-week4-t70-pull")
+    assert "t70-pull-2" not in _run().stdout                                         # off without T70_PROJECT
+    arm = (Path(__file__).resolve().parents[1] / "scripts" / "arm_week5_saturday.sh").read_text()
+    expect = int(re.search(r'\nSKIP="d6400"; EXPECT_N=(\d+)', arm).group(1))
+    e = {k: v for k, v in os.environ.items() if not k.startswith(("D800_", "D3200_", "SKIP_", "T70_", "GCP_", "EARLY_"))}
+    e.update({"EXPECT_SHA": PIN, "GCLOUD": "/bin/true", "NFL_DFS_CLI": "/bin/true", "SKIP_UNITS": "d6400",
+              "D3200_LEV": "0", "D3200_BOOM": "4800", "D800_LEV": "0", "D800_BOOM": "4800", "EARLY_PROPS_CT": "04:30",
+              "EARLY_PROJECT_CT": "04:45", "EARLY_SUPPLY_CT": "05:00", "T70_MIN_PROJ_CT": "10:30", "T70_PROJECT": "1"})
+    out = subprocess.run(["bash", str(SCRIPT), "5"], capture_output=True, text=True, env=e)
+    assert out.returncode == 0, out.stderr
+    units = sorted(set(re.findall(r"nfl-week5-[a-z0-9-]+", out.stdout + out.stderr)) - {"nfl-week5-d6400-build"})
+    assert len(units) == expect == 13, units

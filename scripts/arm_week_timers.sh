@@ -13,7 +13,9 @@
 #                                 run overlapping heavy builds without slowing the T-70 build it depends on
 #   T70_MIN_PROJ_CT=10:30         the T-70 build refuses a projection batch generated before this Sunday CT time
 #                                 (check_build_inputs --min-generated-at): the hourly 10:03 batch is fresh and pre-inactives
-#   T70_PROJECT=1                 also arm the T-70 DK pull (T70_PULL_CT, default 10:33) and the project-slate execution
+#   T70_PROJECT=1                 also arm the T-70 DK pulls (T70_PULL_CT, default 10:33; T70_PULL2_CT, default 10:47 -- the
+#                                 operator 10-08, O-59: DK posts the 10:30 inactives after 10:33, and the 10:50 build reads
+#                                 each player's NEWEST pull) and the project-slate execution
 #                                 with the T-70 rules (T70_PROJECT_CT, default 10:36; ~3 min) -- operator-armed like the rest
 #
 # 2026-10-05 (reviewer; every paid page, every week): the Fantasy Points projection tables are captured pre-lock by
@@ -123,8 +125,8 @@ FP_PROJ_CT=${FP_PROJ_CT:-10:40}; FP_PROJ2_CT=${FP_PROJ2_CT:-10:46}
 LFPPROJ=("${BASE_ENV[@]}" "$FP_PROJ_CAPTURE" sunday-prelock)
 GCLOUD=${GCLOUD:-$(command -v gcloud || echo "$HOME/google-cloud-sdk/bin/gcloud")}
 NFL_DFS_CLI=${NFL_DFS_CLI:-$PROD/.venv/bin/nfl-dfs}
-T70_PULL_CT=${T70_PULL_CT:-10:33}; T70_PROJECT_CT=${T70_PROJECT_CT:-10:36}
-UPULL="nfl-week${WEEK}-t70-pull"; UPROJ="nfl-week${WEEK}-t70-project"
+T70_PULL_CT=${T70_PULL_CT:-10:33}; T70_PULL2_CT=${T70_PULL2_CT:-10:47}; T70_PROJECT_CT=${T70_PROJECT_CT:-10:36}
+UPULL="nfl-week${WEEK}-t70-pull"; UPULL2="nfl-week${WEEK}-t70-pull-2"; UPROJ="nfl-week${WEEK}-t70-project"
 LPULL=(env "GCP_PROJECT=$GCP_PROJECT" "PYTHONPATH=$PROD/src" "$NFL_DFS_CLI" ingest-dk)
 LPROJ=("$GCLOUD" run jobs execute project-slate --project "$GCP_PROJECT" --region us-central1
        --update-env-vars T70_ACTIVE_Q=1,T70_VACATED_BUMP=1 --wait)
@@ -177,7 +179,7 @@ PYTHONPATH=\$PROD/src \$PROD_PY \$PROD/scripts/ownership_sets.py sets --season $
 PYTHONPATH=\$PROD/src \$PROD_PY \$PROD/scripts/ownership_tabpfn.py lags --season ${SEASON:-2026} --week ${WEEK} --out ${OUT}/ownership_lags.csv
 #
 # Saturday $SATURDAY: D12800 at 10:30 CT, D6400 fallback at 10:35 CT; Sunday: D6400 05:30 CT, D3200 09:10 CT,
-# D800 T-70 at 10:50 CT, persistent watchers at 09:12 CT, FP projections capture at $FP_PROJ_CT CT$( [[ "${T70_PROJECT:-0}" == 1 ]] && echo "; T-70 DK pull $T70_PULL_CT CT, T-70 project-slate $T70_PROJECT_CT CT")$( [[ -n "${T70_MIN_PROJ_CT:-}" ]] && echo "; the T-70 build needs projections generated after $T70_MIN_PROJ_CT CT").
+# D800 T-70 at 10:50 CT, persistent watchers at 09:12 CT, FP projections capture at $FP_PROJ_CT CT$( [[ "${T70_PROJECT:-0}" == 1 ]] && echo "; T-70 DK pulls $T70_PULL_CT and $T70_PULL2_CT CT, T-70 project-slate $T70_PROJECT_CT CT")$( [[ -n "${T70_MIN_PROJ_CT:-}" ]] && echo "; the T-70 build needs projections generated after $T70_MIN_PROJ_CT CT").
 EOT
 
 if [[ "$RUN" == "--run" ]]; then
@@ -227,6 +229,7 @@ if [[ -n "${EARLY_SUPPLY_CT:-}" ]]; then
 fi
 if [[ "${T70_PROJECT:-0}" == "1" ]]; then
   arm t70pull "$SUNDAY $T70_PULL_CT" "$UPULL" LPULL
+  arm t70pull "$SUNDAY $T70_PULL2_CT" "$UPULL2" LPULL           # O-59: the post-inactives pull
   arm t70project "$SUNDAY $T70_PROJECT_CT" "$UPROJ" LPROJ
 fi
 # The Saturday pre-lock snapshot of the FP projection pages, AFTER every arm() call (reviewer 10-05: a slow FP site must
