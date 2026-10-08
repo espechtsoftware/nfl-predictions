@@ -7521,7 +7521,7 @@ secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; th
   - TE2: +1.3 points (interval −2.1 to +4.5);
   - TETOUGH2: +1.9 (−1.7 to +5.4; 2023 +4.7, 2024 −0.9);
   - CHEAPTE2: +1.2 (−1.6 to +4.2; both seasons positive).
-  - All three lean the same way on 2022 (+2.5 / +1.1 / +1.8), and every expected-big-seats ratio is ≥ 1.03.
+  - All three lean the same way on 2022 (+2.5 / +1.1 / +1.8), and every expected-big-seats ratio is ≥ 1.028.
   - The trial rule says ENTERABLE (no harm shown, no gain shown).
 - **The forced QB + TE share leans against.**
   - −1.6 (−6.0 to +2.7), negative in both seasons, with an expected-seats ratio of 0.93 and P(≥ 2) lower.
