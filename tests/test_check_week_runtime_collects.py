@@ -213,6 +213,20 @@ def test_union_mix_bring_back_top_wr_is_only_the_tested_arm(tmp_path):
     assert any("UNION_MIX_BRING_BACK_TOP_WR='A1'" in f for f in _failures(_run(env)))
 
 
+def test_union_mix_bring_back_rows_is_only_4_with_the_rule(tmp_path):
+    """Study 71b's dose: empty = every A1/B row; only 4 (TOPBB_N4, the tested decision arm), and only with the rule A1,B."""
+    env = _healthy(tmp_path)
+    env.update({"UNION_MAIN": "mix", "UNION_MIX_PORTFOLIO": "mix", "UNION_MIX_FILL": "rr"})
+    env["UNION_MIX_BRING_BACK_TOP_WR_ROWS"] = "4"
+    assert any("UNION_MIX_BRING_BACK_TOP_WR_ROWS='4'" in f for f in _failures(_run(env)))     # no rule
+    env["UNION_MIX_BRING_BACK_TOP_WR"] = "A1,B"
+    assert not any("UNION_MIX_BRING_BACK_TOP_WR_ROWS" in f for f in _failures(_run(env)))
+    env["UNION_MIX_BRING_BACK_TOP_WR_ROWS"] = "2"
+    assert any("UNION_MIX_BRING_BACK_TOP_WR_ROWS='2'" in f for f in _failures(_run(env)))
+    env["UNION_MIX_BRING_BACK_TOP_WR_ROWS"] = ""
+    assert not any("UNION_MIX_BRING_BACK_TOP_WR_ROWS" in f for f in _failures(_run(env)))
+
+
 def test_union_mix_rs_rows_must_be_0_9_13_17_with_mix_rr_and_no_cover(tmp_path):
     """Study 46's switch: 0 (or unset) is off; 9 / 13 / 17 need the MIX portfolio, the round-robin fill and no cover."""
     env = _healthy(tmp_path); env["UNION_MIX_RS_ROWS"] = "0"

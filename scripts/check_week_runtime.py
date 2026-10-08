@@ -300,6 +300,10 @@ def main():
         fail(f"UNION_MIX_BRING_BACK_TOP_WR={_bb!r} must be empty or A1,B (study 71's tested arm), with UNION_MAIN=mix, "
              f"UNION_MIX_PORTFOLIO=mix, UNION_MIX_FILL=rr and no half / cover / winner order or select / priority order / "
              f"whole-book ownership term")
+    _bbr = os.environ.get("UNION_MIX_BRING_BACK_TOP_WR_ROWS", "")   # study 71b: the small-share dose, the tested decision arm only (N4)
+    if _bbr and (_bbr != "4" or os.environ.get("UNION_MIX_BRING_BACK_TOP_WR") != "A1,B"):
+        fail(f"UNION_MIX_BRING_BACK_TOP_WR_ROWS={_bbr!r} must be empty (every A1/B row) or 4 (study 71b's TOPBB_N4), with "
+             f"UNION_MIX_BRING_BACK_TOP_WR=A1,B")
     _ms = os.environ.get("UNION_MEAN_MAX_SHARED", "")
     if _ms and not (_ms.isdigit() and 3 <= int(_ms) <= 8):
         fail(f"UNION_MEAN_MAX_SHARED={_ms!r} must be an integer 3..8 (players a union row may share with every earlier row)")
