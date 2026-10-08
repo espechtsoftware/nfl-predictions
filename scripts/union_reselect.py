@@ -458,6 +458,136 @@ def apply_proj_source(fr: pd.DataFrame, csv_path: Path, frame_path: Path) -> tup
                  "note": "FP's mean replaces ours in selection; the simulations (banks) stay ours"}
 
 
+LATE_SCRATCH_RULE = ("nfl_dfs.inference.cascade_adjust.find_t70_vacated_targets on the frame with ONLY the late scratches "
+                     "marked OUT: the depth-2 same-position teammate of a depth-1 RB / WR / TE scratch gets T70_VACATED_TABLE's "
+                     "gross (RB +1.6, TE +1.6, WR +0.7), the next-man-up bump production's T-70 project-slate adds when it sees "
+                     "the scratch (T70_VACATED_BUMP=1; in Week 4 it equalled the gross for 5 of 5 targets, the model cascade's "
+                     "share being smaller). Not reproduced: the model cascade's smaller spread to other teammates, and the "
+                     "backup-QB path")
+
+
+def _late_banner(msg: str) -> None:
+    print("!" * 80 + f"\n!!! LATE-SCRATCH BUMP: {msg}\n" + "!" * 80, flush=True)
+
+
+def late_scratch_bump(fr: pd.DataFrame, fp: dict[str, float] | None, dk_status: pd.DataFrame | None,
+                      min_fp: float) -> tuple[pd.DataFrame, dict]:
+    """--proj-source-late-scratch-bump (the outside reviewer 2026-10-08; default off). FP's numbers replace ours, but FP's
+    last Sunday update can predate a scratch (Week 4: 08:58 CT, before the 10:30 inactives). The scratched player is still
+    removed (unavailable_ids), yet his teammates keep FP's pre-news numbers. Here a LATE SCRATCH is a frame skill player
+    unavailable_ids() marks out (the frame's statuses + the --dk-status snapshot) whom FP still projects at or above
+    `min_fp`, so FP has not processed the scratch. A scratch FP already projects under it adds nothing. Each late scratch's
+    next-man-up bump (LATE_SCRATCH_RULE) is added to the teammate's FP number. A teammate is never bumped when he is
+    himself unavailable, has no FP number (ours is kept, untouched), or sits under `min_fp` (a bump never resurrects a
+    player the source has below the pool's floor). mean_projection_ours is never changed.
+
+    Returns (frame, record). Missing inputs or any error: the frame comes back UNCHANGED with a banner and record['not_applied']
+    (the build never fails here). Without a --dk-status snapshot a banner says the step is blind to scratches posted after
+    the frame's DK pull: that pull already removed its O / IR / D players from the frame (O-16)."""
+    rec: dict = {"applied": False, "rule": LATE_SCRATCH_RULE, "min_fp": float(min_fp), "dk_status": dk_status is not None,
+                 "late_scratches": [], "bumps": [], "skipped": [], "fp_already_processed": [], "total_points": 0.0}
+
+    def noop(why: str) -> tuple[pd.DataFrame, dict]:
+        _late_banner(f"NOT APPLIED -- {why}; the projections are used unchanged")
+        rec["not_applied"] = why
+        return fr, rec
+
+    if fp is None:
+        return noop("the FP override file could not be read")
+    need = {"id", "team", "pos", "depth_rank", "mean_projection", "mean_projection_ours"}
+    if not need <= set(fr.columns):
+        return noop(f"the frame lacks {sorted(need - set(fr.columns))} (mean_projection_ours = the FP source was applied)")
+    try:
+        from nfl_dfs.inference import cascade_adjust as CA
+        ids = fr["id"].astype(str).reset_index(drop=True)
+        if ids.duplicated().any():
+            return noop("the frame repeats an id")
+        pos = fr["pos"].astype(str).str.upper().reset_index(drop=True)
+        team = fr["team"].astype(str).reset_index(drop=True)
+        depth = pd.to_numeric(fr["depth_rank"], errors="coerce").astype(float).reset_index(drop=True)
+        cur = pd.to_numeric(fr["mean_projection"], errors="coerce").astype(float).reset_index(drop=True)
+        nm = fr["name"] if "name" in fr else fr.get("display_name", fr["id"])
+        name = dict(zip(ids, nm.astype(str)))
+        at = {i: k for k, i in enumerate(ids)}
+        dep = lambda i: None if np.isnan(depth[at[i]]) else int(depth[at[i]])  # noqa: E731
+        if dk_status is None:
+            _late_banner("NO --dk-status SNAPSHOT: only the frame's own statuses are read, and the frame's DK pull already "
+                         "removed its O / IR / D players, so a scratch DK posts AFTER that pull is INVISIBLE here (O-16)")
+        gone = unavailable_ids(fr, dk_status)
+        fpv = {str(i): float(v) for i, v in fp.items() if v is not None and np.isfinite(v)}
+        scratches: list[str] = []
+        for i in sorted(gone):
+            if i not in at or pos[at[i]] not in SKILL:
+                continue
+            who = {"id": i, "name": name[i], "pos": pos[at[i]], "team": team[at[i]], "depth_rank": dep(i), "fp": fpv.get(i)}
+            if i not in fpv:
+                rec["skipped"].append({**who, "why": "no FP number for the scratch (FP's view of him unknown)"})
+            elif fpv[i] < min_fp:
+                rec["fp_already_processed"].append(who)        # FP already has him (near) zero: its teammates' numbers moved
+            else:
+                scratches.append(i); rec["late_scratches"].append(who)
+        st = (fr["status"] if "status" in fr else pd.Series("", index=fr.index)).fillna("").astype(str).str.upper().str.strip()
+        inj = (fr["injury_status"] if "injury_status" in fr else pd.Series("", index=fr.index)).fillna("").astype(str).str.upper().str.strip()
+        absent = set(ids[(st.isin(CA.ABSENT_STATUSES) | inj.isin({"OUT", "DOUBTFUL"})).to_numpy()])
+        g = pd.DataFrame({"gsis_id": ids, "team": team, "position": pos, "depth_rank": depth,
+                          "status": np.where(ids.isin(scratches), "OUT", ""), "injury_status": ""})
+        gross = CA.find_t70_vacated_targets(g) if scratches else {}
+        for s in scratches:
+            if pos[at[s]] == "QB":
+                rec["skipped"].append({"scratch": name[s], "scratch_id": s, "why": "QB: the backup-QB path is not reproduced here"})
+            elif dep(s) != 1:
+                rec["skipped"].append({"scratch": name[s], "scratch_id": s,
+                                       "why": f"depth_rank {dep(s)}: the T-70 rule bumps only a depth-1 starter's depth-2 teammate"})
+            elif not any(team[at[m]] == team[at[s]] and pos[at[m]] == pos[at[s]] for m in gross):
+                rec["skipped"].append({"scratch": name[s], "scratch_id": s, "why": "no depth-2 same-position teammate on the slate"})
+        out = fr.copy()
+        col = out.columns.get_loc("mean_projection")
+        for m, pts in sorted(gross.items()):
+            k = at[m]
+            by = [s for s in scratches if team[at[s]] == team[k] and pos[at[s]] == pos[k] and dep(s) == 1]
+            entry = {"teammate": name[m], "teammate_id": m, "pos": pos[k], "team": team[k],
+                     "scratch": [name[s] for s in by], "scratch_id": by, "points": round(float(pts), 4)}
+            if m in gone or m in absent:
+                rec["skipped"].append({**entry, "why": "the teammate is himself unavailable"})
+            elif m not in fpv:
+                rec["skipped"].append({**entry, "why": "the teammate has no FP number: ours is kept (not bumped twice)"})
+            elif not cur[k] >= min_fp:
+                rec["skipped"].append({**entry, "why": f"FP has him at {cur[k]:.2f}, under {min_fp}: never resurrected"})
+            else:
+                after = float(cur[k]) + float(pts)
+                out.iat[k, col] = after
+                rec["bumps"].append({**entry, "before": round(float(cur[k]), 4), "after": round(after, 4)})
+                print(f"LATE-SCRATCH BUMP: {name[m]} ({pos[k]} {team[k]}) +{pts:.2f} for {' / '.join(name[s] for s in by)} "
+                      f"(out, FP still {', '.join(f'{fpv[s]:.2f}' for s in by)}): {cur[k]:.2f} -> {after:.2f}", flush=True)
+        rec["total_points"] = round(sum(b["points"] for b in rec["bumps"]), 4)
+        rec["applied"] = True
+        print(f"LATE-SCRATCH BUMP: {len(scratches)} late scratch(es) FP still projects >= {min_fp} (of {len(gone)} unavailable "
+              f"frame players; {len(rec['fp_already_processed'])} FP already has under it); {len(rec['bumps'])} teammate(s) "
+              f"bumped, {rec['total_points']:.2f} points; {len(rec['skipped'])} skipped (named in the receipt)", flush=True)
+        return out, rec
+    except Exception as exc:                                   # noqa: BLE001 -- a refinement never stops the build
+        rec.update({"bumps": [], "total_points": 0.0})
+        return noop(f"{type(exc).__name__}: {exc}")
+
+
+def late_scratch_bump_step(fr: pd.DataFrame, proj_source: Path | None, proj_meta: dict, dk_status: pd.DataFrame | None,
+                           min_fp: float) -> pd.DataFrame:
+    """main()'s call, made only with --proj-source-late-scratch-bump: reads the override file apply_proj_source verified, runs
+    late_scratch_bump, and records it as proj_meta['late_scratch_bump'] (the receipt's config.union.proj_source). Without
+    a projection source in use there is nothing to bump: a banner, the frame unchanged, nothing recorded."""
+    if not proj_meta or proj_source is None:
+        _late_banner("NOT APPLIED -- no projection source is in use (--proj-source absent or refused): ours is used, "
+                     "nothing was overwritten")
+        return fr
+    try:
+        ov = pd.read_csv(proj_source, dtype={"id": str})
+        fp: dict[str, float] | None = dict(zip(ov["id"].astype(str), pd.to_numeric(ov["fp"], errors="coerce")))
+    except Exception:                                          # noqa: BLE001 -- late_scratch_bump names it and does nothing
+        fp = None
+    fr, proj_meta["late_scratch_bump"] = late_scratch_bump(fr, fp, dk_status, min_fp)
+    return fr
+
+
 def parse_cell_quotas(spec: str) -> dict[str, float]:
     """--mix-cell-quotas "A1=0.40,A2=0.26,B=0.17,C=0.17" (study 56; the operator 10-07, his priority test this week):
     the MIX cells' entry quotas in place of mix_shapes.MIX_CELLS'. Exactly the four MIX cells, every value > 0, the sum 1
@@ -997,6 +1127,11 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--proj-source", type=Path, default=None,
                     help="an override file from scripts/fp_projection_override.py built for THIS T-70 frame: its projections replace "
                          "the frame's mean_projection for the players it holds (operator 10-05: Fantasy Points)")
+    ap.add_argument("--proj-source-late-scratch-bump", action="store_true",
+                    help="with --proj-source: a frame player unavailable at the build (the frame's statuses + --dk-status) whom "
+                         "FP still projects >= --min-proj is a scratch FP has not processed; his depth-2 same-position teammate "
+                         "gets our T-70 next-man-up bump on top of FP's number (late_scratch_bump; the outside reviewer "
+                         "10-08). Default off. Missing inputs: a banner, no change")
     ap.add_argument("--mix-portfolio", choices=sorted(PORTFOLIOS), default=None,
                     help="with --main mix: mix = study 18's four-cell MIX; ws = study 18's WS (one whole-book cell; PASSED)")
     ap.add_argument("--mix-plan", type=Path, default=None, help="with --main mix: the week's contests.json (the interleave's entry weights)")
@@ -1135,6 +1270,8 @@ def main(argv: list[str] | None = None) -> int:
     if inc.shape[0] != len(fr) or hs.shape[0] != len(fr):
         raise SystemExit("T-70 banks do not match the T-70 frame's rows")
     dk = pd.read_csv(a.dk_status, dtype=str) if a.dk_status else None
+    if a.proj_source_late_scratch_bump:                  # the outside reviewer 10-08; off by default (an OFF union is unchanged)
+        fr = late_scratch_bump_step(fr, a.proj_source, proj_meta, dk, a.min_proj)
     cap = a.max_per_game if a.max_per_game > 0 else None
 
     # the pool: T-70 rows (the same T-70 rules applied defensively: a clean T-70 build drops nothing here), Saturday
