@@ -23,7 +23,12 @@ does not take his team's bonus.
 
     python scripts/top_wr_block_file.py --season 2026 --week 5 --frame <T-70 or A3 frame.parquet> --points 2.0 --out <path>
     python scripts/top_wr_block_file.py --season 2026 --week 5 --frame <A3 frame.parquet> --points 2.0 \\
-        --base <cheap2-w5.csv> --out <cheaptopwr2-w5.csv>
+        --base <cheap2-w5.csv> [--min-salary 7000] --out <cheaptopwr2-w5.csv>
+
+--min-salary (study 70's CHEAPEXPWR2_B8, nfl-predictions-84 10-08: a flat +2 buys more on a $5,000 WR1 than on a $7,800 one):
+each team's top WR is picked first, then flagged only if his salary is >= the floor; the team's next WR is never promoted.
+It applies to the top-WR flag only (the cheap rows, from --with-cheap or --base, are unchanged); a negative floor
+refuses, and so does a --base run in which no team's top WR reaches the floor.
 """
 from __future__ import annotations
 
@@ -43,19 +48,23 @@ SKILL = ("QB", "RB", "WR", "TE")
 COLUMNS = ["dk_player_id", "id", "display_name", "pos", "team", "opp", "pred_own", "bonus_points"]
 
 
-def top_receivers(fr: pd.DataFrame) -> set[str]:
-    """Each team's highest-salaried WR (ties: higher mean_projection, then id): their frame ids."""
+def top_receivers(fr: pd.DataFrame, min_salary: float = 0.0) -> set[str]:
+    """Each team's highest-salaried WR (ties: higher mean_projection, then id): their frame ids. With min_salary, a team's top
+    WR is kept only if his salary is >= min_salary; the team's next WR is never promoted (no fall-through)."""
     w = fr[fr["pos"].astype(str) == "WR"].copy()
     w["sal"] = pd.to_numeric(w["salary"], errors="coerce")
     w["proj"] = pd.to_numeric(w.get("mean_projection", pd.Series(0.0, index=w.index)), errors="coerce").fillna(0.0)
     w = w[w.sal.notna()].sort_values(["team", "sal", "proj", "id"], ascending=[True, False, False, True])
-    return set(w.groupby("team").head(1)["id"].astype(str))
+    top = w.groupby("team").head(1)
+    return set(top[top.sal >= float(min_salary)]["id"].astype(str))
 
 
-def build(frame: pd.DataFrame, points: float, with_cheap: bool = False) -> pd.DataFrame:
+def build(frame: pd.DataFrame, points: float, with_cheap: bool = False, min_salary: float = 0.0) -> pd.DataFrame:
     """The block file's rows; raises ValueError rather than write a file the union would misread."""
     if not points > 0:
         raise ValueError(f"points must be positive (got {points})")
+    if min_salary < 0:
+        raise ValueError(f"min_salary must be >= 0 (got {min_salary})")
     for c in ("dk_player_id", "id", "display_name", "pos", "team", "salary"):
         if c not in frame.columns:
             raise ValueError(f"the frame has no {c} column")
@@ -67,7 +76,7 @@ def build(frame: pd.DataFrame, points: float, with_cheap: bool = False) -> pd.Da
         raise ValueError(f"{int(ids.isna().sum())} skill players have no dk_player_id")
     if ids.duplicated().any():
         raise ValueError(f"{int(ids.duplicated().sum())} duplicated dk_player_id values")
-    flag = fr["id"].astype(str).isin(top_receivers(fr))
+    flag = fr["id"].astype(str).isin(top_receivers(fr, min_salary))
     if with_cheap:
         sal = pd.to_numeric(fr["salary"], errors="coerce")
         flag |= sal.notna() & (sal < CHEAP_MAX_SALARY)
@@ -81,9 +90,11 @@ def build(frame: pd.DataFrame, points: float, with_cheap: bool = False) -> pd.Da
     return out[COLUMNS].reset_index(drop=True)
 
 
-def on_base(base_text: str, frame: pd.DataFrame, points: float) -> tuple[str, list[str]]:
+def on_base(base_text: str, frame: pd.DataFrame, points: float, min_salary: float = 0.0) -> tuple[str, list[str]]:
     """The base file's text with ONLY the frame's top receivers flagged (byte-identical otherwise). Returns the new text and
     the flagged dk_player_ids. Raises ValueError rather than write a file the union would misread."""
+    if min_salary < 0:
+        raise ValueError(f"min_salary must be >= 0 (got {min_salary})")
     lines = base_text.splitlines(keepends=True)
     if not lines:
         raise ValueError("the base file is empty")
@@ -98,7 +109,9 @@ def on_base(base_text: str, frame: pd.DataFrame, points: float) -> tuple[str, li
     bonus_rows = [r for r in rows[1:] if float(r[i_bp]) == float(points)]
     po_s, bp_s = (bonus_rows[0][i_po], bonus_rows[0][i_bp]) if bonus_rows else (str(round(points / TILT, 4)), str(float(points)))
     fr = frame[frame["pos"].astype(str).isin(SKILL)]
-    top = top_receivers(fr)
+    top = top_receivers(fr, min_salary)
+    if not top:
+        raise ValueError(f"no team's top WR is priced at or above {min_salary:g}: the file would equal the base")
     dk_of = {str(i): str(k).removesuffix(".0") for i, k in zip(fr["id"].astype(str), fr["dk_player_id"].astype(str))}
     want = {dk_of[i] for i in top}
     have = {str(r[i_dk]).removesuffix(".0") for r in rows[1:]}
@@ -123,28 +136,32 @@ def main(argv=None) -> int:
     ap.add_argument("--frame", type=Path, required=True); ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--points", type=float, default=2.0, help="projected points added per qualifying player (the cap)")
     ap.add_argument("--with-cheap", action="store_true", help="also give every non-DST player under $4,000 the bonus (one combined file)")
+    ap.add_argument("--min-salary", type=float, default=0.0, help="flag a team's top WR only if his salary is >= this (no fall-through)")
     ap.add_argument("--base", type=Path, default=None, help="the live cheap file to flag the top receivers on (byte-identical otherwise)")
     a = ap.parse_args(argv)
     if a.out.exists():
         print(f"TOP-WR BLOCK FILE REFUSED: {a.out} exists (create-once; remove it deliberately to rewrite)", file=sys.stderr)
+        return 3
+    if a.min_salary < 0:
+        print(f"TOP-WR BLOCK FILE REFUSED: --min-salary must be >= 0 (got {a.min_salary:g})", file=sys.stderr)
         return 3
     if a.base is not None:
         if a.with_cheap:
             print("TOP-WR BLOCK FILE REFUSED: --base and --with-cheap together (the base IS the cheap part)", file=sys.stderr)
             return 3
         try:
-            text, flagged = on_base(a.base.read_text(), pd.read_parquet(a.frame), a.points)
+            text, flagged = on_base(a.base.read_text(), pd.read_parquet(a.frame), a.points, a.min_salary)
         except (OSError, ValueError) as e:
             print(f"TOP-WR BLOCK FILE REFUSED: {e}", file=sys.stderr)
             return 3
         a.out.parent.mkdir(parents=True, exist_ok=True)
         a.out.write_text(text)
         print(f"top-WR block file {a.season} W{a.week} ON BASE {a.base} (sha256 {hashlib.sha256(a.base.read_bytes()).hexdigest()[:12]}): "
-              f"{len(flagged)} top receivers flagged +{a.points:g}, every other line unchanged (frame sha256 "
+              f"{len(flagged)} top receivers flagged +{a.points:g} (min salary {a.min_salary:g}), every other line unchanged (frame sha256 "
               f"{hashlib.sha256(a.frame.read_bytes()).hexdigest()[:8]}) -> {a.out} (sha256 {hashlib.sha256(a.out.read_bytes()).hexdigest()})")
         return 0
     try:
-        out = build(pd.read_parquet(a.frame), a.points, a.with_cheap)
+        out = build(pd.read_parquet(a.frame), a.points, a.with_cheap, a.min_salary)
     except ValueError as e:
         print(f"TOP-WR BLOCK FILE REFUSED: {e}", file=sys.stderr)
         return 3

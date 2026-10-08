@@ -109,3 +109,33 @@ def test_main_base_end_to_end_and_refusals(tmp_path):
     assert TW.main(args) == 0
     assert TW.main(args) == 3                                                    # create-once
     assert TW.main(args[:-1] + [str(tmp_path / "x.csv"), "--with-cheap"]) == 3    # --base with --with-cheap
+
+
+# ---- --min-salary (study 70's CHEAPEXPWR2_B8): the top WR is picked first, then floored; no fall-through
+def test_min_salary_floor_without_fall_through():
+    b = dict(zip(*[TW.build(frame(), 2.0, min_salary=7500)[c] for c in ("display_name", "bonus_points")]))
+    assert b["A"] == 2.0                        # team X's top WR, $7,800
+    assert b["C"] == 0.0 and b["D"] == 0.0      # team Y's top WR (C, $7,000) is under the floor; D is never promoted
+    b = dict(zip(*[TW.build(frame(), 2.0, min_salary=7000)[c] for c in ("display_name", "bonus_points")]))
+    assert b["A"] == 2.0 and b["C"] == 2.0 and b["D"] == 0.0
+
+
+def test_min_salary_with_cheap_keeps_the_cheap_rows():
+    b = dict(zip(*[TW.build(frame(), 2.0, with_cheap=True, min_salary=7500)[c] for c in ("display_name", "bonus_points")]))
+    assert b == {"A": 2.0, "B": 0.0, "C": 0.0, "D": 0.0, "E": 2.0, "F": 0.0}
+
+
+def test_min_salary_on_base_flags_only_the_qualifying_top_wr():
+    text = base_text()
+    new, flagged = TW.on_base(text, frame(), 2.0, min_salary=7500)
+    changed = [b.split(",")[2] for a, b in zip(text.splitlines(), new.splitlines()) if a != b]
+    assert changed == ["A"] and flagged == ["1"]
+
+
+def test_min_salary_refusals(tmp_path):
+    with pytest.raises(ValueError, match=">= 0"):
+        TW.build(frame(), 2.0, min_salary=-1)
+    with pytest.raises(ValueError, match="no team's top WR"):
+        TW.on_base(base_text(), frame(), 2.0, min_salary=9000)
+    f = tmp_path / "frame.parquet"; frame().to_parquet(f)
+    assert TW.main(["--season", "2026", "--week", "5", "--frame", str(f), "--min-salary", "-1", "--out", str(tmp_path / "x.csv")]) == 3
