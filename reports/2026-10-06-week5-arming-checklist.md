@@ -193,6 +193,7 @@ unless it says otherwise.** Record each capture's count in HANDOFF.
     `PYTHONPATH=<integration worktree>/src .venv/bin/python ~/.cache/laptop-agent/shadow_b.py --season 2026 --week 5 --out ~/private/shadow-b/smoke-2026-w05`
     (create-once; it records the runtime for Sunday).
 - **Fri 10-09:**
+  - **Friday's A3 (cheap armed) starts AFTER the 12:30 FP ownership capture succeeds,** so its study-38 snapshot holds `ownership_fp-*.csv`. The snapshot takes the paper matchup file from the A3 worktree (`reports/2026-10-08-live-block/matchup-w5.csv` `ba27c6fb`, at FRIDAY_HEAD). Both were missing from Thursday's dress-rehearsal gate (the reviewer 10-08). If FP has not posted ownership by about 15:00, run A3 anyway and tell the reviewer.
   - **FP projected ownership at 12:30 and 16:30 CT:** `cd ~/projects/nfl-predictions && flock -w 300 ~/.cache/nfl-dfs/fantasy-points-profile.lock timeout 300 .venv/bin/python -m nfl_dfs.ops.fantasy_points_ownership collect --week 5`. FP posted Week 4's by Friday 12:23. "ownership table has no
     values" means not posted yet, so retry hourly.
   - **The FP QB coverage matchup retry:** `.venv/bin/nfl-weekly-data run --week 5 --skip-fp-families --skip-fp-projections --skip-sis-team-context --skip-sis-pass-tail --skip-sis-receiver-copula --skip-odds --no-login-if-needed`.
@@ -206,6 +207,10 @@ unless it says otherwise.** Record each capture's count in HANDOFF.
   - **06:45, shadow B for real:** `--out ~/private/shadow-b/2026-w05`. It must finish before the 10:33 pulls. If the smoke
     ran longer than 3 h, start it at 06:00.
   - **09:15:** FP projected ownership (the same command, outside the 10:40–10:50 capture window).
+  - **The Route Share pair freezes, BY HAND, THE SAME SUNDAY** (the gate: "It is not scheduled; the weekly record runs it by hand after each freeze"; the week is resolved from the UTC date, O-58):
+    - after the 10:20 slot's two shadow jobs have frozen, `cd ~/projects/nfl-predictions && .venv/bin/nfl-dfs freeze-route-share-pair --slot early`;
+    - after the 11:10 slot's, `... --slot late`, before 12:00.
+    - Record each output (`portfolio_run_id live-route-share-pair-2026w05-{early,late}`, rows) in HANDOFF.
   - Then, as written below: the OPRK snapshot ~10:45, the study-38 snapshot (it collects FP ownership again), the paper
     files, the study-61 copies, `weeks.json` keys.
 - **Mon 10-12, THE OPERATOR (by Tue 10-13 at the latest; DraftKings purges standings about 4 days after a contest):**

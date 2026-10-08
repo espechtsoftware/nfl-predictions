@@ -12,6 +12,30 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-08 (11:36 CDT) — Dry runs: cbwu-oi, roleunion and route-roleunion all PASS (O-49 cleared); the Route Share pair freeze was never run (O-58); Friday's snapshot notes
+
+- **The three dry runs** (`~/.cache/laptop-agent/shadow_dry_run.sh`, each in its lane; image `7f632786`, CODE_SHA `6fd3ef00`):
+
+  | Job | Execution | Time (CT) | Result |
+  |---|---|---|---|
+  | shadow-cbwu-oi-paired | `jwccl` | 10:58–11:19 | exit 0; froze dryrun-companion-cbwu-oi-v1-2026w05-20261008T160240Z |
+  | shadow-k1-roleunion | `tbzb9` | 11:19–11:27 | exit 0 |
+  | shadow-k1-route-roleunion | `ljp6v` | 11:27–11:34 | exit 0, on the PRE-rebuild route inputs |
+
+  - **O-49 is cleared** by the cbwu-oi run.
+  - The route-roleunion dry run is repeated after the retrain (the reviewer's condition (b)). Then
+    `check_prospective_gates --week 5`.
+- **The reviewer's dress-rehearsal integrity gate** on A3's snapshot: every 6k check PASSES (TE2B8 13 TEs, TETOUGH2B8 4,
+  CHEAPTE2B8 63; 8 term rows at ranks 2…25), and so do the term, DvP and factor checks and QB2HALF. It FAILS on two
+  snapshot CONTENTS only:
+  - no paper matchup file (written after A3; Friday's A3 picks it up at FRIDAY_HEAD);
+  - no FP ownership (not posted yet; Friday's A3 starts after the 12:30 capture succeeds).
+- **`freeze-route-share-pair`** (the reviewer: part of the gate's weekly record, by hand):
+  - `nfl_predictions.live_shadow_portfolios` does not exist, so it was NEVER run for W2–W4.
+  - W5: `--slot early` and `--slot late` by hand on Sunday (checklist).
+  - O-58 registers the date-derived week and the missing W2–W4 records.
+- The reviewer handles the moneygate_score pin (48342ae1 vs dd8ff1f7) as study 38 amendment 6l on Friday.
+
 ## 2026-10-08 (11:31 CDT) — A3 (block OFF, Rev6) PASSED end to end; the W5 block files written and committed; the TE columns check for 6k
 
 - **A3** at `9d069991`, lab pin `f69598b`: ~/rehearsals/a3-20261008T155507Z, 10:55–11:28 CT.
