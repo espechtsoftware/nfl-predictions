@@ -355,3 +355,66 @@ $14M FFWC qualifier field (sharp, ~56% regulars).
    FP-means plain rows vs the props-means plain rows. This is the cash-line endpoint study 54 did not measure.
 3. Monday's W5 real field adds one more prospective comparison of the FP #1 and the props #1.
 4. R4 (study 57) for the two-entry case, with the distinct-rows fix.
+
+## 6. Tight ends against tough defenses (the operator, 10-07)
+
+The operator, 10-07: *"Using the Neo4j data, please do some research on when tight ends have a big game. My suspicion is
+that happens when it's a strong defense and they're not going to be able to throw to the wide receiver as much ... a
+stack with a quarterback, running back, and a tight end."* Then: *"maybe we also consider giving a tight end a bonus ...
+when he's used alone as well, when it's against a tough defense."*
+
+The graph holds only the 2026 weeks, so the history test reads the tables it is built from (12 seasons). Scripts:
+`te_defense_study.py` and `te_stack_fields.py` in `reports/2026-10-07-brainstorm/`.
+
+**History 2014–2025** (4,973 team-games, weeks with 3+ prior defense games):
+- **Defense strength** is point-in-time: the DK points the opponent allowed per game to WRs / TEs / RBs in its earlier
+  games that season.
+- **Comparisons** are within the same offense-season, with the Vegas implied team total as a control.
+
+| Against defenses strong vs WRs (per sd stronger) | Effect | Reading |
+|---|---|---|
+| TE1 DK points | +0.08 (t 0.8) | **no gain** |
+| TE target share | +0.3 pt (t 2.5) | a hair more of the targets |
+| TE boom (20+) | +0.3 pt (t 0.8) | no gain; the strongest 10% of WR defences give 7.7% vs 8.4% |
+| RB touch share | +0.4 pt (t 3.0) | a hair more touches, not more points (RB1 −0.18, t 1.5) |
+| WR1 / QB | −0.21 / −0.16 | everyone produces less, and the implied total already prices most of it |
+
+| Stack, share of team-games | Strong vs WR | Middle | Weak vs WR |
+|---|---|---|---|
+| QB + TE beats QB + WR | .213 | .207 | .190 |
+| QB + TE ≥ 45 points | .087 | .098 | .096 |
+| QB + WR ≥ 45 points | .235 | .266 | .288 |
+| QB + RB + TE ≥ 60 | .147 | .161 | .162 |
+| QB + WR + WR ≥ 60 | .191 | .225 | .225 |
+
+**What does predict TE production:**
+- **The opponent's record against TEs specifically:** TE1 +0.28 per sd of TE points allowed (t 3.0); QB + TE +0.57
+  (t 3.4).
+- **A run / pass funnel:** against weak run defences, QB + RB + TE does better (+0.92 per sd of RB points allowed,
+  t 4.1); against strong run defences, QB + WR + WR does better (−0.86, t 3.2).
+- **The implied team total**, by far the strongest predictor.
+
+**The 2026 real fields** (W3–4 only, because the frames carry the pre-lock pass-defense measure from W3; within-user odds
+ratios, users 20+ entries):
+
+| QB's opponent (pre-lock EPA per dropback allowed) | QB + TE vs QB + WR, top 1% / top 5% | QB + RB + TE vs QB + WR + WR, top 1% / top 5% |
+|---|---|---|
+| Strong pass defence | **4.48 / 2.78** | 7.27 (10 events) / 3.74 |
+| Middle | 0.48 / 0.53 | 0.13 / 0.45 |
+| Weak pass defence | 0.29 / 0.38 | 0.37 / 0.19 |
+
+**Reading:**
+- The two 2026 weeks match the operator's idea strongly. Twelve seasons say it is not a general rule: tight ends do not
+  score more against tough pass defences.
+- QB + TE stacks gain only relatively, because WR stacks fall more. Even then, WR stacks boom about 2.7× as often in
+  every defence group.
+- The two weeks most likely reflect a few games.
+- **The TE bonus "against a tough defense" is not supported** (TE points do not rise there). The supported form is a
+  bonus against defences **weak against TEs**, which the **matchup block** (on paper this week) already applies to
+  every position.
+
+**Proposed:**
+- No new layout rule or TE bonus now.
+- Track the real-field pattern as one more weekly line ("QB + TE vs QB + WR by the opponent's pass defence"). If it
+  holds through W5–W8, it is a real signal beyond history, and it goes to a test.
+- The matchup block's paper results are the tested route for position-specific matchups.

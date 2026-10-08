@@ -1,0 +1,49 @@
+history 2014-2025, weeks with 3+ prior defense games: 4,973 team-games (12 seasons)
+
+(1) raw means by the opponent's PIT strength against WRs (DK points it allowed to WRs per game so far that season)
+                te1  te_share  te_boom     wr1  wr1_boom     rb1  rb_touch_share      qb   qb_te   qb_wr  qb_wr_wr  qb_rb_te     itt
+wr_def                                                                                                                              
+strong vs WR  9.672     0.218    0.081  17.709     0.194  16.217           0.480  17.363  27.035  35.072    44.494    43.252  22.003
+middle        9.894     0.216    0.092  18.529     0.210  16.730           0.477  18.153  28.047  36.682    46.588    44.777  22.775
+weak vs WR    9.721     0.211    0.077  18.641     0.222  16.652           0.473  18.233  27.954  36.874    46.786    44.606  23.067
+
+(2) WITHIN the same offense-season (each game minus that offense-season's mean), by the opponent's strength vs WRs
+                te1  te_share  te_boom    wr1  wr1_boom    rb1  rb_touch_share     qb  qb_te  qb_wr  qb_wr_wr  qb_rb_te    itt
+wr_def                                                                                                                        
+strong vs WR -0.085     0.003   -0.003 -0.640    -0.017 -0.353           0.004 -0.565 -0.650 -1.205    -1.556    -1.003 -0.649
+middle        0.145     0.002    0.009  0.126    -0.002  0.207           0.000  0.153  0.299  0.279     0.375     0.506  0.088
+weak vs WR   -0.062    -0.004   -0.006  0.469     0.017  0.126          -0.004  0.373  0.311  0.842     1.073     0.437  0.514
+
+(3) regression within offense-season, controlling the implied team total: coefficient per 1 sd of the defense's allowed-to-WR (positive = more output against WEAKER WR defenses) and per 1 sd of allowed-to-TE
+       outcome per sd WR-allowed per sd TE-allowed per sd RB-allowed per sd implied total
+           te1    -0.078 (-0.8t)    +0.277 (+3.0t)    +0.208 (+2.1t)       +0.751 (+5.1t)
+      te_share    -0.003 (-2.5t)    +0.003 (+2.1t)    +0.003 (+2.2t)       +0.002 (+0.9t)
+       te_boom    -0.003 (-0.8t)    +0.007 (+1.9t)    +0.003 (+0.8t)       +0.015 (+2.5t)
+           wr1    +0.214 (+1.8t)    +0.125 (+1.0t)    -0.439 (-3.4t)       +1.326 (+7.0t)
+           rb1    +0.180 (+1.5t)    -0.001 (-0.0t)    +0.733 (+5.9t)       +0.769 (+4.2t)
+rb_touch_share    -0.004 (-3.0t)    -0.002 (-1.5t)    +0.009 (+6.9t)       -0.004 (-2.0t)
+            qb    +0.157 (+1.4t)    +0.291 (+2.6t)    -0.025 (-0.2t)      +1.793 (+10.2t)
+         qb_te    +0.079 (+0.5t)    +0.568 (+3.4t)    +0.183 (+1.0t)       +2.544 (+9.6t)
+         qb_wr    +0.372 (+1.8t)    +0.416 (+2.0t)    -0.464 (-2.1t)       +3.119 (+9.7t)
+      qb_rb_te    +0.259 (+1.2t)    +0.567 (+2.7t)    +0.916 (+4.1t)      +3.313 (+10.2t)
+      qb_wr_wr    +0.495 (+2.0t)    +0.460 (+1.9t)    -0.855 (-3.2t)       +3.887 (+9.9t)
+
+(4) stacks by the opponent's strength vs WRs: share of games where each stack is the better one, and stack booms
+              te_beats_wr  rbte_beats_wrwr  qbte_45  qbwr_45  qbrbte_60  qbwrwr_60
+wr_def                                                                            
+strong vs WR        0.213            0.477    0.087    0.235      0.147      0.191
+middle              0.207            0.464    0.098    0.266      0.161      0.225
+weak vs WR          0.190            0.455    0.096    0.288      0.162      0.225
+
+(5) the extreme: the 10% strongest defenses vs WRs vs the rest
+         te1  te_share  te_boom     wr1     rb1  rb_touch_share  te_beats_wr  rbte_beats_wrwr  qbte_45  qbwr_45
+top10                                                                                                          
+False  9.773     0.215    0.084  18.388  16.605           0.476        0.202            0.465    0.095    0.268
+True   9.659     0.217    0.077  17.414  15.825           0.484        0.220            0.467    0.077    0.215
+
+2026 W4 (the only 2026 week with 3+ prior games): 32 team-games; by strength vs WR:
+                te1  te_share    wr1    rb1  qb_te  qb_wr
+wr_def                                                   
+strong vs WR  12.70      0.31  14.66  19.08  27.93  29.89
+middle         8.54      0.20  21.32  17.59  26.10  38.88
+weak vs WR     8.36      0.23  23.35  18.63  25.68  40.67
