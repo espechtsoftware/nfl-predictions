@@ -12,6 +12,34 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-08 (11:15 CDT) — Route Share gate W5: the treatment inputs will be REBUILT on the repaired W4 import (recorded BEFORE the re-run; the reviewer's reading of the frozen gate)
+
+- **Why** (condition (a), recorded before any re-run):
+  - The operator's standing "I do want the latest data" (10-08).
+  - FP's revision of the W4 Route Share export, repaired at 11:0x CT. The repair verified exactly 51 changed, 0
+    added, 0 removed.
+  - The frozen gate (`reports/2026-08-11-route-share-2026-shadow-gate.md`) trains the Route model on "the manifest-locked
+    source Week W-1 rows available before target Week W". The repaired import is now that import, and W5 is not yet
+    locked.
+  - Leaving the treatment on rows the warehouse no longer holds would make its recorded source manifest disagree with
+    the table (the reviewer).
+- **The new W4 source identity:**
+  - run `20261008T155040Z__2026-route-share-weekly-v1`;
+  - manifest.json sha256 `76ad120e5953f7b7e60cc4bade6e65ba3d0234ce9dd79fbf7d8b5056fa786b54`;
+  - CSV sha256 `d1e89fdfbdde52f03145db014add125ad7524a33d605221342f2696b2de76130`;
+  - archived at `gs://nfl-predictions-503414-raw/licensed/fantasy-points/route-share/season=2026/source_week=04/sha256=d1e89fdf…/`.
+- **The re-run, after A3's build stops reading the warehouse** (A3 started 10:55; its snapshot feeds study 38's Friday
+  gate):
+  1. `build-features` (s-features-route's target);
+  2. `train-weekly-k1-route` (tail_k1_route);
+  3. `train-weekly-k1-route-role` (tail_k1_route_role). Each runs through its launcher lane.
+- **Then:**
+  - (b) the `shadow-k1-route-roleunion` dry run is repeated on the rebuilt inputs;
+  - (c) `check_prospective_gates.py --week 5`.
+- **The control registries (tail_k1, tail_k1_role) are NOT retrained.** They carry no Route fields: the `fp_route_share_*`
+  columns are CANDIDATE_FEATURES (models/featureset.py), not NUMERIC_FEATURES. Their Thursday builds stand.
+- The cbwu-oi and roleunion dry runs need not repeat (the reviewer).
+
 ## 2026-10-08 (11:11 CDT) — The operator: CFB dropped from the freshness check (deployed), and "the latest data" — FP's W4 Route Share and the W5 alignment data replaced
 
 - **CFB** (operator: "I told you to drop college football before"; retired 10-02).
