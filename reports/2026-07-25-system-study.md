@@ -7401,3 +7401,133 @@ secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; th
 - **Descriptive, the third harness sample of the cheap +2 block** (CB vs LIVE, both in book order): 2023–24 0.323 vs
   0.307, 2022 0.213 vs 0.246. Across studies 53 / 56 / 59 the 2023–24 differences are +0.4 / −3.5 / +1.7, centred near
   zero. His Week-5 trial and Monday's comparison are the real-week test.
+
+## Addendum 166 (2026-10-08): study 63 (QB + tight-end stacks and a tight-end bonus, in the harness, a Week-6 read): every arm NO DIFFERENCE against the cheap block, none contradicted; the TE blocks lean slightly positive, the forced QB + TE share leans against; the cheap block stays the recommendation
+
+**Setup.**
+- **The question.** The operator, 10-07 night, relayed by the outside reviewer (study list 63): "I would like to do more
+  testing on the QB tight end stacks right away" … "perhaps consider a percentage of our lineups to have a QB tight end
+  stack" … "and also to include a bonus to the tight end in these types of situations."
+- **The arms.** On study 48's harness (LIVE = 48d's 41 rows; Rev6 `ac10ddf6`), each built with study 53's frozen block
+  term and term_book:
+  - LIVE_CB (the reference): his live book with the cheap +2 block, the Week-5 trial.
+  - TE2_B8: an 8-row block of +2 for pass-catching TEs (target_share_l4 ≥ 0.15) INSTEAD of the cheap block. This is
+    production `te_block_file.py`'s rule.
+  - TETOUGH2_B8: those TEs only when they face the slate's toughest third of pass defences. That is the operator's
+    form, with the label AS SERVED (production O-55: each defence's last game week before W).
+  - CHEAPTE2_B8: cheap OR pass-catching TE, +2, in one block.
+  - QBTE_SHARE: LIVE_CB with a QB + own-team TE REQUIRED on 18 of 26 book rows, through the optimizer's interaction
+    floor. 0 of 5,724 required rows were infeasible.
+  - Exploratory TEWEAKD2_B8: TEs facing the weakest third against TEs, history's supported form.
+- **Preregistration:** `reports/2026-10-08-prereg-study63-qbte-stacks.md` (DRAFT `2cc4681b`; FROZEN `43f0fe9a` before
+  any scored bank).
+- **Panel:** banks 1599–1604, B 20,000, seed 20261110.
+- **Read:** the reader `5c24b8b9`; READ `6251da92` (lab `7cc2bca`). The confirmatory census (`7413fff`) was committed
+  before the READ.
+- **Census:** QB + TE rows per book were LIVE_CB 12.0 and QBTE_SHARE 20.1 of 26. Served labels existed on 0.887
+  (tough) / 0.830 (weak) of slate-banks. No arm is near a dead lever.
+
+**Reader output (verbatim):**
+```
+STUDY 63 READER  sha256 5c24b8b9f329e68b3df1b20b986c6fea7264ca0dfdf1a862b961b7e1d1138848
+DIRECTION: P(>= 1 big seat) per slate (the mean over its banks); every difference is ARM - LIVE_CB; POSITIVE favours the arm.
+slates 36 (the 2023-24 read) + 17 (the 2022 go / no-go)  banks [1599, 1600, 1601, 1602, 1603, 1604]  B 20000  seed 20261110  four decision arms against LIVE_CB on the CALIBRATED field (v2), each two-sided 0.95; guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only; 2022: the point estimate (two-sided 0.95 interval); study 51's trial rule per arm
+arms (definitions, the TE constants, study 48's and study 53's shas, live settings, QB cap, objective): [["LIVE_CB", "TE2_B8", "TETOUGH2_B8", "CHEAPTE2_B8", "QBTE_SHARE", "TEWEAKD2_B8"], {"block": {"cap": 2.0, "floor_proj": 5.0, "min_coverage": 0.5, "n_term": 8, "tilt": 0.2}, "dose": 2.0, "label_columns": {"tough": "epa_per_dropback_allowed_l6", "weak": "te_fp_allowed_adj_l6"}, "min_labelled": 6, "min_share": 0.15, "qbte_rows": 18}, "c22d28114ab4b463b6842594cb2ff7ca1babf41e28015c7242b21baedb1bc67c", "f3f9d735ca0c5dfadb7abe6c2999fd3bcb352425e4fcc7ea73bd2b09d4522c89", {"fill": "rr", "max_shared": 4}, 5, "player_mean (+ the arm's block term)"]
+
+== TE2_B8 vs LIVE_CB  [DECISION; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate +0.01320  [-0.02052, +0.04531] (two-sided 0.95)  seasons 2023 +0.02828, 2024 -0.00187
+  GUARD 1 mean entry pct +0.00445  one-sided lower -0.00624  (must exceed -0.015)
+  GUARD 2 expected big seats 0.56806 vs 0.54048  ratio 1.051  (must be >= 0.80)
+  TE2_B8 dealt identical to LIVE_CB: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  GO / NO-GO 2022: +0.02457  [-0.00855, +0.06589] (two-sided 0.95)  ->  not contradicted
+  TRIAL: ENTERABLE, his decision: no harm shown and no gain shown (NO DIFFERENCE on the read, not contradicted on 2022)
+
+== TETOUGH2_B8 vs LIVE_CB  [DECISION; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate +0.01910  [-0.01702, +0.05445] (two-sided 0.95)  seasons 2023 +0.04680, 2024 -0.00860
+  GUARD 1 mean entry pct +0.00828  one-sided lower -0.00391  (must exceed -0.015)
+  GUARD 2 expected big seats 0.57261 vs 0.54048  ratio 1.059  (must be >= 0.80)
+  TETOUGH2_B8 dealt identical to LIVE_CB: 0.111 of slate-banks
+  ->  NO DIFFERENCE
+  GO / NO-GO 2022: +0.01125  [-0.02501, +0.06053] (two-sided 0.95)  ->  not contradicted
+  TRIAL: ENTERABLE, his decision: no harm shown and no gain shown (NO DIFFERENCE on the read, not contradicted on 2022)
+
+== CHEAPTE2_B8 vs LIVE_CB  [DECISION; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate +0.01200  [-0.01559, +0.04176] (two-sided 0.95)  seasons 2023 +0.01018, 2024 +0.01382
+  GUARD 1 mean entry pct -0.00247  one-sided lower -0.01019  (must exceed -0.015)
+  GUARD 2 expected big seats 0.55562 vs 0.54048  ratio 1.028  (must be >= 0.80)
+  CHEAPTE2_B8 dealt identical to LIVE_CB: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  GO / NO-GO 2022: +0.01765  [-0.01956, +0.05625] (two-sided 0.95)  ->  not contradicted
+  TRIAL: ENTERABLE, his decision: no harm shown and no gain shown (NO DIFFERENCE on the read, not contradicted on 2022)
+
+== QBTE_SHARE vs LIVE_CB  [DECISION; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate -0.01566  [-0.05968, +0.02743] (two-sided 0.95)  seasons 2023 -0.01315, 2024 -0.01818
+  GUARD 1 mean entry pct -0.00348  one-sided lower -0.00955  (must exceed -0.015)
+  GUARD 2 expected big seats 0.50161 vs 0.54048  ratio 0.928  (must be >= 0.80)
+  QBTE_SHARE dealt identical to LIVE_CB: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  GO / NO-GO 2022: +0.02472  [-0.02277, +0.06777] (two-sided 0.95)  ->  not contradicted
+  TRIAL: ENTERABLE, his decision: no harm shown and no gain shown (NO DIFFERENCE on the read, not contradicted on 2022)
+
+== TRIAL SUMMARY: TE2_B8, TETOUGH2_B8, CHEAPTE2_B8, QBTE_SHARE ENTERABLE (his decision; one construction change a week)
+
+== EXPLORATORY (never decision-bearing; two-sided 0.95)
+  TEWEAKD2_B8 - LIVE_CB (v2, 2023-24): -0.00049  [-0.04010, +0.03613]  seasons 2023 +0.02500, 2024 -0.02598
+  TEWEAKD2_B8 - LIVE_CB (v2, 2022): +0.04011  [+0.00690, +0.07951]  seasons 2022 +0.04011
+  TE2_B8 - LIVE_CB (the l02 field, 2023-24): +0.01620  [-0.01785, +0.04882]  seasons 2023 +0.03310, 2024 -0.00070
+  TE2_B8 - LIVE_CB (the l02 field, 2022): +0.02654  [-0.00836, +0.06757]  seasons 2022 +0.02654
+  TETOUGH2_B8 - LIVE_CB (the l02 field, 2023-24): +0.02258  [-0.01324, +0.05840]  seasons 2023 +0.05108, 2024 -0.00591
+  TETOUGH2_B8 - LIVE_CB (the l02 field, 2022): +0.00880  [-0.02730, +0.05603]  seasons 2022 +0.00880
+  CHEAPTE2_B8 - LIVE_CB (the l02 field, 2023-24): +0.00969  [-0.01831, +0.03995]  seasons 2023 +0.00922, 2024 +0.01015
+  CHEAPTE2_B8 - LIVE_CB (the l02 field, 2022): +0.01863  [-0.02051, +0.05918]  seasons 2022 +0.01863
+  QBTE_SHARE - LIVE_CB (the l02 field, 2023-24): -0.01321  [-0.05679, +0.02978]  seasons 2023 -0.01148, 2024 -0.01493
+  QBTE_SHARE - LIVE_CB (the l02 field, 2022): +0.03071  [-0.01646, +0.07445]  seasons 2022 +0.03071
+  TEWEAKD2_B8 - LIVE_CB (the l02 field, 2023-24): +0.00259  [-0.03807, +0.04166]  seasons 2023 +0.02888, 2024 -0.02369
+  TEWEAKD2_B8 - LIVE_CB (the l02 field, 2022): +0.04041  [+0.00617, +0.08106]  seasons 2022 +0.04041
+  QBTE_SHARE rows the requirement made infeasible: 0 over 318 slate-banks
+
+secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; the book's rows are pre-lock facts):
+  [2023-24]
+  LIVE_CB      v2: P(>=1 big) 0.32942  expected big seats 0.54048  P(>=2) 0.12794  entry pct 0.51513  |  l02: P(>=1 big) 0.35564
+               book: projection per row 127.72  salary 49963  QB + TE rows 12.4 (pass-catching 8.8) of 26
+  TE2_B8       v2: P(>=1 big) 0.34263  expected big seats 0.56806  P(>=2) 0.13220  entry pct 0.51958  |  l02: P(>=1 big) 0.37184
+               book: projection per row 128.03  salary 49969  QB + TE rows 12.9 (pass-catching 10.8) of 26
+  TETOUGH2_B8  v2: P(>=1 big) 0.34852  expected big seats 0.57261  P(>=2) 0.12541  entry pct 0.52341  |  l02: P(>=1 big) 0.37823
+               book: projection per row 127.78  salary 49967  QB + TE rows 12.7 (pass-catching 10.2) of 26
+  CHEAPTE2_B8  v2: P(>=1 big) 0.34142  expected big seats 0.55562  P(>=2) 0.13711  entry pct 0.51266  |  l02: P(>=1 big) 0.36533
+               book: projection per row 127.76  salary 49964  QB + TE rows 13.6 (pass-catching 11.0) of 26
+  QBTE_SHARE   v2: P(>=1 big) 0.31376  expected big seats 0.50161  P(>=2) 0.11670  entry pct 0.51165  |  l02: P(>=1 big) 0.34244
+               book: projection per row 127.56  salary 49963  QB + TE rows 20.2 (pass-catching 13.7) of 26
+  TEWEAKD2_B8  v2: P(>=1 big) 0.32893  expected big seats 0.53468  P(>=2) 0.12322  entry pct 0.51673  |  l02: P(>=1 big) 0.35824
+               book: projection per row 127.84  salary 49967  QB + TE rows 12.1 (pass-catching 9.4) of 26
+  [2022]
+  LIVE_CB      v2: P(>=1 big) 0.21757  expected big seats 0.31816  P(>=2) 0.07932  entry pct 0.45629  |  l02: P(>=1 big) 0.23337
+               book: projection per row 131.83  salary 49961  QB + TE rows 11.3 (pass-catching 8.2) of 26
+  TE2_B8       v2: P(>=1 big) 0.24213  expected big seats 0.38811  P(>=2) 0.10420  entry pct 0.44901  |  l02: P(>=1 big) 0.25991
+               book: projection per row 132.15  salary 49966  QB + TE rows 11.3 (pass-catching 9.8) of 26
+  TETOUGH2_B8  v2: P(>=1 big) 0.22882  expected big seats 0.37214  P(>=2) 0.10097  entry pct 0.43862  |  l02: P(>=1 big) 0.24217
+               book: projection per row 131.86  salary 49964  QB + TE rows 10.4 (pass-catching 8.6) of 26
+  CHEAPTE2_B8  v2: P(>=1 big) 0.23522  expected big seats 0.33741  P(>=2) 0.07809  entry pct 0.45816  |  l02: P(>=1 big) 0.25200
+               book: projection per row 131.91  salary 49960  QB + TE rows 12.2 (pass-catching 10.0) of 26
+  QBTE_SHARE   v2: P(>=1 big) 0.24228  expected big seats 0.31234  P(>=2) 0.05967  entry pct 0.46231  |  l02: P(>=1 big) 0.26408
+               book: projection per row 131.64  salary 49958  QB + TE rows 20.0 (pass-catching 13.3) of 26
+  TEWEAKD2_B8  v2: P(>=1 big) 0.25768  expected big seats 0.43140  P(>=2) 0.10505  entry pct 0.45362  |  l02: P(>=1 big) 0.27378
+               book: projection per row 131.89  salary 49964  QB + TE rows 11.5 (pass-catching 9.5) of 26
+```
+
+**Reading.**
+- **No TE form is shown better than the cheap block.** On P(≥ 1 big seat) per slate, 2023–24:
+  - TE2: +1.3 points (interval −2.1 to +4.5);
+  - TETOUGH2: +1.9 (−1.7 to +5.4; 2023 +4.7, 2024 −0.9);
+  - CHEAPTE2: +1.2 (−1.6 to +4.2; both seasons positive).
+  - All three lean the same way on 2022 (+2.5 / +1.1 / +1.8), and every expected-big-seats ratio is ≥ 1.03.
+  - The trial rule says ENTERABLE (no harm shown, no gain shown).
+- **The forced QB + TE share leans against.**
+  - −1.6 (−6.0 to +2.7), negative in both seasons, with an expected-seats ratio of 0.93 and P(≥ 2) lower.
+  - It moves the book from 12 to 20 QB + TE rows and shares only 3 of 26 rows with LIVE_CB.
+  - ENTERABLE by the rule, not recommended.
+- **History's form (exploratory)** is flat on 2023–24 (−0.05) and +4.0 on 2022.
+- **Recommendation for Week 6:** keep the cheap block. A TE block is a fair choice if he wants one: it is not worse,
+  and study 38's 6k paper arms give the first real-field read on Monday. But swapping the one block slot for a NO
+  DIFFERENCE arm is a change without evidence.
