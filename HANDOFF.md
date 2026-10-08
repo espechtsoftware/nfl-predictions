@@ -12,6 +12,52 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-08 (14:35 CDT) — laptop: study 64 (S1) acked and merged into integration
+
+**Study 64 was FROZEN by the reviewer** at `review/s64-env-20261009` @ `3370ae0d`. It is the game-environment calibration on FP's
+projections, redone after the briefing's correction (`0b2207b8`) and O-61:
+- real units;
+- the PRIMARY is team implied total alone (FP + ITT vs FP);
+- wind is a separate ENV model that never gates;
+- wind counts only when the home team is open-air (the stadium rule, which replaces is_dome).
+
+Coefficients v2 (2023–25, 6,791 rows, 4,452 open-air), per point of team total: QB +0.156, RB +0.136, WR +0.098, TE −0.000.
+Wind per mph: QB −0.247, WR −0.076, RB −0.020, TE −0.014.
+
+**The laptop's ack (all passed):**
+- **Shas at `3370ae0d`, and again after the merge:**
+  - s64_env_fit.py `f479c5b8`;
+  - s64_env_apply.py `60cde979`;
+  - s64_env_line.py `11a2b539`;
+  - test_s64_env.py `7677821a`;
+  - s64_env_coefficients_v2.json `1c54a3cc`;
+  - the reader weekly_projection_accuracy.py `dadc647d`;
+  - the prereg `b158988a`.
+- **The fit re-run** into the laptop's own path, compared on everything but `written_utc`: **IDENTICAL**.
+  - Input content sha `de00025e`; fitter sha `f479c5b8`; 6,791 / 4,452 rows; 32 s.
+- **`tests/test_s64_env.py`:** 10 passed.
+- **The W4 smoke, reproduced verbatim** (§5, both printed lines and every application count), on:
+  - `accuracy-2026-w04.csv`;
+  - its frame (run `20261004T155026918221Z-32cdb61`);
+  - the W4 union file `~/moneygate/books/w4/PKG4-rr/run1/proj_source.csv` (sha `8bba650e`). §5 does not name this path; the
+    laptop found it by reproduction.
+  - Private output: `~/private/s64-ack-w04-laptop/`.
+
+**Merged into integration (this push).** Main is the operator's: `git merge --no-ff origin/review/s64-env-20261009`.
+
+**Notes sent to the reviewer (descriptive, not defects):**
+- The adjustment is not mean-zero on the scored rows. Its mean over W4's 195 reader rows is +0.014 (RB +0.033), because apply
+  demeans over all 292 FP-covered skill players. That is why FP + ITT's bias moves +0.018.
+- A duplicate frame id would make the line's map raise (it fails loudly). W4 had 0 duplicates.
+
+**Monday 10-12 inputs for the first line (W5):**
+- the reader rows `~/private/projection-accuracy/accuracy-2026-w05.csv`, written by the laptop's `weekly_projection_accuracy.py
+  week --week 5` once the Millionaire's results are loaded;
+- the frame: that file's `.json` `frame` (the T-70 run's `frame.parquet` under `~/moneygate/inputs/runs/`);
+- the entered union's `proj_source.csv`, in the union dir named by the last `UNION -> ` line of `~/week5-sunday/union-<RUN_TAG>.txt`.
+
+The reviewer runs the line; the laptop re-runs it byte-identically.
+
 ## 2026-10-08 (14:19 CDT) — laptop: the pros briefing correction merged; the reviewer's S64 / S65 plan; O-61 (is_dome skew for retractable roofs)
 
 **Merged** `review/pro-methods-20261008` @ `d8df6af0` (the outside reviewer's correction to the pros briefing, made before S1 freezes)
