@@ -12,6 +12,56 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-08 (15:11 CDT) — laptop: study 65 (S2 + S3) acked; the prereg merged into integration; the run cleared for tonight
+
+**Study 65 was FROZEN by the reviewer at 14:59:**
+- production `review/s65-prereg-20261009` @ `9bc87927` (prereg `de2d0a21`);
+- lab `production/s65-tailtilt-20261009` @ `6214e4a` (code `a5cab7b`, census committed at `6214e4a`).
+
+**The arms**, each an 8-row block against LIVE_CB (the cheap +2 block):
+- TAIL_B8 (S2): team total in the top third, underdog, top opposing CB out, minus touchdown-dependent receivers;
+- RECENCY_B8 (S3): minus a big last game, minus a salary rise of $300 or more;
+- CHEAPTAIL_B8 and CHEAPREC_B8 (cheap plus each);
+- EXPLORATORY TAILWIND_B8 (measured wind, an upper bound).
+
+The read is 2023–24 with the 2022 go / no-go, on the frozen reader `880c76c8` (study 63's statistics). Banks 1605–1610, seed 20261113.
+
+**The laptop's ack (all passed):**
+- **Shas:**
+  - s65_tailtilt `7667c963`;
+  - s65_drive `2694b234`;
+  - s65_census `5d91fbbb`;
+  - s65_report `880c76c8`;
+  - test_s65_tailtilt `b2a57070`;
+  - s48 `c22d2811`;
+  - s53 `f3f9d735`;
+  - s50 `bf4704a0`;
+  - term_book `62c2306e`;
+  - enter_layout `3cb051ac` (pins-extend-review);
+  - plan `ac10ddf6` (`~/s24-panel/plan-week5-rev6-s24.json`);
+  - CENSUS_s65_binding `ff692e48`;
+  - the prereg `de2d0a21`, unchanged after the merge.
+- **Tests:** 9 passed.
+- **The reader** differs from study 63's (`5c24b8b9`) only in names, seed, docstring and the secondary lines.
+- **The census re-run** (bank 1406, 53 slate-banks, mechanics only, `~/s65-panel/census-laptop-1406`): every slate-bank's
+  mechanics are identical to the committed raw rows with only the timing removed, and the census text is IDENTICAL with
+  only the build time masked (90 s vs 93 s).
+- **Code review:**
+  - the shifted penalty is asserted per skill player, so the +16 per lineup is constant;
+  - the recency window is strictly before the slate's week;
+  - `top_cb_out` is the Friday injury report's Out for the prior-snaps corner (017a), so it is pre-lock.
+- **The bank and seed scan** (`bank_scan.py`; 17,992 production and 8,089 lab blobs, filtered to bank contexts):
+  - banks 1605–1610 appear only in the prereg's two versions;
+  - the seed appears only in the s65 reader and test;
+  - no `results_bank1605`–`1610` file exists on disk.
+
+**Merged into integration** (the prereg only; the lab branch merges with the READ and the LEDGER row).
+
+**The run:** the machine is free tonight. No week timers are armed until Saturday, and nothing else heavy is planned
+before Friday's FP ownership capture at 12:30 and A3.
+
+**Next:** the reviewer's run, the confirmatory census, the READ; then the laptop's re-run of the reader and the records.
+
 ## 2026-10-08 (14:56 CDT) — laptop: the outside reviewer's 10-07 documents merged; study list 67–69; a condition on the W6 FP + props decision
 
 **At the operator's request, via the outside reviewer (nfl-predictions-63).** These are its 10-06/10-07 suggestions that never
