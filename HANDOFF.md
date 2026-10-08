@@ -12,6 +12,21 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-08 (13:40 CDT) — O-59's 10:47 DK pull MERGED (`9a49a4d1`, reviewed); the host arm copy re-synced; the timing margin about 3 minutes
+
+- **The reviewer approved `1e0d658d`.** It checked all 16 modules that read the four files: 185 pass, 3 skipped. Merged as
+  `9a49a4d1`.
+- **The host arm copy** `~/.cache/laptop-agent/w5_arm_saturday.sh` is re-synced to the merged arm script (EXPECT_N 13).
+  Backup: `*.bak-20261008-t70pull2`.
+- **Timing margin, confirmed:**
+  - `nfl-dfs ingest-dk` took 14 s start to loaded (10-08).
+  - W4's 10:33 unit journal: started 10:33:12, fetched slate 154078 at 10:33:13, loading at 10:33:17.
+  - W4's T-70 build read its inputs about 10:50:26 (run dir 15:50:26Z; built_utc 15:50:47Z).
+  - So the 10:47 pull lands about 3 minutes before the build reads. A late landing shows as PRE, the safe direction.
+- **O-59 updated:** the reviewer's known limits (the 10:36 project-slate on 10:33 statuses; late-window inactives by
+  design) and the W6 timing option. It stays open until Sunday's T-70 log shows POST or PRE.
+- **Friday:** the arm's `--check` expects 13 units.
+
 ## 2026-10-08 (13:38 CDT) — The operator DECIDED O-59: "Add a 10:47 pull" (+ a loud warning); built and in review (`1e0d658d`)
 
 - **The question** (AskUserQuestion): the 10:33 T-70 DK pull has preceded DK's inactive update in W2–W4.
