@@ -12,6 +12,38 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-08 (13:19 CDT) — The operator's 13:17 directive (O-25 Route Share dry runs): every check PASSES on today's lane-run dry runs; no duplicate executions
+
+- **The directive:** "Thu 2026-10-08 13:17 CT: O-25 ROUTE SHARE DRY RUNS (deadline Sat 10-10 12:00 ...)". It lists three
+  preconditions, the two dry runs through their lanes, and the checks below.
+- **The dry runs had already run today through their single-writer lanes, with `SHADOW_DRY_RUN=1`**
+  (`~/.cache/laptop-agent/shadow_dry_run.sh`, which runs `gcloud run jobs execute <job> --update-env-vars SHADOW_DRY_RUN=1 --wait`
+  inside `launcher_registry.sh run --lane <job>`).
+  - Control `shadow-k1-roleunion-tbzb9`.
+  - Treatment `shadow-k1-route-roleunion-ljp6v`, then REPEATED after the operator-approved W4 repair and the retrain as
+    `-wzp6x`.
+  - Every check below passes on those executions, so they were not run a third time.
+- **Preconditions:**
+  1. FP W4 Route Share: archived under `.../route-share/season=2026/source_week=04/` (four versions; the stored one is
+     `d1e89fdf`, 264 rows, one source file in `fantasy_points_route_share`).
+  2. W5 Sunday-main salaries: `dk_salaries` group 154468, 86 pulls, newest 12:59 CT, 587 players.
+  3. Trainers: train-weekly-k1 `n8hck` and -k1-role `68flk` (Tue 10-06); -k1-route and -k1-route-role 10-08 07:30 / 08:00,
+     re-run 11:37 / 11:42 after the repair. All succeeded.
+- **The receipts:**
+
+  | Execution | Runtime | Contract | Settings sha256 | live | Panel |
+  |---|---|---|---|---|---|
+  | `tbzb9` (control) | 398 s of 3600 | companion-v1 | `76c3994a…` | false | dryrun-live-shadow-tail_k1_roleunion-2026w05-20261008T162308Z |
+  | `wzp6x` (treatment) | 375 s of 3600 | companion-v1 | `76c3994a…` | false | dryrun-live-shadow-tail_k1_route_roleunion-2026w05-20261008T165223Z |
+
+  - Both: dry_run true; candidate_run_type live_shadow_dryrun; group 154468; 80 entries.
+  - The settings sha matches `76c3994a0d9d4bb4bc852a60569c535a8306458b5be7a2a9c254a7d851f96ee8` exactly.
+- **BigQuery** (`live_candidates_shadow`, W5, `dryrun-live-shadow-%`): three panels, each `live_shadow_dryrun`, 263 rows,
+  **80 selected** (control 162308Z; treatment 163108Z before the repair, 165223Z after).
+- **`check_prospective_gates.py --week 5`:** exit 0, "every gate that must be armed this week is armed and
+  policy-consistent".
+- **Sent to the reviewer** (pid 1922, sessionId `f71d6947-9b10-…`, verified in ~/.claude/sessions).
+
 ## 2026-10-08 (13:06 CDT) — Shadow B's first run (smoke) PASSES in about 2 minutes; Sunday's run moves to 09:30; two stale tests fixed and merged (71f965e2)
 
 - **Shadow B (O-22 / O-56 (e))**, smoke at code `0f272b27`: `~/.cache/laptop-agent/shadow_b.py --season 2026 --week 5 --out
