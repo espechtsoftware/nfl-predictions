@@ -1,0 +1,395 @@
+{
+ "w2-live": {
+  "p_big1": 0.0097,
+  "e_big": 0.0098,
+  "mean_entry_pct": 0.4239,
+  "proj_sum_mean": 136.95,
+  "best_row": 162.96,
+  "rows_top1pct": 0,
+  "distinct_players": 53,
+  "rows_qb_te": 10,
+  "rows_qb_pcte": 5
+ },
+ "w2-cblock8": {
+  "p_big1": 0.112,
+  "e_big": 0.1149,
+  "mean_entry_pct": 0.4486,
+  "proj_sum_mean": 136.47,
+  "best_row": 162.96,
+  "rows_top1pct": 0,
+  "distinct_players": 53,
+  "rows_qb_te": 9,
+  "rows_qb_pcte": 5,
+  "term_positions": [
+   1,
+   4,
+   8,
+   11,
+   14,
+   17,
+   21,
+   24
+  ],
+  "term_rows_mean_pct": 0.5722,
+  "live_block_mean_pct": 0.418,
+  "term_rows_best": 161.46,
+  "term_rows_with_a_top5_bonus_player": 0,
+  "top5_bonus_players": [
+   "Tyler Ott",
+   "Kenyon Sadiq",
+   "Jahdae Walker",
+   "Darren Waller",
+   "Dallen Bentley"
+  ],
+  "rows_same_as_live": 16,
+  "term_source": {
+   "source_sha256": "3bf8eca239cef10b85df780ac8081e36926f0dbc90387544bd8048f94e8a96c9",
+   "coverage_projected_5": 1.0,
+   "players_with_a_term": 109,
+   "players_capped": 0,
+   "cap_points": 2.0
+  }
+ },
+ "w2-teblock8": {
+  "p_big1": 0.061,
+  "e_big": 0.062,
+  "mean_entry_pct": 0.4658,
+  "proj_sum_mean": 136.83,
+  "best_row": 164.24,
+  "rows_top1pct": 0,
+  "distinct_players": 52,
+  "rows_qb_te": 9,
+  "rows_qb_pcte": 5,
+  "term_positions": [
+   1,
+   4,
+   8,
+   11,
+   14,
+   17,
+   21,
+   24
+  ],
+  "term_rows_mean_pct": 0.6169,
+  "live_block_mean_pct": 0.418,
+  "term_rows_best": 164.24,
+  "term_rows_with_a_top5_bonus_player": 7,
+  "top5_bonus_players": [
+   "Dallas Goedert",
+   "Mike Gesicki",
+   "Mark Andrews",
+   "Michael Mayer",
+   "Gunnar Helm"
+  ],
+  "rows_same_as_live": 16,
+  "term_source": {
+   "source_sha256": "fa807f8c9fb8f2827936016c0207712ba848e529604bb43681d9684a9e0dc04b",
+   "coverage_projected_5": 1.0,
+   "players_with_a_term": 14,
+   "players_capped": 0,
+   "cap_points": 2.0
+  }
+ },
+ "w2-cteblock8": {
+  "p_big1": 0.0315,
+  "e_big": 0.0315,
+  "mean_entry_pct": 0.4668,
+  "proj_sum_mean": 136.26,
+  "best_row": 162.96,
+  "rows_top1pct": 0,
+  "distinct_players": 56,
+  "rows_qb_te": 8,
+  "rows_qb_pcte": 5,
+  "term_positions": [
+   1,
+   4,
+   8,
+   11,
+   14,
+   17,
+   21,
+   24
+  ],
+  "term_rows_mean_pct": 0.6722,
+  "live_block_mean_pct": 0.418,
+  "term_rows_best": 153.76,
+  "term_rows_with_a_top5_bonus_player": 0,
+  "top5_bonus_players": [
+   "Tyler Ott",
+   "Kenyon Sadiq",
+   "Jahdae Walker",
+   "Darren Waller",
+   "Dallen Bentley"
+  ],
+  "rows_same_as_live": 16,
+  "term_source": {
+   "source_sha256": "329ea2f1c6c731a52723cd735674522fdb0e6d215243225839733b1686c69612",
+   "coverage_projected_5": 1.0,
+   "players_with_a_term": 113,
+   "players_capped": 0,
+   "cap_points": 2.0
+  }
+ },
+ "w3-live": {
+  "p_big1": 0.0021,
+  "e_big": 0.0021,
+  "mean_entry_pct": 0.5163,
+  "proj_sum_mean": 133.11,
+  "best_row": 164.64,
+  "rows_top1pct": 0,
+  "distinct_players": 48,
+  "rows_qb_te": 9,
+  "rows_qb_pcte": 8
+ },
+ "w3-cblock8": {
+  "p_big1": 0.0178,
+  "e_big": 0.0178,
+  "mean_entry_pct": 0.5002,
+  "proj_sum_mean": 132.4,
+  "best_row": 164.64,
+  "rows_top1pct": 0,
+  "distinct_players": 50,
+  "rows_qb_te": 7,
+  "rows_qb_pcte": 5,
+  "term_positions": [
+   1,
+   4,
+   8,
+   11,
+   14,
+   17,
+   21,
+   24
+  ],
+  "term_rows_mean_pct": 0.274,
+  "live_block_mean_pct": 0.5572,
+  "term_rows_best": 140.04,
+  "term_rows_with_a_top5_bonus_player": 0,
+  "top5_bonus_players": [
+   "Isaac TeSlaa",
+   "Chris Moore",
+   "Ted Hurst III",
+   "Robert Tonyan",
+   "Darren Waller"
+  ],
+  "rows_same_as_live": 15,
+  "term_source": {
+   "source_sha256": "82f454e9ace0022360311e55f5795178f4612796511e787e3747e695ec82ed58",
+   "coverage_projected_5": 1.0,
+   "players_with_a_term": 143,
+   "players_capped": 0,
+   "cap_points": 2.0
+  }
+ },
+ "w3-teblock8": {
+  "p_big1": 0.0178,
+  "e_big": 0.0178,
+  "mean_entry_pct": 0.5089,
+  "proj_sum_mean": 133.11,
+  "best_row": 164.64,
+  "rows_top1pct": 0,
+  "distinct_players": 46,
+  "rows_qb_te": 10,
+  "rows_qb_pcte": 9,
+  "term_positions": [
+   1,
+   4,
+   8,
+   11,
+   14,
+   17,
+   21,
+   24
+  ],
+  "term_rows_mean_pct": 0.2713,
+  "live_block_mean_pct": 0.5572,
+  "term_rows_best": 136.14,
+  "term_rows_with_a_top5_bonus_player": 0,
+  "top5_bonus_players": [
+   "Harold Fannin Jr.",
+   "Dalton Kincaid",
+   "Trey McBride",
+   "Michael Mayer",
+   "Isaiah Likely"
+  ],
+  "rows_same_as_live": 16,
+  "term_source": {
+   "source_sha256": "55a5c5a4fbff4e5f9010ca319c390324f3b915f8239f869285b9fbd98c95a117",
+   "coverage_projected_5": 1.0,
+   "players_with_a_term": 14,
+   "players_capped": 0,
+   "cap_points": 2.0
+  }
+ },
+ "w3-cteblock8": {
+  "p_big1": 0.0178,
+  "e_big": 0.0178,
+  "mean_entry_pct": 0.4792,
+  "proj_sum_mean": 132.47,
+  "best_row": 164.64,
+  "rows_top1pct": 0,
+  "distinct_players": 49,
+  "rows_qb_te": 9,
+  "rows_qb_pcte": 8,
+  "term_positions": [
+   1,
+   4,
+   8,
+   11,
+   14,
+   17,
+   21,
+   24
+  ],
+  "term_rows_mean_pct": 0.2038,
+  "live_block_mean_pct": 0.5572,
+  "term_rows_best": 135.84,
+  "term_rows_with_a_top5_bonus_player": 0,
+  "top5_bonus_players": [
+   "Isaac TeSlaa",
+   "Chris Moore",
+   "Ted Hurst III",
+   "Robert Tonyan",
+   "Darren Waller"
+  ],
+  "rows_same_as_live": 16,
+  "term_source": {
+   "source_sha256": "0ca558bc359b92ca60019ae602bfee22efce4f3abc0dcf24107eb4ca4da5435d",
+   "coverage_projected_5": 1.0,
+   "players_with_a_term": 153,
+   "players_capped": 0,
+   "cap_points": 2.0
+  }
+ },
+ "w4-live": {
+  "p_big1": 0.2971,
+  "e_big": 0.3025,
+  "mean_entry_pct": 0.5024,
+  "proj_sum_mean": 144.0,
+  "best_row": 181.08,
+  "rows_top1pct": 0,
+  "distinct_players": 49,
+  "rows_qb_te": 12,
+  "rows_qb_pcte": 9
+ },
+ "w4-cblock8": {
+  "p_big1": 0.6597,
+  "e_big": 0.8935,
+  "mean_entry_pct": 0.5698,
+  "proj_sum_mean": 143.7,
+  "best_row": 181.08,
+  "rows_top1pct": 0,
+  "distinct_players": 48,
+  "rows_qb_te": 12,
+  "rows_qb_pcte": 9,
+  "term_positions": [
+   1,
+   4,
+   8,
+   11,
+   14,
+   17,
+   21,
+   24
+  ],
+  "term_rows_mean_pct": 0.7427,
+  "live_block_mean_pct": 0.4668,
+  "term_rows_best": 174.28,
+  "term_rows_with_a_top5_bonus_player": 0,
+  "top5_bonus_players": [
+   "Zavion Thomas",
+   "James Winchester",
+   "Elic Ayomanor",
+   "Ted Hurst III",
+   "CJ Williams"
+  ],
+  "rows_same_as_live": 17,
+  "term_source": {
+   "source_sha256": "e7b77399b6c8c8614cd6f5b5db757c9e36a5fb3e047ffec645ea81521fc0876d",
+   "coverage_projected_5": 1.0,
+   "players_with_a_term": 91,
+   "players_capped": 0,
+   "cap_points": 2.0
+  }
+ },
+ "w4-teblock8": {
+  "p_big1": 0.6986,
+  "e_big": 0.9009,
+  "mean_entry_pct": 0.5429,
+  "proj_sum_mean": 143.95,
+  "best_row": 181.08,
+  "rows_top1pct": 0,
+  "distinct_players": 50,
+  "rows_qb_te": 13,
+  "rows_qb_pcte": 10,
+  "term_positions": [
+   1,
+   4,
+   8,
+   11,
+   14,
+   17,
+   21,
+   24
+  ],
+  "term_rows_mean_pct": 0.6674,
+  "live_block_mean_pct": 0.4668,
+  "term_rows_best": 171.78,
+  "term_rows_with_a_top5_bonus_player": 7,
+  "top5_bonus_players": [
+   "T.J. Hockenson",
+   "Brock Bowers",
+   "Cade Otton",
+   "Trey McBride",
+   "Michael Mayer"
+  ],
+  "rows_same_as_live": 19,
+  "term_source": {
+   "source_sha256": "80a3b039060263dc5f6148e547009fd140a5aedda9865e272cba5cb208af5d4e",
+   "coverage_projected_5": 1.0,
+   "players_with_a_term": 11,
+   "players_capped": 0,
+   "cap_points": 2.0
+  }
+ },
+ "w4-cteblock8": {
+  "p_big1": 0.7027,
+  "e_big": 0.9144,
+  "mean_entry_pct": 0.5293,
+  "proj_sum_mean": 143.77,
+  "best_row": 181.08,
+  "rows_top1pct": 0,
+  "distinct_players": 51,
+  "rows_qb_te": 12,
+  "rows_qb_pcte": 9,
+  "term_positions": [
+   1,
+   4,
+   8,
+   11,
+   14,
+   17,
+   21,
+   24
+  ],
+  "term_rows_mean_pct": 0.5975,
+  "live_block_mean_pct": 0.4668,
+  "term_rows_best": 171.78,
+  "term_rows_with_a_top5_bonus_player": 2,
+  "top5_bonus_players": [
+   "Jahdae Walker",
+   "Andrew DePaola",
+   "Ted Hurst III",
+   "Ryan Flournoy",
+   "Elijah Sarratt"
+  ],
+  "rows_same_as_live": 18,
+  "term_source": {
+   "source_sha256": "53208c3f4ab669b1b7cd62d62a7166eeb610832afdeb8c71b2f6d5eedfa46ab9",
+   "coverage_projected_5": 1.0,
+   "players_with_a_term": 99,
+   "players_capped": 0,
+   "cap_points": 2.0
+  }
+ }
+}

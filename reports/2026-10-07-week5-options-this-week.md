@@ -526,3 +526,64 @@ as often"). With the TE and WR1 known before the game:
 
 The conclusion on tough defences does not change: no reliable gain for the TE. But QB + a pass-catching TE is a much
 closer alternative to QB + WR1 than §6 said.
+
+## 7. QB + tight-end stacks: tests run tonight, and the request to production (the operator, 10-07 night)
+
+The operator: *"I would like to do more testing on the QB tight end stacks right away."* Then, going to sleep: *"please
+engage with the production laptop to see if we can get a test running of this and perhaps consider a percentage of our
+lineups to have a QB tight end stack"* and *"also to include a bonus to the tight end in these types of situations."*
+
+**Real fields, 2026** (`qbte_fields.py`; a pass-catching TE = frame `target_share_l4` ≥ 15%, available W2–4):
+
+| Within-user odds ratio, top 5% | Millionaire | Priority contests |
+|---|---|---|
+| QB + pass-catching TE (no WR) vs QB + WR (no TE) | 0.76 [0.70, 0.83] | 1.76 [0.76, 3.52] |
+| QB + WR + pass-catching TE vs QB + WR + WR | 0.78 [0.72, 0.85] | 0.92 [0.46, 2.08] |
+| Any TE in the QB's stack vs none | 1.28 [1.25, 1.32] (W4 0.53) | 1.73 [1.35, 2.23] (W4 0.26) |
+
+**Winners' rates (W2–4):**
+
+| | Top 1% | Field |
+|---|---|---|
+| Millionaire: QB stacked with ANY TE | **.396** | .303 |
+| Millionaire: QB stacked with a pass-catching TE | .124 | .184 |
+| Priority contests, top 5%: any TE | .686 | .457 |
+| Priority contests, top 5%: pass-catching TE | .213 | .311 |
+
+The winners stacked a TE more often than the field, but mostly not the established pass-catching ones: cheaper,
+lower-target TEs who had big days. That is consistent with the cheap block.
+
+**Our book already stacks a TE at about the winners' rate.** The W2–4 replays at the Week-5 settings and Rev6 have 9–13
+of 26 rows with a TE stacked with the QB (≈ 40%), 5–10 of them pass-catching.
+
+**W2–4 fixed-book replay** (in-sample; the laptop's bonus-block harness copied, original untouched;
+`te_blocks_replay/`; Rev6 plan, Week-5 settings; 8-row blocks at +2):
+
+| Book | P(≥ 1 big) W2 / W3 / W4 | Expected big seats, 3 weeks | QB + TE rows of 26 |
+|---|---|---|---|
+| Live (no block) | .010 / .002 / .297 | 0.31 | 10 / 9 / 12 |
+| Cheap +2 (the W5 trial) | .112 / .018 / .660 | 1.03 | 9 / 7 / 12 |
+| Pass-catching TE +2 | .061 / .018 / .699 | 0.98 | 9 / 10 / 13 |
+| Cheap OR pass-catching TE +2 (one file) | .032 / .018 / .703 | 0.96 | 8 / 9 / 12 |
+
+- **Every block beats the live book every week, by similar amounts.** On these weeks almost any 8-row change does,
+  because the live Rev6 book is weak in W2–3. So this replay cannot rank the blocks against each other; the practice-week
+  harness can.
+- **The TE bonus barely changes the number of QB + TE stacks** (+0 to +1 rows). The MIX shapes choose the QB's stack
+  partners.
+
+**The writer for a test:** `scripts/te_block_file.py` (8 tests).
+- `--frame F --points 2.0` gives +2 to TEs with `target_share_l4` ≥ 0.15.
+- `--tough-pass-d` limits that to TEs facing the slate's toughest third by `epa_per_dropback_allowed_l6`. This is the
+  operator's idea; history did not support it, and it is offered so it can be tested directly.
+- `--with-cheap` adds the cheap rule to the same file.
+- It is create-once and in the cheap / matchup writers' format.
+- On the W4 T-70 frame it reproduces the replay's file exactly (11 TEs; 4 with `--tough-pass-d`).
+
+**Proposed to production** (each needs the reviewer's design; the operator decides adoption):
+1. Before Sunday's lock, paper arms in study 38: TE +2, TE +2 against tough pass defences, and cheap-or-TE +2. That
+   gives a real-field read Monday at no risk.
+2. A practice-week harness study for Week 6 (2023–24, the 2022 check, the installed plan's lines): CHEAP2 (the trial)
+   vs TE2 / TE2_TOUGH / CHEAPTE2 under the frozen Saturday rule.
+3. A fixed "% of lineups with a QB + TE stack" quota is not needed now: the book is at the winners' rate. If wanted
+   later, it is a MIX cell (code) and a study of its own.
