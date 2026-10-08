@@ -34,7 +34,9 @@
 - **The result is SMALL, below both pre-stated lines.**
   - The flipped spread changes NO player's marginal. The served shape is a rank-preserving quantile remap, so the sign
     only re-orders worlds.
-  - The stack correlations and the top-30 exposures move less than a reseed does.
+  - The stack correlations move by under 0.004 (QB–WR1 less than a reseed; QB–TE1 slightly more: −0.0036 vs −0.0021),
+    and the top-30 exposures move less than a reseed (median 0.0025 vs 0.0033). (Corrected at the reviewer's
+    reading; it first said both correlations move less.)
 - The first LIVE arm read an earlier DK pull, the assertion stopped the measures, and LIVE was re-run on the same pull
   (disclosed).
 - Week 5 keeps the live pin unchanged. O-62b is fixed after W5 with O-62. Details:
