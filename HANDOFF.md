@@ -30,6 +30,7 @@
   1. the reviewer's review, then the merge;
   2. re-sync the host arm copy `~/.cache/laptop-agent/w5_arm_saturday.sh`;
   3. Friday's arm `--check` (expects 13 units).
+- **Timed (the outside reviewer's optional check):** `nfl-dfs ingest-dk` from start to loaded took 14 s on 10-08 (started 18:38:58Z; 3,677 rows; the 587 rows of group 154468 were queryable with pulled_at 13:39:00 CT). A 10:47 pull lands by about 10:47:15, well before the 10:50 build.
 - **The outside reviewer's three confirmations are answered:** the newest pull drives the exclusions and the receipt; the
   Questionable trigger is added; the banner text names the pre-upload check as the only net.
 
