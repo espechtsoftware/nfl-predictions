@@ -12,6 +12,26 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-08 (11:31 CDT) — A3 (block OFF, Rev6) PASSED end to end; the W5 block files written and committed; the TE columns check for 6k
+
+- **A3** at `9d069991`, lab pin `f69598b`: ~/rehearsals/a3-20261008T155507Z, 10:55–11:28 CT.
+  - The supply build rc 0; the T-70-form build rc 0, its receipt verified (0 / 4800, entries 26).
+  - FP is the projection source: 272 frame players on FP's projection, 10 on ours, 0 book players without FP.
+  - Union `20261008T162615487209Z-union-f69598b`; after-build rc 0.
+  - Paper DvP slope +0.585 from 152 prior player-weeks (the expected value); paper factor file: unmatched opponents 0.
+  - **The study-38 snapshot rc 0 → ~/private/paper-corun/rehearsal-w05-a3** (sent to the reviewer).
+  - Four "EMIT FAILED" lines were the reference all30 / all90 emits at K 26, now skipped with a line (`aa26c019`).
+- **The block files** (`reports/2026-10-08-live-block/`, written by `w5_write_block_files.sh` from A3's union frame
+  `6a6ef92b`):
+  - **cheap2-w5.csv** `5941678b4b378a6f49bbcf7f2e1086d4b37a94d655a5d29e2365fee12e4325a2`: 294 of 565 skill players at
+    +2, from draft group 154468's 15:59:45Z pull. This is the arm's TERM_FILE / TERM_SHA for Saturday.
+  - **matchup-w5.csv** `ba27c6fb6928b9269207bbe6b0c2285dada2b922e43af3616076c184f1ff908f`: 121 of 260 with a bonus;
+    unmatched opponents 0. It is study 38's paper MBLOCK file and the rollback.
+  - Both pass the arm's check at cap 2.0 (`--require-bonus`).
+- **The TE columns on A3's W5 frame (6k):**
+  - 65 TEs; `target_share_l4` on 58; 13 pass-catching (≥ .15);
+  - `epa_per_dropback_allowed_l6` on 255 of 282 rows, all 22 slate opponents, so TETOUGH2 builds for W5.
+
 ## 2026-10-08 (11:30 CDT) — The operator: "make sure we're getting all the necessary data ... so we don't lose a week of good data again": the Week-5 capture inventory, the gaps and the dated steps
 
 - **The inventory:** `reports/2026-10-08-week5-data-capture-inventory.md`.
