@@ -12,6 +12,38 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-08 (15:16 CDT) — laptop: the Monday lines (study list 67–69) verified and merged
+
+The outside reviewer's `review/monday-lines-20261008` @ `c58dae2c` is merged. It adds seven files, all new:
+- `scripts/tier_check.py` (row 67, the $6,000–7,900 tier);
+- `scripts/field_sharpness.py` (row 68, the Millionaire winning score against the slate's scoring);
+- `scripts/pool_hit_density.py` (row 69, the share of T-70 pool / book rows that would have cleared each big contest's
+  real line);
+- their tests;
+- `reports/2026-10-08-monday-lines/validation-w4.txt` (aggregates only).
+
+They follow the formats agreed 10-08, including the laptop's two corrections:
+- row 67 imports the frozen accuracy reader's metrics and bootstrap with its sha pinned (bias = source − actual);
+- row 69 places rows against the field with our real entries removed, behind the money gate's reconcile.
+
+**Verified by the laptop:**
+- the code was read;
+- 84 tests pass (the 20 new ones plus every module touching moneygate_score / p3_score / the two readers / s64);
+- all three W4 validations were re-run into `~/private/monday-lines-laptop-ack/`, and every printed line is found verbatim
+  in `validation-w4.txt`;
+- a union dir's `book.csv` holds the entered rows (26 in W5).
+
+**Disclosures for Monday's record (not defects):**
+- row 69's book is `book.csv`, before vet_replace swaps;
+- pool names nobody in the field rostered score 0 (W4: 105 names, printed);
+- row 68's contest for earlier weeks is each week's largest-field contest in `contest_entries`;
+- row 68 hard-codes the project id (already public in `config.py`).
+
+**Monday commands:** in the outside reviewer's message of 10-08, also in the scripts' docstrings. Order:
+1. after the accuracy / fp-props readers: row 67;
+2. row 68 at any time after the standings import;
+3. after the money gate's W5 fetch + reconcile: row 69.
+
 ## 2026-10-08 (15:11 CDT) — laptop: study 65 (S2 + S3) acked; the prereg merged into integration; the run cleared for tonight
 
 **Study 65 was FROZEN by the reviewer at 14:59:**
