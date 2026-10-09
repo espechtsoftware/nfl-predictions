@@ -12,6 +12,45 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (18:47 CDT) — laptop: ONECATCH ARMED for W5 (every check passed); studies 94 READ reproduced; 6t acked
+
+His decision (HANDOFF `90e8470c`, "Live W5 if built in time") is carried out; every step passed.
+- **The flag:** review/one-catcher-armed-20261009 @ `c391fbd0` (the outside reviewer's; union_reselect `ce55a465`),
+  `--mix-one-catcher-all`, default off.
+  - Parity: its test pastes the lab's lead_rules byte for byte (text sha `3c90a756`, re-extracted by the laptop from lab
+    `ac7ea5b0`); 3 mutations caught.
+  - Approved by the laptop and the reviewer (13 modules: 242 passed, 1 skipped).
+- **The wiring:** production/onecatch-wiring-20261009 @ `f483644c` (the laptop's), reviewed by the outside reviewer.
+  - UNION_MIX_ONE_CATCHER_ALL=1 passes the flag only when the row rules were passed; otherwise, or on the union's
+    refusal or a house fallback, an ALERT copied into the union dir.
+  - check_week_runtime and the arm's pair stop mirror the union's full refusal list (the outside reviewer's finding).
+- **Merged:** `e29b010b` + `462ba341`. 25 test modules: 373 passed, 3 skipped. **FRIDAY_HEAD = `462ba341`** (`4ad77fcb`).
+- **The W4 real-book check** (`f9ec0239`, reports/2026-10-09-option-w4-checks):
+  - gates: OFF == `a4ab2839`; ARMED (the flag absent) == the 13:36 armed book `e1c8f9f7`, byte for byte;
+  - ON: the rule ran on all 14 B / C solves (live and cheap block); 0 re-solved without it; pairs away from the QB 5 → 0;
+  - 19 of 26 rows change; FP −0.06 per row; distinct players 57 → 52.
+- **Study 38 amendment 6t:** acked and merged (prereg 06f27166; lab `3de36327`, module `b34b5468`; 48 tests against
+  `462ba341`).
+  - The smoke: rule off, 30 / 30 arms == 6s on both pins; rule on, the receipt agrees and NOONECATCH == the off QA0.
+  - The gate pin moves to `b34b5468…`; s38-prod-pin moves to FRIDAY_HEAD `462ba341` (the reviewer).
+- **ARMED ON:** `ee92d15b` sets ONE_CATCHER_ALL=1 (an arm-only commit). The production checkout is at `ee92d15b`.
+- **The evening `--check`** (a scratch copy with TERM_ROWS=8 / TERM_SHA `5941678b…`, ARM_LATE=1):
+  - step 0 OK at `ee92d15b`;
+  - the dose line: player cap 0.35, ownership cap 15, row rules te1_low1, **one catcher per team 1**, QB cap 5, overlap 4,
+    fill rr, term block 8;
+  - 11 units, "CHECK DONE", rc 0;
+  - the print-only units carry UNION_MIX_ONE_CATCHER_ALL=1 on all 6 build units.
+- **Study 94 READ reproduced byte for byte** (lab `9076fa79`): READ_s94 `67b312a4…`; census `498f6278`.
+  - RBMATE4 (the QB + one catcher + his own RB on the first 4 C lineups) +2.0 (A +1.7, B +2.4, seats ×1.028): "A W6
+    CANDIDATE".
+  - DSTRB8 −1.0: PAPER ONLY. Taken to the operator.
+- **Saturday:** set TERM_ROWS=8 / TERM_SHA and arm before 10:28 (13 units). By 11:00, the 10:30 canary's receipt must show:
+  - own_cap_source applied, cap_share_used 0.35;
+  - row_rules applied;
+  - **one_catcher_source applied, one_catcher ruled on the B / C rows, 0 re-solved**;
+  - the term block.
+  Then the union dir goes to the reviewer for the s38 gate (6t, pin b34b5468).
+
 ## 2026-10-09 (17:53 CDT) — OPERATOR: ONECATCH (one receiver per team on the QB + 1 lineups) LIVE in W5 if built in time; study 93 READ reproduced
 
 **Study 93** (items 2–4 of his "let's try each"; frozen prereg 380349a2; lab READ 9a9a2331).
