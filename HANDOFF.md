@@ -12,6 +12,16 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (16:54 CDT) — OPERATOR: the shape comparison adds leave-one-out arms, after the other tests
+
+His words, in the laptop's session: "I like what you suggesated for removing one at a time when we do the comparison of the
+shapes.  But let's do that after we finish the other tests".
+
+- **The arms:** each shape alone (A1 / A2 / B / C at 100%) and the mix without one shape at a time (the other three
+  re-scaled), against the armed mix.
+- **The order:** after study 93, study 94 and the FP low-ownership paper arms (6s).
+- **Bookkeeping:** study-list row 85 updated. The design and the bank block come when it is reached.
+
 ## 2026-10-09 (16:46 CDT) — OPERATOR: "let's try each that you suggested" (the promising ideas still to try); the shape test on hold; study 38 6r acked and merged
 
 **His decision, made in the outside reviewer's session and relayed verbatim:**
