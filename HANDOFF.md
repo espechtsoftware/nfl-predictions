@@ -12,6 +12,57 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (01:52 CDT) — laptop: the busy night, part 3 (78, 79, 80 read and merged; the queue done; 77 the one candidate that transfers)
+
+**Read, reproduced byte-identically by the laptop, merged into integration:**
+
+| Study | Arm | 2023–24 read | Big seats | 2022 | Verdict and recommendation |
+|---|---|---|---|---|---|
+| 78 (Addendum 176) | STUDS2_8 | +1.8 | ×1.09 | +2.2 | ENTERABLE, mixed: guard 1 fails, cost −0.32 per row; off |
+| 79 (Addendum 177, CORRECTED) | ONEPC8 | +2.0 | ×1.00 | +1.3 | ENTERABLE; but its 8-row arm was a no-op on his real W4 book; not now |
+| 80 (Addendum 178) | DOGQB8 | −0.4 | ×0.83 | −4.3 | CONTRADICTED, NOT ENTERED; FAVQB8 worse (−3.8); off |
+
+**The real-book checks** (`reports/2026-10-09-option-w4-checks/`, `bbacd287`; outcome-blind; W4 inputs with the W5 arming;
+OFF reproduced `a4ab2839` every time):
+- 77's `--mix-qb-alone-rows 3`: 3 QB-alone rows at positions 3 / 7 / 13, dealt into big contests, no RB teammate,
+  projection +0.11. It transfers.
+- 79's `--mix-one-catcher-rows 8`: the book is byte-identical to OFF, a no-op. Only the exploratory all-B/C version
+  binds (non-QB pairs 7 → 1).
+- Addendum 177 carries the CORRECTION, and the reviewer withdrew its "close second" ranking. The lesson: read a rule's
+  rate at the ruled positions on his real book.
+
+**His sheet** (`briefings/2026-week-05/2026-10-09-overnight-decision-sheet.md`, `8e2aab9b`) leads with two decisions:
+1. One more change this week: 77 (the reviewer recommends it; I agree it is a fair trial), or nothing (77 in W6), or 73b.
+   At most one.
+2. A 75 paper test (WR flex) in W5, in W6, or not at all.
+
+Everything else is off.
+
+**Production options (all UNMERGED, default off, reviewed; merged only on his yes, before FRIDAY_HEAD):**
+- `--mix-qb-alone-rows` (77): `review/qb-alone-flag-20261008` @ `3a9327e1`. 311 passed (the outside reviewer's
+  16-module run lost its summary line; the laptop re-runs the 16 modules with rc before any merge).
+- `--mix-one-catcher-rows` (79): `review/one-catcher-flag-20261009` @ `1e6247fa`. 256 + 49 passed after a binding-fixture
+  fix (the first fixture made the parity vacuous; the outside reviewer caught it).
+- `--mix-flex-wr-rows` (75, paper only): `review/flex-wr-flag-20261008` @ `09e93be1`. 288 passed.
+- If he picks 77:
+  - merge the C0 branch;
+  - re-run the 16 reader modules;
+  - Friday's A3 ON run, which must show the 3 rows;
+  - arm with `UNION_MIX_QB_ALONE_ROWS=3` (the wiring is not written yet; it is the laptop's, on his yes);
+  - record his override of the one-change advice here (the arm guard refuses two levers);
+  - s38 needs 6m (MIXT_QA0 follows C0), or W5's paper week is INVALID under 6l.
+
+**Study 38 amendment 6l (the reviewer's, acked by the laptop):** default-deny parity. Every union argument is
+classified, and an unclassified or not-built-but-armed flag is a mismatch.
+- It closes a real gap: parity was an allow-list, so the merged `--mix-bring-back-top-wr`, if armed, would have made
+  MIXT_QA0 silently not his live book.
+- The laptop re-ran the smoke byte-identically. The follow-up `a430d8b1` classifies `mix_one_catcher_rows`.
+- The integrity gate pins `0930eb63`.
+
+**Next:** the outside reviewer may draft more tests for the remaining night (84 triages; banks from 1689, pre-scan
+running). In the morning, send him the sheet. After his decisions: the merges, the wiring if any, set FRIDAY_HEAD (tell
+84 for the s38 pin), Friday's A3 with its ON runs, and the FP ownership pulls at 12:30 and 16:30.
+
 ## 2026-10-08 (23:56 CDT) — laptop: the busy night, part 2 (75, 76, 77 read and merged; 77 the night's best; 78 running; 79 / 80 queued)
 
 **Read, reproduced byte-identically by the laptop, merged into integration:**
