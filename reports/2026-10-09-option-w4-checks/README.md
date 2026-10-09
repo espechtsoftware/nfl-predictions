@@ -169,3 +169,22 @@ The same runner, gate and inputs as the package run above, with `--main-own-cap-
 
 The tighter cap binds much more than +15 (18 players in the armed book sit above it) and costs another 0.9 projected
 points per row. Applied; 0 re-solves.
+
+## Addendum (13:36 run): his test 2 on top of the package (one TE + one sub-3% player per lineup; study 91)
+
+The same runner and gate, the package's arguments plus `--mix-max-te 1 --mix-max-low-own 1 --mix-low-own-pct 3` (the
+outside reviewer's flag `e8c63263`; `~/rehearsals/flagcheck-pkgTE1LOW1-20261009T183613Z`). This is a check, not an arming:
+it goes live only if study 91 passes his "better on both draws" rule.
+
+| | OFF | The package (armed) | Package + TE1_LOW1 |
+|---|---|---|---|
+| FP projection per row | 143.70 | 140.76 | 140.00 (−0.76 vs the package) |
+| Rows changed | | 17 of 26 vs OFF | 21 of 26 vs the package |
+| TEs per row | 1.54 | 1.65 | 1.00 |
+| Skill players under 3% FP ownership per row | 0.08 | 0.12 | 0.23 |
+| Flex WR / TE / RB | 1 / 14 / 11 | 0 / 17 / 9 | 7 / 0 / 19 |
+| Distinct players | 48 | 54 | 57 |
+
+The receipt: the rules applied on all 26 solves, 0 re-solved; 163 of the pool's 235 skill players count as low-owned. On
+his real book the TE half is the live effect: no TE in the flex; RBs and WRs take it. The low-ownership half never binds
+(the TE rule itself pulls cheap low-owned players in, to 0.23 per row, still under the limit of one).
