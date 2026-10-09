@@ -84,6 +84,21 @@ reviews, runs the binding census and FREEZES; the laptop acks.
   each variant.
 
 ## 6. Smoke, census and integrity
+- **The mechanics smoke (DONE 10-09 ~10:10; bank 1406; Rev6; `~/s88-panel/smoke/`; 2022 W9, 2023 W3, 2024 W10;
+  `results_bank1406.jsonl` `e2240b1a…`; the code unchanged at `49db37c6`):**
+  - every arm 41 rows within the overlap limit (4), 8 term rows, every row in the pool; LIVE_CB within production's caps;
+  - **0 infeasible solves in every rule arm** (78 of 78 each); the pool per slate-bank (mean / min): QBs allowed (top-4 games)
+    17.7 / 15, **of them priced < $7,000 15.3 / 12**;
+  - **BOOK87 reproduces study 87's smoke on the same bank exactly** (concentration 12.0 / 14 rows, share 0.465 / 0.566; projection
+    −0.69; flex WR / TE / RB 14.7 / 0 / 11.3) — the parity of the re-read arm;
+  - VACUITY: LIVE_CB rows with a QB ≥ $7,000 8.3 of 26; BOOK87 8.7 (so CHEAPQB changes about a third of BOOK87's QBs); TEFLEX
+    puts a TE in the flex in 11.7 rows; rows shared with BOOK87: CHEAPQB 4.67, TEFLEX 9.00, CHEAPQB_TEFLEX 1.00 (none identical);
+  - projection per row vs LIVE_CB: NOCAP +1.02, BOOK87 −0.69, CHEAPQB −1.01, TEFLEX −0.46, CHEAPQB_TEFLEX −1.01;
+  - **CONCENTRATION — FLAGGED (the reviewer's condition 4):** the top QB's book rows of 26 (mean / max), his share of the dealt
+    entries (mean / max): BOOK87 12.0 / 14, 0.465 / 0.566; **CHEAPQB 13.7 / 19, 0.553 / 0.755**; TEFLEX 11.3 / 13, 0.453 / 0.547;
+    **CHEAPQB_TEFLEX 13.7 / 20, 0.553 / 0.774** — the cheaper-QB arms concentrate harder (about 5 and 4 distinct QBs).
+- **The full-path smoke** (2024 W10, 2022 W6 scored on bank 1406): the reader exited 0 with 120 lines and 10 sections; only those
+  were read.
 - Bank 1406 only, **after the laptop's calibration run has finished** (the laptop's machine order, 10-09: 87's READ and its
   reproduction, the calibration run, then this smoke): the unit tests, the mechanics smoke, the binding census, the full-path
   smoke (reader exit and line count only). Any code change the smoke forces is a new commit with its diff disclosed.
@@ -92,5 +107,5 @@ reviews, runs the binding census and FREEZES; the laptop acks.
   - `experiments/s88_book87_variants.py` `a387b349…` (pins s87 `85adf47b…`; its `rule_sets`, `arm_rules`, `qb_price_rules`
     imported; `run()` is 87's with only the listed edits, a test asserts it);
   - `scripts/s88_drive.py` `badc6fb8…`; `scripts/s88_census.py` `b7aacdc7…` (+ each variant's identity to BOOK87);
-  - **`scripts/s88_report.py` (the reader) `be54fc38…`** (seed 20261133); `tests/test_s88_book87_variants.py` `4c453d13…` (9 tests;
-    the text-parity ones pass; the importing ones wait for a machine gap).
+  - **`scripts/s88_report.py` (the reader) `be54fc38…`** (seed 20261133); `tests/test_s88_book87_variants.py` `4c453d13…` (8 tests,
+    all pass, 10-09 ~10:03, after the calibration run).
