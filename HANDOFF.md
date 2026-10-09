@@ -12,6 +12,99 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-08 (23:56 CDT) — laptop: the busy night, part 2 (75, 76, 77 read and merged; 77 the night's best; 78 running; 79 / 80 queued)
+
+**Read, reproduced byte-identically by the laptop, merged into integration:**
+
+| Study | Arm | 2023–24 read | Big seats | 2022 | Verdict and recommendation |
+|---|---|---|---|---|---|
+| 75 (Addendum 173) | WR_FLEX8 | +2.3 | ×1.07 | −1.1 | CONTRADICTED, NOT ENTERED; the paper-arm candidate (study 38), his choice of W5 or W6 |
+| 76 (Addendum 174) | B2BB4 | −1.4 | ×0.89 | +3.7 | ENTERABLE, no gain; off |
+| 77 (Addendum 175) | NAKED3, the QB alone on 3 C rows | +1.8 | ×1.04 | +0.2 | ENTERABLE; the night's best |
+
+- **On 77:** the reviewer recommends a W5 3-row trial on top of the cheap block. That would be a second construction
+  change; "one change a week" is the reviewer's advice, and he decides. It is on his sheet as his call.
+- **75's transfer check** (outcome-blind; W4 inputs, the W5 arming; `reports/2026-10-08-s75-flex-w4-check/`): in his
+  FP book the forced WRs displaced 5 TE and 2 RB flexes (1 / 14 / 11 → 8 / 9 / 9). That is the harness's TE-first
+  pattern.
+
+**Production options (code ready, UNMERGED, default off; his morning decision):**
+- `--mix-flex-wr-rows N` (the outside reviewer's `review/flex-wr-flag-20261008` @ `09e93be1`):
+  - reviewed by the laptop: parity with s75's frozen `flex_rows`, byte-identical text `2e397346`; 288 tests passed in a
+    gap;
+  - NO live wiring: 75 is NOT ENTERED, so the only use is a study-38 paper arm. W5 needs the flag merged before
+    FRIDAY_HEAD plus an s38 amendment before the lock.
+- `--mix-qb-alone-rows N` (77): the format is agreed with the outside reviewer.
+  - A new shape "QA" in `mix_shapes.ALL_CELLS` only. The ruled rows are tagged mix_QA, so the shape check, vetting and
+    audit apply the QB-alone rules, while the rows keep C's quota and dealing slots.
+  - Parity with s77's frozen wrapper.
+  - Being built tonight; both the laptop and the reviewer review it.
+  - The laptop's wiring follows only if he says yes. The arm guard refuses two construction levers, so a yes needs an
+    explicit override recorded here.
+
+**Merged:** the Monday off-top-four line (`9bbe45cf`; the outside reviewer's script + the laptop's 'stacked' fix; 17 tests).
+
+**Corrections to the 22:15 entry:**
+- "Everything else for 75–79 is clean" was wrong. The derived-seed tally (the laptop's summary first missed them) also
+  found **1702** = bank 1652 + 50 (75) and **1703** = bank 1653 + 50 (76): August bootstrap / CE seeds in unrelated
+  production chains. These are disclosure lines in Addenda 173 / 174, not stops. 79's and 80's blocks are clean.
+- **77's run was interrupted** at 276 of 318 slate-banks: the reviewer's session killed its background chain at the
+  30-minute default.
+  - It was resumed at `3dac28c2` by the driver's built-in skip (42 slate-banks).
+  - No outcome was read before completion, and the READ reproduced byte-identically.
+  - Every heavy job now gets an explicit long timeout.
+  - Disclosed in Addendum 175.
+
+**Queue:**
+- 78 STUDS2_8 is running (banks 1665–1670, 2-hour limit).
+- Then: the laptop's 79 census re-run and 79's tests (automatic on 78's exit), the reviewer's 80 binding census, the 79
+  run, the laptop's 80 census re-run, and the 80 run (ends about 03:30).
+- 78 is fully acked; 79 is acked except its census re-run and tests; 80 is drafted, its scan clean.
+
+**Next:** keep the pipeline going; review the QB-alone option; in the morning send him the complete sheet
+(`briefings/2026-week-05/2026-10-09-overnight-decision-sheet.md`).
+
+## 2026-10-08 (22:15 CDT) — laptop: the busy night, progress (73 and 74 read and merged; 75 running; 76–78 frozen and acked; 79 in draft)
+
+**Done and merged into integration:**
+- **Study 73** (Addendum 171, `7ef8fd63`): TOPG5_QB1 −3.6 (not recommended), QB1HALF +0.4 (neutral; his preference).
+- **Study 74** (Addendum 172, merge `9d4f012f`): STACK4_B −2.9 [−6.2, +0.4] (2024 −5.9; seats ×0.92; 2022 +2.1).
+  ENTERABLE by the rule but leaning negative; not recommended.
+  - READ `ff458e79` reproduced byte-identically.
+  - Lab LEDGER row nfl2 `4816978a` verified (7 cells).
+- **Study list:** row 74 Done, plus a 75–79 row (`ce8942d1`).
+- **Decision sheet:** `briefings/2026-week-05/2026-10-09-overnight-decision-sheet.md` carries 73 and 74 (`83b5f41b`). It is
+  sent to him in the morning, complete.
+
+**The queue (strictly one census or run at a time, across both sessions, agreed with the reviewer):**
+- 75 WR_FLEX8: running on 1647–1652.
+- 76 B2BB4: frozen at 21:56, banks 1653–1658.
+- 77 NAKED3: frozen at 22:03, banks 1659–1664.
+- 78 STUDS2_8: frozen at 22:03, banks 1665–1670.
+- 79 ONEPC8: DRAFT, banks 1677–1682 (1671–1676 skipped); its module's meta text is being fixed before its census.
+- **The laptop's acks for 76 / 77 / 78:** shas, prereg shas, pins, tests (6 / 6 / 5), reader vs s63 (the decision
+  functions identical) and the code read are all done. Each census re-run goes in the gap before its own run: 76's starts
+  automatically when 75's driver exits (`census_rerun.sh`, scratch).
+
+**Disclosures:**
+- **Derived seed bases** (bank + 50 sims, bank + 700 fields) are scanned from tonight.
+  - 74's were not scanned at the time; Addendum 172 notes it.
+  - The production repo's old replay `SEED=1701` coincides with study 75's bank 1651 + 50. It is disclosure only (an
+    unrelated replay, not a read of the bank).
+  - Everything else for 75–79 is clean.
+- **Overlapping heavy jobs earlier tonight** (CLAUDE.md allows one at a time). The reviewer's 75 binding census overlapped
+  the laptop's 74 census re-run, and 74's small smokes ran during 73's scored run. The laptop's three ack test modules
+  (about 1 s each) ran during 75's run. All are seeded and outcome-blind, so no result is affected. Strictly sequential
+  from here.
+
+**Monday's off-top-four line:** the outside reviewer's `scripts/off_top_four.py` (review/off-top-four-20261008 @
+`e249314e`) is reviewed. One fix is on `production/off-top-four-stack-20261008` @ `431ba056`: the book rows' "stacked" is
+now read from each row instead of hard-coded True, with a test. Its tests run in a gap, and it merges after.
+
+**Next:** reproduce each READ, share it with the outside reviewer, merge its records and add it to the decision sheet;
+ack 79 after its freeze. In the morning: send the sheet; after his decisions, merge the chosen options before FRIDAY_HEAD,
+then Friday's A3 and its ON runs.
+
 ## 2026-10-08 (20:54 CDT) — OPERATOR: a busy testing night; every result to the outside reviewer; his decisions in the morning
 
 **His words:** "As the results come in tonight, share them with the outside reviewer. The outside reviewer is going to have

@@ -1,0 +1,8 @@
+== flex WR W4 check at 09e93be1 23:46:57
+off rc 0 a4ab283949254d12 (known answer a4ab283949254d12)
+fx8 rc 0
+FLEX WR: 8 rows; ruled 8, plain 0
+book rows: off 26, fx8 26; rows of fx8 not in off: 25
+flex of the 26 book rows (WR / TE / RB): off 1 / 14 / 11 | fx8 8 / 9 / 9
+receipt flex_wr: {"rows_cap": 8, "ruled": [["A1", 0], ["B", 1], ["C", 2], ["A2", 3], ["A1", 4], ["B", 5], ["C", 6], ["A2", 7]], "plain": [], "wr_ids_n": 97}
+== done 23:47:16
