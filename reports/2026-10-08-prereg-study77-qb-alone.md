@@ -15,10 +15,13 @@ the binding census and FREEZES; the laptop acks (shas, tests, census re-run, ban
   - The winner-structure census (08-19; 51 historical Millionaire winners): the QB alone (no WR / TE from his team) in
     22%, QB + 1 in 41%, QB + 2 or more in 37%.
   - The 2026 W1–4 Millionaires: the QB alone in 5% of the top 0.1%, 8% of the top 1%, 17% of the field; none of the four
-    winners.
+    winners. **The definition, as the reviewer asked:** "QB alone" = NO WR / TE of the QB's team (an RB teammate allowed),
+    counted whatever the opponents. This study's shape also has NO opponent (C's no bring-back); counted that way the
+    2026 figures are 3% of the top 0.1%, 6% of the top 1% and 12% of the field (the same script,
+    `~/private/winner-shapes-2026/shapes_naked.py`).
   - His book: 0% (every MIX cell requires a QB-side pass catcher).
 - **The prior, stated first: NO DIFFERENCE or leaning negative.** In 2026 the QB alone is under-represented at the top
-  (8% against the field's 17%). It is tested because it is the one winners' shape the book cannot play.
+  (8% against the field's 17%; with no opponent, 6% against 12%). It is tested because it is the one winners' shape the book cannot play.
 
 ## 2. Arms (`experiments/s77_naked.py`)
 **The book:** study 48's harness (`s48_winner_like.py` `c22d2811…`, sha-asserted through study 73 `3f76c629…`). LIVE = 48d's
