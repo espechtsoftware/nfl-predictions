@@ -14,7 +14,7 @@
 # Project handoff
 ## 2026-10-09 (05:16 CDT) — OPERATOR (relayed): test 75 + 77 + 79 together; "if it isn't negative use it in week 5"
 
-**His words** (05:20 CDT, given in the outside reviewer's session and relayed to the laptop verbatim): "Let's do a test now
+**His words** (given in the outside reviewer's session shortly before this entry, and relayed to the laptop verbatim; the relay said "05:20 CDT", later than this entry's clock time, so that time is the relay's, not the clock's): "Let's do a test now
 of all 3 and if it isn't negative use it in week 5."
 
 - **Before he decided,** the outside reviewer gave him the plain reading: none of the three is proven; 75 failed its 2022
