@@ -381,6 +381,9 @@ def test_his_package_rides_into_the_units_and_the_week5_arm_pairs_the_two_caps()
     assert "grep -q 'OWN CAP NOT APPLIED' \"$OUT/union-$RUN_TAG.txt\"" in host
     assert 'cp "$OUT/ALERT-own-cap-not-applied-$RUN_TAG.txt" "$UNION_DIR/own_cap_not_applied.txt"' in host
     arm = (root / "arm_week5_saturday.sh").read_text()
-    assert "\nOWN_CAP_DELTA=0 " in arm and "UNION_MAIN_OWN_CAP_DELTA=$OWN_CAP_DELTA" in arm
+    import re
+    pair = re.search(r'\nMAIN_CAP="(0\.35|0\.5)" .*?\nOWN_CAP_DELTA=(0|15) ', arm, re.S)
+    assert pair and pair.groups() in (("0.5", "0"), ("0.35", "15")), "the arm carries his package whole, or today's book"
+    assert "UNION_MAIN_OWN_CAP_DELTA=$OWN_CAP_DELTA" in arm
     assert ('[[ ( "$MAIN_CAP" == 0.5 && "$OWN_CAP_DELTA" == 0 ) || ( "$MAIN_CAP" == 0.35 && "$OWN_CAP_DELTA" == 15 && "$SHAPE" == mixt ) ]]'
             in arm)
