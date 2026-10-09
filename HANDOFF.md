@@ -12,6 +12,29 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (13:12 CDT) — OPERATOR (relayed): look closely at the limited-entry contests' winners; two tests "Yes do that"
+
+**His request** (in the outside reviewer's session, relayed verbatim): "Most of our analysis has been on the MILI. I would like
+you to closely look at things like the 4444 that I entered last week, the 555, the 333s. Those ones, there's a limited number
+of entries that each person can do. Look at the winners, the you know top three finishers for each. What did they do in their
+selections? How were their selections better than ours? I bet it's different than the MILI."
+
+- **The outside reviewer's finding** (the money gate's W1–4 real fields; private `~/private/limited-entry-winners/`;
+  averaged across the 4444 / 555 / 333 / FFWC / $20-Milly satellites):
+  - our lineups had the HIGHEST projection (127–135) and the LOWEST actual points (110–125); the top 3 were projected 123–128
+    and scored 180–200;
+  - a TE in our flex in 54–100% of lineups, against the top 3's 11–50%;
+  - players under 3% ownership: ours about 1.0 per lineup, the top 3's 0.4–0.5;
+  - the top 3 paid less at QB / DST and played more $8k+ studs;
+  - W4's $4,444 Showdown satellite (380 entries, 1 paid): the top 3 all had Lamb (6% owned, 44 points); our best was 105th.
+- **Two tests proposed; his answer: "Yes do that".**
+  1. A REAL-FIELD TEST, analysis only (the outside reviewer): in each W1–4 limited-entry contest, rank our own union pool by
+     the model's chance of finishing 1st against that contest's real field (the T-70 banks; the calibration machinery)
+     versus by projection, and compare the top-ranked lineups' real finishes. Read-only, private data in place.
+  2. A ROW RULE for these contests' books: at most one TE per lineup + at most one player under 3% projected (FP) ownership
+     per lineup. First an outcome-blind W4 real-book check, then a W5 PAPER arm (no live change). For paper the lab builder
+     can apply it; a production flag is needed only if it later goes live.
+
 ## 2026-10-09 (12:57 CDT) — OPERATOR (relayed): no softer fields; "get better with what we enter"; study 90 (ownership + 10) tonight as a W6 candidate
 
 **His words** (in the outside reviewer's session, relayed verbatim): "I don't want to enter softer fields. I want to get
