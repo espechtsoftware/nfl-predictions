@@ -64,11 +64,19 @@ the cheap +2 block, on Rev6 (`plan-week5-rev6-s24.json` `ac10ddf6…`).
   change, **FP −1.59 per row** (143.70 → 142.11), flex 1 / 14 / 11 → 7 / 5 / 14 — **the costliest set tonight**, likely because
   only the 8 QBs of the top-4 games are left for 26 rows under the cap of 5 per QB. The floor and the WR / flex rules come on top
   and cannot be emulated that way.
+- **THE CAPS, DISCLOSED (the reviewer's condition):** our standing rule is that studies of the live book build under
+  production's caps (0.5 K per player, 0.25 K per DST, 5 per QB). This study lifts them on every arm except LIVE_CB, at his
+  request. **The laptop's W4 real-book checks above ran WITH production's caps**, so their FP costs (−1.59 per row) do not
+  describe the uncapped arms; the uncapped W4 checks (NOCAP, BOOK87's bans uncapped) follow from the laptop after study 85's run.
+- **Concentration is the new risk:** the census reports, per arm, the top QB's book rows and his share of the dealt entries,
+  the most-used player's and DST's rows, distinct QBs and players; the overlap limit (4) is asserted on every arm; one QB on more
+  than half the book on any slate-bank is flagged in the smoke.
 - Infeasibility: a QB from the top 4 games whose top receiver is out of the pool, with the price rules, may leave few lineups;
   the census reports infeasible solves by arm (above 5% goes to the reviewer before the freeze).
 - Path dependence; the simulator's mean; closing lines.
 
 ## 5. Production
+- **A live version would also need production's usage caps lifted — a large money-path change of its own.**
 - None unless he decides to use it; a production version would be a fresh build (bans, an own-team top-receiver floor, the
   constraints) with parity against this study's frozen wrapper, its format agreed with the laptop first.
 
@@ -77,7 +85,7 @@ the cheap +2 block, on Rev6 (`plan-week5-rev6-s24.json` `ac10ddf6…`).
 ## 6. Smoke, census and integrity
 - Bank 1406 only, when the machine is free: the mechanics smoke, the binding census, the full-path smoke (reader exit and line
   count only). Shas in the next commit.
-- **Code:** nfl2 `production/s87-qb-price-book-20261009` @ `5fbdfd5c` (branched from study 86's `4fdad305`; committed before
-  86's and 85's reads, the reviewer's timing rule; not yet tested or smoked): `experiments/s87_qb_price_book.py` `578e427a…`
+- **Code:** nfl2 `production/s87-qb-price-book-20261009` @ `20031fb6` (branched from study 86's `4fdad305`; committed before
+  86's and 85's reads, the reviewer's timing rule; not yet tested or smoked): `experiments/s87_qb_price_book.py` `85adf47b…` (at `20031fb6`, adding the concentration fields)
   (pins s85 `4f752f8e…`, s70 `d622a211…`); `scripts/s87_report.py` `af1b84ab…` (seed 20261132); `scripts/s87_census.py`
-  `9bb31a92…`; `tests/test_s87_qb_price_book.py` `261a1ae6…`. A change after its smoke is a new commit, disclosed.
+  `76c6cb71…`; `tests/test_s87_qb_price_book.py` `261a1ae6…`. A change after its smoke is a new commit, disclosed.
