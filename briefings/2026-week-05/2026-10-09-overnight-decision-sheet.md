@@ -9,7 +9,7 @@ The book is ready as it stands. That is the default, and nothing changes unless 
 
 1. **One more lineup change this week, or none?** The best candidate from tonight is **77: the quarterback alone in 3 lineups.**
    - +1.8 points, positive in both deciding seasons, about 4% more expected big wins, no projection cost. Not proven: the range runs from −1.8 to +5.4.
-   - **Read it as a lean, not a finding.** Tonight tested about 15 options on the same past slates. With that many tries, one or two leaning positive is what chance alone would produce, so 77's lean is a reason to try it, not proof that it works.
+   - **Read it as a lean, not a finding.** Tonight tested about 17 options (and about 35 measurements) on the same past slates. With that many tries, one or two leaning positive is what chance alone would produce, so 77's lean is a reason to try it, not proof that it works.
    - Checked on your real Week-5-style book (Week 4's inputs, no scores looked at): its 3 lineups land in big-contest seats, exactly as in the test.
    - The reviewer recommends it, and I agree it is a fair, reversible trial. It would be a second change this week (the cheap block is the first), so Monday could not tell which one helped.
    - **Your choices:** (a) 77 this week; (b) nothing new this week, 77 in Week 6; (c) 73b instead (fewer two-pass-catcher lineups; neutral, your preference). Pick at most one.
@@ -37,6 +37,7 @@ The reviewer advises **one new construction change a week** (so Monday can tell 
 | 79 | **At most one receiver / tight end per team in the QB + 1 lineups**, 8 lineups (no second same-team pair away from the QB; the winners rarely do it, your book in about a quarter of lineups) | +2.0 points (2023 +0.2, 2024 +3.8; 2022 +1.3). Raises the chance of at least one big win (34% vs 32%) without raising the expected number of wins. "Enterable". **But on your real Week-4 book the 8-lineup version changed nothing:** your same-team pairs come in later lineups. Only the all-lineup version (a side test, never the decision) would change it | **Not now** (corrected after the check; the reviewer agrees). A paper test of the all-lineup version is the honest next step |
 | 80 | **The underdog's quarterback from a top-4 game in 8 lineups** (the top 1% take that QB more often than the field) | −0.4 points (flat), about 17% fewer expected big wins, a safety check failed, and clearly worse on 2022 (−4.3). **"Not entered"**. Forcing the favourite's quarterback instead was worse still (−3.8) | **Off.** Leave the book's own quarterback choice alone |
 | 81 | **No tight end priced $5,000 or more in the first 8 lineups** (the winners hold one in about 12% of lineups, the field 28%, your book 42%) | +0.5 points, flat (it mostly moved those tight ends into later lineups). "Enterable", nothing to gain. **Side measurement: no such tight end in ANY lineup: +4.7 points, about 10% more expected big wins, better in all three seasons** (the strongest number of the night, but a side measurement among about 35) | **Off as tested. The all-lineup version as a paper test** (decision 2); not live: it could be luck, and on your real book it costs about 0.8 projected points per lineup |
+| 82 | **A quarterback from the lower-scoring half of teams in 4 lineups** (the top 1% do it 41% of the time, your book 4%) | +0.4 points, flat in both deciding seasons; better on 2022 (+3.0); almost no cost. "Enterable"; no gain shown | **Off.** The winners' habit does not show up as an edge here |
 
 ## The setup you are running (the default)
 
@@ -121,4 +122,7 @@ The reviewer advises **one new construction change a week** (so Monday can tell 
   - **Why not live:** it was one of about 35 measurements tonight, so one this strong is roughly what luck alone would give. Re-testing it on the same past games would not be new evidence. Only new weeks are.
   - On your real Week-5-style book (Week 4's inputs, no scores looked at): 24 of 26 lineups would change; projection −0.76 per lineup (more than twice the 0.33 the test assumed, so the test may flatter it); the flex moves from tight ends to running backs; 2 fewer QB + tight end stacks.
   - **Recommended: a paper test** (decision 2), not live.
-- **The outside reviewer's list** (studies 75–80, from what the 2026 Millionaire winners did differently from the field) all ran tonight. "More TE in the flex" was skipped: we already use a TE flex more than the winners do.
+- **Study 82 (a quarterback from the lower-scoring half of teams in 4 lineups; READ committed 03:23 CT):**
+  - +0.4 points on the deciding seasons (2023 and 2024 both flat), +3.0 on 2022, almost no projection cost.
+  - Allowed by the rule, but no gain shown: the winners' habit does not show up as an edge in the test. **Off.**
+- **The outside reviewer's lists** (studies 75–82, from what the 2026 Millionaire winners did differently from the field) all ran tonight. "More TE in the flex" was skipped: we already use a TE flex more than the winners do.
