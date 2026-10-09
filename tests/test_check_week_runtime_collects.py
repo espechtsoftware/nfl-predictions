@@ -354,6 +354,8 @@ def test_his_s1_s2_switches_take_only_their_tested_values_on_the_mix(tmp_path):
     assert any(f.startswith("UNION_PROJ_SHRINK_K='0.5' must be 0.7") for f in _failures(_run(env)))
     env = fresh("b"); env.update(UNION_PROJ_SHRINK_K="0.7")
     assert any(f.startswith("UNION_PROJ_SHRINK_K='0.7' must be 0.7") for f in _failures(_run(env)))      # not on the mix
+    env = fresh("f"); env.update(UNION_PROJ_SHRINK_K="0.7", UNION_MAIN="mix", UNION_MIX_PORTFOLIO="mix")
+    assert any(f.startswith("UNION_PROJ_SHRINK_K='0.7' must be 0.7") for f in _failures(_run(env)))      # without the armed version
     env = fresh("c"); env.update(UNION_MIX_MIN_STAR="2", UNION_MAIN="mix", UNION_MIX_PORTFOLIO="mix")
     assert any(f.startswith("UNION_MIX_MIN_STAR='2' must be 1") for f in _failures(_run(env)))
     env = fresh("e"); env.update(UNION_MIX_MIN_STAR="1", UNION_MAIN="mix", UNION_MIX_PORTFOLIO="mix")

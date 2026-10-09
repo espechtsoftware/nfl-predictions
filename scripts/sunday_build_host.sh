@@ -516,9 +516,15 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   # His 10-09 S1 / S2 ("Test both tonight for live"; HANDOFF 2be97397), each live only if its gate passes; off = unset:
   # S1 shrinks the main book's objective toward the salary-typical projection (union_reselect keeps the frame's proj /
   # proj_tourney as they are, so the lever audit is unaffected); S2 asks for at least one $8,000+ non-QB skill player per row.
+  # S1 was tested only on the ARMED version (the package + the row rules): passed exactly when the row rules are, so a
+  # fallback week (no ownership file) is exactly the book as before, never "that book + shrink" (the outside reviewer 10-09)
   if [[ "${UNION_MAIN:-mean}" == "mix" && -n "${UNION_PROJ_SHRINK_K:-}" && "${UNION_PROJ_SHRINK_K}" != "1" && "${UNION_PROJ_SHRINK_K}" != "1.0" ]]; then
-    UNION_ARGS+=(--proj-shrink-k "$UNION_PROJ_SHRINK_K" --proj-shrink-window "${UNION_PROJ_SHRINK_WINDOW:-500}")
-    echo "PROJECTION SHRINK for $RUN_TAG: ON (k $UNION_PROJ_SHRINK_K toward the salary-typical projection, +/- \$${UNION_PROJ_SHRINK_WINDOW:-500})"
+    if printf '%s\n' "${UNION_ARGS[@]}" | grep -qx -- '--mix-max-te'; then
+      UNION_ARGS+=(--proj-shrink-k "$UNION_PROJ_SHRINK_K" --proj-shrink-window "${UNION_PROJ_SHRINK_WINDOW:-500}")
+      echo "PROJECTION SHRINK for $RUN_TAG: ON (k $UNION_PROJ_SHRINK_K toward the salary-typical projection, +/- \$${UNION_PROJ_SHRINK_WINDOW:-500})"
+    else
+      row_rules_alert "SHRINK NOT APPLIED: the projection shrink rides with the package + row rules, which are not on for this run"
+    fi
   fi
   # S2 rides ONLY with the row rules (union_reselect refuses --mix-min-star without them): passed exactly when they are
   if [[ "${UNION_MAIN:-mean}" == "mix" && "${UNION_MIX_MIN_STAR:-0}" == "1" ]]; then

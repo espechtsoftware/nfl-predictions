@@ -422,5 +422,6 @@ def test_his_s1_s2_switches_ride_into_the_units_and_stay_off_in_the_arm():
     assert "grep -qx -- '--mix-max-te'" in host and 'row_rules_alert "the star rule rides with the row rules' in host
     arm = (root / "arm_week5_saturday.sh").read_text()
     assert "UNION_PROJ_SHRINK_K=$SHRINK_K UNION_MIX_MIN_STAR=$MIN_STAR" in arm
-    assert '[[ -z "$SHRINK_K" || ( "$SHRINK_K" == 0.7 && "$SHAPE" == mixt ) ]]' in arm
+    assert '[[ -z "$SHRINK_K" || ( "$SHRINK_K" == 0.7 && "$SHAPE" == mixt && "$ROW_RULES" == te1_low1 ) ]]' in arm
+    assert 'row_rules_alert "SHRINK NOT APPLIED: the projection shrink rides with the package + row rules' in host
     assert '[[ -z "$MIN_STAR" || ( "$MIN_STAR" == 1 && "$SHAPE" == mixt && "$ROW_RULES" == te1_low1 ) ]]' in arm

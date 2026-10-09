@@ -255,8 +255,9 @@ def main():
         fail(f"UNION_MIX_ROW_RULES={_rr!r} must be te1_low1, with UNION_MAIN=mix and his package (UNION_MAIN_OWN_CAP_DELTA=15)")
     # his 10-09 S1 / S2 (each live only if its gate passes): the tested values, on the mix
     _sk = os.environ.get("UNION_PROJ_SHRINK_K", "")
-    if _sk not in ("", "1", "1.0") and (_sk != "0.7" or os.environ.get("UNION_MAIN") != "mix"):
-        fail(f"UNION_PROJ_SHRINK_K={_sk!r} must be 0.7 (S1's tested value) with UNION_MAIN=mix, or unset")
+    if _sk not in ("", "1", "1.0") and (_sk != "0.7" or os.environ.get("UNION_MAIN") != "mix" or _rr != "te1_low1" or _ocd != "15"):
+        fail(f"UNION_PROJ_SHRINK_K={_sk!r} must be 0.7 (S1's tested value) with UNION_MAIN=mix, his package "
+             f"(UNION_MAIN_OWN_CAP_DELTA=15) and UNION_MIX_ROW_RULES=te1_low1, or unset")
     _st = os.environ.get("UNION_MIX_MIN_STAR", "")
     if _st not in ("", "0") and (_st != "1" or os.environ.get("UNION_MAIN") != "mix" or _rr != "te1_low1"):
         fail(f"UNION_MIX_MIN_STAR={_st!r} must be 1 (S2's tested value) with UNION_MAIN=mix and UNION_MIX_ROW_RULES=te1_low1, or unset")
