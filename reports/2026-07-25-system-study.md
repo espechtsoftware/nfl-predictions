@@ -10119,3 +10119,131 @@ secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; th
 - **In plain words:** your study-87 book came out about 3 points below the current book on two independent draws. Making the
   QB cheaper made it worse, and letting a tight end be the flex changed nothing.
 - **Recommendation (his decision):** none of it for Week 5.
+
+## Addendum 188 (2026-10-09): study 91 (at most one TE and at most one player under 3% projected ownership per lineup, on his armed Week-5 package, in the harness; his rule decides Week 5): his rule says GO LIVE (+3.2 and +5.0 on the two draws, expected big seats ×1.08); the gain comes from the low-ownership half, which barely binds on his real FP book; he chose to go live
+
+**Setup.**
+- **His request** (HANDOFF `f8b1dc30`, then `2ab54e30`, verbatim there): after the outside reviewer's scan of his W1–4 limited-entry
+  contests, "Yes do that"; then "for test 2 - I would like to test it today and if it improves things, use it in week 5 as we
+  obviously need to do something". Asked what "improves" means, he chose "Better on both draws": live in Week 5 only if the rule
+  beats his armed package on BOTH draws and does not cost more than 20% of expected big wins; otherwise paper only.
+- **His rule, as frozen and printed** (`== HIS W5 RULE`): GO LIVE iff OWN15_TE1_LOW1 − CAP35_OWN15 > 0 on draw A AND on draw B
+  AND the pooled expected big seats ratio ≥ 0.80. Guard 1 is printed beside it, outside the rule. Under no true effect it passes
+  about one time in four to one in three (the two draws share slates and outcomes).
+- **The arms.** Study 89's harness (its frozen module sha-asserted), every arm at the package's caps (0.35, the ownership cap
+  at + 15 on the blend, DST cap 6, QB cap 5, overlap 4):
+  - CAP35_OWN15: the armed package (the reference);
+  - OWN15_TE1: at most one TE per book row;
+  - OWN15_LOW1: at most one skill player predicted under 3% (the rescaled blend; no prediction = 0%);
+  - OWN15_TE1_LOW1: both (THE DECISION).
+  - Study 38 amendment 6p's `row_rules`, pasted byte for byte, inside 89's `own_caps`: one solve with the constraints;
+    infeasible → without them, the ownership cap kept.
+- **The prior.** The TE half was read flat twice in the harness (Addenda 183, 187). On his real Week-4 book (the laptop's check
+  and 6p's smoke) the TE rule changes 21 of 26 rows at −0.76 FP per row, and the low half barely binds; in the harness it binds
+  (the blend's low tail).
+- **Preregistration:** `reports/2026-10-09-prereg-study91-row-rules.md` (DRAFT by the outside reviewer; FROZEN `dcc75a7d`, 10-09
+  13:51 CDT, before any scored bank).
+- **Code:** nfl2 `41d2430f`: module `9cde18bd…`; drive `1aed4f32…`; census `ee9d2d84…`; reader `518067b8…`; tests `a0119b0b…` (8).
+- **Panel:** banks 3000–3011 (A 3000–3005, B 3006–3011), B 20,000, seed 20261136, PYTHONHASHSEED=0 (RUN_ENV committed). The
+  laptop's scan was clean. Run BEFORE study 90 (his order).
+- **Census** (binding, bank 1406, 36 slate-banks; lab `ae734c10`; the laptop's re-run identical): 0 of 936 ruled solves
+  infeasible in every arm; the ownership cap held on every solve; 2+ TE rows 14.86 → 0; 2+ low rows 6.36 → 0; TE1_LOW1 shares 2.14
+  of 26 rows with the package and 9.28 with TE1; projection per row −0.44; the package's rows identical to study 89's census.
+- **Read:** the reader `518067b8`; READ `8672e057` (lab `a8024c8a`). The confirmatory census (`48b71f9b`, raw shas `3be96f57`,
+  RUN_ENV `729264c1`; lab `2f160cb8`) was committed before the READ: 0 of 11,232 ruled solves infeasible in every arm; 2+ TE
+  rows 14.96 → 0; 2+ low rows 6.39 → 0; TE1_LOW1 shares 2.13 of 26 rows with the package.
+- **Reproduced byte-identically by the laptop** at `a8024c8a`: the raw files 3000–3011 pass `sha256sum -c` against
+  `RAW_s91_run.sha256`; the READ is `8672e057` and the confirmatory census `48b71f9b` (cmp-identical).
+
+**Reader output (verbatim):**
+```
+STUDY 91 READER  sha256 518067b81ace0d2080221cf79c94614643e0a1cc2e8150f9f241929b7f5e27d1
+DIRECTION: P(>= 1 big seat) per slate (the mean over a set's banks); every difference is FIRST ARM - SECOND; POSITIVE favours the first.
+slates 36 (2023-24)  banks [3000, 3001, 3002, 3003, 3004, 3005, 3006, 3007, 3008, 3009, 3010, 3011]  sets {'pooled': [3000, 3001, 3002, 3003, 3004, 3005, 3006, 3007, 3008, 3009, 3010, 3011], 'A': [3000, 3001, 3002, 3003, 3004, 3005], 'B': [3006, 3007, 3008, 3009, 3010, 3011]}  B 20000  seed 20261136  comparisons (('OWN15_TE1_LOW1', 'CAP35_OWN15'), ('OWN15_TE1', 'CAP35_OWN15'), ('OWN15_LOW1', 'CAP35_OWN15'), ('OWN15_TE1_LOW1', 'OWN15_TE1')) on the CALIBRATED field (v2), pooled two-sided 0.95; guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only; the two-draw rule printed for his decision
+arms (definitions, the ownership rule, caps, studies 89 / 87 / 29 / l24 / 73's shas, live settings, QB cap, objective): [["CAP35_OWN15", "OWN15_TE1", "OWN15_LOW1", "OWN15_TE1_LOW1"], {"block": {"cap": 2.0, "min_coverage": 0.5, "n_term": 8, "tilt": 0.2}, "cap_share": {"CAP35_OWN15": 0.35, "OWN15_LOW1": 0.35, "OWN15_TE1": 0.35, "OWN15_TE1_LOW1": 0.35}, "delta": 0.15, "low_pct": 3.0, "own_arms": ["CAP35_OWN15", "OWN15_TE1", "OWN15_LOW1", "OWN15_TE1_LOW1"], "row_rules": {"CAP35_OWN15": [], "OWN15_LOW1": ["low1"], "OWN15_TE1": ["te1"], "OWN15_TE1_LOW1": ["te1", "low1"]}, "rows": "every book solve in build order (any cell): skill players at floor(k_book x (pred/100 + delta)) book rows banned, one solve; infeasible -> the same solve without them, recorded", "skill_sum": 800.0, "source": "blend_pct"}, {"CAP35_OWN15": [9, 6], "OWN15_LOW1": [9, 6], "OWN15_TE1": [9, 6], "OWN15_TE1_LOW1": [9, 6]}, "92b0934541df62146e31c2114dfed716c956a8546c066682048e037e8bfd34f8", "85adf47bfb6366fb4510fb4a669b2e087e94b1b920651e1a3bf19fe98a3330c5", "07abafc367d7fff2a0ba49ae3c21cbeebfe1523cccf922581c41143b755f7596", "ca8e0d032c6997e18bfaf02e92f42bd5fd2834a6bba4ed2c6d2c77e8b880c2aa", "3f76c6295d8666cf4f256a103c7ba3fe428630d6149c7a6009648487900d806d", {"fill": "rr", "max_shared": 4}, 5, "player_mean (+ the cheap block term)"]
+
+== OWN15_TE1_LOW1 vs CAP35_OWN15  [for his decision; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate +0.04121  [-0.00635, +0.09009] (two-sided 0.95)  seasons 2023 +0.05784, 2024 +0.02457
+  GUARD 1 mean entry pct +0.00626  one-sided lower -0.00408  (must exceed -0.015)
+  GUARD 2 expected big seats 0.54444 vs 0.50413  ratio 1.080  (must be >= 0.80)
+  OWN15_TE1_LOW1 dealt identical to CAP35_OWN15: 0.002 of slate-banks
+  ->  NO DIFFERENCE
+  set A [3000, 3001, 3002, 3003, 3004, 3005]: +0.03241  [-0.01587, +0.08266]  seasons 2023 +0.07781, 2024 -0.01299
+  set B [3006, 3007, 3008, 3009, 3010, 3011]: +0.05000  [-0.00908, +0.11246]  seasons 2023 +0.03787, 2024 +0.06214
+  TWO DRAWS: NOT NEGATIVE ON BOTH DRAWS  (set A +0.03241, set B +0.05000, the difference -0.01759; seats ratio 1.080)
+  EXPLORATORY the l02 field (pooled): +0.04442  [-0.00387, +0.09405]
+
+== OWN15_TE1 vs CAP35_OWN15  [for his decision; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate +0.00926  [-0.03338, +0.05522] (two-sided 0.95)  seasons 2023 +0.01946, 2024 -0.00094
+  GUARD 1 mean entry pct -0.00415  one-sided lower -0.01276  (must exceed -0.015)
+  GUARD 2 expected big seats 0.48809 vs 0.50413  ratio 0.968  (must be >= 0.80)
+  OWN15_TE1 dealt identical to CAP35_OWN15: 0.007 of slate-banks
+  ->  NO DIFFERENCE
+  set A [3000, 3001, 3002, 3003, 3004, 3005]: -0.00896  [-0.05861, +0.04336]  seasons 2023 +0.02629, 2024 -0.04421
+  set B [3006, 3007, 3008, 3009, 3010, 3011]: +0.02748  [-0.02142, +0.07898]  seasons 2023 +0.01263, 2024 +0.04233
+  TWO DRAWS: NOT SHOWN ON BOTH DRAWS: set A -0.00896 < 0  (set A -0.00896, set B +0.02748, the difference -0.03645; seats ratio 0.968)
+  EXPLORATORY the l02 field (pooled): +0.01128  [-0.03184, +0.05721]
+
+== OWN15_LOW1 vs CAP35_OWN15  [for his decision; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate +0.02812  [+0.00297, +0.05598] (two-sided 0.95)  seasons 2023 +0.04171, 2024 +0.01452
+  GUARD 1 mean entry pct +0.00715  one-sided lower +0.00280  (must exceed -0.015)
+  GUARD 2 expected big seats 0.55563 vs 0.50413  ratio 1.102  (must be >= 0.80)
+  OWN15_LOW1 dealt identical to CAP35_OWN15: 0.005 of slate-banks
+  ->  PASS
+  set A [3000, 3001, 3002, 3003, 3004, 3005]: +0.03069  [+0.00166, +0.06144]  seasons 2023 +0.03686, 2024 +0.02452
+  set B [3006, 3007, 3008, 3009, 3010, 3011]: +0.02554  [-0.00881, +0.06087]  seasons 2023 +0.04656, 2024 +0.00453
+  TWO DRAWS: NOT NEGATIVE ON BOTH DRAWS  (set A +0.03069, set B +0.02554, the difference +0.00514; seats ratio 1.102)
+  EXPLORATORY the l02 field (pooled): +0.03101  [+0.00512, +0.05967]
+
+== OWN15_TE1_LOW1 vs OWN15_TE1  [for his decision; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate +0.03195  [+0.00888, +0.05699] (two-sided 0.95)  seasons 2023 +0.03838, 2024 +0.02551
+  GUARD 1 mean entry pct +0.01041  one-sided lower +0.00526  (must exceed -0.015)
+  GUARD 2 expected big seats 0.54444 vs 0.48809  ratio 1.115  (must be >= 0.80)
+  OWN15_TE1_LOW1 dealt identical to OWN15_TE1: 0.002 of slate-banks
+  ->  PASS
+  set A [3000, 3001, 3002, 3003, 3004, 3005]: +0.04137  [+0.01531, +0.06672]  seasons 2023 +0.05152, 2024 +0.03122
+  set B [3006, 3007, 3008, 3009, 3010, 3011]: +0.02252  [-0.01154, +0.05918]  seasons 2023 +0.02524, 2024 +0.01980
+  TWO DRAWS: NOT NEGATIVE ON BOTH DRAWS  (set A +0.04137, set B +0.02252, the difference +0.01885; seats ratio 1.115)
+  EXPLORATORY the l02 field (pooled): +0.03314  [+0.00999, +0.05818]
+
+
+== HIS W5 RULE (10-09, "Better on both draws"), OWN15_TE1_LOW1 - CAP35_OWN15: GO LIVE in W5 (better on both draws)  |  guard 1 (mean entry pct, one-sided lower) -0.00408 (passes -0.015)  |  under no true effect about one time in four to one in three
+
+  CAP35_OWN15 row-rule solves re-solved without the rules: 0 of 0; ownership-cap re-solves 0; over 432 slate-banks
+  OWN15_TE1 row-rule solves re-solved without the rules: 0 of 11232; ownership-cap re-solves 0; over 432 slate-banks
+  OWN15_LOW1 row-rule solves re-solved without the rules: 0 of 11232; ownership-cap re-solves 0; over 432 slate-banks
+  OWN15_TE1_LOW1 row-rule solves re-solved without the rules: 0 of 11232; ownership-cap re-solves 0; over 432 slate-banks
+
+secondaries (pooled slate means; v2 = the calibrated field, l02 = the earlier field; the book's rows are pre-lock facts):
+  CAP35_OWN15  v2: P(>=1 big) 0.33420  expected big seats 0.50413  P(>=2) 0.11755  entry pct 0.49930  |  l02: P(>=1 big) 0.36371
+               book: projection per row 125.09  salary 49970  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.4  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.27  predicted ownership per row 93.2%  distinct QBs 8.7  non-DST players 50.6  rows with 2+ TEs 15.0  low-owned per row 0.908
+  OWN15_TE1    v2: P(>=1 big) 0.34346  expected big seats 0.48809  P(>=2) 0.10669  entry pct 0.49515  |  l02: P(>=1 big) 0.37499
+               book: projection per row 124.65  salary 49973  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.4  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.30  predicted ownership per row 92.2%  distinct QBs 8.6  non-DST players 51.4  rows with 2+ TEs 0.0  low-owned per row 1.025
+  OWN15_LOW1   v2: P(>=1 big) 0.36232  expected big seats 0.55563  P(>=2) 0.12657  entry pct 0.50646  |  l02: P(>=1 big) 0.39473
+               book: projection per row 125.09  salary 49968  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.4  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.18  predicted ownership per row 95.2%  distinct QBs 8.4  non-DST players 50.3  rows with 2+ TEs 15.3  low-owned per row 0.599
+  OWN15_TE1_LOW1 v2: P(>=1 big) 0.37541  expected big seats 0.54444  P(>=2) 0.12357  entry pct 0.50557  |  l02: P(>=1 big) 0.40813
+               book: projection per row 124.68  salary 49971  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.4  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.20  predicted ownership per row 94.4%  distinct QBs 8.3  non-DST players 50.8  rows with 2+ TEs 0.0  low-owned per row 0.652
+```
+
+**Reading.**
+- **His W5 rule: GO LIVE.** OWN15_TE1_LOW1 − the package: A **+3.2**, B **+5.0**; pooled +4.1 [−0.6, +9.0]; expected big seats
+  ×1.08; guard 1 passes. Under no true effect a rule like this passes about one time in four to one in three.
+- **Where the gain comes from:** the low-ownership half. LOW1 alone **+2.8 [+0.3, +5.6]**, PASS, positive on both draws (+3.1,
+  +2.6), seats ×1.10; on top of the TE rule +3.2 [+0.9, +5.7], PASS. **The TE half alone is flat:** TE1 +0.9 (A −0.9, B +2.7),
+  seats ×0.97 — the third flat read of that rule (Addenda 183, 187).
+- **THE TRANSFER CAVEAT (stated to him before his decision):** in the harness the package book holds 0.91 players predicted
+  under 3% per row (the blend's low tail and the sims' contrarian picks), and the low cap cuts that to 0.65. His REAL book,
+  built on FP's means, holds 0.115 such players per row by FP's projection (6p's smoke; the laptop's W4 check), so the low cap
+  barely binds there. Live, the rule acts almost entirely as "at most one TE" (21 of 26 W4 rows change, −0.76 FP per row), the
+  half that did not show a gain. The harness shows the low cap helping a book that is contrarian on low-owned players; his
+  real book is not.
+- **His decision** (in three sessions, with the caveat stated): GO LIVE as his rule says. In this session's question his answer
+  was "Go live as the rule says"; in the laptop's, "Go live as my rule says"; in the outside reviewer's (after the caveat): "+3.2
+  and +5 and 8% more big wins sounds like exactly what we're shooting for … That is good enough for me" (the outside reviewer
+  corrected one point: the two draws are the same 36 slates with different simulated opponents, not two weeks).
+- **Production:** the row-rules flag (`e8c63263`, the outside reviewer's; parity against 6p's `row_rules` and `low_owned`) and
+  the laptop's wiring merge before the new FRIDAY_HEAD; Saturday's arm sets ROW_RULES=te1_low1. Study 38 amendment 6q makes the
+  paper arms follow the live rules and scores the package WITHOUT them (MIXT_QA0_NORR) beside the live book, by contest group.
+- **In plain words:** the test model says the combined rule is better on both draws, and by his rule it goes live. The part that
+  helped in the test hardly acts on his real book, so live it is mostly "no tight end in the flex"; Week 5's paper comparison
+  measures what it actually does on real fields.
