@@ -1,7 +1,8 @@
-# Preregistration: study 77, the QB alone on the first 3 C rows (the shape his book never plays), in the harness (DRAFT 2026-10-08)
+# Preregistration: study 77, the QB alone on the first 3 C rows (the shape his book never plays), in the harness (FROZEN 2026-10-08)
 
-**Status: DRAFT 2026-10-08 (21:25 CDT)** by the outside reviewer, before any scored bank. The reviewer (84) reviews, runs
-the binding census and FREEZES; the laptop acks (shas, tests, census re-run, banks and seed scanned).
+**Status: FROZEN 2026-10-08 (22:03 CDT)** by the reviewer, after the outside reviewer's DRAFT, the smoke and the binding census (§6),
+before any scored bank. The text changed at the freeze only in §6 (the census). The module and the reader are the
+DRAFT's, unchanged. The laptop acks (shas, tests, census re-run, banks and seed scanned, the derived seed bases too).
 - **Banks 1659–1664, seed 20261122** (assigned by the reviewer; pre-scanned clean by the laptop).
 - **Target:** read tonight, after study 76, if time allows (the reviewer's triage: last). A production option only if NAKED3
   is ENTERABLE and the operator chooses it in the morning.
@@ -72,7 +73,17 @@ the binding census and FREEZES; the laptop acks (shas, tests, census re-run, ban
   - projection per row +0.04 / +0.15; rows shared with LIVE_CB 4.7 / 4.0; dealt identical 0.000 / 0.000.
 - **The full-path smoke** (2024 W10, 2022 W6 scored on bank 1406): the reader exited 0 with 41 lines and 3 sections; only
   those were read.
-- **The binding (support) census:** the reviewer's, on all 53 slate-banks of bank 1406, before the freeze.
+- **The binding (support) census** (the reviewer's; outcome-blind; bank 1406; all 53 slate-banks of 2022–24; code
+  `cd754b3` clean; lab `results/s77/CENSUS_s77_binding.txt` `28f38b5a…`, the raw mechanics rows
+  `census_mechanics_bank1406.jsonl` `cb86b508…` with no outcome field, committed at `3dac28c2`):
+  - every arm is 41 rows within production's constraints, with 8 term rows and every row in the pool;
+  - NAKED3: 3 of 3 ruled on every slate-bank, 0 infeasible, at book positions 3, 7, 13 (read by big contests: 1.000);
+  - NAKED6: 6 of 6, the 6th at book position 23 (non-big; 0.833 big-read), by design exploratory;
+  - QB-alone rows: LIVE_CB 0, NAKED3 3, NAKED6 6 of 26;
+  - QB + 2 rows 12 in every arm;
+  - flex WR / TE / RB: 6.2 / 15.2 / 4.6 → 6.0 / 14.7 / 5.3 (NAKED3);
+  - projection +0.05 / +0.12 per row;
+  - rows shared with LIVE_CB 4.8 / 4.8; dealt identical 0.000 (no dead lever).
 - **Code:** nfl2 `production/s77-naked-20261008` @ `cd754b3` (the outside reviewer's draft; branched from study 76's
   `4cf9e29`, which carries study 75's census merge):
   - `experiments/s77_naked.py` `d455f3dd…`;
