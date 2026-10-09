@@ -12,6 +12,26 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (09:35 CDT) — OPERATOR (relayed): variants of study 87's book "perhaps with a slightly cheaper QB" (study 88); and the calibration check ("I do want to do 3")
+
+**His words** (in the outside reviewer's session, during study 87's run, before its read; relayed to the laptop as quoted in
+study 88's prereg, `review/s88-prereg-20261009` @ `2dd4072b`, which elides one passage with "…"): "My suspicion is we are going
+to find that the last test we set up … is going to outperform everything else. Premature to say, but that looks more like the
+way I believe winners are structured. Please consider other options along those lines - perhaps with a slightly cheaper QB -
+that you think are good to test based on what you see in historic results." The laptop has asked for the elided words.
+
+- **Study 88** (the outside reviewer's design, committed before 87's READ, lab `49db37c6`). The arms are LIVE_CB (capped),
+  then uncapped NOCAP, BOOK87 (87's book on a fresh bank set: the forward rule's second read), CHEAPQB (+ QBs ≥ $7,000
+  banned), TEFLEX (87 without its no-TE-flex rule) and CHEAPQB_TEFLEX. Banks 1737–1742, seed 20261133 (the laptop's scan).
+  Information for his decision.
+- **His second request, the same morning** (relayed by the outside reviewer, after the laptop's money-gate summary; he asked
+  "I thought any given week I had a 30% chance at a big win… Was that never true as I was told?"): "I do want to do 3, but if
+  that requires knowing exactly what we're doing for week 5, it is premature." Step 3 is a calibration check of the then-model
+  on his real W1–4 entries. For each entered lineup: the model's pre-lock chance of a top 1%, a top 10%, a cash and a big win
+  against the real field rosters, set against what happened. Descriptive; it changes nothing for W5.
+  - The laptop builds it (`review/calibration-w1-4-20261009` @ `fd09493b`), the outside reviewer approved the design (five
+    notes, all taken), and it runs in the machine's gaps, after study 87's READ.
+
 ## 2026-10-09 (09:14 CDT) — laptop: the 09:13 "Week-5 money gate" reminder fired; the gate was already done (10-05), nothing re-run
 
 The one-shot reminder scheduled 10-04 (the schedule table's "Fri 10-09 09:13" row; `75be36fb` / `7fea3a9a`) fired today. The
