@@ -400,6 +400,12 @@ def audit(run: Path, contests: list[dict], *, layout: str, expect_selector: str 
            f"{unknown} ids not in the frame, {short} rows without 9 slots", duplicates=dup, sleeve_repeats_of_main=repeats,
            unknown_ids=unknown, short_rows=short)
 
+    # ---- flex_wr (study 75's WR flex flag; informational: the flex is free, no shape rule)
+    fx = ((((receipt.get("config") or {}).get("union") or {}).get("mix") or {}).get("mix") or {}).get("flex_wr")
+    record("flex_wr", True, (f"--mix-flex-wr-rows {fx.get('rows_cap')}: ruled {len(fx.get('ruled') or [])}, plain "
+                             f"{len(fx.get('plain') or [])}") if fx else "--mix-flex-wr-rows off",
+           rows_cap=(fx or {}).get("rows_cap", 0), ruled=len((fx or {}).get("ruled") or []), plain=len((fx or {}).get("plain") or []))
+
     failed = [c["check"] for c in checks if not c["ok"]]
     return {"run": str(run), "layout": layout, "checks": checks, "failed": failed, "ok": not failed}
 

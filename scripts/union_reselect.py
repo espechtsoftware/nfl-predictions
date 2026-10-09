@@ -493,7 +493,8 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
              term_bonus: dict[str, float] | None = None,
              cell_quotas: dict[str, float] | None = None,
              bring_back_top_wr: tuple[str, ...] = (),
-             bring_back_top_wr_rows: int | None = None) -> tuple[list[list[str]], list[str], dict, list[tuple[list[str], str]]]:
+             bring_back_top_wr_rows: int | None = None,
+             flex_wr_rows: int = 0) -> tuple[list[list[str]], list[str], dict, list[tuple[list[str], str]]]:
     """study 18's MIX book on the T-70 frame: cells solved largest first (ties: the earlier cell) through ONE shared state
     (banned lineups, the per-player exposure cap, the DST cap, <= max_shared with every earlier row); a cell row that cannot
     be solved passes to A1 (counted); then the rows are ordered by the entry-weighted interleave of the plan's weights.
@@ -588,6 +589,19 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
         bb_pairs = {(p["id"], bb_top[str(p["opp"])]): 1.0 for p in pool if p["pos"] == "QB" and str(p["opp"]) in bb_top}
     name_of_id = {p["id"]: p.get("name") for p in pool}
 
+    # the WR flex (study 75's rule, nfl2 experiments/s75_flex_mix.py flex_rows; the outside reviewer's flag in production's
+    # agreed format 10-08; default 0 = off: every solve below byte for byte as before): the first N BOOK solves in build
+    # order (j = len(prev) < N, any cell; spares never) hold exactly 4 WRs -- the pinned optimize's member_bounds (the
+    # pool's WR ids, 4, 4); the harness's set_constraints (WRs, ">=", 4) is the same feasible set under WR <= 4. An
+    # infeasible ruled solve is re-solved plain and recorded (never retried).
+    fx_n = int(flex_wr_rows or 0)
+    fx_wr = [p["id"] for p in pool if p["pos"] == "WR"]
+    fx_state: dict = {"pending": None, "ruled": [], "plain": []}
+    if fx_n and (int(flex_wr_rows) != flex_wr_rows or fx_n < 0 or fx_n > k or portfolio != "mix" or fill != "rr"
+                 or cover_games or rs_rows):
+        raise ValueError(f"flex_wr_rows {flex_wr_rows} needs 0 <= N <= k ({k}), the MIX portfolio, fill rr, no cover and no "
+                         f"half-and-half (got portfolio {portfolio}, fill {fill}, cover {cover_games}, rs {rs_rows})")
+
     def floor_open() -> bool:
         """Study 71b, 84's definition exactly (nfl2 experiments/s71b_topbb_n.py, TopBBNBuilder.solve_with @ c2f5638): the
         floor goes on a designated solve only while j < k AND fewer than N rows have been committed under it, where j =
@@ -613,16 +627,28 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
         use_pool, use_obj = (term_pool, "obj") if use_term else (pool, objective)
         kw = dict(stack=StackRules(**rules), objective_col=use_obj, banned_lineups=prev, max_overlap=max_shared,
                   bans=bans or None, env=env, second_game_pair=games if which == "all" else None, qb_game_max=qmax)
-        fb = None
-        if name in bb_cells and floor_open():
-            lu = optimize(use_pool, interaction_floor_weights=bb_pairs, interaction_floor=1.0, **kw) if bb_pairs else None
+        def attempt(kw_: dict):
+            fb_ = None
+            if name in bb_cells and floor_open():
+                lu_ = optimize(use_pool, interaction_floor_weights=bb_pairs, interaction_floor=1.0, **kw_) if bb_pairs else None
+                if lu_ is None:
+                    fb_ = "infeasible with the floor" if bb_pairs else "no pairs"
+                    lu_ = optimize(use_pool, **kw_)
+            else:
+                if name in bb_cells:                           # study 71b: the cap is closed (or a spare under a cap)
+                    fb_ = "plain"
+                lu_ = optimize(use_pool, **kw_)
+            return lu_, fb_
+
+        if fx_n and len(prev) < fx_n:                          # the WR flex: this solve holds exactly 4 WRs, else plain
+            lu, fb = attempt(dict(kw, member_bounds=[(fx_wr, 4, 4)]))
             if lu is None:
-                fb = "infeasible with the floor" if bb_pairs else "no pairs"
-                lu = optimize(use_pool, **kw)
+                fx_state["plain"].append([name, len(prev)])
+                lu, fb = attempt(kw)
+            else:
+                fx_state["pending"] = name
         else:
-            if name in bb_cells:                               # study 71b: the cap is closed (or a spare under a cap)
-                fb = "plain"
-            lu = optimize(use_pool, **kw)
+            lu, fb = attempt(kw)
         if lu is None:
             return None, None, None
         return [str(p["id"]) for p in lu.players], float(sum(p.get(use_obj, p["proj"]) for p in lu.players)), fb
@@ -632,6 +658,8 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
 
     def commit(ids: list[str], value: float | None = None, cell: str | None = None, fb: str | None = None) -> list[str]:
         prev.append(frozenset(ids)); count.update(ids)
+        if fx_state["pending"] is not None:                    # the WR flex's record (nothing when off)
+            fx_state["ruled"].append([fx_state["pending"], len(prev) - 1]); fx_state["pending"] = None
         if value is not None:
             row_value[tuple(ids)] = value
         if cell is not None and cell in bb_cells:              # study 71's record (nothing when off)
@@ -880,6 +908,8 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
         if bb_cap is not None:                                 # study 71b's delta (absent without a cap)
             meta["bring_back_top_wr"].update({"rows_cap": int(bb_cap), "floored_rows": bb_state["floored_rows"],
                                               "designated_unfloored": int(bb_state["designated_unfloored"])})
+    if fx_n:                                                   # the WR flex's receipt block (absent when off)
+        meta["flex_wr"] = {"rows_cap": fx_n, "ruled": fx_state["ruled"], "plain": fx_state["plain"], "wr_ids_n": len(fx_wr)}
     return book, cell_of, meta, spare_rows
 
 
@@ -1040,6 +1070,23 @@ def parse_bring_back_top_wr(spec: str, main: str, portfolio: str | None) -> tupl
     return cells
 
 
+def parse_flex_wr_rows(n: int, main: str, portfolio: str | None, fill: str, cover: int, rs: int, entries: int) -> int:
+    """--mix-flex-wr-rows (study 75's WR flex): 0 = off; else 1 <= N <= the book's K, with --main mix --mix-portfolio mix
+    --mix-fill rr and no --mix-cover-games / --mix-rs-rows. SystemExit otherwise."""
+    if n == 0:
+        return 0
+    if n < 0 or n > entries or main != "mix" or portfolio != "mix" or fill != "rr" or cover or rs:
+        raise SystemExit(f"--mix-flex-wr-rows {n}: 1 <= N <= --entries ({entries}), with --main mix --mix-portfolio mix --mix-fill rr "
+                         f"and no cover / half-and-half (got main {main}, portfolio {portfolio}, fill {fill}, cover {cover}, rs {rs})")
+    return int(n)
+
+
+def flex_wr_line(block: dict | None) -> str:
+    """The WR flex's one printed line."""
+    b = block or {}
+    return f"FLEX WR: {b.get('rows_cap')} rows; ruled {len(b.get('ruled') or [])}, plain {len(b.get('plain') or [])}"
+
+
 def parse_bring_back_top_wr_rows(rows: int | None, cells: tuple[str, ...]) -> int | None:
     """--mix-bring-back-top-wr-rows (study 71b): None (unset) = every designated solve; else an integer >= 1, only with
     --mix-bring-back-top-wr cells. SystemExit otherwise."""
@@ -1130,6 +1177,9 @@ def main(argv: list[str] | None = None) -> int:
                     help="study 71 (default empty = off): a comma list of MIX cells from A1,B whose rows hold the QB's opponent's "
                          "top receiver (the highest-salaried WR in the buildable pool; ties projection, then id) through the "
                          "optimizer's interaction floor; a solve the floor makes infeasible is built without it and recorded")
+    ap.add_argument("--mix-flex-wr-rows", type=int, default=0,
+                    help="study 75's WR flex (default 0 = off): the first N BOOK solves in build order hold exactly 4 WRs "
+                         "(member_bounds); an infeasible one is built plain and recorded; spares never")
     ap.add_argument("--mix-bring-back-top-wr-rows", type=int, default=None,
                     help="study 71b (default unset = every designated solve): the floor goes on designated solves only while "
                          "fewer than N BOOK rows (row index < the book's K) have been committed under it; spares never; an "
@@ -1233,6 +1283,7 @@ def main(argv: list[str] | None = None) -> int:
         raise SystemExit("--mix-cover-games N (1..8) needs --main mix with --mix-portfolio mix (study 43)")
     bb_cells = parse_bring_back_top_wr(a.mix_bring_back_top_wr, a.main, a.mix_portfolio)
     bb_rows = parse_bring_back_top_wr_rows(a.mix_bring_back_top_wr_rows, bb_cells)
+    fx_g = parse_flex_wr_rows(a.mix_flex_wr_rows, a.main, a.mix_portfolio, a.mix_fill, a.mix_cover_games, a.mix_rs_rows, a.entries)
     if a.main == "mix" and (a.mix_plan is None or not a.mix_plan.is_file()):
         raise SystemExit(f"--main mix needs --mix-plan (the week's contests.json; got {a.mix_plan})")
     if a.main == "mix" and a.mix_portfolio is None:
@@ -1381,9 +1432,11 @@ def main(argv: list[str] | None = None) -> int:
                                                                        spares=0 if bonus else a.mix_spares,
                                                                        term_rows=term_rows, term_bonus=term_bonus,
                                                                        cell_quotas=cell_quotas, bring_back_top_wr=bb_cells,
-                                                                       bring_back_top_wr_rows=bb_rows)
+                                                                       bring_back_top_wr_rows=bb_rows, flex_wr_rows=fx_g)
             if bb_cells:
                 print(bring_back_top_wr_line(mix_meta.get("bring_back_top_wr")), flush=True)
+            if fx_g:
+                print(flex_wr_line(mix_meta.get("flex_wr")), flush=True)
             if a.term_block_rows:
                 mix_meta["term_source"] = term_src
             spare_rows = plain_spares
@@ -1424,8 +1477,10 @@ def main(argv: list[str] | None = None) -> int:
                                                                       portfolio=a.mix_portfolio, spares=a.mix_spares, fill=a.mix_fill,
                                                                       cover_games=a.mix_cover_games, rs_rows=a.mix_rs_rows,
                                                                       cell_quotas=cell_quotas, bring_back_top_wr=bb_cells,
-                                                                      bring_back_top_wr_rows=bb_rows)
+                                                                      bring_back_top_wr_rows=bb_rows, flex_wr_rows=fx_g)
                 main_tags = [TAG_PREFIX + c for c in main_cells]; mix_meta["with_term"] = own_mix
+                if fx_g:
+                    print("(the ownership-term book) " + flex_wr_line(own_mix.get("flex_wr")), flush=True)
                 if bb_cells:
                     print("(the ownership-term book) " + bring_back_top_wr_line(own_mix.get("bring_back_top_wr")), flush=True)
             else:
