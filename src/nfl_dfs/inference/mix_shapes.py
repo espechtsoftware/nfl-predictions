@@ -149,6 +149,72 @@ def rule_applies(row, exempt: set, required: set | None) -> bool:
     return (r in required) if required is not None else (r not in exempt)
 
 
+# Study 73 (84's rule, 10-08; the operator: "for each of the five highest projected games ... requiring the quarterback and his
+# top pass catcher"): the first G BOOK solves of the QB+1 cells, in build order, each carry ONE game's (QB, top pass catcher)
+# pair through the pinned optimize()'s interaction floor. union_reselect --mix-top-game-qb1 G (default 0 = off).
+TOP_GAME_CELLS = ("B", "C")
+
+
+def top_game_pairs(pool, game_total: dict, team_itt: dict, g: int) -> list[dict]:
+    """84's games and pairs (nfl2 experiments/s73_topg_qb1.py game_order / game_pairs @ b402cdd, parity-tested against their
+    verbatim text) on the union's buildable pool (player dicts: id, name, pos, team, game_id, salary, proj -- proj is the
+    projection the union solves on, the term block's term never included). The pool QBs' games by game_total descending,
+    ties by game_id ascending; the top g. Game k's side: its teams with a pool QB, first by (-the team's implied total,
+    -the side's top pool-QB proj, team code); its QB: that side's pool QB first by (-proj, id); his top pass catcher: the
+    team's pool WR / TE first by (-proj, -salary, id). A game whose side has no pass catcher keeps pair None and is
+    SKIPPED: it never takes a solve (no backfill). game_total: game_id -> total; team_itt: team -> its implied total.
+    ValueError on a ranked game without a total or a side without an implied total."""
+    qbs = [p for p in pool if p["pos"] == "QB"]
+    games = sorted({str(p["game_id"]) for p in qbs})
+    for gm in games:
+        t = game_total.get(gm)
+        if t is None or not np.isfinite(float(t)):
+            raise ValueError(f"game {gm} has no game_total")
+    out = []
+    for k, gm in enumerate(sorted(games, key=lambda x: (-float(game_total[x]), x))[:g], start=1):
+        sides = []
+        for team in sorted({str(p["team"]) for p in qbs if str(p["game_id"]) == gm}):
+            v = team_itt.get(team)
+            if v is None or not np.isfinite(float(v)):
+                raise ValueError(f"team {team} has no implied_team_total")
+            top = min((p for p in qbs if str(p["game_id"]) == gm and str(p["team"]) == team),
+                      key=lambda p: (-float(p["proj"]), str(p["id"])))
+            sides.append(((-float(v), -float(top["proj"]), team), top))
+        (itt_neg, _, team), qb = min(sides, key=lambda s: s[0])
+        pcs = [p for p in pool if p["pos"] in ("WR", "TE") and str(p["team"]) == team]
+        pc = min(pcs, key=lambda p: (-float(p["proj"]), -float(p.get("salary") or 0), str(p["id"]))) if pcs else None
+        out.append({"k": k, "game_id": gm, "game_total": float(game_total[gm]), "qb": qb, "pc": pc, "itt": -itt_neg,
+                    "pair": (str(qb["id"]), str(pc["id"])) if pc is not None else None})
+    return out
+
+
+def top_game_qb1_rows(receipt: dict) -> dict[frozenset, tuple[str, str]]:
+    """Study 73's ONE reader: the union receipt's top_game_qb1 block(s) (config.union.mix.mix.top_game_qb1 and an
+    ownership-term main's with_term block) -> {forced row identity: (QB_k, PC_k)}. Off / absent = {}. A dropped game's
+    plain row is not forced, and a replacement row is never one."""
+    union = ((receipt or {}).get("config") or {}).get("union") or {}
+    mix = (union.get("mix") or {}).get("mix") or {}
+    out: dict[frozenset, tuple[str, str]] = {}
+    for b in (mix.get("top_game_qb1"), (mix.get("with_term") or {}).get("top_game_qb1")):
+        if not b:
+            continue
+        pair = {int(g["k"]): (str(g["qb"]["id"]), str(g["pc"]["id"])) for g in b.get("games") or [] if g.get("pc")}
+        for f in b.get("forced") or []:
+            out[frozenset(str(i) for i in f["row"])] = pair[int(f["k"])]
+    return out
+
+
+def top_game_violations(ids, forced: dict) -> list[str]:
+    """Study 73: a row whose identity is a forced row must hold its game's QB and pass catcher (the floor's output);
+    every other row: nothing (a vet replacement is never bound)."""
+    have = {str(i) for i in ids}
+    pair = forced.get(frozenset(have))
+    if not pair:
+        return []
+    miss = [x for x in pair if x not in have]
+    return [f"top-game pair missing: {', '.join(miss)} (the forced pair {pair[0]} + {pair[1]})"] if miss else []
+
+
 def shape_violations(ids, cell: str | None, pos: dict, team: dict, opp: dict, game: dict, *,
                      top_wr: dict | None = None, top_wr_cells=()) -> list[str]:
     """What a roster breaks of its cell's shape (cell None = the house shape, A1's rules). Empty list = conforms.

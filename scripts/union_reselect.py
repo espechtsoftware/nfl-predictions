@@ -67,6 +67,8 @@ from nfl_dfs.inference.mix_shapes import (RS_BOOK_ROWS as MS_RS_BOOK_ROWS, RS_TI
                                          tier_bans as ms_tier_bans)
 from nfl_dfs.inference.mix_shapes import (TOP_WR_RULE_CELLS as MS_TOP_WR_RULE_CELLS, top_receivers as ms_top_receivers,  # noqa: E402
                                          bring_back_top_wr_rule as ms_bb_rule, rule_applies as ms_rule_applies)
+from nfl_dfs.inference.mix_shapes import (TOP_GAME_CELLS as MS_TOP_GAME_CELLS, top_game_pairs as ms_top_game_pairs,  # noqa: E402
+                                         top_game_qb1_rows as ms_tg_rows, top_game_violations as ms_tg_violations)
 from nfl_dfs.inference.mix_shapes import (MIX_CELLS, PORTFOLIOS, TAG_PREFIX, allocate as mix_allocate, interleave as mix_interleave,  # noqa: E402
                                            plan_weights as mix_weights, shape_violations, cell_of_tag)
 
@@ -493,7 +495,8 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
              term_bonus: dict[str, float] | None = None,
              cell_quotas: dict[str, float] | None = None,
              bring_back_top_wr: tuple[str, ...] = (),
-             bring_back_top_wr_rows: int | None = None) -> tuple[list[list[str]], list[str], dict, list[tuple[list[str], str]]]:
+             bring_back_top_wr_rows: int | None = None,
+             top_game_qb1: int = 0) -> tuple[list[list[str]], list[str], dict, list[tuple[list[str], str]]]:
     """study 18's MIX book on the T-70 frame: cells solved largest first (ties: the earlier cell) through ONE shared state
     (banned lineups, the per-player exposure cap, the DST cap, <= max_shared with every earlier row); a cell row that cannot
     be solved passes to A1 (counted); then the rows are ordered by the entry-weighted interleave of the plan's weights.
@@ -533,7 +536,15 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
     objective; then the term block (n rows), round-robin on the quotas at its size, on projection + term_bonus (points per
     frame id, already capped by the caller); positions mix_shapes.block_positions(k, n) (the term block takes the first
     list); each block interleaved on the head weights of ITS positions; the spares after the book on the plain objective.
-    Needs the MIX portfolio, the round-robin fill, no cover, no half-and-half and no whole-book ownership term."""
+    Needs the MIX portfolio, the round-robin fill, no cover, no half-and-half and no whole-book ownership term.
+    top_game_qb1 G (study 73; the operator 10-08 "for each of the five highest projected games ... requiring the quarterback
+    and his top pass catcher"; 84's rule, production's agreed format; default 0 = off, byte for byte today's book): the
+    first G BOOK solves (j = len(prev) < k) of the QB+1 cells (B, C), in build order, each carry the next game's pair
+    {(QB_k, PC_k): 1.0} through the pinned optimize()'s interaction floor 1 (mix_shapes.top_game_pairs: the pool QBs'
+    games by game_total, the higher-implied-total side's QB, his highest-projected WR / TE on the pool's proj -- the
+    projection the union solves on, the term never included). An infeasible floored solve is re-solved plain, recorded,
+    and its game DROPPED; the next B / C solve takes the next game; spares never. Needs the MIX portfolio, fill rr, no
+    cover, no half-and-half and no bring_back_top_wr (the one interaction floor)."""
     from nfl2.core.lineup import StackRules, optimize          # the pinned lab clone on PYTHONPATH (>= f69598b)
     pool = [p for i, p in frame_players(t70).items() if i not in exclude]
     objective = "proj"
@@ -588,6 +599,35 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
         bb_pairs = {(p["id"], bb_top[str(p["opp"])]): 1.0 for p in pool if p["pos"] == "QB" and str(p["opp"]) in bb_top}
     name_of_id = {p["id"]: p.get("name") for p in pool}
 
+    # study 73 (default 0 = off: tg_games stays empty and every solve below is byte for byte as before)
+    tg_games: list[dict] = []
+    tg_pairs: list[dict] = []
+    tg_state: dict = {"next": 0, "pending": None, "forced": [], "dropped": []}
+    if top_game_qb1:
+        if (portfolio != "mix" or fill != "rr" or cover_games or rs_rows or bb_cells or int(top_game_qb1) != top_game_qb1
+                or top_game_qb1 < 1):
+            raise ValueError(f"top_game_qb1 {top_game_qb1} needs an integer >= 1, the MIX portfolio, fill rr, no cover, no "
+                             f"half-and-half and no bring_back_top_wr (got portfolio {portfolio}, fill {fill}, cover "
+                             f"{cover_games}, rs {rs_rows}, bring_back_top_wr {list(bb_cells)})")
+        for col in ("game_total", "implied_team_total"):
+            if col not in t70.columns:
+                raise SystemExit(f"TOP-GAME QB1 REFUSED: the T-70 frame has no {col}")
+        qb_games = {str(p["game_id"]) for p in pool if p["pos"] == "QB"}
+        pr = t70[t70.id.astype(str).isin({p["id"] for p in pool})]          # the pool's rows (the harness's fr_pool)
+        gt = pr[pr.game_id.astype(str).isin(qb_games)]
+        tg_totals: dict[str, float] = {}
+        for gm, s in pd.to_numeric(gt.game_total, errors="coerce").groupby(gt.game_id.astype(str)):
+            vals = sorted(set(s.dropna().round(6)))
+            if len(vals) != 1:
+                raise SystemExit(f"TOP-GAME QB1 REFUSED: game {gm} has game_total {vals if vals else 'missing'}")
+            tg_totals[gm] = float(vals[0])
+        tg_itt = pd.to_numeric(pr.implied_team_total, errors="coerce").groupby(pr.team.astype(str)).median().to_dict()
+        try:
+            tg_games = ms_top_game_pairs(pool, tg_totals, tg_itt, int(top_game_qb1))
+        except ValueError as exc:
+            raise SystemExit(f"TOP-GAME QB1 REFUSED: {exc}") from None
+        tg_pairs = [gm for gm in tg_games if gm["pair"] is not None]       # a game without a pass catcher never takes a solve
+
     def floor_open() -> bool:
         """Study 71b, 84's definition exactly (nfl2 experiments/s71b_topbb_n.py, TopBBNBuilder.solve_with @ c2f5638): the
         floor goes on a designated solve only while j < k AND fewer than N rows have been committed under it, where j =
@@ -614,7 +654,19 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
         kw = dict(stack=StackRules(**rules), objective_col=use_obj, banned_lineups=prev, max_overlap=max_shared,
                   bans=bans or None, env=env, second_game_pair=games if which == "all" else None, qb_game_max=qmax)
         fb = None
-        if name in bb_cells and floor_open():
+        if tg_pairs and name in MS_TOP_GAME_CELLS and len(prev) < k and tg_state["next"] < len(tg_pairs):
+            gm = tg_pairs[tg_state["next"]]; tg_state["next"] += 1       # study 73: this solve takes the next pair, feasible or not
+            reason = None
+            lu = optimize(use_pool, interaction_floor_weights={gm["pair"]: 1.0}, interaction_floor=1.0, **kw)
+            if lu is None:
+                reason = "infeasible with the floor"
+                lu = optimize(use_pool, **kw)
+            tg_state["pending"] = (gm, name, reason)
+            if lu is None:                                     # the plain solve failed too: the drop is recorded with no row
+                tg_state["dropped"].append({"k": gm["k"], "game_id": gm["game_id"], "cell": name, "commit_index": len(prev),
+                                            "reason": f"{reason}; the plain solve failed too"})
+                tg_state["pending"] = None
+        elif name in bb_cells and floor_open():
             lu = optimize(use_pool, interaction_floor_weights=bb_pairs, interaction_floor=1.0, **kw) if bb_pairs else None
             if lu is None:
                 fb = "infeasible with the floor" if bb_pairs else "no pairs"
@@ -650,6 +702,17 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
                 bb_state["fallbacks"].append({"cell": cell, "commit_index": len(prev) - 1, "kind": bb_state["phase"],
                                               "qb": name_of_id.get(q), "reason": fb, "row": row,
                                               "row_sha256": hashlib.sha256(",".join(row).encode()).hexdigest()})
+        if tg_state["pending"] is not None:                    # study 73's record (nothing when off)
+            gm, pcell, reason = tg_state["pending"]; tg_state["pending"] = None
+            if pcell != cell:
+                raise RuntimeError(f"study 73: a {pcell} solve committed as {cell}")
+            row = sorted(str(i) for i in ids)
+            rec = {"k": gm["k"], "game_id": gm["game_id"], "cell": cell, "commit_index": len(prev) - 1, "row": row,
+                   "row_sha256": hashlib.sha256(",".join(row).encode()).hexdigest()}
+            if reason is None:
+                tg_state["forced"].append(rec)
+            else:
+                tg_state["dropped"].append({**rec, "reason": reason})
         return ids
 
     def solve(name: str, extra_bans: frozenset = frozenset(), use_term: bool = False):
@@ -880,6 +943,26 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
         if bb_cap is not None:                                 # study 71b's delta (absent without a cap)
             meta["bring_back_top_wr"].update({"rows_cap": int(bb_cap), "floored_rows": bb_state["floored_rows"],
                                               "designated_unfloored": int(bb_state["designated_unfloored"])})
+    if top_game_qb1:                                           # study 73's receipt block (absent when off)
+        dealt = {frozenset(str(i) for i in r): q for q, r in enumerate(book)}
+        meta["top_game_qb1"] = {
+            "g": int(top_game_qb1), "cells": list(MS_TOP_GAME_CELLS),
+            "rule": ("the first BOOK solves (j < K) of the QB+1 cells in build order each take the next pair "
+                     "{(QB, PC): 1.0} as the interaction floor 1 (infeasible: re-solved plain, recorded, its game dropped); "
+                     "games: the pool QBs' games by game_total desc, ties game_id asc, the top G; the side by (-team implied "
+                     "total, -its top QB proj, team), its QB by (-proj, id); PC: the team's pool WR / TE by (-proj, -salary, "
+                     "id); a game without a PC is skipped (no backfill); proj = the union's projection after --proj-source, "
+                     "the term never included; spares never (nfl2 s73_topg_qb1.py @ b402cdd)"),
+            "games": [{"k": gm["k"], "game_id": gm["game_id"], "game_total": gm["game_total"],
+                       "qb": {"id": str(gm["qb"]["id"]), "name": gm["qb"].get("name"), "team": str(gm["qb"]["team"]),
+                              "implied_team_total": gm["itt"], "proj": round(float(gm["qb"]["proj"]), 4)},
+                       "skipped": gm["pc"] is None,
+                       "pc": None if gm["pc"] is None else {
+                           "id": str(gm["pc"]["id"]), "name": gm["pc"].get("name"), "pos": str(gm["pc"]["pos"]),
+                           "proj": round(float(gm["pc"]["proj"]), 4), "salary": int(gm["pc"].get("salary") or 0)}}
+                      for gm in tg_games],
+            "forced": [{**f, "dealt_index": dealt.get(frozenset(f["row"]))} for f in tg_state["forced"]],
+            "dropped": tg_state["dropped"]}
     return book, cell_of, meta, spare_rows
 
 
@@ -1067,6 +1150,39 @@ def bring_back_top_wr_line(block: dict | None) -> str:
     return line
 
 
+def parse_top_game_qb1(g: int, main: str, portfolio: str | None, fill: str, cover: int, rs: int, bb_cells: tuple) -> int:
+    """--mix-top-game-qb1 (study 73): 0 = off; else an integer >= 1 with --main mix --mix-portfolio mix --mix-fill rr, no
+    --mix-cover-games, no --mix-rs-rows and no --mix-bring-back-top-wr (the one interaction floor). SystemExit otherwise."""
+    if not g:
+        return 0
+    if g < 1 or main != "mix" or portfolio != "mix" or fill != "rr" or cover or rs or bb_cells:
+        raise SystemExit(f"--mix-top-game-qb1 {g}: an integer >= 1, with --main mix --mix-portfolio mix --mix-fill rr, and "
+                         f"without --mix-cover-games / --mix-rs-rows / --mix-bring-back-top-wr (study 73; got main {main}, "
+                         f"portfolio {portfolio}, fill {fill}, cover {cover}, rs {rs}, bring-back {list(bb_cells)})")
+    return int(g)
+
+
+def top_game_qb1_line(block: dict | None) -> str:
+    """Study 73's printed line, one line per game, and a CAPITALS banner line when any game was dropped."""
+    b = block or {}
+    fo, dr = b.get("forced") or [], b.get("dropped") or []
+    used = sorted([f["commit_index"] for f in fo] + [d["commit_index"] for d in dr])
+    sk = [g for g in b.get("games") or [] if g.get("skipped")]
+    line = (f"TOP-GAME QB1 (study 73): G {b.get('g')}; {len(fo)} forced on the first {len(fo) + len(dr)} B/C book solves "
+            f"(build {', '.join(str(j) for j in used)} -> dealt {', '.join(str(f.get('dealt_index')) for f in fo)}); "
+            f"{len(dr)} dropped; {len(sk)} skipped (no pass catcher)")
+    by_k = {f["k"]: f for f in fo}
+    for g in b.get("games") or []:
+        f = by_k.get(g["k"])
+        pc = (g.get("pc") or {}).get("name") or "no pass catcher"
+        where = f"{f['cell']}, dealt {f.get('dealt_index')}" if f else ("SKIPPED" if g.get("skipped") else "DROPPED")
+        line += f"\n   g{g['k']} {g['game_id']} total {g['game_total']:g}: {g['qb'].get('name')} + {pc} ({where})"
+    if dr:
+        line += (f"\n!!! {len(dr)} STUDY-73 GAME(S) DROPPED: "
+                 + "; ".join(f"g{d['k']} {d['game_id']} ({d['reason']})" for d in dr) + " (the receipt's top_game_qb1.dropped)")
+    return line
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--saturday-run", required=True, help="a run dir, or 'auto' (newest --saturday-dose run in --live-dir built before the T-70 run)")
@@ -1130,6 +1246,10 @@ def main(argv: list[str] | None = None) -> int:
                     help="study 71 (default empty = off): a comma list of MIX cells from A1,B whose rows hold the QB's opponent's "
                          "top receiver (the highest-salaried WR in the buildable pool; ties projection, then id) through the "
                          "optimizer's interaction floor; a solve the floor makes infeasible is built without it and recorded")
+    ap.add_argument("--mix-top-game-qb1", type=int, default=0,
+                    help="study 73 (default 0 = off): the first G BOOK solves of the QB+1 cells (B, C) in build order each "
+                         "carry one top-G game's (QB, top pass catcher) pair through the interaction floor; an infeasible one "
+                         "is built plain and its game dropped; spares never")
     ap.add_argument("--mix-bring-back-top-wr-rows", type=int, default=None,
                     help="study 71b (default unset = every designated solve): the floor goes on designated solves only while "
                          "fewer than N BOOK rows (row index < the book's K) have been committed under it; spares never; an "
@@ -1233,6 +1353,7 @@ def main(argv: list[str] | None = None) -> int:
         raise SystemExit("--mix-cover-games N (1..8) needs --main mix with --mix-portfolio mix (study 43)")
     bb_cells = parse_bring_back_top_wr(a.mix_bring_back_top_wr, a.main, a.mix_portfolio)
     bb_rows = parse_bring_back_top_wr_rows(a.mix_bring_back_top_wr_rows, bb_cells)
+    tg_g = parse_top_game_qb1(a.mix_top_game_qb1, a.main, a.mix_portfolio, a.mix_fill, a.mix_cover_games, a.mix_rs_rows, bb_cells)
     if a.main == "mix" and (a.mix_plan is None or not a.mix_plan.is_file()):
         raise SystemExit(f"--main mix needs --mix-plan (the week's contests.json; got {a.mix_plan})")
     if a.main == "mix" and a.mix_portfolio is None:
@@ -1381,9 +1502,11 @@ def main(argv: list[str] | None = None) -> int:
                                                                        spares=0 if bonus else a.mix_spares,
                                                                        term_rows=term_rows, term_bonus=term_bonus,
                                                                        cell_quotas=cell_quotas, bring_back_top_wr=bb_cells,
-                                                                       bring_back_top_wr_rows=bb_rows)
+                                                                       bring_back_top_wr_rows=bb_rows, top_game_qb1=tg_g)
             if bb_cells:
                 print(bring_back_top_wr_line(mix_meta.get("bring_back_top_wr")), flush=True)
+            if tg_g:
+                print(top_game_qb1_line(mix_meta.get("top_game_qb1")), flush=True)
             if a.term_block_rows:
                 mix_meta["term_source"] = term_src
             spare_rows = plain_spares
@@ -1424,10 +1547,12 @@ def main(argv: list[str] | None = None) -> int:
                                                                       portfolio=a.mix_portfolio, spares=a.mix_spares, fill=a.mix_fill,
                                                                       cover_games=a.mix_cover_games, rs_rows=a.mix_rs_rows,
                                                                       cell_quotas=cell_quotas, bring_back_top_wr=bb_cells,
-                                                                      bring_back_top_wr_rows=bb_rows)
+                                                                      bring_back_top_wr_rows=bb_rows, top_game_qb1=tg_g)
                 main_tags = [TAG_PREFIX + c for c in main_cells]; mix_meta["with_term"] = own_mix
                 if bb_cells:
                     print("(the ownership-term book) " + bring_back_top_wr_line(own_mix.get("bring_back_top_wr")), flush=True)
+                if tg_g:
+                    print("(the ownership-term book) " + top_game_qb1_line(own_mix.get("top_game_qb1")), flush=True)
             else:
                 main_rows = pmo_rows(fr, excl, a.entries, a.mean_max_shared, cap, a.min_salary, set(), exposure_cap=xcap, dst_cap=dcap, qb_cap=qcap, bonus=bonus,
                                      game_caps=gcaps)
@@ -1466,9 +1591,11 @@ def main(argv: list[str] | None = None) -> int:
             _ss = dict(zip(fr.id.astype(str), pd.to_numeric(fr.salary, errors="coerce").fillna(0).astype(int)))
             dropped = []
             _bt, _bc, _bx, _bq = ms_bb_rule({"config": {"union": {"mix": {"mix": mix_meta}}}})   # study 71 (off: {}, (), set(), None)
+            _tg = ms_tg_rows({"config": {"union": {"mix": {"mix": mix_meta}}}})                 # study 73 (off: {}; spares never forced)
             for ids, cell in spare_rows:
                 v = list(validate_roster(ids, pos, _st, _so, _ss)) + list(_spare_v(ids, cell, pos, _st, _so, _sg, top_wr=_bt,
                                                                                   top_wr_cells=_bc if ms_rule_applies(ids, _bx, _bq) else ()))
+                v += ms_tg_violations(ids, _tg)
                 if v or sum(_ss[p] for p in ids) < a.min_salary:
                     dropped.append({"cell": cell, "problems": v or ["salary floor"]})
                     continue
@@ -1551,6 +1678,7 @@ def main(argv: list[str] | None = None) -> int:
     _sal = dict(zip(ids_, pd.to_numeric(fr.salary, errors="coerce").fillna(0).astype(int)))
     contract = {"dk_contract": "dk_classic_v1", "strategy_contract": "house_qb2_bb1_floor49_v1", "dk_violations": 0, "strategy_violations": 0}
     _bt, _bc, _bx, _bq = ms_bb_rule({"config": {"union": {"mix": {"mix": mix_meta}}}})       # study 71 (off: {}, (), set(), None)
+    _tg = ms_tg_rows({"config": {"union": {"mix": {"mix": mix_meta}}}})                     # study 73 (off: {})
     if a.main == "mix":
         contract["strategy_contract"] = "mix_cells_s18_v1 (house for untagged rows); floor49"
         _game = dict(zip(ids_, fr.game_id.astype(str)))
@@ -1561,6 +1689,7 @@ def main(argv: list[str] | None = None) -> int:
         if a.main == "mix" and cell_of_tag(tags[i]) is not None:
             v_cell = shape_violations(rosters[i], cell_of_tag(tags[i]), pos, _team, _opp, _game, top_wr=_bt,
                                       top_wr_cells=_bc if ms_rule_applies(rosters[i], _bx, _bq) else ())
+            v_cell += ms_tg_violations(rosters[i], _tg)
             if v_cell:                                     # the solver produced a row its own cell forbids: fail closed
                 raise SystemExit(f"MIX MAIN REFUSED: row {rosters[i]} ({tags[i]}) breaks its cell: {v_cell}")
             if sum(_sal[p] for p in rosters[i]) < a.min_salary:

@@ -1,0 +1,34 @@
+# Study 73 production flag (--mix-top-game-qb1 G): Week-4 validation on the real inputs (written 2026-10-08 20:25 CDT); aggregates + public NFL names only
+# runs: reports/2026-10-08-s71-flag/w4_union_run.sh <checkout> <out> [--mix-top-game-qb1 G]; the W5 arming on W4 inputs
+#       (mix, rr, ms4, QB cap 5, FP, cheap +2 block on 8 rows, 15 spares)
+
+## OFF = IDENTICAL: book.csv sha256 a4ab283949254d12 = the merged flags' off book a4ab283949254d12 (b672d396 / f81b745c runs)
+
+## ON: the printed lines
+TOP-GAME QB1 (study 73): G 5; 5 forced on the first 5 B/C book solves (build 1, 2, 5, 6, 9 -> dealt 2, 3, 6, 7, 12); 0 dropped; 0 skipped (no pass catcher)
+   g1 2026_04_JAX_CIN total 51.5: Joe Burrow + Ja'Marr Chase (B, dealt 2)
+   g2 2026_04_NE_BUF total 50.5: Josh Allen + DJ Moore (C, dealt 3)
+   g3 2026_04_DAL_HOU total 48.5: C.J. Stroud + Nico Collins (B, dealt 6)
+   g4 2026_04_DEN_SF total 48.5: Brock Purdy + George Kittle (C, dealt 7)
+   g5 2026_04_KC_LV total 47.5: Patrick Mahomes + Rashee Rice (B, dealt 12)
+TOP-GAME QB1 (study 73): G 3; 3 forced on the first 3 B/C book solves (build 1, 2, 5 -> dealt 2, 3, 6); 0 dropped; 0 skipped (no pass catcher)
+book.csv sha256: G5 75759e19f7ad8b73, G3 6b802c3601c4c2a7; the union's own book check: strategy violations 0 (off, G5, G3)
+dealt indices 2, 3, 6, 7, 12 (0-based): every forced row in a big-read position (Rev6: 0-21); all five in the LIVE block (build 1, 2, 5, 6, 9 of 0-17)
+
+## W4 OUTCOMES, the Milly (contest 196151357): mechanics only, never evidence (W4 is known)
+  off: Lamb 0, Collins 2, both 0; mean projected sum 143.7
+   cash rows 8, $70+ 1, $500+ 0; best 3: 181.1 (rank ~1,893); 174.3 (rank ~3,418); 166.0 (rank ~6,318)
+  g5: Lamb 0, Collins 3, both 0; mean projected sum 143.6
+   cash rows 9, $70+ 1, $500+ 0; best 3: 178.6 (rank ~2,357); 165.0 (rank ~6,730); 151.3 (rank ~16,560)
+  g3: Lamb 0, Collins 2, both 0; mean projected sum 143.4
+   cash rows 8, $70+ 1, $500+ 0; best 3: 178.6 (rank ~2,357); 177.1 (rank ~2,667); 156.0 (rank ~12,406)
+  the forced rows (G5), real points:
+    forced g1 (B, dealt 2): 98.8 pts -- Tyler Higbee, Christian McCaffrey, Aaron Jones Sr., Joe Burrow, Ja'Marr Chase, Dontayvion Wicks, Parker Washington, Jordan Addison, Chargers
+    forced g2 (C, dealt 3): 136.5 pts -- Christian McCaffrey, Aaron Jones Sr., DJ Moore, Josh Allen, T.J. Hockenson, Dontayvion Wicks, Jordan Addison, Puka Nacua, Cardinals
+    forced g3 (B, dealt 6): 136.1 pts -- Christian McCaffrey, Aaron Jones Sr., Nico Collins, George Pickens, Isaiah Likely, Dontayvion Wicks, C.J. Stroud, Jeremiyah Love, Cardinals
+    forced g4 (C, dealt 7): 137.1 pts -- Christian McCaffrey, George Kittle, Aaron Jones Sr., Tee Higgins, Brock Purdy, Dontayvion Wicks, Chase Brown, Jordan Addison, Rams
+    forced g5 (B, dealt 12): 143.9 pts -- Aaron Jones Sr., Patrick Mahomes, T.J. Hockenson, Dontayvion Wicks, Chase Brown, Rashee Rice, Puka Nacua, Brock Bowers, Bears
+
+plain reading: the forced Stroud + Collins row (g3, cell B) took George Pickens as its Dallas bring-back, not CeeDee
+Lamb, so it scored 136.1 and missed the winning combination. One known week says nothing about the average; the
+lab's study 73 read decides.
