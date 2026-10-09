@@ -86,9 +86,28 @@ the cheap +2 block, on Rev6 (`plan-week5-rev6-s24.json` `ac10ddf6…`).
 - **BEFORE HE ACTS ON ANY ARM (the reviewer's forward rule, 10-09):** it is first re-read on a second, disjoint bank set (the same code and reader, new banks and seed), and both reads and their difference are reported before any option is built.
 
 ## 6. Smoke, census and integrity
-- Bank 1406 only, when the machine is free: the mechanics smoke, the binding census, the full-path smoke (reader exit and line
-  count only). Shas in the next commit.
-- **Code:** nfl2 `production/s87-qb-price-book-20261009` @ `20031fb6` (branched from study 86's `4fdad305`; committed before
-  86's and 85's reads, the reviewer's timing rule; not yet tested or smoked): `experiments/s87_qb_price_book.py` `85adf47b…` (at `20031fb6`, adding the concentration fields)
-  (pins s85 `4f752f8e…`, s70 `d622a211…`); `scripts/s87_report.py` `af1b84ab…` (seed 20261132); `scripts/s87_census.py`
-  `76c6cb71…`; `tests/test_s87_qb_price_book.py` `261a1ae6…`. A change after its smoke is a new commit, disclosed.
+- **The mechanics smoke** (bank 1406; Rev6; `~/s87-panel/smoke/`; 2022 W9, 2023 W3, 2024 W10; `results_bank1406.jsonl`
+  `184e900f…`):
+  - every arm is 41 rows within the overlap limit (4), with 8 term rows and every row in the pool; LIVE_CB within production's
+    caps (13 / 6, QB 5);
+  - **0 infeasible solves in every rule arm** (78 of 78 each);
+  - the pool per slate-bank (mean / min): QBs allowed (the top-4 games' pool QBs) 17.7 / 15; DSTs ≤ $3,000 12.0 / 10; TEs
+    ≤ $5,000 45.7 / 45; WRs ≤ $4,500 69.3 / 57;
+  - VACUITY over LIVE_CB's 26 rows: a QB outside the top 4 games 13.0; without his top WR 14.0; a TE > $5,000 10.0; a DST >
+    $3,000 8.0; no WR ≤ $4,500 5.7; a TE in the flex 15.7; BOOK87 breaks none;
+  - **USAGE without the caps** (the most-used QB / player / DST rows of 41): LIVE_CB 5 / 13 / 6; NOCAP 10.3 / 31.0 / 18.0; BOOK87
+    13.3 / 30.7 / 19.7; PRICE87 10.3 / 31.0 / 20.7; QBTOP87 13.7 / 30.3 / 17.7;
+  - **CONCENTRATION — FLAGGED (the reviewer's condition):** the top QB's book rows of 26 (mean / max) and his share of the
+    dealt entries (mean / max): LIVE_CB 5.0 / 5, 0.226 / 0.226; NOCAP 6.3 / 7, 0.270 / 0.283; **BOOK87 12.0 / 14, 0.465 / 0.566**;
+    PRICE87 7.3 / 9, 0.296 / 0.340; **QBTOP87 12.3 / 15, 0.503 / 0.660**. **The two QB arms put one QB on more than half the book
+    on some slate-banks** — the QB restriction leaves 5–6 distinct QBs and, without the QB cap, the best of them takes about half;
+  - projection per row (vs LIVE_CB): NOCAP +1.02; BOOK87 −0.69; PRICE87 +0.15; QBTOP87 +0.18; flex WR / TE / RB: BOOK87 14.7 /
+    0 / 11.3; QB + TE rows 15.0 → 3.7 (BOOK87).
+- **The full-path smoke** (2024 W10, 2022 W6 scored on bank 1406): the reader exited 0 with 98 lines and 8 sections; only those
+  were read.
+- **The binding (support) census:** the reviewer's, on all 53 slate-banks of bank 1406, before the freeze.
+- **Code:** nfl2 `production/s87-qb-price-book-20261009` @ `01869883` (the module, reader and tests at `20031fb6`, committed
+  before studies 85's and 86's READS; `01869883` changes ONLY the census's printed title, "STUDY 85" → "STUDY 87", a copy
+  leftover found in the smoke): `experiments/s87_qb_price_book.py` `85adf47b…` (pins s85 `4f752f8e…`, s70 `d622a211…`);
+  `scripts/s87_drive.py` `5074b49f…`; `scripts/s87_census.py` `9bd3f5b2…`; **`scripts/s87_report.py` (the reader) `af1b84ab…`**
+  (seed 20261132); `tests/test_s87_qb_price_book.py` `261a1ae6…` (11 tests).
