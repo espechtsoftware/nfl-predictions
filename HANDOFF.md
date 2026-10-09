@@ -12,6 +12,40 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (16:57 CDT) — OPERATOR: item 5 sooner ("yes"): the dupe check now, study 94 built tonight; study 38 6s acked and merged
+
+**His decision, made in the outside reviewer's session and relayed verbatim.**
+- He asked why item 5 of "let's try each that you suggested" was "next week". The outside reviewer explained:
+  - study 94 (an RB as a stack mate, a DST with its own RB) needs a stack-definition change, so it comes after 93;
+  - dupe-aware dealing changes the money path (the dealing), and only real fields can test it.
+- The outside reviewer offered two things:
+  - a quick descriptive check first: in his W1–4 real satellite fields, how often our lineups had exact copies, and whether a
+    tie ever touched a paid or seat place;
+  - building study 94 tonight, after 93.
+- His answer: "yes".
+- **So:**
+  - (a) the dupe check runs now. It is read-only and light, on the money gate's W1–4 fields; private rows stay in ~/private.
+  - (b) study 94's code is built tonight; its smoke runs after 93's run.
+  - No live change.
+
+**Study 38 amendment 6s (item 1, his FP low-ownership limit on paper) is acked and merged.**
+- Merge `fdc55299` (prereg 51440cdb). Lab 64d330d5, module 29f8c095.
+- The arms: MIXT_QA0_LOW5 / LOW8 (te1 + at most one skill player under 5% / 8% FP ownership), falling back to the live rules
+  before none.
+- 47 tests passed against f5f96468.
+- The smoke (run.log 51879600): the 28 pre-6s arms are identical to 6r. LOW5 changes 8 of 26 rows; LOW8 changes 17, with 4
+  of 26 solves falling back to the live rules.
+- The gate now pins 29f8c095d4704538162d160d8d514d8c9ac4d0e7528c6148b9edae5ea81ace5a, with s38-prod-pin at FRIDAY_HEAD
+  f5f96468.
+
+**Study 93 (items 2–4)** is in its binding census; the reviewer runs it, the outside reviewer drafted it.
+- Banks 3024–3035, seed 20261138. Clean on the laptop's full-set seed check; the repo text scans are running.
+- Tests: 8 passed.
+- The laptop's outcome-blind W4 check on the armed book: all three rules bind.
+  - QBALONE3: 3 of the 7 C rows.
+  - ONECATCH: 5 of the 14 B/C rows hold a same-team pair away from the QB.
+  - WRFLEX8: an RB flex in 7 of the first 8 rows.
+
 ## 2026-10-09 (16:54 CDT) — OPERATOR: the shape comparison adds leave-one-out arms, after the other tests
 
 His words, in the laptop's session: "I like what you suggesated for removing one at a time when we do the comparison of the
