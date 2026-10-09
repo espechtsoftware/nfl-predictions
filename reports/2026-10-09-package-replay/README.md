@@ -55,3 +55,27 @@ is why the entered book's pooled return (0.27) is above the rebuilt arms'.
   finishes of the 50% book, three times the cashes, and three times the return. The package alone sat in between.
 - **Week 3 is a wash** (all three within 3 percentile points), on approximate inputs.
 - **No big win in any version.** Two weeks, partly in-sample: this is a consistency check, not proof.
+
+## Addendum (15:40): S1 (projection shrink) and S2 (one $8,000+ star per lineup) on top of the armed version
+
+**His 10-09 decision** (relayed): "Test both tonight for live".
+- **S2's gate is this replay:** a higher mean finish over all his Week-4 contests AND no fewer cashes than the armed version.
+- **S1's gate is study 92** (the harness); this replay is information for it.
+
+The arms were built with the outside reviewer's flags (`review/shrink-star-flags-20261009` @ `b4934067`) from a local merge with
+integration. The summary is in `replay_s12_summary.json`. It is the same in-sample caution as above.
+
+| Week 4, all his contests | Mean finish pct | Top-1% | Top-10% | Cashes | Big wins | Return (× fees) |
+|---|---|---|---|---|---|---|
+| Armed (package + TE / low rules) | 58.7 | 3 | 20 | 6 | 0 | 0.52 |
+| + S1 | 60.0 | 14 | 28 | 15 | 1 | 3.63 |
+| + S2 | 50.4 | 0 | 13 | 2 | 0 | 0.17 |
+| + S1 + S2 | 59.4 | 3 | 26 | 9 | 0 | 0.78 |
+
+Week 3 (approximate inputs), mean finish / top-10% / cashes: armed 41.4 / 7 / 0; + S1 39.1 / 13 / 5; + S2 45.3 / 6 / 1;
++ both 44.9 / 13 / 6.
+
+- **S2 fails its gate** (50.4 < 58.7; 2 cashes < 6): **paper only**. On Week 4 only four non-QB players cost $8,000+, so the
+  rule forced one of the four into every lineup.
+- **S1 waits for study 92.** Its Week-4 lift is large but in-sample, and its return rests on one big win.
+- **The lever audit** passes every check on an S1 build (the shrink leaves the frame's projections untouched).

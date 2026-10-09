@@ -12,6 +12,67 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (16:34 CDT) — laptop: the 16:33 FP ownership capture (1,147 rows / 612 players) and the evening arm --check pass
+
+- **FP projected ownership, W5** (production checkout `7dc00df1`, collector `ced05f9f`): rc 0.
+  nfl_raw.fantasy_points_projected_ownership now holds two captures: retrieved 17:42:09Z (1,147 rows, 612 players) and
+  21:33:07Z (1,147 rows, 612 players).
+- **The evening `--check`** (a scratch copy with TERM_ROWS=8 / TERM_SHA `5941678b…`; ARM_LATE=1 because of the time guard):
+  - step 0 OK (checkout clean, Rev6, class model `92cec733`, K 26, mixt, Neo4j off);
+  - the term file OK (294 of 565 players, cap 2);
+  - the dose line: **player cap 0.35; ownership cap 15; row rules te1_low1**; QB cap 5 at K 26; overlap 4; fill rr;
+  - 11 units planned; "CHECK DONE (nothing armed)", rc 0.
+  - Saturday arms before 10:28 without ARM_LATE: 13 units.
+
+## 2026-10-09 (16:20 CDT) — OPERATOR (relayed): "keep 15 as you suggest" (after study 90)
+
+After study 90's read (+10 vs +15: +0.8 pooled, A +0.9, B +0.6, seats 0.973; the second read of +15 vs the 50% book +0.3),
+the outside reviewer recommended keeping +15: a tie within the noise, 0.9 FP per row more cost on his W4 book, and one more
+change in a crowded week. **His answer, verbatim: "keep 15 as you suggest".**
+- UNION_MAIN_OWN_CAP_DELTA stays 15; nothing changes in the arm.
+- He asked why +10 rose on P(≥ 1 big) while the expected big seats fell; the outside reviewer explained that spreading the
+  book trades multi-win slates for more slates with at least one.
+
+## 2026-10-09 (16:02 CDT) — laptop: the Friday arm --check passes with the package + row rules; study 92 GO (running)
+
+- **The arm `--check`** (a scratch copy of `scripts/arm_week5_saturday.sh` with Saturday's TERM_ROWS=8 / TERM_SHA `5941678b…`;
+  the tracked arm untouched):
+  - step 0 OK: checkout clean, Rev6, class model `92cec733`, K 26, shape mixt, Neo4j not running;
+  - the term file is checked (294 of 565 players carry the bonus, cap 2);
+  - the dose line: QB cap 5 at K 26; overlap 4; **player cap 0.35; ownership cap 15; row rules te1_low1**; fill rr;
+  - "CHECK DONE (nothing armed): shape mixt, pin f69598b, 11 units", rc 0.
+- **The time guard:** the plain --check stops after 10:28 ("the 10:30 Saturday D12800 would be in the past"); it is a
+  Saturday-morning check. The Friday dry run used ARM_LATE=1 (11 units). **Saturday arms before 10:28 without ARM_LATE:**
+  13 units, the Saturday supply included.
+- **Saturday's arm-only commit:** TERM_ROWS=8 + TERM_SHA (and SHRINK_K=0.7 only if study 92 passes, with FRIDAY_HEAD moved
+  onto its merge).
+- **Study 92:** frozen 15:57 (prereg `b1373c92`); the laptop's ack + census re-run (PYTHONHASHSEED=0) identical, 7 tests
+  passed; S92 GO; the run is in progress (ETA about 16:45).
+- **The machine was idle about 10 minutes (15:47–15:57):** the laptop's 92 bank scan ran as a shell `&` job and no one was
+  notified when it finished; the reviewer's freeze waited on its tally. The lesson is in memory: scans run with
+  run_in_background.
+
+## 2026-10-09 (15:43 CDT) — laptop: S2 FAILS its gate (paper only); S1 waits for study 92; study 90 merged; S1/S2 code ready
+
+- **Study 90** (reproduced byte-identically; records merged `12932014`, Addendum 189): +10 not better than +15; the armed
+  package reads level with the 50% book on a second read (+0.3, against 89's +1.2). Keep +15; nothing for W6.
+- **The W4 real-book checks against the armed book** (`~/rehearsals/flagcheck-armed{S1,S2,S1S2}-20261009T2036*`):
+  - S1: −0.14 FP per row, 21 of 26 rows change;
+  - S2: −0.27, 26 rows; stars per row 0.77 → 1.04; only 4 pool stars on W4;
+  - both: −0.59.
+- **The replay** (`reports/2026-10-09-package-replay/`), all W4 contests:
+  - armed 58.7 pct / 6 cashes / 0.52×;
+  - +S1 60.0 / 15 / 3.63× (one big win);
+  - +S2 50.4 / 2 / 0.17×;
+  - +both 59.4 / 9 / 0.78×.
+  - **S2 FAILS his gate:** a lower finish and fewer cashes, so PAPER ONLY. S1's gate is study 92.
+- **The lever audit** passes every check on an S1 union dir (fade_effect OK).
+- **Ready to merge if S1 passes study 92:** the flags `review/shrink-star-flags-20261009` @ `b4934067` (approved) and the
+  wiring `production/s1s2-wiring-20261009` @ `32add6b8` (approved; S1 / S2 only with the armed version). The arm would set
+  SHRINK_K=0.7 (MIN_STAR stays empty), with FRIDAY_HEAD moved. **If S1 fails:** nothing merges.
+- **Study 92** (the reviewer): banks 3012–3023, seed 20261137, full-set clean; binding census next, then freeze, the laptop's
+  ack, the run.
+
 ## 2026-10-09 (15:03 CDT) — OPERATOR (relayed): "Test both tonight for live" -- S1 (shrink projections toward salary, k 0.7) and S2 (one $8,000+ star per lineup)
 
 **The context:** he asked the outside reviewer to read `briefings/2026-week-05/2026-10-09-lineup-construction-suggestions.md`
