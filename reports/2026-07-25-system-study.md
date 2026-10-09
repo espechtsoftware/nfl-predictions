@@ -9399,3 +9399,158 @@ secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; th
     in production `review/combo-te-flag-20261009` @ `12709d18` (committed 05:45:20, on origin). The laptop verified the
     identical text in the committed module.
   - After 06:02 only the unit tests, the smoke and the commit ran.
+
+## Addendum 183 (2026-10-09): study 85 (his whole-book price rules -- TE ≤ $5,000, DST ≤ $3,000, exactly one WR ≤ $4,500, no TE in the flex -- in the harness; information for his decision): BOOK85 −3.1 with expected big seats ×0.77, below his tolerance; each rule alone within noise
+
+**Setup.**
+- **His request** (recorded verbatim, HANDOFF `fb4e32da`; clarifications `c24dd84a`): "As an experiment lets try an entire
+  book like this: TE <= 5000 / D <= 3000 / 1 WR <= 4500 / WR or RB in Flex". Exactly one WR ≤ $4,500. "Let me decide": no
+  automatic Week-5 rule.
+- **The arms.** Built on study 48's harness (LIVE = 48d's 41 rows with the cheap +2 block; Rev6 `ac10ddf6`). Every book
+  solve carries the arm's rules as one solve: bans, plus the lab optimizer's set_constraints. Infeasible → the cell's own
+  rules, recorded.
+  - LIVE_CB (the reference).
+  - BOOK85: all four rules on every book row.
+  - Each alone: TE5000 (TEs > $5,000 banned; one at exactly $5,000 is allowed by his wording, unlike studies 81 / 84),
+    DST3000, WR1CHEAP (exactly one WR ≤ $4,500), FLEXNOTE (at most one TE).
+  - His rule printed for reference only.
+- **Preregistration:** `reports/2026-10-09-prereg-study85-price-book.md` (the design `159907fc`, committed before study 84's
+  READ; FROZEN `f13aa41f`, 10-09 07:18 CDT, before any scored bank).
+- **Disclosed (code timing):** the lab code `658dd352` was committed at 07:11:31, after study 84's READ (07:06:58). The five
+  files' last writes were 06:26–06:27 (the outside reviewer's worktree mtimes); after 07:06 only the unit tests, the smoke
+  and the commit ran. There is no earlier production pin for 85, so the mtimes are the evidence. The code implements the
+  frozen §2 rules mechanically.
+- **Panel:** banks 1719–1724, B 20,000, seed 20261130 (scanned clean).
+- **Read:** the reader `865c4f1e`; READ `eb0fbdd3` (lab `80248ad9`). The confirmatory census (`be0c68ac`, with the raw
+  files' shas) was committed before the READ. Studies 86's and 87's code (nfl2 `4fdad305`, `20031fb6`) was on origin before
+  this READ ran.
+- **Reproduced byte-identically by the laptop** at `80248ad9`: the raw files 1719–1724 pass `sha256sum -c` against
+  `RAW_s85_run.sha256`; the READ is `eb0fbdd3` and the confirmatory census `b1478a0a` (cmp-identical).
+- **Census:**
+  - 0 infeasible in every arm; BOOK85 meets all four rules on every row (flex WR 15.1 / TE 0 / RB 10.9);
+  - projection −0.80 per row; rows shared with LIVE_CB under 1 of 26;
+  - his real W4 book breaks the rules in 11 / 7 / 12 / 14 rows, with all four met by 5 of 26. The two bans alone cost −0.73
+    FP per row there (the laptop's check).
+
+**Reader output (verbatim):**
+```
+STUDY 85 READER  sha256 865c4f1ef60015673c262e06c3cc214ee355cdd6968f200cf47d56b1c1615095
+DIRECTION: P(>= 1 big seat) per slate (the mean over its banks); every difference is ARM - LIVE_CB; POSITIVE favours the arm.
+slates 36 (the 2023-24 read) + 17 (the 2022 go / no-go)  banks [1719, 1720, 1721, 1722, 1723, 1724]  B 20000  seed 20261130  five arms read for his decision, against LIVE_CB on the CALIBRATED field (v2), each two-sided 0.95; guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only; 2022: the point estimate (two-sided 0.95 interval); study 51's trial rule per arm
+arms (definitions, the price rules' constants, study 84's and study 73's shas, live settings, QB cap, objective): [["LIVE_CB", "BOOK85", "TE5000", "DST3000", "WR1CHEAP", "FLEXNOTE"], {"block": {"cap": 2.0, "min_coverage": 0.5, "n_term": 8, "tilt": 0.2}, "prices": {"dst_max": 3000.0, "te_max": 5000.0, "wr_cheap": 4500.0}, "rows": "every book solve in build order (any cell): the bans and set_constraints of its rules, one solve; infeasible -> the cell's own rules, no ban, no constraint, recorded", "rulesets": {"BOOK85": ["te", "dst", "wr1", "flex"], "DST3000": ["dst"], "FLEXNOTE": ["flex"], "TE5000": ["te"], "WR1CHEAP": ["wr1"]}}, "4020132816823a2cc692fa6512cfb8c99b838274ca054095cf21f169ca757219", "3f76c6295d8666cf4f256a103c7ba3fe428630d6149c7a6009648487900d806d", {"fill": "rr", "max_shared": 4}, 5, "player_mean (+ the cheap block term)"]
+
+== BOOK85 vs LIVE_CB  [for his decision; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate -0.03147  [-0.08599, +0.02487] (two-sided 0.95)  seasons 2023 -0.01860, 2024 -0.04433
+  GUARD 1 mean entry pct -0.00581  one-sided lower -0.02532  (must exceed -0.015)
+  GUARD 2 expected big seats 0.44349 vs 0.57804  ratio 0.767  (must be >= 0.80)
+  BOOK85 dealt identical to LIVE_CB: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  GO / NO-GO 2022: +0.02425  [-0.03177, +0.07863] (two-sided 0.95)  ->  not contradicted
+  TRIAL: NOT ENTERED: the read's expected big seats ratio 0.767 < 0.80 (his tolerance)
+  HIS RULE (reference only): DO NOT USE IN W5: the 2023-24 point estimate -0.03147 < 0; the expected big seats ratio 0.767 < 0.80
+
+== TE5000 vs LIVE_CB  [for his decision; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate +0.00834  [-0.03024, +0.04588] (two-sided 0.95)  seasons 2023 +0.00664, 2024 +0.01004
+  GUARD 1 mean entry pct +0.00434  one-sided lower -0.00918  (must exceed -0.015)
+  GUARD 2 expected big seats 0.54458 vs 0.57804  ratio 0.942  (must be >= 0.80)
+  TE5000 dealt identical to LIVE_CB: 0.153 of slate-banks
+  ->  NO DIFFERENCE
+  GO / NO-GO 2022: +0.01288  [-0.02134, +0.04913] (two-sided 0.95)  ->  not contradicted
+  TRIAL: ENTERABLE, his decision: no harm shown and no gain shown (NO DIFFERENCE on the read, not contradicted on 2022)
+  HIS RULE (reference only): USE IN W5 (not negative)
+
+== DST3000 vs LIVE_CB  [for his decision; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate -0.01091  [-0.05069, +0.02919] (two-sided 0.95)  seasons 2023 +0.00904, 2024 -0.03085
+  GUARD 1 mean entry pct -0.01320  one-sided lower -0.02157  (must exceed -0.015)
+  GUARD 2 expected big seats 0.46825 vs 0.57804  ratio 0.810  (must be >= 0.80)
+  DST3000 dealt identical to LIVE_CB: 0.019 of slate-banks
+  ->  NO DIFFERENCE
+  GO / NO-GO 2022: +0.01385  [-0.01432, +0.04439] (two-sided 0.95)  ->  not contradicted
+  TRIAL: ENTERABLE, his decision: no harm shown and no gain shown (NO DIFFERENCE on the read, not contradicted on 2022)
+  HIS RULE (reference only): DO NOT USE IN W5: the 2023-24 point estimate -0.01091 < 0
+
+== WR1CHEAP vs LIVE_CB  [for his decision; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate -0.01731  [-0.05261, +0.02083] (two-sided 0.95)  seasons 2023 -0.04217, 2024 +0.00755
+  GUARD 1 mean entry pct -0.00479  one-sided lower -0.01139  (must exceed -0.015)
+  GUARD 2 expected big seats 0.52895 vs 0.57804  ratio 0.915  (must be >= 0.80)
+  WR1CHEAP dealt identical to LIVE_CB: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  GO / NO-GO 2022: +0.00287  [-0.03845, +0.04747] (two-sided 0.95)  ->  not contradicted
+  TRIAL: ENTERABLE, his decision: no harm shown and no gain shown (NO DIFFERENCE on the read, not contradicted on 2022)
+  HIS RULE (reference only): DO NOT USE IN W5: the 2023-24 point estimate -0.01731 < 0
+
+== FLEXNOTE vs LIVE_CB  [for his decision; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate +0.00145  [-0.03405, +0.03565] (two-sided 0.95)  seasons 2023 +0.00817, 2024 -0.00527
+  GUARD 1 mean entry pct -0.00160  one-sided lower -0.01109  (must exceed -0.015)
+  GUARD 2 expected big seats 0.52882 vs 0.57804  ratio 0.915  (must be >= 0.80)
+  FLEXNOTE dealt identical to LIVE_CB: 0.014 of slate-banks
+  ->  NO DIFFERENCE
+  GO / NO-GO 2022: +0.03404  [-0.01442, +0.08702] (two-sided 0.95)  ->  not contradicted
+  TRIAL: ENTERABLE, his decision: no harm shown and no gain shown (NO DIFFERENCE on the read, not contradicted on 2022)
+  HIS RULE (reference only): USE IN W5 (not negative)
+
+== TRIAL SUMMARY: TE5000, DST3000, WR1CHEAP, FLEXNOTE ENTERABLE (study 51 rule)
+
+== HIS RULE, every arm, FOR REFERENCE ONLY (his decision: "Let me decide"; under no true effect an arm passes about one time in four; the slates are the ones studies 81-84 read):
+  BOOK85    DO NOT USE IN W5: the 2023-24 point estimate -0.03147 < 0; the expected big seats ratio 0.767 < 0.80  (2023-24 point -0.03147, 2022 point +0.02425, seats ratio 0.767)
+  TE5000    USE IN W5 (not negative)  (2023-24 point +0.00834, 2022 point +0.01288, seats ratio 0.942)
+  DST3000   DO NOT USE IN W5: the 2023-24 point estimate -0.01091 < 0  (2023-24 point -0.01091, 2022 point +0.01385, seats ratio 0.810)
+  WR1CHEAP  DO NOT USE IN W5: the 2023-24 point estimate -0.01731 < 0  (2023-24 point -0.01731, 2022 point +0.00287, seats ratio 0.915)
+  FLEXNOTE  USE IN W5 (not negative)  (2023-24 point +0.00145, 2022 point +0.03404, seats ratio 0.915)
+
+== EXPLORATORY (two-sided 0.95)
+  BOOK85 - LIVE_CB (the l02 field, 2023-24): -0.03222  [-0.08752, +0.02497]  seasons 2023 -0.02517, 2024 -0.03927
+  BOOK85 - LIVE_CB (the l02 field, 2022): +0.02284  [-0.03732, +0.08139]  seasons 2022 +0.02284
+  TE5000 - LIVE_CB (the l02 field, 2023-24): +0.00635  [-0.03263, +0.04375]  seasons 2023 +0.00062, 2024 +0.01208
+  TE5000 - LIVE_CB (the l02 field, 2022): +0.01079  [-0.02619, +0.04870]  seasons 2022 +0.01079
+  DST3000 - LIVE_CB (the l02 field, 2023-24): -0.01277  [-0.05493, +0.02950]  seasons 2023 +0.00574, 2024 -0.03128
+  DST3000 - LIVE_CB (the l02 field, 2022): +0.01396  [-0.01526, +0.04528]  seasons 2022 +0.01396
+  WR1CHEAP - LIVE_CB (the l02 field, 2023-24): -0.01820  [-0.05481, +0.02167]  seasons 2023 -0.04703, 2024 +0.01063
+  WR1CHEAP - LIVE_CB (the l02 field, 2022): +0.00549  [-0.03840, +0.05366]  seasons 2022 +0.00549
+  FLEXNOTE - LIVE_CB (the l02 field, 2023-24): +0.00301  [-0.03012, +0.03558]  seasons 2023 +0.00734, 2024 -0.00132
+  FLEXNOTE - LIVE_CB (the l02 field, 2022): +0.03361  [-0.01695, +0.08879]  seasons 2022 +0.03361
+  BOOK85 ruled solves built plain (infeasible): 0 of 8268 over 318 slate-banks
+  TE5000 ruled solves built plain (infeasible): 0 of 8268 over 318 slate-banks
+  DST3000 ruled solves built plain (infeasible): 0 of 8268 over 318 slate-banks
+  WR1CHEAP ruled solves built plain (infeasible): 0 of 8268 over 318 slate-banks
+  FLEXNOTE ruled solves built plain (infeasible): 0 of 8268 over 318 slate-banks
+
+secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; the book's rows are pre-lock facts):
+  [2023-24]
+  LIVE_CB      v2: P(>=1 big) 0.33752  expected big seats 0.57804  P(>=2) 0.13899  entry pct 0.51667  |  l02: P(>=1 big) 0.36559
+               book: projection per row 127.69  salary 49964  QB + 2 rows 12.0 of 26  rows with a TE > $5,000 7.8  a DST > $3,000 10.8  cheap WRs != 1 13.2  a TE in the flex 15.7  QB + TE rows 12.5  distinct QBs 8.5
+  BOOK85       v2: P(>=1 big) 0.30606  expected big seats 0.44349  P(>=2) 0.09338  entry pct 0.51085  |  l02: P(>=1 big) 0.33337
+               book: projection per row 126.80  salary 49959  QB + 2 rows 12.0 of 26  rows with a TE > $5,000 0.0  a DST > $3,000 0.0  cheap WRs != 1 0.0  a TE in the flex 0.0  QB + TE rows 9.0  distinct QBs 8.5
+  TE5000       v2: P(>=1 big) 0.34586  expected big seats 0.54458  P(>=2) 0.13254  entry pct 0.52101  |  l02: P(>=1 big) 0.37194
+               book: projection per row 127.38  salary 49963  QB + 2 rows 12.0 of 26  rows with a TE > $5,000 0.0  a DST > $3,000 10.8  cheap WRs != 1 13.6  a TE in the flex 12.1  QB + TE rows 11.1  distinct QBs 8.5
+  DST3000      v2: P(>=1 big) 0.32662  expected big seats 0.46825  P(>=2) 0.09877  entry pct 0.50347  |  l02: P(>=1 big) 0.35282
+               book: projection per row 127.44  salary 49960  QB + 2 rows 12.0 of 26  rows with a TE > $5,000 8.0  a DST > $3,000 0.0  cheap WRs != 1 13.2  a TE in the flex 15.2  QB + TE rows 12.5  distinct QBs 8.4
+  WR1CHEAP     v2: P(>=1 big) 0.32022  expected big seats 0.52895  P(>=2) 0.13346  entry pct 0.51188  |  l02: P(>=1 big) 0.34739
+               book: projection per row 127.41  salary 49961  QB + 2 rows 12.0 of 26  rows with a TE > $5,000 7.8  a DST > $3,000 10.9  cheap WRs != 1 0.0  a TE in the flex 14.7  QB + TE rows 12.2  distinct QBs 8.5
+  FLEXNOTE     v2: P(>=1 big) 0.33897  expected big seats 0.52882  P(>=2) 0.13302  entry pct 0.51506  |  l02: P(>=1 big) 0.36860
+               book: projection per row 127.27  salary 49967  QB + 2 rows 12.0 of 26  rows with a TE > $5,000 4.3  a DST > $3,000 10.1  cheap WRs != 1 13.8  a TE in the flex 0.0  QB + TE rows 9.5  distinct QBs 8.5
+  [2022]
+  LIVE_CB      v2: P(>=1 big) 0.22502  expected big seats 0.31488  P(>=2) 0.07048  entry pct 0.45644  |  l02: P(>=1 big) 0.24410
+               book: projection per row 131.86  salary 49963  QB + 2 rows 12.0 of 26  rows with a TE > $5,000 8.0  a DST > $3,000 8.3  cheap WRs != 1 12.0  a TE in the flex 14.0  QB + TE rows 11.5  distinct QBs 8.1
+  BOOK85       v2: P(>=1 big) 0.24927  expected big seats 0.34306  P(>=2) 0.07138  entry pct 0.46507  |  l02: P(>=1 big) 0.26694
+               book: projection per row 131.24  salary 49957  QB + 2 rows 12.0 of 26  rows with a TE > $5,000 0.0  a DST > $3,000 0.0  cheap WRs != 1 0.0  a TE in the flex 0.0  QB + TE rows 8.0  distinct QBs 8.1
+  TE5000       v2: P(>=1 big) 0.23790  expected big seats 0.35636  P(>=2) 0.08803  entry pct 0.45437  |  l02: P(>=1 big) 0.25489
+               book: projection per row 131.52  salary 49957  QB + 2 rows 12.0 of 26  rows with a TE > $5,000 0.0  a DST > $3,000 8.9  cheap WRs != 1 11.8  a TE in the flex 10.1  QB + TE rows 9.5  distinct QBs 8.0
+  DST3000      v2: P(>=1 big) 0.23886  expected big seats 0.35211  P(>=2) 0.08534  entry pct 0.46097  |  l02: P(>=1 big) 0.25806
+               book: projection per row 131.72  salary 49961  QB + 2 rows 12.0 of 26  rows with a TE > $5,000 7.9  a DST > $3,000 0.0  cheap WRs != 1 11.8  a TE in the flex 13.6  QB + TE rows 11.4  distinct QBs 8.1
+  WR1CHEAP     v2: P(>=1 big) 0.22789  expected big seats 0.30792  P(>=2) 0.05896  entry pct 0.46120  |  l02: P(>=1 big) 0.24959
+               book: projection per row 131.74  salary 49960  QB + 2 rows 12.0 of 26  rows with a TE > $5,000 7.9  a DST > $3,000 8.3  cheap WRs != 1 0.0  a TE in the flex 14.6  QB + TE rows 11.6  distinct QBs 8.0
+  FLEXNOTE     v2: P(>=1 big) 0.25905  expected big seats 0.34732  P(>=2) 0.07469  entry pct 0.46193  |  l02: P(>=1 big) 0.27771
+               book: projection per row 131.67  salary 49962  QB + 2 rows 12.0 of 26  rows with a TE > $5,000 5.7  a DST > $3,000 8.1  cheap WRs != 1 13.9  a TE in the flex 0.0  QB + TE rows 8.3  distinct QBs 8.2
+```
+
+**Reading.**
+- **BOOK85 is worse:**
+  - −3.1 points [−8.6, +2.5] (2023 −1.9, 2024 −4.4);
+  - expected big seats ×0.77 (0.443 against 0.578), below his 0.80 tolerance; study 51's trial rule does not list it as
+    enterable;
+  - 2022 +2.4.
+  - It re-draws almost the whole book at −0.80 projected points per row.
+- **Each rule alone is within the harness's noise:** TE5000 +0.8, DST3000 −1.1, WR1CHEAP −1.7, FLEXNOTE +0.1. Addendum 182
+  showed the same rule moving several points between bank sets.
+- **Recommendation (his decision):** do not use the whole-book version. No single rule shows an edge.
