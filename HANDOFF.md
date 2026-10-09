@@ -12,6 +12,18 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-08 (19:54 CDT) — laptop: study 72 (one off-top-four stack) CLOSED by the operator as already covered; Monday tracking line
+
+**The operator's request:** "Try your idea of one stack from a game outside the top few" (42(d)).
+- The first design built the forced row last, which deals it at rank 25, a non-big supersat seat. The laptop caught that
+  before the freeze (the max big-read book index under Rev6 is 21). The outside reviewer found it independently.
+- The reviewer's outcome-blind census then showed the live book ALREADY stacks an off-top-four QB in 9.2 of 26 rows
+  (7.5 in big seats).
+- **The operator, asked:** "Close it, track Monday (Recommended)".
+- So study 72 is closed with no run (banks 1629–1634 unused), and study list 72 is added.
+- The outside reviewer proposes a Monday "off-top-four stacks" descriptive line. The laptop reviews it; ready for 10-12
+  if easy, else 10-19.
+
 ## 2026-10-08 (19:31 CDT) — laptop: study 71b (the rule on only 4 rows) reproduced: ENTERABLE, leans negative; the rows cap merged DEFAULT OFF
 
 **The operator 10-08 ~18:40:** "I think it would be good to just do a very small percentage of these as a test."
