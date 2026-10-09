@@ -87,5 +87,10 @@ reviewer and updated as each study is read.
   book alongside). Real book (the bans only; the receiver and flex rules can't be emulated): with today's caps, the QB
   restriction adds about 0.9 projected points per lineup to the price limits' 0.7; with the caps off (your amendment), all of
   87's limits together cost about 1.4 per lineup against a no-caps book.
+- **Study 88 (queued after 87; your "slightly cheaper QB" request):** 87's book again on a fresh draw (the second reading
+  the rule above asks for), plus three versions of it: no QB priced $7,000 or more; a TE ($5,000 or less) allowed in the flex;
+  and both. Why these: in the 2026 Week 1–4 Millionaires the top 1% rarely played a $7,000+ QB (3% of lineups vs the field's
+  9%), and they put a TE in the flex MORE often than the field (37% vs 28%), so 87's "no TE in the flex" rule goes against
+  what the winners did. All built without the usage caps, as in 87.
 
 *Updated as each study is read.*
