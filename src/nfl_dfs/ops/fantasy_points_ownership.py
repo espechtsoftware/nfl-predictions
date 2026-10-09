@@ -40,7 +40,10 @@ ROW_FIELDS = (
     "projected_ownership_pct", "last_updated",
 )
 MIN_UNLOCKED_ROWS = 50
-_HEADING = re.compile(r"^(20\d{2}) NFL DFS OWNERSHIP PROJECTIONS$", re.I)
+# 2026-10-09: Fantasy Points added the week to the page heading ("2026 WEEK 5 NFL DFS OWNERSHIP PROJECTIONS"; Week 4's read
+# "2026 NFL DFS OWNERSHIP PROJECTIONS"), which failed every capture closed. Both forms are accepted; a named week must be the
+# requested one where the caller knows it (the rows are checked against the week either way).
+_HEADING = re.compile(r"^(20\d{2})(?:\s+WEEK\s+(\d{1,2}))?\s+NFL DFS OWNERSHIP PROJECTIONS$", re.I)
 _RELEVANT_TEXT = re.compile(
     r"draftkings|\bdk\b|nfl|classic|main|slate|week|apply|export|download|csv",
     re.I,
@@ -54,6 +57,7 @@ def validate_surface_state(
     sign_in_visible: bool,
     session_uid_present: bool,
     expected_season: int,
+    expected_week: int | None = None,
 ) -> dict[str, Any]:
     """Fail closed unless this is an authenticated NFL ownership surface."""
     if not url.startswith(OWNERSHIP_URL):
@@ -69,15 +73,17 @@ def validate_surface_state(
             "run `fantasy-points-ownership login` (sign in by any method, then press Enter)"
         )
     normalized = [" ".join(str(text).split()) for text in headings]
-    seasons = {
-        int(match.group(1))
-        for text in normalized
-        if (match := _HEADING.fullmatch(text))
-    }
+    matches = [m for text in normalized if (m := _HEADING.fullmatch(text))]
+    seasons = {int(m.group(1)) for m in matches}
     if seasons != {int(expected_season)}:
         raise RuntimeError(
             "Fantasy Points ownership heading does not identify the expected "
             f"season {expected_season}: {normalized!r}"
+        )
+    weeks = {int(m.group(2)) for m in matches if m.group(2)}
+    if expected_week is not None and weeks and weeks != {int(expected_week)}:
+        raise RuntimeError(
+            f"Fantasy Points ownership heading names week {sorted(weeks)}, expected week {expected_week}: {normalized!r}"
         )
     return {
         "version": SURFACE_VERSION,
@@ -570,7 +576,7 @@ def collect_ownership(
         session_uid_present=any(
             isinstance(p.get("session"), dict) and p["session"].get("uid") for p in payloads
         ),
-        expected_season=expected_season,
+        expected_season=expected_season, expected_week=expected_week,
     )
     # Union of every served row across payloads, keyed by operator/player/team.
     merged: dict[tuple, dict[str, Any]] = {}
