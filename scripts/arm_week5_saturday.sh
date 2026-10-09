@@ -16,7 +16,7 @@
 #   armed late.
 set -uo pipefail
 SHAPE="mixt"             # his formal yes 2026-10-06: "yes to the winners' mix with the tilt and the quarterback cap" (the tilt removed by his 10-06 yes)
-FRIDAY_HEAD="22bf64f19886e483b2279125bc226493d990050e"   # 10-09: the merge batch for his W5 package (5eab90f4) + the arm test for the pair; A3 cancelled by him
+FRIDAY_HEAD="f5f96468d24541de2a463245ba535fea0bf859ce"   # 10-09: his package (5eab90f4) + his test-2 row rules (e8c63263 + 58a328b6); A3 cancelled by him
 PLAN_SHA=5f8352eebf17860795922f8b5bca754c4ed0566c8c5ca63419e6dacd24e59470     # Rev6 (his FINAL contest order 10-07; Rev3's contests
                                     # re-ordered, the same book; installed 10-07 14:38 after the priority screen's pair (ii);
                                     # Rev3 kept as contests.json.rev3-8625de0e)
@@ -32,7 +32,7 @@ MAIN_CAP="0.35"                     # the per-player exposure cap share: HIS PAC
 OWN_CAP_DELTA=15                    # his 10-09 package (HANDOFF 5380e0e7): 15 = each skill player at most his FP projected ownership
                                     # + 15 points, ONLY together with MAIN_CAP=0.35 (the tested package); 0 = off (MAIN_CAP 0.5).
                                     # Flipped to (0.35, 15) on Saturday only if the flag, the wiring, the W4 check and 6o all pass
-ROW_RULES=""                        # his 10-09 test 2 (HANDOFF 2ab54e30): te1_low1 = at most one TE and one skill player under 3%
+ROW_RULES="te1_low1"                # LIVE (his answers 10-09: "Go live as my rule says" / "Go live as the rule says"); his 10-09 test 2 (HANDOFF 2ab54e30): te1_low1 = at most one TE and one skill player under 3%
                                     # FP ownership per book row, ONLY if study 91 reads it better than his package on BOTH draws
                                     # within 20% of the expected big seats; only with the package; empty = off
 MIX_FILL=rr                         # the MIX fill order (study 42; his 10-06 evening yes, "Use round-robin"): the cells in
