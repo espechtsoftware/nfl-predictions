@@ -241,7 +241,7 @@ def test_the_switch_parses_and_refuses(args, others, ok):
 def test_the_cli_carries_the_flag_and_reads_the_other_row_rules_when_merged():
     src = (ROOT / "scripts" / "union_reselect.py").read_text()
     assert src.count("one_catcher_rows=oc_g") == 2                                          # the book and the ownership-term book
-    assert 'for k in ("mix_qb_alone_rows", "mix_flex_wr_rows", "mix_top_game_qb1", "mix_top_game_stack")})' in src
+    assert 'getattr(a, k, 0) for k in ("mix_top_game_qb1", "mix_top_game_stack")})' in src      # the row rules: row_rules_problem
     assert "does NOT carry the rule" in src
 
 
