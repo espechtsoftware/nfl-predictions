@@ -12,6 +12,20 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (14:54 CDT) — outside model: a construction-suggestions document for the operator (docs only; no code, nothing armed)
+
+- **Written at his request** ("suggestions on lineup construction ... that we can try immediately for this weekend"):
+  `briefings/2026-week-05/2026-10-09-lineup-construction-suggestions.md` (+ its index row). Branch
+  `review/construction-suggestions-20261009`, docs only, off `7dc00df1`; FRIDAY_HEAD is untouched.
+- **What it says, in one line each:** our lineups carry the field's highest projection and score its lowest because the
+  plain-sum solver takes the noisiest residuals ($6–8k) and never buys the $8k+ star; two untested, reversible changes
+  with the test each needs today: **S1** shrink the projection the solver sees toward the slate's salary curve
+  (k = 0.7; recommended live only if not below the package in tonight's W1–4 real-field replay and the W4 real-book
+  check), **S2** at least one $8,000+ skill player per row via the study-91 row-rule vehicle (paper beside it unless he
+  wants a second live change); Week-6 items (RB as a stack mate, DST + own RB, dupe-aware dealing); the closed list.
+- **For the laptop:** nothing to do unless he chooses S1 or S2; both are described with their flag, test, receipt and
+  rollback. Merge: `git merge --no-ff review/construction-suggestions-20261009` (docs; HANDOFF and briefings/README only).
+
 ## 2026-10-09 (14:45 CDT) — OPERATOR: test 2 GO LIVE (after the transfer caveat); the row rules merged, armed; FRIDAY_HEAD f5f96468
 
 - **Study 91 READ** (lab `a8024c8a`, READ_s91 `8672e057`) was reproduced byte-identically; the confirmatory census `48b71f9b`
