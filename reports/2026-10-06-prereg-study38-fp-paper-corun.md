@@ -770,6 +770,16 @@ score. Nothing here enters a contest: the money path, its checkout and its files
       unmerged flag branch, including the one-catcher head `8a907f6e`.
     - The integrity gate pins this module sha in place of `bf53dccd`'s. The smoke's books are unaffected: one table entry,
       read only by parity.
+  - **Second follow-up (10-09, after studies 83 / 84's production options appeared):** `--mix-no-te-above` (studies 81 /
+    84's TE ban, production `review/combo-te-flag-20261009`, unmerged) is classified NOT_BUILT, off 0 (`ASSUMED_DEFAULTS` 0).
+    - Lab `9058617a`: `experiments/s38_paper_corun.py` `a03051ce7abd…`, `tests/test_s38_paper_corun.py` `45c97287e6bb…`
+      (31 tests pass, rc 0).
+    - `union_classification` gives no unclassified argument and no changed default on the pin, `bf45a29a` and every
+      unmerged option branch, including the combined option (`review/combo-flag-20261009`) and the TE option
+      (`review/combo-te-flag-20261009`).
+    - The integrity gate pins this module sha. One table entry, read only by parity; no book can move.
+    - A live nonzero value, or the three-flag combination, stays a mismatch (an invalid week) until amendment 6m makes the
+      MIXT_QA0 arms follow whichever version he enters (only if study 84's entry order enters one).
   - **Order:**
     1. this amendment;
     2. the laptop's ack (shas, tests, the smoke);
