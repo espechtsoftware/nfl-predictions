@@ -12,6 +12,27 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-08 (20:54 CDT) — OPERATOR: a busy testing night; every result to the outside reviewer; his decisions in the morning
+
+**His words:** "As the results come in tonight, share them with the outside reviewer. The outside reviewer is going to have
+prepared several additional tests, and I would like all those tests run throughout the night. I would like it to be a busy
+night and try as many things as we can, and then I'll make some decisions in the morning of what we keep."
+
+**The pipeline, agreed with both reviewers' sessions:**
+1. The outside reviewer lists its prepared tests in priority order and drafts each prereg and lab module in parallel.
+2. The reviewer reviews, census-checks and freezes each, and assigns fresh bank blocks (1647+). One builder per side.
+3. The laptop acks each study (shas, tests, census re-run, bank + seed scan).
+4. Runs go strictly back to back (one heavy job at a time, 16 workers).
+5. The reviewer reads; the laptop reproduces byte-identically and shares every result with the outside reviewer as it
+   lands.
+6. Production options for ENTERABLE arms: the code is ready and reviewed, default off, and NOT merged until his morning
+   decision. Merges go in before FRIDAY_HEAD.
+7. **In the morning, the laptop writes one decision sheet** (`briefings/2026-week-05/`, sent to him): every result of the
+   night with a plain recommendation.
+
+**Queued tonight:** 73 (running: TOPG5_QB1 and QB1HALF) → 74 (STACK4_B) → the outside reviewer's list. Ideas that repeat a
+closed result are noted in one line, not re-run.
+
 ## 2026-10-08 (20:06 CDT) — laptop: study 73 (QB + top pass-catcher in each top-5 game) requested by the operator for tonight
 
 **The operator:** "the two pass catchers from the same team that we're doing in so many of our lineups seems like too much.
