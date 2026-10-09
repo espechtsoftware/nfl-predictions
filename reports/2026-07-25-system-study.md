@@ -8544,3 +8544,102 @@ secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; th
   - The arm script's guard refuses two construction levers, so live use needs an explicit override recorded in
     HANDOFF, never a quiet edit.
   - His decision.
+
+## Addendum 176 (2026-10-09): study 78 (two $8,000+ players on the first 8 book rows, stars and scrubs, the outside reviewer's test, in the harness): NO DIFFERENCE, mixed by season (2023 −0.8, 2024 +4.5; +1.8 on the read), guard 1 fails, not contradicted on 2022 (+2.2): ENTERABLE by the rule (his decision; no gain shown); recommendation off
+
+**Setup.**
+- **The question.** The operator, 10-08 night: "please look at the patterns of the winners over the past few weeks and
+  consider a variety of different tests we can do throughout the night". The outside reviewer measured the 2026 W1–4
+  Millionaires (top 1% vs the field):
+  - players priced $8,000+: 0.88 vs 0.66 per lineup;
+  - under $4,000: 1.16 vs 0.82;
+  - his W5-style FP book: 0.54 and 1.00.
+- **What was tested before.** Study 70's CHEAPEXPWR2_B8 (Addendum 168) was a soft +2 bonus on an 8-row block. This is a
+  hard rule on the first-built rows, any position.
+- **The arms.** Built on study 48's harness (LIVE = 48d's 41 rows with the cheap +2 block; Rev6 `ac10ddf6`; study 73
+  sha-pinned):
+  - LIVE_CB (the reference).
+  - STUDS2_8, the single decision: the first 8 book solves in build order (any cell) hold at least two players priced
+    $8,000+ (`set_constraints`; production's `member_bounds` (ids, 2, 9)). They are dealt at book positions 0, 2, 3, 5,
+    6, 7, 9, 10, all big seats.
+  - Exploratory STUDS1_8: at least one. It is near-vacuous: LIVE_CB already holds one in 5.28 of the 8 rows.
+- **Preregistration:** `reports/2026-10-08-prereg-study78-studs.md` (the outside reviewer's DRAFT `f39bee3a`; FROZEN
+  `3967c480`, 10-08 22:03 CDT, before any scored bank).
+- **Panel:** banks 1665–1670, B 20,000, seed 20261123.
+- **Read:** the reader `b7287931`; READ `1ab75399` (lab `d7ba4b27`). The confirmatory census (`bee955a9`, with the raw
+  files' shas) was committed before the READ.
+- **Reproduced byte-identically by the laptop** at `d7ba4b27`: the raw files 1665–1670 pass `sha256sum -c` against
+  `RAW_s78_run.sha256`; the READ is `1ab75399` and the confirmatory census `13499d49` (cmp-identical).
+- **The prior, stated first:** NO DIFFERENCE.
+- **Census** (the binding census on bank 1406, 53 slate-banks):
+  - STUDS2_8: 7.85 of 8 ruled rows per slate-bank. On one slate-bank no lineup could hold two, so its 8 rows were built
+    plain and recorded.
+  - $8,000+ per row: 1.06 → 1.26.
+  - Projection cost −0.26 per row.
+  - Rows shared with LIVE_CB 3.7; dealt identical 0.038.
+  - The confirmatory census on the scored banks (318 slate-banks) agrees: 7.85 of 8 ruled; 48 of 2544 solves built plain
+    (the one infeasible slate, in each of the six banks); $8,000+ per row 1.07 → 1.26; cost −0.25; dealt identical 0.050.
+
+**Reader output (verbatim):**
+```
+STUDY 78 READER  sha256 b7287931d279a7d9a5319bca482e7c4339fb4236ece0e6b6249c0ca7d08176a7
+DIRECTION: P(>= 1 big seat) per slate (the mean over its banks); every difference is ARM - LIVE_CB; POSITIVE favours the arm.
+slates 36 (the 2023-24 read) + 17 (the 2022 go / no-go)  banks [1665, 1666, 1667, 1668, 1669, 1670]  B 20000  seed 20261123  one decision arm against LIVE_CB on the CALIBRATED field (v2), each two-sided 0.95; guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only; 2022: the point estimate (two-sided 0.95 interval); study 51's trial rule per arm
+arms (definitions, the stud rule's constants, study 73's sha (twice, in the slots of study 48's and study 53's), live settings, QB cap, objective): [["LIVE_CB", "STUDS2_8", "STUDS1_8"], {"block": {"cap": 2.0, "min_coverage": 0.5, "n_term": 8, "tilt": 0.2}, "n_rows": 8, "rows": "the first n_rows book solves in build order (any cell); infeasible -> plain, recorded", "rules": {"STUDS1_8": [">=", 1], "STUDS2_8": [">=", 2]}, "stud_salary": 8000}, "3f76c6295d8666cf4f256a103c7ba3fe428630d6149c7a6009648487900d806d", "3f76c6295d8666cf4f256a103c7ba3fe428630d6149c7a6009648487900d806d", {"fill": "rr", "max_shared": 4}, 5, "player_mean (+ the cheap block term)"]
+
+== STUDS2_8 vs LIVE_CB  [DECISION; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate +0.01819  [-0.02561, +0.06274] (two-sided 0.95)  seasons 2023 -0.00816, 2024 +0.04454
+  GUARD 1 mean entry pct -0.00717  one-sided lower -0.01769  (must exceed -0.015)
+  GUARD 2 expected big seats 0.47376 vs 0.43434  ratio 1.091  (must be >= 0.80)
+  STUDS2_8 dealt identical to LIVE_CB: 0.028 of slate-banks
+  ->  NO DIFFERENCE
+  GO / NO-GO 2022: +0.02167  [-0.04293, +0.09402] (two-sided 0.95)  ->  not contradicted
+  TRIAL: ENTERABLE, his decision: no harm shown and no gain shown (NO DIFFERENCE on the read, not contradicted on 2022)
+
+== TRIAL SUMMARY: STUDS2_8 ENTERABLE (his decision; one construction change a week)
+
+== EXPLORATORY (never decision-bearing; two-sided 0.95)
+  STUDS1_8 - LIVE_CB (v2, 2023-24): +0.02124  [-0.01582, +0.05863]  seasons 2023 +0.01504, 2024 +0.02743
+  STUDS1_8 - LIVE_CB (v2, 2022): +0.00973  [-0.01165, +0.04113]  seasons 2022 +0.00973
+  STUDS2_8 - LIVE_CB (the l02 field, 2023-24): +0.01629  [-0.02851, +0.06230]  seasons 2023 -0.00699, 2024 +0.03957
+  STUDS2_8 - LIVE_CB (the l02 field, 2022): +0.02127  [-0.04424, +0.09387]  seasons 2022 +0.02127
+  STUDS1_8 - LIVE_CB (the l02 field, 2023-24): +0.02421  [-0.01361, +0.06273]  seasons 2023 +0.01660, 2024 +0.03181
+  STUDS1_8 - LIVE_CB (the l02 field, 2022): +0.00925  [-0.01356, +0.04154]  seasons 2022 +0.00925
+  STUDS2_8 ruled solves built plain (infeasible): 48 of 2544 over 318 slate-banks
+  STUDS1_8 ruled solves built plain (infeasible): 0 of 2544 over 318 slate-banks
+
+secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; the book's rows are pre-lock facts):
+  [2023-24]
+  LIVE_CB      v2: P(>=1 big) 0.29967  expected big seats 0.43434  P(>=2) 0.10096  entry pct 0.50876  |  l02: P(>=1 big) 0.32679
+               book: projection per row 127.77  salary 49964  QB + 2 rows 12.0 of 26  $8,000+ per row 0.85  under $4,000 per row 1.59  salary left 36
+  STUDS2_8     v2: P(>=1 big) 0.31786  expected big seats 0.47376  P(>=2) 0.11471  entry pct 0.50159  |  l02: P(>=1 big) 0.34308
+               book: projection per row 127.45  salary 49960  QB + 2 rows 12.0 of 26  $8,000+ per row 1.08  under $4,000 per row 1.71  salary left 40
+  STUDS1_8     v2: P(>=1 big) 0.32090  expected big seats 0.48167  P(>=2) 0.10776  entry pct 0.51093  |  l02: P(>=1 big) 0.35099
+               book: projection per row 127.69  salary 49964  QB + 2 rows 12.0 of 26  $8,000+ per row 0.91  under $4,000 per row 1.62  salary left 36
+  [2022]
+  LIVE_CB      v2: P(>=1 big) 0.24655  expected big seats 0.36150  P(>=2) 0.09097  entry pct 0.45747  |  l02: P(>=1 big) 0.26481
+               book: projection per row 131.88  salary 49962  QB + 2 rows 12.0 of 26  $8,000+ per row 1.53  under $4,000 per row 1.50  salary left 38
+  STUDS2_8     v2: P(>=1 big) 0.26822  expected big seats 0.34733  P(>=2) 0.07020  entry pct 0.46485  |  l02: P(>=1 big) 0.28608
+               book: projection per row 131.77  salary 49958  QB + 2 rows 12.0 of 26  $8,000+ per row 1.64  under $4,000 per row 1.55  salary left 42
+  STUDS1_8     v2: P(>=1 big) 0.25628  expected big seats 0.36059  P(>=2) 0.08608  entry pct 0.45558  |  l02: P(>=1 big) 0.27406
+               book: projection per row 131.86  salary 49962  QB + 2 rows 12.0 of 26  $8,000+ per row 1.56  under $4,000 per row 1.51  salary left 38
+```
+
+**Reading.**
+- **STUDS2_8 is mixed:**
+  - +1.8 points [−2.6, +6.3] on the read, but 2023 −0.8 and 2024 +4.5;
+  - expected big seats ×1.09; P(≥ 2) 0.115 against 0.101.
+- **Guard 1 FAILS:** the mean entry percentile's one-sided lower bound is −0.0177, below −0.015. The stud rows finish
+  lower on average. The guards gate a PASS only, and the read is NO DIFFERENCE, so the trial rule is unaffected.
+- **2022: +2.2 [−4.3, +9.4], not contradicted.** But 2022's expected big seats are ×0.96, and P(≥ 2) is 0.070 against
+  0.091.
+- **The rule:** ENTERABLE, his decision ("no harm shown and no gain shown"). The earlier field (l02) agrees: +1.6 on the
+  read, +2.1 on 2022.
+- **The cost is real:** −0.32 projected points per row on the 2023–24 books (127.77 → 127.45), −0.25 in the
+  confirmatory census's 2022–24 average, and the stud rows lean on RB / WR studs (book RB 10.7 → 12.7, WR
+  13.5 → 16.2).
+- **The exploratory STUDS1_8** (at least one) leans positive in all three seasons: +2.1 on the read (2023 +1.5, 2024
+  +2.7), 2022 +1.0. But it is near-vacuous: LIVE_CB already holds a $8,000+ player in 5.2 of the 8 ruled rows, and it was
+  dealt identical on 0.33 of slate-banks. It is not decision-bearing; adopting it would need its own preregistered test.
+- **Recommendation:** off. It shows no gain, is split by season, fails a guard and costs projection (−0.32 per row on the read's books). Of tonight's
+  enterable arms, study 77's QB-alone rows (Addendum 175) are the better candidate.
