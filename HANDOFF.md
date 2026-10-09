@@ -12,6 +12,45 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (17:53 CDT) — OPERATOR: ONECATCH (one receiver per team on the QB + 1 lineups) LIVE in W5 if built in time; study 93 READ reproduced
+
+**Study 93** (items 2–4 of his "let's try each"; frozen prereg 380349a2; lab READ 9a9a2331).
+- **The laptop's reproduction** (PYTHONHASHSEED=0):
+  - READ_s93 is byte-identical: `df5d74c371afaffa39301e79735ab2c637d83ea9fc6e08ebd1d58c2ecae61bc5`;
+  - the confirmatory census is byte-identical: `7d665d6a`;
+  - the raw files pass sha256sum -c (12).
+- **ONECATCH** (at most one WR / TE per team on every B / C book solve):
+  - pooled +0.02018 [−0.00408, +0.04559]; set A +0.03562, set B +0.00474; expected big seats ×1.107; guard 1 passes;
+  - the reader's line: "A W6 CANDIDATE (better on both draws)", with about one pass in four to one in three under no true
+    effect.
+- **QBALONE3** −0.00215 and **WRFLEX8** −0.00300: PAPER ONLY.
+
+**His decision, in the laptop's session.**
+- Asked whether ONECATCH should be a paper arm in W5, he answered with a question: "Why not use it this week in some of our
+  lineups?"
+- The laptop's answer:
+  - by his study 91 rule (better on both draws, seats ≥ 0.80) it qualifies;
+  - it already covers only the QB + 1 lineups, and changes 5 of the 14 on his W4 book;
+  - the cautions: about 1 in 3 pass by chance; a third change this week; the code updated, then the package's checks before
+    the 10:28 arming; any failure leaves the book as armed.
+- **His answer: "Live W5 if built in time (Recommended)".** The option text: "Built and checked tonight on the tested
+  version (QB-plus-one-receiver lineups only). It goes live at Saturday's arming only if every check passes, with the book
+  without it scored on paper beside it. Otherwise it goes to paper."
+
+**The plan.** Each step must pass, or ONECATCH goes to paper and the book arms as it is now.
+1. **The outside reviewer:** the production flag on the armed version (from last night's one-catcher flag 1e6247fa).
+   - exactly study 93's ONECATCH, on the B / C book solves only;
+   - one solve with the te1 / low1 row bounds; fallback tiers as in the lab;
+   - refuses without the applied ownership cap and the row rules;
+   - a receipt block;
+   - byte-for-byte parity with lab s93_leads.py `5f4e1fb9` on a binding fixture, plus a mutation check;
+   - a consumer sweep (union_fallbacks drops it).
+2. **The reviewer:** reviews the flag; writes study 38 amendment 6t (the paper arms follow the live one-catcher setting;
+   NO-ONECATCH = today's armed book, paired); smoke.
+3. **The laptop:** the wiring (host, arm, check_week_runtime, arm_week_timers); the W4 real-book check with the flag (it
+   binds 5 of 14 by the outcome-blind count); the merge; FRIDAY_HEAD; the evening --check.
+- **Machine:** study 94's census re-run, then S94 GO and its run (about 40 min). Then the W4 check and the 6t smoke.
+
 ## 2026-10-09 (16:58 CDT) — the W1–4 dupe check (item 5a): duplication cost nothing measurable; dupe-aware dealing not built now; a Monday copy-count line
 
 The outside reviewer's read-only check of the money gate's W1–4 real fields. Private rows are in ~/private/dupe-check/; only
