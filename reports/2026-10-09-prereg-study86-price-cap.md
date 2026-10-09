@@ -42,6 +42,8 @@ underneath), the same as studies 81–85. LIVE = 48d's 41 rows with the cheap +2
 - **Plainly:** the slates are the ones studies 78–85 read; under no true effect a version is "not negative" on both 2023–24 and
   2022 about one time in four.
 
+- **THE NOISE FINDING (study 84, disclosed as a fact; the rules here are unchanged):** the same rule read +0.047 on banks 1689–1694 and −0.012 on 1713–1718 (study 81's NOTE5K_ALL = study 84's TE_ONLY, call for call), and study 83's COMBO −0.019 vs +0.010 in 84. The intervals resample slates and do not include the bank-to-bank variation of the simulations and the field draws, so they understate the uncertainty; a lean of a few points is within that variation.
+
 ## 4. What the harness can and cannot say
 - **The real-book check first** (the laptop's, outcome-blind, W4, OFF `a4ab2839`): how many of his rows hold a player priced
   > $7,900, and the rule's FP cost per row (the dk-status route marks those players OUT: it emulates this rule exactly, up to the
@@ -54,6 +56,8 @@ underneath), the same as studies 81–85. LIVE = 48d's 41 rows with the cheap +2
 - None unless he decides to use it. The rule maps to the dk-status route's bans for the book only; a production flag (every
   pool player priced > SALARY banned on every book solve) would be a fresh build with parity against this study's frozen
   wrapper, its format agreed with the laptop first, his decision recorded first.
+
+- **BEFORE HE ACTS ON ANY ARM (the reviewer's forward rule, 10-09):** it is first re-read on a second, disjoint bank set (the same code and reader, new banks and seed), and both reads and their difference are reported before any option is built.
 
 ## 6. Smoke, census and integrity
 - Bank 1406 only, after study 85's smoke and run free the machine: the mechanics smoke, the binding census (the pool's players
