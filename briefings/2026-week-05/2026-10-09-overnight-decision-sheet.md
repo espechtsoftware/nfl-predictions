@@ -15,8 +15,15 @@ test. **Every result below was read by the reviewer and re-run by the laptop wit
   book scored on paper beside it. It is armed for Week 5 **unless study 89 shows it doing worse than the 50% cap on both of
   its two independent draws.** On your Week-4 book it changes 17 lineups and costs about 2.3 projected points per lineup.
   The arming change is built and reviewed; it is set from study 89's result.
-- **Study 89 (running now, about 35–40 minutes):** the 35% cap, and the 35% cap plus "no player more than 15 points above
-  his projected ownership", each against your live book, on two separate sets of draws.
+- **Study 89 result: by your rule, the 35% cap is NOT armed; Week 5 keeps 50%.** The 35% cap came out below the 50% book on
+  both draws (−3.4 and −0.6 points; −2.0 pooled), with about 9% fewer expected big wins.
+  - **The 35% cap plus "no player more than 15 points above his projected ownership":** +1.2 against your live book
+    (positive on both draws, +0.5 and +1.9), but within the noise, and its lineups finish a little lower on average. No gain
+    shown.
+  - **The ownership limit itself looks useful:** added to the 35% cap, it gained +3.2 on both draws. With the real
+    (after-the-fact) ownership it would do better still, which says a better ownership forecast is where an edge could be.
+  - **What is armed:** your live book exactly as before (cheap block on, 50% cap). The cap is now set explicitly in
+    Saturday's arming and reviewed.
 - **Fantasy Points' projections on Week 4:** also too optimistic. They rated your Week-4 lineups 8.5 points above the
   field's, and the lineups scored 3.7 below. So switching to FP did not by itself fix the over-rating (one week).
 

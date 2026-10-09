@@ -12,6 +12,27 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (11:42 CDT) — laptop: study 89 READ by his rule = DO NOT ARM the 35% cap; MAIN_CAP=0.5 merged; gates OK
+
+- **Study 89** (the outside reviewer's ownership-relative cap; frozen 10:55; run 11:00–11:39, 12 banks as two draws, BLAS
+  threads pinned). The laptop's ack, census re-run identical, S89 GO. The READ (lab `90a0c951`, READ_s89 `c3f5a7ee`) was
+  reproduced byte-identically; the confirmatory census `36e1d2da` is identical. Line 65, verbatim:
+  "== W5 ARMING RULE (his 10-09 rule): DO NOT ARM the 35% cap (CAP35 - LIVE_CB below 0 on both draws: A -0.03419, B -0.00603); keep 0.5"
+  - CAP35 − LIVE_CB −2.0 [−4.9, +0.9]; guard 1 fails; seats ×0.910.
+  - CAP35_OWN15 − LIVE_CB +1.2 [−2.6, +5.1] (A +0.5, B +1.9); guard 1 fails; seats ×0.951. NO DIFFERENCE, no gain shown.
+  - OWN15 − CAP35 +3.2 (positive on both draws): the ownership cap recovers what the 35% cap loses.
+  - The exploratory REAL-ownership arm (leaks late news) +4.5 vs CAP35, PASS.
+  - 89 ran under a random hash seed (O-63): the READ reproduces from the raw files; a rebuild of its books would be exposed.
+- **Merged into integration:** `ce5c3cea`, the arm's MAIN_CAP=0.5 (`production/arm-w5-cap-20261009`; the reviewer APPROVED;
+  64 passed). It quotes line 65. The live book is unchanged (week_env's default was 0.5); the arm now sets the cap
+  explicitly and refuses while it is empty. It merged BEFORE FRIDAY_HEAD: it touches tests/, which CODECHG counts as code.
+- **`check_prospective_gates.py --week 5`:** rc 0, "every gate that must be armed this week is armed and policy-consistent"
+  (older failed runs within 8 days noted on several shadow jobs; the newest runs succeeded).
+- **Study 38's gate pin:** 6n's follow-up `de777641` (the CAP50 paper arm, never built at live 0.5) if its smoke passes, else
+  6n `5e430683`. It runs on the live snapshot (A3 cancelled).
+- **Next:** 88 (the 6n2 smoke, then the hash sweep, then 88 under PYTHONHASHSEED=0); his choice on any OWN15 follow-up;
+  FRIDAY_HEAD; the 12:31 FP capture.
+
 ## 2026-10-09 (10:42 CDT) — OPERATOR (in the laptop's session): the 35% cap arms for W5 unless study 89 reads it worse than 50% on both draws
 
 **Asked by the laptop** (AskUserQuestion: arm 35% for W5 / only if the W2–4 replay holds up / no), **his answer, verbatim:**
