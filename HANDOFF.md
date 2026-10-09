@@ -12,6 +12,24 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (10:42 CDT) — OPERATOR (in the laptop's session): the 35% cap arms for W5 unless study 89 reads it worse than 50% on both draws
+
+**Asked by the laptop** (AskUserQuestion: arm 35% for W5 / only if the W2–4 replay holds up / no), **his answer, verbatim:**
+"the independent check is whether study 89 shows the 35% cap underperforming 50% on both draws, since that's the real test —
+not the Weeks 2-4 replay, which would pass by construction"
+
+- **The rule as the laptop reads it**, sent to the reviewer to freeze in study 89's prereg before its freeze:
+  - DO NOT ARM 0.35 iff CAP35 − LIVE_CB's point estimate on P(≥ 1 big seat) per slate (the 2023–24 read, the calibrated field)
+    is below 0 in BOTH draw A (banks 1743–1748) and draw B (1749–1754).
+  - Otherwise ARM `UNION_MAIN_CAP=0.35` for W5, with the 50% book scored on paper beside it.
+- **The W2–4 real-outcome replay is NOT a gate** (in-sample; he set it aside).
+- **Study 38 amendment 6n** (lab `28bf0eba`, prereg `e3d8c5b3`): the paper arms follow the live cap (0.5 / 0.35). The laptop
+  checked it and asked the reviewer to add the promised 50% paper arm (the live construction at 0.5 when live is 0.35); as
+  written, every paper arm moves to 0.35 and nothing measures 35 vs 50.
+- **His 10-09 request to the outside reviewer began** "WIth that info, it seems we are very bad at selecting lineups. …" (the
+  first words, missing from `8a5fdf09`).
+- **OPEN-DEFECTS O-63** (lab harness builds not byte-reproducible under load in rare near-optima; study 88's census) added.
+
 ## 2026-10-09 (10:28 CDT) — OPERATOR: Friday's A3 rehearsal cancelled; "select better today for this week"; the 35% cap trial, the ownership-relative cap test, the FP calibration
 
 **In the laptop's session (verbatim):** "Since we have found how poorly we are currently selecting lineups, there is no reason to
