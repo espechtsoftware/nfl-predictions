@@ -1318,6 +1318,9 @@ def main(argv: list[str] | None = None) -> int:
         raise SystemExit("--main-own-cap-delta is defined for --main mix (study 89's book)")
     if a.main_own_cap_fallback_share is not None and not (a.main_own_cap_delta and 0 < a.main_own_cap_fallback_share <= 1):
         raise SystemExit("--main-own-cap-fallback-share needs --main-own-cap-delta and a share in (0, 1]")
+    if a.main_own_cap_delta and a.main_cap_share != 0.5 and a.main_own_cap_fallback_share is None:
+        raise SystemExit("--main-own-cap-delta with --main-cap-share != 0.5 needs --main-own-cap-fallback-share (his rule 10-09: a "
+                         "refused ownership cap must never leave the flat player cap running alone)")
     if a.sleeve_cap_share is not None and not 0 < a.sleeve_cap_share <= 1:
         raise SystemExit(f"--sleeve-cap-share must be in (0, 1] (got {a.sleeve_cap_share})")
     if a.rehearsal and (a.out is None or a.live_dir in a.out.resolve().parents):

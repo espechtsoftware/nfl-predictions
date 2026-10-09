@@ -276,6 +276,7 @@ def test_the_cli_wiring_and_the_fallback_share():
     assert 'own_cap_meta["fallback_cap_share"] = cap_share_used' in src and "!!! OWN CAP NOT APPLIED" in src
     assert '"exposure_cap_share": cap_share_used' in src
     assert '--main-own-cap-delta is defined for --main mix' in src
+    assert "--main-own-cap-delta with --main-cap-share != 0.5 needs --main-own-cap-fallback-share" in src
 
 
 def test_lag_filled_rows_count_as_unnamed_and_junk_is_refused(tmp_path):
@@ -293,3 +294,14 @@ def test_lag_filled_rows_count_as_unnamed_and_junk_is_refused(tmp_path):
     d.to_csv(p, index=False)
     with pytest.raises(SystemExit, match="OWN CAP REFUSED: .*not numbers"):
         ur.own_cap_rows(p, fr, set(), 15.0, 26, 0.9)
+
+
+def test_a_refused_cap_can_never_leave_the_flat_35_alone():
+    base = ["--saturday-run", "x", "--t70-run", "y", "--live-dir", "z", "--entries", "26", "--main", "mix",
+            "--main-cap-share", "0.35", "--main-own-cap-delta", "15"]
+    with pytest.raises(SystemExit, match="needs --main-own-cap-fallback-share"):
+        ur.main(base)
+    with pytest.raises(SystemExit, match="--mix-plan"):                    # with the fallback share: the next check, not ours
+        ur.main(base + ["--main-own-cap-fallback-share", "0.5"])
+    with pytest.raises(SystemExit, match="--mix-plan"):                    # at 0.5 a refused cap builds today's book anyway
+        ur.main(base[:-4] + ["--main-cap-share", "0.5", "--main-own-cap-delta", "15"])
