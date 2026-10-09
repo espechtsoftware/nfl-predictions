@@ -78,9 +78,11 @@ reviewer and updated as each study is read.
 - The three rules together (83): −1.9; on another draw +1.0 (noise).
 - Your four price rules on the whole book (85): **−3.1**, 23% fewer expected big wins; defense ≤ $3,000 alone −1.1; exactly
   one receiver ≤ $4,500 alone −1.7.
+- No player over $7,900 in the book (86): **−4.9** (2023 −4.4, 2024 −5.5); about 18% fewer expected big wins; 2022 −0.3. Its
+  real-book cost is small (−0.18 projected points per lineup; 17 of 26 lineups change), but the test model reads it clearly
+  worse — the stars are worth keeping.
 
 ## Still running
-- **Study 86:** no player over $7,900 in the book. Real book: 17 lineups change, −0.18 projected points per lineup.
 - **Study 87:** a top-4-game QB with his top receiver, plus the price rules, with the usage caps removed (and a no-caps
   book alongside). Real book (the bans only; the receiver and flex rules can't be emulated): with today's caps, the QB
   restriction adds about 0.9 projected points per lineup to the price limits' 0.7; with the caps off (your amendment), all of
