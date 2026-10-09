@@ -3,6 +3,15 @@
 **For:** Erich, before Friday's code freeze. Written by the laptop agent, with the reviewer's recommendation for each
 test. **Every result below was read by the reviewer and re-run by the laptop with identical output.**
 
+## The morning's results, in short (study 84 READ committed 07:06 CT)
+
+- **83, the three rules together:** by your rule, **do not use** (−1.9 points).
+- **84, the tight-end ban with them, with each, and alone:** by the order we read from your decisions, **nothing new enters this week.** Three versions passed your rule (the three without the ban +1.0; ban + one-catcher +0.3; ban + receiver-in-the-flex +3.3), but the order did not select them, and the ban alone came out −1.2.
+- **The most important finding of the night:** the SAME rule gave very different answers on two different sets of test draws. The tight-end ban alone read **+4.7** on one set (study 81) and **−1.2** on another (study 84); the three rules together read −1.9 and then +1.0. So the test's own ranges are too narrow, and **none of tonight's leans (77, 79, 75, the tight-end ban) is bigger than that run-to-run noise.**
+- **My recommendation now: keep the live book for Week 5** (with this week's cheap-player boost, as armed), and put anything you want to keep watching into the no-money paper test on the real weekly fields, where new games decide.
+- **Still running, as information for you:** study 85 (your experiment book) and study 86 (no player over $7,900).
+- **On your real book** (no scores looked at): 85's two price limits alone cost about 0.7 projected points per lineup and change 24 of 26 lineups; the $7,900 cap costs about 0.2 and changes 17.
+
 ## Update: your decision (early morning)
 
 You said: **"Let's do a test now of all 3 and if it isn't negative use it in week 5."** (recorded in the handoff).
@@ -32,7 +41,7 @@ You said: **"Let's do a test now of all 3 and if it isn't negative use it in wee
 
 The book is ready as it stands. That is the default, and nothing changes unless you say so. **Two decisions:**
 
-1. **One more lineup change this week, or none?** The best candidate from tonight is **77: the quarterback alone in 3 lineups.**
+1. **One more lineup change this week, or none?** *(Written before the morning tests; see the results above: I now recommend none.)* The best candidate from tonight was **77: the quarterback alone in 3 lineups.**
    - +1.8 points, positive in both deciding seasons, about 4% more expected big wins, no projection cost. Not proven: the range runs from −1.8 to +5.4.
    - **Read it as a lean, not a finding.** Tonight tested about 17 options (and about 35 measurements) on the same past slates. With that many tries, one or two leaning positive is what chance alone would produce, so 77's lean is a reason to try it, not proof that it works.
    - Checked on your real Week-5-style book (Week 4's inputs, no scores looked at): its 3 lineups land in big-contest seats, exactly as in the test.
