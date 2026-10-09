@@ -24,12 +24,13 @@ test. **Every result below was read by the reviewer and re-run by the laptop wit
     (after-the-fact) ownership it would do better still, which says a better ownership forecast is where an edge could be.
   - **What is armed:** your live book exactly as before (cheap block on, 50% cap). The cap is now set explicitly in
     Saturday's arming and reviewed.
-- **Your package decision (the 35% cap + the ownership limit, "Live W5 trial if built in time"): on track.** It is built,
-  reviewed and wired, with today's book as the automatic fallback. The 35% cap never runs alone.
+- **Your package is ARMED for Week 5 (your "Yes, arm the package").** Every condition you set passed: built, matching the
+  lab version, checked on your Week-4 book, and today's book scored on paper beside it. Saturday's 10:30 build is the first
+  live run; if Sunday's ownership file ever fails, the build automatically falls back to today's book, with an alert. The 35%
+  cap never runs alone.
   - **On your Week-4 book it does what it should:** it binds (10 of your players sit above their ownership limit today; none
     after), it spreads the book (54 different players instead of 48; no player in more than 9 lineups), and it costs about
     3 projected points per lineup.
-  - **Still to finish before Saturday's arming:** the reviewer's paper-test check, then one merge.
 - **Study 88 (your 87 book on fresh draws, a cheaper QB, a TE allowed in the flex):** about 3 points below your live book
   again (the two reads −3.3 and −3.1). A cheaper QB makes it worse; letting a TE be the flex changes nothing. Nothing here
   for Week 5.
