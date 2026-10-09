@@ -40,6 +40,7 @@ reviewer and updated as each study is read.
   version → 4/11/11 at −0.31 projected points per lineup.
 - **Related, flat:** "no tight end in the flex" (study 85) +0.2; 2022 +3.4.
 - **Versions to consider later:** 3 or 4 lineups; with lead 2's TE ban; a paper test on real weeks.
+- **Re-read on your armed Week-5 version (study 93, 8 lineups): −0.3** (opponent set A −0.9, set B +0.3) — flat. Paper only.
 
 ### 4. A small bonus for tight ends in 8 lineups — *slightly positive, all three tested forms*
 - **Study 63:** pass-catching TEs +2 → **+1.3** (2022 +2.5); against the toughest pass defences → **+1.9** (2022 +1.1); cheap
@@ -55,13 +56,20 @@ reviewer and updated as each study is read.
 - **In combinations it did not hold:** with the one-catcher and flex rules (study 83) −1.9; the same on another draw (84)
   +1.0; with the TE ban (84) −2.0.
 - **Versions to consider later:** alone, re-read on a fresh draw; 6 lineups (+1.8 on its first read).
+- **Re-read on your armed Week-5 version (study 93): −0.2** (opponent set A +1.4, set B −1.8) — flat. Paper only.
 
-### 6. One receiver per team, all of the QB + 1 lineups (study 79) — *small, positive in both checks*
+### 6. One receiver per team, all of the QB + 1 lineups (study 79) — *LIVE in Week 5 if every check passes (your decision)*
 - **8-lineup version +2.0** (2023 +0.2, 2024 +3.8), 2022 +1.3 — but it changes nothing in your real book.
 - **The every-lineup version +2.1**, 2022 +0.8 (a side reading). **Real book:** removes 6 of your 7 same-team receiver pairs
   away from the QB; 8 lineups change; no projection cost (+0.03).
 - **With the TE ban (84): +0.3.**
 - **Versions to consider later:** the every-lineup version alone, re-read on a fresh draw.
+- **Re-read on your armed Week-5 version (study 93; 36 past slates, two random opponent sets): +2.0** (set A +3.6, set B +0.5);
+  about 11% more expected big wins — it passed your "better on both draws" rule, the only one of study 93's three to do so.
+  Under no true effect a rule passes about one time in four to one in three.
+- **Your decision (10-09): "Live W5 if built in time".** Built and tested tonight (production flag `--mix-one-catcher-all`; it
+  matches the tested rule line for line, including the cheap-block lineups). It goes live at Saturday's arming only if the
+  Week-4 check and the paper-arm check pass; your armed book without it is scored on paper beside it. Otherwise it goes to paper.
 
 ### 7. At least one star ($8,000+) in each of the first 8 lineups (study 78) — *positive in every season, but barely tested*
 - **+2.1** (2023 +1.5, 2024 +2.7), 2022 +1.0 — a side reading; the test model's book already had a star in most of those
@@ -117,11 +125,14 @@ reviewer and updated as each study is read.
   top receiver) **−2.3**, and below on 2022 too (−1.5). Removing the caps alone: −1.7. Against the no-caps book, the price
   rules cost −4.4 and the QB rules −0.6. Without the QB cap, one QB took up to 24 of 26 lineups.
 
+- **Your study-87 book re-read, and a cheaper QB (study 88, your "slightly cheaper QB" request):** 87's book on a fresh draw
+  **−3.1** against the live book (2022 +4.4) — about 3 points below, as on the first read. **No QB priced $7,000 or more, on top
+  of it: −1.7 more** (2022 −3.3), 19% fewer expected big wins. A TE allowed in the flex: +0.2 (no change). Nothing for Week 5.
+
 ## Still running
-- **Study 88 (running after study 89; your "slightly cheaper QB" request):** 87's book again on a fresh draw (the second reading
-  the rule above asks for), plus three versions of it: no QB priced $7,000 or more; a TE ($5,000 or less) allowed in the flex;
-  and both. Why these: in the 2026 Week 1–4 Millionaires the top 1% rarely played a $7,000+ QB (3% of lineups vs the field's
-  9%), and they put a TE in the flex MORE often than the field (37% vs 28%), so 87's "no TE in the flex" rule goes against
-  what the winners did. All built without the usage caps, as in 87.
+- **Study 94 (your "let's try each", item 5; running tonight):** on your armed version, (a) an RB as a stack mate — 4 lineups of
+  the QB + one receiver + his own RB (the 2026 Week-2 Millionaire's winning shape), and (b) a defense with its own team's RB in
+  8 lineups. Week-6 candidates only. Caution for (b): in real contests the field already pairs an RB with his own defense more
+  than any other pair, and the test model's opponents do not, so a pass for (b) would look better here than it would live.
 
 *Updated as each study is read.*
