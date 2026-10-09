@@ -17,8 +17,11 @@
 **His words** (in the outside reviewer's session, during study 84's run; relayed to the laptop verbatim): "After that, let's do
 one additional study where the only rule is no player over $8100 for the entire book."
 
-- **Study 86 CAP8100:** every pool player priced above $8,100 is banned on every book solve; $8,100 itself is allowed. It runs
-  through s81's banned_rows. Its design is on origin before 84's and 85's READs (`review/s86-prereg-20261009` @
+- **His amendment** (relayed verbatim, before any code or read): "Let's change that to no player over 7,900." The arm is now
+  **CAP7900**: every pool player priced above $7,900 banned on every book solve, $7,900 itself allowed; the prereg is amended
+  at `14168e8f` (06:51), before 84's READ. Banks and seed are unchanged.
+- *(as first written)* **Study 86 CAP8100:** every pool player priced above $8,100 is banned on every book solve; $8,100 itself
+  is allowed. It runs through s81's banned_rows. Its design is on origin before 84's and 85's READs (`review/s86-prereg-20261009` @
   `c4ac131e`).
 - **The outside reviewer's reading:** information for his decision, with no automatic Week-5 rule. The laptop confirms that
   with him.
