@@ -1,0 +1,11 @@
+== cap7900 W4 check at 3a9327e1 07:06:58; flag: --dk-status /home/erich/rehearsals/cap7900-inputs/dk_status-over7900-out-w4.csv
+off rc 0 a4ab283949254d12 (known answer a4ab283949254d12)
+on rc 0
+OFF: {"rows": 26, "qb_alone": 0, "qb2": 12, "nonqb_pair": 7, "flex": "1/14/11", "fp_proj_per_row": 143.7, "qb_alone_at": [], "nonqb_pair_at": [1, 8, 14, 17, 22, 23, 24]}
+ON:  {"rows": 26, "qb_alone": 0, "qb2": 12, "nonqb_pair": 4, "flex": "1/13/12", "fp_proj_per_row": 143.52, "qb_alone_at": [], "nonqb_pair_at": [4, 8, 17, 23]}
+rows of ON not in OFF: 17 of 26
+plan sha 5f8352ee ; big contests 21 of 29
+QB-alone rows in ON: none
+QB-alone rows with an RB teammate: 0 of 0
+non-QB-pair rows: OFF at [1, 8, 14, 17, 22, 23, 24] | ON at [4, 8, 17, 23]
+== done 07:07:14 /home/erich/rehearsals/flagcheck-cap7900-20261009T120658Z
