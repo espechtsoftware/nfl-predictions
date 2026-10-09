@@ -17,9 +17,11 @@
 **His words** (in the outside reviewer's session, during study 84's run; relayed to the laptop verbatim): "As an experiment
 lets try an entire book like this: TE <= 5000 / D <= 3000 / 1 WR <= 4500 / WR or RB in Flex"
 
-- **Being confirmed with him** by the outside reviewer:
-  - whether "1 WR" means at least one or exactly one;
-  - whether the experiment is information only or carries his not-negative rule for Week 5.
+- **His two clarifications** (relayed by the reviewer from the outside reviewer's session; recorded as given):
+  - "1 WR" means EXACTLY one WR priced ≤ $4,500;
+  - "Let me decide": no automatic Week-5 rule. He decides after the read.
+- **Study 85 BOOK85** is triaged RUN. Its design is on origin before 84's READ (`review/s85-prereg-20261009` @ `159907fc`).
+  Banks 1719–1724, seed 20261130.
 - **Planned:** study 85. Its DESIGN is committed before study 84's READ (the same slates; the same discipline as 84 before
   83). No machine work until 84's run ends.
 - **The wiring for any tested set is ready, unmerged:** `production/c0-wiring-20261009` @ `3c7be06e`. It covers C0,
