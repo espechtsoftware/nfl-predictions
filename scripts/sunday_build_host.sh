@@ -452,6 +452,50 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
     [[ -n "$FP_WHY" ]] && own_banner "FANTASY POINTS" "$FP_WHY"
     [[ -n "$OWN_SRC" ]] && UNION_ARGS+=(--main-own-tilt "$OWN_TILT" --main-own-source "$OWN_SRC")
   fi
+  # His 10-09 package (study 89, Addendum 186; HANDOFF 5380e0e7): the 35% player cap WITH the ownership cap -- each skill
+  # player in at most floor(K x (his FP projected ownership, rescaled, + UNION_MAIN_OWN_CAP_DELTA points)) main-book rows.
+  # The flat 35% never runs alone (his rule): no FP ownership export = TODAY's book (the player cap 0.5, no ownership cap),
+  # LOUDLY (a banner and an ALERT file); union_reselect also builds at --main-own-cap-fallback-share by itself if it refuses
+  # the file, and the host turns its "OWN CAP NOT APPLIED" line into the same ALERT after the run. FP's export: the term's
+  # when there is one, else this run's own capture + export (the winner order's pattern below).
+  set_cap_share() {                                         # --main-cap-share VALUE in UNION_ARGS, in place (one value for parity)
+    local i
+    for i in "${!UNION_ARGS[@]}"; do [[ "${UNION_ARGS[$i]}" == "--main-cap-share" ]] && { UNION_ARGS[$((i+1))]="$1"; return; }; done
+    UNION_ARGS+=(--main-cap-share "$1")
+  }
+  own_cap_alert() {                                         # his package not applied: today's book, loudly
+    printf '%s run %s: OWN CAP NOT APPLIED (the book as before the package: player cap %s, no ownership cap): %s\n' "$(date -u +%FT%TZ)" "$RUN_TAG" \
+      "${UNION_MAIN_OWN_CAP_FALLBACK_SHARE:-0.5}" "$1" | tee -a "$OUT/ALERT-own-cap-not-applied-$RUN_TAG.txt"
+    printf '\n%s\n%s\n%s\n\n' "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" \
+      "!!! OWN CAP NOT APPLIED for $RUN_TAG: $1 -- TODAY'S BOOK (player cap ${UNION_MAIN_OWN_CAP_FALLBACK_SHARE:-0.5}, no ownership cap)" \
+      "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+  }
+  OWN_CAP_SRC=""; OWN_CAP_ON=0
+  if [[ "${UNION_MAIN:-mean}" == "mix" && "${UNION_MAIN_OWN_CAP_DELTA:-0}" != "0" ]]; then
+    OWN_CAP_ON=1; OWN_CAP_WHY=""
+    if [[ -n "$OWN_SRC" && "$(basename "$OWN_SRC")" == ownership_fp-* ]]; then
+      OWN_CAP_SRC="$OWN_SRC"
+    else
+      FP_PROFILE_LOCK=${FP_PROFILE_LOCK:-$HOME/.cache/nfl-dfs/fantasy-points-profile.lock}; mkdir -p "$(dirname "$FP_PROFILE_LOCK")"
+      ( cd "$PROD" && PYTHONPATH="$PROD/src" flock -w "${FP_OWN_LOCK_WAIT_S:-300}" "$FP_PROFILE_LOCK" timeout 240 "$PROD_PY" -m nfl_dfs.ops.fantasy_points_ownership collect --week "$WEEK" ) \
+          > "$OUT/own_cap-$RUN_TAG.txt" 2>&1 || echo "FP OWNERSHIP CAPTURE FAILED for $RUN_TAG (own cap; see $OUT/own_cap-$RUN_TAG.txt); the newest earlier capture is used if fresh"
+      if ( cd "$PROD" && PYTHONPATH="$PROD/src" timeout 120 "$PROD_PY" scripts/ownership_fp.py --season "$SEASON" --week "$WEEK" \
+             --frame "$K90_DIR/frame.parquet" --lag "$OWNERSHIP_LAG" --max-age-hours "${FP_MAX_AGE_HOURS:-30}" \
+             --out "$OUT/ownership_fp-$RUN_TAG.csv" ) 2>&1 | tee -a "$OUT/own_cap-$RUN_TAG.txt"; then
+        OWN_CAP_SRC="$OUT/ownership_fp-$RUN_TAG.csv"
+      else
+        OWN_CAP_WHY="FP ownership export: $(grep -h 'REFUSED' "$OUT/own_cap-$RUN_TAG.txt" | tail -1)"
+      fi
+    fi
+    if [[ -n "$OWN_CAP_SRC" ]]; then
+      UNION_ARGS+=(--main-own-cap-delta "$UNION_MAIN_OWN_CAP_DELTA" --main-own-cap-source "$OWN_CAP_SRC"
+                   --main-own-cap-fallback-share "${UNION_MAIN_OWN_CAP_FALLBACK_SHARE:-0.5}")
+      echo "OWN CAP for $RUN_TAG: ON (+$UNION_MAIN_OWN_CAP_DELTA points over FP ownership $(basename "$OWN_CAP_SRC"); player cap ${UNION_MAIN_CAP:-0.5})"
+    else
+      set_cap_share "${UNION_MAIN_OWN_CAP_FALLBACK_SHARE:-0.5}"    # TODAY's book: the player cap back to 0.5, in place
+      own_cap_alert "${OWN_CAP_WHY:-no FP ownership file}"
+    fi
+  fi
   # Study 48b's winner-likeness order (operator 10-07: "Test tonight, aim for Week 5"; default off): FP's projected
   # ownership (the term's FP export when there is one, else this run's own capture + export) and the players' prior-game
   # touchdowns / attempts (scripts/winner_like_inputs.py), then the union re-orders the main book by study 48's frozen
@@ -550,9 +594,13 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
       echo "UNION FAILED (see $OUT/union-$RUN_TAG.txt); the T-70 run dir $K90_DIR stands"; union_fail "the union failed, rc $UNION_RC"; exit 1
     fi
   fi
+  if (( OWN_CAP_ON )) && grep -q 'OWN CAP NOT APPLIED' "$OUT/union-$RUN_TAG.txt" 2>/dev/null; then
+    own_cap_alert "the union refused it: $(grep -h 'OWN CAP NOT APPLIED' "$OUT/union-$RUN_TAG.txt" | tail -1)"
+  fi
   UNION_DIR=$(sed -n 's/^UNION -> //p' "$OUT/union-$RUN_TAG.txt" | tail -1)
   [[ -n "$UNION_DIR" && -n "${OWN_REFUSED:-}" && ! -f "$UNION_DIR/own_term_refused.txt" ]] && cp "$OUT/union-$RUN_TAG-own-refused.txt" "$UNION_DIR/own_term_refused.txt"
   [[ -n "$UNION_DIR" && -f "$OUT/union-args-$RUN_TAG.txt" ]] && cp "$OUT/union-args-$RUN_TAG.txt" "$UNION_DIR/union_args.txt"
+  [[ -n "$UNION_DIR" && -f "$OUT/ALERT-own-cap-not-applied-$RUN_TAG.txt" ]] && cp "$OUT/ALERT-own-cap-not-applied-$RUN_TAG.txt" "$UNION_DIR/own_cap_not_applied.txt"
   # the projection source travels with the union dir, so the upload sheet can name it (the outside review 10-06, (1b))
   [[ -n "$UNION_DIR" && -f "$OUT/proj_fp-$RUN_TAG.txt" ]] && cp "$OUT/proj_fp-$RUN_TAG.txt" "$UNION_DIR/proj_source_log.txt"
   [[ -n "$UNION_DIR" && -f "$OUT/proj_source_fallback-$RUN_TAG.txt" ]] && cp "$OUT/proj_source_fallback-$RUN_TAG.txt" "$UNION_DIR/proj_source_fallback.txt"

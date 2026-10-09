@@ -307,3 +307,24 @@ def test_production_code_that_moved_since_arming_fails_and_docs_do_not(tmp_path)
                for f in _failures(r)), _failures(r)
     env["PROD_ARMED_HEAD"] = "abc"
     assert any("PROD_ARMED_HEAD must be a full 40-character commit" in f for f in _failures(_run(env)))
+
+
+def test_his_package_is_armed_only_whole_and_the_flat_35_never_alone(tmp_path):
+    """His 10-09 package (study 89, Addendum 186): UNION_MAIN_OWN_CAP_DELTA=15 needs the mix and UNION_MAIN_CAP=0.35; the
+    player cap 0.35 needs the ownership cap; (0.5, off) is the book as before."""
+    def fresh(name):
+        d = tmp_path / name; d.mkdir(); return _healthy(d)
+
+    alone = "UNION_MAIN_CAP=0.35 without the ownership cap: the flat 35% never runs alone"
+    pkg = "UNION_MAIN_OWN_CAP_DELTA="
+    env = fresh("a"); env.update(UNION_MAIN_CAP="0.35")
+    assert any(f.startswith(alone) for f in _failures(_run(env)))
+    env = fresh("b"); env.update(UNION_MAIN_CAP="0.5", UNION_MAIN_OWN_CAP_DELTA="15", UNION_MAIN="mix", UNION_MIX_PORTFOLIO="mix")
+    assert any(f.startswith(pkg + "'15' is his package only") for f in _failures(_run(env)))
+    env = fresh("c"); env.update(UNION_MAIN_CAP="0.35", UNION_MAIN_OWN_CAP_DELTA="10", UNION_MAIN="mix", UNION_MIX_PORTFOLIO="mix")
+    assert any(f.startswith(pkg + "'10' is his package only") for f in _failures(_run(env)))
+    env = fresh("d"); env.update(UNION_MAIN_CAP="0.35", UNION_MAIN_OWN_CAP_DELTA="15", UNION_MAIN="mix", UNION_MIX_PORTFOLIO="mix")
+    found = _failures(_run(env))
+    assert not any(f.startswith(alone) or f.startswith(pkg) for f in found), found
+    env = fresh("e"); env.update(UNION_MAIN_CAP="0.5", UNION_MAIN_OWN_CAP_DELTA="0")
+    assert not any(f.startswith(alone) or f.startswith(pkg) for f in _failures(_run(env)))
