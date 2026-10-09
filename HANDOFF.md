@@ -12,6 +12,18 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (16:34 CDT) — laptop: the 16:33 FP ownership capture (1,147 rows / 612 players) and the evening arm --check pass
+
+- **FP projected ownership, W5** (production checkout `7dc00df1`, collector `ced05f9f`): rc 0.
+  nfl_raw.fantasy_points_projected_ownership now holds two captures: retrieved 17:42:09Z (1,147 rows, 612 players) and
+  21:33:07Z (1,147 rows, 612 players).
+- **The evening `--check`** (a scratch copy with TERM_ROWS=8 / TERM_SHA `5941678b…`; ARM_LATE=1 because of the time guard):
+  - step 0 OK (checkout clean, Rev6, class model `92cec733`, K 26, mixt, Neo4j off);
+  - the term file OK (294 of 565 players, cap 2);
+  - the dose line: **player cap 0.35; ownership cap 15; row rules te1_low1**; QB cap 5 at K 26; overlap 4; fill rr;
+  - 11 units planned; "CHECK DONE (nothing armed)", rc 0.
+  - Saturday arms before 10:28 without ARM_LATE: 13 units.
+
 ## 2026-10-09 (16:20 CDT) — OPERATOR (relayed): "keep 15 as you suggest" (after study 90)
 
 After study 90's read (+10 vs +15: +0.8 pooled, A +0.9, B +0.6, seats 0.973; the second read of +15 vs the 50% book +0.3),
