@@ -66,7 +66,8 @@ reviewer and updated as each study is read.
 ### 7. At least one star ($8,000+) in each of the first 8 lineups (study 78) — *positive in every season, but barely tested*
 - **+2.1** (2023 +1.5, 2024 +2.7), 2022 +1.0 — a side reading; the test model's book already had a star in most of those
   lineups, so it changed little there.
-- **Your real book** holds about half a star per lineup (the top 1% about 0.9), so the rule would change much more there.
+- **Your real book** holds about half a star per lineup (0.54; the 2026 Week 1–4 Millionaires' top 1% about 0.9 — the outside
+  reviewer's scan for study 78), so the rule would change much more there.
 - **Versions to consider later:** a real-book check first, then a paper test. (Two stars per lineup was mixed: off.)
 
 ## Tested and not promising (closed unless you say otherwise)
@@ -81,6 +82,8 @@ reviewer and updated as each study is read.
 ## Still running
 - **Study 86:** no player over $7,900 in the book. Real book: 17 lineups change, −0.18 projected points per lineup.
 - **Study 87:** a top-4-game QB with his top receiver, plus the price rules, with the usage caps removed (and a no-caps
-  book alongside). Real book: the QB restriction is the costly part (about −1.4 per lineup).
+  book alongside). Real book (the bans only; the receiver and flex rules can't be emulated): with today's caps, the QB
+  restriction adds about 0.9 projected points per lineup to the price limits' 0.7; with the caps off (your amendment), all of
+  87's limits together cost about 1.4 per lineup against a no-caps book.
 
 *Updated as each study is read.*
