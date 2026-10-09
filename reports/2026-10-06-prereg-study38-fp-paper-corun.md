@@ -1,4 +1,4 @@
-# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06, 10-07, 10-08 and 10-09, amendments 1, 1b, 2, 3, 4, 5, 6, 6b, 6c, 6d, 6e, 6f, 6i, 6j, 6k, 6l, 6n, 6n's follow-up, 6o, 6p, 6q and 6r before Week 5's lock; repair 6g and the big-win rule 6h before its first score)
+# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06, 10-07, 10-08 and 10-09, amendments 1, 1b, 2, 3, 4, 5, 6, 6b, 6c, 6d, 6e, 6f, 6i, 6j, 6k, 6l, 6n, 6n's follow-up, 6o, 6p, 6q, 6r and 6s before Week 5's lock; repair 6g and the big-win rule 6h before its first score)
 
 **Status: FROZEN 2026-10-06** by the reviewer, BEFORE any week of the decision arm (MIXT_RS0) or of the exploratory arms
 QBB0 / NQC0 / QAL / RBC0 was read on any slate. Disclosed: before the freeze, the reference MIXT_QA0 was scored on
@@ -1067,6 +1067,40 @@ score. Nothing here enters a contest: the money path, its checkout and its files
     - `scripts/s38_build.py` unchanged (`15373e14…`).
   - **The integrity gate** pins this module sha in place of 6q's `5ad07e99…`, on the live snapshot (`s38-prod-pin` at FRIDAY_HEAD
     `f5f96468`; the classification there is clean).
+  - **Order:** this amendment; the laptop's ack; the gate pin.
+
+- **Amendment 6s (2026-10-09, before Week 5's lock; no Week-5 outcome exists): a low-ownership limit that can bind, on paper.**
+  - **Why.** His question (in the outside reviewer's session; HANDOFF `7a47ecc3`): "is there anything in your log for things that
+    seemed promising that we should still try?", and on the list "let's try each that you suggested". Item 1: study 91's LOW1 alone
+    passed in the harness (+2.8, Addendum 188), but at 3% of FP's projections it barely binds on his real book (0.1–0.2 such
+    players per row). Thresholds at which it binds are 5% and 8%. There is no FP ownership history, so no harness read exists:
+    real weeks only.
+  - **What changes.** Two exploratory paper arms on his live construction (every live setting as MIXT_QA0 follows it):
+    - **MIXT_QA0_LOW5 / MIXT_QA0_LOW8:** at most one TE and at most one skill player under 5% / 8% FP projected ownership
+      (6p's `low_owned` at that threshold; `fp_own_raw`; blank or unnamed = 0%) per book row, in place of the live 3% rule.
+    - **The fallback:** a solve infeasible under the 5% / 8% rule is re-solved under the LIVE rules (te1 + the 3% rule), and only
+      then with none, each recorded (`row_rules_or`, a new two-tier wrapper inside `own_caps`; `row_rules`' pinned text is
+      unchanged). The first smoke showed why: at 8% four of 26 W4 solves were infeasible, and the one-list fallback had dropped
+      the TE rule too.
+    - Every arm records its low-owned players per row at 5% and 8%. Read against MIXT_QA0, overall and per contest group.
+  - **The smoke** (dry run on Week 4's frozen copies, the armed state (the package + the row rules, the laptop's receipt);
+    production at FRIDAY_HEAD `f5f96468`; `~/private/paper-corun/smoke-w4-amend6s/`, script `run.sh` `12cb4e15f7df`, log `5187960002fb`; lab
+    `64d330d5`; PYTHONHASHSEED=0):
+    - 47 tests pass (rc 0); mismatches none; **all 28 pre-6s arms identical to 6r's armed build**; the low sets hold 177 (5%)
+      and 201 (8%) of 235 pool skill players (3%: 163).
+    - **MIXT_QA0** (the live 3% rule): low-owned per row 0.23 (3%), 0.73 (5%), 1.69 (8%); FP per dealt lineup 140.79.
+    - **MIXT_QA0_LOW5:** 0.42 under 5% per row; **8 of 26 rows change**; 26 ruled solves, 0 fallbacks; FP 140.82.
+    - **MIXT_QA0_LOW8:** 1.23 under 8% per row (the limit is infeasible on 4 of 26 solves, which fall back to the live rules,
+      keeping one TE per row); **17 of 26 rows change**; FP 140.71.
+    - The first smoke (before the fallback tier; run.log kept as run-first.log) had LOW8's 4 infeasible solves drop the TE rule
+      too (1.15 TEs per row); that is why the second tier exists.
+  - **Code:** lab `64d330d5` (6s `4a00ffda` and the fallback `64d330d5`, on 6r's `90a3053c`):
+    - `experiments/s38_paper_corun.py` sha256 `29f8c095d4704538162d160d8d514d8c9ac4d0e7528c6148b9edae5ea81ace5a`;
+    - `scripts/s38_score.py` `d268f8f7b58a2950666c46d4ad7853bffa3dbf7ec6f3dcb4d3071304be396435`;
+    - `scripts/s38_report.py` `c9353c16994c89b759e0eeb2238209a7ac1ca0e7c73ee13f67ee686cd1063b6e`;
+    - `tests/test_s38_paper_corun.py` `312915abfa8806b8cd934f3c6545db0a069a6f906fc9515e672a2f50d03098e2` (47 tests);
+    - `scripts/s38_build.py` unchanged (`15373e14…`).
+  - **The integrity gate** pins this module sha in place of 6r's `8ac57630…`, on the live snapshot.
   - **Order:** this amendment; the laptop's ack; the gate pin.
 
 ## 1. Why
