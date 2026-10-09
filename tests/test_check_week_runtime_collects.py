@@ -227,6 +227,23 @@ def test_union_mix_bring_back_rows_is_only_4_with_the_rule(tmp_path):
     assert not any("UNION_MIX_BRING_BACK_TOP_WR_ROWS" in f for f in _failures(_run(env)))
 
 
+def test_union_mix_top_game_qb1_is_only_5_and_one_lever_a_week(tmp_path):
+    """Study 73's switch: empty / 0 is off; only 5 (TOPG5_QB1) on the tested configuration; and at most one of the bring-back
+    rule, the top-game QB1 rows and the cell quotas at once (study 51's trial rule: one construction change a week)."""
+    env = _healthy(tmp_path); env["UNION_MIX_TOP_GAME_QB1"] = "0"
+    assert not any("UNION_MIX_TOP_GAME_QB1" in f for f in _failures(_run(env)))
+    env["UNION_MIX_TOP_GAME_QB1"] = "5"
+    assert any("UNION_MIX_TOP_GAME_QB1='5' must be empty / 0 or 5" in f for f in _failures(_run(env)))   # no mix
+    env.update({"UNION_MAIN": "mix", "UNION_MIX_PORTFOLIO": "mix", "UNION_MIX_FILL": "rr"})
+    assert not any("UNION_MIX_TOP_GAME_QB1" in f for f in _failures(_run(env)))
+    env["UNION_MIX_TOP_GAME_QB1"] = "3"
+    assert any("UNION_MIX_TOP_GAME_QB1='3'" in f for f in _failures(_run(env)))
+    env["UNION_MIX_TOP_GAME_QB1"] = "5"; env["UNION_MIX_CELL_QUOTAS"] = "A1=0.15,A2=0.07,B=0.43,C=0.35"
+    assert any("one construction change a week" in f for f in _failures(_run(env)))
+    env["UNION_MIX_TOP_GAME_QB1"] = "0"
+    assert not any("one construction change a week" in f for f in _failures(_run(env)))
+
+
 def test_union_mix_rs_rows_must_be_0_9_13_17_with_mix_rr_and_no_cover(tmp_path):
     """Study 46's switch: 0 (or unset) is off; 9 / 13 / 17 need the MIX portfolio, the round-robin fill and no cover."""
     env = _healthy(tmp_path); env["UNION_MIX_RS_ROWS"] = "0"

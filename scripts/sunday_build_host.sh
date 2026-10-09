@@ -335,6 +335,8 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   [[ "${UNION_MAIN:-mean}" == "mix" && "${UNION_MIX_RS_ROWS:-0}" != 0 ]] && UNION_ARGS+=(--mix-rs-rows "$UNION_MIX_RS_ROWS")
   # the MIX cells' entry quotas (study 56, fewer QB + 1 rows; the operator 10-07): unset = MIX_CELLS, as before
   [[ "${UNION_MAIN:-mean}" == "mix" && -n "${UNION_MIX_CELL_QUOTAS:-}" ]] && UNION_ARGS+=(--mix-cell-quotas "$UNION_MIX_CELL_QUOTAS")
+  # study 73 (the operator 10-08: the QB + his top pass catcher for each of the top-G games); empty / 0 = off
+  [[ "${UNION_MAIN:-mean}" == "mix" && "${UNION_MIX_TOP_GAME_QB1:-0}" != 0 ]] && UNION_ARGS+=(--mix-top-game-qb1 "$UNION_MIX_TOP_GAME_QB1")
   # priority-first dealing (the operator 10-07; default off): the main rows re-ordered by the frozen score, a live term block
   # kept at its positions (nfl_dfs.inference.priority_deal); the order is a refinement and never stops a union
   [[ "${UNION_MAIN:-mean}" == "mix" && "${UNION_PRIORITY_ORDER:-0}" == "1" ]] && UNION_ARGS+=(--priority-order)
