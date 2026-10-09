@@ -18,6 +18,8 @@
 experiment with this. / QB from one of top 4 point total games / TE <= 5000 / D <= 3000 / 1 WR <= 4500 / Top receiver same
 team as QB / WR or RB in Flex", then "In this case at least 1 wr <= 4500 can be more."
 
+- **His clarification** (relayed verbatim): "top receiver" means "Highest-priced WR". That is s70's top_wr: WRs only, so a TE
+  never counts. The laptop's read-only count used the same definition: 4 of 26 W4 rows lack it.
 - **Study 87:** BOOK87 (all six rules; at least one WR ≤ $4,500), PRICE87 and QBTOP87 against LIVE_CB.
   - Information for his decision, with no automatic Week-5 rule.
   - Its design is on origin before 85's and 86's READs (`review/s87-prereg-20261009` @ `5342f218`).
