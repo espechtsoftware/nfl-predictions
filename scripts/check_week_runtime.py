@@ -258,6 +258,13 @@ def main():
     if _oc not in ("", "0") and (_oc != "1" or _rr != "te1_low1" or os.environ.get("UNION_MAIN") != "mix" or _ocd != "15"):
         fail(f"UNION_MIX_ONE_CATCHER_ALL={_oc!r} must be 1, with UNION_MIX_ROW_RULES=te1_low1, UNION_MAIN=mix and his package "
              "(UNION_MAIN_OWN_CAP_DELTA=15)")
+    # the union refuses the whole run (SystemExit) on these, so they must fail here, on Saturday, not in Sunday's union
+    _oc_bad = [f"{k}={os.environ.get(k)!r}" for k, ok in (("UNION_MIX_PORTFOLIO", ("mix",)), ("UNION_MIX_FILL", ("rr",)),
+               ("UNION_MIX_COVER_GAMES", ("", "0")), ("UNION_MIX_RS_ROWS", ("", "0")), ("UNION_MIX_BRING_BACK_TOP_WR", ("",)),
+               ("UNION_WINNER_SELECT", ("", "0"))) if os.environ.get(k, "") not in ok]
+    if _oc == "1" and _oc_bad:
+        fail(f"UNION_MIX_ONE_CATCHER_ALL=1 is refused by the union with {', '.join(_oc_bad)} (it needs portfolio mix, fill rr, "
+             "no cover / half rows, no bring-back top WR, no winner select)")
     _fill = os.environ.get("UNION_MIX_FILL", "")
     if _fill and (_fill not in ("group", "value", "rr") or os.environ.get("UNION_MAIN") != "mix"):
         fail(f"UNION_MIX_FILL={_fill!r} must be group, value or rr, with UNION_MAIN=mix (got UNION_MAIN={os.environ.get('UNION_MAIN')!r})")

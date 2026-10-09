@@ -429,4 +429,5 @@ def test_his_onecatch_rides_into_the_units_only_on_top_of_the_row_rules():
     assert "\nONE_CATCHER_ALL=0 " in arm or "\nONE_CATCHER_ALL=1 " in arm
     assert "UNION_MIX_ONE_CATCHER_ALL=$ONE_CATCHER_ALL" in arm
     assert ('[[ "$ONE_CATCHER_ALL" == 0 || ( "$ONE_CATCHER_ALL" == 1 && "$ROW_RULES" == te1_low1 && "$OWN_CAP_DELTA" == 15 '
-            '&& "$SHAPE" == mixt && "$MIX_FILL" == rr ) ]]') in arm
+            '&& "$SHAPE" == mixt && "$MIX_FILL" == rr \\\n      && "$MIX_COVER" == 0 && "$MIX_RS" == 0 && -z "$BRING_BACK_TOP_WR" '
+            '&& "$WINNER_SELECT" == 0 ) ]]') in arm

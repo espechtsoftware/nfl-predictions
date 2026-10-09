@@ -89,8 +89,9 @@ stop() { say "ARM STOPPED: $*"; exit 1; }
 [[ ( "$MAIN_CAP" == 0.5 && "$OWN_CAP_DELTA" == 0 ) || ( "$MAIN_CAP" == 0.35 && "$OWN_CAP_DELTA" == 15 && "$SHAPE" == mixt ) ]] \
   || stop "MAIN_CAP=$MAIN_CAP with OWN_CAP_DELTA=$OWN_CAP_DELTA: (0.5, 0) = the book as before, or (0.35, 15) = his package with SHAPE=mixt; the flat 35% never runs alone"
 [[ -z "$ROW_RULES" || ( "$ROW_RULES" == te1_low1 && "$OWN_CAP_DELTA" == 15 ) ]] || stop "ROW_RULES=$ROW_RULES: empty, or te1_low1 with his package (OWN_CAP_DELTA=15)"
-[[ "$ONE_CATCHER_ALL" == 0 || ( "$ONE_CATCHER_ALL" == 1 && "$ROW_RULES" == te1_low1 && "$OWN_CAP_DELTA" == 15 && "$SHAPE" == mixt && "$MIX_FILL" == rr ) ]] \
-  || stop "ONE_CATCHER_ALL=$ONE_CATCHER_ALL: 0, or 1 with ROW_RULES=te1_low1, his package (OWN_CAP_DELTA=15), SHAPE=mixt and MIX_FILL=rr"
+[[ "$ONE_CATCHER_ALL" == 0 || ( "$ONE_CATCHER_ALL" == 1 && "$ROW_RULES" == te1_low1 && "$OWN_CAP_DELTA" == 15 && "$SHAPE" == mixt && "$MIX_FILL" == rr \
+      && "$MIX_COVER" == 0 && "$MIX_RS" == 0 && -z "$BRING_BACK_TOP_WR" && "$WINNER_SELECT" == 0 ) ]] \
+  || stop "ONE_CATCHER_ALL=$ONE_CATCHER_ALL: 0, or 1 with ROW_RULES=te1_low1, his package (OWN_CAP_DELTA=15), SHAPE=mixt, MIX_FILL=rr, MIX_COVER=0, MIX_RS=0, no BRING_BACK_TOP_WR and WINNER_SELECT=0 (the union refuses the rest)"
 [[ "$MIX_FILL" == group || ( ( "$MIX_FILL" == value || "$MIX_FILL" == rr ) && "$SHAPE" == mixt ) ]] || stop "MIX_FILL=$MIX_FILL: group, or value / rr with SHAPE=mixt"
 [[ "$MIX_COVER" =~ ^[0-8]$ && ( "$MIX_COVER" == 0 || "$SHAPE" == mixt ) ]] || stop "MIX_COVER=$MIX_COVER: 0..8, and not 0 only with SHAPE=mixt"
 [[ "$MIX_RS" == 0 || ( "$MIX_RS" =~ ^(9|13|17)$ && "$SHAPE" == mixt && "$MIX_FILL" == rr && "$MIX_COVER" == 0 ) ]] || stop "MIX_RS=$MIX_RS: 0, or 9 / 13 / 17 with SHAPE=mixt, MIX_FILL=rr and MIX_COVER=0"
