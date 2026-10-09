@@ -224,6 +224,22 @@ def test_the_bring_back_top_wr_rides_into_the_units_and_empty_passes_nothing():
     assert '"$BRING_BACK_TOP_WR" == "A1,B" && "$SHAPE" == mixt && "$MIX_FILL" == rr' in arm
 
 
+def test_the_bring_back_rows_cap_rides_into_the_units_and_needs_the_rule():
+    """Study 71b's dose: UNION_MIX_BRING_BACK_TOP_WR_ROWS reaches the build units; the host passes
+    --mix-bring-back-top-wr-rows only with the rule itself set; the Week-5 arm allows only 4 with A1,B (default off)."""
+    from pathlib import Path
+    r = _run(UNION_MIX_BRING_BACK_TOP_WR="A1,B", UNION_MIX_BRING_BACK_TOP_WR_ROWS="4")
+    assert "UNION_MIX_BRING_BACK_TOP_WR_ROWS=4" in _unit_line(r.stdout, "nfl-week4-t70-build")
+    root = Path(__file__).resolve().parents[1] / "scripts"
+    host = (root / "sunday_build_host.sh").read_text()
+    assert ('-n "${UNION_MIX_BRING_BACK_TOP_WR:-}" && -n "${UNION_MIX_BRING_BACK_TOP_WR_ROWS:-}" ]] && '
+            'UNION_ARGS+=(--mix-bring-back-top-wr-rows "$UNION_MIX_BRING_BACK_TOP_WR_ROWS")') in host
+    arm = (root / "arm_week5_saturday.sh").read_text()
+    assert '\nBRING_BACK_TOP_WR_ROWS=""' in arm
+    assert "UNION_MIX_BRING_BACK_TOP_WR_ROWS=$BRING_BACK_TOP_WR_ROWS" in arm
+    assert '"$BRING_BACK_TOP_WR_ROWS" == 4 && "$BRING_BACK_TOP_WR" == "A1,B"' in arm
+
+
 def test_the_half_and_half_rides_into_the_units_and_0_passes_nothing():
     """Study 46's switch: UNION_MIX_RS_ROWS reaches the build units; the host passes --mix-rs-rows only when not 0."""
     from pathlib import Path
