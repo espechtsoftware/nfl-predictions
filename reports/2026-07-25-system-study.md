@@ -9170,3 +9170,232 @@ secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; th
   - 3 + 14 + 3 ruled, 0 plain; QB-alone rows at 3 / 7 / 13 (big contests);
   - non-QB pairs 7 → 2; flex WR / TE / RB 1 / 14 / 11 → 3 / 13 / 10;
   - FP projection −0.10 per row.
+
+## Addendum 182 (2026-10-09): study 84 (the no-$5k-TE rule with study 83's rules, with each, and alone, under the operator's "not negative" rule): by the agreed order NOTHING NEW enters Week 5; and the same rule moved several points between bank sets -- the night's leans are within that noise
+
+**Setup.**
+- **His decisions** (recorded verbatim in HANDOFF):
+  - decision 2 (`b6df3671`): "It also appears that 81 was positive. So following the current test, we need to try a version
+    including 81." With the plain reading in hand, he chose the full dose: no TE priced $5,000 or more in any lineup.
+  - decision 3 (`7211cecd`): "If 83 comes back negative, but 84 beats 83, then let's try versions where the 5000+ TE rule is
+    active along with each portion of what we tried in 83 separately."
+  - decision 4 (`7211cecd`): "And the final test of the week after that is just the 5000+ TE rule with the current book."
+- **One run, all arms designed before study 83's READ.** On 83's slates, the design (production `088da038`, 05:39) was on
+  origin before 83's reader ran (06:02:20).
+  - The lab code was committed at 06:06:41, after that READ. But its combined wrapper's text (sha `c38f27a7…`) was already
+    pinned in production `review/combo-te-flag-20261009` @ `12709d18`, committed 05:45:20, on origin before the READ. The
+    laptop verified the identical text in the committed module.
+  - After 06:02 only tests, the smoke and the commit ran; the code did not change.
+- **The arms.** Built on study 48's harness (LIVE = 48d's 41 rows with the cheap +2 block; Rev6 `ac10ddf6`). One combined
+  solve per ruled solve: study 83's combo plus study 81's ban on every book solve. Infeasible → the cell's own rules, with no
+  constraint and no ban, recorded.
+  - LIVE_CB (the reference).
+  - COMBO81: C0 (3) + one catcher (every B / C) + WR flex (3) + no TE ≥ $5,000 (every book row).
+  - COMBO: study 83's arm on these banks.
+  - TE_C0, TE_ONEPC, TE_FLEX: the ban with each of 83's pieces alone.
+  - TE_ONLY: the ban alone.
+- **His rule on every arm** (study 83's, frozen): NOT NEGATIVE iff the 2023–24 point ≥ 0 AND the 2022 point ≥ 0 AND the seats
+  ratio ≥ 0.80. COMBO81 − COMBO is printed ("84 beats 83").
+- **The agreed Week-5 entry order** (our reading, to confirm with him; prereg §3):
+  1. Study 83's COMBO was negative (Addendum 181), so step 1 does not apply.
+  2. If COMBO81 − COMBO > 0: the not-negative TE_X with the highest read point.
+  3. Else TE_ONLY if not negative.
+  4. Else nothing new.
+- **Caveats, frozen in §3 / §4:**
+  - about one in four under no effect;
+  - the TE ban is re-tested on the SAME 53 slates and outcomes where study 81's NOTE5K_ALL read +4.7, so a pass is not new
+    evidence for the ban;
+  - choosing the best of three favours a lucky arm;
+  - on his real book the ban costs far more than in the harness: COMBO81 −0.53, TE_ONLY −0.76 FP per row, against
+    −0.30 / −0.32 in the harness.
+- **Preregistration:** `reports/2026-10-09-prereg-study84-combo81.md` (the design `088da038`; FROZEN `3a58f7f5`, 10-09 06:14 CDT,
+  before any scored bank).
+- **Panel:** banks 1713–1718, B 20,000, seed 20261129.
+- **Read:** the reader `293d263a`; READ `c1cb62cc` (lab `dd15ddb9`). The confirmatory census (`a3c8548a`, with the raw
+  files' shas) was committed before the READ. Studies 85's and 86's designs (production `159907fc`, `14168e8f`) were on
+  origin before this READ ran.
+- **Reproduced byte-identically by the laptop** at `dd15ddb9`: the raw files 1713–1718 pass `sha256sum -c` against
+  `RAW_s84_run.sha256`; the READ is `c1cb62cc` and the confirmatory census `dafb9abf` (cmp-identical).
+- **Census** (binding, 53 slate-banks):
+  - 0 infeasible in every arm; $5k+ TE rows 0 in every TE arm (LIVE_CB 7.89);
+  - vacuity note5k 0.303 per ruled row;
+  - costs COMBO81 −0.30, COMBO −0.01, TE_C0 −0.27, TE_ONEPC −0.36, TE_FLEX −0.37, TE_ONLY −0.32.
+  - The confirmatory census on the scored banks (318 slate-banks) agrees: 0 infeasible in every arm (COMBO81 0 of 8,268);
+    $5k+ TE rows 0 in every TE arm (LIVE_CB 7.83); costs −0.26 to −0.35 per row in the TE arms, COMBO −0.01.
+
+**Reader output (verbatim):**
+```
+STUDY 84 READER  sha256 293d263a2943e8a3325e21760ddae75359bf8e945678cf046ec68ca9438f154d
+DIRECTION: P(>= 1 big seat) per slate (the mean over its banks); every difference is ARM - LIVE_CB; POSITIVE favours the arm.
+slates 36 (the 2023-24 read) + 17 (the 2022 go / no-go)  banks [1713, 1714, 1715, 1716, 1717, 1718]  B 20000  seed 20261129  six arms, his rule on each, against LIVE_CB on the CALIBRATED field (v2), each two-sided 0.95; guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only; 2022: the point estimate (two-sided 0.95 interval); study 51's trial rule per arm
+arms (definitions, the combined rules' constants, studies 81 / 83's and study 73's shas, live settings, QB cap, objective): [["LIVE_CB", "COMBO81", "COMBO", "TE_C0", "TE_ONEPC", "TE_FLEX", "TE_ONLY"], {"block": {"cap": 2.0, "min_coverage": 0.5, "n_term": 8, "tilt": 0.2}, "qb1_cells": ["B", "C"], "rows": "book solves in build order: C0 the first n C solves; ONEPC every B / C solve; FLEX j < n; NOTE5K every solve bans the pool TEs priced >= te_price; one combined solve; infeasible -> the cell's own rules, no constraint, no ban, recorded", "rulesets": {"COMBO": {"c0": 3, "flex": 3, "note5k": false, "onepc": true}, "COMBO81": {"c0": 3, "flex": 3, "note5k": true, "onepc": true}, "TE_C0": {"c0": 3, "flex": 0, "note5k": true, "onepc": false}, "TE_FLEX": {"c0": 0, "flex": 3, "note5k": true, "onepc": false}, "TE_ONEPC": {"c0": 0, "flex": 0, "note5k": true, "onepc": true}, "TE_ONLY": {"c0": 0, "flex": 0, "note5k": true, "onepc": false}}, "te_price": 5000.0}, {"s81_note5k.py": "b37dbbc94ab2ff1c3857d5410d37a48223b5902587da79946f8b0ebfd33b37f4", "s83_combo.py": "19d9a77c16fe5aa83bd1e2bf59afee499d8e90eed16f9c0692ffb5750dbb9e37"}, "3f76c6295d8666cf4f256a103c7ba3fe428630d6149c7a6009648487900d806d", {"fill": "rr", "max_shared": 4}, 5, "player_mean (+ the cheap block term)"]
+
+== COMBO81 vs LIVE_CB  [his rule; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate -0.00046  [-0.04702, +0.04926] (two-sided 0.95)  seasons 2023 +0.02084, 2024 -0.02175
+  GUARD 1 mean entry pct +0.00675  one-sided lower -0.00588  (must exceed -0.015)
+  GUARD 2 expected big seats 0.50877 vs 0.53884  ratio 0.944  (must be >= 0.80)
+  COMBO81 dealt identical to LIVE_CB: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  GO / NO-GO 2022: +0.01123  [-0.02839, +0.05645] (two-sided 0.95)  ->  not contradicted
+  TRIAL: ENTERABLE, his decision: no harm shown and no gain shown (NO DIFFERENCE on the read, not contradicted on 2022)
+  HIS RULE: DO NOT USE IN W5: the 2023-24 point estimate -0.00046 < 0
+
+== COMBO vs LIVE_CB  [his rule; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate +0.00953  [-0.03374, +0.05512] (two-sided 0.95)  seasons 2023 +0.03777, 2024 -0.01870
+  GUARD 1 mean entry pct +0.00145  one-sided lower -0.00266  (must exceed -0.015)
+  GUARD 2 expected big seats 0.51897 vs 0.53884  ratio 0.963  (must be >= 0.80)
+  COMBO dealt identical to LIVE_CB: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  GO / NO-GO 2022: +0.03240  [+0.00053, +0.06504] (two-sided 0.95)  ->  not contradicted
+  TRIAL: ENTERABLE, his decision: no harm shown and no gain shown (NO DIFFERENCE on the read, not contradicted on 2022)
+  HIS RULE: USE IN W5 (not negative)
+
+== TE_C0 vs LIVE_CB  [his rule; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate -0.01992  [-0.06497, +0.02582] (two-sided 0.95)  seasons 2023 +0.00749, 2024 -0.04732
+  GUARD 1 mean entry pct +0.00462  one-sided lower -0.00799  (must exceed -0.015)
+  GUARD 2 expected big seats 0.49339 vs 0.53884  ratio 0.916  (must be >= 0.80)
+  TE_C0 dealt identical to LIVE_CB: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  GO / NO-GO 2022: +0.04828  [+0.00848, +0.09085] (two-sided 0.95)  ->  not contradicted
+  TRIAL: ENTERABLE, his decision: no harm shown and no gain shown (NO DIFFERENCE on the read, not contradicted on 2022)
+  HIS RULE: DO NOT USE IN W5: the 2023-24 point estimate -0.01992 < 0
+
+== TE_ONEPC vs LIVE_CB  [his rule; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate +0.00261  [-0.03999, +0.04770] (two-sided 0.95)  seasons 2023 +0.00716, 2024 -0.00194
+  GUARD 1 mean entry pct +0.00378  one-sided lower -0.00914  (must exceed -0.015)
+  GUARD 2 expected big seats 0.48442 vs 0.53884  ratio 0.899  (must be >= 0.80)
+  TE_ONEPC dealt identical to LIVE_CB: 0.028 of slate-banks
+  ->  NO DIFFERENCE
+  GO / NO-GO 2022: +0.02561  [-0.01197, +0.06852] (two-sided 0.95)  ->  not contradicted
+  TRIAL: ENTERABLE, his decision: no harm shown and no gain shown (NO DIFFERENCE on the read, not contradicted on 2022)
+  HIS RULE: USE IN W5 (not negative)
+
+== TE_FLEX vs LIVE_CB  [his rule; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate +0.03250  [-0.01338, +0.08359] (two-sided 0.95)  seasons 2023 +0.05031, 2024 +0.01469
+  GUARD 1 mean entry pct +0.00242  one-sided lower -0.00967  (must exceed -0.015)
+  GUARD 2 expected big seats 0.53756 vs 0.53884  ratio 0.998  (must be >= 0.80)
+  TE_FLEX dealt identical to LIVE_CB: 0.005 of slate-banks
+  ->  NO DIFFERENCE
+  GO / NO-GO 2022: +0.06209  [+0.01179, +0.13203] (two-sided 0.95)  ->  not contradicted
+  TRIAL: ENTERABLE, his decision: no harm shown and no gain shown (NO DIFFERENCE on the read, not contradicted on 2022)
+  HIS RULE: USE IN W5 (not negative)
+
+== TE_ONLY vs LIVE_CB  [his rule; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate -0.01188  [-0.04879, +0.02574] (two-sided 0.95)  seasons 2023 -0.00853, 2024 -0.01522
+  GUARD 1 mean entry pct +0.00619  one-sided lower -0.00646  (must exceed -0.015)
+  GUARD 2 expected big seats 0.45801 vs 0.53884  ratio 0.850  (must be >= 0.80)
+  TE_ONLY dealt identical to LIVE_CB: 0.130 of slate-banks
+  ->  NO DIFFERENCE
+  GO / NO-GO 2022: +0.02886  [-0.00975, +0.07462] (two-sided 0.95)  ->  not contradicted
+  TRIAL: ENTERABLE, his decision: no harm shown and no gain shown (NO DIFFERENCE on the read, not contradicted on 2022)
+  HIS RULE: DO NOT USE IN W5: the 2023-24 point estimate -0.01188 < 0
+
+== TRIAL SUMMARY: COMBO81, COMBO, TE_C0, TE_ONEPC, TE_FLEX, TE_ONLY ENTERABLE (study 51 rule)
+
+== COMBO81 - COMBO (the TE ban on top of study 83's rules): 2023-24 -0.00999  [-0.04256, +0.02129]  seasons 2023 -0.01693, 2024 -0.00306;  2022 -0.02117  [-0.06946, +0.02320]  ->  84 BEATS 83: NO (the 2023-24 point)
+
+== HIS RULE, every arm (the operator 10-09: "if it isn't negative use it in week 5"; under no true effect an arm passes about one time in four; the TE arms re-read the slates where 81's NOTE5K_ALL read +4.7, so a pass is not new evidence for the ban):
+  COMBO81   DO NOT USE IN W5: the 2023-24 point estimate -0.00046 < 0  (2023-24 point -0.00046, 2022 point +0.01123, seats ratio 0.944)
+  COMBO     USE IN W5 (not negative)  (2023-24 point +0.00953, 2022 point +0.03240, seats ratio 0.963)
+  TE_C0     DO NOT USE IN W5: the 2023-24 point estimate -0.01992 < 0  (2023-24 point -0.01992, 2022 point +0.04828, seats ratio 0.916)
+  TE_ONEPC  USE IN W5 (not negative)  (2023-24 point +0.00261, 2022 point +0.02561, seats ratio 0.899)
+  TE_FLEX   USE IN W5 (not negative)  (2023-24 point +0.03250, 2022 point +0.06209, seats ratio 0.998)
+  TE_ONLY   DO NOT USE IN W5: the 2023-24 point estimate -0.01188 < 0  (2023-24 point -0.01188, 2022 point +0.02886, seats ratio 0.850)
+
+== EXPLORATORY (two-sided 0.95)
+  COMBO81 - LIVE_CB (the l02 field, 2023-24): -0.00137  [-0.04864, +0.04947]  seasons 2023 +0.01910, 2024 -0.02185
+  COMBO81 - LIVE_CB (the l02 field, 2022): +0.00970  [-0.03111, +0.05586]  seasons 2022 +0.00970
+  COMBO - LIVE_CB (the l02 field, 2023-24): +0.00841  [-0.03464, +0.05424]  seasons 2023 +0.03387, 2024 -0.01705
+  COMBO - LIVE_CB (the l02 field, 2022): +0.03888  [+0.00798, +0.07202]  seasons 2022 +0.03888
+  TE_C0 - LIVE_CB (the l02 field, 2023-24): -0.02549  [-0.07229, +0.02237]  seasons 2023 -0.00221, 2024 -0.04878
+  TE_C0 - LIVE_CB (the l02 field, 2022): +0.05166  [+0.00963, +0.09697]  seasons 2022 +0.05166
+  TE_ONEPC - LIVE_CB (the l02 field, 2023-24): +0.00280  [-0.04111, +0.04845]  seasons 2023 +0.00317, 2024 +0.00242
+  TE_ONEPC - LIVE_CB (the l02 field, 2022): +0.02497  [-0.01259, +0.06693]  seasons 2022 +0.02497
+  TE_FLEX - LIVE_CB (the l02 field, 2023-24): +0.03196  [-0.01578, +0.08537]  seasons 2023 +0.05001, 2024 +0.01391
+  TE_FLEX - LIVE_CB (the l02 field, 2022): +0.06192  [+0.01194, +0.13189]  seasons 2022 +0.06192
+  TE_ONLY - LIVE_CB (the l02 field, 2023-24): -0.01226  [-0.05215, +0.02804]  seasons 2023 -0.01148, 2024 -0.01304
+  TE_ONLY - LIVE_CB (the l02 field, 2022): +0.02699  [-0.01172, +0.07260]  seasons 2022 +0.02699
+  COMBO81 ruled solves built plain (infeasible): 0 of 8268 over 318 slate-banks
+  COMBO ruled solves built plain (infeasible): 0 of 4770 over 318 slate-banks
+  TE_C0 ruled solves built plain (infeasible): 0 of 8268 over 318 slate-banks
+  TE_ONEPC ruled solves built plain (infeasible): 0 of 8268 over 318 slate-banks
+  TE_FLEX ruled solves built plain (infeasible): 0 of 8268 over 318 slate-banks
+  TE_ONLY ruled solves built plain (infeasible): 0 of 8268 over 318 slate-banks
+
+secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; the book's rows are pre-lock facts):
+  [2023-24]
+  LIVE_CB      v2: P(>=1 big) 0.32840  expected big seats 0.53884  P(>=2) 0.13366  entry pct 0.51408  |  l02: P(>=1 big) 0.35717
+               book: projection per row 127.72  salary 49965  QB + 2 rows 12.0 of 26  QB-alone rows 0.0  non-QB-pair rows 4.4  WR-flex rows 5.6  $5k+ TE rows 7.8  QB + TE rows 12.5  distinct QBs 8.5
+  COMBO81      v2: P(>=1 big) 0.32794  expected big seats 0.50877  P(>=2) 0.12327  entry pct 0.52083  |  l02: P(>=1 big) 0.35580
+               book: projection per row 127.40  salary 49962  QB + 2 rows 12.0 of 26  QB-alone rows 3.0  non-QB-pair rows 1.6  WR-flex rows 8.2  $5k+ TE rows 0.0  QB + TE rows 10.0  distinct QBs 8.5
+  COMBO        v2: P(>=1 big) 0.33793  expected big seats 0.51897  P(>=2) 0.12979  entry pct 0.51554  |  l02: P(>=1 big) 0.36558
+               book: projection per row 127.70  salary 49963  QB + 2 rows 12.0 of 26  QB-alone rows 3.0  non-QB-pair rows 1.7  WR-flex rows 7.1  $5k+ TE rows 7.5  QB + TE rows 11.2  distinct QBs 8.5
+  TE_C0        v2: P(>=1 big) 0.30848  expected big seats 0.49339  P(>=2) 0.12719  entry pct 0.51870  |  l02: P(>=1 big) 0.33168
+               book: projection per row 127.46  salary 49964  QB + 2 rows 12.0 of 26  QB-alone rows 3.0  non-QB-pair rows 4.6  WR-flex rows 7.0  $5k+ TE rows 0.0  QB + TE rows 10.1  distinct QBs 8.6
+  TE_ONEPC     v2: P(>=1 big) 0.33101  expected big seats 0.48442  P(>=2) 0.11534  entry pct 0.51787  |  l02: P(>=1 big) 0.35997
+               book: projection per row 127.38  salary 49963  QB + 2 rows 12.0 of 26  QB-alone rows 0.0  non-QB-pair rows 1.6  WR-flex rows 6.9  $5k+ TE rows 0.0  QB + TE rows 11.0  distinct QBs 8.5
+  TE_FLEX      v2: P(>=1 big) 0.36090  expected big seats 0.53756  P(>=2) 0.13051  entry pct 0.51650  |  l02: P(>=1 big) 0.38913
+               book: projection per row 127.36  salary 49960  QB + 2 rows 12.0 of 26  QB-alone rows 0.0  non-QB-pair rows 4.3  WR-flex rows 8.4  $5k+ TE rows 0.0  QB + TE rows 10.7  distinct QBs 8.5
+  TE_ONLY      v2: P(>=1 big) 0.31652  expected big seats 0.45801  P(>=2) 0.10500  entry pct 0.52028  |  l02: P(>=1 big) 0.34491
+               book: projection per row 127.40  salary 49963  QB + 2 rows 12.0 of 26  QB-alone rows 0.0  non-QB-pair rows 4.2  WR-flex rows 7.3  $5k+ TE rows 0.0  QB + TE rows 10.8  distinct QBs 8.5
+  [2022]
+  LIVE_CB      v2: P(>=1 big) 0.20828  expected big seats 0.29309  P(>=2) 0.06938  entry pct 0.46216  |  l02: P(>=1 big) 0.22383
+               book: projection per row 131.87  salary 49961  QB + 2 rows 12.0 of 26  QB-alone rows 0.0  non-QB-pair rows 5.5  WR-flex rows 7.8  $5k+ TE rows 8.0  QB + TE rows 11.3  distinct QBs 8.0
+  COMBO81      v2: P(>=1 big) 0.21951  expected big seats 0.32991  P(>=2) 0.08483  entry pct 0.45628  |  l02: P(>=1 big) 0.23354
+               book: projection per row 131.54  salary 49957  QB + 2 rows 12.0 of 26  QB-alone rows 3.0  non-QB-pair rows 2.0  WR-flex rows 10.9  $5k+ TE rows 0.0  QB + TE rows 8.6  distinct QBs 7.9
+  COMBO        v2: P(>=1 big) 0.24068  expected big seats 0.32519  P(>=2) 0.06906  entry pct 0.46022  |  l02: P(>=1 big) 0.26271
+               book: projection per row 131.88  salary 49958  QB + 2 rows 12.0 of 26  QB-alone rows 3.0  non-QB-pair rows 2.1  WR-flex rows 8.9  $5k+ TE rows 7.9  QB + TE rows 10.5  distinct QBs 8.0
+  TE_C0        v2: P(>=1 big) 0.25656  expected big seats 0.35618  P(>=2) 0.08255  entry pct 0.45573  |  l02: P(>=1 big) 0.27549
+               book: projection per row 131.59  salary 49961  QB + 2 rows 12.0 of 26  QB-alone rows 3.0  non-QB-pair rows 5.4  WR-flex rows 9.9  $5k+ TE rows 0.0  QB + TE rows 8.5  distinct QBs 8.0
+  TE_ONEPC     v2: P(>=1 big) 0.23389  expected big seats 0.33110  P(>=2) 0.07655  entry pct 0.45673  |  l02: P(>=1 big) 0.24880
+               book: projection per row 131.49  salary 49959  QB + 2 rows 12.0 of 26  QB-alone rows 0.0  non-QB-pair rows 2.0  WR-flex rows 9.8  $5k+ TE rows 0.0  QB + TE rows 9.2  distinct QBs 8.0
+  TE_FLEX      v2: P(>=1 big) 0.27037  expected big seats 0.41017  P(>=2) 0.10096  entry pct 0.46006  |  l02: P(>=1 big) 0.28575
+               book: projection per row 131.53  salary 49961  QB + 2 rows 12.0 of 26  QB-alone rows 0.0  non-QB-pair rows 5.0  WR-flex rows 10.9  $5k+ TE rows 0.0  QB + TE rows 9.3  distinct QBs 7.9
+  TE_ONLY      v2: P(>=1 big) 0.23714  expected big seats 0.36685  P(>=2) 0.09077  entry pct 0.45398  |  l02: P(>=1 big) 0.25082
+               book: projection per row 131.53  salary 49961  QB + 2 rows 12.0 of 26  QB-alone rows 0.0  non-QB-pair rows 5.1  WR-flex rows 9.8  $5k+ TE rows 0.0  QB + TE rows 9.4  distinct QBs 7.9
+```
+
+**Reading.**
+- **His rule, arm by arm** (2023–24 point / 2022 point / seats ratio):
+  - COMBO81 −0.05 / +1.1 / 0.944: DO NOT USE;
+  - COMBO +1.0 / +3.2 / 0.963: USE;
+  - TE_C0 −2.0 / +4.8 / 0.916: DO NOT;
+  - TE_ONEPC +0.3 / +2.6 / 0.899: USE;
+  - TE_FLEX +3.3 [−1.3, +8.4] / +6.2 / 0.998: USE;
+  - TE_ONLY −1.2 / +2.9 / 0.850: DO NOT.
+- **The agreed Week-5 order** (our reading, to confirm with him):
+  - step 1 does not apply (study 83's COMBO was negative);
+  - step 2 needs "84 beats 83" (COMBO81 − COMBO > 0), but it is −1.0 [−4.3, +2.1]: NO;
+  - step 3 needs TE_ONLY not negative, but it is −1.2.
+  - **So nothing new enters Week 5 by the order.** COMBO, TE_ONEPC and TE_FLEX pass his rule, but the order does not select
+    them; any other choice is his.
+- **The finding that matters most: the same rule on the same slates moved several points between bank sets.**
+  - TE_ONLY is study 81's NOTE5K_ALL, call for call by test, on the same 53 slates and the same real outcomes. It read
+    **+4.7 [+1.0, +8.5]** on banks 1689–1694 (Addendum 179) and **−1.2 [−4.9, +2.6]** here on 1713–1718.
+  - Study 83's COMBO read **−1.9** on banks 1707–1712 (Addendum 181) and **+1.0** here.
+  - The reader's bootstrap resamples slates and conditions on the bank set (its simulated means and field draws). So each
+    study's interval understates the total uncertainty, and the between-set component is about the size of every lean
+    the harness produced this night (77 +1.8, 79's binding form +2.1, 75 +2.3, TE_FLEX +3.3).
+  - **The size of it (the laptop's suggestion):**
+    - The same rule on two bank sets differs by **5.9 points** (NOTE5K_ALL / TE_ONLY) and **2.9 points** (COMBO).
+    - The within-set two-sided 0.95 half-widths are about 3.7 (81: +1.0..+8.5; 84: −4.9..+2.6) and 4.0–4.4 (83: −6.0..+2.1;
+      84: −3.4..+5.5).
+    - Both reads share the same slates and outcomes, so the slate part of the noise should cancel in their difference. A
+      gap of 5.9 points against a 3.7-point half-width is direct evidence of a large bank-set component that the
+      per-study intervals do not carry.
+  - NOTE5K_ALL's interval excluding zero (Addendum 179) did not replicate. Addenda 175, 177 and 179's leans should be read
+    with this in mind: none of them is an effect larger than the bank-to-bank noise.
+- **For the method:**
+  - until the readers carry a bank-set component, a single-bank-set NO DIFFERENCE or lean should not rank options. That
+    applies to this night's earlier leans too: 77 (Addendum 175), 79 (177) and 75 (173);
+  - read a lever that matters on two or more disjoint bank sets (or more banks per study), and report the between-set
+    spread beside the interval;
+  - the real test is new outcomes: study 38's paper arms on the live weekly fields.
+- **Recommendation:** keep the live book for Week 5 (the order's answer). Anything worth watching goes to study 38's paper
+  arms on the real fields.
+- **Disclosed (code timing):**
+  - The lab code `37365127` was committed at 06:06:41, about four minutes after study 83's READ (06:02:20).
+  - The design (`088da038`) was on origin before that READ. The combined wrapper's text (sha `c38f27a7…`) was already pinned
+    in production `review/combo-te-flag-20261009` @ `12709d18` (committed 05:45:20, on origin). The laptop verified the
+    identical text in the committed module.
+  - After 06:02 only the unit tests, the smoke and the commit ran.
