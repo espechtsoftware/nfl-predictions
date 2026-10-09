@@ -9074,3 +9074,99 @@ secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; th
   lower-half-QB habit (his book 4%) shows no edge here either.
 - **The exploratory LOWQB8** reads +0.2 (2022 −0.5): more rows did not add.
 - **Recommendation:** leave it. Allowed, but flat, and not a candidate for his one change.
+
+## Addendum 181 (2026-10-09): study 83 (the three leans together -- 77's QB alone + 79's one catcher per team + 75's WR flex -- in the harness, under the operator's "not negative" rule): HIS RULE says DO NOT USE IN W5 (the 2023–24 point −1.9); the pieces did not add up
+
+**Setup.**
+- **His decision** (recorded verbatim, HANDOFF `7473786e`, its time line `ee3ddd9f`): "Let's do a test now of all 3 and if it
+  isn't negative use it in week 5." He had the plain reading first: none proven, 75 contradicted on 2022, 79's 8-row
+  version a no-op on his book, never tested together.
+- **The arms.** Built on study 48's harness (LIVE = 48d's 41 rows with the cheap +2 block; Rev6 `ac10ddf6`):
+  - LIVE_CB (the reference).
+  - COMBO, the decision: one book with 77's C0 on the first 3 C book solves, 79's one catcher per team on every B / C book
+    solve (the version that binds on his book) and 75's WR flex on the first 3 book solves. The applicable rules form ONE
+    combined solve (the frozen wrappers patch the same optimizer, so they cannot be nested).
+  - Exploratory C0_ONEPC (no flex).
+- **His rule, frozen:** USE IN W5 iff the 2023–24 point ≥ 0 AND the 2022 point ≥ 0 AND the seats ratio ≥ 0.80. Under no
+  true effect it passes about one time in four: a harm screen, not a gain.
+- **Real-book binding** (the laptop's W4 checks): each piece binds on his book: C0 3 rows at 3 / 7 / 13; one catcher on
+  every B / C row pairs 7 → 1; WR flex on 3 rows flex 1 / 14 / 11 → 4 / 11 / 11, FP −0.31 per row.
+- **Preregistration:** `reports/2026-10-09-prereg-study83-combo.md` (the outside reviewer's DRAFT `62e9e52c`; FROZEN
+  `f2f78059`, 10-09 05:28 CDT, before any scored bank).
+- **Panel:** banks 1707–1712, B 20,000, seed 20261128.
+- **Read:** the reader `465c9910`; READ `e1f34a36` (lab `bbf10e69`). The confirmatory census (`d4398ca8`, with the raw
+  files' shas) was committed before the READ. Study 84's design (production `088da038`) was on origin before the READ ran
+  (design before reading the same slates).
+- **Reproduced byte-identically by the laptop** at `bbf10e69`: the raw files 1707–1712 pass `sha256sum -c` against
+  `RAW_s83_run.sha256`; the READ is `e1f34a36` and the confirmatory census `65e11c0a` (cmp-identical).
+- **Census:**
+  - 0 of 795 (binding) and 0 of 4,770 (scored) combined solves infeasible.
+  - Vacuity at the ruled positions: c0 1.000, onepc 0.24, flex 0.76–0.79.
+  - Non-QB-pair rows 4.8 → 1.8; QB-alone 0 → 3; projection −0.02 per row.
+
+**Reader output (verbatim):**
+```
+STUDY 83 READER  sha256 465c99108ba2c2f5e05963edefb94f5473e37068b9090f57b5346eef0a1a1728
+DIRECTION: P(>= 1 big seat) per slate (the mean over its banks); every difference is ARM - LIVE_CB; POSITIVE favours the arm.
+slates 36 (the 2023-24 read) + 17 (the 2022 go / no-go)  banks [1707, 1708, 1709, 1710, 1711, 1712]  B 20000  seed 20261128  one decision arm against LIVE_CB on the CALIBRATED field (v2), each two-sided 0.95; guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only; 2022: the point estimate (two-sided 0.95 interval); study 51's trial rule per arm
+arms (definitions, the combined rules' constants, studies 75 / 77 / 79 / 80's and study 73's shas, live settings, QB cap, objective): [["LIVE_CB", "COMBO", "C0_ONEPC"], {"block": {"cap": 2.0, "min_coverage": 0.5, "n_term": 8, "tilt": 0.2}, "qb1_cells": ["B", "C"], "rows": "book solves in build order: C0 the first n C solves; ONEPC every B / C solve; FLEX j < n; one combined solve; infeasible -> the cell's own rules, recorded", "rulesets": {"C0_ONEPC": {"c0": 3, "flex": 0, "onepc": true}, "COMBO": {"c0": 3, "flex": 3, "onepc": true}}}, {"s75_flex_mix.py": "e9948fd90dc94cd6260fa3aeeab5176b8efe7b24dc3c0ede11a1c2f6e3e508a1", "s77_naked.py": "d455f3dd577ced2837042e212170bc3eddce555a2cd2bec59a2086e55f70f8c6", "s79_nopairs.py": "d48790cf9219a6c53b85e99947688438677b976cbaf054b4b039b238cc5cd277", "s80_dogqb.py": "9a46c2841980d31a6f45bbcb00af288daa6081a3b2d2d1867da54061eb876ee7"}, "3f76c6295d8666cf4f256a103c7ba3fe428630d6149c7a6009648487900d806d", {"fill": "rr", "max_shared": 4}, 5, "player_mean (+ the cheap block term)"]
+
+== COMBO vs LIVE_CB  [DECISION; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate -0.01893  [-0.05982, +0.02061] (two-sided 0.95)  seasons 2023 +0.00201, 2024 -0.03987
+  GUARD 1 mean entry pct +0.00500  one-sided lower +0.00000  (must exceed -0.015)
+  GUARD 2 expected big seats 0.53071 vs 0.55205  ratio 0.961  (must be >= 0.80)
+  COMBO dealt identical to LIVE_CB: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  GO / NO-GO 2022: +0.01832  [-0.02196, +0.06459] (two-sided 0.95)  ->  not contradicted
+  TRIAL: ENTERABLE, his decision: no harm shown and no gain shown (NO DIFFERENCE on the read, not contradicted on 2022)
+
+== TRIAL SUMMARY: COMBO ENTERABLE (his decision; one construction change a week)
+
+== HIS RULE (the operator 10-09: "if it isn't negative use it in week 5"): DO NOT USE IN W5: the 2023-24 point estimate -0.01893 < 0  (2023-24 point -0.01893, 2022 point +0.01832, seats ratio 0.961; under no true effect it passes about one time in four: it screens out a harmful combination, it does not show a gain)
+
+== EXPLORATORY (never decision-bearing; two-sided 0.95)
+  C0_ONEPC - LIVE_CB (v2, 2023-24): -0.00840  [-0.04172, +0.02559]  seasons 2023 +0.03227, 2024 -0.04907
+  C0_ONEPC - LIVE_CB (v2, 2022): -0.00365  [-0.04145, +0.03582]  seasons 2022 -0.00365
+  COMBO - LIVE_CB (the l02 field, 2023-24): -0.01812  [-0.06117, +0.02336]  seasons 2023 +0.00285, 2024 -0.03908
+  COMBO - LIVE_CB (the l02 field, 2022): +0.02397  [-0.02018, +0.07631]  seasons 2022 +0.02397
+  C0_ONEPC - LIVE_CB (the l02 field, 2023-24): -0.00480  [-0.03848, +0.03013]  seasons 2023 +0.03419, 2024 -0.04379
+  C0_ONEPC - LIVE_CB (the l02 field, 2022): -0.00154  [-0.04330, +0.04407]  seasons 2022 -0.00154
+  COMBO ruled solves built plain (infeasible): 0 of 4770 over 318 slate-banks
+  C0_ONEPC ruled solves built plain (infeasible): 0 of 4452 over 318 slate-banks
+
+secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; the book's rows are pre-lock facts):
+  [2023-24]
+  LIVE_CB      v2: P(>=1 big) 0.34581  expected big seats 0.55205  P(>=2) 0.12956  entry pct 0.51426  |  l02: P(>=1 big) 0.37187
+               book: projection per row 127.72  salary 49962  QB + 2 rows 12.0 of 26  QB-alone rows 0.0  non-QB-pair rows 4.5  WR-flex rows 5.5  distinct QBs 8.5
+  COMBO        v2: P(>=1 big) 0.32688  expected big seats 0.53071  P(>=2) 0.13113  entry pct 0.51925  |  l02: P(>=1 big) 0.35376
+               book: projection per row 127.71  salary 49963  QB + 2 rows 12.0 of 26  QB-alone rows 3.0  non-QB-pair rows 1.7  WR-flex rows 7.1  distinct QBs 8.6
+  C0_ONEPC     v2: P(>=1 big) 0.33741  expected big seats 0.52709  P(>=2) 0.12510  entry pct 0.51758  |  l02: P(>=1 big) 0.36707
+               book: projection per row 127.75  salary 49963  QB + 2 rows 12.0 of 26  QB-alone rows 3.0  non-QB-pair rows 1.7  WR-flex rows 5.2  distinct QBs 8.5
+  [2022]
+  LIVE_CB      v2: P(>=1 big) 0.24348  expected big seats 0.31879  P(>=2) 0.06207  entry pct 0.46153  |  l02: P(>=1 big) 0.26169
+               book: projection per row 131.82  salary 49964  QB + 2 rows 12.0 of 26  QB-alone rows 0.0  non-QB-pair rows 5.4  WR-flex rows 7.6  distinct QBs 8.0
+  COMBO        v2: P(>=1 big) 0.26180  expected big seats 0.35827  P(>=2) 0.07570  entry pct 0.45903  |  l02: P(>=1 big) 0.28566
+               book: projection per row 131.80  salary 49961  QB + 2 rows 12.0 of 26  QB-alone rows 3.0  non-QB-pair rows 2.0  WR-flex rows 8.9  distinct QBs 8.0
+  C0_ONEPC     v2: P(>=1 big) 0.23983  expected big seats 0.35450  P(>=2) 0.08302  entry pct 0.46023  |  l02: P(>=1 big) 0.26015
+               book: projection per row 131.85  salary 49962  QB + 2 rows 12.0 of 26  QB-alone rows 3.0  non-QB-pair rows 2.1  WR-flex rows 7.1  distinct QBs 8.0
+```
+
+**Reading.**
+- **COMBO is slightly worse on the deciding seasons:**
+  - −1.9 points [−6.0, +2.1] (2023 +0.2, 2024 −4.0);
+  - expected big seats ×0.96; guard 1 holds.
+- **2022 is +1.8.** His rule needs both points ≥ 0, so it says DO NOT USE IN W5. Study 63's trial line (ENTERABLE) is
+  printed, not gating.
+- **The pieces did not add up.** 77 (+1.8), 79's every-row form (exploratory +2.1) and 75 (+2.3 at 8 rows) each leaned
+  positive alone; together they read −1.9. The exploratory C0_ONEPC (no flex) reads −0.8 (2023 +3.2, 2024 −4.9).
+  - The rules re-draw the whole book (2.1 of 26 rows shared), and each single read was within noise.
+  - So "each leaned positive" was never strong evidence that the sum would.
+- **By the agreed Week-5 order (our reading, to confirm with him; HANDOFF `7211cecd`):** with 83 negative, study 84's TE
+  arms decide.
+  - If COMBO81 − COMBO > 0: the best not-negative TE_X.
+  - Else TE_ONLY if not negative.
+  - Else nothing new this week.
+- **The combination on his real book** (the laptop's outcome-blind W4 check, merged code `ad1d9e84`; OFF `a4ab2839`):
+  - 3 + 14 + 3 ruled, 0 plain; QB-alone rows at 3 / 7 / 13 (big contests);
+  - non-QB pairs 7 → 2; flex WR / TE / RB 1 / 14 / 11 → 3 / 13 / 10;
+  - FP projection −0.10 per row.
