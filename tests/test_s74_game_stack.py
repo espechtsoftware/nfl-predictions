@@ -2,9 +2,11 @@
 the opponent's top pass catcher (OPC), forced as one TRIPLE on the first G book solves of cell B; drop-and-advance, a game
 missing a pass catcher on either side skipped (no backfill), spares never, never with study 73's flag; the receipt block,
 printed line, the identity-based reader and checks (the union's, the audit's; vet never bound), and parity with the
-harness's row choice on the lab's own term_book. Offline: a stand-in optimizer that honours 2-3-member interaction floors."""
+harness's row choice: 84's OWN _top_catcher / game_triples / game_stack (s74_game_stack.py @ 542b422, sha-pinned) on the lab's
+term_book. Offline: a stand-in optimizer that honours 2-3-member interaction floors."""
 import importlib.util
 import sys
+import types
 from contextlib import contextmanager
 from functools import partial
 from pathlib import Path
@@ -227,36 +229,62 @@ def test_the_audit_and_union_read_both_studies(tmp_path):
     assert "top_game" not in (ROOT / "scripts" / "vet_replace_v4.py").read_text()
 
 
-# ---------------------------------------------------------------- parity with the harness's row choice
-# TEMPORARY (a merge blocker, production 10-08): game_triples_TEMPORARY / game_stack_TEMPORARY TRANSCRIBE 84's rule; they
-# are replaced by 84's VERBATIM game_triples, _top_catcher and game_stack (nfl2 experiments/s74_game_stack.py), sha-pinned,
-# as soon as the lab pushes them. Study 73's game_order / game_pairs below are 84's VERBATIM frozen text (T73's pins).
-def game_triples_TEMPORARY(fr_pool, base, n_games):
+# ---------------------------------------------------------------- parity with the harness: 84's OWN code
+# nfl2 experiments/s74_game_stack.py @ 542b422 (production/s74-game-stack-20261008; final unless the binding census forces a
+# change -- 84 tells first): _top_catcher, game_triples and game_stack are pasted below BYTE FOR BYTE (the text pins in
+# test_the_vendored_s74_text_is_the_labs). game_triples calls S73.game_order: study 73's frozen verbatim text (T73's pin).
+# They run on the lab's own term_book (T71.term_book) through T71's stand-ins and the shared outcome oracle. A difference
+# is a parity failure to report to production and 84, never to fix here by editing the vendored text.
+S73 = types.SimpleNamespace(game_order=T73.game_order)
+S24, S18 = T71.S24, T71.S18
+STACK_CELLS = ("B",)
+S74_TEXT_SHA256 = {"_top_catcher": "9fbd04c6d5066c5b4c4671fb79203ae0b3e20427ddd4dd0f97c8de6c22d49157",
+                   "game_triples": "3f5901ac57895cdec2cbde80eabaa3c91b2d67b072347d2847aef2fe9606934f",
+                   "game_stack": "8801b29631ecf144c1d6d0442b160b9b3d11e1446443236b09e389bc02506f3a"}
+
+
+def _top_catcher(d: pd.DataFrame, team: str) -> str | None:
+    pc = d[(d._team == team) & d._pos.isin(["WR", "TE"])].sort_values(["_p", "_sal", "_id"], ascending=[False, False, True])
+    return str(pc._id.iloc[0]) if len(pc) else None
+
+
+def game_triples(fr_pool: pd.DataFrame, base: np.ndarray, n_games: int) -> list[tuple[str, str, str, str]]:
+    """[(game_id, QB, his top pass catcher, the opponent's top receiver)] for the top n_games games (study 73's games and
+    QB); a game missing a WR / TE on either side is skipped (no backfill)."""
     d = fr_pool.assign(_p=np.asarray(base, float), _id=fr_pool["id"].astype(str), _pos=fr_pool.pos.astype(str),
-                       _team=fr_pool.team.astype(str), _g=fr_pool.game_id.astype(str),
+                       _team=fr_pool.team.astype(str), _opp=fr_pool.opp.astype(str), _g=fr_pool.game_id.astype(str),
+                       _itt=pd.to_numeric(fr_pool.implied_team_total, errors="coerce"),
                        _sal=pd.to_numeric(fr_pool.salary, errors="coerce").fillna(0.0))
     out = []
-    for gid, qb, pc in T73.game_pairs(fr_pool, base, n_games):
-        team = d.loc[d._id == qb, "_team"].iloc[0]
-        opp = sorted(set(d.loc[d._g == gid, "_team"]) - {team})[0]
-        oc = d[(d._team == opp) & d._pos.isin(["WR", "TE"])].sort_values(["_p", "_sal", "_id"], ascending=[False, False, True])
-        if len(oc):
-            out.append((gid, qb, pc, str(oc._id.iloc[0])))
+    for gid in S73.game_order(fr_pool)[:n_games]:
+        q = d[(d._g == gid) & (d._pos == "QB")].sort_values(["_p", "_id"], ascending=[False, True])
+        sides = []
+        for team, qq in q.groupby("_team"):
+            sides.append((-float(d[d._team == team]._itt.median()), -float(qq._p.iloc[0]), team, str(qq._id.iloc[0]), str(qq._opp.iloc[0])))
+        if not sides:
+            continue
+        _, _, team, qb, opp = sorted(sides)[0]
+        pc, opc = _top_catcher(d, team), _top_catcher(d, opp)
+        if pc is not None and opc is not None:
+            out.append((gid, qb, pc, opc))
     return out
 
 
 @contextmanager
-def game_stack_TEMPORARY(triples, k_book):
-    S24, S18 = T71.S24, T71.S18
+def game_stack(triples: list[tuple[str, str, str, str]], k_book: int):
+    """Wrap the current S24.CapBuilder (inside S37.built_with): each solve of cell B (by StackRules identity) with j < k_book,
+    while triples remain, takes the next triple as the interaction floor; infeasible -> the plain solve, recorded, the game
+    dropped. Yields the class (`forced` / `plain` lists of (game, cell, j); `forced_ids` lineups; `used` games)."""
     orig_cls, orig_opt = S24.CapBuilder, S24.optimize
-    target = {id(S18.CELLS["B"][1]): "B"}
+    target = {id(S18.CELLS[c][1]): c for c in STACK_CELLS}
 
     class GameStackBuilder(orig_cls):
         forced: list = []
         plain: list = []
+        forced_ids: list = []
         used: list = []
 
-        def solve_with(self, stack, qb_game_max, pair, extra_bans):
+        def solve_with(self, stack, qb_game_max, pair, extra_bans: set):
             cell = target.get(id(stack))
             j = len(self.prev)
             k = len(type(self).used)
@@ -273,12 +301,12 @@ def game_stack_TEMPORARY(triples, k_book):
                 finally:
                     S24.optimize = orig_opt
             if lu is not None:
-                type(self).forced.append((gid, cell, j))
+                type(self).forced.append((gid, cell, j)); type(self).forced_ids.append(sorted(str(x) for x in lu.ids))
                 return lu
             type(self).plain.append((gid, cell, j))
             return super().solve_with(stack, qb_game_max, pair, extra_bans)
 
-    GameStackBuilder.forced, GameStackBuilder.plain, GameStackBuilder.used = [], [], []
+    GameStackBuilder.forced, GameStackBuilder.plain, GameStackBuilder.forced_ids, GameStackBuilder.used = [], [], [], []
     S24.CapBuilder = GameStackBuilder
     try:
         yield GameStackBuilder
@@ -286,10 +314,24 @@ def game_stack_TEMPORARY(triples, k_book):
         S24.CapBuilder, S24.optimize = orig_cls, orig_opt
 
 
+def test_the_vendored_s74_text_is_the_labs():
+    import ast
+    import hashlib
+    src = (ROOT / "tests" / "test_s74_game_stack.py").read_text()
+    lines = src.splitlines(keepends=True)
+    seen = set()
+    for node in ast.parse(src).body:
+        if isinstance(node, ast.FunctionDef) and node.name in S74_TEXT_SHA256:
+            start = min([node.lineno] + [d.lineno for d in node.decorator_list])
+            assert hashlib.sha256("".join(lines[start - 1:node.end_lineno]).encode()).hexdigest() == S74_TEXT_SHA256[node.name], node.name
+            seen.add(node.name)
+    assert seen == set(S74_TEXT_SHA256)
+
+
 def _harness(g, n_term, oracle, fr, k_book=26, k=41):
-    triples = game_triples_TEMPORARY(fr, fr.mean_projection.to_numpy(float), g)
+    triples = game_triples(fr, fr.mean_projection.to_numpy(float), g)
     T71.S24.optimize = T71._h_optimize(oracle)
-    with game_stack_TEMPORARY(triples, k_book) as TB:
+    with game_stack(triples, k_book) as TB:
         book, cells, meta = T71.term_book(fr, [0.0] * len(fr), [0.0] * len(fr), (13, 6), [3, 3] + [1] * (k_book - 2), k_book, n_term, k)
         log = list(T71._HCapBuilder.last.log)
     n_live, n_t = sum(meta["live_block"]["cell_rows"].values()), sum(meta["term_block"]["cell_rows"].values())
