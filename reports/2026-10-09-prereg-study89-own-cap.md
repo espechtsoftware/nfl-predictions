@@ -1,9 +1,15 @@
-# Preregistration: study 89, a per-player cap at the predicted field ownership + 15 points, and the 35% player cap, in the harness (DRAFT 2026-10-09)
+# Preregistration: study 89, a per-player cap at the predicted field ownership + 15 points, and the 35% player cap, in the harness (FROZEN 2026-10-09)
 
-**Status: DRAFT 2026-10-09 (10:33 CDT; the reviewer accepted the redesign; smoke done)** by the outside reviewer. The reviewer reviews, runs the binding census and FREEZES;
-the laptop acks. **Runs BEFORE study 88** (his decision).
-- **Banks and seed:** proposed **1743–1754** (twelve: set A 1743–1748, set B 1749–1754), seed 20261134; the laptop scans them
-  and the derived bases (b+50 1793–1804, b+700 2443–2454) first.
+**Status: FROZEN 2026-10-09 (10:55 CDT)** by the reviewer, after the outside reviewer's DRAFT, the smoke and the binding
+census (§6), before any scored bank. The text changed at the freeze in this status block and §6 only. The laptop acks.
+**Runs BEFORE study 88** (his decision).
+- **Banks 1743–1754** (set A 1743–1748, set B 1749–1754), **seed 20261134**. The laptop's scan of both repositories (whole
+  repos; 8 larger blobs in each not searched) found no shared draw: this harness seeds sims from slate_seed(bank + 50) and
+  fields from slate_seed(bank + 700), so it draws 1793–1804 / 2443–2454; 1743–1750 sit inside studies 81's / 82's sims
+  bases as labels only; the l-series matches are timing fields. **The L01 question it raised is closed:** L01's runner
+  (nfl2 `dc66bdb0`, `experiments/l01_allboom_maxgame.py` lines 63–65) seeds from slate_seed(bank) and slate_seed(bank + 50)
+  with banks 1100–1102 (1100–1102 / 1150–1152), with no + 700 field seed, so it shares no seed with 89. The reader seed
+  appears only in 89's own files.
 
 **Units:** probabilities, counts and rates only. Dollars stay in BigQuery and private files.
 
@@ -117,6 +123,24 @@ DST cap 6, the overlap limit 4.
     exercised on a copy); only those were read.
 - **The first smoke (LAG, before any outcome):** 8 unit tests pass; 0 infeasible solves; the ownership arms banned 11.9
   players per book solve; OWN15 and CAP35_OWN15 the same book (every cap < 9 rows) → the design change in §2.
+- **The binding (support) census** (the reviewer's; outcome-blind; bank 1406; all **36 slate-banks of 2023–24** (89 reads
+  no 2022); code `4d0daa47` clean; 10 tests pass; lab `results/s89/CENSUS_s89_binding.txt` `d41c1320…`, the raw mechanics rows
+  `census_mechanics_bank1406.jsonl` `4af7afbf…` with no outcome field, committed at `1154b5cc`):
+  - every arm is 41 rows within its caps (LIVE_CB 13 / DST 6; the three 35% arms 9 / DST 6), QB 5, overlap 4, 8 term rows,
+    every row in the pool (asserted);
+  - **0 of 936 ruled solves infeasible** in both ownership arms; the rule bans 7.4 players per book solve (max 27; REAL 7.9 /
+    30);
+  - cap rows per skill player (mean count per slate-bank), the blend: 3 rows 95.2, 4 rows 93.4, 5 rows 28.3, 6 rows 16.2,
+    7 rows 7.8, 8 rows 4.7, ≥ 9 rows 5.1 (never binding under the 35% cap); the blend predicts > 0 for 246.9 of 250.9 skill
+    players (min 170), the top prediction 27.8%;
+  - **VACUITY: skill players above their ownership cap: LIVE_CB 11.7, CAP35 12.2, CAP35_OWN15 0.0, REAL 5.2** (on the blend's
+    caps);
+  - the most-used skill player 13.0 / 9.0 / 9.0 / 9.0 rows; players over 30% of the book 9.9 / 13.3 / 5.4 / 5.7; over 40%
+    7.1 / 0 / 0 / 0; non-DST players 42.3 / 44.8 / 50.9 / 51.5; the most-used DST 6 rows in every arm;
+  - deviation from the predicted field 5.10 / 4.81 / 4.26 / 4.22; predicted ownership per row 97.3% / 91.9% / 93.4% / 91.6%;
+  - projection per row vs LIVE_CB: CAP35 −1.29, CAP35_OWN15 −2.59, REAL −2.76; rows shared with LIVE_CB 11.1 / 7.9 / 7.3;
+    **none dealt identical** to LIVE_CB or to CAP35 on any slate-bank (no dead arm);
+  - all three match the smoke's pattern (§6 above) on more slates.
 - **Code:** nfl2 `production/s89-own-cap-20261009` @ `4d0daa47` (`f7569c41` + the reader's W5 arming line; branched from study 88's branch `63f6a2e4`):
   - `experiments/s89_own_cap.py` `92b09345…` (pins s87 `85adf47b…`, s29 `07abafc3…`, l24 `ca8e0d03…`);
   - `scripts/s89_drive.py` `ab2ed796…`; `scripts/s89_census.py` `34ee3958…`;
