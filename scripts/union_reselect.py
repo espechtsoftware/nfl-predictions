@@ -615,6 +615,32 @@ def row_rule_sets(source: Path, t70: pd.DataFrame, exclude: set[str], low_pct: f
                      "pool_skill_players": n_skill, "named": named, "low_owned": len(low), "pool_tes": len(te)}
 
 
+def proj_shrink(pool: list[dict], k: float, window: float) -> dict[str, float]:
+    """Study 92's S1 (nfl2 experiments/s92_shrink_star.py shrink @ 7913aefc): per skill position P, over the BUILDABLE pool,
+    typical_i = the median of proj over the pool's players of P whose salary is within +-window of salary_i (inclusive, i
+    included); proj'_i = typical_i + k x (proj_i - typical_i). DSTs unchanged. An objective column only: the frame's proj /
+    proj_tourney are never rewritten (audit_build_levers' fade check)."""
+    out = {p["id"]: float(p["proj"]) for p in pool}
+    for P in SKILL:
+        idx = [n for n, p in enumerate(pool) if p["pos"] == P]
+        sal = np.array([float(pool[n]["salary"]) for n in idx], dtype=float)
+        pr = np.array([float(pool[n]["proj"]) for n in idx], dtype=float)
+        for a, n in enumerate(idx):
+            typ = float(np.median(pr[np.abs(sal - sal[a]) <= window]))
+            out[pool[n]["id"]] = typ + k * (float(pr[a]) - typ)
+    return out
+
+
+STAR_POS = ("RB", "WR", "TE")
+
+
+def star_ids(t70: pd.DataFrame, exclude: set[str], salary: float) -> set[str]:
+    """Study 92's S2 (s92_shrink_star.py star_set): the pool's RB / WR / TE priced >= salary."""
+    pool = t70[~t70.id.astype(str).isin(exclude)]
+    sal = pd.to_numeric(pool.salary, errors="coerce").fillna(0.0).to_numpy(float)
+    return {str(i) for i, p, sv in zip(pool.id.astype(str), pool.pos.astype(str), sal) if p in STAR_POS and sv >= salary}
+
+
 def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap: int | None, min_salary: int,
              weights: list[int], exposure_cap: int | None = None, dst_cap: int | None = None,
              bonus: dict[str, float] | None = None, portfolio: str = "mix",
@@ -625,7 +651,8 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
              bring_back_top_wr: tuple[str, ...] = (),
              bring_back_top_wr_rows: int | None = None,
              own_cap: dict[str, int] | None = None,
-             row_bounds: list | None = None) -> tuple[list[list[str]], list[str], dict, list[tuple[list[str], str]]]:
+             row_bounds: list | None = None,
+             shrink: tuple[float, float] | None = None) -> tuple[list[list[str]], list[str], dict, list[tuple[list[str], str]]]:
     """study 18's MIX book on the T-70 frame: cells solved largest first (ties: the earlier cell) through ONE shared state
     (banned lineups, the per-player exposure cap, the DST cap, <= max_shared with every earlier row); a cell row that cannot
     be solved passes to A1 (counted); then the rows are ordered by the entry-weighted interleave of the plan's weights.
@@ -674,10 +701,25 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
     row_bounds (study 91; the operator 10-09 "use it in week 5" if better on both draws; default None = off, byte for byte
     today's book): (ids, lo, hi) member bounds -- at most one TE, at most one low-owned skill player -- on every solve while
     j < k (spares never), ONE call with the solve's other rules, INSIDE the ownership cap: infeasible -> the same solve without
-    them (the ownership cap kept), recorded (cell, j) (study 38 6p's row_rules @ b03ddaac, entered before own_caps)."""
+    them (the ownership cap kept), recorded (cell, j) (study 38 6p's row_rules @ b03ddaac, entered before own_caps).
+    shrink (study 92's S1; default None = off, byte for byte today's book): (k, window) -- the main book's solves maximise
+    proj_shrink's column (plus the term block's term) instead of proj; the pool, caps and rules are unchanged."""
     from nfl2.core.lineup import StackRules, optimize          # the pinned lab clone on PYTHONPATH (>= f69598b)
     pool = [p for i, p in frame_players(t70).items() if i not in exclude]
     objective = "proj"
+    shrink_meta = None
+    if shrink is not None:                                     # study 92's S1 (absent when off)
+        if bonus:
+            raise ValueError("shrink is defined without the whole-book ownership term (study 92's armed version)")
+        sk, sw = float(shrink[0]), float(shrink[1])
+        sp = proj_shrink(pool, sk, sw)
+        pool = [dict(p, proj_s=sp[p["id"]]) for p in pool]
+        objective = "proj_s"
+        moved = [abs(p["proj_s"] - p["proj"]) for p in pool if p["pos"] in SKILL]
+        shrink_meta = {"k": sk, "window": sw, "skill_players": len(moved),
+                       "by_pos": dict(Counter(p["pos"] for p in pool if p["pos"] in SKILL)),
+                       "mean_abs": round(float(np.mean(moved)), 4) if moved else 0.0,
+                       "max_abs": round(float(max(moved)), 4) if moved else 0.0}
     if bonus:
         pool = [dict(p, obj=p["proj"] + float(bonus.get(p["id"], 0.0))) for p in pool]
         objective = "obj"
@@ -706,7 +748,7 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
             raise ValueError(f"term_rows {term_rows} needs the MIX portfolio, fill rr, no cover / half / whole-book term, a "
                              f"term_bonus and 0 < n < k (got portfolio {portfolio}, fill {fill}, cover {cover_games}, "
                              f"rs {rs_rows}, bonus {bool(bonus)}, term players {len(term_bonus or {})}, k {k})")
-        term_pool = [dict(p, obj=p["proj"] + float(term_bonus.get(p["id"], 0.0))) for p in pool]
+        term_pool = [dict(p, obj=p[objective] + float(term_bonus.get(p["id"], 0.0))) for p in pool]
 
     # study 71 (default off: () = no cell, every solve below byte for byte as before): in the designated cells (A1 / B, the
     # cells whose rules REQUIRE a bring-back) the row holds its QB's opponent's TOP RECEIVER -- the highest-salaried WR in
@@ -1041,6 +1083,8 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
                        "caps_from_book_entries": k},
             "source": ("nfl2 experiments/s18_stack_shapes.py @ 5869a1b (CELLS, allocate, interleave, mix_book)" if portfolio == "mix"
                        else "nfl2 experiments/s18_stack_shapes.py @ 5869a1b (WS, whole_book; PASSED, Addendum 129)")}
+    if shrink_meta is not None:                                # study 92's S1 receipt block (absent when off)
+        meta["shrink"] = shrink_meta
     if rb:                                                     # study 91's receipt block (absent when off)
         meta["row_rules"] = {"bounds": [{"ids": len(ids), "lo": lo, "hi": hi} for ids, lo, hi in rb],
                              "ruled_solves": len(row_state["ruled"]), "resolved_without": [list(x) for x in row_state["plain"]]}
@@ -1311,6 +1355,14 @@ def main(argv: list[str] | None = None) -> int:
                          "main-book row whose FP projected ownership (--main-own-cap-source's fp_own_raw, raw %%; blank = 0%%) is below "
                          "--mix-low-own-pct (1)")
     ap.add_argument("--mix-low-own-pct", type=float, default=3.0, help="study 91: the low-ownership threshold in percent (3)")
+    ap.add_argument("--mix-min-star", type=int, default=None,
+                    help="study 92's S2 (default off): with the row rules, at least this many RB / WR / TE priced >= --mix-star-salary per "
+                         "main-book row (1), one more row bound with te1 / low1")
+    ap.add_argument("--mix-star-salary", type=float, default=8000.0, help="study 92's S2: the star price (8000)")
+    ap.add_argument("--proj-shrink-k", type=float, default=1.0,
+                    help="study 92's S1 (default 1.0 = off): with --main mix, the main book maximises typical + k x (proj - typical), "
+                         "typical = the median proj of the pool's same-position players within --proj-shrink-window salary; k in [0.5, 1.0)")
+    ap.add_argument("--proj-shrink-window", type=float, default=500.0, help="study 92's S1: the salary window (500)")
     ap.add_argument("--main", choices=["mean", "pmo_x50", "mix"], default="mean",
                     help="the main book: mean = the union pool's top-K by projected sum (paper arm); pmo_x50 = K capped plain-mean-optimizer rows solved on the T-70 frame (ENTERS Week 4); "
                          "mix = study 18's shape portfolio: the same capped solves by cell (nfl_dfs.inference.mix_shapes), ordered by the plan's entry-weighted interleave")
@@ -1404,6 +1456,10 @@ def main(argv: list[str] | None = None) -> int:
                                                                          or a.main_own_cap_source is None):
         raise SystemExit("--mix-max-te / --mix-max-low-own are defined for --main mix with the ownership cap "
                          "(--main-own-cap-delta and --main-own-cap-source; study 91 is read on his armed package)")
+    if a.mix_min_star is not None and (a.mix_min_star != 1 or a.mix_max_te is None or a.mix_max_low_own is None or a.mix_star_salary <= 0):
+        raise SystemExit("--mix-min-star takes 1 and rides with the row rules (--mix-max-te 1 --mix-max-low-own 1; study 92's armed version)")
+    if a.proj_shrink_k != 1.0 and (not 0.5 <= a.proj_shrink_k < 1.0 or a.main != "mix" or a.main_own_tilt or a.proj_shrink_window <= 0):
+        raise SystemExit("--proj-shrink-k takes [0.5, 1.0) with --main mix and no --main-own-tilt (study 92's armed version); 1.0 = off")
     if any(v is not None and v != 1 for v in (a.mix_max_te, a.mix_max_low_own)) or not 0 < a.mix_low_own_pct <= 20:
         raise SystemExit("--mix-max-te / --mix-max-low-own take 1 (study 91's tested value); --mix-low-own-pct in (0, 20]")
     if a.main_own_cap_delta and a.main_cap_share != 0.5 and a.main_own_cap_fallback_share is None:
@@ -1594,7 +1650,14 @@ def main(argv: list[str] | None = None) -> int:
                     te_ids, low_ids, row_meta = row_rule_sets(a.main_own_cap_source, fr, excl, a.mix_low_own_pct)
                     row_bounds = ([(te_ids, 0, a.mix_max_te)] if a.mix_max_te is not None else []) + \
                                  ([(low_ids, 0, a.mix_max_low_own)] if a.mix_max_low_own is not None else [])
-                    row_meta.update({"applied": True, "te_max": a.mix_max_te, "low_own_max": a.mix_max_low_own})
+                    names = (["te1"] if a.mix_max_te is not None else []) + (["low1"] if a.mix_max_low_own is not None else [])
+                    if a.mix_min_star is not None:      # study 92's S2: one more bound in the same set (dropped together)
+                        stars = star_ids(fr, excl, a.mix_star_salary)
+                        row_bounds.append((stars, a.mix_min_star, 9))
+                        names.append("star1")
+                        row_meta.update({"star_salary": a.mix_star_salary, "min_star": a.mix_min_star, "pool_stars": len(stars)})
+                    row_meta.update({"applied": True, "te_max": a.mix_max_te, "low_own_max": a.mix_max_low_own, "bounds": names,
+                                     "infeasible_drops": "every bound in the list together (te1 / low1 / star1), the ownership cap kept"})
                     print(f"ROW RULES: at most {a.mix_max_te} TE and at most {a.mix_max_low_own} skill player under "
                           f"{a.mix_low_own_pct:g}% FP projected ownership per main row ({len(te_ids)} TEs, {len(low_ids)} low-owned "
                           f"of {row_meta['pool_skill_players']} pool skill players)", flush=True)
@@ -1632,7 +1695,8 @@ def main(argv: list[str] | None = None) -> int:
                                                                        term_rows=term_rows, term_bonus=term_bonus,
                                                                        cell_quotas=cell_quotas, bring_back_top_wr=bb_cells,
                                                                        bring_back_top_wr_rows=bb_rows, own_cap=own_cap,
-                                                                       row_bounds=row_bounds)
+                                                                       row_bounds=row_bounds,
+                                                                       shrink=(a.proj_shrink_k, a.proj_shrink_window) if a.proj_shrink_k != 1.0 else None)
             if own_cap_meta is not None:
                 mix_meta["own_cap_source"] = own_cap_meta
             if row_meta is not None:
