@@ -9554,3 +9554,85 @@ secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; th
 - **Each rule alone is within the harness's noise:** TE5000 +0.8, DST3000 −1.1, WR1CHEAP −1.7, FLEXNOTE +0.1. Addendum 182
   showed the same rule moving several points between bank sets.
 - **Recommendation (his decision):** do not use the whole-book version. No single rule shows an edge.
+
+## Addendum 184 (2026-10-09): study 86 (no player priced over $7,900 anywhere in the book, his request, in the harness; information for his decision): worse (−4.9 on the read; 2022 −0.3), guard 1 fails, CONTRADICTED: NOT ENTERED; the winners hold more stars, not fewer
+
+**Setup.**
+- **His request** (recorded verbatim, HANDOFF `3a971a25`; amended `d6de0e8e`): "After that, let's do one additional study where the
+  only rule is no player over $8100 for the entire book", then, before any code or read, "Let's change that to no player over
+  7,900." Information for his decision.
+- **The arms.** Built on study 48's harness (LIVE = 48d's 41 rows with the cheap +2 block; Rev6 `ac10ddf6`):
+  - LIVE_CB (the reference).
+  - CAP7900: every pool player of any position priced above $7,900 banned on every book solve ($7,900 itself allowed), through
+    study 81's frozen `banned_rows`. Infeasible → the cell's own rules, recorded.
+  - His rule printed for reference only.
+- **Preregistration:** `reports/2026-10-09-prereg-study86-price-cap.md` (the design `c4ac131e` / `14168e8f`, committed before
+  studies 84's and 85's READs; FROZEN `8e848947`, 10-09 08:12 CDT, before any scored bank).
+- **Code timing:** the lab code `4fdad305` was on origin (07:26:04) before study 85's READ, and is unchanged.
+- **Panel:** banks 1725–1730, B 20,000, seed 20261131.
+- **Read:** the reader `76df628d`; READ `483188be` (lab `883a7336`). The confirmatory census (`e6a588fc`, with the raw
+  files' shas) was committed before the READ. Study 87's code (nfl2 `20031fb6`) was on origin before this READ ran.
+- **Reproduced byte-identically by the laptop** at `883a7336`: the raw files 1725–1730 pass `sha256sum -c` against
+  `RAW_s86_run.sha256`; the READ is `483188be` and the confirmatory census `14b2a286` (cmp-identical).
+- **Disclosed (the bank scan):** bank 1726's field base 2426 (= 1726 + 700) coincides with an old September hsim audit seed in
+  an unrelated production chain. It is not a read of these banks.
+- **Census** (binding, 53 slate-banks):
+  - 0 infeasible;
+  - pool players > $7,900: 7.17 per slate-bank (min 1);
+  - vacuity: LIVE_CB holds one in 18.6 of 26 rows (his real W4 book 11 of 26);
+  - $8k+ per row 1.06 → 0.
+  - **Projection −1.07 per row in the harness, against −0.18 on his real book** (the laptop's check; 17 of 26 rows change).
+    The harness leans on these players more than his book does, so it overstates the rule's cost: the transfer caveat.
+
+**Reader output (verbatim):**
+```
+STUDY 86 READER  sha256 76df628d26ed573c2e0e1f3eab07813863b179d6a2ca02e2ef3629fe5d0a85c5
+DIRECTION: P(>= 1 big seat) per slate (the mean over its banks); every difference is ARM - LIVE_CB; POSITIVE favours the arm.
+slates 36 (the 2023-24 read) + 17 (the 2022 go / no-go)  banks [1725, 1726, 1727, 1728, 1729, 1730]  B 20000  seed 20261131  one arm read for his decision, against LIVE_CB on the CALIBRATED field (v2), each two-sided 0.95; guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only; 2022: the point estimate (two-sided 0.95 interval); study 51's trial rule per arm
+arms (definitions, the price cap, study 81's and study 73's shas, live settings, QB cap, objective): [["LIVE_CB", "CAP7900"], {"block": {"cap": 2.0, "min_coverage": 0.5, "n_term": 8, "tilt": 0.2}, "price_cap": 7900.0, "rows": "every book solve (any cell) bans every pool player priced > price_cap; infeasible -> the cell's own rules, no ban, recorded"}, "b37dbbc94ab2ff1c3857d5410d37a48223b5902587da79946f8b0ebfd33b37f4", "3f76c6295d8666cf4f256a103c7ba3fe428630d6149c7a6009648487900d806d", {"fill": "rr", "max_shared": 4}, 5, "player_mean (+ the cheap block term)"]
+
+== CAP7900 vs LIVE_CB  [for his decision; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate -0.04914  [-0.13590, +0.02531] (two-sided 0.95)  seasons 2023 -0.04369, 2024 -0.05460
+  GUARD 1 mean entry pct -0.01854  one-sided lower -0.04334  (must exceed -0.015)
+  GUARD 2 expected big seats 0.43606 vs 0.52883  ratio 0.825  (must be >= 0.80)
+  CAP7900 dealt identical to LIVE_CB: 0.032 of slate-banks
+  ->  NO DIFFERENCE
+  GO / NO-GO 2022: -0.00280  [-0.08193, +0.07532] (two-sided 0.95)  ->  CONTRADICTED (the 2022 point estimate is < 0)
+  TRIAL: NOT ENTERED: CONTRADICTED on 2022
+  HIS RULE (reference only): DO NOT USE IN W5: the 2023-24 point estimate -0.04914 < 0; the 2022 point estimate -0.00280 < 0
+
+== TRIAL SUMMARY: no arm is enterable
+
+== HIS RULE, every arm, FOR REFERENCE ONLY (his decision: "Let me decide"; under no true effect an arm passes about one time in four; the slates are the ones studies 78-85 read):
+  CAP7900   DO NOT USE IN W5: the 2023-24 point estimate -0.04914 < 0; the 2022 point estimate -0.00280 < 0  (2023-24 point -0.04914, 2022 point -0.00280, seats ratio 0.825)
+
+== EXPLORATORY (two-sided 0.95)
+  CAP7900 - LIVE_CB (the l02 field, 2023-24): -0.05200  [-0.14203, +0.02592]  seasons 2023 -0.05057, 2024 -0.05343
+  CAP7900 - LIVE_CB (the l02 field, 2022): -0.00373  [-0.08907, +0.07647]  seasons 2022 -0.00373
+  CAP7900 ruled solves built plain (infeasible): 0 of 8268 over 318 slate-banks
+
+secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; the book's rows are pre-lock facts):
+  [2023-24]
+  LIVE_CB      v2: P(>=1 big) 0.33911  expected big seats 0.52883  P(>=2) 0.12086  entry pct 0.51503  |  l02: P(>=1 big) 0.36904
+               book: projection per row 127.74  salary 49964  QB + 2 rows 12.0 of 26  rows with a player > $7,900 16.3  $7k+ per row 2.08  $8k+ per row 0.84  QB + TE rows 12.2  distinct QBs 8.4
+  CAP7900      v2: P(>=1 big) 0.28997  expected big seats 0.43606  P(>=2) 0.09221  entry pct 0.49649  |  l02: P(>=1 big) 0.31705
+               book: projection per row 127.04  salary 49956  QB + 2 rows 12.0 of 26  rows with a player > $7,900 0.0  $7k+ per row 1.80  $8k+ per row 0.00  QB + TE rows 12.4  distinct QBs 8.3
+  [2022]
+  LIVE_CB      v2: P(>=1 big) 0.24226  expected big seats 0.32263  P(>=2) 0.06712  entry pct 0.46170  |  l02: P(>=1 big) 0.26121
+               book: projection per row 131.83  salary 49961  QB + 2 rows 12.0 of 26  rows with a player > $7,900 22.9  $7k+ per row 2.74  $8k+ per row 1.53  QB + TE rows 11.4  distinct QBs 8.1
+  CAP7900      v2: P(>=1 big) 0.23946  expected big seats 0.38721  P(>=2) 0.09665  entry pct 0.45909  |  l02: P(>=1 big) 0.25748
+               book: projection per row 129.92  salary 49953  QB + 2 rows 12.0 of 26  rows with a player > $7,900 0.0  $7k+ per row 2.17  $8k+ per row 0.00  QB + TE rows 10.6  distinct QBs 7.8
+```
+
+**Reading.**
+- **CAP7900 is worse:**
+  - −4.9 points [−13.6, +2.5] (2023 −4.4, 2024 −5.5);
+  - expected big seats ×0.83; P(≥ 2) 0.092 against 0.121;
+  - **guard 1 fails** (−0.043): the stars-free lineups finish lower on average.
+- **2022 is −0.3.** Study 51's rule says CONTRADICTED: NOT ENTERED, and his rule (reference only) says DO NOT. The earlier
+  field (l02) agrees: −5.2 / −0.4.
+- **It fits the winners' pattern:** the 2026 top 1% hold MORE $8,000+ players than the field (0.88 against 0.66 per lineup,
+  study 78's scan). Study 78's opposite rule (two stars on 8 rows) was mixed (Addendum 176).
+- **The harness overstates the rule's cost on his book** (−1.09 per row against −0.18 on his W4 book), but the direction is
+  clear on both read seasons.
+- **Recommendation (his decision):** do not use it.
