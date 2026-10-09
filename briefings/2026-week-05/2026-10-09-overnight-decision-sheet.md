@@ -81,7 +81,8 @@ and then the override is recorded.
   - +1.8 points on the deciding seasons (2023 +1.4, 2024 +2.3), about 4% more expected big wins, and flat on 2022 (+0.2).
   - The only test tonight that is positive in all three seasons, though 2022 is essentially zero and the range includes zero: no gain is proven.
   - It costs no projection (+0.06 points per lineup), and the 3 lineups land in big-contest seats.
-  - **The reviewer recommends a 3-lineup trial in Week 5 on top of the cheap block.** The switch is being built tonight (off by default, not merged). Your decision: yes this week (two changes at once), or Week 6.
+  - **The reviewer recommends a 3-lineup trial in Week 5 on top of the cheap block.** The switch is built and reviewed (by me and the reviewer; 311 tests pass), off by default and not merged. Your decision: yes this week (a second change), or Week 6.
+  - If yes: I merge it before Friday's code freeze, check that it changes nothing when off, rehearse it on Friday's Week-5 inputs, and record your override of the one-change advice. One limit to know: if a player in one of those 3 lineups is ruled OUT on Sunday, the replacement lineup is a normal stack (no QB-alone spares are built).
   - For the record: this run was interrupted at 276 of 318 slates by a session time limit and resumed exactly where it stopped. Nothing was read before it finished, and the result reproduced byte for byte.
 - **Study 78 (two $8,000+ players in 8 lineups; READ committed 00:24 CT):**
   - +1.8 points on the deciding seasons, but split: 2023 −0.8, 2024 +4.5. Not a proven gain.
