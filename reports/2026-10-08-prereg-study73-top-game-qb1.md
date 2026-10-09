@@ -1,9 +1,10 @@
-# Preregistration: study 73, his two QB-stack ideas (a QB + top pass catcher in each top-5 game; fewer QB + 2 rows), in the harness (DRAFT 2026-10-08)
+# Preregistration: study 73, his two QB-stack ideas (a QB + top pass catcher in each top-5 game; fewer QB + 2 rows), in the harness (FROZEN 2026-10-08)
 
-**Status: DRAFT 2026-10-08** by the reviewer, written after the code's smoke and before the binding census and any
-scored bank.
-- **Next:** the binding census (§6), the freeze, the laptop's ack (the banks and seed already scanned clean), the run,
-  the confirmatory census before the read, the frozen reader, the laptop's re-run and the records.
+**Status: FROZEN 2026-10-08 (20:25 CDT)** by the reviewer, after the smoke and the binding census (§6), before any scored bank.
+- The DRAFT was `954186d0`, amended at `97d64559` (QB1HALF added; the QB2HALF direction corrected) before the binding
+  census.
+- **Next:** the laptop's ack (the banks and seed already scanned clean), the run, the confirmatory census before the
+  read, the frozen reader, the laptop's re-run and the records.
 - **Target:** read tonight. If TOPG5_QB1 is ENTERABLE, a production option can be reviewed, merged before FRIDAY_HEAD and
   rehearsed on Friday's A3, for his choice at Saturday's arming (default OFF).
 
@@ -109,7 +110,17 @@ block through study 53's `block_term` / `term_book`, on Rev6 (`plan-week5-rev6-s
   - the other arms are unchanged.
 - **The full-path smoke** (2024 W10, 2022 W6 scored on bank 1406; first with 3 arms, then with 4): the reader exited 0
   with its 3, then 4, sections. Only the exit code, the line count and the section count were read.
-- **The binding census:** to follow.
+- **The binding (support) census** (outcome-blind; bank 1406; all 53 slate-banks of 2022–24; code `ffb5bd0` clean; lab
+  `results/s73/CENSUS_s73_binding.txt` `9d1563af…`, the raw mechanics rows `census_mechanics_bank1406.jsonl` `54ca66d1…` with no
+  outcome field, committed at `1b61005`; it supersedes a 3-arm census run before QB1HALF was added):
+  - every arm is 41 rows within production's constraints, with 8 term rows and every row in the pool;
+  - TOPG5_QB1: 5 of 5 pairs forced on every slate-bank, 0 infeasible, all at book positions 2, 3, 6, 7, 12 (read by big
+    contests: 1.000);
+  - TOPG3_QB1: 3 of 3, at positions 2, 3, 6;
+  - top-5-game pairs held: LIVE_CB 3.08, TOPG5 5.00, QB1HALF 2.89;
+  - QB + 2 rows: 12 of 26 in LIVE_CB / TOPG5 / TOPG3, 6 in QB1HALF (cells A1 4 / A2 2 / B 11 / C 9);
+  - projection per row: 128.98 / 128.77 / 129.11 / 128.87 (TOPG5 −0.20, QB1HALF +0.13);
+  - rows shared with LIVE_CB 3.3 / 2.0 / 3.1; dealt identical 0.000 (no dead lever).
 - **Code:** nfl2 `production/s73-topg-qb1-20261008` @ `ffb5bd0` (QB1HALF added after `b402cdd`):
   - `experiments/s73_topg_qb1.py` `3f76c629…`;
   - `scripts/s73_drive.py` `5bc691db…`;
