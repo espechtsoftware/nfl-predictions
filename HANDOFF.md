@@ -12,6 +12,145 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (12:00 CDT) — OPERATOR: the tested package (35% cap + ownership cap) as a live W5 trial if built in time; O-63 cause found
+
+**His decision** (in the outside reviewer's session via AskUserQuestion, after study 89's READ; relayed verbatim):
+- The question: "Use the tested package (35% max + each player capped at FantasyPros' projected ownership + 15 points) live in
+  Week 5?"
+- His answer: "Live W5 trial if built in time (Recommended)".
+- The option text: "Production builds it today (default off), proves it matches the lab version and checks it on your
+  Week-4 book; armed Saturday only if all of that passes, with today's book scored on paper beside it. Otherwise it goes to
+  paper."
+- **In the laptop's session**, asked about the ownership limit, he answered: "The outside reviewing will provide you that
+  info in a moment". The laptop takes the relayed decision as his.
+- **Notes:** "FantasyPros'" in the question means Fantasy Points (our vendor). The lab tested the ownership cap on the l20
+  blend (lag + LineStar) rescaled to 800%; live uses FP's raw ownership rescaled to 800%, a form difference (the W4
+  real-book check shows its size). The flat 35% alone stays NOT armed (Addendum 186). It arms only inside the package.
+
+**The plan:**
+1. The outside reviewer builds a union_reselect flag (proposed `--main-own-cap-delta D --main-own-cap-source FILE`,
+   default off). Per skill player: rows ≤ floor(K × (FP ownership rescaled to 800% / 100 + D / 100)), on the main book's
+   live and term solves. An infeasible solve is re-solved without the ownership bans and counted. It carries a parity test
+   against the lab's own_caps code (sha-pinned).
+2. The laptop wires the host, the arm and check_week_runtime:
+   - the FP ownership block runs when the cap is on, even at tilt 0;
+   - **the fallback:** if the FP ownership file fails, today's book is built (cap 0.5, no ownership cap) with an ALERT. The
+     flat 35% never runs alone.
+3. The W4 real-book check (OFF `a4ab2839` vs 0.35 + the ownership cap, with W4's FP ownership).
+4. The reviewer's study 38 amendment 6o: the paper arms follow the live ownership cap, plus "today's book" (0.5, no
+   ownership cap) as the paired paper arm.
+5. Merge before FRIDAY_HEAD (union_reselect and the host are code), then arm Saturday. If any step fails, the package goes
+   to paper and today's book runs.
+- **Study 38 6n follow-up (lab `dc6df978`, module `de777641`):** acked from the reviewer's smoke (34 passed; under cap35,
+  CAP50 equals pin-6n's MIXT_QA0 exactly). The gate pin moves again with 6o.
+- **O-63 CAUSE FOUND** (the reviewer's sweep, `~/o63-hashseed-20261009/`): the build is a deterministic function of the hash
+  seed. Seed 2 reproduces the outlier census exactly; seeds 0, 1 and 3–9 give the other build; load plays no part. Study 88's
+  scored run (from 11:47, ETA about 13:00) runs under PYTHONHASHSEED=0, recorded in RUN_ENV.
+
+## 2026-10-09 (11:42 CDT) — laptop: study 89 READ by his rule = DO NOT ARM the 35% cap; MAIN_CAP=0.5 merged; gates OK
+
+- **Study 89** (the outside reviewer's ownership-relative cap; frozen 10:55; run 11:00–11:39, 12 banks as two draws, BLAS
+  threads pinned). The laptop's ack, census re-run identical, S89 GO. The READ (lab `90a0c951`, READ_s89 `c3f5a7ee`) was
+  reproduced byte-identically; the confirmatory census `36e1d2da` is identical. Line 65, verbatim:
+  "== W5 ARMING RULE (his 10-09 rule): DO NOT ARM the 35% cap (CAP35 - LIVE_CB below 0 on both draws: A -0.03419, B -0.00603); keep 0.5"
+  - CAP35 − LIVE_CB −2.0 [−4.9, +0.9]; guard 1 fails; seats ×0.910.
+  - CAP35_OWN15 − LIVE_CB +1.2 [−2.6, +5.1] (A +0.5, B +1.9); guard 1 fails; seats ×0.951. NO DIFFERENCE, no gain shown.
+  - OWN15 − CAP35 +3.2 (positive on both draws): the ownership cap recovers what the 35% cap loses.
+  - The exploratory REAL-ownership arm (leaks late news) +4.5 vs CAP35, PASS.
+  - 89 ran under a random hash seed (O-63): the READ reproduces from the raw files; a rebuild of its books would be exposed.
+- **Merged into integration:** `ce5c3cea`, the arm's MAIN_CAP=0.5 (`production/arm-w5-cap-20261009`; the reviewer APPROVED;
+  64 passed). It quotes line 65. The live book is unchanged (week_env's default was 0.5); the arm now sets the cap
+  explicitly and refuses while it is empty. It merged BEFORE FRIDAY_HEAD: it touches tests/, which CODECHG counts as code.
+- **`check_prospective_gates.py --week 5`:** rc 0, "every gate that must be armed this week is armed and policy-consistent"
+  (older failed runs within 8 days noted on several shadow jobs; the newest runs succeeded).
+- **Study 38's gate pin:** 6n's follow-up `de777641` (the CAP50 paper arm, never built at live 0.5) if its smoke passes, else
+  6n `5e430683`. It runs on the live snapshot (A3 cancelled).
+- **Next:** 88 (the 6n2 smoke, then the hash sweep, then 88 under PYTHONHASHSEED=0); his choice on any OWN15 follow-up;
+  FRIDAY_HEAD; the 12:31 FP capture.
+
+## 2026-10-09 (10:42 CDT) — OPERATOR (in the laptop's session): the 35% cap arms for W5 unless study 89 reads it worse than 50% on both draws
+
+**Asked by the laptop** (AskUserQuestion: arm 35% for W5 / only if the W2–4 replay holds up / no), **his answer, verbatim:**
+"the independent check is whether study 89 shows the 35% cap underperforming 50% on both draws, since that's the real test —
+not the Weeks 2-4 replay, which would pass by construction"
+
+- **The rule as the laptop reads it**, sent to the reviewer to freeze in study 89's prereg before its freeze:
+  - DO NOT ARM 0.35 iff CAP35 − LIVE_CB's point estimate on P(≥ 1 big seat) per slate (the 2023–24 read, the calibrated field)
+    is below 0 in BOTH draw A (banks 1743–1748) and draw B (1749–1754).
+  - Otherwise ARM `UNION_MAIN_CAP=0.35` for W5, with the 50% book scored on paper beside it.
+- **The W2–4 real-outcome replay is NOT a gate** (in-sample; he set it aside).
+- **Study 38 amendment 6n** (lab `28bf0eba`, prereg `e3d8c5b3`): the paper arms follow the live cap (0.5 / 0.35). The laptop
+  checked it and asked the reviewer to add the promised 50% paper arm (the live construction at 0.5 when live is 0.35); as
+  written, every paper arm moves to 0.35 and nothing measures 35 vs 50.
+- **His 10-09 request to the outside reviewer began** "WIth that info, it seems we are very bad at selecting lineups. …" (the
+  first words, missing from `8a5fdf09`).
+- **OPEN-DEFECTS O-63** (lab harness builds not byte-reproducible under load in rare near-optima; study 88's census) added.
+
+## 2026-10-09 (10:28 CDT) — OPERATOR: Friday's A3 rehearsal cancelled; "select better today for this week"; the 35% cap trial, the ownership-relative cap test, the FP calibration
+
+**In the laptop's session (verbatim):** "Since we have found how poorly we are currently selecting lineups, there is no reason to
+do the rehearsal at the moment. It is more important to continue these tests to figure out how to select better today for
+this week"
+- **A3 is CANCELLED for today.** The 12:30 / 16:30 FP projected-ownership captures still run (light, perishable).
+- Study 38's 6l integrity gate had no Friday snapshot. The reviewer moves it to the live snapshot (Saturday's arm or
+  Sunday's T-70).
+- FRIDAY_HEAD is still set today, carrying whatever his tests produce.
+- Not rehearsed: the cheap block armed end to end on a fresh W5 build. The Saturday 10:30 canary (d12800-sat) is the first
+  live run of the armed host; check its receipt and lever audit by 11:00.
+
+**In the outside reviewer's session** (his answers to its AskUserQuestion, relayed verbatim; given before this entry's 10:28 clock stamp, though the relay said "about 10:55"). He asked it: "it
+seems we are very bad at selecting lineups. Use whatever tools you have to make suggestions of what we need to fix
+immediately. If it is salary rules causing the problems, let's try changing them. Everything can change today because we need
+to get better immediately".
+- "Lower the per-player exposure maximum from 50% to 35% of lineups for Week 5 (setting change, tested 10-06, the 50% book kept
+  on paper beside it)?" → "Yes, W5 trial (Recommended)". The option text: "Production sets the existing cap setting to 0.35
+  before Saturday's arming; a real-book check on W4 data first (minutes); reversible next week."
+- "Run the ownership-relative cap test (each player at most the field's projected ownership + 15 points) today?" → "Yes,
+  before study 88 (Recommended)" (study 89, the outside reviewer's).
+- "Run the calibration check on Week 4 with FantasyPros projections now (5 minutes)?" → "Yes (Recommended)".
+- Relayed, so the laptop asks him to confirm the 35% cap in its own session before the arm changes.
+
+**Done since (laptop):**
+- **The 35% cap, real-book check** (W4 inputs, W5 arming, OFF = `a4ab2839`; `--main-cap-share 0.35`;
+  `~/rehearsals/flagcheck-cap035-20261009T152537Z`):
+  - FP projection per row 143.70 → 141.39 (−2.31); 17 of 26 rows change;
+  - most rows for one player 13 → 9; players in ≥ 40% of rows 7 → 0; in ≥ 30% 10 → 14; at the cap 9 → 12;
+  - distinct players 48 → 49 (the core spreads, it is not replaced).
+  - The setting is `UNION_MAIN_CAP` (week_env.sh default 0.5; sunday_build_host passes `--main-cap-share`; the arm does not
+    set it today). Arming 0.35 = `UNION_MAIN_CAP=0.35` in `arm_env` (that script is exempt from the CODECHG check).
+  - It also needs check_prospective_gates and study 38's parity amendment (the reviewer: parity pins main_cap_share 0.5, so
+    a live 0.35 would make the week INVALID until amended).
+- **Field A′, the W4 calibration re-centred on FP's pre-lock projections** (`--recentre-fp`, `review/calibration-w1-4-20261009`
+  @ `b3c30649`; proj_fp-w4.csv `8bba650e`, 100% coverage). Less optimistic than our model but still optimistic:
+  - cash 8.7 expected vs 3 (ours 11.6);
+  - top 10% 22.3 vs 7 (ours 28.1);
+  - P(≥ 1 big) 0.133 (ours 0.188); PIT mean 0.35 (ours 0.31).
+  - FP rated his W4 lineups +8.5 points per lineup above the field's (ours +11.0); they scored 3.7 below.
+- **Study 88's census re-run differs in one arm-slate** (TEFLEX, 2023 W11, rows 14/17). The reviewer's diagnosis: CBC
+  tie-breaking that depends on set iteration order (PYTHONHASHSEED; lineup.py bans as a set), under test. If confirmed: GO
+  with a disclosure, plus a lab fix after the week (sorted bans). 88 now waits behind study 89.
+
+## 2026-10-09 (09:35 CDT) — OPERATOR (relayed): variants of study 87's book "perhaps with a slightly cheaper QB" (study 88); and the calibration check ("I do want to do 3")
+
+**His words** (in the outside reviewer's session, during study 87's run, before its read; relayed to the laptop verbatim, his
+typos kept): "My suspicion is we are going to find that the last test we set up - with the QB from on of the top 4 point total
+games, a lower priced tight end, a cheaper defense, at least 1 wr <=4500, top receiver from same team as QB and WR or RB in flex is
+going to outperform everything else. Premature to say, but that looks more like the way I believe winners are structured. Please
+consider other options along those lines - perhaps with a slightly cheaper QB - that you think are good to test based on what
+you see in historic results" (88's prereg `2dd4072b` had elided the middle with "…"; the outside reviewer sent the full text).
+
+- **Study 88** (the outside reviewer's design, committed before 87's READ, lab `49db37c6`). The arms are LIVE_CB (capped),
+  then uncapped NOCAP, BOOK87 (87's book on a fresh bank set: the forward rule's second read), CHEAPQB (+ QBs ≥ $7,000
+  banned), TEFLEX (87 without its no-TE-flex rule) and CHEAPQB_TEFLEX. Banks 1737–1742, seed 20261133 (the laptop's scan).
+  Information for his decision.
+- **His second request, the same morning** (relayed by the outside reviewer, after the laptop's money-gate summary; he asked
+  "I thought any given week I had a 30% chance at a big win… Was that never true as I was told?"): "I do want to do 3, but if
+  that requires knowing exactly what we're doing for week 5, it is premature." Step 3 is a calibration check of the then-model
+  on his real W1–4 entries. For each entered lineup: the model's pre-lock chance of a top 1%, a top 10%, a cash and a big win
+  against the real field rosters, set against what happened. Descriptive; it changes nothing for W5.
+  - The laptop builds it (`review/calibration-w1-4-20261009` @ `fd09493b`), the outside reviewer approved the design (five
+    notes, all taken), and it runs in the machine's gaps, after study 87's READ.
+
 ## 2026-10-09 (09:14 CDT) — laptop: the 09:13 "Week-5 money gate" reminder fired; the gate was already done (10-05), nothing re-run
 
 The one-shot reminder scheduled 10-04 (the schedule table's "Fri 10-09 09:13" row; `75be36fb` / `7fea3a9a`) fired today. The

@@ -3,6 +3,30 @@
 **For:** Erich, before Friday's code freeze. Written by the laptop agent, with the reviewer's recommendation for each
 test. **Every result below was read by the reviewer and re-run by the laptop with identical output.**
 
+## Midday: the new direction (your decisions this morning)
+
+- **Why:** the check of your real Weeks 1–4 entries
+  ([the calibration report](2026-10-09-calibration-weeks-1-4.md)) showed that our lineups finished well below what the model
+  expected from Week 2 on. Plan on a big win about 1 week in 15 to 1 in 30, possibly worse. The model kept rating your
+  lineups above the average opponent's; in Weeks 2–4 they scored 4–13 points below.
+- **You cancelled Friday's rehearsal** to spend the day on tests that could change how we select this week. Saturday's 10:30
+  build is now the first live run of the armed setup; I check it by 11:00.
+- **The 35% cap (your W5 trial, with your rule):** no player in more than 35% of your lineups (9 of 26, was 13), with the 50%
+  book scored on paper beside it. It is armed for Week 5 **unless study 89 shows it doing worse than the 50% cap on both of
+  its two independent draws.** On your Week-4 book it changes 17 lineups and costs about 2.3 projected points per lineup.
+  The arming change is built and reviewed; it is set from study 89's result.
+- **Study 89 result: by your rule, the 35% cap is NOT armed; Week 5 keeps 50%.** The 35% cap came out below the 50% book on
+  both draws (−3.4 and −0.6 points; −2.0 pooled), with about 9% fewer expected big wins.
+  - **The 35% cap plus "no player more than 15 points above his projected ownership":** +1.2 against your live book
+    (positive on both draws, +0.5 and +1.9), but within the noise, and its lineups finish a little lower on average. No gain
+    shown.
+  - **The ownership limit itself looks useful:** added to the 35% cap, it gained +3.2 on both draws. With the real
+    (after-the-fact) ownership it would do better still, which says a better ownership forecast is where an edge could be.
+  - **What is armed:** your live book exactly as before (cheap block on, 50% cap). The cap is now set explicitly in
+    Saturday's arming and reviewed.
+- **Fantasy Points' projections on Week 4:** also too optimistic. They rated your Week-4 lineups 8.5 points above the
+  field's, and the lineups scored 3.7 below. So switching to FP did not by itself fix the over-rating (one week).
+
 ## The morning's results, in short (study 84 READ committed 07:06 CT)
 
 - **83, the three rules together:** by your rule, **do not use** (−1.9 points).
@@ -12,9 +36,14 @@ test. **Every result below was read by the reviewer and re-run by the laptop wit
 - **85, your experiment book (READ committed 08:05 CT):** worse in the test: −3.1 points, with about 23% fewer expected big wins (beyond your 20% tolerance). It changes almost every lineup and costs about 0.8 projected points per lineup. Each rule alone is within the test's noise (−1.7 to +0.8). **My recommendation: don't use it.**
 - **87, without the usage caps (your amendment), checked on your real book:** lifting the caps alone raises the projection (+1.0 per lineup) by piling into fewer players (one player in 21 of 26 lineups, one defense in 8). With 87's limits on top, the limits still cost about 1.4 per lineup against that, so the caps were only a small part of the cost.
 - **86, no player over $7,900 in the whole book (READ committed 08:43 CT):** worse in the test: −4.9 points on the deciding seasons (2023 and 2024 both about −5), slightly negative on 2022, about 18% fewer expected big wins, and the lineups finish lower on average. It fits what the winners do: the top 1% hold more $8,000+ stars than the field. On your real book it would cost less (−0.18 projected points per lineup, 17 of 26 lineups change), but the direction is clear. **My recommendation: don't use it.**
-- **Still running, as information for you:** study 87 (your second experiment book: "QB from one of top 4 point total games / TE <= 5000 / D <= 3000 / 1 WR <= 4500 / Top receiver same team as QB / WR or RB in Flex", at least one cheap receiver).
-  - **Read its result with this in mind:** with no usage caps, about half your entries would sit on one quarterback, and on some slates almost all of them. In the test's setup count over all 53 slates, the top quarterback averaged about 11 of 26 lineups in your book version (up to 21, holding up to 81% of the entries) and about 12 in the quarterback-only version (up to 24 of 26, 92% of the entries); the no-caps book alone averaged about 9 (up to 16). Only 5 or 6 quarterbacks qualify, and removing every cap lets the build pile onto one of them. So any good number would come with that concentration.
-- **How we will treat its result:** as information. If you want to act on it, it is first re-tested on a second, separate set of test draws (same code), and both answers go on your sheet before any switch is built. That is the lesson of study 84.
+- **87, your second experiment book, with no usage caps (READ committed 09:53 CT):** every version came out below your live book, only the price rules are clearly worse, and none shows a gain.
+  - The whole book: −3.3 points on the deciding seasons, and erratic (2023 −9.0, 2024 +2.5); 2022 +3.5; about 8% fewer expected big wins.
+  - Its price rules alone (TE ≤ $5,000, DST ≤ $3,000, a cheap receiver, no TE in the flex): −6.1, about 23% fewer expected big wins, with the whole range below zero. This is the clearest negative of the day.
+  - Its quarterback part alone (a QB from a top-4 game with his top receiver): −2.3, and negative on 2022 too.
+  - Removing the caps alone: −1.7. On the scored draws one quarterback carried up to 92% of the entries on some slates (nearly half on average in the quarterback-limited versions).
+  - **My recommendation: don't use any of it.** Study 88 (running next) re-tests the whole book on fresh draws and tries a cheaper quarterback and allowing a tight end in the flex, as you asked.
+- **Study 88 (frozen 10:14, running next; information for you):** your 87 book re-tested on fresh draws, with a cheaper quarterback (none at $7,000+), with a tight end allowed in the flex, and with both. **Read it with this in mind:** without the usage caps, the cheaper-quarterback versions put one quarterback in up to 25 of your 26 lineups on some slates (96% of the entries).
+- **How we will treat 88's result:** as information. If you want to act on it, it is first re-tested on a second, separate set of test draws (same code), and both answers go on your sheet before any switch is built. That is the lesson of study 84.
 - **On your real book** (no scores looked at): 85's two price limits alone cost about 0.7 projected points per lineup and change 24 of 26 lineups; the $7,900 cap costs about 0.2 and changes 17; 87's quarterback and price limits cost about 1.6 (only 8 quarterbacks are left for 26 lineups).
 
 ## Update: your decision (early morning)
