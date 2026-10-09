@@ -30,6 +30,11 @@ test. **Every result below was read by the reviewer and re-run by the laptop wit
   contests, [the report](../../reports/2026-10-09-package-replay/README.md)): on Week 4, the faithful week, the armed version
   finished best (58.7th percentile, 20 top-10% finishes, 6 cashes, 0.57× fees, against the 50% book's 53.7 / 8 / 2 / 0.19×);
   Week 3 was a wash; no version had a big win. It is in-sample (these weeks prompted the rule), so it is the expected direction, not proof.
+- **S1 (shrink projections toward salary) and S2 (one $8,000+ star per lineup), "Test both tonight for live": neither goes
+  live.** S1 made the book worse on both independent draws (about 4 points fewer slates with a big win, 15% fewer expected big
+  wins), so your rule says paper only. S2 failed its Week-4 check and also read worse in the test model. Both are scored on
+  paper in Week 5. Its strong Week-4 replay number came from one big win and did not hold up out of sample.
+- **Also:** the tighter ownership limit (+10) was no better than +15 ("keep 15 as you suggest").
 - **Your package is ARMED for Week 5 (your "Yes, arm the package").** Every condition you set passed: built, matching the
   lab version, checked on your Week-4 book, and today's book scored on paper beside it. Saturday's 10:30 build is the first
   live run; if Sunday's ownership file ever fails, the build automatically falls back to today's book, with an alert. The 35%

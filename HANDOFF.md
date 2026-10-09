@@ -12,6 +12,17 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (16:40 CDT) — laptop: study 92 READ -- S1 PAPER ONLY (worse), S2 worse too; nothing merges; Saturday's arm unchanged
+
+- **Study 92** (run 16:01–16:39, PYTHONHASHSEED=0). The READ (lab `8fbbe8f9`, READ_s92 `344de57b`) was reproduced
+  byte-identically; the confirmatory census `8a8fb664` is identical.
+  - SHRINK07 − ARMED −4.4 [−8.1, −0.7], WORSE (A −6.6, B −2.2; seats ×0.851). **His S1 rule: PAPER ONLY.**
+  - STAR1 −5.8, WORSE (seats ×0.811), agreeing with its W4 replay FAIL. Both together −6.7 (×0.764).
+- **Nothing merges:** the flags `b4934067` and the wiring `32add6b8` stay unmerged; FRIDAY_HEAD stays `f5f96468`.
+  Saturday's arm: the package (0.35 + own cap 15) + te1_low1 + the cheap block (TERM_ROWS=8 / TERM_SHA set on Saturday).
+- S1's in-sample W4 lift (one big win) did not survive the out-of-sample test. That is why the replay was not its gate.
+- S1 and S2 go on paper in W5: study 38 amendment 6r (the reviewer's; the smoke runs now; then the laptop's ack).
+
 ## 2026-10-09 (16:34 CDT) — laptop: the 16:33 FP ownership capture (1,147 rows / 612 players) and the evening arm --check pass
 
 - **FP projected ownership, W5** (production checkout `7dc00df1`, collector `ced05f9f`): rc 0.
