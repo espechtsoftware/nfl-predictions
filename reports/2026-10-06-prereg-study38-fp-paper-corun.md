@@ -935,6 +935,10 @@ score. Nothing here enters a contest: the money path, its checkout and its files
     - The outside reviewer's real-field scan of his W1–4 limited-entry contests (aggregates; hindsight, NOT evidence): a TE in
       our flex in 54–100% of entries against the top 3's 11–50%; about 1.0 player under 3% REALIZED contest ownership per
       lineup against the top 3's 0.4–0.5.
+      The report: `reports/lab-handoffs/2026-10-09-limited-entry-winners/README.md` (sha256 `cadc6ae2cec18358…`; with
+      `analyze.py` and `select_by_p1.py`, which write only under `~/private/`), committed at `9e4c39da` with study 91's prereg.
+      Its second finding: selecting by the model's P(1st) against each real field did not beat selecting by projection in 4 of 5
+      groups, and the T-70 pool held a would-be winner in most contests (pre-lock selection, not generation, is the bottleneck).
     - His follow-up (HANDOFF `2ab54e30`): the harness test (study 91) decides whether the rule goes LIVE in Week 5. This paper
       test is the real-field measurement either way.
   - **The prior.** The TE half was read twice in the harness, flat both times: study 85's no-TE-in-flex rule +0.2 (2022 +3.4;
