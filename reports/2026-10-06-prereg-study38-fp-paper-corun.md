@@ -760,6 +760,16 @@ score. Nothing here enters a contest: the money path, its checkout and its files
     - unchanged: `scripts/s38_build.py` `412f92a2…`, `scripts/s38_score.py` `fb8781fb…`, **the reader
       `scripts/s38_report.py` `afd56ba1…`**, `scripts/s38_plan.py` `6c4cc53a…`.
     - The integrity gate pins 6l's module sha in place of 6k's; the other three gate shas stand.
+  - **Follow-up (10-09 01:17, after the laptop's ack of `bf53dccd`):** `--mix-one-catcher-rows` (study 79's option,
+    production `review/one-catcher-flag-20261009`, unmerged) is classified NOT_BUILT, off 0 (`ASSUMED_DEFAULTS` 0). So a
+    default-off merge into FRIDAY_HEAD cannot fail the gate, and a live nonzero value is a mismatch until a 6m-style follow
+    (only on his yes).
+    - Lab `a430d8b1`: `experiments/s38_paper_corun.py` `0930eb63beaf…`, `tests/test_s38_paper_corun.py` `2ccb2cf4744f…`
+      (31 tests pass, rc 0).
+    - `union_classification` gives no unclassified argument and no changed default on the pin, `bf45a29a` and every
+      unmerged flag branch, including the one-catcher head `8a907f6e`.
+    - The integrity gate pins this module sha in place of `bf53dccd`'s. The smoke's books are unaffected: one table entry,
+      read only by parity.
   - **Order:**
     1. this amendment;
     2. the laptop's ack (shas, tests, the smoke);
