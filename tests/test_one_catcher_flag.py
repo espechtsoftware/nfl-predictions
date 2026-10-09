@@ -199,6 +199,7 @@ def test_one_catcher_max_is_the_b_c_book_rows():
     ((8, "mix", "mix", "rr", 0, 0, 26, Q, 8, ("A1", "B")), None, False),
     ((8, "mix", "mix", "rr", 0, 0, 26, Q, 8), {"--mix-qb-alone-rows": 3}, False),
     ((8, "mix", "mix", "rr", 0, 0, 26, Q, 8), {"--mix-flex-wr-rows": 8}, False),
+    ((8, "mix", "mix", "rr", 0, 0, 26, Q, 8), {"--mix-top-game-qb1": 4, "--mix-top-game-stack": 0}, False),
 ])
 def test_the_switch_parses_and_refuses(args, others, ok):
     if ok:
@@ -211,7 +212,7 @@ def test_the_switch_parses_and_refuses(args, others, ok):
 def test_the_cli_carries_the_flag_and_reads_the_other_row_rules_when_merged():
     src = (ROOT / "scripts" / "union_reselect.py").read_text()
     assert src.count("one_catcher_rows=oc_g") == 2                                          # the book and the ownership-term book
-    assert 'getattr(a, k, 0) for k in ("mix_qb_alone_rows", "mix_flex_wr_rows")' in src
+    assert 'for k in ("mix_qb_alone_rows", "mix_flex_wr_rows", "mix_top_game_qb1", "mix_top_game_stack")})' in src
     assert "does NOT carry the rule" in src
 
 

@@ -1342,7 +1342,8 @@ def main(argv: list[str] | None = None) -> int:
     oc_g = parse_one_catcher_rows(a.mix_one_catcher_rows, a.main, a.mix_portfolio, a.mix_fill, a.mix_cover_games, a.mix_rs_rows,
                                   a.entries, [cell_quotas[n] if cell_quotas else c[0] for n, c in MIX_CELLS.items()],
                                   a.term_block_rows, bb_cells,
-                                  {f"--{k.replace('_', '-')}": getattr(a, k, 0) for k in ("mix_qb_alone_rows", "mix_flex_wr_rows")})
+                                  {f"--{k.replace('_', '-')}": getattr(a, k, 0)
+                                   for k in ("mix_qb_alone_rows", "mix_flex_wr_rows", "mix_top_game_qb1", "mix_top_game_stack")})
     if a.main == "mix" and (a.mix_plan is None or not a.mix_plan.is_file()):
         raise SystemExit(f"--main mix needs --mix-plan (the week's contests.json; got {a.mix_plan})")
     if a.main == "mix" and a.mix_portfolio is None:
