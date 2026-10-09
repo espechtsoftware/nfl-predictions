@@ -356,6 +356,9 @@ def test_his_s1_s2_switches_take_only_their_tested_values_on_the_mix(tmp_path):
     assert any(f.startswith("UNION_PROJ_SHRINK_K='0.7' must be 0.7") for f in _failures(_run(env)))      # not on the mix
     env = fresh("c"); env.update(UNION_MIX_MIN_STAR="2", UNION_MAIN="mix", UNION_MIX_PORTFOLIO="mix")
     assert any(f.startswith("UNION_MIX_MIN_STAR='2' must be 1") for f in _failures(_run(env)))
-    env = fresh("d"); env.update(UNION_PROJ_SHRINK_K="0.7", UNION_MIX_MIN_STAR="1", UNION_MAIN="mix", UNION_MIX_PORTFOLIO="mix")
+    env = fresh("e"); env.update(UNION_MIX_MIN_STAR="1", UNION_MAIN="mix", UNION_MIX_PORTFOLIO="mix")
+    assert any(f.startswith("UNION_MIX_MIN_STAR='1' must be 1") for f in _failures(_run(env)))       # without the row rules
+    env = fresh("d"); env.update(UNION_PROJ_SHRINK_K="0.7", UNION_MIX_MIN_STAR="1", UNION_MAIN="mix", UNION_MIX_PORTFOLIO="mix",
+                                 UNION_MIX_ROW_RULES="te1_low1", UNION_MAIN_CAP="0.35", UNION_MAIN_OWN_CAP_DELTA="15")
     found = _failures(_run(env))
     assert not any(f.startswith("UNION_PROJ_SHRINK_K") or f.startswith("UNION_MIX_MIN_STAR") for f in found), found

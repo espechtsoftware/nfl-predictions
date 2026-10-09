@@ -520,9 +520,14 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
     UNION_ARGS+=(--proj-shrink-k "$UNION_PROJ_SHRINK_K" --proj-shrink-window "${UNION_PROJ_SHRINK_WINDOW:-500}")
     echo "PROJECTION SHRINK for $RUN_TAG: ON (k $UNION_PROJ_SHRINK_K toward the salary-typical projection, +/- \$${UNION_PROJ_SHRINK_WINDOW:-500})"
   fi
+  # S2 rides ONLY with the row rules (union_reselect refuses --mix-min-star without them): passed exactly when they are
   if [[ "${UNION_MAIN:-mean}" == "mix" && "${UNION_MIX_MIN_STAR:-0}" == "1" ]]; then
-    UNION_ARGS+=(--mix-min-star 1 --mix-star-salary "${UNION_MIX_STAR_SALARY:-8000}")
-    echo "STAR RULE for $RUN_TAG: ON (at least one non-QB skill player at \$${UNION_MIX_STAR_SALARY:-8000}+ per book row)"
+    if printf '%s\n' "${UNION_ARGS[@]}" | grep -qx -- '--mix-max-te'; then
+      UNION_ARGS+=(--mix-min-star 1 --mix-star-salary "${UNION_MIX_STAR_SALARY:-8000}")
+      echo "STAR RULE for $RUN_TAG: ON (at least one non-QB skill player at \$${UNION_MIX_STAR_SALARY:-8000}+ per book row)"
+    else
+      row_rules_alert "the star rule rides with the row rules, which are not on for this run"
+    fi
   fi
   # Study 48b's winner-likeness order (operator 10-07: "Test tonight, aim for Week 5"; default off): FP's projected
   # ownership (the term's FP export when there is one, else this run's own capture + export) and the players' prior-game

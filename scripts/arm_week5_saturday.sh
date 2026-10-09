@@ -91,7 +91,7 @@ stop() { say "ARM STOPPED: $*"; exit 1; }
   || stop "MAIN_CAP=$MAIN_CAP with OWN_CAP_DELTA=$OWN_CAP_DELTA: (0.5, 0) = the book as before, or (0.35, 15) = his package with SHAPE=mixt; the flat 35% never runs alone"
 [[ -z "$ROW_RULES" || ( "$ROW_RULES" == te1_low1 && "$OWN_CAP_DELTA" == 15 ) ]] || stop "ROW_RULES=$ROW_RULES: empty, or te1_low1 with his package (OWN_CAP_DELTA=15)"
 [[ -z "$SHRINK_K" || ( "$SHRINK_K" == 0.7 && "$SHAPE" == mixt ) ]] || stop "SHRINK_K=$SHRINK_K: empty, or 0.7 with SHAPE=mixt"
-[[ -z "$MIN_STAR" || ( "$MIN_STAR" == 1 && "$SHAPE" == mixt ) ]] || stop "MIN_STAR=$MIN_STAR: empty, or 1 with SHAPE=mixt"
+[[ -z "$MIN_STAR" || ( "$MIN_STAR" == 1 && "$SHAPE" == mixt && "$ROW_RULES" == te1_low1 ) ]] || stop "MIN_STAR=$MIN_STAR: empty, or 1 with SHAPE=mixt and ROW_RULES=te1_low1 (S2 rides with the row rules)"
 [[ "$MIX_FILL" == group || ( ( "$MIX_FILL" == value || "$MIX_FILL" == rr ) && "$SHAPE" == mixt ) ]] || stop "MIX_FILL=$MIX_FILL: group, or value / rr with SHAPE=mixt"
 [[ "$MIX_COVER" =~ ^[0-8]$ && ( "$MIX_COVER" == 0 || "$SHAPE" == mixt ) ]] || stop "MIX_COVER=$MIX_COVER: 0..8, and not 0 only with SHAPE=mixt"
 [[ "$MIX_RS" == 0 || ( "$MIX_RS" =~ ^(9|13|17)$ && "$SHAPE" == mixt && "$MIX_FILL" == rr && "$MIX_COVER" == 0 ) ]] || stop "MIX_RS=$MIX_RS: 0, or 9 / 13 / 17 with SHAPE=mixt, MIX_FILL=rr and MIX_COVER=0"
