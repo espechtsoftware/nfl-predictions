@@ -188,3 +188,39 @@ it goes live only if study 91 passes his "better on both draws" rule.
 The receipt: the rules applied on all 26 solves, 0 re-solved; 163 of the pool's 235 skill players count as low-owned. On
 his real book the TE half is the live effect: no TE in the flex; RBs and WRs take it. The low-ownership half never binds
 (the TE rule itself pulls cheap low-owned players in, to 0.23 per row, still under the limit of one).
+
+## Addendum (18:33 run, written 18:34): study 93's ONECATCH on top of the armed version (his "Live W5 if built in time")
+
+His 10-09 decision (HANDOFF `90e8470c`) puts ONECATCH live in W5 if every check passes: at most one WR / TE per team on
+every QB + 1 (B / C) book row, including the cheap block's.
+- **The code under test:** the outside reviewer's flag `--mix-one-catcher-all` (review/one-catcher-armed-20261009 @
+  `c391fbd0`, union_reselect `ce55a465`) and the laptop's wiring (production/onecatch-wiring-20261009 @ `f483644c`), merged
+  on integration `90e8470c` as `93d58464`.
+- **The runner:** `flag_w4_check_armed.sh` (beside this file), with two known-answer gates.
+  - OFF reproduces `a4ab2839`.
+  - ARMED (the package + te1_low1, the flag absent) reproduces the 13:36 armed book `e1c8f9f7` byte for byte. With the
+    option off, the new code therefore changes nothing.
+  - Then ON = ARMED + `--mix-one-catcher-all`.
+- Outcome-blind: book composition and FP projections only. Verbatim: `OUTPUT-onecatch-all-armed.txt`.
+
+| | ARMED (package + te1_low1) | + ONECATCH |
+|---|---|---|
+| Rows with two WR / TE of one team away from the QB | 5 (all B / C) | 0 |
+| Rows changed | | 19 of 26 (A1 5, A2 3, B 5, C 6) |
+| FP projection per row | 140.00 | 139.94 (−0.06) |
+| TEs per row | 1.00 | 1.00 |
+| Flex WR / TE / RB | 7 / 0 / 19 | 8 / 0 / 18 |
+| Distinct players | 57 | 52 |
+
+- **The receipt:**
+  - one_catcher_source applied; 24 teams.
+  - The rule ran on all 14 B / C solves, live and cheap block, with 0 re-solved without it; pair_rows_bc 0.
+  - pair_rows_book 12 counts the A1 / A2 rows' own QB stacks, as designed.
+  - The row rules still ran on all 26 solves, 0 re-solved.
+- **Reading:**
+  - The rule binds on his real book: 5 rows held such a pair; none do after.
+  - It reaches 19 rows through the shared caps and the overlap limit (path dependence, as in the harness, where 11.7 of
+    26 rows were shared).
+  - It costs almost nothing in projection, and the book uses 5 fewer distinct players.
+  - The changed rows include 16 positions dealt into a big contest under his W5 plan.
+
