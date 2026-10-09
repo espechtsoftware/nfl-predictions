@@ -1,7 +1,10 @@
-# Preregistration: study 82, a QB from the lower-implied half of the slate on the first 4 book rows, in the harness (DRAFT 2026-10-09)
+# Preregistration: study 82, a QB from the lower-implied half of the slate on the first 4 book rows, in the harness (FROZEN 2026-10-09)
 
-**Status: DRAFT 2026-10-09 (02:10 CDT)** by the outside reviewer, before any scored bank. The reviewer (84) reviews, runs the
-binding census and FREEZES; the laptop acks (shas, tests, census re-run, banks and seed scanned).
+**Status: FROZEN 2026-10-09 (02:19 CDT)** by the reviewer, after the outside reviewer's DRAFT (02:10 CDT), the smoke and the
+binding census (§6), before any scored bank.
+- The text changed at the freeze in §6 (the census) and in §4, which now carries the census's figures beside the smoke's.
+- The module and the reader are the DRAFT's, unchanged. The laptop acks (shas, tests, census re-run; its scan of 1695–1700
+  with the derived bases and the seed was clean, 10-09 02:13).
 - **Banks 1695–1700, seed 20261127** (assigned by the reviewer; 1701–1706 skipped as old production seeds; the laptop scans the
   banks and the derived bases 1745–1750 / 2395–2400).
 - **Target:** tonight's second round, after study 81. A production option only if LOWQB4 is ENTERABLE and the operator
@@ -85,7 +88,15 @@ binding census and FREEZES; the laptop acks (shas, tests, census re-run, banks a
   - upper-half QB rows per book: LIVE_CB 21.7, LOWQB4 19.0, LOWQB8 17.7 (lower-half 4.3 / 7.0 / 8.3);
   - THE PROJECTION COST, SMALL: −0.08 per row (LOWQB4) / −0.14 (LOWQB8); QB salary $6,612 → $6,527 → $6,467; distinct QBs
     8.0 → 8.7 → 9.0; QB + 2 rows 12 in every arm; dealt identical to LIVE_CB 0.000 / 0.000; rows shared with LIVE_CB 1.3 / 1.0.
-- **Path dependence:** the rows re-draw the rest of the book.
+- **The binding census (53 slate-banks, §6):**
+  - VACUITY: LIVE_CB takes an upper-half QB in 3.23 of the 4 rows at the ruled positions (his book: 4 of 4). The rule
+    binds.
+  - Book-wide the harness's base already holds a lower-half QB in 4.58 of 26 rows (18%), against his book's 1 of 26 (4%).
+    So the harness's base is closer to the top 1%'s 41% than his book is, and the rule moves the harness from 18% to 24%
+    (LOWQB4, 6.36) or 35% (LOWQB8, 9.08).
+  - Every ruled QB's team rank exceeds its slate's upper-half size (asserted); every ruled QB is his team's starter.
+  - Projection cost −0.08 / −0.26 per row; rows shared with LIVE_CB 2.7 / 1.8; dealt identical 0.000.
+- **Path dependence:** the rows re-draw the rest of the book (the census shared 2.7 of 26 rows).
 - **The base is our simulator's mean, not FP's. The lines are closing lines.**
 
 ## 5. What a verdict can do
@@ -100,7 +111,21 @@ binding census and FREEZES; the laptop acks (shas, tests, census re-run, banks a
   overlap 4), with 8 term rows and every row in the pool; LOWQB4 4 of 4 ruled, 0 infeasible, at 0, 2, 3, 5 (all big-read);
   LOWQB8 8 of 8, 0 infeasible, at 0, 2, 3, 5, 6, 7, 9, 10 (all big-read); `results_bank1406.jsonl` `2282bec0…`; the rest as §4.
 - **The full-path smoke** (2024 W10, 2022 W6 scored on bank 1406): the reader exited 0 with 41 lines and 3 sections; only those were read.
-- **The binding (support) census:** the reviewer's, on all 53 slate-banks of bank 1406, before the freeze.
+- **The binding (support) census** (the reviewer's; outcome-blind; bank 1406; all 53 slate-banks of 2022–24; code
+  `83457fe5` clean; 6 tests pass; lab `results/s82/CENSUS_s82_binding.txt` `e179fc7e…`, the raw mechanics rows
+  `census_mechanics_bank1406.jsonl` `ac9f69c6…` with no outcome field, committed at `62a5107f`):
+  - every arm is 41 rows within production's constraints, with 8 term rows and every row in the pool;
+  - QB teams ranked per slate-bank 22.4 (upper half 11.2); lower-half pool QBs allowed 27.5; no QB team lacks an implied
+    total;
+  - LOWQB4: 4 of 4 ruled on every slate-bank, 0 infeasible, at book positions 0, 2, 3, 5 (read by big contests: 1.000);
+    the ruled QBs' team ranks run 10–25, mostly 12–17; starters 1.000;
+  - LOWQB8: 8 of 8, 0 infeasible, at 0, 2, 3, 5, 6, 7, 9, 10 (1.000); starters 1.000;
+  - vacuity 3.23 of 4;
+  - upper / lower-half QB rows: LIVE_CB 21.42 / 4.58, LOWQB4 19.64 / 6.36, LOWQB8 16.92 / 9.08; QB salary 6,422 / 6,340 /
+    6,249; distinct QBs 8.2 / 9.2 / 9.9;
+  - QB + 2 rows 12 in every arm;
+  - projection cost −0.08 / −0.26 per row;
+  - rows shared with LIVE_CB 2.7 / 1.8; dealt identical 0.000 / 0.000 (no dead lever).
 - **Code:** nfl2 `production/s82-lowqb-20261009` @ `83457fe5` (the outside reviewer's draft; branched from study 81's
   `9cde705f`):
   - `experiments/s82_lowqb.py` `cbf667d2…`;
