@@ -12,6 +12,27 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (12:57 CDT) — OPERATOR (relayed): no softer fields; "get better with what we enter"; study 90 (ownership + 10) tonight as a W6 candidate
+
+**His words** (in the outside reviewer's session, relayed verbatim): "I don't want to enter softer fields. I want to get
+better with what we enter. I'm open to 2, 3, 4 if it will help immediately. I'm still open to other ideas - not convinced that
+we have lineup selection down".
+- The outside reviewer's list: 1 = contest choice / softer fields (REJECTED by him); 2 = lock-time information; 3 = less
+  optimistic projections (a blend); 4 = weekly real-field scoring.
+- **Q:** "Test 'stay even closer to the field' (each player at most projected ownership + 10 points, vs the +15 you just armed)
+  tonight as a Week-6 candidate?" → "Yes, test tonight (Recommended)".
+  - This is study 90: CAP35_OWN10 vs CAP35_OWN15 on fresh banks, plus a second read of the armed package vs LIVE_CB. The
+    outside reviewer drafts, the reviewer freezes and runs. Nothing changes for W5.
+- **Item 3, measured by the outside reviewer** (real W1–4 players, the optimizer's top-value picks by position; aggregates):
+  - the market's picks scored 15.6 real points per pick against the old model's 14.8;
+  - on W4, FP's picks scored 14.5 and a 50/50 FP + market blend's 14.6, but the blend overrated its picks by 0.2 against
+    FP's 2.0.
+  - No projection change for W5; capture both weekly and compare.
+- **Item 4:** the outside reviewer drafts a read-only Monday real-field report (per contest, by entry tag). Study 38's scorer
+  already places the paper books and his entered book in the REAL fields (moneygate_score.place per contest; the real
+  Millionaire field for its endpoint), so the report reuses s38's score JSON and entry_tags rather than re-placing.
+- The leads log's afternoon update is merged (`f960a4a5`).
+
 ## 2026-10-09 (12:55 CDT) — OPERATOR (in the laptop's session): "Yes, arm the package" -- the arm carries the 35% cap + the ownership cap
 
 **Asked by the laptop** (AskUserQuestion, after every condition of his package's option text passed: built, matching the
