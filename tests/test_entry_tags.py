@@ -57,7 +57,8 @@ def test_replacements_keep_the_removed_rows_cell_and_block():
     idx = _index(REP)
     k = lambda r: T.roster_key(r)                                             # noqa: E731
     a = idx[k([f"q{j}" for j in range(9)])]
-    assert a == {"kind": "replacement", "book_rank": 2, "tag": "mix_B", "term": True, "source_run": "mix_spare", "cell_fallback": False}
+    assert a == {"kind": "replacement", "book_rank": 2, "removed_kind": "book", "tag": "mix_B", "term": True, "source_run": "mix_spare",
+                 "cell_fallback": False}
     b = idx[k(R[4])]                                                          # a spare used as a replacement reads as the replacement
     assert b["kind"] == "replacement" and b["tag"] == "mix_house" and b["term"] is False and b["cell_fallback"] is True
     assert idx[k(R[1])]["kind"] == "book"                                      # the removed book row keeps its own record
@@ -72,3 +73,15 @@ def test_replace_file_is_unique(tmp_path):
     import pytest
     with pytest.raises(SystemExit):
         T.replace_file(tmp_path)
+
+
+def test_a_replaced_tail_row_is_a_tail_replacement():
+    book = {"entries": [{"rank": i + 1, "players": R[i], "tag": "mix_A1"} for i in range(3)],
+            "tail_sleeve": [{"rank": 4, "players": R[3], "tag": "field"}]}
+    cands = pd.DataFrame({"names": [], "tag": [], "source_run": []})
+    rep = [{"vetted_position": 4, "source_rank": 4, "removed": R[3], "replacement": R[5], "candidate_index": 1,
+            "candidate_source": "t70", "cell": "house"}]                   # under the mix, cell_at covers book rows only -> "house"
+    idx = T.build_index(book, cands, [1, 3], rep)                            # position 3 in the term list must not matter here
+    r = idx[T.roster_key(R[5])]
+    assert r["kind"] == "replacement" and r["removed_kind"] == "tail" and r["term"] is False and r["tag"] is None and r["book_rank"] == 4
+    assert T.label(r) == "replacement:tail"

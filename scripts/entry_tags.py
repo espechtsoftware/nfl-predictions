@@ -61,7 +61,9 @@ def replace_file(after: Path) -> Path | None:
 
 def build_index(book: dict, cands: pd.DataFrame, term_pos: list[int], replacements: list[dict] = ()) -> dict[frozenset, dict]:
     """roster -> its build record; the first source in KINDS order wins (a book row is never re-labelled by the corpus).
-    A replacement carries the removed row's union rank (source_rank, 1-based like book.json's rank) and cell."""
+    A replacement carries the removed row's union rank (source_rank: the 1-based row of the union's book.csv, i.e. book.json's
+    rank for the book rows, then the tail sleeve in order) and cell; a removed TAIL row (source_rank > the book's rows) is
+    never in the cheap block and has no book cell."""
     idx: dict[frozenset, dict] = {}
     tset = set(term_pos)
     for e in book.get("entries") or []:
@@ -70,11 +72,14 @@ def build_index(book: dict, cands: pd.DataFrame, term_pos: list[int], replacemen
     for e in book.get("tail_sleeve") or []:
         idx.setdefault(roster_key(e["players"]), {"kind": "tail", "book_rank": int(e["rank"]), "tag": str(e.get("tag")),
                                                   "term": False, "source_run": e.get("source_run")})
+    n_book = len(book.get("entries") or [])
     for r in replacements:
         rank = int(r["source_rank"]) if r.get("source_rank") is not None else None
+        tail = rank is not None and rank > n_book
         idx.setdefault(roster_key(r["replacement"]), {"kind": "replacement", "book_rank": rank,
-                                                      "tag": f"mix_{r['cell']}" if r.get("cell") else None,
-                                                      "term": rank is not None and (rank - 1) in tset,
+                                                      "removed_kind": None if rank is None else ("tail" if tail else "book"),
+                                                      "tag": f"mix_{r['cell']}" if r.get("cell") and not tail else None,
+                                                      "term": rank is not None and not tail and (rank - 1) in tset,
                                                       "source_run": r.get("candidate_source"), "cell_fallback": bool(r.get("cell_fallback"))})
     src = cands.get("source_run", pd.Series([""] * len(cands))).astype(str)
     for names, tag, s in zip(cands["names"].astype(str), cands["tag"].astype(str), src):
@@ -109,6 +114,8 @@ def label(row) -> str:
     if row["kind"] == "book":
         return f"{row['tag']}{' +cheap block' if row['term'] else ''}"
     if row["kind"] == "replacement":
+        if row.get("removed_kind") == "tail":
+            return "replacement:tail"
         return f"replacement:{row['tag']}{' +cheap block' if row['term'] is True else ''}"
     return f"{row['kind']}:{row['tag']}" if isinstance(row["tag"], str) and row["tag"] else row["kind"]
 
