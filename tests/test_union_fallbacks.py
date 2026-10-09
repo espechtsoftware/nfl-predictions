@@ -98,3 +98,12 @@ def test_a_house_fallback_of_his_package_drops_the_ownership_cap_and_restores_th
     script = f'source "{LIB}"; mix_to_house_args --main mix --main-own-cap-delta 15 --main-own-cap-source s --y; printf "%s|" "${{OUT_ARGS[@]}}"'
     r = subprocess.run(["bash", "-c", script], capture_output=True, text=True, timeout=30)
     assert r.stdout == "--main|pmo_x50|--y|--main-cap-share|0.5|"
+
+
+def test_a_house_fallback_drops_his_test2_row_rules():
+    """His 10-09 test 2: the row rules are MIX-only, so the house fallback drops them (with the package's flags)."""
+    args = ("--main mix --main-cap-share 0.35 --main-own-cap-delta 15 --main-own-cap-source s --main-own-cap-fallback-share 0.5 "
+            "--mix-max-te 1 --mix-max-low-own 1 --mix-low-own-pct 3 --y")
+    script = f'source "{LIB}"; mix_to_house_args {args}; printf "%s|" "${{OUT_ARGS[@]}}"'
+    r = subprocess.run(["bash", "-c", script], capture_output=True, text=True, timeout=30)
+    assert r.stdout == "--main|pmo_x50|--main-cap-share|0.5|--y|"

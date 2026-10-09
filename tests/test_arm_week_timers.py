@@ -387,3 +387,22 @@ def test_his_package_rides_into_the_units_and_the_week5_arm_pairs_the_two_caps()
     assert "UNION_MAIN_OWN_CAP_DELTA=$OWN_CAP_DELTA" in arm
     assert ('[[ ( "$MAIN_CAP" == 0.5 && "$OWN_CAP_DELTA" == 0 ) || ( "$MAIN_CAP" == 0.35 && "$OWN_CAP_DELTA" == 15 && "$SHAPE" == mixt ) ]]'
             in arm)
+
+
+def test_his_test2_row_rules_ride_into_the_units_only_with_the_package():
+    """His 10-09 test 2 (HANDOFF 2ab54e30): UNION_MIX_ROW_RULES reaches the units; the host passes the three flags only when
+    the ownership cap is on (its file), else an ALERT; the builder's refusal line becomes the same ALERT; the arm keeps it off
+    ("") unless study 91 passes his rule, and then only with the package."""
+    from pathlib import Path
+    r = _run(UNION_MIX_ROW_RULES="te1_low1")
+    assert "UNION_MIX_ROW_RULES=te1_low1" in _unit_line(r.stdout, "nfl-week4-t70-build")
+    root = Path(__file__).resolve().parents[1] / "scripts"
+    host = (root / "sunday_build_host.sh").read_text()
+    assert 'if [[ "${UNION_MAIN:-mean}" == "mix" && "${UNION_MIX_ROW_RULES:-}" == "te1_low1" ]]; then' in host
+    assert "UNION_ARGS+=(--mix-max-te 1 --mix-max-low-own 1 --mix-low-own-pct 3)" in host
+    assert 'row_rules_alert "the ownership cap is not on for this run (no FP ownership file)"' in host
+    assert "grep -q 'ROW RULES NOT APPLIED' \"$OUT/union-$RUN_TAG.txt\"" in host
+    arm = (root / "arm_week5_saturday.sh").read_text()
+    assert '\nROW_RULES="" ' in arm or '\nROW_RULES="te1_low1" ' in arm
+    assert "UNION_MIX_ROW_RULES=$ROW_RULES" in arm
+    assert '[[ -z "$ROW_RULES" || ( "$ROW_RULES" == te1_low1 && "$OWN_CAP_DELTA" == 15 ) ]]' in arm

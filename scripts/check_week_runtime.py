@@ -249,6 +249,10 @@ def main():
              f"(got UNION_MAIN={os.environ.get('UNION_MAIN')!r}, UNION_MAIN_CAP={_mcap!r})")
     if _mcap == "0.35" and _ocd in ("", "0"):
         fail("UNION_MAIN_CAP=0.35 without the ownership cap: the flat 35% never runs alone (his rule; Addendum 186)")
+    # his 10-09 test 2 (study 91): the row rules ride only on his package (they read its ownership file)
+    _rr = os.environ.get("UNION_MIX_ROW_RULES", "")
+    if _rr not in ("", "0") and (_rr != "te1_low1" or os.environ.get("UNION_MAIN") != "mix" or _ocd != "15"):
+        fail(f"UNION_MIX_ROW_RULES={_rr!r} must be te1_low1, with UNION_MAIN=mix and his package (UNION_MAIN_OWN_CAP_DELTA=15)")
     _fill = os.environ.get("UNION_MIX_FILL", "")
     if _fill and (_fill not in ("group", "value", "rr") or os.environ.get("UNION_MAIN") != "mix"):
         fail(f"UNION_MIX_FILL={_fill!r} must be group, value or rr, with UNION_MAIN=mix (got UNION_MAIN={os.environ.get('UNION_MAIN')!r})")

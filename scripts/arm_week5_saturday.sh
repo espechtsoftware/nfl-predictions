@@ -32,6 +32,9 @@ MAIN_CAP="0.35"                     # the per-player exposure cap share: HIS PAC
 OWN_CAP_DELTA=15                    # his 10-09 package (HANDOFF 5380e0e7): 15 = each skill player at most his FP projected ownership
                                     # + 15 points, ONLY together with MAIN_CAP=0.35 (the tested package); 0 = off (MAIN_CAP 0.5).
                                     # Flipped to (0.35, 15) on Saturday only if the flag, the wiring, the W4 check and 6o all pass
+ROW_RULES=""                        # his 10-09 test 2 (HANDOFF 2ab54e30): te1_low1 = at most one TE and one skill player under 3%
+                                    # FP ownership per book row, ONLY if study 91 reads it better than his package on BOTH draws
+                                    # within 20% of the expected big seats; only with the package; empty = off
 MIX_FILL=rr                         # the MIX fill order (study 42; his 10-06 evening yes, "Use round-robin"): the cells in
                                     # turn, a row per shape for the top QBs (the outside reviewer's arm; NO DIFFERENCE on
                                     # P(>=1 big), +9% expected seats). group = the earlier book; value is NOT to be armed
@@ -82,6 +85,7 @@ stop() { say "ARM STOPPED: $*"; exit 1; }
 [[ -n "$TERM_ROWS" ]] || stop "TERM_ROWS is not set (Saturday: 8 for his cheap +2 trial, or 0 by a recorded decision)"
 [[ ( "$MAIN_CAP" == 0.5 && "$OWN_CAP_DELTA" == 0 ) || ( "$MAIN_CAP" == 0.35 && "$OWN_CAP_DELTA" == 15 && "$SHAPE" == mixt ) ]] \
   || stop "MAIN_CAP=$MAIN_CAP with OWN_CAP_DELTA=$OWN_CAP_DELTA: (0.5, 0) = the book as before, or (0.35, 15) = his package with SHAPE=mixt; the flat 35% never runs alone"
+[[ -z "$ROW_RULES" || ( "$ROW_RULES" == te1_low1 && "$OWN_CAP_DELTA" == 15 ) ]] || stop "ROW_RULES=$ROW_RULES: empty, or te1_low1 with his package (OWN_CAP_DELTA=15)"
 [[ "$MIX_FILL" == group || ( ( "$MIX_FILL" == value || "$MIX_FILL" == rr ) && "$SHAPE" == mixt ) ]] || stop "MIX_FILL=$MIX_FILL: group, or value / rr with SHAPE=mixt"
 [[ "$MIX_COVER" =~ ^[0-8]$ && ( "$MIX_COVER" == 0 || "$SHAPE" == mixt ) ]] || stop "MIX_COVER=$MIX_COVER: 0..8, and not 0 only with SHAPE=mixt"
 [[ "$MIX_RS" == 0 || ( "$MIX_RS" =~ ^(9|13|17)$ && "$SHAPE" == mixt && "$MIX_FILL" == rr && "$MIX_COVER" == 0 ) ]] || stop "MIX_RS=$MIX_RS: 0, or 9 / 13 / 17 with SHAPE=mixt, MIX_FILL=rr and MIX_COVER=0"
@@ -157,7 +161,7 @@ arm_env() {
   env "${u[@]}" "${e[@]}" GROUP=154468 EXPECT_SHA=$PIN CLONE=$CLONE_DIR ENTER_LAYOUT=head PROD_ARMED_HEAD=$(git -C "$P" rev-parse HEAD) \
     D3200_LEV=$CHOSEN_LEV D3200_BOOM=$CHOSEN_BOOM D800_LEV=$CHOSEN_LEV D800_BOOM=$CHOSEN_BOOM SKIP_UNITS="$skip" \
     LEV_CBC_THREADS=8 EARLY_PROPS_CT=04:30 EARLY_PROJECT_CT=04:45 EARLY_SUPPLY_CT=05:00 \
-    UNION_PROJ_SOURCE=fp UNION_MAIN_OWN_TILT=$OWN_TILT UNION_MEAN_MAX_SHARED=$MAX_SHARED UNION_MAIN_CAP=$MAIN_CAP UNION_MAIN_OWN_CAP_DELTA=$OWN_CAP_DELTA \
+    UNION_PROJ_SOURCE=fp UNION_MAIN_OWN_TILT=$OWN_TILT UNION_MEAN_MAX_SHARED=$MAX_SHARED UNION_MAIN_CAP=$MAIN_CAP UNION_MAIN_OWN_CAP_DELTA=$OWN_CAP_DELTA UNION_MIX_ROW_RULES=$ROW_RULES \
     T70_MIN_PROJ_CT=10:30 T70_PROJECT=1 UNION_SATURDAY_RUN=auto UNION_PMO=0 "$@"
 }
 # 6. not too late: the Saturday D12800 is 10:30
@@ -165,7 +169,7 @@ SKIP="d6400"; EXPECT_N=13                  # 11 + the second Sunday FP capture (
 if [[ "${ARM_LATE:-0}" == 1 ]]; then SKIP="d6400 d12800sat d6400sat"; EXPECT_N=11; say "ARM_LATE=1: Saturday supply units skipped (operator decision)"; fi
 [[ "${ARM_LATE:-0}" == 1 ]] || (( 10#$(date +%H%M) < 1028 )) || stop "it is $(date +%H:%M); the 10:30 Saturday D12800 would be in the past. Operator decision: ARM_LATE=1 (no Saturday supply builds, $((EXPECT_N - 2)) timers)"
 if [[ "$CHECK" == --check ]]; then
-  say "the timers' dose: D3200 and D800 LEV $CHOSEN_LEV / BOOM $CHOSEN_BOOM (chosen-dose.env must say the same); QB cap ${QB_CAP_ROWS:-off} rows at K $QB_CAP_K; overlap limit $MAX_SHARED shared players; player cap $MAIN_CAP of the book; ownership cap ${OWN_CAP_DELTA} points; MIX fill $MIX_FILL; cover $MIX_COVER; half $MIX_RS; winner order $WINNER_ORDER; winner select $WINNER_SELECT; priority order $PRIORITY_ORDER; bring-back top WR ${BRING_BACK_TOP_WR:-off}${BRING_BACK_TOP_WR_ROWS:+ on $BRING_BACK_TOP_WR_ROWS rows}; term block $TERM_ROWS${TERM_SHA:+ (file ${TERM_SHA:0:12})}"
+  say "the timers' dose: D3200 and D800 LEV $CHOSEN_LEV / BOOM $CHOSEN_BOOM (chosen-dose.env must say the same); QB cap ${QB_CAP_ROWS:-off} rows at K $QB_CAP_K; overlap limit $MAX_SHARED shared players; player cap $MAIN_CAP of the book; ownership cap ${OWN_CAP_DELTA} points; row rules ${ROW_RULES:-off}; MIX fill $MIX_FILL; cover $MIX_COVER; half $MIX_RS; winner order $WINNER_ORDER; winner select $WINNER_SELECT; priority order $PRIORITY_ORDER; bring-back top WR ${BRING_BACK_TOP_WR:-off}${BRING_BACK_TOP_WR_ROWS:+ on $BRING_BACK_TOP_WR_ROWS rows}; term block $TERM_ROWS${TERM_SHA:+ (file ${TERM_SHA:0:12})}"
   UNITS=$(arm_env "$SKIP" bash scripts/arm_week_timers.sh 5 2>&1 | grep -oE 'nfl-week5-[a-z0-9-]+' | sort -u)
   for s in $SKIP; do UNITS=$(echo "$UNITS" | grep -vx "nfl-week5-$(echo $s | sed -E 's/^(d[0-9]+)sat$/\1-sat/')-build"); done
   echo "$UNITS" | sed 's/^/  planned: /'
