@@ -1,10 +1,13 @@
-# Preregistration: study 88, his study-87 book on a fresh draw, with a cheaper QB, with a TE allowed in the flex, and both, in the harness (DRAFT 2026-10-09)
+# Preregistration: study 88, his study-87 book on a fresh draw, with a cheaper QB, with a TE allowed in the flex, and both, in the harness (FROZEN 2026-10-09)
 
-**Status: DRAFT 2026-10-09 (09:29 CDT; the reviewer's RUN with conditions folded in)** by the outside reviewer — **THE DESIGN IS COMMITTED BEFORE STUDY 87'S READ** (study 87
-is running on the same slates). The code follows (committed before 87's READ, the reviewer's timing rule); the reviewer
-reviews, runs the binding census and FREEZES; the laptop acks.
-- **Banks and seed:** **1737–1742, seed 20261133** (the reviewer's RUN, pending the laptop's scan of them and the derived bases
-  1787–1792 / 2437–2442).
+**Status: FROZEN 2026-10-09 (10:14 CDT)** by the reviewer, after the outside reviewer's DRAFT.
+- THE DESIGN (`1b7241b7`, 09:29) and THE CODE (nfl2 `49db37c6`, 09:34:25) were both on origin BEFORE study 87's READ, on the
+  same slates. The code is unchanged since.
+- Then the smoke and the binding census (§6), before any scored bank. The text changed at the freeze in §6 only. The laptop
+  acks.
+- **Banks 1737–1742, seed 20261133** (the reviewer's). The laptop's scan was clean: no shared draw. 1737–1742 sit inside
+  studies 80's / 81's derived sims bases as numbers only; this harness seeds from bank + 50 / + 700, so 88 draws 1787–1792 /
+  2437–2442, which no other study uses.
 - **Target:** after study 87.
 
 **Units:** probabilities, counts and rates only. Dollars stay in BigQuery and private files.
@@ -99,6 +102,21 @@ reviews, runs the binding census and FREEZES; the laptop acks.
     **CHEAPQB_TEFLEX 13.7 / 20, 0.553 / 0.774** — the cheaper-QB arms concentrate harder (about 5 and 4 distinct QBs).
 - **The full-path smoke** (2024 W10, 2022 W6 scored on bank 1406): the reader exited 0 with 120 lines and 10 sections; only those
   were read.
+- **The binding (support) census** (the reviewer's; outcome-blind; bank 1406; all 53 slate-banks of 2022–24; code
+  `49db37c6` clean; 8 tests pass; lab `results/s88/CENSUS_s88_binding.txt` `7406ba11…`, the raw mechanics rows
+  `census_mechanics_bank1406.jsonl` `e7b761a9…` with no outcome field, committed at `63f6a2e4`):
+  - every arm is 41 rows; LIVE_CB is within production's caps; every arm is within the overlap limit 4;
+  - 0 of 1,378 ruled solves infeasible in every rule arm (the 5% condition is not reached); the pool per slate-bank:
+    top-4-game QBs 17.4 / min 10, of them under $7,000 15.0 / min 8;
+  - BOOK87's mechanics equal study 87's binding census (the same bank 1406 and seeds), as the re-read arm should;
+  - **CONCENTRATION — the flag fired in every uncapped arm, hardest in the cheaper-QB arms** (the top QB's book rows of 26,
+    mean / max; his share of the dealt entries, max):
+    - NOCAP 8.9 / 16 (0.62); BOOK87 11.1 / 21 (0.81); TEFLEX 11.5 / 21 (0.81);
+    - **CHEAPQB 13.5 / 25 (0.96)** and **CHEAPQB_TEFLEX 13.7 / 25 (0.96)**, with 4.4 distinct QBs.
+    - On some slates one cheap top-4-game QB carries nearly the whole book.
+  - Projection per row against LIVE_CB: NOCAP +1.22, BOOK87 −0.49, CHEAPQB −0.93, TEFLEX −0.39, CHEAPQB_TEFLEX −0.88.
+  - Rows shared with BOOK87 (the change alone): CHEAPQB 10.5, TEFLEX 9.2, both 4.6; dealt identical to BOOK87 0.06 / 0.09 /
+    0.00 of slate-banks (no dead change).
 - Bank 1406 only, **after the laptop's calibration run has finished** (the laptop's machine order, 10-09: 87's READ and its
   reproduction, the calibration run, then this smoke): the unit tests, the mechanics smoke, the binding census, the full-path
   smoke (reader exit and line count only). Any code change the smoke forces is a new commit with its diff disclosed.
