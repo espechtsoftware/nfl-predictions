@@ -13,6 +13,7 @@ refuses two at once.
 |---|---|---|---|
 | 73a | **Top-5 games: the QB + his top pass catcher**, 5 lineups (your idea) | −3.6 points; both deciding seasons negative (2023 −5.4, 2024 −1.9); about 12% fewer expected big wins; 2022 +2.1. "Enterable" by the barest margin (no harm shown, no gain shown) | **Off.** The same picture as study 43 (stacks forced into the top games) |
 | 73b | **Fewer two-pass-catcher lineups**: 6 of 26 instead of 12 (your preference) | +0.4 points, essentially zero; no harm on any check (expected big wins 99% of today's); 2022 +1.4 | **Your choice.** Neutral either way: study 56 found MORE of them neutral too (+1.8). Pick it if you prefer the variety; it costs nothing measurable |
+| 74 | **The full game stack in the top 4 games**: the QB, his top pass catcher and the other team's top receiver, 4 lineups (your question about study 71) | −2.9 points; 2023 flat, 2024 −5.9; about 8% fewer expected big wins; 2022 +2.1. "Enterable" (no harm shown, no gain shown) | **Off.** Every "forced top stack" version tonight (71, 71b, 73a, 74) came out at or below today's book |
 | — | *(filled in as the night's results land)* | | |
 
 ## The setup you are running (the default)
@@ -57,6 +58,11 @@ refuses two at once.
   - **Top-5 games, QB + his top pass catcher** (5 lineups): −3.6 points, worse in both deciding seasons, and 12% fewer expected big wins. It passes the rule only because the 2022 check came out +2.1. **Recommended off.**
   - **Fewer two-pass-catcher lineups** (6 of 26): +0.4, i.e. no difference, and no harm. More of them (study 56) was also no difference. So in our tests the share of two-pass-catcher stacks doesn't matter either way. **Your preference.**
   - The outside reviewer's "QB+2 rate in between" test was closed without a run: both ends read neutral.
+- **Study 74 (the full game stack: the QB, his top pass catcher and the other team's top receiver, in each of the top 4 games; READ committed 21:48 CT):**
+  - −2.9 points on the deciding seasons, almost all from 2024 (2023 flat, 2024 −5.9); about 8% fewer expected big wins; 2022 +2.1.
+  - The rule did what it says: all 4 stacks landed in big-contest lineups.
+  - It passes the rule ("enterable") but leans negative. **Recommended off.**
+  - Across tonight, every way of forcing a "top stack" into the book (the opponent's top receiver in 71 and 71b, the QB + top pass catcher in 73, the full trio here) read at or below today's book on 2023–24, while the 2022 check leaned the other way each time.
 - **The outside reviewer's list, triaged by the reviewer:** flex mix (our flex is almost never a WR), QB + 1 with two opposing players, and a QB-alone lineup run tonight. "More TE in the flex" is skipped: we already use a TE flex more than the winners do.
 
 *(each study's result, in plain words, added as it is read and reproduced)*
