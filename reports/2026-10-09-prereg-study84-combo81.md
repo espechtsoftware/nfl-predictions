@@ -78,8 +78,34 @@ next commit; the reviewer reviews, runs the binding census and FREEZES; the lapt
   FRIDAY_HEAD as for 83. If COMBO or nothing is entered, no new production piece.
 
 ## 6. Smoke, census and integrity
-- **The mechanics smoke and the full-path smoke** (bank 1406 only): in the next commit, with the code's shas.
-- **The binding (support) census:** the reviewer's, on all 53 slate-banks of bank 1406, after study 83's run, before the
-  freeze: per arm the $5k+ TE rows (0 in the book unless a fallback fired, listed), infeasible counts by rule set, QB + TE rows,
-  the flex mix, the projection cost, C0 / pair / WR-flex rows.
-- **Code:** nfl2 `production/s84-combo81-20261009` (branched from study 83's `45cd1a76`); shas in the next commit.
+- **The mechanics smoke** (bank 1406; Rev6; `~/s84-panel/smoke/`; 2022 W9, 2023 W3, 2024 W10; `results_bank1406.jsonl`
+  `66c27164…`):
+  - every arm is 41 rows within production's constraints (13 / 6, QB 5, overlap 4), with 8 term rows and every row in the pool;
+  - **0 infeasible combined solves in every arm**; $5k+ TE rows in every TE arm's book **0** (LIVE_CB 10.0);
+  - VACUITY at the ruled positions: TE5K 0.385 of LIVE_CB's rows there hold a $5k+ TE; C0 1.000; ONEPC 0.310; FLEX 1.000;
+  - per book (QB-alone / non-QB-pair / $5k+ TE / QB + TE rows; flex WR / TE / RB; projection per row, cost):
+    - LIVE_CB 0 / 6.3 / 10.0 / 15.0; 4.3 / 15.7 / 6.0; 127.86;
+    - COMBO81 3 / 2.7 / 0 / 11.3; 7.0 / 11.0 / 8.0; −0.52;
+    - COMBO 3 / 1.7 / 10.3 / 12.3; 5.3 / 14.0 / 6.7; −0.12;
+    - TE_C0 3 / 6.3 / 0 / 10.3; 5.0 / 13.3 / 7.7; −0.44;
+    - TE_ONEPC 0 / 2.3 / 0 / 11.7; 6.0 / 11.7 / 8.3; −0.60;
+    - TE_FLEX 0 / 5.3 / 0 / 11.3; 7.7 / 11.3 / 7.0; −0.65;
+    - TE_ONLY 0 / 5.3 / 0 / 12.7; 6.3 / 12.7 / 7.0; −0.57 (dealt identical to LIVE_CB 0.333: one slate-bank's book held no
+      $5k+ TE).
+  - On his real W4 book (the laptop's check, 10-09, OFF `a4ab2839`): COMBO81 bans 11 → 0 $5k+ TE rows, pairs 7 → 1, flex
+    1 / 14 / 11 → 6 / 5 / 15, QB + own-TE 12 → 9, **FP −0.53 per row**; the TE ban alone −0.76 per row (§4).
+- **The full-path smoke** (2024 W10, 2022 W6 scored on bank 1406): the reader exited 0 with 128 lines and 10 sections; only
+  those were read.
+- **The binding (support) census:** the reviewer's, on all 53 slate-banks of bank 1406, before the freeze.
+- **Code:** nfl2 `production/s84-combo81-20261009` @ `37365127` (the outside reviewer's draft; branched from study 83's
+  `45cd1a76`):
+  - `experiments/s84_combo81.py` `40201328…` (the wrapper `combo81`, text `c38f27a7…`);
+  - `scripts/s84_drive.py` `52c7bc0a…`;
+  - `scripts/s84_census.py` `a053d015…`;
+  - **`scripts/s84_report.py` (the reader) `293d263a…`** (seed 20261129);
+  - `tests/test_s84_combo81.py` `72512271…` (16 tests);
+  - unchanged and sha-asserted: `s81_note5k.py` `b37dbbc9…`, `s83_combo.py` `19d9a77c…` (its `s75` `e9948fd9…`, `s77`
+    `d455f3dd…`, `s79` `d48790cf…`, `s80` `9a46c284…`, `s73_topg_qb1.py` `3f76c629…`), `term_book.py` `62c2306e…`,
+    production's `enter_layout.py` `3cb051ac…`; the plan `ac10ddf6…`.
+- **Study 83's READ (after this design was on origin):** COMBO −0.01893 (2024 −0.040), 2022 +0.01832, HIS RULE DO NOT USE.
+  So step 1 of §3's entry order does not apply; steps 2–3 decide.
