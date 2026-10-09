@@ -343,3 +343,22 @@ def test_his_test2_row_rules_ride_only_on_his_package(tmp_path):
     env = fresh("c"); env.update(UNION_MIX_ROW_RULES="te1_low1", UNION_MAIN="mix", UNION_MIX_PORTFOLIO="mix", UNION_MAIN_CAP="0.35",
                                  UNION_MAIN_OWN_CAP_DELTA="15")
     assert not any(f.startswith(msg) for f in _failures(_run(env)))
+
+
+def test_his_onecatch_rides_only_on_the_row_rules_and_his_package(tmp_path):
+    """His 10-09 decision (study 93's ONECATCH): UNION_MIX_ONE_CATCHER_ALL=1 needs the mix, the row rules and his package."""
+    def fresh(name):
+        d = tmp_path / name; d.mkdir(); return _healthy(d)
+
+    msg = "UNION_MIX_ONE_CATCHER_ALL="
+    pkg = dict(UNION_MAIN="mix", UNION_MIX_PORTFOLIO="mix", UNION_MAIN_CAP="0.35", UNION_MAIN_OWN_CAP_DELTA="15")
+    env = fresh("a"); env.update(pkg, UNION_MIX_ONE_CATCHER_ALL="1")                      # no row rules
+    assert any(f.startswith(msg + "'1' must be 1, with UNION_MIX_ROW_RULES=te1_low1") for f in _failures(_run(env)))
+    env = fresh("b"); env.update(pkg, UNION_MIX_ROW_RULES="te1_low1", UNION_MIX_ONE_CATCHER_ALL="2")
+    assert any(f.startswith(msg + "'2'") for f in _failures(_run(env)))
+    env = fresh("c"); env.update(UNION_MAIN="mix", UNION_MIX_PORTFOLIO="mix", UNION_MAIN_CAP="0.5", UNION_MIX_ONE_CATCHER_ALL="1")
+    assert any(f.startswith(msg + "'1'") for f in _failures(_run(env)))                    # no package
+    env = fresh("d"); env.update(pkg, UNION_MIX_ROW_RULES="te1_low1", UNION_MIX_ONE_CATCHER_ALL="1")
+    assert not any(f.startswith(msg) for f in _failures(_run(env)))
+    env = fresh("e"); env.update(pkg, UNION_MIX_ROW_RULES="te1_low1", UNION_MIX_ONE_CATCHER_ALL="0")
+    assert not any(f.startswith(msg) for f in _failures(_run(env)))

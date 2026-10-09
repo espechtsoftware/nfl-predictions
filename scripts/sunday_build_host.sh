@@ -505,12 +505,30 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   # His 10-09 test 2 (study 91; HANDOFF 2ab54e30): at most one TE and at most one skill player under 3% FP projected
   # ownership per main-book row, ONLY on top of his package and only when its ownership cap is applied (the rule reads the
   # same file). Live only if study 91 passes his rule; off = unset. No ownership file = no row rules, LOUDLY.
+  ROW_RULES_ON=0
   if [[ "${UNION_MAIN:-mean}" == "mix" && "${UNION_MIX_ROW_RULES:-}" == "te1_low1" ]]; then
     if (( OWN_CAP_ON )) && [[ -n "$OWN_CAP_SRC" ]]; then
-      UNION_ARGS+=(--mix-max-te 1 --mix-max-low-own 1 --mix-low-own-pct 3)
+      UNION_ARGS+=(--mix-max-te 1 --mix-max-low-own 1 --mix-low-own-pct 3); ROW_RULES_ON=1
       echo "ROW RULES for $RUN_TAG: ON (at most one TE and one skill player under 3% FP ownership per book row; $(basename "$OWN_CAP_SRC"))"
     else
       row_rules_alert "the ownership cap is not on for this run (no FP ownership file)"
+    fi
+  fi
+  one_catcher_alert() {                                     # his ONECATCH not applied: the book stands without it, loudly
+    printf '%s run %s: ONE CATCHER NOT APPLIED: %s\n' "$(date -u +%FT%TZ)" "$RUN_TAG" "$1" | tee -a "$OUT/ALERT-one-catcher-not-applied-$RUN_TAG.txt"
+    printf '\n%s\n%s\n%s\n\n' "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" \
+      "!!! ONE CATCHER NOT APPLIED for $RUN_TAG: $1 -- the book stands without it" \
+      "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+  }
+  # His 10-09 decision (study 93's ONECATCH; HANDOFF 90e8470c, "Live W5 if built in time"): at most one WR / TE per team on
+  # every B / C (QB + 1) book solve, ONLY on top of his row rules (it was tested only with them, inside the package's
+  # ownership cap). Off = unset or 0. Row rules not on = no one-catcher, LOUDLY.
+  if [[ "${UNION_MAIN:-mean}" == "mix" && "${UNION_MIX_ONE_CATCHER_ALL:-0}" == "1" ]]; then
+    if (( ROW_RULES_ON )); then
+      UNION_ARGS+=(--mix-one-catcher-all)
+      echo "ONE CATCHER for $RUN_TAG: ON (at most one WR / TE per team on every QB + 1 book row; with the row rules)"
+    else
+      one_catcher_alert "the row rules are not on for this run (UNION_MIX_ROW_RULES=${UNION_MIX_ROW_RULES:-unset}, ownership cap on: $OWN_CAP_ON)"
     fi
   fi
   # Study 48b's winner-likeness order (operator 10-07: "Test tonight, aim for Week 5"; default off): FP's projected
@@ -614,6 +632,12 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   if [[ "${UNION_MIX_ROW_RULES:-}" == "te1_low1" ]] && grep -q 'ROW RULES NOT APPLIED' "$OUT/union-$RUN_TAG.txt" 2>/dev/null; then
     row_rules_alert "the union refused them: $(grep -h 'ROW RULES NOT APPLIED' "$OUT/union-$RUN_TAG.txt" | tail -1)"
   fi
+  if [[ "${UNION_MIX_ONE_CATCHER_ALL:-0}" == "1" ]] && grep -q 'ONE CATCHER NOT APPLIED' "$OUT/union-$RUN_TAG.txt" 2>/dev/null; then
+    one_catcher_alert "the union refused it: $(grep -h 'ONE CATCHER NOT APPLIED' "$OUT/union-$RUN_TAG.txt" | tail -1)"
+  fi
+  if [[ "${UNION_MAIN:-mean}" == "mix" && "${UNION_MIX_ONE_CATCHER_ALL:-0}" == "1" && "$UNION_MAIN_EFFECTIVE" != "mix" ]]; then
+    one_catcher_alert "the MIX main was refused; the house fallback ($UNION_MAIN_EFFECTIVE) has no one-catcher rule"
+  fi
   if (( OWN_CAP_ON )) && grep -q 'OWN CAP NOT APPLIED' "$OUT/union-$RUN_TAG.txt" 2>/dev/null; then
     own_cap_alert "the union refused it: $(grep -h 'OWN CAP NOT APPLIED' "$OUT/union-$RUN_TAG.txt" | tail -1)"
   fi
@@ -622,6 +646,7 @@ if [[ -n "${UNION_SATURDAY_RUN:-}" ]]; then
   [[ -n "$UNION_DIR" && -f "$OUT/union-args-$RUN_TAG.txt" ]] && cp "$OUT/union-args-$RUN_TAG.txt" "$UNION_DIR/union_args.txt"
   [[ -n "$UNION_DIR" && -f "$OUT/ALERT-own-cap-not-applied-$RUN_TAG.txt" ]] && cp "$OUT/ALERT-own-cap-not-applied-$RUN_TAG.txt" "$UNION_DIR/own_cap_not_applied.txt"
   [[ -n "$UNION_DIR" && -f "$OUT/ALERT-row-rules-not-applied-$RUN_TAG.txt" ]] && cp "$OUT/ALERT-row-rules-not-applied-$RUN_TAG.txt" "$UNION_DIR/row_rules_not_applied.txt"
+  [[ -n "$UNION_DIR" && -f "$OUT/ALERT-one-catcher-not-applied-$RUN_TAG.txt" ]] && cp "$OUT/ALERT-one-catcher-not-applied-$RUN_TAG.txt" "$UNION_DIR/one_catcher_not_applied.txt"
   # the projection source travels with the union dir, so the upload sheet can name it (the outside review 10-06, (1b))
   [[ -n "$UNION_DIR" && -f "$OUT/proj_fp-$RUN_TAG.txt" ]] && cp "$OUT/proj_fp-$RUN_TAG.txt" "$UNION_DIR/proj_source_log.txt"
   [[ -n "$UNION_DIR" && -f "$OUT/proj_source_fallback-$RUN_TAG.txt" ]] && cp "$OUT/proj_source_fallback-$RUN_TAG.txt" "$UNION_DIR/proj_source_fallback.txt"

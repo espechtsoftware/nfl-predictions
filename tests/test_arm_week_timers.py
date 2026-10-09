@@ -406,3 +406,27 @@ def test_his_test2_row_rules_ride_into_the_units_only_with_the_package():
     assert '\nROW_RULES="" ' in arm or '\nROW_RULES="te1_low1" ' in arm
     assert "UNION_MIX_ROW_RULES=$ROW_RULES" in arm
     assert '[[ -z "$ROW_RULES" || ( "$ROW_RULES" == te1_low1 && "$OWN_CAP_DELTA" == 15 ) ]]' in arm
+
+
+def test_his_onecatch_rides_into_the_units_only_on_top_of_the_row_rules():
+    """His 10-09 decision (HANDOFF 90e8470c, study 93's ONECATCH): UNION_MIX_ONE_CATCHER_ALL reaches the units; the host passes
+    the bare flag only when the row rules were passed (ROW_RULES_ON), else an ALERT; the builder's refusal line and a house
+    fallback raise the same ALERT; the arm keeps it 0 unless every check passes, and 1 only with te1_low1 and the package."""
+    from pathlib import Path
+    r = _run(UNION_MIX_ONE_CATCHER_ALL="1")
+    assert "UNION_MIX_ONE_CATCHER_ALL=1" in _unit_line(r.stdout, "nfl-week4-t70-build")
+    root = Path(__file__).resolve().parents[1] / "scripts"
+    host = (root / "sunday_build_host.sh").read_text()
+    assert "UNION_ARGS+=(--mix-max-te 1 --mix-max-low-own 1 --mix-low-own-pct 3); ROW_RULES_ON=1" in host
+    assert 'if [[ "${UNION_MAIN:-mean}" == "mix" && "${UNION_MIX_ONE_CATCHER_ALL:-0}" == "1" ]]; then\n    if (( ROW_RULES_ON )); then\n      UNION_ARGS+=(--mix-one-catcher-all)' in host
+    assert 'one_catcher_alert "the row rules are not on for this run' in host
+    assert "grep -q 'ONE CATCHER NOT APPLIED' \"$OUT/union-$RUN_TAG.txt\"" in host
+    assert '"$UNION_MAIN_EFFECTIVE" != "mix" ]]; then\n    one_catcher_alert "the MIX main was refused' in host
+    assert '"$UNION_DIR/one_catcher_not_applied.txt"' in host
+    # the ALERT block sits after the row-rules block (ROW_RULES_ON is set first) and before the union runs
+    assert host.index("ROW_RULES_ON=1") < host.index("UNION_ARGS+=(--mix-one-catcher-all)") < host.index('UNION_RC=0; run_union "${UNION_ARGS[@]}"')
+    arm = (root / "arm_week5_saturday.sh").read_text()
+    assert "\nONE_CATCHER_ALL=0 " in arm or "\nONE_CATCHER_ALL=1 " in arm
+    assert "UNION_MIX_ONE_CATCHER_ALL=$ONE_CATCHER_ALL" in arm
+    assert ('[[ "$ONE_CATCHER_ALL" == 0 || ( "$ONE_CATCHER_ALL" == 1 && "$ROW_RULES" == te1_low1 && "$OWN_CAP_DELTA" == 15 '
+            '&& "$SHAPE" == mixt && "$MIX_FILL" == rr ) ]]') in arm
