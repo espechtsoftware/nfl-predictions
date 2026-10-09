@@ -1,4 +1,4 @@
-# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06, 10-07, 10-08 and 10-09, amendments 1, 1b, 2, 3, 4, 5, 6, 6b, 6c, 6d, 6e, 6f, 6i, 6j, 6k and 6l before Week 5's lock; repair 6g and the big-win rule 6h before its first score)
+# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06, 10-07, 10-08 and 10-09, amendments 1, 1b, 2, 3, 4, 5, 6, 6b, 6c, 6d, 6e, 6f, 6i, 6j, 6k, 6l and 6n before Week 5's lock; repair 6g and the big-win rule 6h before its first score)
 
 **Status: FROZEN 2026-10-06** by the reviewer, BEFORE any week of the decision arm (MIXT_RS0) or of the exploratory arms
 QBB0 / NQC0 / QAL / RBC0 was read on any slate. Disclosed: before the freeze, the reference MIXT_QA0 was scored on
@@ -785,6 +785,40 @@ score. Nothing here enters a contest: the money path, its checkout and its files
     2. the laptop's ack (shas, tests, the smoke);
     3. Friday's A3 with `s38-prod-pin` moved to FRIDAY_HEAD (whatever head he ends up with: the classification reads it);
     4. the integrity gate pinned to 6l.
+
+- **Amendment 6n (2026-10-09, before Week 5's lock; no Week-5 outcome exists).**
+  - **Why.** The operator, 10-09 (relayed by the outside reviewer; recorded by the laptop): the Week-5 per-player exposure
+    cap moves from 50% to 35%, a reversible trial ("Yes, W5 trial"). Study 38's paper arms follow every live construction
+    setting. Today's parity pins `--main-cap-share 0.5`, so a live 0.35 would make Week 5 INVALID.
+  - **What changes.** Every paper arm is built at THE LIVE UNION'S `--main-cap-share`, exactly as amendment 1 made every
+    arm follow the live overlap limit. The decision pair keeps comparing structures at the live caps.
+    - The cap is production's own form, `main_exposure_cap`: a player in max(1, int(share × K)) rows is banned from later
+      solves. That is 13 rows at 0.5 and 9 at 0.35 (K 26).
+    - Accepted shares (`CAP_SHARE_OK`): 0.5, the old setting, and 0.35, the trial. Anything else is a parity mismatch: an
+      invalid week. The DST cap is unchanged (0.25).
+    - `main_cap_share` leaves the fixed parity table and is checked by `live_cap_share` instead (6l's classification:
+      "checked").
+  - **His real book** (the laptop's outcome-blind W4 check, 35% cap): FP projection −2.31 per row; 17 of 26 rows change; the
+    most-used player 13 → 9 rows; players in ≥ 40% of entries 7 → 0.
+  - **The smoke** (dry run on Week 4's frozen copies with 6l's inputs; `~/private/paper-corun/smoke-w4-amend6n/`, script
+    `run.sh` `ce227c99`; lab `28bf0eba`):
+    - 32 tests pass (rc 0).
+    - **pin-6n** (0.5): every one of the 19 arms is identical to 6l's pin build (rows and ranks); mismatches none.
+    - **cap35** (0.35): mismatches none; the player cap is 9 rows, and every arm's most-used player sits at exactly 9 of the
+      26 book rows.
+    - **bad04** (0.4): the dry run records exactly the one mismatch "--main-cap-share '0.4' (the paper arms are defined at
+      0.35 / 0.5; amendment 6n)".
+  - **Code:** lab `28bf0eba` (on `9058617a`): `experiments/s38_paper_corun.py` sha256
+    `5e4306835dfe3d3b3e4de8fd8f203bafbff7835985e02abf20b870d6e9b0e2ab`; `tests/test_s38_paper_corun.py`
+    `283fc8ac0c758a30953c5da154609497474c3c6e9876e8977acb0e05ef2b7969` (32 tests). The reader, scorer, build and plan files
+    are unchanged.
+  - **The integrity gate** pins this module sha in place of 6l's `a03051ce…`. Friday's A3 rehearsal was cancelled by the
+    operator, so the gate runs on the live snapshot: Saturday's arming or Sunday's T-70.
+  - **Order:**
+    1. this amendment;
+    2. the laptop's ack (shas, tests, the smoke);
+    3. the live arming with `UNION_MAIN_CAP=0.35` (his decision);
+    4. the integrity gate on the live snapshot.
 
 ## 1. Why
 - **The operator (10-06), on the proposal:** "yes, please try it, I want to exhaust all reasonable options."
