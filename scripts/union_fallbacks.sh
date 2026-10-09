@@ -26,6 +26,7 @@ mix_to_house_args() {
       --term-block-rows|--term-block-source|--term-block-tilt|--term-block-cap-points|--term-block-min-coverage|--winner-select) skip=1 ;;
       --main-own-cap-delta|--main-own-cap-source|--main-own-cap-min-coverage) skip=1; own_cap=1 ;;
       --mix-max-te|--mix-max-low-own|--mix-low-own-pct) skip=1 ;;     # his test-2 row rules (10-09): MIX-only
+      --mix-min-star|--mix-star-salary|--proj-shrink-k|--proj-shrink-window) skip=1 ;;   # his 10-09 S1 / S2: tested on the mix only
       --main-own-cap-fallback-share) take_fb=1; own_cap=1 ;;
       --priority-order) ;;
       *) OUT_ARGS+=("$x") ;;

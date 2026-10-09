@@ -406,3 +406,20 @@ def test_his_test2_row_rules_ride_into_the_units_only_with_the_package():
     assert '\nROW_RULES="" ' in arm or '\nROW_RULES="te1_low1" ' in arm
     assert "UNION_MIX_ROW_RULES=$ROW_RULES" in arm
     assert '[[ -z "$ROW_RULES" || ( "$ROW_RULES" == te1_low1 && "$OWN_CAP_DELTA" == 15 ) ]]' in arm
+
+
+def test_his_s1_s2_switches_ride_into_the_units_and_stay_off_in_the_arm():
+    """His 10-09 S1 / S2: UNION_PROJ_SHRINK_K and UNION_MIX_MIN_STAR reach the units; the host passes the flags only with the
+    mix; the arm keeps both empty until their gates pass."""
+    from pathlib import Path
+    r = _run(UNION_PROJ_SHRINK_K="0.7", UNION_MIX_MIN_STAR="1")
+    line = _unit_line(r.stdout, "nfl-week4-t70-build")
+    assert "UNION_PROJ_SHRINK_K=0.7" in line and "UNION_MIX_MIN_STAR=1" in line
+    root = Path(__file__).resolve().parents[1] / "scripts"
+    host = (root / "sunday_build_host.sh").read_text()
+    assert 'UNION_ARGS+=(--proj-shrink-k "$UNION_PROJ_SHRINK_K" --proj-shrink-window "${UNION_PROJ_SHRINK_WINDOW:-500}")' in host
+    assert 'UNION_ARGS+=(--mix-min-star 1 --mix-star-salary "${UNION_MIX_STAR_SALARY:-8000}")' in host
+    arm = (root / "arm_week5_saturday.sh").read_text()
+    assert "UNION_PROJ_SHRINK_K=$SHRINK_K UNION_MIX_MIN_STAR=$MIN_STAR" in arm
+    assert '[[ -z "$SHRINK_K" || ( "$SHRINK_K" == 0.7 && "$SHAPE" == mixt ) ]]' in arm
+    assert '[[ -z "$MIN_STAR" || ( "$MIN_STAR" == 1 && "$SHAPE" == mixt ) ]]' in arm

@@ -107,3 +107,11 @@ def test_a_house_fallback_drops_his_test2_row_rules():
     script = f'source "{LIB}"; mix_to_house_args {args}; printf "%s|" "${{OUT_ARGS[@]}}"'
     r = subprocess.run(["bash", "-c", script], capture_output=True, text=True, timeout=30)
     assert r.stdout == "--main|pmo_x50|--main-cap-share|0.5|--y|"
+
+
+def test_a_house_fallback_drops_his_s1_s2_switches():
+    """His 10-09 S1 / S2 were tested on the mix only: the house fallback drops their flags."""
+    args = "--main mix --proj-shrink-k 0.7 --proj-shrink-window 500 --mix-min-star 1 --mix-star-salary 8000 --y"
+    script = f'source "{LIB}"; mix_to_house_args {args}; printf "%s|" "${{OUT_ARGS[@]}}"'
+    r = subprocess.run(["bash", "-c", script], capture_output=True, text=True, timeout=30)
+    assert r.stdout == "--main|pmo_x50|--y|"

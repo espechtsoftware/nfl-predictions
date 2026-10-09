@@ -343,3 +343,19 @@ def test_his_test2_row_rules_ride_only_on_his_package(tmp_path):
     env = fresh("c"); env.update(UNION_MIX_ROW_RULES="te1_low1", UNION_MAIN="mix", UNION_MIX_PORTFOLIO="mix", UNION_MAIN_CAP="0.35",
                                  UNION_MAIN_OWN_CAP_DELTA="15")
     assert not any(f.startswith(msg) for f in _failures(_run(env)))
+
+
+def test_his_s1_s2_switches_take_only_their_tested_values_on_the_mix(tmp_path):
+    """His 10-09 S1 (shrink k 0.7) and S2 (one star per row): the tested values with UNION_MAIN=mix, or unset."""
+    def fresh(name):
+        d = tmp_path / name; d.mkdir(); return _healthy(d)
+
+    env = fresh("a"); env.update(UNION_PROJ_SHRINK_K="0.5", UNION_MAIN="mix", UNION_MIX_PORTFOLIO="mix")
+    assert any(f.startswith("UNION_PROJ_SHRINK_K='0.5' must be 0.7") for f in _failures(_run(env)))
+    env = fresh("b"); env.update(UNION_PROJ_SHRINK_K="0.7")
+    assert any(f.startswith("UNION_PROJ_SHRINK_K='0.7' must be 0.7") for f in _failures(_run(env)))      # not on the mix
+    env = fresh("c"); env.update(UNION_MIX_MIN_STAR="2", UNION_MAIN="mix", UNION_MIX_PORTFOLIO="mix")
+    assert any(f.startswith("UNION_MIX_MIN_STAR='2' must be 1") for f in _failures(_run(env)))
+    env = fresh("d"); env.update(UNION_PROJ_SHRINK_K="0.7", UNION_MIX_MIN_STAR="1", UNION_MAIN="mix", UNION_MIX_PORTFOLIO="mix")
+    found = _failures(_run(env))
+    assert not any(f.startswith("UNION_PROJ_SHRINK_K") or f.startswith("UNION_MIX_MIN_STAR") for f in found), found
