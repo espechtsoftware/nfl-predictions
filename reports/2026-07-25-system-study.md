@@ -8528,6 +8528,14 @@ secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; th
 - **The exploratory NAKED6** (the historical winners' rate) reads the same: +1.8 (2022 +0.1). More QB-alone rows did not
   add.
 - **Transfer:** the harness's base and his FP book both play 0 QB-alone rows, so the rule's change transfers.
+  - **Confirmed on his real book (10-09, the laptop's outcome-blind W4 check; `reports/2026-10-09-option-w4-checks/` (integration `bbacd287`)).**
+    - Production's `--mix-qb-alone-rows 3` (`3a9327e1`) on the W4 inputs with the W5 arming (OFF reproduced the known
+      book `a4ab2839`) ruled 3 of 3.
+    - The QB-alone rows sit at book positions 3 / 7 / 13, the harness's positions, dealt into 3 / 2 / 2 contests, of which
+      2 / 1 / 1 are big under Rev6.
+    - None has an RB teammate (a pure QB-alone row). One, at position 3, holds a same-team WR / TE pair from another
+      team, which the rule allows.
+    - FP projection per row 143.70 → 143.81; 24 of 26 rows differ (path dependence).
 - **Before any live use:**
   - production's option (study 73's machinery with C's StackRules at `qb_stack_min` / `qb_stack_max` 0 on the first 3 C
     book solves) must be parity-tested against this module;
@@ -8644,7 +8652,7 @@ secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; th
 - **Recommendation:** off. It shows no gain, is split by season, fails a guard and costs projection (−0.32 per row on the read's books). Of tonight's
   enterable arms, study 77's QB-alone rows (Addendum 175) are the better candidate.
 
-## Addendum 177 (2026-10-09): study 79 (one pass catcher per team on the first 8 QB + 1 rows, no same-team WR / TE pair away from the QB, the outside reviewer's test, in the harness): NO DIFFERENCE, leaning positive in every season (+2.0 on the read; 2023 +0.2 flat, 2024 +3.8; 2022 +1.3): ENTERABLE by the rule (his decision; no gain shown); a small dose at no cost
+## Addendum 177 (2026-10-09): study 79 (one pass catcher per team on the first 8 QB + 1 rows, no same-team WR / TE pair away from the QB, the outside reviewer's test, in the harness): NO DIFFERENCE, leaning positive in every season (+2.0 on the read; 2023 +0.2 flat, 2024 +3.8; 2022 +1.3): ENTERABLE by the rule (his decision; no gain shown); a small dose at no cost -- CORRECTED 10-09: the decision arm was a no-op on his real W4 book
 
 **Setup.**
 - **The question.** The operator, 10-08 night: "please look at the patterns of the winners over the past few weeks and
@@ -8740,8 +8748,22 @@ secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; th
       top 1% 11%).
     - At the 8 ruled positions it holds one in 2.14 of 8 (27%), so the rule would change about as many of his 8 lineups
       as it did here.
+  - **CORRECTION (10-09; the laptop's outcome-blind W4 check, `reports/2026-10-09-option-w4-checks/` (integration `bbacd287`)): the line above is WRONG for his real book.**
+    - The harness's rate at the ruled positions is not his book's. Production's `--mix-one-catcher-rows 8` (`3ecdc6db`)
+      on the W4 inputs with the W5 arming ruled 8 of 8, and the book was BYTE-IDENTICAL to OFF (`a4ab2839`): a no-op.
+    - His book's 7 non-QB-pair rows sit at positions 1 (A1), 8 (C), 14 (B), 17 (C), 22 (B), 23 (C), 24 (A1). Its B / C
+      ones come from B / C solves after the first 8, which ONEPC8 does not reach.
+    - Only the exploratory ONEPC_ALL (14 rows) binds: pair rows 7 → 1, 8 of 26 rows changed, FP projection +0.03.
+    - So the decision arm's read (+2.0) need not describe his live book: on W4 it would have changed nothing. The binding
+      dose was exploratory, not decision-bearing.
+    - The reviewer's earlier "close second" ranking is withdrawn: **study 77 is the only enterable lean that transfers.**
+    - If he still picks 79, Friday's A3 on the Week-5 inputs must first show that the 8-row rule changes his book;
+      otherwise the trial is moot that week.
+    - ONEPC_ALL as a study-38 paper arm (a 6m-style addition) is a W6 candidate, on his yes.
+    - The lesson: read a rule's rate AT THE RULED POSITIONS on his real book before ranking it, never book-wide.
 - **The exploratory ONEPC_ALL** (all 14 B / C rows) reads the same: +2.1 (2022 +0.8). More rows did not add.
 - **With tonight's other enterable leans (the reviewer's ranking for his one change):**
   - study 77's QB-alone rows (Addendum 175) first: both read seasons clearly positive, expected seats ×1.04;
-  - this study a close second: the same size of lean, flatter in 2023, better on 2022, at no cost.
+  - this study a close second: the same size of lean, flatter in 2023, better on 2022, at no cost. (WITHDRAWN 10-09: see
+    the CORRECTION above; on his real W4 book the decision arm changed nothing.)
   - Neither is a shown gain, and the two together are untested.
