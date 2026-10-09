@@ -9636,3 +9636,162 @@ secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; th
 - **The harness overstates the rule's cost on his book** (−1.09 per row against −0.18 on his W4 book), but the direction is
   clear on both read seasons.
 - **Recommendation (his decision):** do not use it.
+
+## Addendum 185 (2026-10-09): study 87 (his QB-plus-price book with no usage caps -- a top-4-game QB stacked with his top WR, TE ≤ $5,000, DST ≤ $3,000, ≥ 1 WR ≤ $4,500, no TE flex -- in the harness; information for his decision): every arm below the live book; only the price rules are clearly worse; none shows a gain
+
+**Setup.**
+- **His request** (recorded verbatim, HANDOFF `4af84fba`): "Let's queue up an experiment with this. QB from one of top 4 point
+  total games / TE <= 5000 / D <= 3000 / 1 WR <= 4500 / Top receiver same team as QB / WR or RB in Flex", and "In this case at
+  least 1 wr <= 4500 can be more."
+  - "Top receiver" is the highest-priced WR (his confirmation; a TE never counts).
+  - Then, before 85's and 86's READs (HANDOFF `55ed94c9`), "remove all usage caps" for the experiment, plus a no-caps book.
+  - Information for his decision.
+- **The arms.** Built on study 48's harness (Rev6 `ac10ddf6`). Every book solve carries the arm's rules as one solve: bans,
+  set_constraints and the interaction floor. Infeasible → the cell's own rules, recorded.
+  - LIVE_CB (the reference, WITH production's caps).
+  - NOCAP: his live book with the QB / player / DST caps lifted (overlap 4 kept).
+  - BOOK87: all six rules, uncapped.
+  - PRICE87: the four price / flex rules, uncapped.
+  - QBTOP87: a top-4-game QB with his top WR, uncapped.
+  - Read against LIVE_CB and against NOCAP (the rules alone). His rule printed for reference only.
+- **Preregistration:** `reports/2026-10-09-prereg-study87-qb-price-book.md` (the design `5342f218` and the no-caps amendment,
+  before 85's and 86's READs; FROZEN `a9e5d7dc`, 10-09 08:56 CDT, before any scored bank).
+- **Code timing:** the module, reader and tests (nfl2 `20031fb6`) were on origin before 85's and 86's READs. `01869883`
+  changed only the census's printed title.
+- **Panel:** banks 1731–1736, B 20,000, seed 20261132.
+- **Read:** the reader `af1b84ab`; READ `21489a90` (lab `9c32013a`). The confirmatory census (`1b840911`, with the raw
+  files' shas) was committed before the READ. Study 88's code (nfl2 `49db37c6`) was on origin before this READ ran.
+- **Reproduced byte-identically by the laptop** at `9c32013a`: the raw files 1731–1736 pass `sha256sum -c` against
+  `RAW_s87_run.sha256`; the READ is `21489a90` and the confirmatory census `adf527a2` (cmp-identical).
+- **Census** (binding, 53 slate-banks):
+  - 0 infeasible in every rule arm.
+  - **CONCENTRATION, flagged in every uncapped arm** (the top QB's book rows of 26, mean / max; his share of the dealt
+    entries, max): NOCAP 8.9 / 16 (0.62), BOOK87 11.1 / 21 (0.81), PRICE87 8.8 / 17 (0.68), QBTOP87 11.7 / 24 (0.92).
+  - Projection per row against LIVE_CB: NOCAP +1.22, BOOK87 −0.49, PRICE87 +0.30, QBTOP87 +0.41.
+- **His real W4 book** (the laptop's checks):
+  - the caps' removal alone +0.96 FP per row, through concentration;
+  - BOOK87's bans −1.59 capped / −1.41 against NOCAP. The QB restriction itself, not the cap, is what costs.
+  - The scored banks (318 slate-banks) confirm the census: 0 of 8,268 infeasible in every rule arm. Concentration: the top QB
+    on up to 19 / 23 / 19 / 24 of 26 rows (NOCAP / BOOK87 / PRICE87 / QBTOP87), up to 0.92 of the dealt entries.
+
+**Reader output (verbatim):**
+```
+STUDY 87 READER  sha256 af1b84abf5d6ca0aa51f8bcb4f8ac2311cce9c3258ad0bc60799eed298b81a5d
+DIRECTION: P(>= 1 big seat) per slate (the mean over its banks); every difference is ARM - LIVE_CB; POSITIVE favours the arm.
+slates 36 (the 2023-24 read) + 17 (the 2022 go / no-go)  banks [1731, 1732, 1733, 1734, 1735, 1736]  B 20000  seed 20261132  four uncapped arms read for his decision, against LIVE_CB (and the rule arms against NOCAP) on the CALIBRATED field (v2), each two-sided 0.95; guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only; 2022: the point estimate (two-sided 0.95 interval); study 51's trial rule per arm
+arms (definitions, the rules' constants, studies 85 / 70's and study 73's shas, live settings, QB cap, objective): [["LIVE_CB", "NOCAP", "BOOK87", "PRICE87", "QBTOP87"], {"block": {"cap": 2.0, "min_coverage": 0.5, "n_term": 8, "tilt": 0.2}, "n_games": 4, "prices": {"dst_max": 3000.0, "te_max": 5000.0, "wr_cheap": 4500.0}, "rows": "every book solve in build order (any cell): the bans and set_constraints of its rules, one solve; infeasible -> the cell's own rules, no ban, no constraint, recorded", "rulesets": {"BOOK87": ["qbtop", "toprec", "te", "dst", "wr1plus", "flex"], "NOCAP": [], "PRICE87": ["te", "dst", "wr1plus", "flex"], "QBTOP87": ["qbtop", "toprec"]}}, {"LIVE_CB": {"dst": 6, "player": 13, "qb": 5}, "max_shared_all": 4, "uncapped": {"dst": 41, "player": 41, "qb": 41}}, {"s70_topwr.py": "d622a211f3c2d2de93b033608403940e6b57215e3cd341177a35747ce3f188cc", "s85_price_book.py": "4f752f8e72af84fc17d911da3a3f2da417971f7c9b76e2b9a5d3ef46ab7f66da"}, "3f76c6295d8666cf4f256a103c7ba3fe428630d6149c7a6009648487900d806d", {"fill": "rr", "max_shared": 4}, 5, "player_mean (+ the cheap block term)"]
+
+== NOCAP vs LIVE_CB  [for his decision; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate -0.01663  [-0.05586, +0.02092] (two-sided 0.95)  seasons 2023 -0.04130, 2024 +0.00804
+  GUARD 1 mean entry pct +0.00544  one-sided lower -0.00672  (must exceed -0.015)
+  GUARD 2 expected big seats 0.47888 vs 0.50948  ratio 0.940  (must be >= 0.80)
+  NOCAP dealt identical to LIVE_CB: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  GO / NO-GO 2022: +0.00856  [-0.05120, +0.07249] (two-sided 0.95)  ->  not contradicted
+  TRIAL: ENTERABLE, his decision: no harm shown and no gain shown (NO DIFFERENCE on the read, not contradicted on 2022)
+  HIS RULE (reference only): DO NOT USE IN W5: the 2023-24 point estimate -0.01663 < 0
+
+== BOOK87 vs LIVE_CB  [for his decision; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate -0.03271  [-0.09358, +0.03342] (two-sided 0.95)  seasons 2023 -0.09030, 2024 +0.02487
+  GUARD 1 mean entry pct -0.01795  one-sided lower -0.04304  (must exceed -0.015)
+  GUARD 2 expected big seats 0.47113 vs 0.50948  ratio 0.925  (must be >= 0.80)
+  BOOK87 dealt identical to LIVE_CB: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  GO / NO-GO 2022: +0.03545  [-0.09641, +0.15398] (two-sided 0.95)  ->  not contradicted
+  TRIAL: ENTERABLE, his decision: no harm shown and no gain shown (NO DIFFERENCE on the read, not contradicted on 2022)
+  HIS RULE (reference only): DO NOT USE IN W5: the 2023-24 point estimate -0.03271 < 0
+
+== PRICE87 vs LIVE_CB  [for his decision; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate -0.06108  [-0.10507, -0.01662] (two-sided 0.95)  seasons 2023 -0.06740, 2024 -0.05476
+  GUARD 1 mean entry pct -0.00351  one-sided lower -0.02311  (must exceed -0.015)
+  GUARD 2 expected big seats 0.39098 vs 0.50948  ratio 0.767  (must be >= 0.80)
+  PRICE87 dealt identical to LIVE_CB: 0.000 of slate-banks
+  ->  WORSE
+  GO / NO-GO 2022: +0.03579  [-0.02792, +0.11434] (two-sided 0.95)  ->  not contradicted
+  TRIAL: NOT ENTERED: WORSE on the 2023-24 read; the read's expected big seats ratio 0.767 < 0.80 (his tolerance)
+  HIS RULE (reference only): DO NOT USE IN W5: the 2023-24 point estimate -0.06108 < 0; the expected big seats ratio 0.767 < 0.80
+
+== QBTOP87 vs LIVE_CB  [for his decision; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate -0.02282  [-0.08021, +0.03939] (two-sided 0.95)  seasons 2023 -0.04351, 2024 -0.00214
+  GUARD 1 mean entry pct -0.00725  one-sided lower -0.02483  (must exceed -0.015)
+  GUARD 2 expected big seats 0.48729 vs 0.50948  ratio 0.956  (must be >= 0.80)
+  QBTOP87 dealt identical to LIVE_CB: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  GO / NO-GO 2022: -0.01524  [-0.09070, +0.05155] (two-sided 0.95)  ->  CONTRADICTED (the 2022 point estimate is < 0)
+  TRIAL: NOT ENTERED: CONTRADICTED on 2022
+  HIS RULE (reference only): DO NOT USE IN W5: the 2023-24 point estimate -0.02282 < 0; the 2022 point estimate -0.01524 < 0
+
+== TRIAL SUMMARY: NOCAP, BOOK87 ENTERABLE (study 51 rule)
+
+== THE RULES ALONE: each rule arm - NOCAP (both built without the usage caps; two-sided 0.95)
+  BOOK87 - NOCAP (v2, 2023-24): -0.01608  [-0.07073, +0.04104]  seasons 2023 -0.04900, 2024 +0.01683
+  BOOK87 - NOCAP (v2, 2022): +0.02689  [-0.09017, +0.12516]  seasons 2022 +0.02689
+  PRICE87 - NOCAP (v2, 2023-24): -0.04445  [-0.07810, -0.00901]  seasons 2023 -0.02610, 2024 -0.06279
+  PRICE87 - NOCAP (v2, 2022): +0.02723  [-0.00981, +0.06509]  seasons 2022 +0.02723
+  QBTOP87 - NOCAP (v2, 2023-24): -0.00619  [-0.05239, +0.04268]  seasons 2023 -0.00220, 2024 -0.01018
+  QBTOP87 - NOCAP (v2, 2022): -0.02380  [-0.08666, +0.03008]  seasons 2022 -0.02380
+
+== HIS RULE, every arm, FOR REFERENCE ONLY (his decision: "Let me decide"; under no true effect an arm passes about one time in four; the slates are the ones studies 73-86 read; study 84's bank-to-bank finding applies):
+  NOCAP     DO NOT USE IN W5: the 2023-24 point estimate -0.01663 < 0  (2023-24 point -0.01663, 2022 point +0.00856, seats ratio 0.940)
+  BOOK87    DO NOT USE IN W5: the 2023-24 point estimate -0.03271 < 0  (2023-24 point -0.03271, 2022 point +0.03545, seats ratio 0.925)
+  PRICE87   DO NOT USE IN W5: the 2023-24 point estimate -0.06108 < 0; the expected big seats ratio 0.767 < 0.80  (2023-24 point -0.06108, 2022 point +0.03579, seats ratio 0.767)
+  QBTOP87   DO NOT USE IN W5: the 2023-24 point estimate -0.02282 < 0; the 2022 point estimate -0.01524 < 0  (2023-24 point -0.02282, 2022 point -0.01524, seats ratio 0.956)
+
+== EXPLORATORY (two-sided 0.95)
+  NOCAP - LIVE_CB (the l02 field, 2023-24): -0.01666  [-0.05673, +0.02196]  seasons 2023 -0.04551, 2024 +0.01218
+  NOCAP - LIVE_CB (the l02 field, 2022): +0.00954  [-0.05284, +0.07489]  seasons 2022 +0.00954
+  BOOK87 - LIVE_CB (the l02 field, 2023-24): -0.03879  [-0.10257, +0.03031]  seasons 2023 -0.10605, 2024 +0.02846
+  BOOK87 - LIVE_CB (the l02 field, 2022): +0.03804  [-0.09208, +0.15538]  seasons 2022 +0.03804
+  PRICE87 - LIVE_CB (the l02 field, 2023-24): -0.06490  [-0.10879, -0.01979]  seasons 2023 -0.08048, 2024 -0.04932
+  PRICE87 - LIVE_CB (the l02 field, 2022): +0.03758  [-0.02736, +0.11565]  seasons 2022 +0.03758
+  QBTOP87 - LIVE_CB (the l02 field, 2023-24): -0.02773  [-0.08926, +0.03851]  seasons 2023 -0.05914, 2024 +0.00368
+  QBTOP87 - LIVE_CB (the l02 field, 2022): -0.00991  [-0.08473, +0.05739]  seasons 2022 -0.00991
+  NOCAP ruled solves built plain (infeasible): 0 of 0 over 318 slate-banks
+  BOOK87 ruled solves built plain (infeasible): 0 of 8268 over 318 slate-banks
+  PRICE87 ruled solves built plain (infeasible): 0 of 8268 over 318 slate-banks
+  QBTOP87 ruled solves built plain (infeasible): 0 of 8268 over 318 slate-banks
+
+secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; the book's rows are pre-lock facts):
+  [2023-24]
+  LIVE_CB      v2: P(>=1 big) 0.31566  expected big seats 0.50948  P(>=2) 0.12693  entry pct 0.51260  |  l02: P(>=1 big) 0.34441
+               book: projection per row 127.69  salary 49963  QB + 2 rows 12.0 of 26  rows with a QB outside the top 4 games 9.5  without his top WR 12.0  a TE > $5,000 7.6  a DST > $3,000 10.8  no WR <= $4,500 8.7  a TE in the flex 15.4  QB + TE rows 12.6  distinct QBs 8.5  most-used QB 5.0 / player 13.0 rows (of 41)
+  NOCAP        v2: P(>=1 big) 0.29903  expected big seats 0.47888  P(>=2) 0.11224  entry pct 0.51804  |  l02: P(>=1 big) 0.32774
+               book: projection per row 128.71  salary 49961  QB + 2 rows 12.0 of 26  rows with a QB outside the top 4 games 8.3  without his top WR 11.3  a TE > $5,000 7.2  a DST > $3,000 9.4  no WR <= $4,500 8.6  a TE in the flex 15.3  QB + TE rows 12.2  distinct QBs 8.1  most-used QB 13.2 / player 30.8 rows (of 41)
+  BOOK87       v2: P(>=1 big) 0.28294  expected big seats 0.47113  P(>=2) 0.11624  entry pct 0.49465  |  l02: P(>=1 big) 0.30561
+               book: projection per row 126.95  salary 49953  QB + 2 rows 12.0 of 26  rows with a QB outside the top 4 games 0.0  without his top WR 0.0  a TE > $5,000 0.0  a DST > $3,000 0.0  no WR <= $4,500 0.0  a TE in the flex 0.0  QB + TE rows 4.6  distinct QBs 5.5  most-used QB 14.7 / player 30.6 rows (of 41)
+  PRICE87      v2: P(>=1 big) 0.25458  expected big seats 0.39098  P(>=2) 0.08796  entry pct 0.50909  |  l02: P(>=1 big) 0.27951
+               book: projection per row 127.72  salary 49951  QB + 2 rows 12.0 of 26  rows with a QB outside the top 4 games 8.3  without his top WR 10.8  a TE > $5,000 0.0  a DST > $3,000 0.0  no WR <= $4,500 0.0  a TE in the flex 0.0  QB + TE rows 8.6  distinct QBs 8.3  most-used QB 13.3 / player 31.4 rows (of 41)
+  QBTOP87      v2: P(>=1 big) 0.29283  expected big seats 0.48729  P(>=2) 0.12098  entry pct 0.50534  |  l02: P(>=1 big) 0.31667
+               book: projection per row 127.91  salary 49962  QB + 2 rows 12.0 of 26  rows with a QB outside the top 4 games 0.0  without his top WR 0.0  a TE > $5,000 6.0  a DST > $3,000 9.3  no WR <= $4,500 8.8  a TE in the flex 15.6  QB + TE rows 6.5  distinct QBs 5.4  most-used QB 14.1 / player 30.4 rows (of 41)
+  [2022]
+  LIVE_CB      v2: P(>=1 big) 0.24848  expected big seats 0.33278  P(>=2) 0.07046  entry pct 0.46414  |  l02: P(>=1 big) 0.26761
+               book: projection per row 131.81  salary 49962  QB + 2 rows 12.0 of 26  rows with a QB outside the top 4 games 9.3  without his top WR 10.8  a TE > $5,000 7.5  a DST > $3,000 8.6  no WR <= $4,500 6.4  a TE in the flex 13.8  QB + TE rows 11.2  distinct QBs 8.1  most-used QB 5.0 / player 13.0 rows (of 41)
+  NOCAP        v2: P(>=1 big) 0.25704  expected big seats 0.34731  P(>=2) 0.07183  entry pct 0.47672  |  l02: P(>=1 big) 0.27715
+               book: projection per row 133.38  salary 49954  QB + 2 rows 12.0 of 26  rows with a QB outside the top 4 games 7.8  without his top WR 11.0  a TE > $5,000 7.3  a DST > $3,000 7.2  no WR <= $4,500 6.7  a TE in the flex 13.2  QB + TE rows 11.0  distinct QBs 7.4  most-used QB 14.3 / player 33.2 rows (of 41)
+  BOOK87       v2: P(>=1 big) 0.28393  expected big seats 0.42693  P(>=2) 0.09964  entry pct 0.47247  |  l02: P(>=1 big) 0.30565
+               book: projection per row 131.76  salary 49940  QB + 2 rows 12.0 of 26  rows with a QB outside the top 4 games 0.0  without his top WR 0.0  a TE > $5,000 0.0  a DST > $3,000 0.0  no WR <= $4,500 0.0  a TE in the flex 0.0  QB + TE rows 4.6  distinct QBs 5.6  most-used QB 14.1 / player 31.7 rows (of 41)
+  PRICE87      v2: P(>=1 big) 0.28427  expected big seats 0.41845  P(>=2) 0.10413  entry pct 0.48230  |  l02: P(>=1 big) 0.30519
+               book: projection per row 132.59  salary 49943  QB + 2 rows 12.0 of 26  rows with a QB outside the top 4 games 7.9  without his top WR 10.3  a TE > $5,000 0.0  a DST > $3,000 0.0  no WR <= $4,500 0.0  a TE in the flex 0.0  QB + TE rows 7.8  distinct QBs 7.7  most-used QB 14.4 / player 32.8 rows (of 41)
+  QBTOP87      v2: P(>=1 big) 0.23324  expected big seats 0.28662  P(>=2) 0.04487  entry pct 0.46310  |  l02: P(>=1 big) 0.25770
+               book: projection per row 132.54  salary 49955  QB + 2 rows 12.0 of 26  rows with a QB outside the top 4 games 0.0  without his top WR 0.0  a TE > $5,000 6.2  a DST > $3,000 7.5  no WR <= $4,500 7.4  a TE in the flex 12.5  QB + TE rows 6.7  distinct QBs 5.4  most-used QB 13.9 / player 32.5 rows (of 41)
+```
+
+**Reading.**
+- **Every arm's point estimate is below the live book's** (2023–24 point / 2022 point / seats ratio):
+  - NOCAP (the caps removed) −1.7 / +0.9 / 0.94;
+  - BOOK87 −3.3 [−9.4, +3.3] / +3.5 / 0.93, erratic by season (2023 −9.0, 2024 +2.5);
+  - **PRICE87 −6.1 [−10.5, −1.7] / +3.6 / 0.77**: the interval lies wholly below zero, and seats are below his tolerance;
+  - QBTOP87 −2.3 / −1.5 / 0.96: CONTRADICTED on 2022.
+- **The rules alone, against NOCAP** (both uncapped): BOOK87 −1.6, **PRICE87 −4.4 [−7.8, −0.9]**, QBTOP87 −0.6. The price /
+  flex rules are what cost.
+- **Removing the usage caps buys projection** (+1.22 per row in the harness, +0.96 on his W4 book) through concentration: one QB
+  on up to 92% of the entries on some slates. It does not buy big seats (−1.7).
+- **His rule (reference only)** is DO NOT on every arm. Study 51's trial rule lists NOCAP and BOOK87 as enterable (no harm
+  shown); neither shows a gain.
+- **Within the bank-set noise of Addendum 182,** BOOK87 and QBTOP87 are not separable from zero. PRICE87's −6.1 (and −4.4
+  against NOCAP) is the one read here whose interval excludes zero.
+- **Study 88** (his "slightly cheaper QB" variants) re-reads BOOK87 on a fresh bank set, the second read the forward rule asks
+  for.
+- **In plain words (the laptop's wording, agreed):** every version came out below the live book; only the price rules are
+  clearly worse; none shows a gain.
+- **Recommendation (his decision):** do not use any of it.
