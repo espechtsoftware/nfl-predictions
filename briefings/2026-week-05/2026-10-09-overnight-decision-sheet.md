@@ -18,6 +18,7 @@ The book is ready as it stands. That is the default, and nothing changes unless 
    - **75: a receiver in the flex on 8 lineups.** The night's best lean on the deciding seasons, but "not entered" by the rule (2022 went the other way).
    - **81 (side measurement): no tight end priced $5,000 or more in any lineup.** The strongest single number of the night (+4.7 points, about 10% more expected big wins, better in all three seasons), but it was a side measurement among about 35 tonight, so it could be luck. On your real book it would change 24 of 26 lineups and cost about 0.8 projected points per lineup.
    - For each: Week 5 (the reviewer amends the paper study before Friday's check), Week 6, or no.
+   - (A possible third for Week 6: 79's all-lineup version, the one that actually changes your book.)
 
 Everything else from tonight: off.
 
@@ -90,7 +91,7 @@ The reviewer advises **one new construction change a week** (so Monday can tell 
   - +2.3 points on the deciding seasons, positive in both (2023 +1.6, 2024 +3.0); about 7% more expected big wins. The first test tonight to lean the right way.
   - But the 2022 check came out −1.1, so the frozen rule says "not entered". The range also includes zero: no gain is shown.
   - In the test book the receiver mostly replaced a tight end in the flex. We checked the same on your real Week-5-style book (Week 4's inputs, no scores looked at): the 8 receivers replaced 5 tight ends and 2 running backs (your flex went from 1 WR / 14 TE / 11 RB to 8 / 9 / 9). So it behaves in your book the way it did in the test.
-  - **Recommended: not this week.** If you want it tested, the clean next step is a paper test on your own FP book, scored on the real contests (no money). The outside reviewer is preparing the switch tonight (off by default, not merged), so either week is possible.
+  - **Recommended: not this week.** If you want it tested, the clean next step is a paper test on your own FP book, scored on the real contests (no money). The switch is built and reviewed (off by default, not merged), so either week is possible.
 - **Study 76 (QB + 1 pass catcher with two players from the other team, 4 lineups; READ committed 23:08 CT):**
   - −1.4 points on the deciding seasons (2023 −2.9, 2024 flat); about 11% fewer expected big wins; 2022 +3.7.
   - It passes the rule ("enterable"), but there is no gain on the seasons that decide. **Recommended off.**
@@ -99,7 +100,7 @@ The reviewer advises **one new construction change a week** (so Monday can tell 
   - +1.8 points on the deciding seasons (2023 +1.4, 2024 +2.3), about 4% more expected big wins, and flat on 2022 (+0.2).
   - The only test tonight that is positive in all three seasons, though 2022 is essentially zero and the range includes zero: no gain is proven.
   - It costs no projection (+0.06 points per lineup), and the 3 lineups land in big-contest seats.
-  - **The reviewer recommends a 3-lineup trial in Week 5 on top of the cheap block.** The switch is built and reviewed (by me and the reviewer; 311 tests pass), off by default and not merged. Your decision: yes this week (a second change), or Week 6.
+  - **The reviewer recommends a 3-lineup trial in Week 5 on top of the cheap block.** The switch and its arming are built and reviewed (by me and the reviewer; 405 tests pass), off by default and not merged. Your decision: yes this week (a second change), or Week 6.
   - If yes: I merge it before Friday's code freeze, check that it changes nothing when off, rehearse it on Friday's Week-5 inputs, and record your override of the one-change advice. One limit to know: if a player in one of those 3 lineups is ruled OUT on Sunday, the replacement lineup is a normal stack (no QB-alone spares are built).
   - For the record: this run was interrupted at 276 of 318 slates by a session time limit and resumed exactly where it stopped. Nothing was read before it finished, and the result reproduced byte for byte.
 - **Study 78 (two $8,000+ players in 8 lineups; READ committed 00:24 CT):**
@@ -110,9 +111,9 @@ The reviewer advises **one new construction change a week** (so Monday can tell 
 - **Study 79 (at most one receiver / tight end per team in 8 QB + 1 lineups; READ committed 01:07 CT):**
   - +2.0 points on the deciding seasons, but almost all from 2024 (+3.8); 2023 was flat (+0.2). 2022 +1.3.
   - It raises the chance of at least one big win (34% against 32%) while the expected number of big wins stays the same: it spreads the book, which fits your "one big win" goal.
-  - No projection cost. A small dose: the rule changes about 2 of the 8 lineups directly; the rule would change about as many of your real lineups.
+  - No projection cost. A small dose in the test: the rule changed about 2 of its 8 lineups directly.
   - ~~The reviewer ranks it a close second to 77.~~ **Corrected at 01:50:** we ran the switch on your real Week-5-style book (Week 4's inputs). The 8-lineup version changed nothing: the lineups with a same-team pair in your book come from later builds that the rule never reaches. Only the all-lineup version would change your book (7 such lineups down to 1), and that version was only a side test. **Not now**; a paper test is the honest next step.
-- **Study 80 (the underdog's quarterback from a top-4 game in 8 lineups; READ committed 01:46 CT, the night's last):**
+- **Study 80 (the underdog's quarterback from a top-4 game in 8 lineups; READ committed 01:46 CT):**
   - Flat on the deciding seasons (−0.4), but about 17% fewer expected big wins, and −4.3 on 2022: "not entered".
   - Forcing the favourite's quarterback instead (the other half of the test) was worse: −3.8.
   - **Recommended off.** Forcing which side's quarterback to play does not help; the book's own choice stays.
