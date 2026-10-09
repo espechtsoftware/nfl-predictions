@@ -256,6 +256,12 @@ def test_the_qb_alone_rows_ride_into_the_units_and_0_passes_nothing():
     assert '"$QB_ALONE_ROWS" == 3 && "$SHAPE" == mixt && "$MIX_FILL" == rr' in arm
     assert 'for _l in "$BRING_BACK_TOP_WR" "$QB_ALONE_ROWS" "$MIX_QUOTAS"; do' in arm and "(( NLEV <= 1 ))" in arm
     assert '[[ "$TERM_FILE" != reports/2026-10-08-live-block/cheap2-w5.csv ]] && NLEV=$((NLEV+1))' in arm
+    # a new lever on top of the week's cheap block needs his recorded decision (the reviewer's code review 10-09)
+    assert '\nSECOND_CHANGE_DECISION=""' in arm and "SECOND_CHANGE_DECISION=$SECOND_CHANGE_DECISION" in arm
+    assert 'is a SECOND construction change this week: SECOND_CHANGE_DECISION must name the HANDOFF commit' in arm
+    assert 'grep -qx HANDOFF.md' in arm and '-u UNION_MIX_QB_ALONE_ROWS' in arm
+    r = _run(SECOND_CHANGE_DECISION="0123abcd")
+    assert "SECOND_CHANGE_DECISION=0123abcd" in _unit_line(r.stdout, "nfl-week4-t70-build")
 
 
 def test_the_half_and_half_rides_into_the_units_and_0_passes_nothing():

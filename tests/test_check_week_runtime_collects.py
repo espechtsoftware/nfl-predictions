@@ -242,6 +242,13 @@ def test_union_mix_qb_alone_rows_is_only_3_and_one_lever_a_week(tmp_path):
     assert any("one new construction lever a week" in f for f in _failures(_run(env)))
     env["UNION_MIX_QB_ALONE_ROWS"] = "0"
     assert not any("one new construction lever a week" in f for f in _failures(_run(env)))
+    # on top of the live term block (the week's cheap block) a new lever is a SECOND change: only with his recorded decision
+    env.pop("UNION_MIX_BRING_BACK_TOP_WR"); env["UNION_MIX_QB_ALONE_ROWS"] = "3"; env["UNION_TERM_BLOCK_ROWS"] = "8"
+    assert any("is a SECOND construction change this week" in f for f in _failures(_run(env)))
+    env["SECOND_CHANGE_DECISION"] = "0123abcd"
+    assert not any("SECOND construction change" in f for f in _failures(_run(env)))
+    env["UNION_TERM_BLOCK_ROWS"] = "0"; env.pop("SECOND_CHANGE_DECISION")
+    assert not any("SECOND construction change" in f for f in _failures(_run(env)))   # no block: the one lever is the change
 
 
 def test_union_mix_rs_rows_must_be_0_9_13_17_with_mix_rr_and_no_cover(tmp_path):

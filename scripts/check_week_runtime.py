@@ -317,6 +317,10 @@ def main():
                                 ("UNION_MIX_CELL_QUOTAS", bool(os.environ.get("UNION_MIX_CELL_QUOTAS", "")))) if on]
     if len(_levers) > 1:                                         # one new construction lever a week (the reviewer's advice;
         fail(f"one new construction lever a week: {', '.join(_levers)} are all set")   # untested together)
+    _scd = os.environ.get("SECOND_CHANGE_DECISION", "")           # a new lever on top of the week's live term block is a
+    if _levers and os.environ.get("UNION_TERM_BLOCK_ROWS", "") not in ("", "0") and not re.fullmatch(r"[0-9a-f]{8,40}", _scd):
+        fail(f"{', '.join(_levers)} on top of the live term block is a SECOND construction change this week: "   # second change
+             f"SECOND_CHANGE_DECISION={_scd!r} must name the HANDOFF commit that records his yes")
     _ms = os.environ.get("UNION_MEAN_MAX_SHARED", "")
     if _ms and not (_ms.isdigit() and 3 <= int(_ms) <= 8):
         fail(f"UNION_MEAN_MAX_SHARED={_ms!r} must be an integer 3..8 (players a union row may share with every earlier row)")
