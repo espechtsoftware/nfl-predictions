@@ -16,7 +16,7 @@
 #   armed late.
 set -uo pipefail
 SHAPE="mixt"             # his formal yes 2026-10-06: "yes to the winners' mix with the tilt and the quarterback cap" (the tilt removed by his 10-06 yes)
-FRIDAY_HEAD=""           # FRIDAY: the final integration head after Friday's host rehearsal (the merges landed 10-06, 231b1ea0)
+FRIDAY_HEAD="5eab90f43ec53e50d48c267151e2697388d8e0ea"   # 10-09: the merge batch for his W5 package (A3 cancelled by him; HANDOFF)
 PLAN_SHA=5f8352eebf17860795922f8b5bca754c4ed0566c8c5ca63419e6dacd24e59470     # Rev6 (his FINAL contest order 10-07; Rev3's contests
                                     # re-ordered, the same book; installed 10-07 14:38 after the priority screen's pair (ii);
                                     # Rev3 kept as contests.json.rev3-8625de0e)
