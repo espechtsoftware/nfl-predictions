@@ -74,6 +74,11 @@ DST cap 6, the overlap limit 4.
   exploratory: CAP35_OWN15_REAL against CAP35 and LIVE_CB.
 - **THE TWO-DRAW RULE (printed for his decision, no automatic entry):** NOT NEGATIVE ON BOTH DRAWS iff set A's and set B's point
   estimates are both ≥ 0 AND the pooled expected big seats ratio ≥ 0.80.
+- **HIS W5 ARMING RULE (the operator, 10-09, in the laptop's session, verbatim in production HANDOFF: "the independent check is
+  whether study 89 shows the 35% cap underperforming 50% on both draws, since that's the real test — not the Weeks 2-4 replay,
+  which would pass by construction"):** **DO NOT ARM** the 35% cap iff CAP35 − LIVE_CB's point estimate on P(≥ 1 big seat)
+  (2023–24, the calibrated field) is **below 0 on BOTH draw A and draw B**; otherwise **ARM 0.35** with the 50% book on paper.
+  The reader prints it as one line (`== W5 ARMING RULE`).
 - Secondaries: expected big seats, P(≥ 2), l02, the projection per row, the most-used skill player, players over 30% / 40%,
   the deviation from the predicted field, predicted ownership per row.
 - Plainly: this is a harness on 2023–24 with a simulated field drawn from real ownership; it scores books on REAL points; the
@@ -112,8 +117,9 @@ DST cap 6, the overlap limit 4.
     exercised on a copy); only those were read.
 - **The first smoke (LAG, before any outcome):** 8 unit tests pass; 0 infeasible solves; the ownership arms banned 11.9
   players per book solve; OWN15 and CAP35_OWN15 the same book (every cap < 9 rows) → the design change in §2.
-- **Code:** nfl2 `production/s89-own-cap-20261009` @ `f7569c41` (branched from study 88's branch `63f6a2e4`):
+- **Code:** nfl2 `production/s89-own-cap-20261009` @ `4d0daa47` (`f7569c41` + the reader's W5 arming line; branched from study 88's branch `63f6a2e4`):
   - `experiments/s89_own_cap.py` `92b09345…` (pins s87 `85adf47b…`, s29 `07abafc3…`, l24 `ca8e0d03…`);
   - `scripts/s89_drive.py` `ab2ed796…`; `scripts/s89_census.py` `34ee3958…`;
-  - **`scripts/s89_report.py` (the reader) `138db399…`** (seed 20261134); `tests/test_s89_own_cap.py` `e7a48ab2…` (9 tests).
+  - **`scripts/s89_report.py` (the reader) `2aa22e70…`** (seed 20261134; + his W5 arming line at `4d0daa47`);
+    `tests/test_s89_own_cap.py` `b76b09e7…` (10 tests).
 - **The decomposition script** (§1): `reports/lab-handoffs/2026-10-09-selection-decomposition/selection_decomposition.py`.
