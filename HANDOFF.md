@@ -12,6 +12,31 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (14:45 CDT) — OPERATOR: test 2 GO LIVE (after the transfer caveat); the row rules merged, armed; FRIDAY_HEAD f5f96468
+
+- **Study 91 READ** (lab `a8024c8a`, READ_s91 `8672e057`) was reproduced byte-identically; the confirmatory census `48b71f9b`
+  is identical. His rule line: "GO LIVE in W5 (better on both draws)". TE1_LOW1 − package +4.1 (A +3.2, B +5.0; seats ×1.080).
+  The halves: LOW1 +2.8 PASS; TE1 +0.9, flat on its third read.
+- **The transfer caveat put to him** (the reviewer's): the gain is the low-ownership half, which barely binds on his real FP
+  book (0.1–0.2 per lineup), so live it acts mostly as "no TE in the flex" (flat in 85 / 88 / 91; −0.76 FP per row; 21 of
+  26 lineups change).
+- **His answers, verbatim:**
+  - the laptop's session (AskUserQuestion, "Paper only (Recommended)" / "Go live as my rule says"): **"Go live as my rule
+    says"**;
+  - the reviewer's session: "Go live as the rule says";
+  - the outside reviewer's session (relayed): "I still don't get this. +3.2 and +5 and 8% more big wins sounds like exactly
+    what we're shooting for. We are testing this against what actually happened in those 2 weeks, right? So for those 2
+    weeks I believe it is better. That is good enough for me". The outside reviewer corrected him: the two draws are the
+    same 36 real 2023–24 slates replayed with different simulated opponents, not two weeks.
+- **Merged into integration:** `e297bcd1`, the flag `e8c63263`; `f5f96468`, the wiring `58a328b6`. On the merge tree the 29
+  modules plus the policy inventory give 517 passed, 3 skipped.
+- **The arm** (`ROW_RULES="te1_low1"`, with MAIN_CAP 0.35 + OWN_CAP_DELTA 15) has **FRIDAY_HEAD = `f5f96468d24541de2a463245ba535fea0bf859ce`**;
+  the arm tests give 47 passed.
+- **Study 38 6q** (the reviewer): QA0 follows the live rule, and MIXT_QA0_NORR (the package without it) runs on paper. Its
+  smoke is running; it is needed before Sunday's snapshot or the week is invalid under 6l's default-deny.
+- **His new request** (relayed): "can we run that version against this season using real info?" The laptop runs a W1–4
+  money-gate-style replay: today's book / the package / package + TE1_LOW1 / entered, on real fields.
+
 ## 2026-10-09 (13:23 CDT) — OPERATOR (relayed): test 2 (one TE + one sub-3% player per lineup) today; live in W5 only if better on BOTH draws
 
 **His words** (in the outside reviewer's session, relayed verbatim): "for test 2 - I would like to test it today and if it
