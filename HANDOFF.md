@@ -12,6 +12,56 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (03:26 CDT) — laptop: the busy night CLOSED (73–82 all read, reproduced, recorded, merged); his sheet is final; the morning plan
+
+**Round 2 (the outside reviewer's second scan; each study gated by the laptop's outcome-blind real-book rate check before
+the freeze):**
+- **81** (Addendum 179): NOTE5K8 is flat (+0.5).
+  - The exploratory NOTE5K_ALL (no TE ≥ $5,000 on any row) read +4.7 [+1.0, +8.5], the night's strongest, but it is one
+    of about 35 comparisons. Paper arm only.
+  - On his real W4 book it changes 24 of 26 rows at −0.76 FP per row, twice the harness's −0.33
+    (`reports/2026-10-09-option-w4-checks/`; a dated note in Addendum 179).
+- **82** (Addendum 180): LOWQB4 is flat (+0.4; 2022 +3.0). Leave it.
+- Scan5 cleared nothing, so the night ends there. Banks 1707–1718 and their derived bases are scanned clean and unused.
+
+**His sheet, final:** `briefings/2026-week-05/2026-10-09-overnight-decision-sheet.md` (`48845e64`, briefings index
+row). It is sent to him this morning. Two decisions:
+1. 77 this week, nothing (77 in W6), or 73b; at most one.
+2. No-money paper tests: 75 (WR flex), 81-ALL (no $5k TE); W5, W6 or no for each. 79-ALL is a possible W6 third.
+
+**CORRECTION to the part-2 and part-3 entries:** "the arm guard refuses two construction levers" was wrong. Integration's
+`arm_week5_saturday.sh` has no one-change guard; it lived only on the unmerged `production/s73-wiring-20261008`. The
+sheet and Addendum 175 are corrected.
+
+**Production options (all UNMERGED, default off, reviewed by the laptop and the reviewer):**
+- **77 / C0:**
+  - the flag: `review/qb-alone-flag-20261008` @ `3a9327e1`;
+  - the wiring: `production/c0-wiring-20261009` @ `964c2979`. It covers UNION_MIX_QB_ALONE_ROWS, check_week_runtime, the
+    W5 arm's QB_ALONE_ROWS (only "3") and the one-new-lever guard (the default cheap block not counted).
+  - `SECOND_CHANGE_DECISION` (the plain HANDOFF commit recording his yes) is REQUIRED for any new lever on top of the
+    live cheap block.
+  - All 26 modules reading a changed file: 405 passed, 3 skipped, rc 0.
+  - The Friday A3 ON check: `~/.cache/laptop-agent/rehearsal/w5_qbalone_union_check.sh` (its logic passes on the W4 C0
+    run).
+- **79 / one-catcher:** `review/one-catcher-flag-20261009` @ `1e6247fa`. Green after a binding-fixture fix. Not a
+  candidate: a no-op on his W4 book.
+- **75 / flex WR:** `review/flex-wr-flag-20261008` @ `09e93be1` (paper only).
+
+**If he says yes to 77 (in order, all before FRIDAY_HEAD):**
+1. Write a plain HANDOFF entry quoting his yes; its sha is SECOND_CHANGE_DECISION.
+2. Merge the C0 flag, then the wiring.
+3. Re-run the 26 modules with rc.
+4. Set FRIDAY_HEAD in the arm and tell 84 (the s38-prod-pin move and the integrity gate pin 6l's `0930eb63`).
+5. 84's s38 6m: MIXT_QA0 follows C0. Otherwise W5's paper week is INVALID under 6l.
+6. Friday A3, then `w5_qbalone_union_check.sh <A3 dir>` must PASS.
+7. Saturday: arm with QB_ALONE_ROWS=3 and SECOND_CHANGE_DECISION=<sha>.
+
+**If he picks paper tests:** each is an s38 6m-style amendment by 84 (75 needs the flex flag merged before FRIDAY_HEAD;
+81-ALL needs a TE-ban parity path).
+
+**Also today:** the FP ownership pulls at 12:30 / 16:30, Friday's A3 with its ON runs, and FRIDAY_HEAD. Monday:
+off_top_four.py (merged) for row 72's line.
+
 ## 2026-10-09 (01:52 CDT) — laptop: the busy night, part 3 (78, 79, 80 read and merged; the queue done; 77 the one candidate that transfers)
 
 **Read, reproduced byte-identically by the laptop, merged into integration:**
