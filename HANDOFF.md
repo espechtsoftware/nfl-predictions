@@ -12,6 +12,25 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (16:02 CDT) — laptop: the Friday arm --check passes with the package + row rules; study 92 GO (running)
+
+- **The arm `--check`** (a scratch copy of `scripts/arm_week5_saturday.sh` with Saturday's TERM_ROWS=8 / TERM_SHA `5941678b…`;
+  the tracked arm untouched):
+  - step 0 OK: checkout clean, Rev6, class model `92cec733`, K 26, shape mixt, Neo4j not running;
+  - the term file is checked (294 of 565 players carry the bonus, cap 2);
+  - the dose line: QB cap 5 at K 26; overlap 4; **player cap 0.35; ownership cap 15; row rules te1_low1**; fill rr;
+  - "CHECK DONE (nothing armed): shape mixt, pin f69598b, 11 units", rc 0.
+- **The time guard:** the plain --check stops after 10:28 ("the 10:30 Saturday D12800 would be in the past"); it is a
+  Saturday-morning check. The Friday dry run used ARM_LATE=1 (11 units). **Saturday arms before 10:28 without ARM_LATE:**
+  13 units, the Saturday supply included.
+- **Saturday's arm-only commit:** TERM_ROWS=8 + TERM_SHA (and SHRINK_K=0.7 only if study 92 passes, with FRIDAY_HEAD moved
+  onto its merge).
+- **Study 92:** frozen 15:57 (prereg `b1373c92`); the laptop's ack + census re-run (PYTHONHASHSEED=0) identical, 7 tests
+  passed; S92 GO; the run is in progress (ETA about 16:45).
+- **The machine was idle about 10 minutes (15:47–15:57):** the laptop's 92 bank scan ran as a shell `&` job and no one was
+  notified when it finished; the reviewer's freeze waited on its tally. The lesson is in memory: scans run with
+  run_in_background.
+
 ## 2026-10-09 (15:43 CDT) — laptop: S2 FAILS its gate (paper only); S1 waits for study 92; study 90 merged; S1/S2 code ready
 
 - **Study 90** (reproduced byte-identically; records merged `12932014`, Addendum 189): +10 not better than +15; the armed
