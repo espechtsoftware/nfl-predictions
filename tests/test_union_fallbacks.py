@@ -80,3 +80,21 @@ def test_the_host_sources_the_fallback_before_the_pmo_block():
     assert i_src < i_call < i_pmo
     assert '[[ "${UNION_MAIN:-mean}" == "mix" ]] && UNION_ARGS+=(--mix-plan "$CONTESTS_JSON" --mix-layout "${ENTER_LAYOUT:-head}" --mix-portfolio "${UNION_MIX_PORTFOLIO:?UNION_MAIN=mix needs UNION_MIX_PORTFOLIO=mix|ws}" --mix-spares "${UNION_MIX_SPARES:-15}")' in host
     assert '( "${UNION_MAIN:-mean}" == "pmo_x50" || "${UNION_MAIN:-mean}" == "mix" ) && "${UNION_MAIN_OWN_TILT:-0}" != "0"' in host
+
+
+def test_a_house_fallback_of_his_package_drops_the_ownership_cap_and_restores_the_player_cap():
+    """His 10-09 package (HANDOFF 5380e0e7): the ownership cap's flags are MIX-only, and the flat 35% never runs alone, so a
+    house fallback of a package run drops them AND sets the player cap back to the package's fallback share, in place."""
+    args = ("--main mix --main-cap-share 0.35 --mix-fill rr --main-own-cap-delta 15 --main-own-cap-source /w/own_fp.csv "
+            "--main-own-cap-fallback-share 0.5 --main-own-cap-min-coverage 0.9 --main-dst-cap 0.25 --y")
+    script = f'source "{LIB}"; mix_to_house_args {args}; printf "%s|" "${{OUT_ARGS[@]}}"'
+    r = subprocess.run(["bash", "-c", script], capture_output=True, text=True, timeout=30)
+    assert r.stdout == "--main|pmo_x50|--main-cap-share|0.5|--main-dst-cap|0.25|--y|"
+    # without the package nothing about the player cap changes
+    script = f'source "{LIB}"; mix_to_house_args --main mix --main-cap-share 0.5 --y; printf "%s|" "${{OUT_ARGS[@]}}"'
+    r = subprocess.run(["bash", "-c", script], capture_output=True, text=True, timeout=30)
+    assert r.stdout == "--main|pmo_x50|--main-cap-share|0.5|--y|"
+    # a package run that named no --main-cap-share still gets the fallback share
+    script = f'source "{LIB}"; mix_to_house_args --main mix --main-own-cap-delta 15 --main-own-cap-source s --y; printf "%s|" "${{OUT_ARGS[@]}}"'
+    r = subprocess.run(["bash", "-c", script], capture_output=True, text=True, timeout=30)
+    assert r.stdout == "--main|pmo_x50|--y|--main-cap-share|0.5|"

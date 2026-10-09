@@ -240,6 +240,15 @@ def main():
     # study 35's per-QB cap is in ROWS calibrated at one K (the reviewer 10-06; the K-dependence lesson): it is armed only
     # with the K it was calibrated at, and only when that K is this week's book
     # the union overlap limit (the outside review 10-06: 5 instead of 7 read ahead on the W2-4 replay); default 7
+    # his 10-09 package (study 89, Addendum 186): the ownership cap is armed only as the package -- the player cap 0.35 WITH
+    # the ownership cap at +15 points, on the mix -- and the flat 35% never runs alone
+    _ocd = os.environ.get("UNION_MAIN_OWN_CAP_DELTA", "")
+    _mcap = os.environ.get("UNION_MAIN_CAP", "")
+    if _ocd not in ("", "0") and (_ocd != "15" or os.environ.get("UNION_MAIN") != "mix" or _mcap != "0.35"):
+        fail(f"UNION_MAIN_OWN_CAP_DELTA={_ocd!r} is his package only: 15 with UNION_MAIN=mix and UNION_MAIN_CAP=0.35 "
+             f"(got UNION_MAIN={os.environ.get('UNION_MAIN')!r}, UNION_MAIN_CAP={_mcap!r})")
+    if _mcap == "0.35" and _ocd in ("", "0"):
+        fail("UNION_MAIN_CAP=0.35 without the ownership cap: the flat 35% never runs alone (his rule; Addendum 186)")
     _fill = os.environ.get("UNION_MIX_FILL", "")
     if _fill and (_fill not in ("group", "value", "rr") or os.environ.get("UNION_MAIN") != "mix"):
         fail(f"UNION_MIX_FILL={_fill!r} must be group, value or rr, with UNION_MAIN=mix (got UNION_MAIN={os.environ.get('UNION_MAIN')!r})")

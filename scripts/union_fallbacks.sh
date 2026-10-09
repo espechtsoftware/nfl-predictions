@@ -13,17 +13,28 @@
 # --mix-cover-games / --mix-rs-rows, the live term block's --term-block-* (the cheap +2 trial), --winner-select (each with its
 # value) and the bare --priority-order. Each needs --main mix, so the house main REFUSED with any of them aboard and the
 # chain ended in UNION FAILED instead of C: the fallback now builds C without them (the house main never carried them).
+# 2026-10-09 (his package; the laptop): the ownership cap's flags are MIX-only too, and the flat 35% never runs alone (his
+# rule, Addendum 186), so a house fallback of a package run ALSO goes back to the package's fallback player cap (0.5:
+# today's book), set in place of the package's --main-cap-share 0.35 (one value, for study 38's parity).
 mix_to_house_args() {
-  OUT_ARGS=(); local skip=0 x i
+  OUT_ARGS=(); local skip=0 x i own_cap=0 fb=0.5 take_fb=0
   for x in "$@"; do
+    if (( take_fb )); then take_fb=0; fb="$x"; continue; fi
     if (( skip )); then skip=0; continue; fi
     case "$x" in
       --mix-plan|--mix-layout|--mix-portfolio|--mix-spares|--mix-fill|--mix-cell-quotas|--mix-cover-games|--mix-rs-rows) skip=1 ;;
       --term-block-rows|--term-block-source|--term-block-tilt|--term-block-cap-points|--term-block-min-coverage|--winner-select) skip=1 ;;
+      --main-own-cap-delta|--main-own-cap-source|--main-own-cap-min-coverage) skip=1; own_cap=1 ;;
+      --main-own-cap-fallback-share) take_fb=1; own_cap=1 ;;
       --priority-order) ;;
       *) OUT_ARGS+=("$x") ;;
     esac
   done
+  if (( own_cap )); then                                    # the player cap back to the package's fallback, in place
+    local placed=0
+    for i in "${!OUT_ARGS[@]}"; do [[ "${OUT_ARGS[$i]}" == "--main-cap-share" ]] && { OUT_ARGS[$((i+1))]="$fb"; placed=1; }; done
+    (( placed )) || OUT_ARGS+=(--main-cap-share "$fb")
+  fi
   for i in "${!OUT_ARGS[@]}"; do
     if [[ "${OUT_ARGS[$i]}" == "--main" && "${OUT_ARGS[$((i+1))]:-}" == "mix" ]]; then OUT_ARGS[$((i+1))]=pmo_x50; fi
   done

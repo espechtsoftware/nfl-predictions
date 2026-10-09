@@ -360,4 +360,27 @@ def test_the_player_cap_rides_into_the_units_and_the_week5_arm_refuses_it_unset(
     arm = (root / "arm_week5_saturday.sh").read_text()
     import re
     assert re.search(r'\nMAIN_CAP="(0\.35|0\.5)" ', arm) and "UNION_MAIN_CAP=$MAIN_CAP" in arm
-    assert '[[ "$MAIN_CAP" == 0.35 || "$MAIN_CAP" == 0.5 ]] || stop "MAIN_CAP is not set' in arm
+    assert '|| stop "MAIN_CAP=$MAIN_CAP with OWN_CAP_DELTA=$OWN_CAP_DELTA: (0.5, 0) = the book as before' in arm   # 10-09: paired with the ownership cap
+
+
+def test_his_package_rides_into_the_units_and_the_week5_arm_pairs_the_two_caps():
+    """His 10-09 package (HANDOFF 5380e0e7): UNION_MAIN_OWN_CAP_DELTA reaches the build units; the host captures FP's
+    ownership for it even at tilt 0, passes the three flags, and on no file builds the book as before (0.5, in place) with an
+    ALERT; the builder's own refusal line becomes the same ALERT; the arm allows only (0.5, 0) or (0.35, 15) with the mix."""
+    from pathlib import Path
+    r = _run(UNION_MAIN_OWN_CAP_DELTA="15")
+    assert "UNION_MAIN_OWN_CAP_DELTA=15" in _unit_line(r.stdout, "nfl-week4-t70-build")
+    root = Path(__file__).resolve().parents[1] / "scripts"
+    host = (root / "sunday_build_host.sh").read_text()
+    block = host[host.index("  OWN_CAP_SRC=\"\"; OWN_CAP_ON=0"):host.index("  # Study 48b's winner-likeness order")]
+    assert 'if [[ "${UNION_MAIN:-mean}" == "mix" && "${UNION_MAIN_OWN_CAP_DELTA:-0}" != "0" ]]; then' in block
+    assert "nfl_dfs.ops.fantasy_points_ownership collect" in block and "scripts/ownership_fp.py" in block
+    assert ('UNION_ARGS+=(--main-own-cap-delta "$UNION_MAIN_OWN_CAP_DELTA" --main-own-cap-source "$OWN_CAP_SRC"' in block
+            and '--main-own-cap-fallback-share "${UNION_MAIN_OWN_CAP_FALLBACK_SHARE:-0.5}")' in block)
+    assert 'set_cap_share "${UNION_MAIN_OWN_CAP_FALLBACK_SHARE:-0.5}"' in block and 'own_cap_alert "${OWN_CAP_WHY:-no FP ownership file}"' in block
+    assert "grep -q 'OWN CAP NOT APPLIED' \"$OUT/union-$RUN_TAG.txt\"" in host
+    assert 'cp "$OUT/ALERT-own-cap-not-applied-$RUN_TAG.txt" "$UNION_DIR/own_cap_not_applied.txt"' in host
+    arm = (root / "arm_week5_saturday.sh").read_text()
+    assert "\nOWN_CAP_DELTA=0 " in arm and "UNION_MAIN_OWN_CAP_DELTA=$OWN_CAP_DELTA" in arm
+    assert ('[[ ( "$MAIN_CAP" == 0.5 && "$OWN_CAP_DELTA" == 0 ) || ( "$MAIN_CAP" == 0.35 && "$OWN_CAP_DELTA" == 15 && "$SHAPE" == mixt ) ]]'
+            in arm)
