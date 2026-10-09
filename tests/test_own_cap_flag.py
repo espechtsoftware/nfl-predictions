@@ -272,7 +272,7 @@ def test_refusals(tmp_path, bad, why):
 
 def test_the_cli_wiring_and_the_fallback_share():
     src = (ROOT / "scripts" / "union_reselect.py").read_text()
-    assert src.count("own_cap=own_cap)") == 2                           # the plain mix build and the ownership-term build
+    assert src.count("own_cap=own_cap") == 2                            # the plain mix build and the ownership-term build
     assert 'own_cap_meta["fallback_cap_share"] = cap_share_used' in src and "!!! OWN CAP NOT APPLIED" in src
     assert '"exposure_cap_share": cap_share_used' in src
     assert '--main-own-cap-delta is defined for --main mix' in src
