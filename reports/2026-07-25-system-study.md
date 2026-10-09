@@ -8745,3 +8745,101 @@ secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; th
   - study 77's QB-alone rows (Addendum 175) first: both read seasons clearly positive, expected seats ×1.04;
   - this study a close second: the same size of lean, flatter in 2023, better on 2022, at no cost.
   - Neither is a shown gain, and the two together are untested.
+
+## Addendum 178 (2026-10-09): study 80 (the underdog's QB in a top-4 game on the first 8 book rows, the outside reviewer's test, in the harness): NO DIFFERENCE on the read (−0.4), guard 1 fails, seats ×0.83, CONTRADICTED on 2022 (−4.3): NOT ENTERED; the favourite's side is worse (−3.8)
+
+**Setup.**
+- **The question.** The operator, 10-08 night: "please look at the patterns of the winners over the past few weeks and
+  consider a variety of different tests we can do throughout the night". The outside reviewer measured the lineup's QB in
+  the 2026 W1–4 Millionaires:
+  - the UNDERDOG's QB in a top-4 game: 32% of the top 1% (W1 37, W2 6, W3 60, W4 25), 22% of the field, 23% of his
+    W5-style FP book;
+  - the favourite's QB in a top-4 game: 32% / 28% / 42%.
+- **What was tested before:** studies 73 and 74 forced the FAVOURITE side's QB with his catchers; both read NO DIFFERENCE,
+  leaning negative. They are not a clean mirror, because they also forced the stack. The clean contrast is FAVQB8 inside
+  this study.
+- **The arms.** Built on study 48's harness (LIVE = 48d's 41 rows with the cheap +2 block; Rev6 `ac10ddf6`; study 73
+  sha-pinned, its frozen `game_order`):
+  - LIVE_CB (the reference).
+  - DOGQB8, the single decision: the first 8 book solves in build order (any cell) ban every pool QB outside the
+    underdog sides of the top-4 games (the lower median implied team total; a tie is neither side). The cells' stacking
+    rules are unchanged. The rows are dealt at book positions 0, 2, 3, 5, 6, 7, 9, 10, all big seats.
+  - Exploratory FAVQB8: the same rule on the favourite side.
+- **Preregistration:** `reports/2026-10-08-prereg-study80-underdog-qb.md` (the outside reviewer's DRAFT `25b843f4`,
+  amended `538dd8a9`; FROZEN `6f75bfd5`, 10-09 00:33 CDT, before any scored bank).
+- **Panel:** banks 1683–1688, B 20,000, seed 20261125.
+- **Read:** the reader `815d8f68`; READ `e6e9d00a` (lab `c988feb7`). The confirmatory census (`0a27032a`, with the raw
+  files' shas) was committed before the READ.
+- **Reproduced byte-identically by the laptop** at `c988feb7`: the raw files 1683–1688 pass `sha256sum -c` against
+  `RAW_s80_run.sha256`; the READ is `e6e9d00a` and the confirmatory census `d0463b72` (cmp-identical).
+- **The prior, stated first:** NO DIFFERENCE.
+- **Census** (the binding census on bank 1406, 53 slate-banks):
+  - DOGQB8: 8 of 8 ruled rows on every slate-bank, 0 infeasible; every ruled QB is his team's starter.
+  - Vacuity 2.06 of 8, so the rule changes about 6.
+  - Underdog / favourite top-4 QB rows: 6.32 / 10.53 → 9.51 / 9.02 of 26. The base lean (24% / 40%) matches his FP book's
+    23% / 42%, so the gap transfers.
+  - Projection cost −0.20 per row.
+  - Rows shared with LIVE_CB 2.4; dealt identical 0.000.
+  - The confirmatory census on the scored banks (318 slate-banks) agrees: 8 of 8 ruled, 0 infeasible, all big-read,
+    starters 1.000; vacuity 1.91; underdog top-4 QB rows 6.12 → 9.44; cost −0.20; dealt identical 0.000.
+
+**Reader output (verbatim):**
+```
+STUDY 80 READER  sha256 815d8f68324bfc1a3550b77e59b9fb35ae0113d36913ac41fede88fda52d6131
+DIRECTION: P(>= 1 big seat) per slate (the mean over its banks); every difference is ARM - LIVE_CB; POSITIVE favours the arm.
+slates 36 (the 2023-24 read) + 17 (the 2022 go / no-go)  banks [1683, 1684, 1685, 1686, 1687, 1688]  B 20000  seed 20261125  one decision arm against LIVE_CB on the CALIBRATED field (v2), each two-sided 0.95; guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only; 2022: the point estimate (two-sided 0.95 interval); study 51's trial rule per arm
+arms (definitions, the QB-side rule's constants, study 73's sha (twice, in the slots of study 48's and study 53's), live settings, QB cap, objective): [["LIVE_CB", "DOGQB8", "FAVQB8"], {"block": {"cap": 2.0, "min_coverage": 0.5, "n_term": 8, "tilt": 0.2}, "game_order": "s73_topg_qb1.game_order", "n_games": 4, "n_rows": 8, "rows": "the first n_rows book solves in build order (any cell); infeasible -> plain, recorded", "sides": {"DOGQB8": "dog", "FAVQB8": "fav"}}, "3f76c6295d8666cf4f256a103c7ba3fe428630d6149c7a6009648487900d806d", "3f76c6295d8666cf4f256a103c7ba3fe428630d6149c7a6009648487900d806d", {"fill": "rr", "max_shared": 4}, 5, "player_mean (+ the cheap block term)"]
+
+== DOGQB8 vs LIVE_CB  [DECISION; the calibrated field; the 2023-24 read]
+  PRIMARY P(>= 1 big seat) per slate -0.00447  [-0.04499, +0.03483] (two-sided 0.95)  seasons 2023 +0.00572, 2024 -0.01467
+  GUARD 1 mean entry pct -0.00966  one-sided lower -0.01616  (must exceed -0.015)
+  GUARD 2 expected big seats 0.49429 vs 0.59561  ratio 0.830  (must be >= 0.80)
+  DOGQB8 dealt identical to LIVE_CB: 0.000 of slate-banks
+  ->  NO DIFFERENCE
+  GO / NO-GO 2022: -0.04341  [-0.10721, +0.01790] (two-sided 0.95)  ->  CONTRADICTED (the 2022 point estimate is < 0)
+  TRIAL: NOT ENTERED: CONTRADICTED on 2022
+
+== TRIAL SUMMARY: no arm is enterable
+
+== EXPLORATORY (never decision-bearing; two-sided 0.95)
+  FAVQB8 - LIVE_CB (v2, 2023-24): -0.03790  [-0.08223, +0.00154]  seasons 2023 -0.04959, 2024 -0.02622
+  FAVQB8 - LIVE_CB (v2, 2022): -0.01768  [-0.07333, +0.03073]  seasons 2022 -0.01768
+  DOGQB8 - LIVE_CB (the l02 field, 2023-24): -0.00145  [-0.03990, +0.03518]  seasons 2023 +0.00044, 2024 -0.00334
+  DOGQB8 - LIVE_CB (the l02 field, 2022): -0.04218  [-0.10322, +0.01798]  seasons 2022 -0.04218
+  FAVQB8 - LIVE_CB (the l02 field, 2023-24): -0.03754  [-0.08298, +0.00294]  seasons 2023 -0.05036, 2024 -0.02472
+  FAVQB8 - LIVE_CB (the l02 field, 2022): -0.01736  [-0.07405, +0.03109]  seasons 2022 -0.01736
+  DOGQB8 ruled solves built plain (infeasible): 0 of 2544 over 318 slate-banks
+  FAVQB8 ruled solves built plain (infeasible): 0 of 2544 over 318 slate-banks
+
+secondaries (slate means; v2 = the calibrated field, l02 = the earlier field; the book's rows are pre-lock facts):
+  [2023-24]
+  LIVE_CB      v2: P(>=1 big) 0.35019  expected big seats 0.59561  P(>=2) 0.15412  entry pct 0.51472  |  l02: P(>=1 big) 0.37661
+               book: projection per row 127.69  salary 49964  QB + 2 rows 12.0 of 26  underdog top-4 QB rows 6.8  favourite top-4 QB rows 9.7  distinct QBs 8.5
+  DOGQB8       v2: P(>=1 big) 0.34571  expected big seats 0.49429  P(>=2) 0.11565  entry pct 0.50506  |  l02: P(>=1 big) 0.37516
+               book: projection per row 127.52  salary 49960  QB + 2 rows 12.0 of 26  underdog top-4 QB rows 9.7  favourite top-4 QB rows 8.8  distinct QBs 8.7
+  FAVQB8       v2: P(>=1 big) 0.31228  expected big seats 0.50336  P(>=2) 0.12112  entry pct 0.51264  |  l02: P(>=1 big) 0.33907
+               book: projection per row 127.60  salary 49963  QB + 2 rows 12.0 of 26  underdog top-4 QB rows 6.3  favourite top-4 QB rows 11.4  distinct QBs 8.7
+  [2022]
+  LIVE_CB      v2: P(>=1 big) 0.25478  expected big seats 0.36432  P(>=2) 0.08945  entry pct 0.45752  |  l02: P(>=1 big) 0.27247
+               book: projection per row 131.82  salary 49963  QB + 2 rows 12.0 of 26  underdog top-4 QB rows 4.6  favourite top-4 QB rows 12.0  distinct QBs 7.9
+  DOGQB8       v2: P(>=1 big) 0.21137  expected big seats 0.26392  P(>=2) 0.04485  entry pct 0.45139  |  l02: P(>=1 big) 0.23029
+               book: projection per row 131.54  salary 49960  QB + 2 rows 12.0 of 26  underdog top-4 QB rows 8.8  favourite top-4 QB rows 10.2  distinct QBs 8.2
+  FAVQB8       v2: P(>=1 big) 0.23710  expected big seats 0.33182  P(>=2) 0.07712  entry pct 0.46500  |  l02: P(>=1 big) 0.25511
+               book: projection per row 131.74  salary 49960  QB + 2 rows 12.0 of 26  underdog top-4 QB rows 3.9  favourite top-4 QB rows 13.3  distinct QBs 8.2
+```
+
+**Reading.**
+- **DOGQB8 does not help:**
+  - −0.4 points [−4.5, +3.5] on the read (2023 +0.6, 2024 −1.5);
+  - expected big seats ×0.83 (0.494 against 0.596); P(≥ 2) 0.116 against 0.154;
+  - guard 1 FAILS (−0.0162).
+- **2022: −4.3 [−10.7, +1.8].** Study 51's rule therefore says CONTRADICTED: NOT ENTERED. The earlier field (l02) agrees:
+  −0.1 on the read, −4.2 on 2022.
+- **The exploratory FAVQB8**, the clean contrast on the favourite's side, is worse: −3.8 (2023 −5.0, 2024 −2.6; 2022
+  −1.8).
+- **Both directions of forcing the QB's side cost the book.** The book re-drew almost entirely (2.1 of 26 rows shared
+  with LIVE_CB), lost 0.20 projected points per row, and had fewer multi-seat slates. The top 1%'s underdog-QB habit (32% against the field's 22%, with a large
+  week-to-week spread) does not transfer as a rule here.
+- **With studies 73 / 74** (the favourite's side with its stack): no QB-side forcing tested this week improved the live
+  book.
+- **Recommendation:** off. Leave the book's QB choice to its objective.
