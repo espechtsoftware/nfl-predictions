@@ -58,7 +58,7 @@ reviewer and updated as each study is read.
 - **Versions to consider later:** alone, re-read on a fresh draw; 6 lineups (+1.8 on its first read).
 - **Re-read on your armed Week-5 version (study 93): −0.2** (opponent set A +1.4, set B −1.8) — flat. Paper only.
 
-### 6. One receiver per team, all of the QB + 1 lineups (study 79) — *LIVE in Week 5 if every check passes (your decision)*
+### 6. One receiver per team, all of the QB + 1 lineups (study 79) — *ARMED for Week 5 (your decision; every check passed)*
 - **8-lineup version +2.0** (2023 +0.2, 2024 +3.8), 2022 +1.3 — but it changes nothing in your real book.
 - **The every-lineup version +2.1**, 2022 +0.8 (a side reading). **Real book:** removes 6 of your 7 same-team receiver pairs
   away from the QB; 8 lineups change; no projection cost (+0.03).
@@ -70,6 +70,9 @@ reviewer and updated as each study is read.
 - **Your decision (10-09): "Live W5 if built in time".** Built and tested tonight (production flag `--mix-one-catcher-all`; it
   matches the tested rule line for line, including the cheap-block lineups). It goes live at Saturday's arming only if the
   Week-4 check and the paper-arm check pass; your armed book without it is scored on paper beside it. Otherwise it goes to paper.
+- **Both checks passed on 10-09:** on your real Week-4 book the rule removed all 5 same-team receiver pairs away from the QB
+  (19 of 26 lineups change; −0.06 projected points per lineup), and the paper arms follow it, with the book without it
+  scored beside it. It is armed for Saturday.
 
 ### 7. At least one star ($8,000+) in each of the first 8 lineups (study 78) — *positive in every season, but barely tested*
 - **+2.1** (2023 +1.5, 2024 +2.7), 2022 +1.0 — a side reading; the test model's book already had a star in most of those
@@ -104,6 +107,16 @@ reviewer and updated as each study is read.
 - +0.8 (A +0.9, B +0.6), 3% fewer expected big wins; costs 0.9 more projected points per lineup on your real book.
 - A second reading of the package against your old 50% book: +0.3 (the first read was +1.2) — roughly even in the test model.
 
+### 11. The QB's own running back as a stack mate, 4 lineups (study 94) — *passed your rule; a Week-6 candidate*
+- **Study 94 (36 past slates, two random opponent sets), on your armed version:** in the first 4 QB-plus-one lineups, the QB,
+  one of his receivers and his own running back. **+2.0** (set A +1.7, set B +2.4); about 3% more expected big wins. It passed
+  your "better on both draws" rule. Under no true effect a rule passes about one time in four to one in three, and two of the
+  five leads read tonight passed (this and one receiver per team), which is about what chance gives.
+- **Where the gain came from:** all from the 2023 slates (+4.4); 2024 was −0.4.
+- **Real book (Week 4):** 3 of the first 4 QB-plus-one lineups change.
+- **Not read: on top of one receiver per team.** That rule is armed for Week 5, so this one needs its own read on top of it
+  before Week 6. Your decision on it is open (Week-5 paper or later); there is no production switch for it yet.
+
 ## Tested and not promising (closed unless you say otherwise)
 - Forced top stacks: the opponent's top receiver as the bring-back (71, 71b), QB + top pass catcher in the top games (73),
   the full game stack (74), two bring-backs (76) — each at or below your book on 2023–24.
@@ -129,6 +142,10 @@ reviewer and updated as each study is read.
   **−3.1** against the live book (2022 +4.4) — about 3 points below, as on the first read. **No QB priced $7,000 or more, on top
   of it: −1.7 more** (2022 −3.3), 19% fewer expected big wins. A TE allowed in the flex: +0.2 (no change). Nothing for Week 5.
 
+- **A defense with its own team's running back, 8 lineups (study 94): −1.0** (both random opponent sets below: −0.1, −1.9);
+  3% fewer expected big wins. And in real contests it would do worse: the field already pairs a back with his own defense more
+  than any other pair, which the test model's opponents do not.
+
 - **Your 10-09 evening question — correlations that could give an edge (three quick screens on your real Weeks 1–4; the plan
   was written down before any result was read):**
   - *Defense strength normalized like DVOA:* already in our model (each defense's points allowed to a position, adjusted for
@@ -144,9 +161,6 @@ reviewer and updated as each study is read.
     right way; it is not a new lever on top of them.
 
 ## Still running
-- **Study 94 (your "let's try each", item 5; running tonight):** on your armed version, (a) an RB as a stack mate — 4 lineups of
-  the QB + one receiver + his own RB (the 2026 Week-2 Millionaire's winning shape), and (b) a defense with its own team's RB in
-  8 lineups. Week-6 candidates only. Caution for (b): in real contests the field already pairs an RB with his own defense more
-  than any other pair, and the test model's opponents do not, so a pass for (b) would look better here than it would live.
+- Nothing tonight.
 
 *Updated as each study is read.*
