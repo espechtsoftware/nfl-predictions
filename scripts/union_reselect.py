@@ -512,9 +512,14 @@ def own_cap_rows(source: Path, t70: pd.DataFrame, exclude: set[str], delta_pts: 
     keys = [c for c in ("id", "dk_player_id") if c in own.columns]
     if "fp_own_raw" not in own.columns or not keys:
         refuse(f"the ownership file {source} needs fp_own_raw and id / dk_player_id (has {list(own.columns)})")
-    val = pd.to_numeric(own.fp_own_raw, errors="coerce")
-    if len(own) == 0 or not np.all(np.isfinite(val)):
-        refuse(f"the ownership file {source} holds {int((~np.isfinite(val)).sum())} fp_own_raw values that are not numbers (of {len(own)})")
+    blank = own.fp_own_raw.isna() | (own.fp_own_raw.astype(str).str.strip() == "")    # ownership_fp.py's lag-filled rows:
+    val = pd.to_numeric(own.fp_own_raw, errors="coerce")                              # not FP's view -> the player is unnamed
+    bad = ~blank & ~np.isfinite(val)
+    if len(own) == 0 or bad.any():
+        refuse(f"the ownership file {source} holds {int(bad.sum())} fp_own_raw values that are not numbers (of {len(own)})")
+    own, val = own[~blank], val[~blank]
+    if len(own) == 0:
+        refuse(f"the ownership file {source} holds no fp_own_raw value (every row is filled from elsewhere)")
     if float(val.max()) <= 1.0:
         refuse(f"the ownership file {source} tops out at fp_own_raw {float(val.max()):.3f}: fractions, not percentages")
     val = val.clip(lower=0.0)
@@ -553,7 +558,7 @@ def own_cap_rows(source: Path, t70: pd.DataFrame, exclude: set[str], delta_pts: 
     caps = {i: int(math.floor(k * (float(raw.get(i, 0.0) * factor) / 100.0 + delta))) for i in skill_ids}
     pool_caps = [caps[i] for i in skill_ids if i not in exclude]
     meta = {"source": str(source), "source_sha256": sha256_file(Path(source)), "column": "fp_own_raw", "delta_pts": delta_pts,
-            "k": k, "skill_sum_raw": round(total, 3), "rescale_to": OWN_CAP_SKILL_SUM, "factor": round(factor, 6),
+            "k": k, "rows_without_fp_own_raw": int(blank.sum()), "skill_sum_raw": round(total, 3), "rescale_to": OWN_CAP_SKILL_SUM, "factor": round(factor, 6),
             "matched_skill_players": len(raw), "skill_players": len(skill_ids),
             "unnamed_skill_players_at_0": sum(1 for i in skill_ids if i not in raw), "coverage_projected_5": round(coverage, 4),
             "min_coverage": min_coverage, "cap_rows_hist_pool": dict(sorted(Counter(pool_caps).items())),

@@ -276,3 +276,20 @@ def test_the_cli_wiring_and_the_fallback_share():
     assert 'own_cap_meta["fallback_cap_share"] = cap_share_used' in src and "!!! OWN CAP NOT APPLIED" in src
     assert '"exposure_cap_share": cap_share_used' in src
     assert '--main-own-cap-delta is defined for --main mix' in src
+
+
+def test_lag_filled_rows_count_as_unnamed_and_junk_is_refused(tmp_path):
+    """ownership_fp.py writes fp_own_raw empty for the players FP does not price (filled_from lag): those players are
+    unnamed (0% -> floor(k x delta) rows, the lab's form), never a refusal; a non-number that is not empty still refuses."""
+    fr = frame()
+    p = fp_file(tmp_path, fr)
+    d = pd.read_csv(p, dtype=str)
+    d.loc[d.id.isin(["p40", "p41"]), "fp_own_raw"] = None
+    d.loc[d.id.isin(["p40", "p41"]), "filled_from"] = "lag"
+    d.to_csv(p, index=False)
+    caps, meta = ur.own_cap_rows(p, fr, set(), 15.0, 26, 0.9)
+    assert caps["p40"] == caps["p41"] == 3 and meta["rows_without_fp_own_raw"] == 2 and meta["unnamed_skill_players_at_0"] == 3
+    d.loc[d.id == "p42", "fp_own_raw"] = "abc"                                # ("n/a" reads as empty, like pandas' other NA strings)
+    d.to_csv(p, index=False)
+    with pytest.raises(SystemExit, match="OWN CAP REFUSED: .*not numbers"):
+        ur.own_cap_rows(p, fr, set(), 15.0, 26, 0.9)
