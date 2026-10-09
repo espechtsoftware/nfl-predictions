@@ -285,7 +285,7 @@ def test_the_union_checks_and_prints_through_the_one_reader():
 
 
 # ---------------------------------------------------------------- parity with the harness: 84's OWN code
-# nfl2 experiments/s73_topg_qb1.py @ b402cdd (production/s73-topg-qb1-20261008): game_order, game_pairs and top_game_qb1 are
+# nfl2 experiments/s73_topg_qb1.py @ b402cdd = the FROZEN ffb5bd0 for these three (prereg 5488bd5e): game_order, game_pairs and top_game_qb1 are
 # pasted below BYTE FOR BYTE (test_the_vendored_s73_text_is_the_labs pins each function's text; 84: "pin the function
 # texts, not the file" -- the frozen module adds an arm, these three stay byte-identical). They run on the lab's own
 # term_book (study 71's sha-pinned copy, T71.term_book) through T71's stand-ins and the shared outcome oracle. A difference
