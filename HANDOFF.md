@@ -14,11 +14,12 @@
 # Project handoff
 ## 2026-10-09 (09:35 CDT) — OPERATOR (relayed): variants of study 87's book "perhaps with a slightly cheaper QB" (study 88); and the calibration check ("I do want to do 3")
 
-**His words** (in the outside reviewer's session, during study 87's run, before its read; relayed to the laptop as quoted in
-study 88's prereg, `review/s88-prereg-20261009` @ `2dd4072b`, which elides one passage with "…"): "My suspicion is we are going
-to find that the last test we set up … is going to outperform everything else. Premature to say, but that looks more like the
-way I believe winners are structured. Please consider other options along those lines - perhaps with a slightly cheaper QB -
-that you think are good to test based on what you see in historic results." The laptop has asked for the elided words.
+**His words** (in the outside reviewer's session, during study 87's run, before its read; relayed to the laptop verbatim, his
+typos kept): "My suspicion is we are going to find that the last test we set up - with the QB from on of the top 4 point total
+games, a lower priced tight end, a cheaper defense, at least 1 wr <=4500, top receiver from same team as QB and WR or RB in flex is
+going to outperform everything else. Premature to say, but that looks more like the way I believe winners are structured. Please
+consider other options along those lines - perhaps with a slightly cheaper QB - that you think are good to test based on what
+you see in historic results" (88's prereg `2dd4072b` had elided the middle with "…"; the outside reviewer sent the full text).
 
 - **Study 88** (the outside reviewer's design, committed before 87's READ, lab `49db37c6`). The arms are LIVE_CB (capped),
   then uncapped NOCAP, BOOK87 (87's book on a fresh bank set: the forward rule's second read), CHEAPQB (+ QBs ≥ $7,000
