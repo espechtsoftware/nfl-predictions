@@ -1,4 +1,4 @@
-# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06, 10-07, 10-08 and 10-09, amendments 1, 1b, 2, 3, 4, 5, 6, 6b, 6c, 6d, 6e, 6f, 6i, 6j, 6k, 6l and 6n before Week 5's lock; repair 6g and the big-win rule 6h before its first score)
+# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06, 10-07, 10-08 and 10-09, amendments 1, 1b, 2, 3, 4, 5, 6, 6b, 6c, 6d, 6e, 6f, 6i, 6j, 6k, 6l, 6n and 6n's follow-up before Week 5's lock; repair 6g and the big-win rule 6h before its first score)
 
 **Status: FROZEN 2026-10-06** by the reviewer, BEFORE any week of the decision arm (MIXT_RS0) or of the exploratory arms
 QBB0 / NQC0 / QAL / RBC0 was read on any slate. Disclosed: before the freeze, the reference MIXT_QA0 was scored on
@@ -819,6 +819,44 @@ score. Nothing here enters a contest: the money path, its checkout and its files
     2. the laptop's ack (shas, tests, the smoke);
     3. the live arming with `UNION_MAIN_CAP=0.35` (his decision);
     4. the integrity gate on the live snapshot.
+- **Amendment 6n, follow-up (2026-10-09, before Week 5's lock; no Week-5 outcome exists): the 50% book on paper.**
+  - **Why.** The laptop's check of 6n: under a live 0.35 every paper arm moves to 0.35, so nothing measured the 50% book
+    that his trial keeps "on paper" (HANDOFF `a391f2e5`: ARM 0.35 "with the 50% book scored on paper beside it").
+  - **What changes.** One exploratory arm, **MIXT_QA0_CAP50**:
+    - his live construction at the FIXED player cap 0.5 (13 of 26 rows);
+    - it follows every other live setting as MIXT_QA0 does (`FOLLOW_QA0`: overlap limit, fill, regulars' block, cell
+      quotas, the live term block);
+    - read against MIXT_QA0 (`REF`).
+    - It is built only when the live cap is not 0.5. Otherwise it is MIXT_QA0's book and is recorded in `arms_missing`
+      ("the live player cap is 0.5: the same book as MIXT_QA0").
+    - The arm gets its own caps (`arm_caps`; the DST cap unchanged). Every other arm's `arm_caps` is the shared caps, so
+      no other book moves. Each arm's record carries `player_cap_rows`.
+    - The scorer records `build.main_cap_share`. The reader's descriptive line adds "QA0 at the 50% player cap - QA0 at
+      the live {cap}" with both books' expected big seats. A test runs that line on synthetic scores (no outcome).
+    - Descriptive only, never decision-bearing. The decision pair (MIXT_RS0 against MIXT_QA0) is unchanged.
+  - **The smoke** (dry run on Week 4's frozen copies with 6n's inputs; `~/private/paper-corun/smoke-w4-amend6n2/`, script
+    `run.sh` `5ecf2ba9`, log `55b7d303`; lab `dc6df978`):
+    - 34 tests pass (rc 0); the cap35 union args are 6n's file byte for byte.
+    - **pin** (0.5): the 19 built arms are identical to 6n's pin build (rows and ranks); mismatches none; MIXT_QA0_CAP50
+      recorded missing ("the live player cap is 0.5: the same book as MIXT_QA0").
+    - **cap35** (0.35): the 19 other arms are identical to 6n's cap35 build; mismatches none. **MIXT_QA0_CAP50 is identical,
+      rows and ranks, to 6n's pin MIXT_QA0** (the same union arguments but the cap): it is the 50% book exactly. Its most-used
+      player sits at 13 rows (MIXT_QA0's at 9).
+    - **bad04** (0.4): exactly the one mismatch, as in 6n; MIXT_QA0_CAP50 not built (the paper share falls back to 0.5).
+  - **Code:** lab `dc6df978` (`7ca9bb38` the arm, then `dc6df978` the reader test; on 6n's `28bf0eba`):
+    - `experiments/s38_paper_corun.py` sha256 `de77764112f9beed838f8e73350680df945d519f606a2be69efedb21d6244409`;
+    - `scripts/s38_score.py` `ee0ca6b9c6134149d4b178cbca72a5b9bd2ffbb133202e11c10caea12aba1e96`;
+    - `scripts/s38_report.py` `9942d38eab1ba706285b5a58bc1ca093b959b337ee659f89bca8efb6a4e395aa`;
+    - `tests/test_s38_paper_corun.py` `023b4eec736314a5b4f0e04e4004fd49dd2a8eb5b01c7976c962f03e18a4c107` (34 tests).
+    - The build and plan files are unchanged.
+  - **The integrity gate** pins this module sha in place of 6n's `5e430683…`, on the live snapshot (Saturday's arming or
+    Sunday's T-70).
+  - **Order:**
+    1. this follow-up;
+    2. the laptop's ack (shas, tests, the smoke);
+    3. the integrity gate on the live snapshot.
+  - **Week 5 (10-09, after study 89's READ):** his rule kept the live cap at 0.5 (Addendum 186), so MIXT_QA0_CAP50 is not
+    built in Week 5 and every other book is 6n's. The follow-up is kept for any week whose live cap is 0.35.
 
 ## 1. Why
 - **The operator (10-06), on the proposal:** "yes, please try it, I want to exhaust all reasonable options."
