@@ -1,9 +1,14 @@
-# Preregistration: study 87, his whole book with a top-4-game QB stacked with his top receiver, plus the price rules (TE ≤ $5,000, DST ≤ $3,000, at least one WR ≤ $4,500, no TE in the flex), in the harness (DRAFT 2026-10-09)
+# Preregistration: study 87, his whole book with a top-4-game QB stacked with his top receiver, plus the price rules (TE ≤ $5,000, DST ≤ $3,000, at least one WR ≤ $4,500, no TE in the flex), in the harness (FROZEN 2026-10-09)
 
-**Status: DRAFT 2026-10-09 (07:08 CDT)** by the outside reviewer — **THE DESIGN IS COMMITTED BEFORE STUDIES 85'S AND 86'S READS**
-(the same slates). The code and its shas follow; the reviewer reviews, runs the binding census and FREEZES; the laptop acks.
-- **Banks and seed:** the reviewer assigns them (proposed 1731–1736, seed 20261132; the laptop scans them and the derived bases
-  1781–1786 / 2431–2436 first).
+**Status: FROZEN 2026-10-09 (08:56 CDT)** by the reviewer, after the outside reviewer's DRAFT.
+- THE DESIGN (`5342f218`, 07:09, and his no-caps amendment) was committed BEFORE studies 85's and 86's READs (the same
+  slates). The module, reader and tests (nfl2 `20031fb6`) were on origin before both READs.
+- `01869883` changed only the census's printed title (one line, verified by diff).
+- Then the smoke and the binding census (§6), before any scored bank. The text changed at the freeze in §6 only. The laptop
+  acks.
+- **Banks 1731–1736, seed 20261132** (the reviewer's). The laptop's scan was clean apart from one numeric note: 1733 was study
+  80's derived SIMS base (1683 + 50). This harness seeds only from bank + 50 and bank + 700, so 87 draws sims from 1781–1786
+  and fields from 2431–2436; no draw is shared.
 - **Target:** after studies 85 and 86.
 
 **Units:** probabilities, counts and rates only. Dollars stay in BigQuery and private files.
@@ -105,7 +110,25 @@ the cheap +2 block, on Rev6 (`plan-week5-rev6-s24.json` `ac10ddf6…`).
     0 / 11.3; QB + TE rows 15.0 → 3.7 (BOOK87).
 - **The full-path smoke** (2024 W10, 2022 W6 scored on bank 1406): the reader exited 0 with 98 lines and 8 sections; only those
   were read.
-- **The binding (support) census:** the reviewer's, on all 53 slate-banks of bank 1406, before the freeze.
+- **The binding (support) census** (the reviewer's; outcome-blind; bank 1406; all 53 slate-banks of 2022–24; code
+  `01869883` clean; 11 tests pass; lab `results/s87/CENSUS_s87_binding.txt` `e4a2a112…`, the raw mechanics rows
+  `census_mechanics_bank1406.jsonl` `fe9cfdd0…` with no outcome field, committed at `66767d7f`):
+  - every arm is 41 rows; LIVE_CB is within production's caps; every arm is within the overlap limit 4;
+  - 0 of 1,378 ruled solves infeasible in every rule arm; QBs allowed per slate-bank 17.4 (min 10);
+  - **CONCENTRATION — the flag fired in every uncapped arm** (the top QB's book rows of 26, mean / max; his share of the
+    dealt entries, mean / max):
+    - LIVE_CB 5.0 / 5 (0.23 / 0.26);
+    - NOCAP 8.9 / 16 (0.36 / 0.62);
+    - BOOK87 11.1 / 21 (0.45 / 0.81);
+    - PRICE87 8.8 / 17 (0.35 / 0.68);
+    - QBTOP87 11.7 / 24 (0.46 / 0.92).
+    - This is what "remove all usage caps" produces, most of all with the QB restriction's 5–6 QBs: on some slates one QB
+      carries most of the book. It is disclosed for his decision, not changed.
+  - Usage, the most-used QB / player / DST rows of 41: LIVE_CB 5 / 13 / 6; uncapped about 14 / 31 / 15.
+  - Vacuity over LIVE_CB's 26 rows: QB outside the top 4 9.2, no top WR 11.3, TE > $5k 7.5, DST > $3k 10.1, no cheap WR 7.5,
+    TE flex 15.2.
+  - Projection per row: NOCAP +1.22, BOOK87 −0.49, PRICE87 +0.30, QBTOP87 +0.41 against LIVE_CB (the caps' removal buys
+    projection through concentration).
 - **Code:** nfl2 `production/s87-qb-price-book-20261009` @ `01869883` (the module, reader and tests at `20031fb6`, committed
   before studies 85's and 86's READS; `01869883` changes ONLY the census's printed title, "STUDY 85" → "STUDY 87", a copy
   leftover found in the smoke): `experiments/s87_qb_price_book.py` `85adf47b…` (pins s85 `4f752f8e…`, s70 `d622a211…`);
