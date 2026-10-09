@@ -12,6 +12,15 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (16:20 CDT) — OPERATOR (relayed): "keep 15 as you suggest" (after study 90)
+
+After study 90's read (+10 vs +15: +0.8 pooled, A +0.9, B +0.6, seats 0.973; the second read of +15 vs the 50% book +0.3),
+the outside reviewer recommended keeping +15: a tie within the noise, 0.9 FP per row more cost on his W4 book, and one more
+change in a crowded week. **His answer, verbatim: "keep 15 as you suggest".**
+- UNION_MAIN_OWN_CAP_DELTA stays 15; nothing changes in the arm.
+- He asked why +10 rose on P(≥ 1 big) while the expected big seats fell; the outside reviewer explained that spreading the
+  book trades multi-win slates for more slates with at least one.
+
 ## 2026-10-09 (16:02 CDT) — laptop: the Friday arm --check passes with the package + row rules; study 92 GO (running)
 
 - **The arm `--check`** (a scratch copy of `scripts/arm_week5_saturday.sh` with Saturday's TERM_ROWS=8 / TERM_SHA `5941678b…`;
