@@ -27,18 +27,20 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from nfl_dfs.inference.enter_layout import ROWMAP_NAME  # noqa: E402
-from nfl_dfs.inference.mix_shapes import MIX_CELLS, PORTFOLIOS, cell_of_tag, shape_violations  # noqa: E402
+from nfl_dfs.inference.mix_shapes import (ALL_CELLS, MIX_CELLS, PORTFOLIOS, QB_ALONE_CELL, cell_of_tag,  # noqa: E402
+                                         shape_violations)
 
 
 def dealt_shares(rowmap: dict[str, list[int]], upload_rows: list[list[str]], cell_of_set: dict[frozenset, str],
-                 pos: dict, team: dict, opp: dict, game: dict, cells: dict = MIX_CELLS, k_main: int = 0) -> dict:
+                 pos: dict, team: dict, opp: dict, game: dict, cells: dict = MIX_CELLS, k_main: int = 0,
+                 extra_fit: dict | None = None) -> dict:
     counts: Counter = Counter(); shape: Counter = Counter(); by_shape: Counter = Counter(); n = 0
     for rows in rowmap.values():
         for r in rows:
             ids = upload_rows[r]
             cell = cell_of_set.get(frozenset(ids))
             if cell is None and r < k_main:                  # an untagged main row: a replacement, counted by its shape
-                fit = [c for c in cells if not shape_violations(ids, c, pos, team, opp, game)]
+                fit = [c for c in {**cells, **(extra_fit or {})} if not shape_violations(ids, c, pos, team, opp, game)]
                 cell = fit[0] if len(fit) == 1 else ("fits " + "/".join(fit) if fit else "house")
                 by_shape[cell] += 1
             counts[cell or "house"] += 1; n += 1
@@ -86,7 +88,10 @@ def main(argv=None) -> int:
     pos, team, opp, game = (dict(zip(by_dk.dk, by_dk[c].astype(str))) for c in ("pos", "team", "opp", "game_id"))
     portfolio = (((rec.get("config", {}).get("union") or {}).get("mix") or {}).get("mix") or {}).get("portfolio", "mix")
     k_main = int((rec.get("config", {}) or {}).get("operational_k") or len(upload_rows))
-    out = dealt_shares(rowmap, upload_rows, cell_of_set, pos, team, opp, game, PORTFOLIOS[portfolio], k_main)
+    mixm = ((rec.get("config", {}).get("union") or {}).get("mix") or {}).get("mix") or {}
+    qa_on = bool(mixm.get("qb_alone") or (mixm.get("with_term") or {}).get("qb_alone"))     # study 77: C0 rows (a shape, no quota)
+    out = dealt_shares(rowmap, upload_rows, cell_of_set, pos, team, opp, game, PORTFOLIOS[portfolio], k_main,
+                       extra_fit={QB_ALONE_CELL: ALL_CELLS[QB_ALONE_CELL]} if qa_on else None)
     out["portfolio"] = portfolio
     print("MIX DEALT (the entries as staged, after the small-contest overlap limit): "
           + " / ".join(f"{c} {out['cells'][c]} ({out['shares'][c]}; quota {out['quotas'].get(c, '-')})" for c in out["cells"])

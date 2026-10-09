@@ -32,6 +32,14 @@ PORTFOLIOS: dict[str, dict[str, tuple[float, dict, int | None, str | None]]] = {
     "ws": {"WS": (1.0, {"qb_stack_min": 1, "bring_back_min": 0}, 3, "all")},
 }
 ALL_CELLS = {name: cell for cells in PORTFOLIOS.values() for name, cell in cells.items()}
+# Study 77's QB-alone shape C0 (union_reselect --mix-qb-alone-rows N; production's agreed format 10-08; default off): C's
+# rules with NO WR / TE of the QB's team (an RB of his team allowed) -- nfl2 experiments/s77_naked.py's
+# dataclasses.replace(C, qb_stack_min=0, qb_stack_max=0), C's no bring-back and qb_game_max 3 kept. A SHAPE, not a cell: it is
+# in ALL_CELLS only (never MIX_CELLS / PORTFOLIOS -- no quota, no allocation, no interleave of its own). Its rows are C solves
+# (C's quota, C's interleave slots) re-tagged mix_C0 after the interleave, so the shape check, the vetting and the audit
+# hold them to THESE rules. (Named C0, not QA: study 38's arms are MIXT_QA0 / MIXT_QA.)
+QB_ALONE_CELL, QB_ALONE_FROM = "C0", "C"
+ALL_CELLS[QB_ALONE_CELL] = (0.0, {"qb_stack_min": 0, "qb_stack_max": 0, "bring_back_min": 0, "bring_back_max": 0}, 3, None)
 HOUSE_CELL = "A1"
 TAG_PREFIX = "mix_"
 LIVE_PIN = "f69598ba559202969cc91d9fbdee7f64996e97af"   # the lab re-pin whose optimize() holds second_game_pair / qb_game_max

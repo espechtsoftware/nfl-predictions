@@ -198,7 +198,12 @@ def main():
     bb_live: dict[str, str] = dict(bb_top)                 # minus E, once E is known (below)
     house_cell = "house" if bb_cells else "A1"
     if _mix:
-        from nfl_dfs.inference.mix_shapes import ALL_CELLS, book_cells, shape_violations
+        from nfl_dfs.inference.mix_shapes import ALL_CELLS, QB_ALONE_CELL, book_cells, shape_violations
+        # study 77 (the union's --mix-qb-alone-rows; off: no block): a C0 (QB-alone) row's replacement must fit C0; the C0
+        # shape is offered to the candidates ONLY when the union built C0 rows, so an OFF book's pool is exactly as before
+        _mixm = ((src.get("config", {}).get("union") or {}).get("mix") or {}).get("mix") or {}
+        _qa_on = bool(_mixm.get("qb_alone") or (_mixm.get("with_term") or {}).get("qb_alone"))
+        _fit_cells = [c for c in ALL_CELLS if c != QB_ALONE_CELL or _qa_on]
         _game_of_id = f.set_index("id")["game_id"].astype(str).to_dict()
         _cc = pd.read_parquet(run / "candidates.parquet")
         _tagged = [(frozenset(id_to_dk.get(t.strip()) for t in _pl.split(",")), _tg)
@@ -313,7 +318,7 @@ def main():
             if not a.admit_risky and any(d in risky for d in dks): rejected["risky"] += 1; continue
             if _mix:
                 if validate_roster(toks, *vr_args, salary_floor=49000, forbid_rb_vs_dst=True, forbid_two_rb_same_team=True): rejected["illegal"] += 1; continue
-                fits = {c for c in ALL_CELLS if not mix_violations(toks, c)}
+                fits = {c for c in _fit_cells if not mix_violations(toks, c)}
                 if bb_cells and not mix_violations(toks, "house"):
                     fits.add("house")                        # study 71: the lenient house fallback
                 if not fits: rejected["illegal"] += 1; continue
