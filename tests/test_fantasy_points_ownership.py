@@ -139,3 +139,17 @@ def test_archive_addresses_each_object_by_its_own_hash(tmp_path, monkeypatch):
         raw = tmp_path / f"cap{i}" / "ownership-raw.json"; raw.parent.mkdir(); raw.write_text(text)
         own._archive_create_once(raw, hashlib.sha256(raw.read_bytes()).hexdigest(), 2026, 4)
     assert len(store) == 2 and all(f"sha256={hashlib.sha256(v).hexdigest()}/" in k for k, v in store.items())
+
+
+def test_the_week_5_heading_form_is_accepted_and_a_named_week_must_match():
+    """2026-10-09: FP's heading became "2026 WEEK 5 NFL DFS OWNERSHIP PROJECTIONS" and every capture failed closed. Both forms
+    pass; a named week must be the requested one when the caller knows it; the season rule is unchanged."""
+    ok = dict(url=ownership.OWNERSHIP_URL, sign_in_visible=False, session_uid_present=True, expected_season=2026)
+    heads = ["2026 WEEK 5 NFL DFS OWNERSHIP PROJECTIONS", "CONTENT AND MEDIA", "COMPANY"]
+    assert ownership.validate_surface_state(headings=heads, **ok)["season"] == 2026
+    assert ownership.validate_surface_state(headings=heads, expected_week=5, **ok)["season"] == 2026
+    assert ownership.validate_surface_state(headings=["2026 Week 12 NFL DFS Ownership Projections"], expected_week=12, **ok)
+    with pytest.raises(RuntimeError, match="names week \\[4\\], expected week 5"):
+        ownership.validate_surface_state(headings=["2026 WEEK 4 NFL DFS OWNERSHIP PROJECTIONS"], expected_week=5, **ok)
+    with pytest.raises(RuntimeError, match="expected season 2026"):
+        ownership.validate_surface_state(headings=["2025 WEEK 5 NFL DFS OWNERSHIP PROJECTIONS"], expected_week=5, **ok)
