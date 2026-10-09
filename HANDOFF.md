@@ -12,6 +12,23 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (12:55 CDT) — OPERATOR (in the laptop's session): "Yes, arm the package" -- the arm carries the 35% cap + the ownership cap
+
+**Asked by the laptop** (AskUserQuestion, after every condition of his package's option text passed: built, matching the
+lab, checked on his W4 book, today's book on paper via 6o): "Switch Saturday's arming to the package now? …". **His answer,
+verbatim:** "Yes, arm the package".
+
+- **The arm** (`scripts/arm_week5_saturday.sh`): MAIN_CAP="0.35" with OWN_CAP_DELTA=15. The pair stop allows only that or
+  (0.5, 0); check_week_runtime refuses the flat 35% alone; the builder refuses it without a fallback share.
+- **FRIDAY_HEAD moved to `22bf64f19886e483b2279125bc226493d990050e`:** 5eab90f4 + the arm test that accepts either pair (a
+  test change counts as code, so the freeze point includes it). Only the arm script follows it. s38-prod-pin stays at
+  5eab90f4: the code is identical, and only tests and docs differ.
+- **On Sunday:** each T-70 build captures FP's ownership and applies the cap. Any failure builds today's book (0.5, no
+  ownership cap) with an ALERT, and study 38's TODAY arm scores today's book beside it.
+- **Still today:** the 16:30 FP capture, and the evening `--check` (a scratch copy with Saturday's TERM settings).
+- **Saturday:** TERM_ROWS=8 + TERM_SHA (the cheap block), then arm. The 10:30 canary's receipt must show own_cap_source
+  applied, cap_share_used 0.35 and the cheap block.
+
 ## 2026-10-09 (12:50 CDT) — laptop: the merge batch landed, FRIDAY_HEAD = 5eab90f4, study 38 6o acked; every condition of his package met
 
 - **Merged into integration** (no conflicts):
