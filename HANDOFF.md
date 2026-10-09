@@ -12,6 +12,18 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (06:50 CDT) — OPERATOR (relayed): decision 6, one more study with no player over $8,100 in the entire book
+
+**His words** (in the outside reviewer's session, during study 84's run; relayed to the laptop verbatim): "After that, let's do
+one additional study where the only rule is no player over $8100 for the entire book."
+
+- **Study 86 CAP8100:** every pool player priced above $8,100 is banned on every book solve; $8,100 itself is allowed. It runs
+  through s81's banned_rows. Its design is on origin before 84's and 85's READs (`review/s86-prereg-20261009` @
+  `c4ac131e`).
+- **The outside reviewer's reading:** information for his decision, with no automatic Week-5 rule. The laptop confirms that
+  with him.
+- **Queue:** 84 (running) → 85 BOOK85 → 86 CAP8100.
+
 ## 2026-10-09 (06:23 CDT) — OPERATOR (relayed): decision 5, an experiment with a whole book under four salary / position rules
 
 **His words** (in the outside reviewer's session, during study 84's run; relayed to the laptop verbatim): "As an experiment
