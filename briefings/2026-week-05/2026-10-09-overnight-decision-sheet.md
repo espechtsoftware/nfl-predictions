@@ -9,6 +9,7 @@ The book is ready as it stands. That is the default, and nothing changes unless 
 
 1. **One more lineup change this week, or none?** The best candidate from tonight is **77: the quarterback alone in 3 lineups.**
    - +1.8 points, positive in both deciding seasons, about 4% more expected big wins, no projection cost. Not proven: the range runs from −1.8 to +5.4.
+   - **Read it as a lean, not a finding.** Tonight tested about 15 options on the same past slates. With that many tries, one or two leaning positive is what chance alone would produce, so 77's lean is a reason to try it, not proof that it works.
    - Checked on your real Week-5-style book (Week 4's inputs, no scores looked at): its 3 lineups land in big-contest seats, exactly as in the test.
    - The reviewer recommends it, and I agree it is a fair, reversible trial. It would be a second change this week (the cheap block is the first), so Monday could not tell which one helped.
    - **Your choices:** (a) 77 this week; (b) nothing new this week, 77 in Week 6; (c) 73b instead (fewer two-pass-catcher lineups; neutral, your preference). Pick at most one.
