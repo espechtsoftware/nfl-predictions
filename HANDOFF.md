@@ -12,6 +12,137 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (15:03 CDT) — OPERATOR (relayed): "Test both tonight for live" -- S1 (shrink projections toward salary, k 0.7) and S2 (one $8,000+ star per lineup)
+
+**The context:** he asked the outside reviewer to read `briefings/2026-week-05/2026-10-09-lineup-construction-suggestions.md`
+(`review/construction-suggestions-20261009` @ `3fb9e9d7`). Its read: S1 interesting but untested, with the same transfer
+trap as study 91; S2 for paper. **Q:** "What do you want done with S1 (shrink projections toward salary, k = 0.7) and S2 (one
+$8,000+ star per lineup)?" → **"Test both tonight for live"**. The option text: "Same gate for S2 as S1; note the test model
+can't really measure S2, so its gate would be the Week-4 real-field check alone."
+
+- **The gates** (as the outside reviewer told him; he can amend):
+  - **S1** = study 92 (the harness, two draws): SHRINK − the armed version (package + te1_low1) > 0 on both draws AND seats
+    ≥ 0.80 → live.
+  - **S2** = the W4 real-field replay alone: armed + STAR beats armed on W4 (a higher mean finish percentile over all his W4
+    contests AND no fewer cashes) → live. **This gate is in-sample:** W4's top finishers prompted it. He will be told.
+- **The rules:**
+  - **S1:** per skill position over the buildable pool, typical_i = the median projection of the players within ±$500
+    salary; proj' = typical + 0.7 × (proj − typical); DSTs unchanged. It applies to the main-book objective (plain and the
+    term block's base) after FP's means. It must NOT rewrite the union frame's proj / proj_tourney (the lever audit's
+    fade_effect would refuse the union).
+  - **S2:** at least one non-QB skill player at $8,000+ per book row (member_bounds), in the row-rules vehicle.
+- **Who builds:** the outside reviewer (study 92's lab code + both production flags, parity-pinned); the laptop (the
+  wiring, the review, the W3 / W4 real-field replay of PKGRR / +S1 / +S2 / +both); the reviewer (study 92's census,
+  freeze and run). Everything that goes live merges with FRIDAY_HEAD moved, before Saturday's arming.
+
+## 2026-10-09 (14:55 CDT) — laptop: his replay of the live version on this season (W3–W4); 6q acked; 91 merged; study 90 restarting
+
+- **The replay** (`reports/2026-10-09-package-replay/`, driver `515c0313`, report `5bef2c17`, sent to him). Descriptive,
+  partly in-sample; W1–2 cannot be built (no point-in-time ownership).
+  - **W4** (FP inputs), limited-entry: T50 53.7 pct / 8 top-10% / 2 cashes / 0.19×; PKG 55.4 / 13 / 3 / 0.29×; **PKGRR (armed)
+    58.7 / 20 / 6 / 0.57×**; entered 45.0 / 6 / 2 / 0.19×.
+  - **W3** (approximate): 43.7 / 40.8 / 41.4, a wash.
+  - No big win in any arm.
+  - The books are in `~/moneygate/books/w{3,4}/R10-*`; dollars in `~/private/moneygate/replay-10-09-dollars.json`.
+- **Study 38 6q** (lab `16d7b8fc`, module `5ad07e99`; prereg merged `7dc00df1`): acked. The gate pins `5ad07e99`; s38-prod-pin is at
+  FRIDAY_HEAD `f5f96468`.
+- **Study 91 records merged** (`2d5640d8`: Addendum 188; LEDGER `2515e42b`; the outside reviewer's limited-entry analysis,
+  aggregates).
+- **The machine:** back to the reviewer for study 90 (frozen 13:29, banks 1992–2003).
+- **Still today:** 16:33, the FP capture + the evening `--check` (scratch copy, Saturday's TERM settings); it must show the
+  package (0.35, own cap 15) AND ROW_RULES te1_low1.
+
+## 2026-10-09 (14:45 CDT) — OPERATOR: test 2 GO LIVE (after the transfer caveat); the row rules merged, armed; FRIDAY_HEAD f5f96468
+
+- **Study 91 READ** (lab `a8024c8a`, READ_s91 `8672e057`) was reproduced byte-identically; the confirmatory census `48b71f9b`
+  is identical. His rule line: "GO LIVE in W5 (better on both draws)". TE1_LOW1 − package +4.1 (A +3.2, B +5.0; seats ×1.080).
+  The halves: LOW1 +2.8 PASS; TE1 +0.9, flat on its third read.
+- **The transfer caveat put to him** (the reviewer's): the gain is the low-ownership half, which barely binds on his real FP
+  book (0.1–0.2 per lineup), so live it acts mostly as "no TE in the flex" (flat in 85 / 88 / 91; −0.76 FP per row; 21 of
+  26 lineups change).
+- **His answers, verbatim:**
+  - the laptop's session (AskUserQuestion, "Paper only (Recommended)" / "Go live as my rule says"): **"Go live as my rule
+    says"**;
+  - the reviewer's session: "Go live as the rule says";
+  - the outside reviewer's session (relayed): "I still don't get this. +3.2 and +5 and 8% more big wins sounds like exactly
+    what we're shooting for. We are testing this against what actually happened in those 2 weeks, right? So for those 2
+    weeks I believe it is better. That is good enough for me". The outside reviewer corrected him: the two draws are the
+    same 36 real 2023–24 slates replayed with different simulated opponents, not two weeks.
+- **Merged into integration:** `e297bcd1`, the flag `e8c63263`; `f5f96468`, the wiring `58a328b6`. On the merge tree the 29
+  modules plus the policy inventory give 517 passed, 3 skipped.
+- **The arm** (`ROW_RULES="te1_low1"`, with MAIN_CAP 0.35 + OWN_CAP_DELTA 15) has **FRIDAY_HEAD = `f5f96468d24541de2a463245ba535fea0bf859ce`**;
+  the arm tests give 47 passed.
+- **Study 38 6q** (the reviewer): QA0 follows the live rule, and MIXT_QA0_NORR (the package without it) runs on paper. Its
+  smoke is running; it is needed before Sunday's snapshot or the week is invalid under 6l's default-deny.
+- **His new request** (relayed): "can we run that version against this season using real info?" The laptop runs a W1–4
+  money-gate-style replay: today's book / the package / package + TE1_LOW1 / entered, on real fields.
+
+## 2026-10-09 (13:23 CDT) — OPERATOR (relayed): test 2 (one TE + one sub-3% player per lineup) today; live in W5 only if better on BOTH draws
+
+**His words** (in the outside reviewer's session, relayed verbatim): "for test 2 - I would like to test it today and if it
+improves things, use it in week 5 as we obviously need to do something".
+- **Q:** "Test 2 runs today in the test model on two separate draws, on top of your armed package. What counts as 'improves',
+  so that it goes live in Week 5?" → "Better on both draws (Recommended)".
+- **The option text:** "Live in W5 only if 'at most one TE + at most one player under 3% owned' beats your armed package on
+  BOTH draws and doesn't cost more than 20% of expected big wins. Otherwise paper only."
+- **Study 91** (the harness): the package against +TE1 / +LOW1 / +TE1_LOW1, 12 banks as two draws.
+  - The outside reviewer had proposed banks 1767–1778, which collide with L03's 1820 / 1821.
+  - The laptop's full-set search first gave 2012–2023, but those are season years: the scan can't read them, and "bank 2022"
+    would read as a season. **Corrected to 3000–3011** (A 3000–3005, B 3006–3011; sims 3050–3061, fields 3700–3711), seed
+    20261136, the reviewer's earlier 3000-block suggestion; scan running.
+  - The machine order is the 6p smoke → 91 → study 90 (banks 1992–2003 after two collisions: L02 1810 / 1811, L03 1820 / 1821).
+- **If 91 passes his rule:**
+  - the outside reviewer's union_reselect flags (`--mix-max-te 1 --mix-max-low-own 1 --mix-low-own-pct 3`, the own-cap
+    file's fp_own_raw, parity-pinned to 6p's lab code; off whenever the own cap is not applied);
+  - the laptop's W4 real-book check and wiring;
+  - a study 38 amendment for the live row rules;
+  - FRIDAY_HEAD moves; all before Saturday's arming.
+- **If it fails:** paper only (6p, lab `b03ddaac`); nothing live changes.
+
+## 2026-10-09 (13:12 CDT) — OPERATOR (relayed): look closely at the limited-entry contests' winners; two tests "Yes do that"
+
+**His request** (in the outside reviewer's session, relayed verbatim): "Most of our analysis has been on the MILI. I would like
+you to closely look at things like the 4444 that I entered last week, the 555, the 333s. Those ones, there's a limited number
+of entries that each person can do. Look at the winners, the you know top three finishers for each. What did they do in their
+selections? How were their selections better than ours? I bet it's different than the MILI."
+
+- **The outside reviewer's finding** (the money gate's W1–4 real fields; private `~/private/limited-entry-winners/`;
+  averaged across the 4444 / 555 / 333 / FFWC / $20-Milly satellites):
+  - our lineups had the HIGHEST projection (127–135) and the LOWEST actual points (110–125); the top 3 were projected 123–128
+    and scored 180–200;
+  - a TE in our flex in 54–100% of lineups, against the top 3's 11–50%;
+  - players under 3% ownership: ours about 1.0 per lineup, the top 3's 0.4–0.5;
+  - the top 3 paid less at QB / DST and played more $8k+ studs;
+  - W4's $4,444 Showdown satellite (380 entries, 1 paid): the top 3 all had Lamb (6% owned, 44 points); our best was 105th.
+- **Two tests proposed; his answer: "Yes do that".**
+  1. A REAL-FIELD TEST, analysis only (the outside reviewer): in each W1–4 limited-entry contest, rank our own union pool by
+     the model's chance of finishing 1st against that contest's real field (the T-70 banks; the calibration machinery)
+     versus by projection, and compare the top-ranked lineups' real finishes. Read-only, private data in place.
+  2. A ROW RULE for these contests' books: at most one TE per lineup + at most one player under 3% projected (FP) ownership
+     per lineup. First an outcome-blind W4 real-book check, then a W5 PAPER arm (no live change). For paper the lab builder
+     can apply it; a production flag is needed only if it later goes live.
+
+## 2026-10-09 (12:57 CDT) — OPERATOR (relayed): no softer fields; "get better with what we enter"; study 90 (ownership + 10) tonight as a W6 candidate
+
+**His words** (in the outside reviewer's session, relayed verbatim): "I don't want to enter softer fields. I want to get
+better with what we enter. I'm open to 2, 3, 4 if it will help immediately. I'm still open to other ideas - not convinced that
+we have lineup selection down".
+- The outside reviewer's list: 1 = contest choice / softer fields (REJECTED by him); 2 = lock-time information; 3 = less
+  optimistic projections (a blend); 4 = weekly real-field scoring.
+- **Q:** "Test 'stay even closer to the field' (each player at most projected ownership + 10 points, vs the +15 you just armed)
+  tonight as a Week-6 candidate?" → "Yes, test tonight (Recommended)".
+  - This is study 90: CAP35_OWN10 vs CAP35_OWN15 on fresh banks, plus a second read of the armed package vs LIVE_CB. The
+    outside reviewer drafts, the reviewer freezes and runs. Nothing changes for W5.
+- **Item 3, measured by the outside reviewer** (real W1–4 players, the optimizer's top-value picks by position; aggregates):
+  - the market's picks scored 15.6 real points per pick against the old model's 14.8;
+  - on W4, FP's picks scored 14.5 and a 50/50 FP + market blend's 14.6, but the blend overrated its picks by 0.2 against
+    FP's 2.0.
+  - No projection change for W5; capture both weekly and compare.
+- **Item 4:** the outside reviewer drafts a read-only Monday real-field report (per contest, by entry tag). Study 38's scorer
+  already places the paper books and his entered book in the REAL fields (moneygate_score.place per contest; the real
+  Millionaire field for its endpoint), so the report reuses s38's score JSON and entry_tags rather than re-placing.
+- The leads log's afternoon update is merged (`f960a4a5`).
+
 ## 2026-10-09 (12:55 CDT) — OPERATOR (in the laptop's session): "Yes, arm the package" -- the arm carries the 35% cap + the ownership cap
 
 **Asked by the laptop** (AskUserQuestion, after every condition of his package's option text passed: built, matching the

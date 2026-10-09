@@ -1,4 +1,4 @@
-# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06, 10-07, 10-08 and 10-09, amendments 1, 1b, 2, 3, 4, 5, 6, 6b, 6c, 6d, 6e, 6f, 6i, 6j, 6k, 6l, 6n, 6n's follow-up and 6o before Week 5's lock; repair 6g and the big-win rule 6h before its first score)
+# Preregistration: study 38, the FP paper co-run (the regulars' structure beside the yes-book, under the projections we play with) (FROZEN 2026-10-06; AMENDED 2026-10-06, 10-07, 10-08 and 10-09, amendments 1, 1b, 2, 3, 4, 5, 6, 6b, 6c, 6d, 6e, 6f, 6i, 6j, 6k, 6l, 6n, 6n's follow-up, 6o, 6p and 6q before Week 5's lock; repair 6g and the big-win rule 6h before its first score)
 
 **Status: FROZEN 2026-10-06** by the reviewer, BEFORE any week of the decision arm (MIXT_RS0) or of the exploratory arms
 QBB0 / NQC0 / QAL / RBC0 was read on any slate. Disclosed: before the freeze, the reference MIXT_QA0 was scored on
@@ -929,6 +929,105 @@ score. Nothing here enters a contest: the money path, its checkout and its files
     3. one merge batch before FRIDAY_HEAD (the flag, the host wiring, the snapshot change);
     4. Saturday's arming, his package only if production's parity and the W4 check pass, else today's book (his option text);
     5. the integrity gate on the live snapshot.
+
+- **Amendment 6p (2026-10-09, before Week 5's lock; no Week-5 outcome exists): his limited-entry row rules on paper.**
+  - **Why.** His request (HANDOFF `f8b1dc30`): the limited-entry contests' winners against ours, and two tests, "Yes do that".
+    - The outside reviewer's real-field scan of his W1–4 limited-entry contests (aggregates; hindsight, NOT evidence): a TE in
+      our flex in 54–100% of entries against the top 3's 11–50%; about 1.0 player under 3% REALIZED contest ownership per
+      lineup against the top 3's 0.4–0.5.
+      The report: `reports/lab-handoffs/2026-10-09-limited-entry-winners/README.md` (sha256 `cadc6ae2cec18358…`; with
+      `analyze.py` and `select_by_p1.py`, which write only under `~/private/`), committed at `9e4c39da` with study 91's prereg.
+      Its second finding: selecting by the model's P(1st) against each real field did not beat selecting by projection in 4 of 5
+      groups, and the T-70 pool held a would-be winner in most contests (pre-lock selection, not generation, is the bottleneck).
+    - His follow-up (HANDOFF `2ab54e30`): the harness test (study 91) decides whether the rule goes LIVE in Week 5. This paper
+      test is the real-field measurement either way.
+  - **The prior.** The TE half was read twice in the harness, flat both times: study 85's no-TE-in-flex rule +0.2 (2022 +3.4;
+    Addendum 183) and study 88's TE-in-flex-allowed against BOOK87 +0.2 (2022 +0.1; Addendum 187). The low-ownership cap is new.
+  - **What changes.** Two exploratory paper arms on his live construction (every live setting as MIXT_QA0 follows it,
+    `FOLLOW_QA0`, the package included), read against MIXT_QA0, overall AND per contest group:
+    - **MIXT_QA0_TE1:** at most one TE per book row (= no TE in the flex);
+    - **MIXT_QA0_TE1_LOW1:** that, and at most one skill player whose FP projected ownership is below 3%.
+      - The ownership is the snapshot ownership file's `fp_own_raw` (FP's raw %): the union's own-cap file in a package
+        week, else the week's `ownership_fp` copy.
+      - Players are matched by the frame id, then the DK id; a blank value (lag-filled) or an unnamed player counts as 0%;
+        DSTs are never counted; a non-number refuses the arm (recorded missing).
+    - **The mechanics:** every BOOK solve (j < 26, build order, any cell, the live and the term block; spares never) carries
+      the rules as `set_constraints`, one solve; infeasible → the same solve without them, recorded (`row_rules`; study 87's
+      pattern). It sits INSIDE the ownership cap, so the rules are dropped first and the ownership cap is kept. Its records go
+      to its own class (a subclass-attribute collision with `own_caps` that the new test caught before any build).
+    - **The contest groups:** the Millionaire, and every other plan contest (his limited-entry satellites). The scorer adds
+      `by_group` per arm; the reader prints one 6p line per week (each rule − QA0, overall / limited entry / Millionaire).
+    - Every arm's record adds TEs per row, low-owned players per row and the rows it shares with its reference.
+  - **The smoke** (dry run on Week 4's frozen copies; 6o's package and fallback states; production at FRIDAY_HEAD `22bf64f1`;
+    `~/private/paper-corun/smoke-w4-amend6p/`, script `run.sh` `4958672478cf`, log `e0e614581b35`; lab `b03ddaac`; PYTHONHASHSEED=0):
+    - 43 tests pass (rc 0).
+    - **Package week:** mismatches none; the 24 pre-6p arms are identical to 6o's build; the low set holds 163 of 235 pool
+      skill players (all named), with 55 pool TEs.
+      - MIXT_QA0: 1.654 TEs and 0.115 low-owned players per row; FP projection per dealt lineup 141.40.
+      - **TE1:** 1.00 TE per row; 0.269 low-owned; 5 of 26 rows shared with QA0 (21 change); 26 ruled solves, 0 re-solved;
+        the ownership cap kept (0 plain); FP 140.80 (−0.61).
+      - **TE1_LOW1:** 1.00 TE; 0.231 low-owned; 5 rows shared; FP 140.79 (−0.61).
+    - **Fallback week** (0.5, no cap; the low set from the week's ownership file): the pre-6p arms identical to 6o's;
+      **TE1 and TE1_LOW1 identical** (0.115 low-owned per row each; FP −0.26).
+    - **Plainly:** on his real Week-4 book the TE rule changes 21 of 26 lineups. The low-ownership half barely binds, because
+      by FP's PROJECTIONS his book holds only 0.1–0.3 players under 3% per lineup. The real-field excess is in REALIZED
+      ownership, which no pre-lock rule can see.
+  - **Code:** lab `b03ddaac` (on 6o's `0cfc51c3`):
+    - `experiments/s38_paper_corun.py` sha256 `ecc55fa0f934fd20ad7e0dc5e7125d3c8d4ea31325dbc50ae64da9ba552d0afd`;
+    - `scripts/s38_score.py` `9d99c0a969f155de61cf9f41c388a86ee29463c1173e40c76b2aadd113a59df9`;
+    - `scripts/s38_report.py` `3f9b6d8ca85d57e64f04460850dcaefd14d1ac446eb697da2a407a6242ee037b`;
+    - `tests/test_s38_paper_corun.py` `595ca69b05bf6e2866b3edc7ad689a5306046622b28a958dfaa237448cc15932` (43 tests);
+    - `scripts/s38_build.py` unchanged (`15373e14…`).
+  - **The integrity gate** pins this module sha in place of 6o's `238d7c1e…`, on the live snapshot.
+  - **If study 91 puts the rule LIVE in Week 5** (his rule: better than the package on both draws, seats ≥ 0.80): a
+    follow-up (6q) classifies the live row-rule flag as checked, makes MIXT_QA0 follow it, adds the package without the rule as
+    the paired paper book, and records TE1_LOW1 as missing (then the same book as MIXT_QA0). Its format is agreed with the
+    outside reviewer first.
+  - **Order:**
+    1. this amendment;
+    2. the laptop's ack;
+    3. the gate pin moved;
+    4. the integrity gate on the live snapshot.
+
+- **Amendment 6q (2026-10-09, before Week 5's lock; no Week-5 outcome exists): his row rules LIVE, the package without them on paper.**
+  - **Why.** Study 91's frozen rule said GO LIVE (Addendum 188). Stated the transfer caveat (the gain was the low-ownership half,
+    which barely binds on his FP book), he chose to go live in three sessions. Production's row-rules flag (`e8c63263`;
+    `--mix-max-te 1 --mix-max-low-own 1 --mix-low-own-pct 3`, on the ownership cap) enters Week 5. Under 6l's default-deny the
+    three arguments would make the week INVALID.
+  - **What changes.**
+    - **Parity:** the three arguments are "checked". Accepted live states: the rules off, or 1 / 1 / 3% on his package. Any
+      other value, or the rules without the ownership cap, is a mismatch.
+    - **The live sets** come from PRODUCTION's `row_rule_sets` (the pinned checkout) on the snapshot's copy of the own-cap file,
+      with s38's own exclusions, and are applied by 6p's `row_rules` inside `own_caps`. Production applies the rules only on an
+      applied ownership cap; so does 6q.
+    - **The receipt** (`config.union.mix.mix.row_rules_source`) must agree with the paper build: applied, `source_sha256`,
+      `low_pct`, `te_max`, `low_own_max` strictly; the exclusion-dependent counts (`pool_skill_players`, `named`, `low_owned`,
+      `pool_tes`) are recorded only. Else the week is invalid.
+    - **Every paper arm follows the live rules** (as 6o made them follow the ownership cap), except:
+      - **MIXT_QA0_NORR** (new, exploratory): his live package WITHOUT the row rules, the paired paper book, built only when the
+        rules are live, read against MIXT_QA0 overall and per contest group with both books' expected big seats;
+      - **MIXT_QA0_TODAY**: unchanged (0.5, no ownership cap, no rules: the pre-package book);
+      - **MIXT_QA0_TE1** keeps its own rule (the TE half alone, in place of the live rules);
+      - **MIXT_QA0_TE1_LOW1** is then the live book itself and is recorded missing.
+  - **The smoke** (dry run on Week 4's frozen copies; production at the flag `e8c63263` (union_reselect `869a112b`);
+    `~/private/paper-corun/smoke-w4-amend6q/`, script `run.sh` `0300f52dd475`, log `678825f929a6`; lab `16d7b8fc`; PYTHONHASHSEED=0):
+    - 44 tests pass (rc 0).
+    - **The rules live** (the package + the three flags + the laptop's W4 receipt `flagcheck-pkgTE1LOW1-…/on/receipt.json`):
+      mismatches none; the rules applied; the receipt agrees (no strict or informational key differs).
+      - **MIXT_QA0 is identical, rows and ranks, to 6p's MIXT_QA0_TE1_LOW1** (production's sets = 6p's `low_owned` sets);
+      - **MIXT_QA0_NORR is identical to 6p's MIXT_QA0** (the package book);
+      - MIXT_QA0_TE1 and MIXT_QA0_TODAY are identical to 6p's;
+      - MIXT_QA0_TE1_LOW1 recorded missing; every rule-following arm has exactly 1.00 TE per row.
+    - **The rules off** (the package): all 26 books identical to 6p's package build; MIXT_QA0_NORR recorded missing.
+  - **Code:** lab `16d7b8fc` (on 6p's `b03ddaac`):
+    - `experiments/s38_paper_corun.py` sha256 `5ad07e994c2c105c6b646838b83fa4b13d6f275a8b8425cc0e4f45ae29e95609`;
+    - `scripts/s38_score.py` `9f0feeb3a88789094886d0f3d1876ab817be536777f48a4b19457ae847d7e55d`;
+    - `scripts/s38_report.py` `543de78117f688e134cedd9dc2f785f06d63ecfa143294357e4049d0d4d46386`;
+    - `tests/test_s38_paper_corun.py` `4fb28242da70a2081c948542d9b04068cc3ee5f79af2a53b101b7f6612e1b601` (44 tests);
+    - `scripts/s38_build.py` unchanged (`15373e14…`).
+  - **The integrity gate** pins this module sha in place of 6p's `ecc55fa0…`, on the live snapshot; `s38-prod-pin` moves to the new
+    FRIDAY_HEAD (the classification is re-checked there).
+  - **Order:** this amendment; the laptop's ack; the pin and the gate.
 
 ## 1. Why
 - **The operator (10-06), on the proposal:** "yes, please try it, I want to exhaust all reasonable options."

@@ -328,3 +328,18 @@ def test_his_package_is_armed_only_whole_and_the_flat_35_never_alone(tmp_path):
     assert not any(f.startswith(alone) or f.startswith(pkg) for f in found), found
     env = fresh("e"); env.update(UNION_MAIN_CAP="0.5", UNION_MAIN_OWN_CAP_DELTA="0")
     assert not any(f.startswith(alone) or f.startswith(pkg) for f in _failures(_run(env)))
+
+
+def test_his_test2_row_rules_ride_only_on_his_package(tmp_path):
+    """His 10-09 test 2 (study 91): UNION_MIX_ROW_RULES=te1_low1 needs the mix and his package (the ownership file)."""
+    def fresh(name):
+        d = tmp_path / name; d.mkdir(); return _healthy(d)
+
+    msg = "UNION_MIX_ROW_RULES="
+    env = fresh("a"); env.update(UNION_MIX_ROW_RULES="te1_low1", UNION_MAIN="mix", UNION_MIX_PORTFOLIO="mix", UNION_MAIN_CAP="0.5")
+    assert any(f.startswith(msg + "'te1_low1' must be te1_low1, with UNION_MAIN=mix and his package") for f in _failures(_run(env)))
+    env = fresh("b"); env.update(UNION_MIX_ROW_RULES="te2", UNION_MAIN="mix", UNION_MIX_PORTFOLIO="mix")
+    assert any(f.startswith(msg + "'te2'") for f in _failures(_run(env)))
+    env = fresh("c"); env.update(UNION_MIX_ROW_RULES="te1_low1", UNION_MAIN="mix", UNION_MIX_PORTFOLIO="mix", UNION_MAIN_CAP="0.35",
+                                 UNION_MAIN_OWN_CAP_DELTA="15")
+    assert not any(f.startswith(msg) for f in _failures(_run(env)))

@@ -566,6 +566,55 @@ def own_cap_rows(source: Path, t70: pd.DataFrame, exclude: set[str], delta_pts: 
     return caps, meta
 
 
+def _dk_text(x) -> str | None:
+    """A DK player id as text ('123', never '123.0'); None when missing (study 38 6p's _dk)."""
+    if x is None or (isinstance(x, float) and not np.isfinite(x)) or str(x).strip() in ("", "nan", "None"):
+        return None
+    try:
+        return str(int(float(x)))
+    except ValueError:
+        return str(x).strip()
+
+
+def row_rule_sets(source: Path, t70: pd.DataFrame, exclude: set[str], low_pct: float) -> tuple[set[str], set[str], dict]:
+    """Study 91's row rules (nfl2 experiments/s91_row_rules.py; the W5 paper arm's study 38 6p low_owned, lab b03ddaac): the
+    pool's TEs, and the pool's SKILL players whose Fantasy Points projected ownership -- the ownership_fp file's fp_own_raw,
+    FP's RAW % -- is below low_pct, matched by the frame id, then the DK id; a blank fp_own_raw (lag-filled) or a player the
+    file does not name counts as 0% (low). Refuses (SystemExit 'ROW RULES REFUSED: ...') on a missing file / column or a
+    non-number fp_own_raw."""
+    def refuse(why: str):
+        raise SystemExit(f"ROW RULES REFUSED: {why}")
+    if source is None or not Path(source).is_file():
+        refuse(f"the ownership file {source} does not exist")
+    d = pd.read_csv(source, dtype=str)
+    if "fp_own_raw" not in d.columns or "id" not in d.columns:
+        refuse(f"{Path(source).name} lacks id / fp_own_raw")
+    raw = d["fp_own_raw"].fillna("").astype(str).str.strip()
+    num = pd.to_numeric(raw.where(raw != ""), errors="coerce")
+    if bool((num.isna() & (raw != "")).any()):
+        refuse(f"{Path(source).name}: a non-number fp_own_raw")
+    by_id = {str(i): float(v) for i, v in zip(d["id"], num) if pd.notna(v)}
+    by_dk = ({kk: float(v) for i, v in zip(d["dk_player_id"], num) if pd.notna(v) and (kk := _dk_text(i)) is not None}
+             if "dk_player_id" in d.columns else {})
+    pool = t70[~t70.id.astype(str).isin(exclude)]
+    dks = pool["dk_player_id"] if "dk_player_id" in pool.columns else pd.Series([None] * len(pool))
+    te, low, named, n_skill = set(), set(), 0, 0
+    for i, dk, pos in zip(pool.id.astype(str), dks, pool.pos.astype(str)):
+        if pos == "TE":
+            te.add(i)
+        if pos not in SKILL:
+            continue
+        n_skill += 1
+        v = by_id.get(i)
+        if v is None and _dk_text(dk) is not None:
+            v = by_dk.get(_dk_text(dk))
+        named += v is not None
+        if v is None or v < low_pct:
+            low.add(i)
+    return te, low, {"source": str(source), "source_sha256": sha256_file(Path(source)), "low_pct": low_pct,
+                     "pool_skill_players": n_skill, "named": named, "low_owned": len(low), "pool_tes": len(te)}
+
+
 def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap: int | None, min_salary: int,
              weights: list[int], exposure_cap: int | None = None, dst_cap: int | None = None,
              bonus: dict[str, float] | None = None, portfolio: str = "mix",
@@ -575,7 +624,8 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
              cell_quotas: dict[str, float] | None = None,
              bring_back_top_wr: tuple[str, ...] = (),
              bring_back_top_wr_rows: int | None = None,
-             own_cap: dict[str, int] | None = None) -> tuple[list[list[str]], list[str], dict, list[tuple[list[str], str]]]:
+             own_cap: dict[str, int] | None = None,
+             row_bounds: list | None = None) -> tuple[list[list[str]], list[str], dict, list[tuple[list[str], str]]]:
     """study 18's MIX book on the T-70 frame: cells solved largest first (ties: the earlier cell) through ONE shared state
     (banned lineups, the per-player exposure cap, the DST cap, <= max_shared with every earlier row); a cell row that cannot
     be solved passes to A1 (counted); then the rows are ordered by the entry-weighted interleave of the plan's weights.
@@ -620,7 +670,11 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
     player id -> rows; on every solve while j = len(prev) < k (the book: the live and term blocks; spares never) every player
     already in his own_cap rows is banned too, ONE solve with the solve's other rules; an infeasible solve is re-solved on the
     same state without the ownership bans (the lab's OwnCapBuilder: nfl2 experiments/s89_own_cap.py own_caps @ 4d0daa47),
-    recorded as (cell, j)."""
+    recorded as (cell, j).
+    row_bounds (study 91; the operator 10-09 "use it in week 5" if better on both draws; default None = off, byte for byte
+    today's book): (ids, lo, hi) member bounds -- at most one TE, at most one low-owned skill player -- on every solve while
+    j < k (spares never), ONE call with the solve's other rules, INSIDE the ownership cap: infeasible -> the same solve without
+    them (the ownership cap kept), recorded (cell, j) (study 38 6p's row_rules @ b03ddaac, entered before own_caps)."""
     from nfl2.core.lineup import StackRules, optimize          # the pinned lab clone on PYTHONPATH (>= f69598b)
     pool = [p for i, p in frame_players(t70).items() if i not in exclude]
     objective = "proj"
@@ -702,7 +756,23 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
         own_state["plain"].append((name, j))
         return _peek(name, extra_bans, use_term)
 
+    row_state: dict = {"ruled": [], "plain": []}
+    rb = [(sorted(ids), int(lo), int(hi)) for ids, lo, hi in (row_bounds or [])]
+
     def _peek(name: str, extra_bans: frozenset = frozenset(), use_term: bool = False):
+        """Study 91's row rules around _solve (absent when row_bounds is None): on a book solve (j < k) the bounds ride as
+        member_bounds, one call; infeasible -> the same solve without them, recorded. Called inside peek's ownership cap."""
+        j = len(prev)
+        if not rb or j >= k:
+            return _solve(name, extra_bans, use_term)
+        got = _solve(name, extra_bans, use_term, rb)
+        if got[0] is not None:
+            row_state["ruled"].append((name, j))
+            return got
+        row_state["plain"].append((name, j))
+        return _solve(name, extra_bans, use_term)
+
+    def _solve(name: str, extra_bans: frozenset = frozenset(), use_term: bool = False, member_bounds: list | None = None):
         """The cell's next row on the CURRENT state, not committed: (ids, objective value, fallback) or (None, None, None).
         use_term: on the term block's objective (projection + the capped term). fallback: None, or why a study-71 cell's
         row was built WITHOUT the top-WR floor ("infeasible with the floor" / "no pairs"), or "plain" for a designated solve
@@ -716,6 +786,8 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
         use_pool, use_obj = (term_pool, "obj") if use_term else (pool, objective)
         kw = dict(stack=StackRules(**rules), objective_col=use_obj, banned_lineups=prev, max_overlap=max_shared,
                   bans=bans or None, env=env, second_game_pair=games if which == "all" else None, qb_game_max=qmax)
+        if member_bounds:                                      # study 91's row rules (absent when off)
+            kw["member_bounds"] = member_bounds
         fb = None
         if name in bb_cells and floor_open():
             lu = optimize(use_pool, interaction_floor_weights=bb_pairs, interaction_floor=1.0, **kw) if bb_pairs else None
@@ -969,6 +1041,9 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
                        "caps_from_book_entries": k},
             "source": ("nfl2 experiments/s18_stack_shapes.py @ 5869a1b (CELLS, allocate, interleave, mix_book)" if portfolio == "mix"
                        else "nfl2 experiments/s18_stack_shapes.py @ 5869a1b (WS, whole_book; PASSED, Addendum 129)")}
+    if rb:                                                     # study 91's receipt block (absent when off)
+        meta["row_rules"] = {"bounds": [{"ids": len(ids), "lo": lo, "hi": hi} for ids, lo, hi in rb],
+                             "ruled_solves": len(row_state["ruled"]), "resolved_without": [list(x) for x in row_state["plain"]]}
     if own_cap:                                                # study 89's receipt block (absent when off)
         meta["own_cap"] = {"players": len(own_cap), "ruled_solves": len(own_state["ruled"]),
                            "resolved_without": [list(x) for x in own_state["plain"]],
@@ -1229,6 +1304,13 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--main-own-cap-fallback-share", type=float, default=None,
                     help="with --main-own-cap-delta: when the ownership cap is REFUSED, build with THIS player-cap share instead of "
                          "--main-cap-share (the operator's rule 10-09: the flat 35%% never runs alone; e.g. 0.5) and print an alert")
+    ap.add_argument("--mix-max-te", type=int, default=None,
+                    help="study 91 (default off): with --main mix and the ownership cap applied, at most this many TEs per main-book row (1)")
+    ap.add_argument("--mix-max-low-own", type=int, default=None,
+                    help="study 91 (default off): with --main mix and the ownership cap applied, at most this many skill players per "
+                         "main-book row whose FP projected ownership (--main-own-cap-source's fp_own_raw, raw %%; blank = 0%%) is below "
+                         "--mix-low-own-pct (1)")
+    ap.add_argument("--mix-low-own-pct", type=float, default=3.0, help="study 91: the low-ownership threshold in percent (3)")
     ap.add_argument("--main", choices=["mean", "pmo_x50", "mix"], default="mean",
                     help="the main book: mean = the union pool's top-K by projected sum (paper arm); pmo_x50 = K capped plain-mean-optimizer rows solved on the T-70 frame (ENTERS Week 4); "
                          "mix = study 18's shape portfolio: the same capped solves by cell (nfl_dfs.inference.mix_shapes), ordered by the plan's entry-weighted interleave")
@@ -1318,6 +1400,12 @@ def main(argv: list[str] | None = None) -> int:
         raise SystemExit("--main-own-cap-delta is defined for --main mix (study 89's book)")
     if a.main_own_cap_fallback_share is not None and not (a.main_own_cap_delta and 0 < a.main_own_cap_fallback_share <= 1):
         raise SystemExit("--main-own-cap-fallback-share needs --main-own-cap-delta and a share in (0, 1]")
+    if (a.mix_max_te is not None or a.mix_max_low_own is not None) and (a.main != "mix" or not a.main_own_cap_delta
+                                                                         or a.main_own_cap_source is None):
+        raise SystemExit("--mix-max-te / --mix-max-low-own are defined for --main mix with the ownership cap "
+                         "(--main-own-cap-delta and --main-own-cap-source; study 91 is read on his armed package)")
+    if any(v is not None and v != 1 for v in (a.mix_max_te, a.mix_max_low_own)) or not 0 < a.mix_low_own_pct <= 20:
+        raise SystemExit("--mix-max-te / --mix-max-low-own take 1 (study 91's tested value); --mix-low-own-pct in (0, 20]")
     if a.main_own_cap_delta and a.main_cap_share != 0.5 and a.main_own_cap_fallback_share is None:
         raise SystemExit("--main-own-cap-delta with --main-cap-share != 0.5 needs --main-own-cap-fallback-share (his rule 10-09: a "
                          "refused ownership cap must never leave the flat player cap running alone)")
@@ -1497,6 +1585,23 @@ def main(argv: list[str] | None = None) -> int:
                 own_cap_meta["cap_share_used"] = cap_share_used
                 print(f"\n!!! OWN CAP NOT APPLIED: {exc} -- the book is built without it at the player-cap share {cap_share_used} "
                       f"({xcap} rows)\n", flush=True)
+        row_bounds, row_meta = None, None
+        if a.mix_max_te is not None or a.mix_max_low_own is not None:   # study 91: only on the applied ownership cap, else LOUDLY off
+            if own_cap is None:
+                row_meta = {"applied": False, "not_applied": "the ownership cap is not applied"}
+            else:
+                try:
+                    te_ids, low_ids, row_meta = row_rule_sets(a.main_own_cap_source, fr, excl, a.mix_low_own_pct)
+                    row_bounds = ([(te_ids, 0, a.mix_max_te)] if a.mix_max_te is not None else []) + \
+                                 ([(low_ids, 0, a.mix_max_low_own)] if a.mix_max_low_own is not None else [])
+                    row_meta.update({"applied": True, "te_max": a.mix_max_te, "low_own_max": a.mix_max_low_own})
+                    print(f"ROW RULES: at most {a.mix_max_te} TE and at most {a.mix_max_low_own} skill player under "
+                          f"{a.mix_low_own_pct:g}% FP projected ownership per main row ({len(te_ids)} TEs, {len(low_ids)} low-owned "
+                          f"of {row_meta['pool_skill_players']} pool skill players)", flush=True)
+                except SystemExit as exc:
+                    row_bounds, row_meta = None, {"applied": False, "not_applied": str(exc)}
+            if row_bounds is None:
+                print(f"\n!!! ROW RULES NOT APPLIED: {row_meta['not_applied']} -- the book is built without them\n", flush=True)
         dcap = max(1, int(a.main_dst_cap * a.entries)) if a.main_dst_cap else None
         qcap = a.main_qb_cap_rows
         bonus, own_meta = own_bonus(a.main_own_source, fr, excl, a.main_own_tilt, a.main_own_min_coverage) if a.main_own_tilt else ({}, {})
@@ -1526,9 +1631,12 @@ def main(argv: list[str] | None = None) -> int:
                                                                        spares=0 if bonus else a.mix_spares,
                                                                        term_rows=term_rows, term_bonus=term_bonus,
                                                                        cell_quotas=cell_quotas, bring_back_top_wr=bb_cells,
-                                                                       bring_back_top_wr_rows=bb_rows, own_cap=own_cap)
+                                                                       bring_back_top_wr_rows=bb_rows, own_cap=own_cap,
+                                                                       row_bounds=row_bounds)
             if own_cap_meta is not None:
                 mix_meta["own_cap_source"] = own_cap_meta
+            if row_meta is not None:
+                mix_meta["row_rules_source"] = row_meta
             if bb_cells:
                 print(bring_back_top_wr_line(mix_meta.get("bring_back_top_wr")), flush=True)
             if a.term_block_rows:
@@ -1571,7 +1679,8 @@ def main(argv: list[str] | None = None) -> int:
                                                                       portfolio=a.mix_portfolio, spares=a.mix_spares, fill=a.mix_fill,
                                                                       cover_games=a.mix_cover_games, rs_rows=a.mix_rs_rows,
                                                                       cell_quotas=cell_quotas, bring_back_top_wr=bb_cells,
-                                                                      bring_back_top_wr_rows=bb_rows, own_cap=own_cap)
+                                                                      bring_back_top_wr_rows=bb_rows, own_cap=own_cap,
+                                                                      row_bounds=row_bounds)
                 main_tags = [TAG_PREFIX + c for c in main_cells]; mix_meta["with_term"] = own_mix
                 if bb_cells:
                     print("(the ownership-term book) " + bring_back_top_wr_line(own_mix.get("bring_back_top_wr")), flush=True)
