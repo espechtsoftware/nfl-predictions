@@ -70,6 +70,19 @@ reviewer and updated as each study is read.
   reviewer's scan for study 78), so the rule would change much more there.
 - **Versions to consider later:** a real-book check first, then a paper test. (Two stars per lineup was mixed: off.)
 
+### 8. Limit how far above the field we go on any player (study 89) — *the first lever today that points the right way on both draws; ARMED for Week 5*
+- **Why:** in Weeks 2–4 the players we held far above the field fell short, and the ones we held below it did better
+  (the outside reviewer's breakdown of your real entries, 10-09).
+- **Study 89 (two separate draws):** 35% max + each player capped at the field's projected ownership + 15 points: **+1.2**
+  vs your book (draw A +0.5, draw B +1.9); about 5% fewer expected big wins; within the noise. The ownership cap on top of
+  the 35% max alone: **+3.2** (both draws positive). With the field's *actual* ownership (a best case): +2.5.
+- **The 35% max alone: −2.0** (both draws negative) — by your rule it is NOT armed on its own.
+- **Your decision (10-09):** a live Week-5 trial if built and checked in time — **it was, and you said "Yes, arm the
+  package"**: 35% max + each skill player at most Fantasy Points' projected ownership + 15 points; today's book (50%, no
+  ownership cap) is scored on paper beside it; if Sunday's ownership file fails, the book falls back to today's book.
+- **On your Week-4 book:** no player in more than 9 of 26 lineups (was 13), players in 40%+ of lineups 7 → 0, distinct
+  players 48 → 54, about 2.9 projected points per lineup lower.
+
 ## Tested and not promising (closed unless you say otherwise)
 - Forced top stacks: the opponent's top receiver as the bring-back (71, 71b), QB + top pass catcher in the top games (73),
   the full game stack (74), two bring-backs (76) — each at or below your book on 2023–24.
@@ -81,11 +94,17 @@ reviewer and updated as each study is read.
 - No player over $7,900 in the book (86): **−4.9** (2023 −4.4, 2024 −5.5); about 18% fewer expected big wins; 2022 −0.3. Its
   real-book cost is small (−0.18 projected points per lineup; 17 of 26 lineups change), but the test model reads it clearly
   worse — the stars are worth keeping.
+- Your study-87 book (87), all built without the usage caps: **the whole book −3.3** (2023 −9.0, 2024 +2.5; 2022 +3.5); about
+  8% fewer expected big wins. **The price half −6.1** (2023 −6.7, 2024 −5.5; 2022 +3.6), the clearest negative of the morning,
+  23% fewer expected big wins — the same as study 85's −3.1 for the same price rules. **The QB half** (top-4-game QB with his
+  top receiver) **−2.3**, and below on 2022 too (−1.5). Removing the caps alone: −1.7. Against the no-caps book, the price
+  rules cost −4.4 and the QB rules −0.6. Without the QB cap, one QB took up to 24 of 26 lineups.
 
 ## Still running
-- **Study 87:** a top-4-game QB with his top receiver, plus the price rules, with the usage caps removed (and a no-caps
-  book alongside). Real book (the bans only; the receiver and flex rules can't be emulated): with today's caps, the QB
-  restriction adds about 0.9 projected points per lineup to the price limits' 0.7; with the caps off (your amendment), all of
-  87's limits together cost about 1.4 per lineup against a no-caps book.
+- **Study 88 (running after study 89; your "slightly cheaper QB" request):** 87's book again on a fresh draw (the second reading
+  the rule above asks for), plus three versions of it: no QB priced $7,000 or more; a TE ($5,000 or less) allowed in the flex;
+  and both. Why these: in the 2026 Week 1–4 Millionaires the top 1% rarely played a $7,000+ QB (3% of lineups vs the field's
+  9%), and they put a TE in the flex MORE often than the field (37% vs 28%), so 87's "no TE in the flex" rule goes against
+  what the winners did. All built without the usage caps, as in 87.
 
 *Updated as each study is read.*
