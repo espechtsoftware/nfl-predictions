@@ -20,6 +20,11 @@ team as QB / WR or RB in Flex", then "In this case at least 1 wr <= 4500 can be 
 
 - **His clarification** (relayed verbatim): "top receiver" means "Highest-priced WR". That is s70's top_wr: WRs only, so a TE
   never counts. The laptop's read-only count used the same definition: 4 of 26 W4 rows lack it.
+- **His amendment** (relayed verbatim, before 85's READ): "For study 87, it seems that the other rules that you mentioned about how much we
+  can use a quarterback and stuff like that are going to get in the way. Just for the purposes of this experiment, can we remove
+  those rules?" Asked, he chose "All usage caps" (QB 5, player 13 and DST 6 removed; the overlap limit of 4 kept) and "Yes, add a
+  no-caps book". So study 87 is LIVE_CB (capped) against NOCAP / BOOK87 / PRICE87 / QBTOP87, all four uncapped (lab `5fbdfd5c`,
+  prereg `e99094e4`).
 - **Study 87:** BOOK87 (all six rules; at least one WR ≤ $4,500), PRICE87 and QBTOP87 against LIVE_CB.
   - Information for his decision, with no automatic Week-5 rule.
   - Its design is on origin before 85's and 86's READs (`review/s87-prereg-20261009` @ `5342f218`).
