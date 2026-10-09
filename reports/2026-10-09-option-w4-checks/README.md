@@ -98,3 +98,29 @@ The read-only counts on the OFF book:
 - **87:** 9 of 26 rows have a QB outside the top-4 games; 4 lack the QB's own top WR; 14 have ≥ 1 WR ≤ $4,500.
 
 87's QB restriction leaves 8 QBs for 26 rows under the cap of 5, the likely source of most of its cost.
+
+## Addendum (08:04–08:05 runs): study 87's no-caps book on his real book
+
+The same runner and gate (OFF = `a4ab2839`). The caps were lifted with `--main-qb-cap-rows 26 --main-cap-share 1.0
+--main-dst-cap 1.0`: the QB cap of 5 rows, the player cap of 13 rows and the DST cap of 6 rows. These are the caps
+the operator removed for study 87 (overlap 4 kept). The second run adds 87's bans through the same `--dk-status` file
+as above. Verbatim: `OUTPUT-nocap.txt`, `OUTPUT-book87-bans-nocap.txt`. The concentration counts below come from the
+books' player ids only.
+
+| | OFF (caps on) | NOCAP (no bans) | 87's bans, caps off |
+|---|---|---|---|
+| Rows changed | | 12 of 26 | 24 of 26 |
+| FP projection per row | 143.70 | 144.66 (+0.96) | 143.25 (−0.45; −1.41 vs NOCAP) |
+| Most rows for one player | 13 | 21 | 20 |
+| Most rows for one QB / distinct QBs | 5 / 9 | 6 / 12 | 8 / 6 |
+| Most rows for one DST / distinct DSTs | 6 / 7 | 8 / 7 | 11 / 5 |
+| Rows with a non-QB same-team pair | 7 | 2 | 7 |
+| Flex WR / TE / RB | 1 / 14 / 11 | 1 / 12 / 13 | 4 / 11 / 11 |
+
+**Reading:**
+- Lifting the caps alone raises the FP projection (+0.96 per row), as removing a constraint must. One player then sits
+  in 21 of 26 rows.
+- With 87's bans and no caps, the cost against the capped live book falls from −1.59 to −0.45 per row. The caps were
+  most of the bans' real-book cost, as the 07:11 note expected.
+- Against its own no-caps baseline, the bans still cost −1.41 per row. Study 87 measures
+  that part (its prereg reads each rule arm against NOCAP).
