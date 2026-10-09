@@ -12,6 +12,21 @@
 > **Machine move: `reports/2026-09-24-production-moves-to-the-laptop.md` (supersedes the 09-15 transition guide).**
 
 # Project handoff
+## 2026-10-09 (16:58 CDT) — the W1–4 dupe check (item 5a): duplication cost nothing measurable; dupe-aware dealing not built now; a Monday copy-count line
+
+The outside reviewer's read-only check of the money gate's W1–4 real fields. Private rows are in ~/private/dupe-check/; only
+aggregates appear here.
+- 15 of our 535 W1–4 entries (2.8%) had an exact copy in their field. 11 of the 15 were in W4, the ownership-tilt (0.20) book.
+- 25 of our entries finished in a paid place; one of them had copies (a W1 min-cash, split three ways).
+- First place was tied in 4 of 86 contests, all W3 SUPERSats with 25 seats, where a tie still gets the seat.
+- The 48 one- to three-seat contests had 0 ties for first and 0 copied winning lineups.
+- **His item 5's dupe-aware dealing is NOT worth building now.** The outside reviewer told him.
+- **Monday (the W5 money-gate report):** add our entries' exact 9-player copy count per contest group. The armed W5 version
+  pulls toward the field (the ownership cap, at most one low-owned player per row), so the copy rate could rise. A rise is
+  the trigger to revisit.
+  - It is a scripts/ change, so it waits until after Saturday's arming (the arm's CODECHG).
+- Study 94's code comes tonight; its smoke runs after 93's scored run.
+
 ## 2026-10-09 (16:57 CDT) — OPERATOR: item 5 sooner ("yes"): the dupe check now, study 94 built tonight; study 38 6s acked and merged
 
 **His decision, made in the outside reviewer's session and relayed verbatim.**
