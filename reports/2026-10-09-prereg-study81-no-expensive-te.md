@@ -1,7 +1,10 @@
-# Preregistration: study 81, no expensive tight end (priced $5,000 or more) on the first 8 book rows, in the harness (DRAFT 2026-10-09)
+# Preregistration: study 81, no expensive tight end (priced $5,000 or more) on the first 8 book rows, in the harness (FROZEN 2026-10-09)
 
-**Status: DRAFT 2026-10-09 (02:02 CDT)** by the outside reviewer, before any scored bank. The reviewer (84) reviews, runs the
-binding census and FREEZES; the laptop acks (shas, tests, census re-run, banks and seed scanned).
+**Status: FROZEN 2026-10-09 (02:08 CDT)** by the reviewer, after the outside reviewer's DRAFT (02:02 CDT), the smoke and the
+binding census (§6), before any scored bank.
+- The text changed at the freeze in §6 (the census) and in §4, which now carries the census's figures beside the smoke's.
+- The module and the reader are the DRAFT's, unchanged. The laptop acks: shas, tests, the census re-run, and the scan of
+  the banks, the derived bases and the seed (its scan of 1689–1712 was running at the freeze; the ack reports it).
 - **Banks 1689–1694, seed 20261126** (assigned by the reviewer; the laptop scans the banks and the derived bases 1739–1744 /
   2389–2394).
 - **Target:** tonight's second round. A production option only if NOTE5K8 is ENTERABLE and the operator chooses it in the
@@ -71,7 +74,17 @@ binding census and FREEZES; the laptop acks (shas, tests, census re-run, banks a
   - QB + TE stack rows: 15.0 / 14.0 / 12.7; flex (WR / TE / RB) 4.3 / 15.7 / 6.0 → 4.3 / 15.3 / 6.3 → 6.3 / 12.7 / 7.0;
   - projection per row −0.01 (NOTE5K8) / −0.57 (NOTE5K_ALL); dealt identical to LIVE_CB 0.333 / 0.333 (on one of the three
     slate-banks the first 8 rows held no expensive TE).
-- **Path dependence:** the rows re-draw the rest of the book (the smoke shared 8.7 of 26 rows with LIVE_CB).
+- **The binding census (53 slate-banks, §6):**
+  - VACUITY: LIVE_CB holds a $5k+ TE in 2.74 of the 8 rows at the ruled positions (his book: 3 of 8). By season: 2022 2.71,
+    2023 1.83, 2024 3.67.
+  - Pool TEs priced ≥ $5,000 per slate-bank: 4.08 overall; by season 2022 3.06, 2023 4.17, 2024 4.94 (min 1, 2, 2). No
+    slate-bank has none to ban.
+  - $5k+ TE rows per book: 7.89 → 6.91 (NOTE5K8), 0.00 (NOTE5K_ALL). NOTE5K8 still mostly moves them, now confirmed on 53
+    slate-banks.
+  - QB + TE stack rows 12.23 → 11.74 / 10.34; projection −0.02 / −0.32; dealt identical 0.245 / 0.151.
+  - The per-season figures are computed from the committed raw mechanics rows (outcome-blind fields only).
+- **Path dependence:** the rows re-draw the rest of the book (the smoke shared 8.7 of 26 rows with LIVE_CB; the census
+  10.4).
 - **The base is our simulator's mean, not FP's. The lines are closing lines.**
 
 ## 5. What a verdict can do
@@ -88,7 +101,20 @@ binding census and FREEZES; the laptop acks (shas, tests, census re-run, banks a
   infeasible, 0.846 big-read; the rest as §4.
 - **The full-path smoke** (2024 W10, 2022 W6 scored on bank 1406): the reader exited 0 with 41 lines and 3 sections; only
   those were read.
-- **The binding (support) census:** the reviewer's, on all 53 slate-banks of bank 1406, before the freeze.
+- **The binding (support) census** (the reviewer's; outcome-blind; bank 1406; all 53 slate-banks of 2022–24; code
+  `9cde705f` clean; 8 tests pass; lab `results/s81/CENSUS_s81_binding.txt` `81c59b48…`, the raw mechanics rows
+  `census_mechanics_bank1406.jsonl` `0fc49771…` with no outcome field, committed at `7fcc7bfa`):
+  - every arm is 41 rows within production's constraints, with 8 term rows and every row in the pool;
+  - NOTE5K8: 8 of 8 ruled on every slate-bank, 0 infeasible, at book positions 0, 2, 3, 5, 6, 7, 9, 10 (read by big
+    contests: 1.000);
+  - NOTE5K_ALL: 26 of 26, 0 infeasible (0.846 big-read: every book row), by design exploratory;
+  - vacuity 2.74 of 8; pool TEs ≥ $5,000 4.08 per slate-bank, never 0;
+  - $5k+ TE rows 7.89 / 6.91 / 0.00; QB + TE stack rows 12.23 / 11.74 / 10.34;
+  - flex WR / TE / RB: 6.2 / 15.2 / 4.6, 6.3 / 14.3 / 5.4, 7.9 / 11.1 / 7.0;
+  - QB + 2 rows 12 in every arm;
+  - projection cost −0.02 / −0.32 per row;
+  - rows shared with LIVE_CB 10.4 / 8.8; dealt identical 0.245 / 0.151 (no dead lever).
+  - Disclosed: the laptop's bank scan (one process) ran beside the census; the mechanics are seeded.
 - **Code:** nfl2 `production/s81-note5k-20261009` @ `9cde705f` (the outside reviewer's draft; branched from study 80's
   `9a9ee47b`, which carries every LEDGER row through 80 and 79's correction):
   - `experiments/s81_note5k.py` `b37dbbc9…`;
