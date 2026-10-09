@@ -10379,3 +10379,102 @@ secondaries (pooled slate means; v2 = the calibrated field, l02 = the earlier fi
   old book on a second independent draw. Nothing here for Week 6; the real-week paper comparison (study 38: MIXT_QA0_TODAY, the
   old book, beside his live package) is the measure.
 - **Recommendation (his decision):** keep + 15; do not move to + 10.
+
+## Addendum 190 (2026-10-09): study 92 (S1, shrink the projection toward the slate's salary curve, and S2, at least one $8,000+ RB / WR / TE per lineup, on his armed Week-5 version, in the harness): his S1 rule says PAPER ONLY -- the shrink reads WORSE (−4.4) on both draws; the star rule reads worse too (−5.8) and failed its own gate on the replay
+
+**Setup.**
+- **His request** (HANDOFF `2be97397`, verbatim there; the construction-suggestions briefing `3fb9e9d7`): "Test both tonight for live":
+  S1 (k 0.7) and S2 (one $8,000+ non-QB skill player per row).
+  - S1's gate: GO LIVE iff SHRINK07 − ARMED > 0 on BOTH draws and expected big seats ≥ 0.80 (study 91's rule).
+  - S2's gate: the laptop's W3 / W4 real-field replay (higher mean finish over all W4 contests AND no fewer cashes). It FAILED
+    there (50.4 against 58.7 percentile; 2 against 6 cashes): paper only. Here its arms are informational.
+- **The arms.** Study 89's harness, every arm his armed version (the package: 0.35 + the ownership cap + 15; the row rules te1 +
+  low1 via study 38 6p's `row_rules` inside `own_caps`), ONE row-rule list per arm:
+  - ARMED (the reference); SHRINK07 (the objective's base shrunk: per skill position the median of the pool's same-position
+    projections within ± $500, proj' = typical + 0.7 × (proj − typical)); STAR1 (+ at least one $8,000+ RB / WR / TE per row);
+    SHRINK07_STAR1 (both).
+- **The prior.** S1 is new in both ledgers. S2 relates to study 78 (Addendum 176: two $8,000+ players on the first 8 rows, mixed,
+  guard 1 failed).
+- **Preregistration:** `reports/2026-10-09-prereg-study92-shrink-star.md` (DRAFT by the outside reviewer; FROZEN `b15a1a46`, 10-09
+  15:57 CDT, before any scored bank).
+- **Code:** nfl2 `7913aefc`: module `37980da6…`; drive `55d3fab8…`; census `7045bc40…`; reader `74aff8ae…`; tests `e70d7b1b…` (7).
+- **Panel:** banks 3012–3023 (A 3012–3017, B 3018–3023), B 20,000, seed 20261137, PYTHONHASHSEED=0. The laptop's scan was clean.
+- **His real W4 book** (the laptop's outcome-blind checks against the armed book): + S1 −0.14 FP per row, 21 of 26 rows change;
+  + S2 −0.27, 26 of 26 (only four $8,000+ non-QB players on W4, so every row holds one of them); both −0.59.
+- **Census** (binding, bank 1406, 36 slate-banks; lab `065841ef`; the laptop's re-run identical): SHRINK07 0 of 936 infeasible,
+  1.17 rows shared with ARMED; the star arms 47 of 936 row-rule fallbacks (5.0%; one list, so a fallback drops the armed rules
+  too; disclosed, informational); ARMED identical rows to study 91's TE1_LOW1 census.
+- **Read:** the reader `74aff8ae`; READ `344de57b` (lab `8fbbe8f9`). The confirmatory census (`8a8fb664`, raw shas `a1a3559f`,
+  RUN_ENV `e77de11f`; lab `acf81d1b`) was committed before the READ: SHRINK07 0 of 11,232 infeasible; the star arms 568 / 565 of
+  11,232 fallbacks (5.1%).
+- **Reproduced byte-identically by the laptop** at `8fbbe8f9`: the raw files 3012–3023 pass `sha256sum -c` against
+  `RAW_s92_run.sha256`; the READ is `344de57b` and the confirmatory census `8a8fb664` (cmp-identical).
+
+**Reader output (verbatim):**
+```
+STUDY 92 READER  sha256 74aff8aec53f2b0009213328b88191f22ab832d3ec882b4be97c26c6587d8683
+DIRECTION: P(>= 1 big seat) per slate (the mean over a set's banks); every difference is FIRST ARM - SECOND; POSITIVE favours the first.
+slates 36 (2023-24)  banks [3012, 3013, 3014, 3015, 3016, 3017, 3018, 3019, 3020, 3021, 3022, 3023]  sets {'pooled': [3012, 3013, 3014, 3015, 3016, 3017, 3018, 3019, 3020, 3021, 3022, 3023], 'A': [3012, 3013, 3014, 3015, 3016, 3017], 'B': [3018, 3019, 3020, 3021, 3022, 3023]}  B 20000  seed 20261137  comparisons (('SHRINK07', 'ARMED'), ('STAR1', 'ARMED'), ('SHRINK07_STAR1', 'ARMED')) on the CALIBRATED field (v2), pooled two-sided 0.95; guard 1 one-sided 0.95 at -0.015, guard 2 ratio >= 0.80; the guards gate a PASS only; the two-draw rule printed for his decision
+arms (definitions, the ownership rule, caps, studies 91 / 89 / 87 / 29 / l24 / 73's shas, live settings, QB cap, objective): [["ARMED", "SHRINK07", "STAR1", "SHRINK07_STAR1"], {"block": {"cap": 2.0, "min_coverage": 0.5, "n_term": 8, "tilt": 0.2}, "cap_share": {"ARMED": 0.35, "SHRINK07": 0.35, "SHRINK07_STAR1": 0.35, "STAR1": 0.35}, "delta": 0.15, "low_pct": 3.0, "own_arms": ["ARMED", "SHRINK07", "STAR1", "SHRINK07_STAR1"], "row_rules": {"ARMED": ["te1", "low1"], "SHRINK07": ["te1", "low1"], "SHRINK07_STAR1": ["te1", "low1", "star1"], "STAR1": ["te1", "low1", "star1"]}, "rows": "every book solve in build order (any cell): skill players at floor(k_book x (pred/100 + delta)) book rows banned, one solve; infeasible -> the same solve without them, recorded", "shrink": {"arms": ["SHRINK07", "SHRINK07_STAR1"], "k": 0.7, "window": 500.0}, "skill_sum": 800.0, "source": "blend_pct", "star_salary": 8000.0}, {"ARMED": [9, 6], "SHRINK07": [9, 6], "SHRINK07_STAR1": [9, 6], "STAR1": [9, 6]}, "9cde18bd221e52069b449044a37720996ffb0efafac88202d44f02a7dc898aa8", "92b0934541df62146e31c2114dfed716c956a8546c066682048e037e8bfd34f8", "85adf47bfb6366fb4510fb4a669b2e087e94b1b920651e1a3bf19fe98a3330c5", "07abafc367d7fff2a0ba49ae3c21cbeebfe1523cccf922581c41143b755f7596", "ca8e0d032c6997e18bfaf02e92f42bd5fd2834a6bba4ed2c6d2c77e8b880c2aa", "3f76c6295d8666cf4f256a103c7ba3fe428630d6149c7a6009648487900d806d", {"fill": "rr", "max_shared": 4}, 5, "player_mean (+ the cheap block term)"]
+
+== SHRINK07 vs ARMED  [for his decision; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate -0.04398  [-0.08147, -0.00735] (two-sided 0.95)  seasons 2023 -0.04394, 2024 -0.04403
+  GUARD 1 mean entry pct -0.01358  one-sided lower -0.02698  (must exceed -0.015)
+  GUARD 2 expected big seats 0.45614 vs 0.53628  ratio 0.851  (must be >= 0.80)
+  SHRINK07 dealt identical to ARMED: 0.000 of slate-banks
+  ->  WORSE
+  set A [3012, 3013, 3014, 3015, 3016, 3017]: -0.06551  [-0.11586, -0.01664]  seasons 2023 -0.04600, 2024 -0.08501
+  set B [3018, 3019, 3020, 3021, 3022, 3023]: -0.02246  [-0.06740, +0.02104]  seasons 2023 -0.04188, 2024 -0.00304
+  TWO DRAWS: NOT SHOWN ON BOTH DRAWS: set A -0.06551 < 0; set B -0.02246 < 0  (set A -0.06551, set B -0.02246, the difference -0.04304; seats ratio 0.851)
+  EXPLORATORY the l02 field (pooled): -0.04461  [-0.08434, -0.00636]
+
+== STAR1 vs ARMED  [for his decision; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate -0.05760  [-0.11405, -0.00735] (two-sided 0.95)  seasons 2023 -0.03164, 2024 -0.08355
+  GUARD 1 mean entry pct -0.00402  one-sided lower -0.01474  (must exceed -0.015)
+  GUARD 2 expected big seats 0.43485 vs 0.53628  ratio 0.811  (must be >= 0.80)
+  STAR1 dealt identical to ARMED: 0.035 of slate-banks
+  ->  WORSE
+  set A [3012, 3013, 3014, 3015, 3016, 3017]: -0.06986  [-0.12756, -0.01489]  seasons 2023 -0.05243, 2024 -0.08730
+  set B [3018, 3019, 3020, 3021, 3022, 3023]: -0.04533  [-0.10989, +0.01175]  seasons 2023 -0.01086, 2024 -0.07981
+  TWO DRAWS: NOT SHOWN ON BOTH DRAWS: set A -0.06986 < 0; set B -0.04533 < 0  (set A -0.06986, set B -0.04533, the difference -0.02453; seats ratio 0.811)
+  EXPLORATORY the l02 field (pooled): -0.05651  [-0.11121, -0.00527]
+
+== SHRINK07_STAR1 vs ARMED  [for his decision; the calibrated field; 2023-24; POOLED over 12 banks]
+  PRIMARY P(>= 1 big seat) per slate -0.06665  [-0.12674, -0.00977] (two-sided 0.95)  seasons 2023 -0.04352, 2024 -0.08978
+  GUARD 1 mean entry pct -0.01572  one-sided lower -0.03016  (must exceed -0.015)
+  GUARD 2 expected big seats 0.40946 vs 0.53628  ratio 0.764  (must be >= 0.80)
+  SHRINK07_STAR1 dealt identical to ARMED: 0.000 of slate-banks
+  ->  WORSE
+  set A [3012, 3013, 3014, 3015, 3016, 3017]: -0.07710  [-0.15095, -0.00140]  seasons 2023 -0.07135, 2024 -0.08286
+  set B [3018, 3019, 3020, 3021, 3022, 3023]: -0.05620  [-0.12338, +0.00836]  seasons 2023 -0.01570, 2024 -0.09671
+  TWO DRAWS: NOT SHOWN ON BOTH DRAWS: set A -0.07710 < 0; set B -0.05620 < 0; the expected big seats ratio 0.764 < 0.80  (set A -0.07710, set B -0.05620, the difference -0.02090; seats ratio 0.764)
+  EXPLORATORY the l02 field (pooled): -0.07007  [-0.13180, -0.01089]
+
+
+== HIS S1 RULE (10-09, the gate he was given: better on both draws), SHRINK07 - ARMED: PAPER ONLY: draw A -0.06551 is not > 0; draw B -0.02246 is not > 0  |  guard 1 (mean entry pct, one-sided lower) -0.02698 (FAILS -0.015)  |  under no true effect about one time in four to one in three
+
+  ARMED row-rule solves re-solved without the rules: 0 of 11232; ownership-cap re-solves 0; over 432 slate-banks
+  SHRINK07 row-rule solves re-solved without the rules: 0 of 11232; ownership-cap re-solves 0; over 432 slate-banks
+  STAR1 row-rule solves re-solved without the rules: 568 of 11232; ownership-cap re-solves 0; over 432 slate-banks
+  SHRINK07_STAR1 row-rule solves re-solved without the rules: 565 of 11232; ownership-cap re-solves 0; over 432 slate-banks
+
+secondaries (pooled slate means; v2 = the calibrated field, l02 = the earlier field; the book's rows are pre-lock facts):
+  ARMED        v2: P(>=1 big) 0.37016  expected big seats 0.53628  P(>=2) 0.11795  entry pct 0.50650  |  l02: P(>=1 big) 0.40225
+               book: projection per row 124.69  salary 49972  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.5  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.19  predicted ownership per row 94.5%  distinct QBs 8.3  non-DST players 50.9  rows with 2+ TEs 0.0  low-owned per row 0.653  rows with a star 15.0  stars per row 0.68
+  SHRINK07     v2: P(>=1 big) 0.32618  expected big seats 0.45614  P(>=2) 0.09839  entry pct 0.49291  |  l02: P(>=1 big) 0.35764
+               book: projection per row 124.33  salary 49982  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.1  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.26  predicted ownership per row 92.6%  distinct QBs 8.1  non-DST players 51.7  rows with 2+ TEs 0.0  low-owned per row 0.614  rows with a star 12.9  stars per row 0.58
+  STAR1        v2: P(>=1 big) 0.31257  expected big seats 0.43485  P(>=2) 0.09378  entry pct 0.50248  |  l02: P(>=1 big) 0.34573
+               book: projection per row 124.08  salary 49971  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.5  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.22  predicted ownership per row 94.1%  distinct QBs 8.4  non-DST players 51.4  rows with 2+ TEs 0.8  low-owned per row 0.735  rows with a star 24.7  stars per row 1.01
+  SHRINK07_STAR1 v2: P(>=1 big) 0.30351  expected big seats 0.40946  P(>=2) 0.08030  entry pct 0.49077  |  l02: P(>=1 big) 0.33218
+               book: projection per row 123.72  salary 49981  QB + 2 rows 12.0  most-used skill player 9.0 rows of 26  over 30% 5.2  over 40% 0.0  over the ownership cap 0.0  deviation from the predicted field 4.29  predicted ownership per row 92.5%  distinct QBs 8.2  non-DST players 52.5  rows with 2+ TEs 1.0  low-owned per row 0.695  rows with a star 24.7  stars per row 0.98
+```
+
+**Reading.**
+- **His S1 rule: PAPER ONLY.** SHRINK07 − ARMED **−4.4 [−8.1, −0.7]** (A −6.6, B −2.2), WORSE; guard 1 fails; expected big seats
+  ×0.85. Shrinking the solver's projections toward the salary curve costs big-win slates on both draws.
+- **S2 (informational):** STAR1 **−5.8 [−11.4, −0.7]**, WORSE, seats ×0.81, with 5.1% of its solves falling back (which dilutes it
+  toward ARMED, so the true cost of the rule is if anything larger). It agrees with the replay's FAIL. Both together −6.7, seats ×0.76.
+- **Production:** neither goes live. Both are measured on Week 5's real fields as study 38 paper arms (amendment 6r:
+  MIXT_QA0_SHRINK07 and MIXT_QA0_STAR1, overall and by contest group).
+- **In plain words:** both suggestions made the book worse in the test model on two independent draws, and the star rule also
+  did worse in the replay of his real Week 4; neither goes live. They are scored on paper beside his book in Week 5.
