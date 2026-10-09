@@ -15,6 +15,7 @@ refuses two at once.
 | 73b | **Fewer two-pass-catcher lineups**: 6 of 26 instead of 12 (your preference) | +0.4 points, essentially zero; no harm on any check (expected big wins 99% of today's); 2022 +1.4 | **Your choice.** Neutral either way: study 56 found MORE of them neutral too (+1.8). Pick it if you prefer the variety; it costs nothing measurable |
 | 74 | **The full game stack in the top 4 games**: the QB, his top pass catcher and the other team's top receiver, 4 lineups (your question about study 71) | −2.9 points; 2023 flat, 2024 −5.9; about 8% fewer expected big wins; 2022 +2.1. "Enterable" (no harm shown, no gain shown) | **Off.** Every "forced top stack" version tonight (71, 71b, 73a, 74) came out at or below today's book |
 | 75 | **A wide receiver in the flex spot**, 8 lineups (the winners play a WR there about 30% of the time; your book about 4%) | +2.3 points, positive in both deciding seasons (2023 +1.6, 2024 +3.0); about 7% MORE expected big wins; but 2022 −1.1. **"Not entered"** by the frozen rule (the 2022 check leaned the other way); no gain shown either | **Not this week.** The best idea of the night to try next: a paper test on your own FP book (no money) from Week 6 — or Week 5 if you want it — because the harness could not show what the WR would replace in your real lineups |
+| 76 | **QB + 1 pass catcher with TWO players from the other team**, 4 lineups (the Week-4 winner's shape) | −1.4 points (2023 −2.9, 2024 flat); about 11% fewer expected big wins; 2022 +3.7. "Enterable" (no harm shown, no gain shown) | **Off.** The same picture as every forced-stack idea tonight |
 | — | *(filled in as the night's results land)* | | |
 
 ## The setup you are running (the default)
@@ -69,10 +70,13 @@ refuses two at once.
   - But the 2022 check came out −1.1, so the frozen rule says "not entered". The range also includes zero: no gain is shown.
   - In the test book the receiver mostly replaced a tight end in the flex. Your real book uses an RB there more often (42% vs about 19% in the test book), so what it would do to your lineups is untested.
   - **Recommended: not this week.** If you want it tested, the clean next step is a paper test on your own FP book, scored on the real contests (no money). The outside reviewer is preparing the switch tonight (off by default, not merged), so either week is possible.
+- **Study 76 (QB + 1 pass catcher with two players from the other team, 4 lineups; READ committed 23:08 CT):**
+  - −1.4 points on the deciding seasons (2023 −2.9, 2024 flat); about 11% fewer expected big wins; 2022 +3.7.
+  - It passes the rule ("enterable"), but there is no gain on the seasons that decide. **Recommended off.**
+  - Tonight's pattern again: every forced stack shape (71, 71b, 73a, 74, 76) came out at or below today's book on 2023–24 and above it on 2022.
 - **The outside reviewer's list, triaged by the reviewer:** flex mix (our flex is almost never a WR), QB + 1 with two opposing players, and a QB-alone lineup run tonight. "More TE in the flex" is skipped: we already use a TE flex more than the winners do.
 
 **Still running tonight** (each becomes a line above when its result is in; the outside reviewer designed them from what the 2026 Millionaire winners did differently from the field):
-- **76:** QB + 1 pass catcher with TWO players from the other team, 4 lineups (the Week-4 winner's shape).
 - **77:** the QB with no pass catcher of his own, 3 lineups (a shape the book never plays).
 - **78:** two players priced $8,000 or more in 8 lineups ("stars and scrubs", alongside the cheap-player boost).
 - **79:** at most one pass catcher per team in the QB + 1 lineups (no second same-team pair away from the QB).
