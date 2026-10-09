@@ -1,10 +1,12 @@
-# Preregistration: study 85, his whole-book price rules (TE ≤ $5,000, DST ≤ $3,000, exactly one WR ≤ $4,500, no TE in the flex), in the harness (DRAFT 2026-10-09)
+# Preregistration: study 85, his whole-book price rules (TE ≤ $5,000, DST ≤ $3,000, exactly one WR ≤ $4,500, no TE in the flex), in the harness (FROZEN 2026-10-09)
 
-**Status: DRAFT 2026-10-09 (06:24 CDT)** by the outside reviewer — **THE DESIGN IS COMMITTED BEFORE STUDY 84'S READ** (study 84
-is running on the same slates). The code and its shas follow; the reviewer reviews, runs the binding census and FREEZES; the
-laptop acks.
-- **Banks and seed:** the reviewer assigns them (proposed 1719–1724, seed 20261130; the laptop scans them and the derived bases
-  1769–1774 / 2419–2424 first).
+**Status: FROZEN 2026-10-09 (07:18 CDT)** by the reviewer, after the outside reviewer's DRAFT. THE DESIGN (`159907fc`, 06:24) was
+committed BEFORE study 84's READ, on 84's slates. Then the code shas, the smoke and the binding census (§6), all before any
+scored bank.
+- The text changed at the freeze in §6 only (the census).
+- The module and the reader are the DRAFT's, unchanged. The laptop acks.
+- **Banks 1719–1724, seed 20261130** (the reviewer's). The laptop scanned them, the derived bases 1769–1774 / 2419–2424 and the
+  seed clean; the only hits were self-references.
 - **Target:** after study 84's run.
 
 **Units:** probabilities, counts and rates only. Dollars stay in BigQuery and private files.
@@ -81,7 +83,18 @@ LIVE = 48d's 41 rows with the cheap +2 block through study 53's `block_term` / `
     come on top).
 - **The full-path smoke** (2024 W10, 2022 W6 scored on bank 1406): the reader exited 0 with 108 lines and 8 sections; only those
   were read.
-- **The binding (support) census:** the reviewer's, on all 53 slate-banks of bank 1406, before the freeze.
+- **The binding (support) census** (the reviewer's; outcome-blind; bank 1406; all 53 slate-banks of 2022–24; code
+  `658dd352` clean; 10 tests pass; lab `results/s85/CENSUS_s85_binding.txt` `227b4748…`, the raw mechanics rows
+  `census_mechanics_bank1406.jsonl` `38580f81…` with no outcome field, committed at `4a2318ee`):
+  - every arm is 41 rows within production's constraints, with 8 term rows and every row in the pool;
+  - pool per slate-bank (mean / min): DSTs ≤ $3,000 12.6 / 8; TEs ≤ $5,000 50.9 / 36, of which at exactly $5,000 0.4 / 0
+    (allowed by his wording; studies 81 / 84 banned them); WRs ≤ $4,500 70.8 / 40;
+  - 0 infeasible ruled solves in every arm (0 of 1,378 each);
+  - vacuity over LIVE_CB's 26 rows (rows breaking each rule): TE > $5k 7.5, DST > $3k 10.1, cheap WRs ≠ 1 12.3, a TE flex
+    15.2. His W4 FP book breaks them in 11 / 7 / 12 / 14 rows; all four are met by 5 of 26;
+  - BOOK85 meets all four on every row (flex WR 14.8 / TE 0 / RB 11.2); QB + TE rows 12.2 → 8.6; projection −0.80 per row
+    (his real book: the two bans alone −0.73); rows shared with LIVE_CB 0.7; dealt identical 0.000;
+  - each rule alone, projection: TE5000 −0.30, DST3000 −0.23, WR1CHEAP −0.22, FLEXNOTE −0.32.
 - **Code:** nfl2 `production/s85-price-book-20261009` @ `658dd352` (branched from study 84's `37365127`):
   - `experiments/s85_price_book.py` `4f752f8e…`;
   - `scripts/s85_drive.py` `f19857c8…`;
