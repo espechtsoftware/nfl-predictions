@@ -498,7 +498,8 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
              bring_back_top_wr_rows: int | None = None,
              qb_alone_rows: int = 0,
              one_catcher_rows: int = 0,
-             flex_wr_rows: int = 0) -> tuple[list[list[str]], list[str], dict, list[tuple[list[str], str]]]:
+             flex_wr_rows: int = 0,
+             no_te_above: int = 0) -> tuple[list[list[str]], list[str], dict, list[tuple[list[str], str]]]:
     """study 18's MIX book on the T-70 frame: cells solved largest first (ties: the earlier cell) through ONE shared state
     (banned lineups, the per-player exposure cap, the DST cap, <= max_shared with every earlier row); a cell row that cannot
     be solved passes to A1 (counted); then the rows are ordered by the entry-weighted interleave of the plan's weights.
@@ -652,7 +653,16 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
                  or cover_games or rs_rows):
         raise ValueError(f"flex_wr_rows {flex_wr_rows} needs 0 <= N <= k ({k}), the MIX portfolio, fill rr, no cover and no "
                          f"half-and-half (got portfolio {portfolio}, fill {fill}, cover {cover_games}, rs {rs_rows})")
-    bad_rules = row_rules_problem(qa_n, oc_n, fx_n, quotas, k, term_rows, bb_cells) if portfolio == "mix" else None
+    # study 81's NOTE5K_ALL (--mix-no-te-above SALARY; study 84's combo81; default 0 = off): every pool TE priced >= SALARY is
+    # banned on EVERY book solve (j < k; spares never), inside the ONE combined solve below; infeasible -> the cell's own rules
+    # with no bound and no ban, recorded.
+    te_n = int(no_te_above or 0)
+    te_ban = {p["id"] for p in pool if p["pos"] == "TE" and int(p.get("salary") or 0) >= te_n} if te_n else set()
+    te_state: dict = {"pending": None, "ruled": [], "plain": [], "used": 0}
+    if te_n and (int(no_te_above) != no_te_above or te_n < 0 or portfolio != "mix" or fill != "rr" or cover_games or rs_rows):
+        raise ValueError(f"no_te_above {no_te_above} needs a salary > 0, the MIX portfolio, fill rr, no cover and no half-and-half "
+                         f"(got portfolio {portfolio}, fill {fill}, cover {cover_games}, rs {rs_rows})")
+    bad_rules = row_rules_problem(qa_n, oc_n, fx_n, quotas, k, term_rows, bb_cells, te_n) if portfolio == "mix" else None
     if bad_rules:                                              # each rule alone as before, or exactly study 83's combination
         raise ValueError(bad_rules)
 
@@ -689,7 +699,8 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
         use_c0 = bool(qa_n) and name == MS_QA_FROM and j_now < k and qa_state["used"] < qa_n
         use_oc = bool(oc_n) and name in ONE_CATCHER_CELLS and j_now < k and oc_state["used"] < oc_n
         use_fx = bool(fx_n) and j_now < fx_n
-        if use_c0 or use_oc or use_fx:
+        use_te = bool(te_n) and j_now < k
+        if use_c0 or use_oc or use_fx or use_te:
             kw_r = dict(kw)
             if use_c0:
                 qa_state["used"] += 1
@@ -699,6 +710,9 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
             bounds = (list(oc_bounds) if use_oc else []) + ([(fx_wr, 4, 4)] if use_fx else [])
             if bounds:
                 kw_r["member_bounds"] = bounds
+            if use_te:
+                te_state["used"] += 1
+                kw_r["bans"] = set(kw_r.get("bans") or ()) | te_ban
             lu = optimize(use_pool, **kw_r)
             if lu is not None:
                 if use_c0:
@@ -707,6 +721,8 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
                     oc_state["pending"] = name
                 if use_fx:
                     fx_state["pending"] = name
+                if use_te:
+                    te_state["pending"] = name
                 return [str(p["id"]) for p in lu.players], float(sum(p.get(use_obj, p["proj"]) for p in lu.players)), None
             if use_c0:                                         # infeasible: the cell's own rules below, recorded once per rule
                 qa_state["plain"].append([MS_QA_FROM, j_now])
@@ -714,6 +730,8 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
                 oc_state["plain"].append([name, j_now])
             if use_fx:
                 fx_state["plain"].append([name, j_now])
+            if use_te:
+                te_state["plain"].append([name, j_now])
         fb = None
         if name in bb_cells and floor_open():
             lu = optimize(use_pool, interaction_floor_weights=bb_pairs, interaction_floor=1.0, **kw) if bb_pairs else None
@@ -741,6 +759,8 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
             oc_state["rows"].append({"cell": oc_state["pending"], "commit_index": len(prev) - 1, "row": row,
                                      "row_sha256": hashlib.sha256(",".join(row).encode()).hexdigest()})
             oc_state["pending"] = None
+        if te_state["pending"] is not None:                    # study 81's TE ban record (nothing when off)
+            te_state["ruled"].append([te_state["pending"], len(prev) - 1]); te_state["pending"] = None
         if fx_state["pending"] is not None:                    # the WR flex's record (nothing when off)
             fx_state["ruled"].append([fx_state["pending"], len(prev) - 1]); fx_state["pending"] = None
         if value is not None:
@@ -1006,6 +1026,12 @@ def mix_rows(t70: pd.DataFrame, exclude: set[str], k: int, max_shared: int, cap:
                                "ruled": oc_state["ruled"], "plain": oc_state["plain"], "ruled_rows": oc_state["rows"]}
     if fx_n:                                                   # the WR flex's receipt block (absent when off)
         meta["flex_wr"] = {"rows_cap": fx_n, "ruled": fx_state["ruled"], "plain": fx_state["plain"], "wr_ids_n": len(fx_wr)}
+    if te_n:                                                   # study 81's TE ban receipt block (absent when off)
+        if te_state["pending"] is not None or len(te_state["ruled"]) + len(te_state["plain"]) != te_state["used"]:
+            raise ValueError(f"NO TE ABOVE RECORD BROKEN: pending {te_state['pending']}, {te_state['used']} attempts, "
+                             f"{len(te_state['ruled'])} ruled + {len(te_state['plain'])} plain")
+        meta["no_te_above"] = {"salary": te_n, "banned_ids": sorted(te_ban), "banned_ids_n": len(te_ban),
+                               "ruled": te_state["ruled"], "plain": te_state["plain"]}
     return book, cell_of, meta, spare_rows
 
 
@@ -1182,22 +1208,30 @@ def one_catcher_max(quotas: list[float], k: int, term_rows: int = 0) -> int:
 
 
 COMBO_83 = {"qb_alone": 3, "flex_wr": 3}    # study 83's combination (the operator 10-09); one catcher = the B + C book rows
+TE_TESTED = 5000                            # study 84's TE price (study 81's NOTE5K_ALL)
 
 
 def row_rules_problem(qa: int, oc: int, fx: int, quotas: list[float], k: int, term_rows: int = 0,
-                      bb_cells: tuple = ()) -> str | None:
-    """The row rules together (study 83; the laptop's agreed format 10-09): any ONE of --mix-qb-alone-rows / --mix-one-catcher-
-    rows / --mix-flex-wr-rows alone, as each flag allows; TWO OR MORE only as exactly study 83's COMBO -- qb_alone 3, one
-    catcher = the B + C book rows (one_catcher_max; 14 at K 26), flex 3; and the WR flex never with study 71's floor
-    (untested together). None when allowed, else the reason."""
+                      bb_cells: tuple = (), te: int = 0) -> str | None:
+    """The row rules together (studies 83 / 84; the laptop's agreed formats 10-09): any ONE of --mix-qb-alone-rows /
+    --mix-one-catcher-rows / --mix-flex-wr-rows / --mix-no-te-above alone, as each flag allows; TWO OR MORE only as exactly a
+    tested set -- study 83's COMBO (qb_alone 3, one catcher = the B + C book rows (one_catcher_max; 14 at K 26), flex 3), and
+    study 84's: COMBO + no TE >= $5,000 (COMBO81), and no TE >= $5,000 with exactly ONE of those three (TE_C0 / TE_ONEPC /
+    TE_FLEX); the WR flex and the TE ban never with study 71's floor (untested together). None when allowed, else the reason."""
     if fx and bb_cells:
         return f"--mix-flex-wr-rows {fx} with --mix-bring-back-top-wr {list(bb_cells)}: untested together"
-    if sum(1 for v in (qa, oc, fx) if v) <= 1:
+    if te and bb_cells:
+        return f"--mix-no-te-above {te} with --mix-bring-back-top-wr {list(bb_cells)}: untested together"
+    if sum(1 for v in (qa, oc, fx, te) if v) <= 1:
         return None
-    want = (COMBO_83["qb_alone"], one_catcher_max(quotas, k, term_rows), COMBO_83["flex_wr"])
-    if (qa, oc, fx) != want:
-        return (f"the row rules together are allowed only as study 83's combination: --mix-qb-alone-rows {want[0]} "
-                f"--mix-one-catcher-rows {want[1]} --mix-flex-wr-rows {want[2]} (got {qa} / {oc} / {fx})")
+    ocm = one_catcher_max(quotas, k, term_rows)
+    q3, f3 = COMBO_83["qb_alone"], COMBO_83["flex_wr"]
+    tested = {(q3, ocm, f3, 0): "COMBO", (q3, ocm, f3, TE_TESTED): "COMBO81", (q3, 0, 0, TE_TESTED): "TE_C0",
+              (0, ocm, 0, TE_TESTED): "TE_ONEPC", (0, 0, f3, TE_TESTED): "TE_FLEX"}
+    if (qa, oc, fx, te) not in tested:
+        return (f"the row rules together are allowed only as a tested set (studies 83 / 84): "
+                f"{', '.join(f'{n} = {q} / {o} / {f} / {t}' for (q, o, f, t), n in tested.items())} "
+                f"(--mix-qb-alone-rows / --mix-one-catcher-rows / --mix-flex-wr-rows / --mix-no-te-above; got {qa} / {oc} / {fx} / {te})")
     return None
 
 
@@ -1251,6 +1285,24 @@ def parse_flex_wr_rows(n: int, main: str, portfolio: str | None, fill: str, cove
         raise SystemExit(f"--mix-flex-wr-rows {n}: 1 <= N <= --entries ({entries}), with --main mix --mix-portfolio mix --mix-fill rr "
                          f"and no cover / half-and-half (got main {main}, portfolio {portfolio}, fill {fill}, cover {cover}, rs {rs})")
     return int(n)
+
+
+def parse_no_te_above(n: int, main: str, portfolio: str | None, fill: str, cover: int, rs: int) -> int:
+    """--mix-no-te-above SALARY (study 81's NOTE5K_ALL, study 84): 0 = off; else a salary > 0 (5000 tested), with --main mix
+    --mix-portfolio mix --mix-fill rr and no --mix-cover-games / --mix-rs-rows. SystemExit otherwise."""
+    if n == 0:
+        return 0
+    if n < 0 or main != "mix" or portfolio != "mix" or fill != "rr" or cover or rs:
+        raise SystemExit(f"--mix-no-te-above {n}: a salary > 0, with --main mix --mix-portfolio mix --mix-fill rr and no cover / "
+                         f"half-and-half (got main {main}, portfolio {portfolio}, fill {fill}, cover {cover}, rs {rs})")
+    return int(n)
+
+
+def no_te_above_line(block: dict | None) -> str:
+    """Study 84's TE ban, one printed line."""
+    b = block or {}
+    return (f"NO TE ABOVE: ${b.get('salary')} ({b.get('banned_ids_n')} TEs banned on book rows); ruled {len(b.get('ruled') or [])}, "
+            f"plain {len(b.get('plain') or [])}")
 
 
 def flex_wr_line(block: dict | None) -> str:
@@ -1399,6 +1451,10 @@ def main(argv: list[str] | None = None) -> int:
                     help="study 71 (default empty = off): a comma list of MIX cells from A1,B whose rows hold the QB's opponent's "
                          "top receiver (the highest-salaried WR in the buildable pool; ties projection, then id) through the "
                          "optimizer's interaction floor; a solve the floor makes infeasible is built without it and recorded")
+    ap.add_argument("--mix-no-te-above", type=int, default=0,
+                    help="study 81's NOTE5K_ALL / study 84 (default 0 = off; 5000 tested): every pool TE priced >= SALARY is banned "
+                         "on every BOOK solve, inside the combined row-rule solve; an infeasible one is built at the cell's own "
+                         "rules and recorded; spares never. NOTE: on his W4 book it changed 24 of 26 rows at -0.76 FP per row")
     ap.add_argument("--mix-flex-wr-rows", type=int, default=0,
                     help="study 75's WR flex (default 0 = off): the first N BOOK solves in build order hold exactly 4 WRs "
                          "(member_bounds); an infeasible one is built plain and recorded; spares never")
@@ -1524,8 +1580,9 @@ def main(argv: list[str] | None = None) -> int:
                                   a.term_block_rows, bb_cells,
                                   {f"--{k.replace('_', '-')}": getattr(a, k, 0) for k in ("mix_top_game_qb1", "mix_top_game_stack")})
     fx_g = parse_flex_wr_rows(a.mix_flex_wr_rows, a.main, a.mix_portfolio, a.mix_fill, a.mix_cover_games, a.mix_rs_rows, a.entries)
+    te_g = parse_no_te_above(a.mix_no_te_above, a.main, a.mix_portfolio, a.mix_fill, a.mix_cover_games, a.mix_rs_rows)
     bad_rules = row_rules_problem(qa_g, oc_g, fx_g, [cell_quotas[n] if cell_quotas else c[0] for n, c in MIX_CELLS.items()],
-                                  a.entries, a.term_block_rows, bb_cells)
+                                  a.entries, a.term_block_rows, bb_cells, te_g)
     if bad_rules:
         raise SystemExit(bad_rules)
     if a.main == "mix" and (a.mix_plan is None or not a.mix_plan.is_file()):
@@ -1677,7 +1734,7 @@ def main(argv: list[str] | None = None) -> int:
                                                                        term_rows=term_rows, term_bonus=term_bonus,
                                                                        cell_quotas=cell_quotas, bring_back_top_wr=bb_cells,
                                                                        bring_back_top_wr_rows=bb_rows, qb_alone_rows=qa_g,
-                                                                       one_catcher_rows=oc_g, flex_wr_rows=fx_g)
+                                                                       one_catcher_rows=oc_g, flex_wr_rows=fx_g, no_te_above=te_g)
             if bb_cells:
                 print(bring_back_top_wr_line(mix_meta.get("bring_back_top_wr")), flush=True)
             if qa_g:
@@ -1686,6 +1743,8 @@ def main(argv: list[str] | None = None) -> int:
                 print(one_catcher_line(mix_meta.get("one_catcher")), flush=True)
             if fx_g:
                 print(flex_wr_line(mix_meta.get("flex_wr")), flush=True)
+            if te_g:
+                print(no_te_above_line(mix_meta.get("no_te_above")), flush=True)
             if a.term_block_rows:
                 mix_meta["term_source"] = term_src
             spare_rows = plain_spares
@@ -1727,7 +1786,7 @@ def main(argv: list[str] | None = None) -> int:
                                                                       cover_games=a.mix_cover_games, rs_rows=a.mix_rs_rows,
                                                                       cell_quotas=cell_quotas, bring_back_top_wr=bb_cells,
                                                                       bring_back_top_wr_rows=bb_rows, qb_alone_rows=qa_g,
-                                                                      one_catcher_rows=oc_g, flex_wr_rows=fx_g)
+                                                                      one_catcher_rows=oc_g, flex_wr_rows=fx_g, no_te_above=te_g)
                 main_tags = [TAG_PREFIX + c for c in main_cells]; mix_meta["with_term"] = own_mix
                 if qa_g:
                     print("(the ownership-term book) " + qb_alone_line(own_mix.get("qb_alone")), flush=True)
@@ -1735,6 +1794,8 @@ def main(argv: list[str] | None = None) -> int:
                     print("(the ownership-term book) " + one_catcher_line(own_mix.get("one_catcher")), flush=True)
                 if fx_g:
                     print("(the ownership-term book) " + flex_wr_line(own_mix.get("flex_wr")), flush=True)
+                if te_g:
+                    print("(the ownership-term book) " + no_te_above_line(own_mix.get("no_te_above")), flush=True)
                 if bb_cells:
                     print("(the ownership-term book) " + bring_back_top_wr_line(own_mix.get("bring_back_top_wr")), flush=True)
             else:

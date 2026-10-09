@@ -436,6 +436,19 @@ def audit(run: Path, contests: list[dict], *, layout: str, expect_selector: str 
                              f"{len(fx.get('plain') or [])}") if fx else "--mix-flex-wr-rows off",
            rows_cap=(fx or {}).get("rows_cap", 0), ruled=len((fx or {}).get("ruled") or []), plain=len((fx or {}).get("plain") or []))
 
+    # ---- no_te_above (study 84's --mix-no-te-above): no main row holds a TE priced >= SALARY, except as many as the receipt's
+    # recorded plain (infeasible) solves; "off" when absent
+    nt = (_mx.get("with_term") or {}).get("no_te_above") or _mx.get("no_te_above")
+    n_hit = 0
+    if nt and uni and uni.get("main") == "mix" and "book_rank" in cands.columns:
+        lim = int(nt.get("salary") or 0)
+        for c in cands[cands["book_rank"].notna() & (cands["book_rank"] <= k_mean)]["players"]:
+            n_hit += any(pos.get(i) == "TE" and float(sal.get(i) or 0) >= lim for i in _players_of(c))
+    n_plain = len((nt or {}).get("plain") or [])
+    record("no_te_above", n_hit <= n_plain, (f"--mix-no-te-above {nt.get('salary')}: {n_hit} main rows hold a TE at or above it "
+                                             f"(plain solves {n_plain}); ruled {len(nt.get('ruled') or [])}") if nt else "--mix-no-te-above off",
+           salary=(nt or {}).get("salary", 0), rows_with_te=n_hit, plain=n_plain)
+
     failed = [c["check"] for c in checks if not c["ok"]]
     return {"run": str(run), "layout": layout, "checks": checks, "failed": failed, "ok": not failed}
 

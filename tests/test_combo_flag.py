@@ -145,7 +145,7 @@ def test_the_rules_together_only_as_study_83s_combination(qa, oc, fx, ok):
     got = ur.row_rules_problem(qa, oc, fx, Q, 26, 8)
     assert (got is None) == ok
     if not ok:
-        assert "study 83's combination: --mix-qb-alone-rows 3 --mix-one-catcher-rows 14 --mix-flex-wr-rows 3" in got
+        assert "allowed only as a tested set" in got and "COMBO = 3 / 14 / 3 / 0" in got
 
 
 def test_the_flex_never_with_study_71s_floor():
@@ -155,14 +155,14 @@ def test_the_flex_never_with_study_71s_floor():
 
 def test_mix_rows_refuses_another_combination(monkeypatch):
     T71._install(monkeypatch, [])
-    with pytest.raises(ValueError, match="study 83's combination"):
+    with pytest.raises(ValueError, match="allowed only as a tested set"):
         ur.mix_rows(frame(), set(), 26, 4, 4, 49_000, W, fill="rr", spares=0, qb_alone_rows=3, flex_wr_rows=3)
 
 
 def test_the_cli_checks_the_combination():
     src = (ROOT / "scripts" / "union_reselect.py").read_text()
     assert "bad_rules = row_rules_problem(qa_g, oc_g, fx_g," in src and "raise SystemExit(bad_rules)" in src
-    assert src.count("qb_alone_rows=qa_g,") == 2 and src.count("one_catcher_rows=oc_g, flex_wr_rows=fx_g)") == 2
+    assert src.count("qb_alone_rows=qa_g,") == 2 and src.count("one_catcher_rows=oc_g, flex_wr_rows=fx_g, no_te_above=te_g)") == 2
 
 
 def test_the_combined_solve_is_one_call(monkeypatch):
