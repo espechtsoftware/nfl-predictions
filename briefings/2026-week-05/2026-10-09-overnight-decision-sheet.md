@@ -5,10 +5,21 @@ test. **Every result below was read by the reviewer and re-run by the laptop wit
 
 ## What you decide this morning
 
-The book is ready as it stands. That is the default, and nothing below changes it unless you say so. Each item below is
-an option you can switch on at Saturday's arming. The reviewer advises **one new construction change a week** (so Monday
-can tell what helped); that is advice, and you decide. The arming script refuses two changes at once unless you say so,
-and then the override is recorded.
+The book is ready as it stands. That is the default, and nothing changes unless you say so. **Two decisions:**
+
+1. **One more lineup change this week, or none?** The best candidate from tonight is **77: the quarterback alone in 3 lineups.**
+   - +1.8 points, positive in both deciding seasons, about 4% more expected big wins, no projection cost. Not proven: the range runs from −1.8 to +5.4.
+   - Checked on your real Week-5-style book (Week 4's inputs, no scores looked at): its 3 lineups land in big-contest seats, exactly as in the test.
+   - The reviewer recommends it, and I agree it is a fair, reversible trial. It would be a second change this week (the cheap block is the first), so Monday could not tell which one helped.
+   - **Your choices:** (a) 77 this week; (b) nothing new this week, 77 in Week 6; (c) 73b instead (fewer two-pass-catcher lineups; neutral, your preference). Pick at most one.
+   - 79 is no longer a candidate: on your real book, its 8-lineup version changed nothing.
+2. **A no-money paper test of 75 (a receiver in the flex)?** It was the night's best lean but "not entered" by the rule. A paper test builds it beside your real book and scores it on the real contests on Monday, never entered. Week 5 (the switch is merged before Friday's code freeze and the paper study amended before Sunday's lock), Week 6, or no.
+
+Everything else from tonight: off.
+
+The reviewer advises **one new construction change a week** (so Monday can tell what helped); that is advice, and you decide. The arming script refuses two changes at once unless you say so, and then the override is recorded.
+
+### Every test tonight, in one table
 
 | # | Option (what it does) | Result | Recommendation |
 |---|---|---|---|
@@ -17,9 +28,9 @@ and then the override is recorded.
 | 74 | **The full game stack in the top 4 games**: the QB, his top pass catcher and the other team's top receiver, 4 lineups (your question about study 71) | −2.9 points; 2023 flat, 2024 −5.9; about 8% fewer expected big wins; 2022 +2.1. "Enterable" (no harm shown, no gain shown) | **Off.** Every "forced top stack" version tonight (71, 71b, 73a, 74) came out at or below today's book |
 | 75 | **A wide receiver in the flex spot**, 8 lineups (the winners play a WR there about 30% of the time; your book about 4%) | +2.3 points, positive in both deciding seasons (2023 +1.6, 2024 +3.0); about 7% MORE expected big wins; but 2022 −1.1. **"Not entered"** by the frozen rule (the 2022 check leaned the other way); no gain shown either | **Not this week.** The best idea of the night to try next: a paper test on your own FP book (no money) from Week 6 — or Week 5 if you want it — because only a real-contest test can show whether it pays in your actual lineups |
 | 76 | **QB + 1 pass catcher with TWO players from the other team**, 4 lineups (the Week-4 winner's shape) | −1.4 points (2023 −2.9, 2024 flat); about 11% fewer expected big wins; 2022 +3.7. "Enterable" (no harm shown, no gain shown) | **Off.** The same picture as every forced-stack idea tonight |
-| 77 | **The quarterback alone in 3 lineups** (no receiver or tight end from his team; the winners play this shape in about 8% of top-1% lineups, your book in none) | +1.8 points; positive in both deciding seasons (2023 +1.4, 2024 +2.3) and flat on 2022 (+0.2); about 4% MORE expected big wins; no projection cost. "Enterable". Not a proven gain (the range runs from −1.8 to +5.4) | **The best result of the night. The reviewer recommends a 3-lineup trial this week, on top of the cheap block**, if its switch is built, tested and clean in Friday's rehearsal; otherwise Week 6. **Your call: it would be a second change this week** (the cheap block is the first), so Monday could not tell which one helped or hurt. I agree it is a fair trial: it adds the one winners' shape your book never plays, at about their rate |
+| 77 | **The quarterback alone in 3 lineups** (no receiver or tight end from his team; the winners play this shape in about 8% of top-1% lineups, your book in none) | +1.8 points; positive in both deciding seasons (2023 +1.4, 2024 +2.3) and flat on 2022 (+0.2); about 4% MORE expected big wins; no projection cost. "Enterable". Not a proven gain (the range runs from −1.8 to +5.4) | **The best result of the night. The reviewer recommends a 3-lineup trial this week, on top of the cheap block**, if its switch is built, tested and clean in Friday's rehearsal; otherwise Week 6. **Your call: it would be a second change this week** (the cheap block is the first), so Monday could not tell which one helped or hurt. I agree it is a fair trial: it adds the one winners' shape your book never plays, at about their rate. Checked on your real book: its 3 lineups land in big-contest seats |
 | 78 | **Two players priced $8,000 or more in 8 lineups** ("stars and scrubs", alongside the cheap-player boost) | +1.8 points but mixed: 2023 −0.8, 2024 +4.5; about 9% more expected big wins on 2023–24 but 4% fewer on 2022; its average finishing position got worse (a safety check failed); costs 0.3 projected points per lineup. "Enterable" | **Off.** If you want one change from tonight, 77 is the better candidate |
-| 79 | **At most one receiver / tight end per team in the QB + 1 lineups**, 8 lineups (no second same-team pair away from the QB; the winners rarely do it, your book in about a quarter of lineups) | +2.0 points (2023 +0.2, 2024 +3.8; 2022 +1.3). Raises the chance of at least one big win (34% vs 32%) without raising the expected number of wins: it spreads the book. No projection cost; a small dose (about 2 of the 8 lineups change directly). "Enterable"; not a proven gain | **A close second to 77** (the reviewer's ranking). Reasonable; combining it with 77 is untested |
+| 79 | **At most one receiver / tight end per team in the QB + 1 lineups**, 8 lineups (no second same-team pair away from the QB; the winners rarely do it, your book in about a quarter of lineups) | +2.0 points (2023 +0.2, 2024 +3.8; 2022 +1.3). Raises the chance of at least one big win (34% vs 32%) without raising the expected number of wins. "Enterable". **But on your real Week-4 book the 8-lineup version changed nothing:** your same-team pairs come in later lineups. Only the all-lineup version (a side test, never the decision) would change it | **Not now** (corrected after the check; the reviewer agrees). A paper test of the all-lineup version is the honest next step |
 | 80 | **The underdog's quarterback from a top-4 game in 8 lineups** (the top 1% take that QB more often than the field) | −0.4 points (flat), about 17% fewer expected big wins, a safety check failed, and clearly worse on 2022 (−4.3). **"Not entered"**. Forcing the favourite's quarterback instead was worse still (−3.8) | **Off.** Leave the book's own quarterback choice alone |
 
 ## The setup you are running (the default)
@@ -94,7 +105,7 @@ and then the override is recorded.
   - +2.0 points on the deciding seasons, but almost all from 2024 (+3.8); 2023 was flat (+0.2). 2022 +1.3.
   - It raises the chance of at least one big win (34% against 32%) while the expected number of big wins stays the same: it spreads the book, which fits your "one big win" goal.
   - No projection cost. A small dose: the rule changes about 2 of the 8 lineups directly; the rule would change about as many of your real lineups.
-  - **The reviewer ranks it a close second to 77.** Neither is proven; using both at once has not been tested.
+  - ~~The reviewer ranks it a close second to 77.~~ **Corrected at 01:50:** we ran the switch on your real Week-5-style book (Week 4's inputs). The 8-lineup version changed nothing: the lineups with a same-team pair in your book come from later builds that the rule never reaches. Only the all-lineup version would change your book (7 such lineups down to 1), and that version was only a side test. **Not now**; a paper test is the honest next step.
 - **Study 80 (the underdog's quarterback from a top-4 game in 8 lineups; READ committed 01:46 CT, the night's last):**
   - Flat on the deciding seasons (−0.4), but about 17% fewer expected big wins, and −4.3 on 2022: "not entered".
   - Forcing the favourite's quarterback instead (the other half of the test) was worse: −3.8.
